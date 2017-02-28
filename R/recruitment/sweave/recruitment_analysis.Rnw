@@ -1,0 +1,1959 @@
+\documentclass[pdftex,11pt,a4paper]{report}
+\usepackage[pdftex]{graphicx}
+\usepackage[latin1]{inputenc} %encodage du fichier source
+%\usepackage[T1]{fontenc}  %gestion des accents (pour les pdf) 
+%\usepackage[swedish]{babel}
+\usepackage{Sweave}
+\usepackage{float}
+\usepackage[left=3cm, right=3cm, top=2cm, bottom=2cm]{geometry}
+\usepackage{pdflscape}% to rotate the table
+\geometry{dvips,a4paper,hmargin=2.5cm,vmargin=2.5cm}
+\setcounter{secnumdepth}{10}
+\usepackage{hyperref} %gestion des hyperliens
+%\hypersetup{pdfstartview=XYZ} %zoom par défaut
+\hypersetup{
+     backref=true,    %permet d'ajouter des liens dans...
+     pagebackref=true,%...les bibliographies
+     hyperindex=true, %ajoute des liens dans les index.
+     colorlinks=true, %colorise les liens
+     breaklinks=true, %permet le retour à la ligne dans les liens trop longs
+     urlcolor= blue,  %couleur des hyperliens
+     linkcolor= blue, %couleur des liens internes
+     bookmarks=true,  %créé des signets pour Acrobat
+     bookmarksopen=true,            %si les signets Acrobat sont créés,
+                                    %les afficher complètement.
+     pdftitle={WGEEL recruitment analysis output}, %informations apparaissant dans
+     pdfauthor={Cédric Briand},     %dans les informations du document
+     pdfsubject={Glass eel recruitment}          %sous Acrobat
+     pdfkeywords={Glass eel, WGEEL, recruitment, time-series, ICES}
+}
+\usepackage{wrapfig}
+\usepackage{tabularx}
+\usepackage{longtable}
+\usepackage[table,usenames,dvipsnames]{xcolor}
+\newcolumntype{R}{>{\raggedleft\arraybackslash}X}
+\newcolumntype{L}{>{\raggedright\arraybackslash}X}
+\graphicspath{{../../wgeeldata/sweave/2016/image/}} 
+% FAIRE UN RECHERCHER REMPLACER DE F:/workspace/wgeeldata/sweave/2016/table et remplacer par F:/workspace/wgeeldata/sweave/2016/table
+%
+%\makeatletter
+% \def\input@path{{F:/workspace/wgeeldata/sweave/image}{F:/workspace/wgeeldata/sweave/table}}
+%\makeatother
+%to be updated !!!!
+\begin{document}
+\bibliographystyle{plain}
+\title{ Analysis of recruitment trend}
+\author{EIFAAC/ICES/GFCM Working Group on Eel}
+\date\today
+\maketitle
+\newpage
+\tableofcontents
+\subsection*{}
+%\addtocounter{chapter}{3} % this will set initial chapter counter to 
+%==========================================
+%==========================================
+\chapter{Data and trends in glass and yellow eel recruitment indices}
+This chapter addresses the latest trends in glass and yellow eel
+indices and produce the first draft of the ICES eel advice.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%************************************************************************************
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+<<init, eval=TRUE,echo=FALSE,results=hide>>=
+# Password are stored in R/etc/Rprofile.site
+CY<-2016 # current year ==> don't forget to update the graphics path above
+opt_calculation="geomean" # geomean or mean
+# option for calculating the average in model of glass eel graph and prediction
+
+
+options(width=90)
+require(RODBC)
+require(mgcv)
+require(car)
+require(ggplot2)
+require(reshape)
+require(stacomirtools)
+require(stringr)
+require(Hmisc)
+require(xtable)
+require(grid)
+require('sqldf') # mimict sql queries in a data.frame #citation("sqldf")
+require('RPostgreSQL') # one can use RODBC, here I'm using direct connection via the sqldf package
+
+
+getUsername <- function(){
+	name <- Sys.info()[["user"]]
+	return(name)
+}
+if(getUsername() == 'cedric.briand')
+{
+	# I have two password in the R.site of c:/program files/R... so I don't need no prompt
+	password<-passworddistant
+	baseODBC=c("wgeel_distant","postgres",passworddistant) #"w3.eptb-vilaine.fr" "localhost" "wgeel" "wgeel_distant" 
+	options(sqldf.RPostgreSQL.user = "postgres", 
+			sqldf.RPostgreSQL.password = passworddistant,
+			sqldf.RPostgreSQL.dbname = "wgeel",
+			sqldf.RPostgreSQL.host = "w3.eptb-vilaine.fr", # "localhost"
+			sqldf.RPostgreSQL.port = 5432)
+	setwd("F:/workspace/wgeel/sweave")
+	wd<-getwd()
+	wddata<-gsub("wgeel","wgeeldata",wd)
+	datawd<-str_c(wddata,"/",CY,"/data")
+	imgwd<-str_c(wddata,"/",CY,"/image")
+	tabwd<-str_c(wddata,"/",CY,"/table")
+	shpwd=str_c("F:/workspace/wgeeldata/shp") 
+}
+if(getUsername() == 'lbeaulaton')
+{
+	password <- function(prompt = "Password:"){
+		cat(prompt)
+		pass <- system('stty -echo && read ff && stty echo && echo $ff && ff=""',
+				intern=TRUE)
+		cat('\n')
+		invisible(pass)
+	} 
+	if (!exists("password"))  { 
+		password<-getpassword()
+	}
+	baseODBC=c("wgeel","postgres",password)
+	options(sqldf.RPostgreSQL.user = "postgres", 
+			sqldf.RPostgreSQL.password = password,
+			sqldf.RPostgreSQL.dbname = "wgeel",
+			sqldf.RPostgreSQL.host = "w3.eptb-vilaine.fr", 
+			sqldf.RPostgreSQL.port = 5432)
+	setwd("E:/Mes documents/Mes dossiers/eclipse workspace/projets/wgeel_cb/sweave")
+	wd<-getwd()
+	datawd<-str_c(wddata,"/",CY,"/data")
+	imgwd<-str_c(wddata,"/",CY,"/image")
+	tabwd<-str_c(wddata,"/",CY,"/table")
+	shpwd=str_c(wddata,"/wgeel2013/emu") 
+	shpwd="E:/Mes documents/Mes dossiers/eclipse workspace/projets/wgeel_cb/wgeel2013/emu" # where I store the shape file
+}
+
+if(getUsername() == 'EDIAZ')
+{
+	getpassword<-function(){  
+		require(tcltk);  
+		wnd<-tktoplevel();tclVar("")->passVar;  
+		#Label  
+		tkgrid(tklabel(wnd,text="Enter password:"));  
+		#Password box  
+		tkgrid(tkentry(wnd,textvariable=passVar,show="*")->passBox);  
+		#Hitting return will also submit password  
+		tkbind(passBox,"<Return>",function() tkdestroy(wnd));  
+		#OK button  
+		tkgrid(tkbutton(wnd,text="OK",command=function() tkdestroy(wnd)));  
+		#Wait for user to click OK  
+		tkwait.window(wnd);  
+		password<-tclvalue(passVar);  
+		return(password);  
+	}  
+	if (!exists("password"))  { 
+		password<-getpassword()
+	}
+	baseODBC=c("wgeel","postgres",password)
+	options(sqldf.RPostgreSQL.user = "postgres", 
+			sqldf.RPostgreSQL.password = password,
+			sqldf.RPostgreSQL.dbname = "wgeel",
+			sqldf.RPostgreSQL.host = "w3.eptb-vilaine.fr", 
+			sqldf.RPostgreSQL.port = 5432)
+	setwd("C:/Users/ediaz/workspace/wgeel/sweave")
+	wd<-getwd()
+	wddata<-gsub("wgeel","wgeeldata",wd) # replacing the path to wgeel by wgeeldata ...
+	
+	datawd<-str_c(wddata,"/",CY,"/data")
+	imgwd<-str_c(wddata,"/",CY,"/image")
+	tabwd<-str_c(wddata,"/",CY,"/table")
+	shpwd=str_c(wddata,"/wgeel2013/emu") 
+}
+sanitizeLatexS <- function(str) {
+	gsub('([#$%&~_\\^\\\\{}])', '\\\\\\\\\\1', str, perl = TRUE);
+}
+sn <- function(x,scientific=FALSE,digits=0)
+{
+	if (class(x)=="character") {                
+		warning("sn appliqué a un character")
+		return(x)
+	}
+	if (length(x)==0) {                
+		warning("sn length 0")
+		return("???")
+	}
+	if (x==0) return("0")
+	ord <- floor(log(abs(x),10))
+	if (scientific==FALSE&ord<9){
+		if (digits==0) {
+			digits=max(1,ord) # digits must be >0
+			nsmall=0
+		}else {
+			nsmall=digits
+		}
+		x<-format(x,big.mark="~",small.mark="~",digits=digits,nsmall=nsmall)
+		return(str_c("$",as.character(x),"$"))                
+	} else {
+		x <- x / 10^ord
+		if (!missing(digits)) x <- format(x,digits=digits)
+		if (ord==0) return(as.character(x))
+		return(str_c("$",x,"\\\\times 10^{",ord,"}$"))
+	}
+}
+theme_black <- function (base_size = 12,base_family=""){
+	theme_grey(base_size=base_size,base_family=base_family) %+replace%
+			theme(
+					axis.line = element_blank(), 
+					axis.text.x = element_text(size = base_size * 0.8, colour = 'white', lineheight = 0.9, vjust = 1, margin=margin(0.5,0.5,0.5,0.5,"lines")), 
+					axis.text.y = element_text(size = base_size * 0.8, colour = 'white', lineheight = 0.9, hjust = 1, margin=margin(0.5,0.5,0.5,0.5,"lines")), 
+					axis.ticks = element_line(colour = "white", size = 0.2), 
+					axis.title.x = element_text(size = base_size, colour = 'white', vjust = 1), 
+					axis.title.y = element_text(size = base_size, colour = 'white', angle = 90, vjust = 0.5), 
+					axis.ticks.length = unit(0.3, "lines"), 
+					
+					
+					legend.background = element_rect(colour = NA, fill = 'black'), 
+					legend.key = element_rect(colour = NA, fill = 'black'), 
+					legend.key.size = unit(1.2, "lines"), 
+					legend.key.height = NULL, 
+					legend.key.width = NULL,     
+					legend.text = element_text(size = base_size * 0.8, colour = 'white'), 
+					legend.title = element_text(size = base_size * 0.8, face = "bold", hjust = 0, colour = 'white'), 
+					#legend.position = c(0.85,0.6), 
+					legend.text.align = NULL, 
+					legend.title.align = NULL, 
+					legend.direction = "vertical", 
+					legend.box = NULL,    
+					
+					panel.background = element_rect(fill = "black", colour = NA), 
+					panel.border = element_rect(fill = NA, colour = "white"), 
+					panel.grid.major = element_blank(), 
+					panel.grid.minor = element_blank(), 
+					panel.margin = unit(0.25, "lines"), 
+					
+					strip.background = element_rect(fill = "grey30", colour = "grey10"), 
+					strip.text.x = element_text(size = base_size * 0.8, colour = 'white'), 
+					strip.text.y = element_text(size = base_size * 0.8, colour = 'white', angle = -90), 
+					
+					plot.background = element_rect(colour = 'black', fill = 'black'), 
+					plot.title = element_text(size = base_size * 1.2, colour = "white"), 
+					plot.margin = unit(c(1, 1, 0.5, 0.5), "lines")
+			)
+}
+geomean=function(x){
+	x<-x[!is.na(x)]
+	n=length(log(x)[!is.infinite(log(x))&!is.na(log(x))])
+	return(data.frame("y"=exp(sum(log(x)[!is.infinite(log(x))&!is.na(log(x))])/n)))
+}
+graphics.off() # close all graphics devices
+vv<-list()
+@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%************************************************************************************
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+<<load_database, echo=FALSE, fig=FALSE, eval=TRUE,results=hide>>=
+query=new("RequeteODBC")
+# cedric change 2011 SGIPEE the recruitment series of standing stock from den Burg is removed from analysis.
+# 16 juin 2011 changed from left join to inner join on second line, so now avoiding the yellow eel series from Den Burg
+query@sql="select t_location_loc.*,t_recruitment_rec.* from 
+		ts.t_location_loc 	INNER JOIN ts.t_recruitment_rec on t_recruitment_rec.rec_loc_id=t_location_loc.loc_id"
+
+#removing seEA
+query=connect(query)
+R_stations=query@query
+
+
+query=new("RequeteODBC")
+# cedric change 2011 SGIPEE the recruitment series of standing stock from den Burg is removed from analysis.
+# 16 juin 2011 changed from left join to inner join on second line, so now avoiding the yellow eel series from Den Burg
+query@sql="SELECT t_data_dat.*, t_location_loc.*,t_recruitment_rec.* FROM ts.t_data_dat    
+		LEFT JOIN ts.t_location_loc ON t_data_dat.dat_loc_id = t_location_loc.loc_id
+		INNER JOIN ts.t_recruitment_rec on t_recruitment_rec.rec_loc_id=t_location_loc.loc_id 
+		WHERE  dat_class_id =1" 
+#removing seEA
+# 2012 change, there are NA introduced so added dat_value is not null
+query=connect(query)
+R_data_init=query@query
+R_data_init<-chnames(R_data_init,c("dat_id","dat_value","dat_class_id","dat_loc_id","dat_year","dat_stage","dat_comment",
+				"loc_id","loc_name","loc_upper","loc_comment","loc_x","loc_y","loc_tyl_code","loc_area","loc_country","the_geom",
+				"rec_loc_id","rec_river","rec_location","rec_samplingtype","rec_remark","rec_order","rec_unit","rec_lfs_name","rec_nameshort","rec_namelong"),
+		c("id","data","class_id","site_id","year","lifestage","dat_comment",
+				"loc_id","name","upper","loc_comment","latitude","longitude","tyl_code","area","country","the_geom",
+				"loc_id_bis","river","location","sampling_type","remark","order","unit","lfs_name","nam","namelong"))
+
+#sql command
+#drop view if exists ts.series_stats;
+#create view ts.series_stats as(
+#		select loc_id,loc_name,rec_nameshort  as nam, min(dat_year),max(dat_year), max(dat_year)-min(dat_year)+1 as duration,
+#		max(dat_year)-min(dat_year)+1-count(*) as missing from ts.t_location_loc join ts.t_data_dat on loc_id=dat_loc_id
+#join ts.t_recruitment_rec on rec_loc_id=loc_id
+#group by loc_id,loc_name, nam
+#order by loc_name);
+# a view series_stat stores some summary of the data
+#query=new("RequeteODBC")
+#query@sql="select * from ts.series_stats"
+#query=connect(query)
+#statseries=query@query
+############################################################################
+#Constructing dummy variables and dividing each series by it's mean value
+###############################################################################
+
+R_data_init$decade=factor(trunc(R_data_init$year/5)*5)
+R_data_init$year_f=factor(R_data_init$year)
+R_data_init$decade=factor(R_data_init$decade,level=sort(unique(as.numeric(as.character(R_data_init$decade)))))
+R_data_init$ldata=log(R_data_init$data)
+R_data_init$geo<-R_data_init$area # saving old values for area
+R_data_init[R_data_init$area%in%c("Atlantic Ocean","Baltic","British Isle","Mediterranean Sea"),"area"]<-"Elsewhere Europe"
+R_data_init$area<-as.factor(R_data_init$area)
+R_data_init$sampling_type=as.factor(R_data_init$sampling_type)
+R_data_init$lifestage=as.factor(R_data_init$lifestage)
+
+statseries<-sqldf("select * from ts.series_summary")
+save(R_data_init,R_stations,file=str_c(datawd,"/R_data.Rdata"))
+save(statseries,file=str_c(datawd,"/statseries.Rdata"))
+
+# IN this chunk everything will be loaded. The data selection is made tranparently in select_series
+@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%************************************************************************************
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+<< load_rdata, echo=FALSE, fig=FALSE, eval=TRUE >>=
+# In this rchunk we load the data even if there is no connection to the database
+load(file=str_c(datawd,"/R_data.Rdata"))
+load(file=str_c(datawd,"/statseries.Rdata"))
+R_data<-R_data_init
+
+@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%************************************************************************************
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+<< select_series, echo=FALSE, fig=FALSE, eval=TRUE >>=
+#########################################################################
+#We no longer want to use Severn HRMC 
+##########################################################################
+# Comments from Alan : the HMRC dataset is based on a guesstimate of distribution
+#of nett trade data between glass vs yellow/silver until about 2008 and then much better
+#EA sales data in more recent years  so a mix of two methods of collecting data,
+#one of which is of uncertain quality. The Severn EA dataset is the catches reported 
+#by fishermen  we know there was under reporting in old years but it is better now, 
+#so there are quality issues too but at least the data source is consistent over time
+## HMRC is loc_id 8
+## three data sets have been loaded utill now 
+#R_data and R_data_init (the two are equivalent at this stage)
+# and statseries
+vv$nb_series_init<-length(unique(R_data_init$nam)) # this is the true number at the beginning
+R_data<-R_data[R_data$loc_id!=8,]
+statseries<-statseries[statseries$code!='SeHM',]
+
+
+#########################################################################
+#standardizing with 2000-2010
+##########################################################################
+mdata=R_data[R_data$year>=2000 & R_data$year<2010,]
+std_nam<-unique(mdata$nam[order(mdata$nam)])
+# length(std_nam) # 45
+nam<-unique(R_data$nam[order(R_data$nam)])
+# length(nam) #49
+unused_series = nam[!nam%in%std_nam] # "Vida" "YFS1"
+vv$sc_2000_2009_unused_series<-unused_series
+vv$sc_2000_2009_nb<-vv$nb_series_init-length(vv$sc_2000_2009_unused_series)
+#add a column to R_station for flagging unused series
+R_stations$unused = FALSE
+R_stations[R_stations$rec_nameshort %in% unused_series, "unused"] = TRUE
+#ex(std_nam)
+# Inag and Maig left out from the analysis 
+mean_site=data.frame(mean_2000_2009=as.numeric(tapply(mdata$data,mdata$site_id,mean)))
+mean_site$nam=tapply(mdata$nam,mdata$site,function(X)unique(X))
+R_data=merge(R_data,mean_site,by="nam",all.x=TRUE,all.y=FALSE) # here we loose the two stations Inag and Maig and also Frémur
+R_data$data_std_2000_2009=R_data$data/R_data$mean_2000_2009
+#########################################################################
+#standardizing with 1979-1994
+##########################################################################
+mdata=R_data[R_data$year>=1979 & R_data$year<1994,]
+std_nam<-unique(mdata$nam[order(mdata$nam)])
+# length(std_nam) # 45
+nam<-unique(R_data$nam[order(R_data$nam)])
+# length(nam) #49
+unused_series = nam[!nam%in%std_nam] # "Inag" "Maig" "Bres" "Frem"
+vv$sc_1979_1994_unused_series<-unused_series
+vv$sc_1979_1994_nb=vv$nb_series_init-length(vv$sc_1979_1994_unused_series)
+#add a column to R_station for flagging unused series
+R_stations$unused = FALSE
+R_stations[R_stations$rec_nameshort %in% unused_series, "unused"] = TRUE
+#ex(std_nam)
+# Inag and Maig left out from the analysis 
+mean_site=data.frame(mean_1979_1994=as.numeric(tapply(mdata$data,mdata$site_id,mean)))
+mean_site$nam=tapply(mdata$nam,mdata$site,function(X)unique(X))
+R_data=merge(R_data,mean_site,by="nam",all.x=TRUE,all.y=FALSE) 
+R_data$data_std_1979_1994=R_data$data/R_data$mean_1979_1994
+
+#########################################################################
+#standardizing with mean
+##########################################################################
+
+mean_site=data.frame(mean=as.numeric(tapply(R_data$data,R_data$site_id,mean)))
+mean_site$nam=tapply(R_data$nam,R_data$site,function(X)unique(X))
+R_data=merge(R_data,mean_site,by="nam",all.x=TRUE,all.y=FALSE) 
+R_data$data_std=R_data$data/R_data$mean
+
+glass_eel_yoy=R_data[R_data$lifestage!="yellow eel" & R_data$year>1959,] #glass eel and yoy
+older=R_data[R_data$lifestage=="yellow eel" & R_data$year>1959,] #> 1 year / 37 = Parteen # &R_data$loc_id!=37
+##################################################################
+##########################################################################
+nb_year=colSums(ftable(xtabs(formula = data_std_1979_1994~year+name,data=R_data))>0)
+names(nb_year)=colnames(xtabs(formula = data_std_1979_1994~year+name,data=R_data))
+################################################################
+R_data_coun=R_data#subset(R_data,R_data$name%in%names(nb_year))
+R_data_coun$name=as.factor(as.character(R_data_coun$name))
+R_data_coun$sampling_type=as.character(R_data_coun$sampling_type)
+R_data_coun<-R_data_coun[!is.na(R_data_coun$data_std_1979_1994),] #2012 I've deleted some values that are now NA but I've kept track of the line so now I've got NA there
+#unique(R_data_coun$name)
+datageel=subset(R_data_coun,R_data_coun$lifestage!="yellow eel")
+datayellow=subset(R_data_coun,R_data_coun$lifestage=="yellow eel")
+# ex(unique(older$name))
+# ex(unique(glass_eel_yoy$name))
+
+
+nb_series_glass_eel<-length(unique(glass_eel_yoy$nam)) # this will be reported in the pdf later
+vv$nb_series_glass_eel<-nb_series_glass_eel
+nb_series_older<-length(unique(older$nam)) # this will be reported in the pdf later
+vv$nb_series_older<-nb_series_older
+nb_series_final=nb_series_glass_eel+nb_series_older
+vv$nb_series_final<-nb_series_final
+save(R_data_coun,file=paste(datawd,"R_data_coun.Rdata",sep="\\"))
+save(older,file=paste(datawd,"older.Rdata",sep="\\"))
+save(glass_eel_yoy,file=paste(datawd,"glass_eel_yoy.Rdata",sep="\\"))
+write.table(glass_eel_yoy,file=str_c(datawd,"/glass_eel_yoy.csv"),sep=";")
+write.table(older,file=str_c(datawd,"/older.csv"),sep=";")
+
+@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%************************************************************************************
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+<< table_series,echo=FALSE, eval=TRUE,fig=FALSE>>=
+last_year<-tapply(R_data$year,R_data$nam,function(X) max(X))
+#stations updated to",CY
+series_CY<-R_stations[R_stations$rec_nameshort%in%names(last_year[last_year==CY]),c("rec_nameshort","loc_name","loc_country","loc_area","rec_lfs_name")]
+vv$nCY<-nrow(series_CY)
+vv$nCYg<-nrow(series_CY[grepl("glass eel",series_CY$rec_lfs_name),])
+vv$nCYy<-nrow(series_CY[series_CY$rec_lfs_name=="yellow eel",])
+#"stations updated to",CY-1
+series_CYm1<-R_stations[R_stations$rec_nameshort%in%names(last_year[last_year==CY-1]),c("rec_nameshort","loc_name","loc_country","loc_area","rec_lfs_name")]
+vv$nCYm1<-nrow(series_CYm1)
+vv$nCYm1g<-nrow(series_CYm1[grepl("glass eel",series_CYm1$rec_lfs_name),])
+vv$nCYm1y<-nrow(series_CYm1[series_CYm1$rec_lfs_name=="yellow eel",])
+lost_ones<-last_year[last_year<CY-1]
+d_lost_ones<-data.frame("nam"=names(lost_ones),"year"=lost_ones)
+series_lost<-merge(
+		R_stations[R_stations$rec_nameshort%in%names(lost_ones),c("rec_nameshort","loc_name","loc_country","loc_area","rec_lfs_name")],
+		d_lost_ones,
+		by.y="nam",by.x="rec_nameshort")
+series_lost<-series_lost[order(series_lost$year),]
+vv$nseries_lost<-nrow(series_lost)
+vv$nseries_lostg<-nrow(series_lost[grepl("glass eel",series_lost$rec_lfs_name),])
+vv$nseries_losty<-nrow(series_lost[series_lost$rec_lfs_name=="yellow eel",])
+#xtable of current year series
+series_CY$"rec_lfs_name"<-gsub("glass eel","gls.",series_CY$"rec_lfs_name")
+series_CY$"rec_lfs_name"<-gsub("yellow eel","ylw.",series_CY$"rec_lfs_name")
+series_CY$"rec_lfs_name"<-gsub("gls. + ylw.","gls.+ylw.",series_CY$"rec_lfs_name")
+colnames(series_CY)<-str_c("\\scshape{",c("Code","Name","Country","Area","Stage"),"}")
+
+xseries_CY <- xtable(x = series_CY,
+		label = "table_seriesCY",
+		caption = str_c("Series updated to ",CY),
+		align=c("p{0cm}","p{1.3cm}","p{6cm}","p{2cm}","p{2.5cm}","p{1.8cm}"))
+print(xseries_CY, file = str_c(	tabwd,"/table_seriesCY.tex"),
+		table.placement = "htbp",
+		caption.placement = "top",
+		sanitize.colnames.function=function(x){x}, # otherwise \\ are escaped
+		NA.string = ".",
+		tabular.environment="tabularx",
+		width="\\textwidth",
+		include.rownames=FALSE
+)
+#ex(series_CY)
+# xtable of series current year minus one
+series_CYm1$"rec_lfs_name"<-gsub("glass eel","gls.",series_CYm1$"rec_lfs_name")
+series_CYm1$"rec_lfs_name"<-gsub("yellow eel","ylw.",series_CYm1$"rec_lfs_name")
+series_CYm1$"rec_lfs_name"<-gsub("gls. + ylw.","gls.+ylw.",series_CYm1$"rec_lfs_name")
+colnames(series_CYm1)<-str_c("\\scshape{",c("Code","Name","Country","Area","Stage"),"}")
+xseries_CYm1 <- xtable(x = series_CYm1,
+		label = str_c("table_seriesCYm1"),
+		caption = str_c("Series updated to ",CY-1),
+		align=c("p{0cm}","p{1.3cm}","p{6cm}","p{2cm}","p{2.5cm}","p{1.8cm}")
+)
+print(xseries_CYm1, 
+		file = str_c(tabwd,"/table_seriesCYm1.tex"),
+		table.placement = "htbp",
+		caption.placement = "top",
+		sanitize.colnames.function=function(x){x}, # otherwise \\ are escaped
+		NA.string = ".",
+		tabular.environment="tabularx",
+		width="\\textwidth",
+		include.rownames=FALSE
+)
+series_lost$"rec_lfs_name"<-gsub("glass eel","gls.",series_lost$"rec_lfs_name")
+series_lost$"rec_lfs_name"<-gsub("yellow eel","ylw.",series_lost$"rec_lfs_name")
+series_lost$"rec_lfs_name"<-gsub("gls. + ylw.","gls.+ylw.",series_lost$"rec_lfs_name")
+colnames(series_lost)<-str_c("\\scshape{",c("Code","Name","Country","Area","Stage","Last year"),"}")
+xseries_lost <- xtable(x = series_lost,
+		label = str_c("table_serieslost"),
+		caption = str_c("Series stopped or not updated to ",CY-1),
+		align=c("p{0cm}","p{1.3cm}","p{5cm}","p{2cm}","p{2.5cm}","p{1.5cm}","p{1.8cm}")
+)
+print(xseries_lost, 
+		file = str_c(tabwd,"/table_serieslost.tex"),
+		table.placement = "htbp",
+		caption.placement = "top",
+		sanitize.colnames.function=function(x){x}, # otherwise \\ are escaped
+		NA.string = ".",
+		tabular.environment="tabularx",
+		width="\\textwidth",
+		include.rownames=FALSE
+)
+#ex(series_lost)
+# in which year was the largest number of series
+
+
+# Table 
+#n_decade_lfs<-as.data.frame(untable(table(R_data$decade,R_data$lifestage)))
+#n_decade_lfs$sum<-rowSums(n_decade_lfs)
+#colnames(n_decade_lfs)<-c("glass","glass+yellow","yellow","sum")
+#
+area_year=table(glass_eel_yoy$year,glass_eel_yoy$area)
+sampling_year=table(glass_eel_yoy$year,glass_eel_yoy$sampling_type)
+n_y_lfs<-reshape2::dcast(R_data,year~lifestage,length,value.var="year")
+n_y_lfs$sum<-rowSums(n_y_lfs[,c(2:4)])
+colnames(n_y_lfs)<-c("year","glass","glass+yellow","yellow","sum")
+rownames(n_y_lfs)<-n_y_lfs$"year"
+#xn_y_lfs <- xtable(x = n_y_lfs, 
+#		label = "table_n_y_lfs",
+#		caption = str_c("Numer of series per stage per year"))
+#print(xn_y_lfs, file = str_c(tabwd,"/table_n_y_lfs.tex"), 
+#		table.placement = "htbp",
+#		caption.placement = "top",
+#		NA.string = ".")
+
+n_area_styp<-reshape2::dcast(R_data,area~sampling_type,length,value.var="area")
+n_y_area<-reshape2::dcast(R_data,year~area,length,value.var="area")
+n_y_area$sum<-rowSums(n_y_area[,c(2,3)])
+rownames(n_y_area)<-n_y_area$year
+#xn_y_area <- xtable(x = n_y_area, 
+#		label = str_c("table_n_y_area"),
+#		caption = str_c("Number of series per geographical area per year"),
+#		digits=0)
+#print(xn_y_area, 
+#		file = str_c(tabwd,"/table_n_y_area.tex"), 
+#		table.placement = "htbp",
+#		caption.placement = "top",
+#		NA.string = ".")
+printstatseries<-statseries[,c(1,3,4,5,6,7,8,9,10,11)]
+printstatseries[,8]<-iconv(printstatseries[,8],from="UTF8",to="latin1")
+printstatseries$rec_samplingtype[printstatseries$rec_samplingtype=="scientific estimate"]<-"sci. surv."
+printstatseries$rec_samplingtype[grep("trap",printstatseries$rec_samplingtype)]<-"trap"
+printstatseries$rec_samplingtype[printstatseries$rec_samplingtype=="commercial catch"]<-"com. catch"
+printstatseries$rec_samplingtype[printstatseries$rec_samplingtype=="commercial CPUE"]<-"com. cpue"
+printstatseries$loc_area[printstatseries$loc_area!="North Sea"]<-"EE"
+printstatseries$loc_area[printstatseries$loc_area=="North Sea"]<-"NS"
+colnames(printstatseries)<-
+		c("code","area","min","max","n+","n-", "life stage","river",       
+				"sampling type","unit")
+xstatseries <- xtable(x = printstatseries[1:20,], 
+		label = str_c("statseries"),
+		caption = str_c("Short description of the recruitment sites"),
+		align=c("p{0cm}","p{1cm}","p{1cm}","p{1cm}","p{1cm}","p{0.8cm}","p{0.8cm}","p{1.5cm}","p{2.5cm}","p{2cm}","p{2cm}"),
+		digits=0)
+print(xstatseries , 
+		file = str_c(tabwd,"/table_statseries.tex"),
+		table.placement = "htbp",
+		caption.placement = "top",
+		sanitize.colnames.function=function(x){x}, # otherwise \\ are escaped
+		NA.string = ".",
+		include.rownames=FALSE
+)
+xstatseries <- xtable(x = printstatseries[21:40,], 
+		label = str_c("statseries"),
+		caption = str_c("Short description of the recruitment sites (continued)"),
+		align=c("p{0cm}","p{1cm}","p{1cm}","p{1cm}","p{1cm}","p{0.8cm}","p{0.8cm}","p{1.5cm}","p{2.5cm}","p{2cm}","p{2cm}"),
+		digits=0)
+print(xstatseries , 
+		file = str_c(tabwd,"/table_statseries1.tex"),
+		table.placement = "htbp",
+		caption.placement = "top",
+		sanitize.colnames.function=function(x){x}, # otherwise \\ are escaped
+		NA.string = ".",
+		include.rownames=FALSE
+)
+xstatseries1 <- xtable(x = printstatseries[41:nrow(printstatseries),], 
+		label = str_c("statseries"),
+		caption = str_c("Short description of the recruitment sites (continued-yellow eel series) "),
+		align=c("p{0cm}","p{1cm}","p{1cm}","p{1cm}","p{1cm}","p{0.8cm}","p{0.8cm}","p{1.5cm}","p{2.5cm}","p{2cm}","p{2cm}"),
+		digits=0)
+print(xstatseries1 , 
+		file = str_c(tabwd,"/table_statseries2.tex"),
+		table.placement = "htbp",
+		caption.placement = "top",
+		sanitize.colnames.function=function(x){x}, # otherwise \\ are escaped
+		NA.string = ".",
+		include.rownames=FALSE
+)
+################################################################
+yearmaxglasseel<-rownames(n_y_lfs)[which(max(n_y_lfs$glass+n_y_lfs$"glass+yellow")==n_y_lfs$glass+n_y_lfs$"glass+yellow")]
+nbmaxglasseel<-max(n_y_lfs$glass+n_y_lfs$"glass+yellow")
+################################################################
+
+vv$yearmaxglasseel<-yearmaxglasseel
+vv$nbmaxglasseel<-nbmaxglasseel
+yearmaxyellow<-rownames(n_y_lfs)[which(max(n_y_lfs$yellow)==n_y_lfs$yellow)]
+nbmaxyellow<-max(n_y_lfs$yellow)
+vv$yearmaxyellow<-yearmaxyellow
+vv$nbmaxyellow<-nbmaxyellow
+
+@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%************************************************************************************
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+<< figure_series, echo=FALSE,  eval=TRUE >>=
+
+figure2<-function(){
+	par(mar=c(4,4,0,0)+.5)
+	matplot(rownames(table(R_data$year,R_data$lifestage)),table(R_data$year,R_data$lifestage),type="b",lty=c(1,2,3),pch=c(16,17,18),col=c("black","black","grey"),xlab="year",ylab="number of series")
+	legend("topleft",legend=colnames(table(R_data$year,R_data$lifestage)),lty=c(1,2,3),pch=c(16,17,18),col=c("black","black","grey"))
+}
+
+figname<-"figure2"
+# {{{{{{{{{{{{{{{{{{{{{{{{{
+jpeg(filename = paste(imgwd,"/",figname,".jpeg",sep="")) #, width =480, height = 600
+figure2()
+rien<-dev.off()
+# {{{{{{{{{{{{{{{{{{{{{{{{{
+bmp(filename = paste(imgwd,"/",figname,".bmp",sep=""))
+figure2()
+rien<-dev.off()
+# {{{{{{{{{{{{{{{{{{{{{{{{{
+png(filename = paste(imgwd,"/",figname,".png",sep=""))
+figure2()
+rien<-dev.off()
+# {{{{{{{{{{{{{{{{{{{{{{{{{
+
+# create figures in bmp, jpg and png format
+nice_figure<-function(figname,fig,width,height){
+	setwd(imgwd)
+	#savePlot()
+	jpeg(filename = paste(figname,".jpeg",sep=""), width = width, height = height)
+	print(fig)
+	dev.off()
+	
+	bmp(filename = paste(figname,".bmp",sep=""), width = width, height = height)
+	print(fig)
+	dev.off()
+	
+	png(filename = paste(figname,".png",sep=""), width = width, height = height)
+	print(fig)
+	dev.off()
+	
+	pdf(file= paste(imgwd,"/",figname,".pdf",sep=""), width = width/100, height = height/100)
+	print(fig)
+	rien<-dev.off()
+	setwd(wd)
+}
+@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%************************************************************************************
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+<<tableswgeel,echo=FALSE, eval=TRUE,result=hide>>=
+# THIS R CHUNCK IS USED ONCE AT THE END TO GENERATE THE TABLES.
+## This will fail if saved twice, run at the end of the working group to generate the table of values
+query=new("RequeteODBC")
+query@sql="select * from ts.t_data_dat join ts.t_location_loc on loc_id=dat_loc_id 
+		join ts.t_recruitment_rec on rec_loc_id=loc_id
+		where dat_class_id=1
+		and rec_loc_id!=7
+		order by rec_order ,dat_year"
+query=connect(query)
+dat=query@query
+dat$dat_year=as.factor(dat$dat_year)
+stopifnot(length(unique(dat$rec_order))== length(unique(dat$dat_loc_id)))
+
+tab1<-reshape2::dcast(dat,dat_year~rec_order,value.var="dat_value")
+tab1[,2:ncol(tab1)]=round(tab1[,2:ncol(tab1)],2)
+colnames(tab1)<-c("year",paste(statseries$loc_name,"_",statseries$code,sep="" ))
+
+
+createxl<-function(data=tab1,sheet="recruitment_series"){
+	library("XLConnect")
+	xls.file<-str_c(datawd,"/","table_rec2016.xls")
+	wb = loadWorkbook(xls.file, create = TRUE)
+	createSheet(wb,sheet)
+	writeWorksheet (wb , data , sheet=sheet ,header = TRUE )
+	saveWorkbook(wb)
+	#cat("travail terminé\n")
+}
+createxl(data=tab1,sheet="recruitment_series")
+createxl(data=statseries,sheet="series_description")
+
+@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%************************************************************************************
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+<< geographical_analysis, echo=FALSE,  eval=TRUE >>=
+#######################
+# GEOGRAPHICAL ANALYSIS
+#######################
+# at this point you can run the geographical analysis with another script
+#source("classification.R")
+
+##########################################################
+# Additional data selection and functions before plotting
+############################################################
+
+# unique (R_data$country)
+# Selecting only data where nb_year>35
+
+@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%************************************************************************************
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%==========================================
+%==========================================
+\section{Recruitment}
+\subsection{Time-series available}
+The recruitment time-series data are derived from fishery-dependent sources
+(i.e. catch records) and also from fishery-independent surveys across much of
+the geographic range of European eel (Figure \textbf{\ref{figure1}}). The
+stages are categorized as glass eel (gls.), mixture of glass eel and young
+yellow eel (gls.+ylw.) and older yellow eel (ylw.) recruiting to continental habitats (Dekker, 2002).\\
+
+%==========================================
+\begin{figure}[htpb]
+\centering
+\includegraphics[width=0.5\textwidth]{figure1.png}
+\caption{Location of the recruitment monitoring sites in Europe, white circle =
+glass eel , blue circle = glass eel and young yellow eels, yellow
+square=yellow eel series.
+}
+\label{figure1}
+\end{figure}
+%==========================================
+
+The glass eel recruitment time-series have also been classified according to two
+areas: 'continental North Sea' and 'Elsewhere Europe', as it cannot be ruled out
+that recruitment to the two areas has different trends (ICES 2010). The glass
+eel recruitment series are either comprised of only glass eel or of a mixture of
+glass eel and young yellow eel. Yellow eel series are predominantly made of
+young yellow eel, or of yellow eel that might be several
+years old (in the Baltic).\\
+
+The WGEEL has collated information on recruitment from
+\Sexpr{sn(vv$nb_series_init)} time-series. Some time-series date back to the
+beginning of 20th century (yellow eel, Göta Älv, Sweden) or 1920 (glass eel, Loire, France).
+
+\begin{itemize}
+\item \Sexpr{sn(vv$nCY)} time-series were updated to \Sexpr{CY}
+(\Sexpr{sn(vv$nCYg)} for glass eel and \Sexpr{sn(vv$nCYy)} for yellow eel Table \ref{table_seriesCY} Annex \textcolor{red}{X}).
+\item \Sexpr{sn(vv$nCYm1)} time-series (\Sexpr{sn(vv$nCYm1g)} for glass eel and
+\Sexpr{sn(vv$nCYm1y)} for yellow eel) were updated to \Sexpr{CY-1}
+only (Table \ref{table_seriesCYm1} Annex \textcolor{red}{X}). 
+
+Among the time-series based on trap indices, some have reported preliminary
+data for 2016 as the season is not yet finished (Lagan (SW), Kävlingeån (SW),
+Göta Älv (SW), Viskan (SW), Parteen(IR), Bann (GB), Bresle (FR)),
+while others have not yet reported (Guden Å (DK), Harte (DK)).
+Therefore, the indices given for 2016 must be considered as provisional
+especially those for the yellow eel. 
+\item 
+\Sexpr{sn(vv$nseries_lost)} time-series have been stopped
+(\Sexpr{sn(vv$nseries_lostg)} for glass eel and \Sexpr{sn(vv$nseries_losty)} for
+yellow eel, Table \ref{table_serieslost} Annex \textcolor{red}{X}). They stopped
+reporting either because of a lack of recruits in the case of the fishery-based surveys (Ems
+in Germany, stopped in 2001; Vidaa in Denmark, stopped in 1990),
+ a lack of financial support (the Tiber in Italy, 2006) or the introduction of
+quota from from 2008 to 2011 that has disrupted the five fishery-based French
+time-series . Note the French Vilaine time-series could be used again in 2016
+because the glass eel fishery never achieved its quota.
+\item One series (Severn HMRC) has been dropped from the list, as it was
+considered a double of the other Severn EA statistics, but of poorer quality.
+It is no longer represented in the summary but kept and updated in the database.
+\item There is a new glass eel time-series in the Rhone River, French
+Mediterranean (Vaccares), starting in 2004.
+\item The whole Miño  glass eel time-series (MiPo) has been reviewed in 2016.
+\end{itemize}
+The number of glass eel and glass eel + young yellow eel time-series available
+has declined from a peak of
+\Sexpr{vv$nbmaxglasseel} in \Sexpr{max(as.numeric(vv$yearmaxglasseel))}. The maximum
+number of older yellow eel time-series has increased to \Sexpr{vv$nbmaxyellow}
+in \Sexpr{max(as.numeric(vv$yearmaxyellow))} (Figure \ref{figure2}).\\
+ 
+ %========================================== 
+\begin{figure}[htpb]
+\centering
+\includegraphics[width=0.5\textwidth]{figure2.png}
+\caption{Trends in number of glass (black circle), glass+young yellow eel
+(grey triangle) and older yellow eel (black triangle) time-series giving a
+report in  any specific year.}
+\label{figure2}
+\end{figure}
+ %==========================================  
+\subsection{Raw data}
+ 
+Calculation of the geometric mean of all time-series is given in (Figures
+\ref{figure3} and \ref{figure4}). \footnote{This figure is given as it
+consistent with the trend provided by WGEEL from 2002 to 2006. The scaling is
+performed on the 1979-1994 average of each time-series, and \Sexpr{length(vv$sc_1979_1994_unused_series)} time-series without data during that
+period are excluded from the analysis. The time-series left out are :
+\Sexpr{paste(vv$sc_1979_1994_unused_series,collapse=", ")}}. \\
+
+%==========================================
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.8\textwidth]{figure3.pdf}
+\caption{Time-series of glass eel and yellow eel recruitment in European rivers
+with time-series having data for the 1979-1994 period
+(\Sexpr{vv$sc_1979_1994_nb} sites).
+Each time-series has been scaled to its 1979-1994 average. Note the logarithmic scale
+on the y-axis. The mean values and their bootstrap confidence interval (95\%) are represented as
+black dots and bars. Geometric means are presented in red.}
+\label{figure3}
+\end{figure}
+%==========================================
+Separate trends for both glass eel and yellow eel time-series were 
+introduced by the WGEEL in 2006 (Figure \ref{figure4}).\\
+\subsection{Trends in recruitment}
+
+%==========================================
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.8\textwidth]{figure4.pdf}
+\caption{Time-series of glass eel and yellow eel recruitment in Europe
+with \Sexpr{vv$sc_1979_1994_nb} time-series out of the \Sexpr{vv$nb_series_init}
+available to the working group. Each time-series has been scaled to its 1979-1994 average. 
+The mean values of combined yellow and glass eel time-series and their bootstrap 
+confidence interval (95\%) are represented as black dots and bars.
+ The brown line represents the mean value for yellow eel, the blue line represents the mean value for glass eel time-series.
+ The range of  these  time-series  is  indicated  by  a  grey  shade.  Note that
+ individual time-series  from  Figure \ref{figure3}  were  removed to make the
+ mean value more clear.
+ Note also the logarithmic scale on the y-axis.}
+\label{figure4}
+\end{figure}
+%==========================================
+
+\newpage
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%************************************************************************************
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+<< generation_of_plot_data, echo=FALSE, eval=TRUE,results=hide >>=
+###################################################
+# Generation of the dataframes used to plot the data
+###################################################
+scal=data.frame("year"=as.numeric(names(tapply(R_data_coun$data_std_1979_1994,R_data_coun$year,min))),
+		"data_std"=NA,
+		"name"=NA,
+		"lifestage"=NA,
+		"ymin"= tapply(R_data_coun$data_std_1979_1994,R_data_coun$year,min),
+		"ymax"=tapply(R_data_coun$data_std_1979_1994,R_data_coun$year,max),
+		"mean"=tapply(R_data_coun$data_std_1979_1994,R_data_coun$year,mean),
+		"geomean"=unlist(tapply(R_data_coun$data_std_1979_1994,R_data_coun$year,geomean)))
+li_cl_boot=tapply(R_data_coun$data_std_1979_1994,R_data_coun$year,smean.cl.boot)
+bootscal=data.frame("year"=as.numeric(names(li_cl_boot)),
+		"data_std"=NA,
+		"name"=NA,
+		"lifestage"=NA,
+		"ymin"=unlist(lapply(li_cl_boot,function(X)X["Lower"])),
+		"ymax"=unlist(lapply(li_cl_boot,function(X)X["Upper"])),
+		"mean"=unlist(lapply(li_cl_boot,function(X)X["Mean"])),
+		"geomean"=NA)
+
+scalgeel=data.frame(
+		"year"=as.numeric(names(tapply(datageel$data_std_1979_1994,datageel$year,min))),
+		"data_std"=NA,
+		"name"=NA,
+		"lifestage"=NA,
+		"ymin"= tapply(datageel$data_std_1979_1994,datageel$year,min),
+		"ymax"=	tapply(datageel$data_std_1979_1994,datageel$year,max),	
+		"mean"=tapply(datageel$data_std_1979_1994,datageel$year,mean),
+		"geomean"=unlist(tapply(datageel$data_std_1979_1994,datageel$year,geomean))
+)
+
+scalyellow=data.frame(
+		"year"=as.numeric(names(tapply(datayellow$data_std_1979_1994,datayellow$year,min))),
+		"data_std"=NA,
+		"name"=NA,
+		"lifestage"=NA,
+		"ymin"= tapply(datayellow$data_std_1979_1994,datayellow$year,min),
+		"ymax"=	tapply(datayellow$data_std_1979_1994,datayellow$year,max),	
+		"mean"=tapply(datayellow$data_std_1979_1994,datayellow$year,mean),
+		"geomean"=unlist(tapply(datayellow$data_std_1979_1994,datayellow$year,geomean)))
+scaldata=R_data_coun[,c("year","data_std","name","lifestage")]
+################################################################
+# With scaling 2000-2010
+##############################################################"
+scal_2000_2009=data.frame("year"=as.numeric(names(tapply(R_data_coun$data_std_2000_2009,R_data_coun$year,min,na.rm=TRUE))),
+		"data_std"=NA,
+		"name"=NA,
+		"lifestage"=NA,
+		"ymin"= tapply(R_data_coun$data_std_2000_2009,R_data_coun$year,min,na.rm=TRUE),
+		"ymax"=tapply(R_data_coun$data_std_2000_2009,R_data_coun$year,max,na.rm=TRUE),
+		"mean"=tapply(R_data_coun$data_std_2000_2009,R_data_coun$year,mean,na.rm=TRUE),
+		"geomean"=unlist(tapply(R_data_coun$data_std_2000_2009,R_data_coun$year,geomean)))
+li_cl_boot=tapply(R_data_coun$data_std_2000_2009,R_data_coun$year,smean.cl.boot)
+bootscal_2000_2009=data.frame("year"=as.numeric(names(li_cl_boot)),
+		"data_std"=NA,
+		"name"=NA,
+		"lifestage"=NA,
+		"ymin"=unlist(lapply(li_cl_boot,function(X)X["Lower"])),
+		"ymax"=unlist(lapply(li_cl_boot,function(X)X["Upper"])),
+		"mean"=unlist(lapply(li_cl_boot,function(X)X["Mean"])),
+		"geomean"=NA)
+
+scalgeel_2000_2009=data.frame(
+		"year"=as.numeric(names(tapply(datageel$data_std_2000_2009,datageel$year,min))),
+		"data_std"=NA,
+		"name"=NA,
+		"lifestage"=NA,
+		"ymin"= tapply(datageel$data_std_2000_2009,datageel$year,min,na.rm=TRUE),
+		"ymax"=	tapply(datageel$data_std_2000_2009,datageel$year,max,na.rm=TRUE),	
+		"mean"=tapply(datageel$data_std_2000_2009,datageel$year,mean,na.rm=TRUE),
+		"geomean"=unlist(tapply(datageel$data_std_2000_2009,datageel$year,geomean))
+)
+
+scalyellow_2000_2009=data.frame(
+		"year"=as.numeric(names(tapply(datayellow$data_std_2000_2009,datayellow$year,min))),
+		"data_std"=NA,
+		"name"=NA,
+		"lifestage"=NA,
+		"ymin"= tapply(datayellow$data_std_2000_2009,datayellow$year,min),
+		"ymax"=	tapply(datayellow$data_std_2000_2009,datayellow$year,max),	
+		"mean"=tapply(datayellow$data_std_2000_2009,datayellow$year,mean),
+		"geomean"=unlist(tapply(datayellow$data_std_2000_2009,datayellow$year,geomean)))
+scaldata_2000_2009=R_data_coun[,c("year","data_std_2000_2009","name","lifestage")]
+
+
+# for miran
+# exporting the geomeans 
+print("simple geomeans for glass eel, asked by Miran")
+round(unlist(tapply(datageel$data_std_1979_1994,datageel$year,geomean)),3)
+print ("simple geomeans for yellow eels")
+round(unlist(tapply(datayellow$data_std_1979_1994,datayellow$year,geomean)),3)
+# calculation of some stats, it does not work very well with ggplot...
+# functions for ggplot
+## function that works with vectors
+stat_sum_single <- function(fun, geom="point", ...) { 
+	stat_summary(fun.y=fun, geom=geom,  ...) 
+}
+# function that works with an entire data frame
+stat_sum_df <- function(fun, geom="crossbar", ...) {
+	stat_summary(fun.data=fun, colour="black", geom=geom, width=0.2, ...)
+}
+########################################
+# FIGURE 3 WITHOUT LOG SCALE
+# normalscale + geomean+ bootstrap scaled mean and confidence interval
+#########################################
+
+g<-ggplot(scaldata)
+g1<-g+geom_point(aes(x=year, y=data_std,colour=name,shape=lifestage),size=1.5)+
+		geom_line(aes(x=year, y=data_std,colour=name,lty=lifestage),size=0.4)+
+		ylab("scaled 1979-1994 values")+
+		geom_pointrange(data=bootscal,aes(x=year,y=mean,ymin=ymin,ymax=ymax),size=0.5,colour="black")+
+		geom_line(data=scal,aes(x=year,y=geomean),colour="red",size=1.2)+
+		theme(legend.position = "none")
+
+figure3withoutlogscale<-g1+	scale_x_continuous(breaks=c(1900,1930,1950,1970,1980,1990,2000,2010),minor_breaks=seq(from=min(scaldata$year),to=max(scaldata$year),by=2))+
+		scale_y_continuous(limits=c(0,10))+annotate("rect",xmin=1900,ymin=0,xmax=1960,ymax=10,fill="grey",alpha=0.5)
+x11(800,600)
+
+print(figure3withoutlogscale)
+dev.off()
+# {{{{{{{{{{{{{{{{{{{{{{{{{
+nice_figure("figure3withoutlogscale",figure3withoutlogscale,800,600)
+# {{{{{{{{{{{{{{{{{{{{{{{{{
+# scaldata[scaldata$year>2000&scaldata$data_std>1,]
+########################################
+# FIGURE 3 WITH LOG SCALE
+# All series 1979-1994 +
+#  geomean+ bootstrap scaled mean and confidence interval
+#########################################
+
+figure3<-g1+
+		scale_y_log10(name="scaled 1979-1994 values log scale",limits=c(0.001,30),breaks=c(0.01,0.1,1,10),labels=c("1%","10%","100%","1000%"))+
+		#ylab()
+		
+		scale_x_continuous(breaks=c(1900,1930,1950,1970,1980,1990,2000,2010),
+				minor_breaks=seq(from=min(scaldata$year),to=max(scaldata$year),by=2))+
+		annotate("rect",xmin=1900,ymin=0,xmax=1960,ymax=30,fill="grey",alpha=0.5)
+x11(800,600)
+print(figure3)
+# {{{{{{{{{{{{{{{{{{{{{{{{{
+nice_figure(figname="figure3",figure3,800,600)
+
+########################################
+# FIGURE 3 WITH LOG SCALE {{BLACK}}
+# All series 1979-1994 +
+#  geomean+ bootstrap scaled mean and confidence interval
+#########################################
+
+g<-ggplot(scaldata)
+figure3black<-g+geom_point(aes(x=year, y=data_std,colour=name,shape=lifestage),size=1.5,show.legend=FALSE)+
+		geom_line(aes(x=year, y=data_std,colour=name,lty=lifestage),size=0.4,show.legend=FALSE)+
+		#ylab("scaled 1979-1994 values")+
+		geom_pointrange(data=bootscal,aes(x=year,y=mean,ymin=ymin,ymax=ymax),size=0.5,colour="beige")+
+		geom_line(data=scal,aes(x=year,y=geomean),colour="red",size=1.2)+
+		scale_y_log10(name="percentage of 1979-1994",limits=c(0.005,10),breaks=c(0.01,0.1,1,10),labels=c("1%","10%","100%","1000%"))+
+		scale_x_continuous(breaks=c(1930,1950,1970,1980,1990,2000,2010),
+				minor_breaks=seq(from=min(scaldata$year),to=max(scaldata$year),by=2),limits=c(1930,CY))+
+		theme_black()
+x11(800,600)
+print(figure3black)
+# {{{{{{{{{{{{{{{{{{{{{{{{{
+nice_figure(figname="figure3black",figure3black,800,600)
+
+# {{{{{{{{{{{{{{{{{{{{{{{{{
+##########################################
+## Same graph for presentation but labels are in French
+##########################################
+#g<-ggplot(scaldata)
+#g+geom_point(aes(x=year, y=data_std,colour=name,shape=lifestage),size=1.5,legend=FALSE)+
+#		geom_line(aes(x=year, y=data_std,colour=name,lty=lifestage),size=0.4,legend=FALSE)+
+#		opts(title="Tendance du recrutement Europeen")+
+#		#ylab("scaled 1979-1994 values")+
+#		geom_pointrange(data=bootscal,aes(x=year,y=mean,ymin=ymin,ymax=ymax),size=0.5,colour="beige")+
+#		scale_y_log10(name="% de 1979-1994",limits=c(0.005,10),breaks=c(0.01,0.1,1,10),labels=c("1%","10%","100%","1000%"))+
+#		scale_x_continuous(name="Annee",breaks=c(1930,1950,1970,1980,1990,2000,2010),
+#				minor_breaks=seq(from=min(scaldata$year),to=max(scaldata$year),by=2),limits=c(1930,2010))+theme_dark()
+########################################
+# FIGURE 4 
+# limited graph with scale
+########################################
+scallog<-scal
+scallog[scallog$ymin<1e-2,"ymin"]<-1e-2
+scallog[scallog$ymax>30,"ymax"]<-30
+g<-ggplot(scallog)
+figure4<-g+geom_ribbon(aes(x=year,ymin=ymin,ymax=ymax),fill="grey",data=scallog)+
+		#ggtitle("Recruitment European overview")+
+		ylab("scaled 1979-1994 values log scale")+
+		geom_line(aes(x=year,y=mean),data=scalgeel,colour="darkblue",size=1)+
+		geom_line(aes(x=year,y=mean),data=scalyellow,colour="darkorange4",size = 1)+
+		geom_pointrange(data=bootscal,aes(x=year,y=mean,ymin=ymin,ymax=ymax),size=0.5,colour="black")+
+		scale_y_log10(limits=c(0.01,30),breaks=c(0.01,0.1,1,10,100,1000),labels=c("0.01","0.1","1","10","100","1000"))+
+		annotate("rect",xmin=1930,ymin=0.01,xmax=1960,ymax=30,fill="white",alpha=0.7)+
+		scale_x_continuous(limits=c(1930,CY))
+x11(800,600)
+print(figure4)
+nice_figure(figname="figure4",figure4,800,600)
+
+########################################
+# FIGURE 4 
+# BUT WITH REFERENCE 2000-2010 !
+########################################
+scallog<-scal_2000_2009
+scallog[scallog$ymin<1e-1,"ymin"]<-1e-1
+scallog[scallog$ymax>1000,"ymax"]<-1000
+g<-ggplot(scallog)
+figure42000_2009<-g+geom_ribbon(aes(x=year,ymin=ymin,ymax=ymax),fill="grey")+
+		#ggtitle("Recruitment European overview")+
+		ylab("scaled to 2000-2010, log scale")+
+		geom_line(aes(x=year,y=mean),data=scalgeel_2000_2009,colour="darkblue",size=1)+
+		geom_line(aes(x=year,y=mean),data=scalyellow_2000_2009,colour="darkorange4",size = 1)+
+		geom_pointrange(data=bootscal_2000_2009,aes(x=year,y=mean,ymin=ymin,ymax=ymax),size=0.5,colour="black")+
+		geom_abline( intercept = 0,slope=0,	alpha = .4,col="red")+
+		geom_abline( intercept = 2,slope=0,	alpha = .4,col="red")+
+		scale_y_log10(limits=c(1e-1,1000),breaks=c(0.01,0.1,1,10,100,1000),labels=c("0.01","0.1","1","10","100","1000"))+		
+		scale_x_continuous(limits=c(1930,CY))+
+		annotate("rect",xmin=1930,ymin=1e-1,xmax=1960,ymax=1000,fill="white",alpha=0.7)+
+		annotate("rect", xmin = 2000, xmax = 2009, ymin = 0.3, ymax = 3,
+				alpha = .2,fill="blue")
+
+x11(800,600)
+print(figure42000_2009)
+# {{{{{{{{{{{{{{{{{{{{{{{{{
+nice_figure(figname="figure4_2000_2009",figure42000_2009,800,600)
+
+########################################
+# FIGURE NOTHING 
+# JUST TO CHECK 
+########################################
+x11()
+xg<-unlist(tapply(datageel$data_std,datageel$year,geomean))
+rxg<-as.numeric(names(xg))
+xy<-unlist(tapply(datayellow$data_std,datayellow$year,geomean))
+rxy<-as.numeric(names(xy))
+plot(rxg,
+		xg,
+		type="b",
+		main="a simple graph to check that ggplot's running fine")
+points(rxy,xy,type="l",col="green")
+legend("topright",legend=c("glass","yellow"),col=c("black","green"),lty=1)
+
+# additional figure to check log scaled
+x11()
+plot(rxy,
+		xy,log="y",
+		type="b",col="green")
+points(rxg,xg,type="l")
+#tapply(R_data_coun$data_std,R_data_coun$year,mean_cl_boot)
+
+#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# full graph
+# for memory, it is no longer used
+#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#g<-ggplot(R_data_coun,aes(x=year, y=data_std))
+#g+geom_point(aes(colour=name,shape=lifestage))+
+#		geom_line(aes(colour=name,lty=lifestage))+
+#		ggtitle("Recruitment European overview")+
+#		ylab("scaled 1979-1994 values log scale")+
+#		stat_summary(fun.data = "mean_cl_boot", colour = "black")+
+#		stat_sum_single(fun=mean,data=datageel,colour="darkblue",geom="line",pch=17,size=1)+
+#		stat_sum_single(fun=mean,data=datayellow,colour="darkorange4",pch=18,size = 1,geom="line")+
+#		scale_y_log10(limits=c(0.0001,10))
+########################################
+# FIGURE 3 to put forward changes to katwick
+# WITH REFERENCE 2000-2010 !
+########################################
+#g<-ggplot(scaldata)
+#(fig_katwijk<-g+geom_point(aes(x=year, y=data_std),col="grey",size=1.5)+
+#		geom_line(aes(x=year, y=data_std),col="grey",size=0.4)+
+#		geom_point(aes(x=year, y=data_std),colour="blue",size=1,data=scaldata[scaldata$name=="Katwijk scientific estimate",])+
+#		geom_line(aes(x=year, y=data_std),colour="blue",size=1,data=scaldata[scaldata$name=="Katwijk scientific estimate",])+
+#		ylab("scaled 1979-1994 values")+
+#		geom_pointrange(data=bootscal,aes(x=year,y=mean,ymin=ymin,ymax=ymax),size=0.5,colour="black")+
+#		geom_line(data=scal,aes(x=year,y=geomean),colour="red",size=1.2)+
+#		theme(legend.position = "none")+
+#		scale_x_continuous(breaks=c(1900,1930,1950,1970,1980,1990,2000,2010),minor_breaks=seq(from=min(scaldata$year),to=max(scaldata$year),by=2))+
+#		scale_y_continuous(limits=c(0,10))+annotate("rect",xmin=1900,ymin=0,xmax=1960,ymax=10,fill="grey",alpha=0.5))
+
+@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%************************************************************************************
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+<< final_data_selection, echo=FALSE, eval=TRUE,results=hide >>=
+#####################################################
+####################################################
+# final modeling
+# Changes from here from last year version
+#####################################################
+######################################################
+#splitting dataset
+
+#year_only=glm(data_std_1979_1994~year_f+as.factor(site_id),data=glass_eel_yoy,family=Gamma(link=log),subset=glass_eel_yoy$data>0 & glass_eel_yoy$year>1949 ,maxit=300)
+#summary(year_only)
+#anova(year_only,test="F")
+#2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~
+#############################"
+# glass eel / 2 areas
+#############################"~
+# 2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~
+@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%************************************************************************************
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+<< model_for_glass_eel_and_yellow_eel, echo=FALSE, eval=TRUE,results=hide >>=
+glass_eel_yoy$nam<-as.factor(glass_eel_yoy$nam)
+model_ge_area=glm(data_std~year_f:area+nam,data=glass_eel_yoy[glass_eel_yoy$data>0 & glass_eel_yoy$year>1959,],
+		family=Gamma(link=log), maxit=300)
+print("Analysis for glass eel")
+print("data available")
+(area_year=table(glass_eel_yoy$year,glass_eel_yoy$area))
+print("number of sites finally selected for glass eel glm")
+vv$modelge<-list()
+vv$modelge$site<-as.character(model_ge_area$xlevels$nam)
+vv$modelge$nbsite<-length(vv$modelge$site)
+vv$modelge$excluded<-unique(glass_eel_yoy$nam)[!unique(glass_eel_yoy$nam)%in%vv$modelge$site]
+vv$modelge$excludednam<-unique(glass_eel_yoy[glass_eel_yoy$nam%in%vv$modelge$excluded,"nam"])
+vv$modelge$excludedname<-unique(glass_eel_yoy[glass_eel_yoy$nam%in%vv$modelge$excluded,"name"])
+vv$modelge$data_excluded_zero<-glass_eel_yoy[glass_eel_yoy$data==0,c("data_std","nam","year","lifestage","dat_comment","geo")]
+
+model_older=glm(data_std~year_f+as.factor(nam),data=older,family=Gamma(link=log),subset=older$data>0 & older$year>1949  ,maxit=300)
+vv$modelolder<-list()
+vv$modelolder$site<-as.numeric(as.character(model_older$xlevels$`as.factor(nam)`))
+vv$modelolder$nbsite<-length(vv$modelolder$site)
+vv$modelolder$excluded<-unique(older$nam)[!unique(older$nam)%in%vv$modelolder$site]
+vv$modelolder$excludednam<-unique(older[older$nam%in%vv$modelolder$excluded,"nam"])
+vv$modelolder$excludedname<-unique(older[older$nam%in%vv$modelolder$excluded,"name"])
+vv$modelolder$data_excluded_zero<-older[older$data==0,c("data_std","nam","year","lifestage","dat_comment","geo")]
+
+xt_a<-xtable(anova(model_ge_area,test="F"),
+		caption=c("Anova for glass eel recruitment model",
+				label="table_anova"))
+
+o<-print(xt_a, file = str_c(tabwd,"/table_anova.tex"), 
+		table.placement = "htbp",
+		caption.placement = "top",
+		NA.string = "",
+		include.rownames=TRUE,
+		tabular.environment="tabularx",
+		width="0.8\\textwidth",
+		sanitize.colnames.function=function(x){x})	
+
+#plot(model_ge_area)
+@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%************************************************************************************
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+<< model_for_glass_eel_graph_and_predictions, echo=FALSE, eval=TRUE,results=hide >>=
+data_bis=expand.grid(year_f=model_ge_area$xlevels$year_f,area=model_ge_area$xlevels$area,
+		nam=model_ge_area$xlevels$nam)
+data_bis$year<-as.numeric(as.character(data_bis$year_f))
+#deleting area/year not avalaible
+for(area in as.character(unique(glass_eel_yoy$area)))
+	data_bis[data_bis$area==area,"nb_site"]=area_year[as.character(data_bis[data_bis$area==area,"year"]),area]
+data_bis=data_bis[data_bis$nb_site>0,]
+
+
+#predicting
+data_bis$p=predict(model_ge_area,newdata=data_bis[,],type="response")
+se=predict(model_ge_area,newdata=data_bis[,],type="response",se.fit=TRUE)
+data_bis$se=se[["se.fit"]]
+#standardising prediction to 1960-1980 level
+# 2 options mean or geomean
+if (opt_calculation=="geomean") {
+	mean_1960_1970=data.frame(mean=unlist(tapply(data_bis[data_bis$year>=1960 & data_bis$year<1980,"p"],data_bis[data_bis$year>=1960 & data_bis$year<1980,"area"],geomean)))
+} else {
+	mean_1960_1970=data.frame(mean=unlist(tapply(data_bis[data_bis$year>=1960 & data_bis$year<1980,"p"],data_bis[data_bis$year>=1960 & data_bis$year<1980,"area"],mean)))
+}
+mean_1960_1970$area=rownames(mean_1960_1970)
+data_bis=merge(data_bis,mean_1960_1970,by="area")
+data_bis$p_std_1960_1970=data_bis$p/data_bis$mean
+
+# cannot show no se on average value, se is on each individual value !
+#data_bis$se_std_1960_1970=data_bis$se/data_bis$geomean 
+#data_bis$ymin<-data_bis$p_std_1960_1970-data_bis$se_std_1960_1970
+#data_bis$ymax<-data_bis$p_std_1960_1970+data_bis$se_std_1960_1970
+# geomean does not return a "nice" numeric, hence the trick below
+if (opt_calculation=="geomean") {
+	synthesis=as.data.frame(tapply(data_bis[,"p_std_1960_1970"],
+					list(data_bis[,"year_f"],data_bis[,"area"]),function(X) {Y=geomean(X) ;return(as.numeric(Y))}))
+} else {
+	synthesis=as.data.frame(tapply(data_bis[,"p_std_1960_1970"],
+					list(data_bis[,"year_f"],data_bis[,"area"]),mean,na.rm=TRUE))
+}
+
+resy=function(data,valcol){
+	data$time=rownames(data)
+	data1=melt(data,id.vars=ncol(data))
+	colnames(data1)=c("year","area",valcol)
+	data1$year=as.Date(strptime(paste(data1$year,"-01-01",sep=""),format="%Y-%m-%d"))
+	return(data1)
+}
+dat=resy(synthesis,"p_std_1960_1970")
+library(RColorBrewer)
+
+##plotting
+#with(synthesis,matplot(time,log(synthesis[,-dim(synthesis)[2]]),type="l"))
+#legend("topright",legend=names(synthesis)[-dim(synthesis)[2]],lty=1:5,col=1:6)
+#abline(v=seq(1950,2005,5),lty=2,col="gray")
+#abline(v=seq(1950,2005,10))
+
+#tat_sum_single <- function(fun, geom="point", ...) { 
+#   stat_summary(fun.y=fun, colour="red", geom=geom, size = 3, ...) 
+# } 
+# 
+library(ggplot2)
+g<-ggplot(dat,aes(x=year,y=p_std_1960_1970))
+
+figure5_without_logscale<-g+geom_line(aes(colour=area,lty=area),lwd=1)+ 
+		scale_colour_brewer(name="area",palette="Set1")+
+		scale_y_continuous("standardized glm predictions \n mean 1960-1979")+
+		theme_bw()+
+		geom_hline(yintercept=1,linetype=2)+
+		theme(legend.box =NULL,
+				legend.key = element_rect(colour = NA, fill = 'white'),
+				legend.text = element_text(size = 10, colour = 'black'), 
+				legend.background = element_rect(colour = NA, fill = 'white'),
+				legend.position = c(.8, .8))
+X11(300,250)
+figure5_without_logscale
+nice_figure("figure5_without_logscale",figure5_without_logscale,400,300)
+# function similar to theme_dark() but allows legends
+# black and white plot ====
+
+
+
+figure5_without_logscale_black<-g+geom_line(aes(colour=area,lty=area),lwd=1)+
+		scale_colour_manual(name="area",values=c("yellow","lawngreen"))+
+		scale_y_continuous("standardized glm predictions \n mean 1960-1979")+
+		theme_black()
+X11()
+figure5_without_logscale_black
+nice_figure("figure5_without_logscale_black",figure5_without_logscale_black,600,480)
+
+
+#====
+#+geom_smooth(aes(ymin = min, ymax = max,fill=area),stat="identity")+facet_grid( ~ area) 
+datEE<-dat[dat$area=="Elsewhere Europe",]
+datNS<-dat[dat$area=="North Sea",]
+labelEE<-100*round(datEE$p_std_1960_1970[length(datEE$p_std_1960_1970)],3)
+labelNS<-100*round(datNS$p_std_1960_1970[length(datNS$p_std_1960_1970)],3)
+
+figure5<-g+geom_line(aes(colour=area,lty=area),lwd=1.3)+geom_point(aes(colour=area,fill=area,shape=area),size=3)+
+		#ggtitle("Recruitment overview glass eel series")+
+		scale_colour_brewer(name="area",palette="Set1")  +
+		#annotate("text",x=dat$year[length(dat$year)-2],y=datEE$p_std_1960_1970[length(datEE$p_std_1960_1970)],size=5,label=labelEE)+
+		#annotate("text",x=dat$year[length(dat$year)-2],y=datNS$p_std_1960_1970[length(datNS$p_std_1960_1970)],size=5,label=labelNS)+		
+		scale_y_log10(name="standardized glm predictions \n mean 1960-1979-log scale",
+				#limits=c(0.005,10),
+				breaks=c(0.01,0.1,1,10),
+				labels=c("1%","10%","100%","1000%"))+
+		theme_bw()+
+		theme(legend.box =NULL,
+				legend.key = element_rect(colour = NA, fill = 'white'),
+				legend.text = element_text(size = 10, colour = 'black'), 
+				legend.background = element_rect(colour = NA, fill = 'white'),
+				legend.position=c(.8,.9))
+
+X11()
+figure5
+nice_figure("figure5",figure5,400,300)
+#figure5danish<-g+geom_line(aes(colour=area,lty=area),lwd=1.3)+
+#		geom_point(aes(colour=area,fill=area,shape=area),size=3)+
+#		ggtitle("title="Glasaal data fra hele Europa")+
+#		scale_colour_brewer(name="area",palette="Set1")  +
+#		xlab("Aar")+
+#		scale_y_log10(name="Linear model forudsigelser/ gennemsnit 1960-1979",
+#				#limits=c(0.005,10),
+#				breaks=c(0.01,0.1,1,10),
+#				labels=c("1%","10%","100%","1000%"))
+#figure5danish
+
+#levels(dat$area)<-c (
+#		iconv("Andre steder i Europa","UTF8"),
+#		iconv("Nordsjøen","UTF8"))#
+#g<-ggplot(dat,aes(x=year,y=p_std_1960_1970))
+#figure5norvegiean<-g+
+#		geom_line(aes(colour=area,lty=area),lwd=1.3)+
+#		geom_point(aes(colour=area,shape=area),size=3)+
+#		ggtitle(label=iconv("Indeks av glassålrekruttering","UTF8"))+
+#		scale_colour_brewer(name=iconv("Området","UTF8"),palette="Set1")  +
+#		scale_shape(name=iconv("Området","UTF8"))+
+#		scale_linetype(name=iconv("Området","UTF8"))+
+#		xlab(iconv("År","UTF8"))+
+#		scale_y_log10(name=iconv("Standardiserte GLM-prognoser (i prosent av
+#		1960-1979-gjennomsnitt)","UTF8"), #limits=c(0.005,10),
+#				breaks=c(0.01,0.1,1,10),
+#				labels=c("1%","10%","100%","1000%"))
+#nice_figure("figure5norvegiean",figure5norvegiean,600,480)
+#pdf("images/2013/figure5norvegiean.pdf")
+#figure5norvegiean
+#dev.off()
+nice_figure("figure5",figure5,600,480)
+#nice_figure("figure5danish",figure5danish,600,480)
+
+#figure5danish<-g+geom_line(aes(colour=area,lty=area),lwd=1.3)+
+#		geom_point(aes(colour=area,fill=area,shape=area),size=3)+
+#		ggtitle("title="Glasaal data fra hele Europa")+
+#		scale_colour_brewer(name="area",palette="Set1")  +
+#		xlab("Aar")+
+#		scale_y_log10(name="Linear model forudsigelser/ gennemsnit 1960-1979",
+#				#limits=c(0.005,10),
+#				breaks=c(0.01,0.1,1,10),
+#				labels=c("1%","10%","100%","1000%"))
+levels(dat$area)=c("EE","NS")
+g<-ggplot(dat,aes(x=year,y=p_std_1960_1970))
+
+#figure5bw<-g+geom_line(aes(colour=area,lty=area),wd=1.3)+
+#		geom_point(aes(colour=area,fill=area,shape=area),size=3)+
+#		#ggtitle("Recruitment overview glass eel series")+
+#		scale_colour_manual(name="area",values=c("black","grey40"))  +
+#		#annotate("text",x=dat$year[length(dat$year)-2],y=datEE$p_std_1960_1970[length(datEE$p_std_1960_1970)],size=5,label=labelEE)+
+#		#annotate("text",x=dat$year[length(dat$year)-2],y=datNS$p_std_1960_1970[length(datNS$p_std_1960_1970)],size=5,label=labelNS)+		
+#		scale_y_log10(name="standardized glm predictions \n mean 1960-1979-log scale",
+#				#limits=c(0.005,10),
+#				breaks=c(0.01,0.1,1,10),
+#				labels=c("1%","10%","100%","1000%"))+
+#		theme_bw()+
+#		theme(legend.box =NULL,
+#				legend.key = element_rect(colour = NA, fill = 'white'),
+#				legend.text = element_text(size = 8, colour = 'black'), 
+#				legend.background = element_rect(colour = NA, fill = 'white'))
+#print(figure5bw)
+#nice_figure("figure5bw",figure5bw,600,480)
+
+
+
+#######################
+## graphique presentation Vilaine
+##########################
+#dat1<-dat
+#levels(dat1$area)=c("Europe","Vilaine")
+#dat$year1=as.numeric(strftime(dat1$year,"%Y"))
+#dat1$p_std_1960_1970
+#vil<-R_data[R_data$loc_id==17,c("data_std","year")]
+#vil<-vil[order(as.numeric(vil$year)),]
+#vil<-rbind(cbind("data_std"=NA,"year"=1950:1970),vil,cbind("data_std"=NA,"year"=2012))
+#mean(vil$data_std[vil$year>=1979 & vil$year<1994])#1
+#sca<-mean(dat1$p_std_1960_1970[dat1$area=="Europe"&dat1$year1>=1979 & dat1$year1<1994]) #0.62
+#vil$data_std<-vil$data_std*sca
+#vil[16:21,"data_std"]<-c(5,4,9,12,10,8)*vil$data_std[vil$year==1971]/44
+##vilpred<-data_bis[data_bis$nam==17&data_bis$area=="Elsewhere Europe",c("p_std_1960_1970","year")]
+##vilpred<-vilpred[order(as.numeric(vilpred$year)),]
+#dat1[dat1$area=="Vilaine","p_std_1960_1970"]<-vil$data_std
+#colnames(dat1)[2]<-"zone"
+#g1<-ggplot(dat1,aes(x=year,y=p_std_1960_1970))+xlab("")
+#base_size<-12
+
+#figure5_without_logscale_black_vilaine<-g1+
+#		geom_line(aes(colour=zone,lty=zone),lwd=1.3)+
+#		geom_point(aes(colour=zone,shape=zone),size=3)+
+#		ggtitle(title="")+
+#		scale_colour_manual(name="zone",values=c("black","deepskyblue")) +
+#		scale_y_continuous(name="")+
+##		scale_y_log10(name="",
+##				#limits=c(0.005,10),
+##				breaks=c(0.01,0.1,1,10),
+##				labels=c("1%","10%","100%","1000%"))+
+#		scale_x_date(major= "10 years",minor= "5 years")+
+#		opts(axis.line = theme_blank(), 
+#				axis.text.x = theme_text(size = base_size *	1.2, lineheight = 0.9, colour = "black", vjust = 1), 
+#				axis.text.y = theme_text(size = base_size * 1.2, lineheight = 0.9, colour = "black", hjust = 1), 
+#				axis.ticks = theme_segment(colour = "black"), 
+#				axis.title.x = theme_text(size = base_size, vjust = 0.5,colour = "white"), 
+#				axis.title.y = theme_text(size = base_size, angle = 90, 
+#						vjust = 0.5,colour = "black"), axis.ticks.length = unit(0.15, "cm"), 
+#				axis.ticks.margin = unit(0.1, "cm"), 
+#				legend.background = theme_blank(), 
+#				legend.key =  theme_blank(), 
+#				legend.text = theme_text(size = base_size , lineheight = 0.9, colour = "black", vjust = 1),
+#				panel.background = theme_blank(),
+#				panel.border = theme_rect(colour = "black"),
+#				plot.background=theme_blank(), # the background
+#				panel.grid.major = theme_line(colour = "black"), 
+#				panel.grid.minor = theme_line(colour = "grey"), 
+#				panel.margin = unit(0.25, "lines"), 
+#				strip.background = theme_rect(fill = "black", colour = NA), # bordures droites et gauche
+#				strip.label = function(variable, value) value, strip.text.x = theme_text(size = base_size * 
+#								0.8), strip.text.y = theme_text(size = base_size * 
+#								0.8, angle = -90),				 
+#				plot.title = theme_text(size = base_size * 1.5,colour="black"), #"#BE81F7" violet
+#				plot.margin = unit(c(1, 1, 0.5, 0.5), "lines"))
+#x11()
+#figure5_without_logscale_black_vilaine
+#nice_figure("figure5_without_logscale_black_vilaine",figure5_without_logscale_black,600,480)
+
+
+# ===========
+#scale_y_continuous("standardized predictions",limits=c(0,10)) 
+
+
+
+
+synthesis$year=as.numeric(rownames(synthesis))
+synthesis$decade=trunc(as.numeric(synthesis$year)/5)*5
+five_year_avg_glass<-data.frame("Elsewhere Europe"=tapply(synthesis$"Elsewhere Europe",synthesis$decade,mean,na.rm=T),
+		"North Sea"=tapply(synthesis$"North Sea",synthesis$decade,mean,na.rm=T))
+synthesis$rebour<-nrow(synthesis):1
+last<-synthesis$rebour<=5
+five_year_avg_glass<-rbind(five_year_avg_glass,apply(synthesis[last,c("Elsewhere Europe","North Sea") ],2,mean))
+rownames(five_year_avg_glass)[nrow(five_year_avg_glass)]<-"last"
+
+#xfive_year_avg_glass <- xtable(x = five_year_avg_glass,
+#		label = "table_five_year_avg_glass",
+#		caption = str_c("GLM estimates for glass eel series, averaged every five years"))
+#print(xfive_year_avg_glass, 
+#		file = str_c(tabwd,"/table_five_year_avg_glass.tex"),
+#		table.placement = "htbp",
+#		caption.placement = "top", 
+#		NA.string = ".")
+gg0<-synthesis[as.character(1960:CY),c("Elsewhere Europe","North Sea")]
+colnames(gg0)<-c("EE","NS")
+split_per_decade<-function(data){
+	dates<-as.numeric(rownames(data))
+	start=min(dates)
+	df=NULL
+	cgroupdecade<-vector()
+	while (start<10*floor(CY/10)){
+		end=start+9	
+		cgroupdecade<-c(cgroupdecade,str_c(" ",start,""))
+		if(is.null(df)) {
+			df<-data[as.character(start:end),]
+			rownames(df)<-0:9
+		}else {
+			df<-cbind(df,data[as.character(start:end),])
+		}
+		start=end+1
+	}
+	cgroupdecade<-c(cgroupdecade,str_c(" ",start,""))
+	dffin<-data[as.character(start:CY),]
+	dffin[(nrow(dffin)+1):10,]<-NA
+	df<-cbind(df,dffin)
+	cgroupdecade<<-cgroupdecade
+	return(df)
+}
+gg<-split_per_decade(gg0)
+gg[,1:8]<-100*round(gg[,1:8],2)
+gg[,9:ncol(gg)]<-100*round(gg[,9:ncol(gg)],3)
+nothing<-latex(gg,
+		rowlabel="",
+		rowlabel.just="c",
+		where="hptb",
+		cgroup=cgroupdecade,
+		n.cgroup=rep(ncol(gg0),length(cgroupdecade)),
+		collabel.just=strsplit("c c c c c c c c c c c c c c c", " ")[[1]],	
+		col.just     =strsplit("c c c c c c c c c c c c c c c", " ")[[1]],
+		#landscape=TRUE,
+		label="table_glm_glass_eel",
+		caption=str_c("GLM $glass~eel \\sim year:area + site $ geometric means of predicted values for ",vv$nb_series_glass_eel," glass eel series, values given in percentage of the 1960-1979 period."),	
+		file= str_c(tabwd,"/table_glm_glass_eel.tex"))
+
+
+#decades results
+decA<-tapply(synthesis$"North Sea",synthesis$decade,mean,na.rm=T)
+decE<-tapply(synthesis$"Elsewhere Europe",synthesis$decade,mean,na.rm=T)
+#decA[(length(decA)-1):length(decA)]
+#decE[(length(decE)-1):length(decE)]
+
+
+
+write.table(synthesis,file=str_c(datawd,"/glm_results_glass.csv"),sep=";")
+
+#plot(log(synthesis[synthesis$year>1979,"Elsewhere Europe"]))
+trend<-synthesis[synthesis$year>1979,]
+trend$EE<-trend$"Elsewhere Europe"
+trend$lEE<-log(trend$EE)
+
+trend$lNS<-log(trend$"North Sea")
+#round(lm(lEE~year,data=trend)$coefficient[2],4) # -0.098
+#round(lm(lNS~year,data=trend)$coefficient[2],4) # -0.098 North Sea -0129
+
+test1=lm(lEE~year+pmax(year,2011),data=trend)
+anova(test1)
+sgipee_test_for_change_ee<-summary(test1)$coefficients[3,4]
+if (sgipee_test_for_change_ee<=0.05) {
+	test_sgipee_char_ee<-"significant"
+}else {
+	test_sgipee_char_ee<-"not significant"
+}
+
+test=lm(lNS~year+pmax(year,2011),data=trend)
+anova(test)
+sgipee_test_for_change_ns<-summary(test)$coefficients[3,4]
+if (sgipee_test_for_change_ns<=0.05) {
+	test_sgipee_char_ns<-"significant"
+}else {
+	test_sgipee_char_ns<-"not significant"
+}
+@
+<< model_diagnostics, echo=FALSE, eval=FALSE,results=hide >>=
+require(car)
+require(sp)
+require(maptools)
+require(maps)
+require(boot)
+# summary(model_ge_area)
+# influence_plot
+gey<-glass_eel_yoy[glass_eel_yoy$data>0 & glass_eel_yoy$year>1959&!is.na(glass_eel_yoy$data_std),]
+gey$E<-resid(model_ge_area) # working residuals
+gey$P=predict(model_ge_area)
+plot(coefficients(model_ge_area)[grep("North Sea",names(coefficients(model_ge_area)))],type="l")
+points(log(datNS$p_std_1960_1970)+4,type="l",col="red")
+plot(gey$E~gey$P)
+
+# Three ways of getting the diagnostic graph of residuals
+glm.diag.plots(model_ge_area)
+plot(model_ge_area,which=1)
+panel.smooth(gey$P,gey$E,col="black",col.smooth="red")
+library(lattice)
+panel.smoother <- function(x, y) {
+	panel.xyplot(x, y) # show points 
+	panel.loess(x, y,col.line="red")  # show smoothed line 
+	panel.abline(h=0)
+}
+panel.smoother2 <- function(x, y) {
+	panel.xyplot(x, y) # show points 
+	panel.loess(x, y,col.line="red")  # show smoothed line 
+	panel.abline(h=-0.2)
+}
+mga_diag<-glm.diag(model_ge_area)
+gey$res<-mga_diag$res
+show.settings()
+
+xyplot(res~P, data=gey,scales=list(cex=.8, col="black"),
+		panel=panel.smoother,
+		xlab="Predicted", ylab="residuals", 
+		main="Jacknife deviance residuals agains the fitted value")
+xyplot(res~year, data=gey,scales=list(cex=.8, col="black"),
+		panel=panel.smoother2,
+		xlab="Predicted", ylab="residuals", 
+		main="Jacknife deviance residuals agains the fitted value")
+abline(h=0)
+xyplot(res~P|area, data=gey,scales=list(cex=.8, col="black"),
+		panel=panel.smoother,
+		xlab="Predicted", ylab="residuals", 
+		main="Jacknife deviance residuals agains the fitted value")
+xyplot(res~P|nam, data=gey,scales=list(cex=.8, col="black"),
+		panel=panel.smoother,
+		xlab="Predicted", ylab="residuals", 
+		main="Jacknife deviance residuals agains the fitted value")
+# un résidu / carte par annee
+
+
+# pour aller chercher les stations en 3035
+locxy_3035<-sqldf("select loc_id,st_x(the_geom) as X, st_y(the_geom) as Y from ts.t_location_loc where loc_tyl_code='Recruit'")
+gey<-merge(gey,locxy_3035,by="loc_id",all.x=TRUE,all.y=FALSE)
+Gey<-gey #spatial data frame
+coordinates(Gey)<-c("x","y")
+# dev.size("px") to check right dimensions
+#png(file=str_c(imgwd,"/resid_bretagne.png"), width=672,height= 389)
+
+#bb<-elargit(bb,0.01,0.01)
+
+#frequire(latticeExtra) # a + as.layer(b) pour mettre deux graphiques
+# but for now I don't have missing data there
+emu_c=readShapePoints(str_c(shpwd,"/","t_emuagreg_ema_point_3035.shp")) # a spatial object of class sp
+# this corresponds to the center of each emu.
+wisesp=readShapePoly(str_c(shpwd,"/","rbd_f1v3_3035.shp")) # a spatial object of class sp
+# this is the map showing the "missing parts", to be placed behind the others
+country_c=readShapePoints(str_c(shpwd,"/","t_country_coun_3035"))# a spatial object of class sp
+# this is the map of coutry centers, to overlay points for each country
+emusp0=readShapePoly(str_c(shpwd,"/","t_emuagreg_ema_3035")) # a spatial object of class sp
+years<-1960:2016
+bb<-bbox(emusp0)
+# loop to create all the graphs
+for (year in years){
+	#trellis.device(device="png",filename=str_c(imgwd,"/resids/",year,".png"))
+	png(filename=str_c(imgwd,"/resids/",year,".png"),width=600, height=500)
+	bb<-bubble(Gey[Gey@data$year==year,], "E",col=c("red","green"),main=str_c(year),
+			xlab="",ylab="",
+			do.sqrt = FALSE,
+			sp.layout=list("sp.polygons", emusp0,    first = FALSE)
+	) 		
+	print(bb)
+	dev.off()
+}
+# 
+require(lme4)
+model_ge_area<-gls(data_std~year_f:area+nam,data=glass_eel_yoy,family=Gamma(link=log),
+		subset=glass_eel_yoy$data>0 & glass_eel_yoy$year>1959 ,maxit=300)
+
+lmer(data_std~year_f:area+nam,data=glass_eel_yoy,family=Gamma(link=log),
+		subset=glass_eel_yoy$data>0 & glass_eel_yoy$year>1959)
+
+#library(nlme)
+library(lme4)
+library(MASS)
+glass_eel_yoy$ldata_std=log(glass_eel_yoy$data_std)
+M.lm <- gls(ldata_std~nam,data=glass_eel_yoy)
+
+vf1Fixed <- 
+		
+		M.gls1 <-glmmPQL(data_std~year_f:area+nam,
+				data=glass_eel_yoy[glass_eel_yoy$data>0 & glass_eel_yoy$year>1959,],
+				random = ~ 1 | nam,
+				weights = varIdent (form = ~ 1 | nam) ,
+				family=Gamma(link=log)
+		)
+M.gls1 <-glmmPQL(data_std~year_f:area+nam,
+		data=glass_eel_yoy[glass_eel_yoy$data>0 & glass_eel_yoy$year>1959,],
+		random = ~ 1 | nam,
+		family=Gamma(link=log)
+)
+# prediction for lough neagh
+# historical data
+glass_eel_yoy2=R_data[R_data$lifestage!="yellow eel" ,] #glass eel and yoy
+model_ge_area2=glm(data_std~year_f:area+nam,data=glass_eel_yoy2[glass_eel_yoy2$data>0 ,],
+		family=Gamma(link=log), maxit=300)
+
+newdata<-expand.grid(year_f=levels(glass_eel_yoy2$year_f),nam="Bann",area="Elsewhere Europe")
+newdata<-newdata[as.numeric(as.character(newdata$year_f))>1922,]
+newdata$P=predict(model_ge_area2,type="response",newdata=newdata)
+newdata$year<-as.numeric(as.character(newdata$year_f))
+
+plot(newdata$year,newdata$P, type="b",col="blue")
+gey2<-glass_eel_yoy2[glass_eel_yoy2$nam=='Bann',]
+gey2<-gey2[order(gey2$year),]
+points(gey2$year,gey2$data_std, type="b",col="red",pch=18)
+write.table(gey2,file=str_c(datawd,"/Bann_data.csv"),sep=";")
+write.table(newdata,file=str_c(datawd,"/Bann_predictions.csv"),sep=";")
+@
+
+<< model_for_yellow_eel, echo=FALSE, eval=TRUE,results=hide >>=
+# 2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~
+######################################"
+#~yellow eel migrant analysis
+######################################"~
+# 2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~~
+print("Analysis for yellow eel")
+area_year_older=table(older$year,older$area)
+vv$nb_for_yellow_eel_glm<-length(unique(older$nam))
+table(older$geo)
+print("stations selected for analysis")
+unique(older$nam)
+model_older=glm(data_std~year_f+as.factor(nam),data=older,family=Gamma(link=log),subset=older$data>0 &
+				older$year>1949  ,maxit=300)
+# parteen was removed but is no longer among the series
+summary(model_older)
+#plot(model_older)
+anova(model_older,test="F")
+
+data_bis=expand.grid(year_f=unique(model_older$xlevels$year_f),nam=model_older$xlevels$`as.factor(nam)`)
+data_bis$year=as.numeric(as.character(data_bis$year))
+
+#predicting
+data_bis$p=predict(model_older,newdata=data_bis,type="response")
+
+#standardising prediction to 1960-1970 level
+# 2 options mean or geomean
+if (opt_calculation=="geomean") {
+	mean_1960_1970=mean(data_bis[data_bis$year>=1960 & data_bis$year<1980,"p"])
+} else {
+	mean_1960_1970=as.numeric(geomean(data_bis[data_bis$year>=1960 & data_bis$year<1980,"p"]))
+}
+data_bis$p_std_1960_1970=data_bis$p/mean_1960_1970
+
+if (opt_calculation=="geomean") {
+	synthesis=data.frame("yellow_eel"=unlist(tapply(data_bis[,"p_std_1960_1970"],list(data_bis[,"year_f"]),geomean)))
+} else {
+	synthesis=data.frame("yellow_eel"=unlist(tapply(data_bis[,"p_std_1960_1970"],list(data_bis[,"year_f"]),mean)))
+}
+
+synthesis$time=rownames(synthesis)
+synthesis$decade=trunc(as.numeric(synthesis$time)/5)*5
+if (opt_calculation=="geomean") {
+	five_year_avg_yellow<-data.frame("yellow_eel"=tapply(
+					synthesis$"yellow_eel",synthesis$decade,
+					function(X){Y=geomean(X) ;return(as.numeric(Y))}))
+}else{
+	five_year_avg_yellow<-data.frame("yellow_eel"=tapply(
+					synthesis$"yellow_eel",synthesis$decade,
+					mean,na.rm=T))}
+synthesis$rebour<-nrow(synthesis):1
+rownames(five_year_avg_yellow)[nrow(five_year_avg_yellow)]<-"last"
+
+(decY<-tapply(synthesis$"yellow_eel",synthesis$decade,mean,na.rm=T))
+synthesis$rebour<-nrow(synthesis):1
+last<-synthesis$rebour<=5
+mean(synthesis[last,c("yellow_eel") ],na.rm=TRUE)
+rownames(synthesis)<-synthesis$time
+
+#xfive_year_avg_yellow <- xtable(x = five_year_avg_yellow, 
+#		label = "table_five_year_avg_yellow",
+#		caption = str_c("GLM estimates for glass eel series, averaged every five years"))
+#print(xfive_year_avg_yellow,
+#		file = str_c(tabwd,"/table_five_year_avg_yellow.tex"),
+#		table.placement = "htbp",
+#		caption.placement = "top",
+#		NA.string = ".")
+yy0<-synthesis[,"yellow_eel",drop = FALSE]
+
+
+split_per_decade<-function(data){
+	dates<-as.numeric(rownames(data))
+	start=min(dates)
+	df=NULL
+	cgroupdecade<-vector()
+	while (start<10*floor(CY/10)){
+		end=start+9	
+		cgroupdecade<-c(cgroupdecade,str_c(" ",start,""))
+		if(is.null(df)) {
+			df<-data[as.character(start:end),,drop=FALSE]
+			rownames(df)<-0:9
+		}else {
+			df<-cbind(df,data[as.character(start:end),])
+		}
+		start=end+1
+	}
+	df<-as.matrix(df)
+	cgroupdecade<-c(cgroupdecade,str_c(" ",start,""))
+	dat<-data[as.character(start:CY),]
+	dat[(length(dat)+1):10]<-NA
+	df<-as.data.frame(cbind(df,as.data.frame(dat)))
+	colnames(df)<-cgroupdecade
+	return(df)
+}
+yy<-split_per_decade(yy0)
+yy<-100*round(yy,2)
+nothing<-latex(yy,
+		rowlabel="",
+		rowlabel.just="c",
+		where="hptb",
+		col.just     =strsplit("c c c c c c c c c c c c c c c", " ")[[1]],
+		landscape=FALSE,
+		label="table_glm_yellow",
+		caption=str_c("GLM $yellow~eel \\sim year + site $ geometric means of predicted values for ",vv$nb_series_older, " yellow eel series, values given in percentage of the 1960-1979 period."),	
+		file= str_c(tabwd,"/table_glm_yellow.tex"))
+
+#plotting
+with(synthesis,matplot(time,(synthesis[,-dim(synthesis)[2]]),type="o"))
+legend("topright",legend=names(synthesis)[-dim(synthesis)[2]],lty=1:5,col=1:6)
+# plotting again
+library(reshape)
+
+synthesis$year=as.Date(strptime(paste(synthesis$time,"-01-01",sep=""),format="%Y-%m-%d"))
+g<-ggplot(synthesis,aes(x=year,y=yellow_eel)) 
+figure6_without_log_scale<-g+geom_line(lwd=1)+ geom_point()+
+		scale_y_continuous("standardized glm predictions/ mean 1960-1979")+
+		theme_bw()+
+		geom_hline(yintercept=1,linetype=2)+
+		theme(legend.box =NULL,
+				legend.key = element_rect(colour = NA, fill = 'white'),
+				legend.text = element_text(size = 8, colour = 'black'), 
+				legend.background = element_rect(colour = NA, fill = 'white'))#+
+#stat_smooth(method="lm",formula=y ~ ns(x,4),lty=2, size=0.8,alpha=0.3,col="grey20")
+nice_figure("figure6_without_log_scale",figure6_without_log_scale,400,300)
+figure6_without_log_scale
+figure6_without_log_scale_black<-g+geom_line(lwd=1,color="white")+ geom_point(color="white")+
+		scale_y_continuous("standardized glm predictions/ mean 1960-1979")+
+		#stat_smooth(method="lm",formula=y ~ ns(x,4),lty=2, size=0.8,alpha=0.3,col="turquoise1") +
+		theme_black()
+figure6_without_log_scale_black
+nice_figure("figure6_without_log_scale_black",figure6_without_log_scale_black,400,300)
+figure6<-g+geom_line(lwd=1)+geom_point()+
+		scale_y_log10(name="standardized glm predictions/ mean 1960-1979-log scale",
+				#limits=c(0.005,10),
+				breaks=c(0.01,0.1,1,10),
+				labels=c("1%","10%","100%","1000%")) +
+		theme_bw()+
+		theme(legend.box =NULL,
+				legend.key = element_rect(colour = NA, fill = 'white'),
+				legend.text = element_text(size = 8, colour = 'black'), 
+				legend.background = element_rect(colour = NA, fill = 'white'))
+#stat_smooth(method="lm",formula=y ~ ns(x,4), lty=2, size=0.8,alpha=0.3,col="grey20")
+figure6
+nice_figure("figure6",figure6,400,300)
+
+write.table(synthesis,file=str_c(datawd,"/glm_results_yellow.csv"),sep=";")
+@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%************************************************************************************
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{GLM based trend}
+
+The WGEEL recruitment index is a reconstructed prediction using a GLM
+(Generalised Linear Model) with gamma distribution and a log link:
+$glass~eel \sim year:area + site $, where $glass~eel$ is individual glass eel time-series, $site$ is the site monitored for recruitment and area is either the continental
+North Sea or Elsewhere Europe. In the case of yellow eel time-series, only one estimate is provided:
+$yellow~eel \sim year + site $. 
+
+The trend is reconstructed using the predictions from 1949 for
+\Sexpr{vv$modelge$nbsite} glass eel time-series and \Sexpr{vv$modelolder$nbsite} 
+yellow eel time-series.
+Some zero values have been excluded from the GLM analysis: 
+\Sexpr{nrow(vv$modelge$data_excluded_zero)} for the glass eel model and
+\Sexpr{nrow(vv$modelolder$data_excluded_zero)} for the yellow eel model.\\
+
+The reconstructed values are then aggregated using geometric means of the two
+reference area (Elsewhere Europe EE, and North Sea NS). The predictions are given 
+in reference to the geometric mean of the 1960-1979 period.
+Note that the shift from arithmetic to geometric means was done this year as the
+recruitment is usually assumed to be lognormally distributed (Drouineau et al
+2016).\\
+
+After high levels in
+the late 1970s, there has been a rapid decreasing trend for three decades to a
+minimum in 2009 (Figures \ref{figure5} \ref{figure6}).\\
+%==========================================
+\begin{figure}[htpb]
+\centering
+\includegraphics[width=0.8\textwidth]{figure5.pdf}
+\caption{WGEEL recruitment index: geometric mean of estimated (GLM) glass eel
+recruitment for the continental  North Sea and  Elsewhere Europe series updated to
+\Sexpr{CY}.
+  The  GLM ($recruit \sim area:year+site$)  was  fitted  on
+  \Sexpr{vv$modelge$nbsite} time-series comprising either pure glass eel or a mixture of 
+  glass eels and yellow eels and scaled to the 1960-1979 average.
+   No time-series are available for glass eel in the Baltic area. Note the
+   logarithmic scale on the y-axis. }
+\label{figure5}
+\end{figure}
+%==========================================
+%==========================================
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.8\textwidth]{figure6.pdf}
+\caption {Geometric mean of estimated (GLM) yellow eel recruitment and smoothed
+trends for Europe updated to \Sexpr{CY}. The GLM ($recruit \sim year+site$) was fitted to
+\Sexpr{vv$nb_for_yellow_eel_glm} yellow eel time-series and scaled to the 1960-1979
+average. Note the logarithmic scale on the y-axis.}
+\label{figure6}
+\end{figure}
+%==========================================
+
+Both WGEEL recruitment indices for 2016 are lower than 2014, but modelling a
+breakpoint arround the minima of 2011 still gives significant results when using
+the lower value from 2016 (p=\Sexpr{sn(sgipee_test_for_change_ee,digits=1)}
+Elsewhere Europe and p=\Sexpr{sn(sgipee_test_for_change_ns,digits=1)} North Sea ICES SGIPEE(2011)). The 2016 level with respect to 1960-1979 averages is
+\Sexpr{sn(100*gg0[rownames(gg0)==CY,"NS"],digits=1)}\% for the North Sea 
+and \Sexpr{sn(100*gg0[rownames(gg0)==CY,"EE"],digits=1)}\% elsewhere in the distribution area 
+(Tables \ref{table_glm_glass_eel} and \ref{table_glm_yellow}). The increase in
+the elsewhere in the distribution area index, was mainly driven by the increase
+in the Irish series. The yellow recruitment index was nearly the double
+comparing to that of the previous year (Figure \ref{figure6}).
+
+\tiny
+\input{../../wgeeldata/sweave/2016/table/table_glm_glass_eel.tex}
+\input{../../wgeeldata/sweave/2016/table/table_glm_yellow.tex}
+\normalsize
+
+\clearpage
+
+\section*{Annex}
+
+
+%==================================================
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.7\textwidth]{figure3withoutlogscale.pdf}
+\caption{Same as figure \ref{figure3} but without log scale}
+\label{figure3withoutlogscale}
+\end{figure}
+%==========================================
+
+%==========================================
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.7\textwidth]{figure5_without_logscale.pdf}
+\caption{Same as figure \ref{figure5} but without a log scale.}
+\label{figure5_without_logscale}
+\end{figure}
+%==========================================
+%==========================================
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.7\textwidth]{figure6_without_log_scale.pdf}
+\caption{Same graph as figure \ref{figure6} but without a log scale.}
+\label{figure6_without_logscale}
+\end{figure}
+\normalsize
+%==========================================
+
+ %====================================
+	\input{../../wgeeldata/sweave/2016/table/table_seriesCY.tex}
+ %====================================
+
+ %====================================
+	\input{../../wgeeldata/sweave/2016/table/table_seriesCYm1.tex}
+ %====================================
+
+ %====================================
+	\input{../../wgeeldata/sweave/2016/table/table_serieslost.tex}
+ %====================================
+\normalsize
+
+\small
+ %====================================
+	\input{../../wgeeldata/sweave/2016/table/table_statseries.tex}
+ %====================================
+\normalsize
+\small
+ %====================================
+	\input{../../wgeeldata/sweave/2016/table/table_statseries1.tex}
+ %====================================F
+\normalsize
+\small
+ %====================================
+	\input{../../wgeeldata/sweave/2016/table/table_statseries2.tex}
+ %====================================
+\normalsize
+%\newpage
+%\small
+% %====================================
+%\input{../../wgeeldata/sweave/2016/table/table_n_y_area.tex}
+% %====================================
+%\normalsize
+%\small
+% %====================================
+%\input{../../wgeeldata/sweave/2015/table/table_n_y_lfs.tex}
+% %====================================
+%\normalsize
+\end{document}
+sdfsdf
+ nor
