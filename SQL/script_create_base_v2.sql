@@ -28,7 +28,7 @@ WITH (
 );
 ALTER TABLE ref.tr_typeseries_typ
   OWNER TO postgres;
-COMMENT ON TABLE ts.tr_dataclass_class
+COMMENT ON TABLE ref.tr_dataclass_class
   IS 'table containing the type of series (recruitment, yellow eel standing stock, silver eel to be used by ICES-EIFAAC-GFCM wgeel,
   note that recruitment can be made of different life stages';
   
@@ -68,7 +68,6 @@ ALTER TABLE ref.tr_country_cou
 -- Reference table of EEL management units, name for eel (as used by WGEEL)
 --------------------------------------------------- 
 
--- to be copied from laurent
 
 
 --------------------------------------------------
@@ -78,7 +77,7 @@ ALTER TABLE ref.tr_country_cou
 -- this is used to later attribute recruitment series to the two series 'Elsewhere Europe' and 'North Sea'
 -- or build spatial analyses such as in ICES_wgeel_2008 (Hamburg)
 --------------------------------------------------- 
-create table ref.ts_sea_sea (
+create table ref.tr_sea_sea (
 sea_o character varying(50) not null,
 sea_s character varying(50) not null,
 sea_code character varying(2),
@@ -87,7 +86,7 @@ CONSTRAINT c_pk_sea PRIMARY KEY(sea_code)
 WITH (
   OIDS=TRUE
 );
-ALTER TABLE ref.ts_sea_sea
+ALTER TABLE ref.tr_sea_sea
   OWNER TO postgres;
 
 --------------------------------------------------
@@ -96,6 +95,7 @@ ALTER TABLE ref.ts_sea_sea
 -- to ICES standards
 ---------------------------------------------------
 create table ref.ts_quality_qal (
+create table ref.tr_quality_qal (
 qal_id,
 qal_level,
 qal_text);
@@ -124,9 +124,9 @@ ser_y numeric,
 geom,
 CONSTRAINT enforce_dims_the_geom CHECK (st_ndims(geom) = 2),
 CONSTRAINT enforce_srid_the_geom CHECK (st_srid(geom) = 3035)
-CONSTRAINT c_fk_cou_code FOREIGN KEY   REFERENCES ts.country_cou (cou_code)
+CONSTRAINT c_fk_cou_code FOREIGN KEY   REFERENCES ref.tr_country_cou (cou_code)
       ON UPDATE NO ACTION ON DELETE NO ACTION,
-CONSTRAINT c_fk_sea_code FOREIGN KEY REFERENCES ts_sea_sea(sea_code) ON UPDATE CASCADE;
+CONSTRAINT c_fk_sea_code FOREIGN KEY REFERENCES tr_sea_sea(sea_code) ON UPDATE CASCADE;
 --------------------------------
 -- this table holds the main information
 ----------------------------------
@@ -148,7 +148,7 @@ create table data.t_data_dat (
       REFERENCES t_serie_ser (ser_id)
       ON UPDATE CASCADE ON DELETE NO ACTION,
   CONSTRAINT c_fk_eft_id FOREIGN KEY (dat_eft_id)
-      REFERENCES ts.tr_efforttype_eft (eft_id)
+      REFERENCES ref.tr_efforttype_eft (eft_id)
       ON UPDATE CASCADE ON DELETE NO ACTION,
   CONSTRAINT c_ck_dat_effort CHECK (dat_effort IS NULL AND dat_eft_id IS NULL OR dat_effort IS NOT NULL AND dat_eft_id IS NOT NULL)
 )
