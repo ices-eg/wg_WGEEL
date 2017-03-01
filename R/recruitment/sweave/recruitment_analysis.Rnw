@@ -11,6 +11,7 @@
 \setcounter{secnumdepth}{10}
 \usepackage{hyperref} %gestion des hyperliens
 %\hypersetup{pdfstartview=XYZ} %zoom par défaut
+
 \hypersetup{
      backref=true,    %permet d'ajouter des liens dans...
      pagebackref=true,%...les bibliographies
