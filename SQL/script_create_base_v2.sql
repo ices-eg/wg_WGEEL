@@ -69,13 +69,9 @@ ALTER TABLE ref.tr_country_cou
 --------------------------------------------------- 
 
 
-<<<<<<< HEAD
 
-=======
->>>>>>> branch 'master' of https://github.com/ices-eg/WGEEL
 --------------------------------------------------
 -- Reference table of station
--- last update 2017/03/01
 -- based on station dictionnay (http://ices.dk/marine-data/tools/Pages/Station-dictionary.aspx)
 --------------------------------------------------- 
 
@@ -94,12 +90,10 @@ CREATE TABLE ref.tr_station(
 	"Notes" TEXT
 );
 
-<<<<<<< HEAD
-=======
 COMMENT ON COLUMN ref.tr_station."Country" IS 'country responsible of the data collection ?';
 COMMENT ON COLUMN ref.tr_station."WLTYP" IS 'Water and land station types ';
 COMMENT ON COLUMN ref.tr_station."PURPM" IS 'Purpose of monitoring';
->>>>>>> branch 'master' of https://github.com/ices-eg/WGEEL
+
 
 --------------------------------------------------
 -- Reference table of sea
@@ -125,10 +119,7 @@ ALTER TABLE ref.tr_sea_sea
 -- TODO describe this.... and fill in a table appropriate according
 -- to ICES standards
 ---------------------------------------------------
-<<<<<<< HEAD
-create table ref.ts_quality_qal (
-=======
->>>>>>> branch 'master' of https://github.com/ices-eg/WGEEL
+
 create table ref.tr_quality_qal (
 qal_id,
 qal_level,
@@ -191,12 +182,4 @@ WITH (
 );
 ALTER TABLE data.t_data_dat
   OWNER TO postgres;
-<<<<<<< HEAD
-COMMENT ON COLUMN ts.t_data_dat.dat_class_id IS 'foreign key to join relational table tr_dataclass_class';
-COMMENT ON COLUMN ts.t_data_dat.dat_loc_id IS 'foreign key to join table location';
-=======
-COMMENT ON COLUMN ts2.t_data_dat.dat_value IS 'foreign key to join relational table tr_dataclass_class';
-COMMENT ON COLUMN ts2.t_data_dat.dat_class_id IS 'foreign key to join relational table tr_dataclass_class';
-COMMENT ON COLUMN ts2.t_data_dat.dat_loc_id IS 'foreign key to join table location';
->>>>>>> branch 'master' of https://github.com/ices-eg/WGEEL
 
