@@ -13,7 +13,7 @@ create schema ts2
 -- (this refererence has been developped and used by WGEEL)
 -- we have three type so far, yellow eel standing stock, silver eel escapement series, and glass eel recruitment series
 ---------------------------------------------------
-CREATE TABLE ts2.tr_typeseries_typ
+CREATE TABLE ref.tr_typeseries_typ
 (
   typ_id serial NOT NULL,
   typ_name character varying(40),
@@ -23,9 +23,9 @@ CREATE TABLE ts2.tr_typeseries_typ
 WITH (
   OIDS=FALSE
 );
-ALTER TABLE ts2.tr_typeseries_typ
+ALTER TABLE ref.tr_typeseries_typ
   OWNER TO postgres;
-COMMENT ON TABLE ts.tr_dataclass_class
+COMMENT ON TABLE ref.tr_dataclass_class
   IS 'table containing the type of series (recruitment, yellow eel standing stock, silver eel to be used by ICES-EIFAAC-GFCM wgeel,
   note that recruitment can be made of different life stages';
   
@@ -33,13 +33,13 @@ COMMENT ON TABLE ts.tr_dataclass_class
 -- Reference table of lifestage name for eel 
 -- (this refererence has been developped and used by WGEEL)
 ---------------------------------------------------
-CREATE TABLE ts2.tr_lifestage_lfs
+CREATE TABLE ref.tr_lifestage_lfs
 (
   lfs_name character varying(30) NOT NULL,
   lfs_definition text,
   CONSTRAINT lfs_pk PRIMARY KEY (lfs_name)
 );
-ALTER TABLE ts2.tr_lifestage_lfs
+ALTER TABLE ref.tr_lifestage_lfs
   OWNER TO postgres;
 
 --------------------------------------------------
@@ -48,7 +48,7 @@ ALTER TABLE ts2.tr_lifestage_lfs
 -- this follows ISO_3166
 -- todo fill in the geom for geometry
 ---------------------------------------------------
-CREATE TABLE ts2.tr_country_cou 
+CREATE TABLE ref.tr_country_cou 
 (
   cou_code character varying(2) PRIMARY KEY,
   cou_country text not null,
@@ -58,27 +58,28 @@ CREATE TABLE ts2.tr_country_cou
 WITH (
   OIDS=TRUE
 );
-ALTER TABLE ts2.tr_country_cou 
+ALTER TABLE ref.tr_country_cou 
   OWNER TO postgres;
 
 --------------------------------------------------
 -- Reference table of EEL management units, name for eel (as used by WGEEL)
 --------------------------------------------------- 
 
--- to be copied from laurent
 
--- Created by BEAULATON Laurent
+--------------------------------------------------
+-- Reference table of station
 -- last update 2017/03/01
 -- based on station dictionnay (http://ices.dk/marine-data/tools/Pages/Station-dictionary.aspx)
+--------------------------------------------------- 
 
-CREATE TABLE ts2.tr_station(
+CREATE TABLE ref.tr_station(
 	"tblCodeID" DOUBLE PRECISION PRIMARY KEY,
 	"Station_Code" DOUBLE PRECISION,
 	"Country" TEXT,
 	"Organisation" TEXT,
 	"Station_Name" TEXT,
 	"WLTYP" TEXT, -- Water and land station types 
-	"Lat" DOUBLE PRECISION,
+	"Lat" DOUBLE PR0ECISION,
 	"Lon" DOUBLE PRECISION,
 	"StartYear" DOUBLE PRECISION,
 	"EndYear" DOUBLE PRECISION,
@@ -86,9 +87,9 @@ CREATE TABLE ts2.tr_station(
 	"Notes" TEXT
 );
 
-COMMENT ON COLUMN ts2.tr_station."Country" IS 'country responsible of the data collection ?';
-COMMENT ON COLUMN ts2.tr_station."WLTYP" IS 'Water and land station types ';
-COMMENT ON COLUMN ts2.tr_station."PURPM" IS 'Purpose of monitoring';
+COMMENT ON COLUMN ref.tr_station."Country" IS 'country responsible of the data collection ?';
+COMMENT ON COLUMN ref.tr_station."WLTYP" IS 'Water and land station types ';
+COMMENT ON COLUMN ref.tr_station."PURPM" IS 'Purpose of monitoring';
 
 --------------------------------------------------
 -- Reference table of sea
@@ -97,7 +98,7 @@ COMMENT ON COLUMN ts2.tr_station."PURPM" IS 'Purpose of monitoring';
 -- this is used to later attribute recruitment series to the two series 'Elsewhere Europe' and 'North Sea'
 -- or build spatial analyses such as in ICES_wgeel_2008 (Hamburg)
 --------------------------------------------------- 
-create table ts2.ts_sea_sea (
+create table ref.tr_sea_sea (
 sea_o character varying(50) not null,
 sea_s character varying(50) not null,
 sea_code character varying(2),
@@ -106,7 +107,7 @@ CONSTRAINT c_pk_sea PRIMARY KEY(sea_code)
 WITH (
   OIDS=TRUE
 );
-ALTER TABLE ts2.ts_sea_sea
+ALTER TABLE ref.tr_sea_sea
   OWNER TO postgres;
 
 --------------------------------------------------
@@ -114,7 +115,7 @@ ALTER TABLE ts2.ts_sea_sea
 -- TODO describe this.... and fill in a table appropriate according
 -- to ICES standards
 ---------------------------------------------------
-create table ts2.ts_quality_qal (
+create table ref.tr_quality_qal (
 qal_id,
 qal_level,
 qal_text);
@@ -143,7 +144,7 @@ ser_y numeric,
 geom,
 CONSTRAINT enforce_dims_the_geom CHECK (st_ndims(geom) = 2),
 CONSTRAINT enforce_srid_the_geom CHECK (st_srid(geom) = 3035)
-CONSTRAINT c_fk_cou_code FOREIGN KEY   REFERENCES ts.country_cou (cou_code)
+CONSTRAINT c_fk_cou_code FOREIGN KEY   REFERENCES ref.tr_country_cou (cou_code)
       ON UPDATE NO ACTION ON DELETE NO ACTION,
 CONSTRAINT c_fk_sea_code FOREIGN KEY REFERENCES ts_sea_sea(sea_code) ON UPDATE CASCADE;
 --------------------------------
@@ -167,7 +168,7 @@ create table ts2.t_data_dat (
       REFERENCES t_serie_ser (ser_id)
       ON UPDATE CASCADE ON DELETE NO ACTION,
   CONSTRAINT c_fk_eft_id FOREIGN KEY (dat_eft_id)
-      REFERENCES ts.tr_efforttype_eft (eft_id)
+      REFERENCES ref.tr_efforttype_eft (eft_id)
       ON UPDATE CASCADE ON DELETE NO ACTION,
   CONSTRAINT c_ck_dat_effort CHECK (dat_effort IS NULL AND dat_eft_id IS NULL OR dat_effort IS NOT NULL AND dat_eft_id IS NOT NULL)
 )
@@ -176,7 +177,7 @@ WITH (
 );
 ALTER TABLE ts2.t_data_dat
   OWNER TO postgres;
-COMMENT ON COLUMN ts.t_data_dat.dat_value IS 'foreign key to join relational table tr_dataclass_class';
-COMMENT ON COLUMN ts.t_data_dat.dat_class_id IS 'foreign key to join relational table tr_dataclass_class';
-COMMENT ON COLUMN ts.t_data_dat.dat_loc_id IS 'foreign key to join table location';
+COMMENT ON COLUMN ts2.t_data_dat.dat_value IS 'foreign key to join relational table tr_dataclass_class';
+COMMENT ON COLUMN ts2.t_data_dat.dat_class_id IS 'foreign key to join relational table tr_dataclass_class';
+COMMENT ON COLUMN ts2.t_data_dat.dat_loc_id IS 'foreign key to join table location';
 
