@@ -1,7 +1,7 @@
 -------------------------------------
 -- script for updating the database
 -- created during WKDATAWGEEL Rennes
--- Cédric Briand Laurent Beaulaton
+-- Cedric Briand Laurent Beaulaton
 ------------------------------------
 
 create schema ref -- refential to hold dictionnay
@@ -68,6 +68,28 @@ ALTER TABLE ref.tr_country_cou
 -- Reference table of EEL management units, name for eel (as used by WGEEL)
 --------------------------------------------------- 
 
+
+
+--------------------------------------------------
+-- Reference table of station
+-- last update 2017/03/01
+-- based on station dictionnay (http://ices.dk/marine-data/tools/Pages/Station-dictionary.aspx)
+--------------------------------------------------- 
+
+CREATE TABLE ref.tr_station(
+	"tblCodeID" DOUBLE PRECISION PRIMARY KEY,
+	"Station_Code" DOUBLE PRECISION,
+	"Country" TEXT,
+	"Organisation" TEXT,
+	"Station_Name" TEXT,
+	"WLTYP" TEXT, -- Water and land station types 
+	"Lat" DOUBLE PR0ECISION,
+	"Lon" DOUBLE PRECISION,
+	"StartYear" DOUBLE PRECISION,
+	"EndYear" DOUBLE PRECISION,
+	"PURPM" TEXT, -- Purpose of monitoring
+	"Notes" TEXT
+);
 
 
 --------------------------------------------------
