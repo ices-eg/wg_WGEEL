@@ -1,11 +1,11 @@
--------------------------------------
+﻿-------------------------------------
 -- script for updating the database
 -- created during WKDATAWGEEL Rennes
 -- Cedric Briand Laurent Beaulaton
 ------------------------------------
 
-create schema ref -- refential to hold dictionnay
-create schema data -- this schema will hold the data
+CREATE SCHEMA ref; -- refential to hold dictionnay
+CREATE SCHEMA data; -- this schema will hold the data
 
 
 -------------------------------------
@@ -28,7 +28,7 @@ WITH (
 );
 ALTER TABLE ref.tr_typeseries_typ
   OWNER TO postgres;
-COMMENT ON TABLE ref.tr_dataclass_class
+COMMENT ON TABLE ref.tr_typeserie_typ
   IS 'table containing the type of series (recruitment, yellow eel standing stock, silver eel to be used by ICES-EIFAAC-GFCM wgeel,
   note that recruitment can be made of different life stages';
   
