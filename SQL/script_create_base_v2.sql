@@ -5,8 +5,8 @@
 ------------------------------------
 set search_path to ref, data, public;
 
-CREATE SCHEMA ref; -- refential to hold dictionnay
-CREATE SCHEMA data; -- this schema will hold the data
+create schema ref -- refential to hold dictionnay
+create schema data -- this schema will hold the data
 
 
 -------------------------------------
@@ -41,9 +41,11 @@ COMMENT ON TABLE ref.tr_typeseries_typ
 DROP TABLE IF EXISTS ref.tr_lifestage_lfs;
 CREATE TABLE ref.tr_lifestage_lfs
 (
+  lfs_code character varying(2) NOT NULL,
   lfs_name character varying(30) NOT NULL,
   lfs_definition text,
-  CONSTRAINT lfs_pk PRIMARY KEY (lfs_name)
+  CONSTRAINT pk_lfs PRIMARY KEY (lfs_code),
+  CONSTRAINT uk_lfs_name UNIQUE (lfs_name)
 );
 ALTER TABLE ref.tr_lifestage_lfs
   OWNER TO postgres;
@@ -222,15 +224,15 @@ ALTER TABLE ref.tr_efforttype_eft
 --------------------------------------------------- 
 drop table if exists data.t_series_ser;
 create table data.t_series_ser (
-ser_id serial PRIMARY KEY,
-ser_order integer not null,
-ser_nameshort character varying(4),
-ser_namelong character varying(50),
-ser_typ_id integer,
-ser_comment text,
-ser_unit character varying(12),
+ser_id serial PRIMARY KEY,  --number internal use
+ser_order integer not null, -- order internal use
+ser_nameshort character varying(4), --short name of the recuitment series eg Vil for Vilaine
+ser_namelong character varying(50), -- long name of the recuitment series
+ser_typ_id integer, -- type of series 1= recruitment series
+ser_comment text, -- Comment for the series, this is the metadata describing the whole series
+ser_unit character varying(12), -- unit of the series kg, ton
 ser_lfs_id integer,
-ser_riv_id integer,
+ser_habitat_name text,
 ser_emu_name_short character varying(7),
 ser_cou_code character varying(2),
 ser_area_code character varying(2), -- this should be a sequence from ICES
