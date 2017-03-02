@@ -50,6 +50,21 @@ CREATE TABLE ref.tr_lifestage_lfs
 ALTER TABLE ref.tr_lifestage_lfs
   OWNER TO postgres;
 
+
+--------------------------------------------------
+-- Reference table of units
+-- we checked that this follows ICES conventions
+---------------------------------------------------
+DROP TABLE IF EXISTS ref.tr_units_uni CASCADE;
+CREATE TABLE ref.tr_units_uni
+(
+  uni_code character varying(20) NOT NULL,
+  uni_name text NOT NULL,
+  CONSTRAINT pk_uni PRIMARY KEY (uni_code),
+  CONSTRAINT uk_uni_name UNIQUE (uni_name)
+);
+ALTER TABLE ref.tr_units_uni
+  OWNER TO postgres;
 --------------------------------------------------
 -- Reference table of countries, includes the order of the country as diplayed by wgeel
 -- If transfered to ICES the country ordre will have to be stored somewhere else and loaded
@@ -219,24 +234,6 @@ ALTER TABLE  ref.tr_habitattype_hty
   OWNER TO postgres;
 
 
- --------------------------------------------------
--- Some of the recruitment series have associated effort
--- Here is the referential table for those
----------------------------------------------------  
-DROP TABLE IF EXISTS ref.tr_efforttype_eft;
-CREATE TABLE ref.tr_efforttype_eft
-(
-  eft_id integer NOT NULL,
-  eft_name character(40),
-  eft_comment text,
-  CONSTRAINT tr_efforttype_eft_pkey PRIMARY KEY (eft_id)
-)
-WITH (
-  OIDS=FALSE
-);
-ALTER TABLE ref.tr_efforttype_eft
-  OWNER TO postgres;
-
 ------------------------------------------------------
 -- FAO area come from the shp files
 -----------------------------------------------------
@@ -293,15 +290,40 @@ psql -U postgres -f "tr_faoareas.sql" wgeel
 ------------------------------------------------------
 -- ICES ecoregion come from the shp files
 -----------------------------------------------------
+CREATE TABLE ref.tr_ices_ecoregions
+(
+  gid serial NOT NULL,
+  ecoregion character varying(254),
+  shape_leng numeric,
+  shape_le_1 numeric,
+  shape_area numeric,
+  geom geometry(MultiPolygon,4326),
+  CONSTRAINT tr_ices_ecoregions_pkey PRIMARY KEY (gid)
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE ref.tr_ices_ecoregions
+  OWNER TO postgres;
+
+-- Index: ref.tr_ices_ecoregions_geom_gist
+
+-- DROP INDEX ref.tr_ices_ecoregions_geom_gist;
+
+CREATE INDEX tr_ices_ecoregions_geom_gist
+  ON ref.tr_ices_ecoregions
+  USING gist
+  (geom);
+
 
 /*
 dos script used to create this table (using shp2pgsql and psql):
 f:
-cd F:\projets\GRISAM\2017\WKDATA\FAO_AREAS
+cd F:\projets\GRISAM\2017\WKDATA\ices_ecoregions
 REM -d drops de table, table is in wgs84
-shp2pgsql -s 4326 -d -g geom -I FAO_AREAS ref.tr_faoareas> tr_faoareas.sql 
+shp2pgsql -s 4326 -d -g geom -I ices_ecoregions ref.tr_ices_ecoregions> tr_ices_ecoregions.sql 
 REM IMPORT INTO POSTGRES
-psql -U postgres -f "tr_faoareas.sql" wgeel
+psql -U postgres -f "tr_ices_ecoregions.sql" wgeel
 */
 
 --------------------------------------------------
@@ -317,8 +339,9 @@ ser_order integer not null, -- order internal use
 ser_nameshort character varying(4), --short name of the recuitment series eg Vil for Vilaine
 ser_namelong character varying(50), -- long name of the recuitment series
 ser_typ_id integer, -- type of series 1= recruitment series
+ser_effort_uni_code character varying(20), -- unit used for effort
 ser_comment text, -- Comment for the series, this is the metadata describing the whole series
-ser_unit character varying(12), -- unit of the series kg, ton
+ser_uni_code character varying(20), -- unit of the series kg, ton
 ser_lfs_id integer, -- lifestage id see 
 ser_hty_code character varying(2), -- habitat code see table t_habitattype_hty (F=Freshwater, MO=Marine Open,T=transitional...)
 ser_habitat_name text, -- habitat name, name of the river, of the lagoon ...
@@ -333,11 +356,19 @@ CONSTRAINT enforce_dims_the_geom CHECK (st_ndims(geom) = 2),
 CONSTRAINT enforce_srid_the_geom CHECK (st_srid(geom) = 3035),
 CONSTRAINT c_fk_cou_code FOREIGN KEY (ser_cou_code) REFERENCES ref.tr_country_cou (cou_code)
       ON UPDATE NO ACTION ON DELETE NO ACTION,
+CONSTRAINT c_fk_uni_code FOREIGN KEY (ser_uni_code) REFERENCES ref.tr_units_uni (uni_code)
+      ON UPDATE NO ACTION ON DELETE NO ACTION,
 CONSTRAINT c_fk_emu_name_short FOREIGN KEY (ser_emu_name_short) REFERENCES ref.tr_emu_emu(emu_name_short) 
-ON UPDATE CASCADE ON DELETE NO ACTION,
-CONSTRAINT c_fk_area_code FOREIGN KEY (ser_area_division) REFERENCES ref.tr_faoareas(f_division) ON UPDATE CASCADE ON DELETE NO ACTION,
-CONSTRAINT c_fk_tblcodeid FOREIGN KEY (ser_tblcodeid) REFERENCES ref.tr_station("tblCodeID") ON UPDATE CASCADE ON DELETE NO ACTION,
-CONSTRAINT c_fk_hty_code FOREIGN KEY (ser_hty_code) REFERENCES ref.tr_habitattype_hty(hty_code) ON UPDATE CASCADE ON DELETE NO ACTION);
+	ON UPDATE CASCADE ON DELETE NO ACTION,
+CONSTRAINT c_fk_area_code FOREIGN KEY (ser_area_division) 
+	REFERENCES ref.tr_faoareas(f_division) ON UPDATE CASCADE ON DELETE NO ACTION,
+CONSTRAINT c_fk_tblcodeid FOREIGN KEY (ser_tblcodeid) 
+	REFERENCES ref.tr_station("tblCodeID") ON UPDATE CASCADE ON DELETE NO ACTION,
+CONSTRAINT c_fk_hty_code FOREIGN KEY (ser_hty_code) 
+	REFERENCES ref.tr_habitattype_hty(hty_code) ON UPDATE CASCADE ON DELETE NO ACTION,
+CONSTRAINT c_fk_ser_effort_uni_code FOREIGN KEY (ser_effort_uni_code)
+     REFERENCES ref.tr_units_uni (uni_code)
+ );
 
 ---------------------------------------
 -- this table holds the main information
@@ -351,16 +382,11 @@ CREATE TABLE data.t_data_dat (
   dat_year integer, -- year for the data
   dat_comment text, -- comment for the particular year
   dat_effort numeric, -- effort value if present (nb of electrofishing, nb of hauls)
-  dat_eft_id integer, --  type of effort ( currently 1 = nb haul, 2= nb electrofishing)
   dat_last_update date, -- internal use (trigger on insert or update) pour mise à jour
   CONSTRAINT t_data_dat_pkey PRIMARY KEY (dat_id),
   CONSTRAINT c_fk_ser_id FOREIGN KEY (dat_ser_id)
       REFERENCES data.t_series_ser (ser_id)
-      ON UPDATE CASCADE ON DELETE NO ACTION,
-  CONSTRAINT c_fk_eft_id FOREIGN KEY (dat_eft_id)
-      REFERENCES ref.tr_efforttype_eft (eft_id)
-      ON UPDATE CASCADE ON DELETE NO ACTION,
-  CONSTRAINT c_ck_dat_effort CHECK (dat_effort IS NULL AND dat_eft_id IS NULL OR dat_effort IS NOT NULL AND dat_eft_id IS NOT NULL)
+      ON UPDATE CASCADE ON DELETE NO ACTION   
 )
 WITH (
   OIDS=FALSE

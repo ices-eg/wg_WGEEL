@@ -89,8 +89,3 @@ insert into ref.tr_habitattype_hty (hty_code,hty_description) values ('T','WFD T
 insert into ref.tr_habitattype_hty (hty_code,hty_description) values ('C','WFD Coastal water');
 insert into ref.tr_habitattype_hty (hty_code,hty_description) values ('MO','Marine water (open sea)');
 
-
-
-
-
-
