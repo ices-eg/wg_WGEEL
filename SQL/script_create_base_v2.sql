@@ -134,10 +134,10 @@ ALTER TABLE  ref.tr_quality_qal
 -- REFERENCE TABLE FOR EMU
 -- this table containt the EMU agregated
 -----------------------------------------------------------
-DROP TABLE IF EXISTS ref.tr_emu_emu;
+DROP TABLE IF EXISTS ref.tr_emu_emu CASCADE;
 CREATE TABLE ref.tr_emu_emu
 (
-  emu_name_short character varying(7) PRIMARY KEY,
+  emu_name_short character varying(20) PRIMARY KEY,
   emu_name character varying(100),
   emu_coun_abrev text,
   geom geometry,
@@ -149,6 +149,7 @@ WITH (
 );
 ALTER TABLE ref.tr_emu_emu
   OWNER TO postgres;
+
 
 -----------------------------------------------------------
 -- ANOTHER TABLE FOR EMU but split into 
@@ -175,7 +176,8 @@ CREATE TABLE ref.tr_emusplit_ems
   CONSTRAINT t_emuagreg_ema_pkey PRIMARY KEY (gid),
   CONSTRAINT enforce_dims_the_geom CHECK (st_ndims(geom) = 2),
   CONSTRAINT enforce_srid_the_geom CHECK (st_srid(geom) = 3035),
- CONSTRAINT c_fk_emu_sea FOREIGN KEY (emu_sea) REFERENCES ref.tr_sea_sea(sea_code) ON UPDATE CASCADE ON DELETE NO ACTION 
+ CONSTRAINT c_fk_emu_sea FOREIGN KEY (emu_sea) REFERENCES ref.tr_sea_sea(sea_code) ON UPDATE CASCADE ON DELETE NO ACTION, 
+ CONSTRAINT c_fk_emu_name_short FOREIGN KEY (emu_name_short) REFERENCES ref.tr_emu_emu(emu_name_short) ON UPDATE CASCADE ON DELETE NO ACTION
 )
 WITH (
   OIDS=FALSE
@@ -201,6 +203,22 @@ CREATE INDEX idxbtree_t_emusplit_ems
   USING btree
   (gid);
 
+-----------------------------------------------------------
+-- REFERENCE TABLE for habitat type
+-----------------------------------------------------------
+drop table if exists ref.tr_habitattype_hty;
+create table ref.tr_habitattype_hty
+(
+hty_code character varying(2) PRIMARY KEY,
+hty_description text
+)
+WITH (
+  OIDS=TRUE
+);
+ALTER TABLE  ref.tr_habitattype_hty
+  OWNER TO postgres;
+
+
  --------------------------------------------------
 -- Some of the recruitment series have associated effort
 -- Here is the referential table for those
@@ -218,13 +236,81 @@ WITH (
 );
 ALTER TABLE ref.tr_efforttype_eft
   OWNER TO postgres;
+
+------------------------------------------------------
+-- FAO area come from the shp files
+-----------------------------------------------------
+DROP TABLE if exists ref.tr_faoareas;
+CREATE TABLE ref.tr_faoareas
+(
+  gid serial NOT NULL,
+  fid numeric,
+  f_level character varying(254),
+  f_code character varying(254),
+  f_status numeric,
+  ocean character varying(254),
+  subocean character varying(254),
+  f_area character varying(254),
+  f_subarea character varying(254),
+  f_division character varying(254),
+  f_subdivis character varying(254),
+  f_subunit character varying(254),
+  surface numeric,
+  geom geometry(MultiPolygon,4326),
+  CONSTRAINT tr_faoareas_pkey PRIMARY KEY (gid)
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE ref.tr_faoareas
+  OWNER TO postgres;
+
+delete from ref.tr_faoareas where f_level !='DIVISION';--182
+--select * from ref.tr_faoareas
+alter table ref.tr_faoareas add constraint c_uk_fid unique (fid);
+alter table ref.tr_faoareas add constraint c_uk_f_division unique (f_division);
+-- Index: ref.tr_faoareas_geom_gist
+
+
+DROP INDEX IF EXISTS ref.tr_faoareas_geom_gist;
+CREATE INDEX tr_faoareas_geom_gist
+  ON ref.tr_faoareas
+  USING gist
+  (geom);
+
+
+/*
+dos script used to create this table (using shp2pgsql and psql):
+f:
+cd F:\projets\GRISAM\2017\WKDATA\FAO_AREAS
+REM -d drops de table, table is in wgs84
+shp2pgsql -s 4326 -d -g geom -I FAO_AREAS ref.tr_faoareas> tr_faoareas.sql 
+REM IMPORT INTO POSTGRES
+psql -U postgres -f "tr_faoareas.sql" wgeel
+*/
+
+
+------------------------------------------------------
+-- ICES ecoregion come from the shp files
+-----------------------------------------------------
+
+/*
+dos script used to create this table (using shp2pgsql and psql):
+f:
+cd F:\projets\GRISAM\2017\WKDATA\FAO_AREAS
+REM -d drops de table, table is in wgs84
+shp2pgsql -s 4326 -d -g geom -I FAO_AREAS ref.tr_faoareas> tr_faoareas.sql 
+REM IMPORT INTO POSTGRES
+psql -U postgres -f "tr_faoareas.sql" wgeel
+*/
+
 --------------------------------------------------
 -- Table containing the series
 -- this table contains geographical informations and comments on the series
 -- TODO ser_unit will point to a reference table
 
 ------------------------------------------------- 
-drop table if exists data.t_series_ser;
+drop table if exists data.t_series_ser CASCADE;
 create table data.t_series_ser (
 ser_id serial PRIMARY KEY,  --number internal use
 ser_order integer not null, -- order internal use
@@ -234,10 +320,11 @@ ser_typ_id integer, -- type of series 1= recruitment series
 ser_comment text, -- Comment for the series, this is the metadata describing the whole series
 ser_unit character varying(12), -- unit of the series kg, ton
 ser_lfs_id integer, -- lifestage id see 
+ser_hty_code character varying(2), -- habitat code see table t_habitattype_hty (F=Freshwater, MO=Marine Open,T=transitional...)
 ser_habitat_name text, -- habitat name, name of the river, of the lagoon ...
 ser_emu_name_short character varying(7), -- see emu referential
 ser_cou_code character varying(2), -- country code
-ser_area_code character varying(2), -- code of ICES area
+ser_area_division character varying(254), -- code of ICES area
 ser_tblcodeid integer, -- code of the station see ref.tr_station
 ser_x numeric, -- x (longitude WGS84)
 ser_y numeric, -- y (latitude WGS84)
@@ -248,8 +335,9 @@ CONSTRAINT c_fk_cou_code FOREIGN KEY (ser_cou_code) REFERENCES ref.tr_country_co
       ON UPDATE NO ACTION ON DELETE NO ACTION,
 CONSTRAINT c_fk_emu_name_short FOREIGN KEY (ser_emu_name_short) REFERENCES ref.tr_emu_emu(emu_name_short) 
 ON UPDATE CASCADE ON DELETE NO ACTION,
---CONSTRAINT c_fk_area_code FOREIGN KEY (ser_area_code) REFERENCES ref.tr_area(area_code) ON UPDATE CASCADE ON DELETE NO ACTION,
-CONSTRAINT c_fk_tblcodeid FOREIGN KEY (ser_tblcodeid) REFERENCES ref.tr_station("tblCodeID") ON UPDATE CASCADE ON DELETE NO ACTION);
+CONSTRAINT c_fk_area_code FOREIGN KEY (ser_area_division) REFERENCES ref.tr_faoareas(f_division) ON UPDATE CASCADE ON DELETE NO ACTION,
+CONSTRAINT c_fk_tblcodeid FOREIGN KEY (ser_tblcodeid) REFERENCES ref.tr_station("tblCodeID") ON UPDATE CASCADE ON DELETE NO ACTION,
+CONSTRAINT c_fk_hty_code FOREIGN KEY (ser_hty_code) REFERENCES ref.tr_habitattype_hty(hty_code) ON UPDATE CASCADE ON DELETE NO ACTION);
 
 ---------------------------------------
 -- this table holds the main information
