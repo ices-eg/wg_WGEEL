@@ -221,7 +221,9 @@ ALTER TABLE ref.tr_efforttype_eft
 --------------------------------------------------
 -- Table containing the series
 -- this table contains geographical informations and comments on the series
---------------------------------------------------- 
+-- TODO ser_unit will point to a reference table
+
+------------------------------------------------- 
 drop table if exists data.t_series_ser;
 create table data.t_series_ser (
 ser_id serial PRIMARY KEY,  --number internal use
@@ -231,15 +233,15 @@ ser_namelong character varying(50), -- long name of the recuitment series
 ser_typ_id integer, -- type of series 1= recruitment series
 ser_comment text, -- Comment for the series, this is the metadata describing the whole series
 ser_unit character varying(12), -- unit of the series kg, ton
-ser_lfs_id integer,
-ser_habitat_name text,
-ser_emu_name_short character varying(7),
-ser_cou_code character varying(2),
-ser_area_code character varying(2), -- this should be a sequence from ICES
-ser_tblcodeid integer,
-ser_x numeric,
-ser_y numeric,
-geom geometry,
+ser_lfs_id integer, -- lifestage id see 
+ser_habitat_name text, -- habitat name, name of the river, of the lagoon ...
+ser_emu_name_short character varying(7), -- see emu referential
+ser_cou_code character varying(2), -- country code
+ser_area_code character varying(2), -- code of ICES area
+ser_tblcodeid integer, -- code of the station see ref.tr_station
+ser_x numeric, -- x (longitude WGS84)
+ser_y numeric, -- y (latitude WGS84)
+geom geometry, -- internal use, a postgis geometry point in EPSG:3035 (ETRS89 / ETRS-LAEA)
 CONSTRAINT enforce_dims_the_geom CHECK (st_ndims(geom) = 2),
 CONSTRAINT enforce_srid_the_geom CHECK (st_srid(geom) = 3035),
 CONSTRAINT c_fk_cou_code FOREIGN KEY (ser_cou_code) REFERENCES ref.tr_country_cou (cou_code)
@@ -251,17 +253,18 @@ CONSTRAINT c_fk_tblcodeid FOREIGN KEY (ser_tblcodeid) REFERENCES ref.tr_station(
 
 ---------------------------------------
 -- this table holds the main information
+-- TODO trigger last update
 ----------------------------------------
 DROP TABLE IF EXISTS data.t_data_dat;
 CREATE TABLE data.t_data_dat (
-  dat_id serial NOT NULL,
-  dat_value real,
-  dat_ser_id integer NOT NULL, -- foreign key to join t_series_ser
-  dat_year integer,
-  dat_stage character varying(30),
-  dat_comment text,
-  dat_effort numeric,
-  dat_eft_id integer,
+  dat_id serial NOT NULL, -- internal use an integer
+  dat_value real, -- the value 
+  dat_ser_id integer NOT NULL, -- foreign key to join t_series_ser (id of the series) internal use
+  dat_year integer, -- year for the data
+  dat_comment text, -- comment for the particular year
+  dat_effort numeric, -- effort value if present (nb of electrofishing, nb of hauls)
+  dat_eft_id integer, --  type of effort ( currently 1 = nb haul, 2= nb electrofishing)
+  dat_last_update date, -- internal use (trigger on insert or update) pour mise à jour
   CONSTRAINT t_data_dat_pkey PRIMARY KEY (dat_id),
   CONSTRAINT c_fk_ser_id FOREIGN KEY (dat_ser_id)
       REFERENCES data.t_series_ser (ser_id)
