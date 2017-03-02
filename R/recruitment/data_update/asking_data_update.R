@@ -1,17 +1,35 @@
+###################################################################################"
 # File create to build excel files sent to persons responsible for recruitment data
+# Author Cédric Briand
+#TODO This is following the old format, needs to be updated before the datacall
+# This script will create an excel sheet per country that currently have recruitment series
+#######################################################################################
+# put the current year there
 CY<-2016
+# function to load packages if not available
 load_library=function(necessary) {
 	if(!all(necessary %in% installed.packages()[, 'Package']))
 		install.packages(necessary[!necessary %in% installed.packages()[, 'Package']], dep = T)
 	for(i in 1:length(necessary))
 		library(necessary[i], character.only = TRUE)
 }
+#########################
+# Loading necessary packages
+############################
 load_library("sqldf")
 load_library("RPostgreSQL")
 load_library("stacomirtools")
 load_library("stringr")
+#############################
+# here is where the script is working change it accordingly
+##################################
 setwd("F:/workspace/wgeel/sweave")
 wd<-getwd()
+#############################
+# here is where you want to put the data. It is different from the code
+# as we don't want to commit data to git
+# read git user 
+##################################
 wddata<-gsub("wgeel","wgeeldata",wd)
 dataxl<-str_c(wddata,"/",CY,"/xl")
 options(sqldf.RPostgreSQL.user = "postgres", 

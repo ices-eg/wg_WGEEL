@@ -33,17 +33,25 @@ insert into ref.tr_emu_emu select distinct on (emu_name_short) * from carto.emu;
 --------------------------
 -- tr_emu_emu
 -------------------------
+delete from ref.tr_emu_emu;
 insert into ref.tr_emu_emu select distinct on (emu_name_short) * from carto.emu;
---select * from ref.tr_emu_emu;
+--select emu_name_short,emu_name,emu_coun_abrev from ref.tr_emu_emu order by emu_coun_abrev,emu_name_short
 
+
+insert into  ref.tr_emu_emu (emu_name_short,emu_coun_abrev) 
+select cou_code||'_total',cou_code from ref.tr_country_cou ;--44 lines inserted
+
+insert into ref.tr_emu_emu (emu_name_short,emu_coun_abrev) 
+select cou_code||'_outside_emu',cou_code from ref.tr_country_cou ;-- 44 lines inserted
+
+
+--------------------------
+-- tr_country_coun
+-------------------------
 --select * from ref.tr_country_cou;
 insert into ref.tr_country_cou select distinct on ("order") * from carto.country_order order by "order"; -- 44
 
-insert into  ref.tr_emu_emu (emu_name_short,emu_name) 
-select cou_code||'_total',cou_code from ref.tr_country_cou ;--44 lines inserted
 
-insert into ref.tr_emu_emu (emu_name_short,emu_name) 
-select cou_code||'_outside_emu',cou_code from ref.tr_country_cou ;-- 44 lines inserted
 
 
 
@@ -88,4 +96,19 @@ insert into ref.tr_habitattype_hty (hty_code,hty_description) values ('F','Fresh
 insert into ref.tr_habitattype_hty (hty_code,hty_description) values ('T','WFD Transitional water - implies reduced salinity');
 insert into ref.tr_habitattype_hty (hty_code,hty_description) values ('C','WFD Coastal water');
 insert into ref.tr_habitattype_hty (hty_code,hty_description) values ('MO','Marine water (open sea)');
+
+----------------------
+-- tr_units_uni
+---------------------
+
+insert into ref.tr_units_uni values('kg','weight in kilogrammes');
+insert into ref.tr_units_uni values('nr','number');
+insert into ref.tr_units_uni values('index','calculated value following a specified protocol');
+insert into ref.tr_units_uni values('t','weight in tonnes');
+insert into ref.tr_units_uni values('nr/hr','number per hour');
+insert into ref.tr_units_uni values('nr/m2','number per square meter');
+insert into ref.tr_units_uni values('kg/d','kilogramme per day');
+insert into ref.tr_units_uni values('kg/boat/d','kilogramme per boat per day');
+insert into ref.tr_units_uni values('nb haul','number of haul'); -- effort unit used for recruitment
+insert into ref.tr_units_uni values('nb electrofishing','number of electrofishing campain in the year to collect the recruitment index');
 
