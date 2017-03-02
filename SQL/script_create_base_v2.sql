@@ -5,8 +5,8 @@
 ------------------------------------
 set search_path to ref, data, public;
 
-create schema ref -- refential to hold dictionnay
-create schema data -- this schema will hold the data
+CREATE SCHEMA ref; -- refential to hold dictionnay
+CREATE SCHEMA data; -- this schema will hold the data
 
 
 -------------------------------------
