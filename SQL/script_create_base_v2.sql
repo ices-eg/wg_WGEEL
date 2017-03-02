@@ -329,8 +329,6 @@ psql -U postgres -f "tr_ices_ecoregions.sql" wgeel
 --------------------------------------------------
 -- Table containing the series
 -- this table contains geographical informations and comments on the series
--- TODO ser_unit will point to a reference table
-
 ------------------------------------------------- 
 drop table if exists data.t_series_ser CASCADE;
 create table data.t_series_ser (
@@ -372,7 +370,6 @@ CONSTRAINT c_fk_ser_effort_uni_code FOREIGN KEY (ser_effort_uni_code)
 
 ---------------------------------------
 -- this table holds the main information
--- TODO trigger last update
 ----------------------------------------
 DROP TABLE IF EXISTS data.t_data_dat;
 CREATE TABLE data.t_data_dat (
