@@ -29,9 +29,9 @@ update ref.tr_lifestage_lfs set lfs_name='yellow eel+ silver eel' where lfs_name
 Insert definition for stages
 */
 
-update ref.tr_lifestage_lfs set  lfs_definition ='' from ts.tr_lifestage_lfs where lfs_code='G';
-update ref.tr_lifestage_lfs set  lfs_definition ='' from ts.tr_lifestage_lfs where lfs_code='Y';
-update ref.tr_lifestage_lfs set  lfs_definition ='' from ts.tr_lifestage_lfs where lfs_code='S';
+update ref.tr_lifestage_lfs set  lfs_definition ='Young, unpigmented eel, recruiting from the sea into continental waters. WGEEL consider the glass eel term to include all recruits of the 0+ cohort age. In some cases, however, also includes the early pigmented stages.' from ts.tr_lifestage_lfs where lfs_code='G';
+update ref.tr_lifestage_lfs set  lfs_definition ='Life-stage resident in continental waters. Often defined as a sedentary phase, but migration within and between rivers, and to and from coastal waters occurs and therefore includes young pigmented eels (‘elvers’ and bootlace).' from ts.tr_lifestage_lfs where lfs_code='Y';
+update ref.tr_lifestage_lfs set  lfs_definition ='Migratory phase following the yellow eel phase. Eel in this phase are characterized by darkened back, silvery belly with a clearly contrasting black lateral line, enlarged eyes. Silver eel undertake downstream migration towards the sea, and subsequently westwards. This phase mainly occurs in the second half of calendar years, although some are observed throughout winter and following spring.' from ts.tr_lifestage_lfs where lfs_code='S';
 update ref.tr_lifestage_lfs set  lfs_definition ='' from ts.tr_lifestage_lfs where lfs_code='YS';
 update ref.tr_lifestage_lfs set  lfs_definition ='A mixture of glass and yellow eel, some traps have historical set of data where glass eel and yellow eel were not separated,
 they were dominated by glass eel' from ts.tr_lifestage_lfs where lfs_code='GY';
@@ -125,6 +125,11 @@ insert into ref.tr_units_uni values('kg/boat/d','kilogramme per boat per day');
 insert into ref.tr_units_uni values('nr haul','number of haul'); -- effort unit used for recruitment
 insert into ref.tr_units_uni values('nr electrofishing','number of electrofishing campain in the year to collect the recruitment index');
 
+------------------------------
+-- ref.tr_typeseries_typ
+---------------------------
+insert into ref.tr_typeseries_typ select class_id, class_name,class_description from ts.tr_dataclass_class ;--3
+
 ---------------------
 -- data.t_series_ser 
 ---------------------
@@ -143,7 +148,7 @@ select * from data.t_series_ser
 select distinct rec_lfs_name from ts.t_recruitment_rec
 select * from ref.tr_lifestage_lfs 
  */
-
+DELETE FROM data.t_series_ser;
 INSERT INTO  data.t_series_ser
  (ser_id, 
   ser_order, 
@@ -164,7 +169,7 @@ INSERT INTO  data.t_series_ser
   rec_order AS ser_order, 
   rec_nameshort AS ser_nameshort, 
   rec_namelong AS ser_namelong, 
-  coalesce(t_location_loc.loc_comment,'')||t_recruitment_rec.rec_remark AS ser_comment, -- to avoid problems with null
+  coalesce(t_location_loc.loc_comment,'')||  t_recruitment_rec.rec_remark AS ser_comment, -- to avoid problems with null
   CASE WHEN rec_unit='eel/m2' THEN 'nr/m2'
        WHEN rec_unit='cpue' THEN 'kg/boat/d'
        WHEN rec_unit='Number' THEN 'nr'
@@ -183,18 +188,49 @@ INSERT INTO  data.t_series_ser
   loc_y AS ser_y, 
   the_geom AS geom
 FROM 
-  ts.t_location_loc, 
-  ts.t_recruitment_rec,
-  ref.tr_country_cou
-WHERE 
- t_location_loc.loc_id=t_recruitment_rec.rec_loc_id
- AND t_location_loc.loc_country= tr_country_cou.cou_country
- ORDER BY ser_id;--49
+  ts.t_location_loc JOIN   ts.t_recruitment_rec ON t_location_loc.loc_id=t_recruitment_rec.rec_loc_id
+  LEFT JOIN ref.tr_country_cou ON t_location_loc.loc_country= tr_country_cou.cou_country
+ ORDER BY ser_id;--52 OK all line in !
+
+/*
+for some reasons GB didn't pass
+correcting manually
+*/
+select * from data.t_series_ser where ser_emu_name_short like '%GB_%';
+update data.t_series_ser set ser_cou_code='GB' where ser_emu_name_short like '%GB_%';--3
+
+
+--select * from data.t_series_ser
+
+--------------------------------------------------------
+-- unit of effort updating (they were in data and are brought one table upper in ts_series_ser
+-- ser_id are the same than loc_id in the old table
+-----------------------------------------------------------
+update data.t_series_ser  set ser_effort_uni_code=subquery.ser_effort_unit from (
+select distinct on (dat_loc_id) dat_loc_id, 
+case when dat_eft_id=1 then 'nr haul'
+when dat_eft_id=2 then 'nr electrofishing' end as ser_effort_unit  
+from data.t_series_ser join ts.t_data_dat on dat_loc_id=ser_id
+where dat_eft_id is not null) AS subquery
+where subquery.dat_loc_id=ser_id; --10 
 
 
 
+--------------------------------------------------------
+-- ser_typ_id
+-- all series entered so far are recruitment series
+-----------------------------------------------------------
+update data.t_series_ser set ser_typ_id=1;--52
 
 
+--------------------------------------------------------
+-- some lfs code still missing
+-----------------------------------------------------------
 
-  select * 
- 
+--select * from data.t_series_ser where ser_namelong like '%glass eel + yellow eel%';
+update data.t_series_ser set ser_lfs_code='GY' where  ser_namelong like '%glass eel + yellow eel%';--5
+--select * from data.t_series_ser where ser_namelong like '%glass eel and yellow eel%';
+update data.t_series_ser set ser_lfs_code='GY' where  ser_namelong like '%glass eel and yellow eel%';--5
+update data.t_series_ser set ser_lfs_code='G' where ser_lfs_code is null; -- only glass eel remaining--32
+
+-- TODO check comments, ser_hty_code ser_area_division, ser_tblcodeid, serx sery where null

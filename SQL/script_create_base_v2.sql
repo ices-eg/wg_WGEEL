@@ -333,7 +333,7 @@ psql -U postgres -f "tr_ices_ecoregions.sql" wgeel
 DROP TABLE IF EXISTS data.t_series_ser CASCADE;
 CREATE TABLE data.t_series_ser (
 ser_id serial PRIMARY KEY,  --number internal use
-ser_order integer not null, -- order internal use
+ser_order integer not null, -- order internal use to display the data from north to south
 ser_nameshort character varying(4), --short name of the recuitment series eg Vil for Vilaine
 ser_namelong character varying(50), -- long name of the recuitment series
 ser_typ_id integer, -- type of series 1= recruitment series
@@ -343,7 +343,7 @@ ser_uni_code character varying(20), -- unit of the series kg, ton
 ser_lfs_code character varying(2), -- lifestage id see 
 ser_hty_code character varying(2), -- habitat code see table t_habitattype_hty (F=Freshwater, MO=Marine Open,T=transitional...)
 ser_habitat_name text, -- habitat name, name of the river, of the lagoon ...
-ser_emu_name_short character varying(7), -- see emu referential
+ser_emu_name_short character varying(20), -- see emu referential
 ser_cou_code character varying(2), -- country code
 ser_area_division character varying(254), -- code of ICES area
 ser_tblcodeid integer, -- code of the station see ref.tr_station
