@@ -21,7 +21,20 @@ insert into ref.tr_lifestage_lfs select 'G' , lfs_name,  lfs_definition from ts.
 insert into ref.tr_lifestage_lfs select 'Y' , lfs_name,  lfs_definition from ts.tr_lifestage_lfs where lfs_name='yellow eel';
 insert into ref.tr_lifestage_lfs select 'S' , lfs_name,  lfs_definition from ts.tr_lifestage_lfs where lfs_name='silver eel';
 insert into ref.tr_lifestage_lfs select 'YS' , lfs_name,  lfs_definition from ts.tr_lifestage_lfs where lfs_name='yellow + silver eel';
-insert into ref.tr_lifestage_lfs select 'GY' , lfs_name,  lfs_definition from ts.tr_lifestage_lfs where lfs_name='glass + yellow eel';
+insert into ref.tr_lifestage_lfs select 'GY' , lfs_name,  lfs_definition from ts.tr_lifestage_lfs where lfs_name='glass eel + yellow eel';
+
+update ref.tr_lifestage_lfs set lfs_name='yellow eel+ silver eel' where lfs_name='yellow + silver eel';
+
+/*
+Insert definition for stages
+*/
+
+update ref.tr_lifestage_lfs set  lfs_definition ='' from ts.tr_lifestage_lfs where lfs_code='G';
+update ref.tr_lifestage_lfs set  lfs_definition ='' from ts.tr_lifestage_lfs where lfs_code='Y';
+update ref.tr_lifestage_lfs set  lfs_definition ='' from ts.tr_lifestage_lfs where lfs_code='S';
+update ref.tr_lifestage_lfs set  lfs_definition ='' from ts.tr_lifestage_lfs where lfs_code='YS';
+update ref.tr_lifestage_lfs set  lfs_definition ='A mixture of glass and yellow eel, some traps have historical set of data where glass eel and yellow eel were not separated,
+they were dominated by glass eel' from ts.tr_lifestage_lfs where lfs_code='GY';
 
 
 --------------------------
@@ -100,15 +113,88 @@ insert into ref.tr_habitattype_hty (hty_code,hty_description) values ('MO','Mari
 ----------------------
 -- tr_units_uni
 ---------------------
-
+delete from ref.tr_units_uni;
 insert into ref.tr_units_uni values('kg','weight in kilogrammes');
 insert into ref.tr_units_uni values('nr','number');
 insert into ref.tr_units_uni values('index','calculated value following a specified protocol');
 insert into ref.tr_units_uni values('t','weight in tonnes');
-insert into ref.tr_units_uni values('nr/hr','number per hour');
+insert into ref.tr_units_uni values('nr/h','number per hour');
 insert into ref.tr_units_uni values('nr/m2','number per square meter');
 insert into ref.tr_units_uni values('kg/d','kilogramme per day');
 insert into ref.tr_units_uni values('kg/boat/d','kilogramme per boat per day');
-insert into ref.tr_units_uni values('nb haul','number of haul'); -- effort unit used for recruitment
-insert into ref.tr_units_uni values('nb electrofishing','number of electrofishing campain in the year to collect the recruitment index');
+insert into ref.tr_units_uni values('nr haul','number of haul'); -- effort unit used for recruitment
+insert into ref.tr_units_uni values('nr electrofishing','number of electrofishing campain in the year to collect the recruitment index');
 
+---------------------
+-- data.t_series_ser 
+---------------------
+
+/*
+select * from ts.t_location_loc
+select * from data.t_series_ser
+*/
+
+/*
+--- before launching to check join and create case when script
+ select * from ref.tr_units_uni right  join 
+  (select lower(rec_unit::text) unit from ts.t_recruitment_rec) lowercaserec 
+  on lowercaserec.unit=uni_code
+
+select distinct rec_lfs_name from ts.t_recruitment_rec
+select * from ref.tr_lifestage_lfs 
+ */
+
+INSERT INTO  data.t_series_ser
+ (ser_id, 
+  ser_order, 
+  ser_nameshort, 
+  ser_namelong, 
+  -- ser_typ_id, update using join with data
+  ser_comment, 
+  ser_uni_code, 
+  ser_lfs_code, 
+  ser_habitat_name, 
+  ser_emu_name_short, 
+  ser_cou_code, 
+  ser_x, 
+  ser_y, 
+  geom)
+  SELECT
+  rec_loc_id AS ser_id, 
+  rec_order AS ser_order, 
+  rec_nameshort AS ser_nameshort, 
+  rec_namelong AS ser_namelong, 
+  coalesce(t_location_loc.loc_comment,'')||t_recruitment_rec.rec_remark AS ser_comment, -- to avoid problems with null
+  CASE WHEN rec_unit='eel/m2' THEN 'nr/m2'
+       WHEN rec_unit='cpue' THEN 'kg/boat/d'
+       WHEN rec_unit='Number' THEN 'nr'
+       WHEN rec_unit='nb/h' THEN 'nr/h'
+  ELSE lower(rec_unit) END AS ser_uni_code, 
+  CASE WHEN rec_lfs_name='glASs eel' THEN 'G'
+	WHEN rec_lfs_name='yellow eel' THEN 'Y' 
+	WHEN rec_lfs_name='glASs eel + yellow eel' THEN 'GY'
+	ELSE NULL END AS ser_lfs_code,
+  rec_location AS ser_habitat_name, 
+  CASE WHEN loc_emu_name_short='NO_Norw' THEN 'NO_total'
+  ELSE loc_emu_name_short
+  END AS  ser_emu_name_short, 
+  cou_code AS ser_cou_code, 
+  loc_x AS ser_x, 
+  loc_y AS ser_y, 
+  the_geom AS geom
+FROM 
+  ts.t_location_loc, 
+  ts.t_recruitment_rec,
+  ref.tr_country_cou
+WHERE 
+ t_location_loc.loc_id=t_recruitment_rec.rec_loc_id
+ AND t_location_loc.loc_country= tr_country_cou.cou_country
+ ORDER BY ser_id;--49
+
+
+
+
+
+
+  select * 
+ 

@@ -1,3 +1,16 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Sweave script for wgeel recruitment analysis
+% Author Cedric Briand / Estibaliz Diaz
+% you can run this script with command sweave() or appropriate tools
+% such as Eclipse or Rstudio
+% this script is intended to run with sweave not knitr
+% It produces a nice pdf which has to be turned into a less nice word document
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% this is the preamble of the latex file
+% it is used to load the packages necessary to the analysis
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \documentclass[pdftex,11pt,a4paper]{report}
 \usepackage[pdftex]{graphicx}
 \usepackage[latin1]{inputenc} %encodage du fichier source
@@ -9,10 +22,7 @@
 \usepackage{pdflscape}% to rotate the table
 \geometry{dvips,a4paper,hmargin=2.5cm,vmargin=2.5cm}
 \setcounter{secnumdepth}{10}
-\usepackage{hyperref} %gestion des hyperliens
-%\hypersetup{pdfstartview=XYZ} %zoom par défaut
-
-
+\usepackage{hyperref} %managing hyperlinks
 \hypersetup{
      backref=true,    %permet d'ajouter des liens dans...
      pagebackref=true,%...les bibliographies
@@ -36,12 +46,9 @@
 \newcolumntype{R}{>{\raggedleft\arraybackslash}X}
 \newcolumntype{L}{>{\raggedright\arraybackslash}X}
 \graphicspath{{../../wgeeldata/sweave/2016/image/}} 
-% FAIRE UN RECHERCHER REMPLACER DE F:/workspace/wgeeldata/sweave/2016/table et remplacer par F:/workspace/wgeeldata/sweave/2016/table
-%
-%\makeatletter
-% \def\input@path{{F:/workspace/wgeeldata/sweave/image}{F:/workspace/wgeeldata/sweave/table}}
-%\makeatother
-%to be updated !!!!
+% TO UPDATE TO THE NEW YEAR
+% DO REPLACE FOR INSTANCE F:/workspace/wgeeldata/sweave/2016/table by F:/workspace/wgeeldata/sweave/2017/table
+%%%%%%%%%%%%%%%%%%%%%%%%%% END OF THE PREAMBLE  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{document}
 \bibliographystyle{plain}
 \title{ Analysis of recruitment trend}
@@ -51,9 +58,9 @@
 \newpage
 \tableofcontents
 \subsection*{}
+% use this if the chair wants a different chapter heading
 %\addtocounter{chapter}{3} % this will set initial chapter counter to 
-%==========================================
-%==========================================
+%======================================================================
 \chapter{Data and trends in glass and yellow eel recruitment indices}
 This chapter addresses the latest trends in glass and yellow eel
 indices and produce the first draft of the ICES eel advice.

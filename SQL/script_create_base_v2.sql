@@ -330,8 +330,8 @@ psql -U postgres -f "tr_ices_ecoregions.sql" wgeel
 -- Table containing the series
 -- this table contains geographical informations and comments on the series
 ------------------------------------------------- 
-drop table if exists data.t_series_ser CASCADE;
-create table data.t_series_ser (
+DROP TABLE IF EXISTS data.t_series_ser CASCADE;
+CREATE TABLE data.t_series_ser (
 ser_id serial PRIMARY KEY,  --number internal use
 ser_order integer not null, -- order internal use
 ser_nameshort character varying(4), --short name of the recuitment series eg Vil for Vilaine
@@ -340,7 +340,7 @@ ser_typ_id integer, -- type of series 1= recruitment series
 ser_effort_uni_code character varying(20), -- unit used for effort
 ser_comment text, -- Comment for the series, this is the metadata describing the whole series
 ser_uni_code character varying(20), -- unit of the series kg, ton
-ser_lfs_id integer, -- lifestage id see 
+ser_lfs_code character varying(2), -- lifestage id see 
 ser_hty_code character varying(2), -- habitat code see table t_habitattype_hty (F=Freshwater, MO=Marine Open,T=transitional...)
 ser_habitat_name text, -- habitat name, name of the river, of the lagoon ...
 ser_emu_name_short character varying(7), -- see emu referential
@@ -365,8 +365,16 @@ CONSTRAINT c_fk_tblcodeid FOREIGN KEY (ser_tblcodeid)
 CONSTRAINT c_fk_hty_code FOREIGN KEY (ser_hty_code) 
 	REFERENCES ref.tr_habitattype_hty(hty_code) ON UPDATE CASCADE ON DELETE NO ACTION,
 CONSTRAINT c_fk_ser_effort_uni_code FOREIGN KEY (ser_effort_uni_code)
-     REFERENCES ref.tr_units_uni (uni_code)
- );
+     REFERENCES ref.tr_units_uni (uni_code) ON UPDATE CASCADE ON DELETE NO ACTION,
+CONSTRAINT c_fk_lfs_code FOREIGN KEY (ser_lfs_code)
+     REFERENCES ref.tr_lifestage_lfs (lfs_code) ON UPDATE CASCADE ON DELETE NO ACTION     
+ )
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE data.t_series_ser
+  OWNER TO postgres;
+
 
 ---------------------------------------
 -- this table holds the main information
