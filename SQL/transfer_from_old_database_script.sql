@@ -168,7 +168,7 @@ INSERT INTO  data.t_series_ser
   rec_loc_id AS ser_id, 
   rec_order AS ser_order, 
   rec_nameshort AS ser_nameshort, 
-  rec_namelong AS ser_namelong, 
+  loc_name AS ser_namelong, 
   coalesce(t_location_loc.loc_comment,'')||  t_recruitment_rec.rec_remark AS ser_comment, -- to avoid problems with null
   CASE WHEN rec_unit='eel/m2' THEN 'nr/m2'
        WHEN rec_unit='cpue' THEN 'kg/boat/d'
@@ -231,6 +231,112 @@ update data.t_series_ser set ser_typ_id=1;--52
 update data.t_series_ser set ser_lfs_code='GY' where  ser_namelong like '%glass eel + yellow eel%';--5
 --select * from data.t_series_ser where ser_namelong like '%glass eel and yellow eel%';
 update data.t_series_ser set ser_lfs_code='GY' where  ser_namelong like '%glass eel and yellow eel%';--5
-update data.t_series_ser set ser_lfs_code='G' where ser_lfs_code is null; -- only glass eel remaining--32
+update data.t_series_ser set ser_lfs_code='G' where ser_lfs_code is null; -- only glass eel remaining--40
 
--- TODO check comments, ser_hty_code ser_area_division, ser_tblcodeid, serx sery where null
+--ser_area_division, ser_tblcodeid, serx sery where null
+
+------------------------------
+-- habitat type
+-- "C";"WFD Coastal water"
+-- "F";"Freshwater"
+-- "MO";"Marine water (open sea)"
+-- "T";"WFD Transitional water - implies reduced salinity"
+-------------------------------
+
+
+update data.t_series_ser set ser_hty_code='MO' where ser_nameshort='YFS1';
+update data.t_series_ser set ser_hty_code=NULL where ser_nameshort='Ring';
+update data.t_series_ser set ser_hty_code=NULL where ser_nameshort='Visk';
+update data.t_series_ser set ser_hty_code=NULL where ser_nameshort='Bann';
+update data.t_series_ser set ser_hty_code=NULL where ser_nameshort='Erne';
+update data.t_series_ser set ser_hty_code=NULL where ser_nameshort='ShaA';
+update data.t_series_ser set ser_hty_code=NULL where ser_nameshort='SeEA';
+update data.t_series_ser set ser_hty_code=NULL where ser_nameshort='SeHM';
+update data.t_series_ser set ser_hty_code=NULL where ser_nameshort='Vida';
+update data.t_series_ser set ser_hty_code='T' where ser_nameshort='Ems';
+update data.t_series_ser set ser_hty_code=NULL where ser_nameshort='Lauw';
+update data.t_series_ser set ser_hty_code=NULL where ser_nameshort='RhDO';
+update data.t_series_ser set ser_hty_code=NULL where ser_nameshort='RhIj';
+update data.t_series_ser set ser_hty_code=NULL where ser_nameshort='Katw';
+update data.t_series_ser set ser_hty_code=NULL where ser_nameshort='Stel';
+update data.t_series_ser set ser_hty_code='T' where ser_nameshort='Yser';
+update data.t_series_ser set ser_hty_code='T' where ser_nameshort='Vil';
+update data.t_series_ser set ser_hty_code='T' where ser_nameshort='Loi';
+update data.t_series_ser set ser_hty_code='T' where ser_nameshort='SevN';
+update data.t_series_ser set ser_hty_code='T' where ser_nameshort='GiTC';
+update data.t_series_ser set ser_hty_code='T' where ser_nameshort='GiCP';
+update data.t_series_ser set ser_hty_code='T' where ser_nameshort='AdTC';
+update data.t_series_ser set ser_hty_code='T' where ser_nameshort='AdCP';
+update data.t_series_ser set ser_hty_code='T' where ser_nameshort='Nalo';
+update data.t_series_ser set ser_hty_code='T' where ser_nameshort='Albu';
+update data.t_series_ser set ser_hty_code='T' where ser_nameshort='MiSp';
+update data.t_series_ser set ser_hty_code='T' where ser_nameshort='MiPo';
+update data.t_series_ser set ser_hty_code='T' where ser_nameshort='Tibe';
+update data.t_series_ser set ser_hty_code=NULL where ser_nameshort='Imsa';
+update data.t_series_ser set ser_hty_code=NULL where ser_nameshort='Dala';
+update data.t_series_ser set ser_hty_code=NULL where ser_nameshort='Mota';
+update data.t_series_ser set ser_hty_code=NULL where ser_nameshort='Morr';
+update data.t_series_ser set ser_hty_code=NULL where ser_nameshort='Kavl';
+update data.t_series_ser set ser_hty_code=NULL where ser_nameshort='Ronn';
+update data.t_series_ser set ser_hty_code=NULL where ser_nameshort='Laga';
+update data.t_series_ser set ser_hty_code=NULL where ser_nameshort='Gota';
+update data.t_series_ser set ser_hty_code=NULL where ser_nameshort='ShaP';
+update data.t_series_ser set ser_hty_code=NULL where ser_nameshort='Gude';
+update data.t_series_ser set ser_hty_code=NULL where ser_nameshort='Hart';
+update data.t_series_ser set ser_hty_code=NULL where ser_nameshort='Meus';
+update data.t_series_ser set ser_hty_code='MO' where ser_nameshort='YFS2';
+update data.t_series_ser set ser_hty_code='T' where ser_nameshort='GiSc';
+update data.t_series_ser set ser_hty_code=NULL where ser_nameshort='Ebro';
+update data.t_series_ser set ser_hty_code=NULL where ser_nameshort='AlCP';
+update data.t_series_ser set ser_hty_code=NULL where ser_nameshort='Feal';
+update data.t_series_ser set ser_hty_code=NULL where ser_nameshort='Maig';
+update data.t_series_ser set ser_hty_code=NULL where ser_nameshort='Inag';
+update data.t_series_ser set ser_hty_code='F' where ser_nameshort='Bres';
+update data.t_series_ser set ser_hty_code='F' where ser_nameshort='Fre';
+update data.t_series_ser set ser_hty_code='F' where ser_nameshort='Sle';
+update data.t_series_ser set ser_hty_code='F' where ser_nameshort='Klit';
+update data.t_series_ser set ser_hty_code='F' where ser_nameshort='Nors';
+
+
+-----------------------------------------------------------------------------
+-- updating long lat where st_x and st_y are missing
+-----------------------------------------------------------------------------
+update data.t_series_ser set (ser_x,ser_y)=(st_x(st_transform(geom,4326)),st_y(st_transform(geom,4326)))
+	where ser_x is null;--2
+
+----------------------------------------------------------------------------
+-- Inserting data from station
+-- PURPM possible values for the wgeel
+--Code	Description			-
+-- F	Fishery trawl surveys		
+-- R	Research	
+-- S	Spatial (geographical) distribution monitoring		
+-- T	Temporal trend monitoring
+----------------------------------------------------------------------------
+drop sequence if exists seq_station;
+create temporary sequence seq_station;
+ALTER SEQUENCE seq_station restart with 170000;
+drop sequence if exists seq_stationcode;
+create temporary sequence seq_stationcode;
+ALTER SEQUENCE seq_stationcode restart with 12000;
+
+
+INSERT INTO ref.tr_station
+
+SELECT
+  nextval('seq_station') as "tblCodeID",
+  nextval('seq_stationcode')as "Station_Code",
+  upper(cou_country) as "Country",
+  NULL as "Organisation",
+  ser_nameshort as "Station_Name",
+   NULL as "WLTYP", -- to be updated later
+  ser_y as "Lat",
+  ser_x as "Lon" ,
+  min as "StartYear",
+  case when max<=2014 then max ELSE NULL END AS "EndYear",
+  CASE WHEN ser_nameshort in ('YFS1','YFS2','GISc') THEN 'F~S~T'
+  ELSE 'S~T' END AS "PURPM",
+  NULL as notes  
+  from data.t_series_ser LEFT JOIN 
+  ref.tr_country_cou on ser_cou_code=cou_code LEFT JOIN
+  ts.series_stats on loc_id=ser_id; --52

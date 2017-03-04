@@ -99,6 +99,8 @@ CREATE TABLE ref.tr_station(
 	"Organisation" TEXT,
 	"Station_Name" TEXT,
 	"WLTYP" TEXT, -- Water and land station types 
+
+
 	"Lat" DOUBLE PRECISION,
 	"Lon" DOUBLE PRECISION,
 	"StartYear" DOUBLE PRECISION,
@@ -110,7 +112,12 @@ CREATE TABLE ref.tr_station(
 COMMENT ON COLUMN ref.tr_station."Country" IS 'country responsible of the data collection ?';
 COMMENT ON COLUMN ref.tr_station."WLTYP" IS 'Water and land station types ';
 COMMENT ON COLUMN ref.tr_station."PURPM" IS 'Purpose of monitoring';
-
+-- PURPM possible values for the wgeel
+--Code	Description			-
+-- F	Fishery trawl surveys		
+-- R	Research	
+-- S	Spatial (geographical) distribution monitoring		
+-- T	Temporal trend monitoring	
 
 --------------------------------------------------
 -- Reference table of sea
