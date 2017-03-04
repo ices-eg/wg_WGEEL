@@ -175,9 +175,9 @@ INSERT INTO  data.t_series_ser
        WHEN rec_unit='Number' THEN 'nr'
        WHEN rec_unit='nb/h' THEN 'nr/h'
   ELSE lower(rec_unit) END AS ser_uni_code, 
-  CASE WHEN rec_lfs_name='glASs eel' THEN 'G'
+  CASE WHEN rec_lfs_name='glass eel' THEN 'G'
 	WHEN rec_lfs_name='yellow eel' THEN 'Y' 
-	WHEN rec_lfs_name='glASs eel + yellow eel' THEN 'GY'
+	WHEN rec_lfs_name='glass eel + yellow eel' THEN 'GY'
 	ELSE NULL END AS ser_lfs_code,
   rec_location AS ser_habitat_name, 
   CASE WHEN loc_emu_name_short='NO_Norw' THEN 'NO_total'
@@ -232,8 +232,6 @@ update data.t_series_ser set ser_lfs_code='GY' where  ser_namelong like '%glass 
 --select * from data.t_series_ser where ser_namelong like '%glass eel and yellow eel%';
 update data.t_series_ser set ser_lfs_code='GY' where  ser_namelong like '%glass eel and yellow eel%';--5
 update data.t_series_ser set ser_lfs_code='G' where ser_lfs_code is null; -- only glass eel remaining--40
-
---ser_area_division, ser_tblcodeid, serx sery where null
 
 ------------------------------
 -- habitat type
@@ -306,6 +304,7 @@ update data.t_series_ser set (ser_x,ser_y)=(st_x(st_transform(geom,4326)),st_y(s
 
 ----------------------------------------------------------------------------
 -- Inserting data from station
+
 -- PURPM possible values for the wgeel
 --Code	Description			-
 -- F	Fishery trawl surveys		
@@ -340,3 +339,82 @@ SELECT
   from data.t_series_ser LEFT JOIN 
   ref.tr_country_cou on ser_cou_code=cou_code LEFT JOIN
   ts.series_stats on loc_id=ser_id; --52
+
+-- need to update manually
+-- https://github.com/ices-eg/WGEEL/issues/6
+
+update ref.tr_station set "Organisation"=NULL where "Station_Name"='YFS1';
+update ref.tr_station set "Organisation"=NULL where "Station_Name"='Ring';
+update ref.tr_station set "Organisation"=NULL where "Station_Name"='Visk';
+update ref.tr_station set "Organisation"=NULL where "Station_Name"='Bann';
+update ref.tr_station set "Organisation"=NULL where "Station_Name"='Erne';
+update ref.tr_station set "Organisation"=NULL where "Station_Name"='ShaA';
+update ref.tr_station set "Organisation"=NULL where "Station_Name"='SeEA';
+update ref.tr_station set "Organisation"=NULL where "Station_Name"='SeHM';
+update ref.tr_station set "Organisation"=NULL where "Station_Name"='Vida';
+update ref.tr_station set "Organisation"=NULL where "Station_Name"='Ems';
+update ref.tr_station set "Organisation"=NULL where "Station_Name"='Lauw';
+update ref.tr_station set "Organisation"=NULL where "Station_Name"='RhDO';
+update ref.tr_station set "Organisation"=NULL where "Station_Name"='RhIj';
+update ref.tr_station set "Organisation"=NULL where "Station_Name"='Katw';
+update ref.tr_station set "Organisation"=NULL where "Station_Name"='Stel';
+update ref.tr_station set "Organisation"=NULL where "Station_Name"='Yser';
+update ref.tr_station set "Organisation"=NULL where "Station_Name"='Vil';
+update ref.tr_station set "Organisation"=NULL where "Station_Name"='Loi';
+update ref.tr_station set "Organisation"=NULL where "Station_Name"='SevN';
+update ref.tr_station set "Organisation"=NULL where "Station_Name"='GiTC';
+update ref.tr_station set "Organisation"=NULL where "Station_Name"='GiCP';
+update ref.tr_station set "Organisation"=NULL where "Station_Name"='AdTC';
+update ref.tr_station set "Organisation"=NULL where "Station_Name"='AdCP';
+update ref.tr_station set "Organisation"=NULL where "Station_Name"='Nalo';
+update ref.tr_station set "Organisation"=NULL where "Station_Name"='Albu';
+update ref.tr_station set "Organisation"=NULL where "Station_Name"='MiSp';
+update ref.tr_station set "Organisation"=NULL where "Station_Name"='MiPo';
+update ref.tr_station set "Organisation"=NULL where "Station_Name"='Tibe';
+update ref.tr_station set "Organisation"=NULL where "Station_Name"='Imsa';
+update ref.tr_station set "Organisation"=NULL where "Station_Name"='Dala';
+update ref.tr_station set "Organisation"=NULL where "Station_Name"='Mota';
+update ref.tr_station set "Organisation"=NULL where "Station_Name"='Morr';
+update ref.tr_station set "Organisation"=NULL where "Station_Name"='Kavl';
+update ref.tr_station set "Organisation"=NULL where "Station_Name"='Ronn';
+update ref.tr_station set "Organisation"=NULL where "Station_Name"='Laga';
+update ref.tr_station set "Organisation"=NULL where "Station_Name"='Gota';
+update ref.tr_station set "Organisation"=NULL where "Station_Name"='ShaP';
+update ref.tr_station set "Organisation"=NULL where "Station_Name"='Gude';
+update ref.tr_station set "Organisation"=NULL where "Station_Name"='Hart';
+update ref.tr_station set "Organisation"=NULL where "Station_Name"='Meus';
+update ref.tr_station set "Organisation"=NULL where "Station_Name"='YFS2';
+update ref.tr_station set "Organisation"=NULL where "Station_Name"='GiSc';
+update ref.tr_station set "Organisation"=NULL where "Station_Name"='Ebro';
+update ref.tr_station set "Organisation"=NULL where "Station_Name"='AlCP';
+update ref.tr_station set "Organisation"=NULL where "Station_Name"='Feal';
+update ref.tr_station set "Organisation"=NULL where "Station_Name"='Maig';
+update ref.tr_station set "Organisation"=NULL where "Station_Name"='Inag';
+update ref.tr_station set "Organisation"=NULL where "Station_Name"='Bres';
+update ref.tr_station set "Organisation"=NULL where "Station_Name"='Fre';
+update ref.tr_station set "Organisation"=NULL where "Station_Name"='Sle';
+update ref.tr_station set "Organisation"=NULL where "Station_Name"='Klit';
+update ref.tr_station set "Organisation"=NULL where "Station_Name"='Nors';
+
+
+------------------------------------
+-- Inserting data data.t_dataseries_das
+------------------------------------
+-- the 58 is a yellow eel series
+INSERT INTO data.t_dataseries_das (
+  das_id, 
+  das_value, 
+  das_ser_id, 
+  das_year, 
+  das_comment, 
+  das_effort) 
+  SELECT 
+  t_data_dat.dat_id, 
+  t_data_dat.dat_value, 
+  t_data_dat.dat_loc_id, 
+  t_data_dat.dat_year, 
+  t_data_dat.dat_comment, 
+  t_data_dat.dat_effort
+FROM 
+  ts.t_data_dat
+  where dat_class_id=1 and dat_loc_id!=58;--2146
