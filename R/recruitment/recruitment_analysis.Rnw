@@ -65,35 +65,65 @@
 This chapter addresses the latest trends in glass and yellow eel
 indices and produce the first draft of the ICES eel advice.
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %************************************************************************************
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 <<init, eval=TRUE,echo=FALSE,results=hide>>=
 # Password are stored in R/etc/Rprofile.site
-CY<-2016 # current year ==> don't forget to update the graphics path above
+# For the moment the database is stored locally
+CY<-2016 # current year ==> don't forget to update the graphics path below
+# ----------------------------------
+# wgeel2016 discussed that the correct way of 
+# calculating average of predictions was to use geomean
+# the option below can be changed from geomean to mean to change calculations
+# it will change the average in model of glass eel graph and prediction
+#----------------------------------------------------------
 opt_calculation="geomean" # geomean or mean
-# option for calculating the average in model of glass eel graph and prediction
 
 
-options(width=90)
+
+options(width=90) # this sets the width of the output
+#--------------------------------
+# packages used by this script
+#--------------------------------
 require(RODBC)
 require(mgcv)
 require(car)
 require(ggplot2)
-require(reshape)
-require(stacomirtools)
+require(reshape) 
+require(stacomirtools) # for ODBC connections
 require(stringr)
 require(Hmisc)
 require(xtable)
 require(grid)
-require('sqldf') # mimict sql queries in a data.frame #citation("sqldf")
-require('RPostgreSQL') # one can use RODBC, here I'm using direct connection via the sqldf package
+require(sqldf) 
+require(RPostgreSQL) 
 
-
+#--------------------------------
+# get your current name
+#--------------------------------
 getUsername <- function(){
 	name <- Sys.info()[["user"]]
 	return(name)
 }
+#--------------------------------
+# the code below is adapted to the three persons who currently 
+# load this script
+# It is necessary to create a folder, your code is currently stored in
+#--------------------------------------------------
+# FOLDER>WGEELgit>R>recruitment>recruitment_analysis.Rnw
+#---------------------------------------------------
+# This will be automatically set when pulling code from git
+# WGEELgit is the local name you have chosen for the git repository,
+# FOLDER is the directory where you have stored the git code
+# So you need to create a directory to store data and figures besides this 
+# directory, like this
+# FOLDER>datawgeel>recruitement>2016>data
+# FOLDER>datawgeel>recruitement>2016>image
+# FOLDER>datawgeel>recruitement>2016>table
+# here 2016 is the current year of recruitment (I have several folders one for each year)
+# the reason for this is that we don't want to put data or figures in the git.
+#--------------------------------
 if(getUsername() == 'cedric.briand')
 {
 	# I have two password in the R.site of c:/program files/R... so I don't need no prompt
@@ -175,82 +205,7 @@ if(getUsername() == 'EDIAZ')
 	tabwd<-str_c(wddata,"/",CY,"/table")
 	shpwd=str_c(wddata,"/wgeel2013/emu") 
 }
-sanitizeLatexS <- function(str) {
-	gsub('([#$%&~_\\^\\\\{}])', '\\\\\\\\\\1', str, perl = TRUE);
-}
-sn <- function(x,scientific=FALSE,digits=0)
-{
-	if (class(x)=="character") {                
-		warning("sn appliqué a un character")
-		return(x)
-	}
-	if (length(x)==0) {                
-		warning("sn length 0")
-		return("???")
-	}
-	if (x==0) return("0")
-	ord <- floor(log(abs(x),10))
-	if (scientific==FALSE&ord<9){
-		if (digits==0) {
-			digits=max(1,ord) # digits must be >0
-			nsmall=0
-		}else {
-			nsmall=digits
-		}
-		x<-format(x,big.mark="~",small.mark="~",digits=digits,nsmall=nsmall)
-		return(str_c("$",as.character(x),"$"))                
-	} else {
-		x <- x / 10^ord
-		if (!missing(digits)) x <- format(x,digits=digits)
-		if (ord==0) return(as.character(x))
-		return(str_c("$",x,"\\\\times 10^{",ord,"}$"))
-	}
-}
-theme_black <- function (base_size = 12,base_family=""){
-	theme_grey(base_size=base_size,base_family=base_family) %+replace%
-			theme(
-					axis.line = element_blank(), 
-					axis.text.x = element_text(size = base_size * 0.8, colour = 'white', lineheight = 0.9, vjust = 1, margin=margin(0.5,0.5,0.5,0.5,"lines")), 
-					axis.text.y = element_text(size = base_size * 0.8, colour = 'white', lineheight = 0.9, hjust = 1, margin=margin(0.5,0.5,0.5,0.5,"lines")), 
-					axis.ticks = element_line(colour = "white", size = 0.2), 
-					axis.title.x = element_text(size = base_size, colour = 'white', vjust = 1), 
-					axis.title.y = element_text(size = base_size, colour = 'white', angle = 90, vjust = 0.5), 
-					axis.ticks.length = unit(0.3, "lines"), 
-					
-					
-					legend.background = element_rect(colour = NA, fill = 'black'), 
-					legend.key = element_rect(colour = NA, fill = 'black'), 
-					legend.key.size = unit(1.2, "lines"), 
-					legend.key.height = NULL, 
-					legend.key.width = NULL,     
-					legend.text = element_text(size = base_size * 0.8, colour = 'white'), 
-					legend.title = element_text(size = base_size * 0.8, face = "bold", hjust = 0, colour = 'white'), 
-					#legend.position = c(0.85,0.6), 
-					legend.text.align = NULL, 
-					legend.title.align = NULL, 
-					legend.direction = "vertical", 
-					legend.box = NULL,    
-					
-					panel.background = element_rect(fill = "black", colour = NA), 
-					panel.border = element_rect(fill = NA, colour = "white"), 
-					panel.grid.major = element_blank(), 
-					panel.grid.minor = element_blank(), 
-					panel.margin = unit(0.25, "lines"), 
-					
-					strip.background = element_rect(fill = "grey30", colour = "grey10"), 
-					strip.text.x = element_text(size = base_size * 0.8, colour = 'white'), 
-					strip.text.y = element_text(size = base_size * 0.8, colour = 'white', angle = -90), 
-					
-					plot.background = element_rect(colour = 'black', fill = 'black'), 
-					plot.title = element_text(size = base_size * 1.2, colour = "white"), 
-					plot.margin = unit(c(1, 1, 0.5, 0.5), "lines")
-			)
-}
-geomean=function(x){
-	x<-x[!is.na(x)]
-	n=length(log(x)[!is.infinite(log(x))&!is.na(log(x))])
-	return(data.frame("y"=exp(sum(log(x)[!is.infinite(log(x))&!is.na(log(x))])/n)))
-}
+source('utility_functions.R')
 graphics.off() # close all graphics devices
 vv<-list()
 @
@@ -263,20 +218,15 @@ query=new("RequeteODBC")
 # 16 juin 2011 changed from left join to inner join on second line, so now avoiding the yellow eel series from Den Burg
 query@sql="select t_location_loc.*,t_recruitment_rec.* from 
 		ts.t_location_loc 	INNER JOIN ts.t_recruitment_rec on t_recruitment_rec.rec_loc_id=t_location_loc.loc_id"
-
-#removing seEA
 query=connect(query)
 R_stations=query@query
 
 
 query=new("RequeteODBC")
-# cedric change 2011 SGIPEE the recruitment series of standing stock from den Burg is removed from analysis.
-# 16 juin 2011 changed from left join to inner join on second line, so now avoiding the yellow eel series from Den Burg
 query@sql="SELECT t_data_dat.*, t_location_loc.*,t_recruitment_rec.* FROM ts.t_data_dat    
 		LEFT JOIN ts.t_location_loc ON t_data_dat.dat_loc_id = t_location_loc.loc_id
 		INNER JOIN ts.t_recruitment_rec on t_recruitment_rec.rec_loc_id=t_location_loc.loc_id 
 		WHERE  dat_class_id =1" 
-#removing seEA
 # 2012 change, there are NA introduced so added dat_value is not null
 query=connect(query)
 R_data_init=query@query
@@ -286,20 +236,6 @@ R_data_init<-chnames(R_data_init,c("dat_id","dat_value","dat_class_id","dat_loc_
 		c("id","data","class_id","site_id","year","lifestage","dat_comment",
 				"loc_id","name","upper","loc_comment","latitude","longitude","tyl_code","area","country","the_geom",
 				"loc_id_bis","river","location","sampling_type","remark","order","unit","lfs_name","nam","namelong"))
-
-#sql command
-#drop view if exists ts.series_stats;
-#create view ts.series_stats as(
-#		select loc_id,loc_name,rec_nameshort  as nam, min(dat_year),max(dat_year), max(dat_year)-min(dat_year)+1 as duration,
-#		max(dat_year)-min(dat_year)+1-count(*) as missing from ts.t_location_loc join ts.t_data_dat on loc_id=dat_loc_id
-#join ts.t_recruitment_rec on rec_loc_id=loc_id
-#group by loc_id,loc_name, nam
-#order by loc_name);
-# a view series_stat stores some summary of the data
-#query=new("RequeteODBC")
-#query@sql="select * from ts.series_stats"
-#query=connect(query)
-#statseries=query@query
 ############################################################################
 #Constructing dummy variables and dividing each series by it's mean value
 ###############################################################################
