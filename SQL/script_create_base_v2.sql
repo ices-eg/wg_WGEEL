@@ -138,9 +138,9 @@ ALTER TABLE ref.tr_sea_sea
 -- to ICES standards
 ---------------------------------------------------
 DROP TABLE IF EXISTS  ref.tr_quality_qal;
-create table ref.tr_quality_qal (
-qal_id integer,
-qal_level integer,
+CREATE TABLE ref.tr_quality_qal (
+qal_id integer PRIMARY KEY,
+qal_level text,
 qal_text text);
 ALTER TABLE  ref.tr_quality_qal
   OWNER TO postgres;
@@ -330,72 +330,136 @@ psql -U postgres -f "tr_ices_ecoregions.sql" wgeel
 -- Table containing the series
 -- this table contains geographical informations and comments on the series
 ------------------------------------------------- 
-DROP TABLE IF EXISTS data.t_series_ser CASCADE;
-CREATE TABLE data.t_series_ser (
-ser_id serial PRIMARY KEY,  --number internal use
-ser_order integer not null, -- order internal use to display the data from north to south
-ser_nameshort character varying(4), --short name of the recuitment series eg Vil for Vilaine
-ser_namelong character varying(50), -- long name of the recuitment series
-ser_typ_id integer, -- type of series 1= recruitment series
-ser_effort_uni_code character varying(20), -- unit used for effort
-ser_comment text, -- Comment for the series, this is the metadata describing the whole series
-ser_uni_code character varying(20), -- unit of the series kg, ton
-ser_lfs_code character varying(2), -- lifestage id see 
-ser_hty_code character varying(2), -- habitat code see table t_habitattype_hty (F=Freshwater, MO=Marine Open,T=transitional...)
-ser_habitat_name text, -- habitat name, name of the river, of the lagoon ...
-ser_emu_name_short character varying(20), -- see emu referential
-ser_cou_code character varying(2), -- country code
-ser_area_division character varying(254), -- code of ICES area
-ser_tblcodeid integer, -- code of the station see ref.tr_station
-ser_x numeric, -- x (longitude WGS84)
-ser_y numeric, -- y (latitude WGS84)
-geom geometry, -- internal use, a postgis geometry point in EPSG:3035 (ETRS89 / ETRS-LAEA)
-CONSTRAINT enforce_dims_the_geom CHECK (st_ndims(geom) = 2),
-CONSTRAINT enforce_srid_the_geom CHECK (st_srid(geom) = 3035),
-CONSTRAINT c_fk_cou_code FOREIGN KEY (ser_cou_code) REFERENCES ref.tr_country_cou (cou_code)
+CREATE TABLE data.t_series_ser
+(
+  ser_id serial NOT NULL, -- serial number internal use, identifier of the series
+  ser_order integer NOT NULL, -- order internal, used to display the data from North to South
+  ser_nameshort character varying(4), -- short name of the recuitment series eg `Vil` for the Vilaine
+  ser_namelong character varying(50), -- long name of the recuitment series eg `Vilaine estuary` for the Vilaine
+  ser_typ_id integer, -- type of series 1= recruitment series, FOREIGN KEY to table ref.tr_typeseries_ser(ser_typ_id)
+  ser_effort_uni_code character varying(20), -- unit used for effort, it is different from the unit used in the series, for instance some...
+  ser_comment text, -- Comment for the series, this should be part of the metadata describing the whole series
+  ser_uni_code character varying(20), -- unit of the series kg, ton, kg/boat/day ... FOREIGN KEY to table ref.tr_units_uni(uni_code)
+  ser_lfs_code character varying(2), -- lifestage id, FOREIGN KEY to tr_lifestage_lfs, possible values G, Y, S, GY, YS
+  ser_hty_code character varying(2), -- habitat FOREIGN KEY to table t_habitattype_hty (F=Freshwater, MO=Marine Open,T=transitional...)
+  ser_habitat_name text, -- Description for the river, the habitat where the series is collected eg. IYFS/IBTS sampling in the Skagerrak-Kattegat
+  ser_emu_name_short character varying(20), -- The emu code, FOREIGN KEY to ref.tr_emu_emu
+  ser_cou_code character varying(2), -- country code, FOREIGN KEY to ref.tr_country_cou
+  ser_area_division character varying(254), -- code of ICES area, FOREIGN KEY to ref.tr_faoareas(f_division)
+  ser_tblcodeid integer, -- code of the station, FOREIGN KEY to ref.tr_station
+  ser_x numeric, -- x (longitude) EPSG:4326. WGS 84 (Google it)
+  ser_y numeric, -- y (latitude) EPSG:4326. WGS 84 (Google it)
+  geom geometry, -- internal use, a postgis geometry point in EPSG:3035 (ETRS89 / ETRS-LAEA)
+  CONSTRAINT t_series_ser_pkey PRIMARY KEY (ser_id),
+  CONSTRAINT c_fk_area_code FOREIGN KEY (ser_area_division)
+      REFERENCES ref.tr_faoareas (f_division) MATCH SIMPLE
+      ON UPDATE CASCADE ON DELETE NO ACTION,
+  CONSTRAINT c_fk_cou_code FOREIGN KEY (ser_cou_code)
+      REFERENCES ref.tr_country_cou (cou_code) MATCH SIMPLE
       ON UPDATE NO ACTION ON DELETE NO ACTION,
-CONSTRAINT c_fk_uni_code FOREIGN KEY (ser_uni_code) REFERENCES ref.tr_units_uni (uni_code)
+  CONSTRAINT c_fk_emu_name_short FOREIGN KEY (ser_emu_name_short)
+      REFERENCES ref.tr_emu_emu (emu_name_short) MATCH SIMPLE
+      ON UPDATE CASCADE ON DELETE NO ACTION,
+  CONSTRAINT c_fk_hty_code FOREIGN KEY (ser_hty_code)
+      REFERENCES ref.tr_habitattype_hty (hty_code) MATCH SIMPLE
+      ON UPDATE CASCADE ON DELETE NO ACTION,
+  CONSTRAINT c_fk_lfs_code FOREIGN KEY (ser_lfs_code)
+      REFERENCES ref.tr_lifestage_lfs (lfs_code) MATCH SIMPLE
+      ON UPDATE CASCADE ON DELETE NO ACTION,
+  CONSTRAINT c_fk_ser_effort_uni_code FOREIGN KEY (ser_effort_uni_code)
+      REFERENCES ref.tr_units_uni (uni_code) MATCH SIMPLE
+      ON UPDATE CASCADE ON DELETE NO ACTION,
+  CONSTRAINT c_fk_tblcodeid FOREIGN KEY (ser_tblcodeid)
+      REFERENCES ref.tr_station ("tblCodeID") MATCH SIMPLE
+      ON UPDATE CASCADE ON DELETE NO ACTION,
+  CONSTRAINT c_fk_uni_code FOREIGN KEY (ser_uni_code)
+      REFERENCES ref.tr_units_uni (uni_code) MATCH SIMPLE
       ON UPDATE NO ACTION ON DELETE NO ACTION,
-CONSTRAINT c_fk_emu_name_short FOREIGN KEY (ser_emu_name_short) REFERENCES ref.tr_emu_emu(emu_name_short) 
-	ON UPDATE CASCADE ON DELETE NO ACTION,
-CONSTRAINT c_fk_area_code FOREIGN KEY (ser_area_division) 
-	REFERENCES ref.tr_faoareas(f_division) ON UPDATE CASCADE ON DELETE NO ACTION,
-CONSTRAINT c_fk_tblcodeid FOREIGN KEY (ser_tblcodeid) 
-	REFERENCES ref.tr_station("tblCodeID") ON UPDATE CASCADE ON DELETE NO ACTION,
-CONSTRAINT c_fk_hty_code FOREIGN KEY (ser_hty_code) 
-	REFERENCES ref.tr_habitattype_hty(hty_code) ON UPDATE CASCADE ON DELETE NO ACTION,
-CONSTRAINT c_fk_ser_effort_uni_code FOREIGN KEY (ser_effort_uni_code)
-     REFERENCES ref.tr_units_uni (uni_code) ON UPDATE CASCADE ON DELETE NO ACTION,
-CONSTRAINT c_fk_lfs_code FOREIGN KEY (ser_lfs_code)
-     REFERENCES ref.tr_lifestage_lfs (lfs_code) ON UPDATE CASCADE ON DELETE NO ACTION     
- )
+  CONSTRAINT enforce_dims_the_geom CHECK (st_ndims(geom) = 2),
+  CONSTRAINT enforce_srid_the_geom CHECK (st_srid(geom) = 3035)
+)
 WITH (
   OIDS=FALSE
 );
 ALTER TABLE data.t_series_ser
   OWNER TO postgres;
 
+COMMENT ON TABLE data.t_series_ser is 'This table contains geographical informations 
+and comments on the recruitment, silver eel migration and yellow eel standing stock survey series';
 
+COMMENT ON COLUMN data.t_series_ser.ser_id IS
+ 'serial number internal use, identifier of the series';
+COMMENT ON COLUMN data.t_series_ser.ser_order IS
+ 'order internal, used to display the data from North to South';
+COMMENT ON COLUMN data.t_series_ser.ser_nameshort IS
+ 'short name of the recuitment series eg `Vil` for the Vilaine';
+COMMENT ON COLUMN data.t_series_ser.ser_namelong IS
+ 'long name of the recuitment series eg `Vilaine estuary` for the Vilaine';
+COMMENT ON COLUMN data.t_series_ser.ser_typ_id IS
+ 'type of series 1= recruitment series, FOREIGN KEY to table ref.tr_typeseries_ser(ser_typ_id)';
+COMMENT ON COLUMN data.t_series_ser.ser_effort_uni_code IS
+ 'unit used for effort, it is different from the unit used in the series, for instance some
+ of the Dutch series rely on the number hauls made to collect the glass eel to qualify the series,
+ FOREIGN KEY to ref.tr_units_uni ';
+COMMENT ON COLUMN data.t_series_ser.ser_comment IS
+ 'Comment for the series, this should be part of the metadata describing the whole series';
+COMMENT ON COLUMN data.t_series_ser.ser_uni_code IS
+ 'unit of the series kg, ton, kg/boat/day ... FOREIGN KEY to table ref.tr_units_uni(uni_code)';
+COMMENT ON COLUMN data.t_series_ser.ser_lfs_code IS
+ 'lifestage id, FOREIGN KEY to tr_lifestage_lfs, possible values G, Y, S, GY, YS';
+COMMENT ON COLUMN data.t_series_ser.ser_hty_code IS
+ 'habitat FOREIGN KEY to table t_habitattype_hty (F=Freshwater, MO=Marine Open,T=transitional...)';
+COMMENT ON COLUMN data.t_series_ser.ser_habitat_name IS
+ 'Description for the river, the habitat where the series is collected eg. IYFS/IBTS sampling in the Skagerrak-Kattegat';
+COMMENT ON COLUMN data.t_series_ser.ser_emu_name_short IS
+ 'The emu code, FOREIGN KEY to ref.tr_emu_emu';
+COMMENT ON COLUMN data.t_series_ser.ser_cou_code IS
+ 'country code, FOREIGN KEY to ref.tr_country_cou';
+COMMENT ON COLUMN data.t_series_ser.ser_area_division IS
+ 'code of ICES area, FOREIGN KEY to ref.tr_faoareas(f_division)';
+COMMENT ON COLUMN data.t_series_ser.ser_tblcodeid IS
+ 'code of the station, FOREIGN KEY to ref.tr_station';
+COMMENT ON COLUMN data.t_series_ser.ser_x IS
+ 'x (longitude) EPSG:4326. WGS 84 (Google it)';
+COMMENT ON COLUMN data.t_series_ser.ser_y IS
+ 'y (latitude) EPSG:4326. WGS 84 (Google it)';
+COMMENT ON COLUMN data.t_series_ser.geom IS
+ 'internal use, a postgis geometry point in EPSG:3035 (ETRS89 / ETRS-LAEA)';
 ---------------------------------------
 -- this table holds the main information
 ----------------------------------------
-DROP TABLE IF EXISTS data.t_data_dat;
-CREATE TABLE data.t_data_dat (
-  dat_id serial NOT NULL, -- internal use an integer
-  dat_value real, -- the value 
-  dat_ser_id integer NOT NULL, -- foreign key to join t_series_ser (id of the series) internal use
-  dat_year integer, -- year for the data
-  dat_comment text, -- comment for the particular year
-  dat_effort numeric, -- effort value if present (nb of electrofishing, nb of hauls)
-  dat_last_update date, -- internal use (trigger on insert or update) pour mise à jour
-  CONSTRAINT t_data_dat_pkey PRIMARY KEY (dat_id),
-  CONSTRAINT c_fk_ser_id FOREIGN KEY (dat_ser_id)
-      REFERENCES data.t_series_ser (ser_id)
-      ON UPDATE CASCADE ON DELETE NO ACTION   
+CREATE TABLE data.t_dataseries_das
+(
+  das_id serial NOT NULL, -- internal use, an auto-incremented integer
+  das_value real, -- the value
+  das_ser_id integer NOT NULL, -- Foreign key to join t_series_ser (id of the series) internal use
+  das_year integer, -- Year for the data
+  das_comment text, -- Comment for the particular year
+  das_effort numeric, -- Effort value if present (nb of electrofishing, nb of hauls)
+  das_last_update date, -- Date of last update inserted automatically with a trigger
+  das_qal_id integer, -- Code to assess the quality of the data, FOREIGN KEY on table ref.tr_quality_qal
+  CONSTRAINT das_pkey PRIMARY KEY (das_id),
+  CONSTRAINT c_fk_qal_id FOREIGN KEY (das_qal_id)
+      REFERENCES ref.tr_quality_qal (qal_id) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION,
+  CONSTRAINT c_fk_ser_id FOREIGN KEY (das_ser_id)
+      REFERENCES data.t_series_ser (ser_id) MATCH SIMPLE
+      ON UPDATE CASCADE ON DELETE NO ACTION
 )
 WITH (
   OIDS=FALSE
 );
-ALTER TABLE data.t_data_dat
+ALTER TABLE data.t_dataseries_das
   OWNER TO postgres;
 
+
+COMMENT ON TABLE data.t_dataseries_das IS 'table holding the information on the series, one line per year
+	an indication of the effort associated with the series is present for some of the series';
+COMMENT ON COLUMN data.t_dataseries_das.das_id IS 'Internal use, an auto-incremented integer';
+COMMENT ON COLUMN data.t_dataseries_das.das_value IS 'The value';
+COMMENT ON COLUMN data.t_dataseries_das.das_ser_id IS 'Foreign key to join t_series_ser (id of the series) internal use';
+COMMENT ON COLUMN data.t_dataseries_das.das_year IS 'Year for the data';
+COMMENT ON COLUMN data.t_dataseries_das.das_comment IS 'Comment for the particular year';
+COMMENT ON COLUMN data.t_dataseries_das.das_effort IS 'Effort value if present (nb of electrofishing, nb of hauls)';
+COMMENT ON COLUMN data.t_dataseries_das.das_last_update IS 'Date of last update inserted automatically with a trigger';
+COMMENT ON COLUMN data.t_dataseries_das.das_qal_id IS 'Code to assess the quality of the data, FOREIGN KEY on table ref.tr_quality_qal';
