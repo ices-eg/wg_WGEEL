@@ -331,12 +331,27 @@ shp2pgsql -s 4326 -d -g geom -I ices_ecoregions ref.tr_ices_ecoregions> tr_ices_
 REM IMPORT INTO POSTGRES
 psql -U postgres -f "tr_ices_ecoregions.sql" wgeel
 */
- 
+
+------------------------------------------------------
+-- Sampling type
+-----------------------------------------------------
+CREATE TABLE ref.tr_samplingtype_sam
+(
+  sam_id serial NOT NULL,
+  sam_samplingtype character varying,
+  CONSTRAINT c_pk_sam_samplingtype PRIMARY KEY (sam_id),
+  CONSTRAINT c_uk_sam_samplingtype UNIQUE (sam_samplingtype)
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE ref.tr_samplingtype_sam
+  OWNER TO postgres;
+
 --------------------------------------------------
 -- Table containing the series
 -- this table contains geographical informations and comments on the series
 ------------------------------------------------- 
-
 CREATE TABLE datawg.t_series_ser
 (
   ser_id serial NOT NULL, -- serial number internal use, identifier of the series
@@ -357,10 +372,8 @@ CREATE TABLE datawg.t_series_ser
   ser_x numeric, -- x (longitude) EPSG:4326. WGS 84 (Google it)
   ser_y numeric, -- y (latitude) EPSG:4326. WGS 84 (Google it)
   geom geometry, -- internal use, a postgis geometry point in EPSG:3035 (ETRS89 / ETRS-LAEA)
+  ser_sam_id integer, -- The sampling type corresponds to trap partial, trap total, ...., FOREIGN KEY to ref.tr_samplingtype_sam
   CONSTRAINT t_series_ser_pkey PRIMARY KEY (ser_id),
-  CONSTRAINT c_fk_typ_id FOREIGN KEY (ser_typ_id)
-      REFERENCES ref.tr_typeseries_typ (typ_id) MATCH SIMPLE
-      ON UPDATE CASCADE ON DELETE NO ACTION
   CONSTRAINT c_fk_area_code FOREIGN KEY (ser_area_division)
       REFERENCES ref.tr_faoareas (f_division) MATCH SIMPLE
       ON UPDATE CASCADE ON DELETE NO ACTION,
@@ -376,15 +389,22 @@ CREATE TABLE datawg.t_series_ser
   CONSTRAINT c_fk_lfs_code FOREIGN KEY (ser_lfs_code)
       REFERENCES ref.tr_lifestage_lfs (lfs_code) MATCH SIMPLE
       ON UPDATE CASCADE ON DELETE NO ACTION,
+  CONSTRAINT c_fk_sam_id FOREIGN KEY (ser_sam_id)
+      REFERENCES ref.tr_samplingtype_sam (sam_id) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION,
   CONSTRAINT c_fk_ser_effort_uni_code FOREIGN KEY (ser_effort_uni_code)
       REFERENCES ref.tr_units_uni (uni_code) MATCH SIMPLE
       ON UPDATE CASCADE ON DELETE NO ACTION,
   CONSTRAINT c_fk_tblcodeid FOREIGN KEY (ser_tblcodeid)
       REFERENCES ref.tr_station ("tblCodeID") MATCH SIMPLE
       ON UPDATE CASCADE ON DELETE NO ACTION,
+  CONSTRAINT c_fk_typ_id FOREIGN KEY (ser_typ_id)
+      REFERENCES ref.tr_typeseries_typ (typ_id) MATCH SIMPLE
+      ON UPDATE CASCADE ON DELETE NO ACTION,
   CONSTRAINT c_fk_uni_code FOREIGN KEY (ser_uni_code)
       REFERENCES ref.tr_units_uni (uni_code) MATCH SIMPLE
       ON UPDATE NO ACTION ON DELETE NO ACTION,
+  CONSTRAINT c_ck_ser_typ_id CHECK (ser_typ_id = ANY (ARRAY[1, 2, 3])),
   CONSTRAINT enforce_dims_the_geom CHECK (st_ndims(geom) = 2),
   CONSTRAINT enforce_srid_the_geom CHECK (st_srid(geom) = 3035)
 )
@@ -393,48 +413,32 @@ WITH (
 );
 ALTER TABLE datawg.t_series_ser
   OWNER TO postgres;
-
-COMMENT ON TABLE datawg.t_series_ser is 'This table contains geographical informations 
+COMMENT ON TABLE datawg.t_series_ser
+  IS 'This table contains geographical informations 
 and comments on the recruitment, silver eel migration and yellow eel standing stock survey series';
-
-COMMENT ON COLUMN datawg.t_series_ser.ser_id IS
- 'serial number internal use, identifier of the series';
-COMMENT ON COLUMN datawg.t_series_ser.ser_order IS
- 'order internal, used to display the data from North to South';
-COMMENT ON COLUMN datawg.t_series_ser.ser_nameshort IS
- 'short name of the recuitment series eg `Vil` for the Vilaine';
-COMMENT ON COLUMN datawg.t_series_ser.ser_namelong IS
- 'long name of the recuitment series eg `Vilaine estuary` for the Vilaine';
-COMMENT ON COLUMN datawg.t_series_ser.ser_typ_id IS
- 'type of series 1= recruitment series, FOREIGN KEY to table ref.tr_typeseries_ser(ser_typ_id)';
-COMMENT ON COLUMN datawg.t_series_ser.ser_effort_uni_code IS
- 'unit used for effort, it is different from the unit used in the series, for instance some
+COMMENT ON COLUMN datawg.t_series_ser.ser_id IS 'serial number internal use, identifier of the series';
+COMMENT ON COLUMN datawg.t_series_ser.ser_order IS 'order internal, used to display the data from North to South';
+COMMENT ON COLUMN datawg.t_series_ser.ser_nameshort IS 'short name of the recuitment series eg `Vil` for the Vilaine';
+COMMENT ON COLUMN datawg.t_series_ser.ser_namelong IS 'long name of the recuitment series eg `Vilaine estuary` for the Vilaine';
+COMMENT ON COLUMN datawg.t_series_ser.ser_typ_id IS 'type of series 1= recruitment series, FOREIGN KEY to table ref.tr_typeseries_ser(ser_typ_id)';
+COMMENT ON COLUMN datawg.t_series_ser.ser_effort_uni_code IS 'unit used for effort, it is different from the unit used in the series, for instance some
  of the Dutch series rely on the number hauls made to collect the glass eel to qualify the series,
  FOREIGN KEY to ref.tr_units_uni ';
-COMMENT ON COLUMN datawg.t_series_ser.ser_comment IS
- 'Comment for the series, this should be part of the metadata describing the whole series';
-COMMENT ON COLUMN datawg.t_series_ser.ser_uni_code IS
- 'unit of the series kg, ton, kg/boat/day ... FOREIGN KEY to table ref.tr_units_uni(uni_code)';
-COMMENT ON COLUMN datawg.t_series_ser.ser_lfs_code IS
- 'lifestage id, FOREIGN KEY to tr_lifestage_lfs, possible values G, Y, S, GY, YS';
-COMMENT ON COLUMN datawg.t_series_ser.ser_hty_code IS
- 'habitat FOREIGN KEY to table t_habitattype_hty (F=Freshwater, MO=Marine Open,T=transitional...)';
-COMMENT ON COLUMN datawg.t_series_ser.ser_habitat_name IS
- 'Description for the river, the habitat where the series is collected eg. IYFS/IBTS sampling in the Skagerrak-Kattegat';
-COMMENT ON COLUMN datawg.t_series_ser.ser_emu_nameshort IS
- 'The emu code, FOREIGN KEY to ref.tr_emu_emu';
-COMMENT ON COLUMN datawg.t_series_ser.ser_cou_code IS
- 'country code, FOREIGN KEY to ref.tr_country_cou';
-COMMENT ON COLUMN datawg.t_series_ser.ser_area_division IS
- 'code of ICES area, FOREIGN KEY to ref.tr_faoareas(f_division)';
-COMMENT ON COLUMN datawg.t_series_ser.ser_tblcodeid IS
- 'code of the station, FOREIGN KEY to ref.tr_station';
-COMMENT ON COLUMN datawg.t_series_ser.ser_x IS
- 'x (longitude) EPSG:4326. WGS 84 (Google it)';
-COMMENT ON COLUMN datawg.t_series_ser.ser_y IS
- 'y (latitude) EPSG:4326. WGS 84 (Google it)';
-COMMENT ON COLUMN datawg.t_series_ser.geom IS
- 'internal use, a postgis geometry point in EPSG:3035 (ETRS89 / ETRS-LAEA)';
+COMMENT ON COLUMN datawg.t_series_ser.ser_comment IS 'Comment for the series, this should be part of the metadata describing the whole series';
+COMMENT ON COLUMN datawg.t_series_ser.ser_uni_code IS 'unit of the series kg, ton, kg/boat/day ... FOREIGN KEY to table ref.tr_units_uni(uni_code)';
+COMMENT ON COLUMN datawg.t_series_ser.ser_lfs_code IS 'lifestage id, FOREIGN KEY to tr_lifestage_lfs, possible values G, Y, S, GY, YS';
+COMMENT ON COLUMN datawg.t_series_ser.ser_hty_code IS 'habitat FOREIGN KEY to table t_habitattype_hty (F=Freshwater, MO=Marine Open,T=transitional...)';
+COMMENT ON COLUMN datawg.t_series_ser.ser_habitat_name IS 'Description for the river, the habitat where the series is collected eg. IYFS/IBTS sampling in the Skagerrak-Kattegat';
+COMMENT ON COLUMN datawg.t_series_ser.ser_emu_nameshort IS 'The emu code, FOREIGN KEY to ref.tr_emu_emu';
+COMMENT ON COLUMN datawg.t_series_ser.ser_cou_code IS 'country code, FOREIGN KEY to ref.tr_country_cou';
+COMMENT ON COLUMN datawg.t_series_ser.ser_area_division IS 'code of ICES area, FOREIGN KEY to ref.tr_faoareas(f_division)';
+COMMENT ON COLUMN datawg.t_series_ser.ser_tblcodeid IS 'code of the station, FOREIGN KEY to ref.tr_station';
+COMMENT ON COLUMN datawg.t_series_ser.ser_x IS 'x (longitude) EPSG:4326. WGS 84 (Google it)';
+COMMENT ON COLUMN datawg.t_series_ser.ser_y IS 'y (latitude) EPSG:4326. WGS 84 (Google it)';
+COMMENT ON COLUMN datawg.t_series_ser.geom IS 'internal use, a postgis geometry point in EPSG:3035 (ETRS89 / ETRS-LAEA)';
+COMMENT ON COLUMN datawg.t_series_ser.ser_sam_id IS 'The sampling type corresponds to trap partial, trap total, ...., FOREIGN KEY to ref.tr_samplingtype_sam';
+
+
 ---------------------------------------
 -- this table holds the main information
 ----------------------------------------

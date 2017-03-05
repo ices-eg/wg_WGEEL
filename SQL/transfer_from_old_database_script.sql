@@ -64,7 +64,10 @@ select cou_code||'_outside_emu',cou_code from ref.tr_country_cou ;-- 44 lines in
 --select * from ref.tr_country_cou;
 insert into ref.tr_country_cou select distinct on ("order") * from carto.country_order order by "order"; -- 44
 
-
+------------------------------------------------------
+-- Sampling type
+-----------------------------------------------------
+insert into ref.tr_samplingtype_sam select sam_id, sam_samplingtype from ts.tr_samplingtype_sam;--5
 
 
 
