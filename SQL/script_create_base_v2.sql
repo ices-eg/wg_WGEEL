@@ -199,14 +199,13 @@ CREATE TABLE ref.tr_emusplit_ems
   CONSTRAINT enforce_dims_the_geom CHECK (st_ndims(geom) = 2),
   CONSTRAINT enforce_srid_the_geom CHECK (st_srid(geom) = 3035),
  CONSTRAINT c_fk_emu_sea FOREIGN KEY (emu_sea) REFERENCES ref.tr_sea_sea(sea_code) ON UPDATE CASCADE ON DELETE NO ACTION, 
- CONSTRAINT c_fk_emu_nameshort FOREIGN KEY (emu_name_short) REFERENCES ref.tr_emu_emu(emu_nameshort) ON UPDATE CASCADE ON DELETE NO ACTION
+ CONSTRAINT c_fk_emu_nameshort FOREIGN KEY (emu_nameshort) REFERENCES ref.tr_emu_emu(emu_nameshort) ON UPDATE CASCADE ON DELETE NO ACTION
 )
 WITH (
   OIDS=FALSE
 );
 ALTER TABLE ref.tr_emusplit_ems
   OWNER TO postgres;
-
 
 
 DROP INDEX IF EXISTS id_tr_emusplit_ems;
@@ -338,7 +337,7 @@ psql -U postgres -f "tr_ices_ecoregions.sql" wgeel
 -- this table contains geographical informations and comments on the series
 ------------------------------------------------- 
 
-CREATE TABLE data.t_series_ser
+CREATE TABLE datawg.t_series_ser
 (
   ser_id serial NOT NULL, -- serial number internal use, identifier of the series
   ser_order integer NOT NULL, -- order internal, used to display the data from North to South
@@ -392,54 +391,54 @@ CREATE TABLE data.t_series_ser
 WITH (
   OIDS=FALSE
 );
-ALTER TABLE data.t_series_ser
+ALTER TABLE datawg.t_series_ser
   OWNER TO postgres;
 
-COMMENT ON TABLE data.t_series_ser is 'This table contains geographical informations 
+COMMENT ON TABLE datawg.t_series_ser is 'This table contains geographical informations 
 and comments on the recruitment, silver eel migration and yellow eel standing stock survey series';
 
-COMMENT ON COLUMN data.t_series_ser.ser_id IS
+COMMENT ON COLUMN datawg.t_series_ser.ser_id IS
  'serial number internal use, identifier of the series';
-COMMENT ON COLUMN data.t_series_ser.ser_order IS
+COMMENT ON COLUMN datawg.t_series_ser.ser_order IS
  'order internal, used to display the data from North to South';
-COMMENT ON COLUMN data.t_series_ser.ser_nameshort IS
+COMMENT ON COLUMN datawg.t_series_ser.ser_nameshort IS
  'short name of the recuitment series eg `Vil` for the Vilaine';
-COMMENT ON COLUMN data.t_series_ser.ser_namelong IS
+COMMENT ON COLUMN datawg.t_series_ser.ser_namelong IS
  'long name of the recuitment series eg `Vilaine estuary` for the Vilaine';
-COMMENT ON COLUMN data.t_series_ser.ser_typ_id IS
+COMMENT ON COLUMN datawg.t_series_ser.ser_typ_id IS
  'type of series 1= recruitment series, FOREIGN KEY to table ref.tr_typeseries_ser(ser_typ_id)';
-COMMENT ON COLUMN data.t_series_ser.ser_effort_uni_code IS
+COMMENT ON COLUMN datawg.t_series_ser.ser_effort_uni_code IS
  'unit used for effort, it is different from the unit used in the series, for instance some
  of the Dutch series rely on the number hauls made to collect the glass eel to qualify the series,
  FOREIGN KEY to ref.tr_units_uni ';
-COMMENT ON COLUMN data.t_series_ser.ser_comment IS
+COMMENT ON COLUMN datawg.t_series_ser.ser_comment IS
  'Comment for the series, this should be part of the metadata describing the whole series';
-COMMENT ON COLUMN data.t_series_ser.ser_uni_code IS
+COMMENT ON COLUMN datawg.t_series_ser.ser_uni_code IS
  'unit of the series kg, ton, kg/boat/day ... FOREIGN KEY to table ref.tr_units_uni(uni_code)';
-COMMENT ON COLUMN data.t_series_ser.ser_lfs_code IS
+COMMENT ON COLUMN datawg.t_series_ser.ser_lfs_code IS
  'lifestage id, FOREIGN KEY to tr_lifestage_lfs, possible values G, Y, S, GY, YS';
-COMMENT ON COLUMN data.t_series_ser.ser_hty_code IS
+COMMENT ON COLUMN datawg.t_series_ser.ser_hty_code IS
  'habitat FOREIGN KEY to table t_habitattype_hty (F=Freshwater, MO=Marine Open,T=transitional...)';
-COMMENT ON COLUMN data.t_series_ser.ser_habitat_name IS
+COMMENT ON COLUMN datawg.t_series_ser.ser_habitat_name IS
  'Description for the river, the habitat where the series is collected eg. IYFS/IBTS sampling in the Skagerrak-Kattegat';
-COMMENT ON COLUMN data.t_series_ser.ser_emu_nameshort IS
+COMMENT ON COLUMN datawg.t_series_ser.ser_emu_nameshort IS
  'The emu code, FOREIGN KEY to ref.tr_emu_emu';
-COMMENT ON COLUMN data.t_series_ser.ser_cou_code IS
+COMMENT ON COLUMN datawg.t_series_ser.ser_cou_code IS
  'country code, FOREIGN KEY to ref.tr_country_cou';
-COMMENT ON COLUMN data.t_series_ser.ser_area_division IS
+COMMENT ON COLUMN datawg.t_series_ser.ser_area_division IS
  'code of ICES area, FOREIGN KEY to ref.tr_faoareas(f_division)';
-COMMENT ON COLUMN data.t_series_ser.ser_tblcodeid IS
+COMMENT ON COLUMN datawg.t_series_ser.ser_tblcodeid IS
  'code of the station, FOREIGN KEY to ref.tr_station';
-COMMENT ON COLUMN data.t_series_ser.ser_x IS
+COMMENT ON COLUMN datawg.t_series_ser.ser_x IS
  'x (longitude) EPSG:4326. WGS 84 (Google it)';
-COMMENT ON COLUMN data.t_series_ser.ser_y IS
+COMMENT ON COLUMN datawg.t_series_ser.ser_y IS
  'y (latitude) EPSG:4326. WGS 84 (Google it)';
-COMMENT ON COLUMN data.t_series_ser.geom IS
+COMMENT ON COLUMN datawg.t_series_ser.geom IS
  'internal use, a postgis geometry point in EPSG:3035 (ETRS89 / ETRS-LAEA)';
 ---------------------------------------
 -- this table holds the main information
 ----------------------------------------
-CREATE TABLE data.t_dataseries_das
+CREATE TABLE datawg.t_dataseries_das
 (
   das_id serial NOT NULL, -- internal use, an auto-incremented integer
   das_value real, -- the value
@@ -454,26 +453,26 @@ CREATE TABLE data.t_dataseries_das
       REFERENCES ref.tr_quality_qal (qal_id) MATCH SIMPLE
       ON UPDATE NO ACTION ON DELETE NO ACTION,
   CONSTRAINT c_fk_ser_id FOREIGN KEY (das_ser_id)
-      REFERENCES data.t_series_ser (ser_id) MATCH SIMPLE
+      REFERENCES datawg.t_series_ser (ser_id) MATCH SIMPLE
       ON UPDATE CASCADE ON DELETE NO ACTION
 )
 WITH (
   OIDS=FALSE
 );
-ALTER TABLE data.t_dataseries_das
+ALTER TABLE datawg.t_dataseries_das
   OWNER TO postgres;
 
 
-COMMENT ON TABLE data.t_dataseries_das IS 'table holding the information on the series, one line per year
+COMMENT ON TABLE datawg.t_dataseries_das IS 'table holding the information on the series, one line per year
 	an indication of the effort associated with the series is present for some of the series';
-COMMENT ON COLUMN data.t_dataseries_das.das_id IS 'Internal use, an auto-incremented integer';
-COMMENT ON COLUMN data.t_dataseries_das.das_value IS 'The value';
-COMMENT ON COLUMN data.t_dataseries_das.das_ser_id IS 'Foreign key to join t_series_ser (id of the series) internal use';
-COMMENT ON COLUMN data.t_dataseries_das.das_year IS 'Year for the data';
-COMMENT ON COLUMN data.t_dataseries_das.das_comment IS 'Comment for the particular year';
-COMMENT ON COLUMN data.t_dataseries_das.das_effort IS 'Effort value if present (nb of electrofishing, nb of hauls)';
-COMMENT ON COLUMN data.t_dataseries_das.das_last_update IS 'Date of last update inserted automatically with a trigger';
-COMMENT ON COLUMN data.t_dataseries_das.das_qal_id IS 'Code to assess the quality of the data, FOREIGN KEY on table ref.tr_quality_qal';
+COMMENT ON COLUMN datawg.t_dataseries_das.das_id IS 'Internal use, an auto-incremented integer';
+COMMENT ON COLUMN datawg.t_dataseries_das.das_value IS 'The value';
+COMMENT ON COLUMN datawg.t_dataseries_das.das_ser_id IS 'Foreign key to join t_series_ser (id of the series) internal use';
+COMMENT ON COLUMN datawg.t_dataseries_das.das_year IS 'Year for the data';
+COMMENT ON COLUMN datawg.t_dataseries_das.das_comment IS 'Comment for the particular year';
+COMMENT ON COLUMN datawg.t_dataseries_das.das_effort IS 'Effort value if present (nb of electrofishing, nb of hauls)';
+COMMENT ON COLUMN datawg.t_dataseries_das.das_last_update IS 'Date of last update inserted automatically with a trigger';
+COMMENT ON COLUMN datawg.t_dataseries_das.das_qal_id IS 'Code to assess the quality of the data, FOREIGN KEY on table ref.tr_quality_qal';
 
 
 
@@ -483,15 +482,15 @@ COMMENT ON COLUMN data.t_dataseries_das.das_qal_id IS 'Code to assess the qualit
 
 
 /*
-data can be stored with the same table as tr_typeseries_typ but there is a need for additional check constraint
+datatypes can be stored with the same table as tr_typeseries_typ but there is a need for additional check constraint
 as we don't want to add landings or biomass indicators in the series table
 It does not make sense to repeat a unit in this table again and again
 */
-ALTER TABLE data.t_series_ser ADD CONSTRAINT c_ck_ser_typ_id CHECK (ser_typ_id in (1,2,3));
+ALTER TABLE datawg.t_series_ser ADD CONSTRAINT c_ck_ser_typ_id CHECK (ser_typ_id in (1,2,3));
 
 
-DROP TABLE IF EXISTS data.t_eelstock_eel;
-CREATE TABLE data.t_eelstock_eel  (
+DROP TABLE IF EXISTS datawg.t_eelstock_eel;
+CREATE TABLE datawg.t_eelstock_eel  (
 	eel_id serial PRIMARY KEY,
 	eel_typ_id integer, -- type of series FOREIGN KEY to table ref.tr_typeseries_ser(ser_typ_id)
 	eel_year integer not null,

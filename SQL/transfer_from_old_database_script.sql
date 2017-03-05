@@ -131,12 +131,12 @@ insert into ref.tr_units_uni values('ha','Surface');
 insert into ref.tr_typeseries_typ select class_id, class_name,class_description from ts.tr_dataclass_class ;--3
 
 ---------------------
--- data.t_series_ser 
+-- datawg.t_series_ser 
 ---------------------
 
 /*
 select * from ts.t_location_loc
-select * from data.t_series_ser
+select * from datawg.t_series_ser
 */
 
 /*
@@ -148,8 +148,8 @@ select * from data.t_series_ser
 select distinct rec_lfs_name from ts.t_recruitment_rec
 select * from ref.tr_lifestage_lfs 
  */
-DELETE FROM data.t_series_ser;
-INSERT INTO  data.t_series_ser
+DELETE FROM datawg.t_series_ser;
+INSERT INTO  datawg.t_series_ser
  (ser_id, 
   ser_order, 
   ser_nameshort, 
@@ -196,21 +196,21 @@ FROM
 for some reasons GB didn't pass
 correcting manually
 */
-select * from data.t_series_ser where ser_emu_nameshort like '%GB_%';
-update data.t_series_ser set ser_cou_code='GB' where ser_emu_nameshort like '%GB_%';--3
+select * from datawg.t_series_ser where ser_emu_nameshort like '%GB_%';
+update datawg.t_series_ser set ser_cou_code='GB' where ser_emu_nameshort like '%GB_%';--3
 
 
---select * from data.t_series_ser
+--select * from datawg.t_series_ser
 
 --------------------------------------------------------
 -- unit of effort updating (they were in data and are brought one table upper in ts_series_ser
 -- ser_id are the same than loc_id in the old table
 -----------------------------------------------------------
-update data.t_series_ser  set ser_effort_uni_code=subquery.ser_effort_unit from (
+update datawg.t_series_ser  set ser_effort_uni_code=subquery.ser_effort_unit from (
 select distinct on (dat_loc_id) dat_loc_id, 
 case when dat_eft_id=1 then 'nr haul'
 when dat_eft_id=2 then 'nr electrofishing' end as ser_effort_unit  
-from data.t_series_ser join ts.t_data_dat on dat_loc_id=ser_id
+from datawg.t_series_ser join ts.t_data_dat on dat_loc_id=ser_id
 where dat_eft_id is not null) AS subquery
 where subquery.dat_loc_id=ser_id; --10 
 
@@ -220,18 +220,18 @@ where subquery.dat_loc_id=ser_id; --10
 -- ser_typ_id
 -- all series entered so far are recruitment series
 -----------------------------------------------------------
-update data.t_series_ser set ser_typ_id=1;--52
+update datawg.t_series_ser set ser_typ_id=1;--52
 
 
 --------------------------------------------------------
 -- some lfs code still missing
 -----------------------------------------------------------
 
---select * from data.t_series_ser where ser_namelong like '%glass eel + yellow eel%';
-update data.t_series_ser set ser_lfs_code='GY' where  ser_namelong like '%glass eel + yellow eel%';--5
---select * from data.t_series_ser where ser_namelong like '%glass eel and yellow eel%';
-update data.t_series_ser set ser_lfs_code='GY' where  ser_namelong like '%glass eel and yellow eel%';--5
-update data.t_series_ser set ser_lfs_code='G' where ser_lfs_code is null; -- only glass eel remaining--40
+--select * from datawg.t_series_ser where ser_namelong like '%glass eel + yellow eel%';
+update datawg.t_series_ser set ser_lfs_code='GY' where  ser_namelong like '%glass eel + yellow eel%';--5
+--select * from datawg.t_series_ser where ser_namelong like '%glass eel and yellow eel%';
+update datawg.t_series_ser set ser_lfs_code='GY' where  ser_namelong like '%glass eel and yellow eel%';--5
+update datawg.t_series_ser set ser_lfs_code='G' where ser_lfs_code is null; -- only glass eel remaining--40
 
 ------------------------------
 -- habitat type
@@ -242,64 +242,64 @@ update data.t_series_ser set ser_lfs_code='G' where ser_lfs_code is null; -- onl
 -------------------------------
 
 
-update data.t_series_ser set ser_hty_code='MO' where ser_nameshort='YFS1';
-update data.t_series_ser set ser_hty_code=NULL where ser_nameshort='Ring';
-update data.t_series_ser set ser_hty_code=NULL where ser_nameshort='Visk';
-update data.t_series_ser set ser_hty_code=NULL where ser_nameshort='Bann';
-update data.t_series_ser set ser_hty_code=NULL where ser_nameshort='Erne';
-update data.t_series_ser set ser_hty_code=NULL where ser_nameshort='ShaA';
-update data.t_series_ser set ser_hty_code=NULL where ser_nameshort='SeEA';
-update data.t_series_ser set ser_hty_code=NULL where ser_nameshort='SeHM';
-update data.t_series_ser set ser_hty_code=NULL where ser_nameshort='Vida';
-update data.t_series_ser set ser_hty_code='T' where ser_nameshort='Ems';
-update data.t_series_ser set ser_hty_code=NULL where ser_nameshort='Lauw';
-update data.t_series_ser set ser_hty_code=NULL where ser_nameshort='RhDO';
-update data.t_series_ser set ser_hty_code=NULL where ser_nameshort='RhIj';
-update data.t_series_ser set ser_hty_code=NULL where ser_nameshort='Katw';
-update data.t_series_ser set ser_hty_code=NULL where ser_nameshort='Stel';
-update data.t_series_ser set ser_hty_code='T' where ser_nameshort='Yser';
-update data.t_series_ser set ser_hty_code='T' where ser_nameshort='Vil';
-update data.t_series_ser set ser_hty_code='T' where ser_nameshort='Loi';
-update data.t_series_ser set ser_hty_code='T' where ser_nameshort='SevN';
-update data.t_series_ser set ser_hty_code='T' where ser_nameshort='GiTC';
-update data.t_series_ser set ser_hty_code='T' where ser_nameshort='GiCP';
-update data.t_series_ser set ser_hty_code='T' where ser_nameshort='AdTC';
-update data.t_series_ser set ser_hty_code='T' where ser_nameshort='AdCP';
-update data.t_series_ser set ser_hty_code='T' where ser_nameshort='Nalo';
-update data.t_series_ser set ser_hty_code='T' where ser_nameshort='Albu';
-update data.t_series_ser set ser_hty_code='T' where ser_nameshort='MiSp';
-update data.t_series_ser set ser_hty_code='T' where ser_nameshort='MiPo';
-update data.t_series_ser set ser_hty_code='T' where ser_nameshort='Tibe';
-update data.t_series_ser set ser_hty_code=NULL where ser_nameshort='Imsa';
-update data.t_series_ser set ser_hty_code=NULL where ser_nameshort='Dala';
-update data.t_series_ser set ser_hty_code=NULL where ser_nameshort='Mota';
-update data.t_series_ser set ser_hty_code=NULL where ser_nameshort='Morr';
-update data.t_series_ser set ser_hty_code=NULL where ser_nameshort='Kavl';
-update data.t_series_ser set ser_hty_code=NULL where ser_nameshort='Ronn';
-update data.t_series_ser set ser_hty_code=NULL where ser_nameshort='Laga';
-update data.t_series_ser set ser_hty_code=NULL where ser_nameshort='Gota';
-update data.t_series_ser set ser_hty_code=NULL where ser_nameshort='ShaP';
-update data.t_series_ser set ser_hty_code=NULL where ser_nameshort='Gude';
-update data.t_series_ser set ser_hty_code=NULL where ser_nameshort='Hart';
-update data.t_series_ser set ser_hty_code=NULL where ser_nameshort='Meus';
-update data.t_series_ser set ser_hty_code='MO' where ser_nameshort='YFS2';
-update data.t_series_ser set ser_hty_code='T' where ser_nameshort='GiSc';
-update data.t_series_ser set ser_hty_code=NULL where ser_nameshort='Ebro';
-update data.t_series_ser set ser_hty_code=NULL where ser_nameshort='AlCP';
-update data.t_series_ser set ser_hty_code=NULL where ser_nameshort='Feal';
-update data.t_series_ser set ser_hty_code=NULL where ser_nameshort='Maig';
-update data.t_series_ser set ser_hty_code=NULL where ser_nameshort='Inag';
-update data.t_series_ser set ser_hty_code='F' where ser_nameshort='Bres';
-update data.t_series_ser set ser_hty_code='F' where ser_nameshort='Fre';
-update data.t_series_ser set ser_hty_code='F' where ser_nameshort='Sle';
-update data.t_series_ser set ser_hty_code='F' where ser_nameshort='Klit';
-update data.t_series_ser set ser_hty_code='F' where ser_nameshort='Nors';
+update datawg.t_series_ser set ser_hty_code='MO' where ser_nameshort='YFS1';
+update datawg.t_series_ser set ser_hty_code=NULL where ser_nameshort='Ring';
+update datawg.t_series_ser set ser_hty_code=NULL where ser_nameshort='Visk';
+update datawg.t_series_ser set ser_hty_code=NULL where ser_nameshort='Bann';
+update datawg.t_series_ser set ser_hty_code=NULL where ser_nameshort='Erne';
+update datawg.t_series_ser set ser_hty_code=NULL where ser_nameshort='ShaA';
+update datawg.t_series_ser set ser_hty_code=NULL where ser_nameshort='SeEA';
+update datawg.t_series_ser set ser_hty_code=NULL where ser_nameshort='SeHM';
+update datawg.t_series_ser set ser_hty_code=NULL where ser_nameshort='Vida';
+update datawg.t_series_ser set ser_hty_code='T' where ser_nameshort='Ems';
+update datawg.t_series_ser set ser_hty_code=NULL where ser_nameshort='Lauw';
+update datawg.t_series_ser set ser_hty_code=NULL where ser_nameshort='RhDO';
+update datawg.t_series_ser set ser_hty_code=NULL where ser_nameshort='RhIj';
+update datawg.t_series_ser set ser_hty_code=NULL where ser_nameshort='Katw';
+update datawg.t_series_ser set ser_hty_code=NULL where ser_nameshort='Stel';
+update datawg.t_series_ser set ser_hty_code='T' where ser_nameshort='Yser';
+update datawg.t_series_ser set ser_hty_code='T' where ser_nameshort='Vil';
+update datawg.t_series_ser set ser_hty_code='T' where ser_nameshort='Loi';
+update datawg.t_series_ser set ser_hty_code='T' where ser_nameshort='SevN';
+update datawg.t_series_ser set ser_hty_code='T' where ser_nameshort='GiTC';
+update datawg.t_series_ser set ser_hty_code='T' where ser_nameshort='GiCP';
+update datawg.t_series_ser set ser_hty_code='T' where ser_nameshort='AdTC';
+update datawg.t_series_ser set ser_hty_code='T' where ser_nameshort='AdCP';
+update datawg.t_series_ser set ser_hty_code='T' where ser_nameshort='Nalo';
+update datawg.t_series_ser set ser_hty_code='T' where ser_nameshort='Albu';
+update datawg.t_series_ser set ser_hty_code='T' where ser_nameshort='MiSp';
+update datawg.t_series_ser set ser_hty_code='T' where ser_nameshort='MiPo';
+update datawg.t_series_ser set ser_hty_code='T' where ser_nameshort='Tibe';
+update datawg.t_series_ser set ser_hty_code=NULL where ser_nameshort='Imsa';
+update datawg.t_series_ser set ser_hty_code=NULL where ser_nameshort='Dala';
+update datawg.t_series_ser set ser_hty_code=NULL where ser_nameshort='Mota';
+update datawg.t_series_ser set ser_hty_code=NULL where ser_nameshort='Morr';
+update datawg.t_series_ser set ser_hty_code=NULL where ser_nameshort='Kavl';
+update datawg.t_series_ser set ser_hty_code=NULL where ser_nameshort='Ronn';
+update datawg.t_series_ser set ser_hty_code=NULL where ser_nameshort='Laga';
+update datawg.t_series_ser set ser_hty_code=NULL where ser_nameshort='Gota';
+update datawg.t_series_ser set ser_hty_code=NULL where ser_nameshort='ShaP';
+update datawg.t_series_ser set ser_hty_code=NULL where ser_nameshort='Gude';
+update datawg.t_series_ser set ser_hty_code=NULL where ser_nameshort='Hart';
+update datawg.t_series_ser set ser_hty_code=NULL where ser_nameshort='Meus';
+update datawg.t_series_ser set ser_hty_code='MO' where ser_nameshort='YFS2';
+update datawg.t_series_ser set ser_hty_code='T' where ser_nameshort='GiSc';
+update datawg.t_series_ser set ser_hty_code=NULL where ser_nameshort='Ebro';
+update datawg.t_series_ser set ser_hty_code=NULL where ser_nameshort='AlCP';
+update datawg.t_series_ser set ser_hty_code=NULL where ser_nameshort='Feal';
+update datawg.t_series_ser set ser_hty_code=NULL where ser_nameshort='Maig';
+update datawg.t_series_ser set ser_hty_code=NULL where ser_nameshort='Inag';
+update datawg.t_series_ser set ser_hty_code='F' where ser_nameshort='Bres';
+update datawg.t_series_ser set ser_hty_code='F' where ser_nameshort='Fre';
+update datawg.t_series_ser set ser_hty_code='F' where ser_nameshort='Sle';
+update datawg.t_series_ser set ser_hty_code='F' where ser_nameshort='Klit';
+update datawg.t_series_ser set ser_hty_code='F' where ser_nameshort='Nors';
 
 
 -----------------------------------------------------------------------------
 -- updating long lat where st_x and st_y are missing
 -----------------------------------------------------------------------------
-update data.t_series_ser set (ser_x,ser_y)=(st_x(st_transform(geom,4326)),st_y(st_transform(geom,4326)))
+update datawg.t_series_ser set (ser_x,ser_y)=(st_x(st_transform(geom,4326)),st_y(st_transform(geom,4326)))
 	where ser_x is null;--2
 
 ----------------------------------------------------------------------------
@@ -336,7 +336,7 @@ SELECT
   CASE WHEN ser_nameshort in ('YFS1','YFS2','GISc') THEN 'F~S~T'
   ELSE 'S~T' END AS "PURPM",
   NULL as notes  
-  from data.t_series_ser LEFT JOIN 
+  from datawg.t_series_ser LEFT JOIN 
   ref.tr_country_cou on ser_cou_code=cou_code LEFT JOIN
   ts.series_stats on loc_id=ser_id; --52
 
@@ -398,10 +398,10 @@ update ref.tr_station set "Organisation"=NULL where "Station_Name"='Nors';
 
 
 ------------------------------------
--- Inserting data data.t_dataseries_das
+-- Inserting data datawg.t_dataseries_das
 ------------------------------------
 -- the 58 is a yellow eel series
-INSERT INTO data.t_dataseries_das (
+INSERT INTO datawg.t_dataseries_das (
   das_id, 
   das_value, 
   das_ser_id, 
