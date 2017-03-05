@@ -465,3 +465,21 @@ COMMENT ON COLUMN data.t_dataseries_das.das_comment IS 'Comment for the particul
 COMMENT ON COLUMN data.t_dataseries_das.das_effort IS 'Effort value if present (nb of electrofishing, nb of hauls)';
 COMMENT ON COLUMN data.t_dataseries_das.das_last_update IS 'Date of last update inserted automatically with a trigger';
 COMMENT ON COLUMN data.t_dataseries_das.das_qal_id IS 'Code to assess the quality of the data, FOREIGN KEY on table ref.tr_quality_qal';
+
+
+
+-------------------------------------------------------
+-- Catch and stock indicators table
+------------------------------------------------------
+
+
+-- data can be stored with the same table as tr_typeseries_typ but there is a need for additional check constraint
+-- as we don't want to add landings or biomass indicators in the series table
+ALTER TABLE data.t_series_ser ADD CONSTRAINT c_ck_ser_typ_id CHECK (ser_typ_id in (1,2,3));
+
+
+
+
+
+
+

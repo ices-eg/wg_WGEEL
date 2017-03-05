@@ -418,3 +418,46 @@ INSERT INTO data.t_dataseries_das (
 FROM 
   ts.t_data_dat
   where dat_class_id=1 and dat_loc_id!=58;--2146
+
+
+  ---------------------------------------
+  -- inserting missing data class
+  -------------------------------------
+  select * from ref.tr_typeseries_typ;
+
+/*
+So far we only have three values  
+1;"Recruitment index";"Index of recruitment"
+2;"Yellow eel index";"Index of standing stock abundance"
+3;"silver eel series";"Index of silver eel "
+In WKEELDATA (on the sharepoint) there is a unit, which is not consistent with having the unit in the data table or t_seriestype_ser
+So I'm dropping it and will put a check constraint in the table
+select distinct on (name,unit) name,unit FROM datawgeel.summary_all ;
+*/
+
+alter sequence ref.tr_typeseries_typ_typ_id_seq restart with 4;
+insert into ref.tr_typeseries_typ(typ_name,typ_description) values ('c_landings_kg','Commercial landings (kg)');
+insert into ref.tr_typeseries_typ(typ_name,typ_description) values ('c_catch_kg','Commercial catch (kg)');
+insert into ref.tr_typeseries_typ(typ_name,typ_description) values ('r_landings_kg','Recreational landings kg)');
+insert into ref.tr_typeseries_typ(typ_name,typ_description) values ('r_catch_kg','Recreational catch (kg)');
+insert into ref.tr_typeseries_typ(typ_name,typ_description) values ('q_stock_kg','Stocking quantity (kg)');
+insert into ref.tr_typeseries_typ(typ_name,typ_description) values ('q_stock_n','Stocking quantity (number)');
+insert into ref.tr_typeseries_typ(typ_name,typ_description) values ('gee_n','Glass eel equivalents (n)');
+insert into ref.tr_typeseries_typ(typ_name,typ_description) values ('q_aqua_kg','Aquaculture production (kg)');
+insert into ref.tr_typeseries_typ(typ_name,typ_description) values ('q_aqua_n','Aquaculture production (number)');
+
+/* 
+OK once there can we finish the job and include stock indicators, first I'm looking at what historical data we have
+select distinct on (name) name FROM datawgeel.summary_all ;
+The following will have to be decided by the wgeel, I'm putting references to try to collect historical values into the database
+for consistency the Bs are in kg, though historical values in the database are in tons
+TODO check that the following is correct
+*/
+insert into ref.tr_typeseries_typ(typ_name,typ_description) values ('B0_kg','Pristine spawning of silver eel B0 (kg)');
+insert into ref.tr_typeseries_typ(typ_name,typ_description) values ('Bbest_kg','Maximum potential biomass of silver eel (sumA=0) (kg) ');
+insert into ref.tr_typeseries_typ(typ_name,typ_description) values ('Bcurrent_kg','Current biomass of silver eel (kg)');
+insert into ref.tr_typeseries_typ(typ_name,typ_description) values ('Pristine_habitat_ha','Wetted area (ha)');
+insert into ref.tr_typeseries_typ(typ_name,typ_description) values ('SumA','Lifetime anthropogenic mortality');
+insert into ref.tr_typeseries_typ(typ_name,typ_description) values ('SumF','Lifetime fishing mortality');
+insert into ref.tr_typeseries_typ(typ_name,typ_description) values ('SumH','Lifetime mortality hydro and pumps');
+
