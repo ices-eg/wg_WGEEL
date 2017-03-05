@@ -157,7 +157,7 @@ ALTER TABLE  ref.tr_quality_qal
 DROP TABLE IF EXISTS ref.tr_emu_emu CASCADE;
 CREATE TABLE ref.tr_emu_emu
 (
-  emu_name_short character varying(20) PRIMARY KEY,
+  emu_nameshort character varying(20) PRIMARY KEY,
   emu_name character varying(100),
   emu_coun_abrev text,
   geom geometry,
@@ -171,17 +171,19 @@ ALTER TABLE ref.tr_emu_emu
   OWNER TO postgres;
 
 
+
 -----------------------------------------------------------
 -- ANOTHER TABLE FOR EMU but split into 
 -- emu, country,sea (meaning a split between the mediterranean and the atlantic for some EMU for instance,
 -- or a split for some EMU if they are transboundary
 -- the current projection is the projection used by JRC for CCM (3035)
 -------------------------------------------------------------
+
 DROP TABLE IF EXISTS ref.tr_emusplit_ems;
 CREATE TABLE ref.tr_emusplit_ems
 (
   gid serial NOT NULL,
-  emu_name_short character varying(7),
+  emu_nameshort character varying(7),
   emu_name character varying(100),
   emu_coun_abrev text,
   emu_hyd_syst_s character varying(50),
@@ -197,7 +199,7 @@ CREATE TABLE ref.tr_emusplit_ems
   CONSTRAINT enforce_dims_the_geom CHECK (st_ndims(geom) = 2),
   CONSTRAINT enforce_srid_the_geom CHECK (st_srid(geom) = 3035),
  CONSTRAINT c_fk_emu_sea FOREIGN KEY (emu_sea) REFERENCES ref.tr_sea_sea(sea_code) ON UPDATE CASCADE ON DELETE NO ACTION, 
- CONSTRAINT c_fk_emu_name_short FOREIGN KEY (emu_name_short) REFERENCES ref.tr_emu_emu(emu_name_short) ON UPDATE CASCADE ON DELETE NO ACTION
+ CONSTRAINT c_fk_emu_nameshort FOREIGN KEY (emu_name_short) REFERENCES ref.tr_emu_emu(emu_nameshort) ON UPDATE CASCADE ON DELETE NO ACTION
 )
 WITH (
   OIDS=FALSE
@@ -330,7 +332,7 @@ shp2pgsql -s 4326 -d -g geom -I ices_ecoregions ref.tr_ices_ecoregions> tr_ices_
 REM IMPORT INTO POSTGRES
 psql -U postgres -f "tr_ices_ecoregions.sql" wgeel
 */
-
+ 
 --------------------------------------------------
 -- Table containing the series
 -- this table contains geographical informations and comments on the series
@@ -348,7 +350,7 @@ CREATE TABLE data.t_series_ser
   ser_lfs_code character varying(2), -- lifestage id, FOREIGN KEY to tr_lifestage_lfs, possible values G, Y, S, GY, YS
   ser_hty_code character varying(2), -- habitat FOREIGN KEY to table t_habitattype_hty (F=Freshwater, MO=Marine Open,T=transitional...)
   ser_habitat_name text, -- Description for the river, the habitat where the series is collected eg. IYFS/IBTS sampling in the Skagerrak-Kattegat
-  ser_emu_name_short character varying(20), -- The emu code, FOREIGN KEY to ref.tr_emu_emu
+  ser_emu_nameshort character varying(20), -- The emu code, FOREIGN KEY to ref.tr_emu_emu
   ser_cou_code character varying(2), -- country code, FOREIGN KEY to ref.tr_country_cou
   ser_area_division character varying(254), -- code of ICES area, FOREIGN KEY to ref.tr_faoareas(f_division)
   ser_tblcodeid integer, -- code of the station, FOREIGN KEY to ref.tr_station
@@ -362,8 +364,8 @@ CREATE TABLE data.t_series_ser
   CONSTRAINT c_fk_cou_code FOREIGN KEY (ser_cou_code)
       REFERENCES ref.tr_country_cou (cou_code) MATCH SIMPLE
       ON UPDATE NO ACTION ON DELETE NO ACTION,
-  CONSTRAINT c_fk_emu_name_short FOREIGN KEY (ser_emu_name_short)
-      REFERENCES ref.tr_emu_emu (emu_name_short) MATCH SIMPLE
+  CONSTRAINT c_fk_emu_name_short FOREIGN KEY (ser_emu_nameshort)
+      REFERENCES ref.tr_emu_emu (emu_nameshort) MATCH SIMPLE
       ON UPDATE CASCADE ON DELETE NO ACTION,
   CONSTRAINT c_fk_hty_code FOREIGN KEY (ser_hty_code)
       REFERENCES ref.tr_habitattype_hty (hty_code) MATCH SIMPLE
@@ -416,7 +418,7 @@ COMMENT ON COLUMN data.t_series_ser.ser_hty_code IS
  'habitat FOREIGN KEY to table t_habitattype_hty (F=Freshwater, MO=Marine Open,T=transitional...)';
 COMMENT ON COLUMN data.t_series_ser.ser_habitat_name IS
  'Description for the river, the habitat where the series is collected eg. IYFS/IBTS sampling in the Skagerrak-Kattegat';
-COMMENT ON COLUMN data.t_series_ser.ser_emu_name_short IS
+COMMENT ON COLUMN data.t_series_ser.ser_emu_nameshort IS
  'The emu code, FOREIGN KEY to ref.tr_emu_emu';
 COMMENT ON COLUMN data.t_series_ser.ser_cou_code IS
  'country code, FOREIGN KEY to ref.tr_country_cou';
@@ -485,13 +487,39 @@ ALTER TABLE data.t_series_ser ADD CONSTRAINT c_ck_ser_typ_id CHECK (ser_typ_id i
 
 
 DROP TABLE IF EXISTS data.t_eelstock_eel;
-CREATE TABLE data.t_eelstock_eel AS
-eel_id serial PRIMARY KEY,
-eel_year integer not null;
-
-
-CONSTRAINT c_uk_year_lifestage_emu_code 
-year	emu_code	country_code	life_stage	habitat	fao_area	name	value	comment
+CREATE TABLE data.t_eelstock_eel  (
+	eel_id serial PRIMARY KEY,
+	eel_typ_id integer, -- type of series FOREIGN KEY to table ref.tr_typeseries_ser(ser_typ_id)
+	eel_year integer not null,
+	eel_value numeric,
+	eel_emu_nameshort  character varying(20),
+	eel_cou_code character varying(2),
+	eel_lfs_code character varying(2), -- lifestage id, FOREIGN KEY to tr_lifestage_lfs, possible values G, Y, S, GY, YS
+	eel_hty_code character varying(2), -- habitat FOREIGN KEY to table t_habitattype_hty (F=Freshwater, MO=Marine Open,T=transitional...)
+	eel_area_division character varying(254), -- code of ICES area, FOREIGN KEY to ref.tr_faoareas(f_division)
+	eel_qal_id integer, -- Code to assess the quality of the data, FOREIGN KEY on table ref.tr_quality_qal
+	eel_qal_comment text, -- Comment on the quality of data when processing by the wgeel
+	eel_comment text, -- Comment on the data during the data calls
+	eel_datelastupdate date,
+	CONSTRAINT c_uk_year_lifestage_emu_code UNIQUE (eel_year,eel_lfs_code,eel_emu_nameshort),
+	CONSTRAINT c_fk_emu_name_short FOREIGN KEY (eel_emu_nameshort)
+	      REFERENCES ref.tr_emu_emu (emu_nameshort) MATCH SIMPLE
+	      ON UPDATE CASCADE ON DELETE NO ACTION,
+	CONSTRAINT c_fk_cou_code FOREIGN KEY (eel_cou_code)
+	      REFERENCES ref.tr_country_cou (cou_code) MATCH SIMPLE
+	      ON UPDATE NO ACTION ON DELETE NO ACTION,
+	CONSTRAINT c_fk_lfs_code FOREIGN KEY (eel_lfs_code)
+	      REFERENCES ref.tr_lifestage_lfs (lfs_code) MATCH SIMPLE
+	      ON UPDATE CASCADE ON DELETE NO ACTION,
+	CONSTRAINT c_fk_hty_code FOREIGN KEY (eel_hty_code)
+		REFERENCES ref.tr_habitattype_hty (hty_code) MATCH SIMPLE
+		ON UPDATE CASCADE ON DELETE NO ACTION,
+	CONSTRAINT c_fk_area_code FOREIGN KEY (eel_area_division)
+		REFERENCES ref.tr_faoareas (f_division) MATCH SIMPLE
+		ON UPDATE CASCADE ON DELETE NO ACTION,
+	CONSTRAINT c_fk_qal_id FOREIGN KEY (eel_qal_id)
+		REFERENCES ref.tr_quality_qal (qal_id) MATCH SIMPLE
+		ON UPDATE CASCADE ON DELETE NO ACTION);
 
 
 

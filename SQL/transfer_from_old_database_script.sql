@@ -51,10 +51,10 @@ insert into ref.tr_emu_emu select distinct on (emu_name_short) * from carto.emu;
 --select emu_name_short,emu_name,emu_coun_abrev from ref.tr_emu_emu order by emu_coun_abrev,emu_name_short
 
 
-insert into  ref.tr_emu_emu (emu_name_short,emu_coun_abrev) 
+insert into  ref.tr_emu_emu (emu_nameshort,emu_coun_abrev) 
 select cou_code||'_total',cou_code from ref.tr_country_cou ;--44 lines inserted
 
-insert into ref.tr_emu_emu (emu_name_short,emu_coun_abrev) 
+insert into ref.tr_emu_emu (emu_nameshort,emu_coun_abrev) 
 select cou_code||'_outside_emu',cou_code from ref.tr_country_cou ;-- 44 lines inserted
 
 
@@ -73,7 +73,7 @@ insert into ref.tr_country_cou select distinct on ("order") * from carto.country
 -------------------------
 insert into ref.tr_emusplit_ems (
   gid, 
-  emu_name_short, 
+  emu_nameshort, 
   emu_name, 
   emu_coun_abrev, 
   emu_hyd_syst_s, 
@@ -159,7 +159,7 @@ INSERT INTO  data.t_series_ser
   ser_uni_code, 
   ser_lfs_code, 
   ser_habitat_name, 
-  ser_emu_name_short, 
+  ser_emu_nameshort, 
   ser_cou_code, 
   ser_x, 
   ser_y, 
@@ -182,7 +182,7 @@ INSERT INTO  data.t_series_ser
   rec_location AS ser_habitat_name, 
   CASE WHEN loc_emu_name_short='NO_Norw' THEN 'NO_total'
   ELSE loc_emu_name_short
-  END AS  ser_emu_name_short, 
+  END AS  ser_emu_nameshort, 
   cou_code AS ser_cou_code, 
   loc_x AS ser_x, 
   loc_y AS ser_y, 
@@ -196,8 +196,8 @@ FROM
 for some reasons GB didn't pass
 correcting manually
 */
-select * from data.t_series_ser where ser_emu_name_short like '%GB_%';
-update data.t_series_ser set ser_cou_code='GB' where ser_emu_name_short like '%GB_%';--3
+select * from data.t_series_ser where ser_emu_nameshort like '%GB_%';
+update data.t_series_ser set ser_cou_code='GB' where ser_emu_nameshort like '%GB_%';--3
 
 
 --select * from data.t_series_ser
@@ -359,12 +359,12 @@ update ref.tr_station set "Organisation"=NULL where "Station_Name"='RhIj';
 update ref.tr_station set "Organisation"=NULL where "Station_Name"='Katw';
 update ref.tr_station set "Organisation"=NULL where "Station_Name"='Stel';
 update ref.tr_station set "Organisation"=NULL where "Station_Name"='Yser';
-update ref.tr_station set "Organisation"=NULL where "Station_Name"='Vil';
-update ref.tr_station set "Organisation"=NULL where "Station_Name"='Loi';
-update ref.tr_station set "Organisation"=NULL where "Station_Name"='SevN';
-update ref.tr_station set "Organisation"=NULL where "Station_Name"='GiTC';
-update ref.tr_station set "Organisation"=NULL where "Station_Name"='GiCP';
-update ref.tr_station set "Organisation"=NULL where "Station_Name"='AdTC';
+update ref.tr_station set "Organisation"='EPTB-Vilaine' where "Station_Name"='Vil';
+update ref.tr_station set "Organisation"='IFREMER' where "Station_Name"='Loi';
+update ref.tr_station set "Organisation"='Agrocampus Ouest' where "Station_Name"='SevN';
+update ref.tr_station set "Organisation"='IRSTEA' where "Station_Name"='GiTC';
+update ref.tr_station set "Organisation"='IRSTEA' where "Station_Name"='GiCP';
+update ref.tr_station set "Organisation"='IFREMER' where "Station_Name"='AdTC';
 update ref.tr_station set "Organisation"=NULL where "Station_Name"='AdCP';
 update ref.tr_station set "Organisation"=NULL where "Station_Name"='Nalo';
 update ref.tr_station set "Organisation"=NULL where "Station_Name"='Albu';
@@ -384,14 +384,14 @@ update ref.tr_station set "Organisation"=NULL where "Station_Name"='Gude';
 update ref.tr_station set "Organisation"=NULL where "Station_Name"='Hart';
 update ref.tr_station set "Organisation"=NULL where "Station_Name"='Meus';
 update ref.tr_station set "Organisation"=NULL where "Station_Name"='YFS2';
-update ref.tr_station set "Organisation"=NULL where "Station_Name"='GiSc';
+update ref.tr_station set "Organisation"='IRSTEA' where "Station_Name"='GiSc';
 update ref.tr_station set "Organisation"=NULL where "Station_Name"='Ebro';
 update ref.tr_station set "Organisation"=NULL where "Station_Name"='AlCP';
 update ref.tr_station set "Organisation"=NULL where "Station_Name"='Feal';
 update ref.tr_station set "Organisation"=NULL where "Station_Name"='Maig';
 update ref.tr_station set "Organisation"=NULL where "Station_Name"='Inag';
 update ref.tr_station set "Organisation"=NULL where "Station_Name"='Bres';
-update ref.tr_station set "Organisation"=NULL where "Station_Name"='Fre';
+update ref.tr_station set "Organisation"='MNHN' where "Station_Name"='Fre';
 update ref.tr_station set "Organisation"=NULL where "Station_Name"='Sle';
 update ref.tr_station set "Organisation"=NULL where "Station_Name"='Klit';
 update ref.tr_station set "Organisation"=NULL where "Station_Name"='Nors';
