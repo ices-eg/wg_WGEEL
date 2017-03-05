@@ -337,6 +337,7 @@ psql -U postgres -f "tr_ices_ecoregions.sql" wgeel
 -- Table containing the series
 -- this table contains geographical informations and comments on the series
 ------------------------------------------------- 
+
 CREATE TABLE data.t_series_ser
 (
   ser_id serial NOT NULL, -- serial number internal use, identifier of the series
@@ -358,6 +359,9 @@ CREATE TABLE data.t_series_ser
   ser_y numeric, -- y (latitude) EPSG:4326. WGS 84 (Google it)
   geom geometry, -- internal use, a postgis geometry point in EPSG:3035 (ETRS89 / ETRS-LAEA)
   CONSTRAINT t_series_ser_pkey PRIMARY KEY (ser_id),
+  CONSTRAINT c_fk_typ_id FOREIGN KEY (ser_typ_id)
+      REFERENCES ref.tr_typeseries_typ (typ_id) MATCH SIMPLE
+      ON UPDATE CASCADE ON DELETE NO ACTION
   CONSTRAINT c_fk_area_code FOREIGN KEY (ser_area_division)
       REFERENCES ref.tr_faoareas (f_division) MATCH SIMPLE
       ON UPDATE CASCADE ON DELETE NO ACTION,
@@ -519,8 +523,10 @@ CREATE TABLE data.t_eelstock_eel  (
 		ON UPDATE CASCADE ON DELETE NO ACTION,
 	CONSTRAINT c_fk_qal_id FOREIGN KEY (eel_qal_id)
 		REFERENCES ref.tr_quality_qal (qal_id) MATCH SIMPLE
+		ON UPDATE CASCADE ON DELETE NO ACTION,
+	CONSTRAINT c_fk_typ_id FOREIGN KEY (eel_typ_id)
+		REFERENCES ref.tr_typeseries_typ (typ_id) MATCH SIMPLE
 		ON UPDATE CASCADE ON DELETE NO ACTION);
-
 
 
 
