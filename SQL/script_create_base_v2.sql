@@ -33,7 +33,9 @@ ALTER TABLE ref.tr_typeseries_typ
 COMMENT ON TABLE ref.tr_typeseries_typ
   IS 'table containing the type of series (recruitment, yellow eel standing stock, silver eel to be used by ICES-EIFAAC-GFCM wgeel,
   note that recruitment can be made of different life stages';
-  
+  -- After some thought, it is better to store the unit of the data with the type
+ALTER TABLE ref.tr_typeseries_typ add column typ_uni_code character varying(20);
+ALTER TABLE ref.tr_typeseries_typ ADD CONSTRAINT c_fk_uni_code FOREIGN KEY (typ_uni_code) REFERENCES ref.tr_units_uni(uni_code) ON UPDATE CASCADE ON DELETE NO ACTION;  
 --------------------------------------------------
 -- Reference table of lifestage name for eel 
 -- (this refererence has been developped and used by WGEEL)
@@ -65,6 +67,7 @@ CREATE TABLE ref.tr_units_uni
 );
 ALTER TABLE ref.tr_units_uni
   OWNER TO postgres;
+
 --------------------------------------------------
 -- Reference table of countries, includes the order of the country as diplayed by wgeel
 -- If transfered to ICES the country ordre will have to be stored somewhere else and loaded
@@ -473,10 +476,22 @@ COMMENT ON COLUMN data.t_dataseries_das.das_qal_id IS 'Code to assess the qualit
 ------------------------------------------------------
 
 
--- data can be stored with the same table as tr_typeseries_typ but there is a need for additional check constraint
--- as we don't want to add landings or biomass indicators in the series table
+/*
+data can be stored with the same table as tr_typeseries_typ but there is a need for additional check constraint
+as we don't want to add landings or biomass indicators in the series table
+It does not make sense to repeat a unit in this table again and again
+*/
 ALTER TABLE data.t_series_ser ADD CONSTRAINT c_ck_ser_typ_id CHECK (ser_typ_id in (1,2,3));
 
+
+DROP TABLE IF EXISTS data.t_eelstock_eel;
+CREATE TABLE data.t_eelstock_eel AS
+eel_id serial PRIMARY KEY,
+eel_year integer not null;
+
+
+CONSTRAINT c_uk_year_lifestage_emu_code 
+year	emu_code	country_code	life_stage	habitat	fao_area	name	value	comment
 
 
 

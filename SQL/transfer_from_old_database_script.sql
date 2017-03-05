@@ -124,7 +124,7 @@ insert into ref.tr_units_uni values('kg/d','kilogramme per day');
 insert into ref.tr_units_uni values('kg/boat/d','kilogramme per boat per day');
 insert into ref.tr_units_uni values('nr haul','number of haul'); -- effort unit used for recruitment
 insert into ref.tr_units_uni values('nr electrofishing','number of electrofishing campain in the year to collect the recruitment index');
-
+insert into ref.tr_units_uni values('ha','Surface');
 ------------------------------
 -- ref.tr_typeseries_typ
 ---------------------------
@@ -423,28 +423,31 @@ FROM
   ---------------------------------------
   -- inserting missing data class
   -------------------------------------
-  select * from ref.tr_typeseries_typ;
+
 
 /*
 So far we only have three values  
 1;"Recruitment index";"Index of recruitment"
 2;"Yellow eel index";"Index of standing stock abundance"
 3;"silver eel series";"Index of silver eel "
-In WKEELDATA (on the sharepoint) there is a unit, which is not consistent with having the unit in the data table or t_seriestype_ser
-So I'm dropping it and will put a check constraint in the table
+Data come WKEELDATA on the sharepoint
+There is no unit for recruitment series so far. Which is correct.
+But the other series have a unit
 select distinct on (name,unit) name,unit FROM datawgeel.summary_all ;
+  select * from ref.tr_typeseries_typ;
 */
 
 alter sequence ref.tr_typeseries_typ_typ_id_seq restart with 4;
-insert into ref.tr_typeseries_typ(typ_name,typ_description) values ('c_landings_kg','Commercial landings (kg)');
-insert into ref.tr_typeseries_typ(typ_name,typ_description) values ('c_catch_kg','Commercial catch (kg)');
-insert into ref.tr_typeseries_typ(typ_name,typ_description) values ('r_landings_kg','Recreational landings kg)');
-insert into ref.tr_typeseries_typ(typ_name,typ_description) values ('r_catch_kg','Recreational catch (kg)');
-insert into ref.tr_typeseries_typ(typ_name,typ_description) values ('q_stock_kg','Stocking quantity (kg)');
-insert into ref.tr_typeseries_typ(typ_name,typ_description) values ('q_stock_n','Stocking quantity (number)');
-insert into ref.tr_typeseries_typ(typ_name,typ_description) values ('gee_n','Glass eel equivalents (n)');
-insert into ref.tr_typeseries_typ(typ_name,typ_description) values ('q_aqua_kg','Aquaculture production (kg)');
-insert into ref.tr_typeseries_typ(typ_name,typ_description) values ('q_aqua_n','Aquaculture production (number)');
+delete from ref.tr_typeseries_typ where typ_id>=4;
+insert into ref.tr_typeseries_typ(typ_name,typ_description,typ_uni_code) values ('c_landings_kg','Commercial landings (kg)','kg');
+insert into ref.tr_typeseries_typ(typ_name,typ_description,typ_uni_code) values ('c_catch_kg','Commercial catch (kg)','kg');
+insert into ref.tr_typeseries_typ(typ_name,typ_description,typ_uni_code) values ('r_landings_kg','Recreational landings kg)','kg');
+insert into ref.tr_typeseries_typ(typ_name,typ_description,typ_uni_code) values ('r_catch_kg','Recreational catch (kg)','kg');
+insert into ref.tr_typeseries_typ(typ_name,typ_description,typ_uni_code) values ('q_stock_kg','Stocking quantity (kg)','kg');
+insert into ref.tr_typeseries_typ(typ_name,typ_description,typ_uni_code) values ('q_stock_n','Stocking quantity (number)','nr');
+insert into ref.tr_typeseries_typ(typ_name,typ_description,typ_uni_code) values ('gee_n','Glass eel equivalents (n)','nr');
+insert into ref.tr_typeseries_typ(typ_name,typ_description,typ_uni_code) values ('q_aqua_kg','Aquaculture production (kg)','kg');
+insert into ref.tr_typeseries_typ(typ_name,typ_description,typ_uni_code) values ('q_aqua_n','Aquaculture production (number)','kg');
 
 /* 
 OK once there can we finish the job and include stock indicators, first I'm looking at what historical data we have
@@ -453,11 +456,11 @@ The following will have to be decided by the wgeel, I'm putting references to tr
 for consistency the Bs are in kg, though historical values in the database are in tons
 TODO check that the following is correct
 */
-insert into ref.tr_typeseries_typ(typ_name,typ_description) values ('B0_kg','Pristine spawning of silver eel B0 (kg)');
-insert into ref.tr_typeseries_typ(typ_name,typ_description) values ('Bbest_kg','Maximum potential biomass of silver eel (sumA=0) (kg) ');
-insert into ref.tr_typeseries_typ(typ_name,typ_description) values ('Bcurrent_kg','Current biomass of silver eel (kg)');
-insert into ref.tr_typeseries_typ(typ_name,typ_description) values ('Pristine_habitat_ha','Wetted area (ha)');
-insert into ref.tr_typeseries_typ(typ_name,typ_description) values ('SumA','Lifetime anthropogenic mortality');
-insert into ref.tr_typeseries_typ(typ_name,typ_description) values ('SumF','Lifetime fishing mortality');
-insert into ref.tr_typeseries_typ(typ_name,typ_description) values ('SumH','Lifetime mortality hydro and pumps');
+insert into ref.tr_typeseries_typ(typ_name,typ_description,typ_uni_code) values ('B0_kg','Pristine spawning of silver eel B0 (kg)','kg');
+insert into ref.tr_typeseries_typ(typ_name,typ_description,typ_uni_code) values ('Bbest_kg','Maximum potential biomass of silver eel (sumA=0) (kg) ','kg');
+insert into ref.tr_typeseries_typ(typ_name,typ_description,typ_uni_code) values ('Bcurrent_kg','Current biomass of silver eel (kg)','kg');
+insert into ref.tr_typeseries_typ(typ_name,typ_description,typ_uni_code) values ('Pristine_habitat_ha','Wetted area (ha)','ha');
+insert into ref.tr_typeseries_typ(typ_name,typ_description,typ_uni_code) values ('SumA','Lifetime anthropogenic mortality',NULL);
+insert into ref.tr_typeseries_typ(typ_name,typ_description,typ_uni_code) values ('SumF','Lifetime fishing mortality',NULL);
+insert into ref.tr_typeseries_typ(typ_name,typ_description,typ_uni_code) values ('SumH','Lifetime mortality hydro and pumps',NULL);
 
