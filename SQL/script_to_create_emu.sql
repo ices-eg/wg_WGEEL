@@ -1131,3 +1131,48 @@ alter table carto.t_emuagreg_ema add column dist_Sargasso_km numeric;
 update carto.t_emuagreg_ema set dist_sargasso_km=
 round(cast(st_distance(st_transform(st_PointFromText('POINT(-66 26)',4326),3035),geom)/1000 as numeric),2);-- ici je suis allé sur google maps pour chercher les coordonnées
 
+
+--------------------------
+-- 2016 Updating table now named
+-- ref.tr_emusplit_ems
+-- ref.tr_emu_emu
+---------------------------------
+
+-- the problem below is that the primary key must be set on both emu and country
+-- as there are transboundary emus....
+alter table ref.tr_emu_emu drop constraint enforce_srid_the_geom;
+alter table ref.tr_emusplit_ems drop constraint c_fk_emu_nameshort;
+alter table datawg.t_series_ser drop constraint c_fk_emu_name_short;
+delete from ref.tr_emu_emu;
+alter table datawg.t_eelstock_eel drop constraint c_fk_emu_name_short;
+alter table  ref.tr_emu_emu drop constraint tr_emu_emu_pkey ;
+alter table ref.tr_emu_emu rename column emu_coun_abrev to emu_cou_code;
+alter table ref.tr_emu_emu add constraint c_fk_cou_code foreign key (emu_cou_code) references ref.tr_country_cou(cou_code);
+alter table ref.tr_emu_emu add constraint tr_emu_emu_pkey primary key(emu_nameshort,emu_cou_code);
+-- missing luxembourg which is in the emu table
+update ref.tr_country_cou set cou_order= cou_order+1 where cou_order >=15; 
+insert into ref.tr_country_cou values ('LU','Luxembourg',15);
+select * from ref.tr_emusplit_ems where emu_coun_abrev='VA';
+-- Vattican can you believe that ?
+insert into ref.tr_country_cou values ('VA','Vattican',46);
+insert into ref.tr_emu_emu (emu_nameshort,emu_cou_code,geom) 
+select emu_nameshort,
+emu_coun_abrev,
+st_transform(st_union(geom),4326) as geom from 
+ref.tr_emusplit_ems
+group by emu_nameshort,emu_coun_abrev;
+
+
+alter table ref.tr_emu_emu ADD CONSTRAINT enforce_srid_the_geom CHECK (st_srid(geom) = 4326);
+alter table datawg.t_eelstock_eel add constraint c_fk_emu foreign key (eel_emu_nameshort,eel_cou_code) references ref.tr_emu_emu(emu_nameshort,emu_cou_code);
+
+select * from datawg.t_series_ser where ser_emu_nameshort='NL_Neth';
+update datawg.t_series_ser set ser_emu_nameshort='DE_Ems' where ser_nameshort='Ems'; 
+insert into  ref.tr_emu_emu (emu_nameshort,emu_cou_code) 
+select cou_code||'_total',cou_code from ref.tr_country_cou ;--46 lines inserted
+
+insert into ref.tr_emu_emu (emu_nameshort,emu_cou_code) 
+select cou_code||'_outside_emu',cou_code from ref.tr_country_cou ;-- 46 lines inserted
+
+alter table datawg.t_series_ser add constraint c_fk_emu foreign key (ser_emu_nameshort,ser_cou_code) 
+	references ref.tr_emu_emu(emu_nameshort,emu_cou_code);

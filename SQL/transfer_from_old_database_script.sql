@@ -244,13 +244,16 @@ update datawg.t_series_ser set ser_lfs_code='G' where ser_lfs_code is null; -- o
 -- "T";"WFD Transitional water - implies reduced salinity"
 -------------------------------
 
-
+update datawg.t_series_ser set ser_hty_code='T' where ser_nameshort='Erne';
+update datawg.t_series_ser set ser_hty_code='T' where ser_nameshort='ShaA';
+update datawg.t_series_ser set ser_hty_code='T' where ser_nameshort='ShaP';
+update datawg.t_series_ser set ser_hty_code='T' where ser_nameshort='Feal';
+update datawg.t_series_ser set ser_hty_code='T' where ser_nameshort='Maig';
+update datawg.t_series_ser set ser_hty_code='T' where ser_nameshort='Inag';
 update datawg.t_series_ser set ser_hty_code='MO' where ser_nameshort='YFS1';
 update datawg.t_series_ser set ser_hty_code=NULL where ser_nameshort='Ring';
 update datawg.t_series_ser set ser_hty_code=NULL where ser_nameshort='Visk';
 update datawg.t_series_ser set ser_hty_code=NULL where ser_nameshort='Bann';
-update datawg.t_series_ser set ser_hty_code=NULL where ser_nameshort='Erne';
-update datawg.t_series_ser set ser_hty_code=NULL where ser_nameshort='ShaA';
 update datawg.t_series_ser set ser_hty_code=NULL where ser_nameshort='SeEA';
 update datawg.t_series_ser set ser_hty_code=NULL where ser_nameshort='SeHM';
 update datawg.t_series_ser set ser_hty_code=NULL where ser_nameshort='Vida';
@@ -281,7 +284,6 @@ update datawg.t_series_ser set ser_hty_code=NULL where ser_nameshort='Kavl';
 update datawg.t_series_ser set ser_hty_code=NULL where ser_nameshort='Ronn';
 update datawg.t_series_ser set ser_hty_code=NULL where ser_nameshort='Laga';
 update datawg.t_series_ser set ser_hty_code=NULL where ser_nameshort='Gota';
-update datawg.t_series_ser set ser_hty_code=NULL where ser_nameshort='ShaP';
 update datawg.t_series_ser set ser_hty_code=NULL where ser_nameshort='Gude';
 update datawg.t_series_ser set ser_hty_code=NULL where ser_nameshort='Hart';
 update datawg.t_series_ser set ser_hty_code=NULL where ser_nameshort='Meus';
@@ -289,9 +291,6 @@ update datawg.t_series_ser set ser_hty_code='MO' where ser_nameshort='YFS2';
 update datawg.t_series_ser set ser_hty_code='T' where ser_nameshort='GiSc';
 update datawg.t_series_ser set ser_hty_code=NULL where ser_nameshort='Ebro';
 update datawg.t_series_ser set ser_hty_code=NULL where ser_nameshort='AlCP';
-update datawg.t_series_ser set ser_hty_code=NULL where ser_nameshort='Feal';
-update datawg.t_series_ser set ser_hty_code=NULL where ser_nameshort='Maig';
-update datawg.t_series_ser set ser_hty_code=NULL where ser_nameshort='Inag';
 update datawg.t_series_ser set ser_hty_code='F' where ser_nameshort='Bres';
 update datawg.t_series_ser set ser_hty_code='F' where ser_nameshort='Fre';
 update datawg.t_series_ser set ser_hty_code='F' where ser_nameshort='Sle';
