@@ -6,7 +6,7 @@
 set search_path to ref, data, public;
 
 create schema ref -- refential to hold dictionnay
-create schema data -- this schema will hold the data
+create schema datawg -- this schema will hold the data
 
 
 -------------------------------------
@@ -14,7 +14,7 @@ create schema data -- this schema will hold the data
 -------------------------------------
 --------------------------------------------------
 -- Reference table of typeseries names as used by WGEEL
--- (this refererence has been developped and used by WGEEL)
+-- (this reference has been developed and used by WGEEL)
 -- we have three type so far, yellow eel standing stock, silver eel escapement series, and glass eel recruitment series
 ---------------------------------------------------
 DROP TABLE IF EXISTS ref.tr_typeseries_typ;
@@ -72,7 +72,7 @@ ALTER TABLE ref.tr_units_uni
 -- Reference table of countries, includes the order of the country as diplayed by wgeel
 -- If transfered to ICES the country ordre will have to be stored somewhere else and loaded
 -- this follows ISO_3166
--- todo fill in the geom for geometry and put appropriate constraints
+
 ---------------------------------------------------
 DROP TABLE IF EXISTS ref.tr_country_cou ;
 CREATE TABLE ref.tr_country_cou 
@@ -87,12 +87,18 @@ WITH (
 );
 ALTER TABLE ref.tr_country_cou 
   OWNER TO postgres;
+  
+ -- adding in multipolygons from addy pope, University of Edimburg
+ -- which is based on the GADM Version 2 data which is available at http://www.gadm.org/
+ -- The geom from Russia has been split and only the Baltic part (Kaliningrad) is now remaining on the map.
+ -- Mediterranean countries and some that do have emu have been added to the dataset
+ 
 
 -------------------------------------------------
 -- Reference table of station
--- based on station dictionnay (http://ices.dk/marine-data/tools/Pages/Station-dictionary.aspx)
+-- based on station dictionary (http://ices.dk/marine-data/tools/Pages/Station-dictionary.aspx)
 -- the format is not standardized there as the ICES does not follow that format and we wish
--- our data to be exported in the ICES dictionnary
+-- our data to be exported in the ICES dictionary
 --------------------------------------------------- 
 DROP TABLE IF EXISTS ref.tr_station;
 CREATE TABLE ref.tr_station(
@@ -102,8 +108,6 @@ CREATE TABLE ref.tr_station(
 	"Organisation" TEXT,
 	"Station_Name" TEXT,
 	"WLTYP" TEXT, -- Water and land station types 
-
-
 	"Lat" DOUBLE PRECISION,
 	"Lon" DOUBLE PRECISION,
 	"StartYear" DOUBLE PRECISION,
@@ -119,7 +123,7 @@ COMMENT ON COLUMN ref.tr_station."PURPM" IS 'Purpose of monitoring';
 
 --------------------------------------------------
 -- Reference table of sea
--- this was taken from the wise layer as ICES seas do not cover the mediterranean
+-- this was taken from the wise layer as ICES seas do not cover the Mediterranean
 -- It is consistent with the emu table which was built from the wise layer...
 -- this is used to later attribute recruitment series to the two series 'Elsewhere Europe' and 'North Sea'
 -- or build spatial analyses such as in ICES_wgeel_2008 (Hamburg)

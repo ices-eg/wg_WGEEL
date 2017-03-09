@@ -1176,3 +1176,85 @@ select cou_code||'_outside_emu',cou_code from ref.tr_country_cou ;-- 46 lines in
 
 alter table datawg.t_series_ser add constraint c_fk_emu foreign key (ser_emu_nameshort,ser_cou_code) 
 	references ref.tr_emu_emu(emu_nameshort,emu_cou_code);
+	
+	
+/*
+dos script used to create this table (using shp2pgsql and psql):
+f:
+cd F:\workspace\wgeeldata\shp
+REM -d drops de table, table is in wgs84
+shp2pgsql -s 4326 -g geom -W "LATIN1" -I ISO3Code_2014 ref.tempwcountries>tempwcountries.sql 
+REM IMPORT INTO POSTGRES
+psql -U postgres -f "tempwcountries.sql " wgeel
+*/
+--removing west from -20 °
+delete from ref.tempwcountries where st_x(st_centroid(geom))<-20;
+-- removing south from 20 °
+delete from ref.tempwcountries where st_y(st_centroid(geom))<20;
+delete  from ref.tempwcountries
+where st_x(st_centroid(geom))>40 and  iso!='RUS';
+-----
+-- splitting russia to only keep baltic part
+-----------------
+drop table ref.tempru;
+create temporary sequence seq;
+create table ref.tempru as select nextval('seq'),(st_dump(geom)).geom as geom from ref.tempwcountries where iso='RUS';
+select st_x(st_centroid(geom)) from ref.tempru;
+delete from ref.tempru where  st_x(st_centroid(geom))>30;
+-------------------------------------
+update ref.tempwcountries set geom =
+(select
+st_multi(st_union(tempru.geom)) from ref.tempru)
+where iso='RUS';
+
+delete  from ref.tempwcountries where iso='MDA';
+delete  from ref.tempwcountries where iso='UKR';
+delete  from ref.tempwcountries where iso='JOR';
+delete  from ref.tempwcountries where iso='BGR';
+delete  from ref.tempwcountries where iso='BLR';
+delete  from ref.tempwcountries where iso='ROU';
+delete  from ref.tempwcountries where iso='SRB';
+delete  from ref.tempwcountries where iso='AUT';
+delete  from ref.tempwcountries where iso='HUN';
+delete  from ref.tempwcountries where iso='SVK';
+delete  from ref.tempwcountries where iso='CHE';
+delete  from ref.tempwcountries where iso='MRT';
+
+
+
+
+------------------------
+-- I need to make the correspondance between iso2 (ICES) and iso3 standard country codes
+drop table	ref.tmpcountrynames;
+create table ref.tmpcountrynames (
+name text,
+iso2 text,
+iso3 text,
+iso_UNM49_numeric numeric);
+set CLIENT_ENCODING to 'WIN1252'
+copy  ref.tmpcountrynames from 'F:/workspace/wgeeldata/shp/country_names_iso2_iso3.csv' WITH CSV header delimiter as ';';
+select * from ref.tr_country_cou;
+select * from ref.tmpcountrynames;
+
+comment on column  ref.tr_country_cou.cou_code is 'ISO2 two letter code'
+alter table ref.tr_country_cou add column cou_iso3code character varying(3);
+
+
+
+comment on column  ref.tr_country_cou.cou_iso3code is 'ISO3 three letter code'
+update ref.tr_country_cou set cou_iso3code=iso3 from  ref.tmpcountrynames  
+where cou_code =iso2 
+
+
+-- now reintegrating the shapes into the tr_country_cou file
+select cou_code from ref.tr_country_cou;
+select * from ref.tempwcountries 
+full outer join 
+ref.tr_country_cou on cou_iso3code=iso
+-- removing some countries from the black sea
+delete from ref.tr_emu_emu where emu_cou_code in ('RO','MD','UA','GE','BG','AT','SK');
+delete from ref.tr_country_cou where cou_code in ('RO','MD','UA','GE','BG','AT','SK');
+
+update ref.tr_country_cou set geom = tempwcountries.geom from
+ref.tempwcountries where  cou_iso3code=iso;
+
