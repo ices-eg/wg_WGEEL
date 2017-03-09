@@ -1255,6 +1255,36 @@ ref.tr_country_cou on cou_iso3code=iso
 delete from ref.tr_emu_emu where emu_cou_code in ('RO','MD','UA','GE','BG','AT','SK');
 delete from ref.tr_country_cou where cou_code in ('RO','MD','UA','GE','BG','AT','SK');
 
+
+-----------------------------------------
+-- adding missing  geom to the countries table
+-------------------------------------------
 update ref.tr_country_cou set geom = tempwcountries.geom from
 ref.tempwcountries where  cou_iso3code=iso;
+
+
+---------------------------------
+-- adding missing geom to the emu tables
+-------------------------------------------
+
+select * from ref.tr_emu_emu limit 10
+alter table ref.tr_emu_emu add column emu_wholecountry boolean;
+update ref.tr_emu_emu set emu_wholecountry=false where geom is not null;
+update ref.tr_emu_emu set emu_wholecountry=true where emu_nameshort  like '%_total';
+update ref.tr_emu_emu set geom=tr_country_cou.geom from
+ref.tr_country_cou
+where emu_wholecountry
+and emu_cou_code=cou_code;--39 rows updated
+
+
+
+-------------------
+--- removing geom for countries where we have a shapefile
+-- at a level more detailed than the national level
+--------------------------
+update  ref.tr_emu_emu set geom =null where emu_nameshort in (
+select emu_nameshort from ref.tr_emu_emu  where emu_cou_code in
+(select distinct emu_cou_code from ref.tr_emu_emu where emu_nameshort not like '%total'
+and emu_nameshort not like '%outside_emu%') -- countries with shapefile coming from the wise layer
+and emu_nameshort like '%total%');
 

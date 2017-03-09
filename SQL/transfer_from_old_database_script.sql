@@ -466,3 +466,38 @@ insert into ref.tr_typeseries_typ(typ_name,typ_description,typ_uni_code) values 
 insert into ref.tr_typeseries_typ(typ_name,typ_description,typ_uni_code) values ('SumF','Lifetime fishing mortality',NULL);
 insert into ref.tr_typeseries_typ(typ_name,typ_description,typ_uni_code) values ('SumH','Lifetime mortality hydro and pumps',NULL);
 
+
+
+/*
+ * https://github.com/ices-eg/WGEEL/issues/7
+ * find ices divisions
+ * 
+ */
+-- first change projection
+alter table datawg.t_series_ser drop CONSTRAINT enforce_srid_the_geom;
+update datawg.t_series_ser set geom=st_transform(geom,4326);
+alter table datawg.t_series_ser add constraint enforce_srid_the_geom CHECK (st_srid(geom) =4326 );
+-- same for tr_emusplit_ems
+alter table ref.tr_emusplit_ems drop CONSTRAINT enforce_srid_the_geom;
+update ref.tr_emusplit_ems set geom=st_transform(geom,4326);
+alter table ref.tr_emusplit_ems add constraint enforce_srid_the_geom CHECK (st_srid(geom) =4326 );
+
+update datawg.t_series_ser set ser_area_division=sub.f_division from
+(
+select  ser_id,f_division,st_distance(ST_ClosestPoint(s.geom,f.geom),f.geom) 
+from datawg.t_series_ser s,
+ref.tr_faoareas f
+where ser_id is not null and f_division is not null
+order by st_distance(ST_ClosestPoint(s.geom,f.geom),f.geom) 
+limit 52
+) sub
+where t_series_ser.ser_id=sub.ser_id
+-- some series missing, manual edit below
+update datawg.t_series_ser set ser_area_division='27.7.b' where ser_nameshort='ShaA';
+update datawg.t_series_ser set ser_area_division='27.4.b' where ser_nameshort='Ems';
+update datawg.t_series_ser set ser_area_division='27.3.d' where ser_nameshort='Dala';
+update datawg.t_series_ser set ser_area_division='27.3.d' where ser_nameshort='Morr';
+update datawg.t_series_ser set ser_area_division='27.3.a' where ser_nameshort='Gota';
+update datawg.t_series_ser set ser_area_division='27.3.a' where ser_nameshort='Gude';
+update datawg.t_series_ser set ser_area_division='27.3.b, c' where ser_nameshort='Hart';
+update datawg.t_series_ser set ser_area_division='27.4.c' where ser_nameshort='Meus';
