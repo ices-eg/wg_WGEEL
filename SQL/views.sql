@@ -1,4 +1,4 @@
-----------------------------------------------
+﻿----------------------------------------------
 -- DYNAMIC VIEWS FOR WGEEL
 ----------------------------------------------
 
@@ -17,7 +17,7 @@ CREATE OR REPLACE VIEW datawg.series_stats AS
 ALTER TABLE datawg.series_stats
   OWNER TO postgres;
   
- select * from datawg.series_stats
+ --select * from datawg.series_stats
  
  
 ----------------------------------------------
