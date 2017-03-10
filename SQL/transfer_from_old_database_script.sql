@@ -30,12 +30,13 @@ Insert definition for stages
 */
 
 update ref.tr_lifestage_lfs set  lfs_definition ='Young, unpigmented eel, recruiting from the sea into continental waters. WGEEL consider the glass eel term to include all recruits of the 0+ cohort age. In some cases, however, also includes the early pigmented stages.' from ts.tr_lifestage_lfs where lfs_code='G';
-update ref.tr_lifestage_lfs set  lfs_definition ='Life-stage resident in continental waters. Often defined as a sedentary phase, but migration within and between rivers, and to and from coastal waters occurs and therefore includes young pigmented eels (â€˜elversâ€™ and bootlace).' from ts.tr_lifestage_lfs where lfs_code='Y';
 update ref.tr_lifestage_lfs set  lfs_definition ='Migratory phase following the yellow eel phase. Eel in this phase are characterized by darkened back, silvery belly with a clearly contrasting black lateral line, enlarged eyes. Silver eel undertake downstream migration towards the sea, and subsequently westwards. This phase mainly occurs in the second half of calendar years, although some are observed throughout winter and following spring.' from ts.tr_lifestage_lfs where lfs_code='S';
 update ref.tr_lifestage_lfs set  lfs_definition ='' from ts.tr_lifestage_lfs where lfs_code='YS';
 update ref.tr_lifestage_lfs set  lfs_definition ='A mixture of glass and yellow eel, some traps have historical set of data where glass eel and yellow eel were not separated,
 they were dominated by glass eel' from ts.tr_lifestage_lfs where lfs_code='GY';
-
+-- from Russell's comment
+update ref.tr_lifestage_lfs set  lfs_definition ='Life-stage resident in continental waters. Often defined as a sedentary phase, 
+but migration within and between rivers, and to and from coastal waters occurs and therefore includes young pigmented eels (‘elvers’ and bootlace). In particular, some recruitment series either far up in the river (Meuse) or in the Baltic are made of multiple age class of young yellow eel, typically from 1 to 10+ years of age- the are referred to as Yellow eel Recruits.' from ts.tr_lifestage_lfs where lfs_code='Y';
 
 --------------------------
 -- tr_emu_emu
