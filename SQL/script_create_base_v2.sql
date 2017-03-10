@@ -3,11 +3,11 @@
 -- created during WKDATAWGEEL Rennes
 -- Cedric Briand Laurent Beaulaton
 ------------------------------------
-set search_path to ref, data, public;
 
-create schema ref -- refential to hold dictionnay
-create schema datawg -- this schema will hold the data
 
+create schema ref; -- refential to hold dictionnay
+create schema datawg; -- this schema will hold the data
+set search_path to ref, datawg, public;
 
 -------------------------------------
 -- Dictionnary tables
@@ -35,7 +35,6 @@ COMMENT ON TABLE ref.tr_typeseries_typ
   note that recruitment can be made of different life stages';
   -- After some thought, it is better to store the unit of the data with the type
 ALTER TABLE ref.tr_typeseries_typ add column typ_uni_code character varying(20);
-ALTER TABLE ref.tr_typeseries_typ ADD CONSTRAINT c_fk_uni_code FOREIGN KEY (typ_uni_code) REFERENCES ref.tr_units_uni(uni_code) ON UPDATE CASCADE ON DELETE NO ACTION;  
 --------------------------------------------------
 -- Reference table of lifestage name for eel 
 -- (this refererence has been developped and used by WGEEL)
@@ -67,6 +66,7 @@ CREATE TABLE ref.tr_units_uni
 );
 ALTER TABLE ref.tr_units_uni
   OWNER TO postgres;
+ALTER TABLE ref.tr_typeseries_typ ADD CONSTRAINT c_fk_uni_code FOREIGN KEY (typ_uni_code) REFERENCES ref.tr_units_uni(uni_code) ON UPDATE CASCADE ON DELETE NO ACTION;  
 
 --------------------------------------------------
 -- Reference table of countries, includes the order of the country as diplayed by wgeel
@@ -353,8 +353,12 @@ ALTER TABLE ref.tr_samplingtype_sam
   OWNER TO postgres;
 
 --------------------------------------------------
--- Table containing the series
--- this table contains geographical informations and comments on the series
+/* Table containing the series
+ this table contains geographical informations and comments on the series
+datatypes can be stored with the same table as tr_typeseries_typ but there is a need for additional check constraint
+as we don't want to add landings or biomass indicators in the series table
+It does not make sense to repeat a unit in this table again and again
+*/
 ------------------------------------------------- 
 CREATE TABLE datawg.t_series_ser
 (
@@ -489,12 +493,7 @@ COMMENT ON COLUMN datawg.t_dataseries_das.das_qal_id IS 'Code to assess the qual
 ------------------------------------------------------
 
 
-/*
-datatypes can be stored with the same table as tr_typeseries_typ but there is a need for additional check constraint
-as we don't want to add landings or biomass indicators in the series table
-It does not make sense to repeat a unit in this table again and again
-*/
-ALTER TABLE datawg.t_series_ser ADD CONSTRAINT c_ck_ser_typ_id CHECK (ser_typ_id in (1,2,3));
+
 
 
 DROP TABLE IF EXISTS datawg.t_eelstock_eel;

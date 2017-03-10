@@ -43,4 +43,12 @@ CREATE OR REPLACE VIEW datawg.series_summary AS
 
 ALTER TABLE datawg.series_summary
   OWNER TO postgres;
- 
+  
+---
+-- view with distance to the sargasso
+----
+drop view if exists  datawg.t_series_ser_dist ;
+create view datawg.t_series_ser_dist as
+select *, 
+round(cast(st_distance(st_PointFromText('POINT(-61 25)',4326),geom)/1000 as numeric),2) as dist_sargasso from
+datawg.t_series_ser ;

@@ -36,13 +36,17 @@ update ref.tr_lifestage_lfs set  lfs_definition ='A mixture of glass and yellow 
 they were dominated by glass eel' from ts.tr_lifestage_lfs where lfs_code='GY';
 -- from Russell's comment
 update ref.tr_lifestage_lfs set  lfs_definition ='Life-stage resident in continental waters. Often defined as a sedentary phase, 
-but migration within and between rivers, and to and from coastal waters occurs and therefore includes young pigmented eels (‘elvers’ and bootlace). In particular, some recruitment series either far up in the river (Meuse) or in the Baltic are made of multiple age class of young yellow eel, typically from 1 to 10+ years of age- the are referred to as Yellow eel Recruits.' from ts.tr_lifestage_lfs where lfs_code='Y';
+but migration within and between rivers, and to and from coastal waters occurs and therefore includes young pigmented eels (?lvers?and bootlace). In particular, some recruitment series either far up in the river (Meuse) or in the Baltic are made of multiple age class of young yellow eel, typically from 1 to 10+ years of age- the are referred to as Yellow eel Recruits.' from ts.tr_lifestage_lfs where lfs_code='Y';
 
 --------------------------
 -- tr_emu_emu
 -------------------------
 insert into ref.tr_emu_emu select distinct on (emu_name_short) * from carto.emu;
 
+-- tr_country_coun
+-------------------------
+--select * from ref.tr_country_cou;
+insert into ref.tr_country_cou select distinct on ("order") * from carto.country_order order by "order"; -- 44
 
 --------------------------
 -- tr_emu_emu
@@ -60,10 +64,7 @@ select cou_code||'_outside_emu',cou_code from ref.tr_country_cou ;-- 44 lines in
 
 
 --------------------------
--- tr_country_coun
--------------------------
---select * from ref.tr_country_cou;
-insert into ref.tr_country_cou select distinct on ("order") * from carto.country_order order by "order"; -- 44
+
 
 ------------------------------------------------------
 -- Sampling type
@@ -177,6 +178,7 @@ INSERT INTO  datawg.t_series_ser
   CASE WHEN rec_unit='eel/m2' THEN 'nr/m2'
        WHEN rec_unit='cpue' THEN 'kg/boat/d'
        WHEN rec_unit='Number' THEN 'nr'
+       WHEN rec_unit='number' THEN 'nr'
        WHEN rec_unit='nb/h' THEN 'nr/h'
   ELSE lower(rec_unit) END AS ser_uni_code, 
   CASE WHEN rec_lfs_name='glass eel' THEN 'G'
@@ -194,7 +196,7 @@ INSERT INTO  datawg.t_series_ser
 FROM 
   ts.t_location_loc JOIN   ts.t_recruitment_rec ON t_location_loc.loc_id=t_recruitment_rec.rec_loc_id
   LEFT JOIN ref.tr_country_cou ON t_location_loc.loc_country= tr_country_cou.cou_country
- ORDER BY ser_id;--52 OK all line in !
+ ORDER BY ser_id;--53 OK all line in !
 
 /*
 for some reasons GB didn't pass
@@ -341,7 +343,7 @@ SELECT
   NULL as notes  
   from datawg.t_series_ser LEFT JOIN 
   ref.tr_country_cou on ser_cou_code=cou_code LEFT JOIN
-  ts.series_stats on loc_id=ser_id; --52
+  ts.series_stats on loc_id=ser_id; --53
 
 -- need to update manually
 -- https://github.com/ices-eg/WGEEL/issues/6
@@ -492,7 +494,7 @@ where ser_id is not null and f_division is not null
 order by st_distance(ST_ClosestPoint(s.geom,f.geom),f.geom) 
 limit 52
 ) sub
-where t_series_ser.ser_id=sub.ser_id
+where t_series_ser.ser_id=sub.ser_id;--45
 -- some series missing, manual edit below
 update datawg.t_series_ser set ser_area_division='27.7.b' where ser_nameshort='ShaA';
 update datawg.t_series_ser set ser_area_division='27.4.b' where ser_nameshort='Ems';
