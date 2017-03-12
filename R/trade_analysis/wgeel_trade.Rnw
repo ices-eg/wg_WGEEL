@@ -1,4 +1,4 @@
-% Sweave draft, version R 3.3.1
+% Sweave, version R 3.3.1
 \documentclass[12pt, a4paper, twoside, titlepage]{article}
 \usepackage[latin1]{inputenc} 
 \usepackage[pdftex]{graphicx}
