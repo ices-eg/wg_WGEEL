@@ -1,0 +1,1326 @@
+% Sweave draft, version R 3.3.1
+\documentclass[12pt, a4paper, twoside, titlepage]{article}
+\usepackage[latin1]{inputenc} 
+\usepackage[pdftex]{graphicx}
+\usepackage{Sweave} % necessary to work with R
+\usepackage{float}
+\usepackage[section]{placeins}
+\makeatletter
+\AtBeginDocument{%
+  \expandafter\renewcommand\expandafter\subsection\expandafter{%
+    \expandafter\@fb@secFB\subsection
+  }%
+}
+\makeatother
+\usepackage{hyperref} % for a working url link
+\hypersetup{
+     backref=true,    %permet d'ajouter des liens dans...
+     pagebackref=true,%...les bibliographies
+     hyperindex=true, %ajoute des liens dans les index.
+     colorlinks=true, %colorise les liens
+     breaklinks=true, %permet le retour à la ligne dans les liens trop longs
+     urlcolor= magenta,  %couleur des hyperliens
+     linkcolor= magenta, %couleur des liens internes
+     bookmarks=true,  %créé des signets pour Acrobat
+     bookmarksopen=true,            %si les signets Acrobat sont créés,
+                                    %les afficher complètement.
+     pdftitle={WGEEL trade analysis output}, %informations apparaissant dans
+     pdfauthor={Cédric Briand, Florian Stein},     %dans les informations du
+     % document
+     pdfsubject={Glass eel trade}          %sous Acrobat
+     pdfkeywords={Glass eel, WGEEL,ICES}
+}
+\graphicspath{{./images/}} % this points to the relative path where the images
+% are loaded, either by the R script (see init below) or by the user, always put your
+% images there...
+% font size could be 10pt (default), 11pt or 12 pt
+% paper size coulde be letterpaper (default), legalpaper, executivepaper,
+% a4paper, a5paper or b5paper
+% side coulde be oneside (default) or twoside 
+% columns coulde be onecolumn (default) or twocolumn
+% graphics coulde be final (default) or draft 
+%
+% titlepage coulde be notitlepage (default) or titlepage which 
+% makes an extra page for title 
+% 
+% paper alignment could be portrait (default) or landscape 
+%
+% equations coulde be 
+%   default number of the equation on the rigth and equation centered 
+%   leqno number on the left and equation centered 
+%   fleqn number on the rigth and  equation on the left side
+%	
+\title{Draft outputs from the trade analyis}
+\author{Cédric Briand  \\
+	EPTB-Vilaine  \\
+	\and 
+	Florian Stein \\
+	Sustainable Eel Group, Technische Universität Braunschweig \\
+	}
+
+\date{\today} 
+% \date{\today} date coulde be today 
+% \date{25.12.00} or be a certain date
+% \date{ } or there is no date 
+\begin{document}
+%\SweaveOpts{concordance=TRUE}
+% Hint: \title{what ever}, \author{who care} and \date{when ever} could stand 
+% before or after the \begin{document} command 
+% BUT the \maketitle command MUST come AFTER the \begin{document} command! 
+\maketitle
+
+
+\section{Foreword}
+This document is intended as a reminder for future work on trade. R scripts
+embedded there are kept for analysis purposes. This document should work as a
+"help" document to keep track of the work done, but not be considered as a final
+report.
+The document relies on sweave. The folder structure is describe in Figure
+\ref{folder_structure}.
+It comprises one folder for data saved from R, one folder for Latex table, and
+one folder for images.
+%==========================================
+\begin{figure}[htpb]
+\centering
+\includegraphics[width=0.4\textwidth]{folder_structure.png}
+\caption{The folder structure for this project}
+\label{folder_structure}
+\end{figure}
+%==========================================
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%************************************************************************************
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+<<init, eval=TRUE,echo=FALSE,results=hide>>=
+# Password are stored in R/etc/Rprofile.site
+# option for calculating the average in model of glass eel graph and prediction
+options(width=90)
+require(mgcv)
+require(car)
+require(ggplot2)
+require(reshape2)
+require(stacomirtools)
+require(stringr)
+require(Hmisc)
+require(xtable)
+require(lubridate) # package to work with dates
+require(dplyr)
+require(reshape2)
+require(circlize) # for circular plots
+require(tidyr)
+
+getUsername <- function(){
+	name <- Sys.info()[["user"]]
+	return(name)
+}
+if(getUsername() == 'cedric.briand')
+{
+	
+	baseODBC=c("export","postgres","postgres") #"w3.eptb-vilaine.fr" "wgeel" "wgeel_distant" 
+	options(sqldf.RPostgreSQL.user = "postgres", 
+			sqldf.RPostgreSQL.password = passwordlocal,
+			sqldf.RPostgreSQL.dbname = "wgeel",
+			sqldf.RPostgreSQL.hostname = "localhost", # "w3.eptb-vilaine.fr"
+			sqldf.RPostgreSQL.port = 5432)
+	setwd("F:/workspace/wgeel/wgeel_trade/")
+	wd<-getwd()
+	imgwd<-str_c(wd,"/images/")
+	tabwd<-str_c(wd,"/table/")
+	datawd<-str_c(wd,"/Rdata/")
+}
+if(getUsername() == 'FS')
+{
+	setwd("C:/Users/FS/OneDrive/DATA/WGEEL_2016/COMTRADE/wgeel_trade")
+	wd<-getwd()
+	imgwd<-str_c(wd,"/images/")
+	tabwd<-str_c(wd,"/table/")
+	datawd<-str_c(wd,"/Rdata/")
+}
+sanitizeLatexS <- function(str) {
+	gsub('([#$%&~_\\^\\\\{}])', '\\\\\\\\\\1', str, perl = TRUE);
+}
+sn <- function(x,scientific=FALSE,digits=0)
+{
+	if (class(x)=="character") {                
+		warning("sn appliqué a un character")
+		return(x)
+	}
+	if (length(x)==0) {                
+		warning("sn length 0")
+		return("???")
+	}
+	if (x==0) return("0")
+	ord <- floor(log(abs(x),10))
+	if (scientific==FALSE&ord<9){
+		if (digits==0) {
+			digits=max(1,ord) # digits must be >0
+			nsmall=0
+		}else {
+			nsmall=digits
+		}
+		x<-format(x,big.mark="~",small.mark="~",digits=digits,nsmall=nsmall)
+		return(str_c("$",as.character(x),"$"))                
+	} else {
+		x <- x / 10^ord
+		if (!missing(digits)) x <- format(x,digits=digits)
+		if (ord==0) return(as.character(x))
+		return(str_c("$",x,"\\\\times 10^{",ord,"}$"))
+	}
+}
+theme_black <- function (base_size = 12,base_family=""){
+	theme_grey(base_size=base_size,base_family=base_family) %+replace%
+			theme(
+					axis.line = element_blank(), 
+					axis.text.x = element_text(size = base_size * 0.8, colour = 'white', lineheight = 0.9, vjust = 1), 
+					axis.text.y = element_text(size = base_size * 0.8, colour = 'white', lineheight = 0.9, hjust = 1), 
+					axis.ticks = element_line(colour = "white", size = 0.2), 
+					axis.title.x = element_text(size = base_size, colour = 'white', vjust = 1), 
+					axis.title.y = element_text(size = base_size, colour = 'white', angle = 90, vjust = 0.5), 
+					axis.ticks.length = unit(0.3, "lines"), 
+					axis.ticks.margin = unit(0.5, "lines"), 
+					
+					legend.background = element_rect(colour = NA, fill = 'black'), 
+					legend.key = element_rect(colour = NA, fill = 'black'), 
+					legend.key.size = unit(1.2, "lines"), 
+					legend.key.height = NULL, 
+					legend.key.width = NULL,     
+					legend.text = element_text(size = base_size * 0.8, colour = 'white'), 
+					legend.title = element_text(size = base_size * 0.8, face = "bold", hjust = 0, colour = 'white'), 
+					#legend.position = c(0.85,0.6), 
+					legend.text.align = NULL, 
+					legend.title.align = NULL, 
+					legend.direction = "vertical", 
+					legend.box = NULL,    
+					
+					panel.background = element_rect(fill = "black", colour = NA), 
+					panel.border = element_rect(fill = NA, colour = "white"), 
+					panel.grid.major = element_blank(), 
+					panel.grid.minor = element_blank(), 
+					panel.margin = unit(0.25, "lines"), 
+					
+					strip.background = element_rect(fill = "grey30", colour = "grey10"), 
+					strip.text.x = element_text(size = base_size * 0.8, colour = 'white'), 
+					strip.text.y = element_text(size = base_size * 0.8, colour = 'white', angle = -90), 
+					
+					plot.background = element_rect(colour = 'black', fill = 'black'), 
+					plot.title = element_text(size = base_size * 1.2, colour = "white"), 
+					plot.margin = unit(c(1, 1, 0.5, 0.5), "lines")
+			)
+}
+geomean=function(x){
+	x<-x[!is.na(x)]
+	n=length(log(x)[!is.infinite(log(x))&!is.na(log(x))])
+	return(data.frame("y"=exp(sum(log(x)[!is.infinite(log(x))&!is.na(log(x))])/n)))
+}
+graphics.off() # close all graphics devices
+@
+
+
+\section{Queries from Eurostat}
+
+<<trade_analysis, eval=TRUE,echo=FALSE,results=hide>>=
+# I tried the pcAxis format but too many tables generate
+#install.packages("pxR")
+#require("pxR")
+
+# it is necessary to skip excel altogether and it works !
+trade<-read.table(file=str_c(datawd,"eurostat.csv"),header=TRUE,sep=",",stringsAsFactors = FALSE, dec=",")
+str(trade)
+# there is a warning, but the file looks fine
+nr0<-nrow(trade)
+# lets get rid of empty lines
+trade<-trade[trade$Value!=":",]
+nr<-nrow(trade)
+# lowercase names
+colnames(trade)<-tolower(colnames(trade))
+# extracting year and month from date values
+unique(trade$period)
+#month are in english
+Sys.setlocale("LC_TIME", "English")
+# no points at the end eg November written "Nov": format(dym(str_c("01",m,"2011")), "%b")
+#removing points (removing all punctuation from trade$period
+trade$period<-gsub("[[:punct:]]","",trade$period, perl = TRUE)
+# dont work : strptime(str_c(strftime(Sys.time(),format="%b %Y")),format="%b %Y")
+# works : strptime(str_c("01 ",strftime(Sys.time(),format="%b %Y")),format="%d %b %Y")
+trade$date<-strptime(str_c("01 ",trade$period),format="%d %b %Y")
+trade$month<-strftime(trade$date,"%b")
+# some NA due to eg.JanDec 2016
+# getting the last four characters from the sentence
+trade$year<-str_sub(trade$period,-4,-1)
+# removing the white space from value and transforming to numeric
+trade$value<-gsub("\\s","",trade$value, perl = TRUE)
+trade$value<-as.numeric(trade$value)
+trade$product<-as.factor(trade$product)
+# Using kg instead for 100 kg
+trade[trade$indicators=="QUANTITY_IN_100KG","value"]<-100*trade[trade$indicators=="QUANTITY_IN_100KG","value"]
+trade$indicators[trade$indicators=="QUANTITY_IN_100KG"]<-"QUANTITY_IN_KG"
+# getting the sum for reporter France over product flow indicators, 
+#year, month
+# and removing null values at the end
+unique(trade$partner)
+dat<-dplyr::select(.data=trade,reporter,partner,product,flow,indicators,year,month,value)%>%
+#the row above selects the column to play with
+		filter(reporter=="FRANCE",
+				!is.na(trade$month),
+				!partner%in%c("EU27_INTRA","EU27_EXTRA"))%>%
+# no aggregated month eg jan-dec 2012 (this cause month to be na); 
+# starting with reporter FRANCE
+# I don't want summed indicators on eu though we might need those later
+		group_by(indicators,product,flow,year,month,partner)%>%
+# this will agregate data by indicator (value, weight) product (glass eel...) flow (import export) year...
+		summarize(value=sum(value))%>%
+# and I will sum over these groups
+		filter(value>0)%>%
+# I don't want zero values
+		ungroup()
+# back to normal table
+
+
+dat<-as.data.frame(dat)
+# dcast will transform to a long format to a less long format, I need to have one row
+# with columns value_in_euros and QUANTITY_IN_100KG side by side
+# I will also separate export and import
+dat1<-dcast(dat,product+partner+year+month+flow~indicators,value.var="value")
+
+############################
+# Value of trade per product :: which products should we keed in the analysis ?
+###########################
+
+dat<-dplyr::select(.data=trade,reporter,partner,product,flow,indicators,year,month,value)%>%
+		filter(reporter=="FRANCE",
+				!is.na(trade$month),
+				!partner%in%c("EU27_INTRA","EU27_EXTRA"))%>%
+		group_by(indicators,product,year,partner,flow)%>%
+		summarize(value=sum(value))%>%
+		ungroup()
+dat<-as.data.frame(dat)
+
+dat<-dplyr::select(.data=trade,reporter,partner,product,flow,indicators,year,month,value)%>%
+		filter(reporter=="FRANCE",
+				!is.na(trade$month),
+				!partner%in%c("EU27_INTRA","EU27_EXTRA"))%>%
+		group_by(indicators,product,year,partner,flow)%>%
+		summarize(value=sum(value))%>%
+		ungroup()
+dat<-as.data.frame(dat)
+
+# here I'm using acast to produce a three dimensional table with sums.
+dat1<-acast(dat,product~indicators~flow+year,value.var="value",fun.aggregate =sum)
+# same as the table using ggplot
+# I'm writing the file in images
+pdf(file=str_c(imgwd,"fig_fr_product.pdf"))
+ggplot(dat,aes(x=year,weight=value,fill=product))+geom_bar(position="stack")+
+		facet_grid(indicators~flow)+
+		ylab("value")
+dev.off()		
+
+
+pdf(file=str_c(imgwd,"fig_fr_product.pdf"))
+ggplot(dat,aes(x=year,weight=value,fill=product))+geom_bar(position="stack")+
+		facet_grid(indicators~flow)+
+		ylab("value")
+dev.off()		
+
+@
+\subsection{General query for France, Spain, and UK as reporter}
+In the first step, we \href{http://appsso.eurostat.ec.europa.eu/nui/show.do?query=BOOKMARK_DS-016890_QID_1A34E436_UID_-3F171EB0&layout=PERIOD,L,X,0;REPORTER,L,Y,0;PARTNER,L,Z,0;PRODUCT,C,Z,1;FLOW,L,Z,2;INDICATORS,C,Z,3;&zSelection=DS-016890FLOW,2;DS-016890PARTNER,EU27_INTRA;DS-016890PRODUCT,03019210;DS-016890INDICATORS,VALUE_IN_EUROS;&rankName1=PARTNER_1_2_-1_2&rankName2=INDICATORS_1_2_-1_2&rankName3=FLOW_1_2_-1_2&rankName4=PRODUCT_1_2_-1_2&rankName5=PERIOD_1_0_0_0&rankName6=REPORTER_1_0_0_1&sortR=ASC_-1_FIRST&sortC=ASC_-1_FIRST&rStp=&cStp=&rDCh=&cDCh=&rDM=true&cDM=true&footnes=false&empty=false&wai=false&time_mode=NONE&time_most_recent=false&lang=EN&cfo=\%23\%23\%23.\%23\%23\%23\%2C\%23\%23\%23}
+{queried} import and export data for the major glass eel catching countries France, Spain and UK('reporter'). The query was made for all available 'Anguilla' commodity codes (Table \ref{product_table}) and the trade 'partners' are listed in Table \ref{countries_table}.
+This query has proved usefull in the past, but new products or trade partners
+should be added according to current expertise. Remember to save this new query 
+is this text but remove put an antislash code before \%.
+Data have been downloaded from September 2011 to  Dec. 2016.
+I've tried different format for download:
+\begin{itemize}
+\item the PC axis should be readable by R but there is a thousand separate table
+generated along the way. I don't really know how to hanle those \dots
+\item The csv offers different separators for thousands, it is clear that we
+will have to get rid of those along the way  \dots
+\item I had to stuggle to import data. Here is the trick, don't open those with
+excel, saving it to another folder using excel does some kind of mess. The code
+below reads data just fine.
+\end{itemize}
+There always seems to be a thousand separator, there is a warning that only 1000
+tables allowed but the file seems complete with csv. Longer periods do end up
+with longer files. Current number of rows is \Sexpr{sn(nr0)} but only
+\Sexpr{sn(nr)} after removing empty values from the table. The flag and
+footnotes are empty so I guess it's no use to try to download those. We will have to check that some countries have not been excluded from this table Figure
+\ref{extraction_eurostat}.
+
+%==========================================
+\begin{figure}[htpb]
+\centering
+\includegraphics[width=0.4\textwidth]{extraction_eurostat.png}
+\caption{extraction from eurostat}
+\label{extraction_eurostat}
+\end{figure}
+%==========================================
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% table of countries selected for trade in the query
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{table}[htbp]
+\caption{Countries requested in the query}
+\label{countries_table}
+\begin{tabular}{l}
+CHINA (PEOPLE'S REPUBLIC OF)           \\
+JAPAN                                  \\
+BELGIUM (and LUXBG -\textgreater 1998) \\
+CZECH REPUBLIC (CS-\textgreater1992)   \\
+GERMANY (incl DD from 1991)            \\
+ESTONIA                                \\
+EU27\_EXTRA                            \\
+EU27\_INTRA                            \\
+FRANCE                                 \\
+UNITED KINGDOM                         \\
+GREECE                                 \\
+HONG KONG                              \\
+IRELAND                                \\
+ITALY                                  \\
+KOREA (SOUTH KOREA)                    \\
+LITHUANIA                              \\
+LATVIA                                 \\
+MOROCCO                                \\
+NETHERLANDS                            \\
+POLAND                                 \\
+ROMANIA                                \\
+SWEDEN                                 \\
+SLOVENIA                               \\
+SLOVAKIA                               \\
+DENMARK                               
+\end{tabular}
+\end{table}
+
+\begin{table}[htbp]
+\caption{Products used in the query}
+\label{product_table}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lll}
+03019200 & LIVE EELS "ANGUILLA SPP." &                                                                                                                          \\
+03019210                  & LIVE EELS "ANGUILLA SPP.", OF A LENGTH OF \textless 12 CM                                                                \\
+03019230                  & 12 CM BUT \textless 20 CM"\textgreater LIVE EELS "ANGUILLA SPP.", OF A LENGTH OF =\textgreater 12 CM BUT \textless 20 CM \\
+03019290                  & 20 CM"\textgreater LIVE EELS "ANGUILLA SPP.", OF A LENGTH OF =\textgreater 20 CM                                         \\
+03026600                  & FRESH OR CHILLED EELS "ANGUILLA SPP."                                                                                    \\
+03027400                  & FRESH OR CHILLED EELS "ANGUILLA SPP."                                                                                    \\
+03032600                  & FROZEN EELS "ANGUILLA SPP."                                                                                              \\
+03037600                  & FROZEN EELS "ANGUILLA SPP."                                                                                              \\
+03054410                  & SMOKED EELS "ANGUILLA SPP.", INCL. FILLETS (EXCL. OFFAL)                                                                 \\
+03054950                  & EELS "ANGUILLA SPP.", SMOKED, INCL. FILLETS                                                                             
+\end{tabular}
+}
+\end{table}
+
+
+\subsection{More specific query with more reporters}
+
+In order to double-check the export data which were reported by France, Spain and the UK, we made an additional \href{http://appsso.eurostat.ec.europa.eu/nui/show.do?query=BOOKMARK_DS-016890_QID_-78892B4D_UID_-3F171EB0&layout=PERIOD,L,X,0;REPORTER,L,Y,0;PARTNER,L,Z,0;PRODUCT,C,Z,1;FLOW,L,Z,2;INDICATORS,C,Z,3;&zSelection=DS-016890FLOW,2;DS-016890PARTNER,EU27_INTRA;DS-016890PRODUCT,03019210;DS-016890INDICATORS,VALUE_IN_EUROS;&rankName1=PARTNER_1_2_-1_2&rankName2=INDICATORS_1_2_-1_2&rankName3=FLOW_1_2_-1_2&rankName4=PRODUCT_1_2_-1_2&rankName5=PERIOD_1_0_0_0&rankName6=REPORTER_1_0_0_1&sortR=ASC_-1_FIRST&sortC=ASC_-1_FIRST&rStp=&cStp=&rDCh=&cDCh=&rDM=true&cDM=true&footnes=false&empty=false&wai=false&time_mode=NONE&time_most_recent=false&lang=EN&cfo=\%23\%23\%23.\%23\%23\%23\%2C\%23\%23\%23}
+{query}. This time, we queried import and export for 8 reporters (France, Spain, UK, Spain, Denmark, Germany, Netherlands, Poland, Italy). 
+Since our analyses focuses on the glass eel trade, we downloaded data for juvenile eels < 12 cm (commodity code 03019210). When we first plotted the circular diagrams for the 8 reporters (glass eel selling countries plus the main importing countries), it appeared that the Netherlands was the by far the largest exporter of juvenile eels < 12 cm (commodity code 03019210) during all years. This seemed quite unpossible and we ran some prize analyses (Figure \ref{fig_fr_product.pdf}). 
+The analyses revealed that EUROSTAT data seem to contain mislabelled export data. Eels that are traded for < 100 EUR/kg are very unlikely live juvenile eels (confirmed by Vicki Crook, TRAFFIC and Alex Koelewijn, commercial leader of SEG and DUPAN). Consequently, we excluded exports < 100 EUR/kg from the further analysis. 
+%##################################
+%==========================================%
+\begin{figure}[htpb]
+\centering
+\includegraphics[width=1\textwidth]{Prices_less12cm_2012_2016_eurostat1.jpg}
+\caption{Price analyses of eel exports (03019210) for years 2012-2016}
+\label{Prices_less12cm_2012_2016_eurostat1.jpg}
+\end{figure}
+%==========================================%
+%###################################
+
+
+<<trade_analysis1, eval=TRUE,echo=FALSE,results=hide>>=
+trade1<-read.table(file=str_c(datawd,"eurostat1.csv"),header=TRUE,sep=",",stringsAsFactors = FALSE, dec=",")
+str(trade1)
+# there is a warning, but the file looks fine
+nr0<-nrow(trade1)
+# lets get rid of empty lines
+trade1<-trade1[trade1$Value!=":",]
+nr<-nrow(trade1)
+# lowercase names
+colnames(trade1)<-tolower(colnames(trade1))
+# extracting year and month from date values
+unique(trade1$period)
+#month are in english
+Sys.setlocale("LC_TIME", "English")
+# no points at the end eg November written "Nov": format(dym(str_c("01",m,"2011")), "%b")
+#removing points (removing all punctuation from trade1$period
+trade1$period<-gsub("[[:punct:]]","",trade1$period, perl = TRUE)
+# dont work : strptime(str_c(strftime(Sys.time(),format="%b %Y")),format="%b %Y")
+# works : strptime(str_c("01 ",strftime(Sys.time(),format="%b %Y")),format="%d %b %Y")
+trade1$date<-strptime(str_c("01 ",trade1$period),format="%d %b %Y")
+trade1$month<-strftime(trade1$date,"%b")
+# some NA due to eg.JanDec 2016
+# getting the last four characters from the sentence
+trade1$year<-str_sub(trade1$period,-4,-1)
+# removing the white space from value and transforming to numeric
+trade1$value<-gsub("\\s","",trade1$value, perl = TRUE)
+trade1$value<-as.numeric(trade1$value)
+trade1$product<-as.factor(trade1$product)
+# Using kg instead for 100 kg
+trade1[trade1$indicators=="QUANTITY_IN_100KG","value"]<-100*trade1[trade1$indicators=="QUANTITY_IN_100KG","value"]
+trade1$indicators[trade1$indicators=="QUANTITY_IN_100KG"]<-"QUANTITY_IN_KG"
+# getting the sum for reporter France over product flow indicators, 
+#year, month
+# and removing null values at the end
+unique(trade1$partner)
+#now this is only export
+#
+dat<-dplyr::select(.data=trade1,reporter,partner,product,indicators,year,month,value)%>%
+#the row above selects the column to play with
+		filter(
+				!is.na(trade1$month),
+				!partner%in%c("EU27_INTRA","EU27_EXTRA"))%>%
+# no aggregated month eg jan-dec 2012 (this cause month to be na); 
+# starting with reporter FRANCE
+# I don't want summed indicators on eu though we might need those later
+		group_by(reporter,indicators,product,year,month,partner)%>%
+# this will agregate data by indicator (value, weight) product (glass eel...) flow (import export) year...
+		summarize(value=sum(value))%>%
+# and I will sum over these groups
+		filter(value>0)%>%
+# I don't want zero values
+		ungroup()
+# back to normal table
+
+
+dat<-as.data.frame(dat)
+# dcast will transform to a long format to a less long format, I need to have one row
+# with columns value_in_euros and QUANTITY_IN_100KG side by side
+# I will also separate export and import
+dat1<-dcast(dat,reporter+product+partner+year+month~indicators,value.var="value")
+
+########################
+# Calculating price per kg
+##########################
+price<-dplyr::select(.data=trade1,reporter,partner,product,indicators,year,flow,month,value)%>%
+#the row above selects the column to play with
+		filter(
+				is.na(month),
+				!partner%in%c("EU27_INTRA","EU27_EXTRA"),
+				flow=="EXPORT",
+				indicators%in%c("QUANTITY_IN_KG","VALUE_IN_EUROS"))
+
+price<-dcast(price,reporter+partner+product+year+flow+month~indicators,value.var="value")
+#price in euro per kilo
+price$price=price$"VALUE_IN_EUROS"/price$"QUANTITY_IN_KG"
+jpeg(filename=str_c(imgwd,"Prices_less12cm_2012_2016_eurostat1.jpg"))
+ggplot(subset(price,!is.infinite(price)))+geom_point(aes(x=QUANTITY_IN_KG,y=price,size=QUANTITY_IN_KG,color=partner))+
+		facet_wrap(flow~reporter)
+dev.off()
+@
+%\sub
+%section{trade for aquaculture countries : sorting out the mixing of codes}
+%A query using only eel <12cm and more reporters (to check for possible other
+%internal trade) has been made.
+%\href{http://appsso.eurostat.ec.europa.eu/nui/show.do?query=BOOKMARK_DS-016890_QID_2D88493D_UID_-3F171EB0&layout=PERIOD,L,X,0;REPORTER,L,Y,0;PARTNER,L,Z,0;PRODUCT,C,Z,1;FLOW,L,Z,2;INDICATORS,C,Z,3;&zSelection=DS-016890FLOW,2;DS-016890PARTNER,EU27_INTRA;DS-016890PRODUCT,03019210;DS-016890INDICATORS,VALUE_IN_EUROS;&rankName1=PARTNER_1_2_-1_2&rankName2=INDICATORS_1_2_-1_2&rankName3=FLOW_1_2_-1_2&rankName4=REPORTER_1_2_0_1&rankName5=PERIOD_1_0_0_0&rankName6=PRODUCT_1_2_-1_2&sortR=ASC_-1_FIRST&pprRK=FIRST&pprSO=PROTOCOL&ppcRK=FIRST&ppcSO=ASC&sortC=ASC_-1_FIRST&rStp=&cStp=&rDCh=&cDCh=&rDM=true&cDM=true&footnes=false&empty=false&wai=false&time_mode=NONE&time_most_recent=false&lang=EN&cfo=\%23\%23\%23.\%23\%23\%23\%2C\%23\%23\%23}
+%{more specific query}.
+<<trade_analysis2, eval=TRUE,echo=FALSE,results=hide>>=
+trade2<-read.table(file=str_c(datawd,"eurostat2.csv"),header=TRUE,sep=",",stringsAsFactors = FALSE, dec=",")
+str(trade2)
+# there is a warning, but the file looks fine
+nr0<-nrow(trade2)
+# lets get rid of empty lines
+trade2<-trade2[trade2$Value!=":",]
+nr<-nrow(trade2)
+# lowercase names
+colnames(trade2)<-tolower(colnames(trade2))
+# extracting year and month from date values
+unique(trade2$period)
+#month are in english
+Sys.setlocale("LC_TIME", "English")
+# no points at the end eg November written "Nov": format(dym(str_c("01",m,"2011")), "%b")
+#removing points (removing all punctuation from trade2$period
+trade2$period<-gsub("[[:punct:]]","",trade2$period, perl = TRUE)
+# dont work : strptime(str_c(strftime(Sys.time(),format="%b %Y")),format="%b %Y")
+# works : strptime(str_c("01 ",strftime(Sys.time(),format="%b %Y")),format="%d %b %Y")
+trade2$date<-strptime(str_c("01 ",trade2$period),format="%d %b %Y")
+trade2$month<-strftime(trade2$date,"%b")
+# some NA due to eg.JanDec 2016
+# getting the last four characters from the sentence
+trade2$year<-str_sub(trade2$period,-4,-1)
+# removing the white space from value and transforming to numeric
+trade2$value<-gsub("\\s","",trade2$value, perl = TRUE)
+trade2$value<-as.numeric(trade2$value)
+trade2$product<-as.factor(trade2$product)
+# Using kg instead for 100 kg
+trade2[trade2$indicators=="QUANTITY_IN_100KG","value"]<-100*trade2[trade2$indicators=="QUANTITY_IN_100KG","value"]
+trade2$indicators[trade2$indicators=="QUANTITY_IN_100KG"]<-"QUANTITY_IN_KG"
+# getting the sum for reporter France over product flow indicators, 
+#year, month
+# and removing null values at the end
+unique(trade2$partner)
+#now this is only export
+#
+dat2<-dplyr::select(.data=trade2,reporter,partner,product,indicators,year,flow,month,value)%>%
+#the row above selects the column to play with
+		filter(
+				!is.na(month),
+				!partner%in%c("EU27_INTRA","EU27_EXTRA"),
+				flow=="EXPORT",
+				indicators=="QUANTITY_IN_KG")%>%
+# no aggregated month eg jan-dec 2012 (this cause month to be na); 
+# starting with reporter FRANCE
+# I don't want summed indicators on eu though we might need those later
+		group_by(reporter,product,year)%>%
+# this will agregate data by indicator (value, weight) product (glass eel...) flow (import export) year...
+		summarize(value=sum(value))%>%
+# and I will sum over these groups
+		filter(value>0)%>%
+# I don't want zero values
+		mutate(QUANTITY_IN_T=value/1000)%>%
+		ungroup()
+# back to normal table
+
+
+dat2<-as.data.frame(dat2)
+# dcast will transform to a long format to a less long format, I need to have one row
+# with columns value_in_euros and QUANTITY_IN_100KG side by side
+# I will also separate export and import
+ddat2<-acast(dat2,reporter~year~product,value.var="QUANTITY_IN_T")
+
+
+
+dat2<-dplyr::select(.data=trade2,reporter,partner,product,indicators,year,flow,month,value)%>%
+#the row above selects the column to play with
+		filter(
+				is.na(month),
+				!partner%in%c("EU27_INTRA","EU27_EXTRA"),
+				flow=="EXPORT",
+				indicators=="QUANTITY_IN_KG")%>%
+# no aggregated month eg jan-dec 2012 (this cause month to be na); 
+# starting with reporter FRANCE
+# I don't want summed indicators on eu though we might need those later
+		group_by(reporter,product,year)%>%
+# this will agregate data by indicator (value, weight) product (glass eel...) flow (import export) year...
+		summarize(value=sum(value))%>%
+# and I will sum over these groups
+		filter(value>0)%>%
+# I don't want zero values
+		mutate(QUANTITY_IN_T=value/1000)%>%
+		ungroup()
+# back to normal table
+
+
+dat2<-as.data.frame(dat2)
+# dcast will transform to a long format to a less long format, I need to have one row
+# with columns value_in_euros and QUANTITY_IN_100KG side by side
+# I will also separate export and import
+ddat2<-acast(dat2,reporter~year~product,value.var="QUANTITY_IN_T")
+
+
+########################
+# Calculating price per kg
+##########################
+trade3<-dplyr::select(.data=trade2,reporter,partner,product,indicators,year,flow,month,value)%>%
+#the row above selects the column to play with
+		filter(
+				is.na(month),
+				!partner%in%c("EU27_INTRA","EU27_EXTRA"),
+				flow=="EXPORT",
+				indicators%in%c("QUANTITY_IN_KG","VALUE_IN_EUROS"))
+		
+trade3.<-dcast(trade3,reporter+partner+product+year+flow+month~indicators,value.var="value")
+#price in euro per kilo
+
+trade3.$price=trade3.$"VALUE_IN_EUROS"/trade3.$"QUANTITY_IN_KG"
+jpeg(filename=str_c(imgwd,"Prices_all_size_classes_2012_2016_eurostat2.jpg"))
+ggplot(subset(trade3.,!is.infinite(trade3.$price)))+geom_point(aes(x=QUANTITY_IN_KG,y=price,size=QUANTITY_IN_KG,color=partner))+
+		facet_wrap(flow~reporter)#+scale_y_continuous(limits=c(0,1000))
+dev.off()
+@
+
+\section{Trade analysis for reporter : France}
+%==========================================
+\begin{figure}[htpb]
+\centering
+\includegraphics[width=\textwidth]{fig_fr_product.pdf}
+\caption{The export and import from France}
+\label{fig_fr_product.pdf}
+\end{figure}
+%==========================================
+
+
+%The seasons are
+%considered below with seasons starting in september year-1 %(the main year for
+%the season is springtime). The price is the weighted means %of price > 100 \euro
+%/ kg
+
+
+
+
+<<export_wgeel_data, eval=TRUE,echo=FALSE,results=hide>>=
+pricedf<-dplyr::select(trade1,reporter,partner,product,indicators,year,flow,month,value)%>%
+		filter(
+				!is.na(month),
+				!partner%in%c("EU27_INTRA","EU27_EXTRA"),
+				indicators%in%c("QUANTITY_IN_KG","VALUE_IN_EUROS"),
+				reporter%in%c('FRANCE','SPAIN','UNITED KINGDOM'),
+				product=='3019210'					
+		)	
+pricedf<-dcast(pricedf,reporter+partner+product+year+flow+month~indicators,value.var="value")
+pricedf$price=pricedf$"VALUE_IN_EUROS"/pricedf$"QUANTITY_IN_KG"
+pricedf<-melt(pricedf,id.vars=c("reporter","partner","product","year","flow","month","price"),
+		measure.vars=c("VALUE_IN_EUROS","QUANTITY_IN_KG"),
+		variable.name ="indicators",factorsAsStrings = TRUE)
+#price in euro per kilo
+pricedf$price[is.infinite(pricedf$price)]<-0
+pricedf$indicators<-as.character(pricedf$indicators)
+#setting up a season variable
+pricedf$season<-pricedf$year
+pricedf$season[pricedf$month%in%c("Sep","Oct","Nov","Dec")]<-
+		as.character(as.numeric(pricedf$season[pricedf$month%in%c("Sep","Oct","Nov","Dec")])+1)
+dat<-dplyr::select(.data=pricedf,reporter,partner,product,flow,indicators,season,month,value,price)%>%
+		filter(price>100)%>%
+		group_by(season,reporter,partner,flow,indicators)%>%
+		summarize(value=sum(value))%>%
+		ungroup()
+dat<-dcast(dat,season+reporter+partner+flow~indicators,value.var="value")
+dat$price=dat$VALUE_IN_EUROS/dat$QUANTITY_IN_KG
+
+mean_prices<-dplyr::group_by(.data=dat,reporter,season)%>%summarise(wmn =weighted.mean(price,QUANTITY_IN_KG))
+ggplot(mean_prices)+geom_point(aes(x=season,y=wmn,color=reporter))+geom_line(aes(x=season,y=wmn,color=reporter,group=reporter))
+ex(dat) # to export to excel
+@
+
+
+\section{Circular diagrams of trade, circlize-package}
+%=====
+The circular diagrams represent the glass eel trade activity per year (commodity code 3019210), reported by the certain countries. Based on the price analyses, we excluded exports that were traded for less than 100 EUR/kg since it is not possible that these were live juvenile eels (see above). Calculation consider (1) the captures that were reported to WGEEL country reports (2012-2105) + the reported captures in 2016, (2) import and exports from EUROSTAT, (3) reported restocking from WGEEL country reports (2012-2015) + the restockings in 2016 (SEG survey) (4) aquaculture and direct consumption (country report 2016, Spain only). The difference between reported catches and 2-4 is displayed as "Unknown". The Unknown likely represents the sum of data gaps, underreported trade and illegal exports to Asia.
+
+%=====
+
+
+<<circular_diagrams, eval=TRUE,echo=FALSE,results=hide>>=
+##
+##install packages if not already done so (uncomment)
+##
+#install.packages("circlize")
+#install.packages("dplyr")
+#install.packages("tidyr")
+
+colors<-killfactor(read.table(str_c(datawd,"colors.csv"),sep=";",header=TRUE))
+
+# now use kg... we have to fill in the values for 2016
+other<-data.frame("year"=rep(2012:2016,3),
+		"unknown"=rep(NA,15),
+		"restocking"=c(3086,2940,5656,1154,3500,
+				607,52,2491,0,3,
+				1300,1860,2680,604,0),
+		"catches"=c(34297,33618,35341,36094,46000,
+				6429,8665,9974,8405,6309,
+				2770,5910,11900,2800,3821),
+		"country"=c(rep("FRANCE",5),
+				rep("SPAIN",5),
+				rep("UNITED KINGDOM",5)))
+other<-killfactor(other)
+# Exports for Spain and UK were reversed and 2016 catch data for UK was included
+
+# The "unknown" still needs to be calculated as the difference between (1) declared  # catches (listed below) and the product of (2) exports and (3) restocking (listed  
+# below).
+
+# after that, the code needs to be adapted to the "other"-data in relation to years. # I would need ages to do that ...:-)
+#sum of export from France
+
+
+dat<-dplyr::select(.data=trade1,reporter,partner,product,flow,indicators,year,month,value)%>%
+		filter(!is.na(month),
+				!partner%in%c("EU27_INTRA","EU27_EXTRA"),
+				reporter%in%c('FRANCE','SPAIN','UNITED KINGDOM'),
+				product=='3019210',
+				indicators=='QUANTITY_IN_KG')%>%
+		group_by(reporter,year,flow)%>%
+		summarize(value=sum(value))%>%
+		ungroup()
+dat<-as.data.frame(dat)
+dat<-dcast(dat,reporter+year~flow,value.var="value")
+colnames(dat)<-c("country","year","export","import")
+other<-merge(other,dat,by=c("country","year"))
+
+other$unknown=other$catch-other$restocking+other$import-other$export
+
+# where did france get those glass eel ?
+#dplyr::select(.data=trade1,reporter,partner,product,flow,indicators,year,month,value)%>%
+#		filter(!is.na(month),
+#				!partner%in%c("EU27_INTRA","EU27_EXTRA"),
+#				reporter%in%c('FRANCE'),
+#				flow=='IMPORT',
+#				product=='3019210',
+#				indicators=='QUANTITY_IN_KG')
+# checking that trade values are right :: they are
+#tapply(trade1[!trade1$partner%in%c("EU27_INTRA","EU27_EXTRA")&
+#						trade1$flow=='EXPORT'&
+#						trade1$reporter=='FRANCE'&
+#						trade1$product=='3019210'&
+#						trade1$indicators=='QUANTITY_IN_KG'&
+#						!is.na(trade1$month),"value"],
+#		trade1[!trade1$partner%in%c("EU27_INTRA","EU27_EXTRA")&
+#						trade1$flow=='EXPORT'&
+#						trade1$reporter=='FRANCE'&
+#						trade1$product=='3019210'&
+#						trade1$indicators=='QUANTITY_IN_KG'&
+#						!is.na(trade1$month),"year"],sum)
+# France restocking according to country report 2015 in kg (p 278f):
+# 2012: 3086
+# 2013: 2940
+# 2014: 5656
+# 2015: 1154
+# 2016: 3500
+
+# France glass eel catches according to country report 2015 in kg (p 285) (marine+fluvial):
+# 2012: 30452 + 3845 = 34297
+# 2013: 29179 + 4439 = 33618
+# 2014: 30306 + 5035 = 35341
+# 2015: 32183 + 3911 = 36094
+# 2016: 46000
+
+# UK restocking (Lough Neagh only!) according to country report 2015 in kg (p806):
+# 2012: 1300
+# 2013: 1860
+# 2014: 2680
+# 2015: 604
+# 2016: 0
+
+# UK glass eel catches according to country report 2015 in kg (p 796):
+# 2012: 2770
+# 2013: 5910
+# 2014: 11900
+# 2015: 2800
+# 2016: 3821
+
+# SPAIN restocking according to country report 2016 in kg (p?):
+# 2012: 607.2
+# 2013: 52.3
+# 2014: 2491.0
+# 2015: 0
+# 2016: 2.7
+
+# SPAIN glass eel catches according to country report 2016 in kg (p?):
+# 2012: 6429
+# 2013: 8665
+# 2014: 9974
+# 2015: 8405
+# 2016: 6309
+
+
+#other<-data.frame("Unknown"=c(20,10,10),"restocking"=c(20,10,10))
+#rownames(other)<-c("France","Spain","United Kingdom")
+#other
+
+
+
+#' Function to draw trade on a circular axis
+#' @note this function will test whether the indicator is 'QUANTITY IN KG', if not,
+#' it will not use the othertrade as it is only provided in kg
+#' ===============================================================
+#' for debug run :data=trade1;myindicator='QUANTITY_IN_KG';myproduct='3019210';myyear='2012';othertrade<-other
+#' myindicator='VALUE_IN_EUROS'
+#' =================================================================
+#' @param data The dataset to use
+#' @param myyear the season = starts in September
+#' @param myproduct the code of the product use '3019210' for eel <12 cm
+#' @param myindicator the code of the product
+#' @param colors The color table loaded from the csv file, merged later in the function
+#' @param othertrade A dataframe with columns year, unknown, restocking, detailing unknown trade 
+#' and restocking
+#' @return Nothing, just a graph.
+drawcircles<-function(data,myyear,myproduct,myindicator='QUANTITY_IN_KG',colors,othertrade,myflow='EXPORT'){
+	pricedf<-dplyr::select(.data=data,reporter,partner,product,indicators,year,flow,month,value)%>%
+			filter(
+					!is.na(month),
+					!partner%in%c("EU27_INTRA","EU27_EXTRA"),
+					indicators%in%c("QUANTITY_IN_KG","VALUE_IN_EUROS"),
+					reporter%in%c('FRANCE','SPAIN','UNITED KINGDOM'),
+					product==myproduct					
+					)	
+	pricedf<-dcast(pricedf,reporter+partner+product+year+flow+month~indicators,value.var="value")
+	pricedf$price=pricedf$"VALUE_IN_EUROS"/pricedf$"QUANTITY_IN_KG"
+	pricedf<-melt(pricedf,id.vars=c("reporter","partner","product","year","flow","month","price"),
+	measure.vars=c("VALUE_IN_EUROS","QUANTITY_IN_KG"),
+	variable.name ="indicators",factorsAsStrings = TRUE)
+	#price in euro per kilo
+	pricedf$price[is.infinite(pricedf$price)]<-0
+	pricedf$indicators<-as.character(pricedf$indicators)
+	#setting up a season variable
+	pricedf$season<-pricedf$year
+	pricedf$season[pricedf$month%in%c("Sep","Oct","Nov","Dec")]<-
+			as.character(as.numeric(pricedf$season[pricedf$month%in%c("Sep","Oct","Nov","Dec")])+1)
+	dat<-dplyr::select(.data=pricedf,reporter,partner,product,flow,indicators,season,month,value,price)%>%
+			filter(!is.na(month),
+					!partner%in%c("EU27_INTRA","EU27_EXTRA"),
+					flow==myflow,
+					product==myproduct,
+					indicators==myindicator,
+					season==myyear,
+					price>100)%>%
+			group_by(reporter,partner)%>%
+			summarize(value=sum(value))%>%
+			ungroup()
+	# for Euros we use millions
+	if (myindicator=="VALUE_IN_EUROS") {
+		
+		dat$value<-dat$value/10^6
+	}
+	if (myindicator=="QUANTITY_IN_KG") {
+		
+		dat$value<-dat$value/10^3
+		othertrade$restocking<-othertrade$restocking/10^3
+		othertrade$unknown<-othertrade$unknown/10^3
+	}
+	
+	# for Quantity we will use tons
+	
+	
+	
+# generate nicer names (no longer needed except for merging back with colors)
+	#unique(dat$partner)
+	dat$reporter<-gsub("(^|[[:space:]])([[:alpha:]])", "\\1\\U\\2", tolower(dat$reporter), perl=TRUE)
+	dat$partner<-gsub("(^|[[:space:]])([[:alpha:]])", "\\1\\U\\2", tolower(dat$partner), perl=TRUE)
+	dat$reporter[dat$reporter== "Germany (incl Dd From 1991)"]<-"Germany"
+	dat$partner[dat$partner== "Germany (incl Dd From 1991)"]<-"Germany"
+	dat$partner[dat$partner== "Czech Republic (cs->1992)"]<-"Czech Republic"
+	dat$partner[dat$partner== "Belgium (and Luxbg -> 1998)"]<-"Belgium"
+	# adding a row for France, spain UK if missing (we need a square matrix)
+	#fn generate empty lines
+	fn_ge<-function(dat,name){
+		if (!name%in%dat$partner) dat<-rbind(dat,c(name,name,NA))
+		return(dat)
+	}
+	for (name in unique(dat$reporter)){
+		dat<-fn_ge(dat,name)
+	}
+	dat$value<-as.numeric(dat$value)
+	# I need codes in dat, not names
+	dat<-merge(dat,colors[,c("partner","code")],by="partner",all.x=TRUE,all.y=FALSE)
+	dat<-dat[,-match("partner",colnames(dat))]
+	colnames(dat)[ncol(dat)]<-"partner"
+	dat<-merge(dat,colors[,c("partner","code")],by.y="partner",by.x="reporter")
+	dat<-dat[,-match("reporter",colnames(dat))]
+	colnames(dat)[ncol(dat)]<-"reporter"
+	#tail(dat)
+	# generating a table with partner column reporter
+	dat1<-dcast(dat,partner~reporter,value.var="value")
+	# Adding unknown trade
+	# Restocking values will be added diretly in the matrix later
+	# I'm using a trick to add a row, which is not so easy (the dataframe looses its integrity otherwise)
+	
+     #fixing a bug for SPAIN (nothing no lines in 2015)
+ 	if (!"SP"%in%colnames(dat1)){
+		dat1$SP=NA
+	}
+	if (myindicator!="VALUE_IN_EUROS"&myflow!='IMPORT') {
+		dat1<-rbind(dat1,dat1[1,])
+		dat1[nrow(dat1),]<-NA
+		dat1[nrow(dat1),"partner"]<-"Unknown"
+		dat1[nrow(dat1),"FR"]<-othertrade[othertrade$country=="FRANCE"&othertrade$year==as.numeric(myyear),"unknown"]
+		dat1[nrow(dat1),"SP"]<-othertrade[othertrade$country=="SPAIN"&othertrade$year==as.numeric(myyear),"unknown"]
+		dat1[nrow(dat1),"UK"]<-othertrade[othertrade$country=="UNITED KINGDOM"&othertrade$year==as.numeric(myyear),"unknown"]
+		dat1[is.na(dat1)]<-0
+	}
+	# reimporting the color data (a dataframe generated by hand)
+	dat2<-merge(dat1, colors[,c("code","color","order")],by.x="partner",by.y="code",all.x=TRUE,all.y=FALSE)
+	dat2<-killfactor(dat2)
+	l<-sum(is.na(dat2$color))
+# some unlikely trade partners may appear, they get a random color and go last in order
+	if (l>0){
+		dat2$color[is.na(dat2$color)]<-rgb(runif(l), runif(l), runif(l), alpha = 1)
+		dat2$order[is.na(dat2$order)]<-30
+	}
+	# reordering according to the color table (sorted from north to south)
+	dat2<-dat2[order(dat2$order),]	
+	dat1<-select(dat2,-c(color,order)) # dat1 has no color names, raw data to be transformed to matrix
+	# dat2 contains in addition order, and color. Those will be used in the graph
+# Creating a square table with NA for empty columns necessary to draw the graph
+	# basically I create it then fill it with the data at the right place
+	mat<-matrix(0,nrow(dat1),ncol=nrow(dat1))
+	
+	col_id_reporter<-match(unique(dat$reporter),dat1$partner)	
+	# fixing a bug for 2015
+	if (!"SP"%in%unique(dat$reporter))
+		col_id_reporter<-c(col_id_reporter,match("SP",dat1$partner))
+	for (i in 1:nrow(dat1)){
+		for (j in 1:nrow(dat1)){
+			if (j %in% col_id_reporter){
+				mat[i,j]<-as.numeric(dat1[i,which(j==col_id_reporter)+1])
+			} else {
+				mat[i,j]<-0
+			}# end ifelse
+		}# end i
+	}# end j
+	if (myflow=='EXPORT') mat<-t(mat) # transpose
+	dimnames(mat) <- list(orig = dat2$partner, dest = dat2$partner)
+	# Restocked quantities ( those will not appear in the Eurostat database)
+	
+# this is only calculated for weight
+	if (myindicator!="VALUE_IN_EUROS"&myflow!='IMPORT') {
+		mat["FR","FR"]<-othertrade[othertrade$country=="FRANCE"&othertrade$year==as.numeric(myyear),"restocking"]
+		mat["UK","UK"]<-othertrade[othertrade$country=="UNITED KINGDOM"&othertrade$year==as.numeric(myyear),"restocking"]
+		mat["SP","SP"]<-othertrade[othertrade$country=="SPAIN"&othertrade$year==as.numeric(myyear),"restocking"]
+		mat[is.na(mat)]<-0
+	}
+	colSums(mat)
+#plot using chordDiagram
+	vec<-dat2$color
+	names(vec)<-dat2$partner
+	circos.clear()
+	circos.par(start.degree = 90, gap.degree = 4)
+	chordDiagram(x = mat, 
+			grid.col =vec,
+			directional = TRUE,  			
+			annotationTrackHeight = c(0.05, 0.05)
+	)
+#add in labels and axis (given by example, not used there)
+#circos.trackPlotRegion(track.index = 1, panel.fun = function(x, y) {
+#			xlim = get.cell.meta.data("xlim")
+#			sector.index = get.cell.meta.data("sector.index")
+#			circos.text(mean(xlim), 2.5, sector.index, facing = "bending")
+#			circos.axis("top", major.at = seq(0, max(xlim)), minor.ticks=1, labels.away.percentage = 0.3, labels.niceFacing = FALSE )
+#		}, bg.border = NA)
+	return(mat)
+}
+
+#=======================================================
+par(cex=1)
+par(mar = c(2, 2, 2, 2))
+###  2012 trade (3 trade reporter) QUANTITY_IN_KG###
+pdf(file=str_c(imgwd,"circle_2012_3rep_tons.pdf"))
+mat<-drawcircles(trade,'2012','3019210','QUANTITY_IN_KG',colors=colors,othertrade=other)     
+write.table(mat,file=str_c(datawd,"circle_2012_3rep_tons.csv"))
+dev.off()
+
+###  2013 trade (3 trade reporter) QUANTITY_IN_KG###
+pdf(file=str_c(imgwd,"circle_2013_3rep_tons.pdf"))
+drawcircles(trade,'2013','3019210','QUANTITY_IN_KG',colors=colors,othertrade=other)     
+dev.off()
+
+###  2014 trade (3 trade reporter) QUANTITY_IN_KG###
+pdf(file=str_c(imgwd,"circle_2014_3rep_tons.pdf"))
+drawcircles(trade,'2014','3019210','QUANTITY_IN_KG',colors=colors,othertrade=other)     
+dev.off()
+
+### 2015 trade(3 trade reporter)  QUANTITY_IN_KG###
+pdf(file=str_c(imgwd,"circle_2015_3rep_tons.pdf"))
+drawcircles(trade,'2015','3019210','QUANTITY_IN_KG',colors=colors,othertrade=other)     
+dev.off()
+
+### 2016 trade(3 trade reporter) QUANTITY_IN_KG###
+pdf(file=str_c(imgwd,"circle_2016_3rep_tons.pdf"))
+drawcircles(trade,'2016','3019210','QUANTITY_IN_KG',colors=colors,othertrade=other)     
+dev.off()
+
+#=======================================================
+
+###  2012 trade1 8 reporters QUANTITY_IN_KG###
+pdf(file=str_c(imgwd,"circle_2012_8rep_tons.pdf"))
+mat<-drawcircles(trade1,'2012','3019210','QUANTITY_IN_KG',colors=colors,othertrade=other)     
+write.table(mat,file=str_c(datawd,"circle_2012_8rep_tons.csv"),sep=";")
+dev.off()
+
+### 2013  trade1 8 reporters QUANTITY_IN_KG###
+pdf(file=str_c(imgwd,"circle_2013_8rep_tons.pdf"))
+mat<-drawcircles(trade1,'2013','3019210','QUANTITY_IN_KG',colors=colors,othertrade=other)  
+write.table(mat,file=str_c(datawd,"circle_2013_8rep_tons.csv"),sep=";")
+dev.off()
+
+### 2014  trade1 8 reporters QUANTITY_IN_KG###
+pdf(file=str_c(imgwd,"circle_2014_8rep_tons.pdf"))
+mat<-drawcircles(trade1,'2014','3019210','QUANTITY_IN_KG',colors=colors,othertrade=other)   
+write.table(mat,file=str_c(datawd,"circle_2014_8rep_tons.csv"),sep=";")
+dev.off()
+
+### 2015 trade1 8 reporters  QUANTITY_IN_KG###
+pdf(file=str_c(imgwd,"circle_2015_8rep_tons.pdf"))
+mat<-drawcircles(trade1,'2015','3019210','QUANTITY_IN_KG',colors=colors,othertrade=other)  
+write.table(mat,file=str_c(datawd,"circle_2015_8rep_tons.csv"),sep=";")
+dev.off()
+
+### 2016 trade1 8 reporters  QUANTITY_IN_KG###
+pdf(file=str_c(imgwd,"circle_2016_8rep_tons.pdf"))
+mat<-drawcircles(trade1,'2016','3019210','QUANTITY_IN_KG',colors=colors,othertrade=other)     
+write.table(mat,file=str_c(datawd,"circle_2016_8rep_tons.csv"),sep=";")
+dev.off()
+
+#=======================================================
+
+###  2012 trade (3 trade reporter) VALUE_IN_EUROS###
+pdf(file=str_c(imgwd,"circle_2012_3rep_euros.pdf"))
+drawcircles(trade,'2012','3019210','VALUE_IN_EUROS',colors=colors,othertrade=other)     
+dev.off()
+
+###  2013 trade (3 trade reporter) VALUE_IN_EUROS###
+pdf(file=str_c(imgwd,"circle_2013_3rep_euros.pdf"))
+drawcircles(trade,'2013','3019210','VALUE_IN_EUROS',colors=colors,othertrade=other)     
+dev.off()
+
+###  2014 trade (3 trade reporter) VALUE_IN_EUROS###
+pdf(file=str_c(imgwd,"circle_2014_3rep_euros.pdf"))
+drawcircles(trade,'2014','3019210','VALUE_IN_EUROS',colors=colors,othertrade=other)     
+dev.off()
+
+### 2015 trade(3 trade reporter)  VALUE_IN_EUROS###
+pdf(file=str_c(imgwd,"circle_2015_3rep_euros.pdf"))
+drawcircles(trade,'2015','3019210','VALUE_IN_EUROS',colors=colors,othertrade=other)     
+dev.off()
+
+### 2016 trade(3 trade reporter) VALUE_IN_EUROS###
+pdf(file=str_c(imgwd,"circle_2016_3rep_euros.pdf"))
+drawcircles(data=trade,
+		myyear='2016',
+		myproduct='3019210',
+		myindicator='VALUE_IN_EUROS',colors=colors,othertrade=other)     
+dev.off()
+
+#=======================================================
+
+###  2012 trade1 8 reporters VALUE_IN_EUROS###
+pdf(file=str_c(imgwd,"circle_2012_8rep_euros.pdf"))
+drawcircles(data=trade1,
+		myyear='2012',
+		myproduct='3019210',
+		myindicator='VALUE_IN_EUROS',colors=colors,othertrade=other,myflow='EXPORT')     
+dev.off()
+
+### 2013  trade1 8 reporters VALUE_IN_EUROS###
+pdf(file=str_c(imgwd,"circle_2013_8rep_euros.pdf"))
+drawcircles(trade1,'2013','3019210','VALUE_IN_EUROS',colors=colors,othertrade=other)     
+dev.off()
+
+### 2014  trade1 8 reporters VALUE_IN_EUROS###
+pdf(file=str_c(imgwd,"circle_2014_8rep_euros.pdf"))
+drawcircles(trade1,'2014','3019210','VALUE_IN_EUROS',colors=colors,othertrade=other)     
+dev.off()
+
+### 2015 trade1 8 reporters  VALUE_IN_EUROS###
+pdf(file=str_c(imgwd,"circle_2015_8rep_euros.pdf"))
+drawcircles(trade1,'2015','3019210','VALUE_IN_EUROS',colors=colors,othertrade=other)     
+dev.off()
+
+### 2016 trade1 8 reporters  VALUE_IN_EUROS###
+pdf(file=str_c(imgwd,"circle_2016_8rep_euros.pdf"))
+drawcircles(trade1,'2016','3019210','VALUE_IN_EUROS',colors=colors,othertrade=other)     
+dev.off()
+
+#=======================================================
+# TRIAL WITH IMPORT
+###  2012 trade1 (8 trade reporter) VALUE_IN_EUROS IMPORT###
+pdf(file=str_c(imgwd,"circle_2012_8rep_tons_import.pdf"))
+mat<-drawcircles(trade1,'2012','3019210','QUANTITY_IN_KG',colors=colors,othertrade=other,myflow='IMPORT')  
+write.table(mat,file=str_c(datawd,"circle_2012_8rep_tons_import.csv"),sep=";")
+dev.off()
+
+pdf(file=str_c(imgwd,"circle_2013_8rep_tons_import.pdf"))
+mat<-drawcircles(trade1,'2013','3019210','QUANTITY_IN_KG',colors=colors,othertrade=other,myflow='IMPORT')  
+write.table(mat,file=str_c(datawd,"circle_2013_8rep_tons_import.csv"),sep=";")
+dev.off()
+
+pdf(file=str_c(imgwd,"circle_2014_8rep_tons_import.pdf"))
+mat<-drawcircles(trade1,'2014','3019210','QUANTITY_IN_KG',colors=colors,othertrade=other,myflow='IMPORT') 
+write.table(mat,file=str_c(datawd,"circle_2014_8rep_tons_import.csv"),sep=";")
+dev.off()
+
+pdf(file=str_c(imgwd,"circle_2015_8rep_tons_import.pdf"))
+mat<-drawcircles(trade1,'2015','3019210','QUANTITY_IN_KG',colors=colors,othertrade=other,myflow='IMPORT')     
+write.table(mat,file=str_c(datawd,"circle_2015_8rep_tons_import.csv"),sep=";")
+dev.off()
+
+pdf(file=str_c(imgwd,"circle_2016_8rep_tons_import.pdf"))
+mat<-drawcircles(trade1,'2016','3019210','QUANTITY_IN_KG',colors=colors,othertrade=other,myflow='IMPORT')  
+write.table(mat,file=str_c(datawd,"circle_2016_8rep_tons_import.csv"),sep=";")
+dev.off()
+
+
+
+@
+\subsection{Trade in tons, 3 reporters (<12cm, commodity code 3019210)}
+%==========================================
+\begin{figure}[htpb]
+\centering
+\includegraphics[width=1\textwidth]{circle_2012_3rep_tons.pdf}
+\caption{European glass eel (3019210 < 12cm) trade in tons for 2012, 3
+reporters (FR,UK,SP)}
+\label{circle_2012_3rep_tons}
+\end{figure}
+%==========================================
+\begin{figure}[htpb]
+\centering
+\includegraphics[width=1\textwidth]{circle_2013_3rep_tons.pdf}
+\caption{European glass eel (3019210 < 12cm) trade in tons for 2013, 3
+reporters (FR,UK,SP)}
+\label{circle_2013_3rep_tons}
+\end{figure}
+%==========================================%
+\begin{figure}[htpb]
+\centering
+\includegraphics[width=1\textwidth]{circle_2014_3rep_tons.pdf}
+\caption{European glass eel (3019210 < 12cm) trade in tons for 2014, 3
+reporters (FR,UK,SP)}
+\label{circle_2014_3rep_tons}
+\end{figure}
+%==========================================%
+\begin{figure}[htpb]
+\centering
+\includegraphics[width=1\textwidth]{circle_2015_3rep_tons.pdf}
+\caption{European glass eel (3019210 < 12cm) trade in tons for 2015, 3
+reporters (FR,UK,SP)}
+\label{circle_2015_3rep_tons}
+\end{figure}
+%==========================================%
+\begin{figure}[htpb]
+\centering
+\includegraphics[width=1\textwidth]{circle_2016_3rep_tons.pdf}
+\caption{European glass eel (3019210 < 12cm) trade in tons for 2016, 3
+reporters (FR,UK,SP)}
+\label{circle_2016_3rep_tons}
+\end{figure}
+%==========================================
+
+
+\subsection{Trade in tons, 8 trade reporters (< 12cm, commodity code 3019210)}
+%==========================================
+\begin{figure}[htpb]
+\centering
+\includegraphics[width=1\textwidth]{circle_2012_8rep_tons.pdf}
+\caption{European glass eel (3019210 < 12cm) trade in tons for 2012, 8
+reporters (FR,UK,SP,DK,DE,NL,PL,IT)}
+\label{circle_2012_8rep_tons}
+\end{figure}
+%==========================================
+\begin{figure}[htpb]
+\centering
+\includegraphics[width=1\textwidth]{circle_2013_8rep_tons.pdf}
+\caption{European glass eel (3019210 < 12cm) trade in tons for 2013, 8
+reporters (FR,UK,SP,DK,DE,NL,PL,IT)}
+\label{circle_2013_8rep_tons}
+\end{figure}
+%==========================================%
+\begin{figure}[htpb]
+\centering
+\includegraphics[width=1\textwidth]{circle_2014_8rep_tons.pdf}
+\caption{European glass eel (3019210 < 12cm) trade in tons for 2014, 8
+reporters (FR,UK,SP,DK,DE,NL,PL,IT)}
+\label{circle_2014_8rep_tons}
+\end{figure}
+%==========================================%
+\begin{figure}[htpb]
+\centering
+\includegraphics[width=1\textwidth]{circle_2015_8rep_tons.pdf}
+\caption{European glass eel (3019210 < 12cm) trade in tons for 2015, 8
+reporters (FR,UK,SP,DK,DE,NL,PL,IT)}
+\label{circle_2015_8rep_tons}
+\end{figure}
+%==========================================%
+\begin{figure}[htpb]
+\centering
+\includegraphics[width=1\textwidth]{circle_2016_8rep_tons.pdf}
+\caption{European glass eel (3019210 < 12cm) trade in tons for 2016, 8
+reporters (FR,UK,SP,DK,DE,NL,PL,IT)}
+\label{circle_2016_8rep_tons}
+\end{figure}
+%==========================================
+
+\subsection{Trade in EUR, 3 trade reporters (<12cm, commodity code 3019210)}
+%==========================================
+\begin{figure}[htpb]
+\centering
+\includegraphics[width=1\textwidth]{circle_2012_3rep_euros.pdf}
+\caption{European glass eel trade (3019210 < 12cm) in EUR for 2012, 3
+reporters (FR,UK,SP)}
+\label{circle_2012_3rep_euros}
+\end{figure}
+%==========================================
+\begin{figure}[htpb]
+\centering
+\includegraphics[width=1\textwidth]{circle_2013_3rep_euros.pdf}
+\caption{European glass eel trade in EUR for 2013, 3 reporters
+(FR,UK,SP)}
+\label{circle_2013_3rep_euros}
+\end{figure}
+%==========================================%
+\begin{figure}[htpb]
+\centering
+\includegraphics[width=1\textwidth]{circle_2014_3rep_euros.pdf}
+\caption{European glass eel trade in EUR for 2014, 3 reporters
+(FR,UK,SP)}
+\label{circle_2014_3rep_euros}
+\end{figure}
+%==========================================%
+\begin{figure}[htpb]
+\centering
+\includegraphics[width=1\textwidth]{circle_2015_3rep_euros.pdf}
+\caption{European glass eel trade in EUR for 2015, 3 reporters
+(FR,UK,SP)}
+\label{circle_2015_3rep_euros}
+\end{figure}
+%==========================================%
+\begin{figure}[htpb]
+\centering
+\includegraphics[width=1\textwidth]{circle_2016_3rep_euros.pdf}
+\caption{European glass eel trade in EUR for 2016, 3 reporters
+(FR,UK,SP)}
+\label{circle_2016_3rep_euros}
+\end{figure}
+%==========================================
+
+
+\subsection{Trade in EUR, 8 trade reporters (<12cm, commodity code 3019210)}
+%==========================================
+\begin{figure}[htpb]
+\centering
+\includegraphics[width=1\textwidth]{circle_2012_8rep_euros.pdf}
+\caption{European glass eel 3019210 (< 12cm) trade in EUR for 2012, 8
+reporters (FR,UK,SP,DK,DE,NL,PL,IT)}
+\label{circle_2012_8rep_euros}
+\end{figure}
+%==========================================
+\begin{figure}[htpb]
+\centering
+\includegraphics[width=1\textwidth]{circle_2013_8rep_euros.pdf}
+\caption{European glass eel 3019210 (< 12cm) trade in EUR for 2013, 8
+reporters (FR,UK,SP,DK,DE,NL,PL,IT)}
+\label{circle_2013_8rep_euros}
+\end{figure}
+%==========================================%
+\begin{figure}[htpb]
+\centering
+\includegraphics[width=1\textwidth]{circle_2014_8rep_euros.pdf}
+\caption{European glass eel 3019210 (< 12cm) trade in EUR for 2014, 8
+reporters (FR,UK,SP,DK,DE,NL,PL,IT)}
+\label{circle_2014_8rep_euros}
+\end{figure}
+%==========================================%
+\begin{figure}[htpb]
+\centering
+\includegraphics[width=1\textwidth]{circle_2015_8rep_euros.pdf}
+\caption{European glass eel 3019210 (< 12cm) trade in EUR for 2015, 8
+reporters (FR,UK,SP,DK,DE,NL,PL,IT)}
+\label{circle_2015_8rep_euros}
+\end{figure}
+%==========================================%
+\begin{figure}[htpb]
+\centering
+\includegraphics[width=1\textwidth]{circle_2016_8rep_euros.pdf}
+\caption{European glass eel trade in EUR for 2016, 8 reporters (FR,UK,SP,DK,DE,NL,PL,IT)}
+\label{circle_2016_8rep_euros}
+\end{figure}
+%==========================================
+
+\section{Trade analysis for reporter : France}
+%==========================================
+\begin{figure}[htpb]
+\centering
+\includegraphics[width=\textwidth]{fig_fr_product.pdf}
+\caption{The export and import from France}
+\label{fig_fr_product.pdf}
+\end{figure}
+%==========================================
+
+\clearpage
+\end{document}
+
+##### table row data
+print(as.data.frame(rawdatatoconvinceflorian<-dplyr::select(.data=trade1,reporter,partner,product,flow,indicators,year,month,value)%>%
+  filter(!is.na(month),
+    !partner%in%c("EU27_INTRA","EU27_EXTRA"),
+    product=='3019210',
+    indicators=='QUANTITY_IN_KG')%>%
+  group_by(reporter,year,flow)%>%
+  summarize(value=sum(value))%>%
+  ungroup()))
