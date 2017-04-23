@@ -74,7 +74,7 @@ theme_black <- function (base_size = 12,base_family=""){
 					panel.border = element_rect(fill = NA, colour = "white"), 
 					panel.grid.major = element_blank(), 
 					panel.grid.minor = element_blank(), 
-					panel.margin = unit(0.25, "lines"), 
+					panel.spacing = unit(0.25, "lines"), 
 					
 					strip.background = element_rect(fill = "grey30", colour = "grey10"), 
 					strip.text.x = element_text(size = base_size * 0.8, colour = 'white'), 
@@ -88,9 +88,34 @@ theme_black <- function (base_size = 12,base_family=""){
 #' Calculates the geometric means of a series
 #' @param x a numeric
 #' @return A data frame with one column y
-geomean=function(x){
-	x<-x[!is.na(x)]
+geomean=function(x,na.rm=TRUE){
+	if (na.rm) x<-x[!is.na(x)]
 	n=length(log(x)[!is.infinite(log(x))&!is.na(log(x))])
 	return(data.frame("y"=exp(sum(log(x)[!is.infinite(log(x))&!is.na(log(x))])/n)))
 }
 
+#' save a figure in jpeg, bmp, png and pdf format
+#' @param width a numeric
+#' @param height a numeric
+#' @return nothing
+save_figure<-function(figname,fig,width,height){
+	setwd(imgwd)
+	#savePlot()
+	jpeg(filename = paste(figname,".jpeg",sep=""), width = width, height = height)
+	print(fig)
+	dev.off()
+	
+	bmp(filename = paste(figname,".bmp",sep=""), width = width, height = height)
+	print(fig)
+	dev.off()
+	
+	png(filename = paste(figname,".png",sep=""), width = width, height = height)
+	print(fig)
+	dev.off()
+	
+	pdf(file= paste(imgwd,"/",figname,".pdf",sep=""), width = width/100, height = height/100)
+	print(fig)
+	rien<-dev.off()
+	setwd(wd)
+	return(invisible(NULL))
+}

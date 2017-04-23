@@ -206,6 +206,7 @@ if(getUsername() == 'EDIAZ')
 	tabwd<-str_c(wddata,"/",CY,"/table")
 	shpwd=str_c(wddata,"/wgeel2013/emu") 
 }
+# some of the functions used later in that scrit :
 source('utility_functions.R')
 graphics.off() # close all graphics devices
 # the results will be stored in a list, when I first run the program,
@@ -408,16 +409,16 @@ wger=merge(wger,mean_site,by="nam",all.x=TRUE,all.y=FALSE)
 wger$value_std_1979_1994=wger$value/wger$mean_1979_1994
 
 #########################################################################
-#standardizing with mean
+#standardizing with mean (all data)
 ##########################################################################
 
-mean_site=data.frame(mean=as.numeric(tapply(wger$value,wger$ser_id,mean)))
+mean_site=data.frame(mean=as.numeric(tapply(wger$value,wger$ser_id,mean,na.rm=TRUE)))
 mean_site$nam=tapply(wger$nam,wger$ser_id,function(X)unique(X))
 wger=merge(wger,mean_site,by="nam",all.x=TRUE,all.y=FALSE) 
 wger$value_std=wger$value/wger$mean
 
 glass_eel_yoy=wger[wger$lifestage!="yellow eel" & wger$year>1959,] #glass eel and yoy
-older=wger[wger$lifestage=="yellow eel" & wger$year>1959,] #> 1 year / 37 = Parteen # &wger$ser_id!=37
+older=wger[wger$lifestage=="yellow eel" & wger$year>1959,] 
 
 ##########################################################################
 # Some statistics for later use, nb of year per series
@@ -426,18 +427,6 @@ older=wger[wger$lifestage=="yellow eel" & wger$year>1959,] #> 1 year / 37 = Part
 nb_year=colSums(ftable(xtabs(formula = value_std_1979_1994~year+nam,data=wger))>0)
 names(nb_year)=colnames(xtabs(formula = value_std_1979_1994~year+nam,data=wger))
 
-################################################################
-# Building dataset for first graphs standardized to 1979-1994
-# these are the graphs that were fisst built historically by the wgeel
-################################################################
-
-wger_coun=wger#subset(wger,wger$name%in%names(nb_year))
-wger_coun$nam=as.factor(as.character(wger_coun$nam))
-#wger_coun$sampling_type=as.character(wger_coun$sampling_type)
-wger_coun<-wger_coun[!is.na(wger_coun$value_std_1979_1994),]
-#unique(wger_coun$name)
-datageel=subset(wger_coun,wger_coun$lifestage!="yellow eel")
-datayellow=subset(wger_coun,wger_coun$lifestage=="yellow eel")
 ###############################################################
 # some other statistics used there
 ###############################################################
@@ -454,7 +443,7 @@ vv$nb_series_final<-nb_series_final
 # Finally saving the data
 ###############################################################
 
-save(wger_coun,file=paste(datawd,"wger_coun.Rdata",sep="\\"))
+save(wger,file=paste(datawd,"wger.Rdata",sep="\\"))
 save(older,file=paste(datawd,"older.Rdata",sep="\\"))
 save(glass_eel_yoy,file=paste(datawd,"glass_eel_yoy.Rdata",sep="\\"))
 write.table(glass_eel_yoy,file=str_c(datawd,"/glass_eel_yoy.csv"),sep=";")
@@ -535,7 +524,7 @@ colnames(series_lost)<-str_c("\\scshape{",c("Code","Name","Country","Organisatio
 xseries_lost <- xtable(x = series_lost,
 		label = str_c("table_serieslost"),
 		caption = str_c("Series stopped or not updated to ",CY-1),
-		align=c("p{0cm}","p{1.3cm}","p{6cm}","p{2cm}","p{2.5cm}","p{1.2cm}","p{1.2cm}","p{1.2cm}"))
+		align=c("p{0cm}","p{1.3cm}","p{6cm}","p{2cm}","p{2.5cm}","p{1.2cm}","p{1.2cm}","p{1.2cm}","p{1.2cm"))
 print(xseries_lost, 
 		file = str_c(tabwd,"/table_serieslost.tex"),
 		table.placement = "htbp",
@@ -574,17 +563,17 @@ rownames(n_y_lfs)<-n_y_lfs$"year"
 ##		table.placement = "htbp",
 ##		caption.placement = "top",
 ##		NA.string = ".")
-printstatseries<-statseries[,c(1,3,4,5,6,7,8,9,10,11)]
-printstatseries[,8]<-iconv(printstatseries[,8],from="UTF8",to="latin1")
-printstatseries$rec_samplingtype[printstatseries$rec_samplingtype=="scientific estimate"]<-"sci. surv."
-printstatseries$rec_samplingtype[grep("trap",printstatseries$rec_samplingtype)]<-"trap"
-printstatseries$rec_samplingtype[printstatseries$rec_samplingtype=="commercial catch"]<-"com. catch"
-printstatseries$rec_samplingtype[printstatseries$rec_samplingtype=="commercial CPUE"]<-"com. cpue"
-printstatseries$loc_area[printstatseries$loc_area!="North Sea"]<-"EE"
-printstatseries$loc_area[printstatseries$loc_area=="North Sea"]<-"NS"
+printstatseries<-statseries[,c(1,3,4,5,6,7,8,9,10)]
+printstatseries$sampling_type[printstatseries$sampling_type=="scientific estimate"]<-"sci. surv."
+printstatseries$sampling_type[grep("trap",printstatseries$sampling_type)]<-"trap"
+printstatseries$sampling_type[printstatseries$sampling_type=="commercial catch"]<-"com. catch"
+printstatseries$sampling_type[printstatseries$sampling_type=="commercial CPUE"]<-"com. cpue"
+column_to_import<-R_stations[,c("ser_nameshort","areashort")]
+printstatseries<-merge(printstatseries,column_to_import,by.x="name",by.y="ser_nameshort")
+printstatseries<-printstatseries[,c(1,10,2:9)]
 colnames(printstatseries)<-
-		c("code","area","min","max","n+","n-", "life stage","river",       
-				"sampling type","unit")
+		c("code","area","min","max","n+","n-", "life stage",      
+				"sampling type","unit","habitat")
 xstatseries <- xtable(x = printstatseries[1:20,], 
 		label = str_c("statseries"),
 		caption = str_c("Short description of the recruitment sites"),
@@ -625,14 +614,18 @@ print(xstatseries1 ,
 		include.rownames=FALSE
 )
 ################################################################
-yearmaxglasseel<-rownames(n_y_lfs)[which(max(n_y_lfs$glass+n_y_lfs$"glass+yellow")==n_y_lfs$glass+n_y_lfs$"glass+yellow")]
-nbmaxglasseel<-max(n_y_lfs$glass+n_y_lfs$"glass+yellow")
-################################################################
-
+# some additional stats for the report
+#################################################################
+# in which year has there been the largest number of glass eel (or apparented) series ?
+yearmaxglasseel<-n_y_lfs$year[which(max(n_y_lfs$"glass"+n_y_lfs$"glass+yellow")==n_y_lfs$"glass"+n_y_lfs$"glass+yellow")]
+# and for how long ?
+nbmaxglasseel<-max(n_y_lfs$"glass"+n_y_lfs$"glass+yellow")
+# storing this in our nice list
 vv$yearmaxglasseel<-yearmaxglasseel
 vv$nbmaxglasseel<-nbmaxglasseel
-yearmaxyellow<-rownames(n_y_lfs)[which(max(n_y_lfs$yellow)==n_y_lfs$yellow)]
-nbmaxyellow<-max(n_y_lfs$yellow)
+# same for yellow eel
+yearmaxyellow<-n_y_lfs$year[which(max(n_y_lfs$"yellow")==n_y_lfs$"yellow")]
+nbmaxyellow<-max(n_y_lfs$"yellow")
 vv$yearmaxyellow<-yearmaxyellow
 vv$nbmaxyellow<-nbmaxyellow
 
@@ -663,46 +656,19 @@ figure2()
 rien<-dev.off()
 # {{{{{{{{{{{{{{{{{{{{{{{{{
 
-# create figures in bmp, jpg and png format
-nice_figure<-function(figname,fig,width,height){
-	setwd(imgwd)
-	#savePlot()
-	jpeg(filename = paste(figname,".jpeg",sep=""), width = width, height = height)
-	print(fig)
-	dev.off()
-	
-	bmp(filename = paste(figname,".bmp",sep=""), width = width, height = height)
-	print(fig)
-	dev.off()
-	
-	png(filename = paste(figname,".png",sep=""), width = width, height = height)
-	print(fig)
-	dev.off()
-	
-	pdf(file= paste(imgwd,"/",figname,".pdf",sep=""), width = width/100, height = height/100)
-	print(fig)
-	rien<-dev.off()
-	setwd(wd)
-}
+
 @
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %************************************************************************************
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-<<tableswgeel,echo=FALSE, eval=TRUE,result=hide>>=
+<<tableswgeel,echo=FALSE, eval=FALSE,result=hide>>=
 # THIS R CHUNCK IS USED ONCE AT THE END TO GENERATE THE TABLES.
 ## This will fail if saved twice, run at the end of the working group to generate the table of values
-query=new("RequeteODBC")
-query@sql="select * from ts.t_data_dat join ts.t_location_loc on ser_id=dat_ser_id 
-		join ts.t_recruitment_rec on rec_ser_id=ser_id
-		where dat_class_id=1
-		and rec_ser_id!=7
-		order by rec_order ,dat_year"
-query=connect(query)
-dat=query@query
-dat$dat_year=as.factor(dat$dat_year)
-stopifnot(length(unique(dat$rec_order))== length(unique(dat$dat_ser_id)))
-
-tab1<-reshape2::dcast(dat,dat_year~rec_order,value.var="dat_value")
+dat<-wger[order(wger$ser_order,wger$year),]
+dat$year=as.factor(dat$year)
+stopifnot(length(unique(dat$ser_order))== length(unique(dat$ser_id)))
+# this will create the table to export to excel with all raw data
+tab1<-reshape2::dcast(dat,year~ser_order,value.var="value")
 tab1[,2:ncol(tab1)]=round(tab1[,2:ncol(tab1)],2)
 colnames(tab1)<-c("year",paste(statseries$loc_name,"_",statseries$code,sep="" ))
 
@@ -724,27 +690,6 @@ createxl(data=statseries,sheet="series_description")
 %************************************************************************************
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-<< geographical_analysis, echo=FALSE,  eval=TRUE >>=
-#######################
-# GEOGRAPHICAL ANALYSIS
-#######################
-# at this point you can run the geographical analysis with another script
-#source("classification.R")
-
-##########################################################
-# Additional data selection and functions before plotting
-############################################################
-
-# unique (wger$country)
-# Selecting only data where nb_year>35
-
-@
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%************************************************************************************
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%==========================================
-%==========================================
 \section{Recruitment}
 \subsection{Time-series available}
 The recruitment time-series data are derived from fishery-dependent sources
@@ -874,60 +819,74 @@ confidence interval (95\%) are represented as black dots and bars.
 << generation_of_plot_data, echo=FALSE, eval=TRUE,results=hide >>=
 ###################################################
 # Generation of the dataframes used to plot the data
+# two similar dataframe are created
+# with the new ggplot2 it is no longer necessary but code was developped earlier at
+# the time when such format was still necessary
+# we will create a first dataframe (scal) with all the series together, this was
+# the initial analysis built by Wgeel, and it is kept for historical consistency
+# later on the geomean have been added , and the graph add a bootstrap calculation of the mean (bootscal)
+# At some point the wgeel discussed that it might make more sense to separate
+# glass eel (scalgeel) and yellow eel (scalyellow), so this graph is showing all, the geomean on all series, the
+# trend for glass eel and the trend for yellow eel. This graph shows "unprocessed" data,
+# as the wgeel recruitment index uses a glm index to rebuilt a consistent series.
+# At some point ACFM asked to use a different scaling period and we complied but the graph
+# is no longer shown as it is a bit confusing.
 ###################################################
-scal=data.frame("year"=as.numeric(names(tapply(wger_coun$value_std_1979_1994,wger_coun$year,min))),
-		"data_std"=NA,
+scal=data.frame("year"=as.numeric(names(tapply(wger$value_std_1979_1994,wger$year,min,na.rm=TRUE))),
+		"value_std"=NA,
 		"name"=NA,
 		"lifestage"=NA,
-		"ymin"= tapply(wger_coun$value_std_1979_1994,wger_coun$year,min),
-		"ymax"=tapply(wger_coun$value_std_1979_1994,wger_coun$year,max),
-		"mean"=tapply(wger_coun$value_std_1979_1994,wger_coun$year,mean),
-		"geomean"=unlist(tapply(wger_coun$value_std_1979_1994,wger_coun$year,geomean)))
-li_cl_boot=tapply(wger_coun$value_std_1979_1994,wger_coun$year,smean.cl.boot)
+		"ymin"= tapply(wger$value_std_1979_1994,wger$year,min,na.rm=TRUE),
+		"ymax"=tapply(wger$value_std_1979_1994,wger$year,max,na.rm=TRUE),
+		"mean"=tapply(wger$value_std_1979_1994,wger$year,mean,na.rm=TRUE),
+		"geomean"=unlist(tapply(wger$value_std_1979_1994,wger$year,geomean,na.rm=TRUE)))
+li_cl_boot=tapply(wger$value_std_1979_1994,wger$year,smean.cl.boot)
 bootscal=data.frame("year"=as.numeric(names(li_cl_boot)),
-		"data_std"=NA,
+		"value_std"=NA,
 		"name"=NA,
 		"lifestage"=NA,
 		"ymin"=unlist(lapply(li_cl_boot,function(X)X["Lower"])),
 		"ymax"=unlist(lapply(li_cl_boot,function(X)X["Upper"])),
 		"mean"=unlist(lapply(li_cl_boot,function(X)X["Mean"])),
 		"geomean"=NA)
-
+# creating a subset with all data (glass_eel_yoy is limited in its timeframe)
+datageel=subset(wger,wger$lifestage!="yellow eel")
 scalgeel=data.frame(
-		"year"=as.numeric(names(tapply(datageel$value_std_1979_1994,datageel$year,min))),
-		"data_std"=NA,
+		"year"=as.numeric(names(tapply(datageel$value_std_1979_1994,datageel$year,min,na.rm=TRUE))),
+		"value_std"=NA,
 		"name"=NA,
 		"lifestage"=NA,
-		"ymin"= tapply(datageel$value_std_1979_1994,datageel$year,min),
-		"ymax"=	tapply(datageel$value_std_1979_1994,datageel$year,max),	
-		"mean"=tapply(datageel$value_std_1979_1994,datageel$year,mean),
-		"geomean"=unlist(tapply(datageel$value_std_1979_1994,datageel$year,geomean))
+		"ymin"= tapply(datageel$value_std_1979_1994,datageel$year,min,na.rm=TRUE),
+		"ymax"=	tapply(datageel$value_std_1979_1994,datageel$year,max,na.rm=TRUE),	
+		"mean"=tapply(datageel$value_std_1979_1994,datageel$year,mean,na.rm=TRUE),
+		"geomean"=unlist(tapply(datageel$value_std_1979_1994,datageel$year,geomean,na.rm=TRUE))
 )
-
+datayellow=subset(wger,wger$lifestage=="yellow eel")
 scalyellow=data.frame(
 		"year"=as.numeric(names(tapply(datayellow$value_std_1979_1994,datayellow$year,min))),
-		"data_std"=NA,
+		"value_std"=NA,
 		"name"=NA,
 		"lifestage"=NA,
 		"ymin"= tapply(datayellow$value_std_1979_1994,datayellow$year,min),
 		"ymax"=	tapply(datayellow$value_std_1979_1994,datayellow$year,max),	
 		"mean"=tapply(datayellow$value_std_1979_1994,datayellow$year,mean),
 		"geomean"=unlist(tapply(datayellow$value_std_1979_1994,datayellow$year,geomean)))
-scaldata=wger_coun[,c("year","data_std","name","lifestage")]
+scaldata=wger[,c("year","value_std_1979_1994","nam","lifestage")]
 ################################################################
 # With scaling 2000-2010
-##############################################################"
-scal_2000_2009=data.frame("year"=as.numeric(names(tapply(wger_coun$value_std_2000_2009,wger_coun$year,min,na.rm=TRUE))),
-		"data_std"=NA,
+##############################################################
+
+scal_2000_2009=data.frame("year"=as.numeric(names(tapply(wger$value_std_2000_2009,wger$year,min,na.rm=TRUE))),
+		"value_std"=NA,
 		"name"=NA,
 		"lifestage"=NA,
-		"ymin"= tapply(wger_coun$value_std_2000_2009,wger_coun$year,min,na.rm=TRUE),
-		"ymax"=tapply(wger_coun$value_std_2000_2009,wger_coun$year,max,na.rm=TRUE),
-		"mean"=tapply(wger_coun$value_std_2000_2009,wger_coun$year,mean,na.rm=TRUE),
-		"geomean"=unlist(tapply(wger_coun$value_std_2000_2009,wger_coun$year,geomean)))
-li_cl_boot=tapply(wger_coun$value_std_2000_2009,wger_coun$year,smean.cl.boot)
+		"ymin"= tapply(wger$value_std_2000_2009,wger$year,min,na.rm=TRUE),
+		"ymax"=tapply(wger$value_std_2000_2009,wger$year,max,na.rm=TRUE),
+		"mean"=tapply(wger$value_std_2000_2009,wger$year,mean,na.rm=TRUE),
+		"geomean"=unlist(tapply(wger$value_std_2000_2009,wger$year,geomean)))
+li_cl_boot=tapply(wger$value_std_2000_2009,wger$year,smean.cl.boot)
 bootscal_2000_2009=data.frame("year"=as.numeric(names(li_cl_boot)),
-		"data_std"=NA,
+		"value_std"=NA,
 		"name"=NA,
 		"lifestage"=NA,
 		"ymin"=unlist(lapply(li_cl_boot,function(X)X["Lower"])),
@@ -937,7 +896,7 @@ bootscal_2000_2009=data.frame("year"=as.numeric(names(li_cl_boot)),
 
 scalgeel_2000_2009=data.frame(
 		"year"=as.numeric(names(tapply(datageel$value_std_2000_2009,datageel$year,min))),
-		"data_std"=NA,
+		"value_std"=NA,
 		"name"=NA,
 		"lifestage"=NA,
 		"ymin"= tapply(datageel$value_std_2000_2009,datageel$year,min,na.rm=TRUE),
@@ -948,40 +907,32 @@ scalgeel_2000_2009=data.frame(
 
 scalyellow_2000_2009=data.frame(
 		"year"=as.numeric(names(tapply(datayellow$value_std_2000_2009,datayellow$year,min))),
-		"data_std"=NA,
+		"value_std"=NA,
 		"name"=NA,
 		"lifestage"=NA,
 		"ymin"= tapply(datayellow$value_std_2000_2009,datayellow$year,min),
 		"ymax"=	tapply(datayellow$value_std_2000_2009,datayellow$year,max),	
 		"mean"=tapply(datayellow$value_std_2000_2009,datayellow$year,mean),
 		"geomean"=unlist(tapply(datayellow$value_std_2000_2009,datayellow$year,geomean)))
-scaldata_2000_2009=wger_coun[,c("year","data_std_2000_2009","name","lifestage")]
+scaldata_2000_2009=wger[,c("year","value_std_2000_2009","nam","lifestage")]
 
-
-# for miran
+#########################
+# for Miran
 # exporting the geomeans 
+########################
 print("simple geomeans for glass eel, asked by Miran")
 round(unlist(tapply(datageel$value_std_1979_1994,datageel$year,geomean)),3)
 print ("simple geomeans for yellow eels")
 round(unlist(tapply(datayellow$value_std_1979_1994,datayellow$year,geomean)),3)
-# calculation of some stats, it does not work very well with ggplot...
-# functions for ggplot
-## function that works with vectors
-stat_sum_single <- function(fun, geom="point", ...) { 
-	stat_summary(fun.y=fun, geom=geom,  ...) 
-}
-# function that works with an entire data frame
-stat_sum_df <- function(fun, geom="crossbar", ...) {
-	stat_summary(fun.data=fun, colour="black", geom=geom, width=0.2, ...)
-}
+
 ########################################
 # FIGURE 3 WITHOUT LOG SCALE
 # normalscale + geomean+ bootstrap scaled mean and confidence interval
 #########################################
 
 g<-ggplot(scaldata)
-g1<-g+geom_point(aes(x=year, y=data_std,colour=name,shape=lifestage),size=1.5)+
-		geom_line(aes(x=year, y=data_std,colour=name,lty=lifestage),size=0.4)+
+g1<-g+geom_point(aes(x=year, y=value_std_1979_1994,colour=nam,shape=lifestage),size=1.5)+
+		geom_line(aes(x=year, y=value_std_1979_1994,colour=nam,lty=lifestage),size=0.4)+
 		ylab("scaled 1979-1994 values")+
 		geom_pointrange(data=bootscal,aes(x=year,y=mean,ymin=ymin,ymax=ymax),size=0.5,colour="black")+
 		geom_line(data=scal,aes(x=year,y=geomean),colour="red",size=1.2)+
@@ -994,7 +945,7 @@ x11(800,600)
 print(figure3withoutlogscale)
 dev.off()
 # {{{{{{{{{{{{{{{{{{{{{{{{{
-nice_figure("figure3withoutlogscale",figure3withoutlogscale,800,600)
+save_figure("figure3withoutlogscale",figure3withoutlogscale,800,600)
 # {{{{{{{{{{{{{{{{{{{{{{{{{
 # scaldata[scaldata$year>2000&scaldata$value_std>1,]
 ########################################
@@ -1013,7 +964,7 @@ figure3<-g1+
 x11(800,600)
 print(figure3)
 # {{{{{{{{{{{{{{{{{{{{{{{{{
-nice_figure(figname="figure3",figure3,800,600)
+save_figure(figname="figure3",figure3,800,600)
 
 ########################################
 # FIGURE 3 WITH LOG SCALE {{BLACK}}
@@ -1022,8 +973,8 @@ nice_figure(figname="figure3",figure3,800,600)
 #########################################
 
 g<-ggplot(scaldata)
-figure3black<-g+geom_point(aes(x=year, y=data_std,colour=name,shape=lifestage),size=1.5,show.legend=FALSE)+
-		geom_line(aes(x=year, y=data_std,colour=name,lty=lifestage),size=0.4,show.legend=FALSE)+
+figure3black<-g+geom_point(aes(x=year, y=value_std_1979_1994,colour=nam,shape=lifestage),size=1.5,show.legend=FALSE)+
+		geom_line(aes(x=year, y=value_std_1979_1994,colour=nam,lty=lifestage),size=0.4,show.legend=FALSE)+
 		#ylab("scaled 1979-1994 values")+
 		geom_pointrange(data=bootscal,aes(x=year,y=mean,ymin=ymin,ymax=ymax),size=0.5,colour="beige")+
 		geom_line(data=scal,aes(x=year,y=geomean),colour="red",size=1.2)+
@@ -1034,20 +985,20 @@ figure3black<-g+geom_point(aes(x=year, y=data_std,colour=name,shape=lifestage),s
 x11(800,600)
 print(figure3black)
 # {{{{{{{{{{{{{{{{{{{{{{{{{
-nice_figure(figname="figure3black",figure3black,800,600)
+save_figure(figname="figure3black",figure3black,800,600)
 
 # {{{{{{{{{{{{{{{{{{{{{{{{{
 ##########################################
 ## Same graph for presentation but labels are in French
 ##########################################
 #g<-ggplot(scaldata)
-#g+geom_point(aes(x=year, y=data_std,colour=name,shape=lifestage),size=1.5,legend=FALSE)+
-#		geom_line(aes(x=year, y=data_std,colour=name,lty=lifestage),size=0.4,legend=FALSE)+
+#g+geom_point(aes(x=year, y=value_std,colour=nam,shape=lifestage),size=1.5,legend=FALSE)+
+#		geom_line(aes(x=year, y=value_std,colour=nam,lty=lifestage),size=0.4,legend=FALSE)+
 #		opts(title="Tendance du recrutement Europeen")+
 #		#ylab("scaled 1979-1994 values")+
 #		geom_pointrange(data=bootscal,aes(x=year,y=mean,ymin=ymin,ymax=ymax),size=0.5,colour="beige")+
-#		scale_y_log10(name="% de 1979-1994",limits=c(0.005,10),breaks=c(0.01,0.1,1,10),labels=c("1%","10%","100%","1000%"))+
-#		scale_x_continuous(name="Annee",breaks=c(1930,1950,1970,1980,1990,2000,2010),
+#		scale_y_log10(nam="% de 1979-1994",limits=c(0.005,10),breaks=c(0.01,0.1,1,10),labels=c("1%","10%","100%","1000%"))+
+#		scale_x_continuous(nam="Annee",breaks=c(1930,1950,1970,1980,1990,2000,2010),
 #				minor_breaks=seq(from=min(scaldata$year),to=max(scaldata$year),by=2),limits=c(1930,2010))+theme_dark()
 ########################################
 # FIGURE 4 
@@ -1058,7 +1009,6 @@ scallog[scallog$ymin<1e-2,"ymin"]<-1e-2
 scallog[scallog$ymax>30,"ymax"]<-30
 g<-ggplot(scallog)
 figure4<-g+geom_ribbon(aes(x=year,ymin=ymin,ymax=ymax),fill="grey",data=scallog)+
-		#ggtitle("Recruitment European overview")+
 		ylab("scaled 1979-1994 values log scale")+
 		geom_line(aes(x=year,y=mean),data=scalgeel,colour="darkblue",size=1)+
 		geom_line(aes(x=year,y=mean),data=scalyellow,colour="darkorange4",size = 1)+
@@ -1068,7 +1018,7 @@ figure4<-g+geom_ribbon(aes(x=year,ymin=ymin,ymax=ymax),fill="grey",data=scallog)
 		scale_x_continuous(limits=c(1930,CY))
 x11(800,600)
 print(figure4)
-nice_figure(figname="figure4",figure4,800,600)
+save_figure(figname="figure4",figure4,800,600)
 
 ########################################
 # FIGURE 4 
@@ -1095,7 +1045,7 @@ figure42000_2009<-g+geom_ribbon(aes(x=year,ymin=ymin,ymax=ymax),fill="grey")+
 x11(800,600)
 print(figure42000_2009)
 # {{{{{{{{{{{{{{{{{{{{{{{{{
-nice_figure(figname="figure4_2000_2009",figure42000_2009,800,600)
+save_figure(figname="figure4_2000_2009",figure42000_2009,800,600)
 
 ########################################
 # FIGURE NOTHING 
@@ -1119,15 +1069,15 @@ plot(rxy,
 		xy,log="y",
 		type="b",col="green")
 points(rxg,xg,type="l")
-#tapply(wger_coun$value_std,wger_coun$year,mean_cl_boot)
+#tapply(wger$value_std,wger$year,mean_cl_boot)
 
 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 # full graph
 # for memory, it is no longer used
 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-#g<-ggplot(wger_coun,aes(x=year, y=data_std))
-#g+geom_point(aes(colour=name,shape=lifestage))+
-#		geom_line(aes(colour=name,lty=lifestage))+
+#g<-ggplot(wger,aes(x=year, y=value_std))
+#g+geom_point(aes(colour=nam,shape=lifestage))+
+#		geom_line(aes(colour=nam,lty=lifestage))+
 #		ggtitle("Recruitment European overview")+
 #		ylab("scaled 1979-1994 values log scale")+
 #		stat_summary(fun.data = "mean_cl_boot", colour = "black")+
@@ -1139,10 +1089,10 @@ points(rxg,xg,type="l")
 # WITH REFERENCE 2000-2010 !
 ########################################
 #g<-ggplot(scaldata)
-#(fig_katwijk<-g+geom_point(aes(x=year, y=data_std),col="grey",size=1.5)+
-#		geom_line(aes(x=year, y=data_std),col="grey",size=0.4)+
-#		geom_point(aes(x=year, y=data_std),colour="blue",size=1,data=scaldata[scaldata$name=="Katwijk scientific estimate",])+
-#		geom_line(aes(x=year, y=data_std),colour="blue",size=1,data=scaldata[scaldata$name=="Katwijk scientific estimate",])+
+#(fig_katwijk<-g+geom_point(aes(x=year, y=value_std),col="grey",size=1.5)+
+#		geom_line(aes(x=year, y=value_std),col="grey",size=0.4)+
+#		geom_point(aes(x=year, y=value_std),colour="blue",size=1,data=scaldata[scaldata$nam=="Katwijk scientific estimate",])+
+#		geom_line(aes(x=year, y=value_std),colour="blue",size=1,data=scaldata[scaldata$nam=="Katwijk scientific estimate",])+
 #		ylab("scaled 1979-1994 values")+
 #		geom_pointrange(data=bootscal,aes(x=year,y=mean,ymin=ymin,ymax=ymax),size=0.5,colour="black")+
 #		geom_line(data=scal,aes(x=year,y=geomean),colour="red",size=1.2)+
@@ -1163,7 +1113,7 @@ points(rxg,xg,type="l")
 ######################################################
 #splitting dataset
 
-#year_only=glm(data_std_1979_1994~year_f+as.factor(das_ser_id),data=glass_eel_yoy,family=Gamma(link=log),subset=glass_eel_yoy$value>0 & glass_eel_yoy$year>1949 ,maxit=300)
+#year_only=glm(value_std_1979_1994~year_f+as.factor(das_ser_id),data=glass_eel_yoy,family=Gamma(link=log),subset=glass_eel_yoy$value>0 & glass_eel_yoy$year>1949 ,maxit=300)
 #summary(year_only)
 #anova(year_only,test="F")
 #2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~
@@ -1177,7 +1127,7 @@ points(rxg,xg,type="l")
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 << model_for_glass_eel_and_yellow_eel, echo=FALSE, eval=TRUE,results=hide >>=
 glass_eel_yoy$nam<-as.factor(glass_eel_yoy$nam)
-model_ge_area=glm(data_std~year_f:area+nam,data=glass_eel_yoy[glass_eel_yoy$value>0 & glass_eel_yoy$year>1959,],
+model_ge_area=glm(value_std~year_f:area+nam,data=glass_eel_yoy[glass_eel_yoy$value>0 & glass_eel_yoy$year>1959,],
 		family=Gamma(link=log), maxit=300)
 print("Analysis for glass eel")
 print("data available")
@@ -1188,17 +1138,17 @@ vv$modelge$site<-as.character(model_ge_area$xlevels$nam)
 vv$modelge$nbsite<-length(vv$modelge$site)
 vv$modelge$excluded<-unique(glass_eel_yoy$nam)[!unique(glass_eel_yoy$nam)%in%vv$modelge$site]
 vv$modelge$excludednam<-unique(glass_eel_yoy[glass_eel_yoy$nam%in%vv$modelge$excluded,"nam"])
-vv$modelge$excludedname<-unique(glass_eel_yoy[glass_eel_yoy$nam%in%vv$modelge$excluded,"name"])
-vv$modelge$value_excluded_zero<-glass_eel_yoy[glass_eel_yoy$value==0,c("data_std","nam","year","lifestage","dat_comment","geo")]
+vv$modelge$excludednam<-unique(glass_eel_yoy[glass_eel_yoy$nam%in%vv$modelge$excluded,"nam"])
+vv$modelge$value_excluded_zero<-glass_eel_yoy[glass_eel_yoy$value==0,c("value_std","nam","year","lifestage","dat_comment","geo")]
 
-model_older=glm(data_std~year_f+as.factor(nam),data=older,family=Gamma(link=log),subset=older$value>0 & older$year>1949  ,maxit=300)
+model_older=glm(value_std~year_f+as.factor(nam),data=older,family=Gamma(link=log),subset=older$value>0 & older$year>1949  ,maxit=300)
 vv$modelolder<-list()
 vv$modelolder$site<-as.numeric(as.character(model_older$xlevels$`as.factor(nam)`))
 vv$modelolder$nbsite<-length(vv$modelolder$site)
 vv$modelolder$excluded<-unique(older$nam)[!unique(older$nam)%in%vv$modelolder$site]
 vv$modelolder$excludednam<-unique(older[older$nam%in%vv$modelolder$excluded,"nam"])
-vv$modelolder$excludedname<-unique(older[older$nam%in%vv$modelolder$excluded,"name"])
-vv$modelolder$value_excluded_zero<-older[older$value==0,c("data_std","nam","year","lifestage","dat_comment","geo")]
+vv$modelolder$excludednam<-unique(older[older$nam%in%vv$modelolder$excluded,"nam"])
+vv$modelolder$value_excluded_zero<-older[older$value==0,c("value_std","nam","year","lifestage","dat_comment","geo")]
 
 xt_a<-xtable(anova(model_ge_area,test="F"),
 		caption=c("Anova for glass eel recruitment model",
@@ -1293,7 +1243,7 @@ figure5_without_logscale<-g+geom_line(aes(colour=area,lty=area),lwd=1)+
 				legend.position = c(.8, .8))
 X11(300,250)
 figure5_without_logscale
-nice_figure("figure5_without_logscale",figure5_without_logscale,400,300)
+save_figure("figure5_without_logscale",figure5_without_logscale,400,300)
 # function similar to theme_dark() but allows legends
 # black and white plot ====
 
@@ -1305,7 +1255,7 @@ figure5_without_logscale_black<-g+geom_line(aes(colour=area,lty=area),lwd=1)+
 		theme_black()
 X11()
 figure5_without_logscale_black
-nice_figure("figure5_without_logscale_black",figure5_without_logscale_black,600,480)
+save_figure("figure5_without_logscale_black",figure5_without_logscale_black,600,480)
 
 
 #====
@@ -1333,7 +1283,7 @@ figure5<-g+geom_line(aes(colour=area,lty=area),lwd=1.3)+geom_point(aes(colour=ar
 
 X11()
 figure5
-nice_figure("figure5",figure5,400,300)
+save_figure("figure5",figure5,400,300)
 #figure5danish<-g+geom_line(aes(colour=area,lty=area),lwd=1.3)+
 #		geom_point(aes(colour=area,fill=area,shape=area),size=3)+
 #		ggtitle("title="Glasaal data fra hele Europa")+
@@ -1361,12 +1311,12 @@ nice_figure("figure5",figure5,400,300)
 #		1960-1979-gjennomsnitt)","UTF8"), #limits=c(0.005,10),
 #				breaks=c(0.01,0.1,1,10),
 #				labels=c("1%","10%","100%","1000%"))
-#nice_figure("figure5norvegiean",figure5norvegiean,600,480)
+#save_figure("figure5norvegiean",figure5norvegiean,600,480)
 #pdf("images/2013/figure5norvegiean.pdf")
 #figure5norvegiean
 #dev.off()
-nice_figure("figure5",figure5,600,480)
-#nice_figure("figure5danish",figure5danish,600,480)
+save_figure("figure5",figure5,600,480)
+#save_figure("figure5danish",figure5danish,600,480)
 
 #figure5danish<-g+geom_line(aes(colour=area,lty=area),lwd=1.3)+
 #		geom_point(aes(colour=area,fill=area,shape=area),size=3)+
@@ -1396,7 +1346,7 @@ g<-ggplot(dat,aes(x=year,y=p_std_1960_1970))
 #				legend.text = element_text(size = 8, colour = 'black'), 
 #				legend.background = element_rect(colour = NA, fill = 'white'))
 #print(figure5bw)
-#nice_figure("figure5bw",figure5bw,600,480)
+#save_figure("figure5bw",figure5bw,600,480)
 
 
 
@@ -1407,13 +1357,13 @@ g<-ggplot(dat,aes(x=year,y=p_std_1960_1970))
 #levels(dat1$area)=c("Europe","Vilaine")
 #dat$year1=as.numeric(strftime(dat1$year,"%Y"))
 #dat1$p_std_1960_1970
-#vil<-wger[wger$ser_id==17,c("data_std","year")]
+#vil<-wger[wger$ser_id==17,c("value_std","year")]
 #vil<-vil[order(as.numeric(vil$year)),]
-#vil<-rbind(cbind("data_std"=NA,"year"=1950:1970),vil,cbind("data_std"=NA,"year"=2012))
+#vil<-rbind(cbind("value_std"=NA,"year"=1950:1970),vil,cbind("value_std"=NA,"year"=2012))
 #mean(vil$value_std[vil$year>=1979 & vil$year<1994])#1
 #sca<-mean(dat1$p_std_1960_1970[dat1$area=="Europe"&dat1$year1>=1979 & dat1$year1<1994]) #0.62
 #vil$value_std<-vil$value_std*sca
-#vil[16:21,"data_std"]<-c(5,4,9,12,10,8)*vil$value_std[vil$year==1971]/44
+#vil[16:21,"value_std"]<-c(5,4,9,12,10,8)*vil$value_std[vil$year==1971]/44
 ##vilpred<-data_bis[data_bis$nam==17&data_bis$area=="Elsewhere Europe",c("p_std_1960_1970","year")]
 ##vilpred<-vilpred[order(as.numeric(vilpred$year)),]
 #dat1[dat1$area=="Vilaine","p_std_1960_1970"]<-vil$value_std
@@ -1457,7 +1407,7 @@ g<-ggplot(dat,aes(x=year,y=p_std_1960_1970))
 #				plot.margin = unit(c(1, 1, 0.5, 0.5), "lines"))
 #x11()
 #figure5_without_logscale_black_vilaine
-#nice_figure("figure5_without_logscale_black_vilaine",figure5_without_logscale_black,600,480)
+#save_figure("figure5_without_logscale_black_vilaine",figure5_without_logscale_black,600,480)
 
 
 # ===========
@@ -1651,27 +1601,27 @@ for (year in years){
 }
 # 
 require(lme4)
-model_ge_area<-gls(data_std~year_f:area+nam,data=glass_eel_yoy,family=Gamma(link=log),
+model_ge_area<-gls(value_std~year_f:area+nam,data=glass_eel_yoy,family=Gamma(link=log),
 		subset=glass_eel_yoy$value>0 & glass_eel_yoy$year>1959 ,maxit=300)
 
-lmer(data_std~year_f:area+nam,data=glass_eel_yoy,family=Gamma(link=log),
+lmer(value_std~year_f:area+nam,data=glass_eel_yoy,family=Gamma(link=log),
 		subset=glass_eel_yoy$value>0 & glass_eel_yoy$year>1959)
 
 #library(nlme)
 library(lme4)
 library(MASS)
-glass_eel_yoy$ldata_std=log(glass_eel_yoy$value_std)
-M.lm <- gls(ldata_std~nam,data=glass_eel_yoy)
+glass_eel_yoy$lvalue_std=log(glass_eel_yoy$value_std)
+M.lm <- gls(lvalue_std~nam,data=glass_eel_yoy)
 
 vf1Fixed <- 
 		
-		M.gls1 <-glmmPQL(data_std~year_f:area+nam,
+		M.gls1 <-glmmPQL(value_std~year_f:area+nam,
 				data=glass_eel_yoy[glass_eel_yoy$value>0 & glass_eel_yoy$year>1959,],
 				random = ~ 1 | nam,
 				weights = varIdent (form = ~ 1 | nam) ,
 				family=Gamma(link=log)
 		)
-M.gls1 <-glmmPQL(data_std~year_f:area+nam,
+M.gls1 <-glmmPQL(value_std~year_f:area+nam,
 		data=glass_eel_yoy[glass_eel_yoy$value>0 & glass_eel_yoy$year>1959,],
 		random = ~ 1 | nam,
 		family=Gamma(link=log)
@@ -1679,7 +1629,7 @@ M.gls1 <-glmmPQL(data_std~year_f:area+nam,
 # prediction for lough neagh
 # historical data
 glass_eel_yoy2=wger[wger$lifestage!="yellow eel" ,] #glass eel and yoy
-model_ge_area2=glm(data_std~year_f:area+nam,data=glass_eel_yoy2[glass_eel_yoy2$value>0 ,],
+model_ge_area2=glm(value_std~year_f:area+nam,data=glass_eel_yoy2[glass_eel_yoy2$value>0 ,],
 		family=Gamma(link=log), maxit=300)
 
 newdata<-expand.grid(year_f=levels(glass_eel_yoy2$year_f),nam="Bann",area="Elsewhere Europe")
@@ -1707,7 +1657,7 @@ vv$nb_for_yellow_eel_glm<-length(unique(older$nam))
 table(older$geo)
 print("stations selected for analysis")
 unique(older$nam)
-model_older=glm(data_std~year_f+as.factor(nam),data=older,family=Gamma(link=log),subset=older$value>0 &
+model_older=glm(value_std~year_f+as.factor(nam),data=older,family=Gamma(link=log),subset=older$value>0 &
 				older$year>1949  ,maxit=300)
 # parteen was removed but is no longer among the series
 summary(model_older)
@@ -1818,14 +1768,14 @@ figure6_without_log_scale<-g+geom_line(lwd=1)+ geom_point()+
 				legend.text = element_text(size = 8, colour = 'black'), 
 				legend.background = element_rect(colour = NA, fill = 'white'))#+
 #stat_smooth(method="lm",formula=y ~ ns(x,4),lty=2, size=0.8,alpha=0.3,col="grey20")
-nice_figure("figure6_without_log_scale",figure6_without_log_scale,400,300)
+save_figure("figure6_without_log_scale",figure6_without_log_scale,400,300)
 figure6_without_log_scale
 figure6_without_log_scale_black<-g+geom_line(lwd=1,color="white")+ geom_point(color="white")+
 		scale_y_continuous("standardized glm predictions/ mean 1960-1979")+
 		#stat_smooth(method="lm",formula=y ~ ns(x,4),lty=2, size=0.8,alpha=0.3,col="turquoise1") +
 		theme_black()
 figure6_without_log_scale_black
-nice_figure("figure6_without_log_scale_black",figure6_without_log_scale_black,400,300)
+save_figure("figure6_without_log_scale_black",figure6_without_log_scale_black,400,300)
 figure6<-g+geom_line(lwd=1)+geom_point()+
 		scale_y_log10(name="standardized glm predictions/ mean 1960-1979-log scale",
 				#limits=c(0.005,10),
@@ -1838,7 +1788,7 @@ figure6<-g+geom_line(lwd=1)+geom_point()+
 				legend.background = element_rect(colour = NA, fill = 'white'))
 #stat_smooth(method="lm",formula=y ~ ns(x,4), lty=2, size=0.8,alpha=0.3,col="grey20")
 figure6
-nice_figure("figure6",figure6,400,300)
+save_figure("figure6",figure6,400,300)
 
 write.table(synthesis,file=str_c(datawd,"/glm_results_yellow.csv"),sep=";")
 @
