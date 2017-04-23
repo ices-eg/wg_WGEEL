@@ -504,3 +504,24 @@ update datawg.t_series_ser set ser_area_division='27.3.a' where ser_nameshort='G
 update datawg.t_series_ser set ser_area_division='27.3.a' where ser_nameshort='Gude';
 update datawg.t_series_ser set ser_area_division='27.3.b, c' where ser_nameshort='Hart';
 update datawg.t_series_ser set ser_area_division='27.4.c' where ser_nameshort='Meus';
+update datawg.t_series_ser set ser_area_division='27.7.b' where ser_nameshort='Erne';
+
+------------------------------
+-- Sampling type
+-- 1;"commercial catch"
+--2;"commercial CPUE"
+--3;"scientific estimate"
+--4;"trapping all"
+--5;"trapping partial"
+--------------------------------
+update datawg.t_series_ser set ser_sam_id=1 where ser_namelong like '%commercial catch%';--12
+update datawg.t_series_ser set ser_sam_id=2 where ser_namelong like '%commercial CPUE%'; --4
+update datawg.t_series_ser set ser_sam_id=3 where ser_namelong like '%scientific%'; --10
+update datawg.t_series_ser set ser_sam_id=4 where ser_namelong like '%trapping all%';--14
+update datawg.t_series_ser set ser_sam_id=5 where ser_namelong like '%trapping partial%';--3
+select ser_nameshort, ser_namelong,ser_sam_id from datawg.t_series_ser where ser_sam_id is null;
+update datawg.t_series_ser set ser_sam_id=4 where ser_nameshort in ('Feal','Maig','Inag','Fre');
+update datawg.t_series_ser set ser_sam_id=5 where ser_nameshort in ('Bres','Vac');
+update datawg.t_series_ser set ser_sam_id=3 where ser_nameshort in ('Sle','Klit','Nors');
+update datawg.t_series_ser set ser_sam_id=1 where ser_nameshort in ('Ebro');
+-------------------------------
