@@ -119,3 +119,57 @@ save_figure<-function(figname,fig,width,height){
 	setwd(wd)
 	return(invisible(NULL))
 }
+
+#' split data in a format suitable for printing with decades as rows and years as columns
+#' @param data A dataframe with one column and rownames year
+#' @return A data frame formatted
+split_per_decade<-function(data){
+	dates<-as.numeric(rownames(data))
+	start=min(dates)
+	cgroupdecade<-vector()
+	df=data.frame()
+	firsttimeever<-TRUE
+	while (start<10*floor(CY/10)){		
+		end=start+9	
+		cgroupdecade<-c(cgroupdecade,str_c(" ",start,""))
+		if (firsttimeever) df<-data[as.character(start:end),,drop=FALSE] else
+		df<-cbind(df,data[as.character(start:end),,drop=FALSE])
+		rownames(df)<-0:9	
+		start=end+1
+		firsttimeever<-FALSE
+	}
+	df<-as.matrix(df)
+	cgroupdecade<-c(cgroupdecade,str_c(" ",start,""))
+	dat<-data[as.character(start:CY),]
+	dat[(length(dat)+1):10]<-NA
+	df<-as.data.frame(cbind(df,as.data.frame(dat)))
+	colnames(df)<-cgroupdecade
+	return(df)
+}
+#' split data in a format suitable for printing with decades as rows and years as columns
+#' script adapted to glass eel
+#' @param data A dataframe with two columns and rownames year
+#' @return A data frame formatted
+split_per_decade_ge<-function(data){
+	dates<-as.numeric(rownames(data))
+	start=min(dates)
+	df=NULL
+	cgroupdecade<-vector()
+	while (start<10*floor(CY/10)){
+		end=start+9	
+		cgroupdecade<-c(cgroupdecade,str_c(" ",start,""))
+		if(is.null(df)) {
+			df<-data[as.character(start:end),]
+			rownames(df)<-0:9
+		}else {
+			df<-cbind(df,data[as.character(start:end),])
+		}
+		start=end+1
+	}
+	cgroupdecade<-c(cgroupdecade,str_c(" ",start,""))
+	dffin<-data[as.character(start:CY),]
+	dffin[(nrow(dffin)+1):10,]<-NA
+	df<-cbind(df,dffin)
+	cgroupdecade<<-cgroupdecade
+	return(df)
+}
