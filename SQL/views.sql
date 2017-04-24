@@ -1,10 +1,10 @@
 ﻿----------------------------------------------
 -- DYNAMIC VIEWS FOR WGEEL
 ----------------------------------------------
-
+DROP VIEW datawg.series_stats CASCADE;
 CREATE OR REPLACE VIEW datawg.series_stats AS 
  SELECT ser_id, 
- ser_nameshort AS name,
+ ser_nameshort AS site,
  ser_namelong AS namelong,
  min(das_year) AS min, max(das_year) AS max, 
  max(das_year) - min(das_year) + 1 AS duration,
@@ -25,7 +25,7 @@ ALTER TABLE datawg.series_stats
 ----------------------------------------------
 
 CREATE OR REPLACE VIEW datawg.series_summary AS 
- SELECT ss.name AS name, 
+ SELECT ss.site AS site, 
  ss.namelong, 
  ss.min, 
  ss.max, 

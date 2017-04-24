@@ -525,3 +525,7 @@ update datawg.t_series_ser set ser_sam_id=5 where ser_nameshort in ('Bres','Vac'
 update datawg.t_series_ser set ser_sam_id=3 where ser_nameshort in ('Sle','Klit','Nors');
 update datawg.t_series_ser set ser_sam_id=1 where ser_nameshort in ('Ebro');
 -------------------------------
+-- one missing value
+--------------------------------
+
+update datawg.t_series_ser set ser ser_cou_code='FR' where ser_nameshort='Vac'

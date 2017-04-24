@@ -80,7 +80,7 @@ CY<-2016 # current year ==> don't forget to update the graphics path below
 # it will change the average in model of glass eel graph and prediction
 #----------------------------------------------------------
 opt_calculation="geomean" # "geomean" or "mean"
-opt_std="1979-1994" #"1979-1994" or "all"
+opt_std="all" #"1979-1994" or "2000-2009" or "all"
 options(width=90) # this sets the width of the output
 #--------------------------------
 # packages used by this script
@@ -368,7 +368,7 @@ mdata=wger[wger$year>=2000 & wger$year<2010,]
 std_site<-unique(mdata$site[order(mdata$site)])
 # length(std_site) 
 site<-unique(wger$site[order(wger$site)])
-# length(site) 
+# length(site)  #52
 unused_series_2000_2009 = site[!site%in%std_site] # "Vida" "YFS1"
 vv$sc_2000_2009_unused_series<-unused_series_2000_2009
 vv$sc_2000_2009_nb<-vv$nb_series_init-length(vv$sc_2000_2009_unused_series)
@@ -377,7 +377,7 @@ R_stations$unused_2000_2009 = FALSE
 R_stations[R_stations$rec_nameshort %in% unused_series_2000_2009, "unused_2000_2009"] = TRUE
 #ex(std_site)
 # Inag and Maig left out from the analysis 
-mean_site=data.frame(mean_2000_2009=as.numeric(tapply(mdata$value,mdata$ser_id,mean)))
+mean_site=data.frame(mean_2000_2009=as.numeric(tapply(mdata$value,mdata$ser_id,mean,na.rm=TRUE)))
 mean_site$site=tapply(mdata$site,mdata$ser_id,function(X)unique(X))
 wger=merge(wger,mean_site,by="site",all.x=TRUE,all.y=FALSE) # here we loose the two stations Inag and Maig and also Frémur
 wger$value_std_2000_2009=wger$value/wger$mean_2000_2009
@@ -397,7 +397,7 @@ vv$sc_1979_1994_nb=vv$nb_series_init-length(vv$sc_1979_1994_unused_series)
 #add a column to R_station for flagging unused series
 R_stations$unused_1979_1994 = FALSE
 R_stations[R_stations$rec_nameshort %in% unused_series_1979_1994, "unused_1979_1994"] = TRUE
-mean_site=data.frame(mean_1979_1994=as.numeric(tapply(mdata$value,mdata$ser_id,mean)))
+mean_site=data.frame(mean_1979_1994=as.numeric(tapply(mdata$value,mdata$ser_id,mean,na.rm=TRUE)))
 mean_site$site=tapply(mdata$site,mdata$ser_id,function(X)unique(X))
 wger=merge(wger,mean_site,by="site",all.x=TRUE,all.y=FALSE) 
 wger$value_std_1979_1994=wger$value/wger$mean_1979_1994
@@ -406,10 +406,16 @@ wger$value_std_1979_1994=wger$value/wger$mean_1979_1994
 #standardizing with mean (all data)
 ##########################################################################
 
-mean_site=data.frame(mean=as.numeric(tapply(wger$value,wger$ser_id,mean,na.rm=TRUE)))
+mean_site=data.frame(mean=as.numeric(tapply(wger$value,wger$ser_id,mean)))
 mean_site$site=tapply(wger$site,wger$ser_id,function(X)unique(X))
 wger=merge(wger,mean_site,by="site",all.x=TRUE,all.y=FALSE) 
 wger$value_std=wger$value/wger$mean
+
+wger$area[wger$site=="Yser"]<-"Elsewhere Europe"
+#########################################################################
+#separating glass eel and yellow eels
+##########################################################################
+
 
 glass_eel_yoy=wger[wger$lifestage!="yellow eel" & wger$year>1959,] #glass eel and yoy
 older=wger[wger$lifestage=="yellow eel" & wger$year>1959,] 
@@ -452,12 +458,15 @@ last_year<-tapply(wger$year,wger$site,function(X) max(X))
 #stations updated to",CY
 R_stations$areashort<-"EE"
 R_stations$areashort[R_stations$area=="North Sea"]<-"EE"
-series_CY<-R_stations[R_stations$ser_nameshort%in%names(last_year[last_year==CY]),c("ser_nameshort","ser_namelong","cou_code","ser_lfs_code","areashort","ser_area_division")]
+series_CY<-R_stations[R_stations$ser_nameshort%in%names(last_year[last_year==CY]),c("ser_nameshort","ser_namelong","cou_code","ser_lfs_code","areashort","ser_area_division","ser_order")]
+series_CY<-series_CY[order(series_CY$ser_order),-ncol(series_CY)]
 vv$nCY<-nrow(series_CY) # number of series updated to the current year (for later use)
 vv$nCYg<-nrow(series_CY[grepl("G",series_CY$ser_lfs_code),]) # number of series with glass eel updated to the current year
 vv$nCYy<-nrow(series_CY[series_CY$ser_lfs_code=="Y",]) # number of series with yellow eel (only) updated to the current year
+
 #"stations updated to",CY-1
-series_CYm1<-R_stations[R_stations$ser_nameshort%in%names(last_year[last_year==CY-1]),c("ser_nameshort","ser_namelong","cou_code","ser_lfs_code","areashort","ser_area_division")]
+series_CYm1<-R_stations[R_stations$ser_nameshort%in%names(last_year[last_year==CY-1]),c("ser_nameshort","ser_namelong","cou_code","ser_lfs_code","areashort","ser_area_division","ser_order")]
+series_CYm1<-series_CY[order(series_CYm1$ser_order),-ncol(series_CYm1)]
 vv$nCYm1<-nrow(series_CYm1) # number series updated last year only (and not this year)
 vv$nCYm1g<-nrow(series_CYm1[grepl("G",series_CYm1$ser_lfs_code),]) # same for glass eel 
 vv$nCYm1y<-nrow(series_CYm1[series_CYm1$ser_lfs_code=="Y",]) # same for yellow eel only
@@ -557,14 +566,14 @@ rownames(n_y_lfs)<-n_y_lfs$"year"
 ##		table.placement = "htbp",
 ##		caption.placement = "top",
 ##		NA.string = ".")
-printstatseries<-statseries[,c(1,3,4,5,6,7,8,9,10)]
+printstatseries<-statseries[,c(1,3,4,5,6,7,8,9,10,11)]
 printstatseries$sampling_type[printstatseries$sampling_type=="scientific estimate"]<-"sci. surv."
 printstatseries$sampling_type[grep("trap",printstatseries$sampling_type)]<-"trap"
 printstatseries$sampling_type[printstatseries$sampling_type=="commercial catch"]<-"com. catch"
 printstatseries$sampling_type[printstatseries$sampling_type=="commercial CPUE"]<-"com. cpue"
 column_to_import<-R_stations[,c("ser_nameshort","areashort")]
 printstatseries<-merge(printstatseries,column_to_import,by.x="site",by.y="ser_nameshort")
-printstatseries<-printstatseries[,c(1,10,2:9)]
+printstatseries<-printstatseries[order(printstatseries$order),c(1,11,2:9)]
 colnames(printstatseries)<-
 		c("code","area","min","max","n+","n-", "life stage",      
 				"sampling type","unit","habitat")
@@ -1091,11 +1100,15 @@ figure_check_one_series("Katw",limits=c(1960,2016))
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 << model_for_glass_eel_and_yellow_eel, echo=FALSE, eval=TRUE,results=hide >>=
 glass_eel_yoy$site<-as.factor(glass_eel_yoy$site)
+
 if (opt_std=="all") {
 	# do nothing
 } else if (opt_std=="1979-1994"){
 	glass_eel_yoy$value_std<-glass_eel_yoy$value_std_1979_1994
-} else stop ("opt_std should be all or 1979-1994")
+} else if (opt_std=="2000-2009"){
+	glass_eel_yoy$value_std<-glass_eel_yoy$value_std_2000_2009
+} else stop ("opt_std should be all or 1979-1994 or 2000-2009")
+glass_eel_yoy<-glass_eel_yoy[!is.na(glass_eel_yoy$value_std),]
 model_ge_area=glm(value_std~year_f:area+site,data=glass_eel_yoy[glass_eel_yoy$value>0 & glass_eel_yoy$year>1959,],
 		family=Gamma(link=log), maxit=300)
 print("Analysis for glass eel")
@@ -1106,8 +1119,6 @@ vv$modelge<-list()
 vv$modelge$site<-as.character(model_ge_area$xlevels$site)
 vv$modelge$nbsite<-length(vv$modelge$site)
 vv$modelge$excluded<-unique(glass_eel_yoy$site)[!unique(glass_eel_yoy$site)%in%vv$modelge$site]
-vv$modelge$excludedsite<-unique(glass_eel_yoy[glass_eel_yoy$site%in%vv$modelge$excluded,"site"])
-vv$modelge$excludedsite<-unique(glass_eel_yoy[glass_eel_yoy$site%in%vv$modelge$excluded,"site"])
 vv$modelge$value_excluded_zero<-glass_eel_yoy[glass_eel_yoy$value==0&!is.na(glass_eel_yoy$value),c("value_std","site","year","lifestage","das_comment","area")]
 
 model_older=glm(value_std~year_f+as.factor(site),data=older,family=Gamma(link=log),subset=older$value>0 & older$year>1949  ,maxit=300)
