@@ -15,6 +15,7 @@ CY<-2016 # current year ==> don't forget to update the graphics path below
 #----------------------------------------------------------
 opt_calculation="geomean" # "geomean" or "mean"
 opt_std="all" #"1979-1994" or "2000-2009" or "all"
+
 options(width=90) # this sets the width of the output
 #--------------------------------
 # packages used by this script
