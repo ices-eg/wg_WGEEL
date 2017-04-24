@@ -225,12 +225,6 @@ vv<-list()
 # If you don't and still want to run this script, ask Cédric cedric.briand@eptb-vilaine.fr
 # he will send you the Rdata saved during this chunk.
 
-##########################"
-# TODO list
-##########################
-# trigger on update for dataseries
-# fill in ser_sam_id (currently void ?)
-
 
 ##########################"
 # Description of the series
@@ -303,12 +297,16 @@ wger$area[wger$f_subarea%in%'27.4']<-"North Sea"
 wger$area[wger$f_subarea%in%'27.3']<-"Baltic"
 wger$area[wger$f_subarea%in%c('27.6','27.7','27.8','27.9')]<-"Atlantic"
 wger$area[wger$f_subarea%in%c('37.1','37.2','37.3')]<-"Mediterranean Sea"
-wger[wger$area%in%c("Atlantic","Baltic","Mediterranean Sea"),"area"]<-"Elsewhere Europe"
+wger[wger$area%in%c("Atlantic","Mediterranean Sea"),"area"]<-"Elsewhere Europe"
+# We consider that the series of glass eel recruitment in the Baltic are influenced
+# similarly in the Baltic and North Sea. This has no effect on Baltic data
+wger[wger$area%in%c("Baltic"),"area"]<-"North Sea"
+
 wger$area<-as.factor(wger$area)
 # We will also need this for summary tables per recruitment site, here we go straight to 
 # the result
 R_stations[,"area"]<-NA
-R_stations$area[R_stations$f_subarea%in%'27.4']<-"North Sea"
+R_stations$area[R_stations$f_subarea%in%c('27.4','27.3')]<-"North Sea"
 stopifnot(all(!is.na(R_stations$f_subarea)))
 # the rest (currently NA) are Elwhere Europe
 R_stations$area[is.na(R_stations$area)]<-"Elsewhere Europe"
@@ -406,12 +404,12 @@ wger$value_std_1979_1994=wger$value/wger$mean_1979_1994
 #standardizing with mean (all data)
 ##########################################################################
 
-mean_site=data.frame(mean=as.numeric(tapply(wger$value,wger$ser_id,mean)))
+mean_site=data.frame(mean=as.numeric(tapply(wger$value,wger$ser_id,mean,na.rm=TRUE)))
 mean_site$site=tapply(wger$site,wger$ser_id,function(X)unique(X))
 wger=merge(wger,mean_site,by="site",all.x=TRUE,all.y=FALSE) 
 wger$value_std=wger$value/wger$mean
 
-wger$area[wger$site=="Yser"]<-"Elsewhere Europe"
+
 #########################################################################
 #separating glass eel and yellow eels
 ##########################################################################
@@ -457,7 +455,7 @@ write.table(older,file=str_c(datawd,"/older.csv"),sep=";")
 last_year<-tapply(wger$year,wger$site,function(X) max(X))
 #stations updated to",CY
 R_stations$areashort<-"EE"
-R_stations$areashort[R_stations$area=="North Sea"]<-"EE"
+R_stations$areashort[R_stations$area=="North Sea"]<-"NS"
 series_CY<-R_stations[R_stations$ser_nameshort%in%names(last_year[last_year==CY]),c("ser_nameshort","ser_namelong","cou_code","ser_lfs_code","areashort","ser_area_division","ser_order")]
 series_CY<-series_CY[order(series_CY$ser_order),-ncol(series_CY)]
 vv$nCY<-nrow(series_CY) # number of series updated to the current year (for later use)
@@ -1101,15 +1099,8 @@ figure_check_one_series("Katw",limits=c(1960,2016))
 << model_for_glass_eel_and_yellow_eel, echo=FALSE, eval=TRUE,results=hide >>=
 glass_eel_yoy$site<-as.factor(glass_eel_yoy$site)
 
-if (opt_std=="all") {
-	# do nothing
-} else if (opt_std=="1979-1994"){
-	glass_eel_yoy$value_std<-glass_eel_yoy$value_std_1979_1994
-} else if (opt_std=="2000-2009"){
-	glass_eel_yoy$value_std<-glass_eel_yoy$value_std_2000_2009
-} else stop ("opt_std should be all or 1979-1994 or 2000-2009")
-glass_eel_yoy<-glass_eel_yoy[!is.na(glass_eel_yoy$value_std),]
-model_ge_area=glm(value_std~year_f:area+site,data=glass_eel_yoy[glass_eel_yoy$value>0 & glass_eel_yoy$year>1959,],
+model_ge_area=glm(value_std~year_f:area+site,
+		data=glass_eel_yoy[glass_eel_yoy$value>0 & glass_eel_yoy$year>1959,],
 		family=Gamma(link=log), maxit=300)
 print("Analysis for glass eel")
 print("data available")
@@ -1119,16 +1110,19 @@ vv$modelge<-list()
 vv$modelge$site<-as.character(model_ge_area$xlevels$site)
 vv$modelge$nbsite<-length(vv$modelge$site)
 vv$modelge$excluded<-unique(glass_eel_yoy$site)[!unique(glass_eel_yoy$site)%in%vv$modelge$site]
-vv$modelge$value_excluded_zero<-glass_eel_yoy[glass_eel_yoy$value==0&!is.na(glass_eel_yoy$value),c("value_std","site","year","lifestage","das_comment","area")]
+vv$modelge$value_excluded_zero<-glass_eel_yoy[glass_eel_yoy$value==0&!is.na(glass_eel_yoy$value),
+		c("value_std","site","year","lifestage","das_comment","area")]
 
-model_older=glm(value_std~year_f+as.factor(site),data=older,family=Gamma(link=log),subset=older$value>0 & older$year>1949  ,maxit=300)
+model_older=glm(value_std~year_f+as.factor(site),data=older,family=Gamma(link=log),
+		subset=older$value>0 & older$year>1949  ,maxit=300)
 vv$modelolder<-list()
 vv$modelolder$site<-as.numeric(as.character(model_older$xlevels$`as.factor(site)`))
 vv$modelolder$nbsite<-length(vv$modelolder$site)
 vv$modelolder$excluded<-unique(older$site)[!unique(older$site)%in%vv$modelolder$site]
 vv$modelolder$excludedsite<-unique(older[older$site%in%vv$modelolder$excluded,"site"])
 vv$modelolder$excludedsite<-unique(older[older$site%in%vv$modelolder$excluded,"site"])
-vv$modelolder$value_excluded_zero<-older[older$value==0,c("value_std","site","year","lifestage","das_comment","area")]
+vv$modelolder$value_excluded_zero<-older[older$value==0,
+		c("value_std","site","year","lifestage","das_comment","area")]
 
 xt_a<-xtable(anova(model_ge_area,test="F"),
 		caption=c("Anova for glass eel recruitment model",
@@ -1157,7 +1151,8 @@ data_bis=expand.grid(year_f=model_ge_area$xlevels$year_f,area=model_ge_area$xlev
 data_bis$year<-as.numeric(as.character(data_bis$year_f))
 #deleting area/year not avalaible
 for(area in as.character(unique(glass_eel_yoy$area))){
-	data_bis[data_bis$area==area,"nb_site"]=area_year[as.character(data_bis[data_bis$area==area,"year"]),area]
+	data_bis[data_bis$area==area,"nb_site"]=
+			area_year[as.character(data_bis[data_bis$area==area,"year"]),area]
 }
 data_bis=data_bis[data_bis$nb_site>0,]
 
@@ -1169,9 +1164,17 @@ data_bis$se=se[["se.fit"]]
 #standardising prediction to 1960-1980 level
 # 2 options mean or geomean
 if (opt_calculation=="geomean") {
-	mean_1960_1970=data.frame(mean=unlist(tapply(data_bis[data_bis$year>=1960 & data_bis$year<1980,"p"],data_bis[data_bis$year>=1960 & data_bis$year<1980,"area"],geomean)))
+	mean_1960_1970=data.frame(mean=unlist(
+					tapply(data_bis[data_bis$year>=1960 & data_bis$year<1980,"p"],
+							data_bis[data_bis$year>=1960 & data_bis$year<1980,"area"],
+							geomean)
+	))
 } else {
-	mean_1960_1970=data.frame(mean=unlist(tapply(data_bis[data_bis$year>=1960 & data_bis$year<1980,"p"],data_bis[data_bis$year>=1960 & data_bis$year<1980,"area"],mean)))
+	mean_1960_1970=data.frame(mean=unlist(
+					tapply(data_bis[data_bis$year>=1960 & data_bis$year<1980,"p"],
+							data_bis[data_bis$year>=1960 & data_bis$year<1980,"area"],
+							mean)
+	))
 }
 mean_1960_1970$area=rownames(mean_1960_1970)
 data_bis=merge(data_bis,mean_1960_1970,by="area")
@@ -1184,7 +1187,9 @@ data_bis$p_std_1960_1970=data_bis$p/data_bis$mean
 # geomean does not return a "nice" numeric, hence the trick below
 if (opt_calculation=="geomean") {
 	synthesis=as.data.frame(tapply(data_bis[,"p_std_1960_1970"],
-					list(data_bis[,"year_f"],data_bis[,"area"]),function(X) {Y=geomean(X) ;return(as.numeric(Y))}))
+					list(data_bis[,"year_f"],data_bis[,"area"]),
+					function(X) {Y=geomean(X) ;
+						return(as.numeric(Y))}))
 } else {
 	synthesis=as.data.frame(tapply(data_bis[,"p_std_1960_1970"],
 					list(data_bis[,"year_f"],data_bis[,"area"]),mean,na.rm=TRUE))
@@ -1210,7 +1215,7 @@ dat=resy(synthesis,"p_std_1960_1970")
 #   stat_summary(fun.y=fun, colour="red", geom=geom, size = 3, ...) 
 # } 
 # 
-library(ggplot2)
+
 g<-ggplot(dat,aes(x=year,y=p_std_1960_1970))
 
 figure5_without_logscale<-g+geom_line(aes(colour=area,lty=area),lwd=1)+ 
@@ -1226,15 +1231,14 @@ figure5_without_logscale<-g+geom_line(aes(colour=area,lty=area),lwd=1)+
 X11(300,250)
 figure5_without_logscale
 save_figure("figure5_without_logscale",figure5_without_logscale,400,300)
+
 # function similar to theme_dark() but allows legends
 # black and white plot ====
-
-
-
 figure5_without_logscale_black<-g+geom_line(aes(colour=area,lty=area),lwd=1)+
 		scale_colour_manual(name="area",values=c("yellow","lawngreen"))+
 		scale_y_continuous("standardized glm predictions \n mean 1960-1979")+
 		theme_black()
+
 X11()
 figure5_without_logscale_black
 save_figure("figure5_without_logscale_black",figure5_without_logscale_black,600,480)
@@ -1617,14 +1621,19 @@ vv$nb_for_yellow_eel_glm<-length(unique(older$site))
 table(older$geo)
 print("stations selected for analysis")
 unique(older$site)
-model_older=glm(value_std~year_f+as.factor(site),data=older,family=Gamma(link=log),subset=older$value>0 &
-				older$year>1949  ,maxit=300)
+model_older=glm(value_std~year_f+as.factor(site),
+		data=older,
+		family=Gamma(link=log),
+		subset=older$value>0 &
+				older$year>1949,
+		maxit=300)
 # parteen was removed but is no longer among the series
 summary(model_older)
 #plot(model_older)
 anova(model_older,test="F")
 
-data_bis=expand.grid(year_f=unique(model_older$xlevels$year_f),site=model_older$xlevels$`as.factor(site`)
+data_bis=expand.grid(year_f=unique(model_older$xlevels$year_f),
+		site=model_older$xlevels$`as.factor(site`)
 data_bis$year=as.numeric(as.character(data_bis$year))
 
 #predicting
@@ -1633,9 +1642,9 @@ data_bis$p=predict(model_older,newdata=data_bis,type="response")
 #standardising prediction to 1960-1970 level
 # 2 options mean or geomean
 if (opt_calculation=="geomean") {
-	mean_1960_1970=mean(data_bis[data_bis$year>=1960 & data_bis$year<1980,"p"])
-} else {
 	mean_1960_1970=as.numeric(geomean(data_bis[data_bis$year>=1960 & data_bis$year<1980,"p"]))
+} else {
+	mean_1960_1970=mean(data_bis[data_bis$year>=1960 & data_bis$year<1980,"p"])
 }
 data_bis$p_std_1960_1970=data_bis$p/mean_1960_1970
 
