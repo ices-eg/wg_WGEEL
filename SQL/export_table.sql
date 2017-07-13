@@ -31,3 +31,8 @@ copy datawg.t_series_ser to 'F:/projets/GRISAM/2017/WKDATA/table/t_series_ser.cs
   tr_faoareas.f_subdivis, 
   tr_faoareas.f_subunit, 
   tr_faoareas.surface from ref.tr_faoareas) to 'F:/projets/GRISAM/2017/WKDATA/table/tr_faoareas.csv' with CSV delimiter ';' HEADER; 
+  
+  --save shp files
+  /*
+  cd C:\Users\cedric.briand\Documents\projets\GRISAM\2017\WKDATA\table
+  pgsql2shp -u postgres -f wgeel ref.t_emu_emu
