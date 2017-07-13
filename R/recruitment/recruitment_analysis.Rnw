@@ -136,11 +136,11 @@ if(getUsername() == 'cedric.briand')
 	setwd("C:/Users/cedric.briand/Documents/GitHub/WGEEL/R/recruitment")
 	
 	wd<-getwd()
-	wddata<-gsub("C:/Users/cedric.briand/Documents/GitHub/WGEEL/R","F:/workspace/wgeeldata",wd)
+	wddata<-gsub("C:/Users/cedric.briand/Documents/GitHub/WGEEL/R","C:/workspace/wgeeldata",wd)
 	datawd<-str_c(wddata,"/",CY,"/data")
 	imgwd<-str_c(wddata,"/",CY,"/image")
 	tabwd<-str_c(wddata,"/",CY,"/table")
-	shpwd=str_c("F:/workspace/wgeeldata/shp") 
+	shpwd=str_c("C:/workspace/wgeeldata/shp") 
 }
 if(getUsername() == 'lbeaulaton')
 {
@@ -1334,74 +1334,6 @@ g<-ggplot(dat,aes(x=year,y=p_std_1960_1970))
 #print(figure5bw)
 #save_figure("figure5bw",figure5bw,600,480)
 
-
-
-#######################
-## graphique presentation Vilaine
-##########################
-#dat1<-dat
-#levels(dat1$area)=c("Europe","Vilaine")
-#dat$year1=as.numeric(strftime(dat1$year,"%Y"))
-#dat1$p_std_1960_1970
-#vil<-wger[wger$ser_id==17,c("value_std","year")]
-#vil<-vil[order(as.numeric(vil$year)),]
-#vil<-rbind(cbind("value_std"=NA,"year"=1950:1970),vil,cbind("value_std"=NA,"year"=2012))
-#mean(vil$value_std[vil$year>=1979 & vil$year<1994])#1
-#sca<-mean(dat1$p_std_1960_1970[dat1$area=="Europe"&dat1$year1>=1979 & dat1$year1<1994]) #0.62
-#vil$value_std<-vil$value_std*sca
-#vil[16:21,"value_std"]<-c(5,4,9,12,10,8)*vil$value_std[vil$year==1971]/44
-##vilpred<-data_bis[data_bis$site==17&data_bis$area=="Elsewhere Europe",c("p_std_1960_1970","year")]
-##vilpred<-vilpred[order(as.numeric(vilpred$year)),]
-#dat1[dat1$area=="Vilaine","p_std_1960_1970"]<-vil$value_std
-#colsitees(dat1)[2]<-"zone"
-#g1<-ggplot(dat1,aes(x=year,y=p_std_1960_1970))+xlab("")
-#base_size<-12
-
-#figure5_without_logscale_black_vilaine<-g1+
-#		geom_line(aes(colour=zone,lty=zone),lwd=1.3)+
-#		geom_point(aes(colour=zone,shape=zone),size=3)+
-#		ggtitle(title="")+
-#		scale_colour_manual(name="zone",values=c("black","deepskyblue")) +
-#		scale_y_continuous(name="")+
-##		scale_y_log10(name="",
-##				#limits=c(0.005,10),
-##				breaks=c(0.01,0.1,1,10),
-##				labels=c("1%","10%","100%","1000%"))+
-#		scale_x_date(major= "10 years",minor= "5 years")+
-#		opts(axis.line = theme_blank(), 
-#				axis.text.x = theme_text(size = base_size *	1.2, lineheight = 0.9, colour = "black", vjust = 1), 
-#				axis.text.y = theme_text(size = base_size * 1.2, lineheight = 0.9, colour = "black", hjust = 1), 
-#				axis.ticks = theme_segment(colour = "black"), 
-#				axis.title.x = theme_text(size = base_size, vjust = 0.5,colour = "white"), 
-#				axis.title.y = theme_text(size = base_size, angle = 90, 
-#						vjust = 0.5,colour = "black"), axis.ticks.length = unit(0.15, "cm"), 
-#				axis.ticks.margin = unit(0.1, "cm"), 
-#				legend.background = theme_blank(), 
-#				legend.key =  theme_blank(), 
-#				legend.text = theme_text(size = base_size , lineheight = 0.9, colour = "black", vjust = 1),
-#				panel.background = theme_blank(),
-#				panel.border = theme_rect(colour = "black"),
-#				plot.background=theme_blank(), # the background
-#				panel.grid.major = theme_line(colour = "black"), 
-#				panel.grid.minor = theme_line(colour = "grey"), 
-#				panel.margin = unit(0.25, "lines"), 
-#				strip.background = theme_rect(fill = "black", colour = NA), # bordures droites et gauche
-#				strip.label = function(variable, value) value, strip.text.x = theme_text(size = base_size * 
-#								0.8), strip.text.y = theme_text(size = base_size * 
-#								0.8, angle = -90),				 
-#				plot.title = theme_text(size = base_size * 1.5,colour="black"), #"#BE81F7" violet
-#				plot.margin = unit(c(1, 1, 0.5, 0.5), "lines"))
-#x11()
-#figure5_without_logscale_black_vilaine
-#save_figure("figure5_without_logscale_black_vilaine",figure5_without_logscale_black,600,480)
-
-
-# ===========
-#scale_y_continuous("standardized predictions",limits=c(0,10)) 
-
-
-
-
 synthesis$year=as.numeric(rownames(synthesis))
 synthesis$decade=trunc(as.numeric(synthesis$year)/5)*5
 five_year_avg_glass<-data.frame("Elsewhere Europe"=tapply(synthesis$"Elsewhere Europe",synthesis$decade,mean,na.rm=T),
@@ -1475,6 +1407,7 @@ if (sgipee_test_for_change_ns<=0.05) {
 }else {
 	test_sgipee_char_ns<-"not significant"
 }
+save(dat, file=str_c(datawdy,"dat_ge.Rdat"))
 @
 << model_diagnostics, echo=FALSE, eval=FALSE,results=hide >>=
 require(car)

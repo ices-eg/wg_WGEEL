@@ -5,7 +5,7 @@
 # This script will create an excel sheet per country that currently have recruitment series
 #######################################################################################
 # put the current year there
-CY<-2016
+CY<-2017
 # function to load packages if not available
 load_library=function(necessary) {
 	if(!all(necessary %in% installed.packages()[, 'Package']))
