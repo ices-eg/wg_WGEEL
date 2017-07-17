@@ -48,7 +48,7 @@ options(sqldf.RPostgreSQL.user = "postgres",
 #############################
 # Table storing information from the recruitment series
 ##################################
-rec_info<-sqldf("SELECT 
+t_series_ser<-sqldf("SELECT 
           t_series_ser.ser_id, 
       t_series_ser.ser_order, 
       t_series_ser.ser_nameshort, 
@@ -71,9 +71,9 @@ rec_info<-sqldf("SELECT
 datawg.t_series_ser;")
 # converting some information to latin1, necessary for latin1 final user
 
-rec_info[,4]<-iconv(rec_info[,4],from="UTF8",to="latin1")
-rec_info[,11]<-iconv(rec_info[,11],from="UTF8",to="latin1")
-rec_info[,7]<-iconv(rec_info[,7],from="UTF8",to="latin1")
+t_series_ser[,4]<-iconv(t_series_ser[,4],from="UTF8",to="latin1")
+t_series_ser[,11]<-iconv(t_series_ser[,11],from="UTF8",to="latin1")
+t_series_ser[,7]<-iconv(t_series_ser[,7],from="UTF8",to="latin1")
 
 
 #' function to create the recuitment sheet 
@@ -83,36 +83,37 @@ rec_info[,7]<-iconv(rec_info[,7],from="UTF8",to="latin1")
 #' 
 #' @param country the country name, for instance "Sweden"
 createxl<-function(country){
-	Rcoun<-rec_info[rec_info$ser_cou_code==country,]
+	r_coun<-t_series_ser[t_series_ser$ser_cou_code==country,]
 	xls.file<-str_c(dataxl,"/",country,CY,".xls")
 	wb = loadWorkbook(xls.file, create = TRUE)
 	createSheet(wb,"rec_info")
-	writeWorksheet (wb , Rcoun , sheet="rec_info" ,header = TRUE )
-	saveWorkbook(wb)
-	
+	writeWorksheet (wb , r_coun , sheet="rec_info" ,header = TRUE )
+	saveWorkbook(wb)	
 	wb = loadWorkbook(xls.file, create = TRUE)
-	for (i in 1:length(Rcoun$loc_id)){
-		loc<-Rcoun$loc_id[i]
-		dat<-sqldf(str_c("select * from datawg.t_dataseries_das"))
-		createSheet(wb, name = Rcoun$rec_nameshort[i])
-		writeWorksheet (wb , dat , sheet=Rcoun$rec_nameshort[i] ,header = TRUE)	
+	for (i in 1:length(r_coun$ser_id)){
+		ser_id<-r_coun$ser_id[i]
+		dat<-sqldf(str_c("select * from datawg.t_dataseries_das where das_ser_id=",ser_id,
+                " order by das_year ASC"))
+		createSheet(wb, name = r_coun$ser_nameshort[i])
+		writeWorksheet (wb , dat , sheet=r_coun$ser_nameshort[i] ,header = TRUE)	
 	}
 	saveWorkbook(wb)
 	cat("work finished\n")
 }
 # launch this to see how many countries you have
-unique(rec_info$loc_country)
+unique(t_series_ser$ser_cou_code)
+#  "SE" "NL" "IE" "FR" "DE" "DK" "ES" "GB" "PT" "IT" "BE" "NO"
 # create an excel file for each of the countries
 createxl(country="SE")
-createxl("France")
-createxl("Spain")
-createxl("Netherlands")
-createxl("UK")
-createxl("Denmark")
-createxl("Germany")
-createxl("Ireland")
-createxl("Portugal")
-createxl("Norway")
-createxl("Italy")
-createxl("Belgium")
-createxl("Northern Ireland")
+createxl("NL")
+createxl("IE")
+createxl("FR")
+createxl("DE")
+createxl("DK")
+createxl("ES")
+createxl("GB")
+createxl("PT")
+createxl("IT")
+createxl("BE")
+createxl("NO")
+
