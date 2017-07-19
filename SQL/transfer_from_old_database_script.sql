@@ -37,7 +37,8 @@ they were dominated by glass eel' from ts.tr_lifestage_lfs where lfs_code='GY';
 -- from Russell's comment
 update ref.tr_lifestage_lfs set  lfs_definition ='Life-stage resident in continental waters. Often defined as a sedentary phase, 
 but migration within and between rivers, and to and from coastal waters occurs and therefore includes young pigmented eels (?lvers?and bootlace). In particular, some recruitment series either far up in the river (Meuse) or in the Baltic are made of multiple age class of young yellow eel, typically from 1 to 10+ years of age- the are referred to as Yellow eel Recruits.' from ts.tr_lifestage_lfs where lfs_code='Y';
-
+insert into ref.tr_lifestage_lfs select 'QG' , 'quarantined glass eel', 'Glass eel quarantined before release';
+insert into ref.tr_lifestage_lfs select 'OG' , 'ongrown glass eel', 'Glass eel purchased as glass eel but fed for a while before release';
 --------------------------
 -- tr_emu_emu
 -------------------------
@@ -134,7 +135,6 @@ insert into ref.tr_units_uni values('ha','Surface');
 -- ref.tr_typeseries_typ
 ---------------------------
 insert into ref.tr_typeseries_typ select class_id, class_name,class_description from ts.tr_dataclass_class ;--3
-
 ---------------------
 -- datawg.t_series_ser 
 ---------------------
@@ -444,10 +444,10 @@ select distinct on (name,unit) name,unit FROM datawgeel.summary_all ;
 
 alter sequence ref.tr_typeseries_typ_typ_id_seq restart with 4;
 delete from ref.tr_typeseries_typ where typ_id>=4;
-insert into ref.tr_typeseries_typ(typ_name,typ_description,typ_uni_code) values ('c_landings_kg','Commercial landings (kg)','kg');
-insert into ref.tr_typeseries_typ(typ_name,typ_description,typ_uni_code) values ('c_catch_kg','Commercial catch (kg)','kg');
-insert into ref.tr_typeseries_typ(typ_name,typ_description,typ_uni_code) values ('r_landings_kg','Recreational landings kg)','kg');
-insert into ref.tr_typeseries_typ(typ_name,typ_description,typ_uni_code) values ('r_catch_kg','Recreational catch (kg)','kg');
+insert into ref.tr_typeseries_typ(typ_name,typ_description,typ_uni_code) values ('com_landings_kg','Commercial landings (kg)','kg');
+insert into ref.tr_typeseries_typ(typ_name,typ_description,typ_uni_code) values ('com_catch_kg','Commercial catch (kg)','kg');
+insert into ref.tr_typeseries_typ(typ_name,typ_description,typ_uni_code) values ('rec_landings_kg','Recreational landings kg)','kg');
+insert into ref.tr_typeseries_typ(typ_name,typ_description,typ_uni_code) values ('rec_catch_kg','Recreational catch (kg)','kg');
 insert into ref.tr_typeseries_typ(typ_name,typ_description,typ_uni_code) values ('q_stock_kg','Stocking quantity (kg)','kg');
 insert into ref.tr_typeseries_typ(typ_name,typ_description,typ_uni_code) values ('q_stock_n','Stocking quantity (number)','nr');
 insert into ref.tr_typeseries_typ(typ_name,typ_description,typ_uni_code) values ('gee_n','Glass eel equivalents (n)','nr');
@@ -468,7 +468,18 @@ insert into ref.tr_typeseries_typ(typ_name,typ_description,typ_uni_code) values 
 insert into ref.tr_typeseries_typ(typ_name,typ_description,typ_uni_code) values ('SumA','Lifetime anthropogenic mortality',NULL);
 insert into ref.tr_typeseries_typ(typ_name,typ_description,typ_uni_code) values ('SumF','Lifetime fishing mortality',NULL);
 insert into ref.tr_typeseries_typ(typ_name,typ_description,typ_uni_code) values ('SumH','Lifetime mortality hydro and pumps',NULL);
-
+insert into ref.tr_typeseries_typ(typ_name,typ_description,typ_uni_code) values ('sumF_com','Mortality due to commercial fishery, summed over age groups in the stock.',NULL);
+insert into ref.tr_typeseries_typ(typ_name,typ_description,typ_uni_code) values ('SumF_rec' , 'Mortality due to recreational fisher, summed over age groups in the stock',NULL);
+insert into ref.tr_typeseries_typ(typ_name,typ_description,typ_uni_code) values ('SumH_hydro' , 'Mortality due to hydropower (plus water intakes etc) summed over the age groups in the stock (rate)',NULL);	
+insert into ref.tr_typeseries_typ(typ_name,typ_description,typ_uni_code) values ('SumH_habitat' , 'Mortality due to anthropogenic influence on habitat (quality/qauntity) summed over the age groups in the stock (rate)',NULL);
+insert into ref.tr_typeseries_typ(typ_name,typ_description,typ_uni_code) values ('SumH_stocking' , 'Mortality due to stocking summed over the age groups in the stock (rate: negative rate indicates positive effect of stocking)',NULL);
+insert into ref.tr_typeseries_typ(typ_name,typ_description,typ_uni_code) values ('SumH_other' , 'Mortality due to other anthropogenic influence summed over the age groups in the stock (rate)',NULL);
+insert into ref.tr_typeseries_typ(typ_name,typ_description,typ_uni_code) values ('SEE_com','Commercial fishery silver eel equivalents','kg');
+insert into ref.tr_typeseries_typ(typ_name,typ_description,typ_uni_code) values ('SEE rec','Recreational fishery silver eel equivalents (kg)','kg');
+insert into ref.tr_typeseries_typ(typ_name,typ_description,typ_uni_code) values ('SEE_hydro' , 'Silver eel equivalents relating to hydropower and water intakes etc','kg');
+insert into ref.tr_typeseries_typ(typ_name,typ_description,typ_uni_code) values ('SEE_habitat' , 'Silver eel equivalents relating to anthropogenic influences on habitat (quantity/quality)','kg');
+insert into ref.tr_typeseries_typ(typ_name,typ_description,typ_uni_code) values ('SEE_stocking' , 'Silver eel equivalents relating to stocking activity','kg');
+insert into ref.tr_typeseries_typ(typ_name,typ_description,typ_uni_code) values ('SEE_other' , 'Silver eel equivalents from `other` sources','kg');
 
 
 /*
