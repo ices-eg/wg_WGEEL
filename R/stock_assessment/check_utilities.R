@@ -74,7 +74,7 @@ check_type <- function(dataset,column,country,values,type){
 #' @param country the current country being evaluated
 #' @param type, a class described as a character e.g. "numeric"
 check_unique <- function(dataset,column,country,values){
-  ddataset<-as.data.frame(dataset)
+  ddataset <- as.data.frame(dataset[!is.na(dataset[,column]),])
   if (length(unique(ddataset[,column]))!=1) {
     warning(sprintf("Country <%s>,  dataset <%s>, column <%s>, should only have one value",
             country,
@@ -96,16 +96,15 @@ check_missvaluequa <- function(dataset,country){
   ddataset<-as.data.frame(dataset)
   # first check that any value in eel_missvaluequal corresponds to a NA in eel_value
   # get the rows where a label has been put
-  if (! all(is.na(ddataset[,"eel_missvaluequa"]))){
+  if (! all(is.na(ddataset[,"eel_missvaluequal"]))){
     # get eel_values where missing has been filled in
-    lines<-which(!is.na(ddataset[,"eel_missvaluequa"]))
+    lines<-which(!is.na(ddataset[,"eel_missvaluequal"]))
     eel_values_for_missing <-ddataset[lines,"eel_value"]
     if (! all(is.na(eel_values_for_missing))) {
-      warning(sprintf("Country <%s>,  dataset <%s>, column <%s>, lines <%s>
-			                    there is a code, but the eel_value field should be empty",
+      warning(sprintf("Country <%s>,  dataset <%s>, column <%s>, lines <%s>, there is a code, but the eel_value field should be empty",
               country,
               deparse(substitute(dataset)),
-              "eel_missvaluequa",
+              "eel_missvaluequal",
               lines
           ))
     }
@@ -115,14 +114,13 @@ check_missvaluequa <- function(dataset,country){
   if (any(is.na(ddataset[,"eel_value"]))){
     # get eel_values where missing has been filled in
     lines<-which(is.na(ddataset[,"eel_value"]))
-    eel_missingforvalues <-ddataset[lines,"eel_missvaluequa"]
+    eel_missingforvalues <-ddataset[lines,"eel_missvaluequal"]
     # if in those lines, one missing value has not been commented upon
     if (any(is.na(eel_missingforvalues))) {
-      warning(sprintf("Country <%s>,  dataset <%s>, column <%s>, lines <%s>,
-			      there should be a code, as the eel_value field is missing",
+      warning(sprintf("Country <%s>,  dataset <%s>, column <%s>, lines <%s>, there should be a code, as the eel_value field is missing",
               country,
               deparse(substitute(dataset)),
-              "eel_missvaluequa",
+              "eel_missvaluequal",
               lines))
     }
   }

@@ -41,7 +41,7 @@ ices_squares<-read_excel(
 ices_division<-as.character(ices_squares$f_code)
 
 # inits before entering the loop
-metadatalist<-list() # A list to store the data from metadata
+metadata_list<-list() # A list to store the data from metadata
 data_list<-list() # A list to store data)
 # loop in directories 
 # for tests/ development uncomment and run the code inside the loop
@@ -49,9 +49,10 @@ data_list<-list() # A list to store data)
 # this code will run through the file and generate warnings to update the files
 for (i in 1:length(directories)) {
   # get the name of the country
-  country<- gsub(mylocalfolder, "", directories[i]) 
-  metadatalist[[country]]<-list() # creates an element in the list with the name of the country
-  cat(country) 
+  country<- gsub("/","",gsub(mylocalfolder, "", directories[i])) 
+  metadata_list[[country]]<-list() # creates an element in the list with the name of the country
+  data_list[[country]]<-list() # creates an element in the list with the name of the country
+  cat(str_c(country,"\n"))
   
   ############# CATCH AND LANDINGS #############################################
   
@@ -62,13 +63,12 @@ for (i in 1:length(directories)) {
   # check if no rows have been added
   if (names(metadata)[1]!="For each data series") warning(str_c("The structure of metadata has been changed ",datacallfiles[1]," in ",country))
   # store the content of metadata in a list
-  metadatalist[[country]][["contact"]] <- as.character(metadata[1,2])
-  metadatalist[[country]][["contactemail"]] <- as.character(metadata[2,2])
-  metadatalist[[country]][["method_catch_landings"]] <- as.character(metadata[3,2])
+  metadata_list[[country]][["contact"]] <- as.character(metadata[1,2])
+  metadata_list[[country]][["contactemail"]] <- as.character(metadata[2,2])
+  metadata_list[[country]][["method_catch_landings"]] <- as.character(metadata[3,2])
   # end loop for directories
   
   #---------------------- catch_landings sheet ---------------------------------------------
-  
    # read the catch_landings sheet
   catch_landings<-read_excel(
       path=str_c(directories[i],"/",datacallfiles[1]),"catch_landings",
@@ -83,6 +83,7 @@ for (i in 1:length(directories)) {
     warning(str_c("problem in column names",
             datacallfiles[1]," in ",
             country)) 
+  colnames(catch_landings)[4]<-"eel_missvaluequal" # there is a problem in catch and landings sheet
   
   ###### eel_typ_id ##############
   
@@ -200,8 +201,157 @@ for (i in 1:length(directories)) {
       country=country,
       values=ices_division)
   
-  datalist[["catch_landings"]]<-list()# creates an element in the list datalist with the name catch and landings
-  datalist[["catch_landings"]]<-catch_landings # store the tibble in the list
+  data_list[[country]][["catch_landings"]]<-list()# creates an element in the list datalist with the name catch and landings
+  data_list[[country]][["catch_landings"]]<-catch_landings # store the tibble in the list
+  
+  
+  ############# RESTOCKING #############################################
+  
+  #---------------------- METADATA sheet ---------------------------------------------
+  
+  # read the metadata sheet
+  metadata<-read_excel(path=str_c(directories[i],"/",datacallfiles[2]),"metadata" , skip=4)
+  # check if no rows have been added
+  if (names(metadata)[1]!="For each data series") warning(str_c("The structure of metadata has been changed ",datacallfiles[1]," in ",country))
+  metadata_list[[country]][["method_restocking"]] <- as.character(metadata[3,2])
+  # end loop for directories
+  
+  #---------------------- catch_landings sheet ---------------------------------------------
+  
+  
+  restocking<-read_excel(
+      path=str_c(directories[i],"/",datacallfiles[2]),"restocking",
+      skip=0)
+  # check for the file integrity
+  if (ncol(restocking)!=12) warning(str_c("number column wrong ",datacallfiles[1]," in ",country))
+  # check column names
+  if (all.equal(colnames(restocking),
+      c("eel_typ_id","eel_year","eel_value","eel_missvaluequal","eel_emu_nameshort",
+          "eel_cou_code", "eel_lfs_code", "eel_hty_code","eel_area_division",
+          "eel_qal_id", "eel_qal_comment","eel_comment"))!=TRUE) 
+    warning(str_c("problem in column names",
+            datacallfiles[1]," in ",
+            country)) 
+  
+  ###### eel_typ_id ##############
+  
+  # should not have any missing value
+  check_missing(dataset=restocking,
+      column="eel_typ_id",
+      country=country)
+  #  eel_typ_id should be one of 4 comm.land 5 comm.catch 6 recr. land. 7 recr. catch.
+  check_values(dataset=restocking,
+      column="eel_typ_id",
+      country=country,
+      values=c(8,9))
+  
+  ###### eel_year ##############
+  
+  # should not have any missing value
+  check_missing(dataset=restocking,
+      column="eel_year",
+      country=country)
+  # should be a numeric
+  check_type(dataset=restocking,
+      column="eel_year",
+      country=country,
+      type="numeric")
+  
+  ###### eel_value ##############
+  
+  # can have missing values if eel_missingvaluequa is filled (check later)
+  
+  # should be numeric
+  check_type(dataset=restocking,
+      column="eel_value",
+      country=country,
+      type="numeric")
+  
+  ###### eel_missvaluequa ##############
+  
+  #check that there are data in missvaluequa only when there are missing value (NA) is eel_value
+  # and also that no missing values are provided without a comment is eel_missvaluequa
+  check_missvaluequa(dataset=restocking,
+      country=country)
+  
+  ###### eel_emu_name ##############
+  
+  check_missing(dataset=restocking,
+      column="eel_emu_nameshort",
+      country=country)
+  
+  check_type(dataset=restocking,
+      column="eel_emu_nameshort",
+      country=country,
+      type="character")
+  
+  ###### eel_cou_code ##############
+  
+  # must be a character
+  check_type(dataset=restocking,
+      column="eel_cou_code",
+      country=country,
+      type="character")
+  # should not have any missing value
+  check_missing(dataset=restocking,
+      column="eel_cou_code",
+      country=country)
+  # must only have one value
+  check_unique(dataset=restocking,
+      column="eel_cou_code",
+      country=country)
+  
+  ###### eel_lfs_code ##############
+  
+  check_type(dataset=restocking,
+      column="eel_lfs_code",
+      country=country,
+      type="character")
+  # should not have any missing value
+  check_missing(dataset=restocking,
+      column="eel_lfs_code",
+      country=country)
+  # should only correspond to the following list
+  check_values(dataset=restocking,
+      column="eel_lfs_code",
+      country=country,
+      values=c("G","GY","Y"))
+  
+  ###### eel_hty_code ##############
+  
+  check_type(dataset=restocking,
+      column="eel_hty_code",
+      country=country,
+      type="character")
+  # should not have any missing value
+  check_missing(dataset=restocking,
+      column="eel_hty_code",
+      country=country)
+  # should only correspond to the following list
+  check_values(dataset=restocking,
+      column="eel_hty_code",
+      country=country,
+      values=c("F","R","C","MO"))
+  
+  ###### eel_area_div ##############
+  
+  check_type(dataset=restocking,
+      column="eel_area_division",
+      country=country,
+      type="character")
+  # should not have any missing value
+  check_missing(dataset=restocking,
+      column="eel_area_division",
+      country=country)
+  # the dataset ices_division should have been loaded there
+  check_values(dataset=restocking,
+      column="eel_area_division",
+      country=country,
+      values=ices_division)
+  
+  data_list[[country]][["restocking"]]<-list()# creates an element in the list datalist with the name catch and landings
+  data_list[[country]][["restocking"]]<-catch_landings # store the tibble in the list
+  
   
   
 } # end the loop
