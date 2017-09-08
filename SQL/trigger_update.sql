@@ -10,5 +10,5 @@ BEGIN
 END;
 $$ language 'plpgsql';
 
-
-CREATE TRIGGER update_das_time BEFORE UPDATE ON datawg.t_dataseries_das FOR EACH ROW EXECUTE PROCEDURE  datawg.update_das_last_update();
+DROP TRIGGER update_das_time ON datawg.t_dataseries_das;
+CREATE TRIGGER update_das_time BEFORE INSERT OR UPDATE ON datawg.t_dataseries_das FOR EACH ROW EXECUTE PROCEDURE  datawg.update_das_last_update();
