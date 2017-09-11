@@ -72,7 +72,7 @@ indices and produce the first draft of the ICES eel advice.
 <<init, eval=TRUE,echo=FALSE,results=hide>>=
 # Password are stored in R/etc/Rprofile.site
 # For the moment the database is stored locally
-CY<-2016 # current year ==> don't forget to update the graphics path below
+CY<-2017 # current year ==> don't forget to update the graphics path below
 # ----------------------------------
 # wgeel2016 discussed that the correct way of 
 # calculating average of predictions was to use geomean
@@ -117,10 +117,10 @@ getUsername <- function(){
 # FOLDER is the directory where you have stored the git code
 # So you need to create a directory to store data and figures besides this 
 # directory, like this
-# FOLDER>datawgeel>recruitement>2016>data
-# FOLDER>datawgeel>recruitement>2016>image
-# FOLDER>datawgeel>recruitement>2016>table
-# here 2016 is the current year of recruitment (I have several folders one for each year)
+# FOLDER>datawgeel>recruitement>2017>data
+# FOLDER>datawgeel>recruitement>2017>image
+# FOLDER>datawgeel>recruitement>2017>table
+# here 2017 is the current year of recruitment (I have several folders one for each year)
 # the reason for this is that we don't want to put data or figures in the git.
 #--------------------------------
 if(getUsername() == 'cedric.briand')
@@ -676,7 +676,7 @@ colnames(tab1)<-c("year",statseries$site)
 
 createxl<-function(data=tab1,sheet="recruitment_series"){
 	library("XLConnect")
-	xls.file<-str_c(datawd,"/","table_rec2016.xls")
+	xls.file<-str_c(datawd,"/","table_rec2017.xls")
 	wb = loadWorkbook(xls.file, create = TRUE)
 	createSheet(wb,sheet)
 	writeWorksheet (wb , data , sheet=sheet ,header = TRUE )
@@ -720,44 +720,44 @@ young yellow eel, or of yellow eel that might be several
 years old (in the Baltic).\\
 
 The WGEEL has collated information on recruitment from
-\Sexpr{sn(vv$nb_series_init)} time-series. Some time-series date back to the
+\Sexpr{sn(vv[["nb_series_init"]])} time-series. Some time-series date back to the
 beginning of 20th century (yellow eel, Göta Älv, Sweden) or 1920 (glass eel, Loire, France).
 
 \begin{itemize}
-\item \Sexpr{sn(vv$nCY)} time-series were updated to \Sexpr{CY}
-(\Sexpr{sn(vv$nCYg)} for glass eel and \Sexpr{sn(vv$nCYy)} for yellow eel Table \ref{table_seriesCY} Annex \textcolor{red}{X}).
-\item \Sexpr{sn(vv$nCYm1)} time-series (\Sexpr{sn(vv$nCYm1g)} for glass eel and
-\Sexpr{sn(vv$nCYm1y)} for yellow eel) were updated to \Sexpr{CY-1}
+\item \Sexpr{sn(vv[["nCY"]])} time-series were updated to \Sexpr{CY}
+(\Sexpr{sn(vv[["nCYg"]])} for glass eel and \Sexpr{sn(vv[["nCYy)} for yellow eel Table \ref{table_seriesCY} Annex \textcolor{red}{X}).
+\item \Sexpr{sn(vv[["nCYm1"]])} time-series (\Sexpr{sn(vv[["nCYm1g"]])} for glass eel and
+\Sexpr{sn(vv[["nCYm1y"]])} for yellow eel) were updated to \Sexpr{CY-1}
 only (Table \ref{table_seriesCYm1} Annex \textcolor{red}{X}). 
 
 Among the time-series based on trap indices, some have reported preliminary
-data for 2016 as the season is not yet finished (Lagan (SW), Kävlingeån (SW),
+data for 2017 as the season is not yet finished (Lagan (SW), Kävlingeån (SW),
 Göta Älv (SW), Viskan (SW), Parteen(IR), Bann (GB), Bresle (FR)),
 while others have not yet reported (Guden Å (DK), Harte (DK)).
-Therefore, the indices given for 2016 must be considered as provisional
+Therefore, the indices given for 2017 must be considered as provisional
 especially those for the yellow eel. 
 \item 
-\Sexpr{sn(vv$nseries_lost)} time-series have been stopped
-(\Sexpr{sn(vv$nseries_lostg)} for glass eel and \Sexpr{sn(vv$nseries_losty)} for
+\Sexpr{sn(vv[["nseries_lost"]])} time-series have been stopped
+(\Sexpr{sn(vv[["nseries_lostg"]])} for glass eel and \Sexpr{sn(vv[["nseries_losty"]])} for
 yellow eel, Table \ref{table_serieslost} Annex \textcolor{red}{X}). They stopped
 reporting either because of a lack of recruits in the case of the fishery-based surveys (Ems
 in Germany, stopped in 2001; Vidaa in Denmark, stopped in 1990),
  a lack of financial support (the Tiber in Italy, 2006) or the introduction of
 quota from from 2008 to 2011 that has disrupted the five fishery-based French
-time-series . Note the French Vilaine time-series could be used again in 2016
+time-series . Note the French Vilaine time-series could be used again in 2017
 because the glass eel fishery never achieved its quota.
 \item One series (Severn HMRC) has been dropped from the list, as it was
 considered a double of the other Severn EA statistics, but of poorer quality.
 It is no longer represented in the summary but kept and updated in the database.
 \item There is a new glass eel time-series in the Rhone River, French
 Mediterranean (Vaccares), starting in 2004.
-\item The whole Miño  glass eel time-series (MiPo) has been reviewed in 2016.
+\item The whole Miño  glass eel time-series (MiPo) has been reviewed in 2017.
 \end{itemize}
 The number of glass eel and glass eel + young yellow eel time-series available
 has declined from a peak of
-\Sexpr{vv$nbmaxglasseel} in \Sexpr{max(as.numeric(vv$yearmaxglasseel))}. The maximum
-number of older yellow eel time-series has increased to \Sexpr{vv$nbmaxyellow}
-in \Sexpr{max(as.numeric(vv$yearmaxyellow))} (Figure \ref{figure2}).\\
+\Sexpr{vv[["nbmaxglasseel"]]} in \Sexpr{max(as.numeric(vv[["yearmaxglasseel"]]))}. The maximum
+number of older yellow eel time-series has increased to \Sexpr{vv[["nbmaxyellow"]]}
+in \Sexpr{max(as.numeric(vv[["yearmaxyellow"]]))} (Figure \ref{figure2}).\\
  
  %========================================== 
 \begin{figure}[htpb]
@@ -775,9 +775,9 @@ Calculation of the geometric mean of all time-series is given in (Figures
 \ref{figure3} and \ref{figure4}). 
 \footnote{This figure is given as it
 consistent with the trend provided by WGEEL from 2002 to 2006. The scaling is
-performed on the 1979-1994 average of each time-series, and \Sexpr{length(vv$sc_1979_1994_unused_series)} time-series without data during that
+performed on the 1979-1994 average of each time-series, and \Sexpr{length(vv[["sc_1979_1994_unused_series"]])} time-series without data during that
 period are excluded from the analysis. The time-series left out are :
-\Sexpr{paste(vv$sc_1979_1994_unused_series,collapse=", ")}}. \\
+\Sexpr{paste(vv[["sc_1979_1994_unused_series"]],collapse=", ")}}. \\
 
 %==========================================
 \begin{figure}[htbp]
@@ -785,7 +785,7 @@ period are excluded from the analysis. The time-series left out are :
 \includegraphics[width=0.8\textwidth]{figure3.pdf}
 \caption{Time-series of glass eel and yellow eel recruitment in European rivers
 with time-series having data for the 1979-1994 period
-(\Sexpr{vv$sc_1979_1994_nb} sites).
+(\Sexpr{vv[["sc_1979_1994_nb"]]} sites).
 Each time-series has been scaled to its 1979-1994 average. Note the logarithmic scale
 on the y-axis. The mean values and their bootstrap confidence interval (95\%) are represented as
 black dots and bars. Geometric means are presented in red.}
@@ -797,7 +797,7 @@ black dots and bars. Geometric means are presented in red.}
 \centering
 \includegraphics[width=0.8\textwidth]{figure4.pdf}
 \caption{Time-series of glass eel and yellow eel recruitment in Europe
-with \Sexpr{vv$sc_1979_1994_nb} time-series out of the \Sexpr{vv$nb_series_init}
+with \Sexpr{vv[["sc_1979_1994_nb"]]} time-series out of the \Sexpr{vv[["nb_series_init"]]}
 available to the working group. Each time-series has been scaled to its 1979-1994 average. 
 The mean values of combined yellow and glass eel time-series and their bootstrap 
 confidence interval (95\%) are represented as black dots and bars.
@@ -1091,7 +1091,7 @@ figure_check_one_series<-function(site='Katw',limits=c(1900,CY)){
 			annotate("rect",xmin=1900,ymin=0,xmax=1960,ymax=10,fill="grey",alpha=0.5)
 	return(g)
 }
-figure_check_one_series("Katw",limits=c(1960,2016))
+figure_check_one_series("Katw",limits=c(1960,2017))
 @
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %************************************************************************************
@@ -1482,7 +1482,7 @@ wisesp=readShapePoly(str_c(shpwd,"/","rbd_f1v3_3035.shp")) # a spatial object of
 country_c=readShapePoints(str_c(shpwd,"/","t_country_coun_3035"))# a spatial object of class sp
 # this is the map of coutry centers, to overlay points for each country
 emusp0=readShapePoly(str_c(shpwd,"/","t_emuagreg_ema_3035")) # a spatial object of class sp
-years<-1960:2016
+years<-1960:2017
 bb<-bbox(emusp0)
 # loop to create all the graphs
 for (year in years){
@@ -1722,10 +1722,10 @@ average. Note the logarithmic scale on the y-axis.}
 \end{figure}
 %==========================================
 
-Both WGEEL recruitment indices for 2016 are lower than 2014, but modelling a
+Both WGEEL recruitment indices for 2017 are lower than 2014, but modelling a
 breakpoint arround the minima of 2011 still gives significant results when using
-the lower value from 2016 (p=\Sexpr{sn(sgipee_test_for_change_ee,digits=1)}
-Elsewhere Europe and p=\Sexpr{sn(sgipee_test_for_change_ns,digits=1)} North Sea ICES SGIPEE(2011)). The 2016 level with respect to 1960-1979 averages is
+the lower value from 2017 (p=\Sexpr{sn(sgipee_test_for_change_ee,digits=1)}
+Elsewhere Europe and p=\Sexpr{sn(sgipee_test_for_change_ns,digits=1)} North Sea ICES SGIPEE(2011)). The 2017 level with respect to 1960-1979 averages is
 \Sexpr{sn(100*gg0[rownames(gg0)==CY,"NS"],digits=1)}\% for the North Sea 
 and \Sexpr{sn(100*gg0[rownames(gg0)==CY,"EE"],digits=1)}\% elsewhere in the distribution area 
 (Tables \ref{table_glm_glass_eel} and \ref{table_glm_yellow}). The increase in
@@ -1734,8 +1734,8 @@ in the Irish series. The yellow recruitment index was nearly the double
 comparing to that of the previous year (Figure \ref{figure6}).
 
 \tiny
-\input{F:/workspace/wgeeldata/recruitment/2016/table/table_glm_glass_eel.tex}
-\input{F:/workspace/wgeeldata/recruitment/2016/table/table_glm_yellow.tex}
+\input{F:/workspace/wgeeldata/recruitment/2017/table/table_glm_glass_eel.tex}
+\input{F:/workspace/wgeeldata/recruitment/2017/table/table_glm_yellow.tex}
 \normalsize
 
 \clearpage
@@ -1771,42 +1771,42 @@ comparing to that of the previous year (Figure \ref{figure6}).
 %==========================================
 
  %====================================
-	\input{F:/workspace/wgeeldata/recruitment/2016/table/table_seriesCY.tex}
+	\input{F:/workspace/wgeeldata/recruitment/2017/table/table_seriesCY.tex}
  %====================================
 
  %====================================
-	\input{F:/workspace/wgeeldata/recruitment/2016/table/table_seriesCYm1.tex}
+	\input{F:/workspace/wgeeldata/recruitment/2017/table/table_seriesCYm1.tex}
  %====================================
 
  %====================================
-	\input{F:/workspace/wgeeldata/recruitment/2016/table/table_serieslost.tex}
+	\input{F:/workspace/wgeeldata/recruitment/2017/table/table_serieslost.tex}
  %====================================
 \normalsize
 
 \small
  %====================================
-	\input{F:/workspace/wgeeldata/recruitment/2016/table/table_statseries.tex}
+	\input{F:/workspace/wgeeldata/recruitment/2017/table/table_statseries.tex}
  %====================================
 \normalsize
 \small
  %====================================
-	\input{F:/workspace/wgeeldata/recruitment/2016/table/table_statseries1.tex}
+	\input{F:/workspace/wgeeldata/recruitment/2017/table/table_statseries1.tex}
  %====================================F
 \normalsize
 \small
  %====================================
-	\input{F:/workspace/wgeeldata/recruitment/2016/table/table_statseries2.tex}
+	\input{F:/workspace/wgeeldata/recruitment/2017/table/table_statseries2.tex}
  %====================================
 \normalsize
 %\newpage
 %\small
 % %====================================
-%\input{F:/workspace/wgeeldata/sweave/2016/table/table_n_y_area.tex}
+%\input{F:/workspace/wgeeldata/sweave/2017/table/table_n_y_area.tex}
 % %====================================
 %\normalsize
 %\small
 % %====================================
-%\input{F:/workspace/wgeeldata/sweave/2015/table/table_n_y_lfs.tex}
+%\input{F:/workspace/wgeeldata/sweave/2017/table/table_n_y_lfs.tex}
 % %====================================
 %\normalsize
 \end{document}
