@@ -46,7 +46,7 @@
 \newcolumntype{R}{>{\raggedleft\arraybackslash}X}
 \newcolumntype{L}{>{\raggedright\arraybackslash}X}
 % this is where I'm storing files locally
-\graphicspath{{C:/workspace/wgeeldata/recruitment/2016/image/}} 
+\graphicspath{{C:/workspace/wgeeldata/recruitment/2017/image/}} 
 % TO UPDATE TO THE NEW YEAR
 % DO REPLACE FOR INSTANCE F:/workspace/wgeeldata/sweave/2016/table by F:/workspace/wgeeldata/sweave/2017/table
 %%%%%%%%%%%%%%%%%%%%%%%%%% END OF THE PREAMBLE  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -458,15 +458,17 @@ last_year<-tapply(wger$year,wger$site,function(X) max(X))
 #stations updated to",CY
 R_stations$areashort<-"EE"
 R_stations$areashort[R_stations$area=="North Sea"]<-"NS"
-series_CY<-R_stations[R_stations$ser_nameshort%in%names(last_year[last_year==CY]),c("ser_nameshort","ser_namelong","cou_code","ser_lfs_code","areashort","ser_area_division","ser_order")]
+series_CY<-R_stations[R_stations$ser_nameshort%in%names(last_year[last_year==CY]),
+    c("ser_nameshort","ser_namelong","cou_code","ser_lfs_code","areashort","ser_area_division","ser_order")]
 series_CY<-series_CY[order(series_CY$ser_order),-ncol(series_CY)]
 vv$nCY<-nrow(series_CY) # number of series updated to the current year (for later use)
 vv$nCYg<-nrow(series_CY[grepl("G",series_CY$ser_lfs_code),]) # number of series with glass eel updated to the current year
 vv$nCYy<-nrow(series_CY[series_CY$ser_lfs_code=="Y",]) # number of series with yellow eel (only) updated to the current year
 
 #"stations updated to",CY-1
-series_CYm1<-R_stations[R_stations$ser_nameshort%in%names(last_year[last_year==CY-1]),c("ser_nameshort","ser_namelong","cou_code","ser_lfs_code","areashort","ser_area_division","ser_order")]
-series_CYm1<-series_CY[order(series_CYm1$ser_order),-ncol(series_CYm1)]
+series_CYm1<-R_stations[R_stations$ser_nameshort%in%names(last_year[last_year==CY-1]),
+    c("ser_nameshort","ser_namelong","cou_code","ser_lfs_code","areashort","ser_area_division","ser_order")]
+series_CYm1<-series_CYm1[order(series_CYm1$ser_order),-ncol(series_CYm1)]
 vv$nCYm1<-nrow(series_CYm1) # number series updated last year only (and not this year)
 vv$nCYm1g<-nrow(series_CYm1[grepl("G",series_CYm1$ser_lfs_code),]) # same for glass eel 
 vv$nCYm1y<-nrow(series_CYm1[series_CYm1$ser_lfs_code=="Y",]) # same for yellow eel only
