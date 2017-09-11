@@ -10,7 +10,7 @@ The *script_manual_insertion.R* script is used to load large new dataset on recr
 # Instructions
 
 To run the recruitment script.
-Use either [RStudio]{http://rstudio-pubs-static.s3.amazonaws.com/639_b3a59601ba94400aabbe29025de83c10.html} or [eclipse]{https://www.r-bloggers.com/getting-started-with-sweave-r-latex-eclipse-statet-texlipse/} to run a sweave script. 
+Use either [RStudio](http://rstudio-pubs-static.s3.amazonaws.com/639_b3a59601ba94400aabbe29025de83c10.html) or [eclipse](https://www.r-bloggers.com/getting-started-with-sweave-r-latex-eclipse-statet-texlipse/) to run a sweave script. 
 You can run only the chunks (Parts with R code) if you just want the results and no latex report produced.
 
 # folder structure
@@ -55,6 +55,40 @@ if(getUsername() == 'cedric.briand')
 }
 ```
 
+You will also need to manually edit path with input like 
+
+```tex
+%====================================
+	\input{C:/workspace/wgeeldata/recruitment/2017/table/table_seriesCY.tex}
+ %====================================
+
+ %====================================
+	\input{C:/workspace/wgeeldata/recruitment/2017/table/table_seriesCYm1.tex}
+ %====================================
+
+ %====================================
+	\input{C:/workspace/wgeeldata/recruitment/2017/table/table_serieslost.tex}
+ %====================================
+\normalsize
+
+\small
+ %====================================
+	\input{C:/workspace/wgeeldata/recruitment/2017/table/table_statseries.tex}
+ %====================================
+\normalsize
+\small
+ %====================================
+	\input{C:/workspace/wgeeldata/recruitment/2017/table/table_statseries1.tex}
+ %====================================F
+\normalsize
+\small
+ %====================================
+	\input{C:/workspace/wgeeldata/recruitment/2017/table/table_statseries2.tex}
+ %====================================
+\normalsize
+```
+to you directories. Those input lines, are for tables, and are located at the end of the document.
+
 ## with the database
 
 The database must be running with postgres. Configure an ODBC link named wgeel. Ask Cédric for a dump of the database in its current state.
@@ -62,8 +96,17 @@ The database must be running with postgres. Configure an ODBC link named wgeel. 
 
 ## without access to the database
 
-Without access to the database, intermediary results produced by the *load_database* chunk are saved in 2017 *Meeting Docs/data/saved data*, load them to your data working directory. Don't evaluate the load_database chunk by putting eval=FALSE in the chunk options
+Without access to the database, intermediary results produced by the *load_database* chunk are saved in 2017 in [saved_data](https://community.ices.dk/ExpertGroups/wgeel/2017%20Meeting%20Docs/Forms/AllItems.aspx?RootFolder=%2FExpertGroups%2Fwgeel%2F2017%20Meeting%20Docs%2F06%2E%20Data%2FRecruitment%2Fsaved_data&FolderCTID=0x0120000274F21B5995CE4AA6817A850657F410&View={B68E929B-7DEF-41DA-9089-B4570BCF76EC}&InitialTabId=Ribbon%2EDocument&VisibilityContext=WSSTabPersistence), load them to your data working directory. Don't evaluate the load_database chunk by putting eval=FALSE in the chunk options
 
 ```
 <<load_database, echo=FALSE, fig=FALSE, eval=FALSE,results=hide>>= 
+```
+Data will be loaded by the next chunk
+
+```r
+<< load_rdata, echo=FALSE, fig=FALSE, eval=TRUE >>=
+# In this rchunk we load the data even if there is no connection to the database
+load(file=str_c(datawd,"/wger.Rdata"))
+load(file=str_c(datawd,"/statseries.Rdata"))
+@
 ```
