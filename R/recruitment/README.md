@@ -16,16 +16,21 @@ You can run only the chunks (Parts with R code) if you just want the results and
 # folder structure
 
 It is necessary to create a folder, your code is currently stored in
- FOLDER>WGEELgit>R>recruitment>recruitment_analysis.Rnw
+* FOLDER>WGEELgit>R>recruitment>recruitment_analysis.Rnw
 
- This will be automatically set when pulling code from git
+ This will be automatically set when pulling code from git.
+ 
  *WGEELgit* is the local name you have chosen for the git repository,
+ 
  *FOLDER* is the directory where you have stored the git code
+ 
  So you need to create a directory to store data and figures besides this 
  directory, like this
- FOLDER>datawgeel>recruitement>2017>data
- FOLDER>datawgeel>recruitement>2017>image
- FOLDER>datawgeel>recruitement>2017>table
+ 
+ * FOLDER>datawgeel>recruitement>2017>data
+ * FOLDER>datawgeel>recruitement>2017>image
+ * FOLDER>datawgeel>recruitement>2017>table
+ 
  then adapt from line 127
  
 ```r
@@ -57,4 +62,8 @@ The database must be running with postgres. Configure an ODBC link named wgeel. 
 
 ## without access to the database
 
-Without access to the database, intermediary results produced by the *load_database* chunk are saved in 2017 *Meeting Docs/data/saved data*
+Without access to the database, intermediary results produced by the *load_database* chunk are saved in 2017 *Meeting Docs/data/saved data*, load them to your data working directory. Don't evaluate the load_database chunk by putting eval=FALSE in the chunk options
+
+```
+<<load_database, echo=FALSE, fig=FALSE, eval=FALSE,results=hide>>= 
+```
