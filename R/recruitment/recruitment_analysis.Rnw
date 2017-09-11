@@ -98,6 +98,7 @@ require("grid")
 require("sqldf") 
 require("RPostgreSQL") 
 require("RColorBrewer")
+require("stacomiR") 
 #--------------------------------
 # get your current name
 #--------------------------------
@@ -322,6 +323,7 @@ wger$lifestage=as.factor(wger$lifestage)
 # This is a view (like the result of a query) showing a summary of each series, including first year, last year,
 # and duration
 statseries<-sqldf("select * from datawg.series_summary")
+# these data will 
 save(wger,R_stations,file=str_c(datawd,"/wger.Rdata"))
 save(statseries,file=str_c(datawd,"/statseries.Rdata"))
 @
@@ -725,7 +727,7 @@ beginning of 20th century (yellow eel, Göta Älv, Sweden) or 1920 (glass eel, Loi
 
 \begin{itemize}
 \item \Sexpr{sn(vv[["nCY"]])} time-series were updated to \Sexpr{CY}
-(\Sexpr{sn(vv[["nCYg"]])} for glass eel and \Sexpr{sn(vv[["nCYy)} for yellow eel Table \ref{table_seriesCY} Annex \textcolor{red}{X}).
+(\Sexpr{sn(vv[["nCYg"]])} for glass eel and \Sexpr{sn(vv[["nCYy"]])} for yellow eel Table \ref{table_seriesCY} Annex \textcolor{red}{X}).
 \item \Sexpr{sn(vv[["nCYm1"]])} time-series (\Sexpr{sn(vv[["nCYm1g"]])} for glass eel and
 \Sexpr{sn(vv[["nCYm1y"]])} for yellow eel) were updated to \Sexpr{CY-1}
 only (Table \ref{table_seriesCYm1} Annex \textcolor{red}{X}). 
@@ -1407,7 +1409,7 @@ if (sgipee_test_for_change_ns<=0.05) {
 }else {
 	test_sgipee_char_ns<-"not significant"
 }
-save(dat, file=str_c(datawdy,"dat_ge.Rdat"))
+save(dat, file=str_c(datawd,"dat_ge.Rdat"))
 @
 << model_diagnostics, echo=FALSE, eval=FALSE,results=hide >>=
 require(car)
@@ -1716,7 +1718,7 @@ recruitment for the continental  North Sea and  Elsewhere Europe series updated 
 \includegraphics[width=0.8\textwidth]{figure6.pdf}
 \caption {Geometric mean of estimated (GLM) yellow eel recruitment and smoothed
 trends for Europe updated to \Sexpr{CY}. The GLM ($recruit \sim year+site$) was fitted to
-\Sexpr{vv$nb_for_yellow_eel_glm} yellow eel time-series and scaled to the 1960-1979
+\Sexpr{vv[["nb_for_yellow_eel_glm"]]} yellow eel time-series and scaled to the 1960-1979
 average. Note the logarithmic scale on the y-axis.}
 \label{figure6}
 \end{figure}
@@ -1734,8 +1736,8 @@ in the Irish series. The yellow recruitment index was nearly the double
 comparing to that of the previous year (Figure \ref{figure6}).
 
 \tiny
-\input{F:/workspace/wgeeldata/recruitment/2017/table/table_glm_glass_eel.tex}
-\input{F:/workspace/wgeeldata/recruitment/2017/table/table_glm_yellow.tex}
+\input{C:/workspace/wgeeldata/recruitment/2017/table/table_glm_glass_eel.tex}
+\input{C:/workspace/wgeeldata/recruitment/2017/table/table_glm_yellow.tex}
 \normalsize
 
 \clearpage
@@ -1771,42 +1773,42 @@ comparing to that of the previous year (Figure \ref{figure6}).
 %==========================================
 
  %====================================
-	\input{F:/workspace/wgeeldata/recruitment/2017/table/table_seriesCY.tex}
+	\input{C:/workspace/wgeeldata/recruitment/2017/table/table_seriesCY.tex}
  %====================================
 
  %====================================
-	\input{F:/workspace/wgeeldata/recruitment/2017/table/table_seriesCYm1.tex}
+	\input{C:/workspace/wgeeldata/recruitment/2017/table/table_seriesCYm1.tex}
  %====================================
 
  %====================================
-	\input{F:/workspace/wgeeldata/recruitment/2017/table/table_serieslost.tex}
+	\input{C:/workspace/wgeeldata/recruitment/2017/table/table_serieslost.tex}
  %====================================
 \normalsize
 
 \small
  %====================================
-	\input{F:/workspace/wgeeldata/recruitment/2017/table/table_statseries.tex}
+	\input{C:/workspace/wgeeldata/recruitment/2017/table/table_statseries.tex}
  %====================================
 \normalsize
 \small
  %====================================
-	\input{F:/workspace/wgeeldata/recruitment/2017/table/table_statseries1.tex}
+	\input{C:/workspace/wgeeldata/recruitment/2017/table/table_statseries1.tex}
  %====================================F
 \normalsize
 \small
  %====================================
-	\input{F:/workspace/wgeeldata/recruitment/2017/table/table_statseries2.tex}
+	\input{C:/workspace/wgeeldata/recruitment/2017/table/table_statseries2.tex}
  %====================================
 \normalsize
 %\newpage
 %\small
 % %====================================
-%\input{F:/workspace/wgeeldata/sweave/2017/table/table_n_y_area.tex}
+%\input{C:/workspace/wgeeldata/sweave/2017/table/table_n_y_area.tex}
 % %====================================
 %\normalsize
 %\small
 % %====================================
-%\input{F:/workspace/wgeeldata/sweave/2017/table/table_n_y_lfs.tex}
+%\input{C:/workspace/wgeeldata/sweave/2017/table/table_n_y_lfs.tex}
 % %====================================
 %\normalsize
 \end{document}
