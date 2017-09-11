@@ -54,8 +54,14 @@ if(getUsername() == 'cedric.briand')
 	shpwd=str_c("C:/workspace/wgeeldata/shp") 
 }
 ```
+line 49 edit path to pictures
 
-You will also need to manually edit path with input like 
+```tex
+% this is where I'm storing files locally
+\graphicspath{{C:/workspace/wgeeldata/recruitment/2016/image/}} 
+```
+
+You will also need to manually edit path with input like :
 
 ```tex
 %====================================

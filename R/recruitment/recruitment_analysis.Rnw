@@ -46,7 +46,7 @@
 \newcolumntype{R}{>{\raggedleft\arraybackslash}X}
 \newcolumntype{L}{>{\raggedright\arraybackslash}X}
 % this is where I'm storing files locally
-\graphicspath{{F:/workspace/wgeeldata/recruitment/2016/image/}} 
+\graphicspath{{C:/workspace/wgeeldata/recruitment/2016/image/}} 
 % TO UPDATE TO THE NEW YEAR
 % DO REPLACE FOR INSTANCE F:/workspace/wgeeldata/sweave/2016/table by F:/workspace/wgeeldata/sweave/2017/table
 %%%%%%%%%%%%%%%%%%%%%%%%%% END OF THE PREAMBLE  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
