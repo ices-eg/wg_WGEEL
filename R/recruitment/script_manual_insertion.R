@@ -1,5 +1,6 @@
 # script_manual_insertion.R
 # Use this script if you have a lot of data to put to the database
+# here it is adapted to insert historical series from Lough Neagh
 ###############################################################################
 
 
@@ -32,6 +33,7 @@ datawd<-"C:/workspace/wgeeldata/recruitment/2017/xl/"
 
 # read data from xl file
 bann<-read_excel(path=str_c(datawd,"GB2017 D Evans plus historic.xls"), sheet="Bann")
+bann<-bann[!is.na(bann$das_year),]
 #>  str(bann)
 #Classes 'tbl_df', 'tbl' and 'data.frame':	86 obs. of  8 variables:
 #     $ das_id         : num  NA NA NA NA NA NA NA NA NA NA ...
@@ -56,6 +58,20 @@ bann_database<-sqldf("SELECT
 	        JOIN datawg.t_series_ser ON ser_id=das_ser_id
 	        where ser_nameshort='Bann'
 			order by das_year")
-#TODO finish here....
-index_remove <- curennt
-sqldf("")
+#what are the years in the excel table that are already in the database
+index_remove <- !bann$das_year%in%bann_database$das_year
+# selecting the rows to import
+bann<-bann[index_remove,]
+
+sqldf("INSERT INTO datawg.t_dataseries_das(
+        das_value,
+        das_ser_id,
+        das_year,
+        das_comment
+        ) SELECT 
+		das_value,
+        4 as das_ser_id,
+        das_year,
+        'Inserted 2017 Derek Evans' as das_comment
+		FROM bann;")
+
