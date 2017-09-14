@@ -11,10 +11,10 @@
 #' @param country the current country being evaluated
 check_missing <- function(dataset,column,country){
   if (any(is.na(dataset[,column]))){
-    line<-(1:nrow(dataset))[is.na(ddataset[,column])]
+    line<-(1:nrow(dataset))[is.na(dataset[,column])]
     if (length(line)>10) line <-str_c(str_c(line[1:10],collapse=";"),"...") else
       line <- str_c(line,collpase=";")
-    warning(sprintf("Country <%s>,  dataset <%s>, column <%s>, missing values line %s",
+    cat(sprintf("Country <%s>,  dataset <%s>, column <%s>, missing values line %s \n",
             country,
             deparse(substitute(dataset)),
             column,
@@ -36,7 +36,7 @@ check_values <- function(dataset,column,country,values){
   if (nrow(ddataset)>0){ # there might be NA, this will have been tested elsewhere
     if (! all(ddataset[,column]%in%values)) { # are all values matching ?
           values<- str_c(unique(ddataset[,column][!ddataset[,column]%in%values]),collapse=";")
-      warning(sprintf("Country <%s>,  dataset <%s>, column <%s>, values <%s> are wrong",
+      cat(sprintf("Country <%s>,  dataset <%s>, column <%s>, values <%s> are wrong \n",
               country,
               deparse(substitute(dataset)),
               column,
@@ -55,8 +55,8 @@ check_values <- function(dataset,column,country,values){
 #' @param country the current country being evaluated
 #' @param type, a class described as a character e.g. "numeric"
 check_type <- function(dataset,column,country,values,type){
-  if(class(ddataset[,column])!=type) {
-    warning(sprintf("Country <%s>,  dataset <%s>, column <%s>, should be of type %s",
+  if(class(dataset[,column])!=type) {
+    cat(sprintf("Country <%s>,  dataset <%s>, column <%s>, should be of type %s \n",
             country,
             deparse(substitute(dataset)),
             column,
@@ -76,7 +76,7 @@ check_type <- function(dataset,column,country,values,type){
 check_unique <- function(dataset,column,country,values){
   ddataset <- as.data.frame(dataset[!is.na(dataset[,column]),])
   if (length(unique(ddataset[,column]))!=1) {
-    warning(sprintf("Country <%s>,  dataset <%s>, column <%s>, should only have one value",
+    cat(sprintf("Country <%s>,  dataset <%s>, column <%s>, should only have one value \n",
             country,
             deparse(substitute(dataset)),
             column))
@@ -101,11 +101,11 @@ check_missvaluequa <- function(dataset,country){
     lines<-which(!is.na(ddataset[,"eel_missvaluequal"]))
     eel_values_for_missing <-ddataset[lines,"eel_value"]
     if (! all(is.na(eel_values_for_missing))) {
-      warning(sprintf("Country <%s>,  dataset <%s>, column <%s>, lines <%s>, there is a code, but the eel_value field should be empty",
+      cat(sprintf("Country <%s>,  dataset <%s>, column <%s>, lines <%s>, there is a code, but the eel_value field should be empty \n",
               country,
               deparse(substitute(dataset)),
               "eel_missvaluequal",
-              lines
+              lines[!is.na(is.na(eel_values_for_missing))]
           ))
     }
   }
@@ -117,11 +117,11 @@ check_missvaluequa <- function(dataset,country){
     eel_missingforvalues <-ddataset[lines,"eel_missvaluequal"]
     # if in those lines, one missing value has not been commented upon
     if (any(is.na(eel_missingforvalues))) {
-      warning(sprintf("Country <%s>,  dataset <%s>, column <%s>, lines <%s>, there should be a code, as the eel_value field is missing",
+      cat(sprintf("Country <%s>,  dataset <%s>, column <%s>, lines <%s>, there should be a code, as the eel_value field is missing \n",
               country,
               deparse(substitute(dataset)),
               "eel_missvaluequal",
-              lines))
+              lines[is.na(eel_missingforvalues)]))
     }
   }
   return(invisible(NULL))  

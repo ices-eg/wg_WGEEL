@@ -15,7 +15,7 @@ library(stringr) # this contains utilities for strings
 mylocalfolder <- "C:/temp/SharePoint/WGEEL - 2017 Meeting Docs/06. Data/datacall"
 # you will need to put the following files there
 
-# path to local github
+# path to local github (or write a local copy of the files and point to them)
 setwd("C:/Users/cedric.briand/Documents/GitHub/WGEEL")
 source(str_c(getwd(),"/R/stock_assessment/check_utilities.R"))
 # list the current folders in C:/temps to run into the loop
@@ -27,6 +27,7 @@ datacallfiles<-c("Eel_Data_Call_Annex2_Catch_and_Landings.xlsx",
 
 
 # to get ices division list but just once, this is out from the loop
+# the ices division are extracted from the datacall itself
 ices_squares<-read_excel(
     path=str_c(directories[1],"/",datacallfiles[1]),"tr_faoareas",
     skip=0)
@@ -44,8 +45,9 @@ for (i in 1:length(directories)) {
   country<- gsub("/","",gsub(mylocalfolder, "", directories[i])) 
   metadata_list[[country]]<-list() # creates an element in the list with the name of the country
   data_list[[country]]<-list() # creates an element in the list with the name of the country
+   cat(str_c("-------------------------","\n"))
   cat(str_c(country,"\n"))
-  
+  cat(str_c("---------------------------","\n"))
   ############# CATCH AND LANDINGS #############################################
   
   #---------------------- METADATA sheet ---------------------------------------------
@@ -55,13 +57,20 @@ for (i in 1:length(directories)) {
   # check if no rows have been added
   if (names(metadata)[1]!="For each data series") warning(str_c("The structure of metadata has been changed ",datacallfiles[1]," in ",country))
   # store the content of metadata in a list
+  if (ncol(metadata)>1){   
   metadata_list[[country]][["contact"]] <- as.character(metadata[1,2])
   metadata_list[[country]][["contactemail"]] <- as.character(metadata[2,2])
   metadata_list[[country]][["method_catch_landings"]] <- as.character(metadata[3,2])
+  } else {
+  metadata_list[[country]][["contact"]] <- NA
+  metadata_list[[country]][["contactemail"]] <- NA
+  metadata_list[[country]][["method_catch_landings"]] <- NA
+  }
   # end loop for directories
   
   #---------------------- catch_landings sheet ---------------------------------------------
   # read the catch_landings sheet
+  cat("catch and landings \n")
   catch_landings<-read_excel(
       path=str_c(directories[i],"/",datacallfiles[1]),"catch_landings",
       skip=0)
@@ -175,7 +184,7 @@ for (i in 1:length(directories)) {
   check_values(dataset=catch_landings,
       column="eel_hty_code",
       country=country,
-      values=c("F","R","C","MO"))
+      values=c("F","T","C","MO"))
   
   ###### eel_area_div ##############
   
@@ -204,7 +213,13 @@ for (i in 1:length(directories)) {
   metadata<-read_excel(path=str_c(directories[i],"/",datacallfiles[2]),"metadata" , skip=4)
   # check if no rows have been added
   if (names(metadata)[1]!="For each data series") warning(str_c("The structure of metadata has been changed ",datacallfiles[2]," in ",country))
-  metadata_list[[country]][["method_restocking"]] <- as.character(metadata[3,2])
+   # if there is no value in the cells then the tibble will only have one column
+  if (ncol(metadata)>1){
+     metadata_list[[country]][["method_restocking"]] <- as.character(metadata[3,2])
+  } else {
+    metadata_list[[country]][["method_restocking"]]  <-NULL
+  }
+  
   # end loop for directories
   
   #---------------------- restocking sheet ---------------------------------------------
@@ -213,6 +228,7 @@ for (i in 1:length(directories)) {
   restocking<-read_excel(
       path=str_c(directories[i],"/",datacallfiles[2]),"restocking",
       skip=0)
+  cat("Restocking \n")
   # check for the file integrity
   if (ncol(restocking)!=12) warning(str_c("number column wrong ",datacallfiles[1]," in ",country))
   # check column names
@@ -306,7 +322,7 @@ for (i in 1:length(directories)) {
       check_values(dataset=restocking,
               column="eel_lfs_code",
               country=country,
-              values=c("G","GY","Y"))
+              values=c("G","GY","Y","QG","OG","YS","S"))
       
       ###### eel_hty_code ##############
       
@@ -322,7 +338,7 @@ for (i in 1:length(directories)) {
       check_values(dataset=restocking,
               column="eel_hty_code",
               country=country,
-              values=c("F","R","C","MO"))
+              values=c("F","T","C","MO"))
       
       ###### eel_area_div ##############
       
@@ -353,7 +369,12 @@ for (i in 1:length(directories)) {
   metadata<-read_excel(path=str_c(directories[i],"/",datacallfiles[3]),"metadata" , skip=4)
   # check if no rows have been added
   if (names(metadata)[1]!="For each data series") warning(str_c("The structure of metadata has been changed ",datacallfiles[1]," in ",country))
+  # if there is no value in the cells then the tibble will only have one column
+  if (ncol(metadata)>1){
   metadata_list[[country]][["method_aquaculture_production"]] <- as.character(metadata[3,2])
+  } else {
+    metadata_list[[country]][["method_aquaculture_production"]] <-NULL
+  }
   # end loop for directories
   
   #---------------------- aquaculture sheet ---------------------------------------------
@@ -362,6 +383,7 @@ for (i in 1:length(directories)) {
   aquaculture<-read_excel(
       path=str_c(directories[i],"/",datacallfiles[3]),"aquaculture",
       skip=0)
+  cat("Aquaculture \n")
   # check for the file integrity
   if (ncol(aquaculture)!=12) warning(str_c("number column wrong ",datacallfiles[1]," in ",country))
   # check column names
@@ -455,7 +477,7 @@ for (i in 1:length(directories)) {
       check_values(dataset=aquaculture,
               column="eel_lfs_code",
               country=country,
-              values=c("G","GY","Y"))
+              values=c("G","GY","Y","YS","S","OG","QG"))
       
       ###### eel_hty_code ##############
       
@@ -471,7 +493,7 @@ for (i in 1:length(directories)) {
       check_values(dataset=aquaculture,
               column="eel_hty_code",
               country=country,
-              values=c("F","R","C","MO"))
+              values=c("F","T","C","MO"))
       
       ###### eel_area_div ##############
       
@@ -494,6 +516,5 @@ for (i in 1:length(directories)) {
   } else {
     data_list[[country]][["aquaculture"]]<-NA
   }
-  
 } # end the loop
 
