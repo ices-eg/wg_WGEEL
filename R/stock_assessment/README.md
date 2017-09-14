@@ -28,7 +28,7 @@ It looks as if it depends a lot on your computer configuration but some of us mi
 and some others might manage to synchronize from the sharepoint. If you have office 2016 you don't need to do that. Once you click on the sync button,
 you can synchronize the datacall folder on your computer. I have used the * C:/temp * folder as the destination.
 
-The [script](https://github.com/ices-eg/WGEEL/tree/master/R/stock_assessment)  for initial check of the datacall files, 
+The [script]https://github.com/ices-eg/WGEEL/blob/master/R/stock_assessment/import_to_database.R)  for initial check of the datacall files, 
  needs to be adapted for the path on your computer.
 
 
