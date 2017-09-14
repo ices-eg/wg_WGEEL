@@ -20,7 +20,7 @@ Italy>Eel_Data_Call_Annex2_Catch_and_Landings.xlsx
 Italy>Eel_Data_Call_Annex3_Stocking.xlsx
 Italy>Eel_Data_Call_Annex4_Aquaculture_Production.xlsx
 ````
-Normally I will have everything arranged on the sharepoint, so you just have to sync the file to get the right data and folders
+Everything is on the sharepoint, so you just have to sync the file to get the right data and folders
 #### sync with the sharepoint to get a copy of the files.
 I have managed to run the sync component of the sharepoint, by downloading onedrive buisness following a procedure
 described [here](https://support.microsoft.com/en-us/help/2903984/how-to-install-onedrive-for-business-for-sharepoint-and-sharepoint-onl).
