@@ -52,7 +52,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%% END OF THE PREAMBLE  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{document}
 \bibliographystyle{plain}
-\title{ Analysis of recruitment trend}
+\title{ Analysis of recruitment trend : Draft first run, with incomplete data}
 \author{EIFAAC/ICES/GFCM Working Group on Eel}
 \date\today
 \maketitle
@@ -734,10 +734,10 @@ beginning of 20th century (yellow eel, Göta Älv, Sweden) or 1920 (glass eel, Loi
 \Sexpr{sn(vv[["nCYm1y"]])} for yellow eel) were updated to \Sexpr{CY-1}
 only (Table \ref{table_seriesCYm1} Annex \textcolor{red}{X}). 
 
-Among the time-series based on trap indices, some have reported preliminary
-data for 2017 as the season is not yet finished (Lagan (SW), Kävlingeån (SW),
+\textcolor{Plum}{Adapt here : Among the time-series based on trap indices, some
+have reported preliminary data for 2017 as the season is not yet finished (Lagan (SW), Kävlingeån (SW),
 Göta Älv (SW), Viskan (SW), Parteen(IR), Bann (GB), Bresle (FR)),
-while others have not yet reported (Guden Å (DK), Harte (DK)).
+while others have not yet reported (Guden Å (DK), Harte (DK)).}
 Therefore, the indices given for 2017 must be considered as provisional
 especially those for the yellow eel. 
 \item 
@@ -748,8 +748,7 @@ reporting either because of a lack of recruits in the case of the fishery-based 
 in Germany, stopped in 2001; Vidaa in Denmark, stopped in 1990),
  a lack of financial support (the Tiber in Italy, 2006) or the introduction of
 quota from from 2008 to 2011 that has disrupted the five fishery-based French
-time-series . Note the French Vilaine time-series could be used again in 2017
-because the glass eel fishery never achieved its quota.
+time-series . 
 \item One series (Severn HMRC) has been dropped from the list, as it was
 considered a double of the other Severn EA statistics, but of poorer quality.
 It is no longer represented in the summary but kept and updated in the database.
@@ -757,6 +756,7 @@ It is no longer represented in the summary but kept and updated in the database.
 Mediterranean (Vaccares), starting in 2004.
 \item The whole Miño  glass eel time-series (MiPo) has been reviewed in 2017.
 \end{itemize}
+\item New historical data for Bann 
 The number of glass eel and glass eel + young yellow eel time-series available
 has declined from a peak of
 \Sexpr{vv[["nbmaxglasseel"]]} in \Sexpr{max(as.numeric(vv[["yearmaxglasseel"]]))}. The maximum
@@ -1700,7 +1700,7 @@ After high levels in
 the late 1970s, there has been a rapid decreasing trend for three decades to a
 minimum in 2009 (Figures \ref{figure5} \ref{figure6}).\\
 %==========================================
-\begin{figure}[htpb]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.8\textwidth]{figure5.pdf}
 \caption{WGEEL recruitment index: geometric mean of estimated (GLM) glass eel
@@ -1715,7 +1715,7 @@ recruitment for the continental  North Sea and  Elsewhere Europe series updated 
 \end{figure}
 %==========================================
 %==========================================
-\begin{figure}[htbp]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.8\textwidth]{figure6.pdf}
 \caption {Geometric mean of estimated (GLM) yellow eel recruitment and smoothed
@@ -1748,7 +1748,7 @@ comparing to that of the previous year (Figure \ref{figure6}).
 
 
 %==================================================
-\begin{figure}[htbp]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.7\textwidth]{figure3withoutlogscale.pdf}
 \caption{Same as figure \ref{figure3} but without log scale}
@@ -1757,7 +1757,7 @@ comparing to that of the previous year (Figure \ref{figure6}).
 %==========================================
 
 %==========================================
-\begin{figure}[htbp]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.7\textwidth]{figure5_without_logscale.pdf}
 \caption{Same as figure \ref{figure5} but without a log scale.}
@@ -1765,7 +1765,7 @@ comparing to that of the previous year (Figure \ref{figure6}).
 \end{figure}
 %==========================================
 %==========================================
-\begin{figure}[htbp]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.7\textwidth]{figure6_without_log_scale.pdf}
 \caption{Same graph as figure \ref{figure6} but without a log scale.}
