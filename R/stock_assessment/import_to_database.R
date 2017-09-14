@@ -4,23 +4,15 @@
 ###############################################################################
 
 
-
+# Look at the README file for instructions on how to use this script on your computer
 
 # here is a list of the required packages
 library(readxl) # to read xls files
 library(stringr) # this contains utilities for strings
 
-# PRELIMINARY NOTES
-# There is no easy way to get data directly from the sharepoint as it is https and requires authentification.
-# There is possibility to read one file in R directly but only when it’s http.
-# One way around would be to use onedrive, but I didn’t manage to make it work; I think this will require to have the office365 buisness which I don’t have.
-# So in the end I will program it from a local folder where we will download the files
-
-
-
 # this is the folder where you will store the files prior to upload
 # don't forget to put an / at the end of the string
-mylocalfolder <- "C:/temp/wgeel/"
+mylocalfolder <- "C:/temp/SharePoint/WGEEL - 2017 Meeting Docs/06. Data/datacall"
 # you will need to put the following files there
 
 # path to local github
