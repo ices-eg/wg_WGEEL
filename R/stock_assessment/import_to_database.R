@@ -55,7 +55,7 @@ for (i in 1:length(directories)) {
   # read the metadata sheet
   metadata<-read_excel(path=str_c(directories[i],"/",datacallfiles[1]),"metadata" , skip=4)
   # check if no rows have been added
-  if (names(metadata)[1]!="For each data series") warning(str_c("The structure of metadata has been changed ",datacallfiles[1]," in ",country))
+  if (names(metadata)[1]!="For each data series") cat(str_c("The structure of metadata has been changed ",datacallfiles[1]," in ",country,"\n"))
   # store the content of metadata in a list
   if (ncol(metadata)>1){   
   metadata_list[[country]][["contact"]] <- as.character(metadata[1,2])
@@ -75,17 +75,17 @@ for (i in 1:length(directories)) {
       path=str_c(directories[i],"/",datacallfiles[1]),"catch_landings",
       skip=0)
   # check for the file integrity
-  if (ncol(catch_landings)!=12) warning(str_c("number column wrong ",datacallfiles[1]," in ",country))
+  if (ncol(catch_landings)!=12) cat(str_c("number column wrong ",datacallfiles[1]," in ",country,"\n"))
   # check column names
   if (!all.equal(colnames(catch_landings),
       c("eel_typ_id","eel_year","eel_value","eel_missvaluequa","eel_emu_nameshort",
           "eel_cou_code", "eel_lfs_code", "eel_hty_code","eel_area_division",
           "eel_qal_id", "eel_qal_comment","eel_comment"))) 
-    warning(str_c("problem in column names",
+    cat(str_c("problem in column names",
             datacallfiles[1]," in ",
-            country)) 
+            country,"\n")) 
   colnames(catch_landings)[4]<-"eel_missvaluequal" # there is a problem in catch and landings sheet
-  
+ #TODO treat OG_ replace with OG 
   ###### eel_typ_id ##############
   
   # should not have any missing value
@@ -212,7 +212,7 @@ for (i in 1:length(directories)) {
   # read the metadata sheet
   metadata<-read_excel(path=str_c(directories[i],"/",datacallfiles[2]),"metadata" , skip=4)
   # check if no rows have been added
-  if (names(metadata)[1]!="For each data series") warning(str_c("The structure of metadata has been changed ",datacallfiles[2]," in ",country))
+  if (names(metadata)[1]!="For each data series") cat(str_c("The structure of metadata has been changed ",datacallfiles[2]," in ",country,"\n"))
    # if there is no value in the cells then the tibble will only have one column
   if (ncol(metadata)>1){
      metadata_list[[country]][["method_restocking"]] <- as.character(metadata[3,2])
@@ -230,15 +230,15 @@ for (i in 1:length(directories)) {
       skip=0)
   cat("Restocking \n")
   # check for the file integrity
-  if (ncol(restocking)!=12) warning(str_c("number column wrong ",datacallfiles[1]," in ",country))
+  if (ncol(restocking)!=12) cat(str_c("number column wrong ",datacallfiles[1]," in ",country,"\n"))
   # check column names
   if (all.equal(colnames(restocking),
       c("eel_typ_id","eel_year","eel_value","eel_missvaluequal","eel_emu_nameshort",
           "eel_cou_code", "eel_lfs_code", "eel_hty_code","eel_area_division",
           "eel_qal_id", "eel_qal_comment","eel_comment"))!=TRUE) 
-    warning(str_c("problem in column names",
+    cat(str_c("problem in column names",
             datacallfiles[1]," in ",
-            country)) 
+            country,"\n")) 
   if (nrow(restocking)>0) {
       ###### eel_typ_id ##############
       
@@ -368,7 +368,7 @@ for (i in 1:length(directories)) {
   # read the metadata sheet
   metadata<-read_excel(path=str_c(directories[i],"/",datacallfiles[3]),"metadata" , skip=4)
   # check if no rows have been added
-  if (names(metadata)[1]!="For each data series") warning(str_c("The structure of metadata has been changed ",datacallfiles[1]," in ",country))
+  if (names(metadata)[1]!="For each data series") cat(str_c("The structure of metadata has been changed ",datacallfiles[1]," in ",country),"\n")
   # if there is no value in the cells then the tibble will only have one column
   if (ncol(metadata)>1){
   metadata_list[[country]][["method_aquaculture_production"]] <- as.character(metadata[3,2])
@@ -385,15 +385,15 @@ for (i in 1:length(directories)) {
       skip=0)
   cat("Aquaculture \n")
   # check for the file integrity
-  if (ncol(aquaculture)!=12) warning(str_c("number column wrong ",datacallfiles[1]," in ",country))
+  if (ncol(aquaculture)!=12) cat(str_c("number column wrong ",datacallfiles[1]," in ",country,"\n"))
   # check column names
   if (all.equal(colnames(aquaculture),
       c("eel_typ_id","eel_year","eel_value","eel_missvaluequal","eel_emu_nameshort",
           "eel_cou_code", "eel_lfs_code", "eel_hty_code","eel_area_division",
           "eel_qal_id", "eel_qal_comment","eel_comment"))!=TRUE) 
-    warning(str_c("problem in column names",
+    cat(str_c("problem in column names",
             datacallfiles[3]," in ",
-            country)) 
+            country,"\n")) 
   if (nrow(aquaculture)>0){
       ###### eel_typ_id ##############
       

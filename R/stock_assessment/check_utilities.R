@@ -55,7 +55,7 @@ check_values <- function(dataset,column,country,values){
 #' @param country the current country being evaluated
 #' @param type, a class described as a character e.g. "numeric"
 check_type <- function(dataset,column,country,values,type){
-  if(class(dataset[,column])!=type) {
+  if (class(dataset[[column]])!=type) {
     cat(sprintf("Country <%s>,  dataset <%s>, column <%s>, should be of type %s \n",
             country,
             deparse(substitute(dataset)),
