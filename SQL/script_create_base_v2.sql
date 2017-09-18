@@ -446,6 +446,17 @@ COMMENT ON COLUMN datawg.t_series_ser.ser_y IS 'y (latitude) EPSG:4326. WGS 84 (
 COMMENT ON COLUMN datawg.t_series_ser.geom IS 'internal use, a postgis geometry point in EPSG:3035 (ETRS89 / ETRS-LAEA)';
 COMMENT ON COLUMN datawg.t_series_ser.ser_sam_id IS 'The sampling type corresponds to trap partial, trap total, ...., FOREIGN KEY to ref.tr_samplingtype_sam';
 
+----------------------------------
+-- adding a column to check data quality
+-----------------------------------
+ALTER TABLE  datawg.t_series_ser add column ser_qal_id integer; -- Code to assess the quality of the data, FOREIGN KEY on table ref.tr_quality_qal
+COMMENT ON COLUMN datawg.t_series_ser.ser_qal_id IS 'Code to assess the quality of the data, this will allow to discard a whole series from the recruitment analysis FOREIGN KEY on table ref.tr_quality_qal';
+ALTER TABLE  datawg.t_series_ser ADD CONSTRAINT c_fk_qal_id FOREIGN KEY (ser_qal_id)
+      REFERENCES ref.tr_quality_qal (qal_id) MATCH SIMPLE
+      ON UPDATE CASCADE ON DELETE NO ACTION;
+ALTER TABLE  datawg.t_series_ser add column ser_qal_comment text; 
+COMMENT ON COLUMN datawg.t_series_ser.ser_qal_comment IS 'Comment on quality of data, why was the series retained or discarded from later analysis ? ';
+
 
 ---------------------------------------
 -- this table holds the main information

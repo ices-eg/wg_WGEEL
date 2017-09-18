@@ -540,3 +540,22 @@ update datawg.t_series_ser set ser_sam_id=1 where ser_nameshort in ('Ebro');
 --------------------------------
 
 update datawg.t_series_ser set ser ser_cou_code='FR' where ser_nameshort='Vac'
+
+-----------------------------
+-- We have added a quality statement at the series level.
+-- Here we deal with it, removing SeHMRC and adding 1 to the other
+-----------------------------
+update datawg.t_series_ser set ser_qal_id=1;
+select ser_nameshort from datawg.t_series_ser
+
+BEGIN;
+update datawg.t_series_ser set ser_qal_id=0 where ser_nameshort= 'SeHM';
+COMMIT;
+BEGIN;
+update datawg.t_series_ser set ser_qal_comment ='Alan the HMRC dataset is based on a guesstimate of distribution
+of nett trade data between glass vs yellow/silver until about 2008 and then much better
+EA sales data in more recent years  so a mix of two methods of collecting data,
+one of which is of uncertain quality. The Severn EA dataset is the catches reported 
+by fishermen  we know there was under reporting in old years but it is better now, 
+so there are quality issues too but at least the data source is consistent over time' where ser_nameshort= 'SeHM';
+COMMIT;

@@ -268,6 +268,7 @@ query@sql='SELECT
 		ser_order,
 		ser_nameshort,
 		ser_area_division,
+		ser_qal_id,
 		f_subarea,
 		lfs_code,          
 		lfs_name
@@ -275,7 +276,7 @@ query@sql='SELECT
 		join datawg.t_series_ser on das_ser_id=ser_id
 		left join ref.tr_lifestage_lfs on ser_lfs_code=lfs_code
 		left join ref.tr_faoareas on ser_area_division=f_division
-		where ser_typ_id=1' 
+		where ser_typ_id=1'
 query=connect(query)
 wger=query@query # (wge)el (r)ecruitment data
 wger<-chnames(wger,
@@ -341,21 +342,13 @@ load(file=str_c(datawd,"/statseries.Rdata"))
 % which series have been already entered and which still need to be
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 << select_series, echo=FALSE, fig=FALSE, eval=TRUE >>=
-#########################################################################
-#We no longer want to use Severn HRMC 
-##########################################################################
-# Comments from Alan : the HMRC dataset is based on a guesstimate of distribution
-#of nett trade data between glass vs yellow/silver until about 2008 and then much better
-#EA sales data in more recent years  so a mix of two methods of collecting data,
-#one of which is of uncertain quality. The Severn EA dataset is the catches reported 
-#by fishermen  we know there was under reporting in old years but it is better now, 
-#so there are quality issues too but at least the data source is consistent over time
-## HMRC is ser_id 8
+
 # wgerinit is used to keep the "whole" dataset, just in case we mess with it afterwards
+
 wgerinit<-wger
 vv$nb_series_init<-length(unique(wger$site)) # this is the true number at the beginning
-wger<-wger[wger$ser_id!=8,]
-statseries<-statseries[statseries$site!='SeHM',]
+# 2017 removing series where ser_qal_id=0;
+wger<-wger[wger$ser_qal_id==1,]
 
 #########################################################################
 # standardizing with 2000-2010
