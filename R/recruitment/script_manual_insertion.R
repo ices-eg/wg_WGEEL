@@ -1,6 +1,6 @@
 # script_manual_insertion.R
 # Use this script if you have a lot of data to put to the database
-# here it is adapted to insert historical series from Lough Neagh
+# here it is adapted to insert historical series from germany
 ###############################################################################
 
 
@@ -29,10 +29,64 @@ options(sqldf.RPostgreSQL.user = "postgres",
 	sqldf.RPostgreSQL.port = 5432)
 
 # this is where I store the xl files
-datawd<-"C:/workspace/wgeeldata/recruitment/2017/xl/"
+datawd<-"C:/temp/SharePoint/WGEEL - 2017 Meeting Docs/06. Data/datacall/Germany/"
 
 # read data from xl file
-bann<-read_excel(path=str_c(datawd,"GB2017 D Evans plus historic.xls"), sheet="Bann")
+series_info<-read_excel(path=str_c(datawd,"Eel_Data_Call_Annex1_Recruitment.xlsx"), sheet="series_info")
+series_info<-series_info[!series_info$ser_nameshort=='Ems',] # remove ems already in
+# series are ordered from North to South
+# Ems is currently 19
+# so I'm inserting 14 new numbers....
+# RUN ONCE ONLY
+#sqldf("update datawg.t_series_ser set ser_order=ser_order+14 where ser_order>19;")
+
+series_info$ser_order=20:33
+series_info<-series_info[,c(19,1:18)]
+series_info$ser_tblcodeid<-NULL
+nchar(series_info$ser_namelong) # manual correction to avoid length > 50
+# insert new series
+# dplyr::glimpse(series_info)
+sqldf("INSERT INTO  datawg.t_series_ser(
+  ser_order, 
+  ser_nameshort, 
+  ser_namelong, 
+  ser_typ_id, 
+  ser_effort_uni_code, 
+  ser_comment, 
+  ser_uni_code, 
+  ser_lfs_code, 
+  ser_hty_code, 
+  ser_habitat_name, 
+  ser_emu_nameshort, 
+  ser_cou_code, 
+  ser_area_division,
+  --ser_tblcodeid,
+  ser_x, 
+  ser_y, 
+  ser_sam_id,
+  ser_qal_id,
+  ser_qal_comment) SELECT * from series_info;")
+
+#---------------------------
+# script to integrate series one by one (only one saved)
+#-------------------------------------
+series<-read_excel(path=str_c(datawd,"Eel_Data_Call_Annex1_Recruitment.xlsx"), sheet="data_Verl")
+sqldf("INSERT INTO datawg.t_dataseries_das(
+        das_value,
+        das_ser_id,
+        das_year,
+        das_comment
+        ) SELECT 
+		das_value,
+        4 as das_ser_id,
+        das_year,
+        'Inserted 2017 Derek Evans' as das_comment
+		FROM bann;")
+
+
+#---------------------------
+# script for bann to remove pre-existing data in the series
+#-------------------------------------
 bann<-bann[!is.na(bann$das_year),]
 #>  str(bann)
 #Classes 'tbl_df', 'tbl' and 'data.frame':	86 obs. of  8 variables:
@@ -56,12 +110,12 @@ bann_database<-sqldf("SELECT
         das_qal_id
          FROM datawg.t_dataseries_das 
 	        JOIN datawg.t_series_ser ON ser_id=das_ser_id
-	        where ser_nameshort='Bann'
+	        where ser_nameshort='bann'
 			order by das_year")
 #what are the years in the excel table that are already in the database
-index_remove <- !bann$das_year%in%bann_database$das_year
+index_remove <- !bann$das_year%in%germ_database$das_year
 # selecting the rows to import
-bann<-bann[index_remove,]
+germ<-germ[index_remove,]
 
 sqldf("INSERT INTO datawg.t_dataseries_das(
         das_value,

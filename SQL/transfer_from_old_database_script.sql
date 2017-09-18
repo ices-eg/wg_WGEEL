@@ -131,6 +131,9 @@ insert into ref.tr_units_uni values('kg/boat/d','kilogramme per boat per day');
 insert into ref.tr_units_uni values('nr haul','number of haul'); -- effort unit used for recruitment
 insert into ref.tr_units_uni values('nr electrofishing','number of electrofishing campain in the year to collect the recruitment index');
 insert into ref.tr_units_uni values('ha','Surface');
+--2017
+insert into ref.tr_units_uni values('nr day','number of days'); -- effort unit used for recruitment (germany)
+
 ------------------------------
 -- ref.tr_typeseries_typ
 ---------------------------
@@ -541,6 +544,28 @@ update datawg.t_series_ser set ser_sam_id=1 where ser_nameshort in ('Ebro');
 
 update datawg.t_series_ser set ser ser_cou_code='FR' where ser_nameshort='Vac'
 
+-------------------------------
+-- Insert geom from new stations
+--------------------------------
+
+begin;
+update datawg.t_series_ser set geom=ST_SetSRID(ST_MakePoint(ser_x, ser_y),4326) where ser_nameshort='Lif';
+commit;
+
+begin;
+update datawg.t_series_ser set geom=ST_SetSRID(ST_MakePoint(ser_x, ser_y),4326) where ser_nameshort='Bur';
+commit;
+-- I need to insert series inbetween the Irish series
+begin;
+update datawg.t_series_ser set ser_order=ser_order+1 where ser_order>9;
+commit;
+
+
+
+-- I need to insert series for german
+begin;
+update datawg.t_series_ser set ser_order=ser_order+1 where ser_order>9;
+commit;
 -----------------------------
 -- We have added a quality statement at the series level.
 -- Here we deal with it, removing SeHMRC and adding 1 to the other
@@ -559,3 +584,5 @@ one of which is of uncertain quality. The Severn EA dataset is the catches repor
 by fishermen  we know there was under reporting in old years but it is better now, 
 so there are quality issues too but at least the data source is consistent over time' where ser_nameshort= 'SeHM';
 COMMIT;
+
+
