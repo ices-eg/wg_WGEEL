@@ -29,21 +29,22 @@ options(sqldf.RPostgreSQL.user = "postgres",
 	sqldf.RPostgreSQL.port = 5432)
 
 # this is where I store the xl files
-datawd<-"C:/temp/SharePoint/WGEEL - 2017 Meeting Docs/06. Data/datacall/Germany/"
+datawd<-"C:/temp/SharePoint/WGEEL - 2017 Meeting Docs/06. Data/Recruitment/"
 
 # read data from xl file
-series_info<-read_excel(path=str_c(datawd,"Eel_Data_Call_Annex1_Recruitment.xlsx"), sheet="series_info")
-series_info<-series_info[!series_info$ser_nameshort=='Ems',] # remove ems already in
-# series are ordered from North to South
-# Ems is currently 19
-# so I'm inserting 14 new numbers....
-# RUN ONCE ONLY
-#sqldf("update datawg.t_series_ser set ser_order=ser_order+14 where ser_order>19;")
+series_info<-read_excel(path=str_c(datawd,"Eel_Data_Call_Annex1_Recruitment_GB_Scot.xlsx"), sheet="series_info")
 
-series_info$ser_order=20:33
-series_info<-series_info[,c(19,1:18)]
+# series are ordered from North to South
+# series is currently 17
+# so I'm inserting 3 new numbers....
+# RUN ONCE ONLY
+#sqldf("update datawg.t_series_ser set ser_order=ser_order+3 where ser_order>17;")
+series_info$ser_order <- 18:20
+
 series_info$ser_tblcodeid<-NULL
 nchar(series_info$ser_namelong) # manual correction to avoid length > 50
+series_info$ser_qal_id <- c(1,0,0)
+series_info$ser_qal_comment <- c("Series > 10 years","Too short","Too short")
 # insert new series
 # dplyr::glimpse(series_info)
 sqldf("INSERT INTO  datawg.t_series_ser(
@@ -65,30 +66,38 @@ sqldf("INSERT INTO  datawg.t_series_ser(
   ser_y, 
   ser_sam_id,
   ser_qal_id,
-  ser_qal_comment) SELECT * from series_info;")
+  ser_qal_comment) SELECT   
+  ser_order, 
+  ser_nameshort, 
+  ser_namelong, 
+  ser_typ_id, 
+  ser_effort_uni_code, 
+  ser_comment, 
+  ser_uni_code, 
+  ser_lfs_code, 
+  ser_hty_code, 
+  ser_habitat_name, 
+  ser_emu_nameshort, 
+  ser_cou_code, 
+  ser_area_division,
+  --ser_tblcodeid,
+  ser_x, 
+  ser_y, 
+  ser_sam_id,
+  ser_qal_id,
+  ser_qal_comment from series_info;")
 
 #---------------------------
 # script to integrate series one by one (only one saved)
 #-------------------------------------
-sqldf("select ser_nameshort from datawg.t_series_ser where ser_cou_code='DE'")
-#1            Emsx
-#2           Verlx
-#3            HHKx
-#4            HoSx
-#5           Brokx
-#6           Langx
-#7           WaSGx
-#8           WaSEx
-#9           Farpx
-#10          WiFGx
-#11          WisWx
-#12          DoFpx
-#13          DoElx
-#14          EmsHx
-#15          EmsBx
-series<-read_excel(path=str_c(datawd,"Eel_Data_Call_Annex1_Recruitment.xlsx"), sheet="data_EmsB")
-ser_id<-sqldf("select ser_id from datawg.t_series_ser where ser_nameshort='EmsB'")
+sqldf("select ser_nameshort from datawg.t_series_ser where ser_cou_code='GB'")
+ShiF
+Girn
+ShiM
+series<-read_excel(path=str_c(datawd,"Eel_Data_Call_Annex1_Recruitment_GB_Scot.xlsx"), sheet="ShiM")
+ser_id<-sqldf("select ser_id from datawg.t_series_ser where ser_nameshort='ShiM'")
 series$das_ser_id<-as.numeric(ser_id)
+series$das_value<-as.numeric(series$das_value)
 sqldf("INSERT INTO datawg.t_dataseries_das(
         das_value,
         das_ser_id,

@@ -35,7 +35,8 @@ CREATE OR REPLACE VIEW datawg.series_summary AS
  sam_samplingtype as sampling_type,
  ser_uni_code as unit,
  ser_hty_code as habitat_type,
- ser_order as order
+ ser_order as order,
+ ser_qal_id AS series_kept
    FROM datawg.series_stats ss
    JOIN datawg.t_series_ser ser ON ss.ser_id = ser.ser_id
    LEFT JOIN ref.tr_samplingtype_sam on ser_sam_id=sam_id
