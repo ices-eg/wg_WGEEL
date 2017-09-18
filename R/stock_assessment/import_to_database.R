@@ -45,34 +45,43 @@ for (i in 1:length(directories)) {
   country<- gsub("/","",gsub(mylocalfolder, "", directories[i])) 
   metadata_list[[country]]<-list() # creates an element in the list with the name of the country
   data_list[[country]]<-list() # creates an element in the list with the name of the country
-   cat(str_c("-------------------------","\n"))
+  cat(str_c("-------------------------","\n"))
   cat(str_c(country,"\n"))
   cat(str_c("---------------------------","\n"))
+  # most files don't have the same name, so I will search for files including file name 
+  the_files<-list.files(path = directories[i],recursive = FALSE)
   ############# CATCH AND LANDINGS #############################################
   
   #---------------------- METADATA sheet ---------------------------------------------
-  
+  mylocalfilename<-datacallfiles[1]
+  if (length(grep(mylocalfilename,the_files))==1){
+    mylocalfilename<-the_files[grep(mylocalfilename,the_files)]
+  } else {
+    cat(str_c("String ", mylocalfilename, " not found, please check names "))
+  }
   # read the metadata sheet
-  metadata<-read_excel(path=str_c(directories[i],"/",datacallfiles[1]),"metadata" , skip=4)
+  metadata<-read_excel(path=str_c(directories[i],"/",mylocalfilename),"metadata" , skip=4)
   # check if no rows have been added
   if (names(metadata)[1]!="For each data series") cat(str_c("The structure of metadata has been changed ",datacallfiles[1]," in ",country,"\n"))
   # store the content of metadata in a list
   if (ncol(metadata)>1){   
-  metadata_list[[country]][["contact"]] <- as.character(metadata[1,2])
-  metadata_list[[country]][["contactemail"]] <- as.character(metadata[2,2])
-  metadata_list[[country]][["method_catch_landings"]] <- as.character(metadata[3,2])
+    metadata_list[[country]][["contact"]] <- as.character(metadata[1,2])
+    metadata_list[[country]][["contactemail"]] <- as.character(metadata[2,2])
+    metadata_list[[country]][["method_catch_landings"]] <- as.character(metadata[3,2])
   } else {
-  metadata_list[[country]][["contact"]] <- NA
-  metadata_list[[country]][["contactemail"]] <- NA
-  metadata_list[[country]][["method_catch_landings"]] <- NA
+    metadata_list[[country]][["contact"]] <- NA
+    metadata_list[[country]][["contactemail"]] <- NA
+    metadata_list[[country]][["method_catch_landings"]] <- NA
   }
   # end loop for directories
   
   #---------------------- catch_landings sheet ---------------------------------------------
+  
   # read the catch_landings sheet
   cat("catch and landings \n")
+# here we have already seached for catch and landings above.
   catch_landings<-read_excel(
-      path=str_c(directories[i],"/",datacallfiles[1]),"catch_landings",
+      path=str_c(directories[i],"/",mylocalfilename),"catch_landings",
       skip=0)
   # check for the file integrity
   if (ncol(catch_landings)!=12) cat(str_c("number column wrong ",datacallfiles[1]," in ",country,"\n"))
@@ -85,7 +94,7 @@ for (i in 1:length(directories)) {
             datacallfiles[1]," in ",
             country,"\n")) 
   colnames(catch_landings)[4]<-"eel_missvaluequal" # there is a problem in catch and landings sheet
- #TODO treat OG_ replace with OG 
+  #TODO treat OG_ replace with OG 
   ###### eel_typ_id ##############
   
   # should not have any missing value
@@ -208,14 +217,20 @@ for (i in 1:length(directories)) {
   ############# RESTOCKING #############################################
   
   #---------------------- METADATA sheet ---------------------------------------------
-  
+cat("Restocking \n")
+  mylocalfilename<-datacallfiles[2]
+  if (length(grep(mylocalfilename,the_files))==1){
+      mylocalfilename<-the_files[grep(mylocalfilename,the_files)]
+  } else {
+      cat(str_c("String ", mylocalfilename, " not found, please check names "))
+  }
   # read the metadata sheet
-  metadata<-read_excel(path=str_c(directories[i],"/",datacallfiles[2]),"metadata" , skip=4)
+  metadata<-read_excel(path=str_c(directories[i],"/",mylocalfilename),"metadata" , skip=4)
   # check if no rows have been added
   if (names(metadata)[1]!="For each data series") cat(str_c("The structure of metadata has been changed ",datacallfiles[2]," in ",country,"\n"))
-   # if there is no value in the cells then the tibble will only have one column
+  # if there is no value in the cells then the tibble will only have one column
   if (ncol(metadata)>1){
-     metadata_list[[country]][["method_restocking"]] <- as.character(metadata[3,2])
+    metadata_list[[country]][["method_restocking"]] <- as.character(metadata[3,2])
   } else {
     metadata_list[[country]][["method_restocking"]]  <-NULL
   }
@@ -226,152 +241,158 @@ for (i in 1:length(directories)) {
   
   
   restocking<-read_excel(
-      path=str_c(directories[i],"/",datacallfiles[2]),"restocking",
+      path=str_c(directories[i],"/",mylocalfilename),"restocking",
       skip=0)
-  cat("Restocking \n")
+
   # check for the file integrity
-  if (ncol(restocking)!=12) cat(str_c("number column wrong ",datacallfiles[1]," in ",country,"\n"))
+  if (ncol(restocking)!=12) cat(str_c("number column wrong ",mylocalfilename," in ",country,"\n"))
   # check column names
   if (all.equal(colnames(restocking),
       c("eel_typ_id","eel_year","eel_value","eel_missvaluequal","eel_emu_nameshort",
           "eel_cou_code", "eel_lfs_code", "eel_hty_code","eel_area_division",
           "eel_qal_id", "eel_qal_comment","eel_comment"))!=TRUE) 
     cat(str_c("problem in column names",
-            datacallfiles[1]," in ",
+            mylocalfilename," in ",
             country,"\n")) 
   if (nrow(restocking)>0) {
-      ###### eel_typ_id ##############
-      
-      # should not have any missing value
-      check_missing(dataset=restocking,
-              column="eel_typ_id",
-              country=country)
-      #  eel_typ_id should be one of 4 comm.land 5 comm.catch 6 recr. land. 7 recr. catch.
-      check_values(dataset=restocking,
-              column="eel_typ_id",
-              country=country,
-              values=c(8,9))
-      
-      ###### eel_year ##############
-      
-      # should not have any missing value
-      check_missing(dataset=restocking,
-              column="eel_year",
-              country=country)
-      # should be a numeric
-      check_type(dataset=restocking,
-              column="eel_year",
-              country=country,
-              type="numeric")
-      
-      ###### eel_value ##############
-      
-      # can have missing values if eel_missingvaluequa is filled (check later)
-      
-      # should be numeric
-      check_type(dataset=restocking,
-              column="eel_value",
-              country=country,
-              type="numeric")
-      
-      ###### eel_missvaluequa ##############
-      
-      #check that there are data in missvaluequa only when there are missing value (NA) is eel_value
-      # and also that no missing values are provided without a comment is eel_missvaluequa
-      check_missvaluequa(dataset=restocking,
-              country=country)
-      
-      ###### eel_emu_name ##############
-      
-      check_missing(dataset=restocking,
-              column="eel_emu_nameshort",
-              country=country)
-      
-      check_type(dataset=restocking,
-              column="eel_emu_nameshort",
-              country=country,
-              type="character")
-      
-      ###### eel_cou_code ##############
-      
-      # must be a character
-      check_type(dataset=restocking,
-              column="eel_cou_code",
-              country=country,
-              type="character")
-      # should not have any missing value
-      check_missing(dataset=restocking,
-              column="eel_cou_code",
-              country=country)
-      # must only have one value
-      check_unique(dataset=restocking,
-              column="eel_cou_code",
-              country=country)
-      
-      ###### eel_lfs_code ##############
-      
-      check_type(dataset=restocking,
-              column="eel_lfs_code",
-              country=country,
-              type="character")
-      # should not have any missing value
-      check_missing(dataset=restocking,
-              column="eel_lfs_code",
-              country=country)
-      # should only correspond to the following list
-      check_values(dataset=restocking,
-              column="eel_lfs_code",
-              country=country,
-              values=c("G","GY","Y","QG","OG","YS","S"))
-      
-      ###### eel_hty_code ##############
-      
-      check_type(dataset=restocking,
-              column="eel_hty_code",
-              country=country,
-              type="character")
-      # should not have any missing value
-      check_missing(dataset=restocking,
-              column="eel_hty_code",
-              country=country)
-      # should only correspond to the following list
-      check_values(dataset=restocking,
-              column="eel_hty_code",
-              country=country,
-              values=c("F","T","C","MO"))
-      
-      ###### eel_area_div ##############
-      
-      check_type(dataset=restocking,
-              column="eel_area_division",
-              country=country,
-              type="character")
-      # should not have any missing value
-      check_missing(dataset=restocking,
-              column="eel_area_division",
-              country=country)
-      # the dataset ices_division should have been loaded there
-      check_values(dataset=restocking,
-              column="eel_area_division",
-              country=country,
-              values=ices_division)
-      
-      data_list[[country]][["restocking"]]<-list()# creates an element in the list datalist with the name catch and landings
-      data_list[[country]][["restocking"]]<-restocking # store the tibble in the list
+    ###### eel_typ_id ##############
+    
+    # should not have any missing value
+    check_missing(dataset=restocking,
+        column="eel_typ_id",
+        country=country)
+    #  eel_typ_id should be one of 4 comm.land 5 comm.catch 6 recr. land. 7 recr. catch.
+    check_values(dataset=restocking,
+        column="eel_typ_id",
+        country=country,
+        values=c(8,9))
+    
+    ###### eel_year ##############
+    
+    # should not have any missing value
+    check_missing(dataset=restocking,
+        column="eel_year",
+        country=country)
+    # should be a numeric
+    check_type(dataset=restocking,
+        column="eel_year",
+        country=country,
+        type="numeric")
+    
+    ###### eel_value ##############
+    
+    # can have missing values if eel_missingvaluequa is filled (check later)
+    
+    # should be numeric
+    check_type(dataset=restocking,
+        column="eel_value",
+        country=country,
+        type="numeric")
+    
+    ###### eel_missvaluequa ##############
+    
+    #check that there are data in missvaluequa only when there are missing value (NA) is eel_value
+    # and also that no missing values are provided without a comment is eel_missvaluequa
+    check_missvaluequa(dataset=restocking,
+        country=country)
+    
+    ###### eel_emu_name ##############
+    
+    check_missing(dataset=restocking,
+        column="eel_emu_nameshort",
+        country=country)
+    
+    check_type(dataset=restocking,
+        column="eel_emu_nameshort",
+        country=country,
+        type="character")
+    
+    ###### eel_cou_code ##############
+    
+    # must be a character
+    check_type(dataset=restocking,
+        column="eel_cou_code",
+        country=country,
+        type="character")
+    # should not have any missing value
+    check_missing(dataset=restocking,
+        column="eel_cou_code",
+        country=country)
+    # must only have one value
+    check_unique(dataset=restocking,
+        column="eel_cou_code",
+        country=country)
+    
+    ###### eel_lfs_code ##############
+    
+    check_type(dataset=restocking,
+        column="eel_lfs_code",
+        country=country,
+        type="character")
+    # should not have any missing value
+    check_missing(dataset=restocking,
+        column="eel_lfs_code",
+        country=country)
+    # should only correspond to the following list
+    check_values(dataset=restocking,
+        column="eel_lfs_code",
+        country=country,
+        values=c("G","GY","Y","QG","OG","YS","S"))
+    
+    ###### eel_hty_code ##############
+    
+    check_type(dataset=restocking,
+        column="eel_hty_code",
+        country=country,
+        type="character")
+    # should not have any missing value
+    check_missing(dataset=restocking,
+        column="eel_hty_code",
+        country=country)
+    # should only correspond to the following list
+    check_values(dataset=restocking,
+        column="eel_hty_code",
+        country=country,
+        values=c("F","T","C","MO"))
+    
+    ###### eel_area_div ##############
+    
+    check_type(dataset=restocking,
+        column="eel_area_division",
+        country=country,
+        type="character")
+    # should not have any missing value
+    check_missing(dataset=restocking,
+        column="eel_area_division",
+        country=country)
+    # the dataset ices_division should have been loaded there
+    check_values(dataset=restocking,
+        column="eel_area_division",
+        country=country,
+        values=ices_division)
+    
+    data_list[[country]][["restocking"]]<-list()# creates an element in the list datalist with the name catch and landings
+    data_list[[country]][["restocking"]]<-restocking # store the tibble in the list
   } else {
     data_list[[country]][["restocking"]]<-NA 
   }
   ############# AQUACULTURE PRODUCTION #############################################
   
   #---------------------- METADATA sheet ---------------------------------------------
-  
+  cat("Aquaculture \n")
+  mylocalfilename<-datacallfiles[3]
+  if (length(grep(mylocalfilename,the_files))==1){
+    mylocalfilename<-the_files[grep(mylocalfilename,the_files)]
+  } else {
+    cat(str_c("String ", mylocalfilename, " not found, please check names "))
+  }
   # read the metadata sheet
-  metadata<-read_excel(path=str_c(directories[i],"/",datacallfiles[3]),"metadata" , skip=4)
+  metadata<-read_excel(path=str_c(directories[i],"/",mylocalfilename),"metadata" , skip=4)
   # check if no rows have been added
   if (names(metadata)[1]!="For each data series") cat(str_c("The structure of metadata has been changed ",datacallfiles[1]," in ",country),"\n")
   # if there is no value in the cells then the tibble will only have one column
   if (ncol(metadata)>1){
-  metadata_list[[country]][["method_aquaculture_production"]] <- as.character(metadata[3,2])
+    metadata_list[[country]][["method_aquaculture_production"]] <- as.character(metadata[3,2])
   } else {
     metadata_list[[country]][["method_aquaculture_production"]] <-NULL
   }
@@ -381,9 +402,9 @@ for (i in 1:length(directories)) {
   
   
   aquaculture<-read_excel(
-      path=str_c(directories[i],"/",datacallfiles[3]),"aquaculture",
+      path=str_c(directories[i],"/",mylocalfilename),"aquaculture",
       skip=0)
-  cat("Aquaculture \n")
+
   # check for the file integrity
   if (ncol(aquaculture)!=12) cat(str_c("number column wrong ",datacallfiles[1]," in ",country,"\n"))
   # check column names
@@ -392,127 +413,127 @@ for (i in 1:length(directories)) {
           "eel_cou_code", "eel_lfs_code", "eel_hty_code","eel_area_division",
           "eel_qal_id", "eel_qal_comment","eel_comment"))!=TRUE) 
     cat(str_c("problem in column names",
-            datacallfiles[3]," in ",
+            mylocalfilename," in ",
             country,"\n")) 
   if (nrow(aquaculture)>0){
-      ###### eel_typ_id ##############
-      
-      # should not have any missing value
-      check_missing(dataset=aquaculture,
-              column="eel_typ_id",
-              country=country)
-      #  eel_typ_id should be one of 4 comm.land 5 comm.catch 6 recr. land. 7 recr. catch.
-      check_values(dataset=aquaculture,
-              column="eel_typ_id",
-              country=country,
-              values=c(11,12))
-      
-      ###### eel_year ##############
-      
-      # should not have any missing value
-      check_missing(dataset=aquaculture,
-              column="eel_year",
-              country=country)
-      # should be a numeric
-      check_type(dataset=aquaculture,
-              column="eel_year",
-              country=country,
-              type="numeric")
-      
-      ###### eel_value ##############
-      
-      # can have missing values if eel_missingvaluequa is filled (check later)
-      
-      # should be numeric
-      check_type(dataset=aquaculture,
-              column="eel_value",
-              country=country,
-              type="numeric")
-      
-      ###### eel_missvaluequa ##############
-      
-      #check that there are data in missvaluequa only when there are missing value (NA) is eel_value
-      # and also that no missing values are provided without a comment is eel_missvaluequa
-      check_missvaluequa(dataset=aquaculture,
-              country=country)
-      
-      ###### eel_emu_name ##############
-      
-      check_missing(dataset=aquaculture,
-              column="eel_emu_nameshort",
-              country=country)
-      
-      check_type(dataset=aquaculture,
-              column="eel_emu_nameshort",
-              country=country,
-              type="character")
-      
-      ###### eel_cou_code ##############
-      
-      # must be a character
-      check_type(dataset=aquaculture,
-              column="eel_cou_code",
-              country=country,
-              type="character")
-      # should not have any missing value
-      check_missing(dataset=aquaculture,
-              column="eel_cou_code",
-              country=country)
-      # must only have one value
-      check_unique(dataset=aquaculture,
-              column="eel_cou_code",
-              country=country)
-      
-      ###### eel_lfs_code ##############
-      
-      check_type(dataset=aquaculture,
-              column="eel_lfs_code",
-              country=country,
-              type="character")
-      # should not have any missing value
-      check_missing(dataset=aquaculture,
-              column="eel_lfs_code",
-              country=country)
-      # should only correspond to the following list
-      check_values(dataset=aquaculture,
-              column="eel_lfs_code",
-              country=country,
-              values=c("G","GY","Y","YS","S","OG","QG"))
-      
-      ###### eel_hty_code ##############
-      
-      check_type(dataset=aquaculture,
-              column="eel_hty_code",
-              country=country,
-              type="character")
-      # should not have any missing value
-      check_missing(dataset=aquaculture,
-              column="eel_hty_code",
-              country=country)
-      # should only correspond to the following list
-      check_values(dataset=aquaculture,
-              column="eel_hty_code",
-              country=country,
-              values=c("F","T","C","MO"))
-      
-      ###### eel_area_div ##############
-      
-      check_type(dataset=aquaculture,
-              column="eel_area_division",
-              country=country,
-              type="character")
-      # should not have any missing value
-      check_missing(dataset=aquaculture,
-              column="eel_area_division",
-              country=country)
-      # the dataset ices_division should have been loaded there
-      check_values(dataset=aquaculture,
-              column="eel_area_division",
-              country=country,
-              values=ices_division)
-      
-      data_list[[country]][["aquaculture"]]<-list()# creates an element in the list datalist with the name catch and landings
-      data_list[[country]][["aquaculture"]]<-aquaculture # store the tibble in the list
+    ###### eel_typ_id ##############
+    
+    # should not have any missing value
+    check_missing(dataset=aquaculture,
+        column="eel_typ_id",
+        country=country)
+    #  eel_typ_id should be one of 4 comm.land 5 comm.catch 6 recr. land. 7 recr. catch.
+    check_values(dataset=aquaculture,
+        column="eel_typ_id",
+        country=country,
+        values=c(11,12))
+    
+    ###### eel_year ##############
+    
+    # should not have any missing value
+    check_missing(dataset=aquaculture,
+        column="eel_year",
+        country=country)
+    # should be a numeric
+    check_type(dataset=aquaculture,
+        column="eel_year",
+        country=country,
+        type="numeric")
+    
+    ###### eel_value ##############
+    
+    # can have missing values if eel_missingvaluequa is filled (check later)
+    
+    # should be numeric
+    check_type(dataset=aquaculture,
+        column="eel_value",
+        country=country,
+        type="numeric")
+    
+    ###### eel_missvaluequa ##############
+    
+    #check that there are data in missvaluequa only when there are missing value (NA) is eel_value
+    # and also that no missing values are provided without a comment is eel_missvaluequa
+    check_missvaluequa(dataset=aquaculture,
+        country=country)
+    
+    ###### eel_emu_name ##############
+    
+    check_missing(dataset=aquaculture,
+        column="eel_emu_nameshort",
+        country=country)
+    
+    check_type(dataset=aquaculture,
+        column="eel_emu_nameshort",
+        country=country,
+        type="character")
+    
+    ###### eel_cou_code ##############
+    
+    # must be a character
+    check_type(dataset=aquaculture,
+        column="eel_cou_code",
+        country=country,
+        type="character")
+    # should not have any missing value
+    check_missing(dataset=aquaculture,
+        column="eel_cou_code",
+        country=country)
+    # must only have one value
+    check_unique(dataset=aquaculture,
+        column="eel_cou_code",
+        country=country)
+    
+    ###### eel_lfs_code ##############
+    
+    check_type(dataset=aquaculture,
+        column="eel_lfs_code",
+        country=country,
+        type="character")
+    # should not have any missing value
+    check_missing(dataset=aquaculture,
+        column="eel_lfs_code",
+        country=country)
+    # should only correspond to the following list
+    check_values(dataset=aquaculture,
+        column="eel_lfs_code",
+        country=country,
+        values=c("G","GY","Y","YS","S","OG","QG"))
+    
+    ###### eel_hty_code ##############
+    
+    check_type(dataset=aquaculture,
+        column="eel_hty_code",
+        country=country,
+        type="character")
+    # should not have any missing value
+    check_missing(dataset=aquaculture,
+        column="eel_hty_code",
+        country=country)
+    # should only correspond to the following list
+    check_values(dataset=aquaculture,
+        column="eel_hty_code",
+        country=country,
+        values=c("F","T","C","MO"))
+    
+    ###### eel_area_div ##############
+    
+    check_type(dataset=aquaculture,
+        column="eel_area_division",
+        country=country,
+        type="character")
+    # should not have any missing value
+    check_missing(dataset=aquaculture,
+        column="eel_area_division",
+        country=country)
+    # the dataset ices_division should have been loaded there
+    check_values(dataset=aquaculture,
+        column="eel_area_division",
+        country=country,
+        values=ices_division)
+    
+    data_list[[country]][["aquaculture"]]<-list()# creates an element in the list datalist with the name catch and landings
+    data_list[[country]][["aquaculture"]]<-aquaculture # store the tibble in the list
   } else {
     data_list[[country]][["aquaculture"]]<-NA
   }
