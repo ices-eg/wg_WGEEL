@@ -497,7 +497,8 @@ COMMENT ON COLUMN datawg.t_dataseries_das.das_effort IS 'Effort value if present
 COMMENT ON COLUMN datawg.t_dataseries_das.das_last_update IS 'Date of last update inserted automatically with a trigger';
 COMMENT ON COLUMN datawg.t_dataseries_das.das_qal_id IS 'Code to assess the quality of the data, FOREIGN KEY on table ref.tr_quality_qal';
 
-
+-- change sept 2017 forgot to integrate a unique constraint (only one data per yer)
+ALTER TABLE datawg.t_dataseries_das ADD CONSTRAINT c_uk_year_id check unique(das_year,das_qal_id);
 
 -------------------------------------------------------
 -- Catch and stock indicators table
