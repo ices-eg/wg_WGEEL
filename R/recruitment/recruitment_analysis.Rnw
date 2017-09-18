@@ -568,14 +568,14 @@ printstatseries$sampling_type[printstatseries$sampling_type=="commercial catch"]
 printstatseries$sampling_type[printstatseries$sampling_type=="commercial CPUE"]<-"com. cpue"
 column_to_import<-R_stations[,c("ser_nameshort","areashort")]
 printstatseries<-merge(printstatseries,column_to_import,by.x="site",by.y="ser_nameshort")
-printstatseries<-printstatseries[order(printstatseries$order),c(1,11,2:9,12)]
+printstatseries<-printstatseries[order(printstatseries$order),c(1,12,2:9,11)]
 colnames(printstatseries)<-
 		c("code","area","min","max","n+","n-", "life stage",      
 				"sampling type","unit","habitat","kept")
 xstatseries <- xtable(x = printstatseries[1:20,], 
 		label = str_c("statseries"),
 		caption = str_c("Short description of the recruitment sites"),
-		align=c("p{0cm}","p{1cm}","p{1cm}","p{1cm}","p{1cm}","p{0.8cm}","p{0.8cm}","p{1.5cm}","p{2.5cm}","p{2cm}","p{2cm}","p{1.5cm}"),
+		align=c("p{0cm}","p{1cm}","p{1cm}","p{1cm}","p{1cm}","p{0.8cm}","p{0.8cm}","p{1.5cm}","p{2.5cm}","p{1.5cm}","p{1.5cm}","p{1.5cm}"),
 		digits=0)
 print(xstatseries , 
 		file = str_c(tabwd,"/table_statseries.tex"),
@@ -588,7 +588,7 @@ print(xstatseries ,
 xstatseries <- xtable(x = printstatseries[21:40,], 
 		label = str_c("statseries"),
 		caption = str_c("Short description of the recruitment sites (continued)"),
-		align=c("p{0cm}","p{1cm}","p{1cm}","p{1cm}","p{1cm}","p{0.8cm}","p{0.8cm}","p{1.5cm}","p{2.5cm}","p{2cm}","p{2cm}","p{1.5cm}"),
+		align=c("p{0cm}","p{1cm}","p{1cm}","p{1cm}","p{1cm}","p{0.8cm}","p{0.8cm}","p{1.5cm}","p{2.5cm}","p{1.5cm}","p{1.5cm}","p{1.5cm}"),
 		digits=0)
 print(xstatseries , 
 		file = str_c(tabwd,"/table_statseries1.tex"),
@@ -601,7 +601,7 @@ print(xstatseries ,
 xstatseries1 <- xtable(x = printstatseries[41:nrow(printstatseries),], 
 		label = str_c("statseries"),
 		caption = str_c("Short description of the recruitment sites (continued-yellow eel series) "),
-		align=c("p{0cm}","p{1cm}","p{1cm}","p{1cm}","p{1cm}","p{0.8cm}","p{0.8cm}","p{1.5cm}","p{2.5cm}","p{2cm}","p{2cm}","p{1.5cm}"),
+		align=c("p{0cm}","p{1cm}","p{1cm}","p{1cm}","p{1cm}","p{0.8cm}","p{0.8cm}","p{1.5cm}","p{2.5cm}","p{1.5cm}","p{1.5cm}","p{1.5cm}"),
 		digits=0)
 print(xstatseries1 , 
 		file = str_c(tabwd,"/table_statseries2.tex"),
@@ -1779,22 +1779,20 @@ comparing to that of the previous year (Figure \ref{figure6}).
 	\input{C:/workspace/wgeeldata/recruitment/2017/table/table_serieslost.tex}
  %====================================
 \normalsize
+\setlength{\tabcolsep}{4pt} % defaut 6pt (table column separator)
 
-\small
  %====================================
 	\input{C:/workspace/wgeeldata/recruitment/2017/table/table_statseries.tex}
  %====================================
-\normalsize
-\small
+
  %====================================
 	\input{C:/workspace/wgeeldata/recruitment/2017/table/table_statseries1.tex}
  %====================================F
-\normalsize
-\small
+
  %====================================
 	\input{C:/workspace/wgeeldata/recruitment/2017/table/table_statseries2.tex}
  %====================================
-\normalsize
+
 %\newpage
 %\small
 % %====================================
