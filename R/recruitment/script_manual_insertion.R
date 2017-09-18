@@ -70,7 +70,25 @@ sqldf("INSERT INTO  datawg.t_series_ser(
 #---------------------------
 # script to integrate series one by one (only one saved)
 #-------------------------------------
-series<-read_excel(path=str_c(datawd,"Eel_Data_Call_Annex1_Recruitment.xlsx"), sheet="data_Verl")
+sqldf("select ser_nameshort from datawg.t_series_ser where ser_cou_code='DE'")
+#1            Emsx
+#2           Verlx
+#3            HHKx
+#4            HoSx
+#5           Brokx
+#6           Langx
+#7           WaSGx
+#8           WaSEx
+#9           Farpx
+#10          WiFGx
+#11          WisWx
+#12          DoFpx
+#13          DoElx
+#14          EmsHx
+#15          EmsBx
+series<-read_excel(path=str_c(datawd,"Eel_Data_Call_Annex1_Recruitment.xlsx"), sheet="data_EmsB")
+ser_id<-sqldf("select ser_id from datawg.t_series_ser where ser_nameshort='EmsB'")
+series$das_ser_id<-as.numeric(ser_id)
 sqldf("INSERT INTO datawg.t_dataseries_das(
         das_value,
         das_ser_id,
@@ -78,10 +96,10 @@ sqldf("INSERT INTO datawg.t_dataseries_das(
         das_comment
         ) SELECT 
 		das_value,
-        4 as das_ser_id,
+        das_ser_id,
         das_year,
-        'Inserted 2017 Derek Evans' as das_comment
-		FROM bann;")
+        das_comment
+		FROM series;")
 
 
 #---------------------------
