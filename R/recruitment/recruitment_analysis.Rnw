@@ -574,7 +574,7 @@ colnames(printstatseries)<-
 				"sampling type","unit","habitat","kept")
 xstatseries <- xtable(x = printstatseries[1:20,], 
 		label = str_c("statseries"),
-		caption = str_c("Short description of the recruitment sites"),
+		caption = str_c("Short description of the recruitment sites, kept means that this series is used in recruitment analysis"),
 		align=c("p{0cm}","p{1cm}","p{1cm}","p{1cm}","p{1cm}","p{0.8cm}","p{0.8cm}","p{1.5cm}","p{2.5cm}","p{1.5cm}","p{1.5cm}","p{1.5cm}"),
 		digits=0)
 print(xstatseries , 
