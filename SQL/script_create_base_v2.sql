@@ -560,4 +560,7 @@ COMMENT ON COLUMN datawg.t_eelstock_eel.eel_missvaluequal IS 'NP: Not Pertinent,
  NR: Not Reported, data or activity exist but numbers are not reported to authorities (for example for commercial confidentiality reasons). NC: Not Collected, activity / habitat exists but data are not collected by authorities (for example where a fishery exists but the catch data are not collected at the relevant level or at all). 
  ND: No Data, where there are insufficient data to estimate a derived parameter (for example where there are insufficient data to estimate the stock indicators (biomass and/or mortality)).'  
 
+-- unique constraint should also be per type;
+ALTER TABLE datawg.t_eelstock_eel drop constraint c_uk_year_lifestage_emu_code;
+ALTER TABLE datawg.t_eelstock_eel ADD CONSTRAINT c_uk_year_lifestage_emu_code_typ UNIQUE (eel_year,eel_lfs_code,eel_emu_nameshort,eel_typ_id);
 

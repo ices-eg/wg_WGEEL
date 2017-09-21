@@ -105,7 +105,7 @@ check_missvaluequa <- function(dataset,country){
               country,
               deparse(substitute(dataset)),
               "eel_missvaluequal",
-              lines[!is.na(is.na(eel_values_for_missing))]
+              lines[!is.na(eel_values_for_missing)]
           ))
     }
   }
