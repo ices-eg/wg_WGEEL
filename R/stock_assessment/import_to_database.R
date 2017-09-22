@@ -7,8 +7,15 @@
 # Look at the README file for instructions on how to use this script on your computer
 
 # here is a list of the required packages
-library(readxl) # to read xls files
-library(stringr) # this contains utilities for strings
+library("readxl") # to read xls files
+library("stringr") # this contains utilities for strings
+library("sqldf") 
+library("RPostgreSQL") 
+options(sqldf.RPostgreSQL.user = "postgres", 
+	sqldf.RPostgreSQL.password = passwordlocal,
+	sqldf.RPostgreSQL.dbname = "wgeel",
+	sqldf.RPostgreSQL.host = "localhost", # "localhost"
+	sqldf.RPostgreSQL.port = 5432)
 
 # this is the folder where you will store the files prior to upload
 # don't forget to put an / at the end of the string
@@ -561,11 +568,30 @@ for (i in 1:length(data_list))
   restocking_final<- rbind(aquaculture_final,data_list[[i]][["aquaculture"]])
 }
 
+
+##############################
+# Import into the database
+##############################
+# Only this step will ensure the integrity of the data. R script above should have resolved most problems, but
+# still some were remaining.
+
+# to delete everything prior to insertion
+# sqldf("delete from  datawg.t_eelstock_eel")
+
 # check what is in the database
-sqldf("select * from datawg.t_eelstock_eel")
+# sqldf("select * from datawg.t_eelstock_eel")
 # problem of format of some column, qal id completely void is logical should be integer
 dplyr::glimpse(catch_landings_final)
 catch_landings_final$eel_qal_id=as.integer(catch_landings_final$eel_qal_id)
+# correcting problem for germany
+catch_landings_final$eel_area_division[catch_landings_final$eel_area_division=="27.3.c, d"&
+        !is.na(catch_landings_final$eel_area_division)]<-"27.3.d"
+# correcting problem for Ireland
+catch_landings_final$eel_emu_nameshort[catch_landings_final$eel_emu_nameshort=="IE_National"&
+        !is.na(catch_landings_final$eel_emu_nameshort)]<-"IE_total"
+options(tibble.print_max = Inf)
+print(catch_landings_final[catch_landings_final$eel_emu_nameshort=="SE_Sout"&
+        !is.na(catch_landings_final$eel_emu_nameshort),],100)
 sqldf("insert into datawg.t_eelstock_eel (
         eel_typ_id,
         eel_year ,
@@ -580,3 +606,37 @@ sqldf("insert into datawg.t_eelstock_eel (
         eel_qal_comment,
         eel_comment)
          select * from catch_landings_final")
+ aquaculture$eel_qal_id=as.integer(aquaculture$eel_qal_id)
+ sqldf("insert into datawg.t_eelstock_eel (
+                 eel_typ_id,
+                 eel_year ,
+                 eel_value  ,
+                 eel_missvaluequal,
+                 eel_emu_nameshort,
+                 eel_cou_code,
+                 eel_lfs_code,
+                 eel_hty_code,
+                 eel_area_division,
+                 eel_qal_id,
+                 eel_qal_comment,
+                 eel_comment)
+         select * from aquaculture")
+ 
+ restocking$eel_qal_id=as.integer(restocking$eel_qal_id)
+ sqldf("insert into datawg.t_eelstock_eel (
+         eel_typ_id,
+         eel_year ,
+         eel_value  ,
+         eel_missvaluequal,
+         eel_emu_nameshort,
+         eel_cou_code,
+         eel_lfs_code,
+         eel_hty_code,
+         eel_area_division,
+         eel_qal_id,
+         eel_qal_comment,
+         eel_comment)
+         select * from restocking")
+ 
+ datacall_2017<-sqldf("select * from datawg.t_eelstock_eel")
+write.table(datacall_2017,file=str_c(mylocalfolder,"/datacall_2017.csv"),sep=";")
