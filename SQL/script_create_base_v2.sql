@@ -561,6 +561,8 @@ COMMENT ON COLUMN datawg.t_eelstock_eel.eel_missvaluequal IS 'NP: Not Pertinent,
  ND: No Data, where there are insufficient data to estimate a derived parameter (for example where there are insufficient data to estimate the stock indicators (biomass and/or mortality)).'  
 
 -- unique constraint should also be per type;
+-- I have to add a check constraint on qal, this will allow to remove doubles
 ALTER TABLE datawg.t_eelstock_eel drop constraint c_uk_year_lifestage_emu_code;
-ALTER TABLE datawg.t_eelstock_eel ADD CONSTRAINT c_uk_year_lifestage_emu_code_typ UNIQUE (eel_year,eel_lfs_code,eel_emu_nameshort,eel_typ_id);
+ALTER TABLE datawg.t_eelstock_eel drop constraint c_uk_eelstock;
+ALTER TABLE datawg.t_eelstock_eel ADD CONSTRAINT c_uk_eelstock UNIQUE (eel_year,eel_lfs_code,eel_emu_nameshort,eel_typ_id,eel_hty_code,eel_qal_id);
 
