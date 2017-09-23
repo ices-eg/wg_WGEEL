@@ -1,20 +1,12 @@
-# Script to load shapes from sharepoint
+# Script to load shapes to the sharepoint for later use in R scripts
 # Author: cedric.briand
 ###############################################################################
 
 
-require(stringr) # text handling
-library(sqldf) # mimict sql queries in a data.frame
-library(RPostgreSQL) # one can use RODBC, here I'm using direct connection via the sqldf package
-# loading RPostgresSQL ensures that postgres is used as a default driver by sqldf
-# setting options to access postgres using sqldf
-library(plyr)# join fuction
-library(sp)
-library(maptools)
-library(maps)
-library(ggplot2)
-library(scales)# no longer loaded automatically with ggplot2
-
+library(stringr) # text handling
+library(rgdal)
+library(raster)
+library(rgeos)
 
 mylocalfolder <- "C:/temp/SharePoint/WGEEL - 2017 Meeting Docs/06. Data/datacall"
 
@@ -43,4 +35,38 @@ country_c=rgdal::readOGR(str_c(shpwd,"/","t_country_coun_4326.shp"))# a spatial 
 emusp0=rgdal::readOGR(str_c(shpwd,"/","t_emu_polygons_4326.shp")) # a spatial object of class sp
 # this is the map of the emu.
 
-plot(emusp0)
+
+###############################"
+# Download coastline shapefiles
+#  code from colinpmillar https://github.com/ices-eg/wg_WGSFD/blob/master/spatialPolygonsProducts/db-getshapes.R
+###############################
+
+# get european coastline shapefiles
+download.file("http://data.openstreetmapdata.com/land-polygons-generalized-3857.zip",
+    str_c(shpwd,"/land-polygons-generalized-3857.zip"))
+
+unzip(zipfile = str_c(shpwd,"/land-polygons-generalized-3857.zip"),
+    overwrite = TRUE,
+    exdir = "data/shapefiles")
+
+unlink("data/land-polygons-generalized-3857.zip") 
+
+# read coastline shapefiles and transform to wgs84
+coast <- rgdal::readOGR("data/shapefiles/land-polygons-generalized-3857", "land_polygons_z5", verbose = FALSE)
+unlink("data/shapefiles/land-polygons-generalized-3857", recursive = TRUE)
+
+coast <- rgdal::spTransform(coast, CRS("+init=epsg:4326"))
+
+# trim coastline to extent for ploting
+bbox <- as(raster::extent(emusp0), "SpatialPolygons")
+raster::proj4string(bbox) <- rgdal::CRS("+init=epsg:4326")
+coast <- rgeos::gIntersection(coast, bbox, byid = TRUE)
+coast <- rgeos::gUnaryUnion(coast)
+coast <- as(coast, "SpatialPolygonsDataFrame")
+
+# save coastline to shapefiles folder
+rgdal::writeOGR(coast, shpwd, "coast", driver = "ESRI Shapefile", overwrite_layer = TRUE)
+
+# 
+# plot(emusp0)
+plot(coast,add=TRUE)
