@@ -1294,3 +1294,32 @@ select emu_nameshort from ref.tr_emu_emu  where emu_cou_code in
 and emu_nameshort not like '%outside_emu%') -- countries with shapefile coming from the wise layer
 and emu_nameshort like '%total%');
 
+-------------------
+--- There is a part of russia far to the east, I must remove it
+-- and then russia must be integrated with emu again
+--------------------------
+
+
+select * from ref.tr_country_cou where cou_code = 'RU'
+
+drop table ref.tempru;
+create temporary sequence seq;
+create table ref.tempru as select nextval('seq'),(st_dump(geom)).geom as geom from ref.tr_country_cou where cou_code = 'RU'
+select st_x(st_centroid(geom)) from ref.tempru;
+delete from ref.tempru where  st_x(st_centroid(geom))>30;
+delete from ref.tempru where  st_x(st_centroid(geom))<0;
+BEGIN;
+delete from ref.tr_emu_emu where emu_cou_code='RU';
+delete from ref.tr_country_cou where cou_code = 'RU' ;
+COMMIT;
+
+-- re-inserting RUSSIA
+insert into ref.tr_country_cou (cou_code, cou_country, cou_order, geom, cou_iso3code) 
+SELECT 'RU','Russia',8,st_multi(st_union(tempru.geom)),'RUS' from ref.tempru;
+drop table ref.tempru;
+select * from ref.tr_emu_emu limit 10
+
+insert into ref.tr_emu_emu(emu_nameshort, emu_name, emu_cou_code,geom,emu_wholecountry) values ('RU_outside_emu',NULL,'RU',NULL,FALSE);
+insert into ref.tr_emu_emu(emu_nameshort, emu_name, emu_cou_code,geom,emu_wholecountry) select 'RU_total',NULL,'RU',geom,TRUE 
+		FROM ref.tr_country_cou where cou_code='RU';
+
