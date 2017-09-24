@@ -24,16 +24,11 @@ shpwd <- "C:/temp/SharePoint/WGEEL - 2017 Meeting Docs/06. Data/shp"
 # all the following graphs are in postgis so I'm saving them as shapefiles in command lines
 
 # cd C:\temp\SharePoint\WGEEL - 2017 Meeting Docs\06. Data\shp
-# pgsql2shp -u postgres -P postgres -k -f "emu_centre_4326" -g centre wgeel "select emu_nameshort,x,y,centre from ref.tr_emusplit_ems"
-# pgsql2shp -u postgres -P postgres -k -f "t_emu_polygons_4326" -g geom2 wgeel "select *,ST_SimplifyPreserveTopology(geom,0.1) geom2 from ref.tr_emu_emu where geom is not null"
-# pgsql2shp -u postgres -P postgres -k -f "t_country_coun_4326" -g geom wgeel "select * from ref.tr_country_cou"
+# pgsql2shp -u postgres -P postgres -k -f "emu_centre_4326" -g center wgeel "select emu_nameshort,st_centroid(geom) as center from ref.tr_emu_emu where geom is not null"
+# pgsql2shp -u postgres -P postgres -k -f "emu_polygons_4326" -g geom2 wgeel "select *,ST_SimplifyPreserveTopology(geom,0.1) geom2 from ref.tr_emu_emu where geom is not null"
+# pgsql2shp -u postgres -P postgres -k -f "country_polygons_4326" -g geom wgeel "select * from ref.tr_country_cou"
+# pgsql2shp -u postgres -P postgres -k -f "country_centre_4326" -g center wgeel "select st_centroid(geom) as center,cou_code, cou_country from ref.tr_country_cou "
 
-emu_c=rgdal::readOGR(str_c(shpwd,"/","emu_centre_4326.shp")) # a spatial object of class spatialpointsdataframe
-# this corresponds to the center of each emu.
-country_c=rgdal::readOGR(str_c(shpwd,"/","t_country_coun_4326.shp"))# a spatial object of class sp
-# this is the map of coutry centers, to overlay points for each country
-emusp0=rgdal::readOGR(str_c(shpwd,"/","t_emu_polygons_4326.shp")) # a spatial object of class sp
-# this is the map of the emu.
 
 
 ###############################"
@@ -66,7 +61,3 @@ coast <- as(coast, "SpatialPolygonsDataFrame")
 
 # save coastline to shapefiles folder
 rgdal::writeOGR(coast, shpwd, "coast", driver = "ESRI Shapefile", overwrite_layer = TRUE)
-
-# 
-# plot(emusp0)
-plot(coast,add=TRUE)
