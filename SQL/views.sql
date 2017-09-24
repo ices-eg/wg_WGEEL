@@ -133,6 +133,16 @@ LEFT JOIN ref.tr_habitattype_hty ON t_eelstock_eel.eel_hty_code = tr_habitattype
 JOIN ref.tr_emu_emu ON  (emu_nameshort,emu_cou_code) = (eel_emu_nameshort,eel_cou_code)
 WHERE eel_typ_id=4 or eel_typ_id=6);
 
+
+-------------------------------------
+-- View for catch and landgins
+-- This view refer to both recreational and commercial catch and landings
+---------------------------------------
+
+DROP VIEW IF EXISTS datawg.catch_landings ;
+CREATE VIEW datawg.catch_landings AS 
+select * from datawg.catch union
+select * from datawg.landings;
 -------------------------------------
 -- View for stocking
 -- This view refer to stocking in kg or number or geel equivalents
