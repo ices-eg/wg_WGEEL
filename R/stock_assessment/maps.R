@@ -185,6 +185,14 @@ draw_leaflet(dataset="catch_landings",
     lfs_code='G',
     coeff=600,
     map="emu")
-
-
-
+draw_leaflet(dataset="aquaculture",
+    year=2014,
+    lfs_code=NULL,
+    coeff=600,
+    map="country")
+# problem of conversion from number to kg and reverse
+draw_leaflet(dataset="stocking",
+    year=2014,
+    lfs_code='G',
+    coeff=200,
+    map="country")
