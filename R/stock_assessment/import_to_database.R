@@ -565,7 +565,7 @@ for (i in 1:length(data_list))
 restocking_final<-data.frame()
 for (i in 1:length(data_list))
 {
-  restocking_final<- rbind(aquaculture_final,data_list[[i]][["aquaculture"]])
+  restocking_final<- rbind(restocking_final,data_list[[i]][["restocking"]])
 }
 
 
@@ -590,6 +590,7 @@ catch_landings_final$eel_area_division[catch_landings_final$eel_area_division=="
 catch_landings_final$eel_emu_nameshort[catch_landings_final$eel_emu_nameshort=="IE_National"&
         !is.na(catch_landings_final$eel_emu_nameshort)]<-"IE_total"
 options(tibble.print_max = Inf)
+options(tibble.width = Inf)
 print(catch_landings_final[catch_landings_final$eel_emu_nameshort=="SE_Sout"&
         !is.na(catch_landings_final$eel_emu_nameshort),],100)
 sqldf("insert into datawg.t_eelstock_eel (
@@ -606,7 +607,12 @@ sqldf("insert into datawg.t_eelstock_eel (
         eel_qal_comment,
         eel_comment)
          select * from catch_landings_final")
- aquaculture$eel_qal_id=as.integer(aquaculture$eel_qal_id)
+ aquaculture_final$eel_qal_id=as.integer(aquaculture_final$eel_qal_id)
+ aquaculture_final<-aquaculture_final[!is.na(aquaculture_final$eel_year),]
+ # check that those lines belong to DE
+ aquaculture_final[is.na(aquaculture_final$eel_emu_nameshort),]
+ aquaculture_final$eel_emu_nameshort[is.na(aquaculture_final$eel_emu_nameshort)]<-"DE_total"
+
  sqldf("insert into datawg.t_eelstock_eel (
                  eel_typ_id,
                  eel_year ,
@@ -620,13 +626,19 @@ sqldf("insert into datawg.t_eelstock_eel (
                  eel_qal_id,
                  eel_qal_comment,
                  eel_comment)
-         select * from aquaculture")
+         select * from aquaculture_final")
  
- restocking$eel_qal_id=as.integer(restocking$eel_qal_id)
+ restocking_final$eel_qal_id=as.integer(restocking_final$eel_qal_id)
+ # some years badly formed (Italy aquaculture)
+ restocking_final[is.na(as.integer(restocking_final$eel_year)),]
+ restocking_final$eel_value<-as.numeric(restocking_final$eel_value)
+ restocking_final$eel_lfs_code[restocking_final$eel_lfs_code=="y"&!is.na(restocking_final$eel_lfs_code)]<-'Y'
+ restocking_final[restocking_final$eel_area_division=="273"&!is.na(restocking_final$eel_area_division),"eel_area_division"]<-"27.6.a"
+ restocking_final[restocking_final$eel_area_division=="271"&!is.na(restocking_final$eel_area_division),"eel_area_division"]<-"27.6.a"
  sqldf("insert into datawg.t_eelstock_eel (
          eel_typ_id,
-         eel_year ,
-         eel_value  ,
+         eel_year,
+         eel_value,
          eel_missvaluequal,
          eel_emu_nameshort,
          eel_cou_code,
@@ -636,7 +648,7 @@ sqldf("insert into datawg.t_eelstock_eel (
          eel_qal_id,
          eel_qal_comment,
          eel_comment)
-         select * from restocking")
+         select * from restocking_final")
  
  datacall_2017<-sqldf("select * from datawg.t_eelstock_eel")
 write.table(datacall_2017,file=str_c(mylocalfolder,"/datacall_2017.csv"),sep=";")
