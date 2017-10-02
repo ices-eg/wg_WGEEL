@@ -64,7 +64,7 @@ for (i in 1:length(directories)) {
   if (length(grep(mylocalfilename,the_files))==1){
     mylocalfilename<-the_files[grep(mylocalfilename,the_files)]
   } else {
-    cat(str_c("String ", mylocalfilename, " not found, please check names "))
+    cat(str_c("String ", mylocalfilename, " not found, please check names \n "))
   }
   # read the metadata sheet
   metadata<-read_excel(path=str_c(directories[i],"/",mylocalfilename),"metadata" , skip=4)
@@ -382,7 +382,7 @@ for (i in 1:length(directories)) {
       data_list[[country]][["restocking"]]<-NA 
     }
   } else {
-    cat(str_c("String ", mylocalfilename, " not found, please check names "))
+    cat(str_c("String ", mylocalfilename, " not found, please check names \n"))
   }
   ############# AQUACULTURE PRODUCTION #############################################
   
@@ -544,7 +544,7 @@ for (i in 1:length(directories)) {
       data_list[[country]][["aquaculture"]]<-NA
     }
   } else {
-    cat(str_c("String ", mylocalfilename, " not found, please check names "))
+    cat(str_c("String ", mylocalfilename, " not found, please check names \n"))
   }
 } # end the loop
 
@@ -652,3 +652,25 @@ sqldf("insert into datawg.t_eelstock_eel (
  
  datacall_2017<-sqldf("select * from datawg.t_eelstock_eel")
 write.table(datacall_2017,file=str_c(mylocalfolder,"/datacall_2017.csv"),sep=";")
+
+
+
+#########################
+# Load data from the database
+########################
+
+landings <- sqldf(str_c("select * from  datawg.landings"))
+aquaculture <- sqldf(str_c("select * from  datawg.aquaculture"))
+catch_landings <- sqldf(str_c("select * from  datawg.catch_landings"))
+catch <- sqldf(str_c("select * from  datawg.catch"))
+stocking <- sqldf(str_c("select * from  datawg.stocking"))
+
+# save them again as csv.....
+write.table(aquaculture, file=str_c(mylocalfolder,"/aquaculture.csv"),sep=";")
+write.table(landings, file=str_c(mylocalfolder,"/landings.csv"),sep=";")
+write.table(catch_landings, file=str_c(mylocalfolder,"/catch_landings.csv"),sep=";")
+write.table(catch, file=str_c(mylocalfolder,"/catch.csv"),sep=";")
+write.table(stocking, file=str_c(mylocalfolder,"/stocking.csv"),sep=";")
+
+lfs_code_base <- sqldf("select lfs_code from ref.tr_lifestage_lfs")[,1]
+save(lfs_code_base,file=str_c(mylocalfolder,"/lfs_code.Rdata"))

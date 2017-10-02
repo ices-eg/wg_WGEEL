@@ -12,6 +12,8 @@ library(rgdal)
 library(rgeos)
 library(dplyr)
 library(leaflet)
+library(viridis)
+# using join from plyr but not loaded (would mess with dplyr)
 # using also stacomirtools package but not loaded
 
 mylocalfolder <- "C:/temp/SharePoint/WGEEL - 2017 Meeting Docs/06. Data/datacall"
@@ -31,32 +33,14 @@ country_c=rgdal::readOGR(str_c(shpwd,"/","country_centre_4326.shp"))
 # transform spatial point dataframe to 
 
 #########################
-# Load data from the database
-########################
-
-landings <- sqldf(str_c("select * from  datawg.landings"))
-aquaculture <- sqldf(str_c("select * from  datawg.aquaculture"))
-catch_landings <- sqldf(str_c("select * from  datawg.catch_landings"))
-catch <- sqldf(str_c("select * from  datawg.catch"))
-stocking <- sqldf(str_c("select * from  datawg.stocking"))
-
-# save them again as csv.....
-write.table(aquaculture, file=str_c(mylocalfolder,"/aquaculture.csv"),sep=";")
-write.table(landings, file=str_c(mylocalfolder,"/landings.csv"),sep=";")
-write.table(catch_landings, file=str_c(mylocalfolder,"/catch_landings.csv"),sep=";")
-write.table(catch, file=str_c(mylocalfolder,"/catch.csv"),sep=";")
-write.table(stocking, file=str_c(mylocalfolder,"/stocking.csv"),sep=";")
-
-
-
-#########################
 # Load data from csv files
 ########################
-aquaculture <- read.table(file=str_c(mylocalfolder,"aquaculture.csv"),sep=";")
-landings <- read.table(file=str_c(mylocalfolder,"landings.csv"),sep=";")
-catch_landings <- read.table(file=str_c(mylocalfolder,"catch_landings.csv"),sep=";")
-catch <- read.table(file=str_c(mylocalfolder,"catch.csv"),sep=";")
-stocking <- read.table(file=str_c(mylocalfolder,"stocking.csv"),sep=";")
+aquaculture <- read.table(file=str_c(mylocalfolder,"/aquaculture.csv"),sep=";")
+landings <- read.table(file=str_c(mylocalfolder,"/landings.csv"),sep=";")
+catch_landings <- read.table(file=str_c(mylocalfolder,"/catch_landings.csv"),sep=";")
+catch <- read.table(file=str_c(mylocalfolder,"/catch.csv"),sep=";")
+stocking <- read.table(file=str_c(mylocalfolder,"/stocking.csv"),sep=";")
+load(str_c(mylocalfolder,"/lfs_code.Rdata")) # lfs_code_base
 #########################
 # MAP FUNCTIONS
 ########################
@@ -68,6 +52,7 @@ stocking <- read.table(file=str_c(mylocalfolder,"stocking.csv"),sep=";")
 #' @param lfs_code A vector of lifestage codes e.g. c('Y','S','YS'), if NULL all lifestages used, Default: NULL
 #' @param coeff the coefficient to multiply by when drawing map, sqrt(sum)*coeff is used, Default: 300
 #' @param map the type of map to draw, Default: "country" can be "emu
+#' @param lfs_code_base a vector of possible lfs code from base to check lfs code integrity
 #' @return A leaflet map
 #' @examples 
 #' \dontrun{
@@ -80,29 +65,29 @@ draw_leaflet<-function(dataset="landings",
     year=2016,
     lfs_code=NULL,
     coeff=300,
-    map="country"  
+    map="country",
+    lfs_code_base_=lfs_code_base  
 ){
   # first checking that lifestages codes are correct
-  lfs_code_base <- sqldf("select lfs_code from ref.tr_lifestage_lfs")[,1]
   if (!is.null(lfs_code)){
-    if (!all(lfs_code %in% lfs_code_base)) stop (str_c("lfs_code wrong shoud be one of ",str_c(lfs_code_base,collapse=';')))
+    if (!all(lfs_code %in% lfs_code_base_)) stop (str_c("lfs_code wrong shoud be one of ",str_c(lfs_code_base,collapse=';')))
   }
   namedataset<-dataset
-  dataset<-get(dataset)
+  dataset_<-get(dataset)
   # Summarize by country, year and stage (if stage not null), eel_cou_code is renamed to cou_code for later join
   #---------------------------------------
   # case country
   #------------------------------------
   if (map=="country"){
     if (is.null(lfs_code)) {
-      cc<-dataset %>% 
+      cc<-  dataset_ %>% 
           group_by(eel_cou_code,eel_year) %>%
           summarize(sum=sum(eel_value)) %>%
           filter(eel_year==year &
                   !is.na(sum)) %>%
           rename(cou_code=eel_cou_code)
     } else {
-      cc<-dataset %>% 
+      cc<-  dataset_ %>% 
           filter(eel_year==year & 
                   eel_lfs_code%in%lfs_code) %>%
           group_by(eel_cou_code,eel_year) %>%
@@ -113,10 +98,10 @@ draw_leaflet<-function(dataset="landings",
     # Select countries from spatialdataframe and extract coordinates
     selected_countries<-as.data.frame(country_c[country_c$cou_code%in%cc$cou_code,])
     # join with summary table
-    selected_countries<- join(selected_countries,cc)
+    selected_countries<- plyr::join(selected_countries,cc)
     # Get popup
     selected_countries$label<-sprintf("%s %s %i=%1.0f",namedataset,selected_countries$cou_countr,year,selected_countries$sum)
-    # join the two dataset by common column (cou_code  
+    # join the two   dataset_ by common column (cou_code  
     m <- leaflet(data=selected_countries) %>%
         addProviderTiles(providers$OpenStreetMap) %>%         
         addCircles(
@@ -129,15 +114,15 @@ draw_leaflet<-function(dataset="landings",
     #------------------------------------ 
   } else if (map=="emu"){
     if (is.null(lfs_code)) {
-      cc<-dataset%>% group_by(eel_emu_nameshort,eel_year) %>%
+      cc<-  dataset_%>% group_by(eel_emu_nameshort,eel_year) %>%
           summarize(sum=sum(eel_value)) %>%
           filter(eel_year==year &
                   !is.na(sum)) %>%          
           rename(emu_nameshort = eel_emu_nameshort)
     } else {
-      cc<-dataset %>% 
+      cc<-  dataset_ %>% 
           filter(eel_year==year &
-                          eel_lfs_code %in% lfs_code)  %>%        
+                  eel_lfs_code %in% lfs_code)  %>%        
           group_by(eel_emu_nameshort,eel_year) %>%
           filter(!is.na(sum)) %>%         
           summarize(sum=sum(eel_value))%>%
@@ -145,7 +130,7 @@ draw_leaflet<-function(dataset="landings",
     }  
     selected_emus<-as.data.frame(emu_c[emu_c$emu_nameshort%in%cc$emu_nameshort,])
     # join with summary table
-    selected_emus<- join(selected_emus,cc)
+    selected_emus<- plyr::join(selected_emus,cc)
     # Get popup
     selected_emus$label<-sprintf("%s %s %i=%1.0f",namedataset,selected_emus$emu_nameshort,year,selected_emus$sum)
     # join the two dataset by common column (cou_code  
@@ -172,6 +157,7 @@ draw_leaflet<-function(dataset="landings",
 ########################
 # map of landings in 2016, all stages, per country
 draw_leaflet()
+
 # map of glass eel landings in 2016, per emu
 # as yet no code to distinguish commercial and recreational
 draw_leaflet(dataset="landings",
@@ -196,3 +182,103 @@ draw_leaflet(dataset="stocking",
     lfs_code='G',
     coeff=200,
     map="country")
+
+########################################
+# create summary tables per year / country
+########################################
+# catch and landings per country, stages Y S or YS
+c1<-filter(catch_landings,eel_lfs_code%in%c('Y','S','YS'))%>%dplyr::group_by(eel_cou_code,eel_year)%>%
+    summarize(eel_value=sum(eel_value,na.rm=TRUE))
+
+dcast(c1,eel_year~eel_cou_code)
+x11()
+ggplot(c1)+geom_area(aes(x=eel_year,y=eel_value,fill=eel_cou_code))+
+    scale_fill_viridis(discrete=TRUE)
+#-----------------------------------------------
+# catch and landings per country, stages Y S or YS, per type
+c2<-filter(catch_landings,eel_lfs_code%in%c('Y','S','YS'))%>%dplyr::group_by(eel_cou_code,eel_year,eel_typ_id)%>%
+    summarize(eel_value=sum(eel_value,na.rm=TRUE))
+
+dcast(c2,eel_year~eel_cou_code+eel_typ_id)
+x11()
+ggplot(c1)+geom_area(aes(x=eel_year,y=eel_value,fill=eel_cou_code))+
+    scale_fill_viridis(discrete=TRUE)
+    
+#-----------------------------------------------
+# Restocking which stages typ_id=8 (kg)
+#--------------------------
+    
+r1<-filter(stocking,eel_typ_id%in%c(8))%>%dplyr::group_by(eel_cou_code,eel_year,eel_lfs_code)%>%
+    summarize(eel_value=sum(eel_value,na.rm=TRUE))
+
+x11()
+ggplot(r1)+geom_area(aes(x=eel_year,y=eel_value,fill=eel_cou_code))+
+    scale_fill_viridis(discrete=TRUE)+
+    facet_wrap(~eel_lfs_code)
+
+#-----------------------------------------------
+# Restocking which stages typ_id=9 (nb)
+#---------------------------------------------
+
+r2<-filter(stocking,eel_typ_id%in%c(9))%>%dplyr::group_by(eel_cou_code,eel_year,eel_lfs_code)%>%
+    summarize(eel_value=sum(eel_value,na.rm=TRUE))
+ggplot(r2)+geom_area(aes(x=eel_year,y=eel_value,fill=eel_cou_code))+
+    scale_fill_viridis(discrete=TRUE)+
+    facet_wrap(~eel_lfs_code)
+
+#-----------------------------------------------
+# Restocking after converting kg to number
+#---------------------------------------------
+# individual weight for one piece (kg)
+GE_w=0.3e-3 
+Y_w=9e-3
+OG_w=1e-3
+QG_w=1e-3
+    
+r31<-r2%>%mutate(type="kg")
+r32<-
+filter(r1,eel_lfs_code=='G')%>%mutate(eel_value=eel_value/GE_w)
+union
+filter(r1,eel_lfs_code=='Y')%>%mutate(eel_value=eel_value/Y_w)
+union
+filter(r1,eel_lfs_code=='OG')%>%mutate(eel_value=eel_value/OG_w)
+r32<-r32%>%mutate(type="weight_from_kg")
+r3<-union(r31,r32)
+
+ggplot(r3)+geom_area(aes(x=eel_year,y=eel_value,fill=eel_cou_code))+
+    scale_fill_viridis(discrete=TRUE)+
+    facet_wrap(~eel_lfs_code)
+
+ggplot(r3)+geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code))+
+    scale_fill_viridis(discrete=TRUE)+
+    facet_wrap(~eel_lfs_code)
+
+ggplot(r3)+geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code))+
+    scale_fill_viridis(discrete=TRUE)
+#-------------------------------------------------
+# catch and landings per country, stages Y S or YS
+#-------------------------------------------------
+    
+c1<-filter(landings,eel_lfs_code%in%c('G'))%>%dplyr::group_by(eel_cou_code,eel_year)%>%
+    summarize(eel_value=sum(eel_value,na.rm=TRUE))
+
+dcast(c1,eel_year~eel_cou_code)
+x11()
+ggplot(c1)+geom_area(aes(x=eel_year,y=eel_value,fill=eel_cou_code))+
+    scale_fill_viridis(discrete=TRUE)+
+    facet_wrap(~eel_typ_id)
+
+#---------------------------------
+# aquaculture per country
+# 11 kg
+# 12 n number
+#----------------------------
+table(aquaculture$eel_typ_id)
+a1<-aquaculture%>%dplyr::group_by(eel_cou_code,eel_year,eel_typ_id)%>%
+    summarize(eel_value=sum(eel_value,na.rm=TRUE))
+x11()
+ggplot(a1)+geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code))+
+    scale_fill_viridis(discrete=TRUE)+
+    facet_wrap(~eel_typ_id)
+# one value in number check (Spain)
+filter(aquaculture,eel_typ_id==12&eel_value!=0)
