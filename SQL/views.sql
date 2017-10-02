@@ -50,9 +50,14 @@ ALTER TABLE datawg.series_summary
 ----
 drop view if exists  datawg.t_series_ser_dist ;
 create view datawg.t_series_ser_dist as
-select *, 
-round(cast(st_distance(st_PointFromText('POINT(-61 25)',4326),geom)/1000 as numeric),2) as dist_sargasso from
-datawg.t_series_ser ;
+select 
+ ser.geom,
+ ss.*,
+round(cast(st_distance(st_PointFromText('POINT(-61 25)',4326),geom)/1000 as numeric),2) as dist_sargasso 
+from
+datawg.t_series_ser ser join 
+datawg.series_summary ss on ss.site=ser_nameshort
+;
 
 
 -------------------------------------
@@ -60,11 +65,12 @@ datawg.t_series_ser ;
 -- attention, foreign key to emu is on double pivot
 -- this view refers to both commercial and recreational catch
 ---------------------------------------
-DROP VIEW IF EXISTS datawg.catch ;
+DROP VIEW IF EXISTS datawg.catch CASCADE;
 CREATE VIEW datawg.catch AS 
 (
 select  
-	tr_typeseries_typ.typ_name, 
+         eel_typ_id,
+	 tr_typeseries_typ.typ_name, 
 	 tr_typeseries_typ.typ_uni_code,
          eel_year ,
          eel_value  ,
@@ -99,11 +105,12 @@ WHERE eel_typ_id=5 or eel_typ_id=7);
 -- This view refer to both recreational and commercial landings
 ---------------------------------------
 
-DROP VIEW IF EXISTS datawg.landings ;
+DROP VIEW IF EXISTS datawg.landings CASCADE;
 CREATE VIEW datawg.landings AS 
 (
 select  
-	tr_typeseries_typ.typ_name, 
+	 eel_typ_id,
+	 tr_typeseries_typ.typ_name, 
 	 tr_typeseries_typ.typ_uni_code,
          eel_year ,
          eel_value  ,
@@ -152,7 +159,8 @@ DROP VIEW IF EXISTS datawg.stocking ;
 CREATE VIEW datawg.stocking AS 
 (
 select  
-	tr_typeseries_typ.typ_name, 
+         eel_typ_id,
+	 tr_typeseries_typ.typ_name, 
 	 tr_typeseries_typ.typ_uni_code,
          eel_year ,
          eel_value  ,
@@ -189,7 +197,8 @@ DROP VIEW IF EXISTS datawg.aquaculture ;
 CREATE VIEW datawg.aquaculture AS 
 (
 select  
-	tr_typeseries_typ.typ_name, 
+         eel_typ_id,
+	 tr_typeseries_typ.typ_name, 
 	 tr_typeseries_typ.typ_uni_code,
          eel_year ,
          eel_value  ,
