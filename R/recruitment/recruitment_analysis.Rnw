@@ -52,7 +52,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%% END OF THE PREAMBLE  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{document}
 \bibliographystyle{plain}
-\title{ Analysis of recruitment trend : Draft first run, with incomplete data}
+\title{ Analysis of recruitment trend}
 \author{EIFAAC/ICES/GFCM Working Group on Eel}
 \date\today
 \maketitle
@@ -63,8 +63,7 @@
 %\addtocounter{chapter}{3} % this will set initial chapter counter to 
 %======================================================================
 \chapter{Data and trends in glass and yellow eel recruitment indices}
-This chapter addresses the latest trends in glass and yellow eel
-indices and produce the first draft of the ICES eel advice.
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %************************************************************************************
@@ -662,15 +661,16 @@ rien<-dev.off()
 <<tableswgeel,echo=FALSE, eval=FALSE,result=hide>>=
 # THIS R CHUNCK IS USED ONCE AT THE END TO GENERATE THE TABLES.
 ## This will fail if saved twice, run at the end of the working group to generate the table of values
-dat<-wger[order(wger$ser_order,wger$year),]
+dat<-wgerinit[order(wgerinit$ser_order,wgerinit$year),]
 dat$year=as.factor(dat$year)
 stopifnot(length(unique(dat$ser_order))== length(unique(dat$ser_id)))
 # this will create the table to export to excel with all raw data
 tab1<-reshape2::dcast(dat,year~ser_order,value.var="value")
 tab1[,2:ncol(tab1)]=round(tab1[,2:ncol(tab1)],2)
 colnames(tab1)<-c("year",statseries$site)
-
-
+tab1[,1]<-as.character(tab1[,1])
+tab1<-rbind(statseries$series_kept,tab1)
+tab1[1,1]<-"kept"
 createxl<-function(data=tab1,sheet="recruitment_series"){
 	library("XLConnect")
 	xls.file<-str_c(datawd,"/","table_rec2017.xls")
@@ -689,83 +689,35 @@ createxl(data=statseries,sheet="series_description")
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Recruitment}
-\subsection{Time-series available}
+This section addresses the latest trends in glass and yellow eel recruitment
+indices on two differnt areas of its distibution range. 
 The recruitment time-series data are derived from fishery-dependent sources
 (i.e. catch records) and also from fishery-independent surveys across much of
-the geographic range of European eel (Figure \textbf{\ref{figure1}}). The
-stages are categorized as glass eel (gls.), mixture of glass eel and young
-yellow eel (gls.+ylw.) and older yellow eel (ylw.) recruiting to continental habitats (Dekker, 2002).\\
-
-%==========================================
-\begin{figure}[htpb]
-\centering
-\includegraphics[width=0.5\textwidth]{figure1.png}
-\caption{Location of the recruitment monitoring sites in Europe, white circle =
-glass eel , blue circle = glass eel and young yellow eels, yellow
-square=yellow eel series.
-}
-\label{figure1}
-\end{figure}
-%==========================================
+the geographic range of European eel.  The
+stages are categorized as glass eel (G), mixture of glass eel and young
+yellow eel (GY) and older yellow eel (Y) recruiting to continental habitats
+(Dekker, 2002).\\
 
 The glass eel recruitment time-series have also been classified according to two
-areas: 'continental North Sea' and 'Elsewhere Europe', as it cannot be ruled out
-that recruitment to the two areas has different trends (ICES 2010). The glass
+areas: 'continental North Sea' (NS) and 'Elsewhere Europe' (EE), as it cannot be
+ruled out that recruitment to the two areas has different trends (ICES 2010). The glass
 eel recruitment series are either comprised of only glass eel or of a mixture of
-glass eel and young yellow eel. Yellow eel series are predominantly made of
-young yellow eel, or of yellow eel that might be several
-years old (in the Baltic).\\
+glass eel and young yellow eel but dominated by recruits from that year. 
+
+Yellow eel series can consist of yellow eel that might be several ages. This
+is certainly the case for all series in the Baltic, or elsewere
+at recruitment sites located upstream in river basins).\\
 
 The WGEEL has collated information on recruitment from
 \Sexpr{sn(vv[["nb_series_init"]])} time-series. Some time-series date back to the
-beginning of 20th century (yellow eel, Göta Älv, Sweden) or 1920 (glass eel, Loire, France).
+beginning of 20th century (yellow eel, Göta Älv, Sweden) or 1920 (glass eel,
+Loire, France). Among those series \Sexpr{sn(vv[["nb_series_final"]])} have been
+selected for further analysis in the wgeel indices, see details on data
+selection and processing in annex.
 
-\begin{itemize}
-\item \Sexpr{sn(vv[["nCY"]])} time-series were updated to \Sexpr{CY}
-(\Sexpr{sn(vv[["nCYg"]])} for glass eel and \Sexpr{sn(vv[["nCYy"]])} for yellow eel Table \ref{table_seriesCY} Annex \textcolor{red}{X}).
-\item \Sexpr{sn(vv[["nCYm1"]])} time-series (\Sexpr{sn(vv[["nCYm1g"]])} for glass eel and
-\Sexpr{sn(vv[["nCYm1y"]])} for yellow eel) were updated to \Sexpr{CY-1}
-only (Table \ref{table_seriesCYm1} Annex \textcolor{red}{X}). 
 
-\textcolor{Plum}{Adapt here : Among the time-series based on trap indices, some
-have reported preliminary data for 2017 as the season is not yet finished (Lagan (SW), Kävlingeån (SW),
-Göta Älv (SW), Viskan (SW), Parteen(IR), Bann (GB), Bresle (FR)),
-while others have not yet reported (Guden Å (DK), Harte (DK)).}
-Therefore, the indices given for 2017 must be considered as provisional
-especially those for the yellow eel. 
-\item 
-\Sexpr{sn(vv[["nseries_lost"]])} time-series have been stopped
-(\Sexpr{sn(vv[["nseries_lostg"]])} for glass eel and \Sexpr{sn(vv[["nseries_losty"]])} for
-yellow eel, Table \ref{table_serieslost} Annex \textcolor{red}{X}). They stopped
-reporting either because of a lack of recruits in the case of the fishery-based surveys (Ems
-in Germany, stopped in 2001; Vidaa in Denmark, stopped in 1990),
- a lack of financial support (the Tiber in Italy, 2006) or the introduction of
-quota from from 2008 to 2011 that has disrupted the five fishery-based French
-time-series . 
-\item One series (Severn HMRC) has been dropped from the list, as it was
-considered a double of the other Severn EA statistics, but of poorer quality.
-It is no longer represented in the summary but kept and updated in the database.
-\item There is a new glass eel time-series in the Rhone River, French
-Mediterranean (Vaccares), starting in 2004.
-\item The whole Miño  glass eel time-series (MiPo) has been reviewed in 2017.
-\end{itemize}
-\item New historical data for Bann 
-The number of glass eel and glass eel + young yellow eel time-series available
-has declined from a peak of
-\Sexpr{vv[["nbmaxglasseel"]]} in \Sexpr{max(as.numeric(vv[["yearmaxglasseel"]]))}. The maximum
-number of older yellow eel time-series has increased to \Sexpr{vv[["nbmaxyellow"]]}
-in \Sexpr{max(as.numeric(vv[["yearmaxyellow"]]))} (Figure \ref{figure2}).\\
+
  
- %========================================== 
-\begin{figure}[htpb]
-\centering
-\includegraphics[width=0.5\textwidth]{figure2.png}
-\caption{Trends in number of glass (black circle), glass+young yellow eel
-(grey triangle) and older yellow eel (black triangle) time-series giving a
-report in  any specific year.}
-\label{figure2}
-\end{figure}
- %==========================================  
 \subsection{Recruitment series data}
  
 Calculation of the geometric mean of all time-series is given in (Figures
@@ -1739,7 +1691,16 @@ comparing to that of the previous year (Figure \ref{figure6}).
 
 \section*{Annex}
 
-
+\subsection{Additional figures}
+%==================================================
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth]{figure1.jpg}
+\caption{Map of recruitment sampling stations, color according to stage (blue =
+G and GY) purple = Y, size according to series duration.}
+\label{figure1}
+\end{figure}
+%==========================================
 %==================================================
 \begin{figure}[H]
 \centering
@@ -1748,7 +1709,6 @@ comparing to that of the previous year (Figure \ref{figure6}).
 \label{figure3withoutlogscale}
 \end{figure}
 %==========================================
-
 %==========================================
 \begin{figure}[H]
 \centering
@@ -1767,19 +1727,34 @@ comparing to that of the previous year (Figure \ref{figure6}).
 \normalsize
 %==========================================
 
- %====================================
-	\input{C:/workspace/wgeeldata/recruitment/2017/table/table_seriesCY.tex}
- %====================================
+\subsection{Details on data selection and processing}
+\begin{itemize}
 
- %====================================
-	\input{C:/workspace/wgeeldata/recruitment/2017/table/table_seriesCYm1.tex}
- %====================================
+\item \Sexpr{sn(vv[["nb_series_init"]]-vv[["nb_series_final"]])} have been
+dropped from the analysis. For instance, only the longest series has been kept
+for the severn (Severn EA) and the other (Severn HMRC) has been dropped from the
+list, as it was considered a double, but of poorer quality in historical times. The
+other cases are mostly series that are too short to be included (less than 10 years), but might be
+part of the indice in the future. \textcolor{Plum}{Check what
+criteria have been chosen by wgeel to select those series, and precise them here.}
+(Table \ref{statseries})
 
- %====================================
-	\input{C:/workspace/wgeeldata/recruitment/2017/table/table_serieslost.tex}
- %====================================
-\normalsize
-\setlength{\tabcolsep}{4pt} % defaut 6pt (table column separator)
+\item \textcolor{Plum}{Adapt here : Among the time-series based on trap indices,
+some have reported preliminary data for 2017 as the season is not yet finished (Lagan (SW), Kävlingeån (SW),
+Kavlingen (SW), Lagan (SW), Bresle (FR)).}
+Therefore, the indices given for 2017 must be considered as provisional
+especially those for the yellow eel. 
+
+\item New historical data have been collected for the Bann from 1933 to 1948.
+This new dataset, while leaving a hole from 1949 to 1959 provides valuable new
+data at a period where only a few dataset were available (Ems, RhineDO,
+Albufera, Gironde, Loire).
+\item New series have been added in Scottland (Girnock 10 years of data)
+and Germany (Frische Grube and Wallensteingraben 11 years of data) and Ireland (Burrishoole,
+data in 1987 1988 and again from 2007 to 2017).
+\item Yser is now classified in the Atlantic, while it was wrongly classified in
+the North Sea.
+\end{itemize}
 
  %====================================
 	\input{C:/workspace/wgeeldata/recruitment/2017/table/table_statseries.tex}
@@ -1792,7 +1767,69 @@ comparing to that of the previous year (Figure \ref{figure6}).
  %====================================
 	\input{C:/workspace/wgeeldata/recruitment/2017/table/table_statseries2.tex}
  %====================================
+\subsection{Number of series available}
 
+The number of glass eel and glass eel + young yellow eel time-series available
+has declined from a peak of
+\Sexpr{vv[["nbmaxglasseel"]]} in \Sexpr{max(as.numeric(vv[["yearmaxglasseel"]]))}. The maximum
+number of older yellow eel time-series has increased to \Sexpr{vv[["nbmaxyellow"]]}
+in \Sexpr{max(as.numeric(vv[["yearmaxyellow"]]))} (Figure \ref{figure2}).\\
+ %========================================== 
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.5\textwidth]{figure2.png}
+\caption{Trends in number of glass (black circle), glass+young yellow eel
+(grey triangle) and older yellow eel (black triangle) time-series giving a
+report in  any specific year.}
+\label{figure2}
+\end{figure}
+ %========================================== 
+ 
+ 
+\subsection{Check on series updates}
+\begin{itemize}
+\item \Sexpr{sn(vv[["nCY"]])} time-series were updated to \Sexpr{CY}
+(\Sexpr{sn(vv[["nCYg"]])} for glass eel and \Sexpr{sn(vv[["nCYy"]])} for yellow eel Table \ref{table_seriesCY} Annex \textcolor{red}{X}).
+\item \Sexpr{sn(vv[["nCYm1"]])} time-series (\Sexpr{sn(vv[["nCYm1g"]])} for glass eel and
+\Sexpr{sn(vv[["nCYm1y"]])} for yellow eel) were updated to \Sexpr{CY-1}
+only (Table \ref{table_seriesCYm1} Annex \textcolor{red}{X}).  
+
+\item \Sexpr{sn(vv[["nseries_lost"]])} time-series have been stopped
+(\Sexpr{sn(vv[["nseries_lostg"]])} for glass eel and \Sexpr{sn(vv[["nseries_losty"]])} for
+yellow eel, Table \ref{table_serieslost} Annex \textcolor{red}{X}). They stopped
+reporting either because of a lack of recruits in the case of the fishery-based surveys (Ems
+in Germany, stopped in 2001; Vidaa in Denmark, stopped in 1990),
+ a lack of financial support (the Tiber in Italy, 2006) or the introduction of
+quota from from 2008 to 2011 that has disrupted the five fishery-based French
+time-series . 
+\end{itemize}
+
+ %====================================
+	\input{C:/workspace/wgeeldata/recruitment/2017/table/table_seriesCY.tex}
+ %====================================
+
+ %====================================
+	\input{C:/workspace/wgeeldata/recruitment/2017/table/table_seriesCYm1.tex}
+ %====================================
+
+ %====================================
+	\input{C:/workspace/wgeeldata/recruitment/2017/table/table_serieslost.tex}
+ %====================================
+
+
+\setlength{\tabcolsep}{4pt} % defaut 6pt (table column separator)
+
+
+ \subsection{Notes to ACOM}
+ 
+ In 2015 and 2016 series with missing values have been wrongly dropped from the
+ analysis. The Figure 2.3 tells righly that the trend has been calculated on 33
+ series, however 40 are avalaible in the annex and there is no detail given
+ on how we select from 40 to 33 series. In practise, a missing na.rm in the
+ script has caused the series Yser (NS), YFS2 (NS), Stelledam(NS), RhIJ(NS),Maig (EE)
+ and  Inag (EE) to be dropped from analysis. In 2016 the recruitment given as
+ 10.7 (EE) and 2.7 (NS) should have been 10.9 (EE) and 1.5 (NS).
+ 
 %\newpage
 %\small
 % %====================================
@@ -1804,6 +1841,11 @@ comparing to that of the previous year (Figure \ref{figure6}).
 %\input{C:/workspace/wgeeldata/sweave/2017/table/table_n_y_lfs.tex}
 % %====================================
 %\normalsize
+
+ \subsection{Quality insurance}
+ Scripts available on github
+ Discussion on data processing
+ \dots{}
 \end{document}
 sdfsdf
  nor
