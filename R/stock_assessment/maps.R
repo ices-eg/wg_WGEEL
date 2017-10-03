@@ -17,6 +17,7 @@ if(!require(tcltk)) install.packages("tcltk") ; require(tcltk)
 if(!require(stacomirtools)) install.packages("stacomirtools") ; require(stacomirtools)
 if(!require(ggplot2)) install.packages("ggplot2") ; require(ggplot2)
 if(!require(reshape2)) install.packages("reshape2") ; require(reshape2)
+if(!require(rmapshaper)) install.packages("rmapshaper") ; require(rmapshaper)
 
 # using join from plyr but not loaded (would mess with dplyr)
 # using also stacomirtools package but not loaded_
@@ -26,13 +27,13 @@ mylocalfolder <- tk_choose.dir(caption = "Data call directory", default = "C:/te
 # path to local github (or write a local copy of the files and point to them)
 setwd(tk_choose.dir(caption = "GIT directory", default = "C:/Users/cedric.briand/Documents/GitHub/WGEEL"))
 # path to shapes on the sharepoint
-shpwd <- tk_choose.dir(caption = "Shapefile directory", default = "C:/temp/SharePoint/WGEEL - 2017 Meeting Docs/06. Data/shp")
+shpwd <- tk_choose.dir(caption = "Shapefile directory", default = mylocalfolder)
 emu_c=rgdal::readOGR(str_c(shpwd,"/","emu_centre_4326.shp")) # a spatial object of class spatialpointsdataframe
 emu_c@data <- stacomirtools::chnames(emu_c@data,"emu_namesh","emu_nameshort") # names have been trucated
 # this corresponds to the center of each emu.
-country_p=rgdal::readOGR(str_c(shpwd,"/","country_polygons_4326.shp"))# a spatial object of class sp
+country_p=rmapshaper::ms_simplify(rgdal::readOGR(str_c(shpwd,"/","country_polygons_4326.shp")), keep = 0.01)# a spatial object of class sp, symplified to be displayed easily
 # this is the map of coutry centers, to overlay points for each country
-emu_p=rgdal::readOGR(str_c(shpwd,"/","emu_polygons_4326.shp")) # a spatial object of class sp
+emu_p=rmapshaper::ms_simplify(rgdal::readOGR(str_c(shpwd,"/","emu_polygons_4326.shp")), keep = 0.7) # a spatial object of class sp, symplified to be displayed easily
 # this is the map of the emu.
 country_c=rgdal::readOGR(str_c(shpwd,"/","country_centre_4326.shp"))
 # transform spatial point dataframe to 
@@ -106,14 +107,18 @@ draw_leaflet<-function(dataset="landings",
     selected_countries<- plyr::join(selected_countries,cc)
     # Get popup
     selected_countries$label<-sprintf("%s %s %i=%1.0f",namedataset,selected_countries$cou_countr,year,selected_countries$sum)
+	scale = max(log10(selected_countries$sum))
     # join the two   dataset_ by common column (cou_code  
     m <- leaflet(data=selected_countries) %>%
-        addProviderTiles(providers$OpenStreetMap) %>%         
+        addProviderTiles(providers$Esri.OceanBasemap) %>% 
+		addPolygons(data = country_p, weight = 2) %>% 
+		fitBounds(-10, 34, 26, 65) %>%
         addCircles(
             lng=~coords.x1,
             lat=~coords.x2,
+			color = "red", opacity = 1,
             weight = 1,
-            radius = ~sqrt(sum)*coeff, popup = ~label)
+            radius = ~log10(sum)/scale*coeff*1E4, popup = ~label)
     #---------------------------------------
     # case emu
     #------------------------------------ 
@@ -138,14 +143,18 @@ draw_leaflet<-function(dataset="landings",
     selected_emus<- plyr::join(selected_emus,cc)
     # Get popup
     selected_emus$label<-sprintf("%s %s %i=%1.0f",namedataset,selected_emus$emu_nameshort,year,selected_emus$sum)
+	scale = max(log10(selected_emus$sum))
     # join the two dataset by common column (cou_code  
     m <- leaflet(data=selected_emus) %>%
-        addProviderTiles(providers$OpenStreetMap) %>%         
-        addCircles(
+        addProviderTiles(providers$Esri.OceanBasemap) %>%         
+		addPolygons(data = emu_p, weight = 2) %>% 
+		fitBounds(-10, 34, 26, 65) %>%
+		addCircles(
             lng=~coords.x1,
             lat=~coords.x2,
+			color = "red", opacity = 1,
             weight = 1,
-            radius = ~sqrt(sum)*coeff, popup = ~label)
+            radius = ~log10(sum)/scale*coeff*1E4, popup = ~label)
   } else {
     stop("map argument should be one of 'country' or 'emu'")
   }
