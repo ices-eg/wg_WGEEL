@@ -1741,7 +1741,7 @@ criteria have been chosen by wgeel to select those series, and precise them here
 
 \item \textcolor{Plum}{Adapt here : Among the time-series based on trap indices,
 some have reported preliminary data for 2017 as the season is not yet finished (Lagan (SW), Kävlingeån (SW),
-Kavlingen (SW), Lagan (SW), Bresle (FR)).}
+ Bresle (FR)).}
 Therefore, the indices given for 2017 must be considered as provisional
 especially those for the yellow eel. 
 
@@ -1749,7 +1749,7 @@ especially those for the yellow eel.
 This new dataset, while leaving a hole from 1949 to 1959 provides valuable new
 data at a period where only a few dataset were available (Ems, RhineDO,
 Albufera, Gironde, Loire).
-\item New series have been added in Scottland (Girnock 10 years of data)
+\item New series have been added in Scotland (Girnock 10 years of data)
 and Germany (Frische Grube and Wallensteingraben 11 years of data) and Ireland (Burrishoole,
 data in 1987 1988 and again from 2007 to 2017).
 \item Yser is now classified in the Atlantic, while it was wrongly classified in
