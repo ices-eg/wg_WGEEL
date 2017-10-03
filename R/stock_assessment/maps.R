@@ -7,21 +7,23 @@
 # INITS
 ########################
 
-library(stringr) # text handling
-library(rgdal)
-library(rgeos)
-library(dplyr)
-library(leaflet)
-library(viridis)
+if(!require(stringr)) install.packages("stringr") ; require(stringr) # text handling
+if(!require(rgdal)) install.packages("rgdal") ; require(rgdal)
+if(!require(rgeos)) install.packages("rgeos") ; require(rgeos)
+if(!require(dplyr)) install.packages("dplyr") ; require(dplyr)
+if(!require(leaflet)) install.packages("leaflet") ; require(leaflet)
+if(!require(viridis)) install.packages("viridis") ; require(viridis)
+if(!require(tcltk)) install.packages("tcltk") ; require(tcltk)
+
 # using join from plyr but not loaded (would mess with dplyr)
 # using also stacomirtools package but not loaded
 
-mylocalfolder <- "C:/temp/SharePoint/WGEEL - 2017 Meeting Docs/06. Data/datacall"
+mylocalfolder <- tk_choose.dir(caption = "Select the working directory where data call files are", default = "C:/temp/SharePoint/WGEEL - 2017 Meeting Docs/06. Data/datacall")
 
 # path to local github (or write a local copy of the files and point to them)
-setwd("C:/Users/cedric.briand/Documents/GitHub/WGEEL")
+setwd(tk_choose.dir(caption = "Select the GIT working directory", default = "C:/Users/cedric.briand/Documents/GitHub/WGEEL"))
 # path to shapes on the sharepoint
-shpwd <- "C:/temp/SharePoint/WGEEL - 2017 Meeting Docs/06. Data/shp"
+shpwd <- tk_choose.dir(caption = "Select the shapefile working directory", default = "C:/temp/SharePoint/WGEEL - 2017 Meeting Docs/06. Data/shp")
 emu_c=rgdal::readOGR(str_c(shpwd,"/","emu_centre_4326.shp")) # a spatial object of class spatialpointsdataframe
 emu_c@data <- stacomirtools::chnames(emu_c@data,"emu_namesh","emu_nameshort") # names have been trucated
 # this corresponds to the center of each emu.
