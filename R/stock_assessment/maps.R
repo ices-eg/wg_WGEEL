@@ -16,6 +16,7 @@ if(!require(viridis)) install.packages("viridis") ; require(viridis)
 if(!require(tcltk)) install.packages("tcltk") ; require(tcltk)
 if(!require(stacomirtools)) install.packages("stacomirtools") ; require(stacomirtools)
 if(!require(ggplot2)) install.packages("ggplot2") ; require(ggplot2)
+if(!require(reshape2)) install.packages("reshape2") ; require(reshape2)
 
 # using join from plyr but not loaded (would mess with dplyr)
 # using also stacomirtools package but not loaded_
@@ -194,7 +195,7 @@ draw_leaflet(dataset="stocking",
 c1<-filter(catch_landings,eel_lfs_code%in%c('Y','S','YS'))%>%dplyr::group_by(eel_cou_code,eel_year)%>%
     summarize(eel_value=sum(eel_value,na.rm=TRUE))
 
-dcast(c1,eel_year~eel_cou_code) #dcast ???
+dcast(c1,eel_year~eel_cou_code)
 x11()
 ggplot(c1)+geom_area(aes(x=eel_year,y=eel_value,fill=eel_cou_code))+
     scale_fill_viridis(discrete=TRUE)
