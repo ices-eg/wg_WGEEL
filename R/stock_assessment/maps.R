@@ -6,7 +6,7 @@
 #########################
 # INITS
 ########################
-
+library(shiny)
 library(stringr) # text handling
 library(rgdal)
 library(rgeos)

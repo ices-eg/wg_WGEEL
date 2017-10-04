@@ -58,6 +58,7 @@ check_all_directories<-function(){
       cat(str_c("---------------------------","\n"))
       # most files don't have the same name, so I will search for files including file name 
       the_files<-list.files(path = directories[i],recursive = FALSE)
+      the_files<-the_files[!grepl("~",the_files)]
       ############# CATCH AND LANDINGS #############################################
       
       #---------------------- METADATA sheet ---------------------------------------------
@@ -567,6 +568,11 @@ check_all_directories<-function(){
   for (i in 1:length(data_list))
   {
       restocking_final<<- rbind(restocking_final,data_list[[i]][["restocking"]])
+  }
+  metadata_final<-data.frame()
+  for (i in 1:length(metadata_list))
+  {
+    metadata_final<<- rbind(metadata_final,data_list[[i]][[""]])
   }
 }
 
