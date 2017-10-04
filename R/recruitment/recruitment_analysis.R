@@ -157,7 +157,7 @@ vv<-list()
 # This chunks uses the RequeteODBC connection object from stacomirtools and sqldf
 # an odbc link must be configured to the database : i.e. you must have the postgres
 # database available, and an ODBC link pointing to the database.
-# If you don't and still want to run this script, ask Cédric cedric.briand@eptb-vilaine.fr
+# If you don't and still want to run this script, ask Cï¿½dric cedric.briand@eptb-vilaine.fr
 # he will send you the Rdata saved during this chunk.
 
 
@@ -310,7 +310,7 @@ R_stations[R_stations$rec_nameshort %in% unused_series_2000_2009, "unused_2000_2
 # Inag and Maig left out from the analysis 
 mean_site=data.frame(mean_2000_2009=as.numeric(tapply(mdata$value,mdata$ser_id,mean,na.rm=TRUE)))
 mean_site$site=tapply(mdata$site,mdata$ser_id,function(X)unique(X))
-wger=merge(wger,mean_site,by="site",all.x=TRUE,all.y=FALSE) # here we loose the two stations Inag and Maig and also Frémur
+wger=merge(wger,mean_site,by="site",all.x=TRUE,all.y=FALSE) # here we loose the two stations Inag and Maig and also Frï¿½mur
 wger$value_std_2000_2009=wger$value/wger$mean_2000_2009
 
 #########################################################################
@@ -613,7 +613,7 @@ rien<-dev.off()
 ## 	createSheet(wb,sheet)
 ## 	writeWorksheet (wb , data , sheet=sheet ,header = TRUE )
 ## 	saveWorkbook(wb)
-## 	#cat("travail terminé\n")
+## 	#cat("travail terminï¿½\n")
 ## }
 ## createxl(data=tab1,sheet="recruitment_series")
 ## createxl(data=statseries,sheet="series_description")
@@ -1087,16 +1087,16 @@ save_figure("figure5",figure5,400,300)
 
 #levels(dat$area)<-c (
 #		iconv("Andre steder i Europa","UTF8"),
-#		iconv("Nordsjøen","UTF8"))#
+#		iconv("Nordsjï¿½en","UTF8"))#
 #g<-ggplot(dat,aes(x=year,y=p_std_1960_1970))
 #figure5norvegiean<-g+
 #		geom_line(aes(colour=area,lty=area),lwd=1.3)+
 #		geom_point(aes(colour=area,shape=area),size=3)+
-#		ggtitle(label=iconv("Indeks av glassålrekruttering","UTF8"))+
-#		scale_colour_brewer(name=iconv("Området","UTF8"),palette="Set1")  +
-#		scale_shape(name=iconv("Området","UTF8"))+
-#		scale_linetype(name=iconv("Området","UTF8"))+
-#		xlab(iconv("År","UTF8"))+
+#		ggtitle(label=iconv("Indeks av glassï¿½lrekruttering","UTF8"))+
+#		scale_colour_brewer(name=iconv("Omrï¿½det","UTF8"),palette="Set1")  +
+#		scale_shape(name=iconv("Omrï¿½det","UTF8"))+
+#		scale_linetype(name=iconv("Omrï¿½det","UTF8"))+
+#		xlab(iconv("ï¿½r","UTF8"))+
 #		scale_y_log10(name=iconv("Standardiserte GLM-prognoser (i prosent av
 #		1960-1979-gjennomsnitt)","UTF8"), #limits=c(0.005,10),
 #				breaks=c(0.01,0.1,1,10),
@@ -1334,7 +1334,7 @@ if (sgipee_test_for_change_ns<=0.05) {
 ## 		panel=panel.smoother,
 ## 		xlab="Predicted", ylab="residuals", 
 ## 		main="Jacknife deviance residuals agains the fitted value")
-## # un résidu / carte par annee
+## # un rï¿½sidu / carte par annee
 ## 
 ## 
 ## # pour aller chercher les stations en 3035

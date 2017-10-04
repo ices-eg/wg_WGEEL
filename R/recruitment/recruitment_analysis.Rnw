@@ -84,20 +84,21 @@ options(width=90) # this sets the width of the output
 #--------------------------------
 # packages used by this script
 #--------------------------------
-require("RODBC")
-require("mgcv")
-require("car")
-require("ggplot2")
-require("reshape") 
-require("stacomirtools") # for ODBC connections
-require("stringr")
-require("Hmisc")
-require("xtable")
-require("grid")
-require("sqldf") 
-require("RPostgreSQL") 
-require("RColorBrewer")
-require("stacomiR") 
+if(!require(RODBC)) install.packages("RODBC") ; require(RODBC)
+if(!require(mgcv)) install.packages("mgcv") ; require(mgcv)
+if(!require(car)) install.packages("car") ; require(car)
+if(!require(ggplot2)) install.packages("ggplot2") ; require(ggplot2)
+if(!require(reshape)) install.packages("reshape") ; require(reshape)
+if(!require(stacomirtools)) install.packages("stacomirtools") ; require(stacomirtools) # for ODBC connections
+if(!require(stringr)) install.packages("stringr") ; require(stringr)
+if(!require(Hmisc)) install.packages("Hmisc") ; require(Hmisc)
+if(!require(xtable)) install.packages("xtable") ; require(xtable)
+if(!require(grid)) install.packages("grid") ; require(grid)
+if(!require(sqldf)) install.packages("sqldf") ; require(sqldf)
+if(!require(RPostgreSQL)) install.packages("RPostgreSQL") ; require(RPostgreSQL)
+if(!require(RColorBrewer)) install.packages("RColorBrewer") ; require(RColorBrewer)
+if(!require(stacomiR)) install.packages("stacomiR") ; require(stacomiR)
+
 #--------------------------------
 # get your current name
 #--------------------------------
@@ -108,6 +109,7 @@ getUsername <- function(){
 #--------------------------------
 # the code below is adapted to the three persons who currently 
 # load this script
+# TODO: be more generic
 # It is necessary to create a folder, your code is currently stored in
 #--------------------------------------------------
 # FOLDER>WGEELgit>R>recruitment>recruitment_analysis.Rnw
@@ -123,6 +125,7 @@ getUsername <- function(){
 # here 2017 is the current year of recruitment (I have several folders one for each year)
 # the reason for this is that we don't want to put data or figures in the git.
 #--------------------------------
+
 if(getUsername() == 'cedric.briand')
 {
 	# I have two password in the R.site of c:/program files/R... so I don't need no prompt
@@ -144,29 +147,39 @@ if(getUsername() == 'cedric.briand')
 }
 if(getUsername() == 'lbeaulaton')
 {
-	password <- function(prompt = "Password:"){
-		cat(prompt)
-		pass <- system('stty -echo && read ff && stty echo && echo $ff && ff=""',
-				intern=TRUE)
-		cat('\n')
-		invisible(pass)
-	} 
+	getpassword<-function(){  
+		require(tcltk);  
+		wnd<-tktoplevel();tclVar("")->passVar;  
+		#Label  
+		tkgrid(tklabel(wnd,text="Enter password:"));  
+		#Password box  
+		tkgrid(tkentry(wnd,textvariable=passVar,show="*")->passBox);  
+		#Hitting return will also submit password  
+		tkbind(passBox,"<Return>",function() tkdestroy(wnd));  
+		#OK button  
+		tkgrid(tkbutton(wnd,text="OK",command=function() tkdestroy(wnd)));  
+		#Wait for user to click OK  
+		tkwait.window(wnd);  
+		password<-tclvalue(passVar);  
+		return(password);  
+	}  
 	if (!exists("password"))  { 
 		password<-getpassword()
 	}
-	baseODBC=c("wgeel","postgres",password)
-	options(sqldf.RPostgreSQL.user = "postgres", 
+	#baseODBC=c("wgeel","postgres",password)
+	options(sqldf.RPostgreSQL.user = "lolo", 
 			sqldf.RPostgreSQL.password = password,
-			sqldf.RPostgreSQL.dbname = "wgeel",
-			sqldf.RPostgreSQL.host = "w3.eptb-vilaine.fr", 
+			sqldf.RPostgreSQL.dbname = "wgeel_ices",
+			sqldf.RPostgreSQL.host = "localhost", 
 			sqldf.RPostgreSQL.port = 5432)
-	setwd("E:/Mes documents/Mes dossiers/eclipse workspace/projets/wgeel_cb/sweave")
-	wd<-getwd()
-	datawd<-str_c(wddata,"/",CY,"/data")
-	imgwd<-str_c(wddata,"/",CY,"/image")
-	tabwd<-str_c(wddata,"/",CY,"/table")
-	shpwd=str_c(wddata,"/wgeel2013/emu") 
-	shpwd="E:/Mes documents/Mes dossiers/eclipse workspace/projets/wgeel_cb/wgeel2013/emu" # where I store the shape file
+	
+	setwd(str_c(getwd(), "/R/recruitment"))
+
+	wddata <- "/home/lbeaulaton/Documents/ANGUILLE/ICES/WGEEL/WGEEL 2017 Kavala/Ranalysis"
+	datawd<-str_c(wddata,"/data")
+	imgwd<-str_c(wddata,"/image")
+	tabwd<-str_c(wddata,"/table")
+	shpwd="/home/lbeaulaton/Documents/ANGUILLE/ICES/WGEEL/SIG" # emu, rbd, country
 }
 
 if(getUsername() == 'EDIAZ')
@@ -229,23 +242,21 @@ vv<-list()
 ##########################"
 # Description of the series
 ##########################
-query=new("RequeteODBC")
-query@baseODBC<-baseODBC
-query@sql='select * from datawg.t_series_ser 
+
+query ='select * from datawg.t_series_ser 
 		left join ref.tr_station on ser_tblcodeid=tr_station."tblCodeID"
 		left join ref.tr_country_cou on cou_code=ser_cou_code 
 		left join ref.tr_lifestage_lfs on ser_lfs_code=lfs_code
 		left join ref.tr_faoareas on ser_area_division=f_division
 		where ser_typ_id=1'
-query=connect(query)
-R_stations=query@query
+
+R_stations= sqldf(query)
 
 ##########################
 # Main data from the series
 ##########################
-query=new("RequeteODBC")
-query@baseODBC<-baseODBC
-query@sql='SELECT 
+
+query='SELECT 
 		das_id,
 		das_value,       
 		das_year,
@@ -276,8 +287,8 @@ query@sql='SELECT
 		left join ref.tr_lifestage_lfs on ser_lfs_code=lfs_code
 		left join ref.tr_faoareas on ser_area_division=f_division
 		where ser_typ_id=1'
-query=connect(query)
-wger=query@query # (wge)el (r)ecruitment data
+
+wger=sqldf(query) # (wge)el (r)ecruitment data
 wger<-chnames(wger,
 		c("das_id","das_value","das_year","ser_nameshort","ser_area_division","lfs_name"),
 		c("id","value","year","site","area_division","lifestage"))
