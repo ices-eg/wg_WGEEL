@@ -19,11 +19,11 @@ options(sqldf.RPostgreSQL.user = "postgres",
 
 # this is the folder where you will store the files prior to upload
 # don't forget to put an / at the end of the string
-mylocalfolder <- "C:/temp/SharePoint/WGEEL - 2017 Meeting Docs/06. Data/datacall"
+mylocalfolder <- "C:/Users/pohlmann/Desktop/WGEEL/WGEEL 2017/Task 1/06. Data/datacall"
 # you will need to put the following files there
 
 # path to local github (or write a local copy of the files and point to them)
-setwd("C:/Users/cedric.briand/Documents/GitHub/WGEEL")
+setwd("C:/Users/pohlmann/Desktop/WGEEL/WGEEL 2017/Task 1")
 source(str_c(getwd(),"/R/stock_assessment/check_utilities.R"))
 # list the current folders in C:/temps to run into the loop
 
@@ -47,8 +47,8 @@ data_list<-list() # A list to store data)
 # for tests/ development uncomment and run the code inside the loop
 # i=1
 # this code will run through the file and generate warnings to update the files
-check_all_directories<-function(){
-  for (i in 1:length(directories)) {
+check_directories<-function(i){
+ {
       # get the name of the country
       country<- gsub("/","",gsub(mylocalfolder, "", directories[i])) 
       metadata_list[[country]]<-list() # creates an element in the list with the name of the country
@@ -58,6 +58,7 @@ check_all_directories<-function(){
       cat(str_c("---------------------------","\n"))
       # most files don't have the same name, so I will search for files including file name 
       the_files<-list.files(path = directories[i],recursive = FALSE)
+      the_files<-the_files[!grepl("~", the_files)]
       ############# CATCH AND LANDINGS #############################################
       
       #---------------------- METADATA sheet ---------------------------------------------
@@ -92,12 +93,12 @@ check_all_directories<-function(){
               path=str_c(directories[i],"/",mylocalfilename),"catch_landings",
               skip=0)
       # check for the file integrity
-      if (ncol(catch_landings)!=12) cat(str_c("number column wrong ",datacallfiles[1]," in ",country,"\n"))
+      if (ncol(catch_landings)!=13) cat(str_c("number column wrong ",datacallfiles[1]," in ",country,"\n"))
       # check column names
       if (!all.equal(colnames(catch_landings),
               c("eel_typ_id","eel_year","eel_value","eel_missvaluequa","eel_emu_nameshort",
                       "eel_cou_code", "eel_lfs_code", "eel_hty_code","eel_area_division",
-                      "eel_qal_id", "eel_qal_comment","eel_comment"))) 
+                      "eel_qal_id", "eel_qal_comment","eel_comment","eel_datasource"))) 
           cat(str_c("problem in column names",
                           datacallfiles[1]," in ",
                           country,"\n")) 
@@ -570,8 +571,8 @@ check_all_directories<-function(){
   }
 }
 
-
-check_all_directories()
+directories
+check_directories(7)
 ##############################
 # Import into the database
 ##############################
