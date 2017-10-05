@@ -1,6 +1,9 @@
 # import_to_database.R
 # Script to read the different files in the datacall and write the results to the database
 # Status development
+
+
+
 ###############################################################################
 
 
