@@ -18,7 +18,7 @@ sanitizeLatexS <- function(str) {
 sn <- function(x,scientific=FALSE,digits=0)
 {
 	if (class(x)=="character") {                
-		warning("sn appliqué a un character")
+		warning("sn applique a un character")
 		return(x)
 	}
 	if (length(x)==0) {                

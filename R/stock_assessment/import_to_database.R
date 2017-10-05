@@ -569,11 +569,8 @@ check_all_directories<-function(){
   {
       restocking_final<<- rbind(restocking_final,data_list[[i]][["restocking"]])
   }
-  metadata_final<-data.frame()
-  for (i in 1:length(metadata_list))
-  {
-    metadata_final<<- rbind(metadata_final,data_list[[i]][[""]])
-  }
+
+  metadata_list<<-metadata_list
 }
 
 
