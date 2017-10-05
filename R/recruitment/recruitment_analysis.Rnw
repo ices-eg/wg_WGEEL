@@ -669,7 +669,7 @@ rien<-dev.off()
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %************************************************************************************
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-<<tableswgeel,echo=FALSE, eval=FALSE,result=hide>>=
+<<tableswgeel,echo=FALSE, eval=TRUE,result=hide>>=
 # THIS R CHUNCK IS USED ONCE AT THE END TO GENERATE THE TABLES.
 ## This will fail if saved twice, run at the end of the working group to generate the table of values
 dat<-wgerinit[order(wgerinit$ser_order,wgerinit$year),]
@@ -680,8 +680,8 @@ tab1<-reshape2::dcast(dat,year~ser_order,value.var="value")
 tab1[,2:ncol(tab1)]=round(tab1[,2:ncol(tab1)],2)
 colnames(tab1)<-c("year",statseries$site)
 tab1[,1]<-as.character(tab1[,1])
-tab1<-rbind(statseries$series_kept,tab1)
-tab1[1,1]<-"kept"
+first_line<-c("kept",statseries$series_kept)
+tab1<-rbind(first_line,tab1)
 createxl<-function(data=tab1,sheet="recruitment_series"){
 	library("XLConnect")
 	xls.file<-str_c(datawd,"/","table_rec2017.xls")
