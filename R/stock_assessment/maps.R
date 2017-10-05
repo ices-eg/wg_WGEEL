@@ -6,7 +6,7 @@
 #########################
 # INITS
 ########################
-
+library(shiny)
 if(!require(stringr)) install.packages("stringr") ; require(stringr) # text handling
 if(!require(rgdal)) install.packages("rgdal") ; require(rgdal)
 if(!require(rgeos)) install.packages("rgeos") ; require(rgeos)

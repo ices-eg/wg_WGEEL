@@ -566,3 +566,16 @@ ALTER TABLE datawg.t_eelstock_eel drop constraint c_uk_year_lifestage_emu_code;
 ALTER TABLE datawg.t_eelstock_eel drop constraint c_uk_eelstock;
 ALTER TABLE datawg.t_eelstock_eel ADD CONSTRAINT c_uk_eelstock UNIQUE (eel_year,eel_lfs_code,eel_emu_nameshort,eel_typ_id,eel_hty_code,eel_qal_id);
 
+-- adding a new column for the eel_stock to trace the source of data
+ALTER TABLE datawg.t_eelstock_eel ADD COLUMN eel_datasource character varying(100);
+
+
+CREATE TABLE datawg.tr_datasource_dts (
+dts_datasource character varying(100),
+dts_description text
+);
+Comment on table datawg.tr_datasource_dts is 'source of data';
+
+insert into datawg.tr_datasource_dts values ('wgeel_2016','');
+insert into datawg.tr_datasource_dts values ('dc_2017');
+insert into datawg.tr_datasource_dts values ('wgeel_2017');
