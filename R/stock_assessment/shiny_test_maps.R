@@ -38,7 +38,7 @@ if(!require(DT)) install.packages("DT") ; require(DT)
 ui = fluidPage(
 		headerPanel('Test'),
 		sidebarPanel(
-				radioButtons("dataset", "Dataset", c("aquaculture", "landings", "catch_landings", "catch", "stocking"), selected = "catch_landings", inline = TRUE),
+				radioButtons("dataset", "Dataset", c("aquaculture", "landings", "stocking"), selected = "landings", inline = TRUE),
 				sliderInput("year", "Year", value = 2015, min = 1920, max = 2017, step = 1, sep = ""),
 				checkboxGroupInput("lfs", "Life stage", lfs_code_base, selected = "G", inline = TRUE),
 				radioButtons("geo", "Geographical level", c("country", "emu"), selected = "country", inline = TRUE),

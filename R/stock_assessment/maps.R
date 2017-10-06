@@ -22,29 +22,29 @@ if(!require(rmapshaper)) install.packages("rmapshaper") ; require(rmapshaper)
 # using join from plyr but not loaded (would mess with dplyr)
 # using also stacomirtools package but not loaded_
 
-mylocalfolder <- tk_choose.dir(caption = "Data call directory", default = "C:/temp/SharePoint/WGEEL - 2017 Meeting Docs/06. Data/datacall")
+mylocalfolder <- tk_choose.dir(caption = "Data call directory", default = "C:/temp/wgeel/datacal_Nermer")
 
 # path to local github (or write a local copy of the files and point to them)
 setwd(tk_choose.dir(caption = "GIT directory", default = "C:/Users/cedric.briand/Documents/GitHub/WGEEL"))
 # path to shapes on the sharepoint
-shpwd <- tk_choose.dir(caption = "Shapefile directory", default = mylocalfolder)
-emu_c=rgdal::readOGR(str_c(shpwd,"/","emu_centre_4326.shp")) # a spatial object of class spatialpointsdataframe
-emu_c@data <- stacomirtools::chnames(emu_c@data,"emu_namesh","emu_nameshort") # names have been trucated
-# this corresponds to the center of each emu.
-country_p=rmapshaper::ms_simplify(rgdal::readOGR(str_c(shpwd,"/","country_polygons_4326.shp")), keep = 0.01)# a spatial object of class sp, symplified to be displayed easily
-# this is the map of coutry centers, to overlay points for each country
-emu_p=rmapshaper::ms_simplify(rgdal::readOGR(str_c(shpwd,"/","emu_polygons_4326.shp")), keep = 0.7) # a spatial object of class sp, symplified to be displayed easily
-# this is the map of the emu.
-country_c=rgdal::readOGR(str_c(shpwd,"/","country_centre_4326.shp"))
+#shpwd <- tk_choose.dir(caption = "Shapefile directory", default = mylocalfolder)
+#emu_c=rgdal::readOGR(str_c(shpwd,"/","emu_centre_4326.shp")) # a spatial object of class spatialpointsdataframe
+#emu_c@data <- stacomirtools::chnames(emu_c@data,"emu_namesh","emu_nameshort") # names have been trucated
+## this corresponds to the center of each emu.
+#country_p=rmapshaper::ms_simplify(rgdal::readOGR(str_c(shpwd,"/","country_polygons_4326.shp")), keep = 0.01)# a spatial object of class sp, symplified to be displayed easily
+## this is the map of coutry centers, to overlay points for each country
+## beware this takes ages ...
+#emu_p=rmapshaper::ms_simplify(rgdal::readOGR(str_c(shpwd,"/","emu_polygons_4326.shp")), keep = 0.7) # a spatial object of class sp, symplified to be displayed easily
+## this is the map of the emu.
+#country_c=rgdal::readOGR(str_c(shpwd,"/","country_centre_4326.shp"))
 # transform spatial point dataframe to 
-
+#save(emu_c,country_p,emu_p,country_c,file=str_c(mylocalfolder,"/maps_for_shiny.Rdata"))
+load(file=str_c(mylocalfolder,"/maps_for_shiny.Rdata"))
 #########################
 # Load data from csv files
 ########################
 aquaculture <- read.table(file=str_c(mylocalfolder,"/aquaculture.csv"),sep=";")
 landings <- read.table(file=str_c(mylocalfolder,"/landings.csv"),sep=";")
-catch_landings <- read.table(file=str_c(mylocalfolder,"/catch_landings.csv"),sep=";")
-catch <- read.table(file=str_c(mylocalfolder,"/catch.csv"),sep=";")
 stocking <- read.table(file=str_c(mylocalfolder,"/stocking.csv"),sep=";")
 load(str_c(mylocalfolder,"/lfs_code.Rdata")) # lfs_code_base
 #########################
