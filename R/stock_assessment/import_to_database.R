@@ -20,6 +20,7 @@ options(sqldf.RPostgreSQL.user = "postgres",
 # this is the folder where you will store the files prior to upload
 # don't forget to put an / at the end of the string
 #mylocalfolder <- "C:/temp/SharePoint/WGEEL - 2017 Meeting Docs/06. Data/datacall"
+mylocalfolder <-"C:/temp/wgeel/datacal_Nermer"
 mylocalfolder <- "C:/Users/pohlmann/Desktop/WGEEL/WGEEL 2017/Task 1/06. Data/datacall"
 # you will need to put the following files there
 
@@ -97,10 +98,14 @@ check_directories<-function(i){
       # check for the file integrity
       if (ncol(catch_landings)!=13) cat(str_c("number column wrong ",datacallfiles[1]," in ",country,"\n"))
       # check column names
+# colnames(catch_landings)%in%
+#              c("eel_typ_id","eel_year","eel_value","eel_missvaluequa","eel_emu_nameshort",
+#                      "eel_cou_code", "eel_lfs_code", "eel_hty_code","eel_area_division",
+#                      "eel_qal_id", "eel_qal_comment","eel_comment","eel_datasource")
       if (!all.equal(colnames(catch_landings),
               c("eel_typ_id","eel_year","eel_value","eel_missvaluequa","eel_emu_nameshort",
                       "eel_cou_code", "eel_lfs_code", "eel_hty_code","eel_area_division",
-                      "eel_qal_id", "eel_qal_comment","eel_comment","eel_datasource"))) 
+                      "eel_qal_id", "eel_qal_comment","eel_comment","eel_datasource"))==TRUE) 
           cat(str_c("problem in column names",
                           datacallfiles[1]," in ",
                           country,"\n")) 
@@ -254,12 +259,12 @@ check_directories<-function(i){
                   skip=0)
           
           # check for the file integrity
-          if (ncol(restocking)!=12) cat(str_c("number column wrong ",mylocalfilename," in ",country,"\n"))
+          if (ncol(restocking)!=13) cat(str_c("number column wrong ",mylocalfilename," in ",country,"\n"))
           # check column names
           if (all.equal(colnames(restocking),
                   c("eel_typ_id","eel_year","eel_value","eel_missvaluequal","eel_emu_nameshort",
                           "eel_cou_code", "eel_lfs_code", "eel_hty_code","eel_area_division",
-                          "eel_qal_id", "eel_qal_comment","eel_comment"))!=TRUE) 
+                          "eel_qal_id", "eel_qal_comment","eel_comment","eel_datasource"))!=TRUE) 
               cat(str_c("problem in column names",
                               mylocalfilename," in ",
                               country,"\n")) 
@@ -416,12 +421,12 @@ check_directories<-function(i){
                   skip=0)
           
           # check for the file integrity
-          if (ncol(aquaculture)!=12) cat(str_c("number column wrong ",datacallfiles[1]," in ",country,"\n"))
+          if (ncol(aquaculture)!=13) cat(str_c("number column wrong ",datacallfiles[1]," in ",country,"\n"))
           # check column names
           if (all.equal(colnames(aquaculture),
                   c("eel_typ_id","eel_year","eel_value","eel_missvaluequal","eel_emu_nameshort",
                           "eel_cou_code", "eel_lfs_code", "eel_hty_code","eel_area_division",
-                          "eel_qal_id", "eel_qal_comment","eel_comment"))!=TRUE) 
+                          "eel_qal_id", "eel_qal_comment","eel_comment","eel_datasource"))!=TRUE) 
               cat(str_c("problem in column names",
                               mylocalfilename," in ",
                               country,"\n")) 
@@ -574,7 +579,7 @@ check_directories<-function(i){
 }
 
 directories
-check_directories(1)
+check_directories(5)
 ##############################
 # Import into the database
 ##############################
