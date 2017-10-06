@@ -1638,7 +1638,7 @@ $glass~eel \sim year:area + site $, where $glass~eel$ is individual glass eel ti
 North Sea or Elsewhere Europe. In the case of yellow eel time-series, only one estimate is provided:
 $yellow~eel \sim year + site $. 
 
-The trend is reconstructed using the predictions from 1949 for
+The trend is reconstructed using the predictions from 1959 for
 \Sexpr{vv$modelge$nbsite} glass eel time-series and \Sexpr{vv$modelolder$nbsite} 
 yellow eel time-series.
 Some zero values have been excluded from the GLM analysis: 

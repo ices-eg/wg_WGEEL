@@ -19,10 +19,12 @@ options(sqldf.RPostgreSQL.user = "postgres",
 
 # this is the folder where you will store the files prior to upload
 # don't forget to put an / at the end of the string
+#mylocalfolder <- "C:/temp/SharePoint/WGEEL - 2017 Meeting Docs/06. Data/datacall"
 mylocalfolder <- "C:/Users/pohlmann/Desktop/WGEEL/WGEEL 2017/Task 1/06. Data/datacall"
 # you will need to put the following files there
 
 # path to local github (or write a local copy of the files and point to them)
+# setwd("C:/Users/cedric.briand/Documents/GitHub/WGEEL")
 setwd("C:/Users/pohlmann/Desktop/WGEEL/WGEEL 2017/Task 1")
 source(str_c(getwd(),"/R/stock_assessment/check_utilities.R"))
 # list the current folders in C:/temps to run into the loop
@@ -572,7 +574,7 @@ check_directories<-function(i){
 }
 
 directories
-check_directories(7)
+check_directories(1)
 ##############################
 # Import into the database
 ##############################
@@ -588,6 +590,7 @@ check_directories(7)
 dplyr::glimpse(catch_landings_final)
 catch_landings_final$eel_qal_id=as.integer(catch_landings_final$eel_qal_id)
 # correcting problem for germany
+
 catch_landings_final$eel_area_division[catch_landings_final$eel_area_division=="27.3.c, d"&
         !is.na(catch_landings_final$eel_area_division)]<-"27.3.d"
 # correcting problem for Ireland
@@ -597,6 +600,10 @@ options(tibble.print_max = Inf)
 options(tibble.width = Inf)
 print(catch_landings_final[catch_landings_final$eel_emu_nameshort=="SE_Sout"&
                     !is.na(catch_landings_final$eel_emu_nameshort),],100)
+# transforming catch into landings and only using landings 
+catch_landings_final$eel_typ_id[catch_landings_final$eel_typ_id==5]<-4
+catch_landings_final$eel_typ_id[catch_landings_final$eel_typ_id==7]<-6
+
 sqldf("insert into datawg.t_eelstock_eel (
         eel_typ_id,
         eel_year ,
