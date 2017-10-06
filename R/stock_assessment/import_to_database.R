@@ -193,7 +193,7 @@ check_directories<-function(i){
       check_values(dataset=catch_landings,
               column="eel_lfs_code",
               country=country,
-              values=c("G","S","YS","GY","Y"))
+              values=c("G","S","YS","GY","Y","AL"))
       
       ###### eel_hty_code ##############
       
@@ -209,7 +209,7 @@ check_directories<-function(i){
       check_values(dataset=catch_landings,
               column="eel_hty_code",
               country=country,
-              values=c("F","T","C","MO"))
+              values=c("F","T","C","MO","AL"))
       
       ###### eel_area_div ##############
       
@@ -351,7 +351,7 @@ check_directories<-function(i){
               check_values(dataset=restocking,
                       column="eel_lfs_code",
                       country=country,
-                      values=c("G","GY","Y","QG","OG","YS","S"))
+                      values=c("G","GY","Y","QG","OG","YS","S","AL"))
               
               ###### eel_hty_code ##############
               
@@ -367,7 +367,7 @@ check_directories<-function(i){
               check_values(dataset=restocking,
                       column="eel_hty_code",
                       country=country,
-                      values=c("F","T","C","MO"))
+                      values=c("F","T","C","MO","AL"))
               
               ###### eel_area_div ##############
               
@@ -513,7 +513,7 @@ check_directories<-function(i){
               check_values(dataset=aquaculture,
                       column="eel_lfs_code",
                       country=country,
-                      values=c("G","GY","Y","YS","S","OG","QG"))
+                      values=c("G","GY","Y","YS","S","OG","QG","AL"))
               
               ###### eel_hty_code ##############
 # habitat makes no sense there      
