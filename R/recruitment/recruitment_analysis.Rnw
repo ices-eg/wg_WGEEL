@@ -31,6 +31,7 @@ if(!require(mgcv)) install.packages("mgcv") ; require(mgcv)
 if(!require(car)) install.packages("car") ; require(car)
 if(!require(ggplot2)) install.packages("ggplot2") ; require(ggplot2)
 if(!require(reshape)) install.packages("reshape") ; require(reshape)
+if(!require(reshape2)) install.packages("reshape2") ; require(reshape2)
 if(!require(stacomirtools)) install.packages("stacomirtools") ; require(stacomirtools) # for ODBC connections
 if(!require(stringr)) install.packages("stringr") ; require(stringr)
 if(!require(Hmisc)) install.packages("Hmisc") ; require(Hmisc)
@@ -40,6 +41,12 @@ if(!require(sqldf)) install.packages("sqldf") ; require(sqldf)
 if(!require(RPostgreSQL)) install.packages("RPostgreSQL") ; require(RPostgreSQL)
 if(!require(RColorBrewer)) install.packages("RColorBrewer") ; require(RColorBrewer)
 if(!require(stacomiR)) install.packages("stacomiR") ; require(stacomiR)
+if(!require(sp)) install.packages("sp") ; require(sp)
+if(!require(maptools)) install.packages("maptools") ; require(maptools)
+if(!require(maps)) install.packages("maps") ; require(maps)
+if(!require(boot)) install.packages("boot") ; require(boot)
+if(!require(MASS)) install.packages("MASS") ; require(MASS)
+if(!require(lme4)) install.packages("lme4") ; require(lme4)
 
 #--------------------------------
 # get your current name
@@ -386,8 +393,8 @@ R_stations$unused_2000_2009 = FALSE
 R_stations[R_stations$rec_nameshort %in% unused_series_2000_2009, "unused_2000_2009"] = TRUE
 #ex(std_site)
 # Inag and Maig left out from the analysis 
-mean_site=data.frame(mean_2000_2009=as.numeric(tapply(mdata$value,mdata$ser_id,mean,na.rm=TRUE)))
-mean_site$site=tapply(mdata$site,mdata$ser_id,function(X)unique(X))
+mean_site=data.frame(mean_2000_2009=tapply(mdata$value,mdata$site,mean,na.rm=TRUE))
+mean_site$site=rownames(mean_site)
 wger=merge(wger,mean_site,by="site",all.x=TRUE,all.y=FALSE) # here we loose the two stations Inag and Maig and also Frémur
 wger$value_std_2000_2009=wger$value/wger$mean_2000_2009
 
@@ -406,8 +413,8 @@ vv$sc_1979_1994_nb=vv$nb_series_init-length(vv$sc_1979_1994_unused_series)
 #add a column to R_station for flagging unused series
 R_stations$unused_1979_1994 = FALSE
 R_stations[R_stations$rec_nameshort %in% unused_series_1979_1994, "unused_1979_1994"] = TRUE
-mean_site=data.frame(mean_1979_1994=as.numeric(tapply(mdata$value,mdata$ser_id,mean,na.rm=TRUE)))
-mean_site$site=tapply(mdata$site,mdata$ser_id,function(X)unique(X))
+mean_site=data.frame(mean_1979_1994=tapply(mdata$value,mdata$site,mean,na.rm=TRUE))
+mean_site$site=rownames(mean_site)
 wger=merge(wger,mean_site,by="site",all.x=TRUE,all.y=FALSE) 
 wger$value_std_1979_1994=wger$value/wger$mean_1979_1994
 
@@ -415,8 +422,8 @@ wger$value_std_1979_1994=wger$value/wger$mean_1979_1994
 #standardizing with mean (all data)
 ##########################################################################
 
-mean_site=data.frame(mean=as.numeric(tapply(wger$value,wger$ser_id,mean,na.rm=TRUE)))
-mean_site$site=tapply(wger$site,wger$ser_id,function(X)unique(X))
+mean_site=data.frame(mean = tapply(wger$value,wger$site,mean,na.rm=TRUE))
+mean_site$site=rownames(mean_site)
 wger=merge(wger,mean_site,by="site",all.x=TRUE,all.y=FALSE) 
 wger$value_std=wger$value/wger$mean
 
@@ -452,9 +459,12 @@ vv$nb_series_final<-nb_series_final
 # Finally saving the data
 ###############################################################
 
-save(wger,file=paste(datawd,"wger.Rdata",sep="\\"))
-save(older,file=paste(datawd,"older.Rdata",sep="\\"))
-save(glass_eel_yoy,file=paste(datawd,"glass_eel_yoy.Rdata",sep="\\"))
+save(wger,file=paste(datawd,"wger.Rdata",sep="/"))
+save(older,file=paste(datawd,"older.Rdata",sep="/"))
+save(glass_eel_yoy,file=paste(datawd,"glass_eel_yoy.Rdata",sep="/"))
+#load(paste(datawd,"wger.Rdata",sep="/"))
+#load(paste(datawd,"older.Rdata",sep="/"))
+#load(paste(datawd,"glass_eel_yoy.Rdata",sep="/"))
 write.table(glass_eel_yoy,file=str_c(datawd,"/glass_eel_yoy.csv"),sep=";")
 write.table(older,file=str_c(datawd,"/older.csv"),sep=";")
 @
@@ -481,7 +491,9 @@ series_CYm1<-series_CYm1[order(series_CYm1$ser_order),-ncol(series_CYm1)]
 vv$nCYm1<-nrow(series_CYm1) # number series updated last year only (and not this year)
 vv$nCYm1g<-nrow(series_CYm1[grepl("G",series_CYm1$ser_lfs_code),]) # same for glass eel 
 vv$nCYm1y<-nrow(series_CYm1[series_CYm1$ser_lfs_code=="Y",]) # same for yellow eel only
-lost_ones<-last_year[last_year<CY-1] # Series that have not been updated for two years
+
+# Series that have not been updated for two years
+lost_ones<-last_year[last_year<CY-1]
 d_lost_ones<-data.frame("site"=names(lost_ones),"year"=lost_ones) # data frame
 series_lost<-merge(
 		R_stations[R_stations$ser_nameshort%in%names(lost_ones),c(c("ser_nameshort","ser_namelong","cou_code","ser_lfs_code","areashort","ser_area_division"))],
@@ -1091,7 +1103,7 @@ vv$modelolder$excludedsite<-unique(older[older$site%in%vv$modelolder$excluded,"s
 vv$modelolder$value_excluded_zero<-older[older$value==0,
 		c("value_std","site","year","lifestage","das_comment","area")]
 
-xt_a<-xtable(anova(model_ge_area,test="F"),
+xt_a<-xtable(Anova(model_ge_area,test="F"),
 		caption=c("Anova for glass eel recruitment model",
 				label="table_anova"))
 
@@ -1147,7 +1159,7 @@ mean_1960_1970$area=rownames(mean_1960_1970)
 data_bis=merge(data_bis,mean_1960_1970,by="area")
 data_bis$p_std_1960_1970=data_bis$p/data_bis$mean
 
-# cannot show no se on average value, se is on each individual value !
+# cannot show any se on average value, se is on each individual value !
 #data_bis$se_std_1960_1970=data_bis$se/data_bis$geomean 
 #data_bis$ymin<-data_bis$p_std_1960_1970-data_bis$se_std_1960_1970
 #data_bis$ymax<-data_bis$p_std_1960_1970+data_bis$se_std_1960_1970
@@ -1358,7 +1370,7 @@ trend$lNS<-log(trend$"North Sea")
 #round(lm(lNS~year,data=trend)$coefficient[2],4) # -0.098 North Sea -0129
 
 test1=lm(lEE~year+pmax(year,2011),data=trend)
-anova(test1)
+Anova(test1)
 sgipee_test_for_change_ee<-summary(test1)$coefficients[3,4]
 if (sgipee_test_for_change_ee<=0.05) {
 	test_sgipee_char_ee<-"significant"
@@ -1367,7 +1379,7 @@ if (sgipee_test_for_change_ee<=0.05) {
 }
 
 test=lm(lNS~year+pmax(year,2011),data=trend)
-anova(test)
+Anova(test)
 sgipee_test_for_change_ns<-summary(test)$coefficients[3,4]
 if (sgipee_test_for_change_ns<=0.05) {
 	test_sgipee_char_ns<-"significant"
@@ -1377,11 +1389,6 @@ if (sgipee_test_for_change_ns<=0.05) {
 save(dat, file=str_c(datawd,"dat_ge.Rdat"))
 @
 << model_diagnostics, echo=FALSE, eval=FALSE,results=hide >>=
-require(car)
-require(sp)
-require(maptools)
-require(maps)
-require(boot)
 # summary(model_ge_area)
 # influence_plot
 gey<-glass_eel_yoy[glass_eel_yoy$value>0 & glass_eel_yoy$year>1959&!is.na(glass_eel_yoy$value_std),]
@@ -1464,7 +1471,6 @@ for (year in years){
 	dev.off()
 }
 # 
-require(lme4)
 model_ge_area<-gls(value_std~year_f:area+site,data=glass_eel_yoy,family=Gamma(link=log),
 		subset=glass_eel_yoy$value>0 & glass_eel_yoy$year>1959 ,maxit=300)
 
@@ -1472,8 +1478,6 @@ lmer(value_std~year_f:area+site,data=glass_eel_yoy,family=Gamma(link=log),
 		subset=glass_eel_yoy$value>0 & glass_eel_yoy$year>1959)
 
 #library(nlme)
-library(lme4)
-library(MASS)
 glass_eel_yoy$lvalue_std=log(glass_eel_yoy$value_std)
 M.lm <- gls(lvalue_std~site,data=glass_eel_yoy)
 
