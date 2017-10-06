@@ -39,6 +39,7 @@ update ref.tr_lifestage_lfs set  lfs_definition ='Life-stage resident in contine
 but migration within and between rivers, and to and from coastal waters occurs and therefore includes young pigmented eels (?lvers?and bootlace). In particular, some recruitment series either far up in the river (Meuse) or in the Baltic are made of multiple age class of young yellow eel, typically from 1 to 10+ years of age- the are referred to as Yellow eel Recruits.' from ts.tr_lifestage_lfs where lfs_code='Y';
 insert into ref.tr_lifestage_lfs select 'QG' , 'quarantined eel', 'Ongrown eel (see definition above) that have been held in isolation between capture and restocking.';
 insert into ref.tr_lifestage_lfs select 'OG' , 'ongrown eel', 'Eel that have been held in water tanks for some days or months between first capture and then release to a new water basin, and they have been fed and grown during that time.';
+insert into ref.tr_lifestage_lfs select 'AL' , 'All stages',  'All stages combined';
 --------------------------
 -- tr_emu_emu
 -------------------------
