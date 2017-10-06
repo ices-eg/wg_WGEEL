@@ -229,6 +229,10 @@ check_directories<-function(i){
         values=ices_division)
     
     ###### eel_qal_id ############## 
+    check_missing(dataset=catch_landings,
+        column="eel_qal_id",
+        country=country)
+    
     check_values(dataset=catch_landings,
         column="eel_qal_id",
         country=country,
@@ -237,6 +241,7 @@ check_directories<-function(i){
     check_missing(dataset=catch_landings,
         column="eel_datasource",
         country=country)
+    
     check_values(dataset=catch_landings,
         column="eel_datasource",
         country=country,
@@ -400,7 +405,11 @@ check_directories<-function(i){
             country=country,
             values=ices_division)
         ###### eel_qal_id ############## 
-              check_values(dataset=restocking,
+        check_missing(dataset=restocking,
+                    column="eel_qal_id",
+                    country=country)
+                
+       check_values(dataset=restocking,
             column="eel_qal_id",
             country=country,
             values=c(0,1,2,3))
@@ -575,6 +584,9 @@ check_directories<-function(i){
 #          country=country,
 #          values=ices_division)
         ###### eel_qal_id ############## 
+        check_missing(dataset=aquaculture,
+            column="eel_qal_id",
+            country=country)
         check_values(dataset=aquaculture,
             column="eel_qal_id",
             country=country,
