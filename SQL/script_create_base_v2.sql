@@ -579,3 +579,10 @@ Comment on table datawg.tr_datasource_dts is 'source of data';
 insert into datawg.tr_datasource_dts values ('wgeel_2016','');
 insert into datawg.tr_datasource_dts values ('dc_2017');
 insert into datawg.tr_datasource_dts values ('wgeel_2017');
+
+
+-- unique constraint should also be per ICES sqare
+-- I have to add a check constraint on qal, this will allow to remove doubles
+
+ALTER TABLE datawg.t_eelstock_eel drop constraint c_uk_eelstock;
+ALTER TABLE datawg.t_eelstock_eel ADD CONSTRAINT c_uk_eelstock UNIQUE (eel_year,eel_lfs_code,eel_emu_nameshort,eel_typ_id,eel_hty_code,eel_area_division,eel_qal_id);

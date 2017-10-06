@@ -64,6 +64,7 @@ datawg.series_summary ss on ss.site=ser_nameshort
 -- View for catch
 -- attention, foreign key to emu is on double pivot
 -- this view refers to both commercial and recreational catch
+-- Normally the wgeel has converted all catch to landings
 ---------------------------------------
 DROP VIEW IF EXISTS datawg.catch CASCADE;
 CREATE VIEW datawg.catch AS 
@@ -89,7 +90,8 @@ select
          tr_quality_qal.qal_level, 
 	 tr_quality_qal.qal_text, 
          eel_qal_comment,
-         eel_comment
+         eel_comment,
+         eel_datasource
 FROM 
   datawg.t_eelstock_eel 
 JOIN ref.tr_lifestage_lfs ON t_eelstock_eel.eel_lfs_code = tr_lifestage_lfs.lfs_code 
@@ -98,7 +100,9 @@ LEFT JOIN ref.tr_country_cou ON t_eelstock_eel.eel_cou_code = tr_country_cou.cou
 JOIN ref.tr_typeseries_typ ON t_eelstock_eel.eel_typ_id = tr_typeseries_typ.typ_id 
 LEFT JOIN ref.tr_habitattype_hty ON t_eelstock_eel.eel_hty_code = tr_habitattype_hty.hty_code
 JOIN ref.tr_emu_emu ON  (emu_nameshort,emu_cou_code) = (eel_emu_nameshort,eel_cou_code)
-WHERE eel_typ_id=5 or eel_typ_id=7);
+WHERE (eel_typ_id=5 or eel_typ_id=7)
+AND eel_qal_id!=3
+AND eel_qal_id!=0);
 
 -------------------------------------
 -- View for landings
@@ -129,7 +133,8 @@ select
          tr_quality_qal.qal_level, 
 	 tr_quality_qal.qal_text, 
          eel_qal_comment,
-         eel_comment
+         eel_comment,
+         eel_datasource
 FROM 
   datawg.t_eelstock_eel 
 JOIN ref.tr_lifestage_lfs ON t_eelstock_eel.eel_lfs_code = tr_lifestage_lfs.lfs_code 
@@ -138,7 +143,9 @@ LEFT JOIN ref.tr_country_cou ON t_eelstock_eel.eel_cou_code = tr_country_cou.cou
 JOIN ref.tr_typeseries_typ ON t_eelstock_eel.eel_typ_id = tr_typeseries_typ.typ_id 
 LEFT JOIN ref.tr_habitattype_hty ON t_eelstock_eel.eel_hty_code = tr_habitattype_hty.hty_code
 JOIN ref.tr_emu_emu ON  (emu_nameshort,emu_cou_code) = (eel_emu_nameshort,eel_cou_code)
-WHERE eel_typ_id=4 or eel_typ_id=6);
+WHERE (eel_typ_id=4 or eel_typ_id=6)
+AND eel_qal_id!=3
+AND eel_qal_id!=0);
 
 
 -------------------------------------
@@ -179,7 +186,8 @@ select
          tr_quality_qal.qal_level, 
 	 tr_quality_qal.qal_text, 
          eel_qal_comment,
-         eel_comment
+         eel_comment,
+         eel_datasource
 FROM 
   datawg.t_eelstock_eel 
 JOIN ref.tr_lifestage_lfs ON t_eelstock_eel.eel_lfs_code = tr_lifestage_lfs.lfs_code 
@@ -188,7 +196,9 @@ LEFT JOIN ref.tr_country_cou ON t_eelstock_eel.eel_cou_code = tr_country_cou.cou
 JOIN ref.tr_typeseries_typ ON t_eelstock_eel.eel_typ_id = tr_typeseries_typ.typ_id 
 LEFT JOIN ref.tr_habitattype_hty ON t_eelstock_eel.eel_hty_code = tr_habitattype_hty.hty_code
 JOIN ref.tr_emu_emu ON  (emu_nameshort,emu_cou_code) = (eel_emu_nameshort,eel_cou_code)
-WHERE eel_typ_id in (8,9,10));
+WHERE eel_typ_id in (8,9,10)
+AND eel_qal_id!=3
+AND eel_qal_id!=0);
 -------------------------------------
 -- View for aquaculture
 ---------------------------------------
@@ -217,7 +227,8 @@ select
          tr_quality_qal.qal_level, 
 	 tr_quality_qal.qal_text, 
          eel_qal_comment,
-         eel_comment
+         eel_comment,
+         eel_datasource
 FROM 
   datawg.t_eelstock_eel 
 JOIN ref.tr_lifestage_lfs ON t_eelstock_eel.eel_lfs_code = tr_lifestage_lfs.lfs_code 
@@ -226,4 +237,6 @@ LEFT JOIN ref.tr_country_cou ON t_eelstock_eel.eel_cou_code = tr_country_cou.cou
 JOIN ref.tr_typeseries_typ ON t_eelstock_eel.eel_typ_id = tr_typeseries_typ.typ_id 
 LEFT JOIN ref.tr_habitattype_hty ON t_eelstock_eel.eel_hty_code = tr_habitattype_hty.hty_code
 JOIN ref.tr_emu_emu ON  (emu_nameshort,emu_cou_code) = (eel_emu_nameshort,eel_cou_code)
-WHERE eel_typ_id=11 or eel_typ_id=12);
+WHERE (eel_typ_id=11 or eel_typ_id=12)
+AND eel_qal_id!=3
+AND eel_qal_id!=0);
