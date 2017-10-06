@@ -399,7 +399,7 @@ update ref.tr_station set "Organisation"=NULL where "Station_Name"='AlCP';
 update ref.tr_station set "Organisation"=NULL where "Station_Name"='Feal';
 update ref.tr_station set "Organisation"=NULL where "Station_Name"='Maig';
 update ref.tr_station set "Organisation"=NULL where "Station_Name"='Inag';
-update ref.tr_station set "Organisation"=NULL where "Station_Name"='Bres';
+update ref.tr_station set "Organisation"='AFB' where "Station_Name"='Bres';
 update ref.tr_station set "Organisation"='MNHN' where "Station_Name"='Fre';
 update ref.tr_station set "Organisation"=NULL where "Station_Name"='Sle';
 update ref.tr_station set "Organisation"=NULL where "Station_Name"='Klit';
