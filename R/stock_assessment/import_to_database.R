@@ -421,7 +421,7 @@ check_directories<-function(i){
                   skip=0)
           
           # check for the file integrity
-          if (ncol(aquaculture)!=13) cat(str_c("number column wrong ",datacallfiles[1]," in ",country,"\n"))
+          if (ncol(aquaculture)!=13) cat(str_c("number column wrong ",datacallfiles[3]," in ",country,"\n"))
           # check column names
           if (all.equal(colnames(aquaculture),
                   c("eel_typ_id","eel_year","eel_value","eel_missvaluequal","eel_emu_nameshort",
@@ -579,7 +579,7 @@ check_directories<-function(i){
 }
 
 directories
-check_directories(5)
+check_directories(6)
 ##############################
 # Import into the database
 ##############################
