@@ -1323,3 +1323,15 @@ insert into ref.tr_emu_emu(emu_nameshort, emu_name, emu_cou_code,geom,emu_wholec
 insert into ref.tr_emu_emu(emu_nameshort, emu_name, emu_cou_code,geom,emu_wholecountry) select 'RU_total',NULL,'RU',geom,TRUE 
 		FROM ref.tr_country_cou where cou_code='RU';
 
+---------------------------
+-- remove all outside emu
+-- the wgeel chanded its mind, these outside_emu catergories should not be used
+-- you can't plot them on a map
+-- in fact we only had one emu with them and it was a mistake
+-----------------------------
+
+delete from ref.tr_emu_emu where emu_nameshort like '%outside_emu';
+
+BEGIN;
+delete from datawg.t_eelstock_eel where eel_emu_nameshort='TR_outside_emu';
+COMMIT;
