@@ -47,6 +47,24 @@ aquaculture <- read.table(file=str_c(mylocalfolder,"/aquaculture.csv"),sep=";")
 landings <- read.table(file=str_c(mylocalfolder,"/landings.csv"),sep=";")
 stocking <- read.table(file=str_c(mylocalfolder,"/stocking.csv"),sep=";")
 load(str_c(mylocalfolder,"/lfs_code.Rdata")) # lfs_code_base
+# Some transformation of data prior to analysis
+# we can transform glass eel and quarantined glass eel in kg to number
+#-----------------------------------------------
+# Restocking after converting kg to number
+#---------------------------------------------
+# here is the script to convert from weight to number
+#8;"q_stock_kg";"Stocking quantity (kg)"
+#9;"q_stock_n";"Stocking quantity (number)"
+G_w=0.3e-3 
+Y_w=9e-3
+OG_w=1e-3
+QG_w=0.3e-3
+# st
+stocking[stocking$eel_lfs_code %in%c("G") & stocking$eel_typ_id==8 , 'eel_value']<-
+    stocking[stocking$eel_lfs_code %in%c("G") & stocking$eel_typ_id==8 , 'eel_value']/G_w
+stocking[stocking$eel_lfs_code %in%c("OG") & stocking$eel_typ_id==8 , 'eel_value']<-
+    stocking[stocking$eel_lfs_code %in%c("OG") & stocking$eel_typ_id==8 , 'eel_value']/OG_w
+
 #########################
 # MAP FUNCTIONS
 ########################
@@ -143,7 +161,7 @@ draw_leaflet<-function(dataset="landings",
     selected_emus<- plyr::join(selected_emus,cc)
     # Get popup
     selected_emus$label<-sprintf("%s %s %i=%1.0f",namedataset,selected_emus$emu_nameshort,year,selected_emus$sum)
-	scale = max(log10(selected_emus$sum))
+	scale = max(sqrt(selected_emus$sum))
     # join the two dataset by common column (cou_code  
     m <- leaflet(data=selected_emus) %>%
         addProviderTiles(providers$Esri.OceanBasemap) %>%         
@@ -154,7 +172,7 @@ draw_leaflet<-function(dataset="landings",
             lat=~coords.x2,
 			color = "red", opacity = 1,
             weight = 1,
-            radius = ~log10(sum)/scale*coeff*1E4, popup = ~label)
+            radius = ~sqrt(sum)/scale*coeff*1E4, popup = ~label)
   } else {
     stop("map argument should be one of 'country' or 'emu'")
   }
@@ -198,25 +216,30 @@ draw_leaflet(dataset="stocking",
     map="country")
 
 ########################################
+# create summary of which data for which year
+########################################
+catchexists<-landings%>%
+    group_by(eel_cou_code,eel_year,eel_lfs_code)%>%summarize(n=n())
+
+ggplot(catchexists)+geom_tile(aes(x=eel_year,y=eel_cou_code,fill=n))+
+    facet_wrap(~eel_lfs_code)
+
+
+
+
+########################################
 # create summary tables per year / country
 ########################################
 # catch and landings per country, stages Y S or YS
-c1<-filter(catch_landings,eel_lfs_code%in%c('Y','S','YS'))%>%dplyr::group_by(eel_cou_code,eel_year)%>%
+c1<-filter(landings,eel_lfs_code%in%c('Y','S','YS'))%>%
+    dplyr::group_by(eel_cou_code,eel_year)%>%
     summarize(eel_value=sum(eel_value,na.rm=TRUE))
 
 dcast(c1,eel_year~eel_cou_code)
 x11()
-ggplot(c1)+geom_area(aes(x=eel_year,y=eel_value,fill=eel_cou_code))+
+ggplot(c1)+geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code))+
     scale_fill_viridis(discrete=TRUE)
-#-----------------------------------------------
-# catch and landings per country, stages Y S or YS, per type
-c2<-filter(catch_landings,eel_lfs_code%in%c('Y','S','YS'))%>%dplyr::group_by(eel_cou_code,eel_year,eel_typ_id)%>%
-    summarize(eel_value=sum(eel_value,na.rm=TRUE))
 
-dcast(c2,eel_year~eel_cou_code+eel_typ_id)
-x11()
-ggplot(c1)+geom_area(aes(x=eel_year,y=eel_value,fill=eel_cou_code))+
-    scale_fill_viridis(discrete=TRUE)
     
 #-----------------------------------------------
 # Restocking which stages typ_id=8 (kg)
@@ -226,9 +249,12 @@ r1<-filter(stocking,eel_typ_id%in%c(8))%>%dplyr::group_by(eel_cou_code,eel_year,
     summarize(eel_value=sum(eel_value,na.rm=TRUE))
 
 x11()
-ggplot(r1)+geom_area(aes(x=eel_year,y=eel_value,fill=eel_cou_code))+
+ggplot(r1)+geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code))+
     scale_fill_viridis(discrete=TRUE)+
-    facet_wrap(~eel_lfs_code)
+    facet_wrap(~eel_lfs_code)+
+    ylab("Restocking in kg")+
+    xlab("Year")+
+    theme_bw()
 
 #-----------------------------------------------
 # Restocking which stages typ_id=9 (nb)
@@ -236,14 +262,16 @@ ggplot(r1)+geom_area(aes(x=eel_year,y=eel_value,fill=eel_cou_code))+
 
 r2<-filter(stocking,eel_typ_id%in%c(9))%>%dplyr::group_by(eel_cou_code,eel_year,eel_lfs_code)%>%
     summarize(eel_value=sum(eel_value,na.rm=TRUE))
-ggplot(r2)+geom_area(aes(x=eel_year,y=eel_value,fill=eel_cou_code))+
+ggplot(r2)+geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code))+
     scale_fill_viridis(discrete=TRUE)+
-    facet_wrap(~eel_lfs_code)
+    facet_wrap(~eel_lfs_code)+
+    ylab("Restocking in number")+
+    xlab("Year")
 
 #-----------------------------------------------
 # Restocking after converting kg to number
 #---------------------------------------------
-# individual weight for one piece (kg)
+# here is the script to convert from weight to number, but it will not do
 GE_w=0.3e-3 
 Y_w=9e-3
 OG_w=1e-3
@@ -270,17 +298,17 @@ ggplot(r3)+geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code))+
 ggplot(r3)+geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code))+
     scale_fill_viridis(discrete=TRUE)
 #-------------------------------------------------
-# catch and landings per country, stages Y S or YS
+# Aq per country, stages G
 #-------------------------------------------------
     
-c1<-filter(landings,eel_lfs_code%in%c('G'))%>%dplyr::group_by(eel_cou_code,eel_year)%>%
+c1<-filter(landings,eel_lfs_code%in%c('G'))%>%
+    dplyr::group_by(eel_cou_code,eel_year)%>%
     summarize(eel_value=sum(eel_value,na.rm=TRUE))
 
 dcast(c1,eel_year~eel_cou_code)
 x11()
 ggplot(c1)+geom_area(aes(x=eel_year,y=eel_value,fill=eel_cou_code))+
-    scale_fill_viridis(discrete=TRUE)+
-    facet_wrap(~eel_typ_id)
+    scale_fill_viridis(discrete=TRUE)
 
 #---------------------------------
 # aquaculture per country

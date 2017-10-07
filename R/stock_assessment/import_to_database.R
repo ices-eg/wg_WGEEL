@@ -664,10 +664,12 @@ for (j in 1:length(data_list))
 ##############################
 # Only this step will ensure the integrity of the data. R script above should have resolved most problems, but
 # still some were remaining.
-
+#-----------------------------------------------------
 # to delete everything prior to insertion
+# don't run this unless you are reloading everything
 # sqldf("delete from  datawg.t_eelstock_eel")
-
+# delete only catches and landings from the database
+# sqldf("delete from  datawg.t_eelstock_eel where eel_typ_id in (4,5,6,7)")
 # check what is in the database
 # sqldf("select * from datawg.t_eelstock_eel")
 # problem of format of some column, qal id completely void is logical should be integer
