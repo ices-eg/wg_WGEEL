@@ -86,7 +86,7 @@ cols<-c(brewer.pal(12,"Set3"),brewer.pal(length(levels(la2$country))-12,"Set1"))
 
 g<-ggplot(la2)
 g1<-g+geom_area(aes(x=year,y=landings,fill=country),position='stack')+
-		ggtitle("Landings (Y+S) corrected") + xlab("year") + ylab("Landings (tons)")+
+		ggtitle("Commercial Landings (Y+S) corrected") + xlab("year") + ylab("Landings (tons)")+
 #		annotate("text",x = 1975, y = 12000, label = "I",  parse = T, vjust = 0, hjust = 0)+
 #		annotate("text",x = 1975, y = 8500, label = "FR",  parse = T, vjust = 0, hjust = 0)+
 #		annotate("text",x = 1982, y = 5800, label = "GB",  parse = T, vjust = 0, hjust = 0)+
@@ -117,7 +117,7 @@ g1<-g+geom_area(aes(x=year,y=landings,fill=country),position='stack')+
 # graphic without transform
 g2<-ggplot(la)
 g2<-g2+geom_area(aes(x=year,y=landings,fill=country,legend = FALSE),position='stack')+
-		ggtitle("Landings (Y+S) uncorrected") + xlab("year") + ylab("Landings (tons)")+
+		ggtitle("Commercial Landings (Y+S) uncorrected") + xlab("year") + ylab("Landings (tons)")+
 		scale_fill_manual(values=cols)+
 		theme_bw() + # make the theme black-and-white rather than grey (do this before font changes, or it overrides them)
 		ylim(c(0,22000)) + xlim(c(1945, CY))#+
@@ -209,7 +209,7 @@ cols<-brewer.pal(length(levels(la2$country)),"Set3")
 
 g<-ggplot(la2)
 g1<-g+geom_area(aes(x=year,y=landings,fill=country),position='stack')+
-		ggtitle("Landings (G) corrected") + xlab("year") + ylab("Landings (tons)")+
+		ggtitle("Commercial Landings (G) corrected") + xlab("year") + ylab("Landings (tons)")+
 		ylim(c(0,2500))+ 
 		scale_fill_manual(values=cols)+
 		theme_bw()
@@ -217,7 +217,7 @@ g1<-g+geom_area(aes(x=year,y=landings,fill=country),position='stack')+
 # graphic without transform
 g2<-ggplot(la)
 g2<-g2+geom_area(aes(x=year,y=landings,fill=country,legend = FALSE),position='stack')+
-		ggtitle("Landings (G) uncorrected") + xlab("year") + ylab("Landings (tons)")+
+		ggtitle("Commercial Landings (G) uncorrected") + xlab("year") + ylab("Landings (tons)")+
 		scale_fill_manual(values=cols)+
 		theme_bw() + # make the theme black-and-white rather than grey (do this before font changes, or it overrides them)
 		ylim(c(0,2500))
@@ -257,7 +257,7 @@ la$country = factor(la$country, levels = sort(unique(la$country), decreasing = T
 
 # graphic without transform
 g2<-ggplot(la, aes(x=year, y=landings, fill = country))
-g2 = g2+geom_bar(stat="identity", position="stack") + ggtitle("Landings (recreational) uncorrected") + xlab("year") + ylab("Landings (tons)")+
+g2 = g2+geom_bar(stat="identity", position="stack") + ggtitle("Recreational Landings (Y+S) uncorrected") + xlab("year") + ylab("Landings (tons)")+
 		scale_fill_manual(values=cols)+
 		theme_bw()
 
@@ -288,13 +288,13 @@ la$landings = la$landings / 1000 # conversion from kg into tons
 #########################
 # graph
 #########################
-cols<-brewer.pal(length(unique(la$country)),"Set3")
+cols<-brewer.pal(length(unique(la$country)),"Set1")
 
 la$country = factor(la$country, levels = sort(unique(la$country), decreasing = TRUE))
 
 # graphic without transform
 g2<-ggplot(la, aes(x=year, y=landings, fill = country))
-g2 = g2+geom_bar(stat="identity", position="stack") + ggtitle("Landings (recreational) uncorrected") + xlab("year") + ylab("Landings (tons)")+
+g2 = g2+geom_bar(stat="identity", position="stack") + ggtitle("Recreational Landings (G) uncorrected") + xlab("year") + ylab("Landings (tons)")+
 		scale_fill_manual(values=cols)+
 		theme_bw()
 
