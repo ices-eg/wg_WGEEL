@@ -25,13 +25,53 @@ setwd(wd)
 # load data
 stocking <-read.table(str_c(datawd,"/stocking.csv"),sep=";",header=TRUE, na.strings = "", dec = ".", stringsAsFactors = FALSE)
 
+#-----------------------------------------------
+# Restocking which stages typ_id=9 (nb), =8 (kg)
+#---------------------------------------------
+
+stocking_nb <-filter(stocking,eel_typ_id%in%c(9))%>%dplyr::group_by(eel_cou_code,eel_year,eel_lfs_code)%>%
+		summarize(eel_value=sum(eel_value))
+stocking_kg <-filter(stocking,eel_typ_id%in%c(8))%>%dplyr::group_by(eel_cou_code,eel_year,eel_lfs_code)%>%
+		summarize(eel_value=sum(eel_value))
+
+#---------------------------------------------
+# converting kg to number
+#---------------------------------------------
+
+# individual weight for one piece (kg)
+GE_w=0.3e-3 
+GY_w = 5e-3
+Y_w=50e-3
+OG_w=20e-3
+QG_w=1e-3
+S_w=150e-3
+
+stocking_nb = stocking_nb%>%mutate(type="nb")
+stocking_nb = stocking_nb%>%mutate(eel_value_nb = eel_value)
+
+stocking_kg<-stocking_kg%>%mutate(type="kg")
+stocking_kg<- bind_rows(
+		filter(stocking_kg, eel_lfs_code=='G')%>%mutate(eel_value_nb=eel_value/GE_w)
+		,
+		filter(stocking_kg, eel_lfs_code=='GY')%>%mutate(eel_value_nb=eel_value/GY_w)
+		,
+		filter(stocking_kg, eel_lfs_code=='YS')%>%mutate(eel_value_nb=eel_value/Y_w)
+		,
+		filter(stocking_kg, eel_lfs_code=='OG')%>%mutate(eel_value_nb=eel_value/OG_w)
+		,
+		filter(stocking_kg, eel_lfs_code=='QG')%>%mutate(eel_value_nb=eel_value/QG_w)
+		,
+		filter(stocking_kg, eel_lfs_code=='S')%>%mutate(eel_value_nb=eel_value/S_w))
+
+stocking = bind_rows(stocking_kg, stocking_nb)
+
 
 #---------------------------------------------
 # synthesis by stage
 #---------------------------------------------
-stocking_synthesis = round(tapply(stocking_total$eel_value_nb, list(stocking_total$eel_year, stocking_total$eel_cou_code, stocking_total$eel_lfs_code), sum)/1E6, 2)
+stocking_synthesis = round(tapply(stocking$eel_value_nb, list(stocking$eel_year, stocking$eel_cou_code, stocking$eel_lfs_code), sum)/1E6, 2)
 
-stocking_stage = function(stage) with(stocking_total %>% filter(eel_lfs_code == stage), round(tapply(eel_value_nb, list(eel_year, eel_cou_code), sum)/1E6, 2))
+stocking_stage = function(stage) with(stocking %>% filter(eel_lfs_code == stage), round(tapply(eel_value_nb, list(eel_year, eel_cou_code), sum)/1E6, 2))
 
 stocking_G = stocking_stage("G")
 stocking_GY = stocking_stage("GY")
@@ -64,7 +104,7 @@ graph_stocking = function(stage)
 		
 	#for the label of the X axis
 	if(length(dim(dataset)) == 2) x=as.numeric(rownames(dataset))
-	if(length(dim(dataset)) == 1) x=as.numeric(names(dataset))
+	if(length(dim(dataset)) == 0) x=as.numeric(names(dataset))
 	x_axis = x %in% pretty(x, n = min(max(x) - min(x), 20))
 	
 	bar = barplot(t(replace_NA(dataset)), names.arg = rownames(dataset), col = cols, legend.text = colnames(dataset), las = 2, xaxt = "n", xlab = "year", ylab = "in number (x 10^6)", main = paste("Stocking (", stage, ")"))
