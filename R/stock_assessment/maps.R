@@ -6,7 +6,7 @@
 #########################
 # INITS
 ########################
-
+library(tidyr)
 if(!require(stringr)) install.packages("stringr") ; require(stringr) # text handling
 if(!require(rgdal)) install.packages("rgdal") ; require(rgdal)
 if(!require(rgeos)) install.packages("rgeos") ; require(rgeos)
@@ -261,7 +261,7 @@ c1<-filter(landings,eel_lfs_code%in%c('Y','S','YS'))%>%
     dplyr::group_by(eel_cou_code,eel_year)%>%
     summarize(eel_value=sum(eel_value,na.rm=TRUE))
 
-dcast(c1,eel_year~eel_cou_code)
+tidyr::spread(c1, key = eel_cou_code, value = eel_value)
 x11()
 ggplot(c1)+geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code))+
     scale_fill_viridis(discrete=TRUE)
