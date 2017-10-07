@@ -20,7 +20,7 @@ options(sqldf.RPostgreSQL.user = "postgres",
 # this is the folder where you will store the files prior to upload
 # don't forget to put an / at the end of the string
 #mylocalfolder <- "C:/temp/SharePoint/WGEEL - 2017 Meeting Docs/06. Data/datacall"
-mylocalfolder <-"C:/temp/wgeel/datacal_Nermer"
+mylocalfolder <-"C:/temp/wgeel/datacall"
 mylocalfolder <- "C:/Users/pohlmann/Desktop/WGEEL/WGEEL 2017/Task 1/06. Data/datacall"
 # you will need to put the following files there
 
@@ -692,7 +692,7 @@ catch_landings_final$eel_typ_id[catch_landings_final$eel_typ_id==5]<-4
 catch_landings_final$eel_typ_id[catch_landings_final$eel_typ_id==7]<-6
 catch_landings_final$eel_value<-as.numeric(catch_landings_final$eel_value)
 # removing zeros from the database
-catch_landings_final<-catch_landings_final[!catch_landings_final$eel_value==0&!is.na(catch_landings_final$eel_value),]
+#catch_landings_final<-catch_landings_final[!catch_landings_final$eel_value==0&!is.na(catch_landings_final$eel_value),]
 # removing area division from freshwater sites
 catch_landings_final[catch_landings_final$eel_hty_code=='F'&
         !is.na(catch_landings_final$eel_hty_code)&
@@ -700,6 +700,7 @@ catch_landings_final[catch_landings_final$eel_hty_code=='F'&
 # Denmark and Norway are in tons
 catch_landings_final[catch_landings_final$eel_cou_code %in% c("NO","DK"),"eel_value"]<-
     catch_landings_final[catch_landings_final$eel_cou_code %in% c("NO","DK"),"eel_value"]*1000
+catch_landings_final<-catch_landings_final[!catch_landings_final$eel_cou_code %in% c("IT"),]
 sqldf("insert into datawg.t_eelstock_eel (
         eel_typ_id,
         eel_year ,
