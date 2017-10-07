@@ -72,10 +72,11 @@ la2$year<-as.numeric(as.character(la2$year))
 la$year = as.numeric(as.character(la$year))
 
 #export data
-write.table(round(xtabs(landings~year+country, data = la2)), file = "landings_YS_extrapolate.csv", sep = ";")
-write.table(round(xtabs(predicted~year+country, data = la2)), file = "landings_YS_extrapolate_yn.csv", sep = ";")
+write.table(round(xtabs(landings~year+country, data = la2)), file = "com_landings_YS_extrapolate.csv", sep = ";")
+write.table(round(xtabs(predicted~year+country, data = la2)), file = "com_landings_YS_extrapolate_yn.csv", sep = ";")
+write.table(round(dcast(year~country, data = la[,-4])), file = "com_landings_YS_raw.csv", sep = ";", row.names = FALSE)
 
-#TODO: graph the available/missing data
+#TODO: graph the available/missing data ==> % extrapoled 
 
 #########################
 # graph
@@ -197,8 +198,9 @@ la2$year<-as.numeric(as.character(la2$year))
 la$year = as.numeric(as.character(la$year))
 
 #export data
-write.table(round(xtabs(landings~year+country, data = la2)), file = "landings_G_extrapolate.csv", sep = ";")
-write.table(round(xtabs(predicted~year+country, data = la2)), file = "landings_G_extrapolate_yn.csv", sep = ";")
+write.table(round(xtabs(landings~year+country, data = la2)), file = "com_landings_G_extrapolate.csv", sep = ";")
+write.table(round(xtabs(predicted~year+country, data = la2)), file = "com_landings_G_extrapolate_yn.csv", sep = ";")
+write.table(round(dcast(year~country, data = la[,-4])), file = "com_landings_G_raw.csv", sep = ";", row.names = FALSE)
 
 #TODO: graph the available/missing data
 
@@ -265,6 +267,7 @@ x11()
 print(g2)
 savePlot("landings_recrYS_raw.png", type = "png")
 
+write.table(round(dcast(year~country, data = la[,-4])), file = "recr_landings_YS_raw.csv", sep = ";", row.names = FALSE)
 
 # ----------------------------------------------------------------
 # recreational fisheries G
@@ -301,3 +304,5 @@ g2 = g2+geom_bar(stat="identity", position="stack") + ggtitle("Recreational Land
 x11()
 print(g2)
 savePlot("landings_recrG_raw.png", type = "png")
+
+write.table(round(dcast(year~country, data = la[,-4])), file = "recr_landings_G_raw.csv", sep = ";", row.names = FALSE)
