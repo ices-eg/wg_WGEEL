@@ -240,7 +240,6 @@ savePlot("landings_G_raw.png", type = "png")
 
 # work only on commercial fisheries and glass eel
 rec_landings = landings_complete[landings_complete$typ_name == "rec_landings_kg"  & landings_complete$eel_lfs_code != "G", ] 
-# TODO: what to do with recreational fisheries of glass eel in Spain ?
 la = as.data.frame(rec_landings %>% group_by(eel_year, eel_cou_code) %>% summarise(eel_value=sum(eel_value,na.rm=TRUE)))
 colnames(la)<-c("year","country","landings")
 
@@ -265,3 +264,40 @@ g2 = g2+geom_bar(stat="identity", position="stack") + ggtitle("Landings (recreat
 x11()
 print(g2)
 savePlot("landings_recrYS_raw.png", type = "png")
+
+
+# ----------------------------------------------------------------
+# recreational fisheries G
+# ----------------------------------------------------------------
+
+
+#########################
+# Formatting data
+#########################
+
+# work only on commercial fisheries and glass eel
+rec_landings = landings_complete[landings_complete$typ_name == "rec_landings_kg"  & landings_complete$eel_lfs_code == "G", ] 
+la = as.data.frame(rec_landings %>% group_by(eel_year, eel_cou_code) %>% summarise(eel_value=sum(eel_value,na.rm=TRUE)))
+colnames(la)<-c("year","country","landings")
+
+#la$country = as.factor(la$country)
+la$landings = la$landings / 1000 # conversion from kg into tons
+
+#dcast(la, year ~ country)
+
+#########################
+# graph
+#########################
+cols<-brewer.pal(length(unique(la$country)),"Set3")
+
+la$country = factor(la$country, levels = sort(unique(la$country), decreasing = TRUE))
+
+# graphic without transform
+g2<-ggplot(la, aes(x=year, y=landings, fill = country))
+g2 = g2+geom_bar(stat="identity", position="stack") + ggtitle("Landings (recreational) uncorrected") + xlab("year") + ylab("Landings (tons)")+
+		scale_fill_manual(values=cols)+
+		theme_bw()
+
+x11()
+print(g2)
+savePlot("landings_recrG_raw.png", type = "png")
