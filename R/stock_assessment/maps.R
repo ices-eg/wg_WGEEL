@@ -49,21 +49,47 @@ stocking <- read.table(file=str_c(mylocalfolder,"/stocking.csv"),sep=";")
 load(str_c(mylocalfolder,"/lfs_code.Rdata")) # lfs_code_base
 # Some transformation of data prior to analysis
 # we can transform glass eel and quarantined glass eel in kg to number
+
+
 #-----------------------------------------------
-# Restocking after converting kg to number
+# Restocking which stages typ_id=9 (nb), =8 (kg)
 #---------------------------------------------
-# here is the script to convert from weight to number
-#8;"q_stock_kg";"Stocking quantity (kg)"
-#9;"q_stock_n";"Stocking quantity (number)"
-G_w=0.3e-3 
-Y_w=9e-3
-OG_w=1e-3
-QG_w=0.3e-3
-# st
-stocking[stocking$eel_lfs_code %in%c("G") & stocking$eel_typ_id==8 , 'eel_value']<-
-    stocking[stocking$eel_lfs_code %in%c("G") & stocking$eel_typ_id==8 , 'eel_value']/G_w
-stocking[stocking$eel_lfs_code %in%c("OG") & stocking$eel_typ_id==8 , 'eel_value']<-
-    stocking[stocking$eel_lfs_code %in%c("OG") & stocking$eel_typ_id==8 , 'eel_value']/OG_w
+
+stocking_nb <-filter(stocking,eel_typ_id%in%c(9))%>%dplyr::group_by(eel_cou_code,eel_year,eel_lfs_code)%>%
+		summarize(eel_value=sum(eel_value))
+stocking_kg <-filter(stocking,eel_typ_id%in%c(8))%>%dplyr::group_by(eel_cou_code,eel_year,eel_lfs_code)%>%
+		summarize(eel_value=sum(eel_value))
+
+#---------------------------------------------
+# converting kg to number
+#---------------------------------------------
+
+# individual weight for one piece (kg)
+GE_w=0.3e-3 
+GY_w = 5e-3
+Y_w=50e-3
+OG_w=20e-3
+QG_w=1e-3
+S_w=150e-3
+
+stocking_nb = stocking_nb%>%mutate(type="nb")
+stocking_nb = stocking_nb%>%mutate(eel_value_nb = eel_value)
+
+stocking_kg<-stocking_kg%>%mutate(type="kg")
+stocking_kg<- bind_rows(
+		filter(stocking_kg, eel_lfs_code=='G')%>%mutate(eel_value_nb=eel_value/GE_w)
+		,
+		filter(stocking_kg, eel_lfs_code=='GY')%>%mutate(eel_value_nb=eel_value/GY_w)
+		,
+		filter(stocking_kg, eel_lfs_code=='YS')%>%mutate(eel_value_nb=eel_value/Y_w)
+		,
+		filter(stocking_kg, eel_lfs_code=='OG')%>%mutate(eel_value_nb=eel_value/OG_w)
+		,
+		filter(stocking_kg, eel_lfs_code=='QG')%>%mutate(eel_value_nb=eel_value/QG_w)
+		,
+		filter(stocking_kg, eel_lfs_code=='S')%>%mutate(eel_value_nb=eel_value/S_w))
+
+stocking = bind_rows(stocking_kg, stocking_nb)
 
 #########################
 # MAP FUNCTIONS
