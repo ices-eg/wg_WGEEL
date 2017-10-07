@@ -6,7 +6,7 @@
 #########################
 # INITS
 ########################
-library(shiny)
+
 if(!require(stringr)) install.packages("stringr") ; require(stringr) # text handling
 if(!require(rgdal)) install.packages("rgdal") ; require(rgdal)
 if(!require(rgeos)) install.packages("rgeos") ; require(rgeos)
@@ -39,7 +39,7 @@ setwd(tk_choose.dir(caption = "GIT directory", default = "C:/Users/cedric.briand
 #country_c=rgdal::readOGR(str_c(shpwd,"/","country_centre_4326.shp"))
 # transform spatial point dataframe to 
 #save(emu_c,country_p,emu_p,country_c,file=str_c(mylocalfolder,"/maps_for_shiny.Rdata"))
-load(file=str_c(mylocalfolder,"/maps_for_shiny.Rdata"))
+load(file=str_c(mylocalfolder,"/maps_for_shiny.rdata"))
 #########################
 # Load data from csv files
 ########################
