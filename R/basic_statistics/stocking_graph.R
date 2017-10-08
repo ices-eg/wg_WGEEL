@@ -69,6 +69,7 @@ stocking = bind_rows(stocking_kg, stocking_nb)
 # synthesis by stage
 #---------------------------------------------
 stocking_synthesis = round(tapply(stocking$eel_value_nb, list(stocking$eel_year, stocking$eel_cou_code, stocking$eel_lfs_code), sum)/1E6, 2)
+round(tapply(stocking$eel_value_nb, list(stocking$eel_year, stocking$eel_cou_code), sum)/1E6, 2)
 
 stocking_stage = function(stage) with(stocking %>% filter(eel_lfs_code == stage), round(tapply(eel_value_nb, list(eel_year, eel_cou_code), sum)/1E6, 2))
 
@@ -87,7 +88,7 @@ write.table(stocking_QG, file = "stocking_QG_in_million.csv", sep = ";")
 write.table(stocking_OG, file = "stocking_OG_in_million.csv", sep = ";")
 if(nrow(stocking_YS)>0) write.table(stocking_YS, file = "stocking_YS_in_million.csv", sep = ";")
 write.table(stocking_S, file = "stocking_S_in_million.csv", sep = ";")
-write.table(stocking_Y, file = "stocking_S_in_million.csv", sep = ";")
+write.table(stocking_Y, file = "stocking_Y_in_million.csv", sep = ";")
 #---------------------------------------------
 # graph by stage
 #---------------------------------------------

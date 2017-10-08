@@ -31,8 +31,12 @@ table(aquaculture$eel_typ_id)
 #TODO: cope with 2 DK aquaculture in number ==> import or stocking thus ignore
 #filter(aquaculture,eel_typ_id==12&eel_value!=0)
 
+
 write.table(round(xtabs(eel_value~eel_year+eel_cou_code, data = aquaculture)), file = "aquaculture.csv", sep = ";")
 #round(xtabs(eel_value~eel_year+eel_lfs_code, data = aquaculture))
+
+country_order = names(sort(tapply(aquaculture$eel_year, aquaculture$eel_cou_code, min), decreasing = TRUE))
+aquaculture$eel_cou_code = factor(aquaculture$eel_cou_code, levels = country_order) 
 
 a1<-aquaculture%>%dplyr::group_by(eel_cou_code,eel_year)%>%filter(eel_typ_id==11)%>%
 		summarize(eel_value=sum(eel_value,na.rm=TRUE))
@@ -42,6 +46,7 @@ x11()
 ggplot(a1)+geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code))+
 		ggtitle("Aquaculture") + xlab("year") + ylab("Production (tons)")+
 		scale_fill_manual(values=cols)+
+		scale_y_continuous(breaks = seq(0,10000, 2000))+
 		theme_bw()
 savePlot("aquaculture.png", type = "png")
 

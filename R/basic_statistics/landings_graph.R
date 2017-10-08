@@ -100,13 +100,13 @@ g2<-g2+geom_area(aes(x=year,y=landings,fill=country,legend = FALSE),position='st
 	xlim(c(1945, CY))
 
 
-# percentage of orginal data
+# percentage of original data
 g3<-ggplot(la2)+geom_col(aes(x=year,y=landings,fill=!predicted),position='stack')+
     ggtitle("Landings (Y+S) recontructed from missing or original") +
      xlab("year") + 
      ylab("Landings (tons)")+
     xlim(c(1945, CY)) +
-    scale_fill_manual(name = "Orginal data", values=c("black","grey"))+
+    scale_fill_manual(name = "Original data", values=c("black","grey"))+
     theme_bw()
 
 x11()
@@ -189,15 +189,14 @@ g2<-ggplot(la)
 g2<-g2+geom_area(aes(x=year,y=landings,fill=country,legend = FALSE),position='stack')+
 		ggtitle("Commercial Landings (G) uncorrected") + xlab("year") + ylab("Landings (tons)")+
 		scale_fill_manual(values=cols)+
-		theme_bw() + # make the theme black-and-white rather than grey (do this before font changes, or it overrides them)
-		ylim(c(0,2500))
+		theme_bw()
 
-# percentage of orginal data
+# percentage of original data
 g3<-ggplot(la2)+geom_col(aes(x=year,y=landings,fill=!predicted),position='stack')+
-		ggtitle("Landings (Y+S) recontructed from missing or original") +
+		ggtitle("Landings (G) recontructed from missing or original") +
 		xlab("year") + 
 		ylab("Landings (tons)")+
-		scale_fill_manual(name = "Orginal data", values=c("black","grey"))+
+		scale_fill_manual(name = "Original data", values=c("black","grey"))+
 		theme_bw()
 
 x11()
