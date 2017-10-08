@@ -17,7 +17,7 @@ if(!require(RColorBrewer)) install.packages("RColorBrewer") ; require(RColorBrew
 if(!require(grid)) install.packages("grid") ; require(grid)
 
 
-wd = tk_choose.dir(caption = "Working directory")
+wd = tk_choose.dir(caption = "Results directory")
 datawd = tk_choose.dir(caption = "Data directory", default = wd)
 
 setwd(wd)
@@ -27,6 +27,7 @@ CY = as.numeric(format(Sys.time(), "%Y")) # year of work
 # load data
 landings_complete <-read.table(str_c(datawd,"/landings.csv"),sep=";",header=TRUE, na.strings = "", dec = ".", stringsAsFactors = FALSE)
 landings_complete$eel_value<-as.numeric(landings_complete$eel_value)
+landings_complete[is.na(landings_complete$eel_value),]
 # ----------------------------------------------------------------
 # commercial fisheries Y+S
 # ----------------------------------------------------------------
@@ -77,41 +78,37 @@ write.table(round(xtabs(landings~year+country, data = la2)), file = "com_landing
 write.table(round(xtabs(predicted~year+country, data = la2)), file = "com_landings_YS_extrapolate_yn.csv", sep = ";")
 write.table(round(dcast(year~country, data = la[,-4])), file = "com_landings_YS_raw.csv", sep = ";", row.names = FALSE)
 
-
-
 #########################
 # graph
 #########################
 cols<-c(brewer.pal(12,"Set3"),brewer.pal(length(levels(la2$country))-12,"Set1"))
 
-
+# reconstructed
 g<-ggplot(la2)
 g1<-g+geom_area(aes(x=year,y=landings,fill=country),position='stack')+
 	ggtitle("Commercial Landings (Y+S) corrected") + xlab("year") + ylab("Landings (tons)")+
-	ylim(c(0,22000))+ xlim(c(1945, CY)) +
+	xlim(c(1945, CY)) +
 	scale_fill_manual(values=cols)+
 	theme_bw() 
 
-# graphic without transform
+# raw
 g2<-ggplot(la)
 g2<-g2+geom_area(aes(x=year,y=landings,fill=country,legend = FALSE),position='stack')+
 	ggtitle("Commercial Landings (Y+S) uncorrected") + xlab("year") + ylab("Landings (tons)")+
 	scale_fill_manual(values=cols)+
 	theme_bw() + # make the theme black-and-white rather than grey (do this before font changes, or it overrides them)
-	ylim(c(0,22000)) + xlim(c(1945, CY))
+	xlim(c(1945, CY))
 
 
-g3<-ggplot(la2)+geom_col(aes(x=year,y=landings,fill=predicted),position='stack')+
+# percentage of orginal data
+g3<-ggplot(la2)+geom_col(aes(x=year,y=landings,fill=!predicted),position='stack')+
     ggtitle("Landings (Y+S) recontructed from missing or original") +
      xlab("year") + 
      ylab("Landings (tons)")+
     xlim(c(1945, CY)) +
-    scale_fill_manual(values=c("black","grey"))+
+    scale_fill_manual(name = "Orginal data", values=c("black","grey"))+
     theme_bw()
 
-
-# map showing the percentage of extrapolated data
-# 
 x11()
 print(g1)
 savePlot("landings_YS_corrected.png", type = "png")
@@ -120,7 +117,6 @@ savePlot("landings_YS_raw.png", type = "png")
 print(g3)
 savePlot("landings_YS_proportion_corrected.png", type = "png")
 
-
 # ----------------------------------------------------------------
 # commercial fisheries G
 # ----------------------------------------------------------------
@@ -128,12 +124,7 @@ savePlot("landings_YS_proportion_corrected.png", type = "png")
 #########################
 # Formatting data
 #########################
-g<-ggplot(la2)
-g1<-g+geom_area(aes(x=year,y=landings,fill=predicted),position='stack')+
-	ggtitle("Commercial Landings (Y+S) corrected") + xlab("year") + ylab("Landings (tons)")+
-	ylim(c(0,22000))+ xlim(c(1945, CY)) +
-	scale_fill_manual(values=cols)+
-	theme_bw()
+
 # work only on commercial fisheries and glass eel
 com_landings = landings_complete[landings_complete$typ_name == "com_landings_kg" & landings_complete$eel_lfs_code == "G", ] 
 la = as.data.frame(com_landings %>% group_by(eel_year, eel_cou_code) %>% summarise(eel_value=sum(eel_value,na.rm=TRUE)))
@@ -186,32 +177,40 @@ write.table(round(dcast(year~country, data = la[,-4])), file = "com_landings_G_r
 #########################
 cols<-rev(brewer.pal(length(levels(la2$country)),"Set3"))
 
+# reconstructed
 g<-ggplot(la2)
 g1<-g+geom_area(aes(x=year,y=landings,fill=country),position='stack')+
-	ggtitle("Commercial Landings (G) corrected") + xlab("year") + ylab("Landings (tons)")+
-	ylim(c(0,2500))+ 
-	scale_fill_manual(values=cols)+
-	theme_bw()
+		ggtitle("Commercial Landings (G) corrected") + xlab("year") + ylab("Landings (tons)")+
+		scale_fill_manual(values=cols)+
+		theme_bw()
 
-# graphic without transform
+# raw
 g2<-ggplot(la)
 g2<-g2+geom_area(aes(x=year,y=landings,fill=country,legend = FALSE),position='stack')+
-	ggtitle("Commercial Landings (G) uncorrected") + xlab("year") + ylab("Landings (tons)")+
-	scale_fill_manual(values=cols)+
-	theme_bw() + # make the theme black-and-white rather than grey (do this before font changes, or it overrides them)
-	ylim(c(0,2500))
+		ggtitle("Commercial Landings (G) uncorrected") + xlab("year") + ylab("Landings (tons)")+
+		scale_fill_manual(values=cols)+
+		theme_bw() + # make the theme black-and-white rather than grey (do this before font changes, or it overrides them)
+		ylim(c(0,2500))
 
+# percentage of orginal data
+g3<-ggplot(la2)+geom_col(aes(x=year,y=landings,fill=!predicted),position='stack')+
+		ggtitle("Landings (Y+S) recontructed from missing or original") +
+		xlab("year") + 
+		ylab("Landings (tons)")+
+		scale_fill_manual(name = "Orginal data", values=c("black","grey"))+
+		theme_bw()
 
 x11()
 print(g1)
 savePlot("landings_G_corrected.png", type = "png")
 print(g2)
 savePlot("landings_G_raw.png", type = "png")
+print(g3)
+savePlot("landings_G_proportion_corrected.png", type = "png")
 
 # ----------------------------------------------------------------
 # recreational fisheries Y+S
 # ----------------------------------------------------------------
-
 
 #########################
 # Formatting data
@@ -249,7 +248,6 @@ write.table(round(dcast(year~country, data = la[,-4])), file = "recr_landings_YS
 # ----------------------------------------------------------------
 # recreational fisheries G
 # ----------------------------------------------------------------
-
 
 #########################
 # Formatting data
