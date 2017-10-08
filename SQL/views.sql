@@ -61,103 +61,43 @@ datawg.series_summary ss on ss.site=ser_nameshort
 
 
 -------------------------------------
--- View for catch
--- attention, foreign key to emu is on double pivot
--- this view refers to both commercial and recreational catch
--- Normally the wgeel has converted all catch to landings
----------------------------------------
-DROP VIEW IF EXISTS datawg.catch CASCADE;
-CREATE VIEW datawg.catch AS 
-(
-select  
-         eel_typ_id,
-	 tr_typeseries_typ.typ_name, 
-	 tr_typeseries_typ.typ_uni_code,
-         eel_year ,
-         eel_value  ,
-         eel_missvaluequal,
-         eel_emu_nameshort,
-         eel_cou_code,
-         tr_country_cou.cou_country, 
-	 tr_country_cou.cou_order, 
-	 tr_country_cou.cou_iso3code, 
-         eel_lfs_code,
-	 tr_lifestage_lfs.lfs_name, 
-         eel_hty_code,
-         tr_habitattype_hty.hty_description, 
-         eel_area_division,
-         eel_qal_id,
-         tr_quality_qal.qal_level, 
-	 tr_quality_qal.qal_text, 
-         eel_qal_comment,
-         eel_comment,
-         eel_datasource
-FROM 
-  datawg.t_eelstock_eel 
-JOIN ref.tr_lifestage_lfs ON t_eelstock_eel.eel_lfs_code = tr_lifestage_lfs.lfs_code 
-LEFT JOIN ref.tr_quality_qal ON t_eelstock_eel.eel_qal_id = tr_quality_qal.qal_id 
-LEFT JOIN ref.tr_country_cou ON t_eelstock_eel.eel_cou_code = tr_country_cou.cou_code 
-JOIN ref.tr_typeseries_typ ON t_eelstock_eel.eel_typ_id = tr_typeseries_typ.typ_id 
-LEFT JOIN ref.tr_habitattype_hty ON t_eelstock_eel.eel_hty_code = tr_habitattype_hty.hty_code
-JOIN ref.tr_emu_emu ON  (emu_nameshort,emu_cou_code) = (eel_emu_nameshort,eel_cou_code)
-WHERE (eel_typ_id=5 or eel_typ_id=7)
-AND eel_qal_id!=3
-AND eel_qal_id!=0);
-
--------------------------------------
 -- View for landings
 -- This view refer to both recreational and commercial landings
 ---------------------------------------
-
-DROP VIEW IF EXISTS datawg.landings CASCADE;
-CREATE VIEW datawg.landings AS 
-(
-select  
-	 eel_typ_id,
-	 tr_typeseries_typ.typ_name, 
-	 tr_typeseries_typ.typ_uni_code,
-         eel_year ,
-         eel_value  ,
-         eel_missvaluequal,
-         eel_emu_nameshort,
-         eel_cou_code,
-         tr_country_cou.cou_country, 
-	 tr_country_cou.cou_order, 
-	 tr_country_cou.cou_iso3code, 
-         eel_lfs_code,
-	 tr_lifestage_lfs.lfs_name, 
-         eel_hty_code,
-         tr_habitattype_hty.hty_description, 
-         eel_area_division,
-         eel_qal_id,
-         tr_quality_qal.qal_level, 
-	 tr_quality_qal.qal_text, 
-         eel_qal_comment,
-         eel_comment,
-         eel_datasource
-FROM 
-  datawg.t_eelstock_eel 
-JOIN ref.tr_lifestage_lfs ON t_eelstock_eel.eel_lfs_code = tr_lifestage_lfs.lfs_code 
-LEFT JOIN ref.tr_quality_qal ON t_eelstock_eel.eel_qal_id = tr_quality_qal.qal_id 
-LEFT JOIN ref.tr_country_cou ON t_eelstock_eel.eel_cou_code = tr_country_cou.cou_code 
-JOIN ref.tr_typeseries_typ ON t_eelstock_eel.eel_typ_id = tr_typeseries_typ.typ_id 
-LEFT JOIN ref.tr_habitattype_hty ON t_eelstock_eel.eel_hty_code = tr_habitattype_hty.hty_code
-JOIN ref.tr_emu_emu ON  (emu_nameshort,emu_cou_code) = (eel_emu_nameshort,eel_cou_code)
-WHERE (eel_typ_id=4 or eel_typ_id=6)
-AND NOT (eel_qal_id=3 OR eel_qal_id=0)
-OR eel_qal_id IS NULL);
+CREATE OR REPLACE VIEW datawg.landings AS 
+ SELECT t_eelstock_eel.eel_typ_id,
+    tr_typeseries_typ.typ_name,
+    tr_typeseries_typ.typ_uni_code,
+    t_eelstock_eel.eel_year,
+    t_eelstock_eel.eel_value,
+    t_eelstock_eel.eel_missvaluequal,
+    t_eelstock_eel.eel_emu_nameshort,
+    t_eelstock_eel.eel_cou_code,
+    tr_country_cou.cou_country,
+    tr_country_cou.cou_order,
+    tr_country_cou.cou_iso3code,
+    t_eelstock_eel.eel_lfs_code,
+    tr_lifestage_lfs.lfs_name,
+    t_eelstock_eel.eel_hty_code,
+    tr_habitattype_hty.hty_description,
+    t_eelstock_eel.eel_area_division,
+    t_eelstock_eel.eel_qal_id,
+    tr_quality_qal.qal_level,
+    tr_quality_qal.qal_text,
+    t_eelstock_eel.eel_qal_comment,
+    t_eelstock_eel.eel_comment,
+    t_eelstock_eel.eel_datasource
+   FROM datawg.t_eelstock_eel
+     LEFT JOIN ref.tr_lifestage_lfs ON t_eelstock_eel.eel_lfs_code::text = tr_lifestage_lfs.lfs_code::text
+     LEFT JOIN ref.tr_quality_qal ON t_eelstock_eel.eel_qal_id = tr_quality_qal.qal_id
+     LEFT JOIN ref.tr_country_cou ON t_eelstock_eel.eel_cou_code::text = tr_country_cou.cou_code::text
+     LEFT JOIN ref.tr_typeseries_typ ON t_eelstock_eel.eel_typ_id = tr_typeseries_typ.typ_id
+     LEFT JOIN ref.tr_habitattype_hty ON t_eelstock_eel.eel_hty_code::text = tr_habitattype_hty.hty_code::text
+     LEFT JOIN ref.tr_emu_emu ON tr_emu_emu.emu_nameshort::text = t_eelstock_eel.eel_emu_nameshort::text AND tr_emu_emu.emu_cou_code = t_eelstock_eel.eel_cou_code::text
+  WHERE (t_eelstock_eel.eel_typ_id = 4 OR t_eelstock_eel.eel_typ_id = 6) 
+  AND (t_eelstock_eel.eel_qal_id <> 3 OR t_eelstock_eel.eel_qal_id <> 0 OR t_eelstock_eel.eel_qal_id IS NULL);
 
 
-
--------------------------------------
--- View for catch and landgins
--- This view refer to both recreational and commercial catch and landings
----------------------------------------
-
-DROP VIEW IF EXISTS datawg.catch_landings ;
-CREATE VIEW datawg.catch_landings AS 
-select * from datawg.catch union
-select * from datawg.landings;
 -------------------------------------
 -- View for stocking
 -- This view refer to stocking in kg or number or geel equivalents
@@ -198,8 +138,7 @@ LEFT JOIN ref.tr_typeseries_typ ON t_eelstock_eel.eel_typ_id = tr_typeseries_typ
 LEFT JOIN ref.tr_habitattype_hty ON t_eelstock_eel.eel_hty_code = tr_habitattype_hty.hty_code
 LEFT JOIN ref.tr_emu_emu ON  (emu_nameshort,emu_cou_code) = (eel_emu_nameshort,eel_cou_code)
 WHERE eel_typ_id in (8,9,10)
-AND NOT (eel_qal_id=3 OR eel_qal_id=0)
-OR eel_qal_id IS NULL);
+  AND (t_eelstock_eel.eel_qal_id <> 3 OR t_eelstock_eel.eel_qal_id <> 0 OR t_eelstock_eel.eel_qal_id IS NULL));
 -------------------------------------
 -- View for aquaculture
 ---------------------------------------
@@ -232,12 +171,11 @@ select
          eel_datasource
 FROM 
   datawg.t_eelstock_eel 
-JOIN ref.tr_lifestage_lfs ON t_eelstock_eel.eel_lfs_code = tr_lifestage_lfs.lfs_code 
+LEFT JOIN ref.tr_lifestage_lfs ON t_eelstock_eel.eel_lfs_code = tr_lifestage_lfs.lfs_code 
 LEFT JOIN ref.tr_quality_qal ON t_eelstock_eel.eel_qal_id = tr_quality_qal.qal_id 
 LEFT JOIN ref.tr_country_cou ON t_eelstock_eel.eel_cou_code = tr_country_cou.cou_code 
-JOIN ref.tr_typeseries_typ ON t_eelstock_eel.eel_typ_id = tr_typeseries_typ.typ_id 
+LEFT JOIN ref.tr_typeseries_typ ON t_eelstock_eel.eel_typ_id = tr_typeseries_typ.typ_id 
 LEFT JOIN ref.tr_habitattype_hty ON t_eelstock_eel.eel_hty_code = tr_habitattype_hty.hty_code
-JOIN ref.tr_emu_emu ON  (emu_nameshort,emu_cou_code) = (eel_emu_nameshort,eel_cou_code)
+LEFT JOIN ref.tr_emu_emu ON  (emu_nameshort,emu_cou_code) = (eel_emu_nameshort,eel_cou_code)
 WHERE (eel_typ_id=11 or eel_typ_id=12)
-AND NOT (eel_qal_id=3 OR eel_qal_id=0)
-OR eel_qal_id IS NULL);
+  AND (t_eelstock_eel.eel_qal_id <> 3 OR t_eelstock_eel.eel_qal_id <> 0 OR t_eelstock_eel.eel_qal_id IS NULL));

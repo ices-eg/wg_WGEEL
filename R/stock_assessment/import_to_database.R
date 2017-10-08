@@ -23,7 +23,7 @@ options(sqldf.RPostgreSQL.user = "postgres",
 mylocalfolder <-"C:/temp/wgeel/datacall"
 mylocalfolder <- "C:/Users/pohlmann/Desktop/WGEEL/WGEEL 2017/Task 1/06. Data/datacall"
 # you will need to put the following files there
-
+datawd<-mylocalfolder
 # path to local github (or write a local copy of the files and point to them)
 # setwd("C:/Users/cedric.briand/Documents/GitHub/WGEEL")
 setwd("C:/Users/pohlmann/Desktop/WGEEL/WGEEL 2017/Task 1")
@@ -638,8 +638,8 @@ check_directories<-function(i=NULL){
 
 directories
 # launch with only one directory
-country<- gsub("/","",gsub(mylocalfolder, "", directories[i=1])) 
-data_list<-check_directories(i=1)
+#country<- gsub("/","",gsub(mylocalfolder, "", directories[i=1])) 
+#data_list<-check_directories(i=1)
 
 # launch for all directories
 data_list<-check_directories()
@@ -660,6 +660,9 @@ for (j in 1:length(data_list))
 {
   restocking_final<- rbind(restocking_final,data_list[[j]][["restocking"]])
 }
+
+catch_landings_final[catch_landings_final$eel_year=='1978'&
+            catch_landings_final$eel_cou_code=='FR',]
 ##############################
 # Import into the database
 ##############################

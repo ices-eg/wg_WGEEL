@@ -27,6 +27,8 @@ CY = as.numeric(format(Sys.time(), "%Y")) # year of work
 # load data
 landings_complete <-read.table(str_c(datawd,"/landings.csv"),sep=";",header=TRUE, na.strings = "", dec = ".", stringsAsFactors = FALSE)
 landings_complete$eel_value<-as.numeric(landings_complete$eel_value)
+glimpse(landings_complete[is.na(landings_complete$eel_value),])
+dcast(landings_complete,eel_cou_code~eel_lfs_code+eel_year)
 # ----------------------------------------------------------------
 # commercial fisheries Y+S
 # ----------------------------------------------------------------
