@@ -144,8 +144,9 @@ JOIN ref.tr_typeseries_typ ON t_eelstock_eel.eel_typ_id = tr_typeseries_typ.typ_
 LEFT JOIN ref.tr_habitattype_hty ON t_eelstock_eel.eel_hty_code = tr_habitattype_hty.hty_code
 JOIN ref.tr_emu_emu ON  (emu_nameshort,emu_cou_code) = (eel_emu_nameshort,eel_cou_code)
 WHERE (eel_typ_id=4 or eel_typ_id=6)
-AND eel_qal_id!=3
-AND eel_qal_id!=0);
+AND NOT (eel_qal_id=3 OR eel_qal_id=0)
+OR eel_qal_id IS NULL);
+
 
 
 -------------------------------------
@@ -190,15 +191,15 @@ select
          eel_datasource
 FROM 
   datawg.t_eelstock_eel 
-JOIN ref.tr_lifestage_lfs ON t_eelstock_eel.eel_lfs_code = tr_lifestage_lfs.lfs_code 
+LEFT JOIN ref.tr_lifestage_lfs ON t_eelstock_eel.eel_lfs_code = tr_lifestage_lfs.lfs_code 
 LEFT JOIN ref.tr_quality_qal ON t_eelstock_eel.eel_qal_id = tr_quality_qal.qal_id 
 LEFT JOIN ref.tr_country_cou ON t_eelstock_eel.eel_cou_code = tr_country_cou.cou_code 
-JOIN ref.tr_typeseries_typ ON t_eelstock_eel.eel_typ_id = tr_typeseries_typ.typ_id 
+LEFT JOIN ref.tr_typeseries_typ ON t_eelstock_eel.eel_typ_id = tr_typeseries_typ.typ_id 
 LEFT JOIN ref.tr_habitattype_hty ON t_eelstock_eel.eel_hty_code = tr_habitattype_hty.hty_code
-JOIN ref.tr_emu_emu ON  (emu_nameshort,emu_cou_code) = (eel_emu_nameshort,eel_cou_code)
+LEFT JOIN ref.tr_emu_emu ON  (emu_nameshort,emu_cou_code) = (eel_emu_nameshort,eel_cou_code)
 WHERE eel_typ_id in (8,9,10)
-AND eel_qal_id!=3
-AND eel_qal_id!=0);
+AND NOT (eel_qal_id=3 OR eel_qal_id=0)
+OR eel_qal_id IS NULL);
 -------------------------------------
 -- View for aquaculture
 ---------------------------------------
@@ -238,5 +239,5 @@ JOIN ref.tr_typeseries_typ ON t_eelstock_eel.eel_typ_id = tr_typeseries_typ.typ_
 LEFT JOIN ref.tr_habitattype_hty ON t_eelstock_eel.eel_hty_code = tr_habitattype_hty.hty_code
 JOIN ref.tr_emu_emu ON  (emu_nameshort,emu_cou_code) = (eel_emu_nameshort,eel_cou_code)
 WHERE (eel_typ_id=11 or eel_typ_id=12)
-AND eel_qal_id!=3
-AND eel_qal_id!=0);
+AND NOT (eel_qal_id=3 OR eel_qal_id=0)
+OR eel_qal_id IS NULL);
