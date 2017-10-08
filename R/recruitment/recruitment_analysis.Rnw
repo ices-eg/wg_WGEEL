@@ -1649,9 +1649,9 @@ $glass~eel \sim year:area + site $, where $glass~eel$ is individual glass eel ti
 North Sea or Elsewhere Europe. In the case of yellow eel time-series, only one estimate is provided:
 $yellow~eel \sim year + site $. 
 
-The trend is reconstructed using the predictions from 1959 for
-\Sexpr{vv$modelge$nbsite} glass eel time-series and \Sexpr{vv$modelolder$nbsite} 
-yellow eel time-series.
+The trend is reconstructed using the predictions from 1960 onwards for
+\Sexpr{vv$modelge$nbsite} glass eel time-series and from 1950 onwards for
+\Sexpr{vv$modelolder$nbsite} yellow eel time-series.
 Some zero values have been excluded from the GLM analysis: 
 \Sexpr{nrow(vv$modelge$value_excluded_zero)} for the glass eel model and
 \Sexpr{nrow(vv$modelolder$value_excluded_zero)} for the yellow eel model.\\
@@ -1673,7 +1673,7 @@ minimum in 2009 (Figures \ref{figure5} \ref{figure6}).\\
 \caption{WGEEL recruitment index: geometric mean of estimated (GLM) glass eel
 recruitment for the continental  North Sea and  Elsewhere Europe series updated to
 \Sexpr{CY}.
-  The  GLM ($recruit \sim area:year+site$)  was  fitted  on
+  The  GLM ($glass eel \sim area:year+site$)  was  fitted  on
   \Sexpr{vv$modelge$nbsite} time-series comprising either pure glass eel or a mixture of 
   glass eels and yellow eels and scaled to the 1960-1979 average.
    No time-series are available for glass eel in the Baltic area. Note the
@@ -1686,7 +1686,7 @@ recruitment for the continental  North Sea and  Elsewhere Europe series updated 
 \centering
 \includegraphics[width=0.8\textwidth]{figure6.pdf}
 \caption {Geometric mean of estimated (GLM) yellow eel recruitment and smoothed
-trends for Europe updated to \Sexpr{CY}. The GLM ($recruit \sim year+site$) was fitted to
+trends for Europe updated to \Sexpr{CY}. The GLM ($yellow eel \sim year+site$) was fitted to
 \Sexpr{vv[["nb_for_yellow_eel_glm"]]} yellow eel time-series and scaled to the 1960-1979
 average. Note the logarithmic scale on the y-axis.}
 \label{figure6}
