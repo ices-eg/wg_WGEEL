@@ -7,25 +7,21 @@
 # INITS
 #########################
 if(!require(ggplot2)) install.packages("ggplot2") ; require(ggplot2)
-#if(!require(reshape)) install.packages("reshape") ; require(reshape)
 if(!require(reshape2)) install.packages("reshape2") ; require(reshape2)
 if(!require(tcltk)) install.packages("tcltk") ; require(tcltk)
 if(!require(stringr)) install.packages("stringr") ; require(stringr)
 if(!require(dplyr)) install.packages("dplyr") ; require(dplyr)
 if(!require(tidyr)) install.packages("tidyr") ; require(tidyr)
-#if(!require(lattice)) install.packages("lattice") ; require(lattice)
 if(!require(RColorBrewer)) install.packages("RColorBrewer") ; require(RColorBrewer)
-#if(!require(grid)) install.packages("grid") ; require(grid)
 
-
-#wd = tk_choose.dir(caption = "Working directory")
-#datawd = tk_choose.dir(caption = "Data directory", default = "C:/temp/wgeel/datacall")
-#setwd(wd)
+wd = tk_choose.dir(caption = "Results directory")
+datawd = tk_choose.dir(caption = "Data directory", default = "C:/temp/wgeel/datacall")
+setwd(wd)
 
 # load data
 stocking <-read.table(str_c(datawd,"/stocking.csv"),sep=";",header=TRUE, na.strings = "", dec = ".", stringsAsFactors = FALSE)
-#
-stocking<-stocking[!is.na(stocking$eel_lfs_code),]
+stocking$eel_value<-as.numeric(stocking$eel_value)
+stocking[is.na(stocking$eel_value),]
 #-----------------------------------------------
 # Restocking which stages typ_id=9 (nb), =8 (kg)
 #---------------------------------------------
@@ -73,6 +69,7 @@ stocking = bind_rows(stocking_kg, stocking_nb)
 # synthesis by stage
 #---------------------------------------------
 stocking_synthesis = round(tapply(stocking$eel_value_nb, list(stocking$eel_year, stocking$eel_cou_code, stocking$eel_lfs_code), sum)/1E6, 2)
+round(tapply(stocking$eel_value_nb, list(stocking$eel_year, stocking$eel_cou_code), sum)/1E6, 2)
 
 stocking_stage = function(stage) with(stocking %>% filter(eel_lfs_code == stage), round(tapply(eel_value_nb, list(eel_year, eel_cou_code), sum)/1E6, 2))
 
@@ -86,12 +83,12 @@ stocking_Y = stocking_stage("Y")
 
 
 write.table(stocking_G, file = "stocking_G_in_million.csv", sep = ";")
-write.table(stocking_GY, file = "stocking_GY_in_million.csv", sep = ";")
+if(nrow(stocking_GY)>0) write.table(stocking_GY, file = "stocking_GY_in_million.csv", sep = ";")
 write.table(stocking_QG, file = "stocking_QG_in_million.csv", sep = ";")
 write.table(stocking_OG, file = "stocking_OG_in_million.csv", sep = ";")
-write.table(stocking_YS, file = "stocking_YS_in_million.csv", sep = ";")
+if(nrow(stocking_YS)>0) write.table(stocking_YS, file = "stocking_YS_in_million.csv", sep = ";")
 write.table(stocking_S, file = "stocking_S_in_million.csv", sep = ";")
-write.table(stocking_Y, file = "stocking_S_in_million.csv", sep = ";")
+write.table(stocking_Y, file = "stocking_Y_in_million.csv", sep = ";")
 #---------------------------------------------
 # graph by stage
 #---------------------------------------------
@@ -105,6 +102,12 @@ graph_stocking = function(stage,xlegend="top")
 {
 	dataset = get(paste("stocking_", stage, sep = ""))
 	dataset = dataset[as.numeric(rownames(dataset))>=1945,]
+	
+	annee = matrix(rep(as.numeric(rownames(dataset)), ncol(dataset)), ncol = ncol(dataset)) * !is.na(dataset)
+	annee[annee==0] = 3000
+	
+	country_order = order(apply(annee, 2, min), decreasing = FALSE)
+	dataset = dataset[, country_order]
 		
 	#for the label of the X axis
 	if(length(dim(dataset)) == 2) x=as.numeric(rownames(dataset))
@@ -123,10 +126,14 @@ cols<-brewer.pal(ncol(stocking_G),"Set3")
 x11()
 graph_stocking("G","topright")
 savePlot("stocking_G.png", type = "png")
+if(nrow(stocking_GY)>0)
+{
+	graph_stocking("GY","topright")
+	savePlot("stocking_GY.png", type = "png")
+}
 graph_stocking("QG")
 savePlot("stocking_QG.png", type = "png")
 graph_stocking("OG",xlegend="topleft")
 savePlot("stocking_OG.png", type = "png")
 graph_stocking("S",xlegend="topleft")
 savePlot("stocking_S.png", type = "png")
-
