@@ -372,7 +372,7 @@ wgerinit<-wger
 vv$nb_series_init<-length(unique(wger$site)) # this is the true number at the beginning
 # 2017 removing series which are not of the best quality;
 wger<-wger[wger$ser_qal_id==1,]
-
+vv$nb_series_init_qual1<-length(unique(wger$site))
 #########################################################################
 # standardizing with 2000-2009
 # this was a question asked by ACFM ? 2014 ?
@@ -387,7 +387,7 @@ site<-unique(wger$site[order(wger$site)])
 # length(site)  #52
 unused_series_2000_2009 = site[!site%in%std_site] # series not having data between 2000 and 2009 # "Vida" "YFS1" 
 vv$sc_2000_2009_unused_series<-unused_series_2000_2009
-vv$sc_2000_2009_nb<-vv$nb_series_init-length(vv$sc_2000_2009_unused_series)
+vv$sc_2000_2009_nb<-vv$nb_series_init_qual1-length(vv$sc_2000_2009_unused_series)
 #add a column to R_station for flagging unused series
 R_stations$unused_2000_2009 = FALSE
 R_stations[R_stations$rec_nameshort %in% unused_series_2000_2009, "unused_2000_2009"] = TRUE
@@ -409,7 +409,7 @@ site<-unique(wger$site[order(wger$site)])
 # length(site) #49
 unused_series_1979_1994 = site[!site%in%std_site] # "Bres" "Fre"  "Inag" "Klit" "Maig" "Nors" "Sle"  "Vac"
 vv$sc_1979_1994_unused_series<-unused_series_1979_1994
-vv$sc_1979_1994_nb=vv$nb_series_init-length(vv$sc_1979_1994_unused_series)
+vv$sc_1979_1994_nb=vv$nb_series_init_qual1-length(vv$sc_1979_1994_unused_series)
 #add a column to R_station for flagging unused series
 R_stations$unused_1979_1994 = FALSE
 R_stations[R_stations$rec_nameshort %in% unused_series_1979_1994, "unused_1979_1994"] = TRUE
@@ -740,7 +740,7 @@ at recruitment sites located upstream in river basins).\\
 The WGEEL has collated information on recruitment from
 \Sexpr{sn(vv[["nb_series_init"]])} time-series. Some time-series date back to the
 beginning of 20th century (yellow eel, Göta Älv, Sweden) or 1920 (glass eel,
-Loire, France). Among those series \Sexpr{sn(vv[["nb_series_final"]])} have been
+Loire, France). Among those series \Sexpr{sn(vv[["sc_2000_2009_nb"]])} have been
 selected for further analysis in the wgeel indices, see details on data
 selection and processing in annex.
 
