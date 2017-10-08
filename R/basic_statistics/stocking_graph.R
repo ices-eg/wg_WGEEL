@@ -18,13 +18,14 @@ if(!require(RColorBrewer)) install.packages("RColorBrewer") ; require(RColorBrew
 #if(!require(grid)) install.packages("grid") ; require(grid)
 
 
-wd = tk_choose.dir(caption = "Working directory")
-datawd = tk_choose.dir(caption = "Data directory", default = wd)
-setwd(wd)
+#wd = tk_choose.dir(caption = "Working directory")
+#datawd = tk_choose.dir(caption = "Data directory", default = "C:/temp/wgeel/datacall")
+#setwd(wd)
 
 # load data
 stocking <-read.table(str_c(datawd,"/stocking.csv"),sep=";",header=TRUE, na.strings = "", dec = ".", stringsAsFactors = FALSE)
-
+#
+stocking<-stocking[!is.na(stocking$eel_lfs_code),]
 #-----------------------------------------------
 # Restocking which stages typ_id=9 (nb), =8 (kg)
 #---------------------------------------------
@@ -61,11 +62,13 @@ stocking_kg<- bind_rows(
 		,
 		filter(stocking_kg, eel_lfs_code=='QG')%>%mutate(eel_value_nb=eel_value/QG_w)
 		,
-		filter(stocking_kg, eel_lfs_code=='S')%>%mutate(eel_value_nb=eel_value/S_w))
-
+		filter(stocking_kg, eel_lfs_code=='S')%>%mutate(eel_value_nb=eel_value/S_w)
+        ,
+        filter(stocking_kg, eel_lfs_code=='Y')%>%mutate(eel_value_nb=eel_value/Y_w))
 stocking = bind_rows(stocking_kg, stocking_nb)
+# unique(stocking$eel_cou_code)
 
-
+#
 #---------------------------------------------
 # synthesis by stage
 #---------------------------------------------
@@ -79,6 +82,7 @@ stocking_QG = stocking_stage("QG")
 stocking_OG = stocking_stage("OG")
 stocking_YS = stocking_stage("YS")
 stocking_S = stocking_stage("S")
+stocking_Y = stocking_stage("Y")
 
 
 write.table(stocking_G, file = "stocking_G_in_million.csv", sep = ";")
@@ -87,7 +91,7 @@ write.table(stocking_QG, file = "stocking_QG_in_million.csv", sep = ";")
 write.table(stocking_OG, file = "stocking_OG_in_million.csv", sep = ";")
 write.table(stocking_YS, file = "stocking_YS_in_million.csv", sep = ";")
 write.table(stocking_S, file = "stocking_S_in_million.csv", sep = ";")
-
+write.table(stocking_Y, file = "stocking_S_in_million.csv", sep = ";")
 #---------------------------------------------
 # graph by stage
 #---------------------------------------------
@@ -97,7 +101,7 @@ replace_NA = function(X)
 	return(X)
 }
 
-graph_stocking = function(stage)
+graph_stocking = function(stage,xlegend="top")
 {
 	dataset = get(paste("stocking_", stage, sep = ""))
 	dataset = dataset[as.numeric(rownames(dataset))>=1945,]
@@ -107,22 +111,23 @@ graph_stocking = function(stage)
 	if(length(dim(dataset)) == 0) x=as.numeric(names(dataset))
 	x_axis = x %in% pretty(x, n = min(max(x) - min(x), 20))
 	
-	bar = barplot(t(replace_NA(dataset)), names.arg = rownames(dataset), col = cols, legend.text = colnames(dataset), las = 2, xaxt = "n", xlab = "year", ylab = "in number (x 10^6)", main = paste("Stocking (", stage, ")"))
+	bar = barplot(t(replace_NA(dataset)), names.arg = rownames(dataset), col = cols,
+         legend.text = colnames(dataset), las = 2, xaxt = "n", xlab = "year",
+          ylab = "in number (x 10^6)", main = paste("Stocking (", stage, ")"),
+          args.legend=list(x=xlegend))
 	axis(1, at = bar[x_axis], x[x_axis], las = 2)
 }
 
 cols<-brewer.pal(ncol(stocking_G),"Set3")
 
 x11()
-graph_stocking("G")
+graph_stocking("G","topright")
 savePlot("stocking_G.png", type = "png")
-graph_stocking("GY")
-savePlot("stocking_GY.png", type = "png")
 graph_stocking("QG")
 savePlot("stocking_QG.png", type = "png")
 graph_stocking("OG")
 savePlot("stocking_OG.png", type = "png")
-graph_stocking("YS")
-savePlot("stocking_YS.png", type = "png")
 graph_stocking("S")
 savePlot("stocking_S.png", type = "png")
+graph_stocking("Y")
+savePlot("stocking_Y.png", type = "png")

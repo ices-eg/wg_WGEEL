@@ -631,33 +631,34 @@ check_directories<-function(i=NULL){
     return(data_list)
   } else { # i is provided as an argument to the function
     data_list<- check_one_directory(i,country)
-    return(invisible(NULL))
+    return(data_list)
   }
 }
 ############### end function###################
 
 directories
 # launch with only one directory
-check_directories(i=9)
+country<- gsub("/","",gsub(mylocalfolder, "", directories[i=1])) 
+data_list<-check_directories(i=1)
+
+# launch for all directories
 data_list<-check_directories()
-
-
 
 catch_landings_final<-data.frame()
 for (j in 1:length(data_list))
 {
-  catch_landings_final<<- rbind(catch_landings_final,data_list[[j]][["catch_landings"]])
+  catch_landings_final<- rbind(catch_landings_final,data_list[[j]][["catch_landings"]])
 }
 aquaculture_final<-data.frame()
 for (j in 1:length(data_list))
 {
-  aquaculture_final<<- rbind(aquaculture_final,data_list[[j]][["aquaculture"]])
+  aquaculture_final<- rbind(aquaculture_final,data_list[[j]][["aquaculture"]])
 }
 
 restocking_final<-data.frame()
 for (j in 1:length(data_list))
 {
-  restocking_final<<- rbind(restocking_final,data_list[[j]][["restocking"]])
+  restocking_final<- rbind(restocking_final,data_list[[j]][["restocking"]])
 }
 ##############################
 # Import into the database
