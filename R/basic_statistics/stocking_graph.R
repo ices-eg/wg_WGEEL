@@ -102,6 +102,12 @@ graph_stocking = function(stage,xlegend="top")
 {
 	dataset = get(paste("stocking_", stage, sep = ""))
 	dataset = dataset[as.numeric(rownames(dataset))>=1945,]
+	
+	annee = matrix(rep(as.numeric(rownames(dataset)), ncol(dataset)), ncol = ncol(dataset)) * !is.na(dataset)
+	annee[annee==0] = 3000
+	
+	country_order = order(apply(annee, 2, min), decreasing = FALSE)
+	dataset = dataset[, country_order]
 		
 	#for the label of the X axis
 	if(length(dim(dataset)) == 2) x=as.numeric(rownames(dataset))
