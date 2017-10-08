@@ -30,6 +30,7 @@ setwd(tk_choose.dir(caption = "GIT directory", default = "C:/Users/cedric.briand
 #########################
 # Load data from csv files
 ########################
+# TODO: use load function
 aquaculture <- read.table(file=str_c(mylocalfolder,"/aquaculture.csv"),sep=";")
 landings <- read.table(file=str_c(mylocalfolder,"/landings.csv"),sep=";")
 stocking <- read.table(file=str_c(mylocalfolder,"/stocking.csv"),sep=";")
@@ -201,6 +202,7 @@ draw_leaflet<-function(dataset="landings",
 # Examples run
 ########################
 # map of landings in 2016, all stages, per country
+#TODO: refer to load_maps function
 draw_leaflet()
 
 # map of glass eel landings in 2016, per emu
