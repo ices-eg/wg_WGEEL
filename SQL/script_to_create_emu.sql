@@ -1332,6 +1332,12 @@ insert into ref.tr_emu_emu(emu_nameshort, emu_name, emu_cou_code,geom,emu_wholec
 
 delete from ref.tr_emu_emu where emu_nameshort like '%outside_emu';
 
-BEGIN;
-delete from datawg.t_eelstock_eel where eel_emu_nameshort='TR_outside_emu';
-COMMIT;
+------------------------------
+-- Tunisia has three new emus
+------------------------------
+
+
+insert into ref.tr_emu_emu(emu_nameshort, emu_name, emu_cou_code,geom,emu_wholecountry) values ('TN_Nor','Tunisia North','TN',NULL,FALSE);
+insert into ref.tr_emu_emu(emu_nameshort, emu_name, emu_cou_code,geom,emu_wholecountry) values ('TN_NE','Tunisia North East Medjerda','TN',NULL,FALSE);
+insert into ref.tr_emu_emu(emu_nameshort, emu_name, emu_cou_code,geom,emu_wholecountry) values ('TN_EC','Tunisia East and centre','TN',NULL,FALSE);
+insert into ref.tr_emu_emu(emu_nameshort, emu_name, emu_cou_code,geom,emu_wholecountry) values ('TN_SO','Tunisia South','TN',NULL,FALSE);
