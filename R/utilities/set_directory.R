@@ -14,8 +14,13 @@ set_directory = function(type)
 	load_library("rChoiceDialogs")
 	if(type == "script")
 	{
-		wd <<- rchoose.dir(caption = "Script directory (Root for GIT/WGEEL)")
-		setwd(wd)
+		new_wd = rchoose.dir(caption = "Script directory (Root for GIT/WGEEL)")
+		answer = rselect.list(choices = c("Yes", "No"), preselect = "No", title = "Confirm change?")
+		if(answer == "Yes")
+		{
+			wd <<- new_wd
+			setwd(wd)
+		}
 	} else {
 		assign(x = paste(type, "_wd", sep = ""), value = rchoose.dir(caption = paste(type, " directory", sep = "")), envir = .GlobalEnv)
 	}

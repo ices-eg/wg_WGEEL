@@ -77,6 +77,9 @@ write.table(round(xtabs(landings~year+country, data = la2)), file = "com_landing
 write.table(round(xtabs(predicted~year+country, data = la2)), file = "com_landings_YS_extrapolate_yn.csv", sep = ";")
 write.table(round(dcast(year~country, data = la[,-4])), file = "com_landings_YS_raw.csv", sep = ";", row.names = FALSE)
 
+
+#+ scale_fill_gradient(low="white", high="blue") 
+
 #########################
 # graph
 #########################
