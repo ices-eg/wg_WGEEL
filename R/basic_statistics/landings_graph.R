@@ -77,9 +77,6 @@ write.table(round(xtabs(landings~year+country, data = la2)), file = "com_landing
 write.table(round(xtabs(predicted~year+country, data = la2)), file = "com_landings_YS_extrapolate_yn.csv", sep = ";")
 write.table(round(dcast(year~country, data = la[,-4])), file = "com_landings_YS_raw.csv", sep = ";", row.names = FALSE)
 
-
-#+ scale_fill_gradient(low="white", high="blue") 
-
 #########################
 # graph
 #########################
@@ -128,10 +125,16 @@ print(g2)
 savePlot("landings_YS_raw.png", type = "png")
 print(g3)
 savePlot("landings_YS_proportion_corrected.png", type = "png")
+x11(6,10)
 g3_grob <- ggplotGrob(g3)
 g4 <- g1+annotation_custom(g3_grob, xmin=1980, xmax=2016, ymin=12000, ymax=22000)
 print(g4)
 savePlot("landings_YS_corrected_and_proportion.png", type = "png")
+# Other way to represent missing data and size of landings per year / country
+ggplot(la2, aes(y = country, x = year)) + geom_tile(aes(fill = !predicted)) + theme_bw() + scale_fill_manual(values = c("black", "lightblue"), name = "Reporting")
+#ggplot(la2, aes(y = country, x = year)) + geom_tile() + aes(fill = landings*(1-(predicted & NA)))+ theme_bw() + scale_fill_gradient2(low="blue", mid = "green", high="red", name = "Landings (t)", midpoint = 1500, na.value = "black")
+savePlot("landings_YS_reporting country.png", type = "png")
+
 # ----------------------------------------------------------------
 # commercial fisheries G
 # ----------------------------------------------------------------
@@ -224,6 +227,11 @@ g3_grob <- ggplotGrob(g3)
 g4 <- g1+annotation_custom(g3_grob, xmin=1985, xmax=2016, ymin=800, ymax=2000)
 print(g4)
 savePlot("landings_G_corrected_and_proportion.png", type = "png")
+# Other way to represent missing data and size of landings per year / country
+x11(width = 9, height = 1.5)
+ggplot(la2, aes(y = country, x = year)) + geom_tile(aes(fill = !predicted)) + theme_bw() + scale_fill_manual(values = c("black", "lightblue"), name = "Reporting")
+#ggplot(la2, aes(y = country, x = year)) + geom_tile() + aes(fill = landings*(1-(predicted & NA)))+ theme_bw() + scale_fill_gradient2(low="blue", mid = "green", high="red", name = "Landings (t)", midpoint = 1500, na.value = "black")
+savePlot("landings_G_reporting country.png", type = "png")
 # ----------------------------------------------------------------
 # recreational fisheries Y+S
 # ----------------------------------------------------------------
