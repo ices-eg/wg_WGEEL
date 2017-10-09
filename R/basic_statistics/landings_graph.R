@@ -26,7 +26,8 @@ CY = as.numeric(format(Sys.time(), "%Y")) # year of work
 
 # load data
 landings_complete <-read.table(str_c(datawd,"/landings.csv"),sep=";",header=TRUE, na.strings = "", dec = ".", stringsAsFactors = FALSE)
-landings_complete$eel_value<-as.numeric(landings_complete$eel_value)
+landings_complete$eel_value<-as.numeric(landings_complete$eel_value) / 1000
+landings_complete$eel_hty_code = factor(landings_complete$eel_hty_code, levels = rev(c("MO", "C", "T", "F", "AL")))
 # ----------------------------------------------------------------
 # commercial fisheries Y+S
 # ----------------------------------------------------------------
@@ -37,13 +38,13 @@ landings_complete$eel_value<-as.numeric(landings_complete$eel_value)
 
 # work only on commercial fisheries and yellow + silver
 com_landings = landings_complete[landings_complete$typ_name == "com_landings_kg" & landings_complete$eel_lfs_code != "G", ] 
+test = com_landings  %>% filter(eel_year>1995 & eel_year<CY) %>% group_by(eel_year, eel_hty_code, eel_cou_code) %>% dplyr::summarize(eel_value=sum(eel_value,na.rm=TRUE))
 la = as.data.frame(com_landings %>% group_by(eel_year, eel_cou_code) %>% dplyr::summarize(eel_value=sum(eel_value,na.rm=TRUE)))
 colnames(la)<-c("year","country","landings")
 
 # excluding the current year and year before 1945
 la = la[la$year != CY & la$year>=1945,]
 la$country = as.factor(la$country)
-la$landings = la$landings / 1000 # conversion from kg into tons
 
 #########################
 # reconstruction
@@ -130,10 +131,18 @@ g3_grob <- ggplotGrob(g3)
 g4 <- g1+annotation_custom(g3_grob, xmin=1980, xmax=2016, ymin=12000, ymax=22000)
 print(g4)
 savePlot("landings_YS_corrected_and_proportion.png", type = "png")
+x11()
 # Other way to represent missing data and size of landings per year / country
 ggplot(la2, aes(y = country, x = year)) + geom_tile(aes(fill = !predicted)) + theme_bw() + scale_fill_manual(values = c("black", "lightblue"), name = "Reporting")
 #ggplot(la2, aes(y = country, x = year)) + geom_tile() + aes(fill = landings*(1-(predicted & NA)))+ theme_bw() + scale_fill_gradient2(low="blue", mid = "green", high="red", name = "Landings (t)", midpoint = 1500, na.value = "black")
 savePlot("landings_YS_reporting country.png", type = "png")
+
+# share by type of habitat
+ggplot(test) + aes(x = eel_cou_code, y = eel_value, fill = eel_hty_code) + geom_col(position = "fill") + theme_bw() + scale_fill_discrete(labels = levels(landings_complete$eel_hty_code), name = c("Habitat")) + theme(legend.position = "right") + xlab("Country") + ylab("Proportion") + coord_cartesian(expand = FALSE)
+savePlot("landings_YS_habitat_country.png", type = "png")
+ggplot(test) + aes(x = eel_year, y = eel_value, fill = eel_hty_code) + geom_col(position = "fill") + theme_bw() + scale_fill_discrete(labels = levels(landings_complete$eel_hty_code), name = c("Habitat")) + theme(legend.position = "right") + xlab("Country") + ylab("Proportion") + coord_cartesian(expand = FALSE)
+savePlot("landings_YS_habitat_year.png", type = "png")
+
 
 # ----------------------------------------------------------------
 # commercial fisheries G
@@ -148,7 +157,6 @@ com_landings = landings_complete[landings_complete$typ_name == "com_landings_kg"
 la = as.data.frame(com_landings %>% group_by(eel_year, eel_cou_code) %>% summarise(eel_value=sum(eel_value,na.rm=TRUE)))
 colnames(la)<-c("year","country","landings")
 la<-la[la$landings>0,]
-la$landings = la$landings / 1000 # conversion from kg into tons
 
 # only use data when France starts to have
 la = la[la$year >= min(la[la$country == "FR", "year"]), ] 
@@ -246,7 +254,6 @@ la = as.data.frame(rec_landings %>% group_by(eel_year, eel_cou_code) %>% summari
 colnames(la)<-c("year","country","landings")
 
 #la$country = as.factor(la$country)
-la$landings = la$landings / 1000 # conversion from kg into tons
 
 #dcast(la, year ~ country)
 
@@ -283,7 +290,6 @@ la = as.data.frame(rec_landings %>% group_by(eel_year, eel_cou_code) %>% summari
 colnames(la)<-c("year","country","landings")
 
 #la$country = as.factor(la$country)
-la$landings = la$landings / 1000 # conversion from kg into tons
 
 #dcast(la, year ~ country)
 
