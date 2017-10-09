@@ -192,11 +192,11 @@ g2<-g2+geom_area(aes(x=year,y=landings,fill=country,legend = FALSE),position='st
 
 # percentage of original data
 g3<-ggplot(la2)+geom_col(aes(x=year,y=landings,fill=!predicted),position='stack')+
-		ggtitle("Landings (G) recontructed from missing or original") +
-		xlab("year") + 
-		ylab("Landings (tons)")+
+		xlab("") + 
+		ylab("")+
 		scale_fill_manual(name = "Original data", values=c("black","grey"))+
-		theme_bw()
+		theme_bw()+
+        theme(legend.position="top")
 
 x11()
 print(g1)
@@ -205,7 +205,10 @@ print(g2)
 savePlot("landings_G_raw.png", type = "png")
 print(g3)
 savePlot("landings_G_proportion_corrected.png", type = "png")
-
+g3_grob <- ggplotGrob(g3)
+g4 <- g1+annotation_custom(g3_grob, xmin=1985, xmax=2016, ymin=800, ymax=2000)
+print(g4)
+savePlot("landings_G_corrected_and_proportion.png", type = "png")
 # ----------------------------------------------------------------
 # recreational fisheries Y+S
 # ----------------------------------------------------------------
