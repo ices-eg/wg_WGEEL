@@ -3,9 +3,8 @@
 # Author: lbeaulaton
 ###############################################################################
 
-#' load maps
-#' 
-#' load needed maps for shiny App (EMU, country)
+#' @title load maps
+#' @description load needed maps for shiny App (EMU, country)
 #' @param full_load should the maps be loaded from source file? if not from Rdata file
 #' @param to_save should maps be save into a Rdata file to ease the loading next time
 load_maps = function(full_load = FALSE, to_save = FALSE)
@@ -33,6 +32,7 @@ load_maps = function(full_load = FALSE, to_save = FALSE)
 	{
 		if(!exists(data_directory)) 
 			#TODO: ask data_directory
+			cat("to be implemented")
 		load(file=str_c(data_directory,"/maps_for_shiny.Rdata"), envir = .GlobalEnv)
 	}
 }
@@ -49,6 +49,7 @@ load_landings = function(from_database = FALSE)
 	} else {
 		 if(!exists(data_directory)) 
 			 #TODO: ask data_directory
+			cat("to be implemented")
 		landings <- read.table(file=str_c(data_directory,"/landings.csv"),sep=";")
 	}
 	return(landings)
@@ -66,6 +67,7 @@ load_aquaculture = function(from_database = FALSE)
 	} else {
 		if(!exists(data_directory)) 
 			#TODO: ask data_directory
+			cat("to be implemented")
 			aquaculture <- read.table(file=str_c(data_directory,"/aquaculture.csv"),sep=";")
 	}
 	return(aquaculture)
@@ -83,6 +85,7 @@ load_stocking = function(from_database = FALSE)
 	} else {
 		if(!exists(data_directory)) 
 			#TODO: ask data_directory
+			cat("to be implemented")
 			stocking <- read.table(file=str_c(data_directory,"/stocking.csv"),sep=";")
 	#-----------------------------------------------
 	# Restocking which stages typ_id=9 (nb), =8 (kg)
