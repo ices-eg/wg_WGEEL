@@ -3,9 +3,8 @@
 # Author: lbeaulaton
 ###############################################################################
 
-#' load maps
-#' 
-#' load needed maps for shiny App (EMU, country)
+#' @title load maps
+#' @description load needed maps for shiny App (EMU, country)
 #' @param full_load should the maps be loaded from source file? if not from Rdata file
 #' @param to_save should maps be save into a Rdata file to ease the loading next time
 load_maps = function(full_load = FALSE, to_save = FALSE)
