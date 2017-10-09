@@ -47,6 +47,30 @@ ices_division<-as.character(ices_squares$f_code)
 metadata_list<-list() # A list to store the data from metadata
 data_list<-list() # A list to store data)
 ############### begin function###################
+# sinew::makeOxygen(check_directories) 
+#' @title function to check the datacall files in directories
+#' @description This functions runs in a loop, each table is stored in a list with 
+#' the country names, a
+#' @param i the order of the folder, Default: NULL
+#' @return A list with each list level being one country and containing all tables extracted
+#' @details This function essentially runs through a loop in all directories,
+#' and checks the details of the datacall using functions developped in check utilities.
+#' These will print output on screen indicating which problem arise in data and at what line they happen.
+#' When i is NULL the function runs the whole loop. On first launches, this should be avoided
+#' as problems of structures in the datasheets make the program crash so one has to be able to
+#' launch the function directory per directory
+#' @note This function will have to be adapted to new data standards for the next datacall
+#' @examples 
+#' \dontrun{
+
+#'  # launch with only one directory
+#'   country<- gsub("/","",gsub(mylocalfolder, "", directories[i=1])) 
+#'   data_list<-check_directories(i=1)
+#'  # launch with all directories
+#'  
+#'  
+#' }
+
 check_directories<-function(i=NULL){
   {
     
@@ -637,9 +661,7 @@ check_directories<-function(i=NULL){
 ############### end function###################
 
 directories
-# launch with only one directory
-#country<- gsub("/","",gsub(mylocalfolder, "", directories[i=1])) 
-#data_list<-check_directories(i=1)
+
 
 # launch for all directories
 data_list<-check_directories()
