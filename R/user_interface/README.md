@@ -1,2 +1,2 @@
 # User interface (content)
-Gather all interface to be used during the WGEEL meeting to handle data and visualize them.
+Gather all interfaces to be used during the WGEEL meeting to handle data and visualize them.
