@@ -87,7 +87,7 @@ cols<-c(brewer.pal(12,"Set3"),brewer.pal(length(levels(la2$country))-12,"Set1"))
 
 # reconstructed
 g<-ggplot(la2)
-g1<-g+geom_area(aes(x=year,y=landings,fill=country),position='stack')+
+g1<-g+geom_col(aes(x=year,y=landings,fill=country),position='stack')+
 	ggtitle("Commercial Landings (Y+S) corrected") + xlab("year") + ylab("Landings (tons)")+
 	xlim(c(1945, CY)) +
 	scale_fill_manual(values=cols)+
@@ -95,11 +95,20 @@ g1<-g+geom_area(aes(x=year,y=landings,fill=country),position='stack')+
 
 # raw
 g2<-ggplot(la)
-g2<-g2+geom_area(aes(x=year,y=landings,fill=country,legend = FALSE),position='stack')+
+g2<-g2+geom_col(aes(x=year,y=landings,fill=country,legend = FALSE),position='stack')+
 	ggtitle("Commercial Landings (Y+S) uncorrected") + xlab("year") + ylab("Landings (tons)")+
 	scale_fill_manual(values=cols)+
 	theme_bw() + # make the theme black-and-white rather than grey (do this before font changes, or it overrides them)
 	xlim(c(1945, CY))
+
+g4<-ggplot(la)
+g4<-g4+geom_col(aes(x=year,y=landings,fill=country,legend = FALSE),position='stack')+
+	ggtitle("Commercial Landings (Y+S) uncorrected") + xlab("year") + ylab("Landings (tons)")+
+	scale_fill_manual(values=cols)+
+	theme_bw() + # make the theme black-and-white rather than grey (do this before font changes, or it overrides them)
+	xlim(c(1945, CY))+
+    facet_grid(~country)
+
 
 
 # percentage of original data
@@ -122,7 +131,7 @@ savePlot("landings_YS_proportion_corrected.png", type = "png")
 g3_grob <- ggplotGrob(g3)
 g4 <- g1+annotation_custom(g3_grob, xmin=1980, xmax=2016, ymin=12000, ymax=22000)
 print(g4)
-savePlot("landings_G_corrected_and_proportion.png", type = "png")
+savePlot("landings_YS_corrected_and_proportion.png", type = "png")
 # ----------------------------------------------------------------
 # commercial fisheries G
 # ----------------------------------------------------------------
@@ -176,7 +185,6 @@ write.table(round(xtabs(landings~year+country, data = la2)), file = "com_landing
 write.table(round(xtabs(predicted~year+country, data = la2)), file = "com_landings_G_extrapolate_yn.csv", sep = ";")
 write.table(round(dcast(year~country, data = la[,-4])), file = "com_landings_G_raw.csv", sep = ";", row.names = FALSE)
 
-#TODO: graph the available/missing data
 
 #########################
 # graph
@@ -185,14 +193,14 @@ cols<-rev(brewer.pal(length(levels(la2$country)),"Set3"))
 
 # reconstructed
 g<-ggplot(la2)
-g1<-g+geom_area(aes(x=year,y=landings,fill=country),position='stack')+
+g1<-g+geom_col(aes(x=year,y=landings,fill=country),position='stack')+
 		ggtitle("Commercial Landings (G) corrected") + xlab("year") + ylab("Landings (tons)")+
 		scale_fill_manual(values=cols)+
 		theme_bw()
 
 # raw
 g2<-ggplot(la)
-g2<-g2+geom_area(aes(x=year,y=landings,fill=country,legend = FALSE),position='stack')+
+g2<-g2+geom_col(aes(x=year,y=landings,fill=country,legend = FALSE),position='stack')+
 		ggtitle("Commercial Landings (G) uncorrected") + xlab("year") + ylab("Landings (tons)")+
 		scale_fill_manual(values=cols)+
 		theme_bw()
