@@ -1341,3 +1341,82 @@ insert into ref.tr_emu_emu(emu_nameshort, emu_name, emu_cou_code,geom,emu_wholec
 insert into ref.tr_emu_emu(emu_nameshort, emu_name, emu_cou_code,geom,emu_wholecountry) values ('TN_NE','Tunisia North East Medjerda','TN',NULL,FALSE);
 insert into ref.tr_emu_emu(emu_nameshort, emu_name, emu_cou_code,geom,emu_wholecountry) values ('TN_EC','Tunisia East and centre','TN',NULL,FALSE);
 insert into ref.tr_emu_emu(emu_nameshort, emu_name, emu_cou_code,geom,emu_wholecountry) values ('TN_SO','Tunisia South','TN',NULL,FALSE);
+
+
+-------------------------------
+-- insert modified EMU from Portugal
+--------------------------------
+-- the wise layer has been loaded, minho extracted, and then split according to a line corresponding to the estuary
+
+/*
+dos script used to create this table (using shp2pgsql and psql):
+
+cd C:\workspace\wgeeldata\shp
+REM -d drops de table, table is in wgs84
+shp2pgsql -s 4326 -g geom -W "LATIN1" -I minho ref.tempminho>tempminho.sql 
+REM IMPORT INTO POSTGRES
+psql -U postgres -f "tempminho.sql " wgeel
+*/
+
+select * from ref.tempminho;
+select geom from ref.tempminho where localid='ES010Minho';
+select * from ref.tr_emu_emu where emu_nameshort='ES_Gali';
+insert into ref.tempminho
+SELECT ST_Difference(ES_gali.geom, tempminho.geom) FROM
+(select geom from ref.tr_emu_emu where emu_nameshort='ES_Gali') ES_gali,
+ref.tempminho 
+
+-- create new temporary table to insert the emu.
+
+create table ref.tempgali (LIKE ref.tr_emu_emu);
+
+insert into ref.tempgali (
+select
+emu_nameshort,
+emu_name,
+emu_cou_code,
+ST_Difference(tr_emu_emu.geom, tempminho.geom)as geom,
+emu_wholecountry
+ FROM
+ref.tempminho, 
+ref.tr_emu_emu where emu_nameshort='ES_Gali');
+
+
+begin;
+update ref.tr_emu_emu set geom=tempgali.geom
+from ref.tempgali where  tr_emu_emu.emu_nameshort='ES_Gali';
+commit;
+
+-- insert new line for the Minho
+begin;
+insert into ref.tr_emu_emu 
+ select
+'ES_Minh' as emu_nameshort,
+'Minho transboundary emu' as emu_name,
+'ES' emu_cou_code,
+tempminho.geom,
+FALSE as emu_wholecountry
+ FROM
+ref.tempminho;
+commit;
+drop table ref.tempminho;
+drop table ref.tempgali;
+
+/*
+dos script used to create this table (using shp2pgsql and psql):
+
+cd C:\workspace\wgeeldata\shp
+REM -d drops de table, table is in wgs84
+shp2pgsql -s 4326 -g geom -I EMU1_grouped ref.GR_EaMT> ref.GR_EaMT.sql 
+shp2pgsql -s 4326 -g geom -I EMU1_grouped ref.GR_WePE> ref.GR_WePE.sql 
+shp2pgsql -s 4326 -g geom -I EMU4_grouped ref.GR_CeAe> ref.GR_CeAe.sql 
+REM IMPORT INTO POSTGRES
+psql -U postgres -f "tempminho.sql " wgeel
+*/
+
+-- insert greece, shapefiles kindly provided by Argyris
+
+select * from ref.tr_emu_emu where emu_cou_code ='GR'
+begin;
+update ref.tr_emu_emu set geom=
+

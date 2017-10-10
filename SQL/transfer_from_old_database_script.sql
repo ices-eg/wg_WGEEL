@@ -590,3 +590,8 @@ COMMIT;
 begin;
 update datawg.t_series_ser set geom=ST_SetSRID(ST_MakePoint(ser_x, ser_y),4326) where geom IS NULL;--17
 commit;
+
+
+begin;
+update datawg.t_series_ser set geom=ST_SetSRID(ST_MakePoint(ser_x, ser_y),4326) where ser_nameshort='Burr';
+commit;
