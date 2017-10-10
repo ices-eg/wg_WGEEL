@@ -99,13 +99,6 @@ g2<-g2+geom_col(aes(x=year,y=landings,fill=country,legend = FALSE),position='sta
 	theme_bw() + # make the theme black-and-white rather than grey (do this before font changes, or it overrides them)
 	xlim(c(1945, CY))
 
-g4<-ggplot(la)
-g4<-g4+geom_col(aes(x=year,y=landings,fill=country,legend = FALSE),position='stack')+
-	ggtitle("Commercial Landings (Y+S) uncorrected") + xlab("year") + ylab("Landings (tons)")+
-	scale_fill_manual(values=cols)+
-	theme_bw() + # make the theme black-and-white rather than grey (do this before font changes, or it overrides them)
-	xlim(c(1945, CY))+
-    facet_grid(~country)
 
 
 
@@ -126,7 +119,7 @@ print(g2)
 savePlot("landings_YS_raw.png", type = "png")
 print(g3)
 savePlot("landings_YS_proportion_corrected.png", type = "png")
-x11(6,10)
+x11()
 g3_grob <- ggplotGrob(g3)
 g4 <- g1+annotation_custom(g3_grob, xmin=1980, xmax=2016, ymin=12000, ymax=22000)
 print(g4)
@@ -140,7 +133,7 @@ savePlot("landings_YS_reporting country.png", type = "png")
 # share by type of habitat
 ggplot(test) + aes(x = eel_cou_code, y = eel_value, fill = eel_hty_code) + geom_col(position = "fill") + theme_bw() + scale_fill_discrete(labels = levels(landings_complete$eel_hty_code), name = c("Habitat")) + theme(legend.position = "right") + xlab("Country") + ylab("Proportion") + coord_cartesian(expand = FALSE)
 savePlot("landings_YS_habitat_country.png", type = "png")
-ggplot(test) + aes(x = eel_year, y = eel_value, fill = eel_hty_code) + geom_col(position = "fill") + theme_bw() + scale_fill_discrete(labels = levels(landings_complete$eel_hty_code), name = c("Habitat")) + theme(legend.position = "right") + xlab("Country") + ylab("Proportion") + coord_cartesian(expand = FALSE)
+ggplot(test) + aes(x = eel_year, y = eel_value, fill = eel_hty_code) + geom_col(position = "fill") + theme_bw() + scale_fill_discrete(labels = levels(landings_complete$eel_hty_code), name = c("Habitat")) + theme(legend.position = "right") + xlab("Year") + ylab("Proportion") + coord_cartesian(expand = FALSE)
 savePlot("landings_YS_habitat_year.png", type = "png")
 
 

@@ -21,13 +21,13 @@ options(sqldf.RPostgreSQL.user = "postgres",
 # don't forget to put an / at the end of the string
 #mylocalfolder <- "C:/temp/SharePoint/WGEEL - 2017 Meeting Docs/06. Data/datacall"
 mylocalfolder <-"C:/temp/wgeel/datacall"
-mylocalfolder <- "C:/Users/pohlmann/Desktop/WGEEL/WGEEL 2017/Task 1/06. Data/datacall"
+#mylocalfolder <- "C:/Users/pohlmann/Desktop/WGEEL/WGEEL 2017/Task 1/06. Data/datacall"
 # you will need to put the following files there
 datawd<-mylocalfolder
 # path to local github (or write a local copy of the files and point to them)
-# setwd("C:/Users/cedric.briand/Documents/GitHub/WGEEL")
-setwd("C:/Users/pohlmann/Desktop/WGEEL/WGEEL 2017/Task 1")
-source(str_c(getwd(),"/R/stock_assessment/check_utilities.R"))
+setwd("C:/Users/cedric.briand/Documents/GitHub/WGEEL")
+#setwd("C:/Users/pohlmann/Desktop/WGEEL/WGEEL 2017/Task 1")
+source(str_c(getwd(),"/R/utilities/check_utilities.R"))
 # list the current folders in C:/temps to run into the loop
 
 directories<-list.dirs(path = mylocalfolder, full.names = TRUE, recursive = FALSE)
@@ -62,6 +62,8 @@ data_list<-list() # A list to store data)
 #' @note This function will have to be adapted to new data standards for the next datacall
 #' @examples 
 #' \dontrun{
+#' # these objects are needed by the program
+#' 
 
 #'  # launch with only one directory
 #'   country<- gsub("/","",gsub(mylocalfolder, "", directories[i=1])) 
@@ -70,13 +72,12 @@ data_list<-list() # A list to store data)
 #'  
 #'  
 #' }
-
 check_directories<-function(i=NULL){
   {
     
     check_one_directory<-function(i,country){
       # get the name of the country
-       
+      
       cat(str_c("-------------------------","\n"))
       cat(str_c(country,"\n"))
       cat(str_c("---------------------------","\n"))
@@ -651,7 +652,7 @@ check_directories<-function(i=NULL){
     ##############################
 # Merging data from lists into data frame
     ##############################
-   
+    
     return(data_list)
   } else { # i is provided as an argument to the function
     data_list<- check_one_directory(i,country)
@@ -665,7 +666,7 @@ directories
 
 # launch for all directories
 data_list<-check_directories()
-
+# unfold the data from the lists
 catch_landings_final<-data.frame()
 for (j in 1:length(data_list))
 {
@@ -683,8 +684,52 @@ for (j in 1:length(data_list))
   restocking_final<- rbind(restocking_final,data_list[[j]][["restocking"]])
 }
 
-catch_landings_final[catch_landings_final$eel_year=='1978'&
-            catch_landings_final$eel_cou_code=='FR',]
+show_datacall<-function(dataset,
+    typ_id=NULL,  
+    year=NULL,
+    cou_code=NULL,
+    value=NULL, # ">0
+    missvaluequal=NULL,
+    emu_nameshort=NULL,
+    lfs_code=NULL,   
+    hty_code=NULL, 
+    area_division=NULL,
+    qal_id=NULL,        
+    datasource=NULL){
+  #dataset<-as.data.frame(dataset)
+  if (!is.character(typ_id) & !is.null(typ_id)) stop("typ_id should be a character")
+  if (!is.numeric(year) & !is.null(year)) stop("year should be a numeric")
+  if (!is.character(cou_code) & !is.null(cou_code)) stop("cou_code should be a character")
+  if (!is.character(value) & !is.null(value)) stop("value should be a character string like '>1000' or '==0'")
+  if (!is.character(missvaluequal) & !is.null(missvaluequal)) stop("missvaluequal should be a character")
+  if (!is.character(emu_nameshort) & !is.null(emu_nameshort)) stop("emu_nameshort should be a character")
+  if (!is.character(lfs_code) & !is.null(lfs_code)) stop("lfs_code should be a character")
+  if (!is.character(hty_code) & !is.null(hty_code)) stop("hty_code should be a character")
+  if (!is.character(area_division) & !is.null(area_division)) stop("area_division should be a character")
+  if (!is.numeric(qal_id) & !is.null(qal_id)) stop("qal_id should be a numeric")
+  if (!is.numeric(datasource) & !is.null(datasource)) stop("datasource should be a character")
+  
+  
+  if (! is.null(typ_id)) condition1=str_c("dataset$eel_typ_id=='",typ_id,"'&") else condition1=""
+  if (! is.null(year)) condition2=str_c("dataset$eel_year==",year,"&") else condition2=""
+  if (! is.null(cou_code)) condition3=str_c("dataset$eel_cou_code=='",cou_code,"'&") else condition3=""
+  if (! is.null(value)) condition4=str_c("dataset$eel_value",value,"&") else condition4=""
+  if (! is.null(missvaluequal)) condition5=str_c("dataset$eel_missvaluequal=='",missvaluequal,"'&") else condition5=""
+  if (! is.null(emu_nameshort)) condition6=str_c("dataset$eel_emu_nameshort=='",emu_nameshort,"'&") else condition6=""
+  if (! is.null(lfs_code)) condition7=str_c("dataset$lfs_code=='",lfs_code,"'&") else condition7=""
+  if (! is.null(hty_code)) condition8=str_c("dataset$hty_code=='",hty_code,"'&") else condition8=""
+  if (! is.null(area_division)) condition9=str_c("dataset$eel_area_division=='",area_division,"'&") else condition9=""
+  if (! is.null(qal_id)) condition10=str_c("dataset$eel_qal_id==",qal_id,"&") else condition10=""
+  if (! is.null(datasource)) condition11=str_c("dataset$eel_datasource=='",datasource,"'&") else condition11=""
+  
+  condition=str_c(condition1,condition2,condition3,condition4,condition5,condition6,condition7,condition8,condition9,condition10,condition11)
+  condition<-substring(condition,1,nchar(condition)-1)
+  return(dataset[ eval(parse(text=condition)),])
+}
+show_datacall(dataset=catch_landings_final,cou_code="FR") 
+show_datacall(dataset=catch_landings_final,cou_code="IT") 
+show_datacall(dataset=catch_landings_final,value=">3000")
+
 ##############################
 # Import into the database
 ##############################
@@ -726,7 +771,7 @@ catch_landings_final[catch_landings_final$eel_hty_code=='F'&
 # Denmark and Norway are in tons
 catch_landings_final[catch_landings_final$eel_cou_code %in% c("NO","DK"),"eel_value"]<-
     catch_landings_final[catch_landings_final$eel_cou_code %in% c("NO","DK"),"eel_value"]*1000
-catch_landings_final<-catch_landings_final[!catch_landings_final$eel_cou_code %in% c("IT"),]
+
 sqldf("insert into datawg.t_eelstock_eel (
         eel_typ_id,
         eel_year ,
@@ -807,6 +852,8 @@ write.table(datacall_2017,file=str_c(mylocalfolder,"/datacall_2017.csv"),sep=";"
 landings <- sqldf(str_c("select * from  datawg.landings"))
 aquaculture <- sqldf(str_c("select * from  datawg.aquaculture"))
 stocking <- sqldf(str_c("select * from  datawg.stocking"))
+
+show_datacall(dataset=landings,cou_code="IT") 
 
 # save them again as csv.....
 write.table(aquaculture, file=str_c(mylocalfolder,"/aquaculture.csv"),sep=";")
