@@ -1487,8 +1487,31 @@ update ref.tr_emu_emu set geom=sub.geom from
 commit;
 
 -- changing Both
-
+select * from datawg.t_eelstock_eel where eel_emu_nameshort= 'SE_Both';
+update datawg.t_eelstock_eel set eel_emu_nameshort='SE_total' where eel_emu_nameshort='SE_Both'; 
 update ref.tr_emu_emu set emu_nameshort='SE_We_o' where emu_nameshort='SE_Both'; 
+select * from datawg.t_eelstock_eel where eel_emu_nameshort= 'SE_Sout';
+insert into ref.tr_emu_emu (emu_nameshort,emu_name,emu_cou_code,geom,emu_wholecountry) 
+values
+('SE_So_o','Historical EMU for Sweden, used for historical data','SE',NULL,FALSE);
+update datawg.t_eelstock_eel set eel_emu_nameshort='SE_So_o' where eel_emu_nameshort='SE_Sout'; 
+delete from  ref.tr_emu_emu  where emu_nameshort='SE_Sout';
+insert into ref.tr_emu_emu (emu_nameshort,emu_name,emu_cou_code,geom) values 
+('SE_Ea_o','Historical EMU for Sweden, used for historical data','SE',NULL);
+
+-- updating geom values for old series
+begin;
+update ref.tr_emu_emu set geom=se_old.geom from ref.se_old  where emu_nameshort='SE_Ea_o' and lansnamn='SE_east_old';
+update ref.tr_emu_emu set geom=se_old.geom from ref.se_old  where emu_nameshort='SE_So_o' and lansnamn='SE_south_old';
+update ref.tr_emu_emu set geom=se_old.geom from ref.se_old  where emu_nameshort='SE_We_o' and lansnamn='SE_west_old';
+commit;
+
+drop table ref.se_old;
+drop table ref.se_inland;
+drop table ref.se_curr ;
+
+update ref.tr_emu_emu set emu_wholecountry=FALSE where emu_nameshort<>'SE_total' and emu_cou_code= 'SE';
+
 
 select st_union(se_inland.geom) from ref.se_inland 
 /*
