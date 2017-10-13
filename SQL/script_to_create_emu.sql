@@ -1405,18 +1405,164 @@ drop table ref.tempgali;
 /*
 dos script used to create this table (using shp2pgsql and psql):
 
-cd C:\workspace\wgeeldata\shp
+cd C:\workspace\wgeeldata\shp\greece
 REM -d drops de table, table is in wgs84
-shp2pgsql -s 4326 -g geom -I EMU1_grouped ref.GR_EaMT> ref.GR_EaMT.sql 
-shp2pgsql -s 4326 -g geom -I EMU1_grouped ref.GR_WePE> ref.GR_WePE.sql 
-shp2pgsql -s 4326 -g geom -I EMU4_grouped ref.GR_CeAe> ref.GR_CeAe.sql 
+shp2pgsql -s 4326 -g geom -I EMU1_grouped ref.GR_EaMT> GR_EaMT.sql 
+shp2pgsql -s 4326 -g geom -I EMU2_grouped ref.GR_WePE> GR_WePE.sql 
+shp2pgsql -s 4326 -g geom -I EMU4_grouped ref.GR_CeAe> GR_CeAe.sql 
+shp2pgsql -s 4326 -g geom -I EMU3_grouped ref.GR_NorW> GR_NorW.sql 
 REM IMPORT INTO POSTGRES
-psql -U postgres -f "tempminho.sql " wgeel
+psql -U postgres -f "GR_EaMT.sql" wgeel
+psql -U postgres -f "GR_WePE.sql" wgeel
+psql -U postgres -f "GR_CeAe.sql" wgeel
+psql -U postgres -f "GR_NorW.sql" wgeel
 */
 
 -- insert greece, shapefiles kindly provided by Argyris
 
+
+
 select * from ref.tr_emu_emu where emu_cou_code ='GR'
 begin;
-update ref.tr_emu_emu set geom=
+update ref.tr_emu_emu set geom=gr_ceae.geom from ref.gr_ceae where emu_nameshort='GR_CeAe';
+update ref.tr_emu_emu set geom=gr_eamt.geom from ref.gr_eamt where emu_nameshort='GR_EaMT';
+update ref.tr_emu_emu set geom=gr_norw.geom from ref.gr_norw where emu_nameshort='GR_NorW';
+update ref.tr_emu_emu set geom=gr_wepe.geom from ref.gr_wepe where emu_nameshort='GR_WePe';
+commit;
+
+drop table ref.gr_ceae;
+drop table ref.gr_eamt;
+drop table ref.gr_norw;
+drop table ref.gr_wepe;
+
+-- Adding ICELAND
+/*
+cd C:\workspace\wgeeldata\shp\iceland
+REM -d drops de table, table is in wgs84
+shp2pgsql -s 4326 -g geom -I temp_country ref.iceland> iceland.sql 
+psql -U postgres -f "iceland.sql" wgeel
+*/
+select * from ref.iceland;
+select * from ref.tr_country_cou;
+insert into ref.tr_country_cou (cou_code,cou_country, cou_order, geom, cou_iso3code) select cou_code,cou_countr, cou_order, geom, cou_iso3co from ref.iceland;
+insert into ref.tr_emu_emu(emu_nameshort, emu_name, emu_cou_code,geom,emu_wholecountry) select 'IS_total','Iceland','IS',geom,TRUE 
+		FROM ref.tr_country_cou where cou_code='IS';
+drop table ref.iceland;
+-- updating the swedish EMU's thanks to shapefiles provided by Hakan and Andreas
+
+
+
+/*
+dos script used to create this table (using shp2pgsql and psql):
+
+cd C:\workspace\wgeeldata\shp\sweden\Filer
+REM -d drops de table, table is in wgs84
+shp2pgsql -s 4326 -g geom -I SE_CURR ref.SE_CURR> SE_CURR.sql 
+shp2pgsql -s 4326 -g geom -I SE_INLAND ref.SE_INLAND> SE_INLAND.sql 
+shp2pgsql -s 4326 -g geom -I SE_OLD ref.SE_OLD> SE_OLD.sql
+shp2pgsql -s 4326 -g geom -I SE_E_Old ref.SE_East_Old> SE_East_Old.sql 
+shp2pgsql -s 4326 -g geom -I SE_W_Old ref.SE_West_Old> SE_West_Old.sql 
+shp2pgsql -s 4326 -g geom -I SE_S_Old ref.SE_South_Old> SE_South_Old.sql 
+REM IMPORT INTO POSTGRES
+psql -U postgres -f "SE_CURR.sql" wgeel
+psql -U postgres -f "SE_INLAND.sql" wgeel
+psql -U postgres -f "SE_OLD.sql " wgeel
+
+*/
+select * from ref.tr_emu_emu where emu_cou_code ='SE';
+select * from  ref.se_curr 
+select * from  ref.se_inland
+-- update the existing lines in the table
+
+begin;
+update ref.tr_emu_emu set geom=se_curr.geom from ref.se_curr  where emu_nameshort='SE_East' and lansnamn='SE_east_curr';
+update ref.tr_emu_emu set geom=se_curr.geom from ref.se_curr  where emu_nameshort='SE_West' and lansnamn='SE_west_curr';
+commit;
+
+-- for inland I have three lines, one for mainland, the others for Oland and Gotland. Merging them into one multipolygon
+begin;
+update ref.tr_emu_emu set geom=sub.geom from
+(select st_union(se_inland.geom) geom from ref.se_inland) sub
+  where emu_nameshort='SE_Inla' ;
+commit;
+
+-- changing Both
+
+update ref.tr_emu_emu set emu_nameshort='SE_We_o' where emu_nameshort='SE_Both'; 
+
+select st_union(se_inland.geom) from ref.se_inland 
+/*
+cd C:\workspace\wgeeldata\shp\sweden
+REM -d drops de table, table is in wgs84
+shp2pgsql -s 4326 -g geom -I SE_E_Curr ref.SE_East> SE_East.sql 
+*/
+
+
+
+
+-- tunisia
+-- below a lot of stuggle finally solved by using only the inland layer in the multipolygon contained in the 
+-- country layer from tunisia and digitizing tool in Qgis. Kept for notes only. The files are OK now. 
+
+/*
+shp2pgsql -s 4326 -g geom -I lines_tun ref.lines_tun> lines_tun.sql 
+psql -U postgres -f "lines_tun.sql " wgeel
+*/
+create temporary sequence seq;
+
+drop table ref.line_tun_u;
+create table ref.line_tun_u as select gid, ST_LineMerge(geom) as geom from 
+ref.lines_tun group by gid;
+
+
+drop table ref.i_tn;
+create table ref.i_tn as (
+select nextval('seq') as id,
+st_geometryN(st_split(tr_country_cou.geom,line_tun_u.geom),53) as geom from 
+ref.tr_country_cou , ref.line_tun_u
+where cou_code='TN'
+);
+
+select st_area(ST_geometryNtr_emu_emu.geom),1)) from ref.tr_emu_emu where emu_cou_code='TN';
+
+select GeometryType(geom) from ref.i_tn;
+
+select st_area(geom) from ref.i_tn;
+select St_Numgeometries(geom) from  ref.tr_country_cou where cou_code='TN'
+select st_area(st_geometryN(geom,53)) from ref.tr_country_cou where cou_code='TN'
+
+select  n, st_area(st_GeometryN(geom, n)) from 
+ref.tr_country_cou 
+cross join generate_series(1,100) n
+where n<=st_numgeometries(geom)
+and cou_code='TN'
+
+drop table ref.tunisie_inland ;
+create table ref.tunisie_inland as
+select ST_MakeValid (st_geometryN(tr_country_cou.geom,53)) geom
+from ref.tr_country_cou 
+where cou_code='TN';
+
+
+select * from ref.tr_emu_emu where emu_cou_code='TN'
+
+/*
+shp2pgsql -s 4326 -g geom -I tunisie_inland ref.tunisie_inland> tunisie_inland.sql 
+psql -U postgres -f "tunisie_inland.sql " wgeel
+*/
+update ref.tr_emu_emu set geom=tunisie.geom from
+(select geom from ref.tunisie_inland where emu_namesh='TN_NE') tunisie
+where emu_nameshort='TN_NE';
+
+update ref.tr_emu_emu set geom=tunisie.geom from
+(select geom from ref.tunisie_inland  where emu_namesh='TN_SO') tunisie
+where emu_nameshort='TN_SO';
+
+update ref.tr_emu_emu set geom=tunisie.geom from
+(select geom from ref.tunisie_inland  where emu_namesh='TN_Nor') tunisie
+where emu_nameshort='TN_Nor';
+
+update ref.tr_emu_emu set geom=tunisie.geom from
+(select geom from ref.tunisie_inland  where emu_namesh='TN_EC') tunisie
+where emu_nameshort='TN_EC';
 
