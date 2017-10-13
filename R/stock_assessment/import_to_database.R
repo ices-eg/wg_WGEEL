@@ -816,6 +816,7 @@ sqldf("insert into datawg.t_eelstock_eel (
 restocking_final$eel_qal_id=as.integer(restocking_final$eel_qal_id)
 # some years badly formed (Italy aquaculture)
 restocking_final[is.na(as.integer(restocking_final$eel_year)),]
+restocking_final<-restocking_final[!is.na(as.integer(restocking_final$eel_year)),]
 restocking_final$eel_value<-as.numeric(restocking_final$eel_value)
 restocking_final$eel_year<-as.numeric(restocking_final$eel_year)
 restocking_final[is.na(restocking_final$eel_year),]
@@ -824,6 +825,7 @@ restocking_final[restocking_final$eel_area_division=="273"&!is.na(restocking_fin
 restocking_final[restocking_final$eel_area_division=="271"&!is.na(restocking_final$eel_area_division),"eel_area_division"]<-"27.6.a"
 # temporarily removing Spain
 #restocking_final<-restocking_final[!restocking_final$eel_cou_code=="ES",]
+
 sqldf("insert into datawg.t_eelstock_eel (
         eel_typ_id,
         eel_year,
