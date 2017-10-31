@@ -734,3 +734,28 @@ update datawg.t_series_ser set ser_hty_code='F' where ser_nameshort='Klit';
 update datawg.t_series_ser set ser_hty_code='F' where ser_nameshort='Nors';
 update datawg.t_series_ser set ser_hty_code='T' where ser_nameshort='Vac';
 
+begin;
+update datawg.t_series_ser set (ser_x,ser_y)=(st_x(geom),st_y(geom)) where ser_nameshort='Burr';
+update datawg.t_series_ser set (ser_x,ser_y)=(8.77,54.89) where ser_nameshort='Verl'
+update datawg.t_series_ser set geom=ST_SetSRID(ST_MakePoint(ser_x, ser_y),4326) where ser_nameshort='Verl';
+commit;
+
+begin;
+update datawg.t_series_ser set (ser_x,ser_y)=(8.74,54.72) where ser_nameshort='HHK'
+update datawg.t_series_ser set geom=ST_SetSRID(ST_MakePoint(ser_x, ser_y),4326) where ser_nameshort='HHK';
+commit;
+
+begin;
+update datawg.t_series_ser set (ser_x,ser_y)=(8.87,54.53) where ser_nameshort='Hos';
+update datawg.t_series_ser set geom=ST_SetSRID(ST_MakePoint(ser_x, ser_y),4326) where ser_nameshort='Hos';
+commit;
+
+begin;
+update datawg.t_series_ser set (ser_x,ser_y)=(9.14,54.32) where ser_nameshort='Brok';
+update datawg.t_series_ser set geom=ST_SetSRID(ST_MakePoint(ser_x, ser_y),4326) where ser_nameshort='Brok';
+commit;
+
+begin;
+update datawg.t_series_ser set (ser_x,ser_y)=(8.91,54.71) where ser_nameshort='Lang';
+update datawg.t_series_ser set geom=ST_SetSRID(ST_MakePoint(ser_x, ser_y),4326) where ser_nameshort='Lang';
+commit;

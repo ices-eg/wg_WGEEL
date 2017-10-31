@@ -1589,3 +1589,18 @@ update ref.tr_emu_emu set geom=tunisie.geom from
 (select geom from ref.tunisie_inland  where emu_namesh='TN_EC') tunisie
 where emu_nameshort='TN_EC';
 
+
+begin;
+delete from ref.tr_emusplit_ems where emu_nameshort='PL_Elbe';
+delete from ref.tr_emu_emu where emu_nameshort='PL_Elbe';
+commit;
+
+begin;
+delete from ref.tr_emusplit_ems where emu_nameshort='PL_Danu';
+delete from ref.tr_emu_emu where emu_nameshort='PL_Danu';
+commit;
+
+begin;
+delete from ref.tr_emusplit_ems where emu_nameshort='IE_NorW' and emu_cou_code='GB';
+delete from ref.tr_emu_emu  where emu_nameshort='IE_NorW' and emu_cou_code='GB';
+commit;
