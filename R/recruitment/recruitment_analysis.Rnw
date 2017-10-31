@@ -434,7 +434,8 @@ wger$value_std=wger$value/wger$mean
 
 
 glass_eel_yoy=wger[wger$lifestage!="yellow eel" & wger$year>1959,] #glass eel and yoy
-older=wger[wger$lifestage=="yellow eel" & wger$year>1959,] 
+older=wger[wger$lifestage=="yellow eel" & wger$year>1949,] # Advice Drafting 2017 asks to 
+# give from 1949 to be consistent with previous years
 
 ##########################################################################
 # Some statistics for later use, nb of year per series
