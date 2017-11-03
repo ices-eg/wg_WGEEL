@@ -1742,8 +1742,7 @@ recruitment for the continental  North Sea and  Elsewhere Europe series updated 
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.8\textwidth]{figure6.pdf}
-\caption {Geometric mean of estimated (GLM) yellow eel recruitment and smoothed
-trends for Europe updated to \Sexpr{CY}. The GLM ($yellow eel \sim year+site$) was fitted to
+\caption {Geometric mean of estimated (GLM) yellow eel recruitment for Europe updated to \Sexpr{CY}. The GLM ($yellow eel \sim year+site$) was fitted to
 \Sexpr{vv[["nb_for_yellow_eel_glm"]]} yellow eel time-series and scaled to the 1960-1979
 average. Note the logarithmic scale on the y-axis.}
 \label{figure6}
