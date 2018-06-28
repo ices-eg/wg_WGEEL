@@ -7,7 +7,7 @@
 # INITS
 #########################
 source("R/utilities/load_library.R")
-load_library(c("ggplot2", "reshape", "reshape2", "tcltk", "stringr", "dplyr", "lattice", "RColorBrewer", "grid"))
+load_library(c("ggplot2", "reshape", "reshape2", "stringr", "dplyr", "lattice", "RColorBrewer", "grid"))
 
 source("R/utilities/set_directory.R")
 set_directory("result")
