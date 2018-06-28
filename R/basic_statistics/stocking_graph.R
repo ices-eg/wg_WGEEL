@@ -58,8 +58,9 @@ stocking_kg<- bind_rows(
 		,
 		filter(stocking_kg, eel_lfs_code=='QG')%>%mutate(eel_value_nb=eel_value/QG_w)
 		,
-		filter(stocking_kg, eel_lfs_code=='S')%>%mutate(eel_value_nb=eel_value/S_w)
-        ,
+#		filter(stocking_kg, eel_lfs_code=='S')%>%mutate(eel_value_nb=eel_value/S_w)
+#        ,
+# these values have been inserted both in weight and number
         filter(stocking_kg, eel_lfs_code=='Y')%>%mutate(eel_value_nb=eel_value/Y_w))
 stocking = bind_rows(stocking_kg, stocking_nb)
 # unique(stocking$eel_cou_code)

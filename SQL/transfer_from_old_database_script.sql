@@ -31,9 +31,12 @@ Insert definition for stages
 
 update ref.tr_lifestage_lfs set  lfs_definition ='Young, unpigmented eel, recruiting from the sea into continental waters. WGEEL consider the glass eel term to include all recruits of the 0+ cohort age. In some cases, however, also includes the early pigmented stages.' from ts.tr_lifestage_lfs where lfs_code='G';
 update ref.tr_lifestage_lfs set  lfs_definition ='Migratory phase following the yellow eel phase. Eel in this phase are characterized by darkened back, silvery belly with a clearly contrasting black lateral line, enlarged eyes. Silver eel undertake downstream migration towards the sea, and subsequently westwards. This phase mainly occurs in the second half of calendar years, although some are observed throughout winter and following spring.' from ts.tr_lifestage_lfs where lfs_code='S';
-update ref.tr_lifestage_lfs set  lfs_definition ='' from ts.tr_lifestage_lfs where lfs_code='YS';
+update ref.tr_lifestage_lfs set  lfs_definition ='Yellow and Silver eel defined below' from ts.tr_lifestage_lfs where lfs_code='YS';
 update ref.tr_lifestage_lfs set  lfs_definition ='A mixture of glass and yellow eel, some traps have historical set of data where glass eel and yellow eel were not separated,
 they were dominated by glass eel' from ts.tr_lifestage_lfs where lfs_code='GY';
+update ref.tr_lifestage_lfs set  lfs_definition ='Life-stage resident in continental waters. Often defined as a sedentary phase, but migration within and between rivers, 
+and to and from coastal waters occurs and therefore includes young pigmented eels (‘elvers’ and bootlace). Sometimes is also called Brown eel.' from ts.tr_lifestage_lfs where lfs_code='Y';
+
 -- from Russell's comment
 update ref.tr_lifestage_lfs set  lfs_definition ='Life-stage resident in continental waters. Often defined as a sedentary phase, 
 but migration within and between rivers, and to and from coastal waters occurs and therefore includes young pigmented eels (?lvers?and bootlace). In particular, some recruitment series either far up in the river (Meuse) or in the Baltic are made of multiple age class of young yellow eel, typically from 1 to 10+ years of age- the are referred to as Yellow eel Recruits.' from ts.tr_lifestage_lfs where lfs_code='Y';
@@ -594,4 +597,165 @@ commit;
 
 begin;
 update datawg.t_series_ser set geom=ST_SetSRID(ST_MakePoint(ser_x, ser_y),4326) where ser_nameshort='Burr';
+commit;
+
+------ Work of Patrick wgeel 2017----------------------------
+
+update ref.tr_station set "Organisation"='SLU Aqua' where "Station_Name"='YFS1';
+update ref.tr_station set "Organisation"='SLU Aqua' where "Station_Name"='Ring';
+update ref.tr_station set "Organisation"='SLU Aqua' where "Station_Name"='Visk';
+update ref.tr_station set "Organisation"='AFBI' where "Station_Name"='Bann';
+update ref.tr_station set "Organisation"='ESB' where "Station_Name"='Erne';
+update ref.tr_station set "Organisation"='ESB' where "Station_Name"='ShaA';
+update ref.tr_station set "Organisation"='Environment Agency' where "Station_Name"='SeEA';
+update ref.tr_station set "Organisation"='Environment Agency' where "Station_Name"='SeHM';
+update ref.tr_station set "Organisation"='DTU Aqua' where "Station_Name"='Vida';
+update ref.tr_station set "Organisation"='LAVES' where "Station_Name"='Ems';
+update ref.tr_station set "Organisation"='WMR' where "Station_Name"='Lauw';
+update ref.tr_station set "Organisation"='WMR' where "Station_Name"='RhDO';
+update ref.tr_station set "Organisation"='WMR' where "Station_Name"='RhIj';
+update ref.tr_station set "Organisation"='WMR' where "Station_Name"='Katw';
+update ref.tr_station set "Organisation"='WMR' where "Station_Name"='Stel';
+update ref.tr_station set "Organisation"='Nature and Forest Agency (Flanders) and Provincial Fisheries Commission West Vlaanderen'  where "Station_Name"='Yser';
+update ref.tr_station set "Organisation"='EPTB-Vilaine' where "Station_Name"='Vil';
+update ref.tr_station set "Organisation"='IFREMER' where "Station_Name"='Loi';
+update ref.tr_station set "Organisation"='Agrocampus Ouest' where "Station_Name"='SevN';
+update ref.tr_station set "Organisation"='IRSTEA' where "Station_Name"='GiTC';
+update ref.tr_station set "Organisation"='IRSTEA' where "Station_Name"='GiCP';
+update ref.tr_station set "Organisation"='IFREMER' where "Station_Name"='AdTC';
+update ref.tr_station set "Organisation"='IFREMER' where "Station_Name"='AdCP';
+update ref.tr_station set "Organisation"='Principado de Asturias' where "Station_Name"='Nalo';
+update ref.tr_station set "Organisation"='Government of Valencia' where "Station_Name"='Albu';
+update ref.tr_station set "Organisation"='Comandacia Naval del Mino' where "Station_Name"='MiSp';
+update ref.tr_station set "Organisation"='Capitania Porto Caminha' where "Station_Name"='MiPo';
+update ref.tr_station set "Organisation"='University of Tor Vergata' where "Station_Name"='Tibe';
+update ref.tr_station set "Organisation"='NINA' where "Station_Name"='Imsa';
+update ref.tr_station set "Organisation"='SLU Aqua' where "Station_Name"='Dala';
+update ref.tr_station set "Organisation"='SLU Aqua' where "Station_Name"='Mota';
+update ref.tr_station set "Organisation"='SLU Aqua' where "Station_Name"='Morr';
+update ref.tr_station set "Organisation"='SLU Aqua' where "Station_Name"='Kavl';
+update ref.tr_station set "Organisation"='SLU Aqua' where "Station_Name"='Ronn';
+update ref.tr_station set "Organisation"='SLU Aqua' where "Station_Name"='Laga';
+update ref.tr_station set "Organisation"='SLU Aqua' where "Station_Name"='Gota';
+update ref.tr_station set "Organisation"='ESB' where "Station_Name"='ShaP';
+update ref.tr_station set "Organisation"='DTU Aqua' where "Station_Name"='Gude';
+update ref.tr_station set "Organisation"='DTU Aqua' where "Station_Name"='Hart';
+update ref.tr_station set "Organisation"='University of Leuven' where "Station_Name"='Meus';
+update ref.tr_station set "Organisation"='SLU Aqua' where "Station_Name"='YFS2';
+update ref.tr_station set "Organisation"='IRSTEA' where "Station_Name"='GiSc';
+update ref.tr_station set "Organisation"='Government of Catalunia' where "Station_Name"='Ebro';
+update ref.tr_station set "Organisation"='Government of Valencia' where "Station_Name"='AlCP';
+update ref.tr_station set "Organisation"='IFI' where "Station_Name"='Feal';
+update ref.tr_station set "Organisation"='IFI' where "Station_Name"='Maig';
+update ref.tr_station set "Organisation"='IFI' where "Station_Name"='Inag';
+update ref.tr_station set "Organisation"='AFB' where "Station_Name"='Bres';
+update ref.tr_station set "Organisation"='MNHN' where "Station_Name"='Fre';
+update ref.tr_station set "Organisation"='DTU Aqua' where "Station_Name"='Sle';
+update ref.tr_station set "Organisation"='DTU Aqua' where "Station_Name"='Klit';
+update ref.tr_station set "Organisation"='DTU Aqua' where "Station_Name"='Nors';
+update ref.tr_station set "Organisation"='AFB' where "Station_Name"='Bres';
+update ref.tr_station set "Organisation"='Tour du Valat' where "Station_Name"='Vac';
+update ref.tr_station set "Country"='FRANCE' where "Station_Name"='Vac';
+update ref.tr_station set "StartYear"=1933 where "Station_Name"='Bann';
+-- PAS SUR QUE CE SOIT NECESSAIRE
+update ref.tr_station set "Lon"=9.35 "Station_Name"='Sle';
+update ref.tr_station set "Lon"=8.4 "Station_Name"='Vida';
+insert into ref.tr_station("tblCodeID", "Station_Code", "Country", "Organisation",  "Station_Name", "WLTYP", "Lat", "Lon", "StartYear", "EndYear", "PURPM") values(170053, 12053, 'GERMANY',  'LAVES',  'EmsB', Null, 52.98221, 7.31577600, 2013, NULL, 'S~T');
+insert into ref.tr_station("tblCodeID", "Station_Code", "Country", "Organisation",  "Station_Name", "WLTYP", "Lat", "Lon", "StartYear", "EndYear", "PURPM") values(170054, 12054, 'GERMANY',  'LAVES',  'EmsH', Null, 53.032052, 7.31467500, 2014, NULL, 'S~T');
+insert into ref.tr_station("tblCodeID", "Station_Code", "Country", "Organisation",  "Station_Name", "WLTYP", "Lat", "Lon", "StartYear", "EndYear", "PURPM") values(170055, 12055, 'GERMANY',  'LFA',  'DoEl', Null, 53.14, 11.26000000, 2003, NULL, 'S~T');
+insert into ref.tr_station("tblCodeID", "Station_Code", "Country", "Organisation",  "Station_Name", "WLTYP", "Lat", "Lon", "StartYear", "EndYear", "PURPM") values(170056, 12056, 'GERMANY',  'LFA',  'DoFp', Null, 53.14, 11.26000000, 2003, NULL, 'S~T');
+insert into ref.tr_station("tblCodeID", "Station_Code", "Country", "Organisation",  "Station_Name", "WLTYP", "Lat", "Lon", "StartYear", "EndYear", "PURPM") values(170057, 12057, 'GERMANY',  'LFA',  'Farp', Null, 53.96, 11.55000000, 2007, NULL, 'S~T');
+insert into ref.tr_station("tblCodeID", "Station_Code", "Country", "Organisation",  "Station_Name", "WLTYP", "Lat", "Lon", "StartYear", "EndYear", "PURPM") values(170058, 12058, 'GERMANY',  'LFA',  'WaSE', Null, 54.09, 12.15000000, 2015, NULL, 'S~T');
+insert into ref.tr_station("tblCodeID", "Station_Code", "Country", "Organisation",  "Station_Name", "WLTYP", "Lat", "Lon", "StartYear", "EndYear", "PURPM") values(170059, 12059, 'GERMANY',  'LFA',  'WaSG', Null, 54.09, 12.15000000, 2015, NULL, 'S~T');
+insert into ref.tr_station("tblCodeID", "Station_Code", "Country", "Organisation",  "Station_Name", "WLTYP", "Lat", "Lon", "StartYear", "EndYear", "PURPM") values(170060, 12060, 'GERMANY',  'LFA',  'WiFG', Null, 53.89, 11.46000000, 2006, NULL, 'S~T');
+insert into ref.tr_station("tblCodeID", "Station_Code", "Country", "Organisation",  "Station_Name", "WLTYP", "Lat", "Lon", "StartYear", "EndYear", "PURPM") values(170061, 12061, 'GERMANY',  'LFA',  'WisW', Null, 53.89, 11.48000000, 2004, NULL, 'S~T');
+insert into ref.tr_station("tblCodeID", "Station_Code", "Country", "Organisation",  "Station_Name", "WLTYP", "Lat", "Lon", "StartYear", "EndYear", "PURPM") values(170062, 12062, 'GERMANY',  'LLUR',  'Brok', Null, 54.32, 9.14000000, 2012, 2015, 'S~T');
+insert into ref.tr_station("tblCodeID", "Station_Code", "Country", "Organisation",  "Station_Name", "WLTYP", "Lat", "Lon", "StartYear", "EndYear", "PURPM") values(170063, 12063, 'GERMANY',  'LLUR',  'HHK', Null, 54.72, 8.74000000, 2010, 2013, 'S~T');
+insert into ref.tr_station("tblCodeID", "Station_Code", "Country", "Organisation",  "Station_Name", "WLTYP", "Lat", "Lon", "StartYear", "EndYear", "PURPM") values(170064, 12064, 'GERMANY',  'LLUR',  'HoS', Null, 54.53, 8.87000000, 2010, 2010, 'S~T');
+insert into ref.tr_station("tblCodeID", "Station_Code", "Country", "Organisation",  "Station_Name", "WLTYP", "Lat", "Lon", "StartYear", "EndYear", "PURPM") values(170065, 12065, 'GERMANY',  'LLUR',  'Lang', Null, 54.71, 8.91000000, 2015, NULL, 'S~T');
+insert into ref.tr_station("tblCodeID", "Station_Code", "Country", "Organisation",  "Station_Name", "WLTYP", "Lat", "Lon", "StartYear", "EndYear", "PURPM") values(170066, 12066, 'GERMANY',  'LLUR',  'Verl', Null, 54.89, 8.77000000, 2010, NULL, 'S~T');
+insert into ref.tr_station("tblCodeID", "Station_Code", "Country", "Organisation",  "Station_Name", "WLTYP", "Lat", "Lon", "StartYear", "EndYear", "PURPM") values(170067, 12067, 'GREAT BRITAIN',  'Marine Scotland',  'Girn', Null, 57.048, -3.11230000, 2008, NULL, 'S~T');
+insert into ref.tr_station("tblCodeID", "Station_Code", "Country", "Organisation",  "Station_Name", "WLTYP", "Lat", "Lon", "StartYear", "EndYear", "PURPM") values(170068, 12068, 'GREAT BRITAIN',  'Marine Scotland',  'ShiF', Null, 57.5097, -5.64310000, 2017, NULL, 'S~T');
+insert into ref.tr_station("tblCodeID", "Station_Code", "Country", "Organisation",  "Station_Name", "WLTYP", "Lat", "Lon", "StartYear", "EndYear", "PURPM") values(170069, 12069, 'GREAT BRITAIN',  'Marine Scotland',  'ShiM', Null, 57.5107, -5.64500000, 2014, NULL, 'S~T');
+insert into ref.tr_station("tblCodeID", "Station_Code", "Country", "Organisation",  "Station_Name", "WLTYP", "Lat", "Lon", "StartYear", "EndYear", "PURPM") values(170070, 12070, 'IRELAND',  'MI',  'Burr', Null, 53.55, -.00934 ,1987, NULL, 'S~T');
+insert into ref.tr_station("tblCodeID", "Station_Code", "Country", "Organisation",  "Station_Name", "WLTYP", "Lat", "Lon", "StartYear", "EndYear", "PURPM") values(170071, 12071, 'IRELAND',  'MI',  'Liff', Null, 53.2, -6.18000000, 2012, NULL, 'S~T');
+
+update datawg.t_series_ser set ser_hty_code='MO' where ser_nameshort='YFS1';
+update datawg.t_series_ser set ser_hty_code='C' where ser_nameshort='Ring';
+update datawg.t_series_ser set ser_hty_code='F' where ser_nameshort='Visk';
+update datawg.t_series_ser set ser_hty_code='F' where ser_nameshort='Bann';
+update datawg.t_series_ser set ser_hty_code='F' where ser_nameshort='Erne';
+update datawg.t_series_ser set ser_hty_code='F' where ser_nameshort='ShaA';
+update datawg.t_series_ser set ser_hty_code='T' where ser_nameshort='SeEA';
+update datawg.t_series_ser set ser_hty_code='T' where ser_nameshort='SeHM';
+update datawg.t_series_ser set ser_hty_code='T' where ser_nameshort='Vida';
+update datawg.t_series_ser set ser_hty_code='T' where ser_nameshort='Ems';
+update datawg.t_series_ser set ser_hty_code='T' where ser_nameshort='Lauw';
+update datawg.t_series_ser set ser_hty_code='T' where ser_nameshort='RhDO';
+update datawg.t_series_ser set ser_hty_code='T' where ser_nameshort='RhIj';
+update datawg.t_series_ser set ser_hty_code='T' where ser_nameshort='Katw';
+update datawg.t_series_ser set ser_hty_code='T' where ser_nameshort='Stel';
+update datawg.t_series_ser set ser_hty_code='T' where ser_nameshort='Yser';
+update datawg.t_series_ser set ser_hty_code='T' where ser_nameshort='Vil';
+update datawg.t_series_ser set ser_hty_code='T' where ser_nameshort='Loi';
+update datawg.t_series_ser set ser_hty_code='T' where ser_nameshort='SevN';
+update datawg.t_series_ser set ser_hty_code='T' where ser_nameshort='GiTC';
+update datawg.t_series_ser set ser_hty_code='T' where ser_nameshort='GiCP';
+update datawg.t_series_ser set ser_hty_code='T' where ser_nameshort='AdTC';
+update datawg.t_series_ser set ser_hty_code='T' where ser_nameshort='AdCP';
+update datawg.t_series_ser set ser_hty_code='T' where ser_nameshort='Nalo';
+update datawg.t_series_ser set ser_hty_code='T' where ser_nameshort='Albu';
+update datawg.t_series_ser set ser_hty_code='T' where ser_nameshort='MiSp';
+update datawg.t_series_ser set ser_hty_code='T' where ser_nameshort='MiPo';
+update datawg.t_series_ser set ser_hty_code='T' where ser_nameshort='Tibe';
+update datawg.t_series_ser set ser_hty_code='F' where ser_nameshort='Imsa';
+update datawg.t_series_ser set ser_hty_code='F' where ser_nameshort='Dala';
+update datawg.t_series_ser set ser_hty_code='F' where ser_nameshort='Mota';
+update datawg.t_series_ser set ser_hty_code='F' where ser_nameshort='Morr';
+update datawg.t_series_ser set ser_hty_code='F' where ser_nameshort='Kavl';
+update datawg.t_series_ser set ser_hty_code='F' where ser_nameshort='Ronn';
+update datawg.t_series_ser set ser_hty_code='F' where ser_nameshort='Laga';
+update datawg.t_series_ser set ser_hty_code='F' where ser_nameshort='Gota';
+update datawg.t_series_ser set ser_hty_code='F' where ser_nameshort='ShaP';
+update datawg.t_series_ser set ser_hty_code='F' where ser_nameshort='Gude';
+update datawg.t_series_ser set ser_hty_code='F' where ser_nameshort='Hart';
+update datawg.t_series_ser set ser_hty_code='F' where ser_nameshort='Meus';
+update datawg.t_series_ser set ser_hty_code='MO' where ser_nameshort='YFS2';
+update datawg.t_series_ser set ser_hty_code='T' where ser_nameshort='GiSc';
+update datawg.t_series_ser set ser_hty_code='T' where ser_nameshort='Ebro';
+update datawg.t_series_ser set ser_hty_code='T' where ser_nameshort='AlCP';
+update datawg.t_series_ser set ser_hty_code='F' where ser_nameshort='Feal';
+update datawg.t_series_ser set ser_hty_code='F' where ser_nameshort='Maig';
+update datawg.t_series_ser set ser_hty_code='F' where ser_nameshort='Inag';
+update datawg.t_series_ser set ser_hty_code='F' where ser_nameshort='Bres';
+update datawg.t_series_ser set ser_hty_code='F' where ser_nameshort='Fre';
+update datawg.t_series_ser set ser_hty_code='F' where ser_nameshort='Sle';
+update datawg.t_series_ser set ser_hty_code='F' where ser_nameshort='Klit';
+update datawg.t_series_ser set ser_hty_code='F' where ser_nameshort='Nors';
+update datawg.t_series_ser set ser_hty_code='T' where ser_nameshort='Vac';
+
+begin;
+update datawg.t_series_ser set (ser_x,ser_y)=(st_x(geom),st_y(geom)) where ser_nameshort='Burr';
+update datawg.t_series_ser set (ser_x,ser_y)=(8.77,54.89) where ser_nameshort='Verl'
+update datawg.t_series_ser set geom=ST_SetSRID(ST_MakePoint(ser_x, ser_y),4326) where ser_nameshort='Verl';
+commit;
+
+begin;
+update datawg.t_series_ser set (ser_x,ser_y)=(8.74,54.72) where ser_nameshort='HHK'
+update datawg.t_series_ser set geom=ST_SetSRID(ST_MakePoint(ser_x, ser_y),4326) where ser_nameshort='HHK';
+commit;
+
+begin;
+update datawg.t_series_ser set (ser_x,ser_y)=(8.87,54.53) where ser_nameshort='Hos';
+update datawg.t_series_ser set geom=ST_SetSRID(ST_MakePoint(ser_x, ser_y),4326) where ser_nameshort='Hos';
+commit;
+
+begin;
+update datawg.t_series_ser set (ser_x,ser_y)=(9.14,54.32) where ser_nameshort='Brok';
+update datawg.t_series_ser set geom=ST_SetSRID(ST_MakePoint(ser_x, ser_y),4326) where ser_nameshort='Brok';
+commit;
+
+begin;
+update datawg.t_series_ser set (ser_x,ser_y)=(8.91,54.71) where ser_nameshort='Lang';
+update datawg.t_series_ser set geom=ST_SetSRID(ST_MakePoint(ser_x, ser_y),4326) where ser_nameshort='Lang';
 commit;

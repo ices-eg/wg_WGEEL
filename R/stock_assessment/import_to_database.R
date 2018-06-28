@@ -771,7 +771,14 @@ catch_landings_final[catch_landings_final$eel_hty_code=='F'&
 # Denmark and Norway are in tons
 catch_landings_final[catch_landings_final$eel_cou_code %in% c("NO","DK"),"eel_value"]<-
     catch_landings_final[catch_landings_final$eel_cou_code %in% c("NO","DK"),"eel_value"]*1000
-
+catch_landings_final$eel_emu_nameshort[catch_landings_final$eel_emu_nameshort=="SE_Sout"&
+        !is.na(catch_landings_final$eel_emu_nameshort)]<-"SE_So_o"
+catch_landings_final[catch_landings_final$eel_year<=1998 &
+        catch_landings_final$eel_cou_code=='SE',]
+catch_landings_final[catch_landings_final$eel_year<=1998 &
+        catch_landings_final$eel_emu_nameshort=="SE_West","eel_emu_nameshort"]<-"SE_We_o"
+catch_landings_final[catch_landings_final$eel_year<=1998 &
+        catch_landings_final$eel_emu_nameshort=="SE_East","eel_emu_nameshort"]<-"SE_Ea_o"
 sqldf("insert into datawg.t_eelstock_eel (
         eel_typ_id,
         eel_year ,
@@ -816,6 +823,7 @@ sqldf("insert into datawg.t_eelstock_eel (
 restocking_final$eel_qal_id=as.integer(restocking_final$eel_qal_id)
 # some years badly formed (Italy aquaculture)
 restocking_final[is.na(as.integer(restocking_final$eel_year)),]
+restocking_final<-restocking_final[!is.na(as.integer(restocking_final$eel_year)),]
 restocking_final$eel_value<-as.numeric(restocking_final$eel_value)
 restocking_final$eel_year<-as.numeric(restocking_final$eel_year)
 restocking_final[is.na(restocking_final$eel_year),]
@@ -824,6 +832,7 @@ restocking_final[restocking_final$eel_area_division=="273"&!is.na(restocking_fin
 restocking_final[restocking_final$eel_area_division=="271"&!is.na(restocking_final$eel_area_division),"eel_area_division"]<-"27.6.a"
 # temporarily removing Spain
 #restocking_final<-restocking_final[!restocking_final$eel_cou_code=="ES",]
+
 sqldf("insert into datawg.t_eelstock_eel (
         eel_typ_id,
         eel_year,
@@ -854,6 +863,7 @@ aquaculture <- sqldf(str_c("select * from  datawg.aquaculture"))
 stocking <- sqldf(str_c("select * from  datawg.stocking"))
 
 show_datacall(dataset=landings,cou_code="IT") 
+show_datacall(dataset=aquaculture,cou_code="DK")
 
 # save them again as csv.....
 write.table(aquaculture, file=str_c(mylocalfolder,"/aquaculture.csv"),sep=";")
