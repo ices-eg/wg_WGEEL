@@ -195,16 +195,15 @@ draw_leaflet<-function(dataset="landings",
   return(m)
 }
 
-
-
+# load data
+source("R/utilities/load_data.R")
+data_directory <- tk_choose.dir(caption = "Data directory", default = mylocalfolder)
+load_maps()
 
 #########################
 # Examples run
 ########################
 # map of landings in 2016, all stages, per country
-source("R/utilities/load_data.R")
-data_directory <- tk_choose.dir(caption = "Data directory", default = mylocalfolder)
-load_maps(full_load = TRUE)
 draw_leaflet()
 
 # map of glass eel landings in 2016, per emu
