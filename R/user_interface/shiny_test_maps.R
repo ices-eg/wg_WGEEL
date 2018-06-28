@@ -75,7 +75,7 @@ server = function(input, output) {
 			}
 	)
 }
-load_maps()
+
 # Launch shiny and open your browser
 shinyApp(ui, server, option =  list(port = 1235, launch.browser = T)) #local version
 shinyApp(ui, server, option =  list(port = 1234, host = "0.0.0.0", launch.browser = T)) #public version
