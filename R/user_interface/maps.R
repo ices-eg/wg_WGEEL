@@ -162,9 +162,9 @@ draw_leaflet<-function(dataset="landings",
       cc<-  dataset_ %>% 
           filter(eel_year==year &
                   eel_lfs_code %in% lfs_code)  %>%        
-          group_by(eel_emu_nameshort,eel_year) %>%
-          filter(!is.na(sum)) %>%         
+          group_by(eel_emu_nameshort,eel_year) %>%       
           summarize(sum=sum(eel_value))%>%
+		  filter(!is.na(sum)) %>%  
           rename(emu_nameshort = eel_emu_nameshort)    
     }  
     selected_emus<-as.data.frame(emu_c[emu_c$emu_nameshort%in%cc$emu_nameshort,])
