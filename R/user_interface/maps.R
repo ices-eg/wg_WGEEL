@@ -24,9 +24,6 @@ if(!require(rmapshaper)) install.packages("rmapshaper") ; require(rmapshaper)
 
 mylocalfolder <- tk_choose.dir(caption = "Data call directory", default = "C:/temp/wgeel/datacal_Nermer")
 
-# path to local github (or write a local copy of the files and point to them)
-setwd(tk_choose.dir(caption = "GIT directory", default = "C:/Users/cedric.briand/Documents/GitHub/WGEEL"))
-
 #########################
 # Load data from csv files
 ########################
@@ -199,44 +196,3 @@ draw_leaflet<-function(dataset="landings",
 source("R/utilities/load_data.R")
 data_directory <- tk_choose.dir(caption = "Data directory", default = mylocalfolder)
 load_maps()
-
-#########################
-# Examples run
-########################
-# map of landings in 2016, all stages, per country
-draw_leaflet()
-
-# map of glass eel landings in 2016, per emu
-# as yet no code to distinguish commercial and recreational
-draw_leaflet(dataset="landings",
-    year=2015,
-    lfs_code='G',
-    coeff=600,
-    map="emu")
-# map of glass eel catch and landings
-draw_leaflet(dataset="catch_landings",
-    year=2015,
-    lfs_code='G',
-    coeff=600,
-    map="emu")
-draw_leaflet(dataset="aquaculture",
-    year=2014,
-    lfs_code=NULL,
-    coeff=600,
-    map="country")
-# problem of conversion from number to kg and reverse
-draw_leaflet(dataset="stocking",
-    year=2014,
-    lfs_code='G',
-    coeff=200,
-    map="country")
-
-########################################
-# create summary of which data for which year
-########################################
-catchexists<-landings%>%
-    group_by(eel_cou_code,eel_year,eel_lfs_code)%>%summarize(n=n())
-
-ggplot(catchexists)+geom_tile(aes(x=eel_year,y=eel_cou_code,fill=n))+
-    facet_wrap(~eel_lfs_code)
-
