@@ -39,11 +39,6 @@ shpwd <- "C:/temp/SharePoint/WGEEL - 2017 Meeting Docs/06. Data/shp"
 # get european coastline shapefiles
 download.file("http://data.openstreetmapdata.com/land-polygons-generalized-3857.zip",
     str_c(shpwd,"/land-polygons-generalized-3857.zip"))
-
-unzip(zipfile = str_c(shpwd,"/land-polygons-generalized-3857.zip"),
-    overwrite = TRUE,
-    exdir = "data/shapefiles")
-
 unlink("data/land-polygons-generalized-3857.zip") 
 
 # read coastline shapefiles and transform to wgs84
@@ -58,6 +53,3 @@ raster::proj4string(bbox) <- rgdal::CRS("+init=epsg:4326")
 coast <- rgeos::gIntersection(coast, bbox, byid = TRUE)
 coast <- rgeos::gUnaryUnion(coast)
 coast <- as(coast, "SpatialPolygonsDataFrame")
-
-# save coastline to shapefiles folder
-rgdal::writeOGR(coast, shpwd, "coast", driver = "ESRI Shapefile", overwrite_layer = TRUE)
