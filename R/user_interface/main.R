@@ -12,7 +12,8 @@ setwd(tk_choose.dir(caption = "GIT directory", default = "C:/Users/cedric.briand
 source("R/user_interface/maps.R")
 
 # load shiny configuration
-source("R/user_interface/shiny_test_maps.R")
+source("R/user_interface/global.R")
+source("R/user_interface/server.R")
 
 # Launch shiny and open your browser
 shinyApp(ui, server, option =  list(port = 1235, launch.browser = T)) #local version
