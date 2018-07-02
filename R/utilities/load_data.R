@@ -30,9 +30,8 @@ load_maps = function(full_load = FALSE, to_save = FALSE)
 		if(to_save) save(emu_c,country_p,emu_p,country_c,file=str_c(data_directory,"/maps_for_shiny.Rdata"))
 	} else 
 	{
-		if(!exists(data_directory)) 
-			#TODO: ask data_directory
-			cat("to be implemented")
+		if(!exists("data_directory")) 
+			data_directory <- tk_choose.dir(caption = "Data directory", default = mylocalfolder)
 		load(file=str_c(data_directory,"/maps_for_shiny.Rdata"), envir = .GlobalEnv)
 	}
 }
@@ -47,9 +46,8 @@ load_landings = function(from_database = FALSE)
 	{
 		#TODO: extract data from the database
 	} else {
-		 if(!exists(data_directory)) 
-			 #TODO: ask data_directory
-			cat("to be implemented")
+		if(!exists(data_directory)) 
+			data_directory <- tk_choose.dir(caption = "Data directory", default = mylocalfolder)
 		landings <- read.table(file=str_c(data_directory,"/landings.csv"),sep=";")
 	}
 	return(landings)
@@ -66,9 +64,8 @@ load_aquaculture = function(from_database = FALSE)
 		#TODO: extract data from the database
 	} else {
 		if(!exists(data_directory)) 
-			#TODO: ask data_directory
-			cat("to be implemented")
-			aquaculture <- read.table(file=str_c(data_directory,"/aquaculture.csv"),sep=";")
+			data_directory <- tk_choose.dir(caption = "Data directory", default = mylocalfolder)
+		aquaculture <- read.table(file=str_c(data_directory,"/aquaculture.csv"),sep=";")
 	}
 	return(aquaculture)
 }
@@ -84,9 +81,8 @@ load_stocking = function(from_database = FALSE)
 		#TODO: extract data from the database
 	} else {
 		if(!exists(data_directory)) 
-			#TODO: ask data_directory
-			cat("to be implemented")
-			stocking <- read.table(file=str_c(data_directory,"/stocking.csv"),sep=";")
+			data_directory <- tk_choose.dir(caption = "Data directory", default = mylocalfolder)
+		stocking <- read.table(file=str_c(data_directory,"/stocking.csv"),sep=";")
 	#-----------------------------------------------
 	# Restocking which stages typ_id=9 (nb), =8 (kg)
 	#---------------------------------------------
