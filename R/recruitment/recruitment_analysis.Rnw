@@ -1562,10 +1562,11 @@ newdata<-newdata[as.numeric(as.character(newdata$year_f))>1922,]
 newdata$P=predict(model_ge_area2,type="response",newdata=newdata)
 newdata$year<-as.numeric(as.character(newdata$year_f))
 
-plot(newdata$year,newdata$P, type="b",col="blue")
+plot(newdata$year,newdata$P, type="b",col="black",xlab="year",ylab="standardized value")
 gey2<-glass_eel_yoy2[glass_eel_yoy2$site=='Bann',]
 gey2<-gey2[order(gey2$year),]
-points(gey2$year,gey2$value_std, type="b",col="red",pch=18)
+points(gey2$year,gey2$value_std, type="b",col="grey40",lty=2,pch=18)
+legend("topright",col=c("black","grey20"),lty=c(1,2),pch=c(1,18),legend=c("predicted for Bann","Bann (observed)"))
 write.table(gey2,file=str_c(datawd,"/Bann_data.csv"),sep=";")
 write.table(newdata,file=str_c(datawd,"/Bann_predictions.csv"),sep=";")
 @
