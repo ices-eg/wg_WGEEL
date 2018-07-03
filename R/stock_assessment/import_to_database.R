@@ -20,6 +20,7 @@ options(sqldf.RPostgreSQL.user = "postgres",
 setwd(wg_choose.dir(caption = "GIT directory"))
 source("R/utilities/set_directory.R")
 source("R/utilities/check_utilities.R")
+#source("R/utilities/loading_functions.R")
 # this will create a data_wd value in .globalEnv (the user environment)
 set_directory("data")
 
