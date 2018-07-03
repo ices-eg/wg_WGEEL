@@ -16,21 +16,16 @@ options(sqldf.RPostgreSQL.user = "postgres",
 	sqldf.RPostgreSQL.dbname = "wgeel",
 	sqldf.RPostgreSQL.host = "localhost", # "localhost"
 	sqldf.RPostgreSQL.port = 5432)
-
-# this is the folder where you will store the files prior to upload
-# don't forget to put an / at the end of the string
-#mylocalfolder <- "C:/temp/SharePoint/WGEEL - 2017 Meeting Docs/06. Data/datacall"
-mylocalfolder <-wg_choose_dir()
-#mylocalfolder <- "C:/Users/pohlmann/Desktop/WGEEL/WGEEL 2017/Task 1/06. Data/datacall"
-# you will need to put the following files there
-datawd<-mylocalfolder
 # path to local github (or write a local copy of the files and point to them)
-setwd("C:/Users/cedric.briand/Documents/GitHub/WGEEL")
-#setwd("C:/Users/pohlmann/Desktop/WGEEL/WGEEL 2017/Task 1")
-source(str_c(getwd(),"/R/utilities/check_utilities.R"))
+setwd(wg_choose.dir(caption = "GIT directory"))
+source("R/utilities/set_directory.R")
+source("R/utilities/check_utilities.R")
+# this will create a data_wd value in .globalEnv (the user environment)
+set_directory("data")
+
 # list the current folders in C:/temps to run into the loop
 
-directories<-list.dirs(path = mylocalfolder, full.names = TRUE, recursive = FALSE)
+directories<-list.dirs(path = data_wd, full.names = TRUE, recursive = FALSE)
 datacallfiles<-c("Eel_Data_Call_Annex2_Catch_and_Landings.xlsx",
     "Eel_Data_Call_Annex3_Stocking.xlsx",
     "Eel_Data_Call_Annex4_Aquaculture_Production.xlsx")
@@ -73,7 +68,7 @@ data_list<-list() # A list to store data)
 #'  
 #' }
 check_directories<-function(i=NULL){
-  {
+  
     
     check_one_directory<-function(i,country){
       # get the name of the country
@@ -635,8 +630,8 @@ check_directories<-function(i=NULL){
       }
       # assigns the metadatalist in globalEnv (the user's env) and returns data_list
       return(list("the_data"=the_data,"the_metadata"=the_metadata))
-    } # end the loop
-  }# end check_one_directory
+    } # end check_one_directory
+  
   ####################
   # Here two options, either we laucnch for a number, ie a directory or we launch and load the whole set of files
   if (is.null(i)){
