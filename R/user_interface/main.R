@@ -18,10 +18,12 @@ if(.Platform$OS.type == "unix") {
 setwd(wg_choose.dir(caption = "GIT directory", default = 'C:/Users/cedric.briand/Documents/GitHub/WGEEL/R/user_interface'))
 # setwd("C:/Users/cedric.briand/Documents/GitHub/WGEEL/R/user_interface")
 # load map function
-source("maps.R")
+source("R/user_interface/maps.R")
 
 # load shiny configuration
-source("server.R")
+
+source("R/user_interface/global.R")
+source("R/user_interface/server.R")
 
 # Launch shiny and open your browser
 shinyApp(ui, server, option =  list(port = 1235, launch.browser = T)) #local version
