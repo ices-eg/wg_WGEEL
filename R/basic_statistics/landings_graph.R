@@ -7,7 +7,7 @@
 # INITS
 #########################
 source("R/utilities/load_library.R")
-load_library(c("ggplot2", "reshape", "reshape2", "stringr", "dplyr", "lattice", "RColorBrewer", "grid"))
+load_library(c("ggplot2", "reshape", "rJava","reshape2", "stringr", "dplyr", "lattice", "RColorBrewer", "grid"))
 
 source("R/utilities/set_directory.R")
 set_directory("result")
@@ -20,6 +20,12 @@ landings_complete <-read.table(str_c(data_wd,"/landings.csv"),sep=";",header=TRU
 landings_complete$eel_value<-as.numeric(landings_complete$eel_value) / 1000
 landings_complete$eel_hty_code = factor(landings_complete$eel_hty_code, levels = rev(c("MO", "C", "T", "F", "AL")))
 
+#load country and ordered 
+set_directory("reference")
+
+country_cod <-read.table(str_c(reference_wd,"/tr_country_cou.csv"),sep=";",header=TRUE, na.strings = "", dec = ".", stringsAsFactors = FALSE)
+country_cod<-country_cod[order(as.factor(country_cod$cou_order)),]
+cou_cod<-country_cod$cou_code
 # ----------------------------------------------------------------
 # commercial fisheries Y+S
 # ----------------------------------------------------------------
@@ -48,6 +54,7 @@ summary(glm_la) # check fit
 landings2<-expand.grid("year"=levels(landings$year),"country"=levels(landings$country))
 landings2$pred=predict(glm_la,newdat=landings2,type="response")
 
+
 # BELOW WE REPLACE MISSING VALUES BY THE PREDICTED MODELLED
 for (y in unique(landings$year)){
   for (c in levels(landings$country)){
@@ -65,9 +72,16 @@ landings2$year<-as.numeric(as.character(landings2$year))
 
 landings$year = as.numeric(as.character(landings$year))
 
+##Create an ordered factor of the country to create ordered table
+countryF<-factor(landings2$country,levels=cou_cod,ordered=T)
+countryF<-sort(countryF)
 #export data
-write.table(round(xtabs(landings~year+country, data = landings2)), file = str_c(result_wd, "/com_landings_YS_extrapolate.csv"), sep = ";")
+
+## Landing + predicted landing table
+write.table(round(xtabs(landings~year+countryF, data = landings2)), file = str_c(result_wd, "/com_landings_YS_extrapolate.csv"), sep = ";")
+## True or false predicted date
 write.table(round(xtabs(predicted~year+country, data = landings2)), file = str_c(result_wd, "/com_landings_YS_extrapolate_yn.csv"), sep = ";")
+## Real landings data
 write.table(round(dcast(year~country, data = landings[,-4])), file = str_c(result_wd, "/com_landings_YS_raw.csv"), sep = ";", row.names = FALSE)
 
 #########################
@@ -75,19 +89,23 @@ write.table(round(dcast(year~country, data = landings[,-4])), file = str_c(resul
 #########################
 cols<-c(brewer.pal(12,"Set3"),brewer.pal(length(levels(landings2$country))-12,"Set1"))
 
+#cols<-c(brewer.pal(12,"Accent"),brewer.pal(length(levels(cou_cod))-12,"Set1"))
+
 # reconstructed
-g_reconstructed_landings <- ggplot(landings2) + geom_col(aes(x=year,y=landings,fill=country),position='stack')+
+g_reconstructed_landings <- ggplot(landings2) + geom_col(aes(x=year,y=landings,fill=countryF),position='stack')+
 	ggtitle("Commercial Landings (Y+S) corrected") + scale_x_continuous(breaks = seq(1950, 2030, 10))+ xlab("Year") + ylab("Landings (tons)")+
 	coord_cartesian(expand = FALSE, ylim = c(0, 25000)) + #TODO: change 25000 for max*1.1
 	scale_fill_manual(values=cols)+
-	theme_bw()  
+	theme_bw()#+ 
+  #scale_fill_manual(palette="Accent")
 
 # raw
-g_raw_landings <- ggplot(landings) + geom_col(aes(x=year,y=landings,fill=country,legend = FALSE),position='stack')+
+g_raw_landings <- ggplot(landings) + geom_col(aes(x=year,y=landings,fill=countryF,legend = FALSE),position='stack')+
 	ggtitle("Commercial Landings (Y+S) uncorrected") + xlab("year") + ylab("Landings (tons)")+
-	scale_fill_manual(values=cols)+
+	#scale_fill_manual(values=cols)+
 	theme_bw() + # make the theme black-and-white rather than grey (do this before font changes, or it overrides them)
-	xlim(c(1945, CY))
+	xlim(c(1945, CY))+ 
+  scale_fill_manual(palette="Accent")
 
 # percentage of original data
 g_percentage_reconstructed <- ggplot(landings2)+geom_col(aes(x=year,y=landings,fill=!predicted),position='stack')+
