@@ -20,7 +20,7 @@ options(sqldf.RPostgreSQL.user = "postgres",
 # this is the folder where you will store the files prior to upload
 # don't forget to put an / at the end of the string
 #mylocalfolder <- "C:/temp/SharePoint/WGEEL - 2017 Meeting Docs/06. Data/datacall"
-mylocalfolder <-"C:/temp/wgeel/datacall"
+mylocalfolder <-wg_choose_dir()
 #mylocalfolder <- "C:/Users/pohlmann/Desktop/WGEEL/WGEEL 2017/Task 1/06. Data/datacall"
 # you will need to put the following files there
 datawd<-mylocalfolder

@@ -7,11 +7,6 @@ if(!require(rJava)) install.packages("rJava") ; require(rJava)
 if(!require(rChoiceDialogs)) install.packages("rChoiceDialogs") ; require(rChoiceDialogs)
 
 
-if(.Platform$OS.type == "unix") {
-  wg_choose.dir<-tk_choose.dir
-} else {
-  wg_choose.dir<-choose.dir
-}
 
 
 # path to local github (or write a local copy of the files and point to them)
