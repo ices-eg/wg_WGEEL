@@ -3,16 +3,25 @@
 # Author: lbeaulaton
 ###############################################################################
 
-if(!require(tcltk)) install.packages("tcltk") ; require(tcltk)
+if(!require(rJava)) install.packages("rJava") ; require(rJava)
+if(!require(rChoiceDialogs)) install.packages("rChoiceDialogs") ; require(rChoiceDialogs)
+
+
+if(.Platform$OS.type == "unix") {
+  wg_choose.dir<-tk_choose.dir
+} else {
+  wg_choose.dir<-choose.dir
+}
+
 
 # path to local github (or write a local copy of the files and point to them)
-setwd(tk_choose.dir(caption = "GIT directory", default = "C:/Users/cedric.briand/Documents/GitHub/WGEEL"))
-
+setwd(wg_choose.dir(caption = "GIT directory", default = 'C:/Users/cedric.briand/Documents/GitHub/WGEEL/R/user_interface'))
+# setwd("C:/Users/cedric.briand/Documents/GitHub/WGEEL/R/user_interface")
 # load map function
-source("R/user_interface/maps.R")
+source("maps.R")
 
 # load shiny configuration
-source("R/user_interface/shiny_test_maps.R")
+source("server.R")
 
 # Launch shiny and open your browser
 shinyApp(ui, server, option =  list(port = 1235, launch.browser = T)) #local version

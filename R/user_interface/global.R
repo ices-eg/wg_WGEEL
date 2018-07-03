@@ -10,8 +10,7 @@ if(!require(shiny)) install.packages("shiny") ; require(shiny)
 if(!require(DT)) install.packages("DT") ; require(DT)
 
 
-
-ref_wd <- tk_choose.dir(caption = "Reference tables directory", default = mylocalfolder)
+ref_wd <- wg_choose.dir(caption = "Reference tables directory", default = mylocalfolder)
 country_ref = read.csv2(str_c(ref_wd,"/","tr_country_cou.csv"))
 #emu_ref = read.csv2(str_c(ref_wd,"/","tr_country_cou.csv"))
 
