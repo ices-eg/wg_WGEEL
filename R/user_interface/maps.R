@@ -22,7 +22,8 @@ if(!require(rmapshaper)) install.packages("rmapshaper") ; require(rmapshaper)
 # using join from plyr but not loaded (would mess with dplyr)
 # using also stacomirtools package but not loaded_
 
-mylocalfolder <- tk_choose.dir(caption = "Data call directory", default = "C:/temp/wgeel/datacal_Nermer")
+mylocalfolder <- wg_choose.dir(caption = "Data call directory")
+
 
 #########################
 # Load data from csv files
@@ -194,5 +195,4 @@ draw_leaflet<-function(dataset="landings",
 
 # load data
 source("R/utilities/load_data.R")
-data_directory <- tk_choose.dir(caption = "Data directory", default = mylocalfolder)
 load_maps()

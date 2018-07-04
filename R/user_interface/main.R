@@ -3,15 +3,20 @@
 # Author: lbeaulaton
 ###############################################################################
 
-if(!require(tcltk)) install.packages("tcltk") ; require(tcltk)
+if(!require(rJava)) install.packages("rJava") ; require(rJava)
+if(!require(rChoiceDialogs)) install.packages("rChoiceDialogs") ; require(rChoiceDialogs)
+
+
+
 
 # path to local github (or write a local copy of the files and point to them)
-setwd(tk_choose.dir(caption = "GIT directory", default = "C:/Users/cedric.briand/Documents/GitHub/WGEEL"))
-
+setwd(wg_choose.dir(caption = "GIT directory", default = 'C:/Users/cedric.briand/Documents/GitHub/WGEEL/R/user_interface'))
+# setwd("C:/Users/cedric.briand/Documents/GitHub/WGEEL/R/user_interface")
 # load map function
 source("R/user_interface/maps.R")
 
 # load shiny configuration
+
 source("R/user_interface/global.R")
 source("R/user_interface/server.R")
 

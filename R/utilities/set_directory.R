@@ -11,10 +11,14 @@ if(!exists("load_library")) source("R/utilities/load_library.R")
 set_directory = function(type)
 {
 	if(!type %in% c("script", "data", "shp", "result", "reference")) stop("type should be one of: script, data, shp, result, reference")
-	load_library("rChoiceDialogs")
+	if(.Platform$OS.type == "unix") {
+        wg_choose.dir<-tk_choose.dir
+    } else {
+        wg_choose.dir<-choose.dir
+    }    
 	if(type == "script")
 	{
-		new_wd = rchoose.dir(caption = "Script directory (Root for GIT/WGEEL)")
+		new_wd = wg_choose.dir(caption = "Script directory (Root for GIT/WGEEL)")
 		answer = rselect.list(choices = c("Yes", "No"), preselect = "No", title = "Confirm change?")
 		if(answer == "Yes")
 		{
@@ -22,6 +26,6 @@ set_directory = function(type)
 			setwd(wd)
 		}
 	} else {
-		assign(x = paste(type, "_wd", sep = ""), value = rchoose.dir(caption = paste(type, " directory", sep = "")), envir = .GlobalEnv)
+		assign(x = paste(type, "_wd", sep = ""), value = wg_choose.dir(caption = paste(type, " directory", sep = "")), envir = .GlobalEnv)
 	}
 }
