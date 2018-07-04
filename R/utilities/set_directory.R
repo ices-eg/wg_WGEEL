@@ -4,18 +4,21 @@
 ###############################################################################
 
 if(!exists("load_library")) source("R/utilities/load_library.R")
+load_library("tcltk")
+
+# adapt the choose.dir to the platform used
+if(.Platform$OS.type == "unix") {
+	wg_choose.dir<-tk_choose.dir
+} else {
+	wg_choose.dir<-choose.dir
+}    
 
 #' @title set directory variables
 #' @description set directory variables to be used by other scripts
-#' @param type should be one of: script, data, shp, result, reference
+#' @param type should be one of: script, data, shp, result, reference, shiny_data
 set_directory = function(type)
 {
-	if(!type %in% c("script", "data", "shp", "result", "reference")) stop("type should be one of: script, data, shp, result, reference")
-	if(.Platform$OS.type == "unix") {
-        wg_choose.dir<-tk_choose.dir
-    } else {
-        wg_choose.dir<-choose.dir
-    }    
+	if(!type %in% c("script", "data", "shp", "result", "reference","shiny_data")) stop("type should be one of: script, data, shp, result, reference")
 	if(type == "script")
 	{
 		new_wd = wg_choose.dir(caption = "Script directory (Root for GIT/WGEEL)")

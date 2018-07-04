@@ -6,12 +6,12 @@
 if(!require(rJava)) install.packages("rJava") ; require(rJava)
 if(!require(rChoiceDialogs)) install.packages("rChoiceDialogs") ; require(rChoiceDialogs)
 
-
+source("R/utilities/set_directory.R")
 
 
 # path to local github (or write a local copy of the files and point to them)
 setwd(wg_choose.dir(caption = "GIT directory", default = 'C:/Users/cedric.briand/Documents/GitHub/WGEEL/R/user_interface'))
-# setwd("C:/Users/cedric.briand/Documents/GitHub/WGEEL/R/user_interface")
+
 # load map function
 source("R/user_interface/maps.R")
 
