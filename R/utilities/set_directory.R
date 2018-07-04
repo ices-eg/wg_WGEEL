@@ -15,7 +15,7 @@ if(.Platform$OS.type == "unix") {
 
 #' @title set directory variables
 #' @description set directory variables to be used by other scripts
-#' @param type should be one of: script, data, shp, result, reference
+#' @param type should be one of: script, data, shp, result, reference, shiny_data
 set_directory = function(type)
 {
 	if(!type %in% c("script", "data", "shp", "result", "reference","shiny_data")) stop("type should be one of: script, data, shp, result, reference")
