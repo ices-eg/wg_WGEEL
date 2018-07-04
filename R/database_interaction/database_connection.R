@@ -11,11 +11,13 @@ load_library(c("sqldf", "RPostgreSQL", "getPass"))
 getInformation = function(prompt)
 {
 	print(prompt)
-	return(scan(what = character(), n = 1, quiet=TRUE))
+	return(info = scan(what = character(), n = 1, quiet=TRUE))
 }
 
+user = getInformation("PostgreSQL user")
+
 # changement vers la base de donnees
-options(sqldf.RPostgreSQL.user = getInformation("PostgreSQL user"),  
+options(sqldf.RPostgreSQL.user = user,  
 		sqldf.RPostgreSQL.password = getPass(),
 		sqldf.RPostgreSQL.dbname = "wgeel",
 		sqldf.RPostgreSQL.host = "localhost", #getInformation("PostgreSQL host: if local ==> localhost"), 
