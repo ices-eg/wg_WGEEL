@@ -34,25 +34,26 @@ check_missing <- function(dataset,column,country){
 #' @param dataset the name of the dataset
 #' @param column the name of the column
 #' @param country the current country being evaluated
-dataset=aquaculture
-column= "eel_typ_id"
-country=country
-values=c(11,13)
+
 check_values <- function(dataset,column,country,values){
+  answer = NULL
+  newdataset <- dataset
+  newdataset$nline <- 1:nrow(newdataset)
   # remove NA from data
-  dataset$nline <- 1:nrow(dataset)
-  ddataset <- as.data.frame(dataset[!is.na(dataset[,column]),])
+  ddataset <- as.data.frame(newdataset[!is.na(newdataset[,column]),])
   if (nrow(ddataset)>0){ 
     #line<-(1:nrow(dataset))[is.na(dataset[,column])]# there might be NA, this will have been tested elsewhere
     if (! all(ddataset[,column]%in%values)) { # are all values matching ?
           value<- str_c(unique(ddataset[,column][!ddataset[,column]%in%values]),collapse=";")
-      cat(sprintf("Country <%s>,  dataset <%s>, column <%s>, value <%s> is wrong \n",
+          line <- ddataset$nline[!ddataset[,column]%in%values]
+      cat(sprintf("Country <%s>,  dataset <%s>, column <%s>, line <%s>, value <%s> is wrong \n",
               country,
               deparse(substitute(dataset)),
               column,
+              line,
               value))
     }
-    answer  = data.frame(nline = ddataset$nline[!ddataset[,column]%in%values], error_message = paste("value in column: ", column, " is wrong", sep = ""))
+    answer  = data.frame(nline = line , error_message = paste("value in column: ", column, " is wrong", sep = ""))
   }
   return(answer)
 }
@@ -65,16 +66,36 @@ check_values <- function(dataset,column,country,values){
 #' @param column the name of the column
 #' @param country the current country being evaluated
 #' @param type, a class described as a character e.g. "numeric"
+
 check_type <- function(dataset,column,country,values,type){
-  if (class(dataset[[column]])!=type) {
-    cat(sprintf("Country <%s>,  dataset <%s>, column <%s>, should be of type %s \n",
+  answer = NULL
+  newdataset <- dataset
+  newdataset$nline <- 1:nrow(newdataset)
+  #remove NA from data
+  ddataset <- as.data.frame(newdataset[!is.na(newdataset[,column]),])
+  if (nrow(ddataset)>0){ 
+    
+  if (type=="numeric") { # cant check for a numeric into a character
+    ddataset[,column]<-as.numeric(ddataset[,column]) # creates a warning message because of NAs introduced by coercion
+  }
+    line <- ddataset$nline[is.na(ddataset[,column])]
+    cat(sprintf("Country <%s>,  dataset <%s>, column <%s>, line <%s>,  should be of type %s \n",
             country,
             deparse(substitute(dataset)),
             column,
+            line,
             type))
+  
+    answer  = data.frame(nline = line, error_message = paste("error type in: ", column, sep = ""))
   }
-  return(invisible(NULL))  
+  return(answer)  
 }
+
+
+dataset=aquaculture
+column="eel_cou_code"
+country=country
+
 
 
 #' check_unique
@@ -84,16 +105,27 @@ check_type <- function(dataset,column,country,values,type){
 #' @param column the name of the column
 #' @param country the current country being evaluated
 #' @param type, a class described as a character e.g. "numeric"
-check_unique <- function(dataset,column,country,values){
-  ddataset <- as.data.frame(dataset[!is.na(dataset[,column]),])
-  if (length(unique(ddataset[,column]))!=1) {
-    cat(sprintf("Country <%s>,  dataset <%s>, column <%s>, should only have one value \n",
+check_unique <- function(dataset,column,country){
+  answer = NULL
+  newdataset <- dataset
+  newdataset$nline <- 1:nrow(newdataset)
+  # remove the NA
+  ddataset <- as.data.frame(newdataset[!is.na(newdataset[,column]),])
+  
+  if (length(unique(ddataset[,column])) != 1) {   
+    line <- ddataset$nline[which(ddataset[,column] != country)]
+  }
+    cat(sprintf("Country <%s>,  dataset <%s>, column <%s>, line <%s> , should only have one value \n",
             country,
             deparse(substitute(dataset)),
-            column))
-  }
-  return(invisible(NULL))  
+            column,
+            line))
+    
+    answer  = data.frame(nline = line, error_message = paste("different country name in: ", column, sep = ""))
+  return(answer)  
 }
+
+
 
 #' check_missvaluequa
 #' 

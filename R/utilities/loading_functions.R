@@ -434,6 +434,7 @@ load_aquaculture<-function(path){
     path=path,
     sheet=3,
     skip=0)
+  
   country =as.character(aquaculture[1,6])
   
   # check for the file integrity
@@ -458,11 +459,12 @@ load_aquaculture<-function(path){
     data_error = rbind(data_error,  check_missing(dataset=aquaculture,
                                      column="eel_typ_id",
                                      country=country))
+    
     #  eel_typ_id should be one of 4 comm.land 5 comm.catch 6 recr. land. 7 recr. catch.
     check_values(dataset=aquaculture,
                  column="eel_typ_id",
                  country=country,
-                 values=c(11,13))
+                 values=c(11,12))
     
     data_error = rbind(data_error,  check_values(dataset=aquaculture,
                                                  column="eel_typ_id",
