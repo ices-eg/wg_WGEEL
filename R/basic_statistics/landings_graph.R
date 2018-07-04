@@ -53,14 +53,14 @@ landings2$pred=predict(glm_la,newdat=landings2,type="response")
 # BELOW WE REPLACE MISSING VALUES BY THE PREDICTED MODELLED
 for (y in unique(landings$year)){
   for (c in levels(landings$country)){
-	if (length(landings[landings$year==y&landings$country==c,"landings"])==0){ # no data ==> replace by predicted
-	  landings2[landings2$year==y&landings2$country==c,"landings"]<-round(exp(landings2[landings2$year==y&landings2$country==c,"pred"]))
-	  landings2[landings2$year==y&landings2$country==c,"predicted"]<-TRUE
-	} else {
-	  # use actual value
-	  landings2[landings2$year==y&landings2$country==c,"landings"]<-round(landings[landings$year==y&landings$country==c,"landings"])
-	  landings2[landings2$year==y&landings2$country==c,"predicted"]<-FALSE
-	}
+    if (length(landings[landings$year==y&landings$country==c,"landings"])==0){ # no data ==> replace by predicted
+      landings2[landings2$year==y&landings2$country==c,"landings"]<-round(exp(landings2[landings2$year==y&landings2$country==c,"pred"]))
+      landings2[landings2$year==y&landings2$country==c,"predicted"]<-TRUE
+    } else {
+      # use actual value
+      landings2[landings2$year==y&landings2$country==c,"landings"]<-round(landings[landings$year==y&landings$country==c,"landings"])
+      landings2[landings2$year==y&landings2$country==c,"predicted"]<-FALSE
+    }
   }
 }
 landings2$year<-as.numeric(as.character(landings2$year))
@@ -79,27 +79,27 @@ cols<-c(brewer.pal(12,"Set3"),brewer.pal(length(levels(landings2$country))-12,"S
 
 # reconstructed
 g_reconstructed_landings <- ggplot(landings2) + geom_col(aes(x=year,y=landings,fill=country),position='stack')+
-	ggtitle("Commercial Landings (Y+S) corrected") + scale_x_continuous(breaks = seq(1950, 2030, 10))+ xlab("Year") + ylab("Landings (tons)")+
-	coord_cartesian(expand = FALSE, ylim = c(0, 25000)) + #TODO: change 25000 for max*1.1
-	scale_fill_manual(values=cols)+
-	theme_bw()  
+  ggtitle("Commercial Landings (Y+S) corrected") + scale_x_continuous(breaks = seq(1950, 2030, 10))+ xlab("Year") + ylab("Landings (tons)")+
+  coord_cartesian(expand = FALSE, ylim = c(0, 25000)) + #TODO: change 25000 for max*1.1
+  scale_fill_manual(values=cols)+
+  theme_bw()  
 
 # raw
 g_raw_landings <- ggplot(landings) + geom_col(aes(x=year,y=landings,fill=country,legend = FALSE),position='stack')+
-	ggtitle("Commercial Landings (Y+S) uncorrected") + xlab("year") + ylab("Landings (tons)")+
-	scale_fill_manual(values=cols)+
-	theme_bw() + # make the theme black-and-white rather than grey (do this before font changes, or it overrides them)
-	xlim(c(1945, CY))
+  ggtitle("Commercial Landings (Y+S) uncorrected") + xlab("year") + ylab("Landings (tons)")+
+  scale_fill_manual(values=cols)+
+  theme_bw() + # make the theme black-and-white rather than grey (do this before font changes, or it overrides them)
+  xlim(c(1945, CY))
 
 # percentage of original data
 g_percentage_reconstructed <- ggplot(landings2)+geom_col(aes(x=year,y=landings,fill=!predicted),position='stack')+
-    #ggtitle("Landings (Y+S) recontructed from missing or original") +
-    xlab("") + 
-    ylab("")+
-    xlim(c(1945, CY)) +
-    scale_fill_manual(name = "Original data", values=c("black","grey"))+
-    theme_bw()+    
-    theme(legend.position="top")
+  #ggtitle("Landings (Y+S) recontructed from missing or original") +
+  xlab("") + 
+  ylab("")+
+  xlim(c(1945, CY)) +
+  scale_fill_manual(name = "Original data", values=c("black","grey"))+
+  theme_bw()+    
+  theme(legend.position="top")
 
 x11()
 print(g_reconstructed_landings)
@@ -163,14 +163,14 @@ landings2$pred=predict(glm_la,newdat=landings2,type="response")
 # BELOW WE REPLACE MISSING VALUES BY THE PREDICTED MODELLED
 for (y in unique(landings$year)){
   for (c in levels(landings$country)){
-	if (length(landings[landings$year==y&landings$country==c,"landings"])==0){
-	  landings2[landings2$year==y&landings2$country==c,"landings"]<-round(exp(landings2[landings2$year==y&landings2$country==c,"pred"]))
-	  landings2[landings2$year==y&landings2$country==c,"predicted"]<-TRUE
-	} else {
-	  # we replace by actual value
-	  landings2[landings2$year==y&landings2$country==c,"landings"]<-round(landings[landings$year==y&landings$country==c,"landings"])
-	  landings2[landings2$year==y&landings2$country==c,"predicted"]<-FALSE
-	}
+    if (length(landings[landings$year==y&landings$country==c,"landings"])==0){
+      landings2[landings2$year==y&landings2$country==c,"landings"]<-round(exp(landings2[landings2$year==y&landings2$country==c,"pred"]))
+      landings2[landings2$year==y&landings2$country==c,"predicted"]<-TRUE
+    } else {
+      # we replace by actual value
+      landings2[landings2$year==y&landings2$country==c,"landings"]<-round(landings[landings$year==y&landings$country==c,"landings"])
+      landings2[landings2$year==y&landings2$country==c,"predicted"]<-FALSE
+    }
   }
 }
 landings2$year<-as.numeric(as.character(landings2$year))
@@ -189,24 +189,24 @@ cols<-rev(brewer.pal(length(levels(landings2$country)),"Set3"))
 # reconstructed
 g<-ggplot(landings2)
 g_reconstructed_landings<-g+geom_col(aes(x=year,y=landings,fill=country),position='stack')+
-		ggtitle("Commercial Landings (G) corrected") + xlab("year") + ylab("Landings (tons)")+
-		scale_fill_manual(values=cols)+
-		theme_bw()
+  ggtitle("Commercial Landings (G) corrected") + xlab("year") + ylab("Landings (tons)")+
+  scale_fill_manual(values=cols)+
+  theme_bw()
 
 # raw
 g_raw_landings<-ggplot(landings)
 g_raw_landings<-g_raw_landings+geom_col(aes(x=year,y=landings,fill=country,legend = FALSE),position='stack')+
-		ggtitle("Commercial Landings (G) uncorrected") + xlab("year") + ylab("Landings (tons)")+
-		scale_fill_manual(values=cols)+
-		theme_bw()
+  ggtitle("Commercial Landings (G) uncorrected") + xlab("year") + ylab("Landings (tons)")+
+  scale_fill_manual(values=cols)+
+  theme_bw()
 
 # percentage of original data
 g_percentage_reconstructed<-ggplot(landings2)+geom_col(aes(x=year,y=landings,fill=!predicted),position='stack')+
-		xlab("") + 
-		ylab("")+
-		scale_fill_manual(name = "Original data", values=c("black","grey"))+
-		theme_bw()+
-        theme(legend.position="top")
+  xlab("") + 
+  ylab("")+
+  scale_fill_manual(name = "Original data", values=c("black","grey"))+
+  theme_bw()+
+  theme(legend.position="top")
 
 x11()
 print(g_reconstructed_landings)
@@ -256,8 +256,8 @@ landings$country = factor(landings$country, levels = sort(unique(landings$countr
 # graphic without transform
 g_raw_landings<-ggplot(landings, aes(x=year, y=landings, fill = country))
 g_raw_landings = g_raw_landings+geom_bar(stat="identity", position="stack") + ggtitle("Recreational Landings (Y+S) uncorrected") + xlab("year") + ylab("Landings (tons)")+
-	scale_fill_manual(values=cols)+
-	theme_bw()
+  scale_fill_manual(values=cols)+
+  theme_bw()
 
 x11()
 print(g_raw_landings)
@@ -295,8 +295,8 @@ landings$country = factor(landings$country, levels = sort(unique(landings$countr
 # graphic without transform
 g_raw_landings<-ggplot(landings, aes(x=year, y=landings, fill = country))
 g_raw_landings = g_raw_landings+geom_bar(stat="identity", position="stack") + ggtitle("Recreational Landings (G) uncorrected") + xlab("year") + ylab("Landings (tons)")+
-	scale_fill_manual(values=cols)+
-	theme_bw()
+  scale_fill_manual(values=cols)+
+  theme_bw()
 
 x11()
 print(g_raw_landings)
@@ -306,10 +306,10 @@ write.table(round(dcast(year~country, data = landings[,-4])), file = str_c(resul
 
 # close all graph devices
 =======
-# Produce graph for landings and reconstruct landings
-# 2011
-# Author: cedric.briand
-###############################################################################
+  # Produce graph for landings and reconstruct landings
+  # 2011
+  # Author: cedric.briand
+  ###############################################################################
 
 #########################
 # INITS
@@ -366,14 +366,14 @@ landings2$pred=predict(glm_la,newdat=landings2,type="response")
 # BELOW WE REPLACE MISSING VALUES BY THE PREDICTED MODELLED
 for (y in unique(landings$year)){
   for (c in levels(landings$country)){
-	if (length(landings[landings$year==y&landings$country==c,"landings"])==0){ # no data ==> replace by predicted
-	  landings2[landings2$year==y&landings2$country==c,"landings"]<-round(exp(landings2[landings2$year==y&landings2$country==c,"pred"]))
-	  landings2[landings2$year==y&landings2$country==c,"predicted"]<-TRUE
-	} else {
-	  # use actual value
-	  landings2[landings2$year==y&landings2$country==c,"landings"]<-round(landings[landings$year==y&landings$country==c,"landings"])
-	  landings2[landings2$year==y&landings2$country==c,"predicted"]<-FALSE
-	}
+    if (length(landings[landings$year==y&landings$country==c,"landings"])==0){ # no data ==> replace by predicted
+      landings2[landings2$year==y&landings2$country==c,"landings"]<-round(exp(landings2[landings2$year==y&landings2$country==c,"pred"]))
+      landings2[landings2$year==y&landings2$country==c,"predicted"]<-TRUE
+    } else {
+      # use actual value
+      landings2[landings2$year==y&landings2$country==c,"landings"]<-round(landings[landings$year==y&landings$country==c,"landings"])
+      landings2[landings2$year==y&landings2$country==c,"predicted"]<-FALSE
+    }
   }
 }
 landings2$year<-as.numeric(as.character(landings2$year))
@@ -401,29 +401,29 @@ cols<-c(brewer.pal(12,"Set3"),brewer.pal(length(levels(landings2$country))-12,"S
 
 # reconstructed
 g_reconstructed_landings <- ggplot(landings2) + geom_col(aes(x=year,y=landings,fill=countryF),position='stack')+
-	ggtitle("Commercial Landings (Y+S) corrected") + scale_x_continuous(breaks = seq(1950, 2030, 10))+ xlab("Year") + ylab("Landings (tons)")+
-	coord_cartesian(expand = FALSE, ylim = c(0, 25000)) + #TODO: change 25000 for max*1.1
-	scale_fill_manual(values=cols)+
-	theme_bw()#+ 
-  #scale_fill_manual(palette="Accent")
+  ggtitle("Commercial Landings (Y+S) corrected") + scale_x_continuous(breaks = seq(1950, 2030, 10))+ xlab("Year") + ylab("Landings (tons)")+
+  coord_cartesian(expand = FALSE, ylim = c(0, 25000)) + #TODO: change 25000 for max*1.1
+  scale_fill_manual(values=cols)+
+  theme_bw()#+ 
+#scale_fill_manual(palette="Accent")
 
 # raw
 g_raw_landings <- ggplot(landings) + geom_col(aes(x=year,y=landings,fill=countryF,legend = FALSE),position='stack')+
-	ggtitle("Commercial Landings (Y+S) uncorrected") + xlab("year") + ylab("Landings (tons)")+
-	#scale_fill_manual(values=cols)+
-	theme_bw() + # make the theme black-and-white rather than grey (do this before font changes, or it overrides them)
-	xlim(c(1945, CY))+ 
+  ggtitle("Commercial Landings (Y+S) uncorrected") + xlab("year") + ylab("Landings (tons)")+
+  #scale_fill_manual(values=cols)+
+  theme_bw() + # make the theme black-and-white rather than grey (do this before font changes, or it overrides them)
+  xlim(c(1945, CY))+ 
   scale_fill_manual(palette="Accent")
 
 # percentage of original data
 g_percentage_reconstructed <- ggplot(landings2)+geom_col(aes(x=year,y=landings,fill=!predicted),position='stack')+
-    #ggtitle("Landings (Y+S) recontructed from missing or original") +
-    xlab("") + 
-    ylab("")+
-    xlim(c(1945, CY)) +
-    scale_fill_manual(name = "Original data", values=c("black","grey"))+
-    theme_bw()+    
-    theme(legend.position="top")
+  #ggtitle("Landings (Y+S) recontructed from missing or original") +
+  xlab("") + 
+  ylab("")+
+  xlim(c(1945, CY)) +
+  scale_fill_manual(name = "Original data", values=c("black","grey"))+
+  theme_bw()+    
+  theme(legend.position="top")
 
 x11()
 print(g_reconstructed_landings)
@@ -487,14 +487,14 @@ landings2$pred=predict(glm_la,newdat=landings2,type="response")
 # BELOW WE REPLACE MISSING VALUES BY THE PREDICTED MODELLED
 for (y in unique(landings$year)){
   for (c in levels(landings$country)){
-	if (length(landings[landings$year==y&landings$country==c,"landings"])==0){
-	  landings2[landings2$year==y&landings2$country==c,"landings"]<-round(exp(landings2[landings2$year==y&landings2$country==c,"pred"]))
-	  landings2[landings2$year==y&landings2$country==c,"predicted"]<-TRUE
-	} else {
-	  # we replace by actual value
-	  landings2[landings2$year==y&landings2$country==c,"landings"]<-round(landings[landings$year==y&landings$country==c,"landings"])
-	  landings2[landings2$year==y&landings2$country==c,"predicted"]<-FALSE
-	}
+    if (length(landings[landings$year==y&landings$country==c,"landings"])==0){
+      landings2[landings2$year==y&landings2$country==c,"landings"]<-round(exp(landings2[landings2$year==y&landings2$country==c,"pred"]))
+      landings2[landings2$year==y&landings2$country==c,"predicted"]<-TRUE
+    } else {
+      # we replace by actual value
+      landings2[landings2$year==y&landings2$country==c,"landings"]<-round(landings[landings$year==y&landings$country==c,"landings"])
+      landings2[landings2$year==y&landings2$country==c,"predicted"]<-FALSE
+    }
   }
 }
 landings2$year<-as.numeric(as.character(landings2$year))
@@ -513,24 +513,24 @@ cols<-rev(brewer.pal(length(levels(landings2$country)),"Set3"))
 # reconstructed
 g<-ggplot(landings2)
 g_reconstructed_landings<-g+geom_col(aes(x=year,y=landings,fill=country),position='stack')+
-		ggtitle("Commercial Landings (G) corrected") + xlab("year") + ylab("Landings (tons)")+
-		scale_fill_manual(values=cols)+
-		theme_bw()
+  ggtitle("Commercial Landings (G) corrected") + xlab("year") + ylab("Landings (tons)")+
+  scale_fill_manual(values=cols)+
+  theme_bw()
 
 # raw
 g_raw_landings<-ggplot(landings)
 g_raw_landings<-g_raw_landings+geom_col(aes(x=year,y=landings,fill=country,legend = FALSE),position='stack')+
-		ggtitle("Commercial Landings (G) uncorrected") + xlab("year") + ylab("Landings (tons)")+
-		scale_fill_manual(values=cols)+
-		theme_bw()
+  ggtitle("Commercial Landings (G) uncorrected") + xlab("year") + ylab("Landings (tons)")+
+  scale_fill_manual(values=cols)+
+  theme_bw()
 
 # percentage of original data
 g_percentage_reconstructed<-ggplot(landings2)+geom_col(aes(x=year,y=landings,fill=!predicted),position='stack')+
-		xlab("") + 
-		ylab("")+
-		scale_fill_manual(name = "Original data", values=c("black","grey"))+
-		theme_bw()+
-        theme(legend.position="top")
+  xlab("") + 
+  ylab("")+
+  scale_fill_manual(name = "Original data", values=c("black","grey"))+
+  theme_bw()+
+  theme(legend.position="top")
 
 x11()
 print(g_reconstructed_landings)
@@ -580,8 +580,8 @@ landings$country = factor(landings$country, levels = sort(unique(landings$countr
 # graphic without transform
 g_raw_landings<-ggplot(landings, aes(x=year, y=landings, fill = country))
 g_raw_landings = g_raw_landings+geom_bar(stat="identity", position="stack") + ggtitle("Recreational Landings (Y+S) uncorrected") + xlab("year") + ylab("Landings (tons)")+
-	scale_fill_manual(values=cols)+
-	theme_bw()
+  scale_fill_manual(values=cols)+
+  theme_bw()
 
 x11()
 print(g_raw_landings)
@@ -619,8 +619,8 @@ landings$country = factor(landings$country, levels = sort(unique(landings$countr
 # graphic without transform
 g_raw_landings<-ggplot(landings, aes(x=year, y=landings, fill = country))
 g_raw_landings = g_raw_landings+geom_bar(stat="identity", position="stack") + ggtitle("Recreational Landings (G) uncorrected") + xlab("year") + ylab("Landings (tons)")+
-	scale_fill_manual(values=cols)+
-	theme_bw()
+  scale_fill_manual(values=cols)+
+  theme_bw()
 
 x11()
 print(g_raw_landings)
