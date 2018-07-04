@@ -18,7 +18,7 @@ if(.Platform$OS.type == "unix") {
 #' @param type should be one of: script, data, shp, result, reference
 set_directory = function(type)
 {
-	if(!type %in% c("script", "data", "shp", "result", "reference")) stop("type should be one of: script, data, shp, result, reference")
+	if(!type %in% c("script", "data", "shp", "result", "reference","shiny_data")) stop("type should be one of: script, data, shp, result, reference")
 	if(type == "script")
 	{
 		new_wd = wg_choose.dir(caption = "Script directory (Root for GIT/WGEEL)")
