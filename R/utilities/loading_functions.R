@@ -193,7 +193,7 @@ load_catch_landings<-function(path){
           country=country,
           values=c("dc_2017","wgeel_2016","wgeel_2017"))
   }
-  return(catch_landings) 
+  return(invisible(catch_landings))
 }
 
 
@@ -379,5 +379,5 @@ load_restocking<-function(path){
 				values=c("dc_2017","wgeel_2016","wgeel_2017"))
 		 
 		}
-		return(restocking)
+		return(invisible(restocking))
 		}
