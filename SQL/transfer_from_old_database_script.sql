@@ -150,6 +150,7 @@ update ref.tr_typeseries_typ set typ_name='q_release_kg' where typ_name='q_stock
 update ref.tr_typeseries_typ set typ_description='Released quantity (kg)' where typ_description='Stocking quantity (kg)';
 update ref.tr_typeseries_typ set (typ_name,typ_description)=('q_release_n','Released numbers (number)') where typ_name='q_stock_n';
 
+
 ---------------------
 -- datawg.t_series_ser 
 ---------------------
