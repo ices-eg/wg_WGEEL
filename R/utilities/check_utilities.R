@@ -17,12 +17,14 @@ check_missing <- function(dataset,column,country){
     line<-(1:nrow(dataset))[is.na(dataset[,column])]
     if (length(line)>10) line <-str_c(str_c(line[1:10],collapse=";"),"...") else
       line <- str_c(line,collpase=";")
-    cat(sprintf("Country <%s>,  dataset <%s>, column <%s>, missing values line %s \n",
-            country,
-           deparse(substitute(dataset)),
-            column,
-            line))
-    answer  = data.frame(nline = line, error_message = paste("missing value in column: ", column, sep = ""))
+    if (length(line)>0){
+      cat(sprintf("Country <%s>,  dataset <%s>, column <%s>, missing values line %s \n",
+                  country,
+                  deparse(substitute(dataset)),
+                  column,
+                  line))
+      answer  = data.frame(nline = line, error_message = paste("missing value in column: ", column, sep = ""))
+    }
   }
   return(answer)
 }
@@ -44,22 +46,23 @@ check_values <- function(dataset,column,country,values){
   if (nrow(ddataset)>0){ 
     #line<-(1:nrow(dataset))[is.na(dataset[,column])]# there might be NA, this will have been tested elsewhere
     if (! all(ddataset[,column]%in%values)) { # are all values matching ?
-          value<- str_c(unique(ddataset[,column][!ddataset[,column]%in%values]),collapse=";")
-          line <- ddataset$nline[!ddataset[,column]%in%values]
-      cat(sprintf("Country <%s>,  dataset <%s>, column <%s>, line <%s>, value <%s> is wrong \n",
-              country,
-              deparse(substitute(dataset)),
-              column,
-              line,
-              value))
-      
-      answer  = data.frame(nline = line , error_message = paste("value in column: ", column, " is wrong", sep = ""))
+      value<- str_c(unique(ddataset[,column][!ddataset[,column]%in%values]),collapse=";")
+      line <- ddataset$nline[!ddataset[,column]%in%values]
+      if (length(line)>0){
+        cat(sprintf("Country <%s>,  dataset <%s>, column <%s>, line <%s>, value <%s> is wrong \n",
+                    country,
+                    deparse(substitute(dataset)),
+                    column,
+                    line,
+                    value))
+        
+        answer  = data.frame(nline = line , error_message = paste("value in column: ", column, " is wrong", sep = ""))
+      }
     }
   }
   return(answer)
 }
 
-#column="eel_year"
 
 #' check_type
 #' 
@@ -99,7 +102,6 @@ check_type <- function(dataset,column,country,values,type){
 
 
 
-
 #' check_unique
 #' 
 #' check that there is only one value in the column
@@ -116,7 +118,7 @@ check_unique <- function(dataset,column,country){
   
   if (length(unique(ddataset[,column])) != 1) {   
     line <- ddataset$nline[which(ddataset[,column] != country)]
-  }
+    if (length(line)>0){
     cat(sprintf("Country <%s>,  dataset <%s>, column <%s>, line <%s> , should only have one value \n",
             country,
             deparse(substitute(dataset)),
@@ -125,12 +127,10 @@ check_unique <- function(dataset,column,country){
     
     answer  = data.frame(nline = line, error_message = paste("different country name in: ", column, sep = ""))
   return(answer)  
+    }
+  }
 }
 
-
-
-#dataset=aquaculture
-#country=country
 
 
 #' check_missvaluequa
@@ -152,13 +152,16 @@ check_missvaluequa <- function(dataset,country){
     lines<-which(!is.na(ddataset[,"eel_missvaluequal"]))
     eel_values_for_missing <-ddataset[lines,"eel_value"]
     if (! all(is.na(eel_values_for_missing))) {
-      cat(sprintf("Country <%s>,  dataset <%s>, column <%s>, lines <%s>, there is a code, but the eel_value field should be empty \n",
-              country,
-              deparse(substitute(dataset)),
-              "eel_missvaluequal",
-              lines[!is.na(eel_values_for_missing)]))
       line1 <- lines[!is.na(eel_values_for_missing)]
-      answer1  = data.frame(nline = line1, error_message = paste("there is a code in:", column, ", but the eel_value field should be empty", sep = ""))
+      if (length(line1)>0){
+        cat(sprintf("Country <%s>,  dataset <%s>, column <%s>, lines <%s>, there is a code, but the eel_value field should be empty \n",
+                    country,
+                    deparse(substitute(dataset)),
+                    "eel_missvaluequal",
+                    line1))
+        
+        answer1  = data.frame(nline = line1, error_message = paste("there is a code in:", column, ", but the eel_value field should be empty", sep = ""))
+      }
     }
   }
   # now check of missing values do all get a comment
@@ -169,13 +172,16 @@ check_missvaluequa <- function(dataset,country){
     eel_missingforvalues <-ddataset[lines,"eel_missvaluequal"]
     # if in those lines, one missing value has not been commented upon
     if (any(is.na(eel_missingforvalues))) {
-      cat(sprintf("Country <%s>,  dataset <%s>, column <%s>, lines <%s>, there should be a code, as the eel_value field is missing \n",
-              country,
-              deparse(substitute(dataset)),
-              "eel_missvaluequal",
-              lines[is.na(eel_missingforvalues)]))
       line2 <- lines[is.na(eel_missingforvalues)]
-      answer2  = data.frame(nline = line2, error_message = paste("there should be a code in:",column, ", as the eel_value field is missing", sep = ""))
+      if (length(line2)>0){
+        cat(sprintf("Country <%s>,  dataset <%s>, column <%s>, lines <%s>, there should be a code, as the eel_value field is missing \n",
+                    country,
+                    deparse(substitute(dataset)),
+                    "eel_missvaluequal",
+                    line2))
+        
+        answer2  = data.frame(nline = line2, error_message = paste("there should be a code in:",column, ", as the eel_value field is missing", sep = ""))
+      }
     }
   }
   return(rbind(answer1, answer2))  
