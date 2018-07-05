@@ -4,14 +4,15 @@
 ###############################################################################
 
 ui = fluidPage(
-		headerPanel('Test'),
+		headerPanel('WGEEL data visualition tool'),
 		sidebarPanel(
 				radioButtons("dataset", "Dataset", c("aquaculture", "landings", "stocking", "precodata"), selected = "landings", inline = TRUE),
-				sliderInput("year", "Year", value = 2015, min = 1920, max = 2017, step = 1, sep = ""),
+				sliderInput("yearmin", "Year (minimum)", value = 1950, min = 1920, max = as.numeric(format(Sys.time(), "%Y")), step = 1, sep = ""),
+				sliderInput("yearmax", "Year (maximum)", value = 2015, min = 1920, max = as.numeric(format(Sys.time(), "%Y")), step = 1, sep = ""),
 				checkboxGroupInput("lfs", "Life stage", lfs_code_base$lfs_code, selected = "G", inline = TRUE),
 				radioButtons("geo", "Geographical level", c("country", "emu"), selected = "country", inline = TRUE),
-				sliderInput("coef", "Size of circles", value = 5, min = 0, max = 100, step = 5, sep = ""),
-				checkboxGroupInput("country", "Country (for table only)", country_ref$cou_code, inline = TRUE)
+#				sliderInput("coef", "Size of circles", value = 5, min = 0, max = 100, step = 5, sep = ""),
+				checkboxGroupInput("country", "Country", country_ref$cou_code, inline = TRUE)
 		),
 		
 		mainPanel(
