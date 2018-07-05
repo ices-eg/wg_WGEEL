@@ -94,7 +94,7 @@ cols<-c(brewer.pal(12,"Set3"),brewer.pal(length(levels(landings2$country))-12,"S
 # reconstructed
 g_reconstructed_landings <- ggplot(landings2) + geom_col(aes(x=year,y=landings,fill=countryF),position='stack')+
 		ggtitle("Commercial Landings (Y+S) corrected") + scale_x_continuous(breaks = seq(1950, 2030, 10))+ xlab("Year") + ylab("Landings (tons)")+
-		coord_cartesian(expand = FALSE, ylim = c(0, 25000)) + #TODO: change 25000 for max*1.1
+		coord_cartesian(expand = FALSE, ylim = c(0, 25000)) + # TODO: change 25000 for max*1.1
 		scale_fill_manual(values=cols)+
 		theme_bw()#+ 
 #scale_fill_manual(palette="Accent")

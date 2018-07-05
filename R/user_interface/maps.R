@@ -32,7 +32,7 @@ mylocalfolder <- wg_choose.dir(caption = "Data call directory")
 aquaculture <- read.table(file=str_c(mylocalfolder,"/aquaculture.csv"),sep=";")
 landings <- read.table(file=str_c(mylocalfolder,"/landings.csv"),sep=";")
 stocking <- read.table(file=str_c(mylocalfolder,"/stocking.csv"),sep=";")
-load(str_c(mylocalfolder,"/lfs_code.Rdata")) # lfs_code_base #TODO: should be taken in ref table directory
+load(str_c(mylocalfolder,"/lfs_code.Rdata")) # lfs_code_base # TODO: should be taken in ref table directory
 # Some transformation of data prior to analysis
 # we can transform glass eel and quarantined glass eel in kg to number
 

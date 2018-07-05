@@ -5,6 +5,7 @@
 
 # retrieve reference tables needed
 # the shiny is launched from shiny_data_integration/shiny thus we need the ../
+if(is.null(options()$sqldf.RPostgreSQL.dbname)) source("../../database_interaction/database_connection.R")
 source("../../database_interaction/database_reference.R")
 source("../../database_interaction/database_data.R")
 source("../../database_interaction/database_precodata.R")

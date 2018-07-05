@@ -17,7 +17,7 @@ server = function(input, output) {
 	# table
 	output$table = DT::renderDataTable({if(input$dataset == "precodata"){
 					DT::datatable(filter_data("precodata", life_stage = NULL, country = input$country))
-				} else {
+				} else { # TODO: handle empty dataframe
 					dcast(filter_data(input$dataset, life_stage = input$lfs, country = input$country), eel_year~eel_cou_code, options = list(dom = 'lftp', pageLength = 10))
 				}})
 	
@@ -31,7 +31,7 @@ server = function(input, output) {
 				}
 			}
 	)
-	
+
 	# graph
 	output$graph = renderPlot(trace_precodiag(precodata))
 	
