@@ -56,7 +56,7 @@ load_catch_landings<-function(path){
                       country,"\n")) 
   colnames(catch_landings)[4]<-"eel_missvaluequal" # there is a problem in catch and landings sheet
   if (nrow(catch_landings)>0) {
-#TODO treat OG_ replace with OG 
+# TODO treat OG_ replace with OG 
   ###### eel_typ_id ##############
   
 # should not have any missing value

@@ -48,7 +48,7 @@ trace_precodiag = function(precodata, title = "Precautionary diagram per EMU")
 	} else Bmaximum=1
 	if (max(precodata$bbest,na.rm=TRUE)>mylimits[2]) mylimits[2]<-max(precodata$bbest,na.rm=TRUE)
 	if (all(is.na(precodata$pbiom))|all(is.na(precodata$pSpR))) errortext<-"Missing data" else errortext<-""
-	df<-background(Aminimum=0,Amaximum=max(5,pretty(max(precodata$suma))[2]),Bminimum=1e-3,Bmaximum=Bmaximum)
+	df<-background(Aminimum=0,Amaximum=max(5,pretty(max(precodata$suma))[2]),Bminimum=exp(-5),Bmaximum=Bmaximum)
 	######################
 	# Drawing the graphs
 	############################
@@ -75,11 +75,12 @@ trace_precodiag = function(precodata, title = "Precautionary diagram per EMU")
 			annotate("text",x =  0.4, y = 0, label = "Blim",  parse = F, hjust=0,vjust=-0.7, size=3,angle=90)+
 			annotate("text",x =  0.4, y = 0, label = "Btrigger",  parse = F, hjust=0,vjust=1.1, size=3,angle=90)+
 			#annotate("text",x =  0.1, y = 2, label = errortext,  parse = F, hjust=1,vjust=1, size=5,col="white")+
-			annotate("text",x =  Bminimum, y = 0, label = "100%",  parse = F, hjust=1, size=3)+
-			annotate("text",x =  Bminimum, y = 1.2, label = "30%",  parse = F, hjust=1, size=3)+
-			annotate("text",x =  Bminimum, y = 1.6, label = "20%",  parse = F, hjust=1, size=3)+
-			annotate("text",x =  Bminimum, y = 2.3, label = "10%",  parse = F, hjust=1, size=3)+
-			annotate("text",x =  Bminimum, y = 2.99, label = "5%",  parse = F, hjust=1, size=3)+
+			annotate("text",x =  Bminimum, y = 0, label = "100% -",  parse = F, hjust=1, size=3)+
+			annotate("text",x =  Bminimum, y = 1.2, label = "30% -",  parse = F, hjust=1, size=3)+
+			annotate("text",x =  Bminimum, y = 1.6, label = "20% -",  parse = F, hjust=1, size=3)+
+			annotate("text",x =  Bminimum, y = 2.3, label = "10% -",  parse = F, hjust=1, size=3)+
+			annotate("text",x =  Bminimum, y = 2.99, label = "5% -",  parse = F, hjust=1, size=3)+
+			annotate("text",x =  Bminimum, y = 4.6, label = "1% -",  parse = F, hjust=1, size=3)+
 			annotate("text",x =  Bminimum, y = Amaximum, label = "%SPR",  parse = F, hjust=1,vjust=-3,size=3,angle=90)+               
 			ggtitle(str_c(title))
 	if(pretty(max(precodata$suma))[2] > 4.6)   g = g +annotate("text",x =  Bminimum, y = 4.6, label = "1%",  parse = F, hjust=1, size=3) 

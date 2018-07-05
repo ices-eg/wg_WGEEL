@@ -28,7 +28,7 @@ aquaculture[is.na(aquaculture$eel_value),]
 # 12 n number
 #----------------------------
 table(aquaculture$eel_typ_id)
-#TODO: cope with 2 DK aquaculture in number ==> import or stocking thus ignore
+# TODO: cope with 2 DK aquaculture in number ==> import or stocking thus ignore
 #filter(aquaculture,eel_typ_id==12&eel_value!=0)
 
 

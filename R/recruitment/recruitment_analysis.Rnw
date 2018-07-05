@@ -811,7 +811,7 @@ confidence interval (95\%) are represented as black dots and bars.
 # At some point ACFM asked to use a different scaling period and we complied but the graph
 # is no longer shown as it is a bit confusing.
 # below now a geom bootstrap is proposed. 
-#TODO  2018 discuss whether to present arithmetic (not really good), geometric mean,
+# TODO  2018 discuss whether to present arithmetic (not really good), geometric mean,
 # or nothing at all (Willem's suggestion)
 ###################################################
 sgeomean.cl.boot<-function (x, conf.int = 0.95, B = 1000, na.rm = TRUE, reps = FALSE) 

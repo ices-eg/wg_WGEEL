@@ -18,7 +18,7 @@ extract_precodata = function()
 	sigmaa = extract_data("Sigma A")
 	
 	# merge data to have one data.frame
-	#TODO: handling habitat, ...
+	# TODO: handling habitat, ...
 	col_to_keep = c("eel_emu_nameshort", "eel_cou_code", "eel_year", "eel_value")
 	precodata = merge(bcurrent[,col_to_keep], bbest[,col_to_keep], by = col_to_keep[-length(col_to_keep)], suffixes = c(".bcurrent", ".bbest"))
 	n = names(precodata)

@@ -27,7 +27,7 @@ load_maps = function(full_load = FALSE, to_save = FALSE)
 				# this is the map of the emu.
 		country_c <<- rgdal::readOGR(str_c(shpwd,"/","country_centre_4326.shp"))
 				# transform spatial point dataframe to 
-		if(to_save) save(emu_c,country_p,emu_p,country_c,file=str_c(data_directory,"/maps_for_shiny.Rdata")) #TODO: should be taken in ref table directory
+		if(to_save) save(emu_c,country_p,emu_p,country_c,file=str_c(data_directory,"/maps_for_shiny.Rdata")) # TODO: should be taken in ref table directory
 	} else 
 	{
 		if(!exists("data_directory")) 
@@ -44,7 +44,7 @@ load_landings = function(from_database = FALSE)
 {
 	if(from_database)
 	{
-		#TODO: extract data from the database
+		# TODO: extract data from the database
 	} else {
 		if(!exists(data_directory)) 
 			data_directory <- tk_choose.dir(caption = "Data directory", default = mylocalfolder)
@@ -61,7 +61,7 @@ load_aquaculture = function(from_database = FALSE)
 {
 	if(from_database)
 	{
-		#TODO: extract data from the database
+		# TODO: extract data from the database
 	} else {
 		if(!exists(data_directory)) 
 			data_directory <- tk_choose.dir(caption = "Data directory", default = mylocalfolder)
@@ -78,7 +78,7 @@ load_stocking = function(from_database = FALSE)
 {
 	if(from_database)
 	{
-		#TODO: extract data from the database
+		# TODO: extract data from the database
 	} else {
 		if(!exists(data_directory)) 
 			data_directory <- tk_choose.dir(caption = "Data directory", default = mylocalfolder)
