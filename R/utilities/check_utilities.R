@@ -133,14 +133,14 @@ check_unique <- function(dataset,column,country){
 
 
 
-#' check_missvaluequa
+#' check_missvaluequal
 #' 
-#' check that there are data in missvaluequa only when there are missing value (NA) is eel_value
+#' check that there are data in missvaluequal only when there are missing value (NA) is eel_value
 #' @param dataset the name of the dataset
 #' @param column the name of the column
 #' @param country the current country being evaluated
 #' @param type, a class described as a character e.g. "numeric"
-check_missvaluequa <- function(dataset,country){
+check_missvaluequal <- function(dataset,country){
   answer1 = NULL
   answer2 = NULL
   # tibbles are weird, change to dataframe
