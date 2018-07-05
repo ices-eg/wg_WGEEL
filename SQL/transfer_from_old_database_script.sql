@@ -142,6 +142,15 @@ insert into ref.tr_units_uni values('nr day','number of days'); -- effort unit u
 -- ref.tr_typeseries_typ
 ---------------------------
 insert into ref.tr_typeseries_typ select class_id, class_name,class_description from ts.tr_dataclass_class ;--3
+
+-- change wkteel stocking has also to be used for silver eel so it's not really stocking
+-- I'm changing the names stock to release
+select * from ref.tr_typeseries_typ where typ_name='q_stock_kg';
+update ref.tr_typeseries_typ set typ_name='q_release_kg' where typ_name='q_stock_kg';
+update ref.tr_typeseries_typ set typ_description='Released quantity (kg)' where typ_description='Stocking quantity (kg)';
+update ref.tr_typeseries_typ set (typ_name,typ_description)=('q_release_n','Released numbers (number)') where typ_name='q_stock_n';
+
+
 ---------------------
 -- datawg.t_series_ser 
 ---------------------
