@@ -78,7 +78,7 @@ completeraw<-landings
 rawCLandingsGraph<-function (dataset="data", title)
 { 
   completeraw<-data
-  completeraw<-aggregate(landings~lfs+year+country,completeraw, sum)
+  completeraw<-aggregate(landings~year+country,completeraw, sum)
   
   ### To order the table by country (geographical position)
   Country<-factor(completeraw$country,levels=cou_cod,ordered=T)
