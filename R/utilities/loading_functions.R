@@ -452,20 +452,11 @@ load_aquaculture<-function(path){
     ###### eel_typ_id ##############
     
     # should not have any missing value
-    check_missing(dataset=aquaculture,
-                  column="eel_typ_id",
-                  country=country)
-    
     data_error = rbind(data_error,  check_missing(dataset=aquaculture,
                                      column="eel_typ_id",
                                      country=country))
     
     #  eel_typ_id should be one of 4 comm.land 5 comm.catch 6 recr. land. 7 recr. catch.
-    check_values(dataset=aquaculture,
-                 column="eel_typ_id",
-                 country=country,
-                 values=c(11,12))
-    
     data_error = rbind(data_error,  check_values(dataset=aquaculture,
                                                  column="eel_typ_id",
                                                  country=country,
@@ -474,74 +465,78 @@ load_aquaculture<-function(path){
     ###### eel_year ##############
     
     # should not have any missing value
-    check_missing(dataset=aquaculture,
-                  column="eel_year",
-                  country=country)
+    data_error= rbind(data_error, check_missing(dataset=aquaculture,
+                                                column="eel_year",
+                                                country=country))
+    
     # should be a numeric
-    check_type(dataset=aquaculture,
-               column="eel_year",
-               country=country,
-               type="numeric")
+    data_error= rbind(data_error, check_type(dataset=aquaculture,
+                                             column="eel_year",
+                                             country=country,
+                                             type="numeric"))
     
     ###### eel_value ##############
     
     # can have missing values if eel_missingvaluequa is filled (check later)
     
     # should be numeric
-    check_type(dataset=aquaculture,
-               column="eel_value",
-               country=country,
-               type="numeric")
+    data_error= rbind(data_error, check_type(dataset=aquaculture,
+                                             column="eel_value",
+                                             country=country,
+                                             type="numeric"))
     
     ###### eel_missvaluequa ##############
     
     #check that there are data in missvaluequa only when there are missing value (NA) is eel_value
     # and also that no missing values are provided without a comment is eel_missvaluequa
-    check_missvaluequa(dataset=aquaculture,
-                       country=country)
+    data_error= rbind(data_error, check_missvaluequa(dataset=aquaculture,
+                                                     country=country))
+    
+    
     
     ###### eel_emu_name ##############
-    
-    rbind(data_error,   check_missing(dataset=aquaculture,
+    data_error = rbind(data_error,   check_missing(dataset=aquaculture,
                   column="eel_emu_nameshort",
                   country=country))
-
-    check_type(dataset=aquaculture,
-               column="eel_emu_nameshort",
-               country=country,
-               type="character")
+    
+    data_error= rbind(data_error,  check_type(dataset=aquaculture,
+                                              column="eel_emu_nameshort",
+                                              country=country,
+                                              type="character"))
     
     ###### eel_cou_code ##############
     
     # must be a character
-    check_type(dataset=aquaculture,
-               column="eel_cou_code",
-               country=country,
-               type="character")
+    data_error= rbind(data_error,  check_type(dataset=aquaculture,
+                                              column="eel_cou_code",
+                                              country=country,
+                                              type="character"))
+    
     # should not have any missing value
-    check_missing(dataset=aquaculture,
-                  column="eel_cou_code",
-                  country=country)
+    data_error= rbind(data_error,  check_missing(dataset=aquaculture,
+                                                 column="eel_cou_code",
+                                                 country=country))
     # must only have one value
-    check_unique(dataset=aquaculture,
-                 column="eel_cou_code",
-                 country=country)
+    data_error= rbind(data_error, check_unique(dataset=aquaculture,
+                                               column="eel_cou_code",
+                                               country=country))
     
     ###### eel_lfs_code ##############
+    data_error= rbind(data_error, check_type(dataset=aquaculture,
+                                             column="eel_lfs_code",
+                                             country=country,
+                                             type="character"))
     
-    check_type(dataset=aquaculture,
-               column="eel_lfs_code",
-               country=country,
-               type="character")
     # should not have any missing value
-    check_missing(dataset=aquaculture,
-                  column="eel_lfs_code",
-                  country=country)
+    data_error= rbind(data_error, check_missing(dataset=aquaculture,
+                                                column="eel_lfs_code",
+                                                country=country))
+    
     # should only correspond to the following list
-    check_values(dataset=aquaculture,
-                 column="eel_lfs_code",
-                 country=country,
-                 values=c("G","GY","Y","YS","S","OG","QG","AL"))
+    data_error= rbind(data_error, check_values(dataset=aquaculture,
+                                               column="eel_lfs_code",
+                                               country=country,
+                                               values=c("G","GY","Y","YS","S","OG","QG","AL")))
     
     ###### eel_hty_code ##############
     # habitat makes no sense there      
@@ -575,21 +570,23 @@ load_aquaculture<-function(path){
     #          country=country,
     #          values=ices_division)
     ###### eel_qal_id ############## 
-    check_missing(dataset=aquaculture,
-                  column="eel_qal_id",
-                  country=country)
-    check_values(dataset=aquaculture,
-                 column="eel_qal_id",
-                 country=country,
-                 values=c(0,1,2,3))
+    data_error= rbind(data_error, check_missing(dataset=aquaculture,
+                                                column="eel_qal_id",
+                                                country=country))
+
+    data_error= rbind(data_error, check_values(dataset=aquaculture,
+                                               column="eel_qal_id",
+                                               country=country,
+                                               values=c(0,1,2,3)))
     ###### eel_datasource ############## 
-    check_missing(dataset=aquaculture,
-                  column="eel_datasource",
-                  country=country)
-    check_values(dataset=aquaculture,
-                 column="eel_datasource",
-                 country=country,
-                 values=c("dc_2017","wgeel_2016","wgeel_2017"))     
+    data_error= rbind(data_error, check_missing(dataset=aquaculture,
+                                                column="eel_datasource",
+                                                country=country))
+   
+    data_error= rbind(data_error, check_values(dataset=aquaculture,
+                                               column="eel_datasource",
+                                               country=country,
+                                               values=c("dc_2017","wgeel_2016","wgeel_2017")))
   }
   return(invisible(list(data=aquaculture,error=data_error)))
 }

@@ -52,12 +52,14 @@ check_values <- function(dataset,column,country,values){
               column,
               line,
               value))
+      
+      answer  = data.frame(nline = line , error_message = paste("value in column: ", column, " is wrong", sep = ""))
     }
-    answer  = data.frame(nline = line , error_message = paste("value in column: ", column, " is wrong", sep = ""))
   }
   return(answer)
 }
 
+#column="eel_year"
 
 #' check_type
 #' 
@@ -75,26 +77,26 @@ check_type <- function(dataset,column,country,values,type){
   ddataset <- as.data.frame(newdataset[!is.na(newdataset[,column]),])
   if (nrow(ddataset)>0){ 
     
-  if (type=="numeric") { # cant check for a numeric into a character
-    ddataset[,column]<-as.numeric(ddataset[,column]) # creates a warning message because of NAs introduced by coercion
-  }
-    line <- ddataset$nline[is.na(ddataset[,column])]
-    cat(sprintf("Country <%s>,  dataset <%s>, column <%s>, line <%s>,  should be of type %s \n",
-            country,
-            deparse(substitute(dataset)),
-            column,
-            line,
-            type))
-  
-    answer  = data.frame(nline = line, error_message = paste("error type in: ", column, sep = ""))
+    if (type=="numeric") { # cant check for a numeric into a character
+      options("warn"=1)
+      ddataset[,column]<-as.numeric(ddataset[,column]) # creates a warning message because of NAs introduced by coercion
+      options("warn"=0)
+      line <- ddataset$nline[is.na(ddataset[,column])]
+      if (length(line)>0){
+        cat(sprintf("Country <%s>,  dataset <%s>, column <%s>, line <%s>,  should be of type %s \n",
+                    country,
+                    deparse(substitute(dataset)),
+                    column,
+                    line,
+                    type))
+        
+        answer  = data.frame(nline = line, error_message = paste("error type in: ", column, sep = ""))
+      }
+    }
   }
   return(answer)  
 }
 
-
-dataset=aquaculture
-column="eel_cou_code"
-country=country
 
 
 
@@ -127,6 +129,10 @@ check_unique <- function(dataset,column,country){
 
 
 
+#dataset=aquaculture
+#country=country
+
+
 #' check_missvaluequa
 #' 
 #' check that there are data in missvaluequa only when there are missing value (NA) is eel_value
@@ -135,6 +141,8 @@ check_unique <- function(dataset,column,country){
 #' @param country the current country being evaluated
 #' @param type, a class described as a character e.g. "numeric"
 check_missvaluequa <- function(dataset,country){
+  answer1 = NULL
+  answer2 = NULL
   # tibbles are weird, change to dataframe
   ddataset<-as.data.frame(dataset)
   # first check that any value in eel_missvaluequal corresponds to a NA in eel_value
@@ -148,8 +156,9 @@ check_missvaluequa <- function(dataset,country){
               country,
               deparse(substitute(dataset)),
               "eel_missvaluequal",
-              lines[!is.na(eel_values_for_missing)]
-          ))
+              lines[!is.na(eel_values_for_missing)]))
+      line1 <- lines[!is.na(eel_values_for_missing)]
+      answer1  = data.frame(nline = line1, error_message = paste("there is a code in:", column, ", but the eel_value field should be empty", sep = ""))
     }
   }
   # now check of missing values do all get a comment
@@ -165,9 +174,11 @@ check_missvaluequa <- function(dataset,country){
               deparse(substitute(dataset)),
               "eel_missvaluequal",
               lines[is.na(eel_missingforvalues)]))
+      line2 <- lines[is.na(eel_missingforvalues)]
+      answer2  = data.frame(nline = line2, error_message = paste("there should be a code in:",column, ", as the eel_value field is missing", sep = ""))
     }
   }
-  return(invisible(NULL))  
+  return(rbind(answer1, answer2))  
 }
 
 
