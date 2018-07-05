@@ -19,4 +19,5 @@ source("../../utilities/check_utilities.R")
 source("../../database_interaction/database_connection.R")
 source("../../database_interaction/database_data.R")
 source("../../database_interaction/database_reference.R")
-catch_landings<-extract_data("Catches and landings")
+source("../../utilities/compare_with_database.R")
+

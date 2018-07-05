@@ -30,6 +30,13 @@ ui <- fluidPage(
                 ),
                 tags$hr(),
                 fluidRow(
+                    HTML(
+                             paste(
+                                  h4("File checking messages"),
+                                  "<p align='left'>Please read carefully and ensure that you have",'<br/>',
+                                  "checked all possible errors <p>"
+                             )
+                        ),
                     column(width=6,textOutput("integrate")),
                     column(width=6,dataTableOutput("errors"))
                 )

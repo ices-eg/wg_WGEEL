@@ -12,17 +12,19 @@
 #' @param column the name of the column
 #' @param country the current country being evaluated
 check_missing <- function(dataset,column,country){
+  answer = NULL
   if (any(is.na(dataset[,column]))){
     line<-(1:nrow(dataset))[is.na(dataset[,column])]
     if (length(line)>10) line <-str_c(str_c(line[1:10],collapse=";"),"...") else
       line <- str_c(line,collpase=";")
     cat(sprintf("Country <%s>,  dataset <%s>, column <%s>, missing values line %s \n",
             country,
-            deparse(substitute(dataset)),
+           deparse(substitute(dataset)),
             column,
             line))
+    answer  = data.frame(nline = line, error_message = paste("missing value in column: ", column, sep = ""))
   }
-  return(invisible(NULL))
+  return(answer)
 }
 
 #' check_values
@@ -32,20 +34,28 @@ check_missing <- function(dataset,column,country){
 #' @param dataset the name of the dataset
 #' @param column the name of the column
 #' @param country the current country being evaluated
+
 check_values <- function(dataset,column,country,values){
+  answer = NULL
+  newdataset <- dataset
+  newdataset$nline <- 1:nrow(newdataset)
   # remove NA from data
-  ddataset <- as.data.frame(dataset[!is.na(dataset[,column]),])
-  if (nrow(ddataset)>0){ # there might be NA, this will have been tested elsewhere
+  ddataset <- as.data.frame(newdataset[!is.na(newdataset[,column]),])
+  if (nrow(ddataset)>0){ 
+    #line<-(1:nrow(dataset))[is.na(dataset[,column])]# there might be NA, this will have been tested elsewhere
     if (! all(ddataset[,column]%in%values)) { # are all values matching ?
-          values<- str_c(unique(ddataset[,column][!ddataset[,column]%in%values]),collapse=";")
-      cat(sprintf("Country <%s>,  dataset <%s>, column <%s>, values <%s> are wrong \n",
+          value<- str_c(unique(ddataset[,column][!ddataset[,column]%in%values]),collapse=";")
+          line <- ddataset$nline[!ddataset[,column]%in%values]
+      cat(sprintf("Country <%s>,  dataset <%s>, column <%s>, line <%s>, value <%s> is wrong \n",
               country,
               deparse(substitute(dataset)),
               column,
-              values))
+              line,
+              value))
     }
-  } 
-  return(invisible(NULL))
+    answer  = data.frame(nline = line , error_message = paste("value in column: ", column, " is wrong", sep = ""))
+  }
+  return(answer)
 }
 
 
@@ -56,16 +66,36 @@ check_values <- function(dataset,column,country,values){
 #' @param column the name of the column
 #' @param country the current country being evaluated
 #' @param type, a class described as a character e.g. "numeric"
+
 check_type <- function(dataset,column,country,values,type){
-  if (class(dataset[[column]])!=type) {
-    cat(sprintf("Country <%s>,  dataset <%s>, column <%s>, should be of type %s \n",
+  answer = NULL
+  newdataset <- dataset
+  newdataset$nline <- 1:nrow(newdataset)
+  #remove NA from data
+  ddataset <- as.data.frame(newdataset[!is.na(newdataset[,column]),])
+  if (nrow(ddataset)>0){ 
+    
+  if (type=="numeric") { # cant check for a numeric into a character
+    ddataset[,column]<-as.numeric(ddataset[,column]) # creates a warning message because of NAs introduced by coercion
+  }
+    line <- ddataset$nline[is.na(ddataset[,column])]
+    cat(sprintf("Country <%s>,  dataset <%s>, column <%s>, line <%s>,  should be of type %s \n",
             country,
             deparse(substitute(dataset)),
             column,
+            line,
             type))
+  
+    answer  = data.frame(nline = line, error_message = paste("error type in: ", column, sep = ""))
   }
-  return(invisible(NULL))  
+  return(answer)  
 }
+
+
+dataset=aquaculture
+column="eel_cou_code"
+country=country
+
 
 
 #' check_unique
@@ -75,16 +105,27 @@ check_type <- function(dataset,column,country,values,type){
 #' @param column the name of the column
 #' @param country the current country being evaluated
 #' @param type, a class described as a character e.g. "numeric"
-check_unique <- function(dataset,column,country,values){
-  ddataset <- as.data.frame(dataset[!is.na(dataset[,column]),])
-  if (length(unique(ddataset[,column]))!=1) {
-    cat(sprintf("Country <%s>,  dataset <%s>, column <%s>, should only have one value \n",
+check_unique <- function(dataset,column,country){
+  answer = NULL
+  newdataset <- dataset
+  newdataset$nline <- 1:nrow(newdataset)
+  # remove the NA
+  ddataset <- as.data.frame(newdataset[!is.na(newdataset[,column]),])
+  
+  if (length(unique(ddataset[,column])) != 1) {   
+    line <- ddataset$nline[which(ddataset[,column] != country)]
+  }
+    cat(sprintf("Country <%s>,  dataset <%s>, column <%s>, line <%s> , should only have one value \n",
             country,
             deparse(substitute(dataset)),
-            column))
-  }
-  return(invisible(NULL))  
+            column,
+            line))
+    
+    answer  = data.frame(nline = line, error_message = paste("different country name in: ", column, sep = ""))
+  return(answer)  
 }
+
+
 
 #' check_missvaluequa
 #' 
@@ -126,5 +167,65 @@ check_missvaluequa <- function(dataset,country){
               lines[is.na(eel_missingforvalues)]))
     }
   }
+  return(invisible(NULL))  
+}
+
+
+#' check_missvalue_restocking
+#' 
+#' check if there is data in eel_value_number and eel_value_kg
+#' if there is data in eel_value_number or eel_value_kg, give warring to the user to fill the missing value 
+#' if there is data in neither eel_value_number and eel_value_kg, check if there are data in missvaluequa 
+#' 
+#' @param dataset the name of the dataset
+#' @param column the name of the column
+#' @param country the current country being evaluated
+#' @param type, a class described as a character e.g. "numeric"
+#' 
+check_missvalue_restocking <- function(dataset,country){
+  # tibbles are weird, change to dataframe
+  ddataset<-as.data.frame(dataset)
+  # first check that any value in eel_missvaluequal corresponds to a NA in eel_value_number and eel_value_kg
+  # get the rows where a label has been put
+  if (! all(is.na(ddataset[,"eel_missvaluequal"]))){
+    # get eel_values where missing has been filled in
+    lines<-which(!is.na(ddataset[,"eel_missvaluequal"]))
+    eel_values_for_missing <-ddataset[lines,c("eel_value_number","eel_value_kg")]
+    if (! all(is.na(eel_values_for_missing))) {
+      cat(sprintf("Country <%s>,  dataset <%s>, column <%s>, lines <%s>, there is a code, but the eel_value_number and eel_value_kg field should be empty \n",
+                  country,
+                  deparse(substitute(dataset)),
+                  "eel_missvaluequal",
+                  lines[!is.na(eel_values_for_missing)]
+      ))
+    }
+  }
+  # now check of missing values do all get a comment
+  # if there is any missing values
+  if (all(is.na(ddataset[,c("eel_value_number","eel_value_kg")]))){
+    # get eel_values where missing has been filled in
+    lines<-which(is.na(ddataset[,c("eel_value_number","eel_value_kg")]))
+    eel_missingforvalues <-ddataset[lines,"eel_missvaluequal"]
+    # if in those lines, one missing value has not been commented upon
+    if (any(is.na(eel_missingforvalues))) {
+      cat(sprintf("Country <%s>,  dataset <%s>, column <%s>, lines <%s>, there should be a code, as the eel_value_number and eel_value_kg fields are both missing \n",
+                  country,
+                  deparse(substitute(dataset)),
+                  "eel_missvaluequal",
+                  lines[is.na(eel_missingforvalues)]))
+    }
+  }
+  
+  # now check if there is data in eel_value_number or eel_value_kg, give warring to the user to fill the missing value 
+  # if there is any missing values
+    if (any(is.na(ddataset[,c("eel_value_number","eel_value_kg")]))){
+    # get eel_values where missing has been filled in
+    lines<-which(is.na(ddataset[,c("eel_value_number","eel_value_kg")]))
+    # if in those lines, one missing value has not been commented upon
+      cat(sprintf("Country <%s>,  dataset <%s>, column <%s>, lines <%s>, there should be a value in both column eel_value_number and eel_value_kg \n",
+                  country,
+                  deparse(substitute(dataset)),
+                  "eel_missvaluequal"))
+    }
   return(invisible(NULL))  
 }

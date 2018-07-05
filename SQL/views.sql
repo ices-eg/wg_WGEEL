@@ -179,3 +179,220 @@ LEFT JOIN ref.tr_habitattype_hty ON t_eelstock_eel.eel_hty_code = tr_habitattype
 LEFT JOIN ref.tr_emu_emu ON  (emu_nameshort,emu_cou_code) = (eel_emu_nameshort,eel_cou_code)
 WHERE (eel_typ_id=11 or eel_typ_id=12)
   AND (t_eelstock_eel.eel_qal_id <> 3 OR t_eelstock_eel.eel_qal_id <> 0 OR t_eelstock_eel.eel_qal_id IS NULL));
+
+-------------------------------------
+-- View for B0
+---------------------------------------
+CREATE OR REPLACE VIEW datawg.b0 AS 
+ SELECT t_eelstock_eel.eel_typ_id,
+    tr_typeseries_typ.typ_name,
+    tr_typeseries_typ.typ_uni_code,
+    t_eelstock_eel.eel_year,
+    t_eelstock_eel.eel_value,
+    t_eelstock_eel.eel_missvaluequal,
+    t_eelstock_eel.eel_emu_nameshort,
+    t_eelstock_eel.eel_cou_code,
+    tr_country_cou.cou_country,
+    tr_country_cou.cou_order,
+    tr_country_cou.cou_iso3code,
+    t_eelstock_eel.eel_lfs_code,
+    tr_lifestage_lfs.lfs_name,
+    t_eelstock_eel.eel_hty_code,
+    tr_habitattype_hty.hty_description,
+    t_eelstock_eel.eel_area_division,
+    t_eelstock_eel.eel_qal_id,
+    tr_quality_qal.qal_level,
+    tr_quality_qal.qal_text,
+    t_eelstock_eel.eel_qal_comment,
+    t_eelstock_eel.eel_comment,
+    t_eelstock_eel.eel_datasource
+   FROM datawg.t_eelstock_eel
+     LEFT JOIN ref.tr_lifestage_lfs ON t_eelstock_eel.eel_lfs_code::text = tr_lifestage_lfs.lfs_code::text
+     LEFT JOIN ref.tr_quality_qal ON t_eelstock_eel.eel_qal_id = tr_quality_qal.qal_id
+     LEFT JOIN ref.tr_country_cou ON t_eelstock_eel.eel_cou_code::text = tr_country_cou.cou_code::text
+     LEFT JOIN ref.tr_typeseries_typ ON t_eelstock_eel.eel_typ_id = tr_typeseries_typ.typ_id
+     LEFT JOIN ref.tr_habitattype_hty ON t_eelstock_eel.eel_hty_code::text = tr_habitattype_hty.hty_code::text
+     LEFT JOIN ref.tr_emu_emu ON tr_emu_emu.emu_nameshort::text = t_eelstock_eel.eel_emu_nameshort::text AND tr_emu_emu.emu_cou_code = t_eelstock_eel.eel_cou_code::text
+  WHERE (t_eelstock_eel.eel_typ_id = 13) 
+  AND (t_eelstock_eel.eel_qal_id <> 3 OR t_eelstock_eel.eel_qal_id <> 0 OR t_eelstock_eel.eel_qal_id IS NULL);
+
+-------------------------------------
+-- View for Bbest
+---------------------------------------
+CREATE OR REPLACE VIEW datawg.bbest AS 
+ SELECT t_eelstock_eel.eel_typ_id,
+    tr_typeseries_typ.typ_name,
+    tr_typeseries_typ.typ_uni_code,
+    t_eelstock_eel.eel_year,
+    t_eelstock_eel.eel_value,
+    t_eelstock_eel.eel_missvaluequal,
+    t_eelstock_eel.eel_emu_nameshort,
+    t_eelstock_eel.eel_cou_code,
+    tr_country_cou.cou_country,
+    tr_country_cou.cou_order,
+    tr_country_cou.cou_iso3code,
+    t_eelstock_eel.eel_lfs_code,
+    tr_lifestage_lfs.lfs_name,
+    t_eelstock_eel.eel_hty_code,
+    tr_habitattype_hty.hty_description,
+    t_eelstock_eel.eel_area_division,
+    t_eelstock_eel.eel_qal_id,
+    tr_quality_qal.qal_level,
+    tr_quality_qal.qal_text,
+    t_eelstock_eel.eel_qal_comment,
+    t_eelstock_eel.eel_comment,
+    t_eelstock_eel.eel_datasource
+   FROM datawg.t_eelstock_eel
+     LEFT JOIN ref.tr_lifestage_lfs ON t_eelstock_eel.eel_lfs_code::text = tr_lifestage_lfs.lfs_code::text
+     LEFT JOIN ref.tr_quality_qal ON t_eelstock_eel.eel_qal_id = tr_quality_qal.qal_id
+     LEFT JOIN ref.tr_country_cou ON t_eelstock_eel.eel_cou_code::text = tr_country_cou.cou_code::text
+     LEFT JOIN ref.tr_typeseries_typ ON t_eelstock_eel.eel_typ_id = tr_typeseries_typ.typ_id
+     LEFT JOIN ref.tr_habitattype_hty ON t_eelstock_eel.eel_hty_code::text = tr_habitattype_hty.hty_code::text
+     LEFT JOIN ref.tr_emu_emu ON tr_emu_emu.emu_nameshort::text = t_eelstock_eel.eel_emu_nameshort::text AND tr_emu_emu.emu_cou_code = t_eelstock_eel.eel_cou_code::text
+  WHERE (t_eelstock_eel.eel_typ_id = 14) 
+  AND (t_eelstock_eel.eel_qal_id <> 3 OR t_eelstock_eel.eel_qal_id <> 0 OR t_eelstock_eel.eel_qal_id IS NULL);
+
+
+-------------------------------------
+-- View for Bcurrent
+---------------------------------------
+CREATE OR REPLACE VIEW datawg.bcurrent AS 
+ SELECT t_eelstock_eel.eel_typ_id,
+    tr_typeseries_typ.typ_name,
+    tr_typeseries_typ.typ_uni_code,
+    t_eelstock_eel.eel_year,
+    t_eelstock_eel.eel_value,
+    t_eelstock_eel.eel_missvaluequal,
+    t_eelstock_eel.eel_emu_nameshort,
+    t_eelstock_eel.eel_cou_code,
+    tr_country_cou.cou_country,
+    tr_country_cou.cou_order,
+    tr_country_cou.cou_iso3code,
+    t_eelstock_eel.eel_lfs_code,
+    tr_lifestage_lfs.lfs_name,
+    t_eelstock_eel.eel_hty_code,
+    tr_habitattype_hty.hty_description,
+    t_eelstock_eel.eel_area_division,
+    t_eelstock_eel.eel_qal_id,
+    tr_quality_qal.qal_level,
+    tr_quality_qal.qal_text,
+    t_eelstock_eel.eel_qal_comment,
+    t_eelstock_eel.eel_comment,
+    t_eelstock_eel.eel_datasource
+   FROM datawg.t_eelstock_eel
+     LEFT JOIN ref.tr_lifestage_lfs ON t_eelstock_eel.eel_lfs_code::text = tr_lifestage_lfs.lfs_code::text
+     LEFT JOIN ref.tr_quality_qal ON t_eelstock_eel.eel_qal_id = tr_quality_qal.qal_id
+     LEFT JOIN ref.tr_country_cou ON t_eelstock_eel.eel_cou_code::text = tr_country_cou.cou_code::text
+     LEFT JOIN ref.tr_typeseries_typ ON t_eelstock_eel.eel_typ_id = tr_typeseries_typ.typ_id
+     LEFT JOIN ref.tr_habitattype_hty ON t_eelstock_eel.eel_hty_code::text = tr_habitattype_hty.hty_code::text
+     LEFT JOIN ref.tr_emu_emu ON tr_emu_emu.emu_nameshort::text = t_eelstock_eel.eel_emu_nameshort::text AND tr_emu_emu.emu_cou_code = t_eelstock_eel.eel_cou_code::text
+  WHERE (t_eelstock_eel.eel_typ_id = 15) 
+  AND (t_eelstock_eel.eel_qal_id <> 3 OR t_eelstock_eel.eel_qal_id <> 0 OR t_eelstock_eel.eel_qal_id IS NULL);
+
+-------------------------------------
+-- View for SigmaA
+---------------------------------------
+CREATE OR REPLACE VIEW datawg.sigmaa AS 
+ SELECT t_eelstock_eel.eel_typ_id,
+    tr_typeseries_typ.typ_name,
+    tr_typeseries_typ.typ_uni_code,
+    t_eelstock_eel.eel_year,
+    t_eelstock_eel.eel_value,
+    t_eelstock_eel.eel_missvaluequal,
+    t_eelstock_eel.eel_emu_nameshort,
+    t_eelstock_eel.eel_cou_code,
+    tr_country_cou.cou_country,
+    tr_country_cou.cou_order,
+    tr_country_cou.cou_iso3code,
+    t_eelstock_eel.eel_lfs_code,
+    tr_lifestage_lfs.lfs_name,
+    t_eelstock_eel.eel_hty_code,
+    tr_habitattype_hty.hty_description,
+    t_eelstock_eel.eel_area_division,
+    t_eelstock_eel.eel_qal_id,
+    tr_quality_qal.qal_level,
+    tr_quality_qal.qal_text,
+    t_eelstock_eel.eel_qal_comment,
+    t_eelstock_eel.eel_comment,
+    t_eelstock_eel.eel_datasource
+   FROM datawg.t_eelstock_eel
+     LEFT JOIN ref.tr_lifestage_lfs ON t_eelstock_eel.eel_lfs_code::text = tr_lifestage_lfs.lfs_code::text
+     LEFT JOIN ref.tr_quality_qal ON t_eelstock_eel.eel_qal_id = tr_quality_qal.qal_id
+     LEFT JOIN ref.tr_country_cou ON t_eelstock_eel.eel_cou_code::text = tr_country_cou.cou_code::text
+     LEFT JOIN ref.tr_typeseries_typ ON t_eelstock_eel.eel_typ_id = tr_typeseries_typ.typ_id
+     LEFT JOIN ref.tr_habitattype_hty ON t_eelstock_eel.eel_hty_code::text = tr_habitattype_hty.hty_code::text
+     LEFT JOIN ref.tr_emu_emu ON tr_emu_emu.emu_nameshort::text = t_eelstock_eel.eel_emu_nameshort::text AND tr_emu_emu.emu_cou_code = t_eelstock_eel.eel_cou_code::text
+  WHERE (t_eelstock_eel.eel_typ_id = 17) 
+  AND (t_eelstock_eel.eel_qal_id <> 3 OR t_eelstock_eel.eel_qal_id <> 0 OR t_eelstock_eel.eel_qal_id IS NULL);
+
+-------------------------------------
+-- View for SigmaF
+---------------------------------------
+CREATE OR REPLACE VIEW datawg.sigmaf AS 
+ SELECT t_eelstock_eel.eel_typ_id,
+    tr_typeseries_typ.typ_name,
+    tr_typeseries_typ.typ_uni_code,
+    t_eelstock_eel.eel_year,
+    t_eelstock_eel.eel_value,
+    t_eelstock_eel.eel_missvaluequal,
+    t_eelstock_eel.eel_emu_nameshort,
+    t_eelstock_eel.eel_cou_code,
+    tr_country_cou.cou_country,
+    tr_country_cou.cou_order,
+    tr_country_cou.cou_iso3code,
+    t_eelstock_eel.eel_lfs_code,
+    tr_lifestage_lfs.lfs_name,
+    t_eelstock_eel.eel_hty_code,
+    tr_habitattype_hty.hty_description,
+    t_eelstock_eel.eel_area_division,
+    t_eelstock_eel.eel_qal_id,
+    tr_quality_qal.qal_level,
+    tr_quality_qal.qal_text,
+    t_eelstock_eel.eel_qal_comment,
+    t_eelstock_eel.eel_comment,
+    t_eelstock_eel.eel_datasource
+   FROM datawg.t_eelstock_eel
+     LEFT JOIN ref.tr_lifestage_lfs ON t_eelstock_eel.eel_lfs_code::text = tr_lifestage_lfs.lfs_code::text
+     LEFT JOIN ref.tr_quality_qal ON t_eelstock_eel.eel_qal_id = tr_quality_qal.qal_id
+     LEFT JOIN ref.tr_country_cou ON t_eelstock_eel.eel_cou_code::text = tr_country_cou.cou_code::text
+     LEFT JOIN ref.tr_typeseries_typ ON t_eelstock_eel.eel_typ_id = tr_typeseries_typ.typ_id
+     LEFT JOIN ref.tr_habitattype_hty ON t_eelstock_eel.eel_hty_code::text = tr_habitattype_hty.hty_code::text
+     LEFT JOIN ref.tr_emu_emu ON tr_emu_emu.emu_nameshort::text = t_eelstock_eel.eel_emu_nameshort::text AND tr_emu_emu.emu_cou_code = t_eelstock_eel.eel_cou_code::text
+  WHERE (t_eelstock_eel.eel_typ_id = 18) 
+  AND (t_eelstock_eel.eel_qal_id <> 3 OR t_eelstock_eel.eel_qal_id <> 0 OR t_eelstock_eel.eel_qal_id IS NULL);
+
+-------------------------------------
+-- View for SigmaH
+---------------------------------------
+CREATE OR REPLACE VIEW datawg.sigmah AS 
+ SELECT t_eelstock_eel.eel_typ_id,
+    tr_typeseries_typ.typ_name,
+    tr_typeseries_typ.typ_uni_code,
+    t_eelstock_eel.eel_year,
+    t_eelstock_eel.eel_value,
+    t_eelstock_eel.eel_missvaluequal,
+    t_eelstock_eel.eel_emu_nameshort,
+    t_eelstock_eel.eel_cou_code,
+    tr_country_cou.cou_country,
+    tr_country_cou.cou_order,
+    tr_country_cou.cou_iso3code,
+    t_eelstock_eel.eel_lfs_code,
+    tr_lifestage_lfs.lfs_name,
+    t_eelstock_eel.eel_hty_code,
+    tr_habitattype_hty.hty_description,
+    t_eelstock_eel.eel_area_division,
+    t_eelstock_eel.eel_qal_id,
+    tr_quality_qal.qal_level,
+    tr_quality_qal.qal_text,
+    t_eelstock_eel.eel_qal_comment,
+    t_eelstock_eel.eel_comment,
+    t_eelstock_eel.eel_datasource
+   FROM datawg.t_eelstock_eel
+     LEFT JOIN ref.tr_lifestage_lfs ON t_eelstock_eel.eel_lfs_code::text = tr_lifestage_lfs.lfs_code::text
+     LEFT JOIN ref.tr_quality_qal ON t_eelstock_eel.eel_qal_id = tr_quality_qal.qal_id
+     LEFT JOIN ref.tr_country_cou ON t_eelstock_eel.eel_cou_code::text = tr_country_cou.cou_code::text
+     LEFT JOIN ref.tr_typeseries_typ ON t_eelstock_eel.eel_typ_id = tr_typeseries_typ.typ_id
+     LEFT JOIN ref.tr_habitattype_hty ON t_eelstock_eel.eel_hty_code::text = tr_habitattype_hty.hty_code::text
+     LEFT JOIN ref.tr_emu_emu ON tr_emu_emu.emu_nameshort::text = t_eelstock_eel.eel_emu_nameshort::text AND tr_emu_emu.emu_cou_code = t_eelstock_eel.eel_cou_code::text
+  WHERE (t_eelstock_eel.eel_typ_id = 19) 
+  AND (t_eelstock_eel.eel_qal_id <> 3 OR t_eelstock_eel.eel_qal_id <> 0 OR t_eelstock_eel.eel_qal_id IS NULL);
