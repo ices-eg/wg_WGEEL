@@ -544,6 +544,7 @@ load_aquaculture<-function(path){
 ############# BIOMASS INDICATORS #############################################
 # path <- file.choose()
 load_biomass<-function(path){
+  data_error <- data.frame(nline = NULL, error_message = NULL)
   the_metadata<-list()
   dir<-dirname(path)
   file<-basename(path)
@@ -728,6 +729,7 @@ load_biomass<-function(path){
 
 # path <- file.choose()
 load_mortality_rates<-function(path){
+  data_error <- data.frame(nline = NULL, error_message = NULL)
   the_metadata<-list()
   dir<-dirname(path)
   file<-basename(path)
@@ -766,7 +768,7 @@ load_mortality_rates<-function(path){
   if (ncol(mortality_rates)!=10) cat(str_c("number column wrong ",file,"\n"))
   # check column names
   if (all.equal(colnames(mortality_rates),
-                c("eel_typ_name", "eel_year","rate", "eel_missvaluequal","eel_emu_nameshort",
+                c("eel_typ_name", "eel_year","eel_value", "eel_missvaluequal","eel_emu_nameshort",
                   "eel_cou_code", "eel_lfs_code", "eel_hty_code","eel_area_division",
                   "eel_comment"))!=TRUE) 
     cat(str_c("problem in column names",
@@ -803,18 +805,18 @@ load_mortality_rates<-function(path){
                                              country=country,
                                              type="numeric"))
     
-    ###### rate ##############
+    ###### eel_value ##############
     
     # can have missing values if eel_missingvaluequa is filled (check later)
     
     # should be numeric
     data_error= rbind(data_error, check_type(dataset=mortality_rates,
-                                             column="rate",
+                                             column="eel_value",
                                              country=country,
                                              type="numeric"))
     
     data_error= rbind(data_error, check_positive(dataset=mortality_rates,
-                                             column="rate",
+                                             column="eel_value",
                                              country=country))
     
     ###### eel_missvaluequal ##############
@@ -915,6 +917,7 @@ load_mortality_rates<-function(path){
 
 # path <- file.choose()
 load_mortality_silver<-function(path){
+  data_error <- data.frame(nline = NULL, error_message = NULL)
   the_metadata<-list()
   dir<-dirname(path)
   file<-basename(path)
@@ -997,6 +1000,10 @@ load_mortality_silver<-function(path){
                                              column="eel_value",
                                              country=country,
                                              type="numeric"))
+    
+    data_error =rbind(data_error, check_positive(dataset = mortality_silver,
+                                                 column="eel_value",
+                                                 country=country))
     
     
     ###### eel_missvaluequal ##############
