@@ -199,7 +199,7 @@ check_missvaluequal <- function(dataset,country){
 #' @param country the current country being evaluated
 #' @param type, a class described as a character e.g. "numeric"
 #' 
-check_missvalue_restocking <- function(dataset,country){
+check_missvalue_release <- function(dataset,country){
   answer1 = NULL
   answer2 = NULL
   answer3 = NULL
@@ -259,4 +259,34 @@ check_missvalue_restocking <- function(dataset,country){
         }
     }
   return(rbind(answer1,answer2,answer3))  
+}
+
+
+#' check_positive
+#' 
+#' check that the data in ee_value is positive
+#' 
+#' @param dataset the name of the dataset
+#' @param column the name of the column
+#' @param country the current country being evaluated
+#' @param type, a class described as a character e.g. "numeric"
+#' 
+check_positive <- function(dataset,column,country){
+  answer = NULL
+  newdataset <- dataset
+  newdataset$nline <- 1:nrow(newdataset)
+  #remove NA from data
+  ddataset <- as.data.frame(newdataset[!is.na(newdataset[,column]),])
+  if (nrow(ddataset)>0){
+    line<-which(ddataset[,column]<0)
+    if (length(line)>0){
+      cat(sprintf("Country <%s>,  dataset <%s>, column <%s>, line <%s>,  should be a positive value \n",
+                  country,
+                  deparse(substitute(dataset)),
+                  column,
+                  line))
+      answer  = data.frame(nline = line, error_message = paste("negative value in: ", column, sep = ""))
+    }
+  }
+  return(answer)  
 }

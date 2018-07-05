@@ -13,6 +13,14 @@ if(.Platform$OS.type == "unix") {
 	wg_choose.dir<-choose.dir
 }    
 
+# adapt the file.choose to the platform used
+if(.Platform$OS.type == "unix") {
+  wg_file.choose<-tk_file.choose
+} else {
+  wg_file.choose<-file.choose
+}    
+
+
 #' @title set directory variables
 #' @description set directory variables to be used by other scripts
 #' @param type should be one of: script, data, shp, result, reference, shiny_data
