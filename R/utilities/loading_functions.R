@@ -7,13 +7,15 @@
 
 ############# CATCH AND LANDINGS #############################################
 
-#---------------------- METADATA sheet ---------------------------------------------
 # path<-file.choose()
 load_catch_landings<-function(path){
+  data_error <- data.frame(nline = NULL, error_message = NULL)
   the_metadata<-list()
   dir<-dirname(path)
   file<-basename(path)
   mylocalfilename<-gsub(".xlsx","",file)
+  
+#---------------------- METADATA sheet ---------------------------------------------
 # read the metadata sheet
   metadata<-read_excel(path=path,"metadata" , skip=4)
 # check if no rows have been added
@@ -60,138 +62,138 @@ load_catch_landings<-function(path){
   ###### eel_typ_id ##############
   
 # should not have any missing value
-  check_missing(dataset=catch_landings,
+    data_error= rbind(data_error, check_missing(dataset=catch_landings,
           column="eel_typ_id",
-          country=country)
+          country=country))
 #  eel_typ_id should be one of 4 comm.land 5 comm.catch 6 recr. land. 7 recr. catch.
-  check_values(dataset=catch_landings,
+    data_error= rbind(data_error, check_values(dataset=catch_landings,
           column="eel_typ_id",
           country=country,
-          values=c(4,5,6,7))
+          values=c(4,5,6,7)))
   
   ###### eel_year ##############
   
 # should not have any missing value
-  check_missing(dataset=catch_landings,
+    data_error= rbind(data_error, check_missing(dataset=catch_landings,
           column="eel_year",
-          country=country)
+          country=country))
 # should be a numeric
-  check_type(dataset=catch_landings,
+    data_error= rbind(data_error, check_type(dataset=catch_landings,
           column="eel_year",
           country=country,
-          type="numeric")
+          type="numeric"))
   
   ###### eel_value ##############
   
 # can have missing values if eel_missingvaluequa is filled (check later)
   
 # should be numeric
-  check_type(dataset=catch_landings,
+    data_error= rbind(data_error, check_type(dataset=catch_landings,
           column="eel_value",
           country=country,
-          type="numeric")
+          type="numeric"))
   
   ###### eel_missvaluequa ##############
   
 #check that there are data in missvaluequa only when there are missing value (NA) is eel_value
 # and also that no missing values are provided without a comment is eel_missvaluequa
-  check_missvaluequa(dataset=catch_landings,
-          country=country)
+    data_error= rbind(data_error, check_missvaluequa(dataset=catch_landings,
+          country=country))
   
   
   ###### eel_emu_name ##############
   
-  check_missing(dataset=catch_landings,
+    data_error= rbind(data_error, check_missing(dataset=catch_landings,
           column="eel_emu_nameshort",
-          country=country)
+          country=country))
   
-  check_type(dataset=catch_landings,
+    data_error= rbind(data_error, check_type(dataset=catch_landings,
           column="eel_emu_nameshort",
           country=country,
-          type="character")
+          type="character"))
   
   ###### eel_cou_code ##############
   
 # must be a character
-  check_type(dataset=catch_landings,
+    data_error= rbind(data_error, check_type(dataset=catch_landings,
           column="eel_cou_code",
           country=country,
-          type="character")
+          type="character"))
 # should not have any missing value
-  check_missing(dataset=catch_landings,
+    data_error= rbind(data_error, check_missing(dataset=catch_landings,
           column="eel_cou_code",
-          country=country)
+          country=country))
 # must only have one value
-  check_unique(dataset=catch_landings,
+    data_error= rbind(data_error, check_unique(dataset=catch_landings,
           column="eel_cou_code",
-          country=country)
+          country=country))
   
   ###### eel_lfs_code ##############
   
-  check_type(dataset=catch_landings,
+    data_error= rbind(data_error, check_type(dataset=catch_landings,
           column="eel_lfs_code",
           country=country,
-          type="character")
+          type="character"))
 # should not have any missing value
-  check_missing(dataset=catch_landings,
+    data_error= rbind(data_error, check_missing(dataset=catch_landings,
           column="eel_lfs_code",
-          country=country)
+          country=country))
 # should only correspond to the following list
-  check_values(dataset=catch_landings,
+    data_error= rbind(data_error, check_values(dataset=catch_landings,
           column="eel_lfs_code",
           country=country,
-          values=c("G","S","YS","GY","Y","AL"))
+          values=c("G","S","YS","GY","Y","AL")))
   
   ###### eel_hty_code ##############
   
-  check_type(dataset=catch_landings,
+    data_error= rbind(data_error, check_type(dataset=catch_landings,
           column="eel_hty_code",
           country=country,
-          type="character")
+          type="character"))
 # should not have any missing value
-  check_missing(dataset=catch_landings,
+    data_error= rbind(data_error, check_missing(dataset=catch_landings,
           column="eel_hty_code",
-          country=country)
+          country=country))
 # should only correspond to the following list
-  check_values(dataset=catch_landings,
+    data_error= rbind(data_error, check_values(dataset=catch_landings,
           column="eel_hty_code",
           country=country,
-          values=c("F","T","C","MO","AL"))
+          values=c("F","T","C","MO","AL")))
   
   ###### eel_area_div ##############
   
-  check_type(dataset=catch_landings,
+    data_error= rbind(data_error, check_type(dataset=catch_landings,
           column="eel_area_division",
           country=country,
-          type="character")
+          type="character"))
 # should not have any missing value
-  check_missing(dataset=catch_landings,
+    data_error= rbind(data_error, check_missing(dataset=catch_landings,
           column="eel_area_division",
-          country=country)
+          country=country))
 # the dataset ices_division should have been loaded there
-  check_values(dataset=catch_landings,
+    data_error= rbind(data_error, check_values(dataset=catch_landings,
           column="eel_area_division",
           country=country,
-          values=ices_division)
+          values=ices_division))
   
   ###### eel_qal_id ############## 
-  check_missing(dataset=catch_landings,
+    data_error= rbind(data_error, check_missing(dataset=catch_landings,
           column="eel_qal_id",
-          country=country)
+          country=country))
   
-  check_values(dataset=catch_landings,
+    data_error= rbind(data_error, check_values(dataset=catch_landings,
           column="eel_qal_id",
           country=country,
-          values=c(0,1,2,3))
+          values=c(0,1,2,3)))
   ###### eel_datasource ############## 
-  check_missing(dataset=catch_landings,
+    data_error= rbind(data_error, check_missing(dataset=catch_landings,
           column="eel_datasource",
-          country=country)
+          country=country))
   
-  check_values(dataset=catch_landings,
+    data_error= rbind(data_error, check_values(dataset=catch_landings,
           column="eel_datasource",
           country=country,
-          values=c("dc_2017","wgeel_2016","wgeel_2017"))
+          values=c("dc_2017","wgeel_2016","wgeel_2017")))
   }
   return(catch_landings) 
 }
@@ -199,14 +201,15 @@ load_catch_landings<-function(path){
 
 ############# RESTOCKING #############################################
 
-#---------------------- METADATA sheet ---------------------------------------------
-
 # path<-file.choose()
 load_restocking<-function(path){
+  data_error <- data.frame(nline = NULL, error_message = NULL)
 	the_metadata<-list()
 	dir<-dirname(path)
 	file<-basename(path)
 	mylocalfilename<-gsub(".xlsx","",file)
+	
+#---------------------- METADATA sheet ---------------------------------------------
 ## It is no necessary for database
 	# read the metadata sheet
 	metadata<-read_excel(path=path,"metadata" , skip=4)
@@ -249,46 +252,46 @@ load_restocking<-function(path){
 		###### eel_typ_id ##############
 		
 		# should not have any missing value
-		check_missing(dataset=restocking,
+	  data_error= rbind(data_error, check_missing(dataset=restocking,
 				column="eel_typ_id",
-				country=country)
+				country=country))
 		#  eel_typ_id should be one of 4 comm.land 5 comm.catch 6 recr. land. 7 recr. catch.
-		check_values(dataset=restocking,
+	  data_error= rbind(data_error, check_values(dataset=restocking,
 				column="eel_typ_id",
 				country=country,
-				values=c(8,9))
+				values=c(8,9)))
 		
 		###### eel_year ##############
 		
 		# should not have any missing value
-		check_missing(dataset=restocking,
+	  data_error= rbind(data_error, check_missing(dataset=restocking,
 				column="eel_year",
-				country=country)
+				country=country))
 		# should be a numeric
-		check_type(dataset=restocking,
+	  data_error= rbind(data_error, check_type(dataset=restocking,
 				column="eel_year",
 				country=country,
-				type="numeric")
+				type="numeric"))
 		
 		###### eel_value_number ##############
 		
 		# can have missing values if eel_missingvaluequa is filled (check later)
 		
 		# should be numeric
-		check_type(dataset=restocking,
+	  data_error= rbind(data_error, check_type(dataset=restocking,
 				column="eel_value_number",
 				country=country,
-				type="numeric")
+				type="numeric"))
 		
 		###### eel_value_kg ##############
 		
 		# can have missing values if eel_missingvaluequa is filled (check later)
 		
 		# should be numeric
-		check_type(dataset=restocking,
+	  data_error= rbind(data_error, check_type(dataset=restocking,
 		           column="eel_value_kg",
 		           country=country,
-		           type="numeric")
+		           type="numeric"))
 		
 		###### eel_missvaluequa ##############
 		
@@ -296,100 +299,100 @@ load_restocking<-function(path){
 		# if there is data in eel_value_number or eel_value_kg, give warring to the user to fill the missing value 
 		# if there is data in neither eel_value_number and eel_value_kg, check if there are data in missvaluequa 
 	
-		check_missvalue_restocking(dataset=restocking,
-				country=country)
+	  data_error= rbind(data_error, check_missvalue_restocking(dataset=restocking,
+				country=country))
 		
 		###### eel_emu_name ##############
 		
-		check_missing(dataset=restocking,
+	  data_error= rbind(data_error, check_missing(dataset=restocking,
 				column="eel_emu_nameshort",
-				country=country)
+				country=country))
 		
-		check_type(dataset=restocking,
+	  data_error= rbind(data_error, check_type(dataset=restocking,
 				column="eel_emu_nameshort",
 				country=country,
-				type="character")
+				type="character"))
 		
 		###### eel_cou_code ##############
 		
 		# must be a character
-		check_type(dataset=restocking,
+	  data_error= rbind(data_error, check_type(dataset=restocking,
 				column="eel_cou_code",
 				country=country,
-				type="character")
+				type="character"))
 		# should not have any missing value
-		check_missing(dataset=restocking,
+	  data_error= rbind(data_error, check_missing(dataset=restocking,
 				column="eel_cou_code",
-				country=country)
+				country=country))
 		# must only have one value
-		check_unique(dataset=restocking,
+	  data_error= rbind(data_error, check_unique(dataset=restocking,
 				column="eel_cou_code",
-				country=country)
+				country=country))
 		
 		###### eel_lfs_code ##############
 		
-		check_type(dataset=restocking,
+	  data_error= rbind(data_error, check_type(dataset=restocking,
 				column="eel_lfs_code",
 				country=country,
-				type="character")
+				type="character"))
 		# should not have any missing value
-		check_missing(dataset=restocking,
+	  data_error= rbind(data_error, check_missing(dataset=restocking,
 				column="eel_lfs_code",
-				country=country)
+				country=country))
 		# should only correspond to the following list
-		check_values(dataset=restocking,
+	  data_error= rbind(data_error, check_values(dataset=restocking,
 				column="eel_lfs_code",
 				country=country,
-				values=c("G","GY","Y","QG","OG","YS","S","AL"))
+				values=c("G","GY","Y","QG","OG","YS","S","AL")))
 		
 		###### eel_hty_code ##############
 		
-		check_type(dataset=restocking,
+	  data_error= rbind(data_error, check_type(dataset=restocking,
 				column="eel_hty_code",
 				country=country,
-				type="character")
+				type="character"))
 		# should not have any missing value
-		check_missing(dataset=restocking,
+	  data_error= rbind(data_error, check_missing(dataset=restocking,
 				column="eel_hty_code",
-				country=country)
+				country=country))
 		# should only correspond to the following list
-		check_values(dataset=restocking,
+	  data_error= rbind(data_error, check_values(dataset=restocking,
 				column="eel_hty_code",
 				country=country,
-				values=c("F","T","C","MO","AL"))
+				values=c("F","T","C","MO","AL")))
 		
 		###### eel_area_div ##############
 		
-		check_type(dataset=restocking,
+	  data_error= rbind(data_error, check_type(dataset=restocking,
 				column="eel_area_division",
 				country=country,
-				type="character")
+				type="character"))
 		# should not have any missing value
-		check_missing(dataset=restocking,
+	  data_error= rbind(data_error, check_missing(dataset=restocking,
 				column="eel_area_division",
-				country=country)
+				country=country))
 		# the dataset ices_division should have been loaded there
-		check_values(dataset=restocking,
+	  data_error= rbind(data_error, check_values(dataset=restocking,
 				column="eel_area_division",
 				country=country,
-				values=ices_division)
+				values=ices_division))
 		###### eel_qal_id ############## 
-		check_missing(dataset=restocking,
+	  data_error= rbind(data_error, check_missing(dataset=restocking,
 				column="eel_qal_id",
-				country=country)
+				country=country))
 		
-		check_values(dataset=restocking,
+	  data_error= rbind(data_error, check_values(dataset=restocking,
 				column="eel_qal_id",
 				country=country,
-				values=c(0,1,2,3))
+				values=c(0,1,2,3)))
 		###### eel_datasource ############## 
-		check_missing(dataset=restocking,
+	  data_error= rbind(data_error, check_missing(dataset=restocking,
 				column="eel_datasource",
-				country=country)
-		check_values(dataset=restocking,
+				country=country))
+	  data_error= rbind(data_error, check_values(dataset=restocking,
 				column="eel_datasource",
 				country=country,
-				values=c("dc_2017","wgeel_2016","wgeel_2017"))
+				values=c("dc_2017","wgeel_2016","wgeel_2017")))
 		 
 		}
 		return(restocking)
@@ -398,9 +401,7 @@ load_restocking<-function(path){
 
 ############# AQUACULTURE PRODUCTION #############################################
 
-#---------------------- METADATA sheet ---------------------------------------------
 # path <- file.choose()
-
 load_aquaculture<-function(path){
   data_error <- data.frame(nline = NULL, error_message = NULL)
   the_metadata<-list()
@@ -408,6 +409,7 @@ load_aquaculture<-function(path){
   file<-basename(path)
   mylocalfilename<-gsub(".xlsx","",file)
   
+#---------------------- METADATA sheet ---------------------------------------------
   # read the metadata sheet
   metadata<-read_excel(path=path,"metadata" , skip=4) 
   # check if no rows have been added
@@ -593,16 +595,14 @@ load_aquaculture<-function(path){
 
 
 ############# BIOMASS INDICATORS #############################################
-
-#---------------------- METADATA sheet ---------------------------------------------
 # path <- file.choose()
-
 load_biomass<-function(path){
   the_metadata<-list()
   dir<-dirname(path)
   file<-basename(path)
   mylocalfilename<-gsub(".xlsx","",file)
   
+#---------------------- METADATA sheet ---------------------------------------------
   # read the metadata sheet
   metadata<-read_excel(path=path,"metadata" , skip=4) 
   # check if no rows have been added
