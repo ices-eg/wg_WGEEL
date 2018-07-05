@@ -200,6 +200,9 @@ check_missvaluequa <- function(dataset,country){
 #' @param type, a class described as a character e.g. "numeric"
 #' 
 check_missvalue_restocking <- function(dataset,country){
+  answer1 = NULL
+  answer2 = NULL
+  answer3 = NULL
   # tibbles are weird, change to dataframe
   ddataset<-as.data.frame(dataset)
   # first check that any value in eel_missvaluequal corresponds to a NA in eel_value_number and eel_value_kg
@@ -209,12 +212,15 @@ check_missvalue_restocking <- function(dataset,country){
     lines<-which(!is.na(ddataset[,"eel_missvaluequal"]))
     eel_values_for_missing <-ddataset[lines,c("eel_value_number","eel_value_kg")]
     if (! all(is.na(eel_values_for_missing))) {
+      line1 <- lines[!is.na(eel_values_for_missing)]
+      if (length(line1)>0){
       cat(sprintf("Country <%s>,  dataset <%s>, column <%s>, lines <%s>, there is a code, but the eel_value_number and eel_value_kg field should be empty \n",
                   country,
                   deparse(substitute(dataset)),
                   "eel_missvaluequal",
-                  lines[!is.na(eel_values_for_missing)]
-      ))
+                  line1 ))
+      answer1 <- data.frame(nline = line1, error_message = paste(" there is a code in eel_missvaluequal but the eel_value_number and eel_value_kg field should be empty" ))
+      }
     }
   }
   # now check of missing values do all get a comment
@@ -225,11 +231,15 @@ check_missvalue_restocking <- function(dataset,country){
     eel_missingforvalues <-ddataset[lines,"eel_missvaluequal"]
     # if in those lines, one missing value has not been commented upon
     if (any(is.na(eel_missingforvalues))) {
+      line2 <- lines[is.na(eel_missingforvalues)]
+      if (length(line2)>0){
       cat(sprintf("Country <%s>,  dataset <%s>, column <%s>, lines <%s>, there should be a code, as the eel_value_number and eel_value_kg fields are both missing \n",
                   country,
                   deparse(substitute(dataset)),
                   "eel_missvaluequal",
-                  lines[is.na(eel_missingforvalues)]))
+                  line2 ))
+        answer2 <- data.frame(nline = line2, error_message = paste("there should be a code in eel_missvaluequal as the eel_value_number and eel_value_kg fields are both missing"))
+      }
     }
   }
   
@@ -237,12 +247,16 @@ check_missvalue_restocking <- function(dataset,country){
   # if there is any missing values
     if (any(is.na(ddataset[,c("eel_value_number","eel_value_kg")]))){
     # get eel_values where missing has been filled in
-    lines<-which(is.na(ddataset[,c("eel_value_number","eel_value_kg")]))
+    line3<-which(is.na(ddataset[,c("eel_value_number","eel_value_kg")]))
+    if (length(line3)>0){
     # if in those lines, one missing value has not been commented upon
       cat(sprintf("Country <%s>,  dataset <%s>, column <%s>, lines <%s>, there should be a value in both column eel_value_number and eel_value_kg \n",
                   country,
                   deparse(substitute(dataset)),
-                  "eel_missvaluequal"))
+                  "eel_missvaluequal",
+                  line3))
+      answer3 <- data.frame(nline = line3, error_message = paste("there should be a value in both column eel_value_number and eel_value_kg"))   
+        }
     }
-  return(invisible(NULL))  
+  return(rbind(answer1,answer2,answer3))  
 }
