@@ -7,6 +7,7 @@ cou_cod<-country_cod$cou_code
 
 # TODO create a variable name col assigning color to each country for all the graphs
 
+library(RColorBrewer)
 
 values=c(brewer.pal(12,"Set3"),brewer.pal(12, "Paired"), brewer.pal(8,"Accent"),
          
@@ -26,7 +27,8 @@ a1<-as.data.frame(aquaculture%>%dplyr::group_by(eel_cou_code,eel_year)%>%filter(
 ########
 # FUnction
 ########
-
+#TODO change the name of the column to be adapt to the data base
+#TODO add inputs in the function to call cou_cod and col
 ###For the graph we need a table with column names: eel_cou_code (2 letters code), eel_year, eel_value, eel_lfs_code 
 ### we also need cou_cod and col
 aqualcultureGraph<-function (dataset="data", title=NULL)
