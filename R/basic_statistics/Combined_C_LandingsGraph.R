@@ -7,7 +7,7 @@ cou_cod<-country_cod$cou_code
 
 # TODO create a variable name col assigning color to each country for all the graphs
 
-
+library(RColorBrewer)
 values=c(brewer.pal(12,"Set3"),brewer.pal(12, "Paired"), brewer.pal(8,"Accent"),
          
          brewer.pal(7, "Dark2"))
