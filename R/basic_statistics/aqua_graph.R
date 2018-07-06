@@ -31,7 +31,7 @@ a1<-as.data.frame(aquaculture%>%dplyr::group_by(eel_cou_code,eel_year)%>%filter(
 ### we also need cou_cod and col
 aqualcultureGraph<-function (dataset="data", title=NULL)
 { 
-  a1<-data
+  a1<-dataset
   ### To order the table by country (geographical position)
   Country<-factor(a1$eel_cou_code,levels=cou_cod,ordered=T)
   Country<-droplevels(Country)
