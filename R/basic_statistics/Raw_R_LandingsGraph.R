@@ -69,11 +69,12 @@ completeraw<-landings
 # FUnction
 ########
 
+# TODO change the name of the column to be adapt to the database name (eel_cou_code, eel_year, ...)
 ###For the graph we need a table with column names: country (2 letters code), year, landings, lfs 
 ### we also need cou_cod and col
-rawRLandingsGraph<-function (dataset="data", title)
+rawRLandingsGraph<-function (dataset="data", title=NULL)
 { 
-  completeraw<-data
+  completeraw<-dataset
   completeraw<-aggregate(landings~year+country,completeraw, sum)
   
   ### To order the table by country (geographical position)
