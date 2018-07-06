@@ -18,9 +18,7 @@ check_missing <- function(dataset,column,country){
     if (length(line)>10) line <-str_c(str_c(line[1:10],collapse=";"),"...") else
       line <- str_c(line,collpase=";")
     if (length(line)>0){
-      cat(sprintf("Country <%s>,  dataset <%s>, column <%s>, missing values line %s \n",
-                  country,
-                  deparse(substitute(dataset)),
+      cat(sprintf("column <%s>, missing values line %s \n",
                   column,
                   line))
       answer  = data.frame(nline = line, error_message = paste("missing value in column: ", column, sep = ""))
@@ -49,9 +47,7 @@ check_values <- function(dataset,column,country,values){
       value<- str_c(unique(ddataset[,column][!ddataset[,column]%in%values]),collapse=";")
       line <- ddataset$nline[!ddataset[,column]%in%values]
       if (length(line)>0){
-        cat(sprintf("Country <%s>,  dataset <%s>, column <%s>, line <%s>, value <%s> is wrong \n",
-                    country,
-                    deparse(substitute(dataset)),
+        cat(sprintf("column <%s>, line <%s>, value <%s> is wrong \n",                   
                     column,
                     line,
                     value))
@@ -86,9 +82,7 @@ check_type <- function(dataset,column,country,values,type){
       options("warn"=0)
       line <- ddataset$nline[is.na(ddataset[,column])]
       if (length(line)>0){
-        cat(sprintf("Country <%s>,  dataset <%s>, column <%s>, line <%s>,  should be of type %s \n",
-                    country,
-                    deparse(substitute(dataset)),
+        cat(sprintf("column <%s>, line <%s>,  should be of type %s \n",
                     column,
                     line,
                     type))
@@ -119,9 +113,7 @@ check_unique <- function(dataset,column,country){
   if (length(unique(ddataset[,column])) != 1) {   
     line <- ddataset$nline[which(ddataset[,column] != country)]
     if (length(line)>0){
-    cat(sprintf("Country <%s>,  dataset <%s>, column <%s>, line <%s> , should only have one value \n",
-            country,
-            deparse(substitute(dataset)),
+    cat(sprintf("column <%s>, line <%s> , should only have one value \n",
             column,
             line))
     
@@ -154,9 +146,7 @@ check_missvaluequal <- function(dataset,country){
     if (! all(is.na(eel_values_for_missing))) {
       line1 <- lines[!is.na(eel_values_for_missing)]
       if (length(line1)>0){
-        cat(sprintf("Country <%s>,  dataset <%s>, column <%s>, lines <%s>, there is a code, but the eel_value field should be empty \n",
-                    country,
-                    deparse(substitute(dataset)),
+        cat(sprintf("column <%s>, lines <%s>, there is a code, but the eel_value field should be empty \n",
                     "eel_missvaluequal",
                     line1))
         
@@ -174,9 +164,7 @@ check_missvaluequal <- function(dataset,country){
     if (any(is.na(eel_missingforvalues))) {
       line2 <- lines[is.na(eel_missingforvalues)]
       if (length(line2)>0){
-        cat(sprintf("Country <%s>,  dataset <%s>, column <%s>, lines <%s>, there should be a code, as the eel_value field is missing \n",
-                    country,
-                    deparse(substitute(dataset)),
+        cat(sprintf("column <%s>, lines <%s>, there should be a code, as the eel_value field is missing \n",
                     "eel_missvaluequal",
                     line2))
         
@@ -214,9 +202,7 @@ check_missvalue_restocking <- function(dataset,country){
     if (! all(is.na(eel_values_for_missing))) {
       line1 <- lines[!is.na(eel_values_for_missing)]
       if (length(line1)>0){
-      cat(sprintf("Country <%s>,  dataset <%s>, column <%s>, lines <%s>, there is a code, but the eel_value_number and eel_value_kg field should be empty \n",
-                  country,
-                  deparse(substitute(dataset)),
+      cat(sprintf("column <%s>, lines <%s>, there is a code, but the eel_value_number and eel_value_kg field should be empty \n",
                   "eel_missvaluequal",
                   line1 ))
       answer1 <- data.frame(nline = line1, error_message = paste(" there is a code in eel_missvaluequal but the eel_value_number and eel_value_kg field should be empty" ))
@@ -233,9 +219,7 @@ check_missvalue_restocking <- function(dataset,country){
     if (any(is.na(eel_missingforvalues))) {
       line2 <- lines[is.na(eel_missingforvalues)]
       if (length(line2)>0){
-      cat(sprintf("Country <%s>,  dataset <%s>, column <%s>, lines <%s>, there should be a code, as the eel_value_number and eel_value_kg fields are both missing \n",
-                  country,
-                  deparse(substitute(dataset)),
+      cat(sprintf("column <%s>, lines <%s>, there should be a code, as the eel_value_number and eel_value_kg fields are both missing \n",
                   "eel_missvaluequal",
                   line2 ))
         answer2 <- data.frame(nline = line2, error_message = paste("there should be a code in eel_missvaluequal as the eel_value_number and eel_value_kg fields are both missing"))
@@ -250,9 +234,7 @@ check_missvalue_restocking <- function(dataset,country){
     line3<-which(is.na(ddataset[,c("eel_value_number","eel_value_kg")]))
     if (length(line3)>0){
     # if in those lines, one missing value has not been commented upon
-      cat(sprintf("Country <%s>,  dataset <%s>, column <%s>, lines <%s>, there should be a value in both column eel_value_number and eel_value_kg \n",
-                  country,
-                  deparse(substitute(dataset)),
+      cat(sprintf("column <%s>, lines <%s>, there should be a value in both column eel_value_number and eel_value_kg \n",
                   "eel_missvaluequal",
                   line3))
       answer3 <- data.frame(nline = line3, error_message = paste("there should be a value in both column eel_value_number and eel_value_kg"))   
