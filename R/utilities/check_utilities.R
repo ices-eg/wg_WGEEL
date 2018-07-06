@@ -160,7 +160,7 @@ check_missvaluequal <- function(dataset,country){
                     "eel_missvaluequal",
                     line1))
         
-        answer1  = data.frame(nline = line1, error_message = paste("there is a code in:", column, ", but the eel_value field should be empty", sep = ""))
+        answer1  = data.frame(nline = line1, error_message = paste("there is a code in eel_missvaluequal, but the eel_value field should be empty", sep = ""))
       }
     }
   }
@@ -180,7 +180,7 @@ check_missvaluequal <- function(dataset,country){
                     "eel_missvaluequal",
                     line2))
         
-        answer2  = data.frame(nline = line2, error_message = paste("there should be a code in:",column, ", as the eel_value field is missing", sep = ""))
+        answer2  = data.frame(nline = line2, error_message = paste("there should be a code in eel_missvaluequal, as the eel_value field is missing", sep = ""))
       }
     }
   }
