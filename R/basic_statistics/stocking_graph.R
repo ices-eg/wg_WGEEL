@@ -1,3 +1,4 @@
+##Change this function or use Raw_C_LandingsGraph to create the graph for stocking
 # produce graph and table for stocking
 # 
 # Author: lbeaulaton
