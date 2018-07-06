@@ -7,37 +7,42 @@ ui <- fluidPage(
     mainPanel(h2("wgeel data integration"),
         tabsetPanel(
             tabPanel("Data import", 
+                h2("step 0"),
                 fluidRow(
-                    column(width=6,fileInput("xlfile", "Choose xls File",
+                    column(width=4,fileInput("xlfile", "Choose xls File",
                             multiple=FALSE,
                             accept = c(".xls",".xlsx")
                         )),
-                    column(width=6,  radioButtons(inputId="file_type", label="File type:",
+                    column(width=4,  radioButtons(inputId="file_type", label="File type:",
                             c("Catch and Landings" = "catch_landings",
                                 "Aquaculture" = "aquaculture",
                                 "Stocking" = "stocking",
-                                "Stock indicators" = "stock")))
+                                "Stock indicators" = "stock"))),
+                    column(width=4, actionButton("check_file_button", "Check file") )                     
+                ),
+                HTML(
+                    paste(
+                        h4("File checking messages"),
+                        "<p align='left'>Please read carefully and ensure that you have",'<br/>',
+                        "checked all possible errors <p>"
+                    )
+                ),
+                fluidRow(
+                    column(width=6,verbatimTextOutput("integrate"),placeholder=TRUE),
+                    column(width=6,DT::dataTableOutput("dt_integrate"))
+                ),              
+                tags$hr(),
+                h2("step 1"),
+                fluidRow(                                       
+                    column(width=4,                        
+                        actionButton("check_duplicate_button", "Check duplicate")), 
+                        column(width=6,DT::dataTableOutput("dt_duplicates"))
                 ),
                 tags$hr(),
-                fluidRow(
-                                       
-                    column(width=4,
-                        h2("step 1"),
-                        actionButton("check_duplicate", "Check duplicate")),
-                    column(width=4,
-                        h2("step 2"),
-                        actionButton("database", "Database integration"))                   
-                ),
-                tags$hr(),
-                fluidRow(
-                    HTML(
-                             paste(
-                                  h4("File checking messages"),
-                                  "<p align='left'>Please read carefully and ensure that you have",'<br/>',
-                                  "checked all possible errors <p>"
-                             )
-                        ),
-                    column(width=6,textOutput("integrate")),
+                h2("step 2"),
+                fluidRow(                   
+                    column(width=6,
+                        actionButton("database_integration_button", "Database integration")),
                     column(width=6,dataTableOutput("errors"))
                 )
             ),
