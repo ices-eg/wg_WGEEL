@@ -7,7 +7,7 @@ cou_cod<-country_cod$cou_code
 
 # TODO create a variable name col assigning color to each country for all the graphs
 
-
+library(RColorBrewer)
 values=c(brewer.pal(12,"Set3"),brewer.pal(12, "Paired"), brewer.pal(8,"Accent"),
          
          brewer.pal(7, "Dark2"))
@@ -68,12 +68,13 @@ completeraw<-landings
 ########
 # FUnction
 ########
-
+# TODO add inputs in the function to call cou_cod and col
+# TODO change the name of the column to be adapt to the database name (eel_cou_code, eel_year, ...)
 ###For the graph we need a table with column names: country (2 letters code), year, landings, lfs 
 ### we also need cou_cod and col
-rawRLandingsGraph<-function (dataset="data", title)
+rawRLandingsGraph<-function (dataset="data", title=NULL)
 { 
-  completeraw<-data
+  completeraw<-dataset
   completeraw<-aggregate(landings~year+country,completeraw, sum)
   
   ### To order the table by country (geographical position)

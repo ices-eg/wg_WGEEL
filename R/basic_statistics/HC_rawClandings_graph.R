@@ -7,6 +7,7 @@ cou_cod<-country_cod$cou_code
 
 # TODO create a variable name hcol assigning color to each habitat for all the graphs, we try to find colorblind color so keep looking
 
+library(RColorBrewer)
 
 values=c("#F0E442","#0072B2" ,"#56B4E9", "#009E73","#D55E00")
 
@@ -69,18 +70,24 @@ completeraw<-landings
 ########
 # FUnction
 ########
-
+#TODO change the column name to be the same of the data base
+# TODO add inputs in the function to call cou_cod and hcol
 ###For the graph we need a table with column names: country (2 letters code), year, landings, habitat 
-### we also need cou_cod 
-HCrawCLandingsGraph<-function (dataset="data")
+### we also need cou_cod and hcol
+HCrawCLandingsGraph<-function (dataset="data",title=NULL)
 { 
   
-completeraw<-data
+completeraw<-dataset
 landings_habitat<-aggregate(landings~country+habitat,completeraw,mean)
 
 Country<-factor(landings_habitat$country,levels=cou_cod,ordered=T)
 Country<-droplevels(Country)
-HCrawCLandings<-ggplot(landings_habitat) + aes(x = Country, y = landings, fill = habitat) + geom_col(position = "fill") + theme_bw() + theme(legend.position = "right") + xlab("Country") + ylab("Proportion")+scale_fill_manual(values=hcol)
+HCrawCLandings<-ggplot(landings_habitat) + aes(x = Country, y = landings, fill = habitat) + 
+  geom_col(position = "fill") + 
+  theme_bw() + 
+  theme(legend.position = "right") + 
+  xlab("Country") + ylab("Proportion")+scale_fill_manual(values=hcol)+
+  ggtitle(title)
 return(HCrawCLandings)
 
 }

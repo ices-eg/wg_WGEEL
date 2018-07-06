@@ -7,7 +7,7 @@ cou_cod<-country_cod$cou_code
 
 # TODO create a variable name col assigning color to each country for all the graphs
 
-
+library(RColorBrewer)
 values=c(brewer.pal(12,"Set3"),brewer.pal(12, "Paired"), brewer.pal(8,"Accent"),
          
          brewer.pal(7, "Dark2"))
@@ -97,12 +97,15 @@ landings$year = as.numeric(as.character(landings$year))
 ########
 # FUnction
 ########
+
+ #TODO change the name of the column to be adapt to the data base
+ # TODO add inputs in the function to call cou_cod and col
  
-###For the graph we need a table with column names: country (2 letters code), year, landings, pred and predicted 
+###For the graph we need a table with column names: eel_cou_code (2 letters code), eel_year, eel_value, pred and predicted 
  ### we also need cou_cod and col
-CombinedCLandingsGraph<-function (dataset="data", title)
+CombinedCLandingsGraph<-function (dataset="data", title=NULL)
 { 
-  complete2<-data
+  complete2<-dataset
 
     ### To order the table by country (geographical position)
     Country<-factor(complete2$country,levels=cou_cod,ordered=T)
@@ -115,7 +118,7 @@ CombinedCLandingsGraph<-function (dataset="data", title)
 
     # reconstructed
     g_reconstructed_landings <- ggplot(complete2) + geom_col(aes(x=year,y=landings,fill=Country),position='stack')+
-      ggtitle("title")+ 
+      ggtitle(title)+ 
       xlab("Year") + ylab("Landings (tons)")+
       coord_cartesian(expand = FALSE, ylim = c(0, max(landings_year$landings)*1.6)) +
       scale_fill_manual(values=col)+
