@@ -98,7 +98,9 @@ landings$year = as.numeric(as.character(landings$year))
 # FUnction
 ########
 
- #TODO change the name of the column to be adapt to the data base 
+ #TODO change the name of the column to be adapt to the data base
+ # TODO add inputs in the function to call cou_cod and col
+ 
 ###For the graph we need a table with column names: eel_cou_code (2 letters code), eel_year, eel_value, pred and predicted 
  ### we also need cou_cod and col
 CombinedCLandingsGraph<-function (dataset="data", title=NULL)
