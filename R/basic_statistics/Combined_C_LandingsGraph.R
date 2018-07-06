@@ -98,31 +98,31 @@ landings$year = as.numeric(as.character(landings$year))
 # FUnction
 ########
  
-###For the graph we need a table with column names: country (2 letters code), year, landings, pred and predicted 
+###For the graph we need a table with column names: eel_cou_code (2 letters code), eel_year, eel_value, pred and predicted 
  ### we also need cou_cod and col
-CombinedCLandingsGraph<-function (dataset="data", title)
+CombinedCLandingsGraph<-function (dataset="data", title=NULL)
 { 
   complete2<-data
 
     ### To order the table by country (geographical position)
-    Country<-factor(complete2$country,levels=cou_cod,ordered=T)
+    Country<-factor(complete2$eel_cou_code,levels=cou_cod,ordered=T)
     Country<-droplevels(Country)
     
-    landings_year<-aggregate(landings~year, complete2, sum)
+    landings_year<-aggregate(eel_value~eel_year, complete2, sum)
     #########################
     # graph
     #########################
 
     # reconstructed
-    g_reconstructed_landings <- ggplot(complete2) + geom_col(aes(x=year,y=landings,fill=Country),position='stack')+
-      ggtitle("title")+ 
+    g_reconstructed_landings <- ggplot(complete2) + geom_col(aes(x=eel_year,y=eel_value,fill=Country),position='stack')+
+      ggtitle(title)+ 
       xlab("Year") + ylab("Landings (tons)")+
-      coord_cartesian(expand = FALSE, ylim = c(0, max(landings_year$landings)*1.6)) +
+      coord_cartesian(expand = FALSE, ylim = c(0, max(landings_year$eel_value)*1.6)) +
       scale_fill_manual(values=col)+
       theme_bw()
     
     # percentage of original data
-    g_percentage_reconstructed <- ggplot(complete2)+geom_col(aes(x=year,y=landings,fill=!predicted),position='stack')+
+    g_percentage_reconstructed <- ggplot(complete2)+geom_col(aes(x=eel_year,y=eel_value,fill=!predicted),position='stack')+
       xlab("") + 
       ylab("")+
       scale_fill_manual(name = "Original data", values=c("black","grey"))+
@@ -131,7 +131,7 @@ CombinedCLandingsGraph<-function (dataset="data", title)
 
     
     g3_grob <- ggplotGrob(g_percentage_reconstructed)
-    g_combined_landings <- g_reconstructed_landings+annotation_custom(g3_grob, xmin=min(complete2$year), xmax=max(complete2$year), ymin=max(landings_year$landings)*1.05, ymax=max(landings_year$landings)*1.6)
+    g_combined_landings <- g_reconstructed_landings+annotation_custom(g3_grob, xmin=min(complete2$eel_year), xmax=max(complete2$eel_year), ymin=max(landings_year$eel_value)*1.05, ymax=max(landings_year$eel_value)*1.6)
     x11()
 
     
