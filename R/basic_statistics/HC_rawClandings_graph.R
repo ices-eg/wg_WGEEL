@@ -7,6 +7,7 @@ cou_cod<-country_cod$cou_code
 
 # TODO create a variable name hcol assigning color to each habitat for all the graphs, we try to find colorblind color so keep looking
 
+library(RColorBrewer)
 
 values=c("#F0E442","#0072B2" ,"#56B4E9", "#009E73","#D55E00")
 
