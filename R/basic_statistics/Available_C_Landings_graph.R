@@ -1,29 +1,18 @@
 # TODO create a variable for all the functions name cou_cod: load country and ordered 
+source("R/utilities/load_library.R")
+load_library(c("ggplot2", "reshape", "rJava","reshape2", "stringr", "dplyr", "lattice", "RColorBrewer", "grid"))
+
+source("R/utilities/set_directory.R")
 set_directory("reference")
 
 country_cod <-read.table(str_c(reference_wd,"/tr_country_cou.csv"),sep=";",header=TRUE, na.strings = "", dec = ".", stringsAsFactors = FALSE)
 country_cod<-country_cod[order(as.factor(country_cod$cou_order)),]
 cou_cod<-country_cod$cou_code
 
-# TODO create a variable name col assigning color to each country for all the graphs
-
-
-values=c(brewer.pal(12,"Set3"),brewer.pal(12, "Paired"), brewer.pal(8,"Accent"),
-         
-         brewer.pal(7, "Dark2"))
-
-col = setNames(values,cou_cod)
-
-
-
 
 #########################
 # Load the data test the function
 #########################
-source("R/utilities/load_library.R")
-load_library(c("ggplot2", "reshape", "rJava","reshape2", "stringr", "dplyr", "lattice", "RColorBrewer", "grid"))
-
-source("R/utilities/set_directory.R")
 set_directory("result")
 set_directory("data")
 
@@ -97,20 +86,27 @@ completeraw<-landings
 ########
 # FUnction
 ########
-
+#TODO change the name of the column to be adapt to the data base
+# TODO add inputs in the function to call cou_cod
 ###For the graph we need a table with column names: country (2 letters code), year, landings, pred and predicted 
 ### we also need cou_cod and col
-AvailableCLandingsGraph<-function (dataset="data")
+AvailableCLandingsGraph<-function (dataset="data",title=NULL)
 { 
-  complete2<-data
+  complete2<-dataset
   
   ### To order the table by country (geographical position)
   Country<-factor(complete2$country,levels=cou_cod,ordered=T)
   Country<-droplevels(Country)
 
 
-AvailableCLandings<-ggplot(complete2, aes(y = Country, x = year)) + geom_tile(aes(fill = !predicted)) + theme_bw() + scale_fill_manual(values = c("black", "lightblue"), name = "Reporting")+scale_y_discrete(limits=rev(levels(Country)))
+AvailableCLandings<-ggplot(complete2, aes(y = Country, x = year)) + 
+  geom_tile(aes(fill = !predicted)) + 
+  theme_bw() + 
+  scale_fill_manual(values = c("black", "lightblue"), name = "Reporting")+
+  scale_y_discrete(limits=rev(levels(Country)))+
+  ggtitle(title)
 
-return(AvailableCLandings)}
+return(AvailableCLandings)
+}
 
-AvailableCLandingsGraph(complete2)
+#AvailableCLandingsGraph(complete2)

@@ -34,6 +34,7 @@ background<-function(Aminimum=0,Amaximum=6.5,Bminimum=1e-2,Bmaximum=1){
 #' @examples
 #' x11()
 #' trace_precodiag(extract_precodata())
+# TODO: offer the posibility to aggregate by country
 trace_precodiag = function(precodata, title = "Precautionary diagram per EMU")
 {
 	######################"
@@ -63,12 +64,13 @@ trace_precodiag = function(precodata, title = "Precautionary diagram per EMU")
 					breaks=c(0.005,0.01,0.05,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1),
 					labels=c("","1%","5%","10%","","","40%","","","","","","100%"))+ 
 			scale_y_continuous(name=expression(paste(bold("Lifetime mortality")~ ~symbol("\123"),"A")),
-					limits=c(Aminimum, Amaximum)) +         
+					limits=c(Aminimum, Amaximum)) +
+			geom_path(data = precodata,aes(x = pbiom, y = suma, group = eel_cou_code))+
+			scale_color_discrete(guide = 'none') +
 			geom_point(data=precodata,aes(x=pbiom,y=suma,size=bbest), colour = "pink",alpha=0.7)+ 
-
-			scale_color_discrete(guide = 'none')+
+			
 			annotate("text",x=precodata$pbiom,y=precodata$suma,
-					label=precodata$eel_emu_nameshort,size=3,hjust=0)+
+					label=paste(precodata$eel_emu_nameshort, "-\'", substr(precodata$eel_year, 3, 4), sep = ""),size=3,hjust=0)+
 			scale_size(name="B best (millions)",range = c(1, 25),limits=c(0,max(pretty(precodata$bbest))))+
 			annotate("text",x =  1, y = 0.92, label = "0.92",  parse = F, hjust=1,vjust=-1.1, size=3)+
 			annotate("text",x =  1, y = 0.92, label = "Alim",  parse = F, hjust=1,vjust=1.1, size=3)+

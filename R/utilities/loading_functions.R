@@ -207,10 +207,10 @@ load_catch_landings<-function(path){
 }
 
 
-############# RESTOCKING #############################################
+############# RELEASES #############################################
 
 # path<-file.choose()
-load_restocking<-function(path){
+load_release<-function(path){
   data_error <- data.frame(nline = NULL, error_message = NULL)
 	the_metadata<-list()
 	dir<-dirname(path)
@@ -227,28 +227,28 @@ load_restocking<-function(path){
 	if (ncol(metadata)>1){   
 		the_metadata[["contact"]] <- as.character(metadata[1,2])
 		the_metadata[["contactemail"]] <- as.character(metadata[2,2])
-		the_metadata[["method_restocking"]] <- as.character(metadata[3,2])
+		the_metadata[["method_release"]] <- as.character(metadata[3,2])
 	} else {
 		the_metadata[["contact"]] <- NA
 		the_metadata[["contactemail"]] <- NA
-		the_metadata[["method_restocking"]] <- NA
+		the_metadata[["method_release"]] <- NA
 	}
 # end loop for directories
 	
-	#---------------------- restocking sheet ---------------------------------------------
+	#---------------------- release sheet ---------------------------------------------
 	
-	cat("restocking \n")
+	cat("release \n")
 # here we have already seached for catch and landings above.
-	restocking<-read_excel(
+	release<-read_excel(
 			path=path,
 			sheet =3,
 			skip=0)
-	country=as.character(restocking[1,7])
+	country=as.character(release[1,7])
 	
 	# check for the file integrity
-	if (ncol(restocking)!=11) cat(str_c("number column wrong ",file,"\n"))
+	if (ncol(release)!=11) cat(str_c("number column wrong ",file,"\n"))
 	# check column names
-	if (all.equal(colnames(restocking),
+	if (all.equal(colnames(release),
 			c("eel_typ_name","eel_year","eel_value_number", "eel_value_kg","eel_missvaluequal","eel_emu_nameshort",
 					"eel_cou_code", "eel_lfs_code", "eel_hty_code","eel_area_division",
 					"eel_comment"))!=TRUE) 
@@ -256,17 +256,17 @@ load_restocking<-function(path){
 						file," in ",
 						country,"\n")) 
 	
-	if (nrow(restocking)>0) {
+	if (nrow(release)>0) {
 	  
 		###### eel_typ_name ##############
 		
 		# should not have any missing value
-	  data_error= rbind(data_error, check_missing(dataset=restocking,
+	  data_error= rbind(data_error, check_missing(dataset=release,
 				column="eel_typ_name",
 				country=country))
 	  
 		#  eel_typ_id should be one of q_release_n, gee_n
-	  data_error= rbind(data_error, check_values(dataset=restocking,
+	  data_error= rbind(data_error, check_values(dataset=release,
 				column="eel_typ_name",
 				country=country,
 				values=c("q_release_n", "gee_n")))
@@ -274,12 +274,12 @@ load_restocking<-function(path){
 		###### eel_year ##############
 		
 		# should not have any missing value
-	  data_error= rbind(data_error, check_missing(dataset=restocking,
+	  data_error= rbind(data_error, check_missing(dataset=release,
 				column="eel_year",
 				country=country))
 	  
 		# should be a numeric
-	  data_error= rbind(data_error, check_type(dataset=restocking,
+	  data_error= rbind(data_error, check_type(dataset=release,
 				column="eel_year",
 				country=country,
 				type="numeric"))
@@ -289,7 +289,7 @@ load_restocking<-function(path){
 		# can have missing values if eel_missingvaluequal is filled (check later)
 		
 		# should be numeric
-	  data_error= rbind(data_error, check_type(dataset=restocking,
+	  data_error= rbind(data_error, check_type(dataset=release,
 				column="eel_value_number",
 				country=country,
 				type="numeric"))
@@ -299,7 +299,7 @@ load_restocking<-function(path){
 		# can have missing values if eel_missingvaluequa is filled (check later)
 		
 		# should be numeric
-	  data_error= rbind(data_error, check_type(dataset=restocking,
+	  data_error= rbind(data_error, check_type(dataset=release,
 		           column="eel_value_kg",
 		           country=country,
 		           type="numeric"))
@@ -310,16 +310,16 @@ load_restocking<-function(path){
 		# if there is data in eel_value_number or eel_value_kg, give warring to the user to fill the missing value 
 		# if there is data in neither eel_value_number and eel_value_kg, check if there are data in missvaluequa 
 	
-	  data_error= rbind(data_error, check_missvalue_restocking(dataset=restocking,
+	  data_error= rbind(data_error, check_missvalue_release(dataset=release,
 				country=country))
 		
 		###### eel_emu_name ##############
 		
-	  data_error= rbind(data_error, check_missing(dataset=restocking,
+	  data_error= rbind(data_error, check_missing(dataset=release,
 				column="eel_emu_nameshort",
 				country=country))
 		
-	  data_error= rbind(data_error, check_type(dataset=restocking,
+	  data_error= rbind(data_error, check_type(dataset=release,
 				column="eel_emu_nameshort",
 				country=country,
 				type="character"))
@@ -327,69 +327,69 @@ load_restocking<-function(path){
 		###### eel_cou_code ##############
 		
 		# must be a character
-	  data_error= rbind(data_error, check_type(dataset=restocking,
+	  data_error= rbind(data_error, check_type(dataset=release,
 				column="eel_cou_code",
 				country=country,
 				type="character"))
 		# should not have any missing value
-	  data_error= rbind(data_error, check_missing(dataset=restocking,
+	  data_error= rbind(data_error, check_missing(dataset=release,
 				column="eel_cou_code",
 				country=country))
 		# must only have one value
-	  data_error= rbind(data_error, check_unique(dataset=restocking,
+	  data_error= rbind(data_error, check_unique(dataset=release,
 				column="eel_cou_code",
 				country=country))
 		
 		###### eel_lfs_code ##############
 		
-	  data_error= rbind(data_error, check_type(dataset=restocking,
+	  data_error= rbind(data_error, check_type(dataset=release,
 				column="eel_lfs_code",
 				country=country,
 				type="character"))
 		# should not have any missing value
-	  data_error= rbind(data_error, check_missing(dataset=restocking,
+	  data_error= rbind(data_error, check_missing(dataset=release,
 				column="eel_lfs_code",
 				country=country))
 		# should only correspond to the following list
-	  data_error= rbind(data_error, check_values(dataset=restocking,
+	  data_error= rbind(data_error, check_values(dataset=release,
 				column="eel_lfs_code",
 				country=country,
 				values=c("G","GY","Y","QG","OG","YS","S","AL")))
 		
 		###### eel_hty_code ##############
 		
-	  data_error= rbind(data_error, check_type(dataset=restocking,
+	  data_error= rbind(data_error, check_type(dataset=release,
 				column="eel_hty_code",
 				country=country,
 				type="character"))
 		# should not have any missing value
-	  data_error= rbind(data_error, check_missing(dataset=restocking,
+	  data_error= rbind(data_error, check_missing(dataset=release,
 				column="eel_hty_code",
 				country=country))
 		# should only correspond to the following list
-	  data_error= rbind(data_error, check_values(dataset=restocking,
+	  data_error= rbind(data_error, check_values(dataset=release,
 				column="eel_hty_code",
 				country=country,
 				values=c("F","T","C","MO","AL")))
 		
 		###### eel_area_div ##############
 		
-	  data_error= rbind(data_error, check_type(dataset=restocking,
+	  data_error= rbind(data_error, check_type(dataset=release,
 				column="eel_area_division",
 				country=country,
 				type="character"))
 		# should not have any missing value
-	  data_error= rbind(data_error, check_missing(dataset=restocking,
+	  data_error= rbind(data_error, check_missing(dataset=release,
 				column="eel_area_division",
 				country=country))
 		# the dataset ices_division should have been loaded there
-	  data_error= rbind(data_error, check_values(dataset=restocking,
+	  data_error= rbind(data_error, check_values(dataset=release,
 				column="eel_area_division",
 				country=country,
 				values=ices_division))
 		 
 		}
-		return(invisible(list(data=restocking,error=data_error)))
+		return(invisible(list(data=release,error=data_error)))
 }
 
 
@@ -544,6 +544,7 @@ load_aquaculture<-function(path){
 ############# BIOMASS INDICATORS #############################################
 # path <- file.choose()
 load_biomass<-function(path){
+  data_error <- data.frame(nline = NULL, error_message = NULL)
   the_metadata<-list()
   dir<-dirname(path)
   file<-basename(path)
@@ -728,6 +729,7 @@ load_biomass<-function(path){
 
 # path <- file.choose()
 load_mortality_rates<-function(path){
+  data_error <- data.frame(nline = NULL, error_message = NULL)
   the_metadata<-list()
   dir<-dirname(path)
   file<-basename(path)
@@ -766,12 +768,14 @@ load_mortality_rates<-function(path){
   if (ncol(mortality_rates)!=10) cat(str_c("number column wrong ",file,"\n"))
   # check column names
   if (all.equal(colnames(mortality_rates),
-                c("eel_typ_name", "eel_year","Rate", "eel_missvaluequal","eel_emu_nameshort",
+                c("eel_typ_name", "eel_year","eel_value", "eel_missvaluequal","eel_emu_nameshort",
                   "eel_cou_code", "eel_lfs_code", "eel_hty_code","eel_area_division",
                   "eel_comment"))!=TRUE) 
     cat(str_c("problem in column names",
               file," in ",
               country,"\n")) 
+  
+  
   
   if (nrow(mortality_rates)>0){
     
@@ -801,17 +805,19 @@ load_mortality_rates<-function(path){
                                              country=country,
                                              type="numeric"))
     
-    ###### Rate ##############
+    ###### eel_value ##############
     
     # can have missing values if eel_missingvaluequa is filled (check later)
     
     # should be numeric
     data_error= rbind(data_error, check_type(dataset=mortality_rates,
-                                             column="Rate",
+                                             column="eel_value",
                                              country=country,
                                              type="numeric"))
     
-    # TODO : take the absolute value of rate as some country could fill with negative number for mortality rate 
+    data_error= rbind(data_error, check_positive(dataset=mortality_rates,
+                                             column="eel_value",
+                                             country=country))
     
     ###### eel_missvaluequal ##############
     
@@ -911,6 +917,7 @@ load_mortality_rates<-function(path){
 
 # path <- file.choose()
 load_mortality_silver<-function(path){
+  data_error <- data.frame(nline = NULL, error_message = NULL)
   the_metadata<-list()
   dir<-dirname(path)
   file<-basename(path)
@@ -993,6 +1000,10 @@ load_mortality_silver<-function(path){
                                              column="eel_value",
                                              country=country,
                                              type="numeric"))
+    
+    data_error =rbind(data_error, check_positive(dataset = mortality_silver,
+                                                 column="eel_value",
+                                                 country=country))
     
     
     ###### eel_missvaluequal ##############

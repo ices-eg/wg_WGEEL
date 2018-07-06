@@ -1,8 +1,4 @@
 # TODO create a variable for all the functions name cou_cod: load country and ordered 
-source("R/utilities/load_library.R")
-load_library(c("ggplot2", "reshape", "rJava","reshape2", "stringr", "dplyr", "lattice", "RColorBrewer", "grid"))
-
-source("R/utilities/set_directory.R")
 set_directory("reference")
 
 country_cod <-read.table(str_c(reference_wd,"/tr_country_cou.csv"),sep=";",header=TRUE, na.strings = "", dec = ".", stringsAsFactors = FALSE)
@@ -13,13 +9,21 @@ cou_cod<-country_cod$cou_code
 
 library(RColorBrewer)
 values=c(brewer.pal(12,"Set3"),brewer.pal(12, "Paired"), brewer.pal(8,"Accent"),
+         
          brewer.pal(7, "Dark2"))
 
 col = setNames(values,cou_cod)
 
+
+
+
 #########################
 # Load the data test the function
 #########################
+source("R/utilities/load_library.R")
+load_library(c("ggplot2", "reshape", "rJava","reshape2", "stringr", "dplyr", "lattice", "RColorBrewer", "grid"))
+
+source("R/utilities/set_directory.R")
 set_directory("result")
 set_directory("data")
 
@@ -32,19 +36,15 @@ landings_complete <-read.table(str_c(data_wd,"/landings.csv"),sep=";",header=TRU
 landings_complete$eel_value<-as.numeric(landings_complete$eel_value) / 1000
 landings_complete$eel_hty_code = factor(landings_complete$eel_hty_code, levels = rev(c("MO", "C", "T", "F", "AL")))
 
+rec_landings = landings_complete[landings_complete$typ_name == "rec_landings_kg"  & landings_complete$eel_lfs_code != "G", ] 
+landings = as.data.frame(rec_landings %>% group_by(eel_year, eel_cou_code) %>% summarise(eel_value=sum(eel_value,na.rm=TRUE)))
+colnames(landings)<-c("year","country","landings")
 
 
-# work only on commercial fisheries and yellow + silver
-com_landings = landings_complete[landings_complete$typ_name == "com_landings_kg" & landings_complete$eel_lfs_code == "G", ] 
-#landings_habitat = com_landings  %>% filter(eel_year>1995 & eel_year<CY) %>% group_by(eel_year, eel_hty_code, eel_cou_code) %>% dplyr::summarize(eel_value=sum(eel_value,na.rm=TRUE))
-landings = as.data.frame(com_landings %>% group_by(eel_year, eel_cou_code,eel_lfs_code) %>% dplyr::summarize(eel_value=sum(eel_value,na.rm=TRUE)))
-colnames(landings)<-c("year","country","lfs","landings")
 
 # excluding the current year and year before 1945
 #landings = landings[landings$year != CY & landings$year>=1945,]
 landings$country = as.factor(landings$country)
-landings$lfs = as.factor(landings$lfs)
-
 landings$year = as.numeric(as.character(landings$year))
 
 #if (is.null(countries)){countries=as.character(unique(landings2$country))}
@@ -68,11 +68,11 @@ completeraw<-landings
 ########
 # FUnction
 ########
-#TODO change the name of the column to be adapt to the data base
-#TODO add inputs in the function to call cou_cod and col
+# TODO add inputs in the function to call cou_cod and col
+# TODO change the name of the column to be adapt to the database name (eel_cou_code, eel_year, ...)
 ###For the graph we need a table with column names: country (2 letters code), year, landings, lfs 
 ### we also need cou_cod and col
-rawCLandingsGraph<-function (dataset="data", title = NULL)
+rawRLandingsGraph<-function (dataset="data", title=NULL)
 { 
   completeraw<-dataset
   completeraw<-aggregate(landings~year+country,completeraw, sum)
@@ -81,27 +81,26 @@ rawCLandingsGraph<-function (dataset="data", title = NULL)
   Country<-factor(completeraw$country,levels=cou_cod,ordered=T)
   Country<-droplevels(Country)
   
-  landings_year<-aggregate(landings~year, completeraw, sum)
+  landings_year<-aggregate(landings~year, complete2, sum)
   #########################
   # graph
   #########################
   
   # raw
-  g_raw_landings <- ggplot(completeraw) + geom_col(aes(x=year,y=landings,fill=Country,legend = FALSE),position='stack')+
-  ggtitle(title) + xlab("year") + ylab("Landings (tons)")+
-  scale_fill_manual(values=col)+
-  theme_bw() #+ # make the theme black-and-white rather than grey (do this before font changes, or it overrides them)
-
+  g_raw_Rlandings <- ggplot(completeraw) + geom_col(aes(x=year,y=landings,fill=Country,legend = FALSE),position='stack')+
+    ggtitle(title) + xlab("year") + ylab("Landings (tons)")+
+    scale_fill_manual(values=col)+
+    theme_bw() #+ # make the theme black-and-white rather than grey (do this before font changes, or it overrides them)
+  
   x11()
   
   
-  print(g_raw_landings)
+  print(g_raw_Rlandings)
   
   
   
-  return(g_raw_landings)
+  return(g_raw_Rlandings)
   
 }
 
 
-#rawCLandingsGraph(completeraw)

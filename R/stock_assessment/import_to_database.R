@@ -34,8 +34,9 @@ datacallfiles<-c("Eel_Data_Call_Annex2_Catch_and_Landings.xlsx",
 
 # to get ices division list but just once, this is out from the loop
 # the ices division are extracted from the datacall itself
+path <- wg_file.choose()
 ices_squares<-read_excel(
-    path=str_c(directories[1],"/",datacallfiles[1]),"tr_faoareas",
+    path=path,"tr_faoareas",
     skip=0)
 ices_division<-as.character(ices_squares$f_code)
 
