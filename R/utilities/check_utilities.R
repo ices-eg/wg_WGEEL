@@ -21,7 +21,7 @@ check_missing <- function(dataset,column,country){
       cat(sprintf("column <%s>, missing values line %s \n",
                   column,
                   line))
-      answer  = data.frame(nline = line, error_message = paste("missing value in column: ", column, sep = ""))
+      answer  = data.frame(nline = line, error_message = paste0("missing value in column: ", column))
     }
   }
   return(answer)
@@ -52,7 +52,7 @@ check_values <- function(dataset,column,country,values){
                     line,
                     value))
         
-        answer  = data.frame(nline = line , error_message = paste("value in column: ", column, " is wrong", sep = ""))
+        answer  = data.frame(nline = line , error_message = paste0("value in column: ", column, " is wrong"))
       }
     }
   }
@@ -87,7 +87,7 @@ check_type <- function(dataset,column,country,values,type){
                     line,
                     type))
         
-        answer  = data.frame(nline = line, error_message = paste("error type in: ", column, sep = ""))
+        answer  = data.frame(nline = line, error_message = paste0("error type in: ", column))
       }
     }
   }

@@ -20,23 +20,21 @@ ui <- fluidPage(
                                 "Stock indicators" = "stock"))),
                     column(width=4, actionButton("check_file_button", "Check file") )                     
                 ),
-                HTML(
-                    paste(
-                        h4("File checking messages"),
-                        "<p align='left'>Please read carefully and ensure that you have",'<br/>',
-                        "checked all possible errors <p>"
-                    )
-                ),
+                
                 fluidRow(
-                    column(width=6,verbatimTextOutput("integrate"),placeholder=TRUE),
-                    column(width=6,DT::dataTableOutput("dt_integrate"))
+                    column(width=6,
+                        htmlOutput("step0_message_txt"),
+                        verbatimTextOutput("integrate"),placeholder=TRUE),
+                    column(width=6,
+                        htmlOutput("step0_message_xls"),
+                        DT::dataTableOutput("dt_integrate"))
                 ),              
                 tags$hr(),
                 h2("step 1"),
                 fluidRow(                                       
                     column(width=4,                        
                         actionButton("check_duplicate_button", "Check duplicate")), 
-                        column(width=6,DT::dataTableOutput("dt_duplicates"))
+                    column(width=6,DT::dataTableOutput("dt_duplicates"))
                 ),
                 tags$hr(),
                 h2("step 2"),

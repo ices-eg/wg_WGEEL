@@ -1,86 +1,120 @@
 shinyServer(function(input, output, session){ 
+      ##########################
+      # reactive values in data
+      ##########################
       data<-reactiveValues()
-      # this will add a path value to reactive data
+      ###########################
+      # step0_filepath
+      # this will add a path value to reactive data in step0
+      ###########################
       step0_filepath <- reactive({
             inFile <- input$xlfile      
             if (is.null(inFile)){        return(NULL)
             } else {
-              data$path0<-inFile$datapath #path to a temp file             
+              data$path_step0<-inFile$datapath #path to a temp file             
             }
-          })  
+          }) 
+      ###########################
+      # step0load_data reactive function 
       # This will run as a reactive function only if triggered by 
       # a button click (check) and will return res, a list with
       # both data and errors
-      step0load_data<-reactive({
-            if (is.null(data$path0)) return(NULL)
-            cat(data$path0)
-            if (is.null(data$path0)) return(NULL)
-            switch (input$file_type, "catch_landings"={                  
-                  message<-capture.output(load_catch_landings(data$path0))},
-                "stock"={
-                  message<-"not developped yet"},
-                "aquaculture"={
-                  message<-capture.output(load_aquaculture(data$path0))},
-                "stocking"={
-                  message<-"not developped yet"},
-            )
-            switch (input$file_type, "catch_landings"={                  
-                  invisible(capture.output(res<-load_catch_landings(data$path0)))},
-                "stock"={
-                  res<-list(NULL)},
-                "aquaculture"={
-                  invisible(capture.output(res<-load_aquaculture(data$path0)))},
-                "stocking"={
-                  res<-list(NULL)},
-            )
-            return(list(res=res,message=message))
-          })
-      
-   
-      
-      
+      ###########################
+      step0load_data<-function(){
+        if (is.null(data$path_step0)) return(NULL)
+        switch (input$file_type, "catch_landings"={                  
+              message<-capture.output(load_catch_landings(data$path_step0))},
+            "stock"={
+              message<-"not developped yet"},
+            "aquaculture"={
+              message<-capture.output(load_aquaculture(data$path_step0))},
+            "stocking"={
+              message<-"not developped yet"},
+        )
+        switch (input$file_type, "catch_landings"={                  
+              invisible(capture.output(res<-load_catch_landings(data$path_step0)))},
+            "stock"={
+              res<-list(NULL)},
+            "aquaculture"={
+              invisible(capture.output(res<-load_aquaculture(data$path_step0)))},
+            "stocking"={
+              res<-list(NULL)},
+        )
+        return(list(res=res,message=message))
+      }
+      ##################################################
+      # integrate verbatimtextoutput
       # this will print the error messages to the console
       #  the load function is just used to capture
-      # the messages in the console (the data will not be returned to capture.output
-      # load function use return(invisible(data))
-      output$integrate<-renderText({
-            # Simply accessing input$check_file_button here makes this reactive
-            # object take a dependency on it. That means when
-             # input$check_file_button changes, this code will re-execute.
-            input$check_file_button
-            validate(
-                need(input$xlfile != "", "Please select a data set")
-            )
-            ls<-step0load_data()
-#            cat(str(ls))
-#            validate(
-#                need(ls$message!=NULL, "Please click on the button"))
-            paste(ls$message,collapse="\n")
-                     
-          })         
+      # this component is rendered reactive by the inclusion of 
+      #  a reference to inuput$check_file_button
+      #################################################
+      observeEvent(input$check_file_button, {
+            output$integrate<-renderText({
+                  # call to  function that loads data
+                  # this function does not need to be reactive
+                  if (is.null(data$path_step0)) "please select a dataset" else {          
+                    ls<-step0load_data()
+                    paste(ls$message,collapse="\n")
+                  }
+                  
+                }) 
+          })    
+      ##################################
+      # Actively generates UI component on the ui side 
+      # which displays text for xls download
+      ##################################
+      observeEvent(input$check_file_button, {
+            output$"step0_message_xls"<-renderUI(
+                HTML(
+                    paste(
+                        h4("File checking messages (xls)"),
+                        "<p align='left'>Please click on excel",'<br/>',
+                        "to download this file correct your errors",'<br/>',
+                        "and submit again the file once it's corrected<p>"
+                    )))  
+          })
+      ##################################
+      # Actively generates UI component on the ui side
+      # which generates text for txt
+      ##################################      
+      observeEvent(input$check_file_button, {
+            output$"step0_message_txt"<-renderUI(
+                HTML(
+                    paste(
+                        h4("File checking messages (txt)"),
+                        "<p align='left'>Please read carefully and ensure that you have",'<br/>',
+                        "checked all possible errors <p>"
+                    )))
+          })
       
       #####################
       # DataTable integration error
       ########################
-      output$dt_integrate<-DT::renderDataTable({
-            validate(need(input$xlfile != "", "Please select a data set"))           
-            ls<-step0load_data()  
-            if (nrow(ls$res$error>0)){    
-            datatable(ls$res$error,
-                rownames=FALSE,          
-                extensions = "Buttons",
-                # internationalisation enregistre le ficher de l'url
-                option=list("pagelength"=5,
-                    lengthMenu=list(c(10,50,-1),c("10","50","All")),
-                    order=list(5,"asc"),
-                    dom= "Blfrtip", # de gauche a droite button en search, t tableau, i information (showing..), p pagination
-                    buttons=list(
-                        list(extend="excel",
-                            filename = paste0("data_",Sys.Date()))) #  JSON behind the scene
-                ))
-            } else {
-              "no value in error table"
-            }
+      observeEvent(input$check_file_button, {
+            output$dt_integrate<-DT::renderDataTable({                 
+                  validate(need(input$xlfile != "", "Please select a data set"))           
+                  ls<-step0load_data()   
+                  datatable(ls$res$error,
+                      rownames=FALSE,
+                      filter = 'top',
+                      caption = htmltools::tags$caption(
+                          style = 'caption-side: bottom; text-align: center;',
+                          'Table 1: ', htmltools::em('Please check the following values, click on excel button to download.')
+                      ),
+                      extensions = "Buttons",
+                      option=list(
+                          "pagelength"=5,
+                          searching = FALSE, # no filtering options
+                          lengthMenu=list(c(5,20,50,-1),c("5","20","50","All")),
+                          order=list(1,"asc"),
+                          dom= "Blfrtip", # de gauche a droite button fr search, t tableau, i informaiton (showing..), p pagination
+                          buttons=list(
+                              list(extend="excel",
+                                  filename = paste0("data_",Sys.Date()))) # JSON behind the scene
+                      )            
+                  )
+                })
           })
       
       observeEvent(input$check_duplicate_button, {            
@@ -114,7 +148,7 @@ shinyServer(function(input, output, session){
               
             }
           })
-      # renders a datatable with duplicates 
+# renders a datatable with duplicates 
       output$dt_duplicates <-DT::renderDataTable({
             #TODO change this to file imported as second step
             

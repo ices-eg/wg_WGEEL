@@ -11,6 +11,7 @@ if(!require(shiny)) install.packages("shiny") ; require(shiny)
 if(!require(DT)) install.packages("DT") ; require(DT)
 if(!require("readxl")) install.packages("readxl") ; require(readxl)
 if(!require("stringr")) install.packages("stringr") ; require(stringr)
+if(!require("htmltools")) install.packages("htmltools") ; require(htmltools)
 # the shiny is launched from shiny_data_integration/shiny
 # debug tool
 #setwd("C:\\Users\\cedric.briand\\Documents\\GitHub\\WGEEL\\R\\shiny_data_integration\\shiny")
