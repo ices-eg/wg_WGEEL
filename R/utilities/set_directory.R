@@ -15,7 +15,7 @@ if(.Platform$OS.type == "unix") {
 
 # adapt the file.choose to the platform used
 if(.Platform$OS.type == "unix") {
-  wg_file.choose<-tk_file.choose
+  wg_file.choose<-tk_choose.files
 } else {
   wg_file.choose<-file.choose
 }    
