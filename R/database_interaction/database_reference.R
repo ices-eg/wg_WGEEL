@@ -21,5 +21,10 @@ extract_ref = function(table_caption)
 	if(sum(table_caption %in% list_ref_table$table_caption) == 0)
 		stop(paste("table_caption should be one of: ", paste(list_ref_table$table_caption, collapse = ", ")))
 	sql_request = paste("SELECT * FROM ref.", list_ref_table[list_ref_table$table_caption == table_caption, "table_dbname"], sep = "")
-	return(sqldf(sql_request))
+	data_to_return = sqldf(sql_request)
+	
+	# deleting the geom column
+	if(sum(names(data_to_return) %in% "geom") > 0)
+		data_to_return = data_to_return[,!(names(data_to_return) %in% "geom")]
+	return(data_to_return)
 }

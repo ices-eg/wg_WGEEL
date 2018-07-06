@@ -1,4 +1,8 @@
 # TODO create a variable for all the functions name cou_cod: load country and ordered 
+source("R/utilities/load_library.R")
+load_library(c("ggplot2", "reshape", "rJava","reshape2", "stringr", "dplyr", "lattice", "RColorBrewer", "grid"))
+
+source("R/utilities/set_directory.R")
 set_directory("reference")
 
 country_cod <-read.table(str_c(reference_wd,"/tr_country_cou.csv"),sep=";",header=TRUE, na.strings = "", dec = ".", stringsAsFactors = FALSE)
@@ -9,21 +13,13 @@ cou_cod<-country_cod$cou_code
 
 
 values=c(brewer.pal(12,"Set3"),brewer.pal(12, "Paired"), brewer.pal(8,"Accent"),
-         
          brewer.pal(7, "Dark2"))
 
 col = setNames(values,cou_cod)
 
-
-
-
 #########################
 # Load the data test the function
 #########################
-source("R/utilities/load_library.R")
-load_library(c("ggplot2", "reshape", "rJava","reshape2", "stringr", "dplyr", "lattice", "RColorBrewer", "grid"))
-
-source("R/utilities/set_directory.R")
 set_directory("result")
 set_directory("data")
 
@@ -75,16 +71,16 @@ completeraw<-landings
 
 ###For the graph we need a table with column names: country (2 letters code), year, landings, lfs 
 ### we also need cou_cod and col
-rawCLandingsGraph<-function (dataset="data", title)
+rawCLandingsGraph<-function (dataset="data", title = NULL)
 { 
-  completeraw<-data
+  completeraw<-dataset
   completeraw<-aggregate(landings~year+country,completeraw, sum)
   
   ### To order the table by country (geographical position)
   Country<-factor(completeraw$country,levels=cou_cod,ordered=T)
   Country<-droplevels(Country)
   
-  landings_year<-aggregate(landings~year, complete2, sum)
+  landings_year<-aggregate(landings~year, completeraw, sum)
   #########################
   # graph
   #########################
@@ -107,3 +103,4 @@ rawCLandingsGraph<-function (dataset="data", title)
 }
 
 
+#rawCLandingsGraph(completeraw)
