@@ -8,6 +8,7 @@
 ########################
 
 if(!require(shiny)) install.packages("shiny") ; require(shiny)
+if(!require(shinythemes)) install.packages("shinythemes") ; require(shinythemes)
 if(!require(DT)) install.packages("DT") ; require(DT)
 if(!require("readxl")) install.packages("readxl") ; require(readxl)
 if(!require("stringr")) install.packages("stringr") ; require(stringr)
@@ -22,4 +23,4 @@ source("../../database_interaction/database_connection.R")
 source("../../database_interaction/database_data.R")
 source("../../database_interaction/database_reference.R")
 source("../../utilities/compare_with_database.R")
-
+tr_type_typ<-extract_ref('Type of series')

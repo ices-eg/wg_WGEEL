@@ -21,10 +21,9 @@
 #' @examples 
 #' \dontrun{
 #' if(interactive()){
-#'  toto<-load_catch_landings(Eel_Data_Call_Annex2_Catch_and_Landings.xlsx")
-#'data_from_excel<-toto$data
-#'data_from_base<-extract_data("Catches and landings")
-#'list_comp<-compare_with_database(data_from_excel,data_from_base)
+#' data_from_excel<-load_catch_landings(wg_file.choose())$data
+#' data_from_base<-extract_data("Catches and landings")
+#' list_comp<-compare_with_database(data_from_excel,data_from_base)
 #'  }
 #' }
 #' @seealso 
@@ -84,11 +83,10 @@ compare_with_database<-function(data_from_excel, data_from_base){
           "eel_comment.xls",                        
           "eel_datasource.base", 
           "eel_datasource.xls")]
-  new<-data_from_base%>%
-      dplyr::filter(eel_typ_id%in%current_typ_id&eel_cou_code==current_cou_code)%>%
-      dplyr::select("eel_typ_id","eel_year", "eel_lfs_code", "eel_emu_nameshort","eel_cou_code", "eel_hty_code", "eel_area_division")%>%
-      dplyr::right_join(data_from_excel,by=c("eel_typ_id","eel_year", "eel_lfs_code","eel_emu_nameshort", "eel_hty_code", "eel_area_division","eel_cou_code"),
-          suffix=c(".base", ".xls"))
+  new<-dplyr::anti_join(data_from_excel,
+      data_from_base,
+      by=c("eel_typ_id","eel_year", "eel_lfs_code","eel_emu_nameshort", "eel_hty_code", "eel_area_division","eel_cou_code"),
+      suffix=c(".base", ".xls"))
   new<-new[,c(
           "eel_typ_id",
           "eel_typ_name",          
@@ -102,6 +100,7 @@ compare_with_database<-function(data_from_excel, data_from_base){
           "eel_area_division",
           "eel_qal_id",
           "eel_qal_comment",            
-          "eel_datasource")] 
-  return(list("dupicates"=duplicates,"new"=new))  
+          "eel_datasource",
+          "eel_comment")] 
+  return(list("duplicates"=duplicates,"new"=new))  
 }

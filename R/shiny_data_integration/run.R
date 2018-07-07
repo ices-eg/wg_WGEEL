@@ -12,4 +12,5 @@ passwordlocal<-"postgres"
 shiny_data_wd<-"C:\\Users\\cedric.briand\\Documents\\GitHub\\WGEEL\\R\\shiny_data_integration\\shiny"
 #TODO uncomment this line once project is finished
 #set_directory("shiny_data") # shiny_data_wd will be created
+#options(shiny.trace=TRUE)
 runApp(shiny_data_wd,launch.browser = TRUE)

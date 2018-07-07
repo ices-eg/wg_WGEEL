@@ -59,7 +59,20 @@ data_integration = function(data_to_integrate)
 					eel_qal_comment,
 					eel_comment,
 					eel_datasource)
-					select * from catch_landings_final")
+					select eel_typ_id,
+    					eel_year ,
+    					eel_value  ,
+    					eel_missvaluequal,
+    					eel_emu_nameshort,
+    					eel_cou_code,
+    					eel_lfs_code,
+    					eel_hty_code,
+    					eel_area_division,
+    					eel_qal_id,
+    					eel_qal_comment,
+    					eel_comment,
+    					eel_datasource 
+                    from catch_landings_final")
 	################"
 # aquaculture
 	#################

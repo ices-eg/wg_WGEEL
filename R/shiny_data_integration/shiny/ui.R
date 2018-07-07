@@ -1,6 +1,7 @@
-ui <- fluidPage(  
+ui <- fluidPage( 
+    theme = shinytheme("cerulean"), 
     #theme = shinytheme("superhero"),
-    theme="custom.css", #need folder www with custom.css
+    #theme="custom.css", #need folder www with custom.css
     # pour voir le css dans chrome tapper f12
     # Titre 
     titlePanel("Data integration"),  
@@ -32,9 +33,14 @@ ui <- fluidPage(
                 tags$hr(),
                 h2("step 1"),
                 fluidRow(                                       
-                    column(width=4,                        
+                    column(width=2,                        
                         actionButton("check_duplicate_button", "Check duplicate")), 
-                    column(width=6,DT::dataTableOutput("dt_duplicates"))
+                    column(width=5,
+                        htmlOutput("step1_message_duplicates"),
+                        DT::dataTableOutput("dt_duplicates")),
+                    column(width=5,
+                        htmlOutput("step1_message_new"),
+                        DT::dataTableOutput("dt_new"))
                 ),
                 tags$hr(),
                 h2("step 2"),
