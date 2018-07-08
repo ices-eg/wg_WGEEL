@@ -22,7 +22,7 @@
 #' \dontrun{
 #' if(interactive()){
 #' data_from_excel<-load_catch_landings(wg_file.choose())$data
-#' data_from_base<-extract_data("Catches and landings")
+#' data_from_base<-extract_data("Landings")
 #' list_comp<-compare_with_database(data_from_excel,data_from_base)
 #'  }
 #' }
@@ -68,17 +68,17 @@ compare_with_database<-function(data_from_excel, data_from_base){
           "eel_value.base",
           "eel_value.xls",
           "keep_new_value",
+          "eel_qal_id.xls",
+          "eel_qal_comment.xls",
+          "eel_qal_id.base",          
+          "eel_qal_comment.base",
           "eel_missvaluequal.base",
           "eel_missvaluequal.xls",
           "eel_emu_nameshort",
           "eel_cou_code",
           "eel_lfs_code",         
           "eel_hty_code",
-          "eel_area_division",
-          "eel_qal_id.base",
-          "eel_qal_id.xls",
-          "eel_qal_comment.base",
-          "eel_qal_comment.xls",
+          "eel_area_division",          
           "eel_comment.base", 
           "eel_comment.xls",                        
           "eel_datasource.base", 
@@ -103,4 +103,91 @@ compare_with_database<-function(data_from_excel, data_from_base){
           "eel_datasource",
           "eel_comment")] 
   return(list("duplicates"=duplicates,"new"=new))  
+}
+
+
+#' @title write duplicated results into the database
+#' @description Values kept from the datacall will be inserted, old values from the database
+#' will be qualified with a number corresponding to the wgeel datacall (e.g. eel_qal_id=5 for 2018).
+#' Values not selected from the datacall will be also be inserted with eel_qal_id=5
+#' @param path path to file (collected from shiny button)
+#' @param qualify_code code to insert the data into the database, Default: 5
+#' @return message indicating success or failure at data insertion
+#' @details 
+#' @examples 
+#' \dontrun{
+#' if(interactive()){
+#'  path<-wg_file.choose() 
+#'  #path<-"C:\\Users\\cedric.briand\\Desktop\\06. Data\\datacall(wgeel_2018)\\duplicates_catch_landings_2018-07-08 (1).xlsx"
+#'  # qualify_code is 5 for wgeel2018
+#'  write_duplicates(path,qualify_code=5)
+#'  }
+#' }
+#' @rdname write_duplicate
+write_duplicates<-function(path,qualify_code=5){
+  duplicates2<-read_excel(
+          path=path,
+          sheet =1,
+          skip=1)
+  # the user might select a wrong file, or modify the file
+  # the following check should ensure file integrity
+  validate(
+          need(ncol(duplicates2)==21, "number column wrong \n")
+  )         
+  validate(
+  need(all(colnames(duplicates2)%in%
+                          c(
+                                  "eel_typ_id",
+                                  "eel_typ_name",
+                                  "eel_year",
+                                  "eel_value.base",
+                                  "eel_value.xls",
+                                  "keep_new_value",
+                                  "eel_qal_id.xls",
+                                  "eel_qal_comment.xls",
+                                  "eel_qal_id.base",          
+                                  "eel_qal_comment.base",
+                                  "eel_missvaluequal.base",
+                                  "eel_missvaluequal.xls",
+                                  "eel_emu_nameshort",
+                                  "eel_cou_code",
+                                  "eel_lfs_code",         
+                                  "eel_hty_code",
+                                  "eel_area_division",          
+                                  "eel_comment.base", 
+                                  "eel_comment.xls",                        
+                                  "eel_datasource.base", 
+                                  "eel_datasource.xls")),
+          "Error in replicated dataset : column name changed")) 
+  # select values to be replaced
+  # passing through excel does not get weel with logical R value
+  duplicates2$keep_new_value[duplicates2$keep_new_value=="1"]<-"true"
+  duplicates2$keep_new_value[duplicates2$keep_new_value=="0"]<-"false"
+  duplicates2$keep_new_value<-toupper(duplicates2$keep_new_value)
+  duplicates2$keep_new_value[duplicates2$keep_new_value=="YES"]<-"true"
+  duplicates2$keep_new_value[duplicates2$keep_new_value=="NO"]<-"false"
+  if(!all(duplicates2$keep_new_value%in%c("TRUE","FALSE"))) stop ("value in keep_new_value should be false or true")
+  duplicates2$keep_new_value<-as.logical(toupper(duplicates2$keep_new_value))
+  replaced<-duplicates2[duplicates2$keep_new_value,]
+  validate(
+          need(all(!is.na(replaced$eel_qal_id.xls)), "All values with true in keep_new_value column should have a value in eel_qal_id \n"))
+  replaced<-replaced[,c(
+      "eel_typ_id",       
+      "eel_year",
+      "eel_value.xls",
+      "eel_missvaluequal.xls",
+      "eel_emu_nameshort",
+      "eel_cou_code",
+      "eel_lfs_code",
+      "eel_hty_code",
+      "eel_area_division",
+      "eel_qal_id.xls",
+      "eel_qal_comment.xls",            
+      "eel_datasource.xls",
+      "eel_comment.xls")    
+  ]
+  
+  # select values to are not replaced, these still need to be kept into the database
+  not_replaced<-duplicates2[duplicates2$keep_new_value,]
+  return(message)
 }
