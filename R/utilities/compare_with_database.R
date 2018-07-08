@@ -50,10 +50,10 @@ compare_with_database<-function(data_from_excel, data_from_base){
   if (!all(current_typ_id%in%data_from_base$eel_typ_id)) stop(paste("There is a mismatch between selected typ_id",paste0(current_typ_id,collapse=";"),"and the dataset loaded from base", paste0(unique(data_from_base$eel_typ_id),collapse=";"),"did you select the right File type ?"))
   # Can't join on 'eel_area_division' x 'eel_area_division' because of incompatible types (character / logical)
   data_from_excel$eel_area_division<-as.character(data_from_excel$eel_area_division)
-  # duplicates are inner_join
+  
   eel_colnames<-colnames(data_from_base)[grepl("eel",colnames(data_from_base))]
+  # duplicates are inner_join
   # eel_cou_code added to the join just to avoid duplication
-  # other necessary in the merge but check what to do with area_division
   duplicates<-data_from_base%>%
       dplyr::filter(eel_typ_id%in%current_typ_id&eel_cou_code==current_cou_code)%>%
       dplyr::select(eel_colnames)%>%
@@ -62,6 +62,7 @@ compare_with_database<-function(data_from_excel, data_from_base){
           suffix=c(".base", ".xls"))
   duplicates$keep_new_value<-vector("logical",nrow(duplicates))
   duplicates<-duplicates[,c(
+          "eel_id",
           "eel_typ_id",
           "eel_typ_name",
           "eel_year",
@@ -172,6 +173,7 @@ write_duplicates<-function(path,qualify_code=5){
   validate(
           need(all(!is.na(replaced$eel_qal_id.xls)), "All values with true in keep_new_value column should have a value in eel_qal_id \n"))
   replaced<-replaced[,c(
+      "eel_id",
       "eel_typ_id",       
       "eel_year",
       "eel_value.xls",
@@ -186,8 +188,12 @@ write_duplicates<-function(path,qualify_code=5){
       "eel_datasource.xls",
       "eel_comment.xls")    
   ]
+  # TODO change eel_qal_id to qualify_code=
+  # TODO insert new data
   
-  # select values to are not replaced, these still need to be kept into the database
+  # TODO select values to are not replaced, these still need to be kept into the database
+  # TODO in the comment indicate which value has been used instead 
   not_replaced<-duplicates2[duplicates2$keep_new_value,]
+  # TODO for those get new datacall data, and insert them in the database with code 5
   return(message)
 }

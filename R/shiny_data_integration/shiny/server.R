@@ -76,7 +76,7 @@ shinyServer(function(input, output, session){
                         h4("File checking messages (xls)"),
                         "<p align='left'>Please click on excel",'<br/>',
                         "to download this file correct your errors",'<br/>',
-                        "and submit again the file once it's corrected<p>"
+                        "and submit again in <strong>step0</strong> the file once it's corrected<p>"
                     )))  
             
             ##################################
@@ -88,8 +88,9 @@ shinyServer(function(input, output, session){
                 HTML(
                     paste(
                         h4("File checking messages (txt)"),
-                        "<p align='left'>Please read carefully and ensure that you have",'<br/>',
-                        "checked all possible errors <p>"
+                        "<p align='left'>Please read carefully and ensure that you have",
+                        "checked all possible errors. This output is the same as the table",
+                        " output<p>"
                     )))
             
             
@@ -103,10 +104,11 @@ shinyServer(function(input, output, session){
                   datatable(ls$res$error,
                       rownames=FALSE,
                       filter = 'top',
-                      caption = htmltools::tags$caption(
-                          style = 'caption-side: bottom; text-align: center;',
-                          'Table 1: ', htmltools::em('Please check the following values, click on excel button to download.')
-                      ),
+#                      !!removed caption otherwise included in the file content                      
+#                      caption = htmltools::tags$caption(
+#                          style = 'caption-side: bottom; text-align: center;',
+#                          'Table 1: ', htmltools::em('Please check the following values, click on excel button to download.')
+#                      ),
                       extensions = "Buttons",
                       option=list(
                           "pagelength"=5,
@@ -137,7 +139,7 @@ shinyServer(function(input, output, session){
             ) 
             data_from_excel<- step0load_data()$res$data
             switch (input$file_type, "catch_landings"={                                     
-                  data_from_base<-extract_data("Catches and landings")                  
+                  data_from_base<-extract_data("Landings")                  
                 },
                 "stock"={
                   # TODO: develop for stock                 
@@ -165,30 +167,28 @@ shinyServer(function(input, output, session){
               #####################
               
               if (nrow(duplicates)==0) {
-                  output$"step1_message_duplicates"<-renderUI(
-                      HTML(
-                          paste(
-                              h4("No duplicates")                             
-                          )))                 
-                }else{      
-                  output$"step1_message_duplicates"<-renderUI(
-                      HTML(
-                          paste(
-                              h4("Table of duplicates (xls)"),
-                              "<p align='left'>Please click on excel",'<br/>',
-                              "to download this file and check whether to keep data",'<br/>',
-                              "from the database or use the new inserted",'<br/>',
-                              "don't forget to qualify your data otherwise they will be rejected",'<br/>',
-                              "once this is done download the file and proceed to next step.<p>"                         
-                          )))  
-                }
+                output$"step1_message_duplicates"<-renderUI(
+                    HTML(
+                        paste(
+                            h4("No duplicates")                             
+                        )))                 
+              }else{      
+                output$"step1_message_duplicates"<-renderUI(
+                    HTML(
+                        paste(
+                            h4("Table of duplicates (xls)"),
+                            "<p align='left'>Please click on excel",
+                            "to download this file. In <strong>keep new value</strong> choose true",
+                            "to replace data using the new datacall data (true)",
+                            "if new is selected don't forget to qualify your data in column <strong> eel_qal_id.xls, eel_qal_comment.xls </strong>",
+                            "once this is done download the file and proceed to next step.",
+                            "Rows with false will be ignored and kept as such in the database, use panel datacorrection if you want to change them",
+                            "Rows with true will use the column labelled .xls for the new insertion, and flag existing values as removed <p>"                         
+                        )))  
+              }
               output$dt_duplicates <-DT::renderDataTable({                     
                     datatable(duplicates,
-                        rownames=FALSE,
-                        caption = htmltools::tags$caption(
-                            style = 'caption-side: bottom; text-align: center;',
-                            'Table 2: ', htmltools::em('Table of duplicates values, download and line by line change .')
-                        ),                                             
+                        rownames=FALSE,                                                    
                         extensions = "Buttons",
                         option=list("pagelength"=5,
                             lengthMenu=list(c(10,50,-1),c("10","50","All")),
@@ -197,26 +197,26 @@ shinyServer(function(input, output, session){
                             scrollX = T, 
                             buttons=list(
                                 list(extend="excel",
-                                    filename = paste0("data_",Sys.Date()))) #  JSON behind the scene
+                                    filename = paste0("duplicates_",input$file_type,"_",Sys.Date()))) #  JSON behind the scene
                         ))
                   })
               if (nrow(new)==0) {
-                  output$"step1_message_new"<-renderUI(
-                      HTML(
-                          paste(
-                              h4("No new values")                             
-                          )))                    
-                } else {
-                  output$"step1_message_new"<-renderUI(
-                      HTML(
-                          paste(
-                              h4("Table of new values (xls)"),
-                              "<p align='left'>Please click on excel ",
-                              "to download this file and qualify your data with column qal_id, qal_comment ",
-                              "once this is done download the file with button <strong>download new</strong> and proceed to next step.<p>"                         
-                          )))  
-                  
-                }
+                output$"step1_message_new"<-renderUI(
+                    HTML(
+                        paste(
+                            h4("No new values")                             
+                        )))                    
+              } else {
+                output$"step1_message_new"<-renderUI(
+                    HTML(
+                        paste(
+                            h4("Table of new values (xls)"),
+                            "<p align='left'>Please click on excel ",
+                            "to download this file and qualify your data with columns <strong>qal_id, qal_comment</strong> ",
+                            "once this is done download the file with button <strong>download new</strong> and proceed to next step.<p>"                         
+                        )))  
+                
+              }
               
               output$dt_new <-DT::renderDataTable({             
                     datatable(new,
@@ -229,7 +229,7 @@ shinyServer(function(input, output, session){
                             scrollX = T, 
                             buttons=list(
                                 list(extend="excel",
-                                    filename = paste0("data_",Sys.Date()))) #  JSON behind the scene
+                                    filename = paste0("new_",input$file_type,"_",Sys.Date()))) #  JSON behind the scene
                         ))
                   })
             } # closes if nrow(...      
@@ -238,14 +238,73 @@ shinyServer(function(input, output, session){
       
       
       ##########################
+      # STEP 2.1
       # When database integration is clicked
       # this will trigger the data integration
-      # TODO 
       #############################   
       
+      
+      
+      
+      # this step only starts if step1 has been launched
+      # ideally should be when xls file button download is clicked but
+      # I don't know how to do that (no time to check)
+      observeEvent(input$database_duplicates_button, { 
+            ###########################
+            # step2_filepath
+            # reactive function, when clicked return value in reactive data 
+            ###########################
+            step21_filepath <- reactive({
+                  inFile <- input$xl_duplicates_file      
+                  if (is.null(inFile)){        return(NULL)
+                  } else {
+                    data$path_step21<-inFile$datapath #path to a temp file             
+                  }
+                })
+            ###########################
+            # step21load_data
+            #  function, returns a message
+            #  indicating that data integration was a succes
+            #  or an error message
+            ###########################
+            step21load_data<-function(){
+              path<- step0_filepath()   
+              if (is.null(data$path_step0)) return(NULL)             
+              #path<-wg_file.choose() 
+              #path<-"C:\\Users\\cedric.briand\\Desktop\\06. Data\\datacall(wgeel_2018)\\duplicates_catch_landings_2018-07-08.xlsx"
+              # qualify_code is 5 for wgeel2018
+              message<-write_duplicates(path,qualify_code=qualify_code)
+            }
+            ###########################
+            # errors_duplicates_integration
+            # this will add a path value to reactive data in step0
+            ###########################            
+            output$textoutput_step2.1<-renderText({
+                  # call to  function that loads data
+                  # this function does not need to be reactive
+                  if (is.null(data$path_step21)) "please select a dataset" else {          
+                    message<-step21load_data()                    
+                    paste(message,collapse="\n")
+                  }                  
+                })              
+          }) 
+      
+      observeEvent(input$database_new_button, {
+            # TODO when import duplicates is clicked
+          })
       ##########################
       # When database integration is clicked
       # this will trigger the data integration
       # TODO 
-      #############################      
+      ############################# 
+      #xl_new_file 
+      observeEvent(input$check_duplicate_button, {
+            step21_filepath <- reactive({
+                  inFile <- input$xl_duplicates_file      
+                  if (is.null(inFile)){        return(NULL)
+                  } else {
+                    data$path_step21<-inFile$datapath #path to a temp file             
+                  }
+                })  
+          }) 
     })
