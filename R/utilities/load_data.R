@@ -71,6 +71,7 @@ load_maps = function(full_load = FALSE, to_save = FALSE)
 #}
 
 # TODO convert this function... create a convert to number function
+# see https://github.com/ices-eg/wg_WGEEL/issues/33
 #' load stocking data
 #' 
 #' load stocking data either from the database or from a csv file and do conversion from kg into number
