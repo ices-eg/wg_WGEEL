@@ -1,18 +1,4 @@
-# TODO create a variable for all the functions name cou_cod: load country and ordered 
-set_directory("reference")
 
-country_cod <-read.table(str_c(reference_wd,"/tr_country_cou.csv"),sep=";",header=TRUE, na.strings = "", dec = ".", stringsAsFactors = FALSE)
-country_cod<-country_cod[order(as.factor(country_cod$cou_order)),]
-cou_cod<-country_cod$cou_code
-
-# TODO create a variable name col assigning color to each country for all the graphs
-
-library(RColorBrewer)
-values=c(brewer.pal(12,"Set3"),brewer.pal(12, "Paired"), brewer.pal(8,"Accent"),
-         
-         brewer.pal(7, "Dark2"))
-
-col = setNames(values,cou_cod)
 
 
 
@@ -28,6 +14,22 @@ set_directory("result")
 set_directory("data")
 
 CY = as.numeric(format(Sys.time(), "%Y")) # year of work
+
+# TODO create a variable for all the functions name cou_cod: load country and ordered 
+set_directory("reference")
+
+country_cod <-read.table(str_c(reference_wd,"/tr_country_cou.csv"),sep=";",header=TRUE, na.strings = "", dec = ".", stringsAsFactors = FALSE)
+country_cod<-country_cod[order(as.factor(country_cod$cou_order)),]
+cou_cod<-country_cod$cou_code
+
+# TODO create a variable name col assigning color to each country for all the graphs
+
+library(RColorBrewer)
+values=c(brewer.pal(12,"Set3"),brewer.pal(12, "Paired"), brewer.pal(8,"Accent"),
+         
+         brewer.pal(7, "Dark2"))
+
+col = setNames(values,cou_cod)
 
 # for landings only
 
@@ -118,7 +120,7 @@ CombinedCLandingsGraph<-function (dataset="data", title=NULL)
 
     # reconstructed
     g_reconstructed_landings <- ggplot(complete2) + geom_col(aes(x=year,y=landings,fill=Country),position='stack')+
-      ggtitle(title)+ 
+      ggtitle("title")+ 
       xlab("Year") + ylab("Landings (tons)")+
       coord_cartesian(expand = FALSE, ylim = c(0, max(landings_year$landings)*1.6)) +
       scale_fill_manual(values=col)+
@@ -128,7 +130,7 @@ CombinedCLandingsGraph<-function (dataset="data", title=NULL)
     g_percentage_reconstructed <- ggplot(complete2)+geom_col(aes(x=year,y=landings,fill=!predicted),position='stack')+
       xlab("") + 
       ylab("")+
-      scale_fill_manual(name = "Original data", values=c("black","grey"))+
+      scale_fill_manual(name = "Data", values=c("black","grey"),labels=c("Predicted","Raw"))+
       theme_bw()+    
       theme(legend.position="top")
 
