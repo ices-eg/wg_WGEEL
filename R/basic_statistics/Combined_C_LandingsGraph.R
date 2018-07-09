@@ -120,7 +120,7 @@ CombinedCLandingsGraph<-function (dataset="data", title=NULL)
 
     # reconstructed
     g_reconstructed_landings <- ggplot(complete2) + geom_col(aes(x=year,y=landings,fill=Country),position='stack')+
-      ggtitle("title")+ 
+      ggtitle(title)+ 
       xlab("Year") + ylab("Landings (tons)")+
       coord_cartesian(expand = FALSE, ylim = c(0, max(landings_year$landings)*1.6)) +
       scale_fill_manual(values=col)+
