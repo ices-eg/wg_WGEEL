@@ -1,44 +1,67 @@
-ui <- fluidPage(  
+ui <- fluidPage( 
+    theme = shinytheme("cerulean"), 
     #theme = shinytheme("superhero"),
-    theme="custom.css", #need folder www with custom.css
+    #theme="custom.css", #need folder www with custom.css
     # pour voir le css dans chrome tapper f12
     # Titre 
-    titlePanel("Data integration"),  
-    mainPanel(h2("wgeel data integration"),
+    titlePanel("ICES wgeel"),  
+    mainPanel(h2("Datacall Integration and checks"),
         tabsetPanel(
             tabPanel("Data import", 
+                h2("step 0 : Data check"),
                 fluidRow(
-                    column(width=6,fileInput("xlfile", "Choose xls File",
+                    column(width=4,fileInput("xlfile", "Choose xls File",
                             multiple=FALSE,
                             accept = c(".xls",".xlsx")
                         )),
-                    column(width=6,  radioButtons(inputId="file_type", label="File type:",
+                    column(width=4,  radioButtons(inputId="file_type", label="File type:",
                             c("Catch and Landings" = "catch_landings",
                                 "Aquaculture" = "aquaculture",
                                 "Stocking" = "stocking",
-                                "Stock indicators" = "stock")))
+                                "Stock indicators" = "stock"))),
+                    column(width=4, actionButton("check_file_button", "Check file") )                     
+                ),
+                
+                fluidRow(
+                    column(width=6,
+                        htmlOutput("step0_message_txt"),
+                        verbatimTextOutput("integrate"),placeholder=TRUE),
+                    column(width=6,
+                        htmlOutput("step0_message_xls"),
+                        DT::dataTableOutput("dt_integrate"))
+                ),              
+                tags$hr(),
+                h2("step 1 : Compare with database"),
+                fluidRow(                                       
+                    column(width=2,                        
+                        actionButton("check_duplicate_button", "Check duplicate")), 
+                    column(width=5,
+                        htmlOutput("step1_message_duplicates"),
+                        DT::dataTableOutput("dt_duplicates")),
+                    column(width=5,
+                        htmlOutput("step1_message_new"),
+                        DT::dataTableOutput("dt_new"))
                 ),
                 tags$hr(),
+                h2("step 2.1 Integrate/ proceed duplicates rows"),
                 fluidRow(
-                                       
-                    column(width=4,
-                        h2("step 1"),
-                        actionButton("check_duplicate", "Check duplicate")),
-                    column(width=4,
-                        h2("step 2"),
-                        actionButton("database", "Database integration"))                   
+                    column(width=4,fileInput("xl_duplicates_file", "xls duplicates",
+                            multiple=FALSE,
+                            accept = c(".xls",".xlsx")
+                        )),                   
+                    column(width=2,
+                        actionButton("database_duplicates_button", "Proceed")),
+                    column(width=6,verbatimTextOutput("textoutput_step2.1"))
                 ),
-                tags$hr(),
+                h2("step 2.2 Integrate new rows"),
                 fluidRow(
-                    HTML(
-                             paste(
-                                  h4("File checking messages"),
-                                  "<p align='left'>Please read carefully and ensure that you have",'<br/>',
-                                  "checked all possible errors <p>"
-                             )
-                        ),
-                    column(width=6,textOutput("integrate")),
-                    column(width=6,dataTableOutput("errors"))
+                    column(width=4,fileInput("xl_new_file", "xls new",
+                            multiple=FALSE,
+                            accept = c(".xls",".xlsx")
+                        )),                   
+                    column(width=2,
+                        actionButton("database_new_button", "Import")),
+                    column(width=6,verbatimTextOutput("errors_new_integration"))
                 )
             ),
             tabPanel("Data correction table", dataTableOutput("table_cor"),width=95),

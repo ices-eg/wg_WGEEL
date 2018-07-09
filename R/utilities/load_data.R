@@ -39,37 +39,39 @@ load_maps = function(full_load = FALSE, to_save = FALSE)
 #' load landings data
 #' 
 #' load landings data either from the database or from a csv file
-#' @param from_database should the data be loaded from the database? if not from a csv file
-load_landings = function(from_database = FALSE)
-{
-	if(from_database)
-	{
-		# TODO: extract data from the database
-	} else {
-		if(!exists(data_directory)) 
-			data_directory <- tk_choose.dir(caption = "Data directory", default = mylocalfolder)
-		landings <- read.table(file=str_c(data_directory,"/landings.csv"),sep=";")
-	}
-	return(landings)
-}
-
+#'  DEPRECATED see database_data.R
+#load_landings = function(from_database = FALSE)
+#{
+#	if(from_database)
+#	{
+#		# TODO: extract data from the database
+#	} else {
+#		if(!exists(data_directory)) 
+#			data_directory <- tk_choose.dir(caption = "Data directory", default = mylocalfolder)
+#		landings <- read.table(file=str_c(data_directory,"/landings.csv"),sep=";")
+#	}
+#	return(landings)
+#}
+#'  DEPRECATED see database_data.R
 #' load aquaculture data
 #' 
 #' load aquaculture data either from the database or from a csv file
 #' @param from_database should the data be loaded from the database? if not from a csv file
-load_aquaculture = function(from_database = FALSE)
-{
-	if(from_database)
-	{
-		# TODO: extract data from the database
-	} else {
-		if(!exists(data_directory)) 
-			data_directory <- tk_choose.dir(caption = "Data directory", default = mylocalfolder)
-		aquaculture <- read.table(file=str_c(data_directory,"/aquaculture.csv"),sep=";")
-	}
-	return(aquaculture)
-}
+#load_aquaculture = function(from_database = FALSE)
+#{
+#	if(from_database)
+#	{
+#		# TODO: extract data from the database
+#	} else {
+#		if(!exists(data_directory)) 
+#			data_directory <- tk_choose.dir(caption = "Data directory", default = mylocalfolder)
+#		aquaculture <- read.table(file=str_c(data_directory,"/aquaculture.csv"),sep=";")
+#	}
+#	return(aquaculture)
+#}
 
+# TODO convert this function... create a convert to number function
+# see https://github.com/ices-eg/wg_WGEEL/issues/33
 #' load stocking data
 #' 
 #' load stocking data either from the database or from a csv file and do conversion from kg into number

@@ -6,18 +6,23 @@
 #########################
 # loads shiny packages
 ########################
-#setwd()
+
 if(!require(shiny)) install.packages("shiny") ; require(shiny)
+if(!require(shinythemes)) install.packages("shinythemes") ; require(shinythemes)
 if(!require(DT)) install.packages("DT") ; require(DT)
 if(!require("readxl")) install.packages("readxl") ; require(readxl)
 if(!require("stringr")) install.packages("stringr") ; require(stringr)
+if(!require("htmltools")) install.packages("htmltools") ; require(htmltools)
 # the shiny is launched from shiny_data_integration/shiny
 # debug tool
 #setwd("C:\\Users\\cedric.briand\\Documents\\GitHub\\WGEEL\\R\\shiny_data_integration\\shiny")
+source("../../utilities/load_library.R")
 source("../../utilities/loading_functions.R")
 source("../../utilities/check_utilities.R")
 source("../../database_interaction/database_connection.R")
 source("../../database_interaction/database_data.R")
 source("../../database_interaction/database_reference.R")
 source("../../utilities/compare_with_database.R")
+tr_type_typ<-extract_ref('Type of series')
+qualify_code<-5 # change this code here and in tr_quality_qal for next wgeel
 

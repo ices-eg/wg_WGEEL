@@ -64,8 +64,11 @@ datawg.series_summary ss on ss.site=ser_nameshort
 -- View for landings
 -- This view refer to both recreational and commercial landings
 ---------------------------------------
+DROP VIEW IF EXISTS datawg.landings CASCADE;
 CREATE OR REPLACE VIEW datawg.landings AS 
- SELECT t_eelstock_eel.eel_typ_id,
+ SELECT 
+    t_eelstock_eel.eel_id, 
+    t_eelstock_eel.eel_typ_id,
     tr_typeseries_typ.typ_name,
     tr_typeseries_typ.typ_uni_code,
     t_eelstock_eel.eel_year,
@@ -107,6 +110,7 @@ DROP VIEW IF EXISTS datawg.stocking ;
 CREATE VIEW datawg.stocking AS 
 (
 select  
+         eel_id,         
          eel_typ_id,
 	 tr_typeseries_typ.typ_name, 
 	 tr_typeseries_typ.typ_uni_code,
@@ -147,6 +151,7 @@ DROP VIEW IF EXISTS datawg.aquaculture ;
 CREATE VIEW datawg.aquaculture AS 
 (
 select  
+         eel_id,
          eel_typ_id,
 	 tr_typeseries_typ.typ_name, 
 	 tr_typeseries_typ.typ_uni_code,
@@ -183,8 +188,11 @@ WHERE (eel_typ_id=11 or eel_typ_id=12)
 -------------------------------------
 -- View for B0
 ---------------------------------------
+DROP VIEW IF EXISTS datawg.b0;
 CREATE OR REPLACE VIEW datawg.b0 AS 
- SELECT t_eelstock_eel.eel_typ_id,
+ SELECT 
+    eel_id,
+    t_eelstock_eel.eel_typ_id,
     tr_typeseries_typ.typ_name,
     tr_typeseries_typ.typ_uni_code,
     t_eelstock_eel.eel_year,
@@ -219,8 +227,11 @@ CREATE OR REPLACE VIEW datawg.b0 AS
 -------------------------------------
 -- View for Bbest
 ---------------------------------------
+DROP VIEW IF EXISTS datawg.bbest;
 CREATE OR REPLACE VIEW datawg.bbest AS 
- SELECT t_eelstock_eel.eel_typ_id,
+ SELECT 
+    eel_id,
+    t_eelstock_eel.eel_typ_id,
     tr_typeseries_typ.typ_name,
     tr_typeseries_typ.typ_uni_code,
     t_eelstock_eel.eel_year,
@@ -256,8 +267,11 @@ CREATE OR REPLACE VIEW datawg.bbest AS
 -------------------------------------
 -- View for Bcurrent
 ---------------------------------------
+DROP VIEW IF EXISTS datawg.bcurrent;
 CREATE OR REPLACE VIEW datawg.bcurrent AS 
- SELECT t_eelstock_eel.eel_typ_id,
+ SELECT 
+    eel_id,
+    t_eelstock_eel.eel_typ_id,
     tr_typeseries_typ.typ_name,
     tr_typeseries_typ.typ_uni_code,
     t_eelstock_eel.eel_year,
@@ -292,8 +306,11 @@ CREATE OR REPLACE VIEW datawg.bcurrent AS
 -------------------------------------
 -- View for SigmaA
 ---------------------------------------
+DROP VIEW IF EXISTS datawg.sigmaa;
 CREATE OR REPLACE VIEW datawg.sigmaa AS 
- SELECT t_eelstock_eel.eel_typ_id,
+ SELECT 
+    eel_id,
+    t_eelstock_eel.eel_typ_id,
     tr_typeseries_typ.typ_name,
     tr_typeseries_typ.typ_uni_code,
     t_eelstock_eel.eel_year,
@@ -328,8 +345,11 @@ CREATE OR REPLACE VIEW datawg.sigmaa AS
 -------------------------------------
 -- View for SigmaF
 ---------------------------------------
+DROP VIEW IF EXISTS datawg.sigmaf;
 CREATE OR REPLACE VIEW datawg.sigmaf AS 
- SELECT t_eelstock_eel.eel_typ_id,
+ SELECT 
+    eel_id,
+    t_eelstock_eel.eel_typ_id,
     tr_typeseries_typ.typ_name,
     tr_typeseries_typ.typ_uni_code,
     t_eelstock_eel.eel_year,
@@ -364,8 +384,11 @@ CREATE OR REPLACE VIEW datawg.sigmaf AS
 -------------------------------------
 -- View for SigmaH
 ---------------------------------------
+DROP VIEW IF EXISTS datawg.sigmah;
 CREATE OR REPLACE VIEW datawg.sigmah AS 
- SELECT t_eelstock_eel.eel_typ_id,
+ SELECT 
+    eel_id,
+    t_eelstock_eel.eel_typ_id,
     tr_typeseries_typ.typ_name,
     tr_typeseries_typ.typ_uni_code,
     t_eelstock_eel.eel_year,
