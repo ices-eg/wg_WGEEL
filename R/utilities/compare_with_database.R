@@ -120,48 +120,50 @@ compare_with_database<-function(data_from_excel, data_from_base){
 #' if(interactive()){
 #'  path<-wg_file.choose() 
 #'  #path<-"C:\\Users\\cedric.briand\\Desktop\\06. Data\\datacall(wgeel_2018)\\duplicates_catch_landings_2018-07-08 (1).xlsx"
-#'  # qualify_code is 5 for wgeel2018
-#'  write_duplicates(path,qualify_code=5)
+#'  # qualify_code is 18 for wgeel2018
+#'  write_duplicates(path,qualify_code=18)
 #'  }
 #' }
 #' @rdname write_duplicate
-write_duplicates<-function(path,qualify_code=5){
+write_duplicates<-function(path,qualify_code=18){
   duplicates2<-read_excel(
-          path=path,
-          sheet =1,
-          skip=1)
+      path=path,
+      sheet =1,
+      skip=1)
   # the user might select a wrong file, or modify the file
   # the following check should ensure file integrity
   validate(
-          need(ncol(duplicates2)==21, "number column wrong \n")
+      need(ncol(duplicates2)==22, "number column wrong (should be 22) \n")
   )         
   validate(
-  need(all(colnames(duplicates2)%in%
-                          c(
-                                  "eel_typ_id",
-                                  "eel_typ_name",
-                                  "eel_year",
-                                  "eel_value.base",
-                                  "eel_value.xls",
-                                  "keep_new_value",
-                                  "eel_qal_id.xls",
-                                  "eel_qal_comment.xls",
-                                  "eel_qal_id.base",          
-                                  "eel_qal_comment.base",
-                                  "eel_missvaluequal.base",
-                                  "eel_missvaluequal.xls",
-                                  "eel_emu_nameshort",
-                                  "eel_cou_code",
-                                  "eel_lfs_code",         
-                                  "eel_hty_code",
-                                  "eel_area_division",          
-                                  "eel_comment.base", 
-                                  "eel_comment.xls",                        
-                                  "eel_datasource.base", 
-                                  "eel_datasource.xls")),
+        need(all(colnames(duplicates2)%in%
+                  c(
+                      "eel_id",
+                      "eel_typ_id",
+                      "eel_typ_name",
+                      "eel_year",
+                      "eel_value.base",
+                      "eel_value.xls",
+                      "keep_new_value",
+                      "eel_qal_id.xls",
+                      "eel_qal_comment.xls",
+                      "eel_qal_id.base",          
+                      "eel_qal_comment.base",
+                      "eel_missvaluequal.base",
+                      "eel_missvaluequal.xls",
+                      "eel_emu_nameshort",
+                      "eel_cou_code",
+                      "eel_lfs_code",         
+                      "eel_hty_code",
+                      "eel_area_division",          
+                      "eel_comment.base", 
+                      "eel_comment.xls",                        
+                      "eel_datasource.base", 
+                      "eel_datasource.xls")),
           "Error in replicated dataset : column name changed")) 
   # select values to be replaced
-  # passing through excel does not get weel with logical R value
+  # passing through excel does not get keep_new_value with logical R value
+  # here I'm testing various mispelling
   duplicates2$keep_new_value[duplicates2$keep_new_value=="1"]<-"true"
   duplicates2$keep_new_value[duplicates2$keep_new_value=="0"]<-"false"
   duplicates2$keep_new_value<-toupper(duplicates2$keep_new_value)
@@ -169,24 +171,42 @@ write_duplicates<-function(path,qualify_code=5){
   duplicates2$keep_new_value[duplicates2$keep_new_value=="NO"]<-"false"
   if(!all(duplicates2$keep_new_value%in%c("TRUE","FALSE"))) stop ("value in keep_new_value should be false or true")
   duplicates2$keep_new_value<-as.logical(toupper(duplicates2$keep_new_value))
-  replaced<-duplicates2[duplicates2$keep_new_value,]
-  validate(
-          need(all(!is.na(replaced$eel_qal_id.xls)), "All values with true in keep_new_value column should have a value in eel_qal_id \n"))
+  #########################"
+  # Duplicates values
+  #########################
+  if (sum(duplicates2$keep_new_value)>0){
+      replaced<-duplicates2[duplicates2$keep_new_value,]
+      validate(
+        need(all(!is.na(replaced$eel_qal_id.xls)), "All values with true in keep_new_value column should have a value in eel_qal_id \n"))
+
+      ###############
+      # first deprecate old values in the database
+      ################
+     replaced$"eel_comment.base"[is.na(replaced$"eel_comment.base")]<-""
+     replaced$"eel_comment.base"<-paste0(replaced$eel_comment.base," Value",replaced$eel_value.base,"replaced by value ",replaced$eel_value.xls," in ",format(Sys.time(), "%Y"))
+      for (n in 1:nrow(replaced))
+       query <-
+                paste0("update t_eelstock_eel set (eel_qal_id,eel_comment)=(",
+                        qualify_code,",'",replaced$eel_comment.base[n],"') where eel_id=",replaced$eel_id[n])
+  }
+   ################################################
+   # second insert the new lines into the database
+   ###############################################"
   replaced<-replaced[,c(
-      "eel_id",
-      "eel_typ_id",       
-      "eel_year",
-      "eel_value.xls",
-      "eel_missvaluequal.xls",
-      "eel_emu_nameshort",
-      "eel_cou_code",
-      "eel_lfs_code",
-      "eel_hty_code",
-      "eel_area_division",
-      "eel_qal_id.xls",
-      "eel_qal_comment.xls",            
-      "eel_datasource.xls",
-      "eel_comment.xls")    
+          "eel_id",
+          "eel_typ_id",       
+          "eel_year",
+          "eel_value.xls",
+          "eel_missvaluequal.xls",
+          "eel_emu_nameshort",
+          "eel_cou_code",
+          "eel_lfs_code",
+          "eel_hty_code",
+          "eel_area_division",
+          "eel_qal_id.xls",
+          "eel_qal_comment.xls",            
+          "eel_datasource.xls",
+          "eel_comment.xls")    
   ]
   # TODO change eel_qal_id to qualify_code=
   # TODO insert new data

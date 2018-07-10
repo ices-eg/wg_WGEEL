@@ -24,5 +24,5 @@ source("../../database_interaction/database_data.R")
 source("../../database_interaction/database_reference.R")
 source("../../utilities/compare_with_database.R")
 tr_type_typ<-extract_ref('Type of series')
-qualify_code<-5 # change this code here and in tr_quality_qal for next wgeel
+qualify_code<-18 # change this code here and in tr_quality_qal for next wgeel
 
