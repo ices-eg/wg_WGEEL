@@ -566,6 +566,19 @@ ALTER TABLE datawg.t_eelstock_eel drop constraint c_uk_year_lifestage_emu_code;
 ALTER TABLE datawg.t_eelstock_eel drop constraint c_uk_eelstock;
 ALTER TABLE datawg.t_eelstock_eel ADD CONSTRAINT c_uk_eelstock UNIQUE (eel_year,eel_lfs_code,eel_emu_nameshort,eel_typ_id,eel_hty_code,eel_qal_id);
 
+-- change 2018, this constraint will to be triggered when there are NULL values in eel_hty_code
+alter table datawg.t_eelstock_eel ALTER COLUMN eel_qal_id SET NOT NULL;
+alter table datawg.t_eelstock_eel ALTER COLUMN eel_emu_nameshort SET NOT NULL;
+alter table datawg.t_eelstock_eel ALTER COLUMN eel_lfs_code SET NOT NULL;
+alter table datawg.t_eelstock_eel ALTER COLUMN eel_typ_id SET NOT NULL;
+select * from datawg.t_eelstock_eel where eel_lfs_code is null;
+ALTER TABLE datawg.t_eelstock_eel drop constraint c_uk_eelstock;
+-- NULL values will lead to ignore the constraint, this is the solution
+CREATE UNIQUE CONSTRAINT c_uk_eelstock_1 on datawg.t_eelstock_eel UNIQUE (eel_year,eel_lfs_code,eel_emu_nameshort,eel_typ_id,eel_hty_code,eel_qal_id)
+where eel_hty_code is not null;
+CREATE UNIQUE CONSTRAINT c_uk_eelstock_2 on datawg.t_eelstock_eel UNIQUE (eel_year,eel_lfs_code,eel_emu_nameshort,eel_typ_id,eel_qal_id)
+where eel_hty_code is null;
+
 -- adding a new column for the eel_stock to trace the source of data
 ALTER TABLE datawg.t_eelstock_eel ADD COLUMN eel_datasource character varying(100);
 
