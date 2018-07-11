@@ -80,7 +80,7 @@ compare_with_database<-function(data_from_excel, data_from_base){
           "eel_lfs_code",         
           "eel_hty_code",
           "eel_area_division",          
-          "eel_comment.base", 
+          eel_comment.base, 
           "eel_comment.xls",                        
           "eel_datasource.base", 
           "eel_datasource.xls")]
@@ -122,6 +122,7 @@ compare_with_database<-function(data_from_excel, data_from_base){
 #'  #path<-"C:\\Users\\cedric.briand\\Desktop\\06. Data\\datacall(wgeel_2018)\\duplicates_catch_landings_2018-07-08 (1).xlsx"
 #'  # qualify_code is 18 for wgeel2018
 #'  write_duplicates(path,qualify_code=18)
+#' sqldf("delete from datawg.t_eelstock_eel where eel_qal_comment='dummy_for_test'")
 #'  }
 #' }
 #' @rdname write_duplicate
@@ -174,59 +175,102 @@ write_duplicates<-function(path,qualify_code=18){
   #########################"
   # Duplicates values
   #########################
-  if (sum(duplicates2$keep_new_value)>0){
+
     replaced<-duplicates2[duplicates2$keep_new_value,]
+    if (nrow(replaced)>0){
     validate(
         need(all(!is.na(replaced$eel_qal_id.xls)), "All values with true in keep_new_value column should have a value in eel_qal_id \n"))
     
     ###############
     # first deprecate old values in the database
     ################
-    replaced$"eel_comment.base"[is.na(replaced$"eel_comment.base")]<-""
-    replaced$"eel_comment.base"<-paste0(replaced$eel_comment.base," Value",replaced$eel_value.base,"replaced by value ",replaced$eel_value.xls," in ",format(Sys.time(), "%Y"))
-    no_error<-TRUE
-    n=1
-    while ((n <=nrow(replaced))&no_error){
-      query <-
-          paste0("update datawg.t_eelstock_eel set (eel_qal_id,eel_comment)=(",
-              qualify_code,",'",replaced$eel_comment.base[n],"') where eel_id=",replaced$eel_id[n])
-      query <-
-          paste0("update dataw.t_eelstock_eel set (eel_qal_id,eel_comment)=(",
-              qualify_code,",'",replaced$eel_comment.base[n],"') where eel_id=",replaced$eel_id[n])
-      res<-tryCatch(
-          sqldf(query), error = function(e) {
-            message("The query failed with the following warning")
-            
-            
-          }) 
-      n=n+1    
-    }
+    replaced$eel_comment.base[is.na(replaced$eel_comment.base)]<-""
+    replaced$eel_comment.base<-paste0(replaced$eel_comment.base," Value ",replaced$eel_value.base," replaced by value ",replaced$eel_value.xls," for datacall ",format(Sys.time(), "%Y"))
+    
+    query <-
+        paste0("update datawg.t_eelstock_eel set (eel_qal_id,eel_comment)=(",
+            qualify_code,",'",replaced$eel_comment.base,"') where eel_id=",replaced$eel_id)
+    sqldf(query)
+    
+      ################################################
+      # second insert the new lines into the database
+      ###############################################"
+      replaced<-replaced[,c(          
+                      "eel_typ_id",       
+                      "eel_year",
+                      "eel_value.xls",
+                      "eel_missvaluequal.xls",
+                      "eel_emu_nameshort",
+                      "eel_cou_code",
+                      "eel_lfs_code",
+                      "eel_hty_code",
+                      "eel_area_division",
+                      "eel_qal_id.xls",
+                      "eel_qal_comment.xls",            
+                      "eel_datasource.xls",
+                      "eel_comment.xls")]
+      sqldf("insert into datawg.t_eelstock_eel (         
+                      eel_typ_id,       
+                      eel_year,
+                      eel_value,
+                      eel_missvaluequal,
+                      eel_emu_nameshort,
+                      eel_cou_code,
+                      eel_lfs_code,
+                      eel_hty_code,
+                      eel_area_division,
+                      eel_qal_id,
+                      eel_qal_comment,            
+                      eel_datasource,
+                      eel_comment) 
+                      select * from replaced")
   }
-  ################################################
-  # second insert the new lines into the database
-  ###############################################"
-  replaced<-replaced[,c(
-          "eel_id",
-          "eel_typ_id",       
-          "eel_year",
-          "eel_value.xls",
-          "eel_missvaluequal.xls",
-          "eel_emu_nameshort",
-          "eel_cou_code",
-          "eel_lfs_code",
-          "eel_hty_code",
-          "eel_area_division",
-          "eel_qal_id.xls",
-          "eel_qal_comment.xls",            
-          "eel_datasource.xls",
-          "eel_comment.xls")    
-  ]
-  # TODO change eel_qal_id to qualify_code=
-  # TODO insert new data
+  ################################
+  # Values not chosen, but we store them in the database
+  ############################### 
+
+      not_replaced<-duplicates2[duplicates2$keep_new_value,]
+      if (nrow(not_replaced)>0){
+      not_replaced$eel_comment.xls[is.na(not_replaced$eel_comment.xls)]<-""
+      not_replaced$eel_comment.xls<-paste0(not_replaced$eel_comment.xls," Value ",not_replaced$eel_value.xls," not used, value from the database ",not_replaced$eel_value.base," kept instead for datacall ",format(Sys.time(), "%Y"))
+      not_replaced$eel_qal_id<-qualify_code   
+      not_replaced<-not_replaced[,c(          
+              "eel_typ_id",       
+              "eel_year",
+              "eel_value.xls",
+              "eel_missvaluequal.xls",
+              "eel_emu_nameshort",
+              "eel_cou_code",
+              "eel_lfs_code",
+              "eel_hty_code",
+              "eel_area_division",
+              "eel_qal_id.xls",
+              "eel_qal_comment.xls",            
+              "eel_datasource.xls",
+              "eel_comment.xls")]      
+      sqldf("insert into datawg.t_eelstock_eel (         
+              eel_typ_id,       
+              eel_year,
+              eel_value,
+              eel_missvaluequal,
+              eel_emu_nameshort,
+              eel_cou_code,
+              eel_lfs_code,
+              eel_hty_code,
+              eel_area_division,
+              eel_qal_id,
+              eel_qal_comment,            
+              eel_datasource,
+              eel_comment) 
+              select * from not_replaced")
+
+  }
+  message<-sprintf("For duplicates %s values replaced in the database (old values kept with code eel_qal_id=%s), %s values not replaced (values from current datacall stored with code eel_qal_id %s)", nrow(replaced),qualify_code,nrow(not_replaced),qualify_code)
+  return(message)
+}
+
+write_new<-function(path){
   
-  # TODO select values to are not replaced, these still need to be kept into the database
-  # TODO in the comment indicate which value has been used instead 
-  not_replaced<-duplicates2[duplicates2$keep_new_value,]
-  # TODO for those get new datacall data, and insert them in the database with code 5
+  # TODO 
   return(message)
 }
