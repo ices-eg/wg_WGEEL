@@ -136,7 +136,7 @@ write_duplicates<-function(path,qualify_code=18){
       need(ncol(duplicates2)==22, "number column wrong (should be 22) \n")
   )         
   validate(
-        need(all(colnames(duplicates2)%in%
+      need(all(colnames(duplicates2)%in%
                   c(
                       "eel_id",
                       "eel_typ_id",
@@ -175,23 +175,36 @@ write_duplicates<-function(path,qualify_code=18){
   # Duplicates values
   #########################
   if (sum(duplicates2$keep_new_value)>0){
-      replaced<-duplicates2[duplicates2$keep_new_value,]
-      validate(
+    replaced<-duplicates2[duplicates2$keep_new_value,]
+    validate(
         need(all(!is.na(replaced$eel_qal_id.xls)), "All values with true in keep_new_value column should have a value in eel_qal_id \n"))
-
-      ###############
-      # first deprecate old values in the database
-      ################
-     replaced$"eel_comment.base"[is.na(replaced$"eel_comment.base")]<-""
-     replaced$"eel_comment.base"<-paste0(replaced$eel_comment.base," Value",replaced$eel_value.base,"replaced by value ",replaced$eel_value.xls," in ",format(Sys.time(), "%Y"))
-      for (n in 1:nrow(replaced))
-       query <-
-                paste0("update t_eelstock_eel set (eel_qal_id,eel_comment)=(",
-                        qualify_code,",'",replaced$eel_comment.base[n],"') where eel_id=",replaced$eel_id[n])
+    
+    ###############
+    # first deprecate old values in the database
+    ################
+    replaced$"eel_comment.base"[is.na(replaced$"eel_comment.base")]<-""
+    replaced$"eel_comment.base"<-paste0(replaced$eel_comment.base," Value",replaced$eel_value.base,"replaced by value ",replaced$eel_value.xls," in ",format(Sys.time(), "%Y"))
+    no_error<-TRUE
+    n=1
+    while ((n <=nrow(replaced))&no_error){
+      query <-
+          paste0("update datawg.t_eelstock_eel set (eel_qal_id,eel_comment)=(",
+              qualify_code,",'",replaced$eel_comment.base[n],"') where eel_id=",replaced$eel_id[n])
+      query <-
+          paste0("update dataw.t_eelstock_eel set (eel_qal_id,eel_comment)=(",
+              qualify_code,",'",replaced$eel_comment.base[n],"') where eel_id=",replaced$eel_id[n])
+      res<-tryCatch(
+          sqldf(query), error = function(e) {
+            message("The query failed with the following warning")
+            
+            
+          }) 
+      n=n+1    
+    }
   }
-   ################################################
-   # second insert the new lines into the database
-   ###############################################"
+  ################################################
+  # second insert the new lines into the database
+  ###############################################"
   replaced<-replaced[,c(
           "eel_id",
           "eel_typ_id",       
