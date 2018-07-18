@@ -402,6 +402,7 @@ load_release<-function(path){
     for (i in 1:nrow(release_N)) { 
       if (release_N[i,1]=="release_n") { 
         release_N[i,11] <- 9
+        release_N[i,1] <- "q_release_n"
       } else {
         release_N[i,11]  <- 10
       }
@@ -411,7 +412,7 @@ load_release<-function(path){
     #create data for kg and add eel_typ_id 8 
     release_kg <- release[,c(1,2,4,5,6,7,8,9,10,11)] 
     release_kg$eel_typ_id <- rep(8, nrow(release)) 
-    release_kg$eel_typ_name <- "release_kg"
+    release_kg$eel_typ_name <- "q_release_kg"
     colnames(release_kg)[colnames(release_kg)=="eel_value_kg"] <- "eel_value" 
     
     #Rbind data in the same data frame to import in database 
