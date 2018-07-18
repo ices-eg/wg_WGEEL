@@ -390,18 +390,28 @@ load_release<-function(path){
     
     ###  deal with eel_value_number and eel_value_kg to import to database
     
-    #tibbles are weird, change to dataframe 
-    release <- as.data.frame(release) 
+    #tibbles are weird, change to dataframe and clear NA in the first column
+    release <- as.data.frame(release[!is.na(release[,1]),])
     
     #separate data between number and kg 
     #create data for number and add eel_typ_id 9 
     release_N <- release[,c(1,2,3,5,6,7,8,9,10,11)] 
-    release_N$eel_typ_id <- rep(9, nrow(release)) 
+    
+    release_N$eel_typ_id <- NA
+    # deal with release_n or gee_n to assign the correct type id 
+    for (i in 1:nrow(release_N)) { 
+      if (release_N[i,1]=="release_n") { 
+        release_N[i,11] <- 9
+      } else {
+        release_N[i,11]  <- 10
+      }
+    } 
     colnames(release_N)[colnames(release_N)=="eel_value_number"] <- "eel_value" 
     
     #create data for kg and add eel_typ_id 8 
     release_kg <- release[,c(1,2,4,5,6,7,8,9,10,11)] 
     release_kg$eel_typ_id <- rep(8, nrow(release)) 
+    release_kg$eel_typ_name <- "release_kg"
     colnames(release_kg)[colnames(release_kg)=="eel_value_kg"] <- "eel_value" 
     
     #Rbind data in the same data frame to import in database 
