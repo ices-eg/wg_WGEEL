@@ -111,9 +111,9 @@ compare_with_database<-function(data_from_excel, data_from_base){
 #' @title write duplicated results into the database
 #' @description Values kept from the datacall will be inserted, old values from the database
 #' will be qualified with a number corresponding to the wgeel datacall (e.g. eel_qal_id=5 for 2018).
-#' Values not selected from the datacall will be also be inserted with eel_qal_id=5
+#' Values not selected from the datacall will be also be inserted with eel_qal_id=qualify_code
 #' @param path path to file (collected from shiny button)
-#' @param qualify_code code to insert the data into the database, Default: 5
+#' @param qualify_code code to insert the data into the database, default 18
 #' @return message indicating success or failure at data insertion
 #' @details 
 #' @examples 
@@ -266,12 +266,60 @@ write_duplicates<-function(path,qualify_code=18){
               select * from not_replaced")
 
   }
-  message<-sprintf("For duplicates %s values replaced in the database (old values kept with code eel_qal_id=%s), %s values not replaced (values from current datacall stored with code eel_qal_id %s)", nrow(replaced),qualify_code,nrow(not_replaced),qualify_code)
+  message<-sprintf("For duplicates %s values replaced in the database (old values kept with code eel_qal_id=%s)\n, %s values not replaced (values from current datacall stored with code eel_qal_id %s)", nrow(replaced),qualify_code,nrow(not_replaced),qualify_code)
   return(message)
 }
-
+#' @title new results into the database
+#' @description New lines will be inserted in the database
+#' @param path path to file (collected from shiny button)
+#' @return message indicating success or failure at data insertion
+#' @details 
+#' @examples 
+#' \dontrun{
+#' if(interactive()){
+#'  path<-wg_file.choose() 
+#'  #path<-"C:\\Users\\cedric.briand\\Desktop\\06. Data\\datacall(wgeel_2018)\\new_catch_landings_2018-07-23.xlsx"
+#'  # qualify_code is 18 for wgeel2018
+#'  write_new(path)
+#' sqldf("delete from datawg.t_eelstock_eel where eel_qal_comment='dummy_for_test'")
+#'  }
+#' }
+#' @rdname write_duplicate
 write_new<-function(path){
-  
-
+  new<-read_excel(
+      path=path,
+      sheet =1,
+      skip=1)
+  if (any(is.na(new$eel_qal_id))) stop ("There are still lines without eel_qal_id")
+  new<-new[,c(          
+          "eel_typ_id",       
+          "eel_year",
+          "eel_value",
+          "eel_missvaluequal",
+          "eel_emu_nameshort",
+          "eel_cou_code",
+          "eel_lfs_code",
+          "eel_hty_code",
+          "eel_area_division",
+          "eel_qal_id",
+          "eel_qal_comment",            
+          "eel_datasource",
+          "eel_comment")] 
+  sqldf("insert into datawg.t_eelstock_eel (         
+          eel_typ_id,       
+          eel_year,
+          eel_value,
+          eel_missvaluequal,
+          eel_emu_nameshort,
+          eel_cou_code,
+          eel_lfs_code,
+          eel_hty_code,
+          eel_area_division,
+          eel_qal_id,
+          eel_qal_comment,            
+          eel_datasource,
+          eel_comment) 
+          select * from new")
+  message<-sprintf(" %s new values inserted in the database",nrow(new))
   return(message)
 }
