@@ -573,11 +573,16 @@ alter table datawg.t_eelstock_eel ALTER COLUMN eel_lfs_code SET NOT NULL;
 alter table datawg.t_eelstock_eel ALTER COLUMN eel_typ_id SET NOT NULL;
 select * from datawg.t_eelstock_eel where eel_lfs_code is null;
 ALTER TABLE datawg.t_eelstock_eel drop constraint c_uk_eelstock;
--- NULL values will lead to ignore the constraint, this is the solution
-CREATE UNIQUE CONSTRAINT c_uk_eelstock_1 on datawg.t_eelstock_eel UNIQUE (eel_year,eel_lfs_code,eel_emu_nameshort,eel_typ_id,eel_hty_code,eel_qal_id)
-where eel_hty_code is not null;
-CREATE UNIQUE CONSTRAINT c_uk_eelstock_2 on datawg.t_eelstock_eel UNIQUE (eel_year,eel_lfs_code,eel_emu_nameshort,eel_typ_id,eel_qal_id)
-where eel_hty_code is null;
+-- NULL values will lead to ignore the constraint, this is the solution (values for eel_hty_id and eel_area_division can be null)
+-- four cases must be considered
+CREATE UNIQUE INDEX idx_eelstock_1 on datawg.t_eelstock_eel (eel_year,eel_lfs_code,eel_emu_nameshort,eel_typ_id,eel_hty_code,eel_qal_id,eel_area_division)
+where eel_hty_code is not null and eel_area_division is not null;
+CREATE UNIQUE INDEX idx_eelstock_2 on datawg.t_eelstock_eel (eel_year,eel_lfs_code,eel_emu_nameshort,eel_typ_id,eel_qal_id,eel_area_division)
+where eel_hty_code is null and eel_area_division is not null;
+CREATE UNIQUE INDEX idx_eelstock_3 on datawg.t_eelstock_eel (eel_year,eel_lfs_code,eel_emu_nameshort,eel_typ_id,eel_hty_code,eel_qal_id)
+where eel_hty_code is not null and eel_area_division is null;
+CREATE UNIQUE INDEX idx_eelstock_4 on datawg.t_eelstock_eel (eel_year,eel_lfs_code,eel_emu_nameshort,eel_typ_id,eel_qal_id)
+where eel_hty_code is null and eel_area_division is null;
 
 -- adding a new column for the eel_stock to trace the source of data
 ALTER TABLE datawg.t_eelstock_eel ADD COLUMN eel_datasource character varying(100);
