@@ -60,7 +60,7 @@ ui <- fluidPage(
                             accept = c(".xls",".xlsx")
                         )),                   
                     column(width=2,
-                        actionButton("database_new_button", "Import")),
+                        actionButton("database_new_button", "Proceed")),
                     column(width=6,verbatimTextOutput("errors_new_integration"))
                 )
             ),

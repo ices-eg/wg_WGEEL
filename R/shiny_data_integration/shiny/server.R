@@ -156,12 +156,12 @@ shinyServer(function(input, output, session){
             # the first duplicates contains elements to be returned to the use
             # the second new contains a dataframe to be inserted straight into
             # the database
-            cat("step0")
+            #cat("step0")
             if (nrow(data_from_excel)>0){
               list_comp<-compare_with_database(data_from_excel,data_from_base)
               duplicates <- list_comp$duplicates
               new <- list_comp$new 
-              cat("step1")
+              #cat("step1")
               #####################      
               # Duplicates values
               #####################
@@ -234,22 +234,16 @@ shinyServer(function(input, output, session){
                         ))
                   })
             } # closes if nrow(...      
-            data$new <- new # new is stored in the reactive dataset to be inserted later.      
+            #data$new <- new # new is stored in the reactive dataset to be inserted later.      
           })
       
       
       ##########################
       # STEP 2.1
-      # When database integration is clicked
+      # When database_duplicates_button is clicked
       # this will trigger the data integration
-      #############################   
-      
-      
-      
-      
-      # this step only starts if step1 has been launched
-      # ideally should be when xls file button download is clicked but
-      # I don't know how to do that (no time to check)
+      #############################         
+      # this step only starts if step1 has been launched    
       observeEvent(input$database_duplicates_button, { 
             ###########################
             # step2_filepath
@@ -269,12 +263,10 @@ shinyServer(function(input, output, session){
             #  or an error message
             ###########################
             step21load_data<-function(){
-              path<- step0_filepath()   
-              if (is.null(data$path_step0)) return(NULL)             
-              #path<-wg_file.choose() 
-              #path<-"C:\\Users\\cedric.briand\\Desktop\\06. Data\\datacall(wgeel_2018)\\duplicates_catch_landings_2018-07-08.xlsx"
-              # qualify_code is 5 for wgeel2018
-              message<-write_duplicates(path,qualify_code=qualify_code)
+              path<- step21_filepath()   
+              if (is.null(data$path_step21)) return(NULL)             
+                 message<-write_duplicates(path,qualify_code=qualify_code)
+              return(message)
             }
             ###########################
             # errors_duplicates_integration
@@ -283,29 +275,55 @@ shinyServer(function(input, output, session){
             output$textoutput_step2.1<-renderText({
                   # call to  function that loads data
                   # this function does not need to be reactive
-                  if (is.null(data$path_step21)) "please select a dataset" else {          
-                    message<-step21load_data()                    
+                  message<-step21load_data()  
+                  if (is.null(data$path_step21)) "please select a dataset" else {                                      
                     paste(message,collapse="\n")
                   }                  
                 })              
           }) 
-      
-      observeEvent(input$database_new_button, {
-            # TODO when import duplicates is clicked
-          })
       ##########################
-      # When database integration is clicked
+      # STEP 2.2
+      # When database_new_button is clicked
       # this will trigger the data integration
-      # TODO 
-      ############################# 
-      #xl_new_file 
-      observeEvent(input$check_duplicate_button, {
-            step21_filepath <- reactive({
-                  inFile <- input$xl_duplicates_file      
+      #############################      
+      observeEvent(input$database_new_button, {
+            
+            ###########################
+            # step2_filepath
+            # reactive function, when clicked return value in reactive data 
+            ###########################
+            step22_filepath <- reactive({
+                  inFile <- input$xl_new_file      
                   if (is.null(inFile)){        return(NULL)
                   } else {
-                    data$path_step21<-inFile$datapath #path to a temp file             
+                    data$path_step22<-inFile$datapath #path to a temp file             
                   }
+                })
+            ###########################
+            # step21load_data
+            #  function, returns a message
+            #  indicating that data integration was a succes
+            #  or an error message
+            ###########################
+            step22load_data<-function(){
+              path<- step22_filepath()   
+              if (is.null(data$path_step22)) return(NULL)             
+              message<-write_new(path)
+              return(message)
+            }
+            ###########################
+            # errors_duplicates_integration
+            # this will add a path value to reactive data in step0
+            ###########################            
+            output$textoutput_step2.2<-renderText({
+                  # call to  function that loads data
+                  # this function does not need to be reactive
+                  message<-step22load_data()  
+                  if (is.null(data$path_step22)) "please select a dataset" else {                                      
+                    paste(message,collapse="\n")
+                  }                  
                 })  
-          }) 
+          })
+      
+      
     })
