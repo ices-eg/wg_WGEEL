@@ -12,7 +12,7 @@ setwd("C:\\Users\\cedric.briand\\Documents\\GitHub\\WGEEL")
 ```
 to test the app you need to put the files from wgeel 2018 datacall in a folder
 launch by running run.R
-
+![alt text][data_check]
  * click button **1**, browse to select file 
  * click on the button **2**, the functions running the check on your data will return a list of error, and an excel file with those errors, check them, re-run untill you have solved all errors
  * click on the button **3**, this will load existing data from the database and run comparison checks with your current data. You will get two datasets one excel file with duplicated values and one excel file with new lines to be integrated. 
@@ -22,7 +22,7 @@ launch by running run.R
   * Do the same for new data.
  
 
-![alt text][data_check]
+
 
 [data_check]: https://github.com/ices-eg/wg_WGEEL/blob/master/R/shiny_data_integration/shiny/common/images/data_check.png "Shiny app for data integration"
 
