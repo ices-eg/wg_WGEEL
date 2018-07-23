@@ -21,6 +21,7 @@
 #' @examples 
 #' \dontrun{
 #' if(interactive()){
+#' # choose a dataset such as catch_landings.xls
 #' data_from_excel<-load_catch_landings(wg_file.choose())$data
 #' data_from_base<-extract_data("Landings")
 #' list_comp<-compare_with_database(data_from_excel,data_from_base)
@@ -80,7 +81,7 @@ compare_with_database<-function(data_from_excel, data_from_base){
           "eel_lfs_code",         
           "eel_hty_code",
           "eel_area_division",          
-          eel_comment.base, 
+          "eel_comment.base", 
           "eel_comment.xls",                        
           "eel_datasource.base", 
           "eel_datasource.xls")]
