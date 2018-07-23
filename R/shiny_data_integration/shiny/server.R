@@ -182,8 +182,9 @@ shinyServer(function(input, output, session){
                             "to replace data using the new datacall data (true)",
                             "if new is selected don't forget to qualify your data in column <strong> eel_qal_id.xls, eel_qal_comment.xls </strong>",
                             "once this is done download the file and proceed to next step.",
-                            "Rows with false will be ignored and kept as such in the database, use panel datacorrection if you want to change them",
-                            "Rows with true will use the column labelled .xls for the new insertion, and flag existing values as removed <p>"                         
+                            "Rows with false will be ignored and kept as such in the database",
+                            "Rows with true will use the column labelled .xls for the new insertion, and flag existing values as removed ",
+                            "If you see an error in old data, use panel datacorrection (on top of the application), this will allow you to make changes directly in the database <p>"                         
                         )))  
               }
               output$dt_duplicates <-DT::renderDataTable({                     
