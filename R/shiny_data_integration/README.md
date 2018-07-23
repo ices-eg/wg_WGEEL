@@ -21,8 +21,12 @@ launch by running run.R
  * click on the button **4** to select the dataset just processed and try integration in the database **5**. If it fails, try to understand with the message why the database refused your data and reprocess it.
   * do the same for new data.
  
+ ![alt text][data_check_step0]
 
-
+ ![alt text][data_check_step1]
 
 [data_check]: https://github.com/ices-eg/wg_WGEEL/blob/master/R/shiny_data_integration/shiny/common/images/data_check.png "Shiny app for data integration"
-
+[data_check_step0]: 
+https://user-images.githubusercontent.com/26055877/42418061-9b6dcf0e-8298-11e8-9fd1-89fed97f832a.png
+[data_check_step1]: 
+https://user-images.githubusercontent.com/26055877/42418064-ae3a6976-8298-11e8-8874-765c0218422e.png
