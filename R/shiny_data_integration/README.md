@@ -19,7 +19,7 @@ launch by running run.R
  	* In the dataset with duplicates you will need to select which value is to be kept from the database or the new dataset: in the column keep new value choose true to replace data using the new datacall data. Duplicated lines (old or new) will be kept in the database with an eel\_qual\_id of 18 if the year of integration is 2018. You will also need to give a qal comment if you select to replace the value currently in the database
  	* In the dataset with new lines, you will still need to give a qal_id statement to all lines
  * click on the button **4** to select the dataset just processed and try integration in the database **5**. If it fails, try to understand with the message why the database refused your data and reprocess it.
-  * Do the same for new data.
+  * do the same for new data.
  
 
 
