@@ -150,6 +150,38 @@ update ref.tr_typeseries_typ set typ_name='q_release_kg' where typ_name='q_stock
 update ref.tr_typeseries_typ set typ_description='Released quantity (kg)' where typ_description='Stocking quantity (kg)';
 update ref.tr_typeseries_typ set (typ_name,typ_description)=('q_release_n','Released numbers (number)') where typ_name='q_stock_n';
 
+/*
+2018
+To deal with Restocking, Assisted Migration, and Trap & Transport, we decided to split each of them up into two separate events:
+
+The catch of an eel, for the purpose of Restocking etc.
+The release of the same eel, at another place.
+The issue is about the catch. We deal with that in "Catch and Landings", but that allows for com_landings_kg and rec_landings_kg only. How to consider an elver-trap below a hydrostation? That is neither commercial nor recreational (legally speaking), so it would be confusing to report them as such.
+Suggestion: add codes for all other catches, "other_landings_kg" and "other_landings_N", adding a comment that the exact purpose can be described in the corresponding eel_comment.
+The templates need to be adapted for this (Willem will do, on WKTEEL sharepoint, and check WGEEL sharepoint),
+*/
+
+insert into ref.tr_typeseries_typ  
+	(
+	typ_name ,
+	typ_description,
+	typ_uni_code) 
+VALUES
+	('other_landings_kg',
+        'This is neither recreational fishery, nor commercial fishery, for example catching a quantity of eel at a trapping ladder below a dam can be qualitied as other_landings, the exact purpose should be provided in the corresponding comment',
+         'kg');                          
+
+insert into ref.tr_typeseries_typ  
+	(
+	typ_name ,
+	typ_description,
+	typ_uni_code) 
+VALUES
+	('other_landings_n',
+        'This is neither recreational fishery, nor commercial fishery, for example catching a number of eel at a trapping ladder below a dam can be qualitied as other_landings, the exact purpose should be provided  in the corresponding comment',
+         'nr');   
+
+
 
 ---------------------
 -- datawg.t_series_ser 
