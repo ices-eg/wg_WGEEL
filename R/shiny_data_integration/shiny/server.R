@@ -1,4 +1,7 @@
-shinyServer(function(input, output, session){ 
+shinyServer(function(input, output, session){
+      ##########################
+# I. Datacall Integration and checks
+      ######################### 
       ##########################
       # reactive values in data
       ##########################
@@ -264,8 +267,17 @@ shinyServer(function(input, output, session){
             ###########################
             step21load_data<-function(){
               path<- step21_filepath()   
-              if (is.null(data$path_step21)) return(NULL)             
-                 message<-write_duplicates(path,qualify_code=qualify_code)
+              if (is.null(data$path_step21)) return(NULL)  
+              
+              tryCatch(stop("toto"),
+                  error = function(e) {
+                    e$message})
+              
+              res<-tryCatch(message<-write_duplicates(path,qualify_code=qualify_code),silent=TRUE,                    
+                  error = function(e) {
+                    e$message}
+              )           
+              message<-write_duplicates(path,qualify_code=qualify_code)
               return(message)
             }
             ###########################
@@ -275,6 +287,7 @@ shinyServer(function(input, output, session){
             output$textoutput_step2.1<-renderText({
                   # call to  function that loads data
                   # this function does not need to be reactive
+                  
                   message<-step21load_data()  
                   if (is.null(data$path_step21)) "please select a dataset" else {                                      
                     paste(message,collapse="\n")
@@ -324,6 +337,113 @@ shinyServer(function(input, output, session){
                   }                  
                 })  
           })
+      #######################################
+      # II. Data correction table  
+      #######################################
+      rvs <- reactiveValues(
+          data = NA, 
+          dbdata = NA,
+          dataSame = TRUE,
+          editedInfo = NA
+      )
+      #sel_country="VA"
+      #-----------------------------------------  
+      # Generate source via reactive expression
+      mysource <- reactive({
+            {
+              # sqlInterpolate to protect against injection    
+              query <- sqlInterpolate(ANSI(),"SELECT * from datawg.t_eelstock_eel where eel_cou_code=?cou",
+                  cou=sel_country)
+              out_data <- dbGetQuery(pool, query)
+              rownames(out_data)<-out_data$eel_id
+              return(out_data)
+            }
+          })
       
-      
+      # Observe the source, update reactive values accordingly
+      observeEvent(mysource(), {
+            
+            # Lightly format data by arranging id
+            # Not sure why disordered after sending UPDATE query in db    
+            data <- mysource() %>% arrange(eel_emu_nameshort,eel_year)
+            
+            rvs$data <- data
+            rvs$dbdata <- data
+            
+          })
+      #-----------------------------------------
+      # Render DT table 
+      # 
+      # selection better be none
+      # editable must be TRUE
+      #
+      output$table_cor <- DT::renderDataTable(
+          rvs$data, rownames = FALSE, editable = TRUE, selection = 'none'
+      )
+      #-----------------------------------------
+      # Create a DT proxy to manipulate data
+      # 
+      #
+      proxy_table_cor = dataTableProxy('table_cor')
+      #--------------------------------------
+      # Edit table data
+      # Expamples at
+      # https://yihui.shinyapps.io/DT-edit/
+      observeEvent(input$table_cor_cell_edit, {
+            
+            info = input$table_cor_cell_edit
+            
+            i = info$row
+            j = info$col = info$col + 1  # column index offset by 1
+            v = info$value
+            
+            rvs$data[i, j] <<- DT::coerceValue(v, rvs$data[i, j])
+            replaceData(proxy_table_cor, rvs$data, resetPaging = FALSE, rownames = FALSE)
+            # datasame is set to TRUE when save or update buttons are clicked
+            # here if it is different it might be set to FALSE
+            rvs$dataSame <- identical(rvs$data, rvs$dbdata)
+            # this will collate all editions (coming from datatable observer in a data.frame
+            # and store it in the reactive dataset rvs$editedInfo
+            if (all(is.na(rvs$editedInfo))) {
+              
+              rvs$editedInfo <- data.frame(info)
+            } else {
+              rvs$editedInfo <- dplyr::bind_rows(rvs$editedInfo, data.frame(info))
+            }
+            
+          })
+      #-----------------------------------------
+        # Update edited values in db once save is clicked
+        observeEvent(input$save, {
+                
+                update_t_eelstock_eel(editedValue = rvs$editedInfo, pool = pool)
+                
+                rvs$dbdata <- rvs$data
+                rvs$dataSame <- TRUE
+            })
+        
+        #-----------------------------------------
+        # Oberve cancel -> revert to last saved version
+        observeEvent(input$cancel, {
+                rvs$data <- rvs$dbdata
+                rvs$dataSame <- TRUE
+            })
+        
+        #-----------------------------------------
+        # UI buttons
+        # Appear only when data changed
+        output$buttons_data_correction <- renderUI({
+                div(
+                      if (! rvs$dataSame) {
+                              span(
+                                    actionButton(inputId = "save", label = "Save",
+                                                     class = "btn-primary"),
+                                    actionButton(inputId = "cancel", label = "Cancel")
+                              )
+                          } else {
+                              span()
+                          }
+                )
+            })
+
     })

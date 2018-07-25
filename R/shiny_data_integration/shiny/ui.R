@@ -64,7 +64,13 @@ ui <- fluidPage(
                     column(width=6,verbatimTextOutput("errors_new_integration"))
                 )
             ),
-            tabPanel("Data correction table", dataTableOutput("table_cor"),width=95),
+            tabPanel("Data correction table", br(), DT::dataTableOutput("table_cor"),
+                helpText("This table is used to edit data in the database
+                                        After you double click on a cell and edit the value, 
+                                        the Save and Cancel buttons will show up. Click on Save if
+                                        you want to save the updated values to database; click on
+                                        Cancel to reset."),
+                      uiOutput("buttons_data_correction")),
             tabPanel("Data check", fluidRow(
                     column(width=6,plotOutput("mon_graph")),
                     column(width=6,plotOutput("mon_ggplot"))

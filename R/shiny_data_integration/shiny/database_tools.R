@@ -176,9 +176,9 @@ write_duplicates<-function(path,qualify_code=18){
   #########################"
   # Duplicates values
   #########################
-
-    replaced<-duplicates2[duplicates2$keep_new_value,]
-    if (nrow(replaced)>0){
+  
+  replaced<-duplicates2[duplicates2$keep_new_value,]
+  if (nrow(replaced)>0){
     validate(
         need(all(!is.na(replaced$eel_qal_id.xls)), "All values with true in keep_new_value column should have a value in eel_qal_id \n"))
     
@@ -193,78 +193,78 @@ write_duplicates<-function(path,qualify_code=18){
             qualify_code,",'",replaced$eel_comment.base,"') where eel_id=",replaced$eel_id)
     sqldf(query)
     
-      ################################################
-      # second insert the new lines into the database
-      ###############################################"
-      replaced<-replaced[,c(          
-                      "eel_typ_id",       
-                      "eel_year",
-                      "eel_value.xls",
-                      "eel_missvaluequal.xls",
-                      "eel_emu_nameshort",
-                      "eel_cou_code",
-                      "eel_lfs_code",
-                      "eel_hty_code",
-                      "eel_area_division",
-                      "eel_qal_id.xls",
-                      "eel_qal_comment.xls",            
-                      "eel_datasource.xls",
-                      "eel_comment.xls")]
-      sqldf("insert into datawg.t_eelstock_eel (         
-                      eel_typ_id,       
-                      eel_year,
-                      eel_value,
-                      eel_missvaluequal,
-                      eel_emu_nameshort,
-                      eel_cou_code,
-                      eel_lfs_code,
-                      eel_hty_code,
-                      eel_area_division,
-                      eel_qal_id,
-                      eel_qal_comment,            
-                      eel_datasource,
-                      eel_comment) 
-                      select * from replaced")
+    ################################################
+    # second insert the new lines into the database
+    ###############################################"
+    replaced<-replaced[,c(          
+            "eel_typ_id",       
+            "eel_year",
+            "eel_value.xls",
+            "eel_missvaluequal.xls",
+            "eel_emu_nameshort",
+            "eel_cou_code",
+            "eel_lfs_code",
+            "eel_hty_code",
+            "eel_area_division",
+            "eel_qal_id.xls",
+            "eel_qal_comment.xls",            
+            "eel_datasource.xls",
+            "eel_comment.xls")]
+    sqldf("insert into datawg.t_eelstock_eel (         
+            eel_typ_id,       
+            eel_year,
+            eel_value,
+            eel_missvaluequal,
+            eel_emu_nameshort,
+            eel_cou_code,
+            eel_lfs_code,
+            eel_hty_code,
+            eel_area_division,
+            eel_qal_id,
+            eel_qal_comment,            
+            eel_datasource,
+            eel_comment) 
+            select * from replaced")
   }
   ################################
   # Values not chosen, but we store them in the database
   ############################### 
-
-      not_replaced<-duplicates2[duplicates2$keep_new_value,]
-      if (nrow(not_replaced)>0){
-      not_replaced$eel_comment.xls[is.na(not_replaced$eel_comment.xls)]<-""
-      not_replaced$eel_comment.xls<-paste0(not_replaced$eel_comment.xls," Value ",not_replaced$eel_value.xls," not used, value from the database ",not_replaced$eel_value.base," kept instead for datacall ",format(Sys.time(), "%Y"))
-      not_replaced$eel_qal_id<-qualify_code   
-      not_replaced<-not_replaced[,c(          
-              "eel_typ_id",       
-              "eel_year",
-              "eel_value.xls",
-              "eel_missvaluequal.xls",
-              "eel_emu_nameshort",
-              "eel_cou_code",
-              "eel_lfs_code",
-              "eel_hty_code",
-              "eel_area_division",
-              "eel_qal_id.xls",
-              "eel_qal_comment.xls",            
-              "eel_datasource.xls",
-              "eel_comment.xls")]      
-      sqldf("insert into datawg.t_eelstock_eel (         
-              eel_typ_id,       
-              eel_year,
-              eel_value,
-              eel_missvaluequal,
-              eel_emu_nameshort,
-              eel_cou_code,
-              eel_lfs_code,
-              eel_hty_code,
-              eel_area_division,
-              eel_qal_id,
-              eel_qal_comment,            
-              eel_datasource,
-              eel_comment) 
-              select * from not_replaced")
-
+  
+  not_replaced<-duplicates2[duplicates2$keep_new_value,]
+  if (nrow(not_replaced)>0){
+    not_replaced$eel_comment.xls[is.na(not_replaced$eel_comment.xls)]<-""
+    not_replaced$eel_comment.xls<-paste0(not_replaced$eel_comment.xls," Value ",not_replaced$eel_value.xls," not used, value from the database ",not_replaced$eel_value.base," kept instead for datacall ",format(Sys.time(), "%Y"))
+    not_replaced$eel_qal_id<-qualify_code   
+    not_replaced<-not_replaced[,c(          
+            "eel_typ_id",       
+            "eel_year",
+            "eel_value.xls",
+            "eel_missvaluequal.xls",
+            "eel_emu_nameshort",
+            "eel_cou_code",
+            "eel_lfs_code",
+            "eel_hty_code",
+            "eel_area_division",
+            "eel_qal_id.xls",
+            "eel_qal_comment.xls",            
+            "eel_datasource.xls",
+            "eel_comment.xls")]      
+    sqldf("insert into datawg.t_eelstock_eel (         
+            eel_typ_id,       
+            eel_year,
+            eel_value,
+            eel_missvaluequal,
+            eel_emu_nameshort,
+            eel_cou_code,
+            eel_lfs_code,
+            eel_hty_code,
+            eel_area_division,
+            eel_qal_id,
+            eel_qal_comment,            
+            eel_datasource,
+            eel_comment) 
+            select * from not_replaced")
+    
   }
   message<-sprintf("For duplicates %s values replaced in the database (old values kept with code eel_qal_id=%s)\n, %s values not replaced (values from current datacall stored with code eel_qal_id %s)", nrow(replaced),qualify_code,nrow(not_replaced),qualify_code)
   return(message)
@@ -322,4 +322,58 @@ write_new<-function(path){
           select * from new")
   message<-sprintf(" %s new values inserted in the database",nrow(new))
   return(message)
+}
+
+#' @title Update t_eelstock_eel table in the database
+#' @description Function to safely modify data into the database from DT edits
+#' @param editedValue A dataframe wich collates all rows changed in the datatable, using the 
+#' observeEvent(input$table_cor_cell_edit, ... on the server.R side
+#' @param pool A database pool
+#' @return Nothing
+#' @details Modified from https://github.com/MangoTheCat/dtdbshiny, when compared with this example the original dbListFields from RPostgres
+#' doesn't seem to work with shema.table. So I changed the function to pass colnames once only
+#' @examples 
+#' editedValue <-tibble(row=384231,col=4,value=456)
+#' pool <- pool::dbPool(drv = dbDriver("PostgreSQL"),
+#'    dbname="wgeel",
+#'    host="localhost",
+#'    user= userlocal,
+#'    password=passwordlocal)
+#' update_t_eelstock_eel(editedValue, pool)
+#' @seealso 
+#'  \code{\link[dplyr]{last}}
+#'  \code{\link[glue]{glue_sql}}
+#' @rdname updateDB
+#' @importFrom dplyr last
+#' @importFrom glue glue_sql
+update_t_eelstock_eel <- function(editedValue, pool){
+  # Keep only the last modification for a cell
+  # edited Value is a data frame with columns row, col, value
+  # this part ensures that only the last value changed in a cell is replaced. 
+  # Previous edits are ignored
+  editedValue <- editedValue %>% 
+      group_by(row, col) %>% 
+      filter(value == dplyr::last(value)| is.na(value)) %>% 
+      ungroup()
+  # opens the connection, this must be followed by poolReturn
+  conn <- poolCheckout(pool)
+  # Apply to all rows of editedValue dataframe
+
+  
+  lapply(seq_len(nrow(editedValue)), function(i){
+        id = editedValue$row[i] 
+        col = t_eelstock_eel_fields[editedValue$col[i]]
+        value = editedValue$value[i]
+        # glue sql will use arguments tbl, col, value and id 
+        query <- glue::glue_sql("UPDATE datawg.t_eelstock_eel SET
+                {`col`} = {value}
+                WHERE eel_id = {id}
+                ", .con = conn)
+        
+        dbExecute(conn, sqlInterpolate(ANSI(), query))
+      })
+  
+  poolReturn(conn)
+  print(editedValue)  
+  return(invisible())
 }
