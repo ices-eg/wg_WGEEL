@@ -1,4 +1,11 @@
 shinyServer(function(input, output, session){
+      # this stops the app when the browser stops
+      session$onSessionEnded(stopApp)
+      # A button that stops the application
+      observeEvent(input$close, {
+            js$closeWindow()
+            stopApp()
+          })
       ##########################
 # I. Datacall Integration and checks
       ######################### 
@@ -345,6 +352,7 @@ shinyServer(function(input, output, session){
           dbdata = NA,
           dataSame = TRUE,
           editedInfo = NA
+      
       )
       #sel_country="VA"
       #-----------------------------------------  
@@ -354,8 +362,9 @@ shinyServer(function(input, output, session){
               # sqlInterpolate to protect against injection    
               query <- sqlInterpolate(ANSI(),"SELECT * from datawg.t_eelstock_eel where eel_cou_code=?cou",
                   cou=sel_country)
-              out_data <- dbGetQuery(pool, query)
-              rownames(out_data)<-out_data$eel_id
+              # https://stackoverflow.com/questions/34332769/how-to-use-dbgetquery-in-trycatch-with-postgresql
+              # it seems that dbgetquery doesn't raise an error
+              out_data <- dbGetQuery(pool, query)              
               return(out_data)
             }
           })
@@ -366,10 +375,9 @@ shinyServer(function(input, output, session){
             # Lightly format data by arranging id
             # Not sure why disordered after sending UPDATE query in db    
             data <- mysource() %>% arrange(eel_emu_nameshort,eel_year)
-            
             rvs$data <- data
             rvs$dbdata <- data
-            
+            disable("clear_table")
           })
       #-----------------------------------------
       # Render DT table 
@@ -413,37 +421,51 @@ shinyServer(function(input, output, session){
             
           })
       #-----------------------------------------
-        # Update edited values in db once save is clicked
-        observeEvent(input$save, {
-                
-                update_t_eelstock_eel(editedValue = rvs$editedInfo, pool = pool)
-                
-                rvs$dbdata <- rvs$data
-                rvs$dataSame <- TRUE
-            })
-        
-        #-----------------------------------------
-        # Oberve cancel -> revert to last saved version
-        observeEvent(input$cancel, {
-                rvs$data <- rvs$dbdata
-                rvs$dataSame <- TRUE
-            })
-        
-        #-----------------------------------------
-        # UI buttons
-        # Appear only when data changed
-        output$buttons_data_correction <- renderUI({
-                div(
-                      if (! rvs$dataSame) {
-                              span(
-                                    actionButton(inputId = "save", label = "Save",
-                                                     class = "btn-primary"),
-                                    actionButton(inputId = "cancel", label = "Cancel")
-                              )
-                          } else {
-                              span()
-                          }
-                )
-            })
-
+      # Update edited values in db once save is clicked
+      observeEvent(input$save, {
+            
+            errors<-update_t_eelstock_eel(editedValue = rvs$editedInfo, pool = pool, data=rvs$data)
+            if (length(errors)>0) {
+              output$database_errors<-renderText({iconv(unlist(errors,"UTF8"))})
+              enable("clear_table")
+            } else {
+              output$database_errors<-renderText({"Database updated"})
+            }
+            rvs$dbdata <- rvs$data
+            rvs$dataSame <- TRUE
+          })
+      #-----------------------------------------
+      # Oberve cleat table button -> revert to database table
+      observeEvent(input$clear_table,
+          {
+            data <- mysource() %>% arrange(eel_emu_nameshort,eel_year)
+            rvs$data <- data
+            rvs$dbdata <- data
+          disable("clear_table")
+          output$database_errors<-renderText({""})
+        })
+      #-----------------------------------------
+      # Oberve cancel -> revert to last saved version
+      observeEvent(input$cancel, {
+            rvs$data <- rvs$dbdata
+            rvs$dataSame <- TRUE
+          })
+      
+      #-----------------------------------------
+      # UI buttons
+      # Appear only when data changed
+      output$buttons_data_correction <- renderUI({
+            div(
+                if (! rvs$dataSame) {
+                      span(
+                          actionButton(inputId = "save", label = "Save",
+                              class = "btn-primary"),
+                          actionButton(inputId = "cancel", label = "Cancel")
+                      )
+                    } else {
+                      span()
+                    }
+            )
+          })
+      
     })

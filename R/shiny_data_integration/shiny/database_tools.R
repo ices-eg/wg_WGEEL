@@ -333,20 +333,22 @@ write_new<-function(path){
 #' @details Modified from https://github.com/MangoTheCat/dtdbshiny, when compared with this example the original dbListFields from RPostgres
 #' doesn't seem to work with shema.table. So I changed the function to pass colnames once only
 #' @examples 
-#' editedValue <-tibble(row=384231,col=4,value=456)
+#' editedValue <-tibble(row=1,col=4,value=456)
+#' editedValue <-tibble(row=1,col=5,value='ERROR')
 #' pool <- pool::dbPool(drv = dbDriver("PostgreSQL"),
 #'    dbname="wgeel",
 #'    host="localhost",
 #'    user= userlocal,
 #'    password=passwordlocal)
 #' update_t_eelstock_eel(editedValue, pool)
+#' data <- sqldf("SELECT * from datawg.t_eelstock_eel where eel_cou_code='VA'")
 #' @seealso 
 #'  \code{\link[dplyr]{last}}
 #'  \code{\link[glue]{glue_sql}}
 #' @rdname updateDB
 #' @importFrom dplyr last
 #' @importFrom glue glue_sql
-update_t_eelstock_eel <- function(editedValue, pool){
+update_t_eelstock_eel <- function(editedValue, pool,data){
   # Keep only the last modification for a cell
   # edited Value is a data frame with columns row, col, value
   # this part ensures that only the last value changed in a cell is replaced. 
@@ -358,10 +360,11 @@ update_t_eelstock_eel <- function(editedValue, pool){
   # opens the connection, this must be followed by poolReturn
   conn <- poolCheckout(pool)
   # Apply to all rows of editedValue dataframe
-
-  
+  t_eelstock_eel_ids<-data$eel_id
+  error=list()
   lapply(seq_len(nrow(editedValue)), function(i){
-        id = editedValue$row[i] 
+        row = editedValue$row[i] 
+        id = t_eelstock_eel_ids[row]
         col = t_eelstock_eel_fields[editedValue$col[i]]
         value = editedValue$value[i]
         # glue sql will use arguments tbl, col, value and id 
@@ -369,11 +372,14 @@ update_t_eelstock_eel <- function(editedValue, pool){
                 {`col`} = {value}
                 WHERE eel_id = {id}
                 ", .con = conn)
-        
-        dbExecute(conn, sqlInterpolate(ANSI(), query))
-      })
-  
+        tryCatch({
+        dbExecute(conn, sqlInterpolate(ANSI(), query))},
+         error= function(e) {
+           error[i]<<-e
+         }
+      )
+      })    
   poolReturn(conn)
   print(editedValue)  
-  return(invisible())
+  return(error)
 }

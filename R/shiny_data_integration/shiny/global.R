@@ -6,6 +6,9 @@
 #########################
 # loads shiny packages
 ########################
+# the shiny is launched from shiny_data_integration/shiny
+# debug tool
+#setwd("C:\\Users\\cedric.briand\\Documents\\GitHub\\WGEEL\\R\\shiny_data_integration\\shiny")
 load_package <- function(x)
 {
   if (!is.character(x)) stop("Package should be a string")
@@ -30,6 +33,11 @@ load_package("DBI")
 load_package("RPostgreSQL")
 load_package("dplyr")
 load_package("glue")
+load_package("shinyjs")
+load_package("shinydashboard")
+load_package("shinyWidgets")
+load_package("shinyBS")
+jscode <- "shinyjs.closeWindow = function() { window.close(); }"
 
 if(packageVersion("DT")<"0.2.30"){
   message("Inline editing requires DT version >= 0.2.30. Installing...")
@@ -59,9 +67,11 @@ query <- "SELECT column_name
         ORDER  BY ordinal_position"
 t_eelstock_eel_fields <- dbGetQuery(pool, sqlInterpolate(ANSI(), query))     
 t_eelstock_eel_fields <- t_eelstock_eel_fields$column_name
-# the shiny is launched from shiny_data_integration/shiny
-# debug tool
-#setwd("C:\\Users\\cedric.briand\\Documents\\GitHub\\WGEEL\\R\\shiny_data_integration\\shiny")
+
+query <- "SELECT cou_code,cou_country from ref.tr_country_cou"
+list_country <- dbGetQuery(pool, sqlInterpolate(ANSI(), query))     
+list_country <- list_country$cou_code
+list_country <- list_country[order(list_country)]
 source("../../utilities/load_library.R")
 source("../../utilities/loading_functions.R")
 source("../../utilities/check_utilities.R")
@@ -74,3 +84,4 @@ qualify_code<-18 # change this code here and in tr_quality_qal for next wgeel
 
 # TODO change this in shiny by selecting country, data type, range of years
 sel_country="VA"
+# TODO list_country
