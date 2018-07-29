@@ -37,6 +37,12 @@ load_package("shinyjs")
 load_package("shinydashboard")
 load_package("shinyWidgets")
 load_package("shinyBS")
+load_package("sqldf")
+options(sqldf.RPostgreSQL.user = "postgres", 
+	sqldf.RPostgreSQL.password = passwordlocal,
+	sqldf.RPostgreSQL.dbname = "wgeel",
+	sqldf.RPostgreSQL.host = "localhost", # "localhost"
+	sqldf.RPostgreSQL.port = 5432)
 jscode <- "shinyjs.closeWindow = function() { window.close(); }"
 
 if(packageVersion("DT")<"0.2.30"){

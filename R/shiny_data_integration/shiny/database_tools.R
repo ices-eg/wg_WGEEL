@@ -115,7 +115,8 @@ compare_with_database<-function(data_from_excel, data_from_base){
 #' @param path path to file (collected from shiny button)
 #' @param qualify_code code to insert the data into the database, default 18
 #' @return message indicating success or failure at data insertion
-#' @details 
+#' @details This function uses sqldf to create temporary table then dbExecute as
+#' this version allows to catch exceptions and sqldf does not
 #' @examples 
 #' \dontrun{
 #' if(interactive()){
@@ -210,21 +211,22 @@ write_duplicates<-function(path,qualify_code=18){
             "eel_qal_comment.xls",            
             "eel_datasource.xls",
             "eel_comment.xls")]
-    sqldf("insert into datawg.t_eelstock_eel (         
-            eel_typ_id,       
-            eel_year,
-            eel_value,
-            eel_missvaluequal,
-            eel_emu_nameshort,
-            eel_cou_code,
-            eel_lfs_code,
-            eel_hty_code,
-            eel_area_division,
-            eel_qal_id,
-            eel_qal_comment,            
-            eel_datasource,
-            eel_comment) 
-            select * from replaced")
+    
+    query1<-"insert into datawg.t_eelstock_eel (         
+        eel_typ_id,       
+        eel_year,
+        eel_value,
+        eel_missvaluequal,
+        eel_emu_nameshort,
+        eel_cou_code,
+        eel_lfs_code,
+        eel_hty_code,
+        eel_area_division,
+        eel_qal_id,
+        eel_qal_comment,            
+        eel_datasource,
+        eel_comment) 
+        select * from replaced_temp;"
   }
   ################################
   # Values not chosen, but we store them in the database
@@ -248,32 +250,54 @@ write_duplicates<-function(path,qualify_code=18){
             "eel_qal_id.xls",
             "eel_qal_comment.xls",            
             "eel_datasource.xls",
-            "eel_comment.xls")]      
-    sqldf("insert into datawg.t_eelstock_eel (         
-            eel_typ_id,       
-            eel_year,
-            eel_value,
-            eel_missvaluequal,
-            eel_emu_nameshort,
-            eel_cou_code,
-            eel_lfs_code,
-            eel_hty_code,
-            eel_area_division,
-            eel_qal_id,
-            eel_qal_comment,            
-            eel_datasource,
-            eel_comment) 
-            select * from not_replaced")
+            "eel_comment.xls")]  
+    sqldf("drop table if exists not_replaced_temp")
+    sqldf("create table not_replaced_temp as select * from not_replaced")
+    sqldf("drop table if exists replaced_temp")
+    sqldf("create table replaced_temp as select * from replaced")
+    message<-sprintf("For duplicates %s values replaced in the database (old values kept with code eel_qal_id=%s)\n, %s values not replaced (values from current datacall stored with code eel_qal_id %s)", nrow(replaced),qualify_code,nrow(not_replaced),qualify_code)
+    query2<-"insert into datawg.t_eelstock_eel (         
+        eel_typ_id,       
+        eel_year,
+        eel_value,
+        eel_missvaluequal,
+        eel_emu_nameshort,
+        eel_cou_code,
+        eel_lfs_code,
+        eel_hty_code,
+        eel_area_division,
+        eel_qal_id,
+        eel_qal_comment,            
+        eel_datasource,
+        eel_comment) 
+        select * from not_replaced_temp;"
+    # if fails replaces the message with this trycatch !
+    # I've tried many ways with sqldf but trycatch failed to catch the error
+    # Hence the use of DBI
+    # Note : I've joined the two sentences in a same commit to catch error on both replaced
+    # and not_replaced commit
+    query <-paste(query1,query2)
+    conn <- poolCheckout(pool)
+    tryCatch({
+          dbExecute(conn, query)},
+        error= function(e) {
+          message<<-e
+        },finally={
+          poolReturn(conn)
+          sqldf("drop table if exists not_replaced_temp")
+          sqldf("drop table if exists replaced_temp")
+        }
+    )
     
   }
-  message<-sprintf("For duplicates %s values replaced in the database (old values kept with code eel_qal_id=%s)\n, %s values not replaced (values from current datacall stored with code eel_qal_id %s)", nrow(replaced),qualify_code,nrow(not_replaced),qualify_code)
   return(message)
 }
 #' @title new results into the database
 #' @description New lines will be inserted in the database
 #' @param path path to file (collected from shiny button)
 #' @return message indicating success or failure at data insertion
-#' @details 
+#' @details This function uses sqldf to create temporary table then dbExecute as
+#' this version allows to catch exceptions and sqldf does not
 #' @examples 
 #' \dontrun{
 #' if(interactive()){
@@ -305,22 +329,38 @@ write_new<-function(path){
           "eel_qal_comment",            
           "eel_datasource",
           "eel_comment")] 
-  sqldf("insert into datawg.t_eelstock_eel (         
-          eel_typ_id,       
-          eel_year,
-          eel_value,
-          eel_missvaluequal,
-          eel_emu_nameshort,
-          eel_cou_code,
-          eel_lfs_code,
-          eel_hty_code,
-          eel_area_division,
-          eel_qal_id,
-          eel_qal_comment,            
-          eel_datasource,
-          eel_comment) 
-          select * from new")
+  sqldf::sqldf("drop table if exists new_temp ")
+  sqldf::sqldf("create table new_temp as select * from new")
   message<-sprintf(" %s new values inserted in the database",nrow(new))
+  # Query uses temp table just created in the database by sqldf
+  query<-"insert into datawg.t_eelstock_eel (         
+      eel_typ_id,       
+      eel_year,
+      eel_value,
+      eel_missvaluequal,
+      eel_emu_nameshort,
+      eel_cou_code,
+      eel_lfs_code,
+      eel_hty_code,
+      eel_area_division,
+      eel_qal_id,
+      eel_qal_comment,            
+      eel_datasource,
+      eel_comment) 
+      select * from new_temp"
+  # if fails replaces the message with this trycatch !
+  # I've tried many ways with sqldf but trycatch failed to catch the error
+  # Hence the use of DBI
+  conn <- poolCheckout(pool)
+  tryCatch({
+        dbExecute(conn, query)},
+      error= function(e) {
+        message<<-e
+      },finally={
+        poolReturn(conn)
+        sqldf::sqldf("drop table if exists new_temp ")
+      }
+  )
   return(message)
 }
 
@@ -373,13 +413,13 @@ update_t_eelstock_eel <- function(editedValue, pool,data){
                 WHERE eel_id = {id}
                 ", .con = conn)
         tryCatch({
-        dbExecute(conn, sqlInterpolate(ANSI(), query))},
-         error= function(e) {
-           error[i]<<-e
-         }
-      )
+              dbExecute(conn, sqlInterpolate(ANSI(), query))},
+            error= function(e) {
+              error[i]<<-e
+            }
+        )
       })    
   poolReturn(conn)
-  print(editedValue)  
+  #print(editedValue)  
   return(error)
 }

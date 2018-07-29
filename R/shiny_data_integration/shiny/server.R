@@ -274,16 +274,7 @@ shinyServer(function(input, output, session){
             ###########################
             step21load_data<-function(){
               path<- step21_filepath()   
-              if (is.null(data$path_step21)) return(NULL)  
-              
-              tryCatch(stop("toto"),
-                  error = function(e) {
-                    e$message})
-              
-              res<-tryCatch(message<-write_duplicates(path,qualify_code=qualify_code),silent=TRUE,                    
-                  error = function(e) {
-                    e$message}
-              )           
+              if (is.null(data$path_step21)) return(NULL)
               message<-write_duplicates(path,qualify_code=qualify_code)
               return(message)
             }
@@ -293,8 +284,7 @@ shinyServer(function(input, output, session){
             ###########################            
             output$textoutput_step2.1<-renderText({
                   # call to  function that loads data
-                  # this function does not need to be reactive
-                  
+                  # this function does not need to be reactive                  
                   message<-step21load_data()  
                   if (is.null(data$path_step21)) "please select a dataset" else {                                      
                     paste(message,collapse="\n")

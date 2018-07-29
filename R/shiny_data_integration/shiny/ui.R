@@ -72,7 +72,7 @@ ui <- dashboardPage(title="ICES Data Integration",
                         )),                   
                     column(width=2,
                         actionButton("database_new_button", "Proceed")),
-                    column(width=6,verbatimTextOutput("errors_new_integration"))
+                    column(width=6,verbatimTextOutput("textoutput_step2.2"))
                 )
             ),
             tabItem("edit",
@@ -108,11 +108,11 @@ ui <- dashboardPage(title="ICES Data Integration",
                 br(), 
                 fluidRow(                                       
                     column(width=8,verbatimTextOutput("database_errors")),
-                    column(width=2,actionButton("clear_table", "clear"))
+                    column(width=2,actionButton("clear_table", "clear")),
+                    column(width=2,uiOutput("buttons_data_correction"))
                 ),                
                 br(),
-                DT::dataTableOutput("table_cor"),
-                uiOutput("buttons_data_correction")),
+                DT::dataTableOutput("table_cor")),
             tabItem("plot1", fluidRow(
                     column(width=6,plotOutput("mon_graph1")),
                     column(width=6,plotOutput("mon_ggplot1"))
