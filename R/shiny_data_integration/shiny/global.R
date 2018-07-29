@@ -68,10 +68,21 @@ query <- "SELECT column_name
 t_eelstock_eel_fields <- dbGetQuery(pool, sqlInterpolate(ANSI(), query))     
 t_eelstock_eel_fields <- t_eelstock_eel_fields$column_name
 
-query <- "SELECT cou_code,cou_country from ref.tr_country_cou"
-list_country <- dbGetQuery(pool, sqlInterpolate(ANSI(), query))     
-list_country <- list_country$cou_code
-list_country <- list_country[order(list_country)]
+query <- "SELECT cou_code,cou_country from ref.tr_country_cou order by cou_country"
+list_countryt <- dbGetQuery(pool, sqlInterpolate(ANSI(), query))   
+list_country <- list_countryt$cou_code
+names(list_country) <- list_countryt$cou_country
+
+query <- "SELECT * from ref.tr_typeseries_typ order by typ_name"
+tr_typeseries_typt <- dbGetQuery(pool, sqlInterpolate(ANSI(), query))   
+typ_id <- tr_typeseries_typt$typ_id
+names(typ_id) <- tr_typeseries_typt$typ_name
+
+query <- "SELECT min(eel_year) as min_year, max(eel_year) as max_year from datawg.t_eelstock_eel eel_cou "
+the_years <- dbGetQuery(pool, sqlInterpolate(ANSI(), query))   
+
+
+
 source("../../utilities/load_library.R")
 source("../../utilities/loading_functions.R")
 source("../../utilities/check_utilities.R")
@@ -82,6 +93,3 @@ source("database_tools.R")
 tr_type_typ<-extract_ref('Type of series')
 qualify_code<-18 # change this code here and in tr_quality_qal for next wgeel
 
-# TODO change this in shiny by selecting country, data type, range of years
-sel_country="VA"
-# TODO list_country

@@ -354,15 +354,23 @@ shinyServer(function(input, output, session){
           editedInfo = NA
       
       )
-      #sel_country="VA"
+      
       #-----------------------------------------  
       # Generate source via reactive expression
       mysource <- reactive({
             {
-              # sqlInterpolate to protect against injection    
-              query <- sqlInterpolate(ANSI(),"SELECT * from datawg.t_eelstock_eel where eel_cou_code=?cou",
-                  cou=sel_country)
-              # https://stackoverflow.com/questions/34332769/how-to-use-dbgetquery-in-trycatch-with-postgresql
+              vals=input$country
+              if (is.null(vals)) vals<-c('FR')
+              types=input$typ
+              if (is.null(types)) types<-c(4,5,6,7)     
+              the_years<-input$year
+              if (is.null(input$year)){
+                the_years<-c(the_years$min_year,the_years$max_year)
+              }
+              # glue_sql to protect against injection, used with a vector with *   
+              query <- glue_sql("SELECT * from datawg.t_eelstock_eel where eel_cou_code in ({vals*}) and eel_typ_id in ({types*}) and eel_year>={minyear} and eel_year<={maxyear}",
+                  vals=vals,types=types,minyear=the_years[1],maxyear=the_years[2],.con=pool)
+              # https:,/stackoverflow.com/questions/34332769/how-to-use-dbgetquery-in-trycatch-with-postgresql
               # it seems that dbgetquery doesn't raise an error
               out_data <- dbGetQuery(pool, query)              
               return(out_data)
@@ -370,6 +378,7 @@ shinyServer(function(input, output, session){
           })
       
       # Observe the source, update reactive values accordingly
+      
       observeEvent(mysource(), {
             
             # Lightly format data by arranging id
@@ -377,8 +386,9 @@ shinyServer(function(input, output, session){
             data <- mysource() %>% arrange(eel_emu_nameshort,eel_year)
             rvs$data <- data
             rvs$dbdata <- data
-            disable("clear_table")
+            disable("clear_table")                
           })
+      
       #-----------------------------------------
       # Render DT table 
       # 
@@ -386,8 +396,22 @@ shinyServer(function(input, output, session){
       # editable must be TRUE
       #
       output$table_cor <- DT::renderDataTable(
-          rvs$data, rownames = FALSE, editable = TRUE, selection = 'none'
-      )
+          rvs$data, 
+          rownames = FALSE, 
+          editable = TRUE, 
+          selection = 'none',
+          options=list(
+              order=list(3,"asc"),              
+              searching = FALSE,
+              rownames = FALSE,
+              scroller = TRUE,
+              scrollX = TRUE,
+              scrollY = "500px",
+              dom= "Blfrtip", # de gauche à droite button fr search, t tableau, i informaiton (showing..), p pagination
+              buttons=list(
+                  list(extend="excel",
+                      filename = paste0("data_",Sys.Date())))
+          ))
       #-----------------------------------------
       # Create a DT proxy to manipulate data
       # 
@@ -441,9 +465,9 @@ shinyServer(function(input, output, session){
             data <- mysource() %>% arrange(eel_emu_nameshort,eel_year)
             rvs$data <- data
             rvs$dbdata <- data
-          disable("clear_table")
-          output$database_errors<-renderText({""})
-        })
+            disable("clear_table")
+            output$database_errors<-renderText({""})
+          })
       #-----------------------------------------
       # Oberve cancel -> revert to last saved version
       observeEvent(input$cancel, {

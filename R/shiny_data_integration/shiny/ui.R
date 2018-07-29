@@ -1,5 +1,5 @@
 ui <- dashboardPage(title="ICES Data Integration",
-    dashboardHeader(title=div(img(src="iceslogo.png"),"ICES wgeel")),
+    dashboardHeader(title=div(img(src="iceslogo.png"),"wgeel")),
     dashboardSidebar(
         # A button that stops the application
         extendShinyjs(text = jscode, functions = c("closeWindow")),
@@ -11,21 +11,8 @@ ui <- dashboardPage(title="ICES Data Integration",
             menuItem("Check", tabName='check',icon= icon("area-chart"),
                 menuSubItem("plot1",  tabName="plot1"),
                 menuSubItem("plot2", tabName="plot2"))    
-        ),
-        br(),        
-        h3("Filter"),
-            pickerInput(inputId = "country", 
-                label = "Select a country :", 
-                choices = list_country,
-                multiple = TRUE, # fond défaut (primary, success, info, warning, danger) see shinydashboard appearance
-                options = list(
-                    style = "btn-primary")), 
-            bsTooltip(id= "country", #  donne le lien vers n'importe quel input ou output
-                title = "Choose a country (this only applies to data correction and check)",
-                placement="top", # default bottom
-                trigger="hover", # hover focus click, hover default
-                options=NULL
-            )),
+        )
+    ), 
     dashboardBody(
         useShinyjs(), # to be able to use shiny js           
         tabItems(
@@ -90,7 +77,29 @@ ui <- dashboardPage(title="ICES Data Integration",
             ),
             tabItem("edit",
                 h2("Data correction table"),
-                br(), 
+                br(),        
+                h3("Filter"),
+                fluidRow(
+                    column(width=4,
+                        pickerInput(inputId = "country", 
+                            label = "Select a country :", 
+                            choices = list_country,
+                            multiple = TRUE, # fond défaut (primary, success, info, warning, danger) see shinydashboard appearance
+                            options = list(
+                                style = "btn-primary", size = 5))),
+                    column(width=4, 
+                        pickerInput(inputId = "typ", 
+                            label = "Select a type :", 
+                            choices = typ_id,
+                            multiple = TRUE, # fond défaut (primary, success, info, warning, danger) see shinydashboard appearance
+                            options = list(
+                                style = "btn-primary", size = 5))),
+                    column(width=4,
+                        sliderTextInput(inputId ="year", 
+                            label = "Choose a year range:",
+                            choices=seq(the_years$min_year, the_years$max_year),
+                            selected = c(the_years$min_year,the_years$max_year)
+                        ))),                                                         
                 helpText("This table is used to edit data in the database
                         After you double click on a cell and edit the value, 
                         the Save and Cancel buttons will show up. Click on Save if
