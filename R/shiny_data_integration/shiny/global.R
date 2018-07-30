@@ -87,7 +87,8 @@ names(typ_id) <- tr_typeseries_typt$typ_name
 query <- "SELECT min(eel_year) as min_year, max(eel_year) as max_year from datawg.t_eelstock_eel eel_cou "
 the_years <- dbGetQuery(pool, sqlInterpolate(ANSI(), query))   
 
-
+query <- "SELECT name from datawg.participants"
+participants<- dbGetQuery(pool, sqlInterpolate(ANSI(), query))  
 
 source("../../utilities/load_library.R")
 source("../../utilities/loading_functions.R")
@@ -98,4 +99,5 @@ source("../../database_interaction/database_reference.R")
 source("database_tools.R")
 tr_type_typ<-extract_ref('Type of series')
 qualify_code<-18 # change this code here and in tr_quality_qal for next wgeel
+
 

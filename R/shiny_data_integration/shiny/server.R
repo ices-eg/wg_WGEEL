@@ -50,6 +50,8 @@ shinyServer(function(input, output, session){
         )
         return(list(res=res,message=message))
       }
+
+        
       ##################################################
       # Events triggerred by step0_button
       ###################################################
@@ -68,6 +70,8 @@ shinyServer(function(input, output, session){
                   if (is.null(data$path_step0)) "please select a dataset" else {          
                     ls<-step0load_data()
                     paste(ls$message,collapse="\n")
+                    # this will fill the log file (database_tools.R)
+                    log("check data")
                   }
                   
                 }) 
@@ -298,7 +302,9 @@ shinyServer(function(input, output, session){
             output$textoutput_step2.1<-renderText({
                   # call to  function that loads data
                   # this function does not need to be reactive                  
-                  message<-step21load_data()  
+                  message<-step21load_data() 
+                  # this will fill the log file (database_tools.R) 
+                  log("check data")
                   if (is.null(data$path_step21)) "please select a dataset" else {                                      
                     paste(message,collapse="\n")
                   }                  
@@ -323,7 +329,7 @@ shinyServer(function(input, output, session){
                   }
                 })
             ###########################
-            # step21load_data
+            # step22load_data
             #  function, returns a message
             #  indicating that data integration was a succes
             #  or an error message
@@ -335,13 +341,15 @@ shinyServer(function(input, output, session){
               return(message)
             }
             ###########################
-            # errors_duplicates_integration
+            # new_data_integration
             # this will add a path value to reactive data in step0
             ###########################            
             output$textoutput_step2.2<-renderText({
                   # call to  function that loads data
                   # this function does not need to be reactive
-                  message<-step22load_data()  
+                  message<-step22load_data()
+                  # this will fill the log file 
+                  log("new data integration") 
                   if (is.null(data$path_step22)) "please select a dataset" else {                                      
                     paste(message,collapse="\n")
                   }                  

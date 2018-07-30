@@ -423,3 +423,20 @@ update_t_eelstock_eel <- function(editedValue, pool,data){
   #print(editedValue)  
   return(error)
 }
+
+
+#' @title Function to create log of user action during data integration
+#' @description connects to the database and automatically stores the user's actions
+#' @param step one of "check data", "check duplicates", "new data integration"
+#' @return nothing
+log<-function(step){
+  query <- glue_sql("INSERT INTO datawg.log(log_data,log_evaluation_name,log_main_assessor,log_secondary_assessor,log_date) 
+          ({data},{evaluation},{main},{secondary},{date})",
+      data=input$file_type,
+      evaluation=step,
+      main=input$main_assessor,
+      secondary=input$secondary_assessor,
+      date=Sys.Date(),.con=pool)
+  out_data <- dbGetQuery(pool, query) 
+  returns(invisible(NULL))
+}   
