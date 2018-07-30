@@ -26,10 +26,14 @@ ui <- dashboardPage(title="ICES Data Integration",
                             accept = c(".xls",".xlsx")
                         )),
                     column(width=4,  radioButtons(inputId="file_type", label="File type:",
-                            c("Catch and Landings" = "catch_landings",
-                                "Aquaculture" = "aquaculture",
-                                "Stocking" = "stocking",
-                                "Stock indicators" = "stock"))),
+                            c("Annex 2 Catch and Landings" = "catch_landings",
+                                "Annex 3 Release" = "release",
+                                "Annex 4 Aquaculture" = "aquaculture",                                
+                                "Annex 6 Biomass indicators" = "biomass",
+                                "Annex 7 Habitat wetted area"= "wetted_area",
+                                "Annex 8 Mortality silver equiv. Biom."="mortality_silver_equiv",
+                                "Annex 9 Mortality_rates"="mortality_rates",
+                                )),
                     column(width=4, actionButton("check_file_button", "Check file") )                     
                 ),
                 
