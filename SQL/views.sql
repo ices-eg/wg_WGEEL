@@ -422,11 +422,11 @@ CREATE OR REPLACE VIEW datawg.sigmah AS
   AND t_eelstock_eel.eel_qal_id in (1,2,4);
 
 -------------------------------------
--- View for potential_availabe_habitat
+-- View for potential_available_habitat
 ---------------------------------------
 
-DROP VIEW IF EXISTS datawg.potential_availabe_habitat ;
-CREATE VIEW datawg.potential_availabe_habitat AS 
+DROP VIEW IF EXISTS datawg.potential_available_habitat ;
+CREATE VIEW datawg.potential_available_habitat AS 
 (
 select  
          eel_id,
