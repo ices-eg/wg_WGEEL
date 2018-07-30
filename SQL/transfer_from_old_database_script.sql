@@ -182,6 +182,9 @@ VALUES
          'nr');   
 
 
+-- change 2018 Willem
+update ref.tr_typeseries_typ  set typ_name= 'Potential_availabe_habitat_production_ha' where typ_name = 'Pristine_habitat_ha'
+
 
 ---------------------
 -- datawg.t_series_ser 
