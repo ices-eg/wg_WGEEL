@@ -1137,3 +1137,159 @@ load_mortality_silver<-function(path){
   }
   return(invisible(list(data=mortality_silver,error=data_error)))
 }
+
+
+load_potential_available_habitat<-function(path){
+  data_error <- data.frame(nline = NULL, error_message = NULL)
+  the_metadata<-list()
+  dir<-dirname(path)
+  file<-basename(path)
+  mylocalfilename<-gsub(".xlsx","",file)
+  
+  #---------------------- METADATA sheet ---------------------------------------------
+  # read the metadata sheet
+  metadata<-read_excel(path=path,"metadata" , skip=4) 
+  # check if no rows have been added
+  if (names(metadata)[1]!="For each data series") cat(str_c("The structure of metadata has been changed ",file,"\n"))
+  # if there is no value in the cells then the tibble will only have one column
+  # store the content of metadata in a list
+  if (ncol(metadata)>1){   
+    the_metadata[["contact"]] <- as.character(metadata[1,2])
+    the_metadata[["contactemail"]] <- as.character(metadata[2,2])
+    the_metadata[["method_potential_available_habitat"]] <- as.character(metadata[3,2])
+  } else {
+    the_metadata[["contact"]] <- NA
+    the_metadata[["contactemail"]] <- NA
+    the_metadata[["method_potential_available_habitat"]] <- NA
+  }
+  # end loop for directories
+  
+  #---------------------- mortality_silver sheet ---------------------------------------------
+  
+  # read the mortality_silver sheet
+  cat("potential_available_habitat \n")
+  
+  potential_available_habitat<-read_excel(
+          path=path,
+          sheet=3,
+          skip=0)
+  country =as.character(potential_available_habitat[1,6]) #country code is in the 6th column
+  
+  # check for the file integrity, only 10 column in this file
+  if (ncol(potential_available_habitat)!=10) cat(str_c("number column wrong ",file,"\n"))
+  # check column names
+  if (all.equal(colnames(potential_available_habitat),
+      c("eel_typ_name", "eel_year","eel_value", "eel_missvaluequal","eel_emu_nameshort",
+          "eel_cou_code", "eel_lfs_code", "eel_hty_code","eel_area_division",
+          "eel_comment"))!=TRUE) 
+    cat(str_c("problem in column names",
+            file," in ",
+            country,"\n")) 
+  
+  if (nrow(potential_available_habitat)>0){
+    
+    ###### eel_typ_name ##############
+    
+    # should not have any missing value
+    data_error= rbind(data_error, check_missing(dataset=potential_available_habitat,
+            column="eel_typ_name",
+            country=country))
+    
+    #  eel_typ_id should be 16
+    data_error= rbind(data_error, check_values(dataset=potential_available_habitat,
+            column="eel_typ_name",
+            country=country,
+            values=c("Potential_availabe_habitat_production_ha"))) 
+    
+    ###### eel_year ##############
+    
+    # should not have any missing value
+    data_error= rbind(data_error, check_missing(dataset=potential_available_habitat,
+            column="eel_year",
+            country=country))
+    
+    # should be a numeric
+    data_error= rbind(data_error, check_type(dataset=potential_available_habitat,
+            column="eel_year",
+            country=country,
+            type="numeric"))
+    
+    ###### eel_value ##############
+    
+    # can have missing values if eel_missingvaluequa is filled (check later)
+    
+    # should be numeric
+    data_error= rbind(data_error, check_type(dataset=potential_available_habitat,
+            column="eel_value",
+            country=country,
+            type="numeric"))
+    
+    data_error =rbind(data_error, check_positive(dataset = potential_available_habitat,
+            column="eel_value",
+            country=country))
+    
+    
+    ###### eel_missvaluequal ##############
+    
+    #check that there are data in missvaluequal only when there are missing value (NA) is eel_value
+    # and also that no missing values are provided without a comment is eel_missvaluequa
+    data_error= rbind(data_error, check_missvaluequal(dataset=potential_available_habitat,
+            country=country))
+    
+    ###### eel_emu_name ##############
+    
+    data_error= rbind(data_error, check_missing(dataset=potential_available_habitat,
+            column="eel_emu_nameshort",
+            country=country))
+    
+    data_error= rbind(data_error, check_type(dataset=potential_available_habitat,
+            column="eel_emu_nameshort",
+            country=country,
+            type="character"))
+    
+    ###### eel_cou_code ##############
+    
+    # must be a character
+    data_error= rbind(data_error, check_type(dataset=potential_available_habitat,
+            column="eel_cou_code",
+            country=country,
+            type="character"))
+    
+    # should not have any missing value
+    data_error= rbind(data_error, check_missing(dataset=potential_available_habitat,
+            column="eel_cou_code",
+            country=country))
+    
+    # must only have one value
+    data_error= rbind(data_error, check_unique(dataset=potential_available_habitat,
+            column="eel_cou_code",
+            country=country))
+    
+    ###### eel_lfs_code ##############
+    
+    
+    
+    ###### eel_hty_code ##############
+    data_error= rbind(data_error, check_type(dataset=potential_available_habitat,
+            column="eel_hty_code",
+            country=country,
+            type="character"))
+    
+    # should not have any missing value
+    data_error= rbind(data_error,check_missing(dataset=potential_available_habitat,
+            column="eel_hty_code",
+            country=country))
+    
+    # should only correspond to the following list
+    data_error= rbind(data_error,check_values(dataset=potential_available_habitat,
+            column="eel_hty_code",
+            country=country,
+            values=c("F","T","C","MO", "AL")))
+    
+    ###### eel_area_div ##############
+    
+   
+    
+  }
+  return(invisible(list(data=potential_available_habitat,error=data_error)))
+}
