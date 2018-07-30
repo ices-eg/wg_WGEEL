@@ -107,8 +107,8 @@ CREATE OR REPLACE VIEW datawg.landings AS
 -- This view refer to stocking in kg or number or geel equivalents
 ---------------------------------------
 
-DROP VIEW IF EXISTS datawg.stocking ;
-CREATE VIEW datawg.stocking AS 
+DROP VIEW IF EXISTS datawg.release ;
+CREATE VIEW datawg.release AS 
 (
 select  
          eel_id,         
