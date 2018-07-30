@@ -35,21 +35,18 @@ shinyServer(function(input, output, session){
         if (is.null(data$path_step0)) return(NULL)
         switch (input$file_type, "catch_landings"={                  
               message<-capture.output(load_catch_landings(data$path_step0))},
-            "stock"={
-              message<-"not developped yet"},
+            "release"={
+              message<-capture.output(load_release(data$path_step0))},
             "aquaculture"={
               message<-capture.output(load_aquaculture(data$path_step0))},
-            "stocking"={
-              message<-"not developped yet"},
-        )
-        switch (input$file_type, "catch_landings"={                  
-              invisible(capture.output(res<-load_catch_landings(data$path_step0)))},
-            "stock"={
-              res<-list(NULL)},
-            "aquaculture"={
-              invisible(capture.output(res<-load_aquaculture(data$path_step0)))},
-            "stocking"={
-              res<-list(NULL)},
+            "biomass"={
+              message<-capture.output(load_biomass(data$path_step0))},
+            "potential_available_habitat"={
+              message<-capture.output(load_potential_available_habitat(data$path_step0))},
+            "silver_eel_equivalents"={
+              message<-capture.output(load_mortality_silver(data$path_step0))},
+            "mortality_rates"={
+              message<-capture.output(load_mortality_rates(data$path_step0))}
         )
         return(list(res=res,message=message))
       }
@@ -137,9 +134,9 @@ shinyServer(function(input, output, session){
       # Events triggerred by step1_button
       ###################################################      
       ##########################
-# When check_duplicate_button is clicked
-# this will render a datatable containing rows
-# with duplicates values
+      # When check_duplicate_button is clicked
+      # this will render a datatable containing rows
+      # with duplicates values
       #############################
       observeEvent(input$check_duplicate_button, {         
             # see step0load_data returns a list with res and messages
@@ -151,14 +148,30 @@ shinyServer(function(input, output, session){
             switch (input$file_type, "catch_landings"={                                     
                   data_from_base<-extract_data("Landings")                  
                 },
-                "stock"={
-                  # TODO: develop for stock                 
+                "release"={
+                  data_from_base<-extract_data("Release")
                 },
                 "aquaculture"={             
                   data_from_base<-extract_data("Aquaculture")},
-                "stocking"={
-                  # TODO:
-                }
+                "biomass"={
+                  data_from_base<-rbind(
+                      extract_data("B0"),
+                      extract_data("Bbest"),
+                      extract_data("Bcurrent"))
+                },
+                "potential_available_habitat"={
+                  data_from_base<-extract_data("Potential available habitat")                  
+                },
+                "silver_eel_equivalents"={
+                  data_from_base<-extract_data("Mortality in Silver Equivalents")      
+                  
+                },
+                "mortality_rates"={
+                  data_from_base<-rbind(
+                      extract_data("Sigma A"),
+                      extract_data("Sigma F"),
+                      extract_data("Sigma H"))
+                }                
             )
             # the compare_with_database function will compare
             # what is in the database and the content of the excel file

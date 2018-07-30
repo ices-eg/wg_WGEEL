@@ -17,7 +17,7 @@ extract_data = function(data_needed, from_database=TRUE)
   
     if (from_database){
 	# give the correspondance by "human readable" name and table/view name
-	list_data_table = data.frame(data_needed = c("Landings", "Aquaculture", "Release", "B0", "Bbest", "Bcurrent", "Sigma A", "Sigma F", "Sigma H"), table_dbname = c("landings", "aquaculture", "release", "b0", "bbest", "bcurrent", "sigmaa", "sigmaf", "sigmah"))
+	list_data_table = data.frame(data_needed = c("Landings", "Aquaculture", "Release", "B0", "Bbest", "Bcurrent", "Sigma A", "Sigma F", "Sigma H", "Potential available habitat", "Mortality in Silver Equivalents"), table_dbname = c("landings", "aquaculture", "release", "b0", "bbest", "bcurrent", "sigmaa", "sigmaf", "sigmah", "potential_available_habitat","silver_eel_equivalents"))
 	
 	# check that the caption is recognised
 	if(sum(data_needed %in% list_data_table$data_needed) == 0)
