@@ -24,11 +24,11 @@ load_catch_landings<-function(path){
   if (ncol(metadata)>1){   
       the_metadata[["contact"]] <- as.character(metadata[1,2])
       the_metadata[["contactemail"]] <- as.character(metadata[2,2])
-      the_metadata[["method_catch_landings"]] <- as.character(metadata[3,2])
+      the_metadata[["method"]] <- as.character(metadata[3,2])
   } else {
       the_metadata[["contact"]] <- NA
       the_metadata[["contactemail"]] <- NA
-      the_metadata[["method_catch_landings"]] <- NA
+      the_metadata[["method"]] <- NA
   }
 # end loop for directories
   
@@ -204,7 +204,7 @@ load_catch_landings<-function(path){
           values=c("dc_2017","wgeel_2016","wgeel_2017")))
     
   }
-  return(invisible(list(data=catch_landings,error=data_error))) 
+  return(invisible(list(data=catch_landings,error=data_error,the_metadata=the_metadata))) 
 }
 
 
@@ -228,11 +228,11 @@ load_release<-function(path){
   if (ncol(metadata)>1){   
     the_metadata[["contact"]] <- as.character(metadata[1,2])
     the_metadata[["contactemail"]] <- as.character(metadata[2,2])
-    the_metadata[["method_release"]] <- as.character(metadata[3,2])
+    the_metadata[["method"]] <- as.character(metadata[3,2])
   } else {
     the_metadata[["contact"]] <- NA
     the_metadata[["contactemail"]] <- NA
-    the_metadata[["method_release"]] <- NA
+    the_metadata[["method"]] <- NA
   }
   # end loop for directories
   
@@ -428,7 +428,7 @@ load_release<-function(path){
     } 
     
   }
-  return(invisible(list(data=release_tot,error=data_error)))
+  return(invisible(list(data=release_tot,error=data_error,the_metadata=the_metadata)))
 }
 
 
@@ -452,11 +452,11 @@ load_aquaculture<-function(path){
   if (ncol(metadata)>1){   
     the_metadata[["contact"]] <- as.character(metadata[1,2])
     the_metadata[["contactemail"]] <- as.character(metadata[2,2])
-    the_metadata[["method_aquaculture"]] <- as.character(metadata[3,2])
+    the_metadata[["method"]] <- as.character(metadata[3,2])
   } else {
     the_metadata[["contact"]] <- NA
     the_metadata[["contactemail"]] <- NA
-    the_metadata[["method_aquaculture"]] <- NA
+    the_metadata[["method"]] <- NA
   }
   # end loop for directories
   
@@ -599,11 +599,11 @@ load_biomass<-function(path){
   if (ncol(metadata)>1){   
     the_metadata[["contact"]] <- as.character(metadata[1,2])
     the_metadata[["contactemail"]] <- as.character(metadata[2,2])
-    the_metadata[["method_biomass"]] <- as.character(metadata[3,2])
+    the_metadata[["method"]] <- as.character(metadata[3,2])
   } else {
     the_metadata[["contact"]] <- NA
     the_metadata[["contactemail"]] <- NA
-    the_metadata[["method_biomass"]] <- NA
+    the_metadata[["method"]] <- NA
   }
   # end loop for directories
   
@@ -759,7 +759,7 @@ load_biomass<-function(path){
               values=ices_division))
     
   }
-  return(invisible(list(data=biomass_indicators,error=data_error)))
+  return(invisible(list(data=biomass_indicators,error=data_error,the_metadata=the_metadata)))
 }
 
 
@@ -784,11 +784,11 @@ load_mortality_rates<-function(path){
   if (ncol(metadata)>1){   
     the_metadata[["contact"]] <- as.character(metadata[1,2])
     the_metadata[["contactemail"]] <- as.character(metadata[2,2])
-    the_metadata[["method_mortality_rates"]] <- as.character(metadata[3,2])
+    the_metadata[["method"]] <- as.character(metadata[3,2])
   } else {
     the_metadata[["contact"]] <- NA
     the_metadata[["contactemail"]] <- NA
-    the_metadata[["method_mortality_rates"]] <- NA
+    the_metadata[["method"]] <- NA
   }
   # end loop for directories
   
@@ -948,7 +948,7 @@ load_mortality_rates<-function(path){
                                               values=ices_division))
     
   }
-  return(invisible(list(data=mortality_rates,error=data_error)))
+  return(invisible(list(data=mortality_rates,error=data_error,the_metadata=the_metadata)))
 }
 
 
@@ -972,11 +972,11 @@ load_mortality_silver<-function(path){
   if (ncol(metadata)>1){   
     the_metadata[["contact"]] <- as.character(metadata[1,2])
     the_metadata[["contactemail"]] <- as.character(metadata[2,2])
-    the_metadata[["method_mortality_silver"]] <- as.character(metadata[3,2])
+    the_metadata[["method"]] <- as.character(metadata[3,2])
   } else {
     the_metadata[["contact"]] <- NA
     the_metadata[["contactemail"]] <- NA
-    the_metadata[["method_mortality_silver"]] <- NA
+    the_metadata[["method"]] <- NA
   }
   # end loop for directories
   
@@ -1135,7 +1135,7 @@ load_mortality_silver<-function(path){
                                               values=ices_division))
     
   }
-  return(invisible(list(data=mortality_silver,error=data_error)))
+  return(invisible(list(data=mortality_silver,error=data_error,the_metadata=the_metadata)))
 }
 
 
@@ -1156,11 +1156,11 @@ load_potential_available_habitat<-function(path){
   if (ncol(metadata)>1){   
     the_metadata[["contact"]] <- as.character(metadata[1,2])
     the_metadata[["contactemail"]] <- as.character(metadata[2,2])
-    the_metadata[["method_potential_available_habitat"]] <- as.character(metadata[3,2])
+    the_metadata[["method"]] <- as.character(metadata[3,2])
   } else {
     the_metadata[["contact"]] <- NA
     the_metadata[["contactemail"]] <- NA
-    the_metadata[["method_potential_available_habitat"]] <- NA
+    the_metadata[["method"]] <- NA
   }
   # end loop for directories
   
@@ -1291,5 +1291,5 @@ load_potential_available_habitat<-function(path){
    
     
   }
-  return(invisible(list(data=potential_available_habitat,error=data_error)))
+  return(invisible(list(data=potential_available_habitat,error=data_error,the_metadata=the_metadata)))
 }

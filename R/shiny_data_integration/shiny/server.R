@@ -34,24 +34,24 @@ shinyServer(function(input, output, session){
         path<- step0_filepath()   
         if (is.null(data$path_step0)) return(NULL)
         switch (input$file_type, "catch_landings"={                  
-              message<-capture.output(load_catch_landings(data$path_step0))},
+              message<-capture.output(res<-load_catch_landings(data$path_step0))},
             "release"={
-              message<-capture.output(load_release(data$path_step0))},
+              message<-capture.output(res<-load_release(data$path_step0))},
             "aquaculture"={
-              message<-capture.output(load_aquaculture(data$path_step0))},
+              message<-capture.output(res<-load_aquaculture(data$path_step0))},
             "biomass"={
-              message<-capture.output(load_biomass(data$path_step0))},
+              message<-capture.output(res<-load_biomass(data$path_step0))},
             "potential_available_habitat"={
-              message<-capture.output(load_potential_available_habitat(data$path_step0))},
+              message<-capture.output(res<-load_potential_available_habitat(data$path_step0))},
             "silver_eel_equivalents"={
-              message<-capture.output(load_mortality_silver(data$path_step0))},
+              message<-capture.output(res<-load_mortality_silver(data$path_step0))},
             "mortality_rates"={
-              message<-capture.output(load_mortality_rates(data$path_step0))}
+              message<-capture.output(res<-load_mortality_rates(data$path_step0))}
         )
         return(list(res=res,message=message))
       }
-
-        
+      
+      
       ##################################################
       # Events triggerred by step0_button
       ###################################################
@@ -60,18 +60,23 @@ shinyServer(function(input, output, session){
             ##################################################
             # integrate verbatimtextoutput
             # this will print the error messages to the console
-            #  the load function is just used to capture
-            # this component is rendered reactive by the inclusion of 
-            #  a reference to inuput$check_file_button
             #################################################
             output$integrate<-renderText({
                   # call to  function that loads data
                   # this function does not need to be reactive
                   if (is.null(data$path_step0)) "please select a dataset" else {          
-                    ls<-step0load_data()
-                    paste(ls$message,collapse="\n")
-                    # this will fill the log file (database_tools.R)
-                    log("check data")
+                    rls<-step0load_data() # result list
+                    # this will fill the log_datacall file (database_tools.R)
+                    stopifnot(length(unique(rls$res$data$eel_cou_code))==1)
+                    cou_code <- rls$res$data$eel_cou_code[1]
+                    # the following three lines might look silly but passing input$something to the log_datacall function results
+                    # in an error (input not found), I guess input$something has to be evaluated within the frame of the shiny app
+                    main_assessor <- input$main_assessor
+                    secondary_assessor <- input$secondary_assessor
+                    file_type <- input$file_type
+                    log_datacall( "check data",cou_code = cou_code, message = paste(rls$message,collapse="\n"), the_metadata = rls$res$the_metadata, file_type = file_type, main_assessor = main_assessor, secondary_assessor = secondary_assessor )
+                    paste(rls$message,collapse="\n")
+                    
                   }
                   
                 }) 
@@ -289,10 +294,20 @@ shinyServer(function(input, output, session){
             #  indicating that data integration was a succes
             #  or an error message
             ###########################
-            step21load_data<-function(){
-              path<- step21_filepath()   
-              if (is.null(data$path_step21)) return(NULL)
-              message<-write_duplicates(path,qualify_code=qualify_code)
+            step21load_data <- function() {
+              path <- step21_filepath()
+              if (is.null(data$path_step21)) 
+                return(NULL)
+              # this will alter changed values (change qal_id code) and insert new rows
+              rls <- write_duplicates(path, qualify_code = qualify_code)
+              message <- rls$message
+              cou_code <- rls$cou_code
+              main_assessor <- input$main_assessor
+              secondary_assessor <- input$secondary_assessor
+              file_type <- input$file_type
+              log_datacall("check duplicates", cou_code = cou_code, message = sQuote(message), the_metadata = NULL, 
+                  file_type = file_type, main_assessor = main_assessor, secondary_assessor = secondary_assessor)
+              
               return(message)
             }
             ###########################
@@ -302,9 +317,7 @@ shinyServer(function(input, output, session){
             output$textoutput_step2.1<-renderText({
                   # call to  function that loads data
                   # this function does not need to be reactive                  
-                  message<-step21load_data() 
-                  # this will fill the log file (database_tools.R) 
-                  log("check data")
+                  message<-step21load_data()                     
                   if (is.null(data$path_step21)) "please select a dataset" else {                                      
                     paste(message,collapse="\n")
                   }                  
@@ -334,10 +347,19 @@ shinyServer(function(input, output, session){
             #  indicating that data integration was a succes
             #  or an error message
             ###########################
-            step22load_data<-function(){
-              path<- step22_filepath()   
-              if (is.null(data$path_step22)) return(NULL)             
-              message<-write_new(path)
+            step22load_data <- function() {
+              path <- step22_filepath()
+              if (is.null(data$path_step22)) 
+                return(NULL)
+              rls <- write_new(path)
+              message <- rls$message
+              cou_code <- rls$cou_code
+              main_assessor <- input$main_assessor
+              secondary_assessor <- input$secondary_assessor
+              file_type <- input$file_type
+              log_datacall("new data integration", cou_code = cou_code, message = sQuote(message), 
+                  the_metadata = NULL, file_type = file_type, main_assessor = main_assessor, 
+                  secondary_assessor = secondary_assessor)
               return(message)
             }
             ###########################
@@ -348,8 +370,6 @@ shinyServer(function(input, output, session){
                   # call to  function that loads data
                   # this function does not need to be reactive
                   message<-step22load_data()
-                  # this will fill the log file 
-                  log("new data integration") 
                   if (is.null(data$path_step22)) "please select a dataset" else {                                      
                     paste(message,collapse="\n")
                   }                  
@@ -370,30 +390,30 @@ shinyServer(function(input, output, session){
       # Generate source via reactive expression
       mysource <- reactive({
             {
-              vals=input$country
-              if (is.null(vals)) vals<-c('FR')
-              types=input$typ
-              if (is.null(types)) types<-c(4,5,6,7)     
-              the_years<-input$year
-              if (is.null(input$year)){
-                the_years<-c(the_years$min_year,the_years$max_year)
+              vals = input$country
+              if (is.null(vals)) 
+                vals <- c("FR")
+              types = input$typ
+              if (is.null(types)) 
+                types <- c(4, 5, 6, 7)
+              the_years <- input$year
+              if (is.null(input$year)) {
+                the_years <- c(the_years$min_year, the_years$max_year)
               }
-              # glue_sql to protect against injection, used with a vector with *   
-              query <- glue_sql("SELECT * from datawg.t_eelstock_eel where eel_cou_code in ({vals*}) and eel_typ_id in ({types*}) and eel_year>={minyear} and eel_year<={maxyear}",
-                  vals=vals,types=types,minyear=the_years[1],maxyear=the_years[2],.con=pool)
-              # https:,/stackoverflow.com/questions/34332769/how-to-use-dbgetquery-in-trycatch-with-postgresql
+              # glue_sql to protect against injection, used with a vector with *
+              query <- glue_sql("SELECT * from datawg.t_eelstock_eel where eel_cou_code in ({vals*}) and eel_typ_id in ({types*}) and eel_year>={minyear} and eel_year<={maxyear}", 
+                  vals = vals, types = types, minyear = the_years[1], maxyear = the_years[2], 
+                  .con = pool)
+              # https:/stackoverflow.com/questions/34332769/how-to-use-dbgetquery-in-trycatch-with-postgresql
               # it seems that dbgetquery doesn't raise an error
-              out_data <- dbGetQuery(pool, query)              
+              out_data <- dbGetQuery(pool, query)
               return(out_data)
             }
           })
       
       # Observe the source, update reactive values accordingly
       
-      observeEvent(mysource(), {
-            
-            # Lightly format data by arranging id
-            # Not sure why disordered after sending UPDATE query in db    
+      observeEvent(mysource(), {               
             data <- mysource() %>% arrange(eel_emu_nameshort,eel_year)
             rvs$data <- data
             rvs$dbdata <- data
@@ -418,7 +438,7 @@ shinyServer(function(input, output, session){
               scroller = TRUE,
               scrollX = TRUE,
               scrollY = "500px",
-              dom= "Blfrtip", # de gauche à droite button fr search, t tableau, i informaiton (showing..), p pagination
+              dom= "Blfrtip", #button fr search, t table, i information (showing..), p pagination
               buttons=list(
                   list(extend="excel",
                       filename = paste0("data_",Sys.Date())))
@@ -470,7 +490,7 @@ shinyServer(function(input, output, session){
             rvs$dataSame <- TRUE
           })
       #-----------------------------------------
-      # Oberve cleat table button -> revert to database table
+      # Observe clear_table button -> revert to database table
       observeEvent(input$clear_table,
           {
             data <- mysource() %>% arrange(eel_emu_nameshort,eel_year)
