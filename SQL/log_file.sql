@@ -9,7 +9,7 @@ alter table datawg.participants add constraint c_pk_name PRIMARY KEY (name);
 drop table if exists datawg.log;
 create table datawg.log (
 log_id serial PRIMARY KEY,
-lod_cou_code character varying(2) REFERENCES ref.tr_country_cou (cou_code)  ON UPDATE CASCADE on DELETE NO ACTION,
+log_cou_code character varying(2) REFERENCES ref.tr_country_cou (cou_code)  ON UPDATE CASCADE on DELETE NO ACTION,
 log_data text, -- to what kind of data (sheet) does this refers to in the datacall
 log_evaluation_name  text , -- name of the evaluation (check, duplicates, new data integration)
 log_main_assessor text REFERENCES datawg.participants(name) ON UPDATE CASCADE on DELETE NO ACTION,

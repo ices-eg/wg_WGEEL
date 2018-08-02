@@ -4,7 +4,7 @@
 ###############################################################################
 # needs to be run from source
 # load requested packages
-if(!exists("load_library")) source("R/utilities/load_library.R")
+
 load_library(c("sqldf", "RPostgreSQL", "getPass"))
 # to save time (not repeating again and again the password)
 # I save variables in Rprofile.site as following
@@ -18,9 +18,11 @@ load_library(c("sqldf", "RPostgreSQL", "getPass"))
 #cat("Created passwords passwordlocal passworddistant", date(), "\n") 
 #}
 #-------------------------------
-
-if (exists("userlocal")) user<-userlocal else user<-getPass("Enter the USER: ")
-if (exists("passwordlocal")) pwd<-passwordlocal else pwd<-getPass()
+# uncomment to loose time and gain portability
+user<-userlocal
+pwd<-passwordlocal
+#if (exists("userlocal")) user<-userlocal else user<-getPass("Enter the USER: ")
+#if (exists("passwordlocal")) pwd<-passwordlocal else pwd<-getPass()
 # options for PostgresSQL
 options(sqldf.RPostgreSQL.user = user,  
 		sqldf.RPostgreSQL.password = pwd,

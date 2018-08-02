@@ -21,6 +21,7 @@
 #' # choose a dataset such as catch_landings.xls
 #' data_from_excel<-load_catch_landings(wg_file.choose())$data
 #' data_from_base<-extract_data('Landings')
+#' data_from_base<-extract_data('B0')
 #' list_comp<-compare_with_database(data_from_excel,data_from_base)
 #'  }
 #' }
@@ -31,28 +32,35 @@
 compare_with_database <- function(data_from_excel, data_from_base) {
   # tr_type_typ should have been loaded by global.R in the program in the shiny app
   if (!exists("tr_type_typ")) {
-    extract_ref("Type of series")
+    tr_type_typ<-extract_ref("Type of series")
   }
   # data integrity checks
   if (nrow(data_from_excel) == 0) 
     stop("There are no data coming from the excel file")
-  if (nrow(data_from_base) == 0) 
-    stop("No data in the file coming from the database")
   current_cou_code <- unique(data_from_excel$eel_cou_code)
   if (length(current_cou_code) != 1) 
     stop("There is more than one country code, this is wrong")
   current_typ_name <- unique(data_from_excel$eel_typ_name)
-  if (!all(current_typ_name %in% tr_type_typ$typ_name)) 
-    stop("There is a mismatch between typ_names and typ_id, merging back to id impossible, context compare_from_database")
+  if (!all(current_typ_name %in% tr_type_typ$typ_name)) stop(str_c("Type ",current_typ_name[!current_typ_name %in% tr_type_typ$typ_name]," not in list of type name check excel file"))
   # extract subset suitable for merge
-  tr_type_typ_for_merge <- tr_type_typ[, c("typ_id", "typ_name")]
+   tr_type_typ_for_merge <- tr_type_typ[, c("typ_id", "typ_name")]
   colnames(tr_type_typ_for_merge) <- c("eel_typ_id", "eel_typ_name")
-  data_from_excel <- merge(data_from_excel, tr_type_typ_for_merge, by = "eel_typ_name")
+  data_from_excel <- merge(data_from_excel, tr_type_typ_for_merge, by = "eel_typ_name") 
+  
+  if (nrow(data_from_base) == 0) {
+    # the data_from_base has 0 lines and 0 columns
+    # this poses computation problems
+    # I'm changing it here by loading a correct empty dataset
+    load("common/data/data_from_base_0L.Rdata")
+    data_from_base<-data_from_base0L
+    warning("No data in the file coming from the database")
+  } else {   
   current_typ_id <- unique(data_from_excel$eel_typ_id)
   if (!all(current_typ_id %in% data_from_base$eel_typ_id)) 
     stop(paste("There is a mismatch between selected typ_id", paste0(current_typ_id, 
-                            collapse = ";"), "and the dataset loaded from base", paste0(unique(data_from_base$eel_typ_id), 
-                            collapse = ";"), "did you select the right File type ?"))
+                collapse = ";"), "and the dataset loaded from base", paste0(unique(data_from_base$eel_typ_id), 
+                collapse = ";"), "did you select the right File type ?"))
+  }
   # Can't join on 'eel_area_division' x 'eel_area_division' because of incompatible
   # types (character / logical)
   data_from_excel$eel_area_division <- as.character(data_from_excel$eel_area_division)
@@ -61,24 +69,25 @@ compare_with_database <- function(data_from_excel, data_from_base) {
   # duplicates are inner_join eel_cou_code added to the join just to avoid
   # duplication
   duplicates <- data_from_base %>% dplyr::filter(eel_typ_id %in% current_typ_id & 
-                      eel_cou_code == current_cou_code) %>% dplyr::select(eel_colnames) %>% # dplyr::select(-eel_cou_code)%>%
-          dplyr::inner_join(data_from_excel, by = c("eel_typ_id", "eel_year", "eel_lfs_code", 
-                      "eel_emu_nameshort", "eel_cou_code", "eel_hty_code", "eel_area_division"), 
-                  suffix = c(".base", ".xls"))
+              eel_cou_code == current_cou_code) %>% dplyr::select(eel_colnames) %>% # dplyr::select(-eel_cou_code)%>%
+      dplyr::inner_join(data_from_excel, by = c("eel_typ_id", "eel_year", "eel_lfs_code", 
+              "eel_emu_nameshort", "eel_cou_code", "eel_hty_code", "eel_area_division"), 
+          suffix = c(".base", ".xls"))
   duplicates$keep_new_value <- vector("logical", nrow(duplicates))
   duplicates <- duplicates[, c("eel_id", "eel_typ_id", "eel_typ_name", "eel_year", 
-                  "eel_value.base", "eel_value.xls", "keep_new_value", "eel_qal_id.xls", "eel_qal_comment.xls", 
-                  "eel_qal_id.base", "eel_qal_comment.base", "eel_missvaluequal.base", "eel_missvaluequal.xls", 
-                  "eel_emu_nameshort", "eel_cou_code", "eel_lfs_code", "eel_hty_code", "eel_area_division", 
-                  "eel_comment.base", "eel_comment.xls", "eel_datasource.base", "eel_datasource.xls")]
+          "eel_value.base", "eel_value.xls", "keep_new_value", "eel_qal_id.xls", "eel_qal_comment.xls", 
+          "eel_qal_id.base", "eel_qal_comment.base", "eel_missvaluequal.base", "eel_missvaluequal.xls", 
+          "eel_emu_nameshort", "eel_cou_code", "eel_lfs_code", "eel_hty_code", "eel_area_division", 
+          "eel_comment.base", "eel_comment.xls", "eel_datasource.base", "eel_datasource.xls")]
   new <- dplyr::anti_join(data_from_excel, data_from_base, by = c("eel_typ_id", 
-                  "eel_year", "eel_lfs_code", "eel_emu_nameshort", "eel_hty_code", "eel_area_division", 
-                  "eel_cou_code"), suffix = c(".base", ".xls"))
+          "eel_year", "eel_lfs_code", "eel_emu_nameshort", "eel_hty_code", "eel_area_division", 
+          "eel_cou_code"), suffix = c(".base", ".xls"))
   new <- new[, c("eel_typ_id", "eel_typ_name", "eel_year", "eel_value", "eel_missvaluequal", 
-                  "eel_emu_nameshort", "eel_cou_code", "eel_lfs_code", "eel_hty_code", "eel_area_division", 
-                  "eel_qal_id", "eel_qal_comment", "eel_datasource", "eel_comment")]
+          "eel_emu_nameshort", "eel_cou_code", "eel_lfs_code", "eel_hty_code", "eel_area_division", 
+          "eel_qal_id", "eel_qal_comment", "eel_datasource", "eel_comment")]
   return(list(duplicates = duplicates, new = new))
 }
+
 
 
 #' @title write duplicated results into the database
@@ -107,11 +116,11 @@ write_duplicates <- function(path, qualify_code = 18) {
   # should ensure file integrity
   validate(need(ncol(duplicates2) == 22, "number column wrong (should be 22) \n"))
   validate(need(all(colnames(duplicates2) %in% c("eel_id", "eel_typ_id", "eel_typ_name", 
-                          "eel_year", "eel_value.base", "eel_value.xls", "keep_new_value", "eel_qal_id.xls", 
-                          "eel_qal_comment.xls", "eel_qal_id.base", "eel_qal_comment.base", "eel_missvaluequal.base", 
-                          "eel_missvaluequal.xls", "eel_emu_nameshort", "eel_cou_code", "eel_lfs_code", 
-                          "eel_hty_code", "eel_area_division", "eel_comment.base", "eel_comment.xls", 
-                          "eel_datasource.base", "eel_datasource.xls")), "Error in replicated dataset : column name changed"))
+                  "eel_year", "eel_value.base", "eel_value.xls", "keep_new_value", "eel_qal_id.xls", 
+                  "eel_qal_comment.xls", "eel_qal_id.base", "eel_qal_comment.base", "eel_missvaluequal.base", 
+                  "eel_missvaluequal.xls", "eel_emu_nameshort", "eel_cou_code", "eel_lfs_code", 
+                  "eel_hty_code", "eel_area_division", "eel_comment.base", "eel_comment.xls", 
+                  "eel_datasource.base", "eel_datasource.xls")), "Error in replicated dataset : column name changed"))
   # select values to be replaced passing through excel does not get keep_new_value
   # with logical R value here I'm testing various mispelling
   duplicates2$keep_new_value[duplicates2$keep_new_value == "1"] <- "true"
@@ -238,8 +247,8 @@ write_new <- function(path) {
   if (any(is.na(new$eel_qal_id))) 
     stop("There are still lines without eel_qal_id")
   new <- new[, c("eel_typ_id", "eel_year", "eel_value", "eel_missvaluequal", "eel_emu_nameshort", 
-                  "eel_cou_code", "eel_lfs_code", "eel_hty_code", "eel_area_division", "eel_qal_id", 
-                  "eel_qal_comment", "eel_datasource", "eel_comment")]
+          "eel_cou_code", "eel_lfs_code", "eel_hty_code", "eel_area_division", "eel_qal_id", 
+          "eel_qal_comment", "eel_datasource", "eel_comment")]
   sqldf::sqldf("drop table if exists new_temp ")
   sqldf::sqldf("create table new_temp as select * from new")
   message <- sprintf(" %s new values inserted in the database", nrow(new))
@@ -264,12 +273,12 @@ write_new <- function(path) {
   conn <- poolCheckout(pool)
   tryCatch({
         dbExecute(conn, query)
-          }, error = function(e) {
+      }, error = function(e) {
         message <<- e
-          }, finally = {
+      }, finally = {
         poolReturn(conn)
         sqldf::sqldf("drop table if exists new_temp ")
-          })
+      })
   cou_code = unique(new$eel_cou_code)
   stopifnot(length(cou_code) == 1)
   
@@ -305,7 +314,7 @@ update_t_eelstock_eel <- function(editedValue, pool, data) {
   # columns row, col, value this part ensures that only the last value changed in a
   # cell is replaced.  Previous edits are ignored
   editedValue <- editedValue %>% group_by(row, col) %>% filter(value == dplyr::last(value) | 
-                  is.na(value)) %>% ungroup()
+          is.na(value)) %>% ungroup()
   # opens the connection, this must be followed by poolReturn
   conn <- poolCheckout(pool)
   # Apply to all rows of editedValue dataframe
@@ -323,11 +332,11 @@ update_t_eelstock_eel <- function(editedValue, pool, data) {
                 ", 
             .con = conn)
         tryCatch({
-                          dbExecute(conn, sqlInterpolate(ANSI(), query))
-                    }, error = function(e) {
-                          error[i] <<- e
-                    })
-          })
+              dbExecute(conn, sqlInterpolate(ANSI(), query))
+            }, error = function(e) {
+              error[i] <<- e
+            })
+      })
   poolReturn(conn)
   # print(editedValue)
   return(error)

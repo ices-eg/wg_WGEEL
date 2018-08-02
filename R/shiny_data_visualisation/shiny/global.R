@@ -2,9 +2,13 @@
 # 
 # Author: lbeaulaton
 ###############################################################################
+# debug tool
+#setwd("C:\\Users\\cedric.briand\\Documents\\GitHub\\WGEEL\\R\\shiny_data_integration\\shiny")
 
 # retrieve reference tables needed
 # the shiny is launched from shiny_data_integration/shiny thus we need the ../
+
+if(!exists("load_library")) source("../../utilities/load_library.R")
 if(is.null(options()$sqldf.RPostgreSQL.user)) source("../../database_interaction/database_connection.R")
 source("../../database_interaction/database_reference.R")
 source("../../database_interaction/database_data.R")
@@ -15,9 +19,9 @@ lfs_code_base = extract_ref("Life stage")
 country_ref = extract_ref("Country")
 country_ref = country_ref[order(country_ref$cou_order), ]
 country_ref$cou_code = factor(country_ref$cou_code, levels = country_ref$cou_code[order(country_ref$cou_order)], ordered = TRUE)
-landings = extract_data("Catches and landings")
+landings = extract_data("Landings")
 aquaculture = extract_data("Aquaculture")
-stocking = extract_data("Restocking")
+stocking = extract_data("Release")
 precodata = extract_precodata()
 
 #########################

@@ -68,8 +68,13 @@ DROP VIEW IF EXISTS datawg.landings CASCADE;
 CREATE OR REPLACE VIEW datawg.landings AS 
  SELECT 
     t_eelstock_eel.eel_id, 
-    case when t_eelstock_eel.eel_typ_id=5 then 4
-    when t_eelstock_eel.eel_typ_id=7 then 6 end as eel_typ_id,
+    case 
+    when t_eelstock_eel.eel_typ_id=NULL then NULL
+    when t_eelstock_eel.eel_typ_id=5 then 4
+    when t_eelstock_eel.eel_typ_id=7 then 6 
+    when t_eelstock_eel.eel_typ_id=4 then 4 
+    when t_eelstock_eel.eel_typ_id=6 then 6 
+         end as eel_typ_id,
     tr_typeseries_typ.typ_name,
     tr_typeseries_typ.typ_uni_code,
     t_eelstock_eel.eel_year,

@@ -38,7 +38,8 @@ load_package("shinydashboard")
 load_package("shinyWidgets")
 load_package("shinyBS")
 load_package("sqldf")
-options(sqldf.RPostgreSQL.user = "postgres", 
+#if(is.null(options()$sqldf.RPostgreSQL.user)) source("../../database_interaction/database_connection.R")
+options(sqldf.RPostgreSQL.user = userlocal, 
 	sqldf.RPostgreSQL.password = passwordlocal,
 	sqldf.RPostgreSQL.dbname = "wgeel",
 	sqldf.RPostgreSQL.host = "localhost", # "localhost"
@@ -65,6 +66,12 @@ pool <- pool::dbPool(drv = dbDriver("PostgreSQL"),
 onStop(function() {
         poolClose(pool)
     }) # important!
+##########################
+# CHANGE THIS LINE AT THE NEXT DATACALL AND WHEN TEST IS FINISHED
+########################
+the_eel_datasource <- "datacall_2018_test"
+
+
 # below dbListFields from R postgres doesn't work, so I'm extracting the colnames from 
 # the table to be edited there
 query <- "SELECT column_name

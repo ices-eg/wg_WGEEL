@@ -34,19 +34,19 @@ shinyServer(function(input, output, session){
         path<- step0_filepath()   
         if (is.null(data$path_step0)) return(NULL)
         switch (input$file_type, "catch_landings"={                  
-              message<-capture.output(res<-load_catch_landings(data$path_step0))},
+              message<-capture.output(res<-load_catch_landings(data$path_step0, datasource = the_eel_datasource ))},
             "release"={
-              message<-capture.output(res<-load_release(data$path_step0))},
+              message<-capture.output(res<-load_release(data$path_step0, datasource = the_eel_datasource ))},
             "aquaculture"={
-              message<-capture.output(res<-load_aquaculture(data$path_step0))},
+              message<-capture.output(res<-load_aquaculture(data$path_step0, datasource = the_eel_datasource ))},
             "biomass"={
-              message<-capture.output(res<-load_biomass(data$path_step0))},
+              message<-capture.output(res<-load_biomass(data$path_step0, datasource = the_eel_datasource ))},
             "potential_available_habitat"={
-              message<-capture.output(res<-load_potential_available_habitat(data$path_step0))},
+              message<-capture.output(res<-load_potential_available_habitat(data$path_step0, datasource = the_eel_datasource ))},
             "silver_eel_equivalents"={
-              message<-capture.output(res<-load_mortality_silver(data$path_step0))},
+              message<-capture.output(res<-load_mortality_silver(data$path_step0, datasource = the_eel_datasource ))},
             "mortality_rates"={
-              message<-capture.output(res<-load_mortality_rates(data$path_step0))}
+              message<-capture.output(res<-load_mortality_rates(data$path_step0, datasource = the_eel_datasource ))}
         )
         return(list(res=res,message=message))
       }
@@ -163,6 +163,8 @@ shinyServer(function(input, output, session){
                 "aquaculture"={             
                   data_from_base<-extract_data("Aquaculture")},
                 "biomass"={
+                  # bug in excel file
+                  colnames(data_from_excel)[colnames(data_from_excel)=="typ_name"]<-"eel_typ_name"
                   data_from_base<-rbind(
                       extract_data("B0"),
                       extract_data("Bbest"),
