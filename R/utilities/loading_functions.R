@@ -634,7 +634,8 @@ load_biomass<-function(path,datasource){
       path=path,
       sheet=3,
       skip=0)
-  
+  # correcting an error with typ_name
+  biomass_indicators<-biomass_indicators%>%rename(eel_typ_name=typ_name)
   country =as.character(biomass_indicators[1,6]) #country code is in the 6th column
   
   # check for the file integrity, only 11 column in this file
@@ -645,12 +646,12 @@ load_biomass<-function(path,datasource){
   # check column names
 #FIXME there is a problem with name in biomass_indicators, here we have to use typ_name
   if (!all(colnames(biomass_indicators)%in%
-          c("typ_name", "eel_year","eel_value","eel_missvaluequal","eel_emu_nameshort",
+          c("eel_typ_name", "eel_year","eel_value","eel_missvaluequal","eel_emu_nameshort",
               "eel_cou_code", "eel_lfs_code", "eel_hty_code","eel_area_division",
               "eel_qal_id", "eel_qal_comment","eel_comment","eel_datasource"))) 
     cat(str_c("problem in column names :",
             paste(colnames(biomass_indicators)[!colnames(biomass_indicators)%in%
-                        c("typ_name", "eel_year","eel_value","eel_missvaluequal","eel_emu_nameshort",
+                        c("eel_typ_name", "eel_year","eel_value","eel_missvaluequal","eel_emu_nameshort",
                             "eel_cou_code", "eel_lfs_code", "eel_hty_code","eel_area_division",
                             "eel_qal_id", "eel_qal_comment","eel_comment","eel_datasource")],collapse= " & "),
             " file = ",file,"\n")) 
@@ -662,12 +663,12 @@ load_biomass<-function(path,datasource){
     
     # should not have any missing value
     data_error= rbind(data_error, check_missing(dataset=biomass_indicators,
-            column="typ_name",
+            column="eel_typ_name",
             country=country))
     
     #  eel_typ_id should be one of 13 B0_kg  14 Bbest_kg  15 Bcurrent_kg
     data_error= rbind(data_error, check_values(dataset=biomass_indicators,
-            column="typ_name",
+            column="eel_typ_name",
             country=country,
             values=c("Bcurrent_kg","Bbest_kg","B0_kg")))
     
@@ -827,7 +828,10 @@ load_mortality_rates<-function(path,datasource){
       sheet=3,
       skip=0)
   country =as.character(mortality_rates[1,6]) #country code is in the 6th column
-  
+  # correcting an error with typ_name
+  colnames(mortality_rates)[3] <-"eel_value"
+  if ("typ_name"%in% colnames( mortality_rates))
+          mortality_rates<-mortality_rates%>%rename(eel_typ_name=typ_name)
   # check for the file integrity, only 10 column in this file
   if (ncol(mortality_rates)!=10) cat(str_c("number column wrong ",file,"\n"))
   # check column names
@@ -1211,13 +1215,17 @@ load_potential_available_habitat<-function(path,datasource){
       sheet=3,
       skip=0)
   country =as.character(potential_available_habitat[1,6]) #country code is in the 6th column
-  
+  colnames(potential_available_habitat)[3] <-"eel_value"
+  colnames(potential_available_habitat)[4] <-"eel_missvaluequal"
+  # correcting an error with typ_name
+  potential_available_habitat<-potential_available_habitat%>%rename(eel_typ_name=typ_name)
   # check for the file integrity, only 10 column in this file
   if (ncol(potential_available_habitat)!=10) cat(str_c("number column wrong ",file,"\n"))
   # check column names
   potential_available_habitat$eel_qal_id <- NA
   potential_available_habitat$eel_qal_comment <- NA
   potential_available_habitat$eel_datasource <- datasource
+  
   if (!all(colnames(potential_available_habitat)%in%
           c("eel_typ_name", "eel_year","eel_value", "eel_missvaluequal","eel_emu_nameshort",
               "eel_cou_code", "eel_lfs_code", "eel_hty_code","eel_area_division",

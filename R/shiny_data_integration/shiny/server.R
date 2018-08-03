@@ -21,7 +21,21 @@ shinyServer(function(input, output, session){
             inFile <- input$xlfile      
             if (is.null(inFile)){        return(NULL)
             } else {
-              data$path_step0<-inFile$datapath #path to a temp file             
+              data$path_step0<-inFile$datapath #path to a temp file
+              if (grepl(c("catch"),tolower(inFile$name))) 
+                updateRadioButtons(session, "file_type", selected = "catch_landings")
+              if (grepl(c("release"),tolower(inFile$name)))
+                updateRadioButtons(session, "file_type", selected = "release")
+              if (grepl(c("aquaculture"),tolower(inFile$name)))
+                updateRadioButtons(session, "file_type", selected = "aquaculture")
+              if (grepl(c("biomass_indicator"),tolower(inFile$name))) 
+                updateRadioButtons(session, "file_type", selected = "biomass")             
+              if (grepl(c("habitat"),tolower(inFile$name)))
+                updateRadioButtons(session, "file_type", selected = "potential_available_habitat")
+              if (grepl(c("silver"),tolower(inFile$name))) 
+                updateRadioButtons(session, "file_type", selected = "mortality_silver_equiv")      
+              if (grepl(c("rate"),tolower(inFile$name)))
+                updateRadioButtons(session, "file_type", selected = "mortality_rates")
             }
           }) 
       ###########################
@@ -43,7 +57,7 @@ shinyServer(function(input, output, session){
               message<-capture.output(res<-load_biomass(data$path_step0, datasource = the_eel_datasource ))},
             "potential_available_habitat"={
               message<-capture.output(res<-load_potential_available_habitat(data$path_step0, datasource = the_eel_datasource ))},
-            "silver_eel_equivalents"={
+            "mortality_silver_equiv"={
               message<-capture.output(res<-load_mortality_silver(data$path_step0, datasource = the_eel_datasource ))},
             "mortality_rates"={
               message<-capture.output(res<-load_mortality_rates(data$path_step0, datasource = the_eel_datasource ))}
