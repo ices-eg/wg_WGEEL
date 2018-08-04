@@ -37,40 +37,39 @@ load_catch_landings<-function(path,datasource){
 # read the catch_landings sheet
   cat("catch and landings \n")
 # here we have already seached for catch and landings above.
-  catch_landings<-read_excel(
+  data_xls<-read_excel(
       path=path,
       sheet =3,
       skip=0)
-  country=as.character(catch_landings[1,6])
-  if ("typ_name"%in% colnames( catch_landings))
-    catch_landings<-catch_landings%>%rename(eel_typ_name=typ_name)
+  country=as.character(data_xls[1,6])
+   data_xls <- correct_me(data_xls)
 # check for the file integrity
-  if (ncol(catch_landings)!=13) cat(str_c("number column wrong ",file,"\n"))
-  catch_landings$eel_datasource <- datasource
+  if (ncol(data_xls)!=13) cat(str_c("number column wrong ",file,"\n"))
+  data_xls$eel_datasource <- datasource
 # check column names
-  if (!all(colnames(catch_landings)%in%
-      c("eel_typ_name","eel_year","eel_value","eel_missvaluequal","eel_emu_nameshort",
-          "eel_cou_code", "eel_lfs_code", "eel_hty_code","eel_area_division",
-          "eel_qal_id", "eel_qal_comment","eel_comment","eel_datasource"))) 
+  if (!all(colnames(data_xls)%in%
+                c("eel_typ_name","eel_year","eel_value","eel_missvaluequal","eel_emu_nameshort",
+                        "eel_cou_code", "eel_lfs_code", "eel_hty_code","eel_area_division",
+                        "eel_qal_id", "eel_qal_comment","eel_comment","eel_datasource"))) 
     cat(str_c("problem in column names",            
-            paste(colnames(catch_landings)[!colnames(catch_landings)%in%
+            paste(colnames(data_xls)[!colnames(data_xls)%in%
                         c("eel_typ_name", "eel_year","eel_value","eel_missvaluequal","eel_emu_nameshort",
                             "eel_cou_code", "eel_lfs_code", "eel_hty_code","eel_area_division",
                             "eel_qal_id", "eel_qal_comment","eel_comment","eel_datasource")],collapse= "&"),
             "file =",
             file,"\n")) 
   
-  if (nrow(catch_landings)>0) {
+  if (nrow(data_xls)>0) {
     
     ###### eel_typ_name ##############
     
 # should not have any missing value
-    data_error= rbind(data_error, check_missing(dataset=catch_landings,
+    data_error= rbind(data_error, check_missing(dataset=data_xls,
             column="eel_typ_name",
             country=country))
     
 #  eel_typ_id should be one of 4 comm.land 5 comm.catch 6 recr. land. 7 recr. catch.
-    data_error= rbind(data_error, check_values(dataset=catch_landings,
+    data_error= rbind(data_error, check_values(dataset=data_xls,
             column="eel_typ_name",
             country=country,
             values=c("com_landings_kg", "rec_landings_kg")))
@@ -78,11 +77,11 @@ load_catch_landings<-function(path,datasource){
     ###### eel_year ##############
     
 # should not have any missing value
-    data_error= rbind(data_error, check_missing(dataset=catch_landings,
+    data_error= rbind(data_error, check_missing(dataset=data_xls,
             column="eel_year",
             country=country))
 # should be a numeric
-    data_error= rbind(data_error, check_type(dataset=catch_landings,
+    data_error= rbind(data_error, check_type(dataset=data_xls,
             column="eel_year",
             country=country,
             type="numeric"))
@@ -92,7 +91,7 @@ load_catch_landings<-function(path,datasource){
 # can have missing values if eel_missingvaluequa is filled (check later)
     
 # should be numeric
-    data_error= rbind(data_error, check_type(dataset=catch_landings,
+    data_error= rbind(data_error, check_type(dataset=data_xls,
             column="eel_value",
             country=country,
             type="numeric"))
@@ -101,17 +100,17 @@ load_catch_landings<-function(path,datasource){
     
 #check that there are data in missvaluequa only when there are missing value (NA) is eel_value
 # and also that no missing values are provided without a comment is eel_missvaluequa
-    data_error= rbind(data_error, check_missvaluequal(dataset=catch_landings,
+    data_error= rbind(data_error, check_missvaluequal(dataset=data_xls,
             country=country))
     
     
     ###### eel_emu_name ##############
     
-    data_error= rbind(data_error, check_missing(dataset=catch_landings,
+    data_error= rbind(data_error, check_missing(dataset=data_xls,
             column="eel_emu_nameshort",
             country=country))
     
-    data_error= rbind(data_error, check_type(dataset=catch_landings,
+    data_error= rbind(data_error, check_type(dataset=data_xls,
             column="eel_emu_nameshort",
             country=country,
             type="character"))
@@ -119,99 +118,99 @@ load_catch_landings<-function(path,datasource){
     ###### eel_cou_code ##############
     
 # must be a character
-    data_error= rbind(data_error, check_type(dataset=catch_landings,
+    data_error= rbind(data_error, check_type(dataset=data_xls,
             column="eel_cou_code",
             country=country,
             type="character"))
     
 # should not have any missing value
-    data_error= rbind(data_error, check_missing(dataset=catch_landings,
+    data_error= rbind(data_error, check_missing(dataset=data_xls,
             column="eel_cou_code",
             country=country))
     
 # must only have one value
-    data_error= rbind(data_error, check_unique(dataset=catch_landings,
+    data_error= rbind(data_error, check_unique(dataset=data_xls,
             column="eel_cou_code",
             country=country))
     
     ###### eel_lfs_code ##############
     
-    data_error= rbind(data_error, check_type(dataset=catch_landings,
+    data_error= rbind(data_error, check_type(dataset=data_xls,
             column="eel_lfs_code",
             country=country,
             type="character"))
     
 # should not have any missing value
-    data_error= rbind(data_error, check_missing(dataset=catch_landings,
+    data_error= rbind(data_error, check_missing(dataset=data_xls,
             column="eel_lfs_code",
             country=country))
     
 # should only correspond to the following list
-    data_error= rbind(data_error, check_values(dataset=catch_landings,
+    data_error= rbind(data_error, check_values(dataset=data_xls,
             column="eel_lfs_code",
             country=country,
             values=c("G","S","YS","GY","Y","AL")))
     
     ###### eel_hty_code ##############
     
-    data_error= rbind(data_error, check_type(dataset=catch_landings,
+    data_error= rbind(data_error, check_type(dataset=data_xls,
             column="eel_hty_code",
             country=country,
             type="character"))
     
 # should not have any missing value
-    data_error= rbind(data_error, check_missing(dataset=catch_landings,
+    data_error= rbind(data_error, check_missing(dataset=data_xls,
             column="eel_hty_code",
             country=country))
     
 # should only correspond to the following list
-    data_error= rbind(data_error, check_values(dataset=catch_landings,
+    data_error= rbind(data_error, check_values(dataset=data_xls,
             column="eel_hty_code",
             country=country,
             values=c("F","T","C","MO","AL")))
     
     ###### eel_area_div ##############
     
-    data_error= rbind(data_error, check_type(dataset=catch_landings,
+    data_error= rbind(data_error, check_type(dataset=data_xls,
             column="eel_area_division",
             country=country,
             type="character"))
     
 # should not have any missing value
-    data_error= rbind(data_error, check_missing(dataset=catch_landings,
+    data_error= rbind(data_error, check_missing(dataset=data_xls,
             column="eel_area_division",
             country=country))
     
 # the dataset ices_division should have been loaded there
-    data_error= rbind(data_error, check_values(dataset=catch_landings,
+    data_error= rbind(data_error, check_values(dataset=data_xls,
             column="eel_area_division",
             country=country,
             values=ices_division))
     
     ###### eel_qal_id ############## 
     
-    data_error= rbind(data_error, check_missing(dataset=catch_landings,
+    data_error= rbind(data_error, check_missing(dataset=data_xls,
             column="eel_qal_id",
             country=country))
     
-    data_error= rbind(data_error, check_values(dataset=catch_landings,
+    data_error= rbind(data_error, check_values(dataset=data_xls,
             column="eel_qal_id",
             country=country,
             values=c(0,1,2,3)))
     
     ###### eel_datasource ############## 
     
-    data_error= rbind(data_error, check_missing(dataset=catch_landings,
+    data_error= rbind(data_error, check_missing(dataset=data_xls,
             column="eel_datasource",
             country=country))
     
-    data_error= rbind(data_error, check_values(dataset=catch_landings,
+    data_error= rbind(data_error, check_values(dataset=data_xls,
             column="eel_datasource",
             country=country,
             values=c("dc_2017","wgeel_2016","wgeel_2017")))
     
   }
-  return(invisible(list(data=catch_landings,error=data_error,the_metadata=the_metadata))) 
+  return(invisible(list(data=data_xls,error=data_error,the_metadata=the_metadata))) 
 }
 
 
@@ -247,55 +246,54 @@ load_release<-function(path,datasource){
   
   cat("release \n")
   # here we have already seached for catch and landings above.
-  release<-read_excel(
+  data_xls<-read_excel(
       path=path,
       sheet =3,
       skip=0)
-  country=as.character(release[1,7])
-  if ("typ_name"%in% colnames( release))
-    release<-release%>%rename(eel_typ_name=typ_name)
+  country=as.character(data_xls[1,7])
+   data_xls <- correct_me(data_xls)
   # check for the file integrity
-  if (ncol(release)!=11) cat(str_c("number column wrong ",file,"\n"))
-  release$eel_qal_id <- NA
-  release$eel_qal_comment <- NA
-  release$eel_datasource <- datasource
+  if (ncol(data_xls)!=11) cat(str_c("number column wrong ",file,"\n"))
+  data_xls$eel_qal_id <- NA
+  data_xls$eel_qal_comment <- NA
+  data_xls$eel_datasource <- datasource
   # check column names
-  if (!all(colnames(release)%in%
+  if (!all(colnames(data_xls)%in%
           c("eel_typ_name","eel_year","eel_value_number", "eel_value_kg","eel_missvaluequal","eel_emu_nameshort",
               "eel_cou_code", "eel_lfs_code", "eel_hty_code","eel_area_division",
               "eel_qal_id", "eel_qal_comment","eel_comment","eel_datasource"))) 
     cat(str_c("problem in column names :",            
-            paste(colnames(release)[!colnames(release)%in%
+            paste(colnames(data_xls)[!colnames(data_xls)%in%
                         c("eel_typ_name", "eel_year","eel_value","eel_missvaluequal","eel_emu_nameshort",
                             "eel_cou_code", "eel_lfs_code", "eel_hty_code","eel_area_division",
                             "eel_qal_id", "eel_qal_comment","eel_comment","eel_datasource")],collapse= " & "),
             " file =",
             file,"\n")) 
   
-  if (nrow(release)>0) {
+  if (nrow(data_xls)>0) {
     
     ###### eel_typ_name ##############
     
     # should not have any missing value
-    data_error= rbind(data_error, check_missing(dataset=release,
+    data_error= rbind(data_error, check_missing(dataset=data_xls,
             column="eel_typ_name",
             country=country))
     
-    #  eel_typ_id should be one of q_release_n, gee_n
-    data_error= rbind(data_error, check_values(dataset=release,
+    #  eel_typ_id should be one of q_data__n, gee_n
+    data_error= rbind(data_error, check_values(dataset=data_xls,
             column="eel_typ_name",
             country=country,
-            values=c("release_n", "gee_n")))
+            values=c("data_n", "gee_n")))
     
     ###### eel_year ##############
     
     # should not have any missing value
-    data_error= rbind(data_error, check_missing(dataset=release,
+    data_error= rbind(data_error, check_missing(dataset=data_xls,
             column="eel_year",
             country=country))
     
     # should be a numeric
-    data_error= rbind(data_error, check_type(dataset=release,
+    data_error= rbind(data_error, check_type(dataset=data_xls,
             column="eel_year",
             country=country,
             type="numeric"))
@@ -305,7 +303,7 @@ load_release<-function(path,datasource){
     # can have missing values if eel_missingvaluequal is filled (check later)
     
     # should be numeric
-    data_error= rbind(data_error, check_type(dataset=release,
+    data_error= rbind(data_error, check_type(dataset=data_xls,
             column="eel_value_number",
             country=country,
             type="numeric"))
@@ -315,7 +313,7 @@ load_release<-function(path,datasource){
     # can have missing values if eel_missingvaluequa is filled (check later)
     
     # should be numeric
-    data_error= rbind(data_error, check_type(dataset=release,
+    data_error= rbind(data_error, check_type(dataset=data_xls,
             column="eel_value_kg",
             country=country,
             type="numeric"))
@@ -326,16 +324,16 @@ load_release<-function(path,datasource){
     # if there is data in eel_value_number or eel_value_kg, give warring to the user to fill the missing value 
     # if there is data in neither eel_value_number and eel_value_kg, check if there are data in missvaluequa 
     
-    data_error= rbind(data_error, check_missvalue_release(dataset=release,
+    data_error= rbind(data_error, check_missvalue_release(dataset=data_xls,
             country=country))
     
     ###### eel_emu_name ##############
     
-    data_error= rbind(data_error, check_missing(dataset=release,
+    data_error= rbind(data_error, check_missing(dataset=data_xls,
             column="eel_emu_nameshort",
             country=country))
     
-    data_error= rbind(data_error, check_type(dataset=release,
+    data_error= rbind(data_error, check_type(dataset=data_xls,
             column="eel_emu_nameshort",
             country=country,
             type="character"))
@@ -343,63 +341,63 @@ load_release<-function(path,datasource){
     ###### eel_cou_code ##############
     
     # must be a character
-    data_error= rbind(data_error, check_type(dataset=release,
+    data_error= rbind(data_error, check_type(dataset=data_xls,
             column="eel_cou_code",
             country=country,
             type="character"))
     # should not have any missing value
-    data_error= rbind(data_error, check_missing(dataset=release,
+    data_error= rbind(data_error, check_missing(dataset=data_xls,
             column="eel_cou_code",
             country=country))
     # must only have one value
-    data_error= rbind(data_error, check_unique(dataset=release,
+    data_error= rbind(data_error, check_unique(dataset=data_xls,
             column="eel_cou_code",
             country=country))
     
     ###### eel_lfs_code ##############
     
-    data_error= rbind(data_error, check_type(dataset=release,
+    data_error= rbind(data_error, check_type(dataset=data_xls,
             column="eel_lfs_code",
             country=country,
             type="character"))
     # should not have any missing value
-    data_error= rbind(data_error, check_missing(dataset=release,
+    data_error= rbind(data_error, check_missing(dataset=data_xls,
             column="eel_lfs_code",
             country=country))
     # should only correspond to the following list
-    data_error= rbind(data_error, check_values(dataset=release,
+    data_error= rbind(data_error, check_values(dataset=data_xls,
             column="eel_lfs_code",
             country=country,
             values=c("G","GY","Y","QG","OG","YS","S","AL")))
     
     ###### eel_hty_code ##############
     
-    data_error= rbind(data_error, check_type(dataset=release,
+    data_error= rbind(data_error, check_type(dataset=data_xls,
             column="eel_hty_code",
             country=country,
             type="character"))
     # should not have any missing value
-    data_error= rbind(data_error, check_missing(dataset=release,
+    data_error= rbind(data_error, check_missing(dataset=data_xls,
             column="eel_hty_code",
             country=country))
     # should only correspond to the following list
-    data_error= rbind(data_error, check_values(dataset=release,
+    data_error= rbind(data_error, check_values(dataset=data_xls,
             column="eel_hty_code",
             country=country,
             values=c("F","T","C","MO","AL")))
     
     ###### eel_area_div ##############
     
-    data_error= rbind(data_error, check_type(dataset=release,
+    data_error= rbind(data_error, check_type(dataset=data_xls,
             column="eel_area_division",
             country=country,
             type="character"))
     # should not have any missing value
-    data_error= rbind(data_error, check_missing(dataset=release,
+    data_error= rbind(data_error, check_missing(dataset=data_xls,
             column="eel_area_division",
             country=country))
     # the dataset ices_division should have been loaded there
-    data_error= rbind(data_error, check_values(dataset=release,
+    data_error= rbind(data_error, check_values(dataset=data_xls,
             column="eel_area_division",
             country=country,
             values=ices_division))
@@ -407,11 +405,11 @@ load_release<-function(path,datasource){
     ###  deal with eel_value_number and eel_value_kg to import to database
     
     #tibbles are weird, change to dataframe and clear NA in the first column
-    release <- as.data.frame(release[!is.na(release[,1]),])
+    data_xls <- as.data.frame(data_xls[!is.na(data_xls[,1]),])
     
     #separate data between number and kg 
     #create data for number and add eel_typ_id 9 
-    release_N <- release[,c(1,2,3,5,6,7,8,9,10,11)] 
+    release_N <- data_xls[,c(1,2,3,5,6,7,8,9,10,11)] 
     
     release_N$eel_typ_id <- NA
     # deal with release_n or gee_n to assign the correct type id 
@@ -425,13 +423,13 @@ load_release<-function(path,datasource){
     } 
     colnames(release_N)[colnames(release_N)=="eel_value_number"] <- "eel_value" 
     
-    #create data for kg and add eel_typ_id 8 
-    release_kg <- release[,c(1,2,4,5,6,7,8,9,10,11)] 
-    release_kg$eel_typ_id <- rep(8, nrow(release)) 
+    #create release for kg and add eel_typ_id 8 
+    release_kg <- data_xls[,c(1,2,4,5,6,7,8,9,10,11)] 
+    release_kg$eel_typ_id <- rep(8, nrow(data_xls)) 
     release_kg$eel_typ_name <- "q_release_kg"
     colnames(release_kg)[colnames(release_kg)=="eel_value_kg"] <- "eel_value" 
     
-    #Rbind data in the same data frame to import in database 
+    #Rbind data_xls in the same data frame to import in database 
     release_tot <- rbind(release_N, release_kg) 
     release_tot<-release_tot[,c(11,1,2,3,4,5,6,7,8,9,10)] 
     
@@ -480,42 +478,40 @@ load_aquaculture<-function(path,datasource){
   # read the aquaculture sheet
   cat("aquaculture \n")
   
-  aquaculture<-read_excel(
+  data_xls<-read_excel(
       path=path,
       sheet=3,
       skip=0)
-  
-  country =as.character(aquaculture[1,6])
-  if ("typ_name"%in% colnames( aquaculture))
-    aquaculture<-catch_landings%>%rename(eel_typ_name=typ_name)
-  # check for the file integrity
-  if (ncol(aquaculture)!=10) cat(str_c("number column wrong ",file,"\n"))
-  aquaculture$eel_qal_id <- NA
-  aquaculture$eel_qal_comment <- NA
-  aquaculture$eel_datasource <- datasource
+  data_xls <- correct_me(data_xls)
+  country =as.character(data_xls[1,6])
+   # check for the file integrity
+  if (ncol(data_xls)!=10) cat(str_c("number column wrong ",file,"\n"))
+  data_xls$eel_qal_id <- NA
+  data_xls$eel_qal_comment <- NA
+  data_xls$eel_datasource <- datasource
   # check column names
-  if (!all(colnames(aquaculture)%in%
+  if (!all(colnames(data_xls)%in%
           c("eel_typ_name","eel_year","eel_value","eel_missvaluequal","eel_emu_nameshort",
               "eel_cou_code", "eel_lfs_code", "eel_hty_code","eel_area_division",
               "eel_qal_id", "eel_qal_comment","eel_comment","eel_datasource"))) 
     cat(str_c("problem in column names :",            
-            paste(colnames(aquaculture)[!colnames(aquaculture)%in%
+            paste(colnames(data_xls)[!colnames(data_xls)%in%
                         c("eel_typ_name", "eel_year","eel_value","eel_missvaluequal","eel_emu_nameshort",
                             "eel_cou_code", "eel_lfs_code", "eel_hty_code","eel_area_division",
                             "eel_qal_id", "eel_qal_comment","eel_comment","eel_datasource")],collapse= " & "),
             " file =",
             file,"\n"))   
-  if (nrow(aquaculture)>0){
+  if (nrow(data_xls)>0){
     
     ###### eel_typ_name ##############
     
     # should not have any missing value
-    data_error = rbind(data_error,  check_missing(dataset=aquaculture,
+    data_error = rbind(data_error,  check_missing(dataset=data_xls,
             column="eel_typ_name",
             country=country))
     
     #  eel_typ_id should be q_aqua_kg
-    data_error = rbind(data_error,  check_values(dataset=aquaculture,
+    data_error = rbind(data_error,  check_values(dataset=data_xls,
             column="eel_typ_name",
             country=country,
             values=c("q_aqua_kg")))
@@ -523,12 +519,12 @@ load_aquaculture<-function(path,datasource){
     ###### eel_year ##############
     
     # should not have any missing value
-    data_error= rbind(data_error, check_missing(dataset=aquaculture,
+    data_error= rbind(data_error, check_missing(dataset=data_xls,
             column="eel_year",
             country=country))
     
     # should be a numeric
-    data_error= rbind(data_error, check_type(dataset=aquaculture,
+    data_error= rbind(data_error, check_type(dataset=data_xls,
             column="eel_year",
             country=country,
             type="numeric"))
@@ -538,7 +534,7 @@ load_aquaculture<-function(path,datasource){
     # can have missing values if eel_missingvaluequa is filled (check later)
     
     # should be numeric
-    data_error= rbind(data_error, check_type(dataset=aquaculture,
+    data_error= rbind(data_error, check_type(dataset=data_xls,
             column="eel_value",
             country=country,
             type="numeric"))
@@ -547,17 +543,17 @@ load_aquaculture<-function(path,datasource){
     
     #check that there are data in missvaluequa only when there are missing value (NA) is eel_value
     # and also that no missing values are provided without a comment is eel_missvaluequa
-    data_error= rbind(data_error, check_missvaluequal(dataset=aquaculture,
+    data_error= rbind(data_error, check_missvaluequal(dataset=data_xls,
             country=country))
     
     
     
     ###### eel_emu_name ##############
-    data_error = rbind(data_error,   check_missing(dataset=aquaculture,
+    data_error = rbind(data_error,   check_missing(dataset=data_xls,
             column="eel_emu_nameshort",
             country=country))
     
-    data_error= rbind(data_error,  check_type(dataset=aquaculture,
+    data_error= rbind(data_error,  check_type(dataset=data_xls,
             column="eel_emu_nameshort",
             country=country,
             type="character"))
@@ -565,40 +561,40 @@ load_aquaculture<-function(path,datasource){
     ###### eel_cou_code ##############
     
     # must be a character
-    data_error= rbind(data_error,  check_type(dataset=aquaculture,
+    data_error= rbind(data_error,  check_type(dataset=data_xls,
             column="eel_cou_code",
             country=country,
             type="character"))
     
     # should not have any missing value
-    data_error= rbind(data_error,  check_missing(dataset=aquaculture,
+    data_error= rbind(data_error,  check_missing(dataset=data_xls,
             column="eel_cou_code",
             country=country))
     # must only have one value
-    data_error= rbind(data_error, check_unique(dataset=aquaculture,
+    data_error= rbind(data_error, check_unique(dataset=data_xls,
             column="eel_cou_code",
             country=country))
     
     ###### eel_lfs_code ##############
-    data_error= rbind(data_error, check_type(dataset=aquaculture,
+    data_error= rbind(data_error, check_type(dataset=data_xls,
             column="eel_lfs_code",
             country=country,
             type="character"))
     
     # should not have any missing value
-    data_error= rbind(data_error, check_missing(dataset=aquaculture,
+    data_error= rbind(data_error, check_missing(dataset=data_xls,
             column="eel_lfs_code",
             country=country))
     
     # should only correspond to the following list
-    data_error= rbind(data_error, check_values(dataset=aquaculture,
+    data_error= rbind(data_error, check_values(dataset=data_xls,
             column="eel_lfs_code",
             country=country,
             values=c("G","GY","Y","YS","S","OG","QG","AL")))
     
     
   }
-  return(invisible(list(data=aquaculture,error=data_error)))
+  return(invisible(list(data=data_xls,error=data_error)))
 }
 
 
@@ -634,45 +630,44 @@ load_biomass<-function(path,datasource){
   # read the biomass_indicators sheet
   cat("biomass_indicators \n")
   
-  biomass_indicators<-read_excel(
+  data_xls<-read_excel(
       path=path,
       sheet=3,
       skip=0)
   # correcting an error with typ_name
-  if ("typ_name"%in% colnames(biomass_indicators))
-    biomass_indicators<-biomass_indicators%>%rename(eel_typ_name=typ_name)
-  country =as.character(biomass_indicators[1,6]) #country code is in the 6th column
+  data_xls <- correct_me(data_xls)  
+  country =as.character(data_xls[1,6]) #country code is in the 6th column
   
   # check for the file integrity, only 11 column in this file
-  if (ncol(biomass_indicators)!=10) cat(str_c("number column wrong ",file,"\n"))
-  biomass_indicators$eel_qal_id <- NA
-  biomass_indicators$eel_qal_comment <- NA
-  biomass_indicators$eel_datasource <- datasource
+  if (ncol(data_xls)!=10) cat(str_c("number column wrong ",file,"\n"))
+  data_xls$eel_qal_id <- NA
+  data_xls$eel_qal_comment <- NA
+  data_xls$eel_datasource <- datasource
   # check column names
-#FIXME there is a problem with name in biomass_indicators, here we have to use typ_name
-  if (!all(colnames(biomass_indicators)%in%
+#FIXME there is a problem with name in data_xls, here we have to use typ_name
+  if (!all(colnames(data_xls)%in%
           c("eel_typ_name", "eel_year","eel_value","eel_missvaluequal","eel_emu_nameshort",
               "eel_cou_code", "eel_lfs_code", "eel_hty_code","eel_area_division",
               "eel_qal_id", "eel_qal_comment","eel_comment","eel_datasource"))) 
     cat(str_c("problem in column names :",
-            paste(colnames(biomass_indicators)[!colnames(biomass_indicators)%in%
+            paste(colnames(data_xls)[!colnames(data_xls)%in%
                         c("eel_typ_name", "eel_year","eel_value","eel_missvaluequal","eel_emu_nameshort",
                             "eel_cou_code", "eel_lfs_code", "eel_hty_code","eel_area_division",
                             "eel_qal_id", "eel_qal_comment","eel_comment","eel_datasource")],collapse= " & "),
             " file = ",file,"\n")) 
   
-  if (nrow(biomass_indicators)>0){
+  if (nrow(data_xls)>0){
     
     
     ###### typ_name #############
     
     # should not have any missing value
-    data_error= rbind(data_error, check_missing(dataset=biomass_indicators,
+    data_error= rbind(data_error, check_missing(dataset=data_xls,
             column="eel_typ_name",
             country=country))
     
     #  eel_typ_id should be one of 13 B0_kg  14 Bbest_kg  15 Bcurrent_kg
-    data_error= rbind(data_error, check_values(dataset=biomass_indicators,
+    data_error= rbind(data_error, check_values(dataset=data_xls,
             column="eel_typ_name",
             country=country,
             values=c("Bcurrent_kg","Bbest_kg","B0_kg")))
@@ -680,12 +675,12 @@ load_biomass<-function(path,datasource){
     ###### eel_year ##############
     
     # should not have any missing value
-    data_error= rbind(data_error, check_missing(dataset=biomass_indicators,
+    data_error= rbind(data_error, check_missing(dataset=data_xls,
             column="eel_year",
             country=country))
     
     # should be a numeric
-    data_error= rbind(data_error, check_type(dataset=biomass_indicators,
+    data_error= rbind(data_error, check_type(dataset=data_xls,
             column="eel_year",
             country=country,
             type="numeric"))
@@ -695,7 +690,7 @@ load_biomass<-function(path,datasource){
     # can have missing values if eel_missingvaluequal is filled (check later)
     
     # should be numeric
-    data_error= rbind(data_error, check_type(dataset=biomass_indicators,
+    data_error= rbind(data_error, check_type(dataset=data_xls,
             column="eel_value",
             country=country,
             type="numeric"))
@@ -704,16 +699,16 @@ load_biomass<-function(path,datasource){
     
     #check that there are data in missvaluequal only when there are missing value (NA) is eel_value
     # and also that no missing values are provided without a comment is eel_missvaluequa
-    data_error= rbind(data_error, check_missvaluequal(dataset=biomass_indicators,
+    data_error= rbind(data_error, check_missvaluequal(dataset=data_xls,
             country=country))
     
     ###### eel_emu_name ##############
     
-    data_error= rbind(data_error, check_missing(dataset=biomass_indicators,
+    data_error= rbind(data_error, check_missing(dataset=data_xls,
             column="eel_emu_nameshort",
             country=country))
     
-    data_error= rbind(data_error, check_type(dataset=biomass_indicators,
+    data_error= rbind(data_error, check_type(dataset=data_xls,
             column="eel_emu_nameshort",
             country=country,
             type="character"))
@@ -721,76 +716,76 @@ load_biomass<-function(path,datasource){
     ###### eel_cou_code ##############
     
     # must be a character
-    data_error= rbind(data_error, check_type(dataset=biomass_indicators,
+    data_error= rbind(data_error, check_type(dataset=data_xls,
             column="eel_cou_code",
             country=country,
             type="character"))
     
     # should not have any missing value
-    data_error= rbind(data_error, check_missing(dataset=biomass_indicators,
+    data_error= rbind(data_error, check_missing(dataset=data_xls,
             column="eel_cou_code",
             country=country))
     
     # must only have one value
-    data_error= rbind(data_error, check_unique(dataset=biomass_indicators,
+    data_error= rbind(data_error, check_unique(dataset=data_xls,
             column="eel_cou_code",
             country=country))
     
     ###### eel_lfs_code ##############
     
-    data_error= rbind(data_error, check_type(dataset=biomass_indicators,
+    data_error= rbind(data_error, check_type(dataset=data_xls,
             column="eel_lfs_code",
             country=country,
             type="character"))
     
     # should not have any missing value
-    data_error= rbind(data_error, check_missing(dataset=biomass_indicators,
+    data_error= rbind(data_error, check_missing(dataset=data_xls,
             column="eel_lfs_code",
             country=country))
     
     # should only correspond to the following list
-    data_error= rbind(data_error, check_values(dataset=biomass_indicators,
+    data_error= rbind(data_error, check_values(dataset=data_xls,
             column="eel_lfs_code",
             country=country,
             values=c("G","GY","Y","YS","S","OG","QG","AL")))
     
     ###### eel_hty_code ##############
-    data_error= rbind(data_error, check_type(dataset=biomass_indicators,
+    data_error= rbind(data_error, check_type(dataset=data_xls,
             column="eel_hty_code",
             country=country,
             type="character"))
     
     # should not have any missing value
-    data_error= rbind(data_error,check_missing(dataset=biomass_indicators,
+    data_error= rbind(data_error,check_missing(dataset=data_xls,
             column="eel_hty_code",
             country=country))
     
     # should only correspond to the following list
-    data_error= rbind(data_error,check_values(dataset=biomass_indicators,
+    data_error= rbind(data_error,check_values(dataset=data_xls,
             column="eel_hty_code",
             country=country,
             values=c("F","T","C","MO", "AL")))
     
     ###### eel_area_div ##############
     
-    data_error= rbind(data_error,check_type(dataset=biomass_indicators,
+    data_error= rbind(data_error,check_type(dataset=data_xls,
             column="eel_area_division",
             country=country,
             type="character"))
     
     # should not have any missing value
-    data_error= rbind(data_error,check_missing(dataset=biomass_indicators,
+    data_error= rbind(data_error,check_missing(dataset=data_xls,
             column="eel_area_division",
             country=country))
     
     # the dataset ices_division should have been loaded there
-    data_error= rbind(data_error,check_values(dataset=biomass_indicators,
+    data_error= rbind(data_error,check_values(dataset=data_xls,
             column="eel_area_division",
             country=country,
             values=ices_division))
     
   }
-  return(invisible(list(data=biomass_indicators,error=data_error,the_metadata=the_metadata)))
+  return(invisible(list(data=data_xls,error=data_error,the_metadata=the_metadata)))
 }
 
 
@@ -828,28 +823,24 @@ load_mortality_rates<-function(path,datasource){
   # read the mortality_rates sheet
   cat("mortality_rates \n")
   
-  mortality_rates<-read_excel(
+  data_xls<-read_excel(
       path=path,
       sheet=3,
       skip=0)
-  if ("typ_name"%in% colnames( mortality_rates))
-    mortality_rates<-mortality_rates%>%rename(eel_typ_name=typ_name)
-  country =as.character(mortality_rates[1,6]) #country code is in the 6th column
-  # correcting an error with typ_name
-  colnames(mortality_rates)[3] <-"eel_value"
-  colnames(mortality_rates)[4] <-"eel_missvaluequal"
+   data_xls <- correct_me(data_xls)
+  country =as.character(data_xls[1,6]) #country code is in the 6th column
   # check for the file integrity, only 10 column in this file
-  if (ncol(mortality_rates)!=10) cat(str_c("number column wrong ",file,"\n"))
+  if (ncol(data_xls)!=10) cat(str_c("number column wrong ",file,"\n"))
   # check column names
-  mortality_rates$eel_qal_id <- NA
-  mortality_rates$eel_qal_comment <- NA
-  mortality_rates$eel_datasource <- datasource
-  if (!all(colnames(mortality_rates)%in%
+  data_xls$eel_qal_id <- NA
+  data_xls$eel_qal_comment <- NA
+  data_xls$eel_datasource <- datasource
+  if (!all(colnames(data_xls)%in%
           c("eel_typ_name", "eel_year","eel_value", "eel_missvaluequal","eel_emu_nameshort",
               "eel_cou_code", "eel_lfs_code", "eel_hty_code","eel_area_division",
               "eel_qal_id", "eel_qal_comment","eel_comment","eel_datasource"))) 
     cat(str_c("problem in column names :",            
-            paste(colnames(mortality_rates)[!colnames(mortality_rates)%in%
+            paste(colnames(data_xls)[!colnames(data_xls)%in%
                         c("eel_typ_name", "eel_year","eel_value","eel_missvaluequal","eel_emu_nameshort",
                             "eel_cou_code", "eel_lfs_code", "eel_hty_code","eel_area_division",
                             "eel_qal_id", "eel_qal_comment","eel_comment","eel_datasource")],collapse= " & "),
@@ -857,17 +848,17 @@ load_mortality_rates<-function(path,datasource){
             file,"\n"))     
   
   
-  if (nrow(mortality_rates)>0){
+  if (nrow(data_xls)>0){
     
     ###### eel_typ_name ##############
     
     # should not have any missing value
-    data_error= rbind(data_error, check_missing(dataset=mortality_rates,
+    data_error= rbind(data_error, check_missing(dataset=data_xls,
             column="eel_typ_name",
             country=country))
     
     #  eel_typ_id should be 17 to 25
-    data_error= rbind(data_error, check_values(dataset=mortality_rates,
+    data_error= rbind(data_error, check_values(dataset=data_xls,
             column="eel_typ_name",
             country=country,
             values=c("SumA","SumF","SumH", "sumF_com", "SumF_rec", "SumH_hydro", "SumH_habitat", "SumH_stocking", "SumH_other"))) 
@@ -875,12 +866,12 @@ load_mortality_rates<-function(path,datasource){
     ###### eel_year ##############
     
     # should not have any missing value
-    data_error= rbind(data_error, check_missing(dataset=mortality_rates,
+    data_error= rbind(data_error, check_missing(dataset=data_xls,
             column="eel_year",
             country=country))
     
     # should be a numeric
-    data_error= rbind(data_error, check_type(dataset=mortality_rates,
+    data_error= rbind(data_error, check_type(dataset=data_xls,
             column="eel_year",
             country=country,
             type="numeric"))
@@ -890,12 +881,12 @@ load_mortality_rates<-function(path,datasource){
     # can have missing values if eel_missingvaluequa is filled (check later)
     
     # should be numeric
-    data_error= rbind(data_error, check_type(dataset=mortality_rates,
+    data_error= rbind(data_error, check_type(dataset=data_xls,
             column="eel_value",
             country=country,
             type="numeric"))
     
-    data_error= rbind(data_error, check_positive(dataset=mortality_rates,
+    data_error= rbind(data_error, check_positive(dataset=data_xls,
             column="eel_value",
             country=country))
     
@@ -903,16 +894,16 @@ load_mortality_rates<-function(path,datasource){
     
     #check that there are data in missvaluequal only when there are missing value (NA) is eel_value
     # and also that no missing values are provided without a comment is eel_missvaluequa
-    data_error= rbind(data_error, check_missvaluequal(dataset=mortality_rates,
+    data_error= rbind(data_error, check_missvaluequal(dataset=data_xls,
             country=country))
     
     ###### eel_emu_name ##############
     
-    data_error= rbind(data_error, check_missing(dataset=mortality_rates,
+    data_error= rbind(data_error, check_missing(dataset=data_xls,
             column="eel_emu_nameshort",
             country=country))
     
-    data_error= rbind(data_error, check_type(dataset=mortality_rates,
+    data_error= rbind(data_error, check_type(dataset=data_xls,
             column="eel_emu_nameshort",
             country=country,
             type="character"))
@@ -920,76 +911,76 @@ load_mortality_rates<-function(path,datasource){
     ###### eel_cou_code ##############
     
     # must be a character
-    data_error= rbind(data_error, check_type(dataset=mortality_rates,
+    data_error= rbind(data_error, check_type(dataset=data_xls,
             column="eel_cou_code",
             country=country,
             type="character"))
     
     # should not have any missing value
-    data_error= rbind(data_error, check_missing(dataset=mortality_rates,
+    data_error= rbind(data_error, check_missing(dataset=data_xls,
             column="eel_cou_code",
             country=country))
     
     # must only have one value
-    data_error= rbind(data_error, check_unique(dataset=mortality_rates,
+    data_error= rbind(data_error, check_unique(dataset=data_xls,
             column="eel_cou_code",
             country=country))
     
     ###### eel_lfs_code ##############
     
-    data_error= rbind(data_error, check_type(dataset=mortality_rates,
+    data_error= rbind(data_error, check_type(dataset=data_xls,
             column="eel_lfs_code",
             country=country,
             type="character"))
     
     # should not have any missing value
-    data_error= rbind(data_error, check_missing(dataset=mortality_rates,
+    data_error= rbind(data_error, check_missing(dataset=data_xls,
             column="eel_lfs_code",
             country=country))
     
     # should only correspond to the following list
-    data_error= rbind(data_error, check_values(dataset=mortality_rates,
+    data_error= rbind(data_error, check_values(dataset=data_xls,
             column="eel_lfs_code",
             country=country,
             values=c("G","GY","Y","YS","S","OG","QG","AL")))
     
     ###### eel_hty_code ##############
-    data_error= rbind(data_error, check_type(dataset=mortality_rates,
+    data_error= rbind(data_error, check_type(dataset=data_xls,
             column="eel_hty_code",
             country=country,
             type="character"))
     
     # should not have any missing value
-    data_error= rbind(data_error,check_missing(dataset=mortality_rates,
+    data_error= rbind(data_error,check_missing(dataset=data_xls,
             column="eel_hty_code",
             country=country))
     
     # should only correspond to the following list
-    data_error= rbind(data_error,check_values(dataset=mortality_rates,
+    data_error= rbind(data_error,check_values(dataset=data_xls,
             column="eel_hty_code",
             country=country,
             values=c("F","T","C","MO", "AL")))
     
     ###### eel_area_div ##############
     
-    data_error= rbind(data_error,check_type(dataset=mortality_rates,
+    data_error= rbind(data_error,check_type(dataset=data_xls,
             column="eel_area_division",
             country=country,
             type="character"))
     
     # should not have any missing value
-    data_error= rbind(data_error,check_missing(dataset=mortality_rates,
+    data_error= rbind(data_error,check_missing(dataset=data_xls,
             column="eel_area_division",
             country=country))
     
     # the dataset ices_division should have been loaded there
-    data_error= rbind(data_error,check_values(dataset=mortality_rates,
+    data_error= rbind(data_error,check_values(dataset=data_xls,
             column="eel_area_division",
             country=country,
             values=ices_division))
     
   }
-  return(invisible(list(data=mortality_rates,error=data_error,the_metadata=the_metadata)))
+  return(invisible(list(data=data_xls,error=data_error,the_metadata=the_metadata)))
 }
 
 
@@ -1026,41 +1017,40 @@ load_mortality_silver<-function(path,datasource){
   # read the mortality_silver sheet
   cat("mortality_silver \n")
   
-  mortality_silver<-read_excel(
+  data_xls<-read_excel(
       path=path,
       sheet=3,
       skip=0)
-  country =as.character(mortality_silver[1,6]) #country code is in the 6th column
-  if ("typ_name"%in% colnames(mortality_silver))
-    mortality_silver<-mortality_silver%>%rename(eel_typ_name=typ_name)
+  country =as.character(data_xls[1,6]) #country code is in the 6th column
+   data_xls <- correct_me(data_xls)
   # check for the file integrity, only 10 column in this file
-  if (ncol(mortality_silver)!=10) cat(str_c("number column wrong ",file,"\n"))
+  if (ncol(data_xls)!=10) cat(str_c("number column wrong ",file,"\n"))
   # check column names
-  mortality_silver$eel_qal_id <- NA
-  mortality_silver$eel_qal_comment <- NA
-  mortality_silver$eel_datasource <- datasource
-  if (!all(colnames(mortality_silver)%in%
+  data_xls$eel_qal_id <- NA
+  data_xls$eel_qal_comment <- NA
+  data_xls$eel_datasource <- datasource
+  if (!all(colnames(data_xls)%in%
           c("eel_typ_name", "eel_year","eel_value", "eel_missvaluequal","eel_emu_nameshort",
               "eel_cou_code", "eel_lfs_code", "eel_hty_code","eel_area_division",
               "eel_qal_id", "eel_qal_comment","eel_comment","eel_datasource"))) 
     cat(str_c("problem in column names :",            
-            paste(colnames(mortality_silver)[!colnames(mortality_silver)%in%
+            paste(colnames(data_xls)[!colnames(data_xls)%in%
                         c("eel_typ_name", "eel_year","eel_value","eel_missvaluequal","eel_emu_nameshort",
                             "eel_cou_code", "eel_lfs_code", "eel_hty_code","eel_area_division",
                             "eel_qal_id", "eel_qal_comment","eel_comment","eel_datasource")],collapse= " & "),
             " file =",
             file,"\n"))     
-  if (nrow(mortality_silver)>0){
+  if (nrow(data_xls)>0){
     
     ###### eel_typ_name ##############
     
     # should not have any missing value
-    data_error= rbind(data_error, check_missing(dataset=mortality_silver,
+    data_error= rbind(data_error, check_missing(dataset=data_xls,
             column="eel_typ_name",
             country=country))
     
     #  eel_typ_id should be 17 to 25
-    data_error= rbind(data_error, check_values(dataset=mortality_silver,
+    data_error= rbind(data_error, check_values(dataset=data_xls,
             column="eel_typ_name",
             country=country,
             values=c("SEE_com", "SEE_rec", "SEE_hydro", "SEE_habitat", "SEE_stocking", "SEE_other"))) 
@@ -1068,12 +1058,12 @@ load_mortality_silver<-function(path,datasource){
     ###### eel_year ##############
     
     # should not have any missing value
-    data_error= rbind(data_error, check_missing(dataset=mortality_silver,
+    data_error= rbind(data_error, check_missing(dataset=data_xls,
             column="eel_year",
             country=country))
     
     # should be a numeric
-    data_error= rbind(data_error, check_type(dataset=mortality_silver,
+    data_error= rbind(data_error, check_type(dataset=data_xls,
             column="eel_year",
             country=country,
             type="numeric"))
@@ -1083,12 +1073,12 @@ load_mortality_silver<-function(path,datasource){
     # can have missing values if eel_missingvaluequa is filled (check later)
     
     # should be numeric
-    data_error= rbind(data_error, check_type(dataset=mortality_silver,
+    data_error= rbind(data_error, check_type(dataset=data_xls,
             column="eel_value",
             country=country,
             type="numeric"))
     
-    data_error =rbind(data_error, check_positive(dataset = mortality_silver,
+    data_error =rbind(data_error, check_positive(dataset = data_xls,
             column="eel_value",
             country=country))
     
@@ -1097,16 +1087,16 @@ load_mortality_silver<-function(path,datasource){
     
     #check that there are data in missvaluequal only when there are missing value (NA) is eel_value
     # and also that no missing values are provided without a comment is eel_missvaluequa
-    data_error= rbind(data_error, check_missvaluequal(dataset=mortality_silver,
+    data_error= rbind(data_error, check_missvaluequal(dataset=data_xls,
             country=country))
     
     ###### eel_emu_name ##############
     
-    data_error= rbind(data_error, check_missing(dataset=mortality_silver,
+    data_error= rbind(data_error, check_missing(dataset=data_xls,
             column="eel_emu_nameshort",
             country=country))
     
-    data_error= rbind(data_error, check_type(dataset=mortality_silver,
+    data_error= rbind(data_error, check_type(dataset=data_xls,
             column="eel_emu_nameshort",
             country=country,
             type="character"))
@@ -1114,80 +1104,80 @@ load_mortality_silver<-function(path,datasource){
     ###### eel_cou_code ##############
     
     # must be a character
-    data_error= rbind(data_error, check_type(dataset=mortality_silver,
+    data_error= rbind(data_error, check_type(dataset=data_xls,
             column="eel_cou_code",
             country=country,
             type="character"))
     
     # should not have any missing value
-    data_error= rbind(data_error, check_missing(dataset=mortality_silver,
+    data_error= rbind(data_error, check_missing(dataset=data_xls,
             column="eel_cou_code",
             country=country))
     
     # must only have one value
-    data_error= rbind(data_error, check_unique(dataset=mortality_silver,
+    data_error= rbind(data_error, check_unique(dataset=data_xls,
             column="eel_cou_code",
             country=country))
     
     ###### eel_lfs_code ##############
     
-    data_error= rbind(data_error, check_type(dataset=mortality_silver,
+    data_error= rbind(data_error, check_type(dataset=data_xls,
             column="eel_lfs_code",
             country=country,
             type="character"))
     
     # should not have any missing value
-    data_error= rbind(data_error, check_missing(dataset=mortality_silver,
+    data_error= rbind(data_error, check_missing(dataset=data_xls,
             column="eel_lfs_code",
             country=country))
     
     # should only correspond to the following list
-    data_error= rbind(data_error, check_values(dataset=mortality_silver,
+    data_error= rbind(data_error, check_values(dataset=data_xls,
             column="eel_lfs_code",
             country=country,
             values=c("G","GY","Y","YS","S","OG","QG","AL")))
     
     ###### eel_hty_code ##############
-    data_error= rbind(data_error, check_type(dataset=mortality_silver,
+    data_error= rbind(data_error, check_type(dataset=data_xls,
             column="eel_hty_code",
             country=country,
             type="character"))
     
     # should not have any missing value
-    data_error= rbind(data_error,check_missing(dataset=mortality_silver,
+    data_error= rbind(data_error,check_missing(dataset=data_xls,
             column="eel_hty_code",
             country=country))
     
     # should only correspond to the following list
-    data_error= rbind(data_error,check_values(dataset=mortality_silver,
+    data_error= rbind(data_error,check_values(dataset=data_xls,
             column="eel_hty_code",
             country=country,
             values=c("F","T","C","MO", "AL")))
     
     ###### eel_area_div ##############
     
-    data_error= rbind(data_error,check_type(dataset=mortality_silver,
+    data_error= rbind(data_error,check_type(dataset=data_xls,
             column="eel_area_division",
             country=country,
             type="character"))
     
     # should not have any missing value
-    data_error= rbind(data_error,check_missing(dataset=mortality_silver,
+    data_error= rbind(data_error,check_missing(dataset=data_xls,
             column="eel_area_division",
             country=country))
     
     # the dataset ices_division should have been loaded there
-    data_error= rbind(data_error,check_values(dataset=mortality_silver,
+    data_error= rbind(data_error,check_values(dataset=data_xls,
             column="eel_area_division",
             country=country,
             values=ices_division))
     
   }
-  return(invisible(list(data=mortality_silver,error=data_error,the_metadata=the_metadata)))
+  return(invisible(list(data=data_xls,error=data_error,the_metadata=the_metadata)))
 }
 
 
-load_potential_available_habitat<-function(path,datasource){
+load_data_<-function(path,datasource){
   data_error <- data.frame(nline = NULL, error_message = NULL)
   the_metadata<-list()
   dir<-dirname(path)
@@ -1215,48 +1205,44 @@ load_potential_available_habitat<-function(path,datasource){
   #---------------------- mortality_silver sheet ---------------------------------------------
   
   # read the mortality_silver sheet
-  cat("potential_available_habitat \n")
+  cat("Mortality in silver equivalents \n")
   
-  potential_available_habitat<-read_excel(
+  data_xls<-read_excel(
       path=path,
       sheet=3,
       skip=0)
-  country =as.character(potential_available_habitat[1,6]) #country code is in the 6th column
-  colnames(potential_available_habitat)[3] <-"eel_value"
-  colnames(potential_available_habitat)[4] <-"eel_missvaluequal"
-  # correcting an error with typ_name
-  if ("typ_name"%in% colnames(potential_available_habitat))
-    potential_available_habitat<-potential_available_habitat%>%rename(eel_typ_name=typ_name)
+  country =as.character(data_xls[1,6]) #country code is in the 6th column
+  data_xls <- correct_me(data_xls)
   # check for the file integrity, only 10 column in this file
-  if (ncol(potential_available_habitat)!=10) cat(str_c("number column wrong ",file,"\n"))
+  if (ncol(data_xls)!=10) cat(str_c("number column wrong ",file,"\n"))
   # check column names
-  potential_available_habitat$eel_qal_id <- NA
-  potential_available_habitat$eel_qal_comment <- NA
-  potential_available_habitat$eel_datasource <- datasource
+  data_xls$eel_qal_id <- NA
+  data_xls$eel_qal_comment <- NA
+  data_xls$eel_datasource <- datasource
   
-  if (!all(colnames(potential_available_habitat)%in%
+  if (!all(colnames(data_xls)%in%
           c("eel_typ_name", "eel_year","eel_value", "eel_missvaluequal","eel_emu_nameshort",
               "eel_cou_code", "eel_lfs_code", "eel_hty_code","eel_area_division",
               "eel_qal_id", "eel_qal_comment","eel_comment","eel_datasource"))) 
     cat(str_c("problem in column names :",            
-            paste(colnames(potential_available_habitat)[!colnames(potential_available_habitat)%in%
+            paste(colnames(data_xls)[!colnames(data_xls)%in%
                         c("eel_typ_name", "eel_year","eel_value","eel_missvaluequal","eel_emu_nameshort",
                             "eel_cou_code", "eel_lfs_code", "eel_hty_code","eel_area_division",
                             "eel_qal_id", "eel_qal_comment","eel_comment","eel_datasource")],collapse= " & "),
             " file =",
             file,"\n")) 
   
-  if (nrow(potential_available_habitat)>0){
+  if (nrow(data_xls)>0){
     
     ###### eel_typ_name ##############
     
     # should not have any missing value
-    data_error= rbind(data_error, check_missing(dataset=potential_available_habitat,
+    data_error= rbind(data_error, check_missing(dataset=data_xls,
             column="eel_typ_name",
             country=country))
     
     #  eel_typ_id should be 16
-    data_error= rbind(data_error, check_values(dataset=potential_available_habitat,
+    data_error= rbind(data_error, check_values(dataset=data_xls,
             column="eel_typ_name",
             country=country,
             values=c("Potential_availabe_habitat_production_ha"))) 
@@ -1264,12 +1250,12 @@ load_potential_available_habitat<-function(path,datasource){
     ###### eel_year ##############
     
     # should not have any missing value
-    data_error= rbind(data_error, check_missing(dataset=potential_available_habitat,
+    data_error= rbind(data_error, check_missing(dataset=data_xls,
             column="eel_year",
             country=country))
     
     # should be a numeric
-    data_error= rbind(data_error, check_type(dataset=potential_available_habitat,
+    data_error= rbind(data_error, check_type(dataset=data_xls,
             column="eel_year",
             country=country,
             type="numeric"))
@@ -1279,12 +1265,12 @@ load_potential_available_habitat<-function(path,datasource){
     # can have missing values if eel_missingvaluequa is filled (check later)
     
     # should be numeric
-    data_error= rbind(data_error, check_type(dataset=potential_available_habitat,
+    data_error= rbind(data_error, check_type(dataset=data_xls,
             column="eel_value",
             country=country,
             type="numeric"))
     
-    data_error =rbind(data_error, check_positive(dataset = potential_available_habitat,
+    data_error =rbind(data_error, check_positive(dataset = data_xls,
             column="eel_value",
             country=country))
     
@@ -1293,16 +1279,16 @@ load_potential_available_habitat<-function(path,datasource){
     
     #check that there are data in missvaluequal only when there are missing value (NA) is eel_value
     # and also that no missing values are provided without a comment is eel_missvaluequa
-    data_error= rbind(data_error, check_missvaluequal(dataset=potential_available_habitat,
+    data_error= rbind(data_error, check_missvaluequal(dataset=data_xls,
             country=country))
     
     ###### eel_emu_name ##############
     
-    data_error= rbind(data_error, check_missing(dataset=potential_available_habitat,
+    data_error= rbind(data_error, check_missing(dataset=data_xls,
             column="eel_emu_nameshort",
             country=country))
     
-    data_error= rbind(data_error, check_type(dataset=potential_available_habitat,
+    data_error= rbind(data_error, check_type(dataset=data_xls,
             column="eel_emu_nameshort",
             country=country,
             type="character"))
@@ -1310,18 +1296,18 @@ load_potential_available_habitat<-function(path,datasource){
     ###### eel_cou_code ##############
     
     # must be a character
-    data_error= rbind(data_error, check_type(dataset=potential_available_habitat,
+    data_error= rbind(data_error, check_type(dataset=data_xls,
             column="eel_cou_code",
             country=country,
             type="character"))
     
     # should not have any missing value
-    data_error= rbind(data_error, check_missing(dataset=potential_available_habitat,
+    data_error= rbind(data_error, check_missing(dataset=data_xls,
             column="eel_cou_code",
             country=country))
     
     # must only have one value
-    data_error= rbind(data_error, check_unique(dataset=potential_available_habitat,
+    data_error= rbind(data_error, check_unique(dataset=data_xls,
             column="eel_cou_code",
             country=country))
     
@@ -1330,18 +1316,18 @@ load_potential_available_habitat<-function(path,datasource){
     
     
     ###### eel_hty_code ##############
-    data_error= rbind(data_error, check_type(dataset=potential_available_habitat,
+    data_error= rbind(data_error, check_type(dataset=data_xls,
             column="eel_hty_code",
             country=country,
             type="character"))
     
     # should not have any missing value
-    data_error= rbind(data_error,check_missing(dataset=potential_available_habitat,
+    data_error= rbind(data_error,check_missing(dataset=data_xls,
             column="eel_hty_code",
             country=country))
     
     # should only correspond to the following list
-    data_error= rbind(data_error,check_values(dataset=potential_available_habitat,
+    data_error= rbind(data_error,check_values(dataset=data_xls,
             column="eel_hty_code",
             country=country,
             values=c("F","T","C","MO", "AL")))
@@ -1351,5 +1337,20 @@ load_potential_available_habitat<-function(path,datasource){
     
     
   }
-  return(invisible(list(data=potential_available_habitat,error=data_error,the_metadata=the_metadata)))
+  return(invisible(list(data=data_xls,error=data_error,the_metadata=the_metadata)))
+}
+############################
+# function called to correct data call errors 2018
+###########################
+correct_me <- function(data){
+  if ("eel_value_number"%in%colnames(data)){
+    # release file, different structure, do nothing
+  } else {
+      colnames(data)[3] <-"eel_value"
+      colnames(data)[4] <-"eel_missvaluequal"
+      # correcting an error with typ_name
+  }
+  if ("typ_name"%in% colnames(data))
+    data<-data%>%rename(eel_typ_name=typ_name)  
+  return(data)
 }
