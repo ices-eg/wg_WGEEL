@@ -9,6 +9,7 @@
 # the shiny is launched from shiny_data_integration/shiny thus we need the ../
 
 if(!exists("load_library")) source("../../utilities/load_library.R")
+load_library(c("shiny", "leaflet", "reshape2", "dplyr","shinyWidgets"))
 if(is.null(options()$sqldf.RPostgreSQL.user)) source("../../database_interaction/database_connection.R")
 source("../../database_interaction/database_reference.R")
 source("../../database_interaction/database_data.R")
@@ -49,16 +50,15 @@ filter_data = function(dataset, life_stage = NULL, country = NULL, year_range = 
 data_to_display = function(input)
 {
 	if(input$dataset == "precodata"){
-		to_display = filter_data("precodata", life_stage = NULL, country = input$country, year_range = input$yearmin:input$yearmax)
+		to_display = filter_data("precodata", life_stage = NULL, country = input$country, year_range = input$year[1]:input$year[2])
 		to_display = to_display[order(to_display$cou_order, to_display$eel_year), ]
 	} else {
-		if(dim(filter_data(input$dataset, life_stage = input$lfs, country = input$country, year_range = input$yearmin:input$yearmax))[1] == 0) # handle empty dataframe
+		if(dim(filter_data(input$dataset, life_stage = input$lfs, country = input$country, year_range = input$year[1]:input$year[2]))[1] == 0) # handle empty dataframe
 		{
-			to_display = filter_data(input$dataset, life_stage = input$lfs, country = input$country, year_range = input$yearmin:input$yearmax)
+			to_display = filter_data(input$dataset, life_stage = input$lfs, country = input$country, year_range = input$year[1]:input$year[2])
 		} else {
-			to_display = dcast(filter_data(input$dataset, life_stage = input$lfs, country = input$country, year_range = input$yearmin:input$yearmax), eel_year~eel_cou_code, value.var = "eel_value", options = list(dom = 'lftp', pageLength = 10))
-		}
-		
+			to_display = dcast(filter_data(input$dataset, life_stage = input$lfs, country = input$country, year_range = input$year[1]:input$year[2]), eel_year~eel_cou_code, value.var = "eel_value", options = list(dom = 'lftp', pageLength = 10))
+		}		
 		#ordering the column accordign to country order
 		country_to_order = names(to_display)[-1]
 		n_order = order(country_ref$cou_order[match(country_to_order, country_ref$cou_code)])

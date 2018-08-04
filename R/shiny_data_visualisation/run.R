@@ -10,7 +10,7 @@ shiny_data_wd<-"C:\\Users\\cedric.briand\\Documents\\GitHub\\WGEEL\\R\\shiny_dat
 userlocal<-"postgres"
 passwordlocal<-"postgres"
 source("R/utilities/load_library.R")
-load_library(c("shiny", "leaflet", "reshape2", "dplyr"))
+
 
 runApp(shiny_data_wd, port = 5555,launch.browser = TRUE)
 

@@ -18,7 +18,7 @@ server = function(input, output) {
 	output$table = DT::renderDataTable(DT::datatable(data_to_display(input), rownames = FALSE))
 	
 	output$downloadData <- downloadHandler(
-			filename = function() { paste(input$dataset,'_', input$yearmin, '-', input$yearmax, '.csv', sep='') },
+			filename = function() { paste(input$dataset,'_', input$year[1], '-', input$year[2], '.csv', sep='') },
 			content = function(file) {
 #				if(input$dataset == "precodata"){
 #					write.csv(filter_data("precodata", life_stage = NULL, country = input$country, year_range = input$yearmin:input$yearmax), file, row.names = FALSE)
@@ -33,10 +33,12 @@ server = function(input, output) {
 	# TODO: switch graph according to dataset selected
 	output$graph = renderPlot(trace_precodiag(filter_data("precodata", life_stage = NULL, country = input$country, year_range = input$yearmin:input$yearmax)))
 	
-	output$downloadGraph <- downloadHandler(
-			filename = function() { paste('precodiag_', input$yearmin, '-', input$yearmax, '.png', sep='') },
-			content = function(file) {
-				ggsave(file, trace_precodiag(filter_data("precodata", life_stage = NULL, country = input$country, year_range = input$yearmin:input$yearmax)), device = "png", width = 28, height = 23, units = "cm")
-			}
-	)
+    output$downloadGraph <- downloadHandler(filename = function() {
+              paste("precodiag_", input$year[1], "-", input$year[2], ".png", sep = "")
+        }, content = function(file) {
+              ggsave(file, trace_precodiag(filter_data("precodata", life_stage = NULL, country = input$country, 
+                              year_range = input$year[1]:input$year[2])), device = "png", width = 28, height = 23, 
+                      units = "cm")
+        })
+    
 }
