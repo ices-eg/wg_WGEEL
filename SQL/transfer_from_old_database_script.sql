@@ -532,7 +532,7 @@ insert into ref.tr_typeseries_typ(typ_name,typ_description,typ_uni_code) values 
 insert into ref.tr_typeseries_typ(typ_name,typ_description,typ_uni_code) values ('SEE_stocking' , 'Silver eel equivalents relating to stocking activity','kg');
 insert into ref.tr_typeseries_typ(typ_name,typ_description,typ_uni_code) values ('SEE_other' , 'Silver eel equivalents from `other` sources','kg');
 
-
+update ref.tr_typeseries_typ set (typ_name,typ_description)=('SumH_release','Mortality due to releases (Stocking, assisted migration, Trap & Transport) summed over the age groups in the stock (rate: negative rate indicates positive effect of stocking)') where typ_name='SumH_stocking';
 /*
  * https://github.com/ices-eg/WGEEL/issues/7
  * find ices divisions
