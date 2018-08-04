@@ -42,6 +42,8 @@ load_catch_landings<-function(path,datasource){
       sheet =3,
       skip=0)
   country=as.character(catch_landings[1,6])
+  if ("typ_name"%in% colnames( catch_landings))
+    catch_landings<-catch_landings%>%rename(eel_typ_name=typ_name)
 # check for the file integrity
   if (ncol(catch_landings)!=13) cat(str_c("number column wrong ",file,"\n"))
   catch_landings$eel_datasource <- datasource
@@ -250,7 +252,8 @@ load_release<-function(path,datasource){
       sheet =3,
       skip=0)
   country=as.character(release[1,7])
-  
+  if ("typ_name"%in% colnames( release))
+    release<-release%>%rename(eel_typ_name=typ_name)
   # check for the file integrity
   if (ncol(release)!=11) cat(str_c("number column wrong ",file,"\n"))
   release$eel_qal_id <- NA
@@ -483,7 +486,8 @@ load_aquaculture<-function(path,datasource){
       skip=0)
   
   country =as.character(aquaculture[1,6])
-  
+  if ("typ_name"%in% colnames( aquaculture))
+    aquaculture<-catch_landings%>%rename(eel_typ_name=typ_name)
   # check for the file integrity
   if (ncol(aquaculture)!=10) cat(str_c("number column wrong ",file,"\n"))
   aquaculture$eel_qal_id <- NA
@@ -635,7 +639,8 @@ load_biomass<-function(path,datasource){
       sheet=3,
       skip=0)
   # correcting an error with typ_name
-  biomass_indicators<-biomass_indicators%>%rename(eel_typ_name=typ_name)
+  if ("typ_name"%in% colnames(biomass_indicators))
+    biomass_indicators<-biomass_indicators%>%rename(eel_typ_name=typ_name)
   country =as.character(biomass_indicators[1,6]) #country code is in the 6th column
   
   # check for the file integrity, only 11 column in this file
@@ -827,12 +832,12 @@ load_mortality_rates<-function(path,datasource){
       path=path,
       sheet=3,
       skip=0)
+  if ("typ_name"%in% colnames( mortality_rates))
+    mortality_rates<-mortality_rates%>%rename(eel_typ_name=typ_name)
   country =as.character(mortality_rates[1,6]) #country code is in the 6th column
   # correcting an error with typ_name
   colnames(mortality_rates)[3] <-"eel_value"
   colnames(mortality_rates)[4] <-"eel_missvaluequal"
-  if ("typ_name"%in% colnames( mortality_rates))
-          mortality_rates<-mortality_rates%>%rename(eel_typ_name=typ_name)
   # check for the file integrity, only 10 column in this file
   if (ncol(mortality_rates)!=10) cat(str_c("number column wrong ",file,"\n"))
   # check column names
@@ -1026,7 +1031,8 @@ load_mortality_silver<-function(path,datasource){
       sheet=3,
       skip=0)
   country =as.character(mortality_silver[1,6]) #country code is in the 6th column
-  
+  if ("typ_name"%in% colnames(mortality_silver))
+    mortality_silver<-mortality_silver%>%rename(eel_typ_name=typ_name)
   # check for the file integrity, only 10 column in this file
   if (ncol(mortality_silver)!=10) cat(str_c("number column wrong ",file,"\n"))
   # check column names
@@ -1219,7 +1225,8 @@ load_potential_available_habitat<-function(path,datasource){
   colnames(potential_available_habitat)[3] <-"eel_value"
   colnames(potential_available_habitat)[4] <-"eel_missvaluequal"
   # correcting an error with typ_name
-  potential_available_habitat<-potential_available_habitat%>%rename(eel_typ_name=typ_name)
+  if ("typ_name"%in% colnames(potential_available_habitat))
+    potential_available_habitat<-potential_available_habitat%>%rename(eel_typ_name=typ_name)
   # check for the file integrity, only 10 column in this file
   if (ncol(potential_available_habitat)!=10) cat(str_c("number column wrong ",file,"\n"))
   # check column names
