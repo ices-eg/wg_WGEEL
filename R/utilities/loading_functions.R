@@ -830,6 +830,7 @@ load_mortality_rates<-function(path,datasource){
   country =as.character(mortality_rates[1,6]) #country code is in the 6th column
   # correcting an error with typ_name
   colnames(mortality_rates)[3] <-"eel_value"
+  colnames(mortality_rates)[4] <-"eel_missvaluequal"
   if ("typ_name"%in% colnames( mortality_rates))
           mortality_rates<-mortality_rates%>%rename(eel_typ_name=typ_name)
   # check for the file integrity, only 10 column in this file
