@@ -1,8 +1,8 @@
 # Main script to launch shiny app
 # 
-# Author: lbeaulaton
+# Authors: lbeaulaton Cedric
 ###############################################################################
-
+require("shiny")
 source("R/utilities/set_directory.R")
 #set_directory("shiny_data") # shiny_data_wd will be created
 shiny_data_wd<-"C:\\Users\\cedric.briand\\Documents\\GitHub\\WGEEL\\R\\shiny_data_visualisation\\shiny"
@@ -12,5 +12,5 @@ passwordlocal<-"postgres"
 source("R/utilities/load_library.R")
 
 
-runApp(shiny_data_wd, port = 5555,launch.browser = TRUE)
+runApp(shiny_data_wd, launch.browser = TRUE)
 
