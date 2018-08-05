@@ -1,7 +1,6 @@
 # TODO create a variable for all the functions name cou_cod: load country and ordered 
 source("R/utilities/load_library.R")
-load_library(c("ggplot2", "reshape", "rJava","reshape2", "stringr", "dplyr", "lattice", "RColorBrewer", "grid"))
-
+load_library(c("ggplot2", "rJava","reshape2", "stringr", "dplyr", "lattice", "RColorBrewer", "grid"))
 source("R/utilities/set_directory.R")
 set_directory("reference")
 
@@ -34,7 +33,8 @@ landings_complete$eel_hty_code = factor(landings_complete$eel_hty_code, levels =
 
 
 
-# work only on commercial fisheries and yellow + silver
+# filter using entry
+filter_raw_landings <- function()
 com_landings = landings_complete[landings_complete$typ_name == "com_landings_kg" & landings_complete$eel_lfs_code == "G", ] 
 #landings_habitat = com_landings  %>% filter(eel_year>1995 & eel_year<CY) %>% group_by(eel_year, eel_hty_code, eel_cou_code) %>% dplyr::summarize(eel_value=sum(eel_value,na.rm=TRUE))
 landings = as.data.frame(com_landings %>% group_by(eel_year, eel_cou_code,eel_lfs_code) %>% dplyr::summarize(eel_value=sum(eel_value,na.rm=TRUE)))

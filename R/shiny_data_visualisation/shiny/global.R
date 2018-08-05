@@ -20,49 +20,66 @@ lfs_code_base = extract_ref("Life stage")
 country_ref = extract_ref("Country")
 country_ref = country_ref[order(country_ref$cou_order), ]
 country_ref$cou_code = factor(country_ref$cou_code, levels = country_ref$cou_code[order(country_ref$cou_order)], ordered = TRUE)
+
+habitat_ref = extract_ref("Habitat type")
 landings = extract_data("Landings")
 aquaculture = extract_data("Aquaculture")
 stocking = extract_data("Release")
 precodata = extract_precodata()
-
+CY = as.numeric(format(Sys.time(), "%Y"))
 #########################
 # functions
 ########################
 filter_data = function(dataset, life_stage = NULL, country = NULL, year_range = 1900:2100)
 {
-	if(is.null(country)) country = as.character(country_ref$cou_code)
-	if(is.null(life_stage)) life_stage = as.character(lfs_code_base$lfs_code)
-	
-	if(dataset == "precodata")
-	{
-		extracted_data = dplyr::filter(get(dataset), eel_cou_code%in% country, eel_year %in% year_range)
-	} else {
-		extracted_data = dplyr::filter(get(dataset), eel_lfs_code%in%life_stage, eel_cou_code%in% country, eel_year %in% year_range)%>%dplyr::group_by(eel_cou_code,eel_year)%>%
-			summarize(eel_value=sum(eel_value,na.rm=TRUE))
-	}
-	
-	extracted_data = merge(extracted_data, country_ref[, c("cou_code", "cou_order")], by.x = "eel_cou_code", by.y = "cou_code")
-	
-	extracted_data = extracted_data[order(extracted_data$cou_order), ]
-	return(extracted_data)
+  if(is.null(country)) country = as.character(country_ref$cou_code)
+  if(is.null(life_stage)) life_stage = as.character(lfs_code_base$lfs_code)
+  
+  if(dataset == "precodata")
+  {
+	filtered_data = dplyr::filter(get(dataset), eel_cou_code%in% country, eel_year %in% year_range)
+  } else {
+	filtered_data = dplyr::filter(get(dataset), eel_lfs_code%in%life_stage, eel_cou_code%in% country, eel_year %in% year_range) 
+  }
+  
+  filtered_data = merge(filtered_data, country_ref[, c("cou_code", "cou_order")], by.x = "eel_cou_code", by.y = "cou_code")
+  filtered_data = merge(filtered_data, habitat_ref[, c("hty_code", "hty_description")], by.x = "eel_hty_code", by.y = "hty_code")
+  filtered_data = filtered_data[order(filtered_data$cou_order), ]
+  filtered_data$eel_hty_code = factor(filtered_data$eel_hty_code, levels = rev(c("MO", "C", "T", "F", "AL")))
+  
+  return(filtered_data)
 }
 
-data_to_display = function(input)
-{
-	if(input$dataset == "precodata"){
-		to_display = filter_data("precodata", life_stage = NULL, country = input$country, year_range = input$year[1]:input$year[2])
-		to_display = to_display[order(to_display$cou_order, to_display$eel_year), ]
-	} else {
-		if(dim(filter_data(input$dataset, life_stage = input$lfs, country = input$country, year_range = input$year[1]:input$year[2]))[1] == 0) # handle empty dataframe
-		{
-			to_display = filter_data(input$dataset, life_stage = input$lfs, country = input$country, year_range = input$year[1]:input$year[2])
-		} else {
-			to_display = dcast(filter_data(input$dataset, life_stage = input$lfs, country = input$country, year_range = input$year[1]:input$year[2]), eel_year~eel_cou_code, value.var = "eel_value", options = list(dom = 'lftp', pageLength = 10))
-		}		
-		#ordering the column accordign to country order
-		country_to_order = names(to_display)[-1]
-		n_order = order(country_ref$cou_order[match(country_to_order, country_ref$cou_code)])
-		to_display = to_display[, c(1, n_order+1)]
-	}
-	return(to_display)
-}
+group_data <- function(dataset, geo="country", habitat=FALSE){
+  if (!geo %in% c("country","emu")) stop ("geo should be country or emu")
+  if (habitat){
+    # filtered by habitat
+    if (geo=="country") {
+      # by country
+      dataset %>%
+          dplyr::group_by(eel_cou_code,eel_year,eel_hty_code) %>%
+	      summarize(eel_value=sum(eel_value,na.rm=TRUE))
+    } else {
+      # by emu
+      dataset %>%
+          dplyr::group_by(eel_emu_name,eel_year,eel_hty_code) %>%
+	      summarize(eel_value=sum(eel_value,na.rm=TRUE))
+      
+    }
+  } else {
+    # not filtered by habitat
+    if (geo=="country") {
+      # by country
+      dataset %>%
+          dplyr::group_by(eel_cou_code,eel_year) %>%
+	      summarize(eel_value=sum(eel_value,na.rm=TRUE))
+    } else {
+      # by emu
+      dataset %>%
+          dplyr::group_by(eel_emu_name,eel_year) %>%
+	      summarize(eel_value=sum(eel_value,na.rm=TRUE))
+      
+    }
+  }
+  
+

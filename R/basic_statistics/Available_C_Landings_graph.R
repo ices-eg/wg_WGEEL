@@ -1,6 +1,6 @@
-# TODO create a variable for all the functions name cou_cod: load country and ordered 
+
 source("R/utilities/load_library.R")
-load_library(c("ggplot2", "reshape", "rJava","reshape2", "stringr", "dplyr", "lattice", "RColorBrewer", "grid"))
+load_library(c("ggplot2", "rJava","reshape2", "stringr", "dplyr", "lattice", "RColorBrewer", "grid"))
 
 source("R/utilities/set_directory.R")
 set_directory("reference")
@@ -33,8 +33,7 @@ com_landings = landings_complete[landings_complete$typ_name == "com_landings_kg"
 landings = as.data.frame(com_landings %>% group_by(eel_year, eel_cou_code) %>% dplyr::summarize(eel_value=sum(eel_value,na.rm=TRUE)))
 colnames(landings)<-c("year","country","landings")
 
-# excluding the current year and year before 1945
-#landings = landings[landings$year != CY & landings$year>=1945,]
+
 landings$country = as.factor(landings$country)
 
 #########################
