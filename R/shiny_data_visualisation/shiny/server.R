@@ -15,20 +15,34 @@ server = function(input, output, session) {
   # A reactive dataset
   data<-reactiveValues()
   
- 
+  
   ###################
   # fill in all countries
   ###################
   observe({
-            if(input$selectall == 0) return(NULL) 
-            else updateCheckboxGroupInput(session,"country","All:",
-                  choices=country_ref$cou_code,selected=country_ref$cou_code, inline = TRUE)
-        })
+        if(input$deselectall == 0) return(NULL) 
+        else updateCheckboxGroupInput(session,"country","Country",
+              choices=country_ref$cou_code,selected=NULL, inline = TRUE)
+      })
   
   
-  ##############
-  # table
-  #############
+  #####################
+  # table text input
+  #####################
+  output$"table_description"<-renderUI({
+        if (input$dataset %in% c("aquaculture","landings")) {
+          text <-  paste("<p align='left'>Value in ton",'<br/>',
+              "to download this, use the excel button <p>'")
+        } else text =""
+        HTML(
+            paste(
+                h4(paste0("Table for :", input$dataset)),
+                text
+            )) 
+      }) 
+  #####################
+# table 
+  #####################
   output$table = DT::renderDataTable({
         filtered_data <- filter_data(input$dataset, 
             life_stage = input$lfs, 
@@ -36,20 +50,24 @@ server = function(input, output, session) {
             habitat = input$habitat,
             year_range = input$year[1]:input$year[2])
         # do not group by habitat or lfs
-        grouped_data <-group_data(filtered_data,geo=input$geo,habitat=FALSE,lfs=FALSE)        
-        table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value")  	
+        grouped_data <-group_data(filtered_data,geo=input$geo,habitat=FALSE,lfs=FALSE)
+        if (input$dataset %in% c("aquaculture","landings")) {
+          fun.agg<-function(X){round(sum(X)/1000)}
+        } else fun.agg <- sum
+        table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)  	
         #ordering the column accordign to country order
         country_to_order = names(table)[-1]
         n_order = order(country_ref$cou_order[match(country_to_order, country_ref$cou_code)])
         table = table[, c(1, n_order+1)]
         DT::datatable(table, 
             rownames = FALSE,
-            extensions = "Buttons",
+            extensions = "Buttons",            
             option=list(
+                order=list(0,"asc"),
+                pageLength = 10,
                 columnDefs = list(list(className = 'dt-center', targets = 1:(n_order+1))),
                 searching = FALSE, # no filtering options
-                lengthMenu=list(c(5,20,50,-1),c("5","20","50","All")),
-                order=list(1,"asc"),
+                lengthMenu=list(c(5,10,30,-1),c("5","10","30","All")),                
                 dom= "Bltip", # de gauche a droite button left f, t tableau, i informaiton (showing..), p pagination
                 buttons=list(
                     list(extend="excel",
@@ -58,57 +76,84 @@ server = function(input, output, session) {
       })      
   
   
-
+  
   
   ######################################"
   # GRAPH
   ######################################
   observeEvent(input$dataset, {
-        filtered_data<-data$filtered_data
-        grouped_data<-data$grouped_data
         switch(input$dataset,
             "aquaculture"={
               
             },
             "landings"={
-
-              # download the data + transform into tonnes + create new names for the habitat  
+              filtered_data <- filter_data(input$dataset, 
+                  life_stage = input$lfs, 
+                  country = input$country, 
+                  habitat = input$habitat,
+                  year_range = input$year[1]:input$year[2])
               
-#              landings_complete$eel_value<-as.numeric(grouped_data$eel_value) / 1000
-#              landings_complete$eel_hty_code = factor(landings_complete$eel_hty_code, levels = rev(c("MO", "C", "T", "F", "AL")))
-#              landings = as.data.frame(com_landings %>% group_by(eel_year, eel_cou_code,eel_lfs_code) %>% dplyr::summarize(eel_value=sum(eel_value,na.rm=TRUE)))
-#              colnames(landings)<-c("year","country","lfs","landings")
-#              landings$country = as.factor(landings$country)
-#              landings$lfs = as.factor(landings$lfs)
-#              
-#              landings$year = as.numeric(as.character(landings$year))
-#              
-              output<-renderUI(
-                  div( span(
+              output$switch_landings_graph<-renderUI(
+                  div(span(
                           radioButtons(inputId="landings_graph_type", label="Graph type:",
                               choices=c(
                                   "Raw and reconstructed combined"="combined",
                                   "Available Data"="available",
                                   "Raw landings per habitat average"="average_habitat",
-                                  "Raw landings per habitat sum"="sum_habitat",)   
+                                  "Raw landings per habitat sum"="sum_habitat")   
                           ),
                           materialSwitch(
-                                 inputId = "habitat",
-                                 label = "By habitat", 
-                                  value = FALSE,
-                                 status = "primary"
+                              inputId = "habitat_switch",
+                              label = "By habitat", 
+                              value = FALSE,
+                              status = "primary"
                           ),
                           materialSwitch(
-                              inputId = "lifestage",
+                              inputId = "lifestage_switch",
                               label = "By lifestage", 
                               value = FALSE,
                               status = "primary"
                           )
-                      
-                      )
-                  
-                  )
-              )
+                      )))
+              if (is.null(input$landings_graph_type)) return(NULL)
+              switch(input$landings_graph_type,"combined"={
+                    output$"graph_description"<-renderUI({
+                          text0 <- "Predictions on log transformed values by glm. '<br/>'"
+                          if (input$geo== "emu") {
+                            text1 <- "Emu not supported for this graph, switching to country. '<br/>'"
+                          } else {
+                            text1 <-""
+                          }
+                          if (length(input$lfs)>1) {
+                            text2 <- "Attention you are using a prediction model on values grouped on several stages."
+                          } else {
+                            text2 <-""
+                          }
+                          text <-  paste("<p align='left'>", text0, text1, text2, "<p>'")
+                          HTML(
+                              paste(
+                                  h4(paste0("Combined Landings Graph for :", input$dataset)),
+                                  text
+                              )) 
+                        }) 
+                    
+                    # do not group by habitat or lfs, there might be several lfs selected but all will be grouped
+                    landings <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE)
+                    landings$eel_value <- as.numeric(landings$eel_value) / 1000
+                    landings$eel_cou_code = as.factor(landings$eel_cou_code)                       
+                    pred_landings <- predict_missing_values(landings, verbose=TRUE) 
+                    title <- paste("Landings for : ", paste(input$lfs,collapse="+"))
+                    output$graph <-  renderPlot({
+                          combined_graph(dataset=pred_landings,title=title,col=color_countries, country_ref=country_ref)
+                        })
+                  }, "available"= {
+                    
+                  }, "average_habitat"={
+                    
+                  }, "sum_habitat" = {
+                    
+                  })
+              
               
             }, 
             "stocking"={

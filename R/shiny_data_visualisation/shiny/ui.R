@@ -18,19 +18,23 @@ ui = fluidPage(
         checkboxGroupInput("habitat", "Habitat", c(habitat_ref$hty_code,"NA"), selected = c(habitat_ref$hty_code,"NA"), inline = TRUE),				
         radioButtons("geo", "Geographical level", c("country", "emu"), selected = "country", inline = TRUE),
 #				sliderInput("coef", "Size of circles", value = 5, min = 0, max = 100, step = 5, sep = ""),
-		checkboxGroupInput("country", "Country", country_ref$cou_code, inline = TRUE),
-        actionLink("selectall","Select All") 
+		checkboxGroupInput("country", "Country", country_ref$cou_code, selected= country_ref$cou_code, inline = TRUE),
+        actionLink("deselectall","Deselect All") 
 	),
 	
 	mainPanel(                
-		tabsetPanel(#						tabPanel("Map", leafletOutput("map", height = 800)),
-			tabPanel("Table",                      
+		tabsetPanel(#						
+			tabPanel("Table",
+                htmlOutput("table_description"),
                 DT::dataTableOutput("table")),
 			tabPanel("Graph", 
                 uiOutput("switch_landings_graph"),
+                htmlOutput("graph_description"),
                 plotOutput("graph")
             ),
-			tabPanel("Map", textOutput("map"))
+			tabPanel("Map", 
+			         leafletOutput("map", height = 800)
+			         )
 		)
 	)
 )
