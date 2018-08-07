@@ -3,29 +3,23 @@
 # Authors: lbeaulaton Cedric
 ###############################################################################
 
-ui = dashboardPage(title="ICES Data Integration",
-    dashboardHeader(title=div(img(src="iceslogo.png"),"wgeel")),
+ui = dashboardPage(title="ICES Data Visualisation",
+    dashboardHeader(title=div(img(src="iceslogo.png")," wgeel")),
     dashboardSidebar(
         # A button that stops the application
         extendShinyjs(text = jscode, functions = c("closeWindow")),
         actionButton("close", "Close window"),       
 	    sidebarMenu(
             menuItem("Table",tabName= "table_tab", icon= icon("table")),
-            menuItem("Graph", tabName="graph_tab", icon=icon("bar-chart-o"),
-                menuSubItem("graph",  tabName="graph"),
-                menuSubItem("plot2", tabName="plot2")),
-            menuItem("Map", tabName='map_tab',icon= icon("globe")), 
-            radioGroupButtons(
-                inputId = "dataset",
-                label = "Dataset",
-                choices = c("landings","aquaculture", "release", "precodata"),
-                status = "primary",
-                checkIcon = list(
-                    yes = icon("ok", 
-                        lib = "glyphicon"),
-                    no = icon("remove",
-                        lib = "glyphicon"))
-            ),       
+            menuItem("Landings", tabName="landings_tab", icon=icon("bar-chart-o"),
+                menuSubItem("Raw + cor",  tabName="combined_landings_tab"),
+                menuSubItem("Raw",  tabName="raw_landings_tab"),               
+                menuSubItem("Available Data",tabName="available_landings_tab"),
+                menuSubItem("Habitat average",tabName="average_landings_habitat_tab"),
+                menuSubItem("Habitat sum",tabName="sum_landings_habitat_tab")
+            ),
+            menuItem("Map", tabName='map_tab',icon= icon("globe")),  
+            menuItem("Preco-diag", tabName='precodata_tab',icon= icon("dashboard",lib="glyphicon")),            
             sliderTextInput("year", "Year", 
                 choices=seq(from=min(landings$eel_year),to= as.numeric(format(Sys.time(), "%Y")),by=1),
                 selected=c(1980,as.numeric(format(Sys.time(), "%Y")))),
@@ -56,8 +50,8 @@ ui = dashboardPage(title="ICES Data Integration",
 		    pickerInput(
                 inputId = "country",
                 label =  "Country", 
-                choices = country_ref$cou_code, 
-                selected= country_ref$cou_code, 
+                choices = levels(country_ref$cou_code), 
+                selected= levels(country_ref$cou_code), 
                 multiple = TRUE,
                 options = list(
                     `actions-box` = TRUE))
@@ -66,25 +60,53 @@ ui = dashboardPage(title="ICES Data Integration",
         useShinyjs(), # to be able to use shiny js                           
 		tabItems(
             tabItem(tabName="table_tab",
-                htmlOutput("table_description"),
-                DT::dataTableOutput("table")),
-			tabItem(tabName="graph", 
+                box(id="box_table",
+                    title="Table per country",
+                    status="primary",
+                    solidHeader=TRUE,
+                    collapsible=TRUE,
+                    width=NULL,
+                    fluidRow(column(width=4,
+                            radioGroupButtons(
+                                inputId = "dataset",
+                                label = "Dataset",
+                                choices = c("landings","aquaculture", "release", "precodata"),
+                                status = "primary",
+                                checkIcon = list(
+                                    yes = icon("ok", 
+                                        lib = "glyphicon"),
+                                    no = icon("remove",
+                                        lib = "glyphicon"))
+                            )), 
+                        column(width=6,htmlOutput("table_description"))),
+                    DT::dataTableOutput("table"))),
+			tabItem(tabName="combined_landings_tab", 
+                fluidRow(                    
+                    column(width=10,plotOutput("graph_combined",height="800px")),
+                    column(width=2,htmlOutput("graph_combined_description"),
+                        actionBttn(
+                               inputId = "combined_button",
+                               label = NULL,
+                               style = "material-circle", 
+                                color = "success",
+                                icon("refresh",lib="glyphicon")
+                        ),                              
+                        downloadBttn(
+                            outputId = "download_graph_combined",
+                            label = "D", 
+                            style = "material-circle", ,
+                            color = "danger")
+                    )
+                )
+            ),
+            tabItem(tabName="raw_landings_tab", 
                 box(id="box_graph",
                     title="Landings",
                     status="primary",
                     solidHeader=TRUE,
                     collapsible=TRUE,
                     width=NULL,
-                    fluidRow(
-                        column(width=4,               
-                            radioButtons(inputId="landings_graph_type", label="Graph type:",
-                                choices=c(
-                                    "Raw and reconstructed combined"="combined",
-                                    "Available Data"="available",
-                                    "Raw landings per habitat average"="average_habitat",
-                                    "Raw landings per habitat sum"="sum_habitat")   
-                            )),
-                        column(width=2, materialSwitch(
+                    fluidRow(column(width=2, materialSwitch(
                                 inputId = "habitat_switch",
                                 label = "By habitat", 
                                 value = FALSE,
@@ -96,18 +118,30 @@ ui = dashboardPage(title="ICES Data Integration",
                                 value = FALSE,
                                 status = "primary"
                             ))
-                    )),
+                    ))),
+            tabItem(tabName="available_landings_tab"),
+            tabItem(tabName="average_landings_habitat_tab"),
+            tabItem(tabName="sum_landings_habitat_tab"),
+            tabItem(tabName="precodata_tab",
                 fluidRow(                    
-                    column(width=8,plotOutput("graph")),
-                    column(width=4,htmlOutput("graph_description"),
+                    column(width=8,plotOutput("precodata_graph",height="800px")),
+                    column(width=4, 
+                        actionBttn(
+                            inputId = "precodata_button",
+                            label = NULL,
+                            style = "material-circle", 
+                            color = "success",
+                            icon("refresh",lib="glyphicon")
+                        ),        
                         downloadBttn(
-                            outputId = "downloadGraph",
-                            label = "download", 
-                            style = "gradient",
-                            color = "primary")
-                                   )
-                               )
+                            outputId = "download_precodata_graph",
+                            label = "D",
+                            style = "material-circle", ,
+                            color = "danger")
+                    )
+                )            
             ),
+            
 			tabItem(tabName="map_tab", 
 			    leafletOutput("map", height = 800)
 			)

@@ -45,7 +45,8 @@ CY = as.numeric(format(Sys.time(), "%Y"))
 #' @details ...
 #' @examples 
 #' \dontrun{
-#' filter_data(dataset='landings',life_stage = NULL, country = NULL, habitat=NULL, year_range=2010:1011)
+#' filter_data(dataset='landings',life_stage = NULL, country = NULL, habitat=NULL, year_range=2010:2018)
+#' filter_data(dataset = "precodata",life_stage = NULL, country = levels(country_ref$cou_code),year_range=2000:2018) 
 #' }
 #' @seealso 
 #'  \code{\link[dplyr]{filter}}
@@ -55,18 +56,20 @@ filter_data = function(dataset, life_stage = NULL, country = NULL, habitat=NULL,
 {
   data. <- get(dataset)
   if(is.null(country)) country = as.character(country_ref$cou_code)
-  if(is.null(life_stage)) life_stage = as.character(lfs_code_base$lfs_code)
-  if (is.null(habitat)) {
-    data.$eel_hty_code[is.na(data.$eel_hty_code)]<-"NA"
-    habitat=c(habitat_ref$hty_code, "NA")
-  }    
+
   if(dataset == "precodata"){
 	filtered_data = dplyr::filter(data., eel_cou_code%in% country, eel_year %in% year_range)
   } else {
+    if(is.null(life_stage)) life_stage = as.character(lfs_code_base$lfs_code)   
+    if (is.null(habitat)) {
+          data.$eel_hty_code[is.na(data.$eel_hty_code)]<-"NA"
+          habitat=c(habitat_ref$hty_code, "NA")
+      }   
 	filtered_data = dplyr::filter(data., eel_lfs_code%in%life_stage, eel_cou_code%in% country, eel_year %in% year_range, eel_hty_code %in% habitat) 
+    filtered_data$eel_hty_code = factor(filtered_data$eel_hty_code, levels = rev(c("MO", "C", "T", "F", "AL", "NA")))
+    
   }
-  filtered_data$eel_hty_code = factor(filtered_data$eel_hty_code, levels = rev(c("MO", "C", "T", "F", "AL", "NA")))
-  
+   
   return(filtered_data)
 }
 #' @title function to group data
