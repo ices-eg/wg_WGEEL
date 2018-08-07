@@ -16,15 +16,6 @@ server = function(input, output, session) {
   data<-reactiveValues()
   
   
-  ###################
-  # fill in all countries
-  ###################
-  observe({
-        if(input$deselectall == 0) return(NULL) 
-        else updateCheckboxGroupInput(session,"country","Country",
-              choices=country_ref$cou_code,selected=NULL, inline = TRUE)
-      })
-  
   
   #####################
   # table text input
@@ -93,28 +84,7 @@ server = function(input, output, session) {
                   habitat = input$habitat,
                   year_range = input$year[1]:input$year[2])
               
-              output$switch_landings_graph<-renderUI(
-                  div(span(
-                          radioButtons(inputId="landings_graph_type", label="Graph type:",
-                              choices=c(
-                                  "Raw and reconstructed combined"="combined",
-                                  "Available Data"="available",
-                                  "Raw landings per habitat average"="average_habitat",
-                                  "Raw landings per habitat sum"="sum_habitat")   
-                          ),
-                          materialSwitch(
-                              inputId = "habitat_switch",
-                              label = "By habitat", 
-                              value = FALSE,
-                              status = "primary"
-                          ),
-                          materialSwitch(
-                              inputId = "lifestage_switch",
-                              label = "By lifestage", 
-                              value = FALSE,
-                              status = "primary"
-                          )
-                      )))
+                  
               if (is.null(input$landings_graph_type)) return(NULL)
               switch(input$landings_graph_type,"combined"={
                     output$"graph_description"<-renderUI({
@@ -146,6 +116,13 @@ server = function(input, output, session) {
                     output$graph <-  renderPlot({
                           combined_graph(dataset=pred_landings,title=title,col=color_countries, country_ref=country_ref)
                         })
+                    output$downloadGraph <- downloadHandler(filename = function() {
+                                  paste("precodiag_", input$year[1], "-", input$year[2], ".png", sep = "")
+                              }, content = function(file) {
+                                  ggsave(file, combined_graph(dataset=pred_landings,title=title,col=color_countries, country_ref=country_ref),
+                                       device = "png", width = 28, height = 23, 
+                                          units = "cm")
+                              })
                   }, "available"= {
                     
                   }, "average_habitat"={
@@ -156,7 +133,7 @@ server = function(input, output, session) {
               
               
             }, 
-            "stocking"={
+            "release"={
               
             },  
             "precodata"={
@@ -172,13 +149,7 @@ server = function(input, output, session) {
         )# end switch
       })
   
-  output$downloadGraph <- downloadHandler(filename = function() {
-        paste("precodiag_", input$year[1], "-", input$year[2], ".png", sep = "")
-      }, content = function(file) {
-        ggsave(file, trace_precodiag(filter_data("precodata", life_stage = NULL, country = input$country, 
-                    year_range = input$year[1]:input$year[2])), device = "png", width = 28, height = 23, 
-            units = "cm")
-      })
+
   ######################################
   # MAP
   ######################################
