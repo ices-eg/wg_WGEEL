@@ -20,13 +20,11 @@
 #'     RColorBrewer::brewer.pal(8,"Accent"),
 #'     RColorBrewer::brewer.pal(7, "Dark2"))
 #' color_countries = setNames(values,cou_cod)
-#' combined_graph(dataset=pred_landings,title=title,col=color_countries, country_ref=country_ref)
+#' combined_landings_graph(dataset=pred_landings,title=title,col=color_countries, country_ref=country_ref)
 #' }
-#' @rdname combined_graph
+#' @rdname combined_landings_graph
 #' @export 
-
-
-combined_graph<-function (dataset, title=NULL , col , country_ref)
+combined_landings_graph<-function (dataset, title=NULL , col , country_ref)
 { 
   
   dataset<-rename(dataset,"Country"="eel_cou_code")
@@ -68,4 +66,57 @@ combined_graph<-function (dataset, title=NULL , col , country_ref)
   
 }
 
+
+
+#' @title Graph for combined landings (including predictions)
+#' @description The function uses ggplot
+#' @param dataset The landings dataset
+#' @param title A title for the graph, Default: NULL
+#' @param col A named vector of colors, Default: color_countries
+#' @param country_ref The country referential ordered from North to South, Default: country_ref
+#' @return A ggplot
+#' @examples 
+#' \dontrun{
+#' setwd(shiny_data_wd)
+#' source(paste0(shiny_data_wd,"\\global.R"))
+#' filtered_data <- filter_data("landings", 
+#'    life_stage = NULL, 
+#'    country = NULL, 
+#'     habitat = NULL,
+#'     eel_typ_id= 4,
+#'     year_range = 1980:2018)        
+#' # do not group by habitat or lfs, there might be several lfs selected but all will be grouped
+#' landings <-group_data(filtered_data,geo="country",
+#'     habitat=TRUE,
+#'     lfs=TRUE)
+#' landings$eel_value <- as.numeric(landings$eel_value) / 1000
+#' landings$eel_cou_code = as.factor(landings$eel_cou_code)  
+
+
+#' title <- paste("Landings for : ", paste(c("Y","S"),collapse="+"))
+#' # colors
+#' country_ref = extract_ref("Country")
+#' country_ref = country_ref[order(country_ref$cou_order), ]
+#' country_ref$cou_code = factor(country_ref$cou_code, levels = country_ref$cou_code[order(country_ref$cou_order)], ordered = TRUE)
+#' 
+#' values=c(RColorBrewer::brewer.pal(12,"Set3"),
+#'     RColorBrewer::brewer.pal(12, "Paired"), 
+#'     RColorBrewer::brewer.pal(8,"Accent"),
+#'     RColorBrewer::brewer.pal(7, "Dark2"))
+#' color_countries = setNames(values,cou_cod)
+#' raw_landings_graph(dataset=landings,title=title,col=color_countries, country_ref=country_ref)
+#' }
+#' @rdname raw_landings_graph
+#' @export 
+raw_landings_graph<-function (dataset, title=NULL,col=color_countries, country_ref=country_ref)
+{ 
+  dataset<-aggregate(eel_value~eel_year+eel_cou_code,dataset, sum)
+  dataset<-rename(dataset,"Country"="eel_cou_code")
+  dataset$Country<-factor(dataset$Country,levels=country_ref$cou_code,ordered=TRUE)
+  g_raw_Rlandings <- ggplot(dataset) + geom_col(aes(x=eel_year,y=eel_value,fill=Country), show.legend = FALSE, position='stack')+
+          ggtitle(title) + xlab("year") + ylab("Landings (tons)")+
+          scale_fill_manual(values=col)+
+          theme_bw()  
+  return(g_raw_Rlandings)  
+}
 

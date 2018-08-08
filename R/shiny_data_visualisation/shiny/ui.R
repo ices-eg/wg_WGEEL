@@ -57,7 +57,7 @@ ui = dashboardPage(title="ICES Data Visualisation",
                     `actions-box` = TRUE))
 	    )),	
 	dashboardBody(
-        useShinyjs(), # to be able to use shiny js                           
+        useShinyjs(), # to be able to use shiny js      
 		tabItems(
             tabItem(tabName="table_tab",
                 box(id="box_table",
@@ -85,18 +85,30 @@ ui = dashboardPage(title="ICES Data Visualisation",
                     column(width=10,plotOutput("graph_combined",height="800px")),
                     column(width=2,htmlOutput("graph_combined_description"),
                         actionBttn(
-                               inputId = "combined_button",
-                               label = NULL,
-                               style = "material-circle", 
-                                color = "success",
-                                icon("refresh",lib="glyphicon")
-                        ),                              
-                        downloadBttn(
-                            outputId = "download_graph_combined",
-                            label = "D", 
-                            style = "material-circle", ,
-                            color = "danger")
-                    )
+                            inputId = "combined_button",
+                            label = NULL,
+                            style = "simple", 
+                            color = "success",
+                            icon("refresh",lib="glyphicon")
+                        ),
+                        bsTooltip(id= "combined_button", #  donne le lien vers n'importe quel input ou output
+                            title = "Click to refresh / launch the graph",
+                            placement="top", # default bottom
+                            trigger="hover", # hover focus click, hover default
+                            options=NULL
+                        ),
+                        tipify(downloadButton(
+                                outputId = "downloadcombined",
+                                label = "" 
+                            #style = "material-circle",
+                            #color = "danger"
+                                        ),
+                            title = "Click to download the graph",
+                            placement="top", # default bottom
+                            trigger="hover", # hover focus click, hover default
+                            options=NULL
+                        )
+                    )                
                 )
             ),
             tabItem(tabName="raw_landings_tab", 
@@ -107,18 +119,56 @@ ui = dashboardPage(title="ICES Data Visualisation",
                     collapsible=TRUE,
                     width=NULL,
                     fluidRow(column(width=2, materialSwitch(
-                                inputId = "habitat_switch",
+                                inputId = "raw_landings_habitat_switch",
                                 label = "By habitat", 
                                 value = FALSE,
                                 status = "primary"
                             )),
                         column(width=2,  materialSwitch(
-                                inputId = "lifestage_switch",
+                                inputId = "raw_landings_lifestage_switch",
                                 label = "By lifestage", 
                                 value = FALSE,
                                 status = "primary"
+                            )),
+                        column(width=2,  awesomeCheckboxGroup(
+                                inputId = "raw_landings_eel_typ_id",
+                                label = "Dataset",
+                                choices = c("com"=4,"rec"=6),
+                                selected=c("com"=4),
+                                status = "primary",
+                                inline=TRUE                                
                             ))
-                    ))),
+                    )),
+                fluidRow(                    
+                    column(width=10,plotOutput("graph_raw_landings",height="800px")),
+                    column(width=2,
+                        actionBttn(
+                            inputId = "raw_landings_button",
+                            label = NULL,
+                            style = "simple", 
+                            color = "success",
+                            icon("refresh",lib="glyphicon")
+                        ),
+                        bsTooltip(id= "raw_landings_button", #  donne le lien vers n'importe quel input ou output
+                            title = "Click to refresh / launch the graph",
+                            placement="top", # default bottom
+                            trigger="hover", # hover focus click, hover default
+                            options=NULL
+                        ),
+                        tipify(downloadButton(
+                                outputId = "download_graph_raw_landings",
+                                label = ""#, 
+                            #style = "material-circle", 
+                            #color = "danger"
+                            ),                       
+                            title = "Click to download the graph",
+                            placement="top", # default bottom
+                            trigger="hover", # hover focus click, hover default
+                            options=NULL                        
+                        )
+                    )                
+                )
+            ),
             tabItem(tabName="available_landings_tab"),
             tabItem(tabName="average_landings_habitat_tab"),
             tabItem(tabName="sum_landings_habitat_tab"),
@@ -133,11 +183,17 @@ ui = dashboardPage(title="ICES Data Visualisation",
                             color = "success",
                             icon("refresh",lib="glyphicon")
                         ),        
-                        downloadBttn(
-                            outputId = "download_precodata_graph",
-                            label = "D",
-                            style = "material-circle", ,
-                            color = "danger")
+                        tipify(downloadButton(
+                                outputId = "download_precodata_graph",
+                                label = "",
+                            #style = "material-circle", ,
+                            #color = "danger"
+                            ),
+                            title = "Click to download the graph",
+                            placement="top", # default bottom
+                            trigger="hover", # hover focus click, hover default
+                            options=NULL                        
+                        )
                     )
                 )            
             ),

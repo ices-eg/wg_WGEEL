@@ -1,3 +1,4 @@
+# DEPRECATED see graphs.R in shiny app
 # TODO create a variable for all the functions name cou_cod: load country and ordered 
 set_directory("reference")
 

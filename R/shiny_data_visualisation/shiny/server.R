@@ -49,7 +49,9 @@ server = function(input, output, session) {
         #ordering the column accordign to country order
         country_to_order = names(table)[-1]
         n_order = order(country_ref$cou_order[match(country_to_order, country_ref$cou_code)])
-        table = table[, c(1, n_order+1)]
+        n_order <- n_order+1
+        n_order <- c(1,n_order)
+        table = table[, n_order]
         DT::datatable(table, 
             rownames = FALSE,
             extensions = "Buttons",            
@@ -70,10 +72,10 @@ server = function(input, output, session) {
   
   
   ######################################"
-  # GRAPH
+  # combined landings
   ######################################
   get_combined_landings <- eventReactive(input$combined_button,{
-        filtered_data <- filter_data(input$dataset, 
+            filtered_data <- filter_data(input$dataset, 
             life_stage = input$lfs, 
             country = input$country, 
             habitat = input$habitat,
@@ -85,26 +87,25 @@ server = function(input, output, session) {
         pred_landings <- predict_missing_values(landings, verbose=FALSE) 
         return(pred_landings)
       })
-        
-        output$graph_combined <-  renderPlot({
-              title <- paste("Landings for : ", paste(input$lfs,collapse="+"))
-              pred_landings <- get_combined_landings()
-              combined_graph(dataset=pred_landings,title=title,col=color_countries, country_ref=country_ref)
-            })
-        
-        output$download_graph_combined <- downloadHandler(filename = function() {
-              paste("combined_landings", input$year[1], "-", input$year[2], ".png", sep = "")
-            }, content = function(file) {
-              title <- paste("Landings for : ", paste(input$lfs,collapse="+"))
-              pred_landings <- get_combined_landings()                        
-              ggsave(file, combined_graph(dataset=pred_landings,title=title,col=color_countries, country_ref=country_ref),
-                  device = "png", width = 28, height = 23, 
-                  units = "cm")
-            })
-        
-            
-        
 
+  
+  output$graph_combined <-  renderPlot({
+        title <- paste("Landings for : ", paste(input$lfs,collapse="+"))
+        pred_landings <- get_combined_landings()
+        combined_landings_graph(dataset=pred_landings,title=title,col=color_countries, country_ref=country_ref)
+      })
+  
+  output$downloadcombined <- downloadHandler(filename = function() {
+        paste("combined_landings", input$year[1], "-", input$year[2], ".png", sep = "")
+      }, content = function(file) {                        
+        ggsave(file, combined_landings_graph(dataset=get_combined_landings(),
+                title=paste("Landings for : ", paste(input$lfs,collapse="+")),
+                col=color_countries, 
+                country_ref=country_ref),
+            device = "png", width = 20, height = 14, 
+            units = "cm")
+      })
+  
   output$graph_combined_description<-renderUI({
         text0 <- "Predictions on log transformed values by glm. <br/>"
         if (input$geo== "emu") {
@@ -124,9 +125,48 @@ server = function(input, output, session) {
                 text
             )) 
       }) 
-################################
+  ######################################"
+  # raw landings
+  ######################################
+  get_raw_landings <- eventReactive(input$raw_landings_button,{
+        filtered_data <- filter_data(input$dataset, 
+            life_stage = input$lfs, 
+            country = input$country, 
+            habitat = input$habitat,
+            eel_typ_id=input$raw_landings_eel_typ_id,
+            year_range = input$year[1]:input$year[2])        
+        # eventually grouped by habitat type and lfs, if both rec and com are selected, they are summed
+        landings <-group_data(filtered_data,geo="country",
+            habitat=input$raw_landings_habitat_switch,
+            lfs=input$raw_landings_lifestage_switch)
+        landings$eel_value <- as.numeric(landings$eel_value) / 1000
+        landings$eel_cou_code = as.factor(landings$eel_cou_code)        
+         return(landings)
+      })
+  output$graph_raw_landings <-  renderPlot({
+        if (isTRUE(all.equal(input$raw_landings_eel_typ_id,c(4,6)))) title2<-"Commercial and recreational landings for " else 
+          if (input$raw_landings_eel_typ_id==4) title2 <- "Commercial landings for " else
+          if (input$raw_landings_eel_typ_id==6) title2 <- "Recreational landings for " else
+            stop ("Internal error, unexpected landings eel_typ_id, should be 4 or 6")
+        title <- paste(title2, "stages = ", paste(input$lfs,collapse="+"), " and habitat =", paste(input$habitat,collapse="+"))
+        landings <- get_raw_landings()
+        raw_landings_graph(dataset=landings,title=title,col=color_countries, country_ref=country_ref)
+      })
+  
+  output$download_graph_raw_landings <- downloadHandler(filename = function() {
+        paste("raw_landings", input$year[1], "-", input$year[2], ".png", sep = "")
+      }, content = function(file) {
+        title <- paste(title2, "stages = ", paste(input$lfs,collapse="+"), " and habitat =", paste(input$habitat,collapse="+"))
+        landings <- get_raw_landings()
+             ggsave(file, raw_landings_graph(dataset=landings,title=title,col=color_countries, country_ref=country_ref),
+            device = "png", width = 20, height = 14, 
+            units = "cm")
+      })
+  
+  
+  ################################
 # Precautionary diagram
-#################################
+  #################################
 # Take a reactive dependency on input$precodata_button, but
 # not on any of the stuff inside the function
   filter_data_reactive <- eventReactive(input$precodata_button,{
