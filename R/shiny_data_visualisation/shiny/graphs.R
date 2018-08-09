@@ -27,10 +27,10 @@
 combined_landings_graph<-function (dataset, title=NULL , col , country_ref)
 { 
   
-  dataset<-rename(dataset,"Country"="eel_cou_code")
-  
+  dataset<-rename(dataset,"Country"="eel_cou_code")  
   ### To order the table by cou_code (geographical position)
-   dataset$Country<-factor(dataset$Country,levels=country_ref$cou_code,ordered=TRUE)
+  dataset$Country<-factor(dataset$Country,levels=country_ref$cou_code,ordered=TRUE)
+  
   landings_year<-aggregate(eel_value~eel_year, dataset, sum)
   #########################
   # graph
@@ -58,11 +58,12 @@ combined_landings_graph<-function (dataset, title=NULL , col , country_ref)
   g3_grob <- ggplotGrob(g_percentage_reconstructed)
   g_combined_landings <- g_reconstructed_landings+
       annotation_custom(g3_grob, 
-                  xmin=min(dataset$eel_year), 
-                  xmax=max(dataset$eel_year), 
-                  ymin=max(landings_year$eel_value)*1.05, 
-                  ymax=max(landings_year$eel_value)*1.6)
+          xmin=min(dataset$eel_year), 
+          xmax=max(dataset$eel_year), 
+          ymin=max(landings_year$eel_value)*1.05, 
+          ymax=max(landings_year$eel_value)*1.6)
   return(g_combined_landings)
+   
   
 }
 
@@ -108,15 +109,38 @@ combined_landings_graph<-function (dataset, title=NULL , col , country_ref)
 #' }
 #' @rdname raw_landings_graph
 #' @export 
-raw_landings_graph<-function (dataset, title=NULL,col=color_countries, country_ref=country_ref)
+raw_landings_graph<-function (dataset, title=NULL,col=color_countries, country_ref=country_ref, habitat=FALSE, lfs=FALSE)
 { 
-  dataset<-aggregate(eel_value~eel_year+eel_cou_code,dataset, sum)
   dataset<-rename(dataset,"Country"="eel_cou_code")
   dataset$Country<-factor(dataset$Country,levels=country_ref$cou_code,ordered=TRUE)
-  g_raw_Rlandings <- ggplot(dataset) + geom_col(aes(x=eel_year,y=eel_value,fill=Country), show.legend = FALSE, position='stack')+
-          ggtitle(title) + xlab("year") + ylab("Landings (tons)")+
-          scale_fill_manual(values=col)+
+  
+  if (!habitat & !lfs){
+    g_raw_Rlandings <- ggplot(dataset) + geom_col(aes(x=eel_year,y=eel_value,fill=Country), show.legend = FALSE, position='stack')+
+        ggtitle(title) + xlab("year") + ylab("Landings (tons)")+
+        scale_fill_manual(values=col)+
+        theme_bw()  
+    return(g_raw_Rlandings)  
+  } else if (!habitat){
+      g_raw_Rlandings <- ggplot(dataset) + geom_col(aes(x=eel_year,y=eel_value,fill=Country), show.legend = FALSE, position='stack')+
+              ggtitle(title) + xlab("year") + ylab("Landings (tons)")+
+              scale_fill_manual(values=col)+
+              facet_wrap(~eel_lfs_code)+
+              theme_bw()  
+      return(g_raw_Rlandings)   
+  } else if (!lfs){
+      g_raw_Rlandings <- ggplot(dataset) + geom_col(aes(x=eel_year,y=eel_value,fill=Country), show.legend = FALSE, position='stack')+
+              ggtitle(title) + xlab("year") + ylab("Landings (tons)")+
+              scale_fill_manual(values=col)+
+              facet_wrap(~eel_hty_code)+
           theme_bw()  
-  return(g_raw_Rlandings)  
+      return(g_raw_Rlandings)   
+  } else {
+      g_raw_Rlandings <- ggplot(dataset) + geom_col(aes(x=eel_year,y=eel_value,fill=Country), show.legend = FALSE, position='stack')+
+              ggtitle(title) + xlab("year") + ylab("Landings (tons)")+
+              scale_fill_manual(values=col)+
+              facet_grid(eel_lfs_code~eel_hty_code)+
+        theme_bw()  
+      return(g_raw_Rlandings)     
+  }  
 }
 

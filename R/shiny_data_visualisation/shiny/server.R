@@ -133,7 +133,7 @@ server = function(input, output, session) {
             life_stage = input$lfs, 
             country = input$country, 
             habitat = input$habitat,
-            eel_typ_id=input$raw_landings_eel_typ_id,
+            typ=as.numeric(input$raw_landings_eel_typ_id),
             year_range = input$year[1]:input$year[2])        
         # eventually grouped by habitat type and lfs, if both rec and com are selected, they are summed
         landings <-group_data(filtered_data,geo="country",
@@ -144,13 +144,17 @@ server = function(input, output, session) {
          return(landings)
       })
   output$graph_raw_landings <-  renderPlot({
-        if (isTRUE(all.equal(input$raw_landings_eel_typ_id,c(4,6)))) title2<-"Commercial and recreational landings for " else 
-          if (input$raw_landings_eel_typ_id==4) title2 <- "Commercial landings for " else
-          if (input$raw_landings_eel_typ_id==6) title2 <- "Recreational landings for " else
+        if (4 %in% (input$raw_landings_eel_typ_id) & 6%in%(input$raw_landings_eel_typ_id)) title2<-"Commercial and recreational landings for " else 
+          if (4 %in% input$raw_landings_eel_typ_id) title2 <- "Commercial landings for " else
+          if (6 %in% input$raw_landings_eel_typ_id) title2 <- "Recreational landings for " else
             stop ("Internal error, unexpected landings eel_typ_id, should be 4 or 6")
         title <- paste(title2, "stages = ", paste(input$lfs,collapse="+"), " and habitat =", paste(input$habitat,collapse="+"))
         landings <- get_raw_landings()
-        raw_landings_graph(dataset=landings,title=title,col=color_countries, country_ref=country_ref)
+        raw_landings_graph(dataset=landings,title=title,
+            col=color_countries, 
+            country_ref=country_ref,
+            habitat=input$raw_landings_habitat_switch,
+            lfs=input$raw_landings_lifestage_switch)
       })
   
   output$download_graph_raw_landings <- downloadHandler(filename = function() {
