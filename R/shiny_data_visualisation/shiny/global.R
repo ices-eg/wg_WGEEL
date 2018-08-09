@@ -10,7 +10,7 @@
 
 if(!exists("load_library")) source("../../utilities/load_library.R")
 load_library(c("shiny", "leaflet", "reshape2", "dplyr","shinyWidgets","shinyjs", "RColorBrewer", "shinydashboard",
-        "shinyWidgets","shinyBS"))
+        "shinyWidgets","shinyBS","rlang"))
 jscode <- "shinyjs.closeWindow = function() { window.close(); }"
 if(is.null(options()$sqldf.RPostgreSQL.user)) source("../../database_interaction/database_connection.R")
 source("../../database_interaction/database_reference.R")
@@ -37,41 +37,64 @@ CY = as.numeric(format(Sys.time(), "%Y"))
 #' @title Filtering function
 #' @description This will filter according to user choice
 #' @param dataset A character value, one of 'landings', 'aquaculture', 'stocking', 'precodata' pre loaded in the app
+#' @param typ The type of data, 4 or 6, shiny returns a character.
 #' @param life_stage The life stage, Default: NULL
 #' @param country The country, Default: NULL
 #' @param habitat The habitat, one of c("MO", "C", "T", "F", "AL", "NA"), Default: NULL
 #' @param year_range A vector of years, Default: 1900:2100
 #' @return filtered dataset
-#' @details ...
+#' @details In a previous version the selection was done using a generated expression contraining all
+#' elements of the argument (for instance if country=NULL then country=country_ref$cou_code), to generate
+#' all possible levels. In the new, more complicated version when NULL is passed then the argument is ignored
+#' of list we pass a list of quosures which is spliced using !!!
 #' @examples 
 #' \dontrun{
 #' filter_data(dataset='landings',life_stage = NULL, country = NULL, habitat=NULL, year_range=2010:2018)
+#' filter_data(dataset='landings',typ= 6 ,life_stage = NULL, country = NULL, habitat=NULL, year_range=2010:2018)
 #' filter_data(dataset = "precodata",life_stage = NULL, country = levels(country_ref$cou_code),year_range=2000:2018) 
 #' }
 #' @seealso 
 #'  \code{\link[dplyr]{filter}}
 #' @rdname filter_data
 #' @importFrom dplyr filter
-filter_data = function(dataset, eel_typ_id=NULL, life_stage = NULL, country = NULL, habitat=NULL, year_range = 1900:2100)
+filter_data = function(dataset, typ=NULL, life_stage = NULL, country = NULL, habitat=NULL, year_range = 1900:2100)
 {
-  data. <- get(dataset)
-  if(is.null(country)) country = as.character(country_ref$cou_code)
-  
-  if(dataset == "precodata"){
-	filtered_data = dplyr::filter(data., eel_cou_code%in% country, eel_year %in% year_range)
-  } else {
-    if(is.null(life_stage)) life_stage = as.character(lfs_code_base$lfs_code)   
-    if (is.null(habitat)) {
-      data.$eel_hty_code[is.na(data.$eel_hty_code)]<-"NA"
-      habitat=c(habitat_ref$hty_code, "NA")
-    }
-    if (is.null(eel_typ_id)) eel_typ_id=unique(data.$eel_typ_id)
+  mydata <- get(dataset)
+
+  # this is the list of quosures
+  expr <- list()
+  # year is always passed
+  expr[[1]] <- rlang::quo(eel_year %in% year_range)
+  # country is passed if not null, if NULL then the dataset will not be filtered
+  i=2
+  if (!is.null(country)) {
+    expr[[i]]=rlang::quo(eel_cou_code %in% country) 
+    i=i+1
+  }  
+  if (!is.null(life_stage)) {
+    expr[[i]]=rlang::quo(eel_lfs_code%in%life_stage) 
+    i=i+1
+  }   
+  if (!is.null(habitat) & dataset != "precodata") {
+    # NA will be displayed as a data type, they are included in the shiny list of possible choices
+    mydata$eel_hty_code[is.na(mydata$eel_hty_code)]<-"NA"
+    expr[[i]]=rlang::quo(eel_hty_code %in% habitat) 
+    i=i+1
+  } 
+  if (!is.null(typ)& dataset != "precodata") {
+    expr[[i]]=rlang::quo(eel_typ_id%in% typ) 
+    i=i+1
+  }   
     
-	filtered_data = dplyr::filter(data., eel_lfs_code%in%life_stage, eel_typ_id%in% eel_typ_id, eel_cou_code%in% country, eel_year %in% year_range, eel_hty_code %in% habitat) 
-    filtered_data$eel_hty_code = factor(filtered_data$eel_hty_code, levels = rev(c("MO", "C", "T", "F", "AL", "NA")))
-  }
+  # !!! takes a list of elements and splices them into to the current call
+	filtered_data = mydata%>%dplyr::filter(!!!expr)
+    # this will retain all levels for graph
+    # filtered_data$eel_hty_code = factor(filtered_data$eel_hty_code, levels = rev(c("MO", "C", "T", "F", "AL", "NA")))
+  
   return(filtered_data)
 }
+
+
 #' @title function to group data
 #' @description Data are grouped in the simplest way (year, country) or also by habitat or life stage, 
 #' the grouping can be by emu or country
