@@ -28,7 +28,6 @@ draw_leaflet<-function(
     dataset = "landings",
     year = 2016,
     lfs_code = NULL,
-    coeff = 10,
     typ = NULL,
     map = "country"  
 ){

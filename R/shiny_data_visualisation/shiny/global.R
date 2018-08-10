@@ -63,7 +63,7 @@ country_ref$cou_code <- factor(country_ref$cou_code, levels = country_ref$cou_co
 
 landings = extract_data("Landings")
 aquaculture = extract_data("Aquaculture")
-stocking = extract_data("Release")
+release = extract_data("Release")
 precodata = extract_precodata()
 CY = as.numeric(format(Sys.time(), "%Y"))
 #########################

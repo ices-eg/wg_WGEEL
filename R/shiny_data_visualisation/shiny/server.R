@@ -189,8 +189,9 @@ server = function(input, output, session) {
 # MAP
   ######################################
   output$map = renderLeaflet( {
-	    draw_leaflet(dataset = input$dataset,
+	    draw_leaflet(dataset = input$leaflet_dataset,
 		    year = input$year[2],
+            typ=input$leaflet_eel_typ_id,
 		    lfs_code= input$lfs,		    
 		    map = input$geo)} )
 }

@@ -6,9 +6,13 @@
 ui = dashboardPage(title="ICES Data Visualisation",
     dashboardHeader(title=div(img(src="iceslogo.png")," wgeel")),
     dashboardSidebar(
-        # A button that stops the application
+        # A button that stops the application--------------------------------------------------------
+        
         extendShinyjs(text = jscode, functions = c("closeWindow")),
-        actionButton("close", "Close window"),       
+        actionButton("close", "Close window"), 
+        
+        # Elements of menu in the sidebar -----------------------------------------------------------   
+        
 	    sidebarMenu(
             menuItem("Table",tabName= "table_tab", icon= icon("table")),
             menuItem("Landings", tabName="landings_tab", icon=icon("bar-chart-o"),
@@ -18,8 +22,16 @@ ui = dashboardPage(title="ICES Data Visualisation",
                 menuSubItem("Habitat average",tabName="average_landings_habitat_tab"),
                 menuSubItem("Habitat sum",tabName="sum_landings_habitat_tab")
             ),
-            menuItem("Map", tabName='map_tab',icon= icon("globe")),  
-            menuItem("Preco-diag", tabName='precodata_tab',icon= icon("dashboard",lib="glyphicon")),            
+            menuItem("Map", tabName='map_tab',icon= icon("globe") #,
+#                menuSubItem("Landings",  tabName="leaflet_landings_tab"),
+#                menuSubItem("Releases",  tabName="leaflet_release_tab"),
+#                menuSubItem("Aquaculture",  tabName="leaflet_aquaculture_tab")
+            ),  
+            menuItem("Preco-diag", tabName='precodata_tab',icon= icon("dashboard",lib="glyphicon")),  
+            
+            # Sliders, radiobuttons and checkboxes. These will be used by the filter function to
+            # narrow down the dataset ---------------------------------------------------------------
+            
             sliderTextInput("year", "Year", 
                 choices=seq(from=min(landings$eel_year),to= as.numeric(format(Sys.time(), "%Y")),by=1),
                 selected=c(1980,as.numeric(format(Sys.time(), "%Y")))),
@@ -56,9 +68,15 @@ ui = dashboardPage(title="ICES Data Visualisation",
                 options = list(
                     `actions-box` = TRUE))
 	    )),	
+    
+    # Content of tabs -------------------------------------------------------------------------------
+    
 	dashboardBody(
         useShinyjs(), # to be able to use shiny js      
 		tabItems(
+            
+            # TABLE --------------------------------------------------------------------------------
+            
             tabItem(tabName="table_tab",
                 box(id="box_table",
                     title="Table per country",
@@ -80,6 +98,9 @@ ui = dashboardPage(title="ICES Data Visualisation",
                             )), 
                         column(width=6,htmlOutput("table_description"))),
                     DT::dataTableOutput("table"))),
+            
+            # LANDINGS ------------------------------------------------------------------------------
+            
 			tabItem(tabName="combined_landings_tab", 
                 fluidRow(                    
                     column(width=10,plotOutput("graph_combined",height="800px")),
@@ -102,7 +123,7 @@ ui = dashboardPage(title="ICES Data Visualisation",
                                 label = "" 
                             #style = "material-circle",
                             #color = "danger"
-                                        ),
+                            ),
                             title = "Click to download the graph",
                             placement="top", # default bottom
                             trigger="hover", # hover focus click, hover default
@@ -172,6 +193,9 @@ ui = dashboardPage(title="ICES Data Visualisation",
             tabItem(tabName="available_landings_tab"),
             tabItem(tabName="average_landings_habitat_tab"),
             tabItem(tabName="sum_landings_habitat_tab"),
+            
+            # PRECAUTIONARY DIAGRAM -----------------------------------------------------------------
+            
             tabItem(tabName="precodata_tab",
                 fluidRow(                    
                     column(width=8,plotOutput("precodata_graph",height="800px")),
@@ -198,11 +222,30 @@ ui = dashboardPage(title="ICES Data Visualisation",
                 )            
             ),
             
+            # MAP -----------------------------------------------------------------------------------
+            # the map is further controlled
 			tabItem(tabName="map_tab", 
-			    leafletOutput("map", height = 800)
-			)
-		)
-	)
+			    leafletOutput("map", height = 800),
+                absolutePanel(top = 70, right = 25, draggable = TRUE,
+                    p("Use upper year glider to select year"),
+                    p("buttons on the left and right to narrow the dataset"), 
+                    radioGroupButtons(
+                        inputId = "leaflet_dataset",
+                        label = "Dataset", 
+                        choices = c("landings", "aquaculture", "release"), 
+                        selected = "landings"      
+                    ),
+                    awesomeCheckboxGroup(
+                        inputId = "leaflet_eel_typ_id",
+                        label = "Dataset",
+                        choices = c("com"=4,"rec"=6),
+                        selected=c("com"=4),
+                        status = "primary",
+                        inline=TRUE                                
+                    )    
+			    )
+		    )
+	    )
+    )
 )
-
 
