@@ -58,7 +58,7 @@ server = function(input, output, session) {
             option=list(
                 order=list(0,"asc"),
                 pageLength = 10,
-                columnDefs = list(list(className = 'dt-center', targets = 1:(n_order+1))),
+                columnDefs = list(list(className = 'dt-center')),
                 searching = FALSE, # no filtering options
                 lengthMenu=list(c(5,10,30,-1),c("5","10","30","All")),                
                 dom= "Bltip", # de gauche a droite button left f, t tableau, i informaiton (showing..), p pagination
@@ -190,8 +190,7 @@ server = function(input, output, session) {
   ######################################
   output$map = renderLeaflet( {
 	    draw_leaflet(dataset = input$dataset,
-		    year = input$year,
-		    lfs_code= input$lfs,
-		    coeff = input$coef,
+		    year = input$year[2],
+		    lfs_code= input$lfs,		    
 		    map = input$geo)} )
 }

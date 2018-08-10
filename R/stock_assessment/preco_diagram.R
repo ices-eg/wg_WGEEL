@@ -3,10 +3,7 @@
 # Author: cedric.briand
 ###############################################################################
 
-load_library('stringr') # text handling
-load_library("XLConnect") # for excel
-load_library("ggplot2") # for excel
-load_library("gridExtra")
+
 
 #' @title Draw background of the precautionary diagram
 background<-function(Aminimum=0,Amaximum=6.5,Bminimum=1e-2,Bmaximum=1){

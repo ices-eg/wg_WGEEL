@@ -5,7 +5,7 @@
 # needs to be run from source
 # load requested packages
 
-load_library(c("sqldf", "RPostgreSQL", "getPass"))
+load_library(c("getPass"))
 # to save time (not repeating again and again the password)
 # I save variables in Rprofile.site as following
 # this will be launched with R

@@ -115,27 +115,27 @@ raw_landings_graph<-function (dataset, title=NULL,col=color_countries, country_r
   dataset$Country<-factor(dataset$Country,levels=country_ref$cou_code,ordered=TRUE)
   
   if (!habitat & !lfs){
-    g_raw_Rlandings <- ggplot(dataset) + geom_col(aes(x=eel_year,y=eel_value,fill=Country), show.legend = FALSE, position='stack')+
+    g_raw_Rlandings <- ggplot(dataset) + geom_col(aes(x=eel_year,y=eel_value,fill=Country), position='stack')+
         ggtitle(title) + xlab("year") + ylab("Landings (tons)")+
         scale_fill_manual(values=col)+
         theme_bw()  
     return(g_raw_Rlandings)  
   } else if (!habitat){
-      g_raw_Rlandings <- ggplot(dataset) + geom_col(aes(x=eel_year,y=eel_value,fill=Country), show.legend = FALSE, position='stack')+
+      g_raw_Rlandings <- ggplot(dataset) + geom_col(aes(x=eel_year,y=eel_value,fill=Country),  position='stack')+
               ggtitle(title) + xlab("year") + ylab("Landings (tons)")+
               scale_fill_manual(values=col)+
               facet_wrap(~eel_lfs_code)+
               theme_bw()  
       return(g_raw_Rlandings)   
   } else if (!lfs){
-      g_raw_Rlandings <- ggplot(dataset) + geom_col(aes(x=eel_year,y=eel_value,fill=Country), show.legend = FALSE, position='stack')+
+      g_raw_Rlandings <- ggplot(dataset) + geom_col(aes(x=eel_year,y=eel_value,fill=Country), position='stack')+
               ggtitle(title) + xlab("year") + ylab("Landings (tons)")+
               scale_fill_manual(values=col)+
               facet_wrap(~eel_hty_code)+
           theme_bw()  
       return(g_raw_Rlandings)   
   } else {
-      g_raw_Rlandings <- ggplot(dataset) + geom_col(aes(x=eel_year,y=eel_value,fill=Country), show.legend = FALSE, position='stack')+
+      g_raw_Rlandings <- ggplot(dataset) + geom_col(aes(x=eel_year,y=eel_value,fill=Country), position='stack')+
               ggtitle(title) + xlab("year") + ylab("Landings (tons)")+
               scale_fill_manual(values=col)+
               facet_grid(eel_lfs_code~eel_hty_code)+

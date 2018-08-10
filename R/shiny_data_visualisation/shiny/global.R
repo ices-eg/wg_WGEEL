@@ -1,16 +1,48 @@
 # general configuration for shiny
 # 
 # Authors: lbeaulaton Cedric
+# FIRST THING load maps_for_shiny.Rdata in your data/shapefiles/ git directory
 ###############################################################################
 # debug tool
 #setwd("C:\\Users\\cedric.briand\\Documents\\GitHub\\WGEEL\\R\\shiny_data_integration\\shiny")
-
+# A big dataset is stored there
+#"C:\\workspace\\wgeeldata\\shp"
 # retrieve reference tables needed
 # the shiny is launched from shiny_data_integration/shiny thus we need the ../
 
+
+#-----------------
+# shiny libraries
+#-----------------
+load_package("shiny")
+load_package("shinyWidgets")
+load_package("shinydashboard")
+load_package("shinyjs")
+load_package("shinyBS")
+load_package("leaflet")
+load_package("DT")
+#-----------------
+# other libraries
+#-----------------
+load_package("readxl")
+load_package("stringr")
+load_package("reshape2")
+load_package("rlang")
+load_package("sp")
+#load_package("pool")
+#load_package("DBI")
+load_package("RPostgreSQL")
+load_package("dplyr")
+load_package("RColorBrewer")
+load_package("sqldf")
+load_package("scales")
+load_package('stringr') # text handling
+#load_package("XLConnect") # for excel
+load_package("ggplot2") # for excel
+load_package("gridExtra")
+
+
 if(!exists("load_library")) source("../../utilities/load_library.R")
-load_library(c("shiny", "leaflet", "reshape2", "dplyr","shinyWidgets","shinyjs", "RColorBrewer", "shinydashboard",
-        "shinyWidgets","shinyBS","rlang"))
 jscode <- "shinyjs.closeWindow = function() { window.close(); }"
 if(is.null(options()$sqldf.RPostgreSQL.user)) source("../../database_interaction/database_connection.R")
 source("../../database_interaction/database_reference.R")
@@ -18,6 +50,9 @@ source("../../database_interaction/database_data.R")
 source("../../database_interaction/database_precodata.R")
 source("../../stock_assessment/preco_diagram.R")
 source("graphs.R")
+source("maps.R")
+# this file is added to the ignore list, so ask for it in your own git before launching the app
+load("../../../data/shapefiles/maps_for_shiny.Rdata") 
 habitat_ref <- extract_ref("Habitat type")
 lfs_code_base <- extract_ref("Life stage")
 lfs_code_base <- lfs_code_base[!lfs_code_base$lfs_code %in% c("OG","QG"),]
@@ -125,7 +160,7 @@ group_data <- function(dataset, geo="country", habitat=FALSE, lfs=FALSE){
     } else {
       # by emu
       dataset <- dataset %>%
-          dplyr::group_by(eel_emu_name,eel_year,eel_hty_code,eel_lfs_code) %>%
+          dplyr::group_by(eel_emu_nameshort,eel_year,eel_hty_code,eel_lfs_code) %>%
 	      summarize(eel_value=sum(eel_value,na.rm=TRUE))
       
     }
@@ -140,7 +175,7 @@ group_data <- function(dataset, geo="country", habitat=FALSE, lfs=FALSE){
     } else {
       # by emu
       dataset <- dataset %>%
-          dplyr::group_by(eel_emu_name,eel_year,eel_hty_code) %>%
+          dplyr::group_by(eel_emu_nameshort,eel_year,eel_hty_code) %>%
 	      summarize(eel_value=sum(eel_value,na.rm=TRUE))
     }
     
@@ -154,7 +189,7 @@ group_data <- function(dataset, geo="country", habitat=FALSE, lfs=FALSE){
     } else {
       # by emu
       dataset <- dataset %>%
-          dplyr::group_by(eel_emu_name,eel_year,eel_lfs_code) %>%
+          dplyr::group_by(eel_emu_nameshort,eel_year,eel_lfs_code) %>%
 	      summarize(eel_value=sum(eel_value,na.rm=TRUE))
     }    
     
@@ -168,7 +203,7 @@ group_data <- function(dataset, geo="country", habitat=FALSE, lfs=FALSE){
     } else {
       # by emu
       dataset <- dataset %>%
-          dplyr::group_by(eel_emu_name,eel_year) %>%
+          dplyr::group_by(eel_emu_nameshort,eel_year) %>%
 	      summarize(eel_value=sum(eel_value,na.rm=TRUE))
       
     }
