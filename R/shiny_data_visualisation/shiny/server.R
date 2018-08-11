@@ -307,5 +307,5 @@ server = function(input, output, session) {
                 output$plotly_graph <- "XXXXXXX TODO XXXXXXXXXXXX"
               }
             })
-        
+        })
       }
