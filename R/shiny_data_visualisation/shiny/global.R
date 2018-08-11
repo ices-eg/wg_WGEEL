@@ -7,8 +7,7 @@
 #setwd("C:\\Users\\cedric.briand\\Documents\\GitHub\\WGEEL\\R\\shiny_data_integration\\shiny")
 # A big dataset is stored there
 #"C:\\workspace\\wgeeldata\\shp"
-# retrieve reference tables needed
-# the shiny is launched from shiny_data_integration/shiny thus we need the ../
+
 
 
 #-----------------
@@ -27,6 +26,7 @@ load_package("DT")
 load_package("readxl")
 load_package("stringr")
 load_package("reshape2")
+load_package("tidyr") # unite cols in maps
 load_package("rlang")
 load_package("sp")
 #load_package("pool")
@@ -41,16 +41,23 @@ load_package('stringr') # text handling
 load_package("ggplot2") # for excel
 load_package("gridExtra")
 
+# load functions ------------------------------------------------------------------------------------
 
+# retrieve reference tables needed
+# the shiny is launched from shiny_data_integration/shiny thus we need the ../
 if(!exists("load_library")) source("../../utilities/load_library.R")
 jscode <- "shinyjs.closeWindow = function() { window.close(); }"
-if(is.null(options()$sqldf.RPostgreSQL.user)) source("../../database_interaction/database_connection.R")
+if(is.null(options()$sqldf.RPostgreSQL.user)) 
+  source("../../database_interaction/database_connection.R")
 source("../../database_interaction/database_reference.R")
 source("../../database_interaction/database_data.R")
 source("../../database_interaction/database_precodata.R")
 source("../../stock_assessment/preco_diagram.R")
 source("graphs.R")
 source("maps.R")
+
+# loading datasets 
+
 # this file is added to the ignore list, so ask for it in your own git before launching the app
 load("../../../data/shapefiles/maps_for_shiny.Rdata") 
 habitat_ref <- extract_ref("Habitat type")
@@ -60,18 +67,29 @@ country_ref <- extract_ref("Country")
 country_ref <- country_ref[order(country_ref$cou_order), ]
 country_ref$cou_code <- factor(country_ref$cou_code, levels = country_ref$cou_code[order(country_ref$cou_order)], ordered = TRUE)
 
+# Extract data from the database -------------------------------------------------------------------
 
 landings = extract_data("Landings")
 aquaculture = extract_data("Aquaculture")
 release = extract_data("Release")
 precodata = extract_precodata()
+# save(landings, aquaculture, release, precodata, habitat_ref, lfs_code_base, country_ref,  file= "../../../data/dataset.Rdata")
+# without connexion to a database use Rdata instead, ask to Cédric
+
+# current year --------------------------------------------------------------------------------------
+
 CY = as.numeric(format(Sys.time(), "%Y"))
+
 #########################
-# functions
+# functions (use code in Roxygen documentation to test)
 ########################
+
+# filter_data ---------------------------------------------------------------------------------------
+
 #' @title Filtering function
 #' @description This will filter according to user choice
-#' @param dataset A character value, one of 'landings', 'aquaculture', 'stocking', 'precodata' pre loaded in the app
+#' @param dataset A character value, one of 'landings', 'aquaculture', 'stocking', 'precodata' pre 
+#' loaded in the app
 #' @param typ The type of data, 4 or 6, shiny returns a character.
 #' @param life_stage The life stage, Default: NULL
 #' @param country The country, Default: NULL
@@ -85,14 +103,17 @@ CY = as.numeric(format(Sys.time(), "%Y"))
 #' @examples 
 #' \dontrun{
 #' filter_data(dataset='landings',life_stage = NULL, country = NULL, habitat=NULL, year_range=2010:2018)
-#' filter_data(dataset='landings',typ= 6 ,life_stage = NULL, country = NULL, habitat=NULL, year_range=2010:2018)
-#' filter_data(dataset = "precodata",life_stage = NULL, country = levels(country_ref$cou_code),year_range=2000:2018) 
+#' filter_data(dataset='landings',typ= 6 ,life_stage = NULL, country = NULL, habitat=NULL, 
+#' year_range=2010:2018)
+#' filter_data(dataset = "precodata",life_stage = NULL, country = levels(country_ref$cou_code),
+#' year_range=2000:2018) 
 #' }
 #' @seealso 
 #'  \code{\link[dplyr]{filter}}
 #' @rdname filter_data
 #' @importFrom dplyr filter
-filter_data = function(dataset, typ=NULL, life_stage = NULL, country = NULL, habitat=NULL, year_range = 1900:2100)
+filter_data = function(dataset, typ=NULL, life_stage = NULL, country = NULL, habitat=NULL, 
+    year_range = 1900:2100)
 {
   mydata <- get(dataset)
 
@@ -124,11 +145,13 @@ filter_data = function(dataset, typ=NULL, life_stage = NULL, country = NULL, hab
   # !!! takes a list of elements and splices them into to the current call
 	filtered_data = mydata%>%dplyr::filter(!!!expr)
     # this will retain all levels for graph
-    # filtered_data$eel_hty_code = factor(filtered_data$eel_hty_code, levels = rev(c("MO", "C", "T", "F", "AL", "NA")))
+    # filtered_data$eel_hty_code = factor(filtered_data$eel_hty_code, 
+    # levels = rev(c("MO", "C", "T", "F", "AL", "NA")))
   
   return(filtered_data)
 }
 
+# group_data ----------------------------------------------------------------------------------------
 
 #' @title function to group data
 #' @description Data are grouped in the simplest way (year, country) or also by habitat or life stage, 
@@ -210,6 +233,9 @@ group_data <- function(dataset, geo="country", habitat=FALSE, lfs=FALSE){
   }
   return(dataset)
 }  
+
+# predict_missing_values ----------------------------------------------------------------------------
+
 #TODO swith to gam for years.... issue #40
 #' @title Predict missing values for landings
 #' @description Use simple glm with factors year and countries to make predictions
@@ -250,7 +276,7 @@ predict_missing_values <- function(landings, verbose=FALSE){
   return(landings2)  
 }
 
-
+# Color palettes ------------------------------------------------------------------------------------
 
 #TODO create better colors
 
@@ -259,3 +285,7 @@ values=c(RColorBrewer::brewer.pal(12,"Set3"),
     RColorBrewer::brewer.pal(8,"Accent"),
     RColorBrewer::brewer.pal(8, "Dark2"))
 color_countries = setNames(values,country_ref$cou_code)
+
+
+
+

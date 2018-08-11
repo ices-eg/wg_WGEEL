@@ -11,102 +11,193 @@
 #' @title drawing results from datacall in a leaflet map
 #' @description Extracts data according to view name, creates summary 
 #' @param dataset The quoted name of the dataset to analyse Default: "landings", can be one of "landings",
-#'  "aquaculture", "catch", "catch_landings", "stocking"
-#' @param year The year to use, Default: 2016
+#'  "aquaculture",  "release"
+#' @param years Two years, the first year will be used to calculate historical data range year[1]:CY where
+#' CY is current year, the second year will be used to filter to the dataset displayed on the map, the dataset is limited to 
+#' filter_data(...,year_range=c(year[2],year[2]))
 #' @param lfs_code A vector of lifestage codes e.g. c('Y','S','YS'), if NULL all lifestages used, 
 #' Default: NULL
-#' @param coeff the coefficient to multiply by when drawing map, sqrt(sum)*coeff is used, Default: 300
+#' @param typ the type of data used, Default : NULLe
 #' @param map the type of map to draw, Default: "country" can be "emu
 #' @return A leaflet map
+#' @details https://github.com/kvistrup/neo_fireball_tracking/blob/master/server.R was of great help, thanks
+#' to its author ....
 #' @examples #' 
 #' draw_leaflet("landings")
 #' draw_leaflet("landings",map="emu")
+#' draw_leaflet("landings",map="emu", typ=c(4,6))
+#' draw_leaflet("aquaculture",map="country", typ=c(11))
 #'  }
 #' }
 #' @rdname draw_leaflet 
 draw_leaflet<-function(
     dataset = "landings",
-    year = 2016,
+    years = c(1990,2016),
     lfs_code = NULL,
     typ = NULL,
     map = "country"  
 ){
   # Extract data-------------------------------------------------------------------------------------
-
-  cc <-  filter_data(dataset,typ=typ,life_stage=lfs_code,habitat=NULL,year_range=c(year,year))
+  
+  cc <-  filter_data(dataset,typ=typ,life_stage=lfs_code,habitat=NULL,year_range=c(years[2],years[2]))
   cc <- group_data(cc, geo= map,habitat=FALSE, lfs=FALSE)
   
   # Extract data all time ----------------------------------------------------------------------------
   
-  ccall <-  filter_data(dataset,typ=typ,life_stage=lfs_code,habitat=NULL,year_range=c(1920:CY))
+  ccall <-  filter_data(dataset,typ=typ,life_stage=lfs_code,habitat=NULL,year_range=c(years[1]:CY))
   ccall <- group_data(ccall, geo= map,habitat=FALSE, lfs=FALSE)
   
-  # value in tons  -----------------------------------------------------------------------------------
-  if (dataset %in% c("landings","aquaculture")){
-     cc$eel_value <- round(cc$eel_value / 1000,digits=1)
-     ccall$eel_value <- round(ccall$eel_value / 1000,digits=1)
-   }
-   
-  # country case --------------------------------------------------------------------------------------
+  # value in tons when necessary and unit for the legend ---------------------------------------------
+  # typ is null at init, but the leaflet will by default be loaded with landings
+  if (is.null(typ)) {
+    cc$eel_value <- round(cc$eel_value / 1000,digits=1) 
+    ccall$eel_value <- round(ccall$eel_value / 1000,digits=1)
+    unit <- "in tons"
+  } else if (4 %in% typ || 6 %in% typ || 11 %in% typ ){
+    cc$eel_value <- round(cc$eel_value / 1000,digits=1)
+    ccall$eel_value <- round(ccall$eel_value / 1000,digits=1)
+    unit = "in tons"
+  } else if (9 %in% typ || 12 %in% typ) { unit = "in numbers"
+  } else if (8 %in% typ) {
+    unit = "in kg"
+  } else if (10 %in% typ) {
+    unit = "in glass eel equivalents"
+  }
+  #################
+  # I. country case --------------------------------------------------------------------------------
+  #################
+  
   if (map=="country"){ 
     
-  # join with spatial dataframe ------------------------------------------------------------------------
-  selected_countries<-as.data.frame(country_c[country_c$cou_code%in%cc$eel_cou_code,])
-  selected_countries$eel_cou_code=as.character(selected_countries$cou_code)
-  selected_countries<- dplyr::inner_join(selected_countries, cc, by=c("eel_cou_code"))
-  
-  # Get popup ------------------------------------------------------------------------------------------
+    # join with spatial dataframe ------------------------------------------------------------------
     
-  selected_countries$label<-sprintf("%s %s %i=%1.0f",dataset, selected_countries$cou_countr, 
-      year, selected_countries$eel_value, 'tons')
-  
-  # get scales (scales set on full dataset (from) using 1000 km as maximum radius on the map -----------
+    selected_countries<-as.data.frame(country_c[country_c$cou_code%in%cc$eel_cou_code,])
+    selected_countries$eel_cou_code=as.character(selected_countries$cou_code)
+    selected_countries<- dplyr::inner_join(selected_countries, cc, by=c("eel_cou_code"))
+    value <- selected_countries$eel_value
     
-  selected_countries$value <- scales::rescale(selected_countries$eel_value,
-      to=c(0,1000000),
-      from=range(ccall$eel_value)) 
- 
-  # leaflet ---------------------------------------------------------------------------------------------
+    # create an id as eg : GR_2016 ------------------------------------------------------------------
     
-  m <- leaflet(data=selected_countries) %>%
-      addProviderTiles(providers$Esri.OceanBasemap) %>% 
-	  addPolygons(data = country_p, weight = 2) %>% 
-	  fitBounds(-10, 34, 26, 65) %>%
-      addCircles(
-          lng=~coords.x1,
-          lat=~coords.x2,
-		  color = "red", opacity = 1,
-          weight = 1,
-          radius = selected_countries$value, 
-          popup = ~label)
-
-  # emu case ----------------------------------------------------------------------------------------
-
-} else if (map=="emu"){
+    selected_countries <- tidyr::unite(selected_countries,id,eel_cou_code, eel_year)
+    
+    # Get popup ------------------------------------------------------------------------------------
+    
+    selected_countries$label<-sprintf("%s %s %i=%1.0f",dataset, selected_countries$cou_countr, 
+        years[2], selected_countries$eel_value, 'tons')
+    
+    # get scales (scales set on full dataset (from) using 1000 km as maximum radius on the map ----
+    
+    rescaled_value <- 10^6*scales::rescale(selected_countries$eel_value,
+        from=range(ccall$eel_value)) 
+    
+    # color palette -------------------------------------------------------------------------------
+    
+    color_pal <- colorBin(colorspace::heat_hcl(11)[1:10], ccall$eel_value, 10, reverse=TRUE, pretty = TRUE)
+    
+    # legend --------------------------------------------------------------------------------------
+    
+    legend.title <- paste(dataset, unit)  
+    
+    # leaflet -------------------------------------------------------------------------------------
+    
+    m <- leaflet(data=selected_countries) %>%
         
-          selected_emus<-as.data.frame(emu_c[emu_c$emu_namesh%in%cc$eel_emu_nameshort,])
-          selected_emus <- rename(selected_emus,"eel_emu_nameshort"="emu_namesh")
-          selected_emus$eel_emu_nameshort <- as.character(selected_emus$eel_emu_nameshort) 
-          selected_emus<- dplyr::inner_join(selected_emus,cc,by="eel_emu_nameshort")
-          selected_emus$label<-sprintf("%s %s %i=%1.0f",dataset,selected_emus$eel_emu_nameshort,year,selected_emus$eel_value)
-	      selected_emus$value <- scales::rescale(selected_emus$eel_value,to=c(0,500000),from=range(ccall$eel_value)) 
-          m <- leaflet(data=selected_emus) %>%
-                  addProviderTiles(providers$Esri.OceanBasemap) %>%         
-		          addPolygons(data = emu_p, weight = 2) %>% 
-		          fitBounds(-10, 34, 26, 65) %>%
-		          addCircles(
-                          lng=~coords.x1,
-                          lat=~coords.x2,
-			              color = "red", opacity = 1,
-                          weight = 1,
-                          radius = selected_emus$value, 
-                          popup = ~label)
-      } else {
-          stop("map argument should be one of 'country' or 'emu'")
-      }
-
-
-return(m)
+        addProviderTiles(providers$Esri.OceanBasemap) %>% 
+        
+	    addPolygons(data = country_p, weight = 2, opacity=0.3, fillOpacity =0.1) %>% 
+        
+	    fitBounds(-10, 34, 26, 65) %>%
+        
+        addCircles(
+            lng = ~coords.x1,
+            lat = ~coords.x2,
+		    color = ~color_pal(value),
+            fillColor = ~color_pal(value),
+            fillOpacity = 0.6,
+            opacity = 0.9,            
+            weight = 1,
+            stroke = TRUE,
+            radius = rescaled_value, 
+            popup = ~label,
+            layerId = ~id) %>%
+        
+        addLegend(pal = color_pal, 
+            position="bottomright", 
+            values = value, 
+            title = legend.title)
+    
+    # dataset returned by the function --------------------------------------------------------------
+    
+    return_data <- selected_countries
+    
+    ###############
+    # II. emu case ----------------------------------------------------------------------------------
+    ###############
+    
+  } else if (map=="emu"){
+    
+    # join with spatial dataframe ------------------------------------------------------------------
+    
+    selected_emus<-as.data.frame(emu_c[emu_c$emu_namesh%in%cc$eel_emu_nameshort,])
+    selected_emus <- rename(selected_emus,"eel_emu_nameshort"="emu_namesh")
+    selected_emus$eel_emu_nameshort <- as.character(selected_emus$eel_emu_nameshort) 
+    selected_emus <- dplyr::inner_join(selected_emus,cc,by="eel_emu_nameshort")
+    value <- selected_emus$eel_value
+    # create an id as eg : GR_2016 ------------------------------------------------------------------
+    
+    selected_emus <- tidyr::unite(selected_emus,id,eel_emu_nameshort, eel_year)
+    
+    # Get popup ------------------------------------------------------------------------------------
+    
+    selected_emus$label<-sprintf("%s %s %i=%1.0f",dataset,selected_emus$eel_emu_nameshort,years[2],
+        selected_emus$eel_value)
+    
+    # get scales (scales set on full dataset (from) using 500 km as maximum radius on the map ----
+    
+    rescaled_value <-  scales::rescale(selected_emus$eel_value,to=c(0,500000),from=range(ccall$eel_value)) 
+    
+    # get palette and title-----------------------------------------------------------------------
+    
+    color_pal <- colorBin(colorspace::heat_hcl(11)[1:10], ccall$eel_value, 10, reverse=TRUE, pretty = TRUE)
+    
+    legend.title <- paste(dataset, unit)
+    
+    # leaflet -------------------------------------------------------------------------------------
+    
+    m <- leaflet(data=selected_emus) %>%
+        
+        addProviderTiles(providers$Esri.OceanBasemap) %>% 
+        
+		addPolygons(data = country_p, weight = 2, opacity=0.3, fillOpacity =0.1) %>% 
+        
+		fitBounds(-10, 34, 26, 65) %>%
+        
+		addCircles(
+            lng=~coords.x1,
+            lat=~coords.x2,
+			color = ~color_pal(value),
+            fillColor = ~color_pal(value),
+            fillOpacity = 0.6,
+            opacity = 0.9,     
+            weight = 5,
+            radius = rescaled_value, 
+            popup = ~label,
+            layerId = ~id) %>%
+        
+        addLegend(pal = color_pal, 
+            position="bottomright",
+            values = value, 
+            title = legend.title)
+    
+    # dataset returned by the function --------------------------------------------------------------
+    
+    return_data <- selected_emus
+    
+  } else {
+    stop("map argument should be one of 'country' or 'emu'")
+  }
+  
+  return(list("m"=m,"data"=return_data))
 }
 
 

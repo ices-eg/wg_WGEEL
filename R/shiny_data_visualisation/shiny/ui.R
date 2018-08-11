@@ -34,7 +34,7 @@ ui = dashboardPage(title="ICES Data Visualisation",
             
             sliderTextInput("year", "Year", 
                 choices=seq(from=min(landings$eel_year),to= as.numeric(format(Sys.time(), "%Y")),by=1),
-                selected=c(1980,as.numeric(format(Sys.time(), "%Y")))),
+                selected=c(1980,CY-2)),
             radioGroupButtons(
                 inputId = "geo",
                 label = "Scale", 
@@ -227,23 +227,21 @@ ui = dashboardPage(title="ICES Data Visualisation",
 			tabItem(tabName="map_tab", 
 			    leafletOutput("map", height = 800),
                 absolutePanel(top = 70, right = 25, draggable = TRUE,
-                    p("Use upper year glider to select year"),
+                    p("Upper glider = year, both = historical range for bubble size"),
                     p("buttons on the left and right to narrow the dataset"), 
                     radioGroupButtons(
                         inputId = "leaflet_dataset",
                         label = "Dataset", 
-                        choices = c("landings", "aquaculture", "release"), 
+                        choices = c("landings", "aquaculture", "release"
+                        #,"precodata" TODO develop here
+                        ), 
                         selected = "landings"      
                     ),
-                    awesomeCheckboxGroup(
-                        inputId = "leaflet_eel_typ_id",
-                        label = "Dataset",
-                        choices = c("com"=4,"rec"=6),
-                        selected=c("com"=4),
-                        status = "primary",
-                        inline=TRUE                                
-                    )    
-			    )
+                    # this output listens to leaflet dataset and change input accordingly
+                    uiOutput("leaflet_typ_button")                     
+			    ),
+                absolutePanel(bottom = 15, left = 15, draggable = TRUE,
+                    plotly_graph <- "XXXXXXX TODO XXXXXXXXXXXX")
 		    )
 	    )
     )

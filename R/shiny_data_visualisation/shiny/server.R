@@ -75,7 +75,7 @@ server = function(input, output, session) {
   # combined landings
   ######################################
   get_combined_landings <- eventReactive(input$combined_button,{
-            filtered_data <- filter_data(input$dataset, 
+        filtered_data <- filter_data(input$dataset, 
             life_stage = input$lfs, 
             country = input$country, 
             habitat = input$habitat,
@@ -87,7 +87,7 @@ server = function(input, output, session) {
         pred_landings <- predict_missing_values(landings, verbose=FALSE) 
         return(pred_landings)
       })
-
+  
   
   output$graph_combined <-  renderPlot({
         title <- paste("Landings for : ", paste(input$lfs,collapse="+"))
@@ -141,13 +141,13 @@ server = function(input, output, session) {
             lfs=input$raw_landings_lifestage_switch)
         landings$eel_value <- as.numeric(landings$eel_value) / 1000
         landings$eel_cou_code = as.factor(landings$eel_cou_code)        
-         return(landings)
+        return(landings)
       })
   output$graph_raw_landings <-  renderPlot({
         if (4 %in% (input$raw_landings_eel_typ_id) & 6%in%(input$raw_landings_eel_typ_id)) title2<-"Commercial and recreational landings for " else 
-          if (4 %in% input$raw_landings_eel_typ_id) title2 <- "Commercial landings for " else
-          if (6 %in% input$raw_landings_eel_typ_id) title2 <- "Recreational landings for " else
-            stop ("Internal error, unexpected landings eel_typ_id, should be 4 or 6")
+        if (4 %in% input$raw_landings_eel_typ_id) title2 <- "Commercial landings for " else
+        if (6 %in% input$raw_landings_eel_typ_id) title2 <- "Recreational landings for " else
+          stop ("Internal error, unexpected landings eel_typ_id, should be 4 or 6")
         title <- paste(title2, "stages = ", paste(input$lfs,collapse="+"), " and habitat =", paste(input$habitat,collapse="+"))
         landings <- get_raw_landings()
         raw_landings_graph(dataset=landings,title=title,
@@ -162,7 +162,7 @@ server = function(input, output, session) {
       }, content = function(file) {
         title <- paste(title2, "stages = ", paste(input$lfs,collapse="+"), " and habitat =", paste(input$habitat,collapse="+"))
         landings <- get_raw_landings()
-             ggsave(file, raw_landings_graph(dataset=landings,title=title,col=color_countries, country_ref=country_ref),
+        ggsave(file, raw_landings_graph(dataset=landings,title=title,col=color_countries, country_ref=country_ref),
             device = "png", width = 20, height = 14, 
             units = "cm")
       })
@@ -188,10 +188,124 @@ server = function(input, output, session) {
   ######################################
 # MAP
   ######################################
-  output$map = renderLeaflet( {
-	    draw_leaflet(dataset = input$leaflet_dataset,
-		    year = input$year[2],
-            typ=input$leaflet_eel_typ_id,
-		    lfs_code= input$lfs,		    
-		    map = input$geo)} )
-}
+  # dynamically generate the button to choose between Commercial and recreational landings
+  # if "landings" is selected as a dataset
+  output$leaflet_typ_button <- renderUI({
+        if (is.null(input$leaflet_dataset))
+          return()
+        
+        # we check the value of leaflet dataset
+        # if landings then the ui will generate leaflet_eel_typ_id button
+        switch(input$leaflet_dataset,
+            "landings"= 
+                awesomeCheckboxGroup(
+                    inputId = "leaflet_eel_typ_id",
+                    label = "Dataset",
+                    choices = c("com"=4,"rec"=6),
+                    selected=c("com"=4,"rec"=6),
+                    status = "primary",
+                    inline=TRUE                                
+                ),   
+            "aquaculture"= 
+                radioGroupButtons(
+                    inputId = "leaflet_eel_typ_id",
+                    label = "Dataset",
+                    choices = c("q_aqua_kg"=11,"q_aqua_n"=12),
+                    selected=c("q_aqua_kg"=11),
+                    direction = "horizontal"                               
+                ),
+            "release"= 
+                radioGroupButtons(
+                    inputId = "leaflet_eel_typ_id",
+                    label = "Dataset",
+                    choices = c("q_release_kg"=8,"q_release_n"=9,"gee_n"=10),
+                    selected=c("q_release_kg"=8),
+                    direction = "horizontal"                                
+                )
+        # TODO develop this, we need a view for biomass+ sigmaA different from precodata (which has one column per type)
+        # ideally one view for SEE, one view for SumH by type
+        #,
+#            "precodata"=
+#                radioGroupButtons(
+#                    inputId = "leaflet_eel_typ_id",
+#                    label = "Dataset",
+#                    choices = c(
+#                        "B0_kg"=13,
+#                        "Bbest_kg" = 14,
+#                        "Bcurrent_kg" = 15,        
+#                        "SumA" = 17,
+#                        "SumF" = 18,
+#                        "SumH" = 19,
+#                        "sumF_com" = 20,
+#                        "SumF_rec" = 21,
+#                        "SumH_hydro" = 22,
+#                        "SumH_habitat" = 23,
+#                        "SumH_release" = 24,
+#                        "SumH_other" = 25,
+#                        "SEE_com" = 26,
+#                        "SEE rec" = 27,
+#                        "SEE_hydro" = 28,
+#                        "SEE_habitat" = 29,
+#                        "SEE_stocking" = 30,
+#                        "SEE_other" = 31),       
+#                    selected=c("sumA"=17),                    
+#                    inline=FALSE 
+#                )
+        )})     
+  
+#  Leaflet map, this uses the draw_leaflet function -------------------------------------------------  
+  observe({
+        select_a_point <- function(map, x, y)   addPulseMarkers(data = fireball_last,
+              icon = makePulseIcon(color = ~fireball_pal(log(`Impact Energy (kt)`)),
+                  iconSize = ~sqrt(`Impact Energy (kt)`) + 14, 
+                  animate = TRUE, heartbeat = 0.5),
+              layerId = ~id)
+        
+        addCircleMarkers(map, x, y, radius = 15,
+            fill = FALSE, color = "yellow", 
+            opacity = 0.5, weight = 2, 
+            stroke = TRUE, layerId = "selected")
+        output$map = renderLeaflet({
+              # draw leaflet depends on input$leaflet_eel_typ_id which is generated anyways
+              # it returns a list with a dataset and a leaflet map (m)
+	          ls<-draw_leaflet(dataset = input$leaflet_dataset,
+		          years = input$year,
+                  typ=input$leaflet_eel_typ_id,
+		          lfs_code= input$lfs,		    
+		          map = input$geo)
+              
+              # store data into the reactive values
+              
+              data$leaflet_dataset <- ls$data
+              
+              # print the map   
+                          
+              ls$m
+            })
+        
+# observer click event ------------------------------------------------------------------------------- 
+        
+        observeEvent(input$Map_circle_click, {
+              p <- input$Map_circle_click
+              lat <- p$lat
+              lng <- p$lng
+              id <- p$id
+              
+              proxy <- leafletProxy("Map")
+              if(p$id == "selected") {
+                proxy %>% removeMarker(layerId = "selected")
+              } else {
+                # Create selected marker -------------------------------------------------------------
+                proxy %>% setView(lng = lng, lat = lat, input$Map_zoom) %>% select_a_point(lng, lat)
+                
+                # Create selected marker table and put in in reactive values--------------------------
+                           
+                data$leaflet_dataset_selected <- data$leaflet_dataset[data$leaflet_dataset$id == id, ]
+                
+                # Create a plotly graph
+                        
+                output$plotly_graph <- "XXXXXXX TODO XXXXXXXXXXXX"
+              }
+            })
+        
+      }
