@@ -255,16 +255,16 @@ server = function(input, output, session) {
   
 #  Leaflet map, this uses the draw_leaflet function -------------------------------------------------  
   observe({
-        select_a_point <- function(map, x, y)   addPulseMarkers(data = fireball_last,
-              icon = makePulseIcon(color = ~fireball_pal(log(`Impact Energy (kt)`)),
-                  iconSize = ~sqrt(`Impact Energy (kt)`) + 14, 
-                  animate = TRUE, heartbeat = 0.5),
-              layerId = ~id)
+        # CHECKME, pulse marker not working...
+        select_a_point <- function(map, x, y)   {          
+          addPulseMarkers(map, x, y, 
+              layerId = "selected",          
+              icon = makePulseIcon(color = "red",
+                  iconSize =  10, 
+                  animate = TRUE, heartbeat = 0.5)
+          )
+        }        
         
-        addCircleMarkers(map, x, y, radius = 15,
-            fill = FALSE, color = "yellow", 
-            opacity = 0.5, weight = 2, 
-            stroke = TRUE, layerId = "selected")
         output$map = renderLeaflet({
               # draw leaflet depends on input$leaflet_eel_typ_id which is generated anyways
               # it returns a list with a dataset and a leaflet map (m)
@@ -279,33 +279,72 @@ server = function(input, output, session) {
               data$leaflet_dataset <- ls$data
               
               # print the map   
-                          
+              
               ls$m
             })
         
 # observer click event ------------------------------------------------------------------------------- 
         
-        observeEvent(input$Map_circle_click, {
-              p <- input$Map_circle_click
+        observeEvent(input$map_marker_click, {
+              p <- input$map_marker_click
               lat <- p$lat
               lng <- p$lng
               id <- p$id
-              
+              id1 <- gsub('[0-9]*',"",id) # NO_ or NO_total_
+              country_or_emu_selected <-substr(id1,1,nchar(id1)-1) # remove trailing "_"
               proxy <- leafletProxy("Map")
               if(p$id == "selected") {
                 proxy %>% removeMarker(layerId = "selected")
               } else {
                 # Create selected marker -------------------------------------------------------------
-                proxy %>% setView(lng = lng, lat = lat, input$Map_zoom) %>% select_a_point(lng, lat)
+                 # CHEKME this does not work
+                proxy %>% fitBounds(-10, 34, 26, 65) %>% select_a_point(lng, lat)
                 
                 # Create selected marker table and put in in reactive values--------------------------
-                           
-                data$leaflet_dataset_selected <- data$leaflet_dataset[data$leaflet_dataset$id == id, ]
+                # CHECKME this is probably not necessary 
+                # data$point_selected<-data$leaflet_dataset[data$leaflet_dataset$id==id,]
                 
-                # Create a plotly graph
-                        
-                output$plotly_graph <- "XXXXXXX TODO XXXXXXXXXXXX"
+                # Extract a dataset corresponding to the year and other stuff, as in maps.R ---------- 
+                
+                time_series_selected <-  filter_data(input$leaflet_dataset,
+                    typ=input$leaflet_eel_typ_id,
+                    life_stage=input$lfs,         
+                    habitat=NULL,
+                    year_range=input$year[1]:input$year[2])
+                
+                time_series_selected <- group_data(time_series_selected,
+                    geo= input$geo,
+                    habitat=FALSE, 
+                    lfs=FALSE)
+                
+                # we cannot use filter_data with emu, so we extract last
+                
+                switch(input$geo, "emu"= {
+                      time_series_selected <- time_series_selected[time_series_selected$eel_emu_nameshort==country_or_emu_selected,]
+                    }, "country"= {
+                      time_series_selected <- time_series_selected[time_series_selected$eel_cou_code==country_or_emu_selected,]
+                    }) 
+                
+                
+                # Some units converted to tons --------------------------------------------------------
+                
+                if (is.null(input$leaflet_eel_typ_id)) {
+                  time_series_selected$eel_value <- round(time_series_selected$eel_value / 1000,digits=1) 
+                } else if (4 %in% input$leaflet_eel_typ_id || 6 %in% input$leaflet_eel_typ_id || 11 %in% input$leaflet_eel_typ_id ){
+                  time_series_selected$eel_value <- round(time_series_selected$eel_value / 1000,digits=1)
+                } 
+                
+                # Create a plotly graph------------------------------------------------------------------
+                
+                output$plotly_graph <- renderPlotly({
+                      plot_ly(time_series_selected, x = ~eel_year, y = ~eel_value,
+                          # Hover text:
+                          text = ~paste("Year: ", eel_year, '$<br>Value:', eel_value),
+                          color = ~eel_value, size = ~eel_value )   %>%
+                      layout(plot_bgcolor='rgb(209, 218, 201)') %>% 
+                      layout(paper_bgcolor="transparent") #will also accept 'rgb(254, 247, 234)' paper_bgcolor='black'    
+                    })
               }
             })
-        })
-      }
+      })
+}

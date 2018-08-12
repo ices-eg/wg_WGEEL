@@ -33,7 +33,7 @@ ui = dashboardPage(title="ICES Data Visualisation",
             # narrow down the dataset ---------------------------------------------------------------
             
             sliderTextInput("year", "Year", 
-                choices=seq(from=min(landings$eel_year),to= as.numeric(format(Sys.time(), "%Y")),by=1),
+                choices=seq(from=min(landings$eel_year),to= CY,by=1),
                 selected=c(1980,CY-2)),
             radioGroupButtons(
                 inputId = "geo",
@@ -240,10 +240,10 @@ ui = dashboardPage(title="ICES Data Visualisation",
                     # this output listens to leaflet dataset and change input accordingly
                     uiOutput("leaflet_typ_button")                     
 			    ),
-                absolutePanel(bottom = 15, left = 15, draggable = TRUE,
-                    plotly_graph <- "XXXXXXX TODO XXXXXXXXXXXX")
-		    )
-	    )
+                absolutePanel(bottom = 250, right = 10, draggable = TRUE,
+                    plotlyOutput("plotly_graph")
+		        )
+	        )
+        )
     )
 )
-

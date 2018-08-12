@@ -71,9 +71,9 @@ draw_leaflet<-function(
     
     # join with spatial dataframe ------------------------------------------------------------------
     
-    selected_countries<-as.data.frame(country_c[country_c$cou_code%in%cc$eel_cou_code,])
-    selected_countries$eel_cou_code=as.character(selected_countries$cou_code)
-    selected_countries<- dplyr::inner_join(selected_countries, cc, by=c("eel_cou_code"))
+    selected_countries <- as.data.frame(country_c[ country_c$cou_code %in% cc$eel_cou_code, ])
+    selected_countries$eel_cou_code <- as.character( selected_countries$cou_code )
+    selected_countries <- dplyr::inner_join(selected_countries, cc, by=c("eel_cou_code"))
     value <- selected_countries$eel_value
     
     # create an id as eg : GR_2016 ------------------------------------------------------------------
@@ -85,14 +85,14 @@ draw_leaflet<-function(
     selected_countries$label<-sprintf("%s %s %i=%1.0f",dataset, selected_countries$cou_countr, 
         years[2], selected_countries$eel_value, 'tons')
     
-    # get scales (scales set on full dataset (from) using 1000 km as maximum radius on the map ----
+    # get scales (scales set on full dataset (from) a circle marker in pixels  --------------------
     
-    rescaled_value <- 10^6*scales::rescale(selected_countries$eel_value,
+  selected_countries$rescaled_value <- 100*scales::rescale(selected_countries$eel_value,
         from=range(ccall$eel_value)) 
     
     # color palette -------------------------------------------------------------------------------
     
-    color_pal <- colorBin(colorspace::heat_hcl(11)[1:10], ccall$eel_value, 10, reverse=TRUE, pretty = TRUE)
+    color_pal <- colorBin("viridis", ccall$eel_value, 10,  pretty = TRUE) # reverse=TRUE,
     
     # legend --------------------------------------------------------------------------------------
     
@@ -108,16 +108,16 @@ draw_leaflet<-function(
         
 	    fitBounds(-10, 34, 26, 65) %>%
         
-        addCircles(
+        addCircleMarkers(
             lng = ~coords.x1,
             lat = ~coords.x2,
 		    color = ~color_pal(value),
             fillColor = ~color_pal(value),
-            fillOpacity = 0.6,
+            fillOpacity = 0.5,
             opacity = 0.9,            
             weight = 1,
             stroke = TRUE,
-            radius = rescaled_value, 
+            radius = selected_countries$rescaled_value, 
             popup = ~label,
             layerId = ~id) %>%
         
@@ -152,13 +152,13 @@ draw_leaflet<-function(
     selected_emus$label<-sprintf("%s %s %i=%1.0f",dataset,selected_emus$eel_emu_nameshort,years[2],
         selected_emus$eel_value)
     
-    # get scales (scales set on full dataset (from) using 500 km as maximum radius on the map ----
+    # get scales (scales set on full dataset (from) a circle marker in pixel  --------------------
     
-    rescaled_value <-  scales::rescale(selected_emus$eel_value,to=c(0,500000),from=range(ccall$eel_value)) 
+     selected_emus$rescaled_value <-  scales::rescale(selected_emus$eel_value,to=c(0,10),from=range(ccall$eel_value)) 
     
     # get palette and title-----------------------------------------------------------------------
     
-    color_pal <- colorBin(colorspace::heat_hcl(11)[1:10], ccall$eel_value, 10, reverse=TRUE, pretty = TRUE)
+    color_pal <- colorBin("viridis", ccall$eel_value, 100, pretty = TRUE) # reverse=TRUE
     
     legend.title <- paste(dataset, unit)
     
@@ -172,15 +172,15 @@ draw_leaflet<-function(
         
 		fitBounds(-10, 34, 26, 65) %>%
         
-		addCircles(
+		addCircleMarkers(
             lng=~coords.x1,
             lat=~coords.x2,
 			color = ~color_pal(value),
             fillColor = ~color_pal(value),
-            fillOpacity = 0.6,
+            fillOpacity = 0.5,
             opacity = 0.9,     
             weight = 5,
-            radius = rescaled_value, 
+            radius = selected_emus$rescaled_value, 
             popup = ~label,
             layerId = ~id) %>%
         

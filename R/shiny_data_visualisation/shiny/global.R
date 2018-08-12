@@ -20,6 +20,8 @@ load_package("shinyjs")
 load_package("shinyBS")
 load_package("leaflet")
 load_package("DT")
+load_package("plotly")
+load_package("leaflet.extras")
 #-----------------
 # other libraries
 #-----------------
@@ -74,7 +76,7 @@ aquaculture = extract_data("Aquaculture")
 release = extract_data("Release")
 precodata = extract_precodata()
 # save(landings, aquaculture, release, precodata, habitat_ref, lfs_code_base, country_ref,  file= "../../../data/dataset.Rdata")
-# without connexion to a database use Rdata instead, ask to Cédric
+# without connexion to a database use Rdata instead, ask to Cedric
 
 # current year --------------------------------------------------------------------------------------
 
@@ -164,7 +166,7 @@ filter_data = function(dataset, typ=NULL, life_stage = NULL, country = NULL, hab
 #' @details ...
 #' @examples 
 #' \dontrun{  
-#'  filtered_data <- filter_data(dataset='landings',life_stage = NULL, country = NULL, habitat=NULL, year_range=2010:1011)
+#'  filtered_data <- filter_data(dataset='landings',life_stage = NULL, country = NULL, habitat=NULL, year_range=1960:2011)
 #'  grouped_data <- group_data(filtered_data, geo="country", habitat=FALSE, lfs=FALSE)
 #' }
 #' @seealso 
