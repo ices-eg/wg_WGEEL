@@ -393,6 +393,9 @@ shinyServer(function(input, output, session){
           })
       #######################################
       # II. Data correction table  
+      # This section provides a direct interaction with the database
+      # Currently only developped for modifying data.
+      # Deletion must be done by changing data code or asking Database handler
       #######################################
       rvs <- reactiveValues(
           data = NA, 
@@ -404,6 +407,7 @@ shinyServer(function(input, output, session){
       
       #-----------------------------------------  
       # Generate source via reactive expression
+      
       mysource <- reactive({
             {
               vals = input$country
@@ -491,8 +495,9 @@ shinyServer(function(input, output, session){
             }
             
           })
-      #-----------------------------------------
-      # Update edited values in db once save is clicked
+      
+      # Update edited values in db once save is clicked---------------------------------------------
+      
       observeEvent(input$save, {
             
             errors<-update_t_eelstock_eel(editedValue = rvs$editedInfo, pool = pool, data=rvs$data)
@@ -505,8 +510,9 @@ shinyServer(function(input, output, session){
             rvs$dbdata <- rvs$data
             rvs$dataSame <- TRUE
           })
-      #-----------------------------------------
-      # Observe clear_table button -> revert to database table
+      
+      # Observe clear_table button -> revert to database table---------------------------------------
+      
       observeEvent(input$clear_table,
           {
             data <- mysource() %>% arrange(eel_emu_nameshort,eel_year)
@@ -515,16 +521,17 @@ shinyServer(function(input, output, session){
             disable("clear_table")
             output$database_errors<-renderText({""})
           })
-      #-----------------------------------------
-      # Oberve cancel -> revert to last saved version
+      
+      # Oberve cancel -> revert to last saved version -----------------------------------------------
+      
       observeEvent(input$cancel, {
             rvs$data <- rvs$dbdata
             rvs$dataSame <- TRUE
           })
       
-      #-----------------------------------------
-      # UI buttons
+      # UI buttons ----------------------------------------------------------------------------------
       # Appear only when data changed
+      
       output$buttons_data_correction <- renderUI({
             div(
                 if (! rvs$dataSame) {
@@ -538,5 +545,53 @@ shinyServer(function(input, output, session){
                     }
             )
           })
+      #################################################
+      # GRAPHS ----------------------------------------
+      #################################################
+      
+      # Same as mysource but for graphs, different page, so different buttons
+      # there must be a way by reorganizing the buttons to do a better job
+      # but buttons don't apply to the data integration sheet and here we don't
+      # want multiple choices (to check for duplicates we need to narrow down the search) ....
+      
+      mysource_graph <- reactive({
+            {
+              vals = input$country_g
+              if (is.null(vals)) 
+                vals <- c("FR")
+              types = input$typ_g
+              if (is.null(types)) 
+                types <- c(4, 5, 6, 7)
+              the_years <- input$year_g
+              if (is.null(input$year)) {
+                the_years <- c(the_years$min_year, the_years$max_year)
+              }
+              # glue_sql to protect against injection, used with a vector with *
+              query <- glue_sql("SELECT * from datawg.t_eelstock_eel where eel_cou_code in ({vals*}) and eel_typ_id in ({types*}) and eel_year>={minyear} and eel_year<={maxyear}", 
+                  vals = vals, types = types, minyear = the_years[1], maxyear = the_years[2], 
+                  .con = pool)
+              # https:/stackoverflow.com/questions/34332769/how-to-use-dbgetquery-in-trycatch-with-postgresql
+              # it seems that dbgetquery doesn't raise an error
+              out_data <- dbGetQuery(pool, query)
+              return(out_data)
+            }
+          })
+      
+      # store data in reactive values ---------------------------------------------------------------
+      
+      observeEvent(mysource_graph(), {               
+            data <- mysource_graph() %>% arrange(eel_emu_nameshort,eel_year)
+            rvs$datagr <- data                           
+          })
+      
+      # plot -------------------------------------------------------------------------------------------
+      # the plots groups by kept (typ id = 1,2,4) or not (other typ_id) and year 
+      # and calculate thenumber of values 
+
+      output$duplicated_ggplot <- renderPlot({
+            duplicated_values_graph(rvs$datagr)
+          }
+      )
+      
       
     })

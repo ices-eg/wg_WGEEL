@@ -9,7 +9,7 @@ ui <- dashboardPage(title="ICES Data Integration",
             menuItem("Import",tabName= "import", icon= icon("align-left")),
             menuItem("Edit", tabName="edit", icon=icon("table")),
             menuItem("Check", tabName='check',icon= icon("area-chart"),
-                menuSubItem("plot1",  tabName="plot1"),
+                menuSubItem("Plot duplicates",  tabName="plot_duplicates"),
                 menuSubItem("plot2", tabName="plot2")),
             pickerInput(
                 inputId = "main_assessor",
@@ -130,8 +130,32 @@ ui <- dashboardPage(title="ICES Data Integration",
                             ),                
                             br(),
                             DT::dataTableOutput("table_cor")),
-                    tabItem("plot1", fluidRow(
-                                    column(width=6,plotOutput("mon_graph1")),
+                    tabItem("plot_duplicates", 
+                        box(
+                        fluidRow(
+                            column(width=4,
+                                pickerInput(inputId = "country_g", 
+                                    label = "Select a country :", 
+                                    choices = list_country,
+                                    multiple = FALSE, 
+                                    options = list(
+                                        style = "btn-primary", size = 5))),
+                            column(width=4, 
+                                pickerInput(inputId = "typ_g", 
+                                    label = "Select a type :", 
+                                    choices = typ_id,
+                                    multiple = FALSE,
+                                    options = list(
+                                        style = "btn-primary", size = 5))),
+                            column(width=4,
+                                sliderTextInput(inputId ="year_g", 
+                                    label = "Choose a year range:",
+                                    choices=seq(the_years$min_year, the_years$max_year),
+                                    selected = c(the_years$min_year,the_years$max_year)
+                                )))),               
+                        
+                        fluidRow(
+                                    column(width=6,plotOutput("duplicated_ggplot")),
                                     column(width=6,plotOutput("mon_ggplot1"))
                             )),
                     tabItem("plot2", fluidRow(

@@ -69,12 +69,14 @@ combined_landings_graph<-function (dataset, title=NULL , col , country_ref)
 
 
 
-#' @title Graph for combined landings (including predictions)
+#' @title Graph for raw landings, per 
 #' @description The function uses ggplot
 #' @param dataset The landings dataset
 #' @param title A title for the graph, Default: NULL
 #' @param col A named vector of colors, Default: color_countries
 #' @param country_ref The country referential ordered from North to South, Default: country_ref
+#' @param habitat=FALSE
+#' @param lfs=FALSE
 #' @return A ggplot
 #' @examples 
 #' \dontrun{

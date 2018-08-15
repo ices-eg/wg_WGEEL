@@ -1,10 +1,11 @@
 # Name : global.R
 # Date : 03/07/2018
 # Author: cedric.briand
+# DON'T FORGET TO SET THE qualify_code for eel_qal_id (this will be use to discard duplicates)
 ###############################################################################
 
 #########################
-# loads shiny packages
+# loads shiny packages 
 ########################
 # the shiny is launched from shiny_data_integration/shiny
 # debug tool
@@ -38,6 +39,10 @@ load_package("shinydashboard")
 load_package("shinyWidgets")
 load_package("shinyBS")
 load_package("sqldf")
+#----------------------
+# Graphics
+#----------------------
+load_package("viridis")
 #if(is.null(options()$sqldf.RPostgreSQL.user)) source("../../database_interaction/database_connection.R")
 options(sqldf.RPostgreSQL.user = userlocal, 
 	sqldf.RPostgreSQL.password = passwordlocal,
@@ -91,6 +96,7 @@ query <- "SELECT * from ref.tr_typeseries_typ order by typ_name"
 tr_typeseries_typt <- dbGetQuery(pool, sqlInterpolate(ANSI(), query))   
 typ_id <- tr_typeseries_typt$typ_id
 names(typ_id) <- tr_typeseries_typt$typ_name
+# tr_type_typ<-extract_ref('Type of series') this works also !
 
 query <- "SELECT min(eel_year) as min_year, max(eel_year) as max_year from datawg.t_eelstock_eel eel_cou "
 the_years <- dbGetQuery(pool, sqlInterpolate(ANSI(), query))   
@@ -104,8 +110,14 @@ source("../../utilities/check_utilities.R")
 source("../../database_interaction/database_connection.R")
 source("../../database_interaction/database_data.R")
 source("../../database_interaction/database_reference.R")
+
+# Local shiny files ---------------------------------------------------------------------------------
+
 source("database_tools.R")
-tr_type_typ<-extract_ref('Type of series')
+source("graphs.R")
+
+# VERY IMPORTANT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -------------------------------------------------
+
 qualify_code<-18 # change this code here and in tr_quality_qal for next wgeel
 
 
