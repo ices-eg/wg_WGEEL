@@ -68,6 +68,7 @@ onStop(function() {
     }) # important!
 ##########################
 # CHANGE THIS LINE AT THE NEXT DATACALL AND WHEN TEST IS FINISHED
+# BEFORE WGEEL sqldf('delete from datawg.t_eelstock_eel where eel_datasource='datacall_2018_test')
 ########################
 the_eel_datasource <- "datacall_2018_test"
 

@@ -66,7 +66,7 @@ ui = dashboardPage(title="ICES Data Visualisation",
                 selected= levels(country_ref$cou_code), 
                 multiple = TRUE,
                 options = list(
-                    `actions-box` = TRUE))
+                    `actions-box` = TRUE, size = 10))
 	    )),	
     
     # Content of tabs -------------------------------------------------------------------------------
