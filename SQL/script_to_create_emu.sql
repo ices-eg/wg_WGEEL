@@ -1604,3 +1604,36 @@ begin;
 delete from ref.tr_emusplit_ems where emu_nameshort='IE_NorW' and emu_cou_code='GB';
 delete from ref.tr_emu_emu  where emu_nameshort='IE_NorW' and emu_cou_code='GB';
 commit;
+
+
+drop table ref.tunisie_NE ;
+create table ref.tunisie_NE as
+select  1 as id ,geom
+from ref.tr_emu_emu  
+where emu_nameshort='TN_NE';
+alter table ref.tunisie_NE add constraint c_pk_id primary key (id);
+
+update ref.tunisie_NE tne set geom = st_difference(tne.geom, emu.geom)
+from (select geom from ref.tr_emu_emu where emu_nameshort='TN_EC')emu
+where id=1
+
+update ref.tunisie_NE tne set geom = st_difference(tne.geom, emu.geom)
+from (select geom from ref.tr_emu_emu where emu_nameshort='TN_Nor')emu
+where id=1
+
+update ref.tunisie_NE tne set geom = st_difference(tne.geom, emu.geom)
+from (select geom from ref.tr_emu_emu where emu_nameshort='TN_SO')emu
+where id=1
+
+-- install digitizing tools in QGIS
+-- create shape line, edit add points right click to stop and select id
+-- select polygon and line, and cut 
+-- add ids to polygon via table edit
+-- remove southern shape
+-- done
+
+
+update ref.tr_emu_emu set geom=tunisie.geom from
+(select geom from ref.tunisie_NE  where id=2) tunisie
+where emu_nameshort='TN_NE';
+
