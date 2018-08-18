@@ -29,6 +29,7 @@ load_package("htmltools")
 #-----------------
 # Data correction table
 #-----------------
+
 load_package("pool")
 load_package("DBI")
 load_package("RPostgreSQL")
@@ -39,10 +40,15 @@ load_package("shinydashboard")
 load_package("shinyWidgets")
 load_package("shinyBS")
 load_package("sqldf")
+
 #----------------------
 # Graphics
 #----------------------
 load_package("viridis")
+load_package("ggplot2")
+load_package("plotly")
+
+
 #if(is.null(options()$sqldf.RPostgreSQL.user)) source("../../database_interaction/database_connection.R")
 options(sqldf.RPostgreSQL.user = userlocal, 
 	sqldf.RPostgreSQL.password = passwordlocal,

@@ -587,11 +587,48 @@ shinyServer(function(input, output, session){
       # plot -------------------------------------------------------------------------------------------
       # the plots groups by kept (typ id = 1,2,4) or not (other typ_id) and year 
       # and calculate thenumber of values 
-
+      
       output$duplicated_ggplot <- renderPlot({
+            if (is.null(rvs$datagr)) return(NULL)
+            # duplicated_values_graph performs a group by, see graph.R inside the shiny data integration
+            # tab
             duplicated_values_graph(rvs$datagr)
           }
       )
+      
+      # the observeEvent will not execute untill the user clicks, here it runs
+      # both the plotly and datatable component -----------------------------------------------------
+      
+      observeEvent(input$duplicated_ggplot_click,  {
+            # the nearpoint function does not work straight with bar plots
+            # we have to retreive the x data and check the year it corresponds to ... 
+            year_selected = round(input$duplicated_ggplot_click$x)  
+            datagr <- rvs$datagr
+            datagr <- datagr[datagr$eel_year==year_selected, ] 
+            
+            # Data table for individual data corresponding to the year bar on the graph -------------
+            
+            output$datatablenearpoints <- DT::renderDataTable({            
+                  datatable(datagr)
+                })        
+            
+            # Plotly output allowing to brush out individual values per EMU
+            
+            output$plotly_selected_year <-renderPlotly({       
+                       plot_ly(datagr, x = ~eel_emu_nameshort, y = ~eel_value,
+                          # Hover text:
+                          text = ~paste("Lifestage: ", eel_lfs_code, 
+                              '$<br> Hty_code:', eel_hty_code,
+                              '$<br> Area_division:', eel_area_division,
+                              '$<br> Source:', eel_datasource,
+                              '$<br> Value:', eel_value),
+                          color = ~eel_lfs_code )                      
+                }) 
+            
+          }, ignoreNULL = TRUE) # additional arguments to observe ...
+      
+      
+      
       
       
     })
