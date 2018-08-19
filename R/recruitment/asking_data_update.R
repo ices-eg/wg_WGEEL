@@ -75,19 +75,29 @@ t_series_ser[,4]<-iconv(t_series_ser[,4],from="UTF8",to="latin1")
 t_series_ser[,11]<-iconv(t_series_ser[,11],from="UTF8",to="latin1")
 t_series_ser[,7]<-iconv(t_series_ser[,7],from="UTF8",to="latin1")
 
+#############################
+# Table storing station
+##################################
+station <- sqldf("select * from ref.tr_station")
+station$Organisation <-iconv(station$Organisation,from="UTF8",to="latin1")
 
 #' function to create the recuitment sheet 
 #' 
 #' @note this function writes the xl sheet for each country
+#' it creates series metadata and series info for ICES station table
 #' loop on the number of series in the country to create as many sheet as necessary
 #' 
 #' @param country the country name, for instance "Sweden"
 createxl<-function(country){
 	r_coun<-t_series_ser[t_series_ser$ser_cou_code==country,]
+    # country names are displayed differently in this table, but Station_name correspond
+    s_coun<-station[station$Station_Name%in%r_coun$ser_nameshort,]
 	xls.file<-str_c(dataxl,"/",country,CY,".xls")
 	wb = loadWorkbook(xls.file, create = TRUE)
 	createSheet(wb,"rec_info")
 	writeWorksheet (wb , r_coun , sheet="rec_info" ,header = TRUE )
+    createSheet(wb,"station")
+    writeWorksheet (wb , s_coun , sheet="station" ,header = TRUE )
 	saveWorkbook(wb)	
 	wb = loadWorkbook(xls.file, create = TRUE)
 	for (i in 1:length(r_coun$ser_id)){
