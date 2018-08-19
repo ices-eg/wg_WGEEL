@@ -613,8 +613,11 @@ shinyServer(function(input, output, session){
                 })        
             
             # Plotly output allowing to brush out individual values per EMU
-            
-            output$plotly_selected_year <-renderPlotly({       
+      x <- sample(c(1:5, NA, NA, NA))
+      coalesce(x, 0L)
+            output$plotly_selected_year <-renderPlotly({  
+                  coalesce 
+                  datagr$hl <- as.factor(str_c(datagr$eel_lfs_code, coalesce(datagr$eel_hty_code,"no"),collapse= "&"))   
                        plot_ly(datagr, x = ~eel_emu_nameshort, y = ~eel_value,
                           # Hover text:
                           text = ~paste("Lifestage: ", eel_lfs_code, 
@@ -622,7 +625,8 @@ shinyServer(function(input, output, session){
                               '$<br> Area_division:', eel_area_division,
                               '$<br> Source:', eel_datasource,
                               '$<br> Value:', eel_value),
-                          color = ~eel_lfs_code )                      
+                          color = ~ eel_lfs_code,
+                          split = ~eel_hty_code)                      
                 }) 
             
           }, ignoreNULL = TRUE) # additional arguments to observe ...
