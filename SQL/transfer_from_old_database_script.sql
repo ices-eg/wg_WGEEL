@@ -803,3 +803,6 @@ begin;
 update datawg.t_series_ser set (ser_x,ser_y)=(8.91,54.71) where ser_nameshort='Lang';
 update datawg.t_series_ser set geom=ST_SetSRID(ST_MakePoint(ser_x, ser_y),4326) where ser_nameshort='Lang';
 commit;
+
+
+COMMENT ON COLUMN ref.tr_station."PURPM" IS 'Purpose of monitoring http://vocab.ices.dk/?ref=1399';
