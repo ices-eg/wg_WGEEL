@@ -156,3 +156,65 @@ sqldf("INSERT INTO datawg.t_dataseries_das(
         'Inserted 2017 Derek Evans' as das_comment
 		FROM bann;")
 
+
+#---------------------------
+# script to integrate 8 new series from the UK one by one (only one saved)
+#-------------------------------------
+datawd<-"C:/Users/cedric.briand/Documents/projets/GRISAM/2018/datacall/datacallfiles/Eel_Data_Call_Great_Brittain/"
+series_info<-read_excel(path=str_c(datawd,"Eel_Data_Call_Annex1_Recruitment_GB.xlsx"), sheet="series_info")
+
+# series are ordered from North to South
+# last series from UK currently 20
+# I'm inserting 8 new numbers....
+# RUN ONCE ONLY
+#sqldf("update datawg.t_series_ser set ser_order=ser_order+8 where ser_order>20;")
+series_info$ser_namelong
+series_info$ser_order <- 21:28
+
+series_info$ser_tblcodeid<-NULL
+nchar(series_info$ser_namelong) # manual correction to avoid length > 50
+series_info$ser_qal_id <- c(1,0,0)
+series_info$ser_qal_comment <- c("Series > 10 years","Too short","Too short")
+# insert new series
+# dplyr::glimpse(series_info)
+,"ser_emu_nameshort","ser_cou_code","ser_area_division","ser_tblcodeid","ser_x","ser_y","geom","ser_sam_id","ser_qal_id","ser_qal_comment"
+
+sqldf("INSERT INTO  datawg.t_series_ser(
+          ser_order, 
+          ser_nameshort, 
+          ser_namelong, 
+          ser_typ_id, 
+          ser_effort_uni_code, 
+          ser_comment, 
+          ser_uni_code, 
+          ser_lfs_code, 
+          ser_hty_code, 
+          ser_habitat_name, 
+          ser_emu_nameshort, 
+          ser_cou_code, 
+          ser_area_division,
+          --ser_tblcodeid,
+          ser_x, 
+          ser_y, 
+          ser_sam_id,
+          ser_qal_id,
+          ser_qal_comment) SELECT   
+          ser_order, 
+          ser_nameshort, 
+          ser_namelong, 
+          ser_typ_id, 
+          ser_effort_uni_code, 
+          ser_comment, 
+          ser_uni_code, 
+          ser_lfs_code, 
+          ser_hty_code, 
+          ser_habitat_name, 
+          ser_emu_nameshort, 
+          ser_cou_code, 
+          ser_area_division,
+          --ser_tblcodeid,
+          ser_x, 
+          ser_y, 
+          ser_sam_id,
+          ser_qal_id,
+          ser_qal_comment from series_info;")
