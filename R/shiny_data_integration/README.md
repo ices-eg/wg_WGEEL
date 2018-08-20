@@ -101,6 +101,7 @@ several html tabs are generated dynamically in server.R according to checks on t
 ##Server.R
 
 ###data load
+<<<<<<< HEAD
 
 The excel files are processed. Upon reading the input the interface switches automatically to the right type of data. 
 ```r
@@ -257,7 +258,114 @@ query <- paste(query1, query2)
 
 
 ```
+=======
+>>>>>>> branch 'master' of https://github.com/ices-eg/wg_WGEEL.git
 
+The excel files are processed. Upon reading the input the interface switches automatically to the right type of data. 
+```r
+      step0_filepath <- reactive({
+            inFile <- input$xlfile      
+            if (is.null(inFile)){        return(NULL)
+            } else {
+              data$path_step0<-inFile$datapath #path to a temp file
+              if (grepl(c("catch"),tolower(inFile$name))) 
+                updateRadioButtons(session, "file_type", selected = "catch_landings")
+              if (grepl(c("release"),tolower(inFile$name)))
+                updateRadioButtons(session, "file_type", selected = "release")
+              if (grepl(c("aquaculture"),tolower(inFile$name)))
+                updateRadioButtons(session, "file_type", selected = "aquaculture")
+              if (grepl(c("biomass_indicator"),tolower(inFile$name))) 
+                updateRadioButtons(session, "file_type", selected = "biomass")             
+              if (grepl(c("habitat"),tolower(inFile$name)))
+                updateRadioButtons(session, "file_type", selected = "potential_available_habitat")
+              if (grepl(c("silver"),tolower(inFile$name))) 
+                updateRadioButtons(session, "file_type", selected = "mortality_silver_equiv")      
+              if (grepl(c("rate"),tolower(inFile$name)))
+                updateRadioButtons(session, "file_type", selected = "mortality_rates")
+            }
+          }) 
+```
+
+Pressing the button will trigger the insertion of a data in the log file via 
+
+```r
+log_datacall( "check data",cou_code = cou_code, message = paste(rls$message,collapse="\n"), the_metadata = rls$res$the_metadata, file_type = file_type, main_assessor = main_assessor, secondary_assessor = secondary_assessor )
+```
+When the button is pressed, the files are processed using the [check_utilities](https://github.com/ices-eg/wg_WGEEL/blob/master/R/utilities/check_utilities.R) functions which are built to assess the integrity of a column, for instance for 
+countries we have 
+```r
+###### eel_cou_code ##############
+   
+# must be a character
+    data_error= rbind(data_error, check_type(dataset=data_xls,
+            column="eel_cou_code",
+            country=country,
+            type="character"))
+    
+# should not have any missing value
+    data_error= rbind(data_error, check_missing(dataset=data_xls,
+            column="eel_cou_code",
+            country=country))
+    
+# must only have one value
+    data_error= rbind(data_error, check_unique(dataset=data_xls,
+            column="eel_cou_code",
+            country=country))
+```
+
+Those functions are then applied differently according to the dataset, in [loading functions.R](https://github.com/ices-eg/wg_WGEEL/blob/master/R/utilities/loading_functions.R)
+
+### check for duplicates
+Data are retrieved from the database using the extract data function which is built on postgreSQL [views](https://github.com/ices-eg/wg_WGEEL/blob/master/SQL/views.sql) per data type
+```r
+ switch (input$file_type, "catch_landings"={                                     
+                  data_from_base<-extract_data("Landings")                  
+                },
+                "release"={
+                  data_from_base<-extract_data("Release")
+                },
+                "aquaculture"={             
+                  data_from_base<-extract_data("Aquaculture")},
+                "biomass"={
+                  # bug in excel file
+                  colnames(data_from_excel)[colnames(data_from_excel)=="typ_name"]<-"eel_typ_name"
+                  data_from_base<-rbind(
+                      extract_data("B0"),
+                      extract_data("Bbest"),
+                      extract_data("Bcurrent"))
+                },
+                "potential_available_habitat"={
+                  data_from_base<-extract_data("Potential available habitat")                  
+                },
+                "silver_eel_equivalents"={
+                  data_from_base<-extract_data("Mortality in Silver Equivalents")      
+                  
+                },
+                "mortality_rates"={
+                  data_from_base<-rbind(
+                      extract_data("Sigma A"),
+                      extract_data("Sigma F"),
+                      extract_data("Sigma H"))
+                }    
+
+```
+
+They are compared to the current data type via [database_tools.R](https://github.com/ices-eg/wg_WGEEL/blob/master/R/shiny_data_integration/shiny/database_tools.R) using inner join on columns
+`"eel_typ_id", "eel_year", "eel_lfs_code","eel_emu_nameshort", "eel_cou_code", "eel_hty_code", "eel_area_division"`
+```r
+duplicates <- data_from_base %>% dplyr::filter(eel_typ_id %in% current_typ_id & 
+              eel_cou_code == current_cou_code) %>% dplyr::select(eel_colnames) %>% # dplyr::select(-eel_cou_code)%>%
+      dplyr::inner_join(data_from_excel, by = c("eel_typ_id", "eel_year", "eel_lfs_code", 
+              "eel_emu_nameshort", "eel_cou_code", "eel_hty_code", "eel_area_division"), 
+          suffix = c(".base", ".xls"))
+
+```
+New data correspond to an anti-join
+```r
+  new <- dplyr::anti_join(data_from_excel, data_from_base, by = c("eel_typ_id", 
+          "eel_year", "eel_lfs_code", "eel_emu_nameshort", "eel_hty_code", "eel_area_division", 
+          "eel_cou_code"), suffix = c(".base", ".xls"))
+```
 
 [data_check]: https://github.com/ices-eg/wg_WGEEL/blob/master/R/shiny_data_integration/shiny/common/images/data_check.png "Shiny app for data integration"
 [data_check_step0]: 
