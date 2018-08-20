@@ -211,7 +211,7 @@ New data correspond to an anti-join
           "eel_year", "eel_lfs_code", "eel_emu_nameshort", "eel_hty_code", "eel_area_division", 
           "eel_cou_code"), suffix = c(".base", ".xls"))
 ```
-### Insersion of new rows into the database
+### Treating the case of duplicates
 
 We should not loose any data. This is a problem discussed (here)[
 https://github.com/orgs/ices-eg/teams/wgeel/discussions/1]
@@ -268,7 +268,9 @@ The `replaced` data are inserted in the database, there is a check at the beginn
 ```r
   validate(need(all(!is.na(replaced$eel_qal_id.xls)), "All values with true in keep_new_value column should have a value in eel_qal_id \n"))
 ```
+### Inserting new rows 
 
+Same trick, use of a temp table with sqldf, and DBI to catch errors.
 
 ## Data corrections tab
 
