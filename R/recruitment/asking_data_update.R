@@ -66,7 +66,10 @@ t_series_ser<-sqldf("SELECT
       t_series_ser.ser_tblcodeid, 
       t_series_ser.ser_x, 
       t_series_ser.ser_y, 
-      t_series_ser.ser_sam_id
+      t_series_ser.ser_sam_id,
+      t_series_ser.ser_qal_id,
+      t_series_ser.ser_qal_comment
+
         FROM 
 datawg.t_series_ser;")
 # converting some information to latin1, necessary for latin1 final user
