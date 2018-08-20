@@ -23,23 +23,22 @@ the_eel_datasource <- "test"
 ```
 Create also this code in the reference table `ref.tr_datasource_dts`
 
+The table of current users of the app is created in `datawg.participants`, update this with the wgeel participant list before wgeel.
+
 Change can also be done in 
 
 https://github.com/ices-eg/wg_WGEEL/blob/a353ad8ccccffb66f46b001654b30a897398bb7c/R/database_interaction/database_connection.R#L14
 to use an interactive data entry for database name and user using [getPass](https://www.rdocumentation.org/packages/getPass/versions/0.2-2/topics/getPass)
 
 
+### Application details : data integration
 
-
-
-
-### Application details
 You must set the working directory at the root of the git
 ```r
 setwd("C:\\Users\\cedric.briand\\Documents\\GitHub\\WGEEL")
 ```
 to test the app you need to put the files from wgeel 2018 datacall in a folder
-launch by running run.R
+launch by running run.R. In R studio, open the [ui.R](https://github.com/ices-eg/wg_WGEEL/blob/master/R/shiny_data_integration/shiny/ui.R) or [server.r](https://github.com/ices-eg/wg_WGEEL/blob/master/R/shiny_data_integration/shiny/server.R) and click on the RunApp button appearing at the top of the file.
 ![alt text][data_check]
  * click button **1**, browse to select file, _from this step the road to the next steps will be explained by rows of text_. 
  * click on the button **2**, the functions running the check on your data will return a list of error, and an excel file with those errors, check them, re-run untill you have solved all errors
@@ -56,11 +55,27 @@ launch by running run.R
 
  ![alt text][data_check_step1]
 
-[data_check]: https://github.com/ices-eg/wg_WGEEL/blob/master/R/shiny_data_integration/shiny/common/images/data_check.png "Shiny app for data integration"
-[data_check_step0]: 
-https://user-images.githubusercontent.com/26055877/42418061-9b6dcf0e-8298-11e8-9fd1-89fed97f832a.png
-[data_check_step1]: 
-https://user-images.githubusercontent.com/26055877/42418064-ae3a6976-8298-11e8-8874-765c0218422e.png
+
+
+### Application details : data correction
+
+Click on button edit in the tab panel on the left
+Select a country, a type of data and choose a year range.
+ ![alt text][data_correction_step0]
+To *edit* a cell, simply click inside modify the value, you can edit several cell,
+ ![alt text][data_correction_step0]
+Then click on the save button, a message will be displayed. Once changes are made, you can click on the clear button if you want to go back to the previous values. 
+ ![alt text][data_correction_step1]
+
+
+## Data exploration tab to check for duplicates 
+Tou can select a type (e.g. aquaculture or com_landings kg)  and a country (this is intented to country report leaders). This graph will diplay selected values on the left and discarded values on the right  (note : here the graph does not contain any discarded value.)
+
+This creates a graph where total values are displayed and color according to the number of observation in the database for that year. There can be many as there are observations per emu, per lifestage and per habitat type.  
+
+When you click on a bar, all corresponding lines are displayed, you can also explore details on plotly graph displayed by emu_code and stage on the right, hovering on this graph produces information.
+
+![image](https://user-images.githubusercontent.com/26055877/44299808-ee673680-a2fc-11e8-8810-42160141eda6.png)
 
 ## global.R
 
@@ -72,6 +87,18 @@ setwd("C:\\Users\\cedric.briand\\Documents\\GitHub\\WGEEL\\R\\shiny_data_integra
 
 ## UI.R
 
-
+the ui uses shinydashboard for appearance, it also uses Shinyjs to create a stop button [closewindow](https://github.com/daattali/advanced-shiny/blob/master/close-window/app.R) usefull when developping the app.
 
 ##Server.R
+
+
+
+[data_check]: https://github.com/ices-eg/wg_WGEEL/blob/master/R/shiny_data_integration/shiny/common/images/data_check.png "Shiny app for data integration"
+[data_check_step0]: 
+https://user-images.githubusercontent.com/26055877/42418061-9b6dcf0e-8298-11e8-9fd1-89fed97f832a.png
+[data_check_step1]: 
+https://user-images.githubusercontent.com/26055877/42418064-ae3a6976-8298-11e8-8874-765c0218422e.png
+[data_correction_step0]:
+https://user-images.githubusercontent.com/26055877/44337425-fa790280-a47a-11e8-9f04-916f3fa5887e.png
+[data_correction_step1]:
+https://user-images.githubusercontent.com/26055877/44337741-f4375600-a47b-11e8-9515-11b572923586.png
