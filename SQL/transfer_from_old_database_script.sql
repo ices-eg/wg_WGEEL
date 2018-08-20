@@ -806,3 +806,22 @@ commit;
 
 
 COMMENT ON COLUMN ref.tr_station."PURPM" IS 'Purpose of monitoring http://vocab.ices.dk/?ref=1399';
+
+
+-- problem yet again with IE_Norw, was in two component, here I'm creating the union after restoring an old version
+
+select * from ref.tempemu where emu_namesh= 'IE_NorW'
+select st_geometrytype(geom) from ref.tr_emu_emu;--  mixing of multipolygon and polygon => I can use st_collect without dump
+update ref.tr_emu_emu 
+	set geom = (select st_union(geom) 
+	from ref.tempemu temp where emu_namesh= 'IE_NorW') 
+	where emu_nameshort = 'IE_NorW';
+
+update ref.tr_emusplit_ems
+	set geom = (select st_union(geom) 
+	from ref.tempemu temp where emu_namesh= 'IE_NorW') 
+	where emu_nameshort = 'IE_NorW';
+
+
+	
+
