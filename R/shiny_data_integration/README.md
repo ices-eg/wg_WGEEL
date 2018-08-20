@@ -1,7 +1,7 @@
 # Shiny data integration
 
 
-This is the interface to run the shiny data integration. The basic idea is (1) to let wgeel experts do the checks on the files, (2) help them to qualify the data (3) compare data with those existing in the database and check for duplicates.
+This is the interface to run the shiny data integration. The basic idea is (1) to let wgeel experts do the checks on the files, (2) help them to qualify the data (3) compare data with those existing in the database and check for duplicates. There are two tabs, one to edit data straight into the database, the other to display graph to check for duplicates once data are submitted.
 
 *last update 2018*
 
@@ -272,7 +272,7 @@ The `replaced` data are inserted in the database, there is a check at the beginn
 
 ## Data corrections tab
 
-Everything is detailed here https://yihui.shinyapps.io/DT-edit/ however again there was the problem of catching the error and diplaying it to the user. Note also the use of glue to protect from sql insertions...
+Everything is detailed here https://yihui.shinyapps.io/DT-edit/ however again there was the problem of catching the error and displaying it to the user. Note also the use of glue to protect from SQL insertions...
 
 
 ```r
