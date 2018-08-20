@@ -77,11 +77,8 @@ pool <- pool::dbPool(drv = dbDriver("PostgreSQL"),
 onStop(function() {
         poolClose(pool)
     }) # important!
-##########################
-# CHANGE THIS LINE AT THE NEXT DATACALL AND WHEN TEST IS FINISHED
-# BEFORE WGEEL sqldf('delete from datawg.t_eelstock_eel where eel_datasource='datacall_2018_test')
-########################
-the_eel_datasource <- "datacall_2018_test"
+
+
 
 
 # below dbListFields from R postgres doesn't work, so I'm extracting the colnames from 
@@ -123,7 +120,10 @@ source("database_tools.R")
 source("graphs.R")
 
 # VERY IMPORTANT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -------------------------------------------------
-
+##########################
+# CHANGE THIS LINE AT THE NEXT DATACALL AND WHEN TEST IS FINISHED
+# BEFORE WGEEL sqldf('delete from datawg.t_eelstock_eel where eel_datasource='datacall_2018_test')
+########################
 qualify_code<-18 # change this code here and in tr_quality_qal for next wgeel
-
-
+the_eel_datasource <- "test"
+#the_eel_datasource <- "dc_2018"

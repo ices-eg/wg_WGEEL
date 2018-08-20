@@ -1,11 +1,39 @@
 # Shiny data integration
 
 
-this is the interface to run the shiny data integration. The basic idea is (1) to let wgeel experts do the checks on the files, (2) help them to qualify the data (3) compare data with those existing in the database and check for duplicates.
+This is the interface to run the shiny data integration. The basic idea is (1) to let wgeel experts do the checks on the files, (2) help them to qualify the data (3) compare data with those existing in the database and check for duplicates.
 
 *last update 2018*
 
 ## recipe
+
+### first things to do before new wgeel
+
+At the end of global.R set the code for `qal_id` and a variable `the_eel_datasource`
+
+```r
+# VERY IMPORTANT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -------------------------------------------------
+##########################
+# CHANGE THIS LINE AT THE NEXT DATACALL AND WHEN TEST IS FINISHED
+# BEFORE WGEEL sqldf('delete from datawg.t_eelstock_eel where eel_datasource='datacall_2018_test')
+########################
+qualify_code<-18 # change this code here and in tr_quality_qal for next wgeel
+the_eel_datasource <- "test"
+# the_eel_datasource <- "dc_2018"
+```
+Create also this code in the reference table `ref.tr_datasource_dts`
+
+Change can also be done in 
+
+https://github.com/ices-eg/wg_WGEEL/blob/a353ad8ccccffb66f46b001654b30a897398bb7c/R/database_interaction/database_connection.R#L14
+to use an interactive data entry for database name and user using [getPass](https://www.rdocumentation.org/packages/getPass/versions/0.2-2/topics/getPass)
+
+
+
+
+
+
+### Application details
 You must set the working directory at the root of the git
 ```r
 setwd("C:\\Users\\cedric.briand\\Documents\\GitHub\\WGEEL")
@@ -33,3 +61,17 @@ launch by running run.R
 https://user-images.githubusercontent.com/26055877/42418061-9b6dcf0e-8298-11e8-9fd1-89fed97f832a.png
 [data_check_step1]: 
 https://user-images.githubusercontent.com/26055877/42418064-ae3a6976-8298-11e8-8874-765c0218422e.png
+
+## global.R
+
+This file is processed at launching, you can load it if you plan to debug the app,
+set your working directory to your local copy of the *shiny\_data\_integration tab\\shiny*. Important : in this file you need to set up 
+```r
+setwd("C:\\Users\\cedric.briand\\Documents\\GitHub\\WGEEL\\R\\shiny_data_integration\\shiny")
+```
+
+## UI.R
+
+
+
+##Server.R
