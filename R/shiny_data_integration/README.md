@@ -76,7 +76,8 @@ Then click on the save button, a message will be displayed. Once changes are mad
  ![alt text][data_correction_step1]
 
 
-## Data exploration tab to check for duplicates 
+### Data exploration tab to check for duplicates 
+
 You can select a type (e.g. aquaculture or com_landings kg)  and a country (this is intented to country report leaders). This graph will diplay selected values on the left and discarded values on the right  (note : here the graph does not contain any discarded value.)
 
 This creates a graph where total values are displayed and color according to the number of observation in the database for that year. There can be many as there are observations per emu, per lifestage and per habitat type.  
@@ -84,6 +85,10 @@ This creates a graph where total values are displayed and color according to the
 When you click on a bar, all corresponding lines are displayed, you can also explore details on plotly graph displayed by emu_code and stage on the right, hovering on this graph produces information.
 
 ![image](https://user-images.githubusercontent.com/26055877/44299808-ee673680-a2fc-11e8-8810-42160141eda6.png)
+
+
+
+# Programming details
 
 ## global.R
 
@@ -97,10 +102,9 @@ setwd("C:\\Users\\cedric.briand\\Documents\\GitHub\\WGEEL\\R\\shiny_data_integra
 
 the ui uses shinydashboard for appearance, it also uses Shinyjs to create a stop button [closewindow](https://github.com/daattali/advanced-shiny/blob/master/close-window/app.R) usefull when developping the app.
 several html tabs are generated dynamically in server.R according to checks on the user input (for instance in some cases there are no duplicates, then the user is returned the information no duplicates). Small pieces of text will inform the user on the way forward.
+## Server.R
 
-##Server.R
-
-###data load
+### data load
 
 The excel files are processed. Upon reading the input the interface switches automatically to the right type of data. 
 ```r
@@ -231,7 +235,7 @@ The user is returned an excel file with a column keep_new_value in which he will
 The user must qualify the new data (as when inserting `eel_qal_id` cannot be NULL
 
 There are two programming tricks to be aware of :
- * Note the use of poolCheckout to catch the error. I've tried many ways with sqldf but trycatch failed to catch the error (it's an internal problem to dbi). Hence the use of DBI.  Two queries are run at once to catch error on failure and not be stuck with only half the modification done.
+ * Note the use of poolCheckout to catch the error. I've tried many ways with sqldf but trycatch failed to catch the error (it's an internal problem to dbi). Hence the use of DBI.  Two queries are run at once to catch error on failure and not be stuck with only half the modification done. See https:/stackoverflow.com/questions/34332769/how-to-use-dbgetquery-in-trycatch-with-postgresql
  
  * sqldf is handy because you can run queries with objet from R as if they were table inside the database. As you cannot do that with DBI, I've had to first create the temporary table using sqldf and only then run the DBI query
 
@@ -263,9 +267,47 @@ The `replaced` data are inserted in the database, there is a check at the beginn
 
 ```r
   validate(need(all(!is.na(replaced$eel_qal_id.xls)), "All values with true in keep_new_value column should have a value in eel_qal_id \n"))
-
 ```
 
+
+## Data corrections tab
+
+Everything is detailed here https://yihui.shinyapps.io/DT-edit/ however again there was the problem of catching the error and diplaying it to the user. Note also the use of glue to protect from sql insertions...
+
+
+```r
+update_t_eelstock_eel <- function(editedValue, pool, data) {
+  # Keep only the last modification for a cell edited Value is a data frame with
+  # columns row, col, value this part ensures that only the last value changed in a
+  # cell is replaced.  Previous edits are ignored
+  editedValue <- editedValue %>% group_by(row, col) %>% filter(value == dplyr::last(value) | 
+          is.na(value)) %>% ungroup()
+  # opens the connection, this must be followed by poolReturn
+  conn <- poolCheckout(pool)
+  # Apply to all rows of editedValue dataframe
+  t_eelstock_eel_ids <- data$eel_id
+  error = list()
+  lapply(seq_len(nrow(editedValue)), function(i) {
+        row = editedValue$row[i]
+        id = t_eelstock_eel_ids[row]
+        col = t_eelstock_eel_fields[editedValue$col[i]]
+        value = editedValue$value[i]
+        # glue sql will use arguments tbl, col, value and id
+        query <- glue::glue_sql("UPDATE datawg.t_eelstock_eel SET
+                {`col`} = {value}
+                WHERE eel_id = {id}
+                ", 
+            .con = conn)
+        tryCatch({
+              dbExecute(conn, sqlInterpolate(ANSI(), query))
+            }, error = function(e) {
+              error[i] <<- e
+            })
+      })
+  poolReturn(conn)
+  # print(editedValue)
+  return(error)
+}
 ```
 
 [data_check]: https://github.com/ices-eg/wg_WGEEL/blob/master/R/shiny_data_integration/shiny/common/images/data_check.png "Shiny app for data integration"
