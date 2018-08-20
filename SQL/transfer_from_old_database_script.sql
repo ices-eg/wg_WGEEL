@@ -823,5 +823,15 @@ update ref.tr_emusplit_ems
 	where emu_nameshort = 'IE_NorW';
 
 
+-- Truly creating the datasource table
+
+alter table datawg.tr_datasource_dts set schema ref;
+--select * from ref.tr_datasource_dts;
+-- select distinct eel_datasource from datawg.t_eelstock_eel
+alter table ref.tr_datasource_dts add constraint c_pk_tr_datasource_dts primary key (dts_datasource);
+update from datawg.t_eelstock_eel set eel_datasource = 'test' where eel_datasource is null;
 	
 
+begin;
+update datawg.t_series_ser set geom=ST_SetSRID(ST_MakePoint(ser_x, ser_y),4326) where ser_nameshort in ('Flag','FlaE','BeeG','BroG','BroY','BroE','Grey','Stra');
+commit;
