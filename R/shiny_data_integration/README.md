@@ -63,12 +63,14 @@ launch by running run.R. In R studio, open the [ui.R](https://github.com/ices-eg
 Click on button edit in the tab panel on the left
 Select a country, a type of data and choose a year range.
 
+#### Choice of county and type :
+
  ![alt text][data_correction_step0]
  
 To *edit* a cell, simply click inside modify the value, you can edit several cell,
 Then click on the save button, a message will be displayed. Once changes are made, you can click on the clear button if you want to go back to the previous values. 
 
-
+#### Data edition straight into the database :
  ![alt text][data_correction_step1]
 
 
