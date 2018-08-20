@@ -39,6 +39,7 @@ setwd("C:\\Users\\cedric.briand\\Documents\\GitHub\\WGEEL")
 ```
 to test the app you need to put the files from wgeel 2018 datacall in a folder
 launch by running run.R. In R studio, open the [ui.R](https://github.com/ices-eg/wg_WGEEL/blob/master/R/shiny_data_integration/shiny/ui.R) or [server.r](https://github.com/ices-eg/wg_WGEEL/blob/master/R/shiny_data_integration/shiny/server.R) and click on the RunApp button appearing at the top of the file.
+
 ![alt text][data_check]
  * click button **1**, browse to select file, _from this step the road to the next steps will be explained by rows of text_. 
  * click on the button **2**, the functions running the check on your data will return a list of error, and an excel file with those errors, check them, re-run untill you have solved all errors
@@ -63,7 +64,6 @@ Click on button edit in the tab panel on the left
 Select a country, a type of data and choose a year range.
  ![alt text][data_correction_step0]
 To *edit* a cell, simply click inside modify the value, you can edit several cell,
- ![alt text][data_correction_step0]
 Then click on the save button, a message will be displayed. Once changes are made, you can click on the clear button if you want to go back to the previous values. 
  ![alt text][data_correction_step1]
 
