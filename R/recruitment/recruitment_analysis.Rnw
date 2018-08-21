@@ -5,6 +5,9 @@
 % such as Eclipse or Rstudio
 % this script is intended to run with sweave not knitr
 % It produces a nice pdf which has to be turned into a less nice word document
+% cd C:\Users\cedric.briand\Documents\GitHub\WGEEL\R\recruitment
+% pandoc -s -o recruitment.docx --from=latex --to=docx  recruitment_analysis.tex
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -13,7 +16,7 @@
 <<init, eval=TRUE,echo=FALSE,results=hide>>=
 # Password are stored in R/etc/Rprofile.site
 # For the moment the database is stored locally
-CY<-2017 # current year ==> don't forget to update the graphics path below
+CY<-2018 # current year ==> don't forget to update the graphics path below
 # ----------------------------------
 # wgeel2016 discussed that the correct way of 
 # calculating average of predictions was to use geomean
@@ -49,7 +52,7 @@ if(!require(MASS)) install.packages("MASS") ; require(MASS)
 if(!require(lme4)) install.packages("lme4") ; require(lme4)
 
 #--------------------------------
-# get your current name
+# get your current name 
 #--------------------------------
 getUsername <- function(){
   name <- Sys.info()[["user"]]
@@ -68,10 +71,10 @@ getUsername <- function(){
 # FOLDER is the directory where you have stored the git code
 # So you need to create a directory to store data and figures besides this 
 # directory, like this
-# FOLDER>datawgeel>recruitement>2017>data
-# FOLDER>datawgeel>recruitement>2017>image
-# FOLDER>datawgeel>recruitement>2017>table
-# here 2017 is the current year of recruitment (I have several folders one for each year)
+# FOLDER>datawgeel>recruitement>2018>data
+# FOLDER>datawgeel>recruitement>2018>image
+# FOLDER>datawgeel>recruitement>2018>table
+# here 2018 is the current year of recruitment (I have several folders one for each year)
 # the reason for this is that we don't want to put data or figures in the git.
 #--------------------------------
 
@@ -218,7 +221,7 @@ vv<-list()
 % this is where I'm storing files locally
 \graphicspath{{\Sexpr{str_c(imgwd, "/")}}} 
 % TO UPDATE TO THE NEW YEAR
-% DO REPLACE FOR INSTANCE F:/workspace/wgeeldata/sweave/2016/table by F:/workspace/wgeeldata/sweave/2017/table
+% DO REPLACE FOR INSTANCE F:/workspace/wgeeldata/sweave/2016/table by F:/workspace/wgeeldata/sweave/2018/table
 %%%%%%%%%%%%%%%%%%%%%%%%%% END OF THE PREAMBLE  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{document}
 \bibliographystyle{plain}
@@ -250,10 +253,19 @@ vv<-list()
 
 
 ##########################"
-# Description of the series
+# Description of the series -------------------------------
 ##########################
 
-query ='select * from datawg.t_series_ser 
+query ='select 
+ ser_id, ser_order, ser_nameshort, ser_namelong, ser_typ_id, ser_effort_uni_code,
+ ser_comment, ser_uni_code, ser_lfs_code, ser_hty_code, ser_habitat_name,
+  ser_emu_nameshort, ser_cou_code, ser_area_division, ser_x, ser_y,             
+ ser_sam_id, ser_qal_id, ser_qal_comment,     
+ "tblCodeID", "Station_Code", "Country", "Organisation", "Station_Name",       
+ cou_code, cou_country, cou_order, cou_iso3code,
+ lfs_code, lfs_name, lfs_definition,              
+ ocean,  subocean, f_area, f_subarea,  f_division
+ from datawg.t_series_ser 
 	left join ref.tr_station on ser_tblcodeid=tr_station."tblCodeID"
 	left join ref.tr_country_cou on cou_code=ser_cou_code 
 	left join ref.tr_lifestage_lfs on ser_lfs_code=lfs_code
@@ -261,9 +273,10 @@ query ='select * from datawg.t_series_ser
 	where ser_typ_id=1'
 
 R_stations= sqldf(query)
+ 
 
 ##########################
-# Main data from the series
+# Main data from the series -------------------------------
 ##########################
 
 query='SELECT 
@@ -279,9 +292,9 @@ query='SELECT
 	das_last_update,
 	*/
 	/* 
-	-- this is the id on quality, not used yet but plans to use later
+	-- this is the id on quality, used from 2018
 	-- to remove the data with problems on quality from the series
-	-- see WKEEKDATA (2017)
+	-- see WKEEKDATA (2018)
 	das_qal_id,
 	*/ 
 	ser_id,            
@@ -289,6 +302,12 @@ query='SELECT
 	ser_nameshort,
 	ser_area_division,
 	ser_qal_id,
+	/* 
+	-- this is the id on quality at the level of individual lines of data
+	-- checks are done later to ensure provide a summary of the number of 0 (missing data),
+    -- 3 data discarded, 4 used but with doubts....
+	das_qal_id,
+	*/ 
 	f_subarea,
 	lfs_code,          
 	lfs_name
@@ -370,8 +389,10 @@ load(file=str_c(datawd,"/statseries.Rdata"))
 
 wgerinit<-wger
 vv$nb_series_init<-length(unique(wger$site)) # this is the true number at the beginning
-# 2017 removing series which are not of the best quality;
+# 2018 removing series which are not of the best quality;
 wger<-wger[wger$ser_qal_id==1,]
+#TODO calculate which series longer than 10 which have qal 0, issue a message
+#TODO remove individual years with no data and issue a warning
 vv$nb_series_init_qual1<-length(unique(wger$site))
 #########################################################################
 # standardizing with 2000-2009
@@ -703,7 +724,7 @@ first_line<-c("kept",statseries$series_kept)
 tab1<-rbind(first_line,tab1)
 createxl<-function(data=tab1,sheet="recruitment_series"){
   library("XLConnect")
-  xls.file<-str_c(datawd,"/","table_rec2017.xls")
+  xls.file<-str_c(datawd,"/","table_rec2018.xls")
   wb = loadWorkbook(xls.file, create = TRUE)
   createSheet(wb,sheet)
   writeWorksheet (wb , data , sheet=sheet ,header = TRUE )
@@ -1127,7 +1148,7 @@ figure_check_one_series<-function(site='Katw',limits=c(1900,CY)){
 	  annotate("rect",xmin=1900,ymin=0,xmax=1960,ymax=10,fill="grey",alpha=0.5)
   return(g)
 }
-figure_check_one_series("Katw",limits=c(1960,2017))
+figure_check_one_series("Katw",limits=c(1960,2018))
 @
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %************************************************************************************
@@ -1513,7 +1534,7 @@ wisesp=readShapePoly(str_c(shpwd,"/","rbd_f1v3_3035.shp")) # a spatial object of
 country_c=readShapePoints(str_c(shpwd,"/","t_country_coun_3035"))# a spatial object of class sp
 # this is the map of coutry centers, to overlay points for each country
 emusp0=readShapePoly(str_c(shpwd,"/","t_emuagreg_ema_3035")) # a spatial object of class sp
-years<-1960:2017
+years<-1960:2018
 bb<-bbox(emusp0)
 # loop to create all the graphs
 for (year in years){
@@ -1750,10 +1771,10 @@ average. Note the logarithmic scale on the y-axis.}
 \end{figure}
 %==========================================
 
-Both WGEEL recruitment indices for 2017 are lower than 2014, but modelling a
+Both WGEEL recruitment indices for 2018 are lower than 2014, but modelling a
 breakpoint arround the minima of 2011 still gives significant results when using
-the lower value from 2017 (p=\Sexpr{sn(sgipee_test_for_change_ee,digits=1)}
-Elsewhere Europe and p=\Sexpr{sn(sgipee_test_for_change_ns,digits=1)} North Sea ICES SGIPEE(2011)). The 2017 level with respect to 1960-1979 averages is
+the lower value from 2018 (p=\Sexpr{sn(sgipee_test_for_change_ee,digits=1)}
+Elsewhere Europe and p=\Sexpr{sn(sgipee_test_for_change_ns,digits=1)} North Sea ICES SGIPEE(2011)). The 2018 level with respect to 1960-1979 averages is
 \Sexpr{sn(100*gg0[rownames(gg0)==CY,"NS"],digits=1)}\% for the North Sea 
 and \Sexpr{sn(100*gg0[rownames(gg0)==CY,"EE"],digits=1)}\% elsewhere in the distribution area 
 (Tables \ref{table_glm_glass_eel} and \ref{table_glm_yellow}). The increase in
@@ -1819,9 +1840,9 @@ criteria have been chosen by wgeel to select those series, and precise them here
 (Table \ref{statseries})
 
 \item \textcolor{Plum}{Adapt here : Among the time-series based on trap indices,
-some have reported preliminary data for 2017 as the season is not yet finished (Lagan (SW), Kävlingeån (SW),
+some have reported preliminary data for 2018 as the season is not yet finished (Lagan (SW), Kävlingeån (SW),
  Bresle (FR)).}
-Therefore, the indices given for 2017 must be considered as provisional
+Therefore, the indices given for 2018 must be considered as provisional
 especially those for the yellow eel. 
 
 \item New historical data have been collected for the Bann from 1933 to 1948.
@@ -1830,7 +1851,7 @@ data at a period where only a few dataset were available (Ems, RhineDO,
 Albufera, Gironde, Loire).
 \item New series have been added in Scotland (Girnock 10 years of data)
 and Germany (Frische Grube and Wallensteingraben 11 years of data) and Ireland (Burrishoole,
-data in 1987 1988 and again from 2007 to 2017).
+data in 1987 1988 and again from 2007 to 2018).
 \item Yser is now classified in the Atlantic, while it was wrongly classified in
 the North Sea.
 \end{itemize}
@@ -1912,12 +1933,12 @@ time-series .
 %\newpage
 %\small
 % %====================================
-%\input{C:/workspace/wgeeldata/sweave/2017/table/table_n_y_area.tex}
+%\input{C:/workspace/wgeeldata/sweave/2018/table/table_n_y_area.tex}
 % %====================================
 %\normalsize
 %\small
 % %====================================
-%\input{C:/workspace/wgeeldata/sweave/2017/table/table_n_y_lfs.tex}
+%\input{C:/workspace/wgeeldata/sweave/2018/table/table_n_y_lfs.tex}
 % %====================================
 %\normalsize
 
