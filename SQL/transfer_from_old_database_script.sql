@@ -835,3 +835,80 @@ update from datawg.t_eelstock_eel set eel_datasource = 'test' where eel_datasour
 begin;
 update datawg.t_series_ser set geom=ST_SetSRID(ST_MakePoint(ser_x, ser_y),4326) where ser_nameshort in ('Flag','FlaE','BeeG','BroG','BroY','BroE','Grey','Stra');
 commit;
+
+
+----------------------------------------------------
+-- Insert new series for Portugal, Mondego
+-- insert order value for mondego (which will be 63
+---------------------------------------------------------
+update datawg.t_series_ser set ser_order=ser_order+1 where ser_order>=63;
+
+begin;
+INSERT INTO ref.tr_station( "tblCodeID",
+"Station_Code",
+"Country",
+"Organisation",
+"Station_Name",
+"WLTYP",
+"Lat",
+"Lon",
+"StartYear",
+"EndYear",
+"PURPM",
+"Notes") 
+select max("tblCodeID")+1,
+       max("Station_Code")+1,
+       'PT' as "Country",
+       'FCUL' as "Organisation",
+	'Mond' as "Station_Name",
+	 NULL as "WLTYP",
+         40.14 as "Lat",
+	-8.82 as "Lon",
+	1988 as "StartYear",
+	NULL as "EndYear",
+	'S~T' as "PURPM",
+	NULL as "Notes"
+from ref.tr_station;
+update datawg.t_series_ser set ser_order=ser_order+1 where ser_order>=63;
+INSERT INTO  datawg.t_series_ser(
+          ser_order, 
+          ser_nameshort, 
+          ser_namelong, 
+          ser_typ_id, 
+          ser_effort_uni_code, 
+          ser_comment, 
+          ser_uni_code, 
+          ser_lfs_code, 
+          ser_hty_code, 
+          ser_habitat_name, 
+          ser_emu_nameshort, 
+          ser_cou_code, 
+          ser_area_division,
+          ser_tblcodeid,
+          ser_x, 
+          ser_y, 
+          ser_sam_id,
+          ser_qal_id,
+          ser_qal_comment) 
+          SELECT   
+          63 as ser_order, 
+          'Mond' ser_nameshort, 
+          'Mondego estuary' as ser_namelong, 
+          1 as ser_typ_id, 
+          'nr day' as ser_effort_uni_code, 
+          'Experimental fishing in Mondego estuary using stow net, 5 km from the sea' as ser_comment, 
+          'kg' as ser_uni_code, 
+          'G' as ser_lfs_code, 
+          'T' as ser_hty_code, 
+          'Mondego estuary 5 km from the sea' as ser_habitat_name, 
+          'PT_Port' as ser_emu_nameshort, 
+          'PT' as ser_cou_code, 
+          '27.9.a' as ser_area_division,
+          "tblCodeID" as ser_tblcodeid, -- this comes from station
+          -8.82 as ser_x, 
+          40.14 as ser_y, 
+          3 as ser_sam_id, -- scientific estimate
+          0 as ser_qal_id,
+          'Series too short yet < 10 years to be included' as ser_qal_comment from ref.tr_station
+          where  "Station_Name" = 'Mond';
+COMMIT;
