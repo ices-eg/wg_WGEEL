@@ -87,7 +87,7 @@ datacall_map<-function(
     
     # get scales (scales set on full dataset (from) a circle marker in pixels  --------------------
     
-  selected_countries$rescaled_value <- 100*scales::rescale(selected_countries$eel_value,
+    selected_countries$rescaled_value <- 100*scales::rescale(selected_countries$eel_value,
         from=range(ccall$eel_value)) 
     
     # color palette -------------------------------------------------------------------------------
@@ -154,7 +154,7 @@ datacall_map<-function(
     
     # get scales (scales set on full dataset (from) a circle marker in pixel  --------------------
     
-     selected_emus$rescaled_value <-  scales::rescale(selected_emus$eel_value,to=c(0,10),from=range(ccall$eel_value)) 
+    selected_emus$rescaled_value <-  scales::rescale(selected_emus$eel_value,to=c(0,10),from=range(ccall$eel_value)) 
     
     # get palette and title-----------------------------------------------------------------------
     
@@ -200,33 +200,78 @@ datacall_map<-function(
   return(list("m"=m,"data"=return_data))
 }
 
-recruitment_map <- function(){
-      
+# recruitment_map ----------------------------------------------------------------------------------- 
+
+validateCoords(mrd$ser_x,mrd$ser_y)
+
+recruitment_map <- function(R_stations, statseries, wger){
   
-      m <- leaflet(data=series) %>%
+  # when has this series last been edited (this does not mean that last data is the year it was edited)
+  
+  last_update <- wger%>%group_by(site)%>%
+      summarize(last=as.numeric(
+              format(
+                  max(das_last_update,na.rm=TRUE),"%Y")
+          ))
+  last_update$last[is.na(last_update$last)]  <-2000    
+  R_stations$ser_lfs_code <- as.factor(R_stations$ser_lfs_code)
+  
+  mrd <- merge(statseries, R_stations, by.x="site", by.y="ser_nameshort")
+  # mrd = (m)ap (r)ecruitment (d)ata
+  
+  mrd <- inner_join(mrd, last_update, by ="site")
+  
+  color_pal <- colorFactor("Dark2", mrd$ser_lfs_code) 
+  
+  # Get popup ------------------------------------------------------------------------------------
+  
+  mrd$label<-sprintf('<strong>%s %s</strong> </br>
+           years : <font color="blue">%i-%i</font> </br>
+           name : %s </br>
+           duration (missing): %i (%i) </br>
+           sampling type: %s </br>
+           used: %s </br>',
+      mrd$site,
+      mrd$lfs_code,
+      mrd$min, mrd$max,
+      mrd$namelong,
+      mrd$duration, mrd$missing,
+      mrd$sampling_type,
+      ifelse(mrd$series_kept,
+          '<font color="green">Yes</font>',
+          '<font color="red";">No</font>'))
+  
+  
+  m <- leaflet(data=mrd) %>%
       
       addProviderTiles(providers$Esri.OceanBasemap) %>% 
       
-	  addPolygons(data = country_p, weight = 2, opacity=0.3, fillOpacity =0.1) %>% 
-      
-	  fitBounds(-10, 34, 26, 65) %>%
-      
+      # Add a black circle arround series with lines updated this year ------------------------------
+      addCircleMarkers(
+          lng=~ser_x ,
+          lat=~ser_y ,
+		  color = "black",
+          fillOpacity = 0,
+          opacity = 0.9,     
+          weight = 2,
+          radius = 12,
+          data = mrd[mrd$last==2018,]          
+      ) %>%
 	  addCircleMarkers(
-          lng=~coords.x1,
-          lat=~coords.x2,
-		  color = ~color_pal(value),
-          fillColor = ~color_pal(value),
+          lng=~ser_x ,
+          lat=~ser_y ,
+		  color = ~ color_pal(ser_lfs_code),
+          fillColor = ~ color_pal(ser_lfs_code),
           fillOpacity = 0.5,
           opacity = 0.9,     
-          weight = 5,
-          radius = selected_emus$rescaled_value, 
+          weight = 1,
+          radius = 10, 
           popup = ~label,
-          layerId = ~id) %>%
-      
+          layerId = ~ser_id) %>%     
       addLegend(pal = color_pal, 
           position="bottomright",
-          values = value, 
-          title = legend.title)
+          values = mrd$ser_lfs_code, 
+          title = "Type of series </br> black circle = updated")
 }
 
 

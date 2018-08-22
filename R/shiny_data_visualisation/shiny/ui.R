@@ -4,6 +4,7 @@
 ###############################################################################
 
 ui = dashboardPage(title="ICES Data Visualisation",
+    skin = "black",
     dashboardHeader(title=div(img(src="iceslogo.png")," wgeel")),
     dashboardSidebar(
         # A button that stops the application--------------------------------------------------------
@@ -73,7 +74,15 @@ ui = dashboardPage(title="ICES Data Visualisation",
     # Content of tabs -------------------------------------------------------------------------------
     
 	dashboardBody(
-        useShinyjs(), # to be able to use shiny js      
+        # integrate custom css style
+#        tags$head(
+#            tags$link(rel = "stylesheet", type = "text/css", href = "cerulean.css")
+#        ),
+#        
+        useShinyjs(), # to be able to use shiny js 
+        
+
+     
 		tabItems(
             
             # TABLE --------------------------------------------------------------------------------

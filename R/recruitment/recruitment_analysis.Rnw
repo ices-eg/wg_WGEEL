@@ -309,6 +309,7 @@ query='SELECT
     -- 3 data discarded, 4 used but with doubts....
 	*/ 
 	das_qal_id,
+    das_last_update,
 	f_subarea,
 	lfs_code,          
 	lfs_name
@@ -370,6 +371,7 @@ statseries<-sqldf("select * from datawg.series_summary")
 # these data will 
 save(wger,R_stations,file=str_c(datawd,"/wger.Rdata"))
 save(statseries,file=str_c(datawd,"/statseries.Rdata"))
+save(R_stations,file=str_c(datawd,"/R_stations.Rdata"))
 @
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %************************************************************************************
