@@ -100,6 +100,9 @@ load("../../../data/wger.Rdata")
 load("../../../statseries.Rdata")
 load("../../../glass_eel_yoy.Rdata")
 load("../../../older.Rdata")
+# load data from recruitment ------------------------------------------------------------------------
+# note : these data have been produced by the script recruitment_analysis.Rnw
+#      : they must be installed manually in folder data    
 #########################
 # functions -----------------------------------------------------------------------------------------
 ########################

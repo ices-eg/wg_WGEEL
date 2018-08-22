@@ -28,6 +28,7 @@ ui = dashboardPage(title="ICES Data Visualisation",
 #                menuSubItem("Aquaculture",  tabName="leaflet_aquaculture_tab")
             ),  
             menuItem("Preco-diag", tabName='precodata_tab',icon= icon("dashboard",lib="glyphicon")),  
+            menuItem("Recruitment", tabName='recruit_tab',icon= icon("signal",lib= "font-awesome" )),
             
             # Sliders, radiobuttons and checkboxes. These will be used by the filter function to
             # narrow down the dataset ---------------------------------------------------------------
