@@ -44,6 +44,7 @@ if(!require(sqldf)) install.packages("sqldf") ; require(sqldf)
 if(!require(RPostgreSQL)) install.packages("RPostgreSQL") ; require(RPostgreSQL)
 if(!require(RColorBrewer)) install.packages("RColorBrewer") ; require(RColorBrewer)
 if(!require(stacomiR)) install.packages("stacomiR") ; require(stacomiR)
+if(!require(dplyr)) install.packages("dplyr") ; require(dplyr)
 if(!require(sp)) install.packages("sp") ; require(sp)
 if(!require(maptools)) install.packages("maptools") ; require(maptools)
 if(!require(maps)) install.packages("maps") ; require(maps)
@@ -257,15 +258,15 @@ vv<-list()
 ##########################
 
 query ='select 
- ser_id, ser_order, ser_nameshort, ser_namelong, ser_typ_id, ser_effort_uni_code,
- ser_comment, ser_uni_code, ser_lfs_code, ser_hty_code, ser_habitat_name,
-  ser_emu_nameshort, ser_cou_code, ser_area_division, ser_x, ser_y,             
- ser_sam_id, ser_qal_id, ser_qal_comment,     
- "tblCodeID", "Station_Code", "Country", "Organisation", "Station_Name",       
- cou_code, cou_country, cou_order, cou_iso3code,
- lfs_code, lfs_name, lfs_definition,              
- ocean,  subocean, f_area, f_subarea,  f_division
- from datawg.t_series_ser 
+     ser_id, ser_order, ser_nameshort, ser_namelong, ser_typ_id, ser_effort_uni_code,
+     ser_comment, ser_uni_code, ser_lfs_code, ser_hty_code, ser_habitat_name,
+      ser_emu_nameshort, ser_cou_code, ser_area_division, ser_x, ser_y,             
+     ser_sam_id, ser_qal_id, ser_qal_comment,     
+     "tblCodeID", "Station_Code", "Country", "Organisation", "Station_Name",       
+     cou_code, cou_country, cou_order, cou_iso3code,
+     lfs_code, lfs_name, lfs_definition,              
+     ocean,  subocean, f_area, f_subarea,  f_division
+     from datawg.t_series_ser 
 	left join ref.tr_station on ser_tblcodeid=tr_station."tblCodeID"
 	left join ref.tr_country_cou on cou_code=ser_cou_code 
 	left join ref.tr_lifestage_lfs on ser_lfs_code=lfs_code
@@ -273,7 +274,7 @@ query ='select
 	where ser_typ_id=1'
 
 R_stations= sqldf(query)
- 
+
 
 ##########################
 # Main data from the series -------------------------------
@@ -306,8 +307,8 @@ query='SELECT
 	-- this is the id on quality at the level of individual lines of data
 	-- checks are done later to ensure provide a summary of the number of 0 (missing data),
     -- 3 data discarded, 4 used but with doubts....
-	das_qal_id,
 	*/ 
+	das_qal_id,
 	f_subarea,
 	lfs_code,          
 	lfs_name
@@ -392,16 +393,57 @@ vv$nb_series_init<-length(unique(wger$site)) # this is the true number at the be
 # 2018 removing series which are not of the best quality;
 wger<-wger[wger$ser_qal_id==1,]
 #TODO calculate which series longer than 10 which have qal 0, issue a message
-#TODO remove individual years with no data and issue a warning
 vv$nb_series_init_qual1<-length(unique(wger$site))
-#########################################################################
+
+# check on series discarded -----------------------------------------------
+
+# So far I haven't automated the decision rule to only integrate new series if they
+# are more than 10 year long. So each year we have to check. Some of the series have been
+# discared for other reasons and this is stated in column eel_qal_comment of the t_series_ser table
+
+wgerdiscarded<-wgerinit[wgerinit$ser_qal_id!=1,]
+# series marked as "0" might have a very low value but not included in the analysis, here replaced by NA
+wgerdiscarded$value[wgerdiscarded$das_qal_id==0]<-NA
+# storing this information in a list for eventual later display and check
+vv$length_discared <- tapply(wgerdiscarded$value,wgerdiscarded$site,function(X) sum(!is.na(X)))
+# below comments for 2018 after checkin the series
+# Farp (Farpener Bach DE) 11 years long enough but stocking influence 
+# DoFp (Fyke on yellow eel) 13 years but fyke nets yellow catch, not really recruitment
+# SeHM (35 year) duplicates
+
+# Treating individual eel_qal_comment on the series
+# In some series and for some years, there might be a value, and a good reason not to
+# consider that value, e.g. hydropower station on which the pass is built only operated after
+# the recruitment season, or local conditions making it impossible to evaluate recruitment.
+# Series with no data have das_qal_id = 0
+# Series with data to be removed have eel_qal_id = 3
+# Series about which we have serious doubts but that we choose to keep have eel_qal_id = 4
+
+# All values labelled 0 must have no data 
+should_be_na <-  wger[!is.na(wger$das_qal_id)&wger$das_qal_id==0,c("value")]
+should_be_na_id <-  wger[!is.na(wger$das_qal_id)&wger$das_qal_id==0,c("id")]
+wger[!is.na(wger$das_qal_id)&wger$das_qal_id==0,c("value")]
+if (! all(is.na(
+        should_be_na
+    )))
+stop("Rows with id", paste(should_be_na_id[which(!is.na(should_be_na))],collapse=","), 
+    " with qal_id 0 should be NA")
+
+removed_id <-  wger[!is.na(wger$das_qal_id)&wger$das_qal_id==3,c("id")] 
+removed_year <-  wger[!is.na(wger$das_qal_id)&wger$das_qal_id==3,c("year")]
+removed_site <-  wger[!is.na(wger$das_qal_id)&wger$das_qal_id==3,c("site")]
+warnings("Rows with ids: ", paste(removed_id,collapse=","),     
+    " sites: ", paste(removed_site,collapse=","),     
+    " years: ", paste(removed_year,collapse=","),     
+    " with qal_id = 3 removed from analysis")
+  #########################################################################
 # standardizing with 2000-2009
 # this was a question asked by ACFM ? 2014 ?
 # so it's still done, we produce a graph but don't show it
 # as it might confuse the reader
-##########################################################################
-
-mdata=wger[wger$year>=2000 & wger$year<2010,]
+  ##########################################################################
+  
+  mdata=wger[wger$year>=2000 & wger$year<2010,]
 std_site<-unique(mdata$site[order(mdata$site)])
 # length(std_site) 
 site<-unique(wger$site[order(wger$site)])
@@ -1225,13 +1267,13 @@ if (opt_calculation=="geomean") {
 		  tapply(data_bis[data_bis$year>=1960 & data_bis$year<1980,"p"],
 			  data_bis[data_bis$year>=1960 & data_bis$year<1980,"area"],
 			  geomean)
-	      ))
+	  ))
 } else {
   mean_1960_1970=data.frame(mean=unlist(
 		  tapply(data_bis[data_bis$year>=1960 & data_bis$year<1980,"p"],
 			  data_bis[data_bis$year>=1960 & data_bis$year<1980,"area"],
 			  mean)
-	      ))
+	  ))
 }
 mean_1960_1970$area=rownames(mean_1960_1970)
 data_bis=merge(data_bis,mean_1960_1970,by="area")
