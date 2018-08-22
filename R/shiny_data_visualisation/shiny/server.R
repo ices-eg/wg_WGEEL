@@ -253,7 +253,7 @@ server = function(input, output, session) {
 #                )
         )})     
   
-#  Leaflet map, this uses the draw_leaflet function -------------------------------------------------  
+#  Leaflet map, this uses the datacall_map function -------------------------------------------------  
   observe({
         # CHECKME, pulse marker not working...
         select_a_point <- function(map, x, y)   {          
@@ -268,7 +268,7 @@ server = function(input, output, session) {
         output$map = renderLeaflet({
               # draw leaflet depends on input$leaflet_eel_typ_id which is generated anyways
               # it returns a list with a dataset and a leaflet map (m)
-	          ls<-draw_leaflet(dataset = input$leaflet_dataset,
+	          ls<-datacall_map(dataset = input$leaflet_dataset,
 		          years = input$year,
                   typ=input$leaflet_eel_typ_id,
 		          lfs_code= input$lfs,		    

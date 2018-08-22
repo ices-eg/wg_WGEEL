@@ -23,14 +23,14 @@
 #' @details https://github.com/kvistrup/neo_fireball_tracking/blob/master/server.R was of great help, thanks
 #' to its author ....
 #' @examples #' 
-#' draw_leaflet("landings")
-#' draw_leaflet("landings",map="emu")
-#' draw_leaflet("landings",map="emu", typ=c(4,6))
-#' draw_leaflet("aquaculture",map="country", typ=c(11))
+#' datacall_map("landings")
+#' datacall_map("landings",map="emu")
+#' datacall_map("landings",map="emu", typ=c(4,6))
+#' datacall_map("aquaculture",map="country", typ=c(11))
 #'  }
 #' }
-#' @rdname draw_leaflet 
-draw_leaflet<-function(
+#' @rdname datacall_map 
+datacall_map<-function(
     dataset = "landings",
     years = c(1990,2016),
     lfs_code = NULL,
@@ -198,6 +198,35 @@ draw_leaflet<-function(
   }
   
   return(list("m"=m,"data"=return_data))
+}
+
+recruitment_map <- function(){
+      
+  
+      m <- leaflet(data=series) %>%
+      
+      addProviderTiles(providers$Esri.OceanBasemap) %>% 
+      
+	  addPolygons(data = country_p, weight = 2, opacity=0.3, fillOpacity =0.1) %>% 
+      
+	  fitBounds(-10, 34, 26, 65) %>%
+      
+	  addCircleMarkers(
+          lng=~coords.x1,
+          lat=~coords.x2,
+		  color = ~color_pal(value),
+          fillColor = ~color_pal(value),
+          fillOpacity = 0.5,
+          opacity = 0.9,     
+          weight = 5,
+          radius = selected_emus$rescaled_value, 
+          popup = ~label,
+          layerId = ~id) %>%
+      
+      addLegend(pal = color_pal, 
+          position="bottomright",
+          values = value, 
+          title = legend.title)
 }
 
 
