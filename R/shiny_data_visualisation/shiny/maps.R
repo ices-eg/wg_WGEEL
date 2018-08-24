@@ -248,7 +248,7 @@ recruitment_map <- function(R_stations, statseries, wger){
       mrd$site,
       mrd$lfs_code,
       mrd$min, mrd$max,
-      mrd$namelong,
+      iconv(mrd$namelong,"UTF8"),
       mrd$duration, mrd$missing,
       mrd$sampling_type,
       ifelse(mrd$series_kept,
