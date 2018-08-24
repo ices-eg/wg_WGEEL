@@ -101,9 +101,17 @@ CY = as.numeric(format(Sys.time(), "%Y"))
 #      : in git.
 load("../../../data/wger.Rdata")
 load("../../../data/statseries.Rdata")
-load("../../../data/glass_eel_yoy.Rdata")
-load("../../../data/older.Rdata")
+#load("../../../data/glass_eel_yoy.Rdata")
+#load("../../../data/older.Rdata")
 load("../../../data/R_stations.Rdata")
+load("../../../data/dat_ge.Rdata") ; dat_ge <- dat
+dat_ge$year <- as.numeric(format(dat_ge$year,"%Y"))
+colnames(dat_ge)[colnames(dat_ge)=="p_std_1960_1970"] <- "geomean_p_std_1960_1970"
+load("../../../data/dat_ye.Rdata") ; # named dat_ye
+dat_ye$year <- as.numeric(dat_ye$year)
+load("../../../data/glass_eel_pred.Rdata") # named glass_eel_pred
+load("../../../data/yellow_eel_pred.Rdata") # named yellow_eel_pred
+
 # load data from recruitment ------------------------------------------------------------------------
 # note : these data have been produced by the script recruitment_analysis.Rnw
 #      : they must be installed manually in folder data    
