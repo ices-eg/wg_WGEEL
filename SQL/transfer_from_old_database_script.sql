@@ -912,3 +912,15 @@ INSERT INTO  datawg.t_series_ser(
           'Series too short yet < 10 years to be included' as ser_qal_comment from ref.tr_station
           where  "Station_Name" = 'Mond';
 COMMIT;
+
+begin;
+update datawg.t_series_ser set geom=ST_SetSRID(ST_MakePoint(ser_x, ser_y),4326) where ser_nameshort='HoS';
+commit;
+
+begin;
+update datawg.t_series_ser set geom=ST_SetSRID(ST_MakePoint(ser_x, ser_y),4326) where ser_nameshort='FlaG';
+commit;
+
+begin;
+update datawg.t_series_ser set geom=ST_SetSRID(ST_MakePoint(ser_x, ser_y),4326) where ser_nameshort='Mond';
+commit;
