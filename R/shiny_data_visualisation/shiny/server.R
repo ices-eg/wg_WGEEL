@@ -255,13 +255,15 @@ server = function(input, output, session) {
   
 #  Leaflet map, this uses the datacall_map function -------------------------------------------------  
   observe({
-        # CHECKME, pulse marker not working...
-        select_a_point <- function(map, x, y)   {          
+        
+        # adding a pulse marker when selected
+        
+        acm_defaults <-   function(map, x, y)   {          
           addPulseMarkers(map, x, y, 
               layerId = "selected",          
-              icon = makePulseIcon(color = "red",
+              icon = makePulseIcon(color = "yellow",
                   iconSize =  10, 
-                  animate = TRUE, heartbeat = 0.5)
+                  animate = TRUE, heartbeat = 1)
           )
         }        
         
@@ -286,19 +288,20 @@ server = function(input, output, session) {
 # observer click event ------------------------------------------------------------------------------- 
         
         observeEvent(input$map_marker_click, {
-              p <- input$map_marker_click
-              lat <- p$lat
-              lng <- p$lng
+              p <- input$map_marker_click 
               id <- p$id
               id1 <- gsub('[0-9]*',"",id) # NO_ or NO_total_
               country_or_emu_selected <-substr(id1,1,nchar(id1)-1) # remove trailing "_"
-              proxy <- leafletProxy("Map")
+              proxy <- leafletProxy("map")
               if(p$id == "selected") {
                 proxy %>% removeMarker(layerId = "selected")
+                updateSwitchInput(session, "showplotly", value = FALSE) 
               } else {
-                # Create selected marker -------------------------------------------------------------
-                 # CHEKME this does not work
-                proxy %>% fitBounds(-10, 34, 26, 65) %>% select_a_point(lng, lat)
+                
+                # Create selected marker run acm which is for pulse --------------------------------------
+                
+                proxy %>%  fitBounds(-10, 34, 26, 65) %>%
+                    acm_defaults(p$lng, p$lat)
                 
                 # Create selected marker table and put in in reactive values--------------------------
                 # CHECKME this is probably not necessary 
@@ -335,16 +338,134 @@ server = function(input, output, session) {
                 } 
                 
                 # Create a plotly graph------------------------------------------------------------------
-                
+                updateSwitchInput(session, "showplotly", value = TRUE)
                 output$plotly_graph <- renderPlotly({
                       plot_ly(time_series_selected, x = ~eel_year, y = ~eel_value,
-                          # Hover text:
-                          text = ~paste("Year: ", eel_year, '$<br>Value:', eel_value),
-                          color = ~eel_value, size = ~eel_value )   %>%
-                      layout(plot_bgcolor='rgb(209, 218, 201)') %>% 
-                      layout(paper_bgcolor="transparent") #will also accept 'rgb(254, 247, 234)' paper_bgcolor='black'    
+                              # Hover text:
+                              text = ~paste("Year: ", eel_year, '$<br>Value:', eel_value),
+                              color = ~eel_value, size = ~eel_value )   %>%
+                          layout(plot_bgcolor='rgb(209, 218, 201)') #%>% 
+                      #layout(paper_bgcolor="transparent") #will also accept 'rgb(254, 247, 234)' paper_bgcolor='black'    
+                      
                     })
+                
               }
+            })
+        observeEvent(input$showplotly, {
+              # every time the button is pressed, alternate between hiding and showing the plot
+              toggle("plotly_graph",TRUE, anim = TRUE, animType = "slide", condition = input$showplotly)
+              
+            })
+        ##################################
+        # Recruitment map -----------------------------------------------------------------------------
+        ##################################
+        
+        observe({
+              output$mapstation = renderLeaflet({
+                    
+                    recruitment_map(R_stations, statseries, wger)                               
+                    
+                  })
+              
+# observer click event ------------------------------------------------------------------------------- 
+              # debug the_id =38
+              #       the_name='tibe'
+              #       the_stage ='G'
+              #       the_area='EE'
+              observeEvent(input$mapstation_marker_click, {
+                    p <- input$mapstation_marker_click
+                    lat <- p$lat
+                    lng <- p$lng
+                    the_id <- p$id
+                    
+                    the_station <- R_stations %>%
+                        dplyr::filter(ser_id==the_id) 
+                    the_name <- the_station$ser_nameshort
+                    the_stage <- the_station$lfs_code
+                    switch(the_station$area,
+                        "Elsewhere Europe"=the_area <- "EE",
+                        "North Sea"=the_area <- "NS")
+                    
+                    title= paste(the_name)
+                    
+                    
+                    if (the_stage=='G'| the_stage=='GY'){
+                      
+                      # These values are standardized
+                      
+                      
+                      
+                      # 
+                      the_series <- glass_eel_pred %>% dplyr::select(-"area")%>%
+                          dplyr::filter(site==the_name) %>%
+                          inner_join(dat_ge[dat_ge$area==the_area,], by=c("year")) %>%
+                          arrange(year)
+                      
+                      
+                      
+                      
+                    } else {
+                      #the_name='Dala'
+                      the_series <- yellow_eel_pred %>% dplyr::filter(site==the_name) %>%
+                          inner_join(dat_ye, by=c("year")) %>%
+                          arrange(year)
+                      
+                    }
+                    
+                    # assign to parent environment
+                    
+                    the_series <<-the_series
+                    
+                    
+                    # Create a  graph------------------------------------------------------------------
+                    
+                    output$plotly_recruit <- renderPlotly({
+                          f <- list(
+                              #family = "Verdana",
+                              size = 12,
+                              color = "#7f7f7f")
+                          x <- list(
+                              title = "Year",
+                              titlefont = f)
+                          y <- list(
+                              title = "Standardized 1979-1994",
+                              titlefont = f)
+                          # note the source argument is used to find this
+                          # graph in eventdata
+                          plot_ly(the_series, 
+                                  x = ~ year, 
+                                  y = ~ value_std,
+                                  name = the_name,                              
+                                  source= "select_year",
+                                  type="scatter",
+                                  mode="lines+markers",
+                                  colors = "Set1")   %>% 
+                              layout(title = title, xaxis = x, yaxis = y) %>%
+                              add_trace(y = ~ geomean_p_std_1960_1970, name = the_area) 
+                          
+                        })    
+                    
+                  })
+              output$das_comment <-renderUI({
+                    event.data <- event_data("plotly_click", source = "select_year")
+                    
+                    # If NULL dont do anything
+                    if(is.null(event.data) == T) 
+                    { 
+                      the_comment <- "<p> click on a point </p>"
+                      
+                      # event.data returns the name of the trace and the pointNumber
+                    } else  if (event.data$curveNumber == 0) {
+                      the_comment <- ifelse (is.na(the_series$das_comment[the_series$year==event.data$x]),
+                          "No comment available", 
+                          the_series$das_comment[the_series$year==event.data$x]) 
+                      the_comment <- paste( "<b>",the_comment,"</b>")
+                    } else {
+                      the_comment<- "<p> click on the other series </p>" 
+                    }
+                    the_text <- paste("<h2>Details about the point</h2>",the_comment)
+                    HTML(the_text)
+                  }) 
             })
       })
 }

@@ -81,8 +81,8 @@ ui = dashboardPage(title="ICES Data Visualisation",
 #        
         useShinyjs(), # to be able to use shiny js 
         
-
-     
+        
+        
 		tabItems(
             
             # TABLE --------------------------------------------------------------------------------
@@ -233,7 +233,7 @@ ui = dashboardPage(title="ICES Data Visualisation",
             ),
             
             # MAP -----------------------------------------------------------------------------------
-            # the map is further controlled
+            
 			tabItem(tabName="map_tab", 
 			    leafletOutput("map", height = 800),
                 absolutePanel(top = 70, right = 25, draggable = TRUE,
@@ -250,10 +250,33 @@ ui = dashboardPage(title="ICES Data Visualisation",
                     # this output listens to leaflet dataset and change input accordingly
                     uiOutput("leaflet_typ_button")                     
 			    ),
-                absolutePanel(bottom = 250, right = 10, draggable = TRUE,
-                    plotlyOutput("plotly_graph")
+                absolutePanel(bottom = 300, right = 10, draggable = TRUE,
+                    # add a small border to indicate where the plot will be
+                    div(
+                        #----------------------
+                        # A button to toggle the plotly graph on and off
+                        switchInput(
+                            inputId = "showplotly",
+                            onLabel = "Show",
+                            offLabel = "Hide", 
+                            onStatus = "primary", 
+                            offStatus = "secondary",
+                            size = "mini",                           
+                            value = TRUE
+                        ),
+                        plotlyOutput("plotly_graph")
+                        #----------------------
+                        , style = "border: 2px solid rgb(209,218,201);"
+                    )# end div
 		        )
-	        )
+	        ),
+            tabItem(tabName="recruit_tab", 
+                fluidRow(
+			        column(width=6,leafletOutput("mapstation", height = 600)),
+                    column(width=6,                        
+                        plotlyOutput("plotly_recruit"),
+                        htmlOutput("das_comment"))))
+        
         )
     )
 )
