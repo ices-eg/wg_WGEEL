@@ -380,6 +380,7 @@ save(R_stations,file=str_c(datawd,"/R_stations.Rdata"))
 # In this rchunk we load the data even if there is no connection to the database
 load(file=str_c(datawd,"/wger.Rdata"))
 load(file=str_c(datawd,"/statseries.Rdata"))
+load(file=str_c(datawd,"/R_stations.Rdata"))
 @
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 				SERIES SELECTION AND STATISTICS ABOUT DATA ENTRY 
@@ -1198,6 +1199,11 @@ figure_check_one_series("Katw",limits=c(1960,2018))
 %************************************************************************************
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 << model_for_glass_eel_and_yellow_eel, echo=FALSE, eval=TRUE,results=hide >>=
+# 1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~
+######################################"
+#~glass eel (and elver = glass eel + yellow eel) migrant analysis
+######################################"~
+# 1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~~
 glass_eel_yoy$site<-as.factor(glass_eel_yoy$site)
 
 model_ge_area=glm(value_std~year_f:area+site,
@@ -1262,8 +1268,12 @@ data_bis=data_bis[data_bis$nb_site>0,]
 data_bis$p=predict(model_ge_area,newdata=data_bis[,],type="response")
 se=predict(model_ge_area,newdata=data_bis[,],type="response",se.fit=TRUE)
 data_bis$se=se[["se.fit"]]
-#standardising prediction to 1960-1980 level
+
 # 2 options mean or geomean
+
+# Calculate mean or geomean, per series EE or NS for the ref period 1960 1980 ------------------------------------------
+#standardising prediction to 1960-1980 level
+
 if (opt_calculation=="geomean") {
   mean_1960_1970=data.frame(mean=unlist(
 		  tapply(data_bis[data_bis$year>=1960 & data_bis$year<1980,"p"],
@@ -1281,6 +1291,8 @@ mean_1960_1970$area=rownames(mean_1960_1970)
 data_bis=merge(data_bis,mean_1960_1970,by="area")
 data_bis$p_std_1960_1970=data_bis$p/data_bis$mean
 
+# A tapply to calculate either geom mean or mean of series ------------------------------------------
+
 # cannot show any se on average value, se is on each individual value !
 #data_bis$se_std_1960_1970=data_bis$se/data_bis$geomean 
 #data_bis$ymin<-data_bis$p_std_1960_1970-data_bis$se_std_1960_1970
@@ -1295,6 +1307,10 @@ if (opt_calculation=="geomean") {
   synthesis=as.data.frame(tapply(data_bis[,"p_std_1960_1970"],
 		  list(data_bis[,"year_f"],data_bis[,"area"]),mean,na.rm=TRUE))
 }
+
+# Save data_bis as glass_eel_pred for shiny ----------------------------------------------
+glass_eel_pred <- data_bis
+save(glass_eel_pred,file=str_c(datawd,"/glass_eel_pred.Rdata"))
 
 resy=function(data,valcol){
   data$time=rownames(data)
@@ -1508,7 +1524,7 @@ if (sgipee_test_for_change_ns<=0.05) {
 }else {
   test_sgipee_char_ns<-"not significant"
 }
-save(dat, file=str_c(datawd,"dat_ge.Rdat"))
+save(dat, file=str_c(datawd,"/dat_ge.Rdata"))
 @
 << model_diagnostics, echo=FALSE, eval=FALSE,results=hide >>=
 # summary(model_ge_area)
@@ -1636,24 +1652,25 @@ write.table(gey2,file=str_c(datawd,"/Bann_data.csv"),sep=";")
 write.table(newdata,file=str_c(datawd,"/Bann_predictions.csv"),sep=";")
 @
 
-<< model_for_yellow_eel, echo=FALSE, eval=TRUE,results=hide >>=
+<< model_for_yellow_eel, echo=FALSE, eval=TRUE, results=hide >>=
 # 2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~
 ######################################"
 #~yellow eel migrant analysis
 ######################################"~
 # 2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~~
+
 print("Analysis for yellow eel")
 area_year_older=table(older$year,older$area)
 vv$nb_for_yellow_eel_glm<-length(unique(older$site))
 table(older$geo)
 print("stations selected for analysis")
 unique(older$site)
-model_older=glm(value_std~year_f+as.factor(site),
-	data=older,
-	family=Gamma(link=log),
-	subset=older$value>0 &
-		older$year>1949,
-	maxit=300)
+model_older=glm(value_std ~ year_f + as.factor(site),
+	data = older,
+	family = Gamma(link=log),
+	subset = older$value >0 &
+		older$year > 1949,
+	maxit = 300)
 # parteen was removed but is no longer among the series
 summary(model_older)
 #plot(model_older)
@@ -1663,11 +1680,13 @@ data_bis=expand.grid(year_f=unique(model_older$xlevels$year_f),
 	site=model_older$xlevels$`as.factor(site`)
 data_bis$year=as.numeric(as.character(data_bis$year))
 
-#predicting
+#predicting --------------------------------------------------------------------------------------------
+
 data_bis$p=predict(model_older,newdata=data_bis,type="response")
 
-#standardising prediction to 1960-1970 level
+#standardising prediction to 1960-1970 level -----------------------------------------------------------
 # 2 options mean or geomean
+
 if (opt_calculation=="geomean") {
   mean_1960_1970=as.numeric(geomean(data_bis[data_bis$year>=1960 & data_bis$year<1980,"p"]))
 } else {
@@ -1675,10 +1694,19 @@ if (opt_calculation=="geomean") {
 }
 data_bis$p_std_1960_1970=data_bis$p/mean_1960_1970
 
+# saving yellow_eel_pred for shiny ---------------------------------------------------------------------
+
+yellow_eel_pred <- data_bis
+save(yellow_eel_pred,file=paste0(datawd,"/yellow_eel_pred.Rdata"))
+
+# the trend is the mean or geomean (now geomean see init) of all series --------------------------------
+
 if (opt_calculation=="geomean") {
-  synthesis=data.frame("yellow_eel"=unlist(tapply(data_bis[,"p_std_1960_1970"],list(data_bis[,"year_f"]),geomean)))
+  synthesis=data.frame("yellow_eel"=
+          unlist(tapply(data_bis[,"p_std_1960_1970"],list(data_bis[,"year_f"]),geomean)))
 } else {
-  synthesis=data.frame("yellow_eel"=unlist(tapply(data_bis[,"p_std_1960_1970"],list(data_bis[,"year_f"]),mean)))
+  synthesis=data.frame("yellow_eel"=
+          unlist(tapply(data_bis[,"p_std_1960_1970"],list(data_bis[,"year_f"]),mean)))
 }
 
 synthesis$time=rownames(synthesis)
@@ -1709,6 +1737,9 @@ rownames(synthesis)<-synthesis$time
 #		table.placement = "htbp",
 #		caption.placement = "top",
 #		NA.string = ".")
+
+# Table --------------------------------------------------------------------------------------------
+
 yy0<-synthesis[,"yellow_eel",drop = FALSE]
 
 
@@ -1724,6 +1755,7 @@ nothing<-latex(yy,
 	caption=str_c("GLM $yellow~eel \\sim year + site $ geometric means of predicted values for ",vv$nb_series_older, " yellow eel series, values given in percentage of the 1960-1979 period."),	
 	file= str_c(tabwd,"/table_glm_yellow.tex"))
 
+# Figures -------------------------------------------------------------------------------------------
 
 
 synthesis$year=as.Date(strptime(paste(synthesis$time,"-01-01",sep=""),format="%Y-%m-%d"))
@@ -1759,7 +1791,13 @@ figure6<-g+geom_line(lwd=1)+geom_point()+
 figure6
 save_figure("figure6",figure6,400,300)
 
+# Final save ----------------------------------------------------------------------------------------
+
 write.table(synthesis,file=str_c(datawd,"/glm_results_yellow.csv"),sep=";")
+dat_ye<- synthesis
+dat_ye <- dat_ye[,c(2,1)]
+colnames(dat_ye) <-c("year","geomean_p_std_1960_1970") 
+save(dat_ye,file=paste0(datawd,"/dat_ye.Rdata")) ;
 @
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %************************************************************************************
