@@ -7,7 +7,7 @@
 
 ###############################################################################
 # debug notes for Cedric ....
-#setwd("C:\\Users\\cedric.briand\\Documents\\GitHub\\WGEEL\\R\\shiny_data_integration\\shiny")
+#setwd("C:\\Users\\cedric.briand\\Documents\\GitHub\\WGEEL\\R\\shiny_data_visualisation\\shiny")
 # A big dataset is stored there
 #"C:\\workspace\\wgeeldata\\shp"
 # Other dataset are there
@@ -101,8 +101,8 @@ CY = as.numeric(format(Sys.time(), "%Y"))
 #      : in git.
 load("../../../data/wger.Rdata")
 load("../../../data/statseries.Rdata")
-#load("../../../data/glass_eel_yoy.Rdata")
-#load("../../../data/older.Rdata")
+load("../../../data/glass_eel_yoy.Rdata")
+load("../../../data/older.Rdata")
 load("../../../data/R_stations.Rdata")
 load("../../../data/dat_ge.Rdata") ; dat_ge <- dat
 dat_ge$year <- as.numeric(format(dat_ge$year,"%Y"))
@@ -111,7 +111,7 @@ load("../../../data/dat_ye.Rdata") ; # named dat_ye
 dat_ye$year <- as.numeric(dat_ye$year)
 load("../../../data/glass_eel_pred.Rdata") # named glass_eel_pred
 load("../../../data/yellow_eel_pred.Rdata") # named yellow_eel_pred
-
+load("../../../data/recruitment_models.Rdata") # named model_ge_area and model_older
 # load data from recruitment ------------------------------------------------------------------------
 # note : these data have been produced by the script recruitment_analysis.Rnw
 #      : they must be installed manually in folder data    

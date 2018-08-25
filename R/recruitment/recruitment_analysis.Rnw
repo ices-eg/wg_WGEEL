@@ -1239,7 +1239,7 @@ o<-print(xt_a, file = str_c(tabwd,"/table_anova.tex"),
 	tabular.environment="tabularx",
 	width="0.8\\textwidth",
 	sanitize.colnames.function=function(x){x})	
-
+save(model_ge_area,model_older,file=paste0(datawd,"/recruitment_models.Rdata"))
 #plot(model_ge_area)
 @
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1530,6 +1530,7 @@ save(dat, file=str_c(datawd,"/dat_ge.Rdata"))
 << model_diagnostics, echo=FALSE, eval=FALSE,results=hide >>=
 # summary(model_ge_area)
 # influence_plot
+require(boot)
 gey<-glass_eel_yoy[glass_eel_yoy$value>0 & glass_eel_yoy$year>1959&!is.na(glass_eel_yoy$value_std),]
 gey$E<-resid(model_ge_area) # working residuals
 gey$P=predict(model_ge_area)

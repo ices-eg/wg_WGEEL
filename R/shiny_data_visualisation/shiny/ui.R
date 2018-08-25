@@ -272,10 +272,19 @@ ui = dashboardPage(title="ICES Data Visualisation",
 	        ),
             tabItem(tabName="recruit_tab", 
                 fluidRow(
-			        column(width=6,leafletOutput("mapstation", height = 600)),
-                    column(width=6,                        
+                                      
+			        column(width=6,
+                        h2("Map of recruitment sites"),
+                        p("Click on a point for details about the series"),
+                        leafletOutput("mapstation", height = 600)),
+                    column(width=6,
+                        h2("Individual series compared to recruitment trend"),
                         plotlyOutput("plotly_recruit"),
-                        htmlOutput("das_comment"))))
+                        htmlOutput("das_comment"),
+                        h2("Model Residuals"),
+                        p("Unlike previous graph where current values are scaled to the period,
+                                1960 1970 using predicted model values, these represent the TRUE residuals of the gamma model"),
+                        plotOutput("resid_recruitment_graph"))))
         
         )
     )
