@@ -1199,11 +1199,7 @@ figure_check_one_series("Katw",limits=c(1960,2018))
 %************************************************************************************
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 << model_for_glass_eel_and_yellow_eel, echo=FALSE, eval=TRUE,results=hide >>=
-# 1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~
-######################################"
-#~glass eel (and elver = glass eel + yellow eel) migrant analysis
-######################################"~
-# 1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~~
+
 glass_eel_yoy$site<-as.factor(glass_eel_yoy$site)
 
 model_ge_area=glm(value_std~year_f:area+site,
@@ -1252,6 +1248,11 @@ o<-print(xt_a, file = str_c(tabwd,"/table_anova.tex"),
 
 
 << model_for_glass_eel_graph_and_predictions, echo=FALSE, eval=TRUE,results=hide >>=
+# 1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~
+######################################"
+#~glass eel (and elver = glass eel + yellow eel) migrant analysis
+######################################"~
+# 1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~~
 # using expand.grid to build a complete grid for predictions
 data_bis=expand.grid(year_f=model_ge_area$xlevels$year_f,area=model_ge_area$xlevels$area,
 	site=model_ge_area$xlevels$site)
@@ -1688,11 +1689,11 @@ data_bis$p=predict(model_older,newdata=data_bis,type="response")
 # 2 options mean or geomean
 
 if (opt_calculation=="geomean") {
-  mean_1960_1970=as.numeric(geomean(data_bis[data_bis$year>=1960 & data_bis$year<1980,"p"]))
+  data_bis$mean_1960_1970=as.numeric(geomean(data_bis[data_bis$year>=1960 & data_bis$year<1980,"p"]))
 } else {
-  mean_1960_1970=mean(data_bis[data_bis$year>=1960 & data_bis$year<1980,"p"])
+  data_bis$mean_1960_1970=mean(data_bis[data_bis$year>=1960 & data_bis$year<1980,"p"])
 }
-data_bis$p_std_1960_1970=data_bis$p/mean_1960_1970
+data_bis$p_std_1960_1970=data_bis$p/data_bis$mean_1960_1970
 
 # saving yellow_eel_pred for shiny ---------------------------------------------------------------------
 
