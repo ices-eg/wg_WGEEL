@@ -55,7 +55,8 @@ load_package('stringr') # text handling
 #load_package("XLConnect") # for excel
 load_package("ggplot2") # for excel
 load_package("gridExtra")
-
+# boot must be installed but not loaded
+if (! "boot"%in%installed.packages()[,"Package"]) install.packages("boot")
 # load functions ------------------------------------------------------------------------------------
 
 # retrieve reference tables needed

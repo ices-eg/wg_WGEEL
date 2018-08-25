@@ -281,7 +281,18 @@ ui = dashboardPage(title="ICES Data Visualisation",
                         h2("Individual series compared to recruitment trend"),
                         plotlyOutput("plotly_recruit"),
                         htmlOutput("das_comment"),
-                        h2("Model Residuals"),
+                        # below the div style is to align things on a single line 
+                        div(style="display:inline-block",
+                            h2("Model Residuals")),
+                        div(style="display:inline-block",switchInput(
+                            inputId = "button_smooth",
+                            onLabel = "res+smooth",
+                            offLabel = "resid", 
+                            onStatus = "secondary", 
+                            offStatus = "secondary",
+                            size = "mini",                           
+                            value = FALSE
+                        )),
                         p("Unlike previous graph where current values are scaled to the period,
                                 1960 1970 using predicted model values, these represent the TRUE residuals of the gamma model"),
                         plotOutput("resid_recruitment_graph"))))

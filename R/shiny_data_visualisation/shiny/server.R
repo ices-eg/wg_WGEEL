@@ -288,7 +288,7 @@ server = function(input, output, session) {
 # observer click event ------------------------------------------------------------------------------- 
         
         observeEvent(input$map_marker_click, {
-              p <- input$map_marker_click 
+              p <- input$map_marker_click               
               id <- p$id
               id1 <- gsub('[0-9]*',"",id) # NO_ or NO_total_
               country_or_emu_selected <-substr(id1,1,nchar(id1)-1) # remove trailing "_"
@@ -351,182 +351,195 @@ server = function(input, output, session) {
                 
               }
             })
-        observeEvent(input$showplotly, {
-              # every time the button is pressed, alternate between hiding and showing the plot
-              toggle("plotly_graph",TRUE, anim = TRUE, animType = "slide", condition = input$showplotly)
+      })
+  observeEvent(input$showplotly, {
+        # every time the button is pressed, alternate between hiding and showing the plot
+        toggle("plotly_graph",TRUE, anim = TRUE, animType = "slide", condition = input$showplotly)
+        
+      })
+  ##################################
+  # Recruitment map -----------------------------------------------------------------------------
+  ##################################
+  
+  observe({
+        output$mapstation = renderLeaflet({
+              
+              recruitment_map(R_stations, statseries, wger)                               
               
             })
-        ##################################
-        # Recruitment map -----------------------------------------------------------------------------
-        ##################################
         
-        observe({
-              output$mapstation = renderLeaflet({
+# observer click event ------------------------------------------------------------------------------- 
+        # debug the_id =28
+        #       the_name='tibe'
+        #       the_stage ='G'
+        #       the_area='EE'
+        observeEvent(input$mapstation_marker_click,  {
+              p <- input$mapstation_marker_click
+              lat <- p$lat
+              lng <- p$lng
+              the_id <- p$id
+              
+              the_station <- R_stations %>%
+                  dplyr::filter(ser_id==the_id) 
+              
+              the_name <- the_station$ser_nameshort
+              
+              the_namelong <- iconv(the_station$ser_namelong,"UTF8")
+              
+              the_stage <- the_station$lfs_code
+              
+              the_area <- case_when(the_stage =="Y" ~ "Yellow",
+                  the_station$area=="Elsewhere Europe" ~ "EE",
+                  the_station$area=="North Sea" ~ "NS")   
+              
+              the_title= paste(the_namelong)
+              
+              
+              if (the_stage=='G'| the_stage=='GY'){
+                
+                # These values are standardized against the predictions in 1960-1970
+                # the predictions are the predictions of the expand.grid(year,site,area)
+                # this is to ensure values are are close as possible to the known predicted trend
+                
+                # extract the mean predicted value from 1960-1970
+                mean_1960_1970 <- glass_eel_pred %>%                          
+                    mutate(area= case_when(area == "Elsewhere Europe" ~ "EE",
+                            area == "North Sea" ~ "NS",
+                            TRUE ~ "This should not even happen")) %>%   # could have used recode
+                    dplyr::filter(area==the_area) %>%                    # glass_eel_pred contains full expand.grid
+                    dplyr::filter(site==the_name) %>%
+                    pull(mean) %>% head(1)
+                
+                # get the series of glass eel and the glm predictiosn   
+                
+                the_series <- glass_eel_yoy            %>%  # series with standarized values entered in the glm
+                    select(
+                        site,
+                        ser_id, 
+                        value, 
+                        year, 
+                        value_std,
+                        das_comment)                   %>%  # get 5 columns
+                    filter(ser_id==the_id)             %>%  # get only the selected series
+                    mutate(value_std_1960_1970 = 
+                            value_std /mean_1960_1970) %>%  # divide by pred. in 1960 1970 
+                    right_join(                             # right join = keep all from dat_ge
+                        dat_ge[dat_ge$area==the_area,],
+                        by=c("year")
+                    )                 %>%               # join by year
+                    arrange(year)                           # order the series                 
+                # now the variable to plot is : value_std_1960_1970
+                
+                # extracting residuals for second plot -------------------------------------------
+                
+                model_data <- model_ge_area$model 
+                
+                # working residuals ---------------------------------------------------------
+                
+                model_data$r <- resid(model_ge_area) 
+                
+                
+                model_data <- model_data %>% 
+                    filter(site==the_name) %>% 
+                    mutate(year=as.numeric(as.character(year_f))) %>%             
+                    arrange(year)              
+                
+                
+              } else {
+                
+                # Yellow eel case --------------------------------------------------------------
+                
+                #       debug : 
+                #       the_id = 30
+                #       the_name = 'Dala'
+                #       the_stage = 'Y'
+                
+                mean_1960_1970 <- yellow_eel_pred %>%     
+                    dplyr::filter(site == the_name) %>%
+                    pull(mean_1960_1970) %>% head(1)
+                
+                
+                the_series <-
                     
-                    recruitment_map(R_stations, statseries, wger)                               
+                    older                              %>%
+                    select(
+                        site,
+                        ser_id, 
+                        value, 
+                        year, 
+                        value_std,
+                        das_comment)                   %>%
+                    filter(ser_id == the_id)           %>%
+                    mutate(value_std_1960_1970 = 
+                            value_std /mean_1960_1970) %>%                     
+                    right_join(dat_ye, by=c("year"))   %>% 
+                    arrange(year)
+                
+                # extracting residuals for second plot -------------------------------------------
+                
+                model_data <- model_older$model 
+                
+                model_data$r <- resid(model_older) 
+                
+                model_data <- model_data %>% 
+                    rename("site" = "as.factor(site)") %>%
+                    mutate(year=as.numeric(as.character(year_f))) %>% 
+                    filter(as.factor(site) == the_name) %>% 
+                    arrange(year)              
+                
+                
+                
+              }
+              
+              # assign to parent environment
+              
+              the_series <<-the_series
+              
+              
+              # Create a plotly graph of trend ------------------------------------------------------------------
+              
+              output$plotly_recruit <- renderPlotly({
+                    f <- list(
+                        #family = "Verdana",
+                        size = 12,
+                        color = "#7f7f7f")
+                    x <- list(
+                        title = "Year",
+                        titlefont = f)
+                    y <- list(
+                        title = "Values standardized by 1960-1970 pred",
+                        titlefont = f)
+                    # note the source argument is used to find this
+                    # graph in eventdata
+                    plot_ly(the_series, 
+                            x = ~ year, 
+                            y = ~ value_std_1960_1970,
+                            name = the_name,                              
+                            source= "select_year",
+                            type="scatter",
+                            mode="lines+markers",
+                            colors = "Set1")   %>% 
+                        layout(title = the_title, xaxis = x, yaxis = y) %>%
+                        add_trace(y = ~ geomean_p_std_1960_1970, name = the_area) 
                     
+                  })   
+              
+              output$resid_recruitment_graph <- renderPlot({
+                    g <-ggplot(model_data)+
+                        geom_point(aes(x=year,y=r),shape="-",size=12,col="darkblue")+
+                        geom_line(aes(x=year,y=r),alpha=0.5)+
+                        theme_bw()+
+                        geom_hline(aes(yintercept=0))+
+                        ylab("glm residuals")
+                    if (input$button_smooth==TRUE) {# working residuals
+                      g <- g +           
+                          geom_smooth(aes(x=year,y=r))                   
+                    }
+                    g
                   })
               
-# observer click event ------------------------------------------------------------------------------- 
-              # debug the_id =28
-              #       the_name='tibe'
-              #       the_stage ='G'
-              #       the_area='EE'
-              observeEvent(input$mapstation_marker_click, {
-                    p <- input$mapstation_marker_click
-                    lat <- p$lat
-                    lng <- p$lng
-                    the_id <- p$id
-                    
-                    the_station <- R_stations %>%
-                        dplyr::filter(ser_id==the_id) 
-                    
-                    the_name <- the_station$ser_nameshort
-                    
-                    the_namelong <- iconv(the_station$ser_namelong,"UTF8")
-                    
-                    the_stage <- the_station$lfs_code
-                    
-                    the_area <- case_when(the_stage =="Y" ~ "Yellow",
-                        the_station$area=="Elsewhere Europe" ~ "EE",
-                        the_station$area=="North Sea" ~ "NS")   
-                    
-                    the_title= paste(the_namelong)
-                    
-                    
-                    if (the_stage=='G'| the_stage=='GY'){
-                      
-                      # These values are standardized against the predictions in 1960-1970
-                      # the predictions are the predictions of the expand.grid(year,site,area)
-                      # this is to ensure values are are close as possible to the known predicted trend
-                      
-                      # extract the mean predicted value from 1960-1970
-                      mean_1960_1970 <- glass_eel_pred %>%                          
-                          mutate(area= case_when(area == "Elsewhere Europe" ~ "EE",
-                                  area == "North Sea" ~ "NS",
-                                  TRUE ~ "This should not even happen")) %>%   # could have used recode
-                          dplyr::filter(area==the_area) %>%                    # glass_eel_pred contains full expand.grid
-                          dplyr::filter(site==the_name) %>%
-                          pull(mean) %>% head(1)
-                      
-                      # get the series of glass eel and the glm predictiosn   
-                      
-                      the_series <- glass_eel_yoy            %>%  # series with standarized values entered in the glm
-                          select(
-                              site,
-                              ser_id, 
-                              value, 
-                              year, 
-                              value_std,
-                              das_comment)                   %>%  # get 5 columns
-                          filter(ser_id==the_id)             %>%  # get only the selected series
-                          mutate(value_std_1960_1970 = 
-                                  value_std /mean_1960_1970) %>%  # divide by pred. in 1960 1970 
-                          right_join(                             # right join = keep all from dat_ge
-                              dat_ge[dat_ge$area==the_area,],
-                              by=c("year")
-                          )                 %>%               # join by year
-                          arrange(year)                           # order the series                 
-                      # now the variable to plot is : value_std_1960_1970
-                      
-                      # extracting residuals for second plot -------------------------------------------
-                      
-                      model_data <- model_ge_area$model 
-                      model_data$r <- resid(model_ge_area) # working residuals
-                      model_data <- model_data %>% 
-                          filter(site==the_name) %>% 
-                          mutate(year=as.numeric(as.character(year_f))) %>%             
-                          arrange(year)              
-                      
-                      
-                    } else {
-                      
-                      # Yellow eel case --------------------------------------------------------------
-                      
-                      #       debug : 
-                      #       the_id = 30
-                      #       the_name = 'Dala'
-                      #       the_stage = 'Y'
-                      
-                      mean_1960_1970 <- yellow_eel_pred %>%     
-                          dplyr::filter(site == the_name) %>%
-                          pull(mean_1960_1970) %>% head(1)
-                      
-                      
-                      the_series <-
-                          
-                          older                              %>%
-                          select(
-                              site,
-                              ser_id, 
-                              value, 
-                              year, 
-                              value_std,
-                              das_comment)                   %>%
-                          filter(ser_id == the_id)           %>%
-                          mutate(value_std_1960_1970 = 
-                                  value_std /mean_1960_1970) %>%                     
-                          right_join(dat_ye, by=c("year"))   %>% 
-                          arrange(year)
-                      
-                      # extracting residuals for second plot -------------------------------------------
-                      
-                      model_data <- model_older$model 
-                      model_data$r <- resid(model_older) # working residuals
-                      model_data <- model_data %>% 
-                          rename("site" = "as.factor(site)") %>%
-                          mutate(year=as.numeric(as.character(year_f))) %>% 
-                          filter(as.factor(site) == the_name) %>% 
-                          arrange(year)              
-                      
-                      
-                      
-                    }
-                    
-                    # assign to parent environment
-                    
-                    the_series <<-the_series
-                    
-                    
-                    # Create a plotly graph of trend ------------------------------------------------------------------
-                    
-                    output$plotly_recruit <- renderPlotly({
-                          f <- list(
-                              #family = "Verdana",
-                              size = 12,
-                              color = "#7f7f7f")
-                          x <- list(
-                              title = "Year",
-                              titlefont = f)
-                          y <- list(
-                              title = "Values standardized by 1960-1970 pred",
-                              titlefont = f)
-                          # note the source argument is used to find this
-                          # graph in eventdata
-                          plot_ly(the_series, 
-                                  x = ~ year, 
-                                  y = ~ value_std_1960_1970,
-                                  name = the_name,                              
-                                  source= "select_year",
-                                  type="scatter",
-                                  mode="lines+markers",
-                                  colors = "Set1")   %>% 
-                              layout(title = the_title, xaxis = x, yaxis = y) %>%
-                              add_trace(y = ~ geomean_p_std_1960_1970, name = the_area) 
-                          
-                        })   
-                    
-                    output$resid_recruitment_graph <- renderPlot({
-                          ggplot(model_data)+
-                              geom_point(aes(x=year,y=r),shape="-",size=12,col="darkblue")+
-                              geom_line(aes(x=year,y=r),alpha=0.5)+
-                              theme_bw()+
-                              geom_hline(aes(yintercept=0))+
-                              ylab("glm residuals")
-                        })
-                    
-                    
-                  })
+              
+              
               output$das_comment <-renderUI({
                     event.data <- event_data("plotly_click", source = "select_year")
                     
