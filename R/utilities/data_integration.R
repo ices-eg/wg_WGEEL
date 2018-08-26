@@ -2,7 +2,7 @@
 # check in the shiny application
 # Author: lbeaulaton
 ###############################################################################
-
+# DEPRECATED
 # TODO: this is just a copy of the relevant part of import_to_database (stock assessment folder)
 
 data_integration = function(data_to_integrate)
