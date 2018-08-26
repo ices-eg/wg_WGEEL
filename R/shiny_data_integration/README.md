@@ -38,7 +38,7 @@ pg_dump -U postgres --table datawg.t_eelstock_eel -f "t_eelstock_eel.sql" wgeel
 ```
 To save lines for one country only before updating
 ```sql
-COPY (SELECT * FROM datawg.t_eelstock_eel WHERE eel_cou_code='FR') TO 'eel_stock_france.tsv'
+COPY (SELECT * FROM datawg.t_eelstock_eel WHERE eel_cou_code='FR') TO 'F:/base/eel_stock_france.tsv'
 --delete data in the table
 BEGIN;
 DELETE FROM datawg.t_eelstock_eel WHERE eel_cou_code='FR'; at this stage verify the number of lines
