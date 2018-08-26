@@ -12,7 +12,9 @@
 #"C:\\workspace\\wgeeldata\\shp"
 # Other dataset are there
 #/wgeeldata/recruitment/2018/data
-
+# they are not in version control, they will be dropped on the sharepoint
+# they need to be copied to 
+# WGEEL\data
 load_package <- function(x)
 {
   if (!is.character(x)) stop("Package should be a string")
