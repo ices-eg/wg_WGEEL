@@ -207,7 +207,7 @@ load_catch_landings<-function(path,datasource){
     data_error= rbind(data_error, check_values(dataset=data_xls,
             column="eel_datasource",
             country=country,
-            values=c("dc_2017","wgeel_2016","wgeel_2017")))
+            values=c("dc_2017","wgeel_2016","wgeel_2017","dc_2018")))
     
   }
   return(invisible(list(data=data_xls,error=data_error,the_metadata=the_metadata))) 

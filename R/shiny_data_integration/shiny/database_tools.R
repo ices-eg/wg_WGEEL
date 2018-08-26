@@ -101,7 +101,7 @@ compare_with_database <- function(data_from_excel, data_from_base) {
 #' this version allows to catch exceptions and sqldf does not
 #' @examples 
 #' \dontrun{
-#' if(interactive()){
+#'  source("utilities/set_directory.R") 
 #'  path<-wg_file.choose() 
 #'  #path<-'C:\\Users\\cedric.briand\\Desktop\\06. Data\\datacall(wgeel_2018)\\duplicates_catch_landings_2018-07-08 (1).xlsx'
 #'  # qualify_code is 18 for wgeel2018
@@ -120,7 +120,7 @@ write_duplicates <- function(path, qualify_code = 18) {
                   "eel_qal_comment.xls", "eel_qal_id.base", "eel_qal_comment.base", "eel_missvaluequal.base", 
                   "eel_missvaluequal.xls", "eel_emu_nameshort", "eel_cou_code", "eel_lfs_code", 
                   "eel_hty_code", "eel_area_division", "eel_comment.base", "eel_comment.xls", 
-                  "eel_datasource.base", "eel_datasource.xls")), "Error in replicated dataset : column name changed"))
+                  "eel_datasource.base", "eel_datasource.xls")), "Error in replicated dataset : column name changed, have you removed the empty line on top of the dataset ?"))
   # select values to be replaced passing through excel does not get keep_new_value
   # with logical R value here I'm testing various mispelling
   duplicates2$keep_new_value[duplicates2$keep_new_value == "1"] <- "true"
@@ -144,9 +144,9 @@ write_duplicates <- function(path, qualify_code = 18) {
         replaced$eel_value.base, " replaced by value ", replaced$eel_value.xls, 
         " for datacall ", format(Sys.time(), "%Y"))
     
-    query <- paste0("update datawg.t_eelstock_eel set (eel_qal_id,eel_comment)=(", 
+    query0 <- paste0("update datawg.t_eelstock_eel set (eel_qal_id,eel_comment)=(", 
         qualify_code, ",'", replaced$eel_comment.base, "') where eel_id=", replaced$eel_id)
-    sqldf(query)
+    # this query will be run later cause we don't want it to run if the other fail
     
     ################################################ second insert the new lines into the database
     ###############################################'
@@ -209,7 +209,7 @@ write_duplicates <- function(path, qualify_code = 18) {
     # sqldf but trycatch failed to catch the error Hence the use of DBI Note : I've
     # joined the two sentences in a same commit to catch error on both replaced and
     # not_replaced commit
-    query <- paste(query1, query2)
+    query <- paste(query0, query1, query2)
     conn <- poolCheckout(pool)
     tryCatch({
           dbExecute(conn, query)
