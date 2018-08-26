@@ -32,6 +32,19 @@ Change can also be done in
 https://github.com/ices-eg/wg_WGEEL/blob/a353ad8ccccffb66f46b001654b30a897398bb7c/R/database_interaction/database_connection.R#L14
 to use an interactive data entry for database name and user using [getPass](https://www.rdocumentation.org/packages/getPass/versions/0.2-2/topics/getPass)
 
+To save the database
+```sh
+pg_dump -U postgres --table datawg.t_eelstock_eel -f "t_eelstock_eel.sql" wgeel
+```
+To save lines for one country only before updating
+```sql
+COPY (SELECT * FROM datawg.t_eelstock_eel WHERE eel_cou_code='FR') TO 'eel_stock_france.tsv'
+--delete data in the table
+BEGIN;
+DELETE FROM datawg.t_eelstock_eel WHERE eel_cou_code='FR'; at this stage verify the number of lines
+COMMIT;
+COPY datawg.t_eelstock_eel FROM 'eel_stock_france.tsv'
+```
 ------------------
 
 ### Application details : data integration
