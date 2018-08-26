@@ -9,7 +9,7 @@ This is the interface to run the shiny data integration. The basic idea is (1) t
 
 --------------------------------------------
 
-### First things to do before new wgeel
+### First things to do before new wgeel (section for database and app. maintainer.... skip to next....)
 
 At the end of global.R set the code for `qal_id` and a variable `the_eel_datasource`
 
