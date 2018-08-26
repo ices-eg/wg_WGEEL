@@ -5,9 +5,11 @@ This is the interface to run the shiny data integration. The basic idea is (1) t
 
 *last update 2018*
 
-## recipe
+## Recipe
 
-### first things to do before new wgeel
+--------------------------------------------
+
+### First things to do before new wgeel
 
 At the end of global.R set the code for `qal_id` and a variable `the_eel_datasource`
 
@@ -30,6 +32,7 @@ Change can also be done in
 https://github.com/ices-eg/wg_WGEEL/blob/a353ad8ccccffb66f46b001654b30a897398bb7c/R/database_interaction/database_connection.R#L14
 to use an interactive data entry for database name and user using [getPass](https://www.rdocumentation.org/packages/getPass/versions/0.2-2/topics/getPass)
 
+------------------
 
 ### Application details : data integration
 
