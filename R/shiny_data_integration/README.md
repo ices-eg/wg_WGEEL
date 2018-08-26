@@ -51,13 +51,14 @@ Data entry should be done with someone familiar with the app (someone from the d
  * click on the button **3**, this will load existing data from the database and run comparison checks with your current data. You will get two datasets one excel file with duplicated values and one excel file with new lines to be integrated. *to download the file select "all" values in the choice box on top of values.*
  	* In the dataset with duplicates you will need to select which value is to be kept from the database or the new dataset: in the column keep new value choose true to replace data using the new datacall data. Duplicated lines (old or new) will be kept in the database with an eel\_qual\_id of 18 if the year of integration is 2018. Don't forget to set a value for **qal_id** when keep_new_value=true. Possbile values for qal_id are as following :
   
-|| qal_id || qal_level || qal_text ||
-|| 0 || missing || missing data ||
-|| 1 || good quality || the data passed the quality checks of the wgeel ||
-|| 2 || modified || The wgeel has modified that data ||
-|| 3 || bad quality || The data has been judged of too poor quality to be used by the wgeel, it is not used ||
-|| 4 || warnings || The data is used by the wgeel, but there are warnings on its quality (see comments) ||
-|| 18 || discarded_wgeel_2018 || This data has either been removed from the database in favour of new data, or corresponds to new data not kept in the database during datacall 2018 ||
+| qal_id | qal_level | qal_text |
+| --- | --- | -------------------------------|
+| 0 | missing | missing data |
+| 1 | good quality | the data passed the quality checks of the wgeel |
+| 2 | modified | The wgeel has modified that data |
+| 3 | bad quality | The data has been judged of too poor quality to be used by the wgeel, it is not used |
+| 4 | warnings | The data is used by the wgeel, but there are warnings on its quality (see comments) |
+| 18 | discarded_wgeel_2018 | This data has either been removed from the database in favour of new data, or corresponds to new data not kept in the database during datacall 2018 |
 
   
   You will also need to give a qal comment if you select to replace the value currently in the database. *don't change the structure of the file, if you insert some to run checks or calculations, remove them before integration*
