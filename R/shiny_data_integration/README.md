@@ -282,7 +282,7 @@ query <- paste(query1, query2)
           sqldf("drop table if exists replaced_temp")
         })
 ```
- *  however this just lanches the query1 never query2, as dbExecute only executes one line. So the modified script handles integration error and performs some "manual rollback" in case of failure, to do so I had to create query0_reverse and query1_reverse queries, these are based on the time of the day
+ *  However this just launches the `query1` never `query2`, as `dbExecute` only executes one line. So the modified script handles integration error and performs some "manual rollback" in case of failure, to do so query1_reverse uses the day, hopefully there won't be a failure of data integration arround midnight at the wgeel.
  
  ```r
   
