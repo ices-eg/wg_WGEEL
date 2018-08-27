@@ -146,16 +146,18 @@ write_duplicates <- function(path, qualify_code = 18) {
   
   duplicates2$keep_new_value <- as.logical(toupper(duplicates2$keep_new_value))
   
-# Checks for qal_id ----------------------------------------------------------------
+  
+  # first deprecate old values in the database ----------------------------------------------------
+  
+  replaced <- duplicates2[duplicates2$keep_new_value, ]
+  
+  # Checks for qal_id ----------------------------------------------------------------
   
   
   validate( need(all(!is.na(replaced$eel_qal_id.xls)), 
           "All values with true in keep_new_value column should have a value in eel_qal_id \n"))
   
   
-  # first deprecate old values in the database ----------------------------------------------------
-  
-  replaced <- duplicates2[duplicates2$keep_new_value, ]
   
   if (nrow(replaced) > 0 ) {
     
