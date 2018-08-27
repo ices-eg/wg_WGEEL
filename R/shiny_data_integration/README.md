@@ -307,10 +307,10 @@ query <- paste(query1, query2)
       })
   
   # Third step insert not replaced values into the database -----------------------------------------
-  
+
   
   if (is.null(message)){ # the previous operation had no error
-      
+     conn <- poolCheckout(pool)  
     tryCatch({     
                 dbExecute(conn, query2)
             }, error = function(e) {
