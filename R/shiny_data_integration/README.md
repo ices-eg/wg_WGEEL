@@ -266,7 +266,9 @@ There are two programming tricks to be aware of :
  * Note the use of poolCheckout to catch the error. I've tried many ways with sqldf but trycatch failed to catch the error (it's an internal problem to dbi). Hence the use of DBI.  Two queries are run at once to catch error on failure and not be stuck with only half the modification done. See https:/stackoverflow.com/questions/34332769/how-to-use-dbgetquery-in-trycatch-with-postgresql
  
  * sqldf is handy because you can run queries with objet from R as if they were table inside the database. As you cannot do that with DBI, I've had to first create the temporary table using sqldf and only then run the DBI query
-
+ 
+ * At the beginning the script was as following : 
+ 
 ```r
 query <- paste(query1, query2)
     conn <- poolCheckout(pool)
@@ -279,8 +281,56 @@ query <- paste(query1, query2)
           sqldf("drop table if exists not_replaced_temp")
           sqldf("drop table if exists replaced_temp")
         })
-
 ```
+ *  however this just lanches the query1 never query2, as dbExecute only executes one line. So the modified script handles integration error and performs some "manual rollback" in case of failure, to do so I had to create query0_reverse and query1_reverse queries, these are based on the time of the day
+ 
+ ```r
+  
+  conn <- poolCheckout(pool)
+  message <- NULL
+  
+  # First step, replace values in the database --------------------------------------------------
+  
+  sqldf(query0)
+  
+  # Second step insert replaced ------------------------------------------------------------------
+  
+  nr1 <- tryCatch({     
+        dbExecute(conn, query1)
+      }, error = function(e) {
+        message <- e  
+        sqldf (query0_reverse)      # perform reverse operation
+      }, finally = {
+        poolReturn(conn)
+        sqldf( str_c( "drop table if exists not_replaced_temp_", cou_code))
+        sqldf( str_c( "drop table if exists replaced_temp_", cou_code))        
+      })
+  
+  # Third step insert not replaced values into the database -----------------------------------------
+  
+  
+  if (is.null(message)){ # the previous operation had no error
+      
+    tryCatch({     
+                dbExecute(conn, query2)
+            }, error = function(e) {
+                message <- e                   
+                dbExecute(conn, query1_reverse) # this is not surrounded by trycatch, pray it does not fail ....
+                 sqldf (query0_reverse)      # perform reverse operation    
+               }, finally = {
+                poolReturn(conn)
+                sqldf( str_c( "drop table if exists not_replaced_temp_", cou_code))
+                sqldf( str_c( "drop table if exists replaced_temp_", cou_code))        
+            })
+    
+  }  
+  
+message <- sprintf("For duplicates %s values replaced in the database (old values kept with code eel_qal_id=%s)\n, %s values not replaced (values from current datacall stored with code eel_qal_id %s)", 
+      nrow(replaced), qualify_code, nrow(not_replaced), qualify_code)
+ 
+ 
+```
+
 The `not_replaced` data are kept but with code **18** and with a new comment
 
 ```r
