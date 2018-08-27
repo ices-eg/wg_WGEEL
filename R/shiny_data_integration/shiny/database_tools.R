@@ -224,7 +224,7 @@ write_duplicates <- function(path, qualify_code = 18) {
   
 # Values not chosen, but we store them in the database --------------------------------------------
   
-  not_replaced <- duplicates2[duplicates2$keep_new_value, ]
+  not_replaced <- duplicates2[!duplicates2$keep_new_value, ]
   
   if (nrow(not_replaced) > 0 ) {
     
@@ -235,7 +235,7 @@ write_duplicates <- function(path, qualify_code = 18) {
     not_replaced$eel_qal_id <- qualify_code
     not_replaced <- not_replaced[, c("eel_typ_id", "eel_year", "eel_value.xls", 
             "eel_missvaluequal.xls", "eel_emu_nameshort", "eel_cou_code", "eel_lfs_code", 
-            "eel_hty_code", "eel_area_division", "eel_qal_id.xls", "eel_qal_comment.xls", 
+            "eel_hty_code", "eel_area_division", "eel_qal_id", "eel_qal_comment.xls", 
             "eel_datasource.xls", "eel_comment.xls")]
     
     not_replaced$eel_qal_comment.xls <- iconv(not_replaced$eel_qal_comment.xls,"UTF8")
@@ -294,9 +294,10 @@ write_duplicates <- function(path, qualify_code = 18) {
       }, error = function(e) {
         message <<- e  
         sqldf (query0_reverse)      # perform reverse operation
+        cat("step2 message :")
+        print(message)
       }, finally = {
         poolReturn(conn)
-        sqldf( str_c( "drop table if exists not_replaced_temp_", cou_code))
         sqldf( str_c( "drop table if exists replaced_temp_", cou_code))        
       })
   
@@ -308,15 +309,18 @@ write_duplicates <- function(path, qualify_code = 18) {
     nr2 <- tryCatch({     
           dbExecute(conn, query2)
         }, error = function(e) {
-          message <<- e                   
+          message <<- e 
+          cat("step3 message :")
+          print(message)
           dbExecute(conn, query1_reverse) # this is not surrounded by trycatch, pray it does not fail ....
           sqldf (query0_reverse)      # perform reverse operation    
         }, finally = {
           poolReturn(conn)
-          sqldf( str_c( "drop table if exists not_replaced_temp_", cou_code))
-          sqldf( str_c( "drop table if exists replaced_temp_", cou_code))        
+          sqldf( str_c( "drop table if exists not_replaced_temp_", cou_code))   
         })
     
+  } else {
+    sqldf( str_c( "drop table if exists not_replaced_temp_", cou_code))
   }
   if (is.null(message)){  
   message <- sprintf("For duplicates %s values replaced in the database (old values kept with code eel_qal_id=%s)\n,
