@@ -128,7 +128,7 @@ write_duplicates <- function(path, qualify_code = 18) {
           "Error in replicated dataset : column name changed, have you removed the empty line on top of the dataset ?"))
   
   cou_code = unique(duplicates2$eel_cou_code)
-  stopifnot(length(cou_code) == 1)
+  validate(need(length(cou_code) == 1, "There is more than one country code, please check your file"))
   
   # Checks for column keep_new_value ----------------------------------------------------------------
   
@@ -334,16 +334,26 @@ write_duplicates <- function(path, qualify_code = 18) {
 #'  }
 #' }
 #' @rdname write_duplicate
+
 write_new <- function(path) {
+  
   new <- read_excel(path = path, sheet = 1, skip = 1)
-  if (any(is.na(new$eel_qal_id))) 
-    stop("There are still lines without eel_qal_id")
+  
+  # check for new file -----------------------------------------------------------------------------
+  
+  validate(need(all(!is.na(new$eel_qal_id)), "There are still lines without eel_qal_id, please check your file"))
+  cou_code = unique(new$eel_cou_code)  
+  validate(need(length(cou_code) == 1, "There is more than one country code, please check your file"))
+  
+  # create dataset for insertion -------------------------------------------------------------------
+  
+  
   new <- new[, c("eel_typ_id", "eel_year", "eel_value", "eel_missvaluequal", "eel_emu_nameshort", 
           "eel_cou_code", "eel_lfs_code", "eel_hty_code", "eel_area_division", "eel_qal_id", 
           "eel_qal_comment", "eel_datasource", "eel_comment")]
   sqldf::sqldf("drop table if exists new_temp ")
   sqldf::sqldf("create table new_temp as select * from new")
-  message <- sprintf(" %s new values inserted in the database", nrow(new))
+
   # Query uses temp table just created in the database by sqldf
   query <- "insert into datawg.t_eelstock_eel (         
       eel_typ_id,       
@@ -363,16 +373,19 @@ write_new <- function(path) {
   # if fails replaces the message with this trycatch !  I've tried many ways with
   # sqldf but trycatch failed to catch the error Hence the use of DBI
   conn <- poolCheckout(pool)
-  tryCatch({
+  message <- NULL
+  nr <- tryCatch({
         dbExecute(conn, query)
       }, error = function(e) {
-        message <<- e
+        message <- e
       }, finally = {
         poolReturn(conn)
         sqldf::sqldf("drop table if exists new_temp ")
       })
-  cou_code = unique(new$eel_cou_code)
-  stopifnot(length(cou_code) == 1)
+
+  
+  if (is.null(message))   
+    message <- sprintf(" %s new values inserted in the database", nr)
   
   return(list(message = message, cou_code = cou_code))
 }
@@ -401,6 +414,7 @@ write_new <- function(path) {
 #' @rdname updateDB
 #' @importFrom dplyr last
 #' @importFrom glue glue_sql
+
 update_t_eelstock_eel <- function(editedValue, pool, data) {
   # Keep only the last modification for a cell edited Value is a data frame with
   # columns row, col, value this part ensures that only the last value changed in a
