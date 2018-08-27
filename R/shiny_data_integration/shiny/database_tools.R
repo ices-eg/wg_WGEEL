@@ -207,7 +207,7 @@ write_duplicates <- function(path, qualify_code = 18) {
         " where eel_datelastupdate = current_date",
         " and eel_cou_code='",cou_code,"'", 
         " and eel_datasource='",the_eel_datasource ,"';")
-     
+    
     
     
   } else {
@@ -271,7 +271,7 @@ write_duplicates <- function(path, qualify_code = 18) {
 # 
   
   
-  conn <- poolCheckout(pool)
+  
   message <- NULL
   
   # First step, replace values in the database --------------------------------------------------
@@ -280,6 +280,7 @@ write_duplicates <- function(path, qualify_code = 18) {
   
   # Second step insert replaced ------------------------------------------------------------------
   
+  conn <- poolCheckout(pool)
   nr1 <- tryCatch({     
         dbExecute(conn, query1)
       }, error = function(e) {
@@ -295,18 +296,18 @@ write_duplicates <- function(path, qualify_code = 18) {
   
   
   if (is.null(message)){ # the previous operation had no error
-      
+    conn <- poolCheckout(pool) 
     tryCatch({     
-                dbExecute(conn, query2)
-            }, error = function(e) {
-                message <- e                   
-                dbExecute(conn, query1_reverse) # this is not surrounded by trycatch, pray it does not fail ....
-                 sqldf (query0_reverse)      # perform reverse operation    
-               }, finally = {
-                poolReturn(conn)
-                sqldf( str_c( "drop table if exists not_replaced_temp_", cou_code))
-                sqldf( str_c( "drop table if exists replaced_temp_", cou_code))        
-            })
+          dbExecute(conn, query2)
+        }, error = function(e) {
+          message <- e                   
+          dbExecute(conn, query1_reverse) # this is not surrounded by trycatch, pray it does not fail ....
+          sqldf (query0_reverse)      # perform reverse operation    
+        }, finally = {
+          poolReturn(conn)
+          sqldf( str_c( "drop table if exists not_replaced_temp_", cou_code))
+          sqldf( str_c( "drop table if exists replaced_temp_", cou_code))        
+        })
     
   }  
   
@@ -355,7 +356,7 @@ write_new <- function(path) {
           "eel_qal_comment", "eel_datasource", "eel_comment")]
   sqldf::sqldf("drop table if exists new_temp ")
   sqldf::sqldf("create table new_temp as select * from new")
-
+  
   # Query uses temp table just created in the database by sqldf
   query <- "insert into datawg.t_eelstock_eel (         
       eel_typ_id,       
@@ -384,7 +385,7 @@ write_new <- function(path) {
         poolReturn(conn)
         sqldf::sqldf("drop table if exists new_temp ")
       })
-
+  
   
   if (is.null(message))   
     message <- sprintf(" %s new values inserted in the database", nr)
