@@ -43,7 +43,7 @@ compare_with_database <- function(data_from_excel, data_from_base) {
   current_typ_name <- unique(data_from_excel$eel_typ_name)
   if (!all(current_typ_name %in% tr_type_typ$typ_name)) stop(str_c("Type ",current_typ_name[!current_typ_name %in% tr_type_typ$typ_name]," not in list of type name check excel file"))
   # extract subset suitable for merge
-   tr_type_typ_for_merge <- tr_type_typ[, c("typ_id", "typ_name")]
+  tr_type_typ_for_merge <- tr_type_typ[, c("typ_id", "typ_name")]
   colnames(tr_type_typ_for_merge) <- c("eel_typ_id", "eel_typ_name")
   data_from_excel <- merge(data_from_excel, tr_type_typ_for_merge, by = "eel_typ_name") 
   
@@ -55,11 +55,11 @@ compare_with_database <- function(data_from_excel, data_from_base) {
     data_from_base<-data_from_base0L
     warning("No data in the file coming from the database")
   } else {   
-  current_typ_id <- unique(data_from_excel$eel_typ_id)
-  if (!all(current_typ_id %in% data_from_base$eel_typ_id)) 
-    stop(paste("There is a mismatch between selected typ_id", paste0(current_typ_id, 
-                collapse = ";"), "and the dataset loaded from base", paste0(unique(data_from_base$eel_typ_id), 
-                collapse = ";"), "did you select the right File type ?"))
+    current_typ_id <- unique(data_from_excel$eel_typ_id)
+    if (!all(current_typ_id %in% data_from_base$eel_typ_id)) 
+      stop(paste("There is a mismatch between selected typ_id", paste0(current_typ_id, 
+                  collapse = ";"), "and the dataset loaded from base", paste0(unique(data_from_base$eel_typ_id), 
+                  collapse = ";"), "did you select the right File type ?"))
   }
   # Can't join on 'eel_area_division' x 'eel_area_division' because of incompatible
   # types (character / logical)
@@ -111,7 +111,11 @@ compare_with_database <- function(data_from_excel, data_from_base) {
 #' }
 #' @rdname write_duplicate
 write_duplicates <- function(path, qualify_code = 18) {
+  
   duplicates2 <- read_excel(path = path, sheet = 1, skip = 1)
+  
+  # Initial checks ----------------------------------------------------------------------------------
+  
   # the user might select a wrong file, or modify the file the following check
   # should ensure file integrity
   validate(need(ncol(duplicates2) == 22, "number column wrong (should be 22) \n"))
@@ -120,61 +124,103 @@ write_duplicates <- function(path, qualify_code = 18) {
                   "eel_qal_comment.xls", "eel_qal_id.base", "eel_qal_comment.base", "eel_missvaluequal.base", 
                   "eel_missvaluequal.xls", "eel_emu_nameshort", "eel_cou_code", "eel_lfs_code", 
                   "eel_hty_code", "eel_area_division", "eel_comment.base", "eel_comment.xls", 
-                  "eel_datasource.base", "eel_datasource.xls")), "Error in replicated dataset : column name changed, have you removed the empty line on top of the dataset ?"))
+                  "eel_datasource.base", "eel_datasource.xls")), 
+          "Error in replicated dataset : column name changed, have you removed the empty line on top of the dataset ?"))
+  
+  cou_code = unique(duplicates2$eel_cou_code)
+  stopifnot(length(cou_code) == 1)
+  
+  # Checks for column keep_new_value ----------------------------------------------------------------
+  
   # select values to be replaced passing through excel does not get keep_new_value
   # with logical R value here I'm testing various mispelling
+  
   duplicates2$keep_new_value[duplicates2$keep_new_value == "1"] <- "true"
   duplicates2$keep_new_value[duplicates2$keep_new_value == "0"] <- "false"
   duplicates2$keep_new_value <- toupper(duplicates2$keep_new_value)
   duplicates2$keep_new_value[duplicates2$keep_new_value == "YES"] <- "true"
   duplicates2$keep_new_value[duplicates2$keep_new_value == "NO"] <- "false"
-  if (!all(duplicates2$keep_new_value %in% c("TRUE", "FALSE"))) 
-    stop("value in keep_new_value should be false or true")
+  
+  validate( need(all(duplicates2$keep_new_value %in% c("TRUE", "FALSE")), 
+          "value in keep_new_value should be false or true"))
+  
   duplicates2$keep_new_value <- as.logical(toupper(duplicates2$keep_new_value))
-  #########################'
-  # Duplicates values
+  
+# Checks for qal_id ----------------------------------------------------------------
+  
+  
+  validate( need(all(!is.na(replaced$eel_qal_id.xls)), 
+          "All values with true in keep_new_value column should have a value in eel_qal_id \n"))
+  
+  
+  # first deprecate old values in the database ----------------------------------------------------
   
   replaced <- duplicates2[duplicates2$keep_new_value, ]
-  if (nrow(replaced) > 0) {
-    validate(need(all(!is.na(replaced$eel_qal_id.xls)), "All values with true in keep_new_value column should have a value in eel_qal_id \n"))
+  
+  if (nrow(replaced) > 0 ) {
     
-    ############### first deprecate old values in the database
     replaced$eel_comment.base[is.na(replaced$eel_comment.base)] <- ""
     replaced$eel_comment.base <- paste0(replaced$eel_comment.base, " Value ", 
         replaced$eel_value.base, " replaced by value ", replaced$eel_value.xls, 
         " for datacall ", format(Sys.time(), "%Y"))
     
+    
+    
     query0 <- paste0("update datawg.t_eelstock_eel set (eel_qal_id,eel_comment)=(", 
-        qualify_code, ",'", replaced$eel_comment.base, "') where eel_id=", replaced$eel_id)
+        qualify_code, ",'", replaced$eel_comment.base, "') where eel_id=", replaced$eel_id,";")
+    
+    # this will perform the reverse operation if error in query 1 or 2
+    query0_reverse <- paste0("update datawg.t_eelstock_eel set (eel_qal_id,eel_comment)=(", 
+        replaced$eel_qal_id.base , ",'", replaced$eel_comment.base, "') where eel_id=", replaced$eel_id,";")
+    
     # this query will be run later cause we don't want it to run if the other fail
     
-    ################################################ second insert the new lines into the database
-    ###############################################'
+    # second insert the new lines into the database -------------------------------------------------
+    
     replaced <- replaced[, c("eel_typ_id", "eel_year", "eel_value.xls", "eel_missvaluequal.xls", 
             "eel_emu_nameshort", "eel_cou_code", "eel_lfs_code", "eel_hty_code", 
             "eel_area_division", "eel_qal_id.xls", "eel_qal_comment.xls", "eel_datasource.xls", 
             "eel_comment.xls")]
     
-    query1 <- "insert into datawg.t_eelstock_eel (         
-        eel_typ_id,       
-        eel_year,
-        eel_value,
-        eel_missvaluequal,
-        eel_emu_nameshort,
-        eel_cou_code,
-        eel_lfs_code,
-        eel_hty_code,
-        eel_area_division,
-        eel_qal_id,
-        eel_qal_comment,            
-        eel_datasource,
-        eel_comment) 
-        select * from replaced_temp;"
+    query1 <- str_c("insert into datawg.t_eelstock_eel (         
+            eel_typ_id,       
+            eel_year,
+            eel_value,
+            eel_missvaluequal,
+            eel_emu_nameshort,
+            eel_cou_code,
+            eel_lfs_code,
+            eel_hty_code,
+            eel_area_division,
+            eel_qal_id,
+            eel_qal_comment,            
+            eel_datasource,
+            eel_comment) 
+            select * from replaced_temp_", cou_code ,";")
+    # again this query will be run later cause we don't want it to run if the other fail
+    
+    # this query will be run to rollback when query2 crashes
+    
+    query1_reverse <- str_c("delete from datawg.t_eelstock_eel", 
+        " where eel_datelastupdate = current_date",
+        " and eel_cou_code='",cou_code,"'", 
+        " and eel_datasource='",the_eel_datasource ,"';")
+     
+    
+    
+  } else {
+    
+    query0 <- ""
+    query1 <- ""
+    
   }
-  ################################ Values not chosen, but we store them in the database
+  
+# Values not chosen, but we store them in the database --------------------------------------------
   
   not_replaced <- duplicates2[duplicates2$keep_new_value, ]
-  if (nrow(not_replaced) > 0) {
+  
+  if (nrow(not_replaced) > 0 ) {
+    
     not_replaced$eel_comment.xls[is.na(not_replaced$eel_comment.xls)] <- ""
     not_replaced$eel_comment.xls <- paste0(not_replaced$eel_comment.xls, " Value ", 
         not_replaced$eel_value.xls, " not used, value from the database ", not_replaced$eel_value.base, 
@@ -184,47 +230,93 @@ write_duplicates <- function(path, qualify_code = 18) {
             "eel_missvaluequal.xls", "eel_emu_nameshort", "eel_cou_code", "eel_lfs_code", 
             "eel_hty_code", "eel_area_division", "eel_qal_id.xls", "eel_qal_comment.xls", 
             "eel_datasource.xls", "eel_comment.xls")]
-    sqldf("drop table if exists not_replaced_temp")
-    sqldf("create table not_replaced_temp as select * from not_replaced")
-    sqldf("drop table if exists replaced_temp")
-    sqldf("create table replaced_temp as select * from replaced")
-    message <- sprintf("For duplicates %s values replaced in the database (old values kept with code eel_qal_id=%s)\n, %s values not replaced (values from current datacall stored with code eel_qal_id %s)", 
-        nrow(replaced), qualify_code, nrow(not_replaced), qualify_code)
-    query2 <- "insert into datawg.t_eelstock_eel (         
-        eel_typ_id,       
-        eel_year,
-        eel_value,
-        eel_missvaluequal,
-        eel_emu_nameshort,
-        eel_cou_code,
-        eel_lfs_code,
-        eel_hty_code,
-        eel_area_division,
-        eel_qal_id,
-        eel_qal_comment,            
-        eel_datasource,
-        eel_comment) 
-        select * from not_replaced_temp;"
-    # if fails replaces the message with this trycatch !  I've tried many ways with
-    # sqldf but trycatch failed to catch the error Hence the use of DBI Note : I've
-    # joined the two sentences in a same commit to catch error on both replaced and
-    # not_replaced commit
-    query <- paste(query0, query1, query2)
-    conn <- poolCheckout(pool)
-    tryCatch({
-          dbExecute(conn, query)
-        }, error = function(e) {
-          message <<- e
-        }, finally = {
-          poolReturn(conn)
-          sqldf("drop table if exists not_replaced_temp")
-          sqldf("drop table if exists replaced_temp")
-        })
-    cou_code = unique(duplicates2$eel_cou_code)
-    stopifnot(length(cou_code) == 1)
+    
+    query2 <- str_c( "insert into datawg.t_eelstock_eel (         
+            eel_typ_id,       
+            eel_year,
+            eel_value,
+            eel_missvaluequal,
+            eel_emu_nameshort,
+            eel_cou_code,
+            eel_lfs_code,
+            eel_hty_code,
+            eel_area_division,
+            eel_qal_id,
+            eel_qal_comment,            
+            eel_datasource,
+            eel_comment) 
+            select * from not_replaced_temp_",cou_code,";")
+    
+  } else {
+    
+    query2 <- ""
   }
+  
+  
+# Inserting temporary tables
+# running this with more than one sesssion might lead to crash
+  
+  sqldf( str_c("drop table if exists not_replaced_temp_",cou_code) )
+  sqldf( str_c("create table not_replaced_temp_", cou_code, " as select * from not_replaced") )
+  sqldf( str_c("drop table if exists replaced_temp_",cou_code) )
+  sqldf( str_c("create table replaced_temp_", cou_code, " as select * from replaced") )
+  
+  
+# Insertion of the three queries ----------------------------------------------------------------
+  
+# if fails replaces the message with this trycatch !  I've tried many ways with
+# sqldf but trycatch failed to catch the error Hence the use of DBI 
+# 
+  
+  
+  conn <- poolCheckout(pool)
+  message <- NULL
+  
+  # First step, replace values in the database --------------------------------------------------
+  
+  sqldf(query0)
+  
+  # Second step insert replaced ------------------------------------------------------------------
+  
+  nr1 <- tryCatch({     
+        dbExecute(conn, query1)
+      }, error = function(e) {
+        message <- e  
+        sqldf (query0_reverse)      # perform reverse operation
+      }, finally = {
+        poolReturn(conn)
+        sqldf( str_c( "drop table if exists not_replaced_temp_", cou_code))
+        sqldf( str_c( "drop table if exists replaced_temp_", cou_code))        
+      })
+  
+  # Third step insert not replaced values into the database -----------------------------------------
+  
+  
+  if (is.null(message)){ # the previous operation had no error
+      
+    tryCatch({     
+                dbExecute(conn, query2)
+            }, error = function(e) {
+                message <- e                   
+                dbExecute(conn, query1_reverse) # this is not surrounded by trycatch, pray it does not fail ....
+                 sqldf (query0_reverse)      # perform reverse operation    
+               }, finally = {
+                poolReturn(conn)
+                sqldf( str_c( "drop table if exists not_replaced_temp_", cou_code))
+                sqldf( str_c( "drop table if exists replaced_temp_", cou_code))        
+            })
+    
+  }  
+  
+  message <- sprintf("For duplicates %s values replaced in the database (old values kept with code eel_qal_id=%s)\n, %s values not replaced (values from current datacall stored with code eel_qal_id %s)", 
+      nrow(replaced), qualify_code, nrow(not_replaced), qualify_code)
+  
   return(list(message = message, cou_code = cou_code))
 }
+
+
+
+
 #' @title new results into the database
 #' @description New lines will be inserted in the database
 #' @param path path to file (collected from shiny button)
