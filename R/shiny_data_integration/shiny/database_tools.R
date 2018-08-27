@@ -297,7 +297,7 @@ write_duplicates <- function(path, qualify_code = 18) {
   
   if (is.null(message)){ # the previous operation had no error
     conn <- poolCheckout(pool) 
-    tryCatch({     
+    nr2 <- tryCatch({     
           dbExecute(conn, query2)
         }, error = function(e) {
           message <- e                   
@@ -309,11 +309,12 @@ write_duplicates <- function(path, qualify_code = 18) {
           sqldf( str_c( "drop table if exists replaced_temp_", cou_code))        
         })
     
-  }  
-  
-  message <- sprintf("For duplicates %s values replaced in the database (old values kept with code eel_qal_id=%s)\n, %s values not replaced (values from current datacall stored with code eel_qal_id %s)", 
-      nrow(replaced), qualify_code, nrow(not_replaced), qualify_code)
-  
+  }
+  if (is.null(message)){  
+  message <- sprintf("For duplicates %s values replaced in the database (old values kept with code eel_qal_id=%s)\n,
+ %s values not replaced (values from current datacall stored with code eel_qal_id %s)", 
+      nr1, qualify_code, nr2, qualify_code)  
+  }
   return(list(message = message, cou_code = cou_code))
 }
 
