@@ -85,7 +85,7 @@ compare_with_database <- function(data_from_excel, data_from_base) {
   new <- new[, c("eel_typ_id", "eel_typ_name", "eel_year", "eel_value", "eel_missvaluequal", 
           "eel_emu_nameshort", "eel_cou_code", "eel_lfs_code", "eel_hty_code", "eel_area_division", 
           "eel_qal_id", "eel_qal_comment", "eel_datasource", "eel_comment")]
-  return(list(duplicates = duplicates, new = new))
+  return(list(duplicates = duplicates, new = new, current_cou_code= current_cou_code))
 }
 
 
@@ -393,7 +393,7 @@ write_new <- function(path) {
   nr <- tryCatch({
         dbExecute(conn, query)
       }, error = function(e) {
-        message <- e
+        message <<- e
       }, finally = {
         poolReturn(conn)
         sqldf::sqldf("drop table if exists new_temp ")

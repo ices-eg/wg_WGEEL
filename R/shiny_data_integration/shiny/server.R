@@ -209,6 +209,7 @@ shinyServer(function(input, output, session){
               list_comp<-compare_with_database(data_from_excel,data_from_base)
               duplicates <- list_comp$duplicates
               new <- list_comp$new 
+              current_cou_code <- list_comp$current_cou_code
               #cat("step1")
               #####################      
               # Duplicates values
@@ -246,7 +247,7 @@ shinyServer(function(input, output, session){
                             scrollX = T, 
                             buttons=list(
                                 list(extend="excel",
-                                    filename = paste0("duplicates_",input$file_type,"_",Sys.Date()))) #  JSON behind the scene
+                                    filename = paste0("duplicates_",input$file_type,"_",Sys.Date(),current_cou_code))) #  JSON behind the scene
                         ))
                   })
               if (nrow(new)==0) {
@@ -278,7 +279,7 @@ shinyServer(function(input, output, session){
                             scrollX = T, 
                             buttons=list(
                                 list(extend="excel",
-                                    filename = paste0("new_",input$file_type,"_",Sys.Date()))) #  JSON behind the scene
+                                    filename = paste0("new_",input$file_type,"_",Sys.Date(),current_cou_code))) #  JSON behind the scene
                         ))
                   })
             } # closes if nrow(...      
