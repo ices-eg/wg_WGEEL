@@ -968,34 +968,34 @@ data_bis$se=se[["se.fit"]]
 #standardising prediction to 1960-1980 level
 # 2 options mean or geomean
 if (opt_calculation=="geomean") {
-	mean_1960_1970=data.frame(mean=unlist(
+	mean_1960_1979=data.frame(mean=unlist(
 					tapply(data_bis[data_bis$year>=1960 & data_bis$year<1980,"p"],
 							data_bis[data_bis$year>=1960 & data_bis$year<1980,"area"],
 							geomean)
 	))
 } else {
-	mean_1960_1970=data.frame(mean=unlist(
+	mean_1960_1979=data.frame(mean=unlist(
 					tapply(data_bis[data_bis$year>=1960 & data_bis$year<1980,"p"],
 							data_bis[data_bis$year>=1960 & data_bis$year<1980,"area"],
 							mean)
 	))
 }
-mean_1960_1970$area=rownames(mean_1960_1970)
-data_bis=merge(data_bis,mean_1960_1970,by="area")
-data_bis$p_std_1960_1970=data_bis$p/data_bis$mean
+mean_1960_1979$area=rownames(mean_1960_1979)
+data_bis=merge(data_bis,mean_1960_1979,by="area")
+data_bis$p_std_1960_1979=data_bis$p/data_bis$mean
 
 # cannot show no se on average value, se is on each individual value !
-#data_bis$se_std_1960_1970=data_bis$se/data_bis$geomean 
-#data_bis$ymin<-data_bis$p_std_1960_1970-data_bis$se_std_1960_1970
-#data_bis$ymax<-data_bis$p_std_1960_1970+data_bis$se_std_1960_1970
+#data_bis$se_std_1960_1979=data_bis$se/data_bis$geomean 
+#data_bis$ymin<-data_bis$p_std_1960_1979-data_bis$se_std_1960_1979
+#data_bis$ymax<-data_bis$p_std_1960_1979+data_bis$se_std_1960_1979
 # geomean does not return a "nice" numeric, hence the trick below
 if (opt_calculation=="geomean") {
-	synthesis=as.data.frame(tapply(data_bis[,"p_std_1960_1970"],
+	synthesis=as.data.frame(tapply(data_bis[,"p_std_1960_1979"],
 					list(data_bis[,"year_f"],data_bis[,"area"]),
 					function(X) {Y=geomean(X) ;
 						return(as.numeric(Y))}))
 } else {
-	synthesis=as.data.frame(tapply(data_bis[,"p_std_1960_1970"],
+	synthesis=as.data.frame(tapply(data_bis[,"p_std_1960_1979"],
 					list(data_bis[,"year_f"],data_bis[,"area"]),mean,na.rm=TRUE))
 }
 
@@ -1006,7 +1006,7 @@ resy=function(data,valcol){
 	data1$year=as.Date(strptime(paste(data1$year,"-01-01",sep=""),format="%Y-%m-%d"))
 	return(data1)
 }
-dat=resy(synthesis,"p_std_1960_1970")
+dat=resy(synthesis,"p_std_1960_1979")
 
 
 ##plotting
@@ -1020,7 +1020,7 @@ dat=resy(synthesis,"p_std_1960_1970")
 # } 
 # 
 
-g<-ggplot(dat,aes(x=year,y=p_std_1960_1970))
+g<-ggplot(dat,aes(x=year,y=p_std_1960_1979))
 
 figure5_without_logscale<-g+geom_line(aes(colour=area,lty=area),lwd=1)+ 
 		scale_colour_brewer(name="area",palette="Set1")+
@@ -1052,14 +1052,14 @@ save_figure("figure5_without_logscale_black",figure5_without_logscale_black,600,
 #+geom_smooth(aes(ymin = min, ymax = max,fill=area),stat="identity")+facet_grid( ~ area) 
 datEE<-dat[dat$area=="Elsewhere Europe",]
 datNS<-dat[dat$area=="North Sea",]
-labelEE<-100*round(datEE$p_std_1960_1970[length(datEE$p_std_1960_1970)],3)
-labelNS<-100*round(datNS$p_std_1960_1970[length(datNS$p_std_1960_1970)],3)
+labelEE<-100*round(datEE$p_std_1960_1979[length(datEE$p_std_1960_1979)],3)
+labelNS<-100*round(datNS$p_std_1960_1979[length(datNS$p_std_1960_1979)],3)
 
 figure5<-g+geom_line(aes(colour=area,lty=area),lwd=1.3)+geom_point(aes(colour=area,fill=area,shape=area),size=3)+
 		#ggtitle("Recruitment overview glass eel series")+
 		scale_colour_brewer(name="area",palette="Set1")  +
-		#annotate("text",x=dat$year[length(dat$year)-2],y=datEE$p_std_1960_1970[length(datEE$p_std_1960_1970)],size=5,label=labelEE)+
-		#annotate("text",x=dat$year[length(dat$year)-2],y=datNS$p_std_1960_1970[length(datNS$p_std_1960_1970)],size=5,label=labelNS)+		
+		#annotate("text",x=dat$year[length(dat$year)-2],y=datEE$p_std_1960_1979[length(datEE$p_std_1960_1979)],size=5,label=labelEE)+
+		#annotate("text",x=dat$year[length(dat$year)-2],y=datNS$p_std_1960_1979[length(datNS$p_std_1960_1979)],size=5,label=labelNS)+		
 		scale_y_log10(name="standardized glm predictions \n mean 1960-1979-log scale",
 				#limits=c(0.005,10),
 				breaks=c(0.01,0.1,1,10),
@@ -1088,7 +1088,7 @@ save_figure("figure5",figure5,400,300)
 #levels(dat$area)<-c (
 #		iconv("Andre steder i Europa","UTF8"),
 #		iconv("Nordsj�en","UTF8"))#
-#g<-ggplot(dat,aes(x=year,y=p_std_1960_1970))
+#g<-ggplot(dat,aes(x=year,y=p_std_1960_1979))
 #figure5norvegiean<-g+
 #		geom_line(aes(colour=area,lty=area),lwd=1.3)+
 #		geom_point(aes(colour=area,shape=area),size=3)+
@@ -1118,14 +1118,14 @@ save_figure("figure5",figure5,600,480)
 #				breaks=c(0.01,0.1,1,10),
 #				labels=c("1%","10%","100%","1000%"))
 levels(dat$area)=c("EE","NS")
-g<-ggplot(dat,aes(x=year,y=p_std_1960_1970))
+g<-ggplot(dat,aes(x=year,y=p_std_1960_1979))
 
 #figure5bw<-g+geom_line(aes(colour=area,lty=area),wd=1.3)+
 #		geom_point(aes(colour=area,fill=area,shape=area),size=3)+
 #		#ggtitle("Recruitment overview glass eel series")+
 #		scale_colour_manual(name="area",values=c("black","grey40"))  +
-#		#annotate("text",x=dat$year[length(dat$year)-2],y=datEE$p_std_1960_1970[length(datEE$p_std_1960_1970)],size=5,label=labelEE)+
-#		#annotate("text",x=dat$year[length(dat$year)-2],y=datNS$p_std_1960_1970[length(datNS$p_std_1960_1970)],size=5,label=labelNS)+		
+#		#annotate("text",x=dat$year[length(dat$year)-2],y=datEE$p_std_1960_1979[length(datEE$p_std_1960_1979)],size=5,label=labelEE)+
+#		#annotate("text",x=dat$year[length(dat$year)-2],y=datNS$p_std_1960_1979[length(datNS$p_std_1960_1979)],size=5,label=labelNS)+		
 #		scale_y_log10(name="standardized glm predictions \n mean 1960-1979-log scale",
 #				#limits=c(0.005,10),
 #				breaks=c(0.01,0.1,1,10),
@@ -1146,19 +1146,19 @@ g<-ggplot(dat,aes(x=year,y=p_std_1960_1970))
 #dat1<-dat
 #levels(dat1$area)=c("Europe","Vilaine")
 #dat$year1=as.numeric(strftime(dat1$year,"%Y"))
-#dat1$p_std_1960_1970
+#dat1$p_std_1960_1979
 #vil<-wger[wger$ser_id==17,c("value_std","year")]
 #vil<-vil[order(as.numeric(vil$year)),]
-#vil<-rbind(cbind("value_std"=NA,"year"=1950:1970),vil,cbind("value_std"=NA,"year"=2012))
+#vil<-rbind(cbind("value_std"=NA,"year"=1950:1979),vil,cbind("value_std"=NA,"year"=2012))
 #mean(vil$value_std[vil$year>=1979 & vil$year<1994])#1
-#sca<-mean(dat1$p_std_1960_1970[dat1$area=="Europe"&dat1$year1>=1979 & dat1$year1<1994]) #0.62
+#sca<-mean(dat1$p_std_1960_1979[dat1$area=="Europe"&dat1$year1>=1979 & dat1$year1<1994]) #0.62
 #vil$value_std<-vil$value_std*sca
 #vil[16:21,"value_std"]<-c(5,4,9,12,10,8)*vil$value_std[vil$year==1971]/44
-##vilpred<-data_bis[data_bis$site==17&data_bis$area=="Elsewhere Europe",c("p_std_1960_1970","year")]
+##vilpred<-data_bis[data_bis$site==17&data_bis$area=="Elsewhere Europe",c("p_std_1960_1979","year")]
 ##vilpred<-vilpred[order(as.numeric(vilpred$year)),]
-#dat1[dat1$area=="Vilaine","p_std_1960_1970"]<-vil$value_std
+#dat1[dat1$area=="Vilaine","p_std_1960_1979"]<-vil$value_std
 #colsitees(dat1)[2]<-"zone"
-#g1<-ggplot(dat1,aes(x=year,y=p_std_1960_1970))+xlab("")
+#g1<-ggplot(dat1,aes(x=year,y=p_std_1960_1979))+xlab("")
 #base_size<-12
 
 #figure5_without_logscale_black_vilaine<-g1+
@@ -1295,7 +1295,7 @@ if (sgipee_test_for_change_ns<=0.05) {
 ## gey$E<-resid(model_ge_area) # working residuals
 ## gey$P=predict(model_ge_area)
 ## plot(coefficients(model_ge_area)[grep("North Sea",names(coefficients(model_ge_area)))],type="l")
-## points(log(datNS$p_std_1960_1970)+4,type="l",col="red")
+## points(log(datNS$p_std_1960_1979)+4,type="l",col="red")
 ## plot(gey$E~gey$P)
 ## 
 ## # Three ways of getting the diagnostic graph of residuals
@@ -1448,19 +1448,19 @@ data_bis$year=as.numeric(as.character(data_bis$year))
 #predicting
 data_bis$p=predict(model_older,newdata=data_bis,type="response")
 
-#standardising prediction to 1960-1970 level
+#standardising prediction to 1960-1979 level
 # 2 options mean or geomean
 if (opt_calculation=="geomean") {
-	mean_1960_1970=as.numeric(geomean(data_bis[data_bis$year>=1960 & data_bis$year<1980,"p"]))
+	mean_1960_1979=as.numeric(geomean(data_bis[data_bis$year>=1960 & data_bis$year<1980,"p"]))
 } else {
-	mean_1960_1970=mean(data_bis[data_bis$year>=1960 & data_bis$year<1980,"p"])
+	mean_1960_1979=mean(data_bis[data_bis$year>=1960 & data_bis$year<1980,"p"])
 }
-data_bis$p_std_1960_1970=data_bis$p/mean_1960_1970
+data_bis$p_std_1960_1979=data_bis$p/mean_1960_1979
 
 if (opt_calculation=="geomean") {
-	synthesis=data.frame("yellow_eel"=unlist(tapply(data_bis[,"p_std_1960_1970"],list(data_bis[,"year_f"]),geomean)))
+	synthesis=data.frame("yellow_eel"=unlist(tapply(data_bis[,"p_std_1960_1979"],list(data_bis[,"year_f"]),geomean)))
 } else {
-	synthesis=data.frame("yellow_eel"=unlist(tapply(data_bis[,"p_std_1960_1970"],list(data_bis[,"year_f"]),mean)))
+	synthesis=data.frame("yellow_eel"=unlist(tapply(data_bis[,"p_std_1960_1979"],list(data_bis[,"year_f"]),mean)))
 }
 
 synthesis$time=rownames(synthesis)
