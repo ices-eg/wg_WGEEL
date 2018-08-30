@@ -3,6 +3,9 @@
 ---------------------------------------------
 
 select distinct eel_datasource  FROM datawg.t_eelstock_eel where eel_cou_code='FR';
+select distinct eel_qal_id  FROM datawg.t_eelstock_eel where eel_cou_code='FR';
+
+
 select * from datawg.t_eelstock_eel where eel_datelastupdate = current_date and eel_cou_code='FR' and eel_datasource= 'test';
 
 
