@@ -294,7 +294,7 @@ ui = dashboardPage(title="ICES Data Visualisation",
                             value = FALSE
                         )),
                         p("Unlike previous graph where current values are scaled to the period,
-                                1960 1970 using predicted model values, these represent the TRUE residuals of the gamma model"),
+                                1960-1979 using predicted model values, these represent the TRUE residuals of the gamma model"),
                         plotOutput("resid_recruitment_graph"))))
         
         )

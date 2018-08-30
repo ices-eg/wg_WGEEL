@@ -397,12 +397,12 @@ server = function(input, output, session) {
               
               if (the_stage=='G'| the_stage=='GY'){
                 
-                # These values are standardized against the predictions in 1960-1970
+                # These values are standardized against the predictions in 1960s-1970s
                 # the predictions are the predictions of the expand.grid(year,site,area)
                 # this is to ensure values are are close as possible to the known predicted trend
                 
-                # extract the mean predicted value from 1960-1970
-                mean_1960_1970 <- glass_eel_pred %>%                          
+                # extract the mean predicted value from 1960-1979
+                mean_1960_1979 <- glass_eel_pred %>%                          
                     mutate(area= case_when(area == "Elsewhere Europe" ~ "EE",
                             area == "North Sea" ~ "NS",
                             TRUE ~ "This should not even happen")) %>%   # could have used recode
@@ -421,14 +421,14 @@ server = function(input, output, session) {
                         value_std,
                         das_comment)                   %>%  # get 5 columns
                     filter(ser_id==the_id)             %>%  # get only the selected series
-                    mutate(value_std_1960_1970 = 
-                            value_std /mean_1960_1970) %>%  # divide by pred. in 1960 1970 
+                    mutate(value_std_1960_1979 = 
+                            value_std /mean_1960_1979) %>%  # divide by pred. in 1960 1979 
                     right_join(                             # right join = keep all from dat_ge
                         dat_ge[dat_ge$area==the_area,],
                         by=c("year")
                     )                 %>%               # join by year
                     arrange(year)                           # order the series                 
-                # now the variable to plot is : value_std_1960_1970
+                # now the variable to plot is : value_std_1960_1979
                 
                 # extracting residuals for second plot -------------------------------------------
                 
@@ -454,9 +454,9 @@ server = function(input, output, session) {
                 #       the_name = 'Dala'
                 #       the_stage = 'Y'
                 
-                mean_1960_1970 <- yellow_eel_pred %>%     
+                mean_1960_1979 <- yellow_eel_pred %>%     
                     dplyr::filter(site == the_name) %>%
-                    pull(mean_1960_1970) %>% head(1)
+                    pull(mean_1960_1979) %>% head(1)
                 
                 
                 the_series <-
@@ -470,8 +470,8 @@ server = function(input, output, session) {
                         value_std,
                         das_comment)                   %>%
                     filter(ser_id == the_id)           %>%
-                    mutate(value_std_1960_1970 = 
-                            value_std /mean_1960_1970) %>%                     
+                    mutate(value_std_1960_1979 = 
+                            value_std /mean_1960_1979) %>%                     
                     right_join(dat_ye, by=c("year"))   %>% 
                     arrange(year)
                 
@@ -507,20 +507,20 @@ server = function(input, output, session) {
                         title = "Year",
                         titlefont = f)
                     y <- list(
-                        title = "Values standardized by 1960-1970 pred",
+                        title = "Values standardized by 1960-1979 pred",
                         titlefont = f)
                     # note the source argument is used to find this
                     # graph in eventdata
                     plot_ly(the_series, 
                             x = ~ year, 
-                            y = ~ value_std_1960_1970,
+                            y = ~ value_std_1960_1979,
                             name = the_name,                              
                             source= "select_year",
                             type="scatter",
                             mode="lines+markers",
                             colors = "Set1")   %>% 
                         layout(title = the_title, xaxis = x, yaxis = y) %>%
-                        add_trace(y = ~ geomean_p_std_1960_1970, name = the_area) 
+                        add_trace(y = ~ geomean_p_std_1960_1979, name = the_area) 
                     
                   })   
               
