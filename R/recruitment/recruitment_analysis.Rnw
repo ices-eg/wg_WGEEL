@@ -376,7 +376,7 @@ save(R_stations,file=str_c(datawd,"/R_stations.Rdata"))
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %************************************************************************************
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-<< load_rdata, echo=FALSE, fig=FALSE, eval=TRUE >>=
+<< load_rdata, echo=FALSE, fig=FALSE, eval=TRUE, results=hide>>=
 # In this rchunk we load the data even if there is no connection to the database
 load(file=str_c(datawd,"/wger.Rdata"))
 load(file=str_c(datawd,"/statseries.Rdata"))
@@ -387,7 +387,7 @@ load(file=str_c(datawd,"/R_stations.Rdata"))
 % the statistics about the series are usefull while filling in new data, to check
 % which series have been already entered and which still need to be
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-<< select_series, echo=FALSE, fig=FALSE, eval=TRUE >>=
+<< select_series, echo=FALSE, fig=FALSE, eval=TRUE, results=hide >>=
 
 # wgerinit is used to keep the "whole" dataset, just in case we mess with it afterwards
 
@@ -539,11 +539,12 @@ write.table(older,file=str_c(datawd,"/older.csv"),sep=";")
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %				THIS CHUNK CREATES THE TABLES	
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-<< table_series,echo=FALSE, eval=TRUE,fig=FALSE>>=
+<< table_series,echo=FALSE, eval=TRUE,fig=FALSE, results=hide>>=
 last_year<-tapply(wger$year,wger$site,function(X) max(X))
 #stations updated to",CY
 R_stations$areashort<-"EE"
 R_stations$areashort[R_stations$area=="North Sea"]<-"NS"
+R_stations$ser_namelong <- iconv(R_stations$ser_namelong,"UTF8")
 series_CY<-R_stations[R_stations$ser_nameshort%in%names(last_year[last_year==CY]),
     c("ser_nameshort","ser_namelong","cou_code","ser_lfs_code","areashort","ser_area_division","ser_order")]
 series_CY<-series_CY[order(series_CY$ser_order),-ncol(series_CY)]
@@ -670,7 +671,7 @@ colnames(printstatseries)<-
 xstatseries <- xtable(x = printstatseries[1:20,], 
 	label = str_c("statseries"),
 	caption = str_c("Short description of the recruitment sites, kept means that this series is used in recruitment analysis"),
-	align=c("p{0cm}","p{1cm}","p{1cm}","p{1cm}","p{1cm}","p{0.8cm}","p{0.8cm}","p{1.5cm}","p{2.5cm}","p{1.5cm}","p{1.5cm}","p{1.5cm}"),
+	align=c("p{0cm}","p{1cm}","p{1cm}","p{1cm}","p{1cm}","p{0.8cm}","p{0.8cm}","p{1cm}","p{2cm}","p{2cm}","p{1cm}","p{1cm}"),
 	digits=0)
 print(xstatseries , 
 	file = str_c(tabwd,"/table_statseries.tex"),
@@ -683,7 +684,7 @@ print(xstatseries ,
 xstatseries <- xtable(x = printstatseries[21:40,], 
 	label = str_c("statseries"),
 	caption = str_c("Short description of the recruitment sites (continued)"),
-	align=c("p{0cm}","p{1cm}","p{1cm}","p{1cm}","p{1cm}","p{0.8cm}","p{0.8cm}","p{1.5cm}","p{2.5cm}","p{1.5cm}","p{1.5cm}","p{1.5cm}"),
+	align=c("p{0cm}","p{1cm}","p{1cm}","p{1cm}","p{1cm}","p{0.8cm}","p{0.8cm}","p{1cm}","p{2cm}","p{2cm}","p{1cm}","p{1cm}"),
 	digits=0)
 print(xstatseries , 
 	file = str_c(tabwd,"/table_statseries1.tex"),
@@ -696,7 +697,7 @@ print(xstatseries ,
 xstatseries1 <- xtable(x = printstatseries[41:nrow(printstatseries),], 
 	label = str_c("statseries"),
 	caption = str_c("Short description of the recruitment sites (continued-yellow eel series) "),
-	align=c("p{0cm}","p{1cm}","p{1cm}","p{1cm}","p{1cm}","p{0.8cm}","p{0.8cm}","p{1.5cm}","p{2.5cm}","p{1.5cm}","p{1.5cm}","p{1.5cm}"),
+	align=c("p{0cm}","p{1cm}","p{1cm}","p{1cm}","p{1cm}","p{0.8cm}","p{0.8cm}","p{1cm}","p{2cm}","p{2cm}","p{1cm}","p{1cm}"),
 	digits=0)
 print(xstatseries1 , 
 	file = str_c(tabwd,"/table_statseries2.tex"),
@@ -726,7 +727,7 @@ vv$nbmaxyellow<-nbmaxyellow
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %************************************************************************************
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-<< figure_series, echo=FALSE,  eval=TRUE >>=
+<< figure_series, echo=FALSE,  eval=TRUE, results=hide >>=
 
 figure2<-function(){
   par(mar=c(4,4,0,0)+.5)
@@ -754,7 +755,7 @@ rien<-dev.off()
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %************************************************************************************
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-<<tableswgeel,echo=FALSE, eval=TRUE,result=hide>>=
+<<tableswgeel,echo=FALSE, eval=TRUE,results=hide>>=
 # THIS R CHUNCK IS USED ONCE AT THE END TO GENERATE THE TABLES.
 ## This will fail if saved twice, run at the end of the working group to generate the table of values
 dat<-wgerinit[order(wgerinit$ser_order,wgerinit$year),]
@@ -785,83 +786,104 @@ createxl(data=statseries,sheet="series_description")
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Recruitment}
-This section addresses the latest trends in glass and yellow eel recruitment
-indices on two differnt areas of its distibution range. 
-The recruitment time-series data are derived from fishery-dependent sources
+In this section, the latest trend in glass and yellow eel recruitment are
+adressed. The time-series data are derived from fishery-dependent sources
 (i.e. catch records) and also from fishery-independent surveys across much of
 the geographic range of European eel.  The
 stages are categorized as glass eel (G), mixture of glass eel and young
-yellow eel (GY) and older yellow eel (Y) recruiting to continental habitats
-(Dekker, 2002).\\
+yellow eel dominated by recruits from the year (GY) and older yellow eel (Y)
+recruiting to continental habitats (Dekker, 2002). The yellow eel series might 
+consist of yellow eel of several ages. 
+This is certainly the case for all series from the Baltic, and sites located well into freshwater. 
 
-The glass eel recruitment time-series have also been classified according to two
-areas: 'continental North Sea' (NS) and 'Elsewhere Europe' (EE), as it cannot be
-ruled out that recruitment to the two areas has different trends (ICES 2010). The glass
-eel recruitment series are either comprised of only glass eel or of a mixture of
-glass eel and young yellow eel but dominated by recruits from that year. 
+The glass eel recruitment time-series have been grouped into two geographical
+areas: 'continental North Sea' (NS) and 'Elsewhere Europe' (EE) (Figure
+\ref{figure1}). 
+This split is made to better adjust a sharper decline in the North Sea than in the 
+Elsewhere Europe area (ICES 2010, Bornarel et al., 2017).
 
-Yellow eel series can consist of yellow eel that might be several ages. This
-is certainly the case for all series in the Baltic, or elsewere
-at recruitment sites located upstream in river basins).\\
+%==================================================
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.7\textwidth]{figure1.png}
+\caption{Map of recruitment sampling stations, color according to stage (grey =
+G and GY) yellow = Y.}
+\label{figure1}
+\end{figure}
+%==========================================
 
 The WGEEL has collated information on recruitment from
 \Sexpr{sn(vv[["nb_series_init"]])} time-series. Some time-series date back to the
 beginning of 20th century (yellow eel, Göta Älv, Sweden) or 1920 (glass eel,
 Loire, France). Among those series \Sexpr{sn(vv[["nb_series_init_qual1"]])} have been
 selected for further analysis in the wgeel indices, see details on data
-selection and processing in annex.
+selection and processing in XXXX). Depending on the period on which we
+standardized, the number of series really used can be lower and are given for
+each analysis. 
 
 
 
+\subsection{Details on data selection and processing}
+
+There has been a drop of
+\Sexpr{sn(vv[["nb_series_init"]]-vv[["nb_series_final"]])} series from the
+analysis. Two major rules have been decided behind this choice. The first rule
+is to keep only one series at one location when two series from different source
+display different information. For instance, the longest series has been kept for the severn (Severn EA) and the other (Severn
+HMRC) has been dropped from the list, as it was considered a double, but of poorer quality in historical times. 
+The second rule is to not include a series when it is too short. It was
+decided in 2018 to include the practical rule that series of less than 10
+years, should not be kept. They are still updated in the database untill they
+can be included.
+Finally, it was also decided to discard recruitment series that were obviously
+biased by recruitment. 
+\textcolor{Plum}{What are we to do with the Meuse, why keep Minho sp and Minho
+pt..., Why keep Gironde....}
+
+Among the time-series based on trap indices, some have reported
+preliminary data for \Sexpr{CY} as their trapping season had not
+finished. As usual, the indices given for \Sexpr{CY} must be considered as
+provisional especially those for the yellow eel.
+
+8 new historical data have been collected in the UK and one in Portugal. Most of
+those are not yet included in the analysis as they are too short.
+
+
+ %====================================
+	\input{\Sexpr{str_c(tabwd,"/table_statseries.tex")}}
+ %====================================
+
+ %====================================
+	\input{\Sexpr{str_c(tabwd,"/table_statseries1.tex")}}
+ %====================================F
+
+ %====================================
+	\input{\Sexpr{str_c(tabwd,"/table_statseries2.tex")}}
+ %====================================
  
-\subsection{Recruitment series data}
+\subsection{Number of series available}
+
+The number of glass eel and glass eel + young yellow eel time-series available
+has declined from a peak of
+\Sexpr{vv[["nbmaxglasseel"]]} in \Sexpr{max(as.numeric(vv[["yearmaxglasseel"]]))}. The maximum
+number of older yellow eel time-series has increased to \Sexpr{vv[["nbmaxyellow"]]}
+in \Sexpr{max(as.numeric(vv[["yearmaxyellow"]]))} (Figure \ref{figure2}).
+
+ %========================================== 
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.5\textwidth]{figure2.png}
+\caption{Trends in number of glass (black circle), glass+young yellow eel
+(grey triangle) and older yellow eel (black triangle) time-series giving a
+report in  any specific year.}
+\label{figure2}
+\end{figure}
+ %========================================== 
  
-Calculation of the geometric mean of all time-series is given in (Figures
-\ref{figure3} and \ref{figure4}). 
-\footnote{This figure is given as it
-consistent with the trend provided by WGEEL from 2002 to 2006. The scaling is
-performed on the 1979-1994 average of each time-series, and \Sexpr{length(vv[["sc_1979_1994_unused_series"]])} time-series without data during that
-period are excluded from the analysis. The time-series left out are :
-\Sexpr{paste(vv[["sc_1979_1994_unused_series"]],collapse=", ")}}. \\
-
-%==========================================
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=0.8\textwidth]{figure3.pdf}
-\caption{Time-series of glass eel and yellow eel recruitment in European rivers
-with time-series having data for the 1979-1994 period
-(\Sexpr{vv[["sc_1979_1994_nb"]]} sites).
-Each time-series has been scaled to its 1979-1994 average. Note the logarithmic scale
-on the y-axis. The mean values and their bootstrap confidence interval (95\%) are represented as
-black dots and bars. Geometric means are presented in red.}
-\label{figure3}
-\end{figure}
-
-%==========================================
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=0.8\textwidth]{figure4.pdf}
-\caption{Time-series of glass eel and yellow eel recruitment in Europe
-with \Sexpr{vv[["sc_1979_1994_nb"]]} time-series out of the \Sexpr{vv[["nb_series_init"]]}
-available to the working group. Each time-series has been scaled to its 1979-1994 average. 
-The mean values of combined yellow and glass eel time-series and their bootstrap 
-confidence interval (95\%) are represented as black dots and bars.
- The brown line represents the mean value for yellow eel, the blue line represents the mean value for glass eel time-series.
- The range of  these  time-series  is  indicated  by  a  grey  shade.  Note that
- individual time-series  from  Figure \ref{figure3}  were  removed to make the
- mean value more clear.  Note also the logarithmic scale on the y-axis.}
-\label{figure4}
-\end{figure}
-%==========================================
-
-
-
-
-\newpage
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %************************************************************************************
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-<< generation_of_plot_data, echo=FALSE, eval=TRUE,results=hide >>=
+<< generation_of_plot_data, echo=FALSE, eval=TRUE, results=hide >>=
 ###################################################
 # Generation of the dataframes used to plot the data
 # two similar dataframe are created
@@ -1198,7 +1220,7 @@ figure_check_one_series("Katw",limits=c(1960,2018))
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %************************************************************************************
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-<< model_for_glass_eel_and_yellow_eel, echo=FALSE, eval=TRUE,results=hide >>=
+<< model_for_glass_eel_and_yellow_eel, echo=FALSE, eval=TRUE, results=hide >>=
 
 glass_eel_yoy$site<-as.factor(glass_eel_yoy$site)
 
@@ -1247,7 +1269,7 @@ save(model_ge_area,model_older,file=paste0(datawd,"/recruitment_models.Rdata"))
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-<< model_for_glass_eel_graph_and_predictions, echo=FALSE, eval=TRUE,results=hide >>=
+<< model_for_glass_eel_graph_and_predictions, echo=FALSE, eval=TRUE, results=hide >>=
 # 1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~
 ######################################"
 #~glass eel (and elver = glass eel + yellow eel) migrant analysis
@@ -1276,36 +1298,36 @@ data_bis$se=se[["se.fit"]]
 #standardising prediction to 1960-1980 level
 
 if (opt_calculation=="geomean") {
-  mean_1960_1970=data.frame(mean=unlist(
+  mean_1960_1979=data.frame(mean=unlist(
 		  tapply(data_bis[data_bis$year>=1960 & data_bis$year<1980,"p"],
 			  data_bis[data_bis$year>=1960 & data_bis$year<1980,"area"],
 			  geomean)
 	  ))
 } else {
-  mean_1960_1970=data.frame(mean=unlist(
+  mean_1960_1979=data.frame(mean=unlist(
 		  tapply(data_bis[data_bis$year>=1960 & data_bis$year<1980,"p"],
 			  data_bis[data_bis$year>=1960 & data_bis$year<1980,"area"],
 			  mean)
 	  ))
 }
-mean_1960_1970$area=rownames(mean_1960_1970)
-data_bis=merge(data_bis,mean_1960_1970,by="area")
-data_bis$p_std_1960_1970=data_bis$p/data_bis$mean
+mean_1960_1979$area=rownames(mean_1960_1979)
+data_bis=merge(data_bis,mean_1960_1979,by="area")
+data_bis$p_std_1960_1979=data_bis$p/data_bis$mean
 
 # A tapply to calculate either geom mean or mean of series ------------------------------------------
 
 # cannot show any se on average value, se is on each individual value !
-#data_bis$se_std_1960_1970=data_bis$se/data_bis$geomean 
-#data_bis$ymin<-data_bis$p_std_1960_1970-data_bis$se_std_1960_1970
-#data_bis$ymax<-data_bis$p_std_1960_1970+data_bis$se_std_1960_1970
+#data_bis$se_std_1960_1979=data_bis$se/data_bis$geomean 
+#data_bis$ymin<-data_bis$p_std_1960_1979-data_bis$se_std_1960_1979
+#data_bis$ymax<-data_bis$p_std_1960_1979+data_bis$se_std_1960_1979
 # geomean does not return a "nice" numeric, hence the trick below
 if (opt_calculation=="geomean") {
-  synthesis=as.data.frame(tapply(data_bis[,"p_std_1960_1970"],
+  synthesis=as.data.frame(tapply(data_bis[,"p_std_1960_1979"],
 		  list(data_bis[,"year_f"],data_bis[,"area"]),
 		  function(X) {Y=geomean(X) ;
 			return(as.numeric(Y))}))
 } else {
-  synthesis=as.data.frame(tapply(data_bis[,"p_std_1960_1970"],
+  synthesis=as.data.frame(tapply(data_bis[,"p_std_1960_1979"],
 		  list(data_bis[,"year_f"],data_bis[,"area"]),mean,na.rm=TRUE))
 }
 
@@ -1320,7 +1342,7 @@ resy=function(data,valcol){
   data1$year=as.Date(strptime(paste(data1$year,"-01-01",sep=""),format="%Y-%m-%d"))
   return(data1)
 }
-dat=resy(synthesis,"p_std_1960_1970")
+dat=resy(synthesis,"p_std_1960_1979")
 
 
 ##plotting
@@ -1334,11 +1356,11 @@ dat=resy(synthesis,"p_std_1960_1970")
 # } 
 # 
 
-g<-ggplot(dat,aes(x=year,y=p_std_1960_1970))
+g<-ggplot(dat,aes(x=year,y=p_std_1960_1979))
 
 figure5_without_logscale<-g+geom_line(aes(colour=area,lty=area),lwd=1)+ 
 	scale_colour_brewer(name="area",palette="Set1")+
-	scale_y_continuous("standardized glm predictions \n mean 1960-1979")+
+	scale_y_continuous(expression(frac(p,bar(p)[1960-1979])))+
 	theme_bw()+
 	geom_hline(yintercept=1,linetype=2)+
 	theme(legend.box =NULL,
@@ -1348,13 +1370,13 @@ figure5_without_logscale<-g+geom_line(aes(colour=area,lty=area),lwd=1)+
 		legend.position = c(.8, .8))
 X11(300,250)
 figure5_without_logscale
-save_figure("figure5_without_logscale",figure5_without_logscale,400,300)
+save_figure("figure5_without_logscale",figure5_without_logscale,600,480)
 
 # function similar to theme_dark() but allows legends
 # black and white plot ====
 figure5_without_logscale_black<-g+geom_line(aes(colour=area,lty=area),lwd=1)+
 	scale_colour_manual(name="area",values=c("yellow","lawngreen"))+
-	scale_y_continuous("standardized glm predictions \n mean 1960-1979")+
+	scale_y_continuous(expression(frac(p,bar(p)[1960-1979])))+
 	theme_black()
 
 X11()
@@ -1366,15 +1388,15 @@ save_figure("figure5_without_logscale_black",figure5_without_logscale_black,600,
 #+geom_smooth(aes(ymin = min, ymax = max,fill=area),stat="identity")+facet_grid( ~ area) 
 datEE<-dat[dat$area=="Elsewhere Europe",]
 datNS<-dat[dat$area=="North Sea",]
-labelEE<-100*round(datEE$p_std_1960_1970[length(datEE$p_std_1960_1970)],3)
-labelNS<-100*round(datNS$p_std_1960_1970[length(datNS$p_std_1960_1970)],3)
+labelEE<-100*round(datEE$p_std_1960_1979[length(datEE$p_std_1960_1979)],3)
+labelNS<-100*round(datNS$p_std_1960_1979[length(datNS$p_std_1960_1979)],3)
 
 figure5<-g+geom_line(aes(colour=area,lty=area),lwd=1.3)+geom_point(aes(colour=area,fill=area,shape=area),size=3)+
 	#ggtitle("Recruitment overview glass eel series")+
 	scale_colour_brewer(name="area",palette="Set1")  +
-	#annotate("text",x=dat$year[length(dat$year)-2],y=datEE$p_std_1960_1970[length(datEE$p_std_1960_1970)],size=5,label=labelEE)+
-	#annotate("text",x=dat$year[length(dat$year)-2],y=datNS$p_std_1960_1970[length(datNS$p_std_1960_1970)],size=5,label=labelNS)+		
-	scale_y_log10(name="standardized glm predictions \n mean 1960-1979-log scale",
+	#annotate("text",x=dat$year[length(dat$year)-2],y=datEE$p_std_1960_1979[length(datEE$p_std_1960_1979)],size=5,label=labelEE)+
+	#annotate("text",x=dat$year[length(dat$year)-2],y=datNS$p_std_1960_1979[length(datNS$p_std_1960_1979)],size=5,label=labelNS)+		
+	scale_y_log10(name=expression(frac(p,bar(p)[1960-1979])~' log scale'),
 		#limits=c(0.005,10),
 		breaks=c(0.01,0.1,1,10),
 		labels=c("1%","10%","100%","1000%"))+
@@ -1387,7 +1409,7 @@ figure5<-g+geom_line(aes(colour=area,lty=area),lwd=1.3)+geom_point(aes(colour=ar
 
 X11()
 figure5
-save_figure("figure5",figure5,400,300)
+save_figure("figure5",figure5,600,480)
 #figure5danish<-g+geom_line(aes(colour=area,lty=area),lwd=1.3)+
 #		geom_point(aes(colour=area,fill=area,shape=area),size=3)+
 #		ggtitle("title="Glasaal data fra hele Europa")+
@@ -1402,7 +1424,7 @@ save_figure("figure5",figure5,400,300)
 #levels(dat$area)<-c (
 #		iconv("Andre steder i Europa","UTF8"),
 #		iconv("Nordsjøen","UTF8"))#
-#g<-ggplot(dat,aes(x=year,y=p_std_1960_1970))
+#g<-ggplot(dat,aes(x=year,y=p_std_1960_1979))
 #figure5norvegiean<-g+
 #		geom_line(aes(colour=area,lty=area),lwd=1.3)+
 #		geom_point(aes(colour=area,shape=area),size=3)+
@@ -1432,14 +1454,14 @@ save_figure("figure5",figure5,600,480)
 #				breaks=c(0.01,0.1,1,10),
 #				labels=c("1%","10%","100%","1000%"))
 levels(dat$area)=c("EE","NS")
-g<-ggplot(dat,aes(x=year,y=p_std_1960_1970))
+g<-ggplot(dat,aes(x=year,y=p_std_1960_1979))
 
 #figure5bw<-g+geom_line(aes(colour=area,lty=area),wd=1.3)+
 #		geom_point(aes(colour=area,fill=area,shape=area),size=3)+
 #		#ggtitle("Recruitment overview glass eel series")+
 #		scale_colour_manual(name="area",values=c("black","grey40"))  +
-#		#annotate("text",x=dat$year[length(dat$year)-2],y=datEE$p_std_1960_1970[length(datEE$p_std_1960_1970)],size=5,label=labelEE)+
-#		#annotate("text",x=dat$year[length(dat$year)-2],y=datNS$p_std_1960_1970[length(datNS$p_std_1960_1970)],size=5,label=labelNS)+		
+#		#annotate("text",x=dat$year[length(dat$year)-2],y=datEE$p_std_1960_1979[length(datEE$p_std_1960_1979)],size=5,label=labelEE)+
+#		#annotate("text",x=dat$year[length(dat$year)-2],y=datNS$p_std_1960_1979[length(datNS$p_std_1960_1979)],size=5,label=labelNS)+		
 #		scale_y_log10(name="standardized glm predictions \n mean 1960-1979-log scale",
 #				#limits=c(0.005,10),
 #				breaks=c(0.01,0.1,1,10),
@@ -1527,7 +1549,7 @@ if (sgipee_test_for_change_ns<=0.05) {
 }
 save(dat, file=str_c(datawd,"/dat_ge.Rdata"))
 @
-<< model_diagnostics, echo=FALSE, eval=FALSE,results=hide >>=
+<< model_diagnostics, echo=FALSE, eval=FALSE, results=hide >>=
 # summary(model_ge_area)
 # influence_plot
 require(boot)
@@ -1535,7 +1557,7 @@ gey<-glass_eel_yoy[glass_eel_yoy$value>0 & glass_eel_yoy$year>1959&!is.na(glass_
 gey$E<-resid(model_ge_area) # working residuals
 gey$P=predict(model_ge_area)
 plot(coefficients(model_ge_area)[grep("North Sea",names(coefficients(model_ge_area)))],type="l")
-points(log(datNS$p_std_1960_1970)+4,type="l",col="red")
+points(log(datNS$p_std_1960_1979)+4,type="l",col="red")
 plot(gey$E~gey$P)
 
 # Three ways of getting the diagnostic graph of residuals
@@ -1686,15 +1708,15 @@ data_bis$year=as.numeric(as.character(data_bis$year))
 
 data_bis$p=predict(model_older,newdata=data_bis,type="response")
 
-#standardising prediction to 1960-1970 level -----------------------------------------------------------
+#standardising prediction to 1960-1979 level -----------------------------------------------------------
 # 2 options mean or geomean
 
 if (opt_calculation=="geomean") {
-  data_bis$mean_1960_1970=as.numeric(geomean(data_bis[data_bis$year>=1960 & data_bis$year<1980,"p"]))
+  data_bis$mean_1960_1979=as.numeric(geomean(data_bis[data_bis$year>=1960 & data_bis$year<1980,"p"]))
 } else {
-  data_bis$mean_1960_1970=mean(data_bis[data_bis$year>=1960 & data_bis$year<1980,"p"])
+  data_bis$mean_1960_1979=mean(data_bis[data_bis$year>=1960 & data_bis$year<1980,"p"])
 }
-data_bis$p_std_1960_1970=data_bis$p/data_bis$mean_1960_1970
+data_bis$p_std_1960_1979=data_bis$p/data_bis$mean_1960_1979
 
 # saving yellow_eel_pred for shiny ---------------------------------------------------------------------
 
@@ -1704,32 +1726,32 @@ save(yellow_eel_pred,file=paste0(datawd,"/yellow_eel_pred.Rdata"))
 # the trend is the mean or geomean (now geomean see init) of all series --------------------------------
 
 if (opt_calculation=="geomean") {
-  synthesis=data.frame("yellow_eel"=
-          unlist(tapply(data_bis[,"p_std_1960_1970"],list(data_bis[,"year_f"]),geomean)))
+  dat_ye=data.frame("yellow_eel"=
+          unlist(tapply(data_bis[,"p_std_1960_1979"],list(data_bis[,"year_f"]),geomean)))
 } else {
-  synthesis=data.frame("yellow_eel"=
-          unlist(tapply(data_bis[,"p_std_1960_1970"],list(data_bis[,"year_f"]),mean)))
+  dat_ye=data.frame("yellow_eel"=
+          unlist(tapply(data_bis[,"p_std_1960_1979"],list(data_bis[,"year_f"]),mean)))
 }
 
-synthesis$time=rownames(synthesis)
-synthesis$decade=trunc(as.numeric(synthesis$time)/5)*5
+dat_ye$time=rownames(dat_ye)
+dat_ye$decade=trunc(as.numeric(dat_ye$time)/5)*5
 if (opt_calculation=="geomean") {
   five_year_avg_yellow<-data.frame("yellow_eel"=tapply(
-		  synthesis$"yellow_eel",synthesis$decade,
+		  dat_ye$"yellow_eel",dat_ye$decade,
 		  function(X){Y=geomean(X) ;return(as.numeric(Y))}))
 }else{
   five_year_avg_yellow<-data.frame("yellow_eel"=tapply(
-		  synthesis$"yellow_eel",synthesis$decade,
+		  dat_ye$"yellow_eel",dat_ye$decade,
 		  mean,na.rm=T))
 }
-synthesis$rebour<-nrow(synthesis):1
+dat_ye$rebour<-nrow(dat_ye):1
 rownames(five_year_avg_yellow)[nrow(five_year_avg_yellow)]<-"last"
 
-(decY<-tapply(synthesis$"yellow_eel",synthesis$decade,mean,na.rm=T))
-synthesis$rebour<-nrow(synthesis):1
-last<-synthesis$rebour<=5
-mean(synthesis[last,c("yellow_eel") ],na.rm=TRUE)
-rownames(synthesis)<-synthesis$time
+(decY<-tapply(dat_ye$"yellow_eel",dat_ye$decade,mean,na.rm=T))
+dat_ye$rebour<-nrow(dat_ye):1
+last<-dat_ye$rebour<=5
+mean(dat_ye[last,c("yellow_eel") ],na.rm=TRUE)
+rownames(dat_ye)<-dat_ye$time
 
 #xfive_year_avg_yellow <- xtable(x = five_year_avg_yellow, 
 #		label = "table_five_year_avg_yellow",
@@ -1742,7 +1764,7 @@ rownames(synthesis)<-synthesis$time
 
 # Table --------------------------------------------------------------------------------------------
 
-yy0<-synthesis[,"yellow_eel",drop = FALSE]
+yy0<-dat_ye[,"yellow_eel",drop = FALSE]
 
 
 yy<-split_per_decade(data=yy0)
@@ -1759,31 +1781,34 @@ nothing<-latex(yy,
 
 # Figures -------------------------------------------------------------------------------------------
 
-
-synthesis$year=as.Date(strptime(paste(synthesis$time,"-01-01",sep=""),format="%Y-%m-%d"))
-g<-ggplot(synthesis,aes(x=year,y=yellow_eel)) 
+dat_ye$year <- dat_ye$time
+dat_ye$time =as.Date(strptime(paste(dat_ye$time,"-01-01",sep=""),format="%Y-%m-%d"))
+g<-ggplot(dat_ye,aes(x=time,y=yellow_eel)) 
 figure6_without_log_scale<-g+geom_line(lwd=1)+ geom_point()+
-	scale_y_continuous("standardized glm predictions/ mean 1960-1979")+
+	scale_y_continuous(expression(frac(p,bar(p)[1960-1979])))+
 	theme_bw()+
 	geom_hline(yintercept=1,linetype=2)+
+    xlab("year")+
 	theme(legend.box =NULL,
 		legend.key = element_rect(colour = NA, fill = 'white'),
 		legend.text = element_text(size = 8, colour = 'black'), 
 		legend.background = element_rect(colour = NA, fill = 'white'))#+
 #stat_smooth(method="lm",formula=y ~ ns(x,4),lty=2, size=0.8,alpha=0.3,col="grey20")
-save_figure("figure6_without_log_scale",figure6_without_log_scale,400,300)
+save_figure("figure6_without_log_scale",figure6_without_log_scale,600,480)
 figure6_without_log_scale
-figure6_without_log_scale_black<-g+geom_line(lwd=1,color="white")+ geom_point(color="white")+
-	scale_y_continuous("standardized glm predictions/ mean 1960-1979")+
+figure6_without_log_scale_black<-g+geom_line(lwd=1,color="white")+ 
+    geom_point(color="white")+
+	scale_y_continuous(expression(frac(p,bar(p)[1960-1979])))+
 	#stat_smooth(method="lm",formula=y ~ ns(x,4),lty=2, size=0.8,alpha=0.3,col="turquoise1") +
 	theme_black()
 figure6_without_log_scale_black
-save_figure("figure6_without_log_scale_black",figure6_without_log_scale_black,400,300)
+save_figure("figure6_without_log_scale_black",figure6_without_log_scale_black,600,480)
 figure6<-g+geom_line(lwd=1)+geom_point()+
-	scale_y_log10(name="standardized glm predictions/ mean 1960-1979-log scale",
+	scale_y_log10(name=expression(frac(p,bar(p)[1960-1979])~' (log scale)'),
 		#limits=c(0.005,10),
 		breaks=c(0.01,0.1,1,10),
 		labels=c("1%","10%","100%","1000%")) +
+    xlab("year")+
 	theme_bw()+
 	theme(legend.box =NULL,
 		legend.key = element_rect(colour = NA, fill = 'white'),
@@ -1791,202 +1816,37 @@ figure6<-g+geom_line(lwd=1)+geom_point()+
 		legend.background = element_rect(colour = NA, fill = 'white'))
 #stat_smooth(method="lm",formula=y ~ ns(x,4), lty=2, size=0.8,alpha=0.3,col="grey20")
 figure6
-save_figure("figure6",figure6,400,300)
+save_figure("figure6",figure6,600,480)
 
 # Final save ----------------------------------------------------------------------------------------
 
 write.table(synthesis,file=str_c(datawd,"/glm_results_yellow.csv"),sep=";")
-dat_ye<- synthesis
-dat_ye <- dat_ye[,c(2,1)]
-colnames(dat_ye) <-c("year","geomean_p_std_1960_1970") 
+dat_ye <- dat_ye[,c("year","yellow_eel")]
+colnames(dat_ye) <-c("year","geomean_p_std_1960_1979") 
 save(dat_ye,file=paste0(datawd,"/dat_ye.Rdata")) ;
 @
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %************************************************************************************
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{GLM based trend}
 
-The WGEEL recruitment index used in the ICES Annual Stock Advice is a
-reconstructed prediction using a GLM (Generalised Linear Model) with gamma distribution and a log link:
-$glass~eel \sim year:area + site $, where $glass~eel$ is individual glass eel time-series, $site$ is the site monitored for recruitment and area is either the continental
-North Sea or Elsewhere Europe. In the case of yellow eel time-series, only one estimate is provided:
-$yellow~eel \sim year + site $. 
+\subsection{Check on series updates for the 2018 analyses}
 
-The trend is reconstructed using the predictions from 1960 onwards for
-\Sexpr{vv$modelge$nbsite} glass eel time-series and from 1950 onwards for
-\Sexpr{vv$modelolder$nbsite} yellow eel time-series.
-Some zero values have been excluded from the GLM analysis: 
-\Sexpr{nrow(vv$modelge$value_excluded_zero)} for the glass eel model and
-\Sexpr{nrow(vv$modelolder$value_excluded_zero)} for the yellow eel model.\\
-
-The reconstructed values are then aggregated using geometric means of the two
-reference area (Elsewhere Europe EE, and North Sea NS). The predictions are given 
-in reference to the geometric mean of the 1960-1979 period.
-Note that the shift from arithmetic to geometric means was done this year as the
-recruitment is usually assumed to be lognormally distributed (Drouineau et al
-2016).\\
-
-After high levels in
-the late 1970s, there has been a rapid decreasing trend for three decades to a
-minimum in 2009 (Figures \ref{figure5} \ref{figure6}).\\
-%==========================================
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.8\textwidth]{figure5.pdf}
-\caption{WGEEL recruitment index: geometric mean of estimated (GLM) glass eel
-recruitment for the continental  North Sea and  Elsewhere Europe series updated to
-\Sexpr{CY}.
-  The  GLM ($glass eel \sim area:year+site$)  was  fitted  on
-  \Sexpr{vv$modelge$nbsite} time-series comprising either pure glass eel or a mixture of 
-  glass eels and yellow eels and scaled to the 1960-1979 average.
-   No time-series are available for glass eel in the Baltic area. Note the
-   logarithmic scale on the y-axis. }
-\label{figure5}
-\end{figure}
-%==========================================
-%==========================================
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.8\textwidth]{figure6.pdf}
-\caption {Geometric mean of estimated (GLM) yellow eel recruitment for Europe updated to \Sexpr{CY}. The GLM ($yellow eel \sim year+site$) was fitted to
-\Sexpr{vv[["nb_for_yellow_eel_glm"]]} yellow eel time-series and scaled to the 1960-1979
-average. Note the logarithmic scale on the y-axis.}
-\label{figure6}
-\end{figure}
-%==========================================
-
-Both WGEEL recruitment indices for 2018 are lower than 2014, but modelling a
-breakpoint arround the minima of 2011 still gives significant results when using
-the lower value from 2018 (p=\Sexpr{sn(sgipee_test_for_change_ee,digits=1)}
-Elsewhere Europe and p=\Sexpr{sn(sgipee_test_for_change_ns,digits=1)} North Sea ICES SGIPEE(2011)). The 2018 level with respect to 1960-1979 averages is
-\Sexpr{sn(100*gg0[rownames(gg0)==CY,"NS"],digits=1)}\% for the North Sea 
-and \Sexpr{sn(100*gg0[rownames(gg0)==CY,"EE"],digits=1)}\% elsewhere in the distribution area 
-(Tables \ref{table_glm_glass_eel} and \ref{table_glm_yellow}). The increase in
-the elsewhere in the distribution area index, was mainly driven by the increase
-in the Irish series. The yellow recruitment index was nearly the double
-comparing to that of the previous year (Figure \ref{figure6}).
-
-\tiny
-\input{\Sexpr{str_c(tabwd,"/table_glm_glass_eel.tex")}}
-\input{\Sexpr{str_c(tabwd,"/table_glm_yellow.tex")}}
-\normalsize
-
-\clearpage
-
-\section*{Annex}
-
-\subsection{Additional figures}
-%==================================================
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.7\textwidth]{figure1.jpg}
-\caption{Map of recruitment sampling stations, color according to stage (blue =
-G and GY) purple = Y, size according to series duration.}
-\label{figure1}
-\end{figure}
-%==========================================
-%==================================================
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.7\textwidth]{figure3withoutlogscale.pdf}
-\caption{Same as figure \ref{figure3} but without log scale}
-\label{figure3withoutlogscale}
-\end{figure}
-%==========================================
-%==========================================
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.7\textwidth]{figure5_without_logscale.pdf}
-\caption{Same as figure \ref{figure5} but without a log scale.}
-\label{figure5_without_logscale}
-\end{figure}
-%==========================================
-%==========================================
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.7\textwidth]{figure6_without_log_scale.pdf}
-\caption{Same graph as figure \ref{figure6} but without a log scale.}
-\label{figure6_without_logscale}
-\end{figure}
-\normalsize
-%==========================================
-
-\subsection{Details on data selection and processing}
-\begin{itemize}
-
-\item \Sexpr{sn(vv[["nb_series_init"]]-vv[["nb_series_final"]])} have been
-dropped from the analysis. For instance, only the longest series has been kept
-for the severn (Severn EA) and the other (Severn HMRC) has been dropped from the
-list, as it was considered a double, but of poorer quality in historical times. The
-other cases are mostly series that are too short to be included (less than 10 years), but might be
-part of the indice in the future. \textcolor{Plum}{Check what
-criteria have been chosen by wgeel to select those series, and precise them here.}
-(Table \ref{statseries})
-
-\item \textcolor{Plum}{Adapt here : Among the time-series based on trap indices,
-some have reported preliminary data for 2018 as the season is not yet finished (Lagan (SW), Kävlingeån (SW),
- Bresle (FR)).}
-Therefore, the indices given for 2018 must be considered as provisional
-especially those for the yellow eel. 
-
-\item New historical data have been collected for the Bann from 1933 to 1948.
-This new dataset, while leaving a hole from 1949 to 1959 provides valuable new
-data at a period where only a few dataset were available (Ems, RhineDO,
-Albufera, Gironde, Loire).
-\item New series have been added in Scotland (Girnock 10 years of data)
-and Germany (Frische Grube and Wallensteingraben 11 years of data) and Ireland (Burrishoole,
-data in 1987 1988 and again from 2007 to 2018).
-\item Yser is now classified in the Atlantic, while it was wrongly classified in
-the North Sea.
-\end{itemize}
-
- %====================================
-	\input{\Sexpr{str_c(tabwd,"/table_statseries.tex")}}
- %====================================
-
- %====================================
-	\input{\Sexpr{str_c(tabwd,"/table_statseries1.tex")}}
- %====================================F
-
- %====================================
-	\input{\Sexpr{str_c(tabwd,"/table_statseries2.tex")}}
- %====================================
-\subsection{Number of series available}
-
-The number of glass eel and glass eel + young yellow eel time-series available
-has declined from a peak of
-\Sexpr{vv[["nbmaxglasseel"]]} in \Sexpr{max(as.numeric(vv[["yearmaxglasseel"]]))}. The maximum
-number of older yellow eel time-series has increased to \Sexpr{vv[["nbmaxyellow"]]}
-in \Sexpr{max(as.numeric(vv[["yearmaxyellow"]]))} (Figure \ref{figure2}).\\
- %========================================== 
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.5\textwidth]{figure2.png}
-\caption{Trends in number of glass (black circle), glass+young yellow eel
-(grey triangle) and older yellow eel (black triangle) time-series giving a
-report in  any specific year.}
-\label{figure2}
-\end{figure}
- %========================================== 
- 
- 
-\subsection{Check on series updates}
-\begin{itemize}
-\item \Sexpr{sn(vv[["nCY"]])} time-series were updated to \Sexpr{CY}
-(\Sexpr{sn(vv[["nCYg"]])} for glass eel and \Sexpr{sn(vv[["nCYy"]])} for yellow eel Table \ref{table_seriesCY} Annex \textcolor{red}{X}).
-\item \Sexpr{sn(vv[["nCYm1"]])} time-series (\Sexpr{sn(vv[["nCYm1g"]])} for glass eel and
+\Sexpr{sn(vv[["nCY"]])} time-series were updated to \Sexpr{CY}
+(\Sexpr{sn(vv[["nCYg"]])} for glass eel and \Sexpr{sn(vv[["nCYy"]])} for yellow eel 
+(Table \ref{table_seriesCY}).
+\Sexpr{sn(vv[["nCYm1"]])} time-series (\Sexpr{sn(vv[["nCYm1g"]])} for glass eel and
 \Sexpr{sn(vv[["nCYm1y"]])} for yellow eel) were updated to \Sexpr{CY-1}
-only (Table \ref{table_seriesCYm1} Annex \textcolor{red}{X}).  
+only (Table \ref{table_seriesCYm1}).  
 
-\item \Sexpr{sn(vv[["nseries_lost"]])} time-series have been stopped
+\Sexpr{sn(vv[["nseries_lost"]])} time-series have been stopped
 (\Sexpr{sn(vv[["nseries_lostg"]])} for glass eel and \Sexpr{sn(vv[["nseries_losty"]])} for
-yellow eel, Table \ref{table_serieslost} Annex \textcolor{red}{X}). They stopped
+yellow eel, Table \ref{table_serieslost}). They stopped
 reporting either because of a lack of recruits in the case of the fishery-based surveys (Ems
 in Germany, stopped in 2001; Vidaa in Denmark, stopped in 1990),
  a lack of financial support (the Tiber in Italy, 2006) or the introduction of
 quota from from 2008 to 2011 that has disrupted the five fishery-based French
 time-series . 
-\end{itemize}
+
 
  %====================================
 	\input{\Sexpr{str_c(tabwd,"/table_seriesCY.tex")}}
@@ -2003,33 +1863,181 @@ time-series .
 
 \setlength{\tabcolsep}{4pt} % defaut 6pt (table column separator)
 
+\subsection{Raw data}
+ 
+Calculation of the geometric mean of all time-series \footnote{This figure is given as it
+consistent with the trend provided by WGEEL from 2002 to 2006. The scaling is
+performed on the 1979-1994 average of each time-series, and \Sexpr{length(vv[["sc_1979_1994_unused_series"]])} time-series without data during that
+period are excluded from the analysis. The time-series left out are :
+\Sexpr{paste(vv[["sc_1979_1994_unused_series"]],collapse=", ")}}. \\
+ is given in (Figures
+\ref{figure3} and \ref{figure4}). 
+
+%==========================================
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.8\textwidth]{figure3.pdf}
+\caption{Time-series of glass eel and yellow eel recruitment in European rivers
+with time-series having data for the 1979-1994 period
+(\Sexpr{vv[["sc_1979_1994_nb"]]} sites).
+Each time-series has been scaled to its 1979-1994 average. Note the logarithmic scale
+on the y-axis. The mean values and their bootstrap confidence interval (95\%) are represented as
+black dots and bars. Geometric means are presented in red.}
+\label{figure3}
+\end{figure}
+
+%==========================================
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.8\textwidth]{figure4.pdf}
+\caption{Time-series of glass eel and yellow eel recruitment in Europe
+with \Sexpr{vv[["sc_1979_1994_nb"]]} time-series out of the \Sexpr{vv[["nb_series_init"]]}
+available to the working group. Each time-series has been scaled to its 1979-1994 average. 
+The mean values of combined yellow and glass eel time-series and their bootstrap 
+confidence interval (95\%) are represented as black dots and bars.
+ The brown line represents the mean value for yellow eel, the blue line represents the mean value for glass eel time-series.
+ The range of  these  time-series  is  indicated  by  a  grey  shade.  Note that
+ individual time-series  from  Figure \ref{figure3}  were  removed to make the
+ mean value more clear.  Note also the logarithmic scale on the y-axis.}
+\label{figure4}
+\end{figure}
+%==========================================
+
+
+\subsection{GLM based trend}
+
+The WGEEL recruitment index used in the ICES Annual Stock Advice is a
+reconstructed prediction using a GLM (Generalised Linear Model) with gamma distribution and a log link:
+$glass~eel \sim year:area + site $, where $glass~eel$ is individual glass eel
+time-series, including both pure G series and those identified as a mixture of
+glass and yel-low eel (G+Y), $site$ is the site monitored for recruitment and
+area is either the continental North Sea or Elsewhere Europe. For yellow eel
+time-series, only one estimate is provided:
+$yellow~eel \sim year + site $. 
+
+The trend is reconstructed using the predictions from 1960 onwards for
+\Sexpr{vv$modelge$nbsite} glass eel time-series and from 1950 onwards for
+\Sexpr{vv$modelolder$nbsite} yellow eel time-series.
+Some zero values have been excluded from the GLM analysis: 
+\Sexpr{nrow(vv$modelge$value_excluded_zero)} for the glass eel model and
+\Sexpr{nrow(vv$modelolder$value_excluded_zero)} for the yellow eel model. This
+treatment is parcimoniuous and tests shows it has no effect on the trend (ICES,
+2017).\\
+
+The reconstructed values are then aggregated using geometric means of the two
+reference area (Elsewhere Europe EE, and North Sea NS). The predictions are given 
+in reference to the geometric mean of the 1960-1979 period.
+Note that the shift from arithmetic to geometric means was done this year
+because \textit{post-hoc} model checking confirmed that log-normal (or Gamma
+Distribution) and geometric means are the prefered choice. \\
+
+After high levels in the late 1970s, the recruitment declined and has been very
+low for all years after 2000. As some of the values were not complete the 2017
+level of European eel recruitment compared to the 1960-1979 average is now a bit
+higher, \Sexpr{sn(100*datNS[nrow(datNS)-1,"p_std_1960_1979"], digits =1)}\% for
+the North Sea and \Sexpr{sn(100*datEE[nrow(datEE)-1,"p_std_1960_1979"], digits= 1)}\% for the
+Elsewhere Europe area.
+For 2018, provisional data give estimates at \Sexpr{sn(100*datNS[nrow(datNS),"p_std_1960_1979"], digits =1)}\% 
+for the North Sea and \Sexpr{sn(100*datEE[nrow(datEE),"p_std_1960_1979"], digits= 1)}\% for the
+Elsewhere Europe area, but some of the series are not yet complete (Figure
+\ref{figure5} \ref{figure5_with_logscale} (log.scale), Tables \ref{table_glm_glass_eel}).
+
+%==========================================
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\textwidth]{figure5_without_logscale.pdf}
+\caption{WGEEL recruitment index: geometric mean of estimated (GLM) glass eel
+recruitment for the continental North Sea and  Elsewhere Europe series
+($p$) updated to \Sexpr{CY}.
+  The  GLM ($glass eel \sim area:year+site$)  was  fitted  on
+  \Sexpr{vv$modelge$nbsite} time-series comprising either pure glass eel or a mixture of 
+  glass eels and yellow eels. Those series were then scaled to the 1960-1979
+  average $\bar{p}_{1960-1979}$. No time-series are available for glass eel in
+  the Baltic area. Note the logarithmic scale on the y-axis. }
+\label{figure5}
+\end{figure}
+%==========================================
+
+For yellow eel series, the autumn ascent has not been recorded yet and most of
+the series have reported data till the middle of the summer. The 2017 yellow eel
+index is confirmed at
+\Sexpr{sn(100*dat_ye[nrow(dat_ye)-1,"geomean_p_std_1960_1979"])}\% of
+the 1960-1979 baseline. The 2018 provisional value is
+\Sexpr{sn(100*dat_ye[nrow(dat_ye),"geomean_p_std_1960_1979"])}\% and
+(Figure \ref{figure6},\ref{figure6_with_logscale} (log.scale), Table
+\ref{table_glm_yellow}).
+
+
+%==========================================
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\textwidth]{figure6_without_log_scale.pdf}
+\caption {Geometric mean of estimated (GLM) yellow eel recruitment for Europe updated to \Sexpr{CY}. The GLM ($yellow eel \sim year+site$) was fitted to
+\Sexpr{vv[["nb_for_yellow_eel_glm"]]} yellow eel time-series $p$ and scaled to the
+1960-1979 average $\bar{p}_{1960-1979}$. Note the logarithmic scale on the y-axis.}
+\label{figure6}
+\end{figure}
+%==========================================
+
+
+Both WGEEL recruitment indices for 2018 are lower than 2014, but modelling a
+breakpoint arround the minima of 2011 still gives significant results when using
+the lower value from 2018 (p=\Sexpr{sn(sgipee_test_for_change_ee,digits=1)}
+Elsewhere Europe and p=\Sexpr{sn(sgipee_test_for_change_ns,digits=1)} North Sea ICES SGIPEE(2011)). 
+
+
+\tiny
+\input{\Sexpr{str_c(tabwd,"/table_glm_glass_eel.tex")}}
+\input{\Sexpr{str_c(tabwd,"/table_glm_yellow.tex")}}
+\normalsize
+
+\clearpage
+
+\section*{Annex}
+
+\subsection{Additional figures}
+
+We provide the same figures as in the main text but Figure \ref{figure3withoutlogscale} 
+without log scale for Figure \ref{figure3}. For the prediction, figures with log
+scales are provided (Figures \ref{figure5_with_logscale} and
+\ref{figure6_with_logscale}).
+
+%==========================================
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth]{figure3withoutlogscale.pdf}
+\caption{Same as figure \ref{figure3} but without log scale}
+\label{figure3withoutlogscale}
+\end{figure}
+%==========================================
+%==========================================
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth]{figure5.pdf}
+\caption{Same as figure \ref{figure5} but with a log scale.}
+\label{figure5_with_logscale}
+\end{figure}
+%==========================================
+%==========================================
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth]{figure6.pdf}
+\caption{Same graph as figure \ref{figure6} but with a log scale.}
+\label{figure6_with_logscale}
+\end{figure}
+%==================================================
+
+
+
+
+
+ 
 
  \subsection{Notes to ACOM}
  
- In 2015 and 2016 series with missing values have been wrongly dropped from the
- analysis. The Figure 2.3 tells righly that the trend has been calculated on 33
- series, however 40 are avalaible in the annex and there is no detail given
- on how we select from 40 to 33 series. In practise, a missing na.rm in the
- script has caused the series Yser (NS), YFS2 (NS), Stelledam(NS), RhIJ(NS),Maig (EE)
- and  Inag (EE) to be dropped from analysis. In 2016 the recruitment given as
- 10.7 (EE) and 2.7 (NS) should have been 10.9 (EE) and 1.5 (NS).
- 
-%\newpage
-%\small
-% %====================================
-%\input{C:/workspace/wgeeldata/sweave/2018/table/table_n_y_area.tex}
-% %====================================
-%\normalsize
-%\small
-% %====================================
-%\input{C:/workspace/wgeeldata/sweave/2018/table/table_n_y_lfs.tex}
-% %====================================
-%\normalsize
+ \textcolor{Plum}{Were there comments raised last year ?}
 
- \subsection{Quality insurance}
- Scripts available on github
- Discussion on data processing
+ \subsection{Shiny tab on data visualisation}
+ 
  \dots{}
 \end{document}
-sdfsdf
- nor
