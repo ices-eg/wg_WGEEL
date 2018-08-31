@@ -363,14 +363,14 @@ server = function(input, output, session) {
   # Recruitment map -----------------------------------------------------------------------------
   ##################################
   # first let's hide the sidebar
-
-
+  
+  
   
   
   observe({
         output$mapstation = renderLeaflet({
               
-              recruitment_map(R_stations, statseries, wger)                               
+              recruitment_map(R_stations, statseries, wger_init)                               
               
             })
         
@@ -386,6 +386,7 @@ server = function(input, output, session) {
               lng <- p$lng
               the_id <- p$id
               
+              validate (need(!is.null(the_id), "Please click on a point"))              
               the_station <- R_stations %>%
                   dplyr::filter(ser_id==the_id) 
               
@@ -399,7 +400,10 @@ server = function(input, output, session) {
                   the_station$area=="Elsewhere Europe" ~ "EE",
                   the_station$area=="North Sea" ~ "NS")   
               
+              is_selected <- the_station$ser_qal_id==1
+              
               the_title= paste(the_namelong)
+              
               
               
               if (the_stage=='G'| the_stage=='GY'){
@@ -417,40 +421,68 @@ server = function(input, output, session) {
                     dplyr::filter(site==the_name) %>%
                     pull(mean) %>% head(1)
                 
-                # get the series of glass eel and the glm predictiosn   
+                # get the series of glass eel and the glm predictions, only if the
+                # series itself is used in predictions
                 
-                the_series <- glass_eel_yoy            %>%  # series with standarized values entered in the glm
-                    select(
-                        site,
-                        ser_id, 
-                        value, 
-                        year, 
-                        value_std,
-                        das_comment)                   %>%  # get 5 columns
-                    filter(ser_id==the_id)             %>%  # get only the selected series
-                    mutate(value_std_1960_1979 = 
-                            value_std /mean_1960_1979) %>%  # divide by pred. in 1960 1979 
-                    right_join(                             # right join = keep all from dat_ge
-                        dat_ge[dat_ge$area==the_area,],
-                        by=c("year")
-                    )                 %>%               # join by year
-                    arrange(year)                           # order the series                 
-                # now the variable to plot is : value_std_1960_1979
-                
-                # extracting residuals for second plot -------------------------------------------
-                
-                model_data <- model_ge_area$model 
-                
-                # working residuals ---------------------------------------------------------
-                
-                model_data$r <- resid(model_ge_area) 
-                
-                
-                model_data <- model_data %>% 
-                    filter(site==the_name) %>% 
-                    mutate(year=as.numeric(as.character(year_f))) %>%             
-                    arrange(year)              
-                
+                if (is_selected) {
+                  
+                  the_series <- glass_eel_yoy            %>%  # series with standarized values entered in the glm
+                      select(
+                          site,
+                          ser_id, 
+                          value, 
+                          year, 
+                          value_std,
+                          das_comment)                   %>%  # get 5 columns
+                      filter(ser_id==the_id)             %>%  # get only the selected series
+                      mutate(value_std_1960_1979 = 
+                              value_std /mean_1960_1979) %>%  # divide by pred. in 1960 1979 
+                      right_join(                             # right join = keep all from dat_ge
+                          dat_ge[dat_ge$area==the_area,],
+                          by=c("year")
+                      )                 %>%               # join by year
+                      arrange(year)                           # order the series                 
+                  # now the variable to plot is : value_std_1960_1979
+                  
+                  # extracting residuals for second plot -------------------------------------------
+                  
+                  model_data <- model_ge_area$model 
+                  
+                  # working residuals ---------------------------------------------------------
+                  
+                  model_data$r <- resid(model_ge_area) 
+                  
+                  
+                  model_data <- model_data %>% 
+                      filter(site==the_name) %>% 
+                      mutate(year=as.numeric(as.character(year_f))) %>%             
+                      arrange(year)    
+                  
+                  # The data is not selected, no model, just raw data          
+                } else {
+                  
+                  the_series <- wger_init            %>%  # series with standarized values entered in the glm
+                      select(
+                          site,
+                          ser_id, 
+                          value, 
+                          year, 
+                          das_comment)                   %>%  # get 5 columns
+                      filter(ser_id==the_id)             %>%  # get only the selected series
+                      right_join(                             # right join = keep all from dat_ge
+                          dat_ge[dat_ge$area==the_area,],
+                          by=c("year")
+                      )                                  %>%               # join by year
+                      arrange(year)                           # order the series
+                  
+                  # for this series we need a manual scaling ----------------------------------------
+                  
+                  sca<-mean(the_series$geomean_p_std_1960_1979[!is.na(the_series$value)])
+                  sca_series<-mean(the_series$value,na.rm=TRUE)
+                  the_series$value_std_1960_1979 <- the_series$value *sca / sca_series
+                  
+                  model_data <- NULL
+                }
                 
               } else {
                 
@@ -465,36 +497,62 @@ server = function(input, output, session) {
                     dplyr::filter(site == the_name) %>%
                     pull(mean_1960_1979) %>% head(1)
                 
-                
-                the_series <-
-                    
-                    older                              %>%
-                    select(
-                        site,
-                        ser_id, 
-                        value, 
-                        year, 
-                        value_std,
-                        das_comment)                   %>%
-                    filter(ser_id == the_id)           %>%
-                    mutate(value_std_1960_1979 = 
-                            value_std /mean_1960_1979) %>%                     
-                    right_join(dat_ye, by=c("year"))   %>% 
-                    arrange(year)
-                
-                # extracting residuals for second plot -------------------------------------------
-                
-                model_data <- model_older$model 
-                
-                model_data$r <- resid(model_older) 
-                
-                model_data <- model_data %>% 
-                    rename("site" = "as.factor(site)") %>%
-                    mutate(year=as.numeric(as.character(year_f))) %>% 
-                    filter(as.factor(site) == the_name) %>% 
-                    arrange(year)              
-                
-                
+                if (is_selected) {
+                  
+                  the_series <-
+                      
+                      older                              %>%
+                      select(
+                          site,
+                          ser_id, 
+                          value, 
+                          year, 
+                          value_std,
+                          das_comment)                   %>%
+                      filter(ser_id == the_id)           %>%
+                      mutate(value_std_1960_1979 = 
+                              value_std /mean_1960_1979) %>%                     
+                      right_join(dat_ye, by=c("year"))   %>% 
+                      arrange(year)
+                  
+                  # extracting residuals for second plot -------------------------------------------
+                  
+                  model_data <- model_older$model 
+                  
+                  model_data$r <- resid(model_older) 
+                  
+                  model_data <- model_data %>% 
+                      rename("site" = "as.factor(site)") %>%
+                      mutate(year=as.numeric(as.character(year_f))) %>% 
+                      filter(as.factor(site) == the_name) %>% 
+                      arrange(year)              
+                  
+                } else {
+                  
+                  the_series <- wger_init            %>%  # series with standarized values entered in the glm
+                      select(
+                          site,
+                          ser_id, 
+                          value, 
+                          year, 
+                          das_comment)                   %>%  # get 5 columns
+                      filter(ser_id==the_id)             %>%  # get only the selected series
+                      right_join(                             # right join = keep all from dat_ge
+                          dat_ye,by=c("year")
+                      )                                  %>%               # join by year
+                      arrange(year)                           # order the series
+                  
+                  # for this series we need a manual scaling ----------------------------------------
+                  
+                  sca<-mean(the_series$geomean_p_std_1960_1979[!is.na(the_series$value)])
+                  sca_series<-mean(the_series$value,na.rm=TRUE)
+                  the_series$value_std_1960_1979 <- the_series$value *sca / sca_series
+                  
+                  model_data <- NULL
+                  
+                  
+                  
+                }
                 
               }
               
@@ -528,11 +586,15 @@ server = function(input, output, session) {
                             colors = "Set1")   %>% 
                         layout(title = the_title, xaxis = x, yaxis = y) %>%
                         add_trace(y = ~ geomean_p_std_1960_1979, name = the_area) 
-                  p$elementId <- NULL # a hack to remove warning : ignoring explicitly provided widget
-                  p  
-                  })   
+                    p$elementId <- NULL # a hack to remove warning : ignoring explicitly provided widget
+                    p  
+                  })
+              
+              # Create a graph of residuals ---------------------------------------------------------   
               
               output$resid_recruitment_graph <- renderPlot({
+                    validate(need(!is.null(model_data), 
+                            paste("This series is not included in the analyis",", so no plot of residuals can be provided"))) 
                     g <-ggplot(model_data)+
                         geom_point(aes(x=year,y=r),shape="-",size=12,col="darkblue")+
                         geom_line(aes(x=year,y=r),alpha=0.5)+
@@ -546,7 +608,27 @@ server = function(input, output, session) {
                     g
                   })
               
+              # Series text -------------------------------------------------------------------------
               
+              output$recruit_site_description <- renderUI({                                
+                    tagList(
+                        h2(iconv(the_station$ser_namelong,"UTF8")),
+                        p(paste0("Location : ", iconv(the_station$ser_habitat_name,"UTF8"))),
+                        p(paste0('Comments : ', iconv(the_station$ser_comment,"UTF8"))))
+                  })
+              
+              
+              
+              # Series image -------------------------------------------------------------------------
+              
+              output$recruit_site_image <- renderImage({                      
+                    filename <- normalizePath(file.path('./www/',paste0(the_name, '.png')))
+                    list(src = filename)                    
+                  },
+                  deleteFile = FALSE
+              )
+              
+              # Comment for individual point --------------------------------------------------------
               
               output$das_comment <-renderUI({
                     event.data <- event_data("plotly_click", source = "select_year")

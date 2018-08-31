@@ -101,6 +101,7 @@ CY = as.numeric(format(Sys.time(), "%Y"))
 #      : they must be installed manually in folder /data  as we don't store data
 #      : in git.
 load("../../../data/wger.Rdata")
+load("../../../data/wger_init.Rdata") # before selection process
 load("../../../data/statseries.Rdata")
 load("../../../data/glass_eel_yoy.Rdata")
 load("../../../data/older.Rdata")
