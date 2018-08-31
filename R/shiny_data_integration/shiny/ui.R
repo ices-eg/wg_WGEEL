@@ -13,9 +13,10 @@ ui <- dashboardPage(title="ICES Data Integration",
         sidebarMenu(            
             menuItem("Import",tabName= "import", icon= icon("align-left")),
             menuItem("Edit", tabName="edit", icon=icon("table")),
-            menuItem("Check", tabName='check',icon= icon("area-chart"),
-                menuSubItem("Plot duplicates",  tabName="plot_duplicates"),
-                menuSubItem("plot2", tabName="plot2")),
+            menuItem("Plot duplicates", tabName='plot_duplicates',icon= icon("area-chart")#,
+               #menuSubItem("Plot duplicates",  tabName="plot_duplicates"),
+               #menuSubItem("plot2", tabName="plot2")
+             ),
             pickerInput(
                 inputId = "main_assessor",
                 label = "Main assessor (National)", 
@@ -185,14 +186,14 @@ ui <- dashboardPage(title="ICES Data Integration",
                         plotlyOutput("plotly_selected_year"))
                 ),     
                 dataTableOutput("datatablenearpoints",width='100%')                                        
-            ),
+            )#,
             
             # second plot (not dev yet) -------------------------------------------------------------
 
-            tabItem("plot2", fluidRow(
-                    column(width=6,plotOutput("mon_graph2")),
-                    column(width=6,plotOutput("mon_ggplot2"))
-                ))
+#            tabItem("plot2", fluidRow(
+#                    column(width=6,plotOutput("mon_graph2")),
+#                    column(width=6,plotOutput("mon_ggplot2"))
+#                ))
         )
     )
 )

@@ -145,10 +145,10 @@ shinyServer(function(input, output, session){
                           searching = FALSE, # no filtering options
                           lengthMenu=list(c(5,20,50,-1),c("5","20","50","All")),
                           order=list(1,"asc"),
-                          dom= "Blfrtip", # de gauche a droite button fr search, t tableau, i informaiton (showing..), p pagination
+                          dom= "Blfrtip", 
                           buttons=list(
                               list(extend="excel",
-                                  filename = paste0("data_",Sys.Date()))) # JSON behind the scene
+                                  filename = paste0("data_",Sys.Date()))) 
                       )            
                   )
                 })
@@ -240,14 +240,16 @@ shinyServer(function(input, output, session){
                     datatable(duplicates,
                         rownames=FALSE,                                                    
                         extensions = "Buttons",
-                        option=list("pagelength"=5,
-                            lengthMenu=list(c(10,50,-1),c("10","50","All")),
-                            order=list(5,"asc"),
+                        option=list(
+                            rownames = FALSE,
+                            scroller = TRUE,
+                            scrollX = TRUE,
+                            scrollY = "500px",
+                            order=list(3,"asc"),
                             dom= "Blfrtip",
-                            scrollX = T, 
                             buttons=list(
                                 list(extend="excel",
-                                    filename = paste0("duplicates_",input$file_type,"_",Sys.Date(),current_cou_code))) #  JSON behind the scene
+                                    filename = paste0("duplicates_",input$file_type,"_",Sys.Date(),current_cou_code))) 
                         ))
                   })
               if (nrow(new)==0) {
@@ -272,14 +274,16 @@ shinyServer(function(input, output, session){
                     datatable(new,
                         rownames=FALSE,          
                         extensions = "Buttons",
-                        option=list("pagelength"=5,
-                            lengthMenu=list(c(10,50,-1),c("10","50","All")),
-                            order=list(5,"asc"),
+                        option=list(
+                            scroller = TRUE,
+                            scrollX = TRUE,
+                            scrollY = "500px",
+                            order=list(3,"asc"),
                             dom= "Blfrtip",
                             scrollX = T, 
                             buttons=list(
                                 list(extend="excel",
-                                    filename = paste0("new_",input$file_type,"_",Sys.Date(),current_cou_code))) #  JSON behind the scene
+                                    filename = paste0("new_",input$file_type,"_",Sys.Date(),current_cou_code))) 
                         ))
                   })
             } # closes if nrow(...      
@@ -610,24 +614,36 @@ shinyServer(function(input, output, session){
             # Data table for individual data corresponding to the year bar on the graph -------------
             
             output$datatablenearpoints <- DT::renderDataTable({            
-                  datatable(datagr)
+                  datatable(datagr,
+                      rownames = FALSE,
+                      extensions = 'Buttons',
+                      options=list(
+                          order=list(3,"asc"),    
+                          lengthMenu=list(c(5,10,30,-1),c("5","10","30","All")),                           
+                          searching = FALSE,                          
+                          scroller = TRUE,
+                          scrollX = TRUE,                         
+                          dom= "Blfrtip", # l length changing,  
+                          buttons=list('copy',I('colvis')) 
+                       )
+                  )
                 })        
             
             # Plotly output allowing to brush out individual values per EMU
-      x <- sample(c(1:5, NA, NA, NA))
-      coalesce(x, 0L)
+            x <- sample(c(1:5, NA, NA, NA))
+            coalesce(x, 0L)
             output$plotly_selected_year <-renderPlotly({  
                   coalesce 
                   datagr$hl <- as.factor(str_c(datagr$eel_lfs_code, coalesce(datagr$eel_hty_code,"no"),collapse= "&"))   
-                       plot_ly(datagr, x = ~eel_emu_nameshort, y = ~eel_value,
-                          # Hover text:
-                          text = ~paste("Lifestage: ", eel_lfs_code, 
-                              '$<br> Hty_code:', eel_hty_code,
-                              '$<br> Area_division:', eel_area_division,
-                              '$<br> Source:', eel_datasource,
-                              '$<br> Value:', eel_value),
-                          color = ~ eel_lfs_code,
-                          split = ~eel_hty_code)                      
+                  plot_ly(datagr, x = ~eel_emu_nameshort, y = ~eel_value,
+                      # Hover text:
+                      text = ~paste("Lifestage: ", eel_lfs_code, 
+                          '$<br> Hty_code:', eel_hty_code,
+                          '$<br> Area_division:', eel_area_division,
+                          '$<br> Source:', eel_datasource,
+                          '$<br> Value:', eel_value),
+                      color = ~ eel_lfs_code,
+                      split = ~eel_hty_code)                      
                 }) 
             
           }, ignoreNULL = TRUE) # additional arguments to observe ...
