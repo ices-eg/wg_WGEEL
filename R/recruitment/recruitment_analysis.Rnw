@@ -326,8 +326,8 @@ query='SELECT
 	left join ref.tr_faoareas on ser_area_division=f_division
 	where ser_typ_id=1'
 
-wger=sqldf(query) # (wge)el (r)ecruitment data
-wger<-chnames(wger,
+wger_init=sqldf(query) # (wge)el (r)ecruitment data
+wger_init<-chnames(wger_init,
 	c("das_id","das_value","das_year","ser_nameshort","ser_area_division","lfs_name"),
 	c("id","value","year","site","area_division","lifestage"))
 ############################################################################
@@ -339,23 +339,23 @@ wger<-chnames(wger,
 # catch and trap and transport series (Ems, Vidaa) but it also concerns fully scientific
 # Estimates....
 ###############################################################################
-wger[,"area"]<-NA
+wger_init[,"area"]<-NA
 # below these are area used in some of the scripts see wgeel 2008 and Willem's Analysis 
 # but currently wgeel only uses two areas so the following script is kept for memory
 # but mostly useless
-wger$area[wger$f_subarea%in%'27.4']<-"North Sea"
-wger$area[wger$f_subarea%in%'27.3']<-"Baltic"
-wger$area[wger$f_subarea%in%c('27.6','27.7','27.8','27.9')]<-"Atlantic"
-wger$area[wger$f_subarea%in%c('37.1','37.2','37.3')]<-"Mediterranean Sea"
-wger[wger$area%in%c("Atlantic","Mediterranean Sea"),"area"]<-"Elsewhere Europe"
+wger_init$area[wger_init$f_subarea%in%'27.4']<-"North Sea"
+wger_init$area[wger_init$f_subarea%in%'27.3']<-"Baltic"
+wger_init$area[wger_init$f_subarea%in%c('27.6','27.7','27.8','27.9')]<-"Atlantic"
+wger_init$area[wger_init$f_subarea%in%c('37.1','37.2','37.3')]<-"Mediterranean Sea"
+wger_init[wger_init$area%in%c("Atlantic","Mediterranean Sea"),"area"]<-"Elsewhere Europe"
 # We consider that the series of glass eel recruitment in the Baltic are influenced
 # similarly in the Baltic and North Sea. This has no effect on Baltic data
-wger[wger$area%in%c("Baltic"),"area"]<-"North Sea"
+wger_init[wger_init$area%in%c("Baltic"),"area"]<-"North Sea"
 
 #check if all series have been assign to an area
-if(sum(is.na(wger$area))>0) stop("At least one series has not been affected to an area")
+if(sum(is.na(wger_init$area))>0) stop("At least one series has not been affected to an area")
 
-wger$area<-as.factor(wger$area)
+wger_init$area<-as.factor(wger_init$area)
 # We will also need this for summary tables per recruitment site, here we go straight to 
 # the result
 R_stations[,"area"]<-NA
@@ -364,19 +364,19 @@ stopifnot(all(!is.na(R_stations$f_subarea)))
 # the rest (currently NA) are Elwhere Europe
 R_stations$area[is.na(R_stations$area)]<-"Elsewhere Europe"
 # Check that there was no error in the query (while joining foreign table)
-stopifnot(all(!duplicated(wger$id)))
+stopifnot(all(!duplicated(wger_init$id)))
 # creates some variables
-wger$decade=factor(trunc(wger$year/10)*10)
-wger$year_f=factor(wger$year)
-wger$decade=factor(wger$decade,level=sort(unique(as.numeric(as.character(wger$decade)))))
-wger$ldata=log(wger$value)
-wger$lifestage=as.factor(wger$lifestage)
+wger_init$decade=factor(trunc(wger_init$year/10)*10)
+wger_init$year_f=factor(wger_init$year)
+wger_init$decade=factor(wger_init$decade,level=sort(unique(as.numeric(as.character(wger_init$decade)))))
+wger_init$ldata=log(wger_init$value)
+wger_init$lifestage=as.factor(wger_init$lifestage)
 
 # This is a view (like the result of a query) showing a summary of each series, including first year, last year,
 # and duration
 statseries<-sqldf("select * from datawg.series_summary")
 # these data will 
-save(wger,R_stations,file=str_c(datawd,"/wger.Rdata"))
+save(wger_init,R_stations,file=str_c(datawd,"/wger_init.Rdata"))
 save(statseries,file=str_c(datawd,"/statseries.Rdata"))
 save(R_stations,file=str_c(datawd,"/R_stations.Rdata"))
 @
@@ -385,7 +385,7 @@ save(R_stations,file=str_c(datawd,"/R_stations.Rdata"))
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 << load_rdata, echo=FALSE, fig=FALSE, eval=TRUE, results=hide>>=
 # In this rchunk we load the data even if there is no connection to the database
-load(file=str_c(datawd,"/wger.Rdata"))
+load(file=str_c(datawd,"/wger_init.Rdata"))
 load(file=str_c(datawd,"/statseries.Rdata"))
 load(file=str_c(datawd,"/R_stations.Rdata"))
 @
@@ -396,9 +396,9 @@ load(file=str_c(datawd,"/R_stations.Rdata"))
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 << select_series, echo=FALSE, fig=FALSE, eval=TRUE, results=hide >>=
 
-# wgerinit is used to keep the "whole" dataset, just in case we mess with it afterwards
+# wger_init is used to keep the "whole" dataset, just in case we mess with it afterwards
+wger <- wger_init
 
-wgerinit<-wger
 vv$nb_series_init<-length(unique(wger$site)) # this is the true number at the beginning
 # 2018 removing series which are not of the best quality;
 wger<-wger[wger$ser_qal_id==1,]
@@ -411,11 +411,11 @@ vv$nb_series_init_qual1<-length(unique(wger$site))
 # are more than 10 year long. So each year we have to check. Some of the series have been
 # discared for other reasons and this is stated in column eel_qal_comment of the t_series_ser table
 
-wgerdiscarded<-wgerinit[wgerinit$ser_qal_id!=1,]
+wgerdiscarded<-wger_init[wger_init$ser_qal_id!=1,]
 # series marked as "0" might have a very low value but not included in the analysis, here replaced by NA
 wgerdiscarded$value[wgerdiscarded$das_qal_id==0]<-NA
 # storing this information in a list for eventual later display and check
-vv$length_discared <- tapply(wgerdiscarded$value,wgerdiscarded$site,function(X) sum(!is.na(X)))
+vv$length_discarded <- tapply(wgerdiscarded$value,wgerdiscarded$site,function(X) sum(!is.na(X)))
 # below comments for 2018 after checkin the series
 # Farp (Farpener Bach DE) 11 years long enough but stocking influence 
 # DoFp (Fyke on yellow eel) 13 years but fyke nets yellow catch, not really recruitment
@@ -439,6 +439,8 @@ if (! all(is.na(
 stop("Rows with id", paste(should_be_na_id[which(!is.na(should_be_na))],collapse=","), 
     " with qal_id 0 should be NA")
 
+# Checking series with eel_qal_id 3 (wrong data to be ignored) -------------------------------------
+
 removed_id <-  wger[!is.na(wger$das_qal_id)&wger$das_qal_id==3,c("id")] 
 removed_year <-  wger[!is.na(wger$das_qal_id)&wger$das_qal_id==3,c("year")]
 removed_site <-  wger[!is.na(wger$das_qal_id)&wger$das_qal_id==3,c("site")]
@@ -446,6 +448,13 @@ warnings("Rows with ids: ", paste(removed_id,collapse=","),
     " sites: ", paste(removed_site,collapse=","),     
     " years: ", paste(removed_year,collapse=","),     
     " with qal_id = 3 removed from analysis")
+vv$qual_id_3_removed <- list()
+vv$qual_id_3_removed$length<-length(removed_id)
+vv$qual_id_3_removed$year<-removed_year
+vv$qual_id_3_removed$site<-removed_site
+# For those series, values are replaced with NA -----------------------------------------------------
+
+wger[!is.na(wger$das_qal_id)&wger$das_qal_id==3,c("value")] <- NA
   #########################################################################
 # standardizing with 2000-2009
 # this was a question asked by ACFM ? 2014 ?
@@ -453,7 +462,7 @@ warnings("Rows with ids: ", paste(removed_id,collapse=","),
 # as it might confuse the reader
   ##########################################################################
   
-  mdata=wger[wger$year>=2000 & wger$year<2010,]
+mdata=wger[wger$year>=2000 & wger$year<2010,]
 std_site<-unique(mdata$site[order(mdata$site)])
 # length(std_site) 
 site<-unique(wger$site[order(wger$site)])
@@ -765,7 +774,7 @@ rien<-dev.off()
 <<tableswgeel,echo=FALSE, eval=TRUE,results=hide>>=
 # THIS R CHUNCK IS USED ONCE AT THE END TO GENERATE THE TABLES.
 ## This will fail if saved twice, run at the end of the working group to generate the table of values
-dat<-wgerinit[order(wgerinit$ser_order,wgerinit$year),]
+dat<-wger_init[order(wger_init$ser_order,wger_init$year),]
 dat$year=as.factor(dat$year)
 stopifnot(length(unique(dat$ser_order))== length(unique(dat$ser_id)))
 # this will create the table to export to excel with all raw data
