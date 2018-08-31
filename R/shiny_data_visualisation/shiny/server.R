@@ -22,9 +22,10 @@ server = function(input, output, session) {
   #####################
   output$"table_description"<-renderUI({
         if (input$dataset %in% c("aquaculture","landings")) {
-          text <-  paste("<p align='left'>Value in ton",'<br/>',
-              "to download this, use the excel button <p>'")
-        } else text =""
+          text <-  paste("<p align='left'>Value in ton <br/>",
+              "to download this, use the Excel button </p>")
+        } else text =paste("<p align='left'>",
+              "to download this, use the Excel button </p>")
         HTML(
             paste(
                 h4(paste0("Table for :", input$dataset)),
@@ -54,17 +55,18 @@ server = function(input, output, session) {
         table = table[, n_order]
         DT::datatable(table, 
             rownames = FALSE,
-            extensions = "Buttons",            
+            extensions = c("Buttons","KeyTable"),
             option=list(
                 order=list(0,"asc"),
+                keys = TRUE,
                 pageLength = 10,
                 columnDefs = list(list(className = 'dt-center')),
                 searching = FALSE, # no filtering options
                 lengthMenu=list(c(5,10,30,-1),c("5","10","30","All")),                
-                dom= "Bltip", # de gauche a droite button left f, t tableau, i informaiton (showing..), p pagination
+                dom= "Bltip", # from left to right button left f, t tableau, i informaiton (showing..), p pagination
                 buttons=list(
                     list(extend="excel",
-                        filename = paste0("data_",Sys.Date()))) # JSON behind the scene
+                        filename = paste0("data_",Sys.Date())))
             )) 
       })      
   
