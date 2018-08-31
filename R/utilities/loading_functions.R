@@ -44,7 +44,7 @@ load_catch_landings<-function(path,datasource){
   country=as.character(data_xls[1,6])
    data_xls <- correct_me(data_xls)
 # check for the file integrity
-  if (ncol(data_xls)!=13) cat(str_c("number column wrong ",file,"\n"))
+  if (ncol(data_xls)!=13) cat(str_c("number column wrong, should have been 13 in file from ",country,"\n"))
   data_xls$eel_datasource <- datasource
 # check column names
   if (!all(colnames(data_xls)%in%
@@ -253,7 +253,7 @@ load_release<-function(path,datasource){
   country=as.character(data_xls[1,7])
    data_xls <- correct_me(data_xls)
   # check for the file integrity
-  if (ncol(data_xls)!=11) cat(str_c("number column wrong ",file,"\n"))
+  if (ncol(data_xls)!=11) cat(str_c("number of column wrong should have been 11 in the file for ",country,"\n"))
   data_xls$eel_qal_id <- NA
   data_xls$eel_qal_comment <- NA
   data_xls$eel_datasource <- datasource
@@ -264,7 +264,7 @@ load_release<-function(path,datasource){
               "eel_qal_id", "eel_qal_comment","eel_comment","eel_datasource"))) 
     cat(str_c("problem in column names :",            
             paste(colnames(data_xls)[!colnames(data_xls)%in%
-                        c("eel_typ_name", "eel_year","eel_value","eel_missvaluequal","eel_emu_nameshort",
+                        c("eel_typ_name", "eel_year","eel_value_number", "eel_value_kg","eel_missvaluequal","eel_emu_nameshort",
                             "eel_cou_code", "eel_lfs_code", "eel_hty_code","eel_area_division",
                             "eel_qal_id", "eel_qal_comment","eel_comment","eel_datasource")],collapse= " & "),
             " file =",
@@ -283,7 +283,7 @@ load_release<-function(path,datasource){
     data_error= rbind(data_error, check_values(dataset=data_xls,
             column="eel_typ_name",
             country=country,
-            values=c("data_n", "gee_n")))
+            values=c("release_n", "gee_n")))
     
     ###### eel_year ##############
     
@@ -409,34 +409,37 @@ load_release<-function(path,datasource){
     
     #separate data between number and kg 
     #create data for number and add eel_typ_id 9 
-    release_N <- data_xls[,c(1,2,3,5,6,7,8,9,10,11)] 
+    release_N <- data_xls[,-4] 
     
-    release_N$eel_typ_id <- NA
+    #release_N$eel_typ_id <- NA
     # deal with release_n or gee_n to assign the correct type id 
     for (i in 1:nrow(release_N)) { 
       if (release_N[i,1]=="release_n") { 
-        release_N[i,11] <- 9
+        #release_N[i,"eel_typ_id"] <- 9
         release_N[i,1] <- "q_release_n"
-      } else {
-        release_N[i,11]  <- 10
+      } else { # gee
+        #release_N[i,"eel_typ_id"]  <- 10
       }
     } 
     colnames(release_N)[colnames(release_N)=="eel_value_number"] <- "eel_value" 
     
     #create release for kg and add eel_typ_id 8 
-    release_kg <- data_xls[,c(1,2,4,5,6,7,8,9,10,11)] 
-    release_kg$eel_typ_id <- rep(8, nrow(data_xls)) 
+    release_kg <- data_xls[,-3] 
+    #release_kg$eel_typ_id <- rep(8, nrow(data_xls)) 
     release_kg$eel_typ_name <- "q_release_kg"
     colnames(release_kg)[colnames(release_kg)=="eel_value_kg"] <- "eel_value" 
     
     #Rbind data_xls in the same data frame to import in database 
     release_tot <- rbind(release_N, release_kg) 
-    release_tot<-release_tot[,c(11,1,2,3,4,5,6,7,8,9,10)] 
+    release_tot<-release_tot[,c("eel_typ_name", "eel_year","eel_value","eel_missvaluequal","eel_emu_nameshort",
+            "eel_cou_code", "eel_lfs_code", "eel_hty_code","eel_area_division",
+            "eel_qal_id", "eel_qal_comment","eel_comment","eel_datasource")
+        ] 
     
     #Add "ND" in eel_missvaluequal if one value is still missing 
     for (i in 1:nrow(release_tot)) { 
-      if (is.na(release_tot[i,4])) { 
-        release_tot[i,5] <- "ND" 
+      if (is.na(release_tot[i,"eel_value"])) { 
+        release_tot[i,"eel_missvaluequal"] <- "ND" 
       } 
     } 
     
@@ -639,7 +642,7 @@ load_biomass<-function(path,datasource){
   country =as.character(data_xls[1,6]) #country code is in the 6th column
   
   # check for the file integrity, only 11 column in this file
-  if (ncol(data_xls)!=10) cat(str_c("number column wrong ",file,"\n"))
+  if (ncol(data_xls)!=10) cat(str_c("number column wrong should have been 10 in template for country",country,"\n"))
   data_xls$eel_qal_id <- NA
   data_xls$eel_qal_comment <- NA
   data_xls$eel_datasource <- datasource
@@ -830,7 +833,7 @@ load_mortality_rates<-function(path,datasource){
    data_xls <- correct_me(data_xls)
   country =as.character(data_xls[1,6]) #country code is in the 6th column
   # check for the file integrity, only 10 column in this file
-  if (ncol(data_xls)!=10) cat(str_c("number column wrong ",file,"\n"))
+  if (ncol(data_xls)!=10) cat(str_c("number column wrong, should have been 10 in template, country ",country,"\n"))
   # check column names
   data_xls$eel_qal_id <- NA
   data_xls$eel_qal_comment <- NA
@@ -1024,7 +1027,7 @@ load_mortality_silver<-function(path,datasource){
   country =as.character(data_xls[1,6]) #country code is in the 6th column
    data_xls <- correct_me(data_xls)
   # check for the file integrity, only 10 column in this file
-  if (ncol(data_xls)!=10) cat(str_c("number column wrong ",file,"\n"))
+  if (ncol(data_xls)!=10) cat(str_c("number column wrong, should have been 10 in file for country ",country,"\n"))
   # check column names
   data_xls$eel_qal_id <- NA
   data_xls$eel_qal_comment <- NA
@@ -1177,7 +1180,8 @@ load_mortality_silver<-function(path,datasource){
 }
 
 
-load_data_<-function(path,datasource){
+load_potential_available_habitat<-function(path,datasource){
+  stop("not developped yet")
   data_error <- data.frame(nline = NULL, error_message = NULL)
   the_metadata<-list()
   dir<-dirname(path)
@@ -1205,7 +1209,7 @@ load_data_<-function(path,datasource){
   #---------------------- mortality_silver sheet ---------------------------------------------
   
   # read the mortality_silver sheet
-  cat("Mortality in silver equivalents \n")
+  cat("Potential available habitat \n")
   
   data_xls<-read_excel(
       path=path,
