@@ -1,5 +1,5 @@
-# server paramater for shiny
-# 
+##########################################
+# shiny data visualisation : server.R
 # Authors: lbeaulaton Cedric
 ###############################################################################
 
@@ -362,6 +362,10 @@ server = function(input, output, session) {
   ##################################
   # Recruitment map -----------------------------------------------------------------------------
   ##################################
+  # first let's hide the sidebar
+
+
+  
   
   observe({
         output$mapstation = renderLeaflet({
@@ -376,6 +380,7 @@ server = function(input, output, session) {
         #       the_stage ='G'
         #       the_area='EE'
         observeEvent(input$mapstation_marker_click,  {
+              shinyjs::addClass(selector = "body", class = "sidebar-collapse")       
               p <- input$mapstation_marker_click
               lat <- p$lat
               lng <- p$lng

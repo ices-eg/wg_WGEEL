@@ -1,5 +1,5 @@
-# user interface for shiny
-# 
+#########################################
+# shiny data visualisation : ui.R
 # Authors: lbeaulaton Cedric
 ###############################################################################
 
@@ -15,6 +15,7 @@ ui = dashboardPage(title="ICES Data Visualisation",
         # Elements of menu in the sidebar -----------------------------------------------------------   
         
 	    sidebarMenu(
+            id="tabs",  
             menuItem("Table",tabName= "table_tab", icon= icon("table")),
             menuItem("Landings", tabName="landings_tab", icon=icon("bar-chart-o"),
                 menuSubItem("Raw + cor",  tabName="combined_landings_tab"),
