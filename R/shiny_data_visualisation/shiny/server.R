@@ -518,7 +518,7 @@ server = function(input, output, session) {
                         titlefont = f)
                     # note the source argument is used to find this
                     # graph in eventdata
-                    plot_ly(the_series, 
+                    p <- plot_ly(the_series, 
                             x = ~ year, 
                             y = ~ value_std_1960_1979,
                             name = the_name,                              
@@ -528,7 +528,8 @@ server = function(input, output, session) {
                             colors = "Set1")   %>% 
                         layout(title = the_title, xaxis = x, yaxis = y) %>%
                         add_trace(y = ~ geomean_p_std_1960_1979, name = the_area) 
-                    
+                  p$elementId <- NULL # a hack to remove warning : ignoring explicitly provided widget
+                  p  
                   })   
               
               output$resid_recruitment_graph <- renderPlot({

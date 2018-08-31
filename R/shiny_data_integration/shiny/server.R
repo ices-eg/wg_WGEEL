@@ -1,3 +1,7 @@
+###############################################
+# Server file for shiny data integration tool
+##############################################
+
 shinyServer(function(input, output, session){
       # this stops the app when the browser stops
       session$onSessionEnded(stopApp)
@@ -635,7 +639,7 @@ shinyServer(function(input, output, session){
             output$plotly_selected_year <-renderPlotly({  
                   coalesce 
                   datagr$hl <- as.factor(str_c(datagr$eel_lfs_code, coalesce(datagr$eel_hty_code,"no"),collapse= "&"))   
-                  plot_ly(datagr, x = ~eel_emu_nameshort, y = ~eel_value,
+                  p <-plot_ly(datagr, x = ~eel_emu_nameshort, y = ~eel_value,
                       # Hover text:
                       text = ~paste("Lifestage: ", eel_lfs_code, 
                           '$<br> Hty_code:', eel_hty_code,
@@ -643,7 +647,9 @@ shinyServer(function(input, output, session){
                           '$<br> Source:', eel_datasource,
                           '$<br> Value:', eel_value),
                       color = ~ eel_lfs_code,
-                      split = ~eel_hty_code)                      
+                      split = ~eel_hty_code)  
+                  p$elementId <- NULL # a hack to remove warning : ignoring explicitly provided widget
+                  p           
                 }) 
             
           }, ignoreNULL = TRUE) # additional arguments to observe ...
