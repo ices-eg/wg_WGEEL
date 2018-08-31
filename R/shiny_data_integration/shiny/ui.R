@@ -1,3 +1,7 @@
+###############################################
+# Ui file for ICES data integration tools
+###############################################
+
 ui <- dashboardPage(title="ICES Data Integration",
     dashboardHeader(title=div(img(src="iceslogo.png"),"wgeel")),
     
@@ -10,7 +14,7 @@ ui <- dashboardPage(title="ICES Data Integration",
         extendShinyjs(text = jscode, functions = c("closeWindow")),
         actionButton("close", "Close window"),  
         h3("Data"),      
-        sidebarMenu(            
+        sidebarMenu(          
             menuItem("Import",tabName= "import", icon= icon("align-left")),
             menuItem("Edit", tabName="edit", icon=icon("table")),
             menuItem("Plot duplicates", tabName='plot_duplicates',icon= icon("area-chart")#,
