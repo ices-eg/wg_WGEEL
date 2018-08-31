@@ -19,9 +19,12 @@
 #' \dontrun{
 #' if(interactive()){
 #' # choose a dataset such as catch_landings.xls
-#' data_from_excel<-load_catch_landings(wg_file.choose())$data
+#' wg_file.choose<-file.choose
+#' data_from_excel<-load_catch_landings(wg_file.choose(),"test")$data
+#' data_from_excel<-load_release(wg_file.choose(),datasource="test")$data
 #' data_from_base<-extract_data('Landings')
 #' data_from_base<-extract_data('B0')
+#' data_from_base<-extract_data('Release')
 #' list_comp<-compare_with_database(data_from_excel,data_from_base)
 #'  }
 #' }
@@ -42,11 +45,14 @@ compare_with_database <- function(data_from_excel, data_from_base) {
     stop("There is more than one country code, this is wrong")
   current_typ_name <- unique(data_from_excel$eel_typ_name)
   if (!all(current_typ_name %in% tr_type_typ$typ_name)) stop(str_c("Type ",current_typ_name[!current_typ_name %in% tr_type_typ$typ_name]," not in list of type name check excel file"))
-  # extract subset suitable for merge
-  tr_type_typ_for_merge <- tr_type_typ[, c("typ_id", "typ_name")]
-  colnames(tr_type_typ_for_merge) <- c("eel_typ_id", "eel_typ_name")
-  data_from_excel <- merge(data_from_excel, tr_type_typ_for_merge, by = "eel_typ_name") 
+  # all data returned by loading functions have only a name just in case to avoid doubles
   
+  if (!"eel_typ_id"%in%colnames(data_from_excel)) {
+      # extract subset suitable for merge
+      tr_type_typ_for_merge <- tr_type_typ[, c("typ_id", "typ_name")]
+      colnames(tr_type_typ_for_merge) <- c("eel_typ_id", "eel_typ_name")
+      data_from_excel <- merge(data_from_excel, tr_type_typ_for_merge, by = "eel_typ_name") 
+  }
   if (nrow(data_from_base) == 0) {
     # the data_from_base has 0 lines and 0 columns
     # this poses computation problems
@@ -54,6 +60,7 @@ compare_with_database <- function(data_from_excel, data_from_base) {
     load("common/data/data_from_base_0L.Rdata")
     data_from_base<-data_from_base0L
     warning("No data in the file coming from the database")
+    current_typ_id<-0
   } else {   
     current_typ_id <- unique(data_from_excel$eel_typ_id)
     if (!all(current_typ_id %in% data_from_base$eel_typ_id)) 
@@ -79,7 +86,7 @@ compare_with_database <- function(data_from_excel, data_from_base) {
           "eel_qal_id.base", "eel_qal_comment.base", "eel_missvaluequal.base", "eel_missvaluequal.xls", 
           "eel_emu_nameshort", "eel_cou_code", "eel_lfs_code", "eel_hty_code", "eel_area_division", 
           "eel_comment.base", "eel_comment.xls", "eel_datasource.base", "eel_datasource.xls")]
-  new <- dplyr::anti_join(data_from_excel, data_from_base, by = c("eel_typ_id", 
+   new <- dplyr::anti_join(data_from_excel, data_from_base, by = c("eel_typ_id", 
           "eel_year", "eel_lfs_code", "eel_emu_nameshort", "eel_hty_code", "eel_area_division", 
           "eel_cou_code"), suffix = c(".base", ".xls"))
   new <- new[, c("eel_typ_id", "eel_typ_name", "eel_year", "eel_value", "eel_missvaluequal", 
@@ -323,9 +330,9 @@ write_duplicates <- function(path, qualify_code = 18) {
     sqldf( str_c( "drop table if exists not_replaced_temp_", cou_code))
   }
   if (is.null(message)){  
-  message <- sprintf("For duplicates %s values replaced in the database (old values kept with code eel_qal_id=%s)\n,
- %s values not replaced (values from current datacall stored with code eel_qal_id %s)", 
-      nr1, qualify_code, nr2, qualify_code)  
+    message <- sprintf("For duplicates %s values replaced in the database (old values kept with code eel_qal_id=%s)\n,
+            %s values not replaced (values from current datacall stored with code eel_qal_id %s)", 
+        nr1, qualify_code, nr2, qualify_code)  
   }
   return(list(message = message, cou_code = cou_code))
 }
