@@ -5,15 +5,22 @@
 % such as Eclipse or Rstudio
 % this script is intended to run with sweave not knitr
 % It produces a nice pdf which has to be turned into a less nice word document
+% The problem is that the encoding of my files is Cp1252
+% The only way out is a full shift to utf8, in init pass locale for R to Sys.setlocale("LC_ALL", "English_United States.932")
+% In the preamble replace \usepackage[latin1]{inputenc} by \usepackage[utf8]{inputenc}
+% Note the following does not work :
+% iconv -f CP1252 -t UTF-8 recruitment_analysis.tex > recruitment_analysis_utf8.tex
+% finally the command to run is : 
 % cd C:\Users\cedric.briand\Documents\GitHub\WGEEL\R\recruitment
 % pandoc -s -o recruitment.docx --from=latex --to=docx  recruitment_analysis.tex
-
+% All this for producing a ugly word report :-( 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %************************************************************************************
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 <<init, eval=TRUE,echo=FALSE,results=hide>>=
+Sys.setlocale("LC_ALL", "English_United States.932")
 # Password are stored in R/etc/Rprofile.site
 # For the moment the database is stored locally
 CY<-2018 # current year ==> don't forget to update the graphics path below
@@ -187,7 +194,7 @@ vv<-list()
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \documentclass[pdftex,11pt,a4paper]{report}
 \usepackage[pdftex]{graphicx}
-\usepackage[latin1]{inputenc} %encodage du fichier source
+\usepackage[utf8]{inputenc} %encodage du fichier source
 %\usepackage[T1]{fontenc}  %gestion des accents (pour les pdf) 
 %\usepackage[swedish]{babel}
 \usepackage{Sweave}
@@ -1438,7 +1445,7 @@ save_figure("figure5",figure5,600,480)
 #				breaks=c(0.01,0.1,1,10),
 #				labels=c("1%","10%","100%","1000%"))
 #save_figure("figure5norvegiean",figure5norvegiean,600,480)
-#pdf("images/2013/figure5norvegiean.pdf")
+#pdf("images/2013/figure5norvegiean.png")
 #figure5norvegiean
 #dev.off()
 save_figure("figure5",figure5,600,480)
@@ -1876,7 +1883,7 @@ period are excluded from the analysis. The time-series left out are :
 %==========================================
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=0.8\textwidth]{figure3.pdf}
+\includegraphics[width=0.8\textwidth]{figure3.png}
 \caption{Time-series of glass eel and yellow eel recruitment in European rivers
 with time-series having data for the 1979-1994 period
 (\Sexpr{vv[["sc_1979_1994_nb"]]} sites).
@@ -1889,7 +1896,7 @@ black dots and bars. Geometric means are presented in red.}
 %==========================================
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=0.8\textwidth]{figure4.pdf}
+\includegraphics[width=0.8\textwidth]{figure4.png}
 \caption{Time-series of glass eel and yellow eel recruitment in Europe
 with \Sexpr{vv[["sc_1979_1994_nb"]]} time-series out of the \Sexpr{vv[["nb_series_init"]]}
 available to the working group. Each time-series has been scaled to its 1979-1994 average. 
@@ -1945,7 +1952,7 @@ Elsewhere Europe area, but some of the series are not yet complete (Figure
 %==========================================
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.8\textwidth]{figure5_without_logscale.pdf}
+\includegraphics[width=0.8\textwidth]{figure5_without_logscale.png}
 \caption{WGEEL recruitment index: geometric mean of estimated (GLM) glass eel
 recruitment for the continental North Sea and  Elsewhere Europe series
 ($p$) updated to \Sexpr{CY}.
@@ -1953,7 +1960,7 @@ recruitment for the continental North Sea and  Elsewhere Europe series
   \Sexpr{vv$modelge$nbsite} time-series comprising either pure glass eel or a mixture of 
   glass eels and yellow eels. Those series were then scaled to the 1960-1979
   average $\bar{p}_{1960-1979}$. No time-series are available for glass eel in
-  the Baltic area. Note the logarithmic scale on the y-axis. }
+  the Baltic area. }
 \label{figure5}
 \end{figure}
 %==========================================
@@ -1971,10 +1978,10 @@ the 1960-1979 baseline. The 2018 provisional value is
 %==========================================
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.8\textwidth]{figure6_without_log_scale.pdf}
+\includegraphics[width=0.8\textwidth]{figure6_without_log_scale.png}
 \caption {Geometric mean of estimated (GLM) yellow eel recruitment for Europe updated to \Sexpr{CY}. The GLM ($yellow eel \sim year+site$) was fitted to
 \Sexpr{vv[["nb_for_yellow_eel_glm"]]} yellow eel time-series $p$ and scaled to the
-1960-1979 average $\bar{p}_{1960-1979}$. Note the logarithmic scale on the y-axis.}
+1960-1979 average $\bar{p}_{1960-1979}$.}
 \label{figure6}
 \end{figure}
 %==========================================
@@ -2005,7 +2012,7 @@ scales are provided (Figures \ref{figure5_with_logscale} and
 %==========================================
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.7\textwidth]{figure3withoutlogscale.pdf}
+\includegraphics[width=0.7\textwidth]{figure3withoutlogscale.png}
 \caption{Same as figure \ref{figure3} but without log scale}
 \label{figure3withoutlogscale}
 \end{figure}
@@ -2013,7 +2020,7 @@ scales are provided (Figures \ref{figure5_with_logscale} and
 %==========================================
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.7\textwidth]{figure5.pdf}
+\includegraphics[width=0.7\textwidth]{figure5.png}
 \caption{Same as figure \ref{figure5} but with a log scale.}
 \label{figure5_with_logscale}
 \end{figure}
@@ -2021,7 +2028,7 @@ scales are provided (Figures \ref{figure5_with_logscale} and
 %==========================================
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.7\textwidth]{figure6.pdf}
+\includegraphics[width=0.7\textwidth]{figure6.png}
 \caption{Same graph as figure \ref{figure6} but with a log scale.}
 \label{figure6_with_logscale}
 \end{figure}
