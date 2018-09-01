@@ -79,7 +79,10 @@ ui = dashboardPage(title="ICES Data Visualisation",
 #        tags$head(
 #            tags$link(rel = "stylesheet", type = "text/css", href = "cerulean.css")
 #        ),
-#        
+        tags$head(tags$style(
+        type="text/css",
+        "#recruit_site_image img {max-width: 100%; width: 100%; height: auto}"
+         )),
         useShinyjs(), # to be able to use shiny js 
         
         
