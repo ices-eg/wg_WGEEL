@@ -98,12 +98,13 @@ if(getUsername() == 'cedric.briand')
 	  sqldf.RPostgreSQL.port = 5432)
   setwd("C:/Users/cedric.briand/Documents/GitHub/WGEEL/R/recruitment")
   
-  wd<-getwd()
-  wddata<-gsub("C:/Users/cedric.briand/Documents/GitHub/WGEEL/R","C:/workspace/wgeeldata",wd)
-  datawd<-str_c(wddata,"/",CY,"/data")
-  imgwd<-str_c(wddata,"/",CY,"/image")
-  tabwd<-str_c(wddata,"/",CY,"/table")
-  shpwd=str_c("C:/workspace/wgeeldata/shp") 
+  wd <- getwd()
+  wddata <- gsub("C:/Users/cedric.briand/Documents/GitHub/WGEEL/R","C:/workspace/wgeeldata",wd)
+  datawd <- str_c(wddata,"/",CY,"/data/")
+  imgwd <- str_c(wddata,"/",CY,"/image/")
+  tabwd <- str_c(wddata,"/",CY,"/table/")
+  shpwd <- str_c("C:/workspace/wgeeldata/shp/") 
+  shinywd <- "C:/Users/cedric.briand/Documents/GitHub/WGEEL/data/"
 }
 if(getUsername() == 'lbeaulaton')
 {
@@ -137,10 +138,10 @@ if(getUsername() == 'lbeaulaton')
   wd=getwd()
   
   wddata <- "/home/lbeaulaton/Documents/ANGUILLE/ICES/WGEEL/Ranalysis"
-  datawd<-str_c(wddata,"/",CY,"/data")
-  imgwd<-str_c(wddata,"/",CY,"/image")
-  tabwd<-str_c(wddata,"/",CY,"/table")
-  shpwd="/home/lbeaulaton/Documents/ANGUILLE/ICES/WGEEL/SIG" # emu, rbd, country
+  datawd<-str_c(wddata,"/",CY,"/data/")
+  imgwd<-str_c(wddata,"/",CY,"/image/")
+  tabwd<-str_c(wddata,"/",CY,"/table/")
+  shpwd="/home/lbeaulaton/Documents/ANGUILLE/ICES/WGEEL/SIG/" # emu, rbd, country
 }
 
 if(getUsername() == 'EDIAZ')
@@ -174,12 +175,12 @@ if(getUsername() == 'EDIAZ')
   wd<-getwd()
   wddata<-gsub("wgeel","wgeeldata",wd) # replacing the path to wgeel by wgeeldata ...
   
-  datawd<-str_c(wddata,"/",CY,"/data")
-  imgwd<-str_c(wddata,"/",CY,"/image")
-  tabwd<-str_c(wddata,"/",CY,"/table")
-  shpwd=str_c(wddata,"/wgeel2013/emu") 
+  datawd<-str_c(wddata,"/",CY,"/data/")
+  imgwd<-str_c(wddata,"/",CY,"/image/")
+  tabwd<-str_c(wddata,"/",CY,"/table/")
+  shpwd=str_c(wddata,"/wgeel2013/emu/") 
 }
-# some of the functions used later in that scrit :
+# some of the functions used later in that script :
 source('utility_functions.R')
 graphics.off() # close all graphics devices
 # the results will be stored in a list, when I first run the program,
@@ -376,18 +377,22 @@ wger_init$lifestage=as.factor(wger_init$lifestage)
 # and duration
 statseries<-sqldf("select * from datawg.series_summary")
 # these data will 
-save(wger_init,R_stations,file=str_c(datawd,"/wger_init.Rdata"))
-save(statseries,file=str_c(datawd,"/statseries.Rdata"))
-save(R_stations,file=str_c(datawd,"/R_stations.Rdata"))
+save(wger_init,R_stations,file=str_c(datawd,"wger_init.Rdata"))
+save(statseries,file=str_c(datawd,"statseries.Rdata"))
+save(R_stations,file=str_c(datawd,"R_stations.Rdata"))
+
+save(wger_init,R_stations,file=str_c(shinywd,"wger_init.Rdata"))
+save(statseries,file=str_c(shinywd,"statseries.Rdata"))
+save(R_stations,file=str_c(shinywd,"R_stations.Rdata"))
 @
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %************************************************************************************
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 << load_rdata, echo=FALSE, fig=FALSE, eval=TRUE, results=hide>>=
 # In this rchunk we load the data even if there is no connection to the database
-load(file=str_c(datawd,"/wger_init.Rdata"))
-load(file=str_c(datawd,"/statseries.Rdata"))
-load(file=str_c(datawd,"/R_stations.Rdata"))
+load(file=str_c(datawd,"wger_init.Rdata"))
+load(file=str_c(datawd,"statseries.Rdata"))
+load(file=str_c(datawd,"R_stations.Rdata"))
 @
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 				SERIES SELECTION AND STATISTICS ABOUT DATA ENTRY 
@@ -542,14 +547,20 @@ vv$nb_series_final<-nb_series_final
 # Finally saving the data
 ###############################################################
 
-save(wger,file=paste(datawd,"wger.Rdata",sep="/"))
-save(older,file=paste(datawd,"older.Rdata",sep="/"))
-save(glass_eel_yoy,file=paste(datawd,"glass_eel_yoy.Rdata",sep="/"))
+save(wger,file=paste0(datawd,"wger.Rdata"))
+save(older,file=paste0(datawd,"older.Rdata"))
+save(glass_eel_yoy,file=paste0(datawd,"glass_eel_yoy.Rdata"))
+
+save(wger,file=paste0(shinywd,"wger.Rdata"))
+save(older,file=paste0(shinywd,"older.Rdata"))
+save(glass_eel_yoy,file=paste0(shinywd,"glass_eel_yoy.Rdata"))
+
+
 #load(paste(datawd,"wger.Rdata",sep="/"))
 #load(paste(datawd,"older.Rdata",sep="/"))
 #load(paste(datawd,"glass_eel_yoy.Rdata",sep="/"))
-write.table(glass_eel_yoy,file=str_c(datawd,"/glass_eel_yoy.csv"),sep=";")
-write.table(older,file=str_c(datawd,"/older.csv"),sep=";")
+write.table(glass_eel_yoy,file=str_c(datawd,"glass_eel_yoy.csv"),sep=";")
+write.table(older,file=str_c(datawd,"older.csv"),sep=";")
 @
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -786,7 +797,7 @@ first_line<-c("kept",statseries$series_kept)
 tab1<-rbind(first_line,tab1)
 createxl<-function(data=tab1,sheet="recruitment_series"){
   library("XLConnect")
-  xls.file<-str_c(datawd,"/","table_rec2018.xls")
+  xls.file<-str_c(datawd,"table_rec2018.xls")
   wb = loadWorkbook(xls.file, create = TRUE)
   createSheet(wb,sheet)
   writeWorksheet (wb , data , sheet=sheet ,header = TRUE )
@@ -1277,7 +1288,7 @@ o<-print(xt_a, file = str_c(tabwd,"/table_anova.tex"),
 	tabular.environment="tabularx",
 	width="0.8\\textwidth",
 	sanitize.colnames.function=function(x){x})	
-save(model_ge_area,model_older,file=paste0(datawd,"/recruitment_models.Rdata"))
+save(model_ge_area,model_older,file=paste0(shinywd,"recruitment_models.Rdata"))
 #plot(model_ge_area)
 @
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1349,8 +1360,8 @@ if (opt_calculation=="geomean") {
 
 # Save data_bis as glass_eel_pred for shiny ----------------------------------------------
 glass_eel_pred <- data_bis
-save(glass_eel_pred,file=str_c(datawd,"/glass_eel_pred.Rdata"))
-
+save(glass_eel_pred,file=str_c(datawd,"glass_eel_pred.Rdata"))
+save(glass_eel_pred,file=str_c(shinywd,"glass_eel_pred.Rdata"))
 resy=function(data,valcol){
   data$time=rownames(data)
   data1=melt(data,id.vars=ncol(data))
@@ -1535,7 +1546,7 @@ decE<-tapply(synthesis$"Elsewhere Europe",synthesis$decade,mean,na.rm=T)
 
 
 
-write.table(synthesis,file=str_c(datawd,"/glm_results_glass.csv"),sep=";")
+write.table(synthesis,file=str_c(datawd,"glm_results_glass.csv"),sep=";")
 
 #plot(log(synthesis[synthesis$year>1979,"Elsewhere Europe"]))
 trend<-synthesis[synthesis$year>1979,]
@@ -1563,7 +1574,8 @@ if (sgipee_test_for_change_ns<=0.05) {
 }else {
   test_sgipee_char_ns<-"not significant"
 }
-save(dat, file=str_c(datawd,"/dat_ge.Rdata"))
+save(dat, file=str_c(datawd,"dat_ge.Rdata"))
+save(dat, file=str_c(shinywd,"dat_ge.Rdata"))
 @
 << model_diagnostics, echo=FALSE, eval=FALSE, results=hide >>=
 # summary(model_ge_area)
@@ -1674,22 +1686,22 @@ M.gls1 <-glmmPQL(value_std~year_f:area+site,
 )
 # prediction for lough neagh
 # historical data
-glass_eel_yoy2=wger[wger$lifestage!="yellow eel" ,] #glass eel and yoy
-model_ge_area2=glm(value_std~year_f:area+site,data=glass_eel_yoy2[glass_eel_yoy2$value>0 ,],
-	family=Gamma(link=log), maxit=300)
-
-newdata<-expand.grid(year_f=levels(glass_eel_yoy2$year_f),site="Bann",area="Elsewhere Europe")
-newdata<-newdata[as.numeric(as.character(newdata$year_f))>1922,]
-newdata$P=predict(model_ge_area2,type="response",newdata=newdata)
-newdata$year<-as.numeric(as.character(newdata$year_f))
-
-plot(newdata$year,newdata$P, type="b",col="black",xlab="year",ylab="standardized value")
-gey2<-glass_eel_yoy2[glass_eel_yoy2$site=='Bann',]
-gey2<-gey2[order(gey2$year),]
-points(gey2$year,gey2$value_std, type="b",col="grey40",lty=2,pch=18)
-legend("topright",col=c("black","grey20"),lty=c(1,2),pch=c(1,18),legend=c("predicted for Bann","Bann (observed)"))
-write.table(gey2,file=str_c(datawd,"/Bann_data.csv"),sep=";")
-write.table(newdata,file=str_c(datawd,"/Bann_predictions.csv"),sep=";")
+#glass_eel_yoy2=wger[wger$lifestage!="yellow eel" ,] #glass eel and yoy
+#model_ge_area2=glm(value_std~year_f:area+site,data=glass_eel_yoy2[glass_eel_yoy2$value>0 ,],
+#	family=Gamma(link=log), maxit=300)
+#
+#newdata<-expand.grid(year_f=levels(glass_eel_yoy2$year_f),site="Bann",area="Elsewhere Europe")
+#newdata<-newdata[as.numeric(as.character(newdata$year_f))>1922,]
+#newdata$P=predict(model_ge_area2,type="response",newdata=newdata)
+#newdata$year<-as.numeric(as.character(newdata$year_f))
+#
+#plot(newdata$year,newdata$P, type="b",col="black",xlab="year",ylab="standardized value")
+#gey2<-glass_eel_yoy2[glass_eel_yoy2$site=='Bann',]
+#gey2<-gey2[order(gey2$year),]
+#points(gey2$year,gey2$value_std, type="b",col="grey40",lty=2,pch=18)
+#legend("topright",col=c("black","grey20"),lty=c(1,2),pch=c(1,18),legend=c("predicted for Bann","Bann (observed)"))
+#write.table(gey2,file=str_c(datawd,"Bann_data.csv"),sep=";")
+#write.table(newdata,file=str_c(datawd,"Bann_predictions.csv"),sep=";")
 @
 
 << model_for_yellow_eel, echo=FALSE, eval=TRUE, results=hide >>=
@@ -1737,8 +1749,8 @@ data_bis$p_std_1960_1979=data_bis$p/data_bis$mean_1960_1979
 # saving yellow_eel_pred for shiny ---------------------------------------------------------------------
 
 yellow_eel_pred <- data_bis
-save(yellow_eel_pred,file=paste0(datawd,"/yellow_eel_pred.Rdata"))
-
+save(yellow_eel_pred,file=paste0(datawd,"yellow_eel_pred.Rdata"))
+save(yellow_eel_pred,file=paste0(shinywd,"yellow_eel_pred.Rdata"))
 # the trend is the mean or geomean (now geomean see init) of all series --------------------------------
 
 if (opt_calculation=="geomean") {
@@ -1836,10 +1848,11 @@ save_figure("figure6",figure6,600,480)
 
 # Final save ----------------------------------------------------------------------------------------
 
-write.table(synthesis,file=str_c(datawd,"/glm_results_yellow.csv"),sep=";")
+write.table(synthesis,file=str_c(datawd,"glm_results_yellow.csv"),sep=";")
 dat_ye <- dat_ye[,c("year","yellow_eel")]
 colnames(dat_ye) <-c("year","geomean_p_std_1960_1979") 
-save(dat_ye,file=paste0(datawd,"/dat_ye.Rdata")) ;
+save(dat_ye,file=paste0(datawd,"dat_ye.Rdata")) 
+save(dat_ye,file=paste0(shinywd,"dat_ye.Rdata")) 
 @
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %************************************************************************************
