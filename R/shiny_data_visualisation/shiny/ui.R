@@ -24,6 +24,8 @@ ui = dashboardPage(title="ICES Data Visualisation",
                 menuSubItem("Habitat average",tabName="average_landings_habitat_tab"),
                 menuSubItem("Habitat sum",tabName="sum_landings_habitat_tab")
             ),
+            menuItem("Aquaculture", tabName="aquaculture_tab", icon=icon("bar-chart-o")),
+            menuItem("Release", tabName="release_tab", icon=icon("bar-chart-o")),               
             menuItem("Map", tabName='map_tab',icon= icon("globe") #,
 #                menuSubItem("Landings",  tabName="leaflet_landings_tab"),
 #                menuSubItem("Releases",  tabName="leaflet_release_tab"),
@@ -80,9 +82,9 @@ ui = dashboardPage(title="ICES Data Visualisation",
 #            tags$link(rel = "stylesheet", type = "text/css", href = "cerulean.css")
 #        ),
         tags$head(tags$style(
-        type="text/css",
-        "#recruit_site_image img {max-width: 100%; width: 100%; height: auto}"
-         )),
+                type="text/css",
+                "#recruit_site_image img {max-width: 100%; width: 100%; height: auto}"
+            )),
         useShinyjs(), # to be able to use shiny js 
         
         
@@ -207,6 +209,125 @@ ui = dashboardPage(title="ICES Data Visualisation",
             tabItem(tabName="available_landings_tab"),
             tabItem(tabName="average_landings_habitat_tab"),
             tabItem(tabName="sum_landings_habitat_tab"),
+            
+            # Aquaculture ---------------------------------------------------------------------------
+            
+            tabItem(tabName="aquaculture_tab", 
+                box(id="box_graph_aquaculture",
+                    title="Aquaculture",
+                    status="primary",
+                    solidHeader=TRUE,
+                    collapsible=TRUE,
+                    width=NULL,
+                    fluidRow(
+                        column(width=2,  materialSwitch(
+                                inputId = "aquaculture_lifestage_switch",
+                                label = "By lifestage", 
+                                value = FALSE,
+                                status = "primary"
+                            )),
+                        column(width=2,  radioGroupButtons(
+                                inputId = "aquaculture_eel_typ_id",
+                                label = "Dataset",
+                                choices = c("ton","n"),
+                                selected=c("ton"),
+                                status = "primary",
+                                checkIcon = list(
+                                          yes = icon("ok", 
+                                            lib = "glyphicon"),
+                                       no = icon("remove",
+                                           lib = "glyphicon"))                               
+                            ))
+                    )),
+                fluidRow(                    
+                    column(width=10,plotOutput("graph_aquaculture",height="800px")),
+                    column(width=2,
+                        actionBttn(
+                            inputId = "aquaculture_button",
+                            label = NULL,
+                            style = "simple", 
+                            color = "success",
+                            icon("refresh",lib="glyphicon")
+                        ),
+                        bsTooltip(id= "aquaculture_button", #  donne le lien vers n'importe quel input ou output
+                            title = "Click to refresh / launch the graph",
+                            placement="top", # default bottom
+                            trigger="hover", # hover focus click, hover default
+                            options=NULL
+                        ),
+                        tipify(downloadButton(
+                                outputId = "download_graph_aquaculture",
+                                label = ""#, 
+                            #style = "material-circle", 
+                            #color = "danger"
+                            ),                       
+                            title = "Click to download the graph",
+                            placement="top", # default bottom
+                            trigger="hover", # hover focus click, hover default
+                            options=NULL                        
+                        )
+                    )                
+                )
+            ),
+            
+            # Release ---------------------------------------------------------------------------
+            
+            tabItem(tabName="release_tab", 
+                box(id="box_graph_release",
+                    title="We love transporting eels arround",
+                    status="primary",
+                    solidHeader=TRUE,
+                    collapsible=TRUE,
+                    width=NULL,
+                    fluidRow(
+                        column(width=2,  materialSwitch(
+                                inputId = "release_lifestage_switch",
+                                label = "By lifestage", 
+                                value = FALSE,
+                                status = "primary"
+                            )),
+                        column(width=2,  awesomeCheckboxGroup(
+                                inputId = "release_eel_typ_id",
+                                label = "Dataset",
+                                choices = c("q_release_kg"=8,"q_release_n"=9,"gee_n"=10),
+                                selected=c("q_release_kg"=8),
+                                status = "primary",
+                                inline=TRUE                                
+                            ))
+                    )),
+                fluidRow(                    
+                    column(width=10,plotOutput("graph_release",height="800px")),
+                    column(width=2,
+                        actionBttn(
+                            inputId = "release_button",
+                            label = NULL,
+                            style = "simple", 
+                            color = "success",
+                            icon("refresh",lib="glyphicon")
+                        ),
+                        bsTooltip(id= "release_button", #  donne le lien vers n'importe quel input ou output
+                            title = "Click to refresh / launch the graph",
+                            placement="top", # default bottom
+                            trigger="hover", # hover focus click, hover default
+                            options=NULL
+                        ),
+                        tipify(downloadButton(
+                                outputId = "download_graph_release",
+                                label = ""#, 
+                            #style = "material-circle", 
+                            #color = "danger"
+                            ),                       
+                            title = "Click to download the graph",
+                            placement="top", # default bottom
+                            trigger="hover", # hover focus click, hover default
+                            options=NULL                        
+                        )
+                    )                
+                )
+            ),
+            
+            
+            
             
             # PRECAUTIONARY DIAGRAM -----------------------------------------------------------------
             

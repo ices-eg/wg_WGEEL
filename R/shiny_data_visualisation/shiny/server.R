@@ -77,7 +77,7 @@ server = function(input, output, session) {
   # combined landings
   ######################################
   get_combined_landings <- eventReactive(input$combined_button,{
-        filtered_data <- filter_data(input$dataset, 
+        filtered_data <- filter_data("landings", 
             life_stage = input$lfs, 
             country = input$country, 
             habitat = input$habitat,
@@ -131,7 +131,7 @@ server = function(input, output, session) {
   # raw landings
   ######################################
   get_raw_landings <- eventReactive(input$raw_landings_button,{
-        filtered_data <- filter_data(input$dataset, 
+        filtered_data <- filter_data("landings", 
             life_stage = input$lfs, 
             country = input$country, 
             habitat = input$habitat,
@@ -168,6 +168,65 @@ server = function(input, output, session) {
             device = "png", width = 20, height = 14, 
             units = "cm")
       })
+  
+  ################################################
+  # AQUACULTURE
+  ###################################################
+
+  get_aquaculture <- eventReactive(input$aquaculture_button,{
+        switch(input$aquaculture_eel_typ_id,
+            "ton" = typ <- 11,
+            "n"  = typ <- 12)
+        filtered_data <- filter_data("aquaculture", 
+            life_stage = input$lfs, 
+            country = input$country, 
+            habitat = input$habitat,
+            typ=typ,
+            year_range = input$year[1]:input$year[2])        
+        aquaculture <-group_data(filtered_data,geo="country",
+            habitat=FALSE,
+            lfs=input$aquaculture_lifestage_switch)
+        aquaculture$eel_cou_code = as.factor(aquaculture$eel_cou_code)        
+        return(aquaculture)
+      })
+  output$graph_aquaculture <-  renderPlot({
+        if (input$aquaculture_eel_typ_id == "ton") {
+          title2 <- "Aquaculture weight (tons) for " 
+          aquaculture$eel_value <- as.numeric(aquaculture$eel_value) / 1000
+        }
+        else  if (input$aquaculture_eel_typ_id == "n") 
+          title2 <- "Aquaculture number for "
+        switch(input$aquaculture_eel_typ_id,
+            "ton" = typ <-11,
+            "n"  = typ <- 12)
+        title <- paste(title2, "stages = ", paste(input$lfs,collapse="+"))
+        aquaculture <- get_aquaculture()
+        aquaculture_graph(dataset=aquaculture,
+            title=title,
+            col=color_countries, 
+            country_ref=country_ref,
+            lfs=input$aquaculture_lifestage_switch,
+            typ=typ)
+      })
+  
+  output$download_graph_aquaculture <- downloadHandler(filename = function() {
+        paste("aquaculture", input$year[1], "-", input$year[2], ".png", sep = "")
+      }, content = function(file) {
+        title <- paste(title2, "stages = ", paste(input$lfs,collapse="+"))
+        landings <- get_aquaculture()
+        ggsave(file, 
+            aquaculture_graph(dataset=aquaculture,title=title,
+                col=color_countries, 
+                country_ref=country_ref,
+                lfs=input$aquaculture_lifestage_switch,
+                typ=input$aquaculture_eel_typ_id),
+            device = "png", 
+            width = 20, 
+            height = 14, 
+            units = "cm")
+      })
+  
+  
   
   
   ################################

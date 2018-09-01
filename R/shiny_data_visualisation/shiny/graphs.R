@@ -63,7 +63,7 @@ combined_landings_graph<-function (dataset, title=NULL , col , country_ref)
           ymin=max(landings_year$eel_value)*1.05, 
           ymax=max(landings_year$eel_value)*1.6)
   return(g_combined_landings)
-   
+  
   
 }
 
@@ -111,7 +111,8 @@ combined_landings_graph<-function (dataset, title=NULL , col , country_ref)
 #' }
 #' @rdname raw_landings_graph
 #' @export 
-raw_landings_graph<-function (dataset, title=NULL,col=color_countries, country_ref=country_ref, habitat=FALSE, lfs=FALSE)
+raw_landings_graph<-function (dataset, title=NULL, col=color_countries, 
+    country_ref=country_ref, habitat=FALSE, lfs=FALSE)
 { 
   dataset<-rename(dataset,"Country"="eel_cou_code")
   dataset$Country<-factor(dataset$Country,levels=country_ref$cou_code,ordered=TRUE)
@@ -123,26 +124,63 @@ raw_landings_graph<-function (dataset, title=NULL,col=color_countries, country_r
         theme_bw()  
     return(g_raw_Rlandings)  
   } else if (!habitat){
-      g_raw_Rlandings <- ggplot(dataset) + geom_col(aes(x=eel_year,y=eel_value,fill=Country),  position='stack')+
-              ggtitle(title) + xlab("year") + ylab("Landings (tons)")+
-              scale_fill_manual(values=col)+
-              facet_wrap(~eel_lfs_code)+
-              theme_bw()  
-      return(g_raw_Rlandings)   
-  } else if (!lfs){
-      g_raw_Rlandings <- ggplot(dataset) + geom_col(aes(x=eel_year,y=eel_value,fill=Country), position='stack')+
-              ggtitle(title) + xlab("year") + ylab("Landings (tons)")+
-              scale_fill_manual(values=col)+
-              facet_wrap(~eel_hty_code)+
-          theme_bw()  
-      return(g_raw_Rlandings)   
-  } else {
-      g_raw_Rlandings <- ggplot(dataset) + geom_col(aes(x=eel_year,y=eel_value,fill=Country), position='stack')+
-              ggtitle(title) + xlab("year") + ylab("Landings (tons)")+
-              scale_fill_manual(values=col)+
-              facet_grid(eel_lfs_code~eel_hty_code)+
+    g_raw_Rlandings <- ggplot(dataset) + geom_col(aes(x=eel_year,y=eel_value,fill=Country),  position='stack')+
+        ggtitle(title) + xlab("year") + ylab("Landings (tons)")+
+        scale_fill_manual(values=col)+
+        facet_wrap(~eel_lfs_code)+
         theme_bw()  
-      return(g_raw_Rlandings)     
+    return(g_raw_Rlandings)   
+  } else if (!lfs){
+    g_raw_Rlandings <- ggplot(dataset) + geom_col(aes(x=eel_year,y=eel_value,fill=Country), position='stack')+
+        ggtitle(title) + xlab("year") + ylab("Landings (tons)")+
+        scale_fill_manual(values=col)+
+        facet_wrap(~eel_hty_code)+
+        theme_bw()  
+    return(g_raw_Rlandings)   
+  } else {
+    g_raw_Rlandings <- ggplot(dataset) + geom_col(aes(x=eel_year,y=eel_value,fill=Country), position='stack')+
+        ggtitle(title) + xlab("year") + ylab("Landings (tons)")+
+        scale_fill_manual(values=col)+
+        facet_grid(eel_lfs_code~eel_hty_code)+
+        theme_bw()  
+    return(g_raw_Rlandings)     
   }  
 }
 
+#' @title Graph of aquaculture data
+#' @description 
+#' @param dataset Aquaculture data passed to the plot
+#' @param title The title, generated dynamically by shiny, Default: NULL
+#' @param col Colord vector of countries, Default: color_countries
+#' @param country_ref The countries reference list, used for colors, Default: country_ref
+#' @param lfs Is the graph split by lifestage, Default: FALSE
+#' @param typ Should be one of 10 or 11, if 10 display tons in ylab legend.  Default: 10
+#' @return A ggplot
+#' @details 
+#' @examples 
+#' @rdname aquaculture_graph
+
+aquaculture_graph<-function(dataset, title=NULL, col=color_countries, 
+    country_ref=country_ref,  lfs=FALSE, typ=10)
+{
+  
+  dataset<-rename(dataset,"Country"="eel_cou_code")
+  dataset$Country<-factor(dataset$Country,levels=country_ref$cou_code,ordered=TRUE)
+  if (typ == 10) the_ylab <- "Aquaculture (tons)" else the_ylab <- "Aquaculture number"
+  # title already formatted is passed by the shiny and kg already converted to tons
+  if (!lfs){
+    g_aquaculture <-  ggplot(dataset) + 
+        geom_col(aes(x=eel_year,y=eel_value,fill=Country), position='stack')+
+        ggtitle(title) + xlab("year") + ylab(the_ylab)+
+        scale_fill_manual(values=col)+
+        theme_bw()  
+  } else {
+    g_aquaculture <-  ggplot(dataset) + 
+        geom_col(aes(x=eel_year,y=eel_value,fill=Country), position='stack')+
+        ggtitle(title) + xlab("year") + ylab(the_ylab)+
+        scale_fill_manual(values=col)+
+        facet_wrap(~eel_lfs_code)+
+        theme_bw()  
+  }
+  return(g_aquaculture)
+}
