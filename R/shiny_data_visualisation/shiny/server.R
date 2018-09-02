@@ -172,7 +172,7 @@ server = function(input, output, session) {
   ################################################
   # AQUACULTURE
   ###################################################
-
+  
   get_aquaculture <- eventReactive(input$aquaculture_button,{
         switch(input$aquaculture_eel_typ_id,
             "ton" = typ <- 11,
@@ -226,7 +226,73 @@ server = function(input, output, session) {
             units = "cm")
       })
   
+  ################################################
+  # Release
+  ###################################################
   
+  get_release <- eventReactive(input$release_button,{
+        switch(input$release_eel_typ_id,
+            "Release_kg" = typ <- 8,
+            "Release_n" = typ <- 9,
+            "Gee"  = typ <- 10)
+        filtered_data <- filter_data("release", 
+            life_stage = input$lfs, 
+            country = input$country, 
+            habitat = input$habitat,
+            typ=typ,
+            year_range = input$year[1]:input$year[2])        
+        release <-group_data(filtered_data,geo="country",
+            habitat=FALSE,
+            lfs=input$release_lifestage_switch)
+        release$eel_cou_code = as.factor(release$eel_cou_code)        
+        return(release)
+      })
+  output$graph_release <-  renderPlot({
+        release <- get_release()
+        if (input$release_eel_typ_id == "Release_kg") {
+          
+          title2 <- "Released weight (kg) for " 
+          typ <- 8
+          
+        }  else  if (input$release_eel_typ_id == "Release_n") {
+          
+          title2 <- "Released number (in thousands) for "
+          typ <- 9
+          release$eel_value <- as.numeric(release$eel_value) / 1000
+          
+        } else if (input$release_eel_typ_id == "Gee") {
+          
+          title2 <- "Glass eel equivalent (in thousands) for "
+          typ <- 10 
+          release$eel_value <- as.numeric(release$eel_value) / 1000
+        }
+        
+        title <- paste(title2, "stages = ", paste(input$lfs,collapse="+"))
+
+        release_graph(dataset=release,
+            title=title,
+            col=color_countries, 
+            country_ref=country_ref,
+            lfs=input$release_lifestage_switch,
+            typ=typ)
+      })
+  
+  output$download_graph_release <- downloadHandler(filename = function() {
+        paste("release", input$year[1], "-", input$year[2], ".png", sep = "")
+      }, content = function(file) {
+        title <- paste(title2, "stages = ", paste(input$lfs,collapse="+"))
+        landings <- get_release()
+        ggsave(file, 
+            release_graph(dataset=release,title=title,
+                col=color_countries, 
+                country_ref=country_ref,
+                lfs=input$release_lifestage_switch,
+                typ=input$release_eel_typ_id),
+            device = "png", 
+            width = 20, 
+            height = 14, 
+            units = "cm")
+      })
   
   
   ################################
@@ -267,7 +333,7 @@ server = function(input, output, session) {
                     status = "primary",
                     inline=TRUE                                
                 ),   
-            "aquaculture"= 
+            "release"= 
                 radioGroupButtons(
                     inputId = "leaflet_eel_typ_id",
                     label = "Dataset",

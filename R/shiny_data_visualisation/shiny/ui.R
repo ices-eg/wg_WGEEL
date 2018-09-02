@@ -286,13 +286,17 @@ ui = dashboardPage(title="ICES Data Visualisation",
                                 value = FALSE,
                                 status = "primary"
                             )),
-                        column(width=2,  awesomeCheckboxGroup(
+                        column(width=3,  radioGroupButtons(
                                 inputId = "release_eel_typ_id",
                                 label = "Dataset",
-                                choices = c("q_release_kg"=8,"q_release_n"=9,"gee_n"=10),
-                                selected=c("q_release_kg"=8),
+                                choices = c("Release_kg","Release_n","Gee"),
+                                selected=c("Release_kg"),
                                 status = "primary",
-                                inline=TRUE                                
+                                checkIcon = list(
+                                    yes = icon("ok", 
+                                        lib = "glyphicon"),
+                                    no = icon("remove",
+                                        lib = "glyphicon"))                               
                             ))
                     )),
                 fluidRow(                    

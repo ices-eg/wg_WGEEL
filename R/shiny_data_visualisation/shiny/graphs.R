@@ -154,19 +154,19 @@ raw_landings_graph<-function (dataset, title=NULL, col=color_countries,
 #' @param col Colord vector of countries, Default: color_countries
 #' @param country_ref The countries reference list, used for colors, Default: country_ref
 #' @param lfs Is the graph split by lifestage, Default: FALSE
-#' @param typ Should be one of 10 or 11, if 10 display tons in ylab legend.  Default: 10
+#' @param typ Should be one of 11 or 12, if 11 display tons in ylab legend.  Default: 11
 #' @return A ggplot
 #' @details 
 #' @examples 
 #' @rdname aquaculture_graph
 
 aquaculture_graph<-function(dataset, title=NULL, col=color_countries, 
-    country_ref=country_ref,  lfs=FALSE, typ=10)
+    country_ref=country_ref,  lfs=FALSE, typ=11)
 {
   
   dataset<-rename(dataset,"Country"="eel_cou_code")
   dataset$Country<-factor(dataset$Country,levels=country_ref$cou_code,ordered=TRUE)
-  if (typ == 10) the_ylab <- "Aquaculture (tons)" else the_ylab <- "Aquaculture number"
+  if (typ == 11) the_ylab <- "Aquaculture (tons)" else the_ylab <- "Aquaculture number"
   # title already formatted is passed by the shiny and kg already converted to tons
   if (!lfs){
     g_aquaculture <-  ggplot(dataset) + 
@@ -184,3 +184,46 @@ aquaculture_graph<-function(dataset, title=NULL, col=color_countries,
   }
   return(g_aquaculture)
 }
+
+#' @title Graph for release
+#' @description 
+#' @param dataset Release data passed to the plot
+#' @param title The title, generated dynamically by shiny, Default: NULL
+#' @param col Colord vector of countries, Default: color_countries
+#' @param country_ref The countries reference list, used for colors, Default: country_ref
+#' @param lfs Is the graph split by lifestage, Default: FALSE
+#' @param typ Should be one of 8 or 9, if 10 display tons in ylab legend.  Default: 10
+#' @return A ggplot
+#' @details 
+#' @examples 
+#' @rdname aquaculture_graph
+release_graph <- function(dataset,
+    title = NULL,
+    col=color_countries, 
+    country_ref=country_ref,
+    lfs = FALSE,
+    typ = 8){
+  dataset<-rename(dataset,"Country"="eel_cou_code")
+  dataset$Country<-factor(dataset$Country,levels=country_ref$cou_code,ordered=TRUE)
+  the_ylab <- dplyr::case_when(typ == 8 ~  "Release (kg)",
+          typ == 9 ~ "1000 * Release (n)",
+          typ == 10 ~  "1000 * Glass eel equivalents(n)")
+  # title already formatted is passed by the shiny and kg already converted to tons
+  if (!lfs){
+    g_release <-  ggplot(dataset) + 
+        geom_col(aes(x=eel_year,y=eel_value,fill=Country), position='stack')+
+        ggtitle(title) + xlab("year") + ylab(the_ylab)+
+        scale_fill_manual(values=col)+
+        theme_bw()  
+  } else {
+    g_release<-  ggplot(dataset) + 
+        geom_col(aes(x=eel_year,y=eel_value,fill=Country), position='stack')+
+        ggtitle(title) + xlab("year") + ylab(the_ylab)+
+        scale_fill_manual(values=col)+
+        facet_wrap(~eel_lfs_code)+
+        theme_bw()  
+  }
+  return(g_release)
+}
+
+
