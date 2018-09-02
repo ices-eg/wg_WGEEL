@@ -333,7 +333,7 @@ server = function(input, output, session) {
                     status = "primary",
                     inline=TRUE                                
                 ),   
-            "release"= 
+            "aquaculture"= 
                 radioGroupButtons(
                     inputId = "leaflet_eel_typ_id",
                     label = "Dataset",
@@ -347,7 +347,7 @@ server = function(input, output, session) {
                     label = "Dataset",
                     choices = c("q_release_kg"=8,"q_release_n"=9,"gee_n"=10),
                     selected=c("q_release_kg"=8),
-                    direction = "horizontal"                                
+                    direction = "vertical"                                
                 )
         # TODO develop this, we need a view for biomass+ sigmaA different from precodata (which has one column per type)
         # ideally one view for SEE, one view for SumH by type

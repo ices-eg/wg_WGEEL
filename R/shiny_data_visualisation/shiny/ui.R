@@ -20,9 +20,9 @@ ui = dashboardPage(title="ICES Data Visualisation",
             menuItem("Landings", tabName="landings_tab", icon=icon("bar-chart-o"),
                 menuSubItem("Raw + cor",  tabName="combined_landings_tab"),
                 menuSubItem("Raw",  tabName="raw_landings_tab"),               
-                menuSubItem("Available Data",tabName="available_landings_tab"),
-                menuSubItem("Habitat average",tabName="average_landings_habitat_tab"),
-                menuSubItem("Habitat sum",tabName="sum_landings_habitat_tab")
+                menuSubItem("Available Data",tabName="available_landings_tab")#,
+                #menuSubItem("Habitat average",tabName="average_landings_habitat_tab"),
+                #menuSubItem("Habitat sum",tabName="sum_landings_habitat_tab")
             ),
             menuItem("Aquaculture", tabName="aquaculture_tab", icon=icon("bar-chart-o")),
             menuItem("Release", tabName="release_tab", icon=icon("bar-chart-o")),               
