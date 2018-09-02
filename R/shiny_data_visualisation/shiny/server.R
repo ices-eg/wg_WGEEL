@@ -212,18 +212,23 @@ server = function(input, output, session) {
   output$download_graph_aquaculture <- downloadHandler(filename = function() {
         paste("aquaculture", input$year[1], "-", input$year[2], ".png", sep = "")
       }, content = function(file) {
+        if (input$aquaculture_eel_typ_id == "ton") {
+          title2 <- "Aquaculture weight (tons) for " 
+          aquaculture$eel_value <- as.numeric(aquaculture$eel_value) / 1000
+        }
+        else  if (input$aquaculture_eel_typ_id == "n") 
+          title2 <- "Aquaculture number for "
+        switch(input$aquaculture_eel_typ_id,
+            "ton" = typ <-11,
+            "n"  = typ <- 12)
         title <- paste(title2, "stages = ", paste(input$lfs,collapse="+"))
-        landings <- get_aquaculture()
-        ggsave(file, 
-            aquaculture_graph(dataset=aquaculture,title=title,
+        aquaculture <- get_aquaculture()
+        ggsave(file, aquaculture_graph(dataset=aquaculture,
+                title=title,
                 col=color_countries, 
                 country_ref=country_ref,
                 lfs=input$aquaculture_lifestage_switch,
-                typ=input$aquaculture_eel_typ_id),
-            device = "png", 
-            width = 20, 
-            height = 14, 
-            units = "cm")
+                typ=typ))
       })
   
   ################################################
@@ -268,7 +273,7 @@ server = function(input, output, session) {
         }
         
         title <- paste(title2, "stages = ", paste(input$lfs,collapse="+"))
-
+        
         release_graph(dataset=release,
             title=title,
             col=color_countries, 
@@ -278,10 +283,28 @@ server = function(input, output, session) {
       })
   
   output$download_graph_release <- downloadHandler(filename = function() {
-        paste("release", input$year[1], "-", input$year[2], ".png", sep = "")
+        paste("release.png", sep = "")
       }, content = function(file) {
+        release <- get_release()
+        if (input$release_eel_typ_id == "Release_kg") {
+          
+          title2 <- "Released weight (kg) for " 
+          typ <- 8
+          
+        }  else  if (input$release_eel_typ_id == "Release_n") {
+          
+          title2 <- "Released number (in thousands) for "
+          typ <- 9
+          release$eel_value <- as.numeric(release$eel_value) / 1000
+          
+        } else if (input$release_eel_typ_id == "Gee") {
+          
+          title2 <- "Glass eel equivalent (in thousands) for "
+          typ <- 10 
+          release$eel_value <- as.numeric(release$eel_value) / 1000
+        }
+        
         title <- paste(title2, "stages = ", paste(input$lfs,collapse="+"))
-        landings <- get_release()
         ggsave(file, 
             release_graph(dataset=release,title=title,
                 col=color_countries, 
@@ -699,8 +722,15 @@ server = function(input, output, session) {
                     y <- list(
                         title = "Values standardized by 1960-1979 pred",
                         titlefont = f)
+                    
+                    # pal ending with numbers are not recognized by plot_ly
+                    
+                    
+                    
                     # note the source argument is used to find this
                     # graph in eventdata
+                    
+                    
                     p <- plot_ly(the_series, 
                             x = ~ year, 
                             y = ~ value_std_1960_1979,
@@ -708,9 +738,15 @@ server = function(input, output, session) {
                             source= "select_year",
                             type="scatter",
                             mode="lines+markers",
-                            colors = "Set1")   %>% 
+                            color = I("dodgerblue3"),
+                            symbol = I('circle-open') ,
+                            marker = list(size = 12)) %>% 
                         layout(title = the_title, xaxis = x, yaxis = y) %>%
-                        add_trace(y = ~ geomean_p_std_1960_1979, name = the_area) 
+                        add_trace(y = ~ geomean_p_std_1960_1979, 
+                            name = the_area, 
+                            color = I("gold"),
+                            symbol=I('circle-dot'),
+                            marker = list(size = 10))
                     p$elementId <- NULL # a hack to remove warning : ignoring explicitly provided widget
                     p  
                   })
@@ -728,7 +764,7 @@ server = function(input, output, session) {
                         ylab("glm residuals")
                     if (input$button_smooth==TRUE) {# working residuals
                       g <- g +           
-                          geom_smooth(aes(x=year,y=r))                   
+                          geom_smooth(aes(x=year,y=r),fill="gold3",col="gold")                   
                     }
                     g
                   })

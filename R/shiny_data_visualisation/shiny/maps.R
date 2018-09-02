@@ -235,7 +235,7 @@ recruitment_map <- function(R_stations, statseries, wger){
   
   mrd <- inner_join(mrd, last_update, by ="site")
   
-  color_pal <- colorFactor("Dark2", mrd$ser_lfs_code) 
+  color_pal <- colorFactor(c("#FEE301","#B0E44B","#00AAB6") , mrd$ser_lfs_code) 
   
   # Get popup ------------------------------------------------------------------------------------
   
@@ -258,7 +258,7 @@ recruitment_map <- function(R_stations, statseries, wger){
   
   m <- leaflet(data=mrd) %>%
       
-      addProviderTiles(providers$Esri.OceanBasemap) %>% 
+      addProviderTiles("Esri.WorldImagery") %>% 
       
       # Add a black circle arround series with lines updated this year ------------------------------
       addCircleMarkers(

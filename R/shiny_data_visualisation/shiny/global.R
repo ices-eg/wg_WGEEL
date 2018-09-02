@@ -57,6 +57,7 @@ load_package('stringr') # text handling
 #load_package("XLConnect") # for excel
 load_package("ggplot2") # for excel
 load_package("gridExtra")
+load_package("colorspace")
 # load functions ------------------------------------------------------------------------------------
 
 # retrieve reference tables needed
