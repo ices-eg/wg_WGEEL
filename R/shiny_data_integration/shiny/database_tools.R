@@ -110,7 +110,7 @@ compare_with_database <- function(data_from_excel, data_from_base) {
 #' \dontrun{
 #'  source("../../utilities/set_directory.R") 
 #'  path<-wg_file.choose() 
-#'  #path<-'C:\\Users\\cedric.briand\\Desktop\\06. Data\\datacall(wgeel_2018)\\duplicates_catch_landings_2018-07-08 (1).xlsx'
+#'  path<-"C:\\Users\\cedric.briand\\Documents\\projets\\GRISAM\\2018\\datacall\\06. Data\\Vattican\\02duplicates_catch_landings_2018-09-04VAcorrected.xlsx"
 #'  # qualify_code is 18 for wgeel2018
 #'  write_duplicates(path,qualify_code=18)
 #' sqldf('delete from datawg.t_eelstock_eel where eel_qal_comment='dummy_for_test'')
@@ -172,13 +172,14 @@ write_duplicates <- function(path, qualify_code = 18) {
     replaced$eel_comment.base <- paste0(replaced$eel_comment.base, " Value ", 
         replaced$eel_value.base, " replaced by value ", replaced$eel_value.xls, 
         " for datacall ", format(Sys.time(), "%Y"))
+
     
     
-    
-    query0 <- paste0("update datawg.t_eelstock_eel set (eel_qal_id,eel_comment)=(", 
-        qualify_code, ",'", replaced$eel_comment.base, "') where eel_id=", replaced$eel_id,";")
+    query0 <- paste0("update datawg.t_eelstock_eel set (eel_qal_id,eel_comment)=(", qualify_code ,",r.eel_comment) from ", 
+       "replaced_temp_", cou_code, " r where t_eelstock_eel.eel_id=r.eel_id;")
     
     # this will perform the reverse operation if error in query 1 or 2
+    # sqldf will handle this one as it is a several liners
     query0_reverse <- paste0("update datawg.t_eelstock_eel set (eel_qal_id,eel_comment)=(", 
         replaced$eel_qal_id.base , ",'", replaced$eel_comment.base, "') where eel_id=", replaced$eel_id,";")
     
@@ -186,7 +187,7 @@ write_duplicates <- function(path, qualify_code = 18) {
     
     # second insert the new lines into the database -------------------------------------------------
     
-    replaced <- replaced[, c("eel_typ_id", "eel_year", "eel_value.xls", "eel_missvaluequal.xls", 
+    replaced <- replaced[, c("eel_id", "eel_typ_id", "eel_year", "eel_value.xls", "eel_missvaluequal.xls", 
             "eel_emu_nameshort", "eel_cou_code", "eel_lfs_code", "eel_hty_code", 
             "eel_area_division", "eel_qal_id.xls", "eel_qal_comment.xls", "eel_datasource.xls", 
             "eel_comment.xls")]
@@ -194,7 +195,7 @@ write_duplicates <- function(path, qualify_code = 18) {
     replaced$eel_qal_comment.xls <- iconv(replaced$eel_qal_comment.xls,"UTF8")
     replaced$eel_comment.xls <- iconv(replaced$eel_comment.xls,"UTF8")
     
-    
+    colnames(replaced) <- gsub(".xls", "", colnames(replaced))
     
     query1 <- str_c("insert into datawg.t_eelstock_eel (         
             eel_typ_id,       
@@ -210,7 +211,19 @@ write_duplicates <- function(path, qualify_code = 18) {
             eel_qal_comment,            
             eel_datasource,
             eel_comment) 
-            select * from replaced_temp_", cou_code ,";")
+            select eel_typ_id,       
+            eel_year,
+            eel_value,
+            eel_missvaluequal,
+            eel_emu_nameshort,
+            eel_cou_code,
+            eel_lfs_code,
+            eel_hty_code,
+            eel_area_division,
+            eel_qal_id,
+            eel_qal_comment,            
+            eel_datasource,
+            eel_comment from replaced_temp_", cou_code ,";")
     # again this query will be run later cause we don't want it to run if the other fail
     
     # this query will be run to rollback when query2 crashes
@@ -291,10 +304,21 @@ write_duplicates <- function(path, qualify_code = 18) {
   
   # First step, replace values in the database --------------------------------------------------
   
-  sqldf(query0)
+  #sqldf(query0)
+  conn <- poolCheckout(pool)
+  nr0 <- tryCatch({     
+    dbExecute(conn, query0)
+  }, error = function(e) {
+    message <<- e  
+    cat("step1 message :")
+    print(message)   
+  }, finally = {
+    poolReturn(conn)
+  
+  })
   
   # Second step insert replaced ------------------------------------------------------------------
-  
+  if (is.null(message)) {
   conn <- poolCheckout(pool)
   nr1 <- tryCatch({     
         dbExecute(conn, query1)
@@ -307,7 +331,7 @@ write_duplicates <- function(path, qualify_code = 18) {
         poolReturn(conn)
         sqldf( str_c( "drop table if exists replaced_temp_", cou_code))        
       })
-  
+  }
   # Third step insert not replaced values into the database -----------------------------------------
   
   

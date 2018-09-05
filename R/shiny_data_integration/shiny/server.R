@@ -250,6 +250,8 @@ shinyServer(function(input, output, session){
                             scrollX = TRUE,
                             scrollY = "500px",
                             order=list(3,"asc"),
+                            lengthMenu=list(c(5,20,50,-1),c("5","20","50","All")),
+                            "pagelength"=-1,
                             dom= "Blfrtip",
                             buttons=list(
                                 list(extend="excel",
@@ -283,6 +285,8 @@ shinyServer(function(input, output, session){
                             scrollX = TRUE,
                             scrollY = "500px",
                             order=list(3,"asc"),
+                            lengthMenu=list(c(5,20,50,-1),c("5","20","50","All")),
+                            "pagelength"=-1,
                             dom= "Blfrtip",
                             scrollX = T, 
                             buttons=list(
