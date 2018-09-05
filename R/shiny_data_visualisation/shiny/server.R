@@ -723,7 +723,7 @@ server = function(input, output, session) {
                     y <- list(
                       zeroline = FALSE,
                       showgrid = FALSE,
-                        title = "Values standardized by 1960-1979 pred",
+                        title = paste("Values standardized by 1960-1979 pred for the", the_area,"serie"),
                         titlefont = f)
                     ay <- list(
                       zeroline = FALSE,
@@ -731,7 +731,8 @@ server = function(input, output, session) {
                       tickfont = list(color = "blue"),
                       overlaying = "y",
                       side = "right",
-                      title = "Values standardized by 1960-1979 pred for the given serie")
+                      title = paste("Values standardized by 1960-1979 pred for the", the_name,"serie"),
+                      titlefont = f)
                     
                     # pal ending with numbers are not recognized by plot_ly
                     
@@ -760,7 +761,7 @@ server = function(input, output, session) {
                             symbol=I('circle-dot'),
                             yaxis = "y1",
                             marker = list(size = 10)) %>%
-                    layout(title = the_title, xaxis = x, yaxis = y, yaxis2= ay)
+                    layout(title = the_title, xaxis = x, yaxis = y, yaxis2= ay,legend = list(x = 1.10, y = 1))
                     p$elementId <- NULL # a hack to remove warning : ignoring explicitly provided widget
                     p  
                   })
