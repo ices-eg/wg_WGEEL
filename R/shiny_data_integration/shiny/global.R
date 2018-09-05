@@ -48,13 +48,6 @@ load_package("viridis")
 load_package("ggplot2")
 load_package("plotly")
 
-
-#if(is.null(options()$sqldf.RPostgreSQL.user)) source("../../database_interaction/database_connection.R")
-options(sqldf.RPostgreSQL.user = userlocal, 
-	sqldf.RPostgreSQL.password = passwordlocal,
-	sqldf.RPostgreSQL.dbname = "wgeel",
-	sqldf.RPostgreSQL.host = "localhost", # "localhost"
-	sqldf.RPostgreSQL.port = 5432)
 jscode <- "shinyjs.closeWindow = function() { window.close(); }"
 
 if(packageVersion("DT")<"0.2.30"){
@@ -67,12 +60,14 @@ if(packageVersion("glue")<"1.2.0.9000"){
   devtools::install_github('tidyverse/glue')
 }
 
+source("../../database_interaction/database_connection.R")
+
 # Define pool handler by pool on global level
 pool <- pool::dbPool(drv = dbDriver("PostgreSQL"),
     dbname="wgeel",
     host="localhost",
-    user= userlocal,
-    password=passwordlocal)
+    user= user,
+    password= pwd)
 
 onStop(function() {
         poolClose(pool)
@@ -110,7 +105,6 @@ participants<- dbGetQuery(pool, sqlInterpolate(ANSI(), query))
 source("../../utilities/load_library.R")
 source("../../utilities/loading_functions.R")
 source("../../utilities/check_utilities.R")
-source("../../database_interaction/database_connection.R")
 source("../../database_interaction/database_data.R")
 source("../../database_interaction/database_reference.R")
 

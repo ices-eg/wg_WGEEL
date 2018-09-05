@@ -26,8 +26,8 @@ if(Sys.info()[["user"]] == "cedric.briand")
 	user<-"postgres"
 	pwd<-"postgres"
 } else {
-	if (exists("userlocal")) user<-userlocal else user<-getPass("Enter the USER: ")
-	if (exists("passwordlocal")) pwd<-passwordlocal else pwd<-getPass()
+	user<-getPass("Enter the USER: ")
+	pwd<-getPass()
 }
 
 # options for PostgresSQL
