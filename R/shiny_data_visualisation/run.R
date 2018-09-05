@@ -4,13 +4,13 @@
 ###############################################################################
 require("shiny")
 source("R/utilities/set_directory.R")
-#set_directory("shiny_data") # shiny_data_wd will be created
-shiny_data_wd<-"C:\\Users\\cedric.briand\\Documents\\GitHub\\WGEEL\\R\\shiny_data_visualisation\\shiny"
+set_directory("shiny_data") # shiny_data_wd will be created
+#shiny_data_wd<-"C:\\Users\\cedric.briand\\Documents\\GitHub\\WGEEL\\R\\shiny_data_visualisation\\shiny"
 # temporarily setting connection variables
 userlocal<-"postgres"
 passwordlocal<-"postgres"
 source("R/utilities/load_library.R")
 
 
-runApp(shiny_data_wd, launch.browser = TRUE)
+runApp(paste(getwd(), '/R/shiny_data_visualisation/shiny', sep = ""), launch.browser = TRUE)
 

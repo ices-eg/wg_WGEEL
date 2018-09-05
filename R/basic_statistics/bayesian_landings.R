@@ -79,6 +79,35 @@ model_1 = "model {
 		d ~ dgamma(1,0.01) 
 		}"
 
+model_1 = "model {
+		for (i in 1:nb_data) {
+#landings are log-normally distributed
+		landings[i] ~ dlnorm(mlandings[i],tau)
+#country and year effect
+		mlandings[i] <- log(country_effect[country[i]]) + log(year_effect[year[i]])
+		# error
+		e[i] <- log(landings[i]) - mlandings[i]
+		}
+# prior
+		for(c in 1:nb_country){
+#		country_effect[c]~dlnorm(country_m[c],tau_c)
+		country_effect[c] ~ dgamma(1,1)
+#		country_m[c] <- abs(a * surface[c] + b * latitude[c] + d)
+#		e_country[c] <- log(country_effect[c]) - country_m[c]
+		}
+		for(y in 1:nb_year){
+		year_effect[y]~dgamma(1,0.01) 
+		}
+		tau <- pow(s,-2)
+		s ~ dunif(0,10000)
+		tau_c <- pow(s_c,-2)
+		s_c ~ dunif(0,10000)
+#		a ~ dnorm(0,0.1)
+#		b ~ dnorm(0,0.1)
+#		c ~ dnorm(0,0.1)
+		d ~ dgamma(1,1) 
+		}"
+
 #########################
 # model run
 #########################
@@ -109,11 +138,16 @@ gelman.diag(result[,f_var_indice("country_effect", 1:nb_country)])
 # basic stats
 summary(result[,c("a", "b", "c", "d")])
 summary(result[,f_var_indice("e_country", 1:nb_country)])
+summary(result[, f_var_indice("country_effect", 1:nb_country)])
+summary(result[, f_var_indice("year_effect", 1:nb_year)])
 
+barplot((summary(result[, f_var_indice("country_effect", 1:nb_country)])$quantiles[,"50%"]), names.arg = levels(country), las = 2)
+barplot(summary(result[, f_var_indice("country_effect", 1:nb_country)])$quantiles[,"50%"] / surface, names.arg = levels(country), las = 2)
 barplot(summary(result[, f_var_indice("country_effect", 1:nb_country)])$quantiles[,"50%"] / surface, names.arg = levels(country), las = 2)
 barplot(summary(result[, f_var_indice("country_effect", 1:nb_country)])$quantiles[,"50%"] / latitude, names.arg = levels(country), las = 2)
 barplot(summary(result[, f_var_indice("country_effect", 1:nb_country)])$quantiles[,"50%"] / longitude, names.arg = levels(country), las = 2)
 barplot(summary(result[, f_var_indice("country_effect", 1:nb_country)])$quantiles[,"50%"] / order, names.arg = levels(country), las = 2)
+
 explore = function(variable)
 {
 	plot(variable, summary(result[, f_var_indice("country_effect", 1:nb_country)])$quantiles[,"50%"] / surface, type = "n")
@@ -157,8 +191,10 @@ reconstruction_df$country = rep(country, each = dim(result_agreg)[1])
 #c_small = c %>% filter(iteration %in% 5000:5999)
 reconstruction_array = acast(reconstruction_df, iteration ~ year ~ country)
 
+apply(reconstruction_array, c( 2, 3), quantile, prob = 0.975) - apply(reconstruction_array, c( 2, 3), quantile, prob = 0.025)
+
 test = apply(reconstruction_array, c(1, 2), sum)
-plot(min_year:max_year, apply(test, 2, quantile, prob = .975), type = "l", ylim = c(0, 250000), lty = 2, las = 2, xlab = "Year", ylab = "Landings (t)")
+plot(min_year:max_year, apply(test, 2, quantile, prob = .975), type = "l", ylim = c(0, 50000), lty = 2, las = 2, xlab = "Year", ylab = "Landings (t)")
 points(min_year:max_year,apply(test, 2, quantile, prob = .025), type = "l", lty = 2)
 points(min_year:max_year,apply(test, 2, quantile, prob = .5), type = "l", lwd = 2)
 grid()
