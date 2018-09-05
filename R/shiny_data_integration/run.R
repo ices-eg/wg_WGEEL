@@ -6,4 +6,4 @@ require("shiny")
 source("R/utilities/set_directory.R")
 
 #options(shiny.trace=TRUE)
-runApp(paste(getwd(), '/R/shiny_data_integration/shiny', sep = ""),launch.browser = TRUE)
+runApp(paste(getwd(), '/R/shiny_data_integration/shiny', sep = ""), launch.browser = FALSE, host = "0.0.0.0", port = 1235)

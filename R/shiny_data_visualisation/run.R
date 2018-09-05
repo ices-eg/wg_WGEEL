@@ -9,6 +9,6 @@ source("R/utilities/set_directory.R")
 source("R/database_interaction/database_connection.R")
 
 source("R/utilities/load_library.R")
-
-runApp(paste(getwd(), '/R/shiny_data_visualisation/shiny', sep = ""), launch.browser = TRUE)
+options(shiny.trace = TRUE)
+runApp(paste(getwd(), '/R/shiny_data_visualisation/shiny', sep = ""), launch.browser = FALSE, host = "0.0.0.0", port = 1234)
 
