@@ -717,11 +717,21 @@ server = function(input, output, session) {
                         size = 12,
                         color = "#7f7f7f")
                     x <- list(
-                        title = "Year",
+                     
+                      title = "Year",
                         titlefont = f)
                     y <- list(
+                      zeroline = FALSE,
+                      showgrid = FALSE,
                         title = "Values standardized by 1960-1979 pred",
                         titlefont = f)
+                    ay <- list(
+                      zeroline = FALSE,
+                      showgrid = FALSE,
+                      tickfont = list(color = "blue"),
+                      overlaying = "y",
+                      side = "right",
+                      title = "Values standardized by 1960-1979 pred for the given serie")
                     
                     # pal ending with numbers are not recognized by plot_ly
                     
@@ -730,6 +740,7 @@ server = function(input, output, session) {
                     # note the source argument is used to find this
                     # graph in eventdata
                     
+
                     
                     p <- plot_ly(the_series, 
                             x = ~ year, 
@@ -740,17 +751,21 @@ server = function(input, output, session) {
                             mode="lines+markers",
                             color = I("dodgerblue3"),
                             symbol = I('circle-open') ,
+                            yaxis = "y2",
                             marker = list(size = 12)) %>% 
-                        layout(title = the_title, xaxis = x, yaxis = y) %>%
+                        #layout(title = the_title, xaxis = x, yaxis = y, yaxis2=ay) %>%
                         add_trace(y = ~ geomean_p_std_1960_1979, 
                             name = the_area, 
                             color = I("gold"),
                             symbol=I('circle-dot'),
-                            marker = list(size = 10))
+                            yaxis = "y1",
+                            marker = list(size = 10)) %>%
+                    layout(title = the_title, xaxis = x, yaxis = y, yaxis2= ay)
                     p$elementId <- NULL # a hack to remove warning : ignoring explicitly provided widget
                     p  
                   })
               
+              ##
               # Create a graph of residuals ---------------------------------------------------------   
               
               output$resid_recruitment_graph <- renderPlot({
