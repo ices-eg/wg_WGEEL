@@ -23,8 +23,8 @@ load_library("getPass")
 #-------------------------------
 if(Sys.info()[["user"]] == "cedric.briand")
 { #Cedric's special configuration
-	user<-userlocal
-	pwd<-passwordlocal
+	user<-"postgres"
+	pwd<-"postgres"
 } else {
 	if (exists("userlocal")) user<-userlocal else user<-getPass("Enter the USER: ")
 	if (exists("passwordlocal")) pwd<-passwordlocal else pwd<-getPass()
