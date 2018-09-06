@@ -105,7 +105,8 @@ query <- "SELECT min(eel_year) as min_year, max(eel_year) as max_year from dataw
 the_years <- dbGetQuery(pool, sqlInterpolate(ANSI(), query))   
 
 query <- "SELECT name from datawg.participants"
-participants<- dbGetQuery(pool, sqlInterpolate(ANSI(), query))  
+participants<- dbGetQuery(pool, sqlInterpolate(ANSI(), query)) 
+
 
 source("../../utilities/load_library.R")
 source("../../utilities/loading_functions.R")
@@ -113,6 +114,9 @@ source("../../utilities/check_utilities.R")
 source("../../database_interaction/database_connection.R")
 source("../../database_interaction/database_data.R")
 source("../../database_interaction/database_reference.R")
+
+ices_division <- extract_ref("FAO area")$f_code
+
 
 # Local shiny files ---------------------------------------------------------------------------------
 
@@ -125,5 +129,5 @@ source("graphs.R")
 # BEFORE WGEEL sqldf('delete from datawg.t_eelstock_eel where eel_datasource='datacall_2018_test')
 ########################
 qualify_code<-18 # change this code here and in tr_quality_qal for next wgeel
-the_eel_datasource <- "test"
+the_eel_datasource <- "dc_2018"
 #the_eel_datasource <- "dc_2018"

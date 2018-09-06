@@ -83,7 +83,7 @@ lfs_code_base <- lfs_code_base[!lfs_code_base$lfs_code %in% c("OG","QG"),]
 country_ref <- extract_ref("Country")
 country_ref <- country_ref[order(country_ref$cou_order), ]
 country_ref$cou_code <- factor(country_ref$cou_code, levels = country_ref$cou_code[order(country_ref$cou_order)], ordered = TRUE)
-
+ices_division <- extract_ref("FAO area")$f_code
 # Extract data from the database -------------------------------------------------------------------
 
 landings = extract_data("Landings")

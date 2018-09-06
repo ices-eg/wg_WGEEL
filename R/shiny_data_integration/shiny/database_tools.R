@@ -64,7 +64,7 @@ compare_with_database <- function(data_from_excel, data_from_base) {
   } else {   
     current_typ_id <- unique(data_from_excel$eel_typ_id)
     if (!all(current_typ_id %in% data_from_base$eel_typ_id)) 
-      stop(paste("There is a mismatch between selected typ_id", paste0(current_typ_id, 
+      warning(paste("There is a mismatch between selected typ_id", paste0(current_typ_id, 
                   collapse = ";"), "and the dataset loaded from base", paste0(unique(data_from_base$eel_typ_id), 
                   collapse = ";"), "did you select the right File type ?"))
   }

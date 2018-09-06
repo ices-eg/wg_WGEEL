@@ -4,7 +4,7 @@
 
 shinyServer(function(input, output, session){
       # this stops the app when the browser stops
-      session$onSessionEnded(stopApp)
+     # session$onSessionEnded(stopApp)
       # A button that stops the application
       observeEvent(input$close, {
             js$closeWindow()

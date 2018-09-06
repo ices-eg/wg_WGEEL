@@ -11,6 +11,9 @@ userlocal<-"postgres"
 passwordlocal<-"postgres"
 source("R/utilities/load_library.R")
 
-
-runApp(shiny_data_wd, launch.browser = TRUE)
+options(shiny.trace = TRUE)
+runApp(shiny_data_wd, 
+    host= "0.0.0.0", 
+    port=1234,
+    launch.browser = TRUE)
 

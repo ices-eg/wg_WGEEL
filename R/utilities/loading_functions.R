@@ -517,7 +517,7 @@ load_aquaculture<-function(path,datasource){
     data_error = rbind(data_error,  check_values(dataset=data_xls,
             column="eel_typ_name",
             country=country,
-            values=c("q_aqua_kg")))
+            values=c("q_aqua_kg","q_aqua_n")))
     
     ###### eel_year ##############
     
