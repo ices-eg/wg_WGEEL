@@ -41,11 +41,10 @@ server = function(input, output, session) {
     if (input$dataset=="precodata"){
       filtered_data<-get(input$dataset)
         #filter_precodata(input$dataset,
-         #                             geo=input$geo,
-          #                            country = input$country,
-           #                           habitat = input$habitat,
-            #                          year_range = input$year[1]:input$year[2]                                      
-             #                        )
+         #                             country = input$country,
+          #                            habitat = input$habitat,
+           #                           year_range = input$year[1]:input$year[2]                                      
+            #                         )
     }else{
 
       filtered_data <- filter_data(input$dataset, 
@@ -58,6 +57,9 @@ server = function(input, output, session) {
         # do not group by habitat or lfs
     if (input$dataset=="precodata"){
       table<-filtered_data
+        #agg_precodata(filtered_data,geo=input$geo)
+        #filtered_data
+        
     }else{
         grouped_data <-group_data(filtered_data,geo=input$geo,habitat=FALSE,lfs=FALSE)
 
