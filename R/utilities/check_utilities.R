@@ -272,3 +272,33 @@ check_positive <- function(dataset,column,country){
   }
   return(answer)  
 }
+
+
+#' check the values in the current column against a list of values, missing values are removed
+#' prior to assessment
+#' @param dataset the name of the dataset
+#' @param column the name of the column
+#' @param country the current country being evaluated
+check_freshwater_without_area <- function(dataset,country){
+  #browser()
+  answer = NULL
+  newdataset <- dataset
+  newdataset$nline <- 1:nrow(newdataset)
+  # remove NA from data
+  ddataset <- as.data.frame(newdataset[
+    !is.na(newdataset[,"eel_area_division"]) &
+      newdataset[,"eel_hty_code"]=="F" &
+      !is.na(newdataset[,"eel_hty_code"]),]
+  )   
+  if (nrow(ddataset)>0){ 
+    line <- ddataset$nline
+    if (length(line)>0){
+      cat(sprintf("line <%s>, there should not be any area divsion in freshwater \n",                   
+                  line))
+      
+      answer  = data.frame(nline = line , error_message = paste0("there should not be any area divsion in freshwater"))
+    }
+    
+  }
+  return(answer)
+}
