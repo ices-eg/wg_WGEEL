@@ -178,21 +178,33 @@ filter_data = function(dataset, typ=NULL, life_stage = NULL, country = NULL, hab
 }
 #filter_precodata filtre pour créer les jeux de données pour la table et le graphe de preco
 
-filter_precodata = function(dataset, geo = "country", country=NULL, habitat=NULL, year_range = 1900:2100){
+filter_precodata = function(dataset, country=NULL, habitat=NULL, year_range = 1900:2100){
   mydata <- get(dataset)
   
-  if (!is.null(habitat)){
-  
-  if( geo=="country"){
-    
-    selection<-subset(mydata, eel_cou_code %in% country & eel_year %in% year_range & eel_hty_code %in% habitat)
-    filtered_data <-aggregate(selection, by=list(selection$eel_year, selection$eel_cou_code),
-                       FUN=mean, na.rm=TRUE)
+  if (!is.null(country) & !is.null(habitat)){
+  filtered_data<-subset(mydata, eel_cou_code %in% country & eel_year %in% year_range & eel_hty_code %in% habitat)
+    #filtered_data <-aggregate(selection, by=list(selection$eel_year, selection$eel_cou_code),
+                     #  FUN=mean, na.rm=TRUE)
   }
+  
+  if (!is.null(country) & is.null(habitat)){ 
+    filtered_data<-subset(mydata, eel_cou_code %in% country & eel_year %in% year_range)
+    
+  }
+  
+  if (!is.null(habitat) & is.null(country)){
+    filtered_data<-subset(mydata, eel_year %in% year_range & eel_hty_code %in% habitat)
+    #filtered_data <-aggregate(selection, by=list(selection$eel_year, selection$eel_cou_code),
+    #  FUN=mean, na.rm=TRUE)
+  }
+  if (is.null(country) & is.null(habitat)){
+    
+  filtered_data<-subset(mydata, eel_year %in% year_range)
     
   }
   return(filtered_data)  
 }
+
 # group_data ----------------------------------------------------------------------------------------
 
 #' @title function to group data
