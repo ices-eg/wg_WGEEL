@@ -214,11 +214,6 @@ load_catch_landings<-function(path,datasource){
             country=country,
             values=c("dc_2017","wgeel_2016","wgeel_2017","dc_2018")))
     
-    ################ no area in freshwater 
-    
-    data_error= rbind(data_error, check_freshwater_without_area(dataset=data_xls,
-            country=country))
-    
   }
   return(invisible(list(data=data_xls,error=data_error,the_metadata=the_metadata))) 
 }
@@ -412,12 +407,6 @@ load_release<-function(path,datasource){
             country=country,
             values=ices_division))
     
-    ################ no area in freshwater 
-    
-    data_error= rbind(data_error, check_freshwater_without_area(dataset=data_xls,
-            country=country))
-    
-    
     ###  deal with eel_value_number and eel_value_kg to import to database
     
     #tibbles are weird, change to dataframe and clear NA in the first column
@@ -533,7 +522,7 @@ load_aquaculture<-function(path,datasource){
     data_error = rbind(data_error,  check_values(dataset=data_xls,
             column="eel_typ_name",
             country=country,
-            values=c("q_aqua_kg","q_aqua_n")))
+            values=c("q_aqua_kg")))
     
     ###### eel_year ##############
     
@@ -803,12 +792,6 @@ load_biomass<-function(path,datasource){
             country=country,
             values=ices_division))
     
-    ################ no area in freshwater 
-    
-    data_error= rbind(data_error, check_freshwater_without_area(dataset=data_xls,
-            country=country))
-    
-    
   }
   return(invisible(list(data=data_xls,error=data_error,the_metadata=the_metadata)))
 }
@@ -1004,12 +987,6 @@ load_mortality_rates<-function(path,datasource){
             country=country,
             values=ices_division))
     
-    ################ no area in freshwater 
-    
-    data_error= rbind(data_error, check_freshwater_without_area(dataset=data_xls,
-            country=country))
-    
-    
   }
   return(invisible(list(data=data_xls,error=data_error,the_metadata=the_metadata)))
 }
@@ -1203,19 +1180,12 @@ load_mortality_silver<-function(path,datasource){
             country=country,
             values=ices_division))
     
-    ################ no area in freshwater 
-    
-    data_error= rbind(data_error, check_freshwater_without_area(dataset=data_xls,
-            country=country))
-    
-    
   }
   return(invisible(list(data=data_xls,error=data_error,the_metadata=the_metadata)))
 }
 
 
 load_potential_available_habitat<-function(path,datasource){
-  stop("not developped yet")
   data_error <- data.frame(nline = NULL, error_message = NULL)
   the_metadata<-list()
   dir<-dirname(path)
@@ -1240,7 +1210,7 @@ load_potential_available_habitat<-function(path,datasource){
   }
   # end loop for directories
   
-  #---------------------- mortality_silver sheet ---------------------------------------------
+  #---------------------- hab_wet_Area sheet ---------------------------------------------
   
   # read the mortality_silver sheet
   cat("Potential available habitat \n")

@@ -40,6 +40,12 @@ server = function(input, output, session) {
   output$table = DT::renderDataTable({
     if (input$dataset=="precodata"){
       filtered_data<-get(input$dataset)
+        #filter_precodata(input$dataset,
+         #                             geo=input$geo,
+          #                            country = input$country,
+           #                           habitat = input$habitat,
+            #                          year_range = input$year[1]:input$year[2]                                      
+             #                        )
     }else{
 
       filtered_data <- filter_data(input$dataset, 
@@ -736,17 +742,18 @@ server = function(input, output, session) {
                       title = "Year",
                         titlefont = f)
                     y <- list(
-                      zeroline = FALSE,
-                      showgrid = FALSE,
                         title = paste("Values standardized by 1960-1979 pred for the", the_area,"serie"),
+                      autorange = FALSE,
+                      range=c(min(the_series$geomean_p_std_1960_1979)-0.5,max(the_series$geomean_p_std_1960_1979)+0.5),
+                      side = "left",
                         titlefont = f)
                     ay <- list(
-                      zeroline = FALSE,
-                      showgrid = FALSE,
                       tickfont = list(color = "blue"),
                       overlaying = "y",
                       side = "right",
                       title = paste("Values standardized by 1960-1979 pred for the", the_name,"serie"),
+                      autorange = FALSE,
+                      range=c(min(the_series$geomean_p_std_1960_1979)-0.5,max(the_series$geomean_p_std_1960_1979)+0.5),
                       titlefont = f)
                     
                     # pal ending with numbers are not recognized by plot_ly
@@ -774,9 +781,9 @@ server = function(input, output, session) {
                             name = the_area, 
                             color = I("gold"),
                             symbol=I('circle-dot'),
-                            yaxis = "y1",
+                            yaxis = "y",
                             marker = list(size = 10)) %>%
-                    layout(title = the_title, xaxis = x, yaxis = y, yaxis2= ay,legend = list(x = 1.10, y = 1))
+                    layout(title = the_title, xaxis = x, yaxis =y, yaxis2= ay,legend = list(x = 1.10, y = 1))
                     p$elementId <- NULL # a hack to remove warning : ignoring explicitly provided widget
                     p  
                   })
