@@ -1181,7 +1181,6 @@ load_mortality_silver<-function(path,datasource){
 
 
 load_potential_available_habitat<-function(path,datasource){
-  stop("not developped yet")
   data_error <- data.frame(nline = NULL, error_message = NULL)
   the_metadata<-list()
   dir<-dirname(path)
