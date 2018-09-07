@@ -1235,7 +1235,7 @@ load_potential_available_habitat<-function(path,datasource){
   }
   # end loop for directories
   
-  #---------------------- mortality_silver sheet ---------------------------------------------
+  #---------------------- hab_wet_Area sheet ---------------------------------------------
   
   # read the mortality_silver sheet
   cat("Potential available habitat \n")
