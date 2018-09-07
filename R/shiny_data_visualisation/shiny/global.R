@@ -205,6 +205,19 @@ filter_precodata = function(dataset, country=NULL, habitat=NULL, year_range = 19
   return(filtered_data)  
 }
 
+### an aggregate function for the precodata
+
+agg_precodata<-function(dataset,geo="country")
+  
+  if (geo="country"){
+    
+    agg_data<-aggregate(dataset, by=list(dataset$eel_year, dataset$emu_nameshort),FUN=sum(), na.rm=TRUE)
+    
+  }else{
+    agg_data<-aggregate(dataset, by=list(dataset$eel_year, dataset$eel_cou_code),FUN=sum, na.rm=TRUE) 
+  }
+##
+
 # group_data ----------------------------------------------------------------------------------------
 
 #' @title function to group data
