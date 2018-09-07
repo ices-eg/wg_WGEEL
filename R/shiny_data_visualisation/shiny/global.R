@@ -1,5 +1,5 @@
 # general configuration for shiny
-# 
+# shiny data visualisation
 # Authors: lbeaulaton Cedric
 # FIRST THING : load maps_for_shiny.Rdata in your data/shapefiles/ git directory
 #             : load files dataset.Rdata, glass_eel_yoy.Rdata, older.Rdata, statseries.Rdata

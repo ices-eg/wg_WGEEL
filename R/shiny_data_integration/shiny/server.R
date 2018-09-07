@@ -82,6 +82,7 @@ shinyServer(function(input, output, session){
             output$integrate<-renderText({
                   # call to  function that loads data
                   # this function does not need to be reactive
+            
                   if (is.null(data$path_step0)) "please select a dataset" else {          
                     rls<-step0load_data() # result list
                     # this will fill the log_datacall file (database_tools.R)
@@ -96,7 +97,7 @@ shinyServer(function(input, output, session){
                     paste(rls$message,collapse="\n")
                     
                   }
-                  
+                 
                 }) 
             
             ##################################
@@ -134,7 +135,7 @@ shinyServer(function(input, output, session){
             
             output$dt_integrate<-DT::renderDataTable({                 
                   validate(need(input$xlfile != "", "Please select a data set"))           
-                  ls<-step0load_data()   
+                  ls<-step0load_data()
                   datatable(ls$res$error,
                       rownames=FALSE,
                       filter = 'top',

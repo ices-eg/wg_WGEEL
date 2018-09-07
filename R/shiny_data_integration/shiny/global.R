@@ -1,4 +1,5 @@
 # Name : global.R
+# shiny data integration
 # Date : 03/07/2018
 # Author: cedric.briand
 # DON'T FORGET TO SET THE qualify_code for eel_qal_id (this will be use to discard duplicates)
