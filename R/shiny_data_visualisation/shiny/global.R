@@ -53,7 +53,6 @@ load_package("colorspace")
 
 # retrieve reference tables needed
 # the shiny is launched from shiny_data_integration/shiny thus we need the ../
-if(!exists("load_library")) source("../../utilities/load_library.R")
 jscode <- "shinyjs.closeWindow = function() { window.close(); }"
 if(is.null(options()$sqldf.RPostgreSQL.user)) 
   source("../../database_interaction/database_connection.R")
@@ -106,9 +105,7 @@ dat_ye$year <- as.numeric(dat_ye$year)
 load("../../../data/glass_eel_pred.Rdata") # named glass_eel_pred
 load("../../../data/yellow_eel_pred.Rdata") # named yellow_eel_pred
 load("../../../data/recruitment_models.Rdata") # named model_ge_area and model_older
-# load data from recruitment ------------------------------------------------------------------------
-# note : these data have been produced by the script recruitment_analysis.Rnw
-#      : they must be installed manually in folder data    
+
 #########################
 # functions -----------------------------------------------------------------------------------------
 ########################
