@@ -1,4 +1,4 @@
-# Main script to launch data visualisation app
+# Main script to launch shiny app
 # 
 # Authors: lbeaulaton Cedric
 ###############################################################################
@@ -8,11 +8,7 @@ source("R/utilities/set_directory.R")
 # connection to database
 source("R/database_interaction/database_connection.R")
 
-
 source("R/utilities/load_library.R")
-
 options(shiny.trace = TRUE)
-runApp(shiny_data_wd, 
-    host= "0.0.0.0", 
-    port=1235,
-    launch.browser = TRUE)
+runApp(paste(getwd(), '/R/shiny_data_visualisation/shiny', sep = ""), launch.browser = TRUE, host = "0.0.0.0", port = 1234)
+

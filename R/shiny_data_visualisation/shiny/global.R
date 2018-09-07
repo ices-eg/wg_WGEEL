@@ -1,5 +1,5 @@
 # general configuration for shiny
-# shiny data visualisation
+# 
 # Authors: lbeaulaton Cedric
 # FIRST THING : load maps_for_shiny.Rdata in your data/shapefiles/ git directory
 #             : load files dataset.Rdata, glass_eel_yoy.Rdata, older.Rdata, statseries.Rdata
@@ -53,6 +53,7 @@ load_package("colorspace")
 
 # retrieve reference tables needed
 # the shiny is launched from shiny_data_integration/shiny thus we need the ../
+if(!exists("load_library")) source("../../utilities/load_library.R")
 jscode <- "shinyjs.closeWindow = function() { window.close(); }"
 if(is.null(options()$sqldf.RPostgreSQL.user)) 
   source("../../database_interaction/database_connection.R")
@@ -73,7 +74,7 @@ lfs_code_base <- lfs_code_base[!lfs_code_base$lfs_code %in% c("OG","QG"),]
 country_ref <- extract_ref("Country")
 country_ref <- country_ref[order(country_ref$cou_order), ]
 country_ref$cou_code <- factor(country_ref$cou_code, levels = country_ref$cou_code[order(country_ref$cou_order)], ordered = TRUE)
-ices_division <- extract_ref("FAO area")$f_code
+
 # Extract data from the database -------------------------------------------------------------------
 
 landings = extract_data("Landings")
@@ -105,7 +106,9 @@ dat_ye$year <- as.numeric(dat_ye$year)
 load("../../../data/glass_eel_pred.Rdata") # named glass_eel_pred
 load("../../../data/yellow_eel_pred.Rdata") # named yellow_eel_pred
 load("../../../data/recruitment_models.Rdata") # named model_ge_area and model_older
-
+# load data from recruitment ------------------------------------------------------------------------
+# note : these data have been produced by the script recruitment_analysis.Rnw
+#      : they must be installed manually in folder data    
 #########################
 # functions -----------------------------------------------------------------------------------------
 ########################
@@ -176,7 +179,23 @@ filter_data = function(dataset, typ=NULL, life_stage = NULL, country = NULL, hab
   
   return(filtered_data)
 }
+#filter_precodata filtre pour créer les jeux de données pour la table et le graphe de preco
 
+filter_precodata = function(dataset, geo = "country", country=NULL, habitat=NULL, year_range = 1900:2100){
+  mydata <- get(dataset)
+  
+  if (!is.null(habitat)){
+  
+  if( geo=="country"){
+    
+    selection<-subset(mydata, eel_cou_code %in% country & eel_year %in% year_range & eel_hty_code %in% habitat)
+    filtered_data <-aggregate(selection, by=list(selection$eel_year, selection$eel_cou_code),
+                       FUN=mean, na.rm=TRUE)
+  }
+    
+  }
+  return(filtered_data)  
+}
 # group_data ----------------------------------------------------------------------------------------
 
 #' @title function to group data
