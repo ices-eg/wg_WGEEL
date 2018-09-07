@@ -107,12 +107,11 @@ source("../../utilities/loading_functions.R")
 source("../../utilities/check_utilities.R")
 source("../../database_interaction/database_data.R")
 source("../../database_interaction/database_reference.R")
-<<<<<<< HEAD
+
 
 ices_division <- extract_ref("FAO area")$f_code
 emus <- extract_ref("EMU")
-=======
->>>>>>> branch 'master' of https://github.com/ices-eg/wg_WGEEL.git
+
 
 # Local shiny files ---------------------------------------------------------------------------------
 
@@ -125,5 +124,5 @@ source("graphs.R")
 # BEFORE WGEEL sqldf('delete from datawg.t_eelstock_eel where eel_datasource='datacall_2018_test')
 ########################
 qualify_code<-18 # change this code here and in tr_quality_qal for next wgeel
-the_eel_datasource <- "test"
+the_eel_datasource <- "dc_2018"
 #the_eel_datasource <- "dc_2018"
