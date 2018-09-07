@@ -12,7 +12,7 @@ source("R/database_interaction/database_connection.R")
 source("R/utilities/load_library.R")
 
 options(shiny.trace = TRUE)
-runApp(shiny_data_wd, 
+runApp(paste0(getwd(),"/R/shiny_data_visualisation/shiny"), 
     host= "0.0.0.0", 
-    port=1234,
+    port=2222,
     launch.browser = TRUE)

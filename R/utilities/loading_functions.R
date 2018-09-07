@@ -72,7 +72,7 @@ load_catch_landings<-function(path,datasource){
     data_error= rbind(data_error, check_values(dataset=data_xls,
             column="eel_typ_name",
             country=country,
-            values=c("com_landings_kg", "rec_landings_kg")))
+            values=c("com_landings_kg", "rec_landings_kg","other_landings_kg", "other_landings_n")))
     
     ###### eel_year ##############
     
@@ -114,6 +114,11 @@ load_catch_landings<-function(path,datasource){
             column="eel_emu_nameshort",
             country=country,
             type="character"))
+    
+    data_error= rbind(data_error, check_values(dataset=data_xls,
+            column="eel_emu_nameshort",
+            country=country,
+            values=emus$emu_nameshort))
     
     ###### eel_cou_code ##############
     
@@ -447,12 +452,12 @@ load_release<-function(path,datasource){
             "eel_qal_id", "eel_qal_comment","eel_comment","eel_datasource")
         ] 
     
-    #Add "ND" in eel_missvaluequal if one value is still missing 
-    for (i in 1:nrow(release_tot)) { 
-      if (is.na(release_tot[i,"eel_value"])) { 
-        release_tot[i,"eel_missvaluequal"] <- "ND" 
-      } 
-    } 
+#    #Add "ND" in eel_missvaluequal if one value is still missing 
+#    for (i in 1:nrow(release_tot)) { 
+#      if (is.na(release_tot[i,"eel_value"])) { 
+#        release_tot[i,"eel_missvaluequal"] <- "ND" 
+#      } 
+#    } 
     
   }
   return(invisible(list(data=release_tot,error=data_error,the_metadata=the_metadata)))
@@ -761,7 +766,7 @@ load_biomass<-function(path,datasource){
     data_error= rbind(data_error, check_values(dataset=data_xls,
             column="eel_lfs_code",
             country=country,
-            values=c("G","GY","Y","YS","S","OG","QG","AL")))
+            values=c("G","GY","Y","YS","S","AL")))
     
     ###### eel_hty_code ##############
     data_error= rbind(data_error, check_type(dataset=data_xls,
@@ -881,7 +886,7 @@ load_mortality_rates<-function(path,datasource){
     data_error= rbind(data_error, check_values(dataset=data_xls,
             column="eel_typ_name",
             country=country,
-            values=c("SumA","SumF","SumH", "sumF_com", "SumF_rec", "SumH_hydro", "SumH_habitat", "SumH_stocking", "SumH_other"))) 
+            values=c("SumA","SumF","SumH", "sumF_com", "SumF_rec", "SumH_hydro", "SumH_habitat", "SumH_stocking", "SumH_other", "SumH_release"))) 
     
     ###### eel_year ##############
     

@@ -111,7 +111,7 @@ source("../../database_interaction/database_data.R")
 source("../../database_interaction/database_reference.R")
 
 ices_division <- extract_ref("FAO area")$f_code
-
+emus <- extract_ref("EMU")
 
 # Local shiny files ---------------------------------------------------------------------------------
 
