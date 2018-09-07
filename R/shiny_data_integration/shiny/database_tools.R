@@ -20,7 +20,7 @@
 #' if(interactive()){
 #' # choose a dataset such as catch_landings.xls
 #' wg_file.choose<-file.choose
-#' data_from_excel<-load_catch_landings(wg_file.choose(),"test")$data
+#' data_from_excel<-load_catch_landings(wg_file.choose(),"dc_2018")$data
 #' data_from_excel<-load_release(wg_file.choose(),datasource="test")$data
 #' data_from_base<-extract_data('Landings')
 #' data_from_base<-extract_data('B0')
@@ -238,7 +238,9 @@ write_duplicates <- function(path, qualify_code = 18) {
   } else {
     
     query0 <- ""
+    query0_reverse <- ""
     query1 <- ""
+    query1_reverse <- ""
     
   }
   

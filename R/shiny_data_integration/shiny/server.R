@@ -6,10 +6,10 @@ shinyServer(function(input, output, session){
       # this stops the app when the browser stops
       session$onSessionEnded(stopApp)
       # A button that stops the application
-      observeEvent(input$close, {
-            js$closeWindow()
-            stopApp()
-          })
+#      observeEvent(input$close, {
+#            js$closeWindow()
+#            stopApp()
+#          })
       ##########################
 # I. Datacall Integration and checks
       ######################### 
