@@ -207,15 +207,23 @@ filter_precodata = function(dataset, country=NULL, habitat=NULL, year_range = 19
 
 ### an aggregate function for the precodata
 
-agg_precodata<-function(dataset,geo="country")
+agg_precodata<-function(dataset,geo="country"){
   
-  if (geo="country"){
+  if (geo=="country"){
     
-    agg_data<-aggregate(dataset, by=list(dataset$eel_year, dataset$emu_nameshort),FUN=sum(), na.rm=TRUE)
+    for(i in length(country)*length(year_range)){
+      sumat[i]<-sum(suma[i]*bbest[i])
+    }
+    agg_data<-dataset %>% 
+      group_by(eel_cou_code) %>% 
+      summarise(bcurrent = sum(bcurrent), bbest = sum(bbest), b0 = sum(b0) , sumA = sum(sumat/sum(bbest)),sumF = sum(sumf), sumH = sum(sumh), na.rm = T)
     
-  }else{
-    agg_data<-aggregate(dataset, by=list(dataset$eel_year, dataset$eel_cou_code),FUN=sum, na.rm=TRUE) 
   }
+  #else{
+   # agg_data<-aggregate(dataset, by=list(dataset$eel_year, dataset$eel_cou_code),FUN=sum, na.rm=TRUE) 
+  #}
+  return(agg_data)
+}
 ##
 
 # group_data ----------------------------------------------------------------------------------------
