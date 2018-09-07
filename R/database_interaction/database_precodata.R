@@ -19,7 +19,7 @@ extract_precodata = function()
 	
 	# merge data to have one data.frame
 	# TODO: handling habitat, ...
-	col_to_keep = c("eel_emu_nameshort", "eel_cou_code", "eel_year", "eel_value")
+	col_to_keep = c("eel_emu_nameshort","eel_hty_code", "eel_cou_code", "eel_year","eel_area_division", "eel_value")
 	precodata = merge(bcurrent[,col_to_keep], bbest[,col_to_keep], by = col_to_keep[-length(col_to_keep)], suffixes = c(".bcurrent", ".bbest"))
 	n = names(precodata)
 	n[n=="eel_value.bcurrent"] = "bcurrent"
