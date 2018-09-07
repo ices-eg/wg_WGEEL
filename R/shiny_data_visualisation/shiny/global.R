@@ -183,8 +183,7 @@ filter_precodata = function(dataset, country=NULL, habitat=NULL, year_range = 19
   
   if (!is.null(country) & !is.null(habitat)){
   filtered_data<-subset(mydata, eel_cou_code %in% country & eel_year %in% year_range & eel_hty_code %in% habitat)
-    #filtered_data <-aggregate(selection, by=list(selection$eel_year, selection$eel_cou_code),
-                     #  FUN=mean, na.rm=TRUE)
+
   }
   
   if (!is.null(country) & is.null(habitat)){ 
@@ -207,16 +206,23 @@ filter_precodata = function(dataset, country=NULL, habitat=NULL, year_range = 19
 
 ### an aggregate function for the precodata
 
-agg_precodata<-function(dataset,geo="country"){
+agg_precodata<-function(dataset,geo="country",country=NULL, year_range = 1900:2100){
   
   if (geo=="country"){
-    
-    for(i in length(country)*length(year_range)){
-      sumat[i]<-sum(suma[i]*bbest[i])
+    sumat<-NULL
+    sumht<-NULL
+    sumft<-NULL
+    for(i in 1:length(country)*length(year_range)){
+      sumat[i]<-sum(dataset$suma[i]*dataset$bbest[i], na.rm=TRUE)
+      sumht[i]<-sum(dataset$sumh[i]*dataset$bbest[i], na.rm=TRUE)
+      sumft[i]<-sum(dataset$sumf[i]*dataset$bbest[i], na.rm=TRUE)
+      
     }
     agg_data<-dataset %>% 
-      group_by(eel_cou_code) %>% 
-      summarise(bcurrent = sum(bcurrent), bbest = sum(bbest), b0 = sum(b0) , sumA = sum(sumat/sum(bbest)),sumF = sum(sumf), sumH = sum(sumh), na.rm = T)
+      group_by(eel_cou_code,eel_year) %>% 
+      summarise(bcurrent = sum(bcurrent, na.rm=TRUE), bbest = sum(bbest, na.rm=TRUE), b0 = sum(b0, na.rm=TRUE) , 
+                sumA = sum(sumat, na.rm=TRUE)/sum(bbest, na.rm=TRUE),sumF = sum(sumft, na.rm=TRUE)/sum(bbest, na.rm=TRUE), 
+                sumH=sum(sumht, na.rm=TRUE)/sum(bbest, na.rm=TRUE))
     
   }
   #else{
