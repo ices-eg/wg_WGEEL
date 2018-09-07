@@ -16,6 +16,8 @@ extract_precodata = function()
 	bbest = extract_data("Bbest")
 	bcurrent = extract_data("Bcurrent")
 	sigmaa = extract_data("Sigma A")
+	sigmaf= extract_data("Sigma F")
+	sigmah= extract_data("Sigma H")
 	
 	# merge data to have one data.frame
 	# TODO: handling habitat, ...
@@ -29,6 +31,9 @@ extract_precodata = function()
 	names(precodata) = c(names(precodata)[-length(precodata)], "b0")
 	precodata = merge(precodata, sigmaa[,col_to_keep], by = col_to_keep[-length(col_to_keep)])
 	names(precodata) = c(names(precodata)[-length(precodata)], "suma")
-
+	precodata = merge(precodata, sigmaf[,col_to_keep], by = col_to_keep[-length(col_to_keep)])
+	names(precodata) = c(names(precodata)[-length(precodata)], "sumf")
+	precodata = merge(precodata, sigmah[,col_to_keep], by = col_to_keep[-length(col_to_keep)])
+	names(precodata) = c(names(precodata)[-length(precodata)], "sumh")
 	return(precodata)
 }
