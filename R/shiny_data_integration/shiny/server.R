@@ -147,7 +147,7 @@ shinyServer(function(input, output, session){
                       option=list(
                           "pagelength"=5,
                           searching = FALSE, # no filtering options
-                          lengthMenu=list(c(5,20,50,-1),c("5","20","50","All")),
+                          lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
                           order=list(1,"asc"),
                           dom= "Blfrtip", 
                           buttons=list(
@@ -285,7 +285,7 @@ shinyServer(function(input, output, session){
                             scrollX = TRUE,
                             scrollY = "500px",
                             order=list(3,"asc"),
-                            lengthMenu=list(c(5,20,50,-1),c("5","20","50","All")),
+                            lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
                             "pagelength"=-1,
                             dom= "Blfrtip",
                             scrollX = T, 
@@ -627,7 +627,7 @@ shinyServer(function(input, output, session){
                       extensions = 'Buttons',
                       options=list(
                           order=list(3,"asc"),    
-                          lengthMenu=list(c(5,10,30,-1),c("5","10","30","All")),                           
+                          lengthMenu=list(c(-1,5,10,30),c("All","5","10","30")),                           
                           searching = FALSE,                          
                           scroller = TRUE,
                           scrollX = TRUE,                         
