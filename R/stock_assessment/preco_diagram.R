@@ -31,6 +31,7 @@ background<-function(Aminimum=0,Amaximum=6.5,Bminimum=1e-2,Bmaximum=1){
 #' @examples
 #' x11()
 #' trace_precodiag(extract_precodata())
+
 # TODO: offer the possibility to aggregate by country
 trace_precodiag = function(precodata, title = "Precautionary diagram per EMU")
 {

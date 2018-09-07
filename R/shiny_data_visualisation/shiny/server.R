@@ -35,29 +35,43 @@ server = function(input, output, session) {
   #####################
 # table 
   #####################
+  
+ 
   output$table = DT::renderDataTable({
-        filtered_data <- filter_data(input$dataset, 
-            life_stage = input$lfs, 
-            country = input$country, 
-            habitat = input$habitat,
-            year_range = input$year[1]:input$year[2])
+    if (input$dataset=="precodata"){
+      filtered_data<-get(input$dataset)
+    }else{
+
+      filtered_data <- filter_data(input$dataset, 
+                                   life_stage = input$lfs, 
+                                   country = input$country, 
+                                   habitat = input$habitat,
+                                   year_range = input$year[1]:input$year[2])
+          
+}
         # do not group by habitat or lfs
+    if (input$dataset=="precodata"){
+      table<-filtered_data
+    }else{
         grouped_data <-group_data(filtered_data,geo=input$geo,habitat=FALSE,lfs=FALSE)
+
         if (input$dataset %in% c("aquaculture","landings")) {
           fun.agg<-function(X){round(sum(X)/1000)}
         } else fun.agg <- sum
-        table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)  	
+        table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)  
+    
         #ordering the column accordign to country order
         country_to_order = names(table)[-1]
         n_order = order(country_ref$cou_order[match(country_to_order, country_ref$cou_code)])
         n_order <- n_order+1
         n_order <- c(1,n_order)
         table = table[, n_order]
+    }
         DT::datatable(table, 
             rownames = FALSE,
             extensions = c("Buttons","KeyTable"),
             option=list(
-                order=list(0,"asc"),
+               order=list(0,"asc"),
                 keys = TRUE,
                 pageLength = 10,
                 columnDefs = list(list(className = 'dt-center')),
@@ -66,11 +80,12 @@ server = function(input, output, session) {
                 dom= "Bltip", # from left to right button left f, t tableau, i informaiton (showing..), p pagination
                 buttons=list(
                     list(extend="excel",
-                        filename = paste0("data_",Sys.Date())))
+                       filename = paste0("data_",Sys.Date())))
             )) 
+ 
       })      
   
-  
+ 
   
   
   ######################################"
