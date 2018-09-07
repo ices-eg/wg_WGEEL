@@ -14,5 +14,5 @@ source("R/utilities/load_library.R")
 options(shiny.trace = TRUE)
 runApp(shiny_data_wd, 
     host= "0.0.0.0", 
-    port=1234,
+    port=1235,
     launch.browser = TRUE)
