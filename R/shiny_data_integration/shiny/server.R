@@ -250,7 +250,7 @@ shinyServer(function(input, output, session){
                             scrollX = TRUE,
                             scrollY = "500px",
                             order=list(3,"asc"),
-                            lengthMenu=list(c(5,20,50,-1),c("5","20","50","All")),
+                            lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
                             "pagelength"=-1,
                             dom= "Blfrtip",
                             buttons=list(
