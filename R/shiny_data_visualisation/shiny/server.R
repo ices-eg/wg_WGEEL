@@ -35,29 +35,43 @@ server = function(input, output, session) {
   #####################
 # table 
   #####################
+  
+ 
   output$table = DT::renderDataTable({
-        filtered_data <- filter_data(input$dataset, 
-            life_stage = input$lfs, 
-            country = input$country, 
-            habitat = input$habitat,
-            year_range = input$year[1]:input$year[2])
+    if (input$dataset=="precodata"){
+      filtered_data<-get(input$dataset)
+    }else{
+
+      filtered_data <- filter_data(input$dataset, 
+                                   life_stage = input$lfs, 
+                                   country = input$country, 
+                                   habitat = input$habitat,
+                                   year_range = input$year[1]:input$year[2])
+          
+}
         # do not group by habitat or lfs
+    if (input$dataset=="precodata"){
+      table<-filtered_data
+    }else{
         grouped_data <-group_data(filtered_data,geo=input$geo,habitat=FALSE,lfs=FALSE)
+
         if (input$dataset %in% c("aquaculture","landings")) {
           fun.agg<-function(X){round(sum(X)/1000)}
         } else fun.agg <- sum
-        table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)  	
+        table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)  
+    
         #ordering the column accordign to country order
         country_to_order = names(table)[-1]
         n_order = order(country_ref$cou_order[match(country_to_order, country_ref$cou_code)])
         n_order <- n_order+1
         n_order <- c(1,n_order)
         table = table[, n_order]
+    }
         DT::datatable(table, 
             rownames = FALSE,
             extensions = c("Buttons","KeyTable"),
             option=list(
-                order=list(0,"asc"),
+               order=list(0,"asc"),
                 keys = TRUE,
                 pageLength = 10,
                 columnDefs = list(list(className = 'dt-center')),
@@ -66,11 +80,12 @@ server = function(input, output, session) {
                 dom= "Bltip", # from left to right button left f, t tableau, i informaiton (showing..), p pagination
                 buttons=list(
                     list(extend="excel",
-                        filename = paste0("data_",Sys.Date())))
+                       filename = paste0("data_",Sys.Date())))
             )) 
+ 
       })      
   
-  
+ 
   
   
   ######################################"
@@ -717,11 +732,22 @@ server = function(input, output, session) {
                         size = 12,
                         color = "#7f7f7f")
                     x <- list(
-                        title = "Year",
+                     
+                      title = "Year",
                         titlefont = f)
                     y <- list(
-                        title = "Values standardized by 1960-1979 pred",
+                      zeroline = FALSE,
+                      showgrid = FALSE,
+                        title = paste("Values standardized by 1960-1979 pred for the", the_area,"serie"),
                         titlefont = f)
+                    ay <- list(
+                      zeroline = FALSE,
+                      showgrid = FALSE,
+                      tickfont = list(color = "blue"),
+                      overlaying = "y",
+                      side = "right",
+                      title = paste("Values standardized by 1960-1979 pred for the", the_name,"serie"),
+                      titlefont = f)
                     
                     # pal ending with numbers are not recognized by plot_ly
                     
@@ -730,6 +756,7 @@ server = function(input, output, session) {
                     # note the source argument is used to find this
                     # graph in eventdata
                     
+
                     
                     p <- plot_ly(the_series, 
                             x = ~ year, 
@@ -740,17 +767,21 @@ server = function(input, output, session) {
                             mode="lines+markers",
                             color = I("dodgerblue3"),
                             symbol = I('circle-open') ,
+                            yaxis = "y2",
                             marker = list(size = 12)) %>% 
-                        layout(title = the_title, xaxis = x, yaxis = y) %>%
+                        #layout(title = the_title, xaxis = x, yaxis = y, yaxis2=ay) %>%
                         add_trace(y = ~ geomean_p_std_1960_1979, 
                             name = the_area, 
                             color = I("gold"),
                             symbol=I('circle-dot'),
-                            marker = list(size = 10))
+                            yaxis = "y1",
+                            marker = list(size = 10)) %>%
+                    layout(title = the_title, xaxis = x, yaxis = y, yaxis2= ay,legend = list(x = 1.10, y = 1))
                     p$elementId <- NULL # a hack to remove warning : ignoring explicitly provided widget
                     p  
                   })
               
+              ##
               # Create a graph of residuals ---------------------------------------------------------   
               
               output$resid_recruitment_graph <- renderPlot({
