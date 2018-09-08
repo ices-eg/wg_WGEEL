@@ -30,19 +30,20 @@ extract_precodata = function(outer_join=TRUE){
 	
 	# merge data to have one data.frame
 	# TODO: handling habitat, ...
-	col_to_keep = c("eel_emu_nameshort","eel_hty_code", "eel_cou_code", "eel_year","eel_area_division", "eel_value")
-	precodata = merge(bcurrent[,col_to_keep], bbest[,col_to_keep], by = col_to_keep[-length(col_to_keep)], suffixes = c(".bcurrent", ".bbest"),all.x=outer_join,all.y=outer_join)
+	col_to_keep = c("eel_emu_nameshort", "eel_cou_code","eel_hty_code","eel_area_division", "eel_year", "eel_value")
+	#precodata = bcurrent[,col_to_keep]
+	precodata = merge(bcurrent[,col_to_keep], bbest[,col_to_keep], by = col_to_keep[-length(col_to_keep)], suffixes = c(".bcurrent", ".bbest"),all=outer_join)
 	n = names(precodata)
 	n[n=="eel_value.bcurrent"] = "bcurrent"
 	n[n == "eel_value.bbest"] = "bbest"
 	names(precodata) = n
-	precodata = merge(precodata, b0[,col_to_keep], by = col_to_keep[-length(col_to_keep)],all.x=outer_join,all.y=outer_join)
+	precodata = merge(precodata, b0[,col_to_keep], by = col_to_keep[-length(col_to_keep)],all=outer_join)
 	names(precodata) = c(names(precodata)[-length(precodata)], "b0")
-	precodata = merge(precodata, sigmaa[,col_to_keep], by = col_to_keep[-length(col_to_keep)],all.x=outer_join,all.y=outer_join)
+	precodata = merge(precodata, sigmaa[,col_to_keep], by = col_to_keep[-length(col_to_keep)],all=outer_join)
 	names(precodata) = c(names(precodata)[-length(precodata)], "suma")
-	precodata = merge(precodata, sigmaf[,col_to_keep], by = col_to_keep[-length(col_to_keep)],all.x=outer_join,all.y=outer_join)
+	precodata = merge(precodata, sigmaf[,col_to_keep], by = col_to_keep[-length(col_to_keep)],all=outer_join)
 	names(precodata) = c(names(precodata)[-length(precodata)], "sumf")
-	precodata = merge(precodata, sigmah[,col_to_keep], by = col_to_keep[-length(col_to_keep)],all.x=outer_join,all.y=outer_join)
+	precodata = merge(precodata, sigmah[,col_to_keep], by = col_to_keep[-length(col_to_keep)],all=outer_join)
 	names(precodata) = c(names(precodata)[-length(precodata)], "sumh")
 	return(precodata)
 }
