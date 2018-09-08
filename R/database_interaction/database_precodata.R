@@ -30,7 +30,7 @@ extract_precodata = function(outer_join=TRUE){
 	
 	# merge data to have one data.frame
 	# TODO: handling habitat, ...
-	col_to_keep = c("eel_emu_nameshort", "eel_cou_code","eel_hty_code","eel_area_division", "eel_year", "eel_value")
+	col_to_keep = c("eel_emu_nameshort", "eel_cou_code","eel_hty_code","eel_area_division", "eel_lfs_code","eel_year", "eel_value")
 	#precodata = bcurrent[,col_to_keep]
 	precodata = merge(bcurrent[,col_to_keep], bbest[,col_to_keep], by = col_to_keep[-length(col_to_keep)], suffixes = c(".bcurrent", ".bbest"),all=outer_join)
 	n = names(precodata)
