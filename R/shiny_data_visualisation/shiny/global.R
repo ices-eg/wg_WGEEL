@@ -210,45 +210,35 @@ agg_precodata<-function(dataset,geo="country",country=NULL,habitat=NULL, year_ra
  
    dataset2<-data.frame(dataset,sumht=dataset$sumh*dataset$bbest,sumat=dataset$suma*dataset$bbest,sumft=dataset$sumf*dataset$bbest)
   
-  if(!is.null(habitat)){
-   if (geo=="country"){
-
-    agg_data<-dataset2 %>% 
-      group_by(eel_cou_code,eel_year) %>% 
-      summarise(bcurrent = sum(bcurrent), bbest = sum(bbest), b0 = sum(b0) , 
-                sumA = sum(sumat)/sum(bbest, na.rm=T),sumF = sum(sumft)/sum(bbest, na.rm=T), 
-                sumH=sum(sumht)/sum(bbest, na.rm=T))
-    
-  }
-  else{
-    agg_data<-dataset2 %>% 
-      group_by(eel_emu_nameshort,eel_year) %>% 
-      summarise(bcurrent = sum(bcurrent), bbest = sum(bbest), b0 = sum(b0), 
-                sumA = sum(sumat)/sum(bbest, na.rm=T),sumF = sum(sumft)/sum(bbest, na.rm=T), 
-                sumH=sum(sumht)/sum(bbest, na.rm=T))
-    
-  }
-    
-  }else{
-    
-    if (geo=="country"){
-      
-      agg_data<-dataset2 %>% 
-        group_by(eel_cou_code,eel_year,eel_hty_code) %>% 
-        summarise(bcurrent = sum(bcurrent), bbest = sum(bbest), b0 = sum(b0) , 
-                  sumA = sum(sumat)/sum(bbest, na.rm=T),sumF = sum(sumft)/sum(bbest, na.rm=T), 
-                  sumH=sum(sumht)/sum(bbest, na.rm=T))
-      
-    }
-    else{
-      agg_data<-dataset2 %>% 
-        group_by(eel_emu_nameshort,eel_year,eel_hty_code) %>% 
-        summarise(bcurrent = sum(bcurrent), bbest = sum(bbest), b0 = sum(b0) , 
-                  sumA = sum(sumat)/sum(bbest, na.rm=T),sumF = sum(sumft)/sum(bbest, na.rm=T), 
-                  sumH=sum(sumht)/sum(bbest, na.rm=T))
-      
-    }   
-  } 
+   if(!is.null(habitat)){
+	   if (geo=="country"){
+		   agg_data<-dataset2 %>% 
+				   group_by(eel_cou_code,eel_year) %>% 
+				   summarise(bcurrent = sum(bcurrent), bbest = sum(bbest), b0 = sum(b0) , 
+						   sumA = sum(sumat)/sum(bbest, na.rm=T),sumF = sum(sumft)/sum(bbest, na.rm=T), 
+						   sumH=sum(sumht)/sum(bbest, na.rm=T))
+	   } else {
+		   agg_data<-dataset2 %>% 
+				   group_by(eel_emu_nameshort,eel_year) %>% 
+				   summarise(bcurrent = sum(bcurrent), bbest = sum(bbest), b0 = sum(b0), 
+						   sumA = sum(sumat)/sum(bbest, na.rm=T),sumF = sum(sumft)/sum(bbest, na.rm=T), 
+						   sumH=sum(sumht)/sum(bbest, na.rm=T))
+	   }
+   } else {
+	   if (geo=="country"){
+		   agg_data<-dataset2 %>% 
+				   group_by(eel_cou_code,eel_year,eel_hty_code) %>% 
+				   summarise(bcurrent = sum(bcurrent), bbest = sum(bbest), b0 = sum(b0) , 
+						   sumA = sum(sumat)/sum(bbest, na.rm=T),sumF = sum(sumft)/sum(bbest, na.rm=T), 
+						   sumH=sum(sumht)/sum(bbest, na.rm=T))
+	   } else {
+		   agg_data<-dataset2 %>% 
+				   group_by(eel_emu_nameshort,eel_year,eel_hty_code) %>% 
+				   summarise(bcurrent = sum(bcurrent), bbest = sum(bbest), b0 = sum(b0) , 
+						   sumA = sum(sumat)/sum(bbest, na.rm=T),sumF = sum(sumft)/sum(bbest, na.rm=T), 
+						   sumH=sum(sumht)/sum(bbest, na.rm=T))
+	   }   
+   } 
 
 
   return(agg_data)
