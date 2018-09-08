@@ -71,7 +71,7 @@ compare_with_database <- function(data_from_excel, data_from_base) {
   # Can't join on 'eel_area_division' x 'eel_area_division' because of incompatible
   # types (character / logical)
   data_from_excel$eel_area_division <- as.character(data_from_excel$eel_area_division)
-  
+  data_from_excel$eel_hty_code <- as.character(data_from_excel$eel_hty_code)
   eel_colnames <- colnames(data_from_base)[grepl("eel", colnames(data_from_base))]
   # duplicates are inner_join eel_cou_code added to the join just to avoid
   # duplication
