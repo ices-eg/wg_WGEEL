@@ -198,8 +198,8 @@ shinyServer(function(input, output, session){
                 "mortality_rates"={
                   data_from_base<-rbind(
                       extract_data("Sigma A"),
-                      extract_data("Sigma F"),
-                      extract_data("Sigma H"))
+                      extract_data("Sigma F all"),
+                      extract_data("Sigma H all"))
                 }                
             )
             # the compare_with_database function will compare
