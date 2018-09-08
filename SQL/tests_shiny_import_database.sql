@@ -16,3 +16,10 @@ update datawg.t_eelstock_eel set eel_qal_id = 1 where eel_qal_id=18;
 delete from datawg.t_eelstock_eel where eel_datasource='test' and eel_cou_code = 'VA';
 
 delete from datawg.log;
+
+
+select * from datawg.t_eelstock_eel where  eel_cou_code='IE' and eel_typ_id=4
+
+
+select * from datawg.t_eelstock_eel where  eel_cou_code='ES' and eel_datasource is null;
+update datawg.t_eelstock_eel set eel_datasource='dc_2018' where eel_cou_code='ES' and eel_datasource is null;
