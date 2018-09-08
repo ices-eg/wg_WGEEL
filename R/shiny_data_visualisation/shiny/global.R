@@ -215,7 +215,7 @@ agg_precodata<-function(dataset,geo="country",country=NULL,habitat=NULL, year_ra
 
     agg_data<-dataset2 %>% 
       group_by(eel_cou_code,eel_year) %>% 
-      summarise(bcurrent = sum(bcurrent, na.rm=TRUE), bbest = sum(bbest, na.rm=TRUE), b0 = sum(b0, na.rm=TRUE) , 
+      summarise(bcurrent = sum(bcurrent), bbest = sum(bbest), b0 = sum(b0) , 
                 sumA = sum(sumat)/sum(bbest, na.rm=T),sumF = sum(sumft)/sum(bbest, na.rm=T), 
                 sumH=sum(sumht)/sum(bbest, na.rm=T))
     
@@ -223,7 +223,7 @@ agg_precodata<-function(dataset,geo="country",country=NULL,habitat=NULL, year_ra
   else{
     agg_data<-dataset2 %>% 
       group_by(eel_emu_nameshort,eel_year) %>% 
-      summarise(bcurrent = sum(bcurrent, na.rm=TRUE), bbest = sum(bbest, na.rm=TRUE), b0 = sum(b0, na.rm=TRUE) , 
+      summarise(bcurrent = sum(bcurrent), bbest = sum(bbest), b0 = sum(b0), 
                 sumA = sum(sumat)/sum(bbest, na.rm=T),sumF = sum(sumft)/sum(bbest, na.rm=T), 
                 sumH=sum(sumht)/sum(bbest, na.rm=T))
     
@@ -235,7 +235,7 @@ agg_precodata<-function(dataset,geo="country",country=NULL,habitat=NULL, year_ra
       
       agg_data<-dataset2 %>% 
         group_by(eel_cou_code,eel_year,eel_hty_code) %>% 
-        summarise(bcurrent = sum(bcurrent, na.rm=TRUE), bbest = sum(bbest, na.rm=TRUE), b0 = sum(b0, na.rm=TRUE) , 
+        summarise(bcurrent = sum(bcurrent), bbest = sum(bbest), b0 = sum(b0) , 
                   sumA = sum(sumat)/sum(bbest, na.rm=T),sumF = sum(sumft)/sum(bbest, na.rm=T), 
                   sumH=sum(sumht)/sum(bbest, na.rm=T))
       
@@ -243,13 +243,14 @@ agg_precodata<-function(dataset,geo="country",country=NULL,habitat=NULL, year_ra
     else{
       agg_data<-dataset2 %>% 
         group_by(eel_emu_nameshort,eel_year,eel_hty_code) %>% 
-        summarise(bcurrent = sum(bcurrent, na.rm=TRUE), bbest = sum(bbest, na.rm=TRUE), b0 = sum(b0, na.rm=TRUE) , 
+        summarise(bcurrent = sum(bcurrent), bbest = sum(bbest), b0 = sum(b0) , 
                   sumA = sum(sumat)/sum(bbest, na.rm=T),sumF = sum(sumft)/sum(bbest, na.rm=T), 
                   sumH=sum(sumht)/sum(bbest, na.rm=T))
       
     }   
-    
-  }  
+  } 
+
+
   return(agg_data)
 }
 ##
