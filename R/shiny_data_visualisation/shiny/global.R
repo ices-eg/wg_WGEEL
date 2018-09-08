@@ -206,28 +206,50 @@ filter_precodata = function(dataset, country=NULL, habitat=NULL, year_range = 19
 
 ### an aggregate function for the precodata
 
-agg_precodata<-function(dataset,geo="country",country=NULL, year_range = 1900:2100){
+agg_precodata<-function(dataset,geo="country",country=NULL,habitat=NULL, year_range = 1900:2100){
+ 
+   dataset2<-data.frame(dataset,sumht=dataset$sumh*dataset$bbest,sumat=dataset$suma*dataset$bbest,sumft=dataset$sumf*dataset$bbest)
   
-  if (geo=="country"){
-    sumat<-NULL
-    sumht<-NULL
-    sumft<-NULL
-    for(i in 1:length(country)*length(year_range)){
-      sumat[i]<-sum(dataset$suma[i]*dataset$bbest[i], na.rm=TRUE)
-      sumht[i]<-sum(dataset$sumh[i]*dataset$bbest[i], na.rm=TRUE)
-      sumft[i]<-sum(dataset$sumf[i]*dataset$bbest[i], na.rm=TRUE)
-      
-    }
-    agg_data<-dataset %>% 
+  if(!is.null(habitat)){
+   if (geo=="country"){
+
+    agg_data<-dataset2 %>% 
       group_by(eel_cou_code,eel_year) %>% 
       summarise(bcurrent = sum(bcurrent, na.rm=TRUE), bbest = sum(bbest, na.rm=TRUE), b0 = sum(b0, na.rm=TRUE) , 
-                sumA = sum(sumat, na.rm=TRUE)/sum(bbest, na.rm=TRUE),sumF = sum(sumft, na.rm=TRUE)/sum(bbest, na.rm=TRUE), 
-                sumH=sum(sumht, na.rm=TRUE)/sum(bbest, na.rm=TRUE))
+                sumA = sum(sumat)/sum(bbest, na.rm=T),sumF = sum(sumft)/sum(bbest, na.rm=T), 
+                sumH=sum(sumht)/sum(bbest, na.rm=T))
     
   }
-  #else{
-   # agg_data<-aggregate(dataset, by=list(dataset$eel_year, dataset$eel_cou_code),FUN=sum, na.rm=TRUE) 
-  #}
+  else{
+    agg_data<-dataset2 %>% 
+      group_by(eel_emu_nameshort,eel_year) %>% 
+      summarise(bcurrent = sum(bcurrent, na.rm=TRUE), bbest = sum(bbest, na.rm=TRUE), b0 = sum(b0, na.rm=TRUE) , 
+                sumA = sum(sumat)/sum(bbest, na.rm=T),sumF = sum(sumft)/sum(bbest, na.rm=T), 
+                sumH=sum(sumht)/sum(bbest, na.rm=T))
+    
+  }
+    
+  }else{
+    
+    if (geo=="country"){
+      
+      agg_data<-dataset2 %>% 
+        group_by(eel_cou_code,eel_year,eel_hty_code) %>% 
+        summarise(bcurrent = sum(bcurrent, na.rm=TRUE), bbest = sum(bbest, na.rm=TRUE), b0 = sum(b0, na.rm=TRUE) , 
+                  sumA = sum(sumat)/sum(bbest, na.rm=T),sumF = sum(sumft)/sum(bbest, na.rm=T), 
+                  sumH=sum(sumht)/sum(bbest, na.rm=T))
+      
+    }
+    else{
+      agg_data<-dataset2 %>% 
+        group_by(eel_emu_nameshort,eel_year,eel_hty_code) %>% 
+        summarise(bcurrent = sum(bcurrent, na.rm=TRUE), bbest = sum(bbest, na.rm=TRUE), b0 = sum(b0, na.rm=TRUE) , 
+                  sumA = sum(sumat)/sum(bbest, na.rm=T),sumF = sum(sumft)/sum(bbest, na.rm=T), 
+                  sumH=sum(sumht)/sum(bbest, na.rm=T))
+      
+    }   
+    
+  }  
   return(agg_data)
 }
 ##
