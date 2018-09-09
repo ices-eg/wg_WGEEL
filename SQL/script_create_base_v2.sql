@@ -604,3 +604,58 @@ insert into datawg.tr_datasource_dts values ('wgeel_2017');
 
 ALTER TABLE datawg.t_eelstock_eel drop constraint c_uk_eelstock;
 ALTER TABLE datawg.t_eelstock_eel ADD CONSTRAINT c_uk_eelstock UNIQUE (eel_year,eel_lfs_code,eel_emu_nameshort,eel_typ_id,eel_hty_code,eel_area_division,eel_qal_id);
+
+
+---------------
+-- trigger which will save us all NO WRONG STAGE
+-----------------
+
+CREATE OR REPLACE FUNCTION datawg.check_the_stage()
+  RETURNS trigger AS
+$BODY$   
+
+ 	DECLARE nbwrongstages INTEGER ;
+
+ 	BEGIN
+ 	 	-- no wrong stages for landings biomass and mortalities
+ 	 	SELECT COUNT(*) INTO nbwrongstages
+ 	 	FROM   datawg.t_eelstock_eel
+ 	 	WHERE  NEW.eel_lfs_code in ('GY','OG','QG')
+ 	 	AND NEW.eel_typ_id in (4,5,6,7,10,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31) 	
+ 	 	;
+
+		
+ 	 	IF (nbwrongstages > 0) THEN
+ 	 	 	RAISE EXCEPTION 'Stage GY, OG or QG not authorized for this type' ;
+ 	 	END IF  ;
+
+		RETURN NEW ;
+ 	END  ;
+$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;
+
+
+
+-- DROP TRIGGER trg_check_the_stage ON datawg.t_eelstock_eel;
+
+CREATE TRIGGER trg_check_the_stage
+  AFTER INSERT OR UPDATE
+  ON datawg.t_eelstock_eel
+  FOR EACH ROW
+  EXECUTE PROCEDURE datawg.check_the_stage();
+
+  
+/* test
+ insert into datawg.t_eelstock_eel (eel_typ_id, eel_year,eel_emu_nameshort, eel_cou_code, eel_lfs_code, eel_qal_id,eel_value)
+ values(4,2020,'FR_Rhon','FR','OG',18,1)
+*/
+
+
+---------------
+-- trigger which will save us all
+-----------------
+
+
+  
+
