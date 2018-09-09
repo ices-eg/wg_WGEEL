@@ -240,6 +240,30 @@ shinyServer(function(input, output, session){
                             "If you see an error in old data, use panel datacorrection (on top of the application), this will allow you to make changes directly in the database <p>"                         
                         )))  
               }
+              
+              # table of number of duplicates values per year (hilaire)
+  
+              years=order(unique(c(duplicates$eel_year,new$eel_year)))
+              
+              summary_check_duplicates=data.frame(years=years,
+				  nb_new=sapply(years, function(y) length(which(new$eel_year==y))),
+				  nb_updated_duplicates=sapply(years,function(y) length(which(duplicates$eel_year==y & (duplicates$eel_value.base!=duplicates$eel_value.xls)))),
+				  nb_no_changes=sapply(years,function(y) length(which(duplicates$eel_year==y & (duplicates$eel_value.base==duplicates$eel_value.xls)))))
+			  
+              output$dt_check_duplicates <-DT::renderDataTable({                     
+                    datatable(summary_check_duplicates,
+                        rownames=FALSE,                                                    
+                        option=list(
+                            rownames = FALSE,
+                            scroller = TRUE,
+                            scrollX = TRUE,
+                            scrollY = "500px",
+                            order=list(3,"asc"),
+                            lengthMenu=list(c(5,20,50,-1),c("5","20","50","All")),
+                            "pagelength"=-1,
+                            dom= "Blfrtip"
+                        ))
+                  })
               output$dt_duplicates <-DT::renderDataTable({                     
                     datatable(duplicates,
                         rownames=FALSE,                                                    
@@ -257,7 +281,9 @@ shinyServer(function(input, output, session){
                                 list(extend="excel",
                                     filename = paste0("duplicates_",input$file_type,"_",Sys.Date(),current_cou_code))) 
                         ))
+                    
                   })
+              
               if (nrow(new)==0) {
                 output$"step1_message_new"<-renderUI(
                     HTML(
@@ -633,7 +659,7 @@ shinyServer(function(input, output, session){
                           scrollX = TRUE,                         
                           dom= "Blfrtip", # l length changing,  
                           buttons=list('copy',I('colvis')) 
-                       )
+                      )
                   )
                 })        
             

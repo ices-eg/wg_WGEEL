@@ -69,7 +69,7 @@ source("maps.R")
 load("../../../data/shapefiles/maps_for_shiny.Rdata") 
 habitat_ref <- extract_ref("Habitat type")
 lfs_code_base <- extract_ref("Life stage")
-lfs_code_base <- lfs_code_base[!lfs_code_base$lfs_code %in% c("OG","QG"),]
+#lfs_code_base <- lfs_code_base[!lfs_code_base$lfs_code %in% c("OG","QG"),]
 country_ref <- extract_ref("Country")
 country_ref <- country_ref[order(country_ref$cou_order), ]
 country_ref$cou_code <- factor(country_ref$cou_code, levels = country_ref$cou_code[order(country_ref$cou_order)], ordered = TRUE)
@@ -178,30 +178,55 @@ filter_data = function(dataset, typ=NULL, life_stage = NULL, country = NULL, hab
 }
 #filter_precodata filtre pour créer les jeux de données pour la table et le graphe de preco
 
-filter_precodata = function(dataset, country=NULL, habitat=NULL, year_range = 1900:2100){
+filter_precodata = function(dataset, country=NULL, habitat=NULL,lfs=NULL, year_range = 1900:2100){
   mydata <- get(dataset)
   
-  if (!is.null(country) & !is.null(habitat)){
-  filtered_data<-subset(mydata, eel_cou_code %in% country & eel_year %in% year_range & eel_hty_code %in% habitat)
+  if(!is.null(lfs)){
+    
+    if (!is.null(country) & !is.null(habitat)){
+      filtered_data<-subset(mydata, eel_cou_code %in% country & eel_lfs_code %in% lfs & eel_year %in% year_range & eel_hty_code %in% habitat)
+      
+    }
+    
+    if (!is.null(country) & is.null(habitat)){ 
+      filtered_data<-subset(mydata, eel_cou_code %in% country & eel_lfs_code %in% lfs & eel_year %in% year_range)
+      
+    }
+    
+    if (!is.null(habitat) & is.null(country)){
+      filtered_data<-subset(mydata, eel_year %in% year_range & eel_lfs_code %in% lfs & eel_hty_code %in% habitat)
+      #filtered_data <-aggregate(selection, by=list(selection$eel_year, selection$eel_cou_code),
+      #  FUN=mean, na.rm=TRUE)
+    }
+    if (is.null(country) & is.null(habitat)){
+      
+      filtered_data<-subset(mydata, eel_year %in% year_range & eel_lfs_code %in% lfs)
+      
+    }
+  }else{
+    if (!is.null(country) & !is.null(habitat)){
+      filtered_data<-subset(mydata, eel_cou_code %in% country & eel_year %in% year_range & eel_hty_code %in% habitat)
+      
+    }
+    
+    if (!is.null(country) & is.null(habitat)){ 
+      filtered_data<-subset(mydata, eel_cou_code %in% country & eel_year %in% year_range)
+      
+    }
+    
+    if (!is.null(habitat) & is.null(country)){
+      filtered_data<-subset(mydata, eel_year %in% year_range & eel_hty_code %in% habitat)
 
-  }
-  
-  if (!is.null(country) & is.null(habitat)){ 
-    filtered_data<-subset(mydata, eel_cou_code %in% country & eel_year %in% year_range)
+    }
+    if (is.null(country) & is.null(habitat)){
+      
+      filtered_data<-subset(mydata, eel_year %in% year_range)
+      
+    }    
     
   }
-  
-  if (!is.null(habitat) & is.null(country)){
-    filtered_data<-subset(mydata, eel_year %in% year_range & eel_hty_code %in% habitat)
-    #filtered_data <-aggregate(selection, by=list(selection$eel_year, selection$eel_cou_code),
-    #  FUN=mean, na.rm=TRUE)
-  }
-  if (is.null(country) & is.null(habitat)){
-    
-  filtered_data<-subset(mydata, eel_year %in% year_range)
-    
-  }
-  return(filtered_data)  
+
+return(filtered_data)  
 }
 
 ### an aggregate function for the precodata
@@ -210,45 +235,35 @@ agg_precodata<-function(dataset,geo="country",country=NULL,habitat=NULL, year_ra
  
    dataset2<-data.frame(dataset,sumht=dataset$sumh*dataset$bbest,sumat=dataset$suma*dataset$bbest,sumft=dataset$sumf*dataset$bbest)
   
-  if(!is.null(habitat)){
-   if (geo=="country"){
-
-    agg_data<-dataset2 %>% 
-      group_by(eel_cou_code,eel_year) %>% 
-      summarise(bcurrent = sum(bcurrent), bbest = sum(bbest), b0 = sum(b0) , 
-                sumA = sum(sumat)/sum(bbest, na.rm=T),sumF = sum(sumft)/sum(bbest, na.rm=T), 
-                sumH=sum(sumht)/sum(bbest, na.rm=T))
-    
-  }
-  else{
-    agg_data<-dataset2 %>% 
-      group_by(eel_emu_nameshort,eel_year) %>% 
-      summarise(bcurrent = sum(bcurrent), bbest = sum(bbest), b0 = sum(b0), 
-                sumA = sum(sumat)/sum(bbest, na.rm=T),sumF = sum(sumft)/sum(bbest, na.rm=T), 
-                sumH=sum(sumht)/sum(bbest, na.rm=T))
-    
-  }
-    
-  }else{
-    
-    if (geo=="country"){
-      
-      agg_data<-dataset2 %>% 
-        group_by(eel_cou_code,eel_year,eel_hty_code) %>% 
-        summarise(bcurrent = sum(bcurrent), bbest = sum(bbest), b0 = sum(b0) , 
-                  sumA = sum(sumat)/sum(bbest, na.rm=T),sumF = sum(sumft)/sum(bbest, na.rm=T), 
-                  sumH=sum(sumht)/sum(bbest, na.rm=T))
-      
-    }
-    else{
-      agg_data<-dataset2 %>% 
-        group_by(eel_emu_nameshort,eel_year,eel_hty_code) %>% 
-        summarise(bcurrent = sum(bcurrent), bbest = sum(bbest), b0 = sum(b0) , 
-                  sumA = sum(sumat)/sum(bbest, na.rm=T),sumF = sum(sumft)/sum(bbest, na.rm=T), 
-                  sumH=sum(sumht)/sum(bbest, na.rm=T))
-      
-    }   
-  } 
+   if(!is.null(habitat)){
+	   if (geo=="country"){
+		   agg_data<-dataset2 %>% 
+				   group_by(eel_cou_code,eel_year) %>% 
+				   summarise(bcurrent = sum(bcurrent), bbest = sum(bbest), b0 = sum(b0) , 
+						   sumA = sum(sumat)/sum(bbest, na.rm=T),sumF = sum(sumft)/sum(bbest, na.rm=T), 
+						   sumH=sum(sumht)/sum(bbest, na.rm=T))
+	   } else {
+		   agg_data<-dataset2 %>% 
+				   group_by(eel_emu_nameshort,eel_year) %>% 
+				   summarise(bcurrent = sum(bcurrent), bbest = sum(bbest), b0 = sum(b0), 
+						   sumA = sum(sumat)/sum(bbest, na.rm=T),sumF = sum(sumft)/sum(bbest, na.rm=T), 
+						   sumH=sum(sumht)/sum(bbest, na.rm=T))
+	   }
+   } else {
+	   if (geo=="country"){
+		   agg_data<-dataset2 %>% 
+				   group_by(eel_cou_code,eel_year,eel_hty_code) %>% 
+				   summarise(bcurrent = sum(bcurrent), bbest = sum(bbest), b0 = sum(b0) , 
+						   sumA = sum(sumat)/sum(bbest, na.rm=T),sumF = sum(sumft)/sum(bbest, na.rm=T), 
+						   sumH=sum(sumht)/sum(bbest, na.rm=T))
+	   } else {
+		   agg_data<-dataset2 %>% 
+				   group_by(eel_emu_nameshort,eel_year,eel_hty_code) %>% 
+				   summarise(bcurrent = sum(bcurrent), bbest = sum(bbest), b0 = sum(b0) , 
+						   sumA = sum(sumat)/sum(bbest, na.rm=T),sumF = sum(sumft)/sum(bbest, na.rm=T), 
+						   sumH=sum(sumht)/sum(bbest, na.rm=T))
+	   }   
+   } 
 
 
   return(agg_data)

@@ -212,6 +212,7 @@ server = function(input, output, session) {
         return(aquaculture)
       })
   output$graph_aquaculture <-  renderPlot({
+        aquaculture <- get_aquaculture()
         if (input$aquaculture_eel_typ_id == "ton") {
           title2 <- "Aquaculture weight (tons) for " 
           aquaculture$eel_value <- as.numeric(aquaculture$eel_value) / 1000
@@ -222,7 +223,7 @@ server = function(input, output, session) {
             "ton" = typ <-11,
             "n"  = typ <- 12)
         title <- paste(title2, "stages = ", paste(input$lfs,collapse="+"))
-        aquaculture <- get_aquaculture()
+
         aquaculture_graph(dataset=aquaculture,
             title=title,
             col=color_countries, 

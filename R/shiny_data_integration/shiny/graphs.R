@@ -33,7 +33,7 @@ duplicated_values_graph<-function (dataset)
   if (nrow(dataset)==0) return(NULL)
   dataset$kept <- "Not kept, eel_qal_id = 3 or 18 "
   dataset$kept[ dataset$eel_qal_id %in% c(1,2,4) ] <- "Kept, eel_qal_id = 1 (good), 2 (corrected) or 4 (dubious)"
-  grouped_dataset <- dataset %>% group_by(kept, eel_year) %>% summarize(eel_value=sum(eel_value),nobs=n())
+  grouped_dataset <- dataset %>% group_by(kept, eel_year) %>% summarize(eel_value=sum(eel_value,na.rm=TRUE),nobs=n())
   g <-ggplot(grouped_dataset)+geom_col(aes(x=eel_year,y=eel_value,fill=nobs), position='stack')+
           facet_grid(kept ~ . )+
           scale_fill_viridis()+

@@ -60,6 +60,7 @@ if(packageVersion("glue")<"1.2.0.9000"){
   devtools::install_github('tidyverse/glue')
 }
 
+source("../../utilities/load_library.R")
 source("../../database_interaction/database_connection.R")
 
 # Define pool handler by pool on global level
@@ -102,7 +103,7 @@ the_years <- dbGetQuery(pool, sqlInterpolate(ANSI(), query))
 query <- "SELECT name from datawg.participants"
 participants<- dbGetQuery(pool, sqlInterpolate(ANSI(), query))  
 
-source("../../utilities/load_library.R")
+
 source("../../utilities/loading_functions.R")
 source("../../utilities/check_utilities.R")
 source("../../database_interaction/database_data.R")
