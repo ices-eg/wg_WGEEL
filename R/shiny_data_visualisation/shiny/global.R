@@ -69,7 +69,7 @@ source("maps.R")
 load("../../../data/shapefiles/maps_for_shiny.Rdata") 
 habitat_ref <- extract_ref("Habitat type")
 lfs_code_base <- extract_ref("Life stage")
-lfs_code_base <- lfs_code_base[!lfs_code_base$lfs_code %in% c("OG","QG"),]
+#lfs_code_base <- lfs_code_base[!lfs_code_base$lfs_code %in% c("OG","QG"),]
 country_ref <- extract_ref("Country")
 country_ref <- country_ref[order(country_ref$cou_order), ]
 country_ref$cou_code <- factor(country_ref$cou_code, levels = country_ref$cou_code[order(country_ref$cou_order)], ordered = TRUE)
