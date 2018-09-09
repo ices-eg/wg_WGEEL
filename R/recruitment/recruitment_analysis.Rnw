@@ -1072,19 +1072,20 @@ save_figure("figure3withoutlogscale",figure3withoutlogscale,800,600)
 # and the dots are the bootstrap geommeans
 
 g<-ggplot(scaldata)
-g1<-g+geom_point(aes(x=year, y=value_std_1979_1994,colour=site,shape=lifestage),size=1.5)+
+g2<-g+geom_point(aes(x=year, y=value_std_1979_1994,colour=site,shape=lifestage),size=1.5)+
 	geom_line(aes(x=year, y=value_std_1979_1994,colour=site,lty=lifestage),size=0.4)+
 	ylab("scaled 1979-1994 values")+
 	geom_pointrange(data=bootscal,aes(x=year,y=geomean,ymin=ymin_geomean,ymax=ymax_geomean),size=0.5,colour="black")+
 	geom_line(data=scal,aes(x=year,y=mean),colour="#003366",size=1.2)+
 	theme(legend.position = "none")
 
-figure3withoutlogscale_opt2<-g1+scale_x_continuous(breaks=c(1900,1930,1950,1970,1980,1990,2000,2010),minor_breaks=seq(from=min(scaldata$year),to=max(scaldata$year),by=2))+
+figure3withoutlogscale_opt2<-g2+scale_x_continuous(breaks=c(1900,1930,1950,1970,1980,1990,2000,2010),minor_breaks=seq(from=min(scaldata$year),to=max(scaldata$year),by=2))+
 	scale_y_continuous(limits=c(0,10))+annotate("rect",xmin=1900,ymin=0,xmax=1960,ymax=10,fill="grey",alpha=0.5)
 x11()
 print(figure3withoutlogscale_opt2)
 dev.off()
 save_figure("figure3withoutlogscale",figure3withoutlogscale,800,600)
+save_figure("figure3withoutlogscale_opt2",figure3withoutlogscale_opt2,800,600)
 # scaldata[scaldata$year>2000&scaldata$value_std>1,]
 ########################################
 # FIGURE 3 WITH LOG SCALE
@@ -1114,8 +1115,9 @@ figure3bis<-g1+
 	annotate("rect",xmin=1900,ymin=0,xmax=1960,ymax=30,fill="grey",alpha=0.5)
 x11()
 print(figure3bis)
-# {{{{{{{{{{{{{{{{{{{{{{{{{
+
 save_figure(figname="figure3",figure3,800,600)
+save_figure(figname="figure3bis",figure3bis,800,600)
 
 ########################################
 # FIGURE 3 WITH LOG SCALE {{BLACK}}
