@@ -243,27 +243,19 @@ shinyServer(function(input, output, session){
               
               # table of number of duplicates values per year (hilaire)
   
-              years=order(unique(c(duplicates$eel_year,new$eel_year)))
+              years=sort(unique(c(duplicates$eel_year,new$eel_year)))
               
               summary_check_duplicates=data.frame(years=years,
-				  nb_new=sapply(years, function(y) length(which(new$eel_year==y))),
-				  nb_updated_duplicates=sapply(years,function(y) length(which(duplicates$eel_year==y & (duplicates$eel_value.base!=duplicates$eel_value.xls)))),
-				  nb_no_changes=sapply(years,function(y) length(which(duplicates$eel_year==y & (duplicates$eel_value.base==duplicates$eel_value.xls)))))
-			  
+                                                  nb_new=sapply(years, function(y) length(which(new$eel_year==y))),
+                                                  nb_updated_duplicates=sapply(years,function(y) length(which(duplicates$eel_year==y & (duplicates$eel_value.base!=duplicates$eel_value.xls)))),
+                                                  nb_no_changes=sapply(years,function(y) length(which(duplicates$eel_year==y & (duplicates$eel_value.base==duplicates$eel_value.xls)))))
+              
               output$dt_check_duplicates <-DT::renderDataTable({                     
-                    datatable(summary_check_duplicates,
-                        rownames=FALSE,                                                    
-                        option=list(
-                            rownames = FALSE,
-                            scroller = TRUE,
-                            scrollX = TRUE,
-                            scrollY = "500px",
-                            order=list(3,"asc"),
-                            lengthMenu=list(c(5,20,50,-1),c("5","20","50","All")),
-                            "pagelength"=-1,
-                            dom= "Blfrtip"
-                        ))
-                  })
+                datatable(summary_check_duplicates,
+                          rownames=FALSE,                                                    
+                          options=list(dom="t"
+                          ))
+              })
               output$dt_duplicates <-DT::renderDataTable({                     
                     datatable(duplicates,
                         rownames=FALSE,                                                    
