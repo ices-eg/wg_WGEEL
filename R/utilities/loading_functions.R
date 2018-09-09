@@ -42,15 +42,15 @@ load_catch_landings<-function(path,datasource){
       sheet =3,
       skip=0)
   country=as.character(data_xls[1,6])
-   data_xls <- correct_me(data_xls)
+  data_xls <- correct_me(data_xls)
 # check for the file integrity
   if (ncol(data_xls)!=13) cat(str_c("number column wrong, should have been 13 in file from ",country,"\n"))
   data_xls$eel_datasource <- datasource
 # check column names
   if (!all(colnames(data_xls)%in%
-                c("eel_typ_name","eel_year","eel_value","eel_missvaluequal","eel_emu_nameshort",
-                        "eel_cou_code", "eel_lfs_code", "eel_hty_code","eel_area_division",
-                        "eel_qal_id", "eel_qal_comment","eel_comment","eel_datasource"))) 
+          c("eel_typ_name","eel_year","eel_value","eel_missvaluequal","eel_emu_nameshort",
+              "eel_cou_code", "eel_lfs_code", "eel_hty_code","eel_area_division",
+              "eel_qal_id", "eel_qal_comment","eel_comment","eel_datasource"))) 
     cat(str_c("problem in column names",            
             paste(colnames(data_xls)[!colnames(data_xls)%in%
                         c("eel_typ_name", "eel_year","eel_value","eel_missvaluequal","eel_emu_nameshort",
@@ -214,6 +214,13 @@ load_catch_landings<-function(path,datasource){
             country=country,
             values=c("dc_2017","wgeel_2016","wgeel_2017","dc_2018")))
     
+    ###### freshwater shouldn't have area ########################
+    
+    data_error= rbind(data_error, check_freshwater_without_area(
+            dataset=data_xls,
+            country=country) 
+    )
+    
   }
   return(invisible(list(data=data_xls,error=data_error,the_metadata=the_metadata))) 
 }
@@ -256,7 +263,7 @@ load_release<-function(path,datasource){
       sheet =3,
       skip=0)
   country=as.character(data_xls[1,7])
-   data_xls <- correct_me(data_xls)
+  data_xls <- correct_me(data_xls)
   # check for the file integrity
   if (ncol(data_xls)!=11) cat(str_c("number of column wrong should have been 11 in the file for ",country,"\n"))
   data_xls$eel_qal_id <- NA
@@ -439,7 +446,7 @@ load_release<-function(path,datasource){
     release_tot<-release_tot[,c("eel_typ_name", "eel_year","eel_value","eel_missvaluequal","eel_emu_nameshort",
             "eel_cou_code", "eel_lfs_code", "eel_hty_code","eel_area_division",
             "eel_qal_id", "eel_qal_comment","eel_comment","eel_datasource")
-        ] 
+    ] 
     
 #    #Add "ND" in eel_missvaluequal if one value is still missing 
 #    for (i in 1:nrow(release_tot)) { 
@@ -447,6 +454,12 @@ load_release<-function(path,datasource){
 #        release_tot[i,"eel_missvaluequal"] <- "ND" 
 #      } 
 #    } 
+    ###### freshwater shouldn't have area ########################
+    
+    data_error= rbind(data_error, check_freshwater_without_area(
+                    dataset=data_xls,
+                    country=country) 
+    )
     
   }
   return(invisible(list(data=release_tot,error=data_error,the_metadata=the_metadata)))
@@ -492,7 +505,7 @@ load_aquaculture<-function(path,datasource){
       skip=0)
   data_xls <- correct_me(data_xls)
   country =as.character(data_xls[1,6])
-   # check for the file integrity
+  # check for the file integrity
   if (ncol(data_xls)!=10) cat(str_c("number column wrong ",file,"\n"))
   data_xls$eel_qal_id <- NA
   data_xls$eel_qal_comment <- NA
@@ -600,7 +613,12 @@ load_aquaculture<-function(path,datasource){
             country=country,
             values=c("G","GY","Y","YS","S","OG","QG","AL")))
     
+    ###### freshwater shouldn't have area ########################
     
+    data_error= rbind(data_error, check_freshwater_without_area(
+            dataset=data_xls,
+            country=country) 
+    ) 
   }
   return(invisible(list(data=data_xls,error=data_error)))
 }
@@ -792,6 +810,13 @@ load_biomass<-function(path,datasource){
             country=country,
             values=ices_division))
     
+    ###### freshwater shouldn't have area ########################
+    
+    data_error= rbind(data_error, check_freshwater_without_area(
+            dataset=data_xls,
+            country=country) 
+    )
+    
   }
   return(invisible(list(data=data_xls,error=data_error,the_metadata=the_metadata)))
 }
@@ -835,7 +860,7 @@ load_mortality_rates<-function(path,datasource){
       path=path,
       sheet=3,
       skip=0)
-   data_xls <- correct_me(data_xls)
+  data_xls <- correct_me(data_xls)
   country =as.character(data_xls[1,6]) #country code is in the 6th column
   # check for the file integrity, only 10 column in this file
   if (ncol(data_xls)!=10) cat(str_c("number column wrong, should have been 10 in template, country ",country,"\n"))
@@ -986,6 +1011,12 @@ load_mortality_rates<-function(path,datasource){
             column="eel_area_division",
             country=country,
             values=ices_division))
+    ###### freshwater shouldn't have area ########################
+    
+    data_error= rbind(data_error, check_freshwater_without_area(
+            dataset=data_xls,
+            country=country) 
+    )
     
   }
   return(invisible(list(data=data_xls,error=data_error,the_metadata=the_metadata)))
@@ -1030,7 +1061,7 @@ load_mortality_silver<-function(path,datasource){
       sheet=3,
       skip=0)
   country =as.character(data_xls[1,6]) #country code is in the 6th column
-   data_xls <- correct_me(data_xls)
+  data_xls <- correct_me(data_xls)
   # check for the file integrity, only 10 column in this file
   if (ncol(data_xls)!=10) cat(str_c("number column wrong, should have been 10 in file for country ",country,"\n"))
   # check column names
@@ -1179,6 +1210,13 @@ load_mortality_silver<-function(path,datasource){
             column="eel_area_division",
             country=country,
             values=ices_division))
+    
+    ###### freshwater shouldn't have area ########################
+    
+    data_error= rbind(data_error, check_freshwater_without_area(
+            dataset=data_xls,
+            country=country) 
+    )
     
   }
   return(invisible(list(data=data_xls,error=data_error,the_metadata=the_metadata)))
@@ -1340,9 +1378,14 @@ load_potential_available_habitat<-function(path,datasource){
             country=country,
             values=c("F","T","C","MO", "AL")))
     
-    ###### eel_area_div ##############
+
     
+    ###### freshwater shouldn't have area ########################
     
+    data_error= rbind(data_error, check_freshwater_without_area(
+            dataset=data_xls,
+            country=country) 
+    )
     
   }
   return(invisible(list(data=data_xls,error=data_error,the_metadata=the_metadata)))
@@ -1354,9 +1397,9 @@ correct_me <- function(data){
   if ("eel_value_number"%in%colnames(data)){
     # release file, different structure, do nothing
   } else {
-      colnames(data)[3] <-"eel_value"
-      colnames(data)[4] <-"eel_missvaluequal"
-      # correcting an error with typ_name
+    colnames(data)[3] <-"eel_value"
+    colnames(data)[4] <-"eel_missvaluequal"
+    # correcting an error with typ_name
   }
   if ("typ_name"%in% colnames(data))
     data<-data%>%rename(eel_typ_name=typ_name)  
