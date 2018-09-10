@@ -378,9 +378,11 @@ predict_missing_values <- function(landings, verbose=FALSE){
   landings2<-expand.grid("eel_year"=levels(landings$eel_year),"eel_cou_code"=levels(landings$eel_cou_code))
   landings2$pred=predict(glm_la,newdat=landings2,type="response")
   # BELOW WE REPLACE MISSING VALUES BY THE PREDICTED MODELLED
+  value_to_test = numeric(0)
+  
   for (y in unique(landings$eel_year)){
     for (c in levels(landings$eel_cou_code)){
-      if (!all(!landings$eel_year==y&landings$eel_cou_code==c)){ 
+      if (identical(landings[landings$eel_year==y&landings$eel_cou_code==c,"eel_value"],value_to_test)){ 
         # no data ==> replace by predicted
         landings2[landings2$eel_year==y&landings2$eel_cou_code==c,"eel_value"]<-round(exp(landings2[landings2$eel_year==y&landings2$eel_cou_code==c,"pred"]))
         landings2[landings2$eel_year==y&landings2$eel_cou_code==c,"predicted"]<-TRUE
