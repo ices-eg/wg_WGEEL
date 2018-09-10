@@ -24,3 +24,11 @@ FROM DATAWG.B0 where EEL_HTY_CODE not like '%AL%'  and EEL_MISSVALUEQUAL is null
 group by TYP_NAME, EEL_YEAR, EEL_COU_CODE, EEL_EMU_NAMESHORT, EEL_LFS_CODE  ) as emu 
 USING(TYP_NAME , EEL_YEAR, EEL_COU_CODE, EEL_EMU_NAMESHORT, EEL_LFS_CODE  )
 where total.b0 is not null and emu.b0 is not null;
+
+-- nb of B0 per country
+select TYP_NAME, EEL_COU_CODE, EEL_EMU_NAMESHORT, EEL_LFS_CODE, eel_hty_code, count(*) from datawg.b0
+group by TYP_NAME, EEL_COU_CODE, EEL_EMU_NAMESHORT, EEL_LFS_CODE, eel_hty_code
+having count(*) >1
+order by EEL_COU_CODE, EEL_EMU_NAMESHORT;
+
+select * from datawg.b0 where EEL_EMU_NAMESHORT = 'LT_total'

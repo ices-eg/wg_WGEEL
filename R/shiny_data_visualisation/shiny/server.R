@@ -40,9 +40,9 @@ server = function(input, output, session) {
   output$table = DT::renderDataTable({
         if (input$dataset=="precodata"){
           filtered_data<-filter_precodata(input$dataset,
-              life_stage = input$lfs, 
+              #lfs = input$lfs, 
               country = input$country,
-              habitat = input$habitat,
+              #habitat = input$habitat,
               year_range = input$year[1]:input$year[2]                                      
           )
         }else if (input$dataset == "com" | input$dataset == "com_corrected"){

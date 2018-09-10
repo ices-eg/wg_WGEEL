@@ -68,7 +68,7 @@ trace_precodiag = function(precodata, title = "Precautionary diagram per EMU")
 			geom_point(data=precodata,aes(x=pbiom,y=suma,size=bbest), colour = "pink",alpha=0.7)+ 
 			
 			annotate("text",x=precodata$pbiom,y=precodata$suma,
-					label=paste(precodata$eel_emu_nameshort, "-\'", substr(precodata$eel_year, 3, 4), sep = ""),size=3,hjust=0)+
+					label=paste(precodata$aggreg_area, "-\'", substr(precodata$eel_year, 3, 4), sep = ""),size=3,hjust=0)+
 			scale_size(name="B best (millions)",range = c(1, 25),limits=c(0,max(pretty(precodata$bbest))))+
 			annotate("text",x =  1, y = 0.92, label = "0.92",  parse = F, hjust=1,vjust=-1.1, size=3)+
 			annotate("text",x =  1, y = 0.92, label = "Alim",  parse = F, hjust=1,vjust=1.1, size=3)+
