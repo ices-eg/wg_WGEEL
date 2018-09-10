@@ -136,14 +136,25 @@ server = function(input, output, session) {
           }
           
           
-          table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)  
-          
-          #ordering the column accordign to country order
-          country_to_order = names(table)[-1]
-          n_order = order(country_ref$cou_order[match(country_to_order, country_ref$cou_code)])
-          n_order <- n_order+1
-          n_order <- c(1,n_order)
-          table = table[, n_order]
+          switch(input$geo,"country"={
+            table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)  
+    
+            #ordering the column accordign to country order
+            country_to_order = names(table)[-1]
+            n_order = order(country_ref$cou_order[match(country_to_order, country_ref$cou_code)])
+            n_order <- n_order+1
+            n_order <- c(1,n_order)
+            table = table[, n_order]},
+         "emu"={
+           table = dcast(grouped_data, eel_year~eel_emu_nameshort, value.var = "eel_value",fun.aggregate = fun.agg)  
+    
+            #ordering the column accordign to country order
+            country_to_order = names(table)[-1]
+            n_order = order(country_ref$cou_order[match(country_to_order, country_ref$cou_code)])
+            n_order <- n_order+1
+            n_order <- c(1,n_order)
+            table = table[, n_order]
+          })
         }
         DT::datatable(table, 
             rownames = FALSE,
