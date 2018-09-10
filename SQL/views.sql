@@ -74,6 +74,7 @@ CREATE OR REPLACE VIEW datawg.landings AS
     when t_eelstock_eel.eel_typ_id=7 then 6 
     when t_eelstock_eel.eel_typ_id=4 then 4 
     when t_eelstock_eel.eel_typ_id=6 then 6 
+    when t_eelstock_eel.eel_typ_id=33 then 33
          end as eel_typ_id,
     tr_typeseries_typ.typ_name,
     tr_typeseries_typ.typ_uni_code,
@@ -103,7 +104,7 @@ CREATE OR REPLACE VIEW datawg.landings AS
      LEFT JOIN ref.tr_typeseries_typ ON t_eelstock_eel.eel_typ_id = tr_typeseries_typ.typ_id
      LEFT JOIN ref.tr_habitattype_hty ON t_eelstock_eel.eel_hty_code::text = tr_habitattype_hty.hty_code::text
      LEFT JOIN ref.tr_emu_emu ON tr_emu_emu.emu_nameshort::text = t_eelstock_eel.eel_emu_nameshort::text AND tr_emu_emu.emu_cou_code = t_eelstock_eel.eel_cou_code::text
-  WHERE (t_eelstock_eel.eel_typ_id in (4,6,5,7)) 
+  WHERE (t_eelstock_eel.eel_typ_id in (4,6,5,7,33)) 
   AND (t_eelstock_eel.eel_qal_id in (1,2,4));
 
 
