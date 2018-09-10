@@ -485,7 +485,7 @@ shinyServer(function(input, output, session){
           selection = 'none',
           options=list(
               order=list(3,"asc"),              
-              searching = FALSE,
+              searching = TRUE,
               rownames = FALSE,
               scroller = TRUE,
               scrollX = TRUE,
