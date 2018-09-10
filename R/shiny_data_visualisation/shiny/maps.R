@@ -154,7 +154,7 @@ datacall_map<-function(
     
     # get scales (scales set on full dataset (from) a circle marker in pixel  --------------------
     
-    selected_emus$rescaled_value <-  scales::rescale(selected_emus$eel_value,to=c(0,100),from=range(ccall$eel_value)) 
+    selected_emus$rescaled_value <-  scales::rescale(selected_emus$eel_value,to=c(2,100),from=range(ccall$eel_value)) 
     
     # get palette and title-----------------------------------------------------------------------
     
