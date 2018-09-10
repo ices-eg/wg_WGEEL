@@ -653,9 +653,46 @@ CREATE TRIGGER trg_check_the_stage
 
 
 ---------------
--- trigger which will save us all
+-- trigger to refuse eel_area_division 
 -----------------
 
 
-  
+CREATE OR REPLACE FUNCTION datawg.check_no_ices_area()
+  RETURNS trigger AS
+$BODY$   
 
+ 	DECLARE nbareadivisionF INTEGER ;
+
+ 	BEGIN
+ 	 	-- no wrong stages for landings biomass and mortalities
+ 	 	SELECT COUNT(*) INTO nbareadivisionF
+ 	 	FROM   datawg.t_eelstock_eel
+ 	 	WHERE  NEW.eel_area_division is not null
+ 	 	AND  NEW.eel_hty_code = 'F'
+ 	 	;
+
+		
+ 	 	IF (nbareadivisionF > 0) THEN
+ 	 	 	RAISE EXCEPTION 'eel_area_division should be NULL in Freshwater' ;
+ 	 	END IF  ;
+
+		RETURN NEW ;
+ 	END  ;
+$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;
+
+
+
+-- DROP TRIGGER trg_check_no_ices_area ON datawg.t_eelstock_eel;
+
+CREATE TRIGGER trg_check_no_ices_area
+  AFTER INSERT OR UPDATE
+  ON datawg.t_eelstock_eel
+  FOR EACH ROW
+  EXECUTE PROCEDURE datawg.check_no_ices_area();
+
+/* test
+ insert into datawg.t_eelstock_eel (eel_typ_id, eel_year,eel_emu_nameshort, eel_cou_code, eel_area_division, eel_lfs_code, eel_qal_id,eel_value,eel_hty_code)
+ values(4,2020,'FR_Rhon','FR','27.9.a','Y',18,1,'F')
+*/
