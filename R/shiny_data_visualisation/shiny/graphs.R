@@ -30,7 +30,7 @@ combined_landings_graph<-function (dataset, title=NULL , col , country_ref)
   dataset<-rename(dataset,"Country"="eel_cou_code")  
   ### To order the table by cou_code (geographical position)
   dataset$Country<-factor(dataset$Country,levels=country_ref$cou_code,ordered=TRUE)
-  
+  #landings_year <- dataset
   landings_year<-aggregate(eel_value~eel_year, dataset, sum)
   #########################
   # graph
