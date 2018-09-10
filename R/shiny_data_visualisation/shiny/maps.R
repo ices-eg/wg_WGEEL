@@ -154,7 +154,7 @@ datacall_map<-function(
     
     # get scales (scales set on full dataset (from) a circle marker in pixel  --------------------
     
-    selected_emus$rescaled_value <-  scales::rescale(selected_emus$eel_value,to=c(0,100),from=range(ccall$eel_value)) 
+    selected_emus$rescaled_value <-  scales::rescale(selected_emus$eel_value,to=c(2,100),from=range(ccall$eel_value))
     
     # get palette and title-----------------------------------------------------------------------
     
@@ -238,7 +238,8 @@ recruitment_map <- function(R_stations, statseries, wger){
   color_pal <- colorFactor(c("#FEE301","#B0E44B","#00AAB6") , mrd$ser_lfs_code) 
   
   # Get popup ------------------------------------------------------------------------------------
-  
+  mrd$ser_x=jitter(mrd$ser_x,5)
+  mrd$ser_y=jitter(mrd$ser_y,5)
   mrd$label<-sprintf('<strong>%s %s</strong> </br>
            years : <font color="blue">%i-%i</font> </br>
            name : %s </br>
