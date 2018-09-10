@@ -44,7 +44,7 @@ total.landings as t_landings, total.nb as t_nb, emu.landings as e_landings, emu.
 FROM DATAWG.LANDINGS where EEL_LFS_CODE like '%AL%' and EEL_MISSVALUEQUAL is null
 group by TYP_NAME, EEL_YEAR, EEL_COU_CODE, EEL_EMU_NAMESHORT, EEL_HTY_CODE  ) as total full outer JOIN
 (SELECT TYP_NAME , EEL_YEAR, EEL_COU_CODE, EEL_EMU_NAMESHORT, EEL_HTY_CODE  , sum(EEL_VALUE) as landings, COUNT(*) as nb
-FROM DATAWG.LANDINGS where EEL_LFS_CODE not like '%ALl%'  and EEL_MISSVALUEQUAL is null
+FROM DATAWG.LANDINGS where EEL_LFS_CODE not like '%AL%'  and EEL_MISSVALUEQUAL is null
 group by TYP_NAME, EEL_YEAR, EEL_COU_CODE, EEL_EMU_NAMESHORT, EEL_HTY_CODE  ) as emu 
 USING(TYP_NAME , EEL_YEAR, EEL_COU_CODE, EEL_EMU_NAMESHORT, EEL_HTY_CODE  )
 where total.landings is not null and emu.landings is not null;

@@ -44,7 +44,7 @@ total.aquaculture as t_aquaculture, total.nb as t_nb, emu.aquaculture as e_aquac
 FROM DATAWG.AQUACULTURE where EEL_LFS_CODE like '%AL%' and EEL_MISSVALUEQUAL is null
 group by TYP_NAME, EEL_YEAR, EEL_COU_CODE, EEL_EMU_NAMESHORT, EEL_HTY_CODE  ) as total full outer JOIN
 (SELECT TYP_NAME , EEL_YEAR, EEL_COU_CODE, EEL_EMU_NAMESHORT, EEL_HTY_CODE  , sum(EEL_VALUE) as aquaculture, COUNT(*) as nb
-FROM DATAWG.AQUACULTURE where EEL_LFS_CODE not like '%ALl%'  and EEL_MISSVALUEQUAL is null
+FROM DATAWG.AQUACULTURE where EEL_LFS_CODE not like '%AL%'  and EEL_MISSVALUEQUAL is null
 group by TYP_NAME, EEL_YEAR, EEL_COU_CODE, EEL_EMU_NAMESHORT, EEL_HTY_CODE  ) as emu 
 USING(TYP_NAME , EEL_YEAR, EEL_COU_CODE, EEL_EMU_NAMESHORT, EEL_HTY_CODE  )
 where total.aquaculture is not null and emu.aquaculture is not null;

@@ -44,7 +44,7 @@ total.releases as t_releases, total.nb as t_nb, emu.releases as e_releases, emu.
 FROM DATAWG.RELEASE where EEL_LFS_CODE like '%AL%' and EEL_MISSVALUEQUAL is null
 group by TYP_NAME, EEL_YEAR, EEL_COU_CODE, EEL_EMU_NAMESHORT, EEL_HTY_CODE  ) as total full outer JOIN
 (SELECT TYP_NAME , EEL_YEAR, EEL_COU_CODE, EEL_EMU_NAMESHORT, EEL_HTY_CODE  , sum(EEL_VALUE) as releases, COUNT(*) as nb
-FROM DATAWG.RELEASE where EEL_LFS_CODE not like '%ALl%'  and EEL_MISSVALUEQUAL is null
+FROM DATAWG.RELEASE where EEL_LFS_CODE not like '%AL%'  and EEL_MISSVALUEQUAL is null
 group by TYP_NAME, EEL_YEAR, EEL_COU_CODE, EEL_EMU_NAMESHORT, EEL_HTY_CODE  ) as emu 
 USING(TYP_NAME , EEL_YEAR, EEL_COU_CODE, EEL_EMU_NAMESHORT, EEL_HTY_CODE  )
 where total.releases is not null and emu.releases is not null;
