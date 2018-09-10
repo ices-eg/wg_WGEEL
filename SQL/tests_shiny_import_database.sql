@@ -131,4 +131,85 @@ and d.eel_qal_id =1
 commit;
 
 
-select 
+select  *  from datawg.t_eelstock_eel  where eel_cou_code = 'ES'  and eel_typ_id in (11,12) and eel_lfs_code='OG' order by eel_emu_nameshort, eel_year ;
+
+
+
+----GB YS
+
+select * from datawg.t_eelstock_eel  where  eel_lfs_code='GY' 
+-- there are just 0 all stages, remove them
+select * from datawg.t_eelstock_eel  where  eel_lfs_code='GY' and eel_cou_code='IE' and eel_typ_id=6;
+begin;
+delete from datawg.t_eelstock_eel  where  eel_lfs_code='GY' and eel_cou_code='IE' and eel_typ_id=6; --24
+commit;
+
+delete from 
+
+
+select * from datawg.t_eelstock_eel  where eel_cou_code = 'ES'  and eel_typ_id in (11,12) and eel_hty_code='F' and eel_area_division is not null order by eel_emu_nameshort, eel_year ;
+begin;
+update datawg.t_eelstock_eel set (eel_qal_id,eel_qal_comment)=(18, 'removed as duplicated') where eel_cou_code = 'ES'  and eel_typ_id in (11,12) and eel_hty_code='F' and eel_area_division is not null  ;
+commit;
+
+
+select count(*), eel_datasource,eel_qal_id from datawg.t_eelstock_eel group by eel_datasource, eel_qal_id order by eel_datasource
+
+begin;
+delete from datawg.t_eelstock_eel where eel_datasource='test0';
+commit;
+
+
+set search_path to datawg, ref, public;
+select * from t_eelstock_eel where eel_year>2012 
+	and eel_emu_nameshort='GR_total'
+	and eel_typ_id= 4
+
+begin;
+update t_eelstock_eel set eel_value=10*eel_value
+	where eel_year<=2012 
+	and eel_emu_nameshort='GR_total'
+	and eel_typ_id= 4;
+commit;
+
+begin;
+update  t_eelstock_eel set (eel_qal_id, eel_qal_comment) =(18,'duplicate with EMUs')
+	where eel_year>2012 
+	and eel_emu_nameshort='GR_total'
+	and eel_typ_id= 4;	
+commit;	
+
+
+
+
+begin;
+update t_eelstock_eel a set (eel_qal_id, eel_qal_comment) =(18,'duplicates about area division') where eel_id in (
+ select eel_id from t_eelstock_eel where
+ eel_year>=2013 and
+ eel_typ_id=4 and 
+ eel_cou_code='GR' and
+ eel_area_division is null
+ and eel_qal_id=1);
+ commit;
+
+
+ select * from t_eelstock_eel where eel_year=2017 and eel_typ_id=4 and eel_cou_code='GR'
+
+
+
+	
+------------delete biomasses for GR_tot
+
+begin;
+update  t_eelstock_eel set (eel_qal_id, eel_qal_comment) =(18,'duplicate with EMUs')
+ where eel_emu_nameshort='GR_total'
+ and eel_typ_id in (13,14,15);
+commit;
+
+ select * from t_eelstock_eel
+ where eel_cou_code='GR'
+ and eel_typ_id in (13,14,15)
+
+
+
+ select 
