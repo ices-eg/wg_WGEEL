@@ -275,10 +275,9 @@ server = function(input, output, session) {
   
   output$download_graph_raw_landings <- downloadHandler(filename = function() {
         paste("raw_landings", input$year[1], "-", input$year[2], ".png", sep = "")
-      }, content = function(file) {
-        title <- paste(title2, "stages = ", paste(input$lfs,collapse="+"), " and habitat =", paste(input$habitat,collapse="+"))
-        landings <- get_raw_landings()
-        ggsave(file, raw_landings_graph(dataset=landings,title=title,col=color_countries, country_ref=country_ref),
+      }, content = function(file) {       
+        ggsave(file, raw_landings_graph(dataset= get_raw_landings(),
+                title=paste(title2, "stages = ", paste(input$lfs,collapse="+"), " and habitat =", paste(input$habitat,collapse="+")),col=color_countries, country_ref=country_ref),
             device = "png", width = 20, height = 14, 
             units = "cm")
       })
