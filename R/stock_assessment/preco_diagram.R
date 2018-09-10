@@ -40,13 +40,14 @@ trace_precodiag = function(precodata, title = "Precautionary diagram per EMU")
 	mylimits=c(0,1000)
 	precodata$pSpR=exp(-precodata$suma)
 	precodata$pbiom=precodata$bcurrent/precodata$b0
-	if (any(precodata$bcurrent>precodata$b0)){
+	if (any(precodata$bcurrent>precodata$b0,na.rm=TRUE)){
 		cat("You  have Bbest larger than B0, you should check \n")
 		Bmaximum<-max(precodata$pbiom,na.rm=TRUE)
 	} else Bmaximum=1
+	if (any(is.na(precodata$b0))) cat("Be careful, at least some B0 are missing")
 	if (max(precodata$bbest,na.rm=TRUE)>mylimits[2]) mylimits[2]<-max(precodata$bbest,na.rm=TRUE)
 	if (all(is.na(precodata$pbiom))|all(is.na(precodata$pSpR))) errortext<-"Missing data" else errortext<-""
-	df<-background(Aminimum=0,Amaximum=max(5,pretty(max(precodata$suma))[2]),Bminimum=exp(-5),Bmaximum=Bmaximum)
+	df<-background(Aminimum=0,Amaximum=5,Bminimum=exp(-5),Bmaximum=Bmaximum)
 	######################
 	# Drawing the graphs
 	############################
@@ -62,7 +63,7 @@ trace_precodiag = function(precodata, title = "Precautionary diagram per EMU")
 					labels=c("","1%","5%","10%","","","40%","","","","","","100%"))+ 
 			scale_y_continuous(name=expression(paste(bold("Lifetime mortality")~ ~symbol("\123"),"A")),
 					limits=c(Aminimum, Amaximum)) +
-			geom_path(data = precodata,aes(x = pbiom, y = suma, group = eel_cou_code))+
+			#geom_path(data = precodata,aes(x = pbiom, y = suma, group = eel_cou_code))+
 			scale_color_discrete(guide = 'none') +
 			geom_point(data=precodata,aes(x=pbiom,y=suma,size=bbest), colour = "pink",alpha=0.7)+ 
 			
@@ -82,7 +83,6 @@ trace_precodiag = function(precodata, title = "Precautionary diagram per EMU")
 			annotate("text",x =  Bminimum, y = 4.6, label = "1% -",  parse = F, hjust=1, size=3)+
 			annotate("text",x =  Bminimum, y = Amaximum, label = "%SPR",  parse = F, hjust=1,vjust=-3,size=3,angle=90)+               
 			ggtitle(str_c(title))
-	if(pretty(max(precodata$suma))[2] > 4.6)   g = g +annotate("text",x =  Bminimum, y = 4.6, label = "1%",  parse = F, hjust=1, size=3) 
+	if(pretty(max(precodata$suma,na.rm=TRUE))[2] > 4.6)   g = g +annotate("text",x =  Bminimum, y = 4.6, label = "1%",  parse = F, hjust=1, size=3) 
 	return(g)
 }
-
