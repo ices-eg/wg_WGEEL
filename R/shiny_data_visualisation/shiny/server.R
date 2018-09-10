@@ -40,6 +40,7 @@ server = function(input, output, session) {
   output$table = DT::renderDataTable({
         if (input$dataset=="precodata"){
           filtered_data<-filter_precodata(input$dataset,
+              life_stage = input$lfs, 
               country = input$country,
               habitat = input$habitat,
               year_range = input$year[1]:input$year[2]                                      
@@ -47,6 +48,7 @@ server = function(input, output, session) {
         }else if (input$dataset == "com" | input$dataset == "com_corrected"){
           filtered_data<-filter_data("landings",
               typ = 4,
+              life_stage = input$lfs, 
               country = input$country,
               habitat = input$habitat,
               year_range = input$year[1]:input$year[2]                                      
@@ -55,6 +57,7 @@ server = function(input, output, session) {
         }else if (input$dataset == "rec" | input$dataset == "rec_corrected"){      
           filtered_data<-filter_data("landings",
               typ = 6,
+              life_stage = input$lfs, 
               country = input$country,
               habitat = input$habitat,
               year_range = input$year[1]:input$year[2]                                      
@@ -63,6 +66,7 @@ server = function(input, output, session) {
         }else if (input$dataset == "aquaculture_kg"){      
           filtered_data<-filter_data("aquaculture",
               typ = 11,
+              life_stage = input$lfs, 
               country = input$country,
               habitat = input$habitat,
               year_range = input$year[1]:input$year[2]                                      
@@ -71,6 +75,7 @@ server = function(input, output, session) {
         }  else if (input$dataset == "aquaculture_n"){      
           filtered_data<-filter_data("aquaculture",
               typ = 12,
+              life_stage = input$lfs, 
               country = input$country,
               habitat = input$habitat,
               year_range = input$year[1]:input$year[2]                                      
@@ -80,6 +85,7 @@ server = function(input, output, session) {
         }   else if (input$dataset == "release_kg"){      
           filtered_data<-filter_data("release",
               typ = 8,
+              life_stage = input$lfs, 
               country = input$country,
               habitat = input$habitat,
               year_range = input$year[1]:input$year[2]                                      
@@ -88,7 +94,8 @@ server = function(input, output, session) {
           
         }  else if (input$dataset == "release_n"){      
           filtered_data<-filter_data("release",
-              typ = 9,
+              typ = 9, 
+              life_stage = input$lfs, 
               country = input$country,
               habitat = input$habitat,
               year_range = input$year[1]:input$year[2]                                      
@@ -97,7 +104,8 @@ server = function(input, output, session) {
           
         }  else if (input$dataset == "gee"){      
           filtered_data<-filter_data("release",
-              typ = 10,
+              typ = 10,              
+              life_stage = input$lfs, 
               country = input$country,
               habitat = input$habitat,
               year_range = input$year[1]:input$year[2]                                      
@@ -182,6 +190,7 @@ server = function(input, output, session) {
   ######################################
   get_combined_landings <- eventReactive(input$combined_button,{
         filtered_data <- filter_data("landings", 
+            typ = as.numeric(input$combined_landings_eel_typ_id),
             life_stage = input$lfs, 
             country = input$country, 
             habitat = input$habitat,
@@ -249,6 +258,7 @@ server = function(input, output, session) {
         landings$eel_cou_code = as.factor(landings$eel_cou_code)        
         return(landings)
       })
+  
   output$graph_raw_landings <-  renderPlot({
         if (4 %in% (input$raw_landings_eel_typ_id) & 6%in%(input$raw_landings_eel_typ_id)) title2<-"Commercial and recreational landings for " else 
         if (4 %in% input$raw_landings_eel_typ_id) title2 <- "Commercial landings for " else
