@@ -450,6 +450,16 @@ server = function(input, output, session) {
         precodata_sel<-filter_data_reactive()        
         trace_precodiag(precodata_sel)
       })
+  output$download_precodata_graph=downloadHandler(filename = function() {
+        paste("preco_diag.png", sep = "")
+      }, content = function(file) {
+        ggsave(file, 
+            trace_precodiag(filter_data_reactive()),
+            device = "png", 
+            width = 20, 
+            height = 14, 
+            units = "cm")
+      })
   ######################################
 # MAP
   ######################################
@@ -945,4 +955,5 @@ server = function(input, output, session) {
                   }) 
             })
       })
+
 }
