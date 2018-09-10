@@ -127,7 +127,7 @@ server = function(input, output, session) {
           # table<-filtered_data
           #filtered_data
           
-        }else{
+        } else {
           grouped_data <-group_data(filtered_data,geo=input$geo,habitat=FALSE,lfs=FALSE)
           
           if (input$dataset %in% c("aquaculture","landings","com","rec","com_corrected" , "rec_corrected")) {
@@ -139,7 +139,7 @@ server = function(input, output, session) {
             validate(need(input$geo=="country","Predictions only done at the country level"))
             validate(need(length(unique(grouped_data$eel_cou_code))>1, "You need at least two country to run the model for predictions"))
             grouped_data$eel_cou_code = as.factor(grouped_data$eel_cou_code)                       
-            grouped_data <- predict_missing_values(grouped_data, verbose=FALSE) 
+            grouped_data <- predict_missing_values(grouped_data, verbose=FALSE, na.rm=FALSE) 
             
           }
           
@@ -196,7 +196,7 @@ server = function(input, output, session) {
             habitat = input$habitat,
             year_range = input$year[1]:input$year[2])        
         # do not group by habitat or lfs, there might be several lfs selected but all will be grouped
-        landings <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE)
+        landings <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=FALSE)
         landings$eel_value <- as.numeric(landings$eel_value) / 1000
         landings$eel_cou_code = as.factor(landings$eel_cou_code)                       
         pred_landings <- predict_missing_values(landings, verbose=FALSE) 

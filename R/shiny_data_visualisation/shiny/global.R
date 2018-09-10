@@ -290,7 +290,7 @@ agg_precodata<-function(dataset,geo="country",country=NULL,habitat=NULL, year_ra
 #'  \code{\link[dplyr]{group_by}}
 #' @rdname group_data
 #' @importFrom dplyr group_by
-group_data <- function(dataset, geo="country", habitat=FALSE, lfs=FALSE){
+group_data <- function(dataset, geo="country", habitat=FALSE, lfs=FALSE, na.rm = TRUE){
   if (!geo %in% c("country","emu")) stop ("geo should be country or emu")
   if (habitat & lfs){
     # filtered by habitat and lfs
@@ -298,12 +298,12 @@ group_data <- function(dataset, geo="country", habitat=FALSE, lfs=FALSE){
       # by country
       dataset <- dataset %>%
           dplyr::group_by(eel_cou_code,eel_year,eel_hty_code,eel_lfs_code) %>%
-	      summarize(eel_value=sum(eel_value,na.rm=TRUE))
+	      summarize(eel_value=sum(eel_value,na.rm=na.rm))
     } else {
       # by emu
       dataset <- dataset %>%
           dplyr::group_by(eel_emu_nameshort,eel_year,eel_hty_code,eel_lfs_code) %>%
-	      summarize(eel_value=sum(eel_value,na.rm=TRUE))
+	      summarize(eel_value=sum(eel_value,na.rm=na.rm))
       
     }
     
@@ -313,12 +313,12 @@ group_data <- function(dataset, geo="country", habitat=FALSE, lfs=FALSE){
       # by country
       dataset <- dataset %>%
           dplyr::group_by(eel_cou_code,eel_year,eel_hty_code) %>%
-	      summarize(eel_value=sum(eel_value,na.rm=TRUE))
+	      summarize(eel_value=sum(eel_value,na.rm=na.rm))
     } else {
       # by emu
       dataset <- dataset %>%
           dplyr::group_by(eel_emu_nameshort,eel_year,eel_hty_code) %>%
-	      summarize(eel_value=sum(eel_value,na.rm=TRUE))
+	      summarize(eel_value=sum(eel_value,na.rm=na.rm))
     }
     
   } else if (lfs) {
@@ -327,12 +327,12 @@ group_data <- function(dataset, geo="country", habitat=FALSE, lfs=FALSE){
       # by country
       dataset <- dataset %>%
           dplyr::group_by(eel_cou_code,eel_year,eel_lfs_code) %>%
-	      summarize(eel_value=sum(eel_value,na.rm=TRUE))
+	      summarize(eel_value=sum(eel_value,na.rm=na.rm))
     } else {
       # by emu
       dataset <- dataset %>%
           dplyr::group_by(eel_emu_nameshort,eel_year,eel_lfs_code) %>%
-	      summarize(eel_value=sum(eel_value,na.rm=TRUE))
+	      summarize(eel_value=sum(eel_value,na.rm=na.rm))
     }    
     
   } else {
@@ -341,12 +341,12 @@ group_data <- function(dataset, geo="country", habitat=FALSE, lfs=FALSE){
       # by country
       dataset <- dataset %>%
           dplyr::group_by(eel_cou_code,eel_year) %>%
-	      summarize(eel_value=sum(eel_value,na.rm=TRUE))
+	      summarize(eel_value=sum(eel_value,na.rm=na.rm))
     } else {
       # by emu
       dataset <- dataset %>%
           dplyr::group_by(eel_emu_nameshort,eel_year) %>%
-	      summarize(eel_value=sum(eel_value,na.rm=TRUE))
+	      summarize(eel_value=sum(eel_value,na.rm=na.rm))
       
     }
   }
@@ -371,11 +371,13 @@ group_data <- function(dataset, geo="country", habitat=FALSE, lfs=FALSE){
 #' @rdname predict_missing_values
 #' @export 
 predict_missing_values <- function(landings, verbose=FALSE){
+  landings <-as.data.frame(landings)
   landings$lvalue<-log(landings$eel_value+0.001) #introduce +0.001 to use 0 data
   landings$eel_year<-as.factor(landings$eel_year)
-  glm_la<-glm(lvalue~eel_year+eel_cou_code,data=landings)
+  landings$eel_cou_code <- as.factor(as.character(landings$eel_cou_code))
+  glm_la<-glm(lvalue~ eel_year + eel_cou_code, data=landings )
   if (verbose)  print(summary(glm_la)) # check fit
-  landings2<-expand.grid("eel_year"=levels(landings$eel_year),"eel_cou_code"=levels(landings$eel_cou_code))
+  landings2<-expand.grid("eel_year"=levels(landings$eel_year),"eel_cou_code"=glm_la$xlevels$eel_cou_code)
   landings2$pred=predict(glm_la,newdat=landings2,type="response")
   # BELOW WE REPLACE MISSING VALUES BY THE PREDICTED MODELLED
   value_to_test = numeric(0)
@@ -384,12 +386,13 @@ predict_missing_values <- function(landings, verbose=FALSE){
     for (c in levels(landings$eel_cou_code)){
       if (identical(landings[landings$eel_year==y&landings$eel_cou_code==c,"eel_value"],value_to_test)){ 
         # no data ==> replace by predicted
-        landings2[landings2$eel_year==y&landings2$eel_cou_code==c,"eel_value"]<-round(exp(landings2[landings2$eel_year==y&landings2$eel_cou_code==c,"pred"]))
-        landings2[landings2$eel_year==y&landings2$eel_cou_code==c,"predicted"]<-TRUE
+        landings2[landings2$eel_year == y & landings2$eel_cou_code == c,"eel_value"]<-round(exp(landings2[landings2$eel_year==y&landings2$eel_cou_code==c,"pred"]))
+        landings2[landings2$eel_year == y & landings2$eel_cou_code == c,"predicted"]<-TRUE
       } else {
         # use actual value
-        landings2[landings2$eel_year==y&landings2$eel_cou_code==c,"eel_value"]<-round(landings[landings$eel_year==y&landings$eel_cou_code==c,"eel_value"])
-        landings2[landings2$eel_year==y&landings2$eel_cou_code==c,"predicted"]<-FALSE
+
+        landings2[landings2$eel_year == y & landings2$eel_cou_code == c,"eel_value"]<-round(landings[landings$eel_year==y&landings$eel_cou_code==c,"eel_value"])
+        landings2[landings2$eel_year == y & landings2$eel_cou_code == c,"predicted"]<-FALSE
       }
     }
   }
