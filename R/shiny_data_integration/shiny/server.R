@@ -479,7 +479,8 @@ shinyServer(function(input, output, session){
       #
       output$table_cor <- DT::renderDataTable(
           rvs$data, 
-          rownames = FALSE, 
+          rownames = FALSE,
+          extensions = "Buttons",
           editable = TRUE, 
           selection = 'none',
           options=list(
