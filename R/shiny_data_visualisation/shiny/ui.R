@@ -39,7 +39,7 @@ ui = dashboardPage(title="ICES Data Visualisation",
             
             sliderTextInput("year", "Year", 
                 choices=seq(from=min(landings$eel_year),to= CY,by=1),
-                selected=c(1980,CY-2)),
+                selected=c(1980,CY)),
             radioGroupButtons(
                 inputId = "geo",
                 label = "Scale", 
@@ -118,16 +118,6 @@ ui = dashboardPage(title="ICES Data Visualisation",
             # LANDINGS ------------------------------------------------------------------------------
             
 			tabItem(tabName="combined_landings_tab", 
-                fluidRow(                   
-                    column(width=2,  awesomeCheckboxGroup(
-                            inputId = "combined_landings_eel_typ_id",
-                            label = "Dataset",
-                            choices = c("com"=4,"rec"=6),
-                            selected=c("com"=4),
-                            status = "primary",
-                            inline=TRUE                                
-                        ))
-                ),
                 fluidRow(                    
                     column(width=10,plotOutput("graph_combined",height="800px")),
                     column(width=2,htmlOutput("graph_combined_description"),
