@@ -44,7 +44,7 @@ server = function(input, output, session) {
               habitat = input$habitat,
               year_range = input$year[1]:input$year[2]                                      
           )
-        }else if (input$dataset == "com" | input$dataset == "com_correct"){
+        }else if (input$dataset == "com" | input$dataset == "com_corrected"){
           filtered_data<-filter_data("landings",
               typ = 4,
               country = input$country,
@@ -52,13 +52,57 @@ server = function(input, output, session) {
               year_range = input$year[1]:input$year[2]                                      
           )      
           
-        }else if (input$dataset == "rec" | input$dataset == "rec_correct"){      
+        }else if (input$dataset == "rec" | input$dataset == "rec_corrected"){      
           filtered_data<-filter_data("landings",
               typ = 6,
               country = input$country,
               habitat = input$habitat,
               year_range = input$year[1]:input$year[2]                                      
           )      
+          
+        }else if (input$dataset == "aquaculture_kg"){      
+          filtered_data<-filter_data("aquaculture",
+              typ = 11,
+              country = input$country,
+              habitat = input$habitat,
+              year_range = input$year[1]:input$year[2]                                      
+          )      
+          
+        }  else if (input$dataset == "aquaculture_n"){      
+          filtered_data<-filter_data("aquaculture",
+              typ = 12,
+              country = input$country,
+              habitat = input$habitat,
+              year_range = input$year[1]:input$year[2]                                      
+          )      
+          
+          
+        }   else if (input$dataset == "release_kg"){      
+          filtered_data<-filter_data("release",
+              typ = 8,
+              country = input$country,
+              habitat = input$habitat,
+              year_range = input$year[1]:input$year[2]                                      
+          )      
+          
+          
+        }  else if (input$dataset == "release_n"){      
+          filtered_data<-filter_data("release",
+              typ = 9,
+              country = input$country,
+              habitat = input$habitat,
+              year_range = input$year[1]:input$year[2]                                      
+          )      
+          
+          
+        }  else if (input$dataset == "gee"){      
+          filtered_data<-filter_data("release",
+              typ = 10,
+              country = input$country,
+              habitat = input$habitat,
+              year_range = input$year[1]:input$year[2]                                      
+          )      
+          
           
         } else {
           
@@ -78,17 +122,17 @@ server = function(input, output, session) {
         }else{
           grouped_data <-group_data(filtered_data,geo=input$geo,habitat=FALSE,lfs=FALSE)
           
-          if (input$dataset %in% c("aquaculture","landings","com","rec","com_correct" , "rec_correct")) {
+          if (input$dataset %in% c("aquaculture","landings","com","rec","com_corrected" , "rec_corrected")) {
             fun.agg<-function(X){round(sum(X)/1000)}
           } else fun.agg <- sum
           
-          if (input$dataset == "com_correct" | input$dataset == "rec_correct"){
+          if (input$dataset == "com_corrected" | input$dataset == "rec_corrected"){
             
             validate(need(input$geo=="country","Predictions only done at the country level"))
             validate(need(length(unique(grouped_data$eel_cou_code))>1, "You need at least two country to run the model for predictions"))
             grouped_data$eel_cou_code = as.factor(grouped_data$eel_cou_code)                       
             grouped_data <- predict_missing_values(grouped_data, verbose=FALSE) 
-             
+            
           }
           
           

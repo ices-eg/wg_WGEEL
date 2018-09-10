@@ -104,7 +104,7 @@ ui = dashboardPage(title="ICES Data Visualisation",
                             radioGroupButtons(
                                 inputId = "dataset",
                                 label = "Dataset",
-                                choices = c("landings","aquaculture", "release", "precodata"),
+                                choices = c("landings","aquaculture_n", "aquaculture_kg", "release_kg", "release_n","gee", "precodata","com","rec","com_corrected","rec_corrected"),
                                 status = "primary",
                                 checkIcon = list(
                                     yes = icon("ok", 

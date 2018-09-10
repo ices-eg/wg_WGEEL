@@ -2,6 +2,8 @@
 # 
 # Authors: lbeaulaton Cedric
 ###############################################################################
+
+#setwd("C:\\Users\\cedric.briand\\Documents\\GitHub\\WGEEL\\")
 require("shiny")
 source("R/utilities/set_directory.R")
 

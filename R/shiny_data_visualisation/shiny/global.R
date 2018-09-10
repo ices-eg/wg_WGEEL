@@ -50,7 +50,7 @@ load_package("ggplot2") # for excel
 load_package("gridExtra")
 load_package("colorspace")
 # load functions ------------------------------------------------------------------------------------
-
+options()
 # retrieve reference tables needed
 # the shiny is launched from shiny_data_integration/shiny thus we need the ../
 jscode <- "shinyjs.closeWindow = function() { window.close(); }"
@@ -380,7 +380,7 @@ predict_missing_values <- function(landings, verbose=FALSE){
   # BELOW WE REPLACE MISSING VALUES BY THE PREDICTED MODELLED
   for (y in unique(landings$eel_year)){
     for (c in levels(landings$eel_cou_code)){
-      if (dim(landings[landings$eel_year==y&landings$eel_cou_code==c,"eel_value"])[1]==0){ 
+      if (!all(!landings$eel_year==y&landings$eel_cou_code==c)){ 
         # no data ==> replace by predicted
         landings2[landings2$eel_year==y&landings2$eel_cou_code==c,"eel_value"]<-round(exp(landings2[landings2$eel_year==y&landings2$eel_cou_code==c,"pred"]))
         landings2[landings2$eel_year==y&landings2$eel_cou_code==c,"predicted"]<-TRUE
