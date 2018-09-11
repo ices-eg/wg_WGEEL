@@ -481,7 +481,7 @@ shinyServer(function(input, output, session){
       # editable must be TRUE
       #
       output$table_cor <- DT::renderDataTable(
-          rvs$data, 
+          rvs$dbdata, 
           rownames = FALSE,
           extensions = "Buttons",
           editable = TRUE, 
