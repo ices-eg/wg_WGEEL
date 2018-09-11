@@ -79,14 +79,13 @@ country_ref$cou_code <- factor(country_ref$cou_code, levels = country_ref$cou_co
 landings = extract_data("Landings")
 aquaculture = extract_data("Aquaculture")
 release = extract_data("Release")
-<<<<<<< HEAD
-precodata = extract_data("Precodata") # for tables
+
+precodata = extract_precodata() # for tables
 # 
-precodata_all = extract_data("Precodata_all") # for precodiagram
-=======
-precodata_country = extract_precodata()
-precodata_emu = extract_precodata(emu = TRUE)
->>>>>>> branch 'master' of https://github.com/ices-eg/wg_WGEEL.git
+precodata_all = extract_data("Precodata All") # for precodiagram
+
+
+
 
 # save(landings, aquaculture, release, precodata, habitat_ref, lfs_code_base, country_ref,  file= "../../../data/dataset.Rdata")
 # without connexion to a database use Rdata instead, ask to Cedric
