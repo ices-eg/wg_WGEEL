@@ -51,4 +51,3 @@ extract_precodata = function(){
 }
 
 
-extract_precodata_all <- function()
