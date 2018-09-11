@@ -80,7 +80,9 @@ landings = extract_data("Landings")
 aquaculture = extract_data("Aquaculture")
 release = extract_data("Release")
 precodata = extract_data("Precodata") # for tables
-precodataall = extract_data("Precodata_all")
+# 
+precodata_all = extract_data("Precodata_all") # for precodiagram
+
 # save(landings, aquaculture, release, precodata, habitat_ref, lfs_code_base, country_ref,  file= "../../../data/dataset.Rdata")
 # without connexion to a database use Rdata instead, ask to Cedric
 
