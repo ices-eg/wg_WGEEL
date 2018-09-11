@@ -379,7 +379,7 @@ group_data <- function(dataset, geo="country", habitat=FALSE, lfs=FALSE, na.rm =
 #' }
 #' @rdname predict_missing_values
 #' @export 
-predict_missing_values <- function(landings, verbose=FALSE){
+predict_missing_values <- function(landings, verbose=FALSE, na.rm=FALSE){
   landings <-as.data.frame(landings)
   landings$lvalue<-log(landings$eel_value+0.001) #introduce +0.001 to use 0 data
   landings$eel_year<-as.factor(landings$eel_year)

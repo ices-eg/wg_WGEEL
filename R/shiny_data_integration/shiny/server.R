@@ -481,7 +481,7 @@ shinyServer(function(input, output, session){
       # editable must be TRUE
       #
       output$table_cor <- DT::renderDataTable(
-          rvs$data, 
+          rvs$dbdata, 
           rownames = FALSE,
           extensions = "Buttons",
           editable = TRUE, 
@@ -571,8 +571,8 @@ shinyServer(function(input, output, session){
             div(
                 if (! rvs$dataSame) {
                       span(
-                          actionButton(inputId = "save", label = "Save",
-                              class = "btn-primary"),
+                          actionBttn(inputId = "save", label = "Save",
+                              style = "material-flat", color = "danger"),
                           actionButton(inputId = "cancel", label = "Cancel")
                       )
                     } else {
