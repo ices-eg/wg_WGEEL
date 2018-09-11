@@ -21,7 +21,7 @@ if(!exists("extract_data")) source("R/database_interaction/database_data.R")
 #' @rdname extract_precodata
 #' @export 
 #' 
-extract_precodata = function(){
+extract_precodata = function(outer_join=T){
 	b0 = extract_data("B0")
 	bbest = extract_data("Bbest")
 	bcurrent = extract_data("Bcurrent")
