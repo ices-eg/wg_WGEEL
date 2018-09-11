@@ -21,8 +21,8 @@ ui = dashboardPage(title="ICES Data Visualisation",
                 menuSubItem("Raw + cor",  tabName="combined_landings_tab"),
                 menuSubItem("Raw",  tabName="raw_landings_tab"),               
                 menuSubItem("Available Data",tabName="available_landings_tab")#,
-                #menuSubItem("Habitat average",tabName="average_landings_habitat_tab"),
-                #menuSubItem("Habitat sum",tabName="sum_landings_habitat_tab")
+            #menuSubItem("Habitat average",tabName="average_landings_habitat_tab"),
+            #menuSubItem("Habitat sum",tabName="sum_landings_habitat_tab")
             ),
             menuItem("Aquaculture", tabName="aquaculture_tab", icon=icon("bar-chart-o")),
             menuItem("Release", tabName="release_tab", icon=icon("bar-chart-o")),               
@@ -129,12 +129,12 @@ ui = dashboardPage(title="ICES Data Visualisation",
                             icon("refresh",lib="glyphicon")
                         ),
                         awesomeCheckboxGroup(
-                          inputId = "combined_landings_eel_typ_id",
-                          label = "Dataset",
-                          choices = c("com"=4,"rec"=6),
-                          selected=c("com"=4),
-                          status = "primary",
-                          inline=TRUE                                
+                                                      inputId = "combined_landings_eel_typ_id",
+                                                      label = "Dataset",
+                                                      choices = c("com"=4,"rec"=6),
+                                                      selected=c("com"=4),
+                                                      status = "primary",
+                                                      inline=TRUE                                
                         ),
                         bsTooltip(id= "combined_button", #  donne le lien vers n'importe quel input ou output
                             title = "Click to refresh / launch the graph",
@@ -214,25 +214,25 @@ ui = dashboardPage(title="ICES Data Visualisation",
                     )                
                 )
             ),
-			      
+			
             tabItem(tabName="available_landings_tab",
-                    column(width=10, plotOutput("graph_available",height="800px")),
-                    column(width=2,
-                           actionBttn(
-                             inputId = "available_landings_button",
-                             label = NULL,
-                             style = "simple", 
-                             color = "success",
-                             icon("refresh",lib="glyphicon")
-                           ),
-                           bsTooltip(id= "available_landings_button", #  donne le lien vers n'importe quel input ou output
-                                     title = "Click to refresh / launch the graph",
-                                     placement="top", # default bottom
-                                     trigger="hover", # hover focus click, hover default
-                                     options=NULL
-                           )
-                    
-                   )),
+                column(width=10, plotOutput("graph_available",height="800px")),
+                column(width=2,
+                    actionBttn(
+                        inputId = "available_landings_button",
+                        label = NULL,
+                        style = "simple", 
+                        color = "success",
+                        icon("refresh",lib="glyphicon")
+                    ),
+                    bsTooltip(id= "available_landings_button", #  donne le lien vers n'importe quel input ou output
+                        title = "Click to refresh / launch the graph",
+                        placement="top", # default bottom
+                        trigger="hover", # hover focus click, hover default
+                        options=NULL
+                    )
+                
+                )),
             tabItem(tabName="average_landings_habitat_tab"),
             tabItem(tabName="sum_landings_habitat_tab"),
             
@@ -259,10 +259,10 @@ ui = dashboardPage(title="ICES Data Visualisation",
                                 selected=c("ton"),
                                 status = "primary",
                                 checkIcon = list(
-                                          yes = icon("ok", 
-                                            lib = "glyphicon"),
-                                       no = icon("remove",
-                                           lib = "glyphicon"))                               
+                                    yes = icon("ok", 
+                                        lib = "glyphicon"),
+                                    no = icon("remove",
+                                        lib = "glyphicon"))                               
                             ))
                     )),
                 fluidRow(                    
@@ -364,7 +364,15 @@ ui = dashboardPage(title="ICES Data Visualisation",
             tabItem(tabName="precodata_tab",
                 fluidRow(                    
                     column(width=8,plotOutput("precodata_graph",height="800px")),
-                    column(width=4, 
+                    column(width=4,
+                        awesomeCheckboxGroup(
+                            inputId = "precodata_choice",
+                            label = "graph_choice",
+                            choices = c("emu","country","all"),
+                            selected=c("emu"),
+                            status = "danger",
+                            inline=TRUE                                
+                        ), 
                         actionBttn(
                             inputId = "precodata_button",
                             label = NULL,
