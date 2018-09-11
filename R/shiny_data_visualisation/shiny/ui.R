@@ -206,7 +206,25 @@ ui = dashboardPage(title="ICES Data Visualisation",
                     )                
                 )
             ),
-            tabItem(tabName="available_landings_tab"),
+			      
+            tabItem(tabName="available_landings_tab",
+                    column(width=10, plotOutput("graph_available",height="800px")),
+                    column(width=2,
+                           actionBttn(
+                             inputId = "available_landings_button",
+                             label = NULL,
+                             style = "simple", 
+                             color = "success",
+                             icon("refresh",lib="glyphicon")
+                           ),
+                           bsTooltip(id= "available_landings_button", #  donne le lien vers n'importe quel input ou output
+                                     title = "Click to refresh / launch the graph",
+                                     placement="top", # default bottom
+                                     trigger="hover", # hover focus click, hover default
+                                     options=NULL
+                           )
+                    
+                   )),
             tabItem(tabName="average_landings_habitat_tab"),
             tabItem(tabName="sum_landings_habitat_tab"),
             
