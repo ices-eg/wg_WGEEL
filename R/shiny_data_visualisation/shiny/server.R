@@ -487,6 +487,7 @@ server = function(input, output, session) {
         precodata_sel<-filter_data_reactive()        
         trace_precodiag(precodata_sel)
       })
+  
   output$download_precodata_graph=downloadHandler(filename = function() {
         paste("preco_diag.png", sep = "")
       }, content = function(file) {

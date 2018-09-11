@@ -297,3 +297,8 @@ update datawg.t_eelstock_eel set eel_lfs_code='QG' where eel_cou_code ='SE' and 
 commit;
 
  select * from datawg.t_eelstock_eel where eel_cou_code ='IE' and eel_typ_id in  (4) and eel_lfs_code='G'
+
+
+ begin;
+delete from datawg.t_eelstock_eel where eel_cou_code ='GR' and eel_typ_id in  (8,9,10) and eel_lfs_code='S' and eel_value is null;
+commit;

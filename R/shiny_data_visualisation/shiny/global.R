@@ -79,8 +79,13 @@ country_ref$cou_code <- factor(country_ref$cou_code, levels = country_ref$cou_co
 landings = extract_data("Landings")
 aquaculture = extract_data("Aquaculture")
 release = extract_data("Release")
-precodata_country = extract_precodata()
-precodata_emu = extract_precodata(emu = TRUE)
+
+precodata = extract_precodata() # for tables
+# 
+precodata_all = extract_data("Precodata All") # for precodiagram
+
+
+
 
 # save(landings, aquaculture, release, precodata, habitat_ref, lfs_code_base, country_ref,  file= "../../../data/dataset.Rdata")
 # without connexion to a database use Rdata instead, ask to Cedric
@@ -127,7 +132,7 @@ load("../../../data/recruitment_models.Rdata") # named model_ge_area and model_o
 #' @details In a previous version the selection was done using a generated expression contraining all
 #' elements of the argument (for instance if country=NULL then country=country_ref$cou_code), to generate
 #' all possible levels. In the new, more complicated version when NULL is passed then the argument is ignored
-#' of list we pass a list of quosures which is spliced using !!!
+#' if not null then we pass a list of quosures which is spliced using !!!
 #' @examples 
 #' \dontrun{
 #' filter_data(dataset='landings',life_stage = NULL, country = NULL, habitat=NULL, year_range=2010:2018)
