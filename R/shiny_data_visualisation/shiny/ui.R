@@ -373,6 +373,15 @@ ui = dashboardPage(title="ICES Data Visualisation",
                             status = "danger",
                             inline=TRUE                                
                         ), 
+                        switchInput(
+                            inputId = "button_precodata_last_year",
+                            onLabel = "last year",
+                            offLabel = "all", 
+                            onStatus = "success", 
+                            offStatus = "warning",
+                            size = "default",                           
+                            value = FALSE
+                        ),
                         actionBttn(
                             inputId = "precodata_button",
                             label = NULL,

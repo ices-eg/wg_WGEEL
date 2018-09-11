@@ -477,7 +477,7 @@ server = function(input, output, session) {
 # not on any of the stuff inside the function
   filter_data_reactive <- eventReactive(input$precodata_button,{
         return(filter_data(
-                dataset = "precodata", 
+                dataset = "precodata_all", 
                 life_stage = NULL, 
                 country = input$country, 
                 year_range = input$year[1]:input$year[2]))    
@@ -485,7 +485,9 @@ server = function(input, output, session) {
   
   output$precodata_graph<- renderPlot({
         precodata_sel<-filter_data_reactive()        
-        trace_precodiag(precodata_sel)
+        trace_precodiag(precodata_sel,
+            precodata_choice = input$precodata_choice,
+            last_year = input$button_precodata_last_year)
       })
   
   output$download_precodata_graph=downloadHandler(filename = function() {

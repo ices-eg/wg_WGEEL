@@ -32,13 +32,24 @@ background<-function(Aminimum=0,Amaximum=6.5,Bminimum=1e-2,Bmaximum=1){
 #' x11()
 #' trace_precodiag(extract_precodata())
 # TODO: offer the possibility to aggregate by country
-trace_precodiag = function(precodata, title = "Precautionary diagram per EMU",precodata_choice=c("emu","country","all"), last_year=true)
+trace_precodiag = function(precodata, 
+    title = NULL, 
+    precodata_choice=c("emu","country","all"), 
+    last_year=TRUE)
 {  
     ###############################
     # Data selection
     # this in done on precodata which is filtered by the app using filter_data
     #############################
+    if (last_year) precodata <- precodata[precodata$last_year==precodata$eel_year,]
     
+    if (length(precodata_choice) >1 ) title= "Precautionary diagram" else
+      switch(precodata_choice,
+          "emu"={title <- "Precautionary diagram for emu"},
+          "country"={title <- "Precautionary diagram for country"},
+          "all"={title <- "Precautionary diagram for all countries"},
+          )
+
 	############################
 	# Data for buble plot 
 	############################
@@ -56,7 +67,7 @@ trace_precodiag = function(precodata, title = "Precautionary diagram per EMU",pr
 	######################
 	# Drawing the graphs
 	############################
-
+    choose_label_for_plot <- precodata$aggreg_level!="emu"
 	g<-     ggplot(df)+
 			theme_bw()+
 			theme(legend.key = element_rect(colour = "white"))+
@@ -72,8 +83,8 @@ trace_precodiag = function(precodata, title = "Precautionary diagram per EMU",pr
 			scale_color_discrete(guide = 'none') +
 			geom_point(data=precodata,aes(x=pbiom,y=suma,size=bbest), colour = "pink",alpha=0.7)+ 
 			
-			annotate("text",x=precodata$pbiom,y=precodata$suma,
-					label=paste(precodata$aggreg_area, "-\'", substr(precodata$eel_year, 3, 4), sep = ""),size=3,hjust=0)+
+			annotate("text",x=precodata$pbiom[choose_label_for_plot],y=precodata$suma[choose_label_for_plot],
+					label=paste(precodata$aggreg_area[choose_label_for_plot], "-\'", substr(precodata$eel_year[choose_label_for_plot], 3, 4), sep = ""),size=3,hjust=0)+
 			scale_size(name="B best (millions)",range = c(1, 25),limits=c(0,max(pretty(precodata$bbest))))+
 			annotate("text",x =  1, y = 0.92, label = "0.92",  parse = F, hjust=1,vjust=-1.1, size=3)+
 			annotate("text",x =  1, y = 0.92, label = "Alim",  parse = F, hjust=1,vjust=1.1, size=3)+
