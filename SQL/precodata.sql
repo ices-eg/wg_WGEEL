@@ -64,9 +64,12 @@ select * from DATAWG.MORTALITY_SYNTHESIS;
 drop view if exists DATAWG.precodata_emu CASCADE;
 create or REPLACE view DATAWG.precodata_emu as
 select EEL_COU_CODE, EEL_EMU_NAMESHORT, EEL_EMU_NAMESHORT as aggreg_area, eel_year, b0, BIOMASS_SYNTHESIS.bbest, bcurrent, 
-round(case when BIOMASS_SYNTHESIS.bbest > 0 then sum(sab)/(BIOMASS_SYNTHESIS.bbest) ELSE NULL end, 2) as suma,
-round(case when BIOMASS_SYNTHESIS.bbest > 0 then sum(sfb)/(BIOMASS_SYNTHESIS.bbest) ELSE NULL end, 2) as sumf,
-round(case when BIOMASS_SYNTHESIS.bbest > 0 then sum(shb)/(BIOMASS_SYNTHESIS.bbest) ELSE NULL end, 2) as sumh,
+round(case when EEL_COU_CODE = 'IE' THEN sum(suma) -- solved case when suma in AL only (IE)
+	when BIOMASS_SYNTHESIS.bbest > 0 then sum(sab)/(BIOMASS_SYNTHESIS.bbest) ELSE NULL end, 2) as suma,
+round(case when EEL_COU_CODE = 'IE' THEN sum(sumf) -- solved case when suma in AL only (I
+	when BIOMASS_SYNTHESIS.bbest > 0 then sum(sfb)/(BIOMASS_SYNTHESIS.bbest) ELSE NULL end, 2) as sumf,
+round(case when EEL_COU_CODE = 'IE' THEN sum(sumh) -- solved case when suma in AL only (I
+	when BIOMASS_SYNTHESIS.bbest > 0 then sum(shb)/(BIOMASS_SYNTHESIS.bbest) ELSE NULL end, 2) as sumh,
 'emu' as aggreg_level
 from DATAWG.MORTALITY_SYNTHESIS left outer join DATAWG.BIOMASS_SYNTHESIS using(EEL_COU_CODE,EEL_EMU_NAMESHORT, eel_year)
 group by EEL_COU_CODE, EEL_EMU_NAMESHORT, eel_year, b0, BIOMASS_SYNTHESIS.bbest, bcurrent
