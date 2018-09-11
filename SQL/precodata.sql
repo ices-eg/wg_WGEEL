@@ -1,19 +1,27 @@
-drop view if exists DATAWG.biomass_synthesis;
+drop view if exists DATAWG.biomass_synthesis CASCADE;
 create or REPLACE view DATAWG.biomass_synthesis AS
 with B0_avg AS
 	(with B0_AL AS
-		(select EEL_COU_CODE, EEL_EMU_NAMESHORT, EEL_YEAR, sum(eel_value) from DATAWG.B0
+		(select EEL_COU_CODE, EEL_EMU_NAMESHORT, EEL_YEAR, 
+		case when count(eel_value)< COUNT(*) then null else SUM(eel_value) end -- by default sum of null and value is not a null value, this part correct that
+		from DATAWG.B0
 		group by EEL_COU_CODE,EEL_EMU_NAMESHORT, EEL_YEAR)
 	select EEL_COU_CODE,EEL_EMU_NAMESHORT, AVG(SUM) as b0_avg from B0_AL
 	group by EEL_COU_CODE,EEL_EMU_NAMESHORT),
 	B0_AL AS
-		(select EEL_COU_CODE,EEL_EMU_NAMESHORT, EEL_YEAR, sum(eel_value) as b0 from DATAWG.B0
+		(select EEL_COU_CODE,EEL_EMU_NAMESHORT, EEL_YEAR,
+		case when count(eel_value)< COUNT(*) then null else SUM(eel_value) end as b0-- by default sum of null and value is not a null value, this part correct that
+		from DATAWG.B0
 		group by EEL_COU_CODE,EEL_EMU_NAMESHORT, EEL_YEAR),
 	Bbest_AL AS
-		(select EEL_COU_CODE,EEL_EMU_NAMESHORT, EEL_YEAR, sum(eel_value) as bbest from DATAWG.Bbest
+		(select EEL_COU_CODE,EEL_EMU_NAMESHORT, EEL_YEAR, 
+		case when count(eel_value)< COUNT(*) then null else SUM(eel_value) end as bbest -- by default sum of null and value is not a null value, this part correct that
+		from DATAWG.Bbest
 		group by EEL_COU_CODE,EEL_EMU_NAMESHORT, EEL_YEAR), 
 	Bcurrent_AL as
-	(select EEL_COU_CODE,EEL_EMU_NAMESHORT, EEL_YEAR, sum(eel_value) as bcurrent from DATAWG.BCURRENT
+	(select EEL_COU_CODE,EEL_EMU_NAMESHORT, EEL_YEAR,
+	case when count(eel_value)< COUNT(*) then null else SUM(eel_value) end as bcurrent -- by default sum of null and value is not a null value, this part correct that 
+	from DATAWG.BCURRENT
 group by EEL_COU_CODE,EEL_EMU_NAMESHORT, EEL_YEAR)
 select EEL_COU_CODE,EEL_EMU_NAMESHORT, eel_year, COALESCE(b0, b0_avg) as b0, bbest, bcurrent from bcurrent_AL 
 join B0_avg using(EEL_COU_CODE,EEL_EMU_NAMESHORT) 
@@ -24,7 +32,10 @@ left OUTER join B0_AL using(EEL_COU_CODE,EEL_EMU_NAMESHORT, eel_year)
 SELECT * from DATAWG.BIOMASS_SYNTHESIS;
 
 -- aggregation at the country level
-SELECT EEL_COU_CODE, eel_year, SUM(B0) as B0, SUM(BBest) as Bbest, SUM(Bcurrent) as Bcurrent
+SELECT EEL_COU_CODE, eel_year, 
+case when count(B0)< COUNT(*) then null else SUM(B0) end as B0,
+case when count(Bbest)< COUNT(*) then null else SUM(Bbest) end as Bbest,
+case when count(Bcurrent)< COUNT(*) then null else SUM(Bcurrent) end as Bcurrent
 from DATAWG.BIOMASS_SYNTHESIS
 group by EEL_COU_CODE, eel_year;
 
@@ -47,27 +58,60 @@ left outer join bbest using(EEL_COU_CODE,EEL_EMU_NAMESHORT, eel_year, eel_hty_co
 select * from DATAWG.MORTALITY_SYNTHESIS;
 
 -- precodata at the emu level
-drop view if exists DATAWG.precodata_emu;
+drop view if exists DATAWG.precodata_emu CASCADE;
 create or REPLACE view DATAWG.precodata_emu as
 select EEL_COU_CODE, EEL_EMU_NAMESHORT, EEL_EMU_NAMESHORT as aggreg_area, eel_year, round(b0/1000) as b0, round(BIOMASS_SYNTHESIS.bbest/1000) as bbest, round(bcurrent/1000) as bcurrent, 
 round(case when BIOMASS_SYNTHESIS.bbest > 0 then sum(sab)/(BIOMASS_SYNTHESIS.bbest) ELSE NULL end, 2) as suma,
 round(case when BIOMASS_SYNTHESIS.bbest > 0 then sum(sfb)/(BIOMASS_SYNTHESIS.bbest) ELSE NULL end, 2) as sumf,
-round(case when BIOMASS_SYNTHESIS.bbest > 0 then sum(shb)/(BIOMASS_SYNTHESIS.bbest) ELSE NULL end, 2) as sumh
+round(case when BIOMASS_SYNTHESIS.bbest > 0 then sum(shb)/(BIOMASS_SYNTHESIS.bbest) ELSE NULL end, 2) as sumh,
+'emu' as aggreg_level
 from DATAWG.MORTALITY_SYNTHESIS left outer join DATAWG.BIOMASS_SYNTHESIS using(EEL_COU_CODE,EEL_EMU_NAMESHORT, eel_year)
 group by EEL_COU_CODE, EEL_EMU_NAMESHORT, eel_year, b0, BIOMASS_SYNTHESIS.bbest, bcurrent
 ;
 
+select * from DATAWG.PRECODATA_EMU;
+
 -- precodata at the country level
-drop view if exists DATAWG.precodata_country;
+drop view if exists DATAWG.precodata_country  cascade;
 create or REPLACE view DATAWG.precodata_country as
 with country_biomass as
-	(SELECT EEL_COU_CODE, eel_year, SUM(B0) as B0, SUM(BBest) as Bbest, SUM(Bcurrent) as Bcurrent
+	(SELECT EEL_COU_CODE, eel_year, 
+	case when count(B0)< COUNT(*) then null else SUM(B0) end as B0, -- by default sum of null and value is not a null value, this part correct that
+	case when count(BBest)< COUNT(*) then null else SUM(BBest) end as BBest, -- by default sum of null and value is not a null value, this part correct that
+	case when count(Bcurrent)< COUNT(*) then null else SUM(Bcurrent) end as Bcurrent-- by default sum of null and value is not a null value, this part correct that
 	from DATAWG.BIOMASS_SYNTHESIS
 	group by EEL_COU_CODE, eel_year)
-select EEL_COU_CODE, EEL_COU_CODE as aggreg_area, eel_year, round(b0/1000) as b0, round(country_biomass.bbest/1000) as bbest, round(bcurrent/1000) as bcurrent, 
+select EEL_COU_CODE, null EEL_EMU_NAMESHORT, EEL_COU_CODE as aggreg_area, eel_year, round(b0/1000) as b0, round(country_biomass.bbest/1000) as bbest, round(bcurrent/1000) as bcurrent, 
 round(case when country_biomass.bbest > 0 then sum(sab)/(country_biomass.bbest) ELSE NULL end, 2) as suma,
 round(case when country_biomass.bbest > 0 then sum(sfb)/(country_biomass.bbest) ELSE NULL end, 2) as sumf,
-round(case when country_biomass.bbest > 0 then sum(shb)/(country_biomass.bbest) ELSE NULL end, 2) as sumh
+round(case when country_biomass.bbest > 0 then sum(shb)/(country_biomass.bbest) ELSE NULL end, 2) as sumh,
+'country' as aggreg_level
 from DATAWG.MORTALITY_SYNTHESIS left outer join country_biomass using(EEL_COU_CODE, eel_year)
 group by EEL_COU_CODE, eel_year, b0, country_biomass.bbest, bcurrent
 ;
+
+SELECT * from DATAWG.PRECODATA_COUNTRY ;
+
+-- precodata for all country
+drop view if exists DATAWG.precodata_all;
+create or REPLACE view DATAWG.precodata_all as
+(with last_year_emu as
+	(select EEL_EMU_NAMESHORT, max(EEL_YEAR) as last_year from DATAWG.PRECODATA_emu group by EEL_EMU_NAMESHORT)
+select eel_cou_code, eel_emu_nameshort, aggreg_area, eel_year, b0, bbest, bcurrent, suma, sumf, sumh, aggreg_level, last_year from DATAWG.precodata_emu join last_year_emu using(EEL_EMU_NAMESHORT))
+union
+(with last_year_country as
+	(select EEL_COU_CODE, max(EEL_YEAR) as last_year from DATAWG.PRECODATA_COUNTRY group by EEL_COU_CODE)
+select * from DATAWG.precodata_country join last_year_country using(EEL_COU_CODE))
+union
+(select null EEL_COU_CODE, null EEL_EMU_NAMESHORT, 'All (' || count(*) || ' countries: ' || string_agg(EEL_COU_CODE, ',') || ')' AGGREG_AREA, eel_year, 
+	sum(b0) as b0, sum(bbest)as bbest, sum(bcurrent)as bcurrent,
+	round(sum(suma*bbest)/sum(bbest),2) as suma, 
+	case when count(sumf)< COUNT(*) then null else round(sum(sumf*bbest)/sum(bbest),2) end as sumf, -- by default sum of null and value is not a null value, this part correct that
+	case when count(sumh)< COUNT(*) then null else round(sum(sumh*bbest)/sum(bbest),2) end as sumf, -- by default sum of null and value is not a null value, this part correct that
+	'all' as aggreg_level, null last_year
+from DATAWG.precodata_country
+where b0 is not null and bbest is not null and BCURRENT is not NULL and SUMA is not null
+group by EEL_YEAR)
+;
+
+select * from DATAWG.precodata_all;

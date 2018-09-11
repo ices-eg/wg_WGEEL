@@ -79,8 +79,9 @@ country_ref$cou_code <- factor(country_ref$cou_code, levels = country_ref$cou_co
 landings = extract_data("Landings")
 aquaculture = extract_data("Aquaculture")
 release = extract_data("Release")
-precodata = extract_precodata()
-precodata = extract_precodata(emu = TRUE)
+precodata_country = extract_precodata()
+precodata_emu = extract_precodata(emu = TRUE)
+
 # save(landings, aquaculture, release, precodata, habitat_ref, lfs_code_base, country_ref,  file= "../../../data/dataset.Rdata")
 # without connexion to a database use Rdata instead, ask to Cedric
 
