@@ -72,7 +72,13 @@ ui = dashboardPage(title="ICES Data Visualisation",
                 multiple = TRUE,
                 options = list(
                     `actions-box` = TRUE, size = 10))
-	    )),	
+	    ),
+      radioGroupButtons(
+                inputId = "image_format",
+                label = "Preferred image format", 
+                choices = c("png", "svg")[1:(1+require(svglite))], 
+                selected = "png"      
+            )),	
     
     # Content of tabs -------------------------------------------------------------------------------
     

@@ -211,13 +211,13 @@ server = function(input, output, session) {
       })
   
   output$downloadcombined <- downloadHandler(filename = function() {
-        paste("combined_landings", input$year[1], "-", input$year[2], ".png", sep = "")
+        paste("combined_landings", input$year[1], "-", input$year[2], ".",input$image_format, sep = "")
       }, content = function(file) {                        
         ggsave(file, combined_landings_graph(dataset=get_combined_landings(),
                 title=paste("Landings for : ", paste(input$lfs,collapse="+")),
                 col=color_countries, 
                 country_ref=country_ref),
-            device = "png", width = 20, height = 14, 
+            device = input$image_format, width = 20, height = 14, 
             units = "cm")
       })
   
@@ -268,10 +268,10 @@ server = function(input, output, session) {
     })
   
   output$downloadAvailable <- downloadHandler(filename = function() {
-    paste("available_landings", input$year[1], "-", input$year[2], ".png", sep = "")
+    paste("available_landings", input$year[1], "-", input$year[2], ".",input$image_format, sep = "")
   }, content = function(file) {                        
     ggsave(file, aalg,
-           device = "png", width = 20, height = 14, 
+           device = input$image_format, width = 20, height = 14, 
            units = "cm")
   })
   ######################################"
@@ -308,7 +308,7 @@ server = function(input, output, session) {
       })
   
   output$download_graph_raw_landings <- downloadHandler(filename = function() {
-        paste("raw_landings", input$year[1], "-", input$year[2], ".png", sep = "")
+        paste("raw_landings", input$year[1], "-", input$year[2], ".",input$image_format, sep = "")
       }, content = function(file) {      
         if (4 %in% (input$raw_landings_eel_typ_id) & 6%in%(input$raw_landings_eel_typ_id)) title2<-"Commercial and recreational landings for " else 
         if (4 %in% input$raw_landings_eel_typ_id) title2 <- "Commercial landings for " else
@@ -316,7 +316,7 @@ server = function(input, output, session) {
           stop ("Internal error, unexpected landings eel_typ_id, should be 4 or 6")
         ggsave(file, raw_landings_graph(dataset= get_raw_landings(),
                 title=paste(title2, "stages = ", paste(input$lfs,collapse="+"), " and habitat =", paste(input$habitat,collapse="+")),col=color_countries, country_ref=country_ref),
-            device = "png", width = 20, height = 14, 
+            device = input$image_format, width = 20, height = 14, 
             units = "cm")
       })
   
@@ -362,7 +362,7 @@ server = function(input, output, session) {
       })
   
   output$download_graph_aquaculture <- downloadHandler(filename = function() {
-        paste("aquaculture", input$year[1], "-", input$year[2], ".png", sep = "")
+        paste("aquaculture", input$year[1], "-", input$year[2], ".", input$image_format,sep = "")
       }, content = function(file) {
         if (input$aquaculture_eel_typ_id == "ton") {
           title2 <- "Aquaculture weight (tons) for " 
@@ -435,7 +435,7 @@ server = function(input, output, session) {
       })
   
   output$download_graph_release <- downloadHandler(filename = function() {
-        paste("release.png", sep = "")
+        paste("release.",input$image_format, sep = "")
       }, content = function(file) {
         release <- get_release()
         if (input$release_eel_typ_id == "Release_kg") {
@@ -463,7 +463,7 @@ server = function(input, output, session) {
                 country_ref=country_ref,
                 lfs=input$release_lifestage_switch,
                 typ=input$release_eel_typ_id),
-            device = "png", 
+            device = input$image_format, 
             width = 20, 
             height = 14, 
             units = "cm")
@@ -491,11 +491,11 @@ server = function(input, output, session) {
       })
   
   output$download_precodata_graph=downloadHandler(filename = function() {
-        paste("preco_diag.png", sep = "")
+        paste("preco_diag.",input$image_format, sep = "")
       }, content = function(file) {
         ggsave(file, 
             trace_precodiag(filter_data_reactive()),
-            device = "png", 
+            device = input$image_format, 
             width = 20, 
             height = 14, 
             units = "cm")
@@ -965,7 +965,7 @@ server = function(input, output, session) {
               # Series image -------------------------------------------------------------------------
               
               output$recruit_site_image <- renderImage({                      
-                    filename <- normalizePath(file.path('./www/',paste0(the_name, '.png')))
+                    filename <- normalizePath(file.path('./www/',paste0(the_name, '.',input$image_format)))
                     list(src = filename)                    
                   },
                   deleteFile = FALSE

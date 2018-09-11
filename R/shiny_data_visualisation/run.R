@@ -5,6 +5,7 @@
 
 #setwd("C:\\Users\\cedric.briand\\Documents\\GitHub\\WGEEL\\")
 require("shiny")
+require("svglite")
 source("R/utilities/set_directory.R")
 
 # connection to database
