@@ -305,3 +305,5 @@ commit;
 
 
  select count(*), eel_lfs_code, eel_cou_code, eel_datasource from datawg.t_eelstock_eel where eel_typ_id in (8,9,10) group by eel_lfs_code, eel_cou_code, eel_datasource 
+
+  select count(*), eel_lfs_code, eel_cou_code, eel_datasource from datawg.t_eelstock_eel where eel_typ_id in (4,6) group by eel_lfs_code, eel_cou_code, eel_datasource 

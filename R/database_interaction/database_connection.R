@@ -25,16 +25,22 @@ if(Sys.info()[["user"]] == "cedric.briand")
 { #Cedric's special configuration
 	user<-"postgres"
 	pwd<-"postgres"
-} else {
-	user<-getPass("Enter the USER: ")
-	pwd<-getPass()
-}
-
-# options for PostgresSQL
-options(sqldf.RPostgreSQL.user = user,  
+    options(sqldf.RPostgreSQL.user = user,  
 		sqldf.RPostgreSQL.password = pwd,
 		sqldf.RPostgreSQL.dbname = "wgeel",
 		sqldf.RPostgreSQL.host = "localhost", #getInformation("PostgreSQL host: if local ==> localhost"), 
 		sqldf.RPostgreSQL.port = 5432)
+} else {
+	user<-getPass("Enter the USER: ")
+	pwd<-getPass()
+    options(sqldf.RPostgreSQL.user = user,  
+		sqldf.RPostgreSQL.password = pwd,
+		sqldf.RPostgreSQL.dbname = "wgeel",
+		sqldf.RPostgreSQL.host = "localhost", #getInformation("PostgreSQL host: if local ==> localhost"), 
+		sqldf.RPostgreSQL.port = 5432)
+}
+
+# options for PostgresSQL
+
 
 

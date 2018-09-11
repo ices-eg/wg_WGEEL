@@ -363,13 +363,13 @@ ui = dashboardPage(title="ICES Data Visualisation",
             
             tabItem(tabName="precodata_tab",
                 fluidRow(                    
-                    column(width=8,plotOutput("precodata_graph",height="800px")),
-                    column(width=4,
+                    column(width=10,plotOutput("precodata_graph",height="800px")),
+                    column(width=2,
                         awesomeCheckboxGroup(
                             inputId = "precodata_choice",
                             label = "graph_choice",
                             choices = c("emu","country","all"),
-                            selected=c("emu"),
+                            selected=c("all"),
                             status = "danger",
                             inline=TRUE                                
                         ), 
@@ -381,25 +381,7 @@ ui = dashboardPage(title="ICES Data Visualisation",
                             offStatus = "warning",
                             size = "default",                           
                             value = FALSE
-                        ),
-                        actionBttn(
-                            inputId = "precodata_button",
-                            label = NULL,
-                            style = "material-circle", 
-                            color = "success",
-                            icon("refresh",lib="glyphicon")
-                        ),        
-                        tipify(downloadButton(
-                                outputId = "download_precodata_graph",
-                                label = "",
-                            #style = "material-circle", ,
-                            #color = "danger"
-                            ),
-                            title = "Click to download the graph",
-                            placement="top", # default bottom
-                            trigger="hover", # hover focus click, hover default
-                            options=NULL                        
-                        )
+                        )                        
                     )
                 )            
             ),
