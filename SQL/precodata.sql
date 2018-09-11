@@ -61,10 +61,9 @@ select * from DATAWG.MORTALITY_SYNTHESIS;
 
 
 -- precodata at the emu level
-
 drop view if exists DATAWG.precodata_emu CASCADE;
 create or REPLACE view DATAWG.precodata_emu as
-select EEL_COU_CODE, EEL_EMU_NAMESHORT, EEL_EMU_NAMESHORT as aggreg_area, eel_year, round(b0/1000) as b0, round(BIOMASS_SYNTHESIS.bbest/1000) as bbest, round(bcurrent/1000) as bcurrent, 
+select EEL_COU_CODE, EEL_EMU_NAMESHORT, EEL_EMU_NAMESHORT as aggreg_area, eel_year, b0, BIOMASS_SYNTHESIS.bbest, bcurrent, 
 round(case when BIOMASS_SYNTHESIS.bbest > 0 then sum(sab)/(BIOMASS_SYNTHESIS.bbest) ELSE NULL end, 2) as suma,
 round(case when BIOMASS_SYNTHESIS.bbest > 0 then sum(sfb)/(BIOMASS_SYNTHESIS.bbest) ELSE NULL end, 2) as sumf,
 round(case when BIOMASS_SYNTHESIS.bbest > 0 then sum(shb)/(BIOMASS_SYNTHESIS.bbest) ELSE NULL end, 2) as sumh,
@@ -83,15 +82,15 @@ with country_biomass as
 	case when count(B0)< COUNT(*) then null else SUM(B0) end as B0, -- by default sum of null and value is not a null value, this part correct that
 	case when count(BBest)< COUNT(*) then null else SUM(BBest) end as BBest, -- by default sum of null and value is not a null value, this part correct that
 	case when count(Bcurrent)< COUNT(*) then null else SUM(Bcurrent) end as Bcurrent-- by default sum of null and value is not a null value, this part correct that
-	from DATAWG.BIOMASS_SYNTHESIS
+	from DATAWG.PRECODATA_EMU 
 	group by EEL_COU_CODE, eel_year)
-select EEL_COU_CODE, null EEL_EMU_NAMESHORT, EEL_COU_CODE as aggreg_area, eel_year, round(b0/1000) as b0, round(country_biomass.bbest/1000) as bbest, round(bcurrent/1000) as bcurrent, 
-round(case when country_biomass.bbest > 0 then sum(sab)/(country_biomass.bbest) ELSE NULL end, 2) as suma,
-round(case when country_biomass.bbest > 0 then sum(sfb)/(country_biomass.bbest) ELSE NULL end, 2) as sumf,
-round(case when country_biomass.bbest > 0 then sum(shb)/(country_biomass.bbest) ELSE NULL end, 2) as sumh,
+select EEL_COU_CODE, null EEL_EMU_NAMESHORT, EEL_COU_CODE as aggreg_area, eel_year, round(country_biomass.b0/1000) as b0, round(country_biomass.bbest/1000) as bbest, round(country_biomass.bcurrent/1000) as bcurrent, 
+round(case when country_biomass.bbest > 0 then sum(suma * PRECODATA_EMU.bbest)/(country_biomass.bbest) ELSE NULL end, 2) as suma,
+round(case when country_biomass.bbest > 0 then sum(sumf * PRECODATA_EMU.bbest)/(country_biomass.bbest) ELSE NULL end, 2) as sumf,
+round(case when country_biomass.bbest > 0 then sum(sumh * PRECODATA_EMU.bbest)/(country_biomass.bbest) ELSE NULL end, 2) as sumh,
 'country' as aggreg_level
-from DATAWG.MORTALITY_SYNTHESIS left outer join country_biomass using(EEL_COU_CODE, eel_year)
-group by EEL_COU_CODE, eel_year, b0, country_biomass.bbest, bcurrent
+from DATAWG.PRECODATA_EMU left outer join country_biomass using(EEL_COU_CODE, eel_year)
+group by EEL_COU_CODE, eel_year, country_biomass.b0, country_biomass.bbest, country_biomass.bcurrent
 ;
 
 SELECT * from DATAWG.PRECODATA_COUNTRY ;
