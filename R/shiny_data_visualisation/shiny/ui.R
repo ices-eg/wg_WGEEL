@@ -67,7 +67,7 @@ ui = dashboardPage(title="ICES Data Visualisation",
 		    pickerInput(
                 inputId = "country",
                 label =  "Country", 
-                choices = levels(country_ref$cou_code), 
+                choices = sort(levels(country_ref$cou_code)), 
                 selected= levels(country_ref$cou_code), 
                 multiple = TRUE,
                 options = list(
