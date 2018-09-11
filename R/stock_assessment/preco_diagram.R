@@ -41,7 +41,7 @@ trace_precodiag = function(precodata,
     # Data selection
     # this in done on precodata which is filtered by the app using filter_data
     #############################
-    if (last_year) precodata[,precodata$last_year==]
+    if (last_year) precodata <- precodata[precodata$last_year==precodata$eel_year,]
     
     if (length(precodata_choice) >1 ) title= "Precautionary diagram" else
       switch(precodata_choice,

@@ -485,7 +485,9 @@ server = function(input, output, session) {
   
   output$precodata_graph<- renderPlot({
         precodata_sel<-filter_data_reactive()        
-        trace_precodiag(precodata_sel)
+        trace_precodiag(precodata_sel,
+            precodata_choice = input$precodata_choice,
+            last_year = input$button_precodata_last_year)
       })
   
   output$download_precodata_graph=downloadHandler(filename = function() {

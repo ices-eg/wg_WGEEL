@@ -302,3 +302,6 @@ commit;
  begin;
 delete from datawg.t_eelstock_eel where eel_cou_code ='GR' and eel_typ_id in  (8,9,10) and eel_lfs_code='S' and eel_value is null;
 commit;
+
+
+ select count(*), eel_lfs_code, eel_cou_code, eel_datasource from datawg.t_eelstock_eel where eel_typ_id in (8,9,10) group by eel_lfs_code, eel_cou_code, eel_datasource 
