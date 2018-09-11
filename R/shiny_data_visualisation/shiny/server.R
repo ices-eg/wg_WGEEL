@@ -309,7 +309,11 @@ server = function(input, output, session) {
   
   output$download_graph_raw_landings <- downloadHandler(filename = function() {
         paste("raw_landings", input$year[1], "-", input$year[2], ".png", sep = "")
-      }, content = function(file) {       
+      }, content = function(file) {      
+        if (4 %in% (input$raw_landings_eel_typ_id) & 6%in%(input$raw_landings_eel_typ_id)) title2<-"Commercial and recreational landings for " else 
+        if (4 %in% input$raw_landings_eel_typ_id) title2 <- "Commercial landings for " else
+        if (6 %in% input$raw_landings_eel_typ_id) title2 <- "Recreational landings for " else
+          stop ("Internal error, unexpected landings eel_typ_id, should be 4 or 6")
         ggsave(file, raw_landings_graph(dataset= get_raw_landings(),
                 title=paste(title2, "stages = ", paste(input$lfs,collapse="+"), " and habitat =", paste(input$habitat,collapse="+")),col=color_countries, country_ref=country_ref),
             device = "png", width = 20, height = 14, 
