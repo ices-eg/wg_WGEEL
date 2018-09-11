@@ -571,8 +571,8 @@ shinyServer(function(input, output, session){
             div(
                 if (! rvs$dataSame) {
                       span(
-                          actionButton(inputId = "save", label = "Save",
-                              class = "btn-primary"),
+                          actionBttn(inputId = "save", label = "Save",
+                              style = "material-flat", color = "danger"),
                           actionButton(inputId = "cancel", label = "Cancel")
                       )
                     } else {
