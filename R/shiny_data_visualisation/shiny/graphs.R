@@ -67,6 +67,28 @@ combined_landings_graph<-function (dataset, title=NULL , col , country_ref)
   
 }
 
+###################################
+# Available commercial landings data
+####################################
+AvailableCLandingsGraph<-function (dataset, title=NULL , col , country_ref)
+{ 
+  dataset<-rename(dataset,"Country"="eel_cou_code")  
+  ### To order the table by cou_code (geographical position)
+  dataset$Country<-factor(dataset$Country,levels=country_ref$cou_code,ordered=TRUE)
+  #landings_year <- dataset
+  landings_year<-aggregate(eel_value~eel_year, dataset, sum)
+  
+  
+  AvailableCLandings<-ggplot(dataset, aes(y = Country, x = eel_year)) + 
+    geom_tile(aes(fill = !predicted)) + 
+    theme_bw() + 
+    scale_fill_manual(values = c("black", "lightblue"), name = "Reporting")+
+    scale_y_discrete(limits=rev(levels(dataset$Country)))+
+    ggtitle(title)
+  
+  return(AvailableCLandings)
+}
+
 
 
 #' @title Graph for raw landings, per 

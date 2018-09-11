@@ -66,6 +66,9 @@ shinyServer(function(input, output, session){
             "mortality_rates"={
               message<-capture.output(res<-load_mortality_rates(data$path_step0, datasource = the_eel_datasource ))}
         )
+        #we forced the conversion into numeric to avoid problem with boolean column
+        #if an error is thrown, it has been catched in the capture.output function
+        res$data$eel_value=as.numeric(res$data$eel_value)
         return(list(res=res,message=message))
       }
       

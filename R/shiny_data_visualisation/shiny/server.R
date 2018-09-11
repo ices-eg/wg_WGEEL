@@ -240,6 +240,40 @@ server = function(input, output, session) {
                 text
             )) 
       }) 
+  
+  #######################
+  # Available com landings data
+  ########################
+  
+  get_combined_landings <- eventReactive(input$available_landings_button,{
+    filtered_data <- filter_data("landings", 
+                                 typ = as.numeric(input$combined_landings_eel_typ_id),
+                                 life_stage = input$lfs, 
+                                 country = input$country, 
+                                 habitat = input$habitat,
+                                 year_range = input$year[1]:input$year[2])        
+    # do not group by habitat or lfs, there might be several lfs selected but all will be grouped
+    landings <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=FALSE)
+    landings$eel_value <- as.numeric(landings$eel_value) / 1000
+    landings$eel_cou_code = as.factor(landings$eel_cou_code)                       
+    pred_landings <- predict_missing_values(landings, verbose=FALSE) 
+    return(pred_landings)
+  })
+  
+  output$graph_available <-  renderPlot({
+    title <- paste("Available commercial landings for : ", paste(input$lfs,collapse="+"))
+    pred_landings <- get_combined_landings()
+    aalg<<-AvailableCLandingsGraph(dataset=pred_landings,title=title,col=color_countries, country_ref=country_ref)
+    aalg
+    })
+  
+  output$downloadAvailable <- downloadHandler(filename = function() {
+    paste("available_landings", input$year[1], "-", input$year[2], ".png", sep = "")
+  }, content = function(file) {                        
+    ggsave(file, aalg,
+           device = "png", width = 20, height = 14, 
+           units = "cm")
+  })
   ######################################"
   # raw landings
   ######################################
@@ -275,7 +309,11 @@ server = function(input, output, session) {
   
   output$download_graph_raw_landings <- downloadHandler(filename = function() {
         paste("raw_landings", input$year[1], "-", input$year[2], ".png", sep = "")
-      }, content = function(file) {       
+      }, content = function(file) {      
+        if (4 %in% (input$raw_landings_eel_typ_id) & 6%in%(input$raw_landings_eel_typ_id)) title2<-"Commercial and recreational landings for " else 
+        if (4 %in% input$raw_landings_eel_typ_id) title2 <- "Commercial landings for " else
+        if (6 %in% input$raw_landings_eel_typ_id) title2 <- "Recreational landings for " else
+          stop ("Internal error, unexpected landings eel_typ_id, should be 4 or 6")
         ggsave(file, raw_landings_graph(dataset= get_raw_landings(),
                 title=paste(title2, "stages = ", paste(input$lfs,collapse="+"), " and habitat =", paste(input$habitat,collapse="+")),col=color_countries, country_ref=country_ref),
             device = "png", width = 20, height = 14, 
