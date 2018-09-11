@@ -45,7 +45,7 @@ server = function(input, output, session) {
               #habitat = input$habitat,
               year_range = input$year[1]:input$year[2]                                      
           )
-        }else if (input$dataset == "com" | input$dataset == "com_corrected"){
+        }else if (input$dataset == "raw_landings_com" | input$dataset == "landings_com_corrected"){
           filtered_data<-filter_data("landings",
               typ = 4,
               life_stage = input$lfs, 
@@ -54,7 +54,7 @@ server = function(input, output, session) {
               year_range = input$year[1]:input$year[2]                                      
           )      
           
-        }else if (input$dataset == "rec" | input$dataset == "rec_corrected"){      
+        }else if (input$dataset == "raw_landings_rec" | input$dataset == "landings_rec_corrected"){      
           filtered_data<-filter_data("landings",
               typ = 6,
               life_stage = input$lfs, 
@@ -130,11 +130,11 @@ server = function(input, output, session) {
         } else {
           grouped_data <-group_data(filtered_data,geo=input$geo,habitat=FALSE,lfs=FALSE)
           
-          if (input$dataset %in% c("aquaculture","landings","com","rec","com_corrected" , "rec_corrected")) {
+          if (input$dataset %in% c("aquaculture","landings","raw_landings_com","raw_landings_rec","landings_com_corrected" , "landings_rec_corrected")) {
             fun.agg<-function(X){round(sum(X)/1000)}
           } else fun.agg <- sum
           
-          if (input$dataset == "com_corrected" | input$dataset == "rec_corrected"){
+          if (input$dataset == "landings_com_corrected" | input$dataset == "landings_rec_corrected"){
             
             validate(need(input$geo=="country","Predictions only done at the country level"))
             validate(need(length(unique(grouped_data$eel_cou_code))>1, "You need at least two country to run the model for predictions"))
