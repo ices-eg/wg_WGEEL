@@ -81,8 +81,8 @@ aquaculture = extract_data("Aquaculture")
 release = extract_data("Release")
 
 precodata = extract_precodata() # for tables
-# 
-precodata_all = extract_data("Precodata All") # for precodiagram
+
+precodata_all = extract_data("PrecoData All") # for precodiagram
 
 
 

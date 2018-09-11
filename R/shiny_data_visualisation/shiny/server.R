@@ -477,7 +477,7 @@ server = function(input, output, session) {
 # not on any of the stuff inside the function
   filter_data_reactive <- eventReactive(input$precodata_button,{
         return(filter_data(
-                dataset = "precodata", 
+                dataset = "precodata_all", 
                 life_stage = NULL, 
                 country = input$country, 
                 year_range = input$year[1]:input$year[2]))    
