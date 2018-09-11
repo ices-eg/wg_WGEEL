@@ -128,6 +128,14 @@ ui = dashboardPage(title="ICES Data Visualisation",
                             color = "success",
                             icon("refresh",lib="glyphicon")
                         ),
+                        awesomeCheckboxGroup(
+                          inputId = "combined_landings_eel_typ_id",
+                          label = "Dataset",
+                          choices = c("com"=4,"rec"=6),
+                          selected=c("com"=4),
+                          status = "primary",
+                          inline=TRUE                                
+                        ),
                         bsTooltip(id= "combined_button", #  donne le lien vers n'importe quel input ou output
                             title = "Click to refresh / launch the graph",
                             placement="top", # default bottom

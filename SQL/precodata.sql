@@ -1,9 +1,10 @@
-drop view if exists DATAWG.biomass_synthesis;
+﻿drop view if exists DATAWG.biomass_synthesis;
 create or REPLACE view DATAWG.biomass_synthesis AS
 with B0_avg AS
 	(with B0_AL AS
 		(select EEL_COU_CODE, EEL_EMU_NAMESHORT, EEL_YEAR, sum(eel_value) from DATAWG.B0
 		group by EEL_COU_CODE,EEL_EMU_NAMESHORT, EEL_YEAR)
+		-- pour gerer la merde
 	select EEL_COU_CODE,EEL_EMU_NAMESHORT, AVG(SUM) as b0_avg from B0_AL
 	group by EEL_COU_CODE,EEL_EMU_NAMESHORT),
 	B0_AL AS
@@ -21,7 +22,7 @@ left outer join Bbest_AL using(EEL_COU_CODE,EEL_EMU_NAMESHORT, eel_year)
 left OUTER join B0_AL using(EEL_COU_CODE,EEL_EMU_NAMESHORT, eel_year)
 ;
 
-SELECT * from DATAWG.BIOMASS_SYNTHESIS;
+SELECT * from DATAWG.BIOMASS_SYNTHESIS order by eel_emu_nameshort, eel_year;
 
 -- aggregation at the country level
 SELECT EEL_COU_CODE, eel_year, SUM(B0) as B0, SUM(BBest) as Bbest, SUM(Bcurrent) as Bcurrent
@@ -46,7 +47,10 @@ left outer join bbest using(EEL_COU_CODE,EEL_EMU_NAMESHORT, eel_year, eel_hty_co
 
 select * from DATAWG.MORTALITY_SYNTHESIS;
 
+
+
 -- precodata at the emu level
+
 drop view if exists DATAWG.precodata_emu;
 create or REPLACE view DATAWG.precodata_emu as
 select EEL_COU_CODE, EEL_EMU_NAMESHORT, EEL_EMU_NAMESHORT as aggreg_area, eel_year, round(b0/1000) as b0, round(BIOMASS_SYNTHESIS.bbest/1000) as bbest, round(bcurrent/1000) as bcurrent, 
