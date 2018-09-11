@@ -83,7 +83,7 @@ AvailableCLandingsGraph<-function (dataset, title=NULL , col , country_ref)
     geom_tile(aes(fill = !predicted)) + 
     theme_bw() + 
     scale_fill_manual(values = c("black", "lightblue"), name = "Reporting")+
-    scale_y_discrete(limits=rev(levels(Country)))+
+    scale_y_discrete(limits=rev(levels(dataset$Country)))+
     ggtitle(title)
   
   return(AvailableCLandings)

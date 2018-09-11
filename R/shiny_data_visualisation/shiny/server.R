@@ -263,14 +263,14 @@ server = function(input, output, session) {
   output$graph_available <-  renderPlot({
     title <- paste("Available commercial landings for : ", paste(input$lfs,collapse="+"))
     pred_landings <- get_combined_landings()
-    AvailableCLandingsGraph<<-AvailableCLandingsGraph(dataset=pred_landings,title=title,col=color_countries, country_ref=country_ref)
-    AvailableCLandingsGraph
+    aalg<<-AvailableCLandingsGraph(dataset=pred_landings,title=title,col=color_countries, country_ref=country_ref)
+    aalg
     })
   
   output$downloadAvailable <- downloadHandler(filename = function() {
     paste("available_landings", input$year[1], "-", input$year[2], ".png", sep = "")
   }, content = function(file) {                        
-    ggsave(file, AvailableCLandingsGraph,
+    ggsave(file, aalg,
            device = "png", width = 20, height = 14, 
            units = "cm")
   })
