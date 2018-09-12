@@ -145,24 +145,24 @@ server = function(input, output, session) {
           
           
           switch(input$geo,"country"={
-            table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)  
-    
-            #ordering the column accordign to country order
-            country_to_order = names(table)[-1]
-            n_order = order(country_ref$cou_order[match(country_to_order, country_ref$cou_code)])
-            n_order <- n_order+1
-            n_order <- c(1,n_order)
-            table = table[, n_order]},
-         "emu"={
-           table = dcast(grouped_data, eel_year~eel_emu_nameshort, value.var = "eel_value",fun.aggregate = fun.agg)  
-    
-            #ordering the column accordign to country order
-            country_to_order = names(table)[-1]
-            n_order = order(country_ref$cou_order[match(country_to_order, country_ref$cou_code)])
-            n_order <- n_order+1
-            n_order <- c(1,n_order)
-            table = table[, n_order]
-          })
+                table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)  
+                
+                #ordering the column accordign to country order
+                country_to_order = names(table)[-1]
+                n_order = order(country_ref$cou_order[match(country_to_order, country_ref$cou_code)])
+                n_order <- n_order+1
+                n_order <- c(1,n_order)
+                table = table[, n_order]},
+              "emu"={
+                table = dcast(grouped_data, eel_year~eel_emu_nameshort, value.var = "eel_value",fun.aggregate = fun.agg)  
+                
+                #ordering the column accordign to country order
+                country_to_order = names(table)[-1]
+                n_order = order(country_ref$cou_order[match(country_to_order, country_ref$cou_code)])
+                n_order <- n_order+1
+                n_order <- c(1,n_order)
+                table = table[, n_order]
+              })
         }
         DT::datatable(table, 
             rownames = FALSE,
@@ -246,34 +246,43 @@ server = function(input, output, session) {
   ########################
   
   get_combined_landings <- eventReactive(input$available_landings_button,{
-    filtered_data <- filter_data("landings", 
-                                 typ = as.numeric(input$combined_landings_eel_typ_id),
-                                 life_stage = input$lfs, 
-                                 country = input$country, 
-                                 habitat = input$habitat,
-                                 year_range = input$year[1]:input$year[2])        
-    # do not group by habitat or lfs, there might be several lfs selected but all will be grouped
-    landings <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=FALSE)
-    landings$eel_value <- as.numeric(landings$eel_value) / 1000
-    landings$eel_cou_code = as.factor(landings$eel_cou_code)                       
-    pred_landings <- predict_missing_values(landings, verbose=FALSE) 
-    return(pred_landings)
-  })
+        filtered_data <- filter_data("landings", 
+            typ = as.numeric(input$combined_landings_eel_typ_id),
+            life_stage = input$lfs, 
+            country = input$country, 
+            habitat = input$habitat,
+            year_range = input$year[1]:input$year[2])        
+        # do not group by habitat or lfs, there might be several lfs selected but all will be grouped
+        landings <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=FALSE)
+        landings$eel_value <- as.numeric(landings$eel_value) / 1000
+        landings$eel_cou_code = as.factor(landings$eel_cou_code)                       
+        pred_landings <- predict_missing_values(landings, verbose=FALSE) 
+        return(pred_landings)
+      })
   
   output$graph_available <-  renderPlot({
-    title <- paste("Available commercial landings for : ", paste(input$lfs,collapse="+"))
-    pred_landings <- get_combined_landings()
-    aalg<<-AvailableCLandingsGraph(dataset=pred_landings,title=title,col=color_countries, country_ref=country_ref)
-    aalg
-    })
+        title <- paste("Available commercial landings for : ", paste(input$lfs,collapse="+"))
+        pred_landings <- get_combined_landings()
+        aalg<<-AvailableCLandingsGraph(dataset=pred_landings,title=title,col=color_countries, country_ref=country_ref)
+        aalg
+      })
   
   output$downloadAvailable <- downloadHandler(filename = function() {
+<<<<<<< HEAD
+        paste("available_landings", input$year[1], "-", input$year[2], ".png", sep = "")
+      }, content = function(file) {                        
+        ggsave(file, aalg,
+            device = "png", width = 20, height = 14, 
+            units = "cm")
+      })
+=======
     paste("available_landings", input$year[1], "-", input$year[2], ".",input$image_format, sep = "")
   }, content = function(file) {                        
     ggsave(file, aalg,
            device = input$image_format, width = 20, height = 14, 
            units = "cm")
   })
+>>>>>>> branch 'master' of https://github.com/ices-eg/wg_WGEEL.git
   ######################################"
   # raw landings
   ######################################
@@ -471,16 +480,26 @@ server = function(input, output, session) {
   
   
   ################################
-# Precautionary diagram
+  # Precautionary diagram
   #################################
 # Take a reactive dependency on input$precodata_button, but
 # not on any of the stuff inside the function
-  filter_data_reactive <- eventReactive(input$precodata_button,{
-        return(filter_data(
-                dataset = "precodata_all", 
-                life_stage = NULL, 
-                country = input$country, 
-                year_range = input$year[1]:input$year[2]))    
+  filter_data_reactive <- reactive({
+        return(
+            if (!"all" %in% input$precodata_choice) {
+                  filter_data(
+                      dataset = "precodata_all", 
+                      life_stage = NULL, 
+                      country = input$country,
+                      year_range = input$year[1]:input$year[2]) 
+                } else {
+                  filter_data(
+                      dataset = "precodata_all", 
+                      life_stage = NULL, 
+                      country = NULL,
+                      year_range = input$year[1]:input$year[2])
+                }
+        )  
       })
   
   output$precodata_graph<- renderPlot({
@@ -995,5 +1014,5 @@ server = function(input, output, session) {
                   }) 
             })
       })
-
+  
 }
