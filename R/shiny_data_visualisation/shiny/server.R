@@ -256,7 +256,7 @@ server = function(input, output, session) {
         landings <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=FALSE)
         landings$eel_value <- as.numeric(landings$eel_value) / 1000
         landings$eel_cou_code = as.factor(landings$eel_cou_code)                       
-        pred_landings <- predict_missing_values(landings, verbose=FALSE) 
+        pred_landings <- predict_missing_values(landings, verbose=FALSE,na.rm=FALSE) 
         return(pred_landings)
       })
   
