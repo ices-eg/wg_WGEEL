@@ -473,8 +473,8 @@ ui = dashboardPage(title="ICES Data Visualisation",
                         p("Unlike previous graph where current values are scaled to the period,
                                 1960-1979 using predicted model values, these represent the TRUE residuals of the gamma model"),
                         plotOutput("resid_recruitment_graph")))),
-            tabItem(tabName="table_recruitment_tab",
-                box(id="box_table_recruitment",
+		      tabItem(tabName="table_recruitment_tab",
+               fluidRow( box(id="box_table_recruitment",
                     title="Recruitment indices",
                     status="primary",
                     solidHeader=TRUE,
@@ -493,7 +493,40 @@ ui = dashboardPage(title="ICES Data Visualisation",
                                         lib = "glyphicon"))
                             )), 
                         column(width=6,htmlOutput("table_rec_description"))),
-                    DT::dataTableOutput("table_recruitment")))
+                    DT::dataTableOutput("table_recruitment")),
+                 box(title = "Recruitment Indices Graphs",
+                            status = "primary",
+                            solidHeader = F,
+                            collapsible = F,
+                            width = 12,
+
+                            fluidRow(
+                              column(width=10,checkboxGroupButtons(inputId = "indices_rec_graph",label = "Recruitment series to plot",choices = c("EE","NS","Y"),
+                              status = "primary", checkIcon = list(yes = icon("ok", lib = "glyphicon"), no = icon("remove", lib = "glyphicon"))),
+                            sliderTextInput(inputId = "just_a_joke",label = "formatted as requested in WGEEL:", choices = 2010:2018))),
+                   
+                   
+                             fluidRow(                    
+                              column(width=10,plotOutput("graph_recruitment",height="800px")),
+                              column(width=2,
+                                  tipify(downloadButton(
+                                          outputId = "download_recruitment_graph",
+                                          label = ""#, 
+                                      #style = "material-circle", 
+                                      #color = "danger"
+                                      ),                       
+                                      title = "Click to download the graph",
+                                      placement="top", # default bottom
+                                      trigger="hover", # hover focus click, hover default
+                                      options=NULL                        
+                                  )
+                              )                
+                          )
+                   
+                   
+                         )
+               )
+		        )
         
         )
     )
