@@ -256,7 +256,7 @@ server = function(input, output, session) {
         landings <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=FALSE)
         landings$eel_value <- as.numeric(landings$eel_value) / 1000
         landings$eel_cou_code = as.factor(landings$eel_cou_code)                       
-        pred_landings <- predict_missing_values(landings, verbose=FALSE) 
+        pred_landings <- predict_missing_values(landings, verbose=FALSE,na.rm=FALSE) 
         return(pred_landings)
       })
   
@@ -1005,5 +1005,36 @@ server = function(input, output, session) {
                   }) 
             })
       })
+  
+  
+  ####recruitment indices
+    output$table_recruitment<-renderDataTable({
+      if (input$index_rec=="Elsewhere Europe"){
+        data_rec<-dat_ge[dat$are=="EE",]
+     } else if (input$index_rec=='North Sea'){
+        data_rec<-dat_ge[dat$area=="NS",]
+      }else data_rec<-dat_ye
+      data_rec$decades<-(data_rec$year%/%10)*10
+      data_rec$unit<-data_rec$year-data_rec$decades
+      data_rec_cast<-dcast(data_rec[,c("decades","unit","geomean_p_std_1960_1979")],unit~decades,value.var="geomean_p_std_1960_1979")
+      rownames(data_rec_cast)<-data_rec_cast$unit
+      
+      DT::datatable(round(data_rec_cast[,-1]*100,digits=2), 
+            rownames = TRUE,
+            extensions = c("Buttons","KeyTable"),
+            option=list(
+                order=list(0,"asc"),
+                keys = TRUE,
+                pageLength = 10,
+                columnDefs = list(list(className = 'dt-center')),
+                searching = FALSE, # no filtering options
+                dom= "Btip", # from left to right button left f, t tableau, i informaiton (showing..), p pagination
+                buttons=list(
+                    list(extend="excel",
+                        filename = paste0("data_",Sys.Date())))
+            ))
+    })
+  
+
   
 }
