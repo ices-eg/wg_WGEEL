@@ -1037,10 +1037,11 @@ server = function(input, output, session) {
     
     
       
-      get_recruitment_graph <- eventReactive(input$just_a_joke,{
+      get_recruitment_graph <- reactive({
         tmp=data.frame(year=dat_ye$year,area=rep("Y",nrow(dat_ye)),geomean_p_std_1960_1979=dat_ye$geomean_p_std_1960_1979)
         data_rec=rbind.data.frame(dat_ge,tmp)  
         data_rec<-data_rec[data_rec$area %in% input$indices_rec_graph,]
+        are_we_jokking=input$just_a_joke
         return(data_rec)
       })
       output$graph_recruitment <-  renderPlot({
