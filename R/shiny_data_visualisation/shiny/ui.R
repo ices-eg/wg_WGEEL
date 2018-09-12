@@ -394,6 +394,7 @@ ui = dashboardPage(title="ICES Data Visualisation",
                 )            
             ),
             
+            
             # MAP -----------------------------------------------------------------------------------
             
             tabItem(tabName="map_tab", 
