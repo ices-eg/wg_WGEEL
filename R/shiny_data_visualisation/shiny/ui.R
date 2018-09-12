@@ -472,7 +472,28 @@ ui = dashboardPage(title="ICES Data Visualisation",
                             )),
                         p("Unlike previous graph where current values are scaled to the period,
                                 1960-1979 using predicted model values, these represent the TRUE residuals of the gamma model"),
-                        plotOutput("resid_recruitment_graph"))))
+                        plotOutput("resid_recruitment_graph")))),
+		      tabItem(tabName="table_recruitment_tab",
+                box(id="box_table_recruitment",
+                    title="Recruitment indices",
+                    status="primary",
+                    solidHeader=TRUE,
+                    collapsible=TRUE,
+                    width=NULL,
+                    fluidRow(column(width=4,
+                            radioGroupButtons(
+                                inputId = "index_rec",
+                                label = "Recruitment",
+                                choices = c("Elsewhere Europe","North Sea","Yellow"),
+                                status = "primary",
+                                checkIcon = list(
+                                    yes = icon("ok", 
+                                        lib = "glyphicon"),
+                                    no = icon("remove",
+                                        lib = "glyphicon"))
+                            )), 
+                        column(width=6,htmlOutput("table_rec_description"))),
+                    DT::dataTableOutput("table_recruitment")))
         
         )
     )
