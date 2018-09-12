@@ -1028,12 +1028,34 @@ server = function(input, output, session) {
                 pageLength = 10,
                 columnDefs = list(list(className = 'dt-center')),
                 searching = FALSE, # no filtering options
-                dom= "Btip", # from left to right button left f, t tableau, i informaiton (showing..), p pagination
+                dom= "Bti", # from left to right button left f, t tableau, i informaiton (showing..), p pagination
                 buttons=list(
                     list(extend="excel",
                         filename = paste0("data_",Sys.Date())))
             ))
     })
+    
+    
+      
+      get_recruitment_graph <- eventReactive(input$just_a_joke,{
+        tmp=data.frame(year=dat_ye$year,area=rep("Y",nrow(dat_ye)),geomean_p_std_1960_1979=dat_ye$geomean_p_std_1960_1979)
+        data_rec=rbind.data.frame(dat_ge,tmp)  
+        data_rec<-data_rec[data_rec$area %in% input$indices_rec_graph,]
+        return(data_rec)
+      })
+      output$graph_recruitment <-  renderPlot({
+        data_rec <- get_recruitment_graph()
+        data_rec<-data_rec[data_rec$area %in% input$indices_rec_graph,]
+        recruitment_graph(dataset=data_rec,as.numeric(input$just_a_joke)%%2==FALSE)
+      })
+  
+      output$download_recruitment_graph <- downloadHandler(filename = function() {
+        paste("recruitment.", input$image_format,sep = "")
+      }, content = function(file) {
+        data_rec <- get_recruitment_graph()
+        ggsave(file, recruitment_graph(dataset=data_rec,as.numeric(input$just_a_joke)%%2==FALSE))
+      })
+
   
 
   
