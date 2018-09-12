@@ -28,7 +28,7 @@ with
 		(select hty_code, hty_description as habitat from "ref".tr_habitattype_hty),
 	life_stage as
 		(select lfs_code, lfs_name as life_stage from "ref".tr_lifestage_lfs)
-select eel_year, eel_cou_code, country, eel_emu_nameshort, emu_wholecountry, eel_hty_code, habitat, eel_lfs_code, life_stage, b0, bbest, bcurrent, suma, sumf, sumh
+select eel_year, eel_cou_code, country, cou_order, eel_emu_nameshort, emu_wholecountry, eel_hty_code, habitat, eel_lfs_code, life_stage, b0, bbest, bcurrent, suma, sumf, sumh
 from b0 
 	full outer join bbest using(eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code)
 	full outer join bcurrent using(eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code)
@@ -64,7 +64,42 @@ select eel_year, eel_cou_code, country, eel_emu_nameshort, emu_wholecountry, eel
 from datawg.bigtable
 group by eel_year, eel_cou_code, country, eel_emu_nameshort, emu_wholecountry, eel_hty_code, habitat, eel_lfs_code
 having count(*) > 1
+; 
+-- NO provide biomass data by ICES division
+
+-- check for duplicate  at the habitat level
+select eel_year, eel_cou_code, country, eel_emu_nameshort, emu_wholecountry, eel_hty_code, habitat, count(*)
+from datawg.bigtable
+group by eel_year, eel_cou_code, country, eel_emu_nameshort, emu_wholecountry, eel_hty_code, habitat
+having count(*) > 1
+; 
+-- NL_total: provide mortality for YS, but biomass for S
+-- SE_West: provide mortality for Y, but biomass for S
+-- NO_total: provide mortality for YS (A & F) and AL (H), but biomass for S
+-- PT_Port: provide mortality for AL, but biomass for S
+-- conclusion: we can safely sum
+
+-- bigtable aggregate by habitat
+drop view if exists datawg.bigtable_by_habitat cascade;
+create or replace view datawg.bigtable_by_habitat as
+select eel_year, eel_cou_code, country, cou_order, eel_emu_nameshort, emu_wholecountry, eel_hty_code, habitat, sum(b0) as b0, sum(bbest) as bbest, sum(bcurrent) as bcurrent, sum(suma) as suma, sum(sumf) as sumf, sum(sumh) as sumh 
+from datawg.bigtable 
+group by eel_year, eel_cou_code, country, cou_order, eel_emu_nameshort, emu_wholecountry, eel_hty_code, habitat
+order by eel_year, cou_order, eel_emu_nameshort,
+case 
+	when eel_hty_code = 'F' then 1
+	when eel_hty_code = 'T' then 2
+	when eel_hty_code = 'C' then 3
+	when eel_hty_code = 'MO' then 4
+	when eel_hty_code = 'AL' then 5
+end
 ;
+
+-- check aggreg by habitat on biomass
+select sum(b0), sum(bbest), sum(bcurrent) from datawg.bigtable ;
+select sum(b0), sum(bbest), sum(bcurrent) from datawg.bigtable_by_habitat;
+-- pass
+
 
 drop view if exists DATAWG.biomass_synthesis CASCADE;
 create or REPLACE view DATAWG.biomass_synthesis AS
