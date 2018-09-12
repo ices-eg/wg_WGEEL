@@ -1,13 +1,19 @@
--- bigtable
+-- bigtable, no modification just combining different table
 drop view if exists datawg.bigtable cascade;
 create or replace view datawg.bigtable as
 with 
 	b0 as
-		(select eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code, round(eel_value) as b0 from datawg.b0),
+		(select eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code, round(sum(eel_value)) as b0 -- NO has biomass data per ICES division
+		from datawg.b0
+		group by eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code),
 	bbest as
-		(select eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code, round(eel_value) as bbest from datawg.bbest),
+		(select eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code, round(sum(eel_value)) as bbest -- NO has biomass data per ICES division
+		from datawg.bbest
+		group by eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code),
 	bcurrent as
-		(select eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code, round(eel_value) as bcurrent from datawg.bcurrent),
+		(select eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code, round(sum(eel_value)) as bcurrent -- NO has biomass data per ICES division
+		from datawg.bcurrent
+		group by eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code),
 	suma as
 		(select eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code, round(eel_value,3) as suma from datawg.sigmaa),
 	sumf as
@@ -22,7 +28,7 @@ with
 		(select hty_code, hty_description as habitat from "ref".tr_habitattype_hty),
 	life_stage as
 		(select lfs_code, lfs_name as life_stage from "ref".tr_lifestage_lfs)
-select eel_year as year, eel_cou_code, country, eel_emu_nameshort, emu_wholecountry, eel_hty_code, habitat, eel_lfs_code, life_stage, b0, bbest, bcurrent, suma, sumf, sumh
+select eel_year, eel_cou_code, country, eel_emu_nameshort, emu_wholecountry, eel_hty_code, habitat, eel_lfs_code, life_stage, b0, bbest, bcurrent, suma, sumf, sumh
 from b0 
 	full outer join bbest using(eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code)
 	full outer join bcurrent using(eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code)
@@ -53,6 +59,12 @@ case
 end
 ;
 
+-- check for duplicate  at the life stage level
+select eel_year, eel_cou_code, country, eel_emu_nameshort, emu_wholecountry, eel_hty_code, habitat, eel_lfs_code, count(*)
+from datawg.bigtable
+group by eel_year, eel_cou_code, country, eel_emu_nameshort, emu_wholecountry, eel_hty_code, habitat, eel_lfs_code
+having count(*) > 1
+;
 
 drop view if exists DATAWG.biomass_synthesis CASCADE;
 create or REPLACE view DATAWG.biomass_synthesis AS
