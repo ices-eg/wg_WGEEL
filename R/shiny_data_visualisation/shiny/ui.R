@@ -14,7 +14,7 @@ ui = dashboardPage(title="ICES Data Visualisation",
         
         # Elements of menu in the sidebar -----------------------------------------------------------   
         
-	    sidebarMenu(
+        sidebarMenu(
             id="tabs",  
             menuItem("Table",tabName= "table_tab", icon= icon("table")),
             menuItem("Landings", tabName="landings_tab", icon=icon("bar-chart-o"),
@@ -27,14 +27,14 @@ ui = dashboardPage(title="ICES Data Visualisation",
             menuItem("Aquaculture", tabName="aquaculture_tab", icon=icon("bar-chart-o")),
             menuItem("Release", tabName="release_tab", icon=icon("bar-chart-o")),               
             menuItem("Map", tabName='map_tab',icon= icon("globe") #,
-#                menuSubItem("Landings",  tabName="leaflet_landings_tab"),
-#                menuSubItem("Releases",  tabName="leaflet_release_tab"),
-#                menuSubItem("Aquaculture",  tabName="leaflet_aquaculture_tab")
+            #                menuSubItem("Landings",  tabName="leaflet_landings_tab"),
+            #                menuSubItem("Releases",  tabName="leaflet_release_tab"),
+            #                menuSubItem("Aquaculture",  tabName="leaflet_aquaculture_tab")
             ),  
             menuItem("Preco-diag", tabName='precodata_tab',icon= icon("dashboard",lib="glyphicon")),  
             menuItem("Recruitment", tabName='recruit_tab',icon= icon("signal",lib= "font-awesome" ),
-              menuSubItem("Map",tabName="map_recruitment_tab"),
-              menuSubItem("Tables",tabName="table_recruitment_tab")),
+                menuSubItem("Map",tabName="map_recruitment_tab"),
+                menuSubItem("Tables",tabName="table_recruitment_tab")),
             
             # Sliders, radiobuttons and checkboxes. These will be used by the filter function to
             # narrow down the dataset ---------------------------------------------------------------
@@ -66,7 +66,7 @@ ui = dashboardPage(title="ICES Data Visualisation",
                 options = list(
                     `actions-box` = TRUE)
             ),
-		    pickerInput(
+            pickerInput(
                 inputId = "country",
                 label =  "Country", 
                 choices = sort(levels(country_ref$cou_code)), 
@@ -74,21 +74,21 @@ ui = dashboardPage(title="ICES Data Visualisation",
                 multiple = TRUE,
                 options = list(
                     `actions-box` = TRUE, size = 10))
-	    ),
-      radioGroupButtons(
-                inputId = "image_format",
-                label = "Preferred image format", 
-                choices = c("png", "svg")[1:(1+require(svglite))], 
-                selected = "png"      
-            )),	
+        ),
+        radioGroupButtons(
+            inputId = "image_format",
+            label = "Preferred image format", 
+            choices = c("png", "svg")[1:(1+require(svglite))], 
+            selected = "png"      
+        )),	
     
     # Content of tabs -------------------------------------------------------------------------------
     
-	dashboardBody(
+    dashboardBody(
         # integrate custom css style
-#        tags$head(
-#            tags$link(rel = "stylesheet", type = "text/css", href = "cerulean.css")
-#        ),
+        #        tags$head(
+        #            tags$link(rel = "stylesheet", type = "text/css", href = "cerulean.css")
+        #        ),
         tags$head(tags$style(
                 type="text/css",
                 "#recruit_site_image img {max-width: 100%; width: 100%; height: auto}"
@@ -97,7 +97,7 @@ ui = dashboardPage(title="ICES Data Visualisation",
         
         
         
-		tabItems(
+        tabItems(
             
             # TABLE --------------------------------------------------------------------------------
             
@@ -125,7 +125,7 @@ ui = dashboardPage(title="ICES Data Visualisation",
             
             # LANDINGS ------------------------------------------------------------------------------
             
-			tabItem(tabName="combined_landings_tab", 
+            tabItem(tabName="combined_landings_tab", 
                 fluidRow(                    
                     column(width=10,plotOutput("graph_combined",height="800px")),
                     column(width=2,htmlOutput("graph_combined_description"),
@@ -136,19 +136,19 @@ ui = dashboardPage(title="ICES Data Visualisation",
                             color = "success",
                             icon("refresh",lib="glyphicon")
                         ),
-                        awesomeCheckboxGroup(
-                                                      inputId = "combined_landings_eel_typ_id",
-                                                      label = "Dataset",
-                                                      choices = c("com"=4,"rec"=6),
-                                                      selected=c("com"=4),
-                                                      status = "primary",
-                                                      inline=TRUE                                
-                        ),
                         bsTooltip(id= "combined_button", #  donne le lien vers n'importe quel input ou output
                             title = "Click to refresh / launch the graph",
                             placement="top", # default bottom
                             trigger="hover", # hover focus click, hover default
                             options=NULL
+                        ),
+                        awesomeCheckboxGroup(
+                            inputId = "combined_landings_eel_typ_id",
+                            label = "Dataset",
+                            choices = c("com"=4,"rec"=6),
+                            selected=c("com"=4),
+                            status = "primary",
+                            inline=TRUE                                
                         ),
                         tipify(downloadButton(
                                 outputId = "downloadcombined",
@@ -222,7 +222,7 @@ ui = dashboardPage(title="ICES Data Visualisation",
                     )                
                 )
             ),
-			
+            
             tabItem(tabName="available_landings_tab",
                 column(width=10, plotOutput("graph_available",height="800px")),
                 column(width=2,
@@ -396,8 +396,8 @@ ui = dashboardPage(title="ICES Data Visualisation",
             
             # MAP -----------------------------------------------------------------------------------
             
-			tabItem(tabName="map_tab", 
-			    leafletOutput("map", height = 800),
+            tabItem(tabName="map_tab", 
+                leafletOutput("map", height = 800),
                 absolutePanel(top = 70, right = 25, draggable = TRUE,
                     p("Upper glider = year, both = historical range for bubble size"),
                     p("buttons on the left and right to narrow the dataset"), 
@@ -411,7 +411,7 @@ ui = dashboardPage(title="ICES Data Visualisation",
                     ),
                     # this output listens to leaflet dataset and change input accordingly
                     uiOutput("leaflet_typ_button")                     
-			    ),
+                ),
                 absolutePanel(bottom = 300, right = 10, draggable = TRUE,
                     # add a small border to indicate where the plot will be
                     div(
@@ -430,14 +430,14 @@ ui = dashboardPage(title="ICES Data Visualisation",
                         #----------------------
                         , style = "border: 2px solid rgb(209,218,201);"
                     )# end div
-		        )
-	        ),
-		  
-		  #recruitment----------------------------------------
-		  tabItem(tabName="map_recruitment_tab", 
-          fluidRow(
+                )
+            ),
+            
+            #recruitment----------------------------------------
+            tabItem(tabName="map_recruitment_tab", 
+                fluidRow(
                     
-			        column(width=6,
+                    column(width=6,
                         h2("Map of recruitment sites"),
                         p("Click on a point for details about the series"),
                         leafletOutput("mapstation", height = 600),
