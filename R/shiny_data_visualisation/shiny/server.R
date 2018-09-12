@@ -245,7 +245,7 @@ server = function(input, output, session) {
   # Available com landings data
   ########################
   
-  get_combined_landings <- eventReactive(input$available_landings_button,{
+  get_available_landings <- eventReactive(input$available_landings_button,{
         filtered_data <- filter_data("landings", 
             typ = as.numeric(input$combined_landings_eel_typ_id),
             life_stage = input$lfs, 
@@ -262,7 +262,7 @@ server = function(input, output, session) {
   
   output$graph_available <-  renderPlot({
         title <- paste("Available commercial landings for : ", paste(input$lfs,collapse="+"))
-        pred_landings <- get_combined_landings()
+        pred_landings <- get_available_landings()
         aalg<<-AvailableCLandingsGraph(dataset=pred_landings,title=title,col=color_countries, country_ref=country_ref)
         aalg
       })

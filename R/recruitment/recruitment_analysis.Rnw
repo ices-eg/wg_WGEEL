@@ -1567,6 +1567,13 @@ if (sgipee_test_for_change_ee<=0.05) {
 }else {
   test_sgipee_char_ee<-"not significant"
 }
+# test on the trend after 2011 ----------------------------------------------
+
+after_2011<-lm(lEE~year,data=trend[trend$year>=2011,])
+summary(after_2011)
+
+after_2011<-lm(lEE~year,data=trend[trend$year>=2011,])
+summary(after_2011)
 
 test=lm(lNS~year+pmax(year,2011),data=trend)
 Anova(test)
