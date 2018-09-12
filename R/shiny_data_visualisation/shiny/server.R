@@ -268,21 +268,12 @@ server = function(input, output, session) {
       })
   
   output$downloadAvailable <- downloadHandler(filename = function() {
-<<<<<<< HEAD
-        paste("available_landings", input$year[1], "-", input$year[2], ".png", sep = "")
-      }, content = function(file) {                        
-        ggsave(file, aalg,
-            device = "png", width = 20, height = 14, 
-            units = "cm")
-      })
-=======
     paste("available_landings", input$year[1], "-", input$year[2], ".",input$image_format, sep = "")
   }, content = function(file) {                        
     ggsave(file, aalg,
            device = input$image_format, width = 20, height = 14, 
            units = "cm")
   })
->>>>>>> branch 'master' of https://github.com/ices-eg/wg_WGEEL.git
   ######################################"
   # raw landings
   ######################################
