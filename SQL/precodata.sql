@@ -79,10 +79,10 @@ having count(*) > 1
 -- PT_Port: provide mortality for AL, but biomass for S
 -- conclusion: we can safely sum
 
--- bigtable aggregate by habitat
+-- bigtable aggregated by habitat
 drop view if exists datawg.bigtable_by_habitat cascade;
 create or replace view datawg.bigtable_by_habitat as
-select eel_year, eel_cou_code, country, cou_order, eel_emu_nameshort, emu_wholecountry, eel_hty_code, habitat, sum(b0) as b0, sum(bbest) as bbest, sum(bcurrent) as bcurrent, sum(suma) as suma, sum(sumf) as sumf, sum(sumh) as sumh 
+select eel_year, eel_cou_code, country, cou_order, eel_emu_nameshort, emu_wholecountry, eel_hty_code, habitat, sum(b0) as b0, sum(bbest) as bbest, sum(bcurrent) as bcurrent, sum(suma) as suma, sum(sumf) as sumf, sum(sumh) as sumh, string_agg(eel_lfs_code , ', ') as aggregated_lfs
 from datawg.bigtable 
 group by eel_year, eel_cou_code, country, cou_order, eel_emu_nameshort, emu_wholecountry, eel_hty_code, habitat
 order by eel_year, cou_order, eel_emu_nameshort,
@@ -96,9 +96,125 @@ end
 ;
 
 -- check aggreg by habitat on biomass
-select sum(b0), sum(bbest), sum(bcurrent) from datawg.bigtable ;
+select sum(b0), sum(bbest), sum(bcurrent) from datawg.bigtable;
 select sum(b0), sum(bbest), sum(bcurrent) from datawg.bigtable_by_habitat;
 -- pass
+
+-- check for duplicate  at the emu level
+with too_many_habitats as
+	(select eel_year, eel_cou_code, country, eel_emu_nameshort, emu_wholecountry, count(*)
+	from datawg.bigtable_by_habitat
+	group by eel_year, eel_cou_code, country, eel_emu_nameshort, emu_wholecountry
+	having count(*) > 1)
+select eel_emu_nameshort, count(*) from too_many_habitats group by eel_emu_nameshort order by eel_emu_nameshort
+;
+/*
+-- ES
+	ES_Anda: B in F, T & AL (being F + T) --> FIXME: remove Bcurrent for AL
+	ES_Astu: data in F, T & AL --> can be added
+	ES_Basq: data in F, T & AL --> can be added
+	ES_Cant: data in F, T & AL --> can be added
+	ES_Cast: data in F & AL --> can be added
+	ES_Cata: B in F, T & AL (being F + T) --> FIXME: remove Bcurrent for AL / ! no mortality in F ==> (sumA, sum F) can't be calculated
+	ES_Gali: B in F, T & AL --> B, sumA & sumH can be added / ! no  F mortality in T, but sumA in AL seems to be sumF in F + sumH in AL ==> can be added
+	ES_Inne: data in F & AL --> can be added
+	ES_Minh: data in T & AL --> can be added
+	ES_Murc: in F, T & C --> nothing, but B0 can be calculated
+	ES_Nava: data in F, AL --> can be added
+	ES_Vale: B in F, T & AL (being F + T) --> FIXME: remove Bcurrent for AL for 2017
+-- IE
+	IE_East: data in F, T & AL --> can be added
+	IE_NorW: data in F, T & AL --> can be added
+	IE_Shan: data in F, T & AL --> can be added
+	IE_SouE: data in F, T & AL --> can be added
+	IE_SouW: data in F, T & AL --> can be added
+	IE_West: data in F, T & AL --> can be added
+-- IT
+	IT_Abru: all data in F, only sumH in T ==> nothing, but sumH can be calculated
+	IT_Basi: all data in F, only sumH in T ==> nothing, but sumH can be calculated
+	IT_Cala: all data in F, only sumH in T ==> nothing, but sumH can be calculated
+	IT_Camp: data in F, T ==> B can be added & mortalities calculated
+	IT_Emil: data in F, T ==> B can be added & mortalities calculated
+	IT_Frio: data in F, T ==> B can be added & mortalities calculated
+	IT_Lazi: data in F, T ==> B can be added & mortalities calculated
+	IT_Ligu: all data in F, only sumH in T ==> nothing, but sumH can be calculated
+	IT_Lomb: all data in F, only sumH in T ==> nothing, but sumH can be calculated
+	IT_Marc: all data in F, only sumH in T ==> nothing, but sumH can be calculated
+	IT_Moli: all data in F, only sumH in T ==> nothing, but sumH can be calculated
+	IT_Piem: all data in F, only sumH in T ==> nothing, but sumH can be calculated
+	IT_Pugl: data in F, T ==> B can be added & mortalities calculated
+	IT_Sard: data in F, T ==> B can be added & mortalities calculated
+	IT_Sici: data in F, T ==> B can be added & mortalities calculated
+	IT_Tosc: data in F, T ==> B can be added & mortalities calculated
+	IT_Tren: all data in F, only sumH in T ==> nothing, but sumH can be calculated
+	IT_Umbr: all data in F, only sumH in T ==> nothing, but sumH can be calculated
+	IT_Vall: all data in F, only sumH in T ==> nothing, but sumH can be calculated
+	IT_Vene: data in F, T ==> B can be added & mortalities calculated
+-- LT
+	LT_total: B0 in T, the rest in F ==> nothing can be calculated
+-- PL
+	PL_Vist: data in AL, sumH only in F (being turbines) ==> can be added
+*/
+
+-- correct the "FIXME" above
+begin;
+update datawg.t_eelstock_eel set eel_qal_id = 3, eel_qal_comment = "eel_qal_comment" || 'duplicate from F and T'
+where eel_emu_nameshort in ('ES_Anda', 'ES_Cata') and eel_hty_code = 'AL' and eel_typ_id = 15
+;
+update datawg.t_eelstock_eel set eel_qal_id = 3, eel_qal_comment = "eel_qal_comment" || 'duplicate from F and T'
+where eel_emu_nameshort in ('ES_Vale') and eel_hty_code = 'AL' and eel_typ_id = 15 and eel_year  = 2017
+;
+
+commit;
+--rollback ;
+
+-- bigtable aggregated by EMU
+drop view if exists datawg.bigtable_by_emu cascade;
+create or replace view datawg.bigtable_by_emu as
+select eel_year, eel_cou_code, country, cou_order, eel_emu_nameshort, emu_wholecountry, 
+	case 
+		when eel_emu_nameshort in ('IT_Abru', 'IT_Basi', 'IT_Cala', 'IT_Ligu', 'IT_Lomb', 'IT_Marc', 'IT_Moli', 'IT_Piem', 'IT_Tren', 'IT_Umbr', 'IT_Vall', 'LT_total') then null
+		else sum(b0) 
+	end as b0,
+	case 
+		when eel_emu_nameshort in ('ES_Murc', 'IT_Abru', 'IT_Basi', 'IT_Cala', 'IT_Ligu', 'IT_Lomb', 'IT_Marc', 'IT_Moli', 'IT_Piem', 'IT_Tren', 'IT_Umbr', 'IT_Vall', 'LT_total') then null
+		else sum(bbest) 
+	end as bbest,
+	case 
+		when eel_emu_nameshort in ('ES_Murc', 'IT_Abru', 'IT_Basi', 'IT_Cala', 'IT_Ligu', 'IT_Lomb', 'IT_Marc', 'IT_Moli', 'IT_Piem', 'IT_Tren', 'IT_Umbr', 'IT_Vall', 'LT_total') then null
+		else sum(bcurrent) 
+	end as bcurrent,
+	case 
+		when eel_emu_nameshort in ('ES_Cata', 'ES_Murc', 'IT_Abru', 'IT_Basi', 'IT_Cala', 'IT_Ligu', 'IT_Lomb', 'IT_Marc', 'IT_Moli', 'IT_Piem', 'IT_Tren', 'IT_Umbr', 'IT_Vall', 'LT_total') then null
+		when eel_emu_nameshort in ('IT_Camp', 'IT_Emil', 'IT_Frio', 'IT_Lazi', 'IT_Pugl', 'IT_Sard', 'IT_Sici', 'IT_Tosc', 'IT_Vene') then round(sum(suma*bbest)/sum(bbest),3)
+		else sum(suma) 
+	end as suma,
+	case 
+		when eel_emu_nameshort in ('ES_Cata', 'ES_Murc', 'IT_Abru', 'IT_Basi', 'IT_Cala', 'IT_Ligu', 'IT_Lomb', 'IT_Marc', 'IT_Moli', 'IT_Piem', 'IT_Tren', 'IT_Umbr', 'IT_Vall', 'LT_total') then null
+		when eel_emu_nameshort in ('IT_Camp', 'IT_Emil', 'IT_Frio', 'IT_Lazi', 'IT_Pugl', 'IT_Sard', 'IT_Sici', 'IT_Tosc', 'IT_Vene') then round(sum(sumf*bbest)/sum(bbest),3)
+		else sum(sumf) 
+	end as sumf,
+	case 
+		when eel_emu_nameshort in ('ES_Murc', 'LT_total') then null
+		when eel_emu_nameshort in ('IT_Camp', 'IT_Emil', 'IT_Frio', 'IT_Lazi', 'IT_Pugl', 'IT_Sard', 'IT_Sici', 'IT_Tosc', 'IT_Vene') then round(sum(sumh*bbest)/sum(bbest),3)
+		else sum(sumh) 
+	end as sumh, 
+	aggregated_lfs, string_agg(eel_hty_code , ', ') as aggregated_hty
+from datawg.bigtable_by_habitat 
+group by eel_year, eel_cou_code, country, cou_order, eel_emu_nameshort, emu_wholecountry, aggregated_lfs
+order by eel_year, cou_order, eel_emu_nameshort
+;
+
+-- check everything went well (1 line per EMU/year)
+select eel_year, eel_cou_code, country, eel_emu_nameshort, emu_wholecountry, count(*)
+from datawg.bigtable_by_emu
+group by eel_year, eel_cou_code, country, eel_emu_nameshort, emu_wholecountry
+having count(*) > 1
+; 
+
+
+
+
 
 
 drop view if exists DATAWG.biomass_synthesis CASCADE;
