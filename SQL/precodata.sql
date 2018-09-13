@@ -1,60 +1,4 @@
--- bigtable
-drop view if exists datawg.bigtable cascade;
-create or replace view datawg.bigtable as
-with 
-	b0 as
-		(select eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code, round(eel_value) as b0 from datawg.b0),
-	bbest as
-		(select eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code, round(eel_value) as bbest from datawg.bbest),
-	bcurrent as
-		(select eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code, round(eel_value) as bcurrent from datawg.bcurrent),
-	suma as
-		(select eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code, round(eel_value,3) as suma from datawg.sigmaa),
-	sumf as
-		(select eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code, round(eel_value,3) as sumf from datawg.sigmaf),
-	sumh as
-		(select eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code, round(eel_value,3) as sumh from datawg.sigmah),
-	countries as
-		(select cou_code, cou_country as country, cou_order from "ref".tr_country_cou),
-	emu as
-		(select emu_nameshort, emu_wholecountry from "ref".tr_emu_emu),
-	habitat as
-		(select hty_code, hty_description as habitat from "ref".tr_habitattype_hty),
-	life_stage as
-		(select lfs_code, lfs_name as life_stage from "ref".tr_lifestage_lfs)
-select eel_year as year, eel_cou_code, country, eel_emu_nameshort, emu_wholecountry, eel_hty_code, habitat, eel_lfs_code, life_stage, b0, bbest, bcurrent, suma, sumf, sumh
-from b0 
-	full outer join bbest using(eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code)
-	full outer join bcurrent using(eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code)
-	full outer join suma using(eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code)
-	full outer join sumf using(eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code)
-	full outer join sumh using(eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code)
-	full outer join countries on eel_cou_code = cou_code
-	join emu on eel_emu_nameshort = emu_nameshort 
-	join habitat on eel_hty_code = hty_code
-	join life_stage on eel_lfs_code = lfs_code
-order by eel_year, cou_order, eel_emu_nameshort,
-case 
-	when eel_hty_code = 'F' then 1
-	when eel_hty_code = 'T' then 2
-	when eel_hty_code = 'C' then 3
-	when eel_hty_code = 'MO' then 4
-	when eel_hty_code = 'AL' then 5
-end,
-case 
-	when eel_lfs_code = 'G' then 1
-	when eel_lfs_code = 'QG' then 2
-	when eel_lfs_code = 'OG' then 3
-	when eel_lfs_code = 'GY' then 4
-	when eel_lfs_code = 'Y' then 5
-	when eel_lfs_code = 'YS' then 6
-	when eel_lfs_code = 'S' then 7
-	when eel_lfs_code = 'AL' then 8
-end
-;
-
-
-drop view if exists DATAWG.biomass_synthesis CASCADE;
+﻿drop view if exists DATAWG.biomass_synthesis CASCADE;
 create or REPLACE view DATAWG.biomass_synthesis AS
 with B0_avg AS
 	(with B0_AL AS
@@ -126,7 +70,7 @@ round(case when EEL_COU_CODE = 'IE' THEN sum(sumf) -- solved case when suma in A
 	when BIOMASS_SYNTHESIS.bbest > 0 then sum(sfb)/(BIOMASS_SYNTHESIS.bbest) ELSE NULL end, 2) as sumf,
 round(case when EEL_COU_CODE = 'IE' THEN sum(sumh) -- solved case when suma in AL only (I
 	when BIOMASS_SYNTHESIS.bbest > 0 then sum(shb)/(BIOMASS_SYNTHESIS.bbest) ELSE NULL end, 2) as sumh,
-'emu' as aggreg_level
+'emu'::text as aggreg_level
 from DATAWG.MORTALITY_SYNTHESIS left outer join DATAWG.BIOMASS_SYNTHESIS using(EEL_COU_CODE,EEL_EMU_NAMESHORT, eel_year)
 group by EEL_COU_CODE, EEL_EMU_NAMESHORT, eel_year, b0, BIOMASS_SYNTHESIS.bbest, bcurrent
 ;
@@ -143,11 +87,11 @@ with country_biomass as
 	case when count(Bcurrent)< COUNT(*) then null else SUM(Bcurrent) end as Bcurrent-- by default sum of null and value is not a null value, this part correct that
 	from DATAWG.PRECODATA_EMU 
 	group by EEL_COU_CODE, eel_year)
-select EEL_COU_CODE, null EEL_EMU_NAMESHORT, EEL_COU_CODE as aggreg_area, eel_year, round(country_biomass.b0/1000) as b0, round(country_biomass.bbest/1000) as bbest, round(country_biomass.bcurrent/1000) as bcurrent, 
+select EEL_COU_CODE, null::character varying(20) EEL_EMU_NAMESHORT, EEL_COU_CODE as aggreg_area, eel_year, round(country_biomass.b0/1000) as b0, round(country_biomass.bbest/1000) as bbest, round(country_biomass.bcurrent/1000) as bcurrent, 
 round(case when country_biomass.bbest > 0 then sum(suma * PRECODATA_EMU.bbest)/(country_biomass.bbest) ELSE NULL end, 2) as suma,
 round(case when country_biomass.bbest > 0 then sum(sumf * PRECODATA_EMU.bbest)/(country_biomass.bbest) ELSE NULL end, 2) as sumf,
 round(case when country_biomass.bbest > 0 then sum(sumh * PRECODATA_EMU.bbest)/(country_biomass.bbest) ELSE NULL end, 2) as sumh,
-'country' as aggreg_level
+'country'::text as aggreg_level
 from DATAWG.PRECODATA_EMU left outer join country_biomass using(EEL_COU_CODE, eel_year)
 group by EEL_COU_CODE, eel_year, country_biomass.b0, country_biomass.bbest, country_biomass.bcurrent
 ;
@@ -169,7 +113,7 @@ with all_level as
 		where b0 is not null and bbest is not null and bcurrent is not null and suma is not null group by EEL_COU_CODE) --last year should the last COMPLETE (b0, bbest, bcurrent, suma) year
 	select * from DATAWG.precodata_country join last_year_country using(EEL_COU_CODE))
 	union
-	(select null EEL_COU_CODE, null EEL_EMU_NAMESHORT, 'All (' || count(*) || ' countries: ' || string_agg(EEL_COU_CODE, ',') || ')' AGGREG_AREA, eel_year, 
+	(select null EEL_COU_CODE, null::character varying(20) EEL_EMU_NAMESHORT, 'All (' || count(*) || ' countries: ' || string_agg(EEL_COU_CODE, ',') || ')' AGGREG_AREA, eel_year, 
 		sum(b0) as b0, sum(bbest)as bbest, sum(bcurrent)as bcurrent,
 		round(sum(suma*bbest)/sum(bbest),2) as suma, 
 		case when count(sumf)< COUNT(*) then null else round(sum(sumf*bbest)/sum(bbest),2) end as sumf, -- by default sum of null and value is not a null value, this part correct that
