@@ -53,6 +53,7 @@ server = function(input, output, session) {
               habitat = input$habitat,
               year_range = input$year[1]:input$year[2]                                      
           )      
+          filtered_data<-subset(filtered_data,!is.na(eel_value)) 
           
         }else if (input$dataset == "raw_landings_rec" | input$dataset == "landings_rec_corrected"){      
           filtered_data<-filter_data("landings",
@@ -62,6 +63,7 @@ server = function(input, output, session) {
               habitat = input$habitat,
               year_range = input$year[1]:input$year[2]                                      
           )      
+          filtered_data<-subset(filtered_data,!is.na(eel_value)) 
           
         }else if (input$dataset == "aquaculture_kg"){      
           filtered_data<-filter_data("aquaculture",
@@ -71,6 +73,7 @@ server = function(input, output, session) {
               habitat = input$habitat,
               year_range = input$year[1]:input$year[2]                                      
           )      
+          filtered_data<-subset(filtered_data,!is.na(eel_value)) 
           
         }  else if (input$dataset == "aquaculture_n"){      
           filtered_data<-filter_data("aquaculture",
@@ -80,6 +83,7 @@ server = function(input, output, session) {
               habitat = input$habitat,
               year_range = input$year[1]:input$year[2]                                      
           )      
+          filtered_data<-subset(filtered_data,!is.na(eel_value)) 
           
           
         }   else if (input$dataset == "release_kg"){      
@@ -91,6 +95,7 @@ server = function(input, output, session) {
               year_range = input$year[1]:input$year[2]                                      
           )      
           
+          filtered_data<-subset(filtered_data,!is.na(eel_value)) 
           
         }  else if (input$dataset == "release_n"){      
           filtered_data<-filter_data("release",
@@ -100,6 +105,7 @@ server = function(input, output, session) {
               habitat = input$habitat,
               year_range = input$year[1]:input$year[2]                                      
           )      
+          filtered_data<-subset(filtered_data,!is.na(eel_value)) 
           
           
         }  else if (input$dataset == "gee"){      
@@ -108,9 +114,11 @@ server = function(input, output, session) {
               life_stage = input$lfs, 
               country = input$country,
               habitat = input$habitat,
-              year_range = input$year[1]:input$year[2]                                      
+              year_range = input$year[1]:input$year[2]
+              
           )      
           
+          filtered_data<-subset(filtered_data,!is.na(eel_value)) 
           
         } else {
           
@@ -119,7 +127,7 @@ server = function(input, output, session) {
               country = input$country, 
               habitat = input$habitat,
               year_range = input$year[1]:input$year[2])
-          
+         filtered_data<-subset(filtered_data,!is.na(eel_value)) 
         }
         # do not group by habitat or lfs
         if (input$dataset=="precodata"){
@@ -128,16 +136,17 @@ server = function(input, output, session) {
           #filtered_data
           
         } else {
-          grouped_data <-group_data(filtered_data,geo=input$geo,habitat=FALSE,lfs=FALSE,na.rm=TRUE) 
+          grouped_data <-group_data(filtered_data,geo=input$geo,habitat=FALSE,lfs=FALSE,na.rm=FALSE)
+
           #TODO:if na.rm=F allow to handle missing value --> create a button
           
           if (input$dataset %in% c("aquaculture_kg","landings","raw_landings_com","raw_landings_rec","landings_com_corrected" , "landings_rec_corrected")) {
-            fun.agg<-function(X){if(length(X)>0){round(sum(X)/1000,ifelse(sum(X)>1000,0,1))}else{sum(c(X,NA))}}
+            fun.agg<-function(X){if(length(X)>0){round(sum(X)/1000,ifelse(sum(X)>1000,0,3))}else{sum(c(X,NA))}}
       
           } else{
             
             if(input$dataset %in% c("release_n")){
-              fun.agg<-function(X){if(length(X)>0){round(sum(X)/10^6,ifelse(sum(X)>1000,0,1))}else{sum(c(X,NA))}}
+              fun.agg<-function(X){if(length(X)>0){round(sum(X)/10^6,ifelse(sum(X)>10^6,0,3))}else{sum(c(X,NA))}}
               
               
             }else {fun.agg <- function(X){if(length(X)>0){round(sum(X),ifelse(sum(X)>1000,0,1))}else{sum(c(X,NA))}}
@@ -155,7 +164,7 @@ server = function(input, output, session) {
           
           switch(input$geo,"country"={
                 table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)  
-                
+
                 #ordering the column accordign to country order
                 country_to_order = names(table)[-1]
                 n_order = order(country_ref$cou_order[match(country_to_order, country_ref$cou_code)])
