@@ -88,7 +88,7 @@ datacall_map<-function(
     
     # get scales (scales set on full dataset (from) a circle marker in pixels  --------------------
     
-    selected_countries$rescaled_value <- 100*scales::rescale(selected_countries$eel_value,
+    selected_countries$rescaled_value <- scales::rescale(selected_countries$eel_value,to=c(2,100),
         from=range(ccall$eel_value)) 
     
     # color palette -------------------------------------------------------------------------------
