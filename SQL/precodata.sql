@@ -171,11 +171,16 @@ commit;
 
 -- bigtable aggregated by EMU
 drop view if exists datawg.precodata_emu cascade;
-create or replace view datawg.precodata_emu as
+create or replace view datawg.precodata_emu AS
+WITH b0_unique AS
+	(SELECT eel_emu_nameshort, B0 AS unique_b0
+	FROM datawg.bigtable_by_habitat
+	WHERE eel_year = 1800
+	)
 select eel_year, eel_cou_code, country, cou_order, eel_emu_nameshort, emu_wholecountry, 
 	case 
 		when eel_emu_nameshort in ('IT_Abru', 'IT_Basi', 'IT_Cala', 'IT_Ligu', 'IT_Lomb', 'IT_Marc', 'IT_Moli', 'IT_Piem', 'IT_Tren', 'IT_Umbr', 'IT_Vall', 'LT_total') then null
-		else sum(b0) 
+		else COALESCE(sum(unique_b0), sum(b0)) 
 	end as b0,
 	case 
 		when eel_emu_nameshort in ('ES_Murc', 'IT_Abru', 'IT_Basi', 'IT_Cala', 'IT_Ligu', 'IT_Lomb', 'IT_Marc', 'IT_Moli', 'IT_Piem', 'IT_Tren', 'IT_Umbr', 'IT_Vall', 'LT_total') then null
@@ -202,6 +207,8 @@ select eel_year, eel_cou_code, country, cou_order, eel_emu_nameshort, emu_wholec
 	end as sumh, 
 	'emu' as aggreg_level, aggregated_lfs, string_agg(eel_hty_code , ', ') as aggregated_hty
 from datawg.bigtable_by_habitat 
+LEFT OUTER JOIN B0_unique USING(eel_emu_nameshort)
+WHERE eel_year > 1850
 group by eel_year, eel_cou_code, country, cou_order, eel_emu_nameshort, emu_wholecountry, aggregated_lfs
 order by eel_year, cou_order, eel_emu_nameshort
 ;
