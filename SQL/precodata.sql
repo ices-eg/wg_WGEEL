@@ -211,7 +211,41 @@ select eel_year, eel_cou_code, country, eel_emu_nameshort, emu_wholecountry, cou
 from datawg.precodata_emu
 group by eel_year, eel_cou_code, country, eel_emu_nameshort, emu_wholecountry
 having count(*) > 1
-; 
+;
+
+-- handle B0
+SELECT eel_emu_nameshort, count(*), min(b0) - max(b0)
+FROM datawg.precodata_emu
+WHERE b0 IS NOT NULL
+GROUP BY eel_emu_nameshort
+ORDER BY eel_emu_nameshort;
+-- the only only having changing B0 are GB and SE
+
+SELECT eel_typ_id, 1800 AS eel_year, eel_value, eel_emu_nameshort, eel_cou_code, eel_lfs_code, eel_hty_code, eel_area_division, eel_qal_id, eel_qal_comment, eel_comment, eel_datelastupdate, eel_missvaluequal, eel_datasource
+FROM datawg.t_eelstock_eel
+WHERE eel_typ_id = 13 AND eel_cou_code NOT IN ('GB', 'SE') AND eel_qal_id IN (1,2,4)
+GROUP BY eel_typ_id, eel_value, eel_emu_nameshort, eel_cou_code, eel_lfs_code, eel_hty_code, eel_area_division, eel_qal_id, eel_qal_comment, eel_comment, eel_datelastupdate, eel_missvaluequal, eel_datasource
+ORDER BY eel_emu_nameshort;
+
+-- add unique B0 in 1800 for all but SE and GB
+BEGIN;
+INSERT INTO datawg.t_eelstock_eel(eel_typ_id, eel_year, eel_value, eel_emu_nameshort, eel_cou_code, eel_lfs_code, eel_hty_code, eel_area_division, eel_qal_id, eel_qal_comment, eel_comment, eel_datelastupdate, eel_missvaluequal, eel_datasource)
+SELECT eel_typ_id, 1800::NUMERIC AS eel_year, eel_value, eel_emu_nameshort, eel_cou_code, eel_lfs_code, eel_hty_code, eel_area_division, eel_qal_id, eel_qal_comment, eel_comment, eel_datelastupdate, eel_missvaluequal, eel_datasource
+FROM datawg.t_eelstock_eel
+WHERE eel_typ_id = 13 AND eel_cou_code NOT IN ('GB', 'SE') AND eel_qal_id IN (1,2,4)
+GROUP BY eel_typ_id, eel_value, eel_emu_nameshort, eel_cou_code, eel_lfs_code, eel_hty_code, eel_area_division, eel_qal_id, eel_qal_comment, eel_comment, eel_datelastupdate, eel_missvaluequal, eel_datasource
+ORDER BY eel_emu_nameshort;
+
+COMMIT;
+--ROLLBACK;
+
+-- change quality for all B0 but SE and GB
+BEGIN;
+UPDATE datawg.t_eelstock_eel SET eel_qal_id = 18, eel_qal_comment = eel_qal_comment || ', change for year 1800'
+WHERE eel_typ_id = 13 AND eel_cou_code NOT IN ('GB', 'SE') AND eel_qal_id IN (1,2,4) AND eel_year > 1850;
+
+COMMIT;
+--ROLLBACK;
 
 
 -- aggregation the country level
