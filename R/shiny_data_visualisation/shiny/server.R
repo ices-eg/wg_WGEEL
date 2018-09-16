@@ -510,6 +510,21 @@ server = function(input, output, session) {
             height = 14, 
             units = "cm")
       })
+  
+  ################################
+  # Rasta map
+  ################################
+  output$rasta_map <- renderLeaflet({
+        b_map(dataset=precodata_all, 
+                map = input$geo,
+                use_last_year=input$rasta_map_last_year,
+                the_year=input$year[2])
+           
+      })
+  
+  
+  
+  
   ######################################
 # MAP
   ######################################
