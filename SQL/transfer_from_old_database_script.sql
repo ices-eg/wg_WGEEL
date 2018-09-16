@@ -924,3 +924,6 @@ commit;
 begin;
 update datawg.t_series_ser set geom=ST_SetSRID(ST_MakePoint(ser_x, ser_y),4326) where ser_nameshort='Mond';
 commit;
+
+
+alter table datawg.t_eelstock_eel add constraint c_fk_eel_datasource foreign key (eel_datasource) references ref.tr_datasource_dts(dts_datasource)
