@@ -51,6 +51,7 @@ load_package("gridExtra")
 load_package("colorspace")
 load_package("ggrepel")
 load_package("viridis")
+load_package("svglite")
 # load functions ------------------------------------------------------------------------------------
 options()
 # retrieve reference tables needed
