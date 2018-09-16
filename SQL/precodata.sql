@@ -349,11 +349,6 @@ FROM analyse_EMU_Total
 	JOIN "ref".tr_country_cou ON (eel_cou_code = cou_code)
 ORDER BY eel_year, cou_order
 ;
---TODO: find a way to take B0 from past year (when country give only 1 B0
-
-
-
-
 
 -- precodata for all country
 drop view if exists DATAWG.precodata_all;
@@ -363,18 +358,21 @@ with all_level as
 	(with last_year_emu as
 		(select EEL_EMU_NAMESHORT, max(EEL_YEAR) as last_year from DATAWG.PRECODATA_emu 
 		where b0 is not null and bbest is not null and bcurrent is not null and suma is not null group by EEL_EMU_NAMESHORT) --last year should the last COMPLETE (b0, bbest, bcurrent, suma) year
-	select eel_cou_code, eel_emu_nameshort, aggreg_area, eel_year, b0, bbest, bcurrent, suma, sumf, sumh, aggreg_level, last_year from DATAWG.precodata_emu join last_year_emu using(EEL_EMU_NAMESHORT))
+	select eel_year, eel_cou_code, eel_emu_nameshort, '<lfs>' || aggregated_lfs || '<\lfs><hty>' || aggregated_hty || '<\hty>' AS aggreg_comment, b0, bbest, bcurrent, suma, sumf, sumh, aggreg_level, last_year from DATAWG.precodata_emu join last_year_emu using(EEL_EMU_NAMESHORT))
 	union
 	(with last_year_country as
 		(select EEL_COU_CODE, max(EEL_YEAR) as last_year from DATAWG.PRECODATA_COUNTRY
 		where b0 is not null and bbest is not null and bcurrent is not null and suma is not null group by EEL_COU_CODE) --last year should the last COMPLETE (b0, bbest, bcurrent, suma) year
-	select * from DATAWG.precodata_country join last_year_country using(EEL_COU_CODE))
+	select eel_year, eel_cou_code, eel_emu_nameshort,
+	'<B0>' || method_b0 || '<\B0><Bbest>' || method_bbest || '<\Bbest><Bcurrent>' || method_bcurrent || '<\Bcurrent><suma>' || method_suma || '<\suma><sumf>'  || method_sumf || '<\sumf><sumh>'  || method_sumh || '<\sumah>'AS aggreg_comment,
+	b0, bbest, bcurrent, suma, sumf, sumh, aggreg_level, last_year
+	from DATAWG.precodata_country join last_year_country using(EEL_COU_CODE))
 	union
-	(select null EEL_COU_CODE, null EEL_EMU_NAMESHORT, 'All (' || count(*) || ' countries: ' || string_agg(EEL_COU_CODE, ',') || ')' AGGREG_AREA, eel_year, 
+	(select eel_year, null EEL_COU_CODE, null EEL_EMU_NAMESHORT, 'All (' || count(*) || ' countries: ' || string_agg(EEL_COU_CODE, ',') || ')' aggreg_comment,  
 		sum(b0) as b0, sum(bbest)as bbest, sum(bcurrent)as bcurrent,
-		round(sum(suma*bbest)/sum(bbest),2) as suma, 
-		case when count(sumf)< COUNT(*) then null else round(sum(sumf*bbest)/sum(bbest),2) end as sumf, -- by default sum of null and value is not a null value, this part correct that
-		case when count(sumh)< COUNT(*) then null else round(sum(sumh*bbest)/sum(bbest),2) end as sumf, -- by default sum of null and value is not a null value, this part correct that
+		round(sum(suma*bbest)/sum(bbest), 3) as suma, 
+		case when count(sumf)< COUNT(*) then null else round(sum(sumf*bbest)/sum(bbest), 3) end as sumf, -- by default sum of null and value is not a null value, this part correct that
+		case when count(sumh)< COUNT(*) then null else round(sum(sumh*bbest)/sum(bbest), 3) end as sumf, -- by default sum of null and value is not a null value, this part correct that
 		'all' as aggreg_level, null last_year
 	from DATAWG.precodata_country
 	where b0 is not null and bbest is not null and BCURRENT is not NULL and SUMA is not null
