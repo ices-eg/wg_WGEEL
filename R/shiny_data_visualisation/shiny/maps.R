@@ -308,6 +308,7 @@ recruitment_map <- function(R_stations, statseries, wger){
 #' @rdname b_map
 #' @importFrom scales rescale
 #' @importFrom dplyr inner_join rename
+
 b_map <- function(dataset=precodata_all, 
     map = "country",
     use_last_year=TRUE,

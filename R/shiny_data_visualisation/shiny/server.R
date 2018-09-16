@@ -513,6 +513,7 @@ server = function(input, output, session) {
         )  
       })
   
+  
   output$precodata_graph<- renderPlot({
         precodata_sel<-filter_data_reactive()        
         trace_precodiag(precodata_sel,
