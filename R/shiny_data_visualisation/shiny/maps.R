@@ -300,6 +300,8 @@ recruitment_map <- function(R_stations, statseries, wger){
 #' @details Different treatment for country (which relies on precodata_all) emu which relies on precodata,
 #' the precodata table providing one line per emu.
 #' @examples 
+#' b_map(dataset=precodata_all,map="country")
+
 #' @seealso 
 #'  \code{\link[scales]{rescale}}
 #'  \code{\link[dplyr]{inner_join}},\code{\link[dplyr]{rename}}
@@ -320,212 +322,218 @@ b_map <- function(dataset=precodata_all,
     precodata_here <-precodata_all[precodata_all$aggreg_level==map,]
     # this will always select country
     
-    if (use_last_year)   precodata_here <-precodata_here[precodata_here$eel_year == precodata_here$last_year,]
-    
-    selected_countries <- merge( as.data.frame(country_c), precodata_here, by.x="cou_code",by.y="eel_cou_code")
-    
-    # create an id as eg : GR_2016 ------------------------------------------------------------------
-    
-    selected_countries$id <- paste(selected_countries$cou_code, selected_countries$year) 
-    
-    
-    
-    # get scales (scales set on full dataset (from) a circle marker in pixels  --------------------
-    
-    selected_countries$b40 <- 0.4 * selected_countries$b0   
-    
-    selected_countries$rescaled_b0<-scales::rescale(log(selected_countries$b0), to=c(4,50),
-        from=range(log(selected_countries$b0),na.rm=T)) 
-    
-    selected_countries$rescaled_b40<-scales::rescale(log(selected_countries$b40), to=c(4,50),
-        from=range(log(selected_countries$b0),na.rm=T)) 
-    
-    selected_countries$rescaled_bbest<-scales::rescale(log(selected_countries$bbest), to=c(4,50),
-        from=range(log(selected_countries$b0),na.rm=T)) 
-    
-    selected_countries$rescaled_bcurrent<-scales::rescale(log(selected_countries$bcurrent), to=c(4,50),
-        from=range(log(selected_countries$b0),na.rm=T)) 
-    
-    # get popup information ------------------------------------------------------------------------
-    
-    selected_countries$label<-sprintf("%s B0 %s </br> Bbest %s </br> Bcurrent %s", 
-        selected_countries$last_year, 
-        selected_countries$b0,
-        selected_countries$bbest,       
-        selected_countries$bcurrent )
-    
-    
-    
-    m <- leaflet(data=selected_countries) %>%
-        
-        addProviderTiles(providers$Esri.OceanBasemap) %>% 
-        
-	    addPolygons(data = country_p, weight = 2, opacity=0.3, fillOpacity =0.1)%>%
-        
-        addCircleMarkers(
-            lng = ~coords.x1,
-            lat = ~coords.x2,
-		    color = "grey",
-            fillColor = "grey",
-            fillOpacity = 0.9,
-            opacity = 0.9,            
-            weight = 0,
-            stroke = TRUE,
-            radius = ~ rescaled_b0
-        ) %>%
-        
-        addCircleMarkers(
-            lng = ~coords.x1,
-            lat = ~coords.x2,
-		    color = "g",
-            fillColor = "red",
-            fillOpacity = 0.7,
-            opacity = 0.7,            
-            weight = 1,
-            stroke = TRUE,
-            radius = ~ rescaled_b40) %>%
-        
-        addCircleMarkers(
-            lng = ~coords.x1,
-            lat = ~coords.x2,
-		    color = "g",
-            fillColor = "orange",
-            fillOpacity = 0.7,
-            opacity = 0.7,            
-            weight = 1,
-            stroke = TRUE,
-            radius = ~ rescaled_bbest)     %>%
-        
-        addCircleMarkers(
-            lng = ~coords.x1,
-            lat = ~coords.x2,
-		    color = "g",
-            fillColor = "green",
-            fillOpacity = 0.7,
-            opacity = 0.7,            
-            weight = 1,
-            stroke = TRUE,
-            radius = ~ rescaled_bcurrent,
-            popup = ~ label,
-            layerId = ~id)  
-    
-    
-  } else if (map=="emu"){
-    
-    # in country precodata_all does not contain emu names hence the following
-    precodata_here <-precodata
-    
-    
-    
     if (use_last_year)  {
-      precodata_here <- inner_join(
-          precodata_here %>% 
-              group_by(eel_emu_nameshort) %>% 
-              summarize(last_year=last(eel_year)),
-          precodata_here,   by = "eel_emu_nameshort") %>% 
-      filter(last_year == eel_year)
-      
-    } else {
-      # using the second slider input
-         validate(need(!is.null(the_year),"There should be an input to select one year"))
-          precodata <- precodata %>%  filter(last_year == the_year)
-    }
-    
-    
-    selected_emus <- dplyr::inner_join( as.data.frame(emu_c), precodata_here, by=c("emu_namesh"="eel_emu_nameshort"))
-    selected_emus <- dplyr::rename(selected_emus, eel_emu_nameshort = emu_namesh)
-    # create an id as eg : GR_2016 ------------------------------------------------------------------
-    
-    selected_emus$id <- paste(selected_emus$eel_emu_nameshort, selected_emus$year) 
-    
-    
-    
-    # get scales (scales set on full dataset (from) a circle marker in pixels  --------------------
-    
-    selected_emus$b40 <- 0.4 * selected_emus$b0   
-    
-    selected_emus$rescaled_b0<-scales::rescale(log(selected_emus$b0), to=c(4,30),
-        from=range(log(selected_emus$b0),na.rm=T)) 
-    
-    selected_emus$rescaled_b40<-scales::rescale(log(selected_emus$b40), to=c(4,30),
-        from=range(log(selected_emus$b0),na.rm=T)) 
-    
-    selected_emus$rescaled_bbest<-scales::rescale(log(selected_emus$bbest), to=c(4,30),
-        from=range(log(selected_emus$b0),na.rm=T)) 
-    
-    selected_emus$rescaled_bcurrent<-scales::rescale(log(selected_emus$bcurrent), to=c(4,30),
-        from=range(log(selected_emus$b0),na.rm=T)) 
-    
-    # get popup information ------------------------------------------------------------------------
-    
-    selected_emus$label<-sprintf("%s B0 %s </br> Bbest %s </br> Bcurrent %s", 
-        selected_emus$eel_year, 
-        selected_emus$b0,
-        selected_emus$bbest,       
-        selected_emus$bcurrent )
-    
-    
-    
-    m <- leaflet(data=selected_emus) %>%
-        
-        addProviderTiles(providers$Esri.OceanBasemap) %>% 
-        
-	    addPolygons(data = country_p, weight = 2, opacity=0.3, fillOpacity =0.1)%>%
-        
-        addCircleMarkers(
-            lng = ~coords.x1,
-            lat = ~coords.x2,
-		    color = "grey",
-            fillColor = "grey",
-            fillOpacity = 0.9,
-            opacity = 0.9,            
-            weight = 0,
-            stroke = TRUE,
-            radius = ~ rescaled_b0
-        ) %>%
-        
-        addCircleMarkers(
-            lng = ~coords.x1,
-            lat = ~coords.x2,
-		    color = "g",
-            fillColor = "red",
-            fillOpacity = 0.7,
-            opacity = 0.7,            
-            weight = 1,
-            stroke = TRUE,
-            radius = ~ rescaled_b40) %>%
-        
-        addCircleMarkers(
-            lng = ~coords.x1,
-            lat = ~coords.x2,
-		    color = "g",
-            fillColor = "orange",
-            fillOpacity = 0.7,
-            opacity = 0.7,            
-            weight = 1,
-            stroke = TRUE,
-            radius = ~ rescaled_bbest)     %>%
-        
-        addCircleMarkers(
-            lng = ~coords.x1,
-            lat = ~coords.x2,
-		    color = "g",
-            fillColor = "green",
-            fillOpacity = 0.7,
-            opacity = 0.7,            
-            weight = 1,
-            stroke = TRUE,
-            radius = ~ rescaled_bcurrent,
-            popup = ~ label,
-            layerId = ~id) 
-    
-  } else {
-    stop("map should be country or emu")
+      precodata_here <-precodata_here[precodata_here$eel_year == precodata_here$last_year,]
+      } else {
+    # using the second slider input
+    validate(need(!is.null(the_year),"There should be an input to select one year"))
+    precodata_here <- precodata_here %>%  filter(last_year == the_year)
   }
   
+  selected_countries <- merge( as.data.frame(country_c), precodata_here, by.x="cou_code",by.y="eel_cou_code")
+  
+  # create an id as eg : GR_2016 ------------------------------------------------------------------
+  
+  selected_countries$id <- paste(selected_countries$cou_code, selected_countries$year) 
   
   
   
+  # get scales (scales set on full dataset (from) a circle marker in pixels  --------------------
+  
+  selected_countries$b40 <- 0.4 * selected_countries$b0   
+  
+  selected_countries$rescaled_b0<-scales::rescale(log(selected_countries$b0), to=c(4,50),
+      from=range(log(selected_countries$b0),na.rm=T)) 
+  
+  selected_countries$rescaled_b40<-scales::rescale(log(selected_countries$b40), to=c(4,50),
+      from=range(log(selected_countries$b0),na.rm=T)) 
+  
+  selected_countries$rescaled_bbest<-scales::rescale(log(selected_countries$bbest), to=c(4,50),
+      from=range(log(selected_countries$b0),na.rm=T)) 
+  
+  selected_countries$rescaled_bcurrent<-scales::rescale(log(selected_countries$bcurrent), to=c(4,50),
+      from=range(log(selected_countries$b0),na.rm=T)) 
+  
+  # get popup information ------------------------------------------------------------------------
+  
+  selected_countries$label<-sprintf("%s B0 %s </br> Bbest %s </br> Bcurrent %s", 
+      selected_countries$last_year, 
+      selected_countries$b0,
+      selected_countries$bbest,       
+      selected_countries$bcurrent )
+  
+  
+  
+  m <- leaflet(data=selected_countries) %>%
+      
+      addProviderTiles(providers$Esri.OceanBasemap) %>% 
+      
+	  addPolygons(data = country_p, weight = 2, opacity=0.3, fillOpacity =0.1)%>%
+      
+      addCircleMarkers(
+          lng = ~coords.x1,
+          lat = ~coords.x2,
+		  color = "grey",
+          fillColor = "grey",
+          fillOpacity = 0.9,
+          opacity = 0.9,            
+          weight = 0,
+          stroke = TRUE,
+          radius = ~ rescaled_b0
+      ) %>%
+      
+      addCircleMarkers(
+          lng = ~coords.x1,
+          lat = ~coords.x2,
+		  color = "g",
+          fillColor = "red",
+          fillOpacity = 0.7,
+          opacity = 0.7,            
+          weight = 1,
+          stroke = TRUE,
+          radius = ~ rescaled_b40) %>%
+      
+      addCircleMarkers(
+          lng = ~coords.x1,
+          lat = ~coords.x2,
+		  color = "g",
+          fillColor = "orange",
+          fillOpacity = 0.7,
+          opacity = 0.7,            
+          weight = 1,
+          stroke = TRUE,
+          radius = ~ rescaled_bbest)     %>%
+      
+      addCircleMarkers(
+          lng = ~coords.x1,
+          lat = ~coords.x2,
+		  color = "g",
+          fillColor = "green",
+          fillOpacity = 0.7,
+          opacity = 0.7,            
+          weight = 1,
+          stroke = TRUE,
+          radius = ~ rescaled_bcurrent,
+          popup = ~ label,
+          layerId = ~id)  
+  
+  
+} else if (map=="emu"){
+          
+          # in country precodata_all does not contain emu names hence the following
+          precodata_here <-precodata
+          
+          
+          
+          if (use_last_year)  {
+              precodata_here <- inner_join(
+                          precodata_here %>% 
+                                  group_by(eel_emu_nameshort) %>% 
+                                  summarize(last_year=last(eel_year)),
+                          precodata_here,   by = "eel_emu_nameshort") %>% 
+                  filter(last_year == eel_year)
+              
+          } else {
+              # using the second slider input
+        validate(need(!is.null(the_year),"There should be an input to select one year"))
+        precodata_here <- precodata_here %>%  filter(last_year == the_year)
+          }
+          
+          
+          selected_emus <- dplyr::inner_join( as.data.frame(emu_c), precodata_here, by=c("emu_namesh"="eel_emu_nameshort"))
+          selected_emus <- dplyr::rename(selected_emus, eel_emu_nameshort = emu_namesh)
+          # create an id as eg : GR_2016 ------------------------------------------------------------------
+          
+          selected_emus$id <- paste(selected_emus$eel_emu_nameshort, selected_emus$year) 
+          
+          
+          
+          # get scales (scales set on full dataset (from) a circle marker in pixels  --------------------
+          
+          selected_emus$b40 <- 0.4 * selected_emus$b0   
+          
+          selected_emus$rescaled_b0<-scales::rescale(log(selected_emus$b0), to=c(4,30),
+                  from=range(log(selected_emus$b0),na.rm=T)) 
+          
+          selected_emus$rescaled_b40<-scales::rescale(log(selected_emus$b40), to=c(4,30),
+                  from=range(log(selected_emus$b0),na.rm=T)) 
+          
+          selected_emus$rescaled_bbest<-scales::rescale(log(selected_emus$bbest), to=c(4,30),
+                  from=range(log(selected_emus$b0),na.rm=T)) 
+          
+          selected_emus$rescaled_bcurrent<-scales::rescale(log(selected_emus$bcurrent), to=c(4,30),
+                  from=range(log(selected_emus$b0),na.rm=T)) 
+          
+          # get popup information ------------------------------------------------------------------------
+          
+          selected_emus$label<-sprintf("%s B0 %s </br> Bbest %s </br> Bcurrent %s", 
+                  selected_emus$eel_year, 
+                  selected_emus$b0,
+                  selected_emus$bbest,       
+                  selected_emus$bcurrent )
+          
+          
+          
+          m <- leaflet(data=selected_emus) %>%
+                  
+                  addProviderTiles(providers$Esri.OceanBasemap) %>% 
+                  
+	              addPolygons(data = country_p, weight = 2, opacity=0.3, fillOpacity =0.1)%>%
+                  
+                  addCircleMarkers(
+                          lng = ~coords.x1,
+                          lat = ~coords.x2,
+		                  color = "grey",
+                          fillColor = "grey",
+                          fillOpacity = 0.9,
+                          opacity = 0.9,            
+                          weight = 0,
+                          stroke = TRUE,
+                          radius = ~ rescaled_b0
+                  ) %>%
+                  
+                  addCircleMarkers(
+                          lng = ~coords.x1,
+                          lat = ~coords.x2,
+		                  color = "g",
+                          fillColor = "red",
+                          fillOpacity = 0.7,
+                          opacity = 0.7,            
+                          weight = 1,
+                          stroke = TRUE,
+                          radius = ~ rescaled_b40) %>%
+                  
+                  addCircleMarkers(
+                          lng = ~coords.x1,
+                          lat = ~coords.x2,
+		                  color = "g",
+                          fillColor = "orange",
+                          fillOpacity = 0.7,
+                          opacity = 0.7,            
+                          weight = 1,
+                          stroke = TRUE,
+                          radius = ~ rescaled_bbest)     %>%
+                  
+                  addCircleMarkers(
+                          lng = ~coords.x1,
+                          lat = ~coords.x2,
+		                  color = "g",
+                          fillColor = "green",
+                          fillOpacity = 0.7,
+                          opacity = 0.7,            
+                          weight = 1,
+                          stroke = TRUE,
+                          radius = ~ rescaled_bcurrent,
+                          popup = ~ label,
+                          layerId = ~id) 
+          
+      } else {
+          stop("map should be country or emu")
+      }
+
+return(m)
+
+
 }
 
 
