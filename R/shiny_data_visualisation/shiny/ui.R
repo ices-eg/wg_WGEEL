@@ -32,6 +32,7 @@ ui = dashboardPage(title="ICES Data Visualisation",
             #                menuSubItem("Aquaculture",  tabName="leaflet_aquaculture_tab")
             ),  
             menuItem("Preco-diag", tabName='precodata_tab',icon= icon("dashboard",lib="glyphicon")),  
+            menuItem("Rasta-diag", tabName='rasta_tab',icon= icon("dashboard",lib="glyphicon")),            
             menuItem("Recruitment", tabName='recruit_tab',icon= icon("signal",lib= "font-awesome" ),
                 menuSubItem("Map",tabName="map_recruitment_tab"),
                 menuSubItem("Tables",tabName="table_recruitment_tab")),
@@ -392,6 +393,26 @@ ui = dashboardPage(title="ICES Data Visualisation",
                         )                        
                     )
                 )            
+            ),
+            
+            
+            # RASTA DIAG -----------------------------------------------------------------
+            
+            tabItem(tabName="rasta_tab",
+                fluidRow(                    
+                    column(width=10, leafletOutput("rasta_map", height = 800)),
+                    column(width=2, 
+                        switchInput(
+                            inputId = "rasta_map_last_year",
+                            onLabel = "last year",
+                            offLabel = "all", 
+                            onStatus = "success", 
+                            offStatus = "warning",
+                            size = "default",                           
+                            value = FALSE
+                        )                        
+                    )
+                )
             ),
             
             
