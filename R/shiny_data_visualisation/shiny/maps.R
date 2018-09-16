@@ -327,7 +327,7 @@ b_map <- function(dataset=precodata_all,
       } else {
     # using the second slider input
     validate(need(!is.null(the_year),"There should be an input to select one year"))
-    precodata_here <- precodata_here %>%  filter(last_year == the_year)
+    precodata_here <- precodata_here %>%  filter(eel_year == the_year)
   }
   
   selected_countries <- merge( as.data.frame(country_c), precodata_here, by.x="cou_code",by.y="eel_cou_code")
@@ -342,21 +342,22 @@ b_map <- function(dataset=precodata_all,
   
   selected_countries$b40 <- 0.4 * selected_countries$b0   
   
-  selected_countries$rescaled_b0<-scales::rescale(log(selected_countries$b0), to=c(4,50),
-      from=range(log(selected_countries$b0),na.rm=T)) 
+  selected_countries$rescaled_b0<-scales::rescale(sqrt(selected_countries$b0), to=c(4,50),
+      from=range(sqrt(selected_countries$b0),na.rm=T)) 
   
-  selected_countries$rescaled_b40<-scales::rescale(log(selected_countries$b40), to=c(4,50),
-      from=range(log(selected_countries$b0),na.rm=T)) 
+  selected_countries$rescaled_b40<-scales::rescale(sqrt(selected_countries$b40), to=c(4,50),
+      from=range(sqrt(selected_countries$b0),na.rm=T)) 
   
-  selected_countries$rescaled_bbest<-scales::rescale(log(selected_countries$bbest), to=c(4,50),
-      from=range(log(selected_countries$b0),na.rm=T)) 
+  selected_countries$rescaled_bbest<-scales::rescale(sqrt(selected_countries$bbest), to=c(4,50),
+      from=range(sqrt(selected_countries$b0),na.rm=T)) 
   
-  selected_countries$rescaled_bcurrent<-scales::rescale(log(selected_countries$bcurrent), to=c(4,50),
-      from=range(log(selected_countries$b0),na.rm=T)) 
+  selected_countries$rescaled_bcurrent<-scales::rescale(sqrt(selected_countries$bcurrent), to=c(4,50),
+      from=range(sqrt(selected_countries$b0),na.rm=T)) 
   
   # get popup information ------------------------------------------------------------------------
   
-  selected_countries$label<-sprintf("%s B0 %s </br> Bbest %s </br> Bcurrent %s", 
+  selected_countries$label<-sprintf("%s </br> %s B0 %s </br> Bbest %s </br> Bcurrent %s", 
+      selected_countries$cou_code,
       selected_countries$last_year, 
       selected_countries$b0,
       selected_countries$bbest,       
@@ -436,7 +437,7 @@ b_map <- function(dataset=precodata_all,
           } else {
               # using the second slider input
         validate(need(!is.null(the_year),"There should be an input to select one year"))
-        precodata_here <- precodata_here %>%  filter(last_year == the_year)
+        precodata_here <- precodata_here %>%  filter(eel_year == the_year)
           }
           
           
@@ -452,17 +453,17 @@ b_map <- function(dataset=precodata_all,
           
           selected_emus$b40 <- 0.4 * selected_emus$b0   
           
-          selected_emus$rescaled_b0<-scales::rescale(log(selected_emus$b0), to=c(4,30),
-                  from=range(log(selected_emus$b0),na.rm=T)) 
+          selected_emus$rescaled_b0<-scales::rescale(sqrt(selected_emus$b0), to=c(4,30),
+                  from=range(sqrt(selected_emus$b0),na.rm=T)) 
           
-          selected_emus$rescaled_b40<-scales::rescale(log(selected_emus$b40), to=c(4,30),
-                  from=range(log(selected_emus$b0),na.rm=T)) 
+          selected_emus$rescaled_b40<-scales::rescale(sqrt(selected_emus$b40), to=c(4,30),
+                  from=range(sqrt(selected_emus$b0),na.rm=T)) 
           
-          selected_emus$rescaled_bbest<-scales::rescale(log(selected_emus$bbest), to=c(4,30),
-                  from=range(log(selected_emus$b0),na.rm=T)) 
+          selected_emus$rescaled_bbest<-scales::rescale(sqrt(selected_emus$bbest), to=c(4,30),
+                  from=range(sqrt(selected_emus$b0),na.rm=T)) 
           
-          selected_emus$rescaled_bcurrent<-scales::rescale(log(selected_emus$bcurrent), to=c(4,30),
-                  from=range(log(selected_emus$b0),na.rm=T)) 
+          selected_emus$rescaled_bcurrent<-scales::rescale(sqrt(selected_emus$bcurrent), to=c(4,30),
+                  from=range(sqrt(selected_emus$b0),na.rm=T)) 
           
           # get popup information ------------------------------------------------------------------------
           
