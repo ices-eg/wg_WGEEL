@@ -387,7 +387,7 @@ predict_missing_values <- function(landings, verbose=FALSE, na.rm=FALSE){
   landings$eel_cou_code <- as.factor(as.character(landings$eel_cou_code))
   glm_la<-glm(lvalue~ eel_year + eel_cou_code, data=landings )
   if (verbose)  print(summary(glm_la)) # check fit
-  landings2<-expand.grid("eel_year"=levels(landings$eel_year),"eel_cou_code"=glm_la$xlevels$eel_cou_code)
+  landings2<-expand.grid("eel_year"=glm_la$xlevels$eel_year,"eel_cou_code"=glm_la$xlevels$eel_cou_code)
   landings2$pred=predict(glm_la,newdat=landings2,type="response")
   # BELOW WE REPLACE MISSING VALUES BY THE PREDICTED MODELLED
   value_to_test = numeric(0)

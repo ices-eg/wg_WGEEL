@@ -53,6 +53,7 @@ server = function(input, output, session) {
               habitat = input$habitat,
               year_range = input$year[1]:input$year[2]                                      
           )      
+          filtered_data<-subset(filtered_data,!is.na(eel_value)) 
           
         }else if (input$dataset == "raw_landings_rec" | input$dataset == "landings_rec_corrected"){      
           filtered_data<-filter_data("landings",
@@ -62,6 +63,7 @@ server = function(input, output, session) {
               habitat = input$habitat,
               year_range = input$year[1]:input$year[2]                                      
           )      
+          filtered_data<-subset(filtered_data,!is.na(eel_value)) 
           
         }else if (input$dataset == "aquaculture_kg"){      
           filtered_data<-filter_data("aquaculture",
@@ -71,6 +73,7 @@ server = function(input, output, session) {
               habitat = input$habitat,
               year_range = input$year[1]:input$year[2]                                      
           )      
+          filtered_data<-subset(filtered_data,!is.na(eel_value)) 
           
         }  else if (input$dataset == "aquaculture_n"){      
           filtered_data<-filter_data("aquaculture",
@@ -80,6 +83,7 @@ server = function(input, output, session) {
               habitat = input$habitat,
               year_range = input$year[1]:input$year[2]                                      
           )      
+          filtered_data<-subset(filtered_data,!is.na(eel_value)) 
           
           
         }   else if (input$dataset == "release_kg"){      
@@ -91,6 +95,7 @@ server = function(input, output, session) {
               year_range = input$year[1]:input$year[2]                                      
           )      
           
+          filtered_data<-subset(filtered_data,!is.na(eel_value)) 
           
         }  else if (input$dataset == "release_n"){      
           filtered_data<-filter_data("release",
@@ -100,6 +105,7 @@ server = function(input, output, session) {
               habitat = input$habitat,
               year_range = input$year[1]:input$year[2]                                      
           )      
+          filtered_data<-subset(filtered_data,!is.na(eel_value)) 
           
           
         }  else if (input$dataset == "gee"){      
@@ -108,9 +114,11 @@ server = function(input, output, session) {
               life_stage = input$lfs, 
               country = input$country,
               habitat = input$habitat,
-              year_range = input$year[1]:input$year[2]                                      
+              year_range = input$year[1]:input$year[2]
+              
           )      
           
+          filtered_data<-subset(filtered_data,!is.na(eel_value)) 
           
         } else {
           
@@ -119,7 +127,7 @@ server = function(input, output, session) {
               country = input$country, 
               habitat = input$habitat,
               year_range = input$year[1]:input$year[2])
-          
+         filtered_data<-subset(filtered_data,!is.na(eel_value)) 
         }
         # do not group by habitat or lfs
         if (input$dataset=="precodata"){
@@ -128,12 +136,22 @@ server = function(input, output, session) {
           #filtered_data
           
         } else {
-          grouped_data <-group_data(filtered_data,geo=input$geo,habitat=FALSE,lfs=FALSE)
+          grouped_data <-group_data(filtered_data,geo=input$geo,habitat=FALSE,lfs=FALSE,na.rm=FALSE)
+
+          #TODO:if na.rm=F allow to handle missing value --> create a button
           
-          if (input$dataset %in% c("aquaculture","landings","raw_landings_com","raw_landings_rec","landings_com_corrected" , "landings_rec_corrected")) {
-            fun.agg<-function(X){round(sum(X)/1000)}
-          } else fun.agg <- sum
-          
+          if (input$dataset %in% c("aquaculture_kg","landings","raw_landings_com","raw_landings_rec","landings_com_corrected" , "landings_rec_corrected")) {
+            fun.agg<-function(X){if(length(X)>0){round(sum(X)/1000,ifelse(sum(X)>1000,0,3))}else{sum(c(X,NA))}}
+      
+          } else{
+            
+            if(input$dataset %in% c("release_n")){
+              fun.agg<-function(X){if(length(X)>0){round(sum(X)/10^6,ifelse(sum(X)>10^6,0,3))}else{sum(c(X,NA))}}
+              
+              
+            }else {fun.agg <- function(X){if(length(X)>0){round(sum(X),ifelse(sum(X)>1000,0,1))}else{sum(c(X,NA))}}
+            }
+          }
           if (input$dataset == "landings_com_corrected" | input$dataset == "landings_rec_corrected"){
             
             validate(need(input$geo=="country","Predictions only done at the country level"))
@@ -146,7 +164,7 @@ server = function(input, output, session) {
           
           switch(input$geo,"country"={
                 table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)  
-                
+
                 #ordering the column accordign to country order
                 country_to_order = names(table)[-1]
                 n_order = order(country_ref$cou_order[match(country_to_order, country_ref$cou_code)])
@@ -364,6 +382,7 @@ server = function(input, output, session) {
   output$download_graph_aquaculture <- downloadHandler(filename = function() {
         paste("aquaculture", input$year[1], "-", input$year[2], ".", input$image_format,sep = "")
       }, content = function(file) {
+        aquaculture <- get_aquaculture()
         if (input$aquaculture_eel_typ_id == "ton") {
           title2 <- "Aquaculture weight (tons) for " 
           aquaculture$eel_value <- as.numeric(aquaculture$eel_value) / 1000
@@ -374,13 +393,14 @@ server = function(input, output, session) {
             "ton" = typ <-11,
             "n"  = typ <- 12)
         title <- paste(title2, "stages = ", paste(input$lfs,collapse="+"))
-        aquaculture <- get_aquaculture()
+        
         ggsave(file, aquaculture_graph(dataset=aquaculture,
                 title=title,
                 col=color_countries, 
                 country_ref=country_ref,
                 lfs=input$aquaculture_lifestage_switch,
-                typ=typ))
+                typ=typ),device = input$image_format, width = 20, height = 14, 
+               units = "cm")
       })
   
   ################################################
@@ -1043,12 +1063,35 @@ server = function(input, output, session) {
                 pageLength = 10,
                 columnDefs = list(list(className = 'dt-center')),
                 searching = FALSE, # no filtering options
-                dom= "Btip", # from left to right button left f, t tableau, i informaiton (showing..), p pagination
+                dom= "Bti", # from left to right button left f, t tableau, i informaiton (showing..), p pagination
                 buttons=list(
                     list(extend="excel",
                         filename = paste0("data_",Sys.Date())))
             ))
     })
+    
+    
+      
+      get_recruitment_graph <- reactive({
+        tmp=data.frame(year=dat_ye$year,area=rep("Y",nrow(dat_ye)),geomean_p_std_1960_1979=dat_ye$geomean_p_std_1960_1979)
+        data_rec=rbind.data.frame(dat_ge,tmp)  
+        data_rec<-data_rec[data_rec$area %in% input$indices_rec_graph,]
+        are_we_jokking=input$just_a_joke
+        return(data_rec)
+      })
+      output$graph_recruitment <-  renderPlot({
+        data_rec <- get_recruitment_graph()
+        data_rec<-data_rec[data_rec$area %in% input$indices_rec_graph,]
+        recruitment_graph(dataset=data_rec,as.numeric(input$just_a_joke)%%2==FALSE)
+      })
+  
+      output$download_recruitment_graph <- downloadHandler(filename = function() {
+        paste("recruitment.", input$image_format,sep = "")
+      }, content = function(file) {
+        data_rec <- get_recruitment_graph()
+        ggsave(file, recruitment_graph(dataset=data_rec,as.numeric(input$just_a_joke)%%2==FALSE))
+      })
+
   
 
   

@@ -249,3 +249,12 @@ release_graph <- function(dataset,
 }
 
 
+recruitment_graph <- function(dataset,log_scale=TRUE){
+  if (log_scale){
+    g<-ggplot(dataset,aes(year,geomean_p_std_1960_1979,colour=area))+geom_line()+scale_y_continuous(trans="log")+xlab("Years")+ylab("Index (log scale)")+theme_bw()
+  } else {
+    g<-ggplot(dataset,aes(year,geomean_p_std_1960_1979,colour=area))+geom_line()+scale_y_continuous()+xlab("Years")+ylab("Index")+theme_bw()
+  }
+  return(g)
+}
+

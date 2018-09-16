@@ -1512,6 +1512,11 @@ drop table ref.se_curr ;
 
 update ref.tr_emu_emu set emu_wholecountry=FALSE where emu_nameshort<>'SE_total' and emu_cou_code= 'SE';
 
+-- update old SE EMU for consistencies
+UPDATE ref.tr_emu_emu SET emu_name = 'Historical EMU for Sweden, used for historical data'
+WHERE emu_nameshort='SE_We_o';
+UPDATE ref.tr_emu_emu SET emu_wholecountry = NULL
+WHERE emu_nameshort IN ('SE_We_o', 'SE_So_o', 'SE_Ea_o');
 
 select st_union(se_inland.geom) from ref.se_inland 
 /*
