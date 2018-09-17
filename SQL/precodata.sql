@@ -151,6 +151,8 @@ select eel_emu_nameshort, count(*) from too_many_habitats group by eel_emu_names
 	IT_Umbr: all data in F, only sumH in T ==> nothing, but sumH can be calculated
 	IT_Vall: all data in F, only sumH in T ==> nothing, but sumH can be calculated
 	IT_Vene: data in F, T ==> B can be added & mortalities calculated
+	comment from F Capoccioni (17/09/2018) : " It would have been better to do not fill any data for EMUs without Transitional habitat.
+I confirm that IT_Abru, IT_Basi, IT_Cala, IT_Ligu, IT_Lomb, IT_Marc, IT_Moli, IT_Piem, IT_Tren, IT_Umbr, IT_Vall."
 -- LT
 	LT_total: B0 in T, the rest in F ==> nothing can be calculated
 -- PL
@@ -180,30 +182,30 @@ WITH b0_unique AS
 	)
 select eel_year, eel_cou_code, country, cou_order, eel_emu_nameshort, emu_wholecountry, 
 	case 
-		when eel_emu_nameshort in ('IT_Abru', 'IT_Basi', 'IT_Cala', 'IT_Ligu', 'IT_Lomb', 'IT_Marc', 'IT_Moli', 'IT_Piem', 'IT_Tren', 'IT_Umbr', 'IT_Vall', 'LT_total') then null
+		when eel_emu_nameshort in ('LT_total') then null
 		else COALESCE(unique_b0, sum(b0)) 
 	end as b0,
 	case 
-		when eel_emu_nameshort in ('ES_Murc', 'IT_Abru', 'IT_Basi', 'IT_Cala', 'IT_Ligu', 'IT_Lomb', 'IT_Marc', 'IT_Moli', 'IT_Piem', 'IT_Tren', 'IT_Umbr', 'IT_Vall', 'LT_total') then null
+		when eel_emu_nameshort in ('ES_Murc', 'LT_total') then null
 		else sum(bbest) 
 	end as bbest,
 	case 
-		when eel_emu_nameshort in ('ES_Murc', 'IT_Abru', 'IT_Basi', 'IT_Cala', 'IT_Ligu', 'IT_Lomb', 'IT_Marc', 'IT_Moli', 'IT_Piem', 'IT_Tren', 'IT_Umbr', 'IT_Vall', 'LT_total') then null
+		when eel_emu_nameshort in ('ES_Murc', 'LT_total') then null
 		else sum(bcurrent) 
 	end as bcurrent,
 	case 
-		when eel_emu_nameshort in ('ES_Cata', 'ES_Murc', 'IT_Abru', 'IT_Basi', 'IT_Cala', 'IT_Ligu', 'IT_Lomb', 'IT_Marc', 'IT_Moli', 'IT_Piem', 'IT_Tren', 'IT_Umbr', 'IT_Vall', 'LT_total') then null
-		when eel_emu_nameshort in ('IT_Camp', 'IT_Emil', 'IT_Frio', 'IT_Lazi', 'IT_Pugl', 'IT_Sard', 'IT_Sici', 'IT_Tosc', 'IT_Vene') then round(sum(suma*bbest)/sum(bbest),3)
+		when eel_emu_nameshort in ('ES_Cata', 'ES_Murc', 'LT_total') then null
+		when eel_emu_nameshort in ('IT_Camp', 'IT_Emil', 'IT_Frio', 'IT_Lazi', 'IT_Pugl', 'IT_Sard', 'IT_Sici', 'IT_Tosc', 'IT_Vene', 'IT_Abru', 'IT_Basi', 'IT_Cala', 'IT_Ligu', 'IT_Lomb', 'IT_Marc', 'IT_Moli', 'IT_Piem', 'IT_Tren', 'IT_Umbr', 'IT_Vall') then round(sum(suma*bbest)/sum(bbest),3)
 		else sum(suma) 
 	end as suma,
 	case 
-		when eel_emu_nameshort in ('ES_Cata', 'ES_Murc', 'IT_Abru', 'IT_Basi', 'IT_Cala', 'IT_Ligu', 'IT_Lomb', 'IT_Marc', 'IT_Moli', 'IT_Piem', 'IT_Tren', 'IT_Umbr', 'IT_Vall', 'LT_total') then null
-		when eel_emu_nameshort in ('IT_Camp', 'IT_Emil', 'IT_Frio', 'IT_Lazi', 'IT_Pugl', 'IT_Sard', 'IT_Sici', 'IT_Tosc', 'IT_Vene') then round(sum(sumf*bbest)/sum(bbest),3)
+		when eel_emu_nameshort in ('ES_Cata', 'ES_Murc', 'LT_total') then null
+		when eel_emu_nameshort in ('IT_Camp', 'IT_Emil', 'IT_Frio', 'IT_Lazi', 'IT_Pugl', 'IT_Sard', 'IT_Sici', 'IT_Tosc', 'IT_Vene', 'IT_Abru', 'IT_Basi', 'IT_Cala', 'IT_Ligu', 'IT_Lomb', 'IT_Marc', 'IT_Moli', 'IT_Piem', 'IT_Tren', 'IT_Umbr', 'IT_Vall') then round(sum(sumf*bbest)/sum(bbest),3)
 		else sum(sumf) 
 	end as sumf,
 	case 
 		when eel_emu_nameshort in ('ES_Murc', 'LT_total') then null
-		when eel_emu_nameshort in ('IT_Camp', 'IT_Emil', 'IT_Frio', 'IT_Lazi', 'IT_Pugl', 'IT_Sard', 'IT_Sici', 'IT_Tosc', 'IT_Vene') then round(sum(sumh*bbest)/sum(bbest),3)
+		when eel_emu_nameshort in ('IT_Camp', 'IT_Emil', 'IT_Frio', 'IT_Lazi', 'IT_Pugl', 'IT_Sard', 'IT_Sici', 'IT_Tosc', 'IT_Vene', 'IT_Abru', 'IT_Basi', 'IT_Cala', 'IT_Ligu', 'IT_Lomb', 'IT_Marc', 'IT_Moli', 'IT_Piem', 'IT_Tren', 'IT_Umbr', 'IT_Vall') then round(sum(sumh*bbest)/sum(bbest),3)
 		else sum(sumh) 
 	end as sumh, 
 	'emu'::text as aggreg_level, aggregated_lfs, string_agg(eel_hty_code , ', ') as aggregated_hty
@@ -235,6 +237,7 @@ WHERE eel_typ_id = 13 AND eel_cou_code NOT IN ('GB', 'SE') AND eel_qal_id IN (1,
 GROUP BY eel_typ_id, eel_value, eel_emu_nameshort, eel_cou_code, eel_lfs_code, eel_hty_code, eel_area_division, eel_qal_id, eel_qal_comment, eel_comment, eel_datelastupdate, eel_missvaluequal, eel_datasource
 ORDER BY eel_emu_nameshort;
 
+/*
 -- add unique B0 in 1800 for all but SE and GB
 BEGIN;
 INSERT INTO datawg.t_eelstock_eel(eel_typ_id, eel_year, eel_value, eel_emu_nameshort, eel_cou_code, eel_lfs_code, eel_hty_code, eel_area_division, eel_qal_id, eel_qal_comment, eel_comment, eel_datelastupdate, eel_missvaluequal, eel_datasource)
@@ -254,7 +257,7 @@ WHERE eel_typ_id = 13 AND eel_cou_code NOT IN ('GB', 'SE') AND eel_qal_id IN (1,
 
 COMMIT;
 --ROLLBACK;
-
+*/
 
 -- aggregation the country level
 drop view if exists DATAWG.precodata_country  cascade;
