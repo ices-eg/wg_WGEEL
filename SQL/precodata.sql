@@ -358,7 +358,7 @@ with all_level as
 	(with last_year_emu as
 		(select EEL_EMU_NAMESHORT, max(EEL_YEAR) as last_year from DATAWG.PRECODATA_emu 
 		where b0 is not null and bbest is not null and bcurrent is not null and suma is not null group by EEL_EMU_NAMESHORT) --last year should the last COMPLETE (b0, bbest, bcurrent, suma) year
-	select eel_year, eel_cou_code, eel_emu_nameshort, '<lfs>' || aggregated_lfs || '<\lfs><hty>' || aggregated_hty || '<\hty>' AS aggreg_comment, b0, bbest, bcurrent, suma, sumf, sumh, aggreg_level, last_year from DATAWG.precodata_emu join last_year_emu using(EEL_EMU_NAMESHORT))
+	select eel_year, eel_cou_code, eel_emu_nameshort, '<lfs>' || aggregated_lfs || '<\lfs><hty>' || aggregated_hty || '<\hty>' AS aggreg_comment, b0, bbest, bcurrent, suma, sumf, sumh, aggreg_level, last_year from DATAWG.precodata_emu LEFT OUTER JOIN last_year_emu using(EEL_EMU_NAMESHORT))
 	union
 	(with last_year_country as
 		(select EEL_COU_CODE, max(EEL_YEAR) as last_year from DATAWG.PRECODATA_COUNTRY
@@ -366,7 +366,7 @@ with all_level as
 	select eel_year, eel_cou_code, eel_emu_nameshort,
 	'<B0>' || method_b0 || '<\B0><Bbest>' || method_bbest || '<\Bbest><Bcurrent>' || method_bcurrent || '<\Bcurrent><suma>' || method_suma || '<\suma><sumf>'  || method_sumf || '<\sumf><sumh>'  || method_sumh || '<\sumah>'AS aggreg_comment,
 	b0, bbest, bcurrent, suma, sumf, sumh, aggreg_level, last_year
-	from DATAWG.precodata_country join last_year_country using(EEL_COU_CODE))
+	from DATAWG.precodata_country LEFT OUTER JOIN last_year_country using(EEL_COU_CODE))
 	union
 	(select eel_year, null EEL_COU_CODE, null EEL_EMU_NAMESHORT, 'All (' || count(*) || ' countries: ' || string_agg(EEL_COU_CODE, ',') || ')' aggreg_comment,  
 		sum(b0) as b0, sum(bbest)as bbest, sum(bcurrent)as bcurrent,
