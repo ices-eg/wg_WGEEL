@@ -351,21 +351,21 @@ b_map <- function(dataset_country=precodata_country,
   
   selected_countries$b40 <- 0.4 * selected_countries$b0   
   
-  selected_countries$rescaled_b0<-scales::rescale(sqrt(selected_countries$b0), to=c(4,maxscale_country),
+  selected_countries$rescaled_b0<-scales::rescale(sqrt(selected_countries$b0), to=c(4,maxscale_country*1000),
       from=range(sqrt(selected_countries$b0),na.rm=T)) 
   
-  selected_countries$rescaled_b40<-scales::rescale(sqrt(selected_countries$b40), to=c(4,maxscale_country),
+  selected_countries$rescaled_b40<-scales::rescale(sqrt(selected_countries$b40), to=c(4,maxscale_country*1000),
       from=range(sqrt(selected_countries$b0),na.rm=T)) 
   
-  selected_countries$rescaled_bbest<-scales::rescale(sqrt(selected_countries$bbest), to=c(4,maxscale_country),
+  selected_countries$rescaled_bbest<-scales::rescale(sqrt(selected_countries$bbest), to=c(4,maxscale_country*1000),
       from=range(sqrt(selected_countries$b0),na.rm=T)) 
   
-  selected_countries$rescaled_bcurrent<-scales::rescale(sqrt(selected_countries$bcurrent), to=c(4,maxscale_country),
+  selected_countries$rescaled_bcurrent<-scales::rescale(sqrt(selected_countries$bcurrent), to=c(4,maxscale_country*1000),
       from=range(sqrt(selected_countries$b0),na.rm=T)) 
   
   # get popup information ------------------------------------------------------------------------
   
-  selected_countries$label<-sprintf("%s </br> %s B0 %s </br> Bbest %s </br> Bcurrent %s", 
+  selected_countries$label<-sprintf("%s for %s </br> B0 %s </br> Bbest %s </br> Bcurrent %s", 
       selected_countries$cou_code,
       selected_countries$eel_year, 
       selected_countries$b0,
@@ -380,7 +380,7 @@ b_map <- function(dataset_country=precodata_country,
       
 	  addPolygons(data = country_p, weight = 2, opacity=0.3, fillOpacity =0.1)%>%
       
-      addCircleMarkers(
+      addCircles(
           lng = ~coords.x1,
           lat = ~coords.x2,
 		  color = "grey",
@@ -392,7 +392,7 @@ b_map <- function(dataset_country=precodata_country,
           radius = ~ rescaled_b0
       ) %>%
       
-      addCircleMarkers(
+      addCircles(
           lng = ~coords.x1,
           lat = ~coords.x2,
 		  color = "g",
@@ -403,7 +403,7 @@ b_map <- function(dataset_country=precodata_country,
           stroke = TRUE,
           radius = ~ rescaled_b40) %>%
       
-      addCircleMarkers(
+      addCircles(
           lng = ~coords.x1,
           lat = ~coords.x2,
 		  color = "g",
@@ -414,7 +414,7 @@ b_map <- function(dataset_country=precodata_country,
           stroke = TRUE,
           radius = ~ rescaled_bbest)     %>%
       
-      addCircleMarkers(
+      addCircles(
           lng = ~coords.x1,
           lat = ~coords.x2,
 		  color = "g",
@@ -462,22 +462,23 @@ b_map <- function(dataset_country=precodata_country,
           
           selected_emus$b40 <- 0.4 * selected_emus$b0   
           
-          selected_emus$rescaled_b0<-scales::rescale(sqrt(selected_emus$b0), to=c(4,maxscale_emu),
+          selected_emus$rescaled_b0<-scales::rescale(sqrt(selected_emus$b0), to=c(4,maxscale_emu*1000),
                   from=range(sqrt(selected_emus$b0),na.rm=T)) 
           
-          selected_emus$rescaled_b40<-scales::rescale(sqrt(selected_emus$b40), to=c(4,maxscale_emu),
+          selected_emus$rescaled_b40<-scales::rescale(sqrt(selected_emus$b40), to=c(4,maxscale_emu*1000),
                   from=range(sqrt(selected_emus$b0),na.rm=T)) 
           
-          selected_emus$rescaled_bbest<-scales::rescale(sqrt(selected_emus$bbest), to=c(4,maxscale_emu),
+          selected_emus$rescaled_bbest<-scales::rescale(sqrt(selected_emus$bbest), to=c(4,maxscale_emu*1000),
                   from=range(sqrt(selected_emus$b0),na.rm=T)) 
           
-          selected_emus$rescaled_bcurrent<-scales::rescale(sqrt(selected_emus$bcurrent), to=c(4,maxscale_emu),
+          selected_emus$rescaled_bcurrent<-scales::rescale(sqrt(selected_emus$bcurrent), to=c(4,maxscale_emu*1000),
                   from=range(sqrt(selected_emus$b0),na.rm=T)) 
           
           # get popup information ------------------------------------------------------------------------
           
-          selected_emus$label<-sprintf("%s B0 %s </br> Bbest %s </br> Bcurrent %s", 
-                  selected_emus$eel_year, 
+          selected_emus$label<-sprintf("%s for %s </br> B0 %s </br> Bbest %s </br> Bcurrent %s", 
+				  selected_emus$eel_emu_nameshort,
+				  selected_emus$eel_year, 
                   selected_emus$b0,
                   selected_emus$bbest,       
                   selected_emus$bcurrent )
@@ -488,9 +489,9 @@ b_map <- function(dataset_country=precodata_country,
                   
                   addProviderTiles(providers$Esri.OceanBasemap) %>% 
                   
-	              addPolygons(data = country_p, weight = 2, opacity=0.3, fillOpacity =0.1)%>%
+	              addPolygons(data = emu_p, weight = 2, opacity=0.3, fillOpacity =0.1)%>%
                   
-                  addCircleMarkers(
+                  addCircles(
                           lng = ~coords.x1,
                           lat = ~coords.x2,
 		                  color = "grey",
@@ -502,7 +503,7 @@ b_map <- function(dataset_country=precodata_country,
                           radius = ~ rescaled_b0
                   ) %>%
                   
-                  addCircleMarkers(
+                  addCircles(
                           lng = ~coords.x1,
                           lat = ~coords.x2,
 		                  color = "g",
@@ -513,7 +514,7 @@ b_map <- function(dataset_country=precodata_country,
                           stroke = TRUE,
                           radius = ~ rescaled_b40) %>%
                   
-                  addCircleMarkers(
+                  addCircles(
                           lng = ~coords.x1,
                           lat = ~coords.x2,
 		                  color = "g",
@@ -524,7 +525,7 @@ b_map <- function(dataset_country=precodata_country,
                           stroke = TRUE,
                           radius = ~ rescaled_bbest)     %>%
                   
-                  addCircleMarkers(
+                  addCircles(
                           lng = ~coords.x1,
                           lat = ~coords.x2,
 		                  color = "g",

@@ -541,8 +541,8 @@ server = function(input, output, session) {
             map = input$geo,
             use_last_year=input$rasta_map_last_year,
             the_year=input$year[2],
-            maxscale_country=50,
-            maxscale_emu=20)
+            maxscale_country=300, # scale in km
+            maxscale_emu=100) # scale in km
         
       })
   
