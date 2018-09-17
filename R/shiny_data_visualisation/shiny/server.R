@@ -537,12 +537,12 @@ server = function(input, output, session) {
   ################################
   output$rasta_map <- renderLeaflet({
         b_map(dataset_emu=precodata_emu,
-            dataset_country=precodata_country
+            dataset_country=precodata_country,
             map = input$geo,
             use_last_year=input$rasta_map_last_year,
             the_year=input$year[2],
             maxscale_country=50,
-            maxscale_emu=30)
+            maxscale_emu=20)
         
       })
   
