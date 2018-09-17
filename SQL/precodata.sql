@@ -1,4 +1,4 @@
--- bigtable, no modification just combining different table
+﻿-- bigtable, no modification just combining different table
 drop view if exists datawg.bigtable cascade;
 create or replace view datawg.bigtable as
 with 
@@ -157,7 +157,8 @@ select eel_emu_nameshort, count(*) from too_many_habitats group by eel_emu_names
 	PL_Vist: data in AL, sumH only in F (being turbines) ==> can be added
 */
 
--- correct the "FIXME" above
+-- correct the "FIXME" above RUNONCE
+/*
 begin;
 update datawg.t_eelstock_eel set eel_qal_id = 3, eel_qal_comment = "eel_qal_comment" || 'duplicate from F and T'
 where eel_emu_nameshort in ('ES_Anda', 'ES_Cata') and eel_hty_code = 'AL' and eel_typ_id = 15
@@ -168,6 +169,7 @@ where eel_emu_nameshort in ('ES_Vale') and eel_hty_code = 'AL' and eel_typ_id = 
 
 commit;
 --rollback ;
+*/
 
 -- bigtable aggregated by EMU
 drop view if exists datawg.precodata_emu cascade;
@@ -205,7 +207,7 @@ select eel_year, eel_cou_code, country, cou_order, eel_emu_nameshort, emu_wholec
 		when eel_emu_nameshort in ('IT_Camp', 'IT_Emil', 'IT_Frio', 'IT_Lazi', 'IT_Pugl', 'IT_Sard', 'IT_Sici', 'IT_Tosc', 'IT_Vene') then round(sum(sumh*bbest)/sum(bbest),3)
 		else sum(sumh) 
 	end as sumh, 
-	'emu' as aggreg_level, aggregated_lfs, string_agg(eel_hty_code , ', ') as aggregated_hty
+	'emu'::text as aggreg_level, aggregated_lfs, string_agg(eel_hty_code , ', ') as aggregated_hty
 from datawg.bigtable_by_habitat 
 LEFT OUTER JOIN B0_unique USING(eel_emu_nameshort)
 WHERE eel_year > 1850
@@ -234,7 +236,8 @@ WHERE eel_typ_id = 13 AND eel_cou_code NOT IN ('GB', 'SE') AND eel_qal_id IN (1,
 GROUP BY eel_typ_id, eel_value, eel_emu_nameshort, eel_cou_code, eel_lfs_code, eel_hty_code, eel_area_division, eel_qal_id, eel_qal_comment, eel_comment, eel_datelastupdate, eel_missvaluequal, eel_datasource
 ORDER BY eel_emu_nameshort;
 
--- add unique B0 in 1800 for all but SE and GB
+-- add unique B0 in 1800 for all but SE and GB RUNONCE
+/*
 BEGIN;
 INSERT INTO datawg.t_eelstock_eel(eel_typ_id, eel_year, eel_value, eel_emu_nameshort, eel_cou_code, eel_lfs_code, eel_hty_code, eel_area_division, eel_qal_id, eel_qal_comment, eel_comment, eel_datelastupdate, eel_missvaluequal, eel_datasource)
 SELECT eel_typ_id, 1800::NUMERIC AS eel_year, eel_value, eel_emu_nameshort, eel_cou_code, eel_lfs_code, eel_hty_code, eel_area_division, eel_qal_id, eel_qal_comment, eel_comment, eel_datelastupdate, eel_missvaluequal, eel_datasource
@@ -245,7 +248,10 @@ ORDER BY eel_emu_nameshort;
 
 COMMIT;
 --ROLLBACK;
+*/
 
+
+/* RUNONCE
 -- change quality for all B0 but SE and GB
 BEGIN;
 UPDATE datawg.t_eelstock_eel SET eel_qal_id = 18, eel_qal_comment = eel_qal_comment || ', change for year 1800'
@@ -253,7 +259,7 @@ WHERE eel_typ_id = 13 AND eel_cou_code NOT IN ('GB', 'SE') AND eel_qal_id IN (1,
 
 COMMIT;
 --ROLLBACK;
-
+*/
 
 -- aggregation the country level
 drop view if exists DATAWG.precodata_country  cascade;
@@ -287,7 +293,7 @@ WITH
 		FROM mimimun_met
 		GROUP BY eel_year, eel_cou_code, country
 		)
-SELECT eel_year, eel_cou_code, country, nr_emu, 'country' aggreg_level, NULL eel_emu_nameshort,
+SELECT eel_year, eel_cou_code, country, nr_emu, 'country'::text aggreg_level, NULL::character varying(20)  eel_emu_nameshort,
 	CASE
 		WHEN b0_total = 1 THEN analyse_EMU_Total.b0
 		ELSE analyse_EMU.b0
