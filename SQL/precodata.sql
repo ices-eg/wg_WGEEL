@@ -206,7 +206,7 @@ select eel_year, eel_cou_code, country, cou_order, eel_emu_nameshort, emu_wholec
 		when eel_emu_nameshort in ('IT_Camp', 'IT_Emil', 'IT_Frio', 'IT_Lazi', 'IT_Pugl', 'IT_Sard', 'IT_Sici', 'IT_Tosc', 'IT_Vene') then round(sum(sumh*bbest)/sum(bbest),3)
 		else sum(sumh) 
 	end as sumh, 
-	'emu' as aggreg_level, aggregated_lfs, string_agg(eel_hty_code , ', ') as aggregated_hty
+	'emu'::text as aggreg_level, aggregated_lfs, string_agg(eel_hty_code , ', ') as aggregated_hty
 from datawg.bigtable_by_habitat 
 LEFT OUTER JOIN B0_unique USING(eel_emu_nameshort)
 WHERE eel_year > 1850
@@ -288,7 +288,7 @@ WITH
 		FROM mimimun_met
 		GROUP BY eel_year, eel_cou_code, country
 		)
-SELECT eel_year, eel_cou_code, country, nr_emu, 'country' aggreg_level, NULL eel_emu_nameshort,
+SELECT eel_year, eel_cou_code, country, nr_emu, 'country'::text aggreg_level, NULL::character varying(20) eel_emu_nameshort,
 	CASE
 		WHEN b0_total = 1 THEN analyse_EMU_Total.b0
 		ELSE analyse_EMU.b0

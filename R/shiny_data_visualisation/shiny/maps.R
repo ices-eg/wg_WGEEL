@@ -312,7 +312,9 @@ recruitment_map <- function(R_stations, statseries, wger){
 b_map <- function(dataset=precodata_all, 
     map = "country",
     use_last_year=TRUE,
-    the_year=NULL){
+    the_year=NULL,
+    maxscale_country=50,
+    maxscale_emu=30){
   
   #################
   # I. country case --------------------------------------------------------------------------------
@@ -343,16 +345,16 @@ b_map <- function(dataset=precodata_all,
   
   selected_countries$b40 <- 0.4 * selected_countries$b0   
   
-  selected_countries$rescaled_b0<-scales::rescale(sqrt(selected_countries$b0), to=c(4,50),
+  selected_countries$rescaled_b0<-scales::rescale(sqrt(selected_countries$b0), to=c(4,maxscale_country),
       from=range(sqrt(selected_countries$b0),na.rm=T)) 
   
-  selected_countries$rescaled_b40<-scales::rescale(sqrt(selected_countries$b40), to=c(4,50),
+  selected_countries$rescaled_b40<-scales::rescale(sqrt(selected_countries$b40), to=c(4,maxscale_country),
       from=range(sqrt(selected_countries$b0),na.rm=T)) 
   
-  selected_countries$rescaled_bbest<-scales::rescale(sqrt(selected_countries$bbest), to=c(4,50),
+  selected_countries$rescaled_bbest<-scales::rescale(sqrt(selected_countries$bbest), to=c(4,maxscale_country),
       from=range(sqrt(selected_countries$b0),na.rm=T)) 
   
-  selected_countries$rescaled_bcurrent<-scales::rescale(sqrt(selected_countries$bcurrent), to=c(4,50),
+  selected_countries$rescaled_bcurrent<-scales::rescale(sqrt(selected_countries$bcurrent), to=c(4,maxscale_country),
       from=range(sqrt(selected_countries$b0),na.rm=T)) 
   
   # get popup information ------------------------------------------------------------------------
@@ -454,16 +456,16 @@ b_map <- function(dataset=precodata_all,
           
           selected_emus$b40 <- 0.4 * selected_emus$b0   
           
-          selected_emus$rescaled_b0<-scales::rescale(sqrt(selected_emus$b0), to=c(4,30),
+          selected_emus$rescaled_b0<-scales::rescale(sqrt(selected_emus$b0), to=c(4,maxscale_emu),
                   from=range(sqrt(selected_emus$b0),na.rm=T)) 
           
-          selected_emus$rescaled_b40<-scales::rescale(sqrt(selected_emus$b40), to=c(4,30),
+          selected_emus$rescaled_b40<-scales::rescale(sqrt(selected_emus$b40), to=c(4,maxscale_emu),
                   from=range(sqrt(selected_emus$b0),na.rm=T)) 
           
-          selected_emus$rescaled_bbest<-scales::rescale(sqrt(selected_emus$bbest), to=c(4,30),
+          selected_emus$rescaled_bbest<-scales::rescale(sqrt(selected_emus$bbest), to=c(4,maxscale_emu),
                   from=range(sqrt(selected_emus$b0),na.rm=T)) 
           
-          selected_emus$rescaled_bcurrent<-scales::rescale(sqrt(selected_emus$bcurrent), to=c(4,30),
+          selected_emus$rescaled_bcurrent<-scales::rescale(sqrt(selected_emus$bcurrent), to=c(4,maxscale_emu),
                   from=range(sqrt(selected_emus$b0),na.rm=T)) 
           
           # get popup information ------------------------------------------------------------------------
