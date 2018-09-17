@@ -115,7 +115,7 @@ server = function(input, output, session) {
               country = input$country,
               habitat = input$habitat,
               year_range = input$year[1]:input$year[2]
-              
+          
           )      
           
           filtered_data<-subset(filtered_data,!is.na(eel_value)) 
@@ -127,7 +127,7 @@ server = function(input, output, session) {
               country = input$country, 
               habitat = input$habitat,
               year_range = input$year[1]:input$year[2])
-         filtered_data<-subset(filtered_data,!is.na(eel_value)) 
+                   filtered_data<-subset(filtered_data,!is.na(eel_value)) 
         }
         # do not group by habitat or lfs
         if (input$dataset=="precodata"){
@@ -137,12 +137,12 @@ server = function(input, output, session) {
           
         } else {
           grouped_data <-group_data(filtered_data,geo=input$geo,habitat=FALSE,lfs=FALSE,na.rm=FALSE)
-
+          
           #TODO:if na.rm=F allow to handle missing value --> create a button
           
           if (input$dataset %in% c("aquaculture_kg","landings","raw_landings_com","raw_landings_rec","landings_com_corrected" , "landings_rec_corrected")) {
             fun.agg<-function(X){if(length(X)>0){round(sum(X)/1000,ifelse(sum(X)>1000,0,3))}else{sum(c(X,NA))}}
-      
+                  
           } else{
             
             if(input$dataset %in% c("release_n")){
@@ -164,7 +164,7 @@ server = function(input, output, session) {
           
           switch(input$geo,"country"={
                 table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)  
-
+                
                 #ordering the column accordign to country order
                 country_to_order = names(table)[-1]
                 n_order = order(country_ref$cou_order[match(country_to_order, country_ref$cou_code)])
@@ -286,12 +286,12 @@ server = function(input, output, session) {
       })
   
   output$downloadAvailable <- downloadHandler(filename = function() {
-    paste("available_landings", input$year[1], "-", input$year[2], ".",input$image_format, sep = "")
-  }, content = function(file) {                        
-    ggsave(file, aalg,
-           device = input$image_format, width = 20, height = 14, 
-           units = "cm")
-  })
+            paste("available_landings", input$year[1], "-", input$year[2], ".",input$image_format, sep = "")
+        }, content = function(file) {                        
+            ggsave(file, aalg,
+                       device = input$image_format, width = 20, height = 14, 
+                       units = "cm")
+        })
   ######################################"
   # raw landings
   ######################################
@@ -400,7 +400,7 @@ server = function(input, output, session) {
                 country_ref=country_ref,
                 lfs=input$aquaculture_lifestage_switch,
                 typ=typ),device = input$image_format, width = 20, height = 14, 
-               units = "cm")
+            units = "cm")
       })
   
   ################################################
@@ -536,13 +536,14 @@ server = function(input, output, session) {
   # Rasta map
   ################################
   output$rasta_map <- renderLeaflet({
-        b_map(dataset=precodata_all, 
-                map = input$geo,
-                use_last_year=input$rasta_map_last_year,
-                the_year=input$year[2],
-                maxscale_country=50,
-                maxscale_emu=30)
-           
+        b_map(dataset_emu=precodata_emu,
+            dataset_country=precodata_country
+            map = input$geo,
+            use_last_year=input$rasta_map_last_year,
+            the_year=input$year[2],
+            maxscale_country=50,
+            maxscale_emu=30)
+        
       })
   
   
@@ -1046,18 +1047,18 @@ server = function(input, output, session) {
   
   
   ####recruitment indices
-    output$table_recruitment<-renderDataTable({
-      if (input$index_rec=="Elsewhere Europe"){
-        data_rec<-dat_ge[dat$are=="EE",]
-     } else if (input$index_rec=='North Sea'){
-        data_rec<-dat_ge[dat$area=="NS",]
-      }else data_rec<-dat_ye
-      data_rec$decades<-(data_rec$year%/%10)*10
-      data_rec$unit<-data_rec$year-data_rec$decades
-      data_rec_cast<-dcast(data_rec[,c("decades","unit","geomean_p_std_1960_1979")],unit~decades,value.var="geomean_p_std_1960_1979")
-      rownames(data_rec_cast)<-data_rec_cast$unit
-      
-      DT::datatable(round(data_rec_cast[,-1]*100,digits=2), 
+  output$table_recruitment<-renderDataTable({
+              if (input$index_rec=="Elsewhere Europe"){
+                  data_rec<-dat_ge[dat$are=="EE",]
+             } else if (input$index_rec=='North Sea'){
+                  data_rec<-dat_ge[dat$area=="NS",]
+              }else data_rec<-dat_ye
+              data_rec$decades<-(data_rec$year%/%10)*10
+              data_rec$unit<-data_rec$year-data_rec$decades
+              data_rec_cast<-dcast(data_rec[,c("decades","unit","geomean_p_std_1960_1979")],unit~decades,value.var="geomean_p_std_1960_1979")
+              rownames(data_rec_cast)<-data_rec_cast$unit
+              
+              DT::datatable(round(data_rec_cast[,-1]*100,digits=2), 
             rownames = TRUE,
             extensions = c("Buttons","KeyTable"),
             option=list(
@@ -1071,31 +1072,31 @@ server = function(input, output, session) {
                     list(extend="excel",
                         filename = paste0("data_",Sys.Date())))
             ))
-    })
-    
-    
-      
-      get_recruitment_graph <- reactive({
+          })
+  
+  
+  
+  get_recruitment_graph <- reactive({
         tmp=data.frame(year=dat_ye$year,area=rep("Y",nrow(dat_ye)),geomean_p_std_1960_1979=dat_ye$geomean_p_std_1960_1979)
         data_rec=rbind.data.frame(dat_ge,tmp)  
         data_rec<-data_rec[data_rec$area %in% input$indices_rec_graph,]
         are_we_jokking=input$just_a_joke
         return(data_rec)
       })
-      output$graph_recruitment <-  renderPlot({
+  output$graph_recruitment <-  renderPlot({
         data_rec <- get_recruitment_graph()
         data_rec<-data_rec[data_rec$area %in% input$indices_rec_graph,]
         recruitment_graph(dataset=data_rec,as.numeric(input$just_a_joke)%%2==FALSE)
       })
   
-      output$download_recruitment_graph <- downloadHandler(filename = function() {
+  output$download_recruitment_graph <- downloadHandler(filename = function() {
         paste("recruitment.", input$image_format,sep = "")
       }, content = function(file) {
         data_rec <- get_recruitment_graph()
         ggsave(file, recruitment_graph(dataset=data_rec,as.numeric(input$just_a_joke)%%2==FALSE))
       })
-
   
-
+  
+  
   
 }

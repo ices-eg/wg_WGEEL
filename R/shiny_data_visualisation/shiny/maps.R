@@ -309,7 +309,8 @@ recruitment_map <- function(R_stations, statseries, wger){
 #' @importFrom scales rescale
 #' @importFrom dplyr inner_join rename
 
-b_map <- function(dataset=precodata_all, 
+b_map <- function(dataset_country=precodata_country, 
+    dataset_emu=precodata_emu,
     map = "country",
     use_last_year=TRUE,
     the_year=NULL,
@@ -322,7 +323,7 @@ b_map <- function(dataset=precodata_all,
   
   if (map=="country"){ 
     
-    precodata_here <-precodata_all[precodata_all$aggreg_level==map,]
+    precodata_here <-dataset_country
     # this will always select country
     
     if (use_last_year)  {
@@ -425,7 +426,7 @@ b_map <- function(dataset=precodata_all,
 } else if (map=="emu"){
           
           # in country precodata_all does not contain emu names hence the following
-          precodata_here <-precodata
+          precodata_here <-dataset_emu
           
           
           

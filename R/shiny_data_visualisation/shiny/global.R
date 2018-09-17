@@ -86,8 +86,8 @@ release = extract_data("Release")
 precodata = extract_precodata() # for tables
 
 precodata_all = extract_data("PrecoData All") # for precodiagram
-
-
+precodata_emu = extract_data("PrecoData EMU") 
+precodata_country = extract_data("PrecoData Country") 
 
 
 # save(landings, aquaculture, release, precodata, habitat_ref, lfs_code_base, country_ref,  file= "../../../data/dataset.Rdata")
