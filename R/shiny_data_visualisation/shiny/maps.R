@@ -327,7 +327,12 @@ b_map <- function(dataset_country=precodata_country,
     # this will always select country
     
     if (use_last_year)  {
-      precodata_here <-precodata_here[precodata_here$eel_year == precodata_here$last_year,]
+      precodata_here <-inner_join(
+              precodata_here %>% 
+                  group_by(eel_cou_code) %>% 
+                  summarize(last_year=last(eel_year)),
+              precodata_here,   by = "eel_cou_code") %>% 
+          filter(last_year == eel_year)
       } else {
     # using the second slider input
     validate(need(!is.null(the_year),"There should be an input to select one year"))
@@ -362,7 +367,7 @@ b_map <- function(dataset_country=precodata_country,
   
   selected_countries$label<-sprintf("%s </br> %s B0 %s </br> Bbest %s </br> Bcurrent %s", 
       selected_countries$cou_code,
-      selected_countries$last_year, 
+      selected_countries$eel_year, 
       selected_countries$b0,
       selected_countries$bbest,       
       selected_countries$bcurrent )
