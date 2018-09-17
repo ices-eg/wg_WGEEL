@@ -462,16 +462,16 @@ b_map <- function(dataset_country=precodata_country,
           
           selected_emus$b40 <- 0.4 * selected_emus$b0   
           
-          selected_emus$rescaled_b0<-scales::rescale(sqrt(selected_emus$b0), to=c(4,maxscale_emu*1000),
+          selected_emus$rescaled_b0<-scales::rescale(sqrt(selected_emus$b0), to=c(4,maxscale_emu),
                   from=range(sqrt(selected_emus$b0),na.rm=T)) 
           
-          selected_emus$rescaled_b40<-scales::rescale(sqrt(selected_emus$b40), to=c(4,maxscale_emu*1000),
+          selected_emus$rescaled_b40<-scales::rescale(sqrt(selected_emus$b40), to=c(4,maxscale_emu),
                   from=range(sqrt(selected_emus$b0),na.rm=T)) 
           
-          selected_emus$rescaled_bbest<-scales::rescale(sqrt(selected_emus$bbest), to=c(4,maxscale_emu*1000),
+          selected_emus$rescaled_bbest<-scales::rescale(sqrt(selected_emus$bbest), to=c(4,maxscale_emu),
                   from=range(sqrt(selected_emus$b0),na.rm=T)) 
           
-          selected_emus$rescaled_bcurrent<-scales::rescale(sqrt(selected_emus$bcurrent), to=c(4,maxscale_emu*1000),
+          selected_emus$rescaled_bcurrent<-scales::rescale(sqrt(selected_emus$bcurrent), to=c(4,maxscale_emu),
                   from=range(sqrt(selected_emus$b0),na.rm=T)) 
           
           # get popup information ------------------------------------------------------------------------
@@ -491,52 +491,63 @@ b_map <- function(dataset_country=precodata_country,
                   
 	              addPolygons(data = emu_p, weight = 2, opacity=0.3, fillOpacity =0.1)%>%
                   
-                  addCircles(
-                          lng = ~coords.x1,
-                          lat = ~coords.x2,
-		                  color = "grey",
-                          fillColor = "grey",
-                          fillOpacity = 0.9,
-                          opacity = 0.9,            
-                          weight = 0,
-                          stroke = TRUE,
-                          radius = ~ rescaled_b0
-                  ) %>%
-                  
-                  addCircles(
-                          lng = ~coords.x1,
-                          lat = ~coords.x2,
-		                  color = "g",
-                          fillColor = "red",
-                          fillOpacity = 0.7,
-                          opacity = 0.7,            
-                          weight = 1,
-                          stroke = TRUE,
-                          radius = ~ rescaled_b40) %>%
-                  
-                  addCircles(
-                          lng = ~coords.x1,
-                          lat = ~coords.x2,
-		                  color = "g",
-                          fillColor = "orange",
-                          fillOpacity = 0.7,
-                          opacity = 0.7,            
-                          weight = 1,
-                          stroke = TRUE,
-                          radius = ~ rescaled_bbest)     %>%
-                  
-                  addCircles(
-                          lng = ~coords.x1,
-                          lat = ~coords.x2,
-		                  color = "g",
-                          fillColor = "green",
-                          fillOpacity = 0.7,
-                          opacity = 0.7,            
-                          weight = 1,
-                          stroke = TRUE,
-                          radius = ~ rescaled_bcurrent,
-                          popup = ~ label,
-                          layerId = ~id) 
+				  addMinicharts(
+						  lng = selected_emus$coords.x1,
+						  lat = selected_emus$coords.x2,
+						  chartdata = selected_emus[,c("rescaled_b0", "rescaled_b40", "rescaled_bbest", "rescaled_bcurrent")],
+						  maxValues = max(selected_emus$rescaled_b0, na.rm=T),
+						  width = 45, height = 45, type = "bar", popup = popupArgs(html=selected_emus$label)
+				  )%>%
+#				  addPopups(lng = selected_emus$coords.x1,
+#						  lat = selected_emus$coords.x2,selected_emus$label)%>%
+					addScaleBar(options = scaleBarOptions(imperial = FALSE))
+		  
+#                  addCircles(
+#                          lng = ~coords.x1,
+#                          lat = ~coords.x2,
+#		                  color = "grey",
+#                          fillColor = "grey",
+#                          fillOpacity = 0.9,
+#                          opacity = 0.9,            
+#                          weight = 0,
+#                          stroke = TRUE,
+#                          radius = ~ rescaled_b0
+#                  ) %>%
+#                  
+#                  addCircles(
+#                          lng = ~coords.x1,
+#                          lat = ~coords.x2,
+#		                  color = "g",
+#                          fillColor = "red",
+#                          fillOpacity = 0.7,
+#                          opacity = 0.7,            
+#                          weight = 1,
+#                          stroke = TRUE,
+#                          radius = ~ rescaled_b40) %>%
+#                  
+#                  addCircles(
+#                          lng = ~coords.x1,
+#                          lat = ~coords.x2,
+#		                  color = "g",
+#                          fillColor = "orange",
+#                          fillOpacity = 0.7,
+#                          opacity = 0.7,            
+#                          weight = 1,
+#                          stroke = TRUE,
+#                          radius = ~ rescaled_bbest)     %>%
+#                  
+#                  addCircles(
+#                          lng = ~coords.x1,
+#                          lat = ~coords.x2,
+#		                  color = "g",
+#                          fillColor = "green",
+#                          fillOpacity = 0.7,
+#                          opacity = 0.7,            
+#                          weight = 1,
+#                          stroke = TRUE,
+#                          radius = ~ rescaled_bcurrent,
+#                          popup = ~ label,
+#                          layerId = ~id) 
           
       } else {
           stop("map should be country or emu")

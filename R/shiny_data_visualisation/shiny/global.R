@@ -52,6 +52,7 @@ load_package("colorspace")
 load_package("ggrepel")
 load_package("viridis")
 load_package("svglite")
+load_package("leaflet.minicharts")
 # load functions ------------------------------------------------------------------------------------
 options()
 # retrieve reference tables needed
