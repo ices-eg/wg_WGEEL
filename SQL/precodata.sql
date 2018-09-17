@@ -157,7 +157,7 @@ select eel_emu_nameshort, count(*) from too_many_habitats group by eel_emu_names
 	PL_Vist: data in AL, sumH only in F (being turbines) ==> can be added
 */
 
--- correct the "FIXME" above
+-- correct the "FIXME" above!
 begin;
 update datawg.t_eelstock_eel set eel_qal_id = 3, eel_qal_comment = "eel_qal_comment" || 'duplicate from F and T'
 where eel_emu_nameshort in ('ES_Anda', 'ES_Cata') and eel_hty_code = 'AL' and eel_typ_id = 15
@@ -173,14 +173,15 @@ commit;
 drop view if exists datawg.precodata_emu cascade;
 create or replace view datawg.precodata_emu AS
 WITH b0_unique AS
-	(SELECT eel_emu_nameshort, B0 AS unique_b0
+	(SELECT eel_emu_nameshort, sum(B0) AS unique_b0
 	FROM datawg.bigtable_by_habitat
 	WHERE eel_year = 1800
+	GROUP BY eel_emu_nameshort
 	)
 select eel_year, eel_cou_code, country, cou_order, eel_emu_nameshort, emu_wholecountry, 
 	case 
 		when eel_emu_nameshort in ('IT_Abru', 'IT_Basi', 'IT_Cala', 'IT_Ligu', 'IT_Lomb', 'IT_Marc', 'IT_Moli', 'IT_Piem', 'IT_Tren', 'IT_Umbr', 'IT_Vall', 'LT_total') then null
-		else COALESCE(sum(unique_b0), sum(b0)) 
+		else COALESCE(unique_b0, sum(b0)) 
 	end as b0,
 	case 
 		when eel_emu_nameshort in ('ES_Murc', 'IT_Abru', 'IT_Basi', 'IT_Cala', 'IT_Ligu', 'IT_Lomb', 'IT_Marc', 'IT_Moli', 'IT_Piem', 'IT_Tren', 'IT_Umbr', 'IT_Vall', 'LT_total') then null
@@ -209,7 +210,7 @@ select eel_year, eel_cou_code, country, cou_order, eel_emu_nameshort, emu_wholec
 from datawg.bigtable_by_habitat 
 LEFT OUTER JOIN B0_unique USING(eel_emu_nameshort)
 WHERE eel_year > 1850
-group by eel_year, eel_cou_code, country, cou_order, eel_emu_nameshort, emu_wholecountry, aggregated_lfs
+group by eel_year, eel_cou_code, country, cou_order, eel_emu_nameshort, emu_wholecountry, aggregated_lfs, unique_b0
 order by eel_year, cou_order, eel_emu_nameshort
 ;
 
