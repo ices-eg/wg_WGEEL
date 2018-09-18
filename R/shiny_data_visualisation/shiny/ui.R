@@ -411,7 +411,11 @@ ui = dashboardPage(title="ICES Data Visualisation",
                             offStatus = "warning",
                             size = "default",                           
                             value = FALSE
-                        )                        
+                        ),
+						
+						
+						radioGroupButtons(inputId = "rasta_map_type", 
+								label = "Label", choices = c("classical", "pie", "bar"))
                     )
                 )
             ),
