@@ -120,7 +120,7 @@ select eel_emu_nameshort, count(*) from too_many_habitats group by eel_emu_names
 	ES_Gali: B in F, T & AL --> B, sumA & sumH can be added / ! no  F mortality in T, but sumA in AL seems to be sumF in F + sumH in AL ==> can be added
 	ES_Inne: data in F & AL --> can be added
 	ES_Minh: data in T & AL --> can be added
-	ES_Murc: in F, T & C --> nothing, but B0 can be calculated
+	ES_Murc: in F, T & C --> nothing, but B0 can be calculated --for ES_Murc only coastal water is consider (mail E Diaz 17/09/2018)
 	ES_Nava: data in F, AL --> can be added
 	ES_Vale: B in F, T & AL (being F + T) --> FIXME: remove Bcurrent for AL for 2017
 -- IE
@@ -177,7 +177,7 @@ create or replace view datawg.precodata_emu AS
 WITH b0_unique AS
 	(SELECT eel_emu_nameshort, sum(B0) AS unique_b0
 	FROM datawg.bigtable_by_habitat
-	WHERE eel_year = 1800
+	WHERE (eel_year = 1800 AND eel_emu_nameshort NOT IN ('ES_Murc')) OR (eel_year = 1800 AND eel_emu_nameshort IN ('ES_Murc') AND eel_hty_code = 'C') --for ES_Murc only coastal water is consider (mail E Diaz 17/09/2018)
 	GROUP BY eel_emu_nameshort
 	)
 select eel_year, eel_cou_code, country, cou_order, eel_emu_nameshort, emu_wholecountry, 
@@ -186,32 +186,32 @@ select eel_year, eel_cou_code, country, cou_order, eel_emu_nameshort, emu_wholec
 		else COALESCE(unique_b0, sum(b0)) 
 	end as b0,
 	case 
-		when eel_emu_nameshort in ('ES_Murc', 'LT_total') then null
+		when eel_emu_nameshort in ('LT_total') then null
 		else sum(bbest) 
 	end as bbest,
 	case 
-		when eel_emu_nameshort in ('ES_Murc', 'LT_total') then null
+		when eel_emu_nameshort in ('LT_total') then null
 		else sum(bcurrent) 
 	end as bcurrent,
 	case 
-		when eel_emu_nameshort in ('ES_Cata', 'ES_Murc', 'LT_total') then null
+		when eel_emu_nameshort in ('ES_Cata', 'LT_total') then null
 		when eel_emu_nameshort in ('IT_Camp', 'IT_Emil', 'IT_Frio', 'IT_Lazi', 'IT_Pugl', 'IT_Sard', 'IT_Sici', 'IT_Tosc', 'IT_Vene', 'IT_Abru', 'IT_Basi', 'IT_Cala', 'IT_Ligu', 'IT_Lomb', 'IT_Marc', 'IT_Moli', 'IT_Piem', 'IT_Tren', 'IT_Umbr', 'IT_Vall') then round(sum(suma*bbest)/sum(bbest),3)
 		else sum(suma) 
 	end as suma,
 	case 
-		when eel_emu_nameshort in ('ES_Cata', 'ES_Murc', 'LT_total') then null
+		when eel_emu_nameshort in ('ES_Cata', 'LT_total') then null
 		when eel_emu_nameshort in ('IT_Camp', 'IT_Emil', 'IT_Frio', 'IT_Lazi', 'IT_Pugl', 'IT_Sard', 'IT_Sici', 'IT_Tosc', 'IT_Vene', 'IT_Abru', 'IT_Basi', 'IT_Cala', 'IT_Ligu', 'IT_Lomb', 'IT_Marc', 'IT_Moli', 'IT_Piem', 'IT_Tren', 'IT_Umbr', 'IT_Vall') then round(sum(sumf*bbest)/sum(bbest),3)
 		else sum(sumf) 
 	end as sumf,
 	case 
-		when eel_emu_nameshort in ('ES_Murc', 'LT_total') then null
+		when eel_emu_nameshort in ('LT_total') then null
 		when eel_emu_nameshort in ('IT_Camp', 'IT_Emil', 'IT_Frio', 'IT_Lazi', 'IT_Pugl', 'IT_Sard', 'IT_Sici', 'IT_Tosc', 'IT_Vene', 'IT_Abru', 'IT_Basi', 'IT_Cala', 'IT_Ligu', 'IT_Lomb', 'IT_Marc', 'IT_Moli', 'IT_Piem', 'IT_Tren', 'IT_Umbr', 'IT_Vall') then round(sum(sumh*bbest)/sum(bbest),3)
 		else sum(sumh) 
 	end as sumh, 
 	'emu'::text as aggreg_level, aggregated_lfs, string_agg(eel_hty_code , ', ') as aggregated_hty
 from datawg.bigtable_by_habitat 
 LEFT OUTER JOIN B0_unique USING(eel_emu_nameshort)
-WHERE eel_year > 1850
+WHERE (eel_year > 1850 AND eel_emu_nameshort NOT IN ('ES_Murc')) OR (eel_year > 1850 AND eel_emu_nameshort IN ('ES_Murc') AND eel_hty_code = 'C')
 group by eel_year, eel_cou_code, country, cou_order, eel_emu_nameshort, emu_wholecountry, aggregated_lfs, unique_b0
 order by eel_year, cou_order, eel_emu_nameshort
 ;
