@@ -539,10 +539,10 @@ server = function(input, output, session) {
         b_map(dataset_emu=precodata_emu,
             dataset_country=precodata_country,
             map = input$geo,
-            use_last_year=input$rasta_map_last_year,
+            use_last_year=input$rasta_map_last_year, type = input$rasta_map_type,
             the_year=input$year[2],
-            maxscale_country=50,
-            maxscale_emu=20)
+            maxscale_country=300, # scale in km
+            maxscale_emu=50) # scale in km
         
       })
   
