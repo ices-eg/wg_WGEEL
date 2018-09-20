@@ -1,4 +1,4 @@
--- bigtable, no modification just combining different table
+﻿-- bigtable, no modification just combining different table
 drop view if exists datawg.bigtable cascade;
 create or replace view datawg.bigtable as
 with 
@@ -159,6 +159,8 @@ I confirm that IT_Abru, IT_Basi, IT_Cala, IT_Ligu, IT_Lomb, IT_Marc, IT_Moli, IT
 	PL_Vist: data in AL, sumH only in F (being turbines) ==> can be added
 */
 
+
+/* RUNONCE
 -- correct the "FIXME" above!
 begin;
 update datawg.t_eelstock_eel set eel_qal_id = 3, eel_qal_comment = "eel_qal_comment" || 'duplicate from F and T'
@@ -170,6 +172,7 @@ where eel_emu_nameshort in ('ES_Vale') and eel_hty_code = 'AL' and eel_typ_id = 
 
 commit;
 --rollback ;
+*/
 
 -- bigtable aggregated by EMU
 drop view if exists datawg.precodata_emu cascade;
