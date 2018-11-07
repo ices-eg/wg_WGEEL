@@ -20,6 +20,8 @@ with
 		(select eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code, round(eel_value,3) as sumf from datawg.sigmaf),
 	sumh as
 		(select eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code, round(eel_value,3) as sumh from datawg.sigmah),
+	habitat_ha as 
+		(select eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code, round(eel_value,3) as habitat_ha from datawg.potential_available_habitat),
 	countries as
 		(select cou_code, cou_country as country, cou_order from "ref".tr_country_cou),
 	emu as
@@ -28,13 +30,14 @@ with
 		(select hty_code, hty_description as habitat from "ref".tr_habitattype_hty),
 	life_stage as
 		(select lfs_code, lfs_name as life_stage from "ref".tr_lifestage_lfs)
-select eel_year, eel_cou_code, country, cou_order, eel_emu_nameshort, emu_wholecountry, eel_hty_code, habitat, eel_lfs_code, life_stage, b0, bbest, bcurrent, suma, sumf, sumh
+select eel_year, eel_cou_code, country, cou_order, eel_emu_nameshort, emu_wholecountry, eel_hty_code, habitat, eel_lfs_code, life_stage, b0, bbest, bcurrent, suma, sumf, sumh, habitat_ha
 from b0 
 	full outer join bbest using(eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code)
 	full outer join bcurrent using(eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code)
 	full outer join suma using(eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code)
 	full outer join sumf using(eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code)
 	full outer join sumh using(eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code)
+	full outer join habitat_ha using(eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code)
 	full outer join countries on eel_cou_code = cou_code
 	join emu on eel_emu_nameshort = emu_nameshort 
 	join habitat on eel_hty_code = hty_code
@@ -82,11 +85,11 @@ having count(*) > 1
 -- bigtable aggregated by habitat
 drop view if exists datawg.bigtable_by_habitat cascade;
 create or replace view datawg.bigtable_by_habitat as
-select eel_year, eel_cou_code, country, cou_order, eel_emu_nameshort, emu_wholecountry, eel_hty_code, habitat, sum(b0) as b0, sum(bbest) as bbest, sum(bcurrent) as bcurrent, sum(suma) as suma, sum(sumf) as sumf, sum(sumh) as sumh, string_agg(eel_lfs_code , ', ') as aggregated_lfs
+select eel_year, eel_cou_code, country, cou_order, eel_emu_nameshort, emu_wholecountry, eel_hty_code, habitat, sum(b0) as b0, sum(bbest) as bbest, sum(bcurrent) as bcurrent, sum(suma) as suma, sum(sumf) as sumf, sum(sumh) as sumh, sum(habitat_ha) as habitat_ha, string_agg(eel_lfs_code , ', ') as aggregated_lfs
 from datawg.bigtable 
 group by eel_year, eel_cou_code, country, cou_order, eel_emu_nameshort, emu_wholecountry, eel_hty_code, habitat
 order by eel_year, cou_order, eel_emu_nameshort,
-case 
+case --- OK this is just for ordering
 	when eel_hty_code = 'F' then 1
 	when eel_hty_code = 'T' then 2
 	when eel_hty_code = 'C' then 3
@@ -110,7 +113,7 @@ select eel_emu_nameshort, count(*) from too_many_habitats group by eel_emu_names
 ;
 
 /* EMU details
--- ES
+ES
 	ES_Anda: B in F, T & AL (being F + T) --> FIXME: remove Bcurrent for AL
 	ES_Astu: data in F, T & AL --> can be added
 	ES_Basq: data in F, T & AL --> can be added
@@ -123,14 +126,14 @@ select eel_emu_nameshort, count(*) from too_many_habitats group by eel_emu_names
 	ES_Murc: in F, T & C --> nothing, but B0 can be calculated --for ES_Murc only coastal water is consider (mail E Diaz 17/09/2018)
 	ES_Nava: data in F, AL --> can be added
 	ES_Vale: B in F, T & AL (being F + T) --> FIXME: remove Bcurrent for AL for 2017
--- IE
+IE
 	IE_East: data in F, T & AL --> can be added
 	IE_NorW: data in F, T & AL --> can be added
 	IE_Shan: data in F, T & AL --> can be added
 	IE_SouE: data in F, T & AL --> can be added
 	IE_SouW: data in F, T & AL --> can be added
 	IE_West: data in F, T & AL --> can be added
--- IT
+IT
 	IT_Abru: all data in F, only sumH in T ==> nothing, but sumH can be calculated
 	IT_Basi: all data in F, only sumH in T ==> nothing, but sumH can be calculated
 	IT_Cala: all data in F, only sumH in T ==> nothing, but sumH can be calculated
@@ -153,9 +156,9 @@ select eel_emu_nameshort, count(*) from too_many_habitats group by eel_emu_names
 	IT_Vene: data in F, T ==> B can be added & mortalities calculated
 	comment from F Capoccioni (17/09/2018) : " It would have been better to do not fill any data for EMUs without Transitional habitat.
 I confirm that IT_Abru, IT_Basi, IT_Cala, IT_Ligu, IT_Lomb, IT_Marc, IT_Moli, IT_Piem, IT_Tren, IT_Umbr, IT_Vall."
--- LT
+LT
 	LT_total: B0 in T, the rest in F ==> nothing can be calculated
--- PL
+PL
 	PL_Vist: data in AL, sumH only in F (being turbines) ==> can be added
 */
 
