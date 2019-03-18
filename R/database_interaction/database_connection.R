@@ -21,15 +21,18 @@ load_library("getPass")
 #cat("Created passwords passwordlocal passworddistant", date(), "\n") 
 #}
 #-------------------------------
-if(Sys.info()[["user"]] == "cedric.briand")
+if (exists("userwgeel")) 
 { #Cedric's special configuration
-	user<-"postgres"
-	pwd<-"postgres"
+  user <-userwgeel
+  if (!exists("passwordwgeel")) stop("There should be a passwordwgeel")
+  pwd <- passwordwgeel
+  port <- 5432
+  host <- "192.168.0.100"
     options(sqldf.RPostgreSQL.user = user,  
 		sqldf.RPostgreSQL.password = pwd,
 		sqldf.RPostgreSQL.dbname = "wgeel",
-		sqldf.RPostgreSQL.host = "localhost", #getInformation("PostgreSQL host: if local ==> localhost"), 
-		sqldf.RPostgreSQL.port = 5432)
+		sqldf.RPostgreSQL.host = host, #getInformation("PostgreSQL host: if local ==> localhost"), 
+		sqldf.RPostgreSQL.port = port)
 } else {
 	user<-getPass("Enter the USER: ")
 	pwd<-getPass()
