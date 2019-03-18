@@ -44,7 +44,7 @@ source("R/database_interaction/database_connection.R")
 
 
 #############################
-# Table storing information from the recruitment series
+# Table storing information from the database
 ##################################
 t_eelstock_eel<-sqldf("SELECT 
 eel_id,
@@ -62,15 +62,12 @@ eel_comment,
 eel_datelastupdate,
 eel_missvaluequal,
 eel_datasource,
-eel_dta_code
-	FROM datawg.t_eelstock_eel;")
-# converting some information to latin1, necessary for latin1 final user
+eel_dta_code,
+qal_kept
+	FROM datawg.t_eelstock_eel left join ref.tr_quality_qal on eel_qal_id=tr_quality_qal.qal_id;")
 
-#t_series_ser[,4]<-iconv(t_series_ser[,4],from="UTF8",to="latin1")
-#t_series_ser[,11]<-iconv(t_series_ser[,11],from="UTF8",to="latin1")
-#t_series_ser[,7]<-iconv(t_series_ser[,7],from="UTF8",to="latin1")
 
-#' function to create the recuitment sheet 
+#' function to create the data sheet 
 #' 
 #' @note this function writes the xl sheet for each country
 #' it creates series metadata and series info for ICES station table
@@ -81,7 +78,7 @@ createx_all<-function(country,eel_typ){
   
   #create a folder for the country
   
-  dir.create(str_c(dataxl,country))
+  dir.create(str_c(dataxl,country),showWarnings = FALSE)
   
   #select the data
   if (eel_typ %in% c(4,5,6,7)){
@@ -131,15 +128,15 @@ createx_all<-function(country,eel_typ){
          }else{
     
       ## separate sheets for discarded and keeped data  
-      data_keep<-r_coun[which(r_coun$eel_qal_id %in% c(1,2,4)),]
-      data_disc<-r_coun[!(r_coun$eel_qal_id %in% c(1,2,4)),]
+      data_kept<-r_coun[which(r_coun$eel_qal_id==TRUE),-ncol(r_coun)]
+      data_disc<-r_coun[!(r_coun$eel_qal_id==FALSE),-ncol(r_coun)]
       
-      xls.file<-str_c(dataxl,"/",country,"/",country,CY,data_type,".xls")
+      xls.file<-str_c(dataxl,country,"/",country,CY,data_type,".xls")
       wb = loadWorkbook(xls.file, create = TRUE)
       createSheet(wb,paste(data_type,"_discarded",sep=""))
       writeWorksheet (wb , data_disc , sheet=paste(data_type,"_discarded",sep="") ,header = TRUE )
-      createSheet(wb,paste(data_type,"_keep",sep=""))
-      writeWorksheet (wb , data_keep , sheet=paste(data_type,"_keep",sep="") ,header = TRUE )
+      createSheet(wb,paste(data_type,"_kept",sep=""))
+      writeWorksheet (wb , data_keep , sheet=paste(data_type,"_kept",sep="") ,header = TRUE )
       saveWorkbook(wb)	
       wb = loadWorkbook(xls.file, create = TRUE)
       
