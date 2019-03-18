@@ -41,6 +41,9 @@ if (exists("userwgeel"))
 		sqldf.RPostgreSQL.dbname = "wgeel",
 		sqldf.RPostgreSQL.host = host, #getInformation("PostgreSQL host: if local ==> localhost"), 
 		sqldf.RPostgreSQL.port = port)
+
+
+
 }
 
 # options for PostgresSQL
