@@ -274,10 +274,9 @@ check_positive <- function(dataset,column,country){
 }
 
 
-#' check the values in the current column against a list of values, missing values are removed
+#' check if there is an ICES area division for freshwater data
 #' prior to assessment
 #' @param dataset the name of the dataset
-#' @param column the name of the column
 #' @param country the current country being evaluated
 check_freshwater_without_area <- function(dataset,country){
   #browser()
