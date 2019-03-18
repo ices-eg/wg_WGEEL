@@ -148,7 +148,7 @@ load_catch_landings<-function(path,datasource){
 	data_error = rbind(data_error,check_values(dataset=data_xls,
 			column="eel_lfs_code",
             country=country,
-			value != c("OG","GY","QG")))
+			values != c("OG","GY","QG")))
     
 # should not have any missing value
     data_error= rbind(data_error, check_missing(dataset=data_xls,
