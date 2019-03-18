@@ -176,3 +176,6 @@ All in one
 ```shell
 sudo apt install libssl-dev libcurl4-openssl-dev libudunits2-dev libpq-dev libcairo2-dev libxml2-dev
 ```
+
+## Having the visualisation shiny app fully working
+Need to copy /data directory in the Raspberry
