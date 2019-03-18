@@ -10,15 +10,7 @@
 # the shiny is launched from shiny_data_integration/shiny
 # debug tool
 #setwd("C:\\Users\\cedric.briand\\Documents\\GitHub\\WGEEL\\R\\shiny_data_integration\\shiny")
-load_package <- function(x)
-{
-  if (!is.character(x)) stop("Package should be a string")
-  if (!require(x,character.only = TRUE))
-  {
-    install.packages(x,dep=TRUE)
-    if(!require(x,character.only = TRUE)) stop("Package not found")
-  }
-}
+source("../../utilities/load_library.R")
 load_package("shiny")
 load_package("shinythemes")
 load_package("DT")
@@ -60,13 +52,13 @@ if(packageVersion("glue")<"1.2.0.9000"){
   devtools::install_github('tidyverse/glue')
 }
 
-source("../../utilities/load_library.R")
 source("../../database_interaction/database_connection.R")
 
 # Define pool handler by pool on global level
 pool <- pool::dbPool(drv = dbDriver("PostgreSQL"),
     dbname="wgeel",
-    host="localhost",
+    host=host,
+    port=port,
     user= user,
     password= pwd)
 

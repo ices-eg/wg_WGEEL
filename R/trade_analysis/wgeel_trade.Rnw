@@ -121,7 +121,7 @@ if(getUsername() == 'cedric.briand')
 			sqldf.RPostgreSQL.dbname = "wgeel",
 			sqldf.RPostgreSQL.hostname = "localhost", # "w3.eptb-vilaine.fr"
 			sqldf.RPostgreSQL.port = 5432)
-	setwd("F:/workspace/wgeel/wgeel_trade/")
+	setwd("C:/workspace/wgeel/wgeel_trade/")
 	wd<-getwd()
 	imgwd<-str_c(wd,"/images/")
 	tabwd<-str_c(wd,"/table/")
@@ -206,11 +206,7 @@ theme_black <- function (base_size = 12,base_family=""){
 					plot.margin = unit(c(1, 1, 0.5, 0.5), "lines")
 			)
 }
-geomean=function(x){
-	x<-x[!is.na(x)]
-	n=length(log(x)[!is.infinite(log(x))&!is.na(log(x))])
-	return(data.frame("y"=exp(sum(log(x)[!is.infinite(log(x))&!is.na(log(x))])/n)))
-}
+
 graphics.off() # close all graphics devices
 @
 
@@ -326,7 +322,7 @@ In the first step, we \href{http://appsso.eurostat.ec.europa.eu/nui/show.do?quer
 {queried} import and export data for the major glass eel catching countries France, Spain and UK('reporter'). The query was made for all available 'Anguilla' commodity codes (Table \ref{product_table}) and the trade 'partners' are listed in Table \ref{countries_table}.
 This query has proved usefull in the past, but new products or trade partners
 should be added according to current expertise. Remember to save this new query 
-is this text but remove put an antislash code before \%.
+as a text but put an antislash code before \%.
 Data have been downloaded from September 2011 to  Dec. 2016.
 I've tried different format for download:
 \begin{itemize}
@@ -510,11 +506,11 @@ dev.off()
 %\sub
 %section{trade for aquaculture countries : sorting out the mixing of codes}
 %A query using only eel <12cm and more reporters (to check for possible other
-%internal trade) has been made.
-%\href{http://appsso.eurostat.ec.europa.eu/nui/show.do?query=BOOKMARK_DS-016890_QID_2D88493D_UID_-3F171EB0&layout=PERIOD,L,X,0;REPORTER,L,Y,0;PARTNER,L,Z,0;PRODUCT,C,Z,1;FLOW,L,Z,2;INDICATORS,C,Z,3;&zSelection=DS-016890FLOW,2;DS-016890PARTNER,EU27_INTRA;DS-016890PRODUCT,03019210;DS-016890INDICATORS,VALUE_IN_EUROS;&rankName1=PARTNER_1_2_-1_2&rankName2=INDICATORS_1_2_-1_2&rankName3=FLOW_1_2_-1_2&rankName4=REPORTER_1_2_0_1&rankName5=PERIOD_1_0_0_0&rankName6=PRODUCT_1_2_-1_2&sortR=ASC_-1_FIRST&pprRK=FIRST&pprSO=PROTOCOL&ppcRK=FIRST&ppcSO=ASC&sortC=ASC_-1_FIRST&rStp=&cStp=&rDCh=&cDCh=&rDM=true&cDM=true&footnes=false&empty=false&wai=false&time_mode=NONE&time_most_recent=false&lang=EN&cfo=\%23\%23\%23.\%23\%23\%23\%2C\%23\%23\%23}
+%internal trade) has been made update 2018.
+%\href{http://appsso.eurostat.ec.europa.eu/nui/show.do?query=BOOKMARK_DS-016890_QID_-7565EB64_UID_-3F171EB0&layout=PERIOD,L,X,0;REPORTER,L,Y,0;PARTNER,L,Z,0;PRODUCT,C,Z,1;FLOW,L,Z,2;INDICATORS,C,Z,3;&zSelection=DS-016890FLOW,2;DS-016890PARTNER,EU27_INTRA;DS-016890PRODUCT,03019210;DS-016890INDICATORS,VALUE_IN_EUROS;&rankName1=PARTNER_1_2_-1_2&rankName2=INDICATORS_1_2_-1_2&rankName3=FLOW_1_2_-1_2&rankName4=PRODUCT_1_2_-1_2&rankName5=PERIOD_1_0_0_0&rankName6=REPORTER_1_0_0_1&sortR=ASC_-1_FIRST&sortC=ASC_-1_FIRST&rStp=&cStp=&rDCh=&cDCh=&rDM=true&cDM=true&footnes=false&empty=false&wai=false&time_mode=NONE&time_most_recent=false&lang=EN&cfo=%23%23%23%2C%23%23%23.%23%23%23}
 %{more specific query}.
 <<trade_analysis2, eval=TRUE,echo=FALSE,results=hide>>=
-trade2<-read.table(file=str_c(datawd,"eurostat2.csv"),header=TRUE,sep=",",stringsAsFactors = FALSE, dec=",")
+trade2<-read.table(file=str_c(datawd,"eurostat3.csv"),header=TRUE,sep=",",stringsAsFactors = FALSE, dec=",")
 str(trade2)
 # there is a warning, but the file looks fine
 nr0<-nrow(trade2)
@@ -613,14 +609,14 @@ ddat2<-acast(dat2,reporter~year~product,value.var="QUANTITY_IN_T")
 trade3<-dplyr::select(.data=trade2,reporter,partner,product,indicators,year,flow,month,value)%>%
 #the row above selects the column to play with
 		filter(
-				is.na(month),
+				#is.na(month),
 				!partner%in%c("EU27_INTRA","EU27_EXTRA"),
 				flow=="EXPORT",
 				indicators%in%c("QUANTITY_IN_KG","VALUE_IN_EUROS"))
 		
 trade3.<-dcast(trade3,reporter+partner+product+year+flow+month~indicators,value.var="value")
 #price in euro per kilo
-
+trade3. <-trade3.%>%filter(QUANTITY_IN_KG>0)
 trade3.$price=trade3.$"VALUE_IN_EUROS"/trade3.$"QUANTITY_IN_KG"
 jpeg(filename=str_c(imgwd,"Prices_all_size_classes_2012_2016_eurostat2.jpg"))
 ggplot(subset(trade3.,!is.infinite(trade3.$price)))+geom_point(aes(x=QUANTITY_IN_KG,y=price,size=QUANTITY_IN_KG,color=partner))+
@@ -1314,13 +1310,3 @@ reporters (FR,UK,SP,DK,DE,NL,PL,IT)}
 
 \clearpage
 \end{document}
-
-##### table row data
-print(as.data.frame(rawdatatoconvinceflorian<-dplyr::select(.data=trade1,reporter,partner,product,flow,indicators,year,month,value)%>%
-  filter(!is.na(month),
-    !partner%in%c("EU27_INTRA","EU27_EXTRA"),
-    product=='3019210',
-    indicators=='QUANTITY_IN_KG')%>%
-  group_by(reporter,year,flow)%>%
-  summarize(value=sum(value))%>%
-  ungroup()))
