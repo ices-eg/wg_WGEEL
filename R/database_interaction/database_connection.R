@@ -22,8 +22,10 @@ load_library("getPass")
 #}
 #-------------------------------
 
+
 port <- 5432
 host <- "192.168.0.100"
+
 
 if (exists("userwgeel")) 
 { #Cedric's special configuration
