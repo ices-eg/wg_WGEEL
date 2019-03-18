@@ -36,7 +36,7 @@ if(Sys.info()[["user"]] == "cedric.briand")
     options(sqldf.RPostgreSQL.user = user,  
 		sqldf.RPostgreSQL.password = pwd,
 		sqldf.RPostgreSQL.dbname = "wgeel",
-		sqldf.RPostgreSQL.host = "localhost", #getInformation("PostgreSQL host: if local ==> localhost"), 
+		sqldf.RPostgreSQL.host = "192.168.0.100", #getInformation("PostgreSQL host: if local ==> localhost"), 
 		sqldf.RPostgreSQL.port = 5432)
 }
 
