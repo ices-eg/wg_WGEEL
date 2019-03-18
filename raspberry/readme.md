@@ -164,6 +164,8 @@ R -e "source('R/shiny_data_visualisation/run.R')"
 ```
 ## Solve package installation particularities
 
+for the shiny visualisation app
+
 | R package | sudo apt install |
 | --- | --- |
 | Rpostgresql | libpq-dev |
@@ -172,11 +174,27 @@ R -e "source('R/shiny_data_visualisation/run.R')"
 | gdtools | libcairo2-dev |
 | xml2 | libxml2-dev |
 
+for the shiny integration app
+
+| R package | sudo apt install |
+| --- | --- |
+| RMySQL (dplyr) | libmariadbclient-dev libmariadb-client-lgpl-dev |
+
 All in one
 
 ```shell
-sudo apt install libssl-dev libcurl4-openssl-dev libudunits2-dev libpq-dev libcairo2-dev libxml2-dev
+sudo apt install libssl-dev libcurl4-openssl-dev libudunits2-dev libpq-dev libcairo2-dev libxml2-dev libmariadbclient-dev libmariadb-client-lgpl-dev
 ```
 
 ## Having the visualisation shiny app fully working
 Need to copy /data directory in the Raspberry
+
+```shell
+R -e "source('R/shiny_data_visualisation/run.R')"
+```
+
+## Having the integration shiny app fully working
+
+```shell
+R -e "source('R/shiny_data_integration/run.R')"
+```
