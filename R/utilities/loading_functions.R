@@ -778,8 +778,8 @@ load_biomass<-function(path,datasource){
     data_error= rbind(data_error, check_values(dataset=data_xls,
             column="eel_lfs_code",
             country=country,
-            values=c("G","GY","Y","YS","S","AL")))
-    
+            values=c("G","Y","YS","S","AL")))
+
     ###### eel_hty_code ##############
     data_error= rbind(data_error, check_type(dataset=data_xls,
             column="eel_hty_code",
@@ -980,7 +980,7 @@ load_mortality_rates<-function(path,datasource){
     data_error= rbind(data_error, check_values(dataset=data_xls,
             column="eel_lfs_code",
             country=country,
-            values=c("G","GY","Y","YS","S","OG","QG","AL")))
+            values=c("G","Y","YS","S","AL")))
     
     ###### eel_hty_code ##############
     data_error= rbind(data_error, check_type(dataset=data_xls,
@@ -1179,7 +1179,7 @@ load_mortality_silver<-function(path,datasource){
     data_error= rbind(data_error, check_values(dataset=data_xls,
             column="eel_lfs_code",
             country=country,
-            values=c("G","GY","Y","YS","S","OG","QG","AL")))
+            values=c("G","Y","YS","S","AL")))
     
     ###### eel_hty_code ##############
     data_error= rbind(data_error, check_type(dataset=data_xls,
