@@ -21,8 +21,15 @@ load_library("getPass")
 #cat("Created passwords passwordlocal passworddistant", date(), "\n") 
 #}
 #-------------------------------
+<<<<<<< HEAD
 port <- 5432
 host <- "192.168.0.100"
+=======
+
+port <- 5432
+host <- "192.168.0.100"
+
+>>>>>>> branch 'master' of https://github.com/ices-eg/wg_WGEEL.git
 if (exists("userwgeel")) 
 { #Cedric's special configuration
   user <-userwgeel
@@ -41,9 +48,6 @@ if (exists("userwgeel"))
 		sqldf.RPostgreSQL.dbname = "wgeel",
 		sqldf.RPostgreSQL.host = host, #getInformation("PostgreSQL host: if local ==> localhost"), 
 		sqldf.RPostgreSQL.port = port)
-
-
-
 }
 
 # options for PostgresSQL
