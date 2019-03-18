@@ -162,7 +162,6 @@ Run a particular script
 R -e "source('R/shiny_data_visualisation/run.R')"
 ```
 ## Solve package installation particularities
-see below for the all in one instruction
 
 | R package | sudo apt install |
 | --- | --- |
@@ -172,7 +171,7 @@ see below for the all in one instruction
 | gdtools | libcairo2-dev |
 | xml2 | libxml2-dev |
 
-all in one
+All in one
 
 ```shell
 sudo apt install libssl-dev libcurl4-openssl-dev libudunits2-dev libpq-dev libcairo2-dev libxml2-dev
