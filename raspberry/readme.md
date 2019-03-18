@@ -1,4 +1,4 @@
-#Raspberry installation
+# Raspberry installation
 ## Objective
 Having an easy way to handle data during the WGEEL.
 This requires a common database and having a computer running R and shiny app.
@@ -150,7 +150,7 @@ Install a package
 R -e "install.packages(c('shiny'), repos='https://cloud.r-project.org/', lib= '~/R/Rlib')
 ```
 
-First test of shiny app (
+First test of shiny app
 
 ```shell
 R -e "shiny::runGitHub('shiny-examples', 'rstudio', subdir = '001-hello', host = '0.0.0.0')"
@@ -167,43 +167,10 @@ see below for the all in one instruction
 | R package | sudo apt install |
 | --- | --- |
 | Rpostgresql | libpq-dev |
-
-
-| Tables        | Are           | Cool  |
-| ------------- |:-------------:| -----:|
-| col 3 is      | right-aligned | $1600 |
-| col 2 is      | centered      |   $12 |
-| zebra stripes | are neat      |    $1 |
-
-for Rpostgresql
-
-```shell
-sudo apt install libpq-dev
-```
-
-for fs
-
-```shell
-sudo apt install libssl-dev
-```
-
-for units
-
-```shell
-sudo apt install libcurl4-openssl-dev libudunits2-devl-dev
-```
-
-for gdtools
-
-```shell
-sudo apt install libcairo2-dev
-```
-
-for xml2
-
-```shell
-sudo apt install libxml2-dev
-```
+| fs | libssl-dev |
+| units | libcurl4-openssl-dev libudunits2-devl-dev |
+| gdtools | libcairo2-dev |
+| xml2 | libxml2-dev |
 
 all in one
 
