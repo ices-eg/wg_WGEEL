@@ -119,6 +119,7 @@ git clone https://github.com/ices-eg/wg_WGEEL.git
 To update your git:
 
 ```shell
+cd WGEEL-git/wg_WGEEL
 git pull
 ```
 #R
