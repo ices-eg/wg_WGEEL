@@ -128,15 +128,15 @@ createx_all<-function(country,eel_typ){
          }else{
     
       ## separate sheets for discarded and keeped data  
-      data_keep<-r_coun[which(r_coun$eel_qal_id==TRUE),-ncol(r_coun)]
+      data_kept<-r_coun[which(r_coun$eel_qal_id==TRUE),-ncol(r_coun)]
       data_disc<-r_coun[!(r_coun$eel_qal_id==FALSE),-ncol(r_coun)]
       
       xls.file<-str_c(dataxl,country,"/",country,CY,data_type,".xls")
       wb = loadWorkbook(xls.file, create = TRUE)
       createSheet(wb,paste(data_type,"_discarded",sep=""))
       writeWorksheet (wb , data_disc , sheet=paste(data_type,"_discarded",sep="") ,header = TRUE )
-      createSheet(wb,paste(data_type,"_keep",sep=""))
-      writeWorksheet (wb , data_keep , sheet=paste(data_type,"_keep",sep="") ,header = TRUE )
+      createSheet(wb,paste(data_type,"_kept",sep=""))
+      writeWorksheet (wb , data_keep , sheet=paste(data_type,"_kept",sep="") ,header = TRUE )
       saveWorkbook(wb)	
       wb = loadWorkbook(xls.file, create = TRUE)
       
