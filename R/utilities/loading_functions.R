@@ -1405,6 +1405,7 @@ correct_me <- function(data){
   }
   if ("typ_name"%in% colnames(data))
     data<-data%>%rename(eel_typ_name=typ_name)
+data <- as.data.frame(data)
   data[,1]<-tolower(data[,1]) #excel is stupid: he is not able to distinguish lower and upper case
   return(data)
 }
