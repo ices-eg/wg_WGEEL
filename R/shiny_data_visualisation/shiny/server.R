@@ -192,6 +192,9 @@ server = function(input, output, session) {
             extensions = c("Buttons","KeyTable"),
             option=list(
                 order=list(0,"asc"),
+                scroller = TRUE,
+                scrollX = TRUE,
+                scrollY = "500px",
                 keys = TRUE,
                 pageLength = 10,
                 columnDefs = list(list(className = 'dt-center')),
