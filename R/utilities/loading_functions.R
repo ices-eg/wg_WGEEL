@@ -896,7 +896,7 @@ load_mortality_rates<-function(path,datasource){
     data_error= rbind(data_error, check_values(dataset=data_xls,
             column="eel_typ_name",
             country=country,
-            values=c("sumA","sumF","sumH", "sumF_com", "sumF_rec", "sumH_hydro", "sumH_habitat", "sumH_stocking", "sumH_other", "sumH_release"))) 
+            values=c("suma","sumf","sumh", "sumf_com", "sumf_rec", "sumh_hydro", "sumh_habitat", "sumh_stocking", "sumh_other", "sumh_release"))) 
     
     ###### eel_year ##############
     
