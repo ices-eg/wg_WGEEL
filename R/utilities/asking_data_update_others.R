@@ -30,7 +30,7 @@ load_library("XLConnect")
 # as we don't want to commit data to git
 # read git user 
 ##################################
-wddata<-"C:/Users/TB11/Desktop/WKTEEL2/test_files"
+wddata<-"C:/Users/cboulenger/Documents/test_wgeel"
 #####################################
 # Finally we store the xl data in a sub chapter
 ########################################
@@ -137,8 +137,12 @@ createx_all<-function(country,eel_typ){
       ## reorder data columns so type names is next to eel_type_id      
       r_coun<-data.frame(r_coun[, 1:2],typ_name=r_coun[,ncol(r_coun)],r_coun[,3:17])     
       ## separate sheets for discarded and keeped data  
-      data_kept<-r_coun[which(r_coun$eel_qal_id==TRUE),-ncol(r_coun)]
-      data_disc<-r_coun[!(r_coun$eel_qal_id==TRUE),-ncol(r_coun)]
+      data_kept<-r_coun[which(r_coun$eel_qal_id==TRUE),]
+      data_kept<-data_kept[,-ncol(r_coun)]
+      
+      data_disc<-r_coun[!(r_coun$eel_qal_id==TRUE),]
+      data_disc<-data_disc[,-ncol(r_coun)]
+      
       
       xls.file<-str_c(dataxl,country,"/",country,CY,data_type,".xls")
       wb = loadWorkbook(xls.file, create = TRUE)
