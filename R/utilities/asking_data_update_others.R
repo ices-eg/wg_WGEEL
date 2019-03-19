@@ -132,7 +132,7 @@ createx_all<-function(country,eel_typ){
     
       ## separate sheets for discarded and keeped data  
       data_kept<-r_coun[which(r_coun$eel_qal_id==TRUE),-ncol(r_coun)]
-      data_disc<-r_coun[!(r_coun$eel_qal_id==FALSE),-ncol(r_coun)]
+      data_disc<-r_coun[!(r_coun$eel_qal_id==TRUE),-ncol(r_coun)]
       
       xls.file<-str_c(dataxl,country,"/",country,CY,data_type,".xls")
       wb = loadWorkbook(xls.file, create = TRUE)
