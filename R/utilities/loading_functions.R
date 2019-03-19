@@ -191,7 +191,8 @@ load_catch_landings<-function(path,datasource){
             column="eel_area_division",
             country=country,
             values=ices_division))
-    
+
+   
     ###### eel_qal_id ############## 
     
     data_error= rbind(data_error, check_missing(dataset=data_xls,
@@ -413,6 +414,7 @@ load_release<-function(path,datasource){
             column="eel_area_division",
             country=country,
             values=ices_division))
+
     
     ###  deal with eel_value_number and eel_value_kg to import to database
     
