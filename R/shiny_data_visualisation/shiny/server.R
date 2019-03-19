@@ -24,7 +24,12 @@ server = function(input, output, session) {
         if (input$dataset %in% c("aquaculture","landings")) {
           text <-  paste("<p align='left'>Value in ton <br/>",
               "to download this, use the Excel button </p>")
-        } else text =paste("<p align='left'>",
+        } else if (input$dataset == "landings_com_corrected" | input$dataset == "landings_rec_corrected") {
+          text <-  paste("<p align='left'>Value in ton <br/>",
+                         "<p align='left'>Asterisk (*) represents predicted data <br/>",
+                         "to download this, use the Excel button </p>")
+        }
+    else text =paste("<p align='left'>",
               "to download this, use the Excel button </p>")
         HTML(
             paste(
@@ -163,16 +168,45 @@ server = function(input, output, session) {
           
           
           switch(input$geo,"country"={
+            
+            if (input$dataset == "landings_com_corrected" | input$dataset == "landings_rec_corrected"){
+              
                 table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
-                #add a column with the sum of all the values
-                table<-data.frame(table,sum=rowSums(table[,-1],na.rm = TRUE))
+                table2=dcast(grouped_data, eel_year~eel_cou_code, value.var = "predicted",fun = prod)
                 
+
                 #ordering the column accordign to country order
                 country_to_order = names(table)[-1]
                 n_order = order(country_ref$cou_order[match(country_to_order, country_ref$cou_code)])
                 n_order <- n_order+1
                 n_order <- c(1,n_order)
-                table = table[, n_order]},
+                table = table[, n_order]
+                
+                #add a column with the sum of all the values and prod of predicted
+                
+                table<-data.frame(table,sum=rowSums(table[,-1],na.rm = TRUE))
+                table2<-data.frame(table2,prod=apply(table2[,-1],1,prod,na.rm = TRUE))
+                
+                #add a * when the data is predicted
+                
+                for (col in 2:ncol(table)){
+                  table[,col][table2[,col]==0]<-paste0(table[,col][table2[,col]==0],"*")
+                }
+                
+                 
+            }else{
+              
+              table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
+
+              
+              #ordering the column accordign to country order
+              country_to_order = names(table)[-1]
+              n_order = order(country_ref$cou_order[match(country_to_order, country_ref$cou_code)])
+              n_order <- n_order+1
+              n_order <- c(1,n_order)
+              table = table[, n_order]
+            }
+                },
               "emu"={
                 table = dcast(grouped_data, eel_year~eel_emu_nameshort, value.var = "eel_value",fun.aggregate = fun.agg)  
                 

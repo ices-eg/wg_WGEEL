@@ -63,8 +63,12 @@ eel_datelastupdate,
 eel_missvaluequal,
 eel_datasource,
 eel_dta_code,
-qal_kept
-	FROM datawg.t_eelstock_eel left join ref.tr_quality_qal on eel_qal_id=tr_quality_qal.qal_id;")
+qal_kept,
+typ_name
+FROM datawg.t_eelstock_eel 
+left join ref.tr_quality_qal on eel_qal_id=tr_quality_qal.qal_id 
+left join ref.tr_typeseries_typ on eel_typ_id=typ_id;")
+
 
 
 #' function to create the data sheet 
@@ -130,9 +134,15 @@ createx_all<-function(country,eel_typ){
      
          }else{
     
+      ## reorder data columns so type names is next to eel_type_id      
+      r_coun<-data.frame(r_coun[, 1:2],typ_name=r_coun[,ncol(r_coun)],r_coun[,3:17])     
       ## separate sheets for discarded and keeped data  
-      data_kept<-r_coun[which(r_coun$eel_qal_id==TRUE),-ncol(r_coun)]
-      data_disc<-r_coun[!(r_coun$eel_qal_id==FALSE),-ncol(r_coun)]
+      data_kept<-r_coun[which(r_coun$eel_qal_id==TRUE),]
+      data_kept<-data_kept[,-ncol(r_coun)]
+      
+      data_disc<-r_coun[!(r_coun$eel_qal_id==TRUE),]
+      data_disc<-data_disc[,-ncol(r_coun)]
+      
       
       xls.file<-str_c(dataxl,country,"/",country,CY,data_type,".xls")
       wb = loadWorkbook(xls.file, create = TRUE)

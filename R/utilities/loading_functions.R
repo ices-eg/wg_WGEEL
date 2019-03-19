@@ -698,7 +698,7 @@ load_biomass<-function(path,datasource){
     data_error= rbind(data_error, check_values(dataset=data_xls,
             column="eel_typ_name",
             country=country,
-            values=c("Bcurrent_kg","Bbest_kg","B0_kg")))
+            values=c("bcurrent_kg","bbest_kg","b0_kg")))
     
     ###### eel_year ##############
     
@@ -896,7 +896,7 @@ load_mortality_rates<-function(path,datasource){
     data_error= rbind(data_error, check_values(dataset=data_xls,
             column="eel_typ_name",
             country=country,
-            values=c("SumA","SumF","SumH", "sumF_com", "SumF_rec", "SumH_hydro", "SumH_habitat", "SumH_stocking", "SumH_other", "SumH_release"))) 
+            values=c("suma","sumf","sumh", "sumf_com", "sumf_rec", "sumh_hydro", "sumh_habitat", "sumh_stocking", "sumh_other", "sumh_release"))) 
     
     ###### eel_year ##############
     
@@ -1094,7 +1094,7 @@ load_mortality_silver<-function(path,datasource){
     data_error= rbind(data_error, check_values(dataset=data_xls,
             column="eel_typ_name",
             country=country,
-            values=c("SEE_com", "SEE_rec", "SEE_hydro", "SEE_habitat", "SEE_stocking", "SEE_other"))) 
+            values=c("see_com", "see_rec", "see_hydro", "see_habitat", "see_stocking", "see_other"))) 
     
     ###### eel_year ##############
     
@@ -1293,7 +1293,7 @@ load_potential_available_habitat<-function(path,datasource){
     data_error= rbind(data_error, check_values(dataset=data_xls,
             column="eel_typ_name",
             country=country,
-            values=c("Potential_availabe_habitat_production_ha"))) 
+            values=c("potential_availabe_habitat_production_ha"))) 
     
     ###### eel_year ##############
     
@@ -1405,6 +1405,7 @@ correct_me <- function(data){
   }
   if ("typ_name"%in% colnames(data))
     data<-data%>%rename(eel_typ_name=typ_name)
+data <- as.data.frame(data)
   data[,1]<-tolower(data[,1]) #excel is stupid: he is not able to distinguish lower and upper case
   return(data)
 }

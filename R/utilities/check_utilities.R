@@ -44,7 +44,7 @@ check_values <- function(dataset,column,country,values){
   if (nrow(ddataset)>0){ 
     #line<-(1:nrow(dataset))[is.na(dataset[,column])]# there might be NA, this will have been tested elsewhere
     if (! all(ddataset[,column]%in%values)) { # are all values matching ?
-      value<- str_c(unique(ddataset[,column][!ddataset[,column]%in%values]),collapse=";")
+      value <- str_c(unique(ddataset[,column][!ddataset[,column]%in%values]),collapse=";")
       line <- ddataset$nline[!ddataset[,column]%in%values]
       if (length(line)>0){
         cat(sprintf("column <%s>, line <%s>, value <%s> is wrong \n",                   
