@@ -155,11 +155,6 @@ load_catch_landings<-function(path,datasource){
             column="eel_lfs_code",
             country=country))
     
-# should only correspond to the following list
-    data_error= rbind(data_error, check_values(dataset=data_xls,
-            column="eel_lfs_code",
-            country=country,
-            values=c("G","S","YS","GY","Y","AL")))
     
     ###### eel_hty_code ##############
     
