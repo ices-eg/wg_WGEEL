@@ -24,7 +24,12 @@ server = function(input, output, session) {
         if (input$dataset %in% c("aquaculture","landings")) {
           text <-  paste("<p align='left'>Value in ton <br/>",
               "to download this, use the Excel button </p>")
-        } else text =paste("<p align='left'>",
+        } else if (input$dataset == "landings_com_corrected" | input$dataset == "landings_rec_corrected") {
+          text <-  paste("<p align='left'>Value in ton <br/>",
+                         "<p align='left'>Asterisk (*) represents predicted data <br/>",
+                         "to download this, use the Excel button </p>")
+        }
+    else text =paste("<p align='left'>",
               "to download this, use the Excel button </p>")
         HTML(
             paste(
