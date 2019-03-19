@@ -134,5 +134,29 @@ ORDER BY dat_year
 ------------------
 -- silver eel
 ------------------
-SELECT * FROM ts.t_silverprod_sil;
-SELECT typ_id FROM "ref".tr_typeseries_typ WHERE typ_name = 'silver eel series';
+SELECT sil_id, sil_loc_id, sil_river, sil_location, sil_samplingtype, sil_remark, sil_order, sil_unit, sil_nameshort, sil_namelong
+FROM ts.t_silverprod_sil;
+
+
+--INSERT INTO datawg.t_series_ser (ser_order, ser_nameshort, ser_namelong, ser_typ_id, ser_comment, ser_uni_code, ser_lfs_code, ser_habitat_name, ser_emu_nameshort, ser_cou_code, ser_x, ser_y, geom)
+WITH 
+	series_type AS
+(SELECT typ_id FROM "ref".tr_typeseries_typ WHERE typ_name = 'silver eel series'),
+	unit AS
+(SELECT uni_code, sil_loc_id FROM ts.t_silverprod_sil JOIN unit_conversion ON sil_unit = old_unit),
+	lfs AS
+(SELECT lfs_code FROM "ref".tr_lifestage_lfs WHERE lfs_name = 'silver eel'),
+	country AS
+(SELECT cou_code, cou_country FROM "ref".tr_country_cou)
+SELECT 
+	200 AS ser_order, yss_nameshort AS ser_nameshort, yss_namelong AS ser_namelong, typ_id AS ser_typ_id, 
+	 yss_remark || ' / ' || loc_comment AS ser_comment, uni_code AS ser_uni_code, lfs_code AS ser_lfs_code,
+	 loc_name AS ser_habitat_name, loc_emu_name_short AS ser_emu_nameshort, cou_code AS ser_cou_code,
+	 round(st_x(st_transform(the_geom, 4326))::numeric, 5) AS ser_x, round(st_y(st_transform(the_geom, 4326))::numeric, 5) AS ser_y,
+	 st_transform(the_geom, 4326) AS geom
+FROM series_type, lfs, ts.t_silverprod_sil 
+	JOIN ts.t_location_loc ON yss_loc_id = loc_id
+	JOIN unit USING(yss_loc_id)
+	JOIN country ON (cou_country = loc_country)
+;
+
