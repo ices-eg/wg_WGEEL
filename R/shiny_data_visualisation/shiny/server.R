@@ -163,7 +163,9 @@ server = function(input, output, session) {
           
           
           switch(input$geo,"country"={
-                table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)  
+                table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
+                #add a column with the sum of all the values
+                table<-data.frame(table,sum=rowSums(table[,-1],na.rm = TRUE))
                 
                 #ordering the column accordign to country order
                 country_to_order = names(table)[-1]
@@ -173,6 +175,9 @@ server = function(input, output, session) {
                 table = table[, n_order]},
               "emu"={
                 table = dcast(grouped_data, eel_year~eel_emu_nameshort, value.var = "eel_value",fun.aggregate = fun.agg)  
+                
+                #add a column with the sum of all the values
+                table<-data.frame(table,sum=rowSums(table[,-1],na.rm=T))
                 
                 #ordering the column accordign to country order
                 country_to_order = names(table)[-1]
@@ -187,6 +192,9 @@ server = function(input, output, session) {
             extensions = c("Buttons","KeyTable"),
             option=list(
                 order=list(0,"asc"),
+                scroller = TRUE,
+                scrollX = TRUE,
+                scrollY = "500px",
                 keys = TRUE,
                 pageLength = 10,
                 columnDefs = list(list(className = 'dt-center')),

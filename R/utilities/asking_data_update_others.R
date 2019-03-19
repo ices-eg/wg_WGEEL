@@ -76,6 +76,9 @@ qal_kept
 #' @param country the country name, for instance "Sweden"
 createx_all<-function(country,eel_typ){
   
+  #cat("work begun for",country," and ",eel_typ)
+  
+  
   #create a folder for the country
   
   dir.create(str_c(dataxl,country),showWarnings = FALSE)
@@ -110,7 +113,7 @@ createx_all<-function(country,eel_typ){
           r_coun<-t_eelstock_eel[t_eelstock_eel$eel_cou_code==country & t_eelstock_eel$eel_typ_id %in% c(26:31),]
           data_type<-"mortality_see"
           
-          }else if (eel_typ %in% c(26:31)){
+          }else if (eel_typ %in% c(32:33)){
           
             r_coun<-t_eelstock_eel[t_eelstock_eel$eel_cou_code==country & t_eelstock_eel$eel_typ_id %in% c(32:33),]
             data_type<-"other_landings"
@@ -123,27 +126,23 @@ createx_all<-function(country,eel_typ){
           }
     
       # if no data available for these type of data then we don't create a file
-      if (nrow(r_coun)==0){print(paste("data are not available for eel_typ_id ",eel_typ,sep=""))
+      if (nrow(r_coun)==0){print(paste("data are not available for eel_typ_id ",eel_typ," and ",country, sep=""))
      
          }else{
     
       ## separate sheets for discarded and keeped data  
       data_kept<-r_coun[which(r_coun$eel_qal_id==TRUE),-ncol(r_coun)]
-      data_disc<-r_coun[!(r_coun$eel_qal_id==FALSE),-ncol(r_coun)]
+      data_disc<-r_coun[!(r_coun$eel_qal_id==TRUE),-ncol(r_coun)]
       
       xls.file<-str_c(dataxl,country,"/",country,CY,data_type,".xls")
       wb = loadWorkbook(xls.file, create = TRUE)
       createSheet(wb,paste(data_type,"_discarded",sep=""))
       writeWorksheet (wb , data_disc , sheet=paste(data_type,"_discarded",sep="") ,header = TRUE )
       createSheet(wb,paste(data_type,"_kept",sep=""))
-      writeWorksheet (wb , data_keep , sheet=paste(data_type,"_kept",sep="") ,header = TRUE )
+      writeWorksheet (wb , data_kept , sheet=paste(data_type,"_kept",sep="") ,header = TRUE )
       saveWorkbook(wb)	
-      wb = loadWorkbook(xls.file, create = TRUE)
-      
-      
-      saveWorkbook(wb)
 
-    	cat("work finished\n")
+    	cat("work finished",country," and ",eel_typ,"\n")
       }
 }	
 	

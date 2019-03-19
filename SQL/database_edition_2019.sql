@@ -20,6 +20,9 @@ ALTER TABLE ref.tr_quality_qal ADD COLUMN qal_kept boolean;
 UPDATE ref.tr_quality_qal SET qal_kept=true WHERE qal_id in (1,2,4);
 UPDATE ref.tr_quality_qal SET qal_kept=false WHERE not qal_id in (1,2,4);
 
+-- correct a wrong comment
+COMMENT ON COLUMN datawg.t_series_ser.geom IS 'internal use, a postgis geometry point in EPSG:4326 (WGS 84)';
+
 
 SELECT * from datawg.t_eelstock_eel limit 10
 
