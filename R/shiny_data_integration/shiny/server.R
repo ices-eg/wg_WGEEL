@@ -176,33 +176,33 @@ shinyServer(function(input, output, session){
             ) 
             data_from_excel<- step0load_data()$res$data
             switch (input$file_type, "catch_landings"={                                     
-                  data_from_base<-extract_data("Landings")                  
+                  data_from_base<-extract_data("Landings", quality=c(1,2,3,4))                  
                 },
                 "release"={
-                  data_from_base<-extract_data("Release")
+                  data_from_base<-extract_data("Release", quality=c(1,2,3,4))
                 },
                 "aquaculture"={             
-                  data_from_base<-extract_data("Aquaculture")},
+                  data_from_base<-extract_data("Aquaculture", quality=c(1,2,3,4))},
                 "biomass"={
                   # bug in excel file
                   colnames(data_from_excel)[colnames(data_from_excel)=="typ_name"]<-"eel_typ_name"
                   data_from_base<-rbind(
-                      extract_data("B0"),
-                      extract_data("Bbest"),
-                      extract_data("Bcurrent"))
+                      extract_data("B0", quality=c(1,2,3,4)),
+                      extract_data("Bbest", quality=c(1,2,3,4)),
+                      extract_data("Bcurrent", quality=c(1,2,3,4)))
                 },
                 "potential_available_habitat"={
-                  data_from_base<-extract_data("Potential available habitat")                  
+                  data_from_base<-extract_data("Potential available habitat", quality=c(1,2,3,4))                  
                 },
                 "silver_eel_equivalents"={
-                  data_from_base<-extract_data("Mortality in Silver Equivalents")      
+                  data_from_base<-extract_data("Mortality in Silver Equivalents", quality=c(1,2,3,4))      
                   
                 },
                 "mortality_rates"={
                   data_from_base<-rbind(
-                      extract_data("Sigma A"),
-                      extract_data("Sigma F all"),
-                      extract_data("Sigma H all"))
+                      extract_data("Sigma A", quality=c(1,2,3,4)),
+                      extract_data("Sigma F all", quality=c(1,2,3,4)),
+                      extract_data("Sigma H all", quality=c(1,2,3,4)))
                 }                
             )
             # the compare_with_database function will compare
