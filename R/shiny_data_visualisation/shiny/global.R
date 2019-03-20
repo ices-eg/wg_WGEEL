@@ -438,6 +438,7 @@ color_countries = setNames(values,country_ref$cou_code)
 #}
 #nrow(cou)
 
+#pallet for emu
 values2=c(RColorBrewer::brewer.pal(9,"Set1"),
           RColorBrewer::brewer.pal(11,"Spectral"),
           RColorBrewer::brewer.pal(11,"PuOr"),
@@ -453,6 +454,22 @@ values2=c(RColorBrewer::brewer.pal(9,"Set1"),
           RColorBrewer::brewer.pal(11,"PiYG"),
           RColorBrewer::brewer.pal(7,"Pastel2"),
           RColorBrewer::brewer.pal(8, "Dark2"))
+
+## values to use for emu
+
+values2<-c("#276419","#377EB8","#BF5B17","#B2DF8A","#5E4FA2","#FEE08B","#F1E2CC","#D53E4F","#F7F7F7","#FDC086","#252525","#FFF7F3",
+"#7570B3","#E08214","#7FC97F","#DD3497","#BEAED4","#B15928","#CE1256","#FC8D62","#9E0142","#FFFFFF","#E5C494","#969696",
+"#6A3D9A","#E78AC3","#E7E1EF","#FDB462","#B2ABD2","#4DAF4A","#FFFF33","#ABDDA4","#B3DE69","#E6F5D0","#FDE0EF","#FFFF99",
+"#FDB863","#C994C7","#BF812D","#67001F","#CAB2D6","#D95F02","#737373","#FF7F00","#5AAE61","#F6E8C3","#D9F0D3","#40004B",
+"#E6F598","#4D9221","#B35806","#F768A1","#FFFFBF","#003C30","#000000","#FB8072","#B3E2CD","#3288BD","#49006A","#F7F7F7",
+"#D4B9DA","#386CB0","#D9D9D9","#A6761D","#FFFFB3","#7A0177","#FA9FB5","#FFD92F","#FF7F00","#980043","#F4CAE4","#DE77AE",
+"#DFC27D","#F5F5F5","#BC80BD","#8DD3C7","#8073AC","#B3B3B3","#8DA0CB","#525252","#BEBADA","#66C2A5","#E7298A","#FCCDE5",
+"#D8DAEB","#7F3B08","#666666","#E31A1C","#FFFF99","#FFF2AE","#C7EAE5","#E6AB02","#CCEBC5","#999999","#543005","#FDBF6F",
+"#CBD5E8","#2D004B","#E7298A","#542788","#F7F7F7","#A6D854","#F0F0F0","#00441B","#33A02C","#1F78B4","#FB9A99","#E6F5C9",
+"#7FBC41","#A65628","#B8E186","#A6CEE3","#A6DBA0","#FFED6F","#AE017E","#D9D9D9","#80CDC1","#C51B7D","#BDBDBD","#F7F4F9",
+"#FDE0DD","#1B9E77","#FCC5C0","#FEE0B6","#80B1D3","#DF65B0","#C2A5CF","#9970AB","#66A61E","#F46D43","#1B7837","#E41A1C",
+"#F1B6DA","#35978F","#FDCDAC","#8C510A","#8E0152","#FDAE61","#01665E","#E7D4E8","#F0027F","#66C2A5","#984EA3","#F781BF",
+"#666666","#762A83")
 color_emu = setNames(values2,emu_cou$emu_nameshort)
 
 
