@@ -700,4 +700,6 @@ CREATE TRIGGER trg_check_no_ices_area
 /*
 * Adding a very important constraint
 */
-ALTER TABLE datawg.t_eelstock_eel add constraint c_uk_year_ser_id unique(eel_year,eel_ser_id);
+ALTER TABLE datawg.t_dataseries_das add constraint c_uk_year_ser_id unique(das_year,das_ser_id);
+
+alter table datawg.t_series_ser rename column ser_habitat_name to ser_locationdescription;
