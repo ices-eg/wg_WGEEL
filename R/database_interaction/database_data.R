@@ -12,9 +12,10 @@ if(is.null(options()$sqldf.RPostgreSQL.dbname)) source("R/database_interaction/d
 #' @param from_database should the data be loaded from the database? if not from a csv file
 #' @examples
 #' extract_data("Landings")
-extract_data = function(data_needed, from_database=TRUE)
+extract_data = function(data_needed, from_database=TRUE, quality)
 {
-  
+  	quality = c(1,2,4)
+	
     if (from_database){
 	# give the correspondance by "human readable" name and table/view name
 	list_data_table = data.frame(data_needed = 
