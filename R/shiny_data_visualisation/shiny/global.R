@@ -8,6 +8,8 @@
 ###############################################################################
 # debug notes for Cedric ....
 #setwd("C:\\Users\\cedric.briand\\Documents\\GitHub\\WGEEL\\R\\shiny_data_visualisation\\shiny")
+#setwd("C:/Users/cboulenger/Documents/wg_WGEEL/R/shiny_data_visualisation/shiny")
+
 # A big dataset is stored there
 #"C:\\workspace\\wgeeldata\\shp"
 # Other dataset are there
@@ -53,6 +55,8 @@ load_package("ggrepel")
 load_package("viridis")
 load_package("svglite")
 load_package("leaflet.minicharts")
+load_package("glue")
+
 # load functions ------------------------------------------------------------------------------------
 options()
 # retrieve reference tables needed
@@ -78,6 +82,12 @@ country_ref <- extract_ref("Country")
 country_ref <- country_ref[order(country_ref$cou_order), ]
 country_ref$cou_code <- factor(country_ref$cou_code, levels = country_ref$cou_code[order(country_ref$cou_order)], ordered = TRUE)
 
+##have an order for the emu
+emu_ref <- extract_ref("EMU")
+summary(emu_ref)
+emu_cou<-merge(emu_ref,country_ref,by.x="emu_cou_code",by.y="cou_code")
+emu_cou<-emu_cou[order(emu_cou$cou_order,emu_cou$emu_nameshort),]
+emu_cou<-data.frame(emu_cou,emu_order=1:nrow(emu_cou))
 # Extract data from the database -------------------------------------------------------------------
 
 landings = extract_data("Landings",quality=c(1,2,4),quality_check=TRUE)
@@ -421,6 +431,28 @@ values=c(RColorBrewer::brewer.pal(12,"Set3"),
     RColorBrewer::brewer.pal(8, "Dark2"))
 color_countries = setNames(values,country_ref$cou_code)
 
+#d<-data.frame(as.data.frame(color_countries),cou_code=unique(emu_cou$emu_cou_code))
+#values2<-NULL
+#for (cou in unique(emu_cou$emu_cou_code)){
+#  if (nrow(emu_cou[emu_cou$emu_cou_code==cou,])==1){values2[d$cou_code==cou]<-d$color_countries[d$cou_code==cou]}
+#}
+#nrow(cou)
 
+values2=c(RColorBrewer::brewer.pal(9,"Set1"),
+          RColorBrewer::brewer.pal(11,"Spectral"),
+          RColorBrewer::brewer.pal(11,"PuOr"),
+          RColorBrewer::brewer.pal(8,"Set2"),
+          RColorBrewer::brewer.pal(11,"PRGn"),
+          RColorBrewer::brewer.pal(12,"Set3"),
+          RColorBrewer::brewer.pal(11,"BrBG"),
+          RColorBrewer::brewer.pal(9,"Greys"),
+          RColorBrewer::brewer.pal(9,"RdPu"),
+          RColorBrewer::brewer.pal(12, "Paired"), 
+          RColorBrewer::brewer.pal(9,"PuRd"),
+          RColorBrewer::brewer.pal(8,"Accent"),
+          RColorBrewer::brewer.pal(11,"PiYG"),
+          RColorBrewer::brewer.pal(7,"Pastel2"),
+          RColorBrewer::brewer.pal(8, "Dark2"))
+color_emu = setNames(values2,emu_cou$emu_nameshort)
 
 
