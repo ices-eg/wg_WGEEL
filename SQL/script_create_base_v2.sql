@@ -372,7 +372,7 @@ CREATE TABLE datawg.t_series_ser
   ser_uni_code character varying(20), -- unit of the series kg, ton, kg/boat/day ... FOREIGN KEY to table ref.tr_units_uni(uni_code)
   ser_lfs_code character varying(2), -- lifestage id, FOREIGN KEY to tr_lifestage_lfs, possible values G, Y, S, GY, YS
   ser_hty_code character varying(2), -- habitat FOREIGN KEY to table t_habitattype_hty (F=Freshwater, MO=Marine Open,T=transitional...)
-  ser_habitat_name text, -- Description for the river, the habitat where the series is collected eg. IYFS/IBTS sampling in the Skagerrak-Kattegat
+  ser_locationdescription text, -- Description for the river, the habitat where the series is collected eg. IYFS/IBTS sampling in the Skagerrak-Kattegat
   ser_emu_nameshort character varying(20), -- The emu code, FOREIGN KEY to ref.tr_emu_emu
   ser_cou_code character varying(2), -- country code, FOREIGN KEY to ref.tr_country_cou
   ser_area_division character varying(254), -- code of ICES area, FOREIGN KEY to ref.tr_faoareas(f_division)
@@ -436,7 +436,7 @@ COMMENT ON COLUMN datawg.t_series_ser.ser_comment IS 'Comment for the series, th
 COMMENT ON COLUMN datawg.t_series_ser.ser_uni_code IS 'unit of the series kg, ton, kg/boat/day ... FOREIGN KEY to table ref.tr_units_uni(uni_code)';
 COMMENT ON COLUMN datawg.t_series_ser.ser_lfs_code IS 'lifestage id, FOREIGN KEY to tr_lifestage_lfs, possible values G, Y, S, GY, YS';
 COMMENT ON COLUMN datawg.t_series_ser.ser_hty_code IS 'habitat FOREIGN KEY to table t_habitattype_hty (F=Freshwater, MO=Marine Open,T=transitional...)';
-COMMENT ON COLUMN datawg.t_series_ser.ser_habitat_name IS 'Description for the river, the habitat where the series is collected eg. IYFS/IBTS sampling in the Skagerrak-Kattegat';
+COMMENT ON COLUMN datawg.t_series_ser.ser_locationdescription IS 'Description for the river, the habitat where the series is collected eg. IYFS/IBTS sampling in the Skagerrak-Kattegat';
 COMMENT ON COLUMN datawg.t_series_ser.ser_emu_nameshort IS 'The emu code, FOREIGN KEY to ref.tr_emu_emu';
 COMMENT ON COLUMN datawg.t_series_ser.ser_cou_code IS 'country code, FOREIGN KEY to ref.tr_country_cou';
 COMMENT ON COLUMN datawg.t_series_ser.ser_area_division IS 'code of ICES area, FOREIGN KEY to ref.tr_faoareas(f_division)';
@@ -700,4 +700,6 @@ CREATE TRIGGER trg_check_no_ices_area
 /*
 * Adding a very important constraint
 */
-ALTER TABLE datawg.t_eelstock_eel add constraint c_uk_year_ser_id unique(eel_year,eel_ser_id);
+ALTER TABLE datawg.t_dataseries_das add constraint c_uk_year_ser_id unique(das_year,das_ser_id);
+
+alter table datawg.t_series_ser rename column ser_locationdescription to ser_locationdescription;

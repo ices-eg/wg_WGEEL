@@ -5,23 +5,26 @@ with
 	b0 as
 		(select eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code, round(sum(eel_value)) as b0 -- NO has biomass data per ICES division
 		from datawg.b0
+		where eel_qal_id in (1,2,4)
 		group by eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code),
 	bbest as
 		(select eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code, round(sum(eel_value)) as bbest -- NO has biomass data per ICES division
 		from datawg.bbest
+		where eel_qal_id in (1,2,4)
 		group by eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code),
 	bcurrent as
 		(select eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code, round(sum(eel_value)) as bcurrent -- NO has biomass data per ICES division
 		from datawg.bcurrent
+		where eel_qal_id in (1,2,4)
 		group by eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code),
 	suma as
-		(select eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code, round(eel_value,3) as suma from datawg.sigmaa),
+		(select eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code, round(eel_value,3) as suma from datawg.sigmaa where eel_qal_id in (1,2,4)),
 	sumf as
-		(select eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code, round(eel_value,3) as sumf from datawg.sigmaf),
+		(select eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code, round(eel_value,3) as sumf from datawg.sigmaf where eel_qal_id in (1,2,4)),
 	sumh as
-		(select eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code, round(eel_value,3) as sumh from datawg.sigmah),
+		(select eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code, round(eel_value,3) as sumh from datawg.sigmah where eel_qal_id in (1,2,4)),
 	habitat_ha as 
-		(select eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code, round(eel_value,3) as habitat_ha from datawg.potential_available_habitat),
+		(select eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code, round(eel_value,3) as habitat_ha from datawg.potential_available_habitat where eel_qal_id in (1,2,4)),
 	countries as
 		(select cou_code, cou_country as country, cou_order from "ref".tr_country_cou),
 	emu as
@@ -69,7 +72,7 @@ group by eel_year, eel_cou_code, country, eel_emu_nameshort, emu_wholecountry, e
 having count(*) > 1
 ; 
 -- NO provide biomass data by ICES division
-
+--
 -- check for duplicate  at the habitat level
 select eel_year, eel_cou_code, country, eel_emu_nameshort, emu_wholecountry, eel_hty_code, habitat, count(*)
 from datawg.bigtable
@@ -224,7 +227,8 @@ order by eel_year, cou_order, eel_emu_nameshort
 
 -- check everything went well (1 line per EMU/year)
 select eel_year, eel_cou_code, country, eel_emu_nameshort, emu_wholecountry, count(*)
-from datawg.precodata_emu
+from datawg.precodata_emu 
+--where eel_qal_id in (1,2,4)
 group by eel_year, eel_cou_code, country, eel_emu_nameshort, emu_wholecountry
 having count(*) > 1
 ;

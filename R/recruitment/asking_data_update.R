@@ -4,7 +4,7 @@
 # This script will create an excel sheet per country that currently have recruitment series
 #######################################################################################
 # put the current year there
-CY<-2018
+CY<-2019
 # function to load packages if not available
 load_library=function(necessary) {
 	if(!all(necessary %in% installed.packages()[, 'Package']))
@@ -59,7 +59,7 @@ t_series_ser<-sqldf("SELECT
       t_series_ser.ser_uni_code, 
       t_series_ser.ser_lfs_code, 
       t_series_ser.ser_hty_code, 
-      t_series_ser.ser_habitat_name, 
+      t_series_ser.ser_locationdescription, 
       t_series_ser.ser_emu_nameshort, 
       t_series_ser.ser_cou_code, 
       t_series_ser.ser_area_division, 
