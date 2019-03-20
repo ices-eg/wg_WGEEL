@@ -106,7 +106,8 @@ CREATE OR REPLACE VIEW datawg.landings AS
      LEFT JOIN ref.tr_habitattype_hty ON t_eelstock_eel.eel_hty_code::text = tr_habitattype_hty.hty_code::text
      LEFT JOIN ref.tr_emu_emu ON tr_emu_emu.emu_nameshort::text = t_eelstock_eel.eel_emu_nameshort::text AND tr_emu_emu.emu_cou_code = t_eelstock_eel.eel_cou_code::text
   WHERE (t_eelstock_eel.eel_typ_id in (4,6,5,7,32,33)) 
-  AND (t_eelstock_eel.eel_qal_id in (1,2,4));
+  --AND (t_eelstock_eel.eel_qal_id in (1,2,4))
+  ;
 
 
 -------------------------------------
@@ -114,9 +115,8 @@ CREATE OR REPLACE VIEW datawg.landings AS
 -- This view refer to stocking in kg or number or geel equivalents
 ---------------------------------------
 
-DROP VIEW IF EXISTS datawg.release ;
-CREATE VIEW datawg.release AS 
-(
+DROP VIEW IF EXISTS datawg.release CASCADE;
+CREATE OR REPLACE VIEW datawg.release AS 
 select  
          eel_id,         
          eel_typ_id,
@@ -150,14 +150,16 @@ LEFT JOIN ref.tr_typeseries_typ ON t_eelstock_eel.eel_typ_id = tr_typeseries_typ
 LEFT JOIN ref.tr_habitattype_hty ON t_eelstock_eel.eel_hty_code = tr_habitattype_hty.hty_code
 LEFT JOIN ref.tr_emu_emu ON  (emu_nameshort,emu_cou_code) = (eel_emu_nameshort,eel_cou_code)
 WHERE eel_typ_id in (8,9,10)
-  AND t_eelstock_eel.eel_qal_id in (1,2,4));
+  --AND (t_eelstock_eel.eel_qal_id in (1,2,4))
+ ;
+
+
 -------------------------------------
 -- View for aquaculture
 ---------------------------------------
 
-DROP VIEW IF EXISTS datawg.aquaculture ;
-CREATE VIEW datawg.aquaculture AS 
-(
+DROP VIEW IF EXISTS datawg.aquaculture CASCADE;
+CREATE OR REPLACE VIEW datawg.aquaculture AS 
 select  
          eel_id,
          eel_typ_id,
@@ -191,13 +193,14 @@ LEFT JOIN ref.tr_typeseries_typ ON t_eelstock_eel.eel_typ_id = tr_typeseries_typ
 LEFT JOIN ref.tr_habitattype_hty ON t_eelstock_eel.eel_hty_code = tr_habitattype_hty.hty_code
 LEFT JOIN ref.tr_emu_emu ON  (emu_nameshort,emu_cou_code) = (eel_emu_nameshort,eel_cou_code)
 WHERE (eel_typ_id=11 or eel_typ_id=12)
-  AND t_eelstock_eel.eel_qal_id in (1,2,4));
+  --AND (t_eelstock_eel.eel_qal_id in (1,2,4))
+  ;
 
 -------------------------------------
 -- View for B0
 ---------------------------------------
-DROP VIEW IF EXISTS datawg.b0;
-CREATE OR REPLACE VIEW datawg.b0 AS (
+DROP VIEW IF EXISTS datawg.b0 CASCADE;
+CREATE OR REPLACE VIEW datawg.b0 AS
  SELECT 
     eel_id,
     t_eelstock_eel.eel_typ_id,
@@ -230,12 +233,13 @@ CREATE OR REPLACE VIEW datawg.b0 AS (
      LEFT JOIN ref.tr_habitattype_hty ON t_eelstock_eel.eel_hty_code::text = tr_habitattype_hty.hty_code::text
      LEFT JOIN ref.tr_emu_emu ON tr_emu_emu.emu_nameshort::text = t_eelstock_eel.eel_emu_nameshort::text AND tr_emu_emu.emu_cou_code = t_eelstock_eel.eel_cou_code::text
   WHERE (t_eelstock_eel.eel_typ_id = 13) 
-  AND t_eelstock_eel.eel_qal_id in (1,2,4));
+  --AND (t_eelstock_eel.eel_qal_id in (1,2,4))
+  ;
 
 -------------------------------------
 -- View for Bbest
 ---------------------------------------
-DROP VIEW IF EXISTS datawg.bbest;
+DROP VIEW IF EXISTS datawg.bbest CASCADE;
 CREATE OR REPLACE VIEW datawg.bbest AS 
  SELECT 
     eel_id,
@@ -269,13 +273,14 @@ CREATE OR REPLACE VIEW datawg.bbest AS
      LEFT JOIN ref.tr_habitattype_hty ON t_eelstock_eel.eel_hty_code::text = tr_habitattype_hty.hty_code::text
      LEFT JOIN ref.tr_emu_emu ON tr_emu_emu.emu_nameshort::text = t_eelstock_eel.eel_emu_nameshort::text AND tr_emu_emu.emu_cou_code = t_eelstock_eel.eel_cou_code::text
   WHERE (t_eelstock_eel.eel_typ_id = 14) 
-  AND t_eelstock_eel.eel_qal_id in (1,2,4);
+  --AND (t_eelstock_eel.eel_qal_id in (1,2,4))
+  ;
 
 
 -------------------------------------
 -- View for Bcurrent
 ---------------------------------------
-DROP VIEW IF EXISTS datawg.bcurrent;
+DROP VIEW IF EXISTS datawg.bcurrent CASCADE;
 CREATE OR REPLACE VIEW datawg.bcurrent AS 
  SELECT 
     eel_id,
@@ -309,12 +314,13 @@ CREATE OR REPLACE VIEW datawg.bcurrent AS
      LEFT JOIN ref.tr_habitattype_hty ON t_eelstock_eel.eel_hty_code::text = tr_habitattype_hty.hty_code::text
      LEFT JOIN ref.tr_emu_emu ON tr_emu_emu.emu_nameshort::text = t_eelstock_eel.eel_emu_nameshort::text AND tr_emu_emu.emu_cou_code = t_eelstock_eel.eel_cou_code::text
   WHERE (t_eelstock_eel.eel_typ_id = 15) 
-  AND t_eelstock_eel.eel_qal_id in (1,2,4);
+  --AND (t_eelstock_eel.eel_qal_id in (1,2,4))
+  ;
 
 -------------------------------------
 -- View for SigmaA
 ---------------------------------------
-DROP VIEW IF EXISTS datawg.sigmaa;
+DROP VIEW IF EXISTS datawg.sigmaa CASCADE;
 CREATE OR REPLACE VIEW datawg.sigmaa AS 
  SELECT 
     eel_id,
@@ -348,12 +354,13 @@ CREATE OR REPLACE VIEW datawg.sigmaa AS
      LEFT JOIN ref.tr_habitattype_hty ON t_eelstock_eel.eel_hty_code::text = tr_habitattype_hty.hty_code::text
      LEFT JOIN ref.tr_emu_emu ON tr_emu_emu.emu_nameshort::text = t_eelstock_eel.eel_emu_nameshort::text AND tr_emu_emu.emu_cou_code = t_eelstock_eel.eel_cou_code::text
   WHERE (t_eelstock_eel.eel_typ_id = 17) 
-  AND t_eelstock_eel.eel_qal_id in (1,2,4);
+  --AND (t_eelstock_eel.eel_qal_id in (1,2,4))
+  ;
 
 -------------------------------------
 -- View for SigmaF
 ---------------------------------------
-DROP VIEW IF EXISTS datawg.sigmaf;
+DROP VIEW IF EXISTS datawg.sigmaf CASCADE;
 CREATE OR REPLACE VIEW datawg.sigmaf AS 
  SELECT 
     eel_id,
@@ -392,7 +399,7 @@ CREATE OR REPLACE VIEW datawg.sigmaf AS
 -------------------------------------
 -- View for SigmaF (all category)
 ---------------------------------------
-DROP VIEW IF EXISTS datawg.sigmafallcat;
+DROP VIEW IF EXISTS datawg.sigmafallcat CASCADE;
 CREATE OR REPLACE VIEW datawg.sigmafallcat AS 
  SELECT 
     eel_id,
@@ -426,12 +433,13 @@ CREATE OR REPLACE VIEW datawg.sigmafallcat AS
      LEFT JOIN ref.tr_habitattype_hty ON t_eelstock_eel.eel_hty_code::text = tr_habitattype_hty.hty_code::text
      LEFT JOIN ref.tr_emu_emu ON tr_emu_emu.emu_nameshort::text = t_eelstock_eel.eel_emu_nameshort::text AND tr_emu_emu.emu_cou_code = t_eelstock_eel.eel_cou_code::text
   WHERE (t_eelstock_eel.eel_typ_id IN (18, 20, 21)) 
-  AND t_eelstock_eel.eel_qal_id in (1,2,4);
+  --AND (t_eelstock_eel.eel_qal_id in (1,2,4))
+  ;
 
 -------------------------------------
 -- View for SigmaH
 ---------------------------------------
-DROP VIEW IF EXISTS datawg.sigmah;
+DROP VIEW IF EXISTS datawg.sigmah CASCADE;
 CREATE OR REPLACE VIEW datawg.sigmah AS 
  SELECT 
     eel_id,
@@ -470,7 +478,7 @@ CREATE OR REPLACE VIEW datawg.sigmah AS
 -------------------------------------
 -- View for SigmaH all categroy
 ---------------------------------------
-DROP VIEW IF EXISTS datawg.sigmahallcat;
+DROP VIEW IF EXISTS datawg.sigmahallcat CASCADE;
 CREATE OR REPLACE VIEW datawg.sigmahallcat AS 
  SELECT 
     eel_id,
@@ -504,16 +512,16 @@ CREATE OR REPLACE VIEW datawg.sigmahallcat AS
      LEFT JOIN ref.tr_habitattype_hty ON t_eelstock_eel.eel_hty_code::text = tr_habitattype_hty.hty_code::text
      LEFT JOIN ref.tr_emu_emu ON tr_emu_emu.emu_nameshort::text = t_eelstock_eel.eel_emu_nameshort::text AND tr_emu_emu.emu_cou_code = t_eelstock_eel.eel_cou_code::text
   WHERE (t_eelstock_eel.eel_typ_id IN (19, 22, 23, 24, 25)) 
-  AND t_eelstock_eel.eel_qal_id in (1,2,4);
+  --AND (t_eelstock_eel.eel_qal_id in (1,2,4))
+  ;
 
 -------------------------------------
 -- View for potential_available_habitat
 ---------------------------------------
 
-DROP VIEW IF EXISTS datawg.potential_available_habitat ;
-CREATE VIEW datawg.potential_available_habitat AS 
-(
-select  
+DROP VIEW IF EXISTS datawg.potential_available_habitat CASCADE;
+CREATE OR REPLACE VIEW datawg.potential_available_habitat AS 
+ select  
          eel_id,
          eel_typ_id,
 	 tr_typeseries_typ.typ_name, 
@@ -546,16 +554,16 @@ LEFT JOIN ref.tr_typeseries_typ ON t_eelstock_eel.eel_typ_id = tr_typeseries_typ
 LEFT JOIN ref.tr_habitattype_hty ON t_eelstock_eel.eel_hty_code = tr_habitattype_hty.hty_code
 LEFT JOIN ref.tr_emu_emu ON  (emu_nameshort,emu_cou_code) = (eel_emu_nameshort,eel_cou_code)
 WHERE (eel_typ_id=16)
-  AND t_eelstock_eel.eel_qal_id in (1,2,4));
+  --AND (t_eelstock_eel.eel_qal_id in (1,2,4))
+  ;
 
 
 -------------------------------------
 -- View for silver eel equivalent (mortality)
 ---------------------------------------
-DROP VIEW IF EXISTS datawg.silver_eel_equivalents ;
-CREATE VIEW datawg.silver_eel_equivalents AS 
-(
-select  
+DROP VIEW IF EXISTS datawg.silver_eel_equivalents CASCADE;
+CREATE OR REPLACE VIEW datawg.silver_eel_equivalents AS 
+ select  
          eel_id,
          eel_typ_id,
 	 tr_typeseries_typ.typ_name, 
@@ -588,5 +596,6 @@ LEFT JOIN ref.tr_typeseries_typ ON t_eelstock_eel.eel_typ_id = tr_typeseries_typ
 LEFT JOIN ref.tr_habitattype_hty ON t_eelstock_eel.eel_hty_code = tr_habitattype_hty.hty_code
 LEFT JOIN ref.tr_emu_emu ON  (emu_nameshort,emu_cou_code) = (eel_emu_nameshort,eel_cou_code)
 WHERE eel_typ_id in (26,27,28,29,30,31)
-  AND t_eelstock_eel.eel_qal_id in (1,2,4));
+  --AND (t_eelstock_eel.eel_qal_id in (1,2,4))
+  ;
 
