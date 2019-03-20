@@ -72,7 +72,7 @@ group by eel_year, eel_cou_code, country, eel_emu_nameshort, emu_wholecountry, e
 having count(*) > 1
 ; 
 -- NO provide biomass data by ICES division
-
+--
 -- check for duplicate  at the habitat level
 select eel_year, eel_cou_code, country, eel_emu_nameshort, emu_wholecountry, eel_hty_code, habitat, count(*)
 from datawg.bigtable
