@@ -16,7 +16,7 @@ check_missing <- function(dataset,column,country){
   if (any(is.na(dataset[,column]))){
     line<-(1:nrow(dataset))[is.na(dataset[,column])]
     if (length(line)>10) line <-str_c(str_c(line[1:10],collapse=";"),"...") else
-      line <- str_c(line,collpase=";")
+      line <- str_c(line) # before it was str_c(line, collapse=";") but it was crashing when checking for duplicates
     if (length(line)>0){
       cat(sprintf("column <%s>, missing values line %s \n",
                   column,
