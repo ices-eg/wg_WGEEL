@@ -37,7 +37,8 @@ VALUES
 	(NULL, 'CPUE'),
 	('kg/ha', 'kg/ha'),
 	('nr', 'number'),
-	('nr electrofishing', 'nb electrofishing')
+	('nr electrofishing', 'nb electrofishing'),
+	('nr haul', 'nb haul')
 ;
 
 
@@ -134,11 +135,16 @@ ORDER BY dat_year
 ------------------
 -- silver eel
 ------------------
+---- transfer the series
+-- old data
 SELECT sil_id, sil_loc_id, sil_river, sil_location, sil_samplingtype, sil_remark, sil_order, sil_unit, sil_nameshort, sil_namelong
 FROM ts.t_silverprod_sil;
+SELECT *
+FROM ts.t_silverprod_sil
+JOIN ts.t_location_loc ON sil_loc_id = loc_id;
 
-
---INSERT INTO datawg.t_series_ser (ser_order, ser_nameshort, ser_namelong, ser_typ_id, ser_comment, ser_uni_code, ser_lfs_code, ser_habitat_name, ser_emu_nameshort, ser_cou_code, ser_x, ser_y, geom)
+-- extract data from old db and insert into new db
+INSERT INTO datawg.t_series_ser (ser_order, ser_nameshort, ser_namelong, ser_typ_id, ser_comment, ser_uni_code, ser_lfs_code, ser_habitat_name, ser_emu_nameshort, ser_cou_code, ser_x, ser_y, geom)
 WITH 
 	series_type AS
 (SELECT typ_id FROM "ref".tr_typeseries_typ WHERE typ_name = 'silver eel series'),
@@ -149,14 +155,100 @@ WITH
 	country AS
 (SELECT cou_code, cou_country FROM "ref".tr_country_cou)
 SELECT 
-	200 AS ser_order, yss_nameshort AS ser_nameshort, yss_namelong AS ser_namelong, typ_id AS ser_typ_id, 
-	 yss_remark || ' / ' || loc_comment AS ser_comment, uni_code AS ser_uni_code, lfs_code AS ser_lfs_code,
+	200 AS ser_order, sil_nameshort AS ser_nameshort, sil_namelong AS ser_namelong, typ_id AS ser_typ_id, 
+	 sil_remark || ' / ' || loc_comment AS ser_comment, uni_code AS ser_uni_code, lfs_code AS ser_lfs_code,
 	 loc_name AS ser_habitat_name, loc_emu_name_short AS ser_emu_nameshort, cou_code AS ser_cou_code,
-	 round(st_x(st_transform(the_geom, 4326))::numeric, 5) AS ser_x, round(st_y(st_transform(the_geom, 4326))::numeric, 5) AS ser_y,
+	 round(st_x(st_centroid(st_transform(the_geom, 4326)))::numeric, 5) AS ser_x, round(st_y(st_centroid(st_transform(the_geom, 4326)))::numeric, 5) AS ser_y,
 	 st_transform(the_geom, 4326) AS geom
 FROM series_type, lfs, ts.t_silverprod_sil 
-	JOIN ts.t_location_loc ON yss_loc_id = loc_id
-	JOIN unit USING(yss_loc_id)
-	JOIN country ON (cou_country = loc_country)
+	JOIN ts.t_location_loc ON sil_loc_id = loc_id
+	JOIN unit USING(sil_loc_id)
+	LEFT OUTER JOIN country ON (cou_country = loc_country)
 ;
 
+---- transfer the data itself
+-- old data
+SELECT dat_id, dat_value, dat_class_id, dat_loc_id, dat_year, dat_stage, dat_comment, dat_effort, dat_eft_id, eft_name
+FROM ts.t_data_dat JOIN ts.tr_efforttype_eft ON dat_eft_id = eft_id
+;
+
+-- current table
+SELECT das_id, das_value, das_ser_id, das_year, das_comment, das_effort, das_last_update, das_qal_id
+FROM datawg.t_dataseries_das;
+
+INSERT INTO datawg.t_dataseries_das(das_value, das_ser_id, das_year, das_comment, das_effort)
+WITH
+	series AS
+(SELECT ser_id, ser_nameshort, sil_loc_id
+FROM datawg.t_series_ser 
+	JOIN ts.t_silverprod_sil ON sil_nameshort = ser_nameshort)
+SELECT 
+	round(dat_value::NUMERIC, 5) AS das_value, ser_id AS das_ser_id, dat_year AS das_year,
+	dat_comment AS das_comment, dat_effort AS das_effort
+FROM ts.t_data_dat
+	JOIN series ON sil_loc_id = dat_loc_id
+;
+
+-- effort unit to be updated in series table
+WITH
+	series AS
+(SELECT ser_id, ser_nameshort, sil_loc_id
+FROM datawg.t_series_ser 
+	JOIN ts.t_silverprod_sil ON sil_nameshort = ser_nameshort),
+	effort_unit AS
+(SELECT DISTINCT ser_id AS ef_ser_id, dat_eft_id, eft_name, uni_code
+FROM ts.t_data_dat 
+	JOIN series ON sil_loc_id = dat_loc_id
+	JOIN ts.tr_efforttype_eft ON dat_eft_id = eft_id
+	JOIN unit_conversion ON old_unit = eft_name
+WHERE dat_eft_id IS NOT NULL)
+UPDATE datawg.t_series_ser SET ser_effort_uni_code = uni_code 
+FROM effort_unit
+WHERE ser_id = ef_ser_id
+;
+
+------------------
+-- final check
+------------------
+---- yellow eel
+-- series
+SELECT * FROM datawg.t_series_ser, "ref".tr_typeseries_typ
+WHERE ser_typ_id = typ_id AND typ_name = 'Yellow eel index';
+-- data
+WITH series AS
+(SELECT * FROM datawg.t_series_ser, "ref".tr_typeseries_typ
+	WHERE ser_typ_id = typ_id AND typ_name = 'Yellow eel index')
+SELECT * FROM datawg.t_dataseries_das JOIN series ON das_ser_id = ser_id
+;
+-- data summary
+WITH series AS
+(SELECT * FROM datawg.t_series_ser, "ref".tr_typeseries_typ
+	WHERE ser_typ_id = typ_id AND typ_name = 'Yellow eel index'),
+data_series AS
+(SELECT * FROM datawg.t_dataseries_das JOIN series ON das_ser_id = ser_id)
+SELECT ser_nameshort, ser_namelong, ser_cou_code, ser_emu_nameshort, count(*), min(das_year), max(das_year)
+FROM data_series
+GROUP BY ser_nameshort, ser_namelong, ser_cou_code, ser_emu_nameshort
+;
+
+---- silver eel
+-- series
+SELECT * FROM datawg.t_series_ser, "ref".tr_typeseries_typ
+WHERE ser_typ_id = typ_id AND typ_name = 'silver eel series';
+-- data
+WITH series AS
+(SELECT * FROM datawg.t_series_ser, "ref".tr_typeseries_typ
+	WHERE ser_typ_id = typ_id AND typ_name = 'silver eel series')
+SELECT * FROM datawg.t_dataseries_das JOIN series ON das_ser_id = ser_id
+;
+-- data summary
+WITH series AS
+(SELECT * FROM datawg.t_series_ser, "ref".tr_typeseries_typ
+	WHERE ser_typ_id = typ_id AND typ_name = 'silver eel series'),
+data_series AS
+(SELECT * FROM datawg.t_dataseries_das JOIN series ON das_ser_id = ser_id)
+SELECT ser_nameshort, ser_namelong, ser_cou_code, ser_emu_nameshort, count(*), min(das_year), max(das_year)
+FROM data_series
+GROUP BY ser_nameshort, ser_namelong, ser_cou_code, ser_emu_nameshort
+;
+	
