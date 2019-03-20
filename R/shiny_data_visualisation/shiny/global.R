@@ -90,15 +90,15 @@ emu_cou<-emu_cou[order(emu_cou$cou_order,emu_cou$emu_nameshort),]
 emu_cou<-data.frame(emu_cou,emu_order=1:nrow(emu_cou))
 # Extract data from the database -------------------------------------------------------------------
 
-landings = extract_data("Landings")
-aquaculture = extract_data("Aquaculture")
-release = extract_data("Release")
+landings = extract_data("Landings",quality=c(1,2,4),quality_check=TRUE)
+aquaculture = extract_data("Aquaculture",quality=c(1,2,4),quality_check=TRUE)
+release = extract_data("Release",quality=c(1,2,4),quality_check=TRUE)
 
 precodata = extract_precodata() # for tables
-
-precodata_all = extract_data("PrecoData All") # for precodiagram
-precodata_emu = extract_data("PrecoData EMU") 
-precodata_country = extract_data("PrecoData Country") 
+# below by default in the view the quality 1,2,and 4 are used
+precodata_all = extract_data("PrecoData All",quality_check=FALSE) # for precodiagram
+precodata_emu = extract_data("PrecoData EMU",quality_check=FALSE) 
+precodata_country = extract_data("PrecoData Country",quality_check=FALSE) 
 
 
 # save(landings, aquaculture, release, precodata, habitat_ref, lfs_code_base, country_ref,  file= "../../../data/dataset.Rdata")

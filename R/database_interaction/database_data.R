@@ -12,9 +12,9 @@ if(is.null(options()$sqldf.RPostgreSQL.dbname)) source("R/database_interaction/d
 #' @param from_database should the data be loaded from the database? if not from a csv file
 #' @examples
 #' extract_data("Landings")
-extract_data = function(data_needed, from_database=TRUE, quality)
+extract_data = function(data_needed, from_database=TRUE, quality = c(1,2,4), quality_check=TRUE)
 {
-  	quality = c(1,2,4)
+  	
 	
     if (from_database){
 	# give the correspondance by "human readable" name and table/view name
@@ -29,7 +29,11 @@ extract_data = function(data_needed, from_database=TRUE, quality)
 	# check that the caption is recognised
 	if(sum(data_needed %in% list_data_table$data_needed) == 0)
 		stop(paste("table_caption should be one of:", paste(list_data_table$data_needed, collapse = ", ")))
-		sql_request = glue_sql(paste("SELECT * FROM datawg.", list_data_table[list_data_table$data_needed == data_needed, "table_dbname"], " WHERE eel_qal_id IN ({quality*})", sep = ""))
+	if (quality_check)	{
+	sql_request = glue_sql(paste("SELECT * FROM datawg.", list_data_table[list_data_table$data_needed == data_needed, "table_dbname"], " WHERE eel_qal_id IN ({quality*})", sep = ""))
+  } else {
+	  sql_request = paste0("SELECT * FROM datawg.", list_data_table[list_data_table$data_needed == data_needed, "table_dbname"]) 
+  }
 		return(sqldf(sql_request))
   } else {
     if(!exists(data_directory)) 
