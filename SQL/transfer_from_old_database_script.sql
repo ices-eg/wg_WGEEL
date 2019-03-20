@@ -214,7 +214,7 @@ INSERT INTO  datawg.t_series_ser
   ser_comment, 
   ser_uni_code, 
   ser_lfs_code, 
-  ser_habitat_name, 
+  ser_locationdescription, 
   ser_emu_nameshort, 
   ser_cou_code, 
   ser_x, 
@@ -236,7 +236,7 @@ INSERT INTO  datawg.t_series_ser
 	WHEN rec_lfs_name='yellow eel' THEN 'Y' 
 	WHEN rec_lfs_name='glass eel + yellow eel' THEN 'GY'
 	ELSE NULL END AS ser_lfs_code,
-  rec_location AS ser_habitat_name, 
+  rec_location AS ser_locationdescription, 
   CASE WHEN loc_emu_name_short='NO_Norw' THEN 'NO_total'
   ELSE loc_emu_name_short
   END AS  ser_emu_nameshort, 
@@ -880,7 +880,7 @@ INSERT INTO  datawg.t_series_ser(
           ser_uni_code, 
           ser_lfs_code, 
           ser_hty_code, 
-          ser_habitat_name, 
+          ser_locationdescription, 
           ser_emu_nameshort, 
           ser_cou_code, 
           ser_area_division,
@@ -900,7 +900,7 @@ INSERT INTO  datawg.t_series_ser(
           'kg' as ser_uni_code, 
           'G' as ser_lfs_code, 
           'T' as ser_hty_code, 
-          'Mondego estuary 5 km from the sea' as ser_habitat_name, 
+          'Mondego estuary 5 km from the sea' as ser_locationdescription, 
           'PT_Port' as ser_emu_nameshort, 
           'PT' as ser_cou_code, 
           '27.9.a' as ser_area_division,

@@ -35,6 +35,6 @@ SELECT das_ser_id, das_year,count(*) FROM datawg.t_dataseries_das GROUP BY das_y
 select * from search_duplicated where count>1
 
 
-SELECT ser_id, ser_order, ser_nameshort, ser_namelong, ser_typ_id, ser_effort_uni_code, ser_comment, ser_uni_code, ser_lfs_code, ser_hty_code, ser_habitat_name, ser_emu_nameshort, ser_cou_code, ser_area_division, ser_tblcodeid, ser_x, ser_y,ser_sam_id, ser_qal_id, ser_qal_comment
+SELECT ser_id, ser_order, ser_nameshort, ser_namelong, ser_typ_id, ser_effort_uni_code, ser_comment, ser_uni_code, ser_lfs_code, ser_hty_code, ser_locationdescription, ser_emu_nameshort, ser_cou_code, ser_area_division, ser_tblcodeid, ser_x, ser_y,ser_sam_id, ser_qal_id, ser_qal_comment
 FROM datawg.t_series_ser;
 

@@ -1047,7 +1047,7 @@ server = function(input, output, session) {
               output$recruit_site_description <- renderUI({                                
                     tagList(
                         h2(iconv(the_station$ser_namelong,"UTF8")),
-                        p(paste0("Location : ", iconv(the_station$ser_habitat_name,"UTF8"))),
+                        p(paste0("Location : ", iconv(the_station$ser_locationdescription,"UTF8"))),
                         p(paste0('Comments : ', iconv(the_station$ser_comment,"UTF8"))))
                   })
               

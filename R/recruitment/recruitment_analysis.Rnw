@@ -267,7 +267,7 @@ vv<-list()
 
 query ='select 
      ser_id, ser_order, ser_nameshort, ser_namelong, ser_typ_id, ser_effort_uni_code,
-     ser_comment, ser_uni_code, ser_lfs_code, ser_hty_code, ser_habitat_name,
+     ser_comment, ser_uni_code, ser_lfs_code, ser_hty_code, ser_locationdescription,
       ser_emu_nameshort, ser_cou_code, ser_area_division, ser_x, ser_y,             
      ser_sam_id, ser_qal_id, ser_qal_comment,     
      "tblCodeID", "Station_Code", "Country", "Organisation", "Station_Name",       
