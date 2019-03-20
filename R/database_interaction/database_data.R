@@ -12,6 +12,9 @@ if(is.null(options()$sqldf.RPostgreSQL.dbname)) source("R/database_interaction/d
 #' @param from_database should the data be loaded from the database? if not from a csv file
 #' @examples
 #' extract_data("Landings")
+install.packages("glue")
+library(glue)
+
 extract_data = function(data_needed, from_database=TRUE, quality)
 {
   	quality = c(1,2,4)
@@ -29,7 +32,9 @@ extract_data = function(data_needed, from_database=TRUE, quality)
 	# check that the caption is recognised
 	if(sum(data_needed %in% list_data_table$data_needed) == 0)
 		stop(paste("table_caption should be one of:", paste(list_data_table$data_needed, collapse = ", ")))
-	sql_request = paste("SELECT * FROM datawg.", list_data_table[list_data_table$data_needed == data_needed, "table_dbname"], sep = "")
+	
+	sql_request = paste(glue_sql("SELECT * FROM datawg.",list_data_table[list_data_table$data_needed == data_needed, "table_dbname"], " WHERE eel_qual_id IN ({quality*})", sep = ""))
+	
 	return(sqldf(sql_request))
   } else {
     if(!exists(data_directory)) 
