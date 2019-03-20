@@ -30,7 +30,7 @@ extract_data = function(data_needed, from_database=TRUE, quality)
 	if(sum(data_needed %in% list_data_table$data_needed) == 0)
 		stop(paste("table_caption should be one of:", paste(list_data_table$data_needed, collapse = ", ")))
 	
-	sql_request = paste(glue_sql("SELECT * FROM datawg.",list_data_table[list_data_table$data_needed == data_needed, "table_dbname"], " WHERE eel_qual_id IN ({quality*})", sep = ""))
+	sql_request = paste(glue_sql("SELECT * FROM datawg.",list_data_table[list_data_table$data_needed == data_needed, "table_dbname"], " WHERE eel_qal_id IN ({quality*})", sep = ""))
 	
 	return(sqldf(sql_request))
   } else {
