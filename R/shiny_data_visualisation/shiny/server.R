@@ -345,11 +345,16 @@ server = function(input, output, session) {
             typ=as.numeric(input$raw_landings_eel_typ_id),
             year_range = input$year[1]:input$year[2])        
         # eventually grouped by habitat type and lfs, if both rec and com are selected, they are summed
-        landings <-group_data(filtered_data,geo="country",
+        landings <-group_data(filtered_data,geo=input$geo,
             habitat=input$raw_landings_habitat_switch,
             lfs=input$raw_landings_lifestage_switch)
         landings$eel_value <- as.numeric(landings$eel_value) / 1000
-        landings$eel_cou_code = as.factor(landings$eel_cou_code)        
+        if (input$geo=="country"){
+        landings$eel_cou_code = as.factor(landings$eel_cou_code)
+        }else{
+        landings$eel_emu_nameshort = as.factor(landings$eel_emu_nameshort)
+          
+        }
         return(landings)
       })
   
@@ -361,7 +366,9 @@ server = function(input, output, session) {
         title <- paste(title2, "stages = ", paste(input$lfs,collapse="+"), " and habitat =", paste(input$habitat,collapse="+"))
         landings <- get_raw_landings()
         raw_landings_graph(dataset=landings,title=title,
-            col=color_countries, 
+            col=color_countries,
+            emu_col=color_emu, 
+            geo=input$geo,
             country_ref=country_ref,
             habitat=input$raw_landings_habitat_switch,
             lfs=input$raw_landings_lifestage_switch)
