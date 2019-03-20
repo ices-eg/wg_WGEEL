@@ -696,3 +696,8 @@ CREATE TRIGGER trg_check_no_ices_area
  insert into datawg.t_eelstock_eel (eel_typ_id, eel_year,eel_emu_nameshort, eel_cou_code, eel_area_division, eel_lfs_code, eel_qal_id,eel_value,eel_hty_code)
  values(4,2020,'FR_Rhon','FR','27.9.a','Y',18,1,'F')
 */
+
+/*
+* Adding a very important constraint
+*/
+ALTER TABLE datawg.t_eelstock_eel add constraint c_uk_year_ser_id unique(eel_year,eel_ser_id);
