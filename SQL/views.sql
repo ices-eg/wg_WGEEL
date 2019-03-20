@@ -106,7 +106,8 @@ CREATE OR REPLACE VIEW datawg.landings AS
      LEFT JOIN ref.tr_habitattype_hty ON t_eelstock_eel.eel_hty_code::text = tr_habitattype_hty.hty_code::text
      LEFT JOIN ref.tr_emu_emu ON tr_emu_emu.emu_nameshort::text = t_eelstock_eel.eel_emu_nameshort::text AND tr_emu_emu.emu_cou_code = t_eelstock_eel.eel_cou_code::text
   WHERE (t_eelstock_eel.eel_typ_id in (4,6,5,7,32,33)) 
-  AND (t_eelstock_eel.eel_qal_id in (1,2,4));
+  --AND (t_eelstock_eel.eel_qal_id in (1,2,4))
+  ;
 
 
 -------------------------------------
@@ -150,7 +151,10 @@ LEFT JOIN ref.tr_typeseries_typ ON t_eelstock_eel.eel_typ_id = tr_typeseries_typ
 LEFT JOIN ref.tr_habitattype_hty ON t_eelstock_eel.eel_hty_code = tr_habitattype_hty.hty_code
 LEFT JOIN ref.tr_emu_emu ON  (emu_nameshort,emu_cou_code) = (eel_emu_nameshort,eel_cou_code)
 WHERE eel_typ_id in (8,9,10)
-  AND t_eelstock_eel.eel_qal_id in (1,2,4));
+  --AND (t_eelstock_eel.eel_qal_id in (1,2,4))
+  ;
+
+
 -------------------------------------
 -- View for aquaculture
 ---------------------------------------
@@ -191,7 +195,8 @@ LEFT JOIN ref.tr_typeseries_typ ON t_eelstock_eel.eel_typ_id = tr_typeseries_typ
 LEFT JOIN ref.tr_habitattype_hty ON t_eelstock_eel.eel_hty_code = tr_habitattype_hty.hty_code
 LEFT JOIN ref.tr_emu_emu ON  (emu_nameshort,emu_cou_code) = (eel_emu_nameshort,eel_cou_code)
 WHERE (eel_typ_id=11 or eel_typ_id=12)
-  AND t_eelstock_eel.eel_qal_id in (1,2,4));
+  --AND (t_eelstock_eel.eel_qal_id in (1,2,4))
+  ;
 
 -------------------------------------
 -- View for B0
@@ -230,7 +235,8 @@ CREATE OR REPLACE VIEW datawg.b0 AS (
      LEFT JOIN ref.tr_habitattype_hty ON t_eelstock_eel.eel_hty_code::text = tr_habitattype_hty.hty_code::text
      LEFT JOIN ref.tr_emu_emu ON tr_emu_emu.emu_nameshort::text = t_eelstock_eel.eel_emu_nameshort::text AND tr_emu_emu.emu_cou_code = t_eelstock_eel.eel_cou_code::text
   WHERE (t_eelstock_eel.eel_typ_id = 13) 
-  AND t_eelstock_eel.eel_qal_id in (1,2,4));
+  --AND (t_eelstock_eel.eel_qal_id in (1,2,4))
+  ;
 
 -------------------------------------
 -- View for Bbest
@@ -269,7 +275,8 @@ CREATE OR REPLACE VIEW datawg.bbest AS
      LEFT JOIN ref.tr_habitattype_hty ON t_eelstock_eel.eel_hty_code::text = tr_habitattype_hty.hty_code::text
      LEFT JOIN ref.tr_emu_emu ON tr_emu_emu.emu_nameshort::text = t_eelstock_eel.eel_emu_nameshort::text AND tr_emu_emu.emu_cou_code = t_eelstock_eel.eel_cou_code::text
   WHERE (t_eelstock_eel.eel_typ_id = 14) 
-  AND t_eelstock_eel.eel_qal_id in (1,2,4);
+  --AND (t_eelstock_eel.eel_qal_id in (1,2,4))
+  ;
 
 
 -------------------------------------
@@ -309,7 +316,8 @@ CREATE OR REPLACE VIEW datawg.bcurrent AS
      LEFT JOIN ref.tr_habitattype_hty ON t_eelstock_eel.eel_hty_code::text = tr_habitattype_hty.hty_code::text
      LEFT JOIN ref.tr_emu_emu ON tr_emu_emu.emu_nameshort::text = t_eelstock_eel.eel_emu_nameshort::text AND tr_emu_emu.emu_cou_code = t_eelstock_eel.eel_cou_code::text
   WHERE (t_eelstock_eel.eel_typ_id = 15) 
-  AND t_eelstock_eel.eel_qal_id in (1,2,4);
+  --AND (t_eelstock_eel.eel_qal_id in (1,2,4))
+  ;
 
 -------------------------------------
 -- View for SigmaA
@@ -348,7 +356,8 @@ CREATE OR REPLACE VIEW datawg.sigmaa AS
      LEFT JOIN ref.tr_habitattype_hty ON t_eelstock_eel.eel_hty_code::text = tr_habitattype_hty.hty_code::text
      LEFT JOIN ref.tr_emu_emu ON tr_emu_emu.emu_nameshort::text = t_eelstock_eel.eel_emu_nameshort::text AND tr_emu_emu.emu_cou_code = t_eelstock_eel.eel_cou_code::text
   WHERE (t_eelstock_eel.eel_typ_id = 17) 
-  AND t_eelstock_eel.eel_qal_id in (1,2,4);
+  --AND (t_eelstock_eel.eel_qal_id in (1,2,4))
+  ;
 
 -------------------------------------
 -- View for SigmaF
@@ -426,7 +435,8 @@ CREATE OR REPLACE VIEW datawg.sigmafallcat AS
      LEFT JOIN ref.tr_habitattype_hty ON t_eelstock_eel.eel_hty_code::text = tr_habitattype_hty.hty_code::text
      LEFT JOIN ref.tr_emu_emu ON tr_emu_emu.emu_nameshort::text = t_eelstock_eel.eel_emu_nameshort::text AND tr_emu_emu.emu_cou_code = t_eelstock_eel.eel_cou_code::text
   WHERE (t_eelstock_eel.eel_typ_id IN (18, 20, 21)) 
-  AND t_eelstock_eel.eel_qal_id in (1,2,4);
+  --AND (t_eelstock_eel.eel_qal_id in (1,2,4))
+  ;
 
 -------------------------------------
 -- View for SigmaH
@@ -504,7 +514,8 @@ CREATE OR REPLACE VIEW datawg.sigmahallcat AS
      LEFT JOIN ref.tr_habitattype_hty ON t_eelstock_eel.eel_hty_code::text = tr_habitattype_hty.hty_code::text
      LEFT JOIN ref.tr_emu_emu ON tr_emu_emu.emu_nameshort::text = t_eelstock_eel.eel_emu_nameshort::text AND tr_emu_emu.emu_cou_code = t_eelstock_eel.eel_cou_code::text
   WHERE (t_eelstock_eel.eel_typ_id IN (19, 22, 23, 24, 25)) 
-  AND t_eelstock_eel.eel_qal_id in (1,2,4);
+  --AND (t_eelstock_eel.eel_qal_id in (1,2,4))
+  ;
 
 -------------------------------------
 -- View for potential_available_habitat
@@ -546,7 +557,8 @@ LEFT JOIN ref.tr_typeseries_typ ON t_eelstock_eel.eel_typ_id = tr_typeseries_typ
 LEFT JOIN ref.tr_habitattype_hty ON t_eelstock_eel.eel_hty_code = tr_habitattype_hty.hty_code
 LEFT JOIN ref.tr_emu_emu ON  (emu_nameshort,emu_cou_code) = (eel_emu_nameshort,eel_cou_code)
 WHERE (eel_typ_id=16)
-  AND t_eelstock_eel.eel_qal_id in (1,2,4));
+  --AND (t_eelstock_eel.eel_qal_id in (1,2,4))
+  ;
 
 
 -------------------------------------
@@ -588,5 +600,6 @@ LEFT JOIN ref.tr_typeseries_typ ON t_eelstock_eel.eel_typ_id = tr_typeseries_typ
 LEFT JOIN ref.tr_habitattype_hty ON t_eelstock_eel.eel_hty_code = tr_habitattype_hty.hty_code
 LEFT JOIN ref.tr_emu_emu ON  (emu_nameshort,emu_cou_code) = (eel_emu_nameshort,eel_cou_code)
 WHERE eel_typ_id in (26,27,28,29,30,31)
-  AND t_eelstock_eel.eel_qal_id in (1,2,4));
+  --AND (t_eelstock_eel.eel_qal_id in (1,2,4))
+  ;
 
