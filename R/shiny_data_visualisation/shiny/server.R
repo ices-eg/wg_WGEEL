@@ -197,7 +197,8 @@ server = function(input, output, session) {
             }else{
               
               table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
-
+              table<-data.frame(table,sum=rowSums(table[,-1],na.rm=T))
+              
               
               #ordering the column accordign to country order
               country_to_order = names(table)[-1]
