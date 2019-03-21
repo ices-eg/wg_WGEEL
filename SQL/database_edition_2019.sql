@@ -120,6 +120,7 @@ UPDATE datawg.t_eelstock_eel set eel_dta_code = 'Public'; --18193
 
 
 -- tolower type name to match data from xls files
+--
 UPDATE ref.tr_typeseries_typ SET typ_name = LOWER(typ_name);
 
 
