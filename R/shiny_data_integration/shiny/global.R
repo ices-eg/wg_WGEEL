@@ -86,6 +86,7 @@ names(list_country) <- list_countryt$cou_country
 query <- "SELECT * from ref.tr_typeseries_typ order by typ_name"
 tr_typeseries_typt <- dbGetQuery(pool, sqlInterpolate(ANSI(), query))   
 typ_id <- tr_typeseries_typt$typ_id
+tr_typeseries_typt$typ_name <- tolower(tr_typeseries_typt$typ_name)
 names(typ_id) <- tr_typeseries_typt$typ_name
 # tr_type_typ<-extract_ref('Type of series') this works also !
 

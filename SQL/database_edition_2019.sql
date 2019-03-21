@@ -29,12 +29,9 @@ UPDATE datawg.t_eelstock_eel set eel_dta_code = 'Public'
 Select * from datawg.t_eelstock_eel where eel_year>=2009 and eel_year<=2012 and eel_emu_nameshort='DE_Eide' and eel_typ_id=24 order by eel_year;
 
 
-
 with search_duplicated as (
 SELECT das_ser_id, das_year,count(*) FROM datawg.t_dataseries_das GROUP BY das_year, das_ser_id )
 select * from search_duplicated where count>1
 
-
-SELECT ser_id, ser_order, ser_nameshort, ser_namelong, ser_typ_id, ser_effort_uni_code, ser_comment, ser_uni_code, ser_lfs_code, ser_hty_code, ser_locationdescription, ser_emu_nameshort, ser_cou_code, ser_area_division, ser_tblcodeid, ser_x, ser_y,ser_sam_id, ser_qal_id, ser_qal_comment
-FROM datawg.t_series_ser;
+SELECT * FROM ref.tr_station 
 

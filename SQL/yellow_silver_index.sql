@@ -1,4 +1,4 @@
-------------------
+﻿------------------
 -- transfer yellow AND silver index series from old db to the new
 ------------------
 ------------------
@@ -251,4 +251,15 @@ SELECT ser_nameshort, ser_namelong, ser_cou_code, ser_emu_nameshort, count(*), m
 FROM data_series
 GROUP BY ser_nameshort, ser_namelong, ser_cou_code, ser_emu_nameshort
 ;
-	
+
+
+-- duplicated values, I will remove the faulty series
+-- series 
+with search_duplicated as (
+SELECT das_ser_id, das_year,count(*) FROM datawg.t_dataseries_das GROUP BY das_year, das_ser_id )
+select * from search_duplicated where count>1;
+
+
+select * from 	datawg.t_series_ser where ser_id=194;
+DELETE FROM datawg.t_dataseries_das where das_ser_id in (select ser_id from datawg.t_series_ser where ser_nameshort='VVed')
+ALTER TABLE datawg.t_dataseries_das add constraint c_uk_year_ser_id unique(das_year,das_ser_id);
