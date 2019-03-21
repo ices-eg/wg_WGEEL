@@ -41,10 +41,10 @@ load_package("rlang")
 load_package("sp")
 #load_package("pool")
 #load_package("DBI")
-load_package("RPostgreSQL")
+
 load_package("dplyr")
 load_package("RColorBrewer")
-load_package("sqldf")
+
 load_package("scales")
 load_package('stringr') # text handling
 #load_package("XLConnect") # for excel
@@ -58,7 +58,7 @@ load_package("leaflet.minicharts")
 load_package("glue")
 
 # load functions ------------------------------------------------------------------------------------
-options()
+
 # retrieve reference tables needed
 # the shiny is launched from shiny_data_integration/shiny thus we need the ../
 jscode <- "shinyjs.closeWindow = function() { window.close(); }"
