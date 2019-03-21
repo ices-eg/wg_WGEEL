@@ -2,14 +2,17 @@
 title: "automatic_tables"
 author: "wgeel"
 date: "21 mars 2019"
-output: word_document
+output:
+  word_document
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
+## All the tables for the WGEEL report
+
+## Raw landings (com and rec)
 
 
 ```{r load_utilities, eval=TRUE, echo=FALSE,include=FALSE}
@@ -46,6 +49,7 @@ load_package("viridis")
 load_package("svglite")
 load_package("leaflet.minicharts")
 load_package("glue")
+load_package("kableExtra")
 
 # load functions ------------------------------------------------------------------------------------
 # retrieve reference tables needed
@@ -84,15 +88,18 @@ release = extract_data("Release",quality=c(1,2,4),quality_check=TRUE)
 
 ```
 
-## Including Plots
+## Raw landings (com and rec)
+---
+---
 
-You can also embed plots, for example:
+```{r ,echo=FALSE}
+setwd("C:/Users/cboulenger/Documents/test_wgeel")
 
-```{r pressure, echo=FALSE}
-summary(landings)
+##Table raw commercial landings for Glass eel and every country
 landings2<-landings[landings$eel_lfs_code=="G" & landings$eel_typ_id==4,]
 year<-unique(landings2$eel_year)
 country<-unique(landings2$eel_cou_code)
+country<-country[country!="IE"]
 hty<-unique(landings2$eel_hty_code)
 filtered_data<-filter_data("landings2",
               typ = 4,
@@ -100,7 +107,485 @@ filtered_data<-filter_data("landings2",
               country = country,
             habitat = hty,
              year_range = min(year):max(year))
-head(filtered_data)
+grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=FALSE)
+fun.agg<-function(X){if(length(X)>0){round(sum(X)/1000,ifelse(sum(X)>1000,0,3))}else{sum(c(X,NA))}}
+
+table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
+              table<-data.frame(table,sum=rowSums(table[,-1],na.rm=T))
+
+              
+              #ordering the column accordign to country order
+              country_to_order = names(table)[-1]
+              n_order = order(country_ref$cou_order[match(country_to_order, country_ref$cou_code)])
+              n_order <- n_order+1
+              n_order <- c(1,n_order)
+             table = table[, n_order]
+# options(knitr.kable.NA="") this does not work
+names(table)[1]<-"Year"
+table[is.na(table)]<-''
+kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table: Raw commercial landings (tonnes) for glass eels for ",paste(country,collapse=",")))
+
+write.csv2(table,"Raw_Com_landings_G.csv",row.names=FALSE)
+
+```
+---
+---
+```{r, echo=FALSE}
+setwd("C:/Users/cboulenger/Documents/test_wgeel")
+
+##Table raw  com landings for Y S and YS for all the countries
+
+landings2<-landings[landings$eel_lfs_code %in% c("Y","S","YS") & landings$eel_typ_id==4,]
+year<-unique(landings2$eel_year)
+country<-unique(landings2$eel_cou_code)
+hty<-unique(landings2$eel_hty_code)
+filtered_data<-filter_data("landings2",
+              typ = 4,
+             life_stage = c("Y","S","YS"), 
+              country = country,
+            habitat = hty,
+             year_range = min(year):max(year))
+grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=FALSE)
+fun.agg<-function(X){if(length(X)>0){round(sum(X)/1000,ifelse(sum(X)>1000,0,3))}else{sum(c(X,NA))}}
+
+table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
+              table<-data.frame(table,sum=rowSums(table[,-1],na.rm=T))
+
+              
+              #ordering the column accordign to country order
+              country_to_order = names(table)[-1]
+              n_order = order(country_ref$cou_order[match(country_to_order, country_ref$cou_code)])
+              n_order <- n_order+1
+              n_order <- c(1,n_order)
+             table = table[, n_order]
+# options(knitr.kable.NA="") this does not work
+names(table)[1]<-"Year"
+table[is.na(table)]<-''
+kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table: Raw commercial landings (tonnes) for yellow and silver eels for ",paste(country,collapse=",")))
+
+write.csv2(table,"Raw_Com_landings_Y_S.csv",row.names=FALSE)
+
+```
+---
+---
+
+```{r,echo=FALSE}
+
+setwd("C:/Users/cboulenger/Documents/test_wgeel")
+
+##Table raw rec landings for Y S and YS for all the countries
+
+landings2<-landings[landings$eel_lfs_code %in% c("Y","S","YS") & landings$eel_typ_id==6,]
+year<-unique(landings2$eel_year)
+country<-unique(landings2$eel_cou_code)
+hty<-unique(landings2$eel_hty_code)
+filtered_data<-filter_data("landings2",
+              typ = 6,
+             life_stage = c("Y","S","YS"), 
+              country = country,
+            habitat = hty,
+             year_range = min(year):max(year))
+grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=FALSE)
+fun.agg<-function(X){if(length(X)>0){round(sum(X)/1000,ifelse(sum(X)>1000,0,3))}else{sum(c(X,NA))}}
+
+table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
+              table<-data.frame(table,sum=rowSums(table[,-1],na.rm=T))
+
+              
+              #ordering the column accordign to country order
+              country_to_order = names(table)[-1]
+              n_order = order(country_ref$cou_order[match(country_to_order, country_ref$cou_code)])
+              n_order <- n_order+1
+              n_order <- c(1,n_order)
+             table = table[, n_order]
+# options(knitr.kable.NA="") this does not work
+names(table)[1]<-"Year"
+table[is.na(table)]<-''
+kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table: Rec commercial landings (tonnes) for yellow and silver eels for ",paste(country,collapse=",")))
+
+write.csv2(table,"Rec_Com_landings_Y_S.csv",row.names=FALSE)
+
+```
+---
+---
+
+```{r,echo=FALSE}
+setwd("C:/Users/cboulenger/Documents/test_wgeel")
+
+##Table raw rec landings for Y S and YS for all the countries
+
+landings2<-landings[landings$eel_lfs_code=="G" & landings$eel_typ_id==6,]
+year<-unique(landings2$eel_year)
+country<-unique(landings2$eel_cou_code)
+hty<-unique(landings2$eel_hty_code)
+filtered_data<-filter_data("landings2",
+              typ = 6,
+             life_stage = "G", 
+              country = country,
+            habitat = hty,
+             year_range = min(year):max(year))
+grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=FALSE)
+fun.agg<-function(X){if(length(X)>0){round(sum(X)/1000,ifelse(sum(X)>1000,0,3))}else{sum(c(X,NA))}}
+
+table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
+              table<-data.frame(table,sum=rowSums(table[,-1],na.rm=T))
+
+              
+              #ordering the column accordign to country order
+              country_to_order = names(table)[-1]
+              n_order = order(country_ref$cou_order[match(country_to_order, country_ref$cou_code)])
+              n_order <- n_order+1
+              n_order <- c(1,n_order)
+             table = table[, n_order]
+# options(knitr.kable.NA="") this does not work
+names(table)[1]<-"Year"
+table[is.na(table)]<-''
+kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table: Rec commercial landings (tonnes) for yellow and silver eels for ",paste(country,collapse=",")))
+
+write.csv2(table,"Rec_Com_landings_G.csv",row.names=FALSE)
+```
+---
+---
+
+### Aquaculture
+---
+---
+
+```{r,echo=FALSE}
+setwd("C:/Users/cboulenger/Documents/test_wgeel")
+
+##Table aquaculture for all the countries
+
+aquaculture2<-aquaculture[aquaculture$eel_typ_id==11,]
+year<-unique(aquaculture2$eel_year)
+lfs<-unique(aquaculture2$eel_lfs_code)
+country<-unique(aquaculture2$eel_cou_code)
+hty<-unique(aquaculture2$eel_hty_code)
+filtered_data<-filter_data("aquaculture2",
+              typ = 11,
+             life_stage = lfs, 
+              country = country,
+            habitat = hty,
+             year_range = min(year):max(year))
+grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=FALSE)
+fun.agg<-function(X){if(length(X)>0){round(sum(X)/1000,ifelse(sum(X)>1000,0,3))}else{sum(c(X,NA))}}
+
+table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
+              table<-data.frame(table,sum=rowSums(table[,-1],na.rm=T))
+
+              
+              #ordering the column accordign to country order
+              country_to_order = names(table)[-1]
+              n_order = order(country_ref$cou_order[match(country_to_order, country_ref$cou_code)])
+              n_order <- n_order+1
+              n_order <- c(1,n_order)
+             table = table[, n_order]
+# options(knitr.kable.NA="") this does not work
+names(table)[1]<-"Year"
+table[is.na(table)]<-''
+kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table: Aquaculture (tonnes) for ",paste(country,collapse=",")))
+
+write.csv2(table,"Aquaculture_tons.csv",row.names=FALSE)
+```
+---
+---
+
+### Release
+---
+---
+
+```{r,echo=FALSE}
+setwd("C:/Users/cboulenger/Documents/test_wgeel")
+
+##Table release (nb) for all the countries for G
+
+release2<-release[release$eel_typ_id==9 & release$eel_lfs_code=="G",]
+year<-unique(release2$eel_year)
+country<-unique(release2$eel_cou_code)
+hty<-unique(release2$eel_hty_code)
+filtered_data<-filter_data("release2",
+              typ = 9,
+             life_stage = "G", 
+              country = country,
+            habitat = hty,
+             year_range = min(year):max(year))
+grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=FALSE)
+fun.agg<-function(X){if(length(X)>0){round(sum(X)/10^6,ifelse(sum(X)>10^6,0,3))}else{sum(c(X,NA))}}
+table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
+              table<-data.frame(table,sum=rowSums(table[,-1],na.rm=T))
+
+              
+              #ordering the column accordign to country order
+              country_to_order = names(table)[-1]
+              n_order = order(country_ref$cou_order[match(country_to_order, country_ref$cou_code)])
+              n_order <- n_order+1
+              n_order <- c(1,n_order)
+             table = table[, n_order]
+# options(knitr.kable.NA="") this does not work
+names(table)[1]<-"Year"
+table[is.na(table)]<-''
+kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table: Release (nb in millions) of glass eels for ",paste(country,collapse=",")))
+
+write.csv2(table,"releases_nb_G.csv",row.names=FALSE)
+
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+---
+---
+```{r,echo=FALSE}
+setwd("C:/Users/cboulenger/Documents/test_wgeel")
+
+##Table release (nb) for all the countries for Y
+
+release2<-release[release$eel_typ_id==9 & release$eel_lfs_code=="Y",]
+year<-unique(release2$eel_year)
+country<-unique(release2$eel_cou_code)
+hty<-unique(release2$eel_hty_code)
+filtered_data<-filter_data("release2",
+              typ = 9,
+             life_stage = "Y", 
+              country = country,
+            habitat = hty,
+             year_range = min(year):max(year))
+grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=FALSE)
+fun.agg<-function(X){if(length(X)>0){round(sum(X)/10^6,ifelse(sum(X)>10^6,0,3))}else{sum(c(X,NA))}}
+table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
+              table<-data.frame(table,sum=rowSums(table[,-1],na.rm=T))
+
+              
+              #ordering the column accordign to country order
+              country_to_order = names(table)[-1]
+              n_order = order(country_ref$cou_order[match(country_to_order, country_ref$cou_code)])
+              n_order <- n_order+1
+              n_order <- c(1,n_order)
+             table = table[, n_order]
+# options(knitr.kable.NA="") this does not work
+names(table)[1]<-"Year"
+table[is.na(table)]<-''
+kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table: Release (nb in millions) of yellow eels for ",paste(country,collapse=",")))
+
+write.csv2(table,"releases_nb_Y.csv",row.names=FALSE)
+
+```
+
+---
+---
+```{r,echo=FALSE}
+setwd("C:/Users/cboulenger/Documents/test_wgeel")
+
+##Table release (nb) for all the countries and S
+
+release2<-release[release$eel_typ_id==9 & release$eel_lfs_code=="S",]
+year<-unique(release2$eel_year)
+country<-unique(release2$eel_cou_code)
+hty<-unique(release2$eel_hty_code)
+filtered_data<-filter_data("release2",
+              typ = 9,
+             life_stage = "S", 
+              country = country,
+            habitat = hty,
+             year_range = min(year):max(year))
+grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=FALSE)
+fun.agg<-function(X){if(length(X)>0){round(sum(X)/10^6,ifelse(sum(X)>10^6,0,3))}else{sum(c(X,NA))}}
+table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
+              table<-data.frame(table,sum=rowSums(table[,-1],na.rm=T))
+
+              
+              #ordering the column accordign to country order
+              country_to_order = names(table)[-1]
+              n_order = order(country_ref$cou_order[match(country_to_order, country_ref$cou_code)])
+              n_order <- n_order+1
+              n_order <- c(1,n_order)
+             table = table[, n_order]
+# options(knitr.kable.NA="") this does not work
+names(table)[1]<-"Year"
+table[is.na(table)]<-''
+kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table: Release (nb in millions) of silver eels for ",paste(country,collapse=",")))
+
+write.csv2(table,"releases_nb_S.csv",row.names=FALSE)
+
+```
+
+---
+---
+```{r,echo=FALSE}
+setwd("C:/Users/cboulenger/Documents/test_wgeel")
+
+##Table release (nb) for all the countries for QG
+
+release2<-release[release$eel_typ_id==9 & release$eel_lfs_code=="QG",]
+year<-unique(release2$eel_year)
+country<-unique(release2$eel_cou_code)
+hty<-unique(release2$eel_hty_code)
+filtered_data<-filter_data("release2",
+              typ = 9,
+             life_stage = "QG", 
+              country = country,
+            habitat = hty,
+             year_range = min(year):max(year))
+grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=FALSE)
+fun.agg<-function(X){if(length(X)>0){round(sum(X)/10^6,ifelse(sum(X)>10^6,0,3))}else{sum(c(X,NA))}}
+table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
+              table<-data.frame(table,sum=rowSums(table[,-1],na.rm=T))
+
+              
+              #ordering the column accordign to country order
+              country_to_order = names(table)[-1]
+              n_order = order(country_ref$cou_order[match(country_to_order, country_ref$cou_code)])
+              n_order <- n_order+1
+              n_order <- c(1,n_order)
+             table = table[, n_order]
+# options(knitr.kable.NA="") this does not work
+names(table)[1]<-"Year"
+table[is.na(table)]<-''
+kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table: Release (nb in millions) of quarantine glass eels for ",paste(country,collapse=",")))
+
+write.csv2(table,"releases_nb_QG.csv",row.names=FALSE)
+```
+
+---
+---
+```{r,echo=FALSE}
+setwd("C:/Users/cboulenger/Documents/test_wgeel")
+
+##Table release (nb) for all the countries
+
+release2<-release[release$eel_typ_id==9 & release$eel_lfs_code=="OG",]
+year<-unique(release2$eel_year)
+country<-unique(release2$eel_cou_code)
+hty<-unique(release2$eel_hty_code)
+filtered_data<-filter_data("release2",
+              typ = 9,
+             life_stage = "OG", 
+              country = country,
+            habitat = hty,
+             year_range = min(year):max(year))
+grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=FALSE)
+fun.agg<-function(X){if(length(X)>0){round(sum(X)/10^6,ifelse(sum(X)>10^6,0,3))}else{sum(c(X,NA))}}
+table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
+              table<-data.frame(table,sum=rowSums(table[,-1],na.rm=T))
+
+              
+              #ordering the column accordign to country order
+              country_to_order = names(table)[-1]
+              n_order = order(country_ref$cou_order[match(country_to_order, country_ref$cou_code)])
+              n_order <- n_order+1
+              n_order <- c(1,n_order)
+             table = table[, n_order]
+# options(knitr.kable.NA="") this does not work
+names(table)[1]<-"Year"
+table[is.na(table)]<-''
+kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table: Release (nb in millions) of ongrown eels for ",paste(country,collapse=",")))
+
+write.csv2(table,"releases_nb_OG.csv",row.names=FALSE)
+```
+---
+---
+
+### Raw + corr commercial Landings
+```{r ,echo=FALSE}
+setwd("C:/Users/cboulenger/Documents/test_wgeel")
+
+##Table raw + corr commercial landings for Glass eel and every country
+landings2<-landings[landings$eel_lfs_code=="G" & landings$eel_typ_id==4,]
+year<-unique(landings2$eel_year)
+country<-unique(landings2$eel_cou_code)
+country<-country[country!="IE"]
+hty<-unique(landings2$eel_hty_code)
+filtered_data<-filter_data("landings2",
+              typ = 4,
+             life_stage = "G", 
+              country = country,
+            habitat = hty,
+             year_range = min(year):max(year))
+grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=FALSE)
+fun.agg<-function(X){if(length(X)>0){round(sum(X)/1000,ifelse(sum(X)>1000,0,3))}else{sum(c(X,NA))}}
+grouped_data$eel_cou_code = as.factor(grouped_data$eel_cou_code)                       
+grouped_data <- predict_missing_values(grouped_data, verbose=FALSE, na.rm=FALSE) 
+
+table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
+                table2=dcast(grouped_data, eel_year~eel_cou_code, value.var = "predicted",fun = prod)
+                
+
+                #ordering the column accordign to country order
+                country_to_order = names(table)[-1]
+                n_order = order(country_ref$cou_order[match(country_to_order, country_ref$cou_code)])
+                n_order <- n_order+1
+                n_order <- c(1,n_order)
+                table = table[, n_order]
+                
+                #add a column with the sum of all the values and prod of predicted
+                
+                table<-data.frame(table,sum=rowSums(table[,-1],na.rm = TRUE))
+                table2<-data.frame(table2,prod=apply(table2[,-1],1,prod,na.rm = TRUE))
+                
+                #add a * when the data is predicted
+                
+                for (col in 2:ncol(table)){
+                  table[,col][table2[,col]==0]<-paste0(table[,col][table2[,col]==0],"*")
+                }
+                
+                 
+# options(knitr.kable.NA="") this does not work
+names(table)[1]<-"Year"
+table[is.na(table)]<-''
+kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table: Raw+ corr commercial landings (tonnes) for glass eels for ",paste(country,collapse=",")))
+
+write.csv2(table,"Raw_Corr_Com_landings_G.csv",row.names=FALSE)
+
+
+```
+
+---
+---
+```{r ,echo=FALSE}
+setwd("C:/Users/cboulenger/Documents/test_wgeel")
+
+##Table raw + corr commercial landings for Glass eel and every country
+landings2<-landings[landings$eel_lfs_code %in% c("Y","S","YS") & landings$eel_typ_id==4,]
+year<-unique(landings2$eel_year)
+country<-unique(landings2$eel_cou_code)
+country<-country[country!="IE"]
+hty<-unique(landings2$eel_hty_code)
+filtered_data<-filter_data("landings2",
+              typ = 4,
+             life_stage = c("Y","S","YS"), 
+              country = country,
+            habitat = hty,
+             year_range = min(year):max(year))
+grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=FALSE)
+fun.agg<-function(X){if(length(X)>0){round(sum(X)/1000,ifelse(sum(X)>1000,0,3))}else{sum(c(X,NA))}}
+grouped_data$eel_cou_code = as.factor(grouped_data$eel_cou_code)                       
+grouped_data <- predict_missing_values(grouped_data, verbose=FALSE, na.rm=FALSE) 
+
+table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
+                table2=dcast(grouped_data, eel_year~eel_cou_code, value.var = "predicted",fun = prod)
+                
+
+                #ordering the column accordign to country order
+                country_to_order = names(table)[-1]
+                n_order = order(country_ref$cou_order[match(country_to_order, country_ref$cou_code)])
+                n_order <- n_order+1
+                n_order <- c(1,n_order)
+                table = table[, n_order]
+                
+                #add a column with the sum of all the values and prod of predicted
+                
+                table<-data.frame(table,sum=rowSums(table[,-1],na.rm = TRUE))
+                table2<-data.frame(table2,prod=apply(table2[,-1],1,prod,na.rm = TRUE))
+                
+                #add a * when the data is predicted
+                
+                for (col in 2:ncol(table)){
+                  table[,col][table2[,col]==0]<-paste0(table[,col][table2[,col]==0],"*")
+                }
+                
+                 
+# options(knitr.kable.NA="") this does not work
+names(table)[1]<-"Year"
+table[is.na(table)]<-''
+kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table: Raw+ corr commercial landings (tonnes) for yellow and silver eels for ",paste(country,collapse=",")))
+
+write.csv2(table,"Raw_Corr_Com_landings_Y_S.csv",row.names=FALSE)
+```
+
