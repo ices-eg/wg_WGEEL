@@ -263,3 +263,40 @@ select * from search_duplicated where count>1;
 select * from 	datawg.t_series_ser where ser_id=194;
 DELETE FROM datawg.t_dataseries_das where das_ser_id in (select ser_id from datawg.t_series_ser where ser_nameshort='VVed')
 ALTER TABLE datawg.t_dataseries_das add constraint c_uk_year_ser_id unique(das_year,das_ser_id);
+
+
+------------------------
+-- biometry DATA
+------------------------
+-- old
+SELECT code, loc_code, loc_name, country, yr, lat, long, "temp", expl, dens, dist, sal, n, fem_len, mal_len, fem_age, mal_age, the_geom, si_loc_id
+FROM ts.silver;
+
+-- new
+SELECT bio_id, bio_lfs_code, bio_year, bio_length, bio_weight, bio_age, bio_sex_ratio, bio_length_f, bio_weight_f, bio_age_f, bio_length_m, bio_weight_m, bio_age_m, bio_comment, bio_last_update, bio_qal_id, bit_n, bit_loc_name, bit_cou_code, bit_emu_nameshort, bit_area_division, bit_hty_code, bit_latitude, bit_longitude, bit_geom
+FROM datawg.t_biometry_other_bit;
+
+SELECT cou_code, cou_country FROM "ref".tr_country_cou ORDER BY cou_order;
+
+-- to be inserted
+INSERT INTO datawg.t_biometry_other_bit(bio_lfs_code, bio_year, bio_length_f, bio_age_f, bio_length_m, bio_age_m, bit_n, bit_loc_name, bit_cou_code, bit_emu_nameshort, bit_latitude, bit_longitude, bit_geom, bio_comment)
+SELECT 
+	'S' AS bio_lfs_code, 
+	CASE WHEN yr = -1 THEN NULL ELSE yr END AS bio_year, 
+	CASE WHEN fem_len = -1 THEN NULL ELSE fem_len END AS bio_length_f, 
+	CASE WHEN fem_age = -1 THEN NULL ELSE fem_age END AS bio_age_f, 
+	CASE WHEN mal_len = -1 THEN NULL ELSE mal_len END AS bio_length_m, 
+	CASE WHEN mal_age = -1 THEN NULL ELSE mal_age END AS bio_age_m, 
+	CASE WHEN n = -1 THEN NULL ELSE n END AS bit_n,
+	silver.loc_name AS bit_loc_name,
+	CASE WHEN country = 'LIT' THEN 'LT'
+		 WHEN country = 'GE' THEN 'DE'
+		 WHEN country = 'PO' THEN 'PL'
+		 WHEN country = 'UK' THEN 'GB'
+		 WHEN country = 'HU' THEN NULL -- hungary doesn't exists in our ref table, only concern Balaton lake
+		 ELSE country END AS bit_cou_code, 
+	loc_emu_name_short AS bit_emu_nameshort,
+	round(lat::numeric,2) AS bit_latitude, round(long::NUMERIC, 2) AS bit_longitude, silver.the_geom AS bit_geom,
+	'temp = ' || temp   || '|expl = ' || expl || '|dist = ' || dist || ' |sal = ' || sal || ' |loc_code = ' || loc_code AS bio_comment
+FROM ts.silver LEFT OUTER JOIN ts.t_location_loc ON (loc_id = si_loc_id);
+
