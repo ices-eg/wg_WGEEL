@@ -1,0 +1,106 @@
+---
+title: "automatic_tables"
+author: "wgeel"
+date: "21 mars 2019"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+
+```{r load_utilities, eval=TRUE, echo=FALSE,include=FALSE}
+setwd("C:/Users/cboulenger/Documents/wg_WGEEL/")
+
+source("R/utilities/load_library.R")
+
+setwd("C:/Users/cboulenger/Documents/wg_WGEEL/R/shiny_data_visualisation/shiny")
+
+
+#-----------------
+# other libraries
+#-----------------
+load_package("readxl")
+load_package("stringr")
+load_package("reshape2")
+load_package("tidyr") # unite cols in maps
+load_package("rlang")
+load_package("sp")
+#load_package("pool")
+#load_package("DBI")
+load_package("RPostgreSQL")
+load_package("dplyr")
+load_package("RColorBrewer")
+load_package("sqldf")
+load_package("scales")
+load_package('stringr') # text handling
+#load_package("XLConnect") # for excel
+load_package("ggplot2") # for excel
+load_package("gridExtra")
+load_package("colorspace")
+load_package("ggrepel")
+load_package("viridis")
+load_package("svglite")
+load_package("leaflet.minicharts")
+load_package("glue")
+
+# load functions ------------------------------------------------------------------------------------
+# retrieve reference tables needed
+# the shiny is launched from shiny_data_integration/shiny thus we need the ../
+if(is.null(options()$sqldf.RPostgreSQL.user)) 
+source("../../database_interaction/database_connection.R")
+source("../../database_interaction/database_reference.R")
+source("../../database_interaction/database_data.R")
+source("../../database_interaction/database_precodata.R")
+source("../../stock_assessment/preco_diagram.R")
+source("graphs.R")
+source("maps.R")
+source("global.R")
+
+# loading datasets 
+
+# this file is added to the ignore list, so ask for it in your own git before launching the app
+load("../../../data/shapefiles/maps_for_shiny.Rdata") 
+habitat_ref <- extract_ref("Habitat type")
+lfs_code_base <- extract_ref("Life stage")
+#lfs_code_base <- lfs_code_base[!lfs_code_base$lfs_code %in% c("OG","QG"),]
+country_ref <- extract_ref("Country")
+country_ref <- country_ref[order(country_ref$cou_order), ]
+country_ref$cou_code <- factor(country_ref$cou_code, levels = country_ref$cou_code[order(country_ref$cou_order)], ordered = TRUE)
+
+##have an order for the emu
+emu_ref <- extract_ref("EMU")
+emu_cou<-merge(emu_ref,country_ref,by.x="emu_cou_code",by.y="cou_code")
+emu_cou<-emu_cou[order(emu_cou$cou_order,emu_cou$emu_nameshort),]
+emu_cou<-data.frame(emu_cou,emu_order=1:nrow(emu_cou))
+# Extract data from the database -------------------------------------------------------------------
+
+landings = extract_data("Landings",quality=c(1,2,4),quality_check=TRUE)
+aquaculture = extract_data("Aquaculture",quality=c(1,2,4),quality_check=TRUE)
+release = extract_data("Release",quality=c(1,2,4),quality_check=TRUE)
+
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+summary(landings)
+landings2<-landings[landings$eel_lfs_code=="G" & landings$eel_typ_id==4,]
+year<-unique(landings2$eel_year)
+country<-unique(landings2$eel_cou_code)
+hty<-unique(landings2$eel_hty_code)
+filtered_data<-filter_data("landings2",
+              typ = 4,
+             life_stage = "G", 
+              country = country,
+            habitat = hty,
+             year_range = min(year):max(year))
+head(filtered_data)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
