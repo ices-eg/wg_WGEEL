@@ -697,9 +697,112 @@ CREATE TRIGGER trg_check_no_ices_area
  values(4,2020,'FR_Rhon','FR','27.9.a','Y',18,1,'F')
 */
 
+ --------------
+-- 2019 edit (WKEELDATA2)
+--------------
 /*
 * Adding a very important constraint
 */
 ALTER TABLE datawg.t_dataseries_das add constraint c_uk_year_ser_id unique(das_year,das_ser_id);
 
 alter table datawg.t_series_ser rename column ser_locationdescription to ser_locationdescription;
+
+
+
+--------
+-- CREATE a NEW TABLE FOR biometry DATA
+-- the mother table
+CREATE TABLE datawg.t_biometry_bio (
+	bio_id serial NOT NULL PRIMARY KEY,
+	bio_lfs_code varchar(2) NOT NULL,
+	bio_year NUMERIC NULL,
+	bio_length NUMERIC NULL,	
+	bio_weight NUMERIC NULL,
+	bio_age NUMERIC NULL,
+	bio_sex_ratio NUMERIC NULL,
+	bio_length_f NUMERIC NULL,
+	bio_weight_f NUMERIC NULL,
+	bio_age_f NUMERIC NULL,
+	bio_length_m NUMERIC NULL,
+	bio_weight_m NUMERIC NULL,
+	bio_age_m NUMERIC NULL,
+	bio_comment	TEXT NULL,
+	bio_last_update date NULL,
+	bio_qal_id int4 NULL,
+	CONSTRAINT c_fk_lfs_code FOREIGN KEY (bio_lfs_code) REFERENCES ref.tr_lifestage_lfs(lfs_code) ON UPDATE CASCADE,
+	CONSTRAINT c_fk_qal_id FOREIGN KEY (bio_qal_id) REFERENCES ref.tr_quality_qal(qal_id)
+);
+
+-- Column comments
+COMMENT ON COLUMN datawg.t_biometry_bio.bio_id IS 'Internal use, an auto-incremented integer';
+COMMENT ON COLUMN datawg.t_biometry_bio.bio_year IS 'year during which biological samples where collected';
+COMMENT ON COLUMN datawg.t_biometry_bio.bio_length IS 'mean length in mm';
+COMMENT ON COLUMN datawg.t_biometry_bio.bio_weight IS 'mean individual weight in g';
+COMMENT ON COLUMN datawg.t_biometry_bio.bio_age IS 'mean age';
+COMMENT ON COLUMN datawg.t_biometry_bio.bio_sex_ratio IS 'sex ratio express as a proportion of female ; between 0 (all males) and 100 (all females)';
+COMMENT ON COLUMN datawg.t_biometry_bio.bio_comment IS 'Comment (including comments about data quality for this year)';
+COMMENT ON COLUMN datawg.t_biometry_bio.bio_length_f IS 'mean length in mm of the female fraction';
+COMMENT ON COLUMN datawg.t_biometry_bio.bio_weight_f IS 'mean individual weight in g of the female fraction';
+COMMENT ON COLUMN datawg.t_biometry_bio.bio_age_f IS 'mean age of the female fraction';
+COMMENT ON COLUMN datawg.t_biometry_bio.bio_length_m IS 'mean length in mm of the male fraction';
+COMMENT ON COLUMN datawg.t_biometry_bio.bio_weight_m IS 'mean individual weight in g of the male fraction';
+COMMENT ON COLUMN datawg.t_biometry_bio.bio_age_m IS 'mean age of the male fraction';
+
+-- update time function
+CREATE OR REPLACE FUNCTION datawg.update_bio_last_update()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$
+BEGIN
+    NEW.bio_last_update = now()::date;
+    RETURN NEW;	
+END;
+$function$
+;
+
+
+-- trigger
+CREATE
+    TRIGGER update_bio_time BEFORE INSERT
+        OR UPDATE
+            ON
+            datawg.t_biometry_bio FOR EACH ROW EXECUTE PROCEDURE datawg.update_bio_last_update();
+
+--- for series
+CREATE TABLE datawg.t_biometry_series_bis(
+	bis_g_in_gy NUMERIC NULL,
+	bis_ser_id integer,
+	CONSTRAINT c_fk_ser_id FOREIGN KEY (bis_ser_id) REFERENCES datawg.t_series_ser(ser_id) ON UPDATE CASCADE
+) INHERITS (datawg.t_biometry_bio);
+           
+COMMENT ON COLUMN datawg.t_biometry_series_bis.bis_g_in_gy IS 'proportion (in %) of glass eel [100 for only glass eel ; 0 for only yellow eel ; the proportion if mix of glass and yellow eel]';
+
+--- FOR those NOT related TO a series
+CREATE TABLE datawg.t_biometry_other_bit(
+	bit_n integer NULL,
+	bit_loc_name text NULL,
+	bit_cou_code varchar(2) NULL,
+	bit_emu_nameshort varchar(20) NULL,
+	bit_area_division varchar(254) NULL,
+	bit_hty_code varchar(2) NULL,
+	bit_latitude NUMERIC NULL,
+	bit_longitude NUMERIC NULL,
+	bit_geom geometry(POINT, 3035) NULL,
+	CONSTRAINT c_fk_cou_code FOREIGN KEY (bit_cou_code) REFERENCES ref.tr_country_cou(cou_code),
+	CONSTRAINT enforce_dims_the_geom CHECK ((st_ndims(bit_geom) = 2)),
+	CONSTRAINT enforce_geotype_the_geom CHECK (((geometrytype(bit_geom) = 'POINT'::text) OR (bit_geom IS NULL))),
+	CONSTRAINT enforce_srid_the_geom CHECK ((st_srid(bit_geom) = 3035)),
+	CONSTRAINT c_fk_emu FOREIGN KEY (bit_emu_nameshort, bit_cou_code) REFERENCES ref.tr_emu_emu(emu_nameshort, emu_cou_code),
+	CONSTRAINT c_fk_area_code FOREIGN KEY (bit_area_division) REFERENCES ref.tr_faoareas(f_division) ON UPDATE CASCADE,
+	CONSTRAINT c_fk_hty_code FOREIGN KEY (bit_hty_code) REFERENCES ref.tr_habitattype_hty(hty_code) ON UPDATE CASCADE
+) INHERITS (datawg.t_biometry_bio);
+
+COMMENT ON COLUMN datawg.t_biometry_other_bit.bit_n IS 'number of samples';
+COMMENT ON COLUMN datawg.t_biometry_other_bit.bit_loc_name IS 'name for the location where the sample where taken';
+COMMENT ON COLUMN datawg.t_biometry_other_bit.bit_cou_code IS 'country code, FOREIGN KEY to ref.tr_country_cou';
+COMMENT ON COLUMN datawg.t_biometry_other_bit.bit_emu_nameshort IS 'The emu code, FOREIGN KEY to ref.tr_emu_emu';
+COMMENT ON COLUMN datawg.t_biometry_other_bit.bit_area_division IS 'code of ICES area, FOREIGN KEY to ref.tr_faoareas(f_division)';
+COMMENT ON COLUMN datawg.t_biometry_other_bit.bit_hty_code IS 'habitat FOREIGN KEY to table t_habitattype_hty (F=Freshwater, MO=Marine Open,T=transitional...)';
+COMMENT ON COLUMN datawg.t_biometry_other_bit.bit_latitude IS 'latitude EPSG:4326. WGS 84 (Google it)';
+COMMENT ON COLUMN datawg.t_biometry_other_bit.bit_longitude IS 'longitude EPSG:4326. WGS 84 (Google it)';
+COMMENT ON COLUMN datawg.t_biometry_other_bit.bit_geom IS 'internal use, a postgis geometry point in EPSG:3035 (ETRS89 / ETRS-LAEA)';

@@ -21,9 +21,9 @@ UPDATE ref.tr_quality_qal SET qal_kept=true WHERE qal_id in (1,2,4);
 UPDATE ref.tr_quality_qal SET qal_kept=false WHERE not qal_id in (1,2,4);
 
 
-SELECT * from datawg.t_eelstock_eel limit 10
+SELECT * from datawg.t_eelstock_eel limit 10;
 
-UPDATE datawg.t_eelstock_eel set eel_dta_code = 'Public'
+UPDATE datawg.t_eelstock_eel set eel_dta_code = 'Public';
 
 
 Select * from datawg.t_eelstock_eel where eel_year>=2009 and eel_year<=2012 and eel_emu_nameshort='DE_Eide' and eel_typ_id=24 order by eel_year;
@@ -31,7 +31,9 @@ Select * from datawg.t_eelstock_eel where eel_year>=2009 and eel_year<=2012 and 
 
 with search_duplicated as (
 SELECT das_ser_id, das_year,count(*) FROM datawg.t_dataseries_das GROUP BY das_year, das_ser_id )
-select * from search_duplicated where count>1
+select * from search_duplicated where count>1;
 
-SELECT * FROM ref.tr_station 
+SELECT * FROM ref.tr_station ;
 
+-- minor correction
+COMMENT ON COLUMN datawg.t_series_ser.geom IS 'internal use, a postgis geometry point in EPSG:3035 (ETRS89 / ETRS-LAEA)';
