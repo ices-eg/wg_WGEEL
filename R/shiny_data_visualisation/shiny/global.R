@@ -55,18 +55,15 @@ load_package("ggrepel")
 load_package("viridis")
 load_package("svglite")
 load_package("leaflet.minicharts")
-load_package("glue")
+
 
 # load functions ------------------------------------------------------------------------------------
 
 # retrieve reference tables needed
 # the shiny is launched from shiny_data_integration/shiny thus we need the ../
 jscode <- "shinyjs.closeWindow = function() { window.close(); }"
-if(is.null(options()$sqldf.RPostgreSQL.user)) 
-source("../../database_interaction/database_connection.R")
-source("../../database_interaction/database_reference.R")
-source("../../database_interaction/database_data.R")
-source("../../database_interaction/database_precodata.R")
+
+
 source("../../stock_assessment/preco_diagram.R")
 source("graphs.R")
 source("maps.R")
