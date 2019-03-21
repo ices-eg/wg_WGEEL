@@ -363,11 +363,12 @@ server = function(input, output, session) {
         if (4 %in% input$raw_landings_eel_typ_id) title2 <- "Commercial landings for " else
         if (6 %in% input$raw_landings_eel_typ_id) title2 <- "Recreational landings for " else
           stop ("Internal error, unexpected landings eel_typ_id, should be 4 or 6")
-        title <- paste(title2, "stages = ", paste(input$lfs,collapse="+"), " and habitat =", paste(input$habitat,collapse="+"))
+        title <- paste(title2,paste(input$geo,collapse="+")," and ", "stages = ", paste(input$lfs,collapse="+"), " and habitat =", paste(input$habitat,collapse="+"))
         landings <- get_raw_landings()
         raw_landings_graph(dataset=landings,title=title,
             col=color_countries,
-            emu_col=color_emu, 
+            emu_col=color_emu,
+            emu_ref=emu_cou,
             geo=input$geo,
             country_ref=country_ref,
             habitat=input$raw_landings_habitat_switch,
@@ -382,7 +383,10 @@ server = function(input, output, session) {
         if (6 %in% input$raw_landings_eel_typ_id) title2 <- "Recreational landings for " else
           stop ("Internal error, unexpected landings eel_typ_id, should be 4 or 6")
         ggsave(file, raw_landings_graph(dataset= get_raw_landings(),
-                title=paste(title2, "stages = ", paste(input$lfs,collapse="+"), " and habitat =", paste(input$habitat,collapse="+")),col=color_countries, country_ref=country_ref),
+                title=paste(title2,paste(input$geo,collapse="+")," and ","stages = ", paste(input$lfs,collapse="+"), " and habitat =", paste(input$habitat,collapse="+")),col=color_countries, country_ref=country_ref,
+                emu_col=color_emu,
+                emu_ref=emu_cou,
+                geo=input$geo),
             device = input$image_format, width = 20, height = 14, 
             units = "cm")
       })
