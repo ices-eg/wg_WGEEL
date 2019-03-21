@@ -23,6 +23,7 @@ extract_ref = function(table_caption)
 	sql_request = paste("SELECT * FROM ref.", list_ref_table[list_ref_table$table_caption == table_caption, "table_dbname"], sep = "")
 	data_to_return = sqldf(sql_request)
 	
+    if ()
 	# deleting the geom column
 	if(sum(names(data_to_return) %in% "geom") > 0)
 		data_to_return = data_to_return[,!(names(data_to_return) %in% "geom")]
