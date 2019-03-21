@@ -89,6 +89,7 @@ release = extract_data("Release",quality=c(1,2,4),quality_check=TRUE)
 ```
 
 ## Raw landings (com and rec)
+
 ---
 ---
 
@@ -248,6 +249,7 @@ write.csv2(table,"Rec_Com_landings_G.csv",row.names=FALSE)
 ---
 
 ### Aquaculture
+
 ---
 ---
 
@@ -291,6 +293,7 @@ write.csv2(table,"Aquaculture_tons.csv",row.names=FALSE)
 ---
 
 ### Release
+
 ---
 ---
 
@@ -483,6 +486,10 @@ write.csv2(table,"releases_nb_OG.csv",row.names=FALSE)
 ---
 
 ### Raw + corr commercial Landings
+
+---
+---
+
 ```{r ,echo=FALSE}
 setwd("C:/Users/cboulenger/Documents/test_wgeel")
 
