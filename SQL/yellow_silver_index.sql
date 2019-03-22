@@ -58,7 +58,7 @@ FROM datawg.t_series_ser;
 INSERT INTO datawg.t_series_ser (ser_order, ser_nameshort, ser_namelong, ser_typ_id, ser_comment, ser_uni_code, ser_lfs_code, ser_locationdescription, ser_emu_nameshort, ser_cou_code, ser_x, ser_y, geom)
 WITH 
 	series_type AS
-(SELECT typ_id FROM "ref".tr_typeseries_typ WHERE typ_name = 'yellow eel index'),
+(SELECT typ_id FROM "ref".tr_typeseries_typ WHERE typ_name = 'Yellow eel index'),
 	unit AS
 (SELECT uni_code, yss_loc_id FROM ts.t_yellowstdstock_yss JOIN unit_conversion ON yss_unit = old_unit),
 	lfs AS
@@ -213,17 +213,17 @@ WHERE ser_id = ef_ser_id
 ---- yellow eel
 -- series
 SELECT * FROM datawg.t_series_ser, "ref".tr_typeseries_typ
-WHERE ser_typ_id = typ_id AND typ_name = 'yellow eel index';
+WHERE ser_typ_id = typ_id AND typ_name = 'Yellow eel index';
 -- data
 WITH series AS
 (SELECT * FROM datawg.t_series_ser, "ref".tr_typeseries_typ
-	WHERE ser_typ_id = typ_id AND typ_name = 'yellow eel index')
+	WHERE ser_typ_id = typ_id AND typ_name = 'Yellow eel index')
 SELECT * FROM datawg.t_dataseries_das JOIN series ON das_ser_id = ser_id
 ;
 -- data summary
 WITH series AS
 (SELECT * FROM datawg.t_series_ser, "ref".tr_typeseries_typ
-	WHERE ser_typ_id = typ_id AND typ_name = 'yellow eel index'),
+	WHERE ser_typ_id = typ_id AND typ_name = 'Yellow eel index'),
 data_series AS
 (SELECT * FROM datawg.t_dataseries_das JOIN series ON das_ser_id = ser_id)
 SELECT ser_nameshort, ser_namelong, ser_cou_code, ser_emu_nameshort, count(*), min(das_year), max(das_year)
@@ -261,7 +261,7 @@ select * from search_duplicated where count>1;
 
 
 select * from 	datawg.t_series_ser where ser_id=194;
-DELETE FROM datawg.t_dataseries_das where das_ser_id in (select ser_id from datawg.t_series_ser where ser_nameshort='VVed')
+DELETE FROM datawg.t_dataseries_das where das_ser_id in (select ser_id from datawg.t_series_ser where ser_nameshort='VVed');
 ALTER TABLE datawg.t_dataseries_das add constraint c_uk_year_ser_id unique(das_year,das_ser_id);
 
 
