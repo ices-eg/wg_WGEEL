@@ -62,7 +62,6 @@ source("R/database_interaction/database_connection.R")
 source("R/database_interaction/database_reference.R")
 source("R/database_interaction/database_data.R")
 source("R/database_interaction/database_precodata.R")
-source("R/utilities/set_directory.R")
 source("R/stock_assessment/preco_diagram.R")
 source("R/shiny_data_visualisation/shiny/graphs.R")
 source("R/shiny_data_visualisation/shiny/maps.R")
@@ -92,6 +91,14 @@ landings = extract_data("Landings",quality=c(1,2,4),quality_check=TRUE)
 aquaculture = extract_data("Aquaculture",quality=c(1,2,4),quality_check=TRUE)
 release = extract_data("Release",quality=c(1,2,4),quality_check=TRUE)
 
+## Download the colors by country
+
+values=c(RColorBrewer::brewer.pal(12,"Set3"),
+    RColorBrewer::brewer.pal(12, "Paired"), 
+    RColorBrewer::brewer.pal(8,"Accent"),
+    RColorBrewer::brewer.pal(8, "Dark2"))
+color_countries = setNames(values,country_ref$cou_code)
+
 ```
 
 
@@ -100,7 +107,7 @@ release = extract_data("Release",quality=c(1,2,4),quality_check=TRUE)
 
 ```{r com land G,echo=FALSE}
 
-##Table raw commercial landings for Glass eel and every country
+##raw commercial landings for Glass eel and every country
 landings2<-landings[landings$eel_lfs_code=="G" & landings$eel_typ_id==4,]
 year<-unique(landings2$eel_year)
 country<-unique(landings2$eel_cou_code)
@@ -115,6 +122,7 @@ filtered_data<-filter_data("landings2",
 grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=FALSE)
 fun.agg<-function(X){if(length(X)>0){round(sum(X)/1000,ifelse(sum(X)>1000,0,3))}else{sum(c(X,NA))}}
 
+##table
 table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
               table<-data.frame(table,sum=rowSums(table[,-1],na.rm=T))
 
@@ -131,13 +139,25 @@ table[is.na(table)]<-''
 tableComLandG<-table
 kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table: Raw commercial landings (tonnes) for glass eels ","(",min(year),"-",max(year),")"," for ",paste(country,collapse=",")))
 
+##Graph
+landings3<-grouped_data
+landings3$eel_value <- as.numeric(landings3$eel_value) / 1000
+landings3$eel_cou_code = as.factor(landings3$eel_cou_code)
+landings3$eel_cou_code<-factor(landings3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
+title <- paste("Commercial landings for ",paste(country,collapse="+")," and ", "stages = G ", " and habitat =", paste(hty,collapse="+"))
+
+g_raw_Clandings_G <- ggplot(landings3) + geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
+        ggtitle(title) + xlab("year") + ylab("Landings (tons)")+
+        scale_fill_manual("Country",values=color_countries)+
+        theme_bw()
+print(g_raw_Clanding_G)
 
 ```
 ---
 ---
 ```{r raw com land YS, echo=FALSE}
 
-##Table raw  com landings for Y S and YS for all the countries
+##raw  com landings for Y S and YS for all the countries
 
 landings2<-landings[landings$eel_lfs_code %in% c("Y","S","YS") & landings$eel_typ_id==4,]
 year<-unique(landings2$eel_year)
@@ -150,6 +170,8 @@ filtered_data<-filter_data("landings2",
             habitat = hty,
              year_range = min(year):max(year))
 grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=FALSE)
+
+##table
 fun.agg<-function(X){if(length(X)>0){round(sum(X)/1000,ifelse(sum(X)>1000,0,3))}else{sum(c(X,NA))}}
 
 table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
@@ -167,6 +189,20 @@ names(table)[1]<-"Year"
 table[is.na(table)]<-''
 tableComLandYS<-table
 kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table: Raw commercial landings (tonnes) for yellow and silver eels " ,"(",min(year),"-",max(year),")"," for ",paste(country,collapse=",")))
+
+## Graph
+landings3<-grouped_data
+landings3$eel_value <- as.numeric(landings3$eel_value) / 1000
+landings3$eel_cou_code = as.factor(landings3$eel_cou_code)
+landings3$eel_cou_code<-factor(landings3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
+title <- paste("Commercial landings for ",paste(country,collapse="+")," and ", "stages = Y, S and YS", " and habitat =", paste(hty,collapse="+"))
+
+g_raw_Clandings_YS <- ggplot(landings3) + geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
+        ggtitle(title) + xlab("year") + ylab("Landings (tons)")+
+        scale_fill_manual("Country",values=color_countries)+
+        theme_bw()
+print(g_raw_Clandings_YS)
+
 
 
 ```
@@ -189,6 +225,8 @@ filtered_data<-filter_data("landings2",
             habitat = hty,
              year_range = min(year):max(year))
 grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=FALSE)
+
+##Table
 fun.agg<-function(X){if(length(X)>0){round(sum(X)/1000,ifelse(sum(X)>1000,0,3))}else{sum(c(X,NA))}}
 
 table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
@@ -206,6 +244,19 @@ names(table)[1]<-"Year"
 table[is.na(table)]<-''
 tableRecLandYS<-table
 kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table: Rec commercial landings (tonnes) for yellow and silver eels  ","(",min(year),"-",max(year),")"," for ",paste(country,collapse=",")))
+
+##Graph
+landings3<-grouped_data
+landings3$eel_value <- as.numeric(landings3$eel_value) / 1000
+landings3$eel_cou_code = as.factor(landings3$eel_cou_code)
+landings3$eel_cou_code<-factor(landings3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
+title <- paste("Recreational landings for ",paste(country,collapse="+")," and ", "stages = G ", " and habitat =", paste(hty,collapse="+"))
+
+g_raw_Rlandings_G <- ggplot(landings3) + geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
+        ggtitle(title) + xlab("year") + ylab("Landings (tons)")+
+        scale_fill_manual("Country",values=color_countries)+
+        theme_bw()
+print(g_raw_Rlanding_G)
 
 
 ```
@@ -227,6 +278,8 @@ filtered_data<-filter_data("landings2",
             habitat = hty,
              year_range = min(year):max(year))
 grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=FALSE)
+
+##Table
 fun.agg<-function(X){if(length(X)>0){round(sum(X)/1000,ifelse(sum(X)>1000,0,3))}else{sum(c(X,NA))}}
 
 table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
@@ -244,6 +297,19 @@ names(table)[1]<-"Year"
 table[is.na(table)]<-''
 tablerecLandG<-table
 kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table: Raw rec landings (tonnes) for yellow and silver eels  ","(",min(year),"-",max(year),")"," for ",paste(country,collapse=",")))
+
+## Graph
+landings3<-grouped_data
+landings3$eel_value <- as.numeric(landings3$eel_value) / 1000
+landings3$eel_cou_code = as.factor(landings3$eel_cou_code)
+landings3$eel_cou_code<-factor(landings3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
+title <- paste("Recreational landings for ",paste(country,collapse="+")," and ", "stages = Y, S and YS", " and habitat =", paste(hty,collapse="+"))
+
+g_raw_Rlandings_YS <- ggplot(landings3) + geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
+        ggtitle(title) + xlab("year") + ylab("Landings (tons)")+
+        scale_fill_manual("Country",values=color_countries)+
+        theme_bw()
+print(g_raw_Rlandings_YS)
 
 ```
 ---
@@ -606,6 +672,16 @@ write.csv2(tableRelQG,"releases_nb_QG.csv",row.names=FALSE)
 write.csv2(tableRelOG,"releases_nb_OG.csv",row.names=FALSE)
 write.csv2(tableCorrLandG,"Raw_Corr_Com_landings_G.csv",row.names=FALSE)
 write.csv2(tableCorLandYS,"Raw_Corr_Com_landings_Y_S.csv",row.names=FALSE)
+
+ggsave("Raw_Com_landings_G.png", g_raw_Clanding_G, device = "png", width = 20, height = 14, 
+            units = "cm")
+ggsave("Raw_Com_landings_YS.png", g_raw_Clandings_YS, device = "png", width = 20, height = 14, 
+            units = "cm")
+ggsave("Raw_Rec_landings_G.png", g_raw_Rlandings_G, device = "png", width = 20, height = 14, 
+            units = "cm")
+ggsave("Raw_Rec_landings_YS.png", g_raw_Rlandings_YS, device = "png", width = 20, height = 14, 
+            units = "cm")
+
 
 
 ```
