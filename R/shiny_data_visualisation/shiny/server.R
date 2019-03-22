@@ -1161,9 +1161,118 @@ server = function(input, output, session) {
 observe({
 			output$mapstation_ys = renderLeaflet({
 						
-						recruitment_map(R_stations, statseries, wger_init)                               
+						recruitment_map(ys_stations, statseries_ys, wger_init_ys)                               
 						
 					})
+
+# observer click event ------------------------------------------------------------------------------- 
+			observeEvent(input$mapstation_ys_marker_click,  {
+						shinyjs::addClass(selector = "body", class = "sidebar-collapse")       
+						p <- input$mapstation_ys_marker_click
+						lat <- p$lat
+						lng <- p$lng
+						the_id <- p$id
+						
+						validate (need(!is.null(the_id), "Please click on a point"))              
+						the_station <- ys_stations %>%
+								dplyr::filter(ser_id==the_id) 
+						
+						the_name <- the_station$ser_nameshort
+						
+						the_namelong <- iconv(the_station$ser_namelong,"UTF8")
+						
+						the_stage <- the_station$lfs_code
+						
+						the_area <- 'NP'   
+						
+						is_selected <- the_station$ser_qal_id==1
+						
+						the_title <- paste(the_namelong)
+
+						the_series = wger_init_ys %>%
+								dplyr::filter(ser_id==the_id)  %>% dplyr::arrange(year)
+						
+						# Create a plotly graph of trend ------------------------------------------------------------------
+						output$plotly_ys <- renderPlotly({ #plotly_ys
+									f <- list(
+											#family = "Verdana",
+											size = 12,
+											color = "#7f7f7f")
+									x <- list(
+											title = "Year",
+											titlefont = f)
+									y <- list(
+											title = paste("Values standardized by 1960-1979 pred for the", the_area,"serie"),
+											autorange = T,
+#											range=c(min(the_series$geomean_p_std_1960_1979)-0.5,max(the_series$geomean_p_std_1960_1979)+0.5),
+											side = "left",
+											titlefont = f)
+									ay <- list(
+											tickfont = list(color = "blue"),
+											overlaying = "y",
+											side = "right",
+											title = paste("Values standardized by 1960-1979 pred for the", the_name,"serie"),
+											autorange = T,
+#											range=c(min(the_series$geomean_p_std_1960_1979)-0.5,max(the_series$geomean_p_std_1960_1979)+0.5),
+											titlefont = f)
+									
+									p <- plot_ly(the_series, 
+													x = ~ year, 
+													y = ~ value,
+													name = the_name,                              
+													source= "select_year",
+													type="scatter",
+													mode="lines+markers",
+													color = I("dodgerblue3"),
+													symbol = I('circle-open') ,
+													yaxis = "y2",
+													marker = list(size = 12)) %>% 
+											#layout(title = the_title, xaxis = x, yaxis = y, yaxis2=ay) %>%
+#											add_trace(y = ~ geomean_p_std_1960_1979, 
+#													name = the_area, 
+#													color = I("gold"),
+#													symbol=I('circle-dot'),
+#													yaxis = "y",
+#													marker = list(size = 10)) %>%
+											layout(title = the_title, xaxis = x, yaxis =y, yaxis2= ay,legend = list(x = 1.10, y = 1))
+									p$elementId <- NULL # a hack to remove warning : ignoring explicitly provided widget
+									p  
+								})#plotly_ys
+#						
+#						
+#						# Series text -------------------------------------------------------------------------
+#						
+						output$ys_site_description <- renderUI({                                
+									tagList(
+											h2(iconv(the_station$ser_namelong,"UTF8")),
+											p(paste0("Location : ", iconv(the_station$ser_locationdescription,"UTF8"))),
+											p(paste0('Comments : ', iconv(the_station$ser_id,"UTF8"))))
+								})
+
+#						# Comment for individual point --------------------------------------------------------
+#						
+#						output$das_comment <-renderUI({
+#									event.data <- event_data("plotly_click", source = "select_year")
+#									
+#									# If NULL dont do anything
+#									if(is.null(event.data) == T) 
+#									{ 
+#										the_comment <- "<p> click on a point </p>"
+#										
+#										# event.data returns the name of the trace and the pointNumber
+#									} else  if (event.data$curveNumber == 0) {
+#										the_comment <- ifelse (is.na(the_series$das_comment[the_series$year==event.data$x]),
+#												"No comment available", 
+#												the_series$das_comment[the_series$year==event.data$x]) 
+#										the_comment <- paste( "<b>",the_comment,"</b>")
+#									} else {
+#										the_comment<- "<p> click on the other series </p>" 
+#									}
+#									the_text <- paste("<h2>Details about the point</h2>",the_comment)
+#									HTML(the_text)
+#								}) 
+#					})
+		})
 		})
   
   

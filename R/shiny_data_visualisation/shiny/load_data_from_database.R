@@ -44,6 +44,99 @@ precodata_all = extract_data("PrecoData All",quality_check=FALSE) # for precodia
 precodata_emu = extract_data("PrecoData EMU",quality_check=FALSE) 
 precodata_country = extract_data("PrecoData Country",quality_check=FALSE) 
 
+# yellow and silver eel series
+ys_stations = sqldf('
+				SELECT 
+				ser_id, ser_order, ser_nameshort, ser_namelong, ser_typ_id, ser_effort_uni_code,
+				ser_comment, ser_uni_code, ser_lfs_code, ser_hty_code, ser_locationdescription,
+				ser_emu_nameshort, ser_cou_code, ser_area_division, ser_x, ser_y,             
+				ser_sam_id, ser_qal_id, ser_qal_comment,     
+				"tblCodeID", "Station_Code", "Country", "Organisation", "Station_Name",       
+				cou_code, cou_country, cou_order, cou_iso3code,
+				lfs_code, lfs_name, lfs_definition,              
+				ocean,  subocean, f_area, f_subarea,  f_division
+				FROM datawg.t_series_ser 
+				left join ref.tr_station on ser_tblcodeid=tr_station."tblCodeID"
+				left join ref.tr_country_cou on cou_code=ser_cou_code 
+				left join ref.tr_lifestage_lfs on ser_lfs_code=lfs_code
+				left join ref.tr_faoareas on ser_area_division=f_division
+				WHERE ser_typ_id IN (2,3)
+				')
+wger_ys = sqldf('
+SELECT 
+	das_id,
+	das_value,       
+	das_year,
+	das_comment,
+	/* 
+			-- below those are data on effort, not used yet
+	
+	das_effort, 
+	ser_effort_uni_code,       
+	das_last_update,
+	*/
+			/* 
+			-- this is the id on quality, not used yet but plans to use later
+	-- to remove the data with problems on quality from the series
+	-- see WKEELDATA (2017)
+	das_qal_id,
+	*/ 
+			ser_id,            
+	ser_order,
+	ser_nameshort,
+	ser_area_division,
+	f_subarea,
+	lfs_code,          
+	lfs_name
+FROM datawg.t_dataseries_das 
+	join datawg.t_series_ser on das_ser_id=ser_id
+	left join ref.tr_lifestage_lfs on ser_lfs_code=lfs_code
+	left join ref.tr_faoareas on ser_area_division=f_division
+WHERE ser_typ_id IN (2,3)
+')
+
+wger_init_ys = sqldf('
+SELECT 
+	das_id AS id,
+	das_value AS value,       
+	das_year AS year,
+	das_comment,
+	/* 
+			-- below those are data on effort, not used yet
+	
+	das_effort, 
+	ser_effort_uni_code,       
+	das_last_update,
+	*/
+			/* 
+			-- this is the id on quality, used from 2018
+	-- to remove the data with problems on quality from the series
+	-- see WKEEKDATA (2018)
+	das_qal_id,
+	*/ 
+			ser_id,            
+	ser_order,
+	ser_nameshort AS site,
+	ser_area_division AS area_division,
+	ser_qal_id,
+	/* 
+			-- this is the id on quality at the level of individual lines of data
+	-- checks are done later to ensure provide a summary of the number of 0 (missing data),
+	-- 3 data discarded, 4 used but with doubts....
+	*/ 
+			das_qal_id,
+	das_last_update,
+	f_subarea,
+	lfs_code,          
+	lfs_name AS lifestage
+FROM datawg.t_dataseries_das 
+	join datawg.t_series_ser on das_ser_id=ser_id
+	left join ref.tr_lifestage_lfs on ser_lfs_code=lfs_code
+	left join ref.tr_faoareas on ser_area_division=f_division
+WHERE ser_typ_id IN (2,3)
+')
+
+statseries_ys<-sqldf("select * from datawg.series_summary where life_stage IN ('Y', 'S')")
 
 save( precodata_all, 
     precodata,    
@@ -57,4 +150,5 @@ save( precodata_all,
     release, 
     aquaculture, 
     landings,
+	ys_stations, wger_ys, wger_init_ys, statseries_ys,
     file="../../../data/ref_and_eel_data.Rdata")

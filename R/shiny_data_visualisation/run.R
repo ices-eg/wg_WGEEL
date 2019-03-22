@@ -8,7 +8,7 @@ require("shiny")
 source("R/utilities/set_directory.R")
 
 # connection to database
-source("R/database_interaction/database_connection.R")
+#source("R/database_interaction/database_connection.R")
 
 source("R/utilities/load_library.R")
 #options(shiny.trace = TRUE)
