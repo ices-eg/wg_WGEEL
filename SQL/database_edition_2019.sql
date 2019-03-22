@@ -1,6 +1,6 @@
 ﻿﻿-------------------------------
 -- Update tested on rasberry
--- TODO update database living
+-- Tested on local database by Cédric => OK
 -------------------------------
 
 
@@ -26,18 +26,19 @@ COMMENT ON COLUMN datawg.t_series_ser.geom IS 'internal use, a postgis geometry 
 
 --SELECT * from datawg.t_eelstock_eel limit 10
 
-UPDATE datawg.t_eelstock_eel set eel_dta_code = 'Public'; -- does not work
+--UPDATE datawg.t_eelstock_eel set eel_dta_code = 'Public'; -- does not work
 
-
+/*
 SELECT COUNT(*) 
  	 	FROM   datawg.t_eelstock_eel
  	 	WHERE  eel_area_division is not null
- 	 	AND  eel_hty_code = 'F'
+ 	 	AND  eel_hty_code = 'F';
+*/
 
 DROP TRIGGER trg_check_no_ices_area ON datawg.t_eelstock_eel;
 
 
-SELECT eel_dta_code FROM datawg.t_eelstock_eel;
+--SELECT eel_dta_code FROM datawg.t_eelstock_eel;
 /*
  * WHEN we remove eel_area_division there is a duplicate stepping in, we delete it
  */
@@ -51,7 +52,7 @@ pp AS (SELECT eel_area_division,eel_emu_nameshort,eel_typ_id, eel_year FROM data
  	 	AND  eel_hty_code = 'F'
  	 	AND eel_qal_id=18)
 SELECT * FROM gp JOIN pp ON (gp.eel_emu_nameshort,gp.eel_typ_id,gp.eel_year)=
-(pp.eel_emu_nameshort,pp.eel_typ_id,pp.eel_year)
+(pp.eel_emu_nameshort,pp.eel_typ_id,pp.eel_year);
 
 --kill it
 DELETE FROM datawg.t_eelstock_eel WHERE eel_id IN (SELECT eel_id
@@ -113,7 +114,7 @@ CREATE TRIGGER trg_check_the_stage
  UPDATE datawg.t_eelstock_eel  SET eel_area_division=NULL WHERE  eel_area_division is not null
  	 	AND  eel_hty_code = 'F';
  	 
- SELECT * FROM datawg.t_eelstock_eel LIMIT 10; 
+ --SELECT * FROM datawg.t_eelstock_eel LIMIT 10; 
 
 UPDATE datawg.t_eelstock_eel set eel_dta_code = 'Public'; --18193
 --ALTER TABLE datawg.t_eelstock_eel ALTER COLUMN eel_dta_code SET DEFAULT  'Public';
@@ -121,7 +122,7 @@ UPDATE datawg.t_eelstock_eel set eel_dta_code = 'Public'; --18193
 
 -- tolower type name to match data from xls files
 --
-UPDATE ref.tr_typeseries_typ SET typ_name = LOWER(typ_name);
+UPDATE ref.tr_typeseries_typ SET typ_name = LOWER(typ_name);--33
 
 
 -- minor correction
