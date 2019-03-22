@@ -1,5 +1,5 @@
 ---
-title: "automatic_tables"
+title: "automatic_tables_graphs"
 author: "wgeel"
 date: "21 mars 2019"
 output:
@@ -146,11 +146,11 @@ landings3$eel_cou_code = as.factor(landings3$eel_cou_code)
 landings3$eel_cou_code<-factor(landings3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
 title <- paste("Commercial landings for ",paste(country,collapse="+")," and ", "stages = G ", " and habitat =", paste(hty,collapse="+"))
 
-g_raw_Clandings_G <- ggplot(landings3) + geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
-        ggtitle(title) + xlab("year") + ylab("Landings (tons)")+
+g_raw_Clandings_G<- ggplot(landings3) + geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
+        ggtitle(title) + xlab("year") + ylab("Landings (tonnes)")+
         scale_fill_manual("Country",values=color_countries)+
         theme_bw()
-print(g_raw_Clanding_G)
+print(g_raw_Clandings_G)
 
 ```
 ---
@@ -197,8 +197,8 @@ landings3$eel_cou_code = as.factor(landings3$eel_cou_code)
 landings3$eel_cou_code<-factor(landings3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
 title <- paste("Commercial landings for ",paste(country,collapse="+")," and ", "stages = Y, S and YS", " and habitat =", paste(hty,collapse="+"))
 
-g_raw_Clandings_YS <- ggplot(landings3) + geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
-        ggtitle(title) + xlab("year") + ylab("Landings (tons)")+
+g_raw_Clandings_YS<- ggplot(landings3) + geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
+        ggtitle(title) + xlab("year") + ylab("Landings (tonnes)")+
         scale_fill_manual("Country",values=color_countries)+
         theme_bw()
 print(g_raw_Clandings_YS)
@@ -252,11 +252,11 @@ landings3$eel_cou_code = as.factor(landings3$eel_cou_code)
 landings3$eel_cou_code<-factor(landings3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
 title <- paste("Recreational landings for ",paste(country,collapse="+")," and ", "stages = G ", " and habitat =", paste(hty,collapse="+"))
 
-g_raw_Rlandings_G <- ggplot(landings3) + geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
-        ggtitle(title) + xlab("year") + ylab("Landings (tons)")+
+g_raw_Rlandings_G<- ggplot(landings3) + geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
+        ggtitle(title) + xlab("year") + ylab("Landings (tonnes)")+
         scale_fill_manual("Country",values=color_countries)+
         theme_bw()
-print(g_raw_Rlanding_G)
+print(g_raw_Rlandings_G)
 
 
 ```
@@ -306,7 +306,7 @@ landings3$eel_cou_code<-factor(landings3$eel_cou_code,levels=country_ref$cou_cod
 title <- paste("Recreational landings for ",paste(country,collapse="+")," and ", "stages = Y, S and YS", " and habitat =", paste(hty,collapse="+"))
 
 g_raw_Rlandings_YS <- ggplot(landings3) + geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
-        ggtitle(title) + xlab("year") + ylab("Landings (tons)")+
+        ggtitle(title) + xlab("year") + ylab("Landings (tonnes)")+
         scale_fill_manual("Country",values=color_countries)+
         theme_bw()
 print(g_raw_Rlandings_YS)
@@ -336,6 +336,8 @@ filtered_data<-filter_data("aquaculture2",
             habitat = hty,
              year_range = min(year):max(year))
 grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=FALSE)
+
+##Table
 fun.agg<-function(X){if(length(X)>0){round(sum(X)/1000,ifelse(sum(X)>1000,0,3))}else{sum(c(X,NA))}}
 
 table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
@@ -353,6 +355,20 @@ names(table)[1]<-"Year"
 table[is.na(table)]<-''
 tableAqua<-table
 kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table: Aquaculture (tonnes)  ","(",min(year),"-",max(year),")"," for ",paste(country,collapse=",")))
+
+## Graph
+aquaculture3<-grouped_data
+aquaculture3$eel_value <- as.numeric(aquaculture3$eel_value) / 1000
+aquaculture3$eel_cou_code = as.factor(aquaculture3$eel_cou_code)
+aquaculture3$eel_cou_code<-factor(aquaculture3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
+title <- paste("Aquaculture for ",paste(country,collapse="+")," and all stages and habitats ")
+
+g_aquaculture <-  ggplot(aquaculture3) + 
+        geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
+        ggtitle(title) + xlab("year") + ylab("Aquaculture (tonnes)")+
+        scale_fill_manual(values=color_countries)+
+        theme_bw()  
+print(g_aquaculture)
 
 ```
 ---
@@ -378,6 +394,8 @@ filtered_data<-filter_data("release2",
             habitat = hty,
              year_range = min(year):max(year))
 grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=FALSE)
+
+##Table
 fun.agg<-function(X){if(length(X)>0){round(sum(X)/10^6,ifelse(sum(X)>10^6,0,3))}else{sum(c(X,NA))}}
 table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
               table<-data.frame(table,sum=rowSums(table[,-1],na.rm=T))
@@ -395,6 +413,21 @@ table[is.na(table)]<-''
 tableRelG<-table
 kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table: Release (nb in millions) of glass eels  ","(",min(year),"-",max(year),")"," for ",paste(country,collapse=",")))
 
+##Graph
+
+release3<-grouped_data
+release3$eel_value <- as.numeric(release3$eel_value) / 1000
+release3$eel_cou_code = as.factor(release3$eel_cou_code)
+release3$eel_cou_code<-factor(release3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
+title <- paste("Released (in thousand) for ",paste(country,collapse="+")," and ", "stages = G", " and habitat =", paste(hty,collapse="+"))
+
+    g_release_G <-  ggplot(release3) + 
+        geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
+        ggtitle(title) + xlab("year") + ylab("1000 * Release (n)")+
+        scale_fill_manual(values=color_countries)+
+        theme_bw() 
+    
+    print(g_release_G)
 
 ```
 
@@ -432,6 +465,22 @@ table[is.na(table)]<-''
 tableRelY<-table
 kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table: Release (nb in millions) of yellow eels  ","(",min(year),"-",max(year),")"," for ",paste(country,collapse=",")))
 
+##Graph
+
+release3<-grouped_data
+release3$eel_value <- as.numeric(release3$eel_value) / 1000
+release3$eel_cou_code = as.factor(release3$eel_cou_code)
+release3$eel_cou_code<-factor(release3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
+title <- paste("Released (in thousand) for ",paste(country,collapse="+")," and ", "stages = Y", " and habitat =", paste(hty,collapse="+"))
+
+    g_release_Y <-  ggplot(release3) + 
+        geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
+        ggtitle(title) + xlab("year") + ylab("1000 * Release (n)")+
+        scale_fill_manual(values=color_countries)+
+        theme_bw() 
+    
+    print(g_release_Y)
+
 ```
 
 ---
@@ -468,7 +517,21 @@ table[is.na(table)]<-''
 tableRelS<-table
 kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table: Release (nb in millions) of silver eels  ","(",min(year),"-",max(year),")"," for ",paste(country,collapse=",")))
 
+##Graph
 
+release3<-grouped_data
+release3$eel_value <- as.numeric(release3$eel_value) / 1000
+release3$eel_cou_code = as.factor(release3$eel_cou_code)
+release3$eel_cou_code<-factor(release3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
+title <- paste("Released (in thousand) for ",paste(country,collapse="+")," and ", "stages = S", " and habitat =", paste(hty,collapse="+"))
+
+    g_release_S <-  ggplot(release3) + 
+        geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
+        ggtitle(title) + xlab("year") + ylab("1000 * Release (n)")+
+        scale_fill_manual(values=color_countries)+
+        theme_bw() 
+    
+    print(g_release_S)
 ```
 
 ---
@@ -504,6 +567,22 @@ names(table)[1]<-"Year"
 table[is.na(table)]<-''
 tableRelQG<-table
 kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table: Release (nb in millions) of quarantine glass eels  ","(",min(year),"-",max(year),")"," for ",paste(country,collapse=",")))
+
+##Graph
+
+release3<-grouped_data
+release3$eel_value <- as.numeric(release3$eel_value) / 1000
+release3$eel_cou_code = as.factor(release3$eel_cou_code)
+release3$eel_cou_code<-factor(release3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
+title <- paste("Released (in thousand) for ",paste(country,collapse="+")," and ", "stages = QG", " and habitat =", paste(hty,collapse="+"))
+
+    g_release_QG <-  ggplot(release3) + 
+        geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
+        ggtitle(title) + xlab("year") + ylab("1000 * Release (n)")+
+        scale_fill_manual(values=color_countries)+
+        theme_bw() 
+    
+    print(g_release_QG)
 
 ```
 
@@ -541,9 +620,58 @@ table[is.na(table)]<-''
 tableRelOG<-table
 kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table: Release (nb in millions) of ongrown eels  ","(",min(year),"-",max(year),")"," for ",paste(country,collapse=",")))
 
+##Graph
+
+release3<-grouped_data
+release3$eel_value <- as.numeric(release3$eel_value) / 1000
+release3$eel_cou_code = as.factor(release3$eel_cou_code)
+release3$eel_cou_code<-factor(release3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
+title <- paste("Released (in thousand) for ",paste(country,collapse="+")," and ", "stages = OG", " and habitat =", paste(hty,collapse="+"))
+
+    g_release_OG <-  ggplot(release3) + 
+        geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
+        ggtitle(title) + xlab("year") + ylab("1000 * Release (n)")+
+        scale_fill_manual(values=color_countries)+
+        theme_bw() 
+    
+    print(g_release_OG)
+
 ```
 ---
 ---
+```{r release all stages,echo=FALSE}
+##Table release (nb) for all the countries
+
+release2<-release[release$eel_typ_id==9,]
+year<-unique(release2$eel_year)
+country<-unique(release2$eel_cou_code)
+hty<-unique(release2$eel_hty_code)
+filtered_data<-filter_data("release2",
+              typ = 9,
+             life_stage = lfs, 
+              country = country,
+            habitat = hty,
+             year_range = min(year):max(year))
+grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=FALSE)
+
+##Graph
+
+release3<-grouped_data
+release3$eel_value <- as.numeric(release3$eel_value) / 1000
+release3$eel_cou_code = as.factor(release3$eel_cou_code)
+release3$eel_cou_code<-factor(release3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
+title <- paste("Released (in thousand) for ",paste(country,collapse="+")," and ", "stages = ",paste(lfs,collapse="+"), " and habitat =", paste(hty,collapse="+"))
+
+    g_release_all <-  ggplot(release3) + 
+        geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
+        ggtitle(title) + xlab("year") + ylab("1000 * Release (n)")+
+        scale_fill_manual(values=color_countries)+
+        theme_bw() 
+    
+    print(g_release_all)
+
+```
+
 
 ### Raw + corr commercial Landings
 
@@ -569,6 +697,7 @@ fun.agg<-function(X){if(length(X)>0){round(sum(X)/1000,ifelse(sum(X)>1000,0,3))}
 grouped_data$eel_cou_code = as.factor(grouped_data$eel_cou_code)                       
 grouped_data <- predict_missing_values(grouped_data, verbose=FALSE, na.rm=FALSE) 
 
+##Table
 table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
                 table2=dcast(grouped_data, eel_year~eel_cou_code, value.var = "predicted",fun = prod)
                 
@@ -598,6 +727,40 @@ table[is.na(table)]<-''
 tableCorrLandG<-table
 kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table: Raw+ corr commercial landings (tonnes) for glass eels  ","(",min(year),"-",max(year),")"," for ",paste(country,collapse=",")))
 
+##Graph
+
+landings3<-grouped_data
+landings3$eel_cou_code<-factor(landings3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
+landings_year<-aggregate(eel_value~eel_year, landings3, sum)
+title <- paste("Raw + Corrected Commercial landings for ",paste(country,collapse="+")," and ", "stages =G", " and habitat =", paste(hty,collapse="+"))
+
+  g_reconstructed_landings <- ggplot(landings3) + 
+      geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code),position='stack')+
+      ggtitle(title)+ 
+      xlab("Year") + ylab("Landings (tonnes)")+
+      coord_cartesian(expand = FALSE, ylim = c(0, max(landings_year$eel_value)*1.6)) +
+      scale_fill_manual(values=color_countries)+
+      theme_bw()
+  
+  # percentage of original data
+  g_percentage_reconstructed <- ggplot(landings3)+
+      geom_col(aes(x=eel_year,y=eel_value,fill=!predicted),position='stack')+
+      xlab("") + 
+      ylab("")+
+      scale_fill_manual(name = "Data", values=c("black","grey"),labels=c("Predicted","Raw"))+
+      theme_bw()+    
+      theme(legend.position="top")
+  
+  
+  g3_grob <- ggplotGrob(g_percentage_reconstructed)
+  g_combined_landings_G <- g_reconstructed_landings+
+      annotation_custom(g3_grob, 
+          xmin=min(landings3$eel_year), 
+          xmax=max(landings3$eel_year), 
+          ymin=max(landings_year$eel_value)*1.05, 
+          ymax=max(landings_year$eel_value)*1.6)
+  print(g_combined_landings_G)
+
 
 ```
 
@@ -606,7 +769,7 @@ kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Ta
 ```{r corr_com_YS,echo=FALSE}
 
 ##Table raw + corr commercial landings for Glass eel and every country
-landings2<-landings[landings$eel_lfs_code %in% c("Y","S","YS") & landings$eel_typ_id==4,]
+landings2<-landings[landings$eel_lfs_code %in% c("Y","S") & landings$eel_typ_id==4,]
 year<-unique(landings2$eel_year)
 country<-unique(landings2$eel_cou_code)
 country<-country[country!="IE"]
@@ -651,6 +814,43 @@ table[is.na(table)]<-''
 tableCorLandYS<-table
 kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table: Raw+ corr commercial landings (tonnes) for yellow and silver eels  ","(",min(year),"-",max(year),")"," for ",paste(country,collapse=",")))
 
+##Graph
+
+
+  #landings_year <- dataset
+
+landings3<-grouped_data
+landings3$eel_cou_code<-factor(landings3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
+landings_year<-aggregate(eel_value~eel_year, landings3, sum)
+title <- paste("Raw + Corrected Commercial landings for ",paste(country,collapse="+")," and ", "stages =Y+S", " and habitat =", paste(hty,collapse="+"))
+
+  g_reconstructed_landings <- ggplot(landings3) + 
+      geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code),position='stack')+
+      ggtitle(title)+ 
+      xlab("Year") + ylab("Landings (tonnes)")+
+      coord_cartesian(expand = FALSE, ylim = c(0, max(landings_year$eel_value)*1.6)) +
+      scale_fill_manual(values=color_countries)+
+      theme_bw()
+  
+  # percentage of original data
+  g_percentage_reconstructed <- ggplot(landings3)+
+      geom_col(aes(x=eel_year,y=eel_value,fill=!predicted),position='stack')+
+      xlab("") + 
+      ylab("")+
+      scale_fill_manual(name = "Data", values=c("black","grey"),labels=c("Predicted","Raw"))+
+      theme_bw()+    
+      theme(legend.position="top")
+  
+  
+  g3_grob <- ggplotGrob(g_percentage_reconstructed)
+  g_combined_landings_YS <- g_reconstructed_landings+
+      annotation_custom(g3_grob, 
+          xmin=min(landings3$eel_year), 
+          xmax=max(landings3$eel_year), 
+          ymin=max(landings_year$eel_value)*1.05, 
+          ymax=max(landings_year$eel_value)*1.6)
+  print(g_combined_landings_YS)
+
 
 ```
 
@@ -673,7 +873,7 @@ write.csv2(tableRelOG,"releases_nb_OG.csv",row.names=FALSE)
 write.csv2(tableCorrLandG,"Raw_Corr_Com_landings_G.csv",row.names=FALSE)
 write.csv2(tableCorLandYS,"Raw_Corr_Com_landings_Y_S.csv",row.names=FALSE)
 
-ggsave("Raw_Com_landings_G.png", g_raw_Clanding_G, device = "png", width = 20, height = 14, 
+ggsave("Raw_Com_landings_G.png", g_raw_Clandings_G, device = "png", width = 20, height = 14, 
             units = "cm")
 ggsave("Raw_Com_landings_YS.png", g_raw_Clandings_YS, device = "png", width = 20, height = 14, 
             units = "cm")
@@ -681,8 +881,23 @@ ggsave("Raw_Rec_landings_G.png", g_raw_Rlandings_G, device = "png", width = 20, 
             units = "cm")
 ggsave("Raw_Rec_landings_YS.png", g_raw_Rlandings_YS, device = "png", width = 20, height = 14, 
             units = "cm")
+ggsave("Aquaculture.png", g_aquaculture, device = "png", width = 20, height = 14, 
+            units = "cm")
 
-
+ggsave("Releases_G.png", g_release_G, device = "png", width = 20, height = 14, 
+            units = "cm")
+ggsave("Releases_Y.png", g_release_Y, device = "png", width = 20, height = 14, 
+            units = "cm")
+ggsave("Releases_S.png", g_release_S, device = "png", width = 20, height = 14, 
+            units = "cm")
+ggsave("Releases_QG.png", g_release_QG, device = "png", width = 20, height = 14, 
+            units = "cm")
+ggsave("Releases_OG.png", g_release_OG, device = "png", width = 20, height = 14, 
+            units = "cm")
+ggsave("Raw_Corr_com_landings_YS.png", g_combined_landings_YS, device = "png", width = 20, height = 14, 
+            units = "cm")
+ggsave("Raw_Corr_com_landings_G.png", g_combined_landings_G, device = "png", width = 20, height = 14, 
+            units = "cm")
 
 ```
 

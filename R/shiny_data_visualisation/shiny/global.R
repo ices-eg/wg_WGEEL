@@ -101,9 +101,6 @@ dat_ye$year <- as.numeric(dat_ye$year)
 load("../../../data/glass_eel_pred.Rdata") # named glass_eel_pred
 load("../../../data/yellow_eel_pred.Rdata") # named yellow_eel_pred
 load("../../../data/recruitment_models.Rdata") # named model_ge_area and model_older
-
-# load data from yellow and silver eel series -------------------------------------------------------
-
    
 
 source("predict_missing.R")

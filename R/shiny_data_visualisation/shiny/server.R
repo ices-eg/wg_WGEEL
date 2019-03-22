@@ -25,9 +25,10 @@ server = function(input, output, session) {
           text <-  paste("<p align='left'>Value in ton <br/>",
               "to download this, use the Excel button </p>")
         } else if (input$dataset == "landings_com_corrected" | input$dataset == "landings_rec_corrected") {
-          text <-  paste("<p align='left'>Value in ton <br/>",
-                         "<p align='left'>Asterisk (*) represents predicted data <br/>",
-                         "to download this, use the Excel button </p>")
+          text <-  paste("<p align='left'>Value in ton, Asterisk (*) represents predicted data<br/>",
+                         "<p align='left'> Attention, if you are using a table and displaying a group of several stages
+						you are probably doing something stupid  <br/>",
+                         "<p align='left'>To download this, use the Excel button </p>")
         }
     else text =paste("<p align='left'>",
               "to download this, use the Excel button </p>")
