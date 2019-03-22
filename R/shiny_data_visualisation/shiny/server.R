@@ -1149,7 +1149,22 @@ server = function(input, output, session) {
         data_rec <- get_recruitment_graph()
         ggsave(file, recruitment_graph(dataset=data_rec,as.numeric(input$just_a_joke)%%2==FALSE))
       })
-  
+
+##################################
+# yellow & silver eel map -----------------------------------------------------------------------------
+##################################
+# first let's hide the sidebar
+
+
+
+
+observe({
+			output$mapstation_ys = renderLeaflet({
+						
+						recruitment_map(R_stations, statseries, wger_init)                               
+						
+					})
+		})
   
   
   

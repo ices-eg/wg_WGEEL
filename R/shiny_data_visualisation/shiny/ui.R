@@ -555,7 +555,8 @@ ui = dashboardPage(title="ICES Data Visualisation",
                    
                          )
                )
-		        ),
+		        )
+				,
 				# Yellow and Silver ----------------------------------------
 				tabItem(tabName="map_yellow_silver_tab", 
 						fluidRow(
@@ -563,21 +564,41 @@ ui = dashboardPage(title="ICES Data Visualisation",
 								column(width=6,
 										h2("Map of yellow or silver eel sites"),
 										p("Click on a point for details about the series"),
-										leafletOutput("mapstation_ys", height = 600),
-										box(title = "Details about the site",
-												status = "primary",
-												solidHeader = F,
-												collapsible = F,
-												width = 12,
-												fluidRow(
-														column(width=7,uiOutput("ys_site_description")),
-														column(width=5, align="center",
-																imageOutput("recruit_site_image")                                    
-														)
-												)
+										leafletOutput("mapstation_ys", height = 600)#,
+#										box(title = "Details about the site",
+#												status = "primary",
+#												solidHeader = F,
+#												collapsible = F,
+#												width = 12,
+#												fluidRow(
+#														column(width=7,uiOutput("ys_site_description")),
+#														column(width=5, align="center",
+#																imageOutput("recruit_site_image")                                    
+#														)
+#												)
 										)
-								)
-						)
+								)#,
+#								column(width=6,
+#										h2("Individual series compared to recruitment trend"),
+#										plotlyOutput("plotly_recruit"),
+#										htmlOutput("das_comment"),
+#										# below the div style is to align things on a single line 
+#										div(style="display:inline-block",
+#												h2("Model Residuals")),
+#										div(style="display:inline-block",switchInput(
+#														inputId = "button_smooth",
+#														onLabel = "res+smooth",
+#														offLabel = "resid", 
+#														onStatus = "secondary", 
+#														offStatus = "secondary",
+#														size = "mini",                           
+#														value = FALSE
+#												)),
+#										p("Unlike previous graph where current values are scaled to the period,
+#														1960-1979 using predicted model values, these represent the TRUE residuals of the gamma model"),
+#										plotOutput("resid_recruitment_graph")
+#								)
+#						)
 				)
         )
     )
