@@ -660,4 +660,4 @@ load_maps = function(full_load = FALSE, to_save = FALSE)
 }
 #load_maps(full_load=TRUE, to_save=TRUE)
 
-plot(emu)
+#plot(emu)

@@ -24,7 +24,7 @@ load_library("getPass")
 
 
 port <- 5432
-host <- "localhost"#"192.168.0.100"
+host <- "192.168.0.100"
 
 
 if (exists("userwgeel")) 
