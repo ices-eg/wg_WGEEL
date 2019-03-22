@@ -608,34 +608,56 @@ b_map <- function(dataset=precodata_all,
 #' @param full_load should the maps be loaded from source file? if not from Rdata file
 #' @param to_save should maps be save into a Rdata file to ease the loading next time
 #' @details this is now saved in data/shapefiles, it is added to the ignore list, so ask for it in your own git
+#' @details using sf package the spatial data from the database (emu and country) can be imported directly, so we don't need to save data in shapefiles (pgsql2shp)
+#' @details methods(class = 'sfc')
 load_maps = function(full_load = FALSE, to_save = FALSE)
 {
-  if(!require(stringr)) install.packages("stringr") ; require(stringr)
-  if(!require(sp)) install.packages("sp") ; require(sp)
-  if(full_load)
-  {
-	if(!require(tcltk)) install.packages("tcltk") ; require(tcltk)
-	if(!require(stacomirtools)) install.packages("stacomirtools") ; require(stacomirtools)
-	#path to shapes on the sharepoint
-	shpwd = wg_choose.dir(caption = "Shapefile directory")
-	emu_c <- rgdal::readOGR(str_c(shpwd,"/","emu_centre_4326.shp")) # a spatial object of class spatialpointsdataframe
-	emu_c@data <- stacomirtools::chnames(emu_c@data,"emu_namesh","emu_nameshort") # names have been trucated
-	emu_c <<- emu_c
-	# this corresponds to the center of each emu.
-	country_p <<- rmapshaper::ms_simplify(rgdal::readOGR(str_c(shpwd,"/","country_polygons_4326.shp")), keep = 0.01)# a spatial object of class sp, symplified to be displayed easily
-	# this is the map of coutry centers, to overlay points for each country
-	# beware this takes ages ...
-	emu_p <<- rmapshaper::ms_simplify(rgdal::readOGR(str_c(shpwd,"/","emu_polygons_4326.shp")), keep = 0.7) # a spatial object of class sp, symplified to be displayed easily
-	# this is the map of the emu.
-	country_c <<- rgdal::readOGR(str_c(shpwd,"/","country_centre_4326.shp"))
-	# transform spatial point dataframe to 
-	if(to_save) save(emu_c,country_p,emu_p,country_c,file=str_c(data_directory,"/maps_for_shiny.Rdata")) # TODO: should be taken in ref table directory
-  } else 
-  {
-	if(!exists("data_directory")) 
-	  data_directory <- wg_choose.dir(caption = "Data directory")
-	load(file=str_c(data_directory,"/maps_for_shiny.Rdata"), envir = .GlobalEnv)
-  }
-}
+	if(!require(stringr)) install.packages("stringr") ; require(stringr)
+	if(!require(sp)) install.packages("sp") ; require(sp)
+	if(full_load)
+	{
+		if(!require(tcltk)) install.packages("tcltk") ; require(tcltk)
+		#if(!require(stacomirtools)) install.packages("stacomirtools") ; require(stacomirtools)
+		#path to shapes on the sharepoint
+		#shpwd = wg_choose.dir(caption = "Shapefile directory")
+		
+		emu <- st_read(dsn= "PG:dbname='wgeel' host='192.168.0.100' port='5432' user='wgeel' 
+						password='wgeel'", layer="ref.tr_emu_emu")
+		# This is the map of the emu
+		#emu_p <<- rmapshaper::ms_simplify(rgdal::readOGR(str_c(shpwd,"/","emu_polygons_4326.shp")), keep = 0.7) # a spatial object of class sp, symplified to be displayed easily
+		emu_p <<- rmapshaper::ms_simplify(emu$geom, keep = 0.7) # a spatial object of class sp, symplified to be displayed easily
+		## Is this emu$geom simplified, do we need it? 
+		
+		# To calculate the center of the polygone, empty geom is not possible
+		emu_no_empty_geom <- emu[which(!st_is_empty(emu$geom)),]
+		# This corresponds to the center of each emu
+		#emu_c <- rgdal::readOGR(str_c(shpwd,"/","emu_centre_4326.shp")) # a spatial object of class spatialpointsdataframe
+		emu_c <- st_centroid(emu_no_empty_geom$geom)
+		#emu_c@data <- stacomirtools::chnames(emu_c@data,"emu_namesh","emu_nameshort") # names have been trucated
+		
+		country <- st_read(dsn= "PG:dbname='wgeel' host='192.168.0.100' port='5432' user='wgeel' 
+						password='wgeel'", layer="ref.tr_country_cou")
 
-#load_maps()
+		# This is the map of the emu
+		#country_p <<- rmapshaper::ms_simplify(rgdal::readOGR(str_c(shpwd,"/","country_polygons_4326.shp")), keep = 0.01)# a spatial object of class sp, symplified to be displayed easily
+		country_p <<- rmapshaper::ms_simplify(country$geom, keep = 0.01)  # a spatial object of class sp, symplified to be displayed easily. Be pacient!
+		## Is this country$geom simplified, do we need it? 
+
+		# To calculate the center of the polygone, empty geom is not possible
+		country_no_empty_geom <- country[which(!st_is_empty(country$geom)),]
+		# This is the map of country centers, to overlay points for each country
+		#country_c <<- rgdal::readOGR(str_c(shpwd,"/","country_centre_4326.shp"))
+		country_c <- st_centroid(country_no_empty_geom$geom)
+		
+		# transform spatial point dataframe to 
+		if(to_save) save(emu_c,country_p,emu_p,country_c,file=str_c(data_directory,"/maps_for_shiny.Rdata")) # TODO: should be taken in ref table directory
+	} else 
+	{
+		if(!exists("data_directory")) 
+			data_directory <- wg_choose.dir(caption = "Data directory")
+		load(file=str_c(data_directory,"/maps_for_shiny.Rdata"), envir = .GlobalEnv)
+	}
+}
+#load_maps(full_load=TRUE, to_save=TRUE)
+
+#plot(emu)
