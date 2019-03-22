@@ -530,8 +530,14 @@ ui = dashboardPage(title="ICES Data Visualisation",
                             width = 12,
 
                             fluidRow(
-                              column(width=10,checkboxGroupButtons(inputId = "indices_rec_graph",label = "Recruitment series to plot",choices = c("EE","NS","Y"),
-                              status = "primary", checkIcon = list(yes = icon("ok", lib = "glyphicon"), no = icon("remove", lib = "glyphicon"))),
+                              column(width=10,
+                                  checkboxGroupButtons(inputId = "indices_rec_graph",
+                                      label = "Recruitment series to plot",
+                                      choices = c("EE","NS","Y"),
+                                      status = "primary", 
+                                      selected =c("EE","NS"),
+                                      checkIcon = list(yes = icon("ok", lib = "glyphicon"), 
+                                          no = icon("remove", lib = "glyphicon"))),
                             sliderTextInput(inputId = "just_a_joke",label = "formatted as requested in WGEEL:", choices = 2010:2018))),
                    
                    

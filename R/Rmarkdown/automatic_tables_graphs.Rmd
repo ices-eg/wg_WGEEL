@@ -8,6 +8,10 @@ output:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+setwd("C:/Users/cboulenger/Documents/wg_WGEEL/")
+source("R/utilities/set_directory.R")
+data_directory <- wg_choose.dir(caption = "Where do you want to save the tables and the graphs")
+knitr::opts_knit$set(root.dir = data_directory)
 ```
 
 ## All the tables for the WGEEL report
@@ -20,7 +24,6 @@ setwd("C:/Users/cboulenger/Documents/wg_WGEEL/")
 
 source("R/utilities/load_library.R")
 
-setwd("C:/Users/cboulenger/Documents/wg_WGEEL/R/shiny_data_visualisation/shiny")
 
 
 #-----------------
@@ -55,19 +58,21 @@ load_package("kableExtra")
 # retrieve reference tables needed
 # the shiny is launched from shiny_data_integration/shiny thus we need the ../
 if(is.null(options()$sqldf.RPostgreSQL.user)) 
-source("../../database_interaction/database_connection.R")
-source("../../database_interaction/database_reference.R")
-source("../../database_interaction/database_data.R")
-source("../../database_interaction/database_precodata.R")
-source("../../stock_assessment/preco_diagram.R")
-source("graphs.R")
-source("maps.R")
-source("global.R")
+source("R/database_interaction/database_connection.R")
+source("R/database_interaction/database_reference.R")
+source("R/database_interaction/database_data.R")
+source("R/database_interaction/database_precodata.R")
+source("R/stock_assessment/preco_diagram.R")
+source("R/shiny_data_visualisation/shiny/graphs.R")
+source("R/shiny_data_visualisation/shiny/maps.R")
+source("R/shiny_data_visualisation/shiny/filter_and_group_functions.R")
+source("R/shiny_data_visualisation/shiny/predict_missing.R")
+
 
 # loading datasets 
 
 # this file is added to the ignore list, so ask for it in your own git before launching the app
-load("../../../data/shapefiles/maps_for_shiny.Rdata") 
+load("data/shapefiles/maps_for_shiny.Rdata") 
 habitat_ref <- extract_ref("Habitat type")
 lfs_code_base <- extract_ref("Life stage")
 #lfs_code_base <- lfs_code_base[!lfs_code_base$lfs_code %in% c("OG","QG"),]
@@ -86,17 +91,23 @@ landings = extract_data("Landings",quality=c(1,2,4),quality_check=TRUE)
 aquaculture = extract_data("Aquaculture",quality=c(1,2,4),quality_check=TRUE)
 release = extract_data("Release",quality=c(1,2,4),quality_check=TRUE)
 
+## Download the colors by country
+
+values=c(RColorBrewer::brewer.pal(12,"Set3"),
+    RColorBrewer::brewer.pal(12, "Paired"), 
+    RColorBrewer::brewer.pal(8,"Accent"),
+    RColorBrewer::brewer.pal(8, "Dark2"))
+color_countries = setNames(values,country_ref$cou_code)
+
 ```
 
-## Raw landings (com and rec)
 
 ---
 ---
 
-```{r ,echo=FALSE}
-setwd("C:/Users/cboulenger/Documents/test_wgeel")
+```{r com land G,echo=FALSE}
 
-##Table raw commercial landings for Glass eel and every country
+##raw commercial landings for Glass eel and every country
 landings2<-landings[landings$eel_lfs_code=="G" & landings$eel_typ_id==4,]
 year<-unique(landings2$eel_year)
 country<-unique(landings2$eel_cou_code)
@@ -111,6 +122,7 @@ filtered_data<-filter_data("landings2",
 grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=FALSE)
 fun.agg<-function(X){if(length(X)>0){round(sum(X)/1000,ifelse(sum(X)>1000,0,3))}else{sum(c(X,NA))}}
 
+##table
 table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
               table<-data.frame(table,sum=rowSums(table[,-1],na.rm=T))
 
@@ -124,17 +136,28 @@ table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.a
 # options(knitr.kable.NA="") this does not work
 names(table)[1]<-"Year"
 table[is.na(table)]<-''
-kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table: Raw commercial landings (tonnes) for glass eels for ",paste(country,collapse=",")))
+tableComLandG<-table
+kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table: Raw commercial landings (tonnes) for glass eels ","(",min(year),"-",max(year),")"," for ",paste(country,collapse=",")))
 
-write.csv2(table,"Raw_Com_landings_G.csv",row.names=FALSE)
+##Graph
+landings3<-grouped_data
+landings3$eel_value <- as.numeric(landings3$eel_value) / 1000
+landings3$eel_cou_code = as.factor(landings3$eel_cou_code)
+landings3$eel_cou_code<-factor(landings3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
+title <- paste("Commercial landings for ",paste(country,collapse="+")," and ", "stages = G ", " and habitat =", paste(hty,collapse="+"))
+
+g_raw_Clandings_G <- ggplot(landings3) + geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
+        ggtitle(title) + xlab("year") + ylab("Landings (tons)")+
+        scale_fill_manual("Country",values=color_countries)+
+        theme_bw()
+print(g_raw_Clanding_G)
 
 ```
 ---
 ---
-```{r, echo=FALSE}
-setwd("C:/Users/cboulenger/Documents/test_wgeel")
+```{r raw com land YS, echo=FALSE}
 
-##Table raw  com landings for Y S and YS for all the countries
+##raw  com landings for Y S and YS for all the countries
 
 landings2<-landings[landings$eel_lfs_code %in% c("Y","S","YS") & landings$eel_typ_id==4,]
 year<-unique(landings2$eel_year)
@@ -147,6 +170,8 @@ filtered_data<-filter_data("landings2",
             habitat = hty,
              year_range = min(year):max(year))
 grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=FALSE)
+
+##table
 fun.agg<-function(X){if(length(X)>0){round(sum(X)/1000,ifelse(sum(X)>1000,0,3))}else{sum(c(X,NA))}}
 
 table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
@@ -162,17 +187,30 @@ table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.a
 # options(knitr.kable.NA="") this does not work
 names(table)[1]<-"Year"
 table[is.na(table)]<-''
-kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table: Raw commercial landings (tonnes) for yellow and silver eels for ",paste(country,collapse=",")))
+tableComLandYS<-table
+kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table: Raw commercial landings (tonnes) for yellow and silver eels " ,"(",min(year),"-",max(year),")"," for ",paste(country,collapse=",")))
 
-write.csv2(table,"Raw_Com_landings_Y_S.csv",row.names=FALSE)
+## Graph
+landings3<-grouped_data
+landings3$eel_value <- as.numeric(landings3$eel_value) / 1000
+landings3$eel_cou_code = as.factor(landings3$eel_cou_code)
+landings3$eel_cou_code<-factor(landings3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
+title <- paste("Commercial landings for ",paste(country,collapse="+")," and ", "stages = Y, S and YS", " and habitat =", paste(hty,collapse="+"))
+
+g_raw_Clandings_YS <- ggplot(landings3) + geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
+        ggtitle(title) + xlab("year") + ylab("Landings (tons)")+
+        scale_fill_manual("Country",values=color_countries)+
+        theme_bw()
+print(g_raw_Clandings_YS)
+
+
 
 ```
 ---
 ---
 
-```{r,echo=FALSE}
+```{r recLand Y S,echo=FALSE}
 
-setwd("C:/Users/cboulenger/Documents/test_wgeel")
 
 ##Table raw rec landings for Y S and YS for all the countries
 
@@ -187,6 +225,8 @@ filtered_data<-filter_data("landings2",
             habitat = hty,
              year_range = min(year):max(year))
 grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=FALSE)
+
+##Table
 fun.agg<-function(X){if(length(X)>0){round(sum(X)/1000,ifelse(sum(X)>1000,0,3))}else{sum(c(X,NA))}}
 
 table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
@@ -202,18 +242,30 @@ table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.a
 # options(knitr.kable.NA="") this does not work
 names(table)[1]<-"Year"
 table[is.na(table)]<-''
-kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table: Rec commercial landings (tonnes) for yellow and silver eels for ",paste(country,collapse=",")))
+tableRecLandYS<-table
+kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table: Rec commercial landings (tonnes) for yellow and silver eels  ","(",min(year),"-",max(year),")"," for ",paste(country,collapse=",")))
 
-write.csv2(table,"Rec_Com_landings_Y_S.csv",row.names=FALSE)
+##Graph
+landings3<-grouped_data
+landings3$eel_value <- as.numeric(landings3$eel_value) / 1000
+landings3$eel_cou_code = as.factor(landings3$eel_cou_code)
+landings3$eel_cou_code<-factor(landings3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
+title <- paste("Recreational landings for ",paste(country,collapse="+")," and ", "stages = G ", " and habitat =", paste(hty,collapse="+"))
+
+g_raw_Rlandings_G <- ggplot(landings3) + geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
+        ggtitle(title) + xlab("year") + ylab("Landings (tons)")+
+        scale_fill_manual("Country",values=color_countries)+
+        theme_bw()
+print(g_raw_Rlanding_G)
+
 
 ```
 ---
 ---
 
-```{r,echo=FALSE}
-setwd("C:/Users/cboulenger/Documents/test_wgeel")
+```{r recLand G,echo=FALSE}
 
-##Table raw rec landings for Y S and YS for all the countries
+##Table raw rec landings for G for all the countries
 
 landings2<-landings[landings$eel_lfs_code=="G" & landings$eel_typ_id==6,]
 year<-unique(landings2$eel_year)
@@ -226,6 +278,8 @@ filtered_data<-filter_data("landings2",
             habitat = hty,
              year_range = min(year):max(year))
 grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=FALSE)
+
+##Table
 fun.agg<-function(X){if(length(X)>0){round(sum(X)/1000,ifelse(sum(X)>1000,0,3))}else{sum(c(X,NA))}}
 
 table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
@@ -241,9 +295,22 @@ table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.a
 # options(knitr.kable.NA="") this does not work
 names(table)[1]<-"Year"
 table[is.na(table)]<-''
-kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table: Rec commercial landings (tonnes) for yellow and silver eels for ",paste(country,collapse=",")))
+tablerecLandG<-table
+kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table: Raw rec landings (tonnes) for yellow and silver eels  ","(",min(year),"-",max(year),")"," for ",paste(country,collapse=",")))
 
-write.csv2(table,"Rec_Com_landings_G.csv",row.names=FALSE)
+## Graph
+landings3<-grouped_data
+landings3$eel_value <- as.numeric(landings3$eel_value) / 1000
+landings3$eel_cou_code = as.factor(landings3$eel_cou_code)
+landings3$eel_cou_code<-factor(landings3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
+title <- paste("Recreational landings for ",paste(country,collapse="+")," and ", "stages = Y, S and YS", " and habitat =", paste(hty,collapse="+"))
+
+g_raw_Rlandings_YS <- ggplot(landings3) + geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
+        ggtitle(title) + xlab("year") + ylab("Landings (tons)")+
+        scale_fill_manual("Country",values=color_countries)+
+        theme_bw()
+print(g_raw_Rlandings_YS)
+
 ```
 ---
 ---
@@ -253,8 +320,7 @@ write.csv2(table,"Rec_Com_landings_G.csv",row.names=FALSE)
 ---
 ---
 
-```{r,echo=FALSE}
-setwd("C:/Users/cboulenger/Documents/test_wgeel")
+```{r aqua,echo=FALSE}
 
 ##Table aquaculture for all the countries
 
@@ -285,9 +351,9 @@ table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.a
 # options(knitr.kable.NA="") this does not work
 names(table)[1]<-"Year"
 table[is.na(table)]<-''
-kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table: Aquaculture (tonnes) for ",paste(country,collapse=",")))
+tableAqua<-table
+kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table: Aquaculture (tonnes)  ","(",min(year),"-",max(year),")"," for ",paste(country,collapse=",")))
 
-write.csv2(table,"Aquaculture_tons.csv",row.names=FALSE)
 ```
 ---
 ---
@@ -297,8 +363,7 @@ write.csv2(table,"Aquaculture_tons.csv",row.names=FALSE)
 ---
 ---
 
-```{r,echo=FALSE}
-setwd("C:/Users/cboulenger/Documents/test_wgeel")
+```{r release G,echo=FALSE}
 
 ##Table release (nb) for all the countries for G
 
@@ -327,16 +392,15 @@ table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.a
 # options(knitr.kable.NA="") this does not work
 names(table)[1]<-"Year"
 table[is.na(table)]<-''
-kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table: Release (nb in millions) of glass eels for ",paste(country,collapse=",")))
+tableRelG<-table
+kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table: Release (nb in millions) of glass eels  ","(",min(year),"-",max(year),")"," for ",paste(country,collapse=",")))
 
-write.csv2(table,"releases_nb_G.csv",row.names=FALSE)
 
 ```
 
 ---
 ---
-```{r,echo=FALSE}
-setwd("C:/Users/cboulenger/Documents/test_wgeel")
+```{r release Y,echo=FALSE}
 
 ##Table release (nb) for all the countries for Y
 
@@ -365,16 +429,14 @@ table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.a
 # options(knitr.kable.NA="") this does not work
 names(table)[1]<-"Year"
 table[is.na(table)]<-''
-kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table: Release (nb in millions) of yellow eels for ",paste(country,collapse=",")))
-
-write.csv2(table,"releases_nb_Y.csv",row.names=FALSE)
+tableRelY<-table
+kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table: Release (nb in millions) of yellow eels  ","(",min(year),"-",max(year),")"," for ",paste(country,collapse=",")))
 
 ```
 
 ---
 ---
-```{r,echo=FALSE}
-setwd("C:/Users/cboulenger/Documents/test_wgeel")
+```{r release S,echo=FALSE}
 
 ##Table release (nb) for all the countries and S
 
@@ -403,16 +465,15 @@ table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.a
 # options(knitr.kable.NA="") this does not work
 names(table)[1]<-"Year"
 table[is.na(table)]<-''
-kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table: Release (nb in millions) of silver eels for ",paste(country,collapse=",")))
+tableRelS<-table
+kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table: Release (nb in millions) of silver eels  ","(",min(year),"-",max(year),")"," for ",paste(country,collapse=",")))
 
-write.csv2(table,"releases_nb_S.csv",row.names=FALSE)
 
 ```
 
 ---
 ---
-```{r,echo=FALSE}
-setwd("C:/Users/cboulenger/Documents/test_wgeel")
+```{r release QG,echo=FALSE}
 
 ##Table release (nb) for all the countries for QG
 
@@ -441,15 +502,14 @@ table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.a
 # options(knitr.kable.NA="") this does not work
 names(table)[1]<-"Year"
 table[is.na(table)]<-''
-kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table: Release (nb in millions) of quarantine glass eels for ",paste(country,collapse=",")))
+tableRelQG<-table
+kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table: Release (nb in millions) of quarantine glass eels  ","(",min(year),"-",max(year),")"," for ",paste(country,collapse=",")))
 
-write.csv2(table,"releases_nb_QG.csv",row.names=FALSE)
 ```
 
 ---
 ---
-```{r,echo=FALSE}
-setwd("C:/Users/cboulenger/Documents/test_wgeel")
+```{r release OG,echo=FALSE}
 
 ##Table release (nb) for all the countries
 
@@ -478,9 +538,9 @@ table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.a
 # options(knitr.kable.NA="") this does not work
 names(table)[1]<-"Year"
 table[is.na(table)]<-''
-kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table: Release (nb in millions) of ongrown eels for ",paste(country,collapse=",")))
+tableRelOG<-table
+kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table: Release (nb in millions) of ongrown eels  ","(",min(year),"-",max(year),")"," for ",paste(country,collapse=",")))
 
-write.csv2(table,"releases_nb_OG.csv",row.names=FALSE)
 ```
 ---
 ---
@@ -490,8 +550,7 @@ write.csv2(table,"releases_nb_OG.csv",row.names=FALSE)
 ---
 ---
 
-```{r ,echo=FALSE}
-setwd("C:/Users/cboulenger/Documents/test_wgeel")
+```{r corr_com_G,echo=FALSE}
 
 ##Table raw + corr commercial landings for Glass eel and every country
 landings2<-landings[landings$eel_lfs_code=="G" & landings$eel_typ_id==4,]
@@ -536,17 +595,15 @@ table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.a
 # options(knitr.kable.NA="") this does not work
 names(table)[1]<-"Year"
 table[is.na(table)]<-''
-kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table: Raw+ corr commercial landings (tonnes) for glass eels for ",paste(country,collapse=",")))
-
-write.csv2(table,"Raw_Corr_Com_landings_G.csv",row.names=FALSE)
+tableCorrLandG<-table
+kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table: Raw+ corr commercial landings (tonnes) for glass eels  ","(",min(year),"-",max(year),")"," for ",paste(country,collapse=",")))
 
 
 ```
 
 ---
 ---
-```{r ,echo=FALSE}
-setwd("C:/Users/cboulenger/Documents/test_wgeel")
+```{r corr_com_YS,echo=FALSE}
 
 ##Table raw + corr commercial landings for Glass eel and every country
 landings2<-landings[landings$eel_lfs_code %in% c("Y","S","YS") & landings$eel_typ_id==4,]
@@ -591,8 +648,41 @@ table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.a
 # options(knitr.kable.NA="") this does not work
 names(table)[1]<-"Year"
 table[is.na(table)]<-''
-kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table: Raw+ corr commercial landings (tonnes) for yellow and silver eels for ",paste(country,collapse=",")))
+tableCorLandYS<-table
+kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table: Raw+ corr commercial landings (tonnes) for yellow and silver eels  ","(",min(year),"-",max(year),")"," for ",paste(country,collapse=",")))
 
-write.csv2(table,"Raw_Corr_Com_landings_Y_S.csv",row.names=FALSE)
+
+```
+
+
+```{r save graphs and tables,echo=FALSE}
+
+#data_directory <- wg_choose.dir(caption = "Where do you want to save the tables and the graphs")
+#setwd(data_directory)
+
+write.csv2(tableComLandG,"Raw_Com_landings_G.csv",row.names=FALSE)
+write.csv2(tableComLandYS,"Raw_Com_landings_Y_S.csv",row.names=FALSE)
+write.csv2(tableRecLandYS,"Raw_Rec_landings_Y_S.csv",row.names=FALSE)
+write.csv2(tablerecLandG,"Raw_Rec_landings_G.csv",row.names=FALSE)
+write.csv2(tableAqua,"Aquaculture_tons.csv",row.names=FALSE)
+write.csv2(tableRelG,"releases_nb_G.csv",row.names=FALSE)
+write.csv2(tableRelS,"releases_nb_S.csv",row.names=FALSE)
+write.csv2(tableRelY,"releases_nb_Y.csv",row.names=FALSE)
+write.csv2(tableRelQG,"releases_nb_QG.csv",row.names=FALSE)
+write.csv2(tableRelOG,"releases_nb_OG.csv",row.names=FALSE)
+write.csv2(tableCorrLandG,"Raw_Corr_Com_landings_G.csv",row.names=FALSE)
+write.csv2(tableCorLandYS,"Raw_Corr_Com_landings_Y_S.csv",row.names=FALSE)
+
+ggsave("Raw_Com_landings_G.png", g_raw_Clanding_G, device = "png", width = 20, height = 14, 
+            units = "cm")
+ggsave("Raw_Com_landings_YS.png", g_raw_Clandings_YS, device = "png", width = 20, height = 14, 
+            units = "cm")
+ggsave("Raw_Rec_landings_G.png", g_raw_Rlandings_G, device = "png", width = 20, height = 14, 
+            units = "cm")
+ggsave("Raw_Rec_landings_YS.png", g_raw_Rlandings_YS, device = "png", width = 20, height = 14, 
+            units = "cm")
+
+
+
 ```
 
