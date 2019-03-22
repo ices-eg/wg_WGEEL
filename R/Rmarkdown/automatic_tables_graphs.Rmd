@@ -8,6 +8,10 @@ output:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+setwd("C:/Users/cboulenger/Documents/wg_WGEEL/")
+source("R/utilities/set_directory.R")
+data_directory <- wg_choose.dir(caption = "Where do you want to save the tables and the graphs")
+knitr::opts_knit$set(root.dir = data_directory)
 ```
 
 ## All the tables for the WGEEL report
@@ -587,8 +591,8 @@ kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Ta
 
 ```{r save graphs and tables,echo=FALSE}
 
-data_directory <- wg_choose.dir(caption = "Where do you want to save the tables and the graphs")
-setwd(data_directory)
+#data_directory <- wg_choose.dir(caption = "Where do you want to save the tables and the graphs")
+#setwd(data_directory)
 
 write.csv2(tableComLandG,"Raw_Com_landings_G.csv",row.names=FALSE)
 write.csv2(tableComLandYS,"Raw_Com_landings_Y_S.csv",row.names=FALSE)
@@ -602,7 +606,6 @@ write.csv2(tableRelQG,"releases_nb_QG.csv",row.names=FALSE)
 write.csv2(tableRelOG,"releases_nb_OG.csv",row.names=FALSE)
 write.csv2(tableCorrLandG,"Raw_Corr_Com_landings_G.csv",row.names=FALSE)
 write.csv2(tableCorLandYS,"Raw_Corr_Com_landings_Y_S.csv",row.names=FALSE)
-
 
 
 ```
