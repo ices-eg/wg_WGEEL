@@ -58,7 +58,7 @@ FROM datawg.t_series_ser;
 INSERT INTO datawg.t_series_ser (ser_order, ser_nameshort, ser_namelong, ser_typ_id, ser_comment, ser_uni_code, ser_lfs_code, ser_locationdescription, ser_emu_nameshort, ser_cou_code, ser_x, ser_y, geom)
 WITH 
 	series_type AS
-(SELECT typ_id FROM "ref".tr_typeseries_typ WHERE typ_name = 'yellow eel index'),
+(SELECT typ_id FROM "ref".tr_typeseries_typ WHERE typ_name = 'Yellow eel index'),
 	unit AS
 (SELECT uni_code, yss_loc_id FROM ts.t_yellowstdstock_yss JOIN unit_conversion ON yss_unit = old_unit),
 	lfs AS
@@ -75,7 +75,7 @@ FROM series_type, lfs, ts.t_yellowstdstock_yss
 	JOIN ts.t_location_loc ON yss_loc_id = loc_id
 	JOIN unit USING(yss_loc_id)
 	JOIN country ON (cou_country = loc_country)
-;--3
+;
 
 ---- transfer the data itself
 -- old data
@@ -83,25 +83,9 @@ SELECT dat_id, dat_value, dat_class_id, dat_loc_id, dat_year, dat_stage, dat_com
 FROM ts.t_data_dat JOIN ts.tr_efforttype_eft ON dat_eft_id = eft_id
 ;
 
-
 -- current table
 SELECT das_id, das_value, das_ser_id, das_year, das_comment, das_effort, das_last_update, das_qal_id
 FROM datawg.t_dataseries_das;
-
-
-
--- duplicated values, these prevent insertion into the database, we have to drop them first
--- series 
-
-with search_duplicated as (
-SELECT das_ser_id, das_year,count(*) FROM datawg.t_dataseries_das GROUP BY das_year, das_ser_id )
-select * from search_duplicated where count>1;
-
-select * from 	datawg.t_series_ser where ser_id=194;
-
-DELETE FROM datawg.t_dataseries_das where das_ser_id in (select ser_id from datawg.t_series_ser where ser_nameshort='VVed')
---ALTER TABLE datawg.t_dataseries_das add constraint c_uk_year_ser_id unique(das_year,das_ser_id);
-
 
 INSERT INTO datawg.t_dataseries_das(das_value, das_ser_id, das_year, das_comment, das_effort)
 WITH
@@ -114,8 +98,7 @@ SELECT
 	dat_comment AS das_comment, dat_effort AS das_effort
 FROM ts.t_data_dat
 	JOIN series ON yss_loc_id = dat_loc_id
-	where dat_loc_id !=49
-; --132
+;
 
 -- effort unit to be updated in series table
 WITH
@@ -135,14 +118,12 @@ FROM effort_unit
 WHERE ser_id = ef_ser_id
 ;
 
-
+--todo: !!! duplicate in ts.t_data_dat
 SELECT dat_loc_id, dat_year, count(*)
 FROM ts.t_data_dat
 GROUP BY dat_loc_id, dat_year
 HAVING count(*) > 1
 ;
-
-
 
 SELECT dat_year, count(*), min(dat_value) != max(dat_value)
 FROM ts.t_data_dat
@@ -183,7 +164,7 @@ FROM series_type, lfs, ts.t_silverprod_sil
 	JOIN ts.t_location_loc ON sil_loc_id = loc_id
 	JOIN unit USING(sil_loc_id)
 	LEFT OUTER JOIN country ON (cou_country = loc_country)
-; --9
+;
 
 ---- transfer the data itself
 -- old data
@@ -206,7 +187,7 @@ SELECT
 	dat_comment AS das_comment, dat_effort AS das_effort
 FROM ts.t_data_dat
 	JOIN series ON sil_loc_id = dat_loc_id
-;--159
+;
 
 -- effort unit to be updated in series table
 WITH
@@ -232,17 +213,17 @@ WHERE ser_id = ef_ser_id
 ---- yellow eel
 -- series
 SELECT * FROM datawg.t_series_ser, "ref".tr_typeseries_typ
-WHERE ser_typ_id = typ_id AND typ_name = 'yellow eel index';
+WHERE ser_typ_id = typ_id AND typ_name = 'Yellow eel index';
 -- data
 WITH series AS
 (SELECT * FROM datawg.t_series_ser, "ref".tr_typeseries_typ
-	WHERE ser_typ_id = typ_id AND typ_name = 'yellow eel index')
+	WHERE ser_typ_id = typ_id AND typ_name = 'Yellow eel index')
 SELECT * FROM datawg.t_dataseries_das JOIN series ON das_ser_id = ser_id
 ;
 -- data summary
 WITH series AS
 (SELECT * FROM datawg.t_series_ser, "ref".tr_typeseries_typ
-	WHERE ser_typ_id = typ_id AND typ_name = 'yellow eel index'),
+	WHERE ser_typ_id = typ_id AND typ_name = 'Yellow eel index'),
 data_series AS
 (SELECT * FROM datawg.t_dataseries_das JOIN series ON das_ser_id = ser_id)
 SELECT ser_nameshort, ser_namelong, ser_cou_code, ser_emu_nameshort, count(*), min(das_year), max(das_year)
@@ -272,9 +253,20 @@ GROUP BY ser_nameshort, ser_namelong, ser_cou_code, ser_emu_nameshort
 ;
 
 
----------------------------
+-- duplicated values, I will remove the faulty series
+-- series 
+with search_duplicated as (
+SELECT das_ser_id, das_year,count(*) FROM datawg.t_dataseries_das GROUP BY das_year, das_ser_id )
+select * from search_duplicated where count>1;
+
+
+select * from 	datawg.t_series_ser where ser_id=194;
+DELETE FROM datawg.t_dataseries_das where das_ser_id in (select ser_id from datawg.t_series_ser where ser_nameshort='VVed');
+ALTER TABLE datawg.t_dataseries_das add constraint c_uk_year_ser_id unique(das_year,das_ser_id);
+
+
+------------------------
 -- biometry DATA
--- The script to create tables is in create_databasev2.sql
 ------------------------
 -- old
 SELECT code, loc_code, loc_name, country, yr, lat, long, "temp", expl, dens, dist, sal, n, fem_len, mal_len, fem_age, mal_age, the_geom, si_loc_id
@@ -306,5 +298,5 @@ SELECT
 	loc_emu_name_short AS bit_emu_nameshort,
 	round(lat::numeric,2) AS bit_latitude, round(long::NUMERIC, 2) AS bit_longitude, silver.the_geom AS bit_geom,
 	'temp = ' || temp   || '|expl = ' || expl || '|dist = ' || dist || ' |sal = ' || sal || ' |loc_code = ' || loc_code AS bio_comment
-FROM ts.silver LEFT OUTER JOIN ts.t_location_loc ON (loc_id = si_loc_id);--180 rows
+FROM ts.silver LEFT OUTER JOIN ts.t_location_loc ON (loc_id = si_loc_id);
 
