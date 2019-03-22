@@ -37,7 +37,9 @@ ui = dashboardPage(title="ICES Data Visualisation",
             menuItem("Recruitment", tabName='recruit_tab',icon= icon("signal",lib= "font-awesome" ),
                 menuSubItem("Map",tabName="map_recruitment_tab"),
                 menuSubItem("Tables",tabName="table_recruitment_tab")),
-            
+			menuItem("Yellow and Silver series", tabName='yellow_silver_tab',icon= icon("signal",lib= "font-awesome" ),
+				menuSubItem("Map",tabName="map_yellow_silver_tab"),
+				menuSubItem("Tables",tabName="table_yellow_silver_tab")),            
             # Sliders, radiobuttons and checkboxes. These will be used by the filter function to
             # narrow down the dataset ---------------------------------------------------------------
             
@@ -553,8 +555,30 @@ ui = dashboardPage(title="ICES Data Visualisation",
                    
                          )
                )
-		        )
-        
+		        ),
+				# Yellow and Silver ----------------------------------------
+				tabItem(tabName="map_yellow_silver_tab", 
+						fluidRow(
+								
+								column(width=6,
+										h2("Map of yellow or silver eel sites"),
+										p("Click on a point for details about the series"),
+										leafletOutput("mapstation_ys", height = 600),
+										box(title = "Details about the site",
+												status = "primary",
+												solidHeader = F,
+												collapsible = F,
+												width = 12,
+												fluidRow(
+														column(width=7,uiOutput("ys_site_description")),
+														column(width=5, align="center",
+																imageOutput("recruit_site_image")                                    
+														)
+												)
+										)
+								)
+						)
+				)
         )
     )
 )
