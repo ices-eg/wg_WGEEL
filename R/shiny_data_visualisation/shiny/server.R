@@ -1090,7 +1090,7 @@ server = function(input, output, session) {
                       the_comment <- ifelse (is.na(the_series$das_comment[the_series$year==event.data$x]),
                           "No comment available", 
                           the_series$das_comment[the_series$year==event.data$x]) 
-                      the_comment <- paste( "<b>",the_comment,"</b>")
+                      the_comment <- paste( "<b>",event.data$x, " : ", the_comment,"</b>")
                     } else {
                       the_comment<- "<p> click on the other series </p>" 
                     }
@@ -1184,12 +1184,12 @@ observe({
 						
 						the_stage <- the_station$lfs_code
 						
-						the_area <- 'NP'   
-						
 						is_selected <- the_station$ser_qal_id==1
 						
 						the_title <- paste(the_namelong)
 
+						the_unit = the_station$ser_uni_code
+						
 						the_series = wger_init_ys %>%
 								dplyr::filter(ser_id==the_id)  %>% dplyr::arrange(year)
 						
@@ -1203,18 +1203,9 @@ observe({
 											title = "Year",
 											titlefont = f)
 									y <- list(
-											title = paste("Values standardized by 1960-1979 pred for the", the_area,"serie"),
+											title = paste("Values (", the_unit,")"),
 											autorange = T,
-#											range=c(min(the_series$geomean_p_std_1960_1979)-0.5,max(the_series$geomean_p_std_1960_1979)+0.5),
 											side = "left",
-											titlefont = f)
-									ay <- list(
-											tickfont = list(color = "blue"),
-											overlaying = "y",
-											side = "right",
-											title = paste("Values standardized by 1960-1979 pred for the", the_name,"serie"),
-											autorange = T,
-#											range=c(min(the_series$geomean_p_std_1960_1979)-0.5,max(the_series$geomean_p_std_1960_1979)+0.5),
 											titlefont = f)
 									
 									p <- plot_ly(the_series, 
@@ -1225,29 +1216,21 @@ observe({
 													type="scatter",
 													mode="lines+markers",
 													color = I("dodgerblue3"),
-													symbol = I('circle-open') ,
-													yaxis = "y2",
+													symbol = I('circle-open'),
 													marker = list(size = 12)) %>% 
-											#layout(title = the_title, xaxis = x, yaxis = y, yaxis2=ay) %>%
-#											add_trace(y = ~ geomean_p_std_1960_1979, 
-#													name = the_area, 
-#													color = I("gold"),
-#													symbol=I('circle-dot'),
-#													yaxis = "y",
-#													marker = list(size = 10)) %>%
-											layout(title = the_title, xaxis = x, yaxis =y, yaxis2= ay,legend = list(x = 1.10, y = 1))
+											layout(title = the_title, xaxis = x, yaxis =y,legend = list(x = 1.10, y = 1))
 									p$elementId <- NULL # a hack to remove warning : ignoring explicitly provided widget
 									p  
 								})#plotly_ys
-#						
-#						
-#						# Series text -------------------------------------------------------------------------
-#						
+						
+						
+						# Series text -------------------------------------------------------------------------
+						
 						output$ys_site_description <- renderUI({                                
 									tagList(
 											h2(iconv(the_station$ser_namelong,"UTF8")),
 											p(paste0("Location : ", iconv(the_station$ser_locationdescription,"UTF8"))),
-											p(paste0('Comments : ', iconv(the_station$ser_id,"UTF8"))))
+											p(paste0('Comments : ', iconv(the_station$ser_comment,"UTF8"))))
 								})
 
 #						# Comment for individual point --------------------------------------------------------
