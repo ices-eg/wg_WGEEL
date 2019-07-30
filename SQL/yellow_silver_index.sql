@@ -300,3 +300,11 @@ SELECT
 	'temp = ' || temp   || '|expl = ' || expl || '|dist = ' || dist || ' |sal = ' || sal || ' |loc_code = ' || loc_code AS bio_comment
 FROM ts.silver LEFT OUTER JOIN ts.t_location_loc ON (loc_id = si_loc_id);
 
+------------------------------
+-- query to the table for yellow and silver series
+-------------------------------
+
+SELECT das.*,  ser_id, ser_order, ser_nameshort, ser_namelong, ser_typ_id, ser_effort_uni_code, 
+ser_comment, ser_uni_code, ser_lfs_code, ser_hty_code, ser_locationdescription, ser_emu_nameshort, 
+ser_cou_code, ser_area_division, ser_tblcodeid, ser_x, ser_y, ser_sam_id, ser_qal_id, ser_qal_comment
+ FROM datawg.t_dataseries_das das join datawg.t_series_ser ser ON das_ser_id=ser_id WHERE ser_typ_id=3;
