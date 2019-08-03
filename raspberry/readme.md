@@ -89,9 +89,27 @@ and restart PostgreSQL:
 sudo /etc/init.d/postgresql restart
 ```
 Copy database to postgres (step for shiny server .... cedric)
+
 ```shell
 psql -U postgres -h 192.168.1.164 -c "create database wgeel" postgres
 ```
+
+From local linux to use psql (use u lowercase)
+
+```shell
+sudo -u postgres psql
+```
+
+To change user in the linux term
+
+```shell
+sudo su - postgres
+dropuser wgeel
+createuser --createdb --pwprompt --createrole wgeel
+```
+
+
+
 ## git
 Install git software:
 

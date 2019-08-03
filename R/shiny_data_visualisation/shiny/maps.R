@@ -607,7 +607,7 @@ b_map <- function(dataset=precodata_all,
 #' @description load needed maps for shiny App (EMU, country)
 #' @param full_load should the maps be loaded from source file? if not from Rdata file
 #' @param to_save should maps be save into a Rdata file to ease the loading next time
-#' @details this is now saved in data/shapefiles, it is added to the ignore list, so ask for it in your own git
+#' @details this is now saved in data/, it is added to the ignore list, so ask for it in your own git
 #' @details using sf package the spatial data from the database (emu and country) can be imported directly, so we don't need to save data in shapefiles (pgsql2shp)
 #' @details methods(class = 'sfc')
 load_maps = function(full_load = FALSE, to_save = FALSE)
@@ -650,7 +650,7 @@ load_maps = function(full_load = FALSE, to_save = FALSE)
 		country_c <- st_centroid(country_no_empty_geom$geom)
 		
 		# transform spatial point dataframe to 
-		if(to_save) save(emu_c,country_p,emu_p,country_c,file=str_c(data_directory,"/maps_for_shiny.Rdata")) # TODO: should be taken in ref table directory
+		if(to_save) save(emu_c,country_p,emu_p,country_c,file=str_c(data_directory,"/maps_for_shiny.Rdata"))
 	} else 
 	{
 		if(!exists("data_directory")) 
