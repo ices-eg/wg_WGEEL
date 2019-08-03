@@ -11,8 +11,6 @@ load_package("glue")
 if(is.null(options()$sqldf.RPostgreSQL.user)) {
   # extraction functions
 source("../../database_interaction/database_connection.R")
-
-
 }
 source("../../database_interaction/database_reference.R")
 source("../../database_interaction/database_data.R")

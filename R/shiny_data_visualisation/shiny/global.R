@@ -17,7 +17,13 @@
 # they are not in version control, they will be dropped on the sharepoint
 # they need to be copied to 
 # WGEEL\data
+source("set_directory.R")
 
+# connection to database
+# this is now in load_data_from_database.R
+# source("R/database_interaction/database_connection.R")
+
+source("load_library.R")
 #-----------------
 # shiny libraries
 #-----------------
@@ -64,7 +70,7 @@ load_package("leaflet.minicharts")
 jscode <- "shinyjs.closeWindow = function() { window.close(); }"
 
 
-source("../../stock_assessment/preco_diagram.R")
+source("preco_diagram.R")
 source("graphs.R")
 source("maps.R")
 
