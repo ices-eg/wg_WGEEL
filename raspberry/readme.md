@@ -107,6 +107,13 @@ sudo su - postgres
 dropuser wgeel
 createuser --createdb --pwprompt --createrole wgeel
 ```
+Prompt for superuser password change
+
+```shell
+sudo su - postgres
+\passord 
+test with pslq -U postgres --password
+```
 
 
 
@@ -142,6 +149,26 @@ To update your git:
 ```shell
 cd WGEEL-git/wg_WGEEL
 git pull
+```
+
+CEDRIC : when trying to setup a server
+
+problems with git : it is difficult to pull part of the directory, on top of that, data and www files will not
+be updated. The architecture of the shiny server must be as following
+
++---/srv/shiny-server
+|   +---shinyApp1
+|       +---server.R
+|       +---ui.R
+|   +---shinyApp2
+|       +---server.R
+|       +---ui.R
+|   +---assets
+|       +---style.css
+|       +---script.js
+
+```shell
+sudo mkdir -m 777 shiny_dv
 ```
 #R
 Install R software
