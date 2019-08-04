@@ -49,7 +49,9 @@ Recruitment => No data
 			COMMENT ON COLUMN ref.tr_station."Country" IS 'country responsible of the data collection ?';<br/>
 			COMMENT ON COLUMN ref.tr_station."WLTYP" IS 'Water and land station types ';<br/>
 			COMMENT ON COLUMN ref.tr_station."PURPM" IS 'Purpose of monitoring http://vocab.ices.dk/?ref=1399';<br/>
-* **NOTE**  This series will be names hell			
+* **NOTE**  This series will be names hell		
+* **NOTE** Cannot use the effort as it stands, it should be a numeric, with effort, so I'm putting the season monitored which never changes (total season 1 april-1 november) into the series description.
+* *CHECK* Biometry 70-100 mm is a text not a numeric what should I do ?
 			
 
 
