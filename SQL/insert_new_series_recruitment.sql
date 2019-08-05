@@ -1,5 +1,6 @@
 ﻿----------------------------------------------------
 -- Insert new series for Denmark
+-- Note shift to script_manual_insertion.R
 ---------------------------------------------------------
 SELECT * FROM datawg.t_series_ser where ser_cou_code='DK';
 SELECT * FROM datawg.t_series_ser where ser_nameshort='Hell'; -- nothing 
@@ -10,9 +11,6 @@ SELECT * FROM ref.tr_station where "Country"='DENMARK';
 -- the new value will be inserted in the last row from Denmark (8) so 8 becomes 9
 
 begin;
-
-update datawg.t_series_ser set ser_order=ser_order+1 where ser_order>=8;
-
 -- first we need to insert the station
 INSERT INTO ref.tr_station( "tblCodeID",
 "Station_Code",
@@ -28,7 +26,7 @@ INSERT INTO ref.tr_station( "tblCodeID",
 "Notes") 
 select max("tblCodeID")+1,
        max("Station_Code")+1,
-       'DK' as "Country",
+       'DANEMARK' as "Country",
        'DTU Aqua' as "Organisation",
 	'Hell' as "Station_Name",
 	 NULL as "WLTYP",
@@ -38,8 +36,8 @@ select max("tblCodeID")+1,
 	NULL as "EndYear",
 	'S~T' as "PURPM", -- Not sure there
 	NULL as "Notes"
-from ref.tr_station;
-update datawg.t_series_ser set ser_order=ser_order+1 where ser_order>=63;
+from ref.tr_station; --1 
+update datawg.t_series_ser set ser_order=ser_order+1 where ser_order>=8; --86
 INSERT INTO  datawg.t_series_ser(
           ser_order, 
           ser_nameshort, 
@@ -59,38 +57,30 @@ INSERT INTO  datawg.t_series_ser(
           ser_y, 
           ser_sam_id,
           ser_qal_id,
-          ser_qal_comment) 
+          ser_qal_comment,
+          geom) 
           SELECT   
-          63 as ser_order, 
-          'Mond' ser_nameshort, 
-          'Mondego estuary' as ser_namelong, 
+          8 as ser_order, 
+          'Hell' ser_nameshort, 
+          'Hellebaekken' as ser_namelong, 
           1 as ser_typ_id, 
-          'nr day' as ser_effort_uni_code, 
-          'Experimental fishing in Mondego estuary using stow net, 5 km from the sea' as ser_comment, 
-          'kg' as ser_uni_code, 
-          'G' as ser_lfs_code, 
-          'T' as ser_hty_code, 
-          'Mondego estuary 5 km from the sea' as ser_locationdescription, 
-          'PT_Port' as ser_emu_nameshort, 
-          'PT' as ser_cou_code, 
-          '27.9.a' as ser_area_division,
+          NULL as ser_effort_uni_code, 
+          'Glass and young of the year trap at the interface of freshwater/marine' as ser_comment, 
+          'nr' as ser_uni_code, 
+          'GY' as ser_lfs_code, 
+          'T' as ser_hty_code, -- TODO check that
+          'Trap in small stream at the marine borderline, monitored from 1 april to 1 november ' as ser_locationdescription, 
+          'DK_Inla' as ser_emu_nameshort, 
+          'DK' as ser_cou_code, 
+          '27.3.a' as ser_area_division,
           "tblCodeID" as ser_tblcodeid, -- this comes from station
-          -8.82 as ser_x, 
-          40.14 as ser_y, 
+          12.55 as ser_x, 
+          56.70 as ser_y, 
           3 as ser_sam_id, -- scientific estimate
-          0 as ser_qal_id,
-          'Series too short yet < 10 years to be included' as ser_qal_comment from ref.tr_station
-          where  "Station_Name" = 'Mond';
+          0 as ser_qal_id, -- currenly 8 years
+          'Series too short yet < 10 years to be included' as ser_qal_comment,
+          ST_SetSRID(ST_MakePoint(12.55, 56.70),4326)
+          from ref.tr_station
+          where  "Station_Name" = 'Hell';--1
 COMMIT;
 
-begin;
-update datawg.t_series_ser set geom=ST_SetSRID(ST_MakePoint(ser_x, ser_y),4326) where ser_nameshort='HoS';
-commit;
-
-begin;
-update datawg.t_series_ser set geom=ST_SetSRID(ST_MakePoint(ser_x, ser_y),4326) where ser_nameshort='FlaG';
-commit;
-
-begin;
-update datawg.t_series_ser set geom=ST_SetSRID(ST_MakePoint(ser_x, ser_y),4326) where ser_nameshort='Mond';
-commit;

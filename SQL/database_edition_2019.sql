@@ -126,3 +126,17 @@ UPDATE ref.tr_typeseries_typ SET typ_name = LOWER(typ_name);
 
 -- minor correction
 COMMENT ON COLUMN datawg.t_series_ser.geom IS 'internal use, a postgis geometry point in EPSG:3035 (ETRS89 / ETRS-LAEA)';
+
+select * from ref.tr_quality_qal;
+BEGIN;
+INSERT INTO ref.tr_quality_qal (qal_id ,
+  qal_level,
+  qal_text,
+  qal_kept) VALUES
+(
+19,
+'discarded_wgeel_2019',
+'This data has either been removed from the database in favour of new data, or corresponds to new data not kept in the database during datacall 2019',
+FALSE);--1
+COMMIT;
+  

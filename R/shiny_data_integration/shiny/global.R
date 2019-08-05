@@ -117,6 +117,6 @@ source("graphs.R")
 # CHANGE THIS LINE AT THE NEXT DATACALL AND WHEN TEST IS FINISHED
 # BEFORE WGEEL sqldf('delete from datawg.t_eelstock_eel where eel_datasource='datacall_2018_test')
 ########################
-qualify_code<-18 # change this code here and in tr_quality_qal for next wgeel
-the_eel_datasource <- "dc_2018"
+qualify_code<-19 # change this code here and in tr_quality_qal for next wgeel
+the_eel_datasource <- "dc_2019"
 #the_eel_datasource <- "dc_2018"
