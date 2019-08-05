@@ -43,6 +43,8 @@ COMMIT;
 
 Create also this code in the reference table `ref.tr_datasource_dts`
 
+
+
 The table of current users of the app is created in `datawg.participants`, update this with the wgeel participant list before wgeel.
 
 Change can also be done in 
