@@ -26,25 +26,33 @@ load_library("getPass")
 port <- 5432
 host <- "localhost"#"192.168.0.100"
 
+# remove this so as not to upset Laurent
+if (Sys.info()[["user"]]!="cedric.briand"){
+	stop("please change lines in database_connection lines 31 32,
+					this connection is currently set to Cédric to save his time")
+} else {
+	userwgeel <-"wgeel"
+	passwordwgeel<-"wgeel"
+}
 
 if (exists("userwgeel")) 
 { #Cedric's special configuration
-  user <-userwgeel
-  if (!exists("passwordwgeel")) stop("There should be a passwordwgeel")
-  pwd <- passwordwgeel
-    options(sqldf.RPostgreSQL.user = user,  
-		sqldf.RPostgreSQL.password = pwd,
-		sqldf.RPostgreSQL.dbname = "wgeel",
-		sqldf.RPostgreSQL.host = host, #getInformation("PostgreSQL host: if local ==> localhost"), 
-		sqldf.RPostgreSQL.port = port)
+	user <-userwgeel
+	if (!exists("passwordwgeel")) stop("There should be a passwordwgeel")
+	pwd <- passwordwgeel
+	options(sqldf.RPostgreSQL.user = user,  
+			sqldf.RPostgreSQL.password = pwd,
+			sqldf.RPostgreSQL.dbname = "wgeel",
+			sqldf.RPostgreSQL.host = host, #getInformation("PostgreSQL host: if local ==> localhost"), 
+			sqldf.RPostgreSQL.port = port)
 } else {
 	user<-getPass("Enter the USER: ")
 	pwd<-getPass()
-    options(sqldf.RPostgreSQL.user = user,  
-		sqldf.RPostgreSQL.password = pwd,
-		sqldf.RPostgreSQL.dbname = "wgeel",
-		sqldf.RPostgreSQL.host = host, #getInformation("PostgreSQL host: if local ==> localhost"), 
-		sqldf.RPostgreSQL.port = port)
+	options(sqldf.RPostgreSQL.user = user,  
+			sqldf.RPostgreSQL.password = pwd,
+			sqldf.RPostgreSQL.dbname = "wgeel",
+			sqldf.RPostgreSQL.host = host, #getInformation("PostgreSQL host: if local ==> localhost"), 
+			sqldf.RPostgreSQL.port = port)
 }
 
 # options for PostgresSQL

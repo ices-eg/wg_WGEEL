@@ -139,4 +139,18 @@ INSERT INTO ref.tr_quality_qal (qal_id ,
 'This data has either been removed from the database in favour of new data, or corresponds to new data not kept in the database during datacall 2019',
 FALSE);--1
 COMMIT;
+
+
+select * from ref.tr_datasource_dts;
+BEGIN;
+INSERT INTO ref.tr_datasource_dts  VALUES
+(
+'dc_2019',
+'Joint EIFAAC/GFCM/ICES Eel Data Call 2019');--1
+COMMIT;
   
+-- grant rights to wgeel otherwise problems with shiny
+GRANT ALL ON SEQUENCE datawg.log_log_id_seq TO wgeel;
+GRANT ALL ON schema datawg TO wgeel;
+
+GRANT ALL ON SEQUENCE datawg.t_eelstock_eel_eel_id_seq to wgeel;

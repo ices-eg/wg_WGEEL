@@ -43,7 +43,15 @@ COMMIT;
 
 Create also this code in the reference table `ref.tr_datasource_dts`
 
-
+```sql
+select * from ref.tr_datasource_dts;
+BEGIN;
+INSERT INTO ref.tr_datasource_dts  VALUES
+(
+'dc_2019',
+'Joint EIFAAC/GFCM/ICES Eel Data Call 2019');--1
+COMMIT;
+```
 
 The table of current users of the app is created in `datawg.participants`, update this with the wgeel participant list before wgeel.
 

@@ -32,7 +32,7 @@ ui <- dashboardPage(title="ICES Data Integration",
             inputId = "secondary_assessor",
             label = "Secondary assessor (Data)", 
             choices = participants,
-            selected="Cedric Briand"
+            selected="Jan-Dag Pohlmann"
         
         )
     ), 

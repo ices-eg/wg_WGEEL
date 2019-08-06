@@ -8,6 +8,7 @@
 ############# CATCH AND LANDINGS #############################################
 
 # path<-file.choose()
+# datasource<-the_eel_datasource
 load_catch_landings<-function(path,datasource){
   data_error <- data.frame(nline = NULL, error_message = NULL)
   the_metadata<-list()
@@ -182,7 +183,7 @@ load_catch_landings<-function(path,datasource){
             type="character"))
     
 # should not have any missing value
-    data_error= rbind(data_error, check_missing(dataset=data_xls,
+    data_error= rbind(data_error, check_missing(dataset=data_xls[data_xls$eel_hty_code!='F',],
             column="eel_area_division",
             country=country))
     
@@ -213,7 +214,7 @@ load_catch_landings<-function(path,datasource){
     data_error= rbind(data_error, check_values(dataset=data_xls,
             column="eel_datasource",
             country=country,
-            values=c("dc_2017","wgeel_2016","wgeel_2017","dc_2018")))
+            values=c("dc_2017","wgeel_2016","wgeel_2017","dc_2018","dc_2019")))
     
     ###### freshwater shouldn't have area ########################
     
@@ -406,7 +407,7 @@ load_release<-function(path,datasource){
             country=country,
             type="character"))
     # should not have any missing value
-    data_error= rbind(data_error, check_missing(dataset=data_xls,
+    data_error= rbind(data_error, check_missing(dataset=data_xls[data_xls$eel_hty_code!='F',],
             column="eel_area_division",
             country=country))
     # the dataset ices_division should have been loaded there
@@ -414,6 +415,16 @@ load_release<-function(path,datasource){
             column="eel_area_division",
             country=country,
             values=ices_division))
+###### eel_datasource ############## 
+
+data_error= rbind(data_error, check_missing(dataset=data_xls,
+				column="eel_datasource",
+				country=country))
+
+data_error= rbind(data_error, check_values(dataset=data_xls,
+				column="eel_datasource",
+				country=country,
+				values=c("dc_2017","wgeel_2016","wgeel_2017","dc_2018","dc_2019")))
 
     
     ###  deal with eel_value_number and eel_value_kg to import to database
@@ -614,6 +625,18 @@ load_aquaculture<-function(path,datasource){
             column="eel_lfs_code",
             country=country,
             values=c("G","GY","Y","YS","S","OG","QG","AL")))
+
+###### eel_datasource ############## 
+
+data_error= rbind(data_error, check_missing(dataset=data_xls,
+				column="eel_datasource",
+				country=country))
+
+data_error= rbind(data_error, check_values(dataset=data_xls,
+				column="eel_datasource",
+				country=country,
+				values=c("dc_2017","wgeel_2016","wgeel_2017","dc_2018","dc_2019")))
+
     
     ###### freshwater shouldn't have area ########################
     

@@ -21,7 +21,7 @@ https://community.ices.dk/ExpertGroups/wgeel/WGEEL%20accessions/Data%20call%2020
 			"EndYear",<br/>
 			"PURPM",'Purpose of monitoring http://vocab.ices.dk/?ref=1399'<br/>
 			"Notes") <br/>
-
+* **NOTE**  The reference list for emu is wrong in landings original file, it should not integrate outside emu, there is a script to generate referential tables, run it to provide the right references during wgeel
 
 # Series integration 
 
@@ -65,5 +65,68 @@ NorsA Klet Sle
 OK
 
 
+### Landings
+
+The values `DK_outside_emu` should be replace by `DK_total`, it was decided to remove all outside emu data,
+corrected uppercase hty, added cou_code, removed area from freshwater, no duplicates
+
+```
+column <eel_emu_nameshort>, line <4>, value <DK_outside_emu> is wrong 
+column <eel_emu_nameshort>, line <5>, value <DK_outside_emu> is wrong 
+column <eel_emu_nameshort>, line <6>, value <DK_outside_emu> is wrong 
+column <eel_cou_code>, missing values line 1 
+ column <eel_cou_code>, missing values line 2 
+ column <eel_cou_code>, missing values line 3 
+ column <eel_cou_code>, missing values line 4 
+ column <eel_cou_code>, missing values line 5 
+ column <eel_cou_code>, missing values line 6 
+column <eel_hty_code>, line <4>, value <c> is wrong 
+ column <eel_hty_code>, line <5>, value <c> is wrong 
+ column <eel_hty_code>, line <6>, value <c> is wrong 
+ line <1>, there should not be any area divsion in freshwater 
+ line <2>, there should not be any area divsion in freshwater 
+ line <3>, there should not be any area divsion in freshwater
+ ```
+ 
+###  Release
+ 
+ ```
+ release 
+column <eel_emu_nameshort>, missing values line 4 
+ column <eel_emu_nameshort>, missing values line 5 
+ column <eel_emu_nameshort>, missing values line 6 
+line <1>, there should not be any area divsion in freshwater 
+ line <2>, there should not be any area divsion in freshwater 
+ line <3>, there should not be any area divsion in freshwater 
+ ```
+ 
+ There are 3 lines for Dk_Inla but only one EMU, you cannot have area division in Freshwater, 
+ so I've added the 3 lines.
+ 
+ 
+ ## Spain
+ 
+ ### catch
+ 
+ MARIA or Esti praise for you for spotting the wrong `eel_area_division` the best was to remove those lines
+ and re-inserting again.
+ 
+ 
+```sql
+  BEGIN;
+DELETE FROM datawg.t_eelstock_eel  where eel_area_division in ('37.1.2','37.1.3') and eel_cou_code='ES';
+COMMIT;
+```
+Value for datacall 2019 was dc_2019 => corrected
+
+```
+13 new values inserted in the database
+For duplicates 6 values replaced in the database (old values kept with code eel_qal_id=19),
+            0 values not replaced (values from current datacall stored with code eel_qal_id 19)
+```
 
 
+
+
+ 
+ 
