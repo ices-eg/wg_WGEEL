@@ -100,15 +100,15 @@ line <1>, there should not be any area divsion in freshwater
  line <3>, there should not be any area divsion in freshwater 
  ```
  
- There are 3 lines for Dk_Inla but only one EMU, you cannot have area division in Freshwater, 
+* **NOTE** There are 3 lines for Dk_Inla but only one EMU, you cannot have area division in Freshwater, 
  so I've added the 3 lines.
  
  
- ## Spain
+## Spain
  
- ### catch
+### Landings
  
- MARIA or Esti praise for you for spotting the wrong `eel_area_division` the best was to remove those lines
+* **NOTE**  MARIA or Esti praise for you for spotting the wrong `eel_area_division` the best was to remove those lines
  and re-inserting again.
  
  
@@ -117,7 +117,7 @@ line <1>, there should not be any area divsion in freshwater
 DELETE FROM datawg.t_eelstock_eel  where eel_area_division in ('37.1.2','37.1.3') and eel_cou_code='ES';
 COMMIT;
 ```
-Value for datacall 2019 was dc_2019 => corrected
+* **NOTE** Value for datacall 2019 was dc_2019 => corrected
 
 ```
 13 new values inserted in the database
@@ -125,8 +125,16 @@ For duplicates 6 values replaced in the database (old values kept with code eel_
             0 values not replaced (values from current datacall stored with code eel_qal_id 19)
 ```
 
-
-
+### Release
+ 
+  * **NOTE** All names should be `release_n`, it's later on that the script will split up the two columns `release_n` and `release_kg`
+ 
+| 2018 | new  | conflicts | no change |
+|:----:|:----:|:---------:|:---------:|
+| 2018 | 6    | 0         | 0         |
+| 2019 | 10   | 0         | 0         |
+| 2020 | 2    | 0         | 0         |
+ 
 
  
  
