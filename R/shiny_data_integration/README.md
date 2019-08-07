@@ -376,7 +376,7 @@ The `replaced` data are inserted in the database, there is a check at the beginn
 ```
 ### Inserting new rows 
 
-Same trick, use of a temp table with sqldf, and DBI to catch errors.
+Same trick, use of a temp table with sqldf, and DBI to catch errors. 
 
 ## Data corrections tab
 

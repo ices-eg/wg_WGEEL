@@ -127,13 +127,40 @@ For duplicates 6 values replaced in the database (old values kept with code eel_
 
 ### Release
  
-  * **NOTE** All names should be `release_n`, it's later on that the script will split up the two columns `release_n` and `release_kg`
+* **NOTE** All names should be `release_n`, it's later on that the script will split up the two columns `release_n` and `release_kg`
+* *CHECK* You have values for 2020 I this is obviously a mistake, I changed to 2019 correct ?
  
-| 2018 | new  | conflicts | no change |
+| year | new  | conflicts | no change |
 |:----:|:----:|:---------:|:---------:|
 | 2018 | 6    | 0         | 0         |
 | 2019 | 10   | 0         | 0         |
-| 2020 | 2    | 0         | 0         |
+
+* **NOTE** The last line is a duplicate fom previous line but with values wrong (57 kg glass eel is about 17000 not 170000 + this was the 2020 line ... I'm dropping this line.  
+
+```
+ 16 new values inserted in the database
+ ```
+ * *MISSING* You have not submitted aquaculture but you have some no ?
+ 
+ 
+## Estonia
+
+### Landings
+
+| year | new  | conflicts | no change |
+|:----:|:----:|:---------:|:---------:|
+| 2018 | 6    | 0         | 0         |
+
+
+### Releases
+
+* **NOTE** `Removed eel_missvaluequal`
+| year | new  | conflicts | no change |
+|:----:|:----:|:---------:|:---------:|
+| 2018 | 2    | 0         | 0         |
+
+### Aquaculture
+ 
  
 
  
