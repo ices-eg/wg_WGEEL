@@ -9,8 +9,8 @@
 ########################
 # the shiny is launched from shiny_data_integration/shiny
 # debug tool
-#setwd("C:\\Users\\cedric.briand\\Documents\\GitHub\\WGEEL\\R\\shiny_data_integration\\shiny")
-source("../../utilities/load_library.R")
+#setwd("C:\\Users\\cedric.briand\\Documents\\GitHub\\WGEEL\\R\\shiny_data_integration\\shiny_di")
+source("load_library.R")
 load_package("shiny")
 load_package("shinythemes")
 load_package("DT")
@@ -52,66 +52,35 @@ if(packageVersion("glue")<"1.2.0.9000"){
   devtools::install_github('tidyverse/glue')
 }
 
-source("../../database_interaction/database_connection.R")
+#source("database_connection.R")
 
-# Define pool handler by pool on global level
-pool <- pool::dbPool(drv = dbDriver("PostgreSQL"),
-    dbname="wgeel",
-    host=host,
-    port=port,
-    user= user,
-    password= pwd)
-
-onStop(function() {
-        poolClose(pool)
-    }) # important!
-
-
+load(file=str_c(getwd(),"/common/data/init_data.Rdata"))
+# liste des champs permettant de charger l'interface
 
 
 # below dbListFields from R postgres doesn't work, so I'm extracting the colnames from 
 # the table to be edited there
-query <- "SELECT column_name
-        FROM   information_schema.columns
-        WHERE  table_name = 't_eelstock_eel'
-        ORDER  BY ordinal_position"
-t_eelstock_eel_fields <- dbGetQuery(pool, sqlInterpolate(ANSI(), query))     
-t_eelstock_eel_fields <- t_eelstock_eel_fields$column_name
-
-query <- "SELECT cou_code,cou_country from ref.tr_country_cou order by cou_country"
-list_countryt <- dbGetQuery(pool, sqlInterpolate(ANSI(), query))   
-list_country <- list_countryt$cou_code
-names(list_country) <- list_countryt$cou_country
-
-query <- "SELECT * from ref.tr_typeseries_typ order by typ_name"
-tr_typeseries_typt <- dbGetQuery(pool, sqlInterpolate(ANSI(), query))   
-typ_id <- tr_typeseries_typt$typ_id
-tr_typeseries_typt$typ_name <- tolower(tr_typeseries_typt$typ_name)
-names(typ_id) <- tr_typeseries_typt$typ_name
-# tr_type_typ<-extract_ref('Type of series') this works also !
-
-query <- "SELECT min(eel_year) as min_year, max(eel_year) as max_year from datawg.t_eelstock_eel eel_cou "
-the_years <- dbGetQuery(pool, sqlInterpolate(ANSI(), query))   
-
-query <- "SELECT name from datawg.participants"
-participants<- dbGetQuery(pool, sqlInterpolate(ANSI(), query))  
 
 
-source("../../utilities/loading_functions.R")
-source("../../utilities/check_utilities.R")
-source("../../database_interaction/database_data.R")
-source("../../database_interaction/database_reference.R")
 
-
-ices_division <- extract_ref("FAO area")$f_code
-emus <- extract_ref("EMU")
-
+source("loading_functions.R")
+source("check_utilities.R")
+source("database_data.R") #function extract_data
+source("database_reference.R") # function extract_ref
 
 # Local shiny files ---------------------------------------------------------------------------------
 
 source("database_tools.R")
 source("graphs.R")
-
+#pool <- pool::dbPool(drv = dbDriver("PostgreSQL"),
+#		dbname="postgres",
+#		host="localhost",
+#		port=5432,
+#		user= "test",
+#		password= "test")
+onStop(function() {
+			poolClose(pool)
+		}) # important!
 # VERY IMPORTANT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -------------------------------------------------
 ##########################
 # CHANGE THIS LINE AT THE NEXT DATACALL AND WHEN TEST IS FINISHED

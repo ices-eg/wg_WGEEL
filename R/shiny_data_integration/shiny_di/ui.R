@@ -34,7 +34,10 @@ ui <- dashboardPage(title="ICES Data Integration",
             choices = participants,
             selected="Jan-Dag Pohlmann"
         
-        )
+        ),
+		passwordInput("password", "Password:"),
+		actionButton("passwordbutton", "Go")
+	
     ), 
     
     ################################################################################################
@@ -51,6 +54,7 @@ ui <- dashboardPage(title="ICES Data Integration",
             tabItem(tabName="import",
                 h2("Datacall Integration and checks"),
                 br(),
+				verbatimTextOutput("passwordtest"),
                 h2("step 0 : Data check"),
                 fluidRow(
                     column(width=4,fileInput("xlfile", "Choose xls File",
