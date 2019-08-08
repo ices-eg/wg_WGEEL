@@ -1,5 +1,10 @@
 # INFORMATIONS ABOUT DATA CALL INTEGRATION 2019
 
+_Cédric Briand and Jan-Dag Pohlmann_
+
+----------------------------------
+
+
 # General notes
 
 Some files are in WGEEL accession, the rest have been collected by Jan Dag
@@ -27,17 +32,17 @@ https://community.ices.dk/ExpertGroups/wgeel/WGEEL%20accessions/Data%20call%2020
 
 # Series integration 
 
-## Greece
+## GREECE
 
 Recruitment
 https://community.ices.dk/ExpertGroups/wgeel/WGEEL%20accessions/Data%20call%202019/Eel_Data_Call_Annex1_Recruitment_GR.xlsx
 => No data
 
-## Lithuania
+## LITHUANIA
 
 Recruitment => No data 
 
-## Denmark
+## DENMARK
 
 ### Recruitment 
 
@@ -106,7 +111,7 @@ line <1>, there should not be any area divsion in freshwater
  so I've added the 3 lines.
  
  
-## Spain
+## SPAIN
  
 ### Landings
  
@@ -145,7 +150,7 @@ For duplicates 6 values replaced in the database (old values kept with code eel_
  * *MISSING* You have not submitted aquaculture but you have some no ?
  
  
-## Estonia
+## ESTONIA
 
 ### Landings
 
@@ -195,4 +200,7 @@ For duplicates 0 values replaced in the database (old values kept with code eel_
 For New 8 new values inserted in the database
 
 ```
+
+### Release
+
  
