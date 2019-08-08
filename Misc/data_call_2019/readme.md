@@ -205,7 +205,7 @@ For New 8 new values inserted in the database
 
 ## UK
 
-###landings
+### landings
 
 | year | new  | conflicts | no change |
 |:----:|:----:|:---------:|:---------:|
