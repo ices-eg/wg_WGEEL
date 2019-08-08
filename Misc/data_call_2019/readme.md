@@ -203,4 +203,11 @@ For New 8 new values inserted in the database
 
 ### Release
 
+## UK
+
+###landings
+| year | new  | conflicts | no change |
+|:----:|:----:|:---------:|:---------:|
+| 2018 | 27 | 3 | 2 |
+| 2019 | 42 | 0 | 0 |
  
