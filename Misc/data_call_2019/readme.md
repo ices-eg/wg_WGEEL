@@ -22,6 +22,8 @@ https://community.ices.dk/ExpertGroups/wgeel/WGEEL%20accessions/Data%20call%2020
 			"PURPM",'Purpose of monitoring http://vocab.ices.dk/?ref=1399'<br/>
 			"Notes") <br/>
 * **NOTE**  The reference list for emu is wrong in landings original file, it should not integrate outside emu, there is a script to generate referential tables, run it to provide the right references during wgeel
+* **NOTE**  INTEGRATION PROCEDURE I've checked, if you don't intend to keep any data in duplicates excel file you don't need to put a code in `eel_qal_id` weel you can but it will be replace by `qualify_code (19)` taken from `global.R`. In fact you only need to qualify the lines that you want (`keep_new_value=TRUE`).
+
 
 # Series integration 
 
@@ -171,7 +173,7 @@ No linges
 * **NOTE** Changed emu name to FI_total otherwise it's creating duplicates
 * **NOTE** Removed wrong entries NC where no data, changed 2018 value in recreational landings to ND (the alternative could have been not to report any data.
 * **CHECK** Changed type `com_landings` to `other_landings`in Landings in Freshwater with comment as "Trap and transport" fish from freshwater to the sea in one location, otherwise 0 kg. I've checked the value in landings in Freshwater from 2014 to 2018 corresponding to those lines. It was 0 for 2014 and then NULL and marked either as `not collected` or `not reported` or zero. So there will not be any duplicates for those data and these line will stay in the database. I think it's OK but please check.
-* **NOTE**  When checking the duplicates, there is no change in the data, so I will not update the database. You didn't have to report data that were already in, next year we will again provide you the data as they are in the database, please use that to check and only ask for corrections.
+* **NOTE**  When checking the duplicates, there is no change in the data, so I will not update the database. You didn't have to report data that were already in, next year we will again provide you the data as they are in the database, please use that to check and only ask for corrections. The table reports that there is no data in 2018 though we will integrate one line with ND.
  
  | year | new  | conflicts | no change |
 |:----:|:----:|:---------:|:---------:|
@@ -185,4 +187,5 @@ No linges
 | 2015 | 1 | 0 | 1 |
 | 2016 | 1 | 0 | 1 |
 | 2017 | 1 | 0 | 1 |
+
  

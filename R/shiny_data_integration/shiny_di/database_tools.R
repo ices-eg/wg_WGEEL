@@ -117,7 +117,7 @@ compare_with_database <- function(data_from_excel, data_from_base) {
 #'  }
 #' }
 #' @rdname write_duplicate
-write_duplicates <- function(path, qualify_code = 18) {
+write_duplicates <- function(path, qualify_code = 19) {
   
   duplicates2 <- read_excel(path = path, sheet = 1, skip = 1)
   
