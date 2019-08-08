@@ -238,6 +238,8 @@ updating the series
   * ShiF data as of 13th Aug 2018 / updated 2019 989>129  
   **CHECK** Could you check there has been an inversion in two series when compared to last year. So there is a least one mistake. I put the two series with qal_id 4
   * stra 349 inserted 2019 by Derek Evans
+
+
 Series info => thanks for the updated description, it's in  !
 * **MISSING** I have no data for sites Grey (which is now an official series as > 10 years), BroG (8 years), BeeG (11 years), FlaE (10 years), FlaG ...
 
