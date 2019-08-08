@@ -188,4 +188,11 @@ No linges
 | 2016 | 1 | 0 | 1 |
 | 2017 | 1 | 0 | 1 |
 
+```
+For duplicates 0 values replaced in the database (old values kept with code eel_qal_id=19),
+36 values not replaced (values from current datacall stored with code eel_qal_id 19)
+
+For New 8 new values inserted in the database
+
+```
  
