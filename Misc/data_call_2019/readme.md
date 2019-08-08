@@ -206,6 +206,7 @@ For New 8 new values inserted in the database
 ## UK
 
 ###landings
+
 | year | new  | conflicts | no change |
 |:----:|:----:|:---------:|:---------:|
 | 2018 | 27 | 3 | 2 |
