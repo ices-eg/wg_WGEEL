@@ -23,10 +23,10 @@ wd<-getwd()
 
 
 options(sqldf.RPostgreSQL.user = "postgres", 
-	sqldf.RPostgreSQL.password = passwordlocal,
-	sqldf.RPostgreSQL.dbname = "wgeel",
-	sqldf.RPostgreSQL.host = "localhost",
-	sqldf.RPostgreSQL.port = 5432)
+		sqldf.RPostgreSQL.password = passwordlocal,
+		sqldf.RPostgreSQL.dbname = "wgeel",
+		sqldf.RPostgreSQL.host = "localhost",
+		sqldf.RPostgreSQL.port = 5432)
 
 # this is where I store the xl files
 datawd<-"C:/temp/SharePoint/WGEEL - 2017 Meeting Docs/06. Data/Recruitment/"
@@ -48,44 +48,44 @@ series_info$ser_qal_comment <- c("Series > 10 years","Too short","Too short")
 # insert new series
 # dplyr::glimpse(series_info)
 sqldf("INSERT INTO  datawg.t_series_ser(
-  ser_order, 
-  ser_nameshort, 
-  ser_namelong, 
-  ser_typ_id, 
-  ser_effort_uni_code, 
-  ser_comment, 
-  ser_uni_code, 
-  ser_lfs_code, 
-  ser_hty_code, 
-  ser_locationdescription, 
-  ser_emu_nameshort, 
-  ser_cou_code, 
-  ser_area_division,
-  --ser_tblcodeid,
-  ser_x, 
-  ser_y, 
-  ser_sam_id,
-  ser_qal_id,
-  ser_qal_comment) SELECT   
-  ser_order, 
-  ser_nameshort, 
-  ser_namelong, 
-  ser_typ_id, 
-  ser_effort_uni_code, 
-  ser_comment, 
-  ser_uni_code, 
-  ser_lfs_code, 
-  ser_hty_code, 
-  ser_locationdescription, 
-  ser_emu_nameshort, 
-  ser_cou_code, 
-  ser_area_division,
-  --ser_tblcodeid,
-  ser_x, 
-  ser_y, 
-  ser_sam_id,
-  ser_qal_id,
-  ser_qal_comment from series_info;")
+				ser_order, 
+				ser_nameshort, 
+				ser_namelong, 
+				ser_typ_id, 
+				ser_effort_uni_code, 
+				ser_comment, 
+				ser_uni_code, 
+				ser_lfs_code, 
+				ser_hty_code, 
+				ser_locationdescription, 
+				ser_emu_nameshort, 
+				ser_cou_code, 
+				ser_area_division,
+				--ser_tblcodeid,
+				ser_x, 
+				ser_y, 
+				ser_sam_id,
+				ser_qal_id,
+				ser_qal_comment) SELECT   
+				ser_order, 
+				ser_nameshort, 
+				ser_namelong, 
+				ser_typ_id, 
+				ser_effort_uni_code, 
+				ser_comment, 
+				ser_uni_code, 
+				ser_lfs_code, 
+				ser_hty_code, 
+				ser_locationdescription, 
+				ser_emu_nameshort, 
+				ser_cou_code, 
+				ser_area_division,
+				--ser_tblcodeid,
+				ser_x, 
+				ser_y, 
+				ser_sam_id,
+				ser_qal_id,
+				ser_qal_comment from series_info;")
 
 #---------------------------
 # script to integrate series one by one (only one saved)
@@ -99,16 +99,16 @@ ser_id<-sqldf("select ser_id from datawg.t_series_ser where ser_nameshort='ShiM'
 series$das_ser_id<-as.numeric(ser_id)
 series$das_value<-as.numeric(series$das_value)
 sqldf("INSERT INTO datawg.t_dataseries_das(
-        das_value,
-        das_ser_id,
-        das_year,
-        das_comment
-        ) SELECT 
-		das_value,
-        das_ser_id,
-        das_year,
-        das_comment
-		FROM series;")
+				das_value,
+				das_ser_id,
+				das_year,
+				das_comment
+				) SELECT 
+				das_value,
+				das_ser_id,
+				das_year,
+				das_comment
+				FROM series;")
 
 
 #---------------------------
@@ -127,34 +127,34 @@ bann<-bann[!is.na(bann$das_year),]
 #$ das_qal_id     : logi  NA NA NA NA NA NA ...
 
 bann_database<-sqldf("SELECT 
-	    das_id,
-        das_value,
-        das_ser_id,
-        das_year,
-        das_comment,
-        das_effort,
-        das_last_update,
-        das_qal_id
-         FROM datawg.t_dataseries_das 
-	        JOIN datawg.t_series_ser ON ser_id=das_ser_id
-	        where ser_nameshort='bann'
-			order by das_year")
+				das_id,
+				das_value,
+				das_ser_id,
+				das_year,
+				das_comment,
+				das_effort,
+				das_last_update,
+				das_qal_id
+				FROM datawg.t_dataseries_das 
+				JOIN datawg.t_series_ser ON ser_id=das_ser_id
+				where ser_nameshort='bann'
+				order by das_year")
 #what are the years in the excel table that are already in the database
 index_remove <- !bann$das_year%in%germ_database$das_year
 # selecting the rows to import
 germ<-germ[index_remove,]
 
 sqldf("INSERT INTO datawg.t_dataseries_das(
-        das_value,
-        das_ser_id,
-        das_year,
-        das_comment
-        ) SELECT 
-		das_value,
-        4 as das_ser_id,
-        das_year,
-        'Inserted 2017 Derek Evans' as das_comment
-		FROM bann;")
+				das_value,
+				das_ser_id,
+				das_year,
+				das_comment
+				) SELECT 
+				das_value,
+				4 as das_ser_id,
+				das_year,
+				'Inserted 2017 Derek Evans' as das_comment
+				FROM bann;")
 
 
 #---------------------------
@@ -183,196 +183,196 @@ nchar(series_info$ser_namelong) # manual correction to avoid length > 50
 # dplyr::glimpse(series_info)
 
 sqldf("INSERT INTO  datawg.t_series_ser(
-          ser_order, 
-          ser_nameshort, 
-          ser_namelong, 
-          ser_typ_id, 
-          ser_effort_uni_code, 
-          ser_comment, 
-          ser_uni_code, 
-          ser_lfs_code, 
-          ser_hty_code, 
-          ser_locationdescription, 
-          ser_emu_nameshort, 
-          ser_cou_code, 
-          ser_area_division,
-          ser_tblcodeid,
-          ser_x, 
-          ser_y, 
-          ser_sam_id,
-          ser_qal_id,
-          ser_qal_comment) SELECT   
-          ser_order, 
-          ser_nameshort, 
-          ser_namelong, 
-          ser_typ_id, 
-          ser_effort_uni_code, 
-          ser_comment, 
-          ser_uni_code, 
-          ser_lfs_code, 
-          ser_hty_code, 
-          ser_locationdescription, 
-          ser_emu_nameshort, 
-          ser_cou_code, 
-          ser_area_division,
-          ser_tblcodeid,
-          ser_x, 
-          ser_y, 
-          ser_sam_id,
-          ser_qal_id,
-          ser_qal_comment from series_info;")
+				ser_order, 
+				ser_nameshort, 
+				ser_namelong, 
+				ser_typ_id, 
+				ser_effort_uni_code, 
+				ser_comment, 
+				ser_uni_code, 
+				ser_lfs_code, 
+				ser_hty_code, 
+				ser_locationdescription, 
+				ser_emu_nameshort, 
+				ser_cou_code, 
+				ser_area_division,
+				ser_tblcodeid,
+				ser_x, 
+				ser_y, 
+				ser_sam_id,
+				ser_qal_id,
+				ser_qal_comment) SELECT   
+				ser_order, 
+				ser_nameshort, 
+				ser_namelong, 
+				ser_typ_id, 
+				ser_effort_uni_code, 
+				ser_comment, 
+				ser_uni_code, 
+				ser_lfs_code, 
+				ser_hty_code, 
+				ser_locationdescription, 
+				ser_emu_nameshort, 
+				ser_cou_code, 
+				ser_area_division,
+				ser_tblcodeid,
+				ser_x, 
+				ser_y, 
+				ser_sam_id,
+				ser_qal_id,
+				ser_qal_comment from series_info;")
 
-  
-  # FlaG
+
+# FlaG
 dat<-read_excel(path=str_c(datawd,"Eel_Data_Call_Annex1_Recruitment_GB.xlsx"),
-     sheet="Data_Flatford_GE_<80mm")
+		sheet="Data_Flatford_GE_<80mm")
 ser_id<-sqldf("select ser_id from datawg.t_series_ser where ser_nameshort='FlaG'")
 dat$das_ser_id<-as.numeric(ser_id)
 dat$das_value<-as.numeric(dat$das_value)
-  sqldf("INSERT INTO datawg.t_dataseries_das(
-                  das_value,
-                  das_ser_id,
-                  das_year,
-                  das_comment
-                  ) SELECT 
-		          das_value,
-                  das_ser_id,
-                  das_year,
-                  das_comment
-		          FROM dat;")
-   # In fact there are only 8 years available
+sqldf("INSERT INTO datawg.t_dataseries_das(
+				das_value,
+				das_ser_id,
+				das_year,
+				das_comment
+				) SELECT 
+				das_value,
+				das_ser_id,
+				das_year,
+				das_comment
+				FROM dat;")
+# In fact there are only 8 years available
 sqldf("update datawg.t_series_ser set (ser_qal_id,ser_qal_comment) = 
-(0, 'series too short 8 years') where ser_nameshort='FlaG'")
+				(0, 'series too short 8 years') where ser_nameshort='FlaG'")
 
 # FlaE
 
 dat<-read_excel(path=str_c(datawd,"Eel_Data_Call_Annex1_Recruitment_GB_cor.xlsx"),
-    sheet="Data_Flatford_Elvers_>80<120mm")
+		sheet="Data_Flatford_Elvers_>80<120mm")
 ser_id<-sqldf("select ser_id from datawg.t_series_ser where ser_nameshort='FlaE'")
 dat$das_ser_id<-as.numeric(ser_id)
 dat$das_value<-as.numeric(dat$das_value)
 sqldf("INSERT INTO datawg.t_dataseries_das(
-        das_value,
-        das_ser_id,
-        das_year,
-        das_comment,
-        das_qal_id,
-        das_qal_comment
-        ) SELECT 
-		das_value,
-        das_ser_id,
-        das_year,
-        das_comment,
-        das_qal_id,
-        das_qal_comment
-		FROM dat;")
+				das_value,
+				das_ser_id,
+				das_year,
+				das_comment,
+				das_qal_id,
+				das_qal_comment
+				) SELECT 
+				das_value,
+				das_ser_id,
+				das_year,
+				das_comment,
+				das_qal_id,
+				das_qal_comment
+				FROM dat;")
 
 # BeeG
 
 dat<-read_excel(path=str_c(datawd,"Eel_Data_Call_Annex1_Recruitment_GB_cor.xlsx"),
-    sheet="BeeG")
+		sheet="BeeG")
 ser_id<-sqldf("select ser_id from datawg.t_series_ser where ser_nameshort='BeeG'")
 dat$das_ser_id<-as.numeric(ser_id)
 dat$das_value<-as.numeric(dat$das_value)
 sqldf("INSERT INTO datawg.t_dataseries_das(
-        das_value,
-        das_ser_id,
-        das_year,
-        das_comment      
-        ) SELECT 
-		das_value,
-        das_ser_id,
-        das_year,
-        das_comment       
-		FROM dat;")
+				das_value,
+				das_ser_id,
+				das_year,
+				das_comment      
+				) SELECT 
+				das_value,
+				das_ser_id,
+				das_year,
+				das_comment       
+				FROM dat;")
 
 # BroG
 
 dat<-read_excel(path=str_c(datawd,"Eel_Data_Call_Annex1_Recruitment_GB_cor.xlsx"),
-    sheet="BroG")
+		sheet="BroG")
 ser_id<-sqldf("select ser_id from datawg.t_series_ser where ser_nameshort='BroG'")
 dat$das_ser_id<-as.numeric(ser_id)
 dat$das_value<-as.numeric(dat$das_value)
 
 #qal comments used there
 sqldf("INSERT INTO datawg.t_dataseries_das(
-        das_value,
-        das_ser_id,
-        das_year,
-        das_comment,
-        das_qal_id
-        ) SELECT 
-		das_value,
-        das_ser_id,
-        das_year,
-        das_comment,
-        das_qal_id
-		FROM dat;")
+				das_value,
+				das_ser_id,
+				das_year,
+				das_comment,
+				das_qal_id
+				) SELECT 
+				das_value,
+				das_ser_id,
+				das_year,
+				das_comment,
+				das_qal_id
+				FROM dat;")
 
 # BroE
 
 dat<-read_excel(path=str_c(datawd,"Eel_Data_Call_Annex1_Recruitment_GB_cor.xlsx"),
-    sheet="BroE")
+		sheet="BroE")
 ser_id<-sqldf("select ser_id from datawg.t_series_ser where ser_nameshort='BroE'")
 dat$das_ser_id<-as.numeric(ser_id)
 dat$das_value<-as.numeric(dat$das_value)
 
 #qal comments used there
 sqldf("INSERT INTO datawg.t_dataseries_das(
-        das_value,
-        das_ser_id,
-        das_year,
-        das_comment,
-        das_qal_id
-        ) SELECT 
-		das_value,
-        das_ser_id,
-        das_year,
-        das_comment,
-        das_qal_id
-		FROM dat;")
+				das_value,
+				das_ser_id,
+				das_year,
+				das_comment,
+				das_qal_id
+				) SELECT 
+				das_value,
+				das_ser_id,
+				das_year,
+				das_comment,
+				das_qal_id
+				FROM dat;")
 
 # BroY
 
 dat<-read_excel(path=str_c(datawd,"Eel_Data_Call_Annex1_Recruitment_GB_cor.xlsx"),
-    sheet="BroY")
+		sheet="BroY")
 ser_id<-sqldf("select ser_id from datawg.t_series_ser where ser_nameshort='BroY'")
 dat$das_ser_id<-as.numeric(ser_id)
 dat$das_value<-as.numeric(dat$das_value)
 
 #qal comments used there
 sqldf("INSERT INTO datawg.t_dataseries_das(
-        das_value,
-        das_ser_id,
-        das_year,
-        das_comment,
-        das_qal_id
-        ) SELECT 
-		das_value,
-        das_ser_id,
-        das_year,
-        das_comment,
-        das_qal_id
-		FROM dat;")
+				das_value,
+				das_ser_id,
+				das_year,
+				das_comment,
+				das_qal_id
+				) SELECT 
+				das_value,
+				das_ser_id,
+				das_year,
+				das_comment,
+				das_qal_id
+				FROM dat;")
 
 # Grey
 
 dat<-read_excel(path=str_c(datawd,"Eel_Data_Call_Annex1_Recruitment_GB_cor.xlsx"),
-    sheet="Grey")
+		sheet="Grey")
 ser_id<-sqldf("select ser_id from datawg.t_series_ser where ser_nameshort='Grey'")
 dat$das_ser_id<-as.numeric(ser_id)
 dat$das_value<-as.numeric(dat$das_value)
 sqldf("INSERT INTO datawg.t_dataseries_das(
-        das_value,
-        das_ser_id,
-        das_year,
-        das_comment
-        ) SELECT 
-		das_value,
-        das_ser_id,
-        das_year,
-        das_comment
-		FROM dat;")
+				das_value,
+				das_ser_id,
+				das_year,
+				das_comment
+				) SELECT 
+				das_value,
+				das_ser_id,
+				das_year,
+				das_comment
+				FROM dat;")
 
 # BroY is a yellow eel series, it comes after glass eel series in order
 # RUN ONCE ONLY
@@ -385,23 +385,146 @@ sqldf("INSERT INTO datawg.t_dataseries_das(
 # Strangford
 
 dat<-read_excel(path=str_c(datawd,"Eel_Data_Call_Annex1_Recruitment_GB_cor.xlsx"),
-    sheet="Stra")
+		sheet="Stra")
 ser_id<-sqldf("select ser_id from datawg.t_series_ser where ser_nameshort='Stra'")
 dat$das_ser_id<-as.numeric(ser_id)
 dat$das_value<-as.numeric(dat$das_value)
 sqldf("INSERT INTO datawg.t_dataseries_das(
-        das_value,
-        das_ser_id,
-        das_year,
-        das_comment
-        ) SELECT 
-		das_value,
-        das_ser_id,
-        das_year,
-        das_comment
-		FROM dat;")
+				das_value,
+				das_ser_id,
+				das_year,
+				das_comment
+				) SELECT 
+				das_value,
+				das_ser_id,
+				das_year,
+				das_comment
+				FROM dat;")
 
 
 ###################################################################
 #---------------- 2019 --------------------------------------------
 ###################################################################
+
+library(readxl) # to read xls files
+library(stringr) # this contains utilities for strings
+require(sqldf) # to run queries
+require(RPostgreSQL)# to run queries to the postgres database
+
+# clean up directory except for my password
+# which is generated while launching R in Rprofile.site
+# http://www.statmethods.net/interface/customizing.html
+obj<-ls(all=TRUE)
+obj<-obj[!obj%in%c("userwgeel","passwordwgeel")]
+rm(list=obj) 
+
+# set working directory
+setwd("C:/Users/cedric.briand/Documents/GitHub/WGEEL/R/recruitment/")
+wd<-getwd()
+
+# going to the server database with a ssh tunnel in localhost (check putty)
+
+options(sqldf.RPostgreSQL.user = userwgeel, 
+		sqldf.RPostgreSQL.password = passwordwgeel,
+		sqldf.RPostgreSQL.dbname = "wgeel",
+		sqldf.RPostgreSQL.host = "localhost",
+		sqldf.RPostgreSQL.port = 5435)
+
+
+
+
+country <-"UK"
+path <- str_c("\\\\community.ices.dk@SSL\\DavWWWRoot\\ExpertGroups\\wgeel\\2019 Meeting Documents\\06. Data\\02 Recuitment Submission 2019/",
+country,"_Eel_Data_Call_Annex1_Recruitment.xlsx")
+
+
+###########################
+# INTEGRATING BIOMETRY
+##########################
+
+biom<-read_excel(path,sheet="biometry")
+
+##############################
+# COLNAMES IN EXCEL TABLE
+##############################
+# colnames(biom)
+#"ser_nameshort" "bio_year"      "bio_length"    "bio_weight"   
+# "bio_age"       "bio_g_in_gy"   "bio_comment"  
+##############################
+# COLNAMES IN TARGET TABLE
+##############################
+#database_biom <- sqldf("SELECT * FROM datawg.t_biometry_series_bis") # nothing yet
+## bio_id => this is a serial no insertion
+# bio_lfs_code 
+# bio_year 
+# bio_length 
+# bio_weight 
+# bio_age
+# bio_sex_ratio
+# bio_length_f 
+# bio_weight_f 
+# bio_age_f 
+# bio_length_m 
+# bio_weight_m 
+# bio_age_m 
+# bio_comment
+# bio_last_update => not kept
+# bio_qal_id 
+# bis_g_in_gy 
+# bis_ser_id 
+
+
+# life stage needs to be collected from series
+ser <- sqldf("SELECT * FROM datawg.t_series_ser")
+ser <- ser %>% dplyr::select(ser_id,ser_lfs_code,ser_nameshort)
+
+biom2 <- dplyr::inner_join(ser, biom, by="ser_nameshort")
+# check that all names are joined by
+stopifnot (nrow(biom2)==nrow(biom))
+biom2$bio_age <-as.numeric(biom2$bio_age) # all lines empty this creates a crash later
+biom3 <- data.frame(# bio_id .... ignored
+		bio_lfs_code = biom2$ser_lfs_code,
+		bio_year = biom2$bio_year,
+		bio_length = biom2$bio_length ,
+		bio_weight = biom2$bio_weight ,
+		bio_age = biom2$bio_age,
+		bio_sex_ratio = as.numeric(NA),
+		bio_length_f = as.numeric(NA),
+		bio_weight_f = as.numeric(NA),
+		bio_age_f = as.numeric(NA),
+		bio_length_m = as.numeric(NA),
+		bio_weight_m = as.numeric(NA),
+		bio_age_m =as.numeric(NA),
+		bio_comment = biom2$bio_comment,
+		#bio_last_update 
+		bio_qal_id = 19, # until it's validated during wgeel
+		bis_g_in_gy = biom2$bio_g_in_gy,
+		bis_ser_id  = biom2$ser_id)
+
+# CREATE TEMPORARY TABLE ON THE SERVER
+sqldf( str_c("DROP TABLE if exists temp_t_biometry_bio_", country))
+sqldf( str_c("CREATE TABLE temp_t_biometry_bio_", country, " AS SELECT * FROM biom3"))
+
+sqldf("INSERT INTO datawg.t_biometry_series_bis(
+				bio_lfs_code,
+				--bio_id
+bio_year,
+bio_length,
+bio_weight,
+bio_age,
+bio_sex_ratio,
+bio_length_f,
+bio_weight_f,
+bio_age_f,
+bio_length_m,
+bio_weight_m,
+bio_age_m,
+bio_comment,
+--bio_last_update 
+bio_qal_id, 
+bis_g_in_gy, 
+bis_ser_id) 
+SELECT * FROM temp_t_biometry_bio_UK;")
+
+
+

@@ -223,4 +223,16 @@ No recruitment
 |:----:|:----:|:---------:|:---------:|
 | 2018 | 27 | 3 | 2 |
 | 2019 | 42 | 0 | 0 |
+
+
+### Recruitment
+
+biometry tab => OK
+updating the series
+  * Bann updated 2018 inserted 2019 it's looow
+  * SEEA **CHECK** I have a series in tons, I'm **ignoring** the change I see the series metadata are now in kg and that the series is reported in kg
+  
+  
+  
+
  
