@@ -161,7 +161,28 @@ For duplicates 6 values replaced in the database (old values kept with code eel_
 
 ### Aquaculture
  
- 
+No linges
 
+
+## FINLAND
+
+### Landings
+
+* **NOTE** Changed emu name to FI_total otherwise it's creating duplicates
+* **NOTE** Removed wrong entries NC where no data, changed 2018 value in recreational landings to ND (the alternative could have been not to report any data.
+* **CHECK** Changed type `com_landings` to `other_landings`in Landings in Freshwater with comment as "Trap and transport" fish from freshwater to the sea in one location, otherwise 0 kg. I've checked the value in landings in Freshwater from 2014 to 2018 corresponding to those lines. It was 0 for 2014 and then NULL and marked either as `not collected` or `not reported` or zero. So there will not be any duplicates for those data and these line will stay in the database. I think it's OK but please check.
+* **NOTE**  When checking the duplicates, there is no change in the data, so I will not update the database. You didn't have to report data that were already in, next year we will again provide you the data as they are in the database, please use that to check and only ask for corrections.
  
+ | year | new  | conflicts | no change |
+|:----:|:----:|:---------:|:---------:|
+| 2008 | 0 | 0 | 4 |
+| 2009 | 0 | 0 | 1 |
+| 2010 | 0 | 0 | 4 |
+| 2011 | 0 | 0 | 1 |
+| 2012 | 0 | 0 | 4 |
+| 2013 | 0 | 0 | 1 |
+| 2014 | 1 | 0 | 3 |
+| 2015 | 1 | 0 | 1 |
+| 2016 | 1 | 0 | 1 |
+| 2017 | 1 | 0 | 1 |
  
