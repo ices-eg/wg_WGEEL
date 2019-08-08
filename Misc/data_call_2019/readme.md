@@ -162,6 +162,7 @@ For duplicates 6 values replaced in the database (old values kept with code eel_
 ### Releases
 
 * **NOTE** `Removed eel_missvaluequal`
+
 | year | new  | conflicts | no change |
 |:----:|:----:|:---------:|:---------:|
 | 2018 | 2    | 0         | 0         |
