@@ -225,7 +225,7 @@ TODO
 
 No recruitment
 
-## Portugal
+## PORTUGAL
 
 ### landings
 
@@ -243,7 +243,7 @@ No recruitment
 | 1983 | 0 | 1 | 0 |
 
 
-## Sweden
+## SWEDEN
 
 ### landings
 
@@ -252,46 +252,6 @@ No recruitment
 ### releases
 
 * **CHECK** In releases, GEE are reported. For those no kg estimate should be reported. Also, one of the kg values is reported as 0, which doesn't make sense if there is a number. How does T&T apply to glass eels?   
-
-## Tunesia
-
-### landings
-
-* **NOTE** country code changed to TN instead of TUN
-
-
-## UK
-
-### landings
-
-| year | new  | conflicts | no change |
-|:----:|:----:|:---------:|:---------:|
-| 2018 | 27 | 3 | 2 |
-| 2019 | 42 | 0 | 0 |
- 
-* **NOTE** several duplicates were entered were the comment basically changed from "preliminary data" to "confirmed data" 
-* **NOTE** In some EMUs for commercial fisheries there was a comment adressing recreational catch & release fisheries. The comment was edited slightly to avoid confusion about "commercial catch and release":)
-* **NOTE** Aquaculture was not integrated since the database doesn't allow for sheets with no values at all. This should be adressed in general during WGEEL, we need to agree on a working practice concerning no data, 0 values etc.
-
-### Recruitment
-
-biometry tab => OK
-updating the series
-  * Bann updated 2018 inserted 2019 it's looow
-  * SEEA updated 2018 inserted 2019
-  **CHECK** I have a series in tons, I'm **ignoring** the change I see the series metadata are now in kg and that the series is reported in kg
-  * Girn updated 2018 ( no data for 2019 yet
-  * ShiM data as of 13 Aug 2018 / updated 2019 129 => 985 
-  * ShiF data as of 13th Aug 2018 / updated 2019 989>129  
-  **CHECK** Could you check there has been an inversion in two series when compared to last year. So there is a least one mistake. I put the two series with qal_id 4
-  * stra 349 inserted 2019 by Derek Evans
-
-
-Series info => thanks for the updated description, it's in  !
-* **MISSING** I have no data for sites Grey (which is now an official series as > 10 years), BroG (8 years), BeeG (11 years), FlaE (10 years), FlaG ...
-
-
-## SWEDEN 
 
 ### recruitment
 
@@ -335,8 +295,44 @@ Missing years 1995, 1998 to 2001, 2010,2011 (fish pass rebuilt in 2010 2011). Th
 
 RECRUITMENT SERIES 
 
-
 => OK everyhting has been updated and checked twice, I had a temporary value for Gota Alv last year, can you confirm it's still 20 ? What happened this year for the pass not be opened ?
+
+## Tunisia
+
+### landings
+
+* **NOTE** country code changed to TN instead of TUN
+
+
+## UK
+
+### landings
+
+| year | new  | conflicts | no change |
+|:----:|:----:|:---------:|:---------:|
+| 2018 | 27 | 3 | 2 |
+| 2019 | 42 | 0 | 0 |
+ 
+* **NOTE** several duplicates were entered were the comment basically changed from "preliminary data" to "confirmed data" 
+* **NOTE** In some EMUs for commercial fisheries there was a comment adressing recreational catch & release fisheries. The comment was edited slightly to avoid confusion about "commercial catch and release":)
+* **NOTE** Aquaculture was not integrated since the database doesn't allow for sheets with no values at all. This should be adressed in general during WGEEL, we need to agree on a working practice concerning no data, 0 values etc.
+
+### Recruitment
+
+biometry tab => OK
+updating the series
+  * Bann updated 2018 inserted 2019 it's looow
+  * SEEA updated 2018 inserted 2019
+  **CHECK** I have a series in tons, I'm **ignoring** the change I see the series metadata are now in kg and that the series is reported in kg
+  * Girn updated 2018 ( no data for 2019 yet
+  * ShiM data as of 13 Aug 2018 / updated 2019 129 => 985 
+  * ShiF data as of 13th Aug 2018 / updated 2019 989>129  
+  **CHECK** Could you check there has been an inversion in two series when compared to last year. So there is a least one mistake. I put the two series with qal_id 4
+  * stra 349 inserted 2019 by Derek Evans
+
+
+Series info => thanks for the updated description, it's in  !
+* **MISSING** I have no data for sites Grey (which is now an official series as > 10 years), BroG (8 years), BeeG (11 years), FlaE (10 years), FlaG ...
 
 
 
