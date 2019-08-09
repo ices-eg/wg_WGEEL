@@ -110,5 +110,11 @@ SELECT ser_locationdescription from  datawg.t_series_ser where ser_nameshort='Ri
 SELECT ser_comment from  datawg.t_series_ser where ser_nameshort='Ring';
 
 
+begin;
+update datawg.t_series_ser set geom=ST_SetSRID(ST_MakePoint(12.210629,57.226613),4326) where ser_nameshort='Visk';
+commit;
 
+begin;
+update datawg.t_series_ser set geom=ST_SetSRID(ST_MakePoint(12.105802,57.261890),4326) where ser_nameshort='Ring';
+commit;
 

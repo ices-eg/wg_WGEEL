@@ -526,5 +526,98 @@ bis_g_in_gy,
 bis_ser_id) 
 SELECT * FROM temp_t_biometry_bio_UK;")
 
+# ---------------------------------------------------------------------------------------------------------
+		
+country <-"PT"
+path <- str_c("\\\\community.ices.dk@SSL\\DavWWWRoot\\ExpertGroups\\wgeel\\2019 Meeting Documents\\06. Data\\02 Recuitment Submission 2019/",
+		country,"_PORT_Eel_Data_Call_Annex1_Recruitment.xlsx")
 
+
+###########################
+# INTEGRATING BIOMETRY
+##########################
+
+biom<-read_excel(path,sheet="biometry")
+
+##############################
+# COLNAMES IN EXCEL TABLE
+##############################
+# colnames(biom)
+#"ser_nameshort" "bio_year"      "bio_length"    "bio_weight"   
+# "bio_age"       "bio_g_in_gy"   "bio_comment"  
+##############################
+# COLNAMES IN TARGET TABLE
+##############################
+#database_biom <- sqldf("SELECT * FROM datawg.t_biometry_series_bis") # nothing yet
+## bio_id => this is a serial no insertion
+# bio_lfs_code 
+# bio_year 
+# bio_length 
+# bio_weight 
+# bio_age
+# bio_sex_ratio
+# bio_length_f 
+# bio_weight_f 
+# bio_age_f 
+# bio_length_m 
+# bio_weight_m 
+# bio_age_m 
+# bio_comment
+# bio_last_update => not kept
+# bio_qal_id 
+# bis_g_in_gy 
+# bis_ser_id 
+
+
+# life stage needs to be collected from series
+ser <- sqldf("SELECT * FROM datawg.t_series_ser")
+ser <- ser %>% dplyr::select(ser_id,ser_lfs_code,ser_nameshort)
+
+biom2 <- dplyr::inner_join(ser, biom, by="ser_nameshort")
+# check that all names are joined by
+stopifnot (nrow(biom2)==nrow(biom))
+biom2$bio_age <-as.numeric(biom2$bio_age) # all lines empty this creates a crash later
+biom3 <- data.frame(# bio_id .... ignored
+		bio_lfs_code = biom2$ser_lfs_code,
+		bio_year = biom2$bio_year,
+		bio_length = biom2$bio_length ,
+		bio_weight = biom2$bio_weight ,
+		bio_age = biom2$bio_age,
+		bio_sex_ratio = as.numeric(NA),
+		bio_length_f = as.numeric(NA),
+		bio_weight_f = as.numeric(NA),
+		bio_age_f = as.numeric(NA),
+		bio_length_m = as.numeric(NA),
+		bio_weight_m = as.numeric(NA),
+		bio_age_m =as.numeric(NA),
+		bio_comment = biom2$bio_comment,
+		#bio_last_update 
+		bio_qal_id = 19, # until it's validated during wgeel
+		bis_g_in_gy = biom2$bio_g_in_gy,
+		bis_ser_id  = biom2$ser_id)
+
+# CREATE TEMPORARY TABLE ON THE SERVER
+sqldf( str_c("DROP TABLE if exists temp_t_biometry_bio_", country))
+sqldf( str_c("CREATE TABLE temp_t_biometry_bio_", country, " AS SELECT * FROM biom3"))
+
+sqldf(str_c("INSERT INTO datawg.t_biometry_series_bis(
+				bio_lfs_code,
+				--bio_id
+				bio_year,
+				bio_length,
+				bio_weight,
+				bio_age,
+				bio_sex_ratio,
+				bio_length_f,
+				bio_weight_f,
+				bio_age_f,
+				bio_length_m,
+				bio_weight_m,
+				bio_age_m,
+				bio_comment,
+				--bio_last_update 
+				bio_qal_id, 
+				bis_g_in_gy, 
+				bis_ser_id) 
+				SELECT * FROM temp_t_biometry_bio_",country,";"))
 

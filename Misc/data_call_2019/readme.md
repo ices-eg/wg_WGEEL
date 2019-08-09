@@ -245,6 +245,23 @@ No recruitment
 
 ### Recruitment
 
+ * Mond 
+
+**MISSING** Please provide the effort (in number of days samples per year); Check I put 6 in 2018 and 7 in 2019 and I had 5 in 1989.
+
+biometry integratd thanks !
+
+* MiPo
+
+**MISSING** Recruitment series of total catch. I know it's the same as Portugese landings in the Minho so I've used this file, please next year could you provide both ?
+
+*NOTE*  The value from 2017 has increased from 2094 => 2178
+
+**CHECK** Comment is  :"Glass eel fishery (total landings) in the River Minho. There has been a diminution in effort as the fishery used to be permitted from November to April before 2006/2007. It has gradually been reduced to the 1st February." 
+
+*Is that still true, what is the current fishing season ? => please provide the right expertise on that.*
+
+**CHECK** Location is  : "Glass eel commercial fishery in the Minho. The Minho forms the border between Spain and Portugal. It is the only place in Portugal where a glass eel fishery is authorized. Fishing takes place in the tidal part of the estuary using Tela net which are not operative when the flow is high."
 
 
 ## SWEDEN
