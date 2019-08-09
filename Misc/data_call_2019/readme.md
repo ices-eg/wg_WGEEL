@@ -38,9 +38,13 @@ Recruitment
 https://community.ices.dk/ExpertGroups/wgeel/WGEEL%20accessions/Data%20call%202019/Eel_Data_Call_Annex1_Recruitment_GR.xlsx
 => No data
 
+-----------------------------
+
 ## LITHUANIA
 
-Recruitment => No data 
+Recruitment => No data OK
+
+-----------------------------
 
 ## DENMARK
 
@@ -111,6 +115,7 @@ line <1>, there should not be any area divsion in freshwater
 * *NOTE* There are 3 lines for Dk_Inla but only one EMU, you cannot have area division in Freshwater, 
  so I've added the 3 lines.
  
+ -----------------------------
  
 ## SPAIN
  
@@ -159,6 +164,7 @@ For duplicates 6 values replaced in the database (old values kept with code eel_
  ```
  * *MISSING* You have not submitted aquaculture but you have some no ?
  
+ -----------------------------
  
 ## ESTONIA
 
@@ -181,6 +187,7 @@ For duplicates 6 values replaced in the database (old values kept with code eel_
  
 No linges
 
+-----------------------------
 
 ## FINLAND
 
@@ -226,6 +233,8 @@ TODO
 
 No recruitment
 
+-----------------------------
+
 ## PORTUGAL
 
 ### landings
@@ -265,6 +274,7 @@ biometry integrated thanks !
 
 **CHECK** Location is  : "Glass eel commercial fishery in the Minho. The Minho forms the border between Spain and Portugal. It is the only place in Portugal where a glass eel fishery is authorized. Fishing takes place in the tidal part of the estuary using Tela net which are not operative when the flow is high."
 
+-----------------------------
 
 ## SWEDEN
 
@@ -347,12 +357,15 @@ BIOMETRIC DATA
 
 There is only one line , I guess it's not done ?
 
+-----------------------------
+
 ## Tunisia
 
 ### landings
 
 * *NOTE* country code changed to TN instead of TUN
 
+-----------------------------
 
 ## UK
 
