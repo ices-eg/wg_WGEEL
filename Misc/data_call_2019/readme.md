@@ -268,10 +268,10 @@ Missing years 1995, 1998 to 2001, 2010,2011 (fish pass rebuilt in 2010 2011). Th
        *NOTE* Ser_location_description updated
        
 * Kavl  **CHECK** location : "Near the Øresund (Sound) strait, outlet of Lake Vombsjön 45 km from the sea."  
-        **CHECK** Ascending small eels caught in an eel pass.   
+        **CHECK** comment : Ascending small eels caught in an eel pass.   
 
-* Laga   **CHECK** Swedish west coast, hydropower station ca 10 km from the sea.  
-         **CHECK** Ascending small eels caught in an eel pass at a hydro power station. Though classified as a yellow eel series, there is always a high percentage of YOY elvers from this site.
+* Laga   **CHECK** location : Swedish west coast, hydropower station ca 10 km from the sea.  
+         **CHECK** comment : Ascending small eels caught in an eel pass at a hydro power station. Though classified as a yellow eel series, there is always a high percentage of YOY elvers from this site.
          
 * Morr  **CHECK** location : Station located on the Mörrumån river flowing to the southern coast of Sweden, the station is quite far upstream the river.   
           **CHECK** comment : Ascending yellow eels at a hydro power station. The series is complete since 1960.
@@ -283,7 +283,7 @@ Missing years 1995, 1998 to 2001, 2010,2011 (fish pass rebuilt in 2010 2011). Th
           **CHECK** location : Rönnemölla (55°56'40.69"N, 13°22'37.44"E) is a mill including a small hydroelectric power plant, located in Rönne å River (catchment area: 1896.6 km²), 6.5 km downstream of the outflow of lake Ringsjön.  The river flows to southern Kattegat.  
            **CHECK** comment : The trap has been operated since 1946,  with 9 missing years between 1988 et 1997. It collects mostly small eels. There have been several problems with both placing and maintenance of this eel pass situated at a hydro power dam.
            
-* Ring     **CHECK** lcoation : "The Ringhals nuclear power plant is located on the Swedish west coast in the Kattegat. This site is located at the coast. The monitoring takes place near the intake of cooling water to the nuclear power plant.    
+* Ring     **CHECK** location : "The Ringhals nuclear power plant is located on the Swedish west coast in the Kattegat. This site is located at the coast. The monitoring takes place near the intake of cooling water to the nuclear power plant.    
 			**CHECK** comment : 'The Ringhals series consists of transparent glass eel. The time of arrival of the glass eels to the sampling site varies between years, probably as a consequence of hydrographical conditions, but the peak in abundance normally occurred in late March to early April. Abundance has decreased by 96% if the recent years are compared to the peak in 1981-1983. From 2012 the series has been corrected and now only concerns glass eel collected during March and April (weeks 9-18).
 			The sampling at Ringhals is performed twice weekly in February-April, using a modified Isaacs-Kidd Midwater trawl (IKMT). The trawl is fixed in the current of incoming cooling water, fishing passively during entire nights. Sampling is depending on the operation of the power plant and changes in the strength of the current may occur so data are corrected for variations in water flow.'
 
