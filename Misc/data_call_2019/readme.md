@@ -225,6 +225,40 @@ TODO
 
 No recruitment
 
+## Portugal
+
+### landings
+
+| year | new  | conflicts | no change |
+|:----:|:----:|:---------:|:---------:|
+| 1974  | 0 | 1 | 0 |
+| 1975 | 0 | 1 | 0 |
+| 1976 | 0 | 1 | 0 |
+| 1977 | 0 | 1 | 0 |
+| 1978 | 0 | 1 | 0 |
+| 1979 | 0 | 1 | 0 |
+| 1980 | 0 | 1 | 0 |
+| 1981 | 0 | 1 | 0 |
+| 1982 | 0 | 1 | 0 |
+| 1983 | 0 | 1 | 0 |
+
+
+## Sweden
+
+### landings
+
+* **CHECK** No value is given for the area division, supposably since it cannot be clearly distiguished (i.e. EMUs overlap with >1 area divisions). Correct? In the old data series, area divisions are given though... 
+
+### releases
+
+* **CHECK** In releases, GEE are reported. For those no kg estimate should be reported. Also, one of the kg values is reported as 0, which doesn't make sense if there is a number. How does T&T apply to glass eels?   
+
+## Tunesia
+
+### landings
+
+* **NOTE** country code changed to TN instead of TUN
+
 
 ## UK
 
@@ -234,7 +268,10 @@ No recruitment
 |:----:|:----:|:---------:|:---------:|
 | 2018 | 27 | 3 | 2 |
 | 2019 | 42 | 0 | 0 |
-
+ 
+* **NOTE** several duplicates were entered were the comment basically changed from "preliminary data" to "confirmed data" 
+* **NOTE** In some EMUs for commercial fisheries there was a comment adressing recreational catch & release fisheries. The comment was edited slightly to avoid confusion about "commercial catch and release":)
+* **NOTE** Aquaculture was not integrated since the database doesn't allow for sheets with no values at all. This should be adressed in general during WGEEL, we need to agree on a working practice concerning no data, 0 values etc.
 
 ### Recruitment
 
