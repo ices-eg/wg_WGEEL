@@ -260,38 +260,59 @@ SERIES INFO
 
 I have modified your comments so please check :
 
-* Dala **CHECK** Comment : "Ascending yellow eels of about 40 cm caught in an eel pass placed close to a hydro power complex. This series started in 1951."  
-       **CHECK** Ser_location_description Hydro power station 10 km from the river mouth, this site is the farthest site into the Baltic
+* Dala 
+
+**CHECK** Comment : "Ascending yellow eels of about 40 cm caught in an eel pass placed close to a hydro power complex. This series started in 1951."  
+**CHECK** Ser_location_description Hydro power station 10 km from the river mouth, this site is the farthest site into the Baltic
        
-* Gota **CHECK** Comment: "Operated since 1900, this series is the longest available to the working group
+* Gota 
+
+**CHECK** Comment: "Operated since 1900, this series is the longest available to the working group
 Missing years 1995, 1998 to 2001, 2010,2011 (fish pass rebuilt in 2010 2011). The station collects ascending yellow eels of different sizes caught in an eel pass placed close to a hydro power station."  
        *NOTE* Ser_location_description updated
        
-* Kavl  **CHECK** location : "Near the Øresund (Sound) strait, outlet of Lake Vombsjön 45 km from the sea."  
-        **CHECK** comment : Ascending small eels caught in an eel pass.   
+* Kavl 
 
-* Laga   **CHECK** location : Swedish west coast, hydropower station ca 10 km from the sea.  
-         **CHECK** comment : Ascending small eels caught in an eel pass at a hydro power station. Though classified as a yellow eel series, there is always a high percentage of YOY elvers from this site.
+ **CHECK** location : "Near the Øresund (Sound) strait, outlet of Lake Vombsjön 45 km from the sea."  
+**CHECK** comment : Ascending small eels caught in an eel pass.   
+
+* Laga  
+
+ **CHECK** location : Swedish west coast, hydropower station ca 10 km from the sea.  
+**CHECK** comment : Ascending small eels caught in an eel pass at a hydro power station. Though classified as a yellow eel series, there is always a high percentage of YOY elvers from this site.
          
-* Morr  **CHECK** location : Station located on the Mörrumån river flowing to the southern coast of Sweden, the station is quite far upstream the river.   
-          **CHECK** comment : Ascending yellow eels at a hydro power station. The series is complete since 1960.
+* Morr  
+
+**CHECK** location : Station located on the Mörrumån river flowing to the southern coast of Sweden, the station is quite far upstream the river.   
+**CHECK** comment : Ascending yellow eels at a hydro power station. The series is complete since 1960.
           
-* Mota    **CHECK**  location  Eel pass located at a hydro power station near the outlet of Lake Vättern, second largest lake by surface area in Sweden. This lake is flowing into the Baltic about a 100 km south from Stockholm.     
-           **CHECK** comment :  As this site is both far upstream and far into the Baltic, ascending yellow eels are quite large (30-40) cm. This series is one of the longest series available to wgeel, with a complete series dating back to 1942.
+* Mota   
+
+ **CHECK**  location  Eel pass located at a hydro power station near the outlet of Lake Vättern, second largest lake by surface area in Sweden. This lake is flowing into the Baltic about a 100 km south from Stockholm.     
+**CHECK** comment :  As this site is both far upstream and far into the Baltic, ascending yellow eels are quite large (30-40) cm. This series is one of the longest series available to wgeel, with a complete series dating back to 1942.
            
-* Ronn    There was a mistake, the trap was located in Ronne Island... In Danemark. OK this is now corrected. I guess it's the same site for both upstream and downstream migration that I've found in one of your report.   
-          **CHECK** location : Rönnemölla (55°56'40.69"N, 13°22'37.44"E) is a mill including a small hydroelectric power plant, located in Rönne å River (catchment area: 1896.6 km²), 6.5 km downstream of the outflow of lake Ringsjön.  The river flows to southern Kattegat.  
-           **CHECK** comment : The trap has been operated since 1946,  with 9 missing years between 1988 et 1997. It collects mostly small eels. There have been several problems with both placing and maintenance of this eel pass situated at a hydro power dam.
+* Ronn    
+
+There was a mistake, the trap was located in Ronne Island... In Danemark. OK this is now corrected. I guess it's the same site for both upstream and downstream migration that I've found in one of your report.   
+          
+**CHECK** location : Rönnemölla (55°56'40.69"N, 13°22'37.44"E) is a mill including a small hydroelectric power plant, located in Rönne å River (catchment area: 1896.6 km²), 6.5 km downstream of the outflow of lake Ringsjön.  The river flows to southern Kattegat.  
+**CHECK** comment : The trap has been operated since 1946,  with 9 missing years between 1988 et 1997. It collects mostly small eels. There have been several problems with both placing and maintenance of this eel pass situated at a hydro power dam.
            
-* Ring     **CHECK** location : "The Ringhals nuclear power plant is located on the Swedish west coast in the Kattegat. This site is located at the coast. The monitoring takes place near the intake of cooling water to the nuclear power plant.    
-			**CHECK** comment : 'The Ringhals series consists of transparent glass eel. The time of arrival of the glass eels to the sampling site varies between years, probably as a consequence of hydrographical conditions, but the peak in abundance normally occurred in late March to early April. Abundance has decreased by 96% if the recent years are compared to the peak in 1981-1983. From 2012 the series has been corrected and now only concerns glass eel collected during March and April (weeks 9-18).
+* Ring   
+
+  **CHECK** location : "The Ringhals nuclear power plant is located on the Swedish west coast in the Kattegat. This site is located at the coast. The monitoring takes place near the intake of cooling water to the nuclear power plant.    
+**CHECK** comment : 'The Ringhals series consists of transparent glass eel. The time of arrival of the glass eels to the sampling site varies between years, probably as a consequence of hydrographical conditions, but the peak in abundance normally occurred in late March to early April. Abundance has decreased by 96% if the recent years are compared to the peak in 1981-1983. From 2012 the series has been corrected and now only concerns glass eel collected during March and April (weeks 9-18).
 			The sampling at Ringhals is performed twice weekly in February-April, using a modified Isaacs-Kidd Midwater trawl (IKMT). The trawl is fixed in the current of incoming cooling water, fishing passively during entire nights. Sampling is depending on the operation of the power plant and changes in the strength of the current may occur so data are corrected for variations in water flow.'
 
-* Visk     **CHECK** location The Viskan series is collected at 4 eel passes situated at an overflow dam that regulate river Viskan. The dam is located at the the very shoreline (250 m from the sea). In River Viskan flows to the Swedish West Coast.
-   			  **CHECK** comment Most eels are young-of-the-year recruits, i.e. originates from glass eels arriving at the coast in the same year. The Viskan has been monitored since 1972.
+* Visk    
+
+**CHECK** location The Viskan series is collected at 4 eel passes situated at an overflow dam that regulate river Viskan. The dam is located at the the very shoreline (250 m from the sea). In River Viskan flows to the Swedish West Coast.
+**CHECK** comment Most eels are young-of-the-year recruits, i.e. originates from glass eels arriving at the coast in the same year. The Viskan has been monitored since 1972.
    			         
-* YFS2 **CHECK** comment is  "Skagerrak-KattegatCatch of glass eels by a modified Methot–Isaacs–Kidd Midwater trawl (MIKT) in the Skagerrak-Kattegat. Data expressed as total numbers per hour of haul. No sampling in 2011 due to technical problems".  
-      *NOTE* Ser_location_description updated according to your data 
+* YFS2 
+
+**CHECK** comment is  "Skagerrak-KattegatCatch of glass eels by a modified Methot–Isaacs–Kidd Midwater trawl (MIKT) in the Skagerrak-Kattegat. Data expressed as total numbers per hour of haul. No sampling in 2011 due to technical problems".  
+*NOTE* Ser_location_description updated according to your data 
 
 
 RECRUITMENT SERIES 
