@@ -52,24 +52,24 @@ Recruitment => No data OK
 
 * *MISSING*  I need png 300x225px for all Danish stations to illustrate in shiny.  
 
- **=> new series Hellebaekken**
+* new series Hellebaekken
 
 
-* *CHECK* I guess the `ser_uni_cod` is number (nr). It was left blank in the description file.
-* *CHECK* My guess is that the trap is in transitional waters is it TRUE ?
-* *CHECK*  The organisation doing the monitoring is DTU Aqua ? this is necessary for the station table for ICES
-* *NOTE*  This series will be named hell :-) !		
-* *NOTE* Cannot use the effort as it stands, it should be a numeric, with effort, so I'm putting the season monitored which never changes (total season 1 april-1 november) into the series description.
-* *CHECK* Biometry 70-100 mm is a text not a numeric what should I do ?
+  **CHECK** I guess the `ser_uni_cod` is number (nr). It was left blank in the description file.
+  **CHECK** My guess is that the trap is in transitional waters is it TRUE ?
+  **CHECK**  The organisation doing the monitoring is DTU Aqua ? this is necessary for the station table for ICES
+   *NOTE*  This series will be named hell :-) !		
+   *NOTE* Cannot use the effort as it stands, it should be a numeric, with effort, so I'm putting the season monitored which never changes (total season 1 april-1 november) into the series description.
+   **CHECK** Biometry 70-100 mm is a text not a numeric what should I do ?
 
   
   
-NorsA Klet Sle
+* NorsA Klet Sle
 
 
-*  *CHECK* description edited : Average densities (eel/m2) of pigmented glas eel and yellow eel (elvers)  from three electro surveys from may to august . The data represent in general 3 electrofishing surveys per season. Some years only one or two  electrofishing surveys have been possible. The max density is usally found in June/July. 
-*  *CHECK* locationdescription edited : Electrofishing in a small stream. 
-*  *CHECK* No new data ? 
+  **CHECK** description edited : Average densities (eel/m2) of pigmented glas eel and yellow eel (elvers)  from three electro surveys from may to august . The data represent in general 3 electrofishing surveys per season. Some years only one or two  electrofishing surveys have been possible. The max density is usally found in June/July. 
+  **CHECK** locationdescription edited : Electrofishing in a small stream. 
+  **CHECK** No new data ? 
 
 
 			
@@ -172,29 +172,35 @@ TODO Guadaquivir (Data sent by Carlos Fernandez Delgado to finish integrating).
 
 * Oria => new series
 
-*NOTE* You have provided the coordinates with -2.07 43.16 but what you have given is in fact a degree minute second coordinates.... I have corrected that.
+  *NOTE* You have provided the coordinates with -2.07 43.16 but what you have given is in fact a degree minute second coordinates.... I have corrected that.
 
-*NOTE* I have converted the Oria series to m3/s
+  *NOTE* I have converted the Oria series to m3/s
 
-**CHECK** location :  'The Oria River is 77 km long, drains an area of 888 km2, and has a mean river flow of 25.7 m3 per second. It flows into the Bay of Biscay in the Basque country, on the Northern coast of Spain' 
+  **CHECK** location :  'The Oria River is 77 km long, drains an area of 888 km2, and has a mean river flow of 25.7 m3 per second. It flows into the Bay of Biscay in the Basque country, on the Northern coast of Spain' 
 
 
-**CHECK** comment : 'Scientific sampling from a boat equipped with sieves. from 2005 - 2019, during Oct - Mar [missing 2008, 2012-2017] at the sampling point (1) in the estuary at new moon. There are statistically significant differences in depth, month and season on the density of GE. Thus, the value for GE density was predicted (glm) for each season in the highest values month/depth.' 
+  **CHECK** comment : 'Scientific sampling from a boat equipped with sieves. from 2005 - 2019, during Oct - Mar [missing 2008, 2012-2017] at the sampling point (1) in the estuary at new moon. There are statistically significant differences in depth, month and season on the density of GE. Thus, the value for GE density was predicted (glm) for each season in the highest values month/depth.' 
  
-*NOTE* For next year, please provide a measure of effort as number of days fished.
+  *NOTE* For next year, please provide a measure of effort as number of days fished.
  
-*NOTE* This series will not be integrated in the final recruitment calculation as it is shorter than 10 years.
+  *NOTE* This series will not be integrated in the final recruitment calculation as it is shorter than 10 years.
  
- * Nalo OK
+* Nalo OK
  
- * MiSp **CHECK**  Series is missing
+* MiSp  
+
+  **CHECK**  Series is missing
  
- * Albu  **CHECK** 2.6 for 2018, it is VERY VERY VERY low. The CPUE dropped by a factor 15, and the catch by a factor 125.
+* Albu  
+
+  **CHECK** 2.6 for 2018, it is VERY VERY VERY low. The CPUE dropped by a factor 15, and the catch by a factor 125.
 Since this is obviously a problem I have flagged both values with a 3 as quality (discarded). Please check.
  
- * AlCp  *NOTE*  see above, I have flagged the value as 3. 
+* AlCp  
+
+  *NOTE*  see above, I have flagged the value as 3. 
  
- * Ebro OK
+* Ebro OK
  
  **MISSING** I need pictures format png for all sites, png 300x225px one of the pass, one of the location, to illustrate in shiny. Please bring them to wgeel or send by email.
  
@@ -344,57 +350,57 @@ I have modified your comments, either because I had something longer or more pre
 
 * Dala 
 
-**CHECK** Comment : "Ascending yellow eels of about 40 cm caught in an eel pass placed close to a hydro power complex. This series started in 1951."  
-**CHECK** Ser_location_description Hydro power station 10 km from the river mouth, this site is the farthest site into the Baltic
+  **CHECK** Comment : "Ascending yellow eels of about 40 cm caught in an eel pass placed close to a hydro power complex. This series started in 1951."  
+  **CHECK** Ser_location_description Hydro power station 10 km from the river mouth, this site is the farthest site into the Baltic
        
 * Gota 
 
-**CHECK** Comment: "Operated since 1900, this series is the longest available to the working group
+  **CHECK** Comment: "Operated since 1900, this series is the longest available to the working group
 Missing years 1995, 1998 to 2001, 2010,2011 (fish pass rebuilt in 2010 2011). The station collects ascending yellow eels of different sizes caught in an eel pass placed close to a hydro power station."  
        *NOTE* Ser_location_description updated
        
 * Kavl 
 
- **CHECK** location : "Near the Øresund (Sound) strait, outlet of Lake Vombsjön 45 km from the sea."  
-**CHECK** comment : Ascending small eels caught in an eel pass.   
+  **CHECK** location : "Near the Øresund (Sound) strait, outlet of Lake Vombsjön 45 km from the sea."  
+  **CHECK** comment : Ascending small eels caught in an eel pass.   
 
 * Laga  
 
- **CHECK** location : Swedish west coast, hydropower station ca 10 km from the sea.  
-**CHECK** comment : Ascending small eels caught in an eel pass at a hydro power station. Though classified as a yellow eel series, there is always a high percentage of YOY elvers from this site.
+  **CHECK** location : Swedish west coast, hydropower station ca 10 km from the sea.  
+  **CHECK** comment : Ascending small eels caught in an eel pass at a hydro power station. Though classified as a yellow eel series, there is always a high percentage of YOY elvers from this site.
          
 * Morr  
 
-**CHECK** location : Station located on the Mörrumån river flowing to the southern coast of Sweden, the station is quite far upstream the river.   
-**CHECK** comment : Ascending yellow eels at a hydro power station. The series is complete since 1960.
+  **CHECK** location : Station located on the Mörrumån river flowing to the southern coast of Sweden, the station is quite far upstream the river.   
+  **CHECK** comment : Ascending yellow eels at a hydro power station. The series is complete since 1960.
           
 * Mota   
 
- **CHECK**  location  Eel pass located at a hydro power station near the outlet of Lake Vättern, second largest lake by surface area in Sweden. This lake is flowing into the Baltic about a 100 km south from Stockholm.     
-**CHECK** comment :  As this site is both far upstream and far into the Baltic, ascending yellow eels are quite large (30-40) cm. This series is one of the longest series available to wgeel, with a complete series dating back to 1942.
+  **CHECK**  location  Eel pass located at a hydro power station near the outlet of Lake Vättern, second largest lake by surface area in Sweden. This lake is flowing into the Baltic about a 100 km south from Stockholm.     
+  **CHECK** comment :  As this site is both far upstream and far into the Baltic, ascending yellow eels are quite large (30-40) cm. This series is one of the longest series available to wgeel, with a complete series dating back to 1942.
            
 * Ronn    
 
 There was a mistake, the trap was located in Ronne Island... In Danemark. OK this is now corrected. I guess it's the same site for both upstream and downstream migration that I've found in one of your report.   
           
-**CHECK** location : Rönnemölla (55°56'40.69"N, 13°22'37.44"E) is a mill including a small hydroelectric power plant, located in Rönne å River (catchment area: 1896.6 km²), 6.5 km downstream of the outflow of lake Ringsjön.  The river flows to southern Kattegat.  
-**CHECK** comment : The trap has been operated since 1946,  with 9 missing years between 1988 et 1997. It collects mostly small eels. There have been several problems with both placing and maintenance of this eel pass situated at a hydro power dam.
+  **CHECK** location : Rönnemölla (55°56'40.69"N, 13°22'37.44"E) is a mill including a small hydroelectric power plant, located in Rönne å River (catchment area: 1896.6 km²), 6.5 km downstream of the outflow of lake Ringsjön.  The river flows to southern Kattegat.  
+  **CHECK** comment : The trap has been operated since 1946,  with 9 missing years between 1988 et 1997. It collects mostly small eels. There have been several problems with both placing and maintenance of this eel pass situated at a hydro power dam.
            
 * Ring   
 
   **CHECK** location : "The Ringhals nuclear power plant is located on the Swedish west coast in the Kattegat. This site is located at the coast. The monitoring takes place near the intake of cooling water to the nuclear power plant.    
-**CHECK** comment : 'The Ringhals series consists of transparent glass eel. The time of arrival of the glass eels to the sampling site varies between years, probably as a consequence of hydrographical conditions, but the peak in abundance normally occurred in late March to early April. Abundance has decreased by 96% if the recent years are compared to the peak in 1981-1983. From 2012 the series has been corrected and now only concerns glass eel collected during March and April (weeks 9-18).
+  **CHECK** comment : 'The Ringhals series consists of transparent glass eel. The time of arrival of the glass eels to the sampling site varies between years, probably as a consequence of hydrographical conditions, but the peak in abundance normally occurred in late March to early April. Abundance has decreased by 96% if the recent years are compared to the peak in 1981-1983. From 2012 the series has been corrected and now only concerns glass eel collected during March and April (weeks 9-18).
 			The sampling at Ringhals is performed twice weekly in February-April, using a modified Isaacs-Kidd Midwater trawl (IKMT). The trawl is fixed in the current of incoming cooling water, fishing passively during entire nights. Sampling is depending on the operation of the power plant and changes in the strength of the current may occur so data are corrected for variations in water flow.'
 
 * Visk    
 
-**CHECK** location The Viskan series is collected at 4 eel passes situated at an overflow dam that regulate river Viskan. The dam is located at the the very shoreline (250 m from the sea). In River Viskan flows to the Swedish West Coast.  
-**CHECK** comment Most eels are young-of-the-year recruits, i.e. originates from glass eels arriving at the coast in the same year. The Viskan has been monitored since 1972.
+  **CHECK** location The Viskan series is collected at 4 eel passes situated at an overflow dam that regulate river Viskan. The dam is located at the the very shoreline (250 m from the sea). In River Viskan flows to the Swedish West Coast.  
+  **CHECK** comment Most eels are young-of-the-year recruits, i.e. originates from glass eels arriving at the coast in the same year. The Viskan has been monitored since 1972.
    			         
 * YFS2 
 
-**CHECK** comment is  "Skagerrak-KattegatCatch of glass eels by a modified Methot–Isaacs–Kidd Midwater trawl (MIKT) in the Skagerrak-Kattegat. Data expressed as total numbers per hour of haul. No sampling in 2011 due to technical problems".  
-*NOTE* Ser_location_description updated according to your data 
+  **CHECK** comment is  "Skagerrak-KattegatCatch of glass eels by a modified Methot–Isaacs–Kidd Midwater trawl (MIKT) in the Skagerrak-Kattegat. Data expressed as total numbers per hour of haul. No sampling in 2011 due to technical problems".  
+  *NOTE* Ser_location_description updated according to your data 
 
 
 RECRUITMENT SERIES 
