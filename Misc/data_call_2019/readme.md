@@ -244,6 +244,48 @@ Series info => thanks for the updated description, it's in  !
 * **MISSING** I have no data for sites Grey (which is now an official series as > 10 years), BroG (8 years), BeeG (11 years), FlaE (10 years), FlaG ...
 
 
+## SWEDEN 
+
+### recruitment
+
+SERIES INFO
+
+I have modified your comments so please check :
+
+* Dala **CHECK** Comment : "Ascending yellow eels of about 40 cm caught in an eel pass placed close to a hydro power complex. This series started in 1951."  
+       **NOTE** Ser_location_description Hydro power station 10 km from the river mouth, this site is the farthest site into the Baltic
+       
+* Gota **CHECK** Comment: "Operated since 1900, this series is the longest available to the working group
+Missing years 1995, 1998 to 2001, 2010,2011 (fish pass rebuilt in 2010 2011). The station collects ascending yellow eels of different sizes caught in an eel pass placed close to a hydro power station."
+       **NOTE** Ser_location_description updated
+       
+* Kavl  **CHECK** location : "Near the Øresund (Sound) strait, outlet of Lake Vombsjön 45 km from the sea."
+        **CHECK** Ascending small eels caught in an eel pass.
+
+* Laga   **CHECK** Swedish west coast, hydropower station ca 10 km from the sea.
+         **CHECK** Ascending small eels caught in an eel pass at a hydro power station. Though classified as a yellow eel series, there is always a high percentage of YOY elvers from this site.
+         
+* Morr  **CHECK** location : Station located on the Mörrumån river flowing to the southern coast of Sweden, the station is quite far upstream the river. 
+          **CHECK** comment : Ascending yellow eels at a hydro power station. The series is complete since 1960.
+          
+* Mota    **CHECK**  location  Eel pass located at a hydro power station near the outlet of Lake Vättern, second largest lake by surface area in Sweden. This lake is flowing into the Baltic about a 100 km south from Stockholm.    
+           **CHECK** comment :  As this site is both far upstream and far into the Baltic, ascending yellow eels are quite large (30-40) cm. This series is one of the longest series available to wgeel, with a complete series dating back to 1942.
+           
+
+           
+
+
+    
+
+
+* YFS2 **CHECK** comment is  "Skagerrak-KattegatCatch of glass eels by a modified Methot–Isaacs–Kidd Midwater trawl (MIKT) in the Skagerrak-Kattegat. Data expressed as total numbers per hour of haul. No sampling in 2011 due to technical problems". 
+         **NOTE** Ser_location_description updated according to your data 
+
+
+
+
+
+
   
   
   
