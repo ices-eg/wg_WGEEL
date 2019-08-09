@@ -381,7 +381,7 @@ Missing years 1995, 1998 to 2001, 2010,2011 (fish pass rebuilt in 2010 2011). Th
            
 * Ronn    
 
-There was a mistake, the trap was located in Ronne Island... In Danemark. OK this is now corrected. I guess it's the same site for both upstream and downstream migration that I've found in one of your report.   
+  There was a mistake, the trap was located in Ronne Island... In Danemark. OK this is now corrected. I guess it's the same site for both upstream and downstream migration that I've found in one of your report.   
           
   **CHECK** location : Rönnemölla (55°56'40.69"N, 13°22'37.44"E) is a mill including a small hydroelectric power plant, located in Rönne å River (catchment area: 1896.6 km²), 6.5 km downstream of the outflow of lake Ringsjön.  The river flows to southern Kattegat.  
   **CHECK** comment : The trap has been operated since 1946,  with 9 missing years between 1988 et 1997. It collects mostly small eels. There have been several problems with both placing and maintenance of this eel pass situated at a hydro power dam.
