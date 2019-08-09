@@ -28,7 +28,7 @@ https://community.ices.dk/ExpertGroups/wgeel/WGEEL%20accessions/Data%20call%2020
 			"Notes") <br/>
 * *NOTE*  The reference list for emu is wrong in landings original file, it should not integrate outside emu, there is a script to generate referential tables, run it to provide the right references during wgeel
 * *NOTE*  INTEGRATION PROCEDURE I've checked, if you don't intend to keep any data in duplicates excel file you don't need to put a code in `eel_qal_id` weel you can but it will be replace by `qualify_code (19)` taken from `global.R`. In fact you only need to qualify the lines that you want (`keep_new_value=TRUE`).
-
+*  *CHECK* Rules for integration were currently 10 years. I think we should allow for long time series to be included even if shorter than 10 years. Discuss that within wgeel.
 
 # Series integration 
 
@@ -150,7 +150,7 @@ For duplicates 6 values replaced in the database (old values kept with code eel_
 ### Release
  
 * *NOTE* All names should be `release_n`, it's later on that the script will split up the two columns `release_n` and `release_kg`
-* *CHECK* You have values for 2020 I this is obviously a mistake, I changed to 2019 correct ?
+* **CHECK** You have values for 2020 I this is obviously a mistake, I changed to 2019 correct ?
  
 | year | new  | conflicts | no change |
 |:----:|:----:|:---------:|:---------:|
@@ -158,11 +158,47 @@ For duplicates 6 values replaced in the database (old values kept with code eel_
 | 2019 | 10   | 0         | 0         |
 
 * *NOTE* The last line is a duplicate fom previous line but with values wrong (57 kg glass eel is about 17000 not 170000 + this was the 2020 line ... I'm dropping this line.  
-
+  
 ```
  16 new values inserted in the database
  ```
- * *MISSING* You have not submitted aquaculture but you have some no ?
+ * **MISSING** You have not submitted aquaculture but you have some no ?
+ 
+ ### recruitment
+ 
+TODO Guadaquivir (Data sent by Carlos Fernandez Delgado to finish integrating).
+
+*NOTE* No biometry provided ... OK I'm really unsure of the interest of having those biometries for pure glass eel.
+
+* Oria => new series
+
+*NOTE* You have provided the coordinates with -2.07 43.16 but what you have given is in fact a degree minute second coordinates.... I have corrected that.
+
+*NOTE* I have converted the Oria series to m3/s
+
+**CHECK** location :  'The Oria River is 77 km long, drains an area of 888 km2, and has a mean river flow of 25.7 m3 per second. It flows into the Bay of Biscay in the Basque country, on the Northern coast of Spain' 
+
+
+**CHECK** comment : 'Scientific sampling from a boat equipped with sieves. from 2005 - 2019, during Oct - Mar [missing 2008, 2012-2017] at the sampling point (1) in the estuary at new moon. There are statistically significant differences in depth, month and season on the density of GE. Thus, the value for GE density was predicted (glm) for each season in the highest values month/depth.' 
+ 
+*NOTE* For next year, please provide a measure of effort as number of days fished.
+ 
+*NOTE* This series will not be integrated in the final recruitment calculation as it is shorter than 10 years.
+ 
+ * Nalo OK
+ 
+ * MiSp **CHECK**  Series is missing
+ 
+ * Albu  **CHECK** 2.6 for 2018, it is VERY VERY VERY low. The CPUE dropped by a factor 15, and the catch by a factor 125.
+Since this is obviously a problem I have flagged both values with a 3 as quality (discarded). Please check.
+ 
+ * AlCp  *NOTE*  see above, I have flagged the value as 3. 
+ 
+ * Ebro OK
+ 
+ **MISSING** I need pictures format png for all sites, png 300x225px one of the pass, one of the location, to illustrate in shiny. Please bring them to wgeel or send by email.
+ 
+  **MISSING** No data for biometry. I'm not sure it's of any interest for pure glass eel series.
  
  -----------------------------
  
@@ -276,12 +312,15 @@ biometry integrated thanks !
 
 * MiSc => new series
 
-**MISSING** Please provide exact google coordinates for that site, you can  go to google maps, right click what's here, then click on the coordinates, once the new location appears on the right you can copy the coordinates in that format
-41.901412, -8.823340 or share a link with me. Since you said 5 km from the sea I've guessed the coordinates.
+**MISSING** Please provide exact google coordinates for that site, you can  go to google maps, right click what's here, then click on the coordinates, once the new location appears on the right you can copy the coordinates in the following format
+41.901412, -8.823340 (not with west and north...) or share a link with me. Since you said 5 km from the sea I've guessed the coordinates.
 
-**MISSING** I need the name of the Organisation running that sampling.
+**CHECK** I need the name of the Organisation running that sampling. I guess it's Ciimar right ?
 
 **NOTE** EMU names have changed, it's `ES_Minh` because this refers to the transboundary emu which is in country PT with name `ES_Minh`
+
+**NOTE** Inserted biometry OK
+
 
 -----------------------------
 
@@ -301,7 +340,7 @@ biometry integrated thanks !
 
 SERIES INFO
 
-I have modified your comments so please check :
+I have modified your comments, either because I had something longer or more precise already, or because I felt the description of the location was not detailed enough. Could you please check ?
 
 * Dala 
 
@@ -360,11 +399,11 @@ There was a mistake, the trap was located in Ronne Island... In Danemark. OK thi
 
 RECRUITMENT SERIES 
 
-=> OK everyhting has been updated and checked twice, I had a temporary value for Gota Alv last year, can you confirm it's still 20 ? What happened this year for the pass not be opened ?
+=> OK everyhting has been updated and checked twice, **CHECK** I had a temporary value for Gota Alv last year, can you confirm it's still 20 ? What happened this year for the pass not be opened ?
 
 BIOMETRIC DATA
 
-There is only one line , I guess it's not done ?
+**MISSING** There is only one line , I guess it's not done ? I would be good to have an idea of the size of ascending eels at all locations.
 
 -----------------------------
 

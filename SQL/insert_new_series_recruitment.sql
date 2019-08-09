@@ -196,3 +196,94 @@ INSERT INTO  datawg.t_series_ser(
           from ref.tr_station
           where  "Station_Name" = 'MiSc';--1
 COMMIT;
+
+BEGIN;
+UPDATE ref.tr_station SET "Organisation"='Ciimar' WHERE  "Station_Name" ='MiSc';
+COMMIT;
+
+
+----------------------------
+-- insert new series for Oria scientific sampling Oria
+---------------------------
+SELECT * FROM datawg.t_series_ser where ser_cou_code='ES';
+-- will insert the series at postition 60 just before the Nalo
+BEGIN;
+-- first we need to insert the station
+INSERT INTO ref.tr_station( "tblCodeID",
+"Station_Code",
+"Country",
+"Organisation",
+"Station_Name",
+"WLTYP",
+"Lat",
+"Lon",
+"StartYear",
+"EndYear",
+"PURPM",
+"Notes") 
+select max("tblCodeID")+1,
+       max("Station_Code")+1,
+       'SPAIN' as "Country",
+       'AZTI' as "Organisation",
+	'Oria' as "Station_Name",
+	 NULL as "WLTYP",
+      43.282790 as "Lat",
+	  -2.130729 as "Lon",
+	2018 as "StartYear",
+	NULL as "EndYear",
+	'T' as "PURPM", -- Not sure there
+	'Oria scientific monitoring' as "Notes"
+from ref.tr_station; --1 
+
+update datawg.t_series_ser set ser_order=ser_order+1 where ser_order>=60; --37
+INSERT INTO  datawg.t_series_ser(
+          ser_order, 
+          ser_nameshort, 
+          ser_namelong, 
+          ser_typ_id, 
+          ser_effort_uni_code, 
+          ser_comment, 
+          ser_uni_code, 
+          ser_lfs_code, 
+          ser_hty_code, 
+          ser_locationdescription, 
+          ser_emu_nameshort, 
+          ser_cou_code, 
+          ser_area_division,
+          ser_tblcodeid,
+          ser_x, 
+          ser_y, 
+          ser_sam_id,
+          ser_qal_id,
+          ser_qal_comment,
+          geom) 
+          SELECT   
+          60 as ser_order, 
+          'Oria' ser_nameshort, 
+          'Oria scientific monitoring' as ser_namelong, 
+          1 as ser_typ_id, 
+          'nr day' as ser_effort_uni_code, 
+          'Scientific sampling from a boat equipped with sieves. from 2005 - 2019, during Oct - Mar [missing 2008, 2012-2017] at the sampling point (1) in the estuary at new moon. There are statistically significant differences in depth, month and season on the density of GE. Thus, the value for GE density was predicted (glm) for each season in the highest values month/depth.' as ser_comment, 
+          'nr/m3' as ser_uni_code, 
+          'G' as ser_lfs_code, 
+          'T' as ser_hty_code, 
+          'The Oria River is 77 km long, drains an area of 888 km2, and has a mean river flow of 25.7 m3 per second. It flows into the Bay of Biscay in the Basque country, on the Northern coast of Spain' as ser_locationdescription, 
+          'ES_Basq' as ser_emu_nameshort, 
+          'ES' as ser_cou_code, 
+          '27.8.b' as ser_area_division,
+          "tblCodeID" as ser_tblcodeid, -- this comes from station
+          -2.1307297 as ser_x, 
+          43.2827 as ser_y, 
+          3 as ser_sam_id, -- scientific estimate
+          0 as ser_qal_id, -- currenly 8 years
+          'Series too short yet < 10 years to be included' as ser_qal_comment,
+          ST_SetSRID(ST_MakePoint(-2.1307297, 43.28276),4326)
+          from ref.tr_station
+          where  "Station_Name" = 'Oria';--1
+COMMIT;
+--ROLLBACK;
+
+
+
+
+
