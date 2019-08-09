@@ -243,6 +243,9 @@ No recruitment
 | 1982 | 0 | 1 | 0 |
 | 1983 | 0 | 1 | 0 |
 
+### Recruitment
+
+
 
 ## SWEDEN
 
@@ -308,7 +311,7 @@ There was a mistake, the trap was located in Ronne Island... In Danemark. OK thi
 
 * Visk    
 
-**CHECK** location The Viskan series is collected at 4 eel passes situated at an overflow dam that regulate river Viskan. The dam is located at the the very shoreline (250 m from the sea). In River Viskan flows to the Swedish West Coast.
+**CHECK** location The Viskan series is collected at 4 eel passes situated at an overflow dam that regulate river Viskan. The dam is located at the the very shoreline (250 m from the sea). In River Viskan flows to the Swedish West Coast.  
 **CHECK** comment Most eels are young-of-the-year recruits, i.e. originates from glass eels arriving at the coast in the same year. The Viskan has been monitored since 1972.
    			         
 * YFS2 
@@ -320,6 +323,10 @@ There was a mistake, the trap was located in Ronne Island... In Danemark. OK thi
 RECRUITMENT SERIES 
 
 => OK everyhting has been updated and checked twice, I had a temporary value for Gota Alv last year, can you confirm it's still 20 ? What happened this year for the pass not be opened ?
+
+BIOMETRIC DATA
+
+There is only one line , I guess it's not done ?
 
 ## Tunisia
 
