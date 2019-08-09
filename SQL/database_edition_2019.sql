@@ -1,4 +1,4 @@
--------------------------------
+﻿-------------------------------
 -- Update tested on rasberry
 -- TODO update database living
 -------------------------------
@@ -213,6 +213,7 @@ GRANT ALL ON ALL TABLES IN SCHEMA datawg TO wgeel;
 GRANT ALL ON ALL TABLES IN SCHEMA ref TO wgeel; 
 GRANT ALL ON SEQUENCE datawg.log_log_id_seq TO wgeel;
 GRANT ALL ON SEQUENCE datawg.t_eelstock_eel_eel_id_seq to wgeel;
+GRANT ALL ON SEQUENCE datawg.t_biometry_bio_bio_id_seq to wgeel;
 GRANT ALL ON ALL TABLES IN SCHEMA public TO wgeel; 
 GRANT ALL ON SCHEMA public to wgeel
 */

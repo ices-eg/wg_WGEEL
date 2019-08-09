@@ -249,9 +249,11 @@ No recruitment
 
 **MISSING** Please provide the effort (in number of days samples per year); Check I put 6 in 2018 and 7 in 2019 and I had 5 in 1989.
 
-biometry integratd thanks !
+biometry integrated thanks !
 
 * MiPo
+
+**MISSING** I two pictures format png for this site, png 300x225px one of the gear used, one of the location, to illustrate in shiny. Please bring them to wgeel or send by email.
 
 **MISSING** Recruitment series of total catch. I know it's the same as Portugese landings in the Minho so I've used this file, please next year could you provide both ?
 
