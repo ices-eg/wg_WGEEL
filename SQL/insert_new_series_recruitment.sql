@@ -118,3 +118,81 @@ begin;
 update datawg.t_series_ser set geom=ST_SetSRID(ST_MakePoint(12.105802,57.261890),4326) where ser_nameshort='Ring';
 commit;
 
+----------------------------
+-- insert new series for mino scientific sampling MiSc
+---------------------------
+SELECT * FROM datawg.t_series_ser where ser_cou_code='PT';
+-- will insert the series at postition 64 just after MiPo
+begin;
+-- first we need to insert the station
+INSERT INTO ref.tr_station( "tblCodeID",
+"Station_Code",
+"Country",
+"Organisation",
+"Station_Name",
+"WLTYP",
+"Lat",
+"Lon",
+"StartYear",
+"EndYear",
+"PURPM",
+"Notes") 
+select max("tblCodeID")+1,
+       max("Station_Code")+1,
+       'PORTUGAL' as "Country",
+       'PLEASE UPDATE' as "Organisation",
+	'MiSc' as "Station_Name",
+	 NULL as "WLTYP",
+         41.90 as "Lat",
+	 -8.2 as "Lon",
+	2018 as "StartYear",
+	NULL as "EndYear",
+	'T' as "PURPM", -- Not sure there
+	'Mino scientific recruitment monitoring' as "Notes"
+from ref.tr_station; --1 
+update datawg.t_series_ser set ser_order=ser_order+1 where ser_order>=64; --32
+INSERT INTO  datawg.t_series_ser(
+          ser_order, 
+          ser_nameshort, 
+          ser_namelong, 
+          ser_typ_id, 
+          ser_effort_uni_code, 
+          ser_comment, 
+          ser_uni_code, 
+          ser_lfs_code, 
+          ser_hty_code, 
+          ser_locationdescription, 
+          ser_emu_nameshort, 
+          ser_cou_code, 
+          ser_area_division,
+          ser_tblcodeid,
+          ser_x, 
+          ser_y, 
+          ser_sam_id,
+          ser_qal_id,
+          ser_qal_comment,
+          geom) 
+          SELECT   
+          64 as ser_order, 
+          'MiSc' ser_nameshort, 
+          'Minho scientific monitoring' as ser_namelong, 
+          1 as ser_typ_id, 
+          'nr day' as ser_effort_uni_code, 
+          'Experimental fishing using Tela net in the Minho estuary. Started in 2018' as ser_comment, 
+          'nr/h' as ser_uni_code, 
+          'G' as ser_lfs_code, 
+          'T' as ser_hty_code, -- TODO check that
+          'Minho river 5 km from the sea' as ser_locationdescription, 
+          'DK_Inla' as ser_emu_nameshort, 
+          'DK' as ser_cou_code, 
+          '27.9.a' as ser_area_division,
+          "tblCodeID" as ser_tblcodeid, -- this comes from station
+          -8.2 as ser_x, 
+          41.9 as ser_y, 
+          3 as ser_sam_id, -- scientific estimate
+          0 as ser_qal_id, -- currenly 2 years
+          'Series too short yet < 10 years to be included' as ser_qal_comment,
+          ST_SetSRID(ST_MakePoint(-8.2, 43.29),4326)
+          from ref.tr_station
+          where  "Station_Name" = 'MiSc';--1
+COMMIT;

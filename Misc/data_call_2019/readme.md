@@ -274,6 +274,15 @@ biometry integrated thanks !
 
 **CHECK** Location is  : "Glass eel commercial fishery in the Minho. The Minho forms the border between Spain and Portugal. It is the only place in Portugal where a glass eel fishery is authorized. Fishing takes place in the tidal part of the estuary using Tela net which are not operative when the flow is high."
 
+* MiSc => new series
+
+**MISSING** Please provide exact google coordinates for that site, you can  go to google maps, right click what's here, then click on the coordinates, once the new location appears on the right you can copy the coordinates in that format
+41.901412, -8.823340 or share a link with me. Since you said 5 km from the sea I've guessed the coordinates.
+
+**MISSING** I need the name of the Organisation running that sampling.
+
+**NOTE** EMU names have changed, it's `ES_Minh` because this refers to the transboundary emu which is in country PT with name `ES_Minh`
+
 -----------------------------
 
 ## SWEDEN
