@@ -249,7 +249,10 @@ No recruitment
 |:----:|:----:|:---------:|:---------:|
 | 2018 | 27 | 3 | 2 |
 | 2019 | 42 | 0 | 0 |
-
+ 
+* **NOTE** several duplicates were entered were the comment basically changed from "preliminary data" to "confirmed data" 
+* **NOTE** In some EMUs for commercial fisheries there was a comment adressing recreational catch & release fisheries. The comment was edited slightly to avoid confusion about "commercial catch and release":)
+* **NOTE** Aquaculture was not integrated since the database doesn't allow for sheets with no values at all. This should be adressed in general during WGEEL, we need to agree on a working practice concerning no data, 0 values etc.
 
 ### Recruitment
 
