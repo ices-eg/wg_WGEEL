@@ -85,3 +85,30 @@ INSERT INTO  datawg.t_series_ser(
 COMMIT;
 
 
+------------------------
+-- Change location of Ronn
+-------------------------
+begin;
+update datawg.t_series_ser set geom=ST_SetSRID(ST_MakePoint(13.376925,55.9467),4326) where ser_nameshort='Ronn';
+commit;
+
+
+select ser_comment from  datawg.t_series_ser where ser_nameshort='Ring';
+SELECT ser_locationdescription from  datawg.t_series_ser where ser_nameshort='Ring';
+
+BEGIN;
+UPDATE datawg.t_series_ser set ser_locationdescription = 
+'The Ringhals nuclear power plant is located on the Swedish west coast in the Kattegat. This site is located at the coast. The monitoring takes place near the intake of cooling water to the nuclear power plant.'
+where ser_nameshort='Ring';
+
+UPDATE datawg.t_series_ser set  ser_comment  = 
+'The Ringhals series consists of transparent glass eel. The time of arrival of the glass eels to the sampling site varies between years, probably as a consequence of hydrographical conditions, but the peak in abundance normally occurred in late March to early April. Abundance has decreased by 96% if the recent years are compared to the peak in 1981-1983. From 2012 the series has been corrected and now only concerns glass eel collected during March and April (weeks 9-18). The sampling at Ringhals is performed twice weekly in February-April, using a modified Isaacs-Kidd Midwater trawl (IKMT). The trawl is fixed in the current of incoming cooling water, fishing passively during entire nights. Sampling is depending on the operation of the power plant and changes in the strength of the current may occur so data are corrected for variations in water flow.'
+where ser_nameshort='Ring';
+select ser_comment from  datawg.t_series_ser
+COMMIT;
+SELECT ser_locationdescription from  datawg.t_series_ser where ser_nameshort='Ring';
+SELECT ser_comment from  datawg.t_series_ser where ser_nameshort='Ring';
+
+
+
+
