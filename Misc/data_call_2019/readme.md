@@ -241,6 +241,25 @@ No recruitment
 | 1981 | 0 | 1 | 0 |
 | 1982 | 0 | 1 | 0 |
 | 1983 | 0 | 1 | 0 |
+
+
+## Sweden
+
+### landings
+
+* **CHECK** No value is given for the area division, supposably since it cannot be clearly distiguished (i.e. EMUs overlap with >1 area divisions). Correct? In the old data series, area divisions are given though... 
+
+### releases
+
+* **CHECK** In releases, GEE are reported. For those no kg estimate should be reported. Also, one of the kg values is reported as 0, which doesn't make sense if there is a number. How does T&T apply to glass eels?   
+
+## Tunesia
+
+### landings
+
+* **NOTE** country code changed to TN instead of TUN
+
+
 ## UK
 
 ### landings
