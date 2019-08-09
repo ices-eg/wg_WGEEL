@@ -114,6 +114,15 @@ line <1>, there should not be any area divsion in freshwater
 ## SPAIN
  
 ### Landings
+
+| year | new  | conflicts | no change |
+|:----:|:----:|:---------:|:---------:|
+| 2014 | 0 | 0 | 1  |
+| 2015 | 0 | 0 | 1  |
+| 2016 | 0 | 0 | 1  |
+| 2017 | 0 | 1 | 1  |
+| 2018 | 1 | 0 | 3  |
+| 2019 | 0 | 0 | 12 |
  
 * **NOTE**  MARIA or Esti praise for you for spotting the wrong `eel_area_division` the best was to remove those lines
  and re-inserting again.
@@ -215,6 +224,7 @@ TODO
 ### Recruitment
 
 No recruitment
+
 
 ## UK
 
