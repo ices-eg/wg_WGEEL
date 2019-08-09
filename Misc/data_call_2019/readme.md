@@ -256,6 +256,8 @@ No recruitment
 
 ### recruitment
 
+**MISSING** I need pictures format png for all sites, png 300x225px one of the pass, one of the location, to illustrate in shiny. Please bring them to wgeel or send by email.
+
 SERIES INFO
 
 I have modified your comments so please check :
