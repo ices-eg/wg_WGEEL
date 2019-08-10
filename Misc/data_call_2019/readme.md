@@ -493,7 +493,7 @@ https://github.com/ices-eg/wg_WGEEL/issues/77
 
 **MISSING**  The coordinates of the Irish Series are wrong https://github.com/ices-eg/wg_WGEEL/issues/49, and I may have trouble to exactly pinpoint the location of some of the traps. The reasons is that often coordinates have been provided with degree minutes second and that is not easy to convert. Below I took some time to figure out myself. But you will have to check. If it's wrong and you want to give me the coordinates, the easiest way is : https://www.lifewire.com/latitude-longitude-coordinates-google-maps-1683398, send me the coordinates in decimal degrees.
 
-
+**MISSING**  Biometry of ascending eels. This is now necessary especially for mixed yellow / glass series.
 
 * Erne  
 
@@ -535,10 +535,20 @@ https://github.com/ices-eg/wg_WGEEL/issues/77
 * ShaA    
 
    *NOTE* Though you provided a new value for 2018 it not different from last year.
+   
+   **CHECK** location  : Ardnacrusha power station on the shannon, approximately 4 km from the tidal limit in the Shannon, on the western coast of Ireland.
+   
+   *NOTE* Updated coordinates of Parteen weir to here :    https://goo.gl/maps/f7nSYyDNPycg8TU28
   
 * Shap
  
    *NOTE* Though you provided a new value for 2018 it not different from last year.
   
-
+   **CHECK** location  : Parteen weir on the Shannon, approximately 16 km from the tidal limit. This is what I can do but you can probably do better.
+   
+   *NOTE* Updated coordinates of Parteen weir to here : https://goo.gl/maps/DfCg2PxXVyDz3G4QA
+   
+   *QUESTION* Ardnacrusha and Parteen weir are in fact on two separate branch of the Shannon. Is there a reason not to add the two series ?
+   
+   
  

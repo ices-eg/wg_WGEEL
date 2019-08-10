@@ -298,4 +298,6 @@ update datawg.t_series_ser set geom=ST_SetSRID(ST_MakePoint(-6.3143036,53.346488
 commit;
 
 
-
+begin;
+update datawg.t_series_ser set geom=ST_SetSRID(ST_MakePoint(-8.475329,52.761225),4326) where ser_nameshort='ShaP';
+commit;
