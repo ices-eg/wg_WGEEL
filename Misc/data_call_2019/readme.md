@@ -493,18 +493,15 @@ https://github.com/ices-eg/wg_WGEEL/issues/77
 
 **MISSING**  The coordinates of the Irish Series are wrong https://github.com/ices-eg/wg_WGEEL/issues/49, and I may have trouble to exactly pinpoint the location of some of the traps. The reasons is that often coordinates have been provided with degree minutes second and that is not easy to convert. Below I took some time to figure out myself. But you will have to check. If it's wrong and you want to give me the coordinates, the easiest way is : https://www.lifewire.com/latitude-longitude-coordinates-google-maps-1683398, send me the coordinates in decimal degrees.
 
-**IMPORTANT NOTE** I have put `eel_qual_id` to 3 to all data before 1980. Is there another way (like was done for one of the French series where historical data were corrected for change in efficiency). This is a major change as we don't have that many series at that period.
 
-**CHECK** In the metadata you say that FEALE is trapping partial while it is currently classified as trapping total. I didn't change, will change if you can confirm that.
 
 * Erne  
 
    *NOTE* location : "The Erne at Ballyshannon, 6 km from the sea at the Cathaleen Fall Dam. "  
            
-   *NOTE* comment : "Total trapping in kg glass eel + yellow
+   *NOTE* comment : "Total trapping in kg glass eel + yellow. Full trapping of elvers on the Erne commenced in 1980. Some discrepancies in the time series came to light in 2009. The Erne elver dataset has now been double checked and the presented data has been agreed by DCAL and AFBINI, the ESB, NRFB and MI.  Any discrepancies were not major and the data trend and pattern has not changed. Full trapping of elvers took place on the Erne from 1980 onwards, before it was only partial. In 2011 the whole series corrected to include latest changes.  Traps were significantly upgraded in 2015.  3rd Trap inserted on opposite bank, catch reported as a comment." 
    
-Full trapping of elvers on the Erne commenced in 1980. Some discrepancies in the time series came to light in 2009. The Erne elver dataset has now been double checked and the presented data has been agreed by DCAL and AFBINI, the ESB, NRFB and MI.  Any discrepancies were not major and the data trend and pattern has not changed. Full trapping of elvers took place on the Erne from 1980 onwards, before it was only partial.
-In 2011 the whole series corrected to include latest changes.  Traps were significantly upgraded in 2015.  3rd Trap inserted on opposite bank, catch reported as a comment." 
+   **IMPORTANT NOTE** I have put `eel_qual_id` to 3 to all data before 1980. Is there another way (like was done for one of the French series where historical data were corrected for change in efficiency). This is a major change as we don't have that many series at that period.
 
   *NOTE* location coordinates 54.499848, -8.176306
   
@@ -519,27 +516,29 @@ In 2011 the whole series corrected to include latest changes.  Traps were signif
 		 
 * Burr
 
-  **CHECK** location "Trap located at Furnace at the tidal limit, at 3 km from the sea, on one of the outflow from lough Feeagh."
+   **CHECK** location "Trap located at Furnace at the tidal limit, at 3 km from the sea, on one of the outflow from lough Feeagh."
   
-  *NOTE* Though you provided a new value for 2018 it not different from last year.
+   *NOTE* Though you provided a new value for 2018 it not different from last year.
   
 * Feal
 
-  **MISSING** I have no idea where the trap is, help me please. Also provide a description of the trap (distance to the sea ...) and coordinates in decimal degree
+   **MISSING** I have no idea where the trap is, help me please. Also provide a description of the trap (distance to the sea ...) and coordinates in decimal degree
+   
+   **CHECK** In the metadata you say that FEALE is trapping partial while it is currently classified as trapping total. I didn't change, will change if you can confirm that.
   
 * Maig
 
-  **MISSING** Though I have found the river, I have no idea where the trap is, help me please. Also provide a description of the trap (distance to the sea ...), and coordinates in decimal degree
+   **MISSING** Though I have found the river, I have no idea where the trap is, help me please. Also provide a description of the trap (distance to the sea ...), and coordinates in decimal degree
   
   **MISSING**  Recruitment was not provided last year, please provide 2018 recruitment value.
   
 * ShaA    
 
-  *NOTE* Though you provided a new value for 2018 it not different from last year.
+   *NOTE* Though you provided a new value for 2018 it not different from last year.
   
 * Shap
  
-  *NOTE* Though you provided a new value for 2018 it not different from last year.
+   *NOTE* Though you provided a new value for 2018 it not different from last year.
   
 
  
