@@ -550,5 +550,19 @@ https://github.com/ices-eg/wg_WGEEL/issues/77
    
    *QUESTION* Ardnacrusha and Parteen weir are in fact on two separate branch of the Shannon. Is there a reason not to add the two series ?
    
-   
+## NETHERLANDS
+
+*    
  
+## BELGIUM 
+
+### recruitment
+
+=> Missing file I need to update recruitment sites from Belgium (Yser and Meuse)
+
+
+## NORWAY 
+
+### recruitment
+
+=> Missing file, I still need to udpate recruitment data for Imsa.
