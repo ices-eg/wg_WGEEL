@@ -37,7 +37,7 @@ https://community.ices.dk/ExpertGroups/wgeel/WGEEL%20accessions/Data%20call%2020
 
 Recruitment
 https://community.ices.dk/ExpertGroups/wgeel/WGEEL%20accessions/Data%20call%202019/Eel_Data_Call_Annex1_Recruitment_GR.xlsx
-=> No data
+=> No data OK
 
 -----------------------------
 
@@ -499,26 +499,47 @@ https://github.com/ices-eg/wg_WGEEL/issues/77
 
 * Erne  
 
-   **NOTE** location : "The Erne at Ballyshannon, 6 km from the sea at the Cathaleen Fall Dam. "          
-   **NOTE** comment : "Total trapping in kg glass eel + yellow
+   *NOTE* location : "The Erne at Ballyshannon, 6 km from the sea at the Cathaleen Fall Dam. "  
+           
+   *NOTE* comment : "Total trapping in kg glass eel + yellow
+   
 Full trapping of elvers on the Erne commenced in 1980. Some discrepancies in the time series came to light in 2009. The Erne elver dataset has now been double checked and the presented data has been agreed by DCAL and AFBINI, the ESB, NRFB and MI.  Any discrepancies were not major and the data trend and pattern has not changed. Full trapping of elvers took place on the Erne from 1980 onwards, before it was only partial.
 In 2011 the whole series corrected to include latest changes.  Traps were significantly upgraded in 2015.  3rd Trap inserted on opposite bank, catch reported as a comment." 
-      **NOTE** location coordinates 54.499848, -8.176306
+
+  *NOTE* location coordinates 54.499848, -8.176306
+  
+  **CHECK** I have the figure for the third trap as a comment, was it updated in 2018 ?
 
 * Liff   
 
-   **CHECK** location : "Trap located on the first dam in river Liffey (Dublin, Islandbridge) at the tidal limit,  10 km from the sea."         
+   **CHECK** location : "Trap located on the first dam in river Liffey (Dublin, Islandbridge) at the tidal limit,  10 km from the sea."       
+     
    **CHECK** coordinates Is it really there ? https://goo.gl/maps/8SvrJKbyPqD8r8L99 
+   *NOTE Value updated.
 		 
 * Burr
 
   **CHECK** location "Trap located at Furnace at the tidal limit, at 3 km from the sea, on one of the outflow from lough Feeagh."
   
+  *NOTE* Though you provided a new value for 2018 it not different from last year.
+  
+* Feal
 
+  **MISSING** I have no idea where the trap is, help me please. Also provide a description of the trap (distance to the sea ...) and coordinates in decimal degree
   
- 
- 
+* Maig
+
+  **MISSING** Though I have found the river, I have no idea where the trap is, help me please. Also provide a description of the trap (distance to the sea ...), and coordinates in decimal degree
   
+  **MISSING**  Recruitment was not provided last year, please provide 2018 recruitment value.
+  
+* ShaA    
+
+  *NOTE* Though you provided a new value for 2018 it not different from last year.
+  
+* Shap
+ 
+  *NOTE* Though you provided a new value for 2018 it not different from last year.
   
 
  
