@@ -552,7 +552,9 @@ https://github.com/ices-eg/wg_WGEEL/issues/77
    
 ## NETHERLANDS
 
-*    
+### recruitment 
+
+TODO    
  
 ## BELGIUM 
 
@@ -566,3 +568,9 @@ https://github.com/ices-eg/wg_WGEEL/issues/77
 ### recruitment
 
 => Missing file, I still need to udpate recruitment data for Imsa.
+
+## GERMANY
+
+### recruitment
+
+TODO 
