@@ -50,7 +50,8 @@ Recruitment => No data OK
 
 ### Recruitment 
 
-* *MISSING*  I need png 300x225px for all Danish stations to illustrate in shiny.  
+* *MISSING*  I need png 300x225px for all Danish stations to illustrate in shiny.  https://github.com/ices-eg/wg_WGEEL/issues/77
+
 
 * new series Hellebaekken
 
@@ -202,7 +203,8 @@ Since this is obviously a problem I have flagged both values with a 3 as quality
  
 * Ebro OK
  
- **MISSING** I need pictures format png for all sites, png 300x225px one of the pass, one of the location, to illustrate in shiny. Please bring them to wgeel or send by email.
+**MISSING** I need pictures format png for all sites, png 300x225px one of the pass, one of the location, to illustrate in shiny. Please bring them to wgeel or send by email. https://github.com/ices-eg/wg_WGEEL/issues/77
+
  
   **MISSING** No data for biometry. I'm not sure it's of any interest for pure glass eel series.
  
@@ -319,7 +321,7 @@ biometry integrated thanks !
 * MiSc => new series
 
 **MISSING** Please provide exact google coordinates for that site, you can  go to google maps, right click what's here, then click on the coordinates, once the new location appears on the right you can copy the coordinates in the following format
-41.901412, -8.823340 (not with west and north...) or share a link with me. Since you said 5 km from the sea I've guessed the coordinates.
+41.901412, -8.823340 (not with west and north...) or share a link with me. Since you said 5 km from the sea I've guessed the coordinates. https://www.lifewire.com/latitude-longitude-coordinates-google-maps-1683398
 
 **CHECK** I need the name of the Organisation running that sampling. I guess it's Ciimar right ?
 
@@ -327,6 +329,8 @@ biometry integrated thanks !
 
 **NOTE** Inserted biometry OK
 
+**MISSING** I need pictures format png for all sites, png 300x225px one of the pass, one of the location, to illustrate in shiny. Please bring them to wgeel or send by email. https://github.com/ices-eg/wg_WGEEL/issues/77
+(I have for Mondego, but not Minho catch and Minho Scientific catch)
 
 -----------------------------
 
@@ -342,7 +346,7 @@ biometry integrated thanks !
 
 ### recruitment
 
-**MISSING** I need pictures format png for all sites, png 300x225px one of the pass, one of the location, to illustrate in shiny. Please bring them to wgeel or send by email.
+**MISSING** I need pictures format png for all sites, png 300x225px one of the pass, one of the location, to illustrate in shiny. Please bring them to wgeel or send by email. https://github.com/ices-eg/wg_WGEEL/issues/77
 
 SERIES INFO
 
@@ -413,7 +417,7 @@ BIOMETRIC DATA
 
 -----------------------------
 
-## Tunisia
+## TUNISIA
 
 ### landings
 
@@ -421,7 +425,7 @@ BIOMETRIC DATA
 
 -----------------------------
 
-## UK
+## UNITED KINGDOM
 
 ### landings
 
@@ -452,13 +456,46 @@ Series info => thanks for the updated description, it's in  !
 * **MISSING** I have no data for sites Grey (which is now an official series as > 10 years), BroG (8 years), BeeG (11 years), FlaE (10 years), FlaG ...
 
 
+## FRANCE
 
+### Landings
 
+### releases
 
+### recruitment
 
+* OK for all series
+
+*NOTE* What did we decide about the Soustons series ? 
+
+**MISSING** No biometry sheet ?
+
+TODO chech comment and location
+
+**MISSING**  I need pictures format png for all sites, png 300x225px one of the pass, one of the location, to illustrate in shiny. Please bring them to wgeel or send by email.
+https://github.com/ices-eg/wg_WGEEL/issues/77
   
   
-  
+## IRELAND
+
+### Landings
+
+
+### Releases
+
+###  Recruitment
+
+Series info => Nothing
+
+**MISSING**  I need pictures format png for all sites, png 300x225px one of the pass, one of the location, to illustrate in shiny. Please bring them to wgeel or send by email.
+https://github.com/ices-eg/wg_WGEEL/issues/77
+
+**MISSING**  The coordinates of the Irish Series are wrong https://github.com/ices-eg/wg_WGEEL/issues/49, and I may have trouble to exactly pinpoint the location of some of the traps. The reasons is that often coordinates have been provided with degree minutes second and that is not easy to convert. Here is what you can do : https://www.lifewire.com/latitude-longitude-coordinates-google-maps-1683398, send me the coordinates in decimal degrees.
+
+
+
+
+ 
   
   
 
