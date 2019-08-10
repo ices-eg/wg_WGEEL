@@ -283,7 +283,19 @@ INSERT INTO  datawg.t_series_ser(
 COMMIT;
 --ROLLBACK;
 
+------------------------
+-- Ireland
+------------------------
 
+begin;
+update datawg.t_series_ser set geom=ST_SetSRID(ST_MakePoint(-8.176306,54.499848),4326) where ser_nameshort='Erne';
+commit;
+
+select * from  datawg.t_series_ser where  ser_nameshort in ('Erne');
+
+begin;
+update datawg.t_series_ser set geom=ST_SetSRID(ST_MakePoint(-6.3143036,53.346488),4326) where ser_nameshort='Liff';
+commit;
 
 
 

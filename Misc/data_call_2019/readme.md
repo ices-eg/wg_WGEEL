@@ -7,7 +7,8 @@ _Cédric Briand and Jan-Dag Pohlmann_
 
 # General notes
 
-Some files are in WGEEL accession, the rest have been collected by Jan Dag
+Some files are in WGEEL accession, the rest have been collected by Jan Dag. In this file *NOTE* means that we have done some work or change you need to be aware of but we think it's correct,
+**CHECK** you need to check, **MISSING** corresponds to missing data, **IMPORTANT NOTE** is a big change we have brought to your data.
 
 https://community.ices.dk/ExpertGroups/wgeel/WGEEL%20accessions/Data%20call%202019/Eel_Data_Call_Annex1_Recruitment.xlsx
 => nothing, don't know what country it is.
@@ -490,11 +491,32 @@ Series info => Nothing
 **MISSING**  I need pictures format png for all sites, png 300x225px one of the pass, one of the location, to illustrate in shiny. Please bring them to wgeel or send by email.
 https://github.com/ices-eg/wg_WGEEL/issues/77
 
-**MISSING**  The coordinates of the Irish Series are wrong https://github.com/ices-eg/wg_WGEEL/issues/49, and I may have trouble to exactly pinpoint the location of some of the traps. The reasons is that often coordinates have been provided with degree minutes second and that is not easy to convert. Here is what you can do : https://www.lifewire.com/latitude-longitude-coordinates-google-maps-1683398, send me the coordinates in decimal degrees.
+**MISSING**  The coordinates of the Irish Series are wrong https://github.com/ices-eg/wg_WGEEL/issues/49, and I may have trouble to exactly pinpoint the location of some of the traps. The reasons is that often coordinates have been provided with degree minutes second and that is not easy to convert. Below I took some time to figure out myself. But you will have to check. If it's wrong and you want to give me the coordinates, the easiest way is : https://www.lifewire.com/latitude-longitude-coordinates-google-maps-1683398, send me the coordinates in decimal degrees.
 
+**IMPORTANT NOTE** I have put `eel_qual_id` to 3 to all data before 1980. Is there another way (like was done for one of the French series where historical data were corrected for change in efficiency). This is a major change as we don't have that many series at that period.
 
+**CHECK** In the metadata you say that FEALE is trapping partial while it is currently classified as trapping total. I didn't change, will change if you can confirm that.
 
+* Erne  
 
+   **NOTE** location : "The Erne at Ballyshannon, 6 km from the sea at the Cathaleen Fall Dam. "          
+   **NOTE** comment : "Total trapping in kg glass eel + yellow
+Full trapping of elvers on the Erne commenced in 1980. Some discrepancies in the time series came to light in 2009. The Erne elver dataset has now been double checked and the presented data has been agreed by DCAL and AFBINI, the ESB, NRFB and MI.  Any discrepancies were not major and the data trend and pattern has not changed. Full trapping of elvers took place on the Erne from 1980 onwards, before it was only partial.
+In 2011 the whole series corrected to include latest changes.  Traps were significantly upgraded in 2015.  3rd Trap inserted on opposite bank, catch reported as a comment." 
+      **NOTE** location coordinates 54.499848, -8.176306
+
+* Liff   
+
+   **CHECK** location : "Trap located on the first dam in river Liffey (Dublin, Islandbridge) at the tidal limit,  10 km from the sea."         
+   **CHECK** coordinates Is it really there ? https://goo.gl/maps/8SvrJKbyPqD8r8L99 
+		 
+* Burr
+
+  **CHECK** location "Trap located at Furnace at the tidal limit, at 3 km from the sea, on one of the outflow from lough Feeagh."
+  
+
+  
+ 
  
   
   
