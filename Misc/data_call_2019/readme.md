@@ -570,6 +570,8 @@ Thanks for providing all values, all recruitment values are very low!
 
 **MISSING**  I need pictures format png for all sites, png 300x225px one of the pass, one of the location, to illustrate in shiny. Please bring them to wgeel or send by email.
 https://github.com/ices-eg/wg_WGEEL/issues/77
+
+**MISSING**  Biometry, no big deal, as those are only glass eel series.
  
 ## BELGIUM 
 
