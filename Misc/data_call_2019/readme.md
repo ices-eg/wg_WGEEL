@@ -554,7 +554,22 @@ https://github.com/ices-eg/wg_WGEEL/issues/77
 
 ### recruitment 
 
-TODO    
+Thanks for providing all values, all recruitment values are very low!
+
+* Katv OK
+
+* Stel OK
+
+* Lauw OK
+
+* RhDO OK
+
+* RhIj OK  
+
+**MISSING** I need a description of the sampling site, and the sampling method on top of the actual comments, could you provide that to me. For location it's a description of the site where the sampling is taking place, I guess it's at the coast, at a particular location. What is the method used for haul, how the nets are placed retrieved...
+
+**MISSING**  I need pictures format png for all sites, png 300x225px one of the pass, one of the location, to illustrate in shiny. Please bring them to wgeel or send by email.
+https://github.com/ices-eg/wg_WGEEL/issues/77
  
 ## BELGIUM 
 
