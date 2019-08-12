@@ -267,7 +267,7 @@ For New 8 new values inserted in the database
 
 ### Release
 
-TODO
+DONE
 
 
 ### Aquaculture
@@ -297,11 +297,24 @@ No recruitment
 | 2018 | 17 | 0 | 0 |
 | 2019 | 7  | 0 | 0 |
 
+**MISSING** No area division for transitional waters provided. 
+
+### releases
+
+**MISSING** No area division was given for releases in marine open waters.
+**NOTE** where a 0 n-value was provided for releases, an according 0 kg-value was added
+
+### aquaculture
+**NOTE** Nothing to report, thus nothing integrated
+
 ## GREECE
 
 ### landings
 **NOTE** dc_2019 entered for datasource and area division for freshwater removed
 **MISSING** No eel_typ_id is given for one row, please add this
+
+### releases
+**NOTE** There were 10 duplicates, up to 2017. However, nothing changed for these rows and thus the new values were not integrated.
 
 ## ITALY
 
@@ -312,6 +325,39 @@ No recruitment
 | 2014 | 0  | 3 | 0 |
 | 2017 | 1  | 0 | 0 |
 | 2018 | 46 | 0 | 0 |
+
+**CHECK** Three old values should be replaced (2014 Tosc, yellow AND silver eels in transitional waters; 2014 Umbr, yellow eels in freshwater). Error: Error in postgresqlExecStatement(conn, statement, ...): RS-DBI driver: (could not Retrieve the result : ERROR:  permission denied for relation replaced_temp_it)
+
+## releases
+
+**CHECK** Nothing integrated, since no data is available (should a zero be reported for all lfs and hty?)
+
+## IRELAND
+
+## landings
+**NOTE** not integrated since no landings (should a zero be reported rather than NP? -> cannot be integrated if not a value is given in another line -> work on scripts? Intended?)
+
+## releases 
+**NOTE** not integrated since no releases (see landings)
+
+## aquaculture
+**NOTE** not integrated since no production (see landings)
+
+## NETHERLANDS
+
+### releases
+**MISSING** no values for kg were given for releases, if possible please provide an estimate. We are aware that these data are not always available; yet, they are needed for analyses. Any estimate by the data provider is better than ours could be...
+
+## POLAND
+
+### landings
+**NOTE** removed area division for freshwater
+
+### releases
+**NOTE** removed area division for freshwater
+
+### aquaculture
+**NOTE** no aquaculture, thus no entry
 
 ## PORTUGAL
 
@@ -329,6 +375,18 @@ No recruitment
 | 1981 | 0 | 1 | 0 |
 | 1982 | 0 | 1 | 0 |
 | 1983 | 0 | 1 | 0 |
+
+**NOTE** In the comments, there was a time and date. Since this format cannot be easily integrated to the database, it was changed to a text saying that the data was last updated on the given date
+
+**IMPORTANT NOTE** The corrected data was entered as provided, thus using the emu name PT_Port (not PT_total, to avoid confusion since minho is excluded). There were changes to data in the past, so what is to be done with the "old" series in the database (since entered for PT_total it does not show up as a duplicate!)
+
+**CHECK** There was one duplicate for EMU PT_Port for 2017, commercial catches of yellow eel. This was replaced with the new value.
+
+**NOTE TO SELF, JD** There were some issues during integration, thus I used a file without metadata, is this an issue? I think it is not integrated anyways, right?
+
+## RELEASES
+
+**NOTE** Nothing integrated, since there is no restocking (report 0 value for all lifestages and habitats?)
 
 ### Recruitment
 
@@ -377,6 +435,9 @@ biometry integrated thanks !
 ### releases
 
 **CHECK** In releases, GEE are reported. For those no kg estimate should be reported. Also, one of the kg values is reported as 0, which doesn't make sense if there is a number. How does T&T apply to glass eels?   
+
+### aquaculture
+**NOTE** value for q_aqua_n was not integrated, only total production in kg
 
 ### recruitment
 
@@ -468,7 +529,7 @@ BIOMETRIC DATA
 | 2018 | 27 | 3 | 2 |
 | 2019 | 42 | 0 | 0 |
  
-**NOTE** several duplicates were entered were the comment basically changed from "preliminary data" to "confirmed data" 
+**NOTE** several duplicates were entered where the comment basically changed from "preliminary data" to "confirmed data" 
 **NOTE** In some EMUs for commercial fisheries there was a comment adressing recreational catch & release fisheries. The comment was edited slightly to avoid confusion about "commercial catch and release":)
 **NOTE** Aquaculture was not integrated since the database doesn't allow for sheets with no values at all. This should be adressed in general during WGEEL, we need to agree on a working practice concerning no data, 0 values etc.
 
