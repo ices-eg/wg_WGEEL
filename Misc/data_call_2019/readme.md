@@ -455,7 +455,7 @@ BIOMETRIC DATA
 
 ### landings
 
-* *NOTE* country code changed to TN instead of TUN
+**NOTE** country code changed to TN instead of TUN
 
 -----------------------------
 
