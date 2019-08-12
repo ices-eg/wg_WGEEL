@@ -246,6 +246,7 @@ https://community.ices.dk/ExpertGroups/wgeel/WGEEL%20accessions/Data%20call%2020
 
 ### landings
 **NOTE** dc_2019 entered for datasource and area division for freshwater removed
+
 **MISSING** No eel_typ_id is given for one row, please add this
 
 ### releases
