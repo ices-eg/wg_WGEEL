@@ -370,10 +370,6 @@ Thanks for providing all values, all recruitment values are very low!
 **MISSING**  I need pictures format png for all sites, png 300x225px one of the pass, one of the location, to illustrate in shiny. Please bring them to wgeel or send by email.
 https://github.com/ices-eg/wg_WGEEL/issues/77
 
------------------------------
-
-## NETHERLANDS
-
 ### releases
 **MISSING** no values for kg were given for releases, if possible please provide an estimate. We are aware that these data are not always available; yet, they are needed for analyses. Any estimate by the data provider is better than ours could be...
 
