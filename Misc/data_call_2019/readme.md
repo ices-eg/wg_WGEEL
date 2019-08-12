@@ -280,6 +280,22 @@ No recruitment
 
 -----------------------------
 
+## FRANCE
+
+### landings
+
+| year | new  | conflicts | no change |
+|:----:|:----:|:---------:|:---------:|
+| 2017 | 0  | 5 | 0 |
+| 2018 | 17 | 0 | 0 |
+| 2019 | 7  | 0 | 0 |
+
+## GREECE
+
+### landings
+**NOTE** dc_2019 entered for datasource and area division for freshwater removed
+**MISSING** No eel_typ_id is given for one row, please add this
+
 ## ITALY
 
 ### landings
