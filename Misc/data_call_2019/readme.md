@@ -427,7 +427,7 @@ https://github.com/ices-eg/wg_WGEEL/issues/77
 
 **NOTE TO SELF, JD** There were some issues during integration, thus I used a file without metadata, is this an issue? I think it is not integrated anyways, right?
 
-## RELEASES
+### releases
 
 **NOTE** Nothing integrated, since there is no restocking (report 0 value for all lifestages and habitats?)
 
