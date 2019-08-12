@@ -280,6 +280,16 @@ No recruitment
 
 -----------------------------
 
+## ITALY
+
+### landings
+
+| year | new  | conflicts | no change |
+|:----:|:----:|:---------:|:---------:|
+| 2014 | 0  | 3 | 0 |
+| 2017 | 1  | 0 | 0 |
+| 2018 | 46 | 0 | 0 |
+
 ## PORTUGAL
 
 ### landings
