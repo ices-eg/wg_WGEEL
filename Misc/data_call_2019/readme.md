@@ -210,6 +210,7 @@ No recruitment
 ### releases
 
 **MISSING** No area division was given for releases in marine open waters.
+
 **NOTE** where a 0 n-value was provided for releases, an according 0 kg-value was added
 
 ### aquaculture
