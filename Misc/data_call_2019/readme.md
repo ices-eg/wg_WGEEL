@@ -31,19 +31,17 @@ https://community.ices.dk/ExpertGroups/wgeel/WGEEL%20accessions/Data%20call%2020
 * *NOTE*  INTEGRATION PROCEDURE I've checked, if you don't intend to keep any data in duplicates excel file you don't need to put a code in `eel_qal_id` weel you can but it will be replace by `qualify_code (19)` taken from `global.R`. In fact you only need to qualify the lines that you want (`keep_new_value=TRUE`).
 *  *CHECK* Rules for integration were currently 10 years. I think we should allow for long time series to be included even if shorter than 10 years. Discuss that within wgeel.
 
-# Series integration 
-
-## GREECE
-
-Recruitment
-https://community.ices.dk/ExpertGroups/wgeel/WGEEL%20accessions/Data%20call%202019/Eel_Data_Call_Annex1_Recruitment_GR.xlsx
-=> No data OK
-
 -----------------------------
 
-## LITHUANIA
+# Series integration 
 
-Recruitment => No data OK
+## BELGIUM 
+
+no response to the data call
+
+### recruitment
+
+=> Missing file I need to update recruitment sites from Belgium (Yser and Meuse)
 
 -----------------------------
 
@@ -119,97 +117,7 @@ line <1>, there should not be any area divsion in freshwater
  
  -----------------------------
  
-## SPAIN
- 
-### Landings
 
-| year | new  | conflicts | no change |
-|:----:|:----:|:---------:|:---------:|
-| 2014 | 0 | 0 | 1  |
-| 2015 | 0 | 0 | 1  |
-| 2016 | 0 | 0 | 1  |
-| 2017 | 0 | 1 | 1  |
-| 2018 | 1 | 0 | 3  |
-| 2019 | 0 | 0 | 12 |
- 
-* *NOTE*  MARIA or Esti praise for you for spotting the wrong `eel_area_division` the best was to remove those lines
- and re-inserting again.
- 
- 
-```sql
-  BEGIN;
-DELETE FROM datawg.t_eelstock_eel  where eel_area_division in ('37.1.2','37.1.3') and eel_cou_code='ES';
-COMMIT;
-```
-* *NOTE* Value for datacall 2019 was dc_2019 => corrected
-
-```
-13 new values inserted in the database
-For duplicates 6 values replaced in the database (old values kept with code eel_qal_id=19),
-            0 values not replaced (values from current datacall stored with code eel_qal_id 19)
-```
-
-### Release
- 
-* *NOTE* All names should be `release_n`, it's later on that the script will split up the two columns `release_n` and `release_kg`
-* **CHECK** You have values for 2020 I this is obviously a mistake, I changed to 2019 correct ?
- 
-| year | new  | conflicts | no change |
-|:----:|:----:|:---------:|:---------:|
-| 2018 | 6    | 0         | 0         |
-| 2019 | 10   | 0         | 0         |
-
-* *NOTE* The last line is a duplicate fom previous line but with values wrong (57 kg glass eel is about 17000 not 170000 + this was the 2020 line ... I'm dropping this line.  
-  
-```
- 16 new values inserted in the database
- ```
- * **MISSING** You have not submitted aquaculture but you have some no ?
- 
- ### recruitment
- 
-TODO Guadaquivir (Data sent by Carlos Fernandez Delgado to finish integrating).
-
-*NOTE* No biometry provided ... OK I'm really unsure of the interest of having those biometries for pure glass eel.
-
-* Oria => new series
-
-  *NOTE* You have provided the coordinates with -2.07 43.16 but what you have given is in fact a degree minute second coordinates.... I have corrected that.
-
-  *NOTE* I have converted the Oria series to m3/s
-
-  **CHECK** location :  'The Oria River is 77 km long, drains an area of 888 km2, and has a mean river flow of 25.7 m3 per second. It flows into the Bay of Biscay in the Basque country, on the Northern coast of Spain' 
-
-
-  **CHECK** comment : 'Scientific sampling from a boat equipped with sieves. from 2005 - 2019, during Oct - Mar [missing 2008, 2012-2017] at the sampling point (1) in the estuary at new moon. There are statistically significant differences in depth, month and season on the density of GE. Thus, the value for GE density was predicted (glm) for each season in the highest values month/depth.' 
- 
-  *NOTE* For next year, please provide a measure of effort as number of days fished.
- 
-  *NOTE* This series will not be integrated in the final recruitment calculation as it is shorter than 10 years.
- 
-* Nalo OK
- 
-* MiSp  
-
-  **CHECK**  Series is missing
- 
-* Albu  
-
-  **CHECK** 2.6 for 2018, it is VERY VERY VERY low. The CPUE dropped by a factor 15, and the catch by a factor 125.
-Since this is obviously a problem I have flagged both values with a 3 as quality (discarded). Please check.
- 
-* AlCp  
-
-  *NOTE*  see above, I have flagged the value as 3. 
- 
-* Ebro OK
- 
-**MISSING** I need pictures format png for all sites, png 300x225px one of the pass, one of the location, to illustrate in shiny. Please bring them to wgeel or send by email. https://github.com/ices-eg/wg_WGEEL/issues/77
-
- 
-  **MISSING** No data for biometry. I'm not sure it's of any interest for pure glass eel series.
- 
- -----------------------------
  
 ## ESTONIA
 
@@ -307,7 +215,34 @@ No recruitment
 ### aquaculture
 **NOTE** Nothing to report, thus nothing integrated
 
+### recruitment
+
+* OK for all series
+
+*NOTE* What did we decide about the Soustons series ? 
+
+**MISSING** No biometry sheet ?
+
+TODO chech comment and location
+
+**MISSING**  I need pictures format png for all sites, png 300x225px one of the pass, one of the location, to illustrate in shiny. Please bring them to wgeel or send by email.
+https://github.com/ices-eg/wg_WGEEL/issues/77
+
+-----------------------------
+
+## GERMANY
+
+### recruitment
+
+TODO 
+
+-----------------------------
+
 ## GREECE
+
+## Recruitment
+https://community.ices.dk/ExpertGroups/wgeel/WGEEL%20accessions/Data%20call%202019/Eel_Data_Call_Annex1_Recruitment_GR.xlsx
+=> No data OK
 
 ### landings
 **NOTE** dc_2019 entered for datasource and area division for freshwater removed
@@ -315,6 +250,8 @@ No recruitment
 
 ### releases
 **NOTE** There were 10 duplicates, up to 2017. However, nothing changed for these rows and thus the new values were not integrated.
+
+-----------------------------
 
 ## ITALY
 
@@ -332,6 +269,8 @@ No recruitment
 
 **CHECK** Nothing integrated, since no data is available (should a zero be reported for all lfs and hty?)
 
+-----------------------------
+
 ## IRELAND
 
 ## landings
@@ -343,10 +282,115 @@ No recruitment
 ## aquaculture
 **NOTE** not integrated since no production (see landings)
 
+###  Recruitment
+
+Series info => Nothing
+
+**MISSING**  I need pictures format png for all sites, png 300x225px one of the pass, one of the location, to illustrate in shiny. Please bring them to wgeel or send by email.
+https://github.com/ices-eg/wg_WGEEL/issues/77
+
+**MISSING**  The coordinates of the Irish Series are wrong https://github.com/ices-eg/wg_WGEEL/issues/49, and I may have trouble to exactly pinpoint the location of some of the traps. The reasons is that often coordinates have been provided with degree minutes second and that is not easy to convert. Below I took some time to figure out myself. But you will have to check. If it's wrong and you want to give me the coordinates, the easiest way is : https://www.lifewire.com/latitude-longitude-coordinates-google-maps-1683398, send me the coordinates in decimal degrees.
+
+**MISSING**  Biometry of ascending eels. This is now necessary especially for mixed yellow / glass series.
+
+* Erne  
+
+   *NOTE* location : "The Erne at Ballyshannon, 6 km from the sea at the Cathaleen Fall Dam. "  
+           
+   *NOTE* comment : "Total trapping in kg glass eel + yellow. Full trapping of elvers on the Erne commenced in 1980. Some discrepancies in the time series came to light in 2009. The Erne elver dataset has now been double checked and the presented data has been agreed by DCAL and AFBINI, the ESB, NRFB and MI.  Any discrepancies were not major and the data trend and pattern has not changed. Full trapping of elvers took place on the Erne from 1980 onwards, before it was only partial. In 2011 the whole series corrected to include latest changes.  Traps were significantly upgraded in 2015.  3rd Trap inserted on opposite bank, catch reported as a comment." 
+   
+   **IMPORTANT NOTE** I have put `eel_qual_id` to 3 to all data before 1980. Is there another way (like was done for one of the French series where historical data were corrected for change in efficiency). This is a major change as we don't have that many series at that period.
+
+  *NOTE* location coordinates 54.499848, -8.176306
+  
+  **CHECK** I have the figure for the third trap as a comment, was it updated in 2018 ?
+
+* Liff   
+
+   **CHECK** location : "Trap located on the first dam in river Liffey (Dublin, Islandbridge) at the tidal limit,  10 km from the sea."       
+     
+   **CHECK** coordinates Is it really there ? https://goo.gl/maps/8SvrJKbyPqD8r8L99 
+   *NOTE Value updated.
+		 
+* Burr
+
+   **CHECK** location "Trap located at Furnace at the tidal limit, at 3 km from the sea, on one of the outflow from lough Feeagh."
+  
+   *NOTE* Though you provided a new value for 2018 it not different from last year.
+  
+* Feal
+
+   **MISSING** I have no idea where the trap is, help me please. Also provide a description of the trap (distance to the sea ...) and coordinates in decimal degree
+   
+   **CHECK** In the metadata you say that FEALE is trapping partial while it is currently classified as trapping total. I didn't change, will change if you can confirm that.
+  
+* Maig
+
+   **MISSING** Though I have found the river, I have no idea where the trap is, help me please. Also provide a description of the trap (distance to the sea ...), and coordinates in decimal degree
+  
+  **MISSING**  Recruitment was not provided last year, please provide 2018 recruitment value.
+  
+* ShaA    
+
+   *NOTE* Though you provided a new value for 2018 it not different from last year.
+   
+   **CHECK** location  : Ardnacrusha power station on the shannon, approximately 4 km from the tidal limit in the Shannon, on the western coast of Ireland.
+   
+   *NOTE* Updated coordinates of Parteen weir to here :    https://goo.gl/maps/f7nSYyDNPycg8TU28
+  
+* Shap
+ 
+   *NOTE* Though you provided a new value for 2018 it not different from last year.
+  
+   **CHECK** location  : Parteen weir on the Shannon, approximately 16 km from the tidal limit. This is what I can do but you can probably do better.
+   
+   *NOTE* Updated coordinates of Parteen weir to here : https://goo.gl/maps/DfCg2PxXVyDz3G4QA
+   
+   *QUESTION* Ardnacrusha and Parteen weir are in fact on two separate branch of the Shannon. Is there a reason not to add the two series ?
+   
+## NETHERLANDS
+
+### recruitment 
+
+Thanks for providing all values, all recruitment values are very low!
+
+* Katv OK
+
+* Stel OK
+
+* Lauw OK
+
+* RhDO OK
+
+* RhIj OK  
+
+**MISSING** I need a description of the sampling site, and the sampling method on top of the actual comments, could you provide that to me. For location it's a description of the site where the sampling is taking place, I guess it's at the coast, at a particular location. What is the method used for haul, how the nets are placed retrieved...
+
+**MISSING**  I need pictures format png for all sites, png 300x225px one of the pass, one of the location, to illustrate in shiny. Please bring them to wgeel or send by email.
+https://github.com/ices-eg/wg_WGEEL/issues/77
+
+-----------------------------
+
 ## NETHERLANDS
 
 ### releases
 **MISSING** no values for kg were given for releases, if possible please provide an estimate. We are aware that these data are not always available; yet, they are needed for analyses. Any estimate by the data provider is better than ours could be...
+
+-----------------------------
+
+## LITHUANIA
+
+### Recruitment => No data OK
+
+-----------------------------
+
+## NORWAY 
+
+### recruitment
+
+=> Missing file, I still need to udpate recruitment data for Imsa.
+
+-----------------------------
 
 ## POLAND
 
@@ -358,6 +402,8 @@ No recruitment
 
 ### aquaculture
 **NOTE** no aquaculture, thus no entry
+
+-----------------------------
 
 ## PORTUGAL
 
@@ -425,6 +471,98 @@ biometry integrated thanks !
 (I have for Mondego, but not Minho catch and Minho Scientific catch)
 
 -----------------------------
+
+## SPAIN
+ 
+### Landings
+
+| year | new  | conflicts | no change |
+|:----:|:----:|:---------:|:---------:|
+| 2014 | 0 | 0 | 1  |
+| 2015 | 0 | 0 | 1  |
+| 2016 | 0 | 0 | 1  |
+| 2017 | 0 | 1 | 1  |
+| 2018 | 1 | 0 | 3  |
+| 2019 | 0 | 0 | 12 |
+ 
+* *NOTE*  MARIA or Esti praise for you for spotting the wrong `eel_area_division` the best was to remove those lines
+ and re-inserting again.
+ 
+ 
+```sql
+  BEGIN;
+DELETE FROM datawg.t_eelstock_eel  where eel_area_division in ('37.1.2','37.1.3') and eel_cou_code='ES';
+COMMIT;
+```
+* *NOTE* Value for datacall 2019 was dc_2019 => corrected
+
+```
+13 new values inserted in the database
+For duplicates 6 values replaced in the database (old values kept with code eel_qal_id=19),
+            0 values not replaced (values from current datacall stored with code eel_qal_id 19)
+```
+
+### Release
+ 
+* *NOTE* All names should be `release_n`, it's later on that the script will split up the two columns `release_n` and `release_kg`
+* **CHECK** You have values for 2020 I this is obviously a mistake, I changed to 2019 correct ?
+ 
+| year | new  | conflicts | no change |
+|:----:|:----:|:---------:|:---------:|
+| 2018 | 6    | 0         | 0         |
+| 2019 | 10   | 0         | 0         |
+
+* *NOTE* The last line is a duplicate fom previous line but with values wrong (57 kg glass eel is about 17000 not 170000 + this was the 2020 line ... I'm dropping this line.  
+  
+```
+ 16 new values inserted in the database
+ ```
+ * **MISSING** You have not submitted aquaculture but you have some no ?
+ 
+ ### recruitment
+ 
+TODO Guadaquivir (Data sent by Carlos Fernandez Delgado to finish integrating).
+
+*NOTE* No biometry provided ... OK I'm really unsure of the interest of having those biometries for pure glass eel.
+
+* Oria => new series
+
+  *NOTE* You have provided the coordinates with -2.07 43.16 but what you have given is in fact a degree minute second coordinates.... I have corrected that.
+
+  *NOTE* I have converted the Oria series to m3/s
+
+  **CHECK** location :  'The Oria River is 77 km long, drains an area of 888 km2, and has a mean river flow of 25.7 m3 per second. It flows into the Bay of Biscay in the Basque country, on the Northern coast of Spain' 
+
+
+  **CHECK** comment : 'Scientific sampling from a boat equipped with sieves. from 2005 - 2019, during Oct - Mar [missing 2008, 2012-2017] at the sampling point (1) in the estuary at new moon. There are statistically significant differences in depth, month and season on the density of GE. Thus, the value for GE density was predicted (glm) for each season in the highest values month/depth.' 
+ 
+  *NOTE* For next year, please provide a measure of effort as number of days fished.
+ 
+  *NOTE* This series will not be integrated in the final recruitment calculation as it is shorter than 10 years.
+ 
+* Nalo OK
+ 
+* MiSp  
+
+  **CHECK**  Series is missing
+ 
+* Albu  
+
+  **CHECK** 2.6 for 2018, it is VERY VERY VERY low. The CPUE dropped by a factor 15, and the catch by a factor 125.
+Since this is obviously a problem I have flagged both values with a 3 as quality (discarded). Please check.
+ 
+* AlCp  
+
+  *NOTE*  see above, I have flagged the value as 3. 
+ 
+* Ebro OK
+ 
+**MISSING** I need pictures format png for all sites, png 300x225px one of the pass, one of the location, to illustrate in shiny. Please bring them to wgeel or send by email. https://github.com/ices-eg/wg_WGEEL/issues/77
+
+ 
+  **MISSING** No data for biometry. I'm not sure it's of any interest for pure glass eel series.
+ 
+ -----------------------------
 
 ## SWEDEN
 
@@ -550,132 +688,9 @@ updating the series
 Series info => thanks for the updated description, it's in  !
 * **MISSING** I have no data for sites Grey (which is now an official series as > 10 years), BroG (8 years), BeeG (11 years), FlaE (10 years), FlaG ...
 
-
-## FRANCE
-
-### Landings
-
-### releases
-
-### recruitment
-
-* OK for all series
-
-*NOTE* What did we decide about the Soustons series ? 
-
-**MISSING** No biometry sheet ?
-
-TODO chech comment and location
-
-**MISSING**  I need pictures format png for all sites, png 300x225px one of the pass, one of the location, to illustrate in shiny. Please bring them to wgeel or send by email.
-https://github.com/ices-eg/wg_WGEEL/issues/77
-  
-  
-## IRELAND
-
-### Landings
-
-### Releases
-
-###  Recruitment
-
-Series info => Nothing
-
-**MISSING**  I need pictures format png for all sites, png 300x225px one of the pass, one of the location, to illustrate in shiny. Please bring them to wgeel or send by email.
-https://github.com/ices-eg/wg_WGEEL/issues/77
-
-**MISSING**  The coordinates of the Irish Series are wrong https://github.com/ices-eg/wg_WGEEL/issues/49, and I may have trouble to exactly pinpoint the location of some of the traps. The reasons is that often coordinates have been provided with degree minutes second and that is not easy to convert. Below I took some time to figure out myself. But you will have to check. If it's wrong and you want to give me the coordinates, the easiest way is : https://www.lifewire.com/latitude-longitude-coordinates-google-maps-1683398, send me the coordinates in decimal degrees.
-
-**MISSING**  Biometry of ascending eels. This is now necessary especially for mixed yellow / glass series.
-
-* Erne  
-
-   *NOTE* location : "The Erne at Ballyshannon, 6 km from the sea at the Cathaleen Fall Dam. "  
-           
-   *NOTE* comment : "Total trapping in kg glass eel + yellow. Full trapping of elvers on the Erne commenced in 1980. Some discrepancies in the time series came to light in 2009. The Erne elver dataset has now been double checked and the presented data has been agreed by DCAL and AFBINI, the ESB, NRFB and MI.  Any discrepancies were not major and the data trend and pattern has not changed. Full trapping of elvers took place on the Erne from 1980 onwards, before it was only partial. In 2011 the whole series corrected to include latest changes.  Traps were significantly upgraded in 2015.  3rd Trap inserted on opposite bank, catch reported as a comment." 
-   
-   **IMPORTANT NOTE** I have put `eel_qual_id` to 3 to all data before 1980. Is there another way (like was done for one of the French series where historical data were corrected for change in efficiency). This is a major change as we don't have that many series at that period.
-
-  *NOTE* location coordinates 54.499848, -8.176306
-  
-  **CHECK** I have the figure for the third trap as a comment, was it updated in 2018 ?
-
-* Liff   
-
-   **CHECK** location : "Trap located on the first dam in river Liffey (Dublin, Islandbridge) at the tidal limit,  10 km from the sea."       
-     
-   **CHECK** coordinates Is it really there ? https://goo.gl/maps/8SvrJKbyPqD8r8L99 
-   *NOTE Value updated.
-		 
-* Burr
-
-   **CHECK** location "Trap located at Furnace at the tidal limit, at 3 km from the sea, on one of the outflow from lough Feeagh."
-  
-   *NOTE* Though you provided a new value for 2018 it not different from last year.
-  
-* Feal
-
-   **MISSING** I have no idea where the trap is, help me please. Also provide a description of the trap (distance to the sea ...) and coordinates in decimal degree
-   
-   **CHECK** In the metadata you say that FEALE is trapping partial while it is currently classified as trapping total. I didn't change, will change if you can confirm that.
-  
-* Maig
-
-   **MISSING** Though I have found the river, I have no idea where the trap is, help me please. Also provide a description of the trap (distance to the sea ...), and coordinates in decimal degree
-  
-  **MISSING**  Recruitment was not provided last year, please provide 2018 recruitment value.
-  
-* ShaA    
-
-   *NOTE* Though you provided a new value for 2018 it not different from last year.
-   
-   **CHECK** location  : Ardnacrusha power station on the shannon, approximately 4 km from the tidal limit in the Shannon, on the western coast of Ireland.
-   
-   *NOTE* Updated coordinates of Parteen weir to here :    https://goo.gl/maps/f7nSYyDNPycg8TU28
-  
-* Shap
- 
-   *NOTE* Though you provided a new value for 2018 it not different from last year.
-  
-   **CHECK** location  : Parteen weir on the Shannon, approximately 16 km from the tidal limit. This is what I can do but you can probably do better.
-   
-   *NOTE* Updated coordinates of Parteen weir to here : https://goo.gl/maps/DfCg2PxXVyDz3G4QA
-   
-   *QUESTION* Ardnacrusha and Parteen weir are in fact on two separate branch of the Shannon. Is there a reason not to add the two series ?
-   
-## NETHERLANDS
-
-### recruitment 
-
-Thanks for providing all values, all recruitment values are very low!
-
-* Katv OK
-
-* Stel OK
-
-* Lauw OK
-
-* RhDO OK
-
-* RhIj OK  
-
-**MISSING** I need a description of the sampling site, and the sampling method on top of the actual comments, could you provide that to me. For location it's a description of the site where the sampling is taking place, I guess it's at the coast, at a particular location. What is the method used for haul, how the nets are placed retrieved...
-
-**MISSING**  I need pictures format png for all sites, png 300x225px one of the pass, one of the location, to illustrate in shiny. Please bring them to wgeel or send by email.
-https://github.com/ices-eg/wg_WGEEL/issues/77
- 
-## BELGIUM 
-
-### recruitment
-
-=> Missing file I need to update recruitment sites from Belgium (Yser and Meuse)
+ -----------------------------
 
 
-## NORWAY 
-
-### recruitment
-
-=> Missing file, I still need to udpate recruitment data for Imsa.
 
 ## GERMANY
 
