@@ -254,24 +254,6 @@ https://community.ices.dk/ExpertGroups/wgeel/WGEEL%20accessions/Data%20call%2020
 
 -----------------------------
 
-## ITALY
-
-### landings
-
-| year | new  | conflicts | no change |
-|:----:|:----:|:---------:|:---------:|
-| 2014 | 0  | 3 | 0 |
-| 2017 | 1  | 0 | 0 |
-| 2018 | 46 | 0 | 0 |
-
-**CHECK** Three old values should be replaced (2014 Tosc, yellow AND silver eels in transitional waters; 2014 Umbr, yellow eels in freshwater). Error: Error in postgresqlExecStatement(conn, statement, ...): RS-DBI driver: (could not Retrieve the result : ERROR:  permission denied for relation replaced_temp_it)
-
-## releases
-
-**CHECK** Nothing integrated, since no data is available (should a zero be reported for all lfs and hty?)
-
------------------------------
-
 ## IRELAND
 
 ## landings
@@ -348,6 +330,26 @@ https://github.com/ices-eg/wg_WGEEL/issues/77
    *NOTE* Updated coordinates of Parteen weir to here : https://goo.gl/maps/DfCg2PxXVyDz3G4QA
    
    *QUESTION* Ardnacrusha and Parteen weir are in fact on two separate branch of the Shannon. Is there a reason not to add the two series ?
+   
+   -----------------------------
+   
+## ITALY
+
+### landings
+
+| year | new  | conflicts | no change |
+|:----:|:----:|:---------:|:---------:|
+| 2014 | 0  | 3 | 0 |
+| 2017 | 1  | 0 | 0 |
+| 2018 | 46 | 0 | 0 |
+
+**CHECK** Three old values should be replaced (2014 Tosc, yellow AND silver eels in transitional waters; 2014 Umbr, yellow eels in freshwater). Error: Error in postgresqlExecStatement(conn, statement, ...): RS-DBI driver: (could not Retrieve the result : ERROR:  permission denied for relation replaced_temp_it)
+
+## releases
+
+**CHECK** Nothing integrated, since no data is available (should a zero be reported for all lfs and hty?)
+
+-----------------------------
    
 ## NETHERLANDS
 
