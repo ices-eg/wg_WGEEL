@@ -369,6 +369,23 @@ https://github.com/ices-eg/wg_WGEEL/issues/77
    
 **CHECK** Only two duplicates in 2017 were updated and only those were integrated
 
+## releases
+
+| year | new  | conflicts | no change |
+|:----:|:----:|:---------:|:---------:|
+| 1927 | 0 | 1 | 1 |
+| 1931 | 0 | 0 | 2 |
+| 1933 | 0 | 1 | 1 |
+| 1935 | 0 | 1 | 1 |
+| 1937 | 0 | 0 | 2 |
+| 1939 | 0 | 1 | 1 |
+| 1960 | 0 | 1 | 1 |
+| 1961 | 0 | 0 | 2 |
+| 1962 | 0 | 1 | 1 |
+| 1963 | 0 | 1 | 1 |
+
+**CHECK** All values prior to 2018 were already reported with no change in the current data call. Thus, no duplicates were updated.
+
 ## NETHERLANDS
 
 ### recruitment 
