@@ -66,11 +66,9 @@ no response to the data call
   
 * NorsA Klet Sle
 
-
-  **CHECK** description edited : Average densities (eel/m2) of pigmented glas eel and yellow eel (elvers)  from three electro surveys from may to august . The data represent in general 3 electrofishing surveys per season. Some years only one or two  electrofishing surveys have been possible. The max density is usally found in June/July. 
-  **CHECK** locationdescription edited : Electrofishing in a small stream. 
-  **CHECK** No new data ? 
-
+  **CHECK** description edited : Average densities (eel/m2) of pigmented glas eel and yellow eel (elvers)  from three electro surveys from may to august . The data represent in general 3 electrofishing surveys per season. Some years only one or two  electrofishing surveys have been possible. The max density is usally found in June/July.   
+  **CHECK** locationdescription edited : Electrofishing in a small stream.   
+  *NOTE* Data 2019 integrated OK
 
 			
 ** Harte **
