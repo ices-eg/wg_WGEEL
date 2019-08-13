@@ -367,6 +367,8 @@ https://github.com/ices-eg/wg_WGEEL/issues/77
 | 2008 | 0 | 0 | 2 |
 | 2009 | 0 | 0 | 2 |
    
+**CHECK** Only two duplicates in 2017 were updated and only those were integrated
+
 ## NETHERLANDS
 
 ### recruitment 
