@@ -369,7 +369,7 @@ https://github.com/ices-eg/wg_WGEEL/issues/77
    
 **CHECK** Only two duplicates in 2017 were updated and only those were integrated
 
-## releases
+### releases
 
 | year | new  | conflicts | no change |
 |:----:|:----:|:---------:|:---------:|
@@ -385,6 +385,10 @@ https://github.com/ices-eg/wg_WGEEL/issues/77
 | 1963 | 0 | 1 | 1 |
 
 **CHECK** All values prior to 2018 were already reported with no change in the current data call. Thus, no duplicates were updated.
+
+### aquaculture
+
+**MISSING** Aquaculture data was provided in No of Individuals. This can no longer be integrated, if possible please provide data as kg per year, as specified in the covering letter. Also, pre-grown eels for restocking don't need to be reported.
 
 ## NETHERLANDS
 
