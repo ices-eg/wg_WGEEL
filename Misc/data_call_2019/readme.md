@@ -248,8 +248,6 @@ https://community.ices.dk/ExpertGroups/wgeel/WGEEL%20accessions/Data%20call%2020
 ### landings
 **NOTE** dc_2019 entered for datasource and area division for freshwater removed
 
-**MISSING** No eel_typ_id is given for one row, please add this
-
 ### releases
 **NOTE** There were 10 duplicates, up to 2017. However, nothing changed for these rows and thus the new values were not integrated.
 
@@ -351,6 +349,23 @@ https://github.com/ices-eg/wg_WGEEL/issues/77
 **CHECK** Nothing integrated, since no data is available (should a zero be reported for all lfs and hty?)
 
 -----------------------------
+
+## LATVIA
+
+### landings
+
+| year | new  | conflicts | no change |
+|:----:|:----:|:---------:|:---------:|
+| 2000 | 0 | 0 | 2 |
+| 2001 | 0 | 0 | 2 |
+| 2002 | 0 | 0 | 2 |
+| 2003 | 0 | 0 | 2 |
+| 2004 | 0 | 0 | 2 |
+| 2005 | 0 | 0 | 2 |
+| 2006 | 0 | 0 | 2 |
+| 2007 | 0 | 0 | 2 |
+| 2008 | 0 | 0 | 2 |
+| 2009 | 0 | 0 | 2 |
    
 ## NETHERLANDS
 
