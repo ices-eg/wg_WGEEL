@@ -23,7 +23,7 @@
 Sys.setlocale("LC_ALL", "English_United States.932")
 # Password are stored in R/etc/Rprofile.site
 # For the moment the database is stored locally
-CY<-2018 # current year ==> don't forget to update the graphics path below
+CY<-2019 # current year ==> don't forget to update the graphics path below
 # ----------------------------------
 # wgeel2016 discussed that the correct way of 
 # calculating average of predictions was to use geomean
@@ -36,7 +36,7 @@ options(width=90) # this sets the width of the output
 #--------------------------------
 # packages used by this script
 #--------------------------------
-if(!require(RODBC)) install.packages("RODBC") ; require(RODBC)
+#if(!require(RODBC)) install.packages("RODBC") ; require(RODBC)
 if(!require(mgcv)) install.packages("mgcv") ; require(mgcv)
 if(!require(car)) install.packages("car") ; require(car)
 if(!require(ggplot2)) install.packages("ggplot2") ; require(ggplot2)
@@ -79,23 +79,23 @@ getUsername <- function(){
 # FOLDER is the directory where you have stored the git code
 # So you need to create a directory to store data and figures besides this 
 # directory, like this
-# FOLDER>datawgeel>recruitement>2018>data
-# FOLDER>datawgeel>recruitement>2018>image
-# FOLDER>datawgeel>recruitement>2018>table
-# here 2018 is the current year of recruitment (I have several folders one for each year)
+# FOLDER>datawgeel>recruitement>2019>data
+# FOLDER>datawgeel>recruitement>2019>image
+# FOLDER>datawgeel>recruitement>2019>table
+# here 2019 is the current year of recruitment (I have several folders one for each year)
 # the reason for this is that we don't want to put data or figures in the git.
 #--------------------------------
 
 if(getUsername() == 'cedric.briand')
 {
   # I have two password in the R.site of c:/program files/R... so I don't need no prompt
-  password<-passworddistant
-  baseODBC=c("wgeel","postgres",passwordlocal) #"w3.eptb-vilaine.fr" "localhost" "wgeel" "wgeel_distant" 
-  options(sqldf.RPostgreSQL.user = "postgres", 
-	  sqldf.RPostgreSQL.password = passwordlocal,
+
+  #baseODBC=c("wgeel","wgeel",passwordwgeel) #"w3.eptb-vilaine.fr" "localhost" "wgeel" "wgeel_distant" 
+  options(sqldf.RPostgreSQL.user = "wgeel", 
+	  sqldf.RPostgreSQL.password = passwordwgeel,
 	  sqldf.RPostgreSQL.dbname = "wgeel",
 	  sqldf.RPostgreSQL.host = "localhost", # "localhost"
-	  sqldf.RPostgreSQL.port = 5432)
+	  sqldf.RPostgreSQL.port = 5435)
   setwd("C:/Users/cedric.briand/Documents/GitHub/WGEEL/R/recruitment")
   
   wd <- getwd()
@@ -230,7 +230,7 @@ vv<-list()
 % this is where I'm storing files locally
 \graphicspath{{\Sexpr{str_c(imgwd, "/")}}} 
 % TO UPDATE TO THE NEW YEAR
-% DO REPLACE FOR INSTANCE F:/workspace/wgeeldata/sweave/2016/table by F:/workspace/wgeeldata/sweave/2018/table
+% DO REPLACE FOR INSTANCE F:/workspace/wgeeldata/sweave/2016/table by F:/workspace/wgeeldata/sweave/2019/table
 %%%%%%%%%%%%%%%%%%%%%%%%%% END OF THE PREAMBLE  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{document}
 \bibliographystyle{plain}
@@ -251,7 +251,7 @@ vv<-list()
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %*******Here put eval=FALSE if you plan to use Rdata *********************************
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-<<load_database, echo=FALSE, fig=FALSE, eval=TRUE,results=hide>>=
+<<load_database, echo=FALSE, fig=FALSE, eval=FALSE,results=hide>>=
 # In this chunk everything will be loaded. 
 # The data selection is made tranparently later in the chunk "select_series"
 # This chunks uses the RequeteODBC connection object from stacomirtools and sqldf
@@ -421,7 +421,7 @@ wgerdiscarded<-wger_init[wger_init$ser_qal_id!=1,]
 wgerdiscarded$value[wgerdiscarded$das_qal_id==0]<-NA
 # storing this information in a list for eventual later display and check
 vv$length_discarded <- tapply(wgerdiscarded$value,wgerdiscarded$site,function(X) sum(!is.na(X)))
-# below comments for 2018 after checkin the series
+# below comments for 2018 after checking the series
 # Farp (Farpener Bach DE) 11 years long enough but stocking influence 
 # DoFp (Fyke on yellow eel) 13 years but fyke nets yellow catch, not really recruitment
 # SeHM (35 year) duplicates
@@ -782,7 +782,7 @@ rien<-dev.off()
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %************************************************************************************
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-<<tableswgeel,echo=FALSE, eval=TRUE,results=hide>>=
+<<tableswgeel,echo=FALSE, eval=FALSE,results=hide>>=
 # THIS R CHUNCK IS USED ONCE AT THE END TO GENERATE THE TABLES.
 ## This will fail if saved twice, run at the end of the working group to generate the table of values
 dat<-wger_init[order(wger_init$ser_order,wger_init$year),]
@@ -797,7 +797,7 @@ first_line<-c("kept",statseries$series_kept)
 tab1<-rbind(first_line,tab1)
 createxl<-function(data=tab1,sheet="recruitment_series"){
   library("XLConnect")
-  xls.file<-str_c(datawd,"table_rec2018.xls")
+  xls.file<-str_c(datawd,"table_rec2019.xls")
   wb = loadWorkbook(xls.file, create = TRUE)
   createSheet(wb,sheet)
   writeWorksheet (wb , data , sheet=sheet ,header = TRUE )
@@ -859,7 +859,7 @@ is to keep only one series at one location when two series from different source
 display different information. For instance, the longest series has been kept for the severn (Severn EA) and the other (Severn
 HMRC) has been dropped from the list, as it was considered a double, but of poorer quality in historical times. 
 The second rule is to not include a series when it is too short. It was
-decided in 2018 to include the practical rule that series of less than 10
+decided in 2019 to include the practical rule that series of less than 10
 years, should not be kept. They are still updated in the database untill they
 can be included.
 Finally, it was also decided to discard recruitment series that were obviously
@@ -1244,7 +1244,7 @@ figure_check_one_series<-function(site='Katw',limits=c(1900,CY)){
 	  annotate("rect",xmin=1900,ymin=0,xmax=1960,ymax=10,fill="grey",alpha=0.5)
   return(g)
 }
-figure_check_one_series("Katw",limits=c(1960,2018))
+figure_check_one_series("Katw",limits=c(1960,2019))
 @
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %************************************************************************************
@@ -1655,7 +1655,7 @@ wisesp=readShapePoly(str_c(shpwd,"/","rbd_f1v3_3035.shp")) # a spatial object of
 country_c=readShapePoints(str_c(shpwd,"/","t_country_coun_3035"))# a spatial object of class sp
 # this is the map of coutry centers, to overlay points for each country
 emusp0=readShapePoly(str_c(shpwd,"/","t_emuagreg_ema_3035")) # a spatial object of class sp
-years<-1960:2018
+years<-1960:2019
 bb<-bbox(emusp0)
 # loop to create all the graphs
 for (year in years){
@@ -1867,7 +1867,7 @@ save(dat_ye,file=paste0(shinywd,"dat_ye.Rdata"))
 %************************************************************************************
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\subsection{Check on series updates for the 2018 analyses}
+\subsection{Check on series updates for the 2019 analyses}
 
 \Sexpr{sn(vv[["nCY"]])} time-series were updated to \Sexpr{CY}
 (\Sexpr{sn(vv[["nCYg"]])} for glass eel and \Sexpr{sn(vv[["nCYy"]])} for yellow eel 
@@ -1975,7 +1975,7 @@ level of European eel recruitment compared to the 1960-1979 average is now a bit
 higher, \Sexpr{sn(100*datNS[nrow(datNS)-1,"p_std_1960_1979"], digits =1)}\% for
 the North Sea and \Sexpr{sn(100*datEE[nrow(datEE)-1,"p_std_1960_1979"], digits= 1)}\% for the
 Elsewhere Europe area.
-For 2018, provisional data give estimates at \Sexpr{sn(100*datNS[nrow(datNS),"p_std_1960_1979"], digits =1)}\% 
+For 2019, provisional data give estimates at \Sexpr{sn(100*datNS[nrow(datNS),"p_std_1960_1979"], digits =1)}\% 
 for the North Sea and \Sexpr{sn(100*datEE[nrow(datEE),"p_std_1960_1979"], digits= 1)}\% for the
 Elsewhere Europe area, but some of the series are not yet complete (Figure
 \ref{figure5} \ref{figure5_with_logscale} (log.scale), Tables \ref{table_glm_glass_eel}).
@@ -2000,7 +2000,7 @@ For yellow eel series, the autumn ascent has not been recorded yet and most of
 the series have reported data till the middle of the summer. The 2017 yellow eel
 index is confirmed at
 \Sexpr{sn(100*dat_ye[nrow(dat_ye)-1,"geomean_p_std_1960_1979"])}\% of
-the 1960-1979 baseline. The 2018 provisional value is
+the 1960-1979 baseline. The 2019 provisional value is
 \Sexpr{sn(100*dat_ye[nrow(dat_ye),"geomean_p_std_1960_1979"])}\% and
 (Figure \ref{figure6},\ref{figure6_with_logscale} (log.scale), Table
 \ref{table_glm_yellow}).
@@ -2018,9 +2018,9 @@ the 1960-1979 baseline. The 2018 provisional value is
 %==========================================
 
 
-Both WGEEL recruitment indices for 2018 are lower than 2014, but modelling a
+Both WGEEL recruitment indices for 2019 are lower than 2014, but modelling a
 breakpoint arround the minima of 2011 still gives significant results when using
-the lower value from 2018 (p=\Sexpr{sn(sgipee_test_for_change_ee,digits=1)}
+the lower value from 2019 (p=\Sexpr{sn(sgipee_test_for_change_ee,digits=1)}
 Elsewhere Europe and p=\Sexpr{sn(sgipee_test_for_change_ns,digits=1)} North Sea ICES SGIPEE(2011)). 
 
 

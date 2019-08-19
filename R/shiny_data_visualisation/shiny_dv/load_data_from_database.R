@@ -3,18 +3,18 @@
 # Author: cedric.briand
 ###############################################################################
 
-#setwd("C:\\Users\\cedric.briand\\Documents\\GitHub\\WGEEL\\R\\shiny_data_visualisation\\shiny")
+#setwd("C:\\Users\\cedric.briand\\Documents\\GitHub\\WGEEL\\R\\shiny_data_visualisation\\shiny_dv")
 source("../../utilities/load_library.R")
 load_package("RPostgreSQL")
 load_package("sqldf")
 load_package("glue")
 if(is.null(options()$sqldf.RPostgreSQL.user)) {
   # extraction functions
-source("../../database_interaction/database_connection.R")
+source("database_connection.R")
 }
-source("../../database_interaction/database_reference.R")
-source("../../database_interaction/database_data.R")
-source("../../database_interaction/database_precodata.R")
+source("database_reference.R")
+source("database_data.R")
+source("database_precodata.R")
 
 
 habitat_ref <- extract_ref("Habitat type")
