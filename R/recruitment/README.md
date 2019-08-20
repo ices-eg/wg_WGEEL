@@ -44,10 +44,10 @@ if(getUsername() == 'cedric.briand')
 			sqldf.RPostgreSQL.dbname = "wgeel",
 			sqldf.RPostgreSQL.host = "localhost", # "localhost"
 			sqldf.RPostgreSQL.port = 5432)
-	setwd("C:/Users/cedric.briand/Documents/GitHub/WGEEL/R/recruitment")
+	setwd("C:/workspace/gitwgeel/R/recruitment")
 	
 	wd<-getwd()
-	wddata<-gsub("C:/Users/cedric.briand/Documents/GitHub/WGEEL/R","C:/workspace/wgeeldata",wd)
+	wddata<-gsub("C:/workspace/gitwgeel/R","C:/workspace/wgeeldata",wd)
 	datawd<-str_c(wddata,"/",CY,"/data")
 	imgwd<-str_c(wddata,"/",CY,"/image")
 	tabwd<-str_c(wddata,"/",CY,"/table")

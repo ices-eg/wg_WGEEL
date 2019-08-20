@@ -23,7 +23,7 @@ ALTER TABLE datawg.series_stats
 ----------------------------------------------
 -- SERIES SUMMARY
 ----------------------------------------------
-
+DROP VIEW datawg.series_summary CASCADE;
 CREATE OR REPLACE VIEW datawg.series_summary AS 
  SELECT ss.site AS site, 
  ss.namelong, 
@@ -36,6 +36,7 @@ CREATE OR REPLACE VIEW datawg.series_summary AS
  ser_uni_code as unit,
  ser_hty_code as habitat_type,
  ser_order as order,
+ ser_typ_id,
  ser_qal_id AS series_kept
    FROM datawg.series_stats ss
    JOIN datawg.t_series_ser ser ON ss.ser_id = ser.ser_id
@@ -58,7 +59,8 @@ from
 datawg.t_series_ser ser join 
 datawg.series_summary ss on ss.site=ser_nameshort
 ;
-
+GRANT ALL ON TABLE datawg.series_summary TO wgeel;
+GRANT ALL ON TABLE datawg.t_series_ser_dist TO wgeel;
 
 -------------------------------------
 -- View for landings

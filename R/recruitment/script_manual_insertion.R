@@ -18,7 +18,7 @@ obj<-obj[!obj%in%c("passworddistant","passwordlocal")]
 rm(list=obj) 
 
 # set working directory
-setwd("C:/Users/cedric.briand/Documents/GitHub/WGEEL/R/stock_assessment/")
+setwd("C:/workspace/gitwgeel/R/stock_assessment/")
 wd<-getwd()
 
 
@@ -419,7 +419,7 @@ obj<-obj[!obj%in%c("userwgeel","passwordwgeel")]
 rm(list=obj) 
 
 # set working directory
-setwd("C:/Users/cedric.briand/Documents/GitHub/WGEEL/R/recruitment/")
+setwd("C:/workspace/gitwgeel/R/recruitment/")
 wd<-getwd()
 
 # going to the server database with a ssh tunnel in localhost (check putty)

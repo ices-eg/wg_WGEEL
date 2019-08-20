@@ -11,7 +11,7 @@ library(rgeos)
 mylocalfolder <- "C:/temp/SharePoint/WGEEL - 2017 Meeting Docs/06. Data/datacall"
 
 # path to local github (or write a local copy of the files and point to them)
-setwd("C:/Users/cedric.briand/Documents/GitHub/WGEEL")
+setwd("C:/workspace/gitwgeel")
 # path to shapes on the sharepoint
 shpwd <- "C:/temp/SharePoint/WGEEL - 2017 Meeting Docs/06. Data/shp"
 ########################################

@@ -6,7 +6,7 @@
 require("shiny")
 
 
-# setwd("C:/Users/cedric.briand/Documents/GitHub/WGEEL")
+# setwd("C:/workspace/gitwgeel")
 
 
 #options(shiny.trace=TRUE)
