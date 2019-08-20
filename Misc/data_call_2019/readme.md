@@ -314,6 +314,16 @@ https://github.com/ices-eg/wg_WGEEL/issues/77
    
 -----------------------------
 
+## ITALY
+
+### Landings
+
+**IMPORTANT NOTE** Duplicates could not be updated due to an error in the database, this needs to be solved by data group
+
+### releases
+
+**CHECK** Releases sheet was provided indicating ND. Since data is being collected andd could be provided at some point, this was not integrated
+
 ## LATVIA
 
 ### Aquaculture
@@ -378,6 +388,10 @@ https://github.com/ices-eg/wg_WGEEL/issues/77
 ### recruitment
 
 => Missing file, I still need to udpate recruitment data for Imsa.
+
+### Landings, Releases, Aquaculture
+
+**CHECK** Nothing to report
 
 -----------------------------
 
