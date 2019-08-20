@@ -215,7 +215,19 @@ https://github.com/ices-eg/wg_WGEEL/issues/77
 
 ### recruitment
 
-TODO 
+data uploaded on sharepoint 
+
+### Landings
+
+no updated data on landings was provided
+
+### Releases
+
+no update on releases was provided
+
+### Aquaculture
+
+data is delayed but will presumably provided for WGEEL
 
 -----------------------------
 
@@ -302,6 +314,12 @@ https://github.com/ices-eg/wg_WGEEL/issues/77
    
 -----------------------------
 
+## LATVIA
+
+### Aquaculture
+
+**CHECK** The comment in the aquaculture file says that aquaculture is solely for restocking. Thus it shouldn't have been reported and no data was integrated
+
 ## LITHUANIA
 
 ### recruitment
@@ -325,6 +343,8 @@ Recruitment => No data OK
 ### aquaculture
 
 **CHECK** aquaculture uis restriced; yet, no data is provided after the data protection law was implemented - so is the previousely provided data public? In this case, if no new data is provided anyways, could the status be set to public
+
+-----------------------------
    
 ## NETHERLANDS
 
