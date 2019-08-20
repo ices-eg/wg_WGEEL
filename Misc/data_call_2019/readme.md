@@ -243,6 +243,16 @@ https://community.ices.dk/ExpertGroups/wgeel/WGEEL%20accessions/Data%20call%2020
 
 ### Landings
 
+**NOTE** No landings since not pertinent. Since files with no value at all cannot be integrated, nothing was integrated. Note to self: How should this be dealt with? 
+
+### Releases
+
+**Note** Same as landings
+
+### Aquaculture
+
+**Note** Same as landings
+**Note** q_aqua_n is no longer used in the database
 
 ### Releases
 
@@ -324,11 +334,15 @@ https://github.com/ices-eg/wg_WGEEL/issues/77
 
 **CHECK** Releases sheet was provided indicating ND. Since data is being collected andd could be provided at some point, this was not integrated
 
+-----------------------------
+
 ## LATVIA
 
 ### Aquaculture
 
 **CHECK** The comment in the aquaculture file says that aquaculture is solely for restocking. Thus it shouldn't have been reported and no data was integrated
+
+-----------------------------
 
 ## LITHUANIA
 
