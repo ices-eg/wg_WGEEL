@@ -304,8 +304,27 @@ https://github.com/ices-eg/wg_WGEEL/issues/77
 
 ## LITHUANIA
 
+### recruitment
+
 Recruitment => No data OK
 
+### releases
+
+| year | new  | conflicts | no change |
+|:----:|:----:|:---------:|:---------:|
+| 2011 | 0 | 2 | 0 |
+| 2012 | 0 | 1 | 1 |
+| 2013 | 0 | 1 | 1 |
+| 2014 | 0 | 1 | 1 |
+| 2015 | 0 | 1 | 1 |
+| 2016 | 0 | 1 | 1 |
+| 2017 | 0 | 0 | 2 |
+
+**CHECK** for most duplicates the number of stocked eels did not change but the mass in kg changed, is this correct?
+
+### aquaculture
+
+**CHECK** aquaculture uis restriced; yet, no data is provided after the data protection law was implemented - so is the previousely provided data public? In this case, if no new data is provided anyways, could the status be set to public
    
 ## NETHERLANDS
 
