@@ -215,7 +215,19 @@ https://github.com/ices-eg/wg_WGEEL/issues/77
 
 ### recruitment
 
-TODO 
+data uploaded on sharepoint 
+
+### Landings
+
+no updated data on landings was provided
+
+### Releases
+
+no update on releases was provided
+
+### Aquaculture
+
+data is delayed but will presumably provided for WGEEL
 
 -----------------------------
 
@@ -231,6 +243,16 @@ https://community.ices.dk/ExpertGroups/wgeel/WGEEL%20accessions/Data%20call%2020
 
 ### Landings
 
+**NOTE** No landings since not pertinent. Since files with no value at all cannot be integrated, nothing was integrated. Note to self: How should this be dealt with? 
+
+### Releases
+
+**Note** Same as landings
+
+### Aquaculture
+
+**Note** Same as landings
+**Note** q_aqua_n is no longer used in the database
 
 ### Releases
 
@@ -302,10 +324,51 @@ https://github.com/ices-eg/wg_WGEEL/issues/77
    
 -----------------------------
 
+## ITALY
+
+### Landings
+
+**IMPORTANT NOTE** Duplicates could not be updated due to an error in the database, this needs to be solved by data group
+
+### releases
+
+**CHECK** Releases sheet was provided indicating ND. Since data is being collected andd could be provided at some point, this was not integrated
+
+-----------------------------
+
+## LATVIA
+
+### Aquaculture
+
+**CHECK** The comment in the aquaculture file says that aquaculture is solely for restocking. Thus it shouldn't have been reported and no data was integrated
+
+-----------------------------
+
 ## LITHUANIA
+
+### recruitment
 
 Recruitment => No data OK
 
+### releases
+
+| year | new  | conflicts | no change |
+|:----:|:----:|:---------:|:---------:|
+| 2011 | 0 | 2 | 0 |
+| 2012 | 0 | 1 | 1 |
+| 2013 | 0 | 1 | 1 |
+| 2014 | 0 | 1 | 1 |
+| 2015 | 0 | 1 | 1 |
+| 2016 | 0 | 1 | 1 |
+| 2017 | 0 | 0 | 2 |
+
+**CHECK** for most duplicates the number of stocked eels did not change but the mass in kg changed, is this correct?
+
+### aquaculture
+
+**CHECK** aquaculture uis restriced; yet, no data is provided after the data protection law was implemented - so is the previousely provided data public? In this case, if no new data is provided anyways, could the status be set to public
+
+-----------------------------
    
 ## NETHERLANDS
 
@@ -339,6 +402,10 @@ https://github.com/ices-eg/wg_WGEEL/issues/77
 ### recruitment
 
 => Missing file, I still need to udpate recruitment data for Imsa.
+
+### Landings, Releases, Aquaculture
+
+**CHECK** Nothing to report
 
 -----------------------------
 
