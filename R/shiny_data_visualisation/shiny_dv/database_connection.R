@@ -23,7 +23,7 @@ load_library("getPass")
 #-------------------------------
 
 
-port <- 5435
+port <- 5436
 host <- "localhost"#"192.168.0.100"
 
 # remove this so as not to upset Laurent

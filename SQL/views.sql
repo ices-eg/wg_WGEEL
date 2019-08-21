@@ -16,14 +16,15 @@ CREATE OR REPLACE VIEW datawg.series_stats AS
 
 ALTER TABLE datawg.series_stats
   OWNER TO postgres;
-  
+ GRANT ALL ON TABLE datawg.series_stats TO wgeel;
+    
  --select * from datawg.series_stats
  
  
 ----------------------------------------------
 -- SERIES SUMMARY
 ----------------------------------------------
-DROP VIEW datawg.series_summary CASCADE;
+DROP VIEW IF EXISTS datawg.series_summary CASCADE;
 CREATE OR REPLACE VIEW datawg.series_summary AS 
  SELECT ss.site AS site, 
  ss.namelong, 
@@ -45,6 +46,7 @@ CREATE OR REPLACE VIEW datawg.series_summary AS
 
 ALTER TABLE datawg.series_summary
   OWNER TO postgres;
+ GRANT ALL ON TABLE datawg.series_summary TO wgeel;
   
 ---
 -- view with distance to the sargasso

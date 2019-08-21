@@ -301,3 +301,26 @@ commit;
 begin;
 update datawg.t_series_ser set geom=ST_SetSRID(ST_MakePoint(-8.475329,52.761225),4326) where ser_nameshort='ShaP';
 commit;
+
+begin;
+update datawg.t_series_ser set geom=ST_SetSRID(ST_MakePoint(-8.614108,52.705742),4326) where ser_nameshort='ShaA';
+commit;
+
+
+
+begin;
+update datawg.t_series_ser set geom=ST_SetSRID(ST_MakePoint(-0.724741,45.258087),4326) where ser_nameshort='GiSc';
+UPDATE datawg.t_series_ser set (ser_x,ser_y)=(st_x(geom),st_y(geom)) where ser_nameshort = 'GiSc';
+commit;
+
+BEGIN;
+SELECT ser_x,ser_y, ser_nameshort FROM datawg.t_series_ser;
+UPDATE datawg.t_series_ser set (ser_x,ser_y)=(st_x(geom),st_y(geom)) where ser_nameshort IN ('ShaP','Liff','Erne','Ronn','Ring','Visk','ShaA');
+COMMIT;
+
+
+select site,namelong,min,max,duration,missing,life_stage,sampling_type,unit,habitat_type,"order",series_kept
+ from datawg.series_summary where site='Oria'
+ 
+ SELECT * FROM datawg.t_dataseries_das WHERE das_ser_id = (
+ SELECT ser_id FROM datawg.t_series_ser WHERE ser_nameshort='Oria')
