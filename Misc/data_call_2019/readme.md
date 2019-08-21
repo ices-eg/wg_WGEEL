@@ -666,9 +666,17 @@ updating the series
   * Bann updated 2018 inserted 2019 it's looow
   * SEEA updated 2018 inserted 2019
   **CHECK** I have a series in tons, I'm **ignoring** the change I see the series metadata are now in kg and that the series is reported in kg
-  * Girn updated 2018 ( no data for 2019 yet
+  * Girn updated 2018 ( no data for 2019 yet)
+  
+> Jason :  it is still too early to provide the data for 2019 – the elvers are still running.
+
   * ShiM data as of 13 Aug 2018 / updated 2019 129 => 985 
   * ShiF data as of 13th Aug 2018 / updated 2019 989>129  
+  
+> Jason : Yes, the two series have got transposed somehow. For 2018, ShiM should be 129, and ShiF should be 989 (the previous value of 985 was preliminary data). I can provide preliminary data for 2019 for these two sites at the meeting.
+
+> Cédric : OK thanks corrected now. 
+
   **CHECK** Could you check there has been an inversion in two series when compared to last year. So there is a least one mistake. I put the two series with qal_id 4
   * stra 349 inserted 2019 by Derek Evans
 
