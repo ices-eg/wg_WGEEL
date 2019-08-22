@@ -582,12 +582,21 @@ I have modified your comments, either because I had something longer or more pre
 
   **CHECK** Comment: "Operated since 1900, this series is the longest available to the working group
 Missing years 1995, 1998 to 2001, 2010,2011 (fish pass rebuilt in 2010 2011). The station collects ascending yellow eels of different sizes caught in an eel pass placed close to a hydro power station."  
-       *NOTE* Ser_location_description updated
+
+> Including Hakan's addition : Operated since 1900, this series is the longest available to the working group
+Missing years 1995, 1998 to 2001, 2010,2011 (fish pass rebuilt in 2010 2011).  2018 and probably also 2019 will be missing due to financial/administrative problems. The station collects ascending yellow eels of different sizes caught in an eel pass placed close to a hydro power station.
+
+  *NOTE* Ser_location_description updated
        
 * Kavl 
 
-  **CHECK** location : "Near the Øresund (Sound) strait, outlet of Lake Vombsjön 45 km from the sea."  
+  **CHECK** location : "Near the Øresund (Sound) strait, outlet of Lake Vombsjön 45 km from the sea." 
+  
+> corrected to Outlet of Lake Vombsjön ca 45 km from the sea (the Øresund strait (Sound))
+ 
   **CHECK** comment : Ascending small eels caught in an eel pass.   
+
+> Station located on the Mörrumån river flowing to the southern coast of Sweden, the station is  33 km from the river mouth
 
 * Laga  
 
@@ -598,17 +607,30 @@ Missing years 1995, 1998 to 2001, 2010,2011 (fish pass rebuilt in 2010 2011). Th
 
   **CHECK** location : Station located on the Mörrumån river flowing to the southern coast of Sweden, the station is quite far upstream the river.   
   **CHECK** comment : Ascending yellow eels at a hydro power station. The series is complete since 1960.
+
+> Corrected to Ascending yellow eels at a hydro power station. The series is complete since 1960 (no missing year).
           
 * Mota   
 
   **CHECK**  location  Eel pass located at a hydro power station near the outlet of Lake Vättern, second largest lake by surface area in Sweden. This lake is flowing into the Baltic about a 100 km south from Stockholm.     
   **CHECK** comment :  As this site is both far upstream and far into the Baltic, ascending yellow eels are quite large (30-40) cm. This series is one of the longest series available to wgeel, with a complete series dating back to 1942.
            
+> Eel pass located at Norrköping ca 6 km from the river mouth (in the Baltic). Distance to Stockholm is about 130 km. 
+
+> So I guess the coordinates are wrong... Can you give me coordinates WGS84 DD (LAT, LONG) ?
+
+> As this site is far into the Baltic, ascending yellow eels are quite large (30-40) cm. This series is one of the longest series available to wgeel, with a complete series dating back to 1942.
+
+       
+
 * Ronn    
 
   There was a mistake, the trap was located in Ronne Island... In Danemark. OK this is now corrected. I guess it's the same site for both upstream and downstream migration that I've found in one of your report.   
           
-  **CHECK** location : Rönnemölla (55°56'40.69"N, 13°22'37.44"E) is a mill including a small hydroelectric power plant, located in Rönne å River (catchment area: 1896.6 km²), 6.5 km downstream of the outflow of lake Ringsjön.  The river flows to southern Kattegat.  
+  **CHECK** location : Stackarp hydropowerplant , located in Rönne å River (catchment area: 1896.6 km²). The river flows to southern Kattegat.  
+  
+ > Stackarp hydropowerplant , located in Rönne å River (catchment area: 1896.6 km²). The river flows to southern Kattegat.
+  
   **CHECK** comment : The trap has been operated since 1946,  with 9 missing years between 1988 et 1997. It collects mostly small eels. There have been several problems with both placing and maintenance of this eel pass situated at a hydro power dam.
            
 * Ring   
@@ -630,7 +652,12 @@ Missing years 1995, 1998 to 2001, 2010,2011 (fish pass rebuilt in 2010 2011). Th
 
 RECRUITMENT SERIES 
 
-=> OK everyhting has been updated and checked twice, **CHECK** I had a temporary value for Gota Alv last year, can you confirm it's still 20 ? What happened this year for the pass not be opened ?
+=> OK everyhting has been updated and checked twice, 
+
+**CHECK** I had a temporary value for Gota Alv last year, can you confirm it's still 20 ? What happened this year for the pass not be opened ?
+
+> there should be like NO DATA => OK data removed for 2018. Qal id zero (missing data) set for the two years.
+ 
 
 BIOMETRIC DATA
 
