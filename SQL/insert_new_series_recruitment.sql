@@ -89,7 +89,8 @@ COMMIT;
 -- Change location of Ronn
 -------------------------
 begin;
-update datawg.t_series_ser set geom=ST_SetSRID(ST_MakePoint(13.376925,55.9467),4326) where ser_nameshort='Ronn';
+update datawg.t_series_ser set geom=ST_SetSRID(ST_MakePoint(13.11598,56.12357),4326) where ser_nameshort='Ronn';
+UPDATE datawg.t_series_ser set (ser_x,ser_y)=(st_x(geom),st_y(geom)) where ser_nameshort = 'Ronn';
 commit;
 
 
@@ -324,3 +325,9 @@ select site,namelong,min,max,duration,missing,life_stage,sampling_type,unit,habi
  
  SELECT * FROM datawg.t_dataseries_das WHERE das_ser_id = (
  SELECT ser_id FROM datawg.t_series_ser WHERE ser_nameshort='Oria')
+ 58.58894, 
+ 
+begin;
+update datawg.t_series_ser set geom=ST_SetSRID(ST_MakePoint(16.18392,58.58894),4326) where ser_nameshort='Mota';
+UPDATE datawg.t_series_ser set (ser_x,ser_y)=(st_x(geom),st_y(geom)) where ser_nameshort = 'Mota';
+commit;
