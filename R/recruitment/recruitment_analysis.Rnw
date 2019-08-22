@@ -579,16 +579,18 @@ series_CY<-R_stations[R_stations$ser_nameshort%in%names(last_year[last_year==CY]
     c("ser_nameshort","ser_namelong","cou_code","ser_lfs_code","areashort","ser_area_division","ser_order")]
 series_CY<-series_CY[order(series_CY$ser_order),-ncol(series_CY)]
 vv$nCY<-nrow(series_CY) # number of series updated to the current year (for later use)
-vv$nCYg<-nrow(series_CY[grepl("G",series_CY$ser_lfs_code),]) # number of series with glass eel updated to the current year
-vv$nCYy<-nrow(series_CY[series_CY$ser_lfs_code=="Y",]) # number of series with yellow eel (only) updated to the current year
+vv$nCYG<-nrow(series_CY[series_CY$ser_lfs_code=="G",]) # number of series with glass eel updated to the current year
+vv$nCYGY<-nrow(series_CY[series_CY$ser_lfs_code=="GY",]) # number of series with glass eel updated to the current year
+vv$nCYY<-nrow(series_CY[series_CY$ser_lfs_code=="Y",]) # number of series with yellow eel (only) updated to the current year
 
 #"stations updated to",CY-1
 series_CYm1<-R_stations[R_stations$ser_nameshort%in%names(last_year[last_year==CY-1]),
     c("ser_nameshort","ser_namelong","cou_code","ser_lfs_code","areashort","ser_area_division","ser_order")]
 series_CYm1<-series_CYm1[order(series_CYm1$ser_order),-ncol(series_CYm1)]
 vv$nCYm1<-nrow(series_CYm1) # number series updated last year only (and not this year)
-vv$nCYm1g<-nrow(series_CYm1[grepl("G",series_CYm1$ser_lfs_code),]) # same for glass eel 
-vv$nCYm1y<-nrow(series_CYm1[series_CYm1$ser_lfs_code=="Y",]) # same for yellow eel only
+vv$nCYm1G<-nrow(series_CYm1[grepl("G",series_CYm1$ser_lfs_code),]) # same for glass eel 
+vv$nCYm1GY<-nrow(series_CYm1[grepl("GY",series_CYm1$ser_lfs_code),]) # same for glass eel 
+vv$nCYm1Y<-nrow(series_CYm1[series_CYm1$ser_lfs_code=="Y",]) # same for yellow eel only
 
 # Series that have not been updated for two years
 lost_ones<-last_year[last_year<CY-1]
@@ -599,8 +601,9 @@ series_lost<-merge(
 	by.y="site",by.x="ser_nameshort")
 series_lost<-series_lost[order(series_lost$year),]
 vv$nseries_lost<-nrow(series_lost) # number of series not updated for the two last years
-vv$nseries_lostg<-nrow(series_lost[grepl("G",series_lost$ser_lfs_code),])
-vv$nseries_losty<-nrow(series_lost[series_lost$ser_lfs_code=="Y",])
+vv$nseries_lostG<-nrow(series_lost[grepl("G",series_lost$ser_lfs_code),])
+vv$nseries_lostY<-nrow(series_lost[series_lost$ser_lfs_code=="Y",])
+vv$nseries_lostGY<-nrow(series_lost[series_lost$ser_lfs_code=="GY",])
 #xtable of current year series
 
 
@@ -750,11 +753,13 @@ nbmaxglasseel<-max(n_y_lfs$"glass"+n_y_lfs$"glass+yellow")
 # storing this in our nice list
 vv$yearmaxglasseel<-yearmaxglasseel
 vv$nbmaxglasseel<-nbmaxglasseel
+vv$nbcurrentglasseel<-n_y_lfs$"glass"[n_y_lfs$year==CY]+n_y_lfs$"glass+yellow"[n_y_lfs$year==CY]
 # same for yellow eel
 yearmaxyellow<-n_y_lfs$year[which(max(n_y_lfs$"yellow")==n_y_lfs$"yellow")]
 nbmaxyellow<-max(n_y_lfs$"yellow")
 vv$yearmaxyellow<-yearmaxyellow
 vv$nbmaxyellow<-nbmaxyellow
+vv$nbcurrentyellow<-n_y_lfs$"yellow"[n_y_lfs$year==CY]
 
 @
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -866,8 +871,22 @@ areas: 'continental North Sea' (NS) and 'Elsewhere Europe' (EE) (Figure
     }%
 }
 }
-See also Bornarel et al., 2017)
+
+Bornarel et al. (2017) adapted the Glass Eel Recruitment Estimation Model (GEREM) 
+to estimate annual recruitment (i) at the river catchment level, a scale for which data are available, 
+(ii) at an intermediate scale (6 European regions), and (iii) at a larger scale (Europe). 
+Results confirmed an overall recruitment decline and confirmed a more pronounced decline
+in the North Sea area compared to the Elsewhere Europe area (after ICES, 2010b).
 .
+
+The WGEEL has collated information on recruitment from
+\Sexpr{sn(vv[["nb_series_init"]])} time-series. Some time-series date back to the
+beginning of 20th century (yellow eel, Göta Älv, Sweden) or 1920 (glass eel,
+Loire, France). Among those series \Sexpr{sn(vv[["nb_series_init_qual1"]])} have been
+selected for further analysis in the wgeel indices, see details on data
+selection and processing below). Depending on the period on which we
+standardized, the number of series really used can be lower and are given for
+each analysis. 
 
 %==================================================
 \begin{figure}[htbp]
@@ -879,41 +898,33 @@ G and GY) yellow = Y.}
 \end{figure}
 %==========================================
 
-The WGEEL has collated information on recruitment from
-\Sexpr{sn(vv[["nb_series_init"]])} time-series. Some time-series date back to the
-beginning of 20th century (yellow eel, Göta Älv, Sweden) or 1920 (glass eel,
-Loire, France). Among those series \Sexpr{sn(vv[["nb_series_init_qual1"]])} have been
-selected for further analysis in the wgeel indices, see details on data
-selection and processing in XXXX). Depending on the period on which we
-standardized, the number of series really used can be lower and are given for
-each analysis. 
-
-
-
 \subsection{Details on data selection and processing}
 
-There has been a drop of
-\Sexpr{sn(vv[["nb_series_init"]]-vv[["nb_series_final"]])} series from the
-analysis. Two major rules have been decided behind this choice. The first rule
-is to keep only one series at one location when two series from different source
-display different information. For instance, the longest series has been kept for the severn (Severn EA) and the other (Severn
-HMRC) has been dropped from the list, as it was considered a double, but of poorer quality in historical times. 
-The second rule is to not include a series when it is too short. It was
+Out of \Sexpr{sn(vv[["nb_series_final"]])}, \Sexpr{sn(vv[["nb_series_init"]])}
+series were not used in the analysis. Three rules have been used for this selection
+procedure.
+\begin{enumerate}
+\item The first rule is to keep only one series at one location when two
+series from different source display different information. For instance, the longest series has been kept for the severn (Severn EA) and the other (Severn
+HMRC) has been dropped from the list, as it was considered a double being based
+on the same fishery. \textcolor{Plum}{TODO work on Minho sp and Minho
+pt. and Gironde....}
+\item The second rule is not to include a series when it is too short. It was
 decided in 2019 to include the practical rule that series of less than 10
 years, should not be kept. They are still updated in the database untill they
-can be included.
-Finally, it was also decided to discard recruitment series that were obviously
-biased by recruitment. 
-\textcolor{Plum}{What are we to do with the Meuse, why keep Minho sp and Minho
-pt..., Why keep Gironde....}
+can be included. \textcolor{Plum}{But clarify now what we are going to do
+when there are missing years....} 
+\item Finally, it was also decided to discard
+recruitment series that were obviously biased by restocking e.g. Farpener Bach
+in Germany.
+\end{enumerate}
+
 
 Among the time-series based on trap indices, some have reported
 preliminary data for \Sexpr{CY} as their trapping season had not
-finished. As usual, the indices given for \Sexpr{CY} must be considered as
-provisional especially those for the yellow eel.
+finished. \textbf{As usual, the indices given for \Sexpr{CY} must be considered
+as provisional especially those for the yellow eel.}
 
-8 new historical data have been collected in the UK and one in Portugal. Most of
-those are not yet included in the analysis as they are too short.
 
 
  %====================================
@@ -932,9 +943,12 @@ those are not yet included in the analysis as they are too short.
 
 The number of glass eel and glass eel + young yellow eel time-series available
 has declined from a peak of
-\Sexpr{vv[["nbmaxglasseel"]]} in \Sexpr{max(as.numeric(vv[["yearmaxglasseel"]]))}. The maximum
-number of older yellow eel time-series has increased to \Sexpr{vv[["nbmaxyellow"]]}
-in \Sexpr{max(as.numeric(vv[["yearmaxyellow"]]))} (Figure \ref{figure2}).
+\Sexpr{vv[["nbmaxglasseel"]]} in
+\Sexpr{max(as.numeric(vv[["yearmaxglasseel"]]))} to
+\Sexpr{vv[["nbcurrentglasseel"]]} in \Sexpr{CY}. The maximum number of older
+yellow eel time-series has increased to \Sexpr{vv[["nbmaxyellow"]]} in
+\Sexpr{max(as.numeric(vv[["yearmaxyellow"]]))} but dropped to
+\Sexpr{vv[["nbcurrentyellow"]]} (Figure \ref{figure2}).
 
  %========================================== 
 \begin{figure}[H]
@@ -1921,16 +1935,20 @@ save(dat_ye,file=paste0(shinywd,"dat_ye.Rdata"))
 \subsection{Check on series updates for the 2019 analyses}
 
 \Sexpr{sn(vv[["nCY"]])} time-series were updated to \Sexpr{CY}
-(\Sexpr{sn(vv[["nCYg"]])} for glass eel and \Sexpr{sn(vv[["nCYy"]])} for yellow eel 
-(Table \ref{table_seriesCY}).
-\Sexpr{sn(vv[["nCYm1"]])} time-series (\Sexpr{sn(vv[["nCYm1g"]])} for glass eel and
-\Sexpr{sn(vv[["nCYm1y"]])} for yellow eel) were updated to \Sexpr{CY-1}
+(\Sexpr{sn(vv[["nCYG"]])} for glass eel, (\Sexpr{sn(vv[["nCYGY"]])} for
+glass + yellow eel and \Sexpr{sn(vv[["nCYY"]])} for yellow eel (Table
+\ref{table_seriesCY}).
+\Sexpr{sn(vv[["nCYm1"]])} time-series (\Sexpr{sn(vv[["nCYm1G"]])} for glass eel,
+(\Sexpr{sn(vv[["nCYm1GY"]])} for glass + yellow eel and
+\Sexpr{sn(vv[["nCYm1Y"]])} for yellow eel) were updated to \Sexpr{CY-1}
 only (Table \ref{table_seriesCYm1}).  
 
 \Sexpr{sn(vv[["nseries_lost"]])} time-series have been stopped
-(\Sexpr{sn(vv[["nseries_lostg"]])} for glass eel and \Sexpr{sn(vv[["nseries_losty"]])} for
-yellow eel, Table \ref{table_serieslost}). They stopped
-reporting either because of a lack of recruits in the case of the fishery-based surveys (Ems
+(\Sexpr{sn(vv[["nseries_lostG"]])} for glass eel,
+(\Sexpr{sn(vv[["nseries_lostGY"]])} for glass eel + yellow eel and
+\Sexpr{sn(vv[["nseries_lostY"]])} for yellow eel, Table \ref{table_serieslost}). 
+
+They stopped reporting either because of a lack of recruits in the case of the fishery-based surveys (Ems
 in Germany, stopped in 2001; Vidaa in Denmark, stopped in 1990),
  a lack of financial support (the Tiber in Italy, 2006) or the introduction of
 quota from from 2008 to 2011 that has disrupted the five fishery-based French
