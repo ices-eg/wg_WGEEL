@@ -95,7 +95,7 @@ if(getUsername() == 'cedric.briand')
 	  sqldf.RPostgreSQL.password = passwordwgeel,
 	  sqldf.RPostgreSQL.dbname = "wgeel",
 	  sqldf.RPostgreSQL.host = "localhost", # "localhost"
-	  sqldf.RPostgreSQL.port = 5436) # 5435 launch the ssh tunnel
+	  sqldf.RPostgreSQL.port = 5435) # 5435 launch the ssh tunnel
   setwd("C:/workspace/gitwgeel/R/recruitment")
   
   wd <- getwd()
@@ -253,7 +253,7 @@ anguilla) stock, the fisheries on it and other anthropogenic impacts.}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %*******Here put eval=FALSE if you plan to use Rdata *********************************
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-<<load_database, echo=FALSE, fig=FALSE, eval=FALSE,results=hide>>=
+<<load_database, echo=FALSE, fig=FALSE, eval=TRUE,results=hide>>=
 # In this chunk everything will be loaded. 
 # The data selection is made tranparently later in the chunk "select_series"
 # This chunks uses the RequeteODBC connection object from stacomirtools and sqldf

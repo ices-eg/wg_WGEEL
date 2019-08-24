@@ -413,4 +413,5 @@ the mouth of the estuary.'
           where  "Station_Name" = 'Guadalquivir';--1
 COMMIT;
 --ROLLBACK;
-
+SELECT * FROM ref.tr_station WHERE "Station_Name"='Guadalquivir'; 
+SELECT * FROM datawg.t_series_ser WHERE ser_nameshort='Guad' ; 
