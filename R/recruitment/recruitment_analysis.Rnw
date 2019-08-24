@@ -1934,25 +1934,26 @@ save(dat_ye,file=paste0(shinywd,"dat_ye.Rdata"))
 
 \subsection{Check on series updates for the 2019 analyses}
 
-\Sexpr{sn(vv[["nCY"]])} time-series were updated to \Sexpr{CY}
-(\Sexpr{sn(vv[["nCYG"]])} for glass eel, (\Sexpr{sn(vv[["nCYGY"]])} for
-glass + yellow eel and \Sexpr{sn(vv[["nCYY"]])} for yellow eel (Table
-\ref{table_seriesCY}).
+\Sexpr{sn(vv[["nCY"]])} time-series were updated to \Sexpr{CY} (
+\Sexpr{sn(vv[["nCYG"]])} for glass eel, \Sexpr{sn(vv[["nCYGY"]])} for
+glass + yellow eel and \Sexpr{sn(vv[["nCYY"]])} for yellow eel  (Table
+\ref{table_seriesCY})).
 \Sexpr{sn(vv[["nCYm1"]])} time-series (\Sexpr{sn(vv[["nCYm1G"]])} for glass eel,
-(\Sexpr{sn(vv[["nCYm1GY"]])} for glass + yellow eel and
+\Sexpr{sn(vv[["nCYm1GY"]])} for glass + yellow eel and
 \Sexpr{sn(vv[["nCYm1Y"]])} for yellow eel) were updated to \Sexpr{CY-1}
-only (Table \ref{table_seriesCYm1}).  
+only (Table \ref{table_seriesCYm1})).  
 
-\Sexpr{sn(vv[["nseries_lost"]])} time-series have been stopped
-(\Sexpr{sn(vv[["nseries_lostG"]])} for glass eel,
-(\Sexpr{sn(vv[["nseries_lostGY"]])} for glass eel + yellow eel and
-\Sexpr{sn(vv[["nseries_lostY"]])} for yellow eel, Table \ref{table_serieslost}). 
-
-They stopped reporting either because of a lack of recruits in the case of the fishery-based surveys (Ems
-in Germany, stopped in 2001; Vidaa in Denmark, stopped in 1990),
+\Sexpr{sn(vv[["nseries_lost"]])} time-series have been stopped or not updated
+beyond 2016 (\Sexpr{sn(vv[["nseries_lostG"]])} for glass eel,
+\Sexpr{sn(vv[["nseries_lostGY"]])} for glass eel + yellow eel and
+\Sexpr{sn(vv[["nseries_lostY"]])} for yellow eel (Table
+\ref{table_serieslost})) but are still included in the analysis.
+Some have stopped reporting either because of a lack of recruits in the case of
+the fishery-based surveys (Ems in Germany, stopped in 2001; Vidaa in Denmark, stopped in 1990),
  a lack of financial support (the Tiber in Italy, 2006) or the introduction of
 quota from from 2008 to 2011 that has disrupted the five fishery-based French
-time-series . 
+time-series . The two English series (FlaE and BeeG) are still operating but
+data have not been updated since 2016.
 
 
  %====================================

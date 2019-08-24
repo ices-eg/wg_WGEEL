@@ -331,3 +331,86 @@ begin;
 update datawg.t_series_ser set geom=ST_SetSRID(ST_MakePoint(16.18392,58.58894),4326) where ser_nameshort='Mota';
 UPDATE datawg.t_series_ser set (ser_x,ser_y)=(st_x(geom),st_y(geom)) where ser_nameshort = 'Mota';
 commit;
+
+
+SELECT * FROM datawg.t_series_ser where ser_cou_code='ES';
+-- I need to insert in position 67
+BEGIN;
+-- first we need to insert the station
+INSERT INTO ref.tr_station( "tblCodeID",
+"Station_Code",
+"Country",
+"Organisation",
+"Station_Name",
+"WLTYP",
+"Lat",
+"Lon",
+"StartYear",
+"EndYear",
+"PURPM",
+"Notes") 
+select max("tblCodeID")+1,
+       max("Station_Code")+1,
+       'SPAIN' as "Country",
+       'UCO' as "Organisation", -- Universidad de Córdoba
+	'Guadalquivir' as "Station_Name",
+	 NULL as "WLTYP",
+      36.801823 as "Lat", 
+	  -6.341810 as "Lon",
+	1998 as "StartYear",
+	NULL as "EndYear",
+	'T' as "PURPM", 
+	'Scientific monitoring in the Guadalquivir' as "Notes"
+from ref.tr_station; --1 
+update datawg.t_series_ser set ser_order=ser_order+1 where ser_order>=67; --37
+INSERT INTO  datawg.t_series_ser(
+          ser_order, 
+          ser_nameshort, 
+          ser_namelong, 
+          ser_typ_id, 
+          ser_effort_uni_code, 
+          ser_comment, 
+          ser_uni_code, 
+          ser_lfs_code, 
+          ser_hty_code, 
+          ser_locationdescription, 
+          ser_emu_nameshort, 
+          ser_cou_code, 
+          ser_area_division,
+          ser_tblcodeid,
+          ser_x, 
+          ser_y, 
+          ser_sam_id,
+          ser_qal_id,
+          ser_qal_comment,
+          geom) 
+          SELECT   
+          67 as ser_order, 
+          'Guad' ser_nameshort, 
+          'Guadalquivir scientific monitoring' as ser_namelong, 
+          1 as ser_typ_id, 
+          'nr day' as ser_effort_uni_code, 
+          'Scientific sampling from a boat equipped with with the local fishery gear that has been traditionally used for the commercial cayches of glass eels in the Guadalquivir estuary. 
+Catches are done at three sites (see Arribas et al., 2012). The catch is done all arround the year and all month but only month 11-5 are used in the analysis. A zero inflated negative binomial
+model is used to predict number of glass eel caught with volume filtered as a weighting variable in the regression. The predictions are made for the fishing season, month 1, and site = Bonanza, near
+the mouth of the estuary.'
+ as ser_comment, 
+          'index' as ser_uni_code, 
+          'G' as ser_lfs_code, 
+          'T' as ser_hty_code, 
+          'The Guadalquivir river is 657 km long and drains an area of about 58000 km2.  It flows into the Atlantic, and is located not far from Gilbraltar' as ser_locationdescription, 
+          'ES_Anda' as ser_emu_nameshort, 
+          'ES' as ser_cou_code, 
+          '27.9.a' as ser_area_division,
+          "tblCodeID" as ser_tblcodeid, -- this comes from station
+          -6.341810 as ser_x, 
+           36.801823 as ser_y, 
+          3 as ser_sam_id, -- scientific estimate
+          0 as ser_qal_id, -- currenly 9 years
+          'Series too short yet < 10 years to be included' as ser_qal_comment,
+          ST_SetSRID(ST_MakePoint(-6.341810, 36.801823),4326)
+          from ref.tr_station
+          where  "Station_Name" = 'Guadalquivir';--1
+COMMIT;
+--ROLLBACK;
+
