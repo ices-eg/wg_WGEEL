@@ -23,17 +23,10 @@ load_library("getPass")
 #-------------------------------
 
 
-port <- 5432
+port <- 5436
 host <- "localhost"#"192.168.0.100"
 
-# remove this so as not to upset Laurent
-if (Sys.info()[["user"]]!="cedric.briand"){
-	stop("please change lines in database_connection lines 31 32,
-					this connection is currently set to Cedric to save his time")
-} else {
-	userwgeel <-"wgeel"
-	passwordwgeel<-"wgeel"
-}
+
 
 if (exists("userwgeel")) 
 { #Cedric's special configuration

@@ -23,7 +23,35 @@ qualify_code<-18 # change this code here and in tr_quality_qal for next wgeel
 the_eel_datasource <- "test"
 # the_eel_datasource <- "dc_2018"
 ```
+
+code in `database_edition_2019`
+
+```sql
+select * from ref.tr_quality_qal;
+BEGIN;
+INSERT INTO ref.tr_quality_qal (qal_id ,
+  qal_level,
+  qal_text,
+  qal_kept) VALUES
+(
+19,
+'discarded_wgeel_2019',
+'This data has either been removed from the database in favour of new data, or corresponds to new data not kept in the database during datacall 2019',
+FALSE);--1
+COMMIT;
+```
+
 Create also this code in the reference table `ref.tr_datasource_dts`
+
+```sql
+select * from ref.tr_datasource_dts;
+BEGIN;
+INSERT INTO ref.tr_datasource_dts  VALUES
+(
+'dc_2019',
+'Joint EIFAAC/GFCM/ICES Eel Data Call 2019');--1
+COMMIT;
+```
 
 The table of current users of the app is created in `datawg.participants`, update this with the wgeel participant list before wgeel.
 
@@ -348,7 +376,7 @@ The `replaced` data are inserted in the database, there is a check at the beginn
 ```
 ### Inserting new rows 
 
-Same trick, use of a temp table with sqldf, and DBI to catch errors.
+Same trick, use of a temp table with sqldf, and DBI to catch errors. 
 
 ## Data corrections tab
 

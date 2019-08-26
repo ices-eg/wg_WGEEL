@@ -1,4 +1,4 @@
-﻿﻿-------------------------------
+﻿-------------------------------
 -- Update tested on rasberry
 -- TODO update database living
 -------------------------------
@@ -126,3 +126,100 @@ UPDATE ref.tr_typeseries_typ SET typ_name = LOWER(typ_name);
 
 -- minor correction
 COMMENT ON COLUMN datawg.t_series_ser.geom IS 'internal use, a postgis geometry point in EPSG:3035 (ETRS89 / ETRS-LAEA)';
+
+select * from ref.tr_quality_qal;
+BEGIN;
+INSERT INTO ref.tr_quality_qal (qal_id ,
+  qal_level,
+  qal_text,
+  qal_kept) VALUES
+(
+19,
+'discarded_wgeel_2019',
+'This data has either been removed from the database in favour of new data, or corresponds to new data not kept in the database during datacall 2019',
+FALSE);--1
+COMMIT;
+
+
+select * from ref.tr_datasource_dts;
+BEGIN;
+INSERT INTO ref.tr_datasource_dts  VALUES
+(
+'dc_2019',
+'Joint EIFAAC/GFCM/ICES Eel Data Call 2019');--1
+COMMIT;
+  
+-- grant rights to wgeel otherwise problems with shiny
+GRANT ALL ON SEQUENCE datawg.log_log_id_seq TO wgeel;
+GRANT ALL ON schema datawg TO wgeel;
+
+GRANT ALL ON SEQUENCE datawg.t_eelstock_eel_eel_id_seq to wgeel;
+
+
+
+-- two lines with the wrong area division, I remove them from insertion but correct with a script
+BEGIN;
+with smallproblem as (select * from datawg.t_eelstock_eel 
+where eel_cou_code='ES'
+AND eel_typ_id in (4)
+and eel_emu_nameshort='ES_Cata'
+and eel_year in (2015,2016,2017,2018)
+AND eel_lfs_code='G'
+AND eel_area_division!='37.1.1')
+update datawg.t_eelstock_eel set eel_area_division='37.1.1' where eel_id in (select eel_id from smallproblem)
+COMMIT;
+
+-- => Détail :La clé « (eel_year, eel_lfs_code, eel_emu_nameshort, eel_typ_id, eel_hty_code, eel_qal_id, eel_area_division)=(2017, G, ES_Cata, 4, T, 1, 37.1.1) » existe déjà.
+
+with smallproblem as (select * from datawg.t_eelstock_eel 
+where eel_cou_code='ES'
+AND eel_typ_id in (4)
+and eel_emu_nameshort ='ES_Cata'
+and eel_year in (2017,2018)
+AND eel_lfs_code='G'
+)
+SELECT * from smallproblem
+
+-- OK one line in 2017 correct, the other not
+-- still I can remove both wrong values
+
+
+select * from datawg.t_eelstock_eel  where eel_area_division in ('37.1.2','37.1.3') and eel_cou_code='ES'--2
+
+BEGIN;
+DELETE FROM datawg.t_eelstock_eel  where eel_area_division in ('37.1.2','37.1.3') and eel_cou_code='ES';
+COMMIT;
+
+
+
+
+SELECT * FROM datawg.t_eelstock_eel where (eel_year, eel_lfs_code, eel_emu_nameshort, eel_typ_id, eel_hty_code, eel_qal_id)=(2018, 'YS', 'DK_Inla', 6, 'F', 1);
+
+
+select * from datawg.t_eelstock_eel 
+where eel_cou_code='ES'
+AND eel_typ_id in (4)
+and eel_emu_nameshort ='ES_Gali'
+and eel_year = 2014
+AND eel_lfs_code='YS'
+
+
+/* 07/08 restauration of the daba */
+/*
+grant all on database wgeel to wgeel;
+GRANT ALL ON SCHEMA ref to wgeel
+GRANT ALL ON SCHEMA datawg to wgeel
+GRANT ALL ON ALL TABLES IN SCHEMA datawg TO wgeel; 
+GRANT ALL ON ALL TABLES IN SCHEMA ref TO wgeel; 
+GRANT ALL ON SEQUENCE datawg.log_log_id_seq TO wgeel;
+GRANT ALL ON SEQUENCE datawg.t_eelstock_eel_eel_id_seq to wgeel;
+GRANT ALL ON SEQUENCE datawg.t_biometry_bio_bio_id_seq to wgeel;
+GRANT ALL ON ALL TABLES IN SCHEMA public TO wgeel; 
+GRANT ALL ON SCHEMA public to wgeel
+*/
+
+GRANT ALL ON TABLE datawg.t_biometry_series_bis  to wgeel;
+GRANT ALL ON TABLE datawg.t_biometry_other_bit  to wgeel;
+GRANT ALL ON TABLE datawg.t_biometry_bio  to wgeel;
+
+

@@ -137,7 +137,8 @@ insert into ref.tr_units_uni values('nr electrofishing','number of electrofishin
 insert into ref.tr_units_uni values('ha','Surface');
 --2017
 insert into ref.tr_units_uni values('nr day','number of days'); -- effort unit used for recruitment (germany)
-
+--2019
+insert into ref.tr_units_uni values('nr/m3','number per cubic meter');
 ------------------------------
 -- ref.tr_typeseries_typ
 ---------------------------

@@ -117,7 +117,7 @@ compare_with_database <- function(data_from_excel, data_from_base) {
 #'  }
 #' }
 #' @rdname write_duplicate
-write_duplicates <- function(path, qualify_code = 18) {
+write_duplicates <- function(path, qualify_code = 19) {
   
   duplicates2 <- read_excel(path = path, sheet = 1, skip = 1)
   
@@ -377,7 +377,9 @@ write_duplicates <- function(path, qualify_code = 18) {
 #' if(interactive()){
 #'  path<-wg_file.choose() 
 #'  #path<-'C:\\Users\\cedric.briand\\Desktop\\06. Data\\datacall(wgeel_2018)\\new_catch_landings_2018-07-23.xlsx'
-#'  # qualify_code is 18 for wgeel2018
+#'  # path <- "https:\\community.ices.dk\\ExpertGroups\\wgeel\\2019 Meeting Documents/06. Data\\03 Data Submission 2019\\EST\\new_aquaculture_2019-08-07EE.xlsx"
+#'  # path <- "C:\\Users\\cedric.briand\\OneDrive - EPTB Vilaine\\Projets\\GRISAM\\2019\\datacall\\sharepoint\\03-data_submission_2019\\new_aquaculture_2019-08-07EE.xlsx"
+#' # qualify_code is 18 for wgeel2018
 #'  write_new(path)
 #' sqldf('delete from datawg.t_eelstock_eel where eel_qal_comment='dummy_for_test'')
 #'  }

@@ -141,7 +141,7 @@ split_per_decade<-function(data){
 	df<-as.matrix(df)
 	cgroupdecade<-c(cgroupdecade,str_c(" ",start,""))
 	dat<-data[as.character(start:CY),]
-	dat[(length(dat)+1):10]<-NA
+	if (CY-10*floor(CY/10)!=9)	dat[(length(dat)+1):10]<-NA	
 	df<-as.data.frame(cbind(df,as.data.frame(dat)))
 	colnames(df)<-cgroupdecade
 	return(df)
@@ -168,7 +168,7 @@ split_per_decade_ge<-function(data){
 	}
 	cgroupdecade<-c(cgroupdecade,str_c(" ",start,""))
 	dffin<-data[as.character(start:CY),]
-	dffin[(nrow(dffin)+1):10,]<-NA
+	if (CY-10*floor(CY/10)!=9)	dffin[(nrow(dffin)+1):10,]<-NA
 	df<-cbind(df,dffin)
 	cgroupdecade<<-cgroupdecade
 	return(df)

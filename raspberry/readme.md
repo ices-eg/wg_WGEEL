@@ -88,6 +88,54 @@ and restart PostgreSQL:
 ```shell
 sudo /etc/init.d/postgresql restart
 ```
+## PostgreSQL server for linux server (cedric)
+Copy database to postgres 
+
+```shell
+psql -U postgres -h myhost -c "create database wgeel" postgres
+```
+
+From local linux to use psql (use u lowercase)
+
+```shell
+sudo -u postgres psql
+```
+
+To change user in the linux term
+
+```shell
+sudo su - postgres
+dropuser wgeel
+createuser --createdb --pwprompt --createrole wgeel
+```
+Prompt for superuser password change
+
+```shell
+sudo su - postgres
+\passord 
+test with pslq -U postgres --password
+```
+To connect to the server from windows use Putty to create port redirection using SSH
+The distant server connects on 5432 but the local port used is 5435
+
+* Session => specify ip adress of server port 22
+* After having loaded the conf using button load go to
+* Connection>SSH>Tunnels  
+  * source port 5435
+  * destination localhost:5432
+* Open putty session prior to using
+
+
+
+```shell
+pg_dump -U postgres -f wgeel.sql wgeel
+psql -U postgres -p 5435 -c "create database wgeel"
+psql -p 5435 -f wgeel.sql wgeel
+```
+This will allow to connect server using port 5435 on local machine and 5432 (already used) on distant server
+
+
+
 
 ## git
 Install git software:
@@ -121,6 +169,26 @@ To update your git:
 ```shell
 cd WGEEL-git/wg_WGEEL
 git pull
+```
+
+CEDRIC : when trying to setup a server
+
+problems with git : it is difficult to pull part of the directory, on top of that, data and www files will not
+be updated. The architecture of the shiny server must be as following
+
++---/srv/shiny-server
+|   +---shinyApp1
+|       +---server.R
+|       +---ui.R
+|   +---shinyApp2
+|       +---server.R
+|       +---ui.R
+|   +---assets
+|       +---style.css
+|       +---script.js
+
+```shell
+sudo mkdir -m 777 shiny_dv
 ```
 #R
 Install R software

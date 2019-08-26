@@ -787,7 +787,7 @@ server = function(input, output, session) {
   observe({
         output$mapstation = renderLeaflet({
               
-              recruitment_map(R_stations, statseries, wger_init)                               
+              recruitment_map(R_stations, statseries, wger_init, CY)                               
               
             })
         
@@ -1162,7 +1162,7 @@ server = function(input, output, session) {
 observe({
 			output$mapstation_ys = renderLeaflet({
 						
-						recruitment_map(ys_stations, statseries_ys, wger_init_ys)                               
+						recruitment_map(ys_stations, statseries_ys, wger_init_ys, CY)                               
 						
 					})
 
