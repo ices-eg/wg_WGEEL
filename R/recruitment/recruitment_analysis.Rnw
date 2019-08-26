@@ -134,7 +134,7 @@ if(getUsername() == 'lbeaulaton')
 	  sqldf.RPostgreSQL.host = "localhost", 
 	  sqldf.RPostgreSQL.port = 5432)
   
-#	setwd(str_c(getwd(), "/R/recruitment"))
+  setwd(str_c(getwd(), "/R/recruitment"))
   wd=getwd()
   
   wddata <- "/home/lbeaulaton/Documents/ANGUILLE/ICES/WGEEL/Ranalysis"
