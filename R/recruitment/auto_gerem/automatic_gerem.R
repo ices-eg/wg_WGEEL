@@ -12,6 +12,7 @@ library(RPostgreSQL)
 library(tidyr)
 library(reshape2)
 library(sf)
+library(svDialogs)
 m=dbDriver("PostgreSQL")
 
 
@@ -26,10 +27,9 @@ getUsername <- function(){
 }
 
 
-if(getUsername() == 'hilaire.drouineau')
-{
-  con_wgeel=dbConnect(m,host="localhost",user="hilaire",dbname="wgeel")
-  con_ccm=dbConnect(m,host="citerne.bordeaux.cemagref.fr",dbname="referentiel",user="hilaire.drouineau")
+if(getUsername() == 'hilaire.drouineau'){
+  con_wgeel=dbConnect(m,host="localhost",user="hilaire",dbname="wgeel",password=dlg_input("Password for wgeel database", "")$res)
+  con_ccm=dbConnect(m,host="citerne.bordeaux.cemagref.fr",dbname="referentiel",user="hilaire.drouineau",password=dlg_input("Password for ccm database", "")$res)
   setwd("~/Documents/Bordeaux/migrateurs/WGEEL/auto_gerem/")
 }
 
