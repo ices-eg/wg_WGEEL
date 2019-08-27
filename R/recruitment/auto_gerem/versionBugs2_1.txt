@@ -1,0 +1,127 @@
+model{
+for (zone in 1:nbzone){
+	weightZone[zone]<-sum(pow(surfaceallcatchment[zone,],beta))
+}
+for (icm in 1:nbcatchments){
+	weight[icm]<-ifelse(sum(surfaceallcatchment[zonecatchment[icm],])<surface[icm],1,pow(surface[icm],beta)/weightZone[zonecatchment[icm]])
+}
+
+#prior for first year of recruitment
+logRglobal[1]<-logR1
+Rglobal[1]<-exp(logRglobal[1])
+
+for (zone in 1:(nbzone)){
+	Rzone[1,zone]<-Rglobal[1]*propR[zone,1]
+}
+for (icm in 1:nbcatchments){
+	Rcmpred[1,icm]<-Rzone[1,zonecatchment[icm]]*weight[icm]
+	sdRcm[1,icm]<-sqrt(max(0,(0.000001+Rzone[1,zonecatchment[icm]])*(0.000001+weight[icm])*(.999999999999-weight[icm])))
+	Rcm[1,icm]<-max(0.000000001,Rcmpred[1,icm]+epsilonRcm[(1-1)*nbcatchments+icm]*sdRcm[1,icm]) #troncature pour éviter des log de 0
+}
+
+for (y in 2:nbyear){
+	mulogRglobal[y]<-logRglobal[y-1]
+	logRglobal[y]<-mulogRglobal[y]+epsilonR[y]*sdRwalk
+	Rglobal[y]<-exp(logRglobal[y])
+	for (zone in 1:(nbzone)){
+#		Rzonepred[y,zone]<-Rglobal[y]*propR[zone]
+#		sdRzone[y,zone]<-sqrt((0.000001+Rglobal[y])*(0.000001+propR[zone])*(.999999999999-propR[zone]))
+#		Rzone[y,zone]<-max(0.000000001,Rzonepred[y,zone]+epsilonRzone[(y-1)*nbzone+zone]*sdRzone[y,zone]) #troncature pour éviter des log de 0
+Rzone[y,zone]<-propR[zone,y]*Rglobal[y]
+	}
+	for (icm in 1:nbcatchments){
+		Rcmpred[y,icm]<-Rzone[y,zonecatchment[icm]]*weight[icm]
+		sdRcm[y,icm]<-sqrt(max(0,(0.000001+Rzone[y,zonecatchment[icm]])*(0.000001+weight[icm])*(.999999999999-weight[icm])))
+		Rcm[y,icm]<-max(0.000000001,Rcmpred[y,icm]+epsilonRcm[(y-1)*nbcatchments+icm]*sdRcm[y,icm]) #troncature pour éviter des log de 0
+	}
+}
+for (zone in 1:nbzone){
+	Rzone_final[zone]<-Rzone[nbyear,zone]
+	alpha[zone]<-initpropR[zone]*precisionpropRwalk+0.01
+}
+
+
+for (y in 1:nbyear){
+	for (isurvey in 1:nbsurvey){
+	########on doit connaitre: capturabilité du survey q[survey], la surface du bv bvsurvey[survey]
+	########  
+		logIApred[y,isurvey]<-logq[isurvey]+log(Rcm[y,catchment_survey[isurvey]])-0.5/tauIA[isurvey]
+		logIAObs[y,isurvey]~dnorm(logIApred[y,isurvey],tauIA[isurvey])
+	}
+	for (itrap in 1:nbtrap){
+	########on doit connaître l'efficacité du piège
+	logIPpred[y,itrap]<-loga[itrap]+log(Rcm[y,catchment_trap[itrap]])-0.5/tauIP[itrap]
+	logIPObs[y,itrap]~dnorm(logIPpred[y,itrap],tauIP[itrap])
+	}
+	
+	for (icatch in 1:nbcatch){
+	########on doit connaître l'efficacité du piège
+	logIEpred[y,icatch]<-logp[icatch]+log(Rcm[y,catchment_catch[icatch]])-0.5/tauIE[icatch]
+	logIEObs[y,icatch]~dnorm(logIEpred[y,icatch],tauIE[icatch])
+	}
+	
+	for (iabsolute in 1:nbabsolute){
+		########on doit connaitre: pareil qu avant mais sans capturabilité
+		logUpred[y,iabsolute]<-log(Rcm[y,catchment_absolute[iabsolute]])-0.5/tauU[iabsolute]
+		logUObs[y,iabsolute]~dnorm(logUpred[y,iabsolute],tauU[iabsolute])
+	}
+}
+beta~dunif(0.01,2)
+propR[1:nbzone,1]~ddirich(alpha[1:nbzone])
+for (y in 2:nbyear){
+propR[1:nbzone,y]~ddirich(lambda*propR[1:nbzone,y-1])
+}
+lambda<-80
+
+for (y in 1:(nbcatchments*nbyear)){
+	epsilonRcm[y]~dnorm(0,1)
+}
+for (y in 1:(nbzone*nbyear)){
+	epsilonRzone[y]~dnorm(0,1)
+}
+for (y in 1:nbyear){
+	epsilonR[y]~dnorm(0,1)
+}
+logR1~dunif(14,17)
+for (survey in 1:nbsurvey){
+	logq[survey]~dunif(-13,0)
+}
+for (itrap in 1:nbtrap){
+	a[itrap]~dbeta(scale_trap[1,itrap],scale_trap[1,itrap])
+	loga[itrap]<-log(a[itrap])
+}
+for (icatch in 1:nbcatch){
+	p[icatch]~dbeta(scale_catch[1,icatch],scale_trap[1,icatch])
+	logp[icatch]<-log(p[icatch])
+}
+iprecision~dgamma(2,1)T(1,2)
+precisionpropRwalk<-1/iprecision
+#precisionpropRwalk~dunif(0.5,1)
+
+
+
+tauRglob~dgamma(2,1)T(1,15)
+sdRglob<-1/sqrt(tauRglob)
+for (isurvey in 1:nbsurvey){
+	tauIA[isurvey]~dgamma(2,1)T(1,15)
+	sdIA[isurvey]<-1/sqrt(tauIA[isurvey])
+}
+for (itrap in 1:nbtrap){
+ tauIP[itrap]~dgamma(2,1)T(1,15)
+ sdIP[itrap]<-1/sqrt(tauIP[itrap])
+}
+
+for (iabsolute in 1:nbabsolute){
+	tauU[iabsolute]~dgamma(2,1)T(1,15)
+	sdU[iabsolute]<-1/sqrt(tauU[iabsolute])
+}
+for (icatch in 1:nbcatch){
+	tauIE[icatch]~dgamma(2,1)T(1,15)
+	sdIE[icatch]<-1/sqrt(tauIE[icatch])
+}
+
+
+tauq~dgamma(2,1)T(1,15)
+tauRwalk~dgamma(2,1)T(1,15)
+sdRwalk<-1/sqrt(tauRwalk)
+}
