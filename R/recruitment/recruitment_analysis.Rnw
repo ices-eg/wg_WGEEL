@@ -134,7 +134,7 @@ if(getUsername() == 'lbeaulaton')
 	  sqldf.RPostgreSQL.host = "localhost", 
 	  sqldf.RPostgreSQL.port = 5432)
   
-#	setwd(str_c(getwd(), "/R/recruitment"))
+  setwd(str_c(getwd(), "/R/recruitment"))
   wd=getwd()
   
   wddata <- "/home/lbeaulaton/Documents/ANGUILLE/ICES/WGEEL/Ranalysis"
@@ -1630,6 +1630,12 @@ after_2011_ee<-lm(lEE~year,data=trend[trend$year>=2011,])
 summary(after_2011_ee)
 trend_test_for_change_ee<-summary(after_2011_ee)$coefficients[2,4]
 
+## try with multcomp::glht
+require(multcomp)
+K <- diag(length(coef(test1)))[-1,]
+K = matrix(c(0,1,1), nrow = 1) # we just add the to coef trend to have the trend after 2011
+summary(glht(test1, linfct = K))
+confint(glht(test1, linfct = K))
 
 # sgipee test for change ns ---------------------------------------------
 
