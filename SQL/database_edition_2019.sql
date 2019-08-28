@@ -223,3 +223,9 @@ GRANT ALL ON TABLE datawg.t_biometry_other_bit  to wgeel;
 GRANT ALL ON TABLE datawg.t_biometry_bio  to wgeel;
 
 
+-- remove two wrong lines for SWEDEN (Jan Dag -Cédric)
+
+SELECT * FROM datawg.t_eelstock_eel WHERE eel_id in(422628,422631)
+BEGIN;
+DELETE FROM datawg.t_eelstock_eel WHERE eel_id in(422628,422631)
+COMMIT;
