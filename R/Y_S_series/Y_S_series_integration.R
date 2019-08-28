@@ -15,7 +15,6 @@ load_library("dplyr") # to manipulate data
 source("R/Y_S_series/Y_S_series_connection.R")
 source("R/Y_S_series/Y_S_series_function.R")
 
-
 #--------------------------------
 # Start integration
 #--------------------------------
@@ -33,8 +32,17 @@ chk_series = check_series(country_data$series_info, ser_db)
 chk_series$to_be_created_series$ser_id = create_series(series_info = country_data$series_info %>% semi_join(chk_series$to_be_created_series) %>% select(- ser_tblcodeid), meta = country_data$meta %>% semi_join(chk_series$to_be_created_series))
 
 # gather new and existing series
-series_info = dplyr::union(chk_series$existing_series, chk_series$to_be_created_series)
+series_info = gather_series(chk_series$existing_series, chk_series$to_be_created_series)
 
 chk_dataseries = check_dataseries(dataseries = series_info %>% select(ser_id, ser_nameshort) %>% inner_join(country_data$data) %>% select(das_value, ser_id, das_year, das_comment, das_effort), ser_data)
 
-insert_dataseries(dataseries = chk_dataseries$to_be_created_series %>% select(-nrow))
+chk_dataseries$to_be_created_series$das_id = insert_dataseries(dataseries = chk_dataseries$to_be_created_series %>% select(-nrow))
+
+updated_dataseries = check_dataseries_update(dataseries = chk_dataseries$existing_series)
+# TODO: design a function for updating data
+
+# TODO: biometrie
+
+## sql function to delete inserted data
+#sqldf("delete from datawg.t_dataseries_das where das_last_update = '2019-08-28'")
+#sqldf("delete from datawg.t_series_ser where ser_order = 999")
