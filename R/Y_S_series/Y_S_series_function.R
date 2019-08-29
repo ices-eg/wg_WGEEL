@@ -201,6 +201,8 @@ update_dataseries = function(dataseries, icountry = country)
 						to_update == "updated_effort" ~ "das_effort = das_effort_xl",
 						to_update == "updated_comment" ~ "das_comment = das_comment_xl")
 			, " FROM temp_", tolower(icountry), "_", to_update, " WHERE t_dataseries_das.das_id = temp_", tolower(icountry), "_", to_update, ".das_id;"), extra_data = to_update,  country = tolower(icountry), environment = environment())
+		} else {
+			print(str_c("No ", to_update, "!"))
 		}
 	}
 }
