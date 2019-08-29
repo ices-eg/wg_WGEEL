@@ -58,7 +58,7 @@ if(!require(maps)) install.packages("maps") ; require(maps)
 if(!require(boot)) install.packages("boot") ; require(boot)
 if(!require(MASS)) install.packages("MASS") ; require(MASS)
 if(!require(lme4)) install.packages("lme4") ; require(lme4)
-
+if(!require(multcomp)) install.packages("multcomp") ; require(multcomp)
 #--------------------------------
 # get your current name 
 #--------------------------------
@@ -1626,16 +1626,15 @@ if (sgipee_test_for_change_ee<=0.05) {
 
 # test on the trend after 2011 ee ----------------------------------------------
 
-after_2011_ee<-lm(lEE~year,data=trend[trend$year>=2011,])
-summary(after_2011_ee)
-trend_test_for_change_ee<-summary(after_2011_ee)$coefficients[2,4]
 
-## try with multcomp::glht
-require(multcomp)
-K <- diag(length(coef(test1)))[-1,]
+
 K = matrix(c(0,1,1), nrow = 1) # we just add the to coef trend to have the trend after 2011
-summary(glht(test1, linfct = K))
-confint(glht(test1, linfct = K))
+summary_coefficient_after <- summary(glht(test1, linfct = K, alternative="greater"))
+confint_coefficient_after <-confint(glht(test1, linfct = K, alternative="greater"))
+trend_test_for_change_ee <- sprintf("Estimate = %.3f P-value %.4f",
+		summary_coefficient_after$test$coefficients,
+		summary_coefficient_after$test$pvalues)
+
 
 # sgipee test for change ns ---------------------------------------------
 
@@ -1650,9 +1649,12 @@ if (sgipee_test_for_change_ns<=0.05) {
 
 # test on the trend after 2011 ns ----------------------------------------------
 
-after_2011_ns<-lm(lNS~year,data=trend[trend$year>=2011,])
-summary(after_2011_ns)
-trend_test_for_change_ns<-summary(after_2011_ns)$coefficients[2,4]
+
+summary_coefficient_after <- summary(glht(test, linfct = K, alternative="greater"))
+confint_coefficient_after <-confint(glht(test, linfct = K, alternative="greater"))
+trend_test_for_change_ns <- sprintf("Estimate = %.3f P-value %.4f",
+		summary_coefficient_after$test$coefficients,
+		summary_coefficient_after$test$pvalues)
 
 save(dat, file=str_c(datawd,"dat_ge.Rdata"))
 save(dat, file=str_c(shinywd,"dat_ge.Rdata"))
