@@ -38,6 +38,7 @@ countries = list.dirs(wd_file_folder, full.names = FALSE, recursive = FALSE)
 
 
 source("R/Y_S_series/2019/DE.R")
+source("R/Y_S_series/2019/DK.R")
 source("R/Y_S_series/2019/FRA.R")
 source("R/Y_S_series/2019/IRL.R")
 
