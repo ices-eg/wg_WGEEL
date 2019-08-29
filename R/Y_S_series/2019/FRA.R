@@ -28,9 +28,9 @@ updated_dataseries = check_dataseries_update(dataseries = chk_dataseries$existin
 # TODO: design a function for updating data
 
 # check and integrate biometry data
-chk_biom = check_biometry(biometry = series_info %>% select(ser_id, ser_nameshort) %>% inner_join(country_data$biom), ser_biom, stage = "Yellow_Eel")
+chk_biom = check_biometry(biometry = series_info %>% select(ser_id, ser_nameshort) %>% inner_join(country_data$biom), ser_biom, stage = type_series)
 
-chk_biom$to_be_created_series$bio_id = insert_biometry(biometry = chk_biom$to_be_created_series %>% select(-nrow, - ser_nameshort) %>% mutate(bio_length = as.numeric(bio_length), bio_weight = as.numeric(bio_weight), bio_age = as.numeric(bio_age)), stage = "Yellow_Eel")
+chk_biom$to_be_created_series$bio_id = insert_biometry(biometry = chk_biom$to_be_created_series %>% select(-nrow, - ser_nameshort) %>% mutate_if(colnames(.) != "bio_comment", convert_round), stage = type_series)
 
 
 #--------------------------------
@@ -56,10 +56,9 @@ chk_dataseries$to_be_created_series$das_id = insert_dataseries(dataseries = chk_
 
 updated_dataseries = check_dataseries_update(dataseries = chk_dataseries$existing_series)
 update_dataseries(dataseries = updated_dataseries)
-# TODO: design a function for updating data
 
 # check and integrate biometry data
-chk_biom = check_biometry(biometry = series_info %>% select(ser_id, ser_nameshort) %>% inner_join(country_data$biom), ser_biom, stage = "Yellow_Eel")
+chk_biom = check_biometry(biometry = series_info %>% select(ser_id, ser_nameshort) %>% inner_join(country_data$biom), ser_biom, stage = type_series)
 
-chk_biom$to_be_created_series$bio_id = insert_biometry(biometry = chk_biom$to_be_created_series %>% select(-nrow, - ser_nameshort) %>% mutate(bio_length = as.numeric(bio_length), bio_weight = as.numeric(bio_weight), bio_age = as.numeric(bio_age)), stage = "Yellow_Eel")
+chk_biom$to_be_created_series$bio_id = insert_biometry(biometry = chk_biom$to_be_created_series %>% select(-nrow, - ser_nameshort) %>% mutate_if(colnames(.) != "bio_comment", convert_round), stage = type_series)
 # TODO: design a function for checking and updating data

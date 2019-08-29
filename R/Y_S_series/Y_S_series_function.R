@@ -3,6 +3,18 @@
 # TODO: to integrate this in the shiny app
 ###############################################################################
 
+#' convert to numeric and round it
+#' 
+#' @param x
+#' @param nb of decimal
+#'
+#' @return the numeric
+convert_round = function(x, digits = 1)
+{
+	return(as.numeric(round(x, digits)))
+}
+
+
 #' extract data from the excel file
 #' 
 #' @param country the name of the country folder
@@ -240,7 +252,7 @@ insert_biometry = function(biometry, stage, icountry = country)
 	
 	# check the stage
 	if(!(type_series %in% c("Yellow_Eel", "Silver_Eel")))
-		stop("Chose right stage")
+		stop("Chose the right stage")
 	
 	stage = case_when(
 		stage == "Yellow_Eel" ~ "Y",
@@ -248,7 +260,8 @@ insert_biometry = function(biometry, stage, icountry = country)
 	)
 	
 	# insert data in the database 
-	wgeel_execute(str_c("INSERT INTO datawg.t_biometry_series_bis (bis_ser_id, bio_year, bio_length, bio_weight, bio_age, bio_comment, bio_lfs_code) SELECT *, '", stage,"' FROM temp_", tolower(icountry), "_biometry;"), extra_data = "biometry",  country = tolower(icountry), environment = environment())
+	additional_var = ifelse(stage == "S", "bio_sex_ratio, bio_length_f, bio_weight_f, bio_age_f, bio_length_m, bio_weight_m, bio_age_m,", "")
+	wgeel_execute(str_c("INSERT INTO datawg.t_biometry_series_bis (bis_ser_id, bio_year, bio_length, bio_weight, bio_age, ", additional_var, " bio_comment, bio_lfs_code) SELECT *, '", stage,"' FROM temp_", tolower(icountry), "_biometry;"), extra_data = "biometry",  country = tolower(icountry), environment = environment())
 	
 	# retrieve le bio_id for further use
 	return(wgeel_query(str_c("SELECT bio_id FROM datawg.t_biometry_series_bis, temp_", country, "_biometry WHERE bis_ser_id = ser_id AND t_biometry_series_bis.bio_year = temp_", country, "_biometry.bio_year")) %>% pull())
