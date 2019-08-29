@@ -46,3 +46,6 @@ updated_dataseries = check_dataseries_update(dataseries = chk_dataseries$existin
 ## sql function to delete inserted data
 #wgeel_query("delete from datawg.t_dataseries_das where das_last_update = '2019-08-28'")
 #wgeel_query("delete from datawg.t_series_ser where ser_order = 999")
+
+# to close the connection to the db
+pool::poolClose(dbpool)

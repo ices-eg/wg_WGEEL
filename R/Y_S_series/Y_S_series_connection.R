@@ -52,7 +52,7 @@ if(getUsername() == 'lbeaulaton')
 #		sqldf.RPostgreSQL.host = "localhost",
 #		sqldf.RPostgreSQL.port = 5432)
 	
-	pool = pool::dbPool(drv = dbDriver("PostgreSQL"),
+	dbpool = pool::dbPool(drv = dbDriver("PostgreSQL"),
 		dbname="wgeel_ices",
 		host="localhost",
 		port=5432,
@@ -68,7 +68,7 @@ if(getUsername() == 'lbeaulaton')
 #	sqldf.RPostgreSQL.host = "localhost",
 #	sqldf.RPostgreSQL.port = 5435)
 
-#pool <<- pool::dbPool(drv = dbDriver("PostgreSQL"),
+#dbpool <<- pool::dbPool(drv = dbDriver("PostgreSQL"),
 #	dbname="wgeel",
 #	host=host,
 #	port=port,
@@ -77,7 +77,7 @@ if(getUsername() == 'lbeaulaton')
 
 wgeel_query = function(query0)
 {
-	conn <- poolCheckout(pool)
+	conn <- poolCheckout(dbpool)
 	nr0 <- tryCatch({     
 			result = dbGetQuery(conn, query0)
 		}, error = function(e) {
@@ -86,7 +86,6 @@ wgeel_query = function(query0)
 			print(message)   
 		}, finally = {
 			poolReturn(conn)
-			
 		})
 	return(result)
 }
