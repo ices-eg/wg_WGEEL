@@ -153,11 +153,74 @@ check_dataseries_update = function(dataseries)
 #' @return the das_id of the new dataseries
 insert_dataseries = function(dataseries)
 {
+	if(nrow(dataseries) == 0)
+	{
+		stop("No dataseries to insert!")
+	}
 	# insert data in the database 
 	wgeel_query('INSERT INTO datawg.t_dataseries_das (das_value, das_ser_id, das_year, das_comment, das_effort) SELECT * FROM dataseries;')
 	
-	# retrieve le ser_id for further use
+	# retrieve le das_id for further use
 	return(wgeel_query("SELECT das_id FROM datawg.t_dataseries_das, dataseries WHERE das_ser_id = ser_id AND t_dataseries_das.das_year = dataseries.das_year") %>% pull())
 }
 
 
+#' check if biometry series have already been created
+#' 
+#' @param biometry the tibble from the excel file
+#' @paral ser_biom list of biometry data in the database
+#'
+#' @return a list with existing biometry data (incl. the database bio_id) and data series to be created
+check_biometry = function(biometry, ser_biom, stage)
+{
+	# check the stage
+	if(!(type_series %in% c("Yellow_Eel", "Silver_Eel")))
+		stop("Chose right stage")
+	
+	stage = case_when(
+		stage == "Yellow_Eel" ~ "Y",
+		stage == "Silver_Eel" ~ "S"
+	)
+	
+	# add row number to dataseries
+	biometry = biometry %>% mutate(nrow = row_number())
+	
+	#chek for already existing series
+	existing_biom = inner_join(biometry, ser_biom %>% filter(bio_lfs_code == stage) %>% select(bio_id, bis_ser_id, bio_year, bio_length, bio_weight, bio_age, bio_comment), by = c("ser_id" = "bis_ser_id", "bio_year" = "bio_year"), suffix = c(".xl", ".base"))
+	to_be_created_biom = anti_join(biometry, ser_biom %>% filter(bio_lfs_code == stage) %>% select(bis_ser_id, bio_year), by = c("ser_id" = "bis_ser_id", "bio_year" = "bio_year"))
+	
+	print(str_c("existing biometry: ", nrow(existing_biom)))
+	print(str_c("biometry to be created: ", nrow(to_be_created_biom)))
+	
+	return(list(existing_series = existing_biom, to_be_created_series = to_be_created_biom))
+}
+
+#' insert new data series
+#' 
+#' @param biometry the tibble from the excel file
+#' @param stage
+#' @param country
+#'
+#' @return the bio_id of the new biometry
+insert_biometry = function(biometry, stage, icountry = country)
+{
+	if(nrow(biometry) == 0)
+	{
+		stop("No biometry to insert!")
+	}
+	
+	# check the stage
+	if(!(type_series %in% c("Yellow_Eel", "Silver_Eel")))
+		stop("Chose right stage")
+	
+	stage = case_when(
+		stage == "Yellow_Eel" ~ "Y",
+		stage == "Silver_Eel" ~ "S"
+	)
+	
+	# insert data in the database 
+	wgeel_execute(str_c("INSERT INTO datawg.t_biometry_series_bis (bis_ser_id, bio_year, bio_length, bio_weight, bio_age, bio_comment, bio_lfs_code) SELECT *, '", stage,"' FROM temp_", tolower(icountry), "_biometry;"), extra_data = "biometry",  country = tolower(icountry), environment = environment())
+	
+	# retrieve le bio_id for further use
+	return(wgeel_query(str_c("SELECT bio_id FROM datawg.t_biometry_series_bis, temp_", country, "_biometry WHERE bis_ser_id = ser_id AND t_biometry_series_bis.bio_year = temp_", country, "_biometry.bio_year")) %>% pull())
+}

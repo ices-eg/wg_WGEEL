@@ -75,7 +75,9 @@ if(getUsername() == 'lbeaulaton')
 #	user= userwgeel,
 #	password= passwordwgeel)
 
-wgeel_query = function(query0)
+message = NULL
+
+wgeel_query = function(query0, ...)
 {
 	conn <- poolCheckout(dbpool)
 	nr0 <- tryCatch({     
@@ -88,4 +90,26 @@ wgeel_query = function(query0)
 			poolReturn(conn)
 		})
 	return(result)
+}
+
+wgeel_execute = function(query0, extra_data = NULL, country = country, environment)
+{
+	conn <- poolCheckout(dbpool)
+	
+	nr0 <- tryCatch({
+			if(!is.null(extra_data))
+				for(i in 1:length(extra_data))
+				{
+					if(dbExistsTable(conn, str_c('temp_', country, '_', extra_data[i])))
+						dbRemoveTable(conn, str_c('temp_', country, '_', extra_data[i]))
+					dbWriteTable(conn, str_c('temp_', country, '_', extra_data[i]), get(extra_data[i], envir = environment), temporary = TRUE, row.names = FALSE)
+				}
+			dbExecute(conn, query0)
+		}, error = function(e) {
+			message <<- e  
+			cat("step1 message :")
+			print(message)   
+		}, finally = {
+			poolReturn(conn)
+		})
 }
