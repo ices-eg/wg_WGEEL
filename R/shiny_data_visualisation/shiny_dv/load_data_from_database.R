@@ -33,6 +33,7 @@ emu_cou<-data.frame(emu_cou,emu_order=1:nrow(emu_cou))
 # Extract data from the database -------------------------------------------------------------------
 
 landings = extract_data("Landings",quality=c(1,2,4),quality_check=TRUE)
+# ONLY FOR AQUACULTURE WE HAVE A DATA PROTECTION LAW RESTRICTING THE ACCESS
 aquaculture = extract_data("Aquaculture",quality=c(1,2,4),quality_check=TRUE)
 release = extract_data("Release",quality=c(1,2,4),quality_check=TRUE)
 
@@ -79,7 +80,7 @@ SELECT
 	-- see WKEELDATA (2017)
 	das_qal_id,
 	*/ 
-			ser_id,            
+	ser_id,            
 	ser_order,
 	ser_nameshort,
 	ser_area_division,

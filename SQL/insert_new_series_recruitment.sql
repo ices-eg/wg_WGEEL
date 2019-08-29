@@ -75,16 +75,19 @@ INSERT INTO  datawg.t_series_ser(
           '27.3.a' as ser_area_division,
           "tblCodeID" as ser_tblcodeid, -- this comes from station
           12.55 as ser_x, 
-          56.70 as ser_y, 
+          56.07 as ser_y, 
           3 as ser_sam_id, -- scientific estimate
           0 as ser_qal_id, -- currenly 8 years
           'Series too short yet < 10 years to be included' as ser_qal_comment,
-          ST_SetSRID(ST_MakePoint(12.55, 56.70),4326)
+          ST_SetSRID(ST_MakePoint(12.55, 56.07),4326)
           from ref.tr_station
           where  "Station_Name" = 'Hell';--1
 COMMIT;
 
-
+BEGIN;
+UPDATE datawg.t_series_ser SET geom=ST_SetSRID(ST_MakePoint(12.55,56.07),4326) WHERE ser_nameshort='Hell';
+UPDATE datawg.t_series_ser set (ser_x,ser_y)=(st_x(geom),st_y(geom)) where ser_nameshort = 'Hell';
+COMMIT;
 ------------------------
 -- Change location of Ronn
 -------------------------
@@ -415,3 +418,92 @@ COMMIT;
 --ROLLBACK;
 SELECT * FROM ref.tr_station WHERE "Station_Name"='Guadalquivir'; 
 SELECT * FROM datawg.t_series_ser WHERE ser_nameshort='Guad' ; 
+
+
+SELECT * FROM datawg.t_series_ser where ser_cou_code='BE';
+-- I need to insert in position 16
+BEGIN;
+-- first we need to insert the station
+INSERT INTO ref.tr_station( "tblCodeID",
+"Station_Code",
+"Country",
+"Organisation",
+"Station_Name",
+"WLTYP",
+"Lat",
+"Lon",
+"StartYear",
+"EndYear",
+"PURPM",
+"Notes") 
+select max("tblCodeID")+1,
+       max("Station_Code")+1,
+       'BELGIUM' as "Country",
+       'ANB' as "Organisation", 
+	'Veurne-Ambacht' as "Station_Name",
+	 NULL as "WLTYP",
+      51.126958 as "Lat", 	
+	  2.760691 as "Lon",
+	2018 as "StartYear",
+	NULL as "EndYear",
+	'T' as "PURPM", 
+	'Scientific monitoring in the Veurne-Ambacht' as "Notes"
+from ref.tr_station; --1 
+update datawg.t_series_ser set ser_order=ser_order+1 where ser_order>=16; --37
+INSERT INTO  datawg.t_series_ser(
+          ser_order, 
+          ser_nameshort, 
+          ser_namelong, 
+          ser_typ_id, 
+          ser_effort_uni_code, 
+          ser_comment, 
+          ser_uni_code, 
+          ser_lfs_code, 
+          ser_hty_code, 
+          ser_locationdescription, 
+          ser_emu_nameshort, 
+          ser_cou_code, 
+          ser_area_division,
+          ser_tblcodeid,
+          ser_x, 
+          ser_y, 
+          ser_sam_id,
+          ser_qal_id,
+          ser_qal_comment,
+          geom) 
+          SELECT   
+          16 as ser_order, 
+          'VeAm' as ser_nameshort, 
+          'Veurne-Ambacht canal scientific estimate' as ser_namelong, 
+          1 as ser_typ_id, 
+          'nr day' as ser_effort_uni_code, 
+          'Two eel ladders trap at both sides of a pumping station'
+ as ser_comment, 
+          'index' as ser_uni_code, 
+          'GY' as ser_lfs_code, 
+          'T' as ser_hty_code, 
+          'East of Nieuwpoort, in the Veurne-Ambacht canal, nearby the pumping station' as ser_locationdescription, 
+          'BE_Sche' as ser_emu_nameshort, 
+          'BE' as ser_cou_code, 
+          '27.4.c' as ser_area_division,
+          "tblCodeID" as ser_tblcodeid, -- this comes from station
+           2.760691 as ser_x, 
+           51.126958 as ser_y, 
+          4 as ser_sam_id, -- trapping all
+          0 as ser_qal_id, -- currenly 3 years
+          'Series too short yet < 10 years to be included' as ser_qal_comment,
+          ST_SetSRID(ST_MakePoint(2.760691, 51.126958),4326)
+          from ref.tr_station
+          where  "Station_Name" = 'Veurne-Ambacht';--1
+COMMIT;
+--ROLLBACK;
+
+SELECT * FROM datawg.t_series_ser WHERE ser_cou_code='BE'
+update datawg.t_series_ser set ser_order=ser_order+1 where ser_order>=52; --37
+update datawg.t_series_ser SET ser_order=52 WHERE ser_nameshort='VeAm'
+
+-- change the Den Oever series, the location was really wrong
+begin;
+update datawg.t_series_ser set geom=ST_SetSRID(ST_MakePoint(5.327523,53.073100),4326) where ser_nameshort='RhDO';
+commit;
+ 
