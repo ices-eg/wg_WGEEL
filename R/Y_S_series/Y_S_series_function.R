@@ -19,7 +19,7 @@ retrieve_data = function(country, type_series = "wrong")
 	country_file = list.files(str_c(wd_file_folder, "/", country), type_series)
 	if(length(country_file) == 0)
 	{
-		warning("No Yellow eel file")
+		warning(str_c("No ", type_series, " file"))
 		return(NULL)
 	}
 	
@@ -28,8 +28,12 @@ retrieve_data = function(country, type_series = "wrong")
 	country_data$meta = read_excel(str_c(wd_file_folder, "/", country, "/", country_file), sheet="metadata", range = "B10:C50", col_names = FALSE) # I put a rather large range
 	colnames(country_data$meta) = c("ser_nameshort", "ser_comment")
 	country_data$meta = country_data$meta %>% filter(!is.na(ser_nameshort)) # I adjust to availaible data
+	
 	country_data$series_info = read_excel(str_c(wd_file_folder, "/", country, "/", country_file), sheet="series_info")
+	country_data$series_info = country_data$series_info %>% filter(!is.na(ser_nameshort)) # I adjust to availaible data
+	
 	country_data$data = read_excel(str_c(wd_file_folder, "/", country, "/", country_file), sheet="data")
+	
 	country_data$biom = read_excel(str_c(wd_file_folder, "/", country, "/", country_file), sheet="biometry")
 	
 	return(country_data)
@@ -66,9 +70,10 @@ check_series = function(series_info, ser_db)
 #' 
 #' @param series_info the tibble from the excel file
 #' @param meta metadata associated to the series
+#' @param icountry
 #'
 #' @return the ser_id of the new series
-create_series = function(series_info, meta)
+create_series = function(series_info, meta, icountry = country)
 {
 	if(nrow(series_info) == 0)
 	{
@@ -79,14 +84,13 @@ create_series = function(series_info, meta)
 	series_info$ser_comment = str_c(meta$ser_comment, " | ", series_info$ser_comment)
 	
 	# insert data in the database 
-	wgeel_query('INSERT INTO datawg.t_series_ser (ser_nameshort, ser_namelong, ser_typ_id, ser_effort_uni_code, ser_comment, ser_uni_code, ser_lfs_code, ser_hty_code, ser_locationdescription, ser_emu_nameshort, ser_cou_code, ser_area_division, ser_x, ser_y, ser_order) SELECT *, 999 FROM series_info;')
-	
+	wgeel_execute(str_c("INSERT INTO datawg.t_series_ser (ser_nameshort, ser_namelong, ser_typ_id, ser_effort_uni_code, ser_comment, ser_uni_code, ser_lfs_code, ser_hty_code, ser_locationdescription, ser_emu_nameshort, ser_cou_code, ser_area_division, ser_x, ser_y, ", ifelse(type_series == "Silver_Eel", " ser_sam_id,", ""), "ser_order) SELECT *, 999 FROM temp_", tolower(icountry), "_series_info;"), extra_data = "series_info",  country = tolower(icountry), environment = environment())
 	
 	# retrieve le ser_id for further use
-	new_ser_id = wgeel_query("SELECT ser_id FROM datawg.t_series_ser JOIN series_info USING(ser_nameshort)")
+	new_ser_id = wgeel_query(str_c("SELECT ser_id FROM datawg.t_series_ser JOIN temp_", tolower(icountry), "_series_info USING(ser_nameshort)"))
 	
 	# update geom column
-	wgeel_query("UPDATE datawg.t_series_ser SET geom = ST_GeomFromText('POINT('||ser_x||' '||ser_y||')',4326) FROM new_ser_id WHERE t_series_ser.ser_id = new_ser_id.ser_id;")
+	wgeel_execute(str_c("UPDATE datawg.t_series_ser SET geom = ST_GeomFromText('POINT('||ser_x||' '||ser_y||')',4326) FROM temp_", tolower(icountry), "_new_ser_id WHERE t_series_ser.ser_id = temp_", tolower(icountry), "_new_ser_id.ser_id;"), extra_data = "new_ser_id",  country = tolower(icountry), environment = environment())
 	
 	
 	return(new_ser_id %>% pull())
@@ -119,7 +123,7 @@ check_dataseries = function(dataseries, ser_data)
 	dataseries = dataseries %>% mutate(nrow = row_number())
 	
 	#chek for already existing series
-	existing_data = inner_join(dataseries, ser_data %>% select(das_id, das_ser_id, das_year, das_value, das_effort, das_comment), by = c("ser_id" = "das_ser_id", "das_year" = "das_year"), suffix = c(".xl", ".base"))
+	existing_data = inner_join(dataseries, ser_data %>% select(das_id, das_ser_id, das_year, das_value, das_effort, das_comment), by = c("ser_id" = "das_ser_id", "das_year" = "das_year"), suffix = c("_xl", "_base"))
 	to_be_created_data = anti_join(dataseries, ser_data %>% select(das_ser_id, das_year), by = c("ser_id" = "das_ser_id", "das_year" = "das_year"))
 	
 	print(str_c("existing series: ", nrow(existing_data)))
@@ -137,13 +141,14 @@ check_dataseries = function(dataseries, ser_data)
 check_dataseries_update = function(dataseries)
 {
 	#chek for das_value
-	updated_dataseries = dataseries %>% mutate(updated_value = das_value.xl != das_value.base, updated_effort = das_effort.xl != das_effort.base, updated_comment = das_comment.xl != das_comment.base)
+	# use identical instead of == because of NA
+	updated_dataseries = dataseries %>% mutate(updated_value = !identical(das_value_xl, das_value_base), updated_effort = !identical(das_effort_xl, das_effort_base), updated_comment = !identical(das_comment_xl, das_comment_base))
 	
-	print(str_c("updated value: ", sum(updated_dataseries$updated_value)))
-	print(str_c("updated effort: ", sum(updated_dataseries$updated_effort)))
-	print(str_c("updated comment: ", sum(updated_dataseries$updated_comment)))
+	print(str_c("updated value: ", sum(updated_dataseries$updated_value, na.rm = TRUE)))
+	print(str_c("updated effort: ", sum(updated_dataseries$updated_effort, na.rm = TRUE)))
+	print(str_c("updated comment: ", sum(updated_dataseries$updated_comment, na.rm = TRUE)))
 	
-	return(list(updated_value = updated_dataseries %>% filter(updated_value), updated_effort = updated_dataseries %>% filter(updated_effort), updated_comment = updated_dataseries %>% filter(updated_comment)))
+	return(list(updated_value = updated_dataseries %>% filter(updated_value) %>% select(nrow, das_id, ser_id, das_value_xl, das_value_base), updated_effort = updated_dataseries %>% filter(updated_effort) %>% select(nrow, das_id, ser_id, das_effort_xl, das_effort_base), updated_comment = updated_dataseries %>% filter(updated_comment) %>% select(nrow, das_id, ser_id, das_comment_xl, das_comment_base)))
 }
 
 #' insert new data series
@@ -151,17 +156,41 @@ check_dataseries_update = function(dataseries)
 #' @param dataseries the tibble from the excel file
 #'
 #' @return the das_id of the new dataseries
-insert_dataseries = function(dataseries)
+insert_dataseries = function(dataseries, icountry = country)
 {
 	if(nrow(dataseries) == 0)
 	{
 		stop("No dataseries to insert!")
 	}
 	# insert data in the database 
-	wgeel_query('INSERT INTO datawg.t_dataseries_das (das_value, das_ser_id, das_year, das_comment, das_effort) SELECT * FROM dataseries;')
+	wgeel_execute(str_c("INSERT INTO datawg.t_dataseries_das (das_value, das_ser_id, das_year, das_comment, das_effort) SELECT * FROM temp_", tolower(icountry), "_dataseries;"), extra_data = "dataseries",  country = tolower(icountry), environment = environment())
 	
 	# retrieve le das_id for further use
-	return(wgeel_query("SELECT das_id FROM datawg.t_dataseries_das, dataseries WHERE das_ser_id = ser_id AND t_dataseries_das.das_year = dataseries.das_year") %>% pull())
+	return(wgeel_query(str_c("SELECT das_id FROM datawg.t_dataseries_das, temp_", tolower(icountry), "_dataseries WHERE das_ser_id = ser_id AND t_dataseries_das.das_year = temp_", tolower(icountry), "_dataseries.das_year")) %>% pull())
+}
+
+
+#' update data series
+#' 
+#' @param dataseries the tibble from the excel file
+#'
+#' @return nothing
+update_dataseries = function(dataseries, icountry = country)
+{
+	for(to_update in c("updated_value", "updated_effort", "updated_comment"))
+	{
+		if(nrow(dataseries[[to_update]])>0)
+		{
+			assign(to_update, dataseries[[to_update]], envir = environment())
+			# insert data in the database 
+			wgeel_execute(str_c("UPDATE datawg.t_dataseries_das SET ", 
+					case_when(
+						to_update == "updated_value" ~ "das_value = das_value_xl",
+						to_update == "updated_effort" ~ "das_effort = das_effort_xl",
+						to_update == "updated_comment" ~ "das_comment = das_comment_xl")
+			, " FROM temp_", tolower(icountry), "_", to_update, " WHERE t_dataseries_das.das_id = temp_", tolower(icountry), "_", to_update, ".das_id;"), extra_data = to_update,  country = tolower(icountry), environment = environment())
+		}
+	}
 }
 
 
@@ -186,7 +215,7 @@ check_biometry = function(biometry, ser_biom, stage)
 	biometry = biometry %>% mutate(nrow = row_number())
 	
 	#chek for already existing series
-	existing_biom = inner_join(biometry, ser_biom %>% filter(bio_lfs_code == stage) %>% select(bio_id, bis_ser_id, bio_year, bio_length, bio_weight, bio_age, bio_comment), by = c("ser_id" = "bis_ser_id", "bio_year" = "bio_year"), suffix = c(".xl", ".base"))
+	existing_biom = inner_join(biometry, ser_biom %>% filter(bio_lfs_code == stage) %>% select(bio_id, bis_ser_id, bio_year, bio_length, bio_weight, bio_age, bio_comment), by = c("ser_id" = "bis_ser_id", "bio_year" = "bio_year"), suffix = c("_xl", "_base"))
 	to_be_created_biom = anti_join(biometry, ser_biom %>% filter(bio_lfs_code == stage) %>% select(bis_ser_id, bio_year), by = c("ser_id" = "bis_ser_id", "bio_year" = "bio_year"))
 	
 	print(str_c("existing biometry: ", nrow(existing_biom)))
