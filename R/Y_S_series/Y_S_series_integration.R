@@ -19,8 +19,8 @@ source("R/Y_S_series/Y_S_series_function.R")
 # Start integration
 #--------------------------------
 # series in the database
-ser_db <- sqldf("SELECT * FROM datawg.t_series_ser")
-ser_data = sqldf("SELECT * FROM datawg.t_dataseries_das")
+ser_db = wgeel_query("SELECT * FROM datawg.t_series_ser")
+ser_data = wgeel_query("SELECT * FROM datawg.t_dataseries_das")
 
 # read the folder to have all names
 countries = list.dirs(wd_file_folder, full.names = FALSE, recursive = FALSE)
@@ -44,5 +44,5 @@ updated_dataseries = check_dataseries_update(dataseries = chk_dataseries$existin
 # TODO: biometrie
 
 ## sql function to delete inserted data
-#sqldf("delete from datawg.t_dataseries_das where das_last_update = '2019-08-28'")
-#sqldf("delete from datawg.t_series_ser where ser_order = 999")
+#wgeel_query("delete from datawg.t_dataseries_das where das_last_update = '2019-08-28'")
+#wgeel_query("delete from datawg.t_series_ser where ser_order = 999")

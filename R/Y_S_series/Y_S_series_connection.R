@@ -2,6 +2,9 @@
 # TODO: switch to normal connection procedure
 ###############################################################################
 
+load_library("pool")
+load_library("DBI")
+load_library("RPostgreSQL")
 
 #--------------------------------
 # get your current name 
@@ -42,12 +45,19 @@ if(getUsername() == 'lbeaulaton')
 	# path to the folder where all files where stored
 	wd_file_folder = "/home/lbeaulaton/Documents/Documents sur Donnees/ANGUILLE/ICES/WGEEL/WGEEL 2019 Bergen/data call/all_countries/03 Data Submission 2019"
 	
-	#configuration of database connection
-	options(sqldf.RPostgreSQL.user = "lolo", 
-		sqldf.RPostgreSQL.password = passwordwgeel,
-		sqldf.RPostgreSQL.dbname = "wgeel_ices",
-		sqldf.RPostgreSQL.host = "localhost",
-		sqldf.RPostgreSQL.port = 5432)
+#	#configuration of database connection
+#	options(sqldf.RPostgreSQL.user = "lolo", 
+#		sqldf.RPostgreSQL.password = passwordwgeel,
+#		sqldf.RPostgreSQL.dbname = "wgeel_ices",
+#		sqldf.RPostgreSQL.host = "localhost",
+#		sqldf.RPostgreSQL.port = 5432)
+	
+	pool = pool::dbPool(drv = dbDriver("PostgreSQL"),
+		dbname="wgeel_ices",
+		host="localhost",
+		port=5432,
+		user= "lolo",
+		password= passwordwgeel)
 	
 }
 
@@ -58,3 +68,25 @@ if(getUsername() == 'lbeaulaton')
 #	sqldf.RPostgreSQL.host = "localhost",
 #	sqldf.RPostgreSQL.port = 5435)
 
+#pool <<- pool::dbPool(drv = dbDriver("PostgreSQL"),
+#	dbname="wgeel",
+#	host=host,
+#	port=port,
+#	user= userwgeel,
+#	password= passwordwgeel)
+
+wgeel_query = function(query0)
+{
+	conn <- poolCheckout(pool)
+	nr0 <- tryCatch({     
+			result = dbGetQuery(conn, query0)
+		}, error = function(e) {
+			message <<- e  
+			cat("step1 message :")
+			print(message)   
+		}, finally = {
+			poolReturn(conn)
+			
+		})
+	return(result)
+}

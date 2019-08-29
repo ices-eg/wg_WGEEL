@@ -79,14 +79,14 @@ create_series = function(series_info, meta)
 	series_info$ser_comment = str_c(meta$ser_comment, " | ", series_info$ser_comment)
 	
 	# insert data in the database 
-	sqldf('INSERT INTO datawg.t_series_ser (ser_nameshort, ser_namelong, ser_typ_id, ser_effort_uni_code, ser_comment, ser_uni_code, ser_lfs_code, ser_hty_code, ser_locationdescription, ser_emu_nameshort, ser_cou_code, ser_area_division, ser_x, ser_y, ser_order) SELECT *, 999 FROM series_info;')
+	wgeel_query('INSERT INTO datawg.t_series_ser (ser_nameshort, ser_namelong, ser_typ_id, ser_effort_uni_code, ser_comment, ser_uni_code, ser_lfs_code, ser_hty_code, ser_locationdescription, ser_emu_nameshort, ser_cou_code, ser_area_division, ser_x, ser_y, ser_order) SELECT *, 999 FROM series_info;')
 	
 	
 	# retrieve le ser_id for further use
-	new_ser_id = sqldf("SELECT ser_id FROM datawg.t_series_ser JOIN series_info USING(ser_nameshort)")
+	new_ser_id = wgeel_query("SELECT ser_id FROM datawg.t_series_ser JOIN series_info USING(ser_nameshort)")
 	
 	# update geom column
-	sqldf("UPDATE datawg.t_series_ser SET geom = ST_GeomFromText('POINT('||ser_x||' '||ser_y||')',4326) FROM new_ser_id WHERE t_series_ser.ser_id = new_ser_id.ser_id;")
+	wgeel_query("UPDATE datawg.t_series_ser SET geom = ST_GeomFromText('POINT('||ser_x||' '||ser_y||')',4326) FROM new_ser_id WHERE t_series_ser.ser_id = new_ser_id.ser_id;")
 	
 	
 	return(new_ser_id %>% pull())
@@ -154,10 +154,10 @@ check_dataseries_update = function(dataseries)
 insert_dataseries = function(dataseries)
 {
 	# insert data in the database 
-	sqldf('INSERT INTO datawg.t_dataseries_das (das_value, das_ser_id, das_year, das_comment, das_effort) SELECT * FROM dataseries;')
+	wgeel_query('INSERT INTO datawg.t_dataseries_das (das_value, das_ser_id, das_year, das_comment, das_effort) SELECT * FROM dataseries;')
 	
 	# retrieve le ser_id for further use
-	return(sqldf("SELECT das_id FROM datawg.t_dataseries_das, dataseries WHERE das_ser_id = ser_id AND t_dataseries_das.das_year = dataseries.das_year") %>% pull())
+	return(wgeel_query("SELECT das_id FROM datawg.t_dataseries_das, dataseries WHERE das_ser_id = ser_id AND t_dataseries_das.das_year = dataseries.das_year") %>% pull())
 }
 
 
