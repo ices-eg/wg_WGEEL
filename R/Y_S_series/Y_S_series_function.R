@@ -3,6 +3,27 @@
 # TODO: to integrate this in the shiny app
 ###############################################################################
 
+#' convert to numeric if it can be coerce to
+#' 
+#' @param x
+#'
+#' @return the numeric
+convert_num = function(x) {if(is.numeric(x)) return(as.numeric(x)) else return(x)}
+
+#' customize identical function to test line by line
+#' 
+#' @param x, y the 2 vectors to compare
+#'
+#' @return boolean
+f_identical = function(x, y, ...){
+	if(length(x) != length(y)) stop("No the same length")
+	result = logical(length(x))
+	for(i in 1:length(x))
+		result[i] = identical(x[i], y[i], ...)
+	return(result)
+}
+
+
 #' convert to numeric and round it
 #' 
 #' @param x
@@ -77,6 +98,64 @@ check_series = function(series_info, ser_db)
 	
 	return(list(existing_series = existing_series, to_be_created_series = to_be_created_series))
 }
+
+#' check if series should be updated
+#' 
+#' @param dataseries the tibble from the excel file
+#' @paral ser_db list of data series in the database
+#'
+#' @return data to be updated
+check_series_update = function(series, ser_db)
+{
+	#chek for das_value
+	# use identical instead of == because of NA
+	updated_series = inner_join(series, ser_db, by = "ser_nameshort", suffix = c("_xl", "_base"))
+	result = list()
+	for(col_name in colnames(series %>% select(-ser_nameshort)))
+	{
+		vars = str_c(col_name, c("_xl", "_base"))
+		result[["by_column"]][[col_name]] = updated_series %>% select(vars) %>%	mutate_all(as.character) %>%	mutate_all(convert_num) %>%	mutate(!!str_c("updated_", col_name) := !f_identical(.data[[vars[1]]], .data[[vars[2]]], ))
+	}
+	
+	result[["synthesis"]] = unlist(lapply(result[["by_column"]], function(x) {sum(as.numeric(x[,3]))>0}))
+	
+	return(result)
+}
+
+#' show column the can be updated
+#' 
+#' @param updated_series from check_series_update
+#'
+#' @return nice table
+show_series_update = function(updated_series){
+	
+	if(nrow(updated_series[["by_column"]][[1]]))
+	{
+		result = matrix(unlist(lapply(updated_series[["by_column"]], function(x) x[, c(1,2)])), ncol = 2, byrow = TRUE)[updated_series$synthesis,]
+		row.names(result) = names(updated_series$synthesis)[updated_series$synthesis]
+		colnames(result) = c("xl", "base")
+	} else {
+		stop("Not yet implemented") # should return an array for consistency
+	}
+	
+	return(result)
+}
+
+#' update series
+#' 
+#' @param updated_series
+#'
+#' @return just update the series
+update_series = function(series_info, show_updated_series = NULL, all = FALSE, icountry = country){
+# TODO: add a parameter to select line / column to update (in case you don't want to update all
+	column_to_update = dimnames(show_updated_series)[[1]]
+	if(all){
+		query_set = paste(column_to_update, " = temp_", tolower(icountry), "_series_info.", column_to_update, sep = "", collapse = ", ")
+		wgeel_execute(str_c("UPDATE DATAWG.t_series_ser SET ", query_set, " FROM temp_", tolower(icountry), "_series_info WHERE t_series_ser.ser_id = temp_", tolower(icountry), "_series_info.ser_id;"), extra_data = "series_info",  country = tolower(icountry), environment = environment())
+	} else
+		stop("not yet implemented")
+}
+
 
 #' create new series
 #' 
@@ -189,6 +268,7 @@ insert_dataseries = function(dataseries, icountry = country)
 #' @return nothing
 update_dataseries = function(dataseries, icountry = country)
 {
+	# TODO: add a parameter to select line / column to update (in case you don't want to update all
 	for(to_update in c("updated_value", "updated_effort", "updated_comment"))
 	{
 		if(nrow(dataseries[[to_update]])>0)
