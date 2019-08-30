@@ -33,13 +33,20 @@ countries = list.dirs(wd_file_folder, full.names = FALSE, recursive = FALSE)
 #VALUES ('nr/net/day','number of net.day');
 #INSERT INTO "ref".tr_units_uni (uni_code,uni_name)
 #VALUES ('nr net.night','number of net and night');
-
+#INSERT INTO "ref".tr_units_uni (uni_code,uni_name)
+#VALUES ('nr fyke.day','number of fyke and day');
 
 
 
 source("R/Y_S_series/2019/DE.R")
+source("R/Y_S_series/2019/DK.R")
+source("R/Y_S_series/2019/ESP.R")
 source("R/Y_S_series/2019/FRA.R")
+#source("R/Y_S_series/2019/GRE.R")
 source("R/Y_S_series/2019/IRL.R")
+#LTA
+#LTU
+source("R/Y_S_series/2019/NL.R")
 
 ## sql function to delete inserted data
 #wgeel_query("delete from datawg.t_dataseries_das where das_last_update = '2019-08-28'")

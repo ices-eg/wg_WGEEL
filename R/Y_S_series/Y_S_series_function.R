@@ -9,7 +9,7 @@
 #' @param nb of decimal
 #'
 #' @return the numeric
-convert_round = function(x, digits = 1)
+convert_round = function(x, digits = 6)
 {
 	return(as.numeric(round(x, digits)))
 }

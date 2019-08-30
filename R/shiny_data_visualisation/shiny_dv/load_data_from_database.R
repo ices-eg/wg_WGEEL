@@ -3,7 +3,7 @@
 # Author: cedric.briand
 ###############################################################################
 
-#setwd("C:\\Users\\cedric.briand\\Documents\\GitHub\\WGEEL\\R\\shiny_data_visualisation\\shiny_dv")
+#setwd("C:\\workspace\\gitwgeel\\R\\shiny_data_visualisation\\shiny_dv")
 source("../../utilities/load_library.R")
 load_package("RPostgreSQL")
 load_package("sqldf")
