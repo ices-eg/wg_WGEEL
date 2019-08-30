@@ -434,7 +434,7 @@ options(sqldf.RPostgreSQL.user = userwgeel,
 
 
 country <-"UK"
-path <- str_c("\\\\community.ices.dk@SSL\\DavWWWRoot\\ExpertGroups\\wgeel\\2019 Meeting Documents\\06. Data\\02 Recuitment Submission 2019/",
+path <- str_c("\\\\community.ices.dk@SSL\\DavWWWRoot\\ExpertGroups\\wgeel\\2019 Meeting Documents\\06. Data\\02 Recuitment Submission 2019",
 country,"_Eel_Data_Call_Annex1_Recruitment.xlsx")
 
 

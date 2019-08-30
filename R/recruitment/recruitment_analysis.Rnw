@@ -23,7 +23,7 @@
 Sys.setlocale("LC_ALL", "English_United States.932")
 # Password are stored in R/etc/Rprofile.site
 # For the moment the database is stored locally
-CY<-2019 # current year ==> don't forget to update the graphics path below
+CY<-2019 # current year ==> dont forget to update the graphics path below
 # ----------------------------------
 # wgeel2016 discussed that the correct way of 
 # calculating average of predictions was to use geomean
@@ -58,7 +58,7 @@ if(!require(maps)) install.packages("maps") ; require(maps)
 if(!require(boot)) install.packages("boot") ; require(boot)
 if(!require(MASS)) install.packages("MASS") ; require(MASS)
 if(!require(lme4)) install.packages("lme4") ; require(lme4)
-
+if(!require(multcomp)) install.packages("multcomp") ; require(multcomp)
 #--------------------------------
 # get your current name 
 #--------------------------------
@@ -253,7 +253,7 @@ anguilla) stock, the fisheries on it and other anthropogenic impacts.}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %*******Here put eval=FALSE if you plan to use Rdata *********************************
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-<<load_database, echo=FALSE, fig=FALSE, eval=TRUE,results=hide>>=
+<<load_database, echo=FALSE, fig=FALSE, eval=FALSE,results=hide>>=
 # In this chunk everything will be loaded. 
 # The data selection is made tranparently later in the chunk "select_series"
 # This chunks uses the RequeteODBC connection object from stacomirtools and sqldf
@@ -706,7 +706,7 @@ colnames(printstatseries)<-
 		"sampling type","unit","habitat","kept")
 xstatseries <- xtable(x = printstatseries[1:20,], 
 	label = str_c("statseries"),
-	caption = str_c("Short description of the recruitment sites, kept means that this series is used in recruitment analysis"),
+	caption = str_c("Short description of the sampling sites for European eel recruitment data. Area: NS = North Sea, EE = Elsewhere Europe. Min and max indicate the first year and last year in the records, and the values are given in the n+ and n- columns, indicate the number of years with values and the number of years when there are missing data within the series. Life stage: GY = glass eel and yellow eel, G = glass eel, Y = yellow eel. Unit for the data collected is given (nr = number; index = calculated value following a specified protocol, nr/m2 = number per square metre, nr/h = number per hour, kg/boat/d = kg per boat per day). Habitat: C = coastal water (according to the EU Water Framework Directive, WFD), F = freshwater, MO = marine water (open sea), T = transitional water with lower salinity (according to WFD). Kept = 1 means that the dataseries is used in recruitment analyses."),
 	align=c("p{0cm}","p{1cm}","p{1cm}","p{1cm}","p{1cm}","p{0.8cm}","p{0.8cm}","p{1cm}","p{2cm}","p{2cm}","p{1cm}","p{1cm}"),
 	digits=0)
 print(xstatseries , 
@@ -1626,16 +1626,15 @@ if (sgipee_test_for_change_ee<=0.05) {
 
 # test on the trend after 2011 ee ----------------------------------------------
 
-after_2011_ee<-lm(lEE~year,data=trend[trend$year>=2011,])
-summary(after_2011_ee)
-trend_test_for_change_ee<-summary(after_2011_ee)$coefficients[2,4]
 
-## try with multcomp::glht
-require(multcomp)
-K <- diag(length(coef(test1)))[-1,]
+
 K = matrix(c(0,1,1), nrow = 1) # we just add the to coef trend to have the trend after 2011
-summary(glht(test1, linfct = K))
-confint(glht(test1, linfct = K))
+summary_coefficient_after <- summary(glht(test1, linfct = K, alternative="greater"))
+confint_coefficient_after <-confint(glht(test1, linfct = K, alternative="greater"))
+trend_test_for_change_ee <- sprintf("Estimate = %.3f P-value %.4f",
+		summary_coefficient_after$test$coefficients,
+		summary_coefficient_after$test$pvalues)
+
 
 # sgipee test for change ns ---------------------------------------------
 
@@ -1650,9 +1649,12 @@ if (sgipee_test_for_change_ns<=0.05) {
 
 # test on the trend after 2011 ns ----------------------------------------------
 
-after_2011_ns<-lm(lNS~year,data=trend[trend$year>=2011,])
-summary(after_2011_ns)
-trend_test_for_change_ns<-summary(after_2011_ns)$coefficients[2,4]
+
+summary_coefficient_after <- summary(glht(test, linfct = K, alternative="greater"))
+confint_coefficient_after <-confint(glht(test, linfct = K, alternative="greater"))
+trend_test_for_change_ns <- sprintf("Estimate = %.3f P-value %.4f",
+		summary_coefficient_after$test$coefficients,
+		summary_coefficient_after$test$pvalues)
 
 save(dat, file=str_c(datawd,"dat_ge.Rdata"))
 save(dat, file=str_c(shinywd,"dat_ge.Rdata"))
@@ -2045,14 +2047,13 @@ Note that the shift from arithmetic to geometric means was done this year
 because \textit{post-hoc} model checking confirmed that log-normal (or Gamma
 Distribution) and geometric means are the prefered choice. \\
 
-After high levels in the late 1970s, the recruitment declined and has been very
-low for all years after 2000. As some of the values were not complete the 2017
-level of European eel recruitment compared to the 1960-1979 average is now a bit
-higher, \Sexpr{sn(100*datNS[nrow(datNS)-1,"p_std_1960_1979"], digits =1)}\% for
-the North Sea and \Sexpr{sn(100*datEE[nrow(datEE)-1,"p_std_1960_1979"], digits= 1)}\% for the
-Elsewhere Europe area.
-For 2019, provisional data give estimates at \Sexpr{sn(100*datNS[nrow(datNS),"p_std_1960_1979"], digits =1)}\% 
-for the North Sea and \Sexpr{sn(100*datEE[nrow(datEE),"p_std_1960_1979"], digits= 1)}\% for the
+As some of the values were not complete the 2018, the
+level of European eel recruitment compared to the 1960-1979 average has changed 
+when compared to last year report. The value has decreased from 9.6\% in last
+year report to \Sexpr{sn(100*datEE[nrow(datEE)-1,"p_std_1960_1979"], digits= 1)}\% for the Elsewhere Europe area.  It remains unchanged 
+ for the North Sea at \Sexpr{sn(100*datNS[nrow(datNS)-1,"p_std_1960_1979"], digits =1)}\%.
+ For 2019, data are \textbf{only provisional} and give estimates at
+ \Sexpr{sn(100*datNS[nrow(datNS),"p_std_1960_1979"], digits =1)}\% for the North Sea and \Sexpr{sn(100*datEE[nrow(datEE),"p_std_1960_1979"], digits= 1)}\% for the
 Elsewhere Europe area, but some of the series are not yet complete (Figure
 \ref{figure5} \ref{figure5_with_logscale} (log.scale), Tables \ref{table_glm_glass_eel}).
 
@@ -2093,11 +2094,40 @@ the 1960-1979 baseline. The 2019 provisional value is
 \end{figure}
 %==========================================
 
+\subsection{Is there a positive trend in recruitment ?}
+After high levels in the late 1970s, the recruitment declined and has been very
+low for all years after 2000. From ICES (2014) onward a change in the
+recruitment has been detected. One of the test used to show that change in 2014
+was based on SGIPEE(2011) working group. This test uses a simple model of the form
+\begin{equation}
+log(R) = a + b t + c (t-2001) (t>2011) + \epsilon,
+\end{equation}
+where log(R) is a random variable corresponding to the log of the recruitment
+trend at time t, either for the Elsewhere Europe or the North Sea time series, $t$
+is time, $t>2011$ is a Boolean that either takes the value 0 for year before 2011 and 1 after, $\epsilon$ is a random error with mean 0 and standard deviation sigma, and a, b and c, are estimable parameters. The model is tested against the simple linear regression model (equation 2) y = a + b t + e
+which means that the null hypothesis $H0: c=0$ is tested.
+This model has been providing significant results since 2014, and is providing
+significant results again this year with values
+(p=\Sexpr{sn(sgipee_test_for_change_ee,digits=1)} Elsewhere Europe and p=\Sexpr{sn(sgipee_test_for_change_ns,digits=1)} North Sea ICES SGIPEE(2011)).
+This model indicates that there has been a change in the recruitment slope.
 
-Both WGEEL recruitment indices for 2019 are lower than 2014, but modelling a
-breakpoint arround the minima of 2011 still gives significant results when using
-the lower value from 2019 (p=\Sexpr{sn(sgipee_test_for_change_ee,digits=1)}
-Elsewhere Europe and p=\Sexpr{sn(sgipee_test_for_change_ns,digits=1)} North Sea ICES SGIPEE(2011)). 
+To test whether there is an increase in recruitment since 2011 a
+simple linear model is used :
+
+\begin{equation}
+log(R)(t>2001) = a + b t(t>2001) + \epsilon,
+\end{equation}
+The NULL hypothesis $H0: b=0$ is tested. This models does not give a significant
+trend for 2019, (p=\Sexpr{sn(trend_test_for_change_ee,digits=1)} Elsewhere
+Europe and p=\Sexpr{sn(trend_test_for_change_ns,digits=1)} North Sea ICES
+SGIPEE(2011)), which means that statistically, the trend is not different from
+zero.
+
+To summarize, after high levels in the late 1970s, the recruitment declined and has been very
+low for all years after 2000. There has been a change in the trend in 2011, the
+recruitment has stopped to decrease, but is not increasing significantly. 
+However, not all series have been reported for 2019 and the results might change
+when those are reported.
 
 
 \tiny
