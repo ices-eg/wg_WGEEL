@@ -1527,6 +1527,84 @@ save_figure("figure5",figure5,600,480)
 save_figure("figure5",figure5,600,480)
 #save_figure("figure5danish",figure5danish,600,480)
 
+
+
+
+########new sets of lines to graph plots with confidence intervals
+# using expand.grid to build a complete grid for predictions
+data_ter=expand.grid(year_f=model_ge_area$xlevels$year_f,area=model_ge_area$xlevels$area,
+                     site=model_ge_area$xlevels$site[1])
+data_ter$year<-as.numeric(as.character(data_ter$year_f))
+
+
+#predicting
+data_ter$p=predict(model_ge_area,newdata=data_ter)
+data_ter$se=predict(model_ge_area,newdata=data_ter,se.fit=TRUE)[["se.fit"]]
+
+
+#in the logscale we removed the arithmetic mean to standardise prediction relatively to
+#1960-1980
+mean_1960_1979=aggregate(data_ter[data_ter$year<1980,"p"],list(data_ter[data_ter$year<1980,"area"]),mean)
+names(mean_1960_1979)=c("area","mean")
+
+data_ter=merge(data_ter,mean_1960_1979,by="area")
+data_ter$p_std_1960_1979=exp(data_ter$p-data_ter$mean)
+data_ter$p_std_1960_1979_min=exp(data_ter$p-data_ter$mean-1.96*data_ter$se)
+data_ter$p_std_1960_1979_max=exp(data_ter$p-data_ter$mean+1.96*data_ter$se)
+
+
+
+
+
+g<-ggplot(data_ter,aes(x=year,y=p_std_1960_1979))
+
+figure5_without_logscale<-g+geom_line(aes(colour=area,lty=area),lwd=1)+ 
+	scale_colour_brewer(name="area",palette="Set1")+
+	scale_y_continuous(expression(frac(p,bar(p)[1960-1979])))+
+	theme_bw()+
+	geom_hline(yintercept=1,linetype=2)+
+	theme(legend.box =NULL,
+		legend.key = element_rect(colour = NA, fill = 'white'),
+		legend.text = element_text(size = 10, colour = 'black'), 
+		legend.background = element_rect(colour = NA, fill = 'white'),
+		legend.position = c(.8, .8))+geom_ribbon(aes(ymin=p_std_1960_1979_min,ymax=p_std_1960_1979_max,fill=area),alpha=.3)
+X11(300,250)
+figure5_without_logscale
+save_figure("figure5_without_logscale_ribbon",figure5_without_logscale,600,480)
+
+# function similar to theme_dark() but allows legends
+# black and white plot ====
+figure5_without_logscale_black<-g+geom_line(aes(colour=area,lty=area),lwd=1)+
+	scale_colour_manual(name="area",values=c("yellow","lawngreen"))+
+	scale_y_continuous(expression(frac(p,bar(p)[1960-1979])))+
+	theme_black()+geom_ribbon(aes(ymin=p_std_1960_1979_min,ymax=p_std_1960_1979_max,fill="yellow","lawngreen"),alpha=.3)
+
+X11()
+figure5_without_logscale_black
+save_figure("figure5_without_logscale_black_ribbon",figure5_without_logscale_black,600,480)
+
+
+#====
+#+geom_smooth(aes(ymin = min, ymax = max,fill=area),stat="identity")+facet_grid( ~ area) 
+figure5<-g+geom_line(aes(colour=area,lty=area),lwd=1.3)+geom_point(aes(colour=area,fill=area,shape=area),size=3)+
+	#ggtitle("Recruitment overview glass eel series")+
+	scale_colour_brewer(name="area",palette="Set1")  +
+	#annotate("text",x=dat$year[length(dat$year)-2],y=datEE$p_std_1960_1979[length(datEE$p_std_1960_1979)],size=5,label=labelEE)+
+	#annotate("text",x=dat$year[length(dat$year)-2],y=datNS$p_std_1960_1979[length(datNS$p_std_1960_1979)],size=5,label=labelNS)+		
+	scale_y_log10(name=expression(frac(p,bar(p)[1960-1979])~' log scale'),
+		#limits=c(0.005,10),
+		breaks=c(0.01,0.1,1,10),
+		labels=c("1%","10%","100%","1000%"))+
+	theme_bw()+
+	theme(legend.box =NULL,
+		legend.key = element_rect(colour = NA, fill = 'white'),
+		legend.text = element_text(size = 10, colour = 'black'), 
+		legend.background = element_rect(colour = NA, fill = 'white'),
+		legend.position=c(.8,.9))+geom_ribbon(aes(ymin=p_std_1960_1979_min,ymax=p_std_1960_1979_max,fill=area),alpha=.3)
+
+X11()
+figure5
+save_figure("figure5_ribbon",figure5,600,480)
 #figure5danish<-g+geom_line(aes(colour=area,lty=area),lwd=1.3)+
 #		geom_point(aes(colour=area,fill=area,shape=area),size=3)+
 #		ggtitle("title="Glasaal data fra hele Europa")+
@@ -1536,8 +1614,31 @@ save_figure("figure5",figure5,600,480)
 #				#limits=c(0.005,10),
 #				breaks=c(0.01,0.1,1,10),
 #				labels=c("1%","10%","100%","1000%"))
-levels(dat$area)=c("EE","NS")
-g<-ggplot(dat,aes(x=year,y=p_std_1960_1979))
+#figure5danish
+
+#levels(dat$area)<-c (
+#		iconv("Andre steder i Europa","UTF8"),
+#		iconv("Nordsj?en","UTF8"))#
+#g<-ggplot(dat,aes(x=year,y=p_std_1960_1979))
+#figure5norvegiean<-g+
+#		geom_line(aes(colour=area,lty=area),lwd=1.3)+
+#		geom_point(aes(colour=area,shape=area),size=3)+
+#		ggtitle(label=iconv("Indeks av glass?lrekruttering","UTF8"))+
+#		scale_colour_brewer(name=iconv("Omr?det","UTF8"),palette="Set1")  +
+#		scale_shape(name=iconv("Omr?det","UTF8"))+
+#		scale_linetype(name=iconv("Omr?det","UTF8"))+
+#		xlab(iconv("?r","UTF8"))+
+#		scale_y_log10(name=iconv("Standardiserte GLM-prognoser (i prosent av
+#		1960-1979-gjennomsnitt)","UTF8"), #limits=c(0.005,10),
+#				breaks=c(0.01,0.1,1,10),
+#				labels=c("1%","10%","100%","1000%"))
+#save_figure("figure5norvegiean",figure5norvegiean,600,480)
+#pdf("images/2013/figure5norvegiean.png")
+#figure5norvegiean
+#dev.off()
+save_figure("figure5_ribbon",figure5,600,480)
+
+
 
 #figure5bw<-g+geom_line(aes(colour=area,lty=area),wd=1.3)+
 #		geom_point(aes(colour=area,fill=area,shape=area),size=3)+
@@ -1615,47 +1716,78 @@ trend$lNS<-log(trend$"North Sea")
 
 # sgipee test for change ee ---------------------------------------------
 
-test1=lm(lEE~year+pmax(year,2011),data=trend)
-Anova(test1)
-sgipee_test_for_change_ee<-summary(test1)$coefficients[3,4]
-if (sgipee_test_for_change_ee<=0.05) {
-  test_sgipee_char_ee<-"significant"
-}else {
-  test_sgipee_char_ee<-"not significant"
-}
+#test1=lm(lEE~year+pmax(year,2011),data=trend)
+#Anova(test1)
+#sgipee_test_for_change_ee<-summary(test1)$coefficients[3,4]
+#if (sgipee_test_for_change_ee<=0.05) {
+#  test_sgipee_char_ee<-"significant"
+#}else {
+#  test_sgipee_char_ee<-"not significant"
+#}
 
-# test on the trend after 2011 ee ----------------------------------------------
-
-
-
-K = matrix(c(0,1,1), nrow = 1) # we just add the to coef trend to have the trend after 2011
-summary_coefficient_after <- summary(glht(test1, linfct = K, alternative="greater"))
-confint_coefficient_after <-confint(glht(test1, linfct = K, alternative="greater"))
-trend_test_for_change_ee <- sprintf("Estimate = %.3f P-value %.4f",
-		summary_coefficient_after$test$coefficients,
-		summary_coefficient_after$test$pvalues)
+## test on the trend after 2011 ee ----------------------------------------------
+#
+#K = matrix(c(0,1,1), nrow = 1) # we just add the to coef trend to have the trend after 2011
+#summary_coefficient_after <- summary(glht(test1, linfct = K, alternative="greater"))
+#confint_coefficient_after <-confint(glht(test1, linfct = K, alternative="greater"))
+#trend_test_for_change_ee <- sprintf("Estimate = %.3f P-value %.4f",
+#		summary_coefficient_after$test$coefficients,
+#		summary_coefficient_after$test$pvalues)
 
 
 # sgipee test for change ns ---------------------------------------------
 
-test=lm(lNS~year+pmax(year,2011),data=trend)
-Anova(test)
-sgipee_test_for_change_ns<-summary(test)$coefficients[3,4]
-if (sgipee_test_for_change_ns<=0.05) {
-  test_sgipee_char_ns<-"significant"
-}else {
-  test_sgipee_char_ns<-"not significant"
-}
+#test=lm(lNS~year+pmax(year,2011),data=trend)
+#
+#sgipee_test_for_change_ns<-summary(test)$coefficients[3,4]
+#if (sgipee_test_for_change_ns<=0.05) {
+#  test_sgipee_char_ns<-"significant"
+#}else {
+#  test_sgipee_char_ns<-"not significant"
+#}
 
-# test on the trend after 2011 ns ----------------------------------------------
+## test on the trend after 2011 ns ----------------------------------------------
+#
+#
+#summary_coefficient_after <- summary(glht(test, linfct = K, alternative="greater"))
+#confint_coefficient_after <-confint(glht(test, linfct = K, alternative="greater"))
+#trend_test_for_change_ns <- sprintf("Estimate = %.3f P-value %.4f",
+#		summary_coefficient_after$test$coefficients,
+#		summary_coefficient_after$test$pvalues)
 
 
-summary_coefficient_after <- summary(glht(test, linfct = K, alternative="greater"))
-confint_coefficient_after <-confint(glht(test, linfct = K, alternative="greater"))
+# test glm with a breakpoint ----------------------------------------------------
+# this models takes numeric, not factors we assume a log trend
+model_ge_area_b=glm(value_std~year:area+site+pmax(year,2011):area,
+		data=glass_eel_yoy[glass_eel_yoy$value>0 & glass_eel_yoy$year>=1980,],
+		family=Gamma(link=log), maxit=300)
+#summary(model_ge_area_b)
+# plot(model_ge_area_b)
+len<- length(coef(model_ge_area_b))
+gg<-visreg::visreg(model_ge_area_b,"year",by="area", plot=TRUE,gg=TRUE,band=FALSE)
+gg <- gg+facet_wrap(~area,scales="free_y")
+print(gg)
+# last coeff are
+# year:areaElsewhere Europe 
+# year:areaNorth Sea 
+# areaElsewhere Europe:pmax(year, 2011)   
+# areaNorth Sea:pmax(year, 2011) 
+#test1=lm(lEE~year+pmax(year,2011),data=trend)
+#Anova(test1)
+# this is the n-1 row of the summary
+sgipee_test_for_change_ee<-summary(model_ge_area_b)$coefficients[len-1,4]   
+sgipee_test_for_change_ns<-summary(model_ge_area_b)$coefficients[len,4]
+
+Kee = matrix(c(rep(0,len-4),1,0,1,0), nrow = 1) # we just add the to coef trend to have the trend after 2011
+summary_coefficient_afteree <- summary(glht(model_ge_area_b, linfct = Kee, alternative="greater",rhs=0.05))
+Kns = matrix(c(rep(0,len-4),0,1,0,1), nrow = 1) # we just add the to coef trend to have the trend after 2011
+summary_coefficient_afterns <- summary(glht(model_ge_area_b, linfct = Kns, alternative="greater"))
+trend_test_for_change_ee <- sprintf("Estimate = %.3f P-value %.4f",
+		summary_coefficient_afteree$test$coefficients,
+		summary_coefficient_afteree$test$pvalues)
 trend_test_for_change_ns <- sprintf("Estimate = %.3f P-value %.4f",
-		summary_coefficient_after$test$coefficients,
-		summary_coefficient_after$test$pvalues)
-
+		summary_coefficient_afterns$test$coefficients,
+		summary_coefficient_afterns$test$pvalues)
 save(dat, file=str_c(datawd,"dat_ge.Rdata"))
 save(dat, file=str_c(shinywd,"dat_ge.Rdata"))
 @
@@ -2026,9 +2158,10 @@ The WGEEL recruitment index used in the ICES Annual Stock Advice is a
 reconstructed prediction using a GLM (Generalised Linear Model) with gamma distribution and a log link:
 $glass~eel \sim year:area + site $, where $glass~eel$ is individual glass eel
 time-series, including both pure G series and those identified as a mixture of
-glass and yel-low eel (G+Y), $site$ is the site monitored for recruitment and
-area is either the continental North Sea or Elsewhere Europe. For yellow eel
-time-series, only one estimate is provided:
+glass and yel-low eel (G+Y), $site$ is the site monitored for recruitment,
+area is either the continental North Sea or Elsewhere Europe, and year is the
+year coded as a categorical value.
+For yellow eel time-series, only one estimate is provided:
 $yellow~eel \sim year + site $. 
 
 The trend is reconstructed using the predictions from 1960 onwards for
@@ -2098,36 +2231,37 @@ the 1960-1979 baseline. The 2019 provisional value is
 After high levels in the late 1970s, the recruitment declined and has been very
 low for all years after 2000. From ICES (2014) onward a change in the
 recruitment has been detected. One of the test used to show that change in 2014
-was based on SGIPEE(2011) working group. This test uses a simple model of the form
+was based on SGIPEE(2011) working group. We have used a test different from that
+of ICES 2011. The difference is that the model is now based on individual series
+as source data, not only the prediction. The model differs from that used by
+wgeel also as year is here treated as a continuous value, whereas it is treated
+as a factor in the glm for recruitment, and the years are restricted to
+decreasing part of the recruitment (after 1980).
 \begin{equation}
-log(R) = a + b t + c (t-2001) (t>2011) + \epsilon,
+glass~eel \sim  \alpha_{site} site + \beta_{area} Y_{>=1980} + \gamma_{area} Y_{>2011} + \epsilon,
 \end{equation}
-where log(R) is a random variable corresponding to the log of the recruitment
-trend at time t, either for the Elsewhere Europe or the North Sea time series, $t$
-is time, $t>2011$ is a Boolean that either takes the value 0 for year before 2011 and 1 after, $\epsilon$ is a random error with mean 0 and standard deviation sigma, and a, b and c, are estimable parameters. The model is tested against the simple linear regression model (equation 2) y = a + b t + e
-which means that the null hypothesis $H0: c=0$ is tested.
-This model has been providing significant results since 2014, and is providing
-significant results again this year with values
-(p=\Sexpr{sn(sgipee_test_for_change_ee,digits=1)} Elsewhere Europe and p=\Sexpr{sn(sgipee_test_for_change_ns,digits=1)} North Sea ICES SGIPEE(2011)).
-This model indicates that there has been a change in the recruitment slope.
+where glass eel is the number of glass eel in the glass eel series, either for the Elsewhere Europe or the North Sea time series, $year_{year>1980}$
+is a continuous value corresponding to year after 1980, $year_{year>2011}$ is also
+a continuous value, $\epsilon$ is a random error with mean 0 and standard deviation sigma, 
+and $\alpha_{site}$, $\beta_{area}$ and $\gamma_{area}$ are the estimated
+parameters. The parameters $\gamma_{area}$ are higly significant both in the
+Elsewhere Europe area (p=\Sexpr{sn(sgipee_test_for_change_ee,digits=1)}
+and for the North Sea p=\Sexpr{sn(sgipee_test_for_change_ns,digits=1)} North Sea.
+This result confirms that there has been a change in the recruitment slope.
 
-To test whether there is an increase in recruitment since 2011 a
-simple linear model is used :
+\textcolor{purple}{Add a table with past coeff, current coeff, and probabilities and diminish the text}
 
-\begin{equation}
-log(R)(t>2001) = a + b t(t>2001) + \epsilon,
-\end{equation}
-The NULL hypothesis $H0: b=0$ is tested. This models does not give a significant
-trend for 2019, (p=\Sexpr{sn(trend_test_for_change_ee,digits=1)} Elsewhere
-Europe and p=\Sexpr{sn(trend_test_for_change_ns,digits=1)} North Sea ICES
-SGIPEE(2011)), which means that statistically, the trend is not different from
-zero.
+To test whether there is an increase in recruitment since 2011 the slope of
+$\beta_{area}+\gamma_{area}$, i.e. the slope of the recent increase in
+recruitment is positive, the NULL hypothesis $H0:b>0$ is tested.
 
 To summarize, after high levels in the late 1970s, the recruitment declined and has been very
 low for all years after 2000. There has been a change in the trend in 2011, the
-recruitment has stopped to decrease, but is not increasing significantly. 
-However, not all series have been reported for 2019 and the results might change
-when those are reported.
+recruitment has stopped to decrease, and has been increasing in the period
+2011-2019 with a rate significantly different from zero. However, first, not all series have been reported for 2019 and the results might
+change when those are reported.
+Secondly, the overall recruitment remains low and the values have been lower
+than the maximum values reached in 2014 for three years.
 
 
 \tiny

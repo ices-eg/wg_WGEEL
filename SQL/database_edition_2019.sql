@@ -229,3 +229,52 @@ SELECT * FROM datawg.t_eelstock_eel WHERE eel_id in(422628,422631)
 BEGIN;
 DELETE FROM datawg.t_eelstock_eel WHERE eel_id in(422628,422631)
 COMMIT;
+
+-- correction of lines for the portugal
+
+SELECT * FROM datawg.t_eelstock_eel WHERE eel_cou_code='PT' AND eel_year < 1985 AND eel_lfs_code='Y'
+eel_area_division
+BEGIN;
+UPDATE datawg.t_eelstock_eel SET (eel_qal_id,eel_qal_comment)=(19,'No yellow eel for PT at that date, there are glass eel with wrong code, removed')
+WHERE eel_cou_code='PT' AND eel_year < 1985 AND eel_lfs_code='Y';
+COMMIT;
+
+SELECT * FROM datawg.t_eelstock_eel  WHERE eel_cou_code='SE' AND eel_emu_nameshort='SE_East' AND eel_hty_code='C' AND eel_typ_id=4;
+-- areas in sweden
+BEGIN;
+UPDATE datawg.t_eelstock_eel SET eel_area_division='27.3.d'  WHERE eel_cou_code='SE' AND eel_emu_nameshort='SE_East' AND eel_hty_code='C' AND eel_typ_id=4;
+COMMIT;
+SELECT * FROM datawg.t_eelstock_eel  WHERE eel_cou_code='SE' AND eel_emu_nameshort='SE_West' AND eel_hty_code='C' AND eel_typ_id=4;
+
+
+BEGIN;
+UPDATE datawg.t_eelstock_eel SET eel_area_division='27.3.a'  WHERE eel_cou_code='SE' AND eel_emu_nameshort='SE_West' AND eel_hty_code='C' AND eel_typ_id=4;
+COMMIT;
+
+SELECT DISTINCT eel_emu_nameshort FROM datawg.t_eelstock_eel WHERE eel_typ_id=11 AND eel_emu_nameshort NOT LIKE '%total%'
+
+SELECT * FROM datawg.t_eelstock_eel WHERE eel_typ_id=11 AND eel_cou_code='FI'
+SELECT * FROM datawg.t_eelstock_eel WHERE eel_emu_nameshort='FI_Finl' 
+
+BEGIN;
+UPDATE datawg.t_eelstock_eel SET eel_emu_nameshort='FI_total' WHERE eel_emu_nameshort='FI_Finl' AND eel_typ_id=11 
+COMMIT;
+
+
+BEGIN;
+WITH emu_based_aquaculture AS (
+SELECT DISTINCT eel_emu_nameshort FROM datawg.t_eelstock_eel WHERE eel_typ_id=11 AND eel_emu_nameshort NOT LIKE '%total%'),
+lines_to_update AS (
+SELECT * FROM datawg.t_eelstock_eel WHERE eel_typ_id=11 AND (eel_qal_id=1) 
+AND eel_emu_nameshort IN (SELECT eel_emu_nameshort FROM emu_based_aquaculture))
+--SELECT count(*) FROM lines_to_update --151
+--SELECT count(*),eel_emu_nameshort FROM lines_to_update GROUP BY eel_emu_nameshort
+UPDATE datawg.t_eelstock_eel SET eel_qal_id=19 WHERE eel_id IN (SELECT eel_id FROM lines_to_update);
+COMMIT;
+
+
+SELECT * FROM datawg.t_eelstock_eel WHERE eel_typ_id=11 AND eel_emu_nameshort='ES_Vale' AND eel_qal_id=1
+
+
+
+
