@@ -20,6 +20,7 @@ source("R/Y_S_series/Y_S_series_function.R")
 #--------------------------------
 # series in the database
 ser_db = wgeel_query("SELECT * FROM datawg.t_series_ser")
+sort(ser_db$ser_nameshort)
 ser_data = wgeel_query("SELECT * FROM datawg.t_dataseries_das")
 ser_biom = wgeel_query("SELECT * FROM datawg.t_biometry_series_bis")
 
@@ -47,6 +48,7 @@ source("R/Y_S_series/2019/IRL.R")
 #LTA
 #LTU
 source("R/Y_S_series/2019/NL.R")
+source("R/Y_S_series/2019/NO.R")
 
 ## sql function to delete inserted data
 #wgeel_query("delete from datawg.t_dataseries_das where das_last_update = '2019-08-28'")

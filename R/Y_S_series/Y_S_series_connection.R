@@ -62,16 +62,11 @@ if(getUsername() == 'lbeaulaton')
 }
 
 ## configuration for connection to WGEEL database
-#options(sqldf.RPostgreSQL.user = userwgeel, 
-#	sqldf.RPostgreSQL.password = passwordwgeel,
-#	sqldf.RPostgreSQL.dbname = "wgeel",
-#	sqldf.RPostgreSQL.host = "localhost",
-#	sqldf.RPostgreSQL.port = 5435)
-
+#userwgeel = getpassword()
 #dbpool <<- pool::dbPool(drv = dbDriver("PostgreSQL"),
 #	dbname="wgeel",
-#	host=host,
-#	port=port,
+#	host="localhost",
+#	port=5435,
 #	user= userwgeel,
 #	password= passwordwgeel)
 

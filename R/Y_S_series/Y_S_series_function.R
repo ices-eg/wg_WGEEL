@@ -3,13 +3,6 @@
 # TODO: to integrate this in the shiny app
 ###############################################################################
 
-#' convert to numeric if it can be coerce to
-#' 
-#' @param x
-#'
-#' @return the numeric
-convert_num = function(x) {if(is.numeric(x)) return(as.numeric(x)) else return(x)}
-
 #' customize identical function to test line by line
 #' 
 #' @param x, y the 2 vectors to compare
@@ -114,7 +107,7 @@ check_series_update = function(series, ser_db)
 	for(col_name in colnames(series %>% select(-ser_nameshort)))
 	{
 		vars = str_c(col_name, c("_xl", "_base"))
-		result[["by_column"]][[col_name]] = updated_series %>% select(vars) %>%	mutate_all(as.character) %>%	mutate_all(convert_num) %>%	mutate(!!str_c("updated_", col_name) := !f_identical(.data[[vars[1]]], .data[[vars[2]]], ))
+		result[["by_column"]][[col_name]] = updated_series %>% select(vars) %>%	mutate_all(as.character) %>%	mutate_all(type.convert, as.is = TRUE) %>%	mutate(!!str_c("updated_", col_name) := !f_identical(.data[[vars[1]]], .data[[vars[2]]], ))
 	}
 	
 	result[["synthesis"]] = unlist(lapply(result[["by_column"]], function(x) {sum(as.numeric(x[,3]))>0}))
@@ -208,7 +201,7 @@ gather_series = function(old_series, new_series)
 #' @paral ser_data list of data series in the database
 #'
 #' @return a list with existing data series (incl. the database das_id) and data series to be created
-check_dataseries = function(dataseries, ser_data)
+check_dataseries = function(dataseries, ser_data = ser_data)
 {
 	# add row number to dataseries
 	dataseries = dataseries %>% mutate(nrow = row_number())
@@ -233,7 +226,7 @@ check_dataseries_update = function(dataseries)
 {
 	#chek for das_value
 	# use identical instead of == because of NA
-	updated_dataseries = dataseries %>% mutate(updated_value = !identical(das_value_xl, das_value_base), updated_effort = !identical(das_effort_xl, das_effort_base), updated_comment = !identical(das_comment_xl, das_comment_base))
+	updated_dataseries = dataseries  %>% mutate_all(as.character) %>% mutate_all(type.convert, as.is = TRUE) %>% mutate(updated_value = !f_identical(das_value_xl, das_value_base), updated_effort = !f_identical(das_effort_xl, das_effort_base), updated_comment = !f_identical(das_comment_xl, das_comment_base))
 	
 	print(str_c("updated value: ", sum(updated_dataseries$updated_value, na.rm = TRUE)))
 	print(str_c("updated effort: ", sum(updated_dataseries$updated_effort, na.rm = TRUE)))
