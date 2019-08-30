@@ -1527,6 +1527,84 @@ save_figure("figure5",figure5,600,480)
 save_figure("figure5",figure5,600,480)
 #save_figure("figure5danish",figure5danish,600,480)
 
+
+
+
+########new sets of lines to graph plots with confidence intervals
+# using expand.grid to build a complete grid for predictions
+data_ter=expand.grid(year_f=model_ge_area$xlevels$year_f,area=model_ge_area$xlevels$area,
+                     site=model_ge_area$xlevels$site[1])
+data_ter$year<-as.numeric(as.character(data_ter$year_f))
+
+
+#predicting
+data_ter$p=predict(model_ge_area,newdata=data_ter)
+data_ter$se=predict(model_ge_area,newdata=data_ter,se.fit=TRUE)[["se.fit"]]
+
+
+#in the logscale we removed the arithmetic mean to standardise prediction relatively to
+#1960-1980
+mean_1960_1979=aggregate(data_ter[data_ter$year<1980,"p"],list(data_ter[data_ter$year<1980,"area"]),mean)
+names(mean_1960_1979)=c("area","mean")
+
+data_ter=merge(data_ter,mean_1960_1979,by="area")
+data_ter$p_std_1960_1979=exp(data_ter$p-data_ter$mean)
+data_ter$p_std_1960_1979_min=exp(data_ter$p-data_ter$mean-1.96*data_ter$se)
+data_ter$p_std_1960_1979_max=exp(data_ter$p-data_ter$mean+1.96*data_ter$se)
+
+
+
+
+
+g<-ggplot(data_ter,aes(x=year,y=p_std_1960_1979))
+
+figure5_without_logscale<-g+geom_line(aes(colour=area,lty=area),lwd=1)+ 
+	scale_colour_brewer(name="area",palette="Set1")+
+	scale_y_continuous(expression(frac(p,bar(p)[1960-1979])))+
+	theme_bw()+
+	geom_hline(yintercept=1,linetype=2)+
+	theme(legend.box =NULL,
+		legend.key = element_rect(colour = NA, fill = 'white'),
+		legend.text = element_text(size = 10, colour = 'black'), 
+		legend.background = element_rect(colour = NA, fill = 'white'),
+		legend.position = c(.8, .8))+geom_ribbon(aes(ymin=p_std_1960_1979_min,ymax=p_std_1960_1979_max,fill=area),alpha=.3)
+X11(300,250)
+figure5_without_logscale
+save_figure("figure5_without_logscale_ribbon",figure5_without_logscale,600,480)
+
+# function similar to theme_dark() but allows legends
+# black and white plot ====
+figure5_without_logscale_black<-g+geom_line(aes(colour=area,lty=area),lwd=1)+
+	scale_colour_manual(name="area",values=c("yellow","lawngreen"))+
+	scale_y_continuous(expression(frac(p,bar(p)[1960-1979])))+
+	theme_black()+geom_ribbon(aes(ymin=p_std_1960_1979_min,ymax=p_std_1960_1979_max,fill="yellow","lawngreen"),alpha=.3)
+
+X11()
+figure5_without_logscale_black
+save_figure("figure5_without_logscale_black_ribbon",figure5_without_logscale_black,600,480)
+
+
+#====
+#+geom_smooth(aes(ymin = min, ymax = max,fill=area),stat="identity")+facet_grid( ~ area) 
+figure5<-g+geom_line(aes(colour=area,lty=area),lwd=1.3)+geom_point(aes(colour=area,fill=area,shape=area),size=3)+
+	#ggtitle("Recruitment overview glass eel series")+
+	scale_colour_brewer(name="area",palette="Set1")  +
+	#annotate("text",x=dat$year[length(dat$year)-2],y=datEE$p_std_1960_1979[length(datEE$p_std_1960_1979)],size=5,label=labelEE)+
+	#annotate("text",x=dat$year[length(dat$year)-2],y=datNS$p_std_1960_1979[length(datNS$p_std_1960_1979)],size=5,label=labelNS)+		
+	scale_y_log10(name=expression(frac(p,bar(p)[1960-1979])~' log scale'),
+		#limits=c(0.005,10),
+		breaks=c(0.01,0.1,1,10),
+		labels=c("1%","10%","100%","1000%"))+
+	theme_bw()+
+	theme(legend.box =NULL,
+		legend.key = element_rect(colour = NA, fill = 'white'),
+		legend.text = element_text(size = 10, colour = 'black'), 
+		legend.background = element_rect(colour = NA, fill = 'white'),
+		legend.position=c(.8,.9))+geom_ribbon(aes(ymin=p_std_1960_1979_min,ymax=p_std_1960_1979_max,fill=area),alpha=.3)
+
+X11()
+figure5
+save_figure("figure5_ribbon",figure5,600,480)
 #figure5danish<-g+geom_line(aes(colour=area,lty=area),lwd=1.3)+
 #		geom_point(aes(colour=area,fill=area,shape=area),size=3)+
 #		ggtitle("title="Glasaal data fra hele Europa")+
@@ -1536,8 +1614,31 @@ save_figure("figure5",figure5,600,480)
 #				#limits=c(0.005,10),
 #				breaks=c(0.01,0.1,1,10),
 #				labels=c("1%","10%","100%","1000%"))
-levels(dat$area)=c("EE","NS")
-g<-ggplot(dat,aes(x=year,y=p_std_1960_1979))
+#figure5danish
+
+#levels(dat$area)<-c (
+#		iconv("Andre steder i Europa","UTF8"),
+#		iconv("Nordsj?en","UTF8"))#
+#g<-ggplot(dat,aes(x=year,y=p_std_1960_1979))
+#figure5norvegiean<-g+
+#		geom_line(aes(colour=area,lty=area),lwd=1.3)+
+#		geom_point(aes(colour=area,shape=area),size=3)+
+#		ggtitle(label=iconv("Indeks av glass?lrekruttering","UTF8"))+
+#		scale_colour_brewer(name=iconv("Omr?det","UTF8"),palette="Set1")  +
+#		scale_shape(name=iconv("Omr?det","UTF8"))+
+#		scale_linetype(name=iconv("Omr?det","UTF8"))+
+#		xlab(iconv("?r","UTF8"))+
+#		scale_y_log10(name=iconv("Standardiserte GLM-prognoser (i prosent av
+#		1960-1979-gjennomsnitt)","UTF8"), #limits=c(0.005,10),
+#				breaks=c(0.01,0.1,1,10),
+#				labels=c("1%","10%","100%","1000%"))
+#save_figure("figure5norvegiean",figure5norvegiean,600,480)
+#pdf("images/2013/figure5norvegiean.png")
+#figure5norvegiean
+#dev.off()
+save_figure("figure5_ribbon",figure5,600,480)
+
+
 
 #figure5bw<-g+geom_line(aes(colour=area,lty=area),wd=1.3)+
 #		geom_point(aes(colour=area,fill=area,shape=area),size=3)+
