@@ -49,6 +49,7 @@ source("R/Y_S_series/2019/NL.R")
 source("R/Y_S_series/2019/NO.R")
 source("R/Y_S_series/2019/PL.R")
 source("R/Y_S_series/2019/PT.R")
+source("R/Y_S_series/2019/SE.R")
 
 ## sql function to delete inserted data
 #wgeel_query("delete from datawg.t_dataseries_das where das_last_update = '2019-08-28'")

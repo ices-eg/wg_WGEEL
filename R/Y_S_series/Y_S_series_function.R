@@ -49,6 +49,12 @@ retrieve_data = function(country, type_series = "wrong")
 		return(NULL)
 	}
 	
+	if(length(country_file) > 1)
+	{
+		warning(str_c("Too many ", type_series, " file"))
+		return(NULL)
+	}
+	
 	country_data = list()
 	# read the file
 	country_data$meta = read_excel(str_c(wd_file_folder, "/", country, "/", country_file), sheet="metadata", range = "B10:C50", col_names = FALSE) # I put a rather large range
