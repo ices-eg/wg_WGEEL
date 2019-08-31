@@ -61,7 +61,7 @@ if(getUsername() == 'lbeaulaton')
 	
 }
 
-## configuration for connection to WGEEL database
+# configuration for connection to WGEEL database
 userwgeel = getpassword()
 dbpool <<- pool::dbPool(drv = dbDriver("PostgreSQL"),
 	dbname="wgeel",

@@ -36,6 +36,14 @@ countries = list.dirs(wd_file_folder, full.names = FALSE, recursive = FALSE)
 #VALUES ('nr net.night','number of net and night');
 #INSERT INTO "ref".tr_units_uni (uni_code,uni_name)
 #VALUES ('nr fyke.day','number of fyke and day');
+#INSERT INTO "ref".tr_units_uni (uni_code,uni_name)
+#VALUES ('nr site','number of site');
+
+# delete Scotland silver eel index (new series provided)
+#DELETE FROM datawg.t_dataseries_das USING datawg.t_series_ser 
+#WHERE ser_nameshort IN ('GirB', 'BadB', 'Shie') AND das_ser_id = ser_id;
+#DELETE FROM datawg.t_biometry_series_bis USING datawg.t_series_ser 
+#WHERE ser_nameshort IN ('GirB', 'BadB', 'Shie') AND bis_ser_id = ser_id;
 
 source("R/Y_S_series/2019/DE.R")
 source("R/Y_S_series/2019/DK.R")
@@ -50,6 +58,7 @@ source("R/Y_S_series/2019/NO.R")
 source("R/Y_S_series/2019/PL.R")
 source("R/Y_S_series/2019/PT.R")
 source("R/Y_S_series/2019/SE.R")
+source("R/Y_S_series/2019/UK.R")
 
 ## sql function to delete inserted data
 #wgeel_query("delete from datawg.t_dataseries_das where das_last_update = '2019-08-28'")
