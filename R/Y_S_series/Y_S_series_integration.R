@@ -27,29 +27,11 @@ ser_biom = wgeel_query("SELECT * FROM datawg.t_biometry_series_bis")
 # read the folder to have all names
 countries = list.dirs(wd_file_folder, full.names = FALSE, recursive = FALSE)
 
-# TODO: check the ser_nameshort is consistent between the sheets !
-
-# TODO: add in the db
-#INSERT INTO "ref".tr_units_uni (uni_code,uni_name)
-#VALUES ('nr/net/day','number of net.day');
-#INSERT INTO "ref".tr_units_uni (uni_code,uni_name)
-#VALUES ('nr net.night','number of net and night');
-#INSERT INTO "ref".tr_units_uni (uni_code,uni_name)
-#VALUES ('nr fyke.day','number of fyke and day');
-#INSERT INTO "ref".tr_units_uni (uni_code,uni_name)
-#VALUES ('nr site','number of site');
-
-# delete Scotland silver eel index (new series provided)
-#DELETE FROM datawg.t_dataseries_das USING datawg.t_series_ser 
-#WHERE ser_nameshort IN ('GirB', 'BadB', 'Shie') AND das_ser_id = ser_id;
-#DELETE FROM datawg.t_biometry_series_bis USING datawg.t_series_ser 
-#WHERE ser_nameshort IN ('GirB', 'BadB', 'Shie') AND bis_ser_id = ser_id;
-
 source("R/Y_S_series/2019/DE.R")
 source("R/Y_S_series/2019/DK.R")
 source("R/Y_S_series/2019/ESP.R")
 source("R/Y_S_series/2019/FRA.R")
-#source("R/Y_S_series/2019/GRE.R")
+#GRE
 source("R/Y_S_series/2019/IRL.R")
 #LTA
 #LTU

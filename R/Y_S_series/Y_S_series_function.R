@@ -151,7 +151,7 @@ show_series_update = function(updated_series){
 #'
 #' @return just update the series
 update_series = function(series_info, show_updated_series = NULL, all = FALSE, icountry = country){
-# TODO: add a parameter to select line / column to update (in case you don't want to update all
+# TODO: add a parameter to select line / column to update (in case you don't want to update all)
 	column_to_update = dimnames(show_updated_series)[[1]]
 	if(all){
 		query_set = paste(column_to_update, " = temp_", tolower(icountry), "_series_info.", column_to_update, sep = "", collapse = ", ")
@@ -279,7 +279,7 @@ insert_dataseries = function(dataseries, icountry = country)
 #' @return nothing
 update_dataseries = function(dataseries, icountry = country)
 {
-	# TODO: add a parameter to select line / column to update (in case you don't want to update all
+	# TODO: add a parameter to select line / column to update (in case you don't want to update all)
 	for(to_update in c("updated_value", "updated_effort", "updated_comment"))
 	{
 		if(nrow(dataseries[[to_update]])>0)
