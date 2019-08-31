@@ -15,3 +15,16 @@ $$ language 'plpgsql';
 DROP TRIGGER IF EXISTS update_geom ON datawg.t_series_ser;
 CREATE TRIGGER update_geom BEFORE INSERT OR UPDATE ON datawg.t_series_ser FOR EACH ROW EXECUTE PROCEDURE  datawg.update_geom();
 
+-- correct missing stat
+CREATE OR REPLACE VIEW datawg.series_stats
+AS SELECT t_series_ser.ser_id,
+    t_series_ser.ser_nameshort AS site,
+    t_series_ser.ser_namelong AS namelong,
+    min(t_dataseries_das.das_year) AS min,
+    max(t_dataseries_das.das_year) AS max,
+    max(t_dataseries_das.das_year) - min(t_dataseries_das.das_year) + 1 AS duration,
+    count(*) - count(das_value) AS missing
+   FROM datawg.t_dataseries_das
+     JOIN datawg.t_series_ser ON t_dataseries_das.das_ser_id = t_series_ser.ser_id
+  GROUP BY t_series_ser.ser_id
+  ORDER BY t_series_ser.ser_order;
