@@ -577,7 +577,7 @@ R_stations$areashort[R_stations$area=="North Sea"]<-"NS"
 R_stations$ser_namelong <- iconv(R_stations$ser_namelong,"UTF8")
 series_CY<-R_stations[R_stations$ser_nameshort%in%names(last_year[last_year==CY]),
     c("ser_nameshort","ser_namelong","cou_code","ser_lfs_code","areashort","ser_area_division","ser_order")]
-series_CY<-series_CY[order(series_CY$ser_order),-ncol(series_CY)]
+series_CY<-series_CY[order(series_CY$ser_lfs_code,series_CY$ser_order),-ncol(series_CY)]
 vv$nCY<-nrow(series_CY) # number of series updated to the current year (for later use)
 vv$nCYG<-nrow(series_CY[series_CY$ser_lfs_code=="G",]) # number of series with glass eel updated to the current year
 vv$nCYGY<-nrow(series_CY[series_CY$ser_lfs_code=="GY",]) # number of series with glass eel updated to the current year
@@ -586,7 +586,7 @@ vv$nCYY<-nrow(series_CY[series_CY$ser_lfs_code=="Y",]) # number of series with y
 #"stations updated to",CY-1
 series_CYm1<-R_stations[R_stations$ser_nameshort%in%names(last_year[last_year==CY-1]),
     c("ser_nameshort","ser_namelong","cou_code","ser_lfs_code","areashort","ser_area_division","ser_order")]
-series_CYm1<-series_CYm1[order(series_CYm1$ser_order),-ncol(series_CYm1)]
+series_CYm1<-series_CYm1[order(series_CYm1$ser_lfs_code,series_CYm1$ser_order),-ncol(series_CYm1)]
 vv$nCYm1<-nrow(series_CYm1) # number series updated last year only (and not this year)
 vv$nCYm1G<-nrow(series_CYm1[grepl("G",series_CYm1$ser_lfs_code),]) # same for glass eel 
 vv$nCYm1GY<-nrow(series_CYm1[grepl("GY",series_CYm1$ser_lfs_code),]) # same for glass eel 
@@ -616,7 +616,7 @@ colnames(series_CY)<-str_c("\\scshape{",c("Site","Name","Coun.","Stage","Area","
 
 xseries_CY <- xtable(x = series_CY,
 	label = "table_seriesCY",
-	caption = str_c("Series updated to ",CY),
+	caption = str_c("Series updated to ",CY, ". Codes for stages are G = glass eel, GY = glass eel + yellow eel, Y = yellow eel, Area NS = North Sea, EE = Elsewhere Europe, Division = FAO marine division. Series ordered by stage and from North to South"),
 	align=c("p{0cm}","p{1.3cm}","p{6.5cm}","p{1cm}","p{1cm}","p{1cm}","p{1.4cm}"))
 print(xseries_CY, file = str_c(	tabwd,"/table_seriesCY.tex"),
 	table.placement = "htbp",
@@ -633,7 +633,7 @@ print(xseries_CY, file = str_c(	tabwd,"/table_seriesCY.tex"),
 colnames(series_CYm1)<-str_c("\\scshape{",c("Site","Name","Coun.","Stage","Area","Division"),"}")
 xseries_CYm1 <- xtable(x = series_CYm1,
 	label = str_c("table_seriesCYm1"),
-	caption = str_c("Series updated to ",CY-1),
+	caption = str_c("Series updated to ",CY-1, " see table \\ref{table_seriesCY)} for codes. Series ordered by last year"),
 	align=c("p{0cm}","p{1.3cm}","p{6.5cm}","p{1cm}","p{1cm}","p{1cm}","p{1.4cm}"))
 
 print(xseries_CYm1, 
@@ -652,7 +652,7 @@ print(xseries_CYm1,
 colnames(series_lost)<-str_c("\\scshape{",c("Site","Name","Coun.","Stage","Area","Division","Last Year"),"}")
 xseries_lost <- xtable(x = series_lost,
 	label = str_c("table_serieslost"),
-	caption = str_c("Series stopped or not updated to ",CY-1),
+	caption = str_c("Series stopped or not updated to ",CY-1, " see table \\ref{table_seriesCY)} for codes. Series ordered by last year"),
 	align=c("p{0cm}","p{1.3cm}","p{6.5cm}","p{1cm}","p{1cm}","p{1cm}","p{1.4cm}","p{1.2cm}"))
 print(xseries_lost, 
 	file = str_c(tabwd,"/table_serieslost.tex"),
@@ -704,7 +704,14 @@ printstatseriesG<-printstatseries%>%
 		filter(life_stage=="G")%>%
 		arrange(order)%>%
 		dplyr::select(1,12,2:9,11)%>%
-		rename(c("code","area","min","max","n+","n-", "life stage", "sampling type","unit","habitat","kept"))
+		dplyr::rename("code"="site",
+						"area"="areashort",
+						"n+"="duration",
+						"n-"="missing", 
+						"life stage"="life_stage", 
+						"sampling type"="sampling_type",
+						"habitat"="habitat_type",
+						"kept"="series_kept")
 
 xstatseriesG <- xtable(x = printstatseriesG, 
 	label = str_c("statseriesG"),
@@ -723,8 +730,14 @@ printstatseriesGY <- printstatseries %>%
 		filter(life_stage=="GY") %>%
 		arrange(order) %>%
 		dplyr::select(1,12,2:9,11) %>%
-		rename(c("code","area","min","max","n+","n-", "life stage", "sampling type","unit","habitat","kept"))
-
+		dplyr::rename("code"="site",
+				"area"="areashort",
+				"n+"="duration",
+				"n-"="missing", 
+				"life stage"="life_stage", 
+				"sampling type"="sampling_type",
+				"habitat"="habitat_type",
+				"kept"="series_kept")
 xstatseriesGY <- xtable(x = printstatseriesGY, 
 	label = str_c("statseriesGY"),
 	caption = str_c("Short description of the recruitment sites (continued : stage glass eel and yellow eel)"),
@@ -743,8 +756,14 @@ printstatseriesY<-printstatseries%>%
 		filter(life_stage=="Y")%>%
 		arrange(order)%>%
 		dplyr::select(1,12,2:9,11)%>%
-		rename(c("code","area","min","max","n+","n-", "life stage", "sampling type","unit","habitat","kept"))
-
+		dplyr::rename("code"="site",
+				"area"="areashort",
+				"n+"="duration",
+				"n-"="missing", 
+				"life stage"="life_stage", 
+				"sampling type"="sampling_type",
+				"habitat"="habitat_type",
+				"kept"="series_kept")
 
 xstatseriesY <- xtable(x = printstatseriesY, 
 	label = str_c("statseriesY"),
