@@ -700,43 +700,59 @@ printstatseries$sampling_type[printstatseries$sampling_type=="commercial catch"]
 printstatseries$sampling_type[printstatseries$sampling_type=="commercial CPUE"]<-"com. cpue"
 column_to_import<-R_stations[,c("ser_nameshort","areashort")]
 printstatseries<-merge(printstatseries,column_to_import,by.x="site",by.y="ser_nameshort")
-printstatseries<-printstatseries[order(printstatseries$order),c(1,12,2:9,11)]
-colnames(printstatseries)<-
-	c("code","area","min","max","n+","n-", "life stage",      
-		"sampling type","unit","habitat","kept")
-xstatseries <- xtable(x = printstatseries[1:20,], 
-	label = str_c("statseries"),
+printstatseriesG<-printstatseries%>% 
+		filter(life_stage=="G")%>%
+		arrange(order)%>%
+		dplyr::select(1,12,2:9,11)%>%
+		rename(c("code","area","min","max","n+","n-", "life stage", "sampling type","unit","habitat","kept"))
+
+xstatseriesG <- xtable(x = printstatseriesG, 
+	label = str_c("statseriesG"),
 	caption = str_c("Short description of the sampling sites for European eel recruitment data. Area: NS = North Sea, EE = Elsewhere Europe. Min and max indicate the first year and last year in the records, and the values are given in the n+ and n- columns, indicate the number of years with values and the number of years when there are missing data within the series. Life stage: GY = glass eel and yellow eel, G = glass eel, Y = yellow eel. Unit for the data collected is given (nr = number; index = calculated value following a specified protocol, nr/m2 = number per square metre, nr/h = number per hour, kg/boat/d = kg per boat per day). Habitat: C = coastal water (according to the EU Water Framework Directive, WFD), F = freshwater, MO = marine water (open sea), T = transitional water with lower salinity (according to WFD). Kept = 1 means that the dataseries is used in recruitment analyses."),
 	align=c("p{0cm}","p{1cm}","p{1cm}","p{1cm}","p{1cm}","p{0.8cm}","p{0.8cm}","p{1cm}","p{2cm}","p{2cm}","p{1cm}","p{1cm}"),
 	digits=0)
-print(xstatseries , 
-	file = str_c(tabwd,"/table_statseries.tex"),
+print(xstatseriesG , 
+	file = str_c(tabwd,"/table_statseriesG.tex"),
 	table.placement = "htbp",
 	caption.placement = "top",
 	sanitize.colnames.function=function(x){x}, # otherwise \\ are escaped
 	NA.string = ".",
 	include.rownames=FALSE
 )
-xstatseries <- xtable(x = printstatseries[21:40,], 
-	label = str_c("statseries"),
-	caption = str_c("Short description of the recruitment sites (continued)"),
+printstatseriesGY <- printstatseries %>% 
+		filter(life_stage=="GY") %>%
+		arrange(order) %>%
+		dplyr::select(1,12,2:9,11) %>%
+		rename(c("code","area","min","max","n+","n-", "life stage", "sampling type","unit","habitat","kept"))
+
+xstatseriesGY <- xtable(x = printstatseriesGY, 
+	label = str_c("statseriesGY"),
+	caption = str_c("Short description of the recruitment sites (continued : stage glass eel and yellow eel)"),
 	align=c("p{0cm}","p{1cm}","p{1cm}","p{1cm}","p{1cm}","p{0.8cm}","p{0.8cm}","p{1cm}","p{2cm}","p{2cm}","p{1cm}","p{1cm}"),
 	digits=0)
-print(xstatseries , 
-	file = str_c(tabwd,"/table_statseries1.tex"),
+print(xstatseriesGY , 
+	file = str_c(tabwd,"/table_statseriesGY.tex"),
 	table.placement = "htbp",
 	caption.placement = "top",
 	sanitize.colnames.function=function(x){x}, # otherwise \\ are escaped
 	NA.string = ".",
 	include.rownames=FALSE
 )
-xstatseries1 <- xtable(x = printstatseries[41:nrow(printstatseries),], 
-	label = str_c("statseries"),
-	caption = str_c("Short description of the recruitment sites (continued-yellow eel series) "),
+
+printstatseriesY<-printstatseries%>% 
+		filter(life_stage=="Y")%>%
+		arrange(order)%>%
+		dplyr::select(1,12,2:9,11)%>%
+		rename(c("code","area","min","max","n+","n-", "life stage", "sampling type","unit","habitat","kept"))
+
+
+xstatseriesY <- xtable(x = printstatseriesY, 
+	label = str_c("statseriesY"),
+	caption = str_c("Short description of the recruitment sites (continued : yellow eel series) "),
 	align=c("p{0cm}","p{1cm}","p{1cm}","p{1cm}","p{1cm}","p{0.8cm}","p{0.8cm}","p{1cm}","p{2cm}","p{2cm}","p{1cm}","p{1cm}"),
 	digits=0)
-print(xstatseries1 , 
-	file = str_c(tabwd,"/table_statseries2.tex"),
+print(xstatseriesY, 
+	file = str_c(tabwd,"/table_statseriesY.tex"),
 	table.placement = "htbp",
 	caption.placement = "top",
 	sanitize.colnames.function=function(x){x}, # otherwise \\ are escaped
@@ -900,9 +916,9 @@ G and GY) yellow = Y.}
 
 \subsection{Details on data selection and processing}
 
-Out of \Sexpr{sn(vv[["nb_series_final"]])}, \Sexpr{sn(vv[["nb_series_init"]])}
-series were not used in the analysis. Three rules have been used for this selection
-procedure.
+Out of \Sexpr{sn(vv[["nb_series_init"]])}, 
+\Sexpr{sn(vv[["nb_series_final"]])} series were used in the analysis. Three
+rules have been used for this selection procedure.
 \begin{enumerate}
 \item The first rule is to keep only one series at one location when two
 series from different source display different information. For instance, the longest series has been kept for the severn (Severn EA) and the other (Severn
@@ -928,15 +944,15 @@ as provisional especially those for the yellow eel.}
 
 
  %====================================
-	\input{\Sexpr{str_c(tabwd,"/table_statseries.tex")}}
+	\input{\Sexpr{str_c(tabwd,"/table_statseriesG.tex")}}
  %====================================
 
  %====================================
-	\input{\Sexpr{str_c(tabwd,"/table_statseries1.tex")}}
+	\input{\Sexpr{str_c(tabwd,"/table_statseriesGY.tex")}}
  %====================================F
 
  %====================================
-	\input{\Sexpr{str_c(tabwd,"/table_statseries2.tex")}}
+	\input{\Sexpr{str_c(tabwd,"/table_statseriesY.tex")}}
  %====================================
  
 \subsection{Number of series available}
@@ -1303,7 +1319,7 @@ figure_check_one_series("Katw",limits=c(1960,2019))
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %************************************************************************************
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-<< model_for_glass_eel_and_yellow_eel, echo=FALSE, eval=TRUE, results=hide >>=
+<< model_for_glass_eel_and_yellow_eel_datasets, echo=FALSE, eval=TRUE, results=hide >>=
 
 glass_eel_yoy$site<-as.factor(glass_eel_yoy$site)
 
@@ -1577,7 +1593,9 @@ save_figure("figure5_without_logscale_ribbon",figure5_without_logscale,600,480)
 figure5_without_logscale_black<-g+geom_line(aes(colour=area,lty=area),lwd=1)+
 	scale_colour_manual(name="area",values=c("yellow","lawngreen"))+
 	scale_y_continuous(expression(frac(p,bar(p)[1960-1979])))+
-	theme_black()+geom_ribbon(aes(ymin=p_std_1960_1979_min,ymax=p_std_1960_1979_max,fill="yellow","lawngreen"),alpha=.3)
+	theme_black()+
+	geom_ribbon(aes(ymin=p_std_1960_1979_min,ymax=p_std_1960_1979_max,fill=area),alpha=.3)+
+	scale_fill_manual(name="area",values=c("yellow","lawngreen"))
 
 X11()
 figure5_without_logscale_black
@@ -1942,23 +1960,28 @@ summary(model_older)
 #plot(model_older)
 anova(model_older,test="F")
 
+
 data_bis=expand.grid(year_f=unique(model_older$xlevels$year_f),
-	site=model_older$xlevels$`as.factor(site`)
+	site=model_older$xlevels$`as.factor(site`[1])
 data_bis$year=as.numeric(as.character(data_bis$year))
 
 #predicting --------------------------------------------------------------------------------------------
 
-data_bis$p=predict(model_older,newdata=data_bis,type="response")
+# in the log scale
+data_bis$p=predict(model_older,newdata=data_bis)
+data_bis$se=predict(model_older,newdata=data_bis,se.fit = TRUE)$se.fit
 
 #standardising prediction to 1960-1979 level -----------------------------------------------------------
 # 2 options mean or geomean
 
-if (opt_calculation=="geomean") {
-  data_bis$mean_1960_1979=as.numeric(geomean(data_bis[data_bis$year>=1960 & data_bis$year<1980,"p"]))
-} else {
-  data_bis$mean_1960_1979=mean(data_bis[data_bis$year>=1960 & data_bis$year<1980,"p"])
-}
-data_bis$p_std_1960_1979=data_bis$p/data_bis$mean_1960_1979
+
+#in the logscale we remove the arithmetic mean to standardise prediction relatively to
+#1960-1980 
+data_bis$mean=mean(data_bis[data_bis$year<1980,"p"])
+data_bis$yellow_eel=exp(data_bis$p-data_bis$mean)
+data_bis$yellow_eel_min=exp(data_bis$p-data_bis$mean-1.96*data_bis$se)
+data_bis$yellow_eel_max=exp(data_bis$p-data_bis$mean+1.96*data_bis$se)
+
 
 # saving yellow_eel_pred for shiny ---------------------------------------------------------------------
 
@@ -1967,16 +1990,9 @@ save(yellow_eel_pred,file=paste0(datawd,"yellow_eel_pred.Rdata"))
 save(yellow_eel_pred,file=paste0(shinywd,"yellow_eel_pred.Rdata"))
 # the trend is the mean or geomean (now geomean see init) of all series --------------------------------
 
-if (opt_calculation=="geomean") {
-  dat_ye=data.frame("yellow_eel"=
-          unlist(tapply(data_bis[,"p_std_1960_1979"],list(data_bis[,"year_f"]),geomean)))
-} else {
-  dat_ye=data.frame("yellow_eel"=
-          unlist(tapply(data_bis[,"p_std_1960_1979"],list(data_bis[,"year_f"]),mean)))
-}
 
-dat_ye$time=rownames(dat_ye)
-dat_ye$decade=trunc(as.numeric(dat_ye$time)/5)*5
+dat_ye <- yellow_eel_pred
+dat_ye$decade=trunc(as.numeric(dat_ye$year)/5)*5
 if (opt_calculation=="geomean") {
   five_year_avg_yellow<-data.frame("yellow_eel"=tapply(
 		  dat_ye$"yellow_eel",dat_ye$decade,
@@ -1986,14 +2002,8 @@ if (opt_calculation=="geomean") {
 		  dat_ye$"yellow_eel",dat_ye$decade,
 		  mean,na.rm=T))
 }
-dat_ye$rebour<-nrow(dat_ye):1
 rownames(five_year_avg_yellow)[nrow(five_year_avg_yellow)]<-"last"
 
-(decY<-tapply(dat_ye$"yellow_eel",dat_ye$decade,mean,na.rm=T))
-dat_ye$rebour<-nrow(dat_ye):1
-last<-dat_ye$rebour<=5
-mean(dat_ye[last,c("yellow_eel") ],na.rm=TRUE)
-rownames(dat_ye)<-dat_ye$time
 
 #xfive_year_avg_yellow <- xtable(x = five_year_avg_yellow, 
 #		label = "table_five_year_avg_yellow",
@@ -2007,7 +2017,7 @@ rownames(dat_ye)<-dat_ye$time
 # Table --------------------------------------------------------------------------------------------
 
 yy0<-dat_ye[,"yellow_eel",drop = FALSE]
-
+rownames(yy0)<-dat_ye$year
 
 yy<-split_per_decade(data=yy0)
 yy<-100*round(yy,2)
@@ -2023,13 +2033,14 @@ nothing<-latex(yy,
 
 # Figures -------------------------------------------------------------------------------------------
 
-dat_ye$year <- dat_ye$time
-dat_ye$time =as.Date(strptime(paste(dat_ye$time,"-01-01",sep=""),format="%Y-%m-%d"))
+
+dat_ye$time =as.Date(strptime(paste(dat_ye$year,"-01-01",sep=""),format="%Y-%m-%d"))
 g<-ggplot(dat_ye,aes(x=time,y=yellow_eel)) 
-figure6_without_log_scale<-g+geom_line(lwd=1)+ geom_point()+
-	scale_y_continuous(expression(frac(p,bar(p)[1960-1979])))+
+figure6_without_log_scale<-g+ geom_line(lwd=1, color="darkolivegreen")+ geom_point(color="khaki3")+
+	scale_y_continuous(expression(frac(p,bar(p)[1960-1979])))+	
 	theme_bw()+
 	geom_hline(yintercept=1,linetype=2)+
+	geom_ribbon(aes(ymin=yellow_eel_min,ymax=yellow_eel_max),alpha=.6,fill="darkolivegreen2")+
     xlab("year")+
 	theme(legend.box =NULL,
 		legend.key = element_rect(colour = NA, fill = 'white'),
@@ -2041,15 +2052,17 @@ figure6_without_log_scale
 figure6_without_log_scale_black<-g+geom_line(lwd=1,color="white")+ 
     geom_point(color="white")+
 	scale_y_continuous(expression(frac(p,bar(p)[1960-1979])))+
+	geom_ribbon(aes(ymin=yellow_eel_min,ymax=yellow_eel_max),alpha=.3,fill="darkolivegreen2")+
 	#stat_smooth(method="lm",formula=y ~ ns(x,4),lty=2, size=0.8,alpha=0.3,col="turquoise1") +
 	theme_black()
 figure6_without_log_scale_black
 save_figure("figure6_without_log_scale_black",figure6_without_log_scale_black,600,480)
-figure6<-g+geom_line(lwd=1)+geom_point()+
+figure6<-g+geom_line(lwd=1,color="darkolivegreen")+geom_point(color="khaki3")+
 	scale_y_log10(name=expression(frac(p,bar(p)[1960-1979])~' (log scale)'),
 		#limits=c(0.005,10),
 		breaks=c(0.01,0.1,1,10),
 		labels=c("1%","10%","100%","1000%")) +
+  geom_ribbon(aes(ymin=yellow_eel_min,ymax=yellow_eel_max),alpha=.3,fill="darkolivegreen2")+
     xlab("year")+
 	theme_bw()+
 	theme(legend.box =NULL,
@@ -2193,27 +2206,22 @@ Elsewhere Europe area, but some of the series are not yet complete (Figure
 %==========================================
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.8\textwidth]{figure5_without_logscale.png}
-\caption{WGEEL recruitment index: geometric mean of estimated (GLM) glass eel
-recruitment for the continental North Sea and  Elsewhere Europe series
-($p$) updated to \Sexpr{CY}.
+\includegraphics[width=0.8\textwidth]{figure5_without_logscale_ribbon.png}
+\caption{WGEEL recruitment index: estimated (GLM) glass eel
+recruitment for the continental North Sea and Elsewhere Europe series with 95 \%
+confidence intervals updated to \Sexpr{CY}.
   The  GLM ($glass eel \sim area:year+site$)  was  fitted  on
   \Sexpr{vv$modelge$nbsite} time-series comprising either pure glass eel or a mixture of 
-  glass eels and yellow eels. Those series were then scaled to the 1960-1979
-  average $\bar{p}_{1960-1979}$. No time-series are available for glass eel in
-  the Baltic area. }
+  glass eels and yellow eels. The predictions $p$ have been scaled to the 1960-1979
+  average $\bar{p}_{1960-1979}$. In the Baltic area, recruitment occurs in the yellow eel stage only.}
 \label{figure5}
 \end{figure}
 %==========================================
 
 For yellow eel series, the autumn ascent has not been recorded yet and most of
-the series have reported data till the middle of the summer. The 2017 yellow eel
-index is confirmed at
-\Sexpr{sn(100*dat_ye[nrow(dat_ye)-1,"geomean_p_std_1960_1979"])}\% of
-the 1960-1979 baseline. The 2019 provisional value is
-\Sexpr{sn(100*dat_ye[nrow(dat_ye),"geomean_p_std_1960_1979"])}\% and
-(Figure \ref{figure6},\ref{figure6_with_logscale} (log.scale), Table
-\ref{table_glm_yellow}).
+the series have reported data till the middle of the summer. The \Sexpr{CY-1} yellow eel
+index is at \Sexpr{sn(100*dat_ye[dat_ye$year==CY-1,"geomean_p_std_1960_1979"])}\% of
+the 1960-1979 baseline. 
 
 
 %==========================================
@@ -2231,9 +2239,9 @@ the 1960-1979 baseline. The 2019 provisional value is
 After high levels in the late 1970s, the recruitment declined and has been very
 low for all years after 2000. From ICES (2014) onward a change in the
 recruitment has been detected. One of the test used to show that change in 2014
-was based on SGIPEE(2011) working group. We have used a test different from that
-of ICES 2011. The difference is that the model is now based on individual series
-as source data, not only the prediction. The model differs from that used by
+was based on SGIPEE(2011) working group. We have used a test only slighly
+different from the test used in ICES 2011. The difference is that the model is
+now based on individual series as source data, not only the prediction. The model differs from that used by
 wgeel also as year is here treated as a continuous value, whereas it is treated
 as a factor in the glm for recruitment, and the years are restricted to
 decreasing part of the recruitment (after 1980).
@@ -2258,10 +2266,17 @@ recruitment is positive, the NULL hypothesis $H0:b>0$ is tested.
 To summarize, after high levels in the late 1970s, the recruitment declined and has been very
 low for all years after 2000. There has been a change in the trend in 2011, the
 recruitment has stopped to decrease, and has been increasing in the period
-2011-2019 with a rate significantly different from zero. However, first, not all series have been reported for 2019 and the results might
-change when those are reported.
-Secondly, the overall recruitment remains low and the values have been lower
-than the maximum values reached in 2014 for three years.
+2011-2019 with a rate significantly different from zero. However,  this increase needs
+to be taken very carefully. Firstly , not all series have been reported for 2019
+and the results might change  when missing data is incorporated to the analysis. 
+Secondly, even if the results would not change, recruitment remains very low
+\Sexpr{sn(100*datNS[nrow(datNS),"p_std_1960_1979"], digits =1)}\% for the North Sea 
+and \Sexpr{sn(100*datEE[nrow(datEE),"p_std_1960_1979"], digits= 1)}\% for the
+Elsewhere Europe area. Recruitment has been continually decreasing
+from 1980 to 2011 (31 years), thus, the positive trend should be maintained during more years in order
+to consider that the stock is safe. In that sense and finally,  during the 2011-2019 period, 
+the maximum values were reached in 2014; but recruitment has been decreasing
+since then.
 
 
 \tiny
@@ -2291,7 +2306,7 @@ scales are provided (Figures \ref{figure5_with_logscale} and
 %==========================================
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.7\textwidth]{figure5.png}
+\includegraphics[width=0.7\textwidth]{figure5_ribbon.png}
 \caption{Same as figure \ref{figure5} but with a log scale.}
 \label{figure5_with_logscale}
 \end{figure}
