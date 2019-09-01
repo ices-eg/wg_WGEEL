@@ -507,3 +507,7 @@ begin;
 update datawg.t_series_ser set geom=ST_SetSRID(ST_MakePoint(5.327523,53.073100),4326) where ser_nameshort='RhDO';
 commit;
  
+
+-- change position YFS1
+update datawg.t_series_ser set ser_order=ser_order+1 where ser_order>=2; 
+update datawg.t_series_ser SET ser_order=2 WHERE ser_nameshort='YFS1'
