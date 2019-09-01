@@ -276,5 +276,5 @@ COMMIT;
 SELECT * FROM datawg.t_eelstock_eel WHERE eel_typ_id=11 AND eel_emu_nameshort='ES_Vale' AND eel_qal_id=1
 
 
-
+SELECT * FROM datawg.t_eelstock_eel WHERE eel_typ_id=11 ORDER BY eel_id DESC LIMIT 150
 
