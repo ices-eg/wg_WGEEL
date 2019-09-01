@@ -1642,3 +1642,13 @@ update ref.tr_emu_emu set geom=tunisie.geom from
 (select geom from ref.tunisie_NE  where id=2) tunisie
 where emu_nameshort='TN_NE';
 
+
+-- 2019 somehow Norway has no EMU
+
+
+SELECT * FROM REF.tr_emu_emu WHERE emu_cou_code ='NO'
+begin;
+update ref.tr_emu_emu set geom=sub.geom from
+(select st_union(se_inland.geom) geom from ref.se_inland) sub
+  where emu_nameshort='SE_Inla' ;
+commit;
