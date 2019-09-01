@@ -47,6 +47,10 @@ filter_data = function(dataset, typ=NULL, life_stage = NULL, country = NULL, hab
   expr[[1]] <- rlang::quo(eel_year %in% year_range)
   # country is passed if not null, if NULL then the dataset will not be filtered
   i=2
+  if (!is.null(typ)& dataset != "precodata") {
+	  expr[[i]]=rlang::quo(eel_typ_id%in% typ) 
+	  i=i+1
+  }  
   if (!is.null(country)) {
     expr[[i]]=rlang::quo(eel_cou_code %in% country) 
     i=i+1
@@ -61,10 +65,7 @@ filter_data = function(dataset, typ=NULL, life_stage = NULL, country = NULL, hab
     expr[[i]]=rlang::quo(eel_hty_code %in% habitat) 
     i=i+1
   } 
-  if (!is.null(typ)& dataset != "precodata") {
-    expr[[i]]=rlang::quo(eel_typ_id%in% typ) 
-    i=i+1
-  }   
+ 
   
   # !!! takes a list of elements and splices them into to the current call
   filtered_data = mydata%>%dplyr::filter(!!!expr)
