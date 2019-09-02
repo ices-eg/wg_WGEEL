@@ -15,6 +15,12 @@ setwd("C:/workspace/gitwgeel/R/Rmarkdown")
 #knitr::opts_knit$set(root.dir = data_directory)
 CY=2019
 render="docx"  # html 
+# temporary file to store the variables (this is necessary to print the text)
+load("vvv.Rdata")
+vvv<-list()
+vvv$total<-NA
+vvv$G_total_CY<-NA
+vvv$YS_total_CY<-NA
 ```
 
 
@@ -150,12 +156,7 @@ values=c(RColorBrewer::brewer.pal(12,"Set3"),
 		RColorBrewer::brewer.pal(8, "Dark2"))
 color_countries = setNames(values,country_ref$cou_code)
 
-# temporary file to store the variables (this is necessary to print the text)
-load("vvv.Rdata")
-vvv<-list()
-vvv$total<-NA
-vvv$G_total_CY<-NA
-vvv$YS_total_CY<-NA
+
 
 ```
 
@@ -172,7 +173,7 @@ filtered_data<-filter_data("landings",
 year<-unique(filtered_data$eel_year)
 country<-unique(filtered_data$eel_cou_code)
 hty<-unique(filtered_data$eel_hty_code)
-grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=FALSE)
+grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=TRUE)
 fun.agg<-function(X){if(length(X)>0){round(sum(X)/1000,ifelse(sum(X)>1000,0,3))}else{sum(c(X,NA))}}
 
 ##table
@@ -190,7 +191,9 @@ table = table[, n_order]
 names(table)[1]<-"Year"
 table[is.na(table)]<-''
 tableComLandG<-table
-ka_com_land_G <- kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 1: Raw commercial landings (tonnes) for glass eels ","(",min(year),"-",max(year),")", "for", paste(paste(country,collapse=","),".", sep="")))
+ka_com_land_G <- kable(format(table,digt=3,drop0trailing=TRUE),
+		format="pandoc",
+		caption =paste("Table 1: Raw commercial landings (tonnes) for glass eels ","(",min(year),"-",max(year),")", "for", paste(paste(country,collapse=","),".", sep="")))
 
 ```
 
@@ -216,47 +219,36 @@ GCYm1 <- landings3%>%
 		pull(s)
 vvv$G_total_CY <- sprintf("%0.2f tons",GCY)
 
-title <- paste("Time-series of reported commercial glass eel fishery landings
-				(tonnes) 1945–2019, by country. 
-				Great Britain (GB), France (FR); Spain (ES), Portugal (PT) and Italy (IT) are
-				included combining information from Data call 2019 and WGEEL database.")
-
-g_raw_Clandings_G<- ggplot(landings3) + geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
-		ggtitle(title) + xlab("year") + ylab("Landings (tonnes)")+
+title <- paste("Commercial landings for glass eel in all habitats")
+g_raw_Clandings_G<- ggplot(landings3) + 
+		geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
+		 xlab("year") + 
+		 ylab("Landings (tonnes)")+
+		 ggtitle(title)+
 		scale_fill_manual("Country",values=color_countries)+
 		theme_bw()
 print(g_raw_Clandings_G)
 
 ```
 
-Figure XX presents data but for yellow and silver eels aggregated coming from
-XX countries, and Figure XX presents the time-series including reconstructed
-data to fill the gaps. The proportion of “corrected” landing was as high as 50%
-in the 1950s, but rather low since the mid-1980s. Annex XX Table 3 presents the
-raw data for yellow and silver eel combined, Annex 8 Table 4 presents the raw
-and corrected data for yellow and silver eel landings data. The total landings
-of yellow and silver eels decrease from 18,000–20,000 tonnes in the 1950s to
-2,000–3,000 tonnes since 2009. In 2017, the amount was 2,224 t for yellow and
-silver landings, combined. 
+
 
 ```{r corr_com_G,echo=FALSE, warning=FALSE}
 filtered_data<-filter_data("landings",
 		typ = 4,
 		life_stage = "G", 
-		country = country,
-		habitat = hty,
-		year_range = min(year):max(year))
+		year_range = 1970:CY)
 year<-unique(filtered_data$eel_year)
 country<-unique(filtered_data$eel_cou_code)
 hty<-unique(filtered_data$eel_hty_code)
-grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=FALSE)
+grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=TRUE)
 fun.agg<-function(X){if(length(X)>0){round(sum(X)/1000,ifelse(sum(X)>1000,0,3))}else{sum(c(X,NA))}}
 grouped_data$eel_cou_code = as.factor(grouped_data$eel_cou_code)                       
 landings3 <- predict_missing_values(grouped_data, verbose=FALSE, na.rm=FALSE) 
 landings3$eel_cou_code<-factor(landings3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
 landings_year<-aggregate(eel_value~eel_year, landings3, sum)
-table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
-table2=dcast(grouped_data, eel_year~eel_cou_code, value.var = "predicted",fun = prod)
+table = dcast(landings3, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
+table2=dcast(landings3, eel_year~eel_cou_code, value.var = "predicted",fun = prod)
 
 
 #ordering the column accordign to country order
@@ -283,18 +275,13 @@ names(table)[1]<-"Year"
 table[is.na(table)]<-''
 tableCorLandYS<-table
 ka_cor_com_land_G <- kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 12: Raw+ corr commercial landings (tonnes) for yellow and silver eels  ","(",min(year),"-",max(year),")"," for ",paste(paste(country,collapse=","), ".", sep="")))
-
-title <- paste("Time-series of reported commercial glass eel fishery landings
-				(tonnes) 1945–2018, by country. Great Britain (GB), France (FR); Spain (ES),
-				Portugal (PT) and Italy (IT), combining information from Data call 2018 and
-				WGEEL database and a reconstruction of the non-reported countries/years
-				combinations (see text). The inset box shows the proportion of data
-				reconstructed per year.")
+landings3$eel_value <- landings3$eel_value/10^3
+title <- paste("Corrected commercial landings for glass eel in all habitats")
 g_reconstructed_landings <- ggplot(landings3) + 
 		geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code),position='stack')+
 		ggtitle(title)+ 
 		xlab("Year") + ylab("Landings (tonnes)")+
-		coord_cartesian(expand = FALSE, ylim = c(0, max(landings_year$eel_value)*1.6)) +
+		coord_cartesian(expand = FALSE, ylim = c(0, max(landings_year$eel_value)*1.6/1000)) +
 		scale_fill_manual("Country",values=color_countries)+
 		theme_bw()
 
@@ -313,8 +300,8 @@ g_combined_landings_G <- g_reconstructed_landings+
 		annotation_custom(g3_grob, 
 				xmin=min(landings3$eel_year), 
 				xmax=max(landings3$eel_year), 
-				ymin=max(landings_year$eel_value)*1.05, 
-				ymax=max(landings_year$eel_value)*1.6)
+				ymin=max(landings_year$eel_value)*1.05/1000, 
+				ymax=max(landings_year$eel_value)*1.6/1000)
 print(g_combined_landings_G)
 
 
@@ -337,17 +324,15 @@ yellow and silver landings, combined.
 
 filtered_data<-filter_data("landings",
 		typ = 4,
-		life_stage = c("Y","S","YS"), 
-		country = NULL,
-		habitat = NULL,
-		year_range = NULL)
+		life_stage = c("Y","S","YS")
+		)
 year<-unique(filtered_data$eel_year)
 country<-unique(filtered_data$eel_cou_code)
 hty<-unique(filtered_data$eel_hty_code)
-grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=FALSE)
+grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=TRUE)
 
 ##table
-fun.agg<-function(X){if(length(X)>0){round(sum(X)/1000,ifelse(sum(X)>1000,0,3))}else{sum(c(X,NA))}}
+fun.agg<-function(X){if(length(X)>0){round(sum(X,na.rm=TRUE)/1000,ifelse(sum(X,na.rm=TRUE)>1000,0,3))}else{sum(c(X,NA))}}
 
 table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
 table<-data.frame(table,sum=rowSums(table[,-1],na.rm=T))              
@@ -379,13 +364,7 @@ YCYm1 <- landings3%>%filter(eel_year==CY-1)%>%group_by(eel_year)%>%summarize(s=s
 vvv$YS_total_CYm1 <- sprintf("%0.1f tons", YCYm1)
 vvv$total <- YCYm1+GCYm1
 
-title <- paste("Time-series of reported commercial yellow (Y), silver (S) and
-yellow-silver (YS) eel fishery landings (tonnes) 1908–2018, by country, Norway
-(NO), Sweden (SE), Finland (FI), Estonia (EE), Latvia (LV), Lithuania (LT),
-Poland (PL), Germany (DE), Denmark (DK), Netherlands (NL), Ireland (IE), Great
-Britain (GB), France (FR), Spain (ES), Portugal (PT), Italy (IT), Slovenia (SI),
-Croatia (HR), Greece (GR), Turkey (TR) and Tunisia (TN), combining information
-from the Data call and WGEEL database (see text).")
+title <-  paste("Commercial landings for yellow and silver eels in all habitats")
 g_raw_Clandings_YS<- ggplot(landings3) + geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
 		ggtitle(title) + xlab("year") + ylab("Landings (tonnes)")+
 		scale_fill_manual("Country",values=color_countries)+
@@ -404,14 +383,12 @@ print(g_raw_Clandings_YS)
 
 filtered_data<-filter_data("landings",
 		typ = 4,
-		life_stage = c("Y","S","YS"), 
-		country = NULL,
-		habitat = NULL,
-		year_range = min(year):max(year))
+		life_stage = c("Y","S","YS") 
+		)
 year<-unique(filtered_data$eel_year)
 country<-unique(filtered_data$eel_cou_code)
 hty<-unique(filtered_data$eel_hty_code)
-grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=FALSE)
+grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=TRUE)
 fun.agg<-function(X){if(length(X)>0){round(sum(X)/1000,ifelse(sum(X)>1000,0,3))}else{sum(c(X,NA))}}
 grouped_data$eel_cou_code = as.factor(grouped_data$eel_cou_code)                       
 grouped_data <- predict_missing_values(grouped_data, verbose=FALSE, na.rm=FALSE) 
@@ -448,16 +425,9 @@ ka_cor_com_land_YS <- kable(format(table,digt=3,drop0trailing=TRUE),format="pand
 #landings_year <- dataset
 landings3<-grouped_data
 landings3$eel_cou_code<-factor(landings3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
-landings_year<-aggregate(eel_value~eel_year, landings3, sum)
-title <- paste("Time-series of reported or reconstructed commercial yellow and
-silver eel fishery landings (tonnes) 1908–2018, by country, Norway (NO), Sweden
-(SE), Finland (FI), Estonia (EE), Latvia (LV), Lithu-ania (LT), Poland (PL),
-Germany (DE), Denmark (DK), Netherlands (NL), Ireland (IE), Great Britain (GB),
-France (FR), Spain (ES), Portugal (PT), Italy (IT),  Croatia (HR), Slovenia
-(SI), Greece (GR), Turkey (TR) and Tunisia (TN) combining information from the
-Data call, the WGEEL database and a reconstruction of the non-reported
-countries/years combinations (see text). Inset box shows the proportion of
-reconstructed landings, per year.")
+landings_year<-aggregate(eel_value~eel_year, landings3, function(X)sum(X)/1000)
+landings3$eel_value <- landings3$eel_value/1000
+title <- "Reconstructed commercial landings for yellow and silver eel"
 g_reconstructed_landings <- ggplot(landings3) + 
 		geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code),position='stack')+
 		ggtitle(title)+ 
@@ -488,6 +458,8 @@ print(g_combined_landings_YS)
 
 ```
 
+# Recreational fisheries
+
 ```{r recLand_Y_St,echo=FALSE, warning=FALSE}
 
 ##Table raw rec landings for Y S and YS for all the countries
@@ -502,7 +474,7 @@ year<-unique(filtered_data$eel_year)
 country<-unique(filtered_data$eel_cou_code)
 hty<-unique(filtered_data$eel_hty_code)
 
-grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=FALSE)
+grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=TRUE)
 
 ##Table
 fun.agg<-function(X){if(length(X)>0){round(sum(X)/1000,ifelse(sum(X)>1000,0,3))}else{sum(c(X,NA))}}
@@ -521,7 +493,7 @@ table = table[, n_order]
 names(table)[1]<-"Year"
 table[is.na(table)]<-''
 tableRecLandYS<-table
-kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 3: Raw recreational landings (tonnes) for yellow and silver eels  ","(",min(year),"-",max(year),")","for",paste(paste(country,collapse=","), ".", sep="")))
+ka_rec_land_Y<- kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 3: Raw recreational landings (tonnes) for yellow and silver eels  ","(",min(year),"-",max(year),")","for",paste(paste(country,collapse=","), ".", sep="")))
 ```
 
 \newline
@@ -559,7 +531,7 @@ filtered_data<-filter_data("landings",
 year<-unique(filtered_data$eel_year)
 country<-unique(filtered_data$eel_cou_code)
 hty<-unique(filtered_data$eel_hty_code)
-grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=FALSE)
+grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=TRUE)
 
 ##Table
 fun.agg<-function(X){if(length(X)>0){round(sum(X)/1000,ifelse(sum(X)>1000,0,3))}else{sum(c(X,NA))}}
@@ -578,7 +550,7 @@ table = table[, n_order]
 names(table)[1]<-"Year"
 table[is.na(table)]<-''
 tablerecLandG<-table
-kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 4: Raw recreational landings (tonnes) for yellow and silver eels  ","(",min(year),"-",max(year),")"," for ",paste(paste(country,collapse=","), ".", sep="")))
+ka_rec_land_G <- kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 4: Raw recreational landings (tonnes) for yellow and silver eels  ","(",min(year),"-",max(year),")"," for ",paste(paste(country,collapse=","), ".", sep="")))
 ```
 
 \newline
@@ -609,18 +581,16 @@ print(g_raw_Rlandings_G)
 
 ```{r release_Gt,echo=FALSE, warning=FALSE}
 
-##Table release (nb) for all the countries for G
+##Table release (nb) for all the countries for G # 9 is q_release_n
 
 filtered_data<-filter_data("release",
 		typ = 9,
-		life_stage = "G", 
-		country = NULL,
-		habitat = NULL,
-		year_range = min(year):max(year))
+		life_stage = c("G","QG"),
+		year=1950:CY)
 year<-unique(filtered_data$eel_year)
 country<-unique(filtered_data$eel_cou_code)
 hty<-unique(filtered_data$eel_hty_code)
-grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=FALSE)
+grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=TRUE)
 
 ##Table
 fun.agg<-function(X){if(length(X)>0){round(sum(X)/10^6,ifelse(sum(X)>10^6,0,3))}else{sum(c(X,NA))}}
@@ -638,8 +608,8 @@ table = table[, n_order]
 names(table)[1]<-"Year"
 table[is.na(table)]<-''
 tableRelG<-table
-kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =
-				paste("Table XX: Release (nb in millions) of glass eels","(",min(year),"-",max(year),")","for",paste(paste(country,collapse=","), ".", sep="")))
+ka_release_G <- kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =
+				paste("Table XX: Release (nb in millions) of glass eels (G and OG)","(",min(year),"-",max(year),")","for",paste(paste(country,collapse=","), ".", sep="")))
 
 ```
 
@@ -649,14 +619,14 @@ kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =
 
 ##Graph
 release3<-grouped_data
-release3$eel_value <- as.numeric(release3$eel_value) / 1000
+release3$eel_value <- as.numeric(release3$eel_value)/10^6 
 release3$eel_cou_code = as.factor(release3$eel_cou_code)
 release3$eel_cou_code<-factor(release3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
-title <- paste("Released per country,", "stage = G", "and habitat =", paste(hty,collapse="+"))
+title <- paste("Released per country,", "stage = G and OG", "and habitat =", paste(hty,collapse="+"))
 
 g_release_G <-  ggplot(release3) + 
 		geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
-		ggtitle(title) + xlab("year") + ylab("1000 * Release (n)")+
+		ggtitle(title) + xlab("year") + ylab("Release (n) in millions")+
 		scale_fill_manual("Country",values=color_countries)+
 		theme_bw() 
 
@@ -674,12 +644,11 @@ filtered_data<-filter_data("release",
 		typ = 9,
 		life_stage = "Y", 
 		country = NULL,
-		habitat = NULL,
-		year_range = min(year):max(year))
+		habitat = NULL)
 year<-unique(filtered_data$eel_year)
 country<-unique(filtered_data$eel_cou_code)
 hty<-unique(filtered_data$eel_hty_code)
-grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=FALSE)
+grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=TRUE)
 fun.agg<-function(X){if(length(X)>0){round(sum(X)/10^6,ifelse(sum(X)>10^6,0,3))}else{sum(c(X,NA))}}
 table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
 table<-data.frame(table,sum=rowSums(table[,-1],na.rm=T))
@@ -695,7 +664,7 @@ table = table[, n_order]
 names(table)[1]<-"Year"
 table[is.na(table)]<-''
 tableRelY<-table
-kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 7: Release (nb in millions) of yellow eels  ","(",min(year),"-",max(year),")"," for ",paste(paste(country,collapse=","), ".", sep="")))
+ka_release_Y <- kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 7: Release (nb in millions) of yellow eels  ","(",min(year),"-",max(year),")"," for ",paste(paste(country,collapse=","), ".", sep="")))
 
 ```
 
@@ -705,14 +674,14 @@ kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Ta
 ##Graph
 
 release3<-grouped_data
-release3$eel_value <- as.numeric(release3$eel_value) / 1000
+release3$eel_value <- as.numeric(release3$eel_value) / 10^6
 release3$eel_cou_code = as.factor(release3$eel_cou_code)
 release3$eel_cou_code<-factor(release3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
 title <- paste("Released per country,", "stage = Y", "and habitat =", paste(hty,collapse="+"))
 
 g_release_Y <-  ggplot(release3) + 
 		geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
-		ggtitle(title) + xlab("year") + ylab("1000 * Release (n)")+
+		ggtitle(title) + xlab("year") + ylab("Release (n) in million")+
 		scale_fill_manual("Country",values=color_countries)+
 		theme_bw() 
 
@@ -735,7 +704,7 @@ filtered_data<-filter_data("release",
 year<-unique(filtered_data$eel_year)
 country<-unique(filtered_data$eel_cou_code)
 hty<-unique(filtered_data$eel_hty_code)
-grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=FALSE)
+grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=TRUE)
 fun.agg<-function(X){if(length(X)>0){round(sum(X)/10^6,ifelse(sum(X)>10^6,0,3))}else{sum(c(X,NA))}}
 table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
 table<-data.frame(table,sum=rowSums(table[,-1],na.rm=T))
@@ -751,7 +720,7 @@ table = table[, n_order]
 names(table)[1]<-"Year"
 table[is.na(table)]<-''
 tableRelS<-table
-kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 8: Release (nb in millions) of silver eels  ","(",min(year),"-",max(year),")"," for ",paste(paste(country,collapse=","), ".", sep="")))
+ka_release_S <- kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 8: Release (nb in millions) of silver eels  ","(",min(year),"-",max(year),")"," for ",paste(paste(country,collapse=","), ".", sep="")))
 
 ```
 
@@ -791,7 +760,7 @@ filtered_data<-filter_data("release",
 year<-unique(filtered_data$eel_year)
 country<-unique(filtered_data$eel_cou_code)
 hty<-unique(filtered_data$eel_hty_code)
-grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=FALSE)
+grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=TRUE)
 fun.agg<-function(X){if(length(X)>0){round(sum(X)/10^6,ifelse(sum(X)>10^6,0,3))}else{sum(c(X,NA))}}
 table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
 table<-data.frame(table,sum=rowSums(table[,-1],na.rm=T))
@@ -807,7 +776,7 @@ table = table[, n_order]
 names(table)[1]<-"Year"
 table[is.na(table)]<-''
 tableRelQG<-table
-kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 9: Release (nb in millions) of quarantine glass eels  ","(",min(year),"-",max(year),")"," for ",paste(paste(country,collapse=","), ".", sep="")))
+ka_release_QG <- kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 9: Release (nb in millions) of quarantine glass eels  ","(",min(year),"-",max(year),")"," for ",paste(paste(country,collapse=","), ".", sep="")))
 
 ```
 
@@ -847,7 +816,7 @@ filtered_data<-filter_data("release",
 year<-unique(filtered_data$eel_year)
 country<-unique(filtered_data$eel_cou_code)
 hty<-unique(filtered_data$eel_hty_code)
-grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=FALSE)
+grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=TRUE)
 fun.agg<-function(X){if(length(X)>0){round(sum(X)/10^6,ifelse(sum(X)>10^6,0,3))}else{sum(c(X,NA))}}
 table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
 table<-data.frame(table,sum=rowSums(table[,-1],na.rm=T))
@@ -863,7 +832,7 @@ table = table[, n_order]
 names(table)[1]<-"Year"
 table[is.na(table)]<-''
 tableRelOG<-table
-kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 10: Release (nb in millions) of ongrown eels  ","(",min(year),"-",max(year),")"," for ",paste(paste(country,collapse=","), ".", sep="")))
+ka_release_OG <- kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 10: Release (nb in millions) of ongrown eels  ","(",min(year),"-",max(year),")"," for ",paste(paste(country,collapse=","), ".", sep="")))
 
 ```
 
@@ -890,31 +859,29 @@ print(g_release_OG)
 
 \newline
 
-```{r release_all_stages,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure 11: Released (in thousands) per country, habitat = C+F+T+MO and stage = Y+YS+OG+S+QG+AL.", fig.height=5, fig.width=10}
+```{r release_all_stages,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure 11: Released (in millions) per country, habitat = C+F+T+MO and stage = Y+YS+OG+S+QG+AL.", fig.height=5, fig.width=10}
 
 ##Table release (nb) for all the countries
 
 filtered_data<-filter_data("release",
-		typ = 9,
-		life_stage = NULL, 
-		country = NULL,
-		habitat = NULL,
-		year_range = min(year):max(year))
+		typ = 9,		
+		year_range = 1950:max(year))
 year<-unique(filtered_data$eel_year)
 country<-unique(filtered_data$eel_cou_code)
 hty<-unique(filtered_data$eel_hty_code)
-grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=FALSE)
+lfs<-unique(filtered_data$eel_lfs_code)
+grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=TRUE)
 
 ##Graph
 release3<-grouped_data
-release3$eel_value <- as.numeric(release3$eel_value) / 1000
+release3$eel_value <- as.numeric(release3$eel_value) / 10^6
 release3$eel_cou_code = as.factor(release3$eel_cou_code)
 release3$eel_cou_code<-factor(release3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
 title <- paste("Released per country,", "habitat =", paste(hty,collapse="+"), "and", "stage =", paste(lfs,collapse="+"))
 
 g_release_all <-  ggplot(release3) + 
 		geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
-		ggtitle(title) + xlab("year") + ylab("1000 * Release (n)")+
+		ggtitle(title) + xlab("year") + ylab("Release (n) in millions")+
 		scale_fill_manual("Country",values=color_countries)+
 		theme_bw() 
 
@@ -925,7 +892,7 @@ print(g_release_all)
 
 
 
-## Aquaculture
+# Aquaculture
 \newline
 
 ```{r aquat,echo=FALSE, warning=FALSE}
@@ -937,7 +904,7 @@ filtered_data<-filter_data("aquaculture",
 year<-unique(filtered_data$eel_year)
 country<-unique(filtered_data$eel_cou_code)
 hty<-unique(filtered_data$eel_hty_code)
-grouped_data <-group_data(filtered_data, geo="country", habitat=FALSE, lfs=FALSE, na.rm=FALSE)
+grouped_data <-group_data(filtered_data, geo="country", habitat=FALSE, lfs=FALSE, na.rm=TRUE)
 
 ##Table
 fun.agg<-function(X){if(length(X)>0){round(sum(X)/1000,ifelse(sum(X)>1000,0,3))}else{sum(c(X,NA))}}
@@ -982,8 +949,22 @@ print(g_aquaculture)
 \newline
 
 
+# tables
+
+```{r table,echo=FALSE, warning=FALSE}
+
+print(ka_com_land_G)
+print(ka_com_land_YS)
+print(ka_rec_land_Y)
+print(ka_rec_land_G)
+print(ka_release_G)
+print(ka_release_Y)
+print(ka_release_S)
+print(ka_release_QG)
+print(ka_release_OG)
 
 
+```
 
 
 ```{r save_graphs_and_tables,echo=FALSE, warning=FALSE}
@@ -1024,6 +1005,8 @@ ggsave("Releases_S.png", g_release_S, device = "png", width = 30, height = 20,
 ggsave("Releases_QG.png", g_release_QG, device = "png", width = 30, height = 20, 
 		units = "cm")
 ggsave("Releases_OG.png", g_release_OG, device = "png", width = 30, height = 20, 
+		units = "cm")
+ggsave("Releases_all.png",g_release_all, device = "png", width = 30, height = 20, 
 		units = "cm")
 ggsave("Raw_Corr_com_landings_YS.png", g_combined_landings_YS, device = "png", width = 30, height = 20, 
 		units = "cm")
