@@ -2,11 +2,12 @@
 title: "Trend in fisheries"
 author: "WGEEL"
 date: "30 August 2019"
-output:
-  word_document
+output: word_document
+keep_md: yes
+test: "`r paste('_metadata.yaml')`"
 ---
 \newline
-```{r setup, include=FALSE}
+```{r setup, include=TRUE}
 knitr::opts_chunk$set(echo = TRUE, warnings=FALSE)
 setwd("C:/workspace/gitwgeel/R/Rmarkdown")
 #source("R/utilities/set_directory.R")
@@ -21,6 +22,9 @@ vvv<-list()
 vvv$total<-NA
 vvv$G_total_CY<-NA
 vvv$YS_total_CY<-NA
+
+# to test the output and adapt the type of table
+output <- rmarkdown::metadata$output
 ```
 
 
@@ -50,7 +54,7 @@ simple General Linear Model (GLM) ex-trapolation of the log-transformed landings
 (after Dekker, 2003a), with year and countries as the explanatory factors. This
 is applied to account for non-reporting, but it is not a complete solution.
 
-Figure XX presents the time-series up to and including 2018 (though some 2018
+Figure XX presents the time-series up to and including XX (though some XX
 data are pro-visional) for total glass eel landings as reported by five
 countries in the Eel Data call and from the WGEEL database. Figure XX presents
 the same time-series but corrected for missing data (see above), with an inset
@@ -167,9 +171,9 @@ color_countries = setNames(values,country_ref$cou_code)
 
 filtered_data<-filter_data("landings",
 		typ = 4,
-		life_stage = "G", 
-		country = NULL,
-		habitat = NULL)
+		life_stage = "G",
+		country=c("ES","FR","IT","PT","GB")
+) # removing data from Ireland
 year<-unique(filtered_data$eel_year)
 country<-unique(filtered_data$eel_cou_code)
 hty<-unique(filtered_data$eel_hty_code)
@@ -222,9 +226,9 @@ vvv$G_total_CY <- sprintf("%0.2f tons",GCY)
 title <- paste("Commercial landings for glass eel in all habitats")
 g_raw_Clandings_G<- ggplot(landings3) + 
 		geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
-		 xlab("year") + 
-		 ylab("Landings (tonnes)")+
-		 ggtitle(title)+
+		xlab("year") + 
+		ylab("Landings (tonnes)")+
+		ggtitle(title)+
 		scale_fill_manual("Country",values=color_countries)+
 		theme_bw()
 print(g_raw_Clandings_G)
@@ -234,10 +238,12 @@ print(g_raw_Clandings_G)
 
 
 ```{r corr_com_G,echo=FALSE, warning=FALSE}
+# corrected landings
 filtered_data<-filter_data("landings",
 		typ = 4,
 		life_stage = "G", 
-		year_range = 1970:CY)
+		year_range = 1970:CY,
+		country=c("ES","FR","IT","PT","GB"))
 year<-unique(filtered_data$eel_year)
 country<-unique(filtered_data$eel_cou_code)
 hty<-unique(filtered_data$eel_hty_code)
@@ -316,8 +322,8 @@ in the 1950s, but rather low since the mid-1980s. Annex 8 Table 3 presents the
 raw data for yellow and silver eel combined, Annex 8 Table 4 presents the raw
 and corrected data for yellow and silver eel landings data. The total landings
 of yellow and silver eels decrease from 18,000–20,000 tonnes in the 1950s to
-2,000–3,000 tonnes since 2009. In 2018, the amount was `vvv$YS_total_CYm1` for
-yellow and silver landings, combined. 
+2,000–3,000 tonnes since 2009. In XXCY-1XX, the amount was `vvv$YS_total_CYm1`
+for yellow and silver landings, combined. 
 ```{r raw_com_land_YS, echo=FALSE, warning=FALSE}
 
 ##raw  com landings for Y S and YS for all the countries
@@ -325,7 +331,7 @@ yellow and silver landings, combined.
 filtered_data<-filter_data("landings",
 		typ = 4,
 		life_stage = c("Y","S","YS")
-		)
+)
 year<-unique(filtered_data$eel_year)
 country<-unique(filtered_data$eel_cou_code)
 hty<-unique(filtered_data$eel_hty_code)
@@ -384,7 +390,7 @@ print(g_raw_Clandings_YS)
 filtered_data<-filter_data("landings",
 		typ = 4,
 		life_stage = c("Y","S","YS") 
-		)
+)
 year<-unique(filtered_data$eel_year)
 country<-unique(filtered_data$eel_cou_code)
 hty<-unique(filtered_data$eel_hty_code)
@@ -393,7 +399,7 @@ fun.agg<-function(X){if(length(X)>0){round(sum(X)/1000,ifelse(sum(X)>1000,0,3))}
 grouped_data$eel_cou_code = as.factor(grouped_data$eel_cou_code)                       
 grouped_data <- predict_missing_values(grouped_data, verbose=FALSE, na.rm=FALSE) 
 table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
-table2=dcast(grouped_data, eel_year~eel_cou_code, value.var = "predicted",fun = prod)
+table2 = dcast(grouped_data, eel_year~eel_cou_code, value.var = "predicted",fun.aggregate = prod)
 
 
 #ordering the column accordign to country order
@@ -402,7 +408,7 @@ n_order = order(country_ref$cou_order[match(country_to_order, country_ref$cou_co
 n_order <- n_order+1
 n_order <- c(1,n_order)
 table = table[, n_order]
-
+table2 = table2[, n_order]
 #add a column with the sum of all the values and prod of predicted
 
 table<-data.frame(table,sum=rowSums(table[,-1],na.rm = TRUE))
@@ -411,7 +417,7 @@ table2<-data.frame(table2,prod=apply(table2[,-1],1,prod,na.rm = TRUE))
 #add a * when the data is predicted
 
 for (col in 2:ncol(table)){
-	table[,col][table2[,col]==0]<-paste0(table[,col][table2[,col]==0],"*")
+	table[,col][table2[,col]==0]<-paste0(table[,col][table2[,col]==1],"*")
 }
 
 
@@ -467,9 +473,7 @@ print(g_combined_landings_YS)
 
 filtered_data<-filter_data("landings",
 		typ = 6,
-		life_stage = c("Y","S","YS"), 
-		country = NULL,
-		habitat = NULL)
+		life_stage = c("Y","S","YS"))
 year<-unique(filtered_data$eel_year)
 country<-unique(filtered_data$eel_cou_code)
 hty<-unique(filtered_data$eel_hty_code)
@@ -524,10 +528,7 @@ print(g_raw_Rlandings_YS)
 
 filtered_data<-filter_data("landings",
 		typ = 6,
-		life_stage = "G", 
-		country = NULL,
-		habitat = NULL,
-		year_range = min(year):max(year))
+		life_stage = "G")
 year<-unique(filtered_data$eel_year)
 country<-unique(filtered_data$eel_cou_code)
 hty<-unique(filtered_data$eel_hty_code)
@@ -585,7 +586,7 @@ print(g_raw_Rlandings_G)
 
 filtered_data<-filter_data("release",
 		typ = 9,
-		life_stage = c("G","QG"),
+		life_stage = c("G"),
 		year=1950:CY)
 year<-unique(filtered_data$eel_year)
 country<-unique(filtered_data$eel_cou_code)
@@ -615,7 +616,7 @@ ka_release_G <- kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",ca
 
 \newline
 
-```{r release_Gf,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure 6: Released (in thousands) per country, stage = G and habitat = F+T+C.", fig.height=5, fig.width=10}
+```{r release_Gf,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure 6: Released (in thousands) per country, stage = G and OG and habitat = F+T+C.", fig.height=5, fig.width=10}
 
 ##Graph
 release3<-grouped_data
@@ -642,9 +643,7 @@ print(g_release_G)
 
 filtered_data<-filter_data("release",
 		typ = 9,
-		life_stage = "Y", 
-		country = NULL,
-		habitat = NULL)
+		life_stage = "Y")
 year<-unique(filtered_data$eel_year)
 country<-unique(filtered_data$eel_cou_code)
 hty<-unique(filtered_data$eel_hty_code)
@@ -697,10 +696,7 @@ print(g_release_Y)
 
 filtered_data<-filter_data("release",
 		typ = 9,
-		life_stage = "S", 
-		country = country,
-		habitat = hty,
-		year_range = min(year):max(year))
+		life_stage = "S")
 year<-unique(filtered_data$eel_year)
 country<-unique(filtered_data$eel_cou_code)
 hty<-unique(filtered_data$eel_hty_code)
@@ -753,10 +749,7 @@ print(g_release_S)
 
 filtered_data<-filter_data("release",
 		typ = 9,
-		life_stage = "QG", 
-		country = NULL,
-		habitat = NULL,
-		year_range = min(year):max(year))
+		life_stage = "QG")
 year<-unique(filtered_data$eel_year)
 country<-unique(filtered_data$eel_cou_code)
 hty<-unique(filtered_data$eel_hty_code)
@@ -809,10 +802,8 @@ print(g_release_QG)
 
 filtered_data<-filter_data("release",
 		typ = 9,
-		life_stage = "OG", 
-		country = country,
-		habitat = hty,
-		year_range = min(year):max(year))
+		life_stage = "OG" 
+)
 year<-unique(filtered_data$eel_year)
 country<-unique(filtered_data$eel_cou_code)
 hty<-unique(filtered_data$eel_hty_code)
@@ -861,10 +852,11 @@ print(g_release_OG)
 
 ```{r release_all_stages,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure 11: Released (in millions) per country, habitat = C+F+T+MO and stage = Y+YS+OG+S+QG+AL.", fig.height=5, fig.width=10}
 
-##Table release (nb) for all the countries
+##Table release of all stages for all the countries
 
 filtered_data<-filter_data("release",
-		typ = 9,		
+		typ = 9,
+		life_stage=c("G","Y","QG","OG"),
 		year_range = 1950:max(year))
 year<-unique(filtered_data$eel_year)
 country<-unique(filtered_data$eel_cou_code)
@@ -982,7 +974,6 @@ write.csv2(tableRelS,"releases_nb_S.csv",row.names=FALSE)
 write.csv2(tableRelY,"releases_nb_Y.csv",row.names=FALSE)
 write.csv2(tableRelQG,"releases_nb_QG.csv",row.names=FALSE)
 write.csv2(tableRelOG,"releases_nb_OG.csv",row.names=FALSE)
-write.csv2(tableCorrLandG,"Raw_Corr_Com_landings_G.csv",row.names=FALSE)
 write.csv2(tableCorLandYS,"Raw_Corr_Com_landings_Y_S.csv",row.names=FALSE)
 
 ggsave("Raw_Com_landings_G.png", g_raw_Clandings_G, device = "png", width = 30, height = 20, 

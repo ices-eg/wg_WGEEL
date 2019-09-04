@@ -182,6 +182,7 @@ server = function(input, output, session) {
                 n_order <- n_order+1
                 n_order <- c(1,n_order)
                 table = table[, n_order]
+				table2 = table2[, n_order]
                 
                 #add a column with the sum of all the values and prod of predicted
                 
