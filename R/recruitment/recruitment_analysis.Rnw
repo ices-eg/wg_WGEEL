@@ -233,6 +233,7 @@ vv<-list()
 % DO REPLACE FOR INSTANCE F:/workspace/wgeeldata/sweave/2016/table by F:/workspace/wgeeldata/sweave/2019/table
 %%%%%%%%%%%%%%%%%%%%%%%%%% END OF THE PREAMBLE  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{document}
+\SweaveOpts{concordance=TRUE}
 \bibliographystyle{plain}
 \title{ Analysis of recruitment trend}
 \author{EIFAAC/ICES/GFCM Working Group on Eel}
@@ -601,7 +602,7 @@ series_lost<-merge(
 		by.y="site",by.x="ser_nameshort")
 series_lost<-series_lost[order(series_lost$year),]
 vv$nseries_lost<-nrow(series_lost) # number of series not updated for the two last years
-vv$nseries_lostG<-nrow(series_lost[series_lost$ser_lfs_code=="G"])
+vv$nseries_lostG<-nrow(series_lost[series_lost$ser_lfs_code=="G",])
 vv$nseries_lostY<-nrow(series_lost[series_lost$ser_lfs_code=="Y",])
 vv$nseries_lostGY<-nrow(series_lost[series_lost$ser_lfs_code=="GY",])
 #xtable of current year series
@@ -869,10 +870,11 @@ adressed. The time-series data are derived from fishery-dependent sources
 the geographic range of European eel.  The
 stages are categorized as :
 \begin{itemize}
-glass eel (G), mixture of glass eel and young
-yellow eel dominated by recruits from the year (GY) and older yellow eel (Y)
-recruiting to continental habitats (Dekker, 2002). The yellow eel series might 
-consist of yellow eel of several ages. 
+\item glass eel (G), 
+\item mixture of glass eel and young
+yellow eel dominated by recruits from the year (GY) and young yellow eel (Y)
+recruiting to continental habitats (Dekker, 2002). 
+\item Yellow eel (Y) which might consist of yellow eel of several ages. 
 This is certainly the case for all series from the Baltic, and other sites. 
 \end{itemize}
 The glass eel recruitment time-series have been grouped into two geographical
@@ -1307,7 +1309,7 @@ figure_check_one_series("Katw",limits=c(1960,2019))
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %************************************************************************************
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-<< model_for_glass_eel_and_yellow_eel_datasets, echo=FALSE, eval=TRUE, results=hide >>=
+<< model_for_glass_eel_and_yellow_eel_and_datasets, echo=FALSE, eval=TRUE, results=hide >>=
 
 glass_eel_yoy$site<-as.factor(glass_eel_yoy$site)
 
@@ -1361,211 +1363,39 @@ save(model_ge_area,model_older,file=paste0(shinywd,"recruitment_models.Rdata"))
 ######################################"
 #~glass eel (and elver = glass eel + yellow eel) migrant analysis
 ######################################"~
-# 1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~~
-# using expand.grid to build a complete grid for predictions
-data_bis=expand.grid(year_f=model_ge_area$xlevels$year_f,area=model_ge_area$xlevels$area,
-		site=model_ge_area$xlevels$site)
-data_bis$year<-as.numeric(as.character(data_bis$year_f))
-#deleting area/year not avalaible
-for(area in as.character(unique(glass_eel_yoy$area))){
-	data_bis[data_bis$area==area,"nb_site"]=
-			area_year[as.character(data_bis[data_bis$area==area,"year"]),area]
-}
-data_bis=data_bis[data_bis$nb_site>0,]
-
-
-#predicting
-data_bis$p=predict(model_ge_area,newdata=data_bis[,],type="response")
-se=predict(model_ge_area,newdata=data_bis[,],type="response",se.fit=TRUE)
-data_bis$se=se[["se.fit"]]
-
-# 2 options mean or geomean
-
-# Calculate mean or geomean, per series EE or NS for the ref period 1960 1980 ------------------------------------------
-#standardising prediction to 1960-1980 level
-
-if (opt_calculation=="geomean") {
-	mean_1960_1979=data.frame(mean=unlist(
-					tapply(data_bis[data_bis$year>=1960 & data_bis$year<1980,"p"],
-							data_bis[data_bis$year>=1960 & data_bis$year<1980,"area"],
-							geomean)
-			))
-} else {
-	mean_1960_1979=data.frame(mean=unlist(
-					tapply(data_bis[data_bis$year>=1960 & data_bis$year<1980,"p"],
-							data_bis[data_bis$year>=1960 & data_bis$year<1980,"area"],
-							mean)
-			))
-}
-mean_1960_1979$area=rownames(mean_1960_1979)
-data_bis=merge(data_bis,mean_1960_1979,by="area")
-data_bis$p_std_1960_1979=data_bis$p/data_bis$mean
-
-# A tapply to calculate either geom mean or mean of series ------------------------------------------
-
-# cannot show any se on average value, se is on each individual value !
-#data_bis$se_std_1960_1979=data_bis$se/data_bis$geomean 
-#data_bis$ymin<-data_bis$p_std_1960_1979-data_bis$se_std_1960_1979
-#data_bis$ymax<-data_bis$p_std_1960_1979+data_bis$se_std_1960_1979
-# geomean does not return a "nice" numeric, hence the trick below
-if (opt_calculation=="geomean") {
-	synthesis=as.data.frame(tapply(data_bis[,"p_std_1960_1979"],
-					list(data_bis[,"year_f"],data_bis[,"area"]),
-					function(X) {Y=geomean(X) ;
-						return(as.numeric(Y))}))
-} else {
-	synthesis=as.data.frame(tapply(data_bis[,"p_std_1960_1979"],
-					list(data_bis[,"year_f"],data_bis[,"area"]),mean,na.rm=TRUE))
-}
-
-# Save data_bis as glass_eel_pred for shiny ----------------------------------------------
-glass_eel_pred <- data_bis
-save(glass_eel_pred,file=str_c(datawd,"glass_eel_pred.Rdata"))
-save(glass_eel_pred,file=str_c(shinywd,"glass_eel_pred.Rdata"))
-resy=function(data,valcol){
-	data$time=rownames(data)
-	data1=melt(data,id.vars=ncol(data))
-	colnames(data1)=c("year","area",valcol)
-	data1$year=as.Date(strptime(paste(data1$year,"-01-01",sep=""),format="%Y-%m-%d"))
-	return(data1)
-}
-dat=resy(synthesis,"p_std_1960_1979")
-
-
-##plotting
-#with(synthesis,matplot(time,log(synthesis[,-dim(synthesis)[2]]),type="l"))
-#legend("topright",legend=names(synthesis)[-dim(synthesis)[2]],lty=1:5,col=1:6)
-#abline(v=seq(1950,2005,5),lty=2,col="gray")
-#abline(v=seq(1950,2005,10))
-
-#tat_sum_single <- function(fun, geom="point", ...) { 
-#   stat_summary(fun.y=fun, colour="red", geom=geom, size = 3, ...) 
-# } 
-# 
-
-g<-ggplot(dat,aes(x=year,y=p_std_1960_1979))
-
-figure5_without_logscale<-g+geom_line(aes(colour=area,lty=area),lwd=1)+ 
-		scale_colour_brewer(name="area",palette="Set1")+
-		scale_y_continuous(expression(frac(p,bar(p)[1960-1979])))+
-		theme_bw()+
-		geom_hline(yintercept=1,linetype=2)+
-		theme(legend.box =NULL,
-				legend.key = element_rect(colour = NA, fill = 'white'),
-				legend.text = element_text(size = 10, colour = 'black'), 
-				legend.background = element_rect(colour = NA, fill = 'white'),
-				legend.position = c(.8, .8))
-X11(300,250)
-figure5_without_logscale
-save_figure("figure5_without_logscale",figure5_without_logscale,600,480)
-
-# function similar to theme_dark() but allows legends
-# black and white plot ====
-figure5_without_logscale_black<-g+geom_line(aes(colour=area,lty=area),lwd=1)+
-		scale_colour_manual(name="area",values=c("yellow","lawngreen"))+
-		scale_y_continuous(expression(frac(p,bar(p)[1960-1979])))+
-		theme_black()
-
-X11()
-figure5_without_logscale_black
-save_figure("figure5_without_logscale_black",figure5_without_logscale_black,600,480)
-
-
-#====
-#+geom_smooth(aes(ymin = min, ymax = max,fill=area),stat="identity")+facet_grid( ~ area) 
-datEE<-dat[dat$area=="Elsewhere Europe",]
-datNS<-dat[dat$area=="North Sea",]
-labelEE<-100*round(datEE$p_std_1960_1979[length(datEE$p_std_1960_1979)],3)
-labelNS<-100*round(datNS$p_std_1960_1979[length(datNS$p_std_1960_1979)],3)
-
-figure5<-g+geom_line(aes(colour=area,lty=area),lwd=1.3)+geom_point(aes(colour=area,fill=area,shape=area),size=3)+
-		#ggtitle("Recruitment overview glass eel series")+
-		scale_colour_brewer(name="area",palette="Set1")  +
-		#annotate("text",x=dat$year[length(dat$year)-2],y=datEE$p_std_1960_1979[length(datEE$p_std_1960_1979)],size=5,label=labelEE)+
-		#annotate("text",x=dat$year[length(dat$year)-2],y=datNS$p_std_1960_1979[length(datNS$p_std_1960_1979)],size=5,label=labelNS)+		
-		scale_y_log10(name=expression(frac(p,bar(p)[1960-1979])~' log scale'),
-				#limits=c(0.005,10),
-				breaks=c(0.01,0.1,1,10),
-				labels=c("1%","10%","100%","1000%"))+
-		theme_bw()+
-		theme(legend.box =NULL,
-				legend.key = element_rect(colour = NA, fill = 'white'),
-				legend.text = element_text(size = 10, colour = 'black'), 
-				legend.background = element_rect(colour = NA, fill = 'white'),
-				legend.position=c(.8,.9))
-
-X11()
-figure5
-save_figure("figure5",figure5,600,480)
-#figure5danish<-g+geom_line(aes(colour=area,lty=area),lwd=1.3)+
-#		geom_point(aes(colour=area,fill=area,shape=area),size=3)+
-#		ggtitle("title="Glasaal data fra hele Europa")+
-#		scale_colour_brewer(name="area",palette="Set1")  +
-#		xlab("Aar")+
-#		scale_y_log10(name="Linear model forudsigelser/ gennemsnit 1960-1979",
-#				#limits=c(0.005,10),
-#				breaks=c(0.01,0.1,1,10),
-#				labels=c("1%","10%","100%","1000%"))
-#figure5danish
-
-#levels(dat$area)<-c (
-#		iconv("Andre steder i Europa","UTF8"),
-#		iconv("Nordsjøen","UTF8"))#
-#g<-ggplot(dat,aes(x=year,y=p_std_1960_1979))
-#figure5norvegiean<-g+
-#		geom_line(aes(colour=area,lty=area),lwd=1.3)+
-#		geom_point(aes(colour=area,shape=area),size=3)+
-#		ggtitle(label=iconv("Indeks av glassålrekruttering","UTF8"))+
-#		scale_colour_brewer(name=iconv("Området","UTF8"),palette="Set1")  +
-#		scale_shape(name=iconv("Området","UTF8"))+
-#		scale_linetype(name=iconv("Området","UTF8"))+
-#		xlab(iconv("År","UTF8"))+
-#		scale_y_log10(name=iconv("Standardiserte GLM-prognoser (i prosent av
-#		1960-1979-gjennomsnitt)","UTF8"), #limits=c(0.005,10),
-#				breaks=c(0.01,0.1,1,10),
-#				labels=c("1%","10%","100%","1000%"))
-#save_figure("figure5norvegiean",figure5norvegiean,600,480)
-#pdf("images/2013/figure5norvegiean.png")
-#figure5norvegiean
-#dev.off()
-save_figure("figure5",figure5,600,480)
-#save_figure("figure5danish",figure5danish,600,480)
-
-
-
 
 ########new sets of lines to graph plots with confidence intervals
 # using expand.grid to build a complete grid for predictions
-data_ter=expand.grid(year_f=model_ge_area$xlevels$year_f,area=model_ge_area$xlevels$area,
+dat_ge=expand.grid(year_f=model_ge_area$xlevels$year_f,area=model_ge_area$xlevels$area,
 		site=model_ge_area$xlevels$site[1])
-data_ter$year<-as.numeric(as.character(data_ter$year_f))
+dat_ge$year<-as.numeric(as.character(dat_ge$year_f))
 
 
 #predicting
-data_ter$p=predict(model_ge_area,newdata=data_ter)
-data_ter$se=predict(model_ge_area,newdata=data_ter,se.fit=TRUE)[["se.fit"]]
+dat_ge$p=predict(model_ge_area,newdata=dat_ge)
+dat_ge$se=predict(model_ge_area,newdata=dat_ge,se.fit=TRUE)[["se.fit"]]
 
 
 #in the logscale we removed the arithmetic mean to standardise prediction relatively to
 #1960-1980
-mean_1960_1979=aggregate(data_ter[data_ter$year<1980,"p"],list(data_ter[data_ter$year<1980,"area"]),mean)
+mean_1960_1979=aggregate(dat_ge[dat_ge$year<1980,"p"],list(dat_ge[dat_ge$year<1980,"area"]),mean)
 names(mean_1960_1979)=c("area","mean")
 
-data_ter=merge(data_ter,mean_1960_1979,by="area")
-data_ter$p_std_1960_1979=exp(data_ter$p-data_ter$mean)
-data_ter$p_std_1960_1979_min=exp(data_ter$p-data_ter$mean-1.96*data_ter$se)
-data_ter$p_std_1960_1979_max=exp(data_ter$p-data_ter$mean+1.96*data_ter$se)
+dat_ge=merge(dat_ge,mean_1960_1979,by="area")
+dat_ge$p_std_1960_1979=exp(dat_ge$p-dat_ge$mean)
+dat_ge$p_std_1960_1979_min=exp(dat_ge$p-dat_ge$mean-1.96*dat_ge$se)
+dat_ge$p_std_1960_1979_max=exp(dat_ge$p-dat_ge$mean+1.96*dat_ge$se)
 
 
 upperlimit <-5
-data_ter$p_std_1960_1979_max<-pmin(data_ter$p_std_1960_1979_max,upperlimit-0.01)
+dat_ge$p_std_1960_1979_maxgraph<-pmin(dat_ge$p_std_1960_1979_max,upperlimit-0.01)
 
-g<-ggplot(data_ter,aes(x=year,y=p_std_1960_1979))
+g<-ggplot(dat_ge,aes(x=year,y=p_std_1960_1979))
 
 figure5_without_logscale<- g+
 		geom_line(aes(colour=area,lty=area),lwd=1)+ 		
 		scale_colour_brewer(name="area",palette="Set1")+
-		geom_ribbon(aes(ymin=p_std_1960_1979_min,ymax=p_std_1960_1979_max,fill=area),alpha=.3)+
+		geom_ribbon(aes(ymin=p_std_1960_1979_min,ymax=p_std_1960_1979_maxgraph,fill=area),alpha=.3)+
 		coord_cartesian(ylim=c(0,5))+
 		scale_y_continuous(expression(frac(p,bar(p)[1960-1979])))+
 		theme_bw()+
@@ -1668,14 +1498,30 @@ save_figure("figure5_ribbon",figure5,600,480)
 #print(figure5bw)
 #save_figure("figure5bw",figure5bw,600,480)
 
-synthesis$year=as.numeric(rownames(synthesis))
-synthesis$decade=trunc(as.numeric(synthesis$year)/5)*5
-five_year_avg_glass<-data.frame("Elsewhere Europe"=tapply(synthesis$"Elsewhere Europe",synthesis$decade,mean,na.rm=T),
-		"North Sea"=tapply(synthesis$"North Sea",synthesis$decade,mean,na.rm=T))
-synthesis$rebour<-nrow(synthesis):1
-last<-synthesis$rebour<=5
-five_year_avg_glass<-rbind(five_year_avg_glass,apply(synthesis[last,c("Elsewhere Europe","North Sea") ],2,mean))
-rownames(five_year_avg_glass)[nrow(five_year_avg_glass)]<-"last"
+
+pred <- dcast(dat_ge,year~area,value.var="p_std_1960_1979")
+predmin <- dcast(dat_ge,year~area,value.var="p_std_1960_1979_min")	
+predmax <- dcast(dat_ge,year~area,value.var="p_std_1960_1979_max")
+synthesis <- cbind(pred,predmin[,c(2,3)],predmax[,c(2,3)])
+colnames(synthesis) <- c("year","Elsewhere Europe","North Sea", "EEminCI","NSminCI","EEmaxCI","NSmaxCI")
+
+#if (opt_calculation=="geomean") {
+#	synthesis=as.data.frame(tapply(dat_ge[,"p_std_1960_1979"],
+#					list(dat_ge[,"year_f"],dat_ge[,"area"]),
+#					function(X) {Y=geomean(X) ;
+#						return(as.numeric(Y))}))
+#} else {
+#	synthesis=as.data.frame(tapply(dat_ge[,"p_std_1960_1979"],
+#					list(dat_ge[,"year_f"],dat_ge[,"area"]),mean,na.rm=TRUE))
+#}
+#synthesis$year=as.numeric(rownames(synthesis))
+#synthesis$decade=trunc(as.numeric(synthesis$year)/5)*5
+#five_year_avg_glass<-data.frame("Elsewhere Europe"=tapply(synthesis$"Elsewhere Europe",synthesis$decade,mean,na.rm=T),
+#		"North Sea"=tapply(synthesis$"North Sea",synthesis$decade,mean,na.rm=T))
+#synthesis$rebour<-nrow(synthesis):1
+#last<-synthesis$rebour<=5
+#five_year_avg_glass<-rbind(five_year_avg_glass,apply(synthesis[last,c("Elsewhere Europe","North Sea") ],2,mean))
+#rownames(five_year_avg_glass)[nrow(five_year_avg_glass)]<-"last"
 
 #xfive_year_avg_glass <- xtable(x = five_year_avg_glass,
 #		label = "table_five_year_avg_glass",
@@ -1685,9 +1531,9 @@ rownames(five_year_avg_glass)[nrow(five_year_avg_glass)]<-"last"
 #		table.placement = "htbp",
 #		caption.placement = "top", 
 #		NA.string = ".")
-gg0<-synthesis[as.character(1960:CY),c("Elsewhere Europe","North Sea")]
+gg0<-synthesis[,c("Elsewhere Europe","North Sea")]
 colnames(gg0)<-c("EE","NS")
-
+rownames(gg0)<-synthesis$year
 gg<-split_per_decade_ge(gg0)
 gg[,1:8]<-100*round(gg[,1:8],2)
 gg[,9:ncol(gg)]<-100*round(gg[,9:ncol(gg)],3)
@@ -1705,22 +1551,29 @@ nothing<-latex(gg,
 		file= str_c(tabwd,"/table_glm_glass_eel.tex"))
 
 
-#decades results
-decA<-tapply(synthesis$"North Sea",synthesis$decade,mean,na.rm=T)
-decE<-tapply(synthesis$"Elsewhere Europe",synthesis$decade,mean,na.rm=T)
-#decA[(length(decA)-1):length(decA)]
-#decE[(length(decE)-1):length(decE)]
-
-
 
 write.table(synthesis,file=str_c(datawd,"glm_results_glass.csv"),sep=";")
-
+if (file.exists(str_c(datawd,"glm_results_glass_and_yellow.xlsx"))) unlink(str_c(datawd,"glm_results_glass_and_yellow.xlsx"))
+xlsx::write.xlsx(x=data.frame(
+				"year"=synthesis$year,
+				"EE_minCI_percent"=100*synthesis$EEminCI,
+				"EE_percent"=100*synthesis$"Elsewhere Europe",
+				"EE_maxCI_percent"=100*synthesis$EEmaxCI,
+				"NS_minCI_percent"=100*synthesis$NSminCI,
+				"NS_percent"=100*synthesis$"North Sea",
+				"NS_maxCI_percent"=100*synthesis$NSmaxCI
+				),
+		file=str_c(datawd,"glm_results_glass_and_yellow.xlsx"),
+		sheetName="Glass eel",
+		row.names=FALSE	)
 #plot(log(synthesis[synthesis$year>1979,"Elsewhere Europe"]))
 trend<-synthesis[synthesis$year>1979,]
 trend$EE<-trend$"Elsewhere Europe"
 trend$lEE<-log(trend$EE)
 
 trend$lNS<-log(trend$"North Sea")
+
+
 #round(lm(lEE~year,data=trend)$coefficient[2],4) # -0.098
 #round(lm(lNS~year,data=trend)$coefficient[2],4) # -0.098 North Sea -0129
 
@@ -1798,8 +1651,12 @@ trend_test_for_change_ee <- sprintf("Estimate = %.3f P-value %.4f",
 trend_test_for_change_ns <- sprintf("Estimate = %.3f P-value %.4f",
 		summary_coefficient_afterns$test$coefficients,
 		summary_coefficient_afterns$test$pvalues)
-save(dat, file=str_c(datawd,"dat_ge.Rdata"))
-save(dat, file=str_c(shinywd,"dat_ge.Rdata"))
+
+
+# back to long format, save for shiny
+
+save(dat_ge, file=str_c(datawd,"dat_ge.Rdata"))
+save(dat_ge, file=str_c(shinywd,"dat_ge.Rdata"))
 @
 << model_diagnostics, echo=FALSE, eval=FALSE, results=hide >>=
 # summary(model_ge_area)
@@ -1953,15 +1810,15 @@ summary(model_older)
 anova(model_older,test="F")
 
 
-data_bis=expand.grid(year_f=unique(model_older$xlevels$year_f),
+dat_ye=expand.grid(year_f=unique(model_older$xlevels$year_f),
 		site=model_older$xlevels$`as.factor(site`[1])
-data_bis$year=as.numeric(as.character(data_bis$year))
+dat_ye$year=as.numeric(as.character(dat_ye$year))
 
 #predicting --------------------------------------------------------------------------------------------
 
 # in the log scale
-data_bis$p=predict(model_older,newdata=data_bis)
-data_bis$se=predict(model_older,newdata=data_bis,se.fit = TRUE)$se.fit
+dat_ye$p=predict(model_older,newdata=dat_ye)
+dat_ye$se=predict(model_older,newdata=dat_ye,se.fit = TRUE)$se.fit
 
 #standardising prediction to 1960-1979 level -----------------------------------------------------------
 # 2 options mean or geomean
@@ -1969,46 +1826,14 @@ data_bis$se=predict(model_older,newdata=data_bis,se.fit = TRUE)$se.fit
 
 #in the logscale we remove the arithmetic mean to standardise prediction relatively to
 #1960-1980 
-data_bis$mean=mean(data_bis[data_bis$year>=1960&data_bis$year<1980,"p"])
-data_bis$mean_1960_1979=exp(data_bis$p-data_bis$mean)
-data_bis$yellow_eel_min=exp(data_bis$p-data_bis$mean-1.96*data_bis$se)
-data_bis$yellow_eel_max=exp(data_bis$p-data_bis$mean+1.96*data_bis$se)
-
-
-# saving yellow_eel_pred for shiny ---------------------------------------------------------------------
-
-yellow_eel_pred <- data_bis
-save(yellow_eel_pred,file=paste0(datawd,"yellow_eel_pred.Rdata"))
-save(yellow_eel_pred,file=paste0(shinywd,"yellow_eel_pred.Rdata"))
-# the trend is the mean or geomean (now geomean see init) of all series --------------------------------
-
-
-dat_ye <- yellow_eel_pred
-dat_ye$decade=trunc(as.numeric(dat_ye$year)/5)*5
-if (opt_calculation=="geomean") {
-	five_year_avg_yellow<-data.frame("yellow_eel"=tapply(
-					dat_ye$"yellow_eel",dat_ye$decade,
-					function(X){Y=geomean(X) ;return(as.numeric(Y))}))
-}else{
-	five_year_avg_yellow<-data.frame("yellow_eel"=tapply(
-					dat_ye$"yellow_eel",dat_ye$decade,
-					mean,na.rm=T))
-}
-rownames(five_year_avg_yellow)[nrow(five_year_avg_yellow)]<-"last"
-
-
-#xfive_year_avg_yellow <- xtable(x = five_year_avg_yellow, 
-#		label = "table_five_year_avg_yellow",
-#		caption = str_c("GLM estimates for glass eel series, averaged every five years"))
-#print(xfive_year_avg_yellow,
-#		file = str_c(tabwd,"/table_five_year_avg_yellow.tex"),
-#		table.placement = "htbp",
-#		caption.placement = "top",
-#		NA.string = ".")
+dat_ye$mean_1960_1979=mean(dat_ye[dat_ye$year>=1960&dat_ye$year<1980,"p"])
+dat_ye$value_std_1960_1979=exp(dat_ye$p-dat_ye$mean_1960_1979)
+dat_ye$yellow_eel_min=exp(dat_ye$p-dat_ye$mean-1.96*dat_ye$se)
+dat_ye$yellow_eel_max=exp(dat_ye$p-dat_ye$mean+1.96*dat_ye$se)
 
 # Table --------------------------------------------------------------------------------------------
 
-yy0<-dat_ye[,"yellow_eel",drop = FALSE]
+yy0<-dat_ye[,"value_std_1960_1979",drop = FALSE]
 rownames(yy0)<-dat_ye$year
 
 yy<-split_per_decade(data=yy0)
@@ -2027,7 +1852,7 @@ nothing<-latex(yy,
 
 
 dat_ye$time =as.Date(strptime(paste(dat_ye$year,"-01-01",sep=""),format="%Y-%m-%d"))
-g<-ggplot(dat_ye,aes(x=time,y=yellow_eel)) 
+g<-ggplot(dat_ye,aes(x=time,y=value_std_1960_1979)) 
 figure6_without_log_scale<-g+ geom_line(lwd=1, color="darkolivegreen")+ geom_point(color="khaki3")+
 		scale_y_continuous(expression(frac(p,bar(p)[1960-1979])))+	
 		theme_bw()+
@@ -2068,10 +1893,23 @@ save_figure("figure6",figure6,600,480)
 # Final save ----------------------------------------------------------------------------------------
 
 write.table(synthesis,file=str_c(datawd,"glm_results_yellow.csv"),sep=";")
-dat_ye <- dat_ye[,c("year","yellow_eel")]
-colnames(dat_ye) <-c("year","geomean_p_std_1960_1979") 
+dat_ye <- dat_ye[,c("year","p","se","mean_1960_1979","yellow_eel_min","yellow_eel_max","value_std_1960_1979")]
+#colnames(dat_ye) <-c("year","geomean_p_std_1960_1979") 
 save(dat_ye,file=paste0(datawd,"dat_ye.Rdata")) 
 save(dat_ye,file=paste0(shinywd,"dat_ye.Rdata")) 
+xlsx::write.xlsx(data.frame("year"=dat_ye$year,
+				"Y_minCI_percent"=100*dat_ye$yellow_eel_min,
+				"Y_percent"=100*dat_ye$value_std_1960_1979,
+				"Y_maxCI_percent"=100*dat_ye$yellow_eel_max),
+		file=str_c(datawd,"glm_results_glass_and_yellow.xlsx"),
+		sheetName="Yellow eel",
+		row.names=FALSE,
+		append=TRUE)
+# saving yellow_eel_pred for shiny ---------------------------------------------------------------------
+yellow_eel_pred <- dat_ye
+
+save(yellow_eel_pred,file=paste0(datawd,"yellow_eel_pred.Rdata"))
+save(yellow_eel_pred,file=paste0(shinywd,"yellow_eel_pred.Rdata"))
 @
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %************************************************************************************
@@ -2188,10 +2026,10 @@ Distribution) and geometric means are the prefered choice. \\
 As some of the values were not complete the 2018, the
 level of European eel recruitment compared to the 1960-1979 average has changed 
 when compared to last year report. The value has decreased from 9.6\% in last
-year report to \Sexpr{sn(100*datEE[nrow(datEE)-1,"p_std_1960_1979"], digits= 1)}\% for the Elsewhere Europe area.  It remains unchanged 
- for the North Sea at \Sexpr{sn(100*datNS[nrow(datNS)-1,"p_std_1960_1979"], digits =1)}\%.
+year report to \Sexpr{sn(100*synthesis[nrow(synthesis)-1,"Elsewhere Europe"], digits= 1)}\% for the Elsewhere Europe area.  It remains unchanged 
+ for the North Sea at \Sexpr{sn(100*synthesis[nrow(synthesis)-1,"North Sea"], digits =1)}\%.
  For 2019, data are \textbf{only provisional} and give estimates at
- \Sexpr{sn(100*datNS[nrow(datNS),"p_std_1960_1979"], digits =1)}\% for the North Sea and \Sexpr{sn(100*datEE[nrow(datEE),"p_std_1960_1979"], digits= 1)}\% for the
+ \Sexpr{sn(100*synthesis[nrow(synthesis),"North Sea"], digits =1)}\% for the North Sea and \Sexpr{sn(100*synthesis[nrow(synthesis),"Elsewhere Europe"], digits= 1)}\% for the
 Elsewhere Europe area, but some of the series are not yet complete (Figure
 \ref{figure5} \ref{figure5_with_logscale} (log.scale), Tables \ref{table_glm_glass_eel}).
 
@@ -2212,7 +2050,7 @@ confidence intervals updated to \Sexpr{CY}.
 
 For yellow eel series, the autumn ascent has not been recorded yet and most of
 the series have reported data till the middle of the summer. The \Sexpr{CY-1} yellow eel
-index is at \Sexpr{sn(100*dat_ye[dat_ye$year==CY-1,"geomean_p_std_1960_1979"])}\% of
+index is at \Sexpr{sn(100*dat_ye[dat_ye$year==CY-1,"value_std_1960_1979"])}\% of
 the 1960-1979 baseline. 
 
 
@@ -2262,8 +2100,8 @@ recruitment has stopped to decrease, and has been increasing in the period
 to be taken very carefully. Firstly , not all series have been reported for 2019
 and the results might change  when missing data is incorporated to the analysis. 
 Secondly, even if the results would not change, recruitment remains very low
-\Sexpr{sn(100*datNS[nrow(datNS),"p_std_1960_1979"], digits =1)}\% for the North Sea 
-and \Sexpr{sn(100*datEE[nrow(datEE),"p_std_1960_1979"], digits= 1)}\% for the
+\Sexpr{sn(100*synthesis[nrow(synthesis),"North Sea"], digits =1)}\% for the North Sea 
+and \Sexpr{sn(100*synthesis[nrow(synthesis),"Elsewhere Europe"], digits= 1)}\% for the
 Elsewhere Europe area. Recruitment has been continually decreasing
 from 1980 to 2011 (31 years), thus, the positive trend should be maintained during more years in order
 to consider that the stock is safe. In that sense and finally,  during the 2011-2019 period, 
