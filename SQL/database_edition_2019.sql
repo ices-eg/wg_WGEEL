@@ -278,3 +278,25 @@ SELECT * FROM datawg.t_eelstock_eel WHERE eel_typ_id=11 AND eel_emu_nameshort='E
 
 SELECT * FROM datawg.t_eelstock_eel WHERE eel_typ_id=11 ORDER BY eel_id DESC LIMIT 150
 
+
+--- problems of duplicates with Lithuania
+SELECT * FROM datawg.t_eelstock_eel WHERE eel_emu_nameshort='LT_Lith' AND eel_year>=1995 AND eel_year<=1999;
+
+
+BEGIN;
+UPDATE datawg.t_eelstock_eel SET eel_emu_nameshort= 'LT_total' WHERE eel_emu_nameshort='LT_Lith' AND eel_year>=1995 AND eel_year<=1999;--15
+COMMIT;
+
+SELECT * FROM datawg.t_eelstock_eel WHERE eel_emu_nameshort='LT_Lith' AND eel_year>=2000 AND eel_qal_id=1 AND eel_typ_id=4;
+BEGIN;
+UPDATE datawg.t_eelstock_eel SET eel_qal_id=19 WHERE eel_emu_nameshort='LT_Lith' AND eel_year>=2000 AND eel_qal_id=1 AND eel_typ_id=4;--27
+COMMIT;
+
+
+SELECT * FROM datawg.t_eelstock_eel WHERE eel_emu_nameshort='LT_Lith' AND eel_year>=2000 AND eel_qal_id=1 AND eel_typ_id=6;
+BEGIN;
+UPDATE datawg.t_eelstock_eel SET eel_qal_id=19 WHERE eel_emu_nameshort='LT_Lith' AND eel_year>=2000 AND eel_qal_id=1 AND eel_typ_id=6;--6
+COMMIT;
+
+
+SELECT * FROM datawg.t_eelstock_eel WHERE eel_lfs_code='GY'
