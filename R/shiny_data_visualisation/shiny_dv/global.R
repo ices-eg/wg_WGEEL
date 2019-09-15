@@ -17,6 +17,8 @@
 # they are not in version control, they will be dropped on the sharepoint
 # they need to be copied to 
 # WGEEL\data
+
+# options("help_type"="html")
 source("set_directory.R")
 
 # connection to database
@@ -101,13 +103,9 @@ load("data/recruitment/statseries.Rdata")
 load("data/recruitment/glass_eel_yoy.Rdata")
 load("data/recruitment/older.Rdata")
 load("data/recruitment/R_stations.Rdata")
-load("data/recruitment/dat_ge.Rdata") ; dat_ge <- dat
-dat_ge$year <- as.numeric(format(dat_ge$year,"%Y"))
-colnames(dat_ge)[colnames(dat_ge)=="p_std_1960_1979"] <- "geomean_p_std_1960_1979"
+load("data/recruitment/dat_ge.Rdata") ; # named dat_ge
 load("data/recruitment/dat_ye.Rdata") ; # named dat_ye
-dat_ye$year <- as.numeric(dat_ye$year)
-load("data/recruitment/glass_eel_pred.Rdata") # named glass_eel_pred
-load("data/recruitment/yellow_eel_pred.Rdata") # named yellow_eel_pred
+dat_ye$area <- "Yellow"
 load("data/recruitment/recruitment_models.Rdata") # named model_ge_area and model_older
    
 
