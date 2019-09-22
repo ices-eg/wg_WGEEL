@@ -518,3 +518,12 @@ begin;
 update datawg.t_series_ser set geom=ST_SetSRID(ST_MakePoint(17.43453,60.55913),4326) where ser_nameshort='Dala';
 UPDATE datawg.t_series_ser set (ser_x,ser_y)=(st_x(geom),st_y(geom)) where ser_nameshort = 'Dala';
 commit;
+
+
+begin;
+update datawg.t_series_ser set geom=ST_SetSRID(ST_MakePoint(2.758001,51.134565),4326) where ser_nameshort='Yser';
+UPDATE datawg.t_series_ser set (ser_x,ser_y)=(st_x(geom),st_y(geom)) where ser_nameshort = 'Yser';
+commit;
+
+
+, 
