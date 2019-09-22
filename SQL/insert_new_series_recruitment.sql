@@ -511,3 +511,9 @@ commit;
 -- change position YFS1
 update datawg.t_series_ser set ser_order=ser_order+1 where ser_order>=2; 
 update datawg.t_series_ser SET ser_order=2 WHERE ser_nameshort='YFS1'
+
+
+begin;
+update datawg.t_series_ser set geom=ST_SetSRID(ST_MakePoint(17.43453,60.55913),4326) where ser_nameshort='Dala';
+UPDATE datawg.t_series_ser set (ser_x,ser_y)=(st_x(geom),st_y(geom)) where ser_nameshort = 'Dala';
+commit;
