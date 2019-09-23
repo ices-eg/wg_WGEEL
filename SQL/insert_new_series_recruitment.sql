@@ -2,12 +2,12 @@
 -- Insert new series for Denmark
 -- Note shift to script_manual_insertion.R
 ---------------------------------------------------------
-SELECT * FROM datawg.t_series_ser where ser_cou_code='DK';
-SELECT * FROM datawg.t_series_ser where ser_nameshort='Hell'; -- nothing 
+SELECT * FROM datawg.t_series_ser WHERE ser_cou_code='DK';
+SELECT * FROM datawg.t_series_ser WHERE ser_nameshort='Hell'; -- nothing 
 -- we're gona have a hell :-) !!
 -- correction of a mistake from last year
-UPDATE ref.tr_station set "Country"='PORTUGAL' where "Country"='PT';--1
-SELECT * FROM ref.tr_station where "Country"='DENMARK';
+UPDATE ref.tr_station SET "Country"='PORTUGAL' WHERE "Country"='PT';--1
+SELECT * FROM ref.tr_station WHERE "Country"='DENMARK';
 -- the new value will be inserted in the last row from Denmark (8) so 8 becomes 9
 
 begin;
@@ -37,7 +37,7 @@ select max("tblCodeID")+1,
 	'S~T' as "PURPM", -- Not sure there
 	NULL as "Notes"
 from ref.tr_station; --1 
-update datawg.t_series_ser set ser_order=ser_order+1 where ser_order>=8; --86
+update datawg.t_series_ser SET ser_order=ser_order+1 WHERE ser_order>=8; --86
 INSERT INTO  datawg.t_series_ser(
           ser_order, 
           ser_nameshort, 
@@ -79,53 +79,53 @@ INSERT INTO  datawg.t_series_ser(
           3 as ser_sam_id, -- scientific estimate
           0 as ser_qal_id, -- currenly 8 years
           'Series too short yet < 10 years to be included' as ser_qal_comment,
-          ST_SetSRID(ST_MakePoint(12.55, 56.07),4326)
+          ST_SETSRID(ST_MakePoint(12.55, 56.07),4326)
           from ref.tr_station
-          where  "Station_Name" = 'Hell';--1
+          WHERE  "Station_Name" = 'Hell';--1
 COMMIT;
 
 BEGIN;
-UPDATE datawg.t_series_ser SET geom=ST_SetSRID(ST_MakePoint(12.55,56.07),4326) WHERE ser_nameshort='Hell';
-UPDATE datawg.t_series_ser set (ser_x,ser_y)=(st_x(geom),st_y(geom)) where ser_nameshort = 'Hell';
+UPDATE datawg.t_series_ser SET geom=ST_SETSRID(ST_MakePoint(12.55,56.07),4326) WHERE ser_nameshort='Hell';
+UPDATE datawg.t_series_ser SET (ser_x,ser_y)=(st_x(geom),st_y(geom)) WHERE ser_nameshort = 'Hell';
 COMMIT;
 ------------------------
 -- Change location of Ronn
 -------------------------
 begin;
-update datawg.t_series_ser set geom=ST_SetSRID(ST_MakePoint(13.11598,56.12357),4326) where ser_nameshort='Ronn';
-UPDATE datawg.t_series_ser set (ser_x,ser_y)=(st_x(geom),st_y(geom)) where ser_nameshort = 'Ronn';
+update datawg.t_series_ser SET geom=ST_SETSRID(ST_MakePoint(13.11598,56.12357),4326) WHERE ser_nameshort='Ronn';
+UPDATE datawg.t_series_ser SET (ser_x,ser_y)=(st_x(geom),st_y(geom)) WHERE ser_nameshort = 'Ronn';
 commit;
 
 
-select ser_comment from  datawg.t_series_ser where ser_nameshort='Ring';
-SELECT ser_locationdescription from  datawg.t_series_ser where ser_nameshort='Ring';
+select ser_comment from  datawg.t_series_ser WHERE ser_nameshort='Ring';
+SELECT ser_locationdescription from  datawg.t_series_ser WHERE ser_nameshort='Ring';
 
 BEGIN;
-UPDATE datawg.t_series_ser set ser_locationdescription = 
+UPDATE datawg.t_series_ser SET ser_locationdescription = 
 'The Ringhals nuclear power plant is located on the Swedish west coast in the Kattegat. This site is located at the coast. The monitoring takes place near the intake of cooling water to the nuclear power plant.'
-where ser_nameshort='Ring';
+WHERE ser_nameshort='Ring';
 
-UPDATE datawg.t_series_ser set  ser_comment  = 
+UPDATE datawg.t_series_ser SET  ser_comment  = 
 'The Ringhals series consists of transparent glass eel. The time of arrival of the glass eels to the sampling site varies between years, probably as a consequence of hydrographical conditions, but the peak in abundance normally occurred in late March to early April. Abundance has decreased by 96% if the recent years are compared to the peak in 1981-1983. From 2012 the series has been corrected and now only concerns glass eel collected during March and April (weeks 9-18). The sampling at Ringhals is performed twice weekly in February-April, using a modified Isaacs-Kidd Midwater trawl (IKMT). The trawl is fixed in the current of incoming cooling water, fishing passively during entire nights. Sampling is depending on the operation of the power plant and changes in the strength of the current may occur so data are corrected for variations in water flow.'
-where ser_nameshort='Ring';
+WHERE ser_nameshort='Ring';
 select ser_comment from  datawg.t_series_ser
 COMMIT;
-SELECT ser_locationdescription from  datawg.t_series_ser where ser_nameshort='Ring';
-SELECT ser_comment from  datawg.t_series_ser where ser_nameshort='Ring';
+SELECT ser_locationdescription from  datawg.t_series_ser WHERE ser_nameshort='Ring';
+SELECT ser_comment from  datawg.t_series_ser WHERE ser_nameshort='Ring';
 
 
 begin;
-update datawg.t_series_ser set geom=ST_SetSRID(ST_MakePoint(12.210629,57.226613),4326) where ser_nameshort='Visk';
+update datawg.t_series_ser SET geom=ST_SETSRID(ST_MakePoint(12.210629,57.226613),4326) WHERE ser_nameshort='Visk';
 commit;
 
 begin;
-update datawg.t_series_ser set geom=ST_SetSRID(ST_MakePoint(12.105802,57.261890),4326) where ser_nameshort='Ring';
+update datawg.t_series_ser SET geom=ST_SETSRID(ST_MakePoint(12.105802,57.261890),4326) WHERE ser_nameshort='Ring';
 commit;
 
 ----------------------------
 -- insert new series for mino scientific sampling MiSc
 ---------------------------
-SELECT * FROM datawg.t_series_ser where ser_cou_code='PT';
+SELECT * FROM datawg.t_series_ser WHERE ser_cou_code='PT';
 -- will insert the series at postition 64 just after MiPo
 begin;
 -- first we need to insert the station
@@ -154,7 +154,7 @@ select max("tblCodeID")+1,
 	'T' as "PURPM", -- Not sure there
 	'Mino scientific recruitment monitoring' as "Notes"
 from ref.tr_station; --1 
-update datawg.t_series_ser set ser_order=ser_order+1 where ser_order>=64; --32
+update datawg.t_series_ser SET ser_order=ser_order+1 WHERE ser_order>=64; --32
 INSERT INTO  datawg.t_series_ser(
           ser_order, 
           ser_nameshort, 
@@ -196,9 +196,9 @@ INSERT INTO  datawg.t_series_ser(
           3 as ser_sam_id, -- scientific estimate
           0 as ser_qal_id, -- currenly 2 years
           'Series too short yet < 10 years to be included' as ser_qal_comment,
-          ST_SetSRID(ST_MakePoint(-8.2, 43.29),4326)
+          ST_SETSRID(ST_MakePoint(-8.2, 43.29),4326)
           from ref.tr_station
-          where  "Station_Name" = 'MiSc';--1
+          WHERE  "Station_Name" = 'MiSc';--1
 COMMIT;
 
 BEGIN;
@@ -209,7 +209,7 @@ COMMIT;
 ----------------------------
 -- insert new series for Oria scientific sampling Oria
 ---------------------------
-SELECT * FROM datawg.t_series_ser where ser_cou_code='ES';
+SELECT * FROM datawg.t_series_ser WHERE ser_cou_code='ES';
 -- will insert the series at postition 60 just before the Nalo
 BEGIN;
 -- first we need to insert the station
@@ -239,7 +239,7 @@ select max("tblCodeID")+1,
 	'Oria scientific monitoring' as "Notes"
 from ref.tr_station; --1 
 
-update datawg.t_series_ser set ser_order=ser_order+1 where ser_order>=60; --37
+update datawg.t_series_ser SET ser_order=ser_order+1 WHERE ser_order>=60; --37
 INSERT INTO  datawg.t_series_ser(
           ser_order, 
           ser_nameshort, 
@@ -281,9 +281,9 @@ INSERT INTO  datawg.t_series_ser(
           3 as ser_sam_id, -- scientific estimate
           0 as ser_qal_id, -- currenly 8 years
           'Series too short yet < 10 years to be included' as ser_qal_comment,
-          ST_SetSRID(ST_MakePoint(-2.1307297, 43.28276),4326)
+          ST_SETSRID(ST_MakePoint(-2.1307297, 43.28276),4326)
           from ref.tr_station
-          where  "Station_Name" = 'Oria';--1
+          WHERE  "Station_Name" = 'Oria';--1
 COMMIT;
 --ROLLBACK;
 
@@ -292,51 +292,51 @@ COMMIT;
 ------------------------
 
 begin;
-update datawg.t_series_ser set geom=ST_SetSRID(ST_MakePoint(-8.176306,54.499848),4326) where ser_nameshort='Erne';
+update datawg.t_series_ser SET geom=ST_SETSRID(ST_MakePoint(-8.176306,54.499848),4326) WHERE ser_nameshort='Erne';
 commit;
 
-select * from  datawg.t_series_ser where  ser_nameshort in ('Erne');
+select * from  datawg.t_series_ser WHERE  ser_nameshort in ('Erne');
 
 begin;
-update datawg.t_series_ser set geom=ST_SetSRID(ST_MakePoint(-6.3143036,53.346488),4326) where ser_nameshort='Liff';
-commit;
-
-
-begin;
-update datawg.t_series_ser set geom=ST_SetSRID(ST_MakePoint(-8.475329,52.761225),4326) where ser_nameshort='ShaP';
-commit;
-
-begin;
-update datawg.t_series_ser set geom=ST_SetSRID(ST_MakePoint(-8.614108,52.705742),4326) where ser_nameshort='ShaA';
+update datawg.t_series_ser SET geom=ST_SETSRID(ST_MakePoint(-6.3143036,53.346488),4326) WHERE ser_nameshort='Liff';
 commit;
 
 
+begin;
+update datawg.t_series_ser SET geom=ST_SETSRID(ST_MakePoint(-8.475329,52.761225),4326) WHERE ser_nameshort='ShaP';
+commit;
 
 begin;
-update datawg.t_series_ser set geom=ST_SetSRID(ST_MakePoint(-0.724741,45.258087),4326) where ser_nameshort='GiSc';
-UPDATE datawg.t_series_ser set (ser_x,ser_y)=(st_x(geom),st_y(geom)) where ser_nameshort = 'GiSc';
+update datawg.t_series_ser SET geom=ST_SETSRID(ST_MakePoint(-8.614108,52.705742),4326) WHERE ser_nameshort='ShaA';
+commit;
+
+
+
+begin;
+update datawg.t_series_ser SET geom=ST_SETSRID(ST_MakePoint(-0.724741,45.258087),4326) WHERE ser_nameshort='GiSc';
+UPDATE datawg.t_series_ser SET (ser_x,ser_y)=(st_x(geom),st_y(geom)) WHERE ser_nameshort = 'GiSc';
 commit;
 
 BEGIN;
 SELECT ser_x,ser_y, ser_nameshort FROM datawg.t_series_ser;
-UPDATE datawg.t_series_ser set (ser_x,ser_y)=(st_x(geom),st_y(geom)) where ser_nameshort IN ('ShaP','Liff','Erne','Ronn','Ring','Visk','ShaA');
+UPDATE datawg.t_series_ser SET (ser_x,ser_y)=(st_x(geom),st_y(geom)) WHERE ser_nameshort IN ('ShaP','Liff','Erne','Ronn','Ring','Visk','ShaA');
 COMMIT;
 
 
 select site,namelong,min,max,duration,missing,life_stage,sampling_type,unit,habitat_type,"order",series_kept
- from datawg.series_summary where site='Oria'
+ from datawg.series_summary WHERE site='Oria'
  
  SELECT * FROM datawg.t_dataseries_das WHERE das_ser_id = (
  SELECT ser_id FROM datawg.t_series_ser WHERE ser_nameshort='Oria')
  58.58894, 
  
 begin;
-update datawg.t_series_ser set geom=ST_SetSRID(ST_MakePoint(16.18392,58.58894),4326) where ser_nameshort='Mota';
-UPDATE datawg.t_series_ser set (ser_x,ser_y)=(st_x(geom),st_y(geom)) where ser_nameshort = 'Mota';
+update datawg.t_series_ser SET geom=ST_SETSRID(ST_MakePoint(16.18392,58.58894),4326) WHERE ser_nameshort='Mota';
+UPDATE datawg.t_series_ser SET (ser_x,ser_y)=(st_x(geom),st_y(geom)) WHERE ser_nameshort = 'Mota';
 commit;
 
 
-SELECT * FROM datawg.t_series_ser where ser_cou_code='ES';
+SELECT * FROM datawg.t_series_ser WHERE ser_cou_code='ES';
 -- I need to insert in position 67
 BEGIN;
 -- first we need to insert the station
@@ -365,7 +365,7 @@ select max("tblCodeID")+1,
 	'T' as "PURPM", 
 	'Scientific monitoring in the Guadalquivir' as "Notes"
 from ref.tr_station; --1 
-update datawg.t_series_ser set ser_order=ser_order+1 where ser_order>=67; --37
+update datawg.t_series_ser SET ser_order=ser_order+1 WHERE ser_order>=67; --37
 INSERT INTO  datawg.t_series_ser(
           ser_order, 
           ser_nameshort, 
@@ -411,16 +411,16 @@ the mouth of the estuary.'
           3 as ser_sam_id, -- scientific estimate
           0 as ser_qal_id, -- currenly 9 years
           'Series too short yet < 10 years to be included' as ser_qal_comment,
-          ST_SetSRID(ST_MakePoint(-6.341810, 36.801823),4326)
+          ST_SETSRID(ST_MakePoint(-6.341810, 36.801823),4326)
           from ref.tr_station
-          where  "Station_Name" = 'Guadalquivir';--1
+          WHERE  "Station_Name" = 'Guadalquivir';--1
 COMMIT;
 --ROLLBACK;
 SELECT * FROM ref.tr_station WHERE "Station_Name"='Guadalquivir'; 
 SELECT * FROM datawg.t_series_ser WHERE ser_nameshort='Guad' ; 
 
 
-SELECT * FROM datawg.t_series_ser where ser_cou_code='BE';
+SELECT * FROM datawg.t_series_ser WHERE ser_cou_code='BE';
 -- I need to insert in position 16
 BEGIN;
 -- first we need to insert the station
@@ -449,7 +449,7 @@ select max("tblCodeID")+1,
 	'T' as "PURPM", 
 	'Scientific monitoring in the Veurne-Ambacht' as "Notes"
 from ref.tr_station; --1 
-update datawg.t_series_ser set ser_order=ser_order+1 where ser_order>=16; --37
+update datawg.t_series_ser SET ser_order=ser_order+1 WHERE ser_order>=16; --37
 INSERT INTO  datawg.t_series_ser(
           ser_order, 
           ser_nameshort, 
@@ -492,38 +492,60 @@ INSERT INTO  datawg.t_series_ser(
           4 as ser_sam_id, -- trapping all
           0 as ser_qal_id, -- currenly 3 years
           'Series too short yet < 10 years to be included' as ser_qal_comment,
-          ST_SetSRID(ST_MakePoint(2.760691, 51.126958),4326)
+          ST_SETSRID(ST_MakePoint(2.760691, 51.126958),4326)
           from ref.tr_station
-          where  "Station_Name" = 'Veurne-Ambacht';--1
+          WHERE  "Station_Name" = 'Veurne-Ambacht';--1
 COMMIT;
 --ROLLBACK;
 
 SELECT * FROM datawg.t_series_ser WHERE ser_cou_code='BE'
-update datawg.t_series_ser set ser_order=ser_order+1 where ser_order>=52; --37
+update datawg.t_series_ser SET ser_order=ser_order+1 WHERE ser_order>=52; --37
 update datawg.t_series_ser SET ser_order=52 WHERE ser_nameshort='VeAm'
 
 -- change the Den Oever series, the location was really wrong
 begin;
-update datawg.t_series_ser set geom=ST_SetSRID(ST_MakePoint(5.327523,53.073100),4326) where ser_nameshort='RhDO';
-UPDATE datawg.t_series_ser set (ser_x,ser_y)=(st_x(geom),st_y(geom)) where ser_nameshort = 'RhDO';
+update datawg.t_series_ser SET geom=ST_SETSRID(ST_MakePoint(5.327523,53.073100),4326) WHERE ser_nameshort='RhDO';
+UPDATE datawg.t_series_ser SET (ser_x,ser_y)=(st_x(geom),st_y(geom)) WHERE ser_nameshort = 'RhDO';
 commit;
  
 
 -- change position YFS1
-update datawg.t_series_ser set ser_order=ser_order+1 where ser_order>=2; 
+update datawg.t_series_ser SET ser_order=ser_order+1 WHERE ser_order>=2; 
 update datawg.t_series_ser SET ser_order=2 WHERE ser_nameshort='YFS1'
 
 
 begin;
-update datawg.t_series_ser set geom=ST_SetSRID(ST_MakePoint(17.43453,60.55913),4326) where ser_nameshort='Dala';
-UPDATE datawg.t_series_ser set (ser_x,ser_y)=(st_x(geom),st_y(geom)) where ser_nameshort = 'Dala';
+update datawg.t_series_ser SET geom=ST_SETSRID(ST_MakePoint(17.43453,60.55913),4326) WHERE ser_nameshort='Dala';
+UPDATE datawg.t_series_ser SET (ser_x,ser_y)=(st_x(geom),st_y(geom)) WHERE ser_nameshort = 'Dala';
 commit;
 
 
 begin;
-update datawg.t_series_ser set geom=ST_SetSRID(ST_MakePoint(2.758001,51.134565),4326) where ser_nameshort='Yser';
-UPDATE datawg.t_series_ser set (ser_x,ser_y)=(st_x(geom),st_y(geom)) where ser_nameshort = 'Yser';
+update datawg.t_series_ser SET geom=ST_SETSRID(ST_MakePoint(2.758001,51.134565),4326) WHERE ser_nameshort='Yser';
+UPDATE datawg.t_series_ser SET (ser_x,ser_y)=(st_x(geom),st_y(geom)) WHERE ser_nameshort = 'Yser';
 commit;
 
+-- Göta Älv 58.27435, 12.27165
+BEGIN;
+UPDATE datawg.t_series_ser SET geom=ST_SETSRID(ST_MakePoint(12.27165,58.27435),4326) WHERE ser_nameshort='Gota';
+UPDATE datawg.t_series_ser SET (ser_x,ser_y)=(st_x(geom),st_y(geom)) WHERE ser_nameshort = 'Gota';
+COMMIT;
 
-, 
+
+-- Kävlingeån 55.69855, 13.55370
+BEGIN;
+UPDATE datawg.t_series_ser SET geom=ST_SETSRID(ST_MakePoint(13.55370,55.69855),4326) WHERE ser_nameshort='Kavl';
+UPDATE datawg.t_series_ser SET (ser_x,ser_y)=(st_x(geom),st_y(geom)) WHERE ser_nameshort = 'Kavl';
+COMMIT;
+
+-- Lagan 56.51565, 13.04992
+BEGIN;
+UPDATE datawg.t_series_ser SET geom=ST_SETSRID(ST_MakePoint(13.04992,56.51565),4326) WHERE ser_nameshort='Laga';
+UPDATE datawg.t_series_ser SET (ser_x,ser_y)=(st_x(geom),st_y(geom)) WHERE ser_nameshort = 'Laga';
+COMMIT;
+
+-- Mörrumsån 56.39988, 14.66656
+BEGIN;
+UPDATE datawg.t_series_ser SET geom=ST_SETSRID(ST_MakePoint(14.66656,56.39988),4326) WHERE ser_nameshort='Laga';
+UPDATE datawg.t_series_ser SET (ser_x,ser_y)=(st_x(geom),st_y(geom)) WHERE ser_nameshort = 'Laga';
+COMMIT;
