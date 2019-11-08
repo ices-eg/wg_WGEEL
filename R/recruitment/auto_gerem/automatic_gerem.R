@@ -8,6 +8,7 @@
 #######################################################################################
 rm(list=ls())
 
+library(runjags)
 library(RPostgreSQL)
 library(tidyr)
 library(reshape2)
