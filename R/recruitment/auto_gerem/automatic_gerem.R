@@ -19,7 +19,7 @@ m=dbDriver("PostgreSQL")
 
 #get the surface of a catchment given a list of wso_id
 getSurface=function(w,con){
-  if (as.character(w)=="") return(1) #corresponds to unreal catchments
+  if (as.character(w)<"0") return(1) #corresponds to unreal catchments
   dbGetQuery(con,paste("select sum(area_km2) from hydrographie.ccm_v2_1_riverbasin_seaoutlets where wso_id in (",as.character(w),")"))[1,1]
 }
 getUsername <- function(){
