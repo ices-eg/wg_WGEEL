@@ -9,6 +9,8 @@
 rm(list=ls())
 
 library(runjags)
+library(coda)
+library(ggplot2)
 library(RPostgreSQL)
 library(tidyr)
 library(reshape2)
@@ -32,6 +34,10 @@ if(getUsername() == 'hilaire.drouineau'){
   con_wgeel=dbConnect(m,host="citerne.bordeaux.cemagref.fr",user="hilaire.drouineau",dbname="sudoang",password=getPass("Password for wgeel database"))
   con_ccm=dbConnect(m,host="citerne.bordeaux.cemagref.fr",dbname="referentiel",user="hilaire.drouineau",password=getPass("Password for ccm database"))
   setwd("~/Documents/Bordeaux/migrateurs/WGEEL/github//wg_WGEEL/R/recruitment/auto_gerem/")
+} else if (getUsername() == 'marie.vanacker'){
+  con_wgeel=dbConnect(m,host="citerne.bordeaux.cemagref.fr",user="marie.vanacker",dbname="sudoang",password=getPass("Password for wgeel database"))
+  con_ccm=dbConnect(m,host="citerne.bordeaux.cemagref.fr",dbname="referentiel",user="marie.vanacker",password=getPass("Password for ccm database"))
+  setwd("C:/Users/marie.vanacker/Work Folders/Documents/projet SUDOANG/depot_git/sudoang/gerem")
 }
 
 
