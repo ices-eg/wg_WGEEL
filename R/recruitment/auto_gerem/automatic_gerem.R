@@ -8,17 +8,20 @@
 #######################################################################################
 rm(list=ls())
 
+library(runjags)
+library(coda)
+library(ggplot2)
 library(RPostgreSQL)
 library(tidyr)
 library(reshape2)
 library(sf)
-library(svDialogs)
+library(getPass)
 m=dbDriver("PostgreSQL")
 
 
 #get the surface of a catchment given a list of wso_id
 getSurface=function(w,con){
-  if (as.character(w)=="") return(1) #corresponds to unreal catchments
+  if (as.character(w)<"0") return(1) #corresponds to unreal catchments
   dbGetQuery(con,paste("select sum(area_km2) from hydrographie.ccm_v2_1_riverbasin_seaoutlets where wso_id in (",as.character(w),")"))[1,1]
 }
 getUsername <- function(){
@@ -28,9 +31,13 @@ getUsername <- function(){
 
 
 if(getUsername() == 'hilaire.drouineau'){
-  con_wgeel=dbConnect(m,host="localhost",user="hilaire",dbname="wgeel",password=dlg_input("Password for wgeel database", "")$res)
-  con_ccm=dbConnect(m,host="citerne.bordeaux.cemagref.fr",dbname="referentiel",user="hilaire.drouineau",password=dlg_input("Password for ccm database", "")$res)
+  con_wgeel=dbConnect(m,host="citerne.bordeaux.cemagref.fr",user="hilaire.drouineau",dbname="sudoang",password=getPass("Password for wgeel database"))
+  con_ccm=dbConnect(m,host="citerne.bordeaux.cemagref.fr",dbname="referentiel",user="hilaire.drouineau",password=getPass("Password for ccm database"))
   setwd("~/Documents/Bordeaux/migrateurs/WGEEL/github//wg_WGEEL/R/recruitment/auto_gerem/")
+} else if (getUsername() == 'marie.vanacker'){
+  con_wgeel=dbConnect(m,host="citerne.bordeaux.cemagref.fr",user="marie.vanacker",dbname="sudoang",password=getPass("Password for wgeel database"))
+  con_ccm=dbConnect(m,host="citerne.bordeaux.cemagref.fr",dbname="referentiel",user="marie.vanacker",password=getPass("Password for ccm database"))
+  setwd("C:/Users/marie.vanacker/Work Folders/Documents/projet SUDOANG/depot_git/sudoang/gerem")
 }
 
 
@@ -215,7 +222,7 @@ mydata=list(
   catchment_catch=catchment_catch,
   catchment_absolute=catchment_absolute,
   zonecatchment=zonecatchment,
-  surface=surface,
+  surface=ifelse(!is.na(surface),surface,1),
   nbyear=nbyear,
   logIAObs=as.matrix(logIAObs),
   logIPObs=as.matrix(logIPObs),
