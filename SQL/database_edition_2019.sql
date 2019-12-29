@@ -300,3 +300,12 @@ COMMIT;
 
 
 SELECT * FROM datawg.t_eelstock_eel WHERE eel_lfs_code='GY'
+/*
+SELECT * FROM ref.tr_emu_emu WHERE emu_nameshort='GB_NorW'
+SELECT * FROM "ref".tr_emusplit_ems WHERE emu_nameshort='GB_NorW'
+SELECT * FROM datawg.t_eelstock_eel WHERE eel_emu_nameshort='IE_NorW'; -- NOTHING
+SELECT * FROM datawg.t_series_ser WHERE ser_emu_nameshort='GB_NorW'; -- NOTHING
+BEGIN;
+DELETE FROM ref.tr_emu_emu WHERE emu_nameshort='GB_NorW'
+ROLLBACK;
+*/

@@ -136,7 +136,7 @@ WHERE ser_typ_id IN (2,3)
 ')
 
 statseries_ys<-sqldf("select * from datawg.series_summary where life_stage IN ('Y', 'S')")
-
+# load(file="data/ref_and_eel_data.Rdata")
 save( precodata_all, 
     precodata,    
     precodata_emu, 
@@ -150,4 +150,4 @@ save( precodata_all,
     aquaculture, 
     landings,
 	ys_stations, wger_ys, wger_init_ys, statseries_ys,
-    file="data/ref_and_eel_data.Rdata")
+    file="data/ref_and_eel_data.Rdata", version=2)
