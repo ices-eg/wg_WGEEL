@@ -20,5 +20,14 @@ script is [here](https://github.com/ices-eg/wg_WGEEL/blob/master/Misc/wkeelmigra
  value data
 ---------------
 * Corrected all month
-* 
+* Replaced missing nameshort identifiers in France (using the name of the file)
+* Removed one line from the database (duplicate ORIA) 
+* **TODO** run script on server
+* corrected `FR_Rhin_Y` `FR_Sous_S` `FR_Scorff_S` to standardize names
+* corrected GirG to Gisc
+* changed names in Irish series to match with database (Burr, Erne, Liff, Burr) 
+
+ series info
+---------------
+* LTU file : Mismatch between ZEIT in the series and Zeit in data, renamed to Zeit
 

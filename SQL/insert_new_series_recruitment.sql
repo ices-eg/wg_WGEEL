@@ -549,3 +549,18 @@ BEGIN;
 UPDATE datawg.t_series_ser SET geom=ST_SETSRID(ST_MakePoint(14.66656,56.39988),4326) WHERE ser_nameshort='Laga';
 UPDATE datawg.t_series_ser SET (ser_x,ser_y)=(st_x(geom),st_y(geom)) WHERE ser_nameshort = 'Laga';
 COMMIT;
+
+
+-- 2020 
+
+--TODO run this on the shiny server
+
+SELECT * FROM datawg.t_dataseries_das tdd WHERE das_ser_id IN (207,211);
+
+207 IS OK but 211 IS NOT AND has NOT DATA
+
+SELECT * FROM datawg.t_series_ser tss WHERE ser_id=211
+
+BEGIN;
+DELETE FROM datawg.t_series_ser tss WHERE ser_id=211;
+COMMIT;

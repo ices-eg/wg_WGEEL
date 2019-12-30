@@ -33,6 +33,7 @@ data<-read_excel(
 			skip=0)	
 	data$source <-  mylocalfilename
 	data$country <- country
+	data$datasource <- datasource
 #data$das_value <- as.numeric(data$das_value)
 #data$das_year <- as.numeric(data$das_year)
 #data$das_month <- as.character(data$das_month)
@@ -42,6 +43,8 @@ data<-read_excel(
 # here we have already seached for catch and landings above.
   series_info<-read_excel(
       path=path,
+			range=cell_cols("A:O"),
+			col_types=c(rep("text",13),"numeric","numeric"),
       sheet =3,
       skip=0)
 

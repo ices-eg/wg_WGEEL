@@ -38,9 +38,9 @@ host <- "localhost"#"192.168.0.100"
 userwgeel <-"wgeel"
 # we use isolate as we want no dependency on the value (only the button being clicked)
 stopifnot(exists("passwordwgeel"))
-############################################
-# FIRST STEP INITIATE THE CONNECTION WITH THE DATABASE
-###############################################
+
+# connection settings -------------------------------------------------------------------
+
 options(sqldf.RPostgreSQL.user = userwgeel,  
 		sqldf.RPostgreSQL.password = passwordwgeel,
 		sqldf.RPostgreSQL.dbname = "wgeel",
@@ -91,9 +91,12 @@ save(ices_division, emus, the_years, tr_typeseries_typt, list_country, file=str_
 
 poolClose(pool)
 
+# load data ------------------------------------------------------------------------------
+
 
 # test for missing files
 stopifnot(length(fall[!fall%in%c(fcl,ffc,fsm)])==0)
+
 datasource <- "wkeelmigration"
 list_seasonality <- list()
 for (f in fsm){
@@ -132,10 +135,37 @@ res$das_month <- recode(res$das_month,
 		"feb"=2
 )
 
-# check nameshort
+# check nameshort---------------------------------------------------------------
+
 ser_nameshort <- sqldf("select ser_nameshort from datawg.t_series_ser")
+ser_nameshort <- as.character(ser_nameshort$ser_nameshort)
+
+idx_in_res<- match(res$ser_nameshort,ser_nameshort_datacall)
+idx_in_ser_nameshort_datacall <- 1:length(ser_nameshort_datacall)
+# replacing missing nameshort in France
+# res[is.na(res$ser_nameshort),]
+res[is.na(res$ser_nameshort),"ser_nameshort"] <- res[is.na(res$ser_nameshort),] %>% 
+		pull(source)%>% 
+		gsub(pattern="FR_seasonality_of_migration_",replacement="")
+res$ser_nameshort <- gsub("-","",res$ser_nameshort)
+# replacing values for nameshort with actual names when existing
+
 ser_nameshort_datacall <- unique(res$ser_nameshort)
-res[is.na(res$ser_nameshort),]
+ser_nameshort_l <- tolower(ser_nameshort)
+ser_nameshort_datacall_l <- tolower(ser_nameshort_datacall)
+ccc <- charmatch(ser_nameshort_datacall_l,ser_nameshort_l,nomatch=-1) # partial character match, 
+index <- ccc>0
+ser_nameshort_datacall_l[index]<-ser_nameshort[ccc[index]]
+dfser <- data.frame(ser_nameshort=ser_nameshort_datacall, ser_nameshort_base="", existing=FALSE, stringsAsFactors = FALSE)
+dfser$existing[index]<- TRUE
+dfser$ser_nameshort_base[index]<-ser_nameshort[ccc[index]]
+dfser[dfser$GirG]
+# load series data ------------------------------------------------------------------------------
 
-
-res %>% group_by(ser_nameshort)
+ser <- map(list_seasonality,function(X){			X[["series_info"]]		}) %>% 
+		bind_rows()
+Hmisc::describe(ser)
+# searching for a mismatch between names in ser and the others
+print(ser[!ser$ser_nameshort%in%dfser$ser_nameshort,],width = Inf)
+print(dfser$ser_nameshort[!dfser$ser_nameshort%in%ser$ser_nameshort]) # Rhin_Y     Soustons_S
+merge(dfser,ser,by=ser)
