@@ -188,4 +188,19 @@ print(ser[!ser$ser_nameshort%in%dfser$ser_nameshort,],width = Inf)
 print(dfser$ser_nameshort[!dfser$ser_nameshort%in%ser$ser_nameshort]) 
 ser2 <- merge(dfser,ser,by="ser_nameshort",all.x=TRUE,all.y=TRUE)
 # replacing all existing series with data from base
-ser2[ser2$existing,c(1,4:ncol(ser2))]<- t_series_ser[match(ser2[ser2$existing,"ser_nameshort_base"],t_series_ser$ser_nameshort),]
+ser2[ser2$existing,c(4:ncol(ser2))]<- t_series_ser[match(ser2[ser2$existing,"ser_nameshort_base"],t_series_ser$ser_nameshort),-1]
+
+# some summaries about data
+# 
+nrow(res) #5650
+knitr::kable(sum0 <- res %>%
+		inner_join(ser2[,
+						c("ser_nameshort", "ser_namelong", "ser_typ_id", "ser_lfs_code",  "ser_emu_nameshort", "ser_cou_code")], by="ser_nameshort") %>%
+		group_by(ser_lfs_code) %>%
+		summarize(N=n(), 
+				Nseries=n_distinct(ser_nameshort)))
+knitr::kable(sum1 <- res %>%
+				inner_join(ser2[,
+								c("ser_nameshort", "ser_namelong", "ser_typ_id", "ser_lfs_code",  "ser_emu_nameshort", "ser_cou_code")], by="ser_nameshort") %>%
+				group_by(ser_nameshort,ser_lfs_code, ser_cou_code) %>%
+				summarize(first.year=min(das_year),last.year= max(das_year), nb_year=max(das_year)-min(das_year),N=n()))
