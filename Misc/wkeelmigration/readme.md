@@ -3,6 +3,12 @@
 
 renamed all files to lowercase, and only three extensions like :
 `GB_fishery_closure.xlsx`
+# DATABASE
+Updated all names for GY and G recruitment series [code](https://github.com/ices-eg/wg_WGEEL/commit/3fc2e32debc9ceefa524ad47836b1b5ab7e2107a)
+
+Removed duplicate for skagerrak norway series 
+
+
 # CLOSURES
 
 
@@ -22,11 +28,10 @@ script is [here](https://github.com/ices-eg/wg_WGEEL/blob/master/Misc/wkeelmigra
 * Corrected all month
 * Replaced missing nameshort identifiers in France (using the name of the file)
 * Removed one line from the database (duplicate ORIA) 
-* **TODO** run script on server
-* corrected `FR_Rhin_Y` `FR_Sous_S` `FR_Scorff_S` to standardize names
+* corrected `FR_Rhin_Y` `FR_Sous_S` `FR_Scorff_S` `FR_GAR_G` to standardize names
 * corrected GirG to Gisc
+* fixed names in DE
 * changed names in Irish series to match with database (Burr, Erne, Liff, Burr) 
-
  series info
 ---------------
 * LTU file : Mismatch between ZEIT in the series and Zeit in data, renamed to Zeit

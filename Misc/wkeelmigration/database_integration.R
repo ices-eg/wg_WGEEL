@@ -140,15 +140,14 @@ res$das_month <- recode(res$das_month,
 
 ser_nameshort <- sqldf("select ser_nameshort from datawg.t_series_ser")
 ser_nameshort <- as.character(ser_nameshort$ser_nameshort)
+sort(ser_nameshort)
 
-idx_in_res<- match(res$ser_nameshort,ser_nameshort_datacall)
-idx_in_ser_nameshort_datacall <- 1:length(ser_nameshort_datacall)
 # replacing missing nameshort in France
 # res[is.na(res$ser_nameshort),]
-res[is.na(res$ser_nameshort),"ser_nameshort"] <- res[is.na(res$ser_nameshort),] %>% 
-		pull(source)%>% 
-		gsub(pattern="FR_seasonality_of_migration_",replacement="")
-res$ser_nameshort <- gsub("-","",res$ser_nameshort)
+#res[is.na(res$ser_nameshort),"ser_nameshort"] <- res[is.na(res$ser_nameshort),] %>% 
+#		pull(source)%>% 
+#		gsub(pattern="FR_seasonality_of_migration_",replacement="")
+# res$ser_nameshort <- gsub("-","",res$ser_nameshort)
 # replacing values for nameshort with actual names when existing
 
 ser_nameshort_datacall <- unique(res$ser_nameshort)
@@ -156,11 +155,14 @@ ser_nameshort_l <- tolower(ser_nameshort)
 ser_nameshort_datacall_l <- tolower(ser_nameshort_datacall)
 ccc <- charmatch(ser_nameshort_datacall_l,ser_nameshort_l,nomatch=-1) # partial character match, 
 index <- ccc>0
+#ser_nameshort_datacall_l[ccc==0]
+# res[tolower(res$ser_nameshort)%in%c("bro","fla"),] # two with many names => corrected in the database
 ser_nameshort_datacall_l[index]<-ser_nameshort[ccc[index]]
 dfser <- data.frame(ser_nameshort=ser_nameshort_datacall, ser_nameshort_base="", existing=FALSE, stringsAsFactors = FALSE)
 dfser$existing[index]<- TRUE
 dfser$ser_nameshort_base[index]<-ser_nameshort[ccc[index]]
-dfser[dfser$GirG]
+
+
 # load series data ------------------------------------------------------------------------------
 
 ser <- map(list_seasonality,function(X){			X[["series_info"]]		}) %>% 

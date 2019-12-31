@@ -554,9 +554,16 @@ COMMIT;
 -- 2020 
 
 
+UPDATE datawg.t_series_ser SET ser_nameshort='BroE' WHERE ser_nameshort='BroEGY';
+UPDATE datawg.t_series_ser SET ser_nameshort='FlaE' WHERE ser_nameshort='FlaEGY';
+
+SELECT * FROM datawg.t_series_ser WHERE ser_nameshort ='ska'
+SELECT * FROM datawg.t_series_ser WHERE ser_nameshort ='SkaY'
+SELECT * FROM datawg.t_dataseries_das WHERE das_ser_id=239
+
+BEGIN;
+DELETE FROM datawg.t_dataseries_das WHERE das_ser_id=193;
+DELETE FROM datawg.t_series_ser WHERE ser_nameshort ='ska';
+COMMIT;
 
 
-
-
-
-SELECT count(*) FROM datawg.t_series_ser --186
