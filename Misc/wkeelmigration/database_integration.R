@@ -26,10 +26,12 @@ load(file=str_c("C:\\workspace\\gitwgeel\\R\\shiny_data_integration\\shiny_di","
 
 
 datawd <- "C:\\Users\\cedric.briand\\OneDrive - EPTB Vilaine\\Projets\\GRISAM\\2020\\wkeemigration\\source\\"
-fall <- list.files(datawd)
+fall <- list.files(datawd, pattern='.xl')
 fcl <- list.files(datawd,pattern='commercial_landings')
 ffc <- list.files(datawd,pattern='fishery_closure')
 fsm <- list.files(datawd,pattern='seasonality_of_migration')
+# test for missing files
+stopifnot(length(fall[!fall%in%c(fcl,ffc,fsm)])==0)
 
 # load data from database
 # At this stage start a tunnel to wgeel via SSH
@@ -95,8 +97,7 @@ poolClose(pool)
 # load data ------------------------------------------------------------------------------
 
 
-# test for missing files
-stopifnot(length(fall[!fall%in%c(fcl,ffc,fsm)])==0)
+
 
 datasource <- "wkeelmigration"
 list_seasonality <- list()
@@ -108,7 +109,9 @@ for (f in fsm){
 	country <- substring(mylocalfilename,1,2)
 	list_seasonality[[mylocalfilename]] <-	load_seasonality(path, datasource)
 }
-
+# list_seasonality is a list with all data sets (readme, data, series) as elements of the list
+# below we extract the list of data and bind them all in a single data.frame
+# to do so, I had to constrain the column type during file reading (see functions.R)
 res <- map(list_seasonality,function(X){			X[["data"]]		}) %>% 
 		bind_rows()
 Hmisc::describe(res)
@@ -193,14 +196,24 @@ ser2[ser2$existing,c(4:ncol(ser2))]<- t_series_ser[match(ser2[ser2$existing,"ser
 # some summaries about data
 # 
 nrow(res) #5650
+# the following table are just copied and pasted in the markdown document readme.md file
 knitr::kable(sum0 <- res %>%
 		inner_join(ser2[,
-						c("ser_nameshort", "ser_namelong", "ser_typ_id", "ser_lfs_code",  "ser_emu_nameshort", "ser_cou_code")], by="ser_nameshort") %>%
+						c("ser_nameshort",  "ser_lfs_code")], by="ser_nameshort") %>%
 		group_by(ser_lfs_code) %>%
 		summarize(N=n(), 
 				Nseries=n_distinct(ser_nameshort)))
+knitr::kable(sum0 <- res %>%
+				inner_join(ser2[,
+								c("ser_nameshort",  "ser_lfs_code")], by="ser_nameshort") %>%
+				group_by(ser_lfs_code,das_month) %>%
+				summarize(N=n()) %>% pivot_wider(names_from="das_month",values_from="N")
+)
+		
 knitr::kable(sum1 <- res %>%
 				inner_join(ser2[,
 								c("ser_nameshort", "ser_namelong", "ser_typ_id", "ser_lfs_code",  "ser_emu_nameshort", "ser_cou_code")], by="ser_nameshort") %>%
 				group_by(ser_nameshort,ser_lfs_code, ser_cou_code) %>%
-				summarize(first.year=min(das_year),last.year= max(das_year), nb_year=max(das_year)-min(das_year),N=n()))
+				summarize(first.year=min(das_year),last.year= max(das_year), nb_year=1+max(das_year)-min(das_year),N=n()))
+
+save(res, ser2, file=str_c(datawd,"seasonality_tibbles_res_ser2.Rdata"))
