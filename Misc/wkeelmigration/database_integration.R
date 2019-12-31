@@ -7,7 +7,8 @@
 # Initial read of seasonality files -------------------------------------------
 
 
-# load packages
+# load packages set path ------------------------
+
 setwd("C:\\workspace\\gitwgeel\\Misc\\wkeelmigration\\")
 source("..\\..\\R\\utilities\\load_library.R")
 source("functions.R")
@@ -22,10 +23,13 @@ load_package("tidyverse")
 source("..\\..\\R\\shiny_data_integration\\shiny_di\\loading_functions.R")
 source("..\\..\\R\\shiny_data_integration\\shiny_di\\database_reference.R") # extract_ref
 load(file=str_c("C:\\workspace\\gitwgeel\\R\\shiny_data_integration\\shiny_di","\\common\\data\\init_data.Rdata"))  
-# read data
-
-
 datawd <- "C:\\Users\\cedric.briand\\OneDrive - EPTB Vilaine\\Projets\\GRISAM\\2020\\wkeemigration\\source\\"
+imgwd <- "C:\\workspace\\wgeeldata\\wkeelmigration\\image\\"
+
+
+
+# read data ----------------------------------------------
+
 fall <- list.files(datawd, pattern='.xl')
 fcl <- list.files(datawd,pattern='commercial_landings')
 ffc <- list.files(datawd,pattern='fishery_closure')
@@ -186,23 +190,40 @@ dfser$ser_nameshort_base[index]<-ser_nameshort[ccc[index]]
 ser <- map(list_seasonality,function(X){			X[["series_info"]]		}) %>% 
 		bind_rows()
 Hmisc::describe(ser)
-# searching for a mismatch between names in ser and the others
+ser <-ser[!is.na(ser$ser_nameshort),]
+# searching for a mismatch between names in ser and the others (both must return zero)
 print(ser[!ser$ser_nameshort%in%dfser$ser_nameshort,],width = Inf)
 print(dfser$ser_nameshort[!dfser$ser_nameshort%in%ser$ser_nameshort]) 
 ser2 <- merge(dfser,ser,by="ser_nameshort",all.x=TRUE,all.y=TRUE)
 # replacing all existing series with data from base
 ser2[ser2$existing,c(4:ncol(ser2))]<- t_series_ser[match(ser2[ser2$existing,"ser_nameshort_base"],t_series_ser$ser_nameshort),-1]
 
-# some summaries about data
+
+
+
+
+# some summaries about data --------------------------------------------------------------------
 # 
-nrow(res) #5650
+nrow(res) #7764
+nrow(ser2)
+# test before joining that we not not loose any data
+stopifnot(nrow(res %>%
+						inner_join(ser2[,
+										c("ser_nameshort",  "ser_lfs_code")], by="ser_nameshort"))==nrow(res))
+
+
 # the following table are just copied and pasted in the markdown document readme.md file
+
+# number per stage
+
 knitr::kable(sum0 <- res %>%
 		inner_join(ser2[,
 						c("ser_nameshort",  "ser_lfs_code")], by="ser_nameshort") %>%
 		group_by(ser_lfs_code) %>%
 		summarize(N=n(), 
 				Nseries=n_distinct(ser_nameshort)))
+
+# number per month
 knitr::kable(sum0 <- res %>%
 				inner_join(ser2[,
 								c("ser_nameshort",  "ser_lfs_code")], by="ser_nameshort") %>%
@@ -210,6 +231,7 @@ knitr::kable(sum0 <- res %>%
 				summarize(N=n()) %>% pivot_wider(names_from="das_month",values_from="N")
 )
 		
+# series details
 knitr::kable(sum1 <- res %>%
 				inner_join(ser2[,
 								c("ser_nameshort", "ser_namelong", "ser_typ_id", "ser_lfs_code",  "ser_emu_nameshort", "ser_cou_code")], by="ser_nameshort") %>%
@@ -217,3 +239,52 @@ knitr::kable(sum1 <- res %>%
 				summarize(first.year=min(das_year),last.year= max(das_year), nb_year=1+max(das_year)-min(das_year),N=n()))
 
 save(res, ser2, file=str_c(datawd,"seasonality_tibbles_res_ser2.Rdata"))
+
+#load(file=str_c(datawd,"seasonality_tibbles_res_ser2.Rdata"))
+
+
+# Some plots  -------------------------------------------------
+
+scaledf <- function(x){
+	(x-mean(x, na.rm=TRUE))  / sd(x, na.rm=TRUE)
+}
+
+scalesd <- function(x){
+	x / sd(x, na.rm=TRUE)
+}
+res3 <- res %>%		inner_join(ser2[,
+						c("ser_nameshort",  "ser_lfs_code","ser_y")], by="ser_nameshort") %>%
+		group_by(ser_nameshort) %>%
+		mutate(scaled_value = scalesd(das_value))
+
+range(res3$ser_y, na.rm = TRUE)
+res3$lat_range <- cut(res3$ser_y,breaks=c(0,10,15,20,25,30,35,40,50,60,65,70))        
+
+
+png(filename=str_c(imgwd,"seasonality_glass_eel.png"))
+#x11()
+res3 %>% filter(ser_lfs_code=='G') %>%
+		group_by(das_month,ser_nameshort, lat_range)%>%
+		summarize(mean_scaled_value=mean(scaled_value, na.rm=TRUE))%>%
+ggplot(aes(x = das_month,
+						fill = ser_nameshort)) +
+		geom_col(aes(y=mean_scaled_value)) + 
+		#facet_wrap(~ser_nameshort)+
+		xlab("month")+
+		geom_text(aes(x=das_month, y=4,label = das_month), color = "white", size=6)+
+		facet_grid(~lat_range )+
+		coord_polar()+		
+		theme_void()
+dev.off()		
+		
+png(filename=str_c(imgwd,"seasonality_silver.png"))
+#x11()
+res3 %>% filter(ser_lfs_code=='S') %>%
+		group_by(das_month,ser_nameshort, lat_range)%>%
+		summarize(mean_scaled_value=mean(scaled_value, na.rm=TRUE))%>%
+		ggplot(aes(x = das_month)) +
+		geom_col(aes(y=mean_scaled_value, fill=ser_nameshort)) + 
+		#facet_wrap(~ser_nameshort)+
+		xlab("month")
+
+dev.off()		

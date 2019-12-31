@@ -4,10 +4,12 @@
 renamed all files to lowercase, and only three extensions like :
 `GB_fishery_closure.xlsx`
 # DATABASE
-Updated all names for GY and G recruitment series [code](https://github.com/ices-eg/wg_WGEEL/commit/3fc2e32debc9ceefa524ad47836b1b5ab7e2107a)
 
-Removed duplicate for skagerrak norway series [code](https://github.com/ices-eg/wg_WGEEL/commit/4ec6c47a12d3f6680b58f6e52fc299527c86a252)
+* Updated all names for GY and G recruitment series [code](https://github.com/ices-eg/wg_WGEEL/commit/3fc2e32debc9ceefa524ad47836b1b5ab7e2107a)
 
+* Removed duplicate for skagerrak norway series [code](https://github.com/ices-eg/wg_WGEEL/commit/4ec6c47a12d3f6680b58f6e52fc299527c86a252)
+
+* Updated names for NO Imsa  [code](https://github.com/ices-eg/wg_WGEEL/commit/2ae4fda65af81d206f8b3daab25807394e79174c)
 
 # CLOSURES
 
@@ -22,23 +24,29 @@ Removed duplicate for skagerrak norway series [code](https://github.com/ices-eg/
 script is [here](https://github.com/ices-eg/wg_WGEEL/blob/master/Misc/wkeelmigration/database_integration.R)
 
 * BE Annual data reported => ignore, remove file
-* Corrected Vilaine file misplaced column (hey this is me ;-))
+* Corrected Vilaine file misplaced column
 * Loaded all files
 
  value data
 ---------------
+
 * Corrected all month
 * Replaced missing nameshort identifiers in France (using the name of the file)
 * corrected `FR_Rhin_Y` `FR_Sous_S` `FR_Scorff_S` `FR_GAR_G` to standardize names
 * corrected GirG to Gisc
 * fixed names in DE
 * changed names in Irish series to match with database (Burr, Erne, Liff, Burr) 
+* removed special coding characters from codnames
 
  series info
 ---------------
+
 * LTU file : Mismatch between ZEIT in the series and Zeit in data, renamed to Zeit
 * replaced all existing series with data from database
-* Updated names for NO Imsa  [code](https://github.com/ices-eg/wg_WGEEL/commit/2ae4fda65af81d206f8b3daab25807394e79174c)
+* Sent mail to Justas ask for coordinates in Lithuania => TODO integrate updated data
+* Corrected wrong format for coordinates in Finland
+* Sent mail to Josefin (SE) to ask for coordinates in decimal degrees => TODO integrate updated data
+
 
 
 |   |ser\_nameshort |  ser\_namelong                              |
@@ -72,13 +80,20 @@ script is [here](https://github.com/ices-eg/wg_WGEEL/blob/master/Misc/wkeelmigra
 
 [code](https://github.com/ices-eg/wg_WGEEL/commit/d1e4f55f7a09742077efeaed43b7b9cceeeda021)
 
+Number of observation : 7764
+
+Number of series : 151
+
+
 Detail of years and number observation per series
 
-|ser\_nameshort |ser\_lfs\_code |ser\_cou\_code | first.year| last.year| nb_year|   N|
+|ser_nameshort |ser_lfs_code |ser_cou_code | first.year| last.year| nb_year|   N|
 |:-------------|:------------|:------------|----------:|---------:|-------:|---:|
 |ALA           |YS           |LT           |       2019|      2019|       1|   1|
 |AllE          |Y            |GB           |       2012|      2019|       8|  49|
+|AlsT          |S            |SE           |       2010|      2012|       3|  14|
 |AshE          |Y            |GB           |       2014|      2016|       3|  16|
+|AtrT          |S            |SE           |       2010|      2011|       2|   8|
 |BadB          |S            |GB           |       2003|      2019|      17| 203|
 |Bann          |GY           |GB           |       1933|      2019|      87|  87|
 |BeeG          |G            |GB           |       2006|      2019|      14|  56|
@@ -102,18 +117,42 @@ Detail of years and number observation per series
 |Fla           |GY           |GB           |       2012|      2019|       8|  35|
 |FlaE          |GY           |GB           |       2007|      2019|      13|  55|
 |FlaG          |G            |GB           |       2007|      2019|      13|  55|
+|ForT          |S            |SE           |       2010|      2011|       2|   8|
 |GarG          |G            |FR           |       2015|      2019|       5|  37|
 |GarY          |Y            |FR           |       2002|      2019|      18| 212|
 |GirB          |S            |GB           |       2003|      2019|      17| 203|
 |Girn          |Y            |GB           |       2008|      2019|      12| 143|
 |GiSc          |G            |FR           |       1991|      2019|      29| 340|
+|GraT          |S            |SE           |       2018|      2018|       1|   4|
 |Grey          |GY           |GB           |       2009|      2017|       9| 108|
 |Gud           |Y            |DK           |       2002|      2005|       4|  28|
 |GVT           |YS           |LT           |       2018|      2018|       1|  12|
 |HallE         |Y            |GB           |       2012|      2019|       8|  17|
 |HauT          |S            |FI           |       1993|      2018|      26|  38|
+|hv1T          |S            |NL           |       2012|      2019|       8|  39|
+|hv2T          |S            |NL           |       2012|      2019|       8|  39|
+|hv3T          |S            |NL           |       2012|      2019|       8|  39|
+|hv4T          |S            |NL           |       2012|      2019|       8|  39|
+|hv5T          |S            |NL           |       2012|      2019|       8|  39|
+|hv6T          |S            |NL           |       2012|      2019|       8|  39|
+|hv7T          |S            |NL           |       2012|      2019|       8|  39|
+|ij10T         |S            |NL           |       2012|      2013|       2|   6|
+|ij11T         |S            |NL           |       2012|      2013|       2|   6|
+|ij12T         |S            |NL           |       2012|      2013|       2|   6|
+|ij1T          |S            |NL           |       2012|      2013|       2|   6|
+|ij2T          |S            |NL           |       2012|      2013|       2|   6|
+|ij3T          |S            |NL           |       2012|      2013|       2|   6|
+|ij4T          |S            |NL           |       2012|      2013|       2|   6|
+|ij5T          |S            |NL           |       2012|      2013|       2|   6|
+|ij6T          |S            |NL           |       2012|      2013|       2|   6|
+|ij7T          |S            |NL           |       2012|      2013|       2|   6|
+|ij8T          |S            |NL           |       2012|      2013|       2|   6|
+|ij9T          |S            |NL           |       2012|      2013|       2|   6|
+|ImsaGY        |GY           |NO           |       2000|      2019|      20| 240|
+|ImsaS         |S            |NO           |       2000|      2019|      20| 240|
 |Isle_G        |G            |FR           |       2005|      2007|       3|  11|
 |KauT          |S            |FI           |       1981|      1994|      14|  40|
+|KavT          |S            |SE           |       2019|      2019|       1|  10|
 |KER           |YS           |LT           |       2019|      2019|       1|   1|
 |LakT          |YS           |LT           |       2017|      2019|       3|  36|
 |LeaE          |Y            |GB           |       2016|      2019|       4|  19|
@@ -130,14 +169,42 @@ Detail of years and number observation per series
 |MorE          |Y            |GB           |       2018|      2019|       2|  16|
 |NeaS          |S            |GB           |       1907|      2019|     113| 113|
 |NMilE         |Y            |GB           |       2009|      2019|      11|  66|
+|nw10T         |S            |NL           |       2012|      2019|       8|  40|
+|nw1T          |S            |NL           |       2012|      2019|       8|  42|
+|nw2T          |S            |NL           |       2012|      2019|       8|  40|
+|nw3T          |S            |NL           |       2012|      2019|       8|  40|
+|nw4T          |S            |NL           |       2012|      2019|       8|  40|
+|nw5T          |S            |NL           |       2012|      2019|       8|  39|
+|nw6T          |S            |NL           |       2012|      2019|       8|  39|
+|nw7T          |S            |NL           |       2012|      2019|       8|  39|
+|nw8T          |S            |NL           |       2012|      2019|       8|  40|
+|nw9T          |S            |NL           |       2012|      2019|       8|  40|
+|NydT          |S            |SE           |       2010|      2011|       2|   5|
+|nz1T          |S            |NL           |       2012|      2019|       8|  32|
+|nz2T          |S            |NL           |       2012|      2019|       8|  32|
+|nz3T          |S            |NL           |       2012|      2019|       8|  33|
+|nz4Y          |S            |NL           |       2012|      2019|       8|  32|
+|nz5T          |S            |NL           |       2012|      2019|       8|  31|
 |OatY          |Y            |GB           |       2013|      2015|       3|  27|
 |OirS          |S            |FR           |       2000|      2019|      20| 236|
 |OnkT          |S            |FI           |       1983|      2012|      30|  36|
 |Oria          |G            |ES           |       2005|      2018|      14|  40|
+|OstT          |S            |SE           |       2010|      2011|       2|   8|
+|RhDOG         |G            |NL           |       2000|      2019|      20|  60|
 |RhinY         |Y            |FR           |       2006|      2019|      14| 165|
+|rij10T        |S            |NL           |       2013|      2019|       7|  30|
+|rij1T         |S            |NL           |       2013|      2019|       7|  30|
+|rij2T         |S            |NL           |       2013|      2019|       7|  30|
+|rij3T         |S            |NL           |       2013|      2019|       7|  30|
+|rij4T         |S            |NL           |       2013|      2019|       7|  30|
+|rij5T         |S            |NL           |       2013|      2019|       7|  30|
+|rij6T         |S            |NL           |       2013|      2019|       7|  30|
+|rij7T         |S            |NL           |       2013|      2019|       7|  30|
+|rij8T         |S            |NL           |       2013|      2019|       7|  30|
+|rij9T         |S            |NL           |       2013|      2019|       7|  30|
 |RodE          |Y            |GB           |       2017|      2019|       3|  18|
 |RuuT          |S            |FI           |       1982|      2016|      35|  35|
-|akT          |YS           |LT           |       2017|      2017|       1|  12
+|Sakt          |YS           |LT           |       2017|      2017|       1|  12|
 |ScorS         |S            |FR           |       2000|      2019|      20| 236|
 |SevNS         |S            |FR           |       2013|      2018|       6|  23|
 |ShaE          |GY           |IE           |       2010|      2019|      10|  44|
@@ -146,6 +213,7 @@ Detail of years and number observation per series
 |Shie          |S            |GB           |       2002|      2019|      18| 215|
 |ShiF          |G            |GB           |       2017|      2019|       3|  35|
 |ShiM          |G            |GB           |       2014|      2019|       6|  71|
+|SkaT          |S            |SE           |       2010|      2011|       2|  11|
 |SomS          |S            |FR           |       2013|      2019|       7|  43|
 |SouS          |S            |FR           |       2011|      2019|       9|  48|
 |StGeE         |GY           |GB           |       2014|      2014|       1|   8|
@@ -157,9 +225,22 @@ Detail of years and number observation per series
 |UShaS         |S            |IE           |       2009|      2019|      11|  51|
 |VaaT          |S            |FI           |       2014|      2019|       6|  48|
 |VaccY         |Y            |FR           |       2000|      2018|      19| 111|
+|VesT          |S            |SE           |       2010|      2011|       2|  10|
 |VilS          |S            |FR           |       2012|      2018|       7|  43|
 |VilY2         |Y            |FR           |       1996|      2019|      24| 278|
+|Vist          |Y            |PL           |       2017|      2019|       3|  19|
 |ZeiT          |YS           |LT           |       2017|      2018|       2|  24|
+|zm            |S            |NL           |       2012|      2017|       6|  28|
+|zm10T         |S            |NL           |       2012|      2017|       6|  27|
+|zm1T          |S            |NL           |       2012|      2017|       6|  28|
+|zm2T          |S            |NL           |       2012|      2017|       6|  27|
+|zm3T          |S            |NL           |       2012|      2017|       6|  27|
+|zm5T          |S            |NL           |       2012|      2017|       6|  27|
+|zm6T          |S            |NL           |       2012|      2017|       6|  28|
+|zm7T          |S            |NL           |       2012|      2017|       6|  27|
+|zm8T          |S            |NL           |       2012|      2017|       6|  27|
+|zm9T          |S            |NL           |       2012|      2017|       6|  27|
+
 
 Number of line per lifestage.
 
@@ -173,10 +254,11 @@ Number of line per lifestage.
 
 Number of line per month per lifestage.
 
-|ser\_lfs\_code |   1|   2|   3|   4|   5|   6|   7|   8|   9|  10|  11|  12|
+
+|ser\_lfs__code |   1|   2|   3|   4|   5|   6|   7|   8|   9|  10|  11|  12|
 |:------------|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-|G            |  50|  52|  51|  71|  78|  75|  75|  57|  55|  50|  50|  48|
-|GY           |   9|  17| 125|  46|  77|  79|  79|  78|  62|  36|  12|  10|
-|S            | 187| 182| 169| 176| 242| 210| 161| 324| 230| 244| 232| 212|
-|Y            |  64|  66|  86| 183| 199| 205| 189| 185| 199| 111|  99|  67|
+|G            |  50|  52|  71|  92|  97|  75|  75|  57|  55|  50|  50|  48|
+|GY           |  29|  37| 145|  66|  97|  99|  99|  98|  82|  56|  32|  30|
+|S            | 207| 202| 397| 416| 485| 274| 192| 358| 501| 521| 501| 310|
+|Y            |  64|  66|  86| 184| 202| 208| 192| 188| 202| 114|  99|  67|
 |YS           |   7|   7|   7|   7|   7|   7|   7|   7|   7|   9|   7|   7|
