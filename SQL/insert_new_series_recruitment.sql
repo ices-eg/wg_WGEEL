@@ -553,14 +553,10 @@ COMMIT;
 
 -- 2020 
 
---TODO run this on the shiny server
 
-SELECT * FROM datawg.t_dataseries_das tdd WHERE das_ser_id IN (207,211);
 
-207 IS OK but 211 IS NOT AND has NOT DATA
 
-SELECT * FROM datawg.t_series_ser tss WHERE ser_id=211
 
-BEGIN;
-DELETE FROM datawg.t_series_ser tss WHERE ser_id=211;
-COMMIT;
+
+
+SELECT count(*) FROM datawg.t_series_ser --186

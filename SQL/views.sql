@@ -1,7 +1,7 @@
 ﻿----------------------------------------------
 -- DYNAMIC VIEWS FOR WGEEL
 ----------------------------------------------
-DROP VIEW datawg.series_stats CASCADE;
+DROP VIEW IF EXISTS datawg.series_stats CASCADE;
 CREATE OR REPLACE VIEW datawg.series_stats AS 
  SELECT ser_id, 
  ser_nameshort AS site,
