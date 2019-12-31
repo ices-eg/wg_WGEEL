@@ -137,7 +137,22 @@ res$das_month <- recode(res$das_month,
 )
 
 # check nameshort---------------------------------------------------------------
-
+t_series_ser <- sqldf("SELECT
+ser_nameshort, 
+ser_namelong, 
+ser_typ_id,
+ ser_effort_uni_code, 
+ser_comment,
+ ser_uni_code, 
+ser_lfs_code, 
+ser_hty_code, 
+ser_locationdescription, 
+ser_emu_nameshort,
+ ser_cou_code,
+ ser_area_division, 
+ser_tblcodeid, 
+ser_x, 
+ser_y from datawg.t_series_ser")
 ser_nameshort <- sqldf("select ser_nameshort from datawg.t_series_ser")
 ser_nameshort <- as.character(ser_nameshort$ser_nameshort)
 sort(ser_nameshort)
@@ -170,5 +185,7 @@ ser <- map(list_seasonality,function(X){			X[["series_info"]]		}) %>%
 Hmisc::describe(ser)
 # searching for a mismatch between names in ser and the others
 print(ser[!ser$ser_nameshort%in%dfser$ser_nameshort,],width = Inf)
-print(dfser$ser_nameshort[!dfser$ser_nameshort%in%ser$ser_nameshort]) # Rhin_Y     Soustons_S
-merge(dfser,ser,by=ser)
+print(dfser$ser_nameshort[!dfser$ser_nameshort%in%ser$ser_nameshort]) 
+ser2 <- merge(dfser,ser,by="ser_nameshort",all.x=TRUE,all.y=TRUE)
+# replacing all existing series with data from base
+ser2[ser2$existing,c(1,4:ncol(ser2))]<- t_series_ser[match(ser2[ser2$existing,"ser_nameshort_base"],t_series_ser$ser_nameshort),]

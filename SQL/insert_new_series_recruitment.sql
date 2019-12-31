@@ -566,4 +566,7 @@ DELETE FROM datawg.t_dataseries_das WHERE das_ser_id=193;
 DELETE FROM datawg.t_series_ser WHERE ser_nameshort ='ska';
 COMMIT;
 
+UPDATE datawg.t_series_se
 
+
+SELECT * FROM datawg.t_series_ser WHERE ser_nameshort ='RhDOG'
