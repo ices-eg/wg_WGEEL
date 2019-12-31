@@ -310,4 +310,22 @@ DELETE FROM ref.tr_emu_emu WHERE emu_nameshort='GB_NorW'
 ROLLBACK;
 */
 
+------------------------------------------
+-- 31/12/2019
+------------------------------------------
 
+
+
+-- series
+ALTER TABLE datawg.t_series_ser ALTER COLUMN ser_nameshort  TYPE TEXT;
+ALTER TABLE datawg.t_series_ser ALTER COLUMN ser_namelong  TYPE TEXT;
+ALTER TABLE datawg.t_series_ser
+  ADD CONSTRAINT ser_nameshortchk CHECK (char_length(ser_nameshort) <= 10);
+
+UPDATE  datawg.t_series_ser SET ser_nameshort='FremY' WHERE ser_nameshort='FreY'; --1
+UPDATE  datawg.t_series_ser SET ser_nameshort=
+ser_nameshort||ser_lfs_code 
+	WHERE ser_typ_id = 1 
+	AND NOT substring(ser_nameshort,char_length(ser_nameshort),char_length(ser_nameshort)) IN ('G','Y');--80
+
+-- launch all views.sql

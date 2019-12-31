@@ -358,14 +358,16 @@ ALTER TABLE ref.tr_samplingtype_sam
 datatypes can be stored with the same table as tr_typeseries_typ but there is a need for additional check constraint
 as we don't want to add landings or biomass indicators in the series table
 It does not make sense to repeat a unit in this table again and again
+change 2019 : type ser_nameshort and ser_namelong passed to TEXT with constraint nchar <10 for ser_nameshort
+to be able to add type G GY ... to glass eel series names
 */
 ------------------------------------------------- 
 CREATE TABLE datawg.t_series_ser
 (
   ser_id serial NOT NULL, -- serial number internal use, identifier of the series
   ser_order integer NOT NULL, -- order internal, used to display the data from North to South
-  ser_nameshort character varying(4), -- short name of the recuitment series eg `Vil` for the Vilaine
-  ser_namelong character varying(50), -- long name of the recuitment series eg `Vilaine estuary` for the Vilaine
+  ser_nameshort text, -- short name of the recuitment series eg `Vil` for the Vilaine
+  ser_namelong text, -- long name of the recuitment series eg `Vilaine estuary` for the Vilaine
   ser_typ_id integer, -- type of series 1= recruitment series, FOREIGN KEY to table ref.tr_typeseries_ser(ser_typ_id)
   ser_effort_uni_code character varying(20), -- unit used for effort, it is different from the unit used in the series, for instance some...
   ser_comment text, -- Comment for the series, this should be part of the metadata describing the whole series
@@ -412,6 +414,7 @@ CREATE TABLE datawg.t_series_ser
   CONSTRAINT c_fk_uni_code FOREIGN KEY (ser_uni_code)
       REFERENCES ref.tr_units_uni (uni_code) MATCH SIMPLE
       ON UPDATE NO ACTION ON DELETE NO ACTION,
+  CONSTRAINT ser_nameshortchk CHECK (char_length(ser_nameshort) <= 10),
   CONSTRAINT c_ck_ser_typ_id CHECK (ser_typ_id = ANY (ARRAY[1, 2, 3])),
   CONSTRAINT enforce_dims_the_geom CHECK (st_ndims(geom) = 2),
   CONSTRAINT enforce_srid_the_geom CHECK (st_srid(geom) = 3035)
@@ -426,7 +429,7 @@ COMMENT ON TABLE datawg.t_series_ser
 and comments on the recruitment, silver eel migration and yellow eel standing stock survey series';
 COMMENT ON COLUMN datawg.t_series_ser.ser_id IS 'serial number internal use, identifier of the series';
 COMMENT ON COLUMN datawg.t_series_ser.ser_order IS 'order internal, used to display the data from North to South';
-COMMENT ON COLUMN datawg.t_series_ser.ser_nameshort IS 'short name of the recuitment series eg `Vil` for the Vilaine';
+COMMENT ON COLUMN datawg.t_series_ser.ser_nameshort IS 'short name of the recuitment series eg `VilG` for the Vilaine';
 COMMENT ON COLUMN datawg.t_series_ser.ser_namelong IS 'long name of the recuitment series eg `Vilaine estuary` for the Vilaine';
 COMMENT ON COLUMN datawg.t_series_ser.ser_typ_id IS 'type of series 1= recruitment series, FOREIGN KEY to table ref.tr_typeseries_ser(ser_typ_id)';
 COMMENT ON COLUMN datawg.t_series_ser.ser_effort_uni_code IS 'unit used for effort, it is different from the unit used in the series, for instance some
@@ -456,6 +459,11 @@ ALTER TABLE  datawg.t_series_ser ADD CONSTRAINT c_fk_qal_id FOREIGN KEY (ser_qal
       ON UPDATE CASCADE ON DELETE NO ACTION;
 ALTER TABLE  datawg.t_series_ser add column ser_qal_comment text; 
 COMMENT ON COLUMN datawg.t_series_ser.ser_qal_comment IS 'Comment on quality of data, why was the series retained or discarded from later analysis ? ';
+
+ 
+ 
+
+
 
 
 ---------------------------------------

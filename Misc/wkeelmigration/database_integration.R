@@ -10,6 +10,7 @@
 # load packages
 setwd("C:\\workspace\\gitwgeel\\Misc\\wkeelmigration\\")
 source("..\\..\\R\\utilities\\load_library.R")
+source("functions.R")
 load_package("readxl")
 load_package("stringr")
 load_package("pool")
