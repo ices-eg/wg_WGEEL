@@ -37,6 +37,7 @@ script is [here](https://github.com/ices-eg/wg_WGEEL/blob/master/Misc/wkeelmigra
 * fixed names in DE
 * changed names in Irish series to match with database (Burr, Erne, Liff, Burr) 
 * removed special coding characters from codnames
+* coordinates x and y are switched in Netherlands
 
  series info
 ---------------
