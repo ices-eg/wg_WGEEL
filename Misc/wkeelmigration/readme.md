@@ -42,6 +42,7 @@ script is [here](https://github.com/ices-eg/wg_WGEEL/blob/master/Misc/wkeelmigra
  series info
 ---------------
 
+
 * LTU file : Mismatch between ZEIT in the series and Zeit in data, renamed to Zeit
 * replaced all existing series with data from database
 * Sent mail to Justas ask for coordinates in Lithuania => TODO integrate updated data
