@@ -16,7 +16,7 @@ renamed all files to lowercase, and only three extensions like :
 
 # LANDINGS
 
-###GB
+### GB
 * data for lough neagh not reported monthly -> Derek will provide monthly data for Y after Jan 20th
 * data on Y&S is reported for GB_Total from 2011-2013 -> Assume there is no EMU data thus summed for all but GB_Scot & GB_neag, but sent an email to clarify. How to treat these? 
 * habitat is defined as NR for a lot of the data, if its unknown what are we going to do? -> Check with Cedric if we use those data
