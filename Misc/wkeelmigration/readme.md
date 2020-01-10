@@ -23,6 +23,13 @@ renamed all files to lowercase, and only three extensions like :
 * glass eel catch data is reported for whole year (season Feb to May) in GB since 2014 for several EMUs -> deleted entries, except if it was 0, then converted to respective month according to comment
 * GB_NorW was missing in the EMU list and was added to this sheet -> Cedric, does the EMU exist in the database? 
 
+### HR
+* data for 2018 is preliminary, which I think we don't want. -> delete these rows? (wasn't done by me)
+* otherwise no edits needed 
+
+### IE
+* no edits needed
+
 # SEASONALITY
 
 ## Data integration
