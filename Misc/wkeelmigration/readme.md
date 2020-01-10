@@ -21,7 +21,7 @@ renamed all files to lowercase, and only three extensions like :
 * data on Y&S is reported for GB_Total from 2011-2013 -> Assume there is no EMU data thus summed for all but GB_Scot & GB_neag, but sent an email to clarify. How to treat these? 
 * habitat is defined as NR for a lot of the data, if its unknown what are we going to do? -> Check with Cedric if we use those data
 * glass eel catch data is reported for whole year (season Feb to May) in GB since 2014 for several EMUs -> deleted entries, except if it was 0, then converted to respective month according to comment
-* GB_NorW was missing in the EMU list -> Cedric, does the EMU exist in the database? 
+* GB_NorW was missing in the EMU list and was added to this sheet -> Cedric, does the EMU exist in the database? 
 
 # SEASONALITY
 
