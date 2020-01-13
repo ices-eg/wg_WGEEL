@@ -30,6 +30,10 @@ renamed all files to lowercase, and only three extensions like :
 ### IE
 * no edits needed. Esti: I  have deleted some extra "0"s in the rows below and changed some months with lower case to upper case
 
+### DK
+
+* 2019 data incomplete. Should we use it?
+
 ### LTU
 * in some "eel_value" rows there was a "0" in places where "eel_missvaluequal" was NC or NR. I have deleted those "0"s, since this would mean 0 catches, not no data.
 
