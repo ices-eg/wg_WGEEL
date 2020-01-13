@@ -17,7 +17,7 @@ renamed all files to lowercase, and only three extensions like :
 # LANDINGS
 
 ### ES
-ES_Anda was missing, I have add it. (No data before 2009 and forbidden later). In ES_Murc there is monthly data from 2002 on. For 2000 and 2001 data for the whole year has been provided. I have leave it.
+ES_Anda was missing, I have add it. (No data before 2009 and forbidden later). In ES_Murc there is monthly data from 2002 on. For 2000 and 2001 data for the whole year has been provided. I have leaveD it.
 
 ### FI
 Total Landings for the whole country (EMU). No editing
@@ -42,13 +42,18 @@ FR_Meus, FR_Rhin missing. I guess this is because they are international bassins
 
 ### DK
 
-* 2019 data incomplete. Should we use it?
+* data for 2019 is preliminary, which I think we don't want. -> delete these rows? (wasn't done by me)
+* otherwise no edits needed 
 
 ### LTU
-* I have sent this mail to Arvydas: in some "eel_value" rows there was a "0" in places where "eel_missvaluequal" was NC or NR. I have deleted those "0"s, since this would mean 0 catches, not no data. I have found that in the T - Curonian Lagoon for some months (Jan, Feb, March, Nov and DEC) you have included 0 catches. I have checked the closure document, and I have seen that the fishery is closed during this months. Therefore, I think that it would be more correct not to include this months, (o catches means you have gone fishing and your catches have been 0. Please let me know if I´m correct.
+* I have sent this mail to Arvydas: in some "eel_value" rows there was a "0" in places where "eel_missvaluequal" was NC or NR. I have deleted those "0"s, since this would mean 0 catches, not no data. I have found that in the T - Curonian Lagoon for some months (Jan, Feb, March, Nov and DEC) you have included 0 catches. I have checked the closure document, and I have seen that the fishery is closed during this months. Therefore, I think that it would be more correct not to include this months, (o catches means you have gone fishing and your catches have been 0. Please let me know if I´m correct. WAITING TO THE ANSWER
 * In some cases they have included data by month and also a total by year adding up all those months. I deleted the total because it duplicated the information.  
 * In some cases, they don't have data by month and put "NC" or "ND" and then for the same year they do include whole year data. I deleted the NC and ND for months and left the annual data. 
 
+
+### LTV
+* I have sent this mail to Arvydas In the case of Latvia there was not a contact person to check the data, so I though you might be related to that.  In this way, I wanted to check with you that “0” catches is correct. You have included 0 catches during oct, nov, dec, jan, feb, marc, apr. 0 catches mean that fisher have gone fishing and their catches have been 0. Is that the case? If the fishery was closed during these months you should write NP (no pertinent ). I have checked the closures files and they only describe closures during 2018 and 2019 and they only mention closures during nov, dic, jan. Could you clarify please if the 0 s correspond to 0 catches or to a fishery closure? WAITING TO THE ANSWER
+* LV_Latv changed to LV_tota
 
 
 # SEASONALITY
