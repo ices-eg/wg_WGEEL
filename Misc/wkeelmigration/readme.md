@@ -62,8 +62,12 @@ FR_Meus, FR_Rhin missing. I guess this is because they are international bassins
 
 ### NO
 * I have found that eel_lfs_code is missing in some rows (see attached). Caroline has asked me to include YS in those cases
-* I have sent a mail to Caroline to confirm that "0"s correspond to real 0 catches
+* I have sent a mail to Caroline to confirm that "0"s correspond to real 0 catches. WAITING FOR THE ANSWER
+### PL
+* Data for the 2000-2003 is tagged as low quality. Should we use it?
 
+### SE
+* Message for Josephine , I have found that eel_lfs_code is missing in some rows (see attached). What should I include?. WAITING FOR THE ANSWER
 
 # SEASONALITY
 
