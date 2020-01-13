@@ -45,7 +45,11 @@ FR_Meus, FR_Rhin missing. I guess this is because they are international bassins
 * 2019 data incomplete. Should we use it?
 
 ### LTU
-* in some "eel_value" rows there was a "0" in places where "eel_missvaluequal" was NC or NR. I have deleted those "0"s, since this would mean 0 catches, not no data.
+* I have sent this mail to Arvydas: in some "eel_value" rows there was a "0" in places where "eel_missvaluequal" was NC or NR. I have deleted those "0"s, since this would mean 0 catches, not no data. I have found that in the T - Curonian Lagoon for some months (Jan, Feb, March, Nov and DEC) you have included 0 catches. I have checked the closure document, and I have seen that the fishery is closed during this months. Therefore, I think that it would be more correct not to include this months, (o catches means you have gone fishing and your catches have been 0. Please let me know if I´m correct.
+* In some cases they have included data by month and also a total by year adding up all those months. I deleted the total because it duplicated the information.  
+* In some cases, they don't have data by month and put "NC" or "ND" and then for the same year they do include whole year data. I deleted the NC and ND for months and left the annual data. 
+
+
 
 # SEASONALITY
 
