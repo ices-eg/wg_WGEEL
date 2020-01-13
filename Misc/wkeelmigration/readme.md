@@ -55,10 +55,13 @@ FR_Meus, FR_Rhin missing. I guess this is because they are international bassins
 * I have sent this mail to Arvydas In the case of Latvia there was not a contact person to check the data, so I though you might be related to that.  In this way, I wanted to check with you that “0” catches is correct. You have included 0 catches during oct, nov, dec, jan, feb, marc, apr. 0 catches mean that fisher have gone fishing and their catches have been 0. Is that the case? If the fishery was closed during these months you should write NP (no pertinent ). I have checked the closures files and they only describe closures during 2018 and 2019 and they only mention closures during nov, dic, jan. Could you clarify please if the 0 s correspond to 0 catches or to a fishery closure? WAITING TO THE ANSWER
 * LV_Latv changed to LV_tota
 
-### NL_Neth
+### NL
 * There are 0s in the catches, but they vary from year to year, so I understand that they do not correspond to closures in the fishery.
+* I have changed  from NL_Neth  to NL_total
 * ICes area was not included and I have included it
 
+### NO
+* I have found that eel_lfs_code is missing in some rows (see attached). Caroline has asked me to include YS in those cases
 
 
 # SEASONALITY
