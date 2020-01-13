@@ -16,6 +16,9 @@ renamed all files to lowercase, and only three extensions like :
 
 # LANDINGS
 
+### ES
+ES_Anda was missing, I have add it. (No data before 2009 and forbidden later)
+
 ### GB
 * data for lough neagh not reported monthly -> Derek will provide monthly data for Y after Jan 20th
 * data on Y&S is reported for GB_Total from 2011-2013 -> Assume there is no EMU data thus summed for all but GB_Scot & GB_neag, but sent an email to clarify. How to treat these? 
