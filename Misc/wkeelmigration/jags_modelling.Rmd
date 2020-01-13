@@ -1,0 +1,237 @@
+---
+title: "Untitled"
+author: "Hilaire Drouineau"
+date: "12 janvier 2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,round)
+knitr::opts_knit$set(root.dir="~/Documents/Bordeaux/migrateurs/WGEEL/wkeelmigration/source/")
+library(tidyverse)
+library(tidyr)
+```
+
+# Loading the data
+```{r loading}
+load("seasonality_tibbles_res_ser2.Rdata")
+```
+
+Number of data series per stage: 12 pure glass eel stage, 6 pure silver and 32 yellow. Onky 20 mixed series, we will have to check their classification.
+```{r}
+table(ser2$ser_lfs_code)
+```
+
+Among mixed GY, only 4 of them are not already used by the WGEEL, so we will have to check. For the others, we can use the wgeel classification.
+```{r}
+ser2[ser2$ser_lfs_code=="GY",]
+```
+
+
+# Glass Eel
+## Data availability
+Given comments, mixed GY can be used as glass eel. What about availability across months? Very few series are collected across all months. ShiF, ShiM, ImsaGY, Gry, GiSc, GarG seem to have a good monthly coverage. 
+
+
+```{r}
+recruitment <- subset(res, res$ser_nameshort %in% ser2$ser_nameshort[ser2$ser_lfs_code %in% c("G","GY")])
+table(recruitment$das_month,recruitment$ser_nameshort)
+
+```
+
+How many years are complete for all months?
+```{r}
+sapply(unique(recruitment$ser_nameshort),function(s)
+  sum(colSums(table(recruitment$das_month[recruitment$ser_nameshort==s],
+                    recruitment$das_year[recruitment$ser_nameshort==s])==1)==12))
+```
+
+
+## Data selection
+First, we need to set up season of migration instead of calendar year. Here, we split in november and a sesaon y will correspond to november - december y-1 and january to october y.
+
+```{r}
+recruitment$season <- ifelse(recruitment$das_month>10,
+                             recruitment$das_year+1,
+                             recruitment$das_year)
+recruitment$month_in_season <- paste("m",ifelse(recruitment$das_month>10,
+                                      recruitment$das_month-10,
+                                      recruitment$das_month+2), #1 stands for nov,
+                                      sep="")                   #2 dec, 3 jan
+#this function is useful to see quickly the missing months for a given series
+check_month_availabilty <- function(ns){
+  table(recruitment_subset$month_in_season[recruitment_subset$ser_nameshort==ns],
+        recruitment_subset$season[recruitment_subset$ser_nameshort==ns])
+}
+```
+
+### Reason for exclusion
+* Bann: no monthly data available
+* BeeG: Monitoring starts in April while migration is already high
+* BroE: same data as BroG but for elvers
+* Burr: temporal coverage is very variable and it is very difficult to locate the duration of the peak
+* Erne: sampling starts in March while migration is already rather high
+* Fla, FlaE and FlaG: twice the same series. Monitoring stards in May while abundance is sometimes already high
+* Isle_G: limited number of seasons with a perhaps too limited monthly coverage
+* RhDOG: only 3 months per year, moreover, there are sometimes sevaral values per month in the same year
+* StGeE: same as stGeG but for elvers
+* Stra: no monthly data
+
+
+
+### Reason for keeping
+* BroG: Monitoring starts in may but often with a zero catch, and continues till the end of the season. Only 2012 should be removed given comments
+* EmsB: While the number of sampled months is limited, it seems to appropriately covers the peak
+* EmsH: While the number of sampled months is limited, it seems to appropriately covers the peak
+* GarG: adequate monthly coverage
+* GiSc: adequate monthly coverage, already used by the WGEEL
+* Grey: perhaps a bit upstream (have to check for the presence of a fishery downstream) but very good monthly coverage
+* ImsaGY: very good coverage, already used by the WGEEL
+* Liff: the two seasons starting in March appears to be appropriate
+* ShaE: in 2012, monitoring starts in March leading to a good coverage of the whole season, for other years, it starts too late (May or latter)
+* ShiF and ShiM: traps running all years long therefore good coverage of the migration wave.
+* StGeG: only one year of data but good coverage of the migration wave (from march to october)
+
+### to be discussed
+* Oria: first, monthly coverage in a bit limited (october and february represent 10% of yearly catches each), moreover, the GLM model included a month effect so the monthly pattern is similar every year by construction (as such, we should only consider one year)
+
+
+### Final selection of data
+Given selection of data, we make a subset of data:
+```{r}
+recruitment_subset <- subset(recruitment, recruitment$ser_nameshort %in%
+                               c("BroG", "EmsB", "EmsH",
+                                 "GarG", "GiSc", "Grey",
+                                 "ImsaGY", "Liff", "ShaE",
+                                 "ShiF", "StGeG","Oria"))
+#remove 2012 for BroG
+recruitment_subset <- subset(recruitment_subset,
+                             recruitment_subset$ser_nameshort != "BroG" | 
+                               recruitment_subset$season != 2012)
+
+# keep all for EmsB
+# remove seasons 2015 and 2016 
+recruitment_subset <- subset(recruitment_subset,
+                             recruitment_subset$ser_nameshort != "EmsH" | 
+                               (!recruitment_subset$season %in% 2015:2016))
+
+#GarG: we keep all years
+#GiSc: remove 1991 (nov dec missing), 1998, 2003, 2015 (january missing) and
+# 2014 (february missing)
+recruitment_subset <- subset(recruitment_subset,
+                             recruitment_subset$ser_nameshort != "GiSc" | 
+                               (!recruitment_subset$season %in% c(1991,1998,
+                                                                  2003,2014,
+                                                                  2015,2020)))
+#Grey: we removd 2018
+recruitment_subset <- subset(recruitment_subset,
+                             recruitment_subset$ser_nameshort != "Grey" | 
+                               recruitment_subset$season != 2018)
+#ImsaGY we removed 2020
+recruitment_subset <- subset(recruitment_subset,
+                             recruitment_subset$ser_nameshort != "ImsaGY" | 
+                               recruitment_subset$season != 2020)
+
+#Liff: we keep the two seasons starting in march (month 5)
+recruitment_subset <- subset(recruitment_subset,
+                             recruitment_subset$ser_nameshort != "Liff" | 
+                               recruitment_subset$season %in% c(2017, 2019))
+
+#ShaE: we keep only 2012
+recruitment_subset <- subset(recruitment_subset,
+                             recruitment_subset$ser_nameshort != "ShaE" | 
+                               recruitment_subset$season == 2012)
+#Shif: remove 2020
+recruitment_subset <- subset(recruitment_subset,
+                            (!recruitment_subset$ser_nameshort %in% c("ShiF","ShiM")) | 
+                               recruitment_subset$season != 2020)
+
+#StGeG we keep the single year
+recruitment_subset <- subset(recruitment_subset,
+                            (!recruitment_subset$ser_nameshort %in% c("StGeG")) | 
+                               recruitment_subset$season != 2020)
+#Oria, we keep season 2006 (before EMP) and 2018 (after EMP) just to show that 
+#seasonality hasn't changed
+recruitment_subset <- subset(recruitment_subset,
+                            recruitment_subset$ser_nameshort != "Oria" | 
+                               recruitment_subset$season %in% c(2006,2018))
+```
+
+
+
+## Data preparation
+To run the model, we need a table in the wide format: one column per month, one row for a year x time series. It leads to a dataset with 82 rows.
+
+```{r}
+recruitment_subset$emu <- ser2$ser_emu_nameshort[match(recruitment_subset$ser_nameshort,
+                                                       ser2$ser_nameshort)]
+recruitment_wide <- pivot_wider(data=recruitment_subset[, c("ser_nameshort",
+                                                            "emu",
+                                                     "country",
+                                                     "season",
+                                                     "month_in_season",
+                                                     "das_value")],
+                                names_from="month_in_season",
+                                values_from="das_value")
+```
+
+We now replace NA value per zero since we selected our dataseries with missing months corresponding to insignificant months, and we compute proportions per month for each year.
+
+```{r}
+recruitment_wide <- recruitment_wide %>%
+  replace_na(replace=list(m1=0,
+                          m2=0,
+                          m3=0,
+                          m4=0,
+                          m5=0,
+                          m6=0,
+                          m7=0,
+                          m8=0,
+                          m9=0,
+                          m10=0,
+                          m11=0,
+                          m12=0))
+total_catch_year <- rowSums(recruitment_wide[, paste("m", 1:12, sep="")])
+recruitment_wide <- recruitment_wide %>%
+  mutate_at(.vars=paste("m",1:12,sep=""),function(x) x/total_catch_year)
+```
+
+The Commission asks us to compare the pattern before and after 2007, probably to see the effect of the Eel Regulation. It is therefore necessary to build a period index. However, since most countries implemented their EMPs only in 2009/2010, we split in 2010.
+
+```{r}
+recruitment_wide$period <- ifelse(recruitment_wide$season>2009,
+                                  2,
+                                  1)
+
+table(recruitment_wide$period,
+       recruitment_wide$ser_nameshort)
+```
+Only 4 series have data in the first period therefore period comparisons will be difficult. However, can now try to fit the model.
+
+## Running the model
+###Building data
+```{r}
+group <- as.integer(interaction(recruitment_wide$ser_nameshort,
+                                            recruitment_wide$period,
+                                            drop=TRUE))
+y <-as.matrix(recruitment_wide[, paste("m", 1:12, sep="")])
+
+
+build_data <- function(nbclus){
+  list(y=y, #observations
+       group=group, #group identifier (a group is a period x series)
+       nbm=12, #number of month
+       nbclust=nbclus)# number of clusters
+}
+```
+
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

@@ -1,0 +1,25 @@
+model{
+	for (i in 1:nbobs){ #an observation is a 12 months vector
+		y[i,1:nbm]~ddirich(alpha2[id_cluster[group[i]],1:nbm]) ##definition of the dirichlet observation
+	}
+	for (clus in 1:nbclus){
+		esp[g, 1:nbm] ~ ddirich(alpha[1:nbm]) ###mean of mean from Dirichlet prior
+		for (m in 1:nbm){
+			alpha2[clus,m] <- esp[clus,m]*lambda ####mean from Dirichlet prior
+		}
+		centroid[clus]<-sum((1:nbm)*alpha2[clus,1:nbm])/sum(alpha2[clus,1:nbm])
+	}
+	id_cluster[1:nbclus]<-order(centroid[1:nbclus]) #with this alpha2[id_goup[1],1:nmp] will give the mean for the earliest group (ensure identifiability)
+	for (m in 1:nbm){
+		alpha[m]<-1/12
+	}
+	lambda~dunif(.3,2000)
+	
+	
+	for (i in 1:nbg){
+		group[i]~dcat(rep(1/nbclus,nbclus))
+	}
+}
+
+
+
