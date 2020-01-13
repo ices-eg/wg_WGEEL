@@ -17,7 +17,10 @@ renamed all files to lowercase, and only three extensions like :
 # LANDINGS
 
 ### ES
-ES_Anda was missing, I have add it. (No data before 2009 and forbidden later)
+ES_Anda was missing, I have add it. (No data before 2009 and forbidden later). In ES_Murc there is monthly data from 2002 on. For 2000 and 2001 data for the whole year has been provided. I have leave it.
+
+### FI
+Total Landings for the whole country (EMU). No editing
 
 ### GB
 * data for lough neagh not reported monthly -> Derek will provide monthly data for Y after Jan 20th
