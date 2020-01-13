@@ -19,7 +19,7 @@ renamed all files to lowercase, and only three extensions like :
 ### GB
 * data for lough neagh not reported monthly -> Derek will provide monthly data for Y after Jan 20th
 * data on Y&S is reported for GB_Total from 2011-2013 -> Assume there is no EMU data thus summed for all but GB_Scot & GB_neag, but sent an email to clarify. How to treat these? 
-* habitat is defined as NR for a lot of the data, if its unknown what are we going to do? -> Check with Cedric if we use those data (Cédric => I would say very probably not, if it's there we have it and can compare later on with what we have in the database for landings through shiny app, if not then it's probably not very important)
+* habitat is defined as NR for a lot of the data, if its unknown what are we going to do? -> Check with Cedric if we use those data (Cédric => I would say very probably not, if it's there we have it and can compare later on with what we have in the database for landings through shiny app, if not then it's probably not very important). I have sent an email to Ryan ". I guess that the problem is that you do not know where the catches happened exactly; if this is  the case I´d suggest to writte “FTC” since it includes all the possible habitats" and he has agreed
 * glass eel catch data is reported for whole year (season Feb to May) in GB since 2014 for several EMUs -> deleted entries, except if it was 0, then converted to respective month according to comment
 * GB_NorW was missing in the EMU list and was added to this sheet -> Cedric, does the EMU exist in the database? => Yes
 
@@ -28,7 +28,10 @@ renamed all files to lowercase, and only three extensions like :
 * otherwise no edits needed 
 
 ### IE
-* no edits needed
+* no edits needed. Esti: I  have deleted some extra "0"s in the rows below and changed some months with lower case to upper case
+
+### LTU
+* in some "eel_value" rows there was a "0" in places where "eel_missvaluequal" was NC or NR. I have deleted those "0"s, since this would mean 0 catches, not no data.
 
 # SEASONALITY
 
