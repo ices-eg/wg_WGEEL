@@ -33,6 +33,7 @@ FR_Meus, FR_Rhin missing. I guess this is because they are international bassins
 * habitat is defined as NR for a lot of the data, if its unknown what are we going to do? -> Check with Cedric if we use those data (Cédric => I would say very probably not, if it's there we have it and can compare later on with what we have in the database for landings through shiny app, if not then it's probably not very important). I have sent an email to Ryan ". I guess that the problem is that you do not know where the catches happened exactly; if this is  the case I´d suggest to writte “FTC” since it includes all the possible habitats" and he has agreed
 * glass eel catch data is reported for whole year (season Feb to May) in GB since 2014 for several EMUs -> deleted entries, except if it was 0, then converted to respective month according to comment
 * GB_NorW was missing in the EMU list and was added to this sheet -> Cedric, does the EMU exist in the database? => Yes
+* WAITING FOR AN ANSWER
 
 ### HR
 * data for 2018 is preliminary, which I think we don't want. -> delete these rows? (wasn't done by me)
@@ -47,7 +48,7 @@ FR_Meus, FR_Rhin missing. I guess this is because they are international bassins
 * otherwise no edits needed 
 
 ### LTU
-* I have sent this mail to Arvydas: in some "eel_value" rows there was a "0" in places where "eel_missvaluequal" was NC or NR. I have deleted those "0"s, since this would mean 0 catches, not no data. I have found that in the T - Curonian Lagoon for some months (Jan, Feb, March, Nov and DEC) you have included 0 catches. I have checked the closure document, and I have seen that the fishery is closed during this months. Therefore, I think that it would be more correct not to include this months, (o catches means you have gone fishing and your catches have been 0. Please let me know if I´m correct. WAITING TO THE ANSWER
+* I have sent this mail to Arvydas: in some "eel_value" rows there was a "0" in places where "eel_missvaluequal" was NC or NR. I have deleted those "0"s, since this would mean 0 catches, not no data. I have found that in the T - Curonian Lagoon for some months (Jan, Feb, March, Nov and DEC) you have included 0 catches. I have checked the closure document, and I have seen that the fishery is closed during this months. Therefore, I think that it would be more correct not to include this months, (o catches means you have gone fishing and your catches have been 0. Please let me know if I´m correct. WAITING FOR AN ANSWER
 * In some cases they have included data by month and also a total by year adding up all those months. I deleted the total because it duplicated the information.  
 * In some cases, they don't have data by month and put "NC" or "ND" and then for the same year they do include whole year data. I deleted the NC and ND for months and left the annual data. 
 
