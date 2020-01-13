@@ -19,9 +19,9 @@ renamed all files to lowercase, and only three extensions like :
 ### GB
 * data for lough neagh not reported monthly -> Derek will provide monthly data for Y after Jan 20th
 * data on Y&S is reported for GB_Total from 2011-2013 -> Assume there is no EMU data thus summed for all but GB_Scot & GB_neag, but sent an email to clarify. How to treat these? 
-* habitat is defined as NR for a lot of the data, if its unknown what are we going to do? -> Check with Cedric if we use those data
+* habitat is defined as NR for a lot of the data, if its unknown what are we going to do? -> Check with Cedric if we use those data (Cédric => I would say very probably not, if it's there we have it and can compare later on with what we have in the database for landings through shiny app, if not then it's probably not very important)
 * glass eel catch data is reported for whole year (season Feb to May) in GB since 2014 for several EMUs -> deleted entries, except if it was 0, then converted to respective month according to comment
-* GB_NorW was missing in the EMU list and was added to this sheet -> Cedric, does the EMU exist in the database? 
+* GB_NorW was missing in the EMU list and was added to this sheet -> Cedric, does the EMU exist in the database? => Yes
 
 ### HR
 * data for 2018 is preliminary, which I think we don't want. -> delete these rows? (wasn't done by me)
