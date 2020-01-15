@@ -63,7 +63,7 @@ FR_Meus, FR_Rhin missing. I guess this is because they are international bassins
 
 ### NO
 * I have found that eel_lfs_code is missing in some rows (see attached). Caroline has asked me to include YS in those cases
-* I have sent a mail to Caroline to confirm that "0"s correspond to real 0 catches. ANSWER FROM CAROLINE: "The fishery closed starting in from 2011. It opened partially in 2016 (and it is still the same today): to only a few fishers which could fish from July to October." and me answer "SO I understand that for the 2011-2015 period I should change the “0” catches to NP( this means that fishery was closed) and the rest of the 0s really mean 0 cacthes (there was a a fishery activity but catches were 0). Right?" WAITING FOR CONFIRMATION
+* I have sent a mail to Caroline to confirm that "0"s correspond to real 0 catches. ANSWER FROM CAROLINE: "The fishery closed starting in from 2011. It opened partially in 2016 (and it is still the same today): to only a few fishers which could fish from July to October." and me answer "SO I understand that for the 2011-2015 period I should change the “0” catches to NP( this means that fishery was closed) and the rest of the 0s really mean 0 cacthes (there was a a fishery activity but catches were 0). Right?" ANSWER: right
 
 ### PL
 * Data for the 2000-2003 is tagged as low quality. Should we use it?
