@@ -16,6 +16,10 @@ renamed all files to lowercase, and only three extensions like :
 
 # LANDINGS
 
+### DE
+* Data for DE_Elbe is pretty much incomplete since only one state reported monthly catches. Thus, they are good for relative changes but we have to keep track that the absolute numbers are wrong for the EMU - Delete or use?
+* Many rows reported as ND,NR,NM etc., with "WHOLE YEAR". -> We will not use those anyway, so I deleted them. However, as discussed so many times, this information is useful in the sense of knowing that it is not 0-catch, but e.g. no monthly data available. (Anyway, we have the original file stored if we want to use these information...) 
+
 ### ES
 * ES_Anda was missing, I have add it. (No data before 2009 and forbidden later). In ES_Murc there is monthly data from 2002 on. For 2000 and 2001 data for the whole year has been provided. I have leaveD it.
 
