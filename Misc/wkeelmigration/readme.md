@@ -68,7 +68,7 @@ FR_Meus, FR_Rhin missing. I guess this is because they are international bassins
 * Data for the 2000-2003 is tagged as low quality. Should we use it?
 
 ### SE
-* Message for Josephine , I have found that eel_lfs_code is missing in some rows (see attached). What should I include?. WAITING FOR THE ANSWER
+* Message for Josephine , I have found that eel_lfs_code is missing in some rows (see attached). What should I include?. Answer from Josephine: "Also, if lifestage is also missing in certain places, that too would be because it’s missing in the original file, i.e. in the data we get from Swam. This is not an easy fix problem but Swam are at least aware that their data is far from perfect and they are working on improving their database, but that does not help us now. I’m sorry I don’t have a better answer to this…". So I have deleted the rows that do not contain life stage
 
 # SEASONALITY
 
