@@ -26,14 +26,43 @@ source("..\\..\\R\\shiny_data_integration\\shiny_di\\loading_functions.R")
 source("..\\..\\R\\shiny_data_integration\\shiny_di\\database_reference.R") # extract_ref
 load(file=str_c("C:\\workspace\\gitwgeel\\R\\shiny_data_integration\\shiny_di","\\common\\data\\init_data.Rdata"))  
 datawd <- "C:\\Users\\cedric.briand\\OneDrive - EPTB Vilaine\\Projets\\GRISAM\\2020\\wkeemigration\\source\\"
+datawd1 <- "C:\\Users\\cedric.briand\\OneDrive - EPTB Vilaine\\Projets\\GRISAM\\2020\\wkeemigration\\Treated commercial\\"
+
 imgwd <- "C:\\workspace\\wgeeldata\\wkeelmigration\\image\\"
 
+library("sf")
+library("ggspatial")
+
+dsn <-  paste0("PG:dbname='wgeel' host='localhost' port ='5436'",
+		" user='", userlocal,
+		"' password='", passwordlocal,"'")
+
+##map of country
+## remove mediterranean (no recruitment) and Island.
+#query <- "SELECT cou_code,cou_country, geom  
+#		FROM REF.tr_country_cou where cou_code not in ('IL','CY','DZ','EG','LY','MT','MA','IS','TR','LB','SY','TN')"
+#cou <- st_read(dsn= dsn,  layer="country",query=query)
+##plot(st_geometry(cou), xlim=c(-7,11.5),ylim=c(36,53))
+#
+## map of emus
+#query <- "SELECT * FROM REF.tr_emu_emu WHERE emu_cou_code  IN ('FR','ES','PT') AND emu_wholecountry=FALSE"
+#emu <- st_read(dsn= dsn, layer="i don't want no warning" , query=query)
+#
+## gets the centerpoints coordinates for the emus
+#
+#query <- "SELECT emu_nameshort, st_centroid(geom) as geom FROM REF.tr_emu_emu WHERE emu_cou_code  IN ('FR','ES','PT') AND emu_wholecountry=FALSE"
+#emu_c <- st_read(dsn= dsn,  layer="emu",query=query)
+## plot(st_geometry(emu))
+## plot(emu_c, add=TRUE)
+#
+#save(cou, file=str_c(datawd,"cou.Rdata"))
 
 
-# read data ----------------------------------------------
+
+# read data FROM DATABASE----------------------------------------------
 
 fall <- list.files(datawd, pattern='.xl')
-fcl <- list.files(datawd,pattern='commercial_landings')
+fcl <- list.files(datawd1,pattern='commercial_landings')
 ffc <- list.files(datawd,pattern='fishery_closure')
 fsm <- list.files(datawd,pattern='seasonality_of_migration')
 # test for missing files
@@ -50,58 +79,59 @@ stopifnot(exists("passwordwgeel"))
 
 # connection settings -------------------------------------------------------------------
 
-options(sqldf.RPostgreSQL.user = userwgeel,  
-		sqldf.RPostgreSQL.password = passwordwgeel,
-		sqldf.RPostgreSQL.dbname = "wgeel",
-		sqldf.RPostgreSQL.host = host, #getInformation("PostgreSQL host: if local ==> localhost"), 
-		sqldf.RPostgreSQL.port = port)
+#options(sqldf.RPostgreSQL.user = userwgeel,  
+#		sqldf.RPostgreSQL.password = passwordwgeel,
+#		sqldf.RPostgreSQL.dbname = "wgeel",
+#		sqldf.RPostgreSQL.host = host, #getInformation("PostgreSQL host: if local ==> localhost"), 
+#		sqldf.RPostgreSQL.port = port)
+#
+## Define pool handler by pool on global level
+#pool <- pool::dbPool(drv = dbDriver("PostgreSQL"),
+#		dbname="wgeel",
+#		host=host,
+#		port=port,
+#		user= userwgeel,
+#		password= passwordwgeel)
+#
+#
+#
+#query <- "SELECT column_name
+#		FROM   information_schema.columns
+#		WHERE  table_name = 't_eelstock_eel'
+#		ORDER  BY ordinal_position"
+#t_eelstock_eel_fields <- dbGetQuery(pool, sqlInterpolate(ANSI(), query))     
+#t_eelstock_eel_fields <- t_eelstock_eel_fields$column_name
+#
+#query <- "SELECT cou_code,cou_country from ref.tr_country_cou order by cou_country"
+#list_countryt <- dbGetQuery(pool, sqlInterpolate(ANSI(), query))   
+#list_country <- list_countryt$cou_code
+#names(list_country) <- list_countryt$cou_country
+#list_country<-list_country
+#
+#query <- "SELECT * from ref.tr_typeseries_typ order by typ_name"
+#tr_typeseries_typt <- dbGetQuery(pool, sqlInterpolate(ANSI(), query))   
+#typ_id <- tr_typeseries_typt$typ_id
+#tr_typeseries_typt$typ_name <- tolower(tr_typeseries_typt$typ_name)
+#names(typ_id) <- tr_typeseries_typt$typ_name
+## tr_type_typ<-extract_ref('Type of series') this works also !
+#tr_typeseries_typt<-tr_typeseries_typt
+#
+#query <- "SELECT min(eel_year) as min_year, max(eel_year) as max_year from datawg.t_eelstock_eel eel_cou "
+#the_years <<- dbGetQuery(pool, sqlInterpolate(ANSI(), query))   
+#
+#query <- "SELECT name from datawg.participants"
+#participants<<- dbGetQuery(pool, sqlInterpolate(ANSI(), query))  
+## save(participants,list_country,typ_id,the_years,t_eelstock_eel_fields, file=str_c(getwd(),"/common/data/init_data.Rdata"))
+#ices_division <- extract_ref("FAO area")$f_code
+#emus <- extract_ref("EMU")
+#
+#save(ices_division, emus, the_years, tr_typeseries_typt, list_country, file=str_c(datawd,"saved_data.Rdata"))
+#
+#poolClose(pool)
 
-# Define pool handler by pool on global level
-pool <- pool::dbPool(drv = dbDriver("PostgreSQL"),
-		dbname="wgeel",
-		host=host,
-		port=port,
-		user= userwgeel,
-		password= passwordwgeel)
-
-
-
-query <- "SELECT column_name
-		FROM   information_schema.columns
-		WHERE  table_name = 't_eelstock_eel'
-		ORDER  BY ordinal_position"
-t_eelstock_eel_fields <- dbGetQuery(pool, sqlInterpolate(ANSI(), query))     
-t_eelstock_eel_fields <- t_eelstock_eel_fields$column_name
-
-query <- "SELECT cou_code,cou_country from ref.tr_country_cou order by cou_country"
-list_countryt <- dbGetQuery(pool, sqlInterpolate(ANSI(), query))   
-list_country <- list_countryt$cou_code
-names(list_country) <- list_countryt$cou_country
-list_country<-list_country
-
-query <- "SELECT * from ref.tr_typeseries_typ order by typ_name"
-tr_typeseries_typt <- dbGetQuery(pool, sqlInterpolate(ANSI(), query))   
-typ_id <- tr_typeseries_typt$typ_id
-tr_typeseries_typt$typ_name <- tolower(tr_typeseries_typt$typ_name)
-names(typ_id) <- tr_typeseries_typt$typ_name
-# tr_type_typ<-extract_ref('Type of series') this works also !
-tr_typeseries_typt<-tr_typeseries_typt
-
-query <- "SELECT min(eel_year) as min_year, max(eel_year) as max_year from datawg.t_eelstock_eel eel_cou "
-the_years <<- dbGetQuery(pool, sqlInterpolate(ANSI(), query))   
-
-query <- "SELECT name from datawg.participants"
-participants<<- dbGetQuery(pool, sqlInterpolate(ANSI(), query))  
-# save(participants,list_country,typ_id,the_years,t_eelstock_eel_fields, file=str_c(getwd(),"/common/data/init_data.Rdata"))
-ices_division <- extract_ref("FAO area")$f_code
-emus <- extract_ref("EMU")
-
-save(ices_division, emus, the_years, tr_typeseries_typt, list_country, file=str_c(datawd,"saved_data.Rdata"))
-
-poolClose(pool)
-
-# load data ------------------------------------------------------------------------------
-
+# load data seasonality ------------------------------------------------------------------------------
+load( file=str_c(datawd,"saved_data.Rdata"))
+load(file=str_c(datawd,"cou.Rdata"))
 
 
 
@@ -360,34 +390,7 @@ dev.off()
 
 # draw a map
 
-library("sf")
-library("ggspatial")
 
-dsn <-  paste0("PG:dbname='wgeel' host='localhost' port ='5436'",
-		" user='", userlocal,
-		"' password='", passwordlocal,"'")
-
-#map of country
-# remove mediterranean (no recruitment) and Island.
-query <- "SELECT cou_code,cou_country, geom  
-		FROM REF.tr_country_cou where cou_code not in ('IL','CY','DZ','EG','LY','MT','MA','IS','TR','LB','SY','TN')"
-cou <- st_read(dsn= dsn,  layer="country",query=query)
-#plot(st_geometry(cou), xlim=c(-7,11.5),ylim=c(36,53))
-
-# map of emus
-query <- "SELECT * FROM REF.tr_emu_emu WHERE emu_cou_code  IN ('FR','ES','PT') AND emu_wholecountry=FALSE"
-emu <- st_read(dsn= dsn, layer="i don't want no warning" , query=query)
-
-# gets the centerpoints coordinates for the emus
-
-query <- "SELECT emu_nameshort, st_centroid(geom) as geom FROM REF.tr_emu_emu WHERE emu_cou_code  IN ('FR','ES','PT') AND emu_wholecountry=FALSE"
-emu_c <- st_read(dsn= dsn,  layer="emu",query=query)
-# plot(st_geometry(emu))
-# plot(emu_c, add=TRUE)
-
-save(cou, file=str_c(datawd,"cou.Rdata"))
-
-load(file=str_c(ddatawd,"cou.Rdata"))
 
 
 png(filename=str_c(imgwd,"map_seasonality_glass_eel.png"),width = 10, height = 8, units = 'in', res = 300)
@@ -481,3 +484,53 @@ res3 %>% filter(ser_lfs_code=='S') %>%
 		xlab("month")
 
 dev.off()		
+
+
+
+#-----------------------------------------------------------------------------------------------------
+# load data OTHER ------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------------
+load( file=str_c(datawd,"saved_data.Rdata"))
+load(file=str_c(datawd,"cou.Rdata"))
+
+
+
+datasource <- "wkeelmigration"
+list_seasonality <- list()
+for (f in fcl){
+	# f <- fcl[1]
+	path <- str_c(datawd1,f)	
+	file<-basename(path)
+	mylocalfilename<-gsub(".xlsx","",file)
+	country <- substring(mylocalfilename,1,2)
+	list_seasonality[[mylocalfilename]] <-	load_seasonality(path, datasource)
+}
+# list_seasonality is a list with all data sets (readme, data, series) as elements of the list
+# below we extract the list of data and bind them all in a single data.frame
+# to do so, I had to constrain the column type during file reading (see functions.R)
+res <- map(list_seasonality,function(X){			X[["data"]]		}) %>% 
+		bind_rows()
+Hmisc::describe(res)
+# correcting pb with column
+#res$ser_nameshort[!is.na(as.numeric(res$das_month))]
+#listviewer::jsonedit(list_seasonality)
+
+# Correct month
+unique(res$das_month)
+res$das_month <- tolower(res$das_month)
+res$das_month <- recode(res$das_month, okt = "oct")
+res <-res[!is.na(res$das_month),]
+res$das_month <- recode(res$das_month, 
+		"mar"=3, 
+		"apr"=4, 
+		"may"=5, 
+		"jun"=6,
+		"jul"=7,
+		"aug"=8,
+		"sep"=9,
+		"oct"=10,
+		"nov"=11,
+		"dec"=12, 
+		"jan"=1, 
+		"feb"=2
+)

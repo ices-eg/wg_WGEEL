@@ -25,10 +25,12 @@ renamed all files to lowercase, and only three extensions like :
 
 ### ES
 * ES_Anda was missing, I have add it. (No data before 2009 and forbidden later). In ES_Murc there is monthly data from 2002 on. For 2000 and 2001 data for the whole year has been provided. I have leaveD it.
-
+* ES_Murc duplicated values in jan, feb, marc in 2013. Message sent asking for clarification.  
+* ES_Basq, Es_Cata, ES_Astu: data was pasted twice. ONe has been deleted. 
 
 ### FI
-* Total Landings for the whole country (EMU).  NO edits for the rest, it can be used
+* Total Landings for the whole country (EMU).  
+* Mail to Jouni: I have realized that you have two values for June and we should just have one. Could you please check that? . WAITING FOR THE ANSWER
 
 
 ### FR
@@ -50,7 +52,8 @@ Jan-Dag: After habitat was recorded, GB_Dee is the only EMU with T, thus I'd sug
 * otherwise no edits needed 
 
 ### IE
-* no edits needed. Esti: I  have deleted some extra "0"s in the rows below and changed some months with lower case to upper case
+* I  have deleted some extra "0"s in the rows below and changed some months with lower case to upper case
+* They were some duplicates because in the same EMU catches were coming for different RBDs, we will add those to have one value per EMU
 
 ### DK
 
@@ -79,7 +82,8 @@ Jan-Dag: After habitat was recorded, GB_Dee is the only EMU with T, thus I'd sug
 * Data for the 2000-2003 is tagged as low quality. Should we use it?
 
 ### SE
-* Message for Josephine , I have found that eel_lfs_code is missing in some rows (see attached). What should I include?. Answer from Josephine: "Also, if lifestage is also missing in certain places, that too would be because it’s missing in the original file, i.e. in the data we get from Swam. This is not an easy fix problem but Swam are at least aware that their data is far from perfect and they are working on improving their database, but that does not help us now. I’m sorry I don’t have a better answer to this…". So I have deleted the rows that do not contain life stage
+* Message for Josepin , I have found that eel_lfs_code is missing in some rows (see attached). What should I include?. Answer from Josephine: "Also, if lifestage is also missing in certain places, that too would be because it’s missing in the original file, i.e. in the data we get from Swam. This is not an easy fix problem but Swam are at least aware that their data is far from perfect and they are working on improving their database, but that does not help us now. I’m sorry I don’t have a better answer to this…". So I have deleted the rows that do not contain life stage
+* Message for Josepin : we are reviewing  the data sent by each country before the meeting. In this way, I have realized that you have two values for June 2018 for S and F. Can you check that please?. WAITING FOR THE ANSWEr
 
 # SEASONALITY
 
