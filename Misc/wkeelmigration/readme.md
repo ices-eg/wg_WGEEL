@@ -69,7 +69,7 @@ Jan-Dag: After habitat was recorded, GB_Dee is the only EMU with T, thus I'd sug
 ### NL
 * There are 0s in the catches, but they vary from year to year, so I understand that they do not correspond to closures in the fishery.
 * I have changed  from NL_Neth  to NL_total
-* ICes area was not included and I have included it
+* ICes area was not included and I have included it =>(Cédric unless we are dealing with coastal or marine areas corresponding to ICES division, and I don't think we will have much of those, I don't think we are gonna use the ICES area). 
 
 ### NO
 * I have found that eel_lfs_code is missing in some rows (see attached). Caroline has asked me to include YS in those cases
