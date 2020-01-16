@@ -52,7 +52,8 @@ Jan-Dag: After habitat was recorded, GB_Dee is the only EMU with T, thus I'd sug
 * otherwise no edits needed 
 
 ### IE
-* no edits needed. Esti: I  have deleted some extra "0"s in the rows below and changed some months with lower case to upper case
+* I  have deleted some extra "0"s in the rows below and changed some months with lower case to upper case
+* They were some duplicates because in the same EMU catches were coming for different RBDs, we will add those to have one value per EMU
 
 ### DK
 
