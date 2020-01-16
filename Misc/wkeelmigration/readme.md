@@ -25,6 +25,7 @@ renamed all files to lowercase, and only three extensions like :
 
 ### ES
 * ES_Anda was missing, I have add it. (No data before 2009 and forbidden later). In ES_Murc there is monthly data from 2002 on. For 2000 and 2001 data for the whole year has been provided. I have leaveD it.
+* ES_Murc duplicated values in jan, feb, marc in 2013. Message sent asking for clarification.  
 
 
 ### FI
