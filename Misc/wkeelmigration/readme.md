@@ -15,6 +15,9 @@ renamed all files to lowercase, and only three extensions like :
 
 
 # LANDINGS
+### BE
+
+* No monthly data => remove the file
 
 ### DE
 * Data for DE_Elbe is pretty much incomplete since only one state reported monthly catches. Thus, they are good for relative changes but we have to keep track that the absolute numbers are wrong for the EMU - Delete or use?
