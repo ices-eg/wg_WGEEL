@@ -32,7 +32,7 @@ renamed all files to lowercase, and only three extensions like :
 
 
 ### FR
-FR_Meus, FR_Rhin missing. I guess this is because they are international bassins withoufh fishery. NO edits for the rest, it can be used
+FR_Meus, FR_Rhin missing. I guess this is because they are international bassins withoufh fishery (CEDRIC Confirm, there is no commercial fishery there). NO edits for the rest, it can be used
 
 ### GB
 * data for lough neagh not reported monthly -> Derek will provide monthly data for Y after Jan 20th, thus for now, the Neagh entries were deleted and a seperate file will be provided once available.
