@@ -16,38 +16,23 @@ classification.
 Among mixed GY, only 4 of them are not already used by the WGEEL, so we
 will have to check. For the others, we can use the wgeel classification.
 
-    ser2[ser2$ser_lfs_code=="GY",]
+    ser2[ser2$ser_lfs_code=="GY", c("ser_nameshort","ser_comment","ser_lfs_code")]
 
-    ##     ser_nameshort ser_nameshort_base existing
-    ## 7            Bann             BannGY     TRUE
-    ## 10            Bro                       FALSE
-    ## 11           BroE               BroE     TRUE
-    ## 12           BroG               BroG     TRUE
-    ## 22           EmsB             EmsBGY     TRUE
-    ## 24           Erne             ErneGY     TRUE
-    ## 26            Fla                       FALSE
-    ## 27           FlaE               FlaE     TRUE
-    ## 36           Grey             GreyGY     TRUE
-    ## 60         ImsaGY             ImsaGY     TRUE
-    ## 69           Liff             LiffGY     TRUE
-    ## 119          ShaE                       FALSE
-    ## 128         StGeE                       FALSE
-    ## 132          Stra             StraGY     TRUE
-    ##                              ser_namelong ser_typ_id ser_effort_uni_code
-    ## 7         Bann Coleraine trapping partial          1                <NA>
-    ## 10      Brownshilll Glass, Elvers, Yellow          1                <NA>
-    ## 11            Brownshill_Elvers_>80<120mm          1                <NA>
-    ## 12                 Brownshill_Glass_<80mm          1                <NA>
-    ## 22  Ems (Bollingerfaehr) Elver monitoring          1              nr day
-    ## 24         Erne Ballyshannon trapping all          1                <NA>
-    ## 26         Flatford Glass, Elvers, Yellow          1                <NA>
-    ## 27              Flatford_Elvers_>80<120mm          1                <NA>
-    ## 36              Greylakes_Elvers (<120mm)          1                <NA>
-    ## 60         Imsa Near Sandnes trapping all          1                <NA>
-    ## 69                                 Liffey          1                <NA>
-    ## 119             Shannon Ardnacrusha Elver          1                <NA>
-    ## 128         St Germans Elvers (>80<120mm)          1                <NA>
-    ## 132                            Strangford          1                <NA>
+    ##     ser_nameshort
+    ## 7            Bann
+    ## 10            Bro
+    ## 11           BroE
+    ## 12           BroG
+    ## 22           EmsB
+    ## 24           Erne
+    ## 26            Fla
+    ## 27           FlaE
+    ## 36           Grey
+    ## 60         ImsaGY
+    ## 69           Liff
+    ## 119          ShaE
+    ## 128         StGeE
+    ## 132          Stra
     ##                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     ser_comment
     ## 7   River Bann flowing from the Lough NeaghThe LNFCS catch young yellow eel (elvers) fished below a river-spanning sluice gate, which creates a barrier to upstream juvenile eel migration on the River Bann. \r\nThe catch used to be made using drag nets with an area of 0.94 m2, but this is almost zero for the last five year (2008-2013). Another part of the catch is made with a glass eel collector located just below an impassable step on the left bank of the river.\r\nAnd finally a stationary trap located on the other bank of the river is used. \r\n These, and elvers trapped at the same location are\ntransported upstream to be stocked into the Lough. These catches provide a time-series of â€˜naturalâ€™ recruitment into the Lough
     ## 10                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             The number of glass eels, elvers and yellow eels at Brownshill on the River Great Ouse combined.
@@ -63,66 +48,21 @@ will have to check. For the others, we can use the wgeel classification.
     ## 119                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             Total catch, all traps by month
     ## 128                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      The number of elvers (>80<120mm) at St Germans Pumping station in 2014
     ## 132                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 Scientific trapping using artificial glass eel substrate traps at flap valve freshwater interface. This is the 8th year of trapping at this site, which will become a new NI Index site after 10 years of data collection. 
-    ##     ser_uni_code ser_lfs_code ser_hty_code
-    ## 7             kg           GY            F
-    ## 10            nr           GY            F
-    ## 11          <NA>           GY            F
-    ## 12          <NA>           GY            F
-    ## 22            nr           GY            F
-    ## 24            kg           GY            F
-    ## 26            nr           GY            F
-    ## 27          <NA>           GY            F
-    ## 36          <NA>           GY            F
-    ## 60            nr           GY            F
-    ## 69            kg           GY            F
-    ## 119           kg           GY            F
-    ## 128           nr           GY            F
-    ## 132         <NA>           GY            F
-    ##                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          ser_locationdescription
-    ## 7                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      Coleraine
-    ## 10                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         Environment Agency trap counter at Brownshill on the River Great Ouse
-    ## 11                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         Environment Agency trap counter at Brownshill on the River Great Ouse
-    ## 12                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         Environment Agency trap counter at Brownshill on the River Great Ouse
-    ## 22  Ems at the next weir upstream from tidal weir (6.4 km). \r\nEel ladder in the fish pass (which is then blocked for fish passage) set overnight (and in some instances at daytime also), from end of May the latest til at least mid of September. Usually sampling is performed in a core time frame of 90 days from early June til end of August and additional 30 days for sampling from May til September according to respective eel occurence.\r\n\r\nIn the first year 2013, when numbers of migrating eel increased, the eel no longer passed via the eel ladder but bypassed it by climbing the walls of the fish pass. From 2014, this bypass was succesfully blocked for all eels.
-    ## 24                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       The Erne at Ballyshannon, 6 km from the sea at the Cathaleen Fall Dam. 
-    ## 26                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     Environment Agency trap counter at Flatford, Judas Gap on the River Stour
-    ## 27                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     Environment Agency trap counter at Flatford, Judas Gap on the River Stour
-    ## 36                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     Environment Agency camera trap _Mixture of glass eel and elvers (<120mm), Greylake site, on river Parrett
-    ## 60                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  Near Sandnes
-    ## 69                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 Trap located on the first dam in river Liffey (Dublin, Islandbridge) at the tidal limit,  10 km from the sea.
-    ## 119                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          Trap at tidal limit
-    ## 128                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               St Germans pumping station at Middle Level Main Drain, just befor joining the Great Ouse River
-    ## 132                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 Location is at wetlands and wildfowl centre, Comber, which has several very large ponds draining into the Strangford Lough. 
-    ##     ser_emu_nameshort ser_cou_code ser_area_division ser_tblcodeid
-    ## 7             GB_NorE           GB            27.6.a        170004
-    ## 10            GB_Angl           GB              <NA>          <NA>
-    ## 11            GB_Angl           GB            27.4.c        170077
-    ## 12            GB_Angl           GB            27.4.c        170075
-    ## 22             DE_Ems           DE            27.4.c          <NA>
-    ## 24            IE_NorW           IE            27.7.b        170009
-    ## 26            GB_Angl           GB              <NA>          <NA>
-    ## 27            GB_Angl           GB            27.4.c        170073
-    ## 36            GB_SouW           GB            27.7.f        170078
-    ## 60           NO_total           NO            27.4.a          <NA>
-    ## 69            IE_East           IE            27.7.a          <NA>
-    ## 119           IE_Shan           IE              <NA>          <NA>
-    ## 128           GB_Angl           GB              <NA>          <NA>
-    ## 132           GB_NorE           GB            27.7.a        170079
-    ##           ser_x    ser_y
-    ## 7   -6.42000000 55.12000
-    ## 10   0.00853065 52.33534
-    ## 11   0.00853065 52.33534
-    ## 12   0.00853065 52.33534
-    ## 22   7.31500000 52.98000
-    ## 24  -8.17630600 54.49985
-    ## 26   1.02137700 51.95888
-    ## 27   1.02137700 51.95888
-    ## 36  -2.88133310 51.04710
-    ## 60   5.59000000 58.54000
-    ## 69  -6.31430360 53.34649
-    ## 119 -8.61000000 52.71000
-    ## 128  0.34946500 52.70224
-    ## 132 -5.55000000 54.37000
+    ##     ser_lfs_code
+    ## 7             GY
+    ## 10            GY
+    ## 11            GY
+    ## 12            GY
+    ## 22            GY
+    ## 24            GY
+    ## 26            GY
+    ## 27            GY
+    ## 36            GY
+    ## 60            GY
+    ## 69            GY
+    ## 119           GY
+    ## 128           GY
+    ## 132           GY
 
 Glass Eel
 =========
@@ -399,6 +339,61 @@ provider clearly tells us that we can add this data) \* We have to
 develop criterion to quickly check the reliability of the data and makes
 a quick sorting of the data.
 
+Data correction
+---------------
+
+Some corrections of errors found in the database
+
+    ###wrong year for BurS time series (january 1972 instead of 1973)
+    res$das_year[res$ser_nameshort == "BurS" &
+                          res$das_year == 1972 &
+                          res$das_month == 1 &
+                          res$das_value ==95 ] <- 1973
+
+    #for MajT, year 1987 is missing while there are duplicates for year 1989 
+    res$das_year[res$ser_nameshort == "MajT" &
+                   res$das_year == 1989 &
+                   res$das_month == 11 &
+                   res$das_value==1] <- 1987
+    res$das_year[which(res$ser_nameshort == "MajT" &
+                   res$das_year == 1989 &
+                   res$das_month == 10 &
+                   res$das_value==1)[1]] <- 1987
+    res$das_year[res$ser_nameshort == "MajT" &
+                   res$das_year == 1989 &
+                   res$das_month < 10 &
+                   res$das_month >5 ] <- 1987
+    res$das_year[res$ser_nameshort == "MajT" &
+                   res$das_year == 1989 &
+                   res$das_month == 5 &
+                   res$das_value==7] <- 1987
+    #same series: confusion between 1991 and 1994
+    res$das_year[res$ser_nameshort == "MajT" &
+                   res$das_year == 1994 &
+                   res$das_month == 5 &
+                   res$das_value == 3] <- 1991
+    res$das_year[res$ser_nameshort == "MajT" &
+                   res$das_year == 1994 &
+                   res$das_month == 11 &
+                   res$das_value == 1] <- 1991
+
+    ###For Scorf, there are two data in June, we sum the two points
+    scorf <- res %>%
+      filter(ser_nameshort == "ScorS", das_month == 6) %>%
+      group_by_at(vars(-one_of("das_value"))) %>%
+      summarise(das_value=sum(das_value))
+
+    res <- bind_rows(
+      res %>%
+      filter(res$ser_nameshort != "ScorS" | res$das_month != 6),
+      scorf)
+
+    ##Souston year typo
+    res$das_year[res$ser_nameshort == "SouS" &
+                   res$das_year == 2018 &
+                   res$das_month == 12 &
+                   res$das_value == 6060] <- 2017
+
 Data selection
 --------------
 
@@ -464,6 +459,7 @@ Building diagnostics of quality for series
     #   that there is no missing month between first and last month
 
     good_coverage_wave <- function(mydata){
+      checking_duplicate(mydata)
       peak_month <- unique(mydata$peak_month)
       #we put data in wide format with one row per seasaon
       data_wide <- mydata[,c("season",
@@ -473,9 +469,8 @@ Building diagnostics of quality for series
                                das_value,
                                drop=FALSE)
       data_wide <- data_wide[,c(1:12,"season")]
-      catch_per_season <- rowSums(data_wide[,1:12],na.rm=TRUE)
-      data_wide <- data_wide %>% mutate_at(vars(num_range("",1:12)), function(x) x/catch_per_season)
-      mean_per_month <- colMeans(data_wide[,-ncol(data_wide)],na.rm=TRUE)
+      mean_per_month <- colMeans(data_wide[,1:12],na.rm=TRUE)
+      mean_per_month <- mean_per_month / sum(mean_per_month, na.rm=TRUE)
       
       ###we seek the first and last month below 5% 
       fmin = min(which(mean_per_month<.1))
@@ -489,7 +484,74 @@ Building diagnostics of quality for series
       keeping$season
     }
 
-having\_wave&lt;-function(data){ \#we put it in the wide format
-data\_wide &lt;- pivot\_wider(data\[,c("season", "das\_month",
-"das\_value"),\], names\_from="das\_month", values\_from="das\_value") }
-\`\`\`
+    checking_duplicate <- function(mydata){
+      counts_data <- table(mydata$das_year, mydata$das_month)
+      if (sum(counts_data > 1)) {
+        dup <- which(counts_data > 1, arr.ind = TRUE)
+        print(paste("##duplicates series",unique(mydata$ser_nameshort)))
+        stop(paste(rownames(counts_data)[dup[,1]],
+                   colnames(counts_data)[dup[, 2]],
+                   collapse = "\n"))
+      }
+    }
+
+The previous function looks at different criterion: it put the data in
+the wide format and check if we have at least 3 months around the peak.
+Moreover, it seeks for two extreme months when the cumulative catch is
+below 10%. If there is now missing month between these two extreme
+months, the season is kept. Using this function, we can make a
+preliminary screening of available series.
+
+    kept_seasons <- lapply(unique(silvereel$ser_nameshort), function(s){
+      sub_silver <- subset(silvereel, silvereel$ser_nameshort==s)
+      good_coverage_wave(sub_silver)
+    })
+    names(kept_seasons) <- unique(silvereel$ser_nameshort)
+    kept_seasons[!sapply(kept_seasons,is.null)]
+
+    ## $BadB
+    ##  [1] 2003 2004 2005 2006 2007 2008 2009 2010 2011 2012 2013 2014 2015 2016
+    ## [15] 2017 2018
+    ## 
+    ## $BurS
+    ##  [1] 1970 1971 1972 1973 1974 1975 1976 1977 1978 1979 1980 1981 1982 1983
+    ## [15] 1984 1985 1986 1987 1988 1989 1990 1991 1992 1993 1994 1995 1996 1997
+    ## [29] 1998 1999 2000 2001 2002 2003 2004 2005 2006 2007 2008 2009 2010 2011
+    ## [43] 2012 2013 2014 2015 2016 2017 2018
+    ## 
+    ## $DaugS
+    ## [1] 2017 2018 2019
+    ## 
+    ## $GirB
+    ##  [1] 2003 2004 2005 2006 2007 2008 2009 2010 2011 2012 2013 2014 2015 2016
+    ## [15] 2017 2018
+    ## 
+    ## $ImsaS
+    ##  [1] 2000 2001 2002 2003 2004 2005 2006 2007 2008 2009 2010 2011 2012 2013
+    ## [15] 2014 2015 2016 2017 2018
+    ## 
+    ## $KauT
+    ## [1] 1984
+    ## 
+    ## $LevS
+    ## [1] 2012 2013
+    ## 
+    ## $OirS
+    ##  [1] 2000 2001 2002 2003 2004 2005 2006 2007 2008 2009 2010 2011 2012 2013
+    ## [15] 2014 2015 2016 2017 2018
+    ## 
+    ## $ShaKilS
+    ## [1] 2012 2017
+    ## 
+    ## $Shie
+    ##  [1] 2002 2003 2004 2005 2006 2007 2008 2009 2010 2011 2012 2013 2014 2015
+    ## [15] 2016 2017 2018
+    ## 
+    ## $SouS
+    ## [1] 2016 2017
+    ## 
+    ## $VaaT
+    ## [1] 2014 2015 2016 2017 2018 2019
+    ## 
+    ## $VilS
+    ## [1] 2012 2015 2016
