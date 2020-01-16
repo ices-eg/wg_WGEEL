@@ -29,7 +29,8 @@ renamed all files to lowercase, and only three extensions like :
 * ES_Basq, Es_Cata, ES_Astu: data was pasted twice. ONe has been deleted. 
 
 ### FI
-* Total Landings for the whole country (EMU).  NO edits for the rest, it can be used
+* Total Landings for the whole country (EMU).  
+* Mail to Jouni: I have realized that you have two values for June and we should just have one. Could you please check that? . WAITING FOR THE ANSWER
 
 
 ### FR
