@@ -79,7 +79,8 @@ res <- map(list_seasonality,function(X){			X[["data"]]		}) %>%
 		bind_rows()
 Hmisc::describe(res)
 
-print(res[is.na(res$eel_emu_nameshort),],n=1000)
+# these are all empty lines ....
+# print(res[is.na(res$eel_emu_nameshort),],n=2)
 # all NA print(res[is.na(res$eel_emu_nameshort),],n=1000)
 res <- res[!is.na(res$eel_emu_nameshort),]
 # describe file again
@@ -155,10 +156,6 @@ colnames(res) <-gsub("eel_","",colnames(res))
 res %>% filter(typ_name=="rec_landings_kg") %>% select(emu_nameshort) %>% distinct()
 
 
-# Currently I have what I have identified as duplicates, since I'm calculating percentage I do the sum
-
-res1 <- 	res %>%	group_by(emu_nameshort,lfs_code,hty_code,year,month) %>% 
-		summarize(value=sum(value))
 
 
 unique(res$emu_nameshort)
@@ -173,15 +170,32 @@ res$hty_code[res$hty_code=='FT'] <- 'F'
 # "FTC" "FT"  "TC" 
 
 unique(res$lfs_code) # OK
+save(res,file=str_c(datawd,"res_landings.Rdata"))
 ```
 
 
+```{r tables, echo=TRUE, include=TRUE}
+load(file=str_c(datawd,"res_landings.Rdata"))
+res %>%	group_by(emu_nameshort,lfs_code,hty_code,year,month) %>%
+		summarize(N=n()) %>% 
+		mutate(N = cell_spec(N, "html", color = ifelse(N > 1, "red", "black"),bold=ifelse(N > 1, T, F)))%>%
+		pivot_wider(names_from="month",values_from="N")%>%
+		kable(escape = F, align = "c") %>%
+		kable_styling(c("striped", "condensed"), full_width = F)%>%
+		scroll_box(width = "600px", height = "400px")
+
+
+
+
+```
 
 
 
 # Silver eels
 
 ```{r s, echo=TRUE, include=TRUE}
+
+
 
 fnplot <- function(emu, lfs, hty,colfill="grey10"){
 	res2 <- res %>% 
@@ -210,6 +224,7 @@ fnplot <- function(emu, lfs, hty,colfill="grey10"){
 		print(g)
 	}
 }
+
 
 
 for (the_emu in unique(res$emu_nameshort)){
