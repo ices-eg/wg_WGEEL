@@ -30,7 +30,7 @@ ser2[ser2$ser_lfs_code=="GY", c("ser_nameshort","ser_comment","ser_lfs_code")]
 
 # Glass Eel
 ## Data availability
-Given comments, mixed GY can be used as glass eel. What about availability across months? Very few series are collected across all months. ShiF, ShiM, ImsaGY, Gry, GiSc, GarG seem to have a good monthly coverage. 
+Given comments, mixed GY can be used as glass eel. What about availability across months? Very few series are collected across all months. Esti: I guess that in most on the cases the peak and the sourronding months are provided, in the rest the abundance should be low.... could the missing months be estimated using the trend of that season? ShiF, ShiM, ImsaGY, Gry, GiSc, GarG seem to have a good monthly coverage. 
 
 
 ```{r}
@@ -93,7 +93,7 @@ check_month_availabilty <- function(ns){
 * StGeG: only one year of data but good coverage of the migration wave (from march to october)
 
 ### to be discussed
-* Oria: first, monthly coverage in a bit limited (october and february represent 10% of yearly catches each), moreover, the GLM model included a month effect so the monthly pattern is similar every year by construction (as such, we should only consider one year)
+* Oria: first, monthly coverage in a bit limited (october and february represent 10% of yearly catches each), moreover, the GLM model included a month effect so the monthly pattern is similar every year by construction (as such, we should only consider one year). ESTI. OK. We could provide real densities (GE/m3) if you think that including more years could help.
 
 
 ### Final selection of data
