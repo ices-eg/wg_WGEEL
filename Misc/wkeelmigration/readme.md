@@ -69,7 +69,7 @@ Jan-Dag: After habitat was recorded, GB_Dee is the only EMU with T, thus I'd sug
 * In some cases, they don't have data by month and put "NC" or "ND" and then for the same year they do include whole year data. I deleted the NC and ND for months and left the annual data. 
 
 ### LV
-* I have sent this mail to Janis. In the case of Latvia there was not a contact person to check the data, so I though you might be related to that.  In this way, I wanted to check with you that “0” catches is correct. You have included 0 catches during oct, nov, dec, jan, feb, marc, apr. 0 catches mean that fisher have gone fishing and their catches have been 0. Is that the case? If the fishery was closed during these months you should write NP (no pertinent ). I have checked the closures files and they only describe closures during 2018 and 2019 and they only mention closures during nov, dic, jan. Could you clarify please if the 0 s correspond to 0 catches or to a fishery closure? ANSWER: Yes, that is correct - 0 catches mean that fisher have gone fishing and their catches have been 0. There is no eel speciffic fisheries in coastal waters  - eel is a bycatch. In fresh waters also many fishermen use fyke nets and focus on multiple species, only some use eel specific gear. SO NO CHANGES NEEDED
+* I have sent this mail to Janis. In the case of Latvia there was not a contact person to check the data, so I though you might be related to that.  In this way, I wanted to check with you that “0” catches is correct. You have included 0 catches during oct, nov, dec, jan, feb, marc, apr. 0 catches mean that fisher have gone fishing and their catches have been 0. Is that the case? If the fishery was closed during these months you should write NP (no pertinent ). I have checked the closures files and they only describe closures during 2018 and 2019 and they only mention closures during nov, dic, jan. Could you clarify please if the 0 s correspond to 0 catches or to a fishery closure? ANSWER: Yes, that is correct - 0 catches mean that fisher have gone fishing and their catches have been 0. There is no eel specific fisheries in coastal waters  - eel is a bycatch. In fresh waters also many fishermen use fyke nets and focus on multiple species, only some use eel specific gear. SO NO CHANGES NEEDED
 * LV_Latv changed to LV_tota
 
 ### NL
@@ -86,8 +86,8 @@ Jan-Dag: After habitat was recorded, GB_Dee is the only EMU with T, thus I'd sug
 * Message for Tomasz: ´ I have realized that for the same EMU, habitat and life stage and month you have different catches (see below). We just  need to have one value per year/month/emu/habitat. Could you please aggregate the data in that way? WAITING FOR THE ANSWER
 
 ### SE
-* Message for Josepin , I have found that eel_lfs_code is missing in some rows (see attached). What should I include?. Answer from Josephine: "Also, if lifestage is also missing in certain places, that too would be because it’s missing in the original file, i.e. in the data we get from Swam. This is not an easy fix problem but Swam are at least aware that their data is far from perfect and they are working on improving their database, but that does not help us now. I’m sorry I don’t have a better answer to this…". So I have deleted the rows that do not contain life stage
-* Message for Josepin : we are reviewing  the data sent by each country before the meeting. In this way, I have realized that you have two values for June 2018 for S and F. Can you check that please?. ANSWER, you have to add the two values for F. Done
+* Message for Josefin , I have found that eel_lfs_code is missing in some rows (see attached). What should I include?. Answer from Josefin: "Also, if lifestage is also missing in certain places, that too would be because it’s missing in the original file, i.e. in the data we get from Swam. This is not an easy fix problem but Swam are at least aware that their data is far from perfect and they are working on improving their database, but that does not help us now. I’m sorry I don’t have a better answer to this…". So I have deleted the rows that do not contain life stage
+* Message for Josefin : we are reviewing  the data sent by each country before the meeting. In this way, I have realized that you have two values for June 2018 for S and F. Can you check that please?. ANSWER, you have to add the two values for F. Done
 
 # SEASONALITY
 
@@ -130,6 +130,6 @@ Hilaire corrections :
 
 * LTU file : Mismatch between ZEIT in the series and Zeit in data, renamed to Zeit
 * replaced all existing series with data from database
-* Sent mail to Justas ask for coordinates in Lithuania => TODO integrate updated data
+* Sent mail to Justas ask for coordinates in Lithuania => Done new data with coordinates
 * Corrected wrong format for coordinates in Finland
-* Sent mail to Josefin (SE) to ask for coordinates in decimal degrees => TODO integrate updated data
+* Sent mail to Josefin (SE) to ask for coordinates in decimal degrees => Done new data integrated
