@@ -191,6 +191,8 @@ res %>%	group_by(emu_nameshort,lfs_code,hty_code,year,month) %>%
 
 
 
+Empty graphs correspond to all zero values reported for one year
+
 # Silver eels
 
 ```{r s, echo=TRUE, include=TRUE}
