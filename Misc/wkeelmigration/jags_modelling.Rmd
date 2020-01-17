@@ -2,7 +2,7 @@
 title: "Untitled"
 author: "Hilaire Drouineau"
 date: "12 janvier 2020"
-output: html_document
+output: md_document
 ---
 
 ```{r setup, include=FALSE}
@@ -17,14 +17,14 @@ library(tidyr)
 load("seasonality_tibbles_res_ser2.Rdata")
 ```
 
-Number of data series per stage: 12 pure glass eel stage, 6 pure silver and 32 yellow. Onky 20 mixed series, we will have to check their classification.
+Number of data series per stage: 12 pure glass eel stage, 6 pure silver and 32 yellow. Only 20 mixed series, we will have to check their classification.
 ```{r}
 table(ser2$ser_lfs_code)
 ```
 
 Among mixed GY, only 4 of them are not already used by the WGEEL, so we will have to check. For the others, we can use the wgeel classification.
 ```{r}
-ser2[ser2$ser_lfs_code=="GY",]
+ser2[ser2$ser_lfs_code=="GY", c("ser_nameshort","ser_comment","ser_lfs_code")]
 ```
 
 
@@ -226,12 +226,164 @@ build_data <- function(nbclus){
 ```
 
 
-## Including Plots
+# Silver eel
+## Data availability
+There are 87 pure silver eel dataseries, this has several consequences:
+* Given the high number of time series, we will only focus one pure silver eels data series and neglect YS data series (except if a data provider clearly tells us that we can add this data)
+* We have to develop criterion to quickly check the reliability of the data and makes a quick sorting of the data.
 
-You can also embed plots, for example:
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+##Data correction
+
+Some corrections of errors found in the database
+```{r}
+###wrong year for BurS time series (january 1972 instead of 1973)
+res$das_year[res$ser_nameshort == "BurS" &
+                      res$das_year == 1972 &
+                      res$das_month == 1 &
+                      res$das_value ==95 ] <- 1973
+
+#for MajT, year 1987 is missing while there are duplicates for year 1989 
+res$das_year[res$ser_nameshort == "MajT" &
+               res$das_year == 1989 &
+               res$das_month == 11 &
+               res$das_value==1] <- 1987
+res$das_year[which(res$ser_nameshort == "MajT" &
+               res$das_year == 1989 &
+               res$das_month == 10 &
+               res$das_value==1)[1]] <- 1987
+res$das_year[res$ser_nameshort == "MajT" &
+               res$das_year == 1989 &
+               res$das_month < 10 &
+               res$das_month >5 ] <- 1987
+res$das_year[res$ser_nameshort == "MajT" &
+               res$das_year == 1989 &
+               res$das_month == 5 &
+               res$das_value==7] <- 1987
+#same series: confusion between 1991 and 1994
+res$das_year[res$ser_nameshort == "MajT" &
+               res$das_year == 1994 &
+               res$das_month == 5 &
+               res$das_value == 3] <- 1991
+res$das_year[res$ser_nameshort == "MajT" &
+               res$das_year == 1994 &
+               res$das_month == 11 &
+               res$das_value == 1] <- 1991
+
+###For Scorf, there are two data in June, we sum the two points
+scorf <- res %>%
+  filter(ser_nameshort == "ScorS", das_month == 6) %>%
+  group_by_at(vars(-one_of("das_value"))) %>%
+  summarise(das_value=sum(das_value))
+
+res <- bind_rows(
+  res %>%
+  filter(res$ser_nameshort != "ScorS" | res$das_month != 6),
+  scorf)
+
+##Souston year typo
+res$das_year[res$ser_nameshort == "SouS" &
+               res$das_year == 2018 &
+               res$das_month == 12 &
+               res$das_value == 6060] <- 2017
+  
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+## Data selection
+As for glass eel, we start by defining season consistent with ecological knowledge on migration. Downstream runs of European silver eels typically start in the autumn and may last until early spring (Brujs and Durif 2009), but we saw during WGEEL 2019 that peak in silver catches in Sweden is centered around August/September. Therefore, it is difficult to split season of migration in a similar way for all Europe. Therefore, we define a season of migration per series: we look to the month corresponding to the peak of migration and define the season from 5 months before to 6 months after. The name of the season is defined as the year of the peak.
+```{r}
+#function to make circular shifting
+shifter <- function(x, n = 1) {
+     if (n == 0) x else c(tail(x, -n), head(x, n))
+}
+
+#creating season
+finding_peak <- function(data){
+  mean_per_month <- tapply(data$das_value,list(data$das_month),mean,na.rm=TRUE)
+  peak_month <-as.integer(names(sort(mean_per_month,decreasing=TRUE)))[1]
+  peak_month
+}
+
+season_creation<-function(data){
+  peak_month <- finding_peak(data) #2 3 4 5 6 7 8 9 10 11 12 1
+  season_order <- shifter(1:12,peak_month-6)
+  before <- season_order[1:6]
+  after <- season_order[7:12]
+  data$month_in_season <- as.factor(match(data$das_month,season_order))
+  data$season <- ifelse(data$das_month %in% before & data$das_month>peak_month,
+                        data$das_year+1,
+                        ifelse(data$das_month %in% after & data$das_month<peak_month,
+                               data$das_year-1,
+                               data$das_year))
+  data$peak_month <- peak_month
+  data
+}
+
+silvereel <- do.call("rbind.data.frame",
+                     lapply(ser2$ser_nameshort[ser2$ser_lfs_code=="S"],
+                            function(s)
+                              season_creation(res[res$ser_nameshort==s,])))
+months_peak_per_series<- unique(silvereel[,c("ser_nameshort","peak_month")])
+table(months_peak_per_series$peak_month)
+```
+This confirms that most series peak in autumn, but that other peak in spring or summer.
+
+
+
+## Building diagnostics of quality for series
+```{r}
+#to be considered as valid, we need:
+#   at least 4 months including the peak
+#   that the first month of data generally stands for a small proportion of catches
+#   that the last month of data generally stands for a small proportion of catches
+#   that there is no missing month between first and last month
+
+good_coverage_wave <- function(mydata){
+  checking_duplicate(mydata)
+  peak_month <- unique(mydata$peak_month)
+  #we put data in wide format with one row per seasaon
+  data_wide <- mydata[,c("season",
+                       "month_in_season",
+                       "das_value")] %>%
+                      spread(month_in_season,
+                           das_value,
+                           drop=FALSE)
+  data_wide <- data_wide[,c(1:12,"season")]
+  mean_per_month <- colMeans(data_wide[,1:12],na.rm=TRUE)
+  mean_per_month <- mean_per_month / sum(mean_per_month, na.rm=TRUE)
+  
+  ###we seek the first and last month below 5% 
+  fmin = min(which(mean_per_month<.1))
+  lmin = max(which(mean_per_month<.1))
+  
+  if (fmin>5 | lmin<7) return(NULL)
+  keeping <- data_wide%>%
+    mutate(num_na=rowSums(is.na(select(.,num_range("",fmin:lmin))))) %>%
+    filter(num_na==0)
+  if (nrow(keeping)==0) return(NULL)
+  keeping$season
+}
+
+checking_duplicate <- function(mydata){
+  counts_data <- table(mydata$das_year, mydata$das_month)
+  if (sum(counts_data > 1)) {
+    dup <- which(counts_data > 1, arr.ind = TRUE)
+    print(paste("##duplicates series",unique(mydata$ser_nameshort)))
+    stop(paste(rownames(counts_data)[dup[,1]],
+               colnames(counts_data)[dup[, 2]],
+               collapse = "\n"))
+  }
+}
+```
+
+
+The previous function looks at different criterion: it put the data in the wide format and check if we have at least 3 months around the peak.  Moreover, it seeks for two extreme months when the cumulative catch is below 10%. If there is now missing month between these two extreme months, the season is kept. Using this function, we can make a preliminary screening of available series.
+
+```{r, warning=FALSE}
+kept_seasons <- lapply(unique(silvereel$ser_nameshort), function(s){
+  sub_silver <- subset(silvereel, silvereel$ser_nameshort==s)
+  good_coverage_wave(sub_silver)
+})
+names(kept_seasons) <- unique(silvereel$ser_nameshort)
+kept_seasons[!sapply(kept_seasons,is.null)]
+```
