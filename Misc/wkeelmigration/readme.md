@@ -1,8 +1,11 @@
 # WKEELMIGRATION NOTES
 
+These notes are related to the treatment and integration of files, you can start with this file, and then for more details about data integration switch to the other markdown (.md) files in this folder.
+read in this order time_series_seasonality.md and jags_modelling.md (for time series) and landings_seasonality (for landings data)
 
-renamed all files to lowercase, and only three extensions like :
+As a first step we have renamed all files to lowercase, and only three extensions like :
 `GB_fishery_closure.xlsx`
+
 # DATABASE
 
 * Updated all names for GY and G recruitment series [code](https://github.com/ices-eg/wg_WGEEL/commit/3fc2e32debc9ceefa524ad47836b1b5ab7e2107a)
