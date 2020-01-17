@@ -1,165 +1,17 @@
 ---
-title: "WKEELMIGRATION SEASONALITY DATA TREATMENT"
+title: "WKEELMIGRATION LANDINGS SEASONALITY DATA TREATMENT"
 author: "Cédric Briand, Jan Dag Pohlmann, Estibaliz diaz and Hilaire Drouineau, "
 date: "january 2020"
-output: html_document
+output: 
+  html_document:
+    keep_md: true
 ---
 
 
 
 # preparing the files
 
-### BE
-
-* No monthly data => remove the file
-
-### DE
-* Data for DE_Elbe is pretty much incomplete since only one state reported
-  monthly catches. Thus, they are good for relative changes but we have to keep
-  track that the absolute numbers are wrong for the EMU - Delete or use?
-* Many rows reported as ND,NR,NM etc., with "WHOLE YEAR". -> We will not use
-  those anyway, so I deleted them. However, as discussed so many times, this
-  information is useful in the sense of knowing that it is not 0-catch, but e.g.
-  no monthly data available. (Anyway, we have the original file stored if we
-  want to use these information...) 
-
-### ES
-* ES_Anda was missing, I have add it. (No data before 2009 and forbidden later).
-  In ES_Murc there is monthly data from 2002 on. For 2000 and 2001 data for the
-  whole year has been provided. I have leaveD it.
-
-
-### FI
-* Total Landings for the whole country (EMU).  NO edits for the rest, it can be
-  used
-
-
-### FR
-FR_Meus, FR_Rhin missing. I guess this is because they are international bassins
-withoufh fishery (CEDRIC Confirm, there is no commercial fishery there). NO
-edits for the rest, it can be used
-
-### GB
-* data for lough neagh not reported monthly -> Derek will provide monthly data
-  for Y after Jan 20th, thus for now, the Neagh entries were deleted and a
-  seperate file will be provided once available.
-* data on Y&S is reported for GB_Total from 2011-2013 -> Assume there is no EMU
-  data thus summed for all but GB_Scot & GB_neag, but sent an email to clarify.
-  How to treat these? -> confirmed, left it in the sheet as GB_total  
-* habitat is defined as NR for a lot of the data, if its unknown what are we
-  going to do? -> Check with Cedric if we use those data (Cédric => I would say
-  very probably not, if it's there we have it and can compare later on with what
-  we have in the database for landings through shiny app, if not then it's
-  probably not very important). I have sent an email to Ryan ". I guess that the
-  problem is that you do not know where the catches happened exactly; if this is
-   the case I´d suggest to writte “FTC” since it includes all the possible
-  habitats" and he has agreed 
-
-Jan-Dag: After habitat was recorded, GB_Dee is the only EMU with T, thus I'd
-suggest using FC for the other EMUs before 2011. Also, after habitat was
-recorded, all glass eel fisheries have habitat "F", so I'd suggest using only F
-for glass eel fisheries before 2011. All others FC. -> Awaiting confirmation
-from Ryan.
- 
-* glass eel catch data is reported for whole year (season Feb to May) in GB
-  since 2014 for several EMUs -> deleted entries, except if it was 0, then
-  converted to respective month according to comment
-* GB_NorW was missing in the EMU list and was added to this sheet -> Cedric,
-  does the EMU exist in the database? => Yes
-* WAITING FOR AN ANSWER -> Jan-Dag: I have the file prepared and will upload it
-  once clarified
-
-### HR
-* data for 2018 is preliminary, which I think we don't want. -> delete these
-  rows? (wasn't done by me)
-* otherwise no edits needed 
-
-### IE
-* no edits needed. Esti: I  have deleted some extra "0"s in the rows below and
-  changed some months with lower case to upper case
-
-### DK
-
-* data for 2019 is preliminary, which I think we don't want. -> delete these
-  rows? (wasn't done by me)
-* otherwise no edits needed 
-
-### LTU
-* I have sent this mail to Arvydas: in some "eel_value" rows there was a "0" in
-  places where "eel_missvaluequal" was NC or NR. I have deleted those "0"s,
-  since this would mean 0 catches, not no data. I have found that in the T -
-  Curonian Lagoon for some months (Jan, Feb, March, Nov and DEC) you have
-  included 0 catches. I have checked the closure document, and I have seen that
-  the fishery is closed during this months. Therefore, I think that it would be
-  more correct not to include this months, (o catches means you have gone
-  fishing and your catches have been 0. Please let me know if I´m correct.
-  Arvydas´s answer: The main fishing gear for eel in the Curonian Lagoon is eel
-  Fyke nets, fishing period are from April to October. The catch of eel depends
-  on natural conditions. The water temperature is very low between November and
-  March in Curonian Lagoon, which makes the eels passive and its does not
-  migrate. But at the this  time (autumn, winter) in Curonian Lagoon fishermen
-  used small mesh size traps for fishing for lamprey and smelt, and eels are
-  sometimes caught like bycatch.  Eels are recorded by fishermen, so they appear
-  in the statistics  (a few kilograms). But I agree that it would be more
-  correct not to include this months. On the other hand, the increase  eel
-  catches in November reflects climate change.SO i´LL DELETE Jan, Feb, March,
-  Nov and DEC) 
-* In some cases they have included data by month and also a total by year adding
-  up all those months. I deleted the total because it duplicated the
-  information.  
-* In some cases, they don't have data by month and put "NC" or "ND" and then for
-  the same year they do include whole year data. I deleted the NC and ND for
-  months and left the annual data. 
-
-### LV
-* I have sent this mail to Janis. In the case of Latvia there was not a contact
-  person to check the data, so I though you might be related to that.  In this
-  way, I wanted to check with you that “0” catches is correct. You have included
-  0 catches during oct, nov, dec, jan, feb, marc, apr. 0 catches mean that
-  fisher have gone fishing and their catches have been 0. Is that the case? If
-  the fishery was closed during these months you should write NP (no pertinent
-  ). I have checked the closures files and they only describe closures during
-  2018 and 2019 and they only mention closures during nov, dic, jan. Could you
-  clarify please if the 0 s correspond to 0 catches or to a fishery closure?
-  ANSWER: Yes, that is correct - 0 catches mean that fisher have gone fishing
-  and their catches have been 0. There is no eel speciffic fisheries in coastal
-  waters  - eel is a bycatch. In fresh waters also many fishermen use fyke nets
-  and focus on multiple species, only some use eel specific gear. SO NO CHANGES
-  NEEDED
-* LV_Latv changed to LV_tota
-
-### NL
-* There are 0s in the catches, but they vary from year to year, so I understand
-  that they do not correspond to closures in the fishery.
-* I have changed  from NL_Neth  to NL_total
-* ICes area was not included and I have included it =>(Cédric unless we are
-  dealing with coastal or marine areas corresponding to ICES division, and I
-  don't think we will have much of those, I don't think we are gonna use the
-  ICES area). 
-
-### NO
-* I have found that eel_lfs_code is missing in some rows (see attached).
-  Caroline has asked me to include YS in those cases
-* I have sent a mail to Caroline to confirm that "0"s correspond to real 0
-  catches. ANSWER FROM CAROLINE: "The fishery closed starting in from 2011. It
-  opened partially in 2016 (and it is still the same today): to only a few
-  fishers which could fish from July to October." and me answer "SO I understand
-  that for the 2011-2015 period I should change the “0” catches to NP( this
-  means that fishery was closed) and the rest of the 0s really mean 0 cacthes
-  (there was a a fishery activity but catches were 0). Right?" ANSWER: right
-
-### PL
-* Data for the 2000-2003 is tagged as low quality. Should we use it?
-
-### SE
-* Message for Josephine , I have found that eel_lfs_code is missing in some rows
-  (see attached). What should I include?. Answer from Josephine: "Also, if
-  lifestage is also missing in certain places, that too would be because it’s
-  missing in the original file, i.e. in the data we get from Swam. This is not
-  an easy fix problem but Swam are at least aware that their data is far from
-  perfect and they are working on improving their database, but that does not
-  help us now. I’m sorry I don’t have a better answer to this…". So I have
-  deleted the rows that do not contain life stage
+see readme.md in this folder for notes on source file.
 
 
 # reading the files
@@ -4632,13 +4484,23 @@ colnames(res) <-gsub("eel_","",colnames(res))
 res %>% filter(typ_name=="rec_landings_kg") %>% select(emu_nameshort) %>% distinct()
 ```
 
-```
-## # A tibble: 2 x 1
-##   emu_nameshort
-##   <chr>        
-## 1 ES_Basq      
-## 2 ES_Cata
-```
+
+
+<table>
+ <thead>
+  <tr>
+   <th style="text-align:left;"> emu_nameshort </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> ES_Basq </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> ES_Cata </td>
+  </tr>
+</tbody>
+</table>
 
 ```r
 # Currently I have what I have identified as duplicates, since I'm calculating percentage I do the sum
@@ -4758,43 +4620,43 @@ for (the_emu in unique(res$emu_nameshort)){
 }
 ```
 
-![plot of chunk s](figure/s-1.png)![plot of chunk s](figure/s-2.png)![plot of chunk s](figure/s-3.png)![plot of chunk s](figure/s-4.png)![plot of chunk s](figure/s-5.png)![plot of chunk s](figure/s-6.png)
+![](landings_seasonality_files/figure-html/s-1.png)<!-- -->![](landings_seasonality_files/figure-html/s-2.png)<!-- -->![](landings_seasonality_files/figure-html/s-3.png)<!-- -->![](landings_seasonality_files/figure-html/s-4.png)<!-- -->![](landings_seasonality_files/figure-html/s-5.png)<!-- -->![](landings_seasonality_files/figure-html/s-6.png)<!-- -->
 
 ```
 ## Warning: Removed 26 rows containing missing values (position_stack).
 ```
 
-![plot of chunk s](figure/s-7.png)
+![](landings_seasonality_files/figure-html/s-7.png)<!-- -->
 
 ```
 ## Warning: Removed 39 rows containing missing values (position_stack).
 ```
 
-![plot of chunk s](figure/s-8.png)
+![](landings_seasonality_files/figure-html/s-8.png)<!-- -->
 
 ```
 ## Warning: Removed 30 rows containing missing values (position_stack).
 ```
 
-![plot of chunk s](figure/s-9.png)
+![](landings_seasonality_files/figure-html/s-9.png)<!-- -->
 
 ```
 ## Warning: Removed 9 rows containing missing values (position_stack).
 ```
 
-![plot of chunk s](figure/s-10.png)![plot of chunk s](figure/s-11.png)
+![](landings_seasonality_files/figure-html/s-10.png)<!-- -->![](landings_seasonality_files/figure-html/s-11.png)<!-- -->
 
 ```
 ## Warning: Removed 31 rows containing missing values (position_stack).
 ```
 
-![plot of chunk s](figure/s-12.png)
+![](landings_seasonality_files/figure-html/s-12.png)<!-- -->
 
 ```
 ## Warning: Removed 7 rows containing missing values (position_stack).
 ```
 
-![plot of chunk s](figure/s-13.png)![plot of chunk s](figure/s-14.png)![plot of chunk s](figure/s-15.png)
+![](landings_seasonality_files/figure-html/s-13.png)<!-- -->![](landings_seasonality_files/figure-html/s-14.png)<!-- -->![](landings_seasonality_files/figure-html/s-15.png)<!-- -->
 
 ```r
 for (the_emu in unique(res$emu_nameshort)){
@@ -4805,19 +4667,19 @@ for (the_emu in unique(res$emu_nameshort)){
 }
 ```
 
-![plot of chunk s](figure/s-16.png)![plot of chunk s](figure/s-17.png)![plot of chunk s](figure/s-18.png)![plot of chunk s](figure/s-19.png)![plot of chunk s](figure/s-20.png)![plot of chunk s](figure/s-21.png)![plot of chunk s](figure/s-22.png)![plot of chunk s](figure/s-23.png)![plot of chunk s](figure/s-24.png)
+![](landings_seasonality_files/figure-html/s-16.png)<!-- -->![](landings_seasonality_files/figure-html/s-17.png)<!-- -->![](landings_seasonality_files/figure-html/s-18.png)<!-- -->![](landings_seasonality_files/figure-html/s-19.png)<!-- -->![](landings_seasonality_files/figure-html/s-20.png)<!-- -->![](landings_seasonality_files/figure-html/s-21.png)<!-- -->![](landings_seasonality_files/figure-html/s-22.png)<!-- -->![](landings_seasonality_files/figure-html/s-23.png)<!-- -->![](landings_seasonality_files/figure-html/s-24.png)<!-- -->
 
 ```
 ## Warning: Removed 9 rows containing missing values (position_stack).
 ```
 
-![plot of chunk s](figure/s-25.png)
+![](landings_seasonality_files/figure-html/s-25.png)<!-- -->
 
 ```
 ## Warning: Removed 8 rows containing missing values (position_stack).
 ```
 
-![plot of chunk s](figure/s-26.png)![plot of chunk s](figure/s-27.png)![plot of chunk s](figure/s-28.png)![plot of chunk s](figure/s-29.png)![plot of chunk s](figure/s-30.png)![plot of chunk s](figure/s-31.png)
+![](landings_seasonality_files/figure-html/s-26.png)<!-- -->![](landings_seasonality_files/figure-html/s-27.png)<!-- -->![](landings_seasonality_files/figure-html/s-28.png)<!-- -->![](landings_seasonality_files/figure-html/s-29.png)<!-- -->![](landings_seasonality_files/figure-html/s-30.png)<!-- -->![](landings_seasonality_files/figure-html/s-31.png)<!-- -->
 
 # Glass eel
 
@@ -4826,14 +4688,26 @@ for (the_emu in unique(res$emu_nameshort)){
 res %>% filter(lfs_code=="G") %>% select(hty_code) %>% distinct()
 ```
 
-```
-## # A tibble: 3 x 1
-##   hty_code
-##   <chr>   
-## 1 T       
-## 2 F       
-## 3 FTC
-```
+
+
+<table>
+ <thead>
+  <tr>
+   <th style="text-align:left;"> hty_code </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> T </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> F </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> FTC </td>
+  </tr>
+</tbody>
+</table>
 
 ```r
 for (the_emu in unique(res$emu_nameshort)){
@@ -4844,7 +4718,7 @@ for (the_emu in unique(res$emu_nameshort)){
 }
 ```
 
-![plot of chunk g](figure/g-1.png)![plot of chunk g](figure/g-2.png)![plot of chunk g](figure/g-3.png)![plot of chunk g](figure/g-4.png)![plot of chunk g](figure/g-5.png)![plot of chunk g](figure/g-6.png)![plot of chunk g](figure/g-7.png)![plot of chunk g](figure/g-8.png)![plot of chunk g](figure/g-9.png)![plot of chunk g](figure/g-10.png)![plot of chunk g](figure/g-11.png)![plot of chunk g](figure/g-12.png)
+![](landings_seasonality_files/figure-html/g-1.png)<!-- -->![](landings_seasonality_files/figure-html/g-2.png)<!-- -->![](landings_seasonality_files/figure-html/g-3.png)<!-- -->![](landings_seasonality_files/figure-html/g-4.png)<!-- -->![](landings_seasonality_files/figure-html/g-5.png)<!-- -->![](landings_seasonality_files/figure-html/g-6.png)<!-- -->![](landings_seasonality_files/figure-html/g-7.png)<!-- -->![](landings_seasonality_files/figure-html/g-8.png)<!-- -->![](landings_seasonality_files/figure-html/g-9.png)<!-- -->![](landings_seasonality_files/figure-html/g-10.png)<!-- -->![](landings_seasonality_files/figure-html/g-11.png)<!-- -->![](landings_seasonality_files/figure-html/g-12.png)<!-- -->
 
 ```r
 for (the_emu in unique(res$emu_nameshort)){
@@ -4855,7 +4729,7 @@ for (the_emu in unique(res$emu_nameshort)){
 }
 ```
 
-![plot of chunk g](figure/g-13.png)![plot of chunk g](figure/g-14.png)![plot of chunk g](figure/g-15.png)
+![](landings_seasonality_files/figure-html/g-13.png)<!-- -->![](landings_seasonality_files/figure-html/g-14.png)<!-- -->![](landings_seasonality_files/figure-html/g-15.png)<!-- -->
 
 ```r
 for (the_emu in unique(res$emu_nameshort)){
@@ -4866,7 +4740,7 @@ for (the_emu in unique(res$emu_nameshort)){
 }
 ```
 
-![plot of chunk g](figure/g-16.png)![plot of chunk g](figure/g-17.png)![plot of chunk g](figure/g-18.png)![plot of chunk g](figure/g-19.png)
+![](landings_seasonality_files/figure-html/g-16.png)<!-- -->![](landings_seasonality_files/figure-html/g-17.png)<!-- -->![](landings_seasonality_files/figure-html/g-18.png)<!-- -->![](landings_seasonality_files/figure-html/g-19.png)<!-- -->
 
 
 # Yellow
@@ -4876,16 +4750,32 @@ for (the_emu in unique(res$emu_nameshort)){
 res %>% filter(lfs_code=="Y") %>% select(hty_code) %>% distinct()
 ```
 
-```
-## # A tibble: 5 x 1
-##   hty_code
-##   <chr>   
-## 1 C       
-## 2 F       
-## 3 T       
-## 4 MO      
-## 5 FTC
-```
+
+
+<table>
+ <thead>
+  <tr>
+   <th style="text-align:left;"> hty_code </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> C </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> F </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> T </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> MO </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> FTC </td>
+  </tr>
+</tbody>
+</table>
 
 ```r
 for (the_emu in unique(res$emu_nameshort)){
@@ -4896,37 +4786,37 @@ for (the_emu in unique(res$emu_nameshort)){
 }
 ```
 
-![plot of chunk y](figure/y-1.png)![plot of chunk y](figure/y-2.png)![plot of chunk y](figure/y-3.png)![plot of chunk y](figure/y-4.png)
+![](landings_seasonality_files/figure-html/y-1.png)<!-- -->![](landings_seasonality_files/figure-html/y-2.png)<!-- -->![](landings_seasonality_files/figure-html/y-3.png)<!-- -->![](landings_seasonality_files/figure-html/y-4.png)<!-- -->
 
 ```
 ## Warning: Removed 20 rows containing missing values (position_stack).
 ```
 
-![plot of chunk y](figure/y-5.png)
+![](landings_seasonality_files/figure-html/y-5.png)<!-- -->
 
 ```
 ## Warning: Removed 39 rows containing missing values (position_stack).
 ```
 
-![plot of chunk y](figure/y-6.png)
+![](landings_seasonality_files/figure-html/y-6.png)<!-- -->
 
 ```
 ## Warning: Removed 8 rows containing missing values (position_stack).
 ```
 
-![plot of chunk y](figure/y-7.png)![plot of chunk y](figure/y-8.png)![plot of chunk y](figure/y-9.png)
+![](landings_seasonality_files/figure-html/y-7.png)<!-- -->![](landings_seasonality_files/figure-html/y-8.png)<!-- -->![](landings_seasonality_files/figure-html/y-9.png)<!-- -->
 
 ```
 ## Warning: Removed 31 rows containing missing values (position_stack).
 ```
 
-![plot of chunk y](figure/y-10.png)
+![](landings_seasonality_files/figure-html/y-10.png)<!-- -->
 
 ```
 ## Warning: Removed 7 rows containing missing values (position_stack).
 ```
 
-![plot of chunk y](figure/y-11.png)![plot of chunk y](figure/y-12.png)![plot of chunk y](figure/y-13.png)
+![](landings_seasonality_files/figure-html/y-11.png)<!-- -->![](landings_seasonality_files/figure-html/y-12.png)<!-- -->![](landings_seasonality_files/figure-html/y-13.png)<!-- -->
 
 ```r
 for (the_emu in unique(res$emu_nameshort)){
@@ -4937,13 +4827,13 @@ for (the_emu in unique(res$emu_nameshort)){
 }
 ```
 
-![plot of chunk y](figure/y-14.png)![plot of chunk y](figure/y-15.png)![plot of chunk y](figure/y-16.png)![plot of chunk y](figure/y-17.png)![plot of chunk y](figure/y-18.png)![plot of chunk y](figure/y-19.png)![plot of chunk y](figure/y-20.png)![plot of chunk y](figure/y-21.png)![plot of chunk y](figure/y-22.png)![plot of chunk y](figure/y-23.png)![plot of chunk y](figure/y-24.png)![plot of chunk y](figure/y-25.png)![plot of chunk y](figure/y-26.png)![plot of chunk y](figure/y-27.png)
+![](landings_seasonality_files/figure-html/y-14.png)<!-- -->![](landings_seasonality_files/figure-html/y-15.png)<!-- -->![](landings_seasonality_files/figure-html/y-16.png)<!-- -->![](landings_seasonality_files/figure-html/y-17.png)<!-- -->![](landings_seasonality_files/figure-html/y-18.png)<!-- -->![](landings_seasonality_files/figure-html/y-19.png)<!-- -->![](landings_seasonality_files/figure-html/y-20.png)<!-- -->![](landings_seasonality_files/figure-html/y-21.png)<!-- -->![](landings_seasonality_files/figure-html/y-22.png)<!-- -->![](landings_seasonality_files/figure-html/y-23.png)<!-- -->![](landings_seasonality_files/figure-html/y-24.png)<!-- -->![](landings_seasonality_files/figure-html/y-25.png)<!-- -->![](landings_seasonality_files/figure-html/y-26.png)<!-- -->![](landings_seasonality_files/figure-html/y-27.png)<!-- -->
 
 ```
 ## Warning: Removed 8 rows containing missing values (position_stack).
 ```
 
-![plot of chunk y](figure/y-28.png)![plot of chunk y](figure/y-29.png)![plot of chunk y](figure/y-30.png)![plot of chunk y](figure/y-31.png)![plot of chunk y](figure/y-32.png)![plot of chunk y](figure/y-33.png)![plot of chunk y](figure/y-34.png)
+![](landings_seasonality_files/figure-html/y-28.png)<!-- -->![](landings_seasonality_files/figure-html/y-29.png)<!-- -->![](landings_seasonality_files/figure-html/y-30.png)<!-- -->![](landings_seasonality_files/figure-html/y-31.png)<!-- -->![](landings_seasonality_files/figure-html/y-32.png)<!-- -->![](landings_seasonality_files/figure-html/y-33.png)<!-- -->![](landings_seasonality_files/figure-html/y-34.png)<!-- -->
 
 ```r
 for (the_emu in unique(res$emu_nameshort)){
@@ -4954,31 +4844,31 @@ for (the_emu in unique(res$emu_nameshort)){
 }
 ```
 
-![plot of chunk y](figure/y-35.png)![plot of chunk y](figure/y-36.png)
+![](landings_seasonality_files/figure-html/y-35.png)<!-- -->![](landings_seasonality_files/figure-html/y-36.png)<!-- -->
 
 ```
 ## Warning: Removed 12 rows containing missing values (position_stack).
 ```
 
-![plot of chunk y](figure/y-37.png)
+![](landings_seasonality_files/figure-html/y-37.png)<!-- -->
 
 ```
 ## Warning: Removed 72 rows containing missing values (position_stack).
 ```
 
-![plot of chunk y](figure/y-38.png)![plot of chunk y](figure/y-39.png)![plot of chunk y](figure/y-40.png)![plot of chunk y](figure/y-41.png)![plot of chunk y](figure/y-42.png)
+![](landings_seasonality_files/figure-html/y-38.png)<!-- -->![](landings_seasonality_files/figure-html/y-39.png)<!-- -->![](landings_seasonality_files/figure-html/y-40.png)<!-- -->![](landings_seasonality_files/figure-html/y-41.png)<!-- -->![](landings_seasonality_files/figure-html/y-42.png)<!-- -->
 
 ```
 ## Warning: Removed 60 rows containing missing values (position_stack).
 ```
 
-![plot of chunk y](figure/y-43.png)
+![](landings_seasonality_files/figure-html/y-43.png)<!-- -->
 
 ```
 ## Warning: Removed 6 rows containing missing values (position_stack).
 ```
 
-![plot of chunk y](figure/y-44.png)![plot of chunk y](figure/y-45.png)
+![](landings_seasonality_files/figure-html/y-44.png)<!-- -->![](landings_seasonality_files/figure-html/y-45.png)<!-- -->
 
 ```r
 for (the_emu in unique(res$emu_nameshort)){
@@ -4989,7 +4879,7 @@ for (the_emu in unique(res$emu_nameshort)){
 }
 ```
 
-![plot of chunk y](figure/y-46.png)
+![](landings_seasonality_files/figure-html/y-46.png)<!-- -->
 
 ```r
 for (the_emu in unique(res$emu_nameshort)){
@@ -5000,7 +4890,7 @@ for (the_emu in unique(res$emu_nameshort)){
 }
 ```
 
-![plot of chunk y](figure/y-47.png)![plot of chunk y](figure/y-48.png)![plot of chunk y](figure/y-49.png)![plot of chunk y](figure/y-50.png)![plot of chunk y](figure/y-51.png)![plot of chunk y](figure/y-52.png)![plot of chunk y](figure/y-53.png)![plot of chunk y](figure/y-54.png)![plot of chunk y](figure/y-55.png)![plot of chunk y](figure/y-56.png)
+![](landings_seasonality_files/figure-html/y-47.png)<!-- -->![](landings_seasonality_files/figure-html/y-48.png)<!-- -->![](landings_seasonality_files/figure-html/y-49.png)<!-- -->![](landings_seasonality_files/figure-html/y-50.png)<!-- -->![](landings_seasonality_files/figure-html/y-51.png)<!-- -->![](landings_seasonality_files/figure-html/y-52.png)<!-- -->![](landings_seasonality_files/figure-html/y-53.png)<!-- -->![](landings_seasonality_files/figure-html/y-54.png)<!-- -->![](landings_seasonality_files/figure-html/y-55.png)<!-- -->![](landings_seasonality_files/figure-html/y-56.png)<!-- -->
 
 # Yellow silver
 
@@ -5009,16 +4899,32 @@ for (the_emu in unique(res$emu_nameshort)){
 res %>% filter(lfs_code=="YS") %>% select(hty_code) %>% distinct()
 ```
 
-```
-## # A tibble: 5 x 1
-##   hty_code
-##   <chr>   
-## 1 C       
-## 2 F       
-## 3 T       
-## 4 FTC     
-## 5 TC
-```
+
+
+<table>
+ <thead>
+  <tr>
+   <th style="text-align:left;"> hty_code </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> C </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> F </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> T </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> FTC </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> TC </td>
+  </tr>
+</tbody>
+</table>
 
 ```r
 for (the_emu in unique(res$emu_nameshort)){
@@ -5029,7 +4935,7 @@ for (the_emu in unique(res$emu_nameshort)){
 }
 ```
 
-![plot of chunk ys](figure/ys-1.png)![plot of chunk ys](figure/ys-2.png)![plot of chunk ys](figure/ys-3.png)![plot of chunk ys](figure/ys-4.png)
+![](landings_seasonality_files/figure-html/ys-1.png)<!-- -->![](landings_seasonality_files/figure-html/ys-2.png)<!-- -->![](landings_seasonality_files/figure-html/ys-3.png)<!-- -->![](landings_seasonality_files/figure-html/ys-4.png)<!-- -->
 
 ```r
 for (the_emu in unique(res$emu_nameshort)){
@@ -5040,7 +4946,7 @@ for (the_emu in unique(res$emu_nameshort)){
 }
 ```
 
-![plot of chunk ys](figure/ys-5.png)![plot of chunk ys](figure/ys-6.png)![plot of chunk ys](figure/ys-7.png)![plot of chunk ys](figure/ys-8.png)![plot of chunk ys](figure/ys-9.png)![plot of chunk ys](figure/ys-10.png)![plot of chunk ys](figure/ys-11.png)![plot of chunk ys](figure/ys-12.png)
+![](landings_seasonality_files/figure-html/ys-5.png)<!-- -->![](landings_seasonality_files/figure-html/ys-6.png)<!-- -->![](landings_seasonality_files/figure-html/ys-7.png)<!-- -->![](landings_seasonality_files/figure-html/ys-8.png)<!-- -->![](landings_seasonality_files/figure-html/ys-9.png)<!-- -->![](landings_seasonality_files/figure-html/ys-10.png)<!-- -->![](landings_seasonality_files/figure-html/ys-11.png)<!-- -->![](landings_seasonality_files/figure-html/ys-12.png)<!-- -->
 
 ```r
 for (the_emu in unique(res$emu_nameshort)){
@@ -5051,7 +4957,7 @@ for (the_emu in unique(res$emu_nameshort)){
 }
 ```
 
-![plot of chunk ys](figure/ys-13.png)![plot of chunk ys](figure/ys-14.png)![plot of chunk ys](figure/ys-15.png)![plot of chunk ys](figure/ys-16.png)![plot of chunk ys](figure/ys-17.png)![plot of chunk ys](figure/ys-18.png)![plot of chunk ys](figure/ys-19.png)![plot of chunk ys](figure/ys-20.png)![plot of chunk ys](figure/ys-21.png)![plot of chunk ys](figure/ys-22.png)
+![](landings_seasonality_files/figure-html/ys-13.png)<!-- -->![](landings_seasonality_files/figure-html/ys-14.png)<!-- -->![](landings_seasonality_files/figure-html/ys-15.png)<!-- -->![](landings_seasonality_files/figure-html/ys-16.png)<!-- -->![](landings_seasonality_files/figure-html/ys-17.png)<!-- -->![](landings_seasonality_files/figure-html/ys-18.png)<!-- -->![](landings_seasonality_files/figure-html/ys-19.png)<!-- -->![](landings_seasonality_files/figure-html/ys-20.png)<!-- -->![](landings_seasonality_files/figure-html/ys-21.png)<!-- -->![](landings_seasonality_files/figure-html/ys-22.png)<!-- -->
 
 ```r
 for (the_emu in unique(res$emu_nameshort)){
@@ -5062,7 +4968,7 @@ for (the_emu in unique(res$emu_nameshort)){
 }
 ```
 
-![plot of chunk ys](figure/ys-23.png)
+![](landings_seasonality_files/figure-html/ys-23.png)<!-- -->
 
 ```r
 for (the_emu in unique(res$emu_nameshort)){
@@ -5073,4 +4979,4 @@ for (the_emu in unique(res$emu_nameshort)){
 }
 ```
 
-![plot of chunk ys](figure/ys-24.png)
+![](landings_seasonality_files/figure-html/ys-24.png)<!-- -->
