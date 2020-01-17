@@ -1,5 +1,5 @@
 ---
-title: "WKEELMIGRATION SEASONALITY DATA TREATMENT"
+title: "WKEELMIGRATION LANDINGS SEASONALITY DATA TREATMENT"
 author: "Cédric Briand, Jan Dag Pohlmann, Estibaliz diaz and Hilaire Drouineau, "
 date: "january 2020"
 output: html_document
