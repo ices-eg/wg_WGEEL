@@ -33,7 +33,7 @@ As a first step we have renamed all files to lowercase, and only three extension
 
 ### FI
 * Total Landings for the whole country (EMU).  
-* Mail to Jouni: I have realized that you have two values for June and we should just have one. Could you please check that? . WAITING FOR THE ANSWER
+* Mail to Jouni: I have realized that you have two values for June and we should just have one. Could you please check that? .  ANSWER: there was a mistake, JOuni has sent a new file
 
 
 ### FR
