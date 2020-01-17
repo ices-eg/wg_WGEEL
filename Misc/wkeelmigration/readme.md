@@ -107,6 +107,18 @@ script is [here](https://github.com/ices-eg/wg_WGEEL/blob/master/Misc/wkeelmigra
 * removed special coding characters from codnames
 * coordinates x and y are switched in Netherlands
 
+Hilaire corrections :
+
+* In the Irish seasonality file line 38 (série BurS), error for year: should be 1973 instead of 1972
+* In Finland, for the MajT series, 
+	wondering whether lines 110 à 115 should be in 1988. In any case there are doubles,
+	for lines 124 and 125, should be 1991
+* In France:
+	double for June on the Scorff, contacter Clarisse to ask her
+	On Souston, line 40 should be 2017, not 2018
+
+
+
  series info
 ---------------
 
