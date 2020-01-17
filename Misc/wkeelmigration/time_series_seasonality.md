@@ -202,26 +202,26 @@ Hmisc::describe(res)
 ```
 ## res 
 ## 
-##  9  Variables      7769  Observations
+##  9  Variables      8033  Observations
 ## ---------------------------------------------------------------------------
 ## ser_nameshort 
 ##        n  missing distinct 
-##     7765        4      151 
+##     8029        4      152 
 ## 
 ## lowest : ALA  AllE AlsT AshE AtrT, highest: zm5T zm6T zm7T zm8T zm9T
 ## ---------------------------------------------------------------------------
 ## das_value 
 ##        n  missing distinct     Info     Mean      Gmd      .05      .10 
-##     7449      320     2928    0.983     2633     5104        0        0 
+##     7644      389     3074    0.984     2566     4978        0        0 
 ##      .25      .50      .75      .90      .95 
-##        0        2       57     1212     4834 
+##        0        2       53     1146     4631 
 ## 
 ## lowest : 0.000000e+00 4.764110e-05 8.378203e-04 1.000000e-03 2.028486e-03
 ## highest: 2.801161e+05 3.288163e+05 3.320454e+05 3.440181e+05 3.803356e+05
 ## ---------------------------------------------------------------------------
 ## das_year 
 ##        n  missing distinct     Info     Mean      Gmd      .05      .10 
-##     7764        5      113    0.996     2009    10.75     1985     1997 
+##     8028        5      113    0.996     2009    10.56     1985     1997 
 ##      .25      .50      .75      .90      .95 
 ##     2007     2013     2016     2018     2019 
 ## 
@@ -229,50 +229,50 @@ Hmisc::describe(res)
 ## ---------------------------------------------------------------------------
 ## das_month 
 ##        n  missing distinct 
-##     7764        5       25 
+##     8028        5       25 
 ## 
 ## lowest : Apr APR Aug AUG Dec, highest: Oct OCT OKT Sep SEP
 ## ---------------------------------------------------------------------------
 ## das_comment 
 ##        n  missing distinct 
-##     1507     6262      105 
+##     1771     6262      107 
 ## 
 ## lowest : 2012-2013                                                                        2012-2013, attention problems with the monitoring partial percentage for January 2013-2014                                                                        2014-2015                                                                        2015-2016                                                                       
 ## highest: Trap removed August 18th due to H&S                                              trap working only the icefree period April-November                              Trapping began in July                                                           Trapping began in May                                                            trapping stopped in September                                                   
 ## ---------------------------------------------------------------------------
 ## das_effort 
 ##        n  missing distinct     Info     Mean      Gmd      .05      .10 
-##       55     7714       24    0.996    17.29    11.14      3.0      4.4 
+##      251     7782       31    0.925    25.62    8.047      5.0     12.0 
 ##      .25      .50      .75      .90      .95 
-##     11.0     15.0     29.5     31.6     32.0 
+##     23.5     30.0     31.0     31.0     31.0 
 ## 
 ## lowest :  1  2  3  4  5, highest: 29 30 31 32 35
 ## ---------------------------------------------------------------------------
 ## source 
 ##        n  missing distinct 
-##     7769        0       26 
+##     8033        0       27 
 ## 
-## lowest : DE_seasonality_of_migration      DK_seasonality_of_migration      ES_seasonality_of_migration      FL_seasonality_of_migration      FR_seasonality_of_migration_GarG
+## lowest : DE_seasonality_of_migration      DE_seasonality_of_migration_WarS DK_seasonality_of_migration      ES_seasonality_of_migration      FL_seasonality_of_migration     
 ## highest: LV_seasonality_of_migration      NL_seasonality_of_migration      NO_seasonality_of_migration      PL_seasonality_of_migration      SE_seasonality_of_migration     
 ## ---------------------------------------------------------------------------
 ## country 
 ##        n  missing distinct 
-##     7769        0       13 
+##     8033        0       13 
 ##                                                                       
 ## Value         DE    DK    ES    FL    FR    GB    IE    LT    LV    NL
-## Frequency     59    29    40   320  1801  2253   977    86    90  1537
-## Proportion 0.008 0.004 0.005 0.041 0.232 0.290 0.126 0.011 0.012 0.198
+## Frequency    323    29    40   320  1801  2253   977    86    90  1537
+## Proportion 0.040 0.004 0.005 0.040 0.224 0.280 0.122 0.011 0.011 0.191
 ##                             
 ## Value         NO    PL    SE
 ## Frequency    480    19    78
-## Proportion 0.062 0.002 0.010
+## Proportion 0.060 0.002 0.010
 ## ---------------------------------------------------------------------------
 ## datasource 
 ##              n        missing       distinct          value 
-##           7769              0              1 wkeelmigration 
+##           8033              0              1 wkeelmigration 
 ##                          
 ## Value      wkeelmigration
-## Frequency            7769
+## Frequency            8033
 ## Proportion              1
 ## ---------------------------------------------------------------------------
 ```
@@ -287,8 +287,8 @@ unique(res$das_month)
 ```
 
 ```
-##  [1] "MAR" "APR" "MAY" "JUN" "JUL" "AUG" "SEP" "OKT" "NOV" NA    "OCT"
-## [12] "DEC" "JAN" "FEB" "Jan" "Mar" "Apr" "May" "Jun" "Jul" "Aug" "Sep"
+##  [1] "MAR" "APR" "MAY" "JUN" "JUL" "AUG" "SEP" "OKT" "NOV" NA    "JAN"
+## [12] "FEB" "OCT" "DEC" "Jan" "Mar" "Apr" "May" "Jun" "Jul" "Aug" "Sep"
 ## [23] "Oct" "Nov" "Dec" "Feb"
 ```
 
@@ -339,97 +339,97 @@ Hmisc::describe(ser)
 ```
 ## ser 
 ## 
-##  15  Variables      153  Observations
+##  15  Variables      154  Observations
 ## ---------------------------------------------------------------------------
 ## ser_nameshort 
 ##        n  missing distinct 
-##      151        2      151 
+##      152        2      152 
 ## 
 ## lowest : ALA  AllE AlsT AshE AtrT, highest: zm5T zm6T zm7T zm8T zm9T
 ## ---------------------------------------------------------------------------
 ## ser_namelong 
 ##        n  missing distinct 
-##      149        4      146 
+##      150        4      147 
 ## 
 ## lowest : Alausa river                    Ätrafors, River Ätran           Baddoch Burn trap               Bann Coleraine trapping partial Beeleigh_Glass_<80mm           
 ## highest: zmaa_06                         zmaa_07                         zmaa_08                         zmaa_09                         zmaa_10                        
 ## ---------------------------------------------------------------------------
 ## ser_typ_id 
 ##        n  missing distinct 
-##      149        4        3 
+##      150        4        3 
 ##                             
 ## Value          1     2     3
-## Frequency     45    10    94
-## Proportion 0.302 0.067 0.631
+## Frequency     45    10    95
+## Proportion 0.300 0.067 0.633
 ## ---------------------------------------------------------------------------
 ## ser_effort_uni_code 
 ##        n  missing distinct 
-##        7      146        4 
-##                                           
-## Value            1       G  nr day nr haul
-## Frequency        3       1       2       1
-## Proportion   0.429   0.143   0.286   0.143
+##        8      146        5 
+##                                                   
+## Value            1       G   index  nr day nr haul
+## Frequency        3       1       1       2       1
+## Proportion   0.375   0.125   0.125   0.250   0.125
 ## ---------------------------------------------------------------------------
 ## ser_comment 
 ##        n  missing distinct 
-##      149        4       71 
+##      150        4       72 
 ## 
 ## lowest : 2 fyke nets                                                                                                                                                                             an eeltrap during 1981-1994 catching all eels migrating downstream, eels in lakes upstream were stocked in 1967.                                                                        an eeltrap since  1982 catching all eels migrating downstream, expect years 1989-1991 and 1999-2000 when the trap was not working properly. Eels in lakes upstream are stocked in 1978. an eeltrap since 1974 catching all eels migrating downstream, eels in lakes upstream are stocked in 1911, 1966 and 2007.                                                                an eeltrap since 1982 catching all eels migrating downstream, expect years 1991 and 1999-2004 when the trap was not working properly.all eels in lakes upstream are stocked in 1978.   
 ## highest: YS mixture  Fishing trap in the river between lakes Galuonai and Vašuokas                                                                                                               YS mixture  Fishing trap in the river Kertuoja                                                                                                                                          YS mixture  Fishing trap in the river Lakaja                                                                                                                                            YS mixture  Fishing trap in the river Šakarva                                                                                                                                           YS mixture  Fishing trap in the river Žeimena                                                                                                                                          
 ## ---------------------------------------------------------------------------
 ## ser_uni_code 
 ##        n  missing distinct 
-##      149        4        5 
+##      150        4        5 
 ##                                                                  
 ## Value      (n/m3)*100      index         kg         nr     number
-## Frequency           1         62         10         75          1
-## Proportion      0.007      0.416      0.067      0.503      0.007
+## Frequency           1         62         10         76          1
+## Proportion      0.007      0.413      0.067      0.507      0.007
 ## ---------------------------------------------------------------------------
 ## ser_lfs_code 
 ##        n  missing distinct 
-##      149        4        5 
+##      150        4        5 
 ##                                         
 ## Value          G    GY     S     Y    YS
-## Frequency     12    13    88    30     6
-## Proportion 0.081 0.087 0.591 0.201 0.040
+## Frequency     12    13    89    30     6
+## Proportion 0.080 0.087 0.593 0.200 0.040
 ## ---------------------------------------------------------------------------
 ## ser_hty_code 
 ##        n  missing distinct 
-##      149        4        2 
+##      150        4        2 
 ##                       
 ## Value          F     T
-## Frequency    136    13
+## Frequency    137    13
 ## Proportion 0.913 0.087
 ## ---------------------------------------------------------------------------
 ## ser_locationdescription 
 ##        n  missing distinct 
-##      149        4       83 
+##      150        4       84 
 ## 
 ## lowest : 3 River weirs                                                                                       a 30 ha study area in the Marais Breton                                                             Allington lock - at tidal limit of River Medway                                                     At the north-east part of the Vaccarres lagoon                                                      Backbarrow silver eel counter on the River Leven                                                   
-## highest: Traps at tidal limit at HPS                                                                         Vilaine at the estuarine Arzal dam, the monitoring takes place on the fourth gate of the Arzal dam. Whole catchment                                                                                     Whole lake survey, tidal lake                                                                       Zandmaas                                                                                           
+## highest: Vilaine at the estuarine Arzal dam, the monitoring takes place on the fourth gate of the Arzal dam. Warnow River at Kessin, appr. 17 km from River mouth                                                Whole catchment                                                                                     Whole lake survey, tidal lake                                                                       Zandmaas                                                                                           
 ## ---------------------------------------------------------------------------
 ## ser_emu_nameshort 
 ##        n  missing distinct 
-##      149        4       28 
+##      150        4       29 
 ## 
-## lowest : DK-inla  ES_Basq  FI_Finl  FR_Adou  FR_Arto 
+## lowest : DE_Warn  DK-inla  ES_Basq  FI_Finl  FR_Adou 
 ## highest: LV_Latv  NL_Neth  NO_total PL_Vist  SE_Inla 
 ## ---------------------------------------------------------------------------
 ## ser_cou_code 
 ##        n  missing distinct 
-##      149        4       12 
+##      150        4       13 
 ##                                                                       
-## Value         DK    ES    FI    FR    GB    IE    LT    LV    NL    NO
-## Frequency      1     1     6    14    39    11     6     4    55     2
-## Proportion 0.007 0.007 0.040 0.094 0.262 0.074 0.040 0.027 0.369 0.013
-##                       
-## Value         PL    SE
-## Frequency      1     9
-## Proportion 0.007 0.060
+## Value         DE    DK    ES    FI    FR    GB    IE    LT    LV    NL
+## Frequency      1     1     1     6    14    39    11     6     4    55
+## Proportion 0.007 0.007 0.007 0.040 0.093 0.260 0.073 0.040 0.027 0.367
+##                             
+## Value         NO    PL    SE
+## Frequency      2     1     9
+## Proportion 0.013 0.007 0.060
 ## ---------------------------------------------------------------------------
 ## ser_area_division 
 ##        n  missing distinct 
-##       15      138        5 
+##       15      139        5 
 ##                                              
 ## Value      27.3.a 27.3.d 27.4.a 27.4.c 27.8.b
 ## Frequency       6      5      2      1      1
@@ -437,7 +437,7 @@ Hmisc::describe(ser)
 ## ---------------------------------------------------------------------------
 ## ser_tblcodeid 
 ##        n  missing distinct    value 
-##        1      152        1   170034 
+##        1      153        1   170034 
 ##                  
 ## Value      170034
 ## Frequency       1
@@ -445,22 +445,22 @@ Hmisc::describe(ser)
 ## ---------------------------------------------------------------------------
 ## ser_x 
 ##        n  missing distinct     Info     Mean      Gmd      .05      .10 
-##      140       13      115        1   399858   799697  -8.1835  -5.6494 
+##      150        4      125        1   373205   746387  -8.0980  -5.6433 
 ##      .25      .50      .75      .90      .95 
-##  -0.3495  25.0879  51.8507  53.0575  53.0690 
+##  -0.3205  25.6048  51.9798  54.0847  57.0597 
 ##                           
 ## Value      0.0e+00 5.6e+07
-## Frequency      139       1
+## Frequency      149       1
 ## Proportion   0.993   0.007
 ## ---------------------------------------------------------------------------
 ## ser_y 
 ##        n  missing distinct     Info     Mean      Gmd      .05      .10 
-##      140       13      118        1    69321   138600    4.107    4.189 
+##      150        4      128        1    64701   129362    4.108    4.195 
 ##      .25      .50      .75      .90      .95 
-##    6.088   47.668   52.722   56.941   58.672 
+##    6.104   45.117   52.702   55.765   58.540 
 ##                           
 ## Value            0 9700000
-## Frequency      139       1
+## Frequency      149       1
 ## Proportion   0.993   0.007
 ## ---------------------------------------------------------------------------
 ```
@@ -517,7 +517,7 @@ nrow(res)
 ```
 
 ```
-## [1] 7764
+## [1] 8028
 ```
 
 ```r
@@ -526,7 +526,7 @@ nrow(ser2)
 ```
 
 ```
-## [1] 151
+## [1] 152
 ```
 
 ```r
@@ -570,8 +570,8 @@ knitr::kable(sum0 <- res %>%
   </tr>
   <tr>
    <td style="text-align:left;"> S </td>
-   <td style="text-align:right;"> 4364 </td>
-   <td style="text-align:right;"> 87 </td>
+   <td style="text-align:right;"> 4628 </td>
+   <td style="text-align:right;"> 88 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> Y </td>
@@ -647,18 +647,18 @@ knitr::kable(sum0 <- res %>%
   </tr>
   <tr>
    <td style="text-align:left;"> S </td>
-   <td style="text-align:right;"> 207 </td>
-   <td style="text-align:right;"> 202 </td>
-   <td style="text-align:right;"> 397 </td>
-   <td style="text-align:right;"> 416 </td>
-   <td style="text-align:right;"> 485 </td>
-   <td style="text-align:right;"> 254 </td>
-   <td style="text-align:right;"> 212 </td>
-   <td style="text-align:right;"> 358 </td>
-   <td style="text-align:right;"> 501 </td>
-   <td style="text-align:right;"> 521 </td>
-   <td style="text-align:right;"> 501 </td>
-   <td style="text-align:right;"> 310 </td>
+   <td style="text-align:right;"> 229 </td>
+   <td style="text-align:right;"> 224 </td>
+   <td style="text-align:right;"> 419 </td>
+   <td style="text-align:right;"> 438 </td>
+   <td style="text-align:right;"> 507 </td>
+   <td style="text-align:right;"> 276 </td>
+   <td style="text-align:right;"> 234 </td>
+   <td style="text-align:right;"> 380 </td>
+   <td style="text-align:right;"> 523 </td>
+   <td style="text-align:right;"> 543 </td>
+   <td style="text-align:right;"> 523 </td>
+   <td style="text-align:right;"> 332 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> Y </td>
@@ -1978,6 +1978,15 @@ knitr::kable(sum1 <- res %>%
    <td style="text-align:right;"> 19 </td>
   </tr>
   <tr>
+   <td style="text-align:left;"> WarS </td>
+   <td style="text-align:left;"> S </td>
+   <td style="text-align:left;"> DE </td>
+   <td style="text-align:right;"> 2009 </td>
+   <td style="text-align:right;"> 2019 </td>
+   <td style="text-align:right;"> 11 </td>
+   <td style="text-align:right;"> 264 </td>
+  </tr>
+  <tr>
    <td style="text-align:left;"> ZeiT </td>
    <td style="text-align:left;"> YS </td>
    <td style="text-align:left;"> LT </td>
@@ -2083,6 +2092,297 @@ knitr::kable(sum1 <- res %>%
 # Saving data for Hilaire next analysis
 save(res, ser2, file=str_c(datawd,"seasonality_tibbles_res_ser2.Rdata"))
 ```
+
+
+
+```r
+load( file=str_c(datawd,"saved_data.Rdata"))
+load(file=str_c(datawd,"cou.Rdata"))
+load(file=str_c(datawd1,"list_seasonality_timeseries.Rdata"))
+load(file=str_c(datawd,"seasonality_tibbles_res_ser2.Rdata"))
+
+# EFFECT OF LATITUDE ON MIGRATION TIMING IN GLASS EEL
+
+# summarize the data set, first join usefull columns lfs code and ser_y from ser, 
+# then calculate sum value for each series each year and join it back into the data set
+# using the leading inner_join then calculate percentage per month which will fall between 0 and 1
+# some trials about latitude show that this one seems to be working well for the glass eel plot below so I try to
+# "discretize" the latitude
+
+res3 <- left_join(res,
+				res %>%		inner_join(ser2[,
+										c("ser_nameshort",  "ser_lfs_code","ser_x","ser_y")], by="ser_nameshort") %>%
+						group_by(ser_nameshort, das_year,ser_lfs_code, ser_y, ser_x) %>% 
+						summarize(sum_per_year=sum(das_value,na.rm=TRUE)),
+				by = c("ser_nameshort", "das_year")) %>%	
+		mutate(perc_per_month=das_value/sum_per_year) %>% 
+		mutate(lat_range=cut(ser_y,breaks=c(0,10,15,20,25,30,35,40,50,60,65,70)))
+
+# example using ggplot and coord polar => not the best, problem with margins
+#png(filename=str_c(imgwd,"seasonality_glass_eel_wrong.png"))
+#x11()
+gg1 <-res3 %>% filter(ser_lfs_code=='G') %>%
+		group_by(ser_nameshort, lat_range, das_month) %>%
+		summarize(average_per_per_month=mean(perc_per_month,na.rm=TRUE)) %>%
+		ggplot(aes(x = das_month,
+						fill = ser_nameshort)) +
+		geom_col(aes(y=average_per_per_month)) + 
+		#facet_wrap(~ser_nameshort)+
+		xlab("month")+
+		geom_text(aes(x=das_month, y=4,label = das_month), color = "navy", size=3)+
+		facet_grid(~lat_range )+
+		coord_polar()+		
+		theme_void()
+print(gg1)
+```
+
+```
+## Warning: Removed 14 rows containing missing values (position_stack).
+```
+
+![](time_series_seasonality_files/figure-html/plots-1.png)<!-- -->
+
+```r
+#dev.off()		
+
+
+# using a different approach with geom_arc_bar
+# https://rviews.rstudio.com/2019/09/19/intro-to-ggforce/
+# https://stackoverflow.com/questions/16184188/ggplot-facet-piechart-placing-text-in-the-middle-of-pie-chart-slices/47645727#47645727
+
+
+# COMPUTE DATA FRAME FOR GLASS EEL WITH EXPLICIT ANGLES
+resG <- left_join(
+				
+				res3 %>% filter(ser_lfs_code=='G') %>%
+						group_by(ser_nameshort, ser_x, ser_y, lat_range, das_month) %>%   # this will also arrange the dataset
+						summarize(sum_per_month=sum(das_value,na.rm=TRUE))
+				,
+				res3 %>% group_by (ser_nameshort) %>%
+						summarize(sum_per_series=sum(das_value,na.rm=TRUE),
+								nyear=n_distinct(das_year)),			
+				
+				by = c("ser_nameshort") 
+		
+		) %>%
+		ungroup() %>%
+		rename(month=das_month, series=ser_nameshort) %>%
+		mutate(perc_per_month = sum_per_month / sum_per_series,
+				series=str_c(series, "N=", nyear)) %>%
+		group_by(series) %>%
+		mutate(
+				end_angle = 2*pi*(month-1)/12,
+				start_angle = 2*pi*(month)/12
+				
+		) # for text label
+
+
+# overall scaling for pie size
+scale = max(sqrt(resG$perc_per_month))
+
+dflab <- data.frame(month=c(1:12), 
+		angle = 2*pi*(1:12-0.5)/12,
+		end_angle = 2*pi*(1:12-1)/12,
+		start_angle = 2*pi*(1:12)/12)
+
+
+Y <-resG %>% group_by(series) %>% 
+		summarize(y=first(ser_y))%>%pull(y)
+
+# series ordered by latitude
+resG$series <- factor(resG$series, levels= levels(as.factor(resG$series))[order(Y)])
+# draw the circular plot
+
+gg2 <- ggplot(resG) + 
+		geom_arc_bar(aes(x0 = 0, y0 = 0, r0 = 0, r = scale,
+						start = start_angle, end = end_angle, fill = as.factor(month)),color="grey80",alpha=0, data=dflab)+
+		geom_arc_bar(aes(x0 = 0, y0 = 0, r0 = 0, r = sqrt(perc_per_month),
+						start = start_angle, end = end_angle, fill = as.factor(month))) +
+		geom_text(aes(x = 1.2*scale*sin(angle), y = 1.2*scale*cos(angle), label = month), data=dflab,
+				hjust = 0.5, vjust = 0.5, col="grey50", size=3) +
+		coord_fixed() +
+		scale_fill_manual("month",values=rainbow(12))+
+		scale_x_continuous(limits = c(-1, 1), name = "", breaks = NULL, labels = NULL) +
+		scale_y_continuous(limits = c(-1, 1), name = "", breaks = NULL, labels = NULL) +
+		ggtitle("Seasonality for glass eel migration, series ordered by latitude")+
+		hrbrthemes::theme_ipsum_rc()+
+		facet_wrap(~series) 
+print(gg2)
+```
+
+```
+## Warning in grid.Call(C_stringMetric, as.graphicsAnnot(x$label)): famille de
+## police introuvable dans la base de données des polices Windows
+```
+
+```
+## Warning in grid.Call(C_stringMetric, as.graphicsAnnot(x$label)): famille de
+## police introuvable dans la base de données des polices Windows
+
+## Warning in grid.Call(C_stringMetric, as.graphicsAnnot(x$label)): famille de
+## police introuvable dans la base de données des polices Windows
+
+## Warning in grid.Call(C_stringMetric, as.graphicsAnnot(x$label)): famille de
+## police introuvable dans la base de données des polices Windows
+
+## Warning in grid.Call(C_stringMetric, as.graphicsAnnot(x$label)): famille de
+## police introuvable dans la base de données des polices Windows
+```
+
+```
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## famille de police introuvable dans la base de données des polices Windows
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## famille de police introuvable dans la base de données des polices Windows
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## famille de police introuvable dans la base de données des polices Windows
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## famille de police introuvable dans la base de données des polices Windows
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## famille de police introuvable dans la base de données des polices Windows
+```
+
+```
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x,
+## x$y, : famille de police introuvable dans la base de données des polices
+## Windows
+```
+
+```
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## famille de police introuvable dans la base de données des polices Windows
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## famille de police introuvable dans la base de données des polices Windows
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## famille de police introuvable dans la base de données des polices Windows
+
+## Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, :
+## famille de police introuvable dans la base de données des polices Windows
+```
+
+![](time_series_seasonality_files/figure-html/plots-2.png)<!-- -->
+
+```r
+# draw a map
+
+resG <-st_as_sf(resG[!is.na(resG$ser_y),], coords = c("ser_x", "ser_y"), crs = 4326)
+resG <- st_transform(x = resG, crs = 3035)
+resG$lon<-st_coordinates(resG)[,1]
+resG$lat<-st_coordinates(resG)[,2] 
+
+#png(filename=str_c(imgwd,"map_seasonality_glass_eel.png"),width = 10, height = 8, units = 'in', res = 300)
+
+# to avoid distortion below we use 3035 and not wgs84 (4326)
+# the coefficient for sqrt(perc_per_month) is adjusted by trial and errors
+gg3 <- ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
+		geom_arc_bar(aes(x0 = lon, y0 = lat, r0 = 0, r = 2*10^5*sqrt(perc_per_month),  
+						start = start_angle, end = end_angle, fill = as.factor(month)), 
+				data=resG, 
+				show.legend=FALSE,
+				alpha=0.5) +		
+  coord_sf(crs = "+init=epsg:3035",
+						xlim=c(3,6)*10^6,	
+						ylim=	c(2300000,4*10^6)  # st_bbox(resG)[c(2,4)
+				) +
+		scale_colour_manual(values=cols)+
+		scale_size_continuous(range=c(0.5,15)) +
+		xlab("Longitude") + 
+		ylab("Latitude") + 
+		ggtitle("glass eel seasonality")+ 
+		annotation_scale(location = "bl", width_hint = 0.5) +
+		annotation_north_arrow(location = "tr", which_north = "true", 
+				pad_x = unit(0.75, "in"), pad_y = unit(0.5, "in"),
+				style = north_arrow_fancy_orienteering) +
+		theme(panel.grid.major = element_line(color = gray(.5), linetype = "dashed", size = 0.5), 
+				panel.background = element_rect(fill = "aliceblue"))
+
+print(gg3)
+```
+
+![](time_series_seasonality_files/figure-html/plots-3.png)<!-- -->
+
+```r
+#####################################################
+# Silver eel
+####################################################
+
+resS <- left_join(
+				
+				res3 %>% filter(ser_lfs_code=='S') %>%
+						group_by(ser_nameshort, ser_x, ser_y, lat_range, das_month) %>%   # this will also arrange the dataset
+						summarize(sum_per_month=sum(das_value,na.rm=TRUE))
+				,
+				res3 %>%  filter(ser_lfs_code=='S')%>% group_by (ser_nameshort) %>%
+						summarize(sum_per_series=sum(das_value,na.rm=TRUE),
+								nyear=n_distinct(das_year)),			
+				
+				by = c("ser_nameshort") 
+		
+		) %>%
+		ungroup() %>%
+		rename(month=das_month, series=ser_nameshort) %>%
+		mutate(perc_per_month = sum_per_month / sum_per_series,
+				series=str_c(series, "N=", nyear)) %>%
+		group_by(series) %>%
+		mutate(
+				end_angle = 2*pi*(month-1)/12,
+				start_angle = 2*pi*(month)/12
+		
+		) # for text label
+
+resSs <- st_as_sf(resS[!is.na(resS$ser_y),], coords = c("ser_x", "ser_y"), crs = 4326)
+resSs <- st_transform(x = resSs, crs = 3035)
+resSs$lon<-st_coordinates(resSs)[,1]
+resSs$lat<-st_coordinates(resSs)[,2]
+gg4 <- ggplot(data = cou) +  
+		geom_sf(fill= "antiquewhite") +
+				coord_sf(crs = "+init=epsg:3035",
+						xlim=c(3,6)*10^6,	
+						ylim=	st_bbox(resSs)[c(2,4)]
+				) +
+		geom_arc_bar(aes(x0 = lon, y0 = lat, r0 = 0, r = 2*10^5*sqrt(perc_per_month),
+						start = start_angle, end = end_angle, fill = as.factor(month)), 
+				data=resSs, 
+				show.legend=FALSE,
+				alpha=0.5) +		
+		scale_colour_manual(values=cols)+
+		scale_size_continuous(range=c(0.5,15)) +
+		xlab("Longitude") + 
+		ylab("Latitude") + 
+		ggtitle("silver eel seasonality")+ 
+		annotation_scale(location = "bl", width_hint = 0.5) +
+		annotation_north_arrow(location = "tr", which_north = "true", 
+				pad_x = unit(0.75, "in"), pad_y = unit(0.5, "in"),
+				style = north_arrow_fancy_orienteering) +	
+		theme(panel.grid.major = element_line(color = gray(.5), linetype = "dashed", size = 0.5), 
+				panel.background = element_rect(fill = "aliceblue"))
+print(gg4)
+```
+
+![](time_series_seasonality_files/figure-html/plots-4.png)<!-- -->
+
+```r
+# ploting all with columns
+#x11()
+res3 %>% filter(ser_lfs_code=='S') %>%
+		
+		ggplot(aes(x = das_month)) +
+		geom_col(aes(y=perc_per_month, fill=ser_nameshort)) + 
+		facet_wrap(~country)+
+		xlab("month")
+```
+
+```
+## Warning: Removed 153 rows containing missing values (position_stack).
+```
+
+![](time_series_seasonality_files/figure-html/plots-5.png)<!-- -->
 
 
 

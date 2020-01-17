@@ -318,4 +318,217 @@ save(res, ser2, file=str_c(datawd,"seasonality_tibbles_res_ser2.Rdata"))
 ```
 
 
+```{r plots, echo=TRUE, include=TRUE}
+
+load( file=str_c(datawd,"saved_data.Rdata"))
+load(file=str_c(datawd,"cou.Rdata"))
+load(file=str_c(datawd1,"list_seasonality_timeseries.Rdata"))
+load(file=str_c(datawd,"seasonality_tibbles_res_ser2.Rdata"))
+
+# EFFECT OF LATITUDE ON MIGRATION TIMING IN GLASS EEL
+
+# summarize the data set, first join usefull columns lfs code and ser_y from ser, 
+# then calculate sum value for each series each year and join it back into the data set
+# using the leading inner_join then calculate percentage per month which will fall between 0 and 1
+# some trials about latitude show that this one seems to be working well for the glass eel plot below so I try to
+# "discretize" the latitude
+
+res3 <- left_join(res,
+				res %>%		inner_join(ser2[,
+										c("ser_nameshort",  "ser_lfs_code","ser_x","ser_y")], by="ser_nameshort") %>%
+						group_by(ser_nameshort, das_year,ser_lfs_code, ser_y, ser_x) %>% 
+						summarize(sum_per_year=sum(das_value,na.rm=TRUE)),
+				by = c("ser_nameshort", "das_year")) %>%	
+		mutate(perc_per_month=das_value/sum_per_year) %>% 
+		mutate(lat_range=cut(ser_y,breaks=c(0,10,15,20,25,30,35,40,50,60,65,70)))
+
+# example using ggplot and coord polar => not the best, problem with margins
+#png(filename=str_c(imgwd,"seasonality_glass_eel_wrong.png"))
+#x11()
+gg1 <-res3 %>% filter(ser_lfs_code=='G') %>%
+		group_by(ser_nameshort, lat_range, das_month) %>%
+		summarize(average_per_per_month=mean(perc_per_month,na.rm=TRUE)) %>%
+		ggplot(aes(x = das_month,
+						fill = ser_nameshort)) +
+		geom_col(aes(y=average_per_per_month)) + 
+		#facet_wrap(~ser_nameshort)+
+		xlab("month")+
+		geom_text(aes(x=das_month, y=4,label = das_month), color = "navy", size=3)+
+		facet_grid(~lat_range )+
+		coord_polar()+		
+		theme_void()
+print(gg1)
+#dev.off()		
+
+
+# using a different approach with geom_arc_bar
+# https://rviews.rstudio.com/2019/09/19/intro-to-ggforce/
+# https://stackoverflow.com/questions/16184188/ggplot-facet-piechart-placing-text-in-the-middle-of-pie-chart-slices/47645727#47645727
+
+
+# COMPUTE DATA FRAME FOR GLASS EEL WITH EXPLICIT ANGLES
+resG <- left_join(
+				
+				res3 %>% filter(ser_lfs_code=='G') %>%
+						group_by(ser_nameshort, ser_x, ser_y, lat_range, das_month) %>%   # this will also arrange the dataset
+						summarize(sum_per_month=sum(das_value,na.rm=TRUE))
+				,
+				res3 %>% group_by (ser_nameshort) %>%
+						summarize(sum_per_series=sum(das_value,na.rm=TRUE),
+								nyear=n_distinct(das_year)),			
+				
+				by = c("ser_nameshort") 
+		
+		) %>%
+		ungroup() %>%
+		rename(month=das_month, series=ser_nameshort) %>%
+		mutate(perc_per_month = sum_per_month / sum_per_series,
+				series=str_c(series, "N=", nyear)) %>%
+		group_by(series) %>%
+		mutate(
+				end_angle = 2*pi*(month-1)/12,
+				start_angle = 2*pi*(month)/12
+				
+		) # for text label
+
+
+# overall scaling for pie size
+scale = max(sqrt(resG$perc_per_month))
+
+dflab <- data.frame(month=c(1:12), 
+		angle = 2*pi*(1:12-0.5)/12,
+		end_angle = 2*pi*(1:12-1)/12,
+		start_angle = 2*pi*(1:12)/12)
+
+
+Y <-resG %>% group_by(series) %>% 
+		summarize(y=first(ser_y))%>%pull(y)
+
+# series ordered by latitude
+resG$series <- factor(resG$series, levels= levels(as.factor(resG$series))[order(Y)])
+# draw the circular plot
+
+gg2 <- ggplot(resG) + 
+		geom_arc_bar(aes(x0 = 0, y0 = 0, r0 = 0, r = scale,
+						start = start_angle, end = end_angle, fill = as.factor(month)),color="grey80",alpha=0, data=dflab)+
+		geom_arc_bar(aes(x0 = 0, y0 = 0, r0 = 0, r = sqrt(perc_per_month),
+						start = start_angle, end = end_angle, fill = as.factor(month))) +
+		geom_text(aes(x = 1.2*scale*sin(angle), y = 1.2*scale*cos(angle), label = month), data=dflab,
+				hjust = 0.5, vjust = 0.5, col="grey50", size=3) +
+		coord_fixed() +
+		scale_fill_manual("month",values=rainbow(12))+
+		scale_x_continuous(limits = c(-1, 1), name = "", breaks = NULL, labels = NULL) +
+		scale_y_continuous(limits = c(-1, 1), name = "", breaks = NULL, labels = NULL) +
+		ggtitle("Seasonality for glass eel migration, series ordered by latitude")+
+		hrbrthemes::theme_ipsum_rc()+
+		facet_wrap(~series) 
+print(gg2)
+
+# draw a map
+
+resG <-st_as_sf(resG[!is.na(resG$ser_y),], coords = c("ser_x", "ser_y"), crs = 4326)
+resG <- st_transform(x = resG, crs = 3035)
+resG$lon<-st_coordinates(resG)[,1]
+resG$lat<-st_coordinates(resG)[,2] 
+
+#png(filename=str_c(imgwd,"map_seasonality_glass_eel.png"),width = 10, height = 8, units = 'in', res = 300)
+
+# to avoid distortion below we use 3035 and not wgs84 (4326)
+# the coefficient for sqrt(perc_per_month) is adjusted by trial and errors
+gg3 <- ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
+		geom_arc_bar(aes(x0 = lon, y0 = lat, r0 = 0, r = 2*10^5*sqrt(perc_per_month),  
+						start = start_angle, end = end_angle, fill = as.factor(month)), 
+				data=resG, 
+				show.legend=FALSE,
+				alpha=0.5) +		
+  coord_sf(crs = "+init=epsg:3035",
+						xlim=c(3,6)*10^6,	
+						ylim=	c(2300000,4*10^6)  # st_bbox(resG)[c(2,4)
+				) +
+		scale_colour_manual(values=cols)+
+		scale_size_continuous(range=c(0.5,15)) +
+		xlab("Longitude") + 
+		ylab("Latitude") + 
+		ggtitle("glass eel seasonality")+ 
+		annotation_scale(location = "bl", width_hint = 0.5) +
+		annotation_north_arrow(location = "tr", which_north = "true", 
+				pad_x = unit(0.75, "in"), pad_y = unit(0.5, "in"),
+				style = north_arrow_fancy_orienteering) +
+		theme(panel.grid.major = element_line(color = gray(.5), linetype = "dashed", size = 0.5), 
+				panel.background = element_rect(fill = "aliceblue"))
+
+print(gg3)
+
+#####################################################
+# Silver eel
+####################################################
+
+resS <- left_join(
+				
+				res3 %>% filter(ser_lfs_code=='S') %>%
+						group_by(ser_nameshort, ser_x, ser_y, lat_range, das_month) %>%   # this will also arrange the dataset
+						summarize(sum_per_month=sum(das_value,na.rm=TRUE))
+				,
+				res3 %>%  filter(ser_lfs_code=='S')%>% group_by (ser_nameshort) %>%
+						summarize(sum_per_series=sum(das_value,na.rm=TRUE),
+								nyear=n_distinct(das_year)),			
+				
+				by = c("ser_nameshort") 
+		
+		) %>%
+		ungroup() %>%
+		rename(month=das_month, series=ser_nameshort) %>%
+		mutate(perc_per_month = sum_per_month / sum_per_series,
+				series=str_c(series, "N=", nyear)) %>%
+		group_by(series) %>%
+		mutate(
+				end_angle = 2*pi*(month-1)/12,
+				start_angle = 2*pi*(month)/12
+		
+		) # for text label
+
+resSs <- st_as_sf(resS[!is.na(resS$ser_y),], coords = c("ser_x", "ser_y"), crs = 4326)
+resSs <- st_transform(x = resSs, crs = 3035)
+resSs$lon<-st_coordinates(resSs)[,1]
+resSs$lat<-st_coordinates(resSs)[,2]
+gg4 <- ggplot(data = cou) +  
+		geom_sf(fill= "antiquewhite") +
+				coord_sf(crs = "+init=epsg:3035",
+						xlim=c(3,6)*10^6,	
+						ylim=	st_bbox(resSs)[c(2,4)]
+				) +
+		geom_arc_bar(aes(x0 = lon, y0 = lat, r0 = 0, r = 2*10^5*sqrt(perc_per_month),
+						start = start_angle, end = end_angle, fill = as.factor(month)), 
+				data=resSs, 
+				show.legend=FALSE,
+				alpha=0.5) +		
+		scale_colour_manual(values=cols)+
+		scale_size_continuous(range=c(0.5,15)) +
+		xlab("Longitude") + 
+		ylab("Latitude") + 
+		ggtitle("silver eel seasonality")+ 
+		annotation_scale(location = "bl", width_hint = 0.5) +
+		annotation_north_arrow(location = "tr", which_north = "true", 
+				pad_x = unit(0.75, "in"), pad_y = unit(0.5, "in"),
+				style = north_arrow_fancy_orienteering) +	
+		theme(panel.grid.major = element_line(color = gray(.5), linetype = "dashed", size = 0.5), 
+				panel.background = element_rect(fill = "aliceblue"))
+print(gg4)
+
+
+# ploting all with columns
+#x11()
+res3 %>% filter(ser_lfs_code=='S') %>%
+		
+		ggplot(aes(x = das_month)) +
+		geom_col(aes(y=perc_per_month, fill=ser_nameshort)) + 
+		facet_wrap(~country)+
+		xlab("month")
+
+	
+
+
+```
+
+
 
