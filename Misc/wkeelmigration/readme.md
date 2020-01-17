@@ -44,11 +44,12 @@ FR_Meus, FR_Rhin missing. I guess this is because they are international bassins
 * data on Y&S is reported for GB_Total from 2011-2013 -> Assume there is no EMU data thus summed for all but GB_Scot & GB_neag, but sent an email to clarify. How to treat these? -> confirmed, left it in the sheet as GB_total  
 * habitat is defined as NR for a lot of the data, if its unknown what are we going to do? -> Check with Cedric if we use those data (Cédric => I would say very probably not, if it's there we have it and can compare later on with what we have in the database for landings through shiny app, if not then it's probably not very important). I have sent an email to Ryan ". I guess that the problem is that you do not know where the catches happened exactly; if this is  the case I´d suggest to writte “FTC” since it includes all the possible habitats" and he has agreed 
 
-Jan-Dag: After habitat was recorded, GB_Dee is the only EMU with T, thus I'd suggest using FC for the other EMUs before 2011. Also, after habitat was recorded, all glass eel fisheries have habitat "F", so I'd suggest using only F for glass eel fisheries before 2011. All others FC. -> Awaiting confirmation from Ryan.
+Jan-Dag: After habitat was recorded, GB_Dee is the only EMU with T (but it has no NR lines), thus I'd suggest using FC for the other EMUs before 2011. Also, after habitat was recorded, all glass eel fisheries have habitat "F", so I'd suggest using only F for glass eel fisheries before 2011. -> confirmed by Ryan and changes were made. File is uploaded (suffix EDITED_UPDATED)
  
 * glass eel catch data is reported for whole year (season Feb to May) in GB since 2014 for several EMUs -> deleted entries, except if it was 0, then converted to respective month according to comment
 * GB_NorW was missing in the EMU list and was added to this sheet -> Cedric, does the EMU exist in the database? => Yes
-* WAITING FOR AN ANSWER -> Jan-Dag: I have the file prepared and will upload it once clarified
+
+DONE => Just waiting for the additional data from Derek, but they'll come in a seperate file
 
 ### HR
 * data for 2018 is preliminary, which I think we don't want. -> delete these rows? (wasn't done by me)
