@@ -2,7 +2,9 @@
 title: "WKEELMIGRATION TIME SERIES SEASONALITY DATA TREATMENT"
 author: "Cédric Briand, Jan Dag Pohlmann, Estibaliz diaz and Hilaire Drouineau, "
 date: "january 2020"
-output: html_document
+output: 
+  html_document:
+    keep_md: true
 ---
 
 
@@ -49,7 +51,7 @@ dsn <-  paste0("PG:dbname='wgeel' host='localhost' port ='5436'",
 
 In the following chunk we load data from the database to prepare the map.
 
-```{r map, echo=FALSE, include=TRUE, eval=FALSE}
+```{r map, echo=TRUE, include=TRUE, eval=FALSE}
 #map of country
 # remove mediterranean (no recruitment) and Island.
 query <- "SELECT cou_code,cou_country, geom  
@@ -76,11 +78,12 @@ gather some referential that we already have in the database. File are saved in
 an Rdata
 
 
-```{r additional_data, echo=TRUE, include=TRUE, eval=FALSE}
+```{r additional_data, echo=TRUE, include=TRUE, eval=TRUE}
 # connection settings -------------------------------------------------------------------
-
-options(sqldf.RPostgreSQL.user = userwgeel,  
-		sqldf.RPostgreSQL.password = passwordwgeel,
+host <- "localhost"
+port <- 5436
+options(sqldf.RPostgreSQL.user = userlocal,  # userwgeel
+  	sqldf.RPostgreSQL.password = passwordlocal, # passwordwgeel
 		sqldf.RPostgreSQL.dbname = "wgeel",
 		sqldf.RPostgreSQL.host = host, #getInformation("PostgreSQL host: if local ==> localhost"), 
 		sqldf.RPostgreSQL.port = port)
@@ -90,8 +93,9 @@ pool <- pool::dbPool(drv = dbDriver("PostgreSQL"),
 		dbname="wgeel",
 		host=host,
 		port=port,
-		user= userwgeel,
-		password= passwordwgeel)
+		user= userlocal, # userwgeel
+		password= passwordlocal # passwordwgeel
+		)
 
 
 
@@ -125,7 +129,28 @@ participants<<- dbGetQuery(pool, sqlInterpolate(ANSI(), query))
 ices_division <- extract_ref("FAO area")$f_code
 emus <- extract_ref("EMU")
 
-save(ices_division, emus, the_years, tr_typeseries_typt, list_country, file=str_c(datawd,"saved_data.Rdata"))
+# check nameshort---------------------------------------------------------------
+t_series_ser <- sqldf("SELECT
+				ser_nameshort, 
+				ser_namelong, 
+				ser_typ_id,
+				ser_effort_uni_code, 
+				ser_comment,
+				ser_uni_code, 
+				ser_lfs_code, 
+				ser_hty_code, 
+				ser_locationdescription, 
+				ser_emu_nameshort,
+				ser_cou_code,
+				ser_area_division, 
+				ser_tblcodeid, 
+				ser_x, 
+				ser_y from datawg.t_series_ser")
+ser_nameshort <- sqldf("select ser_nameshort from datawg.t_series_ser")
+ser_nameshort <- as.character(ser_nameshort$ser_nameshort)
+sort(ser_nameshort)
+
+save(ices_division, emus, the_years, tr_typeseries_typt, list_country, ser_nameshort, t_series_ser, file=str_c(datawd,"saved_data.Rdata"))
 
 poolClose(pool)
 ```
@@ -140,6 +165,7 @@ used in the load_seasonality function (see functions.R). This functions opens
 the different sheets, and append them to a list of tables. One of the trick to
 make it work is to force the format (numeric or character) while reading the
 files otherwise the rbind later crashes for conflicting formats.
+** TODO ** Update coordinates from Josefin.....
 
 ```{r readfiles, echo=FALSE, include=FALSE, eval=FALSE}
 # load data seasonality ------------------------------------------------------------------------------
@@ -151,13 +177,14 @@ fcl <- list.files(datawd1,pattern='commercial_landings')
 ffc <- list.files(datawd,pattern='fishery_closure')
 fsm <- list.files(datawd,pattern='seasonality_of_migration')
 # test for missing files
-stopifnot(length(fall[!fall%in%c(fcl,ffc,fsm)])==0)
+fall[!fall%in%c(fcl,ffc,fsm)]
 
 
 datasource <- "wkeelmigration"
 list_seasonality <- list()
 for (f in fsm){
 	# f <- fsm[1]
+	cat(str_c(f,"\n"))
 	path <- str_c(datawd,f)	
 	file<-basename(path)
 	mylocalfilename<-gsub(".xlsx","",file)
@@ -168,5 +195,127 @@ save(list_seasonality,file=str_c(datawd1,"list_seasonality_timeseries.Rdata"))
 ```
 
 ```{r quality_analysis, echo=TRUE, include=TRUE}
-load(file=str_c(datawd1,"list_seasonality.Rdata"))
+load( file=str_c(datawd,"saved_data.Rdata"))
+load(file=str_c(datawd,"cou.Rdata"))
+load(file=str_c(datawd1,"list_seasonality_timeseries.Rdata"))
+
+# list_seasonality is a list with all data sets (readme, data, series) as elements of the list
+# below we extract the list of data and bind them all in a single data.frame
+# to do so, I had to constrain the column type during file reading (see functions.R)
+res <- map(list_seasonality,function(X){			X[["data"]]		}) %>% 
+		bind_rows()
+Hmisc::describe(res)
+# correcting pb with column
+#res$ser_nameshort[!is.na(as.numeric(res$das_month))]
+#listviewer::jsonedit(list_seasonality)
+
+# Correct month
+unique(res$das_month)
+res$das_month <- tolower(res$das_month)
+res$das_month <- recode(res$das_month, okt = "oct")
+res <-res[!is.na(res$das_month),]
+res$das_month <- recode(res$das_month, 
+		"mar"=3, 
+		"apr"=4, 
+		"may"=5, 
+		"jun"=6,
+		"jul"=7,
+		"aug"=8,
+		"sep"=9,
+		"oct"=10,
+		"nov"=11,
+		"dec"=12, 
+		"jan"=1, 
+		"feb"=2
+)
+
+
+# replacing values for nameshort with actual names when existing ----------------------
+
+ser_nameshort_datacall <- unique(res$ser_nameshort)
+ser_nameshort_l <- tolower(ser_nameshort) # ser_nameshort has been saved in previous chunk from the database
+ser_nameshort_datacall_l <- tolower(ser_nameshort_datacall)
+ccc <- charmatch(ser_nameshort_datacall_l,ser_nameshort_l,nomatch=-1) # partial character match, 
+index <- ccc>0
+# charmatch return 0 when many matches are possible. Names have been corrected in the excel file to try to avoid this.
+#ser_nameshort_datacall_l[ccc==0]
+# res[tolower(res$ser_nameshort)%in%c("bro","fla"),] # two with many names => corrected in the database
+
+ser_nameshort_datacall_l[index]<-ser_nameshort[ccc[index]]
+dfser <- data.frame(ser_nameshort=ser_nameshort_datacall, ser_nameshort_base="", existing=FALSE, stringsAsFactors = FALSE)
+dfser$existing[index]<- TRUE
+dfser$ser_nameshort_base[index]<-ser_nameshort[ccc[index]]
+
+
+# load series data ------------------------------------------------------------------------------
+
+ser <- map(list_seasonality,function(X){			X[["series_info"]]		}) %>% 
+		bind_rows()
+Hmisc::describe(ser)
+ser <-ser[!is.na(ser$ser_nameshort),]
+# searching for a mismatch between names in ser and the others (both must return zero lines)
+print(ser[!ser$ser_nameshort%in%dfser$ser_nameshort,],width = Inf)
+print(dfser$ser_nameshort[!dfser$ser_nameshort%in%ser$ser_nameshort]) 
+
+# When everything is matching we can to a merge
+ser2 <- merge(dfser,ser,by="ser_nameshort",all.x=TRUE,all.y=TRUE)
+# replacing all existing series with data from base
+ser2[ser2$existing,c(4:ncol(ser2))]<- t_series_ser[match(ser2[ser2$existing,"ser_nameshort_base"],t_series_ser$ser_nameshort),-1]
+
+# check latitude : 4 is not a possible values, in fact NL has switched coordinates
+range(ser2$ser_y, na.rm = TRUE)
+
+# switch coordinates for NL
+
+index_problem_NL <- which(ser2$ser_y<20 & !is.na(ser2$ser_y))
+xtemp <-ser2$ser_y[index_problem_NL]
+ser2$ser_y[index_problem_NL] <- ser2$ser_x[index_problem_NL]
+ser2$ser_x[index_problem_NL] <- xtemp ; rm(xtemp, index_problem_NL)
+
+# some summaries about data --------------------------------------------------------------------
+# number of monthly seasonality data in the datacall
+nrow(res) 
+# number of series in the datacall
+nrow(ser2)
+# test before joining that we not not loose any data
+stopifnot(nrow(res %>%
+						inner_join(ser2[,
+										c("ser_nameshort",  "ser_lfs_code")], by="ser_nameshort"))==nrow(res))
+
+
+# the following table are just copied and pasted in the markdown document readme.md file
+
+# number per stage
+
+knitr::kable(sum0 <- res %>%
+				inner_join(ser2[,
+								c("ser_nameshort",  "ser_lfs_code")], by="ser_nameshort") %>%
+				group_by(ser_lfs_code) %>%
+				summarize(N=n(), 
+						Nseries=n_distinct(ser_nameshort)))%>%
+				  kable_styling("striped", full_width = F)
+
+# number per month
+knitr::kable(sum0 <- res %>%
+				inner_join(ser2[,
+								c("ser_nameshort",  "ser_lfs_code")], by="ser_nameshort") %>%
+				group_by(ser_lfs_code,das_month) %>%
+				summarize(N=n()) %>% pivot_wider(names_from="das_month",values_from="N"))%>%
+				  kable_styling("striped", full_width = F)
+
+
+# series details
+knitr::kable(sum1 <- res %>%
+				inner_join(ser2[,
+								c("ser_nameshort", "ser_namelong", "ser_typ_id", "ser_lfs_code",  "ser_emu_nameshort", "ser_cou_code")], by="ser_nameshort") %>%
+				group_by(ser_nameshort,ser_lfs_code, ser_cou_code) %>%
+				summarize(first.year=min(das_year),last.year= max(das_year), nb_year=1+max(das_year)-min(das_year),N=n()))%>%
+  kable_styling("striped") %>%
+  scroll_box(width = "600px", height = "400px")
+
+# Saving data for Hilaire next analysis
+save(res, ser2, file=str_c(datawd,"seasonality_tibbles_res_ser2.Rdata"))
 ```
+
+
+
