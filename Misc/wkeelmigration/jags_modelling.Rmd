@@ -312,7 +312,7 @@ res <- bind_rows(
 ```
 
 ## Data selection
-As for glass eel, we start by defining season consistent with ecological knowledge on migration. Downstream runs of European silver eels typically start in the autumn and may last until early spring (Brujs and Durif 2009), but we saw during WGEEL 2019 that peak in silver catches in Sweden is centered around August/September. Therefore, it is difficult to split season of migration in a similar way for all Europe. Therefore, we define a season of migration per series: we look to the month corresponding to the peak of migration and define the season from 5 months before to 6 months after. The name of the season is defined as the year of the peak.
+As for glass eel, we start by defining season consistent with ecological knowledge on migration. Downstream runs of European silver eels typically start in the autumn and may last until early spring (Brujs and Durif 2009), but we saw during WGEEL 2019 that peak in silver catches in Sweden is centered around August/September. Therefore, it is difficult to split season of migration in a similar way for all Europe. Therefore, we define a season of migration per series: we look to the month corresponding to the peak and at the month with the lowest catches. The month with lowest catch fmin define the beggining of the season (month_in_season=1) and season y stands for the 12 months from fmin y (e.g., if lowest migration is in december, season ranges from december to november, and season y denotes season from december y to november y+1).
 ```{r}
 #function to make circular shifting
 shifter <- function(x, n = 1) {
@@ -531,3 +531,140 @@ build_data <- function(nbclus){
        nbclust=nbclus)# number of clusters
 }
 ```
+
+
+
+# Yellow eel
+## Data availability
+There are 32 time series, i.e. more than for glass eels but less than for silver eels. It may be worthwile pooling some of the 6 YS series if the proportions of silver eels is not too important.
+
+```{r}
+ser2[ser2$ser_lfs_code=="YS", c("ser_nameshort", "ser_emu_nameshort", "ser_comment", "ser_locationdescription")]
+```
+GVT, Sakt and ZeiT are fishery based and fishery takes place only 2 months per year so we can't keep the data.
+
+```{r}
+table(res$das_year[res$ser_nameshort %in% c('ALA', 'LakT', 'KER')],
+      res$das_month[res$ser_nameshort %in% c('ALA', 'LakT', 'KER')],
+      res$ser_nameshort[res$ser_nameshort %in% c('ALA', 'LakT', 'KER')])
+```
+For ALA and KER, we only have one month of data, so we do not keep the data. LakT is a good candidate, however, it is noted that there are 8 months of monitoring per year while in the data, we have more data missing, therefore it is currently not possible to know whether a missing data stands for zero or no data. Moreover, looking at comment, it seems to correspond to migrating eels, i.e. an important proportion of silver eels. Therefore, we discard also this data series.
+
+##Data correction
+
+Some corrections of errors found in the database
+```{r}
+```
+
+
+## Data selection
+As for other stages, we start by defining season consistent with ecological knowledge on migration. However, there is no migration for yellow eels and peaks in data correspond more to seasonal a peak in activity. We have few information on the seasonality of yellow eels, therefore, similarly to silver eel, it is difficult to split season of migration in a similar way for all Europe. Therefore, we define a season of migration per series using the same procedure as for silver eels: the month with lowest activity fmin define the beggining of the season (month_in_season=1) and season y stands for the 12 months from fmin y (e.g., if lowest activity is in december, season ranges from december to november, and season y denotes season from december y to november y+1). 
+
+```{r}
+#function to make circular shifting
+shifter <- function(x, n = 1) {
+     if (n == 0) x else c(tail(x, -n), head(x, n))
+}
+
+yelloweel <- do.call("rbind.data.frame",
+                     lapply(ser2$ser_nameshort[ser2$ser_lfs_code=="Y"],
+                            function(s)
+                              season_creation(res[res$ser_nameshort==s,])))
+months_peak_per_series<- unique(yelloweel[,c("ser_nameshort","peak_month")])
+table(months_peak_per_series$peak_month)
+```
+Peaks of activity range from may to november. It might be possible to define a common season from february/march to january/february, but we prefer not imposing it without more precise information.
+
+
+## Building diagnostics of quality for series
+We used the functions used for silver eels to assess whether a time series offer a good coverage of a season of activity (e.g. good_coverage_wave and check_duplicate). 
+
+```{r, warning=FALSE}
+kept_seasons <- lapply(unique(yelloweel$ser_nameshort[!yelloweel$ser_nameshort %in%c("MorE","VaccY")]), function(s){
+  sub_yellow <- subset(yelloweel, yelloweel$ser_nameshort==s)
+  good_coverage_wave(sub_yellow)
+})
+```
+
+Finally, here are the series kept given previous criterion.
+```{r}
+names(kept_seasons) <- unique(silvereel$ser_nameshort)
+kept_seasons[!sapply(kept_seasons,is.null)]
+```
+## Data preparation
+To run the model, we need a table in the wide format: one column per month, one row for a year x time series. It leads to a dataset with 82 rows. Since seasn are not comparable among years, months correspond to original months (eg: 12 for decembre, not month in season), while rows indeed correspond tos season
+
+```{r}
+silvereel_subset <- subset(silvereel, 
+                           mapply(function(season, series){
+                             season %in% kept_seasons[[series]]
+                           }, silvereel$season, silvereel$ser_nameshort))
+
+silvereel_subset$emu <- ser2$ser_emu_nameshort[match(silvereel_subset$ser_nameshort,
+                                                       ser2$ser_nameshort)]
+
+silvereel_wide <- pivot_wider(data=silvereel_subset[, c("ser_nameshort",
+                                                            "emu",
+                                                     "country",
+                                                     "season",
+                                                     "das_month",
+                                                     "das_value")],
+                                names_from="das_month",
+                                values_from="das_value")
+names(silvereel_wide)[-(1:4)] <- paste("m",
+                                       names(silvereel_wide)[-(1:4)],
+                                       sep="")
+```
+
+We now replace NA value per zero since we selected our dataseries with missing months corresponding to insignificant months, and we compute proportions per month for each year.
+
+```{r}
+silvereel_wide <- silvereel_wide %>%
+  replace_na(replace=list(m1=0,
+                          m2=0,
+                          m3=0,
+                          m4=0,
+                          m5=0,
+                          m6=0,
+                          m7=0,
+                          m8=0,
+                          m9=0,
+                          m10=0,
+                          m11=0,
+                          m12=0))
+total_catch_year <- rowSums(silvereel_wide[, paste("m", 1:12, sep="")])
+silvereel_wide <- silvereel_wide %>%
+  mutate_at(.vars=paste("m",1:12,sep=""),function(x) x/total_catch_year)
+```
+
+The Commission asks us to compare the pattern before and after 2007, probably to see the effect of the Eel Regulation. It is therefore necessary to build a period index. However, since most countries implemented their EMPs only in 2009/2010, we split in 2010.
+
+```{r}
+silvereel_wide$period <- ifelse(silvereel_wide$season>2009,
+                                  2,
+                                  1)
+
+table(silvereel_wide$period,
+       silvereel_wide$ser_nameshort)
+```
+The situation is better for silver eel than for glass eel, we have a good sets of time series with data both before and after 2009.
+
+
+## Running the model
+###Building data
+```{r}
+group <- as.integer(interaction(silvereel_wide$ser_nameshort,
+                                            silvereel_wide$period,
+                                            drop=TRUE))
+y <-as.matrix(silvereel_wide[, paste("m", 1:12, sep="")])
+
+
+build_data <- function(nbclus){
+  list(y=y, #observations
+       group=group, #group identifier (a group is a period x series)
+       nbm=12, #number of month
+       nbclust=nbclus)# number of clusters
+}
+```
+
+
