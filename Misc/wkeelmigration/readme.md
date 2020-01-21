@@ -122,6 +122,8 @@ Hilaire corrections :
 * In France:
 	double for June on the Scorff, contacter Clarisse to ask her
 	On Souston, line 40 should be 2017, not 2018
+•	series MorE (GB): dpulicate data 2019 missing data 2017 mails ent to Ryan for clarification.
+•	series VaccY (FR):  line 43,should be 2006 and not 2007
 
 
 
