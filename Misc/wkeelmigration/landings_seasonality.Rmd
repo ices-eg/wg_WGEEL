@@ -52,7 +52,7 @@ see readme.md in this folder for notes on source file.
 # reading the files
 
 
-```{r readfiles, echo=FALSE, include=FALSE, eval=FALSE}
+```{r readfiles, echo=FALSE, include=FALSE, eval=TRUE}
 fcl <- list.files(datawd1,pattern='commercial_landings')
 load( file=str_c(datawd,"saved_data.Rdata"))
 load(file=str_c(datawd,"cou.Rdata"))
