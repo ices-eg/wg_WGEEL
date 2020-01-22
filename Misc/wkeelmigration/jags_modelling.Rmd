@@ -611,7 +611,12 @@ kept_seasons <- lapply(unique(silvereel$ser_nameshort), function(s){
 Finally, here are the series kept given previous criterion.
 ```{r}
 names(kept_seasons) <- unique(silvereel$ser_nameshort)
+#we removeDaugS since the number of caught eel is too limited to work on
+#seaonality (4, 0 , 8 from 2017 to 2019)
+#kept_seasons[["DaugS"]] <- NULL
+
 kept_seasons[!sapply(kept_seasons,is.null)]
+
 ```
 
 ## Data preparation
@@ -959,8 +964,8 @@ best_yellow <- data.frame(nbclus=2:7,dic=unlist(comparison))
 ```
 
 ```{R}
-load("silver_jags.rdata")
-best_silver
+load("yellow_jags.rdata")
+best_yellow
 ```
 
 Best solutions arise with 3 clusters (as for other stages).
