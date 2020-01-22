@@ -28,7 +28,7 @@ As a first step we have renamed all files to lowercase, and only three extension
 
 ### ES
 * ES_Anda was missing, I have add it. (No data before 2009 and forbidden later). In ES_Murc there is monthly data from 2002 on. For 2000 and 2001 data for the whole year has been provided. I have leaveD it.
-* ES_Murc duplicated values in jan, feb, marc in 2013. Message sent asking for clarification.  
+* ES_Murc duplicated values in jan, feb, marc in 2013. Message sent asking for clarification.  ANSWER RECEIVED, I have pasted the corrected data for 2013
 * ES_Basq, Es_Cata, ES_Astu: data was pasted twice. ONe has been deleted. 
 
 ### FI
@@ -122,6 +122,8 @@ Hilaire corrections :
 * In France:
 	double for June on the Scorff, contacter Clarisse to ask her
 	On Souston, line 40 should be 2017, not 2018
+•	series MorE (GB): dpulicate data 2019 missing data 2017 mails ent to Ryan for clarification.
+•	series VaccY (FR):  line 43,should be 2006 and not 2007
 
 
 
