@@ -228,7 +228,7 @@ y <-as.matrix(recruitment_wide[, paste("m", 1:12, sep="")])
 
 build_data <- function(nbclus,seuil=.95){
   ref=as.integer(
-         names(nb_occ_group)[which(nb_occ_group==max(nb_occ_group)[1])])
+         names(nb_occ_group)[which(nb_occ_group==max(nb_occ_group))])[1]
   list(y=y, #observations
        y2=y,
        group=group, #group identifier (a group is a period x series)
@@ -361,15 +361,30 @@ get_pattern_month <- function(res,mydata){
   }))
   storage.mode(clus) <- "numeric"
   classes <- as.data.frame(clus)
-  names(classes) <- c("max_clus", "clus1", "clus2","clus3")
+  names(classes) <- c("cluster", "clus1", "clus2","clus3")
   cbind.data.frame(data.frame(ser=ser, period=period),
                    classes)
 }
 
 myclassif <- get_pattern_month(myfit_recruitment)
-print(myclassif[order(myclassif$max_clus),])
+print(myclassif[order(myclassif$cluster),])
 ```
 The 3rd cluster corresponds to series from the Southern Europe, whatever the period. Cluster 2 corresponds to North Europe. Cluster 1 corresponds to EmsH which appears to be slightly atypical. However, clusters 1 and 2 are quite similar and many series x periods are attributed with high occurences in both clusters 2 and 3. These results confirm the spatial pattern in recruitment seasonality and highlight that no major changes have occured after 2010.
+
+Showing it on a map:
+
+```{r}
+library(sf)
+myclassif$x <- ser2$ser_x[match(myclassif$ser, ser2$ser_nameshort)]
+myclassif$jit_x <- jitter(myclassif$x,amount=.5)
+myclassif$y <- ser2$ser_y[match(myclassif$ser, ser2$ser_nameshort)]
+myclassif$jit_y <- jitter(myclassif$y,amount=.5)
+cou <- st_read("/mnt/SIG/01-REFERENTIELS/LIMITES_ADMINISTRATIVES_monde/european_countries_WGS84.shp")
+cou <- st_transform(cou, crs=4326)
+ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
+		geom_point(data=myclassif,aes(x=jit_x,y=jit_y,col=as.factor(cluster))) +
+  scale_fill_brewer() +theme_bw() +xlim(-20,30) + ylim(35,65)
+```
 
 
 # Silver eel
@@ -600,7 +615,7 @@ kept_seasons[!sapply(kept_seasons,is.null)]
 ```
 
 ## Data preparation
-To run the model, we need a table in the wide format: one column per month, one row for a year x time series. It leads to a dataset with 82 rows. Since seasn are not comparable among years, months correspond to original months (eg: 12 for decembre, not month in season), while rows indeed correspond tos season
+To run the model, we need a table in the wide format: one column per month, one row for a year x time series. 
 
 ```{r}
 silvereel_subset <- subset(silvereel, 
@@ -623,6 +638,9 @@ names(silvereel_wide)[-(1:4)] <- paste("m",
                                        names(silvereel_wide)[-(1:4)],
                                        sep="")
 ```
+
+It leads to a dataset with `r nrow(silvereel_wide)` rows. Since seasons are not comparable among years, months correspond to original months (eg: 12 for decembre, not month in season), while rows indeed correspond to seasons.
+
 
 We now replace NA value per zero since we selected our dataseries with missing months corresponding to insignificant months, and we compute proportions per month for each year.
 
@@ -770,16 +788,28 @@ get_pattern_month <- function(res,mydata){
   }))
   storage.mode(clus) <- "numeric"
   classes <- as.data.frame(clus)
-  names(classes) <- c("max_clus", "clus1", "clus2","clus3")
+  names(classes) <- c("cluster", "clus1", "clus2","clus3")
   cbind.data.frame(data.frame(ser=ser, period=period, country=country),
                    classes)
 }
 
 myclassif_silver <- get_pattern_month(myfit_silver)
-print(myclassif_silver[order(myclassif_silver$max_clus),])
-table(myclassif_silver$country, myclassif_silver$max_clus)
+print(myclassif_silver[order(myclassif_silver$cluster),])
+table(myclassif_silver$country, myclassif_silver$cluster)
 ```
-The spatial pattern is less obvious than for glass eel.
+The spatial pattern is less obvious than for glass eel. However, looking at the map, we see that clusters 1 and 
+3, which display similar seasonality, are more located on the Western coasts of Europe (with most cluster 3 in the south, and most clusters 1 in the north), whereas, cluster 2 is more located in North-Sea and Baltic Sea, with the notable exception of the Imsa dataseries. Once again, no difference between periods are observed.
+
+```{r}
+library(sf)
+myclassif_silver$x <- ser2$ser_x[match(myclassif_silver$ser, ser2$ser_nameshort)]
+myclassif_silver$jit_x <- jitter(myclassif_silver$x,amount=.5)
+myclassif_silver$y <- ser2$ser_y[match(myclassif_silver$ser, ser2$ser_nameshort)]
+myclassif_silver$jit_y <- jitter(myclassif_silver$y,amount=.5)
+ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
+		geom_point(data=myclassif_silver,aes(x=jit_x,y=jit_y,col=as.factor(cluster))) +
+  scale_fill_brewer() +theme_bw() +xlim(-20,30) + ylim(35,65)
+```
 
 
 # Yellow eel
@@ -840,7 +870,7 @@ names(kept_seasons) <- unique(yelloweel$ser_nameshort[!yelloweel$ser_nameshort %
 kept_seasons[!sapply(kept_seasons,is.null)]
 ```
 ## Data preparation
-To run the model, we need a table in the wide format: one column per month, one row for a year x time series. It leads to a dataset with 82 rows. Since seasn are not comparable among years, months correspond to original months (eg: 12 for decembre, not month in season), while rows indeed correspond tos season
+We carry out the same procedure a for other stages. 
 
 ```{r}
 yelloweel_subset <- subset(yelloweel, 
@@ -864,10 +894,12 @@ names(yelloweel_wide)[-(1:4)] <- paste("m",
                                        sep="")
 ```
 
+It leads to a dataset with `r nrow(silvereel_wide)` rows. Since seasons are not comparable among years, months correspond to original months (eg: 12 for decembre, not month in season), while rows indeed correspond to seasons.
+
 We now replace NA value per zero since we selected our dataseries with missing months corresponding to insignificant months, and we compute proportions per month for each year.
 
 ```{r}
-silvereel_wide <- silvereel_wide %>%
+yelloweel_wide <- yelloweel_wide %>%
   replace_na(replace=list(m1=0,
                           m2=0,
                           m3=0,
@@ -880,39 +912,154 @@ silvereel_wide <- silvereel_wide %>%
                           m10=0,
                           m11=0,
                           m12=0))
-total_catch_year <- rowSums(silvereel_wide[, paste("m", 1:12, sep="")])
-silvereel_wide <- silvereel_wide %>%
+yelloweel_wide[, -(1:4)] <- yelloweel_wide[, -(1:4)] + 1e-3
+total_catch_year <- rowSums(yelloweel_wide[, paste("m", 1:12, sep="")])
+yelloweel_wide <- yelloweel_wide %>%
   mutate_at(.vars=paste("m",1:12,sep=""),function(x) x/total_catch_year)
 ```
 
 The Commission asks us to compare the pattern before and after 2007, probably to see the effect of the Eel Regulation. It is therefore necessary to build a period index. However, since most countries implemented their EMPs only in 2009/2010, we split in 2010.
 
 ```{r}
-silvereel_wide$period <- ifelse(silvereel_wide$season>2009,
+yelloweel_wide$period <- ifelse(yelloweel_wide$season>2009,
                                   2,
                                   1)
 
-table(silvereel_wide$period,
-       silvereel_wide$ser_nameshort)
+table(yelloweel_wide$period,
+       yelloweel_wide$ser_nameshort)
 ```
-The situation is better for silver eel than for glass eel, we have a good sets of time series with data both before and after 2009.
+The situation is an intermediate between glass eel and silver eel.
 
 
 ## Running the model
 ###Building data
 ```{r}
-group <- as.integer(interaction(silvereel_wide$ser_nameshort,
-                                            silvereel_wide$period,
+group <- as.integer(interaction(yelloweel_wide$ser_nameshort,
+                                            yelloweel_wide$period,
                                             drop=TRUE))
-y <-as.matrix(silvereel_wide[, paste("m", 1:12, sep="")])
-
-
-build_data <- function(nbclus){
-  list(y=y, #observations
-       group=group, #group identifier (a group is a period x series)
-       nbm=12, #number of month
-       nbclust=nbclus)# number of clusters
-}
+nb_occ_group <- table(group)
+y <-as.matrix(yelloweel_wide[, paste("m", 1:12, sep="")])
 ```
 
+Know, we make a loop to select the number of clusters based on a DIC criterion
 
+```{r, eval=FALSE}
+comparison <- lapply(2:7,
+       function(nbclus){
+         mydata <- build_data(nbclus)
+         res <- run.jags("jags_model.txt", monitor= "deviance",
+                      summarise=FALSE, adapt=20000, method="parallel",
+                      sample=10000,burnin=10000,n.chains=3,
+                      inits=generate_init(nbclus, mydata),
+                      data=mydata)
+         res_mat <- as.matrix(as.mcmc.list(res))
+         mean(res_mat[,1])-0.5*var(res_mat[,1])
+       })
+best_yellow <- data.frame(nbclus=2:7,dic=unlist(comparison))
+```
+
+```{R}
+load("silver_jags.rdata")
+best_silver
+```
+
+Best solutions arise with 3 clusters (as for other stages).
+
+
+```{r, eval=FALSE}
+nbclus <- 3
+mydata <-build_data(3)
+myfit_yellow <- run.jags("jags_model.txt", monitor= c("cluster", "esp", "alpha_group",
+                                            "cluster",
+                                            "distToClust", "duration_clus",
+                                            "duration_group",
+                                            "lambda","id_cluster",
+                                            "distFromRef"),
+                      summarise=FALSE, adapt=50000, method="parallel",
+                      sample=10000,burnin=200000,n.chains=3, thin=5,
+                      inits=generate_init(nbclus, mydata), data=mydata)
+save(myfit_yellow, best_yellow,
+     file="yellow_jags.rdata")
+```
+Once we fitted, we can plot monthly pattern per cluster
+```{r}
+load("silver_jags.rdata")
+nbclus <- 3
+mydata <-build_data(3)
+get_pattern_month <- function(res,type="cluster"){
+  res_mat <- as.matrix(as.mcmc.list(res))
+  if (type=="cluster"){
+    sub_mat <- as.data.frame(res_mat[,grep("esp",colnames(res_mat))])
+  }
+  sub_mat <- sub_mat %>% 
+    pivot_longer(cols=1:ncol(sub_mat),
+                 names_to="param",
+                 values_to="proportion")
+  tmp <- lapply(as.character(sub_mat$param),function(p) strsplit(p,"[[:punct:]]"))
+  sub_mat$cluster<-as.factor(
+    as.integer(lapply(tmp, function(tt) tt[[1]][2])))
+  sub_mat$month <- as.character(lapply(tmp,
+                                       function(tt) paste("m",
+                                                          tt[[1]][3],
+                                                          sep="")))
+  sub_mat$month <- factor(sub_mat$month, levels=paste("m", 1:12, sep=""))
+  sub_mat
+}
+
+
+ggplot(get_pattern_month(myfit_silver),aes(x=month,y=proportion))+
+  geom_boxplot(aes(fill=cluster),outlier.shape=NA) +
+  theme_bw()
+```
+We have 3 clusters: cluster 2 corresponds to a migration wave starting in late spring and ending in late autumn, cluster 3 corresponds to a migration wave really centered around october, anc cluster 1 corresponds to a migration wave starting october with a wave that can last a little bit during winter.
+
+
+We can look at the belonging of the different groups.
+```{r}
+get_pattern_month <- function(res,mydata){
+  
+  groups <- interaction(silvereel_wide$ser_nameshort,
+                                            silvereel_wide$period,
+                                            drop=TRUE)
+  group_name <- levels(groups)
+  tmp <- strsplit(as.character(group_name),
+                  "\\.")
+  ser <- as.character(lapply(tmp,function(tt){
+    tt[1]
+  }))
+  country <- ser2$ser_cou_code[match(ser, ser2$ser_nameshort)]
+  period <- as.character(lapply(tmp,function(tt){
+    tt[2]
+  }))
+  res_mat <- as.matrix(as.mcmc.list(res))
+  
+  clus <- t(sapply(seq_len(length(unique(groups))), function(id){
+    name_col <- paste("cluster[",id,"]",sep="")
+    freq <- table(res_mat[,name_col])
+    max_class <- names(freq)[order(freq,decreasing=TRUE)[1]]
+    c(max_class,freq[as.character(1:nbclus)])
+  }))
+  storage.mode(clus) <- "numeric"
+  classes <- as.data.frame(clus)
+  names(classes) <- c("cluster", "clus1", "clus2","clus3")
+  cbind.data.frame(data.frame(ser=ser, period=period, country=country),
+                   classes)
+}
+
+myclassif_silver <- get_pattern_month(myfit_silver)
+print(myclassif_silver[order(myclassif_silver$cluster),])
+table(myclassif_silver$country, myclassif_silver$cluster)
+```
+The spatial pattern is less obvious than for glass eel. However, looking at the map, we see that clusters 1 and 
+3, which display similar seasonality, are more located on the Western coasts of Europe (with most cluster 3 in the south, and most clusters 1 in the north), whereas, cluster 2 is more located in North-Sea and Baltic Sea, with the notable exception of the Imsa dataseries. Once again, no difference between periods are observed.
+
+```{r}
+library(sf)
+myclassif_silver$x <- ser2$ser_x[match(myclassif_silver$ser, ser2$ser_nameshort)]
+myclassif_silver$jit_x <- jitter(myclassif_silver$x,amount=.5)
+myclassif_silver$y <- ser2$ser_y[match(myclassif_silver$ser, ser2$ser_nameshort)]
+myclassif_silver$jit_y <- jitter(myclassif_silver$y,amount=.5)
+ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
+		geom_point(data=myclassif_silver,aes(x=jit_x,y=jit_y,col=as.factor(cluster))) +
+  scale_fill_brewer() +theme_bw() +xlim(-20,30) + ylim(35,65)
+```
