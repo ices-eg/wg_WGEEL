@@ -1,24 +1,94 @@
 model{
+
+#####clustering part
 	for (i in 1:nbobs){ #an observation is a 12 months vector
-		y[i,1:nbm]~ddirich(alpha2[id_cluster[group[i]],1:nbm]) ##definition of the dirichlet observation
+		y[i,1:nbm]~ddirich(alpha2[cluster[group[i]],1:nbm]) ##definition of the dirichlet observation
 	}
+	
+	#we first initalize cluster but unordered
 	for (clus in 1:nbclus){
-		esp[g, 1:nbm] ~ ddirich(alpha[1:nbm]) ###mean of mean from Dirichlet prior
+		esp_unordered[clus, 1:nbm] ~ ddirich(alpha[1:nbm]) ###mean of mean from Dirichlet prior
+		centroid_unordered[clus]<-sum((1:nbm)*esp_unordered[clus,1:nbm])
 		for (m in 1:nbm){
-			alpha2[clus,m] <- esp[clus,m]*lambda ####mean from Dirichlet prior
+			alpha2_unordered[clus,m] <- esp_unordered[clus,m] * nbclus ####mean from Dirichlet prior
 		}
-		centroid[clus]<-sum((1:nbm)*alpha2[clus,1:nbm])/sum(alpha2[clus,1:nbm])
 	}
-	id_cluster[1:nbclus]<-order(centroid[1:nbclus]) #with this alpha2[id_goup[1],1:nmp] will give the mean for the earliest group (ensure identifiability)
+	id_cluster[1:nbclus]<-order(distFromRef[1:nbclus]) #with this strategy, the last cluster is the one of the ref, and 1st cluster is the cluster with less similarity to the reference cluster
+	
+	####now we put groups in order
+	for (clus in 1:nbclus){
+		alpha2[clus,1:nbm] <- alpha2_unordered[id_cluster[clus],1:nbm]
+		esp[clus,1:nbm] <- alpha2[clus,1:nbm]/ sum(alpha2[clus,1:nbm])
+		centroid[clus]<-centroid_unordered[id_cluster[clus]]
+		month_prop[clus,1:nbm] <- sort(alpha2[clus, 1:nbm])
+		duration_clus[clus] <- ifelse(month_prop[clus,1]>seuil,1,
+					ifelse(sum(month_prop[clus,1:2])>seuil,2,
+					ifelse(sum(month_prop[clus,1:3])>seuil, 3,
+					ifelse(sum(month_prop[clus,1:4])>seuil,4,
+					ifelse(sum(month_prop[clus,1:5])>seuil,5,
+					ifelse(sum(month_prop[clus,1:6])>seuil,6,
+					ifelse(sum(month_prop[clus,1:7])>seuil,7,
+					ifelse(sum(month_prop[clus,1:8])>seuil,8,
+					ifelse(sum(month_prop[clus,1:9])>seuil,9,
+					ifelse(sum(month_prop[clus,1:10])>seuil,10,
+					ifelse(sum(month_prop[clus,1:11])>11,11,12)))))))))))
+		
+	}
 	for (m in 1:nbm){
-		alpha[m]<-1/12
+		alpha[m]<-1
 	}
-	lambda~dunif(.3,2000)
-	
-	
-	for (i in 1:nbg){
-		group[i]~dcat(rep(1/nbclus,nbclus))
+	lambda~dunif(.3,10)
+	for (g in not_ref){
+		cluster[g]~dcat(rep(1/nbclus,nbclus))
 	}
+	cluster[ref] <- nbclus
+	
+#######group (series x period) per group part
+	for (i in 1:nbobs){ #an observation is a 12 months vector
+		y2[i,1:nbm]~ddirich(alpha_group[group[i],1:nbm]) ##definition of the dirichlet observation
+	}
+	for (g in 1:nbgroup){
+		alpha_group[g, 1:nbm]~ddirich(alpha[1:nbm])
+		centroid_group[g] <- sum((1:nbm)*alpha_group[g, 1:nbm])
+		distToClust[g] <- min(alpha_group[g,1],alpha2[cluster[g],1])+
+			min(alpha_group[g,2],alpha2[cluster[g],2])+
+			min(alpha_group[g,3],alpha2[cluster[g],3])+
+			min(alpha_group[g,4],alpha2[cluster[g],4])+
+			min(alpha_group[g,5],alpha2[cluster[g],5])+
+			min(alpha_group[g,6],alpha2[cluster[g],6])+
+			min(alpha_group[g,7],alpha2[cluster[g],7])+
+			min(alpha_group[g,8],alpha2[cluster[g],8])+
+			min(alpha_group[g,9],alpha2[cluster[g],9])+
+			min(alpha_group[g,10],alpha2[cluster[g],10])+
+			min(alpha_group[g,11],alpha2[cluster[g],11])+
+			min(alpha_group[g,12],alpha2[cluster[g],12])
+		month_prop_group[g,1:nbm] <- sort(alpha_group[g, 1:nbm])
+		duration_group[g] <- ifelse(month_prop_group[g,1]>seuil,1,
+					ifelse(sum(month_prop_group[g,1:2])>seuil,2,
+					ifelse(sum(month_prop_group[g,1:3])>seuil, 3,
+					ifelse(sum(month_prop_group[g,1:4])>seuil,4,
+					ifelse(sum(month_prop_group[g,1:5])>seuil,5,
+					ifelse(sum(month_prop_group[g,1:6])>seuil,6,
+					ifelse(sum(month_prop_group[g,1:7])>seuil,7,
+					ifelse(sum(month_prop_group[g,1:8])>seuil,8,
+					ifelse(sum(month_prop_group[g,1:9])>seuil,9,
+					ifelse(sum(month_prop_group[g,1:10])>seuil,10,
+					ifelse(sum(month_prop_group[g,1:11])>11,11,12)))))))))))
+	}
+	for(clus in 1:nbclus){
+		distFromRef[clus] <-min(alpha_group[ref,1],alpha2_unordered[clus,1])+
+			min(alpha_group[ref,2],alpha2_unordered[clus,2])+
+			min(alpha_group[ref,3],alpha2_unordered[clus,3])+
+			min(alpha_group[ref,4],alpha2_unordered[clus,4])+
+			min(alpha_group[ref,5],alpha2_unordered[clus,5])+
+			min(alpha_group[ref,6],alpha2_unordered[clus,6])+
+			min(alpha_group[ref,7],alpha2_unordered[clus,7])+
+			min(alpha_group[ref,8],alpha2_unordered[clus,8])+
+			min(alpha_group[ref,9],alpha2_unordered[clus,9])+
+			min(alpha_group[ref,10],alpha2_unordered[clus,10])+
+			min(alpha_group[ref,11],alpha2_unordered[clus,11])+
+			min(alpha_group[ref,12],alpha2_unordered[clus,12])
+}
 }
 
 
