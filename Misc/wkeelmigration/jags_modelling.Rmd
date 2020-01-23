@@ -217,7 +217,6 @@ table(recruitment_wide$period,
 Only 4 series have data in the first period therefore period comparisons will be difficult. However, can now try to fit the model.
 
 ## Running the model
-###Building data
 ```{r}
 group <- as.integer(interaction(recruitment_wide$ser_nameshort,
                                             recruitment_wide$period,
@@ -301,6 +300,8 @@ myfit_recruitment <- run.jags("jags_model.txt", monitor= c("cluster", "esp", "al
 save(myfit_recruitment, best_recruitment,
      file="recruitment_jags.rdata")
 ```
+
+## Results
 Once we fitted, we can plot monthly pattern per cluster
 ```{r}
 load("recruitment_jags.rdata")
@@ -644,7 +645,7 @@ names(silvereel_wide)[-(1:4)] <- paste("m",
                                        sep="")
 ```
 
-It leads to a dataset with `r nrow(silvereel_wide)` rows. Since seasons are not comparable among years, months correspond to original months (eg: 12 for decembre, not month in season), while rows indeed correspond to seasons.
+It leads to a dataset with `r nrow(silvereel_wide)` rows. Since seasons are not comparable among series, we keep calendar months (eg: 12 for decembre, not month in season), while rows indeed correspond to seasons.
 
 
 We now replace NA value per zero since we selected our dataseries with missing months corresponding to insignificant months, and we compute proportions per month for each year.
@@ -683,7 +684,6 @@ The situation is better for silver eel than for glass eel, we have a good sets o
 
 
 ## Running the model
-###Building data
 ```{r}
 group <- as.integer(interaction(silvereel_wide$ser_nameshort,
                                             silvereel_wide$period,
@@ -700,11 +700,11 @@ comparison <- lapply(2:7,
          mydata <- build_data(nbclus)
          res <- run.jags("jags_model.txt", monitor= "deviance",
                       summarise=FALSE, adapt=20000, method="parallel",
-                      sample=10000,burnin=10000,n.chains=3,
+                      sample=10000,burnin=100000,n.chains=3,
                       inits=generate_init(nbclus, mydata),
                       data=mydata)
          res_mat <- as.matrix(as.mcmc.list(res))
-         mean(res_mat[,1])-0.5*var(res_mat[,1])
+         mean(res_mat[,1])+0.5*var(res_mat[,1])
        })
 best_silver <- data.frame(nbclus=2:7,dic=unlist(comparison))
 ```
@@ -733,6 +733,8 @@ myfit_silver <- run.jags("jags_model.txt", monitor= c("cluster", "esp", "alpha_g
 save(myfit_silver, best_silver,
      file="silver_jags.rdata")
 ```
+
+##Results
 Once we fitted, we can plot monthly pattern per cluster
 ```{r}
 load("silver_jags.rdata")
@@ -834,11 +836,7 @@ table(res$das_year[res$ser_nameshort %in% c('ALA', 'LakT', 'KER')],
 For ALA and KER, we only have one month of data, so we do not keep the data. LakT is a good candidate, however, it is noted that there are 8 months of monitoring per year while in the data, we have more data missing, therefore it is currently not possible to know whether a missing data stands for zero or no data. Moreover, looking at comment, it seems to correspond to migrating eels, i.e. an important proportion of silver eels. Therefore, we discard also this data series.
 
 ##Data correction
-
-Some corrections of errors found in the database
-```{r}
-```
-
+We have found some errors in series "MorE" and "VaccY" but don't know how to fix the mystakes, so currently, we remove them from our selection.
 
 ## Data selection
 As for other stages, we start by defining season consistent with ecological knowledge on migration. However, there is no migration for yellow eels and peaks in data correspond more to seasonal a peak in activity. We have few information on the seasonality of yellow eels, therefore, similarly to silver eel, it is difficult to split season of migration in a similar way for all Europe. Therefore, we define a season of migration per series using the same procedure as for silver eels: the month with lowest activity fmin define the beggining of the season (month_in_season=1) and season y stands for the 12 months from fmin y (e.g., if lowest activity is in december, season ranges from december to november, and season y denotes season from december y to november y+1). 
@@ -897,9 +895,22 @@ yelloweel_wide <- pivot_wider(data=yelloweel_subset[, c("ser_nameshort",
 names(yelloweel_wide)[-(1:4)] <- paste("m",
                                        names(yelloweel_wide)[-(1:4)],
                                        sep="")
+###we coun't the number of zeros per lines to remove lines without enough
+###fishes
+data_poor <- data.frame(yelloweel_wide$ser_nameshort,
+                        yelloweel_wide$season,
+                  zero=rowSums(yelloweel_wide[, -(1:4)] == 0, na.rm=TRUE),
+           tot=rowSums(yelloweel_wide[, -(1:4)], na.rm=TRUE))
+data_poor %>% filter(tot<100)
+```
+Given the limited number of eels caught in DaugY in 2018, we remove this series.
+
+```{r}
+yelloweel_wide <- yelloweel_wide %>%
+  filter(ser_nameshort != "DaugY" | season != 2018)
 ```
 
-It leads to a dataset with `r nrow(silvereel_wide)` rows. Since seasons are not comparable among years, months correspond to original months (eg: 12 for decembre, not month in season), while rows indeed correspond to seasons.
+It leads to a dataset with `r nrow(yelloweel_wide)` rows. Since seasons are not comparable among series, we keep traditional month (eg: 12 for decembre, not month in season), while rows indeed correspond to seasons.
 
 We now replace NA value per zero since we selected our dataseries with missing months corresponding to insignificant months, and we compute proportions per month for each year.
 
@@ -937,7 +948,6 @@ The situation is an intermediate between glass eel and silver eel.
 
 
 ## Running the model
-###Building data
 ```{r}
 group <- as.integer(interaction(yelloweel_wide$ser_nameshort,
                                             yelloweel_wide$period,
@@ -954,13 +964,14 @@ comparison <- lapply(2:7,
          mydata <- build_data(nbclus)
          res <- run.jags("jags_model.txt", monitor= "deviance",
                       summarise=FALSE, adapt=20000, method="parallel",
-                      sample=10000,burnin=10000,n.chains=3,
+                      sample=10000,burnin=100000,n.chains=3,
                       inits=generate_init(nbclus, mydata),
                       data=mydata)
          res_mat <- as.matrix(as.mcmc.list(res))
-         mean(res_mat[,1])-0.5*var(res_mat[,1])
+         mean(res_mat[,1])+0.5*var(res_mat[,1])
        })
 best_yellow <- data.frame(nbclus=2:7,dic=unlist(comparison))
+save(best_yellow, file="yellow_jags.rdata")
 ```
 
 ```{R}
@@ -968,12 +979,12 @@ load("yellow_jags.rdata")
 best_yellow
 ```
 
-Best solutions arise with 3 clusters (as for other stages).
+Best solutions arise with 5 clusters, more than for other stages.
 
 
 ```{r, eval=FALSE}
-nbclus <- 3
-mydata <-build_data(3)
+nbclus <- 5
+mydata <-build_data(nbclus)
 myfit_yellow <- run.jags("jags_model.txt", monitor= c("cluster", "esp", "alpha_group",
                                             "cluster",
                                             "distToClust", "duration_clus",
@@ -986,11 +997,13 @@ myfit_yellow <- run.jags("jags_model.txt", monitor= c("cluster", "esp", "alpha_g
 save(myfit_yellow, best_yellow,
      file="yellow_jags.rdata")
 ```
+
+## Results
 Once we fitted, we can plot monthly pattern per cluster
 ```{r}
-load("silver_jags.rdata")
-nbclus <- 3
-mydata <-build_data(3)
+load("yellow_jags.rdata")
+nbclus <- 5
+mydata <-build_data(nbclus)
 get_pattern_month <- function(res,type="cluster"){
   res_mat <- as.matrix(as.mcmc.list(res))
   if (type=="cluster"){
@@ -1012,19 +1025,19 @@ get_pattern_month <- function(res,type="cluster"){
 }
 
 
-ggplot(get_pattern_month(myfit_silver),aes(x=month,y=proportion))+
+ggplot(get_pattern_month(myfit_yellow),aes(x=month,y=proportion))+
   geom_boxplot(aes(fill=cluster),outlier.shape=NA) +
   theme_bw()
 ```
-We have 3 clusters: cluster 2 corresponds to a migration wave starting in late spring and ending in late autumn, cluster 3 corresponds to a migration wave really centered around october, anc cluster 1 corresponds to a migration wave starting october with a wave that can last a little bit during winter.
+Cluster 5 corresponds to a migration 5 concentrated in june and july. Cluster 2 is a bit similar, but more widespread from may august. Cluster 1 is very flat display a flat wave, from may to november. Clusters 3 and 4 are quite similar with widepread waves centered around summer and eraly autumn, with cluster 3 more widepread than cluster 4.
 
 
 We can look at the belonging of the different groups.
 ```{r}
 get_pattern_month <- function(res,mydata){
   
-  groups <- interaction(silvereel_wide$ser_nameshort,
-                                            silvereel_wide$period,
+  groups <- interaction(yelloweel_wide$ser_nameshort,
+                                            yelloweel_wide$period,
                                             drop=TRUE)
   group_name <- levels(groups)
   tmp <- strsplit(as.character(group_name),
@@ -1051,20 +1064,19 @@ get_pattern_month <- function(res,mydata){
                    classes)
 }
 
-myclassif_silver <- get_pattern_month(myfit_silver)
-print(myclassif_silver[order(myclassif_silver$cluster),])
-table(myclassif_silver$country, myclassif_silver$cluster)
+myclassif_yellow <- get_pattern_month(myfit_yellow)
+print(myclassif_yellow[order(myclassif_yellow$cluster),])
+table(myclassif_yellow$country, myclassif_yellow$cluster)
 ```
-The spatial pattern is less obvious than for glass eel. However, looking at the map, we see that clusters 1 and 
-3, which display similar seasonality, are more located on the Western coasts of Europe (with most cluster 3 in the south, and most clusters 1 in the north), whereas, cluster 2 is more located in North-Sea and Baltic Sea, with the notable exception of the Imsa dataseries. Once again, no difference between periods are observed.
+There is no clear spatial pattern in the clustering. This is not necessarily surprising: eels display an ontongenic shift during their life stage, from a migratory behaviour towards sedentary behaviour (Imbert et al. 2010). Consequently, given the predominence of younger or older eels, which vary depending on the position in the river basin, a series may correspond to a seasonality of migration, to a seasonality of activity of sedentary eels, or to a mixture of both. Moreover, environmental conditions that trigger migration or activity may also vary depending on the position in the river basin and complexify the comparison of the time series.
 
 ```{r}
 library(sf)
-myclassif_silver$x <- ser2$ser_x[match(myclassif_silver$ser, ser2$ser_nameshort)]
-myclassif_silver$jit_x <- jitter(myclassif_silver$x,amount=.5)
-myclassif_silver$y <- ser2$ser_y[match(myclassif_silver$ser, ser2$ser_nameshort)]
-myclassif_silver$jit_y <- jitter(myclassif_silver$y,amount=.5)
+myclassif_yellow$x <- ser2$ser_x[match(myclassif_yellow$ser, ser2$ser_nameshort)]
+myclassif_yellow$jit_x <- jitter(myclassif_yellow$x,amount=.5)
+myclassif_yellow$y <- ser2$ser_y[match(myclassif_yellow$ser, ser2$ser_nameshort)]
+myclassif_yellow$jit_y <- jitter(myclassif_yellow$y,amount=.5)
 ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
-		geom_point(data=myclassif_silver,aes(x=jit_x,y=jit_y,col=as.factor(cluster))) +
+		geom_point(data=myclassif_yellow,aes(x=jit_x,y=jit_y,col=as.factor(cluster))) +
   scale_fill_brewer() +theme_bw() +xlim(-20,30) + ylim(35,65)
 ```
