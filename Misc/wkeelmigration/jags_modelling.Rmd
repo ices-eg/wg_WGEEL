@@ -335,6 +335,48 @@ ggplot(get_pattern_month(myfit_recruitment),aes(x=month,y=proportion))+
 
 ```
 
+We compute some statistics to characterize the clusters.
+```{r}
+#function to make circular shifting
+shifter <- function(x, n = 1) {
+     if (n == 0) x else c(tail(x, -n), head(x, n))
+}
+
+
+characteristics <- function(myres,nbclus, threshold=.80){
+  mydata <- as.matrix(as.mcmc.list(myres))
+  sapply(seq_len(nbclus),function(clus){
+    esp <- mydata[, paste("esp[",clus , ",", 1:12, "]", sep="")]
+    duration_it <- apply(esp, 1, function (esp_it){
+      esp_it <- min(which(cumsum(sort(esp_it, decreasing=TRUE))/
+                            sum(esp_it)>threshold))
+    })
+    duration <- quantile(duration_it, probs=c(0.025, .5, .975))
+    month_prop <- colMeans(esp)
+    peak <- which(month_prop == max(month_prop))
+    
+    season_order <- shifter(1:12,peak-6) #with this order peak in the middle
+                                         #of the season
+    
+    centroids <- apply(esp[,season_order], 1 , function(esp_it) {
+      sum(esp_it * 1:12)/sum(esp_it)
+    })
+    quant_centr <- quantile(centroids, probs=c(0.025, .5, .975))
+    quant_centr <- quant_centr - ceiling(quant_centr) +
+      season_order[ceiling(quant_centr)]
+    data.frame(cluster=clus,
+               duration=duration[2],
+               duration2.5=duration[1],
+               duration97.5=duration[3],
+               centroid=quant_centr[2],
+               centroid2.5=quant_centr[1],
+               centroid97.5=quant_centr[3])
+   
+  })
+}
+t(as.data.frame(characteristics(myfit_recruitment, 3)))
+```
+Duration indicates the minimum number of months that covers 80% of the wave (1st column is the median, and the 2 next one quantiles 2.5% and 97.5% of credibility intervals). Centroid is the centroid of the migration wave (e.g. 11.5 would indicate a migration centred around mid november). The first column is the median and the two next one the quantiles 2.5 and 97.5%.
 
 We can also look at the belonging of the different groups.
 ```{r}
@@ -472,11 +514,6 @@ res <- bind_rows(
 ## Data selection
 As for glass eel, we start by defining season consistent with ecological knowledge on migration. Downstream runs of European silver eels typically start in the autumn and may last until early spring (Brujs and Durif 2009), but we saw during WGEEL 2019 that peak in silver catches in Sweden is centered around August/September. Therefore, it is difficult to split season of migration in a similar way for all Europe. Therefore, we define a season of migration per series: we look to the month corresponding to the peak and at the month with the lowest catches. The month with lowest catch fmin define the beggining of the season (month_in_season=1) and season y stands for the 12 months from fmin y (e.g., if lowest migration is in december, season ranges from december to november, and season y denotes season from december y to november y+1).
 ```{r}
-#function to make circular shifting
-shifter <- function(x, n = 1) {
-     if (n == 0) x else c(tail(x, -n), head(x, n))
-}
-
 #creating season
 finding_peak <- function(data){
   mean_per_month <- tapply(data$das_value,list(data$das_month),mean,na.rm=TRUE)
@@ -767,6 +804,9 @@ ggplot(get_pattern_month(myfit_silver),aes(x=month,y=proportion))+
 ```
 We have 3 clusters: cluster 2 corresponds to a migration wave starting in late spring and ending in late autumn, cluster 3 corresponds to a migration wave really centered around october, anc cluster 1 corresponds to a migration wave starting october with a wave that can last a little bit during winter.
 
+```{r}
+t(as.data.frame(characteristics(myfit_silver, 3)))
+```
 
 We can look at the belonging of the different groups.
 ```{r}
@@ -842,11 +882,6 @@ We have found some errors in series "MorE" and "VaccY" but don't know how to fix
 As for other stages, we start by defining season consistent with ecological knowledge on migration. However, there is no migration for yellow eels and peaks in data correspond more to seasonal a peak in activity. We have few information on the seasonality of yellow eels, therefore, similarly to silver eel, it is difficult to split season of migration in a similar way for all Europe. Therefore, we define a season of migration per series using the same procedure as for silver eels: the month with lowest activity fmin define the beggining of the season (month_in_season=1) and season y stands for the 12 months from fmin y (e.g., if lowest activity is in december, season ranges from december to november, and season y denotes season from december y to november y+1). 
 
 ```{r}
-#function to make circular shifting
-shifter <- function(x, n = 1) {
-     if (n == 0) x else c(tail(x, -n), head(x, n))
-}
-
 yelloweel <- do.call("rbind.data.frame",
                      lapply(ser2$ser_nameshort[ser2$ser_lfs_code=="Y"],
                             function(s)
@@ -1029,7 +1064,12 @@ ggplot(get_pattern_month(myfit_yellow),aes(x=month,y=proportion))+
   geom_boxplot(aes(fill=cluster),outlier.shape=NA) +
   theme_bw()
 ```
-Cluster 5 corresponds to a migration 5 concentrated in june and july. Cluster 2 is a bit similar, but more widespread from may august. Cluster 1 is very flat display a flat wave, from may to november. Clusters 3 and 4 are quite similar with widepread waves centered around summer and eraly autumn, with cluster 3 more widepread than cluster 4.
+
+```{r}
+t(as.data.frame(characteristics(myfit_yellow, 5)))
+```
+
+Cluster 5 corresponds to a migration 5 concentrated in june and july. Cluster 2 is a bit similar, but more widespread from may august. Cluster 1 latter with hight proportion in late summer / early autumn. Clusters 3 and 4 are quite similar with widespread waves centered around summer and eraly autumn, with cluster 3 more widepread than cluster 4.
 
 
 We can look at the belonging of the different groups.
@@ -1068,7 +1108,7 @@ myclassif_yellow <- get_pattern_month(myfit_yellow)
 print(myclassif_yellow[order(myclassif_yellow$cluster),])
 table(myclassif_yellow$country, myclassif_yellow$cluster)
 ```
-There is no clear spatial pattern in the clustering. This is not necessarily surprising: eels display an ontongenic shift during their life stage, from a migratory behaviour towards sedentary behaviour (Imbert et al. 2010). Consequently, given the predominence of younger or older eels, which vary depending on the position in the river basin, a series may correspond to a seasonality of migration, to a seasonality of activity of sedentary eels, or to a mixture of both. Moreover, environmental conditions that trigger migration or activity may also vary depending on the position in the river basin and complexify the comparison of the time series.
+There is no clear spatial pattern in the clustering. This is not necessarily surprising: eels display an ontongenic shift during their life stage, from a migratory behaviour towards sedentary behaviour (Imbert et al. 2010). Consequently, given the predominence of younger or older eels, which vary depending on the position in the river basin, a series may correspond to a seasonality of migration, to a seasonality of activity of sedentary eels, or to a mixture of both. Moreover, environmental conditions that trigger migration or activity may also vary depending on the position in the river basin and complexify the comparison of the time series. The sampling method may also alter the results: many time series are collected upstream fishways, and the attractivity / passability of those fishway vary among seasons.
 
 ```{r}
 library(sf)
