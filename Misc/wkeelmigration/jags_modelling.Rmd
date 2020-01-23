@@ -259,7 +259,7 @@ generate_init <- function(nbclus,mydata){
 }
 ```
 
-Know, we make a loop to select the number of clusters based on a DIC criterion
+Now, we make a loop to select the number of clusters based on a DIC criterion
 
 ```{r, eval=FALSE}
 comparison <- lapply(2:7,
@@ -302,7 +302,7 @@ save(myfit_recruitment, best_recruitment,
 ```
 
 ## Results
-Once we fitted, we can plot monthly pattern per cluster
+Once fitted, we can plot monthly pattern per cluster
 ```{r}
 load("recruitment_jags.rdata")
 nbclus <- 3

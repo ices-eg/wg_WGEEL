@@ -837,7 +837,7 @@ Building diagnostics of quality for series
 The previous function looks at different criterion: it put the data in
 the wide format and check if we have at least 3 months around the peak.
 Moreover, it seeks for two extreme months when the cumulative catch is
-below 10%. If there is now missing month between these two extreme
+below 10%. If there is no missing month between these two extreme
 months, the season is kept. Using this function, we can make a
 preliminary screening of available series.
 

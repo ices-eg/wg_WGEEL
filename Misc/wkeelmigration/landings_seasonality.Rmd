@@ -176,6 +176,8 @@ save(res,file=str_c(datawd,"res_landings.Rdata"))
 
 ```{r tables, echo=TRUE, include=TRUE}
 load(file=str_c(datawd,"res_landings.Rdata"))
+
+#  before correction this table had a lot of values in red (duplicates)
 res %>%	group_by(emu_nameshort,lfs_code,hty_code,year,month) %>%
 		summarize(N=n()) %>% 
 		mutate(N = cell_spec(N, "html", color = ifelse(N > 1, "red", "black"),bold=ifelse(N > 1, T, F)))%>%
@@ -184,6 +186,16 @@ res %>%	group_by(emu_nameshort,lfs_code,hty_code,year,month) %>%
 		kable_styling(c("striped", "condensed"), full_width = F)%>%
 		scroll_box(width = "600px", height = "400px")
 
+# groups with all zero for one year 
+# for later reuse (remove those series)
+all_zero <- res %>%	group_by(emu_nameshort,lfs_code,hty_code,year) %>%
+		summarize(S=sum(value)) %>% 
+    filter(S==0)
+# table
+all_zero %>%
+		kable(escape = F, align = "c") %>%
+		kable_styling(c("striped", "condensed"), full_width = F)%>%
+		scroll_box(width = "600px", height = "400px")
 
 
 
@@ -191,7 +203,7 @@ res %>%	group_by(emu_nameshort,lfs_code,hty_code,year,month) %>%
 
 
 
-Empty graphs correspond to all zero values reported for one year
+Empty graphs correspond to all zero values reported for one year, those values are now removed
 
 # Silver eels
 
@@ -200,19 +212,23 @@ Empty graphs correspond to all zero values reported for one year
 
 
 fnplot <- function(emu, lfs, hty,colfill="grey10"){
-	res2 <- res %>% 
+  # remove all zero values
+  res1 <- res %>% 
+	  anti_join(all_zero)
+  # calculate sum
+	res2 <-  res1 %>%
 			filter(emu_nameshort==emu,
 					lfs_code==lfs,
 					hty_code %in% hty) %>%
 			group_by(emu_nameshort,year,month)%>%
 			summarize(value=sum(value))
-	
+	# calculate percentage
 	res3 <- left_join (res2,					
 					res2 %>% group_by(emu_nameshort,year)%>%		
 							summarize(sum_per_year=sum(value,na.rm=TRUE)),
 					by = c("emu_nameshort","year")) %>%	
 			mutate(perc_per_month=100*value/sum_per_year) 
-	
+	options(warn=-1)
 	if (nrow(res3)>1){
 		
 		g <- ggplot(res3,aes(x = month)) +
@@ -225,6 +241,7 @@ fnplot <- function(emu, lfs, hty,colfill="grey10"){
 		
 		print(g)
 	}
+		options(warn=0)
 }
 
 

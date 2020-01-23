@@ -33,51 +33,51 @@ Hmisc::describe(res)
 ```
 ## res 
 ## 
-##  14  Variables      12076  Observations
+##  14  Variables      11810  Observations
 ## ---------------------------------------------------------------------------
 ## eel_typ_name 
 ##        n  missing distinct 
-##    11904      172        2 
+##    11638      172        2 
 ##                                           
 ## Value      com_landings_kg rec_landings_kg
-## Frequency            11838              66
+## Frequency            11572              66
 ## Proportion           0.994           0.006
 ## ---------------------------------------------------------------------------
 ## eel_year 
 ##        n  missing distinct     Info     Mean      Gmd      .05      .10 
-##    11904      172       20    0.997     2010    6.159     2001     2002 
+##    11638      172       20    0.997     2011     6.01     2001     2003 
 ##      .25      .50      .75      .90      .95 
 ##     2006     2011     2015     2017     2018 
 ##                                                                       
 ## Value       2000  2001  2002  2003  2004  2005  2006  2007  2008  2009
-## Frequency    407   413   470   412   405   577   600   567   556   675
-## Proportion 0.034 0.035 0.039 0.035 0.034 0.048 0.050 0.048 0.047 0.057
+## Frequency    325   334   390   387   405   577   600   567   556   675
+## Proportion 0.028 0.029 0.034 0.033 0.035 0.050 0.052 0.049 0.048 0.058
 ##                                                                       
 ## Value       2010  2011  2012  2013  2014  2015  2016  2017  2018  2019
 ## Frequency    678   593   645   648   829   828   873   836   818    74
-## Proportion 0.057 0.050 0.054 0.054 0.070 0.070 0.073 0.070 0.069 0.006
+## Proportion 0.058 0.051 0.055 0.056 0.071 0.071 0.075 0.072 0.070 0.006
 ## ---------------------------------------------------------------------------
 ## eel_month 
 ##        n  missing distinct 
-##    11904      172       14 
+##    11638      172       14 
 ## 
-## APR (989, 0.083), AUG (1092, 0.092), Dec (1, 0.000), DEC (937, 0.079), FEB
-## (796, 0.067), JAN (812, 0.068), JUL (1110, 0.093), JUN (1071, 0.090), MAR
-## (864, 0.073), MAY (1024, 0.086), NOV (1060, 0.089), OCT (1033, 0.087), SEP
-## (1029, 0.086), WHOLE YEAR (86, 0.007)
+## APR (989, 0.085), AUG (1002, 0.086), Dec (1, 0.000), DEC (937, 0.081), FEB
+## (796, 0.068), JAN (811, 0.070), JUL (1021, 0.088), JUN (1041, 0.089), MAR
+## (864, 0.074), MAY (1017, 0.087), NOV (1060, 0.091), OCT (1027, 0.088), SEP
+## (986, 0.085), WHOLE YEAR (86, 0.007)
 ## ---------------------------------------------------------------------------
 ## eel_value 
 ##        n  missing distinct     Info     Mean      Gmd      .05      .10 
-##    11866      210     5878    0.988     2980     5401      0.0      0.0 
+##    11600      210     5885    0.988     3049     5513      0.0      0.0 
 ##      .25      .50      .75      .90      .95 
-##      2.0    100.0    888.4   4175.2  11996.5 
+##      1.8    111.5    933.3   4247.7  12596.4 
 ## 
 ## lowest :      0.00      0.05      0.08      0.10      0.13
 ## highest: 208509.10 215026.50 228703.70 271248.00 281151.60
 ## ---------------------------------------------------------------------------
 ## eel_missvaluequal 
 ##        n  missing distinct 
-##       39    12037        3 
+##       39    11771        3 
 ##                             
 ## Value         ND    NM    NP
 ## Frequency      9    19    11
@@ -85,83 +85,83 @@ Hmisc::describe(res)
 ## ---------------------------------------------------------------------------
 ## eel_emu_nameshort 
 ##        n  missing distinct 
-##    11904      172       45 
+##    11638      172       45 
 ## 
 ## lowest : DE_Eide  DE_Elbe  DE_Schl  DE_Warn  DK_total
 ## highest: PL_Oder  PL_Vist  SE_East  SE_Inla  SE_West 
 ## ---------------------------------------------------------------------------
 ## eel_cou_code 
 ##        n  missing distinct 
-##    12076        0       13 
+##    11810        0       13 
 ##                                                                       
 ## Value          0    DE    DK    ES    FI    FR    GB    HR    IE    NL
 ## Frequency    172  2058   464   847    96  3947  2219    72    35   430
-## Proportion 0.014 0.170 0.038 0.070 0.008 0.327 0.184 0.006 0.003 0.036
+## Proportion 0.015 0.174 0.039 0.072 0.008 0.334 0.188 0.006 0.003 0.036
 ##                             
 ## Value         NO    PL    SE
-## Frequency    217   702   817
-## Proportion 0.018 0.058 0.068
+## Frequency    217   436   817
+## Proportion 0.018 0.037 0.069
 ## ---------------------------------------------------------------------------
 ## eel_lfs_code 
 ##        n  missing distinct 
-##    11904      172        4 
+##    11638      172        4 
 ##                                   
 ## Value          G     S     Y    YS
-## Frequency   1951  2805  3828  3320
-## Proportion 0.164 0.236 0.322 0.279
+## Frequency   1951  2805  3828  3054
+## Proportion 0.168 0.241 0.329 0.262
 ## ---------------------------------------------------------------------------
 ## eel_hty_code 
 ##        n  missing distinct 
-##    11904      172        8 
+##    11638      172        8 
 ##                                                           
 ## Value          C     F    FC    FT   FTC    MO     T    TC
-## Frequency   1927  3357   926    12   274   464  4305   639
-## Proportion 0.162 0.282 0.078 0.001 0.023 0.039 0.362 0.054
+## Frequency   1927  3357   926    12   274   464  4305   373
+## Proportion 0.166 0.288 0.080 0.001 0.024 0.040 0.370 0.032
 ## ---------------------------------------------------------------------------
 ## eel_area_division 
 ##        n  missing distinct 
-##     4590     7486       12 
+##     4324     7486       12 
 ##                                                                       
 ## Value         27.3.a 27.3.b, c    27.3.d    27.4.b    27.4.c    27.7.a
-## Frequency        460       728      1176       816       171       152
-## Proportion     0.100     0.159     0.256     0.178     0.037     0.033
+## Frequency        460       728       910       816       171       152
+## Proportion     0.106     0.168     0.210     0.189     0.040     0.035
 ##                                                                       
 ## Value         27.7.d    27.7.e    27.8.c    27.9.a    37.1.1    37.2.1
 ## Frequency         86        82       205       257       385        72
-## Proportion     0.019     0.018     0.045     0.056     0.084     0.016
+## Proportion     0.020     0.019     0.047     0.059     0.089     0.017
 ## ---------------------------------------------------------------------------
 ## eel_comment 
 ##        n  missing distinct 
-##     2136     9940       28 
+##     1870     9940       28 
 ## 
 ## lowest : 27.4.a also included                                                                                                                       All marine areas                                                                                                                           All marine areas. Preliminary data                                                                                                         area information is incomplete, but almost everything is from Ivc                                                                          Bristol Channel                                                                                                                           
 ## highest: total landings of one fisherman were reported monthly. But proportion of silvereel of total landings were only provided as a total (120kg) total landings of one fisherman were reported monthy. But proportion of silvereel of total landings were only provided as a total (100kg)  Two days fished using one fyke net (AUG). No eels caught                                                                                   two fishermen only reported yearly catch for yellow and silver eel combined which are excluded (total of 15kg in 2009)                     Vessels of the Nalón stop from February 17 to March 18, 2011.                                                                             
 ## ---------------------------------------------------------------------------
 ## source 
 ##        n  missing distinct 
-##    12076        0       12 
+##    11810        0       12 
 ## 
 ## lowest : DE_commercial_landings DK_commercial_landings ES_commercial_landings FL_commercial_landings FR_commercial_landings
 ## highest: IE_commercial_landings NL_commercial_landings NO_commercial_landings PL_commercial_landings SE_commercial_landings
 ## ---------------------------------------------------------------------------
 ## country 
 ##        n  missing distinct 
-##    12076        0       12 
+##    11810        0       12 
 ##                                                                       
 ## Value         DE    DK    ES    FL    FR    GB    HR    IE    NL    NO
 ## Frequency   2058   464   847    96  3947  2219   244    35   430   217
-## Proportion 0.170 0.038 0.070 0.008 0.327 0.184 0.020 0.003 0.036 0.018
+## Proportion 0.174 0.039 0.072 0.008 0.334 0.188 0.021 0.003 0.036 0.018
 ##                       
 ## Value         PL    SE
-## Frequency    702   817
-## Proportion 0.058 0.068
+## Frequency    436   817
+## Proportion 0.037 0.069
 ## ---------------------------------------------------------------------------
 ## datasource 
 ##              n        missing       distinct          value 
-##          12076              0              1 wkeelmigration 
+##          11810              0              1 wkeelmigration 
 ##                          
 ## Value      wkeelmigration
-## Frequency           12076
+## Frequency           11810
 ## Proportion              1
 ## ---------------------------------------------------------------------------
 ```
@@ -178,51 +178,51 @@ Hmisc::describe(res)
 ```
 ## res 
 ## 
-##  14  Variables      11904  Observations
+##  14  Variables      11638  Observations
 ## ---------------------------------------------------------------------------
 ## eel_typ_name 
 ##        n  missing distinct 
-##    11904        0        2 
+##    11638        0        2 
 ##                                           
 ## Value      com_landings_kg rec_landings_kg
-## Frequency            11838              66
+## Frequency            11572              66
 ## Proportion           0.994           0.006
 ## ---------------------------------------------------------------------------
 ## eel_year 
 ##        n  missing distinct     Info     Mean      Gmd      .05      .10 
-##    11904        0       20    0.997     2010    6.159     2001     2002 
+##    11638        0       20    0.997     2011     6.01     2001     2003 
 ##      .25      .50      .75      .90      .95 
 ##     2006     2011     2015     2017     2018 
 ##                                                                       
 ## Value       2000  2001  2002  2003  2004  2005  2006  2007  2008  2009
-## Frequency    407   413   470   412   405   577   600   567   556   675
-## Proportion 0.034 0.035 0.039 0.035 0.034 0.048 0.050 0.048 0.047 0.057
+## Frequency    325   334   390   387   405   577   600   567   556   675
+## Proportion 0.028 0.029 0.034 0.033 0.035 0.050 0.052 0.049 0.048 0.058
 ##                                                                       
 ## Value       2010  2011  2012  2013  2014  2015  2016  2017  2018  2019
 ## Frequency    678   593   645   648   829   828   873   836   818    74
-## Proportion 0.057 0.050 0.054 0.054 0.070 0.070 0.073 0.070 0.069 0.006
+## Proportion 0.058 0.051 0.055 0.056 0.071 0.071 0.075 0.072 0.070 0.006
 ## ---------------------------------------------------------------------------
 ## eel_month 
 ##        n  missing distinct 
-##    11904        0       14 
+##    11638        0       14 
 ## 
-## APR (989, 0.083), AUG (1092, 0.092), Dec (1, 0.000), DEC (937, 0.079), FEB
-## (796, 0.067), JAN (812, 0.068), JUL (1110, 0.093), JUN (1071, 0.090), MAR
-## (864, 0.073), MAY (1024, 0.086), NOV (1060, 0.089), OCT (1033, 0.087), SEP
-## (1029, 0.086), WHOLE YEAR (86, 0.007)
+## APR (989, 0.085), AUG (1002, 0.086), Dec (1, 0.000), DEC (937, 0.081), FEB
+## (796, 0.068), JAN (811, 0.070), JUL (1021, 0.088), JUN (1041, 0.089), MAR
+## (864, 0.074), MAY (1017, 0.087), NOV (1060, 0.091), OCT (1027, 0.088), SEP
+## (986, 0.085), WHOLE YEAR (86, 0.007)
 ## ---------------------------------------------------------------------------
 ## eel_value 
 ##        n  missing distinct     Info     Mean      Gmd      .05      .10 
-##    11866       38     5878    0.988     2980     5401      0.0      0.0 
+##    11600       38     5885    0.988     3049     5513      0.0      0.0 
 ##      .25      .50      .75      .90      .95 
-##      2.0    100.0    888.4   4175.2  11996.5 
+##      1.8    111.5    933.3   4247.7  12596.4 
 ## 
 ## lowest :      0.00      0.05      0.08      0.10      0.13
 ## highest: 208509.10 215026.50 228703.70 271248.00 281151.60
 ## ---------------------------------------------------------------------------
 ## eel_missvaluequal 
 ##        n  missing distinct 
-##       39    11865        3 
+##       39    11599        3 
 ##                             
 ## Value         ND    NM    NP
 ## Frequency      9    19    11
@@ -230,83 +230,83 @@ Hmisc::describe(res)
 ## ---------------------------------------------------------------------------
 ## eel_emu_nameshort 
 ##        n  missing distinct 
-##    11904        0       45 
+##    11638        0       45 
 ## 
 ## lowest : DE_Eide  DE_Elbe  DE_Schl  DE_Warn  DK_total
 ## highest: PL_Oder  PL_Vist  SE_East  SE_Inla  SE_West 
 ## ---------------------------------------------------------------------------
 ## eel_cou_code 
 ##        n  missing distinct 
-##    11904        0       12 
+##    11638        0       12 
 ##                                                                       
 ## Value         DE    DK    ES    FI    FR    GB    HR    IE    NL    NO
 ## Frequency   2058   464   847    96  3947  2219    72    35   430   217
-## Proportion 0.173 0.039 0.071 0.008 0.332 0.186 0.006 0.003 0.036 0.018
+## Proportion 0.177 0.040 0.073 0.008 0.339 0.191 0.006 0.003 0.037 0.019
 ##                       
 ## Value         PL    SE
-## Frequency    702   817
-## Proportion 0.059 0.069
+## Frequency    436   817
+## Proportion 0.037 0.070
 ## ---------------------------------------------------------------------------
 ## eel_lfs_code 
 ##        n  missing distinct 
-##    11904        0        4 
+##    11638        0        4 
 ##                                   
 ## Value          G     S     Y    YS
-## Frequency   1951  2805  3828  3320
-## Proportion 0.164 0.236 0.322 0.279
+## Frequency   1951  2805  3828  3054
+## Proportion 0.168 0.241 0.329 0.262
 ## ---------------------------------------------------------------------------
 ## eel_hty_code 
 ##        n  missing distinct 
-##    11904        0        8 
+##    11638        0        8 
 ##                                                           
 ## Value          C     F    FC    FT   FTC    MO     T    TC
-## Frequency   1927  3357   926    12   274   464  4305   639
-## Proportion 0.162 0.282 0.078 0.001 0.023 0.039 0.362 0.054
+## Frequency   1927  3357   926    12   274   464  4305   373
+## Proportion 0.166 0.288 0.080 0.001 0.024 0.040 0.370 0.032
 ## ---------------------------------------------------------------------------
 ## eel_area_division 
 ##        n  missing distinct 
-##     4590     7314       12 
+##     4324     7314       12 
 ##                                                                       
 ## Value         27.3.a 27.3.b, c    27.3.d    27.4.b    27.4.c    27.7.a
-## Frequency        460       728      1176       816       171       152
-## Proportion     0.100     0.159     0.256     0.178     0.037     0.033
+## Frequency        460       728       910       816       171       152
+## Proportion     0.106     0.168     0.210     0.189     0.040     0.035
 ##                                                                       
 ## Value         27.7.d    27.7.e    27.8.c    27.9.a    37.1.1    37.2.1
 ## Frequency         86        82       205       257       385        72
-## Proportion     0.019     0.018     0.045     0.056     0.084     0.016
+## Proportion     0.020     0.019     0.047     0.059     0.089     0.017
 ## ---------------------------------------------------------------------------
 ## eel_comment 
 ##        n  missing distinct 
-##     2136     9768       28 
+##     1870     9768       28 
 ## 
 ## lowest : 27.4.a also included                                                                                                                       All marine areas                                                                                                                           All marine areas. Preliminary data                                                                                                         area information is incomplete, but almost everything is from Ivc                                                                          Bristol Channel                                                                                                                           
 ## highest: total landings of one fisherman were reported monthly. But proportion of silvereel of total landings were only provided as a total (120kg) total landings of one fisherman were reported monthy. But proportion of silvereel of total landings were only provided as a total (100kg)  Two days fished using one fyke net (AUG). No eels caught                                                                                   two fishermen only reported yearly catch for yellow and silver eel combined which are excluded (total of 15kg in 2009)                     Vessels of the Nalón stop from February 17 to March 18, 2011.                                                                             
 ## ---------------------------------------------------------------------------
 ## source 
 ##        n  missing distinct 
-##    11904        0       12 
+##    11638        0       12 
 ## 
 ## lowest : DE_commercial_landings DK_commercial_landings ES_commercial_landings FL_commercial_landings FR_commercial_landings
 ## highest: IE_commercial_landings NL_commercial_landings NO_commercial_landings PL_commercial_landings SE_commercial_landings
 ## ---------------------------------------------------------------------------
 ## country 
 ##        n  missing distinct 
-##    11904        0       12 
+##    11638        0       12 
 ##                                                                       
 ## Value         DE    DK    ES    FL    FR    GB    HR    IE    NL    NO
 ## Frequency   2058   464   847    96  3947  2219    72    35   430   217
-## Proportion 0.173 0.039 0.071 0.008 0.332 0.186 0.006 0.003 0.036 0.018
+## Proportion 0.177 0.040 0.073 0.008 0.339 0.191 0.006 0.003 0.037 0.019
 ##                       
 ## Value         PL    SE
-## Frequency    702   817
-## Proportion 0.059 0.069
+## Frequency    436   817
+## Proportion 0.037 0.070
 ## ---------------------------------------------------------------------------
 ## datasource 
 ##              n        missing       distinct          value 
-##          11904              0              1 wkeelmigration 
+##          11638              0              1 wkeelmigration 
 ##                          
 ## Value      wkeelmigration
-## Frequency           11904
+## Frequency           11638
 ## Proportion              1
 ## ---------------------------------------------------------------------------
 ```
@@ -370,7 +370,7 @@ nrow(res)
 ```
 
 ```
-## [1] 11866
+## [1] 11600
 ```
 
 ```r
@@ -448,17 +448,17 @@ Hmisc::describe(res$eel_month)
 ```
 ## res$eel_month 
 ##        n  missing distinct     Info     Mean      Gmd      .05      .10 
-##    11818        0       12    0.993    6.728    3.829        1        2 
+##    11552        0       12    0.993    6.709    3.866        1        2 
 ##      .25      .50      .75      .90      .95 
 ##        4        7       10       11       12 
 ##                                                                       
 ## Value          1     2     3     4     5     6     7     8     9    10
-## Frequency    812   796   864   989  1024  1071  1110  1092  1029  1033
-## Proportion 0.069 0.067 0.073 0.084 0.087 0.091 0.094 0.092 0.087 0.087
+## Frequency    811   796   864   989  1017  1041  1021  1002   986  1027
+## Proportion 0.070 0.069 0.075 0.086 0.088 0.090 0.088 0.087 0.085 0.089
 ##                       
 ## Value         11    12
 ## Frequency   1060   938
-## Proportion 0.090 0.079
+## Proportion 0.092 0.081
 ```
 
 ```r
@@ -2169,139 +2169,6 @@ res %>% mutate("freq"=1) %>% filter(eel_year>2000 & eel_year<2019) %>%
    <td style="text-align:left;"> Y </td>
    <td style="text-align:right;"> 3 </td>
   </tr>
-  <tr>
-   <td style="text-align:left;"> 2001 </td>
-   <td style="text-align:left;"> 5 </td>
-   <td style="text-align:left;"> PL_Oder </td>
-   <td style="text-align:left;"> YS </td>
-   <td style="text-align:right;"> 4 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> 2002 </td>
-   <td style="text-align:left;"> 5 </td>
-   <td style="text-align:left;"> PL_Oder </td>
-   <td style="text-align:left;"> YS </td>
-   <td style="text-align:right;"> 4 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> 2001 </td>
-   <td style="text-align:left;"> 6 </td>
-   <td style="text-align:left;"> PL_Oder </td>
-   <td style="text-align:left;"> YS </td>
-   <td style="text-align:right;"> 10 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> 2002 </td>
-   <td style="text-align:left;"> 6 </td>
-   <td style="text-align:left;"> PL_Oder </td>
-   <td style="text-align:left;"> YS </td>
-   <td style="text-align:right;"> 8 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> 2001 </td>
-   <td style="text-align:left;"> 7 </td>
-   <td style="text-align:left;"> PL_Oder </td>
-   <td style="text-align:left;"> YS </td>
-   <td style="text-align:right;"> 25 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> 2002 </td>
-   <td style="text-align:left;"> 7 </td>
-   <td style="text-align:left;"> PL_Oder </td>
-   <td style="text-align:left;"> YS </td>
-   <td style="text-align:right;"> 22 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> 2003 </td>
-   <td style="text-align:left;"> 7 </td>
-   <td style="text-align:left;"> PL_Oder </td>
-   <td style="text-align:left;"> YS </td>
-   <td style="text-align:right;"> 15 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> 2001 </td>
-   <td style="text-align:left;"> 8 </td>
-   <td style="text-align:left;"> PL_Oder </td>
-   <td style="text-align:left;"> YS </td>
-   <td style="text-align:right;"> 24 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> 2002 </td>
-   <td style="text-align:left;"> 8 </td>
-   <td style="text-align:left;"> PL_Oder </td>
-   <td style="text-align:left;"> YS </td>
-   <td style="text-align:right;"> 26 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> 2003 </td>
-   <td style="text-align:left;"> 8 </td>
-   <td style="text-align:left;"> PL_Oder </td>
-   <td style="text-align:left;"> YS </td>
-   <td style="text-align:right;"> 10 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> 2001 </td>
-   <td style="text-align:left;"> 9 </td>
-   <td style="text-align:left;"> PL_Oder </td>
-   <td style="text-align:left;"> YS </td>
-   <td style="text-align:right;"> 15 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> 2002 </td>
-   <td style="text-align:left;"> 9 </td>
-   <td style="text-align:left;"> PL_Oder </td>
-   <td style="text-align:left;"> YS </td>
-   <td style="text-align:right;"> 9 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> 2001 </td>
-   <td style="text-align:left;"> 10 </td>
-   <td style="text-align:left;"> PL_Oder </td>
-   <td style="text-align:left;"> YS </td>
-   <td style="text-align:right;"> 5 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> 2002 </td>
-   <td style="text-align:left;"> 6 </td>
-   <td style="text-align:left;"> PL_Vist </td>
-   <td style="text-align:left;"> YS </td>
-   <td style="text-align:right;"> 3 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> 2002 </td>
-   <td style="text-align:left;"> 7 </td>
-   <td style="text-align:left;"> PL_Vist </td>
-   <td style="text-align:left;"> YS </td>
-   <td style="text-align:right;"> 4 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> 2002 </td>
-   <td style="text-align:left;"> 8 </td>
-   <td style="text-align:left;"> PL_Vist </td>
-   <td style="text-align:left;"> YS </td>
-   <td style="text-align:right;"> 5 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> 2001 </td>
-   <td style="text-align:left;"> 9 </td>
-   <td style="text-align:left;"> PL_Vist </td>
-   <td style="text-align:left;"> YS </td>
-   <td style="text-align:right;"> 3 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> 2002 </td>
-   <td style="text-align:left;"> 9 </td>
-   <td style="text-align:left;"> PL_Vist </td>
-   <td style="text-align:left;"> YS </td>
-   <td style="text-align:right;"> 5 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> 2002 </td>
-   <td style="text-align:left;"> 10 </td>
-   <td style="text-align:left;"> PL_Vist </td>
-   <td style="text-align:left;"> YS </td>
-   <td style="text-align:right;"> 3 </td>
-  </tr>
 </tbody>
 </table></div>
 
@@ -2541,6 +2408,8 @@ save(res,file=str_c(datawd,"res_landings.Rdata"))
 
 ```r
 load(file=str_c(datawd,"res_landings.Rdata"))
+
+#  before correction this table had a lot of values in red (duplicates)
 res %>%	group_by(emu_nameshort,lfs_code,hty_code,year,month) %>%
 		summarize(N=n()) %>% 
 		mutate(N = cell_spec(N, "html", color = ifelse(N > 1, "red", "black"),bold=ifelse(N > 1, T, F)))%>%
@@ -25237,28 +25106,409 @@ res %>%	group_by(emu_nameshort,lfs_code,hty_code,year,month) %>%
 </tbody>
 </table></div>
 
+```r
+# groups with all zero for one year 
+# for later reuse (remove those series)
+all_zero <- res %>%	group_by(emu_nameshort,lfs_code,hty_code,year) %>%
+		summarize(S=sum(value)) %>% 
+    filter(S==0)
+# table
+all_zero %>%
+		kable(escape = F, align = "c") %>%
+		kable_styling(c("striped", "condensed"), full_width = F)%>%
+		scroll_box(width = "600px", height = "400px")
+```
+
+<div style="border: 1px solid #ddd; padding: 0px; overflow-y: scroll; height:400px; overflow-x: scroll; width:600px; "><table class="table table-striped table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+ <thead>
+  <tr>
+   <th style="text-align:center;position: sticky; top:0; background-color: #FFFFFF;"> emu_nameshort </th>
+   <th style="text-align:center;position: sticky; top:0; background-color: #FFFFFF;"> lfs_code </th>
+   <th style="text-align:center;position: sticky; top:0; background-color: #FFFFFF;"> hty_code </th>
+   <th style="text-align:center;position: sticky; top:0; background-color: #FFFFFF;"> year </th>
+   <th style="text-align:center;position: sticky; top:0; background-color: #FFFFFF;"> S </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:center;"> FR_Adou </td>
+   <td style="text-align:center;"> Y </td>
+   <td style="text-align:center;"> T </td>
+   <td style="text-align:center;"> 2017 </td>
+   <td style="text-align:center;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> FR_Arto </td>
+   <td style="text-align:center;"> Y </td>
+   <td style="text-align:center;"> T </td>
+   <td style="text-align:center;"> 2012 </td>
+   <td style="text-align:center;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> FR_Arto </td>
+   <td style="text-align:center;"> Y </td>
+   <td style="text-align:center;"> T </td>
+   <td style="text-align:center;"> 2013 </td>
+   <td style="text-align:center;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> FR_Arto </td>
+   <td style="text-align:center;"> Y </td>
+   <td style="text-align:center;"> T </td>
+   <td style="text-align:center;"> 2014 </td>
+   <td style="text-align:center;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> FR_Arto </td>
+   <td style="text-align:center;"> Y </td>
+   <td style="text-align:center;"> T </td>
+   <td style="text-align:center;"> 2016 </td>
+   <td style="text-align:center;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> FR_Arto </td>
+   <td style="text-align:center;"> Y </td>
+   <td style="text-align:center;"> T </td>
+   <td style="text-align:center;"> 2017 </td>
+   <td style="text-align:center;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> FR_Arto </td>
+   <td style="text-align:center;"> Y </td>
+   <td style="text-align:center;"> T </td>
+   <td style="text-align:center;"> 2018 </td>
+   <td style="text-align:center;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> FR_Sein </td>
+   <td style="text-align:center;"> Y </td>
+   <td style="text-align:center;"> T </td>
+   <td style="text-align:center;"> 2012 </td>
+   <td style="text-align:center;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> FR_Sein </td>
+   <td style="text-align:center;"> Y </td>
+   <td style="text-align:center;"> T </td>
+   <td style="text-align:center;"> 2013 </td>
+   <td style="text-align:center;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> FR_Sein </td>
+   <td style="text-align:center;"> Y </td>
+   <td style="text-align:center;"> T </td>
+   <td style="text-align:center;"> 2014 </td>
+   <td style="text-align:center;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> FR_Sein </td>
+   <td style="text-align:center;"> Y </td>
+   <td style="text-align:center;"> T </td>
+   <td style="text-align:center;"> 2016 </td>
+   <td style="text-align:center;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> FR_Sein </td>
+   <td style="text-align:center;"> Y </td>
+   <td style="text-align:center;"> T </td>
+   <td style="text-align:center;"> 2017 </td>
+   <td style="text-align:center;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> GB_Dee </td>
+   <td style="text-align:center;"> S </td>
+   <td style="text-align:center;"> C </td>
+   <td style="text-align:center;"> 2014 </td>
+   <td style="text-align:center;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> GB_Dee </td>
+   <td style="text-align:center;"> S </td>
+   <td style="text-align:center;"> C </td>
+   <td style="text-align:center;"> 2017 </td>
+   <td style="text-align:center;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> GB_Dee </td>
+   <td style="text-align:center;"> S </td>
+   <td style="text-align:center;"> C </td>
+   <td style="text-align:center;"> 2018 </td>
+   <td style="text-align:center;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> GB_Dee </td>
+   <td style="text-align:center;"> S </td>
+   <td style="text-align:center;"> T </td>
+   <td style="text-align:center;"> 2016 </td>
+   <td style="text-align:center;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> GB_Dee </td>
+   <td style="text-align:center;"> Y </td>
+   <td style="text-align:center;"> C </td>
+   <td style="text-align:center;"> 2014 </td>
+   <td style="text-align:center;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> GB_Dee </td>
+   <td style="text-align:center;"> Y </td>
+   <td style="text-align:center;"> C </td>
+   <td style="text-align:center;"> 2017 </td>
+   <td style="text-align:center;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> GB_Dee </td>
+   <td style="text-align:center;"> Y </td>
+   <td style="text-align:center;"> C </td>
+   <td style="text-align:center;"> 2018 </td>
+   <td style="text-align:center;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> GB_Dee </td>
+   <td style="text-align:center;"> Y </td>
+   <td style="text-align:center;"> T </td>
+   <td style="text-align:center;"> 2016 </td>
+   <td style="text-align:center;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> GB_Humb </td>
+   <td style="text-align:center;"> S </td>
+   <td style="text-align:center;"> C </td>
+   <td style="text-align:center;"> 2014 </td>
+   <td style="text-align:center;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> GB_Humb </td>
+   <td style="text-align:center;"> S </td>
+   <td style="text-align:center;"> C </td>
+   <td style="text-align:center;"> 2015 </td>
+   <td style="text-align:center;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> GB_Humb </td>
+   <td style="text-align:center;"> S </td>
+   <td style="text-align:center;"> C </td>
+   <td style="text-align:center;"> 2016 </td>
+   <td style="text-align:center;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> GB_Humb </td>
+   <td style="text-align:center;"> S </td>
+   <td style="text-align:center;"> C </td>
+   <td style="text-align:center;"> 2017 </td>
+   <td style="text-align:center;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> GB_Humb </td>
+   <td style="text-align:center;"> S </td>
+   <td style="text-align:center;"> C </td>
+   <td style="text-align:center;"> 2018 </td>
+   <td style="text-align:center;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> GB_Humb </td>
+   <td style="text-align:center;"> Y </td>
+   <td style="text-align:center;"> C </td>
+   <td style="text-align:center;"> 2014 </td>
+   <td style="text-align:center;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> GB_Humb </td>
+   <td style="text-align:center;"> Y </td>
+   <td style="text-align:center;"> C </td>
+   <td style="text-align:center;"> 2015 </td>
+   <td style="text-align:center;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> GB_Humb </td>
+   <td style="text-align:center;"> Y </td>
+   <td style="text-align:center;"> C </td>
+   <td style="text-align:center;"> 2016 </td>
+   <td style="text-align:center;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> GB_Humb </td>
+   <td style="text-align:center;"> Y </td>
+   <td style="text-align:center;"> C </td>
+   <td style="text-align:center;"> 2017 </td>
+   <td style="text-align:center;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> GB_Humb </td>
+   <td style="text-align:center;"> Y </td>
+   <td style="text-align:center;"> C </td>
+   <td style="text-align:center;"> 2018 </td>
+   <td style="text-align:center;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> GB_NorW </td>
+   <td style="text-align:center;"> S </td>
+   <td style="text-align:center;"> C </td>
+   <td style="text-align:center;"> 2014 </td>
+   <td style="text-align:center;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> GB_NorW </td>
+   <td style="text-align:center;"> S </td>
+   <td style="text-align:center;"> C </td>
+   <td style="text-align:center;"> 2016 </td>
+   <td style="text-align:center;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> GB_NorW </td>
+   <td style="text-align:center;"> S </td>
+   <td style="text-align:center;"> C </td>
+   <td style="text-align:center;"> 2017 </td>
+   <td style="text-align:center;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> GB_NorW </td>
+   <td style="text-align:center;"> S </td>
+   <td style="text-align:center;"> C </td>
+   <td style="text-align:center;"> 2018 </td>
+   <td style="text-align:center;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> GB_NorW </td>
+   <td style="text-align:center;"> Y </td>
+   <td style="text-align:center;"> C </td>
+   <td style="text-align:center;"> 2018 </td>
+   <td style="text-align:center;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> GB_SouE </td>
+   <td style="text-align:center;"> S </td>
+   <td style="text-align:center;"> C </td>
+   <td style="text-align:center;"> 2014 </td>
+   <td style="text-align:center;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> GB_SouE </td>
+   <td style="text-align:center;"> S </td>
+   <td style="text-align:center;"> F </td>
+   <td style="text-align:center;"> 2017 </td>
+   <td style="text-align:center;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> GB_SouE </td>
+   <td style="text-align:center;"> Y </td>
+   <td style="text-align:center;"> F </td>
+   <td style="text-align:center;"> 2018 </td>
+   <td style="text-align:center;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> GB_SouW </td>
+   <td style="text-align:center;"> S </td>
+   <td style="text-align:center;"> F </td>
+   <td style="text-align:center;"> 2017 </td>
+   <td style="text-align:center;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> GB_Tham </td>
+   <td style="text-align:center;"> S </td>
+   <td style="text-align:center;"> C </td>
+   <td style="text-align:center;"> 2014 </td>
+   <td style="text-align:center;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> GB_Tham </td>
+   <td style="text-align:center;"> S </td>
+   <td style="text-align:center;"> C </td>
+   <td style="text-align:center;"> 2015 </td>
+   <td style="text-align:center;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> GB_Tham </td>
+   <td style="text-align:center;"> S </td>
+   <td style="text-align:center;"> C </td>
+   <td style="text-align:center;"> 2017 </td>
+   <td style="text-align:center;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> GB_Tham </td>
+   <td style="text-align:center;"> S </td>
+   <td style="text-align:center;"> C </td>
+   <td style="text-align:center;"> 2018 </td>
+   <td style="text-align:center;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> GB_Tham </td>
+   <td style="text-align:center;"> Y </td>
+   <td style="text-align:center;"> C </td>
+   <td style="text-align:center;"> 2014 </td>
+   <td style="text-align:center;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> GB_Tham </td>
+   <td style="text-align:center;"> Y </td>
+   <td style="text-align:center;"> C </td>
+   <td style="text-align:center;"> 2015 </td>
+   <td style="text-align:center;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> GB_Tham </td>
+   <td style="text-align:center;"> Y </td>
+   <td style="text-align:center;"> C </td>
+   <td style="text-align:center;"> 2017 </td>
+   <td style="text-align:center;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> GB_Tham </td>
+   <td style="text-align:center;"> Y </td>
+   <td style="text-align:center;"> C </td>
+   <td style="text-align:center;"> 2018 </td>
+   <td style="text-align:center;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> GB_Wale </td>
+   <td style="text-align:center;"> G </td>
+   <td style="text-align:center;"> F </td>
+   <td style="text-align:center;"> 2015 </td>
+   <td style="text-align:center;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> GB_Wale </td>
+   <td style="text-align:center;"> S </td>
+   <td style="text-align:center;"> C </td>
+   <td style="text-align:center;"> 2016 </td>
+   <td style="text-align:center;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> GB_Wale </td>
+   <td style="text-align:center;"> Y </td>
+   <td style="text-align:center;"> C </td>
+   <td style="text-align:center;"> 2016 </td>
+   <td style="text-align:center;"> 0 </td>
+  </tr>
+</tbody>
+</table></div>
 
 
-Empty graphs correspond to all zero values reported for one year
+
+Empty graphs correspond to all zero values reported for one year, those values are now removed
 
 # Silver eels
 
 
 ```r
 fnplot <- function(emu, lfs, hty,colfill="grey10"){
-	res2 <- res %>% 
+  # remove all zero values
+  res1 <- res %>% 
+	  anti_join(all_zero)
+  # calculate sum
+	res2 <-  res1 %>%
 			filter(emu_nameshort==emu,
 					lfs_code==lfs,
 					hty_code %in% hty) %>%
 			group_by(emu_nameshort,year,month)%>%
 			summarize(value=sum(value))
-	
+	# calculate percentage
 	res3 <- left_join (res2,					
 					res2 %>% group_by(emu_nameshort,year)%>%		
 							summarize(sum_per_year=sum(value,na.rm=TRUE)),
 					by = c("emu_nameshort","year")) %>%	
 			mutate(perc_per_month=100*value/sum_per_year) 
-	
+	options(warn=-1)
 	if (nrow(res3)>1){
 		
 		g <- ggplot(res3,aes(x = month)) +
@@ -25271,6 +25521,7 @@ fnplot <- function(emu, lfs, hty,colfill="grey10"){
 		
 		print(g)
 	}
+		options(warn=0)
 }
 
 
@@ -25282,43 +25533,112 @@ for (the_emu in unique(res$emu_nameshort)){
 }
 ```
 
-![](landings_seasonality_files/figure-html/s-1.png)<!-- -->![](landings_seasonality_files/figure-html/s-2.png)<!-- -->![](landings_seasonality_files/figure-html/s-3.png)<!-- -->![](landings_seasonality_files/figure-html/s-4.png)<!-- -->![](landings_seasonality_files/figure-html/s-5.png)<!-- -->![](landings_seasonality_files/figure-html/s-6.png)<!-- -->
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/s-1.png)<!-- -->
 
 ```
-## Warning: Removed 26 rows containing missing values (position_stack).
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/s-2.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/s-3.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/s-4.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/s-5.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/s-6.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
 ![](landings_seasonality_files/figure-html/s-7.png)<!-- -->
 
 ```
-## Warning: Removed 39 rows containing missing values (position_stack).
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
 ![](landings_seasonality_files/figure-html/s-8.png)<!-- -->
 
 ```
-## Warning: Removed 30 rows containing missing values (position_stack).
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
 ![](landings_seasonality_files/figure-html/s-9.png)<!-- -->
 
 ```
-## Warning: Removed 9 rows containing missing values (position_stack).
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
-![](landings_seasonality_files/figure-html/s-10.png)<!-- -->![](landings_seasonality_files/figure-html/s-11.png)<!-- -->
+![](landings_seasonality_files/figure-html/s-10.png)<!-- -->
 
 ```
-## Warning: Removed 31 rows containing missing values (position_stack).
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/s-11.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
 ![](landings_seasonality_files/figure-html/s-12.png)<!-- -->
 
 ```
-## Warning: Removed 7 rows containing missing values (position_stack).
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
-![](landings_seasonality_files/figure-html/s-13.png)<!-- -->![](landings_seasonality_files/figure-html/s-14.png)<!-- -->![](landings_seasonality_files/figure-html/s-15.png)<!-- -->
+![](landings_seasonality_files/figure-html/s-13.png)<!-- -->
 
 ```r
 for (the_emu in unique(res$emu_nameshort)){
@@ -25329,19 +25649,127 @@ for (the_emu in unique(res$emu_nameshort)){
 }
 ```
 
-![](landings_seasonality_files/figure-html/s-16.png)<!-- -->![](landings_seasonality_files/figure-html/s-17.png)<!-- -->![](landings_seasonality_files/figure-html/s-18.png)<!-- -->![](landings_seasonality_files/figure-html/s-19.png)<!-- -->![](landings_seasonality_files/figure-html/s-20.png)<!-- -->![](landings_seasonality_files/figure-html/s-21.png)<!-- -->![](landings_seasonality_files/figure-html/s-22.png)<!-- -->![](landings_seasonality_files/figure-html/s-23.png)<!-- -->![](landings_seasonality_files/figure-html/s-24.png)<!-- -->
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/s-14.png)<!-- -->
 
 ```
-## Warning: Removed 9 rows containing missing values (position_stack).
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/s-15.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/s-16.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/s-17.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/s-18.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/s-19.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/s-20.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/s-21.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/s-22.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/s-23.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/s-24.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
 ![](landings_seasonality_files/figure-html/s-25.png)<!-- -->
 
 ```
-## Warning: Removed 8 rows containing missing values (position_stack).
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
-![](landings_seasonality_files/figure-html/s-26.png)<!-- -->![](landings_seasonality_files/figure-html/s-27.png)<!-- -->![](landings_seasonality_files/figure-html/s-28.png)<!-- -->![](landings_seasonality_files/figure-html/s-29.png)<!-- -->![](landings_seasonality_files/figure-html/s-30.png)<!-- -->![](landings_seasonality_files/figure-html/s-31.png)<!-- -->
+![](landings_seasonality_files/figure-html/s-26.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/s-27.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/s-28.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/s-29.png)<!-- -->
 
 # Glass eel
 
@@ -25377,7 +25805,102 @@ for (the_emu in unique(res$emu_nameshort)){
 }
 ```
 
-![](landings_seasonality_files/figure-html/g-1.png)<!-- -->![](landings_seasonality_files/figure-html/g-2.png)<!-- -->![](landings_seasonality_files/figure-html/g-3.png)<!-- -->![](landings_seasonality_files/figure-html/g-4.png)<!-- -->![](landings_seasonality_files/figure-html/g-5.png)<!-- -->![](landings_seasonality_files/figure-html/g-6.png)<!-- -->![](landings_seasonality_files/figure-html/g-7.png)<!-- -->![](landings_seasonality_files/figure-html/g-8.png)<!-- -->![](landings_seasonality_files/figure-html/g-9.png)<!-- -->![](landings_seasonality_files/figure-html/g-10.png)<!-- -->![](landings_seasonality_files/figure-html/g-11.png)<!-- -->![](landings_seasonality_files/figure-html/g-12.png)<!-- -->
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/g-1.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/g-2.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/g-3.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/g-4.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/g-5.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/g-6.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/g-7.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/g-8.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/g-9.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/g-10.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/g-11.png)<!-- -->![](landings_seasonality_files/figure-html/g-12.png)<!-- -->
 
 ```r
 for (the_emu in unique(res$emu_nameshort)){
@@ -25388,10 +25911,79 @@ for (the_emu in unique(res$emu_nameshort)){
 }
 ```
 
-![](landings_seasonality_files/figure-html/g-13.png)<!-- -->![](landings_seasonality_files/figure-html/g-14.png)<!-- -->![](landings_seasonality_files/figure-html/g-15.png)<!-- -->![](landings_seasonality_files/figure-html/g-16.png)<!-- -->![](landings_seasonality_files/figure-html/g-17.png)<!-- -->![](landings_seasonality_files/figure-html/g-18.png)<!-- -->
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/g-13.png)<!-- -->
 
 ```
-## Warning: Removed 4 rows containing missing values (position_stack).
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/g-14.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/g-15.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/g-16.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/g-17.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/g-18.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
 ![](landings_seasonality_files/figure-html/g-19.png)<!-- -->
@@ -25403,6 +25995,51 @@ for (the_emu in unique(res$emu_nameshort)){
 			emu=the_emu, 
 			colfill= "firebrick")	
 }
+```
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
 
@@ -25452,37 +26089,97 @@ for (the_emu in unique(res$emu_nameshort)){
 }
 ```
 
-![](landings_seasonality_files/figure-html/y-1.png)<!-- -->![](landings_seasonality_files/figure-html/y-2.png)<!-- -->![](landings_seasonality_files/figure-html/y-3.png)<!-- -->![](landings_seasonality_files/figure-html/y-4.png)<!-- -->
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/y-1.png)<!-- -->
 
 ```
-## Warning: Removed 20 rows containing missing values (position_stack).
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/y-2.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/y-3.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/y-4.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
 ![](landings_seasonality_files/figure-html/y-5.png)<!-- -->
 
 ```
-## Warning: Removed 39 rows containing missing values (position_stack).
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
 ![](landings_seasonality_files/figure-html/y-6.png)<!-- -->
 
 ```
-## Warning: Removed 8 rows containing missing values (position_stack).
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
-![](landings_seasonality_files/figure-html/y-7.png)<!-- -->![](landings_seasonality_files/figure-html/y-8.png)<!-- -->![](landings_seasonality_files/figure-html/y-9.png)<!-- -->
+![](landings_seasonality_files/figure-html/y-7.png)<!-- -->
 
 ```
-## Warning: Removed 31 rows containing missing values (position_stack).
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/y-8.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/y-9.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
 ![](landings_seasonality_files/figure-html/y-10.png)<!-- -->
-
-```
-## Warning: Removed 7 rows containing missing values (position_stack).
-```
-
-![](landings_seasonality_files/figure-html/y-11.png)<!-- -->![](landings_seasonality_files/figure-html/y-12.png)<!-- -->![](landings_seasonality_files/figure-html/y-13.png)<!-- -->
 
 ```r
 for (the_emu in unique(res$emu_nameshort)){
@@ -25493,13 +26190,152 @@ for (the_emu in unique(res$emu_nameshort)){
 }
 ```
 
-![](landings_seasonality_files/figure-html/y-14.png)<!-- -->![](landings_seasonality_files/figure-html/y-15.png)<!-- -->![](landings_seasonality_files/figure-html/y-16.png)<!-- -->![](landings_seasonality_files/figure-html/y-17.png)<!-- -->![](landings_seasonality_files/figure-html/y-18.png)<!-- -->![](landings_seasonality_files/figure-html/y-19.png)<!-- -->![](landings_seasonality_files/figure-html/y-20.png)<!-- -->![](landings_seasonality_files/figure-html/y-21.png)<!-- -->![](landings_seasonality_files/figure-html/y-22.png)<!-- -->![](landings_seasonality_files/figure-html/y-23.png)<!-- -->![](landings_seasonality_files/figure-html/y-24.png)<!-- -->![](landings_seasonality_files/figure-html/y-25.png)<!-- -->![](landings_seasonality_files/figure-html/y-26.png)<!-- -->![](landings_seasonality_files/figure-html/y-27.png)<!-- -->
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/y-11.png)<!-- -->
 
 ```
-## Warning: Removed 8 rows containing missing values (position_stack).
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
-![](landings_seasonality_files/figure-html/y-28.png)<!-- -->![](landings_seasonality_files/figure-html/y-29.png)<!-- -->![](landings_seasonality_files/figure-html/y-30.png)<!-- -->![](landings_seasonality_files/figure-html/y-31.png)<!-- -->![](landings_seasonality_files/figure-html/y-32.png)<!-- -->![](landings_seasonality_files/figure-html/y-33.png)<!-- -->![](landings_seasonality_files/figure-html/y-34.png)<!-- -->
+![](landings_seasonality_files/figure-html/y-12.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/y-13.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/y-14.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/y-15.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/y-16.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/y-17.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/y-18.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/y-19.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/y-20.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/y-21.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/y-22.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/y-23.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/y-24.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/y-25.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/y-26.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/y-27.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/y-28.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/y-29.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/y-30.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/y-31.png)<!-- -->
 
 ```r
 for (the_emu in unique(res$emu_nameshort)){
@@ -25510,31 +26346,102 @@ for (the_emu in unique(res$emu_nameshort)){
 }
 ```
 
-![](landings_seasonality_files/figure-html/y-35.png)<!-- -->![](landings_seasonality_files/figure-html/y-36.png)<!-- -->
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/y-32.png)<!-- -->
 
 ```
-## Warning: Removed 12 rows containing missing values (position_stack).
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/y-33.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/y-34.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/y-35.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/y-36.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
 ![](landings_seasonality_files/figure-html/y-37.png)<!-- -->
 
 ```
-## Warning: Removed 72 rows containing missing values (position_stack).
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
-![](landings_seasonality_files/figure-html/y-38.png)<!-- -->![](landings_seasonality_files/figure-html/y-39.png)<!-- -->![](landings_seasonality_files/figure-html/y-40.png)<!-- -->![](landings_seasonality_files/figure-html/y-41.png)<!-- -->![](landings_seasonality_files/figure-html/y-42.png)<!-- -->
+![](landings_seasonality_files/figure-html/y-38.png)<!-- -->
 
 ```
-## Warning: Removed 60 rows containing missing values (position_stack).
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
-![](landings_seasonality_files/figure-html/y-43.png)<!-- -->
+![](landings_seasonality_files/figure-html/y-39.png)<!-- -->
 
 ```
-## Warning: Removed 6 rows containing missing values (position_stack).
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
-![](landings_seasonality_files/figure-html/y-44.png)<!-- -->![](landings_seasonality_files/figure-html/y-45.png)<!-- -->
+![](landings_seasonality_files/figure-html/y-40.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/y-41.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/y-42.png)<!-- -->
 
 ```r
 for (the_emu in unique(res$emu_nameshort)){
@@ -25545,7 +26452,52 @@ for (the_emu in unique(res$emu_nameshort)){
 }
 ```
 
-![](landings_seasonality_files/figure-html/y-46.png)<!-- -->
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/y-43.png)<!-- -->
 
 ```r
 for (the_emu in unique(res$emu_nameshort)){
@@ -25556,7 +26508,52 @@ for (the_emu in unique(res$emu_nameshort)){
 }
 ```
 
-![](landings_seasonality_files/figure-html/y-47.png)<!-- -->
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/y-44.png)<!-- -->
 
 # Yellow silver
 
@@ -25601,7 +26598,67 @@ for (the_emu in unique(res$emu_nameshort)){
 }
 ```
 
-![](landings_seasonality_files/figure-html/ys-1.png)<!-- -->![](landings_seasonality_files/figure-html/ys-2.png)<!-- -->![](landings_seasonality_files/figure-html/ys-3.png)<!-- -->![](landings_seasonality_files/figure-html/ys-4.png)<!-- -->
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/ys-1.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/ys-2.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/ys-3.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/ys-4.png)<!-- -->
 
 ```r
 for (the_emu in unique(res$emu_nameshort)){
@@ -25612,7 +26669,87 @@ for (the_emu in unique(res$emu_nameshort)){
 }
 ```
 
-![](landings_seasonality_files/figure-html/ys-5.png)<!-- -->![](landings_seasonality_files/figure-html/ys-6.png)<!-- -->![](landings_seasonality_files/figure-html/ys-7.png)<!-- -->![](landings_seasonality_files/figure-html/ys-8.png)<!-- -->![](landings_seasonality_files/figure-html/ys-9.png)<!-- -->![](landings_seasonality_files/figure-html/ys-10.png)<!-- -->![](landings_seasonality_files/figure-html/ys-11.png)<!-- -->![](landings_seasonality_files/figure-html/ys-12.png)<!-- -->
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/ys-5.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/ys-6.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/ys-7.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/ys-8.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/ys-9.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/ys-10.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/ys-11.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/ys-12.png)<!-- -->
 
 ```r
 for (the_emu in unique(res$emu_nameshort)){
@@ -25623,7 +26760,97 @@ for (the_emu in unique(res$emu_nameshort)){
 }
 ```
 
-![](landings_seasonality_files/figure-html/ys-13.png)<!-- -->![](landings_seasonality_files/figure-html/ys-14.png)<!-- -->![](landings_seasonality_files/figure-html/ys-15.png)<!-- -->![](landings_seasonality_files/figure-html/ys-16.png)<!-- -->![](landings_seasonality_files/figure-html/ys-17.png)<!-- -->![](landings_seasonality_files/figure-html/ys-18.png)<!-- -->![](landings_seasonality_files/figure-html/ys-19.png)<!-- -->![](landings_seasonality_files/figure-html/ys-20.png)<!-- -->![](landings_seasonality_files/figure-html/ys-21.png)<!-- -->![](landings_seasonality_files/figure-html/ys-22.png)<!-- -->
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/ys-13.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/ys-14.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/ys-15.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/ys-16.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/ys-17.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/ys-18.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/ys-19.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/ys-20.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/ys-21.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/ys-22.png)<!-- -->
 
 ```r
 for (the_emu in unique(res$emu_nameshort)){
@@ -25632,6 +26859,51 @@ for (the_emu in unique(res$emu_nameshort)){
 			emu=the_emu, 
 			colfill= "violet")	
 }
+```
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
 ![](landings_seasonality_files/figure-html/ys-23.png)<!-- -->
@@ -25643,6 +26915,51 @@ for (the_emu in unique(res$emu_nameshort)){
 			emu=the_emu, 
 			colfill= "hotpink")	
 }
+```
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
 ![](landings_seasonality_files/figure-html/ys-24.png)<!-- -->
