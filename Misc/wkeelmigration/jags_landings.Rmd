@@ -1,0 +1,89 @@
+---
+title: "Untitled"
+author: "Hilaire Drouineau"
+date: "23 janvier 2020"
+output: 
+  rmarkdown::md_document:
+     toc: yes
+  rmarkdown::html_document:
+     keep_md: yes
+     toc: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+wdsource <-"~/Documents/Bordeaux/migrateurs/WGEEL/wkeelmigration/source/"
+load(paste(wdsource,"res_landings.Rdata",sep=""))
+source("function_for_model.R")
+library(dplyr)
+library(tidyverse)
+library(tidyr)
+library(runjags)
+library(coda)
+library(ggplot2)
+
+```
+
+# Introduction
+We start by loading the rdata provided by Cédric who has imported and edited all the xlsx files. He also provides a very good overview of the content [here](landings_seasonality.md). Based on this job, we will try to carry out a similar analysis as for [seasonality](jags_modelling.md). More specifically, we can use the same Bayesian model to make a clustering of time series. For each stage, we will build a data set that gives for each season, and each EMU (and perhaps habitat), the proportion of catches per month.
+
+For convenience, we rename the data.frame with names consistent with the seasonality data.set
+
+```{r}
+res <- res %>%
+  rename(das_month=month, das_value=value, das_year=year)
+```
+
+# Glass Eel
+First, let's select data corresponding to glass eel stage.
+
+```{r}
+glass_eel <- subset(res, res$lfs_code=="G")
+
+# we start by removing rows with only zero
+all_zero <- glass_eel %>%	group_by(emu_nameshort,lfs_code,hty_code,das_year) %>%
+		summarize(S=sum(das_value)) %>% 
+    filter(S==0)
+
+glass_eel <- glass_eel %>% 
+	  anti_join(all_zero)
+```
+
+Similarly to seasonality, we will build season. For glass eels, seasons are rather consistent in whole Europe, so we use the same definition as in seasonality: Here, we split in november and a season y will correspond to november - december y-1 and january to october y.
+
+```{r}
+glass_eel$season <- ifelse(glass_eel$das_month>10,
+                             glass_eel$das_year+1,
+                             glass_eel$das_year)
+glass_eel$month_in_season <- as.factor(ifelse(glass_eel$das_month>10,
+                                      glass_eel$das_month-10,
+                                      glass_eel$das_month+2)) #1 stands for nov,
+```
+
+## Data selection
+Now we should carry out data selection, more specifically, we want to eliminate rows with two many missing data, too much zero and to check whether there are no duplicates (though Cedric already did it)
+
+```{r, warning=FALSE}
+kept_seasons <- lapply(unique(glass_eel$emu_nameshort), function(s){
+  sub_glass <- subset(glass_eel, glass_eel$emu_nameshort==s)
+  good_coverage_wave(sub_glass, "G")
+})
+```
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
