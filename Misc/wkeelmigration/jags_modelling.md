@@ -1,3 +1,33 @@
+-   [Loading the data](#loading-the-data)
+-   [Glass Eel](#glass-eel)
+    -   [Data availability](#data-availability)
+    -   [Data selection](#data-selection)
+        -   [Reason for exclusion](#reason-for-exclusion)
+        -   [Reason for keeping](#reason-for-keeping)
+        -   [to be discussed](#to-be-discussed)
+        -   [Final selection of data](#final-selection-of-data)
+    -   [Data preparation](#data-preparation)
+    -   [Running the model](#running-the-model)
+    -   [Results](#results)
+-   [Silver eel](#silver-eel)
+    -   [Data availability](#data-availability-1)
+    -   [Data correction](#data-correction)
+    -   [Data selection](#data-selection-1)
+    -   [Building diagnostics of quality for
+        series](#building-diagnostics-of-quality-for-series)
+    -   [Data preparation](#data-preparation-1)
+    -   [Running the model](#running-the-model-1)
+    -   [Results](#results-1)
+-   [Yellow eel](#yellow-eel)
+    -   [Data availability](#data-availability-2)
+    -   [Data correction](#data-correction-1)
+    -   [Data selection](#data-selection-2)
+    -   [Building diagnostics of quality for
+        series](#building-diagnostics-of-quality-for-series-1)
+    -   [Data preparation](#data-preparation-2)
+    -   [Running the model](#running-the-model-2)
+    -   [Results](#results-2)
+
 Loading the data
 ================
 
@@ -362,7 +392,7 @@ Running the model
       })
     }
 
-Know, we make a loop to select the number of clusters based on a DIC
+Now, we make a loop to select the number of clusters based on a DIC
 criterion
 
     comparison <- lapply(2:7,
@@ -410,7 +440,7 @@ with this value.
 Results
 -------
 
-Once we fitted, we can plot monthly pattern per cluster
+Once fitted, we can plot monthly pattern per cluster
 
     load("recruitment_jags.rdata")
     nbclus <- 3
@@ -837,7 +867,7 @@ Building diagnostics of quality for series
 The previous function looks at different criterion: it put the data in
 the wide format and check if we have at least 3 months around the peak.
 Moreover, it seeks for two extreme months when the cumulative catch is
-below 10%. If there is no missing month between these two extreme
+below 10%. If there is now missing month between these two extreme
 months, the season is kept. Using this function, we can make a
 preliminary screening of available series.
 

@@ -2,7 +2,12 @@
 title: "Untitled"
 author: "Hilaire Drouineau"
 date: "12 janvier 2020"
-output: md_document
+output: 
+  rmarkdown::md_document:
+     toc: yes
+  rmarkdown::html_document:
+     keep_md: yes
+     toc: yes
 ---
 
 ```{r setup, include=FALSE}
