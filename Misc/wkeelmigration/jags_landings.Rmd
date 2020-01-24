@@ -47,17 +47,30 @@ all_zero <- glass_eel %>%	group_by(emu_nameshort,lfs_code,hty_code,das_year) %>%
 
 glass_eel <- glass_eel %>% 
 	  anti_join(all_zero)
+
+
+
+#For glass eel, we aggregate data per habitat
+glass_eel <- glass_eel %>%
+  select(das_year, das_month, das_value, emu_nameshort, cou_code) %>%
+  group_by(das_year, das_month, emu_nameshort, cou_code) %>%
+  summarise(das_value=sum(das_value))
 ```
 
-Similarly to seasonality, we will build season. For glass eels, seasons are rather consistent in whole Europe, so we use the same definition as in seasonality: Here, we split in november and a season y will correspond to november - december y-1 and january to october y.
+Similarly to seasonality, we will build season. For glass eels, seasons are rather consistent in whole Europe, so we use the same definition as in seasonality: Here, we split in october (starts of catches in Spain) and a season y will correspond to ostober - december y-1 and january to september y.
 
 ```{r}
-glass_eel$season <- ifelse(glass_eel$das_month>10,
+glass_eel$season <- ifelse(glass_eel$das_month>9,
                              glass_eel$das_year+1,
                              glass_eel$das_year)
-glass_eel$month_in_season <- as.factor(ifelse(glass_eel$das_month>10,
-                                      glass_eel$das_month-10,
-                                      glass_eel$das_month+2)) #1 stands for nov,
+glass_eel$month_in_season <- as.factor(ifelse(glass_eel$das_month>9,
+                                      glass_eel$das_month-9,
+                                      glass_eel$das_month+3)) #1 stands for nov,
+
+#we remove data from season 2020
+glass_eel <- glass_eel %>%
+  filter(season < 2020)
+
 ```
 
 ## Data selection
@@ -69,21 +82,223 @@ kept_seasons <- lapply(unique(glass_eel$emu_nameshort), function(s){
   good_coverage_wave(sub_glass, "G")
 })
 ```
+Finally, here are the series kept given previous criterion.
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+```{r}
+names(kept_seasons) <- unique(glass_eel$emu_nameshort)
+kept_seasons[!sapply(kept_seasons,is.null)]
 ```
 
-## Including Plots
+## Data preparation
+We carry out the same procedure as for seasonality. 
 
-You can also embed plots, for example:
+```{r}
+glasseel_subset <- subset(glass_eel, 
+                           mapply(function(season, series){
+                             season %in% kept_seasons[[series]]
+                           }, glass_eel$season, glass_eel$emu_nameshort))
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+
+glasseel_wide <- pivot_wider(data=glasseel_subset[, c("emu_nameshort",
+                                                     "cou_code",
+                                                     "season",
+                                                     "das_month",
+                                                     "das_value")],
+                                names_from="das_month",
+                                values_from="das_value")
+names(glasseel_wide)[-(1:3)] <- paste("m",
+                                       names(glasseel_wide)[-(1:3)],
+                                       sep="")
+
+###we count the number of zeros per lines to remove lines without enough
+###fishes
+data_poor <- data.frame(glasseel_wide$emu_nameshort,
+                        glasseel_wide$season,
+                  zero=rowSums(glasseel_wide[, -(1:3)] == 0 |
+                                 is.na(glasseel_wide[, -(1:3)])),
+           tot=rowSums(glasseel_wide[, -(1:3)], na.rm=TRUE))
+data_poor %>% filter(zero > 9) #we remove years where we have less than 2 months
+glasseel_wide <- glasseel_wide[data_poor$zero < 10, ]
+
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+It leads to a dataset with `r nrow(glasseel_wide)` rows. 
+
+We now replace NA value per zero since we selected our dataseries with missing months corresponding to insignificant months / closed months, and we compute proportions per month for each year.
+
+```{r}
+glasseel_wide <- glasseel_wide %>%
+  replace_na(replace=list(m1=0,
+                          m2=0,
+                          m3=0,
+                          m4=0,
+                          m5=0,
+                          m6=0,
+                          m7=0,
+                          m8=0,
+                          m9=0,
+                          m10=0,
+                          m11=0,
+                          m12=0))
+glasseel_wide[, -(1:3)] <- glasseel_wide[, -(1:3)] + 1e-3
+total_catch_year <- rowSums(glasseel_wide[, paste("m", 1:12, sep="")])
+glasseel_wide <- glasseel_wide %>%
+  mutate_at(.vars=paste("m",1:12,sep=""),function(x) x/total_catch_year)
+```
+
+The Commission asks us to compare the pattern before and after 2007, probably to see the effect of the Eel Regulation. It is therefore necessary to build a period index. However, since most countries implemented their EMPs only in 2009/2010, we split in 2010.
+
+```{r}
+glasseel_wide$period <- ifelse(glasseel_wide$season>2009,
+                                  2,
+                                  1)
+
+table(glasseel_wide$period,
+       glasseel_wide$emu_nameshort)
+```
+The situation is well balanced between the two periods.
+
+
+## Running the model
+```{r}
+group <- as.integer(interaction(glasseel_wide$emu_nameshort,
+                                            glasseel_wide$period,
+                                            drop=TRUE))
+nb_occ_group <- table(group)
+y <-as.matrix(glasseel_wide[, paste("m", 1:12, sep="")])
+```
+
+Now, we make a loop to select the number of clusters based on a DIC criterion
+
+```{r, eval=FALSE}
+comparison <- lapply(2:7,
+       function(nbclus){
+         mydata <- build_data(nbclus)
+         res <- run.jags("jags_model.txt", monitor= "deviance",
+                      summarise=FALSE, adapt=20000, method="parallel",
+                      sample=2000,burnin=100000,n.chains=1,
+                      inits=generate_init(nbclus, mydata),
+                      data=mydata)
+         res_mat <- as.matrix(as.mcmc.list(res))
+         mean(res_mat[,1])+0.5*var(res_mat[,1])
+       })
+best_glasseel_landings <- data.frame(nbclus=2:7,dic=unlist(comparison))
+save(best_glasseel_landings, file="glasseel_landings_jags.rdata")
+```
+
+```{R}
+load("best_glasseel_landings")
+best_glasseel_landings
+```
+
+While 7 gives the best overall DIC, the gain flattens after 5 clusters. Moreover, we only have `r length(unique(group))` groups of period x emu, therefore extending over 5 clusters may be hasardeous.
+
+
+```{r, eval=FALSE}
+nbclus <- 5
+mydata <-build_data(5)
+myfit_glasseel_landings <- run.jags("jags_model.txt", monitor= c("cluster", "esp", "alpha_group",
+                                            "cluster", "centroid",
+                                            "centroid_group",
+                                            "distToClust", "duration_clus",
+                                            "duration_group",
+                                            "lambda","id_cluster",
+                                            "centroid"),
+                      summarise=FALSE, adapt=20000, method="parallel",
+                      sample=10000,burnin=200000,n.chains=3, thin=5,
+                      inits=generate_init(nbclus, mydata), data=mydata)
+save(myfit_glasseel_landings, best_glasseel_landings,
+     file="glasseel_landings_jags.rdata")
+```
+
+## Results
+Once fitted, we can plot monthly pattern per cluster
+```{r}
+load("glasseel_landings_jags.rdata")
+nbclus <- 2
+mydata <-build_data(2)
+get_pattern_month <- function(res,type="cluster"){
+  res_mat <- as.matrix(as.mcmc.list(res))
+  if (type=="cluster"){
+    sub_mat <- as.data.frame(res_mat[,grep("esp",colnames(res_mat))])
+  }
+  sub_mat <- sub_mat %>% 
+    pivot_longer(cols=1:ncol(sub_mat),
+                 names_to="param",
+                 values_to="proportion")
+  tmp <- lapply(as.character(sub_mat$param),function(p) strsplit(p,"[[:punct:]]"))
+  sub_mat$cluster<-as.factor(
+    as.integer(lapply(tmp, function(tt) tt[[1]][2])))
+  sub_mat$month <- as.character(lapply(tmp,
+                                       function(tt) paste("m",
+                                                          tt[[1]][3],
+                                                          sep="")))
+  sub_mat$month <- factor(sub_mat$month, levels=paste("m", 1:12, sep=""))
+  sub_mat
+}
+
+
+ggplot(get_pattern_month(myfit_glasseel_landings),aes(x=month,y=proportion))+
+  geom_boxplot(aes(fill=cluster),outlier.shape=NA) +
+  theme_bw()
+
+
+```
+
+We compute some statistics to characterize the clusters.
+```{r}
+#function to make circular shifting
+t(as.data.frame(characteristics(myfit_recruitment, 3)))
+```
+Duration indicates the minimum number of months that covers 80% of the wave (1st column is the median, and the 2 next one quantiles 2.5% and 97.5% of credibility intervals). Centroid is the centroid of the migration wave (e.g. 11.5 would indicate a migration centred around mid november). The first column is the median and the two next one the quantiles 2.5 and 97.5%.
+
+We can also look at the belonging of the different groups.
+```{r}
+get_pattern_month <- function(res,mydata){
+  
+  groups <- interaction(recruitment_wide$ser_nameshort,
+                                            recruitment_wide$period,
+                                            drop=TRUE)
+  group_name <- levels(groups)
+  tmp <- strsplit(as.character(group_name),
+                  "\\.")
+  ser <- as.character(lapply(tmp,function(tt){
+    tt[1]
+  }))
+  period <- as.character(lapply(tmp,function(tt){
+    tt[2]
+  }))
+  res_mat <- as.matrix(as.mcmc.list(res))
+  
+  clus <- t(sapply(seq_len(length(unique(groups))), function(id){
+    name_col <- paste("cluster[",id,"]",sep="")
+    freq <- table(res_mat[,name_col])
+    max_class <- names(freq)[order(freq,decreasing=TRUE)[1]]
+    c(max_class,freq[as.character(1:nbclus)])
+  }))
+  storage.mode(clus) <- "numeric"
+  classes <- as.data.frame(clus)
+  names(classes) <- c("cluster", "clus1", "clus2","clus3")
+  cbind.data.frame(data.frame(ser=ser, period=period),
+                   classes)
+}
+
+myclassif <- get_pattern_month(myfit_recruitment)
+print(myclassif[order(myclassif$cluster),])
+```
+The 3rd cluster corresponds to series from the Southern Europe, whatever the period. Cluster 2 corresponds to North Europe. Cluster 1 corresponds to EmsH which appears to be slightly atypical. However, clusters 1 and 2 are quite similar and many series x periods are attributed with high occurences in both clusters 2 and 3. These results confirm the spatial pattern in recruitment seasonality and highlight that no major changes have occured after 2010.
+
+Showing it on a map:
+
+```{r}
+library(sf)
+myclassif$x <- ser2$ser_x[match(myclassif$ser, ser2$ser_nameshort)]
+myclassif$jit_x <- jitter(myclassif$x,amount=.5)
+myclassif$y <- ser2$ser_y[match(myclassif$ser, ser2$ser_nameshort)]
+myclassif$jit_y <- jitter(myclassif$y,amount=.5)
+cou <- st_read("/mnt/SIG/01-REFERENTIELS/LIMITES_ADMINISTRATIVES_monde/european_countries_WGS84.shp")
+cou <- st_transform(cou, crs=4326)
+ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
+		geom_point(data=myclassif,aes(x=jit_x,y=jit_y,col=as.factor(cluster))) +
+  scale_fill_brewer() +theme_bw() +xlim(-20,30) + ylim(35,65)
+```
