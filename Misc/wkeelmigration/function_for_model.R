@@ -88,8 +88,8 @@ good_coverage_wave <- function(mydata, stage=NULL){
   if (is.null(stage)){
     peak_month <- unique(mydata$peak_month)
     lowest_month <- unique(mydata$lowest_month)
-  } else {
-    lowest_month=11 #for glass eel season starts in november
+  } else if (stage =="G" | "emu_nameshort" %in% names(mydata)){
+    lowest_month=10 #for glass eel season starts in november
   }
   original_months <- shifter(1:12,lowest_month-1)
   #we put data in wide format with one row per seasaon
@@ -101,6 +101,32 @@ good_coverage_wave <- function(mydata, stage=NULL){
            das_value,
            drop=FALSE)
   data_wide <- data_wide[,c(1:12,"season")]
+  
+  
+  #For Spanish landings data of glass eels, NA are indeed 0 catches because
+  #of fishery closure
+  if (stage == "G" | "emu_nameshort" %in% names(mydata) | 
+      unique(mydata$cou_code) == "ES") {
+      data_wide[data_wide$season==min(mydata$season),
+                which(original_months == 1):12] <- ifelse(is.na(data_wide[data_wide$season==min(mydata$season),
+                                                                          which(original_months == 1):12]),0,data_wide[data_wide$season==min(mydata$season),
+                                                                                                                       which(original_months == 1):12])
+      data_wide[data_wide$season > min(mydata$season),] <-
+        data_wide %>%
+        filter(season>min(mydata$season)) %>%
+        replace_na(replace=list(`1`=0,
+                                      `2`=0,
+                                      `3`=0,
+                                      `4`=0,
+                                      `5`=0,
+                                      `6`=0,
+                                      `7`=0,
+                                      `8`=0,
+                                      `9`=0,
+                                      `10`=0,
+                                      `11`=0,
+                                      `12`=0))
+  }
   mean_per_month <- colMeans(data_wide[,1:12],na.rm=TRUE)
   mean_per_month <- mean_per_month / sum(mean_per_month, na.rm=TRUE)
   
@@ -108,13 +134,17 @@ good_coverage_wave <- function(mydata, stage=NULL){
     cumsum(sort(mean_per_month, decreasing=TRUE)) / 
     sum(mean_per_month, na.rm=TRUE)
   
+  
+  name_data <- ifelse("ser_nameshort" %in% names(mydata),
+                      unique(mydata$ser_nameshort),
+                      unique(mydata$emu_nameshort))
   #we take the last month to have at least 95% of catches and which stands for
   #less than 5 % of catches
   bound <- min(which(cum_sum > .95 &
                        mean_per_month[as.integer(names(cum_sum))]<.05))
   if (is.infinite(bound) | sum(is.na(mean_per_month))>5){
     print(paste("For",
-                unique(mydata$ser_nameshort),
+                name_data,
                 "not possible to define a season"))
     return (NULL)
   }
@@ -126,15 +156,12 @@ good_coverage_wave <- function(mydata, stage=NULL){
   if ((fmin>1 & mean_per_month[fmin]>.05 & is.na(mean_per_month[fmin+1])) |
       (lmin<12 & mean_per_month[lmin]>.05 & is.na(mean_per_month[lmin+1]))){
     print(paste("For",
-                unique(mydata$ser_nameshort),
+                name_data,
                 "not possible to define a season"))
     return (NULL)
     
   }
-  
-  name_data <- ifelse("ser_nameshort" %in% names(mydata),
-                      unique(mydata$ser_nameshort),
-                      unique(mydata$emu_nameshort))
+
   print(paste("For ",
               name_data,
               " a good season should cover months:",
