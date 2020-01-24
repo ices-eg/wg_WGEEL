@@ -13,7 +13,7 @@ output:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 wdsource <-"~/Documents/Bordeaux/migrateurs/WGEEL/wkeelmigration/source/"
-load(paste(wdsource,"res_landings.Rdata",sep=""))
+load("res_landings.Rdata")
 source("function_for_model.R")
 library(dplyr)
 library(tidyverse)
@@ -191,12 +191,12 @@ load("best_glasseel_landings")
 best_glasseel_landings
 ```
 
-While 7 gives the best overall DIC, the gain flattens after 5 clusters. Moreover, we only have `r length(unique(group))` groups of period x emu, therefore extending over 5 clusters may be hasardeous.
+While 7 gives the best overall DIC, the gain flattens after 5 clusters. Moreover, we only have `r length(unique(group))` groups of period x emu, therefore we won't go beyond 7 clusters (8 would correspond to 4 groups at each period).
 
 
 ```{r, eval=FALSE}
-nbclus <- 5
-mydata <-build_data(5)
+nbclus <- 7
+mydata <-build_data(7)
 myfit_glasseel_landings <- run.jags("jags_model.txt", monitor= c("cluster", "esp", "alpha_group",
                                             "cluster", "centroid",
                                             "centroid_group",
@@ -207,6 +207,11 @@ myfit_glasseel_landings <- run.jags("jags_model.txt", monitor= c("cluster", "esp
                       summarise=FALSE, adapt=20000, method="parallel",
                       sample=10000,burnin=200000,n.chains=3, thin=5,
                       inits=generate_init(nbclus, mydata), data=mydata)
+
+#analysis of traceplots and message confirm that adaptation phase of chains 2 
+#and 3 were not successful, therefore, we keep only chain 1.
+myfit_glasseel_landings <- divide.jags(myfit_glasseel_landings, 1)
+
 save(myfit_glasseel_landings, best_glasseel_landings,
      file="glasseel_landings_jags.rdata")
 ```
@@ -215,10 +220,10 @@ save(myfit_glasseel_landings, best_glasseel_landings,
 Once fitted, we can plot monthly pattern per cluster
 ```{r}
 load("glasseel_landings_jags.rdata")
-nbclus <- 2
-mydata <-build_data(2)
+nbclus <- 7
+mydata <-build_data(7)
 get_pattern_month <- function(res,type="cluster"){
-  res_mat <- as.matrix(as.mcmc.list(res))
+  res_mat <- as.matrix(as.mcmc.list(res, add.mutate=FALSE))
   if (type=="cluster"){
     sub_mat <- as.data.frame(res_mat[,grep("esp",colnames(res_mat))])
   }
@@ -237,27 +242,28 @@ get_pattern_month <- function(res,type="cluster"){
   sub_mat
 }
 
-
-ggplot(get_pattern_month(myfit_glasseel_landings),aes(x=month,y=proportion))+
+#since clusters 5 and 6 are not used, we removed them from the plot
+pat <-get_pattern_month(myfit_glasseel_landings)
+pat <- pat[pat$cluster!=5 & pat$cluster!=6,]
+ggplot(pat,aes(x=month,y=proportion))+
   geom_boxplot(aes(fill=cluster),outlier.shape=NA) +
   theme_bw()
-
-
 ```
 
 We compute some statistics to characterize the clusters.
 ```{r}
-#function to make circular shifting
-t(as.data.frame(characteristics(myfit_recruitment, 3)))
+t(as.data.frame(characteristics(myfit_glasseel_landings, 7)))[-(5:6),]
 ```
 Duration indicates the minimum number of months that covers 80% of the wave (1st column is the median, and the 2 next one quantiles 2.5% and 97.5% of credibility intervals). Centroid is the centroid of the migration wave (e.g. 11.5 would indicate a migration centred around mid november). The first column is the median and the two next one the quantiles 2.5 and 97.5%.
+
+Clusters 1 and 4 starts in autum and last still january (1) or march (cluster 4). Cluster 3 is similar to cluster 4 but shited one month later. Cluster 2 and 7 correspond to fishing in spring with a shift of one month.
 
 We can also look at the belonging of the different groups.
 ```{r}
 get_pattern_month <- function(res,mydata){
   
-  groups <- interaction(recruitment_wide$ser_nameshort,
-                                            recruitment_wide$period,
+  groups <- interaction(glasseel_wide$emu_nameshort,
+                                            glasseel_wide$period,
                                             drop=TRUE)
   group_name <- levels(groups)
   tmp <- strsplit(as.character(group_name),
@@ -268,7 +274,7 @@ get_pattern_month <- function(res,mydata){
   period <- as.character(lapply(tmp,function(tt){
     tt[2]
   }))
-  res_mat <- as.matrix(as.mcmc.list(res))
+  res_mat <- as.matrix(as.mcmc.list(res,add.mutate=FALSE))
   
   clus <- t(sapply(seq_len(length(unique(groups))), function(id){
     name_col <- paste("cluster[",id,"]",sep="")
@@ -278,27 +284,343 @@ get_pattern_month <- function(res,mydata){
   }))
   storage.mode(clus) <- "numeric"
   classes <- as.data.frame(clus)
-  names(classes) <- c("cluster", "clus1", "clus2","clus3")
+  names(classes) <- c("cluster", paste("clus",seq_len(nbclus),sep=""))
   cbind.data.frame(data.frame(ser=ser, period=period),
                    classes)
 }
 
-myclassif <- get_pattern_month(myfit_recruitment)
+myclassif <- get_pattern_month(myfit_glasseel_landings)
+myclassif <- myclassif[, -(8:9)]
 print(myclassif[order(myclassif$cluster),])
 ```
-The 3rd cluster corresponds to series from the Southern Europe, whatever the period. Cluster 2 corresponds to North Europe. Cluster 1 corresponds to EmsH which appears to be slightly atypical. However, clusters 1 and 2 are quite similar and many series x periods are attributed with high occurences in both clusters 2 and 3. These results confirm the spatial pattern in recruitment seasonality and highlight that no major changes have occured after 2010.
-
-Showing it on a map:
+The spatial pattern is obvious in the results. Interestingly, we saw that some EMUs are affected to different patterns before and after 2010. This seem to correspond to management measures that have effectively shorten the fishing season.
 
 ```{r}
 library(sf)
-myclassif$x <- ser2$ser_x[match(myclassif$ser, ser2$ser_nameshort)]
-myclassif$jit_x <- jitter(myclassif$x,amount=.5)
-myclassif$y <- ser2$ser_y[match(myclassif$ser, ser2$ser_nameshort)]
-myclassif$jit_y <- jitter(myclassif$y,amount=.5)
+library(RPostgreSQL)
+cols <- c("1" = "red", "2" = "blue", "3" = "darkgreen", "4" = "orange", "7"="yellow")
+con<-dbConnect(PostgreSQL(),host="localhost",dbname="wgeel_old",user="hilaire")
+emu <- st_read(con,query="select * from carto.emu")
+myclassif_p1 <- subset(myclassif, myclassif$period == 1)
+myclassif_p2 <- subset(myclassif, myclassif$period == 2)
+emu$cluster1 <- factor(myclassif_p1$cluster[match(emu$name_short,myclassif_p1$ser)],levels=1:7)
+emu$cluster2 <- factor(myclassif_p2$cluster[match(emu$name_short,myclassif_p2$ser)],levels=1:7)
 cou <- st_read("/mnt/SIG/01-REFERENTIELS/LIMITES_ADMINISTRATIVES_monde/european_countries_WGS84.shp")
 cou <- st_transform(cou, crs=4326)
 ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
-		geom_point(data=myclassif,aes(x=jit_x,y=jit_y,col=as.factor(cluster))) +
-  scale_fill_brewer() +theme_bw() +xlim(-20,30) + ylim(35,65)
+		geom_sf(data=emu,aes(fill=cluster1)) + scale_fill_manual(values=cols)+
+  theme_bw() +xlim(-20,30) + ylim(35,65) 
+ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
+		geom_sf(data=emu,aes(fill=cluster2)) + scale_fill_manual(values=cols)+
+  theme_bw() +xlim(-20,30) + ylim(35,65)  
+
+```
+
+# Yellow
+First, let's select data corresponding to yellow stage.
+
+```{r}
+yellow_eel <- subset(res, res$lfs_code=="Y")
+
+# we start by removing rows with only zero
+all_zero <- yellow_eel %>%	group_by(emu_nameshort,lfs_code,hty_code,das_year) %>%
+		summarize(S=sum(das_value)) %>% 
+    filter(S==0)
+
+yellow_eel <- yellow_eel %>% 
+	  anti_join(all_zero)
+
+table(yellow_eel$hty_code)
+
+#We have many data, so we remove "FC" and "FTC" which are weirds mixes
+yellow_eel <- yellow_eel %>%
+  filter(!hty_code %in% c("FTC", "FC"))
+
+#in this analysis, the unit will correspond to EMU / habitat so we create 
+#corresponding column
+yellow_eel$emu <- yellow_eel$emu_nameshort
+yellow_eel$emu_nameshort <- paste(yellow_eel$emu_nameshort,
+                                  yellow_eel$hty_code, sep="_")
+
+#There are some duplicates for IE_West_F that should be summed up according to
+#Russel
+summed_up_IE <-yellow_eel %>%
+  filter(yellow_eel$emu_nameshort=="IE_West_F") %>%
+  group_by(das_year,das_month) %>%
+  summarize(das_value=sum(das_value))
+
+yellow_eel <- yellow_eel %>% 
+  distinct(das_year,das_month,emu_nameshort, .keep_all = TRUE)
+
+yellow_eel[yellow_eel$emu_nameshort=="IE_West_F",
+          c("das_year","das_month","das_value") ] <- summed_up_IE
+  
+```
+
+Similarly to seasonality, we will build season. We reuse the procedure made for silver eel and yellow eel seasonality, i.e. defining seasons per emu, with the season starting at the month with minimum landings. The month with lowest catch fmin define the beggining of the season (month_in_season=1) and season y stands for the 12 months from fmin y (e.g., if lowest migration is in december, season ranges from december to november, and season y denotes season from december y to november y+1).
+
+```{r}
+#creating season
+yelloweel <- do.call("rbind.data.frame",
+                     lapply(unique(yellow_eel$emu_nameshort),
+                            function(s)
+                              season_creation(yellow_eel[yellow_eel$emu_nameshort==s,])))
+months_peak_per_series<- unique(yelloweel[,c("emu_nameshort","peak_month")])
+
+#large variety in the month with peak of catches among EMU / habitat
+table(months_peak_per_series$peak_month)
+
+#we remove data from season 2020
+yelloweel <- yelloweel %>%
+  filter(season < 2020)
+
+```
+
+## Data selection
+Now we should carry out data selection, more specifically, we want to eliminate rows with two many missing data, too much zero and to check whether there are no duplicates (though Cedric already did it)
+
+```{r, warning=FALSE}
+kept_seasons <- lapply(unique(yelloweel$emu_nameshort), function(s){
+  sub_yellow <- subset(yelloweel, yelloweel$emu_nameshort==s)
+  kept <- good_coverage_wave(sub_yellow)
+  #we remove season in which we have less than 50 kg of landings
+  if(!is.null(kept))
+    kept <- kept[sapply(kept,function(k)
+      sum(sub_yellow$das_value[sub_yellow$season==k],na.rm=TRUE)>50)]
+  if (length(kept) == 0) kept <- NULL
+  kept
+})
+```
+Finally, here are the series kept given previous criterion.
+
+```{r}
+names(kept_seasons) <- unique(yelloweel$emu_nameshort)
+kept_seasons[!sapply(kept_seasons,is.null)]
+```
+
+## Data preparation
+We carry out the same procedure as for seasonality. 
+
+```{r}
+yelloweel_subset <- subset(yelloweel, 
+                           mapply(function(season, series){
+                             season %in% kept_seasons[[series]]
+                           }, yelloweel$season, yelloweel$emu_nameshort))
+
+
+yelloweel_wide <- pivot_wider(data=yelloweel_subset[, c("emu_nameshort",
+                                                     "cou_code",
+                                                     "season",
+                                                     "das_month",
+                                                     "das_value")],
+                                names_from="das_month",
+                                values_from="das_value")
+names(yelloweel_wide)[-(1:3)] <- paste("m",
+                                       names(yelloweel_wide)[-(1:3)],
+                                       sep="")
+
+###we count the number of zeros per lines to remove lines without enough
+###fishes
+data_poor <- data.frame(yelloweel_wide$emu_nameshort,
+                        yelloweel_wide$season,
+                  zero=rowSums(yelloweel_wide[, -(1:3)] == 0 |
+                                 is.na(yelloweel_wide[, -(1:3)])),
+           tot=rowSums(yelloweel_wide[, -(1:3)], na.rm=TRUE))
+data_poor %>% filter(zero > 9) #we remove years where we have less than 2 months
+yelloweel_wide <- yelloweel_wide[data_poor$zero < 10, ]
+
+```
+
+It leads to a dataset with `r nrow(yelloweel_wide)` rows. 
+
+We now replace NA value per zero since we selected our dataseries with missing months corresponding to insignificant months / closed months, and we compute proportions per month for each year.
+
+```{r}
+yelloweel_wide <- yelloweel_wide %>%
+  replace_na(replace=list(m1=0,
+                          m2=0,
+                          m3=0,
+                          m4=0,
+                          m5=0,
+                          m6=0,
+                          m7=0,
+                          m8=0,
+                          m9=0,
+                          m10=0,
+                          m11=0,
+                          m12=0))
+yelloweel_wide[, -(1:3)] <- yelloweel_wide[, -(1:3)] + 1e-3
+total_catch_year <- rowSums(yelloweel_wide[, paste("m", 1:12, sep="")])
+yelloweel_wide <- yelloweel_wide %>%
+  mutate_at(.vars=paste("m",1:12,sep=""),function(x) x/total_catch_year)
+```
+
+The Commission asks us to compare the pattern before and after 2007, probably to see the effect of the Eel Regulation. It is therefore necessary to build a period index. However, since most countries implemented their EMPs only in 2009/2010, we split in 2010.
+
+```{r}
+yelloweel_wide$period <- ifelse(yelloweel_wide$season>2009,
+                                  2,
+                                  1)
+
+table(yelloweel_wide$period,
+       yelloweel_wide$emu_nameshort)
+```
+The situation is not well balanced. Most EMU which have data in periods 1 don't have data in period 2 and conversely.
+
+
+## Running the model
+```{r}
+group <- as.integer(interaction(yelloweel_wide$emu_nameshort,
+                                            yelloweel_wide$period,
+                                            drop=TRUE))
+nb_occ_group <- table(group)
+y <-as.matrix(yelloweel_wide[, paste("m", 1:12, sep="")])
+```
+
+Now, we make a loop to select the number of clusters based on a DIC criterion
+
+```{r, eval=FALSE}
+comparison <- lapply(2:7,
+       function(nbclus){
+         mydata <- build_data(nbclus)
+         res <- run.jags("jags_model.txt", monitor= "deviance",
+                      summarise=FALSE, adapt=40000, method="parallel",
+                      sample=2000,burnin=100000,n.chains=1,
+                      inits=generate_init(nbclus, mydata),
+                      data=mydata)
+         res_mat <- as.matrix(as.mcmc.list(res))
+         mean(res_mat[,1])+0.5*var(res_mat[,1])
+       })
+best_yelloweel_landings <- data.frame(nbclus=2:7,dic=unlist(comparison))
+save(best_yelloweel_landings, file="yelloweel_landings_jags.rdata")
+```
+
+```{R}
+load("best_glasseel_landings")
+best_glasseel_landings
+```
+
+While 7 gives the best overall DIC, the gain flattens after 5 clusters. Moreover, we only have `r length(unique(group))` groups of period x emu, therefore we won't go beyond 7 clusters (8 would correspond to 4 groups at each period).
+
+
+```{r, eval=FALSE}
+nbclus <- 7
+mydata <-build_data(7)
+myfit_glasseel_landings <- run.jags("jags_model.txt", monitor= c("cluster", "esp", "alpha_group",
+                                            "cluster", "centroid",
+                                            "centroid_group",
+                                            "distToClust", "duration_clus",
+                                            "duration_group",
+                                            "lambda","id_cluster",
+                                            "centroid"),
+                      summarise=FALSE, adapt=20000, method="parallel",
+                      sample=10000,burnin=200000,n.chains=3, thin=5,
+                      inits=generate_init(nbclus, mydata), data=mydata)
+
+#analysis of traceplots and message confirm that adaptation phase of chains 2 
+#and 3 were not successful, therefore, we keep only chain 1.
+myfit_glasseel_landings <- divide.jags(myfit_glasseel_landings, 1)
+
+save(myfit_glasseel_landings, best_glasseel_landings,
+     file="glasseel_landings_jags.rdata")
+```
+
+## Results
+Once fitted, we can plot monthly pattern per cluster
+```{r}
+load("glasseel_landings_jags.rdata")
+nbclus <- 7
+mydata <-build_data(7)
+get_pattern_month <- function(res,type="cluster"){
+  res_mat <- as.matrix(as.mcmc.list(res, add.mutate=FALSE))
+  if (type=="cluster"){
+    sub_mat <- as.data.frame(res_mat[,grep("esp",colnames(res_mat))])
+  }
+  sub_mat <- sub_mat %>% 
+    pivot_longer(cols=1:ncol(sub_mat),
+                 names_to="param",
+                 values_to="proportion")
+  tmp <- lapply(as.character(sub_mat$param),function(p) strsplit(p,"[[:punct:]]"))
+  sub_mat$cluster<-as.factor(
+    as.integer(lapply(tmp, function(tt) tt[[1]][2])))
+  sub_mat$month <- as.character(lapply(tmp,
+                                       function(tt) paste("m",
+                                                          tt[[1]][3],
+                                                          sep="")))
+  sub_mat$month <- factor(sub_mat$month, levels=paste("m", 1:12, sep=""))
+  sub_mat
+}
+
+#since clusters 5 and 6 are not used, we removed them from the plot
+pat <-get_pattern_month(myfit_glasseel_landings)
+pat <- pat[pat$cluster!=5 & pat$cluster!=6,]
+ggplot(pat,aes(x=month,y=proportion))+
+  geom_boxplot(aes(fill=cluster),outlier.shape=NA) +
+  theme_bw()
+```
+
+We compute some statistics to characterize the clusters.
+```{r}
+t(as.data.frame(characteristics(myfit_glasseel_landings, 7)))[-(5:6),]
+```
+Duration indicates the minimum number of months that covers 80% of the wave (1st column is the median, and the 2 next one quantiles 2.5% and 97.5% of credibility intervals). Centroid is the centroid of the migration wave (e.g. 11.5 would indicate a migration centred around mid november). The first column is the median and the two next one the quantiles 2.5 and 97.5%.
+
+Clusters 1 and 4 starts in autum and last still january (1) or march (cluster 4). Cluster 3 is similar to cluster 4 but shited one month later. Cluster 2 and 7 correspond to fishing in spring with a shift of one month.
+
+We can also look at the belonging of the different groups.
+```{r}
+get_pattern_month <- function(res,mydata){
+  
+  groups <- interaction(glasseel_wide$emu_nameshort,
+                                            glasseel_wide$period,
+                                            drop=TRUE)
+  group_name <- levels(groups)
+  tmp <- strsplit(as.character(group_name),
+                  "\\.")
+  ser <- as.character(lapply(tmp,function(tt){
+    tt[1]
+  }))
+  period <- as.character(lapply(tmp,function(tt){
+    tt[2]
+  }))
+  res_mat <- as.matrix(as.mcmc.list(res,add.mutate=FALSE))
+  
+  clus <- t(sapply(seq_len(length(unique(groups))), function(id){
+    name_col <- paste("cluster[",id,"]",sep="")
+    freq <- table(res_mat[,name_col])
+    max_class <- names(freq)[order(freq,decreasing=TRUE)[1]]
+    c(max_class,freq[as.character(1:nbclus)])
+  }))
+  storage.mode(clus) <- "numeric"
+  classes <- as.data.frame(clus)
+  names(classes) <- c("cluster", paste("clus",seq_len(nbclus),sep=""))
+  cbind.data.frame(data.frame(ser=ser, period=period),
+                   classes)
+}
+
+myclassif <- get_pattern_month(myfit_glasseel_landings)
+myclassif <- myclassif[, -(8:9)]
+print(myclassif[order(myclassif$cluster),])
+```
+The spatial pattern is obvious in the results. Interestingly, we saw that some EMUs are affected to different patterns before and after 2010. This seem to correspond to management measures that have effectively shorten the fishing season.
+
+```{r}
+library(sf)
+library(RPostgreSQL)
+cols <- c("1" = "red", "2" = "blue", "3" = "darkgreen", "4" = "orange", "7"="yellow")
+con<-dbConnect(PostgreSQL(),host="localhost",dbname="wgeel_old",user="hilaire")
+emu <- st_read(con,query="select * from carto.emu")
+myclassif_p1 <- subset(myclassif, myclassif$period == 1)
+myclassif_p2 <- subset(myclassif, myclassif$period == 2)
+emu$cluster1 <- factor(myclassif_p1$cluster[match(emu$name_short,myclassif_p1$ser)],levels=1:7)
+emu$cluster2 <- factor(myclassif_p2$cluster[match(emu$name_short,myclassif_p2$ser)],levels=1:7)
+cou <- st_read("/mnt/SIG/01-REFERENTIELS/LIMITES_ADMINISTRATIVES_monde/european_countries_WGS84.shp")
+cou <- st_transform(cou, crs=4326)
+ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
+		geom_sf(data=emu,aes(fill=cluster1)) + scale_fill_manual(values=cols)+
+  theme_bw() +xlim(-20,30) + ylim(35,65) 
+ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
+		geom_sf(data=emu,aes(fill=cluster2)) + scale_fill_manual(values=cols)+
+  theme_bw() +xlim(-20,30) + ylim(35,65)  
+
 ```

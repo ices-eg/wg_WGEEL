@@ -5,7 +5,7 @@ shifter <- function(x, n = 1) {
 
 #function used after a classification to get some stats about clusters
 characteristics <- function(myres,nbclus, threshold=.80){
-  mydata <- as.matrix(as.mcmc.list(myres))
+  mydata <- as.matrix(as.mcmc.list(myres,add.mutate=FALSE))
   sapply(seq_len(nbclus),function(clus){
     esp <- mydata[, paste("esp[",clus , ",", 1:12, "]", sep="")]
     duration_it <- apply(esp, 1, function (esp_it){
@@ -88,6 +88,7 @@ good_coverage_wave <- function(mydata, stage=NULL){
   if (is.null(stage)){
     peak_month <- unique(mydata$peak_month)
     lowest_month <- unique(mydata$lowest_month)
+    stage="notG"
   } else if (stage =="G" | "emu_nameshort" %in% names(mydata)){
     lowest_month=10 #for glass eel season starts in november
   }
@@ -105,7 +106,7 @@ good_coverage_wave <- function(mydata, stage=NULL){
   
   #For Spanish landings data of glass eels, NA are indeed 0 catches because
   #of fishery closure
-  if (stage == "G" | "emu_nameshort" %in% names(mydata) | 
+  if (stage == "G" & "emu_nameshort" %in% names(mydata) & 
       unique(mydata$cou_code) == "ES") {
       data_wide[data_wide$season==min(mydata$season),
                 which(original_months == 1):12] <- ifelse(is.na(data_wide[data_wide$season==min(mydata$season),
@@ -126,6 +127,36 @@ good_coverage_wave <- function(mydata, stage=NULL){
                                       `10`=0,
                                       `11`=0,
                                       `12`=0))
+  } else if ("emu_nameshort" %in% names(mydata) & 
+             unique(mydata$cou_code) == "ES") {
+    data_wide[data_wide$season==min(mydata$season),
+              which(original_months == 1):12] <- ifelse(is.na(data_wide[data_wide$season==min(mydata$season),
+                                                                        which(original_months == 1):12]),0,data_wide[data_wide$season==min(mydata$season),
+                                                                                                                     which(original_months == 1):12])
+    
+    data_wide[data_wide$season==max(mydata$season),
+              1:which(original_months==12)] <- ifelse(is.na(data_wide)[data_wide$season==max(mydata$season),
+                                                                       1:which(original_months==12)],
+                                                      0,
+                                                      data_wide[data_wide$season==max(mydata$season),
+                                                       1:which(original_months==12)]
+                                                      )
+    
+    data_wide[data_wide$season > min(mydata$season) & data_wide$season < max(mydata$season),] <-
+      data_wide %>%
+      filter(season>min(mydata$season)) %>%
+      replace_na(replace=list(`1`=0,
+                              `2`=0,
+                              `3`=0,
+                              `4`=0,
+                              `5`=0,
+                              `6`=0,
+                              `7`=0,
+                              `8`=0,
+                              `9`=0,
+                              `10`=0,
+                              `11`=0,
+                              `12`=0))
   }
   mean_per_month <- colMeans(data_wide[,1:12],na.rm=TRUE)
   mean_per_month <- mean_per_month / sum(mean_per_month, na.rm=TRUE)
