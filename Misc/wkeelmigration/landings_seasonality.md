@@ -2174,7 +2174,7 @@ res %>% mutate("freq"=1) %>% filter(eel_year>2000 & eel_year<2019) %>%
 
 ```r
 # temporarily dropping those files
-res <-res%>%filter(!eel_emu_nameshort%in% c('PL_Oder','PL_Vist'))
+# res <-res%>%filter(!eel_emu_nameshort%in% c('PL_Oder','PL_Vist'))
 
 # SEARCHING FOR DUPLICATES-----------------------------------------------------------
 
@@ -2341,7 +2341,8 @@ unique(res$emu_nameshort)
 ## [19] "FR_Loir"  "FR_Rhin"  "FR_Rhon"  "FR_Sein"  "GB_Angl"  "GB_Dee"  
 ## [25] "GB_Humb"  "GB_Nort"  "GB_NorW"  "GB_Seve"  "GB_SouE"  "GB_SouW" 
 ## [31] "GB_Tham"  "GB_total" "GB_Wale"  "HR_total" "IE_East"  "IE_West" 
-## [37] "NL_total" "NO_total" "SE_East"  "SE_Inla"  "SE_West"  "ES_Basq"
+## [37] "NL_total" "NO_total" "PL_Oder"  "PL_Vist"  "SE_East"  "SE_Inla" 
+## [43] "SE_West"  "ES_Basq"
 ```
 
 ```r
@@ -2373,14 +2374,14 @@ table(res$hty_code)
  </thead>
 <tbody>
   <tr>
-   <td style="text-align:right;"> 1776 </td>
+   <td style="text-align:right;"> 1911 </td>
    <td style="text-align:right;"> 3326 </td>
    <td style="text-align:right;"> 926 </td>
    <td style="text-align:right;"> 3 </td>
    <td style="text-align:right;"> 265 </td>
    <td style="text-align:right;"> 464 </td>
-   <td style="text-align:right;"> 4157 </td>
-   <td style="text-align:right;"> 199 </td>
+   <td style="text-align:right;"> 4284 </td>
+   <td style="text-align:right;"> 373 </td>
   </tr>
 </tbody>
 </table>
@@ -23214,6 +23215,978 @@ res %>%	group_by(emu_nameshort,lfs_code,hty_code,year,month) %>%
    <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
   </tr>
   <tr>
+   <td style="text-align:center;"> PL_Oder </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> C </td>
+   <td style="text-align:center;"> 2011 </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> . </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> PL_Oder </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> C </td>
+   <td style="text-align:center;"> 2012 </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> PL_Oder </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> C </td>
+   <td style="text-align:center;"> 2013 </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> . </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> PL_Oder </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> C </td>
+   <td style="text-align:center;"> 2014 </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> . </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> PL_Oder </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> C </td>
+   <td style="text-align:center;"> 2015 </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> . </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> PL_Oder </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> C </td>
+   <td style="text-align:center;"> 2016 </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> PL_Oder </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> C </td>
+   <td style="text-align:center;"> 2017 </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> . </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> PL_Oder </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> C </td>
+   <td style="text-align:center;"> 2018 </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> . </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> PL_Oder </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> T </td>
+   <td style="text-align:center;"> 2011 </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> PL_Oder </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> T </td>
+   <td style="text-align:center;"> 2012 </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> . </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> PL_Oder </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> T </td>
+   <td style="text-align:center;"> 2013 </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> . </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> PL_Oder </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> T </td>
+   <td style="text-align:center;"> 2014 </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> . </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> PL_Oder </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> T </td>
+   <td style="text-align:center;"> 2015 </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> . </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> PL_Oder </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> T </td>
+   <td style="text-align:center;"> 2016 </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> . </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> PL_Oder </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> T </td>
+   <td style="text-align:center;"> 2017 </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> . </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> PL_Oder </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> T </td>
+   <td style="text-align:center;"> 2018 </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> . </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> PL_Oder </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> TC </td>
+   <td style="text-align:center;"> 2000 </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> PL_Oder </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> TC </td>
+   <td style="text-align:center;"> 2001 </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> PL_Oder </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> TC </td>
+   <td style="text-align:center;"> 2002 </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> PL_Oder </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> TC </td>
+   <td style="text-align:center;"> 2003 </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> PL_Oder </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> TC </td>
+   <td style="text-align:center;"> 2004 </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> PL_Oder </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> TC </td>
+   <td style="text-align:center;"> 2005 </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> . </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> PL_Oder </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> TC </td>
+   <td style="text-align:center;"> 2006 </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> PL_Oder </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> TC </td>
+   <td style="text-align:center;"> 2007 </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> . </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> PL_Oder </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> TC </td>
+   <td style="text-align:center;"> 2008 </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> PL_Oder </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> TC </td>
+   <td style="text-align:center;"> 2009 </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> PL_Oder </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> TC </td>
+   <td style="text-align:center;"> 2010 </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> . </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> PL_Vist </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> C </td>
+   <td style="text-align:center;"> 2011 </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> PL_Vist </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> C </td>
+   <td style="text-align:center;"> 2012 </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> . </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> PL_Vist </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> C </td>
+   <td style="text-align:center;"> 2013 </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> . </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> PL_Vist </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> C </td>
+   <td style="text-align:center;"> 2014 </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> PL_Vist </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> C </td>
+   <td style="text-align:center;"> 2015 </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> . </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> PL_Vist </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> C </td>
+   <td style="text-align:center;"> 2016 </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> . </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> PL_Vist </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> C </td>
+   <td style="text-align:center;"> 2017 </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> . </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> PL_Vist </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> C </td>
+   <td style="text-align:center;"> 2018 </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> PL_Vist </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> T </td>
+   <td style="text-align:center;"> 2011 </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> PL_Vist </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> T </td>
+   <td style="text-align:center;"> 2012 </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> . </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> PL_Vist </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> T </td>
+   <td style="text-align:center;"> 2013 </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> . </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> PL_Vist </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> T </td>
+   <td style="text-align:center;"> 2014 </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> . </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> PL_Vist </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> T </td>
+   <td style="text-align:center;"> 2015 </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> PL_Vist </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> T </td>
+   <td style="text-align:center;"> 2016 </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> PL_Vist </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> T </td>
+   <td style="text-align:center;"> 2017 </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> PL_Vist </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> T </td>
+   <td style="text-align:center;"> 2018 </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> . </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> PL_Vist </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> TC </td>
+   <td style="text-align:center;"> 2000 </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> . </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> PL_Vist </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> TC </td>
+   <td style="text-align:center;"> 2001 </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> PL_Vist </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> TC </td>
+   <td style="text-align:center;"> 2002 </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> . </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> PL_Vist </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> TC </td>
+   <td style="text-align:center;"> 2003 </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> PL_Vist </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> TC </td>
+   <td style="text-align:center;"> 2004 </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> PL_Vist </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> TC </td>
+   <td style="text-align:center;"> 2005 </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> PL_Vist </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> TC </td>
+   <td style="text-align:center;"> 2006 </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> PL_Vist </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> TC </td>
+   <td style="text-align:center;"> 2007 </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> PL_Vist </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> TC </td>
+   <td style="text-align:center;"> 2008 </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> . </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> PL_Vist </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> TC </td>
+   <td style="text-align:center;"> 2009 </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> PL_Vist </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> TC </td>
+   <td style="text-align:center;"> 2010 </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+  </tr>
+  <tr>
    <td style="text-align:center;"> SE_East </td>
    <td style="text-align:center;"> S </td>
    <td style="text-align:center;"> C </td>
@@ -25623,6 +26596,8 @@ for (the_emu in unique(res$emu_nameshort)){
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
 ![](landings_seasonality_files/figure-html/s-11.png)<!-- -->
@@ -25756,6 +26731,8 @@ for (the_emu in unique(res$emu_nameshort)){
 ![](landings_seasonality_files/figure-html/s-27.png)<!-- -->
 
 ```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
@@ -25898,6 +26875,8 @@ for (the_emu in unique(res$emu_nameshort)){
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
 ![](landings_seasonality_files/figure-html/g-11.png)<!-- -->![](landings_seasonality_files/figure-html/g-12.png)<!-- -->
@@ -25984,6 +26963,8 @@ for (the_emu in unique(res$emu_nameshort)){
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
 ![](landings_seasonality_files/figure-html/g-19.png)<!-- -->
@@ -25998,6 +26979,8 @@ for (the_emu in unique(res$emu_nameshort)){
 ```
 
 ```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
@@ -26156,6 +27139,8 @@ for (the_emu in unique(res$emu_nameshort)){
 ![](landings_seasonality_files/figure-html/y-7.png)<!-- -->
 
 ```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
@@ -26326,6 +27311,8 @@ for (the_emu in unique(res$emu_nameshort)){
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
 ![](landings_seasonality_files/figure-html/y-30.png)<!-- -->
@@ -26439,6 +27426,8 @@ for (the_emu in unique(res$emu_nameshort)){
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
 ![](landings_seasonality_files/figure-html/y-42.png)<!-- -->
@@ -26495,6 +27484,8 @@ for (the_emu in unique(res$emu_nameshort)){
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
 ![](landings_seasonality_files/figure-html/y-43.png)<!-- -->
@@ -26509,6 +27500,8 @@ for (the_emu in unique(res$emu_nameshort)){
 ```
 
 ```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
@@ -26649,7 +27642,6 @@ for (the_emu in unique(res$emu_nameshort)){
 
 ```
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
 ![](landings_seasonality_files/figure-html/ys-3.png)<!-- -->
@@ -26659,6 +27651,19 @@ for (the_emu in unique(res$emu_nameshort)){
 ```
 
 ![](landings_seasonality_files/figure-html/ys-4.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/ys-5.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/ys-6.png)<!-- -->
 
 ```r
 for (the_emu in unique(res$emu_nameshort)){
@@ -26686,24 +27691,12 @@ for (the_emu in unique(res$emu_nameshort)){
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
-![](landings_seasonality_files/figure-html/ys-5.png)<!-- -->
-
-```
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-```
-
-![](landings_seasonality_files/figure-html/ys-6.png)<!-- -->
-
-```
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-```
-
 ![](landings_seasonality_files/figure-html/ys-7.png)<!-- -->
 
 ```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
@@ -26723,33 +27716,47 @@ for (the_emu in unique(res$emu_nameshort)){
 
 ```
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
 ![](landings_seasonality_files/figure-html/ys-11.png)<!-- -->
 
 ```
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/ys-12.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
-![](landings_seasonality_files/figure-html/ys-12.png)<!-- -->
+![](landings_seasonality_files/figure-html/ys-13.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/ys-14.png)<!-- -->
 
 ```r
 for (the_emu in unique(res$emu_nameshort)){
@@ -26776,18 +27783,6 @@ for (the_emu in unique(res$emu_nameshort)){
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
-![](landings_seasonality_files/figure-html/ys-13.png)<!-- -->
-
-```
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-```
-
-![](landings_seasonality_files/figure-html/ys-14.png)<!-- -->
-
-```
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-```
-
 ![](landings_seasonality_files/figure-html/ys-15.png)<!-- -->
 
 ```
@@ -26797,7 +27792,6 @@ for (the_emu in unique(res$emu_nameshort)){
 ![](landings_seasonality_files/figure-html/ys-16.png)<!-- -->
 
 ```
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
@@ -26825,32 +27819,57 @@ for (the_emu in unique(res$emu_nameshort)){
 ```
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
 ![](landings_seasonality_files/figure-html/ys-21.png)<!-- -->
 
 ```
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/ys-22.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
-![](landings_seasonality_files/figure-html/ys-22.png)<!-- -->
+![](landings_seasonality_files/figure-html/ys-23.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/ys-24.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/ys-25.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/ys-26.png)<!-- -->
 
 ```r
 for (the_emu in unique(res$emu_nameshort)){
@@ -26904,9 +27923,11 @@ for (the_emu in unique(res$emu_nameshort)){
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
-![](landings_seasonality_files/figure-html/ys-23.png)<!-- -->
+![](landings_seasonality_files/figure-html/ys-27.png)<!-- -->
 
 ```r
 for (the_emu in unique(res$emu_nameshort)){
@@ -26957,9 +27978,21 @@ for (the_emu in unique(res$emu_nameshort)){
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/ys-28.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/ys-29.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
-![](landings_seasonality_files/figure-html/ys-24.png)<!-- -->
+![](landings_seasonality_files/figure-html/ys-30.png)<!-- -->

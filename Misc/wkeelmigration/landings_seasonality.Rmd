@@ -132,7 +132,7 @@ res %>% mutate("freq"=1) %>% filter(eel_year>2000 & eel_year<2019) %>%
 		scroll_box(width = "500px", height = "200px")
 
 # temporarily dropping those files
-res <-res%>%filter(!eel_emu_nameshort%in% c('PL_Oder','PL_Vist'))
+# res <-res%>%filter(!eel_emu_nameshort%in% c('PL_Oder','PL_Vist'))
 
 # SEARCHING FOR DUPLICATES-----------------------------------------------------------
 
