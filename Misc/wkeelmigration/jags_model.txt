@@ -76,18 +76,7 @@ model{
 					ifelse(sum(month_prop_group[g,1:11])>11,11,12)))))))))))
 	}
 	for(clus in 1:nbclus){
-		distFromRef[clus] <-min(alpha_group[ref,1],alpha2_unordered[clus,1])+
-			min(alpha_group[ref,2],alpha2_unordered[clus,2])+
-			min(alpha_group[ref,3],alpha2_unordered[clus,3])+
-			min(alpha_group[ref,4],alpha2_unordered[clus,4])+
-			min(alpha_group[ref,5],alpha2_unordered[clus,5])+
-			min(alpha_group[ref,6],alpha2_unordered[clus,6])+
-			min(alpha_group[ref,7],alpha2_unordered[clus,7])+
-			min(alpha_group[ref,8],alpha2_unordered[clus,8])+
-			min(alpha_group[ref,9],alpha2_unordered[clus,9])+
-			min(alpha_group[ref,10],alpha2_unordered[clus,10])+
-			min(alpha_group[ref,11],alpha2_unordered[clus,11])+
-			min(alpha_group[ref,12],alpha2_unordered[clus,12])
+		distFromRef[clus] <-sum((alpha_group[ref,1:nbm]-alpha2_unordered[clus,1:nbm])*(alpha_group[ref,1:nbm]-alpha2_unordered[clus,1:nbm])/alpha_group[ref,1:nbm])
 }
 }
 
