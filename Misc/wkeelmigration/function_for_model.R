@@ -253,3 +253,44 @@ season_creation<-function(data){
   data
 }
 
+
+
+compute_silhouette <- function(res_mat){
+  names_col <-colnames(res_mat)
+  mean_si <- apply(res_mat, 1, function(iter){
+    ng <- seq_len(length(unique(group)))
+    clusters <- iter[paste("cluster[",ng,"]",sep="")]
+    nb_occ <- table(clusters)
+    used_group <- unique(clusters)
+    esp <- t(sapply(ng,function(id){
+      iter[grep(paste("alpha_group\\[", id,",", sep=""),
+                names_col)]
+    }))
+    distance <- apply (esp, 1 ,function(x){ #matrix of distance among groups
+      1 -rowSums(sweep(esp,2,x,pmin))
+    })
+    
+    #average distance to other members of cluster
+    ai <- sapply(ng, function(id){  
+      ci <- which(clusters == clusters[id])
+      ifelse(length(ci)>1,
+             sum(distance[id,ci])/(length(ci)-1),
+             NA)
+    })
+    
+    #distance to the closest external cluster, defined as the mean distance
+    #to all points of this external cluster
+    bi <- sapply(ng, function(id){
+      dk <- tapply(distance[id, ],list(clusters),mean)
+      min(dk[names(dk) != clusters[id]])
+    })
+    
+    #silhouette coeff
+    si <- (bi-ai)/pmax(ai,bi)
+    si[is.na(si)]<-0
+    
+    #mean silhouette from Kaufman et al.
+    mean(si)
+  })
+}
+
