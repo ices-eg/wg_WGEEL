@@ -5,7 +5,7 @@ shifter <- function(x, n = 1) {
 
 #function used after a classification to get some stats about clusters
 characteristics <- function(myres,nbclus, threshold=.80){
-  mydata <- as.matrix(as.mcmc.list(myres))
+  mydata <- as.matrix(as.mcmc.list(myres,add.mutate=FALSE))
   sapply(seq_len(nbclus),function(clus){
     esp <- mydata[, paste("esp[",clus , ",", 1:12, "]", sep="")]
     duration_it <- apply(esp, 1, function (esp_it){
@@ -88,8 +88,9 @@ good_coverage_wave <- function(mydata, stage=NULL){
   if (is.null(stage)){
     peak_month <- unique(mydata$peak_month)
     lowest_month <- unique(mydata$lowest_month)
-  } else {
-    lowest_month=11 #for glass eel season starts in november
+    stage="notG"
+  } else if (stage =="G" | "emu_nameshort" %in% names(mydata)){
+    lowest_month=10 #for glass eel season starts in november
   }
   original_months <- shifter(1:12,lowest_month-1)
   #we put data in wide format with one row per seasaon
@@ -101,6 +102,62 @@ good_coverage_wave <- function(mydata, stage=NULL){
            das_value,
            drop=FALSE)
   data_wide <- data_wide[,c(1:12,"season")]
+  
+  
+  #For Spanish landings data of glass eels, NA are indeed 0 catches because
+  #of fishery closure
+  if (stage == "G" & "emu_nameshort" %in% names(mydata) & 
+      unique(mydata$cou_code) == "ES") {
+      data_wide[data_wide$season==min(mydata$season),
+                which(original_months == 1):12] <- ifelse(is.na(data_wide[data_wide$season==min(mydata$season),
+                                                                          which(original_months == 1):12]),0,data_wide[data_wide$season==min(mydata$season),
+                                                                                                                       which(original_months == 1):12])
+      data_wide[data_wide$season > min(mydata$season),] <-
+        data_wide %>%
+        filter(season>min(mydata$season)) %>%
+        replace_na(replace=list(`1`=0,
+                                      `2`=0,
+                                      `3`=0,
+                                      `4`=0,
+                                      `5`=0,
+                                      `6`=0,
+                                      `7`=0,
+                                      `8`=0,
+                                      `9`=0,
+                                      `10`=0,
+                                      `11`=0,
+                                      `12`=0))
+  } else if ("emu_nameshort" %in% names(mydata) & 
+             unique(mydata$cou_code) == "ES") {
+    data_wide[data_wide$season==min(mydata$season),
+              which(original_months == 1):12] <- ifelse(is.na(data_wide[data_wide$season==min(mydata$season),
+                                                                        which(original_months == 1):12]),0,data_wide[data_wide$season==min(mydata$season),
+                                                                                                                     which(original_months == 1):12])
+    
+    data_wide[data_wide$season==max(mydata$season),
+              1:which(original_months==12)] <- ifelse(is.na(data_wide)[data_wide$season==max(mydata$season),
+                                                                       1:which(original_months==12)],
+                                                      0,
+                                                      data_wide[data_wide$season==max(mydata$season),
+                                                       1:which(original_months==12)]
+                                                      )
+    
+    data_wide[data_wide$season > min(mydata$season) & data_wide$season < max(mydata$season),] <-
+      data_wide %>%
+      filter(season>min(mydata$season)) %>%
+      replace_na(replace=list(`1`=0,
+                              `2`=0,
+                              `3`=0,
+                              `4`=0,
+                              `5`=0,
+                              `6`=0,
+                              `7`=0,
+                              `8`=0,
+                              `9`=0,
+                              `10`=0,
+                              `11`=0,
+                              `12`=0))
+  }
   mean_per_month <- colMeans(data_wide[,1:12],na.rm=TRUE)
   mean_per_month <- mean_per_month / sum(mean_per_month, na.rm=TRUE)
   
@@ -108,13 +165,17 @@ good_coverage_wave <- function(mydata, stage=NULL){
     cumsum(sort(mean_per_month, decreasing=TRUE)) / 
     sum(mean_per_month, na.rm=TRUE)
   
+  
+  name_data <- ifelse("ser_nameshort" %in% names(mydata),
+                      unique(mydata$ser_nameshort),
+                      unique(mydata$emu_nameshort))
   #we take the last month to have at least 95% of catches and which stands for
   #less than 5 % of catches
   bound <- min(which(cum_sum > .95 &
                        mean_per_month[as.integer(names(cum_sum))]<.05))
   if (is.infinite(bound) | sum(is.na(mean_per_month))>5){
     print(paste("For",
-                unique(mydata$ser_nameshort),
+                name_data,
                 "not possible to define a season"))
     return (NULL)
   }
@@ -126,15 +187,12 @@ good_coverage_wave <- function(mydata, stage=NULL){
   if ((fmin>1 & mean_per_month[fmin]>.05 & is.na(mean_per_month[fmin+1])) |
       (lmin<12 & mean_per_month[lmin]>.05 & is.na(mean_per_month[lmin+1]))){
     print(paste("For",
-                unique(mydata$ser_nameshort),
+                name_data,
                 "not possible to define a season"))
     return (NULL)
     
   }
-  
-  name_data <- ifelse("ser_nameshort" %in% names(mydata),
-                      unique(mydata$ser_nameshort),
-                      unique(mydata$emu_nameshort))
+
   print(paste("For ",
               name_data,
               " a good season should cover months:",
@@ -193,5 +251,46 @@ season_creation<-function(data){
   data$peak_month <- peak_month
   data$lowest_month <- lowest_month
   data
+}
+
+
+
+compute_silhouette <- function(res_mat){
+  names_col <-colnames(res_mat)
+  mean_si <- apply(res_mat, 1, function(iter){
+    ng <- seq_len(length(unique(group)))
+    clusters <- iter[paste("cluster[",ng,"]",sep="")]
+    nb_occ <- table(clusters)
+    used_group <- unique(clusters)
+    esp <- t(sapply(ng,function(id){
+      iter[grep(paste("alpha_group\\[", id,",", sep=""),
+                names_col)]
+    }))
+    distance <- apply (esp, 1 ,function(x){ #matrix of distance among groups
+      1 -rowSums(sweep(esp,2,x,pmin))
+    })
+    
+    #average distance to other members of cluster
+    ai <- sapply(ng, function(id){  
+      ci <- which(clusters == clusters[id])
+      ifelse(length(ci)>1,
+             sum(distance[id,ci])/(length(ci)-1),
+             NA)
+    })
+    
+    #distance to the closest external cluster, defined as the mean distance
+    #to all points of this external cluster
+    bi <- sapply(ng, function(id){
+      dk <- tapply(distance[id, ],list(clusters),mean)
+      min(dk[names(dk) != clusters[id]])
+    })
+    
+    #silhouette coeff
+    si <- (bi-ai)/pmax(ai,bi)
+    si[is.na(si)]<-0
+    
+    #mean silhouette from Kaufman et al.
+    mean(si)
+  })
 }
 
