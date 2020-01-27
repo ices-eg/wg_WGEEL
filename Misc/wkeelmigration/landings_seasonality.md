@@ -27,144 +27,460 @@ load(file=str_c(datawd1,"list_seasonality.Rdata"))
 # to do so, I had to constrain the column type during file reading (see functions.R)
 res <- map(list_seasonality,function(X){			X[["data"]]		}) %>% 
 		bind_rows()
-Hmisc::describe(res)
+Hmisc::describe(res) %>% html()
 ```
 
 ```
-## res 
-## 
-##  14  Variables      11810  Observations
-## ---------------------------------------------------------------------------
-## eel_typ_name 
-##        n  missing distinct 
-##    11638      172        2 
-##                                           
-## Value      com_landings_kg rec_landings_kg
-## Frequency            11572              66
-## Proportion           0.994           0.006
-## ---------------------------------------------------------------------------
-## eel_year 
-##        n  missing distinct     Info     Mean      Gmd      .05      .10 
-##    11638      172       20    0.997     2011     6.01     2001     2003 
-##      .25      .50      .75      .90      .95 
-##     2006     2011     2015     2017     2018 
-##                                                                       
-## Value       2000  2001  2002  2003  2004  2005  2006  2007  2008  2009
-## Frequency    325   334   390   387   405   577   600   567   556   675
-## Proportion 0.028 0.029 0.034 0.033 0.035 0.050 0.052 0.049 0.048 0.058
-##                                                                       
-## Value       2010  2011  2012  2013  2014  2015  2016  2017  2018  2019
-## Frequency    678   593   645   648   829   828   873   836   818    74
-## Proportion 0.058 0.051 0.055 0.056 0.071 0.071 0.075 0.072 0.070 0.006
-## ---------------------------------------------------------------------------
-## eel_month 
-##        n  missing distinct 
-##    11638      172       14 
-## 
-## APR (989, 0.085), AUG (1002, 0.086), Dec (1, 0.000), DEC (937, 0.081), FEB
-## (796, 0.068), JAN (811, 0.070), JUL (1021, 0.088), JUN (1041, 0.089), MAR
-## (864, 0.074), MAY (1017, 0.087), NOV (1060, 0.091), OCT (1027, 0.088), SEP
-## (986, 0.085), WHOLE YEAR (86, 0.007)
-## ---------------------------------------------------------------------------
-## eel_value 
-##        n  missing distinct     Info     Mean      Gmd      .05      .10 
-##    11600      210     5885    0.988     3049     5513      0.0      0.0 
-##      .25      .50      .75      .90      .95 
-##      1.8    111.5    933.3   4247.7  12596.4 
-## 
-## lowest :      0.00      0.05      0.08      0.10      0.13
-## highest: 208509.10 215026.50 228703.70 271248.00 281151.60
-## ---------------------------------------------------------------------------
-## eel_missvaluequal 
-##        n  missing distinct 
-##       39    11771        3 
-##                             
-## Value         ND    NM    NP
-## Frequency      9    19    11
-## Proportion 0.231 0.487 0.282
-## ---------------------------------------------------------------------------
-## eel_emu_nameshort 
-##        n  missing distinct 
-##    11638      172       45 
-## 
-## lowest : DE_Eide  DE_Elbe  DE_Schl  DE_Warn  DK_total
-## highest: PL_Oder  PL_Vist  SE_East  SE_Inla  SE_West 
-## ---------------------------------------------------------------------------
-## eel_cou_code 
-##        n  missing distinct 
-##    11810        0       13 
-##                                                                       
-## Value          0    DE    DK    ES    FI    FR    GB    HR    IE    NL
-## Frequency    172  2058   464   847    96  3947  2219    72    35   430
-## Proportion 0.015 0.174 0.039 0.072 0.008 0.334 0.188 0.006 0.003 0.036
-##                             
-## Value         NO    PL    SE
-## Frequency    217   436   817
-## Proportion 0.018 0.037 0.069
-## ---------------------------------------------------------------------------
-## eel_lfs_code 
-##        n  missing distinct 
-##    11638      172        4 
-##                                   
-## Value          G     S     Y    YS
-## Frequency   1951  2805  3828  3054
-## Proportion 0.168 0.241 0.329 0.262
-## ---------------------------------------------------------------------------
-## eel_hty_code 
-##        n  missing distinct 
-##    11638      172        8 
-##                                                           
-## Value          C     F    FC    FT   FTC    MO     T    TC
-## Frequency   1927  3357   926    12   274   464  4305   373
-## Proportion 0.166 0.288 0.080 0.001 0.024 0.040 0.370 0.032
-## ---------------------------------------------------------------------------
-## eel_area_division 
-##        n  missing distinct 
-##     4324     7486       12 
-##                                                                       
-## Value         27.3.a 27.3.b, c    27.3.d    27.4.b    27.4.c    27.7.a
-## Frequency        460       728       910       816       171       152
-## Proportion     0.106     0.168     0.210     0.189     0.040     0.035
-##                                                                       
-## Value         27.7.d    27.7.e    27.8.c    27.9.a    37.1.1    37.2.1
-## Frequency         86        82       205       257       385        72
-## Proportion     0.020     0.019     0.047     0.059     0.089     0.017
-## ---------------------------------------------------------------------------
-## eel_comment 
-##        n  missing distinct 
-##     1870     9940       28 
-## 
-## lowest : 27.4.a also included                                                                                                                       All marine areas                                                                                                                           All marine areas. Preliminary data                                                                                                         area information is incomplete, but almost everything is from Ivc                                                                          Bristol Channel                                                                                                                           
-## highest: total landings of one fisherman were reported monthly. But proportion of silvereel of total landings were only provided as a total (120kg) total landings of one fisherman were reported monthy. But proportion of silvereel of total landings were only provided as a total (100kg)  Two days fished using one fyke net (AUG). No eels caught                                                                                   two fishermen only reported yearly catch for yellow and silver eel combined which are excluded (total of 15kg in 2009)                     Vessels of the Nalón stop from February 17 to March 18, 2011.                                                                             
-## ---------------------------------------------------------------------------
-## source 
-##        n  missing distinct 
-##    11810        0       12 
-## 
-## lowest : DE_commercial_landings DK_commercial_landings ES_commercial_landings FL_commercial_landings FR_commercial_landings
-## highest: IE_commercial_landings NL_commercial_landings NO_commercial_landings PL_commercial_landings SE_commercial_landings
-## ---------------------------------------------------------------------------
-## country 
-##        n  missing distinct 
-##    11810        0       12 
-##                                                                       
-## Value         DE    DK    ES    FL    FR    GB    HR    IE    NL    NO
-## Frequency   2058   464   847    96  3947  2219   244    35   430   217
-## Proportion 0.174 0.039 0.072 0.008 0.334 0.188 0.021 0.003 0.036 0.018
-##                       
-## Value         PL    SE
-## Frequency    436   817
-## Proportion 0.037 0.069
-## ---------------------------------------------------------------------------
-## datasource 
-##              n        missing       distinct          value 
-##          11810              0              1 wkeelmigration 
-##                          
-## Value      wkeelmigration
-## Frequency           11810
-## Proportion              1
-## ---------------------------------------------------------------------------
+## Warning in png(file, width = 1 + k * w, height = h): 'width=13, height=13'
+## ne sont probablement pas des valeurs en pixels
+
+## Warning in png(file, width = 1 + k * w, height = h): 'width=13, height=13'
+## ne sont probablement pas des valeurs en pixels
 ```
+
+<!--html_preserve--><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+<script type="text/javascript">
+<!--
+    function expand_collapse(id) {
+       var e = document.getElementById(id);
+       var f = document.getElementById(id+"_earrows");
+       if(e.style.display == 'none'){
+          e.style.display = 'block';
+          f.innerHTML = '&#9650';
+       }
+       else {
+          e.style.display = 'none';
+          f.innerHTML = '&#9660';
+       }
+    }
+//-->
+</script>
+<style>
+.earrows {color:silver;font-size:11px;}
+
+fcap {
+ font-family: Verdana;
+ font-size: 12px;
+ color: MidnightBlue
+ }
+
+smg {
+ font-family: Verdana;
+ font-size: 10px;
+ color: &#808080;
+}
+
+hr.thinhr { margin-top: 0.15em; margin-bottom: 0.15em; }
+
+span.xscript {
+position: relative;
+}
+span.xscript sub {
+position: absolute;
+left: 0.1em;
+bottom: -1ex;
+}
+</style>
+ <font color="MidnightBlue"><div align=center><span style="font-weight:bold">res <br><br> 14  Variables   12106  Observations</span></div></font> <hr class="thinhr"> <span style="font-weight:bold">eel_typ_name</span> <style>
+ .hmisctable638760 {
+ border: none;
+ font-size: 85%;
+ }
+ .hmisctable638760 td {
+ text-align: center;
+ padding: 0 1ex 0 1ex;
+ }
+ .hmisctable638760 th {
+ color: MidnightBlue;
+ text-align: center;
+ padding: 0 1ex 0 1ex;
+ font-weight: normal;
+ }
+ </style>
+ <table class="hmisctable638760">
+ <tr><th>n</th><th>missing</th><th>distinct</th></tr>
+ <tr><td>11934</td><td>172</td><td>2</td></tr>
+ </table>
+ <pre style="font-size:85%;">
+ Value      com_landings_kg rec_landings_kg
+ Frequency            11868              66
+ Proportion           0.994           0.006
+ </pre>
+ <hr class="thinhr"> <span style="font-weight:bold">eel_year</span><div style='float: right; text-align: right;'><img src="data:image/png;base64,
+iVBORw0KGgoAAAANSUhEUgAAAD0AAAANCAMAAAAtxpZ2AAAACVBMVEUAAADMzMz////1iUV5AAAAR0lEQVQokWNgJB4wMKAgkAgT8YCBAQWBRPCrhqqiTDeaPpy60VVg1Uct3XgCFRSumELoYY7PfAJ245EetrrBCHegEghzIAIAbxwC7DIBgcMAAAAASUVORK5CYII=" alt="image" /></div> <style>
+ .hmisctable454620 {
+ border: none;
+ font-size: 85%;
+ }
+ .hmisctable454620 td {
+ text-align: center;
+ padding: 0 1ex 0 1ex;
+ }
+ .hmisctable454620 th {
+ color: MidnightBlue;
+ text-align: center;
+ padding: 0 1ex 0 1ex;
+ font-weight: normal;
+ }
+ </style>
+ <table class="hmisctable454620">
+ <tr><th>n</th><th>missing</th><th>distinct</th><th>Info</th><th>Mean</th><th>Gmd</th><th>.05</th><th>.10</th><th>.25</th><th>.50</th><th>.75</th><th>.90</th><th>.95</th></tr>
+ <tr><td>11934</td><td>172</td><td>20</td><td>0.997</td><td>2011</td><td>6.028</td><td>2001</td><td>2003</td><td>2006</td><td>2011</td><td>2015</td><td>2017</td><td>2018</td></tr>
+ </table>
+ <pre style="font-size:85%;">
+ Value       2000  2001  2002  2003  2004  2005  2006  2007  2008  2009  2010  2011
+ Frequency    339   348   404   401   419   591   614   581   570   689   692   607
+ Proportion 0.028 0.029 0.034 0.034 0.035 0.050 0.051 0.049 0.048 0.058 0.058 0.051
+                                                           
+ Value       2012  2013  2014  2015  2016  2017  2018  2019
+ Frequency    661   665   845   844   890   852   834    88
+ Proportion 0.055 0.056 0.071 0.071 0.075 0.071 0.070 0.007
+ </pre>
+ <hr class="thinhr"> <span style="font-weight:bold">eel_month</span><div style='float: right; text-align: right;'><img src="data:image/png;base64,
+iVBORw0KGgoAAAANSUhEUgAAAC4AAAANCAMAAADhX6ydAAAACVBMVEUAAADMzMz////1iUV5AAAATElEQVQokWNgYGAEImSAEIGwkFUwMDAwAREQQEgIA8qGsBB8kAiqcoQ0slrsylGkB0Y51N/IwQASQedjhswgcDutlIMZ0HAgGDJgEgCLzQILq8CShwAAAABJRU5ErkJggg==" alt="image" /></div> <style>
+ .hmisctable633344 {
+ border: none;
+ font-size: 85%;
+ }
+ .hmisctable633344 td {
+ text-align: center;
+ padding: 0 1ex 0 1ex;
+ }
+ .hmisctable633344 th {
+ color: MidnightBlue;
+ text-align: center;
+ padding: 0 1ex 0 1ex;
+ font-weight: normal;
+ }
+ </style>
+ <table class="hmisctable633344">
+ <tr><th>n</th><th>missing</th><th>distinct</th></tr>
+ <tr><td>11934</td><td>172</td><td>15</td></tr>
+ </table>
+  APR (1009, 0.085), AUG (1022, 0.086), Dec (1, 0.000), DEC (965, 0.081), FEB (823, 0.069), JAN (839, 0.070), JUL (1041, 0.087), JUN (1061, 0.089), MAR (885, 0.074), MAY (1037, 0.087), NOV (1088, 0.091), OCT (1049, 0.088), SEP (1006, 0.084), whole year (22, 0.002), WHOLE YEAR (86, 0.007) <hr class="thinhr"> <span style="font-weight:bold">eel_value</span><div style='float: right; text-align: right;'><img src="data:image/png;base64,
+iVBORw0KGgoAAAANSUhEUgAAAHwAAAANCAMAAABcvvroAAAACVBMVEUAAADMzMz////1iUV5AAAAQUlEQVQ4jWNgZGRgYBwgwMDExADEAwNGLR+Blo+m9lHL6W75QFkPTu3A9I4KGdEFCAmC0y4jPNswMKJKoKdyKAYAt4UKyvIMdkYAAAAASUVORK5CYII=" alt="image" /></div> <pre style="font-size:85%;">
+        n  missing distinct     Info     Mean      Gmd      .05      .10      .25 
+    11894      212     6126    0.989     2990     5400      0.0      0.0      2.0 
+      .50      .75      .90      .95 
+    120.9    925.8   4139.0  11969.7 
+ </pre>
+ <style>
+ .hmisctable286980 {
+ border: none;
+ font-size: 85%;
+ }
+ .hmisctable286980 td {
+ text-align: right;
+ padding: 0 1ex 0 1ex;
+ }
+ .hmisctable286980 th {
+ color: Black;
+ text-align: center;
+ padding: 0 1ex 0 1ex;
+ font-weight: bold;
+ }
+ </style>
+ <table class="hmisctable286980">
+ <tr><td><font color="MidnightBlue">lowest</font> :</td><td>     0.00</td><td>     0.05</td><td>     0.08</td><td>     0.10</td><td>     0.13</td></tr>
+ <tr><td><font color="MidnightBlue">highest</font>:</td><td>208509.10</td><td>215026.50</td><td>228703.70</td><td>271248.00</td><td>281151.60</td></tr>
+ </table>
+ <hr class="thinhr"> <span style="font-weight:bold">eel_missvaluequal</span><div style='float: right; text-align: right;'><img src="data:image/png;base64,
+iVBORw0KGgoAAAANSUhEUgAAAA0AAAANCAMAAABFNRROAAAACVBMVEUAAADMzMz////1iUV5AAAAI0lEQVQImWNghAAGBjDJBAEMYAbZPJLMBLEgGC+PAWIeBAMAV6MA4eyrNIYAAAAASUVORK5CYII=" alt="image" /></div> <style>
+ .hmisctable495140 {
+ border: none;
+ font-size: 85%;
+ }
+ .hmisctable495140 td {
+ text-align: center;
+ padding: 0 1ex 0 1ex;
+ }
+ .hmisctable495140 th {
+ color: MidnightBlue;
+ text-align: center;
+ padding: 0 1ex 0 1ex;
+ font-weight: normal;
+ }
+ </style>
+ <table class="hmisctable495140">
+ <tr><th>n</th><th>missing</th><th>distinct</th></tr>
+ <tr><td>61</td><td>12045</td><td>4</td></tr>
+ </table>
+ <pre style="font-size:85%;">
+ Value         nd    ND    NM    NP
+ Frequency      2     9    39    11
+ Proportion 0.033 0.148 0.639 0.180
+ </pre>
+ <hr class="thinhr"> <span style="font-weight:bold">eel_emu_nameshort</span><div style='float: right; text-align: right;'><img src="data:image/png;base64,
+iVBORw0KGgoAAAANSUhEUgAAAI4AAAANCAMAAABIB6ZMAAAACVBMVEUAAADMzMz////1iUV5AAAAkUlEQVQ4jeWT4Q6AIAiE0fd/6FiZAR5lwtaPHG1F5/VFHZXgIoo6KLdaiY/1Fds9uIUMeevXOFL+D5xuO2EuhQInB4v2bBw1lxMjP3e8SZivldOZG70Z5tN0UN/0xGUmjvmrjDaOA/mMfBEHVhbOaAE7izj6KfB1dXn+tx8W4oiotJxcJ71R9J2hnDY09V04WRu8pgn1p7AJ1AAAAABJRU5ErkJggg==" alt="image" /></div> <style>
+ .hmisctable294511 {
+ border: none;
+ font-size: 85%;
+ }
+ .hmisctable294511 td {
+ text-align: center;
+ padding: 0 1ex 0 1ex;
+ }
+ .hmisctable294511 th {
+ color: MidnightBlue;
+ text-align: center;
+ padding: 0 1ex 0 1ex;
+ font-weight: normal;
+ }
+ </style>
+ <table class="hmisctable294511">
+ <tr><th>n</th><th>missing</th><th>distinct</th></tr>
+ <tr><td>11934</td><td>172</td><td>47</td></tr>
+ </table>
+ <span style="font-size: 85%;"><font color="MidnightBlue">lowest</font> : DE_Eide  DE_Elbe  DE_Schl  DE_Warn  DK_total ,  <font color="MidnightBlue">highest</font>: PL_Vist  PT_Port  SE_East  SE_Inla  SE_West </span> <hr class="thinhr"> <span style="font-weight:bold">eel_cou_code</span><div style='float: right; text-align: right;'><img src="data:image/png;base64,
+iVBORw0KGgoAAAANSUhEUgAAACsAAAANCAMAAAAHdmfZAAAACVBMVEUAAADMzMz////1iUV5AAAARklEQVQokWNgRAUMDIw4AQMTKmBAF0CWG5xqcSpnQPM7kI0zKBjQ7MVrLs3VwknsakEScHksatENYWSA+h3kfTiDEcZBJgHxggNQ1okSmAAAAABJRU5ErkJggg==" alt="image" /></div> <style>
+ .hmisctable344521 {
+ border: none;
+ font-size: 85%;
+ }
+ .hmisctable344521 td {
+ text-align: center;
+ padding: 0 1ex 0 1ex;
+ }
+ .hmisctable344521 th {
+ color: MidnightBlue;
+ text-align: center;
+ padding: 0 1ex 0 1ex;
+ font-weight: normal;
+ }
+ </style>
+ <table class="hmisctable344521">
+ <tr><th>n</th><th>missing</th><th>distinct</th></tr>
+ <tr><td>12106</td><td>0</td><td>14</td></tr>
+ </table>
+ <pre style="font-size:85%;">
+ Value          0    DE    DK    ES    FI    FR    GB    HR    IE    NL    NO    PL
+ Frequency    172  2058   464   847    96  3947  2219    72    35   430   217   436
+ Proportion 0.014 0.170 0.038 0.070 0.008 0.326 0.183 0.006 0.003 0.036 0.018 0.036
+                       
+ Value         PT    SE
+ Frequency    296   817
+ Proportion 0.024 0.067
+ </pre>
+ <hr class="thinhr"> <span style="font-weight:bold">eel_lfs_code</span><div style='float: right; text-align: right;'><img src="data:image/png;base64,
+iVBORw0KGgoAAAANSUhEUgAAAA0AAAANCAMAAABFNRROAAAACVBMVEUAAADMzMz////1iUV5AAAAJ0lEQVQImWNghAAGBjDJBAEMDCCMyYOwCPIYIOZBMEIcIkcuD9lMAD/GAKJ7LgS6AAAAAElFTkSuQmCC" alt="image" /></div> <style>
+ .hmisctable983749 {
+ border: none;
+ font-size: 85%;
+ }
+ .hmisctable983749 td {
+ text-align: center;
+ padding: 0 1ex 0 1ex;
+ }
+ .hmisctable983749 th {
+ color: MidnightBlue;
+ text-align: center;
+ padding: 0 1ex 0 1ex;
+ font-weight: normal;
+ }
+ </style>
+ <table class="hmisctable983749">
+ <tr><th>n</th><th>missing</th><th>distinct</th></tr>
+ <tr><td>11934</td><td>172</td><td>4</td></tr>
+ </table>
+ <pre style="font-size:85%;">
+ Value          G     S     Y    YS
+ Frequency   1996  2805  3828  3305
+ Proportion 0.167 0.235 0.321 0.277
+ </pre>
+ <hr class="thinhr"> <span style="font-weight:bold">eel_hty_code</span><div style='float: right; text-align: right;'><img src="data:image/png;base64,
+iVBORw0KGgoAAAANSUhEUgAAABkAAAANCAMAAABrcDXcAAAACVBMVEUAAADMzMz////1iUV5AAAAN0lEQVQYlWNgxAQMDGCSCRMwgAXxyzAwUE0G7hYMtzHg1EO+DIokDhkoh4EB5A4gBlMgB8E5DABEpwHLVCaxcgAAAABJRU5ErkJggg==" alt="image" /></div> <style>
+ .hmisctable884034 {
+ border: none;
+ font-size: 85%;
+ }
+ .hmisctable884034 td {
+ text-align: center;
+ padding: 0 1ex 0 1ex;
+ }
+ .hmisctable884034 th {
+ color: MidnightBlue;
+ text-align: center;
+ padding: 0 1ex 0 1ex;
+ font-weight: normal;
+ }
+ </style>
+ <table class="hmisctable884034">
+ <tr><th>n</th><th>missing</th><th>distinct</th></tr>
+ <tr><td>11934</td><td>172</td><td>8</td></tr>
+ </table>
+ <pre style="font-size:85%;">
+ Value          C     F    FC    FT   FTC    MO     T    TC
+ Frequency   1927  3357   926    12   274   464  4601   373
+ Proportion 0.161 0.281 0.078 0.001 0.023 0.039 0.386 0.031
+ </pre>
+ <hr class="thinhr"> <span style="font-weight:bold">eel_area_division</span><div style='float: right; text-align: right;'><img src="data:image/png;base64,
+iVBORw0KGgoAAAANSUhEUgAAACUAAAANCAMAAAAZv1dqAAAACVBMVEUAAADMzMz////1iUV5AAAAQElEQVQYlWNgBAMGBkZ8gIEJDBgYQAgnYIArGRSq4EIgzwExBGF4jQHOwG8WRJRmqlDUIvOxqcLko/gR6lNMPgCQDQJkyT+pWQAAAABJRU5ErkJggg==" alt="image" /></div> <style>
+ .hmisctable794973 {
+ border: none;
+ font-size: 85%;
+ }
+ .hmisctable794973 td {
+ text-align: center;
+ padding: 0 1ex 0 1ex;
+ }
+ .hmisctable794973 th {
+ color: MidnightBlue;
+ text-align: center;
+ padding: 0 1ex 0 1ex;
+ font-weight: normal;
+ }
+ </style>
+ <table class="hmisctable794973">
+ <tr><th>n</th><th>missing</th><th>distinct</th></tr>
+ <tr><td>4620</td><td>7486</td><td>12</td></tr>
+ </table>
+ <pre style="font-size:85%;">
+ Value         27.3.a 27.3.b, c    27.3.d    27.4.b    27.4.c    27.7.a    27.7.d
+ Frequency        460       728       910       816       171       152        86
+ Proportion     0.100     0.158     0.197     0.177     0.037     0.033     0.019
+                                                             
+ Value         27.7.e    27.8.c    27.9.a    37.1.1    37.2.1
+ Frequency         82       205       553       385        72
+ Proportion     0.018     0.044     0.120     0.083     0.016
+ </pre>
+ <hr class="thinhr"> <span style="font-weight:bold">eel_comment</span><div style='float: right; text-align: right;'><img src="data:image/png;base64,
+iVBORw0KGgoAAAANSUhEUgAAAI4AAAANCAMAAABIB6ZMAAAACVBMVEUAAADMzMz////1iUV5AAAAY0lEQVQ4jWNgBAEGBkZqAvKNY2ACAQYIRS1AvnGjzsGrk0L92A0dNs6hMCtgzx+U5CygXyDeoVoYURRZI8Q5hIzDJj/SnAM3nTjngPMBKCvASGSEIYALofFQSQbsajGtY2QEAHraC+zN3ypjAAAAAElFTkSuQmCC" alt="image" /></div> <style>
+ .hmisctable466881 {
+ border: none;
+ font-size: 85%;
+ }
+ .hmisctable466881 td {
+ text-align: center;
+ padding: 0 1ex 0 1ex;
+ }
+ .hmisctable466881 th {
+ color: MidnightBlue;
+ text-align: center;
+ padding: 0 1ex 0 1ex;
+ font-weight: normal;
+ }
+ </style>
+ <table class="hmisctable466881">
+ <tr><th>n</th><th>missing</th><th>distinct</th></tr>
+ <tr><td>1924</td><td>10182</td><td>47</td></tr>
+ </table>
+ <style>
+ .hmisctable837983 {
+ border: none;
+ font-size: 85%;
+ }
+ .hmisctable837983 td {
+ text-align: right;
+ padding: 0 1ex 0 1ex;
+ }
+ .hmisctable837983 th {
+ color: Black;
+ text-align: center;
+ padding: 0 1ex 0 1ex;
+ font-weight: bold;
+ }
+ </style>
+ <table class="hmisctable837983">
+ <tr><td><font color="MidnightBlue">lowest</font> :</td><td>27.4.a also included                                                                                                                      </td><td>All marine areas                                                                                                                          </td><td>All marine areas. Preliminary data                                                                                                        </td><td>area information is incomplete, but almost everything is from Ivc                                                                         </td><td>Bristol Channel                                                                                                                           </td></tr>
+ <tr><td><font color="MidnightBlue">highest</font>:</td><td>total landings of one fisherman were reported monthly. But proportion of silvereel of total landings were only provided as a total (120kg)</td><td>total landings of one fisherman were reported monthy. But proportion of silvereel of total landings were only provided as a total (100kg) </td><td>Two days fished using one fyke net (AUG). No eels caught                                                                                  </td><td>two fishermen only reported yearly catch for yellow and silver eel combined which are excluded (total of 15kg in 2009)                    </td><td>Vessels of the Nalón stop from February 17 to March 18, 2011.                                                                             </td></tr>
+ </table>
+ <hr class="thinhr"> <span style="font-weight:bold">source</span><div style='float: right; text-align: right;'><img src="data:image/png;base64,
+iVBORw0KGgoAAAANSUhEUgAAACgAAAANCAMAAADsQdzaAAAACVBMVEUAAADMzMz////1iUV5AAAAQUlEQVQokWNgRAIMDIw4AQMTEmBA4aGCQaQQp1oUjwI5OD2OYgJ+E2mkEELhVAiVgMujKIQLwSTgnmVAMKAcZBIAa54DGHmOyrsAAAAASUVORK5CYII=" alt="image" /></div> <style>
+ .hmisctable950263 {
+ border: none;
+ font-size: 85%;
+ }
+ .hmisctable950263 td {
+ text-align: center;
+ padding: 0 1ex 0 1ex;
+ }
+ .hmisctable950263 th {
+ color: MidnightBlue;
+ text-align: center;
+ padding: 0 1ex 0 1ex;
+ font-weight: normal;
+ }
+ </style>
+ <table class="hmisctable950263">
+ <tr><th>n</th><th>missing</th><th>distinct</th></tr>
+ <tr><td>12106</td><td>0</td><td>13</td></tr>
+ </table>
+ <style>
+ .hmisctable227895 {
+ border: none;
+ font-size: 85%;
+ }
+ .hmisctable227895 td {
+ text-align: right;
+ padding: 0 1ex 0 1ex;
+ }
+ .hmisctable227895 th {
+ color: Black;
+ text-align: center;
+ padding: 0 1ex 0 1ex;
+ font-weight: bold;
+ }
+ </style>
+ <table class="hmisctable227895">
+ <tr><td><font color="MidnightBlue">lowest</font> :</td><td>DE_commercial_landings</td><td>DK_commercial_landings</td><td>ES_commercial_landings</td><td>FL_commercial_landings</td><td>FR_commercial_landings</td></tr>
+ <tr><td><font color="MidnightBlue">highest</font>:</td><td>NL_commercial_landings</td><td>NO_commercial_landings</td><td>PL_commercial_landings</td><td>PT_commercial_landings</td><td>SE_commercial_landings</td></tr>
+ </table>
+ <hr class="thinhr"> <span style="font-weight:bold">country</span><div style='float: right; text-align: right;'><img src="data:image/png;base64,
+iVBORw0KGgoAAAANSUhEUgAAACgAAAANCAMAAADsQdzaAAAACVBMVEUAAADMzMz////1iUV5AAAAQUlEQVQokWNgRAIMDIw4AQMTEmBA4aGCQaQQp1oUjwI5OD2OYgJ+E2mkEELhVAiVgMujKIQLwSTgnmVAMKAcZBIAa54DGHmOyrsAAAAASUVORK5CYII=" alt="image" /></div> <style>
+ .hmisctable575515 {
+ border: none;
+ font-size: 85%;
+ }
+ .hmisctable575515 td {
+ text-align: center;
+ padding: 0 1ex 0 1ex;
+ }
+ .hmisctable575515 th {
+ color: MidnightBlue;
+ text-align: center;
+ padding: 0 1ex 0 1ex;
+ font-weight: normal;
+ }
+ </style>
+ <table class="hmisctable575515">
+ <tr><th>n</th><th>missing</th><th>distinct</th></tr>
+ <tr><td>12106</td><td>0</td><td>13</td></tr>
+ </table>
+ <pre style="font-size:85%;">
+ Value         DE    DK    ES    FL    FR    GB    HR    IE    NL    NO    PL    PT
+ Frequency   2058   464   847    96  3947  2219   244    35   430   217   436   296
+ Proportion 0.170 0.038 0.070 0.008 0.326 0.183 0.020 0.003 0.036 0.018 0.036 0.024
+                 
+ Value         SE
+ Frequency    817
+ Proportion 0.067
+ </pre>
+ <hr class="thinhr"> <span style="font-weight:bold">datasource</span> <style>
+ .hmisctable304712 {
+ border: none;
+ font-size: 85%;
+ }
+ .hmisctable304712 td {
+ text-align: center;
+ padding: 0 1ex 0 1ex;
+ }
+ .hmisctable304712 th {
+ color: MidnightBlue;
+ text-align: center;
+ padding: 0 1ex 0 1ex;
+ font-weight: normal;
+ }
+ </style>
+ <table class="hmisctable304712">
+ <tr><th>n</th><th>missing</th><th>distinct</th><th>value</th></tr>
+ <tr><td>12106</td><td>0</td><td>1</td><td>wkeelmigration</td></tr>
+ </table>
+ <pre style="font-size:85%;">
+ Value      wkeelmigration
+ Frequency           12106
+ Proportion              1
+ </pre>
+ <hr class="thinhr"><!--/html_preserve-->
 
 ```r
 # these are all empty lines ....
@@ -172,144 +488,460 @@ Hmisc::describe(res)
 # all NA print(res[is.na(res$eel_emu_nameshort),],n=1000)
 res <- res[!is.na(res$eel_emu_nameshort),]
 # describe file again
-Hmisc::describe(res)
+Hmisc::describe(res)%>% html()
 ```
 
 ```
-## res 
-## 
-##  14  Variables      11638  Observations
-## ---------------------------------------------------------------------------
-## eel_typ_name 
-##        n  missing distinct 
-##    11638        0        2 
-##                                           
-## Value      com_landings_kg rec_landings_kg
-## Frequency            11572              66
-## Proportion           0.994           0.006
-## ---------------------------------------------------------------------------
-## eel_year 
-##        n  missing distinct     Info     Mean      Gmd      .05      .10 
-##    11638        0       20    0.997     2011     6.01     2001     2003 
-##      .25      .50      .75      .90      .95 
-##     2006     2011     2015     2017     2018 
-##                                                                       
-## Value       2000  2001  2002  2003  2004  2005  2006  2007  2008  2009
-## Frequency    325   334   390   387   405   577   600   567   556   675
-## Proportion 0.028 0.029 0.034 0.033 0.035 0.050 0.052 0.049 0.048 0.058
-##                                                                       
-## Value       2010  2011  2012  2013  2014  2015  2016  2017  2018  2019
-## Frequency    678   593   645   648   829   828   873   836   818    74
-## Proportion 0.058 0.051 0.055 0.056 0.071 0.071 0.075 0.072 0.070 0.006
-## ---------------------------------------------------------------------------
-## eel_month 
-##        n  missing distinct 
-##    11638        0       14 
-## 
-## APR (989, 0.085), AUG (1002, 0.086), Dec (1, 0.000), DEC (937, 0.081), FEB
-## (796, 0.068), JAN (811, 0.070), JUL (1021, 0.088), JUN (1041, 0.089), MAR
-## (864, 0.074), MAY (1017, 0.087), NOV (1060, 0.091), OCT (1027, 0.088), SEP
-## (986, 0.085), WHOLE YEAR (86, 0.007)
-## ---------------------------------------------------------------------------
-## eel_value 
-##        n  missing distinct     Info     Mean      Gmd      .05      .10 
-##    11600       38     5885    0.988     3049     5513      0.0      0.0 
-##      .25      .50      .75      .90      .95 
-##      1.8    111.5    933.3   4247.7  12596.4 
-## 
-## lowest :      0.00      0.05      0.08      0.10      0.13
-## highest: 208509.10 215026.50 228703.70 271248.00 281151.60
-## ---------------------------------------------------------------------------
-## eel_missvaluequal 
-##        n  missing distinct 
-##       39    11599        3 
-##                             
-## Value         ND    NM    NP
-## Frequency      9    19    11
-## Proportion 0.231 0.487 0.282
-## ---------------------------------------------------------------------------
-## eel_emu_nameshort 
-##        n  missing distinct 
-##    11638        0       45 
-## 
-## lowest : DE_Eide  DE_Elbe  DE_Schl  DE_Warn  DK_total
-## highest: PL_Oder  PL_Vist  SE_East  SE_Inla  SE_West 
-## ---------------------------------------------------------------------------
-## eel_cou_code 
-##        n  missing distinct 
-##    11638        0       12 
-##                                                                       
-## Value         DE    DK    ES    FI    FR    GB    HR    IE    NL    NO
-## Frequency   2058   464   847    96  3947  2219    72    35   430   217
-## Proportion 0.177 0.040 0.073 0.008 0.339 0.191 0.006 0.003 0.037 0.019
-##                       
-## Value         PL    SE
-## Frequency    436   817
-## Proportion 0.037 0.070
-## ---------------------------------------------------------------------------
-## eel_lfs_code 
-##        n  missing distinct 
-##    11638        0        4 
-##                                   
-## Value          G     S     Y    YS
-## Frequency   1951  2805  3828  3054
-## Proportion 0.168 0.241 0.329 0.262
-## ---------------------------------------------------------------------------
-## eel_hty_code 
-##        n  missing distinct 
-##    11638        0        8 
-##                                                           
-## Value          C     F    FC    FT   FTC    MO     T    TC
-## Frequency   1927  3357   926    12   274   464  4305   373
-## Proportion 0.166 0.288 0.080 0.001 0.024 0.040 0.370 0.032
-## ---------------------------------------------------------------------------
-## eel_area_division 
-##        n  missing distinct 
-##     4324     7314       12 
-##                                                                       
-## Value         27.3.a 27.3.b, c    27.3.d    27.4.b    27.4.c    27.7.a
-## Frequency        460       728       910       816       171       152
-## Proportion     0.106     0.168     0.210     0.189     0.040     0.035
-##                                                                       
-## Value         27.7.d    27.7.e    27.8.c    27.9.a    37.1.1    37.2.1
-## Frequency         86        82       205       257       385        72
-## Proportion     0.020     0.019     0.047     0.059     0.089     0.017
-## ---------------------------------------------------------------------------
-## eel_comment 
-##        n  missing distinct 
-##     1870     9768       28 
-## 
-## lowest : 27.4.a also included                                                                                                                       All marine areas                                                                                                                           All marine areas. Preliminary data                                                                                                         area information is incomplete, but almost everything is from Ivc                                                                          Bristol Channel                                                                                                                           
-## highest: total landings of one fisherman were reported monthly. But proportion of silvereel of total landings were only provided as a total (120kg) total landings of one fisherman were reported monthy. But proportion of silvereel of total landings were only provided as a total (100kg)  Two days fished using one fyke net (AUG). No eels caught                                                                                   two fishermen only reported yearly catch for yellow and silver eel combined which are excluded (total of 15kg in 2009)                     Vessels of the Nalón stop from February 17 to March 18, 2011.                                                                             
-## ---------------------------------------------------------------------------
-## source 
-##        n  missing distinct 
-##    11638        0       12 
-## 
-## lowest : DE_commercial_landings DK_commercial_landings ES_commercial_landings FL_commercial_landings FR_commercial_landings
-## highest: IE_commercial_landings NL_commercial_landings NO_commercial_landings PL_commercial_landings SE_commercial_landings
-## ---------------------------------------------------------------------------
-## country 
-##        n  missing distinct 
-##    11638        0       12 
-##                                                                       
-## Value         DE    DK    ES    FL    FR    GB    HR    IE    NL    NO
-## Frequency   2058   464   847    96  3947  2219    72    35   430   217
-## Proportion 0.177 0.040 0.073 0.008 0.339 0.191 0.006 0.003 0.037 0.019
-##                       
-## Value         PL    SE
-## Frequency    436   817
-## Proportion 0.037 0.070
-## ---------------------------------------------------------------------------
-## datasource 
-##              n        missing       distinct          value 
-##          11638              0              1 wkeelmigration 
-##                          
-## Value      wkeelmigration
-## Frequency           11638
-## Proportion              1
-## ---------------------------------------------------------------------------
+## Warning in png(file, width = 1 + k * w, height = h): 'width=13, height=13'
+## ne sont probablement pas des valeurs en pixels
+
+## Warning in png(file, width = 1 + k * w, height = h): 'width=13, height=13'
+## ne sont probablement pas des valeurs en pixels
 ```
+
+<!--html_preserve--><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+<script type="text/javascript">
+<!--
+    function expand_collapse(id) {
+       var e = document.getElementById(id);
+       var f = document.getElementById(id+"_earrows");
+       if(e.style.display == 'none'){
+          e.style.display = 'block';
+          f.innerHTML = '&#9650';
+       }
+       else {
+          e.style.display = 'none';
+          f.innerHTML = '&#9660';
+       }
+    }
+//-->
+</script>
+<style>
+.earrows {color:silver;font-size:11px;}
+
+fcap {
+ font-family: Verdana;
+ font-size: 12px;
+ color: MidnightBlue
+ }
+
+smg {
+ font-family: Verdana;
+ font-size: 10px;
+ color: &#808080;
+}
+
+hr.thinhr { margin-top: 0.15em; margin-bottom: 0.15em; }
+
+span.xscript {
+position: relative;
+}
+span.xscript sub {
+position: absolute;
+left: 0.1em;
+bottom: -1ex;
+}
+</style>
+ <font color="MidnightBlue"><div align=center><span style="font-weight:bold">res <br><br> 14  Variables   11934  Observations</span></div></font> <hr class="thinhr"> <span style="font-weight:bold">eel_typ_name</span> <style>
+ .hmisctable348793 {
+ border: none;
+ font-size: 85%;
+ }
+ .hmisctable348793 td {
+ text-align: center;
+ padding: 0 1ex 0 1ex;
+ }
+ .hmisctable348793 th {
+ color: MidnightBlue;
+ text-align: center;
+ padding: 0 1ex 0 1ex;
+ font-weight: normal;
+ }
+ </style>
+ <table class="hmisctable348793">
+ <tr><th>n</th><th>missing</th><th>distinct</th></tr>
+ <tr><td>11934</td><td>0</td><td>2</td></tr>
+ </table>
+ <pre style="font-size:85%;">
+ Value      com_landings_kg rec_landings_kg
+ Frequency            11868              66
+ Proportion           0.994           0.006
+ </pre>
+ <hr class="thinhr"> <span style="font-weight:bold">eel_year</span><div style='float: right; text-align: right;'><img src="data:image/png;base64,
+iVBORw0KGgoAAAANSUhEUgAAAD0AAAANCAMAAAAtxpZ2AAAACVBMVEUAAADMzMz////1iUV5AAAAR0lEQVQokWNgJB4wMKAgkAgT8YCBAQWBRPCrhqqiTDeaPpy60VVg1Uct3XgCFRSumELoYY7PfAJ245EetrrBCHegEghzIAIAbxwC7DIBgcMAAAAASUVORK5CYII=" alt="image" /></div> <style>
+ .hmisctable944061 {
+ border: none;
+ font-size: 85%;
+ }
+ .hmisctable944061 td {
+ text-align: center;
+ padding: 0 1ex 0 1ex;
+ }
+ .hmisctable944061 th {
+ color: MidnightBlue;
+ text-align: center;
+ padding: 0 1ex 0 1ex;
+ font-weight: normal;
+ }
+ </style>
+ <table class="hmisctable944061">
+ <tr><th>n</th><th>missing</th><th>distinct</th><th>Info</th><th>Mean</th><th>Gmd</th><th>.05</th><th>.10</th><th>.25</th><th>.50</th><th>.75</th><th>.90</th><th>.95</th></tr>
+ <tr><td>11934</td><td>0</td><td>20</td><td>0.997</td><td>2011</td><td>6.028</td><td>2001</td><td>2003</td><td>2006</td><td>2011</td><td>2015</td><td>2017</td><td>2018</td></tr>
+ </table>
+ <pre style="font-size:85%;">
+ Value       2000  2001  2002  2003  2004  2005  2006  2007  2008  2009  2010  2011
+ Frequency    339   348   404   401   419   591   614   581   570   689   692   607
+ Proportion 0.028 0.029 0.034 0.034 0.035 0.050 0.051 0.049 0.048 0.058 0.058 0.051
+                                                           
+ Value       2012  2013  2014  2015  2016  2017  2018  2019
+ Frequency    661   665   845   844   890   852   834    88
+ Proportion 0.055 0.056 0.071 0.071 0.075 0.071 0.070 0.007
+ </pre>
+ <hr class="thinhr"> <span style="font-weight:bold">eel_month</span><div style='float: right; text-align: right;'><img src="data:image/png;base64,
+iVBORw0KGgoAAAANSUhEUgAAAC4AAAANCAMAAADhX6ydAAAACVBMVEUAAADMzMz////1iUV5AAAATElEQVQokWNgYGAEImSAEIGwkFUwMDAwAREQQEgIA8qGsBB8kAiqcoQ0slrsylGkB0Y51N/IwQASQedjhswgcDutlIMZ0HAgGDJgEgCLzQILq8CShwAAAABJRU5ErkJggg==" alt="image" /></div> <style>
+ .hmisctable915845 {
+ border: none;
+ font-size: 85%;
+ }
+ .hmisctable915845 td {
+ text-align: center;
+ padding: 0 1ex 0 1ex;
+ }
+ .hmisctable915845 th {
+ color: MidnightBlue;
+ text-align: center;
+ padding: 0 1ex 0 1ex;
+ font-weight: normal;
+ }
+ </style>
+ <table class="hmisctable915845">
+ <tr><th>n</th><th>missing</th><th>distinct</th></tr>
+ <tr><td>11934</td><td>0</td><td>15</td></tr>
+ </table>
+  APR (1009, 0.085), AUG (1022, 0.086), Dec (1, 0.000), DEC (965, 0.081), FEB (823, 0.069), JAN (839, 0.070), JUL (1041, 0.087), JUN (1061, 0.089), MAR (885, 0.074), MAY (1037, 0.087), NOV (1088, 0.091), OCT (1049, 0.088), SEP (1006, 0.084), whole year (22, 0.002), WHOLE YEAR (86, 0.007) <hr class="thinhr"> <span style="font-weight:bold">eel_value</span><div style='float: right; text-align: right;'><img src="data:image/png;base64,
+iVBORw0KGgoAAAANSUhEUgAAAHwAAAANCAMAAABcvvroAAAACVBMVEUAAADMzMz////1iUV5AAAAQUlEQVQ4jWNgZGRgYBwgwMDExADEAwNGLR+Blo+m9lHL6W75QFkPTu3A9I4KGdEFCAmC0y4jPNswMKJKoKdyKAYAt4UKyvIMdkYAAAAASUVORK5CYII=" alt="image" /></div> <pre style="font-size:85%;">
+        n  missing distinct     Info     Mean      Gmd      .05      .10      .25 
+    11894       40     6126    0.989     2990     5400      0.0      0.0      2.0 
+      .50      .75      .90      .95 
+    120.9    925.8   4139.0  11969.7 
+ </pre>
+ <style>
+ .hmisctable790469 {
+ border: none;
+ font-size: 85%;
+ }
+ .hmisctable790469 td {
+ text-align: right;
+ padding: 0 1ex 0 1ex;
+ }
+ .hmisctable790469 th {
+ color: Black;
+ text-align: center;
+ padding: 0 1ex 0 1ex;
+ font-weight: bold;
+ }
+ </style>
+ <table class="hmisctable790469">
+ <tr><td><font color="MidnightBlue">lowest</font> :</td><td>     0.00</td><td>     0.05</td><td>     0.08</td><td>     0.10</td><td>     0.13</td></tr>
+ <tr><td><font color="MidnightBlue">highest</font>:</td><td>208509.10</td><td>215026.50</td><td>228703.70</td><td>271248.00</td><td>281151.60</td></tr>
+ </table>
+ <hr class="thinhr"> <span style="font-weight:bold">eel_missvaluequal</span><div style='float: right; text-align: right;'><img src="data:image/png;base64,
+iVBORw0KGgoAAAANSUhEUgAAAA0AAAANCAMAAABFNRROAAAACVBMVEUAAADMzMz////1iUV5AAAAI0lEQVQImWNghAAGBjDJBAEMYAbZPJLMBLEgGC+PAWIeBAMAV6MA4eyrNIYAAAAASUVORK5CYII=" alt="image" /></div> <style>
+ .hmisctable952573 {
+ border: none;
+ font-size: 85%;
+ }
+ .hmisctable952573 td {
+ text-align: center;
+ padding: 0 1ex 0 1ex;
+ }
+ .hmisctable952573 th {
+ color: MidnightBlue;
+ text-align: center;
+ padding: 0 1ex 0 1ex;
+ font-weight: normal;
+ }
+ </style>
+ <table class="hmisctable952573">
+ <tr><th>n</th><th>missing</th><th>distinct</th></tr>
+ <tr><td>61</td><td>11873</td><td>4</td></tr>
+ </table>
+ <pre style="font-size:85%;">
+ Value         nd    ND    NM    NP
+ Frequency      2     9    39    11
+ Proportion 0.033 0.148 0.639 0.180
+ </pre>
+ <hr class="thinhr"> <span style="font-weight:bold">eel_emu_nameshort</span><div style='float: right; text-align: right;'><img src="data:image/png;base64,
+iVBORw0KGgoAAAANSUhEUgAAAI4AAAANCAMAAABIB6ZMAAAACVBMVEUAAADMzMz////1iUV5AAAAkUlEQVQ4jeWT4Q6AIAiE0fd/6FiZAR5lwtaPHG1F5/VFHZXgIoo6KLdaiY/1Fds9uIUMeevXOFL+D5xuO2EuhQInB4v2bBw1lxMjP3e8SZivldOZG70Z5tN0UN/0xGUmjvmrjDaOA/mMfBEHVhbOaAE7izj6KfB1dXn+tx8W4oiotJxcJ71R9J2hnDY09V04WRu8pgn1p7AJ1AAAAABJRU5ErkJggg==" alt="image" /></div> <style>
+ .hmisctable476328 {
+ border: none;
+ font-size: 85%;
+ }
+ .hmisctable476328 td {
+ text-align: center;
+ padding: 0 1ex 0 1ex;
+ }
+ .hmisctable476328 th {
+ color: MidnightBlue;
+ text-align: center;
+ padding: 0 1ex 0 1ex;
+ font-weight: normal;
+ }
+ </style>
+ <table class="hmisctable476328">
+ <tr><th>n</th><th>missing</th><th>distinct</th></tr>
+ <tr><td>11934</td><td>0</td><td>47</td></tr>
+ </table>
+ <span style="font-size: 85%;"><font color="MidnightBlue">lowest</font> : DE_Eide  DE_Elbe  DE_Schl  DE_Warn  DK_total ,  <font color="MidnightBlue">highest</font>: PL_Vist  PT_Port  SE_East  SE_Inla  SE_West </span> <hr class="thinhr"> <span style="font-weight:bold">eel_cou_code</span><div style='float: right; text-align: right;'><img src="data:image/png;base64,
+iVBORw0KGgoAAAANSUhEUgAAACgAAAANCAMAAADsQdzaAAAACVBMVEUAAADMzMz////1iUV5AAAAQUlEQVQokWNgRAIMDIw4AQMTEmBA4aGCQaQQp1oUjwI5OD2OYgJ+E2mkEELhVAiVgMujKIQLwSTgnmVAMKAcZBIAa54DGHmOyrsAAAAASUVORK5CYII=" alt="image" /></div> <style>
+ .hmisctable997977 {
+ border: none;
+ font-size: 85%;
+ }
+ .hmisctable997977 td {
+ text-align: center;
+ padding: 0 1ex 0 1ex;
+ }
+ .hmisctable997977 th {
+ color: MidnightBlue;
+ text-align: center;
+ padding: 0 1ex 0 1ex;
+ font-weight: normal;
+ }
+ </style>
+ <table class="hmisctable997977">
+ <tr><th>n</th><th>missing</th><th>distinct</th></tr>
+ <tr><td>11934</td><td>0</td><td>13</td></tr>
+ </table>
+ <pre style="font-size:85%;">
+ Value         DE    DK    ES    FI    FR    GB    HR    IE    NL    NO    PL    PT
+ Frequency   2058   464   847    96  3947  2219    72    35   430   217   436   296
+ Proportion 0.172 0.039 0.071 0.008 0.331 0.186 0.006 0.003 0.036 0.018 0.037 0.025
+                 
+ Value         SE
+ Frequency    817
+ Proportion 0.068
+ </pre>
+ <hr class="thinhr"> <span style="font-weight:bold">eel_lfs_code</span><div style='float: right; text-align: right;'><img src="data:image/png;base64,
+iVBORw0KGgoAAAANSUhEUgAAAA0AAAANCAMAAABFNRROAAAACVBMVEUAAADMzMz////1iUV5AAAAJ0lEQVQImWNghAAGBjDJBAEMDCCMyYOwCPIYIOZBMEIcIkcuD9lMAD/GAKJ7LgS6AAAAAElFTkSuQmCC" alt="image" /></div> <style>
+ .hmisctable891660 {
+ border: none;
+ font-size: 85%;
+ }
+ .hmisctable891660 td {
+ text-align: center;
+ padding: 0 1ex 0 1ex;
+ }
+ .hmisctable891660 th {
+ color: MidnightBlue;
+ text-align: center;
+ padding: 0 1ex 0 1ex;
+ font-weight: normal;
+ }
+ </style>
+ <table class="hmisctable891660">
+ <tr><th>n</th><th>missing</th><th>distinct</th></tr>
+ <tr><td>11934</td><td>0</td><td>4</td></tr>
+ </table>
+ <pre style="font-size:85%;">
+ Value          G     S     Y    YS
+ Frequency   1996  2805  3828  3305
+ Proportion 0.167 0.235 0.321 0.277
+ </pre>
+ <hr class="thinhr"> <span style="font-weight:bold">eel_hty_code</span><div style='float: right; text-align: right;'><img src="data:image/png;base64,
+iVBORw0KGgoAAAANSUhEUgAAABkAAAANCAMAAABrcDXcAAAACVBMVEUAAADMzMz////1iUV5AAAAN0lEQVQYlWNgxAQMDGCSCRMwgAXxyzAwUE0G7hYMtzHg1EO+DIokDhkoh4EB5A4gBlMgB8E5DABEpwHLVCaxcgAAAABJRU5ErkJggg==" alt="image" /></div> <style>
+ .hmisctable547521 {
+ border: none;
+ font-size: 85%;
+ }
+ .hmisctable547521 td {
+ text-align: center;
+ padding: 0 1ex 0 1ex;
+ }
+ .hmisctable547521 th {
+ color: MidnightBlue;
+ text-align: center;
+ padding: 0 1ex 0 1ex;
+ font-weight: normal;
+ }
+ </style>
+ <table class="hmisctable547521">
+ <tr><th>n</th><th>missing</th><th>distinct</th></tr>
+ <tr><td>11934</td><td>0</td><td>8</td></tr>
+ </table>
+ <pre style="font-size:85%;">
+ Value          C     F    FC    FT   FTC    MO     T    TC
+ Frequency   1927  3357   926    12   274   464  4601   373
+ Proportion 0.161 0.281 0.078 0.001 0.023 0.039 0.386 0.031
+ </pre>
+ <hr class="thinhr"> <span style="font-weight:bold">eel_area_division</span><div style='float: right; text-align: right;'><img src="data:image/png;base64,
+iVBORw0KGgoAAAANSUhEUgAAACUAAAANCAMAAAAZv1dqAAAACVBMVEUAAADMzMz////1iUV5AAAAQElEQVQYlWNgBAMGBkZ8gIEJDBgYQAgnYIArGRSq4EIgzwExBGF4jQHOwG8WRJRmqlDUIvOxqcLko/gR6lNMPgCQDQJkyT+pWQAAAABJRU5ErkJggg==" alt="image" /></div> <style>
+ .hmisctable275661 {
+ border: none;
+ font-size: 85%;
+ }
+ .hmisctable275661 td {
+ text-align: center;
+ padding: 0 1ex 0 1ex;
+ }
+ .hmisctable275661 th {
+ color: MidnightBlue;
+ text-align: center;
+ padding: 0 1ex 0 1ex;
+ font-weight: normal;
+ }
+ </style>
+ <table class="hmisctable275661">
+ <tr><th>n</th><th>missing</th><th>distinct</th></tr>
+ <tr><td>4620</td><td>7314</td><td>12</td></tr>
+ </table>
+ <pre style="font-size:85%;">
+ Value         27.3.a 27.3.b, c    27.3.d    27.4.b    27.4.c    27.7.a    27.7.d
+ Frequency        460       728       910       816       171       152        86
+ Proportion     0.100     0.158     0.197     0.177     0.037     0.033     0.019
+                                                             
+ Value         27.7.e    27.8.c    27.9.a    37.1.1    37.2.1
+ Frequency         82       205       553       385        72
+ Proportion     0.018     0.044     0.120     0.083     0.016
+ </pre>
+ <hr class="thinhr"> <span style="font-weight:bold">eel_comment</span><div style='float: right; text-align: right;'><img src="data:image/png;base64,
+iVBORw0KGgoAAAANSUhEUgAAAI4AAAANCAMAAABIB6ZMAAAACVBMVEUAAADMzMz////1iUV5AAAAY0lEQVQ4jWNgBAEGBkZqAvKNY2ACAQYIRS1AvnGjzsGrk0L92A0dNs6hMCtgzx+U5CygXyDeoVoYURRZI8Q5hIzDJj/SnAM3nTjngPMBKCvASGSEIYALofFQSQbsajGtY2QEAHraC+zN3ypjAAAAAElFTkSuQmCC" alt="image" /></div> <style>
+ .hmisctable763374 {
+ border: none;
+ font-size: 85%;
+ }
+ .hmisctable763374 td {
+ text-align: center;
+ padding: 0 1ex 0 1ex;
+ }
+ .hmisctable763374 th {
+ color: MidnightBlue;
+ text-align: center;
+ padding: 0 1ex 0 1ex;
+ font-weight: normal;
+ }
+ </style>
+ <table class="hmisctable763374">
+ <tr><th>n</th><th>missing</th><th>distinct</th></tr>
+ <tr><td>1924</td><td>10010</td><td>47</td></tr>
+ </table>
+ <style>
+ .hmisctable869354 {
+ border: none;
+ font-size: 85%;
+ }
+ .hmisctable869354 td {
+ text-align: right;
+ padding: 0 1ex 0 1ex;
+ }
+ .hmisctable869354 th {
+ color: Black;
+ text-align: center;
+ padding: 0 1ex 0 1ex;
+ font-weight: bold;
+ }
+ </style>
+ <table class="hmisctable869354">
+ <tr><td><font color="MidnightBlue">lowest</font> :</td><td>27.4.a also included                                                                                                                      </td><td>All marine areas                                                                                                                          </td><td>All marine areas. Preliminary data                                                                                                        </td><td>area information is incomplete, but almost everything is from Ivc                                                                         </td><td>Bristol Channel                                                                                                                           </td></tr>
+ <tr><td><font color="MidnightBlue">highest</font>:</td><td>total landings of one fisherman were reported monthly. But proportion of silvereel of total landings were only provided as a total (120kg)</td><td>total landings of one fisherman were reported monthy. But proportion of silvereel of total landings were only provided as a total (100kg) </td><td>Two days fished using one fyke net (AUG). No eels caught                                                                                  </td><td>two fishermen only reported yearly catch for yellow and silver eel combined which are excluded (total of 15kg in 2009)                    </td><td>Vessels of the Nalón stop from February 17 to March 18, 2011.                                                                             </td></tr>
+ </table>
+ <hr class="thinhr"> <span style="font-weight:bold">source</span><div style='float: right; text-align: right;'><img src="data:image/png;base64,
+iVBORw0KGgoAAAANSUhEUgAAACgAAAANCAMAAADsQdzaAAAACVBMVEUAAADMzMz////1iUV5AAAAQUlEQVQokWNgRAIMDIw4AQMTEmBA4aGCQaQQp1oUjwI5OD2OYgJ+E2mkEELhVAiVgMujKIQLwSTgnmVAMKAcZBIAa54DGHmOyrsAAAAASUVORK5CYII=" alt="image" /></div> <style>
+ .hmisctable465129 {
+ border: none;
+ font-size: 85%;
+ }
+ .hmisctable465129 td {
+ text-align: center;
+ padding: 0 1ex 0 1ex;
+ }
+ .hmisctable465129 th {
+ color: MidnightBlue;
+ text-align: center;
+ padding: 0 1ex 0 1ex;
+ font-weight: normal;
+ }
+ </style>
+ <table class="hmisctable465129">
+ <tr><th>n</th><th>missing</th><th>distinct</th></tr>
+ <tr><td>11934</td><td>0</td><td>13</td></tr>
+ </table>
+ <style>
+ .hmisctable974279 {
+ border: none;
+ font-size: 85%;
+ }
+ .hmisctable974279 td {
+ text-align: right;
+ padding: 0 1ex 0 1ex;
+ }
+ .hmisctable974279 th {
+ color: Black;
+ text-align: center;
+ padding: 0 1ex 0 1ex;
+ font-weight: bold;
+ }
+ </style>
+ <table class="hmisctable974279">
+ <tr><td><font color="MidnightBlue">lowest</font> :</td><td>DE_commercial_landings</td><td>DK_commercial_landings</td><td>ES_commercial_landings</td><td>FL_commercial_landings</td><td>FR_commercial_landings</td></tr>
+ <tr><td><font color="MidnightBlue">highest</font>:</td><td>NL_commercial_landings</td><td>NO_commercial_landings</td><td>PL_commercial_landings</td><td>PT_commercial_landings</td><td>SE_commercial_landings</td></tr>
+ </table>
+ <hr class="thinhr"> <span style="font-weight:bold">country</span><div style='float: right; text-align: right;'><img src="data:image/png;base64,
+iVBORw0KGgoAAAANSUhEUgAAACgAAAANCAMAAADsQdzaAAAACVBMVEUAAADMzMz////1iUV5AAAAQUlEQVQokWNgRAIMDIw4AQMTEmBA4aGCQaQQp1oUjwI5OD2OYgJ+E2mkEELhVAiVgMujKIQLwSTgnmVAMKAcZBIAa54DGHmOyrsAAAAASUVORK5CYII=" alt="image" /></div> <style>
+ .hmisctable751830 {
+ border: none;
+ font-size: 85%;
+ }
+ .hmisctable751830 td {
+ text-align: center;
+ padding: 0 1ex 0 1ex;
+ }
+ .hmisctable751830 th {
+ color: MidnightBlue;
+ text-align: center;
+ padding: 0 1ex 0 1ex;
+ font-weight: normal;
+ }
+ </style>
+ <table class="hmisctable751830">
+ <tr><th>n</th><th>missing</th><th>distinct</th></tr>
+ <tr><td>11934</td><td>0</td><td>13</td></tr>
+ </table>
+ <pre style="font-size:85%;">
+ Value         DE    DK    ES    FL    FR    GB    HR    IE    NL    NO    PL    PT
+ Frequency   2058   464   847    96  3947  2219    72    35   430   217   436   296
+ Proportion 0.172 0.039 0.071 0.008 0.331 0.186 0.006 0.003 0.036 0.018 0.037 0.025
+                 
+ Value         SE
+ Frequency    817
+ Proportion 0.068
+ </pre>
+ <hr class="thinhr"> <span style="font-weight:bold">datasource</span> <style>
+ .hmisctable461299 {
+ border: none;
+ font-size: 85%;
+ }
+ .hmisctable461299 td {
+ text-align: center;
+ padding: 0 1ex 0 1ex;
+ }
+ .hmisctable461299 th {
+ color: MidnightBlue;
+ text-align: center;
+ padding: 0 1ex 0 1ex;
+ font-weight: normal;
+ }
+ </style>
+ <table class="hmisctable461299">
+ <tr><th>n</th><th>missing</th><th>distinct</th><th>value</th></tr>
+ <tr><td>11934</td><td>0</td><td>1</td><td>wkeelmigration</td></tr>
+ </table>
+ <pre style="font-size:85%;">
+ Value      wkeelmigration
+ Frequency           11934
+ Proportion              1
+ </pre>
+ <hr class="thinhr"><!--/html_preserve-->
 
 ```r
 # All ND, NP or NM
@@ -317,7 +949,7 @@ print(res[is.na(res$eel_value),],n=40)
 ```
 
 ```
-## # A tibble: 38 x 14
+## # A tibble: 40 x 14
 ##    eel_typ_name eel_year eel_month eel_value eel_missvaluequ~
 ##    <chr>           <dbl> <chr>         <dbl> <chr>           
 ##  1 com_landing~     2000 WHOLE YE~        NA NM              
@@ -358,6 +990,8 @@ print(res[is.na(res$eel_value),],n=40)
 ## 36 com_landing~     2017 WHOLE YE~        NA NP              
 ## 37 com_landing~     2018 WHOLE YE~        NA NP              
 ## 38 com_landing~     2019 WHOLE YE~        NA NP              
+## 39 com_landing~     2010 whole ye~        NA nd              
+## 40 com_landing~     2010 whole ye~        NA nd              
 ## # ... with 9 more variables: eel_emu_nameshort <chr>, eel_cou_code <chr>,
 ## #   eel_lfs_code <chr>, eel_hty_code <chr>, eel_area_division <chr>,
 ## #   eel_comment <chr>, source <chr>, country <chr>, datasource <chr>
@@ -370,7 +1004,7 @@ nrow(res)
 ```
 
 ```
-## [1] 11600
+## [1] 11894
 ```
 
 ```r
@@ -380,7 +1014,7 @@ unique(res$eel_month)
 ```
 ##  [1] "JAN"        "FEB"        "MAR"        "APR"        "MAY"       
 ##  [6] "JUN"        "JUL"        "AUG"        "SEP"        "OCT"       
-## [11] "NOV"        "DEC"        "WHOLE YEAR" "Dec"
+## [11] "NOV"        "DEC"        "WHOLE YEAR" "Dec"        "whole year"
 ```
 
 ```r
@@ -391,20 +1025,20 @@ print(resw)
 ```
 
 ```
-## # A tibble: 48 x 14
+## # A tibble: 68 x 14
 ##    eel_typ_name eel_year eel_month eel_value eel_missvaluequ~
 ##    <chr>           <dbl> <chr>         <dbl> <chr>           
 ##  1 com_landing~     2000 whole ye~    35489  <NA>            
 ##  2 com_landing~     2001 whole ye~    30402  <NA>            
 ##  3 com_landing~     2017 whole ye~        0  <NA>            
 ##  4 com_landing~     2000 whole ye~   281152. NM              
-##  5 com_landing~     2004 whole ye~      655  <NA>            
-##  6 com_landing~     2007 whole ye~      331  <NA>            
-##  7 com_landing~     2008 whole ye~     1624  <NA>            
-##  8 com_landing~     2010 whole ye~   271248  <NA>            
-##  9 com_landing~     2010 whole ye~     7499  <NA>            
-## 10 com_landing~     2010 whole ye~    28218. <NA>            
-## # ... with 38 more rows, and 9 more variables: eel_emu_nameshort <chr>,
+##  5 com_landing~     2000 whole ye~     1149  NM              
+##  6 com_landing~     2000 whole ye~      860  NM              
+##  7 com_landing~     2001 whole ye~      804  NM              
+##  8 com_landing~     2001 whole ye~      316  NM              
+##  9 com_landing~     2002 whole ye~     1450  NM              
+## 10 com_landing~     2002 whole ye~      671  NM              
+## # ... with 58 more rows, and 9 more variables: eel_emu_nameshort <chr>,
 ## #   eel_cou_code <chr>, eel_lfs_code <chr>, eel_hty_code <chr>,
 ## #   eel_area_division <chr>, eel_comment <chr>, source <chr>,
 ## #   country <chr>, datasource <chr>
@@ -442,24 +1076,79 @@ res$eel_month <- recode(res$eel_month,
 		"jan"=1, 
 		"feb"=2
 )
-Hmisc::describe(res$eel_month)
+Hmisc::describe(res$eel_month)%>% html()
 ```
 
-```
-## res$eel_month 
-##        n  missing distinct     Info     Mean      Gmd      .05      .10 
-##    11552        0       12    0.993    6.709    3.866        1        2 
-##      .25      .50      .75      .90      .95 
-##        4        7       10       11       12 
-##                                                                       
-## Value          1     2     3     4     5     6     7     8     9    10
-## Frequency    811   796   864   989  1017  1041  1021  1002   986  1027
-## Proportion 0.070 0.069 0.075 0.086 0.088 0.090 0.088 0.087 0.085 0.089
-##                       
-## Value         11    12
-## Frequency   1060   938
-## Proportion 0.092 0.081
-```
+<!--html_preserve--><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+<script type="text/javascript">
+<!--
+    function expand_collapse(id) {
+       var e = document.getElementById(id);
+       var f = document.getElementById(id+"_earrows");
+       if(e.style.display == 'none'){
+          e.style.display = 'block';
+          f.innerHTML = '&#9650';
+       }
+       else {
+          e.style.display = 'none';
+          f.innerHTML = '&#9660';
+       }
+    }
+//-->
+</script>
+<style>
+.earrows {color:silver;font-size:11px;}
+
+fcap {
+ font-family: Verdana;
+ font-size: 12px;
+ color: MidnightBlue
+ }
+
+smg {
+ font-family: Verdana;
+ font-size: 10px;
+ color: &#808080;
+}
+
+hr.thinhr { margin-top: 0.15em; margin-bottom: 0.15em; }
+
+span.xscript {
+position: relative;
+}
+span.xscript sub {
+position: absolute;
+left: 0.1em;
+bottom: -1ex;
+}
+</style>
+ <span style="font-weight:bold">res$eel_month</span><div style='float: right; text-align: right;'><img src="data:image/png;base64,
+iVBORw0KGgoAAAANSUhEUgAAACUAAAANCAMAAAAZv1dqAAAACVBMVEUAAADMzMz////1iUV5AAAAMklEQVQYlWNghAEGBihCsKB8oAgTDDAwQBGCBeczMKAqwa0KU5S2qjD9hMkfCHfR248AXoABWFoM0XcAAAAASUVORK5CYII=" alt="image" /></div> <style>
+ .hmisctable829793 {
+ border: none;
+ font-size: 85%;
+ }
+ .hmisctable829793 td {
+ text-align: center;
+ padding: 0 1ex 0 1ex;
+ }
+ .hmisctable829793 th {
+ color: MidnightBlue;
+ text-align: center;
+ padding: 0 1ex 0 1ex;
+ font-weight: normal;
+ }
+ </style>
+ <table class="hmisctable829793">
+ <tr><th>n</th><th>missing</th><th>distinct</th><th>Info</th><th>Mean</th><th>Gmd</th><th>.05</th><th>.10</th><th>.25</th><th>.50</th><th>.75</th><th>.90</th><th>.95</th></tr>
+ <tr><td>11826</td><td>0</td><td>12</td><td>0.993</td><td>6.705</td><td>3.875</td><td> 1</td><td> 2</td><td> 4</td><td> 7</td><td>10</td><td>11</td><td>12</td></tr>
+ </table>
+ <pre style="font-size:85%;">
+ Value          1     2     3     4     5     6     7     8     9    10    11    12
+ Frequency    839   823   885  1009  1037  1061  1041  1022  1006  1049  1088   966
+ Proportion 0.071 0.070 0.075 0.085 0.088 0.090 0.088 0.086 0.085 0.089 0.092 0.082
+ </pre>
+<!--/html_preserve-->
 
 ```r
 # number of data per emu
@@ -2312,7 +3001,7 @@ colnames(res) <-gsub("eel_","",colnames(res))
 # The only recreational landings there are the boat fishery for glass eel in Spain
 # I'm not using the type, we'll work with both commercial and recreational as a single category.
 
-res %>% filter(typ_name=="rec_landings_kg") %>% select(emu_nameshort) %>% distinct()
+res %>% filter(typ_name=="rec_landings_kg") %>% select(emu_nameshort) %>% distinct() 
 ```
 
 
@@ -2331,33 +3020,119 @@ res %>% filter(typ_name=="rec_landings_kg") %>% select(emu_nameshort) %>% distin
 </table>
 
 ```r
-unique(res$emu_nameshort)
+nicetable <- function(mydata, mycolumn){
+  ta <- table(mydata[,mycolumn]) %>% t()
+  kable(ta)
+}
+nicetable(res, "emu_nameshort")
 ```
 
-```
-##  [1] "DE_Eide"  "DE_Elbe"  "DE_Schl"  "DE_Warn"  "DK_total" "ES_Astu" 
-##  [7] "ES_Cant"  "ES_Cata"  "ES_Gali"  "ES_Mino"  "ES_Murc"  "ES_Vale" 
-## [13] "FI_total" "FR_Adou"  "FR_Arto"  "FR_Bret"  "FR_Cors"  "FR_Garo" 
-## [19] "FR_Loir"  "FR_Rhin"  "FR_Rhon"  "FR_Sein"  "GB_Angl"  "GB_Dee"  
-## [25] "GB_Humb"  "GB_Nort"  "GB_NorW"  "GB_Seve"  "GB_SouE"  "GB_SouW" 
-## [31] "GB_Tham"  "GB_total" "GB_Wale"  "HR_total" "IE_East"  "IE_West" 
-## [37] "NL_total" "NO_total" "PL_Oder"  "PL_Vist"  "SE_East"  "SE_Inla" 
-## [43] "SE_West"  "ES_Basq"
-```
+<table>
+ <thead>
+  <tr>
+   <th style="text-align:right;"> DE_Eide </th>
+   <th style="text-align:right;"> DE_Elbe </th>
+   <th style="text-align:right;"> DE_Schl </th>
+   <th style="text-align:right;"> DE_Warn </th>
+   <th style="text-align:right;"> DK_total </th>
+   <th style="text-align:right;"> ES_Astu </th>
+   <th style="text-align:right;"> ES_Basq </th>
+   <th style="text-align:right;"> ES_Cant </th>
+   <th style="text-align:right;"> ES_Cata </th>
+   <th style="text-align:right;"> ES_Gali </th>
+   <th style="text-align:right;"> ES_MINH </th>
+   <th style="text-align:right;"> ES_Mino </th>
+   <th style="text-align:right;"> ES_Murc </th>
+   <th style="text-align:right;"> ES_Vale </th>
+   <th style="text-align:right;"> FI_total </th>
+   <th style="text-align:right;"> FR_Adou </th>
+   <th style="text-align:right;"> FR_Arto </th>
+   <th style="text-align:right;"> FR_Bret </th>
+   <th style="text-align:right;"> FR_Cors </th>
+   <th style="text-align:right;"> FR_Garo </th>
+   <th style="text-align:right;"> FR_Loir </th>
+   <th style="text-align:right;"> FR_Rhin </th>
+   <th style="text-align:right;"> FR_Rhon </th>
+   <th style="text-align:right;"> FR_Sein </th>
+   <th style="text-align:right;"> GB_Angl </th>
+   <th style="text-align:right;"> GB_Dee </th>
+   <th style="text-align:right;"> GB_Humb </th>
+   <th style="text-align:right;"> GB_Nort </th>
+   <th style="text-align:right;"> GB_NorW </th>
+   <th style="text-align:right;"> GB_Seve </th>
+   <th style="text-align:right;"> GB_SouE </th>
+   <th style="text-align:right;"> GB_SouW </th>
+   <th style="text-align:right;"> GB_Tham </th>
+   <th style="text-align:right;"> GB_total </th>
+   <th style="text-align:right;"> GB_Wale </th>
+   <th style="text-align:right;"> HR_total </th>
+   <th style="text-align:right;"> IE_East </th>
+   <th style="text-align:right;"> IE_West </th>
+   <th style="text-align:right;"> NL_total </th>
+   <th style="text-align:right;"> NO_total </th>
+   <th style="text-align:right;"> PL_Oder </th>
+   <th style="text-align:right;"> PL_Vist </th>
+   <th style="text-align:right;"> PT_Port </th>
+   <th style="text-align:right;"> SE_East </th>
+   <th style="text-align:right;"> SE_Inla </th>
+   <th style="text-align:right;"> SE_West </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:right;"> 720 </td>
+   <td style="text-align:right;"> 480 </td>
+   <td style="text-align:right;"> 504 </td>
+   <td style="text-align:right;"> 336 </td>
+   <td style="text-align:right;"> 464 </td>
+   <td style="text-align:right;"> 110 </td>
+   <td style="text-align:right;"> 66 </td>
+   <td style="text-align:right;"> 29 </td>
+   <td style="text-align:right;"> 222 </td>
+   <td style="text-align:right;"> 193 </td>
+   <td style="text-align:right;"> 34 </td>
+   <td style="text-align:right;"> 44 </td>
+   <td style="text-align:right;"> 121 </td>
+   <td style="text-align:right;"> 40 </td>
+   <td style="text-align:right;"> 96 </td>
+   <td style="text-align:right;"> 628 </td>
+   <td style="text-align:right;"> 429 </td>
+   <td style="text-align:right;"> 450 </td>
+   <td style="text-align:right;"> 216 </td>
+   <td style="text-align:right;"> 673 </td>
+   <td style="text-align:right;"> 832 </td>
+   <td style="text-align:right;"> 86 </td>
+   <td style="text-align:right;"> 180 </td>
+   <td style="text-align:right;"> 453 </td>
+   <td style="text-align:right;"> 308 </td>
+   <td style="text-align:right;"> 128 </td>
+   <td style="text-align:right;"> 156 </td>
+   <td style="text-align:right;"> 100 </td>
+   <td style="text-align:right;"> 287 </td>
+   <td style="text-align:right;"> 128 </td>
+   <td style="text-align:right;"> 302 </td>
+   <td style="text-align:right;"> 331 </td>
+   <td style="text-align:right;"> 266 </td>
+   <td style="text-align:right;"> 54 </td>
+   <td style="text-align:right;"> 158 </td>
+   <td style="text-align:right;"> 72 </td>
+   <td style="text-align:right;"> 9 </td>
+   <td style="text-align:right;"> 26 </td>
+   <td style="text-align:right;"> 430 </td>
+   <td style="text-align:right;"> 216 </td>
+   <td style="text-align:right;"> 219 </td>
+   <td style="text-align:right;"> 217 </td>
+   <td style="text-align:right;"> 240 </td>
+   <td style="text-align:right;"> 369 </td>
+   <td style="text-align:right;"> 166 </td>
+   <td style="text-align:right;"> 238 </td>
+  </tr>
+</tbody>
+</table>
 
 ```r
-unique(res$hty_code)
+nicetable(res, "hty_code")
 ```
-
-```
-## [1] "C"   "F"   "T"   "MO"  "FTC" "FC"  "FT"  "TC"
-```
-
-```r
-table(res$hty_code)
-```
-
-
 
 <table>
  <thead>
@@ -2380,7 +3155,7 @@ table(res$hty_code)
    <td style="text-align:right;"> 3 </td>
    <td style="text-align:right;"> 265 </td>
    <td style="text-align:right;"> 464 </td>
-   <td style="text-align:right;"> 4284 </td>
+   <td style="text-align:right;"> 4558 </td>
    <td style="text-align:right;"> 373 </td>
   </tr>
 </tbody>
@@ -8041,6 +8816,168 @@ res %>%	group_by(emu_nameshort,lfs_code,hty_code,year,month) %>%
    <td style="text-align:center;"> . </td>
   </tr>
   <tr>
+   <td style="text-align:center;"> ES_MINH </td>
+   <td style="text-align:center;"> G </td>
+   <td style="text-align:center;"> T </td>
+   <td style="text-align:center;"> 2011 </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> ES_MINH </td>
+   <td style="text-align:center;"> G </td>
+   <td style="text-align:center;"> T </td>
+   <td style="text-align:center;"> 2012 </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> ES_MINH </td>
+   <td style="text-align:center;"> G </td>
+   <td style="text-align:center;"> T </td>
+   <td style="text-align:center;"> 2013 </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> ES_MINH </td>
+   <td style="text-align:center;"> G </td>
+   <td style="text-align:center;"> T </td>
+   <td style="text-align:center;"> 2014 </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> ES_MINH </td>
+   <td style="text-align:center;"> G </td>
+   <td style="text-align:center;"> T </td>
+   <td style="text-align:center;"> 2015 </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> ES_MINH </td>
+   <td style="text-align:center;"> G </td>
+   <td style="text-align:center;"> T </td>
+   <td style="text-align:center;"> 2016 </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> ES_MINH </td>
+   <td style="text-align:center;"> G </td>
+   <td style="text-align:center;"> T </td>
+   <td style="text-align:center;"> 2017 </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> ES_MINH </td>
+   <td style="text-align:center;"> G </td>
+   <td style="text-align:center;"> T </td>
+   <td style="text-align:center;"> 2018 </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> ES_MINH </td>
+   <td style="text-align:center;"> G </td>
+   <td style="text-align:center;"> T </td>
+   <td style="text-align:center;"> 2019 </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> . </td>
+  </tr>
+  <tr>
    <td style="text-align:center;"> ES_Mino </td>
    <td style="text-align:center;"> G </td>
    <td style="text-align:center;"> T </td>
@@ -24176,6 +25113,366 @@ res %>%	group_by(emu_nameshort,lfs_code,hty_code,year,month) %>%
    <td style="text-align:center;"> . </td>
    <td style="text-align:center;"> . </td>
    <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> PT_Port </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> T </td>
+   <td style="text-align:center;"> 2000 </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> PT_Port </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> T </td>
+   <td style="text-align:center;"> 2001 </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> PT_Port </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> T </td>
+   <td style="text-align:center;"> 2002 </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> PT_Port </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> T </td>
+   <td style="text-align:center;"> 2003 </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> PT_Port </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> T </td>
+   <td style="text-align:center;"> 2004 </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> PT_Port </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> T </td>
+   <td style="text-align:center;"> 2005 </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> PT_Port </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> T </td>
+   <td style="text-align:center;"> 2006 </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> PT_Port </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> T </td>
+   <td style="text-align:center;"> 2007 </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> PT_Port </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> T </td>
+   <td style="text-align:center;"> 2008 </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> PT_Port </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> T </td>
+   <td style="text-align:center;"> 2009 </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> PT_Port </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> T </td>
+   <td style="text-align:center;"> 2010 </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> PT_Port </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> T </td>
+   <td style="text-align:center;"> 2011 </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> PT_Port </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> T </td>
+   <td style="text-align:center;"> 2012 </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> PT_Port </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> T </td>
+   <td style="text-align:center;"> 2013 </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> PT_Port </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> T </td>
+   <td style="text-align:center;"> 2014 </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> PT_Port </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> T </td>
+   <td style="text-align:center;"> 2015 </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> PT_Port </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> T </td>
+   <td style="text-align:center;"> 2016 </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> PT_Port </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> T </td>
+   <td style="text-align:center;"> 2017 </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> PT_Port </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> T </td>
+   <td style="text-align:center;"> 2018 </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> PT_Port </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> T </td>
+   <td style="text-align:center;"> 2019 </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
    <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
    <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
    <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
@@ -26528,6 +27825,7 @@ for (the_emu in unique(res$emu_nameshort)){
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
 ![](landings_seasonality_files/figure-html/s-3.png)<!-- -->
@@ -26598,6 +27896,7 @@ for (the_emu in unique(res$emu_nameshort)){
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
 ![](landings_seasonality_files/figure-html/s-11.png)<!-- -->
@@ -26644,6 +27943,7 @@ for (the_emu in unique(res$emu_nameshort)){
 ![](landings_seasonality_files/figure-html/s-16.png)<!-- -->
 
 ```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
@@ -26737,6 +28037,7 @@ for (the_emu in unique(res$emu_nameshort)){
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
 ![](landings_seasonality_files/figure-html/s-28.png)<!-- -->
@@ -26809,7 +28110,6 @@ for (the_emu in unique(res$emu_nameshort)){
 
 ```
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
 ![](landings_seasonality_files/figure-html/g-4.png)<!-- -->
@@ -26823,6 +28123,7 @@ for (the_emu in unique(res$emu_nameshort)){
 
 ```
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
 ![](landings_seasonality_files/figure-html/g-6.png)<!-- -->
@@ -26835,20 +28136,18 @@ for (the_emu in unique(res$emu_nameshort)){
 
 ```
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
 ![](landings_seasonality_files/figure-html/g-8.png)<!-- -->
 
 ```
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
 ![](landings_seasonality_files/figure-html/g-9.png)<!-- -->
 
 ```
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
@@ -26858,6 +28157,15 @@ for (the_emu in unique(res$emu_nameshort)){
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/g-11.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
@@ -26879,7 +28187,7 @@ for (the_emu in unique(res$emu_nameshort)){
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
-![](landings_seasonality_files/figure-html/g-11.png)<!-- -->![](landings_seasonality_files/figure-html/g-12.png)<!-- -->
+![](landings_seasonality_files/figure-html/g-12.png)<!-- -->![](landings_seasonality_files/figure-html/g-13.png)<!-- -->
 
 ```r
 for (the_emu in unique(res$emu_nameshort)){
@@ -26909,11 +28217,6 @@ for (the_emu in unique(res$emu_nameshort)){
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-```
-
-![](landings_seasonality_files/figure-html/g-13.png)<!-- -->
-
-```
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
@@ -26921,18 +28224,18 @@ for (the_emu in unique(res$emu_nameshort)){
 
 ```
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
 ![](landings_seasonality_files/figure-html/g-15.png)<!-- -->
 
 ```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
@@ -26940,13 +28243,11 @@ for (the_emu in unique(res$emu_nameshort)){
 
 ```
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
 ![](landings_seasonality_files/figure-html/g-17.png)<!-- -->
 
 ```
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
@@ -26957,6 +28258,15 @@ for (the_emu in unique(res$emu_nameshort)){
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/g-19.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
@@ -26967,7 +28277,7 @@ for (the_emu in unique(res$emu_nameshort)){
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
-![](landings_seasonality_files/figure-html/g-19.png)<!-- -->
+![](landings_seasonality_files/figure-html/g-20.png)<!-- -->
 
 ```r
 for (the_emu in unique(res$emu_nameshort)){
@@ -26979,6 +28289,8 @@ for (the_emu in unique(res$emu_nameshort)){
 ```
 
 ```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
@@ -27089,6 +28401,7 @@ for (the_emu in unique(res$emu_nameshort)){
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
 ![](landings_seasonality_files/figure-html/y-2.png)<!-- -->
@@ -27149,6 +28462,7 @@ for (the_emu in unique(res$emu_nameshort)){
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
 ![](landings_seasonality_files/figure-html/y-8.png)<!-- -->
@@ -27195,6 +28509,7 @@ for (the_emu in unique(res$emu_nameshort)){
 ![](landings_seasonality_files/figure-html/y-13.png)<!-- -->
 
 ```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
@@ -27313,6 +28628,7 @@ for (the_emu in unique(res$emu_nameshort)){
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
 ![](landings_seasonality_files/figure-html/y-30.png)<!-- -->
@@ -27341,6 +28657,7 @@ for (the_emu in unique(res$emu_nameshort)){
 ![](landings_seasonality_files/figure-html/y-32.png)<!-- -->
 
 ```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
@@ -27428,6 +28745,7 @@ for (the_emu in unique(res$emu_nameshort)){
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
 ![](landings_seasonality_files/figure-html/y-42.png)<!-- -->
@@ -27486,6 +28804,8 @@ for (the_emu in unique(res$emu_nameshort)){
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
 ![](landings_seasonality_files/figure-html/y-43.png)<!-- -->
@@ -27500,6 +28820,8 @@ for (the_emu in unique(res$emu_nameshort)){
 ```
 
 ```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
@@ -27603,6 +28925,7 @@ for (the_emu in unique(res$emu_nameshort)){
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
 ![](landings_seasonality_files/figure-html/ys-1.png)<!-- -->
@@ -27648,6 +28971,7 @@ for (the_emu in unique(res$emu_nameshort)){
 
 ```
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
 ![](landings_seasonality_files/figure-html/ys-4.png)<!-- -->
@@ -27675,6 +28999,7 @@ for (the_emu in unique(res$emu_nameshort)){
 ```
 
 ```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
@@ -27754,6 +29079,7 @@ for (the_emu in unique(res$emu_nameshort)){
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
 ![](landings_seasonality_files/figure-html/ys-14.png)<!-- -->
@@ -27768,6 +29094,7 @@ for (the_emu in unique(res$emu_nameshort)){
 ```
 
 ```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
@@ -27864,12 +29191,18 @@ for (the_emu in unique(res$emu_nameshort)){
 
 ```
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/ys-26.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
-![](landings_seasonality_files/figure-html/ys-26.png)<!-- -->
+![](landings_seasonality_files/figure-html/ys-27.png)<!-- -->
 
 ```r
 for (the_emu in unique(res$emu_nameshort)){
@@ -27925,9 +29258,11 @@ for (the_emu in unique(res$emu_nameshort)){
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
-![](landings_seasonality_files/figure-html/ys-27.png)<!-- -->
+![](landings_seasonality_files/figure-html/ys-28.png)<!-- -->
 
 ```r
 for (the_emu in unique(res$emu_nameshort)){
@@ -27978,11 +29313,6 @@ for (the_emu in unique(res$emu_nameshort)){
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-```
-
-![](landings_seasonality_files/figure-html/ys-28.png)<!-- -->
-
-```
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
@@ -27990,9 +29320,16 @@ for (the_emu in unique(res$emu_nameshort)){
 
 ```
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/ys-30.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
-![](landings_seasonality_files/figure-html/ys-30.png)<!-- -->
+![](landings_seasonality_files/figure-html/ys-31.png)<!-- -->

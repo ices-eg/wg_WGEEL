@@ -1,6 +1,6 @@
 ---
-title: "WKEELMIGRATION LANDINGS SEASONALITY DATA TREATMENT"
-author: "Cédric Briand, Jan Dag Pohlmann, Estibaliz diaz and Hilaire Drouineau, "
+title: "WKEELMIGRATION CLOSURE DATA TREATMENT"
+author: "Michael Pedersen, Argyrios Sapounidis, Caroline Durif, Matthew Gollock, Derek Evans, Cédric Briand"
 date: "january 2020"
 output: 
   html_document:
@@ -32,7 +32,7 @@ source("..\\..\\R\\shiny_data_integration\\shiny_di\\loading_functions.R")
 source("..\\..\\R\\shiny_data_integration\\shiny_di\\database_reference.R") # extract_ref
 load(file=str_c("C:\\workspace\\gitwgeel\\R\\shiny_data_integration\\shiny_di","\\common\\data\\init_data.Rdata"))  
 datawd <- "C:\\Users\\cedric.briand\\OneDrive - EPTB Vilaine\\Projets\\GRISAM\\2020\\wkeemigration\\source\\"
-datawd1 <- "C:\\Users\\cedric.briand\\OneDrive - EPTB Vilaine\\Projets\\GRISAM\\2020\\wkeemigration\\Treated commercial\\"
+datawd1 <- "C:\\Users\\cedric.briand\\OneDrive - EPTB Vilaine\\Projets\\GRISAM\\2020\\wkeemigration\\Treated closure\\"
 
 imgwd <- "C:\\workspace\\wgeeldata\\wkeelmigration\\image\\"
 
@@ -52,30 +52,30 @@ see readme.md in this folder for notes on source file.
 # reading the files
 
 
-```{r readfiles, echo=FALSE, include=FALSE, eval=TRUE}
-fcl <- list.files(datawd1,pattern='commercial_landings')
+```{r readfiles, echo=FALSE, include=FALSE, eval=FALSE}
+fcl <- list.files(datawd1,pattern='.xlsx')
 load( file=str_c(datawd,"saved_data.Rdata"))
 load(file=str_c(datawd,"cou.Rdata"))
 
 datasource <- "wkeelmigration"
-list_seasonality <- list()
+list_closure <- list()
 for (f in fcl){
 	# f <- fcl[1]
 	path <- str_c(datawd1,f)	
 	file<-basename(path)
 	mylocalfilename<-gsub(".xlsx","",file)
 	country <- substring(mylocalfilename,1,2)
-	list_seasonality[[mylocalfilename]] <-	load_landings(path, datasource)
+	list_closure[[mylocalfilename]] <-	load_closures(path, datasource)
 }
-save(list_seasonality,file=str_c(datawd1,"list_seasonality.Rdata"))
+save(list_closure,file=str_c(datawd1,"list_closure.Rdata"))
 ```
 
 ```{r quality_analysis, echo=TRUE, include=TRUE}
-load(file=str_c(datawd1,"list_seasonality.Rdata"))
-# list_seasonality is a list with all data sets (readme, data, series) as elements of the list
+load(file=str_c(datawd1,"list_closure.Rdata"))
+# list_closure is a list with all data sets (readme, data, series) as elements of the list
 # below we extract the list of data and bind them all in a single data.frame
 # to do so, I had to constrain the column type during file reading (see functions.R)
-res <- map(list_seasonality,function(X){			X[["data"]]		}) %>% 
+res <- map(list_closure,function(X){			X[["data"]]		}) %>% 
 		bind_rows()
 Hmisc::describe(res) %>% html()
 
@@ -84,22 +84,20 @@ Hmisc::describe(res) %>% html()
 # all NA print(res[is.na(res$eel_emu_nameshort),],n=1000)
 res <- res[!is.na(res$eel_emu_nameshort),]
 # describe file again
-#Hmisc::describe(res)%>% html()
-# All ND, NP or NM
-print(res[is.na(res$eel_value),],n=40)
-# removing those rows
-res <- res[!is.na(res$eel_value),]
-nrow(res) 
+
+# treating month
 
 unique(res$eel_month)
 res$eel_month <- tolower(res$eel_month)
+# resm<-res[is.na(res$eel_month),]
+res$eel_month[is.na(res$eel_month)]<-"whole year"
 # removing whole year and missing year
-resw <- res[res$eel_month%in%c("whole year"),]
-print(resw)
-# ONLY GB_Neag and this is whole_year not remain year
-resr <- res[res$eel_month%in%c("remain year"),]
-print(resr)
-res <-res[!res$eel_month%in%c("whole year", "remain year"),]
+res$eel_month[res$eel_month=="abr"] <- "apr"
+res$eel_month[res$eel_month=="ago"] <- "aug"
+
+
+
+
 # recode the month
 res$eel_month <- recode(res$eel_month, 
 		"mar"=3, 
@@ -113,9 +111,10 @@ res$eel_month <- recode(res$eel_month,
 		"nov"=11,
 		"dec"=12, 
 		"jan"=1, 
-		"feb"=2
+		"feb"=2,
+        "whole year"=13
 )
-Hmisc::describe(res$eel_month)%>% html()
+Hmisc::describe(res$eel_month) %>% html
 # number of data per emu
 #res %>% mutate("freq"=1) %>% filter(eel_year>2000 & eel_year<2019) %>%
 #xtabs ( formula=freq ~ eel_year + eel_month +eel_emu_nameshort)
@@ -124,10 +123,10 @@ Hmisc::describe(res$eel_month)%>% html()
 res <- res[order(res$eel_typ_name,res$eel_emu_nameshort, res$eel_year, res$eel_month,res$eel_lfs_code,res$eel_hty_code),]
 res$id <- 1:nrow(res)
 
-# some of the data have more than two rows per month per year, it's OK for germany but there is a problem with the
-# Polish file
+# checking for duplicates; These have sereral values for one stage (means that they have more than 2 habitats types
+
 res %>% mutate("freq"=1) %>% filter(eel_year>2000 & eel_year<2019) %>%
-		xtabs ( formula=freq ~ eel_year + eel_month +eel_emu_nameshort +eel_lfs_code)%>%
+		xtabs ( formula=freq ~ eel_typ_name + eel_year + eel_month +eel_emu_nameshort +eel_lfs_code)%>%
 		as.data.frame() %>% filter(Freq>2)%>% kable()%>% kable_styling() %>%
 		scroll_box(width = "500px", height = "200px")
 
@@ -143,40 +142,29 @@ duplicates <- res %>% mutate("freq"=1) %>% filter(eel_year>2000 & eel_year<2019)
 kable(duplicates)%>% kable_styling() %>%
 		scroll_box(width = "500px", height = "200px")
 
-# =>DUPLICATED VALUES SENT TO ESTI ...
 
 colnames(res) <-gsub("eel_","",colnames(res))
 
 
-# COMMERCIAL AND RECREATIONAL -----------------------------------------------------------
 
-# The only recreational landings there are the boat fishery for glass eel in Spain
-# I'm not using the type, we'll work with both commercial and recreational as a single category.
-
-res %>% filter(typ_name=="rec_landings_kg") %>% select(emu_nameshort) %>% distinct() 
-
-
-
+# mycolumn="hty_code";mydata=res
 nicetable <- function(mydata, mycolumn){
   ta <- table(mydata[,mycolumn]) %>% t()
   kable(ta)
 }
-nicetable(res, "emu_nameshort")
-nicetable(res, "hty_code")
+nicetable(res,"fishery_closure_type")
+nicetable(res,"emu_nameshort")
+nicetable(res,"month")
+nicetable(res,"hty_code")
+describe(res$fishery_closure_percent)%>%html()
 
-# there are only three lines with hty code 'FT' in Ireland, I'm correcting them to F
-res$hty_code[res$hty_code=='FT'] <- 'F'
 
-# Now I don't remember why we put this  :it's fortunate that we don't use that in a dabase. 
-# How will we ever treat those categories ?
-# "FTC" "FT"  "TC" 
 
-unique(res$lfs_code) # OK
-save(res,file=str_c(datawd,"res_landings.Rdata"))
+save(res,file=str_c(datawd,"res_closure.Rdata"))
 ```
 
 
-```{r tables, echo=TRUE, include=TRUE}
+```{r tables, echo=TRUE, include=TRUE, eval=FALSE}
 load(file=str_c(datawd,"res_landings.Rdata"))
 
 #  before correction this table had a lot of values in red (duplicates)
@@ -209,7 +197,7 @@ Empty graphs correspond to all zero values reported for one year, those values a
 
 # Silver eels
 
-```{r s, echo=TRUE, include=TRUE}
+```{r s, echo=TRUE, include=FALSE, eval=FALSE}
 
 
 
@@ -261,112 +249,112 @@ for (the_emu in unique(res$emu_nameshort)){
 			colfill= "navyblue")	
 }
 ```
-
-# Glass eel
-
-```{r g, echo=TRUE, include=TRUE}
-res %>% filter(lfs_code=="G") %>% select(hty_code) %>% distinct()
-for (the_emu in unique(res$emu_nameshort)){
-	fnplot(lfs = 'G',
-			hty = c("T"),
-			emu=the_emu, 
-			colfill= "tomato1")	
-}
-
-for (the_emu in unique(res$emu_nameshort)){
-	fnplot(lfs = 'G',
-			hty = c("F"),
-			emu=the_emu, 
-			colfill= "violetred")	
-}
-
-for (the_emu in unique(res$emu_nameshort)){
-	fnplot(lfs = 'G',
-			hty = c("FTC"),
-			emu=the_emu, 
-			colfill= "firebrick")	
-}
-
-```
-
-
-# Yellow
-
-```{r y, echo=TRUE, include=TRUE}
-res %>% filter(lfs_code=="Y") %>% select(hty_code) %>% distinct()
-for (the_emu in unique(res$emu_nameshort)){
-	fnplot(lfs = 'Y',
-			hty = c("C"),
-			emu=the_emu, 
-			colfill= "green")	
-}
-
-for (the_emu in unique(res$emu_nameshort)){
-	fnplot(lfs = 'Y',
-			hty = c("F"),
-			emu=the_emu, 
-			colfill= "greenyellow")	
-}
-
-for (the_emu in unique(res$emu_nameshort)){
-	fnplot(lfs = 'Y',
-			hty = c("T"),
-			emu=the_emu, 
-			colfill= "limegreen")	
-}
-
-for (the_emu in unique(res$emu_nameshort)){
-	fnplot(lfs = 'Y',
-			hty = c("MO"),
-			emu=the_emu, 
-			colfill= "olivedrab")	
-}
-
-for (the_emu in unique(res$emu_nameshort)){
-	fnplot(lfs = 'Y',
-			hty = c("FTC"),
-			emu=the_emu, 
-			colfill= "springgreen")	
-}
-
-```
-
-# Yellow silver
-
-```{r ys, echo=TRUE, include=TRUE}
-res %>% filter(lfs_code=="YS") %>% select(hty_code) %>% distinct()
-for (the_emu in unique(res$emu_nameshort)){
-	fnplot(lfs = 'YS',
-			hty = c("C"),
-			emu=the_emu, 
-			colfill= "plum")	
-}
-
-for (the_emu in unique(res$emu_nameshort)){
-	fnplot(lfs = 'YS',
-			hty = c("F"),
-			emu=the_emu, 
-			colfill= "purple")	
-}
-
-for (the_emu in unique(res$emu_nameshort)){
-	fnplot(lfs = 'YS',
-			hty = c("T"),
-			emu=the_emu, 
-			colfill= "magenta")	
-}
-
-for (the_emu in unique(res$emu_nameshort)){
-	fnplot(lfs = 'YS',
-			hty = c("FTC"),
-			emu=the_emu, 
-			colfill= "violet")	
-}
-
-for (the_emu in unique(res$emu_nameshort)){
-	fnplot(lfs = 'YS',
-			hty = c("TC"),
-			emu=the_emu, 
-			colfill= "hotpink")	
-}
-```
+<!--  -->
+<!-- # Glass eel -->
+<!--  -->
+<!-- ```{r g, echo=TRUE, include=TRUE} -->
+<!-- res %>% filter(lfs_code=="G") %>% select(hty_code) %>% distinct() -->
+<!-- for (the_emu in unique(res$emu_nameshort)){ -->
+<!-- 	fnplot(lfs = 'G', -->
+<!-- 			hty = c("T"), -->
+<!-- 			emu=the_emu,  -->
+<!-- 			colfill= "tomato1")	 -->
+<!-- } -->
+<!--  -->
+<!-- for (the_emu in unique(res$emu_nameshort)){ -->
+<!-- 	fnplot(lfs = 'G', -->
+<!-- 			hty = c("F"), -->
+<!-- 			emu=the_emu,  -->
+<!-- 			colfill= "violetred")	 -->
+<!-- } -->
+<!--  -->
+<!-- for (the_emu in unique(res$emu_nameshort)){ -->
+<!-- 	fnplot(lfs = 'G', -->
+<!-- 			hty = c("FTC"), -->
+<!-- 			emu=the_emu,  -->
+<!-- 			colfill= "firebrick")	 -->
+<!-- } -->
+<!--  -->
+<!-- ``` -->
+<!--  -->
+<!--  -->
+<!-- # Yellow -->
+<!--  -->
+<!-- ```{r y, echo=TRUE, include=TRUE} -->
+<!-- res %>% filter(lfs_code=="Y") %>% select(hty_code) %>% distinct() -->
+<!-- for (the_emu in unique(res$emu_nameshort)){ -->
+<!-- 	fnplot(lfs = 'Y', -->
+<!-- 			hty = c("C"), -->
+<!-- 			emu=the_emu,  -->
+<!-- 			colfill= "green")	 -->
+<!-- } -->
+<!--  -->
+<!-- for (the_emu in unique(res$emu_nameshort)){ -->
+<!-- 	fnplot(lfs = 'Y', -->
+<!-- 			hty = c("F"), -->
+<!-- 			emu=the_emu,  -->
+<!-- 			colfill= "greenyellow")	 -->
+<!-- } -->
+<!--  -->
+<!-- for (the_emu in unique(res$emu_nameshort)){ -->
+<!-- 	fnplot(lfs = 'Y', -->
+<!-- 			hty = c("T"), -->
+<!-- 			emu=the_emu,  -->
+<!-- 			colfill= "limegreen")	 -->
+<!-- } -->
+<!--  -->
+<!-- for (the_emu in unique(res$emu_nameshort)){ -->
+<!-- 	fnplot(lfs = 'Y', -->
+<!-- 			hty = c("MO"), -->
+<!-- 			emu=the_emu,  -->
+<!-- 			colfill= "olivedrab")	 -->
+<!-- } -->
+<!--  -->
+<!-- for (the_emu in unique(res$emu_nameshort)){ -->
+<!-- 	fnplot(lfs = 'Y', -->
+<!-- 			hty = c("FTC"), -->
+<!-- 			emu=the_emu,  -->
+<!-- 			colfill= "springgreen")	 -->
+<!-- } -->
+<!--  -->
+<!-- ``` -->
+<!--  -->
+<!-- # Yellow silver -->
+<!--  -->
+<!-- ```{r ys, echo=TRUE, include=TRUE} -->
+<!-- res %>% filter(lfs_code=="YS") %>% select(hty_code) %>% distinct() -->
+<!-- for (the_emu in unique(res$emu_nameshort)){ -->
+<!-- 	fnplot(lfs = 'YS', -->
+<!-- 			hty = c("C"), -->
+<!-- 			emu=the_emu,  -->
+<!-- 			colfill= "plum")	 -->
+<!-- } -->
+<!--  -->
+<!-- for (the_emu in unique(res$emu_nameshort)){ -->
+<!-- 	fnplot(lfs = 'YS', -->
+<!-- 			hty = c("F"), -->
+<!-- 			emu=the_emu,  -->
+<!-- 			colfill= "purple")	 -->
+<!-- } -->
+<!--  -->
+<!-- for (the_emu in unique(res$emu_nameshort)){ -->
+<!-- 	fnplot(lfs = 'YS', -->
+<!-- 			hty = c("T"), -->
+<!-- 			emu=the_emu,  -->
+<!-- 			colfill= "magenta")	 -->
+<!-- } -->
+<!--  -->
+<!-- for (the_emu in unique(res$emu_nameshort)){ -->
+<!-- 	fnplot(lfs = 'YS', -->
+<!-- 			hty = c("FTC"), -->
+<!-- 			emu=the_emu,  -->
+<!-- 			colfill= "violet")	 -->
+<!-- } -->
+<!--  -->
+<!-- for (the_emu in unique(res$emu_nameshort)){ -->
+<!-- 	fnplot(lfs = 'YS', -->
+<!-- 			hty = c("TC"), -->
+<!-- 			emu=the_emu,  -->
+<!-- 			colfill= "hotpink")	 -->
+<!-- } -->
+<!-- ``` -->
