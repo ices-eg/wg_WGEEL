@@ -65,6 +65,7 @@ for (f in fcl){
 	file<-basename(path)
 	mylocalfilename<-gsub(".xlsx","",file)
 	country <- substring(mylocalfilename,1,2)
+	cat(country)
 	list_closure[[mylocalfilename]] <-	load_closures(path, datasource)
 }
 save(list_closure,file=str_c(datawd1,"list_closure.Rdata"))
@@ -100,6 +101,9 @@ res$eel_month[res$eel_month=="ago"] <- "aug"
 
 # recode the month
 res$eel_month <- recode(res$eel_month, 
+    "whole year"=13,
+    "jan"=1, 
+		"feb"=2,
 		"mar"=3, 
 		"apr"=4, 
 		"may"=5, 
@@ -109,12 +113,8 @@ res$eel_month <- recode(res$eel_month,
 		"sep"=9,
 		"oct"=10,
 		"nov"=11,
-		"dec"=12, 
-		"jan"=1, 
-		"feb"=2,
-        "whole year"=13
-)
-Hmisc::describe(res$eel_month) %>% html
+		"dec"=12)
+Hmisc::describe(as.factor(res$eel_month)) %>% html
 # number of data per emu
 #res %>% mutate("freq"=1) %>% filter(eel_year>2000 & eel_year<2019) %>%
 #xtabs ( formula=freq ~ eel_year + eel_month +eel_emu_nameshort)
@@ -148,27 +148,34 @@ colnames(res) <-gsub("eel_","",colnames(res))
 
 
 # mycolumn="hty_code";mydata=res
-nicetable <- function(mydata, mycolumn){
+nicetable <- function(mydata, mycolumn,t=TRUE){
+  if (t){
   ta <- table(mydata[,mycolumn]) %>% t()
+  } else {
+   ta <- as.data.frame(table(mydata[,mycolumn])) 
+  }
   kable(ta)
 }
-nicetable(res,"fishery_closure_type")
-nicetable(res,"emu_nameshort")
-nicetable(res,"month")
-nicetable(res,"hty_code")
+nicetable(res,"fishery_closure_type")%>%
+  kable_styling(c("striped", "bordered"))
+nicetable(res,"emu_nameshort", t=FALSE)
+nicetable(res,"month")%>%
+  kable_styling(c("striped", "bordered"))
+nicetable(res,"hty_code")%>%
+  kable_styling(c("striped", "bordered"))
 describe(res$fishery_closure_percent)%>%html()
 
 
 
-save(res,file=str_c(datawd,"res_closure.Rdata"))
+save(res,file=str_c(datawd1,"res_closure.Rdata"))
 ```
 
 
-```{r tables, echo=TRUE, include=TRUE, eval=FALSE}
-load(file=str_c(datawd,"res_landings.Rdata"))
+```{r tables, echo=TRUE, include=TRUE, eval=TRUE}
+load(file=str_c(datawd1,"res_closure.Rdata"))
 
 #  before correction this table had a lot of values in red (duplicates)
-res %>%	group_by(emu_nameshort,lfs_code,hty_code,year,month) %>%
+res %>%	group_by(typ_name, emu_nameshort,lfs_code,hty_code,year,month) %>%
 		summarize(N=n()) %>% 
 		mutate(N = cell_spec(N, "html", color = ifelse(N > 1, "red", "black"),bold=ifelse(N > 1, T, F)))%>%
 		pivot_wider(names_from="month",values_from="N")%>%
@@ -176,20 +183,58 @@ res %>%	group_by(emu_nameshort,lfs_code,hty_code,year,month) %>%
 		kable_styling(c("striped", "condensed"), full_width = F)%>%
 		scroll_box(width = "600px", height = "400px")
 
-# groups with all zero for one year 
-# for later reuse (remove those series)
-all_zero <- res %>%	group_by(emu_nameshort,lfs_code,hty_code,year) %>%
-		summarize(S=sum(value)) %>% 
-    filter(S==0)
-# table
-all_zero %>%
-		kable(escape = F, align = "c") %>%
-		kable_styling(c("striped", "condensed"), full_width = F)%>%
-		scroll_box(width = "600px", height = "400px")
 
+```
+
+
+```{r pivot_tables, echo=TRUE, include=TRUE, eval=TRUE}
+load(file=str_c(datawd1,"res_closure.Rdata"))
+
+
+#  before correction this table had a lot of values in red (duplicates)
+# comment and reason for closure take first
+res %>%	
+  mutate(fishery_closure_type=ifelse(is.na(fishery_closure_type),"0",fishery_closure_type),
+         reason_for_closure=ifelse(is.na(reason_for_closure),"",reason_for_closure),
+         comment=ifelse(is.na(comment),"",comment))%>% # remove NA from fishery closure type
+  group_by(typ_name, emu_nameshort,lfs_code,hty_code,year,month) %>%
+  summarize(duplicate=n(), 
+			fishery_closure_percent=sum(fishery_closure_percent), 
+			fishery_closure_type=paste0(fishery_closure_type, collapse = "+"), 
+			reason_for_closure = first(reason_for_closure),  
+			comment = first(comment)) %>%
+  mutate(duplicate=cell_spec(duplicate,, "html",color=spec_color(duplicate)),
+			fishery_closure_percent = 
+           case_when(fishery_closure_type=='PS'  ~ cell_spec(fishery_closure_percent, "html",
+                                                             color ="white",
+                                                             background = "red",
+                                                             link = "#",
+                                                             tooltip =paste0("reason:",reason_for_closure, "Comment: ", comment )),
+                     fishery_closure_type=='PT' ~ cell_spec(fishery_closure_percent, "html",
+                                                             color ="white",
+                                                             background = "blue",
+                                                            link = "#",
+                                                            tooltip =paste0("reason:",reason_for_closure, "Comment: ", comment )),
+                     fishery_closure_type=='PST' ~ cell_spec(fishery_closure_percent, "html",
+                                                              color ="white",
+                                                             background = "purple",
+                                                             link = "#",
+                                                             tooltip =paste0("reason:",reason_for_closure, "Comment: ", comment )),
+                     fishery_closure_type=='T' ~ cell_spec(fishery_closure_percent, "html",
+                                                            color ="white",
+                                                             background = "black",
+                                                           link = "#",
+                                                           tooltip =paste0("reason:",reason_for_closure, "Comment: ", comment ))
+           ))%>%
+  select(duplicate,typ_name, emu_nameshort,lfs_code,hty_code,year,month, fishery_closure_percent) %>%
+  pivot_wider(names_from="month",values_from="fishery_closure_percent")%>%
+  kable(escape = F, align = "c") %>%
+  kable_styling(c("striped", "condensed"), full_width = F)%>%
+  scroll_box(width = "600px", height = "400px")
 
 
 ```
+
 
 
 
@@ -197,7 +242,7 @@ Empty graphs correspond to all zero values reported for one year, those values a
 
 # Silver eels
 
-```{r s, echo=TRUE, include=FALSE, eval=FALSE}
+```{r s, echo=FALSE, include=FALSE, eval=FALSE}
 
 
 
