@@ -10,7 +10,7 @@ model{
 		esp_unordered[clus, 1:nbm] ~ ddirich(alpha[1:nbm]) ###mean of mean from Dirichlet prior
 		centroid_unordered[clus]<-sum((1:nbm)*esp_unordered[clus,1:nbm])
 		for (m in 1:nbm){
-			alpha2_unordered[clus,m] <- esp_unordered[clus,m] * nbclus ####mean from Dirichlet prior
+			alpha2_unordered[clus,m] <- esp_unordered[clus,m] * nbm ####mean from Dirichlet prior
 		}
 	}
 	id_cluster[1:nbclus]<-order(distFromRef[1:nbclus]) #with this strategy, the last cluster is the one of the ref, and 1st cluster is the cluster with less similarity to the reference cluster
@@ -45,7 +45,7 @@ model{
 	
 #######group (series x period) per group part
 	for (i in 1:nbobs){ #an observation is a 12 months vector
-		y2[i,1:nbm]~ddirich(alpha_group[group[i],1:nbm]) ##definition of the dirichlet observation
+		y2[i,1:nbm]~ddirich(alpha_group[group[i],1:nbm]*nbm) ##definition of the dirichlet observation
 	}
 	for (g in 1:nbgroup){
 		alpha_group[g, 1:nbm]~ddirich(alpha[1:nbm])
