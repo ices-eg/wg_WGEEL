@@ -52,7 +52,7 @@ see readme.md in this folder for notes on source file.
 # reading the files
 
 
-```{r readfiles, echo=FALSE, include=FALSE, eval=TRUE}
+```{r readfiles, echo=FALSE, include=FALSE, eval=FALSE}
 fcl <- list.files(datawd1,pattern='.xlsx')
 load( file=str_c(datawd,"saved_data.Rdata"))
 load(file=str_c(datawd,"cou.Rdata"))
@@ -101,6 +101,9 @@ res$eel_month[res$eel_month=="ago"] <- "aug"
 
 # recode the month
 res$eel_month <- recode(res$eel_month, 
+    "whole year"=13,
+    "jan"=1, 
+		"feb"=2,
 		"mar"=3, 
 		"apr"=4, 
 		"may"=5, 
@@ -110,11 +113,7 @@ res$eel_month <- recode(res$eel_month,
 		"sep"=9,
 		"oct"=10,
 		"nov"=11,
-		"dec"=12, 
-		"jan"=1, 
-		"feb"=2,
-        "whole year"=13
-)
+		"dec"=12)
 Hmisc::describe(as.factor(res$eel_month)) %>% html
 # number of data per emu
 #res %>% mutate("freq"=1) %>% filter(eel_year>2000 & eel_year<2019) %>%
@@ -191,14 +190,47 @@ res %>%	group_by(typ_name, emu_nameshort,lfs_code,hty_code,year,month) %>%
 ```{r pivot_tables, echo=TRUE, include=TRUE, eval=TRUE}
 load(file=str_c(datawd1,"res_closure.Rdata"))
 
+
 #  before correction this table had a lot of values in red (duplicates)
-res %>%	group_by(typ_name, emu_nameshort,lfs_code,hty_code,year,month) %>%
-		summarize(perc=sum(value)) %>% 
-		mutate(N = cell_spec(N, "html", color = ifelse(N < 100, "blue", "black"),bold=ifelse(N < 100, T, F)))%>%
-		pivot_wider(names_from="month",values_from="N")%>%
-		kable(escape = F, align = "c") %>%
-		kable_styling(c("striped", "condensed"), full_width = F)%>%
-		scroll_box(width = "600px", height = "400px")
+# comment and reason for closure take first
+res %>%	
+  mutate(fishery_closure_type=ifelse(is.na(fishery_closure_type),"0",fishery_closure_type),
+         reason_for_closure=ifelse(is.na(reason_for_closure),"",reason_for_closure),
+         comment=ifelse(is.na(comment),"",comment))%>% # remove NA from fishery closure type
+  group_by(typ_name, emu_nameshort,lfs_code,hty_code,year,month) %>%
+  summarize(duplicate=n(), 
+			fishery_closure_percent=sum(fishery_closure_percent), 
+			fishery_closure_type=paste0(fishery_closure_type, collapse = "+"), 
+			reason_for_closure = first(reason_for_closure),  
+			comment = first(comment)) %>%
+  mutate(duplicate=cell_spec(duplicate,, "html",color=spec_color(duplicate)),
+			fishery_closure_percent = 
+           case_when(fishery_closure_type=='PS'  ~ cell_spec(fishery_closure_percent, "html",
+                                                             color ="white",
+                                                             background = "red",
+                                                             link = "#",
+                                                             tooltip =paste0("reason:",reason_for_closure, "Comment: ", comment )),
+                     fishery_closure_type=='PT' ~ cell_spec(fishery_closure_percent, "html",
+                                                             color ="white",
+                                                             background = "blue",
+                                                            link = "#",
+                                                            tooltip =paste0("reason:",reason_for_closure, "Comment: ", comment )),
+                     fishery_closure_type=='PST' ~ cell_spec(fishery_closure_percent, "html",
+                                                              color ="white",
+                                                             background = "purple",
+                                                             link = "#",
+                                                             tooltip =paste0("reason:",reason_for_closure, "Comment: ", comment )),
+                     fishery_closure_type=='T' ~ cell_spec(fishery_closure_percent, "html",
+                                                            color ="white",
+                                                             background = "black",
+                                                           link = "#",
+                                                           tooltip =paste0("reason:",reason_for_closure, "Comment: ", comment ))
+           ))%>%
+  select(duplicate,typ_name, emu_nameshort,lfs_code,hty_code,year,month, fishery_closure_percent) %>%
+  pivot_wider(names_from="month",values_from="fishery_closure_percent")%>%
+  kable(escape = F, align = "c") %>%
+  kable_styling(c("striped", "condensed"), full_width = F)%>%
+  scroll_box(width = "600px", height = "400px")
 
 
 ```
