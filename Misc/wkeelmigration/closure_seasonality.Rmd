@@ -52,7 +52,7 @@ see readme.md in this folder for notes on source file.
 # reading the files
 
 
-```{r readfiles, echo=FALSE, include=FALSE, eval=FALSE}
+```{r readfiles, echo=FALSE, include=FALSE, eval=TRUE}
 fcl <- list.files(datawd1,pattern='.xlsx')
 load( file=str_c(datawd,"saved_data.Rdata"))
 load(file=str_c(datawd,"cou.Rdata"))
@@ -65,6 +65,7 @@ for (f in fcl){
 	file<-basename(path)
 	mylocalfilename<-gsub(".xlsx","",file)
 	country <- substring(mylocalfilename,1,2)
+	cat(country)
 	list_closure[[mylocalfilename]] <-	load_closures(path, datasource)
 }
 save(list_closure,file=str_c(datawd1,"list_closure.Rdata"))
@@ -114,7 +115,7 @@ res$eel_month <- recode(res$eel_month,
 		"feb"=2,
         "whole year"=13
 )
-Hmisc::describe(res$eel_month) %>% html
+Hmisc::describe(as.factor(res$eel_month)) %>% html
 # number of data per emu
 #res %>% mutate("freq"=1) %>% filter(eel_year>2000 & eel_year<2019) %>%
 #xtabs ( formula=freq ~ eel_year + eel_month +eel_emu_nameshort)
@@ -148,27 +149,34 @@ colnames(res) <-gsub("eel_","",colnames(res))
 
 
 # mycolumn="hty_code";mydata=res
-nicetable <- function(mydata, mycolumn){
+nicetable <- function(mydata, mycolumn,t=TRUE){
+  if (t){
   ta <- table(mydata[,mycolumn]) %>% t()
+  } else {
+   ta <- as.data.frame(table(mydata[,mycolumn])) 
+  }
   kable(ta)
 }
-nicetable(res,"fishery_closure_type")
-nicetable(res,"emu_nameshort")
-nicetable(res,"month")
-nicetable(res,"hty_code")
+nicetable(res,"fishery_closure_type")%>%
+  kable_styling(c("striped", "bordered"))
+nicetable(res,"emu_nameshort", t=FALSE)
+nicetable(res,"month")%>%
+  kable_styling(c("striped", "bordered"))
+nicetable(res,"hty_code")%>%
+  kable_styling(c("striped", "bordered"))
 describe(res$fishery_closure_percent)%>%html()
 
 
 
-save(res,file=str_c(datawd,"res_closure.Rdata"))
+save(res,file=str_c(datawd1,"res_closure.Rdata"))
 ```
 
 
-```{r tables, echo=TRUE, include=TRUE, eval=FALSE}
-load(file=str_c(datawd,"res_landings.Rdata"))
+```{r tables, echo=TRUE, include=TRUE, eval=TRUE}
+load(file=str_c(datawd1,"res_closure.Rdata"))
 
 #  before correction this table had a lot of values in red (duplicates)
-res %>%	group_by(emu_nameshort,lfs_code,hty_code,year,month) %>%
+res %>%	group_by(typ_name, emu_nameshort,lfs_code,hty_code,year,month) %>%
 		summarize(N=n()) %>% 
 		mutate(N = cell_spec(N, "html", color = ifelse(N > 1, "red", "black"),bold=ifelse(N > 1, T, F)))%>%
 		pivot_wider(names_from="month",values_from="N")%>%
@@ -176,20 +184,25 @@ res %>%	group_by(emu_nameshort,lfs_code,hty_code,year,month) %>%
 		kable_styling(c("striped", "condensed"), full_width = F)%>%
 		scroll_box(width = "600px", height = "400px")
 
-# groups with all zero for one year 
-# for later reuse (remove those series)
-all_zero <- res %>%	group_by(emu_nameshort,lfs_code,hty_code,year) %>%
-		summarize(S=sum(value)) %>% 
-    filter(S==0)
-# table
-all_zero %>%
+
+```
+
+
+```{r pivot_tables, echo=TRUE, include=TRUE, eval=TRUE}
+load(file=str_c(datawd1,"res_closure.Rdata"))
+
+#  before correction this table had a lot of values in red (duplicates)
+res %>%	group_by(typ_name, emu_nameshort,lfs_code,hty_code,year,month) %>%
+		summarize(perc=sum(value)) %>% 
+		mutate(N = cell_spec(N, "html", color = ifelse(N < 100, "blue", "black"),bold=ifelse(N < 100, T, F)))%>%
+		pivot_wider(names_from="month",values_from="N")%>%
 		kable(escape = F, align = "c") %>%
 		kable_styling(c("striped", "condensed"), full_width = F)%>%
 		scroll_box(width = "600px", height = "400px")
 
 
-
 ```
+
 
 
 
@@ -197,7 +210,7 @@ Empty graphs correspond to all zero values reported for one year, those values a
 
 # Silver eels
 
-```{r s, echo=TRUE, include=FALSE, eval=FALSE}
+```{r s, echo=FALSE, include=FALSE, eval=FALSE}
 
 
 
