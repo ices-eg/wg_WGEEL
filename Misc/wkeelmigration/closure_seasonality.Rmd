@@ -101,8 +101,8 @@ res$eel_month[res$eel_month=="ago"] <- "aug"
 
 # recode the month
 res$eel_month <- recode(res$eel_month, 
-    "whole year"=13,
-    "jan"=1, 
+		"whole year"=13,
+		"jan"=1, 
 		"feb"=2,
 		"mar"=3, 
 		"apr"=4, 
@@ -149,23 +149,23 @@ colnames(res) <-gsub("eel_","",colnames(res))
 
 # mycolumn="hty_code";mydata=res
 nicetable <- function(mydata, mycolumn,t=TRUE){
-  if (t){
-  ta <- table(mydata[,mycolumn]) %>% t()
-  } else {
-   ta <- as.data.frame(table(mydata[,mycolumn])) 
-  }
-  kable(ta)
+	if (t){
+		ta <- table(mydata[,mycolumn]) %>% t()
+	} else {
+		ta <- as.data.frame(table(mydata[,mycolumn])) 
+	}
+	kable(ta)
 }
 nicetable(res,"fishery_closure_type")%>%
-  kable_styling(c("striped", "bordered"))
+		kable_styling(c("striped", "bordered"))
 nicetable(res,"emu_nameshort", t=FALSE)
 nicetable(res,"month")%>%
-  kable_styling(c("striped", "bordered"))
+		kable_styling(c("striped", "bordered"))
 nicetable(res,"hty_code")%>%
-  kable_styling(c("striped", "bordered"))
+		kable_styling(c("striped", "bordered"))
 describe(res$fishery_closure_percent)%>%html()
 
-
+res$month <- factor(res$month, levels=c(13,1:12))
 
 save(res,file=str_c(datawd1,"res_closure.Rdata"))
 ```
@@ -194,43 +194,55 @@ load(file=str_c(datawd1,"res_closure.Rdata"))
 #  before correction this table had a lot of values in red (duplicates)
 # comment and reason for closure take first
 res %>%	
-  mutate(fishery_closure_type=ifelse(is.na(fishery_closure_type),"0",fishery_closure_type),
-         reason_for_closure=ifelse(is.na(reason_for_closure),"",reason_for_closure),
-         comment=ifelse(is.na(comment),"",comment))%>% # remove NA from fishery closure type
-  group_by(typ_name, emu_nameshort,lfs_code,hty_code,year,month) %>%
-  summarize(duplicate=n(), 
-			fishery_closure_percent=sum(fishery_closure_percent), 
-			fishery_closure_type=paste0(fishery_closure_type, collapse = "+"), 
-			reason_for_closure = first(reason_for_closure),  
-			comment = first(comment)) %>%
-  mutate(duplicate=cell_spec(duplicate,, "html",color=spec_color(duplicate)),
-			fishery_closure_percent = 
-           case_when(fishery_closure_type=='PS'  ~ cell_spec(fishery_closure_percent, "html",
-                                                             color ="white",
-                                                             background = "red",
-                                                             link = "#",
-                                                             tooltip =paste0("reason:",reason_for_closure, "Comment: ", comment )),
-                     fishery_closure_type=='PT' ~ cell_spec(fishery_closure_percent, "html",
-                                                             color ="white",
-                                                             background = "blue",
-                                                            link = "#",
-                                                            tooltip =paste0("reason:",reason_for_closure, "Comment: ", comment )),
-                     fishery_closure_type=='PST' ~ cell_spec(fishery_closure_percent, "html",
-                                                              color ="white",
-                                                             background = "purple",
-                                                             link = "#",
-                                                             tooltip =paste0("reason:",reason_for_closure, "Comment: ", comment )),
-                     fishery_closure_type=='T' ~ cell_spec(fishery_closure_percent, "html",
-                                                            color ="white",
-                                                             background = "black",
-                                                           link = "#",
-                                                           tooltip =paste0("reason:",reason_for_closure, "Comment: ", comment ))
-           ))%>%
-  select(duplicate,typ_name, emu_nameshort,lfs_code,hty_code,year,month, fishery_closure_percent) %>%
-  pivot_wider(names_from="month",values_from="fishery_closure_percent")%>%
-  kable(escape = F, align = "c") %>%
-  kable_styling(c("striped", "condensed"), full_width = F)%>%
-  scroll_box(width = "600px", height = "400px")
+		mutate(fishery_closure_percent = ifelse(is.na(fishery_closure_percent),0,fishery_closure_percent),
+				fishery_closure_type = ifelse(is.na(fishery_closure_type),"0",fishery_closure_type),
+				reason_for_closure = ifelse(is.na(reason_for_closure),"none given",reason_for_closure),
+				comment = ifelse(is.na(comment),"no comment",comment))%>% # remove NA from fishery closure type
+		group_by(typ_name, emu_nameshort,lfs_code,hty_code,year,month) %>%
+		summarize(duplicate=n(), 
+				fishery_closure_percent=sum(fishery_closure_percent), 
+				fishery_closure_type=paste0(fishery_closure_type, collapse = "+"), 
+				reason_for_closure = first(reason_for_closure),  
+				comment = first(comment)) %>%
+		# some countries (France) report missing lines for fishery closure type when T
+		mutate(fishery_closure_percent=if_else(fishery_closure_type=='T' & fishery_closure_percent==0, 100, fishery_closure_percent))%>%
+		mutate(duplicate=cell_spec(duplicate, "html",color="white", background= ifelse(duplicate>1,"red","white")),
+				fishery_closure_percent = 
+						case_when(fishery_closure_type=='PS'  ~ cell_spec(fishery_closure_percent, "html",
+										color ="white",
+										background = "red",
+										link = "#",
+										tooltip =paste0("reason:",reason_for_closure, "; Comment: ", comment )),
+								fishery_closure_type=='PT' ~ cell_spec(fishery_closure_percent, "html",
+										color ="white",
+										background = "blue",
+										link = "#",
+										tooltip =paste0("reason:",reason_for_closure, "; Comment: ", comment )),
+								fishery_closure_type=='PTS' ~ cell_spec(fishery_closure_percent, "html",
+										color ="white",
+										background = "purple",
+										link = "#",
+										tooltip =paste0("reason:",reason_for_closure, "; Comment: ", comment )),
+								fishery_closure_type=='T' ~ cell_spec(fishery_closure_percent, "html",
+										color ="white",
+										background = "black",
+										link = "#",
+										tooltip =paste0("reason:",reason_for_closure, "; Comment: ", comment )),
+								TRUE ~  cell_spec(fishery_closure_percent, "html",
+										color ="black",
+										background = "white",
+										link = "#",
+										tooltip =paste0("reason:",reason_for_closure, "; Comment: ", comment ))
+
+						),
+				) %>%  #order=as.numeric(as.character(month))
+		#print(n=10, width = Inf)
+	   arrange(typ_name, emu_nameshort,lfs_code,hty_code,year,as.numeric(month)) %>%
+		select(duplicate,typ_name, emu_nameshort,lfs_code,hty_code,year,month, fishery_closure_percent) %>%
+		pivot_wider(names_from="month",values_from="fishery_closure_percent")%>%
+		kable(escape = F, align = "c") %>%
+		kable_styling(c("striped", "condensed"), full_width = T)%>%
+		scroll_box(width = "1000px", height = "800px")
 
 
 ```
@@ -247,10 +259,10 @@ Empty graphs correspond to all zero values reported for one year, those values a
 
 
 fnplot <- function(emu, lfs, hty,colfill="grey10"){
-  # remove all zero values
-  res1 <- res %>% 
-	  anti_join(all_zero)
-  # calculate sum
+	# remove all zero values
+	res1 <- res %>% 
+			anti_join(all_zero)
+	# calculate sum
 	res2 <-  res1 %>%
 			filter(emu_nameshort==emu,
 					lfs_code==lfs,
@@ -276,7 +288,7 @@ fnplot <- function(emu, lfs, hty,colfill="grey10"){
 		
 		print(g)
 	}
-		options(warn=0)
+	options(warn=0)
 }
 
 
