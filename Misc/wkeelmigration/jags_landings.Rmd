@@ -301,12 +301,13 @@ Clusters 1 starts in autum and last still january. Cluster 2 is shifter one mont
 
 We can also look at the belonging of the different groups.
 ```{r}
-get_pattern_month <- function(res,mydata){
-  
-  groups <- interaction(glasseel_wide$emu_nameshort,
+groups <- interaction(glasseel_wide$emu_nameshort,
                                             glasseel_wide$period,
                                             drop=TRUE)
-  group_name <- levels(groups)
+group_name <- levels(groups)
+
+get_pattern_month <- function(res,mydata){
+  
   tmp <- strsplit(as.character(group_name),
                   "\\.")
   ser <- as.character(lapply(tmp,function(tt){
@@ -361,6 +362,32 @@ ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
   theme_bw() +xlim(-20,30) + ylim(35,65)  
 
 ```
+
+## Exporting pattern per group
+```{r}
+tmp <- as.matrix(as.mcmc.list(myfit_glasseel_landings))
+name_col = colnames(tmp)
+
+pattern_GE_landings=do.call("rbind.data.frame",lapply(seq_len(length(levels(groups))),function(g) {
+  name <- group_name[g]
+  ncar=nchar(name)
+  emu_nameshort=substr(name,start=1,stop=ncar-2)
+  period=substr(name,start=ncar,stop=ncar)
+  hty_code="T"
+  lfs_code="G"
+  esp <- tmp[,grep(paste("alpha_group\\[",g,",",sep=""),name_col)]
+  med <- apply(esp,2,median)
+  data.frame(emu_nameshort=emu_nameshort,
+             period=period,
+             hty_code=hty_code,
+             lfs_code=lfs_code,
+             month=1:12,
+             prop=med/sum(med))
+    
+}))
+save(pattern_GE_landings,file="pattern_G_landings.rdata")
+```
+
 
 # Yellow
 First, let's select data corresponding to yellow stage.
@@ -649,12 +676,14 @@ Duration indicates the minimum number of months that covers 80% of the wave (1st
 
 We can also look at the belonging of the different groups.
 ```{r}
-get_pattern_month <- function(res,mydata){
-  
-  groups <- interaction(yelloweel_coastal_wide$emu_nameshort,
+groups <- interaction(yelloweel_coastal_wide$emu_nameshort,
                                             yelloweel_coastal_wide$period,
                                             drop=TRUE)
-  group_name <- levels(groups)
+group_name <- levels(groups)
+  
+get_pattern_month <- function(res,mydata){
+  
+
   tmp <- strsplit(as.character(group_name),
                   "\\.")
   ser <- as.character(lapply(tmp,function(tt){
@@ -710,7 +739,30 @@ ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
 
 ```
 
+### Exporting pattern per group
+```{r}
+tmp <- as.matrix(as.mcmc.list(myfit_yelloweel_coastal_landings))
+name_col = colnames(tmp)
 
+pattern_Ycoast_landings=do.call("rbind.data.frame",lapply(seq_len(length(levels(groups))),function(g) {
+  name <- group_name[g]
+  ncar=nchar(name)
+  emu_nameshort=substr(name,start=1,stop=ncar-2)
+  period=substr(name,start=ncar,stop=ncar)
+  hty_code="C"
+  lfs_code="Y"
+  esp <- tmp[,grep(paste("alpha_group\\[",g,",",sep=""),name_col)]
+  med <- apply(esp,2,median)
+  data.frame(emu_nameshort=emu_nameshort,
+             period=period,
+             hty_code=hty_code,
+             lfs_code=lfs_code,
+             month=1:12,
+             prop=med/sum(med))
+    
+}))
+save(pattern_Ycoast_landings,file="pattern_Ycoast_landings.rdata")
+```
 
 ##transitional waters
 ### Data selection
@@ -938,12 +990,13 @@ Duration indicates the minimum number of months that covers 80% of the wave (1st
 
 We can also look at the belonging of the different groups.
 ```{r}
-get_pattern_month <- function(res,mydata){
-  
-  groups <- interaction(yelloweel_transitional_wide$emu_nameshort,
+groups <- interaction(yelloweel_transitional_wide$emu_nameshort,
                                             yelloweel_transitional_wide$period,
                                             drop=TRUE)
-  group_name <- levels(groups)
+group_name <- levels(groups)
+
+get_pattern_month <- function(res,mydata){
+  
   tmp <- strsplit(as.character(group_name),
                   "\\.")
   ser <- as.character(lapply(tmp,function(tt){
@@ -1000,7 +1053,30 @@ ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
 
 ```
 
+### Exporting pattern per group
+```{r}
+tmp <- as.matrix(as.mcmc.list(myfit_yelloweel_transitional_landings))
+name_col = colnames(tmp)
 
+pattern_Ytrans_landings=do.call("rbind.data.frame",lapply(seq_len(length(levels(groups))),function(g) {
+  name <- group_name[g]
+  ncar=nchar(name)
+  emu_nameshort=substr(name,start=1,stop=ncar-2)
+  period=substr(name,start=ncar,stop=ncar)
+  hty_code="T"
+  lfs_code="Y"
+  esp <- tmp[,grep(paste("alpha_group\\[",g,",",sep=""),name_col)]
+  med <- apply(esp,2,median)
+  data.frame(emu_nameshort=emu_nameshort,
+             period=period,
+             hty_code=hty_code,
+             lfs_code=lfs_code,
+             month=1:12,
+             prop=med/sum(med))
+    
+}))
+save(pattern_Ytrans_landings,file="pattern_Ytrans_landings.rdata")
+```
 
 ##freshwater waters
 ### Data selection
@@ -1229,12 +1305,13 @@ Duration indicates the minimum number of months that covers 80% of the wave (1st
 
 We can also look at the belonging of the different groups.
 ```{r}
-get_pattern_month <- function(res,mydata){
-  
-  groups <- interaction(yelloweel_freshwater_wide$emu_nameshort,
+groups <- interaction(yelloweel_freshwater_wide$emu_nameshort,
                                             yelloweel_freshwater_wide$period,
                                             drop=TRUE)
-  group_name <- levels(groups)
+group_name <- levels(groups)
+
+get_pattern_month <- function(res,mydata){
+  
   tmp <- strsplit(as.character(group_name),
                   "\\.")
   ser <- as.character(lapply(tmp,function(tt){
@@ -1290,6 +1367,32 @@ ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
   theme_bw() +xlim(-20,30) + ylim(35,65)  
 
 ```
+
+### Exporting pattern per group
+```{r}
+tmp <- as.matrix(as.mcmc.list(myfit_yelloweel_freshwater_landings))
+name_col = colnames(tmp)
+
+pattern_Yfresh_landings=do.call("rbind.data.frame",lapply(seq_len(length(levels(groups))),function(g) {
+  name <- group_name[g]
+  ncar=nchar(name)
+  emu_nameshort=substr(name,start=1,stop=ncar-2)
+  period=substr(name,start=ncar,stop=ncar)
+  hty_code="F"
+  lfs_code="Y"
+  esp <- tmp[,grep(paste("alpha_group\\[",g,",",sep=""),name_col)]
+  med <- apply(esp,2,median)
+  data.frame(emu_nameshort=emu_nameshort,
+             period=period,
+             hty_code=hty_code,
+             lfs_code=lfs_code,
+             month=1:12,
+             prop=med/sum(med))
+    
+}))
+save(pattern_Yfresh_landings,file="pattern_Yfresh_landings.rdata")
+```
+
 
 ##All habitats
 ### Data selection
@@ -1894,12 +1997,13 @@ Duration indicates the minimum number of months that covers 80% of the wave (1st
 
 We can also look at the belonging of the different groups.
 ```{r}
-get_pattern_month <- function(res,mydata){
-  
-  groups <- interaction(silvereel_coastal_wide$emu_nameshort,
+groups <- interaction(silvereel_coastal_wide$emu_nameshort,
                                             silvereel_coastal_wide$period,
                                             drop=TRUE)
-  group_name <- levels(groups)
+group_name <- levels(groups)
+
+get_pattern_month <- function(res,mydata){
+  
   tmp <- strsplit(as.character(group_name),
                   "\\.")
   ser <- as.character(lapply(tmp,function(tt){
@@ -1933,7 +2037,7 @@ In fact, most EMUs fall in cluster 3. Cluster 2 corresponds only to ES_Murc_C (s
 ```{r}
 library(sf)
 library(RPostgreSQL)
-cols <- c("1" = "red", "2"= "green","3" = "darkgreen", "4" = "orange",  "5" = "blue", "6"="grey", "7"="silver")
+
 con<-dbConnect(PostgreSQL(),host="localhost",dbname="wgeel_old",user="hilaire")
 cou <- st_read("/mnt/SIG/01-REFERENTIELS/LIMITES_ADMINISTRATIVES_monde/european_countries_WGS84.shp")
 cou <- st_transform(cou, crs=4326)
@@ -1969,6 +2073,30 @@ print(myplots[[3]][[1]])
 print(myplots[[3]][[2]])
 ```
 
+### Exporting pattern per group
+```{r}
+tmp <- as.matrix(as.mcmc.list(myfit_silvereel_coastal_landings))
+name_col = colnames(tmp)
+
+pattern_Smar_coast_trans_landings=do.call("rbind.data.frame",lapply(seq_len(length(levels(groups))),function(g) {
+  name <- group_name[g]
+  ncar=nchar(name)
+  emu_nameshort=substr(name,start=1,stop=ncar-4)
+  period=substr(name,start=ncar,stop=ncar)
+  hty_code=substr(name,start=ncar-2,stop=ncar-2)
+  lfs_code="S"
+  esp <- tmp[,grep(paste("alpha_group\\[",g,",",sep=""),name_col)]
+  med <- apply(esp,2,median)
+  data.frame(emu_nameshort=emu_nameshort,
+             period=period,
+             hty_code=hty_code,
+             lfs_code=lfs_code,
+             month=1:12,
+             prop=med/sum(med))
+    
+}))
+save(pattern_Smar_coast_trans_landings,file="pattern_Smar_coast_trans_landings.rdata")
+```
 
 
 ##freshwater waters
@@ -2198,12 +2326,13 @@ Duration indicates the minimum number of months that covers 80% of the wave (1st
 
 We can also look at the belonging of the different groups.
 ```{r}
-get_pattern_month <- function(res,mydata){
-  
-  groups <- interaction(silvereel_freshwater_wide$emu_nameshort,
+groups <- interaction(silvereel_freshwater_wide$emu_nameshort,
                                             silvereel_freshwater_wide$period,
                                             drop=TRUE)
-  group_name <- levels(groups)
+group_name <- levels(groups)
+  
+get_pattern_month <- function(res,mydata){
+  
   tmp <- strsplit(as.character(group_name),
                   "\\.")
   ser <- as.character(lapply(tmp,function(tt){
@@ -2237,7 +2366,6 @@ Once again the spatial pattern is obvious. SE_Inla changed from 1 to 2 suggestin
 ```{r}
 library(sf)
 library(RPostgreSQL)
-cols <- c("1" = "red", "2"= "green","3" = "darkgreen", "4" = "orange",  "5" = "blue", "6"="grey", "7"="silver")
 con<-dbConnect(PostgreSQL(),host="localhost",dbname="wgeel_old",user="hilaire")
 emu <- st_read(con,query="select * from carto.emu")
 myclassif_p1 <- subset(myclassif, myclassif$period == 1)
@@ -2258,6 +2386,33 @@ ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
   theme_bw() +xlim(-20,30) + ylim(35,65)  
 
 ```
+
+
+### Exporting pattern per group
+```{r}
+tmp <- as.matrix(as.mcmc.list(myfit_silvereel_freshwater_landings))
+name_col = colnames(tmp)
+
+pattern_Sfresh_landings=do.call("rbind.data.frame",lapply(seq_len(length(levels(groups))),function(g) {
+  name <- group_name[g]
+  ncar=nchar(name)
+  emu_nameshort=substr(name,start=1,stop=ncar-4)
+  period=substr(name,start=ncar,stop=ncar)
+  hty_code=substr(name,start=ncar-2,stop=ncar-2)
+  lfs_code="S"
+  esp <- tmp[,grep(paste("alpha_group\\[",g,",",sep=""),name_col)]
+  med <- apply(esp,2,median)
+  data.frame(emu_nameshort=emu_nameshort,
+             period=period,
+             hty_code=hty_code,
+             lfs_code=lfs_code,
+             month=1:12,
+             prop=med/sum(med))
+    
+}))
+save(pattern_Sfresh_landings,file="pattern_Sfresh_landings.rdata")
+```
+
 
 # Siver/Yellow
 Many EMUs were not able to provide landings data in which yellow and silver eel were discriminated. In such situation, it was impossible to decide a priori if such EMU should be analysed with either silver eel or yellow eel stage. Therefore, we analysed such EMUs indepedently.
@@ -2540,12 +2695,13 @@ Duration indicates the minimum number of months that covers 80% of the wave (1st
 
 We can also look at the belonging of the different groups.
 ```{r}
-get_pattern_month <- function(res,mydata){
-  
-  groups <- interaction(YSeel_allhab_wide$emu_nameshort,
+groups <- interaction(YSeel_allhab_wide$emu_nameshort,
                                             YSeel_allhab_wide$period,
                                             drop=TRUE)
-  group_name <- levels(groups)
+group_name <- levels(groups)
+
+get_pattern_month <- function(res,mydata){
+
   tmp <- strsplit(as.character(group_name),
                   "\\.")
   ser <- as.character(lapply(tmp,function(tt){
@@ -2618,6 +2774,31 @@ print(myplots[[3]][[2]])
 print(myplots[[4]][[1]])
 print(myplots[[4]][[2]])
 
+```
+
+## Exporting pattern per group
+```{r}
+tmp <- as.matrix(as.mcmc.list(myfit_YSeel_allhab_landings))
+name_col = colnames(tmp)
+
+pattern_YS_landings=do.call("rbind.data.frame",lapply(seq_len(length(unique(group))),function(g) {
+  name <- group_name[g]
+  ncar=nchar(name)
+  emu_nameshort=substr(name,start=1,stop=ncar-4)
+  period=substr(name,start=ncar,stop=ncar)
+  hty_code=substr(name,start=ncar-2,stop=ncar-2)
+  lfs_code="YS"
+  esp <- tmp[,grep(paste("alpha_group\\[",g,",",sep=""),name_col)]
+  med <- apply(esp,2,median)
+  data.frame(emu_nameshort=emu_nameshort,
+             period=period,
+             hty_code=hty_code,
+             lfs_code=lfs_code,
+             month=1:12,
+             prop=med/sum(med))
+    
+}))
+save(pattern_YS_landings,file="pattern_YS_landings.rdata")
 ```
 
 
