@@ -3,10 +3,10 @@ title: "Untitled"
 author: "Hilaire Drouineau"
 date: "23 janvier 2020"
 output: 
+  rmarkdown::md_document:
+     toc: yes
   rmarkdown::html_document:
      keep_md: yes
-     toc: yes
-  rmarkdown::md_document:
      toc: yes
 ---
 
@@ -22,6 +22,9 @@ library(runjags)
 library(coda)
 library(ggplot2)
 library(doParallel)
+library(RColorBrewer)
+pal= brewer.pal(7,"Set2")
+cols <- c("1" = pal[1], "2"= pal[2],"3" = pal[3], "4" = pal[4],  "5" = pal[5], "6"=pal[6], "7"=pal[7])
 
 ```
 
@@ -279,8 +282,12 @@ get_pattern_month <- function(res,type="cluster"){
 }
 
 pat <-get_pattern_month(myfit_glasseel_landings)
+#we number cluster in chronological orders from november to october
+pat$cluster <- factor(match(pat$cluster,c("3","1","4","2")),
+                      levels=as.character(1:7))
 ggplot(pat,aes(x=month,y=proportion))+
   geom_boxplot(aes(fill=cluster),outlier.shape=NA) +
+  scale_fill_manual(values=cols) +
   theme_bw()
 ```
 
@@ -290,7 +297,7 @@ t(as.data.frame(characteristics(myfit_glasseel_landings, 4)))
 ```
 Duration indicates the minimum number of months that covers 80% of the wave (1st column is the median, and the 2 next one quantiles 2.5% and 97.5% of credibility intervals). Centroid is the centroid of the migration wave (e.g. 11.5 would indicate a migration centred around mid november). The first column is the median and the two next one the quantiles 2.5 and 97.5%.
 
-Clusters 3 starts in autum and last still january. Cluster 1 is shifter one month later and lasts longer. Cluster corresponds to catches in march/may. Cluster 2 is very flat and probably not used.
+Clusters 1 starts in autum and last still january. Cluster 2 is shifter one month later and lasts longer. Cluster 3 corresponds to catches in march/may. Cluster 4 is very flat and is not really attributed.
 
 We can also look at the belonging of the different groups.
 ```{r}
@@ -324,6 +331,9 @@ get_pattern_month <- function(res,mydata){
 }
 
 myclassif <- get_pattern_month(myfit_glasseel_landings)
+myclassif$cluster <- factor(match(myclassif$cluster,c("3","1","4","2")),
+                            levels=as.character(1:7))
+
 print(myclassif[order(myclassif$cluster),])
 ```
 The spatial pattern is obvious in the results. Interestingly, we saw an EMU that change cluster between period and this seem to correspond to management measures that have effectively shorten the fishing season.
@@ -331,7 +341,6 @@ The spatial pattern is obvious in the results. Interestingly, we saw an EMU that
 ```{r}
 library(sf)
 library(RPostgreSQL)
-cols <- c("1" = "red", "2"= "green","3" = "darkgreen", "4" = "orange",  "5" = "blue", "6"="grey", "7"="yellow")
 con<-dbConnect(PostgreSQL(),host="localhost",dbname="wgeel_old",user="hilaire")
 emu <- st_read(con,query="select * from carto.emu")
 myclassif_p1 <- subset(myclassif, myclassif$period == 1)
@@ -622,8 +631,11 @@ get_pattern_month <- function(res,type="cluster"){
 }
 
 pat <-get_pattern_month(myfit_yelloweel_coastal_landings)
+pat$cluster <- factor(match(pat$cluster,c("2","3","1")),
+                         levels=as.character(1:7))
 ggplot(pat,aes(x=month,y=proportion))+
   geom_boxplot(aes(fill=cluster),outlier.shape=NA) +
+  scale_fill_manual(values=cols) +
   theme_bw()
 ```
 Clusters 1 peaks summer. Clusters 2 peaks in winter, cluster 3 lasts from may to november.
@@ -667,6 +679,8 @@ get_pattern_month <- function(res,mydata){
 }
 
 myclassif <- get_pattern_month(myfit_yelloweel_coastal_landings)
+myclassif$cluster <- factor(match(myclassif$cluster,c("2","3","1")),
+                         levels=as.character(1:7))
 print(myclassif[order(myclassif$cluster),])
 ```
 In fact, nearly all EMUs fall in cluster 3. Cluster 2 corresponds only to ES_Murc and cluster 1 to DE_Eide.
@@ -906,8 +920,11 @@ get_pattern_month <- function(res,type="cluster"){
 }
 
 pat <-get_pattern_month(myfit_yelloweel_transitional_landings)
+pat$cluster <- factor(match(pat$cluster,c("3", "2","4","1")),
+                      levels=as.character(1:7))
 ggplot(pat,aes(x=month,y=proportion))+
   geom_boxplot(aes(fill=cluster),outlier.shape=NA) +
+  scale_fill_manual(values=cols)+
   theme_bw()
 ```
 There is much more diversity than in coastal waters. Some clusters peak in srping (3), summer (2), autumn (1) and one has two peaks (4). 
@@ -951,9 +968,12 @@ get_pattern_month <- function(res,mydata){
 }
 
 myclassif <- get_pattern_month(myfit_yelloweel_transitional_landings)
+myclassif$cluster <- factor(match(myclassif$cluster,c("3", "2","4","1")),
+                      levels=as.character(1:7))
+
 print(myclassif[order(myclassif$cluster),])
 ```
-Cluster 1 stands only for Corsica. Some French EMUs have changed clusters after 2010 towards cluster 3 which has a small duration.
+Cluster 4 stands only for Corsica. Some French EMUs have changed clusters after 2010 towards cluster 1 which has a small duration.
 
 ```{r}
 library(sf)
@@ -1191,11 +1211,14 @@ get_pattern_month <- function(res,type="cluster"){
 }
 
 pat <-get_pattern_month(myfit_yelloweel_freshwater_landings)
+pat$cluster <- factor(match(pat$cluster, c("1","3","2")),
+                       levels=as.character(1:7))
 ggplot(pat,aes(x=month,y=proportion))+
   geom_boxplot(aes(fill=cluster),outlier.shape=NA) +
+  scale_fill_manual(values=cols) +
   theme_bw()
 ```
-Clusters 1 and 2 are bivariate, with 1 peaking in spring and autumn and 2 peaking in summer and autumn. Cluster 3 is widespread from may to november.
+Clusters 1 and 3 are bivariate, with 1 peaking in spring and autumn and 3 peaking in summer and autumn. Cluster 2 is widespread from may to november.
 
 We compute some statistics to characterize the clusters.
 ```{r}
@@ -1236,9 +1259,12 @@ get_pattern_month <- function(res,mydata){
 }
 
 myclassif <- get_pattern_month(myfit_yelloweel_freshwater_landings)
+myclassif$cluster <- factor(match(myclassif$cluster, c("1","3","2")),
+                       levels=as.character(1:7))
+
 print(myclassif[order(myclassif$cluster),])
 ```
-In fact, nearly all EMUs fall in cluster 3. Cluster 1 only corresponds to FR_Loir and cluster 2 to two bristish EMUs. There is no obvious spatial pattern nor period effect.
+In fact, nearly all EMUs fall in cluster 2. Cluster 1 only corresponds to FR_Loir and cluster 3 to two bristish EMUs. There is no obvious spatial pattern nor period effect.
 
 ```{r}
 library(sf)
@@ -1472,11 +1498,15 @@ get_pattern_month <- function(res,type="cluster"){
 }
 
 pat <-get_pattern_month(myfit_yelloweel_allhab_landings)
+pat$cluster <- factor(match(pat$cluster, c("1","2","5","3","6","4")),
+                       levels=as.character(1:7))
+
 ggplot(pat,aes(x=month,y=proportion))+
   geom_boxplot(aes(fill=cluster),outlier.shape=NA) +
+  scale_fill_manual(values=cols) +
   theme_bw()
 ```
-Cluster 1 peaks in winter, 2 in spring, 3 in summer, 4 in autumn (with a small peak in spring), 5 in summer and 6 is very flat from may to november. 
+Cluster 1 peaks in winter, 2 in spring, 3 in spring/summer, 5 is wisepread from april to november and 6 peaks in autumn (after a small peak in spring). 
 
 We compute some statistics to characterize the clusters.
 ```{r}
@@ -1517,9 +1547,12 @@ get_pattern_month <- function(res,mydata){
 }
 
 myclassif <- get_pattern_month(myfit_yelloweel_allhab_landings)
+myclassif$cluster <- factor(match(myclassif$cluster, c("1","2","5","3","6","4")),
+                       levels=as.character(1:7))
+
 print(myclassif[order(myclassif$cluster),])
 ```
-luster 2 corresponds only to ES_Murc and cluster 4 to FR_Cors. Cluster 2 corresponds to many French EMUs in transitional waters and 3 to some British EMUs. 5 accounts for French and Deutsh EMUs (T and F) and 6 to a large number of EMUs.
+Cluster 1 corresponds only to ES_Murc and cluster 6 to FR_Cors. Cluster 2 corresponds to French EMUs in transitional waters. Clusters 3 -5 are diverse. 5 accounts for French and Deutsh EMUs (T and F) and 6 to a large number of EMUs.
 
 ```{r}
 library(sf)
@@ -1844,11 +1877,13 @@ get_pattern_month <- function(res,type="cluster"){
 }
 
 pat <-get_pattern_month(myfit_silvereel_coastal_landings)
+pat$cluster <- factor(match(pat$cluster,c("1","3","4","2") ),
+                      levels=as.character(1:7))
 ggplot(pat,aes(x=month,y=proportion))+
   geom_boxplot(aes(fill=cluster),outlier.shape=NA) +
   theme_bw()
 ```
-Clusters 2 and 4 correspond to peak in october with 4 more widespread. Cluster 1 corresponds to a peak in autumn/winter. Cluster 3 corresponds to catches in winter.
+Clusters 3 and 4 correspond to peak in october with 3 more widespread. Cluster 1 corresponds to a peak in autumn/winter. Cluster 2 corresponds to catches in winter.
 
 We compute some statistics to characterize the clusters.
 ```{r}
@@ -1889,9 +1924,11 @@ get_pattern_month <- function(res,mydata){
 }
 
 myclassif <- get_pattern_month(myfit_silvereel_coastal_landings)
+myclassif$cluster <- factor(match(myclassif$cluster,c("1","3","4","2") ),
+                      levels=as.character(1:7))
 print(myclassif[order(myclassif$cluster),])
 ```
-In fact, nearly all EMUs fall in cluster 4. Cluster 2 corresponds only to ES_Murc_C (same as for yellow eel). Cluster 3 (limited fishing season) regroups GB EMUs.
+In fact, most EMUs fall in cluster 3. Cluster 2 corresponds only to ES_Murc_C (same as for yellow eel) and one for FR_Cors. Cluster 4 (limited fishing season) regroups GB and DE EMUs.
 
 ```{r}
 library(sf)
@@ -2143,11 +2180,14 @@ get_pattern_month <- function(res,type="cluster"){
 }
 
 pat <-get_pattern_month(myfit_silvereel_freshwater_landings)
+pat$cluster <- factor(match(pat$cluster,c("4","1","5","2","3") ),
+                      levels=as.character(1:7))
 ggplot(pat,aes(x=month,y=proportion))+
   geom_boxplot(aes(fill=cluster),outlier.shape=NA) +
+  scale_fill_manual(values=cols) +
   theme_bw()
 ```
-Cluster1 peak in summer with a second peak in december. Cluster 2 peaks in autumn, 3 in winter, 5 in summer and 4 is bivariate (spring and autumn).
+Cluster 2 peaks in summer with a second peak in december, 5 in winter, 2 in summer. Clusters 1 and 3 are bivariate (spring and autumn).
 
 We compute some statistics to characterize the clusters.
 ```{r}
@@ -2188,9 +2228,11 @@ get_pattern_month <- function(res,mydata){
 }
 
 myclassif <- get_pattern_month(myfit_silvereel_freshwater_landings)
+myclassif$cluster <- factor(match(myclassif$cluster,c("4","1","5","2","3") ),
+                      levels=as.character(1:7))
 print(myclassif[order(myclassif$cluster),])
 ```
-Once again the spatial pattern is obvious. SE_Inla changed from 4 ro 3 indicating a reduction in the fishing season.
+Once again the spatial pattern is obvious. SE_Inla changed from 1 to 2 suggesting a reduction in the fishing season.
 
 ```{r}
 library(sf)
@@ -2480,11 +2522,14 @@ get_pattern_month <- function(res,type="cluster"){
 }
 
 pat <-get_pattern_month(myfit_YSeel_allhab_landings)
+pat$cluster = factor(match(pat$cluster, c("3","6","4","2","1","5")),
+                     levels=as.character(1:7))
 ggplot(pat,aes(x=month,y=proportion))+
   geom_boxplot(aes(fill=cluster),outlier.shape=NA) +
+  scale_fill_manual(values=cols)
   theme_bw()
 ```
-Cluster 1 peaks autumn and winter, 5 is similar but shifter 1 month later, cluster 3 and 6 are widepread with a peak in spring/early summer and a second one un autumn, cluster 2 is located in autumn only and cluster 4 in summer.
+Cluster 5 peaks autumn and winter, 6 is similar but shifter 1 month later. Clusters 1 and 2 are widepread with a peak in spring/early summer and a second one un autumn. Cluster 4 is located in autumn only and cluster 3 in summer.
 
 We compute some statistics to characterize the clusters.
 ```{r}
@@ -2525,9 +2570,12 @@ get_pattern_month <- function(res,mydata){
 }
 
 myclassif <- get_pattern_month(myfit_YSeel_allhab_landings)
+myclassif$cluster = factor(match(myclassif$cluster, c("3","6","4","2","1","5")),
+                     levels=as.character(1:7))
+
 print(myclassif[order(myclassif$cluster),])
 ```
-luster 2 corresponds only to ES_Murc and cluster 4 to FR_Cors. Cluster 2 corresponds to many French EMUs in transitional waters and 3 to some British EMUs. 5 accounts for French and Deutsh EMUs (T and F) and 6 to a large number of EMUs.
+Cluster 6 corresponds only to ES_Murc and cluster 5 to ES_Cata to FR_Cors. Cluster 1 corresponds to many French EMUs in transitional waters and 2 and  to 3 are diverse. 
 
 ```{r}
 library(sf)

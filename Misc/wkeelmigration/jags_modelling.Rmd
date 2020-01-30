@@ -17,6 +17,7 @@ library(tidyr)
 library(runjags)
 library(coda)
 library(ggplot2)
+library(doParallel)
 ```
 
 # Loading the data
@@ -234,18 +235,43 @@ y <-as.matrix(recruitment_wide[, paste("m", 1:12, sep="")])
 Now, we make a loop to select the number of clusters based on a DIC criterion
 
 ```{r, eval=FALSE}
-comparison <- lapply(2:7,
+cl <- makeCluster(3, 'FORK')
+comparison <- parSapply(cl,2:7,
        function(nbclus){
          mydata <- build_data(nbclus)
-         res <- run.jags("jags_model.txt", monitor= "deviance",
-                      summarise=FALSE, adapt=20000, method="parallel",
-                      sample=10000,burnin=10000,n.chains=3,
-                      inits=generate_init(nbclus, mydata),
-                      data=mydata)
-         res_mat <- as.matrix(as.mcmc.list(res))
-         mean(res_mat[,1])-0.5*var(res_mat[,1])
-       })
-best_recruitment <- data.frame(nbclus=2:7,dic=unlist(comparison))
+         adapted <- FALSE
+         while (!adapted){
+           tryCatch({
+             runjags.options(adapt.incomplete="error")
+             res <- run.jags("jags_model.txt", monitor= c("deviance",
+                                                          "alpha_group",
+                                                          "cluster"),
+                        summarise=FALSE, adapt=40000, method="parallel",
+                        sample=2000,burnin=100000,n.chains=1,
+                        inits=generate_init(nbclus, mydata)[[1]],
+                        data=mydata)
+                        adapted <- TRUE
+                        res_mat <- as.matrix(as.mcmc.list(res))
+                        silhouette <- median(compute_silhouette(res_mat))
+                        nbused <- apply(res_mat, 1, function(iter){
+                          length(table(iter[grep("cluster",
+                                                 names(iter))]))
+                        })
+                        dic <- mean(res_mat[,1])+0.5*var(res_mat[,1])
+                        stats <- c(dic,silhouette,mean(nbused))
+                  }, error=function(e) {
+                    print(paste("not adapted, restarting nbclus",nbclus))
+                    }
+                  )
+         }
+         stats
+      })
+stopCluster(cl)
+best_recruitment <- data.frame(nbclus=2:(ncol(comparison)+1),
+                                              dic=comparison[1, ],
+                                              silhouette=comparison[2, ],
+                                              used=comparison[3, ])
+
 ```
 
 ```{R}
@@ -253,12 +279,35 @@ load("recruitment_jags.rdata")
 best_recruitment
 ```
 
-Best solutions arise with 3 clusters, therefore we explore go further with this value.
+Five clusters has a good DIC, good silhouette and all clusters are used, therefore we take this value
 
 
 ```{r, eval=FALSE}
-nbclus <- 3
-mydata <-build_data(3)
+nbclus <- 5
+mydata <-build_data(5)
+
+
+adapted <- FALSE
+while (!adapted){
+   tryCatch({
+      runjags.options(adapt.incomplete="error")
+      myfit_recruitment <- run.jags("jags_model.txt", monitor= c("cluster", "esp", "alpha_group",
+                                            "cluster", "centroid",
+                                            "centroid_group",
+                                            "distToClust", "duration_clus",
+                                            "duration_group",
+                                            "lambda","id_cluster",
+                                            "centroid"),
+                      summarise=FALSE, adapt=50000, method="parallel",
+                      sample=10000,burnin=200000,n.chains=1, thin=5,
+                      inits=generate_init(nbclus, mydata)[[1]], data=mydata)
+      adapted <- TRUE
+    }, error=function(e) {
+       print(paste("not adapted, restarting nbclus",nbclus))
+    })
+}
+
+
 myfit_recruitment <- run.jags("jags_model.txt", monitor= c("cluster", "esp", "alpha_group",
                                             "cluster", "centroid",
                                             "centroid_group",
@@ -277,8 +326,8 @@ save(myfit_recruitment, best_recruitment,
 Once fitted, we can plot monthly pattern per cluster
 ```{r}
 load("recruitment_jags.rdata")
-nbclus <- 3
-mydata <-build_data(3)
+nbclus <- 5
+mydata <-build_data(5)
 get_pattern_month <- function(res,type="cluster"){
   res_mat <- as.matrix(as.mcmc.list(res))
   if (type=="cluster"){
