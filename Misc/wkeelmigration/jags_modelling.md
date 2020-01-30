@@ -9,6 +9,7 @@
     -   [Data preparation](#data-preparation)
     -   [Running the model](#running-the-model)
     -   [Results](#results)
+    -   [Exporting pattern per group](#exporting-pattern-per-group)
 -   [Silver eel](#silver-eel)
     -   [Data availability](#data-availability-1)
     -   [Data correction](#data-correction)
@@ -18,6 +19,7 @@
     -   [Data preparation](#data-preparation-1)
     -   [Running the model](#running-the-model-1)
     -   [Results](#results-1)
+    -   [Exporting pattern per group](#exporting-pattern-per-group-1)
 -   [Yellow eel](#yellow-eel)
     -   [Data availability](#data-availability-2)
     -   [Data correction](#data-correction-1)
@@ -27,12 +29,14 @@
     -   [Data preparation](#data-preparation-2)
     -   [Running the model](#running-the-model-2)
     -   [Results](#results-2)
+    -   [Exporting pattern per group](#exporting-pattern-per-group-2)
 
 Loading the data
 ================
 
     wdsource <-"~/Documents/Bordeaux/migrateurs/WGEEL/wkeelmigration/source/"
     load(paste(wdsource,"seasonality_tibbles_res_ser2.Rdata",sep=""))
+    source("function_for_model.R")
 
 Number of data series per stage: 12 pure glass eel stage, 6 pure silver
 and 32 yellow. Only 20 mixed series, we will have to check their
@@ -358,82 +362,85 @@ Running the model
     nb_occ_group <- table(group)
     y <-as.matrix(recruitment_wide[, paste("m", 1:12, sep="")])
 
-
-    build_data <- function(nbclus,seuil=.95){
-      ref=as.integer(
-             names(nb_occ_group)[which(nb_occ_group==max(nb_occ_group))])[1]
-      list(y=y, #observations
-           y2=y,
-           group=group, #group identifier (a group is a period x series)
-           nbm=12, #number of month
-           nbclus=nbclus,# number of clusters
-           seuil=seuil,
-           nbgroup=length(unique(group)),
-           nbobs=nrow(y),
-           ref=ref,
-           not_ref=seq_len(length(unique(group)))[-ref]
-           )
-    }
-
-    generate_init <- function(nbclus,mydata){
-      lapply(1:3,function(nclus){
-        dirichlet_prior <- function(n){
-          t(replicate(n,{tmp <- runif(12)
-            tmp <- tmp / sum(tmp)
-          }))
-        }
-        cluster <- sample(1:nbclus, length(unique(group)), replace=TRUE)
-        cluster[mydata$ref] <- NA
-        list(cluster=cluster,
-             esp_unordered=dirichlet_prior(nbclus),
-             alpha_group=dirichlet_prior(length(unique(group))),
-            lambda=runif(1,2,3)
-        )
-      })
-    }
-
 Now, we make a loop to select the number of clusters based on a DIC
 criterion
 
-    comparison <- lapply(2:7,
+    cl <- makeCluster(3, 'FORK')
+    comparison <- parSapply(cl,2:7,
            function(nbclus){
              mydata <- build_data(nbclus)
-             res <- run.jags("jags_model.txt", monitor= "deviance",
-                          summarise=FALSE, adapt=20000, method="parallel",
-                          sample=10000,burnin=10000,n.chains=3,
-                          inits=generate_init(nbclus, mydata),
-                          data=mydata)
-             res_mat <- as.matrix(as.mcmc.list(res))
-             mean(res_mat[,1])-0.5*var(res_mat[,1])
-           })
-    best_recruitment <- data.frame(nbclus=2:7,dic=unlist(comparison))
+             adapted <- FALSE
+             while (!adapted){
+               tryCatch({
+                 runjags.options(adapt.incomplete="error")
+                 res <- run.jags("jags_model.txt", monitor= c("deviance",
+                                                              "alpha_group",
+                                                              "cluster"),
+                            summarise=FALSE, adapt=40000, method="parallel",
+                            sample=2000,burnin=100000,n.chains=1,
+                            inits=generate_init(nbclus, mydata)[[1]],
+                            data=mydata)
+                            adapted <- TRUE
+                            res_mat <- as.matrix(as.mcmc.list(res))
+                            silhouette <- median(compute_silhouette(res_mat))
+                            nbused <- apply(res_mat, 1, function(iter){
+                              length(table(iter[grep("cluster",
+                                                     names(iter))]))
+                            })
+                            dic <- mean(res_mat[,1])+0.5*var(res_mat[,1])
+                            stats <- c(dic,silhouette,mean(nbused))
+                      }, error=function(e) {
+                        print(paste("not adapted, restarting nbclus",nbclus))
+                        }
+                      )
+             }
+             stats
+          })
+    stopCluster(cl)
+    best_recruitment <- data.frame(nbclus=2:(ncol(comparison)+1),
+                                                  dic=comparison[1, ],
+                                                  silhouette=comparison[2, ],
+                                                  used=comparison[3, ])
 
     load("recruitment_jags.rdata")
     best_recruitment
 
-    ##   nbclus        dic
-    ## 1      2  -9023.890
-    ## 2      3 -10240.323
-    ## 3      4  -9151.801
-    ## 4      5  -9253.940
-    ## 5      6  -9328.015
-    ## 6      7  -9302.788
+    ##   nbclus       dic silhouette used
+    ## 1      2 -17038.44  0.4244025    2
+    ## 2      3 -17756.79  0.4000448    3
+    ## 3      4 -17832.80  0.3162364    4
+    ## 4      5 -18034.11  0.4614823    5
+    ## 5      6 -18050.71  0.3688323    6
+    ## 6      7 -18057.13  0.4127160    6
 
-Best solutions arise with 3 clusters, therefore we explore go further
-with this value.
+Five clusters has a good DIC, good silhouette and all clusters are used,
+therefore we take this value
 
-    nbclus <- 3
-    mydata <-build_data(3)
-    myfit_recruitment <- run.jags("jags_model.txt", monitor= c("cluster", "esp", "alpha_group",
+    nbclus <- 5
+    mydata <-build_data(5)
+
+
+    adapted <- FALSE
+    while (!adapted){
+       tryCatch({
+          runjags.options(adapt.incomplete="error")
+          myfit_recruitment <- run.jags("jags_model.txt", monitor= c("cluster", "esp", "alpha_group",
                                                 "cluster", "centroid",
                                                 "centroid_group",
                                                 "distToClust", "duration_clus",
                                                 "duration_group",
                                                 "lambda","id_cluster",
                                                 "centroid"),
-                          summarise=FALSE, adapt=20000, method="parallel",
-                          sample=10000,burnin=200000,n.chains=3, thin=5,
-                          inits=generate_init(nbclus, mydata), data=mydata)
+                          summarise=FALSE, adapt=50000, method="parallel",
+                          sample=10000,burnin=200000,n.chains=1, thin=5,
+                          inits=generate_init(nbclus, mydata)[[1]], data=mydata)
+          adapted <- TRUE
+        }, error=function(e) {
+           print(paste("not adapted, restarting nbclus",nbclus))
+        })
+    }
+
+
     save(myfit_recruitment, best_recruitment,
          file="recruitment_jags.rdata")
 
@@ -443,8 +450,8 @@ Results
 Once fitted, we can plot monthly pattern per cluster
 
     load("recruitment_jags.rdata")
-    nbclus <- 3
-    mydata <-build_data(3)
+    nbclus <- 5
+    mydata <-build_data(5)
     get_pattern_month <- function(res,type="cluster"){
       res_mat <- as.matrix(as.mcmc.list(res))
       if (type=="cluster"){
@@ -466,8 +473,13 @@ Once fitted, we can plot monthly pattern per cluster
     }
 
 
-    ggplot(get_pattern_month(myfit_recruitment),aes(x=month,y=proportion))+
+    pat=get_pattern_month(myfit_recruitment)
+    pat$cluster=factor(match(pat$cluster,c("5","2","1","3","4")),
+                       levels=as.character(1:7))
+
+    ggplot(pat,aes(x=month,y=proportion))+
       geom_boxplot(aes(fill=cluster),outlier.shape=NA) +
+      scale_fill_manual(values=cols) +
       theme_bw()
 
 ![](jags_modelling_files/figure-markdown_strict/unnamed-chunk-14-1.png)
@@ -475,52 +487,16 @@ Once fitted, we can plot monthly pattern per cluster
 We compute some statistics to characterize the clusters.
 
     #function to make circular shifting
-    shifter <- function(x, n = 1) {
-         if (n == 0) x else c(tail(x, -n), head(x, n))
-    }
-
-
-    characteristics <- function(myres,nbclus, threshold=.80){
-      mydata <- as.matrix(as.mcmc.list(myres))
-      sapply(seq_len(nbclus),function(clus){
-        esp <- mydata[, paste("esp[",clus , ",", 1:12, "]", sep="")]
-        duration_it <- apply(esp, 1, function (esp_it){
-          esp_it <- min(which(cumsum(sort(esp_it, decreasing=TRUE))/
-                                sum(esp_it)>threshold))
-        })
-        duration <- quantile(duration_it, probs=c(0.025, .5, .975))
-        month_prop <- colMeans(esp)
-        peak <- which(month_prop == max(month_prop))
-        
-        season_order <- shifter(1:12,peak-6) #with this order peak in the middle
-                                             #of the season
-        
-        centroids <- apply(esp[,season_order], 1 , function(esp_it) {
-          sum(esp_it * 1:12)/sum(esp_it)
-        })
-        quant_centr <- quantile(centroids, probs=c(0.025, .5, .975))
-        quant_centr <- quant_centr - ceiling(quant_centr) +
-          season_order[ceiling(quant_centr)]
-        data.frame(cluster=clus,
-                   duration=duration[2],
-                   duration2.5=duration[1],
-                   duration97.5=duration[3],
-                   centroid=quant_centr[2],
-                   centroid2.5=quant_centr[1],
-                   centroid97.5=quant_centr[3])
-       
-      })
-    }
     t(as.data.frame(characteristics(myfit_recruitment, 3)))
 
     ##    cluster duration duration2.5 duration97.5 centroid centroid2.5
-    ## V1 1       6        6           7            5.73054  5.546278   
-    ## V2 2       6        6           7            7.226361 7.073265   
-    ## V3 3       8        7           8            1.433217 1.212225   
+    ## V1 1       3        2           3            5.885309 5.772471   
+    ## V2 2       4        3           4            4.992225 4.8434     
+    ## V3 3       3        3           4            6.954133 6.797445   
     ##    centroid97.5
-    ## V1 5.92031     
-    ## V2 7.384008    
-    ## V3 1.659845
+    ## V1 6.00465     
+    ## V2 5.145417    
+    ## V3 7.116319
 
 Duration indicates the minimum number of months that covers 80% of the
 wave (1st column is the median, and the 2 next one quantiles 2.5% and
@@ -531,12 +507,13 @@ quantiles 2.5 and 97.5%.
 
 We can also look at the belonging of the different groups.
 
-    get_pattern_month <- function(res,mydata){
-      
-      groups <- interaction(recruitment_wide$ser_nameshort,
+    groups <- interaction(recruitment_wide$ser_nameshort,
                                                 recruitment_wide$period,
                                                 drop=TRUE)
-      group_name <- levels(groups)
+    group_name <- levels(groups)
+
+    get_pattern_month <- function(res,mydata){
+      
       tmp <- strsplit(as.character(group_name),
                       "\\.")
       ser <- as.character(lapply(tmp,function(tt){
@@ -561,33 +538,34 @@ We can also look at the belonging of the different groups.
     }
 
     myclassif <- get_pattern_month(myfit_recruitment)
+    myclassif$cluster=factor(match(myclassif$cluster,c("5","2","1","3","4")),
+                       levels=as.character(1:7))
+
     print(myclassif[order(myclassif$cluster),])
 
-    ##       ser period cluster clus1 clus2 clus3
-    ## 2    Grey      1       1 27828  2172    NA
-    ## 5    BroG      2       1 30000    NA    NA
-    ## 7    EmsH      2       1 30000    NA    NA
-    ## 10   Grey      2       1 30000    NA    NA
-    ## 12   Liff      2       1 23438  6527    35
-    ## 14   ShaE      2       1 15861 14133     6
-    ## 15   ShiF      2       1 29968    32    NA
-    ## 16  StGeG      2       1 29013   987    NA
-    ## 3  ImsaGY      1       2    NA 30000    NA
-    ## 6    EmsB      2       2    12 29988    NA
-    ## 11 ImsaGY      2       2    NA 30000    NA
-    ## 1    GiSc      1       3    NA    NA 30000
-    ## 4    Oria      1       3    NA    NA 30000
-    ## 8    GarG      2       3    NA    NA 30000
-    ## 9    GiSc      2       3    NA    NA 30000
-    ## 13   Oria      2       3    NA    NA 30000
+    ##       ser period cluster clus1 clus2 clus3    NA    NA
+    ## 1    GiSc      1       1    NA    NA    NA    NA 10000
+    ## 4    Oria      1       1    NA    NA    NA    NA 10000
+    ## 8    GarG      2       1    NA    NA    NA    NA 10000
+    ## 9    GiSc      2       1    NA    NA    NA    NA 10000
+    ## 13   Oria      2       1    NA    NA    NA    NA 10000
+    ## 2    Grey      1       2   487  8242  1271    NA    NA
+    ## 7    EmsH      2       2    NA 10000    NA    NA    NA
+    ## 10   Grey      2       2    NA 10000    NA    NA    NA
+    ## 16  StGeG      2       2    NA 10000    NA    NA    NA
+    ## 5    BroG      2       3 10000    NA    NA    NA    NA
+    ## 15   ShiF      2       3 10000    NA    NA    NA    NA
+    ## 6    EmsB      2       4    NA    NA 10000    NA    NA
+    ## 12   Liff      2       4     1    NA  9999    NA    NA
+    ## 14   ShaE      2       4     8    NA  9877   115    NA
+    ## 3  ImsaGY      1       5    NA    NA    NA 10000    NA
+    ## 11 ImsaGY      2       5    NA    NA    NA 10000    NA
 
-The 3rd cluster corresponds to series from the Southern Europe, whatever
-the period. Cluster 2 corresponds to North Europe. Cluster 1 corresponds
-to EmsH which appears to be slightly atypical. However, clusters 1 and 2
-are quite similar and many series x periods are attributed with high
-occurences in both clusters 2 and 3. These results confirm the spatial
-pattern in recruitment seasonality and highlight that no major changes
-have occured after 2010.
+The 1st cluster corresponds to series from the SoutWestern Europe,
+whatever the period. Cluster 2 corresponds to North Europe. Cluster 2
+and 3 correspond to series in Great Britain or Germany, 4 to Ireland and
+5 to Norway. These results confirm the spatial pattern in recruitment
+seasonality and highlight that no major changes have occured after 2010.
 
 Showing it on a map:
 
@@ -618,9 +596,24 @@ Showing it on a map:
     cou <- st_transform(cou, crs=4326)
     ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
             geom_point(data=myclassif,aes(x=jit_x,y=jit_y,col=as.factor(cluster))) +
-      scale_fill_brewer() +theme_bw() +xlim(-20,30) + ylim(35,65)
+      scale_color_manual(values=cols) +theme_bw() +xlim(-20,30) + ylim(35,65)
 
 ![](jags_modelling_files/figure-markdown_strict/unnamed-chunk-17-1.png)
+
+Exporting pattern per group
+---------------------------
+
+    tmp <- as.matrix(as.mcmc.list(myfit_recruitment))
+    name_col = colnames(tmp)
+
+    pattern_G_monitoring=do.call("rbind.data.frame",
+                                lapply(seq_len(length(levels(groups))), function(g){
+                                  ser=substr(group_name[g],1,nchar(group_name[g])-2)
+                                  emu=ser2$ser_emu_nameshort[ser2$ser_nameshort == ser]
+                                  hty_code=ser2$ser_hty_code[ser2$ser_nameshort==ser]
+                                  median_pattern_group_monitoring(g, emu ,tmp, "G",group_name[g], hty_code)
+                                }))
+    save(pattern_G_monitoring,file="pattern_G_monitoring.rdata")
 
 Silver eel
 ==========
@@ -740,38 +733,19 @@ to november, and season y denotes season from december y to november
 y+1).
 
     #creating season
-    finding_peak <- function(data){
-      mean_per_month <- tapply(data$das_value,list(data$das_month),mean,na.rm=TRUE)
-      peak_month <-as.integer(names(sort(mean_per_month,decreasing=TRUE)))[1]
-      peak_month
-    }
+    #finding_peak
 
-    finding_lowest_month <- function(data){
-      mean_per_month <- tapply(data$das_value,list(data$das_month),mean,na.rm=TRUE)
-      lowest_month <-as.integer(names(sort(mean_per_month)))[1]
-      lowest_month
-    }
+    #finding_lowest_month
 
 
-    season_creation<-function(data){
-      peak_month <- finding_peak(data) #2 3 4 5 6 7 8 9 10 11 12 1
-      lowest_month <- finding_lowest_month(data)
-      #season_order <- shifter(1:12,peak_month-6)
-      season_order <- shifter(1:12,lowest_month-1)
-      data$month_in_season <- as.factor(match(data$das_month,season_order))
-      data$season <- ifelse(data$das_month < lowest_month,
-                            data$das_year-1,
-                            data$das_year)
-      data$peak_month <- peak_month
-      data$lowest_month <- lowest_month
-      data
-    }
+    #season_creation
 
     silvereel <- do.call("rbind.data.frame",
                          lapply(ser2$ser_nameshort[ser2$ser_lfs_code=="S"],
                                 function(s)
                                   season_creation(res[res$ser_nameshort==s,])))
     months_peak_per_series<- unique(silvereel[,c("ser_nameshort","peak_month")])
+    names(silvereel)[which(names(silvereel)=="country")]<-"cou_code"
     table(months_peak_per_series$peak_month)
 
     ## 
@@ -791,78 +765,8 @@ Building diagnostics of quality for series
     #   that the last month of data generally stands for a small proportion of catches
     #   that there is no missing month between first and last month
 
-    good_coverage_wave <- function(mydata){
-      
-      checking_duplicate(mydata)
-      peak_month <- unique(mydata$peak_month)
-      lowest_month <- unique(mydata$lowest_month)
-      original_months <- shifter(1:12,lowest_month-1)
-      #we put data in wide format with one row per seasaon
-      
-      data_wide <- mydata[,c("season",
-                           "month_in_season",
-                           "das_value")] %>%
-                          spread(month_in_season,
-                               das_value,
-                               drop=FALSE)
-      data_wide <- data_wide[,c(1:12,"season")]
-      mean_per_month <- colMeans(data_wide[,1:12],na.rm=TRUE)
-      mean_per_month <- mean_per_month / sum(mean_per_month, na.rm=TRUE)
-      
-      cum_sum <- 
-        cumsum(sort(mean_per_month, decreasing=TRUE)) / 
-        sum(mean_per_month, na.rm=TRUE)
-      
-      #we take the last month to have at least 95% of catches and which stands for
-      #less than 10 % of catches
-      bound <- min(which(cum_sum > .95 &
-                             mean_per_month[as.integer(names(cum_sum))]<.05))
-      if (is.infinite(bound) | sum(is.na(mean_per_month))>6){
-        print(paste("For",
-                    unique(mydata$ser_nameshort),
-                    "not possible to define a season"))
-        return (NULL)
-      }
-        
-      min_max <- range(as.integer(names(cum_sum)[1:bound]))
-      fmin  <- min_max[1]
-      lmin <- min_max[2]
-      
-      if ((fmin>1 & mean_per_month[fmin]>.05 & is.na(mean_per_month[fmin+1])) |
-          (lmin<12 & mean_per_month[lmin]>.05 & is.na(mean_per_month[lmin+1]))){
-            print(paste("For",
-                    unique(mydata$ser_nameshort),
-                    "not possible to define a season"))
-            return (NULL)
-        
-      }
-        
-      
-      print(paste("For ",
-                  unique(mydata$ser_nameshort),
-                  " a good season should cover months:",
-                  original_months[fmin],
-                  "to",
-                  original_months[lmin]))
-      
-    #  if ((lmin - fmin) < 8) return(NULL)
-      keeping <- data_wide%>%
-        mutate(num_na=rowSums(is.na(select(.,num_range("",fmin:lmin))))) %>%
-        filter(num_na==0)
-      if (nrow(keeping)==0) return(NULL)
-      keeping$season
-    }
-
-    checking_duplicate <- function(mydata){
-      counts_data <- table(mydata$das_year, mydata$das_month)
-      if (sum(counts_data > 1)) {
-        dup <- which(counts_data > 1, arr.ind = TRUE)
-        print(paste("##duplicates series",unique(mydata$ser_nameshort)))
-        stop(paste(rownames(counts_data)[dup[,1]],
-                   colnames(counts_data)[dup[, 2]],
-                   collapse = "\n"))
-      }
-    }
+    #good_coverage_wave 
+    #checking_duplicate 
 
 The previous function looks at different criterion: it put the data in
 the wide format and check if we have at least 3 months around the peak.
@@ -937,7 +841,7 @@ preliminary screening of available series.
     ## [1] "For rij3T not possible to define a season"
     ## [1] "For rij4T not possible to define a season"
     ## [1] "For rij5T not possible to define a season"
-    ## [1] "For  rij6T  a good season should cover months: 5 to 4"
+    ## [1] "For rij6T not possible to define a season"
     ## [1] "For rij7T not possible to define a season"
     ## [1] "For rij8T not possible to define a season"
     ## [1] "For rij9T not possible to define a season"
@@ -1041,7 +945,7 @@ month, one row for a year x time series.
 
     silvereel_wide <- pivot_wider(data=silvereel_subset[, c("ser_nameshort",
                                                                 "emu",
-                                                         "country",
+                                                         "cou_code",
                                                          "season",
                                                          "das_month",
                                                          "das_value")],
@@ -1113,36 +1017,67 @@ Running the model
 Know, we make a loop to select the number of clusters based on a DIC
 criterion
 
-    comparison <- lapply(2:7,
+    cl <- makeCluster(3, 'FORK')
+    comparison <- parSapply(cl, 2:7,
            function(nbclus){
              mydata <- build_data(nbclus)
-             res <- run.jags("jags_model.txt", monitor= "deviance",
-                          summarise=FALSE, adapt=20000, method="parallel",
-                          sample=10000,burnin=100000,n.chains=3,
-                          inits=generate_init(nbclus, mydata),
-                          data=mydata)
-             res_mat <- as.matrix(as.mcmc.list(res))
-             mean(res_mat[,1])+0.5*var(res_mat[,1])
-           })
-    best_silver <- data.frame(nbclus=2:7,dic=unlist(comparison))
+             adapted <- FALSE
+             while (!adapted){
+               tryCatch({
+                 runjags.options(adapt.incomplete="error")
+                 res <- run.jags("jags_model.txt", monitor= c("deviance",
+                                                              "alpha_group",
+                                                              "cluster"),
+                            summarise=FALSE, adapt=40000, method="parallel",
+                            sample=2000,burnin=100000,n.chains=1,
+                            inits=generate_init(nbclus, mydata)[[1]],
+                            data=mydata)
+                            adapted <- TRUE
+                            res_mat <- as.matrix(as.mcmc.list(res))
+                            silhouette <- median(compute_silhouette(res_mat))
+                            nbused <- apply(res_mat, 1, function(iter){
+                              length(table(iter[grep("cluster",
+                                                     names(iter))]))
+                            })
+                            dic <- mean(res_mat[,1])+0.5*var(res_mat[,1])
+                            stats <- c(dic,silhouette,mean(nbused))
+                      }, error=function(e) {
+                        print(paste("not adapted, restarting nbclus",nbclus))
+                        }
+                      )
+             }
+             stats
+          })
+    stopCluster(cl)
+
+
+    best_silver <- data.frame(nbclus=2:(ncol(comparison)+1),
+                                                  dic=comparison[1, ],
+                                                  silhouette=comparison[2, ],
+                                         used=comparison[3,])
 
     load("silver_jags.rdata")
     best_silver
 
-    ##   nbclus       dic
-    ## 1      2 -34646.82
-    ## 2      3 -34967.12
-    ## 3      4 -34933.74
-    ## 4      5 -34552.83
-    ## 5      6 -34542.36
-    ## 6      7 -34768.89
+    ##   nbclus       dic silhouette used
+    ## 1      2 -32617.22  0.2485696    2
+    ## 2      3 -25171.98  0.2768340    3
+    ## 3      4 -33508.56  0.1733660    4
+    ## 4      5 -33299.76  0.2073327    5
+    ## 5      6 -34036.44  0.2594315    6
+    ## 6      7 -34138.16  0.2291540    7
 
-Best solutions arise with 3 clusters, therefore we explore go further
-with this value.
+6 clusters provide a godd DIC and silhouette, and all clusters are used
 
-    nbclus <- 3
-    mydata <-build_data(3)
-    myfit_silver <- run.jags("jags_model.txt", monitor= c("cluster", "esp", "alpha_group",
+    nbclus <- 6
+    mydata <-build_data(6)
+
+
+    adapted <- FALSE
+    while (!adapted){
+       tryCatch({
+          runjags.options(adapt.incomplete="error")
+          myfit_silver <- run.jags("jags_model.txt", monitor= c("cluster", "esp", "alpha_group",
                                                 "cluster", "centroid",
                                                 "centroid_group",
                                                 "distToClust", "duration_clus",
@@ -1150,8 +1085,14 @@ with this value.
                                                 "lambda","id_cluster",
                                                 "centroid"),
                           summarise=FALSE, adapt=20000, method="parallel",
-                          sample=10000,burnin=200000,n.chains=3, thin=5,
-                          inits=generate_init(nbclus, mydata), data=mydata)
+                          sample=10000,burnin=200000,n.chains=1, thin=5,
+                          inits=generate_init(nbclus, mydata)[[1]], data=mydata)
+          adapted <- TRUE
+        }, error=function(e) {
+           print(paste("not adapted, restarting nbclus",nbclus))
+        })
+    }
+
     save(myfit_silver, best_silver,
          file="silver_jags.rdata")
 
@@ -1161,8 +1102,8 @@ Results
 Once we fitted, we can plot monthly pattern per cluster
 
     load("silver_jags.rdata")
-    nbclus <- 3
-    mydata <-build_data(3)
+    nbclus <- 6
+    mydata <-build_data(6)
     get_pattern_month <- function(res,type="cluster"){
       res_mat <- as.matrix(as.mcmc.list(res))
       if (type=="cluster"){
@@ -1183,37 +1124,39 @@ Once we fitted, we can plot monthly pattern per cluster
       sub_mat
     }
 
-
-    ggplot(get_pattern_month(myfit_silver),aes(x=month,y=proportion))+
+    pat=get_pattern_month(myfit_silver)
+    pat$cluster=factor(match(pat$cluster,c("1", "3", "4", "5", "6","2")),
+                       levels=as.character(1:7))
+    ggplot(pat,aes(x=month,y=proportion))+
       geom_boxplot(aes(fill=cluster),outlier.shape=NA) +
+      scale_fill_manual(values=cols)+
       theme_bw()
 
-![](jags_modelling_files/figure-markdown_strict/unnamed-chunk-30-1.png)
-We have 3 clusters: cluster 2 corresponds to a migration wave starting
-in late spring and ending in late autumn, cluster 3 corresponds to a
-migration wave really centered around october, anc cluster 1 corresponds
-to a migration wave starting october with a wave that can last a little
-bit during winter.
+![](jags_modelling_files/figure-markdown_strict/unnamed-chunk-31-1.png)
+We have 6 clusters. Many of them display migration in both spring and
+autum, while a few of them peak in summer.
 
     t(as.data.frame(characteristics(myfit_silver, 3)))
 
     ##    cluster duration duration2.5 duration97.5 centroid centroid2.5
-    ## V1 1       8        7           8            8.189027 8.008708   
-    ## V2 2       7        7           8            11.47118 11.25589   
-    ## V3 3       7        7           7            10.03917 9.940687   
+    ## V1 1       5        4           6            7.626248 7.207961   
+    ## V2 2       3        3           4            11.16844 11.07614   
+    ## V3 3       6        6           7            6.560232 6.211152   
     ##    centroid97.5
-    ## V1 8.368986    
-    ## V2 11.69722    
-    ## V3 10.13554
+    ## V1 8.006666    
+    ## V2 11.258      
+    ## V3 6.955695
 
 We can look at the belonging of the different groups.
 
-    get_pattern_month <- function(res,mydata){
-      
-      groups <- interaction(silvereel_wide$ser_nameshort,
+    groups <- interaction(silvereel_wide$ser_nameshort,
                                                 silvereel_wide$period,
                                                 drop=TRUE)
-      group_name <- levels(groups)
+    group_name <- levels(groups)
+
+
+    get_pattern_month <- function(res,mydata){
+      
       tmp <- strsplit(as.character(group_name),
                       "\\.")
       ser <- as.character(lapply(tmp,function(tt){
@@ -1239,51 +1182,52 @@ We can look at the belonging of the different groups.
     }
 
     myclassif_silver <- get_pattern_month(myfit_silver)
+    myclassif_silver$cluster=factor(match(myclassif_silver$cluster,c("1", "3", "4", "5", "6","2")),
+                       levels=as.character(1:7))
+
     print(myclassif_silver[order(myclassif_silver$cluster),])
 
-    ##      ser period country cluster clus1 clus2 clus3
-    ## 1   BadB      1      GB       1 30000    NA    NA
-    ## 3   GirB      1      GB       1 29417    NA   583
-    ## 5   KauT      1      FI       1 19934   304  9762
-    ## 9   WarS      1      DE       1 24950   988  4062
-    ## 10  BadB      2      GB       1 30000    NA    NA
-    ## 12 DaugS      2      LV       1 29903    46    51
-    ## 14  GirB      2      GB       1 30000    NA    NA
-    ## 22  WarS      2      DE       1 29716    NA   284
-    ## 7  ScorS      1      FR       2    NA 30000    NA
-    ## 17 ScorS      2      FR       2    NA 29839   161
-    ## 19  SomS      2      FR       2     3 28585  1412
-    ## 20  SouS      2      FR       2    NA 30000    NA
-    ## 2   BurS      1      IE       3    NA    NA 30000
-    ## 4  ImsaS      1      NO       3    NA    NA 30000
-    ## 6   OirS      1      FR       3    NA    NA 30000
-    ## 8   Shie      1      GB       3    NA    NA 30000
-    ## 11  BurS      2      IE       3    NA    NA 30000
-    ## 13 ErneS      2      IE       3    17 12543 17440
-    ## 15 ImsaS      2      NO       3    NA    NA 30000
-    ## 16  OirS      2      FR       3    NA     2 29998
-    ## 18  Shie      2      GB       3    NA    NA 30000
-    ## 21 UShaS      2      IE       3    32 13423 16545
+    ##      ser period country cluster clus1 clus2 clus3    NA    NA    NA
+    ## 1   BadB      1      GB       1 10000    NA    NA    NA    NA    NA
+    ## 5   KauT      1      FI       2   163    NA  9281    NA    NA   556
+    ## 9   WarS      1      DE       2    77    NA  9923    NA    NA    NA
+    ## 22  WarS      2      DE       2    NA    NA 10000    NA    NA    NA
+    ## 12 DaugS      2      LV       3    NA    NA    NA 10000    NA    NA
+    ## 3   GirB      1      GB       4    NA    NA    NA    NA 10000    NA
+    ## 10  BadB      2      GB       4    NA    NA    NA    NA 10000    NA
+    ## 14  GirB      2      GB       4    NA    NA    NA    NA 10000    NA
+    ## 2   BurS      1      IE       5    NA    NA    NA    NA    NA 10000
+    ## 4  ImsaS      1      NO       5    NA    NA    NA    NA    NA 10000
+    ## 6   OirS      1      FR       5    NA    NA    NA    NA    NA 10000
+    ## 8   Shie      1      GB       5    NA    NA    NA    NA    NA 10000
+    ## 11  BurS      2      IE       5    NA    NA    NA    NA    NA 10000
+    ## 15 ImsaS      2      NO       5    NA    NA    NA    NA    NA 10000
+    ## 16  OirS      2      FR       5    NA    NA    NA    NA    NA 10000
+    ## 18  Shie      2      GB       5    NA    NA    NA    NA    NA 10000
+    ## 21 UShaS      2      IE       5    NA  1012    NA    NA    NA  8988
+    ## 7  ScorS      1      FR       6    NA 10000    NA    NA    NA    NA
+    ## 13 ErneS      2      IE       6    NA  9951    NA    NA    NA    49
+    ## 17 ScorS      2      FR       6    NA 10000    NA    NA    NA    NA
+    ## 19  SomS      2      FR       6    NA 10000    NA    NA    NA    NA
+    ## 20  SouS      2      FR       6    NA 10000    NA    NA    NA    NA
 
     table(myclassif_silver$country, myclassif_silver$cluster)
 
     ##     
-    ##      1 2 3
-    ##   DE 2 0 0
-    ##   FI 1 0 0
-    ##   FR 0 4 2
-    ##   GB 4 0 2
-    ##   IE 0 0 4
-    ##   LV 1 0 0
-    ##   NO 0 0 2
+    ##      1 2 3 4 5 6 7
+    ##   DE 0 2 0 0 0 0 0
+    ##   FI 0 1 0 0 0 0 0
+    ##   FR 0 0 0 0 2 4 0
+    ##   GB 1 0 0 3 2 0 0
+    ##   IE 0 0 0 0 3 1 0
+    ##   LV 0 0 1 0 0 0 0
+    ##   NO 0 0 0 0 2 0 0
 
-The spatial pattern is less obvious than for glass eel. However, looking
-at the map, we see that clusters 1 and 3, which display similar
+The spatial pattern is a bit less obvious than for glass eel. However,
+looking at the map, we see that clusters 6 and 5, which display similar
 seasonality, are more located on the Western coasts of Europe (with most
-cluster 3 in the south, and most clusters 1 in the north), whereas,
-cluster 2 is more located in North-Sea and Baltic Sea, with the notable
-exception of the Imsa dataseries. Once again, no difference between
-periods are observed.
+cluster 6 in the south, and most clusters 5 in the north). Cluster 2 is
+more typical of the Baltic Sea and clusster 4 from eastern Scotland.
 
     library(sf)
     myclassif_silver$x <- ser2$ser_x[match(myclassif_silver$ser, ser2$ser_nameshort)]
@@ -1292,11 +1236,26 @@ periods are observed.
     myclassif_silver$jit_y <- jitter(myclassif_silver$y,amount=.5)
     ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
             geom_point(data=myclassif_silver,aes(x=jit_x,y=jit_y,col=as.factor(cluster))) +
-      scale_fill_brewer() +theme_bw() +xlim(-20,30) + ylim(35,65)
+      scale_colour_manual(values=cols) +theme_bw() +xlim(-20,30) + ylim(35,65)
 
     ## Warning: Removed 1 rows containing missing values (geom_point).
 
-![](jags_modelling_files/figure-markdown_strict/unnamed-chunk-33-1.png)
+![](jags_modelling_files/figure-markdown_strict/unnamed-chunk-34-1.png)
+
+Exporting pattern per group
+---------------------------
+
+    tmp <- as.matrix(as.mcmc.list(myfit_silver))
+    name_col = colnames(tmp)
+
+    pattern_S_monitoring=do.call("rbind.data.frame",
+                                lapply(seq_len(length(levels(groups))), function(g){
+                                  ser=substr(group_name[g],1,nchar(group_name[g])-2)
+                                  emu=ser2$ser_emu_nameshort[ser2$ser_nameshort == ser]
+                                  hty_code=ser2$ser_hty_code[ser2$ser_nameshort==ser]
+                                  median_pattern_group_monitoring(g, emu ,tmp, "S",group_name[g], hty_code)
+                                }))
+    save(pattern_S_monitoring,file="pattern_S_monitoring.rdata")
 
 Yellow eel
 ==========
@@ -1398,6 +1357,8 @@ november, and season y denotes season from december y to november y+1).
                                 function(s)
                                   season_creation(res[res$ser_nameshort==s,])))
     months_peak_per_series<- unique(yelloweel[,c("ser_nameshort","peak_month")])
+    names(yelloweel)[which(names(yelloweel)=="country")]<-"cou_code"
+
     table(months_peak_per_series$peak_month)
 
     ## 
@@ -1428,23 +1389,23 @@ good\_coverage\_wave and check\_duplicate).
     ## [1] "For BurFu not possible to define a season"
     ## [1] "For CraE not possible to define a season"
     ## [1] "For  DaugY  a good season should cover months: 4 to 10"
-    ## [1] "For  EmbE  a good season should cover months: 5 to 9"
+    ## [1] "For EmbE not possible to define a season"
     ## [1] "For  GarY  a good season should cover months: 5 to 8"
     ## [1] "For Girn not possible to define a season"
     ## [1] "For  Gud  a good season should cover months: 6 to 11"
     ## [1] "For HallE not possible to define a season"
     ## [1] "For LeaE not possible to define a season"
     ## [1] "For  LilY  a good season should cover months: 6 to 5"
-    ## [1] "For  LonE  a good season should cover months: 8 to 7"
+    ## [1] "For LonE not possible to define a season"
     ## [1] "For  MarB_Y  a good season should cover months: 11 to 10"
     ## [1] "For MerE not possible to define a season"
     ## [1] "For MillE not possible to define a season"
-    ## [1] "For  MolE  a good season should cover months: 6 to 9"
-    ## [1] "For  NMilE  a good season should cover months: 5 to 8"
+    ## [1] "For MolE not possible to define a season"
+    ## [1] "For NMilE not possible to define a season"
     ## [1] "For  OatY  a good season should cover months: 4 to 9"
     ## [1] "For  RhinY  a good season should cover months: 5 to 7"
-    ## [1] "For  RodE  a good season should cover months: 5 to 9"
-    ## [1] "For  ShaP  a good season should cover months: 5 to 8"
+    ## [1] "For RodE not possible to define a season"
+    ## [1] "For ShaP not possible to define a season"
     ## [1] "For StGeY not possible to define a season"
     ## [1] "For StoE not possible to define a season"
     ## [1] "For  TedE  a good season should cover months: 4 to 10"
@@ -1465,9 +1426,6 @@ Finally, here are the series kept given previous criterion.
     ## $DaugY
     ## [1] 2017 2018 2019
     ## 
-    ## $EmbE
-    ## [1] 2017
-    ## 
     ## $GarY
     ##  [1] 2002 2003 2004 2005 2006 2007 2008 2009 2010 2011 2012 2013 2014 2015
     ## [15] 2016 2017 2018 2019
@@ -1475,23 +1433,11 @@ Finally, here are the series kept given previous criterion.
     ## $Gud
     ## [1] 2001 2003 2004
     ## 
-    ## $MolE
-    ## [1] 2012 2013 2014 2015 2016 2017 2018 2019
-    ## 
-    ## $NMilE
-    ##  [1] 2008 2009 2010 2011 2012 2013 2014 2015 2016 2017 2018
-    ## 
     ## $OatY
     ## [1] 2013 2014 2015
     ## 
     ## $RhinY
     ##  [1] 2006 2007 2008 2009 2010 2011 2012 2013 2014 2015 2016 2017 2018 2019
-    ## 
-    ## $RodE
-    ## [1] 2017 2018 2019
-    ## 
-    ## $ShaP
-    ## [1] 2011 2012 2013 2014 2015 2016 2017 2018
     ## 
     ## $TedE
     ## [1] 2017
@@ -1515,7 +1461,7 @@ We carry out the same procedure a for other stages.
 
     yelloweel_wide <- pivot_wider(data=yelloweel_subset[, c("ser_nameshort",
                                                                 "emu",
-                                                         "country",
+                                                         "cou_code",
                                                          "season",
                                                          "das_month",
                                                          "das_value")],
@@ -1524,7 +1470,7 @@ We carry out the same procedure a for other stages.
     names(yelloweel_wide)[-(1:4)] <- paste("m",
                                            names(yelloweel_wide)[-(1:4)],
                                            sep="")
-    ###we coun't the number of zeros per lines to remove lines without enough
+    ###we count the number of zeros per lines to remove lines without enough
     ###fishes
     data_poor <- data.frame(yelloweel_wide$ser_nameshort,
                             yelloweel_wide$season,
@@ -1532,17 +1478,13 @@ We carry out the same procedure a for other stages.
                tot=rowSums(yelloweel_wide[, -(1:4)], na.rm=TRUE))
     data_poor %>% filter(tot<100)
 
-    ##    yelloweel_wide.ser_nameshort yelloweel_wide.season zero   tot
-    ## 1                          AllE                  2016    1 75.00
-    ## 2                          BroS                  2012    3 54.00
-    ## 3                          BroS                  2019    7 94.00
-    ## 4                         DaugY                  2018    7 14.00
-    ## 5                         DaugY                  2019    6 86.00
-    ## 6                          MolE                  2019    1 86.00
-    ## 7                          MolE                  2018    0 64.00
-    ## 8                          ShaP                  2012    0 27.19
-    ## 9                          ShaP                  2011    0 35.50
-    ## 10                         TedE                  2017    3 87.00
+    ##   yelloweel_wide.ser_nameshort yelloweel_wide.season zero tot
+    ## 1                         AllE                  2016    1  75
+    ## 2                         BroS                  2012    3  54
+    ## 3                         BroS                  2019    7  94
+    ## 4                        DaugY                  2018    7  14
+    ## 5                        DaugY                  2019    6  86
+    ## 6                         TedE                  2017    3  87
 
 Given the limited number of eels caught in DaugY in 2018, we remove this
 series.
@@ -1550,7 +1492,7 @@ series.
     yelloweel_wide <- yelloweel_wide %>%
       filter(ser_nameshort != "DaugY" | season != 2018)
 
-It leads to a dataset with 106 rows. Since seasons are not comparable
+It leads to a dataset with 75 rows. Since seasons are not comparable
 among series, we keep traditional month (eg: 12 for decembre, not month
 in season), while rows indeed correspond to seasons.
 
@@ -1589,13 +1531,9 @@ implemented their EMPs only in 2009/2010, we split in 2010.
            yelloweel_wide$ser_nameshort)
 
     ##    
-    ##     AllE BroS DaugY EmbE GarY Gud MolE NMilE OatY RhinY RodE ShaP TedE
-    ##   1    0    0     0    0    8   3    0     2    0     4    0    0    0
-    ##   2    8    9     2    1   10   0    8     9    3    10    3    8    1
-    ##    
-    ##     VilY2
-    ##   1     8
-    ##   2     9
+    ##     AllE BroS DaugY GarY Gud OatY RhinY TedE VilY2
+    ##   1    0    0     0    8   3    0     4    0     8
+    ##   2    8    9     2   10   0    3    10    1     9
 
 The situation is an intermediate between glass eel and silver eel.
 
@@ -1608,57 +1546,101 @@ Running the model
     nb_occ_group <- table(group)
     y <-as.matrix(yelloweel_wide[, paste("m", 1:12, sep="")])
 
-Know, we make a loop to select the number of clusters based on a DIC
+Now, we make a loop to select the number of clusters based on a DIC
 criterion
 
-    comparison <- lapply(2:7,
+    cl <- makeCluster(7, 'FORK')
+    comparison <- parSapply(cl, 2:7,
            function(nbclus){
              mydata <- build_data(nbclus)
-             res <- run.jags("jags_model.txt", monitor= "deviance",
-                          summarise=FALSE, adapt=20000, method="parallel",
-                          sample=10000,burnin=100000,n.chains=3,
-                          inits=generate_init(nbclus, mydata),
-                          data=mydata)
-             res_mat <- as.matrix(as.mcmc.list(res))
-             mean(res_mat[,1])+0.5*var(res_mat[,1])
-           })
-    best_yellow <- data.frame(nbclus=2:7,dic=unlist(comparison))
+             adapted <- FALSE
+             while (!adapted){
+               tryCatch({
+                 runjags.options(adapt.incomplete="error")
+                 res <- run.jags("jags_model.txt", monitor= c("deviance",
+                                                              "alpha_group",
+                                                              "cluster"),
+                            summarise=FALSE, adapt=40000, method="parallel",
+                            sample=2000,burnin=100000,n.chains=1,
+                            inits=generate_init(nbclus, mydata)[[1]],
+                            data=mydata)
+                            adapted <- TRUE
+                            res_mat <- as.matrix(as.mcmc.list(res))
+                            silhouette <- median(compute_silhouette(res_mat))
+                            nbused <- apply(res_mat, 1, function(iter){
+                              length(table(iter[grep("cluster",
+                                                     names(iter))]))
+                            })
+                            dic <- mean(res_mat[,1])+0.5*var(res_mat[,1])
+                            stats <- c(dic,silhouette,mean(nbused))
+                      }, error=function(e) {
+                        print(paste("not adapted, restarting nbclus",nbclus))
+                        }
+                      )
+             }
+             stats
+          })
+    stopCluster(cl)
+
+
+    best_yellow <- data.frame(nbclus=2:(ncol(comparison)+1),
+                                                  dic=comparison[1, ],
+                                                  silhouette=comparison[2, ],
+                                                  used=comparison[3, ])
+
     save(best_yellow, file="yellow_jags.rdata")
 
     load("yellow_jags.rdata")
     best_yellow
 
-    ##   nbclus       dic
-    ## 1      2 -28953.93
-    ## 2      3 -29110.09
-    ## 3      4 -29135.05
-    ## 4      5 -29163.70
-    ## 5      6 -28645.05
-    ## 6      7 -29068.54
+    ##   nbclus       dic silhouette used
+    ## 1      2 -19385.21  0.1730357    2
+    ## 2      3 -20047.01  0.3082806    3
+    ## 3      4 -20189.05  0.3232710    4
+    ## 4      5 -20284.06  0.1757271    5
+    ## 5      6 -20362.54  0.1696675    5
+    ## 6      7 -20313.50  0.3382333    5
 
-Best solutions arise with 5 clusters, more than for other stages.
+4 appears to be a good compromise (good silhouette and all clusters are
+used).
 
-    nbclus <- 5
+    nbclus <- 4
     mydata <-build_data(nbclus)
-    myfit_yellow <- run.jags("jags_model.txt", monitor= c("cluster", "esp", "alpha_group",
-                                                "cluster",
+
+
+
+
+    adapted <- FALSE
+    while (!adapted){
+       tryCatch({
+          runjags.options(adapt.incomplete="error")
+          myfit_yellow <- run.jags("jags_model.txt", monitor= c("cluster", "esp", "alpha_group",
+                                                "cluster", "centroid",
+                                                "centroid_group",
                                                 "distToClust", "duration_clus",
                                                 "duration_group",
                                                 "lambda","id_cluster",
-                                                "distFromRef"),
-                          summarise=FALSE, adapt=50000, method="parallel",
-                          sample=10000,burnin=200000,n.chains=3, thin=5,
-                          inits=generate_init(nbclus, mydata), data=mydata)
+                                                "centroid"),
+                          summarise=FALSE, adapt=20000, method="parallel",
+                          sample=10000,burnin=200000,n.chains=1, thin=5,
+                          inits=generate_init(nbclus, mydata)[[1]], data=mydata)
+          adapted <- TRUE
+        }, error=function(e) {
+           print(paste("not adapted, restarting nbclus",nbclus))
+        })
+    }
+
+
     save(myfit_yellow, best_yellow,
          file="yellow_jags.rdata")
 
 Results
 -------
 
-Once we fitted, we can plot monthly pattern per cluster
+Once fitted, we can plot monthly pattern per cluster
 
     load("yellow_jags.rdata")
-    nbclus <- 5
+    nbclus <- 4
     mydata <-build_data(nbclus)
     get_pattern_month <- function(res,type="cluster"){
       res_mat <- as.matrix(as.mcmc.list(res))
@@ -1680,42 +1662,45 @@ Once we fitted, we can plot monthly pattern per cluster
       sub_mat
     }
 
+    pat=get_pattern_month(myfit_yellow)
+    pat$cluster=factor(match(pat$cluster, c("3","4","2","1")),
+                       levels=as.character(1:7))
 
-    ggplot(get_pattern_month(myfit_yellow),aes(x=month,y=proportion))+
+    ggplot(pat,aes(x=month,y=proportion))+
       geom_boxplot(aes(fill=cluster),outlier.shape=NA) +
+      scale_fill_manual(values=cols)+
       theme_bw()
 
-![](jags_modelling_files/figure-markdown_strict/unnamed-chunk-47-1.png)
+![](jags_modelling_files/figure-markdown_strict/unnamed-chunk-49-1.png)
 
-    t(as.data.frame(characteristics(myfit_yellow, 5)))
+    t(as.data.frame(characteristics(myfit_yellow, 4)))
 
     ##    cluster duration duration2.5 duration97.5 centroid centroid2.5
-    ## V1 1       5        4           9            8.92585  8.268802   
-    ## V2 2       4        3           4            7.028197 6.778063   
-    ## V3 3       8        4           9            6.814633 5.809669   
-    ## V4 4       5        4           6            6.994789 6.072848   
-    ## V5 5       3        3           4            6.305471 6.183296   
+    ## V1 1       4        3           4            9.360299 9.112763   
+    ## V2 2       4        4           4            7.246856 7.11288    
+    ## V3 3       8        7           8            6.918802 6.655048   
+    ## V4 4       2        2           2            6.218916 6.173558   
     ##    centroid97.5
-    ## V1 9.495002    
-    ## V2 7.180665    
-    ## V3 7.312794    
-    ## V4 7.803342    
-    ## V5 6.397577
+    ## V1 9.62228     
+    ## V2 7.381118    
+    ## V3 7.178509    
+    ## V4 6.265596
 
-Cluster 5 corresponds to a migration 5 concentrated in june and july.
-Cluster 2 is a bit similar, but more widespread from may august. Cluster
-1 latter with hight proportion in late summer / early autumn. Clusters 3
-and 4 are quite similar with widespread waves centered around summer and
-eraly autumn, with cluster 3 more widepread than cluster 4.
+Cluster 2 corresponds to a migration concentrated in June and July.
+Cluster 3 is a bit similar, but more widespread from May to september.
+Cluster 4 has a delayed peak with a high proportion in late summer /
+early autumn. Clusters 1 is widespread from spring to autumn.
 
 We can look at the belonging of the different groups.
 
-    get_pattern_month <- function(res,mydata){
-      
-      groups <- interaction(yelloweel_wide$ser_nameshort,
+    groups <- interaction(yelloweel_wide$ser_nameshort,
                                                 yelloweel_wide$period,
                                                 drop=TRUE)
-      group_name <- levels(groups)
+    group_name <- levels(groups)
+
+
+    get_pattern_month <- function(res,mydata){
+      
       tmp <- strsplit(as.character(group_name),
                       "\\.")
       ser <- as.character(lapply(tmp,function(tt){
@@ -1741,50 +1726,50 @@ We can look at the belonging of the different groups.
     }
 
     myclassif_yellow <- get_pattern_month(myfit_yellow)
+    myclassif_yellow$cluster=factor(match(myclassif_yellow$cluster, c("3","4","2","1")),
+                       levels=as.character(1:7))
+
     print(myclassif_yellow[order(myclassif_yellow$cluster),])
 
-    ##      ser period country cluster clus1 clus2 clus3    NA    NA
-    ## 2    Gud      1      DK       1 20077    NA    NA  9923    NA
-    ## 17  TedE      2      GB       1 18478    31     6 11485    NA
-    ## 6   AllE      2      GB       2    NA 23121    NA  6620   259
-    ## 11  MolE      2      GB       2    NA 27948    NA  2052    NA
-    ## 12 NMilE      2      GB       2    NA 29883    NA    NA   117
-    ## 13  OatY      2      GB       2   532 25683    NA  3785    NA
-    ## 15  RodE      2      GB       2    NA 24287    NA  5319   394
-    ## 5  VilY2      1      FR       3 10000    NA 20000    NA    NA
-    ## 18 VilY2      2      FR       3 10000    NA 20000    NA    NA
-    ## 7   BroS      2      GB       4 10002    NA    NA 19998    NA
-    ## 1   GarY      1      FR       5    NA    NA    NA    NA 30000
-    ## 3  NMilE      1      GB       5    NA 10076    NA     1 19923
-    ## 4  RhinY      1      FR       5    NA   677    NA    NA 29323
-    ## 8  DaugY      2      LV       5    75    NA  7323  9614 12988
-    ## 9   EmbE      2      GB       5     4 12503    37  2337 15119
-    ## 10  GarY      2      FR       5    NA    NA    NA    NA 30000
-    ## 14 RhinY      2      FR       5    NA  4590    NA    NA 25410
-    ## 16  ShaP      2      IE       5    NA  1469    NA     3 28528
+    ##      ser period country cluster clus1 clus2 clus3    NA
+    ## 4  VilY2      1      FR       1    NA    NA 10000    NA
+    ## 12 VilY2      2      FR       1    NA    NA 10000    NA
+    ## 1   GarY      1      FR       2    NA    NA    NA 10000
+    ## 3  RhinY      1      FR       2    NA    NA    NA 10000
+    ## 7  DaugY      2      LV       2    NA    NA    NA 10000
+    ## 8   GarY      2      FR       2    NA    NA    NA 10000
+    ## 10 RhinY      2      FR       2    NA    NA    NA 10000
+    ## 5   AllE      2      GB       3    NA 10000    NA    NA
+    ## 6   BroS      2      GB       3    NA 10000    NA    NA
+    ## 9   OatY      2      GB       3    NA 10000    NA    NA
+    ## 2    Gud      1      DK       4 10000    NA    NA    NA
+    ## 11  TedE      2      GB       4 10000    NA    NA    NA
 
     table(myclassif_yellow$country, myclassif_yellow$cluster)
 
     ##     
-    ##      1 2 3 4 5
-    ##   DK 1 0 0 0 0
-    ##   FR 0 0 2 0 4
-    ##   GB 1 5 0 1 2
-    ##   IE 0 0 0 0 1
-    ##   LV 0 0 0 0 1
+    ##      1 2 3 4 5 6 7
+    ##   DK 0 0 0 1 0 0 0
+    ##   FR 2 4 0 0 0 0 0
+    ##   GB 0 0 3 1 0 0 0
+    ##   LV 0 1 0 0 0 0 0
 
-There is no clear spatial pattern in the clustering. This is not
-necessarily surprising: eels display an ontongenic shift during their
-life stage, from a migratory behaviour towards sedentary behaviour
-(Imbert et al. 2010). Consequently, given the predominence of younger or
-older eels, which vary depending on the position in the river basin, a
-series may correspond to a seasonality of migration, to a seasonality of
-activity of sedentary eels, or to a mixture of both. Moreover,
-environmental conditions that trigger migration or activity may also
-vary depending on the position in the river basin and complexify the
-comparison of the time series. The sampling method may also alter the
-results: many time series are collected upstream fishways, and the
-attractivity / passability of those fishway vary among seasons.
+The spatial pattern is also quite clear with cluster 1 (widespread) and
+2 (summer) in France. In northern part, series are in clusters 3 and 4
+corresponding to summer and autumn. It should be noted that, contrary to
+glass eels and silver eel, there is no clear migration for yellow eels.
+Indeed, eels display an ontongenic shift during their life stage, from a
+migratory behaviour towards sedentary behaviour (Imbert et al. 2010).
+Consequently, given the predominence of younger or older eels, which
+vary depending on the position in the river basin, a series may
+correspond to a seasonality of migration, to a seasonality of activity
+of sedentary eels, or to a mixture of both. Moreover, environmental
+conditions that trigger migration or activity may also vary depending on
+the position in the river basin and complexify the comparison of the
+time series. The sampling method may also alter the results: many time
+series are collected upstream fishways, and the attractivity /
+passability of those fishway vary among seasons. In northern part,
+series are in clusters
 
     library(sf)
     myclassif_yellow$x <- ser2$ser_x[match(myclassif_yellow$ser, ser2$ser_nameshort)]
@@ -1793,8 +1778,27 @@ attractivity / passability of those fishway vary among seasons.
     myclassif_yellow$jit_y <- jitter(myclassif_yellow$y,amount=.5)
     ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
             geom_point(data=myclassif_yellow,aes(x=jit_x,y=jit_y,col=as.factor(cluster))) +
-      scale_fill_brewer() +theme_bw() +xlim(-20,30) + ylim(35,65)
+      scale_color_manual(values=cols) +
+      theme_bw() +xlim(-20,30) + ylim(35,65)
 
     ## Warning: Removed 1 rows containing missing values (geom_point).
 
-![](jags_modelling_files/figure-markdown_strict/unnamed-chunk-50-1.png)
+![](jags_modelling_files/figure-markdown_strict/unnamed-chunk-52-1.png)
+
+Exporting pattern per group
+---------------------------
+
+    tmp <- as.matrix(as.mcmc.list(myfit_yellow))
+    name_col = colnames(tmp)
+
+    pattern_Y_monitoring=do.call("rbind.data.frame",
+                                lapply(seq_len(length(levels(groups))), function(g){
+                                  ser=substr(group_name[g],1,nchar(group_name[g])-2)
+                                  emu=ser2$ser_emu_nameshort[ser2$ser_nameshort == ser]
+                                  hty_code=ser2$ser_hty_code[ser2$ser_nameshort==ser]
+                                  median_pattern_group_monitoring(g, emu ,tmp, "G",group_name[g], hty_code)
+                                }))
+                                       
+      
+      
+    save(pattern_Y_monitoring,file="pattern_Y_monitoring.rdata")

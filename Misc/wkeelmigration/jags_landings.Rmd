@@ -368,23 +368,9 @@ ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
 tmp <- as.matrix(as.mcmc.list(myfit_glasseel_landings))
 name_col = colnames(tmp)
 
-pattern_GE_landings=do.call("rbind.data.frame",lapply(seq_len(length(levels(groups))),function(g) {
-  name <- group_name[g]
-  ncar=nchar(name)
-  emu_nameshort=substr(name,start=1,stop=ncar-2)
-  period=substr(name,start=ncar,stop=ncar)
-  hty_code="T"
-  lfs_code="G"
-  esp <- tmp[,grep(paste("alpha_group\\[",g,",",sep=""),name_col)]
-  med <- apply(esp,2,median)
-  data.frame(emu_nameshort=emu_nameshort,
-             period=period,
-             hty_code=hty_code,
-             lfs_code=lfs_code,
-             month=1:12,
-             prop=med/sum(med))
-    
-}))
+pattern_GE_landings=do.call("rbind.data.frame",
+                            lapply(seq_len(length(levels(groups))), function(g)
+                                   median_pattern_group(g, group_name,tmp, "G","landings", hty_code="T")))
 save(pattern_GE_landings,file="pattern_G_landings.rdata")
 ```
 
@@ -744,23 +730,11 @@ ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
 tmp <- as.matrix(as.mcmc.list(myfit_yelloweel_coastal_landings))
 name_col = colnames(tmp)
 
-pattern_Ycoast_landings=do.call("rbind.data.frame",lapply(seq_len(length(levels(groups))),function(g) {
-  name <- group_name[g]
-  ncar=nchar(name)
-  emu_nameshort=substr(name,start=1,stop=ncar-2)
-  period=substr(name,start=ncar,stop=ncar)
-  hty_code="C"
-  lfs_code="Y"
-  esp <- tmp[,grep(paste("alpha_group\\[",g,",",sep=""),name_col)]
-  med <- apply(esp,2,median)
-  data.frame(emu_nameshort=emu_nameshort,
-             period=period,
-             hty_code=hty_code,
-             lfs_code=lfs_code,
-             month=1:12,
-             prop=med/sum(med))
-    
-}))
+pattern_Ycoast_landings=do.call("rbind.data.frame",
+                                lapply(seq_len(length(levels(groups))), function(g)
+                                   median_pattern_group(g, group_name,tmp, "Y","landings", hty_code="C")))
+
+
 save(pattern_Ycoast_landings,file="pattern_Ycoast_landings.rdata")
 ```
 
@@ -1058,23 +1032,9 @@ ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
 tmp <- as.matrix(as.mcmc.list(myfit_yelloweel_transitional_landings))
 name_col = colnames(tmp)
 
-pattern_Ytrans_landings=do.call("rbind.data.frame",lapply(seq_len(length(levels(groups))),function(g) {
-  name <- group_name[g]
-  ncar=nchar(name)
-  emu_nameshort=substr(name,start=1,stop=ncar-2)
-  period=substr(name,start=ncar,stop=ncar)
-  hty_code="T"
-  lfs_code="Y"
-  esp <- tmp[,grep(paste("alpha_group\\[",g,",",sep=""),name_col)]
-  med <- apply(esp,2,median)
-  data.frame(emu_nameshort=emu_nameshort,
-             period=period,
-             hty_code=hty_code,
-             lfs_code=lfs_code,
-             month=1:12,
-             prop=med/sum(med))
-    
-}))
+pattern_Ytrans_landings=do.call("rbind.data.frame",
+                                lapply(seq_len(length(levels(groups))), function(g)
+                                   median_pattern_group(g, group_name,tmp, "Y","landings", hty_code="T")))
 save(pattern_Ytrans_landings,file="pattern_Ytrans_landings.rdata")
 ```
 
@@ -1373,23 +1333,9 @@ ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
 tmp <- as.matrix(as.mcmc.list(myfit_yelloweel_freshwater_landings))
 name_col = colnames(tmp)
 
-pattern_Yfresh_landings=do.call("rbind.data.frame",lapply(seq_len(length(levels(groups))),function(g) {
-  name <- group_name[g]
-  ncar=nchar(name)
-  emu_nameshort=substr(name,start=1,stop=ncar-2)
-  period=substr(name,start=ncar,stop=ncar)
-  hty_code="F"
-  lfs_code="Y"
-  esp <- tmp[,grep(paste("alpha_group\\[",g,",",sep=""),name_col)]
-  med <- apply(esp,2,median)
-  data.frame(emu_nameshort=emu_nameshort,
-             period=period,
-             hty_code=hty_code,
-             lfs_code=lfs_code,
-             month=1:12,
-             prop=med/sum(med))
-    
-}))
+pattern_Yfresh_landings=do.call("rbind.data.frame",
+                                lapply(seq_len(length(levels(groups))), function(g)
+                                   median_pattern_group(g, group_name,tmp, "Y","landings", hty_code="F")))
 save(pattern_Yfresh_landings,file="pattern_Yfresh_landings.rdata")
 ```
 
@@ -2078,23 +2024,9 @@ print(myplots[[3]][[2]])
 tmp <- as.matrix(as.mcmc.list(myfit_silvereel_coastal_landings))
 name_col = colnames(tmp)
 
-pattern_Smar_coast_trans_landings=do.call("rbind.data.frame",lapply(seq_len(length(levels(groups))),function(g) {
-  name <- group_name[g]
-  ncar=nchar(name)
-  emu_nameshort=substr(name,start=1,stop=ncar-4)
-  period=substr(name,start=ncar,stop=ncar)
-  hty_code=substr(name,start=ncar-2,stop=ncar-2)
-  lfs_code="S"
-  esp <- tmp[,grep(paste("alpha_group\\[",g,",",sep=""),name_col)]
-  med <- apply(esp,2,median)
-  data.frame(emu_nameshort=emu_nameshort,
-             period=period,
-             hty_code=hty_code,
-             lfs_code=lfs_code,
-             month=1:12,
-             prop=med/sum(med))
-    
-}))
+pattern_Smar_coast_trans_landings=do.call("rbind.data.frame",
+                                lapply(seq_len(length(levels(groups))), function(g)
+                                   median_pattern_group(g, group_name,tmp, "S","landings")))
 save(pattern_Smar_coast_trans_landings,file="pattern_Smar_coast_trans_landings.rdata")
 ```
 
@@ -2393,23 +2325,9 @@ ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
 tmp <- as.matrix(as.mcmc.list(myfit_silvereel_freshwater_landings))
 name_col = colnames(tmp)
 
-pattern_Sfresh_landings=do.call("rbind.data.frame",lapply(seq_len(length(levels(groups))),function(g) {
-  name <- group_name[g]
-  ncar=nchar(name)
-  emu_nameshort=substr(name,start=1,stop=ncar-4)
-  period=substr(name,start=ncar,stop=ncar)
-  hty_code=substr(name,start=ncar-2,stop=ncar-2)
-  lfs_code="S"
-  esp <- tmp[,grep(paste("alpha_group\\[",g,",",sep=""),name_col)]
-  med <- apply(esp,2,median)
-  data.frame(emu_nameshort=emu_nameshort,
-             period=period,
-             hty_code=hty_code,
-             lfs_code=lfs_code,
-             month=1:12,
-             prop=med/sum(med))
-    
-}))
+pattern_Sfresh_landings=do.call("rbind.data.frame",
+                                lapply(seq_len(length(levels(groups))), function(g)
+                                   median_pattern_group(g, group_name,tmp, "Y","landings")))
 save(pattern_Sfresh_landings,file="pattern_Sfresh_landings.rdata")
 ```
 
@@ -2781,23 +2699,9 @@ print(myplots[[4]][[2]])
 tmp <- as.matrix(as.mcmc.list(myfit_YSeel_allhab_landings))
 name_col = colnames(tmp)
 
-pattern_YS_landings=do.call("rbind.data.frame",lapply(seq_len(length(unique(group))),function(g) {
-  name <- group_name[g]
-  ncar=nchar(name)
-  emu_nameshort=substr(name,start=1,stop=ncar-4)
-  period=substr(name,start=ncar,stop=ncar)
-  hty_code=substr(name,start=ncar-2,stop=ncar-2)
-  lfs_code="YS"
-  esp <- tmp[,grep(paste("alpha_group\\[",g,",",sep=""),name_col)]
-  med <- apply(esp,2,median)
-  data.frame(emu_nameshort=emu_nameshort,
-             period=period,
-             hty_code=hty_code,
-             lfs_code=lfs_code,
-             month=1:12,
-             prop=med/sum(med))
-    
-}))
+pattern_YS_landings=do.call("rbind.data.frame",
+                                lapply(seq_len(length(levels(groups))), function(g)
+                                   median_pattern_group(g, group_name,tmp, "YS","landings")))
 save(pattern_YS_landings,file="pattern_YS_landings.rdata")
 ```
 

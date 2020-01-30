@@ -294,3 +294,48 @@ compute_silhouette <- function(res_mat){
   })
 }
 
+
+
+
+median_pattern_group = function(g, group_name,res_mat, lfs_code, type, hty_code=NULL) {
+  name <- group_name[g]
+  ncar=nchar(name)
+  if (is.null(hty_code)){
+    emu_nameshort=substr(name,start=1,stop=ncar-4)
+    period=substr(name,start=ncar,stop=ncar)
+    hty_code=substr(name,start=ncar-2,stop=ncar-2)
+  } else{
+    emu_nameshort=substr(name,start=1,stop=ncar-2)
+    period=substr(name,start=ncar,stop=ncar)
+  }
+  
+  esp <- res_mat[,grep(paste("alpha_group\\[",g,",",sep=""),name_col)]
+  med <- apply(esp,2,median)
+  data.frame(emu_nameshort=emu_nameshort,
+               period=period,
+               hty_code=hty_code,
+               lfs_code=lfs_code,
+               type=type,
+               month=1:12,
+               prop=med/sum(med))
+  
+}
+
+
+
+median_pattern_group_monitoring = function(g,emu,res_mat, lfs_code, ser, hty_code=NULL) {
+
+  ncar=nchar(ser)
+  period=substr(ser,start=ncar,stop=ncar)
+  esp <- res_mat[,grep(paste("alpha_group\\[",g,",",sep=""),name_col)]
+  med <- apply(esp,2,median)
+  type=ser
+    data.frame(emu_nameshort=emu,
+               period=period,
+               hty_code=hty_code,
+               lfs_code=lfs_code,
+               type=type,
+               month=1:12,
+               prop=med/sum(med))
+  
+}
