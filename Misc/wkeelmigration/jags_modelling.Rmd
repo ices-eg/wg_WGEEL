@@ -21,6 +21,17 @@ library(doParallel)
 library(RColorBrewer)
 pal= brewer.pal(7,"Set2")
 cols <- c("1" = pal[1], "2"= pal[2],"3" = pal[3], "4" = pal[4],  "5" = pal[5], "6"=pal[6], "7"=pal[7])
+library(kableExtra)
+
+library(sf)
+library(RPostgreSQL)
+con<-dbConnect(PostgreSQL(),host="localhost",dbname="wgeel_old",user="hilaire")
+emu <- st_read(con,query="select * from carto.emu")
+cou <- st_read("/mnt/SIG/01-REFERENTIELS/LIMITES_ADMINISTRATIVES_monde/european_countries_WGS84.shp")
+cou <- st_transform(cou, crs=4326)
+dbDisconnect(con)
+
+
 ```
 
 # Loading the data
@@ -105,8 +116,6 @@ check_month_availabilty <- function(ns){
 * ShiF and ShiM: traps running all years long therefore good coverage of the migration wave.
 * StGeG: only one year of data but good coverage of the migration wave (from march to october)
 
-### to be discussed
-* Oria: first, monthly coverage in a bit limited (october and february represent 10% of yearly catches each), moreover, the GLM model included a month effect so the monthly pattern is similar every year by construction (as such, we should only consider one year). ESTI. OK. We could provide real densities (GE/m3) if you think that including more years could help.
 
 
 ### Final selection of data
@@ -221,9 +230,12 @@ recruitment_wide$period <- ifelse(recruitment_wide$season>2009,
                                   2,
                                   1)
 
-table(recruitment_wide$period,
-       recruitment_wide$ser_nameshort)
+kable(table(recruitment_wide$period,
+       recruitment_wide$ser_nameshort),
+      row.names=TRUE,
+      caption="number of seasons per EMU and period")
 ```
+
 Only 4 series have data in the first period therefore period comparisons will be difficult. However, can now try to fit the model.
 
 ## Running the model
@@ -357,7 +369,7 @@ ggplot(pat,aes(x=month,y=proportion))+
 We compute some statistics to characterize the clusters.
 ```{r}
 #function to make circular shifting
-t(as.data.frame(characteristics(myfit_recruitment, 3)))
+table_characteristics(myfit_recruitment, 5)
 ```
 Duration indicates the minimum number of months that covers 80% of the wave (1st column is the median, and the 2 next one quantiles 2.5% and 97.5% of credibility intervals). Centroid is the centroid of the migration wave (e.g. 11.5 would indicate a migration centred around mid november). The first column is the median and the two next one the quantiles 2.5 and 97.5%.
 
@@ -379,7 +391,8 @@ get_pattern_month <- function(res,mydata){
     tt[2]
   }))
   res_mat <- as.matrix(as.mcmc.list(res))
-  
+  country <- ser2$ser_cou_code[match(ser, ser2$ser_nameshort)]
+
   clus <- t(sapply(seq_len(length(unique(groups))), function(id){
     name_col <- paste("cluster[",id,"]",sep="")
     freq <- table(res_mat[,name_col])
@@ -389,7 +402,7 @@ get_pattern_month <- function(res,mydata){
   storage.mode(clus) <- "numeric"
   classes <- as.data.frame(clus)
   names(classes) <- c("cluster", "clus1", "clus2","clus3")
-  cbind.data.frame(data.frame(ser=ser, period=period),
+  cbind.data.frame(data.frame(ser=ser, period=period,country=country),
                    classes)
 }
 
@@ -397,7 +410,7 @@ myclassif <- get_pattern_month(myfit_recruitment)
 myclassif$cluster=factor(match(myclassif$cluster,c("5","2","1","3","4")),
                    levels=as.character(1:7))
 
-print(myclassif[order(myclassif$cluster),])
+table_classif(myclassif,"series")
 ```
 The 1st cluster corresponds to series from the SoutWestern Europe, whatever the period. Cluster 2 corresponds to North Europe. Cluster 2 and 3 correspond to series in Great Britain or Germany, 4 to Ireland and 5 to Norway. These results confirm the spatial pattern in recruitment seasonality and highlight that no major changes have occured after 2010.
 
@@ -409,8 +422,6 @@ myclassif$x <- ser2$ser_x[match(myclassif$ser, ser2$ser_nameshort)]
 myclassif$jit_x <- jitter(myclassif$x,amount=.5)
 myclassif$y <- ser2$ser_y[match(myclassif$ser, ser2$ser_nameshort)]
 myclassif$jit_y <- jitter(myclassif$y,amount=.5)
-cou <- st_read("/mnt/SIG/01-REFERENTIELS/LIMITES_ADMINISTRATIVES_monde/european_countries_WGS84.shp")
-cou <- st_transform(cou, crs=4326)
 ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
 		geom_point(data=myclassif,aes(x=jit_x,y=jit_y,col=as.factor(cluster))) +
   scale_color_manual(values=cols) +theme_bw() +xlim(-20,30) + ylim(35,65)
@@ -432,6 +443,26 @@ pattern_G_monitoring=do.call("rbind.data.frame",
 save(pattern_G_monitoring,file="pattern_G_monitoring.rdata")
 ```
 
+## Similarity between and after 2010
+```{r}
+#which groups have data in both periods
+occ=table(unique(recruitment_wide[,c("ser_nameshort", "period")])[,1])
+tocompare=names(occ)[which(occ>1)]
+
+simi=sapply(tocompare, function(s){
+  g=grep(s,group_name)
+  esp1=tmp[,grep(paste("alpha_group\\[",g[1],",",sep=""),name_col)]
+  esp2=tmp[,grep(paste("alpha_group\\[",g[2],",",sep=""),name_col)]
+  quantile(apply(cbind(esp1,esp2),
+                 1,
+                 function(x) sum(pmin(x[1:12],x[13:24]))),
+           probs=c(0.025,.5,.975))
+})
+
+similarity=data.frame(emu=tocompare,t(simi))
+
+table_similarity(similarity)
+```
 
 
 # Silver eel
@@ -532,8 +563,11 @@ silvereel <- do.call("rbind.data.frame",
                               season_creation(res[res$ser_nameshort==s,])))
 months_peak_per_series<- unique(silvereel[,c("ser_nameshort","peak_month")])
 names(silvereel)[which(names(silvereel)=="country")]<-"cou_code"
-table(months_peak_per_series$peak_month)
+kable(table(months_peak_per_series$peak_month),
+      col.names=c("month","number of series"),
+      caption="number of series peaking in a given month")
 ```
+
 This confirms that most series peak in autumn, but that other peak in spring or summer.
 
 
@@ -629,9 +663,12 @@ silvereel_wide$period <- ifelse(silvereel_wide$season>2009,
                                   2,
                                   1)
 
-table(silvereel_wide$period,
-       silvereel_wide$ser_nameshort)
+kable(table(silvereel_wide$period,
+       silvereel_wide$ser_nameshort),
+      row.names=TRUE,
+      caption="number of seasons per EMU and series")
 ```
+
 The situation is better for silver eel than for glass eel, we have a good sets of time series with data both before and after 2009.
 
 
@@ -760,7 +797,7 @@ ggplot(pat,aes(x=month,y=proportion))+
 We have 6 clusters. Many of them display migration in both spring and autum, while a few of them peak in summer.
 
 ```{r}
-t(as.data.frame(characteristics(myfit_silver, 3)))
+table_characteristics(myfit_silver, 6)
 ```
 
 We can look at the belonging of the different groups.
@@ -801,8 +838,7 @@ myclassif_silver <- get_pattern_month(myfit_silver)
 myclassif_silver$cluster=factor(match(myclassif_silver$cluster,c("1", "3", "4", "5", "6","2")),
                    levels=as.character(1:7))
 
-print(myclassif_silver[order(myclassif_silver$cluster),])
-table(myclassif_silver$country, myclassif_silver$cluster)
+table_classif(myclassif_silver, "series")
 ```
 The spatial pattern is a bit less obvious than for glass eel. However, looking at the map, we see that clusters 6 and  5, which display similar seasonality, are more located on the Western coasts of Europe (with most cluster 6 in the south, and most clusters 5 in the north). Cluster 2 is more typical of the Baltic Sea and clusster 4 from eastern Scotland.
 
@@ -835,13 +871,34 @@ pattern_S_monitoring=do.call("rbind.data.frame",
 save(pattern_S_monitoring,file="pattern_S_monitoring.rdata")
 ```
 
+## Similarity between and after 2010
+```{r}
+#which groups have data in both periods
+occ=table(unique(silvereel_wide[,c("ser_nameshort", "period")])[,1])
+tocompare=names(occ)[which(occ>1)]
+
+simi=sapply(tocompare, function(s){
+  g=grep(s,group_name)
+  esp1=tmp[,grep(paste("alpha_group\\[",g[1],",",sep=""),name_col)]
+  esp2=tmp[,grep(paste("alpha_group\\[",g[2],",",sep=""),name_col)]
+  quantile(apply(cbind(esp1,esp2),
+                 1,
+                 function(x) sum(pmin(x[1:12],x[13:24]))),
+           probs=c(0.025,.5,.975))
+})
+
+similarity=data.frame(emu=tocompare,t(simi))
+
+table_similarity(similarity)
+```
+
 
 # Yellow eel
 ## Data availability
 There are 32 time series, i.e. more than for glass eels but less than for silver eels. It may be worthwile pooling some of the 6 YS series if the proportions of silver eels is not too important.
 
 ```{r}
-ser2[ser2$ser_lfs_code=="YS", c("ser_nameshort", "ser_emu_nameshort", "ser_comment", "ser_locationdescription")]
+kable(ser2[ser2$ser_lfs_code=="YS", c("ser_nameshort", "ser_emu_nameshort", "ser_comment", "ser_locationdescription")],row.names=FALSE)
 ```
 GVT, Sakt and ZeiT are fishery based and fishery takes place only 2 months per year so we can't keep the data.
 
@@ -866,7 +923,9 @@ yelloweel <- do.call("rbind.data.frame",
 months_peak_per_series<- unique(yelloweel[,c("ser_nameshort","peak_month")])
 names(yelloweel)[which(names(yelloweel)=="country")]<-"cou_code"
 
-table(months_peak_per_series$peak_month)
+kable(table(months_peak_per_series$peak_month),
+      col.names=c("month","number of series"),
+      caption="number of series peaking in a given month")
 ```
 Peaks of activity range from may to november. It might be possible to define a common season from february/march to january/february, but we prefer not imposing it without more precise information.
 
@@ -915,7 +974,7 @@ data_poor <- data.frame(yelloweel_wide$ser_nameshort,
                         yelloweel_wide$season,
                   zero=rowSums(yelloweel_wide[, -(1:4)] == 0, na.rm=TRUE),
            tot=rowSums(yelloweel_wide[, -(1:4)], na.rm=TRUE))
-data_poor %>% filter(tot<100)
+table_datapoor(data_poor %>% filter(tot<100))
 ```
 Given the limited number of eels caught in DaugY in 2018, we remove this series.
 
@@ -955,8 +1014,10 @@ yelloweel_wide$period <- ifelse(yelloweel_wide$season>2009,
                                   2,
                                   1)
 
-table(yelloweel_wide$period,
-       yelloweel_wide$ser_nameshort)
+kable(table(yelloweel_wide$period,
+       yelloweel_wide$ser_nameshort),
+      row.names=TRUE,
+      caption="number of seasons per series and period")
 ```
 The situation is an intermediate between glass eel and silver eel.
 
@@ -1091,7 +1152,7 @@ ggplot(pat,aes(x=month,y=proportion))+
 ```
 
 ```{r}
-t(as.data.frame(characteristics(myfit_yellow, 4)))
+table_characteristics(myfit_yellow, 4)
 ```
 
 Cluster 2 corresponds to a migration concentrated in June and July. Cluster 3
@@ -1137,9 +1198,9 @@ myclassif_yellow <- get_pattern_month(myfit_yellow)
 myclassif_yellow$cluster=factor(match(myclassif_yellow$cluster, c("3","4","2","1")),
                    levels=as.character(1:7))
 
-print(myclassif_yellow[order(myclassif_yellow$cluster),])
-table(myclassif_yellow$country, myclassif_yellow$cluster)
+table_classif(myclassif_yellow,type="series")
 ```
+
 The spatial pattern is also quite clear with cluster 1 (widespread) and 2 (summer) in France. In northern part, series are in clusters 3  and 4 corresponding to summer and autumn. It should be noted that, contrary to glass eels and silver eel, there is no clear migration for yellow eels. Indeed, eels display an ontongenic shift during their life stage, from a migratory behaviour towards sedentary behaviour (Imbert et al. 2010). 
 Consequently, given the predominence of younger or older eels, which vary depending on the position in the river basin, 
 a series may correspond to a seasonality of migration, to a seasonality of activity of sedentary eels, or to a mixture of both. 
@@ -1176,4 +1237,25 @@ pattern_Y_monitoring=do.call("rbind.data.frame",
   
   
 save(pattern_Y_monitoring,file="pattern_Y_monitoring.rdata")
+```
+
+## Similarity between and after 2010
+```{r}
+#which groups have data in both periods
+occ=table(unique(yelloweel_wide[,c("ser_nameshort", "period")])[,1])
+tocompare=names(occ)[which(occ>1)]
+
+simi=sapply(tocompare, function(s){
+  g=grep(s,group_name)
+  esp1=tmp[,grep(paste("alpha_group\\[",g[1],",",sep=""),name_col)]
+  esp2=tmp[,grep(paste("alpha_group\\[",g[2],",",sep=""),name_col)]
+  quantile(apply(cbind(esp1,esp2),
+                 1,
+                 function(x) sum(pmin(x[1:12],x[13:24]))),
+           probs=c(0.025,.5,.975))
+})
+
+similarity=data.frame(emu=tocompare,t(simi))
+
+table_similarity(similarity)
 ```

@@ -6,7 +6,7 @@ shifter <- function(x, n = 1) {
 #function used after a classification to get some stats about clusters
 characteristics <- function(myres,nbclus, threshold=.80){
   mydata <- as.matrix(as.mcmc.list(myres,add.mutate=FALSE))
-  sapply(seq_len(nbclus),function(clus){
+  do.call(rbind.data.frame,lapply(seq_len(nbclus),function(clus){
     esp <- mydata[, paste("esp[",clus , ",", 1:12, "]", sep="")]
     duration_it <- apply(esp, 1, function (esp_it){
       esp_it <- min(which(cumsum(sort(esp_it, decreasing=TRUE))/
@@ -33,7 +33,7 @@ characteristics <- function(myres,nbclus, threshold=.80){
                centroid2.5=quant_centr[1],
                centroid97.5=quant_centr[3])
     
-  })
+  }))
 }
 
 
@@ -337,5 +337,49 @@ median_pattern_group_monitoring = function(g,emu,res_mat, lfs_code, ser, hty_cod
                type=type,
                month=1:12,
                prop=med/sum(med))
+  
+}
+
+
+table_characteristics = function(myfit, nbclus){
+  kable(characteristics(myfit,nbclus),
+        digits=2,
+        row.names=FALSE,
+        caption="characteristics of clusters",
+        col.names=c("cluster",rep(c("median","q2.5%","q97.5%"),2))) %>%
+    add_header_above(c(" "=1,"number of months to reach 80% of total"=3,"month of centroid"=3))
+}
+
+table_classif=function(myclassif,type="landing"){
+  col_clus=which(names(myclassif) == "cluster")
+  myclassif[is.na(myclassif)] = 0
+  myclassif[,-seq_len(col_clus)]=round(sweep(myclassif[,-seq_len(col_clus)],
+                              1,
+                              rowSums(myclassif[,-seq_len(col_clus)],na.rm=TRUE),
+                              "/")*100)
+
+  if (type=="landings"){
+    kable(myclassif[order(myclassif$cluster,myclassif$ser),],
+        col.names=c("EMU","period","Max cluster",paste("% clus",1:nbclus)),
+        row.names=FALSE)
+  } else {
+    kable(myclassif[order(myclassif$cluster,myclassif$country),],
+          col.names=c("series","period","country","Max cluster",paste("% clus",1:nbclus)),
+          row.names=FALSE)
+  }
+}
+
+table_similarity=function(similarity){
+  kable(similarity,
+        row.names=FALSE,
+        digits=2,
+        col.names=c("EMU","q2.5%","median","q97.5%"),
+        caption="similarity")
+}
+
+table_datapoor=function(data_poor){
+  kable(data_poor %>% filter(zero > 9 | tot<30),
+        col.names=c("EMU","season","number of zero","total catch"),
+        caption='"data poor"" situation') #we remove years where we have less than 2 months
   
 }

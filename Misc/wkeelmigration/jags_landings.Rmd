@@ -3,10 +3,10 @@ title: "Untitled"
 author: "Hilaire Drouineau"
 date: "23 janvier 2020"
 output: 
-  rmarkdown::md_document:
-     toc: yes
   rmarkdown::html_document:
      keep_md: yes
+     toc: yes
+  rmarkdown::md_document:
      toc: yes
 ---
 
@@ -23,6 +23,16 @@ library(coda)
 library(ggplot2)
 library(doParallel)
 library(RColorBrewer)
+library(kableExtra)
+
+library(sf)
+library(RPostgreSQL)
+con<-dbConnect(PostgreSQL(),host="localhost",dbname="wgeel_old",user="hilaire")
+emu <- st_read(con,query="select * from carto.emu")
+cou <- st_read("/mnt/SIG/01-REFERENTIELS/LIMITES_ADMINISTRATIVES_monde/european_countries_WGS84.shp")
+cou <- st_transform(cou, crs=4326)
+dbDisconnect(con)
+
 pal= brewer.pal(7,"Set2")
 cols <- c("1" = pal[1], "2"= pal[2],"3" = pal[3], "4" = pal[4],  "5" = pal[5], "6"=pal[6], "7"=pal[7])
 
@@ -86,6 +96,7 @@ kept_seasons <- lapply(unique(glass_eel$emu_nameshort), function(s){
   good_coverage_wave(sub_glass, "G")
 })
 ```
+
 Finally, here are the series kept given previous criterion.
 
 ```{r}
@@ -121,9 +132,10 @@ data_poor <- data.frame(glasseel_wide$emu_nameshort,
                   zero=rowSums(glasseel_wide[, -(1:3)] == 0 |
                                  is.na(glasseel_wide[, -(1:3)])),
            tot=rowSums(glasseel_wide[, -(1:3)], na.rm=TRUE))
-data_poor %>% filter(zero > 9 | tot<30) #we remove years where we have less than 2 months
+
 glasseel_wide <- glasseel_wide[data_poor$zero < 10 & data_poor$tot>30, ]
 
+table_datapoor(data_poor %>% filter(zero > 9 | tot<50)) #we remove years where we have less than 2 months)
 ```
 
 It leads to a dataset with `r nrow(glasseel_wide)` rows. 
@@ -152,14 +164,18 @@ glasseel_wide <- glasseel_wide %>%
 
 The Commission asks us to compare the pattern before and after 2007, probably to see the effect of the Eel Regulation. It is therefore necessary to build a period index. However, since most countries implemented their EMPs only in 2009/2010, we split in 2010.
 
+
 ```{r}
 glasseel_wide$period <- ifelse(glasseel_wide$season>2009,
                                   2,
                                   1)
 
-table(glasseel_wide$period,
-       glasseel_wide$emu_nameshort)
+kable(table(glasseel_wide$period,
+       glasseel_wide$emu_nameshort),
+      caption="number of seasons per period",
+      row.names=TRUE)
 ```
+
 The situation is well balanced between the two periods.
 
 
@@ -255,6 +271,7 @@ save(myfit_glasseel_landings, best_glasseel_landings,
      file="glasseel_landings_jags.rdata")
 ```
 
+
 ## Results
 Once fitted, we can plot monthly pattern per cluster
 ```{r}
@@ -293,13 +310,15 @@ ggplot(pat,aes(x=month,y=proportion))+
 
 We compute some statistics to characterize the clusters.
 ```{r}
-t(as.data.frame(characteristics(myfit_glasseel_landings, 4)))
+table_characteristics(myfit_glasseel_landings, 4)
 ```
+
 Duration indicates the minimum number of months that covers 80% of the wave (1st column is the median, and the 2 next one quantiles 2.5% and 97.5% of credibility intervals). Centroid is the centroid of the migration wave (e.g. 11.5 would indicate a migration centred around mid november). The first column is the median and the two next one the quantiles 2.5 and 97.5%.
 
 Clusters 1 starts in autum and last still january. Cluster 2 is shifter one month later and lasts longer. Cluster 3 corresponds to catches in march/may. Cluster 4 is very flat and is not really attributed.
 
 We can also look at the belonging of the different groups.
+
 ```{r}
 groups <- interaction(glasseel_wide$emu_nameshort,
                                             glasseel_wide$period,
@@ -335,15 +354,12 @@ myclassif <- get_pattern_month(myfit_glasseel_landings)
 myclassif$cluster <- factor(match(myclassif$cluster,c("3","1","4","2")),
                             levels=as.character(1:7))
 
-print(myclassif[order(myclassif$cluster),])
+table_classif(myclassif)
 ```
+
 The spatial pattern is obvious in the results. Interestingly, we saw an EMU that change cluster between period and this seem to correspond to management measures that have effectively shorten the fishing season.
 
 ```{r}
-library(sf)
-library(RPostgreSQL)
-con<-dbConnect(PostgreSQL(),host="localhost",dbname="wgeel_old",user="hilaire")
-emu <- st_read(con,query="select * from carto.emu")
 myclassif_p1 <- subset(myclassif, myclassif$period == 1)
 myclassif_p2 <- subset(myclassif, myclassif$period == 2)
 emu$cluster1 <- factor(myclassif_p1$cluster[match(emu$name_short,
@@ -352,8 +368,6 @@ emu$cluster1 <- factor(myclassif_p1$cluster[match(emu$name_short,
 emu$cluster2 <- factor(myclassif_p2$cluster[match(emu$name_short,
                                                 substr(myclassif_p2$ser,1,nchar(as.character(myclassif_p1$ser))))],
                        levels=1:7)
-cou <- st_read("/mnt/SIG/01-REFERENTIELS/LIMITES_ADMINISTRATIVES_monde/european_countries_WGS84.shp")
-cou <- st_transform(cou, crs=4326)
 ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
 		geom_sf(data=emu,aes(fill=cluster1)) + scale_fill_manual(values=cols)+
   theme_bw() +xlim(-20,30) + ylim(35,65) 
@@ -373,6 +387,28 @@ pattern_GE_landings=do.call("rbind.data.frame",
                                    median_pattern_group(g, group_name,tmp, "G","landings", hty_code="T")))
 save(pattern_GE_landings,file="pattern_G_landings.rdata")
 ```
+
+## Similarity between and after 2010
+```{r}
+#which groups have data in both periods
+occ=table(unique(glasseel_wide[,c("emu_nameshort", "period")])[,1])
+tocompare=names(occ)[which(occ>1)]
+
+simi=sapply(tocompare, function(s){
+  g=grep(s,group_name)
+  esp1=tmp[,grep(paste("alpha_group\\[",g[1],",",sep=""),name_col)]
+  esp2=tmp[,grep(paste("alpha_group\\[",g[2],",",sep=""),name_col)]
+  quantile(apply(cbind(esp1,esp2),
+                 1,
+                 function(x) sum(pmin(x[1:12],x[13:24]))),
+           probs=c(0.025,.5,.975))
+})
+
+similarity=data.frame(emu=tocompare,t(simi))
+
+table_similarity(similarity)
+```
+
 
 
 # Yellow
@@ -427,7 +463,9 @@ yelloweel <- do.call("rbind.data.frame",
 months_peak_per_series<- unique(yelloweel[,c("emu_nameshort","peak_month")])
 
 #large variety in the month with peak of catches among EMU / habitat
-table(months_peak_per_series$peak_month)
+kable(table(months_peak_per_series$peak_month),
+      caption="number of EMUs that peak in a month",
+      col.names=c("month","number of EMUs"))
 
 #we remove data from season 2020
 yelloweel <- yelloweel %>%
@@ -453,6 +491,7 @@ kept_seasons <- lapply(unique(yelloweel_coatal$emu_nameshort), function(s){
   kept
 })
 ```
+
 Finally, here are the series kept given previous criterion.
 
 ```{r}
@@ -488,9 +527,9 @@ data_poor <- data.frame(yelloweel_coastal_wide$emu_nameshort,
                   zero=rowSums(yelloweel_coastal_wide[, -(1:3)] == 0 |
                                  is.na(yelloweel_coastal_wide[, -(1:3)])),
            tot=rowSums(yelloweel_coastal_wide[, -(1:3)], na.rm=TRUE))
-data_poor %>% filter(zero > 9) #we remove years where we have less than 2 months
 yelloweel_coastal_wide <- yelloweel_coastal_wide[data_poor$zero < 10, ]
 
+table_datapoor(data_poor %>% filter(zero > 9 | tot<50)) #we remove years where we have less than 2 months)
 ```
 
 It leads to a dataset with `r nrow(yelloweel_coastal_wide)` rows. 
@@ -524,9 +563,12 @@ yelloweel_coastal_wide$period <- ifelse(yelloweel_coastal_wide$season>2009,
                                   2,
                                   1)
 
-table(yelloweel_coastal_wide$period,
-       yelloweel_coastal_wide$emu_nameshort)
+kable(table(yelloweel_coastal_wide$period,
+       yelloweel_coastal_wide$emu_nameshort),
+      row.names=TRUE,
+      caption="number of seasons per EMU and period")
 ```
+
 The situation is not well balanced. Most EMU which have data in periods 1 don't have data in period 2 and conversely.
 
 
@@ -651,12 +693,16 @@ ggplot(pat,aes(x=month,y=proportion))+
   scale_fill_manual(values=cols) +
   theme_bw()
 ```
+
 Clusters 1 peaks summer. Clusters 2 peaks in winter, cluster 3 lasts from may to november.
 
 We compute some statistics to characterize the clusters.
+
 ```{r}
-t(as.data.frame(characteristics(myfit_yelloweel_coastal_landings, 3)))
+table_characteristics(myfit_yelloweel_coastal_landings, 3)
+
 ```
+
 Duration indicates the minimum number of months that covers 80% of the wave (1st column is the median, and the 2 next one quantiles 2.5% and 97.5% of credibility intervals). Centroid is the centroid of the migration wave (e.g. 11.5 would indicate a migration centred around mid november). The first column is the median and the two next one the quantiles 2.5 and 97.5%.
 
 
@@ -696,16 +742,13 @@ get_pattern_month <- function(res,mydata){
 myclassif <- get_pattern_month(myfit_yelloweel_coastal_landings)
 myclassif$cluster <- factor(match(myclassif$cluster,c("2","3","1")),
                          levels=as.character(1:7))
-print(myclassif[order(myclassif$cluster),])
+
+table_classif(myclassif)
 ```
+
 In fact, nearly all EMUs fall in cluster 3. Cluster 2 corresponds only to ES_Murc and cluster 1 to DE_Eide.
 
 ```{r}
-library(sf)
-library(RPostgreSQL)
-cols <- c("1" = "red", "2"= "green","3" = "darkgreen", "4" = "orange",  "5" = "blue", "6"="grey", "7"="yellow")
-con<-dbConnect(PostgreSQL(),host="localhost",dbname="wgeel_old",user="hilaire")
-emu <- st_read(con,query="select * from carto.emu")
 myclassif_p1 <- subset(myclassif, myclassif$period == 1)
 myclassif_p2 <- subset(myclassif, myclassif$period == 2)
 emu$cluster1 <- factor(myclassif_p1$cluster[match(emu$name_short,
@@ -714,8 +757,6 @@ emu$cluster1 <- factor(myclassif_p1$cluster[match(emu$name_short,
 emu$cluster2 <- factor(myclassif_p2$cluster[match(emu$name_short,
                                                 substr(myclassif_p2$ser,1,nchar(as.character(myclassif_p1$ser))-2))],
                        levels=1:7)
-cou <- st_read("/mnt/SIG/01-REFERENTIELS/LIMITES_ADMINISTRATIVES_monde/european_countries_WGS84.shp")
-cou <- st_transform(cou, crs=4326)
 ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
 		geom_sf(data=emu,aes(fill=cluster1)) + scale_fill_manual(values=cols)+
   theme_bw() +xlim(-20,30) + ylim(35,65) 
@@ -738,6 +779,29 @@ pattern_Ycoast_landings=do.call("rbind.data.frame",
 save(pattern_Ycoast_landings,file="pattern_Ycoast_landings.rdata")
 ```
 
+
+### Similarity between and after 2010
+```{r}
+#which groups have data in both periods
+occ=table(unique(yelloweel_coastal_wide[,c("emu_nameshort", "period")])[,1])
+tocompare=names(occ)[which(occ>1)]
+
+simi=sapply(tocompare, function(s){
+  g=grep(s,group_name)
+  esp1=tmp[,grep(paste("alpha_group\\[",g[1],",",sep=""),name_col)]
+  esp2=tmp[,grep(paste("alpha_group\\[",g[2],",",sep=""),name_col)]
+  quantile(apply(cbind(esp1,esp2),
+                 1,
+                 function(x) sum(pmin(x[1:12],x[13:24]))),
+           probs=c(0.025,.5,.975))
+})
+
+similarity=data.frame(emu=tocompare,t(simi))
+
+table_similarity(similarity)
+```
+
+
 ##transitional waters
 ### Data selection
 Now we should carry out data selection, more specifically, we want to eliminate rows with two many missing data, too much zero and to check whether there are no duplicates (though Cedric already did it)
@@ -755,12 +819,14 @@ kept_seasons <- lapply(unique(yelloweel_transitional$emu_nameshort), function(s)
   kept
 })
 ```
+
 Finally, here are the series kept given previous criterion.
 
 ```{r}
 names(kept_seasons) <- unique(yelloweel_transitional$emu_nameshort)
 kept_seasons[!sapply(kept_seasons,is.null)]
 ```
+
 
 ### Data preparation
 We carry out the same procedure as for seasonality. 
@@ -790,10 +856,10 @@ data_poor <- data.frame(yelloweel_transitional_wide$emu_nameshort,
                   zero=rowSums(yelloweel_transitional_wide[, -(1:3)] == 0 |
                                  is.na(yelloweel_transitional_wide[, -(1:3)])),
            tot=rowSums(yelloweel_transitional_wide[, -(1:3)], na.rm=TRUE))
-data_poor %>% filter(zero > 9 | tot<50) #we remove years where we have less than 2 months
 yelloweel_transitional_wide <- yelloweel_transitional_wide[data_poor$zero < 10 &
                                                              data_poor$tot>50, ]
 
+table_datapoor(data_poor %>% filter(zero > 9 | tot<50)) #we remove years where we have less than 2 months)
 ```
 
 It leads to a dataset with `r nrow(yelloweel_transitional_wide)` rows. 
@@ -830,6 +896,7 @@ yelloweel_transitional_wide$period <- ifelse(yelloweel_transitional_wide$season>
 table(yelloweel_transitional_wide$period,
        yelloweel_transitional_wide$emu_nameshort)
 ```
+
 The situation is not well balanced. Most EMU which have data in periods 2.
 
 
@@ -953,12 +1020,14 @@ ggplot(pat,aes(x=month,y=proportion))+
   scale_fill_manual(values=cols)+
   theme_bw()
 ```
+
 There is much more diversity than in coastal waters. Some clusters peak in srping (3), summer (2), autumn (1) and one has two peaks (4). 
 
 We compute some statistics to characterize the clusters.
 ```{r}
-t(as.data.frame(characteristics(myfit_yelloweel_transitional_landings, 4)))
+table_characteristics(myfit_yelloweel_transitional_landings, 4)
 ```
+
 Duration indicates the minimum number of months that covers 80% of the wave (1st column is the median, and the 2 next one quantiles 2.5% and 97.5% of credibility intervals). Centroid is the centroid of the migration wave (e.g. 11.5 would indicate a migration centred around mid november). The first column is the median and the two next one the quantiles 2.5 and 97.5%.
 
 
@@ -998,16 +1067,12 @@ myclassif <- get_pattern_month(myfit_yelloweel_transitional_landings)
 myclassif$cluster <- factor(match(myclassif$cluster,c("3", "2","4","1")),
                       levels=as.character(1:7))
 
-print(myclassif[order(myclassif$cluster),])
+table_classif(myclassif)
 ```
+
 Cluster 4 stands only for Corsica. Some French EMUs have changed clusters after 2010 towards cluster 1 which has a small duration.
 
 ```{r}
-library(sf)
-library(RPostgreSQL)
-cols <- c("1" = "red", "2"= "green","3" = "darkgreen", "4" = "orange",  "5" = "blue", "6"="grey", "7"="yellow")
-con<-dbConnect(PostgreSQL(),host="localhost",dbname="wgeel_old",user="hilaire")
-emu <- st_read(con,query="select * from carto.emu")
 myclassif_p1 <- subset(myclassif, myclassif$period == 1)
 myclassif_p2 <- subset(myclassif, myclassif$period == 2)
 emu$cluster1 <- factor(myclassif_p1$cluster[match(emu$name_short,
@@ -1016,8 +1081,6 @@ emu$cluster1 <- factor(myclassif_p1$cluster[match(emu$name_short,
 emu$cluster2 <- factor(myclassif_p2$cluster[match(emu$name_short,
                                                 substr(myclassif_p2$ser,1,nchar(as.character(myclassif_p1$ser))-2))],
                        levels=1:7)
-cou <- st_read("/mnt/SIG/01-REFERENTIELS/LIMITES_ADMINISTRATIVES_monde/european_countries_WGS84.shp")
-cou <- st_transform(cou, crs=4326)
 ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
 		geom_sf(data=emu,aes(fill=cluster1)) + scale_fill_manual(values=cols)+
   theme_bw() +xlim(-20,30) + ylim(35,65) 
@@ -1038,6 +1101,30 @@ pattern_Ytrans_landings=do.call("rbind.data.frame",
 save(pattern_Ytrans_landings,file="pattern_Ytrans_landings.rdata")
 ```
 
+
+### Similarity between and after 2010
+```{r}
+#which groups have data in both periods
+occ=table(unique(yelloweel_transitional_wide[,c("emu_nameshort", "period")])[,1])
+tocompare=names(occ)[which(occ>1)]
+
+simi=sapply(tocompare, function(s){
+  g=grep(s,group_name)
+  esp1=tmp[,grep(paste("alpha_group\\[",g[1],",",sep=""),name_col)]
+  esp2=tmp[,grep(paste("alpha_group\\[",g[2],",",sep=""),name_col)]
+  quantile(apply(cbind(esp1,esp2),
+                 1,
+                 function(x) sum(pmin(x[1:12],x[13:24]))),
+           probs=c(0.025,.5,.975))
+})
+
+similarity=data.frame(emu=tocompare,t(simi))
+
+table_similarity(similarity)
+```
+
+
+
 ##freshwater waters
 ### Data selection
 Now we should carry out data selection, more specifically, we want to eliminate rows with two many missing data, too much zero and to check whether there are no duplicates (though Cedric already did it)
@@ -1055,12 +1142,14 @@ kept_seasons <- lapply(unique(yelloweel_freshwater$emu_nameshort), function(s){
   kept
 })
 ```
+
 Finally, here are the series kept given previous criterion.
 
 ```{r}
 names(kept_seasons) <- unique(yelloweel_freshwater$emu_nameshort)
 kept_seasons[!sapply(kept_seasons,is.null)]
 ```
+
 
 ### Data preparation
 We carry out the same procedure as for seasonality. 
@@ -1090,11 +1179,12 @@ data_poor <- data.frame(yelloweel_freshwater_wide$emu_nameshort,
                   zero=rowSums(yelloweel_freshwater_wide[, -(1:3)] == 0 |
                                  is.na(yelloweel_freshwater_wide[, -(1:3)])),
            tot=rowSums(yelloweel_freshwater_wide[, -(1:3)], na.rm=TRUE))
-data_poor %>% filter(zero > 9 | tot<50) #we remove years where we have less than 2 months
+yelloweel_freshwater_wide <- yelloweel_freshwater_wide[data_poor$zero < 10, ]
 
- yelloweel_freshwater_wide <- yelloweel_freshwater_wide[data_poor$zero < 10, ]
+table_datapoor(data_poor %>% filter(zero > 9 | tot<50)) #we remove years where we have less than 2 months)
 
 ```
+
 
 It leads to a dataset with `r nrow(yelloweel_freshwater_wide)` rows. 
 
@@ -1120,6 +1210,7 @@ yelloweel_freshwater_wide <- yelloweel_freshwater_wide %>%
   mutate_at(.vars=paste("m",1:12,sep=""),function(x) x/total_catch_year)
 ```
 
+
 The Commission asks us to compare the pattern before and after 2007, probably to see the effect of the Eel Regulation. It is therefore necessary to build a period index. However, since most countries implemented their EMPs only in 2009/2010, we split in 2010.
 
 ```{r}
@@ -1127,9 +1218,11 @@ yelloweel_freshwater_wide$period <- ifelse(yelloweel_freshwater_wide$season>2009
                                   2,
                                   1)
 
-table(yelloweel_freshwater_wide$period,
-       yelloweel_freshwater_wide$emu_nameshort)
+kable(table(yelloweel_freshwater_wide$period,
+       yelloweel_freshwater_wide$emu_nameshort),
+      row.names=TRUE,caption="number of seasons per EMU and period")
 ```
+
 The situation is not well balanced. Most EMU which have data in periods 1 don't have data in period 2 and conversely.
 
 
@@ -1254,12 +1347,14 @@ ggplot(pat,aes(x=month,y=proportion))+
   scale_fill_manual(values=cols) +
   theme_bw()
 ```
+
 Clusters 1 and 3 are bivariate, with 1 peaking in spring and autumn and 3 peaking in summer and autumn. Cluster 2 is widespread from may to november.
 
 We compute some statistics to characterize the clusters.
 ```{r}
-t(as.data.frame(characteristics(myfit_yelloweel_freshwater_landings, 3)))
+table_characteristics(myfit_yelloweel_freshwater_landings, 3)
 ```
+
 Duration indicates the minimum number of months that covers 80% of the wave (1st column is the median, and the 2 next one quantiles 2.5% and 97.5% of credibility intervals). Centroid is the centroid of the migration wave (e.g. 11.5 would indicate a migration centred around mid november). The first column is the median and the two next one the quantiles 2.5 and 97.5%.
 
 
@@ -1299,16 +1394,12 @@ myclassif <- get_pattern_month(myfit_yelloweel_freshwater_landings)
 myclassif$cluster <- factor(match(myclassif$cluster, c("1","3","2")),
                        levels=as.character(1:7))
 
-print(myclassif[order(myclassif$cluster),])
+table_classif(myclassif)
 ```
+
 In fact, nearly all EMUs fall in cluster 2. Cluster 1 only corresponds to FR_Loir and cluster 3 to two bristish EMUs. There is no obvious spatial pattern nor period effect.
 
 ```{r}
-library(sf)
-library(RPostgreSQL)
-cols <- c("1" = "red", "2"= "green","3" = "darkgreen", "4" = "orange",  "5" = "blue", "6"="grey", "7"="yellow")
-con<-dbConnect(PostgreSQL(),host="localhost",dbname="wgeel_old",user="hilaire")
-emu <- st_read(con,query="select * from carto.emu")
 myclassif_p1 <- subset(myclassif, myclassif$period == 1)
 myclassif_p2 <- subset(myclassif, myclassif$period == 2)
 emu$cluster1 <- factor(myclassif_p1$cluster[match(emu$name_short,
@@ -1317,8 +1408,6 @@ emu$cluster1 <- factor(myclassif_p1$cluster[match(emu$name_short,
 emu$cluster2 <- factor(myclassif_p2$cluster[match(emu$name_short,
                                                 substr(myclassif_p2$ser,1,nchar(as.character(myclassif_p1$ser))-2))],
                        levels=1:7)
-cou <- st_read("/mnt/SIG/01-REFERENTIELS/LIMITES_ADMINISTRATIVES_monde/european_countries_WGS84.shp")
-cou <- st_transform(cou, crs=4326)
 ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
 		geom_sf(data=emu,aes(fill=cluster1)) + scale_fill_manual(values=cols)+
   theme_bw() +xlim(-20,30) + ylim(35,65) 
@@ -1339,6 +1428,29 @@ pattern_Yfresh_landings=do.call("rbind.data.frame",
 save(pattern_Yfresh_landings,file="pattern_Yfresh_landings.rdata")
 ```
 
+### Similarity between and after 2010
+```{r}
+#which groups have data in both periods
+occ=table(unique(yelloweel_freshwater_wide[,c("emu_nameshort", "period")])[,1])
+tocompare=names(occ)[which(occ>1)]
+
+simi=sapply(tocompare, function(s){
+  g=grep(s,group_name)
+  esp1=tmp[,grep(paste("alpha_group\\[",g[1],",",sep=""),name_col)]
+  esp2=tmp[,grep(paste("alpha_group\\[",g[2],",",sep=""),name_col)]
+  quantile(apply(cbind(esp1,esp2),
+                 1,
+                 function(x) sum(pmin(x[1:12],x[13:24]))),
+           probs=c(0.025,.5,.975))
+})
+
+similarity=data.frame(emu=tocompare,t(simi))
+
+table_similarity(similarity)
+```
+
+
+
 
 ##All habitats
 ### Data selection
@@ -1357,12 +1469,14 @@ kept_seasons <- lapply(unique(yelloweel_allhab$emu_nameshort), function(s){
   kept
 })
 ```
+
 Finally, here are the series kept given previous criterion.
 
 ```{r}
 names(kept_seasons) <- unique(yelloweel_allhab$emu_nameshort)
 kept_seasons[!sapply(kept_seasons,is.null)]
 ```
+
 
 ### Data preparation
 We carry out the same procedure as for seasonality. 
@@ -1392,10 +1506,11 @@ data_poor <- data.frame(yelloweel_allhab_wide$emu_nameshort,
                   zero=rowSums(yelloweel_allhab_wide[, -(1:3)] == 0 |
                                  is.na(yelloweel_allhab_wide[, -(1:3)])),
            tot=rowSums(yelloweel_allhab_wide[, -(1:3)], na.rm=TRUE))
-data_poor %>% filter(zero > 9 | tot <50) #we remove years where we have less than 2 months
 yelloweel_allhab_wide <- yelloweel_allhab_wide[data_poor$zero < 10 & data_poor$tot>50, ]
+table_datapoor(data_poor %>% filter(zero > 9 | tot<50)) #we remove years where we have less than 2 months)
 
 ```
+
 
 It leads to a dataset with `r nrow(yelloweel_allhab_wide)` rows. 
 
@@ -1428,9 +1543,11 @@ yelloweel_allhab_wide$period <- ifelse(yelloweel_allhab_wide$season>2009,
                                   2,
                                   1)
 
-table(yelloweel_allhab_wide$period,
-       yelloweel_allhab_wide$emu_nameshort)
+kable(table(yelloweel_allhab_wide$period,
+       yelloweel_allhab_wide$emu_nameshort),
+      row.names=TRUE,caption="number of seasons per EMU and period")
 ```
+
 The situation is not well balanced. Most EMU which have data in periods 1 don't have data in period 2 and conversely.
 
 
@@ -1555,12 +1672,14 @@ ggplot(pat,aes(x=month,y=proportion))+
   scale_fill_manual(values=cols) +
   theme_bw()
 ```
+
 Cluster 1 peaks in winter, 2 in spring, 3 in spring/summer, 5 is wisepread from april to november and 6 peaks in autumn (after a small peak in spring). 
 
 We compute some statistics to characterize the clusters.
 ```{r}
-t(as.data.frame(characteristics(myfit_yelloweel_allhab_landings, 6)))
+table_characteristics(myfit_yelloweel_allhab_landings, 6)
 ```
+
 Duration indicates the minimum number of months that covers 80% of the wave (1st column is the median, and the 2 next one quantiles 2.5% and 97.5% of credibility intervals). Centroid is the centroid of the migration wave (e.g. 11.5 would indicate a migration centred around mid november). The first column is the median and the two next one the quantiles 2.5 and 97.5%.
 
 
@@ -1599,20 +1718,12 @@ myclassif <- get_pattern_month(myfit_yelloweel_allhab_landings)
 myclassif$cluster <- factor(match(myclassif$cluster, c("1","2","5","3","6","4")),
                        levels=as.character(1:7))
 
-print(myclassif[order(myclassif$cluster),])
+table_classif(myclassif)
 ```
+
 Cluster 1 corresponds only to ES_Murc and cluster 6 to FR_Cors. Cluster 2 corresponds to French EMUs in transitional waters. Clusters 3 -5 are diverse. 5 accounts for French and Deutsh EMUs (T and F) and 6 to a large number of EMUs.
 
 ```{r}
-library(sf)
-library(RPostgreSQL)
-cols <- c("1" = "red", "2"= "green","3" = "darkgreen", "4" = "orange",  "5" = "blue", "6"="grey", "7"="yellow")
-con<-dbConnect(PostgreSQL(),host="localhost",dbname="wgeel_old",user="hilaire")
-
-cou <- st_read("/mnt/SIG/01-REFERENTIELS/LIMITES_ADMINISTRATIVES_monde/european_countries_WGS84.shp")
-cou <- st_transform(cou, crs=4326)
-
-emu <- st_read(con,query="select * from carto.emu")
 myplots <-lapply(c("MO","C","T", "F"),function(hty){
   myclassif_p1 <- subset(myclassif, myclassif$period == 1 &
                            endsWith(as.character(myclassif$ser),
@@ -1645,7 +1756,6 @@ print(myplots[[4]][[1]])
 print(myplots[[4]][[2]])
 
 ```
-
 
 
 # Silver eel
@@ -1702,13 +1812,16 @@ silvereel <- do.call("rbind.data.frame",
 months_peak_per_series<- unique(silvereel[,c("emu_nameshort","peak_month")])
 
 #large variety in the month with peak of catches among EMU / habitat
-table(months_peak_per_series$peak_month)
+kable(table(months_peak_per_series$peak_month),
+      col.names=c("month","number of EMUs"),
+      caption="number of EMUs peaking in a given months")
 
 #we remove data from season 2020
 silvereel <- silvereel %>%
   filter(season < 2020)
 
 ```
+
 
 Looking at the data, it seems that there are few silver eel fisheries in transitional and marine open waters, therefore, we will make an analysis for freshwater and 1 for all other environments.
 
@@ -1734,12 +1847,14 @@ kept_seasons <- lapply(unique(silvereel_coastal$emu_nameshort), function(s){
   kept
 })
 ```
+
 Finally, here are the series kept given previous criterion.
 
 ```{r}
 names(kept_seasons) <- unique(silvereel_coastal$emu_nameshort)
 kept_seasons[!sapply(kept_seasons,is.null)]
 ```
+
 
 ### Data preparation
 We carry out the same procedure as for seasonality. 
@@ -1769,11 +1884,13 @@ data_poor <- data.frame(silvereel_coastal_wide$emu_nameshort,
                   zero=rowSums(silvereel_coastal_wide[, -(1:3)] == 0 |
                                  is.na(silvereel_coastal_wide[, -(1:3)])),
            tot=rowSums(silvereel_coastal_wide[, -(1:3)], na.rm=TRUE))
-data_poor %>% filter(zero > 9 | tot<50) #we remove years where we have less than 2 months
 silvereel_coastal_wide <- silvereel_coastal_wide[data_poor$zero < 10 
                                                    & data_poor$tot>50, ]
 
+table_datapoor(data_poor %>% filter(zero > 9 | tot<50)) #we remove years where we have less than 2 months)
+
 ```
+
 
 It leads to a dataset with `r nrow(silvereel_coastal_wide)` rows. 
 
@@ -1806,9 +1923,12 @@ silvereel_coastal_wide$period <- ifelse(silvereel_coastal_wide$season>2009,
                                   2,
                                   1)
 
-table(silvereel_coastal_wide$period,
-       silvereel_coastal_wide$emu_nameshort)
+kable(table(silvereel_coastal_wide$period,
+       silvereel_coastal_wide$emu_nameshort),
+      row.names=TRUE,
+      caption="number of seasons per EMU and period")
 ```
+
 The situation is not well balanced. Most EMU which have data in periods 1 don't have data in period 2 and conversely.
 
 
@@ -1899,7 +2019,7 @@ save(myfit_silvereel_coastal_landings, best_silvereel_coastal_landings,
      file="silvereel_coastal_landings_jags.rdata")
 ```
 
-## Results
+### Results
 Once fitted, we can plot monthly pattern per cluster
 ```{r}
 load("silvereel_coastal_landings_jags.rdata")
@@ -1935,9 +2055,11 @@ ggplot(pat,aes(x=month,y=proportion))+
 Clusters 3 and 4 correspond to peak in october with 3 more widespread. Cluster 1 corresponds to a peak in autumn/winter. Cluster 2 corresponds to catches in winter.
 
 We compute some statistics to characterize the clusters.
+
 ```{r}
-t(as.data.frame(characteristics(myfit_silvereel_coastal_landings, 4)))
+table_characteristics(myfit_silvereel_coastal_landings, 4)
 ```
+
 Duration indicates the minimum number of months that covers 80% of the wave (1st column is the median, and the 2 next one quantiles 2.5% and 97.5% of credibility intervals). Centroid is the centroid of the migration wave (e.g. 11.5 would indicate a migration centred around mid november). The first column is the median and the two next one the quantiles 2.5 and 97.5%.
 
 
@@ -1976,19 +2098,12 @@ get_pattern_month <- function(res,mydata){
 myclassif <- get_pattern_month(myfit_silvereel_coastal_landings)
 myclassif$cluster <- factor(match(myclassif$cluster,c("1","3","4","2") ),
                       levels=as.character(1:7))
-print(myclassif[order(myclassif$cluster),])
+table_classif(myclassif)
 ```
+
 In fact, most EMUs fall in cluster 3. Cluster 2 corresponds only to ES_Murc_C (same as for yellow eel) and one for FR_Cors. Cluster 4 (limited fishing season) regroups GB and DE EMUs.
 
 ```{r}
-library(sf)
-library(RPostgreSQL)
-
-con<-dbConnect(PostgreSQL(),host="localhost",dbname="wgeel_old",user="hilaire")
-cou <- st_read("/mnt/SIG/01-REFERENTIELS/LIMITES_ADMINISTRATIVES_monde/european_countries_WGS84.shp")
-cou <- st_transform(cou, crs=4326)
-
-emu <- st_read(con,query="select * from carto.emu")
 myplots <-lapply(c("MO","C","T"),function(hty){
   myclassif_p1 <- subset(myclassif, myclassif$period == 1 &
                            endsWith(as.character(myclassif$ser),
@@ -2030,6 +2145,28 @@ pattern_Smar_coast_trans_landings=do.call("rbind.data.frame",
 save(pattern_Smar_coast_trans_landings,file="pattern_Smar_coast_trans_landings.rdata")
 ```
 
+### Similarity between and after 2010
+```{r}
+#which groups have data in both periods
+occ=table(unique(silvereel_coastal_wide[,c("emu_nameshort", "period")])[,1])
+tocompare=names(occ)[which(occ>1)]
+
+simi=sapply(tocompare, function(s){
+  g=grep(s,group_name)
+  esp1=tmp[,grep(paste("alpha_group\\[",g[1],",",sep=""),name_col)]
+  esp2=tmp[,grep(paste("alpha_group\\[",g[2],",",sep=""),name_col)]
+  quantile(apply(cbind(esp1,esp2),
+                 1,
+                 function(x) sum(pmin(x[1:12],x[13:24]))),
+           probs=c(0.025,.5,.975))
+})
+
+similarity=data.frame(emu=tocompare,t(simi))
+
+table_similarity(similarity)
+```
+
+
 
 ##freshwater waters
 ### Data selection
@@ -2048,12 +2185,14 @@ kept_seasons <- lapply(unique(silvereel_freshwater$emu_nameshort), function(s){
   kept
 })
 ```
+
 Finally, here are the series kept given previous criterion.
 
 ```{r}
 names(kept_seasons) <- unique(silvereel_freshwater$emu_nameshort)
 kept_seasons[!sapply(kept_seasons,is.null)]
 ```
+
 
 ### Data preparation
 We carry out the same procedure as for seasonality. 
@@ -2083,11 +2222,12 @@ data_poor <- data.frame(silvereel_freshwater_wide$emu_nameshort,
                   zero=rowSums(silvereel_freshwater_wide[, -(1:3)] == 0 |
                                  is.na(silvereel_freshwater_wide[, -(1:3)])),
            tot=rowSums(silvereel_freshwater_wide[, -(1:3)], na.rm=TRUE))
-data_poor %>% filter(zero > 9 | tot<50) #we remove years where we have less than 2 months
 silvereel_freshwater_wide <- silvereel_freshwater_wide[data_poor$zero < 10 
                                                    & data_poor$tot>50, ]
+table_datapoor(data_poor %>% filter(zero > 9 | tot<50)) #we remove years where we have less than 2 months)
 
 ```
+
 
 It leads to a dataset with `r nrow(silvereel_freshwater_wide)` rows. 
 
@@ -2120,9 +2260,12 @@ silvereel_freshwater_wide$period <- ifelse(silvereel_freshwater_wide$season>2009
                                   2,
                                   1)
 
-table(silvereel_freshwater_wide$period,
-       silvereel_freshwater_wide$emu_nameshort)
+kable(table(silvereel_freshwater_wide$period,
+       silvereel_freshwater_wide$emu_nameshort),
+      row.names=TRUE,
+      caption="number of season per EMU and period")
 ```
+
 The situation is not well balanced. Most EMU have data only after 2010.
 
 
@@ -2213,7 +2356,7 @@ save(myfit_silvereel_freshwater_landings, best_silvereel_freshwater_landings,
      file="silvereel_freshwater_landings_jags.rdata")
 ```
 
-## Results
+### Results
 Once fitted, we can plot monthly pattern per cluster
 ```{r}
 load("silvereel_freshwater_landings_jags.rdata")
@@ -2247,12 +2390,14 @@ ggplot(pat,aes(x=month,y=proportion))+
   scale_fill_manual(values=cols) +
   theme_bw()
 ```
+
 Cluster 2 peaks in summer with a second peak in december, 5 in winter, 2 in summer. Clusters 1 and 3 are bivariate (spring and autumn).
 
 We compute some statistics to characterize the clusters.
 ```{r}
-t(as.data.frame(characteristics(myfit_silvereel_freshwater_landings, 5)))
+table_characteristics(myfit_silvereel_freshwater_landings, 5)
 ```
+
 Duration indicates the minimum number of months that covers 80% of the wave (1st column is the median, and the 2 next one quantiles 2.5% and 97.5% of credibility intervals). Centroid is the centroid of the migration wave (e.g. 11.5 would indicate a migration centred around mid november). The first column is the median and the two next one the quantiles 2.5 and 97.5%.
 
 
@@ -2291,15 +2436,12 @@ get_pattern_month <- function(res,mydata){
 myclassif <- get_pattern_month(myfit_silvereel_freshwater_landings)
 myclassif$cluster <- factor(match(myclassif$cluster,c("4","1","5","2","3") ),
                       levels=as.character(1:7))
-print(myclassif[order(myclassif$cluster),])
+table_classif(myclassif)
 ```
+
 Once again the spatial pattern is obvious. SE_Inla changed from 1 to 2 suggesting a reduction in the fishing season.
 
 ```{r}
-library(sf)
-library(RPostgreSQL)
-con<-dbConnect(PostgreSQL(),host="localhost",dbname="wgeel_old",user="hilaire")
-emu <- st_read(con,query="select * from carto.emu")
 myclassif_p1 <- subset(myclassif, myclassif$period == 1)
 myclassif_p2 <- subset(myclassif, myclassif$period == 2)
 emu$cluster1 <- factor(myclassif_p1$cluster[match(emu$name_short,
@@ -2308,8 +2450,6 @@ emu$cluster1 <- factor(myclassif_p1$cluster[match(emu$name_short,
 emu$cluster2 <- factor(myclassif_p2$cluster[match(emu$name_short,
                                                 substr(myclassif_p2$ser,1,nchar(as.character(myclassif_p1$ser))-2))],
                        levels=1:7)
-cou <- st_read("/mnt/SIG/01-REFERENTIELS/LIMITES_ADMINISTRATIVES_monde/european_countries_WGS84.shp")
-cou <- st_transform(cou, crs=4326)
 ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
 		geom_sf(data=emu,aes(fill=cluster1)) + scale_fill_manual(values=cols)+
   theme_bw() +xlim(-20,30) + ylim(35,65) 
@@ -2330,6 +2470,29 @@ pattern_Sfresh_landings=do.call("rbind.data.frame",
                                    median_pattern_group(g, group_name,tmp, "Y","landings")))
 save(pattern_Sfresh_landings,file="pattern_Sfresh_landings.rdata")
 ```
+
+### Similarity between and after 2010
+```{r}
+#which groups have data in both periods
+occ=table(unique(silvereel_freshwater_wide[,c("emu_nameshort", "period")])[,1])
+tocompare=names(occ)[which(occ>1)]
+
+simi=sapply(tocompare, function(s){
+  g=grep(s,group_name)
+  esp1=tmp[,grep(paste("alpha_group\\[",g[1],",",sep=""),name_col)]
+  esp2=tmp[,grep(paste("alpha_group\\[",g[2],",",sep=""),name_col)]
+  quantile(apply(cbind(esp1,esp2),
+                 1,
+                 function(x) sum(pmin(x[1:12],x[13:24]))),
+           probs=c(0.025,.5,.975))
+})
+
+similarity=data.frame(emu=tocompare,t(simi))
+
+table_similarity(similarity)
+```
+
+
 
 
 # Siver/Yellow
@@ -2405,12 +2568,14 @@ kept_seasons <- lapply(unique(YSeel_allhab$emu_nameshort), function(s){
   kept
 })
 ```
+
 Finally, here are the series kept given previous criterion.
 
 ```{r}
 names(kept_seasons) <- unique(YSeel_allhab$emu_nameshort)
 kept_seasons[!sapply(kept_seasons,is.null)]
 ```
+
 
 ## Data preparation
 We carry out the same procedure as for seasonality. 
@@ -2440,10 +2605,13 @@ data_poor <- data.frame(YSeel_allhab_wide$emu_nameshort,
                   zero=rowSums(YSeel_allhab_wide[, -(1:3)] == 0 |
                                  is.na(YSeel_allhab_wide[, -(1:3)])),
            tot=rowSums(YSeel_allhab_wide[, -(1:3)], na.rm=TRUE))
-data_poor %>% filter(zero > 9 | tot <50) #we remove years where we have less than 2 months
 YSeel_allhab_wide <- YSeel_allhab_wide[data_poor$zero < 10 & data_poor$tot>50, ]
 
+table_datapoor(data_poor %>% filter(zero > 9 | tot <50)) #we remove years where we have less than 2 months
+
+
 ```
+
 
 It leads to a dataset with `r nrow(YSeel_allhab_wide)` rows. 
 
@@ -2469,6 +2637,7 @@ YSeel_allhab_wide <- YSeel_allhab_wide %>%
   mutate_at(.vars=paste("m",1:12,sep=""),function(x) x/total_catch_year)
 ```
 
+
 The Commission asks us to compare the pattern before and after 2007, probably to see the effect of the Eel Regulation. It is therefore necessary to build a period index. However, since most countries implemented their EMPs only in 2009/2010, we split in 2010.
 
 ```{r}
@@ -2476,9 +2645,12 @@ YSeel_allhab_wide$period <- ifelse(YSeel_allhab_wide$season>2009,
                                   2,
                                   1)
 
-table(YSeel_allhab_wide$period,
-       YSeel_allhab_wide$emu_nameshort)
+kable(table(YSeel_allhab_wide$period,
+       YSeel_allhab_wide$emu_nameshort),
+      row.names=TRUE,
+      caption="number of seasons per EMU and period")
 ```
+
 The situation is not well balanced. Most EMU which have data in periods 1 don't have data in period 2 and conversely.
 
 
@@ -2602,12 +2774,14 @@ ggplot(pat,aes(x=month,y=proportion))+
   scale_fill_manual(values=cols)
   theme_bw()
 ```
+
 Cluster 5 peaks autumn and winter, 6 is similar but shifter 1 month later. Clusters 1 and 2 are widepread with a peak in spring/early summer and a second one un autumn. Cluster 4 is located in autumn only and cluster 3 in summer.
 
 We compute some statistics to characterize the clusters.
 ```{r}
-t(as.data.frame(characteristics(myfit_YSeel_allhab_landings, 6)))
+table_characteristics(myfit_YSeel_allhab_landings, 6)
 ```
+
 Duration indicates the minimum number of months that covers 80% of the wave (1st column is the median, and the 2 next one quantiles 2.5% and 97.5% of credibility intervals). Centroid is the centroid of the migration wave (e.g. 11.5 would indicate a migration centred around mid november). The first column is the median and the two next one the quantiles 2.5 and 97.5%.
 
 
@@ -2647,20 +2821,12 @@ myclassif <- get_pattern_month(myfit_YSeel_allhab_landings)
 myclassif$cluster = factor(match(myclassif$cluster, c("3","6","4","2","1","5")),
                      levels=as.character(1:7))
 
-print(myclassif[order(myclassif$cluster),])
+table_classif(myclassif)
 ```
+
 Cluster 6 corresponds only to ES_Murc and cluster 5 to ES_Cata to FR_Cors. Cluster 1 corresponds to many French EMUs in transitional waters and 2 and  to 3 are diverse. 
 
 ```{r}
-library(sf)
-library(RPostgreSQL)
-cols <- c("1" = "red", "2"= "green","3" = "darkgreen", "4" = "orange",  "5" = "blue", "6"="grey", "7"="YS")
-con<-dbConnect(PostgreSQL(),host="localhost",dbname="wgeel_old",user="hilaire")
-
-cou <- st_read("/mnt/SIG/01-REFERENTIELS/LIMITES_ADMINISTRATIVES_monde/european_countries_WGS84.shp")
-cou <- st_transform(cou, crs=4326)
-
-emu <- st_read(con,query="select * from carto.emu")
 myplots <-lapply(c("TC","C","T", "F"),function(hty){
   myclassif_p1 <- subset(myclassif, myclassif$period == 1 &
                            endsWith(as.character(myclassif$ser),
@@ -2705,4 +2871,25 @@ pattern_YS_landings=do.call("rbind.data.frame",
 save(pattern_YS_landings,file="pattern_YS_landings.rdata")
 ```
 
+
+## Similarity between and after 2010
+```{r}
+#which groups have data in both periods
+occ=table(unique(YSeel_allhab_wide[,c("emu_nameshort", "period")])[,1])
+tocompare=names(occ)[which(occ>1)]
+
+simi=sapply(tocompare, function(s){
+  g=grep(s,group_name)
+  esp1=tmp[,grep(paste("alpha_group\\[",g[1],",",sep=""),name_col)]
+  esp2=tmp[,grep(paste("alpha_group\\[",g[2],",",sep=""),name_col)]
+  quantile(apply(cbind(esp1,esp2),
+                 1,
+                 function(x) sum(pmin(x[1:12],x[13:24]))),
+           probs=c(0.025,.5,.975))
+})
+
+similarity=data.frame(emu=tocompare,t(simi))
+
+table_similarity(similarity)
+```
 
