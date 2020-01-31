@@ -3,10 +3,10 @@ title: "Untitled"
 author: "Hilaire Drouineau"
 date: "12 janvier 2020"
 output: 
-  rmarkdown::md_document:
-     toc: yes
   rmarkdown::html_document:
      keep_md: yes
+     toc: yes
+  rmarkdown::md_document:
      toc: yes
 ---
 
@@ -17,6 +17,21 @@ library(tidyr)
 library(runjags)
 library(coda)
 library(ggplot2)
+library(doParallel)
+library(RColorBrewer)
+pal= brewer.pal(7,"Set2")
+cols <- c("1" = pal[1], "2"= pal[2],"3" = pal[3], "4" = pal[4],  "5" = pal[5], "6"=pal[6], "7"=pal[7])
+library(kableExtra)
+
+library(sf)
+library(RPostgreSQL)
+con<-dbConnect(PostgreSQL(),host="localhost",dbname="wgeel_old",user="hilaire")
+emu <- st_read(con,query="select * from carto.emu")
+cou <- st_read("/mnt/SIG/01-REFERENTIELS/LIMITES_ADMINISTRATIVES_monde/european_countries_WGS84.shp")
+cou <- st_transform(cou, crs=4326)
+dbDisconnect(con)
+
+
 ```
 
 # Loading the data
@@ -101,8 +116,6 @@ check_month_availabilty <- function(ns){
 * ShiF and ShiM: traps running all years long therefore good coverage of the migration wave.
 * StGeG: only one year of data but good coverage of the migration wave (from march to october)
 
-### to be discussed
-* Oria: first, monthly coverage in a bit limited (october and february represent 10% of yearly catches each), moreover, the GLM model included a month effect so the monthly pattern is similar every year by construction (as such, we should only consider one year). ESTI. OK. We could provide real densities (GE/m3) if you think that including more years could help.
 
 
 ### Final selection of data
@@ -217,9 +230,12 @@ recruitment_wide$period <- ifelse(recruitment_wide$season>2009,
                                   2,
                                   1)
 
-table(recruitment_wide$period,
-       recruitment_wide$ser_nameshort)
+kable(table(recruitment_wide$period,
+       recruitment_wide$ser_nameshort),
+      row.names=TRUE,
+      caption="number of seasons per EMU and period")
 ```
+
 Only 4 series have data in the first period therefore period comparisons will be difficult. However, can now try to fit the model.
 
 ## Running the model
@@ -234,18 +250,43 @@ y <-as.matrix(recruitment_wide[, paste("m", 1:12, sep="")])
 Now, we make a loop to select the number of clusters based on a DIC criterion
 
 ```{r, eval=FALSE}
-comparison <- lapply(2:7,
+cl <- makeCluster(3, 'FORK')
+comparison <- parSapply(cl,2:7,
        function(nbclus){
          mydata <- build_data(nbclus)
-         res <- run.jags("jags_model.txt", monitor= "deviance",
-                      summarise=FALSE, adapt=20000, method="parallel",
-                      sample=10000,burnin=10000,n.chains=3,
-                      inits=generate_init(nbclus, mydata),
-                      data=mydata)
-         res_mat <- as.matrix(as.mcmc.list(res))
-         mean(res_mat[,1])-0.5*var(res_mat[,1])
-       })
-best_recruitment <- data.frame(nbclus=2:7,dic=unlist(comparison))
+         adapted <- FALSE
+         while (!adapted){
+           tryCatch({
+             runjags.options(adapt.incomplete="error")
+             res <- run.jags("jags_model.txt", monitor= c("deviance",
+                                                          "alpha_group",
+                                                          "cluster"),
+                        summarise=FALSE, adapt=40000, method="parallel",
+                        sample=2000,burnin=100000,n.chains=1,
+                        inits=generate_init(nbclus, mydata)[[1]],
+                        data=mydata)
+                        adapted <- TRUE
+                        res_mat <- as.matrix(as.mcmc.list(res))
+                        silhouette <- median(compute_silhouette(res_mat))
+                        nbused <- apply(res_mat, 1, function(iter){
+                          length(table(iter[grep("cluster",
+                                                 names(iter))]))
+                        })
+                        dic <- mean(res_mat[,1])+0.5*var(res_mat[,1])
+                        stats <- c(dic,silhouette,mean(nbused))
+                  }, error=function(e) {
+                    print(paste("not adapted, restarting nbclus",nbclus))
+                    }
+                  )
+         }
+         stats
+      })
+stopCluster(cl)
+best_recruitment <- data.frame(nbclus=2:(ncol(comparison)+1),
+                                              dic=comparison[1, ],
+                                              silhouette=comparison[2, ],
+                                              used=comparison[3, ])
+
 ```
 
 ```{R}
@@ -253,22 +294,35 @@ load("recruitment_jags.rdata")
 best_recruitment
 ```
 
-Best solutions arise with 3 clusters, therefore we explore go further with this value.
+Five clusters has a good DIC, good silhouette and all clusters are used, therefore we take this value
 
 
 ```{r, eval=FALSE}
-nbclus <- 3
-mydata <-build_data(3)
-myfit_recruitment <- run.jags("jags_model.txt", monitor= c("cluster", "esp", "alpha_group",
+nbclus <- 5
+mydata <-build_data(5)
+
+
+adapted <- FALSE
+while (!adapted){
+   tryCatch({
+      runjags.options(adapt.incomplete="error")
+      myfit_recruitment <- run.jags("jags_model.txt", monitor= c("cluster", "esp", "alpha_group",
                                             "cluster", "centroid",
                                             "centroid_group",
                                             "distToClust", "duration_clus",
                                             "duration_group",
                                             "lambda","id_cluster",
                                             "centroid"),
-                      summarise=FALSE, adapt=20000, method="parallel",
-                      sample=10000,burnin=200000,n.chains=3, thin=5,
-                      inits=generate_init(nbclus, mydata), data=mydata)
+                      summarise=FALSE, adapt=50000, method="parallel",
+                      sample=10000,burnin=200000,n.chains=1, thin=5,
+                      inits=generate_init(nbclus, mydata)[[1]], data=mydata)
+      adapted <- TRUE
+    }, error=function(e) {
+       print(paste("not adapted, restarting nbclus",nbclus))
+    })
+}
+
+
 save(myfit_recruitment, best_recruitment,
      file="recruitment_jags.rdata")
 ```
@@ -277,8 +331,8 @@ save(myfit_recruitment, best_recruitment,
 Once fitted, we can plot monthly pattern per cluster
 ```{r}
 load("recruitment_jags.rdata")
-nbclus <- 3
-mydata <-build_data(3)
+nbclus <- 5
+mydata <-build_data(5)
 get_pattern_month <- function(res,type="cluster"){
   res_mat <- as.matrix(as.mcmc.list(res))
   if (type=="cluster"){
@@ -300,8 +354,13 @@ get_pattern_month <- function(res,type="cluster"){
 }
 
 
-ggplot(get_pattern_month(myfit_recruitment),aes(x=month,y=proportion))+
+pat=get_pattern_month(myfit_recruitment)
+pat$cluster=factor(match(pat$cluster,c("5","2","1","3","4")),
+                   levels=as.character(1:7))
+
+ggplot(pat,aes(x=month,y=proportion))+
   geom_boxplot(aes(fill=cluster),outlier.shape=NA) +
+  scale_fill_manual(values=cols) +
   theme_bw()
 
 
@@ -310,18 +369,19 @@ ggplot(get_pattern_month(myfit_recruitment),aes(x=month,y=proportion))+
 We compute some statistics to characterize the clusters.
 ```{r}
 #function to make circular shifting
-t(as.data.frame(characteristics(myfit_recruitment, 3)))
+table_characteristics(myfit_recruitment, 5)
 ```
 Duration indicates the minimum number of months that covers 80% of the wave (1st column is the median, and the 2 next one quantiles 2.5% and 97.5% of credibility intervals). Centroid is the centroid of the migration wave (e.g. 11.5 would indicate a migration centred around mid november). The first column is the median and the two next one the quantiles 2.5 and 97.5%.
 
 We can also look at the belonging of the different groups.
 ```{r}
-get_pattern_month <- function(res,mydata){
-  
-  groups <- interaction(recruitment_wide$ser_nameshort,
+groups <- interaction(recruitment_wide$ser_nameshort,
                                             recruitment_wide$period,
                                             drop=TRUE)
-  group_name <- levels(groups)
+group_name <- levels(groups)
+
+get_pattern_month <- function(res,mydata){
+  
   tmp <- strsplit(as.character(group_name),
                   "\\.")
   ser <- as.character(lapply(tmp,function(tt){
@@ -331,7 +391,8 @@ get_pattern_month <- function(res,mydata){
     tt[2]
   }))
   res_mat <- as.matrix(as.mcmc.list(res))
-  
+  country <- ser2$ser_cou_code[match(ser, ser2$ser_nameshort)]
+
   clus <- t(sapply(seq_len(length(unique(groups))), function(id){
     name_col <- paste("cluster[",id,"]",sep="")
     freq <- table(res_mat[,name_col])
@@ -341,14 +402,17 @@ get_pattern_month <- function(res,mydata){
   storage.mode(clus) <- "numeric"
   classes <- as.data.frame(clus)
   names(classes) <- c("cluster", "clus1", "clus2","clus3")
-  cbind.data.frame(data.frame(ser=ser, period=period),
+  cbind.data.frame(data.frame(ser=ser, period=period,country=country),
                    classes)
 }
 
 myclassif <- get_pattern_month(myfit_recruitment)
-print(myclassif[order(myclassif$cluster),])
+myclassif$cluster=factor(match(myclassif$cluster,c("5","2","1","3","4")),
+                   levels=as.character(1:7))
+
+table_classif(myclassif,"series")
 ```
-The 3rd cluster corresponds to series from the Southern Europe, whatever the period. Cluster 2 corresponds to North Europe. Cluster 1 corresponds to EmsH which appears to be slightly atypical. However, clusters 1 and 2 are quite similar and many series x periods are attributed with high occurences in both clusters 2 and 3. These results confirm the spatial pattern in recruitment seasonality and highlight that no major changes have occured after 2010.
+The 1st cluster corresponds to series from the SoutWestern Europe, whatever the period. Cluster 2 corresponds to North Europe. Cluster 2 and 3 correspond to series in Great Britain or Germany, 4 to Ireland and 5 to Norway. These results confirm the spatial pattern in recruitment seasonality and highlight that no major changes have occured after 2010.
 
 Showing it on a map:
 
@@ -358,11 +422,46 @@ myclassif$x <- ser2$ser_x[match(myclassif$ser, ser2$ser_nameshort)]
 myclassif$jit_x <- jitter(myclassif$x,amount=.5)
 myclassif$y <- ser2$ser_y[match(myclassif$ser, ser2$ser_nameshort)]
 myclassif$jit_y <- jitter(myclassif$y,amount=.5)
-cou <- st_read("/mnt/SIG/01-REFERENTIELS/LIMITES_ADMINISTRATIVES_monde/european_countries_WGS84.shp")
-cou <- st_transform(cou, crs=4326)
 ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
 		geom_point(data=myclassif,aes(x=jit_x,y=jit_y,col=as.factor(cluster))) +
-  scale_fill_brewer() +theme_bw() +xlim(-20,30) + ylim(35,65)
+  scale_color_manual(values=cols) +theme_bw() +xlim(-20,30) + ylim(35,65)
+```
+
+
+## Exporting pattern per group
+```{r}
+tmp <- as.matrix(as.mcmc.list(myfit_recruitment))
+name_col = colnames(tmp)
+
+pattern_G_monitoring=do.call("rbind.data.frame",
+                            lapply(seq_len(length(levels(groups))), function(g){
+                              ser=substr(group_name[g],1,nchar(group_name[g])-2)
+                              emu=ser2$ser_emu_nameshort[ser2$ser_nameshort == ser]
+                              hty_code=ser2$ser_hty_code[ser2$ser_nameshort==ser]
+                              median_pattern_group_monitoring(g, emu ,tmp, "G",group_name[g], hty_code)
+                            }))
+save(pattern_G_monitoring,file="pattern_G_monitoring.rdata")
+```
+
+## Similarity between and after 2010
+```{r}
+#which groups have data in both periods
+occ=table(unique(recruitment_wide[,c("ser_nameshort", "period")])[,1])
+tocompare=names(occ)[which(occ>1)]
+
+simi=sapply(tocompare, function(s){
+  g=grep(s,group_name)
+  esp1=tmp[,grep(paste("alpha_group\\[",g[1],",",sep=""),name_col)]
+  esp2=tmp[,grep(paste("alpha_group\\[",g[2],",",sep=""),name_col)]
+  quantile(apply(cbind(esp1,esp2),
+                 1,
+                 function(x) sum(pmin(x[1:12],x[13:24]))),
+           probs=c(0.025,.5,.975))
+})
+
+similarity=data.frame(emu=tocompare,t(simi))
+
+table_similarity(similarity)
 ```
 
 
@@ -451,20 +550,24 @@ res <- bind_rows(
 As for glass eel, we start by defining season consistent with ecological knowledge on migration. Downstream runs of European silver eels typically start in the autumn and may last until early spring (Brujs and Durif 2009), but we saw during WGEEL 2019 that peak in silver catches in Sweden is centered around August/September. Therefore, it is difficult to split season of migration in a similar way for all Europe. Therefore, we define a season of migration per series: we look to the month corresponding to the peak and at the month with the lowest catches. The month with lowest catch fmin define the beggining of the season (month_in_season=1) and season y stands for the 12 months from fmin y (e.g., if lowest migration is in december, season ranges from december to november, and season y denotes season from december y to november y+1).
 ```{r}
 #creating season
-finding_peak
+#finding_peak
 
-finding_lowest_month
+#finding_lowest_month
 
 
-season_creation
+#season_creation
 
 silvereel <- do.call("rbind.data.frame",
                      lapply(ser2$ser_nameshort[ser2$ser_lfs_code=="S"],
                             function(s)
                               season_creation(res[res$ser_nameshort==s,])))
 months_peak_per_series<- unique(silvereel[,c("ser_nameshort","peak_month")])
-table(months_peak_per_series$peak_month)
+names(silvereel)[which(names(silvereel)=="country")]<-"cou_code"
+kable(table(months_peak_per_series$peak_month),
+      col.names=c("month","number of series"),
+      caption="number of series peaking in a given month")
 ```
+
 This confirms that most series peak in autumn, but that other peak in spring or summer.
 
 
@@ -478,8 +581,8 @@ This confirms that most series peak in autumn, but that other peak in spring or 
 #   that the last month of data generally stands for a small proportion of catches
 #   that there is no missing month between first and last month
 
-good_coverage_wave 
-checking_duplicate 
+#good_coverage_wave 
+#checking_duplicate 
 ```
 
 
@@ -517,7 +620,7 @@ silvereel_subset$emu <- ser2$ser_emu_nameshort[match(silvereel_subset$ser_namesh
 
 silvereel_wide <- pivot_wider(data=silvereel_subset[, c("ser_nameshort",
                                                             "emu",
-                                                     "country",
+                                                     "cou_code",
                                                      "season",
                                                      "das_month",
                                                      "das_value")],
@@ -560,9 +663,12 @@ silvereel_wide$period <- ifelse(silvereel_wide$season>2009,
                                   2,
                                   1)
 
-table(silvereel_wide$period,
-       silvereel_wide$ser_nameshort)
+kable(table(silvereel_wide$period,
+       silvereel_wide$ser_nameshort),
+      row.names=TRUE,
+      caption="number of seasons per EMU and series")
 ```
+
 The situation is better for silver eel than for glass eel, we have a good sets of time series with data both before and after 2009.
 
 
@@ -578,18 +684,44 @@ y <-as.matrix(silvereel_wide[, paste("m", 1:12, sep="")])
 Know, we make a loop to select the number of clusters based on a DIC criterion
 
 ```{r, eval=FALSE}
-comparison <- lapply(2:7,
+cl <- makeCluster(3, 'FORK')
+comparison <- parSapply(cl, 2:7,
        function(nbclus){
          mydata <- build_data(nbclus)
-         res <- run.jags("jags_model.txt", monitor= "deviance",
-                      summarise=FALSE, adapt=20000, method="parallel",
-                      sample=10000,burnin=100000,n.chains=3,
-                      inits=generate_init(nbclus, mydata),
-                      data=mydata)
-         res_mat <- as.matrix(as.mcmc.list(res))
-         mean(res_mat[,1])+0.5*var(res_mat[,1])
-       })
-best_silver <- data.frame(nbclus=2:7,dic=unlist(comparison))
+         adapted <- FALSE
+         while (!adapted){
+           tryCatch({
+             runjags.options(adapt.incomplete="error")
+             res <- run.jags("jags_model.txt", monitor= c("deviance",
+                                                          "alpha_group",
+                                                          "cluster"),
+                        summarise=FALSE, adapt=40000, method="parallel",
+                        sample=2000,burnin=100000,n.chains=1,
+                        inits=generate_init(nbclus, mydata)[[1]],
+                        data=mydata)
+                        adapted <- TRUE
+                        res_mat <- as.matrix(as.mcmc.list(res))
+                        silhouette <- median(compute_silhouette(res_mat))
+                        nbused <- apply(res_mat, 1, function(iter){
+                          length(table(iter[grep("cluster",
+                                                 names(iter))]))
+                        })
+                        dic <- mean(res_mat[,1])+0.5*var(res_mat[,1])
+                        stats <- c(dic,silhouette,mean(nbused))
+                  }, error=function(e) {
+                    print(paste("not adapted, restarting nbclus",nbclus))
+                    }
+                  )
+         }
+         stats
+      })
+stopCluster(cl)
+
+
+best_silver <- data.frame(nbclus=2:(ncol(comparison)+1),
+                                              dic=comparison[1, ],
+                                              silhouette=comparison[2, ],
+                                     used=comparison[3,])
 ```
 
 ```{R}
@@ -597,13 +729,18 @@ load("silver_jags.rdata")
 best_silver
 ```
 
-Best solutions arise with 3 clusters, therefore we explore go further with this value.
-
+6 clusters provide a godd DIC and silhouette, and all clusters are used
 
 ```{r, eval=FALSE}
-nbclus <- 3
-mydata <-build_data(3)
-myfit_silver <- run.jags("jags_model.txt", monitor= c("cluster", "esp", "alpha_group",
+nbclus <- 6
+mydata <-build_data(6)
+
+
+adapted <- FALSE
+while (!adapted){
+   tryCatch({
+      runjags.options(adapt.incomplete="error")
+      myfit_silver <- run.jags("jags_model.txt", monitor= c("cluster", "esp", "alpha_group",
                                             "cluster", "centroid",
                                             "centroid_group",
                                             "distToClust", "duration_clus",
@@ -611,8 +748,14 @@ myfit_silver <- run.jags("jags_model.txt", monitor= c("cluster", "esp", "alpha_g
                                             "lambda","id_cluster",
                                             "centroid"),
                       summarise=FALSE, adapt=20000, method="parallel",
-                      sample=10000,burnin=200000,n.chains=3, thin=5,
-                      inits=generate_init(nbclus, mydata), data=mydata)
+                      sample=10000,burnin=200000,n.chains=1, thin=5,
+                      inits=generate_init(nbclus, mydata)[[1]], data=mydata)
+      adapted <- TRUE
+    }, error=function(e) {
+       print(paste("not adapted, restarting nbclus",nbclus))
+    })
+}
+
 save(myfit_silver, best_silver,
      file="silver_jags.rdata")
 ```
@@ -621,8 +764,8 @@ save(myfit_silver, best_silver,
 Once we fitted, we can plot monthly pattern per cluster
 ```{r}
 load("silver_jags.rdata")
-nbclus <- 3
-mydata <-build_data(3)
+nbclus <- 6
+mydata <-build_data(6)
 get_pattern_month <- function(res,type="cluster"){
   res_mat <- as.matrix(as.mcmc.list(res))
   if (type=="cluster"){
@@ -643,28 +786,30 @@ get_pattern_month <- function(res,type="cluster"){
   sub_mat
 }
 
-
-ggplot(get_pattern_month(myfit_silver),aes(x=month,y=proportion))+
+pat=get_pattern_month(myfit_silver)
+pat$cluster=factor(match(pat$cluster,c("1", "3", "4", "5", "6","2")),
+                   levels=as.character(1:7))
+ggplot(pat,aes(x=month,y=proportion))+
   geom_boxplot(aes(fill=cluster),outlier.shape=NA) +
+  scale_fill_manual(values=cols)+
   theme_bw()
 ```
-We have 3 clusters: cluster 1 corresponds to a migration wave starting in late
-spring and ending in late autumn. Cluster 2 corresponds to a migration wave
-starting in october and which can last a little bit during winter. Cluster
-3 corresponds to a migration wave really centered around october.
+We have 6 clusters. Many of them display migration in both spring and autum, while a few of them peak in summer.
 
 ```{r}
-t(as.data.frame(characteristics(myfit_silver, 3)))
+table_characteristics(myfit_silver, 6)
 ```
 
 We can look at the belonging of the different groups.
 ```{r}
-get_pattern_month <- function(res,mydata){
-  
-  groups <- interaction(silvereel_wide$ser_nameshort,
+groups <- interaction(silvereel_wide$ser_nameshort,
                                             silvereel_wide$period,
                                             drop=TRUE)
-  group_name <- levels(groups)
+group_name <- levels(groups)
+
+
+get_pattern_month <- function(res,mydata){
+  
   tmp <- strsplit(as.character(group_name),
                   "\\.")
   ser <- as.character(lapply(tmp,function(tt){
@@ -690,11 +835,12 @@ get_pattern_month <- function(res,mydata){
 }
 
 myclassif_silver <- get_pattern_month(myfit_silver)
-print(myclassif_silver[order(myclassif_silver$cluster),])
-table(myclassif_silver$country, myclassif_silver$cluster)
+myclassif_silver$cluster=factor(match(myclassif_silver$cluster,c("1", "3", "4", "5", "6","2")),
+                   levels=as.character(1:7))
+
+table_classif(myclassif_silver, "series")
 ```
-The spatial pattern is less obvious than for glass eel. However, looking at the map, we see that clusters 1 and 
-3, which display similar seasonality, are more located on the Western coasts of Europe (with most cluster 3 in the south, and most clusters 1 in the north), whereas, cluster 2 is more located in North-Sea and Baltic Sea, with the notable exception of the Imsa dataseries. Once again, no difference between periods are observed.
+The spatial pattern is a bit less obvious than for glass eel. However, looking at the map, we see that clusters 6 and  5, which display similar seasonality, are more located on the Western coasts of Europe (with most cluster 6 in the south, and most clusters 5 in the north). Cluster 2 is more typical of the Baltic Sea and clusster 4 from eastern Scotland.
 
 ```{r}
 library(sf)
@@ -704,7 +850,46 @@ myclassif_silver$y <- ser2$ser_y[match(myclassif_silver$ser, ser2$ser_nameshort)
 myclassif_silver$jit_y <- jitter(myclassif_silver$y,amount=.5)
 ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
 		geom_point(data=myclassif_silver,aes(x=jit_x,y=jit_y,col=as.factor(cluster))) +
-  scale_fill_brewer() +theme_bw() +xlim(-20,30) + ylim(35,65)
+  scale_colour_manual(values=cols) +theme_bw() +xlim(-20,30) + ylim(35,65)
+```
+
+
+
+
+## Exporting pattern per group
+```{r}
+tmp <- as.matrix(as.mcmc.list(myfit_silver))
+name_col = colnames(tmp)
+
+pattern_S_monitoring=do.call("rbind.data.frame",
+                            lapply(seq_len(length(levels(groups))), function(g){
+                              ser=substr(group_name[g],1,nchar(group_name[g])-2)
+                              emu=ser2$ser_emu_nameshort[ser2$ser_nameshort == ser]
+                              hty_code=ser2$ser_hty_code[ser2$ser_nameshort==ser]
+                              median_pattern_group_monitoring(g, emu ,tmp, "S",group_name[g], hty_code)
+                            }))
+save(pattern_S_monitoring,file="pattern_S_monitoring.rdata")
+```
+
+## Similarity between and after 2010
+```{r}
+#which groups have data in both periods
+occ=table(unique(silvereel_wide[,c("ser_nameshort", "period")])[,1])
+tocompare=names(occ)[which(occ>1)]
+
+simi=sapply(tocompare, function(s){
+  g=grep(s,group_name)
+  esp1=tmp[,grep(paste("alpha_group\\[",g[1],",",sep=""),name_col)]
+  esp2=tmp[,grep(paste("alpha_group\\[",g[2],",",sep=""),name_col)]
+  quantile(apply(cbind(esp1,esp2),
+                 1,
+                 function(x) sum(pmin(x[1:12],x[13:24]))),
+           probs=c(0.025,.5,.975))
+})
+
+similarity=data.frame(emu=tocompare,t(simi))
+
+table_similarity(similarity)
 ```
 
 
@@ -713,7 +898,7 @@ ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
 There are 32 time series, i.e. more than for glass eels but less than for silver eels. It may be worthwile pooling some of the 6 YS series if the proportions of silver eels is not too important.
 
 ```{r}
-ser2[ser2$ser_lfs_code=="YS", c("ser_nameshort", "ser_emu_nameshort", "ser_comment", "ser_locationdescription")]
+kable(ser2[ser2$ser_lfs_code=="YS", c("ser_nameshort", "ser_emu_nameshort", "ser_comment", "ser_locationdescription")],row.names=FALSE)
 ```
 GVT, Sakt and ZeiT are fishery based and fishery takes place only 2 months per year so we can't keep the data.
 
@@ -736,7 +921,11 @@ yelloweel <- do.call("rbind.data.frame",
                             function(s)
                               season_creation(res[res$ser_nameshort==s,])))
 months_peak_per_series<- unique(yelloweel[,c("ser_nameshort","peak_month")])
-table(months_peak_per_series$peak_month)
+names(yelloweel)[which(names(yelloweel)=="country")]<-"cou_code"
+
+kable(table(months_peak_per_series$peak_month),
+      col.names=c("month","number of series"),
+      caption="number of series peaking in a given month")
 ```
 Peaks of activity range from may to november. It might be possible to define a common season from february/march to january/february, but we prefer not imposing it without more precise information.
 
@@ -770,7 +959,7 @@ yelloweel_subset$emu <- ser2$ser_emu_nameshort[match(yelloweel_subset$ser_namesh
 
 yelloweel_wide <- pivot_wider(data=yelloweel_subset[, c("ser_nameshort",
                                                             "emu",
-                                                     "country",
+                                                     "cou_code",
                                                      "season",
                                                      "das_month",
                                                      "das_value")],
@@ -785,7 +974,7 @@ data_poor <- data.frame(yelloweel_wide$ser_nameshort,
                         yelloweel_wide$season,
                   zero=rowSums(yelloweel_wide[, -(1:4)] == 0, na.rm=TRUE),
            tot=rowSums(yelloweel_wide[, -(1:4)], na.rm=TRUE))
-data_poor %>% filter(tot<100)
+table_datapoor(data_poor %>% filter(tot<100))
 ```
 Given the limited number of eels caught in DaugY in 2018, we remove this series.
 
@@ -825,8 +1014,10 @@ yelloweel_wide$period <- ifelse(yelloweel_wide$season>2009,
                                   2,
                                   1)
 
-table(yelloweel_wide$period,
-       yelloweel_wide$ser_nameshort)
+kable(table(yelloweel_wide$period,
+       yelloweel_wide$ser_nameshort),
+      row.names=TRUE,
+      caption="number of seasons per series and period")
 ```
 The situation is an intermediate between glass eel and silver eel.
 
@@ -843,18 +1034,45 @@ y <-as.matrix(yelloweel_wide[, paste("m", 1:12, sep="")])
 Now, we make a loop to select the number of clusters based on a DIC criterion
 
 ```{r, eval=FALSE}
-comparison <- lapply(2:7,
+cl <- makeCluster(7, 'FORK')
+comparison <- parSapply(cl, 2:7,
        function(nbclus){
          mydata <- build_data(nbclus)
-         res <- run.jags("jags_model.txt", monitor= "deviance",
-                      summarise=FALSE, adapt=20000, method="parallel",
-                      sample=10000,burnin=100000,n.chains=3,
-                      inits=generate_init(nbclus, mydata),
-                      data=mydata)
-         res_mat <- as.matrix(as.mcmc.list(res))
-         mean(res_mat[,1])+0.5*var(res_mat[,1])
-       })
-best_yellow <- data.frame(nbclus=2:7,dic=unlist(comparison))
+         adapted <- FALSE
+         while (!adapted){
+           tryCatch({
+             runjags.options(adapt.incomplete="error")
+             res <- run.jags("jags_model.txt", monitor= c("deviance",
+                                                          "alpha_group",
+                                                          "cluster"),
+                        summarise=FALSE, adapt=40000, method="parallel",
+                        sample=2000,burnin=100000,n.chains=1,
+                        inits=generate_init(nbclus, mydata)[[1]],
+                        data=mydata)
+                        adapted <- TRUE
+                        res_mat <- as.matrix(as.mcmc.list(res))
+                        silhouette <- median(compute_silhouette(res_mat))
+                        nbused <- apply(res_mat, 1, function(iter){
+                          length(table(iter[grep("cluster",
+                                                 names(iter))]))
+                        })
+                        dic <- mean(res_mat[,1])+0.5*var(res_mat[,1])
+                        stats <- c(dic,silhouette,mean(nbused))
+                  }, error=function(e) {
+                    print(paste("not adapted, restarting nbclus",nbclus))
+                    }
+                  )
+         }
+         stats
+      })
+stopCluster(cl)
+
+
+best_yellow <- data.frame(nbclus=2:(ncol(comparison)+1),
+                                              dic=comparison[1, ],
+                                              silhouette=comparison[2, ],
+                                              used=comparison[3, ])
+
 save(best_yellow, file="yellow_jags.rdata")
 ```
 
@@ -863,21 +1081,36 @@ load("yellow_jags.rdata")
 best_yellow
 ```
 
-Best solutions arise with 5 clusters, more than for other stages.
-
+4 appears to be a good compromise (good silhouette and all clusters are used).
 
 ```{r, eval=FALSE}
-nbclus <- 5
+nbclus <- 4
 mydata <-build_data(nbclus)
-myfit_yellow <- run.jags("jags_model.txt", monitor= c("cluster", "esp", "alpha_group",
-                                            "cluster",
+
+
+
+
+adapted <- FALSE
+while (!adapted){
+   tryCatch({
+      runjags.options(adapt.incomplete="error")
+      myfit_yellow <- run.jags("jags_model.txt", monitor= c("cluster", "esp", "alpha_group",
+                                            "cluster", "centroid",
+                                            "centroid_group",
                                             "distToClust", "duration_clus",
                                             "duration_group",
                                             "lambda","id_cluster",
-                                            "distFromRef"),
-                      summarise=FALSE, adapt=50000, method="parallel",
-                      sample=10000,burnin=200000,n.chains=3, thin=5,
-                      inits=generate_init(nbclus, mydata), data=mydata)
+                                            "centroid"),
+                      summarise=FALSE, adapt=20000, method="parallel",
+                      sample=10000,burnin=200000,n.chains=1, thin=5,
+                      inits=generate_init(nbclus, mydata)[[1]], data=mydata)
+      adapted <- TRUE
+    }, error=function(e) {
+       print(paste("not adapted, restarting nbclus",nbclus))
+    })
+}
+
+
 save(myfit_yellow, best_yellow,
      file="yellow_jags.rdata")
 ```
@@ -886,7 +1119,7 @@ save(myfit_yellow, best_yellow,
 Once fitted, we can plot monthly pattern per cluster
 ```{r}
 load("yellow_jags.rdata")
-nbclus <- 5
+nbclus <- 4
 mydata <-build_data(nbclus)
 get_pattern_month <- function(res,type="cluster"){
   res_mat <- as.matrix(as.mcmc.list(res))
@@ -908,31 +1141,35 @@ get_pattern_month <- function(res,type="cluster"){
   sub_mat
 }
 
+pat=get_pattern_month(myfit_yellow)
+pat$cluster=factor(match(pat$cluster, c("3","4","2","1")),
+                   levels=as.character(1:7))
 
-ggplot(get_pattern_month(myfit_yellow),aes(x=month,y=proportion))+
+ggplot(pat,aes(x=month,y=proportion))+
   geom_boxplot(aes(fill=cluster),outlier.shape=NA) +
+  scale_fill_manual(values=cols)+
   theme_bw()
 ```
 
 ```{r}
-t(as.data.frame(characteristics(myfit_yellow, 5)))
+table_characteristics(myfit_yellow, 4)
 ```
 
-Cluster 5 corresponds to a migration 5 concentrated in June and July. Cluster 2
-is a bit similar, but more widespread from May to August. Cluster 1 has a
-delayed peak with a high proportion in late summer / early autumn. Clusters 3
-and 4 are quite similar with widespread waves centered around summer and a
-bimodality and early autumn, with cluster 3 more widepread than cluster 4.
+Cluster 2 corresponds to a migration concentrated in June and July. Cluster 3
+is a bit similar, but more widespread from May to september. Cluster 4 has a
+delayed peak with a high proportion in late summer / early autumn. Clusters 1 is widespread from spring to autumn.
 
 
 We can look at the belonging of the different groups.
 ```{r}
-get_pattern_month <- function(res,mydata){
-  
-  groups <- interaction(yelloweel_wide$ser_nameshort,
+groups <- interaction(yelloweel_wide$ser_nameshort,
                                             yelloweel_wide$period,
                                             drop=TRUE)
-  group_name <- levels(groups)
+group_name <- levels(groups)
+
+
+get_pattern_month <- function(res,mydata){
+  
   tmp <- strsplit(as.character(group_name),
                   "\\.")
   ser <- as.character(lapply(tmp,function(tt){
@@ -958,16 +1195,18 @@ get_pattern_month <- function(res,mydata){
 }
 
 myclassif_yellow <- get_pattern_month(myfit_yellow)
-print(myclassif_yellow[order(myclassif_yellow$cluster),])
-table(myclassif_yellow$country, myclassif_yellow$cluster)
+myclassif_yellow$cluster=factor(match(myclassif_yellow$cluster, c("3","4","2","1")),
+                   levels=as.character(1:7))
+
+table_classif(myclassif_yellow,type="series")
 ```
-There is no clear spatial pattern in the clustering. This is not necessarily surprising: eels display an ontongenic shift during their life stage, 
-from a migratory behaviour towards sedentary behaviour (Imbert et al. 2010). 
+
+The spatial pattern is also quite clear with cluster 1 (widespread) and 2 (summer) in France. In northern part, series are in clusters 3  and 4 corresponding to summer and autumn. It should be noted that, contrary to glass eels and silver eel, there is no clear migration for yellow eels. Indeed, eels display an ontongenic shift during their life stage, from a migratory behaviour towards sedentary behaviour (Imbert et al. 2010). 
 Consequently, given the predominence of younger or older eels, which vary depending on the position in the river basin, 
 a series may correspond to a seasonality of migration, to a seasonality of activity of sedentary eels, or to a mixture of both. 
 Moreover, environmental conditions that trigger migration or activity may also vary depending on the position in the river basin 
 and complexify the comparison of the time series. The sampling method may also alter the results: many time series are collected upstream fishways, 
-and the attractivity / passability of those fishway vary among seasons.
+and the attractivity / passability of those fishway vary among seasons. In northern part, series are in clusters 
 
 ```{r}
 library(sf)
@@ -977,5 +1216,46 @@ myclassif_yellow$y <- ser2$ser_y[match(myclassif_yellow$ser, ser2$ser_nameshort)
 myclassif_yellow$jit_y <- jitter(myclassif_yellow$y,amount=.5)
 ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
 		geom_point(data=myclassif_yellow,aes(x=jit_x,y=jit_y,col=as.factor(cluster))) +
-  scale_fill_brewer() +theme_bw() +xlim(-20,30) + ylim(35,65)
+  scale_color_manual(values=cols) +
+  theme_bw() +xlim(-20,30) + ylim(35,65)
+```
+
+
+## Exporting pattern per group
+```{r}
+tmp <- as.matrix(as.mcmc.list(myfit_yellow))
+name_col = colnames(tmp)
+
+pattern_Y_monitoring=do.call("rbind.data.frame",
+                            lapply(seq_len(length(levels(groups))), function(g){
+                              ser=substr(group_name[g],1,nchar(group_name[g])-2)
+                              emu=ser2$ser_emu_nameshort[ser2$ser_nameshort == ser]
+                              hty_code=ser2$ser_hty_code[ser2$ser_nameshort==ser]
+                              median_pattern_group_monitoring(g, emu ,tmp, "G",group_name[g], hty_code)
+                            }))
+                                   
+  
+  
+save(pattern_Y_monitoring,file="pattern_Y_monitoring.rdata")
+```
+
+## Similarity between and after 2010
+```{r}
+#which groups have data in both periods
+occ=table(unique(yelloweel_wide[,c("ser_nameshort", "period")])[,1])
+tocompare=names(occ)[which(occ>1)]
+
+simi=sapply(tocompare, function(s){
+  g=grep(s,group_name)
+  esp1=tmp[,grep(paste("alpha_group\\[",g[1],",",sep=""),name_col)]
+  esp2=tmp[,grep(paste("alpha_group\\[",g[2],",",sep=""),name_col)]
+  quantile(apply(cbind(esp1,esp2),
+                 1,
+                 function(x) sum(pmin(x[1:12],x[13:24]))),
+           probs=c(0.025,.5,.975))
+})
+
+similarity=data.frame(emu=tocompare,t(simi))
+
+table_similarity(similarity)
 ```
