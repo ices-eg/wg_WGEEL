@@ -106,7 +106,10 @@ resc2<- resc %>%
 				comment = first(comment)) %>%
 		# some countries (France) report missing lines for fishery closure type when T
 		mutate(fishery_closure_percent=if_else(fishery_closure_type=='T' & fishery_closure_percent==0, 100, fishery_closure_percent))
+save(resc2, file=str_c(datawd,"resc2.Rdata"))
 
+load(file=str_c(datawd1,"metadata_landings"))
+load(file=str_c(datawd2,"metadata_closure"))
 ```
 
 ```{r pivot_table, echo=FALSE, include=FALSE, eval=FALSE}
@@ -294,7 +297,7 @@ fnplot <- function(res, emu, lfs, hty,colfill="grey10", colpattern="red", title=
 			ungroup()
 	
 	# integrate seasonal data from seasonality ------------------------
-
+	
 	pat_mo1 <- stacomirtools::killfactor(pat_mo)
 	pat_mo1$period <- as.numeric(pat_mo1$period)
 	
@@ -349,6 +352,7 @@ fnplot <- function(res, emu, lfs, hty,colfill="grey10", colpattern="red", title=
 nrtable=0
 nrfigure=0
 options(warn=-1)
+# i =2
 for (i in 1:nrow(countries)){
 	the_country_code <- countries$cou_code[i]
 	the_emus_sel <- the_emus[the_emus$emu_cou_code==the_country_code,"emu_nameshort"]
@@ -363,18 +367,22 @@ for (i in 1:nrow(countries)){
 	res <- funtable_closure(co=the_country_code)
 	print(res)
 	# here include metadata for closures
-	pandoc.p("---\n
-					**COMMENTS**\n
-					TODO : Here come the medata for closure for the country\n
-					\n
-					---\n
-					")
+	
+	pandoc.p(paste("\n---\n
+							**METHOD**\n\n",
+					metadata_closure[[the_country_code]]$method,"\n
+							\n---\n
+							"))
 	pandoc.header("Landings",level=2)
-	pandoc.p("---\n
-					**COMMENTS**\n
-                    TODO : Here come the medata for landings for the country\n
-					---\n
-						")
+	pandoc.p(paste("---\n
+							**METHODS**\n\n",
+					metadata_landings[[the_country_code]]$method,
+					"\n \n---\n \n
+							\n---\n
+							**COMMENTS**\n \n",
+					metadata_landings[[the_country_code]]$comments,
+					"\n \n---\n"))
+	
 	for (j in 1:length(the_emus_sel)){
 		the_emu <- the_emus_sel[j]
 		pandoc.header(the_emu,level=3)	

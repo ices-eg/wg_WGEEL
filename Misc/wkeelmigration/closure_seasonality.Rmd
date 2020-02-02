@@ -80,6 +80,12 @@ res <- map(list_closure,function(X){			X[["data"]]		}) %>%
 		bind_rows()
 Hmisc::describe(res) %>% html()
 
+metadata_closure <- map(list_closure,function(X){			X[["the_metadata"]]		}) 
+names(metadata_closure) <- substring(names(metadata_closure),1,2) # replacing names with BE DE....
+save(metadata_closure,file=str_c(datawd1,"metadata_closure"))
+
+
+Hmisc::describe(res) %>% html()
 # these are all empty lines ....
 # print(res[is.na(res$eel_emu_nameshort),],n=2)
 # all NA print(res[is.na(res$eel_emu_nameshort),],n=1000)
