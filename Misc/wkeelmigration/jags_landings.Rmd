@@ -3,10 +3,10 @@ title: "Untitled"
 author: "Hilaire Drouineau"
 date: "23 janvier 2020"
 output: 
-  rmarkdown::md_document:
-     toc: yes
   rmarkdown::html_document:
      keep_md: yes
+     toc: yes
+  rmarkdown::md_document:
      toc: yes
 ---
 ```{r global_options, include=FALSE}
@@ -308,7 +308,7 @@ pat$cluster <- factor(match(pat$cluster,c("3","1","4","2")),
                       levels=as.character(1:7))
 ggplot(pat,aes(x=month,y=proportion))+
   geom_boxplot(aes(fill=cluster),outlier.shape=NA) +
-  scale_fill_manual(values=cols) +
+  scale_fill_manual(values=cols)+facet_wrap(.~cluster, ncol=1) +
   theme_bw()
 ```
 
@@ -370,7 +370,7 @@ emu$cluster1 <- factor(myclassif_p1$cluster[match(emu$name_short,
                                                   substr(myclassif_p1$ser,1,nchar(as.character(myclassif_p1$ser))))], levels=1:7)
 
 emu$cluster2 <- factor(myclassif_p2$cluster[match(emu$name_short,
-                                                substr(myclassif_p2$ser,1,nchar(as.character(myclassif_p1$ser))))],
+                                                substr(myclassif_p2$ser,1,nchar(as.character(myclassif_p2$ser))))],
                        levels=1:7)
 ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
 		geom_sf(data=emu,aes(fill=cluster1)) + scale_fill_manual(values=cols)+
@@ -519,6 +519,11 @@ kable(list_period2[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")],
       digits=2)
 
 
+list_period2$type="EU closure"
+list_period1$type="EMP closure"
+list_period=rbind.data.frame(list_period1,list_period2)
+list_period$stage="G"
+save(list_period,file="loss_glass_eel.rdata")
 
 
 
@@ -804,7 +809,7 @@ pat$cluster <- factor(match(pat$cluster,c("2","3","1")),
                          levels=as.character(1:7))
 ggplot(pat,aes(x=month,y=proportion))+
   geom_boxplot(aes(fill=cluster),outlier.shape=NA) +
-  scale_fill_manual(values=cols) +
+  scale_fill_manual(values=cols)+facet_wrap(.~cluster, ncol=1) +
   theme_bw()
 ```
 
@@ -869,7 +874,7 @@ emu$cluster1 <- factor(myclassif_p1$cluster[match(emu$name_short,
                                                   substr(myclassif_p1$ser,1,nchar(as.character(myclassif_p1$ser))-2))],
                        levels=1:7)
 emu$cluster2 <- factor(myclassif_p2$cluster[match(emu$name_short,
-                                                substr(myclassif_p2$ser,1,nchar(as.character(myclassif_p1$ser))-2))],
+                                                substr(myclassif_p2$ser,1,nchar(as.character(myclassif_p2$ser))-2))],
                        levels=1:7)
 ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
 		geom_sf(data=emu,aes(fill=cluster1)) + scale_fill_manual(values=cols)+
@@ -976,9 +981,6 @@ kable(list_period1[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")],
 
 
 
-
-
-
 #######EU
 list_period2=data.frame(emu_nameshort=emus[period==2])
 list_period2$group=group_name[period==2]
@@ -1026,6 +1028,13 @@ kable(list_period2[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")],
       col.names=c("emu","q2.5","median","q97.5"),
       caption="proportion of catch potentially lost because of EU closure",
       digits=2)
+
+list_period2$type="EU closure"
+list_period1$type="EMP closure"
+list_period=rbind.data.frame(list_period1,list_period2)
+list_period$stage="Y"
+save(list_period,file="loss_yellowcoastal.rdata")
+
 
 
 
@@ -1247,7 +1256,7 @@ pat$cluster <- factor(match(pat$cluster,c("3", "2","4","1")),
                       levels=as.character(1:7))
 ggplot(pat,aes(x=month,y=proportion))+
   geom_boxplot(aes(fill=cluster),outlier.shape=NA) +
-  scale_fill_manual(values=cols)+
+  scale_fill_manual(values=cols)+facet_wrap(.~cluster, ncol=1)+
   theme_bw()
 ```
 
@@ -1309,7 +1318,7 @@ emu$cluster1 <- factor(myclassif_p1$cluster[match(emu$name_short,
                                                   substr(myclassif_p1$ser,1,nchar(as.character(myclassif_p1$ser))-2))],
                        levels=1:7)
 emu$cluster2 <- factor(myclassif_p2$cluster[match(emu$name_short,
-                                                substr(myclassif_p2$ser,1,nchar(as.character(myclassif_p1$ser))-2))],
+                                                substr(myclassif_p2$ser,1,nchar(as.character(myclassif_p2$ser))-2))],
                        levels=1:7)
 ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
 		geom_sf(data=emu,aes(fill=cluster1)) + scale_fill_manual(values=cols)+
@@ -1464,6 +1473,13 @@ kable(list_period2[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")],
       col.names=c("emu","q2.5","median","q97.5"),
       caption="proportion of catch potentially lost because of EU closure",
       digits=2)
+
+list_period2$type="EU closure"
+list_period1$type="EMP closure"
+list_period=rbind.data.frame(list_period1,list_period2)
+list_period$stage="Y"
+save(list_period,file="loss_yellowtransitional.rdata")
+
 
 
 
@@ -1690,7 +1706,7 @@ pat$cluster <- factor(match(pat$cluster, c("1","3","2")),
                        levels=as.character(1:7))
 ggplot(pat,aes(x=month,y=proportion))+
   geom_boxplot(aes(fill=cluster),outlier.shape=NA) +
-  scale_fill_manual(values=cols) +
+  scale_fill_manual(values=cols)+facet_wrap(.~cluster, ncol=1) +
   theme_bw()
 ```
 
@@ -1752,7 +1768,7 @@ emu$cluster1 <- factor(myclassif_p1$cluster[match(emu$name_short,
                                                   substr(myclassif_p1$ser,1,nchar(as.character(myclassif_p1$ser))-2))],
                        levels=1:7)
 emu$cluster2 <- factor(myclassif_p2$cluster[match(emu$name_short,
-                                                substr(myclassif_p2$ser,1,nchar(as.character(myclassif_p1$ser))-2))],
+                                                substr(myclassif_p2$ser,1,nchar(as.character(myclassif_p2$ser))-2))],
                        levels=1:7)
 ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
 		geom_sf(data=emu,aes(fill=cluster1)) + scale_fill_manual(values=cols)+
@@ -1906,6 +1922,13 @@ kable(list_period2[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")],
       col.names=c("emu","q2.5","median","q97.5"),
       caption="proportion of catch potentially lost because of EU closure",
       digits=2)
+
+list_period2$type="EU closure"
+list_period1$type="EMP closure"
+list_period=rbind.data.frame(list_period1,list_period2)
+list_period$stage="Y"
+save(list_period,file="loss_yellowfresh.rdata")
+
 
 
 
@@ -2129,7 +2152,7 @@ pat$cluster <- factor(match(pat$cluster, c("1","2","5","3","6","4")),
 
 ggplot(pat,aes(x=month,y=proportion))+
   geom_boxplot(aes(fill=cluster),outlier.shape=NA) +
-  scale_fill_manual(values=cols) +
+  scale_fill_manual(values=cols)+facet_wrap(.~cluster, ncol=1) +
   theme_bw()
 ```
 
@@ -2193,7 +2216,7 @@ myplots <-lapply(c("MO","C","T", "F"),function(hty){
                                     hty))
   emu$cluster1 <- factor(myclassif_p1$cluster[match(emu$name_short,                                                  substr(myclassif_p1$ser,1,nchar(as.character(myclassif_p1$ser))-2))],
                        levels=1:7)
-  emu$cluster2 <- factor(myclassif_p2$cluster[match(emu$name_short,                                                substr(myclassif_p2$ser,1,nchar(as.character(myclassif_p1$ser))-2))],
+  emu$cluster2 <- factor(myclassif_p2$cluster[match(emu$name_short,                                                substr(myclassif_p2$ser,1,nchar(as.character(myclassif_p2$ser))-2))],
                        levels=1:7)
   p1 <- ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
 		  geom_sf(data=emu,aes(fill=cluster1)) + scale_fill_manual(values=cols)+
@@ -2509,7 +2532,7 @@ pat <-get_pattern_month(myfit_silvereel_coastal_landings)
 pat$cluster <- factor(match(pat$cluster,c("1","3","4","2") ),
                       levels=as.character(1:7))
 ggplot(pat,aes(x=month,y=proportion))+
-  geom_boxplot(aes(fill=cluster),outlier.shape=NA) +
+  geom_boxplot(aes(fill=cluster),outlier.shape=NA)+facet_wrap(.~cluster, ncol=1) +
   theme_bw()
 ```
 Clusters 3 and 4 correspond to peak in october with 3 more widespread. Cluster 1 corresponds to a peak in autumn/winter. Cluster 2 corresponds to catches in winter.
@@ -2571,9 +2594,9 @@ myplots <-lapply(c("MO","C","T"),function(hty){
   myclassif_p2 <- subset(myclassif, myclassif$period == 2 &
                            endsWith(as.character(myclassif$ser),
                                     hty))
-  emu$cluster1 <- factor(myclassif_p1$cluster[match(emu$name_short,                                                  substr(myclassif_p1$ser,1,nchar(as.character(myclassif_p1$ser))-2))],
+  emu$cluster1 <- factor(myclassif_p1$cluster[match(emu$name_short,                                                  gsub(paste("_",hty,sep=""),"",myclassif_p1$ser))],
                        levels=1:7)
-  emu$cluster2 <- factor(myclassif_p2$cluster[match(emu$name_short,                                                substr(myclassif_p2$ser,1,nchar(as.character(myclassif_p1$ser))-2))],
+  emu$cluster2 <- factor(myclassif_p2$cluster[match(emu$name_short,                                                gsub(paste("_",hty,sep=""),"",myclassif_p2$ser))],
                        levels=1:7)
   p1 <- ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
 		  geom_sf(data=emu,aes(fill=cluster1)) + scale_fill_manual(values=cols)+
@@ -2585,9 +2608,6 @@ myplots <-lapply(c("MO","C","T"),function(hty){
     ggtitle(paste("period 2",hty))
   return(list(p1,p2))
 })
-myplots <- do.call(c, myplots)
-print(myplots[[1]][[1]])
-print(myplots[[1]][[2]])
 print(myplots[[2]][[1]])
 print(myplots[[2]][[2]])
 print(myplots[[3]][[1]])
@@ -2737,6 +2757,13 @@ kable(list_period2[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")],
       col.names=c("emu","q2.5","median","q97.5"),
       caption="proportion of catch potentially lost because of EU closure",
       digits=2)
+
+list_period2$type="EU closure"
+list_period1$type="EMP closure"
+list_period=rbind.data.frame(list_period1,list_period2)
+list_period$stage="S"
+save(list_period,file="loss_silvercoastal.rdata")
+
 
 
 
@@ -2962,7 +2989,7 @@ pat$cluster <- factor(match(pat$cluster,c("4","1","5","2","3") ),
                       levels=as.character(1:7))
 ggplot(pat,aes(x=month,y=proportion))+
   geom_boxplot(aes(fill=cluster),outlier.shape=NA) +
-  scale_fill_manual(values=cols) +
+  scale_fill_manual(values=cols)+facet_wrap(.~cluster, ncol=1) +
   theme_bw()
 ```
 
@@ -3023,7 +3050,7 @@ emu$cluster1 <- factor(myclassif_p1$cluster[match(emu$name_short,
                                                   substr(myclassif_p1$ser,1,nchar(as.character(myclassif_p1$ser))-2))],
                        levels=1:7)
 emu$cluster2 <- factor(myclassif_p2$cluster[match(emu$name_short,
-                                                substr(myclassif_p2$ser,1,nchar(as.character(myclassif_p1$ser))-2))],
+                                                substr(myclassif_p2$ser,1,nchar(as.character(myclassif_p2$ser))-2))],
                        levels=1:7)
 ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
 		geom_sf(data=emu,aes(fill=cluster1)) + scale_fill_manual(values=cols)+
@@ -3178,6 +3205,14 @@ kable(list_period2[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")],
       col.names=c("emu","q2.5","median","q97.5"),
       caption="proportion of catch potentially lost because of EU closure",
       digits=2)
+
+
+
+list_period2$type="EU closure"
+list_period1$type="EMP closure"
+list_period=rbind.data.frame(list_period1,list_period2)
+list_period$stage="S"
+save(list_period,file="loss_silverfresh.rdata")
 
 
 
@@ -3461,7 +3496,7 @@ pat$cluster = factor(match(pat$cluster, c("3","6","4","2","1","5")),
                      levels=as.character(1:7))
 ggplot(pat,aes(x=month,y=proportion))+
   geom_boxplot(aes(fill=cluster),outlier.shape=NA) +
-  scale_fill_manual(values=cols)
+  scale_fill_manual(values=cols)+facet_wrap(.~cluster, ncol=1)
   theme_bw()
 ```
 

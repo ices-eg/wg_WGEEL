@@ -12,6 +12,9 @@ output:
 
 
 
+
+
+
 # Loading the data
 
 ```r
@@ -508,7 +511,7 @@ pat$cluster=factor(match(pat$cluster,c("5","2","1","3","4")),
 
 ggplot(pat,aes(x=month,y=proportion))+
   geom_boxplot(aes(fill=cluster),outlier.shape=NA) +
-  scale_fill_manual(values=cols) +
+  scale_fill_manual(values=cols)+facet_wrap(.~cluster, ncol=1) +
   theme_bw()
 ```
 
@@ -835,7 +838,8 @@ myclassif$jit_x <- jitter(myclassif$x,amount=.5)
 myclassif$y <- ser2$ser_y[match(myclassif$ser, ser2$ser_nameshort)]
 myclassif$jit_y <- jitter(myclassif$y,amount=.5)
 ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
-		geom_point(data=myclassif,aes(x=jit_x,y=jit_y,col=as.factor(cluster))) +
+		geom_point(data=myclassif,size=5,
+		           aes(x=jit_x,y=jit_y,col=as.factor(cluster),pch=period)) +
   scale_color_manual(values=cols) +theme_bw() +xlim(-20,30) + ylim(35,65)
 ```
 
@@ -1535,7 +1539,7 @@ pat$cluster=factor(match(pat$cluster,c("1", "3", "4", "5", "6","2")),
                    levels=as.character(1:7))
 ggplot(pat,aes(x=month,y=proportion))+
   geom_boxplot(aes(fill=cluster),outlier.shape=NA) +
-  scale_fill_manual(values=cols)+
+  scale_fill_manual(values=cols)+facet_wrap(.~cluster, ncol=1)+
   theme_bw()
 ```
 
@@ -1957,12 +1961,9 @@ myclassif_silver$jit_x <- jitter(myclassif_silver$x,amount=.5)
 myclassif_silver$y <- ser2$ser_y[match(myclassif_silver$ser, ser2$ser_nameshort)]
 myclassif_silver$jit_y <- jitter(myclassif_silver$y,amount=.5)
 ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
-		geom_point(data=myclassif_silver,aes(x=jit_x,y=jit_y,col=as.factor(cluster))) +
+		geom_point(data=myclassif_silver,size=5,
+		           aes(x=jit_x,y=jit_y,col=as.factor(cluster),pch=period)) +
   scale_colour_manual(values=cols) +theme_bw() +xlim(-20,30) + ylim(35,65)
-```
-
-```
-## Warning: Removed 1 rows containing missing values (geom_point).
 ```
 
 ![](jags_modelling_files/figure-html/unnamed-chunk-35-1.png)<!-- -->
@@ -2597,7 +2598,7 @@ pat$cluster=factor(match(pat$cluster, c("3","4","2","1")),
 
 ggplot(pat,aes(x=month,y=proportion))+
   geom_boxplot(aes(fill=cluster),outlier.shape=NA) +
-  scale_fill_manual(values=cols)+
+  scale_fill_manual(values=cols)+facet_wrap(.~cluster, ncol=1)+
   theme_bw()
 ```
 
@@ -2865,13 +2866,10 @@ myclassif_yellow$jit_x <- jitter(myclassif_yellow$x,amount=.5)
 myclassif_yellow$y <- ser2$ser_y[match(myclassif_yellow$ser, ser2$ser_nameshort)]
 myclassif_yellow$jit_y <- jitter(myclassif_yellow$y,amount=.5)
 ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
-		geom_point(data=myclassif_yellow,aes(x=jit_x,y=jit_y,col=as.factor(cluster))) +
+		geom_point(data=myclassif_yellow, size=5,
+		           aes(x=jit_x,y=jit_y,col=as.factor(cluster),pch=period)) +
   scale_color_manual(values=cols) +
   theme_bw() +xlim(-20,30) + ylim(35,65)
-```
-
-```
-## Warning: Removed 1 rows containing missing values (geom_point).
 ```
 
 ![](jags_modelling_files/figure-html/unnamed-chunk-54-1.png)<!-- -->

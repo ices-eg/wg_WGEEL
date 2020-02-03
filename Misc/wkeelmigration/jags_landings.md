@@ -484,7 +484,7 @@ pat$cluster <- factor(match(pat$cluster,c("3","1","4","2")),
                       levels=as.character(1:7))
 ggplot(pat,aes(x=month,y=proportion))+
   geom_boxplot(aes(fill=cluster),outlier.shape=NA) +
-  scale_fill_manual(values=cols) +
+  scale_fill_manual(values=cols)+facet_wrap(.~cluster, ncol=1) +
   theme_bw()
 ```
 
@@ -859,7 +859,7 @@ emu$cluster1 <- factor(myclassif_p1$cluster[match(emu$name_short,
                                                   substr(myclassif_p1$ser,1,nchar(as.character(myclassif_p1$ser))))], levels=1:7)
 
 emu$cluster2 <- factor(myclassif_p2$cluster[match(emu$name_short,
-                                                substr(myclassif_p2$ser,1,nchar(as.character(myclassif_p1$ser))))],
+                                                substr(myclassif_p2$ser,1,nchar(as.character(myclassif_p2$ser))))],
                        levels=1:7)
 ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
 		geom_sf(data=emu,aes(fill=cluster1)) + scale_fill_manual(values=cols)+
@@ -1270,6 +1270,14 @@ kable(list_period2[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")],
   </tr>
 </tbody>
 </table>
+
+```r
+list_period2$type="EU closure"
+list_period1$type="EMP closure"
+list_period=rbind.data.frame(list_period1,list_period2)
+list_period$stage="G"
+save(list_period,file="loss_glass_eel.rdata")
+```
 
 
 # Yellow
@@ -1745,7 +1753,7 @@ pat$cluster <- factor(match(pat$cluster,c("2","3","1")),
                          levels=as.character(1:7))
 ggplot(pat,aes(x=month,y=proportion))+
   geom_boxplot(aes(fill=cluster),outlier.shape=NA) +
-  scale_fill_manual(values=cols) +
+  scale_fill_manual(values=cols)+facet_wrap(.~cluster, ncol=1) +
   theme_bw()
 ```
 
@@ -1982,7 +1990,7 @@ emu$cluster1 <- factor(myclassif_p1$cluster[match(emu$name_short,
                                                   substr(myclassif_p1$ser,1,nchar(as.character(myclassif_p1$ser))-2))],
                        levels=1:7)
 emu$cluster2 <- factor(myclassif_p2$cluster[match(emu$name_short,
-                                                substr(myclassif_p2$ser,1,nchar(as.character(myclassif_p1$ser))-2))],
+                                                substr(myclassif_p2$ser,1,nchar(as.character(myclassif_p2$ser))-2))],
                        levels=1:7)
 ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
 		geom_sf(data=emu,aes(fill=cluster1)) + scale_fill_manual(values=cols)+
@@ -2289,6 +2297,14 @@ kable(list_period2[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")],
   </tr>
 </tbody>
 </table>
+
+```r
+list_period2$type="EU closure"
+list_period1$type="EMP closure"
+list_period=rbind.data.frame(list_period1,list_period2)
+list_period$stage="Y"
+save(list_period,file="loss_yellowcoastal.rdata")
+```
 
 
 ##transitional waters
@@ -2615,7 +2631,7 @@ pat$cluster <- factor(match(pat$cluster,c("3", "2","4","1")),
                       levels=as.character(1:7))
 ggplot(pat,aes(x=month,y=proportion))+
   geom_boxplot(aes(fill=cluster),outlier.shape=NA) +
-  scale_fill_manual(values=cols)+
+  scale_fill_manual(values=cols)+facet_wrap(.~cluster, ncol=1)+
   theme_bw()
 ```
 
@@ -2900,7 +2916,7 @@ emu$cluster1 <- factor(myclassif_p1$cluster[match(emu$name_short,
                                                   substr(myclassif_p1$ser,1,nchar(as.character(myclassif_p1$ser))-2))],
                        levels=1:7)
 emu$cluster2 <- factor(myclassif_p2$cluster[match(emu$name_short,
-                                                substr(myclassif_p2$ser,1,nchar(as.character(myclassif_p1$ser))-2))],
+                                                substr(myclassif_p2$ser,1,nchar(as.character(myclassif_p2$ser))-2))],
                        levels=1:7)
 ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
 		geom_sf(data=emu,aes(fill=cluster1)) + scale_fill_manual(values=cols)+
@@ -3241,6 +3257,14 @@ kable(list_period2[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")],
   </tr>
 </tbody>
 </table>
+
+```r
+list_period2$type="EU closure"
+list_period1$type="EMP closure"
+list_period=rbind.data.frame(list_period1,list_period2)
+list_period$stage="Y"
+save(list_period,file="loss_yellowtransitional.rdata")
+```
 
 
 
@@ -3614,7 +3638,7 @@ pat$cluster <- factor(match(pat$cluster, c("1","3","2")),
                        levels=as.character(1:7))
 ggplot(pat,aes(x=month,y=proportion))+
   geom_boxplot(aes(fill=cluster),outlier.shape=NA) +
-  scale_fill_manual(values=cols) +
+  scale_fill_manual(values=cols)+facet_wrap(.~cluster, ncol=1) +
   theme_bw()
 ```
 
@@ -3865,7 +3889,7 @@ emu$cluster1 <- factor(myclassif_p1$cluster[match(emu$name_short,
                                                   substr(myclassif_p1$ser,1,nchar(as.character(myclassif_p1$ser))-2))],
                        levels=1:7)
 emu$cluster2 <- factor(myclassif_p2$cluster[match(emu$name_short,
-                                                substr(myclassif_p2$ser,1,nchar(as.character(myclassif_p1$ser))-2))],
+                                                substr(myclassif_p2$ser,1,nchar(as.character(myclassif_p2$ser))-2))],
                        levels=1:7)
 ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
 		geom_sf(data=emu,aes(fill=cluster1)) + scale_fill_manual(values=cols)+
@@ -4175,6 +4199,14 @@ kable(list_period2[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")],
   </tr>
 </tbody>
 </table>
+
+```r
+list_period2$type="EU closure"
+list_period1$type="EMP closure"
+list_period=rbind.data.frame(list_period1,list_period2)
+list_period$stage="Y"
+save(list_period,file="loss_yellowfresh.rdata")
+```
 
 
 ##All habitats
@@ -4706,7 +4738,7 @@ pat$cluster <- factor(match(pat$cluster, c("1","2","5","3","6","4")),
 
 ggplot(pat,aes(x=month,y=proportion))+
   geom_boxplot(aes(fill=cluster),outlier.shape=NA) +
-  scale_fill_manual(values=cols) +
+  scale_fill_manual(values=cols)+facet_wrap(.~cluster, ncol=1) +
   theme_bw()
 ```
 
@@ -5353,7 +5385,7 @@ myplots <-lapply(c("MO","C","T", "F"),function(hty){
                                     hty))
   emu$cluster1 <- factor(myclassif_p1$cluster[match(emu$name_short,                                                  substr(myclassif_p1$ser,1,nchar(as.character(myclassif_p1$ser))-2))],
                        levels=1:7)
-  emu$cluster2 <- factor(myclassif_p2$cluster[match(emu$name_short,                                                substr(myclassif_p2$ser,1,nchar(as.character(myclassif_p1$ser))-2))],
+  emu$cluster2 <- factor(myclassif_p2$cluster[match(emu$name_short,                                                substr(myclassif_p2$ser,1,nchar(as.character(myclassif_p2$ser))-2))],
                        levels=1:7)
   p1 <- ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
 		  geom_sf(data=emu,aes(fill=cluster1)) + scale_fill_manual(values=cols)+
@@ -6075,7 +6107,7 @@ pat <-get_pattern_month(myfit_silvereel_coastal_landings)
 pat$cluster <- factor(match(pat$cluster,c("1","3","4","2") ),
                       levels=as.character(1:7))
 ggplot(pat,aes(x=month,y=proportion))+
-  geom_boxplot(aes(fill=cluster),outlier.shape=NA) +
+  geom_boxplot(aes(fill=cluster),outlier.shape=NA)+facet_wrap(.~cluster, ncol=1) +
   theme_bw()
 ```
 
@@ -6378,9 +6410,9 @@ myplots <-lapply(c("MO","C","T"),function(hty){
   myclassif_p2 <- subset(myclassif, myclassif$period == 2 &
                            endsWith(as.character(myclassif$ser),
                                     hty))
-  emu$cluster1 <- factor(myclassif_p1$cluster[match(emu$name_short,                                                  substr(myclassif_p1$ser,1,nchar(as.character(myclassif_p1$ser))-2))],
+  emu$cluster1 <- factor(myclassif_p1$cluster[match(emu$name_short,                                                  gsub(paste("_",hty,sep=""),"",myclassif_p1$ser))],
                        levels=1:7)
-  emu$cluster2 <- factor(myclassif_p2$cluster[match(emu$name_short,                                                substr(myclassif_p2$ser,1,nchar(as.character(myclassif_p1$ser))-2))],
+  emu$cluster2 <- factor(myclassif_p2$cluster[match(emu$name_short,                                                gsub(paste("_",hty,sep=""),"",myclassif_p2$ser))],
                        levels=1:7)
   p1 <- ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
 		  geom_sf(data=emu,aes(fill=cluster1)) + scale_fill_manual(values=cols)+
@@ -6392,134 +6424,28 @@ myplots <-lapply(c("MO","C","T"),function(hty){
     ggtitle(paste("period 2",hty))
   return(list(p1,p2))
 })
-myplots <- do.call(c, myplots)
-print(myplots[[1]][[1]])
-```
-
-```
-## Simple feature collection with 54 features and 1 field
-## geometry type:  MULTIPOLYGON
-## dimension:      XY
-## bbox:           xmin: -31.26575 ymin: 32.39748 xmax: 69.07032 ymax: 81.85737
-## epsg (SRID):    4326
-## proj4string:    +proj=longlat +datum=WGS84 +no_defs
-## First 10 features:
-##                  NAME                       geometry
-## 1             Albania MULTIPOLYGON (((19.50115 40...
-## 2             Andorra MULTIPOLYGON (((1.439922 42...
-## 3             Austria MULTIPOLYGON (((16 48.77775...
-## 4             Belgium MULTIPOLYGON (((5 49.79374,...
-## 5  Bosnia Herzegovina MULTIPOLYGON (((19.22947 43...
-## 6             Croatia MULTIPOLYGON (((14.30038 44...
-## 7      Czech Republic MULTIPOLYGON (((14.82523 50...
-## 8             Denmark MULTIPOLYGON (((11.99978 54...
-## 9             Estonia MULTIPOLYGON (((23.97511 58...
-## 10            Finland MULTIPOLYGON (((22.0731 60....
-```
-
-```r
-print(myplots[[1]][[2]])
-```
-
-```
-## [[1]]
-## mapping:  
-## geom_sf: na.rm = FALSE, legend = polygon
-## stat_sf: na.rm = FALSE
-## position_identity 
-## 
-## [[2]]
-## mapping: fill = ~cluster1 
-## geom_sf: na.rm = FALSE, legend = polygon
-## stat_sf: na.rm = FALSE
-## position_identity
-```
-
-```r
 print(myplots[[2]][[1]])
 ```
 
-```
-## Simple feature collection with 54 features and 1 field
-## geometry type:  MULTIPOLYGON
-## dimension:      XY
-## bbox:           xmin: -31.26575 ymin: 32.39748 xmax: 69.07032 ymax: 81.85737
-## epsg (SRID):    4326
-## proj4string:    +proj=longlat +datum=WGS84 +no_defs
-## First 10 features:
-##                  NAME                       geometry
-## 1             Albania MULTIPOLYGON (((19.50115 40...
-## 2             Andorra MULTIPOLYGON (((1.439922 42...
-## 3             Austria MULTIPOLYGON (((16 48.77775...
-## 4             Belgium MULTIPOLYGON (((5 49.79374,...
-## 5  Bosnia Herzegovina MULTIPOLYGON (((19.22947 43...
-## 6             Croatia MULTIPOLYGON (((14.30038 44...
-## 7      Czech Republic MULTIPOLYGON (((14.82523 50...
-## 8             Denmark MULTIPOLYGON (((11.99978 54...
-## 9             Estonia MULTIPOLYGON (((23.97511 58...
-## 10            Finland MULTIPOLYGON (((22.0731 60....
-```
+![](jags_landings_files/figure-html/unnamed-chunk-98-1.png)<!-- -->
 
 ```r
 print(myplots[[2]][[2]])
 ```
 
-```
-## [[1]]
-## mapping:  
-## geom_sf: na.rm = FALSE, legend = polygon
-## stat_sf: na.rm = FALSE
-## position_identity 
-## 
-## [[2]]
-## mapping: fill = ~cluster2 
-## geom_sf: na.rm = FALSE, legend = polygon
-## stat_sf: na.rm = FALSE
-## position_identity
-```
+![](jags_landings_files/figure-html/unnamed-chunk-98-2.png)<!-- -->
 
 ```r
 print(myplots[[3]][[1]])
 ```
 
-```
-## Simple feature collection with 54 features and 1 field
-## geometry type:  MULTIPOLYGON
-## dimension:      XY
-## bbox:           xmin: -31.26575 ymin: 32.39748 xmax: 69.07032 ymax: 81.85737
-## epsg (SRID):    4326
-## proj4string:    +proj=longlat +datum=WGS84 +no_defs
-## First 10 features:
-##                  NAME                       geometry
-## 1             Albania MULTIPOLYGON (((19.50115 40...
-## 2             Andorra MULTIPOLYGON (((1.439922 42...
-## 3             Austria MULTIPOLYGON (((16 48.77775...
-## 4             Belgium MULTIPOLYGON (((5 49.79374,...
-## 5  Bosnia Herzegovina MULTIPOLYGON (((19.22947 43...
-## 6             Croatia MULTIPOLYGON (((14.30038 44...
-## 7      Czech Republic MULTIPOLYGON (((14.82523 50...
-## 8             Denmark MULTIPOLYGON (((11.99978 54...
-## 9             Estonia MULTIPOLYGON (((23.97511 58...
-## 10            Finland MULTIPOLYGON (((22.0731 60....
-```
+![](jags_landings_files/figure-html/unnamed-chunk-98-3.png)<!-- -->
 
 ```r
 print(myplots[[3]][[2]])
 ```
 
-```
-## [[1]]
-## mapping:  
-## geom_sf: na.rm = FALSE, legend = polygon
-## stat_sf: na.rm = FALSE
-## position_identity 
-## 
-## [[2]]
-## mapping: fill = ~cluster1 
-## geom_sf: na.rm = FALSE, legend = polygon
-## stat_sf: na.rm = FALSE
-## position_identity
-```
+![](jags_landings_files/figure-html/unnamed-chunk-98-4.png)<!-- -->
 
 ### Exporting pattern per group
 
@@ -6625,7 +6551,7 @@ list_period1$hty_code=hty_code[period==1]
 #we check that we have ladings data at least two years before the first EMP closures
 list_period1$estimable=mapply(function(s,hty) {
   length(which(charac_EMP_closures$emu_nameshort==s 
-               & grepl("Y",charac_EMP_closures$lfs_code) 
+               & grepl("S",charac_EMP_closures$lfs_code) 
                & grepl(hty, charac_EMP_closures$hty_code)))>0},
   list_period1$emu_nameshort, list_period1$hty_code)
 
@@ -6731,14 +6657,14 @@ list_period2$hty_code=hty_code[period==2]
 #we check that we have ladings data at least two years before the first EMP closures
 list_period2$estimable=mapply(function(s,hty) {
   length(which(charac_EU_closures$emu_nameshort==s 
-               & grepl("Y",charac_EU_closures$lfs_code) 
+               & grepl("S",charac_EU_closures$lfs_code) 
                & grepl(hty, charac_EU_closures$hty_code)))>0},
   list_period2$emu_nameshort, list_period2$hty_code)
 
 list_period2$estimable=list_period2$estimable &
 (sapply(list_period2$id_g,function(e) min(silvereel_coastal_wide$season[group==e]))+2 <
 mapply(function(e,hty) min(charac_EU_closures$year[charac_EU_closures$emu_nameshort==e &
-                                                           grepl("Y",charac_EU_closures$lfs_code) &
+                                                           grepl("S",charac_EU_closures$lfs_code) &
                                                     grepl(hty,charac_EU_closures$hty_code)]),
        list_period2$emu_nameshort, list_period2$hty_code))
 
@@ -6748,7 +6674,7 @@ list_period2$lossq97.5=NA
 
 res_closures=mapply(function(s,g,hty) {
   emu_closures <- EU_closures %>%
-    filter(emu_nameshort==s & grepl("Y", lfs_code) & grepl(hty,hty_code)) %>%
+    filter(emu_nameshort==s & grepl("S", lfs_code) & grepl(hty,hty_code)) %>%
     group_by(emu_nameshort,month) %>%
     summarize(fishery_closure_percent=max(fishery_closure_percent))
   myalpha=tmp[,paste("alpha_group[",g,",",emu_closures$month,"]",sep="")]
@@ -6820,9 +6746,9 @@ kable(list_period2[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")],
   </tr>
   <tr>
    <td style="text-align:left;"> FR_Cors </td>
-   <td style="text-align:right;"> 0.02 </td>
-   <td style="text-align:right;"> 0.04 </td>
-   <td style="text-align:right;"> 0.05 </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
   </tr>
   <tr>
    <td style="text-align:left;"> GB_Angl </td>
@@ -6850,6 +6776,14 @@ kable(list_period2[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")],
   </tr>
 </tbody>
 </table>
+
+```r
+list_period2$type="EU closure"
+list_period1$type="EMP closure"
+list_period=rbind.data.frame(list_period1,list_period2)
+list_period$stage="S"
+save(list_period,file="loss_silvercoastal.rdata")
+```
 
 
 ##freshwater waters
@@ -7214,7 +7148,7 @@ pat$cluster <- factor(match(pat$cluster,c("4","1","5","2","3") ),
                       levels=as.character(1:7))
 ggplot(pat,aes(x=month,y=proportion))+
   geom_boxplot(aes(fill=cluster),outlier.shape=NA) +
-  scale_fill_manual(values=cols) +
+  scale_fill_manual(values=cols)+facet_wrap(.~cluster, ncol=1) +
   theme_bw()
 ```
 
@@ -7524,7 +7458,7 @@ emu$cluster1 <- factor(myclassif_p1$cluster[match(emu$name_short,
                                                   substr(myclassif_p1$ser,1,nchar(as.character(myclassif_p1$ser))-2))],
                        levels=1:7)
 emu$cluster2 <- factor(myclassif_p2$cluster[match(emu$name_short,
-                                                substr(myclassif_p2$ser,1,nchar(as.character(myclassif_p1$ser))-2))],
+                                                substr(myclassif_p2$ser,1,nchar(as.character(myclassif_p2$ser))-2))],
                        levels=1:7)
 ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
 		geom_sf(data=emu,aes(fill=cluster1)) + scale_fill_manual(values=cols)+
@@ -7741,7 +7675,7 @@ list_period2$estimable=mapply(function(s,hty) {
 list_period2$estimable=list_period2$estimable &
 (sapply(list_period2$id_g,function(e) min(silvereel_freshwater_wide$season[group==e]))+2 <
 mapply(function(e,hty) min(charac_EU_closures$year[charac_EU_closures$emu_nameshort==e &
-                                                           grepl("Y",charac_EU_closures$lfs_code) &
+                                                           grepl("S",charac_EU_closures$lfs_code) &
                                                     grepl(hty,charac_EU_closures$hty_code)]),
        list_period2$emu_nameshort, list_period2$hty_code))
 
@@ -7853,6 +7787,14 @@ kable(list_period2[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")],
   </tr>
 </tbody>
 </table>
+
+```r
+list_period2$type="EU closure"
+list_period1$type="EMP closure"
+list_period=rbind.data.frame(list_period1,list_period2)
+list_period$stage="S"
+save(list_period,file="loss_silverfresh.rdata")
+```
 
 
 
@@ -8414,7 +8356,7 @@ pat$cluster = factor(match(pat$cluster, c("3","6","4","2","1","5")),
                      levels=as.character(1:7))
 ggplot(pat,aes(x=month,y=proportion))+
   geom_boxplot(aes(fill=cluster),outlier.shape=NA) +
-  scale_fill_manual(values=cols)
+  scale_fill_manual(values=cols)+facet_wrap(.~cluster, ncol=1)
 ```
 
 ![](jags_landings_files/figure-html/unnamed-chunk-130-1.png)<!-- -->
