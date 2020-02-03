@@ -3,12 +3,16 @@ title: "Untitled"
 author: "Hilaire Drouineau"
 date: "23 janvier 2020"
 output: 
+  rmarkdown::md_document:
+     toc: yes
   rmarkdown::html_document:
      keep_md: yes
      toc: yes
-  rmarkdown::md_document:
-     toc: yes
 ---
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(fig.width=16, fig.height=16,warning=FALSE)
+```
+
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -24,7 +28,7 @@ library(ggplot2)
 library(doParallel)
 library(RColorBrewer)
 library(kableExtra)
-
+source("closure_vs_landings.R")
 library(sf)
 library(RPostgreSQL)
 con<-dbConnect(PostgreSQL(),host="localhost",dbname="wgeel_old",user="hilaire")
@@ -409,6 +413,116 @@ similarity=data.frame(emu=tocompare,t(simi))
 table_similarity(similarity)
 ```
 
+
+##Potential effect of EMP and EU closures
+```{r}
+ncar=nchar(group_name)
+period=as.integer(substr(as.character(group_name),ncar,ncar))
+emus=substr(group_name,1,ncar-2)
+
+
+
+#######EMP
+#For glass eels, we summed catches over hty, therefore here, we aggregate closures
+#taking the most restrictive if there are differences among habitats
+list_period1=data.frame(emu_nameshort=emus[period==1])
+list_period1$group=group_name[period==1]
+list_period1$id_g=match(list_period1$group,group_name)
+
+#we check that we have ladings data at least two years before the first EMP closures
+list_period1$estimable=sapply(list_period1$emu_nameshort, function(s) {
+  length(which(charac_EMP_closures$emu_nameshort==s 
+               & grepl("G",charac_EMP_closures$lfs_code) 
+               & charac_EMP_closures$hty_code != "F"))>0})
+
+list_period1$estimable=list_period1$estimable &
+(sapply(list_period1$id_g,function(e) min(glasseel_wide$season[group==e]))+2 <
+sapply(list_period1$emu_nameshort,function(e) min(charac_EMP_closures$year[charac_EMP_closures$emu_nameshort==e &
+                                                           grepl("G",charac_EMP_closures$lfs_code) &
+                                                    charac_EMP_closures$hty_code !="F"])))
+
+list_period1$lossq2.5=NA
+list_period1$lossq50=NA
+list_period1$lossq97.5=NA
+
+res_closures=mapply(function(s,g) {
+  emu_closures <- EMP_closures %>%
+    filter(emu_nameshort==s & grepl("G",lfs_code) & hty_code !="F") %>%
+    group_by(emu_nameshort,month) %>%
+    summarize(fishery_closure_percent=max(fishery_closure_percent))
+  myalpha=tmp[,paste("alpha_group[",g,",",emu_closures$month,"]",sep="")]
+  if (nrow(emu_closures)>1){
+    loss=colSums(apply(myalpha,1,function(x) x*emu_closures$fishery_closure_percent/100))
+  } else {
+    loss=myalpha*emu_closures$fishery_closure_percent/100
+  }
+  quantile(loss,probs=c(0.025,.5,.975))
+},as.character(list_period1$emu_nameshort[list_period1$estimable]),list_period1$id_g[list_period1$estimable])
+
+list_period1[list_period1$estimable, c("lossq2.5", "lossq50","lossq97.5")] =
+  t(res_closures)
+
+kable(list_period1[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")],
+      col.names=c("emu","q2.5","median","q97.5"),
+      caption="proportion of catch potentially lost because of EMP closure",
+      digits=2)
+
+
+
+
+
+
+
+#######EU
+#For glass eels, we summed catches over hty, therefore here, we aggregate closures
+#taking the most restrictive if there are differences among habitats
+list_period2=data.frame(emu_nameshort=emus[period==2])
+list_period2$group=group_name[period==2]
+list_period2$id_g=match(list_period2$group,group_name)
+
+#we check that we have ladings data at least two years before the first EU closures
+list_period2$estimable=sapply(list_period2$emu_nameshort, function(s) {
+  length(which(charac_EU_closures$emu_nameshort==s 
+               & grepl("G",charac_EU_closures$lfs_code) 
+               & charac_EU_closures$hty_code != "F"))>0})
+
+list_period2$estimable=list_period2$estimable &
+(sapply(list_period2$id_g,function(e) min(glasseel_wide$season[group==e]))+2 <
+sapply(list_period2$emu_nameshort,function(e) min(charac_EU_closures$year[charac_EU_closures$emu_nameshort==e &
+                                                           grepl("G",charac_EU_closures$lfs_code) &
+                                                    charac_EU_closures$hty_code !="F"])))
+
+list_period2$lossq2.5=NA
+list_period2$lossq50=NA
+list_period2$lossq97.5=NA
+
+res_closures=mapply(function(s,g) {
+  emu_closures <- EU_closures %>%
+    filter(emu_nameshort==s & grepl("G",lfs_code) & hty_code !="F") %>%
+    group_by(emu_nameshort,month) %>%
+    summarize(fishery_closure_percent=max(fishery_closure_percent))
+  myalpha=tmp[,paste("alpha_group[",g,",",emu_closures$month,"]",sep="")]
+  if (nrow(emu_closures)>1){
+    loss=colSums(apply(myalpha,1,function(x) x*emu_closures$fishery_closure_percent/100))
+  } else {
+    loss=myalpha*emu_closures$fishery_closure_percent/100
+  }
+  quantile(loss,probs=c(0.025,.5,.975))
+},as.character(list_period2$emu_nameshort[list_period2$estimable]),list_period2$id_g[list_period2$estimable])
+
+list_period2[list_period2$estimable, c("lossq2.5", "lossq50","lossq97.5")] =
+  t(res_closures)
+
+kable(list_period2[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")],
+      col.names=c("emu","q2.5","median","q97.5"),
+      caption="proportion of catch potentially lost because of EU closure",
+      digits=2)
+
+
+
+
+
+```
 
 
 # Yellow
@@ -801,6 +915,122 @@ similarity=data.frame(emu=tocompare,t(simi))
 table_similarity(similarity)
 ```
 
+### Potential effect of EMP and EU closures
+```{r}
+ncar=nchar(group_name)
+period=as.integer(substr(as.character(group_name),ncar,ncar))
+blocks=strsplit(group_name,"_")
+emus=sapply(blocks,function(x)paste(x[1],x[2],sep="_"))
+hty_code=sapply(blocks,function(x) substr(x[3],1,nchar(x[3])-2))
+
+
+
+#######EMP
+list_period1=data.frame(emu_nameshort=emus[period==1])
+list_period1$group=group_name[period==1]
+list_period1$id_g=match(list_period1$group,group_name)
+list_period1$hty_code=hty_code[period==1]
+  
+#we check that we have ladings data at least two years before the first EMP closures
+list_period1$estimable=mapply(function(s,hty) {
+  length(which(charac_EMP_closures$emu_nameshort==s 
+               & grepl("Y",charac_EMP_closures$lfs_code) 
+               & grepl(hty, charac_EMP_closures$hty_code)))>0},
+  list_period1$emu_nameshort, list_period1$hty_code)
+
+list_period1$estimable=list_period1$estimable &
+(sapply(list_period1$id_g,function(e) min(yelloweel_coastal_wide$season[group==e]))+2 <
+mapply(function(e,hty) min(charac_EMP_closures$year[charac_EMP_closures$emu_nameshort==e &
+                                                           grepl("Y",charac_EMP_closures$lfs_code) &
+                                                    grepl(hty,charac_EMP_closures$hty_code)]),
+       list_period1$emu_nameshort, list_period1$hty_code))
+
+list_period1$lossq2.5=NA
+list_period1$lossq50=NA
+list_period1$lossq97.5=NA
+
+res_closures=mapply(function(s,g,hty) {
+  emu_closures <- EMP_closures %>%
+    filter(emu_nameshort==s & grepl("Y",lfs_code) & grepl(hty, hty_code)) %>%
+    group_by(emu_nameshort,month) %>%
+    summarize(fishery_closure_percent=max(fishery_closure_percent))
+  myalpha=tmp[,paste("alpha_group[",g,",",emu_closures$month,"]",sep="")]
+  if (nrow(emu_closures)>1){
+    loss=colSums(apply(myalpha,1,function(x) x*emu_closures$fishery_closure_percent/100))
+  } else {
+    loss=myalpha*emu_closures$fishery_closure_percent/100
+  }
+  quantile(loss,probs=c(0.025,.5,.975))
+},as.character(list_period1$emu_nameshort[list_period1$estimable]),
+list_period1$id_g[list_period1$estimable],
+list_period1$hty[list_period1$estimable])
+
+list_period1[list_period1$estimable, c("lossq2.5", "lossq50","lossq97.5")] =
+  t(res_closures)
+
+kable(list_period1[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")],
+      col.names=c("emu","q2.5","median","q97.5"),
+      caption="proportion of catch potentially lost because of EMP closure",
+      digits=2)
+
+
+
+
+
+
+
+#######EU
+list_period2=data.frame(emu_nameshort=emus[period==2])
+list_period2$group=group_name[period==2]
+list_period2$id_g=match(list_period2$group,group_name)
+list_period2$hty_code=hty_code[period==2]
+  
+#we check that we have ladings data at least two years before the first EMP closures
+list_period2$estimable=mapply(function(s,hty) {
+  length(which(charac_EU_closures$emu_nameshort==s 
+               & grepl("Y",charac_EU_closures$lfs_code) 
+               & grepl(hty, charac_EU_closures$hty_code)))>0},
+  list_period2$emu_nameshort, list_period2$hty_code)
+
+list_period2$estimable=list_period2$estimable &
+(sapply(list_period2$id_g,function(e) min(yelloweel_coastal_wide$season[group==e]))+2 <
+mapply(function(e,hty) min(charac_EU_closures$year[charac_EU_closures$emu_nameshort==e &
+                                                           grepl("Y",charac_EU_closures$lfs_code) &
+                                                    grepl(hty,charac_EU_closures$hty_code)]),
+       list_period2$emu_nameshort, list_period2$hty_code))
+
+list_period2$lossq2.5=NA
+list_period2$lossq50=NA
+list_period2$lossq97.5=NA
+
+res_closures=mapply(function(s,g,hty) {
+  emu_closures <- EU_closures %>%
+    filter(emu_nameshort==s & grepl("Y", lfs_code) & grepl(hty,hty_code)) %>%
+    group_by(emu_nameshort,month) %>%
+    summarize(fishery_closure_percent=max(fishery_closure_percent))
+  myalpha=tmp[,paste("alpha_group[",g,",",emu_closures$month,"]",sep="")]
+  if (nrow(emu_closures)>1){
+    loss=colSums(apply(myalpha,1,function(x) x*emu_closures$fishery_closure_percent/100))
+  } else {
+    loss=myalpha*emu_closures$fishery_closure_percent/100
+  }
+  quantile(loss,probs=c(0.025,.5,.975))
+},as.character(list_period2$emu_nameshort[list_period2$estimable]),
+list_period2$id_g[list_period2$estimable],
+list_period2$hty_code[list_period2$estimable])
+
+list_period2[list_period2$estimable, c("lossq2.5", "lossq50","lossq97.5")] =
+  t(res_closures)
+
+kable(list_period2[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")],
+      col.names=c("emu","q2.5","median","q97.5"),
+      caption="proportion of catch potentially lost because of EU closure",
+      digits=2)
+
+
+
+```
+
 
 ##transitional waters
 ### Data selection
@@ -1121,6 +1351,122 @@ simi=sapply(tocompare, function(s){
 similarity=data.frame(emu=tocompare,t(simi))
 
 table_similarity(similarity)
+```
+
+### Potential effect of EMP and EU closures
+```{r}
+ncar=nchar(group_name)
+period=as.integer(substr(as.character(group_name),ncar,ncar))
+blocks=strsplit(group_name,"_")
+emus=sapply(blocks,function(x)paste(x[1],x[2],sep="_"))
+hty_code=sapply(blocks,function(x) substr(x[3],1,nchar(x[3])-2))
+
+
+
+#######EMP
+list_period1=data.frame(emu_nameshort=emus[period==1])
+list_period1$group=group_name[period==1]
+list_period1$id_g=match(list_period1$group,group_name)
+list_period1$hty_code=hty_code[period==1]
+  
+#we check that we have ladings data at least two years before the first EMP closures
+list_period1$estimable=mapply(function(s,hty) {
+  length(which(charac_EMP_closures$emu_nameshort==s 
+               & grepl("Y",charac_EMP_closures$lfs_code) 
+               & grepl(hty, charac_EMP_closures$hty_code)))>0},
+  list_period1$emu_nameshort, list_period1$hty_code)
+
+list_period1$estimable=list_period1$estimable &
+(sapply(list_period1$id_g,function(e) min(yelloweel_transitional_wide$season[group==e]))+2 <
+mapply(function(e,hty) min(charac_EMP_closures$year[charac_EMP_closures$emu_nameshort==e &
+                                                           grepl("Y",charac_EMP_closures$lfs_code) &
+                                                    grepl(hty,charac_EMP_closures$hty_code)]),
+       list_period1$emu_nameshort, list_period1$hty_code))
+
+list_period1$lossq2.5=NA
+list_period1$lossq50=NA
+list_period1$lossq97.5=NA
+
+res_closures=mapply(function(s,g,hty) {
+  emu_closures <- EMP_closures %>%
+    filter(emu_nameshort==s & grepl("Y",lfs_code) & grepl(hty, hty_code)) %>%
+    group_by(emu_nameshort,month) %>%
+    summarize(fishery_closure_percent=max(fishery_closure_percent))
+  myalpha=tmp[,paste("alpha_group[",g,",",emu_closures$month,"]",sep="")]
+  if (nrow(emu_closures)>1){
+    loss=colSums(apply(myalpha,1,function(x) x*emu_closures$fishery_closure_percent/100))
+  } else {
+    loss=myalpha*emu_closures$fishery_closure_percent/100
+  }
+  quantile(loss,probs=c(0.025,.5,.975))
+},as.character(list_period1$emu_nameshort[list_period1$estimable]),
+list_period1$id_g[list_period1$estimable],
+list_period1$hty[list_period1$estimable])
+
+list_period1[list_period1$estimable, c("lossq2.5", "lossq50","lossq97.5")] =
+  t(res_closures)
+
+kable(list_period1[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")],
+      col.names=c("emu","q2.5","median","q97.5"),
+      caption="proportion of catch potentially lost because of EMP closure",
+      digits=2)
+
+
+
+
+
+
+
+#######EU
+list_period2=data.frame(emu_nameshort=emus[period==2])
+list_period2$group=group_name[period==2]
+list_period2$id_g=match(list_period2$group,group_name)
+list_period2$hty_code=hty_code[period==2]
+  
+#we check that we have ladings data at least two years before the first EMP closures
+list_period2$estimable=mapply(function(s,hty) {
+  length(which(charac_EU_closures$emu_nameshort==s 
+               & grepl("Y",charac_EU_closures$lfs_code) 
+               & grepl(hty, charac_EU_closures$hty_code)))>0},
+  list_period2$emu_nameshort, list_period2$hty_code)
+
+list_period2$estimable=list_period2$estimable &
+(sapply(list_period2$id_g,function(e) min(yelloweel_transitional_wide$season[group==e]))+2 <
+mapply(function(e,hty) min(charac_EU_closures$year[charac_EU_closures$emu_nameshort==e &
+                                                           grepl("Y",charac_EU_closures$lfs_code) &
+                                                    grepl(hty,charac_EU_closures$hty_code)]),
+       list_period2$emu_nameshort, list_period2$hty_code))
+
+list_period2$lossq2.5=NA
+list_period2$lossq50=NA
+list_period2$lossq97.5=NA
+
+res_closures=mapply(function(s,g,hty) {
+  emu_closures <- EU_closures %>%
+    filter(emu_nameshort==s & grepl("Y", lfs_code) & grepl(hty,hty_code)) %>%
+    group_by(emu_nameshort,month) %>%
+    summarize(fishery_closure_percent=max(fishery_closure_percent))
+  myalpha=tmp[,paste("alpha_group[",g,",",emu_closures$month,"]",sep="")]
+  if (nrow(emu_closures)>1){
+    loss=colSums(apply(myalpha,1,function(x) x*emu_closures$fishery_closure_percent/100))
+  } else {
+    loss=myalpha*emu_closures$fishery_closure_percent/100
+  }
+  quantile(loss,probs=c(0.025,.5,.975))
+},as.character(list_period2$emu_nameshort[list_period2$estimable]),
+list_period2$id_g[list_period2$estimable],
+list_period2$hty_code[list_period2$estimable])
+
+list_period2[list_period2$estimable, c("lossq2.5", "lossq50","lossq97.5")] =
+  t(res_closures)
+
+kable(list_period2[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")],
+      col.names=c("emu","q2.5","median","q97.5"),
+      caption="proportion of catch potentially lost because of EU closure",
+      digits=2)
+
+
+
 ```
 
 
@@ -1449,7 +1795,121 @@ similarity=data.frame(emu=tocompare,t(simi))
 table_similarity(similarity)
 ```
 
+### Potential effect of EMP and EU closures
+```{r}
+ncar=nchar(group_name)
+period=as.integer(substr(as.character(group_name),ncar,ncar))
+blocks=strsplit(group_name,"_")
+emus=sapply(blocks,function(x)paste(x[1],x[2],sep="_"))
+hty_code=sapply(blocks,function(x) substr(x[3],1,nchar(x[3])-2))
 
+
+
+#######EMP
+list_period1=data.frame(emu_nameshort=emus[period==1])
+list_period1$group=group_name[period==1]
+list_period1$id_g=match(list_period1$group,group_name)
+list_period1$hty_code=hty_code[period==1]
+  
+#we check that we have ladings data at least two years before the first EMP closures
+list_period1$estimable=mapply(function(s,hty) {
+  length(which(charac_EMP_closures$emu_nameshort==s 
+               & grepl("Y",charac_EMP_closures$lfs_code) 
+               & grepl(hty, charac_EMP_closures$hty_code)))>0},
+  list_period1$emu_nameshort, list_period1$hty_code)
+
+list_period1$estimable=list_period1$estimable &
+(sapply(list_period1$id_g,function(e) min(yelloweel_freshwater_wide$season[group==e]))+2 <
+mapply(function(e,hty) min(charac_EMP_closures$year[charac_EMP_closures$emu_nameshort==e &
+                                                           grepl("Y",charac_EMP_closures$lfs_code) &
+                                                    grepl(hty,charac_EMP_closures$hty_code)]),
+       list_period1$emu_nameshort, list_period1$hty_code))
+
+list_period1$lossq2.5=NA
+list_period1$lossq50=NA
+list_period1$lossq97.5=NA
+
+res_closures=mapply(function(s,g,hty) {
+  emu_closures <- EMP_closures %>%
+    filter(emu_nameshort==s & grepl("Y",lfs_code) & grepl(hty, hty_code)) %>%
+    group_by(emu_nameshort,month) %>%
+    summarize(fishery_closure_percent=max(fishery_closure_percent))
+  myalpha=tmp[,paste("alpha_group[",g,",",emu_closures$month,"]",sep="")]
+  if (nrow(emu_closures)>1){
+    loss=colSums(apply(myalpha,1,function(x) x*emu_closures$fishery_closure_percent/100))
+  } else {
+    loss=myalpha*emu_closures$fishery_closure_percent/100
+  }
+  quantile(loss,probs=c(0.025,.5,.975))
+},as.character(list_period1$emu_nameshort[list_period1$estimable]),
+list_period1$id_g[list_period1$estimable],
+list_period1$hty[list_period1$estimable])
+
+list_period1[list_period1$estimable, c("lossq2.5", "lossq50","lossq97.5")] =
+  t(res_closures)
+
+kable(list_period1[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")],
+      col.names=c("emu","q2.5","median","q97.5"),
+      caption="proportion of catch potentially lost because of EMP closure",
+      digits=2)
+
+
+
+
+
+
+
+#######EU
+list_period2=data.frame(emu_nameshort=emus[period==2])
+list_period2$group=group_name[period==2]
+list_period2$id_g=match(list_period2$group,group_name)
+list_period2$hty_code=hty_code[period==2]
+  
+#we check that we have ladings data at least two years before the first EMP closures
+list_period2$estimable=mapply(function(s,hty) {
+  length(which(charac_EU_closures$emu_nameshort==s 
+               & grepl("Y",charac_EU_closures$lfs_code) 
+               & grepl(hty, charac_EU_closures$hty_code)))>0},
+  list_period2$emu_nameshort, list_period2$hty_code)
+
+list_period2$estimable=list_period2$estimable &
+(sapply(list_period2$id_g,function(e) min(yelloweel_freshwater_wide$season[group==e]))+2 <
+mapply(function(e,hty) min(charac_EU_closures$year[charac_EU_closures$emu_nameshort==e &
+                                                           grepl("Y",charac_EU_closures$lfs_code) &
+                                                    grepl(hty,charac_EU_closures$hty_code)]),
+       list_period2$emu_nameshort, list_period2$hty_code))
+
+list_period2$lossq2.5=NA
+list_period2$lossq50=NA
+list_period2$lossq97.5=NA
+
+res_closures=mapply(function(s,g,hty) {
+  emu_closures <- EU_closures %>%
+    filter(emu_nameshort==s & grepl("Y", lfs_code) & grepl(hty,hty_code)) %>%
+    group_by(emu_nameshort,month) %>%
+    summarize(fishery_closure_percent=max(fishery_closure_percent))
+  myalpha=tmp[,paste("alpha_group[",g,",",emu_closures$month,"]",sep="")]
+  if (nrow(emu_closures)>1){
+    loss=colSums(apply(myalpha,1,function(x) x*emu_closures$fishery_closure_percent/100))
+  } else {
+    loss=myalpha*emu_closures$fishery_closure_percent/100
+  }
+  quantile(loss,probs=c(0.025,.5,.975))
+},as.character(list_period2$emu_nameshort[list_period2$estimable]),
+list_period2$id_g[list_period2$estimable],
+list_period2$hty_code[list_period2$estimable])
+
+list_period2[list_period2$estimable, c("lossq2.5", "lossq50","lossq97.5")] =
+  t(res_closures)
+
+kable(list_period2[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")],
+      col.names=c("emu","q2.5","median","q97.5"),
+      caption="proportion of catch potentially lost because of EU closure",
+      digits=2)
+
+
+
+```
 
 
 ##All habitats
@@ -2166,6 +2626,121 @@ similarity=data.frame(emu=tocompare,t(simi))
 table_similarity(similarity)
 ```
 
+### Potential effect of EMP and EU closures
+```{r}
+ncar=nchar(group_name)
+period=as.integer(substr(as.character(group_name),ncar,ncar))
+blocks=strsplit(group_name,"_")
+emus=sapply(blocks,function(x)paste(x[1],x[2],sep="_"))
+hty_code=sapply(blocks,function(x) substr(x[3],1,nchar(x[3])-2))
+
+
+
+#######EMP
+list_period1=data.frame(emu_nameshort=emus[period==1])
+list_period1$group=group_name[period==1]
+list_period1$id_g=match(list_period1$group,group_name)
+list_period1$hty_code=hty_code[period==1]
+  
+#we check that we have ladings data at least two years before the first EMP closures
+list_period1$estimable=mapply(function(s,hty) {
+  length(which(charac_EMP_closures$emu_nameshort==s 
+               & grepl("S",charac_EMP_closures$lfs_code) 
+               & grepl(hty, charac_EMP_closures$hty_code)))>0},
+  list_period1$emu_nameshort, list_period1$hty_code)
+
+list_period1$estimable=list_period1$estimable &
+(sapply(list_period1$id_g,function(e) min(silvereel_coastal_wide$season[group==e]))+2 <
+mapply(function(e,hty) min(charac_EMP_closures$year[charac_EMP_closures$emu_nameshort==e &
+                                                           grepl("S",charac_EMP_closures$lfs_code) &
+                                                    grepl(hty,charac_EMP_closures$hty_code)]),
+       list_period1$emu_nameshort, list_period1$hty_code))
+
+list_period1$lossq2.5=NA
+list_period1$lossq50=NA
+list_period1$lossq97.5=NA
+
+res_closures=mapply(function(s,g,hty) {
+  emu_closures <- EMP_closures %>%
+    filter(emu_nameshort==s & grepl("S",lfs_code) & grepl(hty, hty_code)) %>%
+    group_by(emu_nameshort,month) %>%
+    summarize(fishery_closure_percent=max(fishery_closure_percent))
+  myalpha=tmp[,paste("alpha_group[",g,",",emu_closures$month,"]",sep="")]
+  if (nrow(emu_closures)>1){
+    loss=colSums(apply(myalpha,1,function(x) x*emu_closures$fishery_closure_percent/100))
+  } else {
+    loss=myalpha*emu_closures$fishery_closure_percent/100
+  }
+  quantile(loss,probs=c(0.025,.5,.975))
+},as.character(list_period1$emu_nameshort[list_period1$estimable]),
+list_period1$id_g[list_period1$estimable],
+list_period1$hty[list_period1$estimable])
+
+list_period1[list_period1$estimable, c("lossq2.5", "lossq50","lossq97.5")] =
+  t(res_closures)
+
+kable(list_period1[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")],
+      col.names=c("emu","q2.5","median","q97.5"),
+      caption="proportion of catch potentially lost because of EMP closure",
+      digits=2)
+
+
+
+
+
+
+
+#######EU
+list_period2=data.frame(emu_nameshort=emus[period==2])
+list_period2$group=group_name[period==2]
+list_period2$id_g=match(list_period2$group,group_name)
+list_period2$hty_code=hty_code[period==2]
+  
+#we check that we have ladings data at least two years before the first EMP closures
+list_period2$estimable=mapply(function(s,hty) {
+  length(which(charac_EU_closures$emu_nameshort==s 
+               & grepl("S",charac_EU_closures$lfs_code) 
+               & grepl(hty, charac_EU_closures$hty_code)))>0},
+  list_period2$emu_nameshort, list_period2$hty_code)
+
+list_period2$estimable=list_period2$estimable &
+(sapply(list_period2$id_g,function(e) min(silvereel_coastal_wide$season[group==e]))+2 <
+mapply(function(e,hty) min(charac_EU_closures$year[charac_EU_closures$emu_nameshort==e &
+                                                           grepl("S",charac_EU_closures$lfs_code) &
+                                                    grepl(hty,charac_EU_closures$hty_code)]),
+       list_period2$emu_nameshort, list_period2$hty_code))
+
+list_period2$lossq2.5=NA
+list_period2$lossq50=NA
+list_period2$lossq97.5=NA
+
+res_closures=mapply(function(s,g,hty) {
+  emu_closures <- EU_closures %>%
+    filter(emu_nameshort==s & grepl("S", lfs_code) & grepl(hty,hty_code)) %>%
+    group_by(emu_nameshort,month) %>%
+    summarize(fishery_closure_percent=max(fishery_closure_percent))
+  myalpha=tmp[,paste("alpha_group[",g,",",emu_closures$month,"]",sep="")]
+  if (nrow(emu_closures)>1){
+    loss=colSums(apply(myalpha,1,function(x) x*emu_closures$fishery_closure_percent/100))
+  } else {
+    loss=myalpha*emu_closures$fishery_closure_percent/100
+  }
+  quantile(loss,probs=c(0.025,.5,.975))
+},as.character(list_period2$emu_nameshort[list_period2$estimable]),
+list_period2$id_g[list_period2$estimable],
+list_period2$hty_code[list_period2$estimable])
+
+list_period2[list_period2$estimable, c("lossq2.5", "lossq50","lossq97.5")] =
+  t(res_closures)
+
+kable(list_period2[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")],
+      col.names=c("emu","q2.5","median","q97.5"),
+      caption="proportion of catch potentially lost because of EU closure",
+      digits=2)
+
+
+
+```
 
 
 ##freshwater waters
@@ -2492,6 +3067,121 @@ similarity=data.frame(emu=tocompare,t(simi))
 table_similarity(similarity)
 ```
 
+### Potential effect of EMP and EU closures
+```{r}
+ncar=nchar(group_name)
+period=as.integer(substr(as.character(group_name),ncar,ncar))
+blocks=strsplit(group_name,"_")
+emus=sapply(blocks,function(x)paste(x[1],x[2],sep="_"))
+hty_code=sapply(blocks,function(x) substr(x[3],1,nchar(x[3])-2))
+
+
+
+#######EMP
+list_period1=data.frame(emu_nameshort=emus[period==1])
+list_period1$group=group_name[period==1]
+list_period1$id_g=match(list_period1$group,group_name)
+list_period1$hty_code=hty_code[period==1]
+  
+#we check that we have ladings data at least two years before the first EMP closures
+list_period1$estimable=mapply(function(s,hty) {
+  length(which(charac_EMP_closures$emu_nameshort==s 
+               & grepl("S",charac_EMP_closures$lfs_code) 
+               & grepl(hty, charac_EMP_closures$hty_code)))>0},
+  list_period1$emu_nameshort, list_period1$hty_code)
+
+list_period1$estimable=list_period1$estimable &
+(sapply(list_period1$id_g,function(e) min(silvereel_freshwater_wide$season[group==e]))+2 <
+mapply(function(e,hty) min(charac_EMP_closures$year[charac_EMP_closures$emu_nameshort==e &
+                                                           grepl("S",charac_EMP_closures$lfs_code) &
+                                                    grepl(hty,charac_EMP_closures$hty_code)]),
+       list_period1$emu_nameshort, list_period1$hty_code))
+
+list_period1$lossq2.5=NA
+list_period1$lossq50=NA
+list_period1$lossq97.5=NA
+
+res_closures=mapply(function(s,g,hty) {
+  emu_closures <- EMP_closures %>%
+    filter(emu_nameshort==s & grepl("S",lfs_code) & grepl(hty, hty_code)) %>%
+    group_by(emu_nameshort,month) %>%
+    summarize(fishery_closure_percent=max(fishery_closure_percent))
+  myalpha=tmp[,paste("alpha_group[",g,",",emu_closures$month,"]",sep="")]
+  if (nrow(emu_closures)>1){
+    loss=colSums(apply(myalpha,1,function(x) x*emu_closures$fishery_closure_percent/100))
+  } else {
+    loss=myalpha*emu_closures$fishery_closure_percent/100
+  }
+  quantile(loss,probs=c(0.025,.5,.975))
+},as.character(list_period1$emu_nameshort[list_period1$estimable]),
+list_period1$id_g[list_period1$estimable],
+list_period1$hty[list_period1$estimable])
+
+list_period1[list_period1$estimable, c("lossq2.5", "lossq50","lossq97.5")] =
+  t(res_closures)
+
+kable(list_period1[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")],
+      col.names=c("emu","q2.5","median","q97.5"),
+      caption="proportion of catch potentially lost because of EMP closure",
+      digits=2)
+
+
+
+
+
+
+
+#######EU
+list_period2=data.frame(emu_nameshort=emus[period==2])
+list_period2$group=group_name[period==2]
+list_period2$id_g=match(list_period2$group,group_name)
+list_period2$hty_code=hty_code[period==2]
+  
+#we check that we have ladings data at least two years before the first EMP closures
+list_period2$estimable=mapply(function(s,hty) {
+  length(which(charac_EU_closures$emu_nameshort==s 
+               & grepl("S",charac_EU_closures$lfs_code) 
+               & grepl(hty, charac_EU_closures$hty_code)))>0},
+  list_period2$emu_nameshort, list_period2$hty_code)
+
+list_period2$estimable=list_period2$estimable &
+(sapply(list_period2$id_g,function(e) min(silvereel_freshwater_wide$season[group==e]))+2 <
+mapply(function(e,hty) min(charac_EU_closures$year[charac_EU_closures$emu_nameshort==e &
+                                                           grepl("S",charac_EU_closures$lfs_code) &
+                                                    grepl(hty,charac_EU_closures$hty_code)]),
+       list_period2$emu_nameshort, list_period2$hty_code))
+
+list_period2$lossq2.5=NA
+list_period2$lossq50=NA
+list_period2$lossq97.5=NA
+
+res_closures=mapply(function(s,g,hty) {
+  emu_closures <- EU_closures %>%
+    filter(emu_nameshort==s & grepl("S", lfs_code) & grepl(hty,hty_code)) %>%
+    group_by(emu_nameshort,month) %>%
+    summarize(fishery_closure_percent=max(fishery_closure_percent))
+  myalpha=tmp[,paste("alpha_group[",g,",",emu_closures$month,"]",sep="")]
+  if (nrow(emu_closures)>1){
+    loss=colSums(apply(myalpha,1,function(x) x*emu_closures$fishery_closure_percent/100))
+  } else {
+    loss=myalpha*emu_closures$fishery_closure_percent/100
+  }
+  quantile(loss,probs=c(0.025,.5,.975))
+},as.character(list_period2$emu_nameshort[list_period2$estimable]),
+list_period2$id_g[list_period2$estimable],
+list_period2$hty_code[list_period2$estimable])
+
+list_period2[list_period2$estimable, c("lossq2.5", "lossq50","lossq97.5")] =
+  t(res_closures)
+
+kable(list_period2[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")],
+      col.names=c("emu","q2.5","median","q97.5"),
+      caption="proportion of catch potentially lost because of EU closure",
+      digits=2)
+
+
+
+```
 
 
 

@@ -12,6 +12,8 @@ output:
 
 
 
+
+
 # Introduction
 We start by loading the rdata provided by Cédric who has imported and edited all the xlsx files. He also provides a very good overview of the content [here](landings_seasonality.md). Based on this job, we will try to carry out a similar analysis as for [seasonality](jags_modelling.md). More specifically, we can use the same Bayesian model to make a clustering of time series. For each stage, we will build a data set that gives for each season, and each EMU (and perhaps habitat), the proportion of catches per month.
 
@@ -611,35 +613,17 @@ table_classif(myclassif)
  </thead>
 <tbody>
   <tr>
-   <td style="text-align:left;"> ES_Basq </td>
-   <td style="text-align:left;"> 1 </td>
-   <td style="text-align:left;"> 1 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 100 </td>
-   <td style="text-align:right;"> 0 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> ES_Cata </td>
-   <td style="text-align:left;"> 1 </td>
-   <td style="text-align:left;"> 1 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 100 </td>
-   <td style="text-align:right;"> 0 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> FR_Adou </td>
-   <td style="text-align:left;"> 1 </td>
-   <td style="text-align:left;"> 1 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 100 </td>
-   <td style="text-align:right;"> 0 </td>
-  </tr>
-  <tr>
    <td style="text-align:left;"> ES_Astu </td>
    <td style="text-align:left;"> 2 </td>
+   <td style="text-align:left;"> 1 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 100 </td>
+   <td style="text-align:right;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> ES_Basq </td>
+   <td style="text-align:left;"> 1 </td>
    <td style="text-align:left;"> 1 </td>
    <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 0 </td>
@@ -666,6 +650,15 @@ table_classif(myclassif)
   </tr>
   <tr>
    <td style="text-align:left;"> ES_Cata </td>
+   <td style="text-align:left;"> 1 </td>
+   <td style="text-align:left;"> 1 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 100 </td>
+   <td style="text-align:right;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> ES_Cata </td>
    <td style="text-align:left;"> 2 </td>
    <td style="text-align:left;"> 1 </td>
    <td style="text-align:right;"> 0 </td>
@@ -676,6 +669,15 @@ table_classif(myclassif)
   <tr>
    <td style="text-align:left;"> ES_Mino </td>
    <td style="text-align:left;"> 2 </td>
+   <td style="text-align:left;"> 1 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 100 </td>
+   <td style="text-align:right;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> FR_Adou </td>
+   <td style="text-align:left;"> 1 </td>
    <td style="text-align:left;"> 1 </td>
    <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 0 </td>
@@ -701,33 +703,6 @@ table_classif(myclassif)
    <td style="text-align:right;"> 0 </td>
   </tr>
   <tr>
-   <td style="text-align:left;"> FR_Bret </td>
-   <td style="text-align:left;"> 1 </td>
-   <td style="text-align:left;"> 2 </td>
-   <td style="text-align:right;"> 100 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> FR_Garo </td>
-   <td style="text-align:left;"> 1 </td>
-   <td style="text-align:left;"> 2 </td>
-   <td style="text-align:right;"> 100 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> FR_Loir </td>
-   <td style="text-align:left;"> 1 </td>
-   <td style="text-align:left;"> 2 </td>
-   <td style="text-align:right;"> 100 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-  </tr>
-  <tr>
    <td style="text-align:left;"> ES_Vale </td>
    <td style="text-align:left;"> 2 </td>
    <td style="text-align:left;"> 2 </td>
@@ -738,6 +713,15 @@ table_classif(myclassif)
   </tr>
   <tr>
    <td style="text-align:left;"> FR_Bret </td>
+   <td style="text-align:left;"> 1 </td>
+   <td style="text-align:left;"> 2 </td>
+   <td style="text-align:right;"> 100 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> FR_Bret </td>
    <td style="text-align:left;"> 2 </td>
    <td style="text-align:left;"> 2 </td>
    <td style="text-align:right;"> 100 </td>
@@ -747,7 +731,25 @@ table_classif(myclassif)
   </tr>
   <tr>
    <td style="text-align:left;"> FR_Garo </td>
+   <td style="text-align:left;"> 1 </td>
    <td style="text-align:left;"> 2 </td>
+   <td style="text-align:right;"> 100 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> FR_Garo </td>
+   <td style="text-align:left;"> 2 </td>
+   <td style="text-align:left;"> 2 </td>
+   <td style="text-align:right;"> 100 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> FR_Loir </td>
+   <td style="text-align:left;"> 1 </td>
    <td style="text-align:left;"> 2 </td>
    <td style="text-align:right;"> 100 </td>
    <td style="text-align:right;"> 0 </td>
@@ -773,8 +775,26 @@ table_classif(myclassif)
    <td style="text-align:right;"> 100 </td>
   </tr>
   <tr>
+   <td style="text-align:left;"> FR_Arto </td>
+   <td style="text-align:left;"> 2 </td>
+   <td style="text-align:left;"> 3 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 100 </td>
+  </tr>
+  <tr>
    <td style="text-align:left;"> FR_Sein </td>
    <td style="text-align:left;"> 1 </td>
+   <td style="text-align:left;"> 3 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 100 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> FR_Sein </td>
+   <td style="text-align:left;"> 2 </td>
    <td style="text-align:left;"> 3 </td>
    <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 0 </td>
@@ -809,35 +829,17 @@ table_classif(myclassif)
    <td style="text-align:right;"> 100 </td>
   </tr>
   <tr>
-   <td style="text-align:left;"> GB_Wale </td>
-   <td style="text-align:left;"> 1 </td>
-   <td style="text-align:left;"> 3 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 100 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> FR_Arto </td>
-   <td style="text-align:left;"> 2 </td>
-   <td style="text-align:left;"> 3 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 100 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> FR_Sein </td>
-   <td style="text-align:left;"> 2 </td>
-   <td style="text-align:left;"> 3 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 100 </td>
-  </tr>
-  <tr>
    <td style="text-align:left;"> GB_SouW </td>
    <td style="text-align:left;"> 2 </td>
+   <td style="text-align:left;"> 3 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 100 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> GB_Wale </td>
+   <td style="text-align:left;"> 1 </td>
    <td style="text-align:left;"> 3 </td>
    <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 0 </td>
@@ -982,6 +984,292 @@ table_similarity(similarity)
 </tbody>
 </table>
 
+
+##Potential effect of EMP and EU closures
+
+```r
+ncar=nchar(group_name)
+period=as.integer(substr(as.character(group_name),ncar,ncar))
+emus=substr(group_name,1,ncar-2)
+
+
+
+#######EMP
+#For glass eels, we summed catches over hty, therefore here, we aggregate closures
+#taking the most restrictive if there are differences among habitats
+list_period1=data.frame(emu_nameshort=emus[period==1])
+list_period1$group=group_name[period==1]
+list_period1$id_g=match(list_period1$group,group_name)
+
+#we check that we have ladings data at least two years before the first EMP closures
+list_period1$estimable=sapply(list_period1$emu_nameshort, function(s) {
+  length(which(charac_EMP_closures$emu_nameshort==s 
+               & grepl("G",charac_EMP_closures$lfs_code) 
+               & charac_EMP_closures$hty_code != "F"))>0})
+
+list_period1$estimable=list_period1$estimable &
+(sapply(list_period1$id_g,function(e) min(glasseel_wide$season[group==e]))+2 <
+sapply(list_period1$emu_nameshort,function(e) min(charac_EMP_closures$year[charac_EMP_closures$emu_nameshort==e &
+                                                           grepl("G",charac_EMP_closures$lfs_code) &
+                                                    charac_EMP_closures$hty_code !="F"])))
+
+list_period1$lossq2.5=NA
+list_period1$lossq50=NA
+list_period1$lossq97.5=NA
+
+res_closures=mapply(function(s,g) {
+  emu_closures <- EMP_closures %>%
+    filter(emu_nameshort==s & grepl("G",lfs_code) & hty_code !="F") %>%
+    group_by(emu_nameshort,month) %>%
+    summarize(fishery_closure_percent=max(fishery_closure_percent))
+  myalpha=tmp[,paste("alpha_group[",g,",",emu_closures$month,"]",sep="")]
+  if (nrow(emu_closures)>1){
+    loss=colSums(apply(myalpha,1,function(x) x*emu_closures$fishery_closure_percent/100))
+  } else {
+    loss=myalpha*emu_closures$fishery_closure_percent/100
+  }
+  quantile(loss,probs=c(0.025,.5,.975))
+},as.character(list_period1$emu_nameshort[list_period1$estimable]),list_period1$id_g[list_period1$estimable])
+
+list_period1[list_period1$estimable, c("lossq2.5", "lossq50","lossq97.5")] =
+  t(res_closures)
+
+kable(list_period1[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")],
+      col.names=c("emu","q2.5","median","q97.5"),
+      caption="proportion of catch potentially lost because of EMP closure",
+      digits=2)
+```
+
+<table>
+<caption>proportion of catch potentially lost because of EMP closure</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;"> emu </th>
+   <th style="text-align:right;"> q2.5 </th>
+   <th style="text-align:right;"> median </th>
+   <th style="text-align:right;"> q97.5 </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> ES_Astu </td>
+   <td style="text-align:right;"> 0.07 </td>
+   <td style="text-align:right;"> 0.10 </td>
+   <td style="text-align:right;"> 0.14 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> ES_Basq </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> ES_Cata </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> FR_Adou </td>
+   <td style="text-align:right;"> 0.04 </td>
+   <td style="text-align:right;"> 0.05 </td>
+   <td style="text-align:right;"> 0.07 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> FR_Arto </td>
+   <td style="text-align:right;"> 0.11 </td>
+   <td style="text-align:right;"> 0.14 </td>
+   <td style="text-align:right;"> 0.17 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> FR_Bret </td>
+   <td style="text-align:right;"> 0.06 </td>
+   <td style="text-align:right;"> 0.08 </td>
+   <td style="text-align:right;"> 0.11 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> FR_Garo </td>
+   <td style="text-align:right;"> 0.07 </td>
+   <td style="text-align:right;"> 0.09 </td>
+   <td style="text-align:right;"> 0.12 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> FR_Loir </td>
+   <td style="text-align:right;"> 0.04 </td>
+   <td style="text-align:right;"> 0.04 </td>
+   <td style="text-align:right;"> 0.06 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> FR_Sein </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> GB_NorW </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> GB_Seve </td>
+   <td style="text-align:right;"> 0.13 </td>
+   <td style="text-align:right;"> 0.16 </td>
+   <td style="text-align:right;"> 0.20 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> GB_SouW </td>
+   <td style="text-align:right;"> 0.48 </td>
+   <td style="text-align:right;"> 0.51 </td>
+   <td style="text-align:right;"> 0.55 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> GB_Wale </td>
+   <td style="text-align:right;"> 0.77 </td>
+   <td style="text-align:right;"> 0.80 </td>
+   <td style="text-align:right;"> 0.82 </td>
+  </tr>
+</tbody>
+</table>
+
+```r
+#######EU
+#For glass eels, we summed catches over hty, therefore here, we aggregate closures
+#taking the most restrictive if there are differences among habitats
+list_period2=data.frame(emu_nameshort=emus[period==2])
+list_period2$group=group_name[period==2]
+list_period2$id_g=match(list_period2$group,group_name)
+
+#we check that we have ladings data at least two years before the first EU closures
+list_period2$estimable=sapply(list_period2$emu_nameshort, function(s) {
+  length(which(charac_EU_closures$emu_nameshort==s 
+               & grepl("G",charac_EU_closures$lfs_code) 
+               & charac_EU_closures$hty_code != "F"))>0})
+
+list_period2$estimable=list_period2$estimable &
+(sapply(list_period2$id_g,function(e) min(glasseel_wide$season[group==e]))+2 <
+sapply(list_period2$emu_nameshort,function(e) min(charac_EU_closures$year[charac_EU_closures$emu_nameshort==e &
+                                                           grepl("G",charac_EU_closures$lfs_code) &
+                                                    charac_EU_closures$hty_code !="F"])))
+
+list_period2$lossq2.5=NA
+list_period2$lossq50=NA
+list_period2$lossq97.5=NA
+
+res_closures=mapply(function(s,g) {
+  emu_closures <- EU_closures %>%
+    filter(emu_nameshort==s & grepl("G",lfs_code) & hty_code !="F") %>%
+    group_by(emu_nameshort,month) %>%
+    summarize(fishery_closure_percent=max(fishery_closure_percent))
+  myalpha=tmp[,paste("alpha_group[",g,",",emu_closures$month,"]",sep="")]
+  if (nrow(emu_closures)>1){
+    loss=colSums(apply(myalpha,1,function(x) x*emu_closures$fishery_closure_percent/100))
+  } else {
+    loss=myalpha*emu_closures$fishery_closure_percent/100
+  }
+  quantile(loss,probs=c(0.025,.5,.975))
+},as.character(list_period2$emu_nameshort[list_period2$estimable]),list_period2$id_g[list_period2$estimable])
+
+list_period2[list_period2$estimable, c("lossq2.5", "lossq50","lossq97.5")] =
+  t(res_closures)
+
+kable(list_period2[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")],
+      col.names=c("emu","q2.5","median","q97.5"),
+      caption="proportion of catch potentially lost because of EU closure",
+      digits=2)
+```
+
+<table>
+<caption>proportion of catch potentially lost because of EU closure</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;"> emu </th>
+   <th style="text-align:right;"> q2.5 </th>
+   <th style="text-align:right;"> median </th>
+   <th style="text-align:right;"> q97.5 </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> ES_Astu </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> ES_Basq </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> ES_Cant </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> ES_Cata </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> ES_Mino </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> ES_Vale </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> FR_Adou </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> FR_Arto </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> FR_Bret </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> FR_Garo </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> FR_Loir </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> FR_Sein </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> GB_SouW </td>
+   <td style="text-align:right;"> 0.01 </td>
+   <td style="text-align:right;"> 0.05 </td>
+   <td style="text-align:right;"> 0.14 </td>
+  </tr>
+</tbody>
+</table>
 
 
 # Yellow
@@ -1461,7 +1749,7 @@ ggplot(pat,aes(x=month,y=proportion))+
   theme_bw()
 ```
 
-![](jags_landings_files/figure-html/unnamed-chunk-30-1.png)<!-- -->
+![](jags_landings_files/figure-html/unnamed-chunk-31-1.png)<!-- -->
 
 Clusters 1 peaks summer. Clusters 2 peaks in winter, cluster 3 lasts from may to november.
 
@@ -1594,32 +1882,16 @@ table_classif(myclassif)
    <td style="text-align:right;"> 98 </td>
   </tr>
   <tr>
-   <td style="text-align:left;"> DK_total_MO </td>
-   <td style="text-align:left;"> 1 </td>
-   <td style="text-align:left;"> 2 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 100 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> SE_East_C </td>
-   <td style="text-align:left;"> 1 </td>
-   <td style="text-align:left;"> 2 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 100 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> SE_West_C </td>
-   <td style="text-align:left;"> 1 </td>
-   <td style="text-align:left;"> 2 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 100 </td>
-  </tr>
-  <tr>
    <td style="text-align:left;"> DE_Schl_C </td>
    <td style="text-align:left;"> 2 </td>
+   <td style="text-align:left;"> 2 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 100 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> DK_total_MO </td>
+   <td style="text-align:left;"> 1 </td>
    <td style="text-align:left;"> 2 </td>
    <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 0 </td>
@@ -1659,7 +1931,23 @@ table_classif(myclassif)
   </tr>
   <tr>
    <td style="text-align:left;"> SE_East_C </td>
+   <td style="text-align:left;"> 1 </td>
    <td style="text-align:left;"> 2 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 100 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> SE_East_C </td>
+   <td style="text-align:left;"> 2 </td>
+   <td style="text-align:left;"> 2 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 100 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> SE_West_C </td>
+   <td style="text-align:left;"> 1 </td>
    <td style="text-align:left;"> 2 </td>
    <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 0 </td>
@@ -1701,7 +1989,7 @@ ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
   theme_bw() +xlim(-20,30) + ylim(35,65) 
 ```
 
-![](jags_landings_files/figure-html/unnamed-chunk-33-1.png)<!-- -->
+![](jags_landings_files/figure-html/unnamed-chunk-34-1.png)<!-- -->
 
 ```r
 ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
@@ -1709,7 +1997,7 @@ ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
   theme_bw() +xlim(-20,30) + ylim(35,65)  
 ```
 
-![](jags_landings_files/figure-html/unnamed-chunk-33-2.png)<!-- -->
+![](jags_landings_files/figure-html/unnamed-chunk-34-2.png)<!-- -->
 
 ### Exporting pattern per group
 
@@ -1782,6 +2070,222 @@ table_similarity(similarity)
    <td style="text-align:right;"> 0.66 </td>
    <td style="text-align:right;"> 0.78 </td>
    <td style="text-align:right;"> 0.88 </td>
+  </tr>
+</tbody>
+</table>
+
+### Potential effect of EMP and EU closures
+
+```r
+ncar=nchar(group_name)
+period=as.integer(substr(as.character(group_name),ncar,ncar))
+blocks=strsplit(group_name,"_")
+emus=sapply(blocks,function(x)paste(x[1],x[2],sep="_"))
+hty_code=sapply(blocks,function(x) substr(x[3],1,nchar(x[3])-2))
+
+
+
+#######EMP
+list_period1=data.frame(emu_nameshort=emus[period==1])
+list_period1$group=group_name[period==1]
+list_period1$id_g=match(list_period1$group,group_name)
+list_period1$hty_code=hty_code[period==1]
+  
+#we check that we have ladings data at least two years before the first EMP closures
+list_period1$estimable=mapply(function(s,hty) {
+  length(which(charac_EMP_closures$emu_nameshort==s 
+               & grepl("Y",charac_EMP_closures$lfs_code) 
+               & grepl(hty, charac_EMP_closures$hty_code)))>0},
+  list_period1$emu_nameshort, list_period1$hty_code)
+
+list_period1$estimable=list_period1$estimable &
+(sapply(list_period1$id_g,function(e) min(yelloweel_coastal_wide$season[group==e]))+2 <
+mapply(function(e,hty) min(charac_EMP_closures$year[charac_EMP_closures$emu_nameshort==e &
+                                                           grepl("Y",charac_EMP_closures$lfs_code) &
+                                                    grepl(hty,charac_EMP_closures$hty_code)]),
+       list_period1$emu_nameshort, list_period1$hty_code))
+
+list_period1$lossq2.5=NA
+list_period1$lossq50=NA
+list_period1$lossq97.5=NA
+
+res_closures=mapply(function(s,g,hty) {
+  emu_closures <- EMP_closures %>%
+    filter(emu_nameshort==s & grepl("Y",lfs_code) & grepl(hty, hty_code)) %>%
+    group_by(emu_nameshort,month) %>%
+    summarize(fishery_closure_percent=max(fishery_closure_percent))
+  myalpha=tmp[,paste("alpha_group[",g,",",emu_closures$month,"]",sep="")]
+  if (nrow(emu_closures)>1){
+    loss=colSums(apply(myalpha,1,function(x) x*emu_closures$fishery_closure_percent/100))
+  } else {
+    loss=myalpha*emu_closures$fishery_closure_percent/100
+  }
+  quantile(loss,probs=c(0.025,.5,.975))
+},as.character(list_period1$emu_nameshort[list_period1$estimable]),
+list_period1$id_g[list_period1$estimable],
+list_period1$hty[list_period1$estimable])
+
+list_period1[list_period1$estimable, c("lossq2.5", "lossq50","lossq97.5")] =
+  t(res_closures)
+
+kable(list_period1[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")],
+      col.names=c("emu","q2.5","median","q97.5"),
+      caption="proportion of catch potentially lost because of EMP closure",
+      digits=2)
+```
+
+<table>
+<caption>proportion of catch potentially lost because of EMP closure</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;"> emu </th>
+   <th style="text-align:left;"> q2.5 </th>
+   <th style="text-align:left;"> median </th>
+   <th style="text-align:left;"> q97.5 </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> DE_Eide </td>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:left;"> NA </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> DE_Schl </td>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:left;"> NA </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> DK_total </td>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:left;"> NA </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> SE_East </td>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:left;"> NA </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> SE_West </td>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:left;"> NA </td>
+  </tr>
+</tbody>
+</table>
+
+```r
+#######EU
+list_period2=data.frame(emu_nameshort=emus[period==2])
+list_period2$group=group_name[period==2]
+list_period2$id_g=match(list_period2$group,group_name)
+list_period2$hty_code=hty_code[period==2]
+  
+#we check that we have ladings data at least two years before the first EMP closures
+list_period2$estimable=mapply(function(s,hty) {
+  length(which(charac_EU_closures$emu_nameshort==s 
+               & grepl("Y",charac_EU_closures$lfs_code) 
+               & grepl(hty, charac_EU_closures$hty_code)))>0},
+  list_period2$emu_nameshort, list_period2$hty_code)
+
+list_period2$estimable=list_period2$estimable &
+(sapply(list_period2$id_g,function(e) min(yelloweel_coastal_wide$season[group==e]))+2 <
+mapply(function(e,hty) min(charac_EU_closures$year[charac_EU_closures$emu_nameshort==e &
+                                                           grepl("Y",charac_EU_closures$lfs_code) &
+                                                    grepl(hty,charac_EU_closures$hty_code)]),
+       list_period2$emu_nameshort, list_period2$hty_code))
+
+list_period2$lossq2.5=NA
+list_period2$lossq50=NA
+list_period2$lossq97.5=NA
+
+res_closures=mapply(function(s,g,hty) {
+  emu_closures <- EU_closures %>%
+    filter(emu_nameshort==s & grepl("Y", lfs_code) & grepl(hty,hty_code)) %>%
+    group_by(emu_nameshort,month) %>%
+    summarize(fishery_closure_percent=max(fishery_closure_percent))
+  myalpha=tmp[,paste("alpha_group[",g,",",emu_closures$month,"]",sep="")]
+  if (nrow(emu_closures)>1){
+    loss=colSums(apply(myalpha,1,function(x) x*emu_closures$fishery_closure_percent/100))
+  } else {
+    loss=myalpha*emu_closures$fishery_closure_percent/100
+  }
+  quantile(loss,probs=c(0.025,.5,.975))
+},as.character(list_period2$emu_nameshort[list_period2$estimable]),
+list_period2$id_g[list_period2$estimable],
+list_period2$hty_code[list_period2$estimable])
+
+list_period2[list_period2$estimable, c("lossq2.5", "lossq50","lossq97.5")] =
+  t(res_closures)
+
+kable(list_period2[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")],
+      col.names=c("emu","q2.5","median","q97.5"),
+      caption="proportion of catch potentially lost because of EU closure",
+      digits=2)
+```
+
+<table>
+<caption>proportion of catch potentially lost because of EU closure</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;"> emu </th>
+   <th style="text-align:right;"> q2.5 </th>
+   <th style="text-align:right;"> median </th>
+   <th style="text-align:right;"> q97.5 </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> DE_Eide </td>
+   <td style="text-align:right;"> 0.01 </td>
+   <td style="text-align:right;"> 0.02 </td>
+   <td style="text-align:right;"> 0.03 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> DE_Schl </td>
+   <td style="text-align:right;"> 0.02 </td>
+   <td style="text-align:right;"> 0.03 </td>
+   <td style="text-align:right;"> 0.04 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> DK_total </td>
+   <td style="text-align:right;"> 0.07 </td>
+   <td style="text-align:right;"> 0.10 </td>
+   <td style="text-align:right;"> 0.14 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> ES_Murc </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> GB_Angl </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.01 </td>
+   <td style="text-align:right;"> 0.02 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> GB_SouE </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.01 </td>
+   <td style="text-align:right;"> 0.02 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> GB_SouW </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.01 </td>
+   <td style="text-align:right;"> 0.01 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> SE_East </td>
+   <td style="text-align:right;"> 0.02 </td>
+   <td style="text-align:right;"> 0.06 </td>
+   <td style="text-align:right;"> 0.12 </td>
   </tr>
 </tbody>
 </table>
@@ -2115,7 +2619,7 @@ ggplot(pat,aes(x=month,y=proportion))+
   theme_bw()
 ```
 
-![](jags_landings_files/figure-html/unnamed-chunk-45-1.png)<!-- -->
+![](jags_landings_files/figure-html/unnamed-chunk-47-1.png)<!-- -->
 
 There is much more diversity than in coastal waters. Some clusters peak in srping (3), summer (2), autumn (1) and one has two peaks (4). 
 
@@ -2249,15 +2753,6 @@ table_classif(myclassif)
    <td style="text-align:right;"> 0 </td>
   </tr>
   <tr>
-   <td style="text-align:left;"> FR_Sein_T </td>
-   <td style="text-align:left;"> 1 </td>
-   <td style="text-align:left;"> 1 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 100 </td>
-   <td style="text-align:right;"> 0 </td>
-  </tr>
-  <tr>
    <td style="text-align:left;"> FR_Adou_T </td>
    <td style="text-align:left;"> 2 </td>
    <td style="text-align:left;"> 1 </td>
@@ -2278,6 +2773,15 @@ table_classif(myclassif)
   <tr>
    <td style="text-align:left;"> FR_Garo_T </td>
    <td style="text-align:left;"> 2 </td>
+   <td style="text-align:left;"> 1 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 100 </td>
+   <td style="text-align:right;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> FR_Sein_T </td>
+   <td style="text-align:left;"> 1 </td>
    <td style="text-align:left;"> 1 </td>
    <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 0 </td>
@@ -2312,8 +2816,26 @@ table_classif(myclassif)
    <td style="text-align:right;"> 100 </td>
   </tr>
   <tr>
+   <td style="text-align:left;"> DE_Eide_T </td>
+   <td style="text-align:left;"> 2 </td>
+   <td style="text-align:left;"> 3 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 100 </td>
+  </tr>
+  <tr>
    <td style="text-align:left;"> DE_Elbe_T </td>
    <td style="text-align:left;"> 1 </td>
+   <td style="text-align:left;"> 3 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 100 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> DE_Elbe_T </td>
+   <td style="text-align:left;"> 2 </td>
    <td style="text-align:left;"> 3 </td>
    <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 0 </td>
@@ -2339,35 +2861,17 @@ table_classif(myclassif)
    <td style="text-align:right;"> 87 </td>
   </tr>
   <tr>
-   <td style="text-align:left;"> NO_total_T </td>
-   <td style="text-align:left;"> 1 </td>
-   <td style="text-align:left;"> 3 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 100 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> DE_Eide_T </td>
-   <td style="text-align:left;"> 2 </td>
-   <td style="text-align:left;"> 3 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 100 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> DE_Elbe_T </td>
-   <td style="text-align:left;"> 2 </td>
-   <td style="text-align:left;"> 3 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 100 </td>
-  </tr>
-  <tr>
    <td style="text-align:left;"> FR_Loir_T </td>
    <td style="text-align:left;"> 2 </td>
+   <td style="text-align:left;"> 3 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 100 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> NO_total_T </td>
+   <td style="text-align:left;"> 1 </td>
    <td style="text-align:left;"> 3 </td>
    <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 0 </td>
@@ -2403,7 +2907,7 @@ ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
   theme_bw() +xlim(-20,30) + ylim(35,65) 
 ```
 
-![](jags_landings_files/figure-html/unnamed-chunk-48-1.png)<!-- -->
+![](jags_landings_files/figure-html/unnamed-chunk-50-1.png)<!-- -->
 
 ```r
 ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
@@ -2411,7 +2915,7 @@ ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
   theme_bw() +xlim(-20,30) + ylim(35,65)  
 ```
 
-![](jags_landings_files/figure-html/unnamed-chunk-48-2.png)<!-- -->
+![](jags_landings_files/figure-html/unnamed-chunk-50-2.png)<!-- -->
 
 ### Exporting pattern per group
 
@@ -2500,6 +3004,240 @@ table_similarity(similarity)
    <td style="text-align:right;"> 0.09 </td>
    <td style="text-align:right;"> 0.14 </td>
    <td style="text-align:right;"> 0.21 </td>
+  </tr>
+</tbody>
+</table>
+
+### Potential effect of EMP and EU closures
+
+```r
+ncar=nchar(group_name)
+period=as.integer(substr(as.character(group_name),ncar,ncar))
+blocks=strsplit(group_name,"_")
+emus=sapply(blocks,function(x)paste(x[1],x[2],sep="_"))
+hty_code=sapply(blocks,function(x) substr(x[3],1,nchar(x[3])-2))
+
+
+
+#######EMP
+list_period1=data.frame(emu_nameshort=emus[period==1])
+list_period1$group=group_name[period==1]
+list_period1$id_g=match(list_period1$group,group_name)
+list_period1$hty_code=hty_code[period==1]
+  
+#we check that we have ladings data at least two years before the first EMP closures
+list_period1$estimable=mapply(function(s,hty) {
+  length(which(charac_EMP_closures$emu_nameshort==s 
+               & grepl("Y",charac_EMP_closures$lfs_code) 
+               & grepl(hty, charac_EMP_closures$hty_code)))>0},
+  list_period1$emu_nameshort, list_period1$hty_code)
+
+list_period1$estimable=list_period1$estimable &
+(sapply(list_period1$id_g,function(e) min(yelloweel_transitional_wide$season[group==e]))+2 <
+mapply(function(e,hty) min(charac_EMP_closures$year[charac_EMP_closures$emu_nameshort==e &
+                                                           grepl("Y",charac_EMP_closures$lfs_code) &
+                                                    grepl(hty,charac_EMP_closures$hty_code)]),
+       list_period1$emu_nameshort, list_period1$hty_code))
+
+list_period1$lossq2.5=NA
+list_period1$lossq50=NA
+list_period1$lossq97.5=NA
+
+res_closures=mapply(function(s,g,hty) {
+  emu_closures <- EMP_closures %>%
+    filter(emu_nameshort==s & grepl("Y",lfs_code) & grepl(hty, hty_code)) %>%
+    group_by(emu_nameshort,month) %>%
+    summarize(fishery_closure_percent=max(fishery_closure_percent))
+  myalpha=tmp[,paste("alpha_group[",g,",",emu_closures$month,"]",sep="")]
+  if (nrow(emu_closures)>1){
+    loss=colSums(apply(myalpha,1,function(x) x*emu_closures$fishery_closure_percent/100))
+  } else {
+    loss=myalpha*emu_closures$fishery_closure_percent/100
+  }
+  quantile(loss,probs=c(0.025,.5,.975))
+},as.character(list_period1$emu_nameshort[list_period1$estimable]),
+list_period1$id_g[list_period1$estimable],
+list_period1$hty[list_period1$estimable])
+
+list_period1[list_period1$estimable, c("lossq2.5", "lossq50","lossq97.5")] =
+  t(res_closures)
+
+kable(list_period1[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")],
+      col.names=c("emu","q2.5","median","q97.5"),
+      caption="proportion of catch potentially lost because of EMP closure",
+      digits=2)
+```
+
+<table>
+<caption>proportion of catch potentially lost because of EMP closure</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;"> emu </th>
+   <th style="text-align:left;"> q2.5 </th>
+   <th style="text-align:left;"> median </th>
+   <th style="text-align:left;"> q97.5 </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> DE_Eide </td>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:left;"> NA </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> DE_Elbe </td>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:left;"> NA </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> FR_Adou </td>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:left;"> NA </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> FR_Bret </td>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:left;"> NA </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> FR_Garo </td>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:left;"> NA </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> FR_Loir </td>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:left;"> NA </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> FR_Sein </td>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:left;"> NA </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> NO_total </td>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:left;"> NA </td>
+  </tr>
+</tbody>
+</table>
+
+```r
+#######EU
+list_period2=data.frame(emu_nameshort=emus[period==2])
+list_period2$group=group_name[period==2]
+list_period2$id_g=match(list_period2$group,group_name)
+list_period2$hty_code=hty_code[period==2]
+  
+#we check that we have ladings data at least two years before the first EMP closures
+list_period2$estimable=mapply(function(s,hty) {
+  length(which(charac_EU_closures$emu_nameshort==s 
+               & grepl("Y",charac_EU_closures$lfs_code) 
+               & grepl(hty, charac_EU_closures$hty_code)))>0},
+  list_period2$emu_nameshort, list_period2$hty_code)
+
+list_period2$estimable=list_period2$estimable &
+(sapply(list_period2$id_g,function(e) min(yelloweel_transitional_wide$season[group==e]))+2 <
+mapply(function(e,hty) min(charac_EU_closures$year[charac_EU_closures$emu_nameshort==e &
+                                                           grepl("Y",charac_EU_closures$lfs_code) &
+                                                    grepl(hty,charac_EU_closures$hty_code)]),
+       list_period2$emu_nameshort, list_period2$hty_code))
+
+list_period2$lossq2.5=NA
+list_period2$lossq50=NA
+list_period2$lossq97.5=NA
+
+res_closures=mapply(function(s,g,hty) {
+  emu_closures <- EU_closures %>%
+    filter(emu_nameshort==s & grepl("Y", lfs_code) & grepl(hty,hty_code)) %>%
+    group_by(emu_nameshort,month) %>%
+    summarize(fishery_closure_percent=max(fishery_closure_percent))
+  myalpha=tmp[,paste("alpha_group[",g,",",emu_closures$month,"]",sep="")]
+  if (nrow(emu_closures)>1){
+    loss=colSums(apply(myalpha,1,function(x) x*emu_closures$fishery_closure_percent/100))
+  } else {
+    loss=myalpha*emu_closures$fishery_closure_percent/100
+  }
+  quantile(loss,probs=c(0.025,.5,.975))
+},as.character(list_period2$emu_nameshort[list_period2$estimable]),
+list_period2$id_g[list_period2$estimable],
+list_period2$hty_code[list_period2$estimable])
+
+list_period2[list_period2$estimable, c("lossq2.5", "lossq50","lossq97.5")] =
+  t(res_closures)
+
+kable(list_period2[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")],
+      col.names=c("emu","q2.5","median","q97.5"),
+      caption="proportion of catch potentially lost because of EU closure",
+      digits=2)
+```
+
+<table>
+<caption>proportion of catch potentially lost because of EU closure</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;"> emu </th>
+   <th style="text-align:right;"> q2.5 </th>
+   <th style="text-align:right;"> median </th>
+   <th style="text-align:right;"> q97.5 </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> DE_Eide </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> DE_Elbe </td>
+   <td style="text-align:right;"> 0.03 </td>
+   <td style="text-align:right;"> 0.05 </td>
+   <td style="text-align:right;"> 0.07 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> FR_Adou </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> FR_Bret </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> FR_Cors </td>
+   <td style="text-align:right;"> 0.05 </td>
+   <td style="text-align:right;"> 0.08 </td>
+   <td style="text-align:right;"> 0.12 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> FR_Garo </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> FR_Loir </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> FR_Sein </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
   </tr>
 </tbody>
 </table>
@@ -2880,7 +3618,7 @@ ggplot(pat,aes(x=month,y=proportion))+
   theme_bw()
 ```
 
-![](jags_landings_files/figure-html/unnamed-chunk-60-1.png)<!-- -->
+![](jags_landings_files/figure-html/unnamed-chunk-63-1.png)<!-- -->
 
 Clusters 1 and 3 are bivariate, with 1 peaking in spring and autumn and 3 peaking in summer and autumn. Cluster 2 is widespread from may to november.
 
@@ -3011,46 +3749,6 @@ table_classif(myclassif)
    <td style="text-align:right;"> 98 </td>
   </tr>
   <tr>
-   <td style="text-align:left;"> DE_Elbe_F </td>
-   <td style="text-align:left;"> 1 </td>
-   <td style="text-align:left;"> 2 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 100 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> DE_Schl_F </td>
-   <td style="text-align:left;"> 1 </td>
-   <td style="text-align:left;"> 2 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 100 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> FR_Garo_F </td>
-   <td style="text-align:left;"> 1 </td>
-   <td style="text-align:left;"> 2 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 100 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> FR_Rhon_F </td>
-   <td style="text-align:left;"> 1 </td>
-   <td style="text-align:left;"> 2 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 100 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> IE_West_F </td>
-   <td style="text-align:left;"> 1 </td>
-   <td style="text-align:left;"> 2 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 6 </td>
-   <td style="text-align:right;"> 94 </td>
-  </tr>
-  <tr>
    <td style="text-align:left;"> DE_Eide_F </td>
    <td style="text-align:left;"> 2 </td>
    <td style="text-align:left;"> 2 </td>
@@ -3060,7 +3758,23 @@ table_classif(myclassif)
   </tr>
   <tr>
    <td style="text-align:left;"> DE_Elbe_F </td>
+   <td style="text-align:left;"> 1 </td>
    <td style="text-align:left;"> 2 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 100 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> DE_Elbe_F </td>
+   <td style="text-align:left;"> 2 </td>
+   <td style="text-align:left;"> 2 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 100 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> DE_Schl_F </td>
+   <td style="text-align:left;"> 1 </td>
    <td style="text-align:left;"> 2 </td>
    <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 0 </td>
@@ -3083,6 +3797,22 @@ table_classif(myclassif)
    <td style="text-align:right;"> 100 </td>
   </tr>
   <tr>
+   <td style="text-align:left;"> FR_Garo_F </td>
+   <td style="text-align:left;"> 1 </td>
+   <td style="text-align:left;"> 2 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 100 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> FR_Rhon_F </td>
+   <td style="text-align:left;"> 1 </td>
+   <td style="text-align:left;"> 2 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 100 </td>
+  </tr>
+  <tr>
    <td style="text-align:left;"> GB_Angl_F </td>
    <td style="text-align:left;"> 2 </td>
    <td style="text-align:left;"> 2 </td>
@@ -3097,6 +3827,14 @@ table_classif(myclassif)
    <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 100 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> IE_West_F </td>
+   <td style="text-align:left;"> 1 </td>
+   <td style="text-align:left;"> 2 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 6 </td>
+   <td style="text-align:right;"> 94 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> GB_Dee_F </td>
@@ -3134,7 +3872,7 @@ ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
   theme_bw() +xlim(-20,30) + ylim(35,65) 
 ```
 
-![](jags_landings_files/figure-html/unnamed-chunk-63-1.png)<!-- -->
+![](jags_landings_files/figure-html/unnamed-chunk-66-1.png)<!-- -->
 
 ```r
 ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
@@ -3142,7 +3880,7 @@ ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
   theme_bw() +xlim(-20,30) + ylim(35,65)  
 ```
 
-![](jags_landings_files/figure-html/unnamed-chunk-63-2.png)<!-- -->
+![](jags_landings_files/figure-html/unnamed-chunk-66-2.png)<!-- -->
 
 ### Exporting pattern per group
 
@@ -3210,7 +3948,233 @@ table_similarity(similarity)
 </tbody>
 </table>
 
+### Potential effect of EMP and EU closures
 
+```r
+ncar=nchar(group_name)
+period=as.integer(substr(as.character(group_name),ncar,ncar))
+blocks=strsplit(group_name,"_")
+emus=sapply(blocks,function(x)paste(x[1],x[2],sep="_"))
+hty_code=sapply(blocks,function(x) substr(x[3],1,nchar(x[3])-2))
+
+
+
+#######EMP
+list_period1=data.frame(emu_nameshort=emus[period==1])
+list_period1$group=group_name[period==1]
+list_period1$id_g=match(list_period1$group,group_name)
+list_period1$hty_code=hty_code[period==1]
+  
+#we check that we have ladings data at least two years before the first EMP closures
+list_period1$estimable=mapply(function(s,hty) {
+  length(which(charac_EMP_closures$emu_nameshort==s 
+               & grepl("Y",charac_EMP_closures$lfs_code) 
+               & grepl(hty, charac_EMP_closures$hty_code)))>0},
+  list_period1$emu_nameshort, list_period1$hty_code)
+
+list_period1$estimable=list_period1$estimable &
+(sapply(list_period1$id_g,function(e) min(yelloweel_freshwater_wide$season[group==e]))+2 <
+mapply(function(e,hty) min(charac_EMP_closures$year[charac_EMP_closures$emu_nameshort==e &
+                                                           grepl("Y",charac_EMP_closures$lfs_code) &
+                                                    grepl(hty,charac_EMP_closures$hty_code)]),
+       list_period1$emu_nameshort, list_period1$hty_code))
+
+list_period1$lossq2.5=NA
+list_period1$lossq50=NA
+list_period1$lossq97.5=NA
+
+res_closures=mapply(function(s,g,hty) {
+  emu_closures <- EMP_closures %>%
+    filter(emu_nameshort==s & grepl("Y",lfs_code) & grepl(hty, hty_code)) %>%
+    group_by(emu_nameshort,month) %>%
+    summarize(fishery_closure_percent=max(fishery_closure_percent))
+  myalpha=tmp[,paste("alpha_group[",g,",",emu_closures$month,"]",sep="")]
+  if (nrow(emu_closures)>1){
+    loss=colSums(apply(myalpha,1,function(x) x*emu_closures$fishery_closure_percent/100))
+  } else {
+    loss=myalpha*emu_closures$fishery_closure_percent/100
+  }
+  quantile(loss,probs=c(0.025,.5,.975))
+},as.character(list_period1$emu_nameshort[list_period1$estimable]),
+list_period1$id_g[list_period1$estimable],
+list_period1$hty[list_period1$estimable])
+
+list_period1[list_period1$estimable, c("lossq2.5", "lossq50","lossq97.5")] =
+  t(res_closures)
+
+kable(list_period1[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")],
+      col.names=c("emu","q2.5","median","q97.5"),
+      caption="proportion of catch potentially lost because of EMP closure",
+      digits=2)
+```
+
+<table>
+<caption>proportion of catch potentially lost because of EMP closure</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;"> emu </th>
+   <th style="text-align:right;"> q2.5 </th>
+   <th style="text-align:right;"> median </th>
+   <th style="text-align:right;"> q97.5 </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> DE_Eide </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> DE_Elbe </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> DE_Schl </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> FR_Garo </td>
+   <td style="text-align:right;"> 0.30 </td>
+   <td style="text-align:right;"> 0.37 </td>
+   <td style="text-align:right;"> 0.44 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> FR_Loir </td>
+   <td style="text-align:right;"> 0.40 </td>
+   <td style="text-align:right;"> 0.48 </td>
+   <td style="text-align:right;"> 0.56 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> FR_Rhon </td>
+   <td style="text-align:right;"> 0.28 </td>
+   <td style="text-align:right;"> 0.36 </td>
+   <td style="text-align:right;"> 0.46 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> IE_West </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+  </tr>
+</tbody>
+</table>
+
+```r
+#######EU
+list_period2=data.frame(emu_nameshort=emus[period==2])
+list_period2$group=group_name[period==2]
+list_period2$id_g=match(list_period2$group,group_name)
+list_period2$hty_code=hty_code[period==2]
+  
+#we check that we have ladings data at least two years before the first EMP closures
+list_period2$estimable=mapply(function(s,hty) {
+  length(which(charac_EU_closures$emu_nameshort==s 
+               & grepl("Y",charac_EU_closures$lfs_code) 
+               & grepl(hty, charac_EU_closures$hty_code)))>0},
+  list_period2$emu_nameshort, list_period2$hty_code)
+
+list_period2$estimable=list_period2$estimable &
+(sapply(list_period2$id_g,function(e) min(yelloweel_freshwater_wide$season[group==e]))+2 <
+mapply(function(e,hty) min(charac_EU_closures$year[charac_EU_closures$emu_nameshort==e &
+                                                           grepl("Y",charac_EU_closures$lfs_code) &
+                                                    grepl(hty,charac_EU_closures$hty_code)]),
+       list_period2$emu_nameshort, list_period2$hty_code))
+
+list_period2$lossq2.5=NA
+list_period2$lossq50=NA
+list_period2$lossq97.5=NA
+
+res_closures=mapply(function(s,g,hty) {
+  emu_closures <- EU_closures %>%
+    filter(emu_nameshort==s & grepl("Y", lfs_code) & grepl(hty,hty_code)) %>%
+    group_by(emu_nameshort,month) %>%
+    summarize(fishery_closure_percent=max(fishery_closure_percent))
+  myalpha=tmp[,paste("alpha_group[",g,",",emu_closures$month,"]",sep="")]
+  if (nrow(emu_closures)>1){
+    loss=colSums(apply(myalpha,1,function(x) x*emu_closures$fishery_closure_percent/100))
+  } else {
+    loss=myalpha*emu_closures$fishery_closure_percent/100
+  }
+  quantile(loss,probs=c(0.025,.5,.975))
+},as.character(list_period2$emu_nameshort[list_period2$estimable]),
+list_period2$id_g[list_period2$estimable],
+list_period2$hty_code[list_period2$estimable])
+
+list_period2[list_period2$estimable, c("lossq2.5", "lossq50","lossq97.5")] =
+  t(res_closures)
+
+kable(list_period2[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")],
+      col.names=c("emu","q2.5","median","q97.5"),
+      caption="proportion of catch potentially lost because of EU closure",
+      digits=2)
+```
+
+<table>
+<caption>proportion of catch potentially lost because of EU closure</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;"> emu </th>
+   <th style="text-align:right;"> q2.5 </th>
+   <th style="text-align:right;"> median </th>
+   <th style="text-align:right;"> q97.5 </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> DE_Eide </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> DE_Elbe </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> DE_Schl </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> DE_Warn </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> GB_Angl </td>
+   <td style="text-align:right;"> 0.01 </td>
+   <td style="text-align:right;"> 0.03 </td>
+   <td style="text-align:right;"> 0.05 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> GB_Dee </td>
+   <td style="text-align:right;"> 0.01 </td>
+   <td style="text-align:right;"> 0.02 </td>
+   <td style="text-align:right;"> 0.04 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> GB_NorW </td>
+   <td style="text-align:right;"> 0.01 </td>
+   <td style="text-align:right;"> 0.01 </td>
+   <td style="text-align:right;"> 0.03 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> GB_Tham </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.01 </td>
+   <td style="text-align:right;"> 0.02 </td>
+  </tr>
+</tbody>
+</table>
 
 
 ##All habitats
@@ -3746,7 +4710,7 @@ ggplot(pat,aes(x=month,y=proportion))+
   theme_bw()
 ```
 
-![](jags_landings_files/figure-html/unnamed-chunk-75-1.png)<!-- -->
+![](jags_landings_files/figure-html/unnamed-chunk-79-1.png)<!-- -->
 
 Cluster 1 peaks in winter, 2 in spring, 3 in spring/summer, 5 is wisepread from april to november and 6 peaks in autumn (after a small peak in spring). 
 
@@ -3912,8 +4876,8 @@ table_classif(myclassif)
    <td style="text-align:right;"> 0 </td>
   </tr>
   <tr>
-   <td style="text-align:left;"> FR_Sein_T </td>
-   <td style="text-align:left;"> 1 </td>
+   <td style="text-align:left;"> FR_Adou_T </td>
+   <td style="text-align:left;"> 2 </td>
    <td style="text-align:left;"> 2 </td>
    <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 100 </td>
@@ -3923,8 +4887,8 @@ table_classif(myclassif)
    <td style="text-align:right;"> 0 </td>
   </tr>
   <tr>
-   <td style="text-align:left;"> FR_Adou_T </td>
-   <td style="text-align:left;"> 2 </td>
+   <td style="text-align:left;"> FR_Sein_T </td>
+   <td style="text-align:left;"> 1 </td>
    <td style="text-align:left;"> 2 </td>
    <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 100 </td>
@@ -3943,6 +4907,17 @@ table_classif(myclassif)
    <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 91 </td>
    <td style="text-align:right;"> 9 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> DE_Eide_F </td>
+   <td style="text-align:left;"> 2 </td>
+   <td style="text-align:left;"> 3 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 76 </td>
+   <td style="text-align:right;"> 24 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> DE_Elbe_F </td>
@@ -3965,17 +4940,6 @@ table_classif(myclassif)
    <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 51 </td>
    <td style="text-align:right;"> 7 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> DE_Eide_F </td>
-   <td style="text-align:left;"> 2 </td>
-   <td style="text-align:left;"> 3 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 76 </td>
-   <td style="text-align:right;"> 24 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> FR_Bret_T </td>
@@ -4055,6 +5019,17 @@ table_classif(myclassif)
    <td style="text-align:right;"> 100 </td>
   </tr>
   <tr>
+   <td style="text-align:left;"> DE_Eide_C </td>
+   <td style="text-align:left;"> 2 </td>
+   <td style="text-align:left;"> 5 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 100 </td>
+  </tr>
+  <tr>
    <td style="text-align:left;"> DE_Eide_T </td>
    <td style="text-align:left;"> 1 </td>
    <td style="text-align:left;"> 5 </td>
@@ -4064,6 +5039,28 @@ table_classif(myclassif)
    <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 100 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> DE_Eide_T </td>
+   <td style="text-align:left;"> 2 </td>
+   <td style="text-align:left;"> 5 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 100 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> DE_Elbe_F </td>
+   <td style="text-align:left;"> 2 </td>
+   <td style="text-align:left;"> 5 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 3 </td>
+   <td style="text-align:right;"> 97 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> DE_Elbe_T </td>
@@ -4077,6 +5074,17 @@ table_classif(myclassif)
    <td style="text-align:right;"> 99 </td>
   </tr>
   <tr>
+   <td style="text-align:left;"> DE_Elbe_T </td>
+   <td style="text-align:left;"> 2 </td>
+   <td style="text-align:left;"> 5 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 100 </td>
+  </tr>
+  <tr>
    <td style="text-align:left;"> DE_Schl_C </td>
    <td style="text-align:left;"> 1 </td>
    <td style="text-align:left;"> 5 </td>
@@ -4086,6 +5094,17 @@ table_classif(myclassif)
    <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 2 </td>
    <td style="text-align:right;"> 98 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> DE_Schl_C </td>
+   <td style="text-align:left;"> 2 </td>
+   <td style="text-align:left;"> 5 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 100 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> DE_Schl_F </td>
@@ -4099,8 +5118,41 @@ table_classif(myclassif)
    <td style="text-align:right;"> 80 </td>
   </tr>
   <tr>
+   <td style="text-align:left;"> DE_Schl_F </td>
+   <td style="text-align:left;"> 2 </td>
+   <td style="text-align:left;"> 5 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 100 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> DE_Warn_F </td>
+   <td style="text-align:left;"> 2 </td>
+   <td style="text-align:left;"> 5 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:right;"> 99 </td>
+  </tr>
+  <tr>
    <td style="text-align:left;"> DK_total_MO </td>
    <td style="text-align:left;"> 1 </td>
+   <td style="text-align:left;"> 5 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 100 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> DK_total_MO </td>
+   <td style="text-align:left;"> 2 </td>
    <td style="text-align:left;"> 5 </td>
    <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 0 </td>
@@ -4154,149 +5206,6 @@ table_classif(myclassif)
    <td style="text-align:right;"> 91 </td>
   </tr>
   <tr>
-   <td style="text-align:left;"> FR_Rhon_F </td>
-   <td style="text-align:left;"> 1 </td>
-   <td style="text-align:left;"> 5 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 2 </td>
-   <td style="text-align:right;"> 98 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> IE_West_F </td>
-   <td style="text-align:left;"> 1 </td>
-   <td style="text-align:left;"> 5 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 6 </td>
-   <td style="text-align:right;"> 94 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> NO_total_T </td>
-   <td style="text-align:left;"> 1 </td>
-   <td style="text-align:left;"> 5 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 100 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> SE_East_C </td>
-   <td style="text-align:left;"> 1 </td>
-   <td style="text-align:left;"> 5 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 100 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> SE_West_C </td>
-   <td style="text-align:left;"> 1 </td>
-   <td style="text-align:left;"> 5 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 100 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> DE_Eide_C </td>
-   <td style="text-align:left;"> 2 </td>
-   <td style="text-align:left;"> 5 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 100 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> DE_Eide_T </td>
-   <td style="text-align:left;"> 2 </td>
-   <td style="text-align:left;"> 5 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 100 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> DE_Elbe_F </td>
-   <td style="text-align:left;"> 2 </td>
-   <td style="text-align:left;"> 5 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 3 </td>
-   <td style="text-align:right;"> 97 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> DE_Elbe_T </td>
-   <td style="text-align:left;"> 2 </td>
-   <td style="text-align:left;"> 5 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 100 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> DE_Schl_C </td>
-   <td style="text-align:left;"> 2 </td>
-   <td style="text-align:left;"> 5 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 100 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> DE_Schl_F </td>
-   <td style="text-align:left;"> 2 </td>
-   <td style="text-align:left;"> 5 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 100 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> DE_Warn_F </td>
-   <td style="text-align:left;"> 2 </td>
-   <td style="text-align:left;"> 5 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 1 </td>
-   <td style="text-align:right;"> 99 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> DK_total_MO </td>
-   <td style="text-align:left;"> 2 </td>
-   <td style="text-align:left;"> 5 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 100 </td>
-  </tr>
-  <tr>
    <td style="text-align:left;"> FR_Loir_T </td>
    <td style="text-align:left;"> 2 </td>
    <td style="text-align:left;"> 5 </td>
@@ -4306,6 +5215,17 @@ table_classif(myclassif)
    <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 100 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> FR_Rhon_F </td>
+   <td style="text-align:left;"> 1 </td>
+   <td style="text-align:left;"> 5 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 2 </td>
+   <td style="text-align:right;"> 98 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> GB_Angl_C </td>
@@ -4352,8 +5272,52 @@ table_classif(myclassif)
    <td style="text-align:right;"> 100 </td>
   </tr>
   <tr>
+   <td style="text-align:left;"> IE_West_F </td>
+   <td style="text-align:left;"> 1 </td>
+   <td style="text-align:left;"> 5 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 6 </td>
+   <td style="text-align:right;"> 94 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> NO_total_T </td>
+   <td style="text-align:left;"> 1 </td>
+   <td style="text-align:left;"> 5 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 100 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> SE_East_C </td>
+   <td style="text-align:left;"> 1 </td>
+   <td style="text-align:left;"> 5 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 100 </td>
+  </tr>
+  <tr>
    <td style="text-align:left;"> SE_East_C </td>
    <td style="text-align:left;"> 2 </td>
+   <td style="text-align:left;"> 5 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 100 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> SE_West_C </td>
+   <td style="text-align:left;"> 1 </td>
    <td style="text-align:left;"> 5 </td>
    <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 0 </td>
@@ -5115,7 +6079,7 @@ ggplot(pat,aes(x=month,y=proportion))+
   theme_bw()
 ```
 
-![](jags_landings_files/figure-html/unnamed-chunk-91-1.png)<!-- -->
+![](jags_landings_files/figure-html/unnamed-chunk-95-1.png)<!-- -->
 Clusters 3 and 4 correspond to peak in october with 3 more widespread. Cluster 1 corresponds to a peak in autumn/winter. Cluster 2 corresponds to catches in winter.
 
 We compute some statistics to characterize the clusters.
@@ -5266,8 +6230,26 @@ table_classif(myclassif)
    <td style="text-align:right;"> 100 </td>
   </tr>
   <tr>
+   <td style="text-align:left;"> DE_Eide_C </td>
+   <td style="text-align:left;"> 2 </td>
+   <td style="text-align:left;"> 3 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 100 </td>
+  </tr>
+  <tr>
    <td style="text-align:left;"> DE_Elbe_T </td>
    <td style="text-align:left;"> 1 </td>
+   <td style="text-align:left;"> 3 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 100 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> DE_Elbe_T </td>
+   <td style="text-align:left;"> 2 </td>
    <td style="text-align:left;"> 3 </td>
    <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 0 </td>
@@ -5284,53 +6266,17 @@ table_classif(myclassif)
    <td style="text-align:right;"> 88 </td>
   </tr>
   <tr>
-   <td style="text-align:left;"> DK_total_MO </td>
-   <td style="text-align:left;"> 1 </td>
-   <td style="text-align:left;"> 3 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 100 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> SE_East_C </td>
-   <td style="text-align:left;"> 1 </td>
-   <td style="text-align:left;"> 3 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 100 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> SE_West_C </td>
-   <td style="text-align:left;"> 1 </td>
-   <td style="text-align:left;"> 3 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 100 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> DE_Eide_C </td>
-   <td style="text-align:left;"> 2 </td>
-   <td style="text-align:left;"> 3 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 100 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> DE_Elbe_T </td>
-   <td style="text-align:left;"> 2 </td>
-   <td style="text-align:left;"> 3 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 100 </td>
-  </tr>
-  <tr>
    <td style="text-align:left;"> DE_Schl_C </td>
    <td style="text-align:left;"> 2 </td>
+   <td style="text-align:left;"> 3 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 100 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> DK_total_MO </td>
+   <td style="text-align:left;"> 1 </td>
    <td style="text-align:left;"> 3 </td>
    <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 0 </td>
@@ -5348,7 +6294,25 @@ table_classif(myclassif)
   </tr>
   <tr>
    <td style="text-align:left;"> SE_East_C </td>
+   <td style="text-align:left;"> 1 </td>
+   <td style="text-align:left;"> 3 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 100 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> SE_East_C </td>
    <td style="text-align:left;"> 2 </td>
+   <td style="text-align:left;"> 3 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 100 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> SE_West_C </td>
+   <td style="text-align:left;"> 1 </td>
    <td style="text-align:left;"> 3 </td>
    <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 0 </td>
@@ -5641,6 +6605,251 @@ table_similarity(similarity)
 </tbody>
 </table>
 
+### Potential effect of EMP and EU closures
+
+```r
+ncar=nchar(group_name)
+period=as.integer(substr(as.character(group_name),ncar,ncar))
+blocks=strsplit(group_name,"_")
+emus=sapply(blocks,function(x)paste(x[1],x[2],sep="_"))
+hty_code=sapply(blocks,function(x) substr(x[3],1,nchar(x[3])-2))
+
+
+
+#######EMP
+list_period1=data.frame(emu_nameshort=emus[period==1])
+list_period1$group=group_name[period==1]
+list_period1$id_g=match(list_period1$group,group_name)
+list_period1$hty_code=hty_code[period==1]
+  
+#we check that we have ladings data at least two years before the first EMP closures
+list_period1$estimable=mapply(function(s,hty) {
+  length(which(charac_EMP_closures$emu_nameshort==s 
+               & grepl("Y",charac_EMP_closures$lfs_code) 
+               & grepl(hty, charac_EMP_closures$hty_code)))>0},
+  list_period1$emu_nameshort, list_period1$hty_code)
+
+list_period1$estimable=list_period1$estimable &
+(sapply(list_period1$id_g,function(e) min(silvereel_coastal_wide$season[group==e]))+2 <
+mapply(function(e,hty) min(charac_EMP_closures$year[charac_EMP_closures$emu_nameshort==e &
+                                                           grepl("S",charac_EMP_closures$lfs_code) &
+                                                    grepl(hty,charac_EMP_closures$hty_code)]),
+       list_period1$emu_nameshort, list_period1$hty_code))
+
+list_period1$lossq2.5=NA
+list_period1$lossq50=NA
+list_period1$lossq97.5=NA
+
+res_closures=mapply(function(s,g,hty) {
+  emu_closures <- EMP_closures %>%
+    filter(emu_nameshort==s & grepl("S",lfs_code) & grepl(hty, hty_code)) %>%
+    group_by(emu_nameshort,month) %>%
+    summarize(fishery_closure_percent=max(fishery_closure_percent))
+  myalpha=tmp[,paste("alpha_group[",g,",",emu_closures$month,"]",sep="")]
+  if (nrow(emu_closures)>1){
+    loss=colSums(apply(myalpha,1,function(x) x*emu_closures$fishery_closure_percent/100))
+  } else {
+    loss=myalpha*emu_closures$fishery_closure_percent/100
+  }
+  quantile(loss,probs=c(0.025,.5,.975))
+},as.character(list_period1$emu_nameshort[list_period1$estimable]),
+list_period1$id_g[list_period1$estimable],
+list_period1$hty[list_period1$estimable])
+
+list_period1[list_period1$estimable, c("lossq2.5", "lossq50","lossq97.5")] =
+  t(res_closures)
+
+kable(list_period1[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")],
+      col.names=c("emu","q2.5","median","q97.5"),
+      caption="proportion of catch potentially lost because of EMP closure",
+      digits=2)
+```
+
+<table>
+<caption>proportion of catch potentially lost because of EMP closure</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;"> emu </th>
+   <th style="text-align:left;"> q2.5 </th>
+   <th style="text-align:left;"> median </th>
+   <th style="text-align:left;"> q97.5 </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> DE_Eide </td>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:left;"> NA </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> DE_Eide </td>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:left;"> NA </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> DE_Elbe </td>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:left;"> NA </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> DE_Schl </td>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:left;"> NA </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> DK_total </td>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:left;"> NA </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> SE_East </td>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:left;"> NA </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> SE_West </td>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:left;"> NA </td>
+  </tr>
+</tbody>
+</table>
+
+```r
+#######EU
+list_period2=data.frame(emu_nameshort=emus[period==2])
+list_period2$group=group_name[period==2]
+list_period2$id_g=match(list_period2$group,group_name)
+list_period2$hty_code=hty_code[period==2]
+  
+#we check that we have ladings data at least two years before the first EMP closures
+list_period2$estimable=mapply(function(s,hty) {
+  length(which(charac_EU_closures$emu_nameshort==s 
+               & grepl("Y",charac_EU_closures$lfs_code) 
+               & grepl(hty, charac_EU_closures$hty_code)))>0},
+  list_period2$emu_nameshort, list_period2$hty_code)
+
+list_period2$estimable=list_period2$estimable &
+(sapply(list_period2$id_g,function(e) min(silvereel_coastal_wide$season[group==e]))+2 <
+mapply(function(e,hty) min(charac_EU_closures$year[charac_EU_closures$emu_nameshort==e &
+                                                           grepl("Y",charac_EU_closures$lfs_code) &
+                                                    grepl(hty,charac_EU_closures$hty_code)]),
+       list_period2$emu_nameshort, list_period2$hty_code))
+
+list_period2$lossq2.5=NA
+list_period2$lossq50=NA
+list_period2$lossq97.5=NA
+
+res_closures=mapply(function(s,g,hty) {
+  emu_closures <- EU_closures %>%
+    filter(emu_nameshort==s & grepl("Y", lfs_code) & grepl(hty,hty_code)) %>%
+    group_by(emu_nameshort,month) %>%
+    summarize(fishery_closure_percent=max(fishery_closure_percent))
+  myalpha=tmp[,paste("alpha_group[",g,",",emu_closures$month,"]",sep="")]
+  if (nrow(emu_closures)>1){
+    loss=colSums(apply(myalpha,1,function(x) x*emu_closures$fishery_closure_percent/100))
+  } else {
+    loss=myalpha*emu_closures$fishery_closure_percent/100
+  }
+  quantile(loss,probs=c(0.025,.5,.975))
+},as.character(list_period2$emu_nameshort[list_period2$estimable]),
+list_period2$id_g[list_period2$estimable],
+list_period2$hty_code[list_period2$estimable])
+
+list_period2[list_period2$estimable, c("lossq2.5", "lossq50","lossq97.5")] =
+  t(res_closures)
+
+kable(list_period2[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")],
+      col.names=c("emu","q2.5","median","q97.5"),
+      caption="proportion of catch potentially lost because of EU closure",
+      digits=2)
+```
+
+<table>
+<caption>proportion of catch potentially lost because of EU closure</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;"> emu </th>
+   <th style="text-align:right;"> q2.5 </th>
+   <th style="text-align:right;"> median </th>
+   <th style="text-align:right;"> q97.5 </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> DE_Eide </td>
+   <td style="text-align:right;"> 0.02 </td>
+   <td style="text-align:right;"> 0.03 </td>
+   <td style="text-align:right;"> 0.04 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> DE_Eide </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> DE_Elbe </td>
+   <td style="text-align:right;"> 0.01 </td>
+   <td style="text-align:right;"> 0.02 </td>
+   <td style="text-align:right;"> 0.03 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> DE_Schl </td>
+   <td style="text-align:right;"> 0.03 </td>
+   <td style="text-align:right;"> 0.05 </td>
+   <td style="text-align:right;"> 0.07 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> DK_total </td>
+   <td style="text-align:right;"> 0.25 </td>
+   <td style="text-align:right;"> 0.32 </td>
+   <td style="text-align:right;"> 0.39 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> ES_Murc </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> FR_Cors </td>
+   <td style="text-align:right;"> 0.02 </td>
+   <td style="text-align:right;"> 0.04 </td>
+   <td style="text-align:right;"> 0.05 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> GB_Angl </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.02 </td>
+   <td style="text-align:right;"> 0.05 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> GB_SouE </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.01 </td>
+   <td style="text-align:right;"> 0.03 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> GB_SouW </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.01 </td>
+   <td style="text-align:right;"> 0.02 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> SE_East </td>
+   <td style="text-align:right;"> 0.11 </td>
+   <td style="text-align:right;"> 0.18 </td>
+   <td style="text-align:right;"> 0.25 </td>
+  </tr>
+</tbody>
+</table>
 
 
 ##freshwater waters
@@ -6009,7 +7218,7 @@ ggplot(pat,aes(x=month,y=proportion))+
   theme_bw()
 ```
 
-![](jags_landings_files/figure-html/unnamed-chunk-106-1.png)<!-- -->
+![](jags_landings_files/figure-html/unnamed-chunk-111-1.png)<!-- -->
 
 Cluster 2 peaks in summer with a second peak in december, 5 in winter, 2 in summer. Clusters 1 and 3 are bivariate (spring and autumn).
 
@@ -6173,26 +7382,6 @@ table_classif(myclassif)
    <td style="text-align:right;"> 100 </td>
   </tr>
   <tr>
-   <td style="text-align:left;"> DE_Elbe_F </td>
-   <td style="text-align:left;"> 1 </td>
-   <td style="text-align:left;"> 3 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 100 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> DE_Schl_F </td>
-   <td style="text-align:left;"> 1 </td>
-   <td style="text-align:left;"> 3 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 100 </td>
-  </tr>
-  <tr>
    <td style="text-align:left;"> DE_Eide_F </td>
    <td style="text-align:left;"> 2 </td>
    <td style="text-align:left;"> 3 </td>
@@ -6204,7 +7393,27 @@ table_classif(myclassif)
   </tr>
   <tr>
    <td style="text-align:left;"> DE_Elbe_F </td>
+   <td style="text-align:left;"> 1 </td>
+   <td style="text-align:left;"> 3 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 100 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> DE_Elbe_F </td>
    <td style="text-align:left;"> 2 </td>
+   <td style="text-align:left;"> 3 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 100 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> DE_Schl_F </td>
+   <td style="text-align:left;"> 1 </td>
    <td style="text-align:left;"> 3 </td>
    <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 0 </td>
@@ -6322,7 +7531,7 @@ ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
   theme_bw() +xlim(-20,30) + ylim(35,65) 
 ```
 
-![](jags_landings_files/figure-html/unnamed-chunk-109-1.png)<!-- -->
+![](jags_landings_files/figure-html/unnamed-chunk-114-1.png)<!-- -->
 
 ```r
 ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
@@ -6330,7 +7539,7 @@ ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
   theme_bw() +xlim(-20,30) + ylim(35,65)  
 ```
 
-![](jags_landings_files/figure-html/unnamed-chunk-109-2.png)<!-- -->
+![](jags_landings_files/figure-html/unnamed-chunk-114-2.png)<!-- -->
 
 
 ### Exporting pattern per group
@@ -6411,6 +7620,239 @@ table_similarity(similarity)
 </tbody>
 </table>
 
+### Potential effect of EMP and EU closures
+
+```r
+ncar=nchar(group_name)
+period=as.integer(substr(as.character(group_name),ncar,ncar))
+blocks=strsplit(group_name,"_")
+emus=sapply(blocks,function(x)paste(x[1],x[2],sep="_"))
+hty_code=sapply(blocks,function(x) substr(x[3],1,nchar(x[3])-2))
+
+
+
+#######EMP
+list_period1=data.frame(emu_nameshort=emus[period==1])
+list_period1$group=group_name[period==1]
+list_period1$id_g=match(list_period1$group,group_name)
+list_period1$hty_code=hty_code[period==1]
+  
+#we check that we have ladings data at least two years before the first EMP closures
+list_period1$estimable=mapply(function(s,hty) {
+  length(which(charac_EMP_closures$emu_nameshort==s 
+               & grepl("S",charac_EMP_closures$lfs_code) 
+               & grepl(hty, charac_EMP_closures$hty_code)))>0},
+  list_period1$emu_nameshort, list_period1$hty_code)
+
+list_period1$estimable=list_period1$estimable &
+(sapply(list_period1$id_g,function(e) min(silvereel_freshwater_wide$season[group==e]))+2 <
+mapply(function(e,hty) min(charac_EMP_closures$year[charac_EMP_closures$emu_nameshort==e &
+                                                           grepl("S",charac_EMP_closures$lfs_code) &
+                                                    grepl(hty,charac_EMP_closures$hty_code)]),
+       list_period1$emu_nameshort, list_period1$hty_code))
+
+list_period1$lossq2.5=NA
+list_period1$lossq50=NA
+list_period1$lossq97.5=NA
+
+res_closures=mapply(function(s,g,hty) {
+  emu_closures <- EMP_closures %>%
+    filter(emu_nameshort==s & grepl("S",lfs_code) & grepl(hty, hty_code)) %>%
+    group_by(emu_nameshort,month) %>%
+    summarize(fishery_closure_percent=max(fishery_closure_percent))
+  myalpha=tmp[,paste("alpha_group[",g,",",emu_closures$month,"]",sep="")]
+  if (nrow(emu_closures)>1){
+    loss=colSums(apply(myalpha,1,function(x) x*emu_closures$fishery_closure_percent/100))
+  } else {
+    loss=myalpha*emu_closures$fishery_closure_percent/100
+  }
+  quantile(loss,probs=c(0.025,.5,.975))
+},as.character(list_period1$emu_nameshort[list_period1$estimable]),
+list_period1$id_g[list_period1$estimable],
+list_period1$hty[list_period1$estimable])
+
+list_period1[list_period1$estimable, c("lossq2.5", "lossq50","lossq97.5")] =
+  t(res_closures)
+
+kable(list_period1[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")],
+      col.names=c("emu","q2.5","median","q97.5"),
+      caption="proportion of catch potentially lost because of EMP closure",
+      digits=2)
+```
+
+<table>
+<caption>proportion of catch potentially lost because of EMP closure</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;"> emu </th>
+   <th style="text-align:right;"> q2.5 </th>
+   <th style="text-align:right;"> median </th>
+   <th style="text-align:right;"> q97.5 </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> DE_Eide </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> DE_Elbe </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> DE_Schl </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> FR_Loir </td>
+   <td style="text-align:right;"> 0.13 </td>
+   <td style="text-align:right;"> 0.17 </td>
+   <td style="text-align:right;"> 0.21 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> SE_Inla </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+  </tr>
+</tbody>
+</table>
+
+```r
+#######EU
+list_period2=data.frame(emu_nameshort=emus[period==2])
+list_period2$group=group_name[period==2]
+list_period2$id_g=match(list_period2$group,group_name)
+list_period2$hty_code=hty_code[period==2]
+  
+#we check that we have ladings data at least two years before the first EMP closures
+list_period2$estimable=mapply(function(s,hty) {
+  length(which(charac_EU_closures$emu_nameshort==s 
+               & grepl("S",charac_EU_closures$lfs_code) 
+               & grepl(hty, charac_EU_closures$hty_code)))>0},
+  list_period2$emu_nameshort, list_period2$hty_code)
+
+list_period2$estimable=list_period2$estimable &
+(sapply(list_period2$id_g,function(e) min(silvereel_freshwater_wide$season[group==e]))+2 <
+mapply(function(e,hty) min(charac_EU_closures$year[charac_EU_closures$emu_nameshort==e &
+                                                           grepl("Y",charac_EU_closures$lfs_code) &
+                                                    grepl(hty,charac_EU_closures$hty_code)]),
+       list_period2$emu_nameshort, list_period2$hty_code))
+
+list_period2$lossq2.5=NA
+list_period2$lossq50=NA
+list_period2$lossq97.5=NA
+
+res_closures=mapply(function(s,g,hty) {
+  emu_closures <- EU_closures %>%
+    filter(emu_nameshort==s & grepl("S", lfs_code) & grepl(hty,hty_code)) %>%
+    group_by(emu_nameshort,month) %>%
+    summarize(fishery_closure_percent=max(fishery_closure_percent))
+  myalpha=tmp[,paste("alpha_group[",g,",",emu_closures$month,"]",sep="")]
+  if (nrow(emu_closures)>1){
+    loss=colSums(apply(myalpha,1,function(x) x*emu_closures$fishery_closure_percent/100))
+  } else {
+    loss=myalpha*emu_closures$fishery_closure_percent/100
+  }
+  quantile(loss,probs=c(0.025,.5,.975))
+},as.character(list_period2$emu_nameshort[list_period2$estimable]),
+list_period2$id_g[list_period2$estimable],
+list_period2$hty_code[list_period2$estimable])
+
+list_period2[list_period2$estimable, c("lossq2.5", "lossq50","lossq97.5")] =
+  t(res_closures)
+
+kable(list_period2[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")],
+      col.names=c("emu","q2.5","median","q97.5"),
+      caption="proportion of catch potentially lost because of EU closure",
+      digits=2)
+```
+
+<table>
+<caption>proportion of catch potentially lost because of EU closure</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;"> emu </th>
+   <th style="text-align:right;"> q2.5 </th>
+   <th style="text-align:right;"> median </th>
+   <th style="text-align:right;"> q97.5 </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> DE_Eide </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> DE_Elbe </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> DE_Schl </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> DE_Warn </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> FR_Loir </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> GB_Angl </td>
+   <td style="text-align:right;"> 0.03 </td>
+   <td style="text-align:right;"> 0.07 </td>
+   <td style="text-align:right;"> 0.12 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> GB_Humb </td>
+   <td style="text-align:right;"> 0.03 </td>
+   <td style="text-align:right;"> 0.11 </td>
+   <td style="text-align:right;"> 0.22 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> GB_SouE </td>
+   <td style="text-align:right;"> 0.02 </td>
+   <td style="text-align:right;"> 0.07 </td>
+   <td style="text-align:right;"> 0.15 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> GB_SouW </td>
+   <td style="text-align:right;"> 0.01 </td>
+   <td style="text-align:right;"> 0.02 </td>
+   <td style="text-align:right;"> 0.06 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> GB_Tham </td>
+   <td style="text-align:right;"> 0.00 </td>
+   <td style="text-align:right;"> 0.01 </td>
+   <td style="text-align:right;"> 0.02 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> SE_Inla </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+  </tr>
+</tbody>
+</table>
 
 
 
@@ -6975,7 +8417,7 @@ ggplot(pat,aes(x=month,y=proportion))+
   scale_fill_manual(values=cols)
 ```
 
-![](jags_landings_files/figure-html/unnamed-chunk-124-1.png)<!-- -->
+![](jags_landings_files/figure-html/unnamed-chunk-130-1.png)<!-- -->
 
 ```r
   theme_bw()
@@ -7662,28 +9104,6 @@ table_classif(myclassif)
    <td style="text-align:right;"> 95 </td>
   </tr>
   <tr>
-   <td style="text-align:left;"> PL_Oder_TC </td>
-   <td style="text-align:left;"> 1 </td>
-   <td style="text-align:left;"> 2 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 100 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> PL_Vist_TC </td>
-   <td style="text-align:left;"> 1 </td>
-   <td style="text-align:left;"> 2 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 100 </td>
-  </tr>
-  <tr>
    <td style="text-align:left;"> PL_Oder_C </td>
    <td style="text-align:left;"> 2 </td>
    <td style="text-align:left;"> 2 </td>
@@ -7697,6 +9117,17 @@ table_classif(myclassif)
   <tr>
    <td style="text-align:left;"> PL_Oder_T </td>
    <td style="text-align:left;"> 2 </td>
+   <td style="text-align:left;"> 2 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 100 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> PL_Oder_TC </td>
+   <td style="text-align:left;"> 1 </td>
    <td style="text-align:left;"> 2 </td>
    <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 0 </td>
@@ -7740,6 +9171,17 @@ table_classif(myclassif)
   </tr>
   <tr>
    <td style="text-align:left;"> PL_Vist_TC </td>
+   <td style="text-align:left;"> 1 </td>
+   <td style="text-align:left;"> 2 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 100 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> PL_Vist_TC </td>
    <td style="text-align:left;"> 2 </td>
    <td style="text-align:left;"> 2 </td>
    <td style="text-align:right;"> 0 </td>
@@ -7748,6 +9190,17 @@ table_classif(myclassif)
    <td style="text-align:right;"> 7 </td>
    <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 93 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> FI_total_T </td>
+   <td style="text-align:left;"> 2 </td>
+   <td style="text-align:left;"> 3 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 100 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> FR_Sein_T </td>
@@ -7770,6 +9223,28 @@ table_classif(myclassif)
    <td style="text-align:right;"> 100 </td>
    <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> NL_total_F </td>
+   <td style="text-align:left;"> 2 </td>
+   <td style="text-align:left;"> 3 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 100 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> NL_total_TC </td>
+   <td style="text-align:left;"> 2 </td>
+   <td style="text-align:left;"> 3 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 76 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 24 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> NO_total_T </td>
@@ -7803,39 +9278,6 @@ table_classif(myclassif)
    <td style="text-align:right;"> 100 </td>
    <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 0 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> FI_total_T </td>
-   <td style="text-align:left;"> 2 </td>
-   <td style="text-align:left;"> 3 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 100 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> NL_total_F </td>
-   <td style="text-align:left;"> 2 </td>
-   <td style="text-align:left;"> 3 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 100 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> NL_total_TC </td>
-   <td style="text-align:left;"> 2 </td>
-   <td style="text-align:left;"> 3 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 76 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 24 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> DE_Schl_C </td>

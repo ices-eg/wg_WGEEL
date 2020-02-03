@@ -350,7 +350,7 @@ table_characteristics = function(myfit, nbclus){
     add_header_above(c(" "=1,"number of months to reach 80% of total"=3,"month of centroid"=3))
 }
 
-table_classif=function(myclassif,type="landing"){
+table_classif=function(myclassif,type="landings"){
   col_clus=which(names(myclassif) == "cluster")
   myclassif[is.na(myclassif)] = 0
   myclassif[,-seq_len(col_clus)]=round(sweep(myclassif[,-seq_len(col_clus)],
