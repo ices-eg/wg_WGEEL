@@ -62,19 +62,21 @@ load_landings <- function(path,datasource){
 	country <- substring(mylocalfilename,1,2)
 #---------------------- METADATA sheet ---------------------------------------------
 # read the metadata sheet
-	metadata<-read_excel(path=path,"metadata" , range="B7:C9")
+	metadata<-read_excel(path=path,"metadata" , range="B6:C9",col_names = TRUE)
 # check if no rows have been added
-#	if (names(metadata)[1]!="Contact person name") cat(
-#				str_c("The structure of metadata has been changed ",mylocalfilename," in ",country,"\n"))
+	if (names(metadata)[1]!="Contact person name") cat(
+				str_c("The structure of metadata has been changed ",mylocalfilename," in ",country,"\n"))
 # store the content of metadata in a list
 	if (ncol(metadata)>1){   
-		the_metadata[["contact"]] <- as.character(metadata[1,2])
-		the_metadata[["contactemail"]] <- as.character(metadata[2,2])
-		the_metadata[["method"]] <- as.character(metadata[3,2])
+		the_metadata[["contact"]] <- colnames(metadata)[2]
+		the_metadata[["contactemail"]] <- as.character(metadata[1,2])
+		the_metadata[["method"]] <- as.character(metadata[2,2])
+		the_metadata[["comments"]] <- as.character(metadata[3,2])
 	} else {
 		the_metadata[["contact"]] <- NA
 		the_metadata[["contactemail"]] <- NA
 		the_metadata[["method"]] <- NA
+		the_metadata[["comments"]] <- NA
 	}
 # end loop for directories
 # --------------------- data sheet ---------------------------------------------------
@@ -115,20 +117,22 @@ load_closures <- function(path,datasource){
 	country <- substring(mylocalfilename,1,2)
 #---------------------- METADATA sheet ---------------------------------------------
 # some of the files don't have metadata so I'm not processing it now
-#	metadata<-read_excel(path=path,"metadata" , range="B7:C9")
+	metadata<-read_excel(path=path,"metadata" , range="B6:C9")
 # check if no rows have been added
-#	if (names(metadata)[1]!="Contact person name") cat(
-#				str_c("The structure of metadata has been changed ",mylocalfilename," in ",country,"\n"))
+	if (names(metadata)[1]!="Contact person name") cat(
+				str_c("The structure of metadata has been changed ",mylocalfilename," in ",country,"\n"))
 # store the content of metadata in a list
-#	if (ncol(metadata)>1){   
-#		the_metadata[["contact"]] <- as.character(metadata[1,2])
-#		the_metadata[["contactemail"]] <- as.character(metadata[2,2])
-#		the_metadata[["method"]] <- as.character(metadata[3,2])
-#	} else {
-#		the_metadata[["contact"]] <- NA
-#		the_metadata[["contactemail"]] <- NA
-#		the_metadata[["method"]] <- NA
-#	}
+	if (ncol(metadata)>1){   
+		the_metadata[["contact"]] <- colnames(metadata)[2]
+		the_metadata[["contactemail"]] <- as.character(metadata[1,2])
+		the_metadata[["method"]] <- as.character(metadata[2,2])
+		the_metadata[["additional_comments"]] <- as.character(metadata[3,2])
+	} else {
+		the_metadata[["contact"]] <- NA
+		the_metadata[["contactemail"]] <- NA
+		the_metadata[["method"]] <- NA
+		the_metadata[["additional_comments"]] <- NA
+	}
 # end loop for directories
 # --------------------- data sheet ---------------------------------------------------
 	data<-read_excel(

@@ -1,0 +1,521 @@
+---
+title: "WKEELMIGRATION DATA COMPILATION"
+author: "Cédric Briand,  Estibaliz Diaz, Hilaire Drouineau, Caroline Durif,  Derek Evans, Matthew Gollock, Michael Pedersen, Jan Dag Pohlmann, Argyrios Sapounidis, Alan Walker  "
+date: "january 2020"
+output:
+  html_document:
+    keep_md: true
+    number_sections: yes
+    toc: yes
+    toc_depth: 2
+    toc_float: yes
+---
+
+```{r launch, echo=FALSE, include=FALSE}
+require(knitr)
+opts_knit$set(eval.after = 'fig.cap' ) # to be used in chunks used only to plot pictures
+knitr::opts_chunk$set(fig.width=12, fig.height=8, echo=FALSE)
+options(knitr.table.format = 'html') # options pour kable
+options(knitr.kable.NA = '.')
+setwd("C:\\workspace\\gitwgeel\\Misc\\wkeelmigration\\")
+source("..\\..\\R\\utilities\\load_library.R")
+source("functions.R")
+load_package("readxl")
+load_package("stringr")
+load_package("pool")
+load_package("DBI")
+load_package("RPostgreSQL")
+load_package("glue")
+load_package("sqldf")
+load_package("tidyverse")
+load_package("ggforce") # better circular plots using ggplot
+load_package("printr")
+load_package("kableExtra")
+load_package("pander")
+load_package("colorspace")
+load_package("ggthemes")
+
+source("..\\..\\R\\shiny_data_integration\\shiny_di\\loading_functions.R")
+source("..\\..\\R\\shiny_data_integration\\shiny_di\\database_reference.R") # extract_ref
+load(file=str_c("C:\\workspace\\gitwgeel\\R\\shiny_data_integration\\shiny_di","\\common\\data\\init_data.Rdata"))  
+datawd <- "C:\\Users\\cedric.briand\\OneDrive - EPTB Vilaine\\Projets\\GRISAM\\2020\\wkeemigration\\source\\"
+datawd1 <- "C:\\Users\\cedric.briand\\OneDrive - EPTB Vilaine\\Projets\\GRISAM\\2020\\wkeemigration\\Treated commercial\\"
+datawd2 <- "C:\\Users\\cedric.briand\\OneDrive - EPTB Vilaine\\Projets\\GRISAM\\2020\\wkeemigration\\Treated closure\\"
+
+imgwd <- "C:\\workspace\\wgeeldata\\wkeelmigration\\image\\"
+
+library("sf")
+library("ggspatial")
+
+dsn <-  paste0("PG:dbname='wgeel' host='localhost' port ='5436'",
+		" user='", userlocal,
+		"' password='", passwordlocal,"'")
+load(file=str_c(datawd,"saved_data.Rdata"))
+load(file=str_c(datawd,"cou.Rdata"))
+# load data from closures
+load(file=str_c(datawd2,"res_closure.Rdata"))
+resc <- res
+load(file=str_c(datawd2,"list_closure.Rdata"))
+# load files from landings
+load(file=str_c(datawd1,"list_seasonality.Rdata"))
+load(file=str_c(datawd,"res_landings.Rdata"))
+
+resl <- res
+rm(res)
+resl$country[resl$country=='FL']<-'FI'
+# extract dataframe from cou
+coud <- cou
+st_geometry(coud) <- NULL
+countries <- data.frame("cou_code"=unique(c(resl$country,resc$country)))
+countries <- inner_join(countries,coud)
+the_emus <- data.frame("emu_nameshort"=unique(c(resl$emu_nameshort,resc$emu_nameshort)))
+the_emus <- inner_join(emus,the_emus)
+load(file=str_c(datawd,"big_table_closure.Rdata"))
+
+all_zero <- resl %>%	group_by(emu_nameshort,lfs_code,hty_code,year) %>%
+		summarize(S=sum(value)) %>% 
+		filter(S==0)
+# load files from seasonality and landings pattern models
+files <-str_c(datawd,list.files(datawd))[grep('pattern',list.files(datawd))]
+for (i in 1:length(files)){
+	load(files[i])
+}
+# note I don't understand why sapply(str_c(datawd,list.files(datawd))[grep('pattern',list.files(datawd))],function(X)load(file=X)) does not work
+#names_pat_mo <- ls()[grep("monitoring",ls())]# pattern monitoring
+#names_pat_la <- ls()[grepl("pattern.*landings",ls())] # pattern landings
+
+pattern_Y_monitoring$lfs_code <- "Y" # correcting one mistake
+pat_mo <- rbind(pattern_G_monitoring,pattern_S_monitoring,pattern_Y_monitoring)
+pat_la<- rbind(pattern_GE_landings,pattern_Sfresh_landings,pattern_Smar_coast_trans_landings,pattern_Ycoast_landings,          
+		pattern_Yfresh_landings,pattern_YS_landings, 
+		pattern_Ytrans_landings )
+pat <- stacomirtools::killfactor(rbind(pat_la,pat_mo))
+pat$period <-as.numeric(pat$period) # for later use as a numeric not character
+pat2 <- pivot_wider(pat,names_from="type",values_from="prop")
+
+resc2<- resc %>%	
+		mutate(fishery_closure_percent = ifelse(is.na(fishery_closure_percent),0,fishery_closure_percent),
+				fishery_closure_type = ifelse(is.na(fishery_closure_type),"0",fishery_closure_type),
+				reason_for_closure = ifelse(is.na(reason_for_closure),"none given",reason_for_closure),
+				comment = ifelse(is.na(comment),"no comment",comment))%>% # remove NA from fishery closure type
+		group_by(typ_name, country, emu_nameshort,lfs_code,hty_code,year,month) %>%
+		summarize(duplicate=n(), 
+				fishery_closure_percent=sum(fishery_closure_percent), 
+				fishery_closure_type=paste0(fishery_closure_type, collapse = "+"), 
+				reason_for_closure = first(reason_for_closure),  
+				comment = first(comment)) %>%
+		# some countries (France) report missing lines for fishery closure type when T
+		mutate(fishery_closure_percent=if_else(fishery_closure_type=='T' & fishery_closure_percent==0, 100, fishery_closure_percent))
+save(resc2, file=str_c(datawd,"resc2.Rdata"))
+
+load(file=str_c(datawd1,"metadata_landings"))
+load(file=str_c(datawd2,"metadata_closure"))
+```
+
+```{r pivot_table, echo=FALSE, include=FALSE, eval=FALSE}
+
+# run only when data are changed, otherwise ignored
+big_table_closure <- resc %>%	
+		mutate(fishery_closure_percent = ifelse(is.na(fishery_closure_percent),0,fishery_closure_percent),
+				fishery_closure_type = ifelse(is.na(fishery_closure_type),"0",fishery_closure_type),
+				reason_for_closure = ifelse(is.na(reason_for_closure),"none given",reason_for_closure),
+				comment = ifelse(is.na(comment),"no comment",comment))%>% # remove NA from fishery closure type
+		group_by(typ_name, country, emu_nameshort,lfs_code,hty_code,year,month) %>%
+		summarize(duplicate=n(), 
+				fishery_closure_percent=sum(fishery_closure_percent), 
+				fishery_closure_type=paste0(fishery_closure_type, collapse = "+"), 
+				reason_for_closure = first(reason_for_closure),  
+				comment = first(comment)) %>%
+		# some countries (France) report missing lines for fishery closure type when T
+		mutate(fishery_closure_percent=if_else(fishery_closure_type=='T' & fishery_closure_percent==0, 100, fishery_closure_percent))%>%
+		mutate(duplicate=cell_spec(duplicate, "html",color="white", background= ifelse(duplicate>1,"red","white")),
+				fishery_closure_percent = 
+						case_when(fishery_closure_type=='PS'  ~ cell_spec(fishery_closure_percent, "html",
+										color ="white",
+										background = "red",
+										link = "#",
+										tooltip =paste0(fishery_closure_type," reason:",reason_for_closure, "; Comment: ", comment )),
+								fishery_closure_type=='PT' ~ cell_spec(fishery_closure_percent, "html",
+										color ="white",
+										background = "blue",
+										link = "#",
+										tooltip =paste0(fishery_closure_type," reason:",reason_for_closure, "; Comment: ", comment )),
+								fishery_closure_type=='PTS' ~ cell_spec(fishery_closure_percent, "html",
+										color ="white",
+										background = "purple",
+										link = "#",
+										tooltip =paste0(fishery_closure_type," reason:",reason_for_closure, "; Comment: ", comment )),
+								fishery_closure_type=='T' ~ cell_spec(fishery_closure_percent, "html",
+										color ="white",
+										background = "black",
+										link = "#",
+										tooltip =paste0(fishery_closure_type," reason:",reason_for_closure, "; Comment: ", comment )),
+								TRUE ~  cell_spec(fishery_closure_percent, "html",
+										color ="black",
+										background = "white",
+										link = "#",
+										tooltip =paste0(fishery_closure_type," reason:",reason_for_closure, "; Comment: ", comment ))
+						
+						)
+		) %>%  #order=as.numeric(as.character(month))
+		#print(n=10, width = Inf)
+		arrange(typ_name, country, emu_nameshort,lfs_code,hty_code,year,as.numeric(month)) %>%
+		select(duplicate,country,typ_name, emu_nameshort,lfs_code,hty_code,year,month, fishery_closure_percent) %>%
+		pivot_wider(names_from="month",values_from="fishery_closure_percent")
+
+save(big_table_closure, file=str_c(datawd,"big_table_closure.Rdata"))
+
+
+
+
+```
+
+
+
+
+
+```{r extraction_functions, echo=FALSE}
+#https://github.com/wilkelab/ungeviz/blob/master/R/geom_hpline.R
+geom_hpline <- function(mapping = NULL, data = NULL,
+		stat = "identity", position = "identity",
+		...,
+		na.rm = FALSE,
+		show.legend = NA,
+		inherit.aes = TRUE) {
+	layer(
+			data = data,
+			mapping = mapping,
+			stat = stat,
+			geom = GeomHpline,
+			position = position,
+			show.legend = show.legend,
+			inherit.aes = inherit.aes,
+			params = list(
+					na.rm = na.rm,
+					...
+			)
+	)
+}
+#https://github.com/wilkelab/ungeviz/blob/master/R/geom_hpline.R
+#' @rdname geom_hpline
+#' @format NULL
+#' @usage NULL
+#' @export
+GeomHpline <- ggproto("GeomHpline", GeomSegment,
+		required_aes = c("x", "y"),
+		non_missing_aes = c("size", "colour", "linetype", "width"),
+		default_aes = aes(
+				width = 0.5, colour = "black", size = 2, linetype = 1,
+				alpha = NA
+		),
+		
+		draw_panel = function(self, data, panel_params, coord, arrow = NULL, arrow.fill = NULL,
+				lineend = "butt", linejoin = "round", na.rm = FALSE) {
+			data <- mutate(data, x = x - width/2, xend = x + width, yend = y)
+			ggproto_parent(GeomSegment, self)$draw_panel(
+					data, panel_params, coord, arrow = arrow, arrow.fill = arrow.fill,
+					lineend = lineend, linejoin = linejoin, na.rm = na.rm
+			)
+		}
+)
+
+
+
+# function to extact data for each country
+funtable_closure <- function(co){
+	res <-big_table_closure %>% filter(country==co) %>%
+			kable(escape = F, align = "c") %>%
+			kable_styling(c("striped", "condensed"), full_width = T)%>%
+			scroll_box(width = "1000px", height = "800px")
+	return(res)
+}
+
+# debug
+# res= resl;lfs = 'G';hty = c("T","F","FTC");the_country_code <- 'FR'; emu='FR_Garo';colfill="grey10"; title="";nr=1; colpattern="red"
+fnplot <- function(res, emu, lfs, hty,colfill="grey10", colpattern="red", title="", nr=nrfigure){
+	
+	# remove all zero values ------------------------------------
+	
+	
+	res1 <- res %>% 
+			anti_join(all_zero, by=c("year", "emu_nameshort", "lfs_code", "hty_code"))
+	
+	
+	# integrate seasonal data from landings ------------------------
+	res1$period <- ifelse(res1$year>2009,
+			2,
+			1)
+	pat_la <- stacomirtools::killfactor(pat_la)
+	pat_la$period <-as.numeric(pat_la$period) # for later use as a numeric not character
+	nrinit <- nrow(res1)
+	res2 <- left_join(res1, pat_la, by=c("emu_nameshort","period","hty_code","lfs_code","month"))  
+	nrfin <-nrow(res2)
+	if (nrfin>nrinit) stop("landings have been duplicated, more pattern than landings check")	
+	
+	# summarize and group landings by emu, year, month, for the selected hty, lfs, and emu
+	# keep the emu for the name later in the plot....
+	
+	res3 <-  res2 %>%
+			filter(emu_nameshort==emu,
+					lfs_code==lfs,
+					hty_code %in% hty) %>%
+			group_by(emu_nameshort,year,month)%>%
+			summarize(value=sum(value,na.rm=TRUE), prop=sum(prop,na.rm=TRUE))
+	
+	
+	
+	
+	# summarize and group landings by emu, year, month, for the selected hty, lfs, and emu
+	# keep the emu for the name later in the plot....
+	
+	res3 <-  res2 %>%
+			filter(emu_nameshort==emu,
+					lfs_code==lfs,
+					hty_code %in% hty) %>%
+			group_by(emu_nameshort,year,month)%>%
+			summarize(value=sum(value,na.rm=TRUE), prop=sum(prop,na.rm=TRUE))
+	
+	# calculate percentage
+	
+	res4 <- left_join (res3,					
+					res3 %>% group_by(emu_nameshort,year)%>%		
+							summarize(sum_per_year=sum(value,na.rm=TRUE),prop_per_year=sum(prop,na.rm=TRUE)),
+					by = c("emu_nameshort","year")) %>%	
+			mutate(perc_per_month=100*value/sum_per_year, prop_per_month=100*prop/prop_per_year, type="landings") 
+	
+	# closure data, attention summarize and averaged this might not be exactly what is reported
+	
+	resc3 <- resc2 %>%
+			filter(emu_nameshort==emu,
+					lfs_code==lfs,
+					hty_code %in% hty,
+					month != "13") %>%
+			mutate(month=as.numeric(as.character(month)))%>%
+			group_by(emu_nameshort,year,month)%>%
+			summarize(closure=mean( fishery_closure_percent,na.rm=TRUE))%>%
+			mutate(closure=round(closure))%>%
+			ungroup()
+	
+	# integrate seasonal data from seasonality ------------------------
+	
+	pat_mo1 <- stacomirtools::killfactor(pat_mo)
+	pat_mo1$period <- as.numeric(pat_mo1$period)
+	
+	pat_mo2 <- pat_mo1 %>%filter(emu_nameshort==emu,
+					lfs_code==lfs,
+					hty_code %in% hty) %>%
+			crossing(year=unique(res4$year))%>%
+			mutate(prop=prop*100)
+	
+	
+	if (nrow(res4)>1){
+		
+		cat(" \n")
+		nr <- nr+1
+		nrfigure <<- nr # assign to main envir
+		pandoc.strong(str_c("Figure ",nr,": ",title,"\n"))
+		
+		
+		#gglocator()
+		g <- ggplot(res4,aes(x = month)) +
+				geom_col(aes(y=perc_per_month),fill=colfill,color="black",width=0.8) +
+				geom_hpline(aes(y=prop_per_month,col=type),width = 0.9, size = 1) +
+				geom_jitter(aes(y=prop, col=type), width = 0.1, data=pat_mo2)+
+				geom_label(aes(x=month,y=66+closure/3,label=closure, fill=closure),
+						size=1.56,
+						alpha=1,
+						data=resc3) +
+				scale_fill_continuous_sequential(palette = "Terrain2",limits=c(0,100))+
+				scale_colour_brewer(type="qual",palette="Set1") +
+				xlab("month") +
+				ylab("percentage catch") +
+				scale_x_continuous(breaks = c(2,4,6,8,10)) + 
+				facet_wrap(~year) +
+				theme_igray() +
+				ggtitle(str_c("Percentage per month ",emu, " ", lfs," ",paste0(hty,collapse="+")))
+		
+		print(g)
+		
+	}
+	
+	cat(" \n")
+	return(invisible(NULL))
+}
+
+```
+
+
+
+
+
+```{r main_document, echo=FALSE, results="asis"}
+nrtable=0
+nrfigure=0
+options(warn=-1)
+# i =2
+for (i in 1:nrow(countries)){
+	the_country_code <- countries$cou_code[i]
+	the_emus_sel <- the_emus[the_emus$emu_cou_code==the_country_code,"emu_nameshort"]
+	pandoc.header(str_c(countries$cou_code[i]," ",countries$cou_country[i]), level = 1)
+	# closures
+	pandoc.header("Closures", level=2)
+	nrtable=nrtable+1
+	pandoc.p(str_c("Table ",nrtable," : Closures in ", countries$cou_country[i] , ". Use scrollover in html output to see comments,
+							T total, PS partial in space, PT partial in time, PTS partial in space and time. 
+							The first column with a mark in red will 
+							indicate the presence of a duplicate for the line"))
+	res <- funtable_closure(co=the_country_code)
+	print(res)
+	# here include metadata for closures
+	
+	pandoc.p(paste("\n---\n
+							**METHOD**\n\n",
+					metadata_closure[[the_country_code]]$method,"\n
+							\n---\n
+							"))
+	pandoc.header("Landings",level=2)
+	pandoc.p(paste("---\n
+							**METHODS**\n\n",
+					metadata_landings[[the_country_code]]$method,
+					"\n \n---\n \n
+							\n---\n
+							**COMMENTS**\n \n",
+					metadata_landings[[the_country_code]]$comments,
+					"\n \n---\n"))
+	
+	for (j in 1:length(the_emus_sel)){
+		the_emu <- the_emus_sel[j]
+		pandoc.header(the_emu,level=3)	
+		
+		# silver eel
+		
+		
+		dummy<-fnplot(res= resl,
+				lfs = 'S',
+				hty = c("C","TC","T"),
+				emu=the_emu,
+				title="Silver eels all habitats Transitional + Coastal"
+		)
+		
+		dummy<-fnplot(res= resl,
+				lfs = 'S',
+				hty = c("F"),
+				emu = the_emu, 
+				colfill = "navyblue",
+				title = "Silver eels Freshwater")
+		
+		# Glass eels
+		
+#  No distinction on habitat	
+		
+		dummy<-fnplot(res= resl,
+				lfs = 'G',
+				hty = c("T","F","FTC"),
+				emu=the_emu, 
+				colfill= "tomato1",
+				title = "Glass eels Transitional habitats")	
+		
+		
+#     dummy<-fnplot(res= resl,
+#           lfs = 'G',
+#           hty = c("F"),
+#           emu=the_emu, 
+#           colfill= "violetred",
+#           title="Glass eels Freshwater")	
+#    
+#
+#     dummy<-fnplot(res= resl,
+#           lfs = 'G',
+#           hty = c("FTC"),
+#           emu=the_emu, 
+#           colfill= "firebrick",
+#           title="Glass eels all habitats combined")	
+		
+# Yellow
+		
+		dummy<-fnplot(res= resl,
+				lfs = 'Y',
+				hty = c("C"),
+				emu=the_emu, 
+				colfill= "green",
+				title = "Yellow eels coastal habitats")	
+		
+		dummy<-fnplot(res= resl,
+				lfs = 'Y',
+				hty = c("F"),
+				emu=the_emu, 
+				colfill= "greenyellow",
+				title = "Yellow eels freshwater habitats")	
+		
+		dummy<-fnplot(res= resl,
+				lfs = 'Y',
+				hty = c("T"),
+				emu=the_emu, 
+				colfill= "limegreen",
+				title ="Yellow eels transitional habitats"  )	
+		
+		
+		dummy<-fnplot(res= resl,
+				lfs = 'Y',
+				hty = c("MO"),
+				emu = the_emu, 
+				colfill = "olivedrab",
+				title = "Yellow eels marine open habitats")	
+		
+		
+		dummy<-fnplot(res= resl,
+				lfs = 'Y',
+				hty = c("FTC"),
+				emu=the_emu, 
+				colfill= "springgreen",
+				title = "Yellow eels alls habitats")	
+		
+		
+		# Yellow silver
+		
+		
+		
+		dummy<-fnplot(res= resl,
+				lfs = 'YS',
+				hty = c("C"),
+				emu=the_emu, 
+				colfill= "plum",
+				title="Mixed yellow and silver eels coastal habitats")	
+		
+		
+		
+		dummy<-fnplot(res= resl,
+				lfs = 'YS',
+				hty = c("F"),
+				emu=the_emu, 
+				colfill= "purple",
+				title="Mixed yellow and silver eels freshwater habitats")	
+		
+		
+		dummy<-fnplot(res= resl,
+				lfs = 'YS',
+				hty = c("T"),
+				emu=the_emu, 
+				colfill= "magenta",
+				title="Mixed yellow and silver eels transitional habitats")	
+		
+		
+		dummy<-fnplot(res= resl,
+				lfs = 'YS',
+				hty = c("FTC","TC"),
+				emu=the_emu, 
+				colfill= "violet",
+				title="Mixed yellow and silver eels FTC TC habitats")	
+		
+		
+		
+	}
+}
+options(warn=0)
+```
+
+
+
+
+
+

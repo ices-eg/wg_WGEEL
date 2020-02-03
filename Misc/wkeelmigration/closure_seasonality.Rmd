@@ -80,6 +80,12 @@ res <- map(list_closure,function(X){			X[["data"]]		}) %>%
 		bind_rows()
 Hmisc::describe(res) %>% html()
 
+metadata_closure <- map(list_closure,function(X){			X[["the_metadata"]]		}) 
+names(metadata_closure) <- substring(names(metadata_closure),1,2) # replacing names with BE DE....
+save(metadata_closure,file=str_c(datawd1,"metadata_closure"))
+
+
+Hmisc::describe(res) %>% html()
 # these are all empty lines ....
 # print(res[is.na(res$eel_emu_nameshort),],n=2)
 # all NA print(res[is.na(res$eel_emu_nameshort),],n=1000)
@@ -212,34 +218,36 @@ res %>%
 										color ="white",
 										background = "red",
 										link = "#",
-										tooltip =paste0("reason:",reason_for_closure, "; Comment: ", comment )),
+										tooltip =paste0(fishery_closure_type," reason:",reason_for_closure, "; Comment: ", comment )),
 								fishery_closure_type=='PT' ~ cell_spec(fishery_closure_percent, "html",
 										color ="white",
 										background = "blue",
 										link = "#",
-										tooltip =paste0("reason:",reason_for_closure, "; Comment: ", comment )),
+										tooltip =paste0(fishery_closure_type," reason:",reason_for_closure, "; Comment: ", comment )),
 								fishery_closure_type=='PTS' ~ cell_spec(fishery_closure_percent, "html",
 										color ="white",
 										background = "purple",
 										link = "#",
-										tooltip =paste0("reason:",reason_for_closure, "; Comment: ", comment )),
+										tooltip =paste0(fishery_closure_type," reason:",reason_for_closure, "; Comment: ", comment )),
 								fishery_closure_type=='T' ~ cell_spec(fishery_closure_percent, "html",
 										color ="white",
 										background = "black",
 										link = "#",
-										tooltip =paste0("reason:",reason_for_closure, "; Comment: ", comment )),
+										tooltip =paste0(fishery_closure_type," reason:",reason_for_closure, "; Comment: ", comment )),
 								TRUE ~  cell_spec(fishery_closure_percent, "html",
 										color ="black",
 										background = "white",
 										link = "#",
-										tooltip =paste0("reason:",reason_for_closure, "; Comment: ", comment ))
+										tooltip =paste0(fishery_closure_type," reason:",reason_for_closure, "; Comment: ", comment ))
 
 						),
 				) %>%  #order=as.numeric(as.character(month))
 		#print(n=10, width = Inf)
-	   arrange(typ_name, emu_nameshort,lfs_code,hty_code,year,as.numeric(month)) %>%
+
 		select(duplicate,typ_name, emu_nameshort,lfs_code,hty_code,year,month, fishery_closure_percent) %>%
-		pivot_wider(names_from="month",values_from="fishery_closure_percent")%>%
+		arrange(typ_name, emu_nameshort,lfs_code,hty_code,year,as.numeric(month)) %>%
+		pivot_wider(names_from="month",values_from="fishery_closure_percent") %>%
+  filter(year>1900) %>% #Zremove dummy lines from DE
 		kable(escape = F, align = "c") %>%
 		kable_styling(c("striped", "condensed"), full_width = T)%>%
 		scroll_box(width = "1000px", height = "800px")
@@ -249,169 +257,3 @@ res %>%
 
 
 
-
-Empty graphs correspond to all zero values reported for one year, those values are now removed
-
-# Silver eels
-
-```{r s, echo=FALSE, include=FALSE, eval=FALSE}
-
-
-
-fnplot <- function(emu, lfs, hty,colfill="grey10"){
-	# remove all zero values
-	res1 <- res %>% 
-			anti_join(all_zero)
-	# calculate sum
-	res2 <-  res1 %>%
-			filter(emu_nameshort==emu,
-					lfs_code==lfs,
-					hty_code %in% hty) %>%
-			group_by(emu_nameshort,year,month)%>%
-			summarize(value=sum(value))
-	# calculate percentage
-	res3 <- left_join (res2,					
-					res2 %>% group_by(emu_nameshort,year)%>%		
-							summarize(sum_per_year=sum(value,na.rm=TRUE)),
-					by = c("emu_nameshort","year")) %>%	
-			mutate(perc_per_month=100*value/sum_per_year) 
-	options(warn=-1)
-	if (nrow(res3)>1){
-		
-		g <- ggplot(res3,aes(x = month)) +
-				geom_col(aes(y=perc_per_month),fill=colfill,color="black")+
-				xlab("month")+
-				ylab("percentage catch")+
-				facet_wrap(~year)+
-				theme_bw()+
-				ggtitle(str_c("Percentage per month ",emu, " ", lfs," ",paste0(hty,collapse="+")))
-		
-		print(g)
-	}
-	options(warn=0)
-}
-
-
-
-for (the_emu in unique(res$emu_nameshort)){
-	fnplot(lfs = 'S',
-			hty = c("C","TC","T"),
-			emu=the_emu)
-}
-
-for (the_emu in unique(res$emu_nameshort)){
-	fnplot(lfs = 'S',
-			hty = c("F"),
-			emu=the_emu, 
-			colfill= "navyblue")	
-}
-```
-<!--  -->
-<!-- # Glass eel -->
-<!--  -->
-<!-- ```{r g, echo=TRUE, include=TRUE} -->
-<!-- res %>% filter(lfs_code=="G") %>% select(hty_code) %>% distinct() -->
-<!-- for (the_emu in unique(res$emu_nameshort)){ -->
-<!-- 	fnplot(lfs = 'G', -->
-<!-- 			hty = c("T"), -->
-<!-- 			emu=the_emu,  -->
-<!-- 			colfill= "tomato1")	 -->
-<!-- } -->
-<!--  -->
-<!-- for (the_emu in unique(res$emu_nameshort)){ -->
-<!-- 	fnplot(lfs = 'G', -->
-<!-- 			hty = c("F"), -->
-<!-- 			emu=the_emu,  -->
-<!-- 			colfill= "violetred")	 -->
-<!-- } -->
-<!--  -->
-<!-- for (the_emu in unique(res$emu_nameshort)){ -->
-<!-- 	fnplot(lfs = 'G', -->
-<!-- 			hty = c("FTC"), -->
-<!-- 			emu=the_emu,  -->
-<!-- 			colfill= "firebrick")	 -->
-<!-- } -->
-<!--  -->
-<!-- ``` -->
-<!--  -->
-<!--  -->
-<!-- # Yellow -->
-<!--  -->
-<!-- ```{r y, echo=TRUE, include=TRUE} -->
-<!-- res %>% filter(lfs_code=="Y") %>% select(hty_code) %>% distinct() -->
-<!-- for (the_emu in unique(res$emu_nameshort)){ -->
-<!-- 	fnplot(lfs = 'Y', -->
-<!-- 			hty = c("C"), -->
-<!-- 			emu=the_emu,  -->
-<!-- 			colfill= "green")	 -->
-<!-- } -->
-<!--  -->
-<!-- for (the_emu in unique(res$emu_nameshort)){ -->
-<!-- 	fnplot(lfs = 'Y', -->
-<!-- 			hty = c("F"), -->
-<!-- 			emu=the_emu,  -->
-<!-- 			colfill= "greenyellow")	 -->
-<!-- } -->
-<!--  -->
-<!-- for (the_emu in unique(res$emu_nameshort)){ -->
-<!-- 	fnplot(lfs = 'Y', -->
-<!-- 			hty = c("T"), -->
-<!-- 			emu=the_emu,  -->
-<!-- 			colfill= "limegreen")	 -->
-<!-- } -->
-<!--  -->
-<!-- for (the_emu in unique(res$emu_nameshort)){ -->
-<!-- 	fnplot(lfs = 'Y', -->
-<!-- 			hty = c("MO"), -->
-<!-- 			emu=the_emu,  -->
-<!-- 			colfill= "olivedrab")	 -->
-<!-- } -->
-<!--  -->
-<!-- for (the_emu in unique(res$emu_nameshort)){ -->
-<!-- 	fnplot(lfs = 'Y', -->
-<!-- 			hty = c("FTC"), -->
-<!-- 			emu=the_emu,  -->
-<!-- 			colfill= "springgreen")	 -->
-<!-- } -->
-<!--  -->
-<!-- ``` -->
-<!--  -->
-<!-- # Yellow silver -->
-<!--  -->
-<!-- ```{r ys, echo=TRUE, include=TRUE} -->
-<!-- res %>% filter(lfs_code=="YS") %>% select(hty_code) %>% distinct() -->
-<!-- for (the_emu in unique(res$emu_nameshort)){ -->
-<!-- 	fnplot(lfs = 'YS', -->
-<!-- 			hty = c("C"), -->
-<!-- 			emu=the_emu,  -->
-<!-- 			colfill= "plum")	 -->
-<!-- } -->
-<!--  -->
-<!-- for (the_emu in unique(res$emu_nameshort)){ -->
-<!-- 	fnplot(lfs = 'YS', -->
-<!-- 			hty = c("F"), -->
-<!-- 			emu=the_emu,  -->
-<!-- 			colfill= "purple")	 -->
-<!-- } -->
-<!--  -->
-<!-- for (the_emu in unique(res$emu_nameshort)){ -->
-<!-- 	fnplot(lfs = 'YS', -->
-<!-- 			hty = c("T"), -->
-<!-- 			emu=the_emu,  -->
-<!-- 			colfill= "magenta")	 -->
-<!-- } -->
-<!--  -->
-<!-- for (the_emu in unique(res$emu_nameshort)){ -->
-<!-- 	fnplot(lfs = 'YS', -->
-<!-- 			hty = c("FTC"), -->
-<!-- 			emu=the_emu,  -->
-<!-- 			colfill= "violet")	 -->
-<!-- } -->
-<!--  -->
-<!-- for (the_emu in unique(res$emu_nameshort)){ -->
-<!-- 	fnplot(lfs = 'YS', -->
-<!-- 			hty = c("TC"), -->
-<!-- 			emu=the_emu,  -->
-<!-- 			colfill= "hotpink")	 -->
-<!-- } -->
-<!-- ``` -->
