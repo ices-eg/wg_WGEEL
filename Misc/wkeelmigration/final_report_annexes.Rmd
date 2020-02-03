@@ -360,10 +360,10 @@ for (i in 1:nrow(countries)){
 	# closures
 	pandoc.header("Closures", level=2)
 	nrtable=nrtable+1
-	pandoc.p(str_c("Table ",nrtable," : Closures in ", countries$cou_country[i] , ". Use scrollover in html output to see comments,
-							T total, PS partial in space, PT partial in time, PTS partial in space and time. 
+	pandoc.p(str_c("Table ",nrtable," : Closures in ", countries$cou_country[i] , ". If the file is html, you can point to a value to see the reason for closure and the comment,
+							T total (black), PS partial in space (red), PT partial in time (blue), PTS partial in space and time (puple). 
 							The first column with a mark in red will 
-							indicate the presence of a duplicate for the line"))
+							indicate the presence of a duplicate for the line. Month '13' indicates whole year"))
 	res <- funtable_closure(co=the_country_code)
 	print(res)
 	# here include metadata for closures

@@ -1,4 +1,9 @@
-load("../../../../wkeelmigration/source/resc2.Rdata")
+
+datawd <- "../../../../wkeelmigration/source/"
+#datawd <- "C:\\Users\\cedric.briand\\OneDrive - EPTB Vilaine\\Projets\\GRISAM\\2020\\wkeemigration\\source\\"
+		
+load(str_c(datawd,"resc2.Rdata"))
+
 subset_closures = subset(resc2, resc2$reason_for_closure %in% c("EMP", "EU Closure"))
 subset_closures = subset(resc2, resc2$typ_name=="com_closure")
 EMP_closures=subset(subset_closures, subset_closures$reason_for_closure == "EMP")
@@ -10,12 +15,15 @@ charac_EMP_closures=EMP_closures %>%
           lfs_code) %>%
   summarize(year=min(year))
 
+charac_EMP_closures %>% print(n=Inf)
+
 charac_EU_closures=EU_closures %>% 
   group_by(emu_nameshort,
            hty_code,
           lfs_code) %>%
   summarize(year=min(year))
 
+charac_EU_closures %>% print(n=Inf)
 
 EMP_closures = EMP_closures[order(EMP_closures$emu_nameshort,
                                   EMP_closures$lfs_code,
