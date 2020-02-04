@@ -1,0 +1,115 @@
+---
+title: "WKEELMIGRATION scientific litterature review"
+date: "february 2020"
+output: 
+  html_document:
+    keep_md: true
+---
+
+
+ 
+ ```{r launch, echo=FALSE, include=FALSE}
+require(knitr)
+opts_knit$set(eval.after = 'fig.cap' ) # to be used in chunks used only to plot pictures
+knitr::opts_chunk$set(fig.width=12, fig.height=8, echo=FALSE)
+options(knitr.table.format = 'html') # options pour kable
+options(knitr.kable.NA = '.')
+setwd("C:\\workspace\\gitwgeel\\Misc\\wkeelmigration\\")
+source("..\\..\\R\\utilities\\load_library.R")
+source("functions.R")
+load_package("readxl")
+load_package("stringr")
+load_package("pool")
+load_package("DBI")
+load_package("RPostgreSQL")
+load_package("glue")
+load_package("sqldf")
+load_package("tidyverse")
+load_package("ggforce") # better circular plots using ggplot
+load_package("printr")
+load_package("kableExtra")
+load_package("pander")
+load_package("colorspace")
+load_package("ggthemes")
+
+source("..\\..\\R\\shiny_data_integration\\shiny_di\\loading_functions.R")
+source("..\\..\\R\\shiny_data_integration\\shiny_di\\database_reference.R") # extract_ref
+load(file=str_c("C:\\workspace\\gitwgeel\\R\\shiny_data_integration\\shiny_di","\\common\\data\\init_data.Rdata"))  
+datawd <- "C:\\Users\\cedric.briand\\OneDrive - EPTB Vilaine\\Projets\\GRISAM\\2020\\wkeemigration\\source\\"
+
+imgwd <- "C:\\workspace\\wgeeldata\\wkeelmigration\\image\\"
+
+library("sf")
+library("ggspatial")
+
+dsn <-  paste0("PG:dbname='wgeel' host='localhost' port ='5436'",
+		" user='", userlocal,
+		"' password='", passwordlocal,"'")
+load(file=str_c(datawd,"saved_data.Rdata"))
+load(file=str_c(datawd,"cou.Rdata"))
+# load data from closures
+load(file=str_c(datawd2,"res_closure.Rdata"))
+resc <- res
+load(file=str_c(datawd2,"list_closure.Rdata"))
+# load files from landings
+load(file=str_c(datawd1,"list_seasonality.Rdata"))
+load(file=str_c(datawd,"res_landings.Rdata"))
+
+resl <- res
+rm(res)
+resl$country[resl$country=='FL']<-'FI'
+# extract dataframe from cou
+coud <- cou
+st_geometry(coud) <- NULL
+countries <- data.frame("cou_code"=unique(c(resl$country,resc$country)))
+countries <- inner_join(countries,coud)
+the_emus <- data.frame("emu_nameshort"=unique(c(resl$emu_nameshort,resc$emu_nameshort)))
+the_emus <- inner_join(emus,the_emus)
+load(file=str_c(datawd,"big_table_closure.Rdata"))
+
+all_zero <- resl %>%	group_by(emu_nameshort,lfs_code,hty_code,year) %>%
+		summarize(S=sum(value)) %>% 
+		filter(S==0)
+# load files from seasonality and landings pattern models
+files <-str_c(datawd,list.files(datawd))[grep('pattern',list.files(datawd))]
+for (i in 1:length(files)){
+	load(files[i])
+}
+# note I don't understand why sapply(str_c(datawd,list.files(datawd))[grep('pattern',list.files(datawd))],function(X)load(file=X)) does not work
+#names_pat_mo <- ls()[grep("monitoring",ls())]# pattern monitoring
+#names_pat_la <- ls()[grepl("pattern.*landings",ls())] # pattern landings
+
+pattern_Y_monitoring$lfs_code <- "Y" # correcting one mistake
+pat_mo <- rbind(pattern_G_monitoring,pattern_S_monitoring,pattern_Y_monitoring)
+pat_la<- rbind(pattern_GE_landings,pattern_Sfresh_landings,pattern_Smar_coast_trans_landings,pattern_Ycoast_landings,          
+		pattern_Yfresh_landings,pattern_YS_landings, 
+		pattern_Ytrans_landings )
+pat <- stacomirtools::killfactor(rbind(pat_la,pat_mo))
+pat$period <-as.numeric(pat$period) # for later use as a numeric not character
+pat2 <- pivot_wider(pat,names_from="type",values_from="prop")
+
+resc2<- resc %>%	
+		mutate(fishery_closure_percent = ifelse(is.na(fishery_closure_percent),0,fishery_closure_percent),
+				fishery_closure_type = ifelse(is.na(fishery_closure_type),"0",fishery_closure_type),
+				reason_for_closure = ifelse(is.na(reason_for_closure),"none given",reason_for_closure),
+				comment = ifelse(is.na(comment),"no comment",comment))%>% # remove NA from fishery closure type
+		group_by(typ_name, country, emu_nameshort,lfs_code,hty_code,year,month) %>%
+		summarize(duplicate=n(), 
+				fishery_closure_percent=sum(fishery_closure_percent), 
+				fishery_closure_type=paste0(fishery_closure_type, collapse = "+"), 
+				reason_for_closure = first(reason_for_closure),  
+				comment = first(comment)) %>%
+		# some countries (France) report missing lines for fishery closure type when T
+		mutate(fishery_closure_percent=if_else(fishery_closure_type=='T' & fishery_closure_percent==0, 100, fishery_closure_percent))
+save(resc2, file=str_c(datawd,"resc2.Rdata"))
+
+load(file=str_c(datawd1,"metadata_landings"))
+load(file=str_c(datawd2,"metadata_closure"))
+
+
+# load files from seasonality and landings pattern models
+files <-str_c(datawd,list.files(datawd))[grep('loss',list.files(datawd))]
+for (i in 1:length(files)){
+	load(files[i])
+}
+```
