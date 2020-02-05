@@ -9,6 +9,8 @@ output:
 
 
 
+
+
 # preparing the files
 
 see readme.md in this folder for notes on source file.
@@ -81,129 +83,143 @@ left: 0.1em;
 bottom: -1ex;
 }
 </style>
- <font color="MidnightBlue"><div align=center><span style="font-weight:bold">res <br><br> 14  Variables   12106  Observations</span></div></font> <hr class="thinhr"> <span style="font-weight:bold">eel_typ_name</span> <style>
- .hmisctable638760 {
+ <font color="MidnightBlue"><div align=center><span style="font-weight:bold">res <br><br> 14  Variables   12350  Observations</span></div></font> <hr class="thinhr"> <span style="font-weight:bold">eel_typ_name</span> <style>
+ .hmisctable559132 {
  border: none;
  font-size: 85%;
  }
- .hmisctable638760 td {
+ .hmisctable559132 td {
  text-align: center;
  padding: 0 1ex 0 1ex;
  }
- .hmisctable638760 th {
+ .hmisctable559132 th {
  color: MidnightBlue;
  text-align: center;
  padding: 0 1ex 0 1ex;
  font-weight: normal;
  }
  </style>
- <table class="hmisctable638760">
+ <table class="hmisctable559132">
  <tr><th>n</th><th>missing</th><th>distinct</th></tr>
- <tr><td>11934</td><td>172</td><td>2</td></tr>
+ <tr><td>11953</td><td>397</td><td>2</td></tr>
  </table>
  <pre style="font-size:85%;">
  Value      com_landings_kg rec_landings_kg
- Frequency            11868              66
+ Frequency            11887              66
  Proportion           0.994           0.006
  </pre>
  <hr class="thinhr"> <span style="font-weight:bold">eel_year</span><div style='float: right; text-align: right;'><img src="data:image/png;base64,
 iVBORw0KGgoAAAANSUhEUgAAAD0AAAANCAMAAAAtxpZ2AAAACVBMVEUAAADMzMz////1iUV5AAAAR0lEQVQokWNgJB4wMKAgkAgT8YCBAQWBRPCrhqqiTDeaPpy60VVg1Uct3XgCFRSumELoYY7PfAJ245EetrrBCHegEghzIAIAbxwC7DIBgcMAAAAASUVORK5CYII=" alt="image" /></div> <style>
- .hmisctable454620 {
+ .hmisctable104149 {
  border: none;
  font-size: 85%;
  }
- .hmisctable454620 td {
+ .hmisctable104149 td {
  text-align: center;
  padding: 0 1ex 0 1ex;
  }
- .hmisctable454620 th {
+ .hmisctable104149 th {
  color: MidnightBlue;
  text-align: center;
  padding: 0 1ex 0 1ex;
  font-weight: normal;
  }
  </style>
- <table class="hmisctable454620">
+ <table class="hmisctable104149">
  <tr><th>n</th><th>missing</th><th>distinct</th><th>Info</th><th>Mean</th><th>Gmd</th><th>.05</th><th>.10</th><th>.25</th><th>.50</th><th>.75</th><th>.90</th><th>.95</th></tr>
- <tr><td>11934</td><td>172</td><td>20</td><td>0.997</td><td>2011</td><td>6.028</td><td>2001</td><td>2003</td><td>2006</td><td>2011</td><td>2015</td><td>2017</td><td>2018</td></tr>
+ <tr><td>11953</td><td>397</td><td>20</td><td>0.997</td><td>2011</td><td>6.029</td><td>2001</td><td>2003</td><td>2006</td><td>2011</td><td>2015</td><td>2017</td><td>2018</td></tr>
  </table>
  <pre style="font-size:85%;">
  Value       2000  2001  2002  2003  2004  2005  2006  2007  2008  2009  2010  2011
- Frequency    339   348   404   401   419   591   614   581   570   689   692   607
+ Frequency    340   349   405   402   420   592   615   582   571   690   693   608
  Proportion 0.028 0.029 0.034 0.034 0.035 0.050 0.051 0.049 0.048 0.058 0.058 0.051
                                                            
  Value       2012  2013  2014  2015  2016  2017  2018  2019
- Frequency    661   665   845   844   890   852   834    88
+ Frequency    662   666   846   845   891   853   835    88
  Proportion 0.055 0.056 0.071 0.071 0.075 0.071 0.070 0.007
  </pre>
  <hr class="thinhr"> <span style="font-weight:bold">eel_month</span><div style='float: right; text-align: right;'><img src="data:image/png;base64,
-iVBORw0KGgoAAAANSUhEUgAAAC4AAAANCAMAAADhX6ydAAAACVBMVEUAAADMzMz////1iUV5AAAATElEQVQokWNgYGAEImSAEIGwkFUwMDAwAREQQEgIA8qGsBB8kAiqcoQ0slrsylGkB0Y51N/IwQASQedjhswgcDutlIMZ0HAgGDJgEgCLzQILq8CShwAAAABJRU5ErkJggg==" alt="image" /></div> <style>
- .hmisctable633344 {
+iVBORw0KGgoAAAANSUhEUgAAADEAAAANCAMAAAA3+nb4AAAACVBMVEUAAADMzMz////1iUV5AAAASUlEQVQokWNgYGAEImSAEIGwIBy4IgYGBiYgAgIICWFA2RAWhjSqEEIRnIVPB4qiAdaBCAxkhMrBFVaDyR+01QHmQkMGf1ghkQAKxwJPRi099gAAAABJRU5ErkJggg==" alt="image" /></div> <style>
+ .hmisctable451059 {
  border: none;
  font-size: 85%;
  }
- .hmisctable633344 td {
+ .hmisctable451059 td {
  text-align: center;
  padding: 0 1ex 0 1ex;
  }
- .hmisctable633344 th {
+ .hmisctable451059 th {
  color: MidnightBlue;
  text-align: center;
  padding: 0 1ex 0 1ex;
  font-weight: normal;
  }
  </style>
- <table class="hmisctable633344">
+ <table class="hmisctable451059">
  <tr><th>n</th><th>missing</th><th>distinct</th></tr>
- <tr><td>11934</td><td>172</td><td>15</td></tr>
+ <tr><td>11953</td><td>397</td><td>16</td></tr>
  </table>
-  APR (1009, 0.085), AUG (1022, 0.086), Dec (1, 0.000), DEC (965, 0.081), FEB (823, 0.069), JAN (839, 0.070), JUL (1041, 0.087), JUN (1061, 0.089), MAR (885, 0.074), MAY (1037, 0.087), NOV (1088, 0.091), OCT (1049, 0.088), SEP (1006, 0.084), whole year (22, 0.002), WHOLE YEAR (86, 0.007) <hr class="thinhr"> <span style="font-weight:bold">eel_value</span><div style='float: right; text-align: right;'><img src="data:image/png;base64,
-iVBORw0KGgoAAAANSUhEUgAAAHwAAAANCAMAAABcvvroAAAACVBMVEUAAADMzMz////1iUV5AAAAQUlEQVQ4jWNgZGRgYBwgwMDExADEAwNGLR+Blo+m9lHL6W75QFkPTu3A9I4KGdEFCAmC0y4jPNswMKJKoKdyKAYAt4UKyvIMdkYAAAAASUVORK5CYII=" alt="image" /></div> <pre style="font-size:85%;">
-        n  missing distinct     Info     Mean      Gmd      .05      .10      .25 
-    11894      212     6126    0.989     2990     5400      0.0      0.0      2.0 
-      .50      .75      .90      .95 
-    120.9    925.8   4139.0  11969.7 
- </pre>
+  APR (1009, 0.084), AUG (1022, 0.086), Dec (1, 0.000), DEC (965, 0.081), FEB (823, 0.069), JAN (839, 0.070), JUL (1041, 0.087), JUN (1061, 0.089), MAR (885, 0.074), MAY (1037, 0.087), NOV (1088, 0.091), OCT (1049, 0.088), REMAIN YEAR (19, 0.002), SEP (1006, 0.084), whole year (22, 0.002), WHOLE YEAR (86, 0.007) <hr class="thinhr"> <span style="font-weight:bold">eel_value</span><div style='float: right; text-align: right;'><img src="data:image/png;base64,
+iVBORw0KGgoAAAANSUhEUgAAAHwAAAANCAMAAABcvvroAAAACVBMVEUAAADMzMz////1iUV5AAAAQUlEQVQ4jWNgZGRgYBwgwMDExADEAwNGLR+Blo+m9lHL6W75QFkPTu3A9I4KGdEFCAmC0y4jPNswMKJKoKdyKAYAt4UKyvIMdkYAAAAASUVORK5CYII=" alt="image" /></div> <style>
+ .hmisctable269641 {
+ border: none;
+ font-size: 74%;
+ }
+ .hmisctable269641 td {
+ text-align: center;
+ padding: 0 1ex 0 1ex;
+ }
+ .hmisctable269641 th {
+ color: MidnightBlue;
+ text-align: center;
+ padding: 0 1ex 0 1ex;
+ font-weight: normal;
+ }
+ </style>
+ <table class="hmisctable269641">
+ <tr><th>n</th><th>missing</th><th>distinct</th><th>Info</th><th>Mean</th><th>Gmd</th><th>.05</th><th>.10</th><th>.25</th><th>.50</th><th>.75</th><th>.90</th><th>.95</th></tr>
+ <tr><td>11913</td><td>437</td><td>6156</td><td>0.989</td><td>3119</td><td>5637</td><td>    0</td><td>    0</td><td>    2</td><td>  123</td><td>  940</td><td> 4225</td><td>13084</td></tr>
+ </table>
  <style>
- .hmisctable286980 {
+ .hmisctable796517 {
  border: none;
  font-size: 85%;
  }
- .hmisctable286980 td {
+ .hmisctable796517 td {
  text-align: right;
  padding: 0 1ex 0 1ex;
  }
- .hmisctable286980 th {
+ .hmisctable796517 th {
  color: Black;
  text-align: center;
  padding: 0 1ex 0 1ex;
  font-weight: bold;
  }
  </style>
- <table class="hmisctable286980">
+ <table class="hmisctable796517">
  <tr><td><font color="MidnightBlue">lowest</font> :</td><td>     0.00</td><td>     0.05</td><td>     0.08</td><td>     0.10</td><td>     0.13</td></tr>
  <tr><td><font color="MidnightBlue">highest</font>:</td><td>208509.10</td><td>215026.50</td><td>228703.70</td><td>271248.00</td><td>281151.60</td></tr>
  </table>
  <hr class="thinhr"> <span style="font-weight:bold">eel_missvaluequal</span><div style='float: right; text-align: right;'><img src="data:image/png;base64,
 iVBORw0KGgoAAAANSUhEUgAAAA0AAAANCAMAAABFNRROAAAACVBMVEUAAADMzMz////1iUV5AAAAI0lEQVQImWNghAAGBjDJBAEMYAbZPJLMBLEgGC+PAWIeBAMAV6MA4eyrNIYAAAAASUVORK5CYII=" alt="image" /></div> <style>
- .hmisctable495140 {
+ .hmisctable700131 {
  border: none;
  font-size: 85%;
  }
- .hmisctable495140 td {
+ .hmisctable700131 td {
  text-align: center;
  padding: 0 1ex 0 1ex;
  }
- .hmisctable495140 th {
+ .hmisctable700131 th {
  color: MidnightBlue;
  text-align: center;
  padding: 0 1ex 0 1ex;
  font-weight: normal;
  }
  </style>
- <table class="hmisctable495140">
+ <table class="hmisctable700131">
  <tr><th>n</th><th>missing</th><th>distinct</th></tr>
- <tr><td>61</td><td>12045</td><td>4</td></tr>
+ <tr><td>61</td><td>12289</td><td>4</td></tr>
  </table>
  <pre style="font-size:85%;">
  Value         nd    ND    NM    NP
@@ -211,739 +227,289 @@ iVBORw0KGgoAAAANSUhEUgAAAA0AAAANCAMAAABFNRROAAAACVBMVEUAAADMzMz////1iUV5AAAAI0lE
  Proportion 0.033 0.148 0.639 0.180
  </pre>
  <hr class="thinhr"> <span style="font-weight:bold">eel_emu_nameshort</span><div style='float: right; text-align: right;'><img src="data:image/png;base64,
-iVBORw0KGgoAAAANSUhEUgAAAI4AAAANCAMAAABIB6ZMAAAACVBMVEUAAADMzMz////1iUV5AAAAkUlEQVQ4jeWT4Q6AIAiE0fd/6FiZAR5lwtaPHG1F5/VFHZXgIoo6KLdaiY/1Fds9uIUMeevXOFL+D5xuO2EuhQInB4v2bBw1lxMjP3e8SZivldOZG70Z5tN0UN/0xGUmjvmrjDaOA/mMfBEHVhbOaAE7izj6KfB1dXn+tx8W4oiotJxcJ71R9J2hnDY09V04WRu8pgn1p7AJ1AAAAABJRU5ErkJggg==" alt="image" /></div> <style>
- .hmisctable294511 {
+iVBORw0KGgoAAAANSUhEUgAAAJEAAAANCAMAAACeonwpAAAACVBMVEUAAADMzMz////1iUV5AAAAlUlEQVQ4jeVT7RKAIAgD3/+h88wKJ+QH/OguD6+SsSY6Yucg8jIgYUqU5/7wVWuELs5c+gFFEv4nRTfzBL8ECkVhyqi45Yw55wD8qlj0nA2XPZo7A2jpqEfGOiyLz0hFcMMAG6OIqGcD+L4iNcIUFWDfPds0i4raH6mb7sLOoDtHioR5qnOal/PJbUYLO/OUVoI3IuYDlPIKOcxW2RIAAAAASUVORK5CYII=" alt="image" /></div> <style>
+ .hmisctable548731 {
  border: none;
  font-size: 85%;
  }
- .hmisctable294511 td {
+ .hmisctable548731 td {
  text-align: center;
  padding: 0 1ex 0 1ex;
  }
- .hmisctable294511 th {
+ .hmisctable548731 th {
  color: MidnightBlue;
  text-align: center;
  padding: 0 1ex 0 1ex;
  font-weight: normal;
  }
  </style>
- <table class="hmisctable294511">
+ <table class="hmisctable548731">
  <tr><th>n</th><th>missing</th><th>distinct</th></tr>
- <tr><td>11934</td><td>172</td><td>47</td></tr>
+ <tr><td>11953</td><td>397</td><td>48</td></tr>
  </table>
  <span style="font-size: 85%;"><font color="MidnightBlue">lowest</font> : DE_Eide  DE_Elbe  DE_Schl  DE_Warn  DK_total ,  <font color="MidnightBlue">highest</font>: PL_Vist  PT_Port  SE_East  SE_Inla  SE_West </span> <hr class="thinhr"> <span style="font-weight:bold">eel_cou_code</span><div style='float: right; text-align: right;'><img src="data:image/png;base64,
-iVBORw0KGgoAAAANSUhEUgAAACsAAAANCAMAAAAHdmfZAAAACVBMVEUAAADMzMz////1iUV5AAAARklEQVQokWNgRAUMDIw4AQMTKmBAF0CWG5xqcSpnQPM7kI0zKBjQ7MVrLs3VwknsakEScHksatENYWSA+h3kfTiDEcZBJgHxggNQ1okSmAAAAABJRU5ErkJggg==" alt="image" /></div> <style>
- .hmisctable344521 {
+iVBORw0KGgoAAAANSUhEUgAAAC4AAAANCAMAAADhX6ydAAAACVBMVEUAAADMzMz////1iUV5AAAASElEQVQokWNgRAUMDIz4AAMTKmBAF0CTHuTK8elgQAsNIBtf4DCgOYCQ6XRSDidxKgfJwZVgV45uFCMDNDRAAYLEAGMkUQgJAIhFA5RZrSPWAAAAAElFTkSuQmCC" alt="image" /></div> <style>
+ .hmisctable798058 {
  border: none;
  font-size: 85%;
  }
- .hmisctable344521 td {
+ .hmisctable798058 td {
  text-align: center;
  padding: 0 1ex 0 1ex;
  }
- .hmisctable344521 th {
+ .hmisctable798058 th {
  color: MidnightBlue;
  text-align: center;
  padding: 0 1ex 0 1ex;
  font-weight: normal;
  }
  </style>
- <table class="hmisctable344521">
+ <table class="hmisctable798058">
  <tr><th>n</th><th>missing</th><th>distinct</th></tr>
- <tr><td>12106</td><td>0</td><td>14</td></tr>
+ <tr><td>12230</td><td>120</td><td>15</td></tr>
  </table>
  <pre style="font-size:85%;">
- Value          0    DE    DK    ES    FI    FR    GB    HR    IE    NL    NO    PL
- Frequency    172  2058   464   847    96  3947  2219    72    35   430   217   436
- Proportion 0.014 0.170 0.038 0.070 0.008 0.326 0.183 0.006 0.003 0.036 0.018 0.036
-                       
- Value         PT    SE
- Frequency    296   817
- Proportion 0.024 0.067
+ Value          0    DE    DK    ES    FI    FR    GB    GR    HR    IE    NL    NO
+ Frequency    277  2058   464   847    96  3947  2219    19    72    35   430   217
+ Proportion 0.023 0.168 0.038 0.069 0.008 0.323 0.181 0.002 0.006 0.003 0.035 0.018
+                             
+ Value         PL    PT    SE
+ Frequency    436   296   817
+ Proportion 0.036 0.024 0.067
  </pre>
  <hr class="thinhr"> <span style="font-weight:bold">eel_lfs_code</span><div style='float: right; text-align: right;'><img src="data:image/png;base64,
 iVBORw0KGgoAAAANSUhEUgAAAA0AAAANCAMAAABFNRROAAAACVBMVEUAAADMzMz////1iUV5AAAAJ0lEQVQImWNghAAGBjDJBAEMDCCMyYOwCPIYIOZBMEIcIkcuD9lMAD/GAKJ7LgS6AAAAAElFTkSuQmCC" alt="image" /></div> <style>
- .hmisctable983749 {
+ .hmisctable453737 {
  border: none;
  font-size: 85%;
  }
- .hmisctable983749 td {
+ .hmisctable453737 td {
  text-align: center;
  padding: 0 1ex 0 1ex;
  }
- .hmisctable983749 th {
+ .hmisctable453737 th {
  color: MidnightBlue;
  text-align: center;
  padding: 0 1ex 0 1ex;
  font-weight: normal;
  }
  </style>
- <table class="hmisctable983749">
+ <table class="hmisctable453737">
  <tr><th>n</th><th>missing</th><th>distinct</th></tr>
- <tr><td>11934</td><td>172</td><td>4</td></tr>
+ <tr><td>11953</td><td>397</td><td>4</td></tr>
  </table>
  <pre style="font-size:85%;">
  Value          G     S     Y    YS
- Frequency   1996  2805  3828  3305
- Proportion 0.167 0.235 0.321 0.277
+ Frequency   1996  2824  3828  3305
+ Proportion 0.167 0.236 0.320 0.276
  </pre>
  <hr class="thinhr"> <span style="font-weight:bold">eel_hty_code</span><div style='float: right; text-align: right;'><img src="data:image/png;base64,
 iVBORw0KGgoAAAANSUhEUgAAABkAAAANCAMAAABrcDXcAAAACVBMVEUAAADMzMz////1iUV5AAAAN0lEQVQYlWNgxAQMDGCSCRMwgAXxyzAwUE0G7hYMtzHg1EO+DIokDhkoh4EB5A4gBlMgB8E5DABEpwHLVCaxcgAAAABJRU5ErkJggg==" alt="image" /></div> <style>
- .hmisctable884034 {
+ .hmisctable846074 {
  border: none;
  font-size: 85%;
  }
- .hmisctable884034 td {
+ .hmisctable846074 td {
  text-align: center;
  padding: 0 1ex 0 1ex;
  }
- .hmisctable884034 th {
+ .hmisctable846074 th {
  color: MidnightBlue;
  text-align: center;
  padding: 0 1ex 0 1ex;
  font-weight: normal;
  }
  </style>
- <table class="hmisctable884034">
+ <table class="hmisctable846074">
  <tr><th>n</th><th>missing</th><th>distinct</th></tr>
- <tr><td>11934</td><td>172</td><td>8</td></tr>
+ <tr><td>11953</td><td>397</td><td>8</td></tr>
  </table>
  <pre style="font-size:85%;">
  Value          C     F    FC    FT   FTC    MO     T    TC
- Frequency   1927  3357   926    12   274   464  4601   373
- Proportion 0.161 0.281 0.078 0.001 0.023 0.039 0.386 0.031
+ Frequency   1927  3357   926    12   274   464  4620   373
+ Proportion 0.161 0.281 0.077 0.001 0.023 0.039 0.387 0.031
  </pre>
  <hr class="thinhr"> <span style="font-weight:bold">eel_area_division</span><div style='float: right; text-align: right;'><img src="data:image/png;base64,
-iVBORw0KGgoAAAANSUhEUgAAACUAAAANCAMAAAAZv1dqAAAACVBMVEUAAADMzMz////1iUV5AAAAQElEQVQYlWNgBAMGBkZ8gIEJDBgYQAgnYIArGRSq4EIgzwExBGF4jQHOwG8WRJRmqlDUIvOxqcLko/gR6lNMPgCQDQJkyT+pWQAAAABJRU5ErkJggg==" alt="image" /></div> <style>
- .hmisctable794973 {
+iVBORw0KGgoAAAANSUhEUgAAACsAAAANCAMAAAAHdmfZAAAACVBMVEUAAADMzMz////1iUV5AAAARUlEQVQokWNgBAMGBkbCgIEJDBgYQIgAYIArHKRq0YQYgCEARxgeZ0DjMuA1F1mULmpR5DBNwKIWJI1VO0o4IAIEgw9CAIdoAuCYJ6kuAAAAAElFTkSuQmCC" alt="image" /></div> <style>
+ .hmisctable640859 {
  border: none;
  font-size: 85%;
  }
- .hmisctable794973 td {
+ .hmisctable640859 td {
  text-align: center;
  padding: 0 1ex 0 1ex;
  }
- .hmisctable794973 th {
+ .hmisctable640859 th {
  color: MidnightBlue;
  text-align: center;
  padding: 0 1ex 0 1ex;
  font-weight: normal;
  }
  </style>
- <table class="hmisctable794973">
+ <table class="hmisctable640859">
  <tr><th>n</th><th>missing</th><th>distinct</th></tr>
- <tr><td>4620</td><td>7486</td><td>12</td></tr>
+ <tr><td>4639</td><td>7711</td><td>14</td></tr>
  </table>
  <pre style="font-size:85%;">
  Value         27.3.a 27.3.b, c    27.3.d    27.4.b    27.4.c    27.7.a    27.7.d
  Frequency        460       728       910       816       171       152        86
- Proportion     0.100     0.158     0.197     0.177     0.037     0.033     0.019
-                                                             
- Value         27.7.e    27.8.c    27.9.a    37.1.1    37.2.1
- Frequency         82       205       553       385        72
- Proportion     0.018     0.044     0.120     0.083     0.016
+ Proportion     0.099     0.157     0.196     0.176     0.037     0.033     0.019
+                                                                                 
+ Value         27.7.e    27.8.c    27.9.a    37.1.1    37.2.1    37.2.2    37.3.1
+ Frequency         82       205       553       385        72        12         7
+ Proportion     0.018     0.044     0.119     0.083     0.016     0.003     0.002
  </pre>
  <hr class="thinhr"> <span style="font-weight:bold">eel_comment</span><div style='float: right; text-align: right;'><img src="data:image/png;base64,
-iVBORw0KGgoAAAANSUhEUgAAAI4AAAANCAMAAABIB6ZMAAAACVBMVEUAAADMzMz////1iUV5AAAAY0lEQVQ4jWNgBAEGBkZqAvKNY2ACAQYIRS1AvnGjzsGrk0L92A0dNs6hMCtgzx+U5CygXyDeoVoYURRZI8Q5hIzDJj/SnAM3nTjngPMBKCvASGSEIYALofFQSQbsajGtY2QEAHraC+zN3ypjAAAAAElFTkSuQmCC" alt="image" /></div> <style>
- .hmisctable466881 {
+iVBORw0KGgoAAAANSUhEUgAAAJcAAAANCAMAAACTvAxuAAAACVBMVEUAAADMzMz////1iUV5AAAAZklEQVQ4jWNghAIGBkYqA4pMZGCCAgY4i1qAIhNH3UWiZqqYgt3oYekuquQe7FmK8vwI9BrEd9QMNSrE4wh0FyETcciPcHfBLSDaXaC0D8o6oNwDI9EQNjGsCI2HSjJgV4jVRkZGAGaWDLj9pi5tAAAAAElFTkSuQmCC" alt="image" /></div> <style>
+ .hmisctable215092 {
  border: none;
  font-size: 85%;
  }
- .hmisctable466881 td {
+ .hmisctable215092 td {
  text-align: center;
  padding: 0 1ex 0 1ex;
  }
- .hmisctable466881 th {
+ .hmisctable215092 th {
  color: MidnightBlue;
  text-align: center;
  padding: 0 1ex 0 1ex;
  font-weight: normal;
  }
  </style>
- <table class="hmisctable466881">
+ <table class="hmisctable215092">
  <tr><th>n</th><th>missing</th><th>distinct</th></tr>
- <tr><td>1924</td><td>10182</td><td>47</td></tr>
+ <tr><td>1943</td><td>10407</td><td>50</td></tr>
  </table>
  <style>
- .hmisctable837983 {
+ .hmisctable389935 {
  border: none;
  font-size: 85%;
  }
- .hmisctable837983 td {
+ .hmisctable389935 td {
  text-align: right;
  padding: 0 1ex 0 1ex;
  }
- .hmisctable837983 th {
+ .hmisctable389935 th {
  color: Black;
  text-align: center;
  padding: 0 1ex 0 1ex;
  font-weight: bold;
  }
  </style>
- <table class="hmisctable837983">
- <tr><td><font color="MidnightBlue">lowest</font> :</td><td>27.4.a also included                                                                                                                      </td><td>All marine areas                                                                                                                          </td><td>All marine areas. Preliminary data                                                                                                        </td><td>area information is incomplete, but almost everything is from Ivc                                                                         </td><td>Bristol Channel                                                                                                                           </td></tr>
- <tr><td><font color="MidnightBlue">highest</font>:</td><td>total landings of one fisherman were reported monthly. But proportion of silvereel of total landings were only provided as a total (120kg)</td><td>total landings of one fisherman were reported monthy. But proportion of silvereel of total landings were only provided as a total (100kg) </td><td>Two days fished using one fyke net (AUG). No eels caught                                                                                  </td><td>two fishermen only reported yearly catch for yellow and silver eel combined which are excluded (total of 15kg in 2009)                    </td><td>Vessels of the Nalón stop from February 17 to March 18, 2011.                                                                             </td></tr>
+ <table class="hmisctable389935">
+ <tr><td><font color="MidnightBlue">lowest</font> :</td><td><U+03B9>. the landings refer to both 37.3.1 and 37.2.2   <U+03B9><U+03B9>. The low level of  landings was the result of data collection difficulties caused by the change of the national data collecting system. Landings concider to be underestimated by approximatelly 40% .</td><td>27.4.a also included                                                                                                                                                                                                                                                            </td><td>All marine areas                                                                                                                                                                                                                                                                </td><td>All marine areas. Preliminary data                                                                                                                                                                                                                                              </td><td>area information is incomplete, but almost everything is from Ivc                                                                                                                                                                                                               </td></tr>
+ <tr><td><font color="MidnightBlue">highest</font>:</td><td>total landings of one fisherman were reported monthly. But proportion of silvereel of total landings were only provided as a total (120kg)                                                                                                                                      </td><td>total landings of one fisherman were reported monthy. But proportion of silvereel of total landings were only provided as a total (100kg)                                                                                                                                       </td><td>Two days fished using one fyke net (AUG). No eels caught                                                                                                                                                                                                                        </td><td>two fishermen only reported yearly catch for yellow and silver eel combined which are excluded (total of 15kg in 2009)                                                                                                                                                          </td><td>Vessels of the Nalón stop from February 17 to March 18, 2011.                                                                                                                                                                                                                   </td></tr>
  </table>
  <hr class="thinhr"> <span style="font-weight:bold">source</span><div style='float: right; text-align: right;'><img src="data:image/png;base64,
-iVBORw0KGgoAAAANSUhEUgAAACgAAAANCAMAAADsQdzaAAAACVBMVEUAAADMzMz////1iUV5AAAAQUlEQVQokWNgRAIMDIw4AQMTEmBA4aGCQaQQp1oUjwI5OD2OYgJ+E2mkEELhVAiVgMujKIQLwSTgnmVAMKAcZBIAa54DGHmOyrsAAAAASUVORK5CYII=" alt="image" /></div> <style>
- .hmisctable950263 {
+iVBORw0KGgoAAAANSUhEUgAAACsAAAANCAMAAAAHdmfZAAAACVBMVEUAAADMzMz////1iUV5AAAARElEQVQokWNgRAIMDIz4AAMTEmBA4WGAwagWn3IGZL8D2fiCggHZIMLm0lItnMSpFizHgFCCrhbDHAaY95EYYIwkCiEB8DsDUJ+LJ/EAAAAASUVORK5CYII=" alt="image" /></div> <style>
+ .hmisctable140680 {
  border: none;
  font-size: 85%;
  }
- .hmisctable950263 td {
+ .hmisctable140680 td {
  text-align: center;
  padding: 0 1ex 0 1ex;
  }
- .hmisctable950263 th {
+ .hmisctable140680 th {
  color: MidnightBlue;
  text-align: center;
  padding: 0 1ex 0 1ex;
  font-weight: normal;
  }
  </style>
- <table class="hmisctable950263">
+ <table class="hmisctable140680">
  <tr><th>n</th><th>missing</th><th>distinct</th></tr>
- <tr><td>12106</td><td>0</td><td>13</td></tr>
+ <tr><td>12350</td><td>0</td><td>14</td></tr>
  </table>
  <style>
- .hmisctable227895 {
+ .hmisctable780692 {
  border: none;
  font-size: 85%;
  }
- .hmisctable227895 td {
+ .hmisctable780692 td {
  text-align: right;
  padding: 0 1ex 0 1ex;
  }
- .hmisctable227895 th {
+ .hmisctable780692 th {
  color: Black;
  text-align: center;
  padding: 0 1ex 0 1ex;
  font-weight: bold;
  }
  </style>
- <table class="hmisctable227895">
+ <table class="hmisctable780692">
  <tr><td><font color="MidnightBlue">lowest</font> :</td><td>DE_commercial_landings</td><td>DK_commercial_landings</td><td>ES_commercial_landings</td><td>FL_commercial_landings</td><td>FR_commercial_landings</td></tr>
  <tr><td><font color="MidnightBlue">highest</font>:</td><td>NL_commercial_landings</td><td>NO_commercial_landings</td><td>PL_commercial_landings</td><td>PT_commercial_landings</td><td>SE_commercial_landings</td></tr>
  </table>
  <hr class="thinhr"> <span style="font-weight:bold">country</span><div style='float: right; text-align: right;'><img src="data:image/png;base64,
-iVBORw0KGgoAAAANSUhEUgAAACgAAAANCAMAAADsQdzaAAAACVBMVEUAAADMzMz////1iUV5AAAAQUlEQVQokWNgRAIMDIw4AQMTEmBA4aGCQaQQp1oUjwI5OD2OYgJ+E2mkEELhVAiVgMujKIQLwSTgnmVAMKAcZBIAa54DGHmOyrsAAAAASUVORK5CYII=" alt="image" /></div> <style>
- .hmisctable575515 {
+iVBORw0KGgoAAAANSUhEUgAAACsAAAANCAMAAAAHdmfZAAAACVBMVEUAAADMzMz////1iUV5AAAARElEQVQokWNgRAIMDIz4AAMTEmBA4WGAwagWn3IGZL8D2fiCggHZIMLm0lItnMSpFizHgFCCrhbDHAaY95EYYIwkCiEB8DsDUJ+LJ/EAAAAASUVORK5CYII=" alt="image" /></div> <style>
+ .hmisctable468050 {
  border: none;
  font-size: 85%;
  }
- .hmisctable575515 td {
+ .hmisctable468050 td {
  text-align: center;
  padding: 0 1ex 0 1ex;
  }
- .hmisctable575515 th {
+ .hmisctable468050 th {
  color: MidnightBlue;
  text-align: center;
  padding: 0 1ex 0 1ex;
  font-weight: normal;
  }
  </style>
- <table class="hmisctable575515">
+ <table class="hmisctable468050">
  <tr><th>n</th><th>missing</th><th>distinct</th></tr>
- <tr><td>12106</td><td>0</td><td>13</td></tr>
+ <tr><td>12350</td><td>0</td><td>14</td></tr>
  </table>
  <pre style="font-size:85%;">
- Value         DE    DK    ES    FL    FR    GB    HR    IE    NL    NO    PL    PT
- Frequency   2058   464   847    96  3947  2219   244    35   430   217   436   296
- Proportion 0.170 0.038 0.070 0.008 0.326 0.183 0.020 0.003 0.036 0.018 0.036 0.024
-                 
- Value         SE
- Frequency    817
- Proportion 0.067
+ Value         DE    DK    ES    FL    FR    GB    GR    HR    IE    NL    NO    PL
+ Frequency   2058   464   847    96  3947  2219   244   244    35   430   217   436
+ Proportion 0.167 0.038 0.069 0.008 0.320 0.180 0.020 0.020 0.003 0.035 0.018 0.035
+                       
+ Value         PT    SE
+ Frequency    296   817
+ Proportion 0.024 0.066
  </pre>
  <hr class="thinhr"> <span style="font-weight:bold">datasource</span> <style>
- .hmisctable304712 {
+ .hmisctable948937 {
  border: none;
  font-size: 85%;
  }
- .hmisctable304712 td {
+ .hmisctable948937 td {
  text-align: center;
  padding: 0 1ex 0 1ex;
  }
- .hmisctable304712 th {
+ .hmisctable948937 th {
  color: MidnightBlue;
  text-align: center;
  padding: 0 1ex 0 1ex;
  font-weight: normal;
  }
  </style>
- <table class="hmisctable304712">
+ <table class="hmisctable948937">
  <tr><th>n</th><th>missing</th><th>distinct</th><th>value</th></tr>
- <tr><td>12106</td><td>0</td><td>1</td><td>wkeelmigration</td></tr>
+ <tr><td>12350</td><td>0</td><td>1</td><td>wkeelmigration</td></tr>
  </table>
  <pre style="font-size:85%;">
  Value      wkeelmigration
- Frequency           12106
+ Frequency           12350
  Proportion              1
  </pre>
  <hr class="thinhr"><!--/html_preserve-->
 
 ```r
+metadata_landings <- map(list_seasonality,function(X){			X[["the_metadata"]]		}) 
+names(metadata_landings) <- substring(names(metadata_landings),1,2) # replacing names with BE DE....
+save(metadata_landings,file=str_c(datawd1,"metadata_landings"))
+
+
 # these are all empty lines ....
 # print(res[is.na(res$eel_emu_nameshort),],n=2)
 # all NA print(res[is.na(res$eel_emu_nameshort),],n=1000)
 res <- res[!is.na(res$eel_emu_nameshort),]
 # describe file again
-Hmisc::describe(res)%>% html()
-```
-
-```
-## Warning in png(file, width = 1 + k * w, height = h): 'width=13, height=13'
-## ne sont probablement pas des valeurs en pixels
-
-## Warning in png(file, width = 1 + k * w, height = h): 'width=13, height=13'
-## ne sont probablement pas des valeurs en pixels
-```
-
-<!--html_preserve--><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
-<script type="text/javascript">
-<!--
-    function expand_collapse(id) {
-       var e = document.getElementById(id);
-       var f = document.getElementById(id+"_earrows");
-       if(e.style.display == 'none'){
-          e.style.display = 'block';
-          f.innerHTML = '&#9650';
-       }
-       else {
-          e.style.display = 'none';
-          f.innerHTML = '&#9660';
-       }
-    }
-//-->
-</script>
-<style>
-.earrows {color:silver;font-size:11px;}
-
-fcap {
- font-family: Verdana;
- font-size: 12px;
- color: MidnightBlue
- }
-
-smg {
- font-family: Verdana;
- font-size: 10px;
- color: &#808080;
-}
-
-hr.thinhr { margin-top: 0.15em; margin-bottom: 0.15em; }
-
-span.xscript {
-position: relative;
-}
-span.xscript sub {
-position: absolute;
-left: 0.1em;
-bottom: -1ex;
-}
-</style>
- <font color="MidnightBlue"><div align=center><span style="font-weight:bold">res <br><br> 14  Variables   11934  Observations</span></div></font> <hr class="thinhr"> <span style="font-weight:bold">eel_typ_name</span> <style>
- .hmisctable348793 {
- border: none;
- font-size: 85%;
- }
- .hmisctable348793 td {
- text-align: center;
- padding: 0 1ex 0 1ex;
- }
- .hmisctable348793 th {
- color: MidnightBlue;
- text-align: center;
- padding: 0 1ex 0 1ex;
- font-weight: normal;
- }
- </style>
- <table class="hmisctable348793">
- <tr><th>n</th><th>missing</th><th>distinct</th></tr>
- <tr><td>11934</td><td>0</td><td>2</td></tr>
- </table>
- <pre style="font-size:85%;">
- Value      com_landings_kg rec_landings_kg
- Frequency            11868              66
- Proportion           0.994           0.006
- </pre>
- <hr class="thinhr"> <span style="font-weight:bold">eel_year</span><div style='float: right; text-align: right;'><img src="data:image/png;base64,
-iVBORw0KGgoAAAANSUhEUgAAAD0AAAANCAMAAAAtxpZ2AAAACVBMVEUAAADMzMz////1iUV5AAAAR0lEQVQokWNgJB4wMKAgkAgT8YCBAQWBRPCrhqqiTDeaPpy60VVg1Uct3XgCFRSumELoYY7PfAJ245EetrrBCHegEghzIAIAbxwC7DIBgcMAAAAASUVORK5CYII=" alt="image" /></div> <style>
- .hmisctable944061 {
- border: none;
- font-size: 85%;
- }
- .hmisctable944061 td {
- text-align: center;
- padding: 0 1ex 0 1ex;
- }
- .hmisctable944061 th {
- color: MidnightBlue;
- text-align: center;
- padding: 0 1ex 0 1ex;
- font-weight: normal;
- }
- </style>
- <table class="hmisctable944061">
- <tr><th>n</th><th>missing</th><th>distinct</th><th>Info</th><th>Mean</th><th>Gmd</th><th>.05</th><th>.10</th><th>.25</th><th>.50</th><th>.75</th><th>.90</th><th>.95</th></tr>
- <tr><td>11934</td><td>0</td><td>20</td><td>0.997</td><td>2011</td><td>6.028</td><td>2001</td><td>2003</td><td>2006</td><td>2011</td><td>2015</td><td>2017</td><td>2018</td></tr>
- </table>
- <pre style="font-size:85%;">
- Value       2000  2001  2002  2003  2004  2005  2006  2007  2008  2009  2010  2011
- Frequency    339   348   404   401   419   591   614   581   570   689   692   607
- Proportion 0.028 0.029 0.034 0.034 0.035 0.050 0.051 0.049 0.048 0.058 0.058 0.051
-                                                           
- Value       2012  2013  2014  2015  2016  2017  2018  2019
- Frequency    661   665   845   844   890   852   834    88
- Proportion 0.055 0.056 0.071 0.071 0.075 0.071 0.070 0.007
- </pre>
- <hr class="thinhr"> <span style="font-weight:bold">eel_month</span><div style='float: right; text-align: right;'><img src="data:image/png;base64,
-iVBORw0KGgoAAAANSUhEUgAAAC4AAAANCAMAAADhX6ydAAAACVBMVEUAAADMzMz////1iUV5AAAATElEQVQokWNgYGAEImSAEIGwkFUwMDAwAREQQEgIA8qGsBB8kAiqcoQ0slrsylGkB0Y51N/IwQASQedjhswgcDutlIMZ0HAgGDJgEgCLzQILq8CShwAAAABJRU5ErkJggg==" alt="image" /></div> <style>
- .hmisctable915845 {
- border: none;
- font-size: 85%;
- }
- .hmisctable915845 td {
- text-align: center;
- padding: 0 1ex 0 1ex;
- }
- .hmisctable915845 th {
- color: MidnightBlue;
- text-align: center;
- padding: 0 1ex 0 1ex;
- font-weight: normal;
- }
- </style>
- <table class="hmisctable915845">
- <tr><th>n</th><th>missing</th><th>distinct</th></tr>
- <tr><td>11934</td><td>0</td><td>15</td></tr>
- </table>
-  APR (1009, 0.085), AUG (1022, 0.086), Dec (1, 0.000), DEC (965, 0.081), FEB (823, 0.069), JAN (839, 0.070), JUL (1041, 0.087), JUN (1061, 0.089), MAR (885, 0.074), MAY (1037, 0.087), NOV (1088, 0.091), OCT (1049, 0.088), SEP (1006, 0.084), whole year (22, 0.002), WHOLE YEAR (86, 0.007) <hr class="thinhr"> <span style="font-weight:bold">eel_value</span><div style='float: right; text-align: right;'><img src="data:image/png;base64,
-iVBORw0KGgoAAAANSUhEUgAAAHwAAAANCAMAAABcvvroAAAACVBMVEUAAADMzMz////1iUV5AAAAQUlEQVQ4jWNgZGRgYBwgwMDExADEAwNGLR+Blo+m9lHL6W75QFkPTu3A9I4KGdEFCAmC0y4jPNswMKJKoKdyKAYAt4UKyvIMdkYAAAAASUVORK5CYII=" alt="image" /></div> <pre style="font-size:85%;">
-        n  missing distinct     Info     Mean      Gmd      .05      .10      .25 
-    11894       40     6126    0.989     2990     5400      0.0      0.0      2.0 
-      .50      .75      .90      .95 
-    120.9    925.8   4139.0  11969.7 
- </pre>
- <style>
- .hmisctable790469 {
- border: none;
- font-size: 85%;
- }
- .hmisctable790469 td {
- text-align: right;
- padding: 0 1ex 0 1ex;
- }
- .hmisctable790469 th {
- color: Black;
- text-align: center;
- padding: 0 1ex 0 1ex;
- font-weight: bold;
- }
- </style>
- <table class="hmisctable790469">
- <tr><td><font color="MidnightBlue">lowest</font> :</td><td>     0.00</td><td>     0.05</td><td>     0.08</td><td>     0.10</td><td>     0.13</td></tr>
- <tr><td><font color="MidnightBlue">highest</font>:</td><td>208509.10</td><td>215026.50</td><td>228703.70</td><td>271248.00</td><td>281151.60</td></tr>
- </table>
- <hr class="thinhr"> <span style="font-weight:bold">eel_missvaluequal</span><div style='float: right; text-align: right;'><img src="data:image/png;base64,
-iVBORw0KGgoAAAANSUhEUgAAAA0AAAANCAMAAABFNRROAAAACVBMVEUAAADMzMz////1iUV5AAAAI0lEQVQImWNghAAGBjDJBAEMYAbZPJLMBLEgGC+PAWIeBAMAV6MA4eyrNIYAAAAASUVORK5CYII=" alt="image" /></div> <style>
- .hmisctable952573 {
- border: none;
- font-size: 85%;
- }
- .hmisctable952573 td {
- text-align: center;
- padding: 0 1ex 0 1ex;
- }
- .hmisctable952573 th {
- color: MidnightBlue;
- text-align: center;
- padding: 0 1ex 0 1ex;
- font-weight: normal;
- }
- </style>
- <table class="hmisctable952573">
- <tr><th>n</th><th>missing</th><th>distinct</th></tr>
- <tr><td>61</td><td>11873</td><td>4</td></tr>
- </table>
- <pre style="font-size:85%;">
- Value         nd    ND    NM    NP
- Frequency      2     9    39    11
- Proportion 0.033 0.148 0.639 0.180
- </pre>
- <hr class="thinhr"> <span style="font-weight:bold">eel_emu_nameshort</span><div style='float: right; text-align: right;'><img src="data:image/png;base64,
-iVBORw0KGgoAAAANSUhEUgAAAI4AAAANCAMAAABIB6ZMAAAACVBMVEUAAADMzMz////1iUV5AAAAkUlEQVQ4jeWT4Q6AIAiE0fd/6FiZAR5lwtaPHG1F5/VFHZXgIoo6KLdaiY/1Fds9uIUMeevXOFL+D5xuO2EuhQInB4v2bBw1lxMjP3e8SZivldOZG70Z5tN0UN/0xGUmjvmrjDaOA/mMfBEHVhbOaAE7izj6KfB1dXn+tx8W4oiotJxcJ71R9J2hnDY09V04WRu8pgn1p7AJ1AAAAABJRU5ErkJggg==" alt="image" /></div> <style>
- .hmisctable476328 {
- border: none;
- font-size: 85%;
- }
- .hmisctable476328 td {
- text-align: center;
- padding: 0 1ex 0 1ex;
- }
- .hmisctable476328 th {
- color: MidnightBlue;
- text-align: center;
- padding: 0 1ex 0 1ex;
- font-weight: normal;
- }
- </style>
- <table class="hmisctable476328">
- <tr><th>n</th><th>missing</th><th>distinct</th></tr>
- <tr><td>11934</td><td>0</td><td>47</td></tr>
- </table>
- <span style="font-size: 85%;"><font color="MidnightBlue">lowest</font> : DE_Eide  DE_Elbe  DE_Schl  DE_Warn  DK_total ,  <font color="MidnightBlue">highest</font>: PL_Vist  PT_Port  SE_East  SE_Inla  SE_West </span> <hr class="thinhr"> <span style="font-weight:bold">eel_cou_code</span><div style='float: right; text-align: right;'><img src="data:image/png;base64,
-iVBORw0KGgoAAAANSUhEUgAAACgAAAANCAMAAADsQdzaAAAACVBMVEUAAADMzMz////1iUV5AAAAQUlEQVQokWNgRAIMDIw4AQMTEmBA4aGCQaQQp1oUjwI5OD2OYgJ+E2mkEELhVAiVgMujKIQLwSTgnmVAMKAcZBIAa54DGHmOyrsAAAAASUVORK5CYII=" alt="image" /></div> <style>
- .hmisctable997977 {
- border: none;
- font-size: 85%;
- }
- .hmisctable997977 td {
- text-align: center;
- padding: 0 1ex 0 1ex;
- }
- .hmisctable997977 th {
- color: MidnightBlue;
- text-align: center;
- padding: 0 1ex 0 1ex;
- font-weight: normal;
- }
- </style>
- <table class="hmisctable997977">
- <tr><th>n</th><th>missing</th><th>distinct</th></tr>
- <tr><td>11934</td><td>0</td><td>13</td></tr>
- </table>
- <pre style="font-size:85%;">
- Value         DE    DK    ES    FI    FR    GB    HR    IE    NL    NO    PL    PT
- Frequency   2058   464   847    96  3947  2219    72    35   430   217   436   296
- Proportion 0.172 0.039 0.071 0.008 0.331 0.186 0.006 0.003 0.036 0.018 0.037 0.025
-                 
- Value         SE
- Frequency    817
- Proportion 0.068
- </pre>
- <hr class="thinhr"> <span style="font-weight:bold">eel_lfs_code</span><div style='float: right; text-align: right;'><img src="data:image/png;base64,
-iVBORw0KGgoAAAANSUhEUgAAAA0AAAANCAMAAABFNRROAAAACVBMVEUAAADMzMz////1iUV5AAAAJ0lEQVQImWNghAAGBjDJBAEMDCCMyYOwCPIYIOZBMEIcIkcuD9lMAD/GAKJ7LgS6AAAAAElFTkSuQmCC" alt="image" /></div> <style>
- .hmisctable891660 {
- border: none;
- font-size: 85%;
- }
- .hmisctable891660 td {
- text-align: center;
- padding: 0 1ex 0 1ex;
- }
- .hmisctable891660 th {
- color: MidnightBlue;
- text-align: center;
- padding: 0 1ex 0 1ex;
- font-weight: normal;
- }
- </style>
- <table class="hmisctable891660">
- <tr><th>n</th><th>missing</th><th>distinct</th></tr>
- <tr><td>11934</td><td>0</td><td>4</td></tr>
- </table>
- <pre style="font-size:85%;">
- Value          G     S     Y    YS
- Frequency   1996  2805  3828  3305
- Proportion 0.167 0.235 0.321 0.277
- </pre>
- <hr class="thinhr"> <span style="font-weight:bold">eel_hty_code</span><div style='float: right; text-align: right;'><img src="data:image/png;base64,
-iVBORw0KGgoAAAANSUhEUgAAABkAAAANCAMAAABrcDXcAAAACVBMVEUAAADMzMz////1iUV5AAAAN0lEQVQYlWNgxAQMDGCSCRMwgAXxyzAwUE0G7hYMtzHg1EO+DIokDhkoh4EB5A4gBlMgB8E5DABEpwHLVCaxcgAAAABJRU5ErkJggg==" alt="image" /></div> <style>
- .hmisctable547521 {
- border: none;
- font-size: 85%;
- }
- .hmisctable547521 td {
- text-align: center;
- padding: 0 1ex 0 1ex;
- }
- .hmisctable547521 th {
- color: MidnightBlue;
- text-align: center;
- padding: 0 1ex 0 1ex;
- font-weight: normal;
- }
- </style>
- <table class="hmisctable547521">
- <tr><th>n</th><th>missing</th><th>distinct</th></tr>
- <tr><td>11934</td><td>0</td><td>8</td></tr>
- </table>
- <pre style="font-size:85%;">
- Value          C     F    FC    FT   FTC    MO     T    TC
- Frequency   1927  3357   926    12   274   464  4601   373
- Proportion 0.161 0.281 0.078 0.001 0.023 0.039 0.386 0.031
- </pre>
- <hr class="thinhr"> <span style="font-weight:bold">eel_area_division</span><div style='float: right; text-align: right;'><img src="data:image/png;base64,
-iVBORw0KGgoAAAANSUhEUgAAACUAAAANCAMAAAAZv1dqAAAACVBMVEUAAADMzMz////1iUV5AAAAQElEQVQYlWNgBAMGBkZ8gIEJDBgYQAgnYIArGRSq4EIgzwExBGF4jQHOwG8WRJRmqlDUIvOxqcLko/gR6lNMPgCQDQJkyT+pWQAAAABJRU5ErkJggg==" alt="image" /></div> <style>
- .hmisctable275661 {
- border: none;
- font-size: 85%;
- }
- .hmisctable275661 td {
- text-align: center;
- padding: 0 1ex 0 1ex;
- }
- .hmisctable275661 th {
- color: MidnightBlue;
- text-align: center;
- padding: 0 1ex 0 1ex;
- font-weight: normal;
- }
- </style>
- <table class="hmisctable275661">
- <tr><th>n</th><th>missing</th><th>distinct</th></tr>
- <tr><td>4620</td><td>7314</td><td>12</td></tr>
- </table>
- <pre style="font-size:85%;">
- Value         27.3.a 27.3.b, c    27.3.d    27.4.b    27.4.c    27.7.a    27.7.d
- Frequency        460       728       910       816       171       152        86
- Proportion     0.100     0.158     0.197     0.177     0.037     0.033     0.019
-                                                             
- Value         27.7.e    27.8.c    27.9.a    37.1.1    37.2.1
- Frequency         82       205       553       385        72
- Proportion     0.018     0.044     0.120     0.083     0.016
- </pre>
- <hr class="thinhr"> <span style="font-weight:bold">eel_comment</span><div style='float: right; text-align: right;'><img src="data:image/png;base64,
-iVBORw0KGgoAAAANSUhEUgAAAI4AAAANCAMAAABIB6ZMAAAACVBMVEUAAADMzMz////1iUV5AAAAY0lEQVQ4jWNgBAEGBkZqAvKNY2ACAQYIRS1AvnGjzsGrk0L92A0dNs6hMCtgzx+U5CygXyDeoVoYURRZI8Q5hIzDJj/SnAM3nTjngPMBKCvASGSEIYALofFQSQbsajGtY2QEAHraC+zN3ypjAAAAAElFTkSuQmCC" alt="image" /></div> <style>
- .hmisctable763374 {
- border: none;
- font-size: 85%;
- }
- .hmisctable763374 td {
- text-align: center;
- padding: 0 1ex 0 1ex;
- }
- .hmisctable763374 th {
- color: MidnightBlue;
- text-align: center;
- padding: 0 1ex 0 1ex;
- font-weight: normal;
- }
- </style>
- <table class="hmisctable763374">
- <tr><th>n</th><th>missing</th><th>distinct</th></tr>
- <tr><td>1924</td><td>10010</td><td>47</td></tr>
- </table>
- <style>
- .hmisctable869354 {
- border: none;
- font-size: 85%;
- }
- .hmisctable869354 td {
- text-align: right;
- padding: 0 1ex 0 1ex;
- }
- .hmisctable869354 th {
- color: Black;
- text-align: center;
- padding: 0 1ex 0 1ex;
- font-weight: bold;
- }
- </style>
- <table class="hmisctable869354">
- <tr><td><font color="MidnightBlue">lowest</font> :</td><td>27.4.a also included                                                                                                                      </td><td>All marine areas                                                                                                                          </td><td>All marine areas. Preliminary data                                                                                                        </td><td>area information is incomplete, but almost everything is from Ivc                                                                         </td><td>Bristol Channel                                                                                                                           </td></tr>
- <tr><td><font color="MidnightBlue">highest</font>:</td><td>total landings of one fisherman were reported monthly. But proportion of silvereel of total landings were only provided as a total (120kg)</td><td>total landings of one fisherman were reported monthy. But proportion of silvereel of total landings were only provided as a total (100kg) </td><td>Two days fished using one fyke net (AUG). No eels caught                                                                                  </td><td>two fishermen only reported yearly catch for yellow and silver eel combined which are excluded (total of 15kg in 2009)                    </td><td>Vessels of the Nalón stop from February 17 to March 18, 2011.                                                                             </td></tr>
- </table>
- <hr class="thinhr"> <span style="font-weight:bold">source</span><div style='float: right; text-align: right;'><img src="data:image/png;base64,
-iVBORw0KGgoAAAANSUhEUgAAACgAAAANCAMAAADsQdzaAAAACVBMVEUAAADMzMz////1iUV5AAAAQUlEQVQokWNgRAIMDIw4AQMTEmBA4aGCQaQQp1oUjwI5OD2OYgJ+E2mkEELhVAiVgMujKIQLwSTgnmVAMKAcZBIAa54DGHmOyrsAAAAASUVORK5CYII=" alt="image" /></div> <style>
- .hmisctable465129 {
- border: none;
- font-size: 85%;
- }
- .hmisctable465129 td {
- text-align: center;
- padding: 0 1ex 0 1ex;
- }
- .hmisctable465129 th {
- color: MidnightBlue;
- text-align: center;
- padding: 0 1ex 0 1ex;
- font-weight: normal;
- }
- </style>
- <table class="hmisctable465129">
- <tr><th>n</th><th>missing</th><th>distinct</th></tr>
- <tr><td>11934</td><td>0</td><td>13</td></tr>
- </table>
- <style>
- .hmisctable974279 {
- border: none;
- font-size: 85%;
- }
- .hmisctable974279 td {
- text-align: right;
- padding: 0 1ex 0 1ex;
- }
- .hmisctable974279 th {
- color: Black;
- text-align: center;
- padding: 0 1ex 0 1ex;
- font-weight: bold;
- }
- </style>
- <table class="hmisctable974279">
- <tr><td><font color="MidnightBlue">lowest</font> :</td><td>DE_commercial_landings</td><td>DK_commercial_landings</td><td>ES_commercial_landings</td><td>FL_commercial_landings</td><td>FR_commercial_landings</td></tr>
- <tr><td><font color="MidnightBlue">highest</font>:</td><td>NL_commercial_landings</td><td>NO_commercial_landings</td><td>PL_commercial_landings</td><td>PT_commercial_landings</td><td>SE_commercial_landings</td></tr>
- </table>
- <hr class="thinhr"> <span style="font-weight:bold">country</span><div style='float: right; text-align: right;'><img src="data:image/png;base64,
-iVBORw0KGgoAAAANSUhEUgAAACgAAAANCAMAAADsQdzaAAAACVBMVEUAAADMzMz////1iUV5AAAAQUlEQVQokWNgRAIMDIw4AQMTEmBA4aGCQaQQp1oUjwI5OD2OYgJ+E2mkEELhVAiVgMujKIQLwSTgnmVAMKAcZBIAa54DGHmOyrsAAAAASUVORK5CYII=" alt="image" /></div> <style>
- .hmisctable751830 {
- border: none;
- font-size: 85%;
- }
- .hmisctable751830 td {
- text-align: center;
- padding: 0 1ex 0 1ex;
- }
- .hmisctable751830 th {
- color: MidnightBlue;
- text-align: center;
- padding: 0 1ex 0 1ex;
- font-weight: normal;
- }
- </style>
- <table class="hmisctable751830">
- <tr><th>n</th><th>missing</th><th>distinct</th></tr>
- <tr><td>11934</td><td>0</td><td>13</td></tr>
- </table>
- <pre style="font-size:85%;">
- Value         DE    DK    ES    FL    FR    GB    HR    IE    NL    NO    PL    PT
- Frequency   2058   464   847    96  3947  2219    72    35   430   217   436   296
- Proportion 0.172 0.039 0.071 0.008 0.331 0.186 0.006 0.003 0.036 0.018 0.037 0.025
-                 
- Value         SE
- Frequency    817
- Proportion 0.068
- </pre>
- <hr class="thinhr"> <span style="font-weight:bold">datasource</span> <style>
- .hmisctable461299 {
- border: none;
- font-size: 85%;
- }
- .hmisctable461299 td {
- text-align: center;
- padding: 0 1ex 0 1ex;
- }
- .hmisctable461299 th {
- color: MidnightBlue;
- text-align: center;
- padding: 0 1ex 0 1ex;
- font-weight: normal;
- }
- </style>
- <table class="hmisctable461299">
- <tr><th>n</th><th>missing</th><th>distinct</th><th>value</th></tr>
- <tr><td>11934</td><td>0</td><td>1</td><td>wkeelmigration</td></tr>
- </table>
- <pre style="font-size:85%;">
- Value      wkeelmigration
- Frequency           11934
- Proportion              1
- </pre>
- <hr class="thinhr"><!--/html_preserve-->
-
-```r
+#Hmisc::describe(res)%>% html()
 # All ND, NP or NM
 print(res[is.na(res$eel_value),],n=40)
 ```
@@ -1004,7 +570,7 @@ nrow(res)
 ```
 
 ```
-## [1] 11894
+## [1] 11913
 ```
 
 ```r
@@ -1012,9 +578,10 @@ unique(res$eel_month)
 ```
 
 ```
-##  [1] "JAN"        "FEB"        "MAR"        "APR"        "MAY"       
-##  [6] "JUN"        "JUL"        "AUG"        "SEP"        "OCT"       
-## [11] "NOV"        "DEC"        "WHOLE YEAR" "Dec"        "whole year"
+##  [1] "JAN"         "FEB"         "MAR"         "APR"         "MAY"        
+##  [6] "JUN"         "JUL"         "AUG"         "SEP"         "OCT"        
+## [11] "NOV"         "DEC"         "WHOLE YEAR"  "REMAIN YEAR" "Dec"        
+## [16] "whole year"
 ```
 
 ```r
@@ -1051,12 +618,31 @@ print(resr)
 ```
 
 ```
-## # A tibble: 0 x 14
-## # ... with 14 variables: eel_typ_name <chr>, eel_year <dbl>,
-## #   eel_month <chr>, eel_value <dbl>, eel_missvaluequal <chr>,
-## #   eel_emu_nameshort <chr>, eel_cou_code <chr>, eel_lfs_code <chr>,
-## #   eel_hty_code <chr>, eel_area_division <chr>, eel_comment <chr>,
-## #   source <chr>, country <chr>, datasource <chr>
+## # A tibble: 19 x 14
+##    eel_typ_name eel_year eel_month eel_value eel_missvaluequ~
+##    <chr>           <dbl> <chr>         <dbl> <chr>           
+##  1 com_landing~     2000 remain y~    110000 <NA>            
+##  2 com_landing~     2001 remain y~    105000 <NA>            
+##  3 com_landing~     2002 remain y~    101000 <NA>            
+##  4 com_landing~     2003 remain y~     76486 <NA>            
+##  5 com_landing~     2004 remain y~     57958 <NA>            
+##  6 com_landing~     2005 remain y~     73500 <NA>            
+##  7 com_landing~     2006 remain y~     82421 <NA>            
+##  8 com_landing~     2007 remain y~     83298 <NA>            
+##  9 com_landing~     2008 remain y~     78338 <NA>            
+## 10 com_landing~     2009 remain y~     92709 <NA>            
+## 11 com_landing~     2010 remain y~     51900 <NA>            
+## 12 com_landing~     2011 remain y~     80900 <NA>            
+## 13 com_landing~     2012 remain y~     19998 <NA>            
+## 14 com_landing~     2013 remain y~     29674 <NA>            
+## 15 com_landing~     2014 remain y~     43641 <NA>            
+## 16 com_landing~     2015 remain y~     55429 <NA>            
+## 17 com_landing~     2016 remain y~     83999 <NA>            
+## 18 com_landing~     2017 remain y~     66264 <NA>            
+## 19 com_landing~     2018 remain y~     57963 <NA>            
+## # ... with 9 more variables: eel_emu_nameshort <chr>, eel_cou_code <chr>,
+## #   eel_lfs_code <chr>, eel_hty_code <chr>, eel_area_division <chr>,
+## #   eel_comment <chr>, source <chr>, country <chr>, datasource <chr>
 ```
 
 ```r
@@ -1124,22 +710,22 @@ bottom: -1ex;
 </style>
  <span style="font-weight:bold">res$eel_month</span><div style='float: right; text-align: right;'><img src="data:image/png;base64,
 iVBORw0KGgoAAAANSUhEUgAAACUAAAANCAMAAAAZv1dqAAAACVBMVEUAAADMzMz////1iUV5AAAAMklEQVQYlWNghAEGBihCsKB8oAgTDDAwQBGCBeczMKAqwa0KU5S2qjD9hMkfCHfR248AXoABWFoM0XcAAAAASUVORK5CYII=" alt="image" /></div> <style>
- .hmisctable829793 {
+ .hmisctable410472 {
  border: none;
  font-size: 85%;
  }
- .hmisctable829793 td {
+ .hmisctable410472 td {
  text-align: center;
  padding: 0 1ex 0 1ex;
  }
- .hmisctable829793 th {
+ .hmisctable410472 th {
  color: MidnightBlue;
  text-align: center;
  padding: 0 1ex 0 1ex;
  font-weight: normal;
  }
  </style>
- <table class="hmisctable829793">
+ <table class="hmisctable410472">
  <tr><th>n</th><th>missing</th><th>distinct</th><th>Info</th><th>Mean</th><th>Gmd</th><th>.05</th><th>.10</th><th>.25</th><th>.50</th><th>.75</th><th>.90</th><th>.95</th></tr>
  <tr><td>11826</td><td>0</td><td>12</td><td>0.993</td><td>6.705</td><td>3.875</td><td> 1</td><td> 2</td><td> 4</td><td> 7</td><td>10</td><td>11</td><td>12</td></tr>
  </table>
@@ -28048,7 +27634,6 @@ for (the_emu in unique(res$emu_nameshort)){
 ```
 
 ![](landings_seasonality_files/figure-html/s-29.png)<!-- -->
-
 # Glass eel
 
 
