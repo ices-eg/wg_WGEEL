@@ -202,26 +202,26 @@ Hmisc::describe(res)
 ```
 ## res 
 ## 
-##  9  Variables      8033  Observations
+##  9  Variables      8045  Observations
 ## ---------------------------------------------------------------------------
 ## ser_nameshort 
 ##        n  missing distinct 
-##     8029        4      152 
+##     8041        4      154 
 ## 
 ## lowest : ALA  AllE AlsT AshE AtrT, highest: zm5T zm6T zm7T zm8T zm9T
 ## ---------------------------------------------------------------------------
 ## das_value 
 ##        n  missing distinct     Info     Mean      Gmd      .05      .10 
-##     7644      389     3074    0.984     2566     4978        0        0 
+##     7656      389     3084    0.984     2625     5091     0.00     0.00 
 ##      .25      .50      .75      .90      .95 
-##        0        2       53     1146     4631 
+##     0.00     2.00    53.98  1180.00  4758.25 
 ## 
 ## lowest : 0.000000e+00 4.764110e-05 8.378203e-04 1.000000e-03 2.028486e-03
 ## highest: 2.801161e+05 3.288163e+05 3.320454e+05 3.440181e+05 3.803356e+05
 ## ---------------------------------------------------------------------------
 ## das_year 
 ##        n  missing distinct     Info     Mean      Gmd      .05      .10 
-##     8028        5      113    0.996     2009    10.56     1985     1997 
+##     8040        5      113    0.996     2009    10.55     1985     1997 
 ##      .25      .50      .75      .90      .95 
 ##     2007     2013     2016     2018     2019 
 ## 
@@ -229,20 +229,20 @@ Hmisc::describe(res)
 ## ---------------------------------------------------------------------------
 ## das_month 
 ##        n  missing distinct 
-##     8028        5       25 
+##     8040        5       25 
 ## 
 ## lowest : Apr APR Aug AUG Dec, highest: Oct OCT OKT Sep SEP
 ## ---------------------------------------------------------------------------
 ## das_comment 
 ##        n  missing distinct 
-##     1771     6262      107 
+##     1783     6262      108 
 ## 
 ## lowest : 2012-2013                                                                        2012-2013, attention problems with the monitoring partial percentage for January 2013-2014                                                                        2014-2015                                                                        2015-2016                                                                       
 ## highest: Trap removed August 18th due to H&S                                              trap working only the icefree period April-November                              Trapping began in July                                                           Trapping began in May                                                            trapping stopped in September                                                   
 ## ---------------------------------------------------------------------------
 ## das_effort 
 ##        n  missing distinct     Info     Mean      Gmd      .05      .10 
-##      251     7782       31    0.925    25.62    8.047      5.0     12.0 
+##      251     7794       31    0.925    25.62    8.047      5.0     12.0 
 ##      .25      .50      .75      .90      .95 
 ##     23.5     30.0     31.0     31.0     31.0 
 ## 
@@ -250,29 +250,29 @@ Hmisc::describe(res)
 ## ---------------------------------------------------------------------------
 ## source 
 ##        n  missing distinct 
-##     8033        0       27 
+##     8045        0       28 
 ## 
 ## lowest : DE_seasonality_of_migration      DE_seasonality_of_migration_WarS DK_seasonality_of_migration      ES_seasonality_of_migration      FL_seasonality_of_migration     
 ## highest: LV_seasonality_of_migration      NL_seasonality_of_migration      NO_seasonality_of_migration      PL_seasonality_of_migration      SE_seasonality_of_migration     
 ## ---------------------------------------------------------------------------
 ## country 
 ##        n  missing distinct 
-##     8033        0       13 
+##     8045        0       14 
 ##                                                                       
-## Value         DE    DK    ES    FL    FR    GB    IE    LT    LV    NL
-## Frequency    323    29    40   320  1801  2253   977    86    90  1537
-## Proportion 0.040 0.004 0.005 0.040 0.224 0.280 0.122 0.011 0.011 0.191
-##                             
-## Value         NO    PL    SE
-## Frequency    480    19    78
-## Proportion 0.060 0.002 0.010
+## Value         DE    DK    ES    FL    FR    GB    GR    IE    LT    LV
+## Frequency    323    29    40   320  1801  2253    12   977    86    90
+## Proportion 0.040 0.004 0.005 0.040 0.224 0.280 0.001 0.121 0.011 0.011
+##                                   
+## Value         NL    NO    PL    SE
+## Frequency   1537   480    19    78
+## Proportion 0.191 0.060 0.002 0.010
 ## ---------------------------------------------------------------------------
 ## datasource 
 ##              n        missing       distinct          value 
-##           8033              0              1 wkeelmigration 
+##           8045              0              1 wkeelmigration 
 ##                          
 ## Value      wkeelmigration
-## Frequency            8033
+## Frequency            8045
 ## Proportion              1
 ## ---------------------------------------------------------------------------
 ```
@@ -339,32 +339,32 @@ Hmisc::describe(ser)
 ```
 ## ser 
 ## 
-##  15  Variables      154  Observations
+##  15  Variables      156  Observations
 ## ---------------------------------------------------------------------------
 ## ser_nameshort 
 ##        n  missing distinct 
-##      152        2      152 
+##      154        2      154 
 ## 
 ## lowest : ALA  AllE AlsT AshE AtrT, highest: zm5T zm6T zm7T zm8T zm9T
 ## ---------------------------------------------------------------------------
 ## ser_namelong 
 ##        n  missing distinct 
-##      150        4      147 
+##      152        4      149 
 ## 
 ## lowest : Alausa river                    Ätrafors, River Ätran           Baddoch Burn trap               Bann Coleraine trapping partial Beeleigh_Glass_<80mm           
 ## highest: zmaa_06                         zmaa_07                         zmaa_08                         zmaa_09                         zmaa_10                        
 ## ---------------------------------------------------------------------------
 ## ser_typ_id 
 ##        n  missing distinct 
-##      150        4        3 
+##      152        4        3 
 ##                             
 ## Value          1     2     3
-## Frequency     45    10    95
-## Proportion 0.300 0.067 0.633
+## Frequency     45    10    97
+## Proportion 0.296 0.066 0.638
 ## ---------------------------------------------------------------------------
 ## ser_effort_uni_code 
 ##        n  missing distinct 
-##        8      146        5 
+##        8      148        5 
 ##                                                   
 ## Value            1       G   index  nr day nr haul
 ## Frequency        3       1       1       2       1
@@ -372,14 +372,14 @@ Hmisc::describe(ser)
 ## ---------------------------------------------------------------------------
 ## ser_comment 
 ##        n  missing distinct 
-##      150        4       72 
+##      152        4       73 
 ## 
 ## lowest : 2 fyke nets                                                                                                                                                                             an eeltrap during 1981-1994 catching all eels migrating downstream, eels in lakes upstream were stocked in 1967.                                                                        an eeltrap since  1982 catching all eels migrating downstream, expect years 1989-1991 and 1999-2000 when the trap was not working properly. Eels in lakes upstream are stocked in 1978. an eeltrap since 1974 catching all eels migrating downstream, eels in lakes upstream are stocked in 1911, 1966 and 2007.                                                                an eeltrap since 1982 catching all eels migrating downstream, expect years 1991 and 1999-2004 when the trap was not working properly.all eels in lakes upstream are stocked in 1978.   
 ## highest: YS mixture  Fishing trap in the river between lakes Galuonai and Vašuokas                                                                                                               YS mixture  Fishing trap in the river Kertuoja                                                                                                                                          YS mixture  Fishing trap in the river Lakaja                                                                                                                                            YS mixture  Fishing trap in the river Šakarva                                                                                                                                           YS mixture  Fishing trap in the river Žeimena                                                                                                                                          
 ## ---------------------------------------------------------------------------
 ## ser_uni_code 
 ##        n  missing distinct 
-##      150        4        5 
+##      150        6        5 
 ##                                                                  
 ## Value      (n/m3)*100      index         kg         nr     number
 ## Frequency           1         62         10         76          1
@@ -387,57 +387,57 @@ Hmisc::describe(ser)
 ## ---------------------------------------------------------------------------
 ## ser_lfs_code 
 ##        n  missing distinct 
-##      150        4        5 
+##      152        4        5 
 ##                                         
 ## Value          G    GY     S     Y    YS
-## Frequency     12    13    89    30     6
-## Proportion 0.080 0.087 0.593 0.200 0.040
+## Frequency     12    13    91    30     6
+## Proportion 0.079 0.086 0.599 0.197 0.039
 ## ---------------------------------------------------------------------------
 ## ser_hty_code 
 ##        n  missing distinct 
-##      150        4        2 
+##      152        4        2 
 ##                       
 ## Value          F     T
-## Frequency    137    13
-## Proportion 0.913 0.087
+## Frequency    137    15
+## Proportion 0.901 0.099
 ## ---------------------------------------------------------------------------
 ## ser_locationdescription 
 ##        n  missing distinct 
-##      150        4       84 
+##      150        6       84 
 ## 
 ## lowest : 3 River weirs                                                                                       a 30 ha study area in the Marais Breton                                                             Allington lock - at tidal limit of River Medway                                                     At the north-east part of the Vaccarres lagoon                                                      Backbarrow silver eel counter on the River Leven                                                   
 ## highest: Vilaine at the estuarine Arzal dam, the monitoring takes place on the fourth gate of the Arzal dam. Warnow River at Kessin, appr. 17 km from River mouth                                                Whole catchment                                                                                     Whole lake survey, tidal lake                                                                       Zandmaas                                                                                           
 ## ---------------------------------------------------------------------------
 ## ser_emu_nameshort 
 ##        n  missing distinct 
-##      150        4       29 
+##      152        4       31 
 ## 
 ## lowest : DE_Warn  DK-inla  ES_Basq  FI_Finl  FR_Adou 
 ## highest: LV_Latv  NL_Neth  NO_total PL_Vist  SE_Inla 
 ## ---------------------------------------------------------------------------
 ## ser_cou_code 
 ##        n  missing distinct 
-##      150        4       13 
+##      152        4       14 
 ##                                                                       
-## Value         DE    DK    ES    FI    FR    GB    IE    LT    LV    NL
-## Frequency      1     1     1     6    14    39    11     6     4    55
-## Proportion 0.007 0.007 0.007 0.040 0.093 0.260 0.073 0.040 0.027 0.367
-##                             
-## Value         NO    PL    SE
-## Frequency      2     1     9
-## Proportion 0.013 0.007 0.060
+## Value         DE    DK    ES    FI    FR    GB    GR    IE    LT    LV
+## Frequency      1     1     1     6    14    39     2    11     6     4
+## Proportion 0.007 0.007 0.007 0.039 0.092 0.257 0.013 0.072 0.039 0.026
+##                                   
+## Value         NL    NO    PL    SE
+## Frequency     55     2     1     9
+## Proportion 0.362 0.013 0.007 0.059
 ## ---------------------------------------------------------------------------
 ## ser_area_division 
 ##        n  missing distinct 
-##       15      139        5 
-##                                              
-## Value      27.3.a 27.3.d 27.4.a 27.4.c 27.8.b
-## Frequency       6      5      2      1      1
-## Proportion  0.400  0.333  0.133  0.067  0.067
+##       17      139        7 
+##                                                            
+## Value      27.3.a 27.3.d 27.4.a 27.4.c 27.8.b 37.2.2 37.3.1
+## Frequency       6      5      2      1      1      1      1
+## Proportion  0.353  0.294  0.118  0.059  0.059  0.059  0.059
 ## ---------------------------------------------------------------------------
 ## ser_tblcodeid 
 ##        n  missing distinct    value 
-##        1      153        1   170034 
+##        1      155        1   170034 
 ##                  
 ## Value      170034
 ## Frequency       1
@@ -445,22 +445,22 @@ Hmisc::describe(ser)
 ## ---------------------------------------------------------------------------
 ## ser_x 
 ##        n  missing distinct     Info     Mean      Gmd      .05      .10 
-##      150        4      125        1   373205   746387  -8.0980  -5.6433 
+##      152        4      127        1   368295   736566  -8.0820  -5.6428 
 ##      .25      .50      .75      .90      .95 
-##  -0.3205  25.6048  51.9798  54.0847  57.0597 
+##  -0.3151  25.5530  51.9779  53.9647  57.0578 
 ##                           
 ## Value      0.0e+00 5.6e+07
-## Frequency      149       1
+## Frequency      151       1
 ## Proportion   0.993   0.007
 ## ---------------------------------------------------------------------------
 ## ser_y 
 ##        n  missing distinct     Info     Mean      Gmd      .05      .10 
-##      150        4      128        1    64701   129362    4.108    4.195 
+##      152        4      130        1    63850   127660    4.108    4.195 
 ##      .25      .50      .75      .90      .95 
-##    6.104   45.117   52.702   55.765   58.540 
+##    6.104   44.948   52.702   55.603   58.540 
 ##                           
 ## Value            0 9700000
-## Frequency      149       1
+## Frequency      151       1
 ## Proportion   0.993   0.007
 ## ---------------------------------------------------------------------------
 ```
@@ -517,7 +517,7 @@ nrow(res)
 ```
 
 ```
-## [1] 8028
+## [1] 8040
 ```
 
 ```r
@@ -526,7 +526,7 @@ nrow(ser2)
 ```
 
 ```
-## [1] 152
+## [1] 154
 ```
 
 ```r
@@ -570,8 +570,8 @@ knitr::kable(sum0 <- res %>%
   </tr>
   <tr>
    <td style="text-align:left;"> S </td>
-   <td style="text-align:right;"> 4628 </td>
-   <td style="text-align:right;"> 88 </td>
+   <td style="text-align:right;"> 4640 </td>
+   <td style="text-align:right;"> 90 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> Y </td>
@@ -658,7 +658,7 @@ knitr::kable(sum0 <- res %>%
    <td style="text-align:right;"> 523 </td>
    <td style="text-align:right;"> 543 </td>
    <td style="text-align:right;"> 523 </td>
-   <td style="text-align:right;"> 332 </td>
+   <td style="text-align:right;"> 344 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> Y </td>
@@ -1978,6 +1978,15 @@ knitr::kable(sum1 <- res %>%
    <td style="text-align:right;"> 19 </td>
   </tr>
   <tr>
+   <td style="text-align:left;"> VisT </td>
+   <td style="text-align:left;"> S </td>
+   <td style="text-align:left;"> GR </td>
+   <td style="text-align:right;"> 2013 </td>
+   <td style="text-align:right;"> 2018 </td>
+   <td style="text-align:right;"> 6 </td>
+   <td style="text-align:right;"> 6 </td>
+  </tr>
+  <tr>
    <td style="text-align:left;"> WarS </td>
    <td style="text-align:left;"> S </td>
    <td style="text-align:left;"> DE </td>
@@ -1985,6 +1994,15 @@ knitr::kable(sum1 <- res %>%
    <td style="text-align:right;"> 2019 </td>
    <td style="text-align:right;"> 11 </td>
    <td style="text-align:right;"> 264 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> WesT </td>
+   <td style="text-align:left;"> S </td>
+   <td style="text-align:left;"> GR </td>
+   <td style="text-align:right;"> 2013 </td>
+   <td style="text-align:right;"> 2018 </td>
+   <td style="text-align:right;"> 6 </td>
+   <td style="text-align:right;"> 6 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> ZeiT </td>

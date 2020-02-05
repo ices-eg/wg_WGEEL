@@ -1,0 +1,90 @@
+---
+title: "WKEELMIGRATION scientific litterature review"
+date: "february 2020"
+output: 
+  html_document:
+    keep_md: true
+---
+
+
+ 
+ ```{r launch, echo=FALSE, include=FALSE}
+require(knitr)
+opts_knit$set(eval.after = 'fig.cap' ) # to be used in chunks used only to plot pictures
+knitr::opts_chunk$set(fig.width=12, fig.height=8, echo=FALSE)
+options(knitr.table.format = 'html') # options pour kable
+options(knitr.kable.NA = '.')
+setwd("C:\\workspace\\gitwgeel\\Misc\\wkeelmigration\\")
+source("..\\..\\R\\utilities\\load_library.R")
+source("functions.R")
+load_package("readxl")
+load_package("stringr")
+load_package("pool")
+load_package("DBI")
+load_package("RPostgreSQL")
+load_package("glue")
+load_package("sqldf")
+load_package("tidyverse")
+load_package("ggforce") # better circular plots using ggplot
+load_package("printr")
+load_package("kableExtra")
+load_package("pander")
+load_package("colorspace")
+load_package("ggthemes")
+
+source("..\\..\\R\\shiny_data_integration\\shiny_di\\loading_functions.R")
+source("..\\..\\R\\shiny_data_integration\\shiny_di\\database_reference.R") # extract_ref
+load(file=str_c("C:\\workspace\\gitwgeel\\R\\shiny_data_integration\\shiny_di","\\common\\data\\init_data.Rdata"))  
+datawd <- "C:\\Users\\cedric.briand\\OneDrive - EPTB Vilaine\\Projets\\GRISAM\\2020\\wkeemigration\\source\\"
+
+imgwd <- "C:\\workspace\\wgeeldata\\wkeelmigration\\image\\"
+
+library("sf")
+library("ggspatial")
+
+dsn <-  paste0("PG:dbname='wgeel' host='localhost' port ='5436'",
+		" user='", userlocal,
+		"' password='", passwordlocal,"'")
+load(file=str_c(datawd,"saved_data.Rdata"))
+load(file=str_c(datawd,"cou.Rdata"))
+# load data from closures
+load(file=str_c(datawd2,"res_closure.Rdata"))
+resc <- res
+load(file=str_c(datawd2,"list_closure.Rdata"))
+# load files from landings
+load(file=str_c(datawd1,"list_seasonality.Rdata"))
+load(file=str_c(datawd,"res_landings.Rdata"))
+
+resl <- res
+rm(res)
+resl$country[resl$country=='FL']<-'FI'
+# extract dataframe from cou
+coud <- cou
+st_geometry(coud) <- NULL
+countries <- data.frame("cou_code"=unique(c(resl$country,resc$country)))
+countries <- inner_join(countries,coud)
+the_emus <- data.frame("emu_nameshort"=unique(c(resl$emu_nameshort,resc$emu_nameshort)))
+the_emus <- inner_join(emus,the_emus)
+load(file=str_c(datawd,"big_table_closure.Rdata"))
+
+```
+
+
+
+ ```{r load_excel, echo=FALSE, include=FALSE}
+f <- "Literature_table_040220.xlsx"
+path <- str_c(datawd,f)	
+file <- basename(path)
+mylocalfilename <- gsub(".xlsx","",file)
+sea <- read_excel(path=path,"Literature review" , range="C2:AN67",col_names = TRUE)
+save(sea, file=str_c(datawd,'sea.Rdata'))
+describe(sea)%>%html
+
+
+```
+ ```{r data_screening, echo=TRUE, include=TRUE}
+load(file=str_c(datawd,'sea.Rdata'))
+describe(sea)%>%html
+
+```
+ 

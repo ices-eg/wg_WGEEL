@@ -44,60 +44,7 @@ dsn <-  paste0("PG:dbname='wgeel' host='localhost' port ='5436'",
 		"' password='", passwordlocal,"'")
 ```
 
-# Silver eels
 
-```{r s, echo=TRUE, include=TRUE}
-
-
-
-fnplot <- function(emu, lfs, hty,colfill="grey10"){
-  # remove all zero values
-  res1 <- res %>% 
-	  anti_join(all_zero)
-  # calculate sum
-	res2 <-  res1 %>%
-			filter(emu_nameshort==emu,
-					lfs_code==lfs,
-					hty_code %in% hty) %>%
-			group_by(emu_nameshort,year,month)%>%
-			summarize(value=sum(value))
-	# calculate percentage
-	res3 <- left_join (res2,					
-					res2 %>% group_by(emu_nameshort,year)%>%		
-							summarize(sum_per_year=sum(value,na.rm=TRUE)),
-					by = c("emu_nameshort","year")) %>%	
-			mutate(perc_per_month=100*value/sum_per_year) 
-	options(warn=-1)
-	if (nrow(res3)>1){
-		
-		g <- ggplot(res3,aes(x = month)) +
-				geom_col(aes(y=perc_per_month),fill=colfill,color="black")+
-				xlab("month")+
-				ylab("percentage catch")+
-				facet_wrap(~year)+
-				theme_bw()+
-				ggtitle(str_c("Percentage per month ",emu, " ", lfs," ",paste0(hty,collapse="+")))
-		
-		print(g)
-	}
-		options(warn=0)
-}
-
-
-
-for (the_emu in unique(res$emu_nameshort)){
-	fnplot(lfs = 'S',
-			hty = c("C","TC","T"),
-			emu=the_emu)
-}
-
-for (the_emu in unique(res$emu_nameshort)){
-	fnplot(lfs = 'S',
-			hty = c("F"),
-			emu=the_emu, 
-			colfill= "navyblue")	
-}
-```
 
 # preparing the files
 
@@ -268,7 +215,60 @@ all_zero %>%
 
 Empty graphs correspond to all zero values reported for one year, those values are now removed
 
+# Silver eels
 
+```{r s, echo=TRUE, include=TRUE}
+
+
+
+fnplot <- function(emu, lfs, hty,colfill="grey10"){
+  # remove all zero values
+  res1 <- res %>% 
+	  anti_join(all_zero)
+  # calculate sum
+	res2 <-  res1 %>%
+			filter(emu_nameshort==emu,
+					lfs_code==lfs,
+					hty_code %in% hty) %>%
+			group_by(emu_nameshort,year,month)%>%
+			summarize(value=sum(value))
+	# calculate percentage
+	res3 <- left_join (res2,					
+					res2 %>% group_by(emu_nameshort,year)%>%		
+							summarize(sum_per_year=sum(value,na.rm=TRUE)),
+					by = c("emu_nameshort","year")) %>%	
+			mutate(perc_per_month=100*value/sum_per_year) 
+	options(warn=-1)
+	if (nrow(res3)>1){
+		
+		g <- ggplot(res3,aes(x = month)) +
+				geom_col(aes(y=perc_per_month),fill=colfill,color="black")+
+				xlab("month")+
+				ylab("percentage catch")+
+				facet_wrap(~year)+
+				theme_bw()+
+				ggtitle(str_c("Percentage per month ",emu, " ", lfs," ",paste0(hty,collapse="+")))
+		
+		print(g)
+	}
+		options(warn=0)
+}
+
+
+
+for (the_emu in unique(res$emu_nameshort)){
+	fnplot(lfs = 'S',
+			hty = c("C","TC","T"),
+			emu=the_emu)
+}
+
+for (the_emu in unique(res$emu_nameshort)){
+	fnplot(lfs = 'S',
+			hty = c("F"),
+			emu=the_emu, 
+			colfill= "navyblue")	
+}
+```
 # Glass eel
 
 ```{r g, echo=TRUE, include=TRUE}

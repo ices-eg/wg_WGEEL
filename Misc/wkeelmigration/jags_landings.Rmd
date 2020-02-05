@@ -1,11 +1,13 @@
 ---
-title: "Untitled"
+title: "JAGS SEASONALITY OF LANDINGS"
 author: "Hilaire Drouineau"
 date: "23 janvier 2020"
 output: 
   rmarkdown::html_document:
      keep_md: yes
      toc: yes
+    toc_depth: 3
+    toc_float: yes
   rmarkdown::md_document:
      toc: yes
   rmarkdown::word_document:
