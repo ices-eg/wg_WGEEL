@@ -6,7 +6,7 @@ output:
   html_document:
     number_sections: yes
     toc: yes
-    toc_depth: 2
+    toc_depth: 3
     toc_float: yes
 ---
 
@@ -117,8 +117,8 @@ load(file=str_c(datawd2,"metadata_closure"))
 
 # load files from seasonality and landings pattern models
 files <-str_c(datawd,list.files(datawd))[grep('loss',list.files(datawd))]
-file_stages <- c("G","S","S","Y","Y")
-file_habitats <- c("AL","C","F","C","F")
+file_stages <- c("G","S","S","Y","Y","Y")
+file_habitats <- c("AL","C","F","C","F","T")
 for (i in 1:length(files)){
 	load(files[i])
 	assign(str_c("loss",file_stages[i],file_habitats[i]),value=list_period)
@@ -149,32 +149,31 @@ big_table_closure <- resc %>%
 		mutate(fishery_closure_percent=if_else(fishery_closure_type=='T' & fishery_closure_percent==0, 100, fishery_closure_percent))%>%
 		mutate(duplicate=cell_spec(duplicate, "html",color="white", background= ifelse(duplicate>1,"red","white")),
 				fishery_closure_percent = 
-						case_when(fishery_closure_type=='PS' & reason_for_closure !="EU Closure" ~ cell_spec(fishery_closure_percent, "html",
-										color ="white",
-										background = "red",
-										link = "#",
-										tooltip =paste0(fishery_closure_type," reason:",reason_for_closure, "; Comment: ", comment )),
-								fishery_closure_type=='PT' & reason_for_closure !="EU Closure" ~ cell_spec(fishery_closure_percent, "html",
-										color ="white",
-										background = "blue",
-										link = "#",
-										tooltip =paste0(fishery_closure_type," reason:",reason_for_closure, "; Comment: ", comment )),
-								fishery_closure_type=='PTS' & reason_for_closure !="EU Closure" ~ cell_spec(fishery_closure_percent, "html",
-										color ="white",
-										background = "purple",
-										link = "#",
-										tooltip =paste0(fishery_closure_type," reason:",reason_for_closure, "; Comment: ", comment )),
-								fishery_closure_type=='T' & reason_for_closure !="EU Closure" ~ cell_spec(fishery_closure_percent, "html",
-										color ="white",
-										background = "black",
-										link = "#",
-										tooltip =paste0(fishery_closure_type," reason:",reason_for_closure, "; Comment: ", comment )),
-								reason_for_closure =="EU Closure" ~ cell_spec(fishery_closure_percent, "html",
+						case_when(reason_for_closure =="EU Closure" ~ cell_spec(fishery_closure_percent, "html",
 										color ="black",
 										background = "gold",
 										link = "#",
+										tooltip =paste0(fishery_closure_type," reason:",reason_for_closure, "; Comment: ", comment )),									
+								fishery_closure_type=='PS' & reason_for_closure !="EU Closure"  ~ cell_spec(fishery_closure_percent, "html",
+										color ="white",
+										background = "tomato1",
+										link = "#",
 										tooltip =paste0(fishery_closure_type," reason:",reason_for_closure, "; Comment: ", comment )),
-								
+								fishery_closure_type=='PT'  & reason_for_closure !="EU Closure" ~ cell_spec(fishery_closure_percent, "html",
+										color ="white",
+										background = "dodgerblue4",
+										link = "#",
+										tooltip =paste0(fishery_closure_type," reason:",reason_for_closure, "; Comment: ", comment )),
+								fishery_closure_type=='PTS'  & reason_for_closure !="EU Closure" ~ cell_spec(fishery_closure_percent, "html",
+										color ="white",
+										background = "purple3",
+										link = "#",
+										tooltip =paste0(fishery_closure_type," reason:",reason_for_closure, "; Comment: ", comment )),
+								fishery_closure_type=='T'  & reason_for_closure !="EU Closure" ~ cell_spec(fishery_closure_percent, "html",
+										color ="white",
+										background = "black",
+										link = "#",
+										tooltip =paste0(fishery_closure_type," reason:",reason_for_closure, "; Comment: ", comment )),																
 								TRUE ~  cell_spec(fishery_closure_percent, "html",
 										color ="black",
 										background = "white",
@@ -259,7 +258,7 @@ funtable_closure <- function(co){
 # res= resl;lfs = 'G';hty = c("T","F","FTC", "FT");the_country_code <- 'FR'; emu='FR_Garo';colfill="grey10"; title="";nr=1; colpattern="red"
 # res= resl;lfs = 'S';hty = c("T","C","TC","MO");the_country_code <- 'SE'; emu='SE_East';colfill="grey10"; title="";nr=1; colpattern="red"
 
-fnplot <- function(res, emu, lfs, hty,colfill="grey10", colpattern="red", title="", nr=nrfigure){
+fnplot <- function(res, emu, lfs, hty,colfill=NULL, colpattern="red", title="", nr=nrfigure){
 	
 	# remove all zero values ------------------------------------
 	
@@ -324,7 +323,7 @@ fnplot <- function(res, emu, lfs, hty,colfill="grey10", colpattern="red", title=
 					typ_name=="com_closure") %>%
 			mutate(month=as.numeric(as.character(month)))%>%
 			group_by(emu_nameshort,year,month, reason_for_closure)%>%
-			summarize(closure=mean( fishery_closure_percent,na.rm=TRUE))%>%
+			summarize(closure=mean(fishery_closure_percent,na.rm=TRUE))%>%
 			mutate(closure=round(closure),reason_for_closure=as.factor(reason_for_closure))%>%
 			ungroup()
 	
@@ -347,7 +346,8 @@ fnplot <- function(res, emu, lfs, hty,colfill="grey10", colpattern="red", title=
 		nrfigure <<- nr # assign to main envir
 		pandoc.strong(str_c("Figure ",nr,": ",title,"\n"))
 		
-		
+		the_colors <- c("G"="darkseagreen1","Y"="darkolivegreen3","YS"="darkgoldenrod4","S"="burlywood4")
+		if (is.null(colfill)) colfill<- the_colors[lfs]
 		#gglocator()
 		g <- ggplot(res4,aes(x = month)) +
 				geom_col(aes(y=perc_per_month),fill=colfill,color="black",width=0.8) +
@@ -357,7 +357,7 @@ fnplot <- function(res, emu, lfs, hty,colfill="grey10", colpattern="red", title=
 						size=1.56,
 						alpha=1,
 						data=resc3) +
-				scale_fill_manual(values=c("none given"="grey",
+				scale_fill_manual("Closure (%)",values=c("none given"="grey",
 								"Other"="thistle",
 								"EMP"="deepskyblue",
 								"EU Closure"="gold")							
@@ -368,7 +368,7 @@ fnplot <- function(res, emu, lfs, hty,colfill="grey10", colpattern="red", title=
 				scale_x_continuous(breaks = c(2,4,6,8,10)) + 
 				facet_wrap(~year) +
 				theme_igray() +
-				ggtitle(str_c("Percentage per month ",emu, " ", lfs," ",paste0(hty,collapse="+")))
+				ggtitle(str_c("Percentage per month ",emu, ", ", lfs,", ",paste0(hty,collapse="+")))
 		
 		print(g)
 		
@@ -456,7 +456,7 @@ for (i in 1:nrow(countries)){
 	pandoc.header("Closures", level=2)
 	nrtable=nrtable+1
 	pandoc.p(str_c("Table ",nrtable," : Closures in ", countries$cou_country[i] , ". If the file is html, you can point to a value to see the reason for closure and the comment,
-							T total (black), PS partial in space (red), PT partial in time (blue), PTS partial in space and time (puple). 
+							T total (black), PS partial in space (red), PT partial in time (blue), PTS partial in space and time (puple), EU closures (gold). 
 							The first column with a mark in red will 
 							indicate the presence of a duplicate for the line. Month '13' indicates whole year"))
 	res <- funtable_closure(co=the_country_code)
@@ -518,13 +518,13 @@ for (i in 1:nrow(countries)){
 		
 		#  No distinction on habitat
 		
-		fntablelossemp(dat=lossGAL, hty = c("T","F","FTC"), emu=the_emu)
+		fntablelossemp(dat=lossGAL, hty = c("T","F","FTC","FT"), emu=the_emu)
 		
-		fntablelosseu(dat=lossGAL, hty = c("T","F","FTC"), emu=the_emu)
+		fntablelosseu(dat=lossGAL, hty = c("T","F","FTC","FT"), emu=the_emu)
 		
 		fnplot(res= resl,
 				lfs = 'G',
-				hty = c("T","F","FTC"),
+				hty = c("T","F","FTC","FT"),
 				emu=the_emu, 
 				colfill= "tomato1",
 				title = "Glass eels Transitional habitats")	
@@ -544,9 +544,9 @@ for (i in 1:nrow(countries)){
 				colfill= "green",
 				title = "Yellow eels coastal habitats")	
 		
-		fntablelossemp(dat=lossYF, hty = c("C","MO"), emu=the_emu)
+		fntablelossemp(dat=lossYF, hty = c("F"), emu=the_emu)
 		
-		fntablelosseu(dat=lossYF, hty = c("C","MO"), emu=the_emu)
+		fntablelosseu(dat=lossYF, hty = c("F"), emu=the_emu)
 		
 		dummy<-fnplot(res= resl,
 				lfs = 'Y',
@@ -555,7 +555,10 @@ for (i in 1:nrow(countries)){
 				colfill= "greenyellow",
 				title = "Yellow eels freshwater habitats")	
 		
-		pandoc.p('TODO table for T Y')
+		fntablelossemp(dat=lossYT, hty = c("T"), emu=the_emu)
+		
+		fntablelosseu(dat=lossYT, hty = c("T"), emu=the_emu)
+		
 		
 		dummy<-fnplot(res= resl,
 				lfs = 'Y',

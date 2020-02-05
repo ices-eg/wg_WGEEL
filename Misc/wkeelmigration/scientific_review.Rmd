@@ -67,49 +67,24 @@ the_emus <- data.frame("emu_nameshort"=unique(c(resl$emu_nameshort,resc$emu_name
 the_emus <- inner_join(emus,the_emus)
 load(file=str_c(datawd,"big_table_closure.Rdata"))
 
-all_zero <- resl %>%	group_by(emu_nameshort,lfs_code,hty_code,year) %>%
-		summarize(S=sum(value)) %>% 
-		filter(S==0)
-# load files from seasonality and landings pattern models
-files <-str_c(datawd,list.files(datawd))[grep('pattern',list.files(datawd))]
-for (i in 1:length(files)){
-	load(files[i])
-}
-# note I don't understand why sapply(str_c(datawd,list.files(datawd))[grep('pattern',list.files(datawd))],function(X)load(file=X)) does not work
-#names_pat_mo <- ls()[grep("monitoring",ls())]# pattern monitoring
-#names_pat_la <- ls()[grepl("pattern.*landings",ls())] # pattern landings
-
-pattern_Y_monitoring$lfs_code <- "Y" # correcting one mistake
-pat_mo <- rbind(pattern_G_monitoring,pattern_S_monitoring,pattern_Y_monitoring)
-pat_la<- rbind(pattern_GE_landings,pattern_Sfresh_landings,pattern_Smar_coast_trans_landings,pattern_Ycoast_landings,          
-		pattern_Yfresh_landings,pattern_YS_landings, 
-		pattern_Ytrans_landings )
-pat <- stacomirtools::killfactor(rbind(pat_la,pat_mo))
-pat$period <-as.numeric(pat$period) # for later use as a numeric not character
-pat2 <- pivot_wider(pat,names_from="type",values_from="prop")
-
-resc2<- resc %>%	
-		mutate(fishery_closure_percent = ifelse(is.na(fishery_closure_percent),0,fishery_closure_percent),
-				fishery_closure_type = ifelse(is.na(fishery_closure_type),"0",fishery_closure_type),
-				reason_for_closure = ifelse(is.na(reason_for_closure),"none given",reason_for_closure),
-				comment = ifelse(is.na(comment),"no comment",comment))%>% # remove NA from fishery closure type
-		group_by(typ_name, country, emu_nameshort,lfs_code,hty_code,year,month) %>%
-		summarize(duplicate=n(), 
-				fishery_closure_percent=sum(fishery_closure_percent), 
-				fishery_closure_type=paste0(fishery_closure_type, collapse = "+"), 
-				reason_for_closure = first(reason_for_closure),  
-				comment = first(comment)) %>%
-		# some countries (France) report missing lines for fishery closure type when T
-		mutate(fishery_closure_percent=if_else(fishery_closure_type=='T' & fishery_closure_percent==0, 100, fishery_closure_percent))
-save(resc2, file=str_c(datawd,"resc2.Rdata"))
-
-load(file=str_c(datawd1,"metadata_landings"))
-load(file=str_c(datawd2,"metadata_closure"))
-
-
-# load files from seasonality and landings pattern models
-files <-str_c(datawd,list.files(datawd))[grep('loss',list.files(datawd))]
-for (i in 1:length(files)){
-	load(files[i])
-}
 ```
+
+
+
+ ```{r load_excel, echo=FALSE, include=FALSE}
+f <- "Literature_table_040220.xlsx"
+path <- str_c(datawd,f)	
+file <- basename(path)
+mylocalfilename <- gsub(".xlsx","",file)
+sea <- read_excel(path=path,"Literature review" , range="C2:AN67",col_names = TRUE)
+save(sea, file=str_c(datawd,'sea.Rdata'))
+describe(sea)%>%html
+
+
+```
+ ```{r data_screening, echo=TRUE, include=TRUE}
+load(file=str_c(datawd,'sea.Rdata'))
+describe(sea)%>%html
+
+```
+ 
