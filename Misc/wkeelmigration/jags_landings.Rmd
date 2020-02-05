@@ -8,9 +8,12 @@ output:
      toc: yes
   rmarkdown::md_document:
      toc: yes
+  rmarkdown::word_document:
+    toc: true
 ---
 ```{r global_options, include=FALSE}
-knitr::opts_chunk$set(fig.width=16, fig.height=16,warning=FALSE)
+knitr::opts_chunk$set(fig.width=10, fig.height=10,warning=FALSE)
+doc.type <- knitr::opts_knit$get('rmarkdown.pandoc.to')
 ```
 
 
@@ -22,6 +25,7 @@ source("function_for_model.R")
 library(dplyr)
 library(tidyverse)
 library(tidyr)
+library(ggthemes)
 library(runjags)
 library(coda)
 library(ggplot2)
@@ -304,17 +308,18 @@ get_pattern_month <- function(res,type="cluster"){
 
 pat <-get_pattern_month(myfit_glasseel_landings)
 #we number cluster in chronological orders from november to october
-pat$cluster <- factor(match(pat$cluster,c("3","1","4","2")),
+clus_order=c("3","1","4","2")
+pat$cluster <- factor(match(pat$cluster,clus_order),
                       levels=as.character(1:7))
 ggplot(pat,aes(x=month,y=proportion))+
   geom_boxplot(aes(fill=cluster),outlier.shape=NA) +
   scale_fill_manual(values=cols)+facet_wrap(.~cluster, ncol=1) +
-  theme_bw()
+  theme_igray()
 ```
 
 We compute some statistics to characterize the clusters.
 ```{r}
-table_characteristics(myfit_glasseel_landings, 4)
+table_characteristics(myfit_glasseel_landings, 4,clus_order)
 ```
 
 Duration indicates the minimum number of months that covers 80% of the wave (1st column is the median, and the 2 next one quantiles 2.5% and 97.5% of credibility intervals). Centroid is the centroid of the migration wave (e.g. 11.5 would indicate a migration centred around mid november). The first column is the median and the two next one the quantiles 2.5 and 97.5%.
@@ -355,7 +360,14 @@ get_pattern_month <- function(res,mydata){
 }
 
 myclassif <- get_pattern_month(myfit_glasseel_landings)
-myclassif$cluster <- factor(match(myclassif$cluster,c("3","1","4","2")),
+col_toreorder=grep("clus[0-9]",names(myclassif))
+names(myclassif)[col_toreorder]=paste("clus",
+                                      match(paste("clus",1:nbclus,sep=""),
+                                      paste("clus",clus_order,sep="")),
+                                      sep="")
+myclassif[,col_toreorder] <- myclassif%>%
+  select(col_toreorder)%>%select(sort(names(.)))
+myclassif$cluster <- factor(match(myclassif$cluster,clus_order),
                             levels=as.character(1:7))
 
 table_classif(myclassif)
@@ -374,10 +386,10 @@ emu$cluster2 <- factor(myclassif_p2$cluster[match(emu$name_short,
                        levels=1:7)
 ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
 		geom_sf(data=emu,aes(fill=cluster1)) + scale_fill_manual(values=cols)+
-  theme_bw() +xlim(-20,30) + ylim(35,65) 
+  theme_igray() +xlim(-20,30) + ylim(35,65) 
 ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
 		geom_sf(data=emu,aes(fill=cluster2)) + scale_fill_manual(values=cols)+
-  theme_bw() +xlim(-20,30) + ylim(35,65)  
+  theme_igray() +xlim(-20,30) + ylim(35,65)  
 
 ```
 
@@ -526,6 +538,32 @@ list_period$stage="G"
 save(list_period,file="loss_glass_eel.rdata")
 
 
+####scenario per cluster
+starts_closure=8:12
+clus=1:nbclus
+experiments=expand.grid(clus,starts_closure)
+effects=t(mapply(function(c,s){
+  months_closed=(s:(s+2))
+  months_closed=ifelse(months_closed>12,months_closed-12,months_closed)
+  pattern=tmp[,grep(paste("esp\\[",c,",",sep=""),colnames(tmp))]
+  effect=rowSums(pattern[,months_closed])
+  quantile(effect,probs=c(0.025,.5,.975))
+},experiments[,1],experiments[,2]))
+effects_scenario=data.frame(cluster=match(experiments[,1],clus_order),
+                            starting_month_EU_closure=experiments[,2],
+                            loss_median=effects[,2],
+                            loss_2.5=effects[,1],
+                            loss_97.5=effects[,3])
+effects_scenario=effects_scenario[order(effects_scenario$cluster,
+                                        effects_scenario$starting_month_EU_closure),]
+
+
+kable(effects_scenario,row.names=FALSE,col.names=c("cluster",
+                                   "speculative 1st month of EU closure",
+                                   "median loss of catch",
+                                   "q2.5",
+                                   "q97.5"), digits=2,
+      caption="potential effect that an EU closure would have depending on cluster and starting month")
 
 ```
 
@@ -805,12 +843,13 @@ get_pattern_month <- function(res,type="cluster"){
 }
 
 pat <-get_pattern_month(myfit_yelloweel_coastal_landings)
-pat$cluster <- factor(match(pat$cluster,c("2","3","1")),
+clus_order=c("2","3","1")
+pat$cluster <- factor(match(pat$cluster,clus_order),
                          levels=as.character(1:7))
 ggplot(pat,aes(x=month,y=proportion))+
   geom_boxplot(aes(fill=cluster),outlier.shape=NA) +
   scale_fill_manual(values=cols)+facet_wrap(.~cluster, ncol=1) +
-  theme_bw()
+  theme_igray()
 ```
 
 Clusters 1 peaks summer. Clusters 2 peaks in winter, cluster 3 lasts from may to november.
@@ -818,7 +857,7 @@ Clusters 1 peaks summer. Clusters 2 peaks in winter, cluster 3 lasts from may to
 We compute some statistics to characterize the clusters.
 
 ```{r}
-table_characteristics(myfit_yelloweel_coastal_landings, 3)
+table_characteristics(myfit_yelloweel_coastal_landings, 3,clus_order)
 
 ```
 
@@ -859,7 +898,14 @@ get_pattern_month <- function(res,mydata){
 }
 
 myclassif <- get_pattern_month(myfit_yelloweel_coastal_landings)
-myclassif$cluster <- factor(match(myclassif$cluster,c("2","3","1")),
+col_toreorder=grep("clus[0-9]",names(myclassif))
+names(myclassif)[col_toreorder]=paste("clus",
+                                      match(paste("clus",1:nbclus,sep=""),
+                                      paste("clus",clus_order,sep="")),
+                                      sep="")
+myclassif[,col_toreorder] <- myclassif%>%
+  select(col_toreorder)%>%select(sort(names(.)))
+myclassif$cluster <- factor(match(myclassif$cluster,clus_order),
                          levels=as.character(1:7))
 
 table_classif(myclassif)
@@ -878,10 +924,10 @@ emu$cluster2 <- factor(myclassif_p2$cluster[match(emu$name_short,
                        levels=1:7)
 ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
 		geom_sf(data=emu,aes(fill=cluster1)) + scale_fill_manual(values=cols)+
-  theme_bw() +xlim(-20,30) + ylim(35,65) 
+  theme_igray() +xlim(-20,30) + ylim(35,65) 
 ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
 		geom_sf(data=emu,aes(fill=cluster2)) + scale_fill_manual(values=cols)+
-  theme_bw() +xlim(-20,30) + ylim(35,65)  
+  theme_igray() +xlim(-20,30) + ylim(35,65)  
 
 ```
 
@@ -1035,6 +1081,33 @@ list_period=rbind.data.frame(list_period1,list_period2)
 list_period$stage="Y"
 save(list_period,file="loss_yellowcoastal.rdata")
 
+
+####scenario per cluster
+starts_closure=8:12
+clus=1:nbclus
+experiments=expand.grid(clus,starts_closure)
+effects=t(mapply(function(c,s){
+  months_closed=(s:(s+2))
+  months_closed=ifelse(months_closed>12,months_closed-12,months_closed)
+  pattern=tmp[,grep(paste("esp\\[",c,",",sep=""),colnames(tmp))]
+  effect=rowSums(pattern[,months_closed])
+  quantile(effect,probs=c(0.025,.5,.975))
+},experiments[,1],experiments[,2]))
+effects_scenario=data.frame(cluster=match(experiments[,1],clus_order),
+                            starting_month_EU_closure=experiments[,2],
+                            loss_median=effects[,2],
+                            loss_2.5=effects[,1],
+                            loss_97.5=effects[,3])
+effects_scenario=effects_scenario[order(effects_scenario$cluster,
+                                        effects_scenario$starting_month_EU_closure),]
+
+
+kable(effects_scenario,row.names=FALSE,col.names=c("cluster",
+                                   "speculative 1st month of EU closure",
+                                   "median loss of catch",
+                                   "q2.5",
+                                   "q97.5"), digits=2,
+      caption="potential effect that an EU closure would have depending on cluster and starting month")
 
 
 
@@ -1252,19 +1325,20 @@ get_pattern_month <- function(res,type="cluster"){
 }
 
 pat <-get_pattern_month(myfit_yelloweel_transitional_landings)
-pat$cluster <- factor(match(pat$cluster,c("3", "2","4","1")),
+clus_order=c("3", "2","4","1")
+pat$cluster <- factor(match(pat$cluster,clus_order),
                       levels=as.character(1:7))
 ggplot(pat,aes(x=month,y=proportion))+
   geom_boxplot(aes(fill=cluster),outlier.shape=NA) +
   scale_fill_manual(values=cols)+facet_wrap(.~cluster, ncol=1)+
-  theme_bw()
+  theme_igray()
 ```
 
 There is much more diversity than in coastal waters. Some clusters peak in srping (3), summer (2), autumn (1) and one has two peaks (4). 
 
 We compute some statistics to characterize the clusters.
 ```{r}
-table_characteristics(myfit_yelloweel_transitional_landings, 4)
+table_characteristics(myfit_yelloweel_transitional_landings, 4,clus_order)
 ```
 
 Duration indicates the minimum number of months that covers 80% of the wave (1st column is the median, and the 2 next one quantiles 2.5% and 97.5% of credibility intervals). Centroid is the centroid of the migration wave (e.g. 11.5 would indicate a migration centred around mid november). The first column is the median and the two next one the quantiles 2.5 and 97.5%.
@@ -1303,7 +1377,14 @@ get_pattern_month <- function(res,mydata){
 }
 
 myclassif <- get_pattern_month(myfit_yelloweel_transitional_landings)
-myclassif$cluster <- factor(match(myclassif$cluster,c("3", "2","4","1")),
+col_toreorder=grep("clus[0-9]",names(myclassif))
+names(myclassif)[col_toreorder]=paste("clus",
+                                      match(paste("clus",1:nbclus,sep=""),
+                                      paste("clus",clus_order,sep="")),
+                                      sep="")
+myclassif[,col_toreorder] <- myclassif%>%
+  select(col_toreorder)%>%select(sort(names(.)))
+myclassif$cluster <- factor(match(myclassif$cluster,clus_order),
                       levels=as.character(1:7))
 
 table_classif(myclassif)
@@ -1322,10 +1403,10 @@ emu$cluster2 <- factor(myclassif_p2$cluster[match(emu$name_short,
                        levels=1:7)
 ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
 		geom_sf(data=emu,aes(fill=cluster1)) + scale_fill_manual(values=cols)+
-  theme_bw() +xlim(-20,30) + ylim(35,65) 
+  theme_igray() +xlim(-20,30) + ylim(35,65) 
 ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
 		geom_sf(data=emu,aes(fill=cluster2)) + scale_fill_manual(values=cols)+
-  theme_bw() +xlim(-20,30) + ylim(35,65)  
+  theme_igray() +xlim(-20,30) + ylim(35,65)  
 
 ```
 
@@ -1482,6 +1563,33 @@ save(list_period,file="loss_yellowtransitional.rdata")
 
 
 
+
+####scenario per cluster
+starts_closure=8:12
+clus=1:nbclus
+experiments=expand.grid(clus,starts_closure)
+effects=t(mapply(function(c,s){
+  months_closed=(s:(s+2))
+  months_closed=ifelse(months_closed>12,months_closed-12,months_closed)
+  pattern=tmp[,grep(paste("esp\\[",c,",",sep=""),colnames(tmp))]
+  effect=rowSums(pattern[,months_closed])
+  quantile(effect,probs=c(0.025,.5,.975))
+},experiments[,1],experiments[,2]))
+effects_scenario=data.frame(cluster=match(experiments[,1],clus_order),
+                            starting_month_EU_closure=experiments[,2],
+                            loss_median=effects[,2],
+                            loss_2.5=effects[,1],
+                            loss_97.5=effects[,3])
+effects_scenario=effects_scenario[order(effects_scenario$cluster,
+                                        effects_scenario$starting_month_EU_closure),]
+
+
+kable(effects_scenario,row.names=FALSE,col.names=c("cluster",
+                                   "speculative 1st month of EU closure",
+                                   "median loss of catch",
+                                   "q2.5",
+                                   "q97.5"), digits=2,
+      caption="potential effect that an EU closure would have depending on cluster and starting month")
 
 ```
 
@@ -1702,19 +1810,20 @@ get_pattern_month <- function(res,type="cluster"){
 }
 
 pat <-get_pattern_month(myfit_yelloweel_freshwater_landings)
-pat$cluster <- factor(match(pat$cluster, c("1","3","2")),
+clus_order=c("1","3","2")
+pat$cluster <- factor(match(pat$cluster, clus_order),
                        levels=as.character(1:7))
 ggplot(pat,aes(x=month,y=proportion))+
   geom_boxplot(aes(fill=cluster),outlier.shape=NA) +
   scale_fill_manual(values=cols)+facet_wrap(.~cluster, ncol=1) +
-  theme_bw()
+  theme_igray()
 ```
 
 Clusters 1 and 3 are bivariate, with 1 peaking in spring and autumn and 3 peaking in summer and autumn. Cluster 2 is widespread from may to november.
 
 We compute some statistics to characterize the clusters.
 ```{r}
-table_characteristics(myfit_yelloweel_freshwater_landings, 3)
+table_characteristics(myfit_yelloweel_freshwater_landings, 3, clus_order)
 ```
 
 Duration indicates the minimum number of months that covers 80% of the wave (1st column is the median, and the 2 next one quantiles 2.5% and 97.5% of credibility intervals). Centroid is the centroid of the migration wave (e.g. 11.5 would indicate a migration centred around mid november). The first column is the median and the two next one the quantiles 2.5 and 97.5%.
@@ -1753,7 +1862,14 @@ get_pattern_month <- function(res,mydata){
 }
 
 myclassif <- get_pattern_month(myfit_yelloweel_freshwater_landings)
-myclassif$cluster <- factor(match(myclassif$cluster, c("1","3","2")),
+col_toreorder=grep("clus[0-9]",names(myclassif))
+names(myclassif)[col_toreorder]=paste("clus",
+                                      match(paste("clus",1:nbclus,sep=""),
+                                      paste("clus",clus_order,sep="")),
+                                      sep="")
+myclassif[,col_toreorder] <- myclassif%>%
+  select(col_toreorder)%>%select(sort(names(.)))
+myclassif$cluster <- factor(match(myclassif$cluster, clus_order),
                        levels=as.character(1:7))
 
 table_classif(myclassif)
@@ -1772,10 +1888,10 @@ emu$cluster2 <- factor(myclassif_p2$cluster[match(emu$name_short,
                        levels=1:7)
 ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
 		geom_sf(data=emu,aes(fill=cluster1)) + scale_fill_manual(values=cols)+
-  theme_bw() +xlim(-20,30) + ylim(35,65) 
+  theme_igray() +xlim(-20,30) + ylim(35,65) 
 ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
 		geom_sf(data=emu,aes(fill=cluster2)) + scale_fill_manual(values=cols)+
-  theme_bw() +xlim(-20,30) + ylim(35,65)  
+  theme_igray() +xlim(-20,30) + ylim(35,65)  
 
 ```
 
@@ -1931,6 +2047,33 @@ save(list_period,file="loss_yellowfresh.rdata")
 
 
 
+
+####scenario per cluster
+starts_closure=8:12
+clus=1:nbclus
+experiments=expand.grid(clus,starts_closure)
+effects=t(mapply(function(c,s){
+  months_closed=(s:(s+2))
+  months_closed=ifelse(months_closed>12,months_closed-12,months_closed)
+  pattern=tmp[,grep(paste("esp\\[",c,",",sep=""),colnames(tmp))]
+  effect=rowSums(pattern[,months_closed])
+  quantile(effect,probs=c(0.025,.5,.975))
+},experiments[,1],experiments[,2]))
+effects_scenario=data.frame(cluster=match(experiments[,1],clus_order),
+                            starting_month_EU_closure=experiments[,2],
+                            loss_median=effects[,2],
+                            loss_2.5=effects[,1],
+                            loss_97.5=effects[,3])
+effects_scenario=effects_scenario[order(effects_scenario$cluster,
+                                        effects_scenario$starting_month_EU_closure),]
+
+
+kable(effects_scenario,row.names=FALSE,col.names=c("cluster",
+                                   "speculative 1st month of EU closure",
+                                   "median loss of catch",
+                                   "q2.5",
+                                   "q97.5"), digits=2,
+      caption="potential effect that an EU closure would have depending on cluster and starting month")
 
 ```
 
@@ -2147,20 +2290,21 @@ get_pattern_month <- function(res,type="cluster"){
 }
 
 pat <-get_pattern_month(myfit_yelloweel_allhab_landings)
-pat$cluster <- factor(match(pat$cluster, c("1","2","5","3","6","4")),
+clus_order=c("1","2","5","3","6","4")
+pat$cluster <- factor(match(pat$cluster, clus_order),
                        levels=as.character(1:7))
 
 ggplot(pat,aes(x=month,y=proportion))+
   geom_boxplot(aes(fill=cluster),outlier.shape=NA) +
   scale_fill_manual(values=cols)+facet_wrap(.~cluster, ncol=1) +
-  theme_bw()
+  theme_igray()
 ```
 
 Cluster 1 peaks in winter, 2 in spring, 3 in spring/summer, 5 is wisepread from april to november and 6 peaks in autumn (after a small peak in spring). 
 
 We compute some statistics to characterize the clusters.
 ```{r}
-table_characteristics(myfit_yelloweel_allhab_landings, 6)
+table_characteristics(myfit_yelloweel_allhab_landings, 6, clus_order)
 ```
 
 Duration indicates the minimum number of months that covers 80% of the wave (1st column is the median, and the 2 next one quantiles 2.5% and 97.5% of credibility intervals). Centroid is the centroid of the migration wave (e.g. 11.5 would indicate a migration centred around mid november). The first column is the median and the two next one the quantiles 2.5 and 97.5%.
@@ -2198,7 +2342,14 @@ get_pattern_month <- function(res,mydata){
 }
 
 myclassif <- get_pattern_month(myfit_yelloweel_allhab_landings)
-myclassif$cluster <- factor(match(myclassif$cluster, c("1","2","5","3","6","4")),
+col_toreorder=grep("clus[0-9]",names(myclassif))
+names(myclassif)[col_toreorder]=paste("clus",
+                                      match(paste("clus",1:nbclus,sep=""),
+                                      paste("clus",clus_order,sep="")),
+                                      sep="")
+myclassif[,col_toreorder] <- myclassif%>%
+  select(col_toreorder)%>%select(sort(names(.)))
+myclassif$cluster <- factor(match(myclassif$cluster, clus_order),
                        levels=as.character(1:7))
 
 table_classif(myclassif)
@@ -2220,11 +2371,11 @@ myplots <-lapply(c("MO","C","T", "F"),function(hty){
                        levels=1:7)
   p1 <- ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
 		  geom_sf(data=emu,aes(fill=cluster1)) + scale_fill_manual(values=cols)+
-      theme_bw() +xlim(-20,30) + ylim(35,65) +
+      theme_igray() +xlim(-20,30) + ylim(35,65) +
     ggtitle(paste("period 1",hty))
   p2 <- ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
 		  geom_sf(data=emu,aes(fill=cluster2)) + scale_fill_manual(values=cols)+
-    theme_bw() +xlim(-20,30) + ylim(35,65)  +
+    theme_igray() +xlim(-20,30) + ylim(35,65)  +
     ggtitle(paste("period 2",hty))
   return(list(p1,p2))
 })
@@ -2529,18 +2680,19 @@ get_pattern_month <- function(res,type="cluster"){
 }
 
 pat <-get_pattern_month(myfit_silvereel_coastal_landings)
-pat$cluster <- factor(match(pat$cluster,c("1","3","4","2") ),
+clus_order=c("1","3","4","2")
+pat$cluster <- factor(match(pat$cluster, clus_order),
                       levels=as.character(1:7))
 ggplot(pat,aes(x=month,y=proportion))+
   geom_boxplot(aes(fill=cluster),outlier.shape=NA)+facet_wrap(.~cluster, ncol=1) +
-  theme_bw()
+  theme_igray()
 ```
 Clusters 3 and 4 correspond to peak in october with 3 more widespread. Cluster 1 corresponds to a peak in autumn/winter. Cluster 2 corresponds to catches in winter.
 
 We compute some statistics to characterize the clusters.
 
 ```{r}
-table_characteristics(myfit_silvereel_coastal_landings, 4)
+table_characteristics(myfit_silvereel_coastal_landings, 4,clus_order)
 ```
 
 Duration indicates the minimum number of months that covers 80% of the wave (1st column is the median, and the 2 next one quantiles 2.5% and 97.5% of credibility intervals). Centroid is the centroid of the migration wave (e.g. 11.5 would indicate a migration centred around mid november). The first column is the median and the two next one the quantiles 2.5 and 97.5%.
@@ -2579,7 +2731,14 @@ get_pattern_month <- function(res,mydata){
 }
 
 myclassif <- get_pattern_month(myfit_silvereel_coastal_landings)
-myclassif$cluster <- factor(match(myclassif$cluster,c("1","3","4","2") ),
+col_toreorder=grep("clus[0-9]",names(myclassif))
+names(myclassif)[col_toreorder]=paste("clus",
+                                      match(paste("clus",1:nbclus,sep=""),
+                                      paste("clus",clus_order,sep="")),
+                                      sep="")
+myclassif[,col_toreorder] <- myclassif%>%
+  select(col_toreorder)%>%select(sort(names(.)))
+myclassif$cluster <- factor(match(myclassif$cluster,clus_order ),
                       levels=as.character(1:7))
 table_classif(myclassif)
 ```
@@ -2600,11 +2759,11 @@ myplots <-lapply(c("MO","C","T"),function(hty){
                        levels=1:7)
   p1 <- ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
 		  geom_sf(data=emu,aes(fill=cluster1)) + scale_fill_manual(values=cols)+
-      theme_bw() +xlim(-20,30) + ylim(35,65) +
+      theme_igray() +xlim(-20,30) + ylim(35,65) +
     ggtitle(paste("period 1",hty))
   p2 <- ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
 		  geom_sf(data=emu,aes(fill=cluster2)) + scale_fill_manual(values=cols)+
-    theme_bw() +xlim(-20,30) + ylim(35,65)  +
+    theme_igray() +xlim(-20,30) + ylim(35,65)  +
     ggtitle(paste("period 2",hty))
   return(list(p1,p2))
 })
@@ -2766,6 +2925,33 @@ save(list_period,file="loss_silvercoastal.rdata")
 
 
 
+
+####scenario per cluster
+starts_closure=8:12
+clus=1:nbclus
+experiments=expand.grid(clus,starts_closure)
+effects=t(mapply(function(c,s){
+  months_closed=(s:(s+2))
+  months_closed=ifelse(months_closed>12,months_closed-12,months_closed)
+  pattern=tmp[,grep(paste("esp\\[",c,",",sep=""),colnames(tmp))]
+  effect=rowSums(pattern[,months_closed])
+  quantile(effect,probs=c(0.025,.5,.975))
+},experiments[,1],experiments[,2]))
+effects_scenario=data.frame(cluster=match(experiments[,1],clus_order),
+                            starting_month_EU_closure=experiments[,2],
+                            loss_median=effects[,2],
+                            loss_2.5=effects[,1],
+                            loss_97.5=effects[,3])
+effects_scenario=effects_scenario[order(effects_scenario$cluster,
+                                        effects_scenario$starting_month_EU_closure),]
+
+
+kable(effects_scenario,row.names=FALSE,col.names=c("cluster",
+                                   "speculative 1st month of EU closure",
+                                   "median loss of catch",
+                                   "q2.5",
+                                   "q97.5"), digits=2,
+      caption="potential effect that an EU closure would have depending on cluster and starting month")
 
 ```
 
@@ -2985,19 +3171,20 @@ get_pattern_month <- function(res,type="cluster"){
 }
 
 pat <-get_pattern_month(myfit_silvereel_freshwater_landings)
-pat$cluster <- factor(match(pat$cluster,c("4","1","5","2","3") ),
+clus_order=c("4","1","5","2","3")
+pat$cluster <- factor(match(pat$cluster, clus_order),
                       levels=as.character(1:7))
 ggplot(pat,aes(x=month,y=proportion))+
   geom_boxplot(aes(fill=cluster),outlier.shape=NA) +
   scale_fill_manual(values=cols)+facet_wrap(.~cluster, ncol=1) +
-  theme_bw()
+  theme_igray()
 ```
 
 Cluster 2 peaks in summer with a second peak in december, 5 in winter, 2 in summer. Clusters 1 and 3 are bivariate (spring and autumn).
 
 We compute some statistics to characterize the clusters.
 ```{r}
-table_characteristics(myfit_silvereel_freshwater_landings, 5)
+table_characteristics(myfit_silvereel_freshwater_landings, 5,clus_order)
 ```
 
 Duration indicates the minimum number of months that covers 80% of the wave (1st column is the median, and the 2 next one quantiles 2.5% and 97.5% of credibility intervals). Centroid is the centroid of the migration wave (e.g. 11.5 would indicate a migration centred around mid november). The first column is the median and the two next one the quantiles 2.5 and 97.5%.
@@ -3036,7 +3223,14 @@ get_pattern_month <- function(res,mydata){
 }
 
 myclassif <- get_pattern_month(myfit_silvereel_freshwater_landings)
-myclassif$cluster <- factor(match(myclassif$cluster,c("4","1","5","2","3") ),
+col_toreorder=grep("clus[0-9]",names(myclassif))
+names(myclassif)[col_toreorder]=paste("clus",
+                                      match(paste("clus",1:nbclus,sep=""),
+                                      paste("clus",clus_order,sep="")),
+                                      sep="")
+myclassif[,col_toreorder] <- myclassif%>%
+  select(col_toreorder)%>%select(sort(names(.)))
+myclassif$cluster <- factor(match(myclassif$cluster,clus_order ),
                       levels=as.character(1:7))
 table_classif(myclassif)
 ```
@@ -3054,10 +3248,10 @@ emu$cluster2 <- factor(myclassif_p2$cluster[match(emu$name_short,
                        levels=1:7)
 ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
 		geom_sf(data=emu,aes(fill=cluster1)) + scale_fill_manual(values=cols)+
-  theme_bw() +xlim(-20,30) + ylim(35,65) 
+  theme_igray() +xlim(-20,30) + ylim(35,65) 
 ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
 		geom_sf(data=emu,aes(fill=cluster2)) + scale_fill_manual(values=cols)+
-  theme_bw() +xlim(-20,30) + ylim(35,65)  
+  theme_igray() +xlim(-20,30) + ylim(35,65)  
 
 ```
 
@@ -3215,6 +3409,32 @@ list_period$stage="S"
 save(list_period,file="loss_silverfresh.rdata")
 
 
+####scenario per cluster
+starts_closure=8:12
+clus=1:nbclus
+experiments=expand.grid(clus,starts_closure)
+effects=t(mapply(function(c,s){
+  months_closed=(s:(s+2))
+  months_closed=ifelse(months_closed>12,months_closed-12,months_closed)
+  pattern=tmp[,grep(paste("esp\\[",c,",",sep=""),colnames(tmp))]
+  effect=rowSums(pattern[,months_closed])
+  quantile(effect,probs=c(0.025,.5,.975))
+},experiments[,1],experiments[,2]))
+effects_scenario=data.frame(cluster=match(experiments[,1],clus_order),
+                            starting_month_EU_closure=experiments[,2],
+                            loss_median=effects[,2],
+                            loss_2.5=effects[,1],
+                            loss_97.5=effects[,3])
+effects_scenario=effects_scenario[order(effects_scenario$cluster,
+                                        effects_scenario$starting_month_EU_closure),]
+
+
+kable(effects_scenario,row.names=FALSE,col.names=c("cluster",
+                                   "speculative 1st month of EU closure",
+                                   "median loss of catch",
+                                   "q2.5",
+                                   "q97.5"), digits=2,
+      caption="potential effect that an EU closure would have depending on cluster and starting month")
 
 ```
 
@@ -3492,19 +3712,20 @@ get_pattern_month <- function(res,type="cluster"){
 }
 
 pat <-get_pattern_month(myfit_YSeel_allhab_landings)
-pat$cluster = factor(match(pat$cluster, c("3","6","4","2","1","5")),
+clus_order=c("3","6","4","2","1","5")
+pat$cluster = factor(match(pat$cluster, clus_order),
                      levels=as.character(1:7))
 ggplot(pat,aes(x=month,y=proportion))+
   geom_boxplot(aes(fill=cluster),outlier.shape=NA) +
   scale_fill_manual(values=cols)+facet_wrap(.~cluster, ncol=1)
-  theme_bw()
+  theme_igray()
 ```
 
 Cluster 5 peaks autumn and winter, 6 is similar but shifter 1 month later. Clusters 1 and 2 are widepread with a peak in spring/early summer and a second one un autumn. Cluster 4 is located in autumn only and cluster 3 in summer.
 
 We compute some statistics to characterize the clusters.
 ```{r}
-table_characteristics(myfit_YSeel_allhab_landings, 6)
+table_characteristics(myfit_YSeel_allhab_landings, 6, clus_order)
 ```
 
 Duration indicates the minimum number of months that covers 80% of the wave (1st column is the median, and the 2 next one quantiles 2.5% and 97.5% of credibility intervals). Centroid is the centroid of the migration wave (e.g. 11.5 would indicate a migration centred around mid november). The first column is the median and the two next one the quantiles 2.5 and 97.5%.
@@ -3543,7 +3764,14 @@ get_pattern_month <- function(res,mydata){
 }
 
 myclassif <- get_pattern_month(myfit_YSeel_allhab_landings)
-myclassif$cluster = factor(match(myclassif$cluster, c("3","6","4","2","1","5")),
+col_toreorder=grep("clus[0-9]",names(myclassif))
+names(myclassif)[col_toreorder]=paste("clus",
+                                      match(paste("clus",1:nbclus,sep=""),
+                                      paste("clus",clus_order,sep="")),
+                                      sep="")
+myclassif[,col_toreorder] <- myclassif%>%
+  select(col_toreorder)%>%select(sort(names(.)))
+myclassif$cluster = factor(match(myclassif$cluster, clus_order),
                      levels=as.character(1:7))
 
 table_classif(myclassif)
@@ -3565,11 +3793,11 @@ myplots <-lapply(c("TC","C","T", "F"),function(hty){
                        levels=1:7)
   p1 <- ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
 		  geom_sf(data=emu,aes(fill=cluster1)) + scale_fill_manual(values=cols)+
-      theme_bw() +xlim(-20,30) + ylim(35,65) +
+      theme_igray() +xlim(-20,30) + ylim(35,65) +
     ggtitle(paste("period 1",hty))
   p2 <- ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
 		  geom_sf(data=emu,aes(fill=cluster2)) + scale_fill_manual(values=cols)+
-    theme_bw() +xlim(-20,30) + ylim(35,65)  +
+    theme_igray() +xlim(-20,30) + ylim(35,65)  +
     ggtitle(paste("period 2",hty))
   return(list(p1,p2))
 })

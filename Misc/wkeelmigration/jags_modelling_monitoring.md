@@ -506,22 +506,23 @@ get_pattern_month <- function(res,type="cluster"){
 
 
 pat=get_pattern_month(myfit_recruitment)
-pat$cluster=factor(match(pat$cluster,c("5","2","1","3","4")),
+clus_order=c("5","2","1","3","4")
+pat$cluster=factor(match(pat$cluster,clus_order),
                    levels=as.character(1:7))
 
 ggplot(pat,aes(x=month,y=proportion))+
   geom_boxplot(aes(fill=cluster),outlier.shape=NA) +
   scale_fill_manual(values=cols)+facet_wrap(.~cluster, ncol=1) +
-  theme_bw()
+  theme_igray()
 ```
 
-![](jags_modelling_files/figure-html/unnamed-chunk-14-1.png)<!-- -->
+![](jags_modelling_monitoring_files/figure-html/unnamed-chunk-14-1.png)<!-- -->
 
 We compute some statistics to characterize the clusters.
 
 ```r
 #function to make circular shifting
-table_characteristics(myfit_recruitment, 5)
+table_characteristics(myfit_recruitment, 5,clus_order)
 ```
 
 <table>
@@ -545,12 +546,12 @@ table_characteristics(myfit_recruitment, 5)
 <tbody>
   <tr>
    <td style="text-align:right;"> 1 </td>
-   <td style="text-align:right;"> 3 </td>
-   <td style="text-align:right;"> 2 </td>
-   <td style="text-align:right;"> 3 </td>
-   <td style="text-align:right;"> 5.89 </td>
-   <td style="text-align:right;"> 5.77 </td>
-   <td style="text-align:right;"> 6.00 </td>
+   <td style="text-align:right;"> 5 </td>
+   <td style="text-align:right;"> 5 </td>
+   <td style="text-align:right;"> 5 </td>
+   <td style="text-align:right;"> 1.33 </td>
+   <td style="text-align:right;"> 1.21 </td>
+   <td style="text-align:right;"> 1.45 </td>
   </tr>
   <tr>
    <td style="text-align:right;"> 2 </td>
@@ -564,6 +565,15 @@ table_characteristics(myfit_recruitment, 5)
   <tr>
    <td style="text-align:right;"> 3 </td>
    <td style="text-align:right;"> 3 </td>
+   <td style="text-align:right;"> 2 </td>
+   <td style="text-align:right;"> 3 </td>
+   <td style="text-align:right;"> 5.89 </td>
+   <td style="text-align:right;"> 5.77 </td>
+   <td style="text-align:right;"> 6.00 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:right;"> 3 </td>
    <td style="text-align:right;"> 3 </td>
    <td style="text-align:right;"> 4 </td>
    <td style="text-align:right;"> 6.95 </td>
@@ -571,22 +581,13 @@ table_characteristics(myfit_recruitment, 5)
    <td style="text-align:right;"> 7.12 </td>
   </tr>
   <tr>
-   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:right;"> 5 </td>
    <td style="text-align:right;"> 1 </td>
    <td style="text-align:right;"> 1 </td>
    <td style="text-align:right;"> 2 </td>
    <td style="text-align:right;"> 7.09 </td>
    <td style="text-align:right;"> 7.03 </td>
    <td style="text-align:right;"> 7.15 </td>
-  </tr>
-  <tr>
-   <td style="text-align:right;"> 5 </td>
-   <td style="text-align:right;"> 5 </td>
-   <td style="text-align:right;"> 5 </td>
-   <td style="text-align:right;"> 5 </td>
-   <td style="text-align:right;"> 1.33 </td>
-   <td style="text-align:right;"> 1.21 </td>
-   <td style="text-align:right;"> 1.45 </td>
   </tr>
 </tbody>
 </table>
@@ -621,13 +622,30 @@ get_pattern_month <- function(res,mydata){
   }))
   storage.mode(clus) <- "numeric"
   classes <- as.data.frame(clus)
-  names(classes) <- c("cluster", "clus1", "clus2","clus3")
+  names(classes) <- c("cluster", paste("clus",1:nbclus,sep=""))
   cbind.data.frame(data.frame(ser=ser, period=period,country=country),
                    classes)
 }
 
 myclassif <- get_pattern_month(myfit_recruitment)
-myclassif$cluster=factor(match(myclassif$cluster,c("5","2","1","3","4")),
+col_toreorder=grep("clus[0-9]",names(myclassif))
+names(myclassif)[col_toreorder]=paste("clus",
+                                      match(paste("clus",1:nbclus,sep=""),
+                                      paste("clus",clus_order,sep="")),
+                                      sep="")
+myclassif[,col_toreorder] <- myclassif%>%
+  select(col_toreorder)%>%select(sort(names(.)))
+```
+
+```
+## Note: Using an external vector in selections is ambiguous.
+## ℹ Use `all_of(col_toreorder)` instead of `col_toreorder` to silence this message.
+## ℹ See <https://tidyselect.r-lib.org/reference/faq-external-vector.html>.
+## This message is displayed once per session.
+```
+
+```r
+myclassif$cluster=factor(match(myclassif$cluster,clus_order),
                    levels=as.character(1:7))
 
 table_classif(myclassif,"series")
@@ -653,55 +671,55 @@ table_classif(myclassif,"series")
    <td style="text-align:left;"> 1 </td>
    <td style="text-align:left;"> ES </td>
    <td style="text-align:left;"> 1 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 100 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> Oria </td>
    <td style="text-align:left;"> 2 </td>
    <td style="text-align:left;"> ES </td>
    <td style="text-align:left;"> 1 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 100 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> GiSc </td>
    <td style="text-align:left;"> 1 </td>
    <td style="text-align:left;"> FR </td>
    <td style="text-align:left;"> 1 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 100 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> GarG </td>
    <td style="text-align:left;"> 2 </td>
    <td style="text-align:left;"> FR </td>
    <td style="text-align:left;"> 1 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 100 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> GiSc </td>
    <td style="text-align:left;"> 2 </td>
    <td style="text-align:left;"> FR </td>
    <td style="text-align:left;"> 1 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 100 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> EmsH </td>
@@ -719,10 +737,10 @@ table_classif(myclassif,"series")
    <td style="text-align:left;"> 1 </td>
    <td style="text-align:left;"> GB </td>
    <td style="text-align:left;"> 2 </td>
-   <td style="text-align:right;"> 5 </td>
-   <td style="text-align:right;"> 82 </td>
-   <td style="text-align:right;"> 13 </td>
    <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 82 </td>
+   <td style="text-align:right;"> 5 </td>
+   <td style="text-align:right;"> 13 </td>
    <td style="text-align:right;"> 0 </td>
   </tr>
   <tr>
@@ -752,9 +770,9 @@ table_classif(myclassif,"series")
    <td style="text-align:left;"> 2 </td>
    <td style="text-align:left;"> GB </td>
    <td style="text-align:left;"> 3 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 100 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 0 </td>
   </tr>
@@ -763,9 +781,9 @@ table_classif(myclassif,"series")
    <td style="text-align:left;"> 2 </td>
    <td style="text-align:left;"> GB </td>
    <td style="text-align:left;"> 3 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 100 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 0 </td>
   </tr>
@@ -776,8 +794,8 @@ table_classif(myclassif,"series")
    <td style="text-align:left;"> 4 </td>
    <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 100 </td>
    <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 100 </td>
    <td style="text-align:right;"> 0 </td>
   </tr>
   <tr>
@@ -787,8 +805,8 @@ table_classif(myclassif,"series")
    <td style="text-align:left;"> 4 </td>
    <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 100 </td>
    <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 100 </td>
    <td style="text-align:right;"> 0 </td>
   </tr>
   <tr>
@@ -798,9 +816,9 @@ table_classif(myclassif,"series")
    <td style="text-align:left;"> 4 </td>
    <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 99 </td>
    <td style="text-align:right;"> 1 </td>
-   <td style="text-align:right;"> 0 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> ImsaGY </td>
@@ -810,8 +828,8 @@ table_classif(myclassif,"series")
    <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 100 </td>
    <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 100 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> ImsaGY </td>
@@ -821,8 +839,8 @@ table_classif(myclassif,"series")
    <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 100 </td>
    <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 100 </td>
   </tr>
 </tbody>
 </table>
@@ -840,10 +858,13 @@ myclassif$jit_y <- jitter(myclassif$y,amount=.5)
 ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
 		geom_point(data=myclassif,size=5,
 		           aes(x=jit_x,y=jit_y,col=as.factor(cluster),pch=period)) +
-  scale_color_manual(values=cols) +theme_bw() +xlim(-20,30) + ylim(35,65)
+  geom_segment(data=myclassif,
+            aes(x=x,y=y,xend=jit_x,yend=jit_y,col=as.factor(cluster)))+
+  scale_color_manual(values=cols) +theme_igray() +xlim(-20,30) + ylim(35,65)+
+  xlab("")+ylab("")+labs(colour="cluster")
 ```
 
-![](jags_modelling_files/figure-html/unnamed-chunk-17-1.png)<!-- -->
+![](jags_modelling_monitoring_files/figure-html/unnamed-chunk-17-1.png)<!-- -->
 
 
 ## Exporting pattern per group
@@ -1535,20 +1556,21 @@ get_pattern_month <- function(res,type="cluster"){
 }
 
 pat=get_pattern_month(myfit_silver)
-pat$cluster=factor(match(pat$cluster,c("1", "3", "4", "5", "6","2")),
+clus_order=c("1", "3", "4", "5", "6","2")
+pat$cluster=factor(match(pat$cluster,clus_order),
                    levels=as.character(1:7))
 ggplot(pat,aes(x=month,y=proportion))+
   geom_boxplot(aes(fill=cluster),outlier.shape=NA) +
   scale_fill_manual(values=cols)+facet_wrap(.~cluster, ncol=1)+
-  theme_bw()
+  theme_igray()
 ```
 
-![](jags_modelling_files/figure-html/unnamed-chunk-32-1.png)<!-- -->
+![](jags_modelling_monitoring_files/figure-html/unnamed-chunk-32-1.png)<!-- -->
 We have 6 clusters. Many of them display migration in both spring and autum, while a few of them peak in summer.
 
 
 ```r
-table_characteristics(myfit_silver, 6)
+table_characteristics(myfit_silver, 6,clus_order)
 ```
 
 <table>
@@ -1581,15 +1603,6 @@ table_characteristics(myfit_silver, 6)
   </tr>
   <tr>
    <td style="text-align:right;"> 2 </td>
-   <td style="text-align:right;"> 3 </td>
-   <td style="text-align:right;"> 3 </td>
-   <td style="text-align:right;"> 4 </td>
-   <td style="text-align:right;"> 11.17 </td>
-   <td style="text-align:right;"> 11.08 </td>
-   <td style="text-align:right;"> 11.26 </td>
-  </tr>
-  <tr>
-   <td style="text-align:right;"> 3 </td>
    <td style="text-align:right;"> 6 </td>
    <td style="text-align:right;"> 6 </td>
    <td style="text-align:right;"> 7 </td>
@@ -1598,7 +1611,7 @@ table_characteristics(myfit_silver, 6)
    <td style="text-align:right;"> 6.96 </td>
   </tr>
   <tr>
-   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:right;"> 3 </td>
    <td style="text-align:right;"> 4 </td>
    <td style="text-align:right;"> 3 </td>
    <td style="text-align:right;"> 5 </td>
@@ -1607,7 +1620,7 @@ table_characteristics(myfit_silver, 6)
    <td style="text-align:right;"> 6.70 </td>
   </tr>
   <tr>
-   <td style="text-align:right;"> 5 </td>
+   <td style="text-align:right;"> 4 </td>
    <td style="text-align:right;"> 4 </td>
    <td style="text-align:right;"> 3 </td>
    <td style="text-align:right;"> 4 </td>
@@ -1616,13 +1629,22 @@ table_characteristics(myfit_silver, 6)
    <td style="text-align:right;"> 8.36 </td>
   </tr>
   <tr>
-   <td style="text-align:right;"> 6 </td>
+   <td style="text-align:right;"> 5 </td>
    <td style="text-align:right;"> 3 </td>
    <td style="text-align:right;"> 3 </td>
    <td style="text-align:right;"> 3 </td>
    <td style="text-align:right;"> 9.92 </td>
    <td style="text-align:right;"> 9.88 </td>
    <td style="text-align:right;"> 9.97 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 6 </td>
+   <td style="text-align:right;"> 3 </td>
+   <td style="text-align:right;"> 3 </td>
+   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:right;"> 11.17 </td>
+   <td style="text-align:right;"> 11.08 </td>
+   <td style="text-align:right;"> 11.26 </td>
   </tr>
 </tbody>
 </table>
@@ -1657,13 +1679,20 @@ get_pattern_month <- function(res,mydata){
   }))
   storage.mode(clus) <- "numeric"
   classes <- as.data.frame(clus)
-  names(classes) <- c("cluster", "clus1", "clus2","clus3")
+  names(classes) <- c("cluster", paste("clus",1:nbclus,sep=""))
   cbind.data.frame(data.frame(ser=ser, period=period, country=country),
                    classes)
 }
 
 myclassif_silver <- get_pattern_month(myfit_silver)
-myclassif_silver$cluster=factor(match(myclassif_silver$cluster,c("1", "3", "4", "5", "6","2")),
+col_toreorder=grep("clus[0-9]",names(myclassif_silver))
+names(myclassif_silver)[col_toreorder]=paste("clus",
+                                      match(paste("clus",1:nbclus,sep=""),
+                                      paste("clus",clus_order,sep="")),
+                                      sep="")
+myclassif_silver[,col_toreorder] <- myclassif_silver%>%
+  select(col_toreorder)%>%select(sort(names(.)))
+myclassif_silver$cluster=factor(match(myclassif_silver$cluster,clus_order),
                    levels=as.character(1:7))
 
 table_classif(myclassif_silver, "series")
@@ -1703,8 +1732,8 @@ table_classif(myclassif_silver, "series")
    <td style="text-align:left;"> DE </td>
    <td style="text-align:left;"> 2 </td>
    <td style="text-align:right;"> 1 </td>
-   <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 99 </td>
+   <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 0 </td>
@@ -1715,8 +1744,8 @@ table_classif(myclassif_silver, "series")
    <td style="text-align:left;"> DE </td>
    <td style="text-align:left;"> 2 </td>
    <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 100 </td>
+   <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 0 </td>
@@ -1727,11 +1756,11 @@ table_classif(myclassif_silver, "series")
    <td style="text-align:left;"> FI </td>
    <td style="text-align:left;"> 2 </td>
    <td style="text-align:right;"> 2 </td>
-   <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 93 </td>
    <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 6 </td>
+   <td style="text-align:right;"> 0 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> DaugS </td>
@@ -1740,8 +1769,8 @@ table_classif(myclassif_silver, "series")
    <td style="text-align:left;"> 3 </td>
    <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 100 </td>
+   <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 0 </td>
   </tr>
@@ -1753,8 +1782,8 @@ table_classif(myclassif_silver, "series")
    <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 100 </td>
+   <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 0 </td>
   </tr>
   <tr>
@@ -1765,8 +1794,8 @@ table_classif(myclassif_silver, "series")
    <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 100 </td>
+   <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 0 </td>
   </tr>
   <tr>
@@ -1777,8 +1806,8 @@ table_classif(myclassif_silver, "series")
    <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 100 </td>
+   <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 0 </td>
   </tr>
   <tr>
@@ -1790,8 +1819,8 @@ table_classif(myclassif_silver, "series")
    <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 100 </td>
+   <td style="text-align:right;"> 0 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> OirS </td>
@@ -1802,8 +1831,8 @@ table_classif(myclassif_silver, "series")
    <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 100 </td>
+   <td style="text-align:right;"> 0 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> Shie </td>
@@ -1814,8 +1843,8 @@ table_classif(myclassif_silver, "series")
    <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 100 </td>
+   <td style="text-align:right;"> 0 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> Shie </td>
@@ -1826,8 +1855,8 @@ table_classif(myclassif_silver, "series")
    <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 100 </td>
+   <td style="text-align:right;"> 0 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> BurS </td>
@@ -1838,8 +1867,8 @@ table_classif(myclassif_silver, "series")
    <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 100 </td>
+   <td style="text-align:right;"> 0 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> BurS </td>
@@ -1850,8 +1879,8 @@ table_classif(myclassif_silver, "series")
    <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 100 </td>
+   <td style="text-align:right;"> 0 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> UShaS </td>
@@ -1859,11 +1888,11 @@ table_classif(myclassif_silver, "series")
    <td style="text-align:left;"> IE </td>
    <td style="text-align:left;"> 5 </td>
    <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 10 </td>
    <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 90 </td>
+   <td style="text-align:right;"> 10 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> ImsaS </td>
@@ -1874,8 +1903,8 @@ table_classif(myclassif_silver, "series")
    <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 100 </td>
+   <td style="text-align:right;"> 0 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> ImsaS </td>
@@ -1886,8 +1915,8 @@ table_classif(myclassif_silver, "series")
    <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 100 </td>
+   <td style="text-align:right;"> 0 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> ScorS </td>
@@ -1895,11 +1924,11 @@ table_classif(myclassif_silver, "series")
    <td style="text-align:left;"> FR </td>
    <td style="text-align:left;"> 6 </td>
    <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 100 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> ScorS </td>
@@ -1907,11 +1936,11 @@ table_classif(myclassif_silver, "series")
    <td style="text-align:left;"> FR </td>
    <td style="text-align:left;"> 6 </td>
    <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 100 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> SomS </td>
@@ -1919,11 +1948,11 @@ table_classif(myclassif_silver, "series")
    <td style="text-align:left;"> FR </td>
    <td style="text-align:left;"> 6 </td>
    <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 100 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> SouS </td>
@@ -1931,11 +1960,11 @@ table_classif(myclassif_silver, "series")
    <td style="text-align:left;"> FR </td>
    <td style="text-align:left;"> 6 </td>
    <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 100 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> ErneS </td>
@@ -1943,11 +1972,11 @@ table_classif(myclassif_silver, "series")
    <td style="text-align:left;"> IE </td>
    <td style="text-align:left;"> 6 </td>
    <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 100 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
   </tr>
 </tbody>
 </table>
@@ -1963,10 +1992,13 @@ myclassif_silver$jit_y <- jitter(myclassif_silver$y,amount=.5)
 ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
 		geom_point(data=myclassif_silver,size=5,
 		           aes(x=jit_x,y=jit_y,col=as.factor(cluster),pch=period)) +
-  scale_colour_manual(values=cols) +theme_bw() +xlim(-20,30) + ylim(35,65)
+  geom_segment(data=myclassif,
+            aes(x=x,y=y,xend=jit_x,yend=jit_y,col=as.factor(cluster)))+
+  scale_colour_manual(values=cols) +theme_igray() +xlim(-20,30) + ylim(35,65)+
+  xlab("")+ylab("")+labs(colour="cluster")
 ```
 
-![](jags_modelling_files/figure-html/unnamed-chunk-35-1.png)<!-- -->
+![](jags_modelling_monitoring_files/figure-html/unnamed-chunk-35-1.png)<!-- -->
 
 
 
@@ -2593,20 +2625,21 @@ get_pattern_month <- function(res,type="cluster"){
 }
 
 pat=get_pattern_month(myfit_yellow)
-pat$cluster=factor(match(pat$cluster, c("3","4","2","1")),
+clus_order=c("3","4","2","1")
+pat$cluster=factor(match(pat$cluster,clus_order ),
                    levels=as.character(1:7))
 
 ggplot(pat,aes(x=month,y=proportion))+
   geom_boxplot(aes(fill=cluster),outlier.shape=NA) +
   scale_fill_manual(values=cols)+facet_wrap(.~cluster, ncol=1)+
-  theme_bw()
+  theme_igray()
 ```
 
-![](jags_modelling_files/figure-html/unnamed-chunk-51-1.png)<!-- -->
+![](jags_modelling_monitoring_files/figure-html/unnamed-chunk-51-1.png)<!-- -->
 
 
 ```r
-table_characteristics(myfit_yellow, 4)
+table_characteristics(myfit_yellow, 4, clus_order)
 ```
 
 <table>
@@ -2630,24 +2663,6 @@ table_characteristics(myfit_yellow, 4)
 <tbody>
   <tr>
    <td style="text-align:right;"> 1 </td>
-   <td style="text-align:right;"> 4 </td>
-   <td style="text-align:right;"> 3 </td>
-   <td style="text-align:right;"> 4 </td>
-   <td style="text-align:right;"> 9.36 </td>
-   <td style="text-align:right;"> 9.11 </td>
-   <td style="text-align:right;"> 9.62 </td>
-  </tr>
-  <tr>
-   <td style="text-align:right;"> 2 </td>
-   <td style="text-align:right;"> 4 </td>
-   <td style="text-align:right;"> 4 </td>
-   <td style="text-align:right;"> 4 </td>
-   <td style="text-align:right;"> 7.25 </td>
-   <td style="text-align:right;"> 7.11 </td>
-   <td style="text-align:right;"> 7.38 </td>
-  </tr>
-  <tr>
-   <td style="text-align:right;"> 3 </td>
    <td style="text-align:right;"> 8 </td>
    <td style="text-align:right;"> 7 </td>
    <td style="text-align:right;"> 8 </td>
@@ -2656,13 +2671,31 @@ table_characteristics(myfit_yellow, 4)
    <td style="text-align:right;"> 7.18 </td>
   </tr>
   <tr>
-   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:right;"> 2 </td>
    <td style="text-align:right;"> 2 </td>
    <td style="text-align:right;"> 2 </td>
    <td style="text-align:right;"> 2 </td>
    <td style="text-align:right;"> 6.22 </td>
    <td style="text-align:right;"> 6.17 </td>
    <td style="text-align:right;"> 6.27 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 3 </td>
+   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:right;"> 7.25 </td>
+   <td style="text-align:right;"> 7.11 </td>
+   <td style="text-align:right;"> 7.38 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:right;"> 3 </td>
+   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:right;"> 9.36 </td>
+   <td style="text-align:right;"> 9.11 </td>
+   <td style="text-align:right;"> 9.62 </td>
   </tr>
 </tbody>
 </table>
@@ -2702,13 +2735,21 @@ get_pattern_month <- function(res,mydata){
   }))
   storage.mode(clus) <- "numeric"
   classes <- as.data.frame(clus)
-  names(classes) <- c("cluster", "clus1", "clus2","clus3")
+  names(classes) <- c("cluster", paste("clus",1:nbclus,sep=""))
   cbind.data.frame(data.frame(ser=ser, period=period, country=country),
                    classes)
 }
 
 myclassif_yellow <- get_pattern_month(myfit_yellow)
-myclassif_yellow$cluster=factor(match(myclassif_yellow$cluster, c("3","4","2","1")),
+col_toreorder=grep("clus[0-9]",names(myclassif_yellow))
+names(myclassif_yellow)[col_toreorder]=paste("clus",
+                                      match(paste("clus",1:nbclus,sep=""),
+                                      paste("clus",clus_order,sep="")),
+                                      sep="")
+myclassif_yellow[,col_toreorder] <- myclassif_yellow%>%
+  select(col_toreorder)%>%select(sort(names(.)))
+
+myclassif_yellow$cluster=factor(match(myclassif_yellow$cluster, clus_order),
                    levels=as.character(1:7))
 
 table_classif(myclassif_yellow,type="series")
@@ -2733,9 +2774,9 @@ table_classif(myclassif_yellow,type="series")
    <td style="text-align:left;"> 1 </td>
    <td style="text-align:left;"> FR </td>
    <td style="text-align:left;"> 1 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 100 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 0 </td>
   </tr>
   <tr>
@@ -2743,9 +2784,9 @@ table_classif(myclassif_yellow,type="series")
    <td style="text-align:left;"> 2 </td>
    <td style="text-align:left;"> FR </td>
    <td style="text-align:left;"> 1 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 100 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 0 </td>
   </tr>
   <tr>
@@ -2754,9 +2795,9 @@ table_classif(myclassif_yellow,type="series")
    <td style="text-align:left;"> FR </td>
    <td style="text-align:left;"> 2 </td>
    <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 100 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> RhinY </td>
@@ -2764,9 +2805,9 @@ table_classif(myclassif_yellow,type="series")
    <td style="text-align:left;"> FR </td>
    <td style="text-align:left;"> 2 </td>
    <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 100 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> GarY </td>
@@ -2774,9 +2815,9 @@ table_classif(myclassif_yellow,type="series")
    <td style="text-align:left;"> FR </td>
    <td style="text-align:left;"> 2 </td>
    <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 100 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> RhinY </td>
@@ -2784,9 +2825,9 @@ table_classif(myclassif_yellow,type="series")
    <td style="text-align:left;"> FR </td>
    <td style="text-align:left;"> 2 </td>
    <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 100 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> DaugY </td>
@@ -2794,9 +2835,9 @@ table_classif(myclassif_yellow,type="series")
    <td style="text-align:left;"> LV </td>
    <td style="text-align:left;"> 2 </td>
    <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 100 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> AllE </td>
@@ -2804,8 +2845,8 @@ table_classif(myclassif_yellow,type="series")
    <td style="text-align:left;"> GB </td>
    <td style="text-align:left;"> 3 </td>
    <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 100 </td>
    <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 100 </td>
    <td style="text-align:right;"> 0 </td>
   </tr>
   <tr>
@@ -2814,8 +2855,8 @@ table_classif(myclassif_yellow,type="series")
    <td style="text-align:left;"> GB </td>
    <td style="text-align:left;"> 3 </td>
    <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 100 </td>
    <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 100 </td>
    <td style="text-align:right;"> 0 </td>
   </tr>
   <tr>
@@ -2824,8 +2865,8 @@ table_classif(myclassif_yellow,type="series")
    <td style="text-align:left;"> GB </td>
    <td style="text-align:left;"> 3 </td>
    <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 100 </td>
    <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 100 </td>
    <td style="text-align:right;"> 0 </td>
   </tr>
   <tr>
@@ -2833,20 +2874,20 @@ table_classif(myclassif_yellow,type="series")
    <td style="text-align:left;"> 1 </td>
    <td style="text-align:left;"> DK </td>
    <td style="text-align:left;"> 4 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 100 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> TedE </td>
    <td style="text-align:left;"> 2 </td>
    <td style="text-align:left;"> GB </td>
    <td style="text-align:left;"> 4 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 100 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
   </tr>
 </tbody>
 </table>
@@ -2868,11 +2909,14 @@ myclassif_yellow$jit_y <- jitter(myclassif_yellow$y,amount=.5)
 ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
 		geom_point(data=myclassif_yellow, size=5,
 		           aes(x=jit_x,y=jit_y,col=as.factor(cluster),pch=period)) +
+  geom_segment(data=myclassif,
+            aes(x=x,y=y,xend=jit_x,yend=jit_y,col=as.factor(cluster)))+
   scale_color_manual(values=cols) +
-  theme_bw() +xlim(-20,30) + ylim(35,65)
+  theme_igray() +xlim(-20,30) + ylim(35,65)+
+  xlab("")+ylab("")+labs(colour="cluster")
 ```
 
-![](jags_modelling_files/figure-html/unnamed-chunk-54-1.png)<!-- -->
+![](jags_modelling_monitoring_files/figure-html/unnamed-chunk-54-1.png)<!-- -->
 
 
 ## Exporting pattern per group

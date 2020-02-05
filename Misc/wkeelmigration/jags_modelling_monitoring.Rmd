@@ -11,7 +11,7 @@ output:
 ---
 
 ```{r global_options, include=FALSE}
-knitr::opts_chunk$set(fig.width=16, fig.height=16,warning=FALSE)
+knitr::opts_chunk$set(fig.width=10, fig.height=10,warning=FALSE)
 ```
 
 
@@ -24,6 +24,7 @@ library(coda)
 library(ggplot2)
 library(doParallel)
 library(RColorBrewer)
+library(ggthemes)
 pal= brewer.pal(7,"Set2")
 cols <- c("1" = pal[1], "2"= pal[2],"3" = pal[3], "4" = pal[4],  "5" = pal[5], "6"=pal[6], "7"=pal[7])
 library(kableExtra)
@@ -360,13 +361,14 @@ get_pattern_month <- function(res,type="cluster"){
 
 
 pat=get_pattern_month(myfit_recruitment)
-pat$cluster=factor(match(pat$cluster,c("5","2","1","3","4")),
+clus_order=c("5","2","1","3","4")
+pat$cluster=factor(match(pat$cluster,clus_order),
                    levels=as.character(1:7))
 
 ggplot(pat,aes(x=month,y=proportion))+
   geom_boxplot(aes(fill=cluster),outlier.shape=NA) +
   scale_fill_manual(values=cols)+facet_wrap(.~cluster, ncol=1) +
-  theme_bw()
+  theme_igray()
 
 
 ```
@@ -374,7 +376,7 @@ ggplot(pat,aes(x=month,y=proportion))+
 We compute some statistics to characterize the clusters.
 ```{r}
 #function to make circular shifting
-table_characteristics(myfit_recruitment, 5)
+table_characteristics(myfit_recruitment, 5,clus_order)
 ```
 Duration indicates the minimum number of months that covers 80% of the wave (1st column is the median, and the 2 next one quantiles 2.5% and 97.5% of credibility intervals). Centroid is the centroid of the migration wave (e.g. 11.5 would indicate a migration centred around mid november). The first column is the median and the two next one the quantiles 2.5 and 97.5%.
 
@@ -406,13 +408,20 @@ get_pattern_month <- function(res,mydata){
   }))
   storage.mode(clus) <- "numeric"
   classes <- as.data.frame(clus)
-  names(classes) <- c("cluster", "clus1", "clus2","clus3")
+  names(classes) <- c("cluster", paste("clus",1:nbclus,sep=""))
   cbind.data.frame(data.frame(ser=ser, period=period,country=country),
                    classes)
 }
 
 myclassif <- get_pattern_month(myfit_recruitment)
-myclassif$cluster=factor(match(myclassif$cluster,c("5","2","1","3","4")),
+col_toreorder=grep("clus[0-9]",names(myclassif))
+names(myclassif)[col_toreorder]=paste("clus",
+                                      match(paste("clus",1:nbclus,sep=""),
+                                      paste("clus",clus_order,sep="")),
+                                      sep="")
+myclassif[,col_toreorder] <- myclassif%>%
+  select(col_toreorder)%>%select(sort(names(.)))
+myclassif$cluster=factor(match(myclassif$cluster,clus_order),
                    levels=as.character(1:7))
 
 table_classif(myclassif,"series")
@@ -430,7 +439,10 @@ myclassif$jit_y <- jitter(myclassif$y,amount=.5)
 ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
 		geom_point(data=myclassif,size=5,
 		           aes(x=jit_x,y=jit_y,col=as.factor(cluster),pch=period)) +
-  scale_color_manual(values=cols) +theme_bw() +xlim(-20,30) + ylim(35,65)
+  geom_segment(data=myclassif,
+            aes(x=x,y=y,xend=jit_x,yend=jit_y,col=as.factor(cluster)))+
+  scale_color_manual(values=cols) +theme_igray() +xlim(-20,30) + ylim(35,65)+
+  xlab("")+ylab("")+labs(colour="cluster")
 ```
 
 
@@ -793,17 +805,18 @@ get_pattern_month <- function(res,type="cluster"){
 }
 
 pat=get_pattern_month(myfit_silver)
-pat$cluster=factor(match(pat$cluster,c("1", "3", "4", "5", "6","2")),
+clus_order=c("1", "3", "4", "5", "6","2")
+pat$cluster=factor(match(pat$cluster,clus_order),
                    levels=as.character(1:7))
 ggplot(pat,aes(x=month,y=proportion))+
   geom_boxplot(aes(fill=cluster),outlier.shape=NA) +
   scale_fill_manual(values=cols)+facet_wrap(.~cluster, ncol=1)+
-  theme_bw()
+  theme_igray()
 ```
 We have 6 clusters. Many of them display migration in both spring and autum, while a few of them peak in summer.
 
 ```{r}
-table_characteristics(myfit_silver, 6)
+table_characteristics(myfit_silver, 6,clus_order)
 ```
 
 We can look at the belonging of the different groups.
@@ -835,13 +848,20 @@ get_pattern_month <- function(res,mydata){
   }))
   storage.mode(clus) <- "numeric"
   classes <- as.data.frame(clus)
-  names(classes) <- c("cluster", "clus1", "clus2","clus3")
+  names(classes) <- c("cluster", paste("clus",1:nbclus,sep=""))
   cbind.data.frame(data.frame(ser=ser, period=period, country=country),
                    classes)
 }
 
 myclassif_silver <- get_pattern_month(myfit_silver)
-myclassif_silver$cluster=factor(match(myclassif_silver$cluster,c("1", "3", "4", "5", "6","2")),
+col_toreorder=grep("clus[0-9]",names(myclassif_silver))
+names(myclassif_silver)[col_toreorder]=paste("clus",
+                                      match(paste("clus",1:nbclus,sep=""),
+                                      paste("clus",clus_order,sep="")),
+                                      sep="")
+myclassif_silver[,col_toreorder] <- myclassif_silver%>%
+  select(col_toreorder)%>%select(sort(names(.)))
+myclassif_silver$cluster=factor(match(myclassif_silver$cluster,clus_order),
                    levels=as.character(1:7))
 
 table_classif(myclassif_silver, "series")
@@ -857,7 +877,10 @@ myclassif_silver$jit_y <- jitter(myclassif_silver$y,amount=.5)
 ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
 		geom_point(data=myclassif_silver,size=5,
 		           aes(x=jit_x,y=jit_y,col=as.factor(cluster),pch=period)) +
-  scale_colour_manual(values=cols) +theme_bw() +xlim(-20,30) + ylim(35,65)
+  geom_segment(data=myclassif_silver,
+            aes(x=x,y=y,xend=jit_x,yend=jit_y,col=as.factor(cluster)))+
+  scale_colour_manual(values=cols) +theme_igray() +xlim(-20,30) + ylim(35,65)+
+  xlab("")+ylab("")+labs(colour="cluster")
 ```
 
 
@@ -1149,17 +1172,18 @@ get_pattern_month <- function(res,type="cluster"){
 }
 
 pat=get_pattern_month(myfit_yellow)
-pat$cluster=factor(match(pat$cluster, c("3","4","2","1")),
+clus_order=c("3","4","2","1")
+pat$cluster=factor(match(pat$cluster,clus_order ),
                    levels=as.character(1:7))
 
 ggplot(pat,aes(x=month,y=proportion))+
   geom_boxplot(aes(fill=cluster),outlier.shape=NA) +
   scale_fill_manual(values=cols)+facet_wrap(.~cluster, ncol=1)+
-  theme_bw()
+  theme_igray()
 ```
 
 ```{r}
-table_characteristics(myfit_yellow, 4)
+table_characteristics(myfit_yellow, 4, clus_order)
 ```
 
 Cluster 2 corresponds to a migration concentrated in June and July. Cluster 3
@@ -1196,13 +1220,21 @@ get_pattern_month <- function(res,mydata){
   }))
   storage.mode(clus) <- "numeric"
   classes <- as.data.frame(clus)
-  names(classes) <- c("cluster", "clus1", "clus2","clus3")
+  names(classes) <- c("cluster", paste("clus",1:nbclus,sep=""))
   cbind.data.frame(data.frame(ser=ser, period=period, country=country),
                    classes)
 }
 
 myclassif_yellow <- get_pattern_month(myfit_yellow)
-myclassif_yellow$cluster=factor(match(myclassif_yellow$cluster, c("3","4","2","1")),
+col_toreorder=grep("clus[0-9]",names(myclassif_yellow))
+names(myclassif_yellow)[col_toreorder]=paste("clus",
+                                      match(paste("clus",1:nbclus,sep=""),
+                                      paste("clus",clus_order,sep="")),
+                                      sep="")
+myclassif_yellow[,col_toreorder] <- myclassif_yellow%>%
+  select(col_toreorder)%>%select(sort(names(.)))
+
+myclassif_yellow$cluster=factor(match(myclassif_yellow$cluster, clus_order),
                    levels=as.character(1:7))
 
 table_classif(myclassif_yellow,type="series")
@@ -1224,8 +1256,11 @@ myclassif_yellow$jit_y <- jitter(myclassif_yellow$y,amount=.5)
 ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
 		geom_point(data=myclassif_yellow, size=5,
 		           aes(x=jit_x,y=jit_y,col=as.factor(cluster),pch=period)) +
+  geom_segment(data=myclassif_yellow,
+            aes(x=x,y=y,xend=jit_x,yend=jit_y,col=as.factor(cluster)))+
   scale_color_manual(values=cols) +
-  theme_bw() +xlim(-20,30) + ylim(35,65)
+  theme_igray() +xlim(-20,30) + ylim(35,65)+
+  xlab("")+ylab("")+labs(colour="cluster")
 ```
 
 

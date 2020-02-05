@@ -4,7 +4,7 @@ shifter <- function(x, n = 1) {
 }
 
 #function used after a classification to get some stats about clusters
-characteristics <- function(myres,nbclus, threshold=.80){
+characteristics <- function(myres,nbclus, dictionnary,threshold=.80){
   mydata <- as.matrix(as.mcmc.list(myres,add.mutate=FALSE))
   do.call(rbind.data.frame,lapply(seq_len(nbclus),function(clus){
     esp <- mydata[, paste("esp[",clus , ",", 1:12, "]", sep="")]
@@ -25,7 +25,7 @@ characteristics <- function(myres,nbclus, threshold=.80){
     quant_centr <- quantile(centroids, probs=c(0.025, .5, .975))
     quant_centr <- quant_centr - ceiling(quant_centr) +
       season_order[ceiling(quant_centr)]
-    data.frame(cluster=clus,
+    data.frame(cluster=match(clus,dictionnary),
                duration=duration[2],
                duration2.5=duration[1],
                duration97.5=duration[3],
@@ -341,8 +341,10 @@ median_pattern_group_monitoring = function(g,emu,res_mat, lfs_code, ser, hty_cod
 }
 
 
-table_characteristics = function(myfit, nbclus){
-  kable(characteristics(myfit,nbclus),
+table_characteristics = function(myfit, nbclus, dictionnary){
+  charac=characteristics(myfit,nbclus,dictionnary)
+  charac=charac[order(charac$cluster),]
+  kable(charac,
         digits=2,
         row.names=FALSE,
         caption="characteristics of clusters",
