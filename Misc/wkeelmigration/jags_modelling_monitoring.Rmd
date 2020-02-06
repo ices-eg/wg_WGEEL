@@ -32,8 +32,9 @@ library(kableExtra)
 library(sf)
 library(RPostgreSQL)
 con<-dbConnect(PostgreSQL(),host="localhost",dbname="wgeel_old",user="hilaire")
-emu <- st_read(con,query="select * from carto.emu")
-cou <- st_read("/mnt/SIG/01-REFERENTIELS/LIMITES_ADMINISTRATIVES_monde/european_countries_WGS84.shp")
+emu=st_read("../../data/shapefiles/tr_emu_emu.shp")
+names(emu)[1]="name_short"
+cou <- st_read("/mnt/SIG/01-REFERENTIELS/LIMITES_ADMINISTRATIVES_monde/world_countries_WGS84.shp")
 cou <- st_transform(cou, crs=4326)
 dbDisconnect(con)
 
@@ -1301,4 +1302,18 @@ simi=sapply(tocompare, function(s){
 similarity=data.frame(emu=tocompare,t(simi))
 
 table_similarity(similarity)
+```
+
+
+# Summary of data usage
+```{r}
+#glass eel
+nrow(recruitment_wide%>% group_by(ser_nameshort)%>% count())
+
+#yellow eel 
+nrow(yelloweel_wide%>%group_by(ser_nameshort)%>% count())
+
+#silver eel fresh
+nrow(silvereel_wide%>%group_by(ser_nameshort)%>% count())
+
 ```

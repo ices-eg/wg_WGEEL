@@ -1992,7 +1992,7 @@ myclassif_silver$jit_y <- jitter(myclassif_silver$y,amount=.5)
 ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
 		geom_point(data=myclassif_silver,size=5,
 		           aes(x=jit_x,y=jit_y,col=as.factor(cluster),pch=period)) +
-  geom_segment(data=myclassif,
+  geom_segment(data=myclassif_silver,
             aes(x=x,y=y,xend=jit_x,yend=jit_y,col=as.factor(cluster)))+
   scale_colour_manual(values=cols) +theme_igray() +xlim(-20,30) + ylim(35,65)+
   xlab("")+ylab("")+labs(colour="cluster")
@@ -2909,7 +2909,7 @@ myclassif_yellow$jit_y <- jitter(myclassif_yellow$y,amount=.5)
 ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
 		geom_point(data=myclassif_yellow, size=5,
 		           aes(x=jit_x,y=jit_y,col=as.factor(cluster),pch=period)) +
-  geom_segment(data=myclassif,
+  geom_segment(data=myclassif_yellow,
             aes(x=x,y=y,xend=jit_x,yend=jit_y,col=as.factor(cluster)))+
   scale_color_manual(values=cols) +
   theme_igray() +xlim(-20,30) + ylim(35,65)+
@@ -2991,3 +2991,33 @@ table_similarity(similarity)
   </tr>
 </tbody>
 </table>
+
+
+# Summary of data usage
+
+```r
+#glass eel
+nrow(recruitment_wide%>% group_by(ser_nameshort)%>% count())
+```
+
+```
+## [1] 12
+```
+
+```r
+#yellow eel 
+nrow(yelloweel_wide%>%group_by(ser_nameshort)%>% count())
+```
+
+```
+## [1] 9
+```
+
+```r
+#silver eel fresh
+nrow(silvereel_wide%>%group_by(ser_nameshort)%>% count())
+```
+
+```
+## [1] 14
+```

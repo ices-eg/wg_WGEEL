@@ -6,12 +6,9 @@ output:
   rmarkdown::html_document:
      keep_md: yes
      toc: yes
-    toc_depth: 3
-    toc_float: yes
   rmarkdown::md_document:
      toc: yes
-  rmarkdown::word_document:
-    toc: true
+
 ---
 ```{r global_options, include=FALSE}
 knitr::opts_chunk$set(fig.width=10, fig.height=10,warning=FALSE)
@@ -23,6 +20,7 @@ doc.type <- knitr::opts_knit$get('rmarkdown.pandoc.to')
 knitr::opts_chunk$set(echo = TRUE)
 wdsource <-"~/Documents/Bordeaux/migrateurs/WGEEL/wkeelmigration/source/"
 load("res_landings.Rdata")
+res$emu_nameshort[res$emu_nameshort=="ES_MINH"]="ES_Minh"
 source("function_for_model.R")
 library(dplyr)
 library(tidyverse)
@@ -38,8 +36,12 @@ source("closure_vs_landings.R")
 library(sf)
 library(RPostgreSQL)
 con<-dbConnect(PostgreSQL(),host="localhost",dbname="wgeel_old",user="hilaire")
-emu <- st_read(con,query="select * from carto.emu")
-cou <- st_read("/mnt/SIG/01-REFERENTIELS/LIMITES_ADMINISTRATIVES_monde/european_countries_WGS84.shp")
+#emu <- st_read(con,query="select * from carto.emu")
+emu=st_read("../../data/shapefiles/tr_emu_emu.shp")
+names(emu)[1]="name_short"
+emu$name_short[emu$name_short=="ES_Mino"]="ES_MINH"
+emu$name_short[emu$name_short=="ES_Minh"]="ES_Mino"
+cou <- st_read("/mnt/SIG/01-REFERENTIELS/LIMITES_ADMINISTRATIVES_monde/world_countries_WGS84.shp")
 cou <- st_transform(cou, crs=4326)
 dbDisconnect(con)
 
@@ -387,11 +389,11 @@ emu$cluster2 <- factor(myclassif_p2$cluster[match(emu$name_short,
                                                 substr(myclassif_p2$ser,1,nchar(as.character(myclassif_p2$ser))))],
                        levels=1:7)
 ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
-		geom_sf(data=emu,aes(fill=cluster1)) + scale_fill_manual(values=cols)+
-  theme_igray() +xlim(-20,30) + ylim(35,65) 
+		geom_sf(data=filter(emu,!is.na(cluster1)),aes(fill=cluster1)) + scale_fill_manual(values=cols)+
+  theme_igray() +xlim(-20,30) + ylim(35,65) +labs(fill="cluster")+labs(fill="cluster")
 ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
-		geom_sf(data=emu,aes(fill=cluster2)) + scale_fill_manual(values=cols)+
-  theme_igray() +xlim(-20,30) + ylim(35,65)  
+		geom_sf(data=filter(emu,!is.na(cluster2)),aes(fill=cluster2)) + scale_fill_manual(values=cols)+
+  theme_igray() +xlim(-20,30) + ylim(35,65) +labs(fill="cluster")+labs(fill="cluster") 
 
 ```
 
@@ -476,11 +478,11 @@ res_closures=mapply(function(s,g) {
 list_period1[list_period1$estimable, c("lossq2.5", "lossq50","lossq97.5")] =
   t(res_closures)
 
-kable(list_period1[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")],
+kable_emu_loss_glass_eel_p1=kable(na.omit(list_period1[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")]),
       col.names=c("emu","q2.5","median","q97.5"),
       caption="proportion of catch potentially lost because of EMP closure",
       digits=2)
-
+kable_emu_loss_glass_eel_p1
 
 
 
@@ -527,11 +529,11 @@ res_closures=mapply(function(s,g) {
 list_period2[list_period2$estimable, c("lossq2.5", "lossq50","lossq97.5")] =
   t(res_closures)
 
-kable(list_period2[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")],
+kable_emu_loss_glass_eel_p2=kable(na.omit(list_period2[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")]),
       col.names=c("emu","q2.5","median","q97.5"),
       caption="proportion of catch potentially lost because of EU closure",
       digits=2)
-
+kable_emu_loss_glass_eel_p2
 
 list_period2$type="EU closure"
 list_period1$type="EMP closure"
@@ -560,12 +562,13 @@ effects_scenario=effects_scenario[order(effects_scenario$cluster,
                                         effects_scenario$starting_month_EU_closure),]
 
 
-kable(effects_scenario,row.names=FALSE,col.names=c("cluster",
+kable_emu_loss_glass_eel_speculative=kable(effects_scenario,row.names=FALSE,col.names=c("cluster",
                                    "speculative 1st month of EU closure",
                                    "median loss of catch",
                                    "q2.5",
                                    "q97.5"), digits=2,
       caption="potential effect that an EU closure would have depending on cluster and starting month")
+kable_emu_loss_glass_eel_speculative
 
 ```
 
@@ -925,11 +928,11 @@ emu$cluster2 <- factor(myclassif_p2$cluster[match(emu$name_short,
                                                 substr(myclassif_p2$ser,1,nchar(as.character(myclassif_p2$ser))-2))],
                        levels=1:7)
 ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
-		geom_sf(data=emu,aes(fill=cluster1)) + scale_fill_manual(values=cols)+
-  theme_igray() +xlim(-20,30) + ylim(35,65) 
+		geom_sf(data=filter(emu,!is.na(cluster1)),aes(fill=cluster1)) + scale_fill_manual(values=cols)+
+  theme_igray() +xlim(-20,30) + ylim(35,65) +labs(fill="cluster")+labs(fill="cluster")
 ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
-		geom_sf(data=emu,aes(fill=cluster2)) + scale_fill_manual(values=cols)+
-  theme_igray() +xlim(-20,30) + ylim(35,65)  
+		geom_sf(data=filter(emu,!is.na(cluster2)),aes(fill=cluster2)) + scale_fill_manual(values=cols)+
+  theme_igray() +xlim(-20,30) + ylim(35,65) +labs(fill="cluster") 
 
 ```
 
@@ -940,7 +943,7 @@ name_col = colnames(tmp)
 
 pattern_Ycoast_landings=do.call("rbind.data.frame",
                                 lapply(seq_len(length(levels(groups))), function(g)
-                                   median_pattern_group(g, group_name,tmp, "Y","landings", hty_code="C")))
+                                   median_pattern_group(g, group_name,tmp, "Y","landings")))
 
 
 save(pattern_Ycoast_landings,file="pattern_Ycoast_landings.rdata")
@@ -1021,12 +1024,12 @@ list_period1$hty[list_period1$estimable])
 list_period1[list_period1$estimable, c("lossq2.5", "lossq50","lossq97.5")] =
   t(res_closures)
 
-kable(list_period1[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")],
+kable_emu_loss_yellow_eel_coastal_p1=kable(na.omit(list_period1[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")]),
       col.names=c("emu","q2.5","median","q97.5"),
       caption="proportion of catch potentially lost because of EMP closure",
       digits=2)
 
-
+kable_emu_loss_yellow_eel_coastal_p1
 
 
 #######EU
@@ -1072,11 +1075,11 @@ list_period2$hty_code[list_period2$estimable])
 list_period2[list_period2$estimable, c("lossq2.5", "lossq50","lossq97.5")] =
   t(res_closures)
 
-kable(list_period2[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")],
+kable_emu_loss_yellow_eel_coastal_p2=kable(na.omit(list_period2[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")]),
       col.names=c("emu","q2.5","median","q97.5"),
       caption="proportion of catch potentially lost because of EU closure",
       digits=2)
-
+kable_emu_loss_yellow_eel_coastal_p2
 list_period2$type="EU closure"
 list_period1$type="EMP closure"
 list_period=rbind.data.frame(list_period1,list_period2)
@@ -1104,14 +1107,14 @@ effects_scenario=effects_scenario[order(effects_scenario$cluster,
                                         effects_scenario$starting_month_EU_closure),]
 
 
-kable(effects_scenario,row.names=FALSE,col.names=c("cluster",
+kable_emu_loss_yellow_eel_coastal_speculative=kable(effects_scenario,row.names=FALSE,col.names=c("cluster",
                                    "speculative 1st month of EU closure",
                                    "median loss of catch",
                                    "q2.5",
                                    "q97.5"), digits=2,
       caption="potential effect that an EU closure would have depending on cluster and starting month")
 
-
+kable_emu_loss_yellow_eel_coastal_speculative
 
 ```
 
@@ -1404,11 +1407,11 @@ emu$cluster2 <- factor(myclassif_p2$cluster[match(emu$name_short,
                                                 substr(myclassif_p2$ser,1,nchar(as.character(myclassif_p2$ser))-2))],
                        levels=1:7)
 ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
-		geom_sf(data=emu,aes(fill=cluster1)) + scale_fill_manual(values=cols)+
-  theme_igray() +xlim(-20,30) + ylim(35,65) 
+		geom_sf(data=filter(emu,!is.na(cluster1)),aes(fill=cluster1)) + scale_fill_manual(values=cols)+
+  theme_igray() +xlim(-20,30) + ylim(35,65) +labs(fill="cluster")
 ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
-		geom_sf(data=emu,aes(fill=cluster2)) + scale_fill_manual(values=cols)+
-  theme_igray() +xlim(-20,30) + ylim(35,65)  
+		geom_sf(data=filter(emu,!is.na(cluster2)),aes(fill=cluster2)) + scale_fill_manual(values=cols)+
+  theme_igray() +xlim(-20,30) + ylim(35,65) +labs(fill="cluster") 
 
 ```
 
@@ -1419,7 +1422,7 @@ name_col = colnames(tmp)
 
 pattern_Ytrans_landings=do.call("rbind.data.frame",
                                 lapply(seq_len(length(levels(groups))), function(g)
-                                   median_pattern_group(g, group_name,tmp, "Y","landings", hty_code="T")))
+                                   median_pattern_group(g, group_name,tmp, "Y","landings")))
 save(pattern_Ytrans_landings,file="pattern_Ytrans_landings.rdata")
 ```
 
@@ -1498,12 +1501,12 @@ list_period1$hty[list_period1$estimable])
 list_period1[list_period1$estimable, c("lossq2.5", "lossq50","lossq97.5")] =
   t(res_closures)
 
-kable(list_period1[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")],
+kable_emu_loss_yellow_eel_transitional_p1=kable(na.omit(list_period1[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")]),
       col.names=c("emu","q2.5","median","q97.5"),
       caption="proportion of catch potentially lost because of EMP closure",
       digits=2)
 
-
+kable_emu_loss_yellow_eel_transitional_p1
 
 
 
@@ -1552,11 +1555,11 @@ list_period2$hty_code[list_period2$estimable])
 list_period2[list_period2$estimable, c("lossq2.5", "lossq50","lossq97.5")] =
   t(res_closures)
 
-kable(list_period2[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")],
+kable_emu_loss_yellow_eel_transitional_p2=kable(na.omit(list_period2[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")]),
       col.names=c("emu","q2.5","median","q97.5"),
       caption="proportion of catch potentially lost because of EU closure",
       digits=2)
-
+kable_emu_loss_yellow_eel_transitional_p2
 list_period2$type="EU closure"
 list_period1$type="EMP closure"
 list_period=rbind.data.frame(list_period1,list_period2)
@@ -1586,13 +1589,13 @@ effects_scenario=effects_scenario[order(effects_scenario$cluster,
                                         effects_scenario$starting_month_EU_closure),]
 
 
-kable(effects_scenario,row.names=FALSE,col.names=c("cluster",
+kable_emu_loss_yellow_eel_transitional_speculative=kable(effects_scenario,row.names=FALSE,col.names=c("cluster",
                                    "speculative 1st month of EU closure",
                                    "median loss of catch",
                                    "q2.5",
                                    "q97.5"), digits=2,
       caption="potential effect that an EU closure would have depending on cluster and starting month")
-
+kable_emu_loss_yellow_eel_transitional_speculative
 ```
 
 
@@ -1889,11 +1892,11 @@ emu$cluster2 <- factor(myclassif_p2$cluster[match(emu$name_short,
                                                 substr(myclassif_p2$ser,1,nchar(as.character(myclassif_p2$ser))-2))],
                        levels=1:7)
 ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
-		geom_sf(data=emu,aes(fill=cluster1)) + scale_fill_manual(values=cols)+
-  theme_igray() +xlim(-20,30) + ylim(35,65) 
+		geom_sf(data=filter(emu,!is.na(cluster1)),aes(fill=cluster1)) + scale_fill_manual(values=cols)+
+  theme_igray() +xlim(-20,30) + ylim(35,65) +labs(fill="cluster")
 ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
-		geom_sf(data=emu,aes(fill=cluster2)) + scale_fill_manual(values=cols)+
-  theme_igray() +xlim(-20,30) + ylim(35,65)  
+		geom_sf(data=filter(emu,!is.na(cluster2)),aes(fill=cluster2)) + scale_fill_manual(values=cols)+
+  theme_igray() +xlim(-20,30) + ylim(35,65) +labs(fill="cluster") 
 
 ```
 
@@ -1904,7 +1907,7 @@ name_col = colnames(tmp)
 
 pattern_Yfresh_landings=do.call("rbind.data.frame",
                                 lapply(seq_len(length(levels(groups))), function(g)
-                                   median_pattern_group(g, group_name,tmp, "Y","landings", hty_code="F")))
+                                   median_pattern_group(g, group_name,tmp, "Y","landings")))
 save(pattern_Yfresh_landings,file="pattern_Yfresh_landings.rdata")
 ```
 
@@ -1982,12 +1985,12 @@ list_period1$hty[list_period1$estimable])
 list_period1[list_period1$estimable, c("lossq2.5", "lossq50","lossq97.5")] =
   t(res_closures)
 
-kable(list_period1[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")],
+kable_emu_loss_yellow_eel_fresh_p1=kable(na.omit(list_period1[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")]),
       col.names=c("emu","q2.5","median","q97.5"),
       caption="proportion of catch potentially lost because of EMP closure",
       digits=2)
 
-
+kable_emu_loss_yellow_eel_fresh_p1
 
 
 
@@ -2036,11 +2039,11 @@ list_period2$hty_code[list_period2$estimable])
 list_period2[list_period2$estimable, c("lossq2.5", "lossq50","lossq97.5")] =
   t(res_closures)
 
-kable(list_period2[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")],
+kable_emu_loss_yellow_eel_fresh_p2=kable(na.omit(list_period2[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")]),
       col.names=c("emu","q2.5","median","q97.5"),
       caption="proportion of catch potentially lost because of EU closure",
       digits=2)
-
+kable_emu_loss_yellow_eel_fresh_p2
 list_period2$type="EU closure"
 list_period1$type="EMP closure"
 list_period=rbind.data.frame(list_period1,list_period2)
@@ -2070,13 +2073,13 @@ effects_scenario=effects_scenario[order(effects_scenario$cluster,
                                         effects_scenario$starting_month_EU_closure),]
 
 
-kable(effects_scenario,row.names=FALSE,col.names=c("cluster",
+kable_emu_loss_yellow_eel_fresh_speculative=kable(effects_scenario,row.names=FALSE,col.names=c("cluster",
                                    "speculative 1st month of EU closure",
                                    "median loss of catch",
                                    "q2.5",
                                    "q97.5"), digits=2,
       caption="potential effect that an EU closure would have depending on cluster and starting month")
-
+kable_emu_loss_yellow_eel_fresh_speculative
 ```
 
 
@@ -2372,12 +2375,12 @@ myplots <-lapply(c("MO","C","T", "F"),function(hty){
   emu$cluster2 <- factor(myclassif_p2$cluster[match(emu$name_short,                                                substr(myclassif_p2$ser,1,nchar(as.character(myclassif_p2$ser))-2))],
                        levels=1:7)
   p1 <- ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
-		  geom_sf(data=emu,aes(fill=cluster1)) + scale_fill_manual(values=cols)+
-      theme_igray() +xlim(-20,30) + ylim(35,65) +
+		  geom_sf(data=filter(emu,!is.na(cluster1)),aes(fill=cluster1)) + scale_fill_manual(values=cols)+
+      theme_igray() +xlim(-20,30) + ylim(35,65) +labs(fill="cluster")+
     ggtitle(paste("period 1",hty))
   p2 <- ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
-		  geom_sf(data=emu,aes(fill=cluster2)) + scale_fill_manual(values=cols)+
-    theme_igray() +xlim(-20,30) + ylim(35,65)  +
+		  geom_sf(data=filter(emu,!is.na(cluster2)),aes(fill=cluster2)) + scale_fill_manual(values=cols)+
+    theme_igray() +xlim(-20,30) + ylim(35,65) +labs(fill="cluster") +
     ggtitle(paste("period 2",hty))
   return(list(p1,p2))
 })
@@ -2685,7 +2688,7 @@ pat <-get_pattern_month(myfit_silvereel_coastal_landings)
 clus_order=c("1","3","4","2")
 pat$cluster <- factor(match(pat$cluster, clus_order),
                       levels=as.character(1:7))
-ggplot(pat,aes(x=month,y=proportion))+
+ggplot(pat,aes(x=month,y=proportion))+scale_fill_manual(values=cols)+
   geom_boxplot(aes(fill=cluster),outlier.shape=NA)+facet_wrap(.~cluster, ncol=1) +
   theme_igray()
 ```
@@ -2760,12 +2763,12 @@ myplots <-lapply(c("MO","C","T"),function(hty){
   emu$cluster2 <- factor(myclassif_p2$cluster[match(emu$name_short,                                                gsub(paste("_",hty,sep=""),"",myclassif_p2$ser))],
                        levels=1:7)
   p1 <- ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
-		  geom_sf(data=emu,aes(fill=cluster1)) + scale_fill_manual(values=cols)+
-      theme_igray() +xlim(-20,30) + ylim(35,65) +
+		  geom_sf(data=filter(emu,!is.na(cluster1)),aes(fill=cluster1)) + scale_fill_manual(values=cols)+
+      theme_igray() +xlim(-20,30) + ylim(35,65) +labs(fill="cluster")+
     ggtitle(paste("period 1",hty))
   p2 <- ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
-		  geom_sf(data=emu,aes(fill=cluster2)) + scale_fill_manual(values=cols)+
-    theme_igray() +xlim(-20,30) + ylim(35,65)  +
+		  geom_sf(data=filter(emu,!is.na(cluster2)),aes(fill=cluster2)) + scale_fill_manual(values=cols)+
+    theme_igray() +xlim(-20,30) + ylim(35,65) +labs(fill="cluster") +
     ggtitle(paste("period 2",hty))
   return(list(p1,p2))
 })
@@ -2860,13 +2863,13 @@ list_period1$hty[list_period1$estimable])
 list_period1[list_period1$estimable, c("lossq2.5", "lossq50","lossq97.5")] =
   t(res_closures)
 
-kable(list_period1[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")],
+kable_emu_loss_silvereel_coastal_p1=kable(na.omit(list_period1[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")]),
       col.names=c("emu","q2.5","median","q97.5"),
       caption="proportion of catch potentially lost because of EMP closure",
       digits=2)
 
 
-
+kable_emu_loss_silvereel_coastal_p1
 
 
 
@@ -2914,11 +2917,11 @@ list_period2$hty_code[list_period2$estimable])
 list_period2[list_period2$estimable, c("lossq2.5", "lossq50","lossq97.5")] =
   t(res_closures)
 
-kable(list_period2[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")],
+kable_emu_loss_silvereel_coastal_p2=kable(na.omit(list_period2[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")]),
       col.names=c("emu","q2.5","median","q97.5"),
       caption="proportion of catch potentially lost because of EU closure",
       digits=2)
-
+kable_emu_loss_silvereel_coastal_p2
 list_period2$type="EU closure"
 list_period1$type="EMP closure"
 list_period=rbind.data.frame(list_period1,list_period2)
@@ -2948,13 +2951,13 @@ effects_scenario=effects_scenario[order(effects_scenario$cluster,
                                         effects_scenario$starting_month_EU_closure),]
 
 
-kable(effects_scenario,row.names=FALSE,col.names=c("cluster",
+kable_emu_loss_silvereel_coastal_speculative=kable(effects_scenario,row.names=FALSE,col.names=c("cluster",
                                    "speculative 1st month of EU closure",
                                    "median loss of catch",
                                    "q2.5",
                                    "q97.5"), digits=2,
       caption="potential effect that an EU closure would have depending on cluster and starting month")
-
+kable_emu_loss_silvereel_coastal_speculative
 ```
 
 
@@ -3249,11 +3252,11 @@ emu$cluster2 <- factor(myclassif_p2$cluster[match(emu$name_short,
                                                 substr(myclassif_p2$ser,1,nchar(as.character(myclassif_p2$ser))-2))],
                        levels=1:7)
 ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
-		geom_sf(data=emu,aes(fill=cluster1)) + scale_fill_manual(values=cols)+
-  theme_igray() +xlim(-20,30) + ylim(35,65) 
+		geom_sf(data=filter(emu,!is.na(cluster1)),aes(fill=cluster1)) + scale_fill_manual(values=cols)+
+  theme_igray() +xlim(-20,30) + ylim(35,65) +labs(fill="cluster")
 ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
-		geom_sf(data=emu,aes(fill=cluster2)) + scale_fill_manual(values=cols)+
-  theme_igray() +xlim(-20,30) + ylim(35,65)  
+		geom_sf(data=filter(emu,!is.na(cluster2)),aes(fill=cluster2)) + scale_fill_manual(values=cols)+
+  theme_igray() +xlim(-20,30) + ylim(35,65) +labs(fill="cluster") 
 
 ```
 
@@ -3265,7 +3268,7 @@ name_col = colnames(tmp)
 
 pattern_Sfresh_landings=do.call("rbind.data.frame",
                                 lapply(seq_len(length(levels(groups))), function(g)
-                                   median_pattern_group(g, group_name,tmp, "Y","landings")))
+                                   median_pattern_group(g, group_name,tmp, "S","landings")))
 save(pattern_Sfresh_landings,file="pattern_Sfresh_landings.rdata")
 ```
 
@@ -3343,12 +3346,12 @@ list_period1$hty[list_period1$estimable])
 list_period1[list_period1$estimable, c("lossq2.5", "lossq50","lossq97.5")] =
   t(res_closures)
 
-kable(list_period1[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")],
+kable_emu_loss_silvereel_fresh_p1=kable(na.omit(list_period1[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")]),
       col.names=c("emu","q2.5","median","q97.5"),
       caption="proportion of catch potentially lost because of EMP closure",
       digits=2)
 
-
+kable_emu_loss_silvereel_fresh_p1
 
 
 
@@ -3397,11 +3400,11 @@ list_period2$hty_code[list_period2$estimable])
 list_period2[list_period2$estimable, c("lossq2.5", "lossq50","lossq97.5")] =
   t(res_closures)
 
-kable(list_period2[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")],
+kable_emu_loss_silvereel_fresh_p2=kable(na.omit(list_period2[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")]),
       col.names=c("emu","q2.5","median","q97.5"),
       caption="proportion of catch potentially lost because of EU closure",
       digits=2)
-
+kable_emu_loss_silvereel_fresh_p2
 
 
 list_period2$type="EU closure"
@@ -3431,13 +3434,13 @@ effects_scenario=effects_scenario[order(effects_scenario$cluster,
                                         effects_scenario$starting_month_EU_closure),]
 
 
-kable(effects_scenario,row.names=FALSE,col.names=c("cluster",
+kable_emu_loss_silvereel_fresh_speculative=kable(effects_scenario,row.names=FALSE,col.names=c("cluster",
                                    "speculative 1st month of EU closure",
                                    "median loss of catch",
                                    "q2.5",
                                    "q97.5"), digits=2,
       caption="potential effect that an EU closure would have depending on cluster and starting month")
-
+kable_emu_loss_silvereel_fresh_speculative
 ```
 
 
@@ -3794,12 +3797,12 @@ myplots <-lapply(c("TC","C","T", "F"),function(hty){
   emu$cluster2 <- factor(myclassif_p2$cluster[match(emu$name_short,                                                gsub(paste("_",hty,sep=""),"",as.character(myclassif_p1$ser)))],
                        levels=1:7)
   p1 <- ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
-		  geom_sf(data=emu,aes(fill=cluster1)) + scale_fill_manual(values=cols)+
-      theme_igray() +xlim(-20,30) + ylim(35,65) +
+		  geom_sf(data=filter(emu,!is.na(cluster1)),aes(fill=cluster1)) + scale_fill_manual(values=cols)+
+      theme_igray() +xlim(-20,30) + ylim(35,65) +labs(fill="cluster")+
     ggtitle(paste("period 1",hty))
   p2 <- ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
-		  geom_sf(data=emu,aes(fill=cluster2)) + scale_fill_manual(values=cols)+
-    theme_igray() +xlim(-20,30) + ylim(35,65)  +
+		  geom_sf(data=filter(emu,!is.na(cluster2)),aes(fill=cluster2)) + scale_fill_manual(values=cols)+
+    theme_igray() +xlim(-20,30) + ylim(35,65) +labs(fill="cluster") +
     ggtitle(paste("period 2",hty))
   return(list(p1,p2))
 })
@@ -3848,3 +3851,28 @@ similarity=data.frame(emu=tocompare,t(simi))
 table_similarity(similarity)
 ```
 
+
+
+# Summary of data usage
+```{r}
+#glass eel
+nrow(glasseel_wide%>% group_by(emu_nameshort) %>% count())
+
+#yellow eel coastal/Marine
+nrow(yelloweel_coastal_wide%>%group_by(emu_nameshort)%>% count())
+
+#yellow eel transitional
+nrow(yelloweel_transitional_wide%>%group_by(emu_nameshort)%>% count())
+
+#yellow eel freshwater
+nrow(yelloweel_freshwater_wide%>%group_by(emu_nameshort)%>% count())
+
+#silver eel coastal
+nrow(silvereel_coastal_wide%>%group_by(emu_nameshort)%>% count())
+
+#silver eel fresh
+nrow(silvereel_freshwater_wide%>%group_by(emu_nameshort)%>% count())
+
+#YS
+nrow(YSeel_allhab_wide%>%group_by(emu_nameshort)%>% count())
+```

@@ -301,9 +301,10 @@ median_pattern_group = function(g, group_name,res_mat, lfs_code, type, hty_code=
   name <- group_name[g]
   ncar=nchar(name)
   if (is.null(hty_code)){
-    emu_nameshort=substr(name,start=1,stop=ncar-4)
-    period=substr(name,start=ncar,stop=ncar)
-    hty_code=substr(name,start=ncar-2,stop=ncar-2)
+    pieces=strsplit(name,"_")
+    emu_nameshort=sapply(pieces,function(x) paste(x[1],x[2],sep="_"))
+    period=sapply(pieces,function(x) substr(x[3],start=nchar(x[3]),stop=nchar(x[3])))
+    hty_code=sapply(pieces,function(x) substr(x[3],start=nchar(1),stop=nchar(x[3])-2))
   } else{
     emu_nameshort=substr(name,start=1,stop=ncar-2)
     period=substr(name,start=ncar,stop=ncar)

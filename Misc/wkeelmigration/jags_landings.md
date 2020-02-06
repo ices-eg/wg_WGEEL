@@ -1,5 +1,5 @@
 ---
-title: "Untitled"
+title: "JAGS SEASONALITY OF LANDINGS"
 author: "Hilaire Drouineau"
 date: "23 janvier 2020"
 output: 
@@ -8,8 +8,7 @@ output:
      toc: yes
   rmarkdown::md_document:
      toc: yes
-  rmarkdown::word_document:
-    toc: true
+
 ---
 
 
@@ -98,7 +97,7 @@ kept_seasons <- lapply(unique(glass_eel$emu_nameshort), function(s){
 ## [1] "For  GB_Wale  a good season should cover months: 2 to 6"
 ## [1] "For  ES_Mino  a good season should cover months: 11 to 3"
 ## [1] "For  ES_Vale  a good season should cover months: 12 to 3"
-## [1] "For ES_MINH not possible to define a season"
+## [1] "For ES_Minh not possible to define a season"
 ## [1] "For  ES_Cant  a good season should cover months: 11 to 3"
 ```
 
@@ -882,16 +881,16 @@ emu$cluster2 <- factor(myclassif_p2$cluster[match(emu$name_short,
                                                 substr(myclassif_p2$ser,1,nchar(as.character(myclassif_p2$ser))))],
                        levels=1:7)
 ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
-		geom_sf(data=emu,aes(fill=cluster1)) + scale_fill_manual(values=cols)+
-  theme_igray() +xlim(-20,30) + ylim(35,65) 
+		geom_sf(data=filter(emu,!is.na(cluster1)),aes(fill=cluster1)) + scale_fill_manual(values=cols)+
+  theme_igray() +xlim(-20,30) + ylim(35,65) +labs(fill="cluster")+labs(fill="cluster")
 ```
 
 ![](jags_landings_files/figure-html/unnamed-chunk-16-1.png)<!-- -->
 
 ```r
 ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
-		geom_sf(data=emu,aes(fill=cluster2)) + scale_fill_manual(values=cols)+
-  theme_igray() +xlim(-20,30) + ylim(35,65)  
+		geom_sf(data=filter(emu,!is.na(cluster2)),aes(fill=cluster2)) + scale_fill_manual(values=cols)+
+  theme_igray() +xlim(-20,30) + ylim(35,65) +labs(fill="cluster")+labs(fill="cluster") 
 ```
 
 ![](jags_landings_files/figure-html/unnamed-chunk-16-2.png)<!-- -->
@@ -1054,16 +1053,18 @@ res_closures=mapply(function(s,g) {
 list_period1[list_period1$estimable, c("lossq2.5", "lossq50","lossq97.5")] =
   t(res_closures)
 
-kable(list_period1[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")],
+kable_emu_loss_glass_eel_p1=kable(na.omit(list_period1[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")]),
       col.names=c("emu","q2.5","median","q97.5"),
       caption="proportion of catch potentially lost because of EMP closure",
       digits=2)
+kable_emu_loss_glass_eel_p1
 ```
 
 <table>
 <caption>proportion of catch potentially lost because of EMP closure</caption>
  <thead>
   <tr>
+   <th style="text-align:left;">   </th>
    <th style="text-align:left;"> emu </th>
    <th style="text-align:right;"> q2.5 </th>
    <th style="text-align:right;"> median </th>
@@ -1072,78 +1073,63 @@ kable(list_period1[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")],
  </thead>
 <tbody>
   <tr>
+   <td style="text-align:left;"> 1 </td>
    <td style="text-align:left;"> ES_Astu </td>
    <td style="text-align:right;"> 0.07 </td>
    <td style="text-align:right;"> 0.10 </td>
    <td style="text-align:right;"> 0.14 </td>
   </tr>
   <tr>
-   <td style="text-align:left;"> ES_Basq </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> ES_Cata </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-  </tr>
-  <tr>
+   <td style="text-align:left;"> 4 </td>
    <td style="text-align:left;"> FR_Adou </td>
    <td style="text-align:right;"> 0.04 </td>
    <td style="text-align:right;"> 0.05 </td>
    <td style="text-align:right;"> 0.07 </td>
   </tr>
   <tr>
+   <td style="text-align:left;"> 5 </td>
    <td style="text-align:left;"> FR_Arto </td>
    <td style="text-align:right;"> 0.11 </td>
    <td style="text-align:right;"> 0.14 </td>
    <td style="text-align:right;"> 0.17 </td>
   </tr>
   <tr>
+   <td style="text-align:left;"> 6 </td>
    <td style="text-align:left;"> FR_Bret </td>
    <td style="text-align:right;"> 0.06 </td>
    <td style="text-align:right;"> 0.08 </td>
    <td style="text-align:right;"> 0.11 </td>
   </tr>
   <tr>
+   <td style="text-align:left;"> 7 </td>
    <td style="text-align:left;"> FR_Garo </td>
    <td style="text-align:right;"> 0.07 </td>
    <td style="text-align:right;"> 0.09 </td>
    <td style="text-align:right;"> 0.12 </td>
   </tr>
   <tr>
+   <td style="text-align:left;"> 8 </td>
    <td style="text-align:left;"> FR_Loir </td>
    <td style="text-align:right;"> 0.04 </td>
    <td style="text-align:right;"> 0.04 </td>
    <td style="text-align:right;"> 0.06 </td>
   </tr>
   <tr>
-   <td style="text-align:left;"> FR_Sein </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> GB_NorW </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-  </tr>
-  <tr>
+   <td style="text-align:left;"> 11 </td>
    <td style="text-align:left;"> GB_Seve </td>
    <td style="text-align:right;"> 0.13 </td>
    <td style="text-align:right;"> 0.16 </td>
    <td style="text-align:right;"> 0.20 </td>
   </tr>
   <tr>
+   <td style="text-align:left;"> 12 </td>
    <td style="text-align:left;"> GB_SouW </td>
    <td style="text-align:right;"> 0.48 </td>
    <td style="text-align:right;"> 0.51 </td>
    <td style="text-align:right;"> 0.55 </td>
   </tr>
   <tr>
+   <td style="text-align:left;"> 13 </td>
    <td style="text-align:left;"> GB_Wale </td>
    <td style="text-align:right;"> 0.77 </td>
    <td style="text-align:right;"> 0.80 </td>
@@ -1193,16 +1179,18 @@ res_closures=mapply(function(s,g) {
 list_period2[list_period2$estimable, c("lossq2.5", "lossq50","lossq97.5")] =
   t(res_closures)
 
-kable(list_period2[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")],
+kable_emu_loss_glass_eel_p2=kable(na.omit(list_period2[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")]),
       col.names=c("emu","q2.5","median","q97.5"),
       caption="proportion of catch potentially lost because of EU closure",
       digits=2)
+kable_emu_loss_glass_eel_p2
 ```
 
 <table>
 <caption>proportion of catch potentially lost because of EU closure</caption>
  <thead>
   <tr>
+   <th style="text-align:left;">   </th>
    <th style="text-align:left;"> emu </th>
    <th style="text-align:right;"> q2.5 </th>
    <th style="text-align:right;"> median </th>
@@ -1211,78 +1199,7 @@ kable(list_period2[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")],
  </thead>
 <tbody>
   <tr>
-   <td style="text-align:left;"> ES_Astu </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> ES_Basq </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> ES_Cant </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> ES_Cata </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> ES_Mino </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> ES_Vale </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> FR_Adou </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> FR_Arto </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> FR_Bret </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> FR_Garo </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> FR_Loir </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> FR_Sein </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-  </tr>
-  <tr>
+   <td style="text-align:left;"> 13 </td>
    <td style="text-align:left;"> GB_SouW </td>
    <td style="text-align:right;"> 0.01 </td>
    <td style="text-align:right;"> 0.05 </td>
@@ -1319,12 +1236,13 @@ effects_scenario=effects_scenario[order(effects_scenario$cluster,
                                         effects_scenario$starting_month_EU_closure),]
 
 
-kable(effects_scenario,row.names=FALSE,col.names=c("cluster",
+kable_emu_loss_glass_eel_speculative=kable(effects_scenario,row.names=FALSE,col.names=c("cluster",
                                    "speculative 1st month of EU closure",
                                    "median loss of catch",
                                    "q2.5",
                                    "q97.5"), digits=2,
       caption="potential effect that an EU closure would have depending on cluster and starting month")
+kable_emu_loss_glass_eel_speculative
 ```
 
 <table>
@@ -2204,16 +2122,16 @@ emu$cluster2 <- factor(myclassif_p2$cluster[match(emu$name_short,
                                                 substr(myclassif_p2$ser,1,nchar(as.character(myclassif_p2$ser))-2))],
                        levels=1:7)
 ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
-		geom_sf(data=emu,aes(fill=cluster1)) + scale_fill_manual(values=cols)+
-  theme_igray() +xlim(-20,30) + ylim(35,65) 
+		geom_sf(data=filter(emu,!is.na(cluster1)),aes(fill=cluster1)) + scale_fill_manual(values=cols)+
+  theme_igray() +xlim(-20,30) + ylim(35,65) +labs(fill="cluster")+labs(fill="cluster")
 ```
 
 ![](jags_landings_files/figure-html/unnamed-chunk-34-1.png)<!-- -->
 
 ```r
 ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
-		geom_sf(data=emu,aes(fill=cluster2)) + scale_fill_manual(values=cols)+
-  theme_igray() +xlim(-20,30) + ylim(35,65)  
+		geom_sf(data=filter(emu,!is.na(cluster2)),aes(fill=cluster2)) + scale_fill_manual(values=cols)+
+  theme_igray() +xlim(-20,30) + ylim(35,65) +labs(fill="cluster") 
 ```
 
 ![](jags_landings_files/figure-html/unnamed-chunk-34-2.png)<!-- -->
@@ -2226,7 +2144,7 @@ name_col = colnames(tmp)
 
 pattern_Ycoast_landings=do.call("rbind.data.frame",
                                 lapply(seq_len(length(levels(groups))), function(g)
-                                   median_pattern_group(g, group_name,tmp, "Y","landings", hty_code="C")))
+                                   median_pattern_group(g, group_name,tmp, "Y","landings")))
 
 
 save(pattern_Ycoast_landings,file="pattern_Ycoast_landings.rdata")
@@ -2347,10 +2265,12 @@ list_period1$hty[list_period1$estimable])
 list_period1[list_period1$estimable, c("lossq2.5", "lossq50","lossq97.5")] =
   t(res_closures)
 
-kable(list_period1[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")],
+kable_emu_loss_yellow_eel_coastal_p1=kable(na.omit(list_period1[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")]),
       col.names=c("emu","q2.5","median","q97.5"),
       caption="proportion of catch potentially lost because of EMP closure",
       digits=2)
+
+kable_emu_loss_yellow_eel_coastal_p1
 ```
 
 <table>
@@ -2365,34 +2285,7 @@ kable(list_period1[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")],
  </thead>
 <tbody>
   <tr>
-   <td style="text-align:left;"> DE_Eide </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> NA </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> DE_Schl </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> NA </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> DK_total </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> NA </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> SE_East </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> NA </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> SE_West </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> NA </td>
+
   </tr>
 </tbody>
 </table>
@@ -2441,16 +2334,18 @@ list_period2$hty_code[list_period2$estimable])
 list_period2[list_period2$estimable, c("lossq2.5", "lossq50","lossq97.5")] =
   t(res_closures)
 
-kable(list_period2[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")],
+kable_emu_loss_yellow_eel_coastal_p2=kable(na.omit(list_period2[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")]),
       col.names=c("emu","q2.5","median","q97.5"),
       caption="proportion of catch potentially lost because of EU closure",
       digits=2)
+kable_emu_loss_yellow_eel_coastal_p2
 ```
 
 <table>
 <caption>proportion of catch potentially lost because of EU closure</caption>
  <thead>
   <tr>
+   <th style="text-align:left;">   </th>
    <th style="text-align:left;"> emu </th>
    <th style="text-align:right;"> q2.5 </th>
    <th style="text-align:right;"> median </th>
@@ -2459,48 +2354,49 @@ kable(list_period2[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")],
  </thead>
 <tbody>
   <tr>
+   <td style="text-align:left;"> 1 </td>
    <td style="text-align:left;"> DE_Eide </td>
    <td style="text-align:right;"> 0.01 </td>
    <td style="text-align:right;"> 0.02 </td>
    <td style="text-align:right;"> 0.03 </td>
   </tr>
   <tr>
+   <td style="text-align:left;"> 2 </td>
    <td style="text-align:left;"> DE_Schl </td>
    <td style="text-align:right;"> 0.02 </td>
    <td style="text-align:right;"> 0.03 </td>
    <td style="text-align:right;"> 0.04 </td>
   </tr>
   <tr>
+   <td style="text-align:left;"> 3 </td>
    <td style="text-align:left;"> DK_total </td>
    <td style="text-align:right;"> 0.07 </td>
    <td style="text-align:right;"> 0.10 </td>
    <td style="text-align:right;"> 0.14 </td>
   </tr>
   <tr>
-   <td style="text-align:left;"> ES_Murc </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-  </tr>
-  <tr>
+   <td style="text-align:left;"> 5 </td>
    <td style="text-align:left;"> GB_Angl </td>
    <td style="text-align:right;"> 0.00 </td>
    <td style="text-align:right;"> 0.01 </td>
    <td style="text-align:right;"> 0.02 </td>
   </tr>
   <tr>
+   <td style="text-align:left;"> 6 </td>
    <td style="text-align:left;"> GB_SouE </td>
    <td style="text-align:right;"> 0.00 </td>
    <td style="text-align:right;"> 0.01 </td>
    <td style="text-align:right;"> 0.02 </td>
   </tr>
   <tr>
+   <td style="text-align:left;"> 7 </td>
    <td style="text-align:left;"> GB_SouW </td>
    <td style="text-align:right;"> 0.00 </td>
    <td style="text-align:right;"> 0.01 </td>
    <td style="text-align:right;"> 0.01 </td>
   </tr>
   <tr>
+   <td style="text-align:left;"> 8 </td>
    <td style="text-align:left;"> SE_East </td>
    <td style="text-align:right;"> 0.02 </td>
    <td style="text-align:right;"> 0.06 </td>
@@ -2537,12 +2433,14 @@ effects_scenario=effects_scenario[order(effects_scenario$cluster,
                                         effects_scenario$starting_month_EU_closure),]
 
 
-kable(effects_scenario,row.names=FALSE,col.names=c("cluster",
+kable_emu_loss_yellow_eel_coastal_speculative=kable(effects_scenario,row.names=FALSE,col.names=c("cluster",
                                    "speculative 1st month of EU closure",
                                    "median loss of catch",
                                    "q2.5",
                                    "q97.5"), digits=2,
       caption="potential effect that an EU closure would have depending on cluster and starting month")
+
+kable_emu_loss_yellow_eel_coastal_speculative
 ```
 
 <table>
@@ -3286,16 +3184,16 @@ emu$cluster2 <- factor(myclassif_p2$cluster[match(emu$name_short,
                                                 substr(myclassif_p2$ser,1,nchar(as.character(myclassif_p2$ser))-2))],
                        levels=1:7)
 ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
-		geom_sf(data=emu,aes(fill=cluster1)) + scale_fill_manual(values=cols)+
-  theme_igray() +xlim(-20,30) + ylim(35,65) 
+		geom_sf(data=filter(emu,!is.na(cluster1)),aes(fill=cluster1)) + scale_fill_manual(values=cols)+
+  theme_igray() +xlim(-20,30) + ylim(35,65) +labs(fill="cluster")
 ```
 
 ![](jags_landings_files/figure-html/unnamed-chunk-50-1.png)<!-- -->
 
 ```r
 ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
-		geom_sf(data=emu,aes(fill=cluster2)) + scale_fill_manual(values=cols)+
-  theme_igray() +xlim(-20,30) + ylim(35,65)  
+		geom_sf(data=filter(emu,!is.na(cluster2)),aes(fill=cluster2)) + scale_fill_manual(values=cols)+
+  theme_igray() +xlim(-20,30) + ylim(35,65) +labs(fill="cluster") 
 ```
 
 ![](jags_landings_files/figure-html/unnamed-chunk-50-2.png)<!-- -->
@@ -3308,7 +3206,7 @@ name_col = colnames(tmp)
 
 pattern_Ytrans_landings=do.call("rbind.data.frame",
                                 lapply(seq_len(length(levels(groups))), function(g)
-                                   median_pattern_group(g, group_name,tmp, "Y","landings", hty_code="T")))
+                                   median_pattern_group(g, group_name,tmp, "Y","landings")))
 save(pattern_Ytrans_landings,file="pattern_Ytrans_landings.rdata")
 ```
 
@@ -3445,10 +3343,12 @@ list_period1$hty[list_period1$estimable])
 list_period1[list_period1$estimable, c("lossq2.5", "lossq50","lossq97.5")] =
   t(res_closures)
 
-kable(list_period1[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")],
+kable_emu_loss_yellow_eel_transitional_p1=kable(na.omit(list_period1[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")]),
       col.names=c("emu","q2.5","median","q97.5"),
       caption="proportion of catch potentially lost because of EMP closure",
       digits=2)
+
+kable_emu_loss_yellow_eel_transitional_p1
 ```
 
 <table>
@@ -3463,52 +3363,7 @@ kable(list_period1[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")],
  </thead>
 <tbody>
   <tr>
-   <td style="text-align:left;"> DE_Eide </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> NA </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> DE_Elbe </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> NA </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> FR_Adou </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> NA </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> FR_Bret </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> NA </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> FR_Garo </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> NA </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> FR_Loir </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> NA </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> FR_Sein </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> NA </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> NO_total </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> NA </td>
+
   </tr>
 </tbody>
 </table>
@@ -3557,16 +3412,18 @@ list_period2$hty_code[list_period2$estimable])
 list_period2[list_period2$estimable, c("lossq2.5", "lossq50","lossq97.5")] =
   t(res_closures)
 
-kable(list_period2[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")],
+kable_emu_loss_yellow_eel_transitional_p2=kable(na.omit(list_period2[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")]),
       col.names=c("emu","q2.5","median","q97.5"),
       caption="proportion of catch potentially lost because of EU closure",
       digits=2)
+kable_emu_loss_yellow_eel_transitional_p2
 ```
 
 <table>
 <caption>proportion of catch potentially lost because of EU closure</caption>
  <thead>
   <tr>
+   <th style="text-align:left;">   </th>
    <th style="text-align:left;"> emu </th>
    <th style="text-align:right;"> q2.5 </th>
    <th style="text-align:right;"> median </th>
@@ -3575,52 +3432,18 @@ kable(list_period2[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")],
  </thead>
 <tbody>
   <tr>
-   <td style="text-align:left;"> DE_Eide </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-  </tr>
-  <tr>
+   <td style="text-align:left;"> 2 </td>
    <td style="text-align:left;"> DE_Elbe </td>
    <td style="text-align:right;"> 0.03 </td>
    <td style="text-align:right;"> 0.05 </td>
    <td style="text-align:right;"> 0.07 </td>
   </tr>
   <tr>
-   <td style="text-align:left;"> FR_Adou </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> FR_Bret </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-  </tr>
-  <tr>
+   <td style="text-align:left;"> 5 </td>
    <td style="text-align:left;"> FR_Cors </td>
    <td style="text-align:right;"> 0.05 </td>
    <td style="text-align:right;"> 0.08 </td>
    <td style="text-align:right;"> 0.12 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> FR_Garo </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> FR_Loir </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> FR_Sein </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
   </tr>
 </tbody>
 </table>
@@ -3655,12 +3478,13 @@ effects_scenario=effects_scenario[order(effects_scenario$cluster,
                                         effects_scenario$starting_month_EU_closure),]
 
 
-kable(effects_scenario,row.names=FALSE,col.names=c("cluster",
+kable_emu_loss_yellow_eel_transitional_speculative=kable(effects_scenario,row.names=FALSE,col.names=c("cluster",
                                    "speculative 1st month of EU closure",
                                    "median loss of catch",
                                    "q2.5",
                                    "q97.5"), digits=2,
       caption="potential effect that an EU closure would have depending on cluster and starting month")
+kable_emu_loss_yellow_eel_transitional_speculative
 ```
 
 <table>
@@ -4452,16 +4276,16 @@ emu$cluster2 <- factor(myclassif_p2$cluster[match(emu$name_short,
                                                 substr(myclassif_p2$ser,1,nchar(as.character(myclassif_p2$ser))-2))],
                        levels=1:7)
 ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
-		geom_sf(data=emu,aes(fill=cluster1)) + scale_fill_manual(values=cols)+
-  theme_igray() +xlim(-20,30) + ylim(35,65) 
+		geom_sf(data=filter(emu,!is.na(cluster1)),aes(fill=cluster1)) + scale_fill_manual(values=cols)+
+  theme_igray() +xlim(-20,30) + ylim(35,65) +labs(fill="cluster")
 ```
 
 ![](jags_landings_files/figure-html/unnamed-chunk-66-1.png)<!-- -->
 
 ```r
 ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
-		geom_sf(data=emu,aes(fill=cluster2)) + scale_fill_manual(values=cols)+
-  theme_igray() +xlim(-20,30) + ylim(35,65)  
+		geom_sf(data=filter(emu,!is.na(cluster2)),aes(fill=cluster2)) + scale_fill_manual(values=cols)+
+  theme_igray() +xlim(-20,30) + ylim(35,65) +labs(fill="cluster") 
 ```
 
 ![](jags_landings_files/figure-html/unnamed-chunk-66-2.png)<!-- -->
@@ -4474,7 +4298,7 @@ name_col = colnames(tmp)
 
 pattern_Yfresh_landings=do.call("rbind.data.frame",
                                 lapply(seq_len(length(levels(groups))), function(g)
-                                   median_pattern_group(g, group_name,tmp, "Y","landings", hty_code="F")))
+                                   median_pattern_group(g, group_name,tmp, "Y","landings")))
 save(pattern_Yfresh_landings,file="pattern_Yfresh_landings.rdata")
 ```
 
@@ -4586,16 +4410,19 @@ list_period1$hty[list_period1$estimable])
 list_period1[list_period1$estimable, c("lossq2.5", "lossq50","lossq97.5")] =
   t(res_closures)
 
-kable(list_period1[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")],
+kable_emu_loss_yellow_eel_fresh_p1=kable(na.omit(list_period1[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")]),
       col.names=c("emu","q2.5","median","q97.5"),
       caption="proportion of catch potentially lost because of EMP closure",
       digits=2)
+
+kable_emu_loss_yellow_eel_fresh_p1
 ```
 
 <table>
 <caption>proportion of catch potentially lost because of EMP closure</caption>
  <thead>
   <tr>
+   <th style="text-align:left;">   </th>
    <th style="text-align:left;"> emu </th>
    <th style="text-align:right;"> q2.5 </th>
    <th style="text-align:right;"> median </th>
@@ -4604,46 +4431,25 @@ kable(list_period1[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")],
  </thead>
 <tbody>
   <tr>
-   <td style="text-align:left;"> DE_Eide </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> DE_Elbe </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> DE_Schl </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-  </tr>
-  <tr>
+   <td style="text-align:left;"> 4 </td>
    <td style="text-align:left;"> FR_Garo </td>
    <td style="text-align:right;"> 0.30 </td>
    <td style="text-align:right;"> 0.37 </td>
    <td style="text-align:right;"> 0.44 </td>
   </tr>
   <tr>
+   <td style="text-align:left;"> 5 </td>
    <td style="text-align:left;"> FR_Loir </td>
    <td style="text-align:right;"> 0.40 </td>
    <td style="text-align:right;"> 0.48 </td>
    <td style="text-align:right;"> 0.56 </td>
   </tr>
   <tr>
+   <td style="text-align:left;"> 6 </td>
    <td style="text-align:left;"> FR_Rhon </td>
    <td style="text-align:right;"> 0.28 </td>
    <td style="text-align:right;"> 0.36 </td>
    <td style="text-align:right;"> 0.46 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> IE_West </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
   </tr>
 </tbody>
 </table>
@@ -4692,16 +4498,18 @@ list_period2$hty_code[list_period2$estimable])
 list_period2[list_period2$estimable, c("lossq2.5", "lossq50","lossq97.5")] =
   t(res_closures)
 
-kable(list_period2[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")],
+kable_emu_loss_yellow_eel_fresh_p2=kable(na.omit(list_period2[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")]),
       col.names=c("emu","q2.5","median","q97.5"),
       caption="proportion of catch potentially lost because of EU closure",
       digits=2)
+kable_emu_loss_yellow_eel_fresh_p2
 ```
 
 <table>
 <caption>proportion of catch potentially lost because of EU closure</caption>
  <thead>
   <tr>
+   <th style="text-align:left;">   </th>
    <th style="text-align:left;"> emu </th>
    <th style="text-align:right;"> q2.5 </th>
    <th style="text-align:right;"> median </th>
@@ -4710,48 +4518,28 @@ kable(list_period2[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")],
  </thead>
 <tbody>
   <tr>
-   <td style="text-align:left;"> DE_Eide </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> DE_Elbe </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> DE_Schl </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> DE_Warn </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-  </tr>
-  <tr>
+   <td style="text-align:left;"> 5 </td>
    <td style="text-align:left;"> GB_Angl </td>
    <td style="text-align:right;"> 0.01 </td>
    <td style="text-align:right;"> 0.03 </td>
    <td style="text-align:right;"> 0.05 </td>
   </tr>
   <tr>
+   <td style="text-align:left;"> 6 </td>
    <td style="text-align:left;"> GB_Dee </td>
    <td style="text-align:right;"> 0.01 </td>
    <td style="text-align:right;"> 0.02 </td>
    <td style="text-align:right;"> 0.04 </td>
   </tr>
   <tr>
+   <td style="text-align:left;"> 7 </td>
    <td style="text-align:left;"> GB_NorW </td>
    <td style="text-align:right;"> 0.01 </td>
    <td style="text-align:right;"> 0.01 </td>
    <td style="text-align:right;"> 0.03 </td>
   </tr>
   <tr>
+   <td style="text-align:left;"> 8 </td>
    <td style="text-align:left;"> GB_Tham </td>
    <td style="text-align:right;"> 0.00 </td>
    <td style="text-align:right;"> 0.01 </td>
@@ -4790,12 +4578,13 @@ effects_scenario=effects_scenario[order(effects_scenario$cluster,
                                         effects_scenario$starting_month_EU_closure),]
 
 
-kable(effects_scenario,row.names=FALSE,col.names=c("cluster",
+kable_emu_loss_yellow_eel_fresh_speculative=kable(effects_scenario,row.names=FALSE,col.names=c("cluster",
                                    "speculative 1st month of EU closure",
                                    "median loss of catch",
                                    "q2.5",
                                    "q97.5"), digits=2,
       caption="potential effect that an EU closure would have depending on cluster and starting month")
+kable_emu_loss_yellow_eel_fresh_speculative
 ```
 
 <table>
@@ -6106,12 +5895,12 @@ myplots <-lapply(c("MO","C","T", "F"),function(hty){
   emu$cluster2 <- factor(myclassif_p2$cluster[match(emu$name_short,                                                substr(myclassif_p2$ser,1,nchar(as.character(myclassif_p2$ser))-2))],
                        levels=1:7)
   p1 <- ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
-		  geom_sf(data=emu,aes(fill=cluster1)) + scale_fill_manual(values=cols)+
-      theme_igray() +xlim(-20,30) + ylim(35,65) +
+		  geom_sf(data=filter(emu,!is.na(cluster1)),aes(fill=cluster1)) + scale_fill_manual(values=cols)+
+      theme_igray() +xlim(-20,30) + ylim(35,65) +labs(fill="cluster")+
     ggtitle(paste("period 1",hty))
   p2 <- ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
-		  geom_sf(data=emu,aes(fill=cluster2)) + scale_fill_manual(values=cols)+
-    theme_igray() +xlim(-20,30) + ylim(35,65)  +
+		  geom_sf(data=filter(emu,!is.na(cluster2)),aes(fill=cluster2)) + scale_fill_manual(values=cols)+
+    theme_igray() +xlim(-20,30) + ylim(35,65) +labs(fill="cluster") +
     ggtitle(paste("period 2",hty))
   return(list(p1,p2))
 })
@@ -6120,24 +5909,46 @@ print(myplots[[1]][[1]])
 ```
 
 ```
-## Simple feature collection with 54 features and 1 field
+## Simple feature collection with 251 features and 11 fields
 ## geometry type:  MULTIPOLYGON
 ## dimension:      XY
-## bbox:           xmin: -31.26575 ymin: 32.39748 xmax: 69.07032 ymax: 81.85737
+## bbox:           xmin: -180 ymin: -90 xmax: 180 ymax: 83.6236
 ## epsg (SRID):    4326
 ## proj4string:    +proj=longlat +datum=WGS84 +no_defs
 ## First 10 features:
-##                  NAME                       geometry
-## 1             Albania MULTIPOLYGON (((19.50115 40...
-## 2             Andorra MULTIPOLYGON (((1.439922 42...
-## 3             Austria MULTIPOLYGON (((16 48.77775...
-## 4             Belgium MULTIPOLYGON (((5 49.79374,...
-## 5  Bosnia Herzegovina MULTIPOLYGON (((19.22947 43...
-## 6             Croatia MULTIPOLYGON (((14.30038 44...
-## 7      Czech Republic MULTIPOLYGON (((14.82523 50...
-## 8             Denmark MULTIPOLYGON (((11.99978 54...
-## 9             Estonia MULTIPOLYGON (((23.97511 58...
-## 10            Finland MULTIPOLYGON (((22.0731 60....
+##    FIPS_CNTRY GMI_CNTRY          CNTRY_NAME           SOVEREIGN POP_CNTRY
+## 1          AA       ABW               Aruba         Netherlands     67074
+## 2          AC       ATG Antigua and Barbuda Antigua and Barbuda     65212
+## 3          AF       AFG         Afghanistan         Afghanistan  17250390
+## 4          AG       DZA             Algeria             Algeria  27459230
+## 5          AJ       AZE          Azerbaijan          Azerbaijan   5487866
+## 6          AL       ALB             Albania             Albania   3416945
+## 7          AM       ARM             Armenia             Armenia   3377228
+## 8          AN       AND             Andorra             Andorra     55335
+## 9          AO       AGO              Angola              Angola  11527260
+## 10         AQ       ASM      American Samoa       United States     53000
+##     SQKM_CNTRY SQMI_CNTRY CURR_TYPE CURR_CODE LANDLOCKED COLOR_MAP
+## 1      182.926     70.628    Florin       AWG          N         1
+## 2      462.378    178.524 EC Dollar       XCD          N         2
+## 3   641869.188 247825.703   Afghani       AFA          Y         3
+## 4  2320972.000 896127.312     Dinar       DZD          N         3
+## 5    85808.203  33130.551     Manat      <NA>          Y         4
+## 6    28754.500  11102.110       Lek       ALL          N         6
+## 7    29872.461  11533.760      Dram      <NA>          Y         7
+## 8      452.485    174.704    Peseta       ADP          Y         8
+## 9  1252421.000 483559.812    Kwanza       AOK          N         1
+## 10     186.895     72.160 US Dollar       USD          N         2
+##                          geometry
+## 1  MULTIPOLYGON (((-69.88223 1...
+## 2  MULTIPOLYGON (((-61.73889 1...
+## 3  MULTIPOLYGON (((61.27656 35...
+## 4  MULTIPOLYGON (((-5.152135 3...
+## 5  MULTIPOLYGON (((46.54037 38...
+## 6  MULTIPOLYGON (((20.79192 40...
+## 7  MULTIPOLYGON (((46.54037 38...
+## 8  MULTIPOLYGON (((1.445833 42...
+## 9  MULTIPOLYGON (((13.09139 -4...
+## 10 MULTIPOLYGON (((-170.7439 -...
 ```
 
 ```r
@@ -6163,24 +5974,46 @@ print(myplots[[2]][[1]])
 ```
 
 ```
-## Simple feature collection with 54 features and 1 field
+## Simple feature collection with 251 features and 11 fields
 ## geometry type:  MULTIPOLYGON
 ## dimension:      XY
-## bbox:           xmin: -31.26575 ymin: 32.39748 xmax: 69.07032 ymax: 81.85737
+## bbox:           xmin: -180 ymin: -90 xmax: 180 ymax: 83.6236
 ## epsg (SRID):    4326
 ## proj4string:    +proj=longlat +datum=WGS84 +no_defs
 ## First 10 features:
-##                  NAME                       geometry
-## 1             Albania MULTIPOLYGON (((19.50115 40...
-## 2             Andorra MULTIPOLYGON (((1.439922 42...
-## 3             Austria MULTIPOLYGON (((16 48.77775...
-## 4             Belgium MULTIPOLYGON (((5 49.79374,...
-## 5  Bosnia Herzegovina MULTIPOLYGON (((19.22947 43...
-## 6             Croatia MULTIPOLYGON (((14.30038 44...
-## 7      Czech Republic MULTIPOLYGON (((14.82523 50...
-## 8             Denmark MULTIPOLYGON (((11.99978 54...
-## 9             Estonia MULTIPOLYGON (((23.97511 58...
-## 10            Finland MULTIPOLYGON (((22.0731 60....
+##    FIPS_CNTRY GMI_CNTRY          CNTRY_NAME           SOVEREIGN POP_CNTRY
+## 1          AA       ABW               Aruba         Netherlands     67074
+## 2          AC       ATG Antigua and Barbuda Antigua and Barbuda     65212
+## 3          AF       AFG         Afghanistan         Afghanistan  17250390
+## 4          AG       DZA             Algeria             Algeria  27459230
+## 5          AJ       AZE          Azerbaijan          Azerbaijan   5487866
+## 6          AL       ALB             Albania             Albania   3416945
+## 7          AM       ARM             Armenia             Armenia   3377228
+## 8          AN       AND             Andorra             Andorra     55335
+## 9          AO       AGO              Angola              Angola  11527260
+## 10         AQ       ASM      American Samoa       United States     53000
+##     SQKM_CNTRY SQMI_CNTRY CURR_TYPE CURR_CODE LANDLOCKED COLOR_MAP
+## 1      182.926     70.628    Florin       AWG          N         1
+## 2      462.378    178.524 EC Dollar       XCD          N         2
+## 3   641869.188 247825.703   Afghani       AFA          Y         3
+## 4  2320972.000 896127.312     Dinar       DZD          N         3
+## 5    85808.203  33130.551     Manat      <NA>          Y         4
+## 6    28754.500  11102.110       Lek       ALL          N         6
+## 7    29872.461  11533.760      Dram      <NA>          Y         7
+## 8      452.485    174.704    Peseta       ADP          Y         8
+## 9  1252421.000 483559.812    Kwanza       AOK          N         1
+## 10     186.895     72.160 US Dollar       USD          N         2
+##                          geometry
+## 1  MULTIPOLYGON (((-69.88223 1...
+## 2  MULTIPOLYGON (((-61.73889 1...
+## 3  MULTIPOLYGON (((61.27656 35...
+## 4  MULTIPOLYGON (((-5.152135 3...
+## 5  MULTIPOLYGON (((46.54037 38...
+## 6  MULTIPOLYGON (((20.79192 40...
+## 7  MULTIPOLYGON (((46.54037 38...
+## 8  MULTIPOLYGON (((1.445833 42...
+## 9  MULTIPOLYGON (((13.09139 -4...
+## 10 MULTIPOLYGON (((-170.7439 -...
 ```
 
 ```r
@@ -6206,24 +6039,46 @@ print(myplots[[3]][[1]])
 ```
 
 ```
-## Simple feature collection with 54 features and 1 field
+## Simple feature collection with 251 features and 11 fields
 ## geometry type:  MULTIPOLYGON
 ## dimension:      XY
-## bbox:           xmin: -31.26575 ymin: 32.39748 xmax: 69.07032 ymax: 81.85737
+## bbox:           xmin: -180 ymin: -90 xmax: 180 ymax: 83.6236
 ## epsg (SRID):    4326
 ## proj4string:    +proj=longlat +datum=WGS84 +no_defs
 ## First 10 features:
-##                  NAME                       geometry
-## 1             Albania MULTIPOLYGON (((19.50115 40...
-## 2             Andorra MULTIPOLYGON (((1.439922 42...
-## 3             Austria MULTIPOLYGON (((16 48.77775...
-## 4             Belgium MULTIPOLYGON (((5 49.79374,...
-## 5  Bosnia Herzegovina MULTIPOLYGON (((19.22947 43...
-## 6             Croatia MULTIPOLYGON (((14.30038 44...
-## 7      Czech Republic MULTIPOLYGON (((14.82523 50...
-## 8             Denmark MULTIPOLYGON (((11.99978 54...
-## 9             Estonia MULTIPOLYGON (((23.97511 58...
-## 10            Finland MULTIPOLYGON (((22.0731 60....
+##    FIPS_CNTRY GMI_CNTRY          CNTRY_NAME           SOVEREIGN POP_CNTRY
+## 1          AA       ABW               Aruba         Netherlands     67074
+## 2          AC       ATG Antigua and Barbuda Antigua and Barbuda     65212
+## 3          AF       AFG         Afghanistan         Afghanistan  17250390
+## 4          AG       DZA             Algeria             Algeria  27459230
+## 5          AJ       AZE          Azerbaijan          Azerbaijan   5487866
+## 6          AL       ALB             Albania             Albania   3416945
+## 7          AM       ARM             Armenia             Armenia   3377228
+## 8          AN       AND             Andorra             Andorra     55335
+## 9          AO       AGO              Angola              Angola  11527260
+## 10         AQ       ASM      American Samoa       United States     53000
+##     SQKM_CNTRY SQMI_CNTRY CURR_TYPE CURR_CODE LANDLOCKED COLOR_MAP
+## 1      182.926     70.628    Florin       AWG          N         1
+## 2      462.378    178.524 EC Dollar       XCD          N         2
+## 3   641869.188 247825.703   Afghani       AFA          Y         3
+## 4  2320972.000 896127.312     Dinar       DZD          N         3
+## 5    85808.203  33130.551     Manat      <NA>          Y         4
+## 6    28754.500  11102.110       Lek       ALL          N         6
+## 7    29872.461  11533.760      Dram      <NA>          Y         7
+## 8      452.485    174.704    Peseta       ADP          Y         8
+## 9  1252421.000 483559.812    Kwanza       AOK          N         1
+## 10     186.895     72.160 US Dollar       USD          N         2
+##                          geometry
+## 1  MULTIPOLYGON (((-69.88223 1...
+## 2  MULTIPOLYGON (((-61.73889 1...
+## 3  MULTIPOLYGON (((61.27656 35...
+## 4  MULTIPOLYGON (((-5.152135 3...
+## 5  MULTIPOLYGON (((46.54037 38...
+## 6  MULTIPOLYGON (((20.79192 40...
+## 7  MULTIPOLYGON (((46.54037 38...
+## 8  MULTIPOLYGON (((1.445833 42...
+## 9  MULTIPOLYGON (((13.09139 -4...
+## 10 MULTIPOLYGON (((-170.7439 -...
 ```
 
 ```r
@@ -6249,24 +6104,46 @@ print(myplots[[4]][[1]])
 ```
 
 ```
-## Simple feature collection with 54 features and 1 field
+## Simple feature collection with 251 features and 11 fields
 ## geometry type:  MULTIPOLYGON
 ## dimension:      XY
-## bbox:           xmin: -31.26575 ymin: 32.39748 xmax: 69.07032 ymax: 81.85737
+## bbox:           xmin: -180 ymin: -90 xmax: 180 ymax: 83.6236
 ## epsg (SRID):    4326
 ## proj4string:    +proj=longlat +datum=WGS84 +no_defs
 ## First 10 features:
-##                  NAME                       geometry
-## 1             Albania MULTIPOLYGON (((19.50115 40...
-## 2             Andorra MULTIPOLYGON (((1.439922 42...
-## 3             Austria MULTIPOLYGON (((16 48.77775...
-## 4             Belgium MULTIPOLYGON (((5 49.79374,...
-## 5  Bosnia Herzegovina MULTIPOLYGON (((19.22947 43...
-## 6             Croatia MULTIPOLYGON (((14.30038 44...
-## 7      Czech Republic MULTIPOLYGON (((14.82523 50...
-## 8             Denmark MULTIPOLYGON (((11.99978 54...
-## 9             Estonia MULTIPOLYGON (((23.97511 58...
-## 10            Finland MULTIPOLYGON (((22.0731 60....
+##    FIPS_CNTRY GMI_CNTRY          CNTRY_NAME           SOVEREIGN POP_CNTRY
+## 1          AA       ABW               Aruba         Netherlands     67074
+## 2          AC       ATG Antigua and Barbuda Antigua and Barbuda     65212
+## 3          AF       AFG         Afghanistan         Afghanistan  17250390
+## 4          AG       DZA             Algeria             Algeria  27459230
+## 5          AJ       AZE          Azerbaijan          Azerbaijan   5487866
+## 6          AL       ALB             Albania             Albania   3416945
+## 7          AM       ARM             Armenia             Armenia   3377228
+## 8          AN       AND             Andorra             Andorra     55335
+## 9          AO       AGO              Angola              Angola  11527260
+## 10         AQ       ASM      American Samoa       United States     53000
+##     SQKM_CNTRY SQMI_CNTRY CURR_TYPE CURR_CODE LANDLOCKED COLOR_MAP
+## 1      182.926     70.628    Florin       AWG          N         1
+## 2      462.378    178.524 EC Dollar       XCD          N         2
+## 3   641869.188 247825.703   Afghani       AFA          Y         3
+## 4  2320972.000 896127.312     Dinar       DZD          N         3
+## 5    85808.203  33130.551     Manat      <NA>          Y         4
+## 6    28754.500  11102.110       Lek       ALL          N         6
+## 7    29872.461  11533.760      Dram      <NA>          Y         7
+## 8      452.485    174.704    Peseta       ADP          Y         8
+## 9  1252421.000 483559.812    Kwanza       AOK          N         1
+## 10     186.895     72.160 US Dollar       USD          N         2
+##                          geometry
+## 1  MULTIPOLYGON (((-69.88223 1...
+## 2  MULTIPOLYGON (((-61.73889 1...
+## 3  MULTIPOLYGON (((61.27656 35...
+## 4  MULTIPOLYGON (((-5.152135 3...
+## 5  MULTIPOLYGON (((46.54037 38...
+## 6  MULTIPOLYGON (((20.79192 40...
+## 7  MULTIPOLYGON (((46.54037 38...
+## 8  MULTIPOLYGON (((1.445833 42...
+## 9  MULTIPOLYGON (((13.09139 -4...
+## 10 MULTIPOLYGON (((-170.7439 -...
 ```
 
 ```r
@@ -6825,7 +6702,7 @@ pat <-get_pattern_month(myfit_silvereel_coastal_landings)
 clus_order=c("1","3","4","2")
 pat$cluster <- factor(match(pat$cluster, clus_order),
                       levels=as.character(1:7))
-ggplot(pat,aes(x=month,y=proportion))+
+ggplot(pat,aes(x=month,y=proportion))+scale_fill_manual(values=cols)+
   geom_boxplot(aes(fill=cluster),outlier.shape=NA)+facet_wrap(.~cluster, ncol=1) +
   theme_igray()
 ```
@@ -7141,12 +7018,12 @@ myplots <-lapply(c("MO","C","T"),function(hty){
   emu$cluster2 <- factor(myclassif_p2$cluster[match(emu$name_short,                                                gsub(paste("_",hty,sep=""),"",myclassif_p2$ser))],
                        levels=1:7)
   p1 <- ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
-		  geom_sf(data=emu,aes(fill=cluster1)) + scale_fill_manual(values=cols)+
-      theme_igray() +xlim(-20,30) + ylim(35,65) +
+		  geom_sf(data=filter(emu,!is.na(cluster1)),aes(fill=cluster1)) + scale_fill_manual(values=cols)+
+      theme_igray() +xlim(-20,30) + ylim(35,65) +labs(fill="cluster")+
     ggtitle(paste("period 1",hty))
   p2 <- ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
-		  geom_sf(data=emu,aes(fill=cluster2)) + scale_fill_manual(values=cols)+
-    theme_igray() +xlim(-20,30) + ylim(35,65)  +
+		  geom_sf(data=filter(emu,!is.na(cluster2)),aes(fill=cluster2)) + scale_fill_manual(values=cols)+
+    theme_igray() +xlim(-20,30) + ylim(35,65) +labs(fill="cluster") +
     ggtitle(paste("period 2",hty))
   return(list(p1,p2))
 })
@@ -7311,10 +7188,13 @@ list_period1$hty[list_period1$estimable])
 list_period1[list_period1$estimable, c("lossq2.5", "lossq50","lossq97.5")] =
   t(res_closures)
 
-kable(list_period1[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")],
+kable_emu_loss_silvereel_coastal_p1=kable(na.omit(list_period1[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")]),
       col.names=c("emu","q2.5","median","q97.5"),
       caption="proportion of catch potentially lost because of EMP closure",
       digits=2)
+
+
+kable_emu_loss_silvereel_coastal_p1
 ```
 
 <table>
@@ -7329,46 +7209,7 @@ kable(list_period1[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")],
  </thead>
 <tbody>
   <tr>
-   <td style="text-align:left;"> DE_Eide </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> NA </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> DE_Eide </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> NA </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> DE_Elbe </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> NA </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> DE_Schl </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> NA </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> DK_total </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> NA </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> SE_East </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> NA </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> SE_West </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> NA </td>
-   <td style="text-align:left;"> NA </td>
+
   </tr>
 </tbody>
 </table>
@@ -7417,16 +7258,18 @@ list_period2$hty_code[list_period2$estimable])
 list_period2[list_period2$estimable, c("lossq2.5", "lossq50","lossq97.5")] =
   t(res_closures)
 
-kable(list_period2[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")],
+kable_emu_loss_silvereel_coastal_p2=kable(na.omit(list_period2[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")]),
       col.names=c("emu","q2.5","median","q97.5"),
       caption="proportion of catch potentially lost because of EU closure",
       digits=2)
+kable_emu_loss_silvereel_coastal_p2
 ```
 
 <table>
 <caption>proportion of catch potentially lost because of EU closure</caption>
  <thead>
   <tr>
+   <th style="text-align:left;">   </th>
    <th style="text-align:left;"> emu </th>
    <th style="text-align:right;"> q2.5 </th>
    <th style="text-align:right;"> median </th>
@@ -7435,66 +7278,56 @@ kable(list_period2[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")],
  </thead>
 <tbody>
   <tr>
+   <td style="text-align:left;"> 1 </td>
    <td style="text-align:left;"> DE_Eide </td>
    <td style="text-align:right;"> 0.02 </td>
    <td style="text-align:right;"> 0.03 </td>
    <td style="text-align:right;"> 0.04 </td>
   </tr>
   <tr>
-   <td style="text-align:left;"> DE_Eide </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-  </tr>
-  <tr>
+   <td style="text-align:left;"> 3 </td>
    <td style="text-align:left;"> DE_Elbe </td>
    <td style="text-align:right;"> 0.01 </td>
    <td style="text-align:right;"> 0.02 </td>
    <td style="text-align:right;"> 0.03 </td>
   </tr>
   <tr>
+   <td style="text-align:left;"> 4 </td>
    <td style="text-align:left;"> DE_Schl </td>
    <td style="text-align:right;"> 0.03 </td>
    <td style="text-align:right;"> 0.05 </td>
    <td style="text-align:right;"> 0.07 </td>
   </tr>
   <tr>
+   <td style="text-align:left;"> 5 </td>
    <td style="text-align:left;"> DK_total </td>
    <td style="text-align:right;"> 0.25 </td>
    <td style="text-align:right;"> 0.32 </td>
    <td style="text-align:right;"> 0.39 </td>
   </tr>
   <tr>
-   <td style="text-align:left;"> ES_Murc </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> FR_Cors </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-  </tr>
-  <tr>
+   <td style="text-align:left;"> 8 </td>
    <td style="text-align:left;"> GB_Angl </td>
    <td style="text-align:right;"> 0.00 </td>
    <td style="text-align:right;"> 0.02 </td>
    <td style="text-align:right;"> 0.05 </td>
   </tr>
   <tr>
+   <td style="text-align:left;"> 9 </td>
    <td style="text-align:left;"> GB_SouE </td>
    <td style="text-align:right;"> 0.00 </td>
    <td style="text-align:right;"> 0.01 </td>
    <td style="text-align:right;"> 0.03 </td>
   </tr>
   <tr>
+   <td style="text-align:left;"> 10 </td>
    <td style="text-align:left;"> GB_SouW </td>
    <td style="text-align:right;"> 0.00 </td>
    <td style="text-align:right;"> 0.01 </td>
    <td style="text-align:right;"> 0.02 </td>
   </tr>
   <tr>
+   <td style="text-align:left;"> 11 </td>
    <td style="text-align:left;"> SE_East </td>
    <td style="text-align:right;"> 0.11 </td>
    <td style="text-align:right;"> 0.18 </td>
@@ -7533,12 +7366,13 @@ effects_scenario=effects_scenario[order(effects_scenario$cluster,
                                         effects_scenario$starting_month_EU_closure),]
 
 
-kable(effects_scenario,row.names=FALSE,col.names=c("cluster",
+kable_emu_loss_silvereel_coastal_speculative=kable(effects_scenario,row.names=FALSE,col.names=c("cluster",
                                    "speculative 1st month of EU closure",
                                    "median loss of catch",
                                    "q2.5",
                                    "q97.5"), digits=2,
       caption="potential effect that an EU closure would have depending on cluster and starting month")
+kable_emu_loss_silvereel_coastal_speculative
 ```
 
 <table>
@@ -8380,16 +8214,16 @@ emu$cluster2 <- factor(myclassif_p2$cluster[match(emu$name_short,
                                                 substr(myclassif_p2$ser,1,nchar(as.character(myclassif_p2$ser))-2))],
                        levels=1:7)
 ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
-		geom_sf(data=emu,aes(fill=cluster1)) + scale_fill_manual(values=cols)+
-  theme_igray() +xlim(-20,30) + ylim(35,65) 
+		geom_sf(data=filter(emu,!is.na(cluster1)),aes(fill=cluster1)) + scale_fill_manual(values=cols)+
+  theme_igray() +xlim(-20,30) + ylim(35,65) +labs(fill="cluster")
 ```
 
 ![](jags_landings_files/figure-html/unnamed-chunk-114-1.png)<!-- -->
 
 ```r
 ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
-		geom_sf(data=emu,aes(fill=cluster2)) + scale_fill_manual(values=cols)+
-  theme_igray() +xlim(-20,30) + ylim(35,65)  
+		geom_sf(data=filter(emu,!is.na(cluster2)),aes(fill=cluster2)) + scale_fill_manual(values=cols)+
+  theme_igray() +xlim(-20,30) + ylim(35,65) +labs(fill="cluster") 
 ```
 
 ![](jags_landings_files/figure-html/unnamed-chunk-114-2.png)<!-- -->
@@ -8403,7 +8237,7 @@ name_col = colnames(tmp)
 
 pattern_Sfresh_landings=do.call("rbind.data.frame",
                                 lapply(seq_len(length(levels(groups))), function(g)
-                                   median_pattern_group(g, group_name,tmp, "Y","landings")))
+                                   median_pattern_group(g, group_name,tmp, "S","landings")))
 save(pattern_Sfresh_landings,file="pattern_Sfresh_landings.rdata")
 ```
 
@@ -8527,16 +8361,19 @@ list_period1$hty[list_period1$estimable])
 list_period1[list_period1$estimable, c("lossq2.5", "lossq50","lossq97.5")] =
   t(res_closures)
 
-kable(list_period1[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")],
+kable_emu_loss_silvereel_fresh_p1=kable(na.omit(list_period1[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")]),
       col.names=c("emu","q2.5","median","q97.5"),
       caption="proportion of catch potentially lost because of EMP closure",
       digits=2)
+
+kable_emu_loss_silvereel_fresh_p1
 ```
 
 <table>
 <caption>proportion of catch potentially lost because of EMP closure</caption>
  <thead>
   <tr>
+   <th style="text-align:left;">   </th>
    <th style="text-align:left;"> emu </th>
    <th style="text-align:right;"> q2.5 </th>
    <th style="text-align:right;"> median </th>
@@ -8545,34 +8382,11 @@ kable(list_period1[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")],
  </thead>
 <tbody>
   <tr>
-   <td style="text-align:left;"> DE_Eide </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> DE_Elbe </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> DE_Schl </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-  </tr>
-  <tr>
+   <td style="text-align:left;"> 4 </td>
    <td style="text-align:left;"> FR_Loir </td>
    <td style="text-align:right;"> 0.13 </td>
    <td style="text-align:right;"> 0.17 </td>
    <td style="text-align:right;"> 0.21 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> SE_Inla </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
   </tr>
 </tbody>
 </table>
@@ -8621,16 +8435,18 @@ list_period2$hty_code[list_period2$estimable])
 list_period2[list_period2$estimable, c("lossq2.5", "lossq50","lossq97.5")] =
   t(res_closures)
 
-kable(list_period2[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")],
+kable_emu_loss_silvereel_fresh_p2=kable(na.omit(list_period2[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")]),
       col.names=c("emu","q2.5","median","q97.5"),
       caption="proportion of catch potentially lost because of EU closure",
       digits=2)
+kable_emu_loss_silvereel_fresh_p2
 ```
 
 <table>
 <caption>proportion of catch potentially lost because of EU closure</caption>
  <thead>
   <tr>
+   <th style="text-align:left;">   </th>
    <th style="text-align:left;"> emu </th>
    <th style="text-align:right;"> q2.5 </th>
    <th style="text-align:right;"> median </th>
@@ -8639,70 +8455,39 @@ kable(list_period2[,c("emu_nameshort","lossq2.5","lossq50","lossq97.5")],
  </thead>
 <tbody>
   <tr>
-   <td style="text-align:left;"> DE_Eide </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> DE_Elbe </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> DE_Schl </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> DE_Warn </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> FR_Loir </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-  </tr>
-  <tr>
+   <td style="text-align:left;"> 6 </td>
    <td style="text-align:left;"> GB_Angl </td>
    <td style="text-align:right;"> 0.03 </td>
    <td style="text-align:right;"> 0.07 </td>
    <td style="text-align:right;"> 0.12 </td>
   </tr>
   <tr>
+   <td style="text-align:left;"> 7 </td>
    <td style="text-align:left;"> GB_Humb </td>
    <td style="text-align:right;"> 0.03 </td>
    <td style="text-align:right;"> 0.11 </td>
    <td style="text-align:right;"> 0.22 </td>
   </tr>
   <tr>
+   <td style="text-align:left;"> 8 </td>
    <td style="text-align:left;"> GB_SouE </td>
    <td style="text-align:right;"> 0.02 </td>
    <td style="text-align:right;"> 0.07 </td>
    <td style="text-align:right;"> 0.15 </td>
   </tr>
   <tr>
+   <td style="text-align:left;"> 9 </td>
    <td style="text-align:left;"> GB_SouW </td>
    <td style="text-align:right;"> 0.01 </td>
    <td style="text-align:right;"> 0.02 </td>
    <td style="text-align:right;"> 0.06 </td>
   </tr>
   <tr>
+   <td style="text-align:left;"> 10 </td>
    <td style="text-align:left;"> GB_Tham </td>
    <td style="text-align:right;"> 0.00 </td>
    <td style="text-align:right;"> 0.01 </td>
    <td style="text-align:right;"> 0.02 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> SE_Inla </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
   </tr>
 </tbody>
 </table>
@@ -8735,12 +8520,13 @@ effects_scenario=effects_scenario[order(effects_scenario$cluster,
                                         effects_scenario$starting_month_EU_closure),]
 
 
-kable(effects_scenario,row.names=FALSE,col.names=c("cluster",
+kable_emu_loss_silvereel_fresh_speculative=kable(effects_scenario,row.names=FALSE,col.names=c("cluster",
                                    "speculative 1st month of EU closure",
                                    "median loss of catch",
                                    "q2.5",
                                    "q97.5"), digits=2,
       caption="potential effect that an EU closure would have depending on cluster and starting month")
+kable_emu_loss_silvereel_fresh_speculative
 ```
 
 <table>
@@ -10454,12 +10240,12 @@ myplots <-lapply(c("TC","C","T", "F"),function(hty){
   emu$cluster2 <- factor(myclassif_p2$cluster[match(emu$name_short,                                                gsub(paste("_",hty,sep=""),"",as.character(myclassif_p1$ser)))],
                        levels=1:7)
   p1 <- ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
-		  geom_sf(data=emu,aes(fill=cluster1)) + scale_fill_manual(values=cols)+
-      theme_igray() +xlim(-20,30) + ylim(35,65) +
+		  geom_sf(data=filter(emu,!is.na(cluster1)),aes(fill=cluster1)) + scale_fill_manual(values=cols)+
+      theme_igray() +xlim(-20,30) + ylim(35,65) +labs(fill="cluster")+
     ggtitle(paste("period 1",hty))
   p2 <- ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
-		  geom_sf(data=emu,aes(fill=cluster2)) + scale_fill_manual(values=cols)+
-    theme_igray() +xlim(-20,30) + ylim(35,65)  +
+		  geom_sf(data=filter(emu,!is.na(cluster2)),aes(fill=cluster2)) + scale_fill_manual(values=cols)+
+    theme_igray() +xlim(-20,30) + ylim(35,65) +labs(fill="cluster") +
     ggtitle(paste("period 2",hty))
   return(list(p1,p2))
 })
@@ -10468,24 +10254,46 @@ print(myplots[[1]][[1]])
 ```
 
 ```
-## Simple feature collection with 54 features and 1 field
+## Simple feature collection with 251 features and 11 fields
 ## geometry type:  MULTIPOLYGON
 ## dimension:      XY
-## bbox:           xmin: -31.26575 ymin: 32.39748 xmax: 69.07032 ymax: 81.85737
+## bbox:           xmin: -180 ymin: -90 xmax: 180 ymax: 83.6236
 ## epsg (SRID):    4326
 ## proj4string:    +proj=longlat +datum=WGS84 +no_defs
 ## First 10 features:
-##                  NAME                       geometry
-## 1             Albania MULTIPOLYGON (((19.50115 40...
-## 2             Andorra MULTIPOLYGON (((1.439922 42...
-## 3             Austria MULTIPOLYGON (((16 48.77775...
-## 4             Belgium MULTIPOLYGON (((5 49.79374,...
-## 5  Bosnia Herzegovina MULTIPOLYGON (((19.22947 43...
-## 6             Croatia MULTIPOLYGON (((14.30038 44...
-## 7      Czech Republic MULTIPOLYGON (((14.82523 50...
-## 8             Denmark MULTIPOLYGON (((11.99978 54...
-## 9             Estonia MULTIPOLYGON (((23.97511 58...
-## 10            Finland MULTIPOLYGON (((22.0731 60....
+##    FIPS_CNTRY GMI_CNTRY          CNTRY_NAME           SOVEREIGN POP_CNTRY
+## 1          AA       ABW               Aruba         Netherlands     67074
+## 2          AC       ATG Antigua and Barbuda Antigua and Barbuda     65212
+## 3          AF       AFG         Afghanistan         Afghanistan  17250390
+## 4          AG       DZA             Algeria             Algeria  27459230
+## 5          AJ       AZE          Azerbaijan          Azerbaijan   5487866
+## 6          AL       ALB             Albania             Albania   3416945
+## 7          AM       ARM             Armenia             Armenia   3377228
+## 8          AN       AND             Andorra             Andorra     55335
+## 9          AO       AGO              Angola              Angola  11527260
+## 10         AQ       ASM      American Samoa       United States     53000
+##     SQKM_CNTRY SQMI_CNTRY CURR_TYPE CURR_CODE LANDLOCKED COLOR_MAP
+## 1      182.926     70.628    Florin       AWG          N         1
+## 2      462.378    178.524 EC Dollar       XCD          N         2
+## 3   641869.188 247825.703   Afghani       AFA          Y         3
+## 4  2320972.000 896127.312     Dinar       DZD          N         3
+## 5    85808.203  33130.551     Manat      <NA>          Y         4
+## 6    28754.500  11102.110       Lek       ALL          N         6
+## 7    29872.461  11533.760      Dram      <NA>          Y         7
+## 8      452.485    174.704    Peseta       ADP          Y         8
+## 9  1252421.000 483559.812    Kwanza       AOK          N         1
+## 10     186.895     72.160 US Dollar       USD          N         2
+##                          geometry
+## 1  MULTIPOLYGON (((-69.88223 1...
+## 2  MULTIPOLYGON (((-61.73889 1...
+## 3  MULTIPOLYGON (((61.27656 35...
+## 4  MULTIPOLYGON (((-5.152135 3...
+## 5  MULTIPOLYGON (((46.54037 38...
+## 6  MULTIPOLYGON (((20.79192 40...
+## 7  MULTIPOLYGON (((46.54037 38...
+## 8  MULTIPOLYGON (((1.445833 42...
+## 9  MULTIPOLYGON (((13.09139 -4...
+## 10 MULTIPOLYGON (((-170.7439 -...
 ```
 
 ```r
@@ -10511,24 +10319,46 @@ print(myplots[[2]][[1]])
 ```
 
 ```
-## Simple feature collection with 54 features and 1 field
+## Simple feature collection with 251 features and 11 fields
 ## geometry type:  MULTIPOLYGON
 ## dimension:      XY
-## bbox:           xmin: -31.26575 ymin: 32.39748 xmax: 69.07032 ymax: 81.85737
+## bbox:           xmin: -180 ymin: -90 xmax: 180 ymax: 83.6236
 ## epsg (SRID):    4326
 ## proj4string:    +proj=longlat +datum=WGS84 +no_defs
 ## First 10 features:
-##                  NAME                       geometry
-## 1             Albania MULTIPOLYGON (((19.50115 40...
-## 2             Andorra MULTIPOLYGON (((1.439922 42...
-## 3             Austria MULTIPOLYGON (((16 48.77775...
-## 4             Belgium MULTIPOLYGON (((5 49.79374,...
-## 5  Bosnia Herzegovina MULTIPOLYGON (((19.22947 43...
-## 6             Croatia MULTIPOLYGON (((14.30038 44...
-## 7      Czech Republic MULTIPOLYGON (((14.82523 50...
-## 8             Denmark MULTIPOLYGON (((11.99978 54...
-## 9             Estonia MULTIPOLYGON (((23.97511 58...
-## 10            Finland MULTIPOLYGON (((22.0731 60....
+##    FIPS_CNTRY GMI_CNTRY          CNTRY_NAME           SOVEREIGN POP_CNTRY
+## 1          AA       ABW               Aruba         Netherlands     67074
+## 2          AC       ATG Antigua and Barbuda Antigua and Barbuda     65212
+## 3          AF       AFG         Afghanistan         Afghanistan  17250390
+## 4          AG       DZA             Algeria             Algeria  27459230
+## 5          AJ       AZE          Azerbaijan          Azerbaijan   5487866
+## 6          AL       ALB             Albania             Albania   3416945
+## 7          AM       ARM             Armenia             Armenia   3377228
+## 8          AN       AND             Andorra             Andorra     55335
+## 9          AO       AGO              Angola              Angola  11527260
+## 10         AQ       ASM      American Samoa       United States     53000
+##     SQKM_CNTRY SQMI_CNTRY CURR_TYPE CURR_CODE LANDLOCKED COLOR_MAP
+## 1      182.926     70.628    Florin       AWG          N         1
+## 2      462.378    178.524 EC Dollar       XCD          N         2
+## 3   641869.188 247825.703   Afghani       AFA          Y         3
+## 4  2320972.000 896127.312     Dinar       DZD          N         3
+## 5    85808.203  33130.551     Manat      <NA>          Y         4
+## 6    28754.500  11102.110       Lek       ALL          N         6
+## 7    29872.461  11533.760      Dram      <NA>          Y         7
+## 8      452.485    174.704    Peseta       ADP          Y         8
+## 9  1252421.000 483559.812    Kwanza       AOK          N         1
+## 10     186.895     72.160 US Dollar       USD          N         2
+##                          geometry
+## 1  MULTIPOLYGON (((-69.88223 1...
+## 2  MULTIPOLYGON (((-61.73889 1...
+## 3  MULTIPOLYGON (((61.27656 35...
+## 4  MULTIPOLYGON (((-5.152135 3...
+## 5  MULTIPOLYGON (((46.54037 38...
+## 6  MULTIPOLYGON (((20.79192 40...
+## 7  MULTIPOLYGON (((46.54037 38...
+## 8  MULTIPOLYGON (((1.445833 42...
+## 9  MULTIPOLYGON (((13.09139 -4...
+## 10 MULTIPOLYGON (((-170.7439 -...
 ```
 
 ```r
@@ -10554,24 +10384,46 @@ print(myplots[[3]][[1]])
 ```
 
 ```
-## Simple feature collection with 54 features and 1 field
+## Simple feature collection with 251 features and 11 fields
 ## geometry type:  MULTIPOLYGON
 ## dimension:      XY
-## bbox:           xmin: -31.26575 ymin: 32.39748 xmax: 69.07032 ymax: 81.85737
+## bbox:           xmin: -180 ymin: -90 xmax: 180 ymax: 83.6236
 ## epsg (SRID):    4326
 ## proj4string:    +proj=longlat +datum=WGS84 +no_defs
 ## First 10 features:
-##                  NAME                       geometry
-## 1             Albania MULTIPOLYGON (((19.50115 40...
-## 2             Andorra MULTIPOLYGON (((1.439922 42...
-## 3             Austria MULTIPOLYGON (((16 48.77775...
-## 4             Belgium MULTIPOLYGON (((5 49.79374,...
-## 5  Bosnia Herzegovina MULTIPOLYGON (((19.22947 43...
-## 6             Croatia MULTIPOLYGON (((14.30038 44...
-## 7      Czech Republic MULTIPOLYGON (((14.82523 50...
-## 8             Denmark MULTIPOLYGON (((11.99978 54...
-## 9             Estonia MULTIPOLYGON (((23.97511 58...
-## 10            Finland MULTIPOLYGON (((22.0731 60....
+##    FIPS_CNTRY GMI_CNTRY          CNTRY_NAME           SOVEREIGN POP_CNTRY
+## 1          AA       ABW               Aruba         Netherlands     67074
+## 2          AC       ATG Antigua and Barbuda Antigua and Barbuda     65212
+## 3          AF       AFG         Afghanistan         Afghanistan  17250390
+## 4          AG       DZA             Algeria             Algeria  27459230
+## 5          AJ       AZE          Azerbaijan          Azerbaijan   5487866
+## 6          AL       ALB             Albania             Albania   3416945
+## 7          AM       ARM             Armenia             Armenia   3377228
+## 8          AN       AND             Andorra             Andorra     55335
+## 9          AO       AGO              Angola              Angola  11527260
+## 10         AQ       ASM      American Samoa       United States     53000
+##     SQKM_CNTRY SQMI_CNTRY CURR_TYPE CURR_CODE LANDLOCKED COLOR_MAP
+## 1      182.926     70.628    Florin       AWG          N         1
+## 2      462.378    178.524 EC Dollar       XCD          N         2
+## 3   641869.188 247825.703   Afghani       AFA          Y         3
+## 4  2320972.000 896127.312     Dinar       DZD          N         3
+## 5    85808.203  33130.551     Manat      <NA>          Y         4
+## 6    28754.500  11102.110       Lek       ALL          N         6
+## 7    29872.461  11533.760      Dram      <NA>          Y         7
+## 8      452.485    174.704    Peseta       ADP          Y         8
+## 9  1252421.000 483559.812    Kwanza       AOK          N         1
+## 10     186.895     72.160 US Dollar       USD          N         2
+##                          geometry
+## 1  MULTIPOLYGON (((-69.88223 1...
+## 2  MULTIPOLYGON (((-61.73889 1...
+## 3  MULTIPOLYGON (((61.27656 35...
+## 4  MULTIPOLYGON (((-5.152135 3...
+## 5  MULTIPOLYGON (((46.54037 38...
+## 6  MULTIPOLYGON (((20.79192 40...
+## 7  MULTIPOLYGON (((46.54037 38...
+## 8  MULTIPOLYGON (((1.445833 42...
+## 9  MULTIPOLYGON (((13.09139 -4...
+## 10 MULTIPOLYGON (((-170.7439 -...
 ```
 
 ```r
@@ -10597,24 +10449,46 @@ print(myplots[[4]][[1]])
 ```
 
 ```
-## Simple feature collection with 54 features and 1 field
+## Simple feature collection with 251 features and 11 fields
 ## geometry type:  MULTIPOLYGON
 ## dimension:      XY
-## bbox:           xmin: -31.26575 ymin: 32.39748 xmax: 69.07032 ymax: 81.85737
+## bbox:           xmin: -180 ymin: -90 xmax: 180 ymax: 83.6236
 ## epsg (SRID):    4326
 ## proj4string:    +proj=longlat +datum=WGS84 +no_defs
 ## First 10 features:
-##                  NAME                       geometry
-## 1             Albania MULTIPOLYGON (((19.50115 40...
-## 2             Andorra MULTIPOLYGON (((1.439922 42...
-## 3             Austria MULTIPOLYGON (((16 48.77775...
-## 4             Belgium MULTIPOLYGON (((5 49.79374,...
-## 5  Bosnia Herzegovina MULTIPOLYGON (((19.22947 43...
-## 6             Croatia MULTIPOLYGON (((14.30038 44...
-## 7      Czech Republic MULTIPOLYGON (((14.82523 50...
-## 8             Denmark MULTIPOLYGON (((11.99978 54...
-## 9             Estonia MULTIPOLYGON (((23.97511 58...
-## 10            Finland MULTIPOLYGON (((22.0731 60....
+##    FIPS_CNTRY GMI_CNTRY          CNTRY_NAME           SOVEREIGN POP_CNTRY
+## 1          AA       ABW               Aruba         Netherlands     67074
+## 2          AC       ATG Antigua and Barbuda Antigua and Barbuda     65212
+## 3          AF       AFG         Afghanistan         Afghanistan  17250390
+## 4          AG       DZA             Algeria             Algeria  27459230
+## 5          AJ       AZE          Azerbaijan          Azerbaijan   5487866
+## 6          AL       ALB             Albania             Albania   3416945
+## 7          AM       ARM             Armenia             Armenia   3377228
+## 8          AN       AND             Andorra             Andorra     55335
+## 9          AO       AGO              Angola              Angola  11527260
+## 10         AQ       ASM      American Samoa       United States     53000
+##     SQKM_CNTRY SQMI_CNTRY CURR_TYPE CURR_CODE LANDLOCKED COLOR_MAP
+## 1      182.926     70.628    Florin       AWG          N         1
+## 2      462.378    178.524 EC Dollar       XCD          N         2
+## 3   641869.188 247825.703   Afghani       AFA          Y         3
+## 4  2320972.000 896127.312     Dinar       DZD          N         3
+## 5    85808.203  33130.551     Manat      <NA>          Y         4
+## 6    28754.500  11102.110       Lek       ALL          N         6
+## 7    29872.461  11533.760      Dram      <NA>          Y         7
+## 8      452.485    174.704    Peseta       ADP          Y         8
+## 9  1252421.000 483559.812    Kwanza       AOK          N         1
+## 10     186.895     72.160 US Dollar       USD          N         2
+##                          geometry
+## 1  MULTIPOLYGON (((-69.88223 1...
+## 2  MULTIPOLYGON (((-61.73889 1...
+## 3  MULTIPOLYGON (((61.27656 35...
+## 4  MULTIPOLYGON (((-5.152135 3...
+## 5  MULTIPOLYGON (((46.54037 38...
+## 6  MULTIPOLYGON (((20.79192 40...
+## 7  MULTIPOLYGON (((46.54037 38...
+## 8  MULTIPOLYGON (((1.445833 42...
+## 9  MULTIPOLYGON (((13.09139 -4...
+## 10 MULTIPOLYGON (((-170.7439 -...
 ```
 
 ```r
@@ -10726,3 +10600,69 @@ table_similarity(similarity)
 </tbody>
 </table>
 
+
+
+# Summary of data usage
+
+```r
+#glass eel
+nrow(glasseel_wide%>% group_by(emu_nameshort) %>% count())
+```
+
+```
+## [1] 16
+```
+
+```r
+#yellow eel coastal/Marine
+nrow(yelloweel_coastal_wide%>%group_by(emu_nameshort)%>% count())
+```
+
+```
+## [1] 9
+```
+
+```r
+#yellow eel transitional
+nrow(yelloweel_transitional_wide%>%group_by(emu_nameshort)%>% count())
+```
+
+```
+## [1] 9
+```
+
+```r
+#yellow eel freshwater
+nrow(yelloweel_freshwater_wide%>%group_by(emu_nameshort)%>% count())
+```
+
+```
+## [1] 12
+```
+
+```r
+#silver eel coastal
+nrow(silvereel_coastal_wide%>%group_by(emu_nameshort)%>% count())
+```
+
+```
+## [1] 12
+```
+
+```r
+#silver eel fresh
+nrow(silvereel_freshwater_wide%>%group_by(emu_nameshort)%>% count())
+```
+
+```
+## [1] 11
+```
+
+```r
+#YS
+nrow(YSeel_allhab_wide%>%group_by(emu_nameshort)%>% count())
+```
+
+```
+## [1] 27
+```
