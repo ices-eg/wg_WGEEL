@@ -131,7 +131,7 @@ for (i in 1:length(files)){
 
 
 
-```{r pivot_table, echo=FALSE, include=FALSE, eval=FALSE}
+```{r pivot_table, echo=FALSE, include=FALSE, eval=TRUE}
 
 # run only when data are changed, otherwise ignored
 big_table_closure <- resc %>%	
@@ -149,32 +149,32 @@ big_table_closure <- resc %>%
 		mutate(fishery_closure_percent=if_else(fishery_closure_type=='T' & fishery_closure_percent==0, 100, fishery_closure_percent))%>%
 		mutate(duplicate=cell_spec(duplicate, "html",color="white", background= ifelse(duplicate>1,"red","white")),
 				fishery_closure_percent = 
-						case_when(reason_for_closure =="EU Closure" ~ cell_spec(fishery_closure_percent, "html",
+						case_when(reason_for_closure =="EU Closure" ~ cell_spec(as.character(fishery_closure_percent), "html",
 										color ="black",
 										background = "gold",
 										link = "#",
 										tooltip =paste0(fishery_closure_type," reason:",reason_for_closure, "; Comment: ", comment )),									
-								fishery_closure_type=='PS' & reason_for_closure !="EU Closure"  ~ cell_spec(fishery_closure_percent, "html",
+								fishery_closure_type=='PS' & reason_for_closure !="EU Closure"  ~ cell_spec(as.character(fishery_closure_percent), "html",
 										color ="white",
 										background = "tomato1",
 										link = "#",
 										tooltip =paste0(fishery_closure_type," reason:",reason_for_closure, "; Comment: ", comment )),
-								fishery_closure_type=='PT'  & reason_for_closure !="EU Closure" ~ cell_spec(fishery_closure_percent, "html",
+								fishery_closure_type=='PT'  & reason_for_closure !="EU Closure" ~ cell_spec(as.character(fishery_closure_percent), "html",
 										color ="white",
 										background = "dodgerblue4",
 										link = "#",
 										tooltip =paste0(fishery_closure_type," reason:",reason_for_closure, "; Comment: ", comment )),
-								fishery_closure_type=='PTS'  & reason_for_closure !="EU Closure" ~ cell_spec(fishery_closure_percent, "html",
+								fishery_closure_type=='PTS'  & reason_for_closure !="EU Closure" ~ cell_spec(as.character(fishery_closure_percent), "html",
 										color ="white",
 										background = "purple3",
 										link = "#",
 										tooltip =paste0(fishery_closure_type," reason:",reason_for_closure, "; Comment: ", comment )),
-								fishery_closure_type=='T'  & reason_for_closure !="EU Closure" ~ cell_spec(fishery_closure_percent, "html",
+								fishery_closure_type=='T'  & reason_for_closure !="EU Closure" ~ cell_spec(as.character(fishery_closure_percent), "html",
 										color ="white",
 										background = "black",
 										link = "#",
 										tooltip =paste0(fishery_closure_type," reason:",reason_for_closure, "; Comment: ", comment )),																
-								TRUE ~  cell_spec(fishery_closure_percent, "html",
+								TRUE ~  cell_spec(as.character(fishery_closure_percent), "html",
 										color ="black",
 										background = "white",
 										link = "#",
@@ -464,7 +464,7 @@ for (i in 1:nrow(countries)){
 	
 	
 	pandoc.p(paste('<div class = "blue">\n',
-					'<span><strong>Method :</strong>',
+					'<span><strong>Short summary on (i) fishery closures prior to the implementation of EMPs, (ii) relevant changes introduced through EMPs, and (iii) relevant changes in response to the EU closures in 2018 and 2019 :</strong>',
 					metadata_closure[[the_country_code]]$method,
 					'</span><span><strong>Additional comments :</strong>',					
 					metadata_closure[[the_country_code]]$additional_comments,
@@ -476,7 +476,7 @@ for (i in 1:nrow(countries)){
 	
 	
 	pandoc.p(paste('<div class = "blue">\n',
-					'<span><strong>Method :</strong>\n',
+					'<span><strong>Short description of the methods used to collect data :</strong>\n',
 					metadata_landings[[the_country_code]]$method,
 					'</span><span><strong>Additional comments :</strong>',	
 					metadata_landings[[the_country_code]]$comments,

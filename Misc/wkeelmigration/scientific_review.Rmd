@@ -8,7 +8,7 @@ output:
 
 
  
- ```{r launch, echo=FALSE, include=FALSE}
+```{r launch, echo=FALSE, include=FALSE}
 require(knitr)
 opts_knit$set(eval.after = 'fig.cap' ) # to be used in chunks used only to plot pictures
 knitr::opts_chunk$set(fig.width=12, fig.height=8, echo=FALSE)
@@ -47,44 +47,274 @@ dsn <-  paste0("PG:dbname='wgeel' host='localhost' port ='5436'",
 		"' password='", passwordlocal,"'")
 load(file=str_c(datawd,"saved_data.Rdata"))
 load(file=str_c(datawd,"cou.Rdata"))
-# load data from closures
-load(file=str_c(datawd2,"res_closure.Rdata"))
-resc <- res
-load(file=str_c(datawd2,"list_closure.Rdata"))
-# load files from landings
-load(file=str_c(datawd1,"list_seasonality.Rdata"))
-load(file=str_c(datawd,"res_landings.Rdata"))
 
-resl <- res
-rm(res)
-resl$country[resl$country=='FL']<-'FI'
-# extract dataframe from cou
-coud <- cou
-st_geometry(coud) <- NULL
-countries <- data.frame("cou_code"=unique(c(resl$country,resc$country)))
-countries <- inner_join(countries,coud)
-the_emus <- data.frame("emu_nameshort"=unique(c(resl$emu_nameshort,resc$emu_nameshort)))
-the_emus <- inner_join(emus,the_emus)
-load(file=str_c(datawd,"big_table_closure.Rdata"))
+
 
 ```
 
 
 
- ```{r load_excel, echo=FALSE, include=FALSE}
-f <- "Literature_table_040220.xlsx"
+```{r load_excel, echo=FALSE, include=FALSE}
+f <- "Literature_table_050220_all.xlsx"
 path <- str_c(datawd,f)	
 file <- basename(path)
 mylocalfilename <- gsub(".xlsx","",file)
-sea <- read_excel(path=path,"Literature review" , range="C2:AN67",col_names = TRUE)
+sea <- read_excel(path=path,"Literature review" , range="A2:AN69",col_names = TRUE)
+f <- "Literature Review_table_recruitment.xlsx"
+path <- str_c(datawd,f)	
+file <- basename(path)
+mylocalfilename <- gsub(".xlsx","",file)
+seag <- read_excel(path=path,"Literature review" , range="A2:AN48",col_names = TRUE)
+seag <- seag[colnames(sea)%in%colnames(seag),]
+colnames(seag)
+colnames(sea)
+sea<-rbind(sea,seag)
 save(sea, file=str_c(datawd,'sea.Rdata'))
-describe(sea)%>%html
 
 
 ```
- ```{r data_screening, echo=TRUE, include=TRUE}
+```{r data_screening, echo=TRUE, include=TRUE}
 load(file=str_c(datawd,'sea.Rdata'))
 describe(sea)%>%html
+test_float <- function(X) X%%1==0 
+sea$id <- 1:nrow(sea)
+# make it numeric
+colmonth <- c( "Jan", "Feb","Mar","Apr" ,"May","June","July","Aug","Sept", "Oct","Nov","Dec")
+colmonthnum<- match(colmonth, colnames(sea))
+
+# turn all month in the dataset into numeric columns
+sea <- cbind(sea %>% select(- colmonth),
+		sea %>% select( colmonth) %>% 
+				mutate_all(list(as.numeric)))
+# turn to percentage
+sea[sea$Author=="Acou et al., 2009",
+		c( "Jan", "Feb","Mar","Apr" ,"May","June","July","Aug","Sept", "Oct","Nov","Dec")] <-
+		sea[sea$Author=="Acou et al., 2009",
+				c( "Jan", "Feb","Mar","Apr" ,"May","June","July","Aug","Sept", "Oct","Nov","Dec")]/100
+# check if we have not rounded values
+#is_quantitative <- sea %>% select( "Jan", "Feb","Mar","Apr" ,"May","June","July","Aug","Sept", "Oct","Nov","Dec") %>% 
+#				mutate_all(list(as.numeric)) %>%
+#				mutate_all(list(test_float)) %>%
+#				mutate_all(.funs=function(X)1-as.numeric(X)) %>%
+#				mutate_all(replace_na, replace = 0) %>%
+#				pmap_dbl(.f=sum)>0
+#sea$is_quantitative <- is_quantitative
+#sum(is_quantitative) # 41
+table(sea$Type)
+colnames(sea) <- tolower(colnames(sea))
+colnames(sea) <- make.names(colnames(sea))
+sea$stage2 <- NA 
+sea$stage2[grepl("G",sea$stage)|grepl("E",sea$stage)] <-'G'
+sea$stage2[grepl("S",sea$stage)] <-'S'
+sea$stage2[grepl("Y",sea$stage)] <-'Y'
+sea$stage2[grepl("BL",sea$stage)] <-'Y'
+sea$stage2[grepl("SY",sea$stage)] <-'YS'
+table(sea$stage)
+table(sea$stage2)
+# group data per paper
+table(sea$quality.of.data )
+sea$isquant <- sea$quality.of.data == 'Quant'
+sea$isqual <- sea$quality.of.data== 'Qual'
+
+
+
+sea_c <- sea[isquant,]
+(sss <- rowSums(sea_c[,c('jan','feb','mar','apr','may','june','july','aug','sept','oct','nov','dec')], na.rm=TRUE ))
+
+sea_c[sss>100,c('jan','feb','mar','apr','may','june','july','aug','sept','oct','nov','dec')]<-	
+		sea_c[sss>100,c('jan','feb','mar','apr','may','june','july','aug','sept','oct','nov','dec')]/sss[sss>100]
+
+(sss <- rowSums(sea_c[,c('jan','feb','mar','apr','may','june','july','aug','sept','oct','nov','dec')], na.rm=TRUE ))
+
+sea_c[sss<=1,c('jan','feb','mar','apr','may','june','july','aug','sept','oct','nov','dec')]<-	
+		sea_c[sss<=1,c('jan','feb','mar','apr','may','june','july','aug','sept','oct','nov','dec')]*100
+
+(sss <- rowSums(sea_c[,c('jan','feb','mar','apr','may','june','july','aug','sept','oct','nov','dec')], na.rm=TRUE ))
+
+sea_c[sss<10,c('jan','feb','mar','apr','may','june','july','aug','sept','oct','nov','dec')]<-	
+		sea_c[sss<10,c('jan','feb','mar','apr','may','june','july','aug','sept','oct','nov','dec')]*100/sss[sss<10]
+
+(sss <- rowSums(sea_c[,c('jan','feb','mar','apr','may','june','july','aug','sept','oct','nov','dec')], na.rm=TRUE ))
+
+
+
+
+
+
+sea_c2 <- sea_c %>% pivot_longer(cols=c('jan','feb','mar','apr','may','june','july','aug','sept','oct','nov','dec'),
+		names_to=c("month"),values_to='freq')
+
+
+sea_c2$month <- recode(sea_c2$month, 
+		"jan"=1,
+		"feb"=2,
+		"mar"=3, 
+		"apr"=4, 
+		"may"=5, 
+		"june"=6,
+		"july"=7,
+		"aug"=8,
+		"sept"=9,
+		"oct"=10,
+		"nov"=11,
+		"dec"=12
+)
+
+
+sea_c3 <- sea_c2 %>% group_by(author,site,month,stage2)%>% summarize(N=n(),freq=mean(freq,na.rm=TRUE)) %>% print(n=Inf)
+x11()
+ggplot(sea_c3,aes(x = month)) +
+		geom_col(aes(y=freq),color="black")+
+		xlab("month")+
+		ylab("percentage catch")+
+		facet_wrap(~  stage2)
+
+
+png(filename=str_c(imgwd,"Silver_quantitative_litterature.png"),width=800,height=600)
+sea_c3 %>% filter(stage2=="S")%>%
+		ggplot(aes(x = month)) +
+		geom_col(aes(y=freq),position="dodge")+
+		xlab("month")+
+		ylab("percentage")+
+		theme_igray() +
+		facet_wrap( ~ site)
+
+dev.off()
+
+sea_c3 %>% filter(stage2=="G")%>%
+		ggplot(aes(x = month)) +
+		geom_col(aes(y=freq),position="dodge")+
+		xlab("month")+
+		ylab("percentage catch")+
+		facet_wrap( ~ site)		
+
+
+# Frémur is wrong
+#sea_c3 %>% filter(stage2=="Y")%>%
+#		ggplot(aes(x = month)) +
+#		geom_col(aes(y=freq),position="dodge")+
+#		xlab("month")+
+#		ylab("percentage catch")+
+#		facet_wrap( ~ site)
+
+
+sea_c2 %>% filter(stage2=="S")%>%
+		ggplot(aes(x = month)) +
+		geom_col(aes(y=freq,fill=as.factor(site)))+
+		xlab("month")+
+		ylab("percentage catch")+
+		facet_wrap( ~ author)
+
+
+
+sea_q <- sea[sea$isqual,]
+nrow(sea_q)
+(sss <- rowSums(sea_q[,c('jan','feb','mar','apr','may','june','july','aug','sept','oct','nov','dec')], na.rm=TRUE ))
+summary(sss)
+
+
+
+
+
+
+sea_q2 <- sea_q %>% pivot_longer(cols=c('jan','feb','mar','apr','may','june','july','aug','sept','oct','nov','dec'),
+		names_to=c("month"),values_to='freq')
+
+
+sea_q2$month <- recode(sea_q2$month, 
+		"jan"=1,
+		"feb"=2,
+		"mar"=3, 
+		"apr"=4, 
+		"may"=5, 
+		"june"=6,
+		"july"=7,
+		"aug"=8,
+		"sept"=9,
+		"oct"=10,
+		"nov"=11,
+		"dec"=12
+)
+
+colnames(sea_q2)
+
+require(sp)
+
+
+
+emu <- st_read(str_c(dsn= "PG:dbname='wgeel' host='localhost' port='5436' user='",userlocal,"' 
+						password='",passwordlocal,"'"), layer="ref.tr_emu_emu")
+# This is the map of the emu
+#emu_p <<- rmapshaper::ms_simplify(rgdal::readOGR(str_c(shpwd,"/","emu_polygons_4326.shp")), keep = 0.7) # a spatial object of class sp, symplified to be displayed easily
+emu_p <- rmapshaper::ms_simplify(emu$geom, keep = 0.7) # a spatial object of class sp, symplified to be displayed easily
+## Is this emu$geom simplified, do we need it? 
+
+# To calculate the center of the polygone, empty geom is not possible
+emu_no_empty_geom <- emu[which(!st_is_empty(emu$geom)),]
+# This corresponds to the center of each emu
+#emu_c <- rgdal::readOGR(str_c(shpwd,"/","emu_centre_4326.shp")) # a spatial object of class spatialpointsdataframe
+emu_c <- st_centroid(emu_no_empty_geom$geom)
+
+
+emu<- cbind(emu_no_empty_geom,st_coordinates(emu_c))
+
+sea_q2$emu <-gsub("Total","total",sea_q2$emu)
+# sea_q2$emu[!sea_q2$emu%in%emu$emu_nameshort] # none left
+options(tibble.width = Inf)
+#sea_q2[is.na(sea_q2$emu),]%>%print(n=Inf) # only yellow eel OK
+		
+sea_q3G <- sea_q2 %>% 
+		filter(stage2=="G") %>%
+		left_join(emu, by=c("emu"="emu_nameshort"))%>%
+		group_by(author,site,month,stage2,emu,X,Y)%>%
+				summarize(N=n(),freq=round(mean(freq,na.rm=TRUE))) %>% 
+				print(n=Inf)
+		
+		sea_q3G$site[order(sea_q3G$Y+sea_q3G$X)]
+x11()
+ggplot(sea_q3,aes(x = month)) +
+		geom_tile(aes(y=author,fill=freq))+
+		xlab("month")+
+		ylab("percentage catch")+
+		facet_wrap(~  stage2)
+
+sea_q3 %>% filter(stage2=="S")%>%
+		ggplot(aes(x = month)) +
+		geom_col(aes(y=freq),position="dodge")+
+		xlab("month")+
+		ylab("percentage catch")+
+		facet_wrap( ~ site)
+
+sea_q3 %>% filter(stage2=="G")%>%
+		ggplot(aes(x = month)) +
+		geom_col(aes(y=freq),position="dodge")+
+		xlab("month")+
+		ylab("percentage catch")+
+		facet_wrap( ~ site)		
+
+
+# Frémur is wrong
+#sea_q3 %>% filter(stage2=="Y")%>%
+#		ggplot(aes(x = month)) +
+#		geom_col(aes(y=freq),position="dodge")+
+#		xlab("month")+
+#		ylab("percentage catch")+
+#		facet_wrap( ~ site)
+
+
+sea_q2 %>% filter(stage2=="S")%>%
+		ggplot(aes(x = month)) +
+		geom_col(aes(y=freq,fill=as.factor(site)))+
+		xlab("month")+
+		ylab("percentage catch")+
+		facet_wrap( ~ author)
+
+
+
+
+
+
+
 
 ```
  
