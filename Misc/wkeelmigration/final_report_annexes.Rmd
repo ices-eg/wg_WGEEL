@@ -131,7 +131,7 @@ for (i in 1:length(files)){
 
 
 
-```{r pivot_table, echo=FALSE, include=FALSE, eval=TRUE}
+```{r pivot_table, echo=FALSE, include=FALSE, eval=FALSE}
 
 # run only when data are changed, otherwise ignored
 big_table_closure <- resc %>%	
@@ -149,32 +149,32 @@ big_table_closure <- resc %>%
 		mutate(fishery_closure_percent=if_else(fishery_closure_type=='T' & fishery_closure_percent==0, 100, fishery_closure_percent))%>%
 		mutate(duplicate=cell_spec(duplicate, "html",color="white", background= ifelse(duplicate>1,"red","white")),
 				fishery_closure_percent = 
-						case_when(reason_for_closure =="EU Closure" ~ cell_spec(as.character(fishery_closure_percent), "html",
+						case_when(reason_for_closure =="EU Closure" ~ cell_spec(fishery_closure_percent, "html",
 										color ="black",
 										background = "gold",
 										link = "#",
 										tooltip =paste0(fishery_closure_type," reason:",reason_for_closure, "; Comment: ", comment )),									
-								fishery_closure_type=='PS' & reason_for_closure !="EU Closure"  ~ cell_spec(as.character(fishery_closure_percent), "html",
+								fishery_closure_type=='PS' & reason_for_closure !="EU Closure"  ~ cell_spec(fishery_closure_percent, "html",
 										color ="white",
 										background = "tomato1",
 										link = "#",
 										tooltip =paste0(fishery_closure_type," reason:",reason_for_closure, "; Comment: ", comment )),
-								fishery_closure_type=='PT'  & reason_for_closure !="EU Closure" ~ cell_spec(as.character(fishery_closure_percent), "html",
+								fishery_closure_type=='PT'  & reason_for_closure !="EU Closure" ~ cell_spec(fishery_closure_percent, "html",
 										color ="white",
 										background = "dodgerblue4",
 										link = "#",
 										tooltip =paste0(fishery_closure_type," reason:",reason_for_closure, "; Comment: ", comment )),
-								fishery_closure_type=='PTS'  & reason_for_closure !="EU Closure" ~ cell_spec(as.character(fishery_closure_percent), "html",
+								fishery_closure_type=='PTS'  & reason_for_closure !="EU Closure" ~ cell_spec(fishery_closure_percent, "html",
 										color ="white",
 										background = "purple3",
 										link = "#",
 										tooltip =paste0(fishery_closure_type," reason:",reason_for_closure, "; Comment: ", comment )),
-								fishery_closure_type=='T'  & reason_for_closure !="EU Closure" ~ cell_spec(as.character(fishery_closure_percent), "html",
+								fishery_closure_type=='T'  & reason_for_closure !="EU Closure" ~ cell_spec(fishery_closure_percent, "html",
 										color ="white",
 										background = "black",
 										link = "#",
 										tooltip =paste0(fishery_closure_type," reason:",reason_for_closure, "; Comment: ", comment )),																
-								TRUE ~  cell_spec(as.character(fishery_closure_percent), "html",
+								TRUE ~  cell_spec(fishery_closure_percent, "html",
 										color ="black",
 										background = "white",
 										link = "#",
@@ -309,6 +309,7 @@ fnplot <- function(res, emu, lfs, hty,colfill=NULL, colpattern="red", title="", 
 					by = c("emu_nameshort","year")) %>%	
 			mutate(perc_per_month=100*value/sum_per_year, prop_per_month=100*prop/prop_per_year, type="landings") 
 	
+
 	# closure data, attention summarize and averaged this might not be exactly what is reported
 	
 	# closure for YS will apply to both Y and S
@@ -350,9 +351,11 @@ fnplot <- function(res, emu, lfs, hty,colfill=NULL, colpattern="red", title="", 
 		if (is.null(colfill)) colfill<- the_colors[lfs]
 		#gglocator()
 		g <- ggplot(res4,aes(x = month)) +
-				geom_col(aes(y=perc_per_month),fill=colfill,color="black",width=0.8) +
+				geom_col(aes(y=perc_per_month,fill="observed"),color="black",width=0.8) +
+		  scale_fill_manual(name="",values=c("observed"=colfill)) +
 				geom_hpline(aes(y=prop_per_month,col=type),width = 0.9, size = 1) +
 				geom_jitter(aes(y=prop, col=type), width = 0.1, data=pat_mo2)+
+		  labs(color="average pattern")
 				geom_label(aes(x=month,y=66+closure/3,label=closure, fill=reason_for_closure),
 						size=1.56,
 						alpha=1,
@@ -364,7 +367,7 @@ fnplot <- function(res, emu, lfs, hty,colfill=NULL, colpattern="red", title="", 
 				)+
 				scale_colour_brewer(type="qual",palette="Set1") +
 				xlab("month") +
-				ylab("percentage catch") +
+				ylab("percentage landings") +
 				scale_x_continuous(breaks = c(2,4,6,8,10)) + 
 				facet_wrap(~year) +
 				theme_igray() +
@@ -464,7 +467,7 @@ for (i in 1:nrow(countries)){
 	
 	
 	pandoc.p(paste('<div class = "blue">\n',
-					'<span><strong>Short summary on (i) fishery closures prior to the implementation of EMPs, (ii) relevant changes introduced through EMPs, and (iii) relevant changes in response to the EU closures in 2018 and 2019 :</strong>',
+					'<span><strong>Method :</strong>',
 					metadata_closure[[the_country_code]]$method,
 					'</span><span><strong>Additional comments :</strong>',					
 					metadata_closure[[the_country_code]]$additional_comments,
@@ -476,7 +479,7 @@ for (i in 1:nrow(countries)){
 	
 	
 	pandoc.p(paste('<div class = "blue">\n',
-					'<span><strong>Short description of the methods used to collect data :</strong>\n',
+					'<span><strong>Method :</strong>\n',
 					metadata_landings[[the_country_code]]$method,
 					'</span><span><strong>Additional comments :</strong>',	
 					metadata_landings[[the_country_code]]$comments,
