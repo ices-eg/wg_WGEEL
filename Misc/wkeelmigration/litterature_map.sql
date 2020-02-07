@@ -28,3 +28,5 @@ UPDATE  wkeelmigration.litterature set stage2='Y' where stage ='Y';
 
 create table wkeelmigration.litteratured as select  "Author",  stage2, min("Year/s of observation") as first_year, max("Year/s of observation") as last_year,
 habitat_type, geom from wkeelmigration.litterature group by "Author",  stage2, habitat_type, geom
+
+alter table wkeelmigration.litteratured add column id serial primary key;

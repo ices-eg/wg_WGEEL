@@ -31,6 +31,7 @@ load_package("kableExtra")
 load_package("pander")
 load_package("colorspace")
 load_package("ggthemes")
+load_package("sp")
 
 source("..\\..\\R\\shiny_data_integration\\shiny_di\\loading_functions.R")
 source("..\\..\\R\\shiny_data_integration\\shiny_di\\database_reference.R") # extract_ref
@@ -70,11 +71,11 @@ save(emu, file=str_c(datawd,"emu.Rdata"))
 
 
 ```{r load_excel, echo=FALSE, include=FALSE}
-f <- "Literature_table_final.xlsx"
+f <- "Literature_table_final.csv"
 path <- str_c(datawd,f)	
 file <- basename(path)
 mylocalfilename <- gsub(".xlsx","",file)
-sea <- read_excel(path=path,"Literature review" , range="A2:AN116",col_names = TRUE)
+sea <- read_delim(file=path, delim=';' ,col_names = TRUE, skip=1)
 save(sea, file=str_c(datawd,'sea.Rdata'))
 
 
@@ -110,20 +111,22 @@ table(sea$Type)
 colnames(sea) <- tolower(colnames(sea))
 colnames(sea) <- make.names(colnames(sea))
 sea$stage2 <- NA 
-sea$stage2[grepl("G",sea$stage)] <-'G'
-sea$stage2[grepl("GE/E/Y",sea$stage) | grepl("GE/Y",sea$stage)|sea$stage=="E"|sea$stage=="E/BT"] <- "GY"
-sea$stage2[grepl("S",sea$stage)] <-'S'
-sea$stage2[grepl("Y",sea$stage)] <-'Y'
-sea$stage2[grepl("BL",sea$stage)] <-'Y'
-sea$stage2[grepl("SY",sea$stage)] <-'YS'
-table(sea$stage)
+sea$stage2[grepl("G",sea$stage.)] <-'G'
+sea$stage2[grepl("GE/E/Y",sea$stage.) | grepl("GE/Y",sea$stage.)|sea$stage.=="E"|sea$stage.=="E/BT"] <- "GY"
+sea$stage2[grepl("S",sea$stage.)] <-'S'
+sea$stage2[grepl("Y",sea$stage.)] <-'Y'
+sea$stage2[grepl("BL",sea$stage.)] <-'Y'
+sea$stage2[grepl("SY",sea$stage.)] <-'YS'
+table(sea$stage.)
 table(sea$stage2)
-# group data per paper
+
+# data marked as "Remove" either duplicates or missing data are not integrated in the graph
+# we create two sets of graphs, one for quantitative one for qualitative
 table(sea$quality.of.data )
 sea$isquant <- sea$quality.of.data == 'Quant'
 sea$isqual <- sea$quality.of.data== 'Qual'
 
-
+# Everything should be as percentages for quantitative.
 
 sea_c <- sea[sea$isquant,]
 (sss <- rowSums(sea_c[,c('jan','feb','mar','apr','may','june','july','aug','sept','oct','nov','dec')], na.rm=TRUE ))
@@ -145,7 +148,7 @@ sea_c[sss<10,c('jan','feb','mar','apr','may','june','july','aug','sept','oct','n
 
 
 
-
+#---------------- Quantitative data -------------------------------------------------------------------------
 
 
 sea_c2 <- sea_c %>% pivot_longer(cols=c('jan','feb','mar','apr','may','june','july','aug','sept','oct','nov','dec'),
@@ -167,8 +170,22 @@ sea_c2$month <- recode(sea_c2$month,
 		"dec"=12
 )
 
+# data grouped per year, the average is calculated
 
-sea_c3 <- sea_c2 %>% group_by(author,site,month,stage2)%>% summarize(N=n(),freq=mean(freq,na.rm=TRUE)) %>% print(n=Inf)
+sea_c3 <- sea_c2 %>% group_by(author,site,month,stage2, lon, lat)%>% 
+		summarize(N=n(),freq=mean(freq,na.rm=TRUE)) %>%
+		ungroup()
+sea_c3 %>% print(n=Inf)
+sea_c3 %>% filter(is.na(lon))%>%print(n=Inf)
+# this site is somewhere in the UK but nothing is said in the article.... 
+sea_c3[is.na(sea_c3$lon),"lon"] <- 0.47
+sea_c3[is.na(sea_c3$lat),"lat"] <- 52.27 
+sites <- sea_c3 %>%	select(site,lat)	 %>% distinct() %>% arrange(lat)
+authors <- sea_c3 %>%	select(author,lat)	 %>% distinct() %>% arrange(lat)
+sites$author=authors$author
+sea_c3$site <- factor(sea_c3$site, levels=sites$site)
+
+# first plot with all data
 x11()
 ggplot(sea_c3,aes(x = month)) +
 		geom_col(aes(y=freq),color="black")+
@@ -177,27 +194,33 @@ ggplot(sea_c3,aes(x = month)) +
 		facet_wrap(~  stage2)
 
 
+
+# plot for silver eels
+# the facet are ordered by the order of sites (the level of the factor)
 png(filename=str_c(imgwd,"Silver_quantitative_litterature.png"),width=800,height=600)
 sea_c3 %>% filter(stage2=="S")%>%
 		ggplot(aes(x = month)) +
 		geom_col(aes(y=freq),position="dodge")+
 		xlab("month")+
 		ylab("percentage")+
+		ylim(c(0,80))+
 		scale_x_continuous(breaks = c(2,4,6,8,10)) +
 		theme_igray() +
-		facet_wrap( ~ site)
+		geom_label(aes(x=5,y=70,label=author),size=3, alpha=0.5)+
+		facet_wrap( ~ site)+
+		theme(strip.text.x = element_text(size = 8))
 		
 dev.off()
 
+
+# Glass eel just one series => removed and changed it to qualitative
 sea_c3 %>% filter(stage2=="G")%>%
 		ggplot(aes(x = month)) +
 		geom_col(aes(y=freq),position="dodge")+
 		xlab("month")+
-		ylab("percentage catch")+
-		facet_wrap( ~ site)		
+		ylab("percentage catch")
 
-
-# Frémur is wrong
+# not real data for yellow eel (one series)
 #sea_c3 %>% filter(stage2=="Y")%>%
 #		ggplot(aes(x = month)) +
 #		geom_col(aes(y=freq),position="dodge")+
@@ -206,29 +229,23 @@ sea_c3 %>% filter(stage2=="G")%>%
 #		facet_wrap( ~ site)
 
 
-sea_c2 %>% filter(stage2=="S")%>%
-		ggplot(aes(x = month)) +
-		geom_col(aes(y=freq,fill=as.factor(site)))+
-		xlab("month")+
-		ylab("percentage catch")+
-		facet_wrap( ~ author)
 
 
-# qualitative data
+# qualitative data -------------------------------------------------------------------
 
 sea_q <- sea[sea$isqual,]
 nrow(sea_q)
+
+unique(sea_q$site)
+sea_q$site[sea_q$site=="Tiber  "]<-"Tiber"
+sea_q$site[sea_q$site=="Salgiada  "] <- "Salgiada"
+
 (sss <- rowSums(sea_q[,c('jan','feb','mar','apr','may','june','july','aug','sept','oct','nov','dec')], na.rm=TRUE ))
-summary(sss)
+summary(sss) # between 1 and 30 OK
 
-
-
-
-
-
+# turn to long format (repeat lines for each month)
 sea_q2 <- sea_q %>% pivot_longer(cols=c('jan','feb','mar','apr','may','june','july','aug','sept','oct','nov','dec'),
 		names_to=c("month"),values_to='freq')
-
 
 sea_q2$month <- recode(sea_q2$month, 
 		"jan"=1,
@@ -245,82 +262,97 @@ sea_q2$month <- recode(sea_q2$month,
 		"dec"=12
 )
 
-colnames(sea_q2)
-
-require(sp)
 
 
 
-
-sea_q2$emu <-gsub("Total","total",sea_q2$emu)
-# sea_q2$emu[!sea_q2$emu%in%emu$emu_nameshort] # none left
 options(tibble.width = Inf)
 #sea_q2[is.na(sea_q2$emu),]%>%print(n=Inf) # only yellow eel OK
 
 sea_q3G <- sea_q2 %>% 
 		filter(stage2=="G"| stage2=='GY') %>%
 		left_join(emu, by=c("emu"="emu_nameshort"))%>%
-		group_by(author,site,month,emu,X,Y,stage2)%>%
+		group_by(author,site,month,emu,lat,lon,stage2)%>%
 		summarize(N=n(),freq=round(mean(freq,na.rm=TRUE))) %>%
 		ungroup()
+
 table(sea_q3G$author,sea_q3G$site)
-sites <- sea_q3G %>%	select(site,X,Y)	 %>% distinct() %>% mutate(XY=X+Y) %>% arrange(XY)
-authors <- sea_q3G %>%	select(author,X,Y)	 %>% distinct() %>% mutate(XY=X+Y) %>% arrange(XY)
+sites <- sea_q3G %>%	select(site,author, lat,lon, stage2)	 %>% distinct() %>% mutate(XY=lat+lon) %>% arrange(XY)
+# my I don't see any difference between the two lines but they are still duplicated :-(
+sites <- sites[!duplicated(sites$site),]
+
 sea_q3G$site <- factor(sea_q3G$site, levels=sites$site)
 
-
-png(filename=str_c(imgwd,"glass_qualitative_litterature.png"),width=800,height=600)
+# fix order
+svg(filename=str_c(imgwd,"glass_qualitative_litterature.svg"),width=10,height=8)
 ggplot(sea_q3G) +
 		geom_tile(aes(x = month,y=site,fill=freq))+
-		annotate("text", y=1:12,x=rep(7,12),label=authors$author[c(1:10,12,13)])+
+		geom_label(aes(x=5,y=site,label=author),data= sites)+
 		xlab("month")+
 		ylab("Intensity of migration")+	
-		ggtitle("Glass eel migration") +
+		ggtitle("Glass eel and elver migration") +
 		scale_x_continuous(breaks = c(2,4,6,8,10)) +
 		scale_fill_continuous_sequential(palette = "YlOrRd")+
-		facet_wrap( stages2) +
+		facet_wrap( ~stage2) +
 		theme_igray()
+
 dev.off()
 
 
 
 sea_q3S <- sea_q2 %>% 
 		filter(stage2=="S") %>%
-		left_join(emu, by=c("emu"="emu_nameshort"))%>%
-		group_by(author,site,month,emu,X,Y)%>%
+		group_by(author,site,month,stage2,lat,lon) %>%
 		summarize(N=n(),freq=round(mean(freq,na.rm=TRUE))) %>%
 		ungroup()
+sea_q3S$site[is.na(sea_q3S$site)]<-""
+sites <- sea_q3S %>%	select(site,author, lat,lon, stage2)	 %>% distinct()  %>% arrange(lat)
+
+sites <- sites[!duplicated(sites$site),]
+
+sea_q3S$site <- factor(sea_q3S$site, levels=sites$site)
 
 
-png(filename=str_c(imgwd,"silver_qualitative_litterature.png"),width=800,height=600)
+
+svg(filename=str_c(imgwd,"silver_qualitative_litterature.svg"),width=8,height=6)
 ggplot(sea_q3S) +
-		geom_tile(aes(x = month,y=author,fill=freq))+
+		geom_tile(aes(x = month,y=site,fill=freq))+
+		geom_label(aes(x=5,y=site,label=author),data= sites)+
 		xlab("month")+
-		ylab("Intensity of migration")+	
+		ylab("Sites")+	
 		ggtitle("Silver eel migration") +
 		scale_x_continuous(breaks = c(2,4,6,8,10)) +
 		scale_fill_continuous_sequential(palette = "BluYl")+
-		theme_igray()
+		theme_igray() +
+		annotation_custom(
+				grob = grid::textGrob(label = "South", hjust = 0, gp = grid::gpar(cex = 1)),
+				ymin = 0,      # Vertical position of the textGrob
+				ymax = 0,
+				xmin = -1,         # Note: The grobs are positioned outside the plot area
+				xmax = -1)
 dev.off()
 
 
 sea_q3Y <- sea_q2 %>% 
 		filter(stage2=="Y") %>%
-		left_join(emu, by=c("emu"="emu_nameshort"))%>%
-		group_by(author,site,month,emu,X,Y)%>%
+		group_by(author,site,month,lat,lon)%>%
 		summarize(N=n(),freq=round(mean(freq,na.rm=TRUE))) %>%
 		ungroup()
 
+sites <- sea_q3Y %>%	select(site,author, lat,lon)	 %>% distinct()  %>% arrange(lat)
 
-png(filename=str_c(imgwd,"yellow_qualitative_litterature.png"),width=800,height=600)
+sea_q3Y$site <- factor(sea_q3Y$site, levels=sites$site)
+# add author
+svg(filename=str_c(imgwd,"yellow_qualitative_litterature.svg"),width=8,height=6)
 ggplot(sea_q3Y) +
-		geom_tile(aes(x = month,y=author,fill=freq))+
+		geom_tile(aes(x = month,y=site,fill=freq))+
+		geom_label(aes(x=5,y=site,label=author),data= sites)+
 		xlab("month")+
 		ylab("Intensity of migration")+	
-		ggtitle("Yellow eel migration") +
+		ggtitle("Yellow eel colonisation") +
 		scale_x_continuous(breaks = c(2,4,6,8,10)) +
 		scale_fill_continuous_sequential(palette = "Terrain")+
-		theme_igray()
+		theme_igray()+
+		theme(plot.margin=unit(c(1,1,1,3),"cm")) # top right bottom left
 dev.off()
 
 
