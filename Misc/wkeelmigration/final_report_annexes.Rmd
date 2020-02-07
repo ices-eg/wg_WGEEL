@@ -516,7 +516,7 @@ for (i in 1:nrow(countries)){
 				lfs = 'S',
 				hty = c("F"),
 				emu = the_emu, 
-				colfill = "navyblue",
+				colfill = NULL,
 				title = "Silver eels Freshwater")
 		
 		# Glass eels
@@ -531,7 +531,7 @@ for (i in 1:nrow(countries)){
 				lfs = 'G',
 				hty = c("T","F","FTC","FT"),
 				emu=the_emu, 
-				colfill= "tomato1",
+				colfill= NULL,
 				title = "Glass eels Transitional habitats")	
 		
 		
@@ -546,7 +546,7 @@ for (i in 1:nrow(countries)){
 				lfs = 'Y',
 				hty = c("C","MO"),
 				emu=the_emu, 
-				colfill= "green",
+				colfill= NULL,
 				title = "Yellow eels coastal habitats")	
 		
 		fntablelossemp(dat=lossYF, hty = c("F"), emu=the_emu)
@@ -557,7 +557,7 @@ for (i in 1:nrow(countries)){
 				lfs = 'Y',
 				hty = c("F"),
 				emu=the_emu, 
-				colfill= "greenyellow",
+				colfill= NULL,
 				title = "Yellow eels freshwater habitats")	
 		
 		fntablelossemp(dat=lossYT, hty = c("T"), emu=the_emu)
@@ -569,7 +569,7 @@ for (i in 1:nrow(countries)){
 				lfs = 'Y',
 				hty = c("T"),
 				emu=the_emu, 
-				colfill= "limegreen",
+				colfill= NULL,
 				title ="Yellow eels transitional habitats"  )	
 	
 	
@@ -577,7 +577,7 @@ for (i in 1:nrow(countries)){
 				lfs = 'Y',
 				hty = c("FTC"),
 				emu=the_emu, 
-				colfill= "springgreen",
+				colfill= NULL,
 				title = "Yellow eels alls habitats")	
 		
 		
@@ -589,7 +589,7 @@ for (i in 1:nrow(countries)){
 				lfs = 'YS',
 				hty = c("C","MO"),
 				emu=the_emu, 
-				colfill= "plum",
+				colfill=  NULL,
 				title="Mixed yellow and silver eels coastal habitats")	
 		
 		
@@ -598,7 +598,7 @@ for (i in 1:nrow(countries)){
 				lfs = 'YS',
 				hty = c("F"),
 				emu=the_emu, 
-				colfill= "purple",
+				colfill=  NULL,
 				title="Mixed yellow and silver eels freshwater habitats")	
 		
 		
@@ -606,7 +606,7 @@ for (i in 1:nrow(countries)){
 				lfs = 'YS',
 				hty = c("T"),
 				emu=the_emu, 
-				colfill= "magenta",
+				colfill=  NULL,
 				title="Mixed yellow and silver eels transitional habitats")	
 		
 		
@@ -614,7 +614,7 @@ for (i in 1:nrow(countries)){
 				lfs = 'YS',
 				hty = c("FTC","TC"),
 				emu=the_emu, 
-				colfill= "violet",
+				colfill=  NULL,
 				title="Mixed yellow and silver eels FTC TC habitats")	
 		
 		
