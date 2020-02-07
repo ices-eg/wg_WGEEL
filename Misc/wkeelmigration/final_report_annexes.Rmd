@@ -353,11 +353,10 @@ fnplot <- function(res, emu, lfs, hty,colfill=NULL, colpattern="red", title="", 
 		if (is.null(colfill)) colfill<- the_colors[lfs]
 		#gglocator()
 		g <- ggplot(res4,aes(x = month)) +
-				geom_col(aes(y=perc_per_month,fill="observed"),color="black",width=0.8) +
-		  scale_fill_manual(name="",values=c("observed"=colfill)) +
+				geom_col(aes(y=perc_per_month,alpha="observed"),color="black",fill=colfill,width=0.8) +
 				geom_hpline(aes(y=prop_per_month,col=type),width = 0.9, size = 1) +
 				geom_jitter(aes(y=prop, col=type), width = 0.1, data=pat_mo2)+
-		  labs(color="average pattern")+
+		  labs(color="Average pattern")+
 				geom_label(aes(x=month,y=66+closure/3,label=closure, fill=reason_for_closure),
 						size=1.56,
 						alpha=1,
@@ -367,6 +366,7 @@ fnplot <- function(res, emu, lfs, hty,colfill=NULL, colpattern="red", title="", 
 								"EMP"="deepskyblue",
 								"EU Closure"="gold")							
 				)+
+				scale_alpha_manual("",values=1,  guide=guide_legend(override.aes = list(fill=colfill,color="black",alpha=1))) +
 				scale_colour_brewer(type="qual",palette="Set1") +
 				xlab("month") +
 				ylab("percentage landings") +
