@@ -48,27 +48,33 @@ dsn <-  paste0("PG:dbname='wgeel' host='localhost' port ='5436'",
 load(file=str_c(datawd,"saved_data.Rdata"))
 load(file=str_c(datawd,"cou.Rdata"))
 
+emu <- st_read(str_c(dsn= "PG:dbname='wgeel' host='localhost' port='5436' user='",userlocal,"' 
+						password='",passwordlocal,"'"), layer="ref.tr_emu_emu")
+# This is the map of the emu
+#emu_p <<- rmapshaper::ms_simplify(rgdal::readOGR(str_c(shpwd,"/","emu_polygons_4326.shp")), keep = 0.7) # a spatial object of class sp, symplified to be displayed easily
+emu_p <- rmapshaper::ms_simplify(emu$geom, keep = 0.7) # a spatial object of class sp, symplified to be displayed easily
+## Is this emu$geom simplified, do we need it? 
 
+# To calculate the center of the polygone, empty geom is not possible
+emu_no_empty_geom <- emu[which(!st_is_empty(emu$geom)),]
+# This corresponds to the center of each emu
+#emu_c <- rgdal::readOGR(str_c(shpwd,"/","emu_centre_4326.shp")) # a spatial object of class spatialpointsdataframe
+emu_c <- st_centroid(emu_no_empty_geom$geom)
+
+
+emu<- cbind(emu_no_empty_geom,st_coordinates(emu_c))
+save(emu, file=str_c(datawd,"emu.Rdata"))
 
 ```
 
 
 
 ```{r load_excel, echo=FALSE, include=FALSE}
-f <- "Literature_table_050220_all.xlsx"
+f <- "Literature_table_final.xlsx"
 path <- str_c(datawd,f)	
 file <- basename(path)
 mylocalfilename <- gsub(".xlsx","",file)
-sea <- read_excel(path=path,"Literature review" , range="A2:AN69",col_names = TRUE)
-f <- "Literature Review_table_recruitment.xlsx"
-path <- str_c(datawd,f)	
-file <- basename(path)
-mylocalfilename <- gsub(".xlsx","",file)
-seag <- read_excel(path=path,"Literature review" , range="A2:AN48",col_names = TRUE)
-seag <- seag[colnames(sea)%in%colnames(seag),]
-colnames(seag)
-colnames(sea)
-sea<-rbind(sea,seag)
+sea <- read_excel(path=path,"Literature review" , range="A2:AN116",col_names = TRUE)
 save(sea, file=str_c(datawd,'sea.Rdata'))
 
 
@@ -104,7 +110,8 @@ table(sea$Type)
 colnames(sea) <- tolower(colnames(sea))
 colnames(sea) <- make.names(colnames(sea))
 sea$stage2 <- NA 
-sea$stage2[grepl("G",sea$stage)|grepl("E",sea$stage)] <-'G'
+sea$stage2[grepl("G",sea$stage)] <-'G'
+sea$stage2[grepl("GE/E/Y",sea$stage) | grepl("GE/Y",sea$stage)|sea$stage=="E"|sea$stage=="E/BT"] <- "GY"
 sea$stage2[grepl("S",sea$stage)] <-'S'
 sea$stage2[grepl("Y",sea$stage)] <-'Y'
 sea$stage2[grepl("BL",sea$stage)] <-'Y'
@@ -118,7 +125,7 @@ sea$isqual <- sea$quality.of.data== 'Qual'
 
 
 
-sea_c <- sea[isquant,]
+sea_c <- sea[sea$isquant,]
 (sss <- rowSums(sea_c[,c('jan','feb','mar','apr','may','june','july','aug','sept','oct','nov','dec')], na.rm=TRUE ))
 
 sea_c[sss>100,c('jan','feb','mar','apr','may','june','july','aug','sept','oct','nov','dec')]<-	
@@ -176,9 +183,10 @@ sea_c3 %>% filter(stage2=="S")%>%
 		geom_col(aes(y=freq),position="dodge")+
 		xlab("month")+
 		ylab("percentage")+
+		scale_x_continuous(breaks = c(2,4,6,8,10)) +
 		theme_igray() +
 		facet_wrap( ~ site)
-
+		
 dev.off()
 
 sea_c3 %>% filter(stage2=="G")%>%
@@ -206,6 +214,7 @@ sea_c2 %>% filter(stage2=="S")%>%
 		facet_wrap( ~ author)
 
 
+# qualitative data
 
 sea_q <- sea[sea$isqual,]
 nrow(sea_q)
@@ -242,55 +251,79 @@ require(sp)
 
 
 
-emu <- st_read(str_c(dsn= "PG:dbname='wgeel' host='localhost' port='5436' user='",userlocal,"' 
-						password='",passwordlocal,"'"), layer="ref.tr_emu_emu")
-# This is the map of the emu
-#emu_p <<- rmapshaper::ms_simplify(rgdal::readOGR(str_c(shpwd,"/","emu_polygons_4326.shp")), keep = 0.7) # a spatial object of class sp, symplified to be displayed easily
-emu_p <- rmapshaper::ms_simplify(emu$geom, keep = 0.7) # a spatial object of class sp, symplified to be displayed easily
-## Is this emu$geom simplified, do we need it? 
-
-# To calculate the center of the polygone, empty geom is not possible
-emu_no_empty_geom <- emu[which(!st_is_empty(emu$geom)),]
-# This corresponds to the center of each emu
-#emu_c <- rgdal::readOGR(str_c(shpwd,"/","emu_centre_4326.shp")) # a spatial object of class spatialpointsdataframe
-emu_c <- st_centroid(emu_no_empty_geom$geom)
-
-
-emu<- cbind(emu_no_empty_geom,st_coordinates(emu_c))
 
 sea_q2$emu <-gsub("Total","total",sea_q2$emu)
 # sea_q2$emu[!sea_q2$emu%in%emu$emu_nameshort] # none left
 options(tibble.width = Inf)
 #sea_q2[is.na(sea_q2$emu),]%>%print(n=Inf) # only yellow eel OK
-		
+
 sea_q3G <- sea_q2 %>% 
-		filter(stage2=="G") %>%
+		filter(stage2=="G"| stage2=='GY') %>%
 		left_join(emu, by=c("emu"="emu_nameshort"))%>%
-		group_by(author,site,month,stage2,emu,X,Y)%>%
-				summarize(N=n(),freq=round(mean(freq,na.rm=TRUE))) %>% 
-				print(n=Inf)
-		
-		sea_q3G$site[order(sea_q3G$Y+sea_q3G$X)]
-x11()
-ggplot(sea_q3,aes(x = month)) +
-		geom_tile(aes(y=author,fill=freq))+
-		xlab("month")+
-		ylab("percentage catch")+
-		facet_wrap(~  stage2)
+		group_by(author,site,month,emu,X,Y,stage2)%>%
+		summarize(N=n(),freq=round(mean(freq,na.rm=TRUE))) %>%
+		ungroup()
+table(sea_q3G$author,sea_q3G$site)
+sites <- sea_q3G %>%	select(site,X,Y)	 %>% distinct() %>% mutate(XY=X+Y) %>% arrange(XY)
+authors <- sea_q3G %>%	select(author,X,Y)	 %>% distinct() %>% mutate(XY=X+Y) %>% arrange(XY)
+sea_q3G$site <- factor(sea_q3G$site, levels=sites$site)
 
-sea_q3 %>% filter(stage2=="S")%>%
-		ggplot(aes(x = month)) +
-		geom_col(aes(y=freq),position="dodge")+
-		xlab("month")+
-		ylab("percentage catch")+
-		facet_wrap( ~ site)
 
-sea_q3 %>% filter(stage2=="G")%>%
-		ggplot(aes(x = month)) +
-		geom_col(aes(y=freq),position="dodge")+
+png(filename=str_c(imgwd,"glass_qualitative_litterature.png"),width=800,height=600)
+ggplot(sea_q3G) +
+		geom_tile(aes(x = month,y=site,fill=freq))+
+		annotate("text", y=1:12,x=rep(7,12),label=authors$author[c(1:10,12,13)])+
 		xlab("month")+
-		ylab("percentage catch")+
-		facet_wrap( ~ site)		
+		ylab("Intensity of migration")+	
+		ggtitle("Glass eel migration") +
+		scale_x_continuous(breaks = c(2,4,6,8,10)) +
+		scale_fill_continuous_sequential(palette = "YlOrRd")+
+		facet_wrap( stages2) +
+		theme_igray()
+dev.off()
+
+
+
+sea_q3S <- sea_q2 %>% 
+		filter(stage2=="S") %>%
+		left_join(emu, by=c("emu"="emu_nameshort"))%>%
+		group_by(author,site,month,emu,X,Y)%>%
+		summarize(N=n(),freq=round(mean(freq,na.rm=TRUE))) %>%
+		ungroup()
+
+
+png(filename=str_c(imgwd,"silver_qualitative_litterature.png"),width=800,height=600)
+ggplot(sea_q3S) +
+		geom_tile(aes(x = month,y=author,fill=freq))+
+		xlab("month")+
+		ylab("Intensity of migration")+	
+		ggtitle("Silver eel migration") +
+		scale_x_continuous(breaks = c(2,4,6,8,10)) +
+		scale_fill_continuous_sequential(palette = "BluYl")+
+		theme_igray()
+dev.off()
+
+
+sea_q3Y <- sea_q2 %>% 
+		filter(stage2=="Y") %>%
+		left_join(emu, by=c("emu"="emu_nameshort"))%>%
+		group_by(author,site,month,emu,X,Y)%>%
+		summarize(N=n(),freq=round(mean(freq,na.rm=TRUE))) %>%
+		ungroup()
+
+
+png(filename=str_c(imgwd,"yellow_qualitative_litterature.png"),width=800,height=600)
+ggplot(sea_q3Y) +
+		geom_tile(aes(x = month,y=author,fill=freq))+
+		xlab("month")+
+		ylab("Intensity of migration")+	
+		ggtitle("Yellow eel migration") +
+		scale_x_continuous(breaks = c(2,4,6,8,10)) +
+		scale_fill_continuous_sequential(palette = "Terrain")+
+		theme_igray()
+dev.off()
+
+
 
 
 # Frémur is wrong
