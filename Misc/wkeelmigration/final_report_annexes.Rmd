@@ -69,6 +69,7 @@ coud <- cou
 st_geometry(coud) <- NULL
 countries <- data.frame("cou_code"=unique(c(resl$country,resc$country)))
 countries <- inner_join(countries,coud)
+countries <- countries[order(countries$cou_code),]
 the_emus <- data.frame("emu_nameshort"=unique(c(resl$emu_nameshort,resc$emu_nameshort)))
 the_emus <- inner_join(emus,the_emus)
 load(file=str_c(datawd,"big_table_closure.Rdata"))
@@ -131,7 +132,7 @@ for (i in 1:length(files)){
 
 
 
-```{r pivot_table, echo=FALSE, include=FALSE, eval=FALSE}
+```{r pivot_table, echo=FALSE, include=FALSE, eval=TRUE}
 
 # run only when data are changed, otherwise ignored
 big_table_closure <- resc %>%	
@@ -156,17 +157,17 @@ big_table_closure <- resc %>%
 										tooltip =paste0(fishery_closure_type," reason:",reason_for_closure, "; Comment: ", comment )),									
 								fishery_closure_type=='PS' & reason_for_closure !="EU Closure"  ~ cell_spec(fishery_closure_percent, "html",
 										color ="white",
-										background = "tomato1",
+										background = "red",
 										link = "#",
 										tooltip =paste0(fishery_closure_type," reason:",reason_for_closure, "; Comment: ", comment )),
 								fishery_closure_type=='PT'  & reason_for_closure !="EU Closure" ~ cell_spec(fishery_closure_percent, "html",
 										color ="white",
-										background = "dodgerblue4",
+										background = "blue",
 										link = "#",
 										tooltip =paste0(fishery_closure_type," reason:",reason_for_closure, "; Comment: ", comment )),
 								fishery_closure_type=='PTS'  & reason_for_closure !="EU Closure" ~ cell_spec(fishery_closure_percent, "html",
 										color ="white",
-										background = "purple3",
+										background = "purple",
 										link = "#",
 										tooltip =paste0(fishery_closure_type," reason:",reason_for_closure, "; Comment: ", comment )),
 								fishery_closure_type=='T'  & reason_for_closure !="EU Closure" ~ cell_spec(fishery_closure_percent, "html",
@@ -339,7 +340,8 @@ fnplot <- function(res, emu, lfs, hty,colfill=NULL, colpattern="red", title="", 
 			crossing(year=unique(res4$year))%>%
 			mutate(prop=prop*100)
 	
-	
+	# save(res4,resc3,pat_mo2, file=str_c(datawd, "res4.Rdata"))
+
 	if (nrow(res4)>1){
 		
 		cat(" \n")
@@ -355,7 +357,7 @@ fnplot <- function(res, emu, lfs, hty,colfill=NULL, colpattern="red", title="", 
 		  scale_fill_manual(name="",values=c("observed"=colfill)) +
 				geom_hpline(aes(y=prop_per_month,col=type),width = 0.9, size = 1) +
 				geom_jitter(aes(y=prop, col=type), width = 0.1, data=pat_mo2)+
-		  labs(color="average pattern")
+		  labs(color="average pattern")+
 				geom_label(aes(x=month,y=66+closure/3,label=closure, fill=reason_for_closure),
 						size=1.56,
 						alpha=1,
