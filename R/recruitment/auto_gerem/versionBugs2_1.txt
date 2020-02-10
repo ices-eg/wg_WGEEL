@@ -87,11 +87,11 @@ for (survey in 1:nbsurvey){
 	logq[survey]~dunif(-13,0)
 }
 for (itrap in 1:nbtrap){
-	a[itrap]~dbeta(scale_trap[1,itrap],scale_trap[1,itrap])
+	a[itrap]~dbeta(scale_trap[1,itrap],scale_trap[2,itrap])
 	loga[itrap]<-log(a[itrap])
 }
 for (icatch in 1:nbcatch){
-	p[icatch]~dbeta(scale_catch[1,icatch],scale_trap[1,icatch])
+	p[icatch]~dbeta(scale_catch[1,icatch],scale_catch[2,icatch])
 	logp[icatch]<-log(p[icatch])
 }
 iprecision~dgamma(2,1)T(1,2)
