@@ -44,7 +44,7 @@ emu$name_short[emu$name_short=="ES_Minh"]="ES_Mino"
 cou <- st_read("/mnt/SIG/01-REFERENTIELS/LIMITES_ADMINISTRATIVES_monde/world_countries_WGS84.shp")
 cou <- st_transform(cou, crs=4326)
 dbDisconnect(con)
-
+months=c("JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC")
 pal= brewer.pal(7,"Set2")
 cols <- c("1" = pal[1], "2"= pal[2],"3" = pal[3], "4" = pal[4],  "5" = pal[5], "6"=pal[6], "7"=pal[7])
 
@@ -58,6 +58,7 @@ For convenience, we rename the data.frame with names consistent with the seasona
 ```{r}
 res <- res %>%
   rename(das_month=month, das_value=value, das_year=year)
+res %>%group_by(hty_code,lfs_code)%>% summarize(number=n_distinct(emu_nameshort)) %>% arrange(lfs_code)
 ```
 
 # Glass Eel
@@ -318,6 +319,7 @@ pat$cluster <- factor(match(pat$cluster,clus_order),
 ggplot(pat,aes(x=month,y=proportion))+
   geom_boxplot(aes(fill=cluster),outlier.shape=NA) +
   scale_fill_manual(values=cols)+facet_wrap(.~cluster, ncol=1) +
+  scale_x_discrete(labels=months)+
   theme_igray()
 ```
 
@@ -854,6 +856,7 @@ pat$cluster <- factor(match(pat$cluster,clus_order),
 ggplot(pat,aes(x=month,y=proportion))+
   geom_boxplot(aes(fill=cluster),outlier.shape=NA) +
   scale_fill_manual(values=cols)+facet_wrap(.~cluster, ncol=1) +
+  scale_x_discrete(labels=months)+
   theme_igray()
 ```
 
@@ -1336,6 +1339,7 @@ pat$cluster <- factor(match(pat$cluster,clus_order),
 ggplot(pat,aes(x=month,y=proportion))+
   geom_boxplot(aes(fill=cluster),outlier.shape=NA) +
   scale_fill_manual(values=cols)+facet_wrap(.~cluster, ncol=1)+
+  scale_x_discrete(labels=months)+
   theme_igray()
 ```
 
@@ -1820,6 +1824,7 @@ pat$cluster <- factor(match(pat$cluster, clus_order),
                        levels=as.character(1:7))
 ggplot(pat,aes(x=month,y=proportion))+
   geom_boxplot(aes(fill=cluster),outlier.shape=NA) +
+  scale_x_discrete(labels=months)+
   scale_fill_manual(values=cols)+facet_wrap(.~cluster, ncol=1) +
   theme_igray()
 ```
@@ -2302,6 +2307,7 @@ pat$cluster <- factor(match(pat$cluster, clus_order),
 ggplot(pat,aes(x=month,y=proportion))+
   geom_boxplot(aes(fill=cluster),outlier.shape=NA) +
   scale_fill_manual(values=cols)+facet_wrap(.~cluster, ncol=1) +
+  scale_x_discrete(labels=months)+
   theme_igray()
 ```
 
@@ -2690,6 +2696,7 @@ pat$cluster <- factor(match(pat$cluster, clus_order),
                       levels=as.character(1:7))
 ggplot(pat,aes(x=month,y=proportion))+scale_fill_manual(values=cols)+
   geom_boxplot(aes(fill=cluster),outlier.shape=NA)+facet_wrap(.~cluster, ncol=1) +
+  scale_x_discrete(labels=months)+
   theme_igray()
 ```
 Clusters 3 and 4 correspond to peak in october with 3 more widespread. Cluster 1 corresponds to a peak in autumn/winter. Cluster 2 corresponds to catches in winter.
@@ -3182,6 +3189,7 @@ pat$cluster <- factor(match(pat$cluster, clus_order),
 ggplot(pat,aes(x=month,y=proportion))+
   geom_boxplot(aes(fill=cluster),outlier.shape=NA) +
   scale_fill_manual(values=cols)+facet_wrap(.~cluster, ncol=1) +
+  scale_x_discrete(labels=months)+
   theme_igray()
 ```
 
@@ -3722,7 +3730,8 @@ pat$cluster = factor(match(pat$cluster, clus_order),
                      levels=as.character(1:7))
 ggplot(pat,aes(x=month,y=proportion))+
   geom_boxplot(aes(fill=cluster),outlier.shape=NA) +
-  scale_fill_manual(values=cols)+facet_wrap(.~cluster, ncol=1)
+  scale_fill_manual(values=cols)+facet_wrap(.~cluster, ncol=1)+
+  scale_x_discrete(labels=months)+
   theme_igray()
 ```
 

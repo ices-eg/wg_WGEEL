@@ -513,6 +513,7 @@ pat$cluster=factor(match(pat$cluster,clus_order),
 ggplot(pat,aes(x=month,y=proportion))+
   geom_boxplot(aes(fill=cluster),outlier.shape=NA) +
   scale_fill_manual(values=cols)+facet_wrap(.~cluster, ncol=1) +
+  scale_x_discrete(labels=months)+
   theme_igray()
 ```
 
@@ -1562,6 +1563,7 @@ pat$cluster=factor(match(pat$cluster,clus_order),
 ggplot(pat,aes(x=month,y=proportion))+
   geom_boxplot(aes(fill=cluster),outlier.shape=NA) +
   scale_fill_manual(values=cols)+facet_wrap(.~cluster, ncol=1)+
+  scale_x_discrete(labels=months)+
   theme_igray()
 ```
 
@@ -1989,6 +1991,8 @@ myclassif_silver$x <- ser2$ser_x[match(myclassif_silver$ser, ser2$ser_nameshort)
 myclassif_silver$jit_x <- jitter(myclassif_silver$x,amount=.5)
 myclassif_silver$y <- ser2$ser_y[match(myclassif_silver$ser, ser2$ser_nameshort)]
 myclassif_silver$jit_y <- jitter(myclassif_silver$y,amount=.5)
+myclassif_silver$jit_y[myclassif_silver$ser=="DaugS"]<-myclassif_silver$jit_x[myclassif_silver$ser=="DaugS"]
+myclassif_silver$jit_x[myclassif_silver$ser=="DaugS"]<-myclassif_silver$y[myclassif_silver$ser=="DaugS"]
 ggplot(data = cou) +  geom_sf(fill= "antiquewhite") +
 		geom_point(data=myclassif_silver,size=5,
 		           aes(x=jit_x,y=jit_y,col=as.factor(cluster),pch=period)) +
@@ -2632,6 +2636,7 @@ pat$cluster=factor(match(pat$cluster,clus_order ),
 ggplot(pat,aes(x=month,y=proportion))+
   geom_boxplot(aes(fill=cluster),outlier.shape=NA) +
   scale_fill_manual(values=cols)+facet_wrap(.~cluster, ncol=1)+
+  scale_x_discrete(labels=months)+
   theme_igray()
 ```
 

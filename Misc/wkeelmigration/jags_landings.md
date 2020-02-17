@@ -487,6 +487,7 @@ pat$cluster <- factor(match(pat$cluster,clus_order),
 ggplot(pat,aes(x=month,y=proportion))+
   geom_boxplot(aes(fill=cluster),outlier.shape=NA) +
   scale_fill_manual(values=cols)+facet_wrap(.~cluster, ncol=1) +
+  scale_x_discrete(labels=months)+
   theme_igray()
 ```
 
@@ -1876,6 +1877,7 @@ pat$cluster <- factor(match(pat$cluster,clus_order),
 ggplot(pat,aes(x=month,y=proportion))+
   geom_boxplot(aes(fill=cluster),outlier.shape=NA) +
   scale_fill_manual(values=cols)+facet_wrap(.~cluster, ncol=1) +
+  scale_x_discrete(labels=months)+
   theme_igray()
 ```
 
@@ -2890,6 +2892,7 @@ pat$cluster <- factor(match(pat$cluster,clus_order),
 ggplot(pat,aes(x=month,y=proportion))+
   geom_boxplot(aes(fill=cluster),outlier.shape=NA) +
   scale_fill_manual(values=cols)+facet_wrap(.~cluster, ncol=1)+
+  scale_x_discrete(labels=months)+
   theme_igray()
 ```
 
@@ -4015,6 +4018,7 @@ pat$cluster <- factor(match(pat$cluster, clus_order),
                        levels=as.character(1:7))
 ggplot(pat,aes(x=month,y=proportion))+
   geom_boxplot(aes(fill=cluster),outlier.shape=NA) +
+  scale_x_discrete(labels=months)+
   scale_fill_manual(values=cols)+facet_wrap(.~cluster, ncol=1) +
   theme_igray()
 ```
@@ -5239,6 +5243,7 @@ pat$cluster <- factor(match(pat$cluster, clus_order),
 ggplot(pat,aes(x=month,y=proportion))+
   geom_boxplot(aes(fill=cluster),outlier.shape=NA) +
   scale_fill_manual(values=cols)+facet_wrap(.~cluster, ncol=1) +
+  scale_x_discrete(labels=months)+
   theme_igray()
 ```
 
@@ -6704,6 +6709,7 @@ pat$cluster <- factor(match(pat$cluster, clus_order),
                       levels=as.character(1:7))
 ggplot(pat,aes(x=month,y=proportion))+scale_fill_manual(values=cols)+
   geom_boxplot(aes(fill=cluster),outlier.shape=NA)+facet_wrap(.~cluster, ncol=1) +
+  scale_x_discrete(labels=months)+
   theme_igray()
 ```
 
@@ -7895,6 +7901,7 @@ pat$cluster <- factor(match(pat$cluster, clus_order),
 ggplot(pat,aes(x=month,y=proportion))+
   geom_boxplot(aes(fill=cluster),outlier.shape=NA) +
   scale_fill_manual(values=cols)+facet_wrap(.~cluster, ncol=1) +
+  scale_x_discrete(labels=months)+
   theme_igray()
 ```
 
@@ -9280,423 +9287,12 @@ pat$cluster = factor(match(pat$cluster, clus_order),
                      levels=as.character(1:7))
 ggplot(pat,aes(x=month,y=proportion))+
   geom_boxplot(aes(fill=cluster),outlier.shape=NA) +
-  scale_fill_manual(values=cols)+facet_wrap(.~cluster, ncol=1)
-```
-
-![](jags_landings_files/figure-html/unnamed-chunk-130-1.png)<!-- -->
-
-```r
+  scale_fill_manual(values=cols)+facet_wrap(.~cluster, ncol=1)+
+  scale_x_discrete(labels=months)+
   theme_igray()
 ```
 
-```
-## List of 66
-##  $ line                      :List of 6
-##   ..$ colour       : chr "black"
-##   ..$ size         : num 0.545
-##   ..$ linetype     : num 1
-##   ..$ lineend      : chr "butt"
-##   ..$ arrow        : logi FALSE
-##   ..$ inherit.blank: logi TRUE
-##   ..- attr(*, "class")= chr [1:2] "element_line" "element"
-##  $ rect                      :List of 5
-##   ..$ fill         : chr "gray90"
-##   ..$ colour       : chr "black"
-##   ..$ size         : num 0.545
-##   ..$ linetype     : num 1
-##   ..$ inherit.blank: logi FALSE
-##   ..- attr(*, "class")= chr [1:2] "element_rect" "element"
-##  $ text                      :List of 11
-##   ..$ family       : chr ""
-##   ..$ face         : chr "plain"
-##   ..$ colour       : chr "black"
-##   ..$ size         : num 12
-##   ..$ hjust        : num 0.5
-##   ..$ vjust        : num 0.5
-##   ..$ angle        : num 0
-##   ..$ lineheight   : num 0.9
-##   ..$ margin       : 'margin' num [1:4] 0pt 0pt 0pt 0pt
-##   .. ..- attr(*, "valid.unit")= int 8
-##   .. ..- attr(*, "unit")= chr "pt"
-##   ..$ debug        : logi FALSE
-##   ..$ inherit.blank: logi TRUE
-##   ..- attr(*, "class")= chr [1:2] "element_text" "element"
-##  $ axis.title.x              :List of 11
-##   ..$ family       : NULL
-##   ..$ face         : NULL
-##   ..$ colour       : NULL
-##   ..$ size         : NULL
-##   ..$ hjust        : NULL
-##   ..$ vjust        : num 1
-##   ..$ angle        : NULL
-##   ..$ lineheight   : NULL
-##   ..$ margin       : 'margin' num [1:4] 3pt 0pt 0pt 0pt
-##   .. ..- attr(*, "valid.unit")= int 8
-##   .. ..- attr(*, "unit")= chr "pt"
-##   ..$ debug        : NULL
-##   ..$ inherit.blank: logi TRUE
-##   ..- attr(*, "class")= chr [1:2] "element_text" "element"
-##  $ axis.title.x.top          :List of 11
-##   ..$ family       : NULL
-##   ..$ face         : NULL
-##   ..$ colour       : NULL
-##   ..$ size         : NULL
-##   ..$ hjust        : NULL
-##   ..$ vjust        : num 0
-##   ..$ angle        : NULL
-##   ..$ lineheight   : NULL
-##   ..$ margin       : 'margin' num [1:4] 0pt 0pt 3pt 0pt
-##   .. ..- attr(*, "valid.unit")= int 8
-##   .. ..- attr(*, "unit")= chr "pt"
-##   ..$ debug        : NULL
-##   ..$ inherit.blank: logi TRUE
-##   ..- attr(*, "class")= chr [1:2] "element_text" "element"
-##  $ axis.title.y              :List of 11
-##   ..$ family       : NULL
-##   ..$ face         : NULL
-##   ..$ colour       : NULL
-##   ..$ size         : NULL
-##   ..$ hjust        : NULL
-##   ..$ vjust        : num 1
-##   ..$ angle        : num 90
-##   ..$ lineheight   : NULL
-##   ..$ margin       : 'margin' num [1:4] 0pt 3pt 0pt 0pt
-##   .. ..- attr(*, "valid.unit")= int 8
-##   .. ..- attr(*, "unit")= chr "pt"
-##   ..$ debug        : NULL
-##   ..$ inherit.blank: logi TRUE
-##   ..- attr(*, "class")= chr [1:2] "element_text" "element"
-##  $ axis.title.y.right        :List of 11
-##   ..$ family       : NULL
-##   ..$ face         : NULL
-##   ..$ colour       : NULL
-##   ..$ size         : NULL
-##   ..$ hjust        : NULL
-##   ..$ vjust        : num 0
-##   ..$ angle        : num -90
-##   ..$ lineheight   : NULL
-##   ..$ margin       : 'margin' num [1:4] 0pt 0pt 0pt 3pt
-##   .. ..- attr(*, "valid.unit")= int 8
-##   .. ..- attr(*, "unit")= chr "pt"
-##   ..$ debug        : NULL
-##   ..$ inherit.blank: logi TRUE
-##   ..- attr(*, "class")= chr [1:2] "element_text" "element"
-##  $ axis.text                 :List of 11
-##   ..$ family       : NULL
-##   ..$ face         : NULL
-##   ..$ colour       : chr "grey30"
-##   ..$ size         : 'rel' num 0.8
-##   ..$ hjust        : NULL
-##   ..$ vjust        : NULL
-##   ..$ angle        : NULL
-##   ..$ lineheight   : NULL
-##   ..$ margin       : NULL
-##   ..$ debug        : NULL
-##   ..$ inherit.blank: logi TRUE
-##   ..- attr(*, "class")= chr [1:2] "element_text" "element"
-##  $ axis.text.x               :List of 11
-##   ..$ family       : NULL
-##   ..$ face         : NULL
-##   ..$ colour       : NULL
-##   ..$ size         : NULL
-##   ..$ hjust        : NULL
-##   ..$ vjust        : num 1
-##   ..$ angle        : NULL
-##   ..$ lineheight   : NULL
-##   ..$ margin       : 'margin' num [1:4] 2.4pt 0pt 0pt 0pt
-##   .. ..- attr(*, "valid.unit")= int 8
-##   .. ..- attr(*, "unit")= chr "pt"
-##   ..$ debug        : NULL
-##   ..$ inherit.blank: logi TRUE
-##   ..- attr(*, "class")= chr [1:2] "element_text" "element"
-##  $ axis.text.x.top           :List of 11
-##   ..$ family       : NULL
-##   ..$ face         : NULL
-##   ..$ colour       : NULL
-##   ..$ size         : NULL
-##   ..$ hjust        : NULL
-##   ..$ vjust        : num 0
-##   ..$ angle        : NULL
-##   ..$ lineheight   : NULL
-##   ..$ margin       : 'margin' num [1:4] 0pt 0pt 2.4pt 0pt
-##   .. ..- attr(*, "valid.unit")= int 8
-##   .. ..- attr(*, "unit")= chr "pt"
-##   ..$ debug        : NULL
-##   ..$ inherit.blank: logi TRUE
-##   ..- attr(*, "class")= chr [1:2] "element_text" "element"
-##  $ axis.text.y               :List of 11
-##   ..$ family       : NULL
-##   ..$ face         : NULL
-##   ..$ colour       : NULL
-##   ..$ size         : NULL
-##   ..$ hjust        : num 1
-##   ..$ vjust        : NULL
-##   ..$ angle        : NULL
-##   ..$ lineheight   : NULL
-##   ..$ margin       : 'margin' num [1:4] 0pt 2.4pt 0pt 0pt
-##   .. ..- attr(*, "valid.unit")= int 8
-##   .. ..- attr(*, "unit")= chr "pt"
-##   ..$ debug        : NULL
-##   ..$ inherit.blank: logi TRUE
-##   ..- attr(*, "class")= chr [1:2] "element_text" "element"
-##  $ axis.text.y.right         :List of 11
-##   ..$ family       : NULL
-##   ..$ face         : NULL
-##   ..$ colour       : NULL
-##   ..$ size         : NULL
-##   ..$ hjust        : num 0
-##   ..$ vjust        : NULL
-##   ..$ angle        : NULL
-##   ..$ lineheight   : NULL
-##   ..$ margin       : 'margin' num [1:4] 0pt 0pt 0pt 2.4pt
-##   .. ..- attr(*, "valid.unit")= int 8
-##   .. ..- attr(*, "unit")= chr "pt"
-##   ..$ debug        : NULL
-##   ..$ inherit.blank: logi TRUE
-##   ..- attr(*, "class")= chr [1:2] "element_text" "element"
-##  $ axis.ticks                :List of 6
-##   ..$ colour       : chr "grey20"
-##   ..$ size         : NULL
-##   ..$ linetype     : NULL
-##   ..$ lineend      : NULL
-##   ..$ arrow        : logi FALSE
-##   ..$ inherit.blank: logi TRUE
-##   ..- attr(*, "class")= chr [1:2] "element_line" "element"
-##  $ axis.ticks.length         : 'unit' num 3pt
-##   ..- attr(*, "valid.unit")= int 8
-##   ..- attr(*, "unit")= chr "pt"
-##  $ axis.ticks.length.x       : NULL
-##  $ axis.ticks.length.x.top   : NULL
-##  $ axis.ticks.length.x.bottom: NULL
-##  $ axis.ticks.length.y       : NULL
-##  $ axis.ticks.length.y.left  : NULL
-##  $ axis.ticks.length.y.right : NULL
-##  $ axis.line                 : list()
-##   ..- attr(*, "class")= chr [1:2] "element_blank" "element"
-##  $ axis.line.x               : NULL
-##  $ axis.line.y               : NULL
-##  $ legend.background         :List of 5
-##   ..$ fill         : NULL
-##   ..$ colour       : logi NA
-##   ..$ size         : NULL
-##   ..$ linetype     : NULL
-##   ..$ inherit.blank: logi TRUE
-##   ..- attr(*, "class")= chr [1:2] "element_rect" "element"
-##  $ legend.margin             : 'margin' num [1:4] 6pt 6pt 6pt 6pt
-##   ..- attr(*, "valid.unit")= int 8
-##   ..- attr(*, "unit")= chr "pt"
-##  $ legend.spacing            : 'unit' num 12pt
-##   ..- attr(*, "valid.unit")= int 8
-##   ..- attr(*, "unit")= chr "pt"
-##  $ legend.spacing.x          : NULL
-##  $ legend.spacing.y          : NULL
-##  $ legend.key                :List of 5
-##   ..$ fill         : chr "white"
-##   ..$ colour       : chr "white"
-##   ..$ size         : NULL
-##   ..$ linetype     : NULL
-##   ..$ inherit.blank: logi FALSE
-##   ..- attr(*, "class")= chr [1:2] "element_rect" "element"
-##  $ legend.key.size           : 'unit' num 1.2lines
-##   ..- attr(*, "valid.unit")= int 3
-##   ..- attr(*, "unit")= chr "lines"
-##  $ legend.key.height         : NULL
-##  $ legend.key.width          : NULL
-##  $ legend.text               :List of 11
-##   ..$ family       : NULL
-##   ..$ face         : NULL
-##   ..$ colour       : NULL
-##   ..$ size         : 'rel' num 0.8
-##   ..$ hjust        : NULL
-##   ..$ vjust        : NULL
-##   ..$ angle        : NULL
-##   ..$ lineheight   : NULL
-##   ..$ margin       : NULL
-##   ..$ debug        : NULL
-##   ..$ inherit.blank: logi TRUE
-##   ..- attr(*, "class")= chr [1:2] "element_text" "element"
-##  $ legend.text.align         : NULL
-##  $ legend.title              :List of 11
-##   ..$ family       : NULL
-##   ..$ face         : NULL
-##   ..$ colour       : NULL
-##   ..$ size         : NULL
-##   ..$ hjust        : num 0
-##   ..$ vjust        : NULL
-##   ..$ angle        : NULL
-##   ..$ lineheight   : NULL
-##   ..$ margin       : NULL
-##   ..$ debug        : NULL
-##   ..$ inherit.blank: logi TRUE
-##   ..- attr(*, "class")= chr [1:2] "element_text" "element"
-##  $ legend.title.align        : NULL
-##  $ legend.position           : chr "right"
-##  $ legend.direction          : NULL
-##  $ legend.justification      : chr "center"
-##  $ legend.box                : NULL
-##  $ legend.box.margin         : 'margin' num [1:4] 0cm 0cm 0cm 0cm
-##   ..- attr(*, "valid.unit")= int 1
-##   ..- attr(*, "unit")= chr "cm"
-##  $ legend.box.background     : list()
-##   ..- attr(*, "class")= chr [1:2] "element_blank" "element"
-##  $ legend.box.spacing        : 'unit' num 12pt
-##   ..- attr(*, "valid.unit")= int 8
-##   ..- attr(*, "unit")= chr "pt"
-##  $ panel.background          :List of 5
-##   ..$ fill         : chr "white"
-##   ..$ colour       : logi NA
-##   ..$ size         : NULL
-##   ..$ linetype     : NULL
-##   ..$ inherit.blank: logi FALSE
-##   ..- attr(*, "class")= chr [1:2] "element_rect" "element"
-##  $ panel.border              : list()
-##   ..- attr(*, "class")= chr [1:2] "element_blank" "element"
-##  $ panel.spacing             : 'unit' num 6pt
-##   ..- attr(*, "valid.unit")= int 8
-##   ..- attr(*, "unit")= chr "pt"
-##  $ panel.spacing.x           : NULL
-##  $ panel.spacing.y           : NULL
-##  $ panel.grid                :List of 6
-##   ..$ colour       : chr "white"
-##   ..$ size         : NULL
-##   ..$ linetype     : NULL
-##   ..$ lineend      : NULL
-##   ..$ arrow        : logi FALSE
-##   ..$ inherit.blank: logi TRUE
-##   ..- attr(*, "class")= chr [1:2] "element_line" "element"
-##  $ panel.grid.minor          :List of 6
-##   ..$ colour       : NULL
-##   ..$ size         : 'rel' num 0.5
-##   ..$ linetype     : NULL
-##   ..$ lineend      : NULL
-##   ..$ arrow        : logi FALSE
-##   ..$ inherit.blank: logi TRUE
-##   ..- attr(*, "class")= chr [1:2] "element_line" "element"
-##  $ panel.ontop               : logi FALSE
-##  $ plot.background           :List of 5
-##   ..$ fill         : chr "gray90"
-##   ..$ colour       : chr "white"
-##   ..$ size         : NULL
-##   ..$ linetype     : NULL
-##   ..$ inherit.blank: logi FALSE
-##   ..- attr(*, "class")= chr [1:2] "element_rect" "element"
-##  $ plot.title                :List of 11
-##   ..$ family       : NULL
-##   ..$ face         : NULL
-##   ..$ colour       : NULL
-##   ..$ size         : 'rel' num 1.2
-##   ..$ hjust        : num 0
-##   ..$ vjust        : num 1
-##   ..$ angle        : NULL
-##   ..$ lineheight   : NULL
-##   ..$ margin       : 'margin' num [1:4] 0pt 0pt 6pt 0pt
-##   .. ..- attr(*, "valid.unit")= int 8
-##   .. ..- attr(*, "unit")= chr "pt"
-##   ..$ debug        : NULL
-##   ..$ inherit.blank: logi TRUE
-##   ..- attr(*, "class")= chr [1:2] "element_text" "element"
-##  $ plot.subtitle             :List of 11
-##   ..$ family       : NULL
-##   ..$ face         : NULL
-##   ..$ colour       : NULL
-##   ..$ size         : NULL
-##   ..$ hjust        : num 0
-##   ..$ vjust        : num 1
-##   ..$ angle        : NULL
-##   ..$ lineheight   : NULL
-##   ..$ margin       : 'margin' num [1:4] 0pt 0pt 6pt 0pt
-##   .. ..- attr(*, "valid.unit")= int 8
-##   .. ..- attr(*, "unit")= chr "pt"
-##   ..$ debug        : NULL
-##   ..$ inherit.blank: logi TRUE
-##   ..- attr(*, "class")= chr [1:2] "element_text" "element"
-##  $ plot.caption              :List of 11
-##   ..$ family       : NULL
-##   ..$ face         : NULL
-##   ..$ colour       : NULL
-##   ..$ size         : 'rel' num 0.8
-##   ..$ hjust        : num 1
-##   ..$ vjust        : num 1
-##   ..$ angle        : NULL
-##   ..$ lineheight   : NULL
-##   ..$ margin       : 'margin' num [1:4] 6pt 0pt 0pt 0pt
-##   .. ..- attr(*, "valid.unit")= int 8
-##   .. ..- attr(*, "unit")= chr "pt"
-##   ..$ debug        : NULL
-##   ..$ inherit.blank: logi TRUE
-##   ..- attr(*, "class")= chr [1:2] "element_text" "element"
-##  $ plot.tag                  :List of 11
-##   ..$ family       : NULL
-##   ..$ face         : NULL
-##   ..$ colour       : NULL
-##   ..$ size         : 'rel' num 1.2
-##   ..$ hjust        : num 0.5
-##   ..$ vjust        : num 0.5
-##   ..$ angle        : NULL
-##   ..$ lineheight   : NULL
-##   ..$ margin       : NULL
-##   ..$ debug        : NULL
-##   ..$ inherit.blank: logi TRUE
-##   ..- attr(*, "class")= chr [1:2] "element_text" "element"
-##  $ plot.tag.position         : chr "topleft"
-##  $ plot.margin               : 'margin' num [1:4] 6pt 6pt 6pt 6pt
-##   ..- attr(*, "valid.unit")= int 8
-##   ..- attr(*, "unit")= chr "pt"
-##  $ strip.background          :List of 5
-##   ..$ fill         : chr "grey85"
-##   ..$ colour       : logi NA
-##   ..$ size         : NULL
-##   ..$ linetype     : NULL
-##   ..$ inherit.blank: logi TRUE
-##   ..- attr(*, "class")= chr [1:2] "element_rect" "element"
-##  $ strip.placement           : chr "inside"
-##  $ strip.text                :List of 11
-##   ..$ family       : NULL
-##   ..$ face         : NULL
-##   ..$ colour       : chr "grey10"
-##   ..$ size         : 'rel' num 0.8
-##   ..$ hjust        : NULL
-##   ..$ vjust        : NULL
-##   ..$ angle        : NULL
-##   ..$ lineheight   : NULL
-##   ..$ margin       : 'margin' num [1:4] 4.8pt 4.8pt 4.8pt 4.8pt
-##   .. ..- attr(*, "valid.unit")= int 8
-##   .. ..- attr(*, "unit")= chr "pt"
-##   ..$ debug        : NULL
-##   ..$ inherit.blank: logi TRUE
-##   ..- attr(*, "class")= chr [1:2] "element_text" "element"
-##  $ strip.text.x              : NULL
-##  $ strip.text.y              :List of 11
-##   ..$ family       : NULL
-##   ..$ face         : NULL
-##   ..$ colour       : NULL
-##   ..$ size         : NULL
-##   ..$ hjust        : NULL
-##   ..$ vjust        : NULL
-##   ..$ angle        : num -90
-##   ..$ lineheight   : NULL
-##   ..$ margin       : NULL
-##   ..$ debug        : NULL
-##   ..$ inherit.blank: logi TRUE
-##   ..- attr(*, "class")= chr [1:2] "element_text" "element"
-##  $ strip.switch.pad.grid     : 'unit' num 3pt
-##   ..- attr(*, "valid.unit")= int 8
-##   ..- attr(*, "unit")= chr "pt"
-##  $ strip.switch.pad.wrap     : 'unit' num 3pt
-##   ..- attr(*, "valid.unit")= int 8
-##   ..- attr(*, "unit")= chr "pt"
-##  $ panel.grid.major          :List of 6
-##   ..$ colour       : chr "gray90"
-##   ..$ size         : NULL
-##   ..$ linetype     : NULL
-##   ..$ lineend      : NULL
-##   ..$ arrow        : logi FALSE
-##   ..$ inherit.blank: logi FALSE
-##   ..- attr(*, "class")= chr [1:2] "element_line" "element"
-##  - attr(*, "class")= chr [1:2] "theme" "gg"
-##  - attr(*, "complete")= logi TRUE
-##  - attr(*, "validate")= logi TRUE
-```
+![](jags_landings_files/figure-html/unnamed-chunk-130-1.png)<!-- -->
 
 Cluster 5 peaks autumn and winter, 6 is similar but shifter 1 month later. Clusters 1 and 2 are widepread with a peak in spring/early summer and a second one un autumn. Cluster 4 is located in autumn only and cluster 3 in summer.
 
