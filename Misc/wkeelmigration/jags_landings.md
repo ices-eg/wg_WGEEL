@@ -24,6 +24,32 @@ For convenience, we rename the data.frame with names consistent with the seasona
 ```r
 res <- res %>%
   rename(das_month=month, das_value=value, das_year=year)
+res %>%group_by(hty_code,lfs_code)%>% summarize(number=n_distinct(emu_nameshort)) %>% arrange(lfs_code)
+```
+
+```
+## # A tibble: 18 x 3
+## # Groups:   hty_code [7]
+##    hty_code lfs_code number
+##    <chr>    <chr>     <int>
+##  1 F        G             7
+##  2 T        G            13
+##  3 C        S            13
+##  4 F        S            16
+##  5 FC       S             9
+##  6 MO       S             1
+##  7 T        S             4
+##  8 C        Y            13
+##  9 F        Y            21
+## 10 FC       Y             9
+## 11 FTC      Y             1
+## 12 MO       Y             1
+## 13 T        Y            11
+## 14 C        YS            6
+## 15 F        YS            9
+## 16 FTC      YS            1
+## 17 T        YS           13
+## 18 TC       YS            3
 ```
 
 # Glass Eel
@@ -481,9 +507,10 @@ get_pattern_month <- function(res,type="cluster"){
 
 pat <-get_pattern_month(myfit_glasseel_landings)
 #we number cluster in chronological orders from november to october
-clus_order=c("3","1","4","2")
+clus_order=c("3","1","4") #cluster 2 is removed since it is an empty cluster
 pat$cluster <- factor(match(pat$cluster,clus_order),
                       levels=as.character(1:7))
+pat <- na.omit(pat)
 ggplot(pat,aes(x=month,y=proportion))+
   geom_boxplot(aes(fill=cluster),outlier.shape=NA) +
   scale_fill_manual(values=cols)+facet_wrap(.~cluster, ncol=1) +
@@ -492,6 +519,23 @@ ggplot(pat,aes(x=month,y=proportion))+
 ```
 
 ![](jags_landings_files/figure-html/unnamed-chunk-13-1.png)<!-- -->
+
+```r
+#variants for ICES advice
+pat$cluster=factor(c("Southern Bay of Biscay / Catalunya",
+                     "Northern Bay of Biscay / Asturias",
+                     "English Channel")[as.integer(pat$cluster)],
+                   levels=c("English Channel",
+                     "Northern Bay of Biscay / Asturias",
+                     "Southern Bay of Biscay / Catalunya"))
+ggplot(pat,aes(x=month,y=proportion))+
+  geom_boxplot(outlier.shape=NA) +
+  facet_wrap(.~cluster, ncol=1) +
+  scale_x_discrete(labels=months)+
+  theme_igray()+theme(strip.text.x = element_text(size = 12))
+```
+
+![](jags_landings_files/figure-html/unnamed-chunk-13-2.png)<!-- -->
 
 We compute some statistics to characterize the clusters.
 
@@ -546,7 +590,7 @@ table_characteristics(myfit_glasseel_landings, 4,clus_order)
    <td style="text-align:right;"> 3.31 </td>
   </tr>
   <tr>
-   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:right;"> NA </td>
    <td style="text-align:right;"> 6 </td>
    <td style="text-align:right;"> 4 </td>
    <td style="text-align:right;"> 7 </td>
@@ -1364,35 +1408,35 @@ kable_emu_loss_glass_eel_speculative
    <td style="text-align:right;"> 0.18 </td>
   </tr>
   <tr>
-   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:right;"> NA </td>
    <td style="text-align:right;"> 8 </td>
    <td style="text-align:right;"> 0.22 </td>
    <td style="text-align:right;"> 0.06 </td>
    <td style="text-align:right;"> 0.51 </td>
   </tr>
   <tr>
-   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:right;"> NA </td>
    <td style="text-align:right;"> 9 </td>
    <td style="text-align:right;"> 0.22 </td>
    <td style="text-align:right;"> 0.06 </td>
    <td style="text-align:right;"> 0.53 </td>
   </tr>
   <tr>
-   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:right;"> NA </td>
    <td style="text-align:right;"> 10 </td>
    <td style="text-align:right;"> 0.24 </td>
    <td style="text-align:right;"> 0.04 </td>
    <td style="text-align:right;"> 0.51 </td>
   </tr>
   <tr>
-   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:right;"> NA </td>
    <td style="text-align:right;"> 11 </td>
    <td style="text-align:right;"> 0.25 </td>
    <td style="text-align:right;"> 0.06 </td>
    <td style="text-align:right;"> 0.50 </td>
   </tr>
   <tr>
-   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:right;"> NA </td>
    <td style="text-align:right;"> 12 </td>
    <td style="text-align:right;"> 0.29 </td>
    <td style="text-align:right;"> 0.13 </td>
@@ -6714,6 +6758,26 @@ ggplot(pat,aes(x=month,y=proportion))+scale_fill_manual(values=cols)+
 ```
 
 ![](jags_landings_files/figure-html/unnamed-chunk-95-1.png)<!-- -->
+
+```r
+#variants for ICES advice
+pat$cluster=factor(c("Western Mediterranean Sea (Corsica)",
+                     "Western Mediterranean Sea (Spain)",
+                     "Baltic Sea",
+                     "North Sea / English Channel")[as.integer(pat$cluster)],
+                   levels=c("Baltic Sea",
+                     "North Sea / English Channel",
+                     "Western Mediterranean Sea (Spain)",
+                     "Western Mediterranean Sea (Corsica)"))
+ggplot(pat,aes(x=month,y=proportion))+
+  geom_boxplot(outlier.shape=NA) +
+  facet_wrap(.~cluster, ncol=1) +
+  scale_x_discrete(labels=months)+
+  theme_igray()+
+  theme(strip.text.x = element_text(size = 12))
+```
+
+![](jags_landings_files/figure-html/unnamed-chunk-95-2.png)<!-- -->
 Clusters 3 and 4 correspond to peak in october with 3 more widespread. Cluster 1 corresponds to a peak in autumn/winter. Cluster 2 corresponds to catches in winter.
 
 We compute some statistics to characterize the clusters.
