@@ -49,21 +49,21 @@ dsn <-  paste0("PG:dbname='wgeel' host='localhost' port ='5436'",
 load(file=str_c(datawd,"saved_data.Rdata"))
 load(file=str_c(datawd,"cou.Rdata"))
 
-emu <- st_read(str_c(dsn= "PG:dbname='wgeel' host='localhost' port='5436' user='",userlocal,"' 
-						password='",passwordlocal,"'"), layer="ref.tr_emu_emu")
-# This is the map of the emu
-#emu_p <<- rmapshaper::ms_simplify(rgdal::readOGR(str_c(shpwd,"/","emu_polygons_4326.shp")), keep = 0.7) # a spatial object of class sp, symplified to be displayed easily
-emu_p <- rmapshaper::ms_simplify(emu$geom, keep = 0.7) # a spatial object of class sp, symplified to be displayed easily
-## Is this emu$geom simplified, do we need it? 
-
-# To calculate the center of the polygone, empty geom is not possible
-emu_no_empty_geom <- emu[which(!st_is_empty(emu$geom)),]
-# This corresponds to the center of each emu
-#emu_c <- rgdal::readOGR(str_c(shpwd,"/","emu_centre_4326.shp")) # a spatial object of class spatialpointsdataframe
-emu_c <- st_centroid(emu_no_empty_geom$geom)
-
-
-emu<- cbind(emu_no_empty_geom,st_coordinates(emu_c))
+#emu <- st_read(str_c(dsn= "PG:dbname='wgeel' host='localhost' port='5436' user='",userlocal,"' 
+#						password='",passwordlocal,"'"), layer="ref.tr_emu_emu")
+## This is the map of the emu
+##emu_p <<- rmapshaper::ms_simplify(rgdal::readOGR(str_c(shpwd,"/","emu_polygons_4326.shp")), keep = 0.7) # a spatial object of class sp, symplified to be displayed easily
+#emu_p <- rmapshaper::ms_simplify(emu$geom, keep = 0.7) # a spatial object of class sp, symplified to be displayed easily
+### Is this emu$geom simplified, do we need it? 
+#
+## To calculate the center of the polygone, empty geom is not possible
+#emu_no_empty_geom <- emu[which(!st_is_empty(emu$geom)),]
+## This corresponds to the center of each emu
+##emu_c <- rgdal::readOGR(str_c(shpwd,"/","emu_centre_4326.shp")) # a spatial object of class spatialpointsdataframe
+#emu_c <- st_centroid(emu_no_empty_geom$geom)
+#
+#
+#emu<- cbind(emu_no_empty_geom,st_coordinates(emu_c))
 save(emu, file=str_c(datawd,"emu.Rdata"))
 
 ```
@@ -74,7 +74,6 @@ save(emu, file=str_c(datawd,"emu.Rdata"))
 f <- "Literature_table_final.csv"
 path <- str_c(datawd,f)	
 file <- basename(path)
-mylocalfilename <- gsub(".xlsx","",file)
 sea <- read_delim(file=path, delim=';' ,col_names = TRUE, skip=1)
 save(sea, file=str_c(datawd,'sea.Rdata'))
 
@@ -184,7 +183,7 @@ sites <- sea_c3 %>%	select(site,lat)	 %>% distinct() %>% arrange(lat)
 authors <- sea_c3 %>%	select(author,lat)	 %>% distinct() %>% arrange(lat)
 sites$author=authors$author
 sea_c3$site <- factor(sea_c3$site, levels=sites$site)
-
+sea_c3$author[sea_c3$author=="Gosset et al., 2005"]<-"Gosset et al., 2005, \n Durif et al. 2003, 2008"
 # first plot with all data
 x11()
 ggplot(sea_c3,aes(x = month)) +
@@ -274,9 +273,9 @@ sea_q3G <- sea_q2 %>%
 		group_by(author,site,month,emu,lat,lon,stage2)%>%
 		summarize(N=n(),freq=round(mean(freq,na.rm=TRUE))) %>%
 		ungroup()
-
+sea_q3G$author[sea_q3G$site=="Tiber"] <- "Chiappi, 1920 & Ciccotti et al., 1995"
 table(sea_q3G$author,sea_q3G$site)
-sites <- sea_q3G %>%	select(site,author, lat,lon, stage2)	 %>% distinct() %>% mutate(XY=lat+lon) %>% arrange(XY)
+sites <- sea_q3G %>%	select(site,author,  lat,lon, stage2)	 %>% distinct() %>% mutate(XY=lat+lon) %>% arrange(XY)
 # my I don't see any difference between the two lines but they are still duplicated :-(
 sites <- sites[!duplicated(sites$site),]
 
@@ -286,7 +285,7 @@ sea_q3G$site <- factor(sea_q3G$site, levels=sites$site)
 svg(filename=str_c(imgwd,"glass_qualitative_litterature.svg"),width=10,height=8)
 ggplot(sea_q3G) +
 		geom_tile(aes(x = month,y=site,fill=freq))+
-		geom_label(aes(x=5,y=site,label=author),data= sites)+
+		geom_label(aes(x=5,y=site,label=author))+
 		xlab("month")+
 		ylab("Intensity of migration")+	
 		ggtitle("Glass eel and elver migration") +
@@ -308,7 +307,6 @@ sea_q3S$site[is.na(sea_q3S$site)]<-""
 sites <- sea_q3S %>%	select(site,author, lat,lon, stage2)	 %>% distinct()  %>% arrange(lat)
 
 sites <- sites[!duplicated(sites$site),]
-
 sea_q3S$site <- factor(sea_q3S$site, levels=sites$site)
 
 
@@ -316,7 +314,7 @@ sea_q3S$site <- factor(sea_q3S$site, levels=sites$site)
 svg(filename=str_c(imgwd,"silver_qualitative_litterature.svg"),width=8,height=6)
 ggplot(sea_q3S) +
 		geom_tile(aes(x = month,y=site,fill=freq))+
-		geom_label(aes(x=5,y=site,label=author),data= sites)+
+		geom_label(aes(x=5,y=site,label=author))+
 		xlab("month")+
 		ylab("Sites")+	
 		ggtitle("Silver eel migration") +
@@ -339,15 +337,17 @@ sea_q3Y <- sea_q2 %>%
 		ungroup()
 
 sites <- sea_q3Y %>%	select(site,author, lat,lon)	 %>% distinct()  %>% arrange(lat)
-
+sea_q3Y <- sea_q3Y[!sea_q3Y$site%in%c("Umm Hufayan ","Vistula"),]
 sea_q3Y$site <- factor(sea_q3Y$site, levels=sites$site)
+
+
 # add author
 svg(filename=str_c(imgwd,"yellow_qualitative_litterature.svg"),width=8,height=6)
 ggplot(sea_q3Y) +
 		geom_tile(aes(x = month,y=site,fill=freq))+
-		geom_label(aes(x=5,y=site,label=author),data= sites)+
+		geom_label(aes(x=5,y=site,label=author))+
 		xlab("month")+
-		ylab("Intensity of migration")+	
+		ylab("Intensity of colonisation")+	
 		ggtitle("Yellow eel colonisation") +
 		scale_x_continuous(breaks = c(2,4,6,8,10)) +
 		scale_fill_continuous_sequential(palette = "Terrain")+

@@ -83,129 +83,129 @@ left: 0.1em;
 bottom: -1ex;
 }
 </style>
- <font color="MidnightBlue"><div align=center><span style="font-weight:bold">res <br><br> 14  Variables   12972  Observations</span></div></font> <hr class="thinhr"> <span style="font-weight:bold">eel_typ_name</span> <style>
- .hmisctable419451 {
+ <font color="MidnightBlue"><div align=center><span style="font-weight:bold">res <br><br> 14  Variables   13368  Observations</span></div></font> <hr class="thinhr"> <span style="font-weight:bold">eel_typ_name</span> <style>
+ .hmisctable234984 {
  border: none;
  font-size: 85%;
  }
- .hmisctable419451 td {
+ .hmisctable234984 td {
  text-align: center;
  padding: 0 1ex 0 1ex;
  }
- .hmisctable419451 th {
+ .hmisctable234984 th {
  color: MidnightBlue;
  text-align: center;
  padding: 0 1ex 0 1ex;
  font-weight: normal;
  }
  </style>
- <table class="hmisctable419451">
+ <table class="hmisctable234984">
  <tr><th>n</th><th>missing</th><th>distinct</th></tr>
- <tr><td>12575</td><td>397</td><td>2</td></tr>
+ <tr><td>12971</td><td>397</td><td>2</td></tr>
  </table>
  <pre style="font-size:85%;">
  Value      com_landings_kg rec_landings_kg
- Frequency            12509              66
+ Frequency            12905              66
  Proportion           0.995           0.005
  </pre>
  <hr class="thinhr"> <span style="font-weight:bold">eel_year</span><div style='float: right; text-align: right;'><img src="data:image/png;base64,
-iVBORw0KGgoAAAANSUhEUgAAAD0AAAANCAMAAAAtxpZ2AAAACVBMVEUAAADMzMz////1iUV5AAAARklEQVQokWNgJB4wMKAgkAgT8YCBAQWBRPCrhqoiQTdcA1Q3LoRFN7oKmurGGpyIcMUlAQ1zPIYTYfdI1A1GuAOVQJgDEQBQKgLcjECeGAAAAABJRU5ErkJggg==" alt="image" /></div> <style>
- .hmisctable563868 {
+iVBORw0KGgoAAAANSUhEUgAAAD0AAAANCAMAAAAtxpZ2AAAACVBMVEUAAADMzMz////1iUV5AAAARElEQVQokWNgJB4wMKAgkAgT8YCBAQWBRPCrhqqiQDcuhEU3ugqa6sYTqKBwxRRCD3N85hOwG4/0sNUNRrgDlUCYAxEAZfoC6MKDyvYAAAAASUVORK5CYII=" alt="image" /></div> <style>
+ .hmisctable691055 {
  border: none;
  font-size: 85%;
  }
- .hmisctable563868 td {
+ .hmisctable691055 td {
  text-align: center;
  padding: 0 1ex 0 1ex;
  }
- .hmisctable563868 th {
+ .hmisctable691055 th {
  color: MidnightBlue;
  text-align: center;
  padding: 0 1ex 0 1ex;
  font-weight: normal;
  }
  </style>
- <table class="hmisctable563868">
+ <table class="hmisctable691055">
  <tr><th>n</th><th>missing</th><th>distinct</th><th>Info</th><th>Mean</th><th>Gmd</th><th>.05</th><th>.10</th><th>.25</th><th>.50</th><th>.75</th><th>.90</th><th>.95</th></tr>
- <tr><td>12575</td><td>397</td><td>20</td><td>0.997</td><td>2010</td><td>6.06</td><td>2001</td><td>2003</td><td>2006</td><td>2011</td><td>2015</td><td>2017</td><td>2018</td></tr>
+ <tr><td>12971</td><td>397</td><td>20</td><td>0.997</td><td>2011</td><td>6.016</td><td>2001</td><td>2003</td><td>2006</td><td>2011</td><td>2015</td><td>2017</td><td>2018</td></tr>
  </table>
  <pre style="font-size:85%;">
  Value       2000  2001  2002  2003  2004  2005  2006  2007  2008  2009  2010  2011
- Frequency    366   381   437   434   452   624   647   614   603   722   725   640
- Proportion 0.029 0.030 0.035 0.035 0.036 0.050 0.051 0.049 0.048 0.057 0.058 0.051
+ Frequency    366   381   437   434   452   624   647   614   639   758   761   676
+ Proportion 0.028 0.029 0.034 0.033 0.035 0.048 0.050 0.047 0.049 0.058 0.059 0.052
                                                            
  Value       2012  2013  2014  2015  2016  2017  2018  2019
- Frequency    694   698   878   877   923   885   867   108
- Proportion 0.055 0.056 0.070 0.070 0.073 0.070 0.069 0.009
+ Frequency    730   734   914   913   959   921   903   108
+ Proportion 0.056 0.057 0.070 0.070 0.074 0.071 0.070 0.008
  </pre>
  <hr class="thinhr"> <span style="font-weight:bold">eel_month</span><div style='float: right; text-align: right;'><img src="data:image/png;base64,
-iVBORw0KGgoAAAANSUhEUgAAADEAAAANCAMAAAA3+nb4AAAACVBMVEUAAADMzMz////1iUV5AAAASUlEQVQokWNgYGAEImSAEIGwIBy4IgYGBiYgAgIICWFA2RAWhjSqEEIRnIVPB4qiAdaBCAxkhMrBFVaDyR+01QHmQkMGf1ghkQAKxwJPRi099gAAAABJRU5ErkJggg==" alt="image" /></div> <style>
- .hmisctable447435 {
+iVBORw0KGgoAAAANSUhEUgAAADEAAAANCAMAAAA3+nb4AAAACVBMVEUAAADMzMz////1iUV5AAAARUlEQVQokWNgYGAEImSAEIGwIBy4IgYGBiYgAgIICWFA2RAWhjSSEDJC5QwFHYjAQEaoHFxhNZj8QVsdYC40ZPCHFRIJAAJlAktwlnb5AAAAAElFTkSuQmCC" alt="image" /></div> <style>
+ .hmisctable897563 {
  border: none;
  font-size: 85%;
  }
- .hmisctable447435 td {
+ .hmisctable897563 td {
  text-align: center;
  padding: 0 1ex 0 1ex;
  }
- .hmisctable447435 th {
+ .hmisctable897563 th {
  color: MidnightBlue;
  text-align: center;
  padding: 0 1ex 0 1ex;
  font-weight: normal;
  }
  </style>
- <table class="hmisctable447435">
+ <table class="hmisctable897563">
  <tr><th>n</th><th>missing</th><th>distinct</th></tr>
- <tr><td>12575</td><td>397</td><td>16</td></tr>
+ <tr><td>12971</td><td>397</td><td>16</td></tr>
  </table>
-  APR (1067, 0.085), AUG (1080, 0.086), Dec (1, 0.000), DEC (1004, 0.080), FEB (862, 0.069), JAN (878, 0.070), JUL (1099, 0.087), JUN (1119, 0.089), MAR (924, 0.073), MAY (1095, 0.087), NOV (1127, 0.090), OCT (1107, 0.088), REMAIN YEAR (19, 0.002), SEP (1064, 0.085), whole year (22, 0.002), WHOLE YEAR (107, 0.009) <hr class="thinhr"> <span style="font-weight:bold">eel_value</span><div style='float: right; text-align: right;'><img src="data:image/png;base64,
+  APR (1100, 0.085), AUG (1113, 0.086), Dec (1, 0.000), DEC (1037, 0.080), FEB (895, 0.069), JAN (911, 0.070), JUL (1132, 0.087), JUN (1152, 0.089), MAR (957, 0.074), MAY (1128, 0.087), NOV (1160, 0.089), OCT (1140, 0.088), REMAIN YEAR (19, 0.001), SEP (1097, 0.085), whole year (22, 0.002), WHOLE YEAR (107, 0.008) <hr class="thinhr"> <span style="font-weight:bold">eel_value</span><div style='float: right; text-align: right;'><img src="data:image/png;base64,
 iVBORw0KGgoAAAANSUhEUgAAAHwAAAANCAMAAABcvvroAAAACVBMVEUAAADMzMz////1iUV5AAAAQUlEQVQ4jWNgZGRgYBwgwMDExADEAwNGLR+Blo+m9lHL6W75QFkPTu3A9I4KGdEFCAmC0y4jPNswMKJKoKdyKAYAt4UKyvIMdkYAAAAASUVORK5CYII=" alt="image" /></div> <pre style="font-size:85%;">
         n  missing distinct     Info     Mean      Gmd      .05      .10      .25 
-    12535      437     6278    0.989     2997     5419      0.0      0.0      2.0 
+    12931      437     6406    0.988     2921     5284      0.0      0.0      2.0 
       .50      .75      .90      .95 
-    123.0    920.3   4078.2  11893.0 
+    115.5    901.0   3934.8  11135.2 
  </pre>
  <style>
- .hmisctable504453 {
+ .hmisctable642688 {
  border: none;
  font-size: 85%;
  }
- .hmisctable504453 td {
+ .hmisctable642688 td {
  text-align: right;
  padding: 0 1ex 0 1ex;
  }
- .hmisctable504453 th {
+ .hmisctable642688 th {
  color: Black;
  text-align: center;
  padding: 0 1ex 0 1ex;
  font-weight: bold;
  }
  </style>
- <table class="hmisctable504453">
+ <table class="hmisctable642688">
  <tr><td><font color="MidnightBlue">lowest</font> :</td><td>     0.00</td><td>     0.05</td><td>     0.08</td><td>     0.10</td><td>     0.13</td></tr>
  <tr><td><font color="MidnightBlue">highest</font>:</td><td>208509.10</td><td>215026.50</td><td>228703.70</td><td>271248.00</td><td>281151.60</td></tr>
  </table>
  <hr class="thinhr"> <span style="font-weight:bold">eel_missvaluequal</span><div style='float: right; text-align: right;'><img src="data:image/png;base64,
 iVBORw0KGgoAAAANSUhEUgAAAA0AAAANCAMAAABFNRROAAAACVBMVEUAAADMzMz////1iUV5AAAAI0lEQVQImWNghAAGBjDJBAEMYAbZPJLMBLEgGC+PAWIeBAMAV6MA4eyrNIYAAAAASUVORK5CYII=" alt="image" /></div> <style>
- .hmisctable108272 {
+ .hmisctable154224 {
  border: none;
  font-size: 85%;
  }
- .hmisctable108272 td {
+ .hmisctable154224 td {
  text-align: center;
  padding: 0 1ex 0 1ex;
  }
- .hmisctable108272 th {
+ .hmisctable154224 th {
  color: MidnightBlue;
  text-align: center;
  padding: 0 1ex 0 1ex;
  font-weight: normal;
  }
  </style>
- <table class="hmisctable108272">
+ <table class="hmisctable154224">
  <tr><th>n</th><th>missing</th><th>distinct</th></tr>
- <tr><td>61</td><td>12911</td><td>4</td></tr>
+ <tr><td>61</td><td>13307</td><td>4</td></tr>
  </table>
  <pre style="font-size:85%;">
  Value         nd    ND    NM    NP
@@ -213,128 +213,128 @@ iVBORw0KGgoAAAANSUhEUgAAAA0AAAANCAMAAABFNRROAAAACVBMVEUAAADMzMz////1iUV5AAAAI0lE
  Proportion 0.033 0.148 0.639 0.180
  </pre>
  <hr class="thinhr"> <span style="font-weight:bold">eel_emu_nameshort</span><div style='float: right; text-align: right;'><img src="data:image/png;base64,
-iVBORw0KGgoAAAANSUhEUgAAAJcAAAANCAMAAACTvAxuAAAACVBMVEUAAADMzMz////1iUV5AAAAmUlEQVQ4jeWT4Q6AIAiEsfd/6JyVO09ADX+05ajRguPLPEnBJRJV0GWPQ/L1fsW6bdmQcm79DBeW/5Wr6k9MwULkWgZ0G6Q46oo5d1F57Vg2JjYbfsSY+Ezc3tF+2Yr9OHjcyUUnj2p3cmmiVB7lUmMbV0n6nbQt5UDZXNp/Use14Q4iuiEXGOw2SJc8aRKubcN5mejuC2U/nh5JCp1NRG75AAAAAElFTkSuQmCC" alt="image" /></div> <style>
- .hmisctable307251 {
+iVBORw0KGgoAAAANSUhEUgAAAJcAAAANCAMAAACTvAxuAAAACVBMVEUAAADMzMz////1iUV5AAAAo0lEQVQ4jeWTSw6AIAxEC/c/tIhSp9hC+SxMJLgAptOHYSisD6INJrVnjJS+pbFsoHmu2qbq73BByS+52NzZAsTANcrX0lOO0zX90YISLh3PJZQaecTpvGkR9/+X6fnqh89D4erDmVzy4UnlZi7Ntohl1zkuacQMNZd2CReXNHded4LLfECmXa+VSHxPDOHK8w4JbwTeOA/h4BF7VlhdvBricAD2YQqBX1IbFwAAAABJRU5ErkJggg==" alt="image" /></div> <style>
+ .hmisctable724660 {
  border: none;
  font-size: 85%;
  }
- .hmisctable307251 td {
+ .hmisctable724660 td {
  text-align: center;
  padding: 0 1ex 0 1ex;
  }
- .hmisctable307251 th {
+ .hmisctable724660 th {
  color: MidnightBlue;
  text-align: center;
  padding: 0 1ex 0 1ex;
  font-weight: normal;
  }
  </style>
- <table class="hmisctable307251">
+ <table class="hmisctable724660">
  <tr><th>n</th><th>missing</th><th>distinct</th></tr>
- <tr><td>12575</td><td>397</td><td>50</td></tr>
+ <tr><td>12971</td><td>397</td><td>52</td></tr>
  </table>
  <span style="font-size: 85%;"><font color="MidnightBlue">lowest</font> : DE_Eide  DE_Elbe  DE_Schl  DE_Warn  DK_total ,  <font color="MidnightBlue">highest</font>: PL_Vist  PT_Port  SE_East  SE_Inla  SE_West </span> <hr class="thinhr"> <span style="font-weight:bold">eel_cou_code</span><div style='float: right; text-align: right;'><img src="data:image/png;base64,
-iVBORw0KGgoAAAANSUhEUgAAADQAAAANCAMAAADR0728AAAACVBMVEUAAADMzMz////1iUV5AAAAS0lEQVQokWNgRAUMDIyEAQMTKmBAF8AGhp4mwvoY0EIMyCYcgAxoTiLOpgHQBCcJaAKpgCvEqQlZDsplZICGGCjQkBiM4HBFEYKTANQRBBfZRbhuAAAAAElFTkSuQmCC" alt="image" /></div> <style>
- .hmisctable586390 {
+iVBORw0KGgoAAAANSUhEUgAAADcAAAANCAMAAAA65Aa/AAAACVBMVEUAAADMzMz////1iUV5AAAATElEQVQokWNgxAAMDJhimIqYMAADFjFMRUNaH2GtDJgBCOQSDlIGTIcRZ99A6oMwCOsDqYArhCvHog9ZDsplZIAGIDQYkRhgjCoEJwGJeARWxk1T3gAAAABJRU5ErkJggg==" alt="image" /></div> <style>
+ .hmisctable970615 {
  border: none;
  font-size: 85%;
  }
- .hmisctable586390 td {
+ .hmisctable970615 td {
  text-align: center;
  padding: 0 1ex 0 1ex;
  }
- .hmisctable586390 th {
+ .hmisctable970615 th {
  color: MidnightBlue;
  text-align: center;
  padding: 0 1ex 0 1ex;
  font-weight: normal;
  }
  </style>
- <table class="hmisctable586390">
+ <table class="hmisctable970615">
  <tr><th>n</th><th>missing</th><th>distinct</th></tr>
- <tr><td>12852</td><td>120</td><td>17</td></tr>
+ <tr><td>13248</td><td>120</td><td>18</td></tr>
  </table>
  <pre style="font-size:85%;">
- Value          0    DE    DK    ES    FI    FR    GB    GR    HR    IE    LT    LV
- Frequency    277  2058   464   847    96  3947  2219    19    72    35   154   468
- Proportion 0.022 0.160 0.036 0.066 0.007 0.307 0.173 0.001 0.006 0.003 0.012 0.036
-                                         
- Value         NL    NO    PL    PT    SE
- Frequency    430   217   436   296   817
- Proportion 0.033 0.017 0.034 0.023 0.064
+ Value          0    DE    DK    EE    ES    FI    FR    GB    GR    HR    IE    LT
+ Frequency    277  2058   464   396   847    96  3947  2219    19    72    35   154
+ Proportion 0.021 0.155 0.035 0.030 0.064 0.007 0.298 0.167 0.001 0.005 0.003 0.012
+                                               
+ Value         LV    NL    NO    PL    PT    SE
+ Frequency    468   430   217   436   296   817
+ Proportion 0.035 0.032 0.016 0.033 0.022 0.062
  </pre>
  <hr class="thinhr"> <span style="font-weight:bold">eel_lfs_code</span><div style='float: right; text-align: right;'><img src="data:image/png;base64,
-iVBORw0KGgoAAAANSUhEUgAAAA0AAAANCAMAAABFNRROAAAACVBMVEUAAADMzMz////1iUV5AAAAJklEQVQImWNghAAGBhBmYIIAEAMbD8IiyGOAmQc2kwFVjlwespkAPnMAoIXa4RMAAAAASUVORK5CYII=" alt="image" /></div> <style>
- .hmisctable109020 {
+iVBORw0KGgoAAAANSUhEUgAAAA0AAAANCAMAAABFNRROAAAACVBMVEUAAADMzMz////1iUV5AAAAJUlEQVQImWNgRAAGBgYmCAAxCPMgLCw8BpBZMIwQh8iRy0M2EwBB7ACm1cNVSwAAAABJRU5ErkJggg==" alt="image" /></div> <style>
+ .hmisctable942864 {
  border: none;
  font-size: 85%;
  }
- .hmisctable109020 td {
+ .hmisctable942864 td {
  text-align: center;
  padding: 0 1ex 0 1ex;
  }
- .hmisctable109020 th {
+ .hmisctable942864 th {
  color: MidnightBlue;
  text-align: center;
  padding: 0 1ex 0 1ex;
  font-weight: normal;
  }
  </style>
- <table class="hmisctable109020">
+ <table class="hmisctable942864">
  <tr><th>n</th><th>missing</th><th>distinct</th></tr>
- <tr><td>12575</td><td>397</td><td>4</td></tr>
+ <tr><td>12971</td><td>397</td><td>4</td></tr>
  </table>
  <pre style="font-size:85%;">
  Value          G     S     Y    YS
- Frequency   1996  2824  3828  3927
- Proportion 0.159 0.225 0.304 0.312
+ Frequency   1996  2824  3828  4323
+ Proportion 0.154 0.218 0.295 0.333
  </pre>
  <hr class="thinhr"> <span style="font-weight:bold">eel_hty_code</span><div style='float: right; text-align: right;'><img src="data:image/png;base64,
-iVBORw0KGgoAAAANSUhEUgAAABkAAAANCAMAAABrcDXcAAAACVBMVEUAAADMzMz////1iUV5AAAAN0lEQVQYlWNgxAQMDGCSCRMwgAXxyzAwUE0G7hYMtzHg1EO+DIokDhkoh4EB5A4gBlMgB8E5DABEpwHLVCaxcgAAAABJRU5ErkJggg==" alt="image" /></div> <style>
- .hmisctable484823 {
+iVBORw0KGgoAAAANSUhEUgAAABkAAAANCAMAAABrcDXcAAAACVBMVEUAAADMzMz////1iUV5AAAANUlEQVQYlWNgxAQMDGCSCRMwgAUZ4CwayzDA3ILhNgbcesiWQZHEIQPlMDBA3QamQA6CcxgAP4wBxm4A7t0AAAAASUVORK5CYII=" alt="image" /></div> <style>
+ .hmisctable567701 {
  border: none;
  font-size: 85%;
  }
- .hmisctable484823 td {
+ .hmisctable567701 td {
  text-align: center;
  padding: 0 1ex 0 1ex;
  }
- .hmisctable484823 th {
+ .hmisctable567701 th {
  color: MidnightBlue;
  text-align: center;
  padding: 0 1ex 0 1ex;
  font-weight: normal;
  }
  </style>
- <table class="hmisctable484823">
+ <table class="hmisctable567701">
  <tr><th>n</th><th>missing</th><th>distinct</th></tr>
- <tr><td>12575</td><td>397</td><td>8</td></tr>
+ <tr><td>12971</td><td>397</td><td>8</td></tr>
  </table>
  <pre style="font-size:85%;">
  Value          C     F    FC    FT   FTC    MO     T    TC
- Frequency   2167  3605   926    12   274   464  4754   373
- Proportion 0.172 0.287 0.074 0.001 0.022 0.037 0.378 0.030
+ Frequency   2299  3869   926    12   274   464  4754   373
+ Proportion 0.177 0.298 0.071 0.001 0.021 0.036 0.367 0.029
  </pre>
  <hr class="thinhr"> <span style="font-weight:bold">eel_area_division</span><div style='float: right; text-align: right;'><img src="data:image/png;base64,
 iVBORw0KGgoAAAANSUhEUgAAACsAAAANCAMAAAAHdmfZAAAACVBMVEUAAADMzMz////1iUV5AAAARUlEQVQokWNgBAMGBkbCgIEJDBigNF4w5NRCAgGCiAgHoKEQRIQbcKpFE2KAK8SuFlmUbLUocpgmMMADAREa4LBB5YMRAOaPAztEn2jFAAAAAElFTkSuQmCC" alt="image" /></div> <style>
- .hmisctable850687 {
+ .hmisctable772126 {
  border: none;
  font-size: 85%;
  }
- .hmisctable850687 td {
+ .hmisctable772126 td {
  text-align: center;
  padding: 0 1ex 0 1ex;
  }
- .hmisctable850687 th {
+ .hmisctable772126 th {
  color: MidnightBlue;
  text-align: center;
  padding: 0 1ex 0 1ex;
  font-weight: normal;
  }
  </style>
- <table class="hmisctable850687">
+ <table class="hmisctable772126">
  <tr><th>n</th><th>missing</th><th>distinct</th></tr>
- <tr><td>5261</td><td>7711</td><td>14</td></tr>
+ <tr><td>5261</td><td>8107</td><td>14</td></tr>
  </table>
  <pre style="font-size:85%;">
  Value         27.3.a 27.3.b, c    27.3.d    27.4.b    27.4.c    27.7.a    27.7.d
@@ -347,139 +347,139 @@ iVBORw0KGgoAAAANSUhEUgAAACsAAAANCAMAAAAHdmfZAAAACVBMVEUAAADMzMz////1iUV5AAAARUlE
  </pre>
  <hr class="thinhr"> <span style="font-weight:bold">eel_comment</span><div style='float: right; text-align: right;'><img src="data:image/png;base64,
 iVBORw0KGgoAAAANSUhEUgAAAJcAAAANCAMAAACTvAxuAAAACVBMVEUAAADMzMz////1iUV5AAAAaElEQVQ4je2TwQ4AEAxDO///0SxkSIaIntA4kPG2oZAiQLg6AyIUwWYknQF/XZunORiPfGddHPt4jiL4MfWW2yPeGuMd36trAbTEv64WOE4/DOjfV++offJE2jFbzcMGNL6zuSbuyRIBVkgMqZsog2MAAAAASUVORK5CYII=" alt="image" /></div> <style>
- .hmisctable382522 {
+ .hmisctable637094 {
  border: none;
  font-size: 85%;
  }
- .hmisctable382522 td {
+ .hmisctable637094 td {
  text-align: center;
  padding: 0 1ex 0 1ex;
  }
- .hmisctable382522 th {
+ .hmisctable637094 th {
  color: MidnightBlue;
  text-align: center;
  padding: 0 1ex 0 1ex;
  font-weight: normal;
  }
  </style>
- <table class="hmisctable382522">
+ <table class="hmisctable637094">
  <tr><th>n</th><th>missing</th><th>distinct</th></tr>
- <tr><td>2097</td><td>10875</td><td>52</td></tr>
+ <tr><td>2097</td><td>11271</td><td>52</td></tr>
  </table>
  <style>
- .hmisctable755762 {
+ .hmisctable467361 {
  border: none;
  font-size: 85%;
  }
- .hmisctable755762 td {
+ .hmisctable467361 td {
  text-align: right;
  padding: 0 1ex 0 1ex;
  }
- .hmisctable755762 th {
+ .hmisctable467361 th {
  color: Black;
  text-align: center;
  padding: 0 1ex 0 1ex;
  font-weight: bold;
  }
  </style>
- <table class="hmisctable755762">
+ <table class="hmisctable467361">
  <tr><td><font color="MidnightBlue">lowest</font> :</td><td><U+03B9>. the landings refer to both 37.3.1 and 37.2.2   <U+03B9><U+03B9>. The low level of  landings was the result of data collection difficulties caused by the change of the national data collecting system. Landings concider to be underestimated by approximatelly 40% .</td><td>27.4.a also included                                                                                                                                                                                                                                                            </td><td>All marine areas                                                                                                                                                                                                                                                                </td><td>All marine areas. Preliminary data                                                                                                                                                                                                                                              </td><td>area information is incomplete, but almost everything is from Ivc                                                                                                                                                                                                               </td></tr>
  <tr><td><font color="MidnightBlue">highest</font>:</td><td>total landings of one fisherman were reported monthly. But proportion of silvereel of total landings were only provided as a total (120kg)                                                                                                                                      </td><td>total landings of one fisherman were reported monthy. But proportion of silvereel of total landings were only provided as a total (100kg)                                                                                                                                       </td><td>Two days fished using one fyke net (AUG). No eels caught                                                                                                                                                                                                                        </td><td>two fishermen only reported yearly catch for yellow and silver eel combined which are excluded (total of 15kg in 2009)                                                                                                                                                          </td><td>Vessels of the Nalón stop from February 17 to March 18, 2011.                                                                                                                                                                                                                   </td></tr>
  </table>
  <hr class="thinhr"> <span style="font-weight:bold">source</span><div style='float: right; text-align: right;'><img src="data:image/png;base64,
-iVBORw0KGgoAAAANSUhEUgAAADEAAAANCAMAAAA3+nb4AAAACVBMVEUAAADMzMz////1iUV5AAAAR0lEQVQokWNgRAIMDIyEAQMTEmBA4eEAQ0MHYU0MyOEDZBMOLgZkQ4m1g1464CQBHWAVDAiFWHQgy8F1wIIIiQFCjKhCcBIAJyID0/CZkcYAAAAASUVORK5CYII=" alt="image" /></div> <style>
- .hmisctable292400 {
+iVBORw0KGgoAAAANSUhEUgAAADQAAAANCAMAAADR0728AAAACVBMVEUAAADMzMz////1iUV5AAAASElEQVQokdWQ2woAIAhDN///o7vBUBHsKWiMWOYxEIwC2AsWhVyo9B/Uc0jrmtd+gUhzb396Dp3QQ7sDJteQfxNEmS4sM5Z0DtIFBBL8av7NAAAAAElFTkSuQmCC" alt="image" /></div> <style>
+ .hmisctable590377 {
  border: none;
  font-size: 85%;
  }
- .hmisctable292400 td {
+ .hmisctable590377 td {
  text-align: center;
  padding: 0 1ex 0 1ex;
  }
- .hmisctable292400 th {
+ .hmisctable590377 th {
  color: MidnightBlue;
  text-align: center;
  padding: 0 1ex 0 1ex;
  font-weight: normal;
  }
  </style>
- <table class="hmisctable292400">
+ <table class="hmisctable590377">
  <tr><th>n</th><th>missing</th><th>distinct</th></tr>
- <tr><td>12972</td><td>0</td><td>16</td></tr>
+ <tr><td>13368</td><td>0</td><td>17</td></tr>
  </table>
  <style>
- .hmisctable379864 {
+ .hmisctable617826 {
  border: none;
  font-size: 85%;
  }
- .hmisctable379864 td {
+ .hmisctable617826 td {
  text-align: right;
  padding: 0 1ex 0 1ex;
  }
- .hmisctable379864 th {
+ .hmisctable617826 th {
  color: Black;
  text-align: center;
  padding: 0 1ex 0 1ex;
  font-weight: bold;
  }
  </style>
- <table class="hmisctable379864">
- <tr><td><font color="MidnightBlue">lowest</font> :</td><td>DE_commercial_landings_2</td><td>DK_commercial_landings  </td><td>ES_commercial_landings  </td><td>FL_commercial_landings  </td><td>FR_commercial_landings  </td></tr>
+ <table class="hmisctable617826">
+ <tr><td><font color="MidnightBlue">lowest</font> :</td><td>DE_commercial_landings_2</td><td>DK_commercial_landings  </td><td>EE_commercial_landings  </td><td>ES_commercial_landings  </td><td>FL_commercial_landings  </td></tr>
  <tr><td><font color="MidnightBlue">highest</font>:</td><td>NL_commercial_landings  </td><td>NO_commercial_landings  </td><td>PL_commercial_landings  </td><td>PT_commercial_landings  </td><td>SE_commercial_landings  </td></tr>
  </table>
  <hr class="thinhr"> <span style="font-weight:bold">country</span><div style='float: right; text-align: right;'><img src="data:image/png;base64,
-iVBORw0KGgoAAAANSUhEUgAAADEAAAANCAMAAAA3+nb4AAAACVBMVEUAAADMzMz////1iUV5AAAAR0lEQVQokWNgRAIMDIyEAQMTEmBA4eEAQ0MHYU0MyOEDZBMOLgZkQ4m1g1464CQBHWAVDAiFWHQgy8F1wIIIiQFCjKhCcBIAJyID0/CZkcYAAAAASUVORK5CYII=" alt="image" /></div> <style>
- .hmisctable536984 {
+iVBORw0KGgoAAAANSUhEUgAAADQAAAANCAMAAADR0728AAAACVBMVEUAAADMzMz////1iUV5AAAASElEQVQokdWQ2woAIAhDN///o7vBUBHsKWiMWOYxEIwC2AsWhVyo9B/Uc0jrmtd+gUhzb396Dp3QQ7sDJteQfxNEmS4sM5Z0DtIFBBL8av7NAAAAAElFTkSuQmCC" alt="image" /></div> <style>
+ .hmisctable734780 {
  border: none;
  font-size: 85%;
  }
- .hmisctable536984 td {
+ .hmisctable734780 td {
  text-align: center;
  padding: 0 1ex 0 1ex;
  }
- .hmisctable536984 th {
+ .hmisctable734780 th {
  color: MidnightBlue;
  text-align: center;
  padding: 0 1ex 0 1ex;
  font-weight: normal;
  }
  </style>
- <table class="hmisctable536984">
+ <table class="hmisctable734780">
  <tr><th>n</th><th>missing</th><th>distinct</th></tr>
- <tr><td>12972</td><td>0</td><td>16</td></tr>
+ <tr><td>13368</td><td>0</td><td>17</td></tr>
  </table>
  <pre style="font-size:85%;">
- Value         DE    DK    ES    FL    FR    GB    GR    HR    IE    LT    LV    NL
- Frequency   2058   464   847    96  3947  2219   244   244    35   154   468   430
- Proportion 0.159 0.036 0.065 0.007 0.304 0.171 0.019 0.019 0.003 0.012 0.036 0.033
-                                   
- Value         NO    PL    PT    SE
- Frequency    217   436   296   817
- Proportion 0.017 0.034 0.023 0.063
+ Value         DE    DK    EE    ES    FL    FR    GB    GR    HR    IE    LT    LV
+ Frequency   2058   464   396   847    96  3947  2219   244   244    35   154   468
+ Proportion 0.154 0.035 0.030 0.063 0.007 0.295 0.166 0.018 0.018 0.003 0.012 0.035
+                                         
+ Value         NL    NO    PL    PT    SE
+ Frequency    430   217   436   296   817
+ Proportion 0.032 0.016 0.033 0.022 0.061
  </pre>
  <hr class="thinhr"> <span style="font-weight:bold">datasource</span> <style>
- .hmisctable731868 {
+ .hmisctable333326 {
  border: none;
  font-size: 85%;
  }
- .hmisctable731868 td {
+ .hmisctable333326 td {
  text-align: center;
  padding: 0 1ex 0 1ex;
  }
- .hmisctable731868 th {
+ .hmisctable333326 th {
  color: MidnightBlue;
  text-align: center;
  padding: 0 1ex 0 1ex;
  font-weight: normal;
  }
  </style>
- <table class="hmisctable731868">
+ <table class="hmisctable333326">
  <tr><th>n</th><th>missing</th><th>distinct</th><th>value</th></tr>
- <tr><td>12972</td><td>0</td><td>1</td><td>wkeelmigration</td></tr>
+ <tr><td>13368</td><td>0</td><td>1</td><td>wkeelmigration</td></tr>
  </table>
  <pre style="font-size:85%;">
  Value      wkeelmigration
- Frequency           12972
+ Frequency           13368
  Proportion              1
  </pre>
  <hr class="thinhr"><!--/html_preserve-->
@@ -556,7 +556,7 @@ nrow(res)
 ```
 
 ```
-## [1] 12535
+## [1] 12931
 ```
 
 ```r
@@ -695,30 +695,30 @@ bottom: -1ex;
 }
 </style>
  <span style="font-weight:bold">res$eel_month</span><div style='float: right; text-align: right;'><img src="data:image/png;base64,
-iVBORw0KGgoAAAANSUhEUgAAACUAAAANCAMAAAAZv1dqAAAACVBMVEUAAADMzMz////1iUV5AAAAMklEQVQYlWNghAEGBihCsKB8oAgTDDAwQBGCBeczMKAqwa0KU5S2qjD9hMkfCHfR248AXoABWFoM0XcAAAAASUVORK5CYII=" alt="image" /></div> <style>
- .hmisctable721864 {
+iVBORw0KGgoAAAANSUhEUgAAACUAAAANCAMAAAAZv1dqAAAACVBMVEUAAADMzMz////1iUV5AAAALElEQVQYlWNghAEGBihCsKB8oAgTDDAwQBGCBedjFx0MqjD9hMkfvK6nnh8BWAoBVDuz0dYAAAAASUVORK5CYII=" alt="image" /></div> <style>
+ .hmisctable991563 {
  border: none;
  font-size: 85%;
  }
- .hmisctable721864 td {
+ .hmisctable991563 td {
  text-align: center;
  padding: 0 1ex 0 1ex;
  }
- .hmisctable721864 th {
+ .hmisctable991563 th {
  color: MidnightBlue;
  text-align: center;
  padding: 0 1ex 0 1ex;
  font-weight: normal;
  }
  </style>
- <table class="hmisctable721864">
+ <table class="hmisctable991563">
  <tr><th>n</th><th>missing</th><th>distinct</th><th>Info</th><th>Mean</th><th>Gmd</th><th>.05</th><th>.10</th><th>.25</th><th>.50</th><th>.75</th><th>.90</th><th>.95</th></tr>
- <tr><td>12427</td><td>0</td><td>12</td><td>0.993</td><td>6.7</td><td>3.866</td><td> 1</td><td> 2</td><td> 4</td><td> 7</td><td>10</td><td>11</td><td>12</td></tr>
+ <tr><td>12823</td><td>0</td><td>12</td><td>0.993</td><td>6.694</td><td>3.869</td><td> 1</td><td> 2</td><td> 4</td><td> 7</td><td>10</td><td>11</td><td>12</td></tr>
  </table>
  <pre style="font-size:85%;">
  Value          1     2     3     4     5     6     7     8     9    10    11    12
- Frequency    878   862   924  1067  1095  1119  1099  1080  1064  1107  1127  1005
- Proportion 0.071 0.069 0.074 0.086 0.088 0.090 0.088 0.087 0.086 0.089 0.091 0.081
+ Frequency    911   895   957  1100  1128  1152  1132  1113  1097  1140  1160  1038
+ Proportion 0.071 0.070 0.075 0.086 0.088 0.090 0.088 0.087 0.086 0.089 0.090 0.081
  </pre>
 <!--/html_preserve-->
 
@@ -2607,6 +2607,8 @@ nicetable(res, "emu_nameshort")
    <th style="text-align:right;"> DE_Schl </th>
    <th style="text-align:right;"> DE_Warn </th>
    <th style="text-align:right;"> DK_total </th>
+   <th style="text-align:right;"> EE_Narv </th>
+   <th style="text-align:right;"> EE_West </th>
    <th style="text-align:right;"> ES_Astu </th>
    <th style="text-align:right;"> ES_Basq </th>
    <th style="text-align:right;"> ES_Cant </th>
@@ -2659,6 +2661,8 @@ nicetable(res, "emu_nameshort")
    <td style="text-align:right;"> 504 </td>
    <td style="text-align:right;"> 336 </td>
    <td style="text-align:right;"> 464 </td>
+   <td style="text-align:right;"> 132 </td>
+   <td style="text-align:right;"> 264 </td>
    <td style="text-align:right;"> 110 </td>
    <td style="text-align:right;"> 66 </td>
    <td style="text-align:right;"> 29 </td>
@@ -2725,8 +2729,8 @@ nicetable(res, "hty_code")
  </thead>
 <tbody>
   <tr>
-   <td style="text-align:right;"> 2151 </td>
-   <td style="text-align:right;"> 3554 </td>
+   <td style="text-align:right;"> 2283 </td>
+   <td style="text-align:right;"> 3818 </td>
    <td style="text-align:right;"> 926 </td>
    <td style="text-align:right;"> 3 </td>
    <td style="text-align:right;"> 265 </td>
@@ -6561,6 +6565,600 @@ res %>%	group_by(emu_nameshort,lfs_code,hty_code,year,month) %>%
    <td style="text-align:center;"> MO </td>
    <td style="text-align:center;"> 2019 </td>
    <td style="text-align:center;"> . </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> EE_Narv </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> F </td>
+   <td style="text-align:center;"> 2008 </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> EE_Narv </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> F </td>
+   <td style="text-align:center;"> 2009 </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> EE_Narv </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> F </td>
+   <td style="text-align:center;"> 2010 </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> EE_Narv </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> F </td>
+   <td style="text-align:center;"> 2011 </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> EE_Narv </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> F </td>
+   <td style="text-align:center;"> 2012 </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> EE_Narv </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> F </td>
+   <td style="text-align:center;"> 2013 </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> EE_Narv </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> F </td>
+   <td style="text-align:center;"> 2014 </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> EE_Narv </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> F </td>
+   <td style="text-align:center;"> 2015 </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> EE_Narv </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> F </td>
+   <td style="text-align:center;"> 2016 </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> EE_Narv </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> F </td>
+   <td style="text-align:center;"> 2017 </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> EE_Narv </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> F </td>
+   <td style="text-align:center;"> 2018 </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> EE_West </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> C </td>
+   <td style="text-align:center;"> 2008 </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> EE_West </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> C </td>
+   <td style="text-align:center;"> 2009 </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> EE_West </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> C </td>
+   <td style="text-align:center;"> 2010 </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> EE_West </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> C </td>
+   <td style="text-align:center;"> 2011 </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> EE_West </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> C </td>
+   <td style="text-align:center;"> 2012 </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> EE_West </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> C </td>
+   <td style="text-align:center;"> 2013 </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> EE_West </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> C </td>
+   <td style="text-align:center;"> 2014 </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> EE_West </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> C </td>
+   <td style="text-align:center;"> 2015 </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> EE_West </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> C </td>
+   <td style="text-align:center;"> 2016 </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> EE_West </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> C </td>
+   <td style="text-align:center;"> 2017 </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> EE_West </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> C </td>
+   <td style="text-align:center;"> 2018 </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> EE_West </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> F </td>
+   <td style="text-align:center;"> 2008 </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> EE_West </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> F </td>
+   <td style="text-align:center;"> 2009 </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> EE_West </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> F </td>
+   <td style="text-align:center;"> 2010 </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> EE_West </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> F </td>
+   <td style="text-align:center;"> 2011 </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> EE_West </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> F </td>
+   <td style="text-align:center;"> 2012 </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> EE_West </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> F </td>
+   <td style="text-align:center;"> 2013 </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> EE_West </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> F </td>
+   <td style="text-align:center;"> 2014 </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> EE_West </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> F </td>
+   <td style="text-align:center;"> 2015 </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> EE_West </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> F </td>
+   <td style="text-align:center;"> 2016 </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> EE_West </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> F </td>
+   <td style="text-align:center;"> 2017 </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> EE_West </td>
+   <td style="text-align:center;"> YS </td>
+   <td style="text-align:center;"> F </td>
+   <td style="text-align:center;"> 2018 </td>
+   <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
    <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
    <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
    <td style="text-align:center;"> <span style="     color: black !important;">1</span> </td>
@@ -28446,6 +29044,8 @@ for (the_emu in unique(res$emu_nameshort)){
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
 ![](landings_seasonality_files/figure-html/s-3.png)<!-- -->
@@ -28565,6 +29165,8 @@ for (the_emu in unique(res$emu_nameshort)){
 ![](landings_seasonality_files/figure-html/s-16.png)<!-- -->
 
 ```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
@@ -28714,6 +29316,8 @@ for (the_emu in unique(res$emu_nameshort)){
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
 ![](landings_seasonality_files/figure-html/g-1.png)<!-- -->
@@ -28824,6 +29428,8 @@ for (the_emu in unique(res$emu_nameshort)){
 ```
 
 ```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
@@ -28964,6 +29570,8 @@ for (the_emu in unique(res$emu_nameshort)){
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
 
@@ -29022,6 +29630,8 @@ for (the_emu in unique(res$emu_nameshort)){
 ![](landings_seasonality_files/figure-html/y-1.png)<!-- -->
 
 ```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
@@ -29140,6 +29750,8 @@ for (the_emu in unique(res$emu_nameshort)){
 ![](landings_seasonality_files/figure-html/y-13.png)<!-- -->
 
 ```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
@@ -29303,6 +29915,8 @@ for (the_emu in unique(res$emu_nameshort)){
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
 ![](landings_seasonality_files/figure-html/y-33.png)<!-- -->
@@ -29443,6 +30057,8 @@ for (the_emu in unique(res$emu_nameshort)){
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
 ![](landings_seasonality_files/figure-html/y-43.png)<!-- -->
@@ -29457,6 +30073,8 @@ for (the_emu in unique(res$emu_nameshort)){
 ```
 
 ```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
@@ -29560,36 +30178,11 @@ for (the_emu in unique(res$emu_nameshort)){
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
 ![](landings_seasonality_files/figure-html/ys-1.png)<!-- -->
 
 ```
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
@@ -29605,18 +30198,43 @@ for (the_emu in unique(res$emu_nameshort)){
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
 ![](landings_seasonality_files/figure-html/ys-3.png)<!-- -->
 
 ```
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
 ![](landings_seasonality_files/figure-html/ys-4.png)<!-- -->
 
 ```
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
@@ -29631,9 +30249,16 @@ for (the_emu in unique(res$emu_nameshort)){
 
 ```
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
 ![](landings_seasonality_files/figure-html/ys-7.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/ys-8.png)<!-- -->
 
 ```r
 for (the_emu in unique(res$emu_nameshort)){
@@ -29651,24 +30276,6 @@ for (the_emu in unique(res$emu_nameshort)){
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-```
-
-![](landings_seasonality_files/figure-html/ys-8.png)<!-- -->
-
-```
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
 ![](landings_seasonality_files/figure-html/ys-9.png)<!-- -->
@@ -29681,11 +30288,23 @@ for (the_emu in unique(res$emu_nameshort)){
 
 ```
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
 ![](landings_seasonality_files/figure-html/ys-11.png)<!-- -->
 
 ```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
@@ -29699,21 +30318,6 @@ for (the_emu in unique(res$emu_nameshort)){
 
 ```
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
 ![](landings_seasonality_files/figure-html/ys-14.png)<!-- -->
@@ -29726,27 +30330,13 @@ for (the_emu in unique(res$emu_nameshort)){
 
 ```
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
 ![](landings_seasonality_files/figure-html/ys-16.png)<!-- -->
 
-```r
-for (the_emu in unique(res$emu_nameshort)){
-	fnplot(lfs = 'YS',
-			hty = c("T"),
-			emu=the_emu, 
-			colfill= "magenta")	
-}
 ```
-
-```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
@@ -29773,18 +30363,48 @@ for (the_emu in unique(res$emu_nameshort)){
 
 ```
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
 ![](landings_seasonality_files/figure-html/ys-19.png)<!-- -->
 
+```r
+for (the_emu in unique(res$emu_nameshort)){
+	fnplot(lfs = 'YS',
+			hty = c("T"),
+			emu=the_emu, 
+			colfill= "magenta")	
+}
 ```
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
 ![](landings_seasonality_files/figure-html/ys-20.png)<!-- -->
 
 ```
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
@@ -29798,12 +30418,12 @@ for (the_emu in unique(res$emu_nameshort)){
 
 ```
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
 ![](landings_seasonality_files/figure-html/ys-23.png)<!-- -->
 
 ```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
@@ -29811,26 +30431,11 @@ for (the_emu in unique(res$emu_nameshort)){
 
 ```
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
 ![](landings_seasonality_files/figure-html/ys-25.png)<!-- -->
 
 ```
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
@@ -29845,11 +30450,27 @@ for (the_emu in unique(res$emu_nameshort)){
 
 ```
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
 ![](landings_seasonality_files/figure-html/ys-28.png)<!-- -->
 
 ```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
@@ -29857,12 +30478,30 @@ for (the_emu in unique(res$emu_nameshort)){
 
 ```
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/ys-30.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/ys-31.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/ys-32.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
-![](landings_seasonality_files/figure-html/ys-30.png)<!-- -->
+![](landings_seasonality_files/figure-html/ys-33.png)<!-- -->
 
 ```r
 for (the_emu in unique(res$emu_nameshort)){
@@ -29922,9 +30561,11 @@ for (the_emu in unique(res$emu_nameshort)){
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
-![](landings_seasonality_files/figure-html/ys-31.png)<!-- -->
+![](landings_seasonality_files/figure-html/ys-34.png)<!-- -->
 
 ```r
 for (the_emu in unique(res$emu_nameshort)){
@@ -29978,22 +30619,24 @@ for (the_emu in unique(res$emu_nameshort)){
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-```
-
-![](landings_seasonality_files/figure-html/ys-32.png)<!-- -->
-
-```
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-```
-
-![](landings_seasonality_files/figure-html/ys-33.png)<!-- -->
-
-```
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
-## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
 ```
 
-![](landings_seasonality_files/figure-html/ys-34.png)<!-- -->
+![](landings_seasonality_files/figure-html/ys-35.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/ys-36.png)<!-- -->
+
+```
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+## Joining, by = c("year", "emu_nameshort", "lfs_code", "hty_code")
+```
+
+![](landings_seasonality_files/figure-html/ys-37.png)<!-- -->

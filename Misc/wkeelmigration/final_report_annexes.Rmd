@@ -1,6 +1,5 @@
 ---
-title: "WKEELMIGRATION DATA COMPILATION"
-author: "Cédric Briand,  Estibaliz Diaz, Hilaire Drouineau, Caroline Durif,  Derek Evans, Matthew Gollock, Michael Pedersen, Jan Dag Pohlmann, Argyrios Sapounidis, Alan Walker  "
+title: "WKEELMIGRATION REPORT ANNEX"
 date: "january 2020"
 output:
   html_document:
@@ -64,6 +63,7 @@ load(file=str_c(datawd,"res_landings.Rdata"))
 resl <- res
 rm(res)
 resl$country[resl$country=='FL']<-'FI'
+resl$emu_nameshort[resl$emu_nameshort=='ES_MINH']<-'ES_Minh'
 # extract dataframe from cou
 coud <- cou
 st_geometry(coud) <- NULL
@@ -469,9 +469,9 @@ for (i in 1:nrow(countries)){
 	
 	
 	pandoc.p(paste('<div class = "blue">\n',
-					'<span><strong>Method :</strong>',
+					'<span><strong>Short summary on (i) fishery closures prior to the implementation of EMPs, (ii) relevant changes introduced through EMPs, and (iii) relevant changes in response to the EU closures in 2018 and 2019</strong></span><span>',
 					metadata_closure[[the_country_code]]$method,
-					'</span><span><strong>Additional comments :</strong>',					
+					'</span><span><strong>Additional comments :</strong></span><span>',					
 					metadata_closure[[the_country_code]]$additional_comments,
 					'</span>\n</div>'))
 	
@@ -532,7 +532,7 @@ for (i in 1:nrow(countries)){
 				hty = c("T","F","FTC","FT"),
 				emu=the_emu, 
 				colfill= NULL,
-				title = "Glass eels Transitional habitats")	
+				title = "Glass eels Freshwater and Transitional habitats")	
 		
 		
 		
