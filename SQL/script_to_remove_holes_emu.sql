@@ -199,6 +199,8 @@ commit;
 
 --just a correction for AX_Toto
 delete from emu_topo.relation where element_id=65248 and element_type=3 and topogeo_id!=3449;
-
+delete from emu_topo.relation where element_id=585 and element_type=3 and topogeo_id!=3667;
+update emu.dumptable_new set emu_namesh='ES_Inne' where emu_namesh='ES_Spai';
+drop table if exists emu.tr_emu_emu_nohole;
 create table emu.tr_emu_emu_nohole as (select e.gid,emu_namesh,st_union(st_getfacegeometry('emu_topo',element_id)) geom from emu.dumptable_new join emu_topo.relation on id(topogeom)=topogeo_id join emu.tr_emu_emu e using(emu_namesh) 
 	where element_type=3 group by emu_namesh,e.gid);
