@@ -197,5 +197,8 @@ with holes as (select ST_Area(ST_GetFaceGeometry('emu_topo',face_id)), face_id f
 select  FixGapsTopo('emu_topo',face_id) from holes;
 commit;
 
+--just a correction for AX_Toto
+delete from emu_topo.relation where element_id=65248 and element_type=3 and topogeo_id!=3449;
+
 create table emu.tr_emu_emu_nohole as (select e.gid,emu_namesh,st_union(st_getfacegeometry('emu_topo',element_id)) geom from emu.dumptable_new join emu_topo.relation on id(topogeom)=topogeo_id join emu.tr_emu_emu e using(emu_namesh) 
 	where element_type=3 group by emu_namesh,e.gid);
