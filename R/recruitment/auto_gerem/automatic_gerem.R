@@ -51,8 +51,10 @@ wgeel$das_value=ifelse(wgeel$ser_uni_code=="t",wgeel$das_value*1000,ifelse(wgeel
 
 ###reshaping and merging Minho Spain and Portugal
 wgeel_wide=dcast(wgeel,formula=das_year~ser_nameshort)
-wgeel_wide$Min=wgeel_wide$MiPo+wgeel_wide$MiSp
-wgeel_wide=wgeel_wide[,!names(wgeel_wide) %in% c("MiSp","MiPo")]
+wgeel_wide$MinG=wgeel_wide$MiPoG+wgeel_wide$MiSpG
+wgeel_wide=wgeel_wide[,!names(wgeel_wide) %in% c("MiSpG","MiPoG")]
+series_wgeel=subset(series_wgeel,
+                    !series_wgeel$ser_nameshort %in% c("MiSpG","MiPoG"))
 
 
 ####loading additional french series
