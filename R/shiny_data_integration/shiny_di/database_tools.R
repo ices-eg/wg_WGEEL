@@ -600,9 +600,9 @@ check_missing_data <- function(complete, newdata, restricted=TRUE) {
   setkey(main_dt, eel_cou_code, eel_typ_id)
   
   
-  missing_comb_dt = 
-    missing_comb_dt[, list("_details" = list(purrr::transpose(.SD))), by = list(eel_cou_code, eel_typ_id,eel_emu_nameshort,eel_lfs_code,eel_hty_code)]
-  missing_comb_dt[, ' ' := '&oplus;']
+#  missing_comb_dt = 
+#    missing_comb_dt[, list("_details" = list(purrr::transpose(.SD))), by = list(eel_cou_code, eel_typ_id,eel_emu_nameshort,eel_lfs_code,eel_hty_code)]
+#  missing_comb_dt[, ' ' := '&oplus;']
   
   
   
@@ -612,7 +612,7 @@ check_missing_data <- function(complete, newdata, restricted=TRUE) {
   setkey(hty_dt, eel_cou_code, eel_typ_id, eel_emu_nameshort, eel_lfs_code)
   setcolorder(hty_dt, c(length(hty_dt), c(1:(length(hty_dt) - 1))))
   
-#  hty_dt = hty_dt[,list("_details" = list(purrr::transpose(.SD))), by = list(eel_cou_code, eel_typ_id, eel_emu_nameshort, eel_lfs_code,nb)]
+  hty_dt = hty_dt[,list("_details" = list(purrr::transpose(.SD))), by = list(eel_cou_code, eel_typ_id, eel_emu_nameshort, eel_lfs_code,eel_hty_code,nb)]
   hty_dt[, ' ' := '&oplus;']
   
   
