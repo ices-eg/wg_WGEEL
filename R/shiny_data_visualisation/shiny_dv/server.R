@@ -192,7 +192,7 @@ server = function(input, output, session) {
 									#add a * when the data is predicted
 									
 									for (col in 2:ncol(table)){
-										table[,col][table2[,col]==0]<-paste0(table[,col][table2[,col]==0],"*")
+										table[,col][table2[,col]==1]<-paste0(table[,col][table2[,col]==1],"*")
 									}
 									
 									
