@@ -408,7 +408,18 @@ shinyServer(function(input, output, session){
 																		filename = paste0("new_",input$file_type,"_",Sys.Date(),current_cou_code))) 
 												))
 									})
-						} # closes if nrow(...      
+							######
+				  		#Missing data
+					  	######
+					  	if (input$file_type == "catch_landings" & nrow(list_comp$complete)>0) {
+						    output$dt_missing <- DT::renderDataTable({
+						      validate(need(data$connectOK,"No connection"))
+						      check_missing_data(list_comp$complete, new)
+						    })
+					  	}
+						  
+							
+							} # closes if nrow(...      
 						#data$new <- new # new is stored in the reactive dataset to be inserted later.      
 					})
 			
