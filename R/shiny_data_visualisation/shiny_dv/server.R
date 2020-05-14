@@ -255,7 +255,7 @@ server = function(input, output, session) {
 				filtered_data <- filter_data("landings", 
 						typ = as.numeric(input$combined_landings_eel_typ_id),
 						life_stage = input$lfs, 
-						country = input$country, 
+						country = NULL, 
 						habitat = input$habitat,
 						year_range = input$year[1]:input$year[2])        
 				# do not group by habitat or lfs, there might be several lfs selected but all will be grouped
@@ -263,6 +263,8 @@ server = function(input, output, session) {
 				landings$eel_value <- as.numeric(landings$eel_value) / 1000
 				landings$eel_cou_code = as.factor(landings$eel_cou_code)                       
 				pred_landings <- predict_missing_values(landings, verbose=FALSE) 
+				pred_landings <- pred_landings %>%
+				  filter(pred_landings$eel_cou_code %in% input$country)
 				return(pred_landings)
 			})
 	
