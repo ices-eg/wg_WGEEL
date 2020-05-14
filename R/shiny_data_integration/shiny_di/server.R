@@ -603,6 +603,7 @@ shinyServer(function(input, output, session){
 							scroller = TRUE,
 							scrollX = TRUE,
 							scrollY = "500px",
+							lengthMenu=list(c(-1,5,20,50,100),c("All","5","20","50","100")),
 							dom= "Blfrtip", #button fr search, t table, i information (showing..), p pagination
 							buttons=list(
 									list(extend="excel",
