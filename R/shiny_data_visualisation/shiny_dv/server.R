@@ -1121,14 +1121,15 @@ server = function(input, output, session) {
 	
 	####recruitment indices
 	output$table_recruitment<-renderDataTable({
+	  names(dat_ye)[names(dat_ye)=="value_std_1960_1979"] <- "p_std_1960_1979"
 				if (input$index_rec=="Elsewhere Europe"){
-					data_rec<-dat_ge[dat$are=="EE",]
+  					data_rec<-dat_ge[dat_ge$area=="Elsewhere Europe",]
 				} else if (input$index_rec=='North Sea'){
-					data_rec<-dat_ge[dat$area=="NS",]
+					data_rec<-dat_ge[dat_ge$area=="North Sea",]
 				}else data_rec<-dat_ye
 				data_rec$decades<-(data_rec$year%/%10)*10
 				data_rec$unit<-data_rec$year-data_rec$decades
-				data_rec_cast<-dcast(data_rec[,c("decades","unit","geomean_p_std_1960_1979")],unit~decades,value.var="geomean_p_std_1960_1979")
+				data_rec_cast<-dcast(data_rec[,c("decades","unit","p_std_1960_1979")],unit~decades,value.var="p_std_1960_1979")
 				rownames(data_rec_cast)<-data_rec_cast$unit
 				
 				DT::datatable(round(data_rec_cast[,-1]*100,digits=2), 
@@ -1150,8 +1151,9 @@ server = function(input, output, session) {
 	
 	
 	get_recruitment_graph <- reactive({
-				tmp=data.frame(year=dat_ye$year,area=rep("Y",nrow(dat_ye)),geomean_p_std_1960_1979=dat_ye$geomean_p_std_1960_1979)
-				data_rec=rbind.data.frame(dat_ge,tmp)  
+	      tmp=data.frame(year=dat_ye$year,area=rep("Y",nrow(dat_ye)),p_std_1960_1979=dat_ye$value_std_1960_1979)
+				data_rec=rbind.data.frame(dat_ge[,c("year","p_std_1960_1979","area")],tmp[,c("year","p_std_1960_1979","area")]) 
+				data_rec$area <- c("EE","NS","Y")[match(data_rec$area,c("Elsewhere Europe","North Sea","Y"))]
 				data_rec<-data_rec[data_rec$area %in% input$indices_rec_graph,]
 				are_we_jokking=input$just_a_joke
 				return(data_rec)
