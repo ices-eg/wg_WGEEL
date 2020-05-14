@@ -543,6 +543,7 @@ log_datacall <- function(step, cou_code, message, the_metadata, file_type, main_
 #' @return a DT::datatable
 
 check_missing_data <- function(complete, newdata, restricted=TRUE) {
+  load_library("data.table")
   all_comb <- expand.grid(eel_lfs_code=c("G","Y","S"),
                         eel_hty_code=c("F","T","C"),
                         eel_emu_nameshort=unique(complete$eel_emu_nameshort),
