@@ -7,10 +7,12 @@
 #' loaded from excel, the 
 #' @param data_from_excel Dataset loaded from excel
 #' @param data_from_base dataset loaded from the database with previous values to be replaced
-#' @return A list with two dataset, one is duplicate the other new, they correspond 
+#' @return A list with three dataset, one is duplicate the other new, they correspond 
 #' to duplicates values that have to be checked by wgeel and when a new value
 #' is selected the database data has to be removed and the new lines needs to be qualified.
-#' THe other dataset (new) contains new value, these also will need to be qualified by wgeel
+#' THe second dataset (new) contains new value, these also will need to be qualified by wgeel
+#' the last data set is contains all records that will be in the db for the country after
+#' inclusion of the new records
 #' @details There are various checks to ensure there is no problem at this turn, the tr_type_typ reference dataset will be loaded if absent,
 #' To extract duplicates, this function does a merge of excel and base values using inner join,
 #' and adds a column keep_new_value where the user will have to select whether to replace conflicting 
@@ -92,7 +94,12 @@ compare_with_database <- function(data_from_excel, data_from_base) {
   new <- new[, c("eel_typ_id", "eel_typ_name", "eel_year", "eel_value", "eel_missvaluequal", 
           "eel_emu_nameshort", "eel_cou_code", "eel_lfs_code", "eel_hty_code", "eel_area_division", 
           "eel_qal_id", "eel_qal_comment", "eel_datasource", "eel_comment")]
-  return(list(duplicates = duplicates, new = new, current_cou_code= current_cou_code))
+  complete <- rbind.data.frame(data_from_base[data_from_base$eel_cou_code %in% unique(new$eel_cou_code),
+                                              c("eel_typ_id", "eel_year", "eel_lfs_code", 
+                                                "eel_emu_nameshort", "eel_cou_code", "eel_hty_code")],
+                               new[,c("eel_typ_id", "eel_year", "eel_lfs_code", 
+                                      "eel_emu_nameshort", "eel_cou_code", "eel_hty_code")])
+  return(list(duplicates = duplicates, new = new, current_cou_code= current_cou_code,complete=complete))
 }
 
 
@@ -524,4 +531,246 @@ log_datacall <- function(step, cou_code, message, the_metadata, file_type, main_
   
   out_data <- dbGetQuery(pool, query)
   return(out_data)
+}
+
+
+
+#' @title Function to display missing data
+#' @description one new landings data are provided, check which data would be missing
+#' @param complete the records of the country after including the new data
+#' @param newdata the newdata
+#' @param restricted if TRUE, function resticted to the period covered by the new data
+#' @return a DT::datatable
+
+check_missing_data <- function(complete, newdata, restricted=TRUE) {
+  load_library("data.table")
+  all_comb <- expand.grid(eel_lfs_code=c("G","Y","S"),
+                        eel_hty_code=c("F","T","C"),
+                        eel_emu_nameshort=unique(complete$eel_emu_nameshort),
+                        eel_cou_code=unique(complete$eel_cou_code),
+                        eel_year=unique(complete$eel_year),
+                        eel_typ_id=c(4,6))
+  missing_comb <- anti_join(all_comb, complete)
+  missing_comb$id <- 1:nrow(missing_comb)
+  found_matches <- sqldf("select id from missing_comb m inner join complete c on c.eel_cou_code=m.eel_cou_code and
+                                                            c.eel_year=m.eel_year and
+                                                            c.eel_typ_id=m.eel_typ_id and
+                                                            c.eel_lfs_code like '%'||m.eel_lfs_code||'%'
+                                                            and c.eel_hty_code like '%'||m.eel_hty_code||'%' 
+                                                            and (c.eel_emu_nameshort=m.eel_emu_nameshort or
+                                                                c.eel_emu_nameshort=substr(m.eel_emu_nameshort,1,3)||'total')")
+  #looks for missing combinations
+  missing_comb <- missing_comb %>%
+    filter(!missing_comb$id %in% found_matches$id)%>%
+    select(-id) %>%
+    arrange(eel_cou_code,eel_typ_id,eel_emu_nameshort,eel_lfs_code,eel_hty_code,eel_year)
+  if (restricted){
+    missing_comb <-missing_comb %>%
+      filter(eel_year>=min(newdata$eel_year) & eel_year<=max(newdata$eel_year))
+  }
+
+  missing_comb$eel_hty_code=as.character(missing_comb$eel_hty_code)
+  missing_comb$eel_lfs_code=as.character(missing_comb$eel_lfs_code)
+  missing_comb$eel_emu_nameshort =as.character(missing_comb$eel_emu_nameshort)
+  missing_comb$eel_cou_code =as.character(missing_comb$eel_cou_code)
+
+  #creates a nested data table to facilitate display in shiny
+  missing_comb_dt = data.table(missing_comb)
+  setkey(missing_comb_dt, eel_cou_code, eel_typ_id,eel_emu_nameshort,eel_lfs_code,eel_hty_code)
+
+  hty_dt = data.table(missing_comb %>%
+    group_by(eel_cou_code, eel_typ_id,eel_emu_nameshort,eel_lfs_code,eel_hty_code) %>%
+    summarise(nb=n()))
+  setkey(hty_dt, eel_cou_code, eel_typ_id,eel_emu_nameshort,eel_lfs_code,eel_hty_code)
+  
+  lfs_dt = data.table(missing_comb %>% 
+                        group_by(eel_cou_code, eel_typ_id,eel_emu_nameshort,eel_lfs_code) %>%
+                        summarize(nb=n()))
+  setkey(lfs_dt, eel_cou_code, eel_typ_id,eel_emu_nameshort,eel_lfs_code)
+  
+  emu_dt = data.table(missing_comb %>%
+                        group_by(eel_cou_code, eel_typ_id,eel_emu_nameshort) %>%
+                        summarize(nb=n()))
+  setkey(emu_dt, eel_cou_code, eel_typ_id,eel_emu_nameshort)
+  
+  
+  main_dt = data.table(missing_comb %>%
+                         group_by(eel_cou_code, eel_typ_id)%>%
+                         summarize(nb=n()))
+  setkey(main_dt, eel_cou_code, eel_typ_id)
+  
+  
+#  missing_comb_dt = 
+#    missing_comb_dt[, list("_details" = list(purrr::transpose(.SD))), by = list(eel_cou_code, eel_typ_id,eel_emu_nameshort,eel_lfs_code,eel_hty_code)]
+#  missing_comb_dt[, ' ' := '&oplus;']
+  
+  
+  
+  
+  
+  hty_dt = merge(hty_dt, missing_comb_dt, all.x = TRUE,by=c("eel_cou_code","eel_typ_id","eel_emu_nameshort","eel_lfs_code","eel_hty_code") )
+  setkey(hty_dt, eel_cou_code, eel_typ_id, eel_emu_nameshort, eel_lfs_code)
+  setcolorder(hty_dt, c(length(hty_dt), c(1:(length(hty_dt) - 1))))
+  
+  hty_dt = hty_dt[,list("_details" = list(purrr::transpose(.SD))), by = list(eel_cou_code, eel_typ_id, eel_emu_nameshort, eel_lfs_code,eel_hty_code,nb)]
+  hty_dt[, ' ' := '&oplus;']
+  
+  
+  
+  lfs_dt = merge(lfs_dt, hty_dt, all.x = TRUE,by=c("eel_cou_code","eel_typ_id","eel_emu_nameshort","eel_lfs_code"),suffixes=c(".x","") )
+  setkey(lfs_dt, eel_cou_code, eel_typ_id, eel_emu_nameshort)
+  setcolorder(lfs_dt, c(length(lfs_dt), c(1:(length(lfs_dt) - 1))))
+  
+  lfs_dt = lfs_dt[,list("_details" = list(purrr::transpose(.SD))), by = list(eel_cou_code, eel_typ_id, eel_emu_nameshort,eel_lfs_code,nb.x)]
+  names(lfs_dt)[names(lfs_dt)=="nb.x"]="nb"
+  lfs_dt[, ' ' := '&oplus;']
+  
+  
+  emu_dt = merge(emu_dt, lfs_dt, all.x = TRUE,by=c("eel_cou_code","eel_typ_id","eel_emu_nameshort"),suffixes=c(".x","") )
+  setkey(emu_dt, eel_cou_code, eel_typ_id)
+  setcolorder(emu_dt, c(length(emu_dt), c(1:(length(emu_dt) - 1))))
+  
+  emu_dt = emu_dt[,list("_details" = list(purrr::transpose(.SD))), by = list(eel_cou_code, eel_typ_id,eel_emu_nameshort,nb.x)]
+  names(emu_dt)[names(emu_dt)=="nb.x"]="nb"
+  emu_dt[, ' ' := '&oplus;']
+  
+  main_dt = merge(main_dt, emu_dt, all.x = TRUE,allow.cartesian=TRUE, by=c("eel_cou_code","eel_typ_id"),suffixes=c(".x","") )
+  setcolorder(main_dt, c(length(main_dt),c(1:(length(main_dt) - 1))))
+ 
+  main_dt = main_dt[,list("_details" = list(purrr::transpose(.SD))), by = list(eel_cou_code, eel_typ_id,nb.x)]
+  names(main_dt)[names(main_dt)=="nb.x"]="nb"
+  main_dt=cbind(' '='&oplus;',main_dt)
+  
+  
+  
+  
+  ## the callback https://stackoverflow.com/questions/51425442/parent-child-rows-in-r-shiny-package
+  callback = JS(
+    "table.column(1).nodes().to$().css({cursor: 'pointer'});",
+    "",
+    "// make the table header of the nested table",
+    "var format = function(d, childId){",
+    "  if(d != null){",
+    "    var html = ", 
+    "      '<table class=\"display compact hover\" id=\"' + childId + '\"><thead><tr>';",
+    "    for (var key in d[d.length-1][0]) {",
+    "      html += '<th>' + key + '</th>';",
+    "    }",
+    "    html += '</tr></thead></table>'",
+    "    return html;",
+    "  } else {",
+    "    return '';",
+    "  }",
+    "};",
+    "",
+    "// row callback to style the rows of the child tables",
+    "var rowCallback = function(row, dat, displayNum, index){",
+    "  if($(row).hasClass('odd')){",
+    "    $(row).css('background-color', 'papayawhip');",
+    "    $(row).hover(function(){",
+    "      $(this).css('background-color', '#E6FF99');",
+    "    }, function() {",
+    "      $(this).css('background-color', 'papayawhip');",
+    "    });",
+    "  } else {",
+    "    $(row).css('background-color', 'lemonchiffon');",
+    "    $(row).hover(function(){",
+    "      $(this).css('background-color', '#DDFF75');",
+    "    }, function() {",
+    "      $(this).css('background-color', 'lemonchiffon');",
+    "    });",
+    "  }",
+    "};",
+    "",
+    "// header callback to style the header of the child tables",
+    "var headerCallback = function(thead, data, start, end, display){",
+    "  $('th', thead).css({",
+    "    'border-top': '3px solid indigo',", 
+    "    'color': 'indigo',",
+    "    'background-color': '#fadadd'",
+    "  });",
+    "};",
+    "",
+    "// make the datatable",
+    "var format_datatable = function(d, childId){",
+    "  var dataset = [];",
+    "  var n = d.length - 1;",
+    "  for(var i = 0; i < d[n].length; i++){",
+    "    var datarow = $.map(d[n][i], function (value, index) {",
+    "      return [value];",
+    "    });",
+    "    dataset.push(datarow);",
+    "  }",
+    "  var id = 'table#' + childId;",
+    "  if (Object.keys(d[n][0]).indexOf('_details') === -1) {",
+    "    var subtable = $(id).DataTable({",
+    "                 'data': dataset,",
+    "                 'autoWidth': true,",
+    "                 'deferRender': true,",
+    "                 'info': false,",
+    "                 'lengthChange': false,",
+    "                 'ordering': d[n].length > 1,",
+    "                 'order': [],",
+    "                 'paging': false,",
+    "                 'scrollX': false,",
+    "                 'scrollY': false,",
+    "                 'searching': false,",
+    "                 'sortClasses': false,",
+    "                 'rowCallback': rowCallback,",
+    "                 'headerCallback': headerCallback,",
+    "                 'columnDefs': [{targets: '_all', className: 'dt-center'}]",
+    "               });",
+    "  } else {",
+    "    var subtable = $(id).DataTable({",
+    "            'data': dataset,",
+    "            'autoWidth': true,",
+    "            'deferRender': true,",
+    "            'info': false,",
+    "            'lengthChange': false,",
+    "            'ordering': d[n].length > 1,",
+    "            'order': [],",
+    "            'paging': false,",
+    "            'scrollX': false,",
+    "            'scrollY': false,",
+    "            'searching': false,",
+    "            'sortClasses': false,",
+    "            'rowCallback': rowCallback,",
+    "            'headerCallback': headerCallback,",
+    "            'columnDefs': [", 
+    "              {targets: -1, visible: false},", 
+    "              {targets: 0, orderable: false, className: 'details-control'},", 
+    "              {targets: '_all', className: 'dt-center'}",
+    "             ]",
+    "          }).column(0).nodes().to$().css({cursor: 'pointer'});",
+    "  }",
+    "};",
+    "",
+    "// display the child table on click",
+    "table.on('click', 'td.details-control', function(){",
+    "  var tbl = $(this).closest('table'),",
+    "      tblId = tbl.attr('id'),",
+    "      td = $(this),",
+    "      row = $(tbl).DataTable().row(td.closest('tr')),",
+    "      rowIdx = row.index();",
+    "  if(row.child.isShown()){",
+    "    row.child.hide();",
+    "    td.html('&oplus;');",
+    "  } else {",
+    "    var childId = tblId + '-child-' + rowIdx;",
+    "    row.child(format(row.data(), childId)).show();",
+    "    td.html('&CircleMinus;');",
+    "    format_datatable(row.data(), childId);",
+    "  }",
+    "});")
+
+  datatable(main_dt, callback = callback, escape = -2,
+            options = list(
+              columnDefs = list(
+                list(visible = FALSE, targets = ncol(main_dt)),
+                list(orderable = FALSE, className = 'details-control', targets = 1),
+                list(className = "dt-center", targets = "_all")
+              )
+            ))
+  
+  
 }

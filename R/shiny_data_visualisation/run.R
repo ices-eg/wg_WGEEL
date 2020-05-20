@@ -1,4 +1,4 @@
-# Main script to launch shiny app
+# Main script to launch shiny app 
 # 
 # Authors: lbeaulaton Cedric
 ###############################################################################

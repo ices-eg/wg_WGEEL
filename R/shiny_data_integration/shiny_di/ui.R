@@ -92,7 +92,8 @@ ui <- dashboardPage(title="ICES Data Integration",
                         DT::dataTableOutput("dt_check_duplicates")),
                     column(width=5,
                         htmlOutput("step1_message_new"),
-                        DT::dataTableOutput("dt_new"))
+                        DT::dataTableOutput("dt_new"),
+                        DT::dataTableOutput("dt_missing"))
                 ),
                 tags$hr(),
                 h2("step 2.1 Integrate/ proceed duplicates rows"),
