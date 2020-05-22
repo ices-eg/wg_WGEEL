@@ -397,6 +397,9 @@ write_new <- function(path) {
   
   new <- read_excel(path = path, sheet = 1, skip = 1)
   
+  ####when there are no data, new values have incorrect type
+  new$eel_value <- as.numeric(new$eel_value)
+  
   # check for new file -----------------------------------------------------------------------------
   
   validate(need(all(!is.na(new$eel_qal_id)), "There are still lines without eel_qal_id, please check your file"))
