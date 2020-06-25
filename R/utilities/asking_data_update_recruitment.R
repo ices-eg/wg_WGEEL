@@ -1,10 +1,11 @@
 ###################################################################################"
 # File create to build excel files sent to persons responsible for recruitment data
+# 
 # Author Cedric Briand
 # This script will create an excel sheet per country that currently have recruitment series
 #######################################################################################
 # put the current year there
-CY<-2019
+CY<-2020
 # function to load packages if not available
 load_library=function(necessary) {
 	if(!all(necessary %in% installed.packages()[, 'Package']))
@@ -23,7 +24,6 @@ load_library("XLConnect")
 #############################
 # here is where the script is working change it accordingly
 ##################################
-setwd("C:/workspace/wgeel/sweave")
 wd<-getwd()
 #############################
 # here is where you want to put the data. It is different from the code
@@ -116,6 +116,7 @@ createxl<-function(country){
 # launch this to see how many countries you have
 unique(t_series_ser$ser_cou_code)
 #  "SE" "NL" "IE" "FR" "DE" "DK" "ES" "GB" "PT" "IT" "BE" "NO"
+t_series_ser <- t_series_ser[!is.na(t_series_ser$ser_cou_code), ]
 # create an excel file for each of the countries
 createxl(country="SE")
 createxl("NL")
@@ -129,4 +130,5 @@ createxl("PT")
 createxl("IT")
 createxl("BE")
 createxl("NO")
+
 
