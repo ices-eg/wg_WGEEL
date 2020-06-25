@@ -50,7 +50,7 @@ library("ggspatial")
 dsn <-  paste0("PG:dbname='wgeel' host='localhost' port ='5436'",
 		" user='", userlocal,
 		"' password='", passwordlocal,"'")
-load(file=str_c(datawd,"saved_data.Rdata"))
+load(file=str_c(datawd,"saved_data.Rdata")) # ices_division, emus, the_years, tr_typeseries_typt, list_country
 load(file=str_c(datawd,"cou.Rdata"))
 # load data from closures
 load(file=str_c(datawd2,"res_closure.Rdata"))
@@ -130,8 +130,6 @@ for (i in 1:length(files)){
 ```
 
 
-
-
 ```{r pivot_table, echo=FALSE, include=FALSE, eval=TRUE}
 
 # run only when data are changed, otherwise ignored
@@ -194,8 +192,6 @@ save(big_table_closure, file=str_c(datawd,"big_table_closure.Rdata"))
 
 
 ```
-
-
 
 
 
@@ -624,7 +620,35 @@ for (i in 1:nrow(countries)){
 options(warn=0)
 ```
 
+```{r save_to_database, echo=FALSE, include=FALSE, eval=FALSE}
+port <- 5432 # 5435 to use with SSH, translated to 5432 on distant server
+# 5436 to use in local server
+host <- "localhost"#"192.168.0.100"
+userwgeel <-"wgeel"
+# we use isolate as we want no dependency on the value (only the button being clicked)
+stopifnot(exists("passwordwgeel"))
 
+# connection settings -------------------------------------------------------------------
+
+options(sqldf.RPostgreSQL.user = userwgeel,  
+		sqldf.RPostgreSQL.password = passwordwgeel,
+		sqldf.RPostgreSQL.dbname = "wgeel",
+		sqldf.RPostgreSQL.host = host, #getInformation("PostgreSQL host: if local ==> localhost"), 
+		sqldf.RPostgreSQL.port = port)
+
+sqldf("CREATE TABLE wkeelmigration.closure AS select * from resc2")
+
+load(file=str_c(datawd,"seasonality_tibbles_res_ser2.Rdata"))
+str(res)
+str(ser2)
+ser2 <-select(ser2,-existing)
+
+sqldf("CREATE TABLE wkeelmigration.t_seriesseasonality_ser AS select * from ser2")
+colnames(res)<- c("mon_ser_nameshort","mon_value", "mon_year","mon_month", "mon_comment","mon_effort","mon_source","mon_country","mon_datasource")
+
+sqldf("CREATE TABLE wkeelmigration.t_monitoring_mon AS select * from res")
+
+```
 
 
 

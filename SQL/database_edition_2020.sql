@@ -12,3 +12,10 @@ NS-IBTS
 BITS-4
 BITS-1
 */
+
+-- saving wkeelmigration data to the database
+GRANT ALL ON SCHEMA wkeelmigration  TO wgeel ;
+
+
+
+SELECT DISTINCT ser
