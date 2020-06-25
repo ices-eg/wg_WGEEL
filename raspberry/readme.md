@@ -266,3 +266,9 @@ R -e "source('R/shiny_data_visualisation/run.R')"
 ```shell
 R -e "source('R/shiny_data_integration/run.R')"
 ```
+##restart the shiny server after copying / pulling updates
+
+
+```shell
+sudo systemctl restart shiny-server
+```

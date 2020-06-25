@@ -224,9 +224,23 @@ server = function(input, output, session) {
 								table = table[, n_order]
 							})
 				}
+	      unit <-switch(input$dataset,
+	                    "landings"="ton",
+	                    "raw_landings_com"="ton",
+	                    "raw_landings_rec"="ton",
+	                    "landings_com_corrected"="ton",
+	                    "landings_rec_corrected"="ton",
+	                    "aquaculture_n"="n",
+	                    "aquaculture_kg"="kg",
+	                    "release_kg"="kg",
+	                    "release_n"="number",
+	                    "gee"="glass eel equivalent",
+	                    "precodata"="biomasses in tons, mortality rates for the eel lifespan")
+	      caption_table <- paste(input$dataset," (",unit,")",sep="")
 				DT::datatable(table, 
 						rownames = FALSE,
 						extensions = c("Buttons","KeyTable"),
+						caption=caption_table,
 						option=list(
 								order=list(0,"asc"),
 								scroller = TRUE,
