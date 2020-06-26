@@ -1,4 +1,11 @@
 
+passwordwgeel <- pwdgetPass()
+load_library("getPass")
+load_library("RPostgreSQL")
+load_library("dplyr")
+load_library("sqldf")
+load_library("xlsx")
+
 creating_missing_file_dc <- function(cou="FR",
 		minyear=2000,
 		maxyear=2019,
@@ -6,21 +13,15 @@ creating_missing_file_dc <- function(cou="FR",
 		dbname="wgeel",
 		user="wgeel",
 		port=5432) {
-  browser()
-	load_library("getPass")
-  load_library("RPostgreSQL")
-  load_library("dplyr")
-  load_library("sqldf")
-  load_library("xlsx")
-  
-  con_wgeel<-dbConnect(PostgreSQL(),host=host,dbname=dbname,user=user,port=port,password=getPass())
+  #browser()
+
+
+  con_wgeel<-dbConnect(PostgreSQL(),host=host,dbname=dbname,user=user,port=port,passwordwgeel)
   
   #theoretically this one is the best solution but the table is not well filled
   #hty_emus<-unique(dbGetQuery(con_wgeel,paste("select eel_hty_code,eel_emu_nameshort,eel_cou_code,eel_area_division from datawg.t_eelstock_eel where eel_qal_id in (1,2,4) and eel_typ_id=16 and eel_cou_code in ('",paste(cou,collapse="','",sep=""),"')",sep="")))
   
-  #this one gives all possible combinations
-  hty_emus <- unique(dbGetQuery(con_wgeel,paste("select hty_code eel_hty_code,emu_nameshort eel_emu_nameshort,emu_cou_code eel_cou_code from ref.tr_emu_emu cross join ref.tr_habitattype_hty where hty_code!='AL' and emu_nameshort not like '%total' and emu_cou_code='",cou,"'",sep="")))
-  
+  hty_emus <- c("F","T","C","MO")  
   all_comb <- merge(expand.grid(eel_lfs_code=c("G","Y","S"),
                           eel_year=minyear:maxyear,
                           eel_typ_id=4),
