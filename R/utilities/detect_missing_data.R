@@ -26,7 +26,6 @@ detect_missing_data <- function(cou="FR",
                           eel_hty_code=hty_emus),
                     emus)
   complete<-dbGetQuery(con_wgeel,paste(paste("select eel_typ_id,eel_hty_code,eel_year,eel_emu_nameshort,eel_lfs_code,eel_cou_code,eel_value,eel_missvaluequal,eel_area_division from datawg.t_eelstock_eel where eel_qal_id in (0,1,2,4) and eel_year>=",minyear," and eel_year<=",maxyear," and eel_typ_id in (4,6) and eel_cou_code='",cou,"'",sep="")))
-  last_year <- subset(complete,complete$eel_year == maxyear -1)
   ranges<-dbGetQuery(con_wgeel,paste(paste("select eel_area_division,eel_typ_id,eel_hty_code,eel_emu_nameshort,eel_lfs_code,eel_cou_code,min(eel_year) as first_year,max(eel_year) last_year from datawg.t_eelstock_eel where eel_qal_id in (0,1,2,4) and eel_year>=",minyear," and eel_year<=",maxyear," and eel_typ_id in (4,6) and eel_cou_code='",cou,"' group by eel_area_division,eel_typ_id,eel_hty_code,eel_emu_nameshort,eel_lfs_code,eel_cou_code",sep="")))
   missing_comb <- anti_join(all_comb, complete)
   missing_comb$id <- 1:nrow(missing_comb)
@@ -54,7 +53,7 @@ detect_missing_data <- function(cou="FR",
   missing_comb$eel_lfs_code=as.character(missing_comb$eel_lfs_code)
   missing_comb$eel_emu_nameshort =as.character(missing_comb$eel_emu_nameshort)
   missing_comb$eel_cou_code =as.character(missing_comb$eel_cou_code)
-  missing_comb$eel_typ_name="com_landings"
+  missing_comb$eel_typ_name=ifelse(missing_comb$eel_typ_id==4,"com_landings","rec_landings")
   missing_comb$eel_value=NA
   
   missing_comb$eel_comment <- mapply(function(y,f,l){
@@ -103,15 +102,7 @@ detect_missing_data <- function(cou="FR",
               eel_hty_code,
               eel_lfs_code,
               eel_year)
-  last_year$eel_typ_name=ifelse(last_year$eel_typ_id==4,"com_landings","rec_landings")
-  last_year$eel_value = NA
-  last_year$eel_year=maxyear
-  last_year$eel_comment=NA
-  last_year$eel_qal_id=1
-  last_year$eel_datasource=datasource
-  
-  
-  missing_comb <- bind_rows(missing_comb,select(last_year,-eel_typ_id))
+  dbDisconnect(con_wgeel)
   return(missing_comb)
     
 }
