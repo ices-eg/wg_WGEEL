@@ -1,12 +1,8 @@
 
-passwordwgeel <- pwdgetPass()
-load_library("getPass")
-load_library("RPostgreSQL")
-load_library("dplyr")
-load_library("sqldf")
-load_library("xlsx")
+#passwordwgeel <- getPass()
 
-creating_missing_file_dc <- function(cou="FR",
+
+detect_missing_data <- function(cou="FR",
 		minyear=2000,
 		maxyear=2020, #maxyear corresponds to the current year where we have to fill data
 		host="localhost",
@@ -16,7 +12,7 @@ creating_missing_file_dc <- function(cou="FR",
   #browser()
 
 
-  con_wgeel<-dbConnect(PostgreSQL(),host=host,dbname=dbname,user=user,port=port,passwordwgeel)
+  con_wgeel<-dbConnect(PostgreSQL(),host=host,dbname=dbname,user=user,port=port,password=passwordwgeel)
   
   #theoretically this one is the best solution but the table is not well filled
   emus<-unique(dbGetQuery(con_wgeel,paste("select emu_nameshort eel_emu_nameshort,emu_cou_code eel_cou_code from ref.tr_emu_emu
@@ -58,7 +54,6 @@ creating_missing_file_dc <- function(cou="FR",
   missing_comb$eel_cou_code =as.character(missing_comb$eel_cou_code)
   missing_comb$eel_typ_name="com_landings"
   missing_comb$eel_value=NA
-	# CEDRIC : is this a miskake ?
   
   missing_comb$eel_comment <- mapply(function(y,f,l){
     if (is.na(f) & is.na(l)) return("no landing ever recorded in the db")
@@ -103,7 +98,6 @@ creating_missing_file_dc <- function(cou="FR",
               eel_lfs_code,
               eel_year)
   
-  write.xlsx(missing_comb,sheetName="landings",file=paste("missing",cou,".xlsx"),showNA=FALSE)
+  return(missing_comb)
     
 }
-#creating_missing_file_dc()

@@ -30,11 +30,10 @@ wd<-getwd()
 # as we don't want to commit data to git
 # read git user 
 ##################################
-wddata<-"C:/workspace/wgeeldata/recruitment"
-#####################################
+wddata<-"C:/Users/cedric.briand/OneDrive - EPTB Vilaine/Projets/GRISAM/2020/wgeel/datacall/series/"
 # Finally we store the xl data in a sub chapter
 ########################################
-dataxl<-str_c(wddata,"/",CY,"/xl")
+dataxl<-wddata
 ###################################
 # this set up the connextion to the postgres database
 # change parameters accordingly
