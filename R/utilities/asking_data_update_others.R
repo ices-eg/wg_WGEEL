@@ -21,6 +21,7 @@ load_library("RPostgreSQL")
 load_library("stacomirtools")
 load_library("stringr")
 load_library("openxlsx")
+load_library("dplyr")
 #############################
 # here is where the script is working change it accordingly
 ##################################
@@ -76,13 +77,14 @@ t_eelstock_eel<-sqldf("SELECT
 				left join ref.tr_quality_qal on eel_qal_id=tr_quality_qal.qal_id 
 				left join ref.tr_typeseries_typ on eel_typ_id=typ_id;")
 
-tr_eel_typ<- sqldf("SELECT * from ref.tr_typeseries_typ")
+#tr_eel_typ<- sqldf("SELECT * from ref.tr_typeseries_typ")
 
 #' function to create the data sheet 
 #' 
 #' @note this function writes the xl sheet for each country
 #' it creates series metadata and series info for ICES station table
 #' loop on the number of series in the country to create as many sheet as necessary
+#' A good reason for bug is if the source datacall file template is open
 #' 
 #' @param code of the country, for instance "FR"
 #' @param name name of the annex file
@@ -90,11 +92,9 @@ tr_eel_typ<- sqldf("SELECT * from ref.tr_typeseries_typ")
 #' @param ... arguments  cou,	minyear, maxyear, host, dbname, user, and port passed to missing_data
 #' 
 #'  country <- "FR" ; name <- "Eel_Data_Call_2020_Annex4_Landings" ; eel_typ_id <- c(4,6) ;
-#' xls.file_final <- str_c(dataxl, name, "_",country,".xls")
-#' 
-#' d
-# 
-create_datacall_file <- function(country, eel_typ_id, templatefiles, destinationfile, ...){  
+
+
+create_datacall_file <- function(country, eel_typ_id, name, ...){  
 	
 	#create a folder for the country  
 	dir.create(str_c(wddata,country),showWarnings = FALSE) # show warning= FALSE will create if not exist	
@@ -107,43 +107,100 @@ create_datacall_file <- function(country, eel_typ_id, templatefiles, destination
 	data_disc <- r_coun[!r_coun$qal_kept,]
 	data_disc <- data_disc[,-ncol(r_coun)]
 	
-	data_missing <- detect_missing_data(cou=country)
-	data_missing <- data_missing[,-match(c("eel_qal_id","eel_qal_comment"),colnames(data_missing))]
-	data
+	
+	if (any(eel_typ_id)%in%c(4,6)) datatype <- "landings"
+	
+
 	nametemplatefile <- str_c(name,".xlsx")
 	templatefile <- file.path(wddata,"template_files",nametemplatefile)
-	namedestinationfile <- str_c(name,"_",country,".xlsx")	
-	destinationfile <- file.path(wddata, country, namedestinationfile)
-
+	namedestinationfile <- str_c(name,"_",country,".xls")	
+	destinationfile <- file.path(wddata, country, namedestinationfile)	
 	wb = openxlsx::loadWorkbook(templatefile)
 	sheets <- sheets(wb)
+	
 	if ("existing_discarded"%in% sheets) removeWorksheet(wb,"existing_discarded")
 	if ("existing_kept"%in% sheets) removeWorksheet(wb,"existing_kept")
-	if ("new_data"%in% sheets) removeWorksheet(wb,"new_data")
+	#if ("new_data"%in% sheets) removeWorksheet(wb,"new_data")
 	openxlsx::addWorksheet(wb=wb, 
 			sheetName= "existing_discarded",
 			tabColour="orange")
 	openxlsx::addWorksheet(wb=wb, 
 			sheetName= "existing_kept",
 			tabColour="green")
-	openxlsx::addWorksheet(wb=wb, 
-			sheetName= "new_data",
-			tabColour="red")
-	style <- "TableStyleMedium7"
-	writeDataTable(wb, data_disc, sheet = "existing_discarded",tableStyle=style, withFilter = TRUE)
-	writeDataTable(wb, data_kept, sheet = "existing_kept",tableStyle=style, withFilter = TRUE)
-	writeData(wb, data_missing, sheet = "new_data",  startRow=2)
-	worksheetOrder(wb) <- c(1,2,3,12,13,4:11)
+	# openxlsx::addWorksheet(wb=wb, 
+	# 		sheetName= "new_data",
+	# 		tabColour="red")
+#	openxlsx::cloneWorksheet(wb=wb,
+#			"new_data",
+#			clonedSheet="to_collect_format")
+	writeDataTable(wb, data_disc, sheet = "existing_discarded",
+			tableStyle="TableStyleMedium4", 
+			withFilter = TRUE)
+	writeDataTable(wb, data_kept, 
+			sheet = "existing_kept",
+			tableStyle="TableStyleMedium7", 
+			withFilter = TRUE)
+	
+	if (datatype=="landings") {
+
+		data_missing <- detect_missing_data(cou=country, datasource=datasource.)
+		# here filter if there is only 4 or 6, detect missing returns all combinations for 4 and 6
+		data_missing <- data_missing[data_missing$eel_qal_id%in%eel_qal_id,]
+		data_missing <- data_missing[,-match(c("eel_qal_id","eel_qal_comment"),colnames(data_missing))]
+		writeData(wb,"new_data", data_missing)
+	} 
+	
+	sheets <- sheets(wb)
+	lll <- length(sheets)
+	worksheetOrder(wb) <- c(1,2,3,lll,lll-1,4:(lll-2))
 	saveWorkbook(wb, file = destinationfile, overwrite = TRUE)
 }
 
+
+# note passwordwgeel must be set and exist
+# passwordwgeel <- XXXXXXXX
+
+# CLOSE EXCEL FILE FIST
+create_datacall_file ( 
+		country <- "FR",
+		eel_typ_id <- c(4), 
+		name <- "Eel_Data_Call_2020_Annex4_Landings_Commercial",
+		minyear=2000,
+		maxyear=2020, #maxyear corresponds to the current year where we have to fill data
+		host="localhost",
+		dbname="wgeel",
+		user="wgeel",
+		port=5432,
+		datasource.="dc_2020")
+
+create_datacall_file ( 
+		country <- "FR",
+		eel_typ_id <- 6, 
+		name <- "Eel_Data_Call_2020_Annex4_Landings_Recreational",
+		minyear=2000,
+		maxyear=2020, #maxyear corresponds to the current year where we have to fill data
+		host="localhost",
+		dbname="wgeel",
+		user="wgeel",
+		port=5432)
+
+create_datacall_file ( 
+		country <- "FR",
+		eel_typ_id <- c(4,6), 
+		name <- "test",
+		minyear=2000,
+		maxyear=2020, #maxyear corresponds to the current year where we have to fill data
+		host="localhost",
+		dbname="wgeel",
+		user="wgeel",
+		port=5432)
 
 
 
 openXL(wb)
 ## Not run: saveWorkbook(wb, file = "tableStylesGallery.xlsx", overwrite = TRUE)
 
-	cat("work finished",country," and ",eel_typ,"\n")
+cat("work finished",country," and ",eel_typ,"\n")
 
 #select the data
 if (eel_typ %in% c(4,5,6,7)){
