@@ -8,7 +8,8 @@ detect_missing_data <- function(cou="FR",
 		host="localhost",
 		dbname="wgeel",
 		user="wgeel",
-		port=5432) {
+		port=5432,
+		datasource) {
   #browser()
 
 
@@ -73,13 +74,13 @@ detect_missing_data <- function(cou="FR",
   })
   missing_comb$eel_qal_id <- ifelse(missing_comb$eel_missvaluequal=="NC",0,2)
   missing_comb$eel_qal_comment <- "autofilled by missing data detection procedure"
-  missing_comb$eel_datasource <- "missing data detection procedure"
+  missing_comb$eel_datasource <- str_c(datasource,"_missing")
   
   ####For ongoing year, we leave NP but removes the other
-  missing_comb$eel_comment[missing_comb$eel_year==maxyear & missing_comb$eel_missvaluequal == "NC"] <- NA
-  missing_comb$eel_qal_comment[missing_comb$eel_year==maxyear & missing_comb$eel_missvaluequal == "NC"] <- NA
+  missing_comb$eel_comment[missing_comb$eel_year==maxyear] <- NA
+  missing_comb$eel_qal_comment[missing_comb$eel_year==maxyear] <- NA
   missing_comb$eel_qal_id[missing_comb$eel_year==maxyear & missing_comb$eel_missvaluequal == "NC"] <- NA
-  missing_comb$eel_datasource[missing_comb$eel_year==maxyear & missing_comb$eel_missvaluequal == "NC"] <- NA
+  missing_comb$eel_datasource[missing_comb$eel_year==maxyear] <- datasource
   missing_comb$eel_missvaluequal[missing_comb$eel_year==maxyear & missing_comb$eel_missvaluequal == "NC"] <- NA
   
   
@@ -107,7 +108,7 @@ detect_missing_data <- function(cou="FR",
   last_year$eel_year=maxyear
   last_year$eel_comment=NA
   last_year$eel_qal_id=1
-  last_year$eel_datasource=str_c("dc_",maxyear)
+  last_year$eel_datasource=datasource
   
   
   missing_comb <- bind_rows(missing_comb,select(last_year,-eel_typ_id))
