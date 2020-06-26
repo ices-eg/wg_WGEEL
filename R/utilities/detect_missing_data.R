@@ -21,11 +21,12 @@ detect_missing_data <- function(cou="FR",
   hty_emus <- c("F","T","C","MO")  
   all_comb <- merge(expand.grid(eel_lfs_code=c("G","Y","S"),
                           eel_year=minyear:maxyear,
-                          eel_typ_id=4,
+                          eel_typ_id=c(4,6),
                           eel_hty_code=hty_emus),
                     emus)
-  complete<-dbGetQuery(con_wgeel,paste(paste("select eel_typ_id,eel_hty_code,eel_year,eel_emu_nameshort,eel_lfs_code,eel_cou_code from datawg.t_eelstock_eel where eel_qal_id in (0,1,2,4) and eel_year>=",minyear," and eel_year<=",maxyear," and eel_typ_id=4 and eel_cou_code='",cou,"'",sep="")))
-  ranges<-dbGetQuery(con_wgeel,paste(paste("select eel_area_division,eel_typ_id,eel_hty_code,eel_emu_nameshort,eel_lfs_code,eel_cou_code,min(eel_year) as first_year,max(eel_year) last_year from datawg.t_eelstock_eel where eel_qal_id in (0,1,2,4) and eel_year>=",minyear," and eel_year<=",maxyear," and eel_typ_id=4 and eel_cou_code='",cou,"' group by eel_area_division,eel_typ_id,eel_hty_code,eel_emu_nameshort,eel_lfs_code,eel_cou_code",sep="")))
+  complete<-dbGetQuery(con_wgeel,paste(paste("select eel_typ_id,eel_hty_code,eel_year,eel_emu_nameshort,eel_lfs_code,eel_cou_code,eel_value,eel_missvaluequal,eel_area_division from datawg.t_eelstock_eel where eel_qal_id in (0,1,2,4) and eel_year>=",minyear," and eel_year<=",maxyear," and eel_typ_id in (4,6) and eel_cou_code='",cou,"'",sep="")))
+  last_year <- subset(complete,complete$eel_year == maxyear -1)
+  ranges<-dbGetQuery(con_wgeel,paste(paste("select eel_area_division,eel_typ_id,eel_hty_code,eel_emu_nameshort,eel_lfs_code,eel_cou_code,min(eel_year) as first_year,max(eel_year) last_year from datawg.t_eelstock_eel where eel_qal_id in (0,1,2,4) and eel_year>=",minyear," and eel_year<=",maxyear," and eel_typ_id in (4,6) and eel_cou_code='",cou,"' group by eel_area_division,eel_typ_id,eel_hty_code,eel_emu_nameshort,eel_lfs_code,eel_cou_code",sep="")))
   missing_comb <- anti_join(all_comb, complete)
   missing_comb$id <- 1:nrow(missing_comb)
   found_matches <- sqldf("select id,c.eel_emu_nameshort from missing_comb m inner join complete c on c.eel_cou_code=m.eel_cou_code and
@@ -56,9 +57,13 @@ detect_missing_data <- function(cou="FR",
   missing_comb$eel_value=NA
   
   missing_comb$eel_comment <- mapply(function(y,f,l){
-    if (is.na(f) & is.na(l)) return("no landing ever recorded in the db")
-    if (!is.na(l) & (y > l)) return (paste("landings ended in",l))
-    if (!is.na(f) & (y < l)) return (paste("landings recorded in",l))
+    if (is.na(f) & is.na(l)){
+      return("no landing ever recorded in the db")
+    } else if (!is.na(l) & (y > l) & l<maxyear-3){
+      return (paste("landings ended in",l))
+    } else {
+      return (paste("landings recorded in",l))
+    }
   }, missing_comb$eel_year,missing_comb$first_year,missing_comb$last_year)
   
   missing_comb$eel_missvaluequal=sapply(missing_comb$eel_comment,function(c){
@@ -97,7 +102,15 @@ detect_missing_data <- function(cou="FR",
               eel_hty_code,
               eel_lfs_code,
               eel_year)
+  last_year$eel_typ_name=ifelse(last_year$eel_typ_id==4,"com_landings","rec_landings")
+  last_year$eel_value = NA
+  last_year$eel_year=maxyear
+  last_year$eel_comment=NA
+  last_year$eel_qal_id=1
+  last_year$eel_datasource=str_c("dc_",maxyear)
   
+  
+  missing_comb <- bind_rows(missing_comb,select(last_year,-eel_typ_id))
   return(missing_comb)
     
 }
