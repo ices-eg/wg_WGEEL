@@ -103,15 +103,7 @@ detect_missing_data <- function(cou="FR",
               eel_hty_code,
               eel_lfs_code,
               eel_year)
-  last_year$eel_typ_name=ifelse(last_year$eel_typ_id==4,"com_landings","rec_landings")
-  last_year$eel_value = NA
-  last_year$eel_year=maxyear
-  last_year$eel_comment=NA
-  last_year$eel_qal_id=1
-  last_year$eel_datasource=datasource
-  
-  
-  missing_comb <- bind_rows(missing_comb,select(last_year,-eel_typ_id))
+	dbDisconnect(con_wgeel)
   return(missing_comb)
     
 }

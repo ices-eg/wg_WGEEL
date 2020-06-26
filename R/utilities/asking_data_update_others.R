@@ -108,31 +108,30 @@ create_datacall_file <- function(country, eel_typ_id, name, ...){
 	data_disc <- data_disc[,-ncol(r_coun)]
 	
 	
-	if (any(eel_typ_id)%in%c(4,6)) datatype <- "landings"
+	if (any(eel_typ_id%in%c(4,6))) datatype <- "landings" 	else datatype <-"other"
 	
-
+	
 	nametemplatefile <- str_c(name,".xlsx")
 	templatefile <- file.path(wddata,"template_files",nametemplatefile)
-	namedestinationfile <- str_c(name,"_",country,".xls")	
+	namedestinationfile <- str_c(name,"_",country,".xlsx")	
 	destinationfile <- file.path(wddata, country, namedestinationfile)	
 	wb = openxlsx::loadWorkbook(templatefile)
 	sheets <- sheets(wb)
 	
+# Existing and kept data
+	
 	if ("existing_discarded"%in% sheets) removeWorksheet(wb,"existing_discarded")
 	if ("existing_kept"%in% sheets) removeWorksheet(wb,"existing_kept")
-	#if ("new_data"%in% sheets) removeWorksheet(wb,"new_data")
+	
 	openxlsx::addWorksheet(wb=wb, 
 			sheetName= "existing_discarded",
 			tabColour="orange")
 	openxlsx::addWorksheet(wb=wb, 
 			sheetName= "existing_kept",
 			tabColour="green")
-	# openxlsx::addWorksheet(wb=wb, 
-	# 		sheetName= "new_data",
-	# 		tabColour="red")
-#	openxlsx::cloneWorksheet(wb=wb,
-#			"new_data",
-#			clonedSheet="to_collect_format")
+	openxlsx::cloneWorksheet(wb=wb, 
+			sheetName= "data_new",
+			clonedSheet= "new_data")
 	writeDataTable(wb, data_disc, sheet = "existing_discarded",
 			tableStyle="TableStyleMedium4", 
 			withFilter = TRUE)
@@ -140,20 +139,25 @@ create_datacall_file <- function(country, eel_typ_id, name, ...){
 			sheet = "existing_kept",
 			tableStyle="TableStyleMedium7", 
 			withFilter = TRUE)
+	if ("new_data"%in% sheets) removeWorksheet(wb,"new_data")
 	
+# pre-filled new data and missing for landings 
 	if (datatype=="landings") {
-
-		data_missing <- detect_missing_data(cou=country, datasource=datasource.)
+		
+		data_missing <- detect_missing_data(cou=country, ...)
+		data_typ_id=ifelse(startsWith(data_missing$eel_typ_name,"com"),4,6)
 		# here filter if there is only 4 or 6, detect missing returns all combinations for 4 and 6
-		data_missing <- data_missing[data_missing$eel_qal_id%in%eel_qal_id,]
+		data_missing <- data_missing[data_typ_id%in%eel_typ_id,]
 		data_missing <- data_missing[,-match(c("eel_qal_id","eel_qal_comment"),colnames(data_missing))]
-		writeData(wb,"new_data", data_missing)
+		#print(data_missing)
+		writeData(wb,"data_new", data_missing)
 	} 
 	
 	sheets <- sheets(wb)
 	lll <- length(sheets)
 	worksheetOrder(wb) <- c(1,2,3,lll,lll-1,4:(lll-2))
 	saveWorkbook(wb, file = destinationfile, overwrite = TRUE)
+	#openXL(wb)
 }
 
 
@@ -161,17 +165,49 @@ create_datacall_file <- function(country, eel_typ_id, name, ...){
 # passwordwgeel <- XXXXXXXX
 
 # CLOSE EXCEL FILE FIST
-create_datacall_file ( 
-		country <- "FR",
-		eel_typ_id <- c(4), 
-		name <- "Eel_Data_Call_2020_Annex4_Landings_Commercial",
-		minyear=2000,
-		maxyear=2020, #maxyear corresponds to the current year where we have to fill data
-		host="localhost",
-		dbname="wgeel",
-		user="wgeel",
-		port=5432,
-		datasource.="dc_2020")
+cou_code<-unique(t_eelstock_eel$eel_cou_code)
+
+# create an excel file for each of the countries and each typ_id
+# LANDINGS
+
+for (cou in cou_code){	
+	for (typ in c(4,6)){		
+		create_datacall_file ( 
+				country <- cou,
+				eel_typ_id <- typ, 
+				name <- "Eel_Data_Call_2020_Annex4_Landings_Commercial",
+				minyear=2000,
+				maxyear=2020, #maxyear corresponds to the current year where we have to fill data
+				host="localhost",
+				dbname="wgeel",
+				user="wgeel",
+				port=5432,
+				datasource="dc_2020")
+		cat("work finished",country," and ",eel_typ,"\n")
+	}
+}
+
+
+for (cou in cou_code){
+	for (typ in c(8,9,10)){
+		
+		create_datacall_file ( 
+				country <- cou,
+				eel_typ_id <- typ, 
+				name <- "Eel_Data_Call_2020_Annex5_Releases",
+				minyear=2000,
+				maxyear=2020, #maxyear corresponds to the current year where we have to fill data
+				host="localhost",
+				dbname="wgeel",
+				user="wgeel",
+				port=5432,
+				datasource="dc_2020")
+		cat("work finished",country," and ",eel_typ,"\n")
+	}
+}
+
+
+
 
 create_datacall_file ( 
 		country <- "FR",
@@ -197,10 +233,15 @@ create_datacall_file (
 
 
 
-openXL(wb)
+
 ## Not run: saveWorkbook(wb, file = "tableStylesGallery.xlsx", overwrite = TRUE)
 
-cat("work finished",country," and ",eel_typ,"\n")
+
+
+# lselect the countries and the typ_id you have
+
+
+
 
 #select the data
 if (eel_typ %in% c(4,5,6,7)){
@@ -237,35 +278,4 @@ if (eel_typ %in% c(4,5,6,7)){
 	r_coun<-t_eelstock_eel[t_eelstock_eel$eel_cou_code==country & t_eelstock_eel$eel_typ_id %in% c(32:33),]
 	data_type<-"other_landings"
 	
-}else{
-	
-	r_coun<-t_eelstock_eel[t_eelstock_eel$eel_cou_code==country & t_eelstock_eel$eel_typ_id==16,]
-	data_type<-"habitats"
-	
-}
-
-# if no data available for these type of data then we don't create a file
-if (nrow(r_coun)==0){print(paste("data are not available for eel_typ_id ",eel_typ," and ",country, sep=""))
-	
-}else{
-	
-	## reorder data columns so type names is next to eel_type_id      
-	
-}
-}	
-
-# lselect the countries and the typ_id you have
-cou_code<-unique(t_eelstock_eel$eel_cou_code)
-typ_id<-unique(t_eelstock_eel$eel_typ_id)
-
-# create an excel file for each of the countries and each typ_id
-
-for (i in cou_code){
-	
-	for (j in typ_id){
-		
-		createx_all(i,j)
-	}
-}
-
 
