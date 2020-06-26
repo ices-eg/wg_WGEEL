@@ -8,7 +8,7 @@ load_library("xlsx")
 
 creating_missing_file_dc <- function(cou="FR",
 		minyear=2000,
-		maxyear=2019,
+		maxyear=2020, #maxyear corresponds to the current year where we have to fill data
 		host="localhost",
 		dbname="wgeel",
 		user="wgeel",
@@ -19,13 +19,15 @@ creating_missing_file_dc <- function(cou="FR",
   con_wgeel<-dbConnect(PostgreSQL(),host=host,dbname=dbname,user=user,port=port,passwordwgeel)
   
   #theoretically this one is the best solution but the table is not well filled
-  #hty_emus<-unique(dbGetQuery(con_wgeel,paste("select eel_hty_code,eel_emu_nameshort,eel_cou_code,eel_area_division from datawg.t_eelstock_eel where eel_qal_id in (1,2,4) and eel_typ_id=16 and eel_cou_code in ('",paste(cou,collapse="','",sep=""),"')",sep="")))
+  emus<-unique(dbGetQuery(con_wgeel,paste("select emu_nameshort eel_emu_nameshort,emu_cou_code eel_cou_code from ref.tr_emu_emu
+                                          where emu_wholecountry=false and emu_cou_code in ('",paste(cou,collapse="','",sep=""),"')",sep="")))
   
   hty_emus <- c("F","T","C","MO")  
   all_comb <- merge(expand.grid(eel_lfs_code=c("G","Y","S"),
                           eel_year=minyear:maxyear,
-                          eel_typ_id=4),
-                    hty_emus)
+                          eel_typ_id=4,
+                          eel_hty_code=hty_emus),
+                    emus)
   complete<-dbGetQuery(con_wgeel,paste(paste("select eel_typ_id,eel_hty_code,eel_year,eel_emu_nameshort,eel_lfs_code,eel_cou_code from datawg.t_eelstock_eel where eel_qal_id in (0,1,2,4) and eel_year>=",minyear," and eel_year<=",maxyear," and eel_typ_id=4 and eel_cou_code='",cou,"'",sep="")))
   ranges<-dbGetQuery(con_wgeel,paste(paste("select eel_area_division,eel_typ_id,eel_hty_code,eel_emu_nameshort,eel_lfs_code,eel_cou_code,min(eel_year) as first_year,max(eel_year) last_year from datawg.t_eelstock_eel where eel_qal_id in (0,1,2,4) and eel_year>=",minyear," and eel_year<=",maxyear," and eel_typ_id=4 and eel_cou_code='",cou,"' group by eel_area_division,eel_typ_id,eel_hty_code,eel_emu_nameshort,eel_lfs_code,eel_cou_code",sep="")))
   missing_comb <- anti_join(all_comb, complete)
@@ -59,7 +61,7 @@ creating_missing_file_dc <- function(cou="FR",
 	# CEDRIC : is this a miskake ?
   
   missing_comb$eel_comment <- mapply(function(y,f,l){
-    if (is.na(f) & is.na(l)) return("no landing ever recorded")
+    if (is.na(f) & is.na(l)) return("no landing ever recorded in the db")
     if (!is.na(l) & (y > l)) return (paste("landings ended in",l))
     if (!is.na(f) & (y < l)) return (paste("landings recorded in",l))
   }, missing_comb$eel_year,missing_comb$first_year,missing_comb$last_year)
@@ -72,6 +74,15 @@ creating_missing_file_dc <- function(cou="FR",
   missing_comb$eel_qal_id <- ifelse(missing_comb$eel_missvaluequal=="NC",0,2)
   missing_comb$eel_qal_comment <- "autofilled by missing data detection procedure"
   missing_comb$eel_datasource <- "missing data detection procedure"
+  
+  ####For ongoing year, we leave NP but removes the other
+  missing_comb$eel_comment[missing_comb$eel_year==maxyear & missing_comb$eel_missvaluequal == "NC"] <- NA
+  missing_comb$eel_qal_comment[missing_comb$eel_year==maxyear & missing_comb$eel_missvaluequal == "NC"] <- NA
+  missing_comb$eel_qal_id[missing_comb$eel_year==maxyear & missing_comb$eel_missvaluequal == "NC"] <- NA
+  missing_comb$eel_datasource[missing_comb$eel_year==maxyear & missing_comb$eel_missvaluequal == "NC"] <- NA
+  missing_comb$eel_missvaluequal[missing_comb$eel_year==maxyear & missing_comb$eel_missvaluequal == "NC"] <- NA
+  
+  
   
   missing_comb<-  missing_comb%>% select(eel_typ_name,
                            eel_year,
