@@ -88,7 +88,7 @@ t_series_ser[,7]<-iconv(t_series_ser[,7],from="UTF8",to="latin1")
 station <- sqldf("select * from ref.tr_station")
 station$Organisation <-iconv(station$Organisation,from="UTF8",to="latin1")
 #let's assume we have a ccm_wso_id
-station$ser_ccm_wso_id=291111
+#station$ser_ccm_wso_id=291111
 
 #' function to create the recuitment sheet 
 #' 
@@ -111,10 +111,20 @@ createxl<-function(country){
   for (i in 1:nrow(s_coun)){
     createName(wb, name = paste("station_map_",i,sep=""), formula = paste("station_map!$B$",(i-1)*40+1,sep=""))
     pol=subset(ccm,ccm$wso_id == s_coun$ser_ccm_wso_id[i])
-    bounds <- matrix(st_bbox(pol),2,2)
-    my_map=get_map(bounds, maptype = "terrain")
-    g=ggmap(my_map) + geom_sf(data=pol, inherit.aes = FALSE,fill=NA,color="red")+geom_point(data=s_coun[i,],aes(x=Lon,y=Lat),col="red")+ggtitle(s_coun$Station_Name[i])+
-      xlab("")+ylab("")
+    if (nrow(pol)>0){
+      bounds <- matrix(st_bbox(pol),2,2)
+      my_map=get_map(bounds, maptype = "terrain")
+      g=ggmap(my_map) + geom_sf(data=pol, inherit.aes = FALSE,fill=NA,color="red")+geom_point(data=s_coun[i,],aes(x=Lon,y=Lat),col="red")+ggtitle(s_coun$Station_Name[i])+
+        xlab("")+ylab("")
+    } else{
+      bounds <- rbind(rep(s_coun$Lon[i],2), rep(s_coun$Lat[i],2))
+      bounds[,1]=bounds[,1]-1
+      bounds[,2]=bounds[,2]+1
+      my_map=get_map(bounds, maptype = "terrain")
+      pol=st_crop(ccm,xmin=bounds[1,1],ymin=bounds[2,1],xmax=bounds[1,2],ymax=bounds[2,2])
+      g=ggmap(my_map) + geom_point(data=s_coun[i,],aes(x=Lon,y=Lat),col="red")+ggtitle(s_coun$Station_Name[i])+
+        xlab("")+ylab("")+geom_sf(data=pol, inherit.aes = FALSE,fill=NA,color="black")
+    }
     ggsave(paste(tempdir(),"/",s_coun$Station_Name[i],".png",sep=""),g,width=20/2.54,height=16/2.54,units="in",dpi=150)
     addImage(wb,paste(tempdir(),"/",s_coun$Station_Name[i],".png",sep=""),name=paste("station_map_",i,sep=""),originalSize=TRUE)
   }
