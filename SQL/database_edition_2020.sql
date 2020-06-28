@@ -74,3 +74,8 @@ UPDATE ref.tr_station SET "Station_Name" ='WisWGY' WHERE "Station_Name"='WisW';
 ALTER TABLE REF.tr_station ADD CONSTRAINT c_fk_Station_Name FOREIGN KEY ("Station_Name") REFERENCES datawg.t_series_ser(ser_nameshort);
 
 
+-- TODO CORRECT ONLINE DATABASE
+SELECT * FROM datawg.t_eelstock_eel WHERE eel_cou_code IS NULL; -- vattican for test, two rows
+DELETE FROM datawg.t_eelstock_eel WHERE eel_cou_code IS NULL;
+
+
