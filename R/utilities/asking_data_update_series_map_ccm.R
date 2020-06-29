@@ -88,7 +88,7 @@ t_series_ser[,7]<-iconv(t_series_ser[,7],from="UTF8",to="latin1")
 station <- sqldf("select * from ref.tr_station")
 station$Organisation <-iconv(station$Organisation,from="UTF8",to="latin1")
 #let's assume we have a ccm_wso_id
-#station$ser_ccm_wso_id=291111
+            #station$ser_ccm_wso_id=291111
 
 #' function to create the recuitment sheet 
 #' 
@@ -98,6 +98,7 @@ station$Organisation <-iconv(station$Organisation,from="UTF8",to="latin1")
 #' 
 #' @param country the country name, for instance "Sweden"
 createxl<-function(country){
+  browser()
   r_coun<-t_series_ser[t_series_ser$ser_cou_code==country,]
   # country names are displayed differently in this table, but Station_name correspond
   s_coun<-station[station$Station_Name%in%r_coun$ser_nameshort,]
@@ -109,10 +110,15 @@ createxl<-function(country){
   writeWorksheet (wb , s_coun , sheet="station" ,header = TRUE )
   createSheet(wb,"station_map")
   for (i in 1:nrow(s_coun)){
+    #turn a pgsql array into an R vector for ccm_wso_id
+    pols_id=eval(parse(text=paste("c(",gsub(pattern="\\{|\\}",replacement='',s_coun$ser_ccm_wso_id[i]),")")))
+    print(s_coun$Station_Code[i])
     createName(wb, name = paste("station_map_",i,sep=""), formula = paste("station_map!$B$",(i-1)*40+1,sep=""))
-    pol=subset(ccm,ccm$wso_id == s_coun$ser_ccm_wso_id[i])
+    pol=subset(ccm,ccm$wso_id %in% pols_id)
     if (nrow(pol)>0){
       bounds <- matrix(st_bbox(pol),2,2)
+      bounds[,1]=pmin(bounds[,1],c(s_coun$Lon[i],s_coun$Lat[i]))-0.5
+      bounds[,2]=pmax(bounds[,2],c(s_coun$Lon[i],s_coun$Lat[i]))+0.5
       my_map=get_map(bounds, maptype = "terrain")
       g=ggmap(my_map) + geom_sf(data=pol, inherit.aes = FALSE,fill=NA,color="red")+geom_point(data=s_coun[i,],aes(x=Lon,y=Lat),col="red")+ggtitle(s_coun$Station_Name[i])+
         xlab("")+ylab("")
@@ -128,8 +134,8 @@ createxl<-function(country){
     ggsave(paste(tempdir(),"/",s_coun$Station_Name[i],".png",sep=""),g,width=20/2.54,height=16/2.54,units="in",dpi=150)
     addImage(wb,paste(tempdir(),"/",s_coun$Station_Name[i],".png",sep=""),name=paste("station_map_",i,sep=""),originalSize=TRUE)
   }
-  saveWorkbook(wb)	
-  wb = loadWorkbook(xls.file, create = TRUE)
+#  saveWorkbook(wb)	
+#  wb = loadWorkbook(xls.file, create = TRUE)
   for (i in 1:length(r_coun$ser_id)){
     ser_id<-r_coun$ser_id[i]
     dat<-sqldf(str_c("select * from datawg.t_dataseries_das where das_ser_id=",ser_id,
