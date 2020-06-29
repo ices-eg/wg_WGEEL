@@ -9,15 +9,22 @@ detect_missing_data <- function(cou="FR",
 		dbname="wgeel",
 		user="wgeel",
 		port=5432,
-		datasource) {
+		datasource="dc_2020") {
   #browser()
 
 
   con_wgeel<-dbConnect(PostgreSQL(),host=host,dbname=dbname,user=user,port=port,password=passwordwgeel)
   
   #theoretically this one is the best solution but the table is not well filled
-  emus<-unique(dbGetQuery(con_wgeel,paste("select emu_nameshort eel_emu_nameshort,emu_cou_code eel_cou_code from ref.tr_emu_emu
-                                          where emu_wholecountry=false and emu_cou_code in ('",paste(cou,collapse="','",sep=""),"')",sep="")))
+  emus <- unique(dbGetQuery(con_wgeel,paste("select emu_nameshort eel_emu_nameshort,emu_cou_code
+ eel_cou_code, emu_wholecountry  from ref.tr_emu_emu
+                                          where emu_cou_code in ('",paste(cou,collapse="','",sep=""),"')",sep="")))
+	# in some cases there is just one total, otherwise remove total											
+	if (nrow(emus)>1){
+		emus <- emus[!emus$emu_wholecountry,c(1,2)]		
+	} else {
+		emus <- emus[,c(1,2)]				
+	}
   
   hty_emus <- c("F","T","C","MO")  
   all_comb <- merge(expand.grid(eel_lfs_code=c("G","Y","S"),
@@ -25,10 +32,13 @@ detect_missing_data <- function(cou="FR",
                           eel_typ_id=c(4,6),
                           eel_hty_code=hty_emus),
                     emus)
-  complete<-dbGetQuery(con_wgeel,paste(paste("select eel_typ_id,eel_hty_code,eel_year,eel_emu_nameshort,eel_lfs_code,eel_cou_code,eel_value,eel_missvaluequal,eel_area_division from datawg.t_eelstock_eel where eel_qal_id in (0,1,2,4) and eel_year>=",minyear," and eel_year<=",maxyear," and eel_typ_id in (4,6) and eel_cou_code='",cou,"'",sep="")))
+  complete <- dbGetQuery(con_wgeel,paste(paste("select eel_typ_id,eel_hty_code,eel_year,eel_emu_nameshort,eel_lfs_code,eel_cou_code,eel_value,eel_missvaluequal,eel_area_division from datawg.t_eelstock_eel where eel_qal_id in (0,1,2,4) and eel_year>=",minyear," and eel_year<=",maxyear," and eel_typ_id in (4,6) and eel_cou_code='",cou,"'",sep="")))
   ranges<-dbGetQuery(con_wgeel,paste(paste("select eel_area_division,eel_typ_id,eel_hty_code,eel_emu_nameshort,eel_lfs_code,eel_cou_code,min(eel_year) as first_year,max(eel_year) last_year from datawg.t_eelstock_eel where eel_qal_id in (0,1,2,4) and eel_year>=",minyear," and eel_year<=",maxyear," and eel_typ_id in (4,6) and eel_cou_code='",cou,"' group by eel_area_division,eel_typ_id,eel_hty_code,eel_emu_nameshort,eel_lfs_code,eel_cou_code",sep="")))
-  missing_comb <- anti_join(all_comb, complete)
+	options(warn=-1)
+  missing_comb <- suppressMessages(anti_join(all_comb, complete))
+	options(warn=0)
   missing_comb$id <- 1:nrow(missing_comb)
+ # searching for aggregations at the upper level
   found_matches <- sqldf("select id,c.eel_emu_nameshort from missing_comb m inner join complete c on c.eel_cou_code=m.eel_cou_code and
                                                             c.eel_year=m.eel_year and
                                                             c.eel_typ_id=m.eel_typ_id and
@@ -36,13 +46,13 @@ detect_missing_data <- function(cou="FR",
                                                             and (c.eel_hty_code like '%'||m.eel_hty_code||'%' or c.eel_hty_code='AL')
                                                             and (c.eel_emu_nameshort=m.eel_emu_nameshort or
                                                                 c.eel_emu_nameshort=substr(m.eel_emu_nameshort,1,3)||'total')",drv = "SQLite")
-  #looks for missing combinations
+  # remove upper level aggregations
   missing_comb <- missing_comb %>%
     filter(!missing_comb$id %in% found_matches$id)%>%
     select(-id) %>%
     arrange(eel_cou_code,eel_typ_id,eel_emu_nameshort,eel_lfs_code,eel_hty_code,eel_year)
   
-  
+  # append the range years to the dataset
   missing_comb <- sqldf("select m.*, first_year,last_year,eel_area_division from missing_comb m left join ranges r on m.eel_cou_code=r.eel_cou_code and
                                                             m.eel_typ_id=r.eel_typ_id and
                                                             r.eel_lfs_code like '%'||m.eel_lfs_code||'%'
@@ -102,7 +112,7 @@ detect_missing_data <- function(cou="FR",
               eel_hty_code,
               eel_lfs_code,
               eel_year)
+
   dbDisconnect(con_wgeel)
   return(missing_comb)
-    
 }
