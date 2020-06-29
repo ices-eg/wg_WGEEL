@@ -79,3 +79,4 @@ SELECT * FROM datawg.t_eelstock_eel WHERE eel_cou_code IS NULL; -- vattican for 
 DELETE FROM datawg.t_eelstock_eel WHERE eel_cou_code IS NULL;
 
 
+ALTER TABLE datawg.t_biometry_bio ADD columm 

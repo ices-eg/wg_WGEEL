@@ -86,10 +86,28 @@ t_series_ser[,7]<-iconv(t_series_ser[,7],from="UTF8",to="latin1")
 #' it creates series metadata and series info for ICES station table
 #' loop on the number of series in the country to create as many sheet as necessary
 #' 
-#' @param country the country name, for instance "Sweden"
-#' country='FR'; name="Eel_Data_Call_2020_Annex1_time_series"; ser_typ_id=1
+#' @param country the country code, for instance "SW"
+#' @param name, the name of the file (without .xlsx) used as template and in the destination folders
+#' country='EE'; name="Eel_Data_Call_2020_Annex1_time_series"; ser_typ_id=1
 create_datacall_file_series<-function(country, name, ser_typ_id){
 	if (!is.numeric(ser_typ_id)) stop("ser_typ_id must be numeric")
+	
+	
+	# load file -------------------------------------------------------------
+	
+	dir.create(str_c(wddata,country),showWarnings = FALSE) # show warning= FALSE will create if not exist	
+	nametemplatefile <- str_c(name,".xlsx")
+	templatefile <- file.path(wddata,"00template",nametemplatefile)
+
+	key <- c("1" = "Recruitment","2" = "Yellow_standing_stock","3" = "Silver")
+	suffix <- key[ser_typ_id]
+	namedestinationfile <- str_c(name,"_",country, "_",suffix, ".xlsx")	
+	if (ser_typ_id==2) namedestinationfile <-gsub("Annex1","Annex2", namedestinationfile)
+	if (ser_typ_id==3) namedestinationfile <-gsub("Annex1","Annex3", namedestinationfile)
+	destinationfile <- file.path(wddata, country, namedestinationfile)		
+	
+	wb = loadWorkbook(templatefile, create = TRUE)
+	
 	
 	# series description -------------------------------------------------------
 	
@@ -121,17 +139,47 @@ create_datacall_file_series<-function(country, name, ser_typ_id){
 					"AND ser_typ_id ='", ser_typ_id, "';"))
 # converting some information to latin1, necessary for latin1 final user
 	
-	t_series_ser[,4]<-iconv(t_series_ser[,4],from="UTF8",to="latin1")
-	t_series_ser[,11]<-iconv(t_series_ser[,11],from="UTF8",to="latin1")
-	t_series_ser[,7]<-iconv(t_series_ser[,7],from="UTF8",to="latin1")
+	
+	if (nrow(t_series_ser)>0){
+		
+		t_series_ser[,4]<-iconv(t_series_ser[,4],from="UTF8",to="latin1")
+		t_series_ser[,11]<-iconv(t_series_ser[,11],from="UTF8",to="latin1")
+		t_series_ser[,7]<-iconv(t_series_ser[,7],from="UTF8",to="latin1")
+		writeWorksheet(wb, t_series_ser[,
+						c("ser_nameshort",
+								"ser_namelong",
+								"ser_typ_id",
+								"ser_effort_uni_code",
+								"ser_comment",
+								"ser_uni_code",
+								"ser_lfs_code",
+								"ser_hty_code",
+								"ser_locationdescription",
+								"ser_emu_nameshort",
+								"ser_cou_code",
+								"ser_area_division",
+								"ser_tblcodeid",
+								"ser_x",
+								"ser_y",
+								"ser_sam_id")		
+				],  sheet = "series_info")
+	}
+	
 	
 # station data ----------------------------------------------
 	
 	station <- sqldf("select * from ref.tr_station")
 	station$Organisation <-iconv(station$Organisation,from="UTF8",to="latin1")
-	station <- dplyr::left_join(t_series_ser[,"ser_nameshort",drop=F], station, by=c("ser_nameshort"="Station_Name"))
 	# drop  tblCodeID Station_Code
-	station <- station[,c("ser_nameshort",  "Organisation")]
+	if (nrow(t_series_ser)>0){
+		station <- dplyr::left_join(t_series_ser[,"ser_nameshort",drop=F], station, by=c("ser_nameshort"="Station_Name"))
+		station <- station[,c("ser_nameshort",  "Organisation")]
+		
+		if (nrow(station)>0){
+			
+			writeWorksheet(wb, station,  sheet = "station")
+		}
+	}
 	
 # existing series data ----------------------------------------	
 	
@@ -145,69 +193,139 @@ create_datacall_file_series<-function(country, name, ser_typ_id){
 							das_effort,
 							das_qal_id
 							from datawg.t_dataseries_das",
-					" JOIN t_series_ser ON ser_id = das_ser_id",
+					" JOIN datawg.t_series_ser ON ser_id = das_ser_id",
 					" WHERE ser_typ_id=",ser_typ_id,
+					" AND ser_cou_code='",country,"' ",
 					" ORDER BY das_ser_id, das_year ASC"))
+	
+	if (nrow(dat)> 0){
+		writeWorksheet(wb, dat,  sheet = "existing_data")
+	}
 	
 # new data ----------------------------------------------------
 # extract missing data from CY-10
-
-  newdata <- dat %>% dplyr::filter(das_year>=(CY-10)) %>%
-			dplyr::select(ser_nameshort,das_year,das_value, das_comment, das_effort) %>%
-			tidyr::complete(ser_nameshort,das_year=(CY-10):CY) %>%
-			dplyr::filter(is.na(das_value)) %>%
-			dplyr::arrange(ser_nameshort, das_year)
-
+	if (nrow(dat)> 0){
+		new_data <- dat %>% dplyr::filter(das_year>=(CY-10)) %>%
+				dplyr::select(ser_nameshort,das_year,das_value, das_comment, das_effort) %>%
+				tidyr::complete(ser_nameshort,das_year=(CY-10):CY) %>%
+				dplyr::filter(is.na(das_value)) %>%
+				dplyr::arrange(ser_nameshort, das_year)
+		
+		if (nrow(new_data)> 0){
+			writeWorksheet(wb, new_data,  sheet = "new_data")
+		}
+	}
 # biometry data existing ------------------------------------------
 	
 	
-
+	biom0 <- sqldf(str_c("select ser_nameshort, 
+							bio_year,
+							bio_length,
+							bio_weight,
+							bio_age,
+							bio_sex_ratio,
+							bio_length_f,
+							bio_weight_f,
+							bio_age_f,
+							bio_length_m,
+							bio_weight_m,
+							bio_age_m,
+							bio_comment,
+							bio_last_update,
+							bio_qal_id,
+							bis_g_in_gy,
+							bis_ser_id
+							FROM datawg.t_series_ser  
+							LEFT JOIN datawg.t_biometry_series_bis ON ser_id = bis_ser_id",					
+					" WHERE ser_typ_id=",ser_typ_id,
+					" AND ser_cou_code='",country,"'",
+					" ORDER BY bis_ser_id, bio_year  ASC"))
+	
+	biom <- biom0[!is.na(biom0$bio_year),]
+	if (nrow(biom)> 0){		
+		writeWorksheet(wb, biom,  sheet = "existing_biometry")
+	} 
+	
+	
 # biometry data new data ------------------------------------------
-
-
-
 	
-	# country names are displayed differently in this table, but Station_name correspond
-	dir.create(str_c(wddata,country),showWarnings = FALSE) # show warning= FALSE will create if not exist	
-	nametemplatefile <- str_c(name,".xlsx")
-	templatefile <- file.path(wddata,"00template",nametemplatefile)
-	namedestinationfile <- str_c(name,"_",country,".xlsx")	
-	destinationfile <- file.path(wddata, country, namedestinationfile)		
-	
-	s_coun<-station[station$Station_Name%in%r_coun$ser_nameshort,]
-	xls.file<-str_c(dataxl,"/",country,CY,".xls")
-	wb = loadWorkbook(xls.file, create = TRUE)
-	createSheet(wb,"rec_info")
-	writeWorksheet (wb , r_coun , sheet="rec_info" ,header = TRUE )
-	createSheet(wb,"station")
-	writeWorksheet (wb , s_coun , sheet="station" ,header = TRUE )
-	saveWorkbook(wb)	
-	wb = loadWorkbook(xls.file, create = TRUE)
-	for (i in 1:length(r_coun$ser_id)){
-		ser_id<-r_coun$ser_id[i]
+	if (nrow(biom0) >0 ){
+		newbiom <- biom0 %>% 
+				dplyr::mutate_at(.vars="bio_year",tidyr::replace_na,replace=CY-1) %>%
+				dplyr::filter(bio_year>=(CY-10)) %>%
+				tidyr::complete(ser_nameshort,bio_year=(CY-10):CY) %>%
+				dplyr::filter(is.na(bio_length) & is.na(bio_weight) & is.na(bio_age) & is.na(bis_g_in_gy)) %>%
+				dplyr::arrange(ser_nameshort, bio_year)
 		
-		createSheet(wb, name = r_coun$ser_nameshort[i])
-		writeWorksheet (wb , dat , sheet=r_coun$ser_nameshort[i] ,header = TRUE)	
+		if (nrow(newbiom)>0) {
+			writeWorksheet(wb, newbiom,  sheet = "new_biometry")	
+		}
 	}
-	saveWorkbook(wb)
+	
+# maps ---------------------------------------------------------------
+createSheet(wb,"station_map")
+for (i in 1:nrow(s_coun)){
+	#turn a pgsql array into an R vector for ccm_wso_id
+	pols_id=eval(parse(text=paste("c(",gsub(pattern="\\{|\\}",replacement='',s_coun$ser_ccm_wso_id[i]),")")))
+	print(s_coun$Station_Code[i])
+	createName(wb, name = paste("station_map_",i,sep=""), formula = paste("station_map!$B$",(i-1)*40+1,sep=""))
+	pol=subset(ccm,ccm$wso_id %in% pols_id)
+	if (nrow(pol)>0){
+		bounds <- matrix(st_bbox(pol),2,2)
+		bounds[,1]=pmin(bounds[,1],c(s_coun$Lon[i],s_coun$Lat[i]))-0.5
+		bounds[,2]=pmax(bounds[,2],c(s_coun$Lon[i],s_coun$Lat[i]))+0.5
+		my_map=get_map(bounds, maptype = "terrain")
+		g=ggmap(my_map) + geom_sf(data=pol, inherit.aes = FALSE,fill=NA,color="red")+geom_point(data=s_coun[i,],aes(x=Lon,y=Lat),col="red")+ggtitle(s_coun$Station_Name[i])+
+				xlab("")+ylab("")
+	} else{
+		bounds <- rbind(rep(s_coun$Lon[i],2), rep(s_coun$Lat[i],2))
+		bounds[,1]=bounds[,1]-1
+		bounds[,2]=bounds[,2]+1
+		my_map=get_map(bounds, maptype = "terrain")
+		pol=st_crop(ccm,xmin=bounds[1,1],ymin=bounds[2,1],xmax=bounds[1,2],ymax=bounds[2,2])
+		g=ggmap(my_map) + geom_point(data=s_coun[i,],aes(x=Lon,y=Lat),col="red")+ggtitle(s_coun$Station_Name[i])+
+				xlab("")+ylab("")+geom_sf(data=pol, inherit.aes = FALSE,fill=NA,color="black")
+	}
+	ggsave(paste(tempdir(),"/",s_coun$Station_Name[i],".png",sep=""),g,width=20/2.54,height=16/2.54,units="in",dpi=150)
+	addImage(wb,paste(tempdir(),"/",s_coun$Station_Name[i],".png",sep=""),name=paste("station_map_",i,sep=""),originalSize=TRUE)
+}
+	
+	saveWorkbook(wb, file = destinationfile)	
 	cat("work finished\n")
 }
-# launch this to see how many countries you have
-unique(t_series_ser$ser_cou_code)
-#  "SE" "NL" "IE" "FR" "DE" "DK" "ES" "GB" "PT" "IT" "BE" "NO"
-t_series_ser <- t_series_ser[!is.na(t_series_ser$ser_cou_code), ]
-# create an excel file for each of the countries
-createxl(country="SE")
-createxl("NL")
-createxl("IE")
-createxl("FR")
-createxl("DE")
-createxl("DK")
-createxl("ES")
-createxl("GB")
-createxl("PT")
-createxl("IT")
-createxl("BE")
-createxl("NO")
-createxl("PL")
 
+
+# recruitment ---------------------------------------------------
+
+country_code <- c("DK","ES","EE","IE","SE","GB","FI","IT","GR","DE","LV","FR","NL","LT","PT",
+		"NO","PL","SI","TN","TR","BE")
+
+for (country in country_code ){
+	cat("country: ",country,"\n")
+	create_datacall_file_series(country, 
+			name="Eel_Data_Call_2020_Annex1_time_series", 
+			ser_typ_id=1)
+}
+
+
+
+# Yellow ---------------------------------------------------
+
+
+for (country in country_code ){
+	cat("country: ",country,"\n")
+	create_datacall_file_series(country, 
+			name="Eel_Data_Call_2020_Annex1_time_series", 
+			ser_typ_id=2)
+}
+
+
+# Silver ---------------------------------------------------
+
+
+for (country in country_code ){
+	cat("country: ",country,"\n")
+	create_datacall_file_series(country, 
+			name="Eel_Data_Call_2020_Annex1_time_series", 
+			ser_typ_id=3)
+}
