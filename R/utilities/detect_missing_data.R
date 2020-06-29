@@ -36,6 +36,8 @@ detect_missing_data <- function(cou="FR",
   ranges<-dbGetQuery(con_wgeel,paste(paste("select eel_area_division,eel_typ_id,eel_hty_code,eel_emu_nameshort,eel_lfs_code,eel_cou_code,min(eel_year) as first_year,max(eel_year) last_year from datawg.t_eelstock_eel where eel_qal_id in (0,1,2,4) and eel_year>=",minyear," and eel_year<=",maxyear," and eel_typ_id in (4,6) and eel_cou_code='",cou,"' group by eel_area_division,eel_typ_id,eel_hty_code,eel_emu_nameshort,eel_lfs_code,eel_cou_code",sep="")))
 	options(warn=-1)
   missing_comb <- suppressMessages(anti_join(all_comb, complete))
+
+  
 	options(warn=0)
   missing_comb$id <- 1:nrow(missing_comb)
  # searching for aggregations at the upper level
@@ -92,7 +94,29 @@ detect_missing_data <- function(cou="FR",
   missing_comb$eel_datasource[missing_comb$eel_year==maxyear] <- datasource
   missing_comb$eel_missvaluequal[missing_comb$eel_year==maxyear & missing_comb$eel_missvaluequal == "NC"] <- NA
   
+  ###for last year, we look for the last level of aggregation
+  found_matches_last_year <- sqldf(paste("select m.*,c.eel_lfs_code last_lfs,c.eel_hty_code last_hty,c.eel_emu_nameshort last_emu,c.eel_year last_year from all_comb m left join complete c on c.eel_cou_code=m.eel_cou_code and
+                                                            c.eel_typ_id=m.eel_typ_id and
+                                                            c.eel_lfs_code like '%'||m.eel_lfs_code||'%'
+                                                            and (c.eel_hty_code like '%'||m.eel_hty_code||'%' or c.eel_hty_code='AL')
+                                                            and (c.eel_emu_nameshort=m.eel_emu_nameshort) where m.eel_year=",maxyear),drv = "SQLite")
+  found_matches_last_year <-found_matches_last_year %>% group_by(eel_lfs_code,eel_typ_id,eel_hty_code,eel_emu_nameshort,eel_cou_code) %>%
+    mutate(rank=rank(-last_year)) %>%
+    filter(rank==1)
   
+  missing_comb2 <- missing_comb %>% #this is the row that should be filled for this year
+    filter(eel_year == 2020 & is.na(eel_missvaluequal))
+  
+  missing_comb <- missing_comb %>%
+    filter(eel_year != 2020 | !is.na(eel_missvaluequal))
+  
+  missing_comb2 <- merge(missing_comb2,na.omit(found_matches_last_year),all.x=TRUE)
+  missing_comb2$eel_lfs_code[!is.na(missing_comb2$last_lfs)] <- missing_comb2$last_lfs[!is.na(missing_comb2$last_lfs)]
+  missing_comb2$eel_hty_code[!is.na(missing_comb2$last_hty)] <- missing_comb2$last_hty[!is.na(missing_comb2$last_hty)]
+  missing_comb2 <- missing_comb2 %>%
+    distinct() %>%
+    select(-last_lfs,-last_hty,-last_year,-last_emu)
+  missing_comb <- bind_rows(missing_comb2)
   
   missing_comb<-  missing_comb%>% select(eel_typ_name,
                            eel_year,
