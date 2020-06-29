@@ -39,7 +39,7 @@ wddata<-"C:/Users/cedric.briand/OneDrive - EPTB Vilaine/Projets/GRISAM/2020/wgee
 # change parameters accordingly
 ###################################"
 
-#source("R/database_interaction/database_connection.R")
+source("R/database_interaction/database_connection.R")
 source("R/utilities/detect_missing_data.R")
 
 ###################################
@@ -181,8 +181,10 @@ create_datacall_file (
 
 # CLOSE EXCEL FILE FIST
 cou_code<-unique(t_eelstock_eel$eel_cou_code[!is.na(t_eelstock_eel$eel_cou_code)])
-# LANDINGS COMMERCIAL ---------------------------------------
 
+# create an excel file for each of the countries and each typ_id
+# LANDINGS COMMERCIAL AND RECREATIONAL
+# problems with "NO", "TR", "HR"
 for (cou in cou_code){	
 	country <- cou
 	cat("country: ",country,"\n")
@@ -200,7 +202,6 @@ for (cou in cou_code){
 	cat("work finished\n")
 }
 
-# RECREATIONAL LANDINGS --------------------------------
 for (cou in cou_code){		
 	country <- cou
 	cat("country: ",country,"\n")
@@ -218,7 +219,7 @@ for (cou in cou_code){
 	cat("work finished",country,"\n")
 }
 
-# OTHER LANDINGS --------------------------------
+# OTHER LANDINGS
 
 for (cou in cou_code){				
 	create_datacall_file ( 
@@ -235,7 +236,7 @@ for (cou in cou_code){
 	cat("work finished",country,"\n")
 }
 
-# RELEASES ------------------------------------------
+
 
 for (cou in cou_code){
 	
@@ -254,7 +255,7 @@ for (cou in cou_code){
 	
 }
 
-# AQUACULTURE ----------------------------------------------------
+
 
 
 cou_code_aqua<-unique(t_eelstock_eel$eel_cou_code[t_eelstock_eel$eel_typ_id%in%c(11)])

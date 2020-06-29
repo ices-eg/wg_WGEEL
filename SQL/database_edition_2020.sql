@@ -79,6 +79,7 @@ SELECT * FROM datawg.t_eelstock_eel WHERE eel_cou_code IS NULL; -- vattican for 
 DELETE FROM datawg.t_eelstock_eel WHERE eel_cou_code IS NULL;
 
 
+<<<<<<< HEAD
 alter table datawg.t_series_ser add column ser_ccm_wso_id integer[];
 update datawg.t_series_ser set 	ser_ccm_wso_id=ARRAY[88600] where ser_nameshort like 'Burr%';
 update datawg.t_series_ser set 	ser_ccm_wso_id=ARRAY[88600] where ser_nameshort like 'BurS%';
@@ -123,3 +124,5 @@ update datawg.t_series_ser set ser_ccm_wso_id=ARRAY[442365] where ser_nameshort 
 update datawg.t_series_ser set ser_ccm_wso_id=ARRAY[442395] where ser_nameshort like'Mond%';
 update datawg.t_series_ser set ser_ccm_wso_id=ARRAY[432326] where ser_nameshort like'Vac%';
 update datawg.t_series_ser set ser_ccm_wso_id=ARRAY[291126] where ser_nameshort like 'GarY%';
+=======
+>>>>>>> branch 'master' of https://github.com/ices-eg/wg_WGEEL.git
