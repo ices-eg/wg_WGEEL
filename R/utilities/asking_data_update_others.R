@@ -110,7 +110,7 @@ create_datacall_file <- function(country, eel_typ_id, name, ...){
 	# limit dataset to country
 	r_coun <- t_eelstock_eel[t_eelstock_eel$eel_cou_code==country & t_eelstock_eel$eel_typ_id %in% eel_typ_id,]
 	r_coun <- t_eelstock_eel[t_eelstock_eel$eel_cou_code==country & t_eelstock_eel$eel_typ_id %in% eel_typ_id,]
-	r_coun <- data.frame(eel_typ_name=r_coun[,ncol(r_coun)], r_coun[,3:17])
+	r_coun <- r_coun[,c(1,18,3:17)]
 	wb = loadWorkbook(templatefile)
 	
 	if (nrow(r_coun) >0) {
@@ -123,8 +123,8 @@ create_datacall_file <- function(country, eel_typ_id, name, ...){
 		
 		
 		# pre-fill new data and missing for landings 
-		writeWorksheet(wb, data_disc,  sheet = "existing_discarded")
-		writeWorksheet(wb, data_kept,  sheet = "existing_kept")
+		writeWorksheet(wb, data_disc,  sheet = "existing_discarded",header=FALSE, startRow=2)
+		writeWorksheet(wb, data_kept,  sheet = "existing_kept",header=FALSE,startRow=2)
 	} else {
 		cat("No data for country", country, "\n")
 	}
@@ -186,6 +186,7 @@ cou_code<-unique(t_eelstock_eel$eel_cou_code[!is.na(t_eelstock_eel$eel_cou_code)
 # LANDINGS COMMERCIAL AND RECREATIONAL
 # problems with "NO", "TR", "HR"
 for (cou in cou_code){	
+	country <- cou
 	cat("country: ",country,"\n")
 	create_datacall_file ( 
 			country <- cou,
@@ -202,6 +203,8 @@ for (cou in cou_code){
 }
 
 for (cou in cou_code){		
+	country <- cou
+	cat("country: ",country,"\n")
 	create_datacall_file ( 
 			country <- cou,
 			eel_typ_id <- 6, 
@@ -314,4 +317,3 @@ for (cou in cou_code_aqua){
 #	r_coun<-t_eelstock_eel[t_eelstock_eel$eel_cou_code==country & t_eelstock_eel$eel_typ_id %in% c(32:33),]
 #	data_type<-"other_landings"
 	
-}

@@ -79,3 +79,50 @@ SELECT * FROM datawg.t_eelstock_eel WHERE eel_cou_code IS NULL; -- vattican for 
 DELETE FROM datawg.t_eelstock_eel WHERE eel_cou_code IS NULL;
 
 
+<<<<<<< HEAD
+alter table datawg.t_series_ser add column ser_ccm_wso_id integer[];
+update datawg.t_series_ser set 	ser_ccm_wso_id=ARRAY[88600] where ser_nameshort like 'Burr%';
+update datawg.t_series_ser set 	ser_ccm_wso_id=ARRAY[88600] where ser_nameshort like 'BurS%';
+update datawg.t_series_ser set 	ser_ccm_wso_id=ARRAY[88600] where ser_nameshort like 'BFuY%';
+update datawg.t_series_ser set 	ser_ccm_wso_id=ARRAY[88600] where ser_nameshort like 'BuBY%';
+update datawg.t_series_ser set ser_ccm_wso_id=ARRAY[291194] where ser_nameshort like'AdTC%';
+update datawg.t_series_ser set ser_ccm_wso_id=ARRAY[291194] where ser_nameshort like'AdCP%';
+update datawg.t_series_ser set ser_ccm_wso_id=ARRAY[442593] where ser_nameshort like 'Albu%';
+update datawg.t_series_ser set ser_ccm_wso_id=ARRAY[83746] where ser_nameshort like 'Bann%';
+update datawg.t_series_ser set ser_ccm_wso_id=ARRAY[291601] where ser_nameshort like 'BreS%';
+update datawg.t_series_ser set ser_ccm_wso_id=ARRAY[442353] where ser_nameshort like'Ebro%';
+update datawg.t_series_ser set ser_ccm_wso_id=ARRAY[107] where ser_nameshort like 'EmsB%';
+update datawg.t_series_ser set ser_ccm_wso_id=ARRAY[83773] where ser_nameshort like 'Erne%';
+update datawg.t_series_ser set ser_ccm_wso_id=ARRAY[302338] where ser_nameshort like'Fre%';
+update datawg.t_series_ser set ser_ccm_wso_id=ARRAY[291126,291125] where ser_nameshort like'GiTC%';
+update datawg.t_series_ser set ser_ccm_wso_id=ARRAY[291126,291125] where ser_nameshort like'GiSc%';
+update datawg.t_series_ser set ser_ccm_wso_id=ARRAY[291126,291125] where ser_nameshort like'GiCP%';
+update datawg.t_series_ser set ser_ccm_wso_id=ARRAY[92641] where ser_nameshort like'Yser%';
+update datawg.t_series_ser set ser_ccm_wso_id=ARRAY[1055408] where ser_nameshort like'Imsa%';
+update datawg.t_series_ser set ser_ccm_wso_id=ARRAY[291110] where ser_nameshort like'Katw%';
+update datawg.t_series_ser set ser_ccm_wso_id=ARRAY[291110] where ser_nameshort like'Lauw%';
+update datawg.t_series_ser set ser_ccm_wso_id=ARRAY[291111] where ser_nameshort like'Loi%';
+update datawg.t_series_ser set ser_ccm_wso_id=ARRAY[442355] where ser_nameshort like'MiPo%';
+update datawg.t_series_ser set ser_ccm_wso_id=ARRAY[442355] where ser_nameshort like'MiSp%';
+update datawg.t_series_ser set ser_ccm_wso_id=ARRAY[291498] where ser_nameshort like'Nalo%';
+update datawg.t_series_ser set ser_ccm_wso_id=ARRAY[291110] where ser_nameshort like'RhDO%';
+update datawg.t_series_ser set ser_ccm_wso_id=ARRAY[-2] where ser_nameshort like'Ring%';
+update datawg.t_series_ser set ser_ccm_wso_id=ARRAY[84043] where ser_nameshort like 'Feal%';
+update datawg.t_series_ser set ser_ccm_wso_id=ARRAY[85040] where ser_nameshort like 'Inag%';
+update datawg.t_series_ser set ser_ccm_wso_id=ARRAY[84035] where ser_nameshort like'Maig%';
+update datawg.t_series_ser set ser_ccm_wso_id=ARRAY[83750] where ser_nameshort like'SeEA%';
+update datawg.t_series_ser set ser_ccm_wso_id=ARRAY[291345] where ser_nameshort like'SevN%';
+update datawg.t_series_ser set ser_ccm_wso_id=ARRAY[83747] where ser_nameshort like 'ShaA%';
+update datawg.t_series_ser set ser_ccm_wso_id=ARRAY[291110] where ser_nameshort like'Stel%';
+update datawg.t_series_ser set ser_ccm_wso_id=ARRAY[129496] where ser_nameshort like'Tibe%';
+update datawg.t_series_ser set ser_ccm_wso_id=ARRAY[1561] where ser_nameshort like'Vida%';
+update datawg.t_series_ser set ser_ccm_wso_id=ARRAY[291146] where ser_nameshort like'Vil%';
+update datawg.t_series_ser set ser_ccm_wso_id=ARRAY[18491] where ser_nameshort like 'Visk%';
+update datawg.t_series_ser set ser_ccm_wso_id=ARRAY[432326] where ser_nameshort like'Vac%';
+update datawg.t_series_ser set ser_ccm_wso_id=ARRAY[442355] where ser_nameshort like'Min%';
+update datawg.t_series_ser set ser_ccm_wso_id=ARRAY[442365] where ser_nameshort like'GuadG%';
+update datawg.t_series_ser set ser_ccm_wso_id=ARRAY[442395] where ser_nameshort like'Mond%';
+update datawg.t_series_ser set ser_ccm_wso_id=ARRAY[432326] where ser_nameshort like'Vac%';
+update datawg.t_series_ser set ser_ccm_wso_id=ARRAY[291126] where ser_nameshort like 'GarY%';
+=======
+>>>>>>> branch 'master' of https://github.com/ices-eg/wg_WGEEL.git
