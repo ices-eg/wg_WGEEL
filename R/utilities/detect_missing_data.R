@@ -116,7 +116,7 @@ detect_missing_data <- function(cou="FR",
   missing_comb2 <- missing_comb2 %>%
     distinct() %>%
     select(-last_lfs,-last_hty,-last_year,-last_emu)
-  missing_comb <- bind_rows(missing_comb2)
+  missing_comb <- bind_rows(missing_comb,missing_comb2)
   
   missing_comb<-  missing_comb%>% select(eel_typ_name,
                            eel_year,
