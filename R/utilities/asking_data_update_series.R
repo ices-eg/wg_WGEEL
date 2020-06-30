@@ -34,7 +34,7 @@ wd<-getwd()
 # read git user 
 ##################################
 wddata<-"C:/Users/cedric.briand/OneDrive - EPTB Vilaine/Projets/GRISAM/2020/wgeel/datacall/"
-load(str_c(wddata,"/","ccm_seaoutlets.rdata")) #polygons off ccm seaoutlets WGS84
+load("C:/workspace/gitwgeel/data/ccm_seaoutlets.rdata") #polygons off ccm seaoutlets WGS84
 
 # Finally we store the xl data in a sub chapter
 ########################################
@@ -49,41 +49,6 @@ options(sqldf.RPostgreSQL.user = userwgeel,
 		sqldf.RPostgreSQL.host = "localhost",
 		sqldf.RPostgreSQL.port = 5432)
 
-#############################
-# Table storing information from the recruitment series
-##################################
-t_series_ser<-sqldf("SELECT 
-				t_series_ser.ser_id, 
-				t_series_ser.ser_order, 
-				t_series_ser.ser_nameshort, 
-				t_series_ser.ser_namelong, 
-				t_series_ser.ser_typ_id, 
-				t_series_ser.ser_effort_uni_code, 
-				t_series_ser.ser_comment, 
-				t_series_ser.ser_uni_code, 
-				t_series_ser.ser_lfs_code, 
-				t_series_ser.ser_hty_code, 
-				t_series_ser.ser_locationdescription, 
-				t_series_ser.ser_emu_nameshort, 
-				t_series_ser.ser_cou_code, 
-				t_series_ser.ser_area_division, 
-				t_series_ser.ser_tblcodeid, 
-				t_series_ser.ser_x Lon, 
-				t_series_ser.ser_y Lat, 
-				t_series_ser.ser_sam_id,
-				t_series_ser.ser_qal_id,
-				t_series_ser.ser_qal_comment,
-				t_series_ser.ser_ccm_wso_id
-				
-				FROM 
-				datawg.t_series_ser;")
-# converting some information to latin1, necessary for latin1 final user
-
-t_series_ser[,4]<-iconv(t_series_ser[,4],from="UTF8",to="latin1")
-t_series_ser[,11]<-iconv(t_series_ser[,11],from="UTF8",to="latin1")
-t_series_ser[,7]<-iconv(t_series_ser[,7],from="UTF8",to="latin1")
-
-
 
 
 #' function to create the series excel tables for data call
@@ -94,7 +59,7 @@ t_series_ser[,7]<-iconv(t_series_ser[,7],from="UTF8",to="latin1")
 #' 
 #' @param country the country code, for instance "SW"
 #' @param name, the name of the file (without .xlsx) used as template and in the destination folders
-#' country='EE'; name="Eel_Data_Call_2020_Annex1_time_series"; ser_typ_id=1
+#' country='IE'; name="Eel_Data_Call_2020_Annex1_time_series"; ser_typ_id=1
 create_datacall_file_series<-function(country, name, ser_typ_id){
 	if (!is.numeric(ser_typ_id)) stop("ser_typ_id must be numeric")
 	
@@ -104,7 +69,7 @@ create_datacall_file_series<-function(country, name, ser_typ_id){
 	dir.create(str_c(wddata,country),showWarnings = FALSE) # show warning= FALSE will create if not exist	
 	nametemplatefile <- str_c(name,".xlsx")
 	templatefile <- file.path(wddata,"00template",nametemplatefile)
-
+	
 	key <- c("1" = "Recruitment","2" = "Yellow_standing_stock","3" = "Silver")
 	suffix <- key[ser_typ_id]
 	namedestinationfile <- str_c(name,"_",country, "_",suffix, ".xlsx")	
@@ -180,15 +145,15 @@ create_datacall_file_series<-function(country, name, ser_typ_id){
 	# drop  tblCodeID Station_Code
 	
 	if (nrow(t_series_ser)>0){
-		station <- dplyr::left_join(t_series_ser[,c("ser_nameshort","ser_x","ser_y","ser_ccm_wso_id"),drop=F], station, by=c("ser_nameshort"="Station_Name"))
-		station <- station[,c("ser_nameshort",  "Organisation","ser_x","ser_y","ser_ccm_wso_id")]
+		station <- dplyr::left_join(t_series_ser[,c("ser_nameshort"),drop=F], station, by=c("ser_nameshort"="Station_Name"))
+		station <- station[,c("ser_nameshort",  "Organisation")]
 		
 		if (nrow(station)>0){
 			
 			writeWorksheet(wb, station,  sheet = "station")
 		}
 	}
-
+	
 # existing series data ----------------------------------------	
 	
 	dat <- sqldf(str_c("select 
@@ -216,7 +181,7 @@ create_datacall_file_series<-function(country, name, ser_typ_id){
 		new_data <- dat %>% dplyr::filter(das_year>=(CY-10)) %>%
 				dplyr::select(ser_nameshort,das_year,das_value, das_comment, das_effort) %>%
 				tidyr::complete(ser_nameshort,das_year=(CY-10):CY) %>%
-				dplyr::filter(is.na(das_value)) %>%
+				dplyr::filter(is.na(das_value) & is.na(das_comment)) %>%
 				dplyr::arrange(ser_nameshort, das_year)
 		
 		if (nrow(new_data)> 0){
@@ -257,7 +222,7 @@ create_datacall_file_series<-function(country, name, ser_typ_id){
 	
 # biometry data new data ------------------------------------------
 	
-
+	
 	if (nrow(biom0) >0 ){
 		newbiom <- biom0 %>% 
 				dplyr::mutate_at(.vars="bio_year",tidyr::replace_na,replace=CY-1) %>%
@@ -265,42 +230,51 @@ create_datacall_file_series<-function(country, name, ser_typ_id){
 				tidyr::complete(ser_nameshort,bio_year=(CY-10):CY) %>%
 				dplyr::filter(is.na(bio_length) & is.na(bio_weight) & is.na(bio_age) & is.na(bis_g_in_gy)) %>%
 				dplyr::arrange(ser_nameshort, bio_year)
-
+		
 		if (nrow(newbiom)>0) {
 			writeWorksheet(wb, newbiom,  sheet = "new_biometry")	
 		}
 	}
 	
 # maps ---------------------------------------------------------------
-	s_coun<-station
-	createSheet(wb,"station_map")
-	for (i in 1:nrow(s_coun)){
-	  #turn a pgsql array into an R vector for ccm_wso_id
-	  pols_id=eval(parse(text=paste("c(",gsub(pattern="\\{|\\}",replacement='',s_coun$ser_ccm_wso_id[i]),")")))
-	  createName(wb, name = paste("station_map_",i,sep=""), formula = paste("station_map!$B$",(i-1)*40+1,sep=""))
-	  pol=subset(ccm,ccm$wso_id %in% pols_id)
-	  if (nrow(pol)>0){
-	    bounds <- matrix(st_bbox(pol),2,2)
-	    bounds[,1]=pmin(bounds[,1],c(s_coun$ser_x[i],s_coun$ser_y[i]))-0.5
-	    bounds[,2]=pmax(bounds[,2],c(s_coun$ser_x[i],s_coun$ser_y[i]))+0.5
-	    my_map=get_map(bounds, maptype = "terrain")
-	    g=ggmap(my_map) + geom_sf(data=pol, inherit.aes = FALSE,fill=NA,color="red")+geom_point(data=s_coun[i,],aes(x=ser_x,y=ser_y),col="red")+ggtitle(s_coun$ser_nameshort[i])+
-	      xlab("")+ylab("")
-	  } else if (!any(is.na(c(s_coun$ser_x[i],s_coun$ser_y[i])))){
-	    bounds <- rbind(rep(s_coun$Lon[i],2), rep(s_coun$ser_y[i],2))
-	    bounds[,1]=bounds[,1]-1
-	    bounds[,2]=bounds[,2]+1
-	    my_map=get_map(bounds, maptype = "terrain")
-	    pol=st_crop(ccm,xmin=bounds[1,1],ymin=bounds[2,1],xmax=bounds[1,2],ymax=bounds[2,2])
-	    g=ggmap(my_map) + geom_point(data=s_coun[i,],aes(x=ser_x,y=ser_y),col="red")+ggtitle(s_coun$ser_nameshort[i])+
-	      xlab("")+ylab("")+geom_sf(data=pol, inherit.aes = FALSE,fill=NA,color="black")
-	  } else {
-	    g=ggplot()+ggtitle(s_coun$ser_nameshort[i])
-	  }
-	  ggsave(paste(tempdir(),"/",s_coun$ser_nameshort[i],".png",sep=""),g,width=20/2.54,height=16/2.54,units="in",dpi=150)
-	  addImage(wb,paste(tempdir(),"/",s_coun$ser_nameshort[i],".png",sep=""),name=paste("station_map_",i,sep=""),originalSize=TRUE)
+#st_crs(ccm) 
+	if (nrow(t_series_ser)>0){
+		for (i in 1:nrow(t_series_ser)){
+			#turn a pgsql array into an R vector for ccm_wso_id
+			pols_id=eval(parse(text=paste("c(",gsub(pattern="\\{|\\}",replacement='',t_series_ser$ser_ccm_wso_id[i]),")")))
+			createName(wb, name = paste("station_map_",i,sep=""), formula = paste("station_map!$B$",(i-1)*40+2,sep=""))
+			pol=subset(ccm,ccm$wso_id %in% pols_id)
+			st_crs(pol) <- 4326 
+			if (nrow(pol)>0){
+				bounds <- matrix(st_bbox(pol),2,2)
+				bounds[,1]=pmin(bounds[,1],c(t_series_ser$ser_x[i],t_series_ser$ser_y[i]))-0.5
+				bounds[,2]=pmax(bounds[,2],c(t_series_ser$ser_x[i],t_series_ser$ser_y[i]))+0.5
+				my_map=get_map(bounds, maptype = "terrain", source="stamen",zoom=7) 
+				g <- ggmap(my_map,maprange = TRUE, extent = "normal") + 
+						geom_sf(data=pol, inherit.aes = FALSE,fill=NA,color="red")+
+						geom_point(data=t_series_ser[i,],aes(x=ser_x,y=ser_y),col="red")+
+						ggtitle(t_series_ser$ser_nameshort[i])+
+						xlab("")+ylab("")
+			} else if (!any(is.na(c(t_series_ser$ser_x[i],t_series_ser$ser_y[i])))){
+				bounds <- rbind(rep(t_series_ser$ser_x[i],2), rep(t_series_ser$ser_y[i],2))
+				bounds[,1]=bounds[,1]-1
+				bounds[,2]=bounds[,2]+1
+				my_map <- get_stamenmap(bounds, maptype = "terrain", source="stamen",zoom=7)
+				pol=st_crop(ccm,xmin=bounds[1,1],ymin=bounds[2,1],xmax=bounds[1,2],ymax=bounds[2,2])
+				st_crs(pol) <- 4326 
+				g <- ggmap(my_map) + 
+						geom_point(data=t_series_ser[i,],aes(x=ser_x,y=ser_y),col="red")+
+						ggtitle(t_series_ser$ser_nameshort[i])+
+						xlab("")+
+						ylab("")+
+						geom_sf(data=pol, inherit.aes = FALSE,fill=NA,color="black")
+			} else {
+				g=ggplot()+ggtitle(t_series_ser$ser_nameshort[i])
+			}
+			ggsave(paste(tempdir(),"/",t_series_ser$ser_nameshort[i],".png",sep=""),g,width=20/2.54,height=16/2.54,units="in",dpi=150)
+			addImage(wb,paste(tempdir(),"/",t_series_ser$ser_nameshort[i],".png",sep=""),name=paste("station_map_",i,sep=""),originalSize=TRUE)
+		}
 	}
-	
 	saveWorkbook(wb, file = destinationfile)	
 	cat("work finished\n")
 }

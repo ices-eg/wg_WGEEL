@@ -74,12 +74,12 @@ UPDATE ref.tr_station SET "Station_Name" ='WisWGY' WHERE "Station_Name"='WisW';
 ALTER TABLE REF.tr_station ADD CONSTRAINT c_fk_Station_Name FOREIGN KEY ("Station_Name") REFERENCES datawg.t_series_ser(ser_nameshort);
 
 
--- TODO CORRECT ONLINE DATABASE
+
 SELECT * FROM datawg.t_eelstock_eel WHERE eel_cou_code IS NULL; -- vattican for test, two rows
 DELETE FROM datawg.t_eelstock_eel WHERE eel_cou_code IS NULL;
 
 
-<<<<<<< HEAD
+
 alter table datawg.t_series_ser add column ser_ccm_wso_id integer[];
 update datawg.t_series_ser set 	ser_ccm_wso_id=ARRAY[88600] where ser_nameshort like 'Burr%';
 update datawg.t_series_ser set 	ser_ccm_wso_id=ARRAY[88600] where ser_nameshort like 'BurS%';
@@ -124,5 +124,23 @@ update datawg.t_series_ser set ser_ccm_wso_id=ARRAY[442365] where ser_nameshort 
 update datawg.t_series_ser set ser_ccm_wso_id=ARRAY[442395] where ser_nameshort like'Mond%';
 update datawg.t_series_ser set ser_ccm_wso_id=ARRAY[432326] where ser_nameshort like'Vac%';
 update datawg.t_series_ser set ser_ccm_wso_id=ARRAY[291126] where ser_nameshort like 'GarY%';
-=======
->>>>>>> branch 'master' of https://github.com/ices-eg/wg_WGEEL.git
+
+
+-- check that no entry for glass eel stage and biometries in France
+SELECT DISTINCT bio_lfs_code FROM datawg.t_biometry_series_bis 
+JOIN datawg.t_series_ser ON bis_ser_id=ser_id
+WHERE ser_cou_code='FR'
+LIMIT 10 
+
+update datawg.t_eelstock_eel set eel_area_division='27.3.d' 
+where eel_emu_nameshort='EE_West' 
+and eel_area_division is NULL
+and eel_hty_code='C'
+AND eel_typ_id IN (4,6);--(shiny + local)
+
+
+UPDATE ref.tr_station SET ("Lat","Lon")=(ser_y, ser_x) from
+(SELECT tr_station.*, ser_x, ser_y FROM ref.tr_station  JOIN
+	 datawg.t_series_ser ON ser_nameshort="Station_Name") sub 
+	WHERE tr_station."Station_Name"=sub."Station_Name"; --86 (shiny + local)
+	 
