@@ -138,9 +138,28 @@ and eel_area_division is NULL
 and eel_hty_code='C'
 AND eel_typ_id IN (4,6);--(shiny + local)
 
+/*
+ * ISSUE #124
+ * 
+ */
 
 UPDATE ref.tr_station SET ("Lat","Lon")=(ser_y, ser_x) from
 (SELECT tr_station.*, ser_x, ser_y FROM ref.tr_station  JOIN
 	 datawg.t_series_ser ON ser_nameshort="Station_Name") sub 
 	WHERE tr_station."Station_Name"=sub."Station_Name"; --86 (shiny + local)
 	 
+/*
+ * 
+  * ISSUE #110 GY stages should be reserved for time series
+ *  
+ * */
+	
+SELECT * FROM datawg.t_eelstock_eel WHERE eel_lfs_code='GY'
+
+
+/*
+ * 
+ * # 90 there is two series for yellow NO (ska and SkaY) ==> check for duplicates
+*/
+
+SELECT * FROM datawg.t_series_ser WHERE ser_cou_code='NO'
