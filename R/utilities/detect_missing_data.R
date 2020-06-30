@@ -19,10 +19,20 @@ detect_missing_data <- function(cou="FR",
   emus <- unique(dbGetQuery(con_wgeel,paste("select emu_nameshort eel_emu_nameshort,emu_cou_code
  eel_cou_code, emu_wholecountry  from ref.tr_emu_emu
                                           where emu_cou_code in ('",paste(cou,collapse="','",sep=""),"')",sep="")))
+  complete <- dbGetQuery(con_wgeel,paste(paste("select eel_typ_id,eel_hty_code,eel_year,eel_emu_nameshort,eel_lfs_code,eel_cou_code,eel_value,eel_missvaluequal,eel_area_division from datawg.t_eelstock_eel where eel_qal_id in (0,1,2,4) and eel_year>=",minyear," and eel_year<=",maxyear," and eel_typ_id in (4,6) and eel_cou_code='",cou,"'",sep="")))
+  used_emus=unique(complete$eel_emu_nameshort)
+  
+  #in Sweeden, there are historical subidivisions thate we do not take into account
+  emus=emus[!grepl("_.._",emus$eel_emu_nameshort),]
+  
+  
 	# in some cases there is just one total, otherwise remove total											
-	if (nrow(emus)>1){
+	if (nrow(emus)>2 & cou!="DK"){ #for Denmark, total EMUs as a different meanings that for other countries
 		emus <- emus[!emus$emu_wholecountry,c(1,2)]		
-	} else {
+	} else if (nrow(emus)==2) {
+	  emus = subset(emus, emus$eel_emu_nameshort %in% used_emus)[,c(1,2)]
+	} 
+  else {
 		emus <- emus[,c(1,2)]				
 	}
   
@@ -32,8 +42,7 @@ detect_missing_data <- function(cou="FR",
                           eel_typ_id=c(4,6),
                           eel_hty_code=hty_emus),
                     emus)
-  complete <- dbGetQuery(con_wgeel,paste(paste("select eel_typ_id,eel_hty_code,eel_year,eel_emu_nameshort,eel_lfs_code,eel_cou_code,eel_value,eel_missvaluequal,eel_area_division from datawg.t_eelstock_eel where eel_qal_id in (0,1,2,4) and eel_year>=",minyear," and eel_year<=",maxyear," and eel_typ_id in (4,6) and eel_cou_code='",cou,"'",sep="")))
-  ranges<-dbGetQuery(con_wgeel,paste(paste("select eel_area_division,eel_typ_id,eel_hty_code,eel_emu_nameshort,eel_lfs_code,eel_cou_code,min(eel_year) as first_year,max(eel_year) last_year from datawg.t_eelstock_eel where eel_qal_id in (0,1,2,4) and eel_year>=",minyear," and eel_year<=",maxyear," and eel_typ_id in (4,6) and eel_cou_code='",cou,"' group by eel_area_division,eel_typ_id,eel_hty_code,eel_emu_nameshort,eel_lfs_code,eel_cou_code",sep="")))
+  ranges<-dbGetQuery(con_wgeel,paste(paste("select eel_area_division,eel_typ_id,eel_hty_code,eel_emu_nameshort,eel_lfs_code,eel_cou_code,min(eel_year) as first_year,max(eel_year) last_year from datawg.t_eelstock_eel where eel_value >0 and eel_qal_id in (0,1,2,4) and eel_year>=",minyear," and eel_year<=",maxyear," and eel_typ_id in (4,6) and eel_cou_code='",cou,"' group by eel_area_division,eel_typ_id,eel_hty_code,eel_emu_nameshort,eel_lfs_code,eel_cou_code",sep="")))
 	options(warn=-1)
   missing_comb <- suppressMessages(anti_join(all_comb, complete))
 
@@ -114,7 +123,7 @@ detect_missing_data <- function(cou="FR",
   missing_comb2$eel_lfs_code[!is.na(missing_comb2$last_lfs)] <- missing_comb2$last_lfs[!is.na(missing_comb2$last_lfs)]
   missing_comb2$eel_hty_code[!is.na(missing_comb2$last_hty)] <- missing_comb2$last_hty[!is.na(missing_comb2$last_hty)]
   missing_comb2 <- missing_comb2 %>%
-    distinct() %>%
+    distinct_at(vars(-eel_area_division)) %>%
     select(-last_lfs,-last_hty,-last_year,-last_emu)
   missing_comb <- bind_rows(missing_comb,missing_comb2)
   
