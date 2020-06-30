@@ -31,8 +31,7 @@ detect_missing_data <- function(cou="FR",
 		emus <- emus[!emus$emu_wholecountry,c(1,2)]		
 	} else if (nrow(emus)==2) {
 	  emus = subset(emus, emus$eel_emu_nameshort %in% used_emus)[,c(1,2)]
-	} 
-  else {
+	} else {
 		emus <- emus[,c(1,2)]				
 	}
   
