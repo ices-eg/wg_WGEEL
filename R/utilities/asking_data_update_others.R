@@ -39,7 +39,7 @@ wddata<-"C:/Users/cedric.briand/OneDrive - EPTB Vilaine/Projets/GRISAM/2020/wgee
 # change parameters accordingly
 ###################################"
 
-source("R/database_interaction/database_connection.R")
+
 source("R/utilities/detect_missing_data.R")
 
 ###################################
@@ -184,7 +184,8 @@ cou_code<-unique(t_eelstock_eel$eel_cou_code[!is.na(t_eelstock_eel$eel_cou_code)
 
 # create an excel file for each of the countries and each typ_id
 # LANDINGS COMMERCIAL AND RECREATIONAL
-# problems with "NO", "TR", "HR"
+# problems with "NO", "TR", "HR" 
+cou <-"EE"
 for (cou in cou_code){	
 	country <- cou
 	cat("country: ",country,"\n")
