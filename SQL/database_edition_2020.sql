@@ -163,3 +163,52 @@ SELECT * FROM datawg.t_eelstock_eel WHERE eel_lfs_code='GY'
 */
 
 SELECT * FROM datawg.t_series_ser WHERE ser_cou_code='NO'
+
+/*
+ * 18/08/2020 Cédric
+ * ADD CODE FOR 2020 
+ * TODO RUN THIS LATER ON THE SERVER ONCE DEVELOPMENT IS FINISHED
+*/
+
+
+INSERT INTO REF.tr_datasource_dts  VALUES ('dc_2020', 'Joint EIFAAC/GFCM/ICES Eel Data Call 2020');
+
+
+/*
+ * Adding a datasource to tables t_series_ser, t_dataseries_das, and t_biometry_bio
+ * Updating those using the last date of update
+ * NULL values are set to wgeel_2016
+ */
+
+ALTER TABLE datawg.t_series_ser ADD COLUMN ser_dts_datasource varchar(100);
+ALTER TABLE datawg.t_series_ser ADD CONSTRAINT c_fk_ser_dts_datasource FOREIGN KEY (ser_dts_datasource) REFERENCES ref.tr_datasource_dts (dts_datasource);
+UPDATE datawg.t_series_ser SET ser_dts_datasource ='dc_2019'; --185
+
+ALTER TABLE datawg.t_dataseries_das ADD COLUMN das_dts_datasource varchar(100);
+ALTER TABLE datawg.t_dataseries_das ADD CONSTRAINT c_fk_das_dts_datasource FOREIGN KEY (das_dts_datasource) REFERENCES ref.tr_datasource_dts (dts_datasource);
+WITH datasource AS (
+	SELECT CASE WHEN das_last_update IS NULL THEN NULL
+            WHEN das_last_update <'2018-01-01' THEN 'dc_2017'
+            WHEN das_last_update >='2018-01-01' AND das_last_update <'2019-01-01'  THEN 'dc_2018'
+            WHEN das_last_update >='2019-01-01'  THEN 'dc_2019'
+            END AS dts_datasource,
+            das_id
+      FROM datawg.t_dataseries_das)
+UPDATE datawg.t_dataseries_das SET das_dts_datasource = datasource.dts_datasource FROM datasource WHERE t_dataseries_das.das_id=datasource.das_id;--4150
+      
+ALTER TABLE datawg.t_biometry_bio ADD COLUMN bio_dts_datasource varchar(100);
+ALTER TABLE datawg.t_biometry_bio ADD CONSTRAINT c_fk_bio_dts_datasource FOREIGN KEY (bio_dts_datasource) REFERENCES ref.tr_datasource_dts (dts_datasource);
+WITH datasource AS (
+	SELECT CASE WHEN bio_last_update IS NULL THEN NULL
+            WHEN bio_last_update <'2018-01-01' THEN 'dc_2017'
+            WHEN bio_last_update >='2018-01-01' AND bio_last_update <'2019-01-01'  THEN 'dc_2018'
+            WHEN bio_last_update >='2019-01-01'  THEN 'dc_2019'
+            END AS dts_datasource,
+            bio_id
+      FROM datawg.t_biometry_bio)
+UPDATE datawg.t_biometry_bio SET bio_dts_datasource = datasource.dts_datasource FROM datasource WHERE t_biometry_bio.bio_id=datasource.bio_id; --1319
+    
+
+
+
+
