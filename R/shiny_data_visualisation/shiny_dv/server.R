@@ -1147,9 +1147,10 @@ server = function(input, output, session) {
 				data_rec$unit<-data_rec$year-data_rec$decades
 				data_rec_cast<-dcast(data_rec[,c("decades","unit","p_std_1960_1979")],unit~decades,value.var="p_std_1960_1979")
 				rownames(data_rec_cast)<-data_rec_cast$unit
-				
-				DT::datatable(round(data_rec_cast[,-1]*100,digits=2), 
-						rownames = TRUE,
+				data_rec_cast$unit <- data_rec_cast$unit/100
+				names(data_rec_cast)[1] <-"year\\decade"
+				DT::datatable(round(data_rec_cast*100,digits=2), 
+						rownames=FALSE,
 						extensions = c("Buttons","KeyTable"),
 						option=list(
 								order=list(0,"asc"),
@@ -1161,7 +1162,7 @@ server = function(input, output, session) {
 								buttons=list(
 										list(extend="excel",
 												filename = paste0("data_",Sys.Date())))
-						))
+						)) %>% formatStyle("year\\decade",fontWeight="bold")
 			})
 	
 	
