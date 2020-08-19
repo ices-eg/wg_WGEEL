@@ -12,6 +12,7 @@
 #' @param quality_check is the view loaded using only quality needed for wgeel (discarded data excluded)
 #' @examples
 #' extract_data("landings")
+#' extract_data("t_series_ser")
 extract_data = function(table_dbname, quality = c(1,2,4), quality_check=TRUE)
 {
   	

@@ -81,6 +81,10 @@ shinyServer(function(input, output, session){
             # tr_type_typ<-extract_ref('Type of series') this works also !
 						tr_typeseries_typt<<-tr_typeseries_typt
 						
+						query <- "SELECT * from ref.tr_units_uni"
+						tr_units_uni <<- dbGetQuery(pool, sqlInterpolate(ANSI(), query))   
+
+						
 						query <- "SELECT min(eel_year) as min_year, max(eel_year) as max_year from datawg.t_eelstock_eel eel_cou "
 						the_years <<- dbGetQuery(pool, sqlInterpolate(ANSI(), query))   
 						
