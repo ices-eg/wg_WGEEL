@@ -1,0 +1,417 @@
+---
+title: "DFA yellow and silver eels"
+author: "ICES Data Group"
+date: "18/08/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+load_library=function(necessary) {
+	if(!all(necessary %in% installed.packages()[, 'Package']))
+		install.packages(necessary[!necessary %in% installed.packages()[, 'Package']], dep = T)
+	for(i in 1:length(necessary))
+		library(necessary[i], character.only = TRUE)
+}
+
+knitr::opts_chunk$set(echo = TRUE)
+username = Sys.info()[["user"]]
+if (username=="hilaire.drouineau"){
+  setwd("/home/hilaire.drouineau/Documents/Bordeaux/migrateurs/WGEEL/github/wg_WGEEL/R/Y_S_series/")
+}
+load_library("MARSS")
+load_library("xtable")
+load_library("getPass")
+load_library("RPostgreSQL")
+load_library("sf")
+load_library("broom")
+load_library("dplyr")
+load_library("knitr")
+load_library("ggplot2")
+load_library("ggmap")
+load_library("tidyverse")
+load_library("rnaturalearth")
+con_wgeel=dbConnect(PostgreSQL(),
+                    dbname="wgeel",
+                    host="localhost",
+                    port=5435,
+	                  user= getPass(msg="username"),
+	                  password= getPass())
+CY<-2020 # current year ==> dont forget to update the graphics path below (
+
+format_dfa =function(the.fit){
+  H.inv=1
+  Z.est = coef(the.fit, type="matrix")$Z
+  if(ncol(Z.est)>1) H.inv = varimax(Z.est)$rotmat
+  #rotate factor loadings
+  Z<-coef(the.fit,type="matrix")$Z%*%H.inv
+  #rotate trends
+  trends<-solve(H.inv)%*%the.fit$states
+  scale_val=coef(the.fit)$A
+  list(Z=Z,trends=trends,scale_val=scale_alpha)
+}
+```
+
+```{r data loading, include=FALSE}
+query='SELECT 
+		das_id,
+		das_value,       
+		das_year,
+		das_comment,
+		ser_id,            
+		ser_order,
+		ser_nameshort,
+		ser_area_division,
+		ser_qal_id,
+    ser_hty_code,
+    ser_emu_nameshort,
+    ser_cou_code,
+    ser_comment,
+    ser_sam_id,
+		das_qal_id,
+		das_last_update,
+		f_subarea,
+		lfs_code,          
+		lfs_name
+		from datawg.t_dataseries_das 
+		join datawg.t_series_ser on das_ser_id=ser_id
+		left join ref.tr_lifestage_lfs on ser_lfs_code=lfs_code
+		left join ref.tr_faoareas on ser_area_division=f_division
+		where ser_typ_id in (2,3)'
+mydata = dbGetQuery(con_wgeel,query)
+mydata$ser_nameshort=as.factor(mydata$ser_nameshort)
+mydata$ser_area_division=as.factor(mydata$ser_area_division)
+mydata$f_subarea=as.factor(mydata$f_subarea)
+mydata$lfs_code=as.factor(mydata$lfs_code)
+mydata$ser_cou_code=as.factor(mydata$ser_cou_code)
+mydata$ser_emu_nameshort=as.factor(mydata$ser_emu_nameshort)
+mydata$lfs_name=as.factor(mydata$lfs_name)
+mydata$ser_hty_code=as.factor(mydata$ser_hty_code)
+
+#we keep only data with at least 10 years
+nbpoints = mydata %>%
+  group_by(ser_id) %>%
+  summarise(nbyear=n_distinct(das_year))%>%
+  filter(nbyear>=10)
+
+silver_data <- mydata %>%
+  filter(ser_id %in% nbpoints$ser_id & lfs_code=="S")
+yellow_data <- mydata %>%
+  filter(ser_id %in% nbpoints$ser_id & lfs_code=="Y")
+yellow_map=st_read(con_wgeel,query=paste("select ser_id,geom from datawg.t_series_ser where ser_id in (", paste(unique(yellow_data$ser_id),collapse=","),")",sep=""))
+silver_map=st_read(con_wgeel,query=paste("select ser_id,geom from datawg.t_series_ser where ser_id in (", paste(unique(silver_data$ser_id),collapse=","),")",sep=""))
+
+dbDisconnect(con_wgeel)
+
+```
+
+
+# Introduction
+Several time series of abundance of yellow eels and silver eels are collected throughout Europe. However, the analysis of their trends is more complex than for glass eel time-series since yellow and silver abundances are the results of both the general status of the population and local conditions (environmental condition and anthropogenic pressures) in river basins in which they are collected. Despite these difficulties, it would be interested to detect whether some common trends exist among the available data series and whether they can be related to monitoring methods, locations of the data or other factors. This would be a first exploration step before moving forward in a potential assessment of the standing stock.
+In this context, we carry out a dynamic Factor Analysis, a multivariate method aiming at detecting common trends in a set of time-series (Zuur et al., 2003). Similary to glass-eel recruitment models, we restricted the data set to times series for which at least 10 years of data were available and carry out silver eel and yellow eel analysis separetely.
+
+# Yellow eel
+## Available data
+`r length(unique(yellow_data$ser_id))` time series are available, originating from `r length(unique(yellow_data$ser_cou_code))` countries and `r length(unique(yellow_data$ser_emu_nameshort))` EMUs. Most of them are located in the Bristish Islands or France. `r length(unique(yellow_data$ser_id[yellow_data$ser_hty_code=="C"]))` time series are collected in coastal waters, `r length(unique(yellow_data$ser_id[yellow_data$ser_hty_code=="T"]))` in transitional waters and `r length(unique(yellow_data$ser_id[yellow_data$ser_hty_code=="F"]))` in freshwater.
+
+```{r map yellow,echo=FALSE,message=FALSE,warning=FALSE}
+worldmap <- ne_countries(scale = 'medium', type = 'map_units',
+                         returnclass = 'sf')
+europe_cropped <- st_crop(worldmap, xmin = -13, xmax = 25,
+                                    ymin = 35, ymax = 65)
+ggplot(yellow_map)+geom_sf(data=europe_cropped)+geom_sf(data=yellow_map,col="red")+
+  theme_bw()
+```
+
+They are very few available data series before the 80s so we will restrict the analysis to the period from 1980 to now.
+
+```{r pointperyearYE,echo=FALSE}
+point_per_year_YE<- yellow_data %>%
+  group_by(das_year) %>%
+  summarize(n=n_distinct(ser_id))
+
+ggplot(point_per_year_YE,aes(y=n,x=das_year))+
+  geom_line()+
+  xlab("")+ylab("number of available data")+
+  theme_bw()
+```
+
+```{r plotTS YE,echo=FALSE,warning=FALSE}
+yellow_data_std=yellow_data%>%
+  filter(das_year>=1980) %>%
+  group_by(ser_id)%>%
+  mutate(das_value=(das_value-mean(das_value,na.rm=TRUE))/sd(das_value,na.rm=TRUE))
+
+ggplot(yellow_data_std,aes(x=das_year,y=das_value))+
+  geom_line(aes(col=as.factor(ser_nameshort)))+
+  geom_smooth(method="gam")+theme_bw()+xlab("year")+
+  ylab("Standardised abundance index")
+```
+
+
+## Running the DFA
+The DFA method is fully detailed in Zuur 2003. The basic idea is to decompose each time series into a weighted sum of a few common trends and a noise factor:
+$$
+\begin{aligned}
+Y_{j,t}=\mu_j + \sum_{i=1}^{n} w_{i,j} \cdot X_{i,t} +\epsilon_{j,t} \qquad \mbox{ with } \left \{ \epsilon_{j,t} \right \}  \sim N(0,\Sigma)
+\end{aligned}
+$$
+with $Y_{j, t}$ the value of the series $j$ at time $t$, $\mu_j$ an intercept, $n the number of common trends, $w_{i, j}$ the weight of trend $i$ in the series $j$, $X_{i,t}$ the value of trend $i$ at time $t and $\epsilon_{j,t}$ a normal noise, potentially correlated between series through the variance covariance matrix $\Sigma$ . Therefore, $X_{i,t}$ represent the trends common to the series and are modelled as random walks:
+$$
+\begin{aligned}
+X_{i,t}=X_{i,t-1}+f_{i,t} \qquad \mbox{ with } f_{i,t} \sim N(0,Q)
+\end{aligned}
+$$
+
+with $f_{i,t} the noise on the trend $i$ at time $t$ which follows a normal law, possibly correlated between trends with the covariance covariance matrix $Q$ which can be set to the identity matrix (Zuur et al. 2003).
+The method thus allows both to extract the common trends through the estimates of $X$, but also to see to what extent each of the importance of each trend in each series through $w$.
+
+To fit the DFA, the user as to put some additionnal constraints. Here we assumed that time series are independent with similar values of noise (i.e. $\Sigma$ is a diagonal matrix with equal elements in the diagonal). We chose the numbers of trends by comparing resulting AIC criterion with models assuming from 1 to 4 common trends. 
+
+
+## Common trends
+```{r dfa yellow, results='hide',eval=FALSE}
+#put data in wide format and select from 1980
+yellow_wide <-yellow_data %>%
+  filter(das_year >= 1980) %>%
+  select(ser_nameshort,das_value,das_year) %>%
+  arrange(das_year)%>%
+  pivot_wider(id_cols=c(ser_nameshort,das_year),names_from=das_year,values_from=das_value)
+
+#then we scaled time series (substract the mean and divide by standard deviation)
+yellow_wide[,-1] <- sweep(yellow_wide[,-1],1,rowMeans(yellow_wide[,-1],na.rm=TRUE),"-")
+yellow_wide[,-1] <- sweep(yellow_wide[,-1],1,apply(yellow_wide[,-1],1,sd,na.rm=TRUE),"/")
+
+
+#Define some constants
+N_ts=nrow(yellow_wide) #number of time series
+TT=ncol(yellow_wide)-1 #number of time steps
+y=as.matrix(yellow_wide[,-1]) #matrix of obseravation
+rownames(y)=yellow_wide$ser_nameshort
+
+#Now we make a loop of DFA to find the best model
+model_comparisonsYE= lapply(1:4,function(m){
+  dfa.model=list(R="diagonal and equal", m=m)
+  kemz=MARSS(y, model=dfa.model, form="dfa",z.score=TRUE,method="BFGS")
+  aicc=MARSSaic(kemz, output="AICc")$AICc
+  aic=MARSSaic(kemz, output="AIC")$AIC
+  list(Trends=m,AICc=aicc,AIC=aic,dfa=kemz)
+})
+
+results_yellow=do.call(rbind.data.frame,lapply(model_comparisonsYE,function(x) {
+  data.frame(Trends=x["Trends"],
+             AIC=x["AIC"],
+             AICc=x["AICc"])})
+)
+save.image(file="./dfa.rdata")
+```
+
+```{r comparisonYE,echo=FALSE}
+load("./dfa.rdata")
+kable(results_yellow,digits=2)
+best_fit_yellow=model_comparisonsYE[[which(results_yellow$AIC==min(results_yellow$AIC))]]$dfa
+```
+
+
+The factor loadings are displayed in the following plots (importance of each trend in each time series)
+
+```{r series loadings yellow, echo=FALSE}
+formatted_matrices_yellow=format_dfa(best_fit_yellow)
+
+namesseries=yellow_wide$ser_nameshort
+
+trends=formatted_matrices_yellow$trends
+Z=formatted_matrices_yellow$Z
+#plot the factor loadings
+minZ = 0.1
+m=dim(trends)[1]
+ylims = c(-1.1*max(abs(Z)), 1.1*max(abs(Z)))
+par(mfrow=c(ceiling(m/2),2), mar=c(0.5,2.5,1.5,0.5), oma=c(0.4,1,1,1))
+for(i in 1:m) {
+  plot(c(1:N_ts)[abs(Z[,i])>minZ], as.vector(Z[abs(Z[,i])>minZ,i]),
+       type="h", lwd=2, xlab="", ylab="", xaxt="n", ylim=ylims, xlim=c(0,N_ts+1))
+  for(j in 1:N_ts) {
+    if(Z[j,i] > minZ) {text(j, -0.05, namesseries[j], srt=90, adj=1, cex=0.5)}
+    if(Z[j,i] < -minZ) {text(j, 0.05, namesseries[j], srt=90, adj=0, cex=0.5)}
+    abline(h=0, lwd=1, col="gray")
+  } # end j loop
+  mtext(bquote(~italic(z[list(i,.(i))])),side=3,line=.5)
+} # end i loop
+
+##kept if two trends
+loadings_y = as.data.frame(Z[,1:2])
+names(loadings_y)=c("loading_trend_1","loading_trend_2")
+ggplot(loadings_y,aes(x=loading_trend_1,y=loading_trend_2))+
+  geom_point()+
+  theme_bw()
+```
+
+
+```{r trends yellow, echo=FALSE}
+trends_long <- as.data.frame(t(trends))
+names(trends_long)=paste("Trend",1:ncol(trends_long))
+trends_long$year=as.numeric(names(yellow_wide)[-1])
+trends_long<-trends_long %>%
+  pivot_longer(starts_with("Trend"),names_to="Trend")
+ggplot(trends_long,aes(x=year,y=value))+
+  geom_line()+
+  facet_wrap(.~Trend)+
+  theme_bw()
+
+```
+
+
+
+```{r fits yellow, echo=FALSE}
+d <- broom::augment(best_fit_yellow,interval="confidence")
+ggplot(data = d) +
+  geom_line(aes(t, .fitted)) +
+  geom_point(aes(t, y)) +
+  geom_ribbon(aes(x=t, ymin=.conf.low, ymax=.conf.up), linetype=2, alpha=0.2) +
+  facet_wrap(vars(.rownames)) +
+  xlab("") + ylab("standarized abundance index")+
+  scale_x_continuous(breaks=seq(1,TT,10),labels=colnames(y)[seq(1,TT,10)])+
+  theme_bw()
+```
+
+# Silver eel
+## Available data
+`r length(unique(silver_data$ser_id))` time series are available, originating from `r length(unique(silver_data$ser_cou_code))` countries and `r length(unique(silver_data$ser_emu_nameshort))` EMUs. Most of them are located in Northern Europe. `r length(unique(silver_data$ser_id[silver_data$ser_hty_code=="C"]))` time series are collected in coastal waters and `r length(unique(silver_data$ser_id[silver_data$ser_hty_code=="F"]))` in freshwater, while the habitat type was not reported for .`r length(unique(silver_data$ser_id[is.na(silver_data$ser_hty_code)]))`
+
+```{r map silver,echo=FALSE}
+g=ggplot(silver_map)+geom_sf(data=europe_cropped)+geom_sf(data=silver_map,col="red")+
+  theme_bw()
+print(g)
+```
+
+They are very few available data series before the 80s so we will restrict the analysis to the period from 1980 to now.
+
+```{r pointperyearSE,echo=FALSE}
+point_per_year_SE<- silver_data %>%
+  group_by(das_year) %>%
+  summarize(n=n_distinct(ser_id))
+
+ggplot(point_per_year_SE,aes(y=n,x=das_year))+
+  geom_line()+
+  xlab("")+ylab("number of available data")+
+  theme_bw()
+```
+
+
+
+```{r plotTS SE,echo=FALSE}
+silver_data_std=silver_data%>%
+  filter(das_year>=1980) %>%
+  group_by(ser_id)%>%
+  mutate(das_value=(das_value-mean(das_value,na.rm=TRUE))/sd(das_value,na.rm=TRUE))
+
+ggplot(silver_data_std,aes(x=das_year,y=das_value))+
+  geom_line(aes(col=as.factor(ser_nameshort)))+
+  geom_smooth(method="gam")+theme_bw()+xlab("year")+
+  ylab("Standardised abundance index")
+```
+## Running the DFA
+We applied the same method as for yellow eel so readers can refer to the corresponding section for further details.
+
+
+
+
+## Common trends
+```{r dfa silver, results='hide',eval=FALSE}
+#put data in wide format and select from 1980
+silver_wide <-silver_data %>%
+  filter(das_year >= 1980) %>%
+  select(ser_nameshort,das_value,das_year) %>%
+  arrange(das_year)%>%
+  pivot_wider(id_cols=c(ser_nameshort,das_year),names_from=das_year,values_from=das_value)
+
+#then we scaled time series (substract the mean and divide by standard deviation)
+silver_wide[,-1] <- sweep(silver_wide[,-1],1,rowMeans(silver_wide[,-1],na.rm=TRUE),"-")
+silver_wide[,-1] <- sweep(silver_wide[,-1],1,apply(silver_wide[,-1],1,sd,na.rm=TRUE),"/")
+
+
+#Define some constants
+N_ts=nrow(silver_wide) #number of time series
+TT=ncol(silver_wide)-1 #number of time steps
+y=as.matrix(silver_wide[,-1]) #matrix of obseravation
+rownames(y)=silver_wide$ser_nameshort
+
+#Now we make a loop of DFA to find the best model
+model_comparisonsSE= lapply(1:4,function(m){
+  dfa.model=list(R="diagonal and equal", m=m)
+  kemz=MARSS(y, model=dfa.model, form="dfa",z.score=TRUE,method="BFGS")
+  aicc=MARSSaic(kemz, output="AICc")$AICc
+  aic=MARSSaic(kemz, output="AIC")$AIC
+  list(Trends=m,AICc=aicc,AIC=aic,dfa=kemz)
+})
+
+results_silver=do.call(rbind.data.frame,lapply(model_comparisons,function(x) {
+  data.frame(Trends=x["Trends"],
+             AIC=x["AIC"],
+             AICc=x["AICc"])})
+)
+save.image("./dfa.rdata")
+```
+
+```{r comparisonSE,echo=FALSE}
+load("./dfa.rdata")
+kable(results_silver,digits=2)
+best_fit_silver=model_comparisons[[which(results_silver$AIC==min(results_silver$AIC))]]$dfa
+```
+
+
+
+
+The factor loadings are displayed in the following plots (importance of each trend in each time series)
+
+```{r series loadings silver, echo=FALSE}
+formatted_matrices_silver=format_dfa(best_fit_silver)
+
+namesseries=silver_wide$ser_nameshort
+
+trends=formatted_matrices_silver$trends
+Z=formatted_matrices_silver$Z
+#plot the factor loadings
+minZ = 0.0
+m=dim(trends)[1]
+ylims = c(-1.1*max(abs(Z)), 1.1*max(abs(Z)))
+par(mfrow=c(ceiling(m/2),2), mar=c(0.5,2.5,1.5,0.5), oma=c(0.4,1,1,1))
+for(i in 1:m) {
+  plot(c(1:N_ts)[abs(Z[,i])>minZ], as.vector(Z[abs(Z[,i])>minZ,i]),
+       type="h", lwd=2, xlab="", ylab="", xaxt="n", ylim=ylims, xlim=c(0,N_ts+1))
+  for(j in 1:N_ts) {
+    if(Z[j,i] > minZ) {text(j, -0.05, namesseries[j], srt=90, adj=1, cex=0.5)}
+    if(Z[j,i] < -minZ) {text(j, 0.05, namesseries[j], srt=90, adj=0, cex=0.5)}
+    abline(h=0, lwd=1, col="gray")
+  } # end j loop
+  mtext(bquote(~italic(z[list(i,.(i))])),side=3,line=.5)
+} # end i loop
+
+```
+
+
+```{r trends silver, echo=FALSE}
+trends_long <- as.data.frame(t(trends))
+names(trends_long)=paste("Trend",1:ncol(trends_long))
+trends_long$year=as.numeric(names(silver_wide)[-1])
+trends_long<-trends_long %>%
+  pivot_longer(starts_with("Trend"),names_to="Trend")
+ggplot(trends_long,aes(x=year,y=value))+
+  geom_line()+
+  facet_wrap(.~Trend)+
+  theme_bw()
+
+```
+
+
+
+```{r fits silver, echo=FALSE,warning=FALSE}
+d <- broom::augment(best_fit_silver,interval="confidence")
+ggplot(data = d) +
+  geom_line(aes(t, .fitted)) +
+  geom_point(aes(t, y)) +
+  geom_ribbon(aes(x=t, ymin=.conf.low, ymax=.conf.up), linetype=2, alpha=0.2) +
+  facet_wrap(vars(.rownames)) +
+  xlab("") + ylab("standarized abundance index")+
+  scale_x_continuous(breaks=seq(1,TT,10),labels=colnames(y)[seq(1,TT,10)])+
+  theme_bw()
+```
