@@ -87,9 +87,10 @@ shinyServer(function(input, output, session){
 						query <- "SELECT name from datawg.participants"
 						participants<<- dbGetQuery(pool, sqlInterpolate(ANSI(), query))  
 						# save(participants,list_country,typ_id,the_years,t_eelstock_eel_fields, file=str_c(getwd(),"/common/data/init_data.Rdata"))
-						ices_division <<- extract_ref("FAO area")$f_code
-						emus <<- extract_ref("EMU")
 						
+						ices_division <<- extract_ref("FAO area")$f_code
+						
+						emus <<- extract_ref("EMU")
 						
 								
 					})
@@ -317,33 +318,34 @@ shinyServer(function(input, output, session){
 						) 
 						data_from_excel<- step0load_data()$res$data
 						switch (input$file_type, "catch_landings"={                                     
-									data_from_base<-extract_data("Landings", quality=c(1,2,3,4), quality_check=TRUE)                  
+									data_from_base<-extract_data("landings", quality=c(1,2,3,4), quality_check=TRUE)                  
 								},
 								"release"={
-									data_from_base<-extract_data("Release", quality=c(1,2,3,4), quality_check=TRUE)
+									data_from_base<-extract_data("release", quality=c(1,2,3,4), quality_check=TRUE)
 								},
 								"aquaculture"={             
-									data_from_base<-extract_data("Aquaculture", quality=c(1,2,3,4), quality_check=TRUE)},
+									data_from_base<-extract_data("aquaculture", quality=c(1,2,3,4), quality_check=TRUE)},
 								"biomass"={
 									# bug in excel file
 									colnames(data_from_excel)[colnames(data_from_excel)=="typ_name"]<-"eel_typ_name"
 									data_from_base<-rbind(
-											extract_data("B0", quality=c(1,2,3,4), quality_check=TRUE),
-											extract_data("Bbest", quality=c(1,2,3,4), quality_check=TRUE),
-											extract_data("Bcurrent", quality=c(1,2,3,4), quality_check=TRUE))
+											extract_data("b0", quality=c(1,2,3,4), quality_check=TRUE),
+											extract_data("bbest", quality=c(1,2,3,4), quality_check=TRUE),
+											extract_data("bcurrent", quality=c(1,2,3,4), quality_check=TRUE))
 								},
 								"potential_available_habitat"={
-									data_from_base<-extract_data("Potential available habitat", quality=c(1,2,3,4), quality_check=TRUE)                  
+									data_from_base<-extract_data("potential_available_habitat", quality=c(1,2,3,4), quality_check=TRUE)                  
 								},
+								# mortality in silver eel equivalent
 								"silver_eel_equivalents"={
-									data_from_base<-extract_data("Mortality in Silver Equivalents", quality=c(1,2,3,4), quality_check=TRUE)      
+									data_from_base<-extract_data("silver_eel_equivalents", quality=c(1,2,3,4), quality_check=TRUE)      
 									
 								},
 								"mortality_rates"={
 									data_from_base<-rbind(
-											extract_data("Sigma A", quality=c(1,2,3,4), quality_check=TRUE),
-											extract_data("Sigma F all", quality=c(1,2,3,4), quality_check=TRUE),
-											extract_data("Sigma H all", quality=c(1,2,3,4), quality_check=TRUE))
+											extract_data("sigmaa", quality=c(1,2,3,4), quality_check=TRUE),
+											extract_data("sigmafallcat", quality=c(1,2,3,4), quality_check=TRUE),
+											extract_data("sigmahallcat", quality=c(1,2,3,4), quality_check=TRUE))
 								}                
 						)
 						# the compare_with_database function will compare

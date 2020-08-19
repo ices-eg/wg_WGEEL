@@ -1,6 +1,10 @@
+# @DEPRECATED SEE CODE IN shinydi
+# new code load straight from database (no intermediate human readable name) and loads time series and biometry.
+#
 # fetch data from the WGEEL database
 # 
 # Author: lbeaulaton
+
 ###############################################################################
 
 # PostgreSQL connection (if needed)

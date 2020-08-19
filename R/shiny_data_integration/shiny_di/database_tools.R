@@ -24,9 +24,9 @@
 #' wg_file.choose<-file.choose
 #' data_from_excel<-load_catch_landings(wg_file.choose(),"dc_2018")$data
 #' data_from_excel<-load_release(wg_file.choose(),datasource="test")$data
-#' data_from_base<-extract_data('Landings')
-#' data_from_base<-extract_data('B0')
-#' data_from_base<-extract_data('Release')
+#' data_from_base<-extract_data('landings')
+#' data_from_base<-extract_data('b0')
+#' data_from_base<-extract_data('release')
 #' list_comp<-compare_with_database(data_from_excel,data_from_base)
 #'  }
 #' }
