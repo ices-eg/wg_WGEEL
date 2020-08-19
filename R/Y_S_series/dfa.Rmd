@@ -65,6 +65,7 @@ query='SELECT
     ser_hty_code,
     ser_emu_nameshort,
     ser_cou_code,
+    ser_comment,
     ser_sam_id,
 		das_qal_id,
 		das_last_update,
@@ -188,7 +189,7 @@ y=as.matrix(yellow_wide[,-1]) #matrix of obseravation
 rownames(y)=yellow_wide$ser_nameshort
 
 #Now we make a loop of DFA to find the best model
-model_comparisons= lapply(1:4,function(m){
+model_comparisonsYE= lapply(1:4,function(m){
   dfa.model=list(R="diagonal and equal", m=m)
   kemz=MARSS(y, model=dfa.model, form="dfa",z.score=TRUE,method="BFGS")
   aicc=MARSSaic(kemz, output="AICc")$AICc
@@ -196,7 +197,7 @@ model_comparisons= lapply(1:4,function(m){
   list(Trends=m,AICc=aicc,AIC=aic,dfa=kemz)
 })
 
-results_yellow=do.call(rbind.data.frame,lapply(model_comparisons,function(x) {
+results_yellow=do.call(rbind.data.frame,lapply(model_comparisonsYE,function(x) {
   data.frame(Trends=x["Trends"],
              AIC=x["AIC"],
              AICc=x["AICc"])})
@@ -207,7 +208,7 @@ save.image(file="./dfa.rdata")
 ```{r comparisonYE,echo=FALSE}
 load("./dfa.rdata")
 kable(results_yellow,digits=2)
-best_fit_yellow=model_comparisons[[which(results_yellow$AIC==min(results_yellow$AIC))]]$dfa
+best_fit_yellow=model_comparisonsYE[[which(results_yellow$AIC==min(results_yellow$AIC))]]$dfa
 ```
 
 
@@ -248,7 +249,7 @@ ggplot(loadings_y,aes(x=loading_trend_1,y=loading_trend_2))+
 ```{r trends yellow, echo=FALSE}
 trends_long <- as.data.frame(t(trends))
 names(trends_long)=paste("Trend",1:ncol(trends_long))
-trends_long$year=as.numeric(colnames(y))
+trends_long$year=as.numeric(names(yellow_wide)[-1])
 trends_long<-trends_long %>%
   pivot_longer(starts_with("Trend"),names_to="Trend")
 ggplot(trends_long,aes(x=year,y=value))+
@@ -335,7 +336,7 @@ y=as.matrix(silver_wide[,-1]) #matrix of obseravation
 rownames(y)=silver_wide$ser_nameshort
 
 #Now we make a loop of DFA to find the best model
-model_comparisons= lapply(1:4,function(m){
+model_comparisonsSE= lapply(1:4,function(m){
   dfa.model=list(R="diagonal and equal", m=m)
   kemz=MARSS(y, model=dfa.model, form="dfa",z.score=TRUE,method="BFGS")
   aicc=MARSSaic(kemz, output="AICc")$AICc
@@ -391,7 +392,7 @@ for(i in 1:m) {
 ```{r trends silver, echo=FALSE}
 trends_long <- as.data.frame(t(trends))
 names(trends_long)=paste("Trend",1:ncol(trends_long))
-trends_long$year=as.numeric(colnames(y))
+trends_long$year=as.numeric(names(silver_wide)[-1])
 trends_long<-trends_long %>%
   pivot_longer(starts_with("Trend"),names_to="Trend")
 ggplot(trends_long,aes(x=year,y=value))+
