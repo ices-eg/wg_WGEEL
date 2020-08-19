@@ -124,6 +124,7 @@ ui <- dashboardPage(title="ICES Data Integration",
 						tabItem(tabName="import_ts",
 								h2("Datacall time series (glass / yellow / silver) integration"),
 								br(),
+								verbatimTextOutput("passwordtest"),
 								h2("step 0 : Data check")
 								,
 								fluidRow(

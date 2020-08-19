@@ -9,7 +9,7 @@
 ########################
 # the shiny is launched from shiny_data_integration/shiny
 # debug tool
-#setwd("C:\\Users\\cedric.briand\\Documents\\GitHub\\WGEEL\\R\\shiny_data_integration\\shiny_di")
+#setwd("C:\\workspace\\gitwgeel\\R\\shiny_data_integration\\shiny_di")
 source("load_library.R")
 load_package("shiny")
 load_package("shinythemes")
@@ -84,8 +84,9 @@ onStop(function() {
 # VERY IMPORTANT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -------------------------------------------------
 ##########################
 # CHANGE THIS LINE AT THE NEXT DATACALL AND WHEN TEST IS FINISHED
-# BEFORE WGEEL sqldf('delete from datawg.t_eelstock_eel where eel_datasource='datacall_2018_test')
+# BEFORE WGEEL sqldf('delete from datawg.t_eelstock_eel where eel_datasource='test')
+# BEFORE WGEEL sqldf('delete from datawg.t_eelstock_eel where eel_datasource='test')
 ########################
-qualify_code<-19 # change this code here and in tr_quality_qal for next wgeel
-the_eel_datasource <- "dc_2019"
-#the_eel_datasource <- "dc_2018"
+qualify_code<-20 # change this code here and in tr_quality_qal for next wgeel
+the_eel_datasource <- "test" # change to dc_2020
+#the_eel_datasource <- "dc_2019"

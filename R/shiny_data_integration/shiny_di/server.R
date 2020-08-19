@@ -120,6 +120,25 @@ shinyServer(function(input, output, session){
 						}
 					}) 
 			###########################
+			# step0_filepath_ts same for time series
+			# this will add a path value to reactive data in step0
+			###########################			
+			step0_filepath_ts <- reactive({
+						
+						inFile <- input$xlfile_ts      
+						if (is.null(inFile)){        return(NULL)
+						} else {
+							data$path_step0_ts <- inFile$datapath #path to a temp file
+							if (grepl(c("glass"),tolower(inFile$name))) 
+								updateRadioButtons(session, "file_type", selected = "glass_eel")
+							if (grepl(c("yellow"),tolower(inFile$name)))
+								updateRadioButtons(session, "file_type", selected = "yellow_eel")
+							if (grepl(c("silver"),tolower(inFile$name)))
+								updateRadioButtons(session, "file_type", selected = "silver_eel")						
+						}
+					}) 			
+			
+			###########################
 			# step0load_data reactive function 
 			# This will run as a reactive function only if triggered by 
 			# a button click (check) and will return res, a list with
@@ -153,16 +172,48 @@ shinyServer(function(input, output, session){
 											datasource = the_eel_datasource ))}
 				)
 				#we forced the conversion into numeric to avoid problem with boolean column
-				#if an error is thrown, it has been catched in the capture.output function
+				#if an error is thrown, it has been caught in the capture.output function
 				res$data$eel_value=as.numeric(res$data$eel_value)
 				return(list(res=res,message=message))
 			}
 			
+
+			###########################
+			# step0load_data_ts (same for time series)
+			###########################
+			step0load_data_ts<-function(){
+				validate(need(data$connectOK,"No connection"))
+				path<- step0_filepath_ts()   
+				if (is.null(data$path_step0_ts)) return(NULL)
+				switch (input$file_type, 
+						"glass_eel"={                  
+							message<-capture.output(res<-load_glass_eel(data$path_step0_ts, 
+											datasource = the_eel_datasource
+									))},
+						"yellow_eel"={
+							message<-capture.output(res<-load_yellow_eel(data$path_step0_ts, 
+											datasource = the_eel_datasource ))},
+						"silver_eel"={
+							message<-capture.output(res<-load_silver_eel(data$path_step0_ts, 
+											datasource = the_eel_datasource ))}
+# -------------------------------------------------------------				
+# see  #130			https://github.com/ices-eg/wg_WGEEL/issues/130			
+#						"biometry"={
+#							message<-capture.output(res<-load_biometry(data$path_step0, 
+#											datasource = the_eel_datasource ))},
+#						}
+#---------------------------------------------------------------	
+				)
+				#we forced the conversion into numeric to avoid problem with boolean column
+				#if an error is thrown, it has been caught in the capture.output function
+				res$data$eel_value <- as.numeric(res$data$eel_value)
+				return(list(res=res,message=message))
+			}
 			
 			##################################################
 			# Events triggerred by step0_button
 			###################################################
-			observeEvent(input$check_file_button, {
+			observeEvent(input$check_file_button_ts, {
 						
 						#cat(data$path_step0)
 						##################################################
