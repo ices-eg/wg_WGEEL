@@ -30,6 +30,7 @@ load_library("ggplot2")
 load_library("ggmap")
 load_library("tidyverse")
 load_library("rnaturalearth")
+load_library("parallel")
 con_wgeel=dbConnect(PostgreSQL(),
                     dbname="wgeel",
                     host="localhost",
@@ -87,16 +88,11 @@ mydata$ser_emu_nameshort=as.factor(mydata$ser_emu_nameshort)
 mydata$lfs_name=as.factor(mydata$lfs_name)
 mydata$ser_hty_code=as.factor(mydata$ser_hty_code)
 
-#we keep only data with at least 10 years
-nbpoints = mydata %>%
-  group_by(ser_id) %>%
-  summarise(nbyear=n_distinct(das_year))%>%
-  filter(nbyear>=10)
 
 silver_data <- mydata %>%
-  filter(ser_id %in% nbpoints$ser_id & lfs_code=="S")
+  filter(lfs_code=="S")
 yellow_data <- mydata %>%
-  filter(ser_id %in% nbpoints$ser_id & lfs_code=="Y")
+  filter(lfs_code=="Y")
 yellow_map=st_read(con_wgeel,query=paste("select ser_id,geom from datawg.t_series_ser where ser_id in (", paste(unique(yellow_data$ser_id),collapse=","),")",sep=""))
 silver_map=st_read(con_wgeel,query=paste("select ser_id,geom from datawg.t_series_ser where ser_id in (", paste(unique(silver_data$ser_id),collapse=","),")",sep=""))
 
@@ -122,7 +118,7 @@ ggplot(yellow_map)+geom_sf(data=europe_cropped)+geom_sf(data=yellow_map,col="red
   theme_bw()
 ```
 
-They are very few available data series before the 80s so we will restrict the analysis to the period from 1980 to now.
+There are few data series started before 2000 so we sill restrict the analysis to the dataseries that have at least 10 observations after 2000. 
 
 ```{r pointperyearYE,echo=FALSE}
 point_per_year_YE<- yellow_data %>%
@@ -133,18 +129,28 @@ ggplot(point_per_year_YE,aes(y=n,x=das_year))+
   geom_line()+
   xlab("")+ylab("number of available data")+
   theme_bw()
+
+#we keep only data with at least 10 years
+nbpoints = yellow_data %>%
+  filter(das_year>=2000)%>%
+  group_by(ser_id) %>%
+  summarise(nbyear=n_distinct(das_year))%>%
+  filter(nbyear>=10)
+yellow_data <-yellow_data %>%
+  filter(ser_id %in% nbpoints$ser_id & das_year>=2000)
 ```
+This leaves `r length(unique(yellow_data$ser_id))` time series.
 
 ```{r plotTS YE,echo=FALSE,warning=FALSE}
 yellow_data_std=yellow_data%>%
-  filter(das_year>=1980) %>%
+  mutate(das_value=log(das_value))%>%
   group_by(ser_id)%>%
   mutate(das_value=(das_value-mean(das_value,na.rm=TRUE))/sd(das_value,na.rm=TRUE))
 
 ggplot(yellow_data_std,aes(x=das_year,y=das_value))+
   geom_line(aes(col=as.factor(ser_nameshort)))+
   geom_smooth(method="gam")+theme_bw()+xlab("year")+
-  ylab("Standardised abundance index")
+  ylab("Standardised abundance index (log scale)")
 ```
 
 
@@ -165,14 +171,23 @@ $$
 with $f_{i,t} the noise on the trend $i$ at time $t$ which follows a normal law, possibly correlated between trends with the covariance covariance matrix $Q$ which can be set to the identity matrix (Zuur et al. 2003).
 The method thus allows both to extract the common trends through the estimates of $X$, but also to see to what extent each of the importance of each trend in each series through $w$.
 
-To fit the DFA, the user as to put some additionnal constraints. Here we assumed that time series are independent with similar values of noise (i.e. $\Sigma$ is a diagonal matrix with equal elements in the diagonal). We chose the numbers of trends by comparing resulting AIC criterion with models assuming from 1 to 4 common trends. 
+To fit the DFA, the user as to put some additionnal constraints. We will make 3 kind of assumptions on $\Sigma$:
+* $\Sigma$ is a diagonal matrix with equal elements in the diagonal (e.g. time series are independent with similar values of noise)
+* $\Sigma$ is a diagonal matrix with unequal elements in the diagonal (e.g. time series are independent with different values of noise)
+* $\Sigma$ is a unconstrained (e.g. time series are potentially not independent with different values of noise) (this solution was not tested for Yellow eel since the number of time series was too large compared to the number of observations)
+1 to 4 common trends are tested. The best combination of $\Sigma$ and number of trends is chosen by comparing AICc criterion. 
 
 
 ## Common trends
+Before running the DFA, values were logtransformed (a 0 value was recorded for a single observation (time series SkaY) and was replaced by 10% of its lower value) and scales ((mean deleted and divided by the standard deviation)).
+
 ```{r dfa yellow, results='hide',eval=FALSE}
+#replace 0 value
+yellow_data$das_value[yellow_data$das_value==0 & yellow_data$ser_nameshort=="SkaY"] <- 0.1 * min(yellow_data$das_value[yellow_data$das_value>0 & yellow_data$ser_nameshort=="SkaY"],na.rm=TRUE)
+
 #put data in wide format and select from 1980
 yellow_wide <-yellow_data %>%
-  filter(das_year >= 1980) %>%
+  mutate(das_value=log(das_value))%>%
   select(ser_nameshort,das_value,das_year) %>%
   arrange(das_year)%>%
   pivot_wider(id_cols=c(ser_nameshort,das_year),names_from=das_year,values_from=das_value)
@@ -188,17 +203,24 @@ TT=ncol(yellow_wide)-1 #number of time steps
 y=as.matrix(yellow_wide[,-1]) #matrix of obseravation
 rownames(y)=yellow_wide$ser_nameshort
 
+#Design of experiments
+#S=c("diagonal and equal","diagonal and unequal","unconstrained")
+S=c("diagonal and equal","diagonal and unequal")
+nbtrend=1:4
+expe=expand.grid(S=S,nbtrend=nbtrend)
+
 #Now we make a loop of DFA to find the best model
-model_comparisonsYE= lapply(1:4,function(m){
-  dfa.model=list(R="diagonal and equal", m=m)
-  kemz=MARSS(y, model=dfa.model, form="dfa",z.score=TRUE,method="BFGS")
+model_comparisonsYE= mcmapply(function(s,m){
+  dfa.model=list(R=s, m=m)
+  kemz=MARSS(y, model=dfa.model, form="dfa",z.score=TRUE,control=list(maxit=2000))
   aicc=MARSSaic(kemz, output="AICc")$AICc
   aic=MARSSaic(kemz, output="AIC")$AIC
-  list(Trends=m,AICc=aicc,AIC=aic,dfa=kemz)
-})
+  list(Trends=m,AICc=aicc,AIC=aic,Sigma=s,dfa=kemz)
+},as.character(expe$S),expe$nbtrend, mc.cores=4,SIMPLIFY=FALSE)
 
-results_yellow=do.call(rbind.data.frame,lapply(model_comparisonsYE,function(x) {
+  results_yellow=do.call(rbind.data.frame,lapply(model_comparisonsYE,function(x) {
   data.frame(Trends=x["Trends"],
+             Sigma=x["Sigma"],
              AIC=x["AIC"],
              AICc=x["AICc"])})
 )
@@ -215,6 +237,11 @@ best_fit_yellow=model_comparisonsYE[[which(results_yellow$AIC==min(results_yello
 The factor loadings are displayed in the following plots (importance of each trend in each time series)
 
 ```{r series loadings yellow, echo=FALSE}
+N_ts=nrow(yellow_wide) #number of time series
+TT=ncol(yellow_wide)-1 #number of time steps
+y=as.matrix(yellow_wide[,-1]) #matrix of obseravation
+rownames(y)=yellow_wide$ser_nameshort
+
 formatted_matrices_yellow=format_dfa(best_fit_yellow)
 
 namesseries=yellow_wide$ser_nameshort
@@ -222,7 +249,7 @@ namesseries=yellow_wide$ser_nameshort
 trends=formatted_matrices_yellow$trends
 Z=formatted_matrices_yellow$Z
 #plot the factor loadings
-minZ = 0.1
+minZ = 0.2
 m=dim(trends)[1]
 ylims = c(-1.1*max(abs(Z)), 1.1*max(abs(Z)))
 par(mfrow=c(ceiling(m/2),2), mar=c(0.5,2.5,1.5,0.5), oma=c(0.4,1,1,1))
@@ -261,7 +288,7 @@ ggplot(trends_long,aes(x=year,y=value))+
 
 
 
-```{r fits yellow, echo=FALSE}
+```{r fits yellow, echo=FALSE,warning=FALSE}
 d <- broom::augment(best_fit_yellow,interval="confidence")
 ggplot(data = d) +
   geom_line(aes(t, .fitted)) +
@@ -283,7 +310,7 @@ g=ggplot(silver_map)+geom_sf(data=europe_cropped)+geom_sf(data=silver_map,col="r
 print(g)
 ```
 
-They are very few available data series before the 80s so we will restrict the analysis to the period from 1980 to now.
+There are few data series started before 2000 so we sill restrict the analysis to the dataseries that have at least 10 observations after 2000. 
 
 ```{r pointperyearSE,echo=FALSE}
 point_per_year_SE<- silver_data %>%
@@ -294,32 +321,46 @@ ggplot(point_per_year_SE,aes(y=n,x=das_year))+
   geom_line()+
   xlab("")+ylab("number of available data")+
   theme_bw()
+
+#we keep only data with at least 10 years
+nbpoints = silver_data %>%
+  filter(das_year>=2000)%>%
+  group_by(ser_id) %>%
+  summarise(nbyear=n_distinct(das_year))%>%
+  filter(nbyear>=10)
+silver_data <-silver_data %>%
+  filter(ser_id %in% nbpoints$ser_id & das_year>=2000)
 ```
 
+This leaves `r length(unique(silver_data$ser_id))` time series.
 
 
-```{r plotTS SE,echo=FALSE}
+```{r plotTS SE,echo=FALSE,warnings=FALSE}
 silver_data_std=silver_data%>%
-  filter(das_year>=1980) %>%
+  mutate(das_value=log(das_value))%>%
   group_by(ser_id)%>%
   mutate(das_value=(das_value-mean(das_value,na.rm=TRUE))/sd(das_value,na.rm=TRUE))
 
 ggplot(silver_data_std,aes(x=das_year,y=das_value))+
   geom_line(aes(col=as.factor(ser_nameshort)))+
   geom_smooth(method="gam")+theme_bw()+xlab("year")+
-  ylab("Standardised abundance index")
+  ylab("Standardised abundance index (log scale)")
 ```
 ## Running the DFA
 We applied the same method as for yellow eel so readers can refer to the corresponding section for further details.
 
-
-
-
 ## Common trends
+Before running the DFA, values were logtransformed (a 0 value was recorded for a single observation (time series SkaY) and was replaced by 10% of its lower value) and scales ((mean deleted and divided by the standard deviation)).
+
 ```{r dfa silver, results='hide',eval=FALSE}
+N_ts=nrow(silver_wide) #number of time series
+TT=ncol(silver_wide)-1 #number of time steps
+y=as.matrix(silver_wide[,-1]) #matrix of obseravation
+rownames(y)=silver_wide$ser_nameshort
+
 #put data in wide format and select from 1980
 silver_wide <-silver_data %>%
-  filter(das_year >= 1980) %>%
+  mutate(das_value=log(das_value))%>%
   select(ser_nameshort,das_value,das_year) %>%
   arrange(das_year)%>%
   pivot_wider(id_cols=c(ser_nameshort,das_year),names_from=das_year,values_from=das_value)
@@ -335,30 +376,37 @@ TT=ncol(silver_wide)-1 #number of time steps
 y=as.matrix(silver_wide[,-1]) #matrix of obseravation
 rownames(y)=silver_wide$ser_nameshort
 
+#Design of experiments
+S=c("diagonal and equal","diagonal and unequal","unconstrained")
+#S=c("diagonal and equal","diagonal and unequal")
+nbtrend=1:4
+expe=expand.grid(S=S,nbtrend=nbtrend)
+
 #Now we make a loop of DFA to find the best model
-model_comparisonsSE= lapply(1:4,function(m){
-  dfa.model=list(R="diagonal and equal", m=m)
-  kemz=MARSS(y, model=dfa.model, form="dfa",z.score=TRUE,method="BFGS")
+model_comparisonsSE= mcmapply(function(s,m){
+  dfa.model=list(R=s, m=m)
+  kemz=MARSS(y, model=dfa.model, form="dfa",z.score=TRUE,control=list(maxit=2000))
+  if (kemz$convergence>0) kemz=MARSS(y, model=dfa.model, form="dfa",z.score=TRUE,control=list(maxit=2000),method="BFGS")
   aicc=MARSSaic(kemz, output="AICc")$AICc
   aic=MARSSaic(kemz, output="AIC")$AIC
-  list(Trends=m,AICc=aicc,AIC=aic,dfa=kemz)
-})
+  list(Trends=m,AICc=aicc,AIC=aic,Sigma=s,dfa=kemz,convergence=kemz$convergence==0)
+},as.character(expe$S),expe$nbtrend, mc.cores=4,SIMPLIFY=FALSE)
 
-results_silver=do.call(rbind.data.frame,lapply(model_comparisons,function(x) {
+  results_silver=do.call(rbind.data.frame,lapply(model_comparisonsSE,function(x) {
   data.frame(Trends=x["Trends"],
+             Sigma=x["Sigma"],
              AIC=x["AIC"],
-             AICc=x["AICc"])})
+             AICc=x["AICc"],
+             convergence=x["convergence"])})
 )
-save.image("./dfa.rdata")
+save.image(file="./dfa.rdata")
 ```
 
 ```{r comparisonSE,echo=FALSE}
 load("./dfa.rdata")
 kable(results_silver,digits=2)
-best_fit_silver=model_comparisons[[which(results_silver$AIC==min(results_silver$AIC))]]$dfa
+best_fit_silver=model_comparisonsSE[[which(results_silver$AIC==min(results_silver$AIC))]]$dfa
 ```
-
-
 
 
 The factor loadings are displayed in the following plots (importance of each trend in each time series)
@@ -386,6 +434,12 @@ for(i in 1:m) {
   mtext(bquote(~italic(z[list(i,.(i))])),side=3,line=.5)
 } # end i loop
 
+##kept if two trends
+# loadings_y = as.data.frame(Z[,1:2])
+# names(loadings_y)=c("loading_trend_1","loading_trend_2")
+# ggplot(loadings_y,aes(x=loading_trend_1,y=loading_trend_2))+
+#   geom_point()+
+#   theme_bw()
 ```
 
 
