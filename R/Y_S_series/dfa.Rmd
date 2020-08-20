@@ -249,16 +249,20 @@ namesseries=yellow_wide$ser_nameshort
 trends=formatted_matrices_yellow$trends
 Z=formatted_matrices_yellow$Z
 #plot the factor loadings
-minZ = 0.2
+minZ = 0.15
 m=dim(trends)[1]
 ylims = c(-1.1*max(abs(Z)), 1.1*max(abs(Z)))
 par(mfrow=c(ceiling(m/2),2), mar=c(0.5,2.5,1.5,0.5), oma=c(0.4,1,1,1))
 for(i in 1:m) {
-  plot(c(1:N_ts)[abs(Z[,i])>minZ], as.vector(Z[abs(Z[,i])>minZ,i]),
+    #plot(c(1:N_ts)[abs(Z[,i])>minZ], as.vector(Z[abs(Z[,i])>minZ,i]),
+  #     type="h", lwd=2, xlab="", ylab="", xaxt="n", ylim=ylims, xlim=c(0,N_ts+1))
+  plot(c(1:N_ts), as.vector(Z[,i]),
        type="h", lwd=2, xlab="", ylab="", xaxt="n", ylim=ylims, xlim=c(0,N_ts+1))
   for(j in 1:N_ts) {
-    if(Z[j,i] > minZ) {text(j, -0.05, namesseries[j], srt=90, adj=1, cex=0.5)}
-    if(Z[j,i] < -minZ) {text(j, 0.05, namesseries[j], srt=90, adj=0, cex=0.5)}
+    # if(Z[j,i] > minZ) {text(j, -0.05, namesseries[j], srt=90, adj=1, cex=0.5)}
+    # if(Z[j,i] < -minZ) {text(j, 0.05, namesseries[j], srt=90, adj=0, cex=0.5)}
+    if(Z[j,i] > 0) {text(j, -0.05, namesseries[j], srt=90, adj=1, cex=0.5,col=ifelse(Z[j,i]>minZ,2,1))}
+    if(Z[j,i] < 0) {text(j, 0.05, namesseries[j], srt=90, adj=0, cex=0.5,col=ifelse(Z[j,i]< -minZ,2,1))}
     abline(h=0, lwd=1, col="gray")
   } # end j loop
   mtext(bquote(~italic(z[list(i,.(i))])),side=3,line=.5)
@@ -412,6 +416,11 @@ best_fit_silver=model_comparisonsSE[[which(results_silver$AIC==min(results_silve
 The factor loadings are displayed in the following plots (importance of each trend in each time series)
 
 ```{r series loadings silver, echo=FALSE}
+N_ts=nrow(silver_wide) #number of time series
+TT=ncol(silver_wide)-1 #number of time steps
+y=as.matrix(silver_wide[,-1]) #matrix of obseravation
+rownames(y)=silver_wide$ser_nameshort
+
 formatted_matrices_silver=format_dfa(best_fit_silver)
 
 namesseries=silver_wide$ser_nameshort
@@ -419,16 +428,20 @@ namesseries=silver_wide$ser_nameshort
 trends=formatted_matrices_silver$trends
 Z=formatted_matrices_silver$Z
 #plot the factor loadings
-minZ = 0.0
+minZ = 0.15
 m=dim(trends)[1]
 ylims = c(-1.1*max(abs(Z)), 1.1*max(abs(Z)))
 par(mfrow=c(ceiling(m/2),2), mar=c(0.5,2.5,1.5,0.5), oma=c(0.4,1,1,1))
 for(i in 1:m) {
-  plot(c(1:N_ts)[abs(Z[,i])>minZ], as.vector(Z[abs(Z[,i])>minZ,i]),
+    #plot(c(1:N_ts)[abs(Z[,i])>minZ], as.vector(Z[abs(Z[,i])>minZ,i]),
+  #     type="h", lwd=2, xlab="", ylab="", xaxt="n", ylim=ylims, xlim=c(0,N_ts+1))
+  plot(c(1:N_ts), as.vector(Z[,i]),
        type="h", lwd=2, xlab="", ylab="", xaxt="n", ylim=ylims, xlim=c(0,N_ts+1))
   for(j in 1:N_ts) {
-    if(Z[j,i] > minZ) {text(j, -0.05, namesseries[j], srt=90, adj=1, cex=0.5)}
-    if(Z[j,i] < -minZ) {text(j, 0.05, namesseries[j], srt=90, adj=0, cex=0.5)}
+    # if(Z[j,i] > minZ) {text(j, -0.05, namesseries[j], srt=90, adj=1, cex=0.5)}
+    # if(Z[j,i] < -minZ) {text(j, 0.05, namesseries[j], srt=90, adj=0, cex=0.5)}
+    if(Z[j,i] > 0) {text(j, -0.05, namesseries[j], srt=90, adj=1, cex=0.5,col=ifelse(Z[j,i]>minZ,2,1))}
+    if(Z[j,i] < 0) {text(j, 0.05, namesseries[j], srt=90, adj=0, cex=0.5,col=ifelse(Z[j,i]< -minZ,2,1))}
     abline(h=0, lwd=1, col="gray")
   } # end j loop
   mtext(bquote(~italic(z[list(i,.(i))])),side=3,line=.5)
