@@ -52,7 +52,7 @@ check_values <- function(dataset,column,country,values){
                     line,
                     value))
         
-        answer  = data.frame(nline = line , error_message = paste0("value in column: ", column, " is wrong, possibly not entered yet"))
+        answer  = data.frame(nline = line , error_message = paste0("value", value," in column: ", column, " is wrong, possibly not entered yet"))
       }
     }
   }
@@ -117,7 +117,7 @@ check_unique <- function(dataset,column,country){
             column,
             line))
     
-    answer  = data.frame(nline = line, error_message = paste("different country name in: ", column, sep = ""))
+    answer  = data.frame(nline = line, error_message = paste("different names in column : ", column, sep = ""))
   return(answer)  
     }
   }
