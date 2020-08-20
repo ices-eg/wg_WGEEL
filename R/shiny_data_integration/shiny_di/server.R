@@ -126,25 +126,7 @@ shinyServer(function(input, output, session){
 								updateRadioButtons(session, "file_type", selected = "mortality_rates")
 						}
 					}) 
-			###########################
-			# step0_filepath_ts same for time series
-			# this will add a path value to reactive data in step0
-			###########################			
-			step0_filepath_ts <- reactive({
-						
-						inFile_ts <- input$xlfile_ts      
-						cat("step0_filepath_ts")
-						if (is.null(inFile_ts)){        return(NULL)
-						} else {
-							data$path_step0_ts <- inFile_ts$datapath #path to a temp file
-							if (grepl(c("glass"),tolower(inFile_ts$name))) 
-								updateRadioButtons(session, "file_type_ts", selected = "glass_eel")
-							if (grepl(c("yellow"),tolower(inFile_ts$name)))
-								updateRadioButtons(session, "file_type_ts", selected = "yellow_eel")
-							if (grepl(c("silver"),tolower(inFile_ts$name)))
-								updateRadioButtons(session, "file_type_ts", selected = "silver_eel")						
-						}
-					}) 			
+
 			
 			###########################
 			# step0load_data reactive function 
@@ -186,50 +168,7 @@ shinyServer(function(input, output, session){
 			}
 			
 			
-			###########################
-			# step0load_data_ts (same for time series)
-			###########################
-			step0load_data_ts<-function(){
-				validate(need(data$connectOK,"No connection"))
-				path<- step0_filepath_ts()   
-				if (is.null(data$path_step0_ts)) return(NULL)
-				
-				#file_type_ts is generated on the ui side
-				#load series returns a list with several sheets
-				#return(invisible(list(series=series,
-				#						station = station,
-				#						new_data=new_data,
-				#						updated_data=updated_data,
-				#						new_biometry=new_biometry,
-				#						updated_biometry=updated_biometry,
-				#						error=data_error,
-				#						the_metadata=the_metadata))) 
-				# it also prints error or comments captured by capture.output
-				
-				switch (input$file_type_ts, 
-						"glass_eel"={                  
-							message<-capture.output(res <- load_series(data$path_step0_ts, 
-											datasource = the_eel_datasource,
-											stage="glass_eel"
-									))},
-						"yellow_eel"={
-							message<-capture.output(res <- load_series(data$path_step0_ts, 
-											datasource = the_eel_datasource,
-											stage="yellow_eel"))},
-						"silver_eel"={
-							message<-capture.output(res <- load_series(data$path_step0_ts, 
-											datasource = the_eel_datasource,
-											stage="silver_eel"))}
-# -------------------------------------------------------------				
-# see  #130			https://github.com/ices-eg/wg_WGEEL/issues/130			
-#						"biometry"={
-#							message<-capture.output(res<-load_biometry(data$path_step0, 
-#											datasource = the_eel_datasource ))},
-#						}
-#---------------------------------------------------------------	
-				)
-				return(list(res=res,message=message))
-			}
+	
 			
 			##################################################
 			# Events triggerred by step0_button
@@ -262,37 +201,7 @@ shinyServer(function(input, output, session){
 									}
 									
 								}) 			
-						##################################################
-						# Events triggerred by step0_button (time series page)
-						###################################################
-						observeEvent(input$ts_check_file_button, {
-									
-									cat(data$path_step0_ts)
-									##################################################
-									# integrate verbatimtextoutput
-									# this will print the error messages to the console
-									#################################################
-									output$integrate_ts<-renderText({
-												validate(need(data$connectOK,"No connection"))
-												# call to  function that loads data
-												# this function does not need to be reactive
-												if (is.null(data$path_step0_ts)) "please select a dataset" else {          
-													rls <- step0load_data_ts() # result list
-													# this will fill the log_datacall file (database_tools.R)
-													stopifnot(length(unique(rls$res$series$ser_cou_code))==1)
-													cou_code <- rls$res$series$ser_cou_code[1]
-													# the following three lines might look silly but passing input$something to the log_datacall function results
-													# in an error (input not found), I guess input$something has to be evaluated within the frame of the shiny app
-													main_assessor <- input$main_assessor
-													secondary_assessor <- input$secondary_assessor
-													file_type <- input$file_type
-													# this will fill the log_datacall file (database_tools.R)
-													log_datacall( "check data time series",cou_code = cou_code, message = paste(rls$message,collapse="\n"), the_metadata = rls$res$the_metadata, file_type = file_type, main_assessor = main_assessor, secondary_assessor = secondary_assessor )
-													paste(rls$message, collapse="\n")						
-												}
-												
-											}) 
-									
+			
 									##################################
 									# Actively generates UI component on the ui side 
 									# which displays text for xls download
@@ -302,19 +211,6 @@ shinyServer(function(input, output, session){
 											HTML(
 													paste(
 															h4("File checking messages (xls)"),
-															"<p align='left'>Please click on excel",'<br/>',
-															"to download this file and correct the errors",'<br/>',
-															"and submit again in <strong>step0</strong> the file once it's corrected<p>"
-													)))  
-									
-									##################################
-									# SAME FOR TS 
-									##################################
-									
-									output$"step0_message_xls_ts"<-renderUI(
-											HTML(
-													paste(
-															h4("Time series file checking messages (xls)"),
 															"<p align='left'>Please click on excel",'<br/>',
 															"to download this file and correct the errors",'<br/>',
 															"and submit again in <strong>step0</strong> the file once it's corrected<p>"
@@ -333,17 +229,7 @@ shinyServer(function(input, output, session){
 															"checked all possible errors. This output is the same as the table",
 															" output<p>"
 													)))
-									
-									output$"step0_message_txt_ts"<-renderUI(
-											HTML(
-													paste(
-															h4("Time series file checking messages (txt)"),
-															"<p align='left'>Please read carefully and ensure that you have",
-															"checked all possible errors. This output is the same as the table",
-															" output<p>"
-													)))
-									
-									
+
 									#####################
 									# DataTable integration error
 									########################
@@ -375,37 +261,7 @@ shinyServer(function(input, output, session){
 											})
 								})
 								
-								#####################
-								# DataTable integration error (TIME SERIES)
-								########################
 								
-								output$dt_integrate_ts <- DT::renderDataTable({                 
-											validate(need(input$xlfile_ts != "", "Please select a data set"))           
-											ls <- step0load_data_ts()   
-											stopifnot(length(unique(ls$res$series$ser_cou_code))==1)
-											cou_code <- ls$res$series$ser_cou_code[1]
-											datatable(ls$res$error,
-													rownames=FALSE,
-													filter = 'top',
-#                      !!removed caption otherwise included in the file content                      
-#                      caption = htmltools::tags$caption(
-#                          style = 'caption-side: bottom; text-align: center;',
-#                          'Table 1: ', htmltools::em('Please check the following values, click on excel button to download.')
-#                      ),
-													extensions = "Buttons",
-													option=list(
-															"pagelength"=5,
-															searching = FALSE, # no filtering options
-															lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
-															order=list(1,"asc"),
-															dom= "Blfrtip", 
-															buttons=list(
-																	list(extend="excel",
-																			filename = paste0("datats_",cou_code, Sys.Date()))) 
-													)            
-											)
-										})
-								})
 						##################################################
 						# Events triggerred by step1_button
 						###################################################      
@@ -691,8 +547,167 @@ shinyServer(function(input, output, session){
 												}                  
 											})  
 								})
+			#######################################
+			# II. Time series data
+			#######################################		
+			
+			###########################
+			# step0_filepath_ts same for time series
+			# this will add a path value to reactive data in step0
+			###########################			
+			step0_filepath_ts <- reactive({
+			  
+			  inFile_ts <- input$xlfile_ts      
+			  cat("step0_filepath_ts")
+			  if (is.null(inFile_ts)){        return(NULL)
+			  } else {
+			    data$path_step0_ts <- inFile_ts$datapath #path to a temp file
+			    if (grepl(c("glass"),tolower(inFile_ts$name))) 
+			      updateRadioButtons(session, "file_type_ts", selected = "glass_eel")
+			    if (grepl(c("yellow"),tolower(inFile_ts$name)))
+			      updateRadioButtons(session, "file_type_ts", selected = "yellow_eel")
+			    if (grepl(c("silver"),tolower(inFile_ts$name)))
+			      updateRadioButtons(session, "file_type_ts", selected = "silver_eel")						
+			  }
+			}) 			
+			###########################
+			# step0load_data_ts (same for time series)
+			###########################
+			step0load_data_ts<-function(){
+			  validate(need(data$connectOK,"No connection"))
+			  path<- step0_filepath_ts()   
+			  if (is.null(data$path_step0_ts)) return(NULL)
+			  
+			  #file_type_ts is generated on the ui side
+			  #load series returns a list with several sheets
+			  #return(invisible(list(series=series,
+			  #						station = station,
+			  #						new_data=new_data,
+			  #						updated_data=updated_data,
+			  #						new_biometry=new_biometry,
+			  #						updated_biometry=updated_biometry,
+			  #						error=data_error,
+			  #						the_metadata=the_metadata))) 
+			  # it also prints error or comments captured by capture.output
+			  
+			  switch (input$file_type_ts, 
+			          "glass_eel"={                  
+			            message<-capture.output(res <- load_series(data$path_step0_ts, 
+			                                                       datasource = the_eel_datasource,
+			                                                       stage="glass_eel"
+			            ))},
+			          "yellow_eel"={
+			            message<-capture.output(res <- load_series(data$path_step0_ts, 
+			                                                       datasource = the_eel_datasource,
+			                                                       stage="yellow_eel"))},
+			          "silver_eel"={
+			            message<-capture.output(res <- load_series(data$path_step0_ts, 
+			                                                       datasource = the_eel_datasource,
+			                                                       stage="silver_eel"))}
+			          # -------------------------------------------------------------				
+			          # see  #130			https://github.com/ices-eg/wg_WGEEL/issues/130			
+			          #						"biometry"={
+			          #							message<-capture.output(res<-load_biometry(data$path_step0, 
+			          #											datasource = the_eel_datasource ))},
+			          #						}
+			          #---------------------------------------------------------------	
+			  )
+			  return(list(res=res,message=message))
+			}			
+			
+			##################################################
+			# Events triggerred by step0_button (time series page)
+			###################################################
+			observeEvent(input$ts_check_file_button, {
+			  
+			  ##################################################
+			  # integrate verbatimtextoutput
+			  # this will print the error messages to the console
+			  #################################################
+			  output$integrate_ts<-renderText({
+			    validate(need(data$connectOK,"No connection"))
+			    # call to  function that loads data
+			    # this function does not need to be reactive
+			    if (is.null(data$path_step0_ts)) "please select a dataset" else {          
+			      rls <- step0load_data_ts() # result list
+			      # this will fill the log_datacall file (database_tools.R)
+			      stopifnot(length(unique(rls$res$series$ser_cou_code))==1)
+			      cou_code <- rls$res$series$ser_cou_code[1]
+			      # the following three lines might look silly but passing input$something to the log_datacall function results
+			      # in an error (input not found), I guess input$something has to be evaluated within the frame of the shiny app
+			      main_assessor <- input$main_assessor
+			      secondary_assessor <- input$secondary_assessor
+			      file_type <- input$file_type
+			      # this will fill the log_datacall file (database_tools.R)
+			      log_datacall( "check data time series",cou_code = cou_code, message = paste(rls$message,collapse="\n"), the_metadata = rls$res$the_metadata, file_type = file_type, main_assessor = main_assessor, secondary_assessor = secondary_assessor )
+			      paste(rls$message, collapse="\n")						
+			    }
+			    
+			  }) 
+			  ##################################
+			  # Actively generates UI component on the ui side 
+			  # which displays text for xls download
+			  ##################################
+			  
+			  output$"step0_message_xls_ts"<-renderUI(
+			    HTML(
+			      paste(
+			        h4("Time series file checking messages (xls)"),
+			        "<p align='left'>Please click on excel",'<br/>',
+			        "to download this file and correct the errors",'<br/>',
+			        "and submit again in <strong>step0</strong> the file once it's corrected<p>"
+			      )))  
+			  
+			  ##################################
+			  # Actively generates UI component on the ui side
+			  # which generates text for txt
+			  ################################## 									
+			  
+			  output$"step0_message_txt_ts"<-renderUI(
+			    HTML(
+			      paste(
+			        h4("Time series file checking messages (txt)"),
+			        "<p align='left'>Please read carefully and ensure that you have",
+			        "checked all possible errors. This output is the same as the table",
+			        " output<p>"
+			      )))
+			  
+			  
+			  #####################
+			  # DataTable integration error (TIME SERIES)
+			  ########################
+			  
+			  output$dt_integrate_ts <- DT::renderDataTable({
+			    validate(need(input$xlfile_ts != "", "Please select a data set"))
+			    ls <- step0load_data_ts()
+			    stopifnot(length(unique(ls$res$series$ser_cou_code))==1)
+			    cou_code <- ls$res$series$ser_cou_code[1]
+			    datatable(ls$res$error,
+			              rownames=FALSE,
+			              filter = 'top',
+			              #                      !!removed caption otherwise included in the file content
+			              #                      caption = htmltools::tags$caption(
+			              #                          style = 'caption-side: bottom; text-align: center;',
+			              #                          'Table 1: ', htmltools::em('Please check the following values, click on excel button to download.')
+			              #                      ),
+			              extensions = "Buttons",
+			              option=list(
+			                "pagelength"=5,
+			                searching = FALSE, # no filtering options
+			                lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
+			                order=list(1,"asc"),
+			                dom= "Blfrtip",
+			                buttons=list(
+			                  list(extend="excel",
+			                       filename = paste0("datats_",cou_code, Sys.Date())))
+			              )
+			    )
+			  })
+		})
+			
+			
 						#######################################
-						# II. Data correction table  
+						# III. Data correction table  
 						# This section provides a direct interaction with the database
 						# Currently only developped for modifying data.
 						# Deletion must be done by changing data code or asking Database handler

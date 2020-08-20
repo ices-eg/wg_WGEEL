@@ -42,17 +42,21 @@ check_values <- function(dataset,column,country,values){
   # remove NA from data
   ddataset <- as.data.frame(newdataset[!is.na(newdataset[,column]),])
   if (nrow(ddataset)>0){ 
-    #line<-(1:nrow(dataset))[is.na(dataset[,column])]# there might be NA, this will have been tested elsewhere
-    if (! all(ddataset[,column]%in%values)) { # are all values matching ?
-      value <- str_c(unique(ddataset[,column][!ddataset[,column]%in%values]),collapse=";")
+  
+		if (! all(ddataset[,column]%in%values)) { # are all values matching ?
+      value <- ddataset[,column][!ddataset[,column]%in%values]
       line <- ddataset$nline[!ddataset[,column]%in%values]
       if (length(line)>0){
         cat(sprintf("column <%s>, line <%s>, value <%s> is wrong, possibly not entered yet \n",                   
                     column,
-                    line,
-                    value))
-        
-        answer  = data.frame(nline = line , error_message = paste0("value", value," in column: ", column, " is wrong, possibly not entered yet"))
+										str_c(unique(line),collapse=";"),
+										str_c(value,collapse=";")))
+        # same but split and no end of line
+        answer  = data.frame(nline = line , 
+						error_message = sprintf("column <%s>, line <%s>, value <%s> is wrong, possibly not entered yet",                   
+								column,
+								line,
+								value))
       }
     }
   }
@@ -87,7 +91,9 @@ check_type <- function(dataset,column,country,values,type){
                     line,
                     type))
         
-        answer  = data.frame(nline = line, error_message = paste0("error type in: ", column))
+        answer  = data.frame(nline = line, error_message = sprintf("column <%s>, should be of type %s \n",
+								column,								
+								type))
       }
     }
   }
