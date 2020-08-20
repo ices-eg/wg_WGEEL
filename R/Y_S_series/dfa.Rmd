@@ -237,6 +237,11 @@ best_fit_yellow=model_comparisonsYE[[which(results_yellow$AIC==min(results_yello
 The factor loadings are displayed in the following plots (importance of each trend in each time series)
 
 ```{r series loadings yellow, echo=FALSE}
+N_ts=nrow(yellow_wide) #number of time series
+TT=ncol(yellow_wide)-1 #number of time steps
+y=as.matrix(yellow_wide[,-1]) #matrix of obseravation
+rownames(y)=yellow_wide$ser_nameshort
+
 formatted_matrices_yellow=format_dfa(best_fit_yellow)
 
 namesseries=yellow_wide$ser_nameshort
@@ -348,6 +353,11 @@ We applied the same method as for yellow eel so readers can refer to the corresp
 Before running the DFA, values were logtransformed (a 0 value was recorded for a single observation (time series SkaY) and was replaced by 10% of its lower value) and scales ((mean deleted and divided by the standard deviation)).
 
 ```{r dfa silver, results='hide',eval=FALSE}
+N_ts=nrow(silver_wide) #number of time series
+TT=ncol(silver_wide)-1 #number of time steps
+y=as.matrix(silver_wide[,-1]) #matrix of obseravation
+rownames(y)=silver_wide$ser_nameshort
+
 #put data in wide format and select from 1980
 silver_wide <-silver_data %>%
   mutate(das_value=log(das_value))%>%
