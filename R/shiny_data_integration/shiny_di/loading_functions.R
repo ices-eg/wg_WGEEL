@@ -1976,16 +1976,18 @@ if (nrow(new_biometry)>0) {
 # NOTE 2020 this should be for 2021 datacall, in 2020 no updated_biometry sheet
 
 if ("updated_biometry" %in% excel_sheets(path)) {
+	
 	cat("loading updated_biometry \n")
 	updated_biometry <- read_excel(
-			path=path,
-			sheet ="updated_biometry",
-			skip=0)
+			path = path,
+			sheet = "updated_biometry",
+			skip = 0)
 	} else updated_biometry <- NULL
 #TODO develop checks for updated biometry
 
 
-	return(invisible(list(data_series=data_series,
+	return(invisible(list(
+							series=series,
 							station = station,
 							new_data=new_data,
 							updated_data=updated_data,
@@ -1996,7 +1998,13 @@ if ("updated_biometry" %in% excel_sheets(path)) {
 }
 
 
-
+# -------------------------------------------------------------				
+# see  #130			https://github.com/ices-eg/wg_WGEEL/issues/130			
+#	load_biometry<-function(path,datasource,stage="glass_eel"){
+#		...
+#	}
+#	
+#---------------------------------------------------------------	
 
 
 
