@@ -75,7 +75,8 @@ detect_missing_data <- function(cou="FR",
   missing_comb$eel_lfs_code=as.character(missing_comb$eel_lfs_code)
   missing_comb$eel_emu_nameshort =as.character(missing_comb$eel_emu_nameshort)
   missing_comb$eel_cou_code =as.character(missing_comb$eel_cou_code)
-  missing_comb$eel_typ_name=ifelse(missing_comb$eel_typ_id==4,"com_landings","rec_landings")
+  eel_typ_name=dbGetQuery(con_wgeel,"select typ_id,typ_name as eel_typ_name from ref.tr_typeseries_typ where typ_id in (4,6)")
+  missing_comb <- merge(missing_comb,eel_typ_name)
   missing_comb$eel_value=NA
   
   missing_comb$eel_comment <- mapply(function(y,f,l){
