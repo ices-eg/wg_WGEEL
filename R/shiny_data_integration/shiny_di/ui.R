@@ -133,7 +133,7 @@ ui <- dashboardPage(title="ICES Data Integration",
 																"Yellow eel"="yellow_eel",
 																"Silver eel"="silver_eel"
 														))),
-										column(width=4, actionButton("check_file_button_ts", "Check file") )                     
+										column(width=4, actionButton("ts_check_file_button", "Check file") )                     
 								),
 								
 								fluidRow(

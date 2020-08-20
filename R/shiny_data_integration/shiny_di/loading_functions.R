@@ -40,7 +40,7 @@ load_catch_landings<-function(path,datasource){
 # here we have already seached for catch and landings above.
   data_xls<-read_excel(
       path=path,
-      sheet =3,
+      sheet ="new_data",
       skip=0)
   country=as.character(data_xls[1,6])
   data_xls <- correct_me(data_xls)
@@ -1417,7 +1417,7 @@ load_potential_available_habitat<-function(path,datasource){
 }
 
 ############# time series #############################################
-# path <- C:\\Users\\cedric.briand\\OneDrive - EPTB Vilaine\\Projets\\GRISAM\\2020\\wgeel\\datacall\\FR\\Eel_Data_Call_2020_Annex1_time_series_FR_Recruitment.xlsx"
+# path <- "C:\\Users\\cedric.briand\\OneDrive - EPTB Vilaine\\Projets\\GRISAM\\2020\\wgeel\\datacall\\FR\\Eel_Data_Call_2020_Annex1_time_series_FR_Recruitment.xlsx"
 # path<-file.choose()
 # datasource<-the_eel_datasource
 # load_series(path,datasource,"glass_eel")
@@ -1466,10 +1466,10 @@ load_series<-function(path,datasource,stage="glass_eel"){
 			sheet ="series_info",
 			skip=0)
 
-	country=as.character(series[1,"ser_cou_code"])
+	
 # check for the file integrity
 	if (ncol(series)!=16) cat(str_c("number column wrong for t_series_ser, should have been 16 in file from ",country,"\n"))
-	series$ser_dts_datasource <- datasource
+
 # check column names
 	if (!all(colnames(series)%in%
 					c(c("ser_nameshort", "ser_namelong", "ser_typ_id", "ser_effort_uni_code", "ser_comment", 
@@ -1485,9 +1485,10 @@ load_series<-function(path,datasource,stage="glass_eel"){
 														"ser_x", "ser_y", "ser_sam_id", "ser_dts_datasource" )],collapse= "&"),
 						"file =",
 						file,"\n")) 
-	
+	   country <- "unknown"
 	if (nrow(series)>0) {
-		
+		country=as.character(series[1,"ser_cou_code"])
+		series$ser_dts_datasource <- datasource
 		###### ser_nameshort ##############
 		
 # should not have any missing value
@@ -1749,7 +1750,7 @@ new_data <- read_excel(
 		sheet ="new_data",
 		skip=0)
 if (ncol(new_data)!=5) cat(str_c("number column wrong for newdata, should have been 5 in file from ",country,"\n"))
-new_data$das_dts_datasource <- datasource
+
 # check column names
 if (!all(colnames(new_data)%in%
 				c(c(c("ser_nameshort", "das_year", "das_value", "das_comment", "das_effort", "das_dts_datasource" )
@@ -1762,7 +1763,7 @@ if (!all(colnames(new_data)%in%
 					file,"\n")) 
 
 if (nrow(new_data)>0) {
-	
+	new_data$das_dts_datasource <- datasource
 	###### ser_nameshort ##############
 	
 # should not have any missing value
@@ -1828,10 +1829,11 @@ updated_data <- read_excel(
 		sheet ="updated_data",
 		skip=0)
 if (ncol(updated_data)!=8) cat(str_c("number column wrong for updated_data, should have been 8 in file from ",country,"\n"))
-updated_data$das_dts_datasource <- datasource
+
 
 if (nrow(updated_data)>0) {
 	
+	updated_data$das_dts_datasource <- datasource	
 		
 	###### ser_nameshort ##############
 	
@@ -1925,10 +1927,10 @@ new_biometry <- read_excel(
 		sheet ="new_biometry",
 		skip=0)
 if (ncol(new_biometry)!=17) cat(str_c("number column wrong for new_biometry, should have been 17 in file from ",country,"\n"))
-new_biometry$bio_dts_datasource <- datasource
 
 if (nrow(new_biometry)>0) {
 	
+	new_biometry$bio_dts_datasource <- datasource
 	
 	###### ser_nameshort ##############
 	

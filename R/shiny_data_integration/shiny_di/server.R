@@ -1,4 +1,4 @@
-###############################################
+##############################################
 # Server file for shiny data integration tool
 ##############################################
 
@@ -21,7 +21,8 @@ shinyServer(function(input, output, session){
 						req(input$passwordbutton)
 						load_database()
 						var_database()
-						if (data$connectOK) textoutput <- "Connected" else textoutput <- paste0("password: ",isolate(input$password)," wrong")
+						if (data$connectOK) textoutput <- "Connected" 
+						else textoutput <- paste0("password: ",isolate(input$password)," wrong")
 						return(textoutput)
 						
 					})
@@ -104,7 +105,7 @@ shinyServer(function(input, output, session){
 			# this will add a path value to reactive data in step0
 			###########################
 			step0_filepath <- reactive({
-						
+						cat("debug message : stetp0_filepath")
 						inFile <- input$xlfile      
 						if (is.null(inFile)){        return(NULL)
 						} else {
@@ -131,16 +132,17 @@ shinyServer(function(input, output, session){
 			###########################			
 			step0_filepath_ts <- reactive({
 						
-						inFile <- input$xlfile_ts      
-						if (is.null(inFile)){        return(NULL)
+						inFile_ts <- input$xlfile_ts      
+						cat("step0_filepath_ts")
+						if (is.null(inFile_ts)){        return(NULL)
 						} else {
-							data$path_step0_ts <- inFile$datapath #path to a temp file
-							if (grepl(c("glass"),tolower(inFile$name))) 
-								updateRadioButtons(session, "file_type", selected = "glass_eel")
-							if (grepl(c("yellow"),tolower(inFile$name)))
-								updateRadioButtons(session, "file_type", selected = "yellow_eel")
-							if (grepl(c("silver"),tolower(inFile$name)))
-								updateRadioButtons(session, "file_type", selected = "silver_eel")						
+							data$path_step0_ts <- inFile_ts$datapath #path to a temp file
+							if (grepl(c("glass"),tolower(inFile_ts$name))) 
+								updateRadioButtons(session, "file_type_ts", selected = "glass_eel")
+							if (grepl(c("yellow"),tolower(inFile_ts$name)))
+								updateRadioButtons(session, "file_type_ts", selected = "yellow_eel")
+							if (grepl(c("silver"),tolower(inFile_ts$name)))
+								updateRadioButtons(session, "file_type_ts", selected = "silver_eel")						
 						}
 					}) 			
 			
@@ -150,7 +152,7 @@ shinyServer(function(input, output, session){
 			# a button click (check) and will return res, a list with
 			# both data and errors
 			###########################
-			step0load_data<-function(){
+			step0load_data <- function(){
 				validate(need(data$connectOK,"No connection"))
 				path<- step0_filepath()   
 				if (is.null(data$path_step0)) return(NULL)
@@ -235,7 +237,7 @@ shinyServer(function(input, output, session){
 			
 			observeEvent(input$check_file_button, {
 						
-						#cat(data$path_step0)
+						cat(data$path_step0)
 						##################################################
 						# integrate verbatimtextoutput
 						# this will print the error messages to the console
@@ -263,9 +265,9 @@ shinyServer(function(input, output, session){
 						##################################################
 						# Events triggerred by step0_button (time series page)
 						###################################################
-						observeEvent(input$check_file_button_ts, {
+						observeEvent(input$ts_check_file_button, {
 									
-									#cat(data$path_step0)
+									cat(data$path_step0_ts)
 									##################################################
 									# integrate verbatimtextoutput
 									# this will print the error messages to the console
@@ -274,8 +276,8 @@ shinyServer(function(input, output, session){
 												validate(need(data$connectOK,"No connection"))
 												# call to  function that loads data
 												# this function does not need to be reactive
-												if (is.null(data$path_step0)) "please select a dataset" else {          
-													rls<-step0load_data() # result list
+												if (is.null(data$path_step0_ts)) "please select a dataset" else {          
+													rls <- step0load_data_ts() # result list
 													# this will fill the log_datacall file (database_tools.R)
 													stopifnot(length(unique(rls$res$series$ser_cou_code))==1)
 													cou_code <- rls$res$series$ser_cou_code[1]
