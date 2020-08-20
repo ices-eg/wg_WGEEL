@@ -37,7 +37,8 @@ ui <- dashboardPage(title="ICES Data Integration",
 				
 				),
 				passwordInput("password", "Password:"),
-				actionButton("passwordbutton", "Go")
+				actionButton("passwordbutton", "Go"),
+				verbatimTextOutput("passwordtest")
 		
 		), 
 		
@@ -54,8 +55,6 @@ ui <- dashboardPage(title="ICES Data Integration",
 						
 						tabItem(tabName="import",
 								h2("Datacall Integration and checks"),
-								br(),
-								verbatimTextOutput("passwordtest"),
 								h2("step 0 : Data check"),
 								fluidRow(
 										column(width=4,fileInput("xlfile", "Choose xls File",
@@ -122,11 +121,8 @@ ui <- dashboardPage(title="ICES Data Integration",
 						# time series integration table ---------------------------------------------------------
 						
 						tabItem(tabName="import_ts",
-								h2("Datacall time series (glass / yellow / silver) integration"),
-								br(),
-								verbatimTextOutput("passwordtest"),
-								h2("step 0 : Data check")
-								,
+								h2("Datacall time series (glass / yellow / silver) integration"),								
+								h2("step 0 : Data check"),
 								fluidRow(
 										column(width=4,fileInput("xlfile_ts", "Choose xls File",
 														multiple=FALSE,
@@ -137,7 +133,7 @@ ui <- dashboardPage(title="ICES Data Integration",
 																"Yellow eel"="yellow_eel",
 																"Silver eel"="silver_eel"
 														))),
-										column(width=4, actionButton("check_file_button_ts", "Check file") )                     
+										column(width=4, actionButton("ts_check_file_button", "Check file") )                     
 								),
 								
 								fluidRow(

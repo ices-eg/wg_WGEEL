@@ -47,12 +47,12 @@ check_values <- function(dataset,column,country,values){
       value <- str_c(unique(ddataset[,column][!ddataset[,column]%in%values]),collapse=";")
       line <- ddataset$nline[!ddataset[,column]%in%values]
       if (length(line)>0){
-        cat(sprintf("column <%s>, line <%s>, value <%s> is wrong \n",                   
+        cat(sprintf("column <%s>, line <%s>, value <%s> is wrong, possibly not entered yet \n",                   
                     column,
                     line,
                     value))
         
-        answer  = data.frame(nline = line , error_message = paste0("value in column: ", column, " is wrong"))
+        answer  = data.frame(nline = line , error_message = paste0("value", value," in column: ", column, " is wrong, possibly not entered yet"))
       }
     }
   }
@@ -117,7 +117,7 @@ check_unique <- function(dataset,column,country){
             column,
             line))
     
-    answer  = data.frame(nline = line, error_message = paste("different country name in: ", column, sep = ""))
+    answer  = data.frame(nline = line, error_message = paste("different names in column : ", column, sep = ""))
   return(answer)  
     }
   }
@@ -300,4 +300,45 @@ check_freshwater_without_area <- function(dataset,country){
     
   }
   return(answer)
+}
+
+
+#' check_positive
+#' 
+#' check that the data in ee_value is positive
+#' 
+#' @param dataset the name of the dataset
+#' @param column the name of the column
+#' @param country the current country being evaluated
+#' @param type, a class described as a character e.g. "numeric"
+#' 
+check_between <- function(dataset, column, country, minvalue, maxvalue){
+	answer = NULL
+	newdataset <- dataset
+	newdataset$nline <- 1:nrow(newdataset)
+	#remove NA from data
+	ddataset <- as.data.frame(newdataset[!is.na(newdataset[,column]),])
+	if (nrow(ddataset)>0){
+		line<-which(ddataset[,column]<minvalue)
+		if (length(line)>0){
+			cat(sprintf("Country <%s>,  dataset <%s>, column <%s>, line <%s>,  should be larger than <%s> \n",
+							country,
+							deparse(substitute(dataset)),
+							column,
+							line,
+							minvalue))
+		}
+			line<-which(ddataset[,column]>maxvalue)
+			
+			if (length(line)>0){
+				cat(sprintf("Country <%s>,  dataset <%s>, column <%s>, line <%s>,  should be lower than <%s> \n",
+								country,
+								deparse(substitute(dataset)),
+								column,
+								line,
+								maxvalue))
+			answer  = data.frame(nline = line, error_message = paste("values out of bound: ", column, sep = ""))
+		}
+	}
+	return(answer)  
 }
