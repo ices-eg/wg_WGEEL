@@ -72,6 +72,7 @@ source("database_reference.R") # function extract_ref
 
 source("database_tools.R")
 source("graphs.R")
+options(shiny.maxRequestSize=15*1024^2) #15 MB for excel files
 #pool <- pool::dbPool(drv = dbDriver("PostgreSQL"),
 #		dbname="postgres",
 #		host="localhost",
