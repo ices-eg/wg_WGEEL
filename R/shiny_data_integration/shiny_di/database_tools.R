@@ -75,6 +75,10 @@ compare_with_database <- function(data_from_excel, data_from_base) {
   data_from_excel$eel_area_division <- as.character(data_from_excel$eel_area_division)
   data_from_excel$eel_hty_code <- as.character(data_from_excel$eel_hty_code)
   eel_colnames <- colnames(data_from_base)[grepl("eel", colnames(data_from_base))]
+  
+  #since dc2020, qal_id are automatically created during the import
+  data_from_excel$eel_qal_id <- 1
+  data_from_excel$eel_qal_comment <- rep(NA,nrow(data_from_excel))
   # duplicates are inner_join eel_cou_code added to the join just to avoid
   # duplication
   duplicates <- data_from_base %>% dplyr::filter(eel_typ_id %in% current_typ_id & 
@@ -394,7 +398,7 @@ write_duplicates <- function(path, qualify_code = 19) {
 #' @rdname write_duplicate
 
 write_new <- function(path) {
-  
+
   new <- read_excel(path = path, sheet = 1, skip = 1)
   
   ####when there are no data, new values have incorrect type
@@ -416,8 +420,8 @@ write_new <- function(path) {
   sqldf::sqldf("create table new_temp as select * from new")
   
   # Query uses temp table just created in the database by sqldf
-  query <- "insert into datawg.t_eelstock_eel (         
-      eel_typ_id,       
+    query <- "insert into datawg.t_eelstock_eel (
+      eel_typ_id,
       eel_year,
       eel_value,
       eel_missvaluequal,
@@ -427,9 +431,9 @@ write_new <- function(path) {
       eel_hty_code,
       eel_area_division,
       eel_qal_id,
-      eel_qal_comment,            
+      eel_qal_comment,
       eel_datasource,
-      eel_comment) 
+      eel_comment)
       select * from new_temp"
   # if fails replaces the message with this trycatch !  I've tried many ways with
   # sqldf but trycatch failed to catch the error Hence the use of DBI

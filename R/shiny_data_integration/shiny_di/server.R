@@ -464,6 +464,7 @@ shinyServer(function(input, output, session){
 									if (nrow(data_from_excel)>0){
 									  ###TEMPORARY FIX 2020 due to incorrect typ_name
 									  data_from_excel$eel_typ_name[data_from_excel$eel_typ_name %in% c("rec_landings","com_landings")] <- paste(data_from_excel$eel_typ_name[data_from_excel$eel_typ_name %in% c("rec_landings","com_landings")],"_kg",sep="")
+									      
 										list_comp<-compare_with_database(data_from_excel,data_from_base)
 										duplicates <- list_comp$duplicates
 										new <- list_comp$new 

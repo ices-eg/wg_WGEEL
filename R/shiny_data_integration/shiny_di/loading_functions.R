@@ -195,15 +195,16 @@ load_catch_landings<-function(path,datasource){
 
    
     ###### eel_qal_id ############## 
-    
-    data_error= rbind(data_error, check_missing(dataset=data_xls,
-            column="eel_qal_id",
-            country=country))
-    
-    data_error= rbind(data_error, check_values(dataset=data_xls,
-            column="eel_qal_id",
-            country=country,
-            values=c(0,1,2,3)))
+    #####removed in dc2020
+#
+#        data_error= rbind(data_error, check_missing(dataset=data_xls,
+#              column="eel_qal_id",
+#            country=country))
+#    
+#    data_error= rbind(data_error, check_values(dataset=data_xls,
+#            column="eel_qal_id",
+#            country=country,
+#            values=c(0,1,2,3)))
     
     ###### eel_datasource ############## 
     
