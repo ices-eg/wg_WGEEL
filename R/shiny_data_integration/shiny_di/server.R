@@ -280,10 +280,12 @@ shinyServer(function(input, output, session){
 									) 
 									data_from_excel<- step0load_data()$res$data
 									switch (input$file_type, "catch_landings"={                                     
-												data_from_base<-extract_data("landings", quality=c(1,2,3,4), quality_check=TRUE)                  
+												data_from_base<-extract_data("landings", quality=c(1,2,3,4), quality_check=TRUE)
+												updated_from_excel<- step0load_data()$res$updated_data
 											},
 											"release"={
 												data_from_base<-extract_data("release", quality=c(1,2,3,4), quality_check=TRUE)
+												updated_from_excel<- step0load_data()$res$updated_data
 											},
 											"aquaculture"={             
 												data_from_base<-extract_data("aquaculture", quality=c(1,2,3,4), quality_check=TRUE)},
@@ -356,18 +358,6 @@ shinyServer(function(input, output, session){
 										
 										years=sort(unique(c(duplicates$eel_year,new$eel_year)))
 										
-										summary_check_duplicates=data.frame(years=years,
-												nb_new=sapply(years, function(y) length(which(new$eel_year==y))),
-												nb_updated_duplicates=sapply(years,function(y) length(which(duplicates$eel_year==y & (duplicates$eel_value.base!=duplicates$eel_value.xls)))),
-												nb_no_changes=sapply(years,function(y) length(which(duplicates$eel_year==y & (duplicates$eel_value.base==duplicates$eel_value.xls)))))
-										
-										output$dt_check_duplicates <-DT::renderDataTable({ 
-													validate(need(data$connectOK,"No connection"))
-													datatable(summary_check_duplicates,
-															rownames=FALSE,                                                    
-															options=list(dom="t"
-															))
-												})
 										output$dt_duplicates <-DT::renderDataTable({
 													validate(need(data$connectOK,"No connection"))
 													datatable(duplicates,
@@ -437,7 +427,27 @@ shinyServer(function(input, output, session){
 										}
 										
 										
-									} # closes if nrow(...      
+									} # closes if nrow(...  
+								  if (input$file_type %in% c("catch_landings","release")){
+									  summary_check_duplicates=data.frame(years=years,
+									    nb_new=sapply(years, function(y) length(which(new$eel_year==y))),
+									    nb_duplicates_updated=sapply(years,function(y) length(which(duplicates$eel_year==y & (duplicates$eel_value.base!=duplicates$eel_value.xls)))),
+									    nb_duplicates_no_changes=sapply(years,function(y) length(which(duplicates$eel_year==y & (duplicates$eel_value.base==duplicates$eel_value.xls)))),
+                      nb_updated_values=sapply(years, function(y) length(which(updated_from_excel$eel_year==y))))
+								  } else {
+								    summary_check_duplicates=data.frame(years=years,
+                        nb_new=sapply(years, function(y) length(which(new$eel_year==y))),
+                        nb_duplicates_updated=sapply(years,function(y) length(which(duplicates$eel_year==y & (duplicates$eel_value.base!=duplicates$eel_value.xls)))),
+                        nb_duplicates_no_changes=sapply(years,function(y) length(which(duplicates$eel_year==y & (duplicates$eel_value.base==duplicates$eel_value.xls)))))
+								  }
+									
+									output$dt_check_duplicates <-DT::renderDataTable({ 
+									  validate(need(data$connectOK,"No connection"))
+									  datatable(summary_check_duplicates,
+									            rownames=FALSE,                                                    
+									            options=list(dom="t"
+									            ))
+									})
 									#data$new <- new # new is stored in the reactive dataset to be inserted later.      
 								})
 						
