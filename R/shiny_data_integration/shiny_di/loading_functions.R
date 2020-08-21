@@ -49,7 +49,6 @@ load_catch_landings<-function(path,datasource){
 #    data_xls <- correct_me(data_xls)
   # check for the file integrity
     if (ncol(data_xls)!=11) cat(str_c("number column wrong, should have been 11 in file from ",country,"\n"))
-    data_xls$eel_datasource <- datasource
   # check column names
     
     ###TEMPORARY FIX 2020 due to incorrect typ_name
@@ -68,6 +67,8 @@ load_catch_landings<-function(path,datasource){
               file,"\n")) 
     
     if (nrow(data_xls)>0) {
+      data_xls$eel_datasource <- datasource
+      
       
       ######eel_id for updated_data
       if (sheet=="updated_data"){

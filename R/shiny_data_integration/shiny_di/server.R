@@ -430,9 +430,9 @@ shinyServer(function(input, output, session){
 									} # closes if nrow(...  
 									if (input$file_type %in% c("catch_landings","release")){
 									  if (nrow(updated_from_excel)>0){
-									    updated_values_table <- compare_with_database_updated_values(updated_from_excel,data_from_base) 
+									    data$updated_values_table <- compare_with_database_updated_values(updated_from_excel,data_from_base) 
 									    output$dt_updated_values <- DT::renderDataTable({
-									      updated_values_table
+									      data$updated_values_table
 									    },option=list(
 									      rownames = FALSE,
 									      scroller = TRUE,
@@ -572,6 +572,45 @@ shinyServer(function(input, output, session){
 												}                  
 											})  
 								})
+			
+            		##########################
+            		# STEP 2.3
+            		# Integration of updated_values when proceed is clicked
+            		# 
+            		#############################
+          			observeEvent(input$database_updated_value_button, {
+          			  validate(need(data$updated_values_table,"need data to be updated"))
+          			  
+          			  ###########################
+          			  # step23load_updated_value_data
+          			  #  function, returns a message
+          			  #  indicating that data integration was a succes
+          			  #  or an error message
+          			  ###########################
+          			  step23load_updated_value_data <- function() {
+          			    rls <- write_updated_values(data$updated_values_table,qualify_code=qualify_code)
+          			    message <- rls$message
+          			    cou_code <- rls$cou_code
+          			    main_assessor <- input$main_assessor
+          			    secondary_assessor <- input$secondary_assessor
+          			    file_type <- input$file_type
+          			    log_datacall("updated values data integration", cou_code = cou_code, message = sQuote(message), 
+          			                 the_metadata = NULL, file_type = file_type, main_assessor = main_assessor, 
+          			                 secondary_assessor = secondary_assessor)
+          			    return(message)
+          			  }
+          			  ###########################
+          			  # updated_values_integration
+          			  # this will add a path value to reactive data in step0
+          			  ###########################            
+          			  output$textoutput_step2.3<-renderText({
+          			    validate(need(data$connectOK,"No connection"))
+          			    # call to  function that loads data
+          			    # this function does not need to be reactive
+          			    message<-step23load_updated_value_data()
+          			    paste(message,collapse="\n")
+          			  })  
+          			})
 			#######################################
 			# II. Time series data
 			#######################################		
