@@ -1570,7 +1570,7 @@ load_series<-function(path,datasource,stage="glass_eel"){
 						type="character"))
 		
 # should be a code in the list
-		
+
 		data_error <- rbind(data_error, check_values(dataset=series,
 						column="ser_uni_code",
 						country=country,

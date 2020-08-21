@@ -126,25 +126,7 @@ shinyServer(function(input, output, session){
 								updateRadioButtons(session, "file_type", selected = "mortality_rates")
 						}
 					}) 
-			###########################
-			# step0_filepath_ts same for time series
-			# this will add a path value to reactive data in step0
-			###########################			
-			step0_filepath_ts <- reactive({
-						
-						inFile_ts <- input$xlfile_ts      
-						cat("step0_filepath_ts")
-						if (is.null(inFile_ts)){        return(NULL)
-						} else {
-							data$path_step0_ts <- inFile_ts$datapath #path to a temp file
-							if (grepl(c("glass"),tolower(inFile_ts$name))) 
-								updateRadioButtons(session, "file_type_ts", selected = "glass_eel")
-							if (grepl(c("yellow"),tolower(inFile_ts$name)))
-								updateRadioButtons(session, "file_type_ts", selected = "yellow_eel")
-							if (grepl(c("silver"),tolower(inFile_ts$name)))
-								updateRadioButtons(session, "file_type_ts", selected = "silver_eel")						
-						}
-					}) 			
+
 			
 			###########################
 			# step0load_data reactive function 
@@ -186,50 +168,7 @@ shinyServer(function(input, output, session){
 			}
 			
 			
-			###########################
-			# step0load_data_ts (same for time series)
-			###########################
-			step0load_data_ts<-function(){
-				validate(need(data$connectOK,"No connection"))
-				path<- step0_filepath_ts()   
-				if (is.null(data$path_step0_ts)) return(NULL)
-				
-				#file_type_ts is generated on the ui side
-				#load series returns a list with several sheets
-				#return(invisible(list(series=series,
-				#						station = station,
-				#						new_data=new_data,
-				#						updated_data=updated_data,
-				#						new_biometry=new_biometry,
-				#						updated_biometry=updated_biometry,
-				#						error=data_error,
-				#						the_metadata=the_metadata))) 
-				# it also prints error or comments captured by capture.output
-				
-				switch (input$file_type_ts, 
-						"glass_eel"={                  
-							message<-capture.output(res <- load_series(data$path_step0_ts, 
-											datasource = the_eel_datasource,
-											stage="glass_eel"
-									))},
-						"yellow_eel"={
-							message<-capture.output(res <- load_series(data$path_step0_ts, 
-											datasource = the_eel_datasource,
-											stage="yellow_eel"))},
-						"silver_eel"={
-							message<-capture.output(res <- load_series(data$path_step0_ts, 
-											datasource = the_eel_datasource,
-											stage="silver_eel"))}
-# -------------------------------------------------------------				
-# see  #130			https://github.com/ices-eg/wg_WGEEL/issues/130			
-#						"biometry"={
-#							message<-capture.output(res<-load_biometry(data$path_step0, 
-#											datasource = the_eel_datasource ))},
-#						}
-#---------------------------------------------------------------	
-				)
-				return(list(res=res,message=message))
-			}
+	
 			
 			##################################################
 			# Events triggerred by step0_button
@@ -262,37 +201,7 @@ shinyServer(function(input, output, session){
 									}
 									
 								}) 			
-						##################################################
-						# Events triggerred by step0_button (time series page)
-						###################################################
-						observeEvent(input$ts_check_file_button, {
-									
-									cat(data$path_step0_ts)
-									##################################################
-									# integrate verbatimtextoutput
-									# this will print the error messages to the console
-									#################################################
-									output$integrate_ts<-renderText({
-												validate(need(data$connectOK,"No connection"))
-												# call to  function that loads data
-												# this function does not need to be reactive
-												if (is.null(data$path_step0_ts)) "please select a dataset" else {          
-													rls <- step0load_data_ts() # result list
-													# this will fill the log_datacall file (database_tools.R)
-													stopifnot(length(unique(rls$res$series$ser_cou_code))==1)
-													cou_code <- rls$res$series$ser_cou_code[1]
-													# the following three lines might look silly but passing input$something to the log_datacall function results
-													# in an error (input not found), I guess input$something has to be evaluated within the frame of the shiny app
-													main_assessor <- input$main_assessor
-													secondary_assessor <- input$secondary_assessor
-													file_type <- input$file_type
-													# this will fill the log_datacall file (database_tools.R)
-													log_datacall( "check data time series",cou_code = cou_code, message = paste(rls$message,collapse="\n"), the_metadata = rls$res$the_metadata, file_type = file_type, main_assessor = main_assessor, secondary_assessor = secondary_assessor )
-													paste(rls$message, collapse="\n")						
-												}
-												
-											}) 
-									
+			
 									##################################
 									# Actively generates UI component on the ui side 
 									# which displays text for xls download
@@ -302,19 +211,6 @@ shinyServer(function(input, output, session){
 											HTML(
 													paste(
 															h4("File checking messages (xls)"),
-															"<p align='left'>Please click on excel",'<br/>',
-															"to download this file and correct the errors",'<br/>',
-															"and submit again in <strong>step0</strong> the file once it's corrected<p>"
-													)))  
-									
-									##################################
-									# SAME FOR TS 
-									##################################
-									
-									output$"step0_message_xls_ts"<-renderUI(
-											HTML(
-													paste(
-															h4("Time series file checking messages (xls)"),
 															"<p align='left'>Please click on excel",'<br/>',
 															"to download this file and correct the errors",'<br/>',
 															"and submit again in <strong>step0</strong> the file once it's corrected<p>"
@@ -333,17 +229,7 @@ shinyServer(function(input, output, session){
 															"checked all possible errors. This output is the same as the table",
 															" output<p>"
 													)))
-									
-									output$"step0_message_txt_ts"<-renderUI(
-											HTML(
-													paste(
-															h4("Time series file checking messages (txt)"),
-															"<p align='left'>Please read carefully and ensure that you have",
-															"checked all possible errors. This output is the same as the table",
-															" output<p>"
-													)))
-									
-									
+
 									#####################
 									# DataTable integration error
 									########################
@@ -375,37 +261,7 @@ shinyServer(function(input, output, session){
 											})
 								})
 								
-								#####################
-								# DataTable integration error (TIME SERIES)
-								########################
 								
-								output$dt_integrate_ts <- DT::renderDataTable({                 
-											validate(need(input$xlfile_ts != "", "Please select a data set"))           
-											ls <- step0load_data_ts()   
-											stopifnot(length(unique(ls$res$series$ser_cou_code))==1)
-											cou_code <- ls$res$series$ser_cou_code[1]
-											datatable(ls$res$error,
-													rownames=FALSE,
-													filter = 'top',
-#                      !!removed caption otherwise included in the file content                      
-#                      caption = htmltools::tags$caption(
-#                          style = 'caption-side: bottom; text-align: center;',
-#                          'Table 1: ', htmltools::em('Please check the following values, click on excel button to download.')
-#                      ),
-													extensions = "Buttons",
-													option=list(
-															"pagelength"=5,
-															searching = FALSE, # no filtering options
-															lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
-															order=list(1,"asc"),
-															dom= "Blfrtip", 
-															buttons=list(
-																	list(extend="excel",
-																			filename = paste0("datats_",cou_code, Sys.Date()))) 
-													)            
-											)
-										})
-								})
 						##################################################
 						# Events triggerred by step1_button
 						###################################################      
@@ -694,8 +550,336 @@ shinyServer(function(input, output, session){
 												}                  
 											})  
 								})
+			#######################################
+			# II. Time series data
+			#######################################		
+			
+			###########################
+			# step0_filepath_ts same for time series
+			# this will add a path value to reactive data in step0
+			###########################			
+			step0_filepath_ts <- reactive({
+			  
+			  inFile_ts <- input$xlfile_ts      
+			  if (is.null(inFile_ts)){        return(NULL)
+			  } else {
+			    data$path_step0_ts <- inFile_ts$datapath #path to a temp file
+			    if (grepl(c("glass"),tolower(inFile_ts$name))) 
+			      updateRadioButtons(session, "file_type_ts", selected = "glass_eel")
+			    if (grepl(c("yellow"),tolower(inFile_ts$name)))
+			      updateRadioButtons(session, "file_type_ts", selected = "yellow_eel")
+			    if (grepl(c("silver"),tolower(inFile_ts$name)))
+			      updateRadioButtons(session, "file_type_ts", selected = "silver_eel")						
+			  }
+			}) 			
+			###########################
+			# step0load_data_ts (same for time series)
+			###########################
+			step0load_data_ts<-function(){
+			  validate(need(data$connectOK,"No connection"))
+			  path<- step0_filepath_ts()   
+			  if (is.null(data$path_step0_ts)) return(NULL)
+			  
+			  #file_type_ts is generated on the ui side
+			  #load series returns a list with several sheets
+			  #return(invisible(list(series=series,
+			  #						station = station,
+			  #						new_data=new_data,
+			  #						updated_data=updated_data,
+			  #						new_biometry=new_biometry,
+			  #						updated_biometry=updated_biometry,
+			  #						error=data_error,
+			  #						the_metadata=the_metadata))) 
+			  # it also prints error or comments captured by capture.output
+			  
+			  switch (input$file_type_ts, 
+			          "glass_eel"={                  
+			            message<-capture.output(res <- load_series(data$path_step0_ts, 
+			                                                       datasource = the_eel_datasource,
+			                                                       stage="glass_eel"
+			            ))},
+			          "yellow_eel"={
+			            message<-capture.output(res <- load_series(data$path_step0_ts, 
+			                                                       datasource = the_eel_datasource,
+			                                                       stage="yellow_eel"))},
+			          "silver_eel"={
+			            message<-capture.output(res <- load_series(data$path_step0_ts, 
+			                                                       datasource = the_eel_datasource,
+			                                                       stage="silver_eel"))}
+			          # -------------------------------------------------------------				
+			          # see  #130			https://github.com/ices-eg/wg_WGEEL/issues/130			
+			          #						"biometry"={
+			          #							message<-capture.output(res<-load_biometry(data$path_step0, 
+			          #											datasource = the_eel_datasource ))},
+			          #						}
+			          #---------------------------------------------------------------	
+			  )
+			  return(list(res=res,message=message))
+			}			
+			
+			##################################################
+			# Events triggerred by step0_button (time series page)
+			###################################################
+			observeEvent(input$ts_check_file_button, {
+			  
+			  ##################################################
+			  # integrate verbatimtextoutput
+			  # this will print the error messages to the console
+			  #################################################
+			  output$integrate_ts<-renderText({
+			    validate(need(data$connectOK,"No connection"))
+			    # call to  function that loads data
+			    # this function does not need to be reactive
+			    if (is.null(data$path_step0_ts)) "please select a dataset" else {          
+			      rls <- step0load_data_ts() # result list
+			      # this will fill the log_datacall file (database_tools.R)
+			      stopifnot(length(unique(rls$res$series$ser_cou_code))==1)
+			      cou_code <- rls$res$series$ser_cou_code[1]
+			      # the following three lines might look silly but passing input$something to the log_datacall function results
+			      # in an error (input not found), I guess input$something has to be evaluated within the frame of the shiny app
+			      main_assessor <- input$main_assessor
+			      secondary_assessor <- input$secondary_assessor
+			      file_type <- input$file_type
+			      # this will fill the log_datacall file (database_tools.R)
+			      log_datacall( "check data time series",cou_code = cou_code, message = paste(rls$message,collapse="\n"), the_metadata = rls$res$the_metadata, file_type = file_type, main_assessor = main_assessor, secondary_assessor = secondary_assessor )
+			      paste(rls$message, collapse="\n")						
+			    }
+			    
+			  }) 
+			  ##################################
+			  # Actively generates UI component on the ui side 
+			  # which displays text for xls download
+			  ##################################
+			  
+			  output$"step0_message_xls_ts"<-renderUI(
+			    HTML(
+			      paste(
+			        h4("Time series file checking messages (xls)"),
+			        "<p align='left'>Please click on excel",'<br/>',
+			        "to download this file and correct the errors",'<br/>',
+			        "and submit again in <strong>step0</strong> the file once it's corrected<p>"
+			      )))  
+			  
+			  ##################################
+			  # Actively generates UI component on the ui side
+			  # which generates text for txt
+			  ################################## 									
+			  
+			  output$"step0_message_txt_ts"<-renderUI(
+			    HTML(
+			      paste(
+			        h4("Time series file checking messages (txt)"),
+			        "<p align='left'>Please read carefully and ensure that you have",
+			        "checked all possible errors. This output is the same as the table",
+			        " output<p>"
+			      )))
+			  
+			  
+			  #####################
+			  # DataTable integration error (TIME SERIES)
+			  ########################
+			  
+			  output$dt_integrate_ts <- DT::renderDataTable({
+			    validate(need(input$xlfile_ts != "", "Please select a data set"))
+			    ls <- step0load_data_ts()
+			    stopifnot(length(unique(ls$res$series$ser_cou_code))==1)
+			    cou_code <- ls$res$series$ser_cou_code[1]
+			    datatable(ls$res$error,
+			              rownames=FALSE,
+			              filter = 'top',
+			              #                      !!removed caption otherwise included in the file content
+			              #                      caption = htmltools::tags$caption(
+			              #                          style = 'caption-side: bottom; text-align: center;',
+			              #                          'Table 1: ', htmltools::em('Please check the following values, click on excel button to download.')
+			              #                      ),
+			              extensions = "Buttons",
+			              option=list(
+			                "pagelength"=5,
+			                searching = FALSE, # no filtering options
+			                lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
+			                order=list(1,"asc"),
+			                dom= "Blfrtip",
+			                buttons=list(
+			                  list(extend="excel",
+			                       filename = paste0("datats_",cou_code, Sys.Date())))
+			              )
+			    )
+			  })
+		})
+			
+		##################################################
+		# Events triggered by step1_button TIME SERIES
+		###################################################      
+		##########################
+		# When check_duplicate_button is clicked
+		# this will render a datatable containing rows
+		# with duplicates values
+		#############################
+		observeEvent(input$check_duplicate_button_ts, { 
+					
+					
+					# see step0load_data returns a list with res and messages
+					# and within res data and a dataframe of errors
+					validate(
+							need(input$xlfile_ts != "", "Please select a data set")
+					)
+					res <- step0load_data_ts()$res
+					series <- res$series
+					station	<- res$station
+					new_data	<- res$new_data
+					updated_data	<- res$updated_data
+					new_biometry <- res$new_biometry
+					updated_biometry <- res$updated_biometry
+
+					suppressWarnings(t_series_ser <- extract_data("t_series_ser",  quality_check=FALSE)) 
+					t_dataseries_das <- extract_data("t_dataseries_das", quality_check=FALSE)  
+					t_biometry_series_bis <- extract_data("t_biometry_series_bis", quality_check=FALSE)
+					
+					switch (input$file_type, 
+							"glass_eel"={                                     
+								t_series_ser <- t_series_ser %>%  filter(ser_typ_id==1)    
+								t_dataseries_das <- t_dataseries_das %>% filter (das_ser_id %in% t_series_ser$ser_id)
+							},
+							"yellow_eel"={
+								t_series_ser <- t_series_ser %>%  filter(ser_typ_id==2)    
+								t_dataseries_das <- t_dataseries_das %>% filter (das_ser_id %in% t_series_ser$ser_id)
+							},
+							"silver_eel"={             
+								t_series_ser <- t_series_ser %>%  filter(ser_typ_id==3)    
+								t_dataseries_das <- t_dataseries_das %>% filter (das_ser_id %in% t_series_ser$ser_id)
+							}                
+					)
+					# the compare_with_database function will compare
+					# what is in the database and the content of the excel file
+					# previously loaded. It will return a list with two components
+					# the first duplicates contains elements to be returned to the use
+					# the second new contains a dataframe to be inserted straight into
+					# the database
+					#cat("step0")
+					if (nrow(data_from_excel)>0){
+						list_comp<-compare_with_database(data_from_excel,data_from_base)
+						duplicates <- list_comp$duplicates
+						new <- list_comp$new 
+						current_cou_code <- list_comp$current_cou_code
+						#cat("step1")
+						#####################      
+						# Duplicates values
+						#####################
+						
+						if (nrow(duplicates)==0) {
+							output$"step1_message_duplicates"<-renderUI(
+									HTML(
+											paste(
+													h4("No duplicates")                             
+											)))                 
+						}else{      
+							output$"step1_message_duplicates"<-renderUI(
+									HTML(
+											paste(
+													h4("Table of duplicates (xls)"),
+													"<p align='left'>Please click on excel",
+													"to download this file. In <strong>keep new value</strong> choose true",
+													"to replace data using the new datacall data (true)",
+													"if new is selected don't forget to qualify your data in column <strong> eel_qal_id.xls, eel_qal_comment.xls </strong>",
+													"once this is done download the file and proceed to next step.",
+													"Rows with false will be ignored and kept as such in the database",
+													"Rows with true will use the column labelled .xls for the new insertion, and flag existing values as removed ",
+													"If you see an error in old data, use panel datacorrection (on top of the application), this will allow you to make changes directly in the database <p>"                         
+											)))  
+						}
+						
+						# table of number of duplicates values per year (hilaire)
+						
+						years=sort(unique(c(duplicates$eel_year,new$eel_year)))
+						
+						summary_check_duplicates=data.frame(years=years,
+								nb_new=sapply(years, function(y) length(which(new$eel_year==y))),
+								nb_updated_duplicates=sapply(years,function(y) length(which(duplicates$eel_year==y & (duplicates$eel_value.base!=duplicates$eel_value.xls)))),
+								nb_no_changes=sapply(years,function(y) length(which(duplicates$eel_year==y & (duplicates$eel_value.base==duplicates$eel_value.xls)))))
+						
+						output$dt_check_duplicates <-DT::renderDataTable({ 
+									validate(need(data$connectOK,"No connection"))
+									datatable(summary_check_duplicates,
+											rownames=FALSE,                                                    
+											options=list(dom="t"
+											))
+								})
+						output$dt_duplicates <-DT::renderDataTable({
+									validate(need(data$connectOK,"No connection"))
+									datatable(duplicates,
+											rownames=FALSE,                                                    
+											extensions = "Buttons",
+											option=list(
+													rownames = FALSE,
+													scroller = TRUE,
+													scrollX = TRUE,
+													scrollY = "500px",
+													order=list(3,"asc"),
+													lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
+													"pagelength"=-1,
+													dom= "Blfrtip",
+													buttons=list(
+															list(extend="excel",
+																	filename = paste0("duplicates_",input$file_type,"_",Sys.Date(),current_cou_code))) 
+											))
+									
+								})
+						
+						if (nrow(new)==0) {
+							output$"step1_message_new"<-renderUI(
+									HTML(
+											paste(
+													h4("No new values")                             
+											)))                    
+						} else {
+							output$"step1_message_new"<-renderUI(
+									HTML(
+											paste(
+													h4("Table of new values (xls)"),
+													"<p align='left'>Please click on excel ",
+													"to download this file and qualify your data with columns <strong>qal_id, qal_comment</strong> ",
+													"once this is done download the file with button <strong>download new</strong> and proceed to next step.<p>"                         
+											)))  
+							
+						}
+						
+						output$dt_new <-DT::renderDataTable({ 
+									validate(need(data$connectOK,"No connection"))
+									datatable(new,
+											rownames=FALSE,          
+											extensions = "Buttons",
+											option=list(
+													scroller = TRUE,
+													scrollX = TRUE,
+													scrollY = "500px",
+													order=list(3,"asc"),
+													lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
+													"pagelength"=-1,
+													dom= "Blfrtip",
+													scrollX = T, 
+													buttons=list(
+															list(extend="excel",
+																	filename = paste0("new_",input$file_type,"_",Sys.Date(),current_cou_code))) 
+											))
+								})
+						######
+						#Missing data
+						######
+						if (input$file_type == "catch_landings" & nrow(list_comp$complete)>0) {
+							output$dt_missing <- DT::renderDataTable({
+										validate(need(data$connectOK,"No connection"))
+										check_missing_data(list_comp$complete, new)
+									})
+						}
+						
+						
+					} # closes if nrow(...      
+					#data$new <- new # new is stored in the reactive dataset to be inserted later.      
+				})
+		
+			
 						#######################################
-						# II. Data correction table  
+						# III. Data correction table  
 						# This section provides a direct interaction with the database
 						# Currently only developped for modifying data.
 						# Deletion must be done by changing data code or asking Database handler

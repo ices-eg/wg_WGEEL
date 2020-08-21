@@ -530,10 +530,16 @@ log_datacall <- function(step, cou_code, message, the_metadata, file_type, main_
     the_metadata[["contact"]] <- NA
     the_metadata[["method"]] <- NA
   }
-  query <- glue_sql("INSERT INTO datawg.log(log_cou_code,log_data,log_evaluation_name,log_main_assessor,log_secondary_assessor,log_contact_person_name, log_method, log_message, log_date) VALUES ({cou_code},{data},{evaluation},{main},{secondary},{log_contact_person_name},{log_method},{log_message},'{date}')", 
-      cou_code = cou_code, data = file_type, evaluation = step, main = main_assessor, 
-      secondary = secondary_assessor, log_contact_person_name = the_metadata[["contact"]], 
-      log_method = the_metadata[["method"]], log_message = message, date = Sys.Date(), 
+  query <- glue_sql("INSERT INTO datawg.log(log_cou_code,log_data,log_evaluation_name,log_main_assessor,log_secondary_assessor,log_contact_person_name, log_method, log_message, log_date) VALUES
+ ({cou_code},{data},{evaluation},{main},{secondary},{log_contact_person_name},{log_method},{log_message},{date})", 
+      cou_code = cou_code, 
+			data = file_type, 
+			evaluation = step, main = main_assessor, 
+      secondary = secondary_assessor, 
+			log_contact_person_name = the_metadata[["contact"]], 
+      log_method = the_metadata[["method"]], 
+			log_message = message,
+			date = Sys.Date(), 
       .con = pool)
   
   out_data <- dbGetQuery(pool, query)

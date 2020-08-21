@@ -13,15 +13,20 @@
 #' @param country the current country being evaluated
 check_missing <- function(dataset,column,country){
   answer = NULL
+	namedataset <-  deparse(substitute(dataset))
   if (any(is.na(dataset[,column]))){
     line<-(1:nrow(dataset))[is.na(dataset[,column])]
     if (length(line)>10) line <-str_c(str_c(line[1:10],collapse=";"),"...") else
       line <- str_c(line) # before it was str_c(line, collapse=";") but it was crashing when checking for duplicates
     if (length(line)>0){
-      cat(sprintf("column <%s>, missing values line %s \n",
+      cat(sprintf("dataset <%s>, column <%s>, missing values line %s \n",
+							    namedataset,
                   column,
                   line))
-      answer  = data.frame(nline = line, error_message = paste0("missing value in column: ", column))
+      answer  = data.frame(nline = line, error_message = sprintf("dataset <%s>, column <%s>, missing values line %s \n",
+							namedataset,
+							column,
+							line))
     }
   }
   return(answer)
@@ -37,22 +42,28 @@ check_missing <- function(dataset,column,country){
 
 check_values <- function(dataset,column,country,values){
   answer = NULL
+	namedataset <-  deparse(substitute(dataset))
   newdataset <- dataset
   newdataset$nline <- 1:nrow(newdataset)
   # remove NA from data
   ddataset <- as.data.frame(newdataset[!is.na(newdataset[,column]),])
   if (nrow(ddataset)>0){ 
-    #line<-(1:nrow(dataset))[is.na(dataset[,column])]# there might be NA, this will have been tested elsewhere
-    if (! all(ddataset[,column]%in%values)) { # are all values matching ?
-      value <- str_c(unique(ddataset[,column][!ddataset[,column]%in%values]),collapse=";")
+  
+		if (! all(ddataset[,column]%in%values)) { # are all values matching ?
+      value <- ddataset[,column][!ddataset[,column]%in%values]
       line <- ddataset$nline[!ddataset[,column]%in%values]
       if (length(line)>0){
-        cat(sprintf("column <%s>, line <%s>, value <%s> is wrong, possibly not entered yet \n",                   
+        cat(sprintf("dataset <%s>, column <%s>, line <%s>, value <%s> is wrong, possibly not entered yet \n", 
+								    namedataset,
                     column,
-                    line,
-                    value))
-        
-        answer  = data.frame(nline = line , error_message = paste0("value", value," in column: ", column, " is wrong, possibly not entered yet"))
+										str_c(unique(line),collapse=";"),
+										str_c(value,collapse=";")))
+        # same but split and no end of line
+        answer  = data.frame(nline = line , 
+						error_message = sprintf("dataset <%s>, column <%s>, value <%s> is wrong, possibly not entered yet", 
+								namedataset,
+								column,
+								value))
       }
     }
   }
@@ -87,7 +98,9 @@ check_type <- function(dataset,column,country,values,type){
                     line,
                     type))
         
-        answer  = data.frame(nline = line, error_message = paste0("error type in: ", column))
+        answer  = data.frame(nline = line, error_message = sprintf("column <%s>, should be of type %s \n",
+								column,								
+								type))
       }
     }
   }

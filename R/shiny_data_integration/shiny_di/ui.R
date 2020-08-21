@@ -151,33 +151,58 @@ ui <- dashboardPage(title="ICES Data Integration",
 												actionButton("check_duplicate_button_ts", "Check duplicate")), 
 										column(width=5,
 												htmlOutput("step1_message_duplicates_ts"),
-												DT::dataTableOutput("dt_duplicates_ts"),
-												DT::dataTableOutput("dt_check_duplicates_ts")),
+												DT::dataTableOutput("dt_duplicates_dataseries_ts"),
+												DT::dataTableOutput("dt_check_duplicates_dataseries_ts"),
+												DT::dataTableOutput("dt_duplicates_biometry_ts"),
+												DT::dataTableOutput("dt_check_duplicates_biometry_ts")),
 										column(width=5,
-												htmlOutput("step1_message_new_ts"),
-												DT::dataTableOutput("dt_new_ts"),
-												DT::dataTableOutput("dt_missing_ts"))
+												htmlOutput("step1_message_new_series_ts"),
+												DT::dataTableOutput("dt_new_series_ts"),
+												htmlOutput("step1_message_new_dataseries_ts"),
+												DT::dataTableOutput("dt_new_dataseries_ts"),
+												htmlOutput("step1_message_new_biometry_ts"),
+												DT::dataTableOutput("dt_new_biometry_ts"))
 								),
 								tags$hr(),
-								h2("step 2.1 Integrate/ proceed duplicates rows"),
+								h2("step 2.1 Integrate new series"),
 								fluidRow(
-										column(width=4,fileInput("xl_duplicates_file_ts", "xls duplicates",
+										column(width=4,fileInput("xl_new_series_file", "xls new series",
 														multiple=FALSE,
 														accept = c(".xls",".xlsx")
 												)),                   
 										column(width=2,
-												actionButton("database_duplicates_button_ts", "Proceed")),
+												actionButton("integrate_new_series_button", "Proceed")),
 										column(width=6,verbatimTextOutput("textoutput_step2.1_ts"))
 								),
-								h2("step 2.2 Integrate new rows"),
+								h2("step 2.2 Integrate new data"),
 								fluidRow(
-										column(width=4,fileInput("xl_new_file", "xls new",
+										column(width=4,fileInput("xl_new_dataseries_file", "xls new dataseries",
 														multiple=FALSE,
 														accept = c(".xls",".xlsx")
 												)),                   
 										column(width=2,
-												actionButton("database_new_button_ts", "Proceed")),
+												actionButton("integrate_new_dataseries_button", "Proceed")),
 										column(width=6,verbatimTextOutput("textoutput_step2.2_ts"))
+								),
+								h2("step 2.3 Updated data"),
+								fluidRow(
+										column(width=4,fileInput("xl_updated_data_file", "xls update",
+														multiple=FALSE,
+														accept = c(".xls",".xlsx")
+												)),                   
+										column(width=2,
+												actionButton("integrate_new_dataseries_button", "Proceed")),
+										column(width=6,verbatimTextOutput("textoutput_step2.3_ts"))
+								),
+								h2("step 2.4 New biometry"),
+								fluidRow(
+										column(width=4,fileInput("xl_new_biometry_file", "xls update",
+														multiple=FALSE,
+														accept = c(".xls",".xlsx")
+												)),                   
+										column(width=2,
+												actionButton("integrate_new_biometry_button", "Proceed")),
+										column(width=6,verbatimTextOutput("textoutput_step2.4_ts"))
 								)
 						),
 						
