@@ -107,6 +107,76 @@ compare_with_database <- function(data_from_excel, data_from_base) {
 }
 
 
+#' @title compare with database for updated values
+#' @description This function retrieves older values in the database and compares it with data
+#' loaded from excel, the 
+#' @param updated_from_excel Dataset loaded from excel
+#' @param data_from_base dataset loaded from the database with previous values to be replaced
+#' @return A table that compares data in the data base and corresponding updated values
+#' @importFrom dplyr filter select inner_join right_join
+compare_with_database_updated_values <- function(updated_from_excel, data_from_base) {
+  # tr_type_typ should have been loaded by global.R in the program in the shiny app
+  if (!exists("tr_type_typ")) {
+    tr_type_typ<-extract_ref("Type of series")
+  }
+  # data integrity checks
+  if (nrow(updated_from_excel) == 0) 
+    stop("There are no data coming from the excel file")
+  current_cou_code <- unique(updated_from_excel$eel_cou_code)
+  if (length(current_cou_code) != 1) 
+    stop("There is more than one country code, this is wrong")
+  current_typ_name <- unique(updated_from_excel$eel_typ_name)
+  if (!all(current_typ_name %in% tr_type_typ$typ_name)) stop(str_c("Type ",current_typ_name[!current_typ_name %in% tr_type_typ$typ_name]," not in list of type name check excel file"))
+  # all data returned by loading functions have only a name just in case to avoid doubles
+  
+  if (!"eel_typ_id"%in%colnames(updated_from_excel)) {
+    # extract subset suitable for merge
+    tr_type_typ_for_merge <- tr_type_typ[, c("typ_id", "typ_name")]
+    colnames(tr_type_typ_for_merge) <- c("eel_typ_id", "eel_typ_name")
+    updated_from_excel <- merge(updated_from_excel, tr_type_typ_for_merge, by = "eel_typ_name") 
+  }
+  if (nrow(data_from_base) == 0) {
+    stop("No data in the db")
+    current_typ_id<-0
+  } else {   
+    if (!all(updated_from_excel$eel_id %in% data_from_base$eel_id))
+      stop(paste("eel_id",paste(updated_from_excel$eel_id[!updated_from_excel$eel_id %in% data_from_base$eel_id],collapse=","),
+                 "not found in db",sep=""))
+    current_typ_id <- unique(updated_from_excel$eel_typ_id)
+    if (!all(current_typ_id %in% data_from_base$eel_typ_id)) 
+      stop(paste("There is a mismatch between selected typ_id", paste0(current_typ_id, 
+                                                                       collapse = ";"), "and the dataset loaded from base", paste0(unique(data_from_base$eel_typ_id), 
+                                                                                                                                   collapse = ";"), "did you select the right File type ?"))
+  }
+  # Can't join on 'eel_area_division' x 'eel_area_division' because of incompatible
+  # types (character / logical)
+  updated_from_excel$eel_area_division <- as.character(updated_from_excel$eel_area_division)
+  updated_from_excel$eel_hty_code <- as.character(updated_from_excel$eel_hty_code)
+  eel_colnames <- colnames(data_from_base)[grepl("eel", colnames(data_from_base))]
+  
+  #since dc2020, qal_id are automatically created during the import
+  updated_from_excel$eel_qal_id <- 1
+  updated_from_excel$eel_qal_comment <- rep(NA,nrow(updated_from_excel))
+  
+  # duplicates are inner_join eel_cou_code added to the join just to avoid
+  # duplication
+  comparison_updated <- merge(updated_from_excel,data_from_base,by=c("eel_id","eel_typ_id"),
+                              all.y=FALSE,all.x=TRUE,suffix = c(".base", ".xls"))
+  comparison_updated <- comparison_updated[, c("eel_id", "eel_typ_id", "eel_typ_name", "eel_year.base", "eel_year.xls",
+                               "eel_value.base", "eel_value.xls", "eel_missvaluequal.base", "eel_missvaluequal.xls", 
+                               "eel_emu_nameshort.base","eel_emu_nameshort.xls", "eel_cou_code.base","eel_cou_code.xls",
+                               "eel_lfs_code.base","eel_lfs_code.xls", "eel_hty_code.base","eel_hty_code.xls",
+                               "eel_area_division.base", "eel_area_division.xls","eel_comment.base", 
+                               "eel_comment.xls", "eel_datasource.base", "eel_datasource.xls",
+                               "eel_qal_id.xls", "eel_qal_comment.xls", "eel_qal_id.base", "eel_qal_comment.base")]
+
+  return(comparison_updated)
+}
+
+
+
+
+
 
 #' @title write duplicated results into the database
 #' @description Values kept from the datacall will be inserted, old values from the database

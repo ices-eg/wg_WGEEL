@@ -428,6 +428,18 @@ shinyServer(function(input, output, session){
 										
 										
 									} # closes if nrow(...  
+									if (input$file_type %in% c("catch_landings","release")){
+									  if (nrow(updated_from_excel)>0){
+									    updated_values_table <- compare_with_database_updated_values(updated_from_excel,data_from_base) 
+									    output$dt_updated_values <- DT::renderDataTable({
+									      updated_values_table
+									    },option=list(
+									      rownames = FALSE,
+									      scroller = TRUE,
+									      scrollX = TRUE,
+									      scrollY = TRUE))
+									  }
+									}
 								  if (input$file_type %in% c("catch_landings","release")){
 									  summary_check_duplicates=data.frame(years=years,
 									    nb_new=sapply(years, function(y) length(which(new$eel_year==y))),
@@ -812,7 +824,10 @@ shinyServer(function(input, output, session){
 									datatable(summary_check_duplicates,
 											rownames=FALSE,                                                    
 											options=list(dom="t"
-											))
+											),
+											scroller = TRUE,
+											scrollX = TRUE,
+											scrollY = TRUE)
 								})
 						output$dt_duplicates <-DT::renderDataTable({
 									validate(need(data$connectOK,"No connection"))
