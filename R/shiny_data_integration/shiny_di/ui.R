@@ -16,7 +16,7 @@ ui <- dashboardPage(title="ICES Data Integration",
 				h3("Data"),      
 				sidebarMenu(          
 						menuItem("Import",tabName= "import", icon= icon("align-left")),
-						menuItem("Import timeseries",tabName= "import_ts", icon= icon("align-left")),					
+						menuItem("Import Time Series",tabName= "import_ts", icon= icon("align-left")),					
 						menuItem("Edit", tabName="edit", icon=icon("table")),
 						menuItem("Plot duplicates", tabName='plot_duplicates',icon= icon("area-chart")#,
 						#menuSubItem("Plot duplicates",  tabName="plot_duplicates"),
@@ -143,66 +143,145 @@ ui <- dashboardPage(title="ICES Data Integration",
 										column(width=6,
 												htmlOutput("step0_message_xls_ts"),
 												DT::dataTableOutput("dt_integrate_ts"))
-								),              
+								),
+								
 								tags$hr(),
-								h2("step 1 : Compare with database"),
+								h2("step 1 : Compare with database"),								
 								fluidRow(                                       
 										column(width=2,                        
 												actionButton("check_duplicate_button_ts", "Check duplicate")), 
 										column(width=5,
-												htmlOutput("step1_message_duplicates_ts"),
-												DT::dataTableOutput("dt_duplicates_dataseries_ts"),
-												DT::dataTableOutput("dt_check_duplicates_dataseries_ts"),
-												DT::dataTableOutput("dt_duplicates_biometry_ts"),
-												DT::dataTableOutput("dt_check_duplicates_biometry_ts")),
+												h3("new series"),
+												htmlOutput("step1_message_new_series"),
+												DT::dataTableOutput("dt_new_series"),
+												h3("new dataseries"),
+												htmlOutput("step1_message_new_dataseries"),
+												DT::dataTableOutput("dt_new_dataseries"),
+												h3("new biometry"),
+												htmlOutput("step1_message_new_biometry"),
+												DT::dataTableOutput("dt_new_biometry")),
 										column(width=5,
-												htmlOutput("step1_message_new_series_ts"),
-												DT::dataTableOutput("dt_new_series_ts"),
-												htmlOutput("step1_message_new_dataseries_ts"),
-												DT::dataTableOutput("dt_new_dataseries_ts"),
-												htmlOutput("step1_message_new_biometry_ts"),
-												DT::dataTableOutput("dt_new_biometry_ts"))
+												h3("modified series"),
+												htmlOutput("step1_message_modified_series"),
+												DT::dataTableOutput("dt_modified_series"),	
+												h3("modified series : what changed at series level ?"),
+												DT::dataTableOutput("dt_highlight_change_series"),
+												h3("modified dataseries"),
+												htmlOutput("step1_message_modified_dataseries"),
+												DT::dataTableOutput("dt_modified_dataseries"),
+												h3("modified dataseries : what changed for new_data and updated_data ?"),	
+												DT::dataTableOutput("dt_highlight_change_newdata_dataseries"),
+												DT::dataTableOutput("dt_highlight_change_modified_dataseries"),	
+												h3("modified biometry"),	
+												DT::dataTableOutput("dt_modified_biometry"),
+												htmlOutput("step1_message_modified_biometry"),
+												h3("modified biometry : what changed ?"),
+												DT::dataTableOutput("dt_highlight_change_biometry")												
+										)
 								),
 								tags$hr(),
 								h2("step 2.1 Integrate new series"),
 								fluidRow(
-										column(width=4,fileInput("xl_new_series_file", "xls new series",
+										column(
+												width=4,
+												fileInput("xl_new_series", "xls new series, do this first and re-run compare",
 														multiple=FALSE,
 														accept = c(".xls",".xlsx")
-												)),                   
-										column(width=2,
-												actionButton("integrate_new_series_button", "Proceed")),
-										column(width=6,verbatimTextOutput("textoutput_step2.1_ts"))
+												)
+										),                   
+										column(
+												width=2,
+												actionButton("integrate_new_series_button", "Proceed")
+										),
+										column(
+												width=6,
+												verbatimTextOutput("textoutput_step2.1_ts")
+										)
 								),
-								h2("step 2.2 Integrate new data"),
+								h2("step 2.2 Update modified series"),
 								fluidRow(
-										column(width=4,fileInput("xl_new_dataseries_file", "xls new dataseries",
+										column(
+												width=4,
+												fileInput("xl_updated_series", "xls modified series, do this first and re-run compare",
 														multiple=FALSE,
-														accept = c(".xls",".xlsx")
-												)),                   
-										column(width=2,
-												actionButton("integrate_new_dataseries_button", "Proceed")),
-										column(width=6,verbatimTextOutput("textoutput_step2.2_ts"))
+														accept = c(".xls",".xlsx"))
+										),                   
+										column(
+												width=2,
+												actionButton("update_series_button", "Proceed")
+										),
+										column(
+												width=6,
+												verbatimTextOutput("textoutput_step2.2_ts")
+										)
 								),
-								h2("step 2.3 Updated data"),
+								h2("step 2.3 Integrate new dataseries"),
 								fluidRow(
-										column(width=4,fileInput("xl_updated_data_file", "xls update",
+										column(
+												width=4,
+												fileInput("xl_new_dataseries", "Once the series are updated, integrate new dataseries",
 														multiple=FALSE,
-														accept = c(".xls",".xlsx")
-												)),                   
-										column(width=2,
-												actionButton("integrate_new_dataseries_button", "Proceed")),
-										column(width=6,verbatimTextOutput("textoutput_step2.3_ts"))
+														accept = c(".xls",".xlsx"))
+										),                   
+										column(
+												width=2,
+												actionButton("integrate_new_dataseries_button", "Proceed")
+										),
+										column(
+												width=6,
+												verbatimTextOutput("textoutput_step2.3_ts")
+										)
 								),
-								h2("step 2.4 New biometry"),
+								h2("step 2.4 Update modified dataseries"),
 								fluidRow(
-										column(width=4,fileInput("xl_new_biometry_file", "xls update",
+										column(
+												width=4,
+												fileInput("xl_updated_dataseries", "Update the modified dataseries",
 														multiple=FALSE,
 														accept = c(".xls",".xlsx")
-												)),                   
-										column(width=2,
-												actionButton("integrate_new_biometry_button", "Proceed")),
-										column(width=6,verbatimTextOutput("textoutput_step2.4_ts"))
+												)
+										),                   
+										column(
+												width=2,
+												actionButton("update_dataseries_button", "Proceed")
+										),
+										column(
+												width=6,
+												verbatimTextOutput("textoutput_step2.4_ts")
+										)
+								),
+								h2("step 2.5 Integrate new biometry"),
+								fluidRow(
+										column(
+												width=4,
+												fileInput("xl_new_biometry", "xls update",
+														multiple=FALSE,
+														accept = c(".xls",".xlsx"))
+										),                   
+										column(
+												width=2,
+												actionButton("integrate_new_biometry_button", "Proceed")
+										),
+										column(width=6,
+												verbatimTextOutput("textoutput_step2.5_ts")
+										)
+								),
+								h2("step 2.6 Update modified biometry"),
+								fluidRow(
+										column(
+												width=4,
+												fileInput("xl_modified_biometry", "xls update",
+														multiple=FALSE,
+														accept = c(".xls",".xlsx"))
+										),                   
+										column(
+												width=2,
+												actionButton("update_biometry_button", "Proceed")
+										),
+										column(
+												width=6,
+												verbatimTextOutput("textoutput_step2.6_ts")
+										)
 								)
 						),
 						
