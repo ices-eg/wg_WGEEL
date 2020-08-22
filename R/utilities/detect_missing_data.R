@@ -61,21 +61,24 @@ detect_missing_data <- function(cou="FR",
   # remove upper level aggregations
   missing_comb <- missing_comb %>%
     filter(!missing_comb$id %in% found_matches$id)%>%
-    select(-id) %>%
     arrange(eel_cou_code,eel_typ_id,eel_emu_nameshort,eel_lfs_code,eel_hty_code,eel_year)
-  
+
   # append the range years to the dataset
-  missing_comb <- sqldf("select m.*, first_year,last_year,eel_area_division from missing_comb m left join ranges r on m.eel_cou_code=r.eel_cou_code and
+  missing_comb <- sqldf("select m.*, min(first_year) first_year,max(last_year) last_year,max(eel_area_division) eel_area_division from missing_comb m left join ranges r on m.eel_cou_code=r.eel_cou_code and
                                                             m.eel_typ_id=r.eel_typ_id and
                                                             r.eel_lfs_code like '%'||m.eel_lfs_code||'%'
                                                             and (r.eel_hty_code like '%'||m.eel_hty_code)
-                                                            and m.eel_emu_nameshort=r.eel_emu_nameshort",drv = "SQLite")
+                                                            and m.eel_emu_nameshort=r.eel_emu_nameshort
+                        group by id",drv = "SQLite")
+  missing_comb <- missing_comb %>%
+    select(-id)
   
   missing_comb$eel_hty_code=as.character(missing_comb$eel_hty_code)
   missing_comb$eel_lfs_code=as.character(missing_comb$eel_lfs_code)
   missing_comb$eel_emu_nameshort =as.character(missing_comb$eel_emu_nameshort)
   missing_comb$eel_cou_code =as.character(missing_comb$eel_cou_code)
-  missing_comb$eel_typ_name=ifelse(missing_comb$eel_typ_id==4,"com_landings","rec_landings")
+  eel_typ_name=dbGetQuery(con_wgeel,"select typ_id,typ_name as eel_typ_name from ref.tr_typeseries_typ where typ_id in (4,6)")
+  missing_comb <- merge(missing_comb,eel_typ_name)
   missing_comb$eel_value=NA
   
   missing_comb$eel_comment <- mapply(function(y,f,l){

@@ -101,6 +101,72 @@ compare_with_database <- function(data_from_excel, data_from_base) {
                                       "eel_emu_nameshort", "eel_cou_code", "eel_hty_code")])
   return(list(duplicates = duplicates, new = new, current_cou_code= current_cou_code, complete=complete))
 }
+#' @title compare with database for updated values
+#' @description This function retrieves older values in the database and compares it with data
+#' loaded from excel, the 
+#' @param updated_from_excel Dataset loaded from excel
+#' @param data_from_base dataset loaded from the database with previous values to be replaced
+#' @return A table that compares data in the data base and corresponding updated values
+#' @importFrom dplyr filter select inner_join right_join
+compare_with_database_updated_values <- function(updated_from_excel, data_from_base) {
+  # tr_type_typ should have been loaded by global.R in the program in the shiny app
+  if (!exists("tr_type_typ")) {
+    tr_type_typ<-extract_ref("Type of series")
+  }
+  # data integrity checks
+  if (nrow(updated_from_excel) == 0) 
+    stop("There are no data coming from the excel file")
+  current_cou_code <- unique(updated_from_excel$eel_cou_code)
+  if (length(current_cou_code) != 1) 
+    stop("There is more than one country code, this is wrong")
+  current_typ_name <- unique(updated_from_excel$eel_typ_name)
+  if (!all(current_typ_name %in% tr_type_typ$typ_name)) stop(str_c("Type ",current_typ_name[!current_typ_name %in% tr_type_typ$typ_name]," not in list of type name check excel file"))
+  # all data returned by loading functions have only a name just in case to avoid doubles
+  
+  if (!"eel_typ_id"%in%colnames(updated_from_excel)) {
+    # extract subset suitable for merge
+    tr_type_typ_for_merge <- tr_type_typ[, c("typ_id", "typ_name")]
+    colnames(tr_type_typ_for_merge) <- c("eel_typ_id", "eel_typ_name")
+    updated_from_excel <- merge(updated_from_excel, tr_type_typ_for_merge, by = "eel_typ_name") 
+  }
+  if (nrow(data_from_base) == 0) {
+    stop("No data in the db")
+    current_typ_id<-0
+  } else {   
+    if (!all(updated_from_excel$eel_id %in% data_from_base$eel_id))
+      stop(paste("eel_id",paste(updated_from_excel$eel_id[!updated_from_excel$eel_id %in% data_from_base$eel_id],collapse=","),
+                 "not found in db",sep=""))
+    current_typ_id <- unique(updated_from_excel$eel_typ_id)
+    if (!all(current_typ_id %in% data_from_base$eel_typ_id)) 
+      stop(paste("There is a mismatch between selected typ_id", paste0(current_typ_id, 
+                                                                       collapse = ";"), "and the dataset loaded from base", paste0(unique(data_from_base$eel_typ_id), 
+                                                                                                                                   collapse = ";"), "did you select the right File type ?"))
+  }
+  # Can't join on 'eel_area_division' x 'eel_area_division' because of incompatible
+  # types (character / logical)
+  updated_from_excel$eel_area_division <- as.character(updated_from_excel$eel_area_division)
+  updated_from_excel$eel_hty_code <- as.character(updated_from_excel$eel_hty_code)
+  eel_colnames <- colnames(data_from_base)[grepl("eel", colnames(data_from_base))]
+  
+  #since dc2020, qal_id are automatically created during the import
+  updated_from_excel$eel_qal_id <- 1
+  updated_from_excel$eel_qal_comment <- rep(NA,nrow(updated_from_excel))
+  
+  # duplicates are inner_join eel_cou_code added to the join just to avoid
+  # duplication
+  comparison_updated <- merge(updated_from_excel,data_from_base,by=c("eel_id","eel_typ_id"),
+                              all.y=FALSE,all.x=TRUE,suffix = c(".xls",".base"))
+  comparison_updated <- comparison_updated[, c("eel_id", "eel_typ_id", "eel_typ_name", "eel_year.base", "eel_year.xls",
+                               "eel_value.base", "eel_value.xls", "eel_missvaluequal.base", "eel_missvaluequal.xls", 
+                               "eel_emu_nameshort.base","eel_emu_nameshort.xls", "eel_cou_code.base","eel_cou_code.xls",
+                               "eel_lfs_code.base","eel_lfs_code.xls", "eel_hty_code.base","eel_hty_code.xls",
+                               "eel_area_division.base", "eel_area_division.xls","eel_comment.base", 
+                               "eel_comment.xls", "eel_datasource.base", "eel_datasource.xls",
+                               "eel_qal_id.xls", "eel_qal_comment.xls", "eel_qal_id.base", "eel_qal_comment.base")]
+
+  return(comparison_updated)
+}
+
 
 
 #' @title compare with database series
@@ -222,7 +288,7 @@ compare_with_database_series <- function(data_from_excel, data_from_base) {
   return(list(new = new, modified=modified, highlight_change=highlight_change, current_cou_code= current_cou_code))
 }
 
-#' @title compare with database series
+#' @title compare with database dataseries
 #' @description This function loads the data from the database and compare it with data
 #' loaded from excel
 #' @param data_from_excel Dataset loaded from excel
@@ -802,6 +868,73 @@ write_new <- function(path) {
   
   return(list(message = message, cou_code = cou_code))
 }
+
+
+
+
+
+
+
+
+#' @title update value into the database
+#' @description New lines will be inserted in the database and older values will be put
+#' to qal_id 4
+#' @param path path to file (collected from shiny button)
+#' @param qualify_code new qal_id 19
+#' @return message indicating success or failure at data insertion
+#' @details This function uses sqldf to create temporary table then dbExecute as
+#' this version allows to catch exceptions and sqldf does not
+
+write_updated_values <- function(updated_values_table, qualify_code) {
+  cou_code = unique(updated_values_table$eel_cou_code.xls)  
+  validate(need(length(cou_code) == 1, "There is more than one country code, please check your file"))
+
+  # create dataset for insertion -------------------------------------------------------------------
+  
+  
+  names(updated_values_table) = gsub(".","_",names(updated_values_table),fixed=TRUE)
+  sqldf::sqldf("drop table if exists updated_temp ")
+  sqldf::sqldf("create table updated_temp as select * from updated_values_table")
+  cyear=format(Sys.Date(), "%Y")
+  query=paste("
+  DO $$
+    DECLARE
+  rec RECORD;
+  oldid integer;
+  newid integer;
+  BEGIN
+  FOR rec in SELECT * from updated_temp
+    LOOP
+    BEGIN
+      oldid:=rec.eel_id;
+      update datawg.t_eelstock_eel set eel_qal_id=",qualify_code," where eel_id=oldid;
+      insert into datawg.t_eelstock_eel (eel_typ_id,eel_year,eel_value,eel_missvaluequal,eel_emu_nameshort,eel_cou_code,eel_lfs_code,eel_hty_code,eel_area_division,eel_qal_id, eel_qal_comment,eel_datasource,eel_comment)
+      (select eel_typ_id,eel_year_xls,eel_value_xls,eel_missvaluequal_xls,eel_emu_nameshort_xls,eel_cou_code_xls,eel_lfs_code_xls,eel_hty_code_xls,eel_area_division_xls,eel_qal_id_xls,eel_qal_comment_xls,eel_datasource_xls,eel_comment_xls from updated_temp) returning eel_id into newid;
+      update datawg.t_eelstock_eel set eel_qal_comment=eel_qal_comment || ' updated to eel_id ' || newid::text || 'in ",cyear,"' where eel_id=oldid;
+    END;
+    END LOOP;
+    END;
+  $$ LANGUAGE 'plpgsql';",sep="")
+  conn <- poolCheckout(pool)
+  message <- NULL
+  nr <- tryCatch({
+    dbExecute(conn, query)
+  }, error = function(e) {
+    message <<- e
+  }, finally = {
+    poolReturn(conn)
+  })
+  
+  
+  if (is.null(message))   
+    message <- sprintf(" %s new values inserted in the database", nr)
+  
+  return(list(message = message, cou_code = cou_code))
+}
+
+
+
+
 
 
 

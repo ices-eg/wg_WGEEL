@@ -115,6 +115,17 @@ ui <- dashboardPage(title="ICES Data Integration",
 										column(width=2,
 												actionButton("database_new_button", "Proceed")),
 										column(width=6,verbatimTextOutput("textoutput_step2.2"))
+								),
+								h2("step 2.3 Updated values"),
+								fluidRow(
+								  column(width=6,DT::dataTableOutput("dt_updated_values")
+								  ),                   
+								  column(width=2,
+								         actionButton("database_updated_value_button", "Proceed"))
+								  
+								),
+								fluidRow(
+								  column(width=6,verbatimTextOutput("textoutput_step2.3"))
 								)
 						),
 						

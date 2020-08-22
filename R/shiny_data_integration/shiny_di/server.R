@@ -201,352 +201,417 @@ shinyServer(function(input, output, session){
 									}
 									
 								}) 			
-						
-						##################################
-						# Actively generates UI component on the ui side 
-						# which displays text for xls download
-						##################################
-						
-						output$"step0_message_xls"<-renderUI(
-								HTML(
-										paste(
-												h4("File checking messages (xls)"),
-												"<p align='left'>Please click on excel",'<br/>',
-												"to download this file and correct the errors",'<br/>',
-												"and submit again in <strong>step0</strong> the file once it's corrected<p>"
-										)))  
-						
-						##################################
-						# Actively generates UI component on the ui side
-						# which generates text for txt
-						##################################      
-						
-						output$"step0_message_txt"<-renderUI(
-								HTML(
-										paste(
-												h4("File checking messages (txt)"),
-												"<p align='left'>Please read carefully and ensure that you have",
-												"checked all possible errors. This output is the same as the table",
-												" output<p>"
-										)))
-						
-						#####################
-						# DataTable integration error
-						########################
-						
-						output$dt_integrate<-DT::renderDataTable({                 
-									validate(need(input$xlfile != "", "Please select a data set"))           
-									ls <- step0load_data()   
-									country <- ls$res$series
-									datatable(ls$res$error,
-											rownames=FALSE,
-											filter = 'top',
+			
+									##################################
+									# Actively generates UI component on the ui side 
+									# which displays text for xls download
+									##################################
+									
+									output$"step0_message_xls"<-renderUI(
+											HTML(
+													paste(
+															h4("File checking messages (xls)"),
+															"<p align='left'>Please click on excel",'<br/>',
+															"to download this file and correct the errors",'<br/>',
+															"and submit again in <strong>step0</strong> the file once it's corrected<p>"
+													)))  
+									
+									##################################
+									# Actively generates UI component on the ui side
+									# which generates text for txt
+									##################################      
+									
+									output$"step0_message_txt"<-renderUI(
+											HTML(
+													paste(
+															h4("File checking messages (txt)"),
+															"<p align='left'>Please read carefully and ensure that you have",
+															"checked all possible errors. This output is the same as the table",
+															" output<p>"
+													)))
+
+									#####################
+									# DataTable integration error
+									########################
+									
+									output$dt_integrate<-DT::renderDataTable({                 
+												validate(need(input$xlfile != "", "Please select a data set"))           
+												ls <- step0load_data()   
+												country <- ls$res$series
+												datatable(ls$res$error,
+														rownames=FALSE,
+														filter = 'top',
 #                      !!removed caption otherwise included in the file content                      
 #                      caption = htmltools::tags$caption(
 #                          style = 'caption-side: bottom; text-align: center;',
 #                          'Table 1: ', htmltools::em('Please check the following values, click on excel button to download.')
 #                      ),
-											extensions = "Buttons",
-											option=list(
-													"pagelength"=5,
-													searching = FALSE, # no filtering options
-													lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
-													order=list(1,"asc"),
-													dom= "Blfrtip", 
-													buttons=list(
-															list(extend="excel",
-																	filename = paste0("data_",Sys.Date()))) 
-											)            
-									)
+														extensions = "Buttons",
+														option=list(
+																"pagelength"=5,
+																searching = FALSE, # no filtering options
+																lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
+																order=list(1,"asc"),
+																dom= "Blfrtip", 
+																buttons=list(
+																		list(extend="excel",
+																				filename = paste0("data_",Sys.Date()))) 
+														)            
+												)
+											})
 								})
-					})
-			
-			
-			##################################################
-			# Events triggerred by step1_button
-			###################################################      
-			##########################
-			# When check_duplicate_button is clicked
-			# this will render a datatable containing rows
-			# with duplicates values
-			#############################
-			observeEvent(input$check_duplicate_button, { 
-						
-						
-						# see step0load_data returns a list with res and messages
-						# and within res data and a dataframe of errors
-						validate(
-								need(input$xlfile != "", "Please select a data set")
-						) 
-						data_from_excel<- step0load_data()$res$data
-						switch (input$file_type, "catch_landings"={                                     
-									data_from_base<-extract_data("landings", quality=c(1,2,3,4), quality_check=TRUE)                  
-								},
-								"release"={
-									data_from_base<-extract_data("release", quality=c(1,2,3,4), quality_check=TRUE)
-								},
-								"aquaculture"={             
-									data_from_base<-extract_data("aquaculture", quality=c(1,2,3,4), quality_check=TRUE)},
-								"biomass"={
-									# bug in excel file
-									colnames(data_from_excel)[colnames(data_from_excel)=="typ_name"]<-"eel_typ_name"
-									data_from_base<-rbind(
-											extract_data("b0", quality=c(1,2,3,4), quality_check=TRUE),
-											extract_data("bbest", quality=c(1,2,3,4), quality_check=TRUE),
-											extract_data("bcurrent", quality=c(1,2,3,4), quality_check=TRUE))
-								},
-								"potential_available_habitat"={
-									data_from_base<-extract_data("potential_available_habitat", quality=c(1,2,3,4), quality_check=TRUE)                  
-								},
-								# mortality in silver eel equivalent
-								"silver_eel_equivalents"={
-									data_from_base<-extract_data("silver_eel_equivalents", quality=c(1,2,3,4), quality_check=TRUE)      
-									
-								},
-								"mortality_rates"={
-									data_from_base<-rbind(
-											extract_data("sigmaa", quality=c(1,2,3,4), quality_check=TRUE),
-											extract_data("sigmafallcat", quality=c(1,2,3,4), quality_check=TRUE),
-											extract_data("sigmahallcat", quality=c(1,2,3,4), quality_check=TRUE))
-								}                
-						)
-						# the compare_with_database function will compare
-						# what is in the database and the content of the excel file
-						# previously loaded. It will return a list with two components
-						# the first duplicates contains elements to be returned to the use
-						# the second new contains a dataframe to be inserted straight into
-						# the database
-						#cat("step0")
-						if (nrow(data_from_excel)>0){
-							list_comp<-compare_with_database(data_from_excel,data_from_base)
-							duplicates <- list_comp$duplicates
-							new <- list_comp$new 
-							current_cou_code <- list_comp$current_cou_code
-							#cat("step1")
-							#####################      
-							# Duplicates values
-							#####################
-							
-							if (nrow(duplicates)==0) {
-								output$"step1_message_duplicates"<-renderUI(
-										HTML(
-												paste(
-														h4("No duplicates")                             
-												)))                 
-							}else{      
-								output$"step1_message_duplicates"<-renderUI(
-										HTML(
-												paste(
-														h4("Table of duplicates (xls)"),
-														"<p align='left'>Please click on excel",
-														"to download this file. In <strong>keep new value</strong> choose true",
-														"to replace data using the new datacall data (true)",
-														"if new is selected don't forget to qualify your data in column <strong> eel_qal_id.xls, eel_qal_comment.xls </strong>",
-														"once this is done download the file and proceed to next step.",
-														"Rows with false will be ignored and kept as such in the database",
-														"Rows with true will use the column labelled .xls for the new insertion, and flag existing values as removed ",
-														"If you see an error in old data, use panel datacorrection (on top of the application), this will allow you to make changes directly in the database <p>"                         
-												)))  
-							}
-							
-							# table of number of duplicates values per year (hilaire)
-							
-							years=sort(unique(c(duplicates$eel_year,new$eel_year)))
-							
-							summary_check_duplicates=data.frame(years=years,
-									nb_new=sapply(years, function(y) length(which(new$eel_year==y))),
-									nb_updated_duplicates=sapply(years,function(y) length(which(duplicates$eel_year==y & (duplicates$eel_value.base!=duplicates$eel_value.xls)))),
-									nb_no_changes=sapply(years,function(y) length(which(duplicates$eel_year==y & (duplicates$eel_value.base==duplicates$eel_value.xls)))))
-							
-							output$dt_check_duplicates <-DT::renderDataTable({ 
-										validate(need(data$connectOK,"No connection"))
-										datatable(summary_check_duplicates,
-												rownames=FALSE,                                                    
-												options=list(dom="t"
-												))
-									})
-							output$dt_duplicates <-DT::renderDataTable({
-										validate(need(data$connectOK,"No connection"))
-										datatable(duplicates,
-												rownames=FALSE,                                                    
-												extensions = "Buttons",
-												option=list(
-														rownames = FALSE,
-														scroller = TRUE,
-														scrollX = TRUE,
-														scrollY = "500px",
-														order=list(3,"asc"),
-														lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
-														"pagelength"=-1,
-														dom= "Blfrtip",
-														buttons=list(
-																list(extend="excel",
-																		filename = paste0("duplicates_",input$file_type,"_",Sys.Date(),current_cou_code))) 
-												))
-										
-									})
-							
-							if (nrow(new)==0) {
-								output$"step1_message_new"<-renderUI(
-										HTML(
-												paste(
-														h4("No new values")                             
-												)))                    
-							} else {
-								output$"step1_message_new"<-renderUI(
-										HTML(
-												paste(
-														h4("Table of new values (xls)"),
-														"<p align='left'>Please click on excel ",
-														"to download this file and qualify your data with columns <strong>qal_id, qal_comment</strong> ",
-														"once this is done download the file with button <strong>download new</strong> and proceed to next step.<p>"                         
-												)))  
 								
-							}
-							
-							output$dt_new <-DT::renderDataTable({ 
-										validate(need(data$connectOK,"No connection"))
-										datatable(new,
-												rownames=FALSE,          
-												extensions = "Buttons",
-												option=list(
-														scroller = TRUE,
-														scrollX = TRUE,
-														scrollY = "500px",
-														order=list(3,"asc"),
-														lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
-														"pagelength"=-1,
-														dom= "Blfrtip",
-														scrollX = T, 
-														buttons=list(
-																list(extend="excel",
-																		filename = paste0("new_",input$file_type,"_",Sys.Date(),current_cou_code))) 
-												))
+								
+						##################################################
+						# Events triggerred by step1_button
+						###################################################      
+						##########################
+						# When check_duplicate_button is clicked
+						# this will render a datatable containing rows
+						# with duplicates values
+						#############################
+						observeEvent(input$check_duplicate_button, { 
+									
+									
+									# see step0load_data returns a list with res and messages
+									# and within res data and a dataframe of errors
+									validate(
+											need(input$xlfile != "", "Please select a data set")
+									) 
+									data_from_excel<- step0load_data()$res$data
+									switch (input$file_type, "catch_landings"={                                     
+												data_from_base<-extract_data("landings", quality=c(1,2,3,4), quality_check=TRUE)
+												updated_from_excel<- step0load_data()$res$updated_data
+											},
+											"release"={
+												data_from_base<-extract_data("release", quality=c(1,2,3,4), quality_check=TRUE)
+												updated_from_excel<- step0load_data()$res$updated_data
+											},
+											"aquaculture"={             
+												data_from_base<-extract_data("aquaculture", quality=c(1,2,3,4), quality_check=TRUE)},
+											"biomass"={
+												# bug in excel file
+												colnames(data_from_excel)[colnames(data_from_excel)=="typ_name"]<-"eel_typ_name"
+												data_from_base<-rbind(
+														extract_data("b0", quality=c(1,2,3,4), quality_check=TRUE),
+														extract_data("bbest", quality=c(1,2,3,4), quality_check=TRUE),
+														extract_data("bcurrent", quality=c(1,2,3,4), quality_check=TRUE))
+											},
+											"potential_available_habitat"={
+												data_from_base<-extract_data("potential_available_habitat", quality=c(1,2,3,4), quality_check=TRUE)                  
+											},
+											# mortality in silver eel equivalent
+											"silver_eel_equivalents"={
+												data_from_base<-extract_data("silver_eel_equivalents", quality=c(1,2,3,4), quality_check=TRUE)      
+												
+											},
+											"mortality_rates"={
+												data_from_base<-rbind(
+														extract_data("sigmaa", quality=c(1,2,3,4), quality_check=TRUE),
+														extract_data("sigmafallcat", quality=c(1,2,3,4), quality_check=TRUE),
+														extract_data("sigmahallcat", quality=c(1,2,3,4), quality_check=TRUE))
+											}                
+									)
+									# the compare_with_database function will compare
+									# what is in the database and the content of the excel file
+									# previously loaded. It will return a list with two components
+									# the first duplicates contains elements to be returned to the use
+									# the second new contains a dataframe to be inserted straight into
+									# the database
+									#cat("step0")
+									if (nrow(data_from_excel)>0){
+									  ###TEMPORARY FIX 2020 due to incorrect typ_name
+									  data_from_excel$eel_typ_name[data_from_excel$eel_typ_name %in% c("rec_landings","com_landings")] <- paste(data_from_excel$eel_typ_name[data_from_excel$eel_typ_name %in% c("rec_landings","com_landings")],"_kg",sep="")
+									      
+										list_comp<-compare_with_database(data_from_excel,data_from_base)
+										duplicates <- list_comp$duplicates
+										new <- list_comp$new 
+										current_cou_code <- list_comp$current_cou_code
+										#cat("step1")
+										#####################      
+										# Duplicates values
+										#####################
+										
+										if (nrow(duplicates)==0) {
+											output$"step1_message_duplicates"<-renderUI(
+													HTML(
+															paste(
+																	h4("No duplicates")                             
+															)))                 
+										}else{      
+											output$"step1_message_duplicates"<-renderUI(
+													HTML(
+															paste(
+																	h4("Table of duplicates (xls)"),
+																	"<p align='left'>Please click on excel",
+																	"to download this file. In <strong>keep new value</strong> choose true",
+																	"to replace data using the new datacall data (true)",
+																	"if new is selected don't forget to qualify your data in column <strong> eel_qal_id.xls, eel_qal_comment.xls </strong>",
+																	"once this is done download the file and proceed to next step.",
+																	"Rows with false will be ignored and kept as such in the database",
+																	"Rows with true will use the column labelled .xls for the new insertion, and flag existing values as removed ",
+																	"If you see an error in old data, use panel datacorrection (on top of the application), this will allow you to make changes directly in the database <p>"                         
+															)))  
+										}
+										
+										# table of number of duplicates values per year (hilaire)
+										
+										years=sort(unique(c(duplicates$eel_year,new$eel_year)))
+										
+										output$dt_duplicates <-DT::renderDataTable({
+													validate(need(data$connectOK,"No connection"))
+													datatable(duplicates,
+															rownames=FALSE,                                                    
+															extensions = "Buttons",
+															option=list(
+																	rownames = FALSE,
+																	scroller = TRUE,
+																	scrollX = TRUE,
+																	scrollY = "500px",
+																	order=list(3,"asc"),
+																	lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
+																	"pagelength"=-1,
+																	dom= "Blfrtip",
+																	buttons=list(
+																			list(extend="excel",
+																					filename = paste0("duplicates_",input$file_type,"_",Sys.Date(),current_cou_code))) 
+															))
+													
+												})
+										
+										if (nrow(new)==0) {
+											output$"step1_message_new"<-renderUI(
+													HTML(
+															paste(
+																	h4("No new values")                             
+															)))                    
+										} else {
+											output$"step1_message_new"<-renderUI(
+													HTML(
+															paste(
+																	h4("Table of new values (xls)"),
+																	"<p align='left'>Please click on excel ",
+																	"to download this file and qualify your data with columns <strong>qal_id, qal_comment</strong> ",
+																	"once this is done download the file with button <strong>download new</strong> and proceed to next step.<p>"                         
+															)))  
+											
+										}
+										
+										output$dt_new <-DT::renderDataTable({ 
+													validate(need(data$connectOK,"No connection"))
+													datatable(new,
+															rownames=FALSE,          
+															extensions = "Buttons",
+															option=list(
+																	scroller = TRUE,
+																	scrollX = TRUE,
+																	scrollY = "500px",
+																	order=list(3,"asc"),
+																	lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
+																	"pagelength"=-1,
+																	dom= "Blfrtip",
+																	scrollX = T, 
+																	buttons=list(
+																			list(extend="excel",
+																					filename = paste0("new_",input$file_type,"_",Sys.Date(),current_cou_code))) 
+															))
+												})
+										######
+										#Missing data
+										######
+										if (input$file_type == "catch_landings" & nrow(list_comp$complete)>0) {
+											output$dt_missing <- DT::renderDataTable({
+														validate(need(data$connectOK,"No connection"))
+														check_missing_data(list_comp$complete, new)
+													})
+										}
+										
+										
+									} # closes if nrow(...  
+									if (input$file_type %in% c("catch_landings","release")){
+									  if (nrow(updated_from_excel)>0){
+									    data$updated_values_table <- compare_with_database_updated_values(updated_from_excel,data_from_base) 
+									    output$dt_updated_values <- DT::renderDataTable({
+									      data$updated_values_table
+									    },option=list(
+									      rownames = FALSE,
+									      scroller = TRUE,
+									      scrollX = TRUE,
+									      scrollY = TRUE))
+									  }
+									}
+								  if (input$file_type %in% c("catch_landings","release")){
+									  summary_check_duplicates=data.frame(years=years,
+									    nb_new=sapply(years, function(y) length(which(new$eel_year==y))),
+									    nb_duplicates_updated=sapply(years,function(y) length(which(duplicates$eel_year==y & (duplicates$eel_value.base!=duplicates$eel_value.xls)))),
+									    nb_duplicates_no_changes=sapply(years,function(y) length(which(duplicates$eel_year==y & (duplicates$eel_value.base==duplicates$eel_value.xls)))),
+                      nb_updated_values=sapply(years, function(y) length(which(updated_from_excel$eel_year==y))))
+								  } else {
+								    summary_check_duplicates=data.frame(years=years,
+                        nb_new=sapply(years, function(y) length(which(new$eel_year==y))),
+                        nb_duplicates_updated=sapply(years,function(y) length(which(duplicates$eel_year==y & (duplicates$eel_value.base!=duplicates$eel_value.xls)))),
+                        nb_duplicates_no_changes=sapply(years,function(y) length(which(duplicates$eel_year==y & (duplicates$eel_value.base==duplicates$eel_value.xls)))))
+								  }
+									
+									output$dt_check_duplicates <-DT::renderDataTable({ 
+									  validate(need(data$connectOK,"No connection"))
+									  datatable(summary_check_duplicates,
+									            rownames=FALSE,                                                    
+									            options=list(dom="t"
+									            ))
 									})
-							######
-							#Missing data
-							######
-							if (input$file_type == "catch_landings" & nrow(list_comp$complete)>0) {
-								output$dt_missing <- DT::renderDataTable({
-											validate(need(data$connectOK,"No connection"))
-											check_missing_data(list_comp$complete, new)
-										})
-							}
-							
-							
-						} # closes if nrow(...      
-						#data$new <- new # new is stored in the reactive dataset to be inserted later.      
-					})
-			
-			
-			##########################
-			# STEP 2.1
-			# When database_duplicates_button is clicked
-			# this will trigger the data integration
-			#############################         
-			# this step only starts if step1 has been launched    
-			observeEvent(input$database_duplicates_button, { 
-						
-						###########################
-						# step2_filepath
-						# reactive function, when clicked return value in reactive data 
-						###########################
-						step21_filepath <- reactive({
-									inFile <- isolate(input$xl_duplicates_file)      
-									if (is.null(inFile)){        return(NULL)
-									} else {
-										data$path_step21<-inFile$datapath #path to a temp file             
-									}
+									#data$new <- new # new is stored in the reactive dataset to be inserted later.      
 								})
-						###########################
-						# step21load_data
-						#  function, returns a message
-						#  indicating that data integration was a succes
-						#  or an error message
-						###########################
-						step21load_data <- function() {
-							path <- step21_filepath()
-							if (is.null(data$path_step21)) 
-								return(NULL)
-							# this will alter changed values (change qal_id code) and insert new rows
-							rls <- write_duplicates(path, qualify_code = qualify_code)
-							message <- rls$message
-							cou_code <- rls$cou_code
-							main_assessor <- input$main_assessor
-							secondary_assessor <- input$secondary_assessor
-							file_type <- input$file_type
-							log_datacall("check duplicates", cou_code = cou_code, message = sQuote(message), the_metadata = NULL, 
-									file_type = file_type, main_assessor = main_assessor, secondary_assessor = secondary_assessor)
-							
-							return(message)
-						}
-						###########################
-						# errors_duplicates_integration
-						# this will add a path value to reactive data in step0
-						###########################            
-						output$textoutput_step2.1<-renderText({
-									validate(need(data$connectOK,"No connection"))
-									# call to  function that loads data
-									# this function does not need to be reactive                  
-									message<-step21load_data()                     
-									if (is.null(data$path_step21)) "please select a dataset" else {                                      
-										paste(message,collapse="\n")
-									}                  
-								})              
-					}) 
-			##########################
-			# STEP 2.2
-			# When database_new_button is clicked
-			# this will trigger the data integration
-			#############################      
-			observeEvent(input$database_new_button, {
 						
-						###########################
-						# step2_filepath
-						# reactive function, when clicked return value in reactive data 
-						###########################
-						step22_filepath <- reactive({
-									inFile <- isolate(input$xl_new_file)     
-									if (is.null(inFile)){        return(NULL)
-									} else {
-										data$path_step22<-inFile$datapath #path to a temp file             
+						
+						##########################
+						# STEP 2.1
+						# When database_duplicates_button is clicked
+						# this will trigger the data integration
+						#############################         
+						# this step only starts if step1 has been launched    
+						observeEvent(input$database_duplicates_button, { 
+									
+									###########################
+									# step2_filepath
+									# reactive function, when clicked return value in reactive data 
+									###########################
+									step21_filepath <- reactive({
+												inFile <- isolate(input$xl_duplicates_file)      
+												if (is.null(inFile)){        return(NULL)
+												} else {
+													data$path_step21<-inFile$datapath #path to a temp file             
+												}
+											})
+									###########################
+									# step21load_data
+									#  function, returns a message
+									#  indicating that data integration was a succes
+									#  or an error message
+									###########################
+									step21load_data <- function() {
+										path <- step21_filepath()
+										if (is.null(data$path_step21)) 
+											return(NULL)
+										# this will alter changed values (change qal_id code) and insert new rows
+										rls <- write_duplicates(path, qualify_code = qualify_code)
+										message <- rls$message
+										cou_code <- rls$cou_code
+										main_assessor <- input$main_assessor
+										secondary_assessor <- input$secondary_assessor
+										file_type <- input$file_type
+										log_datacall("check duplicates", cou_code = cou_code, message = sQuote(message), the_metadata = NULL, 
+												file_type = file_type, main_assessor = main_assessor, secondary_assessor = secondary_assessor)
+										
+										return(message)
 									}
+									###########################
+									# errors_duplicates_integration
+									# this will add a path value to reactive data in step0
+									###########################            
+									output$textoutput_step2.1<-renderText({
+												validate(need(data$connectOK,"No connection"))
+												# call to  function that loads data
+												# this function does not need to be reactive                  
+												message<-step21load_data()                     
+												if (is.null(data$path_step21)) "please select a dataset" else {                                      
+													paste(message,collapse="\n")
+												}                  
+											})              
+								}) 
+						##########################
+						# STEP 2.2
+						# When database_new_button is clicked
+						# this will trigger the data integration
+						#############################      
+						observeEvent(input$database_new_button, {
+									
+									###########################
+									# step2_filepath
+									# reactive function, when clicked return value in reactive data 
+									###########################
+									step22_filepath <- reactive({
+												inFile <- isolate(input$xl_new_file)     
+												if (is.null(inFile)){        return(NULL)
+												} else {
+													data$path_step22<-inFile$datapath #path to a temp file             
+												}
+											})
+									###########################
+									# step22load_data
+									#  function, returns a message
+									#  indicating that data integration was a succes
+									#  or an error message
+									###########################
+									step22load_data <- function() {
+										path <- step22_filepath()
+										if (is.null(data$path_step22)) 
+											return(NULL)
+										rls <- write_new(path)
+										message <- rls$message
+										cou_code <- rls$cou_code
+										main_assessor <- input$main_assessor
+										secondary_assessor <- input$secondary_assessor
+										file_type <- input$file_type
+										log_datacall("new data integration", cou_code = cou_code, message = sQuote(message), 
+												the_metadata = NULL, file_type = file_type, main_assessor = main_assessor, 
+												secondary_assessor = secondary_assessor)
+										return(message)
+									}
+									###########################
+									# new_data_integration
+									# this will add a path value to reactive data in step0
+									###########################            
+									output$textoutput_step2.2<-renderText({
+												validate(need(data$connectOK,"No connection"))
+												# call to  function that loads data
+												# this function does not need to be reactive
+												message<-step22load_data()
+												if (is.null(data$path_step22)) "please select a dataset" else {                                      
+													paste(message,collapse="\n")
+												}                  
+											})  
 								})
-						###########################
-						# step22load_data
-						#  function, returns a message
-						#  indicating that data integration was a succes
-						#  or an error message
-						###########################
-						step22load_data <- function() {
-							path <- step22_filepath()
-							if (is.null(data$path_step22)) 
-								return(NULL)
-							rls <- write_new(path)
-							message <- rls$message
-							cou_code <- rls$cou_code
-							main_assessor <- input$main_assessor
-							secondary_assessor <- input$secondary_assessor
-							file_type <- input$file_type
-							log_datacall("new data integration", cou_code = cou_code, message = sQuote(message), 
-									the_metadata = NULL, file_type = file_type, main_assessor = main_assessor, 
-									secondary_assessor = secondary_assessor)
-							return(message)
-						}
-						###########################
-						# new_data_integration
-						# this will add a path value to reactive data in step0
-						###########################            
-						output$textoutput_step2.2<-renderText({
-									validate(need(data$connectOK,"No connection"))
-									# call to  function that loads data
-									# this function does not need to be reactive
-									message<-step22load_data()
-									if (is.null(data$path_step22)) "please select a dataset" else {                                      
-										paste(message,collapse="\n")
-									}                  
-								})  
-					})
+			
+            		##########################
+            		# STEP 2.3
+            		# Integration of updated_values when proceed is clicked
+            		# 
+            		#############################
+          			observeEvent(input$database_updated_value_button, {
+          			  validate(need(data$updated_values_table,"need data to be updated"))
+          			  
+          			  ###########################
+          			  # step23load_updated_value_data
+          			  #  function, returns a message
+          			  #  indicating that data integration was a succes
+          			  #  or an error message
+          			  ###########################
+          			  step23load_updated_value_data <- function() {
+          			    rls <- write_updated_values(data$updated_values_table,qualify_code=qualify_code)
+          			    message <- rls$message
+          			    cou_code <- rls$cou_code
+          			    main_assessor <- input$main_assessor
+          			    secondary_assessor <- input$secondary_assessor
+          			    file_type <- input$file_type
+          			    log_datacall("updated values data integration", cou_code = cou_code, message = sQuote(message), 
+          			                 the_metadata = NULL, file_type = file_type, main_assessor = main_assessor, 
+          			                 secondary_assessor = secondary_assessor)
+          			    return(message)
+          			  }
+          			  ###########################
+          			  # updated_values_integration
+          			  # this will add a path value to reactive data in step0
+          			  ###########################            
+          			  output$textoutput_step2.3<-renderText({
+          			    validate(need(data$connectOK,"No connection"))
+          			    # call to  function that loads data
+          			    # this function does not need to be reactive
+          			    message<-step23load_updated_value_data()
+          			    paste(message,collapse="\n")
+          			  })  
+          			})
+		
 			#######################################
 			# II. Time series data
 			#######################################		
