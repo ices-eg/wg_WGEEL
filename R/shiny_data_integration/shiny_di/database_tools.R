@@ -937,6 +937,7 @@ write_updated_values <- function(updated_values_table, qualify_code) {
     message <<- e
   }, finally = {
     poolReturn(conn)
+    sqldf::sqldf("drop table if exists updated_temp ")
   })
   
   
