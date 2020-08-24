@@ -1,4 +1,4 @@
-# INFORMATIONS ABOUT DATA CALL INTEGRATION 2019
+# INFORMATIONS ABOUT DATA CALL INTEGRATION 2020
 
 _GT1 subgroup_
 
@@ -301,7 +301,7 @@ Data call sent to ICES in time
 ---------------------------
 
  
-## MO (Morocco) 
+## MA (Morocco) 
 
 check with Fatima
 
