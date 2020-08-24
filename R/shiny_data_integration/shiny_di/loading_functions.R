@@ -1511,7 +1511,7 @@ load_series<-function(path,datasource,stage="glass_eel"){
 	stopifnot(exists("tr_typeseries_typt"))
 	stopifnot(exists("list_country"))
 	stopifnot(exists("ices_division"))
-	suppressWarnings(t_series_ser <- extract_data("t_series_ser"))
+	suppressWarnings(t_series_ser <- extract_data("t_series_ser",quality_check=FALSE))
 	
 #---------------------- METADATA sheet ---------------------------------------------
 # read the metadata sheet
@@ -1823,6 +1823,8 @@ new_data <- read_excel(
 		sheet ="new_data",
 		skip=0)
 if (ncol(new_data)!=5) cat(str_c("number column wrong for newdata, should have been 5 in file from ",country,"\n"))
+
+# check for NULL ser_id in newdata, and try to replace them with series added in the previous step
 
 # check column names
 if (!all(colnames(new_data)%in%
