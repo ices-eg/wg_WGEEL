@@ -126,7 +126,7 @@ shinyServer(function(input, output, session){
 								updateRadioButtons(session, "file_type", selected = "mortality_rates")
 						}
 					}) 
-
+			
 			
 			###########################
 			# step0load_data reactive function 
@@ -168,7 +168,7 @@ shinyServer(function(input, output, session){
 			}
 			
 			
-	
+			
 			
 			##################################################
 			# Events triggerred by step0_button
@@ -611,6 +611,7 @@ shinyServer(function(input, output, session){
           			    paste(message,collapse="\n")
           			  })  
           			})
+		
 			#######################################
 			# II. Time series data
 			#######################################		
@@ -620,592 +621,884 @@ shinyServer(function(input, output, session){
 			# this will add a path value to reactive data in step0
 			###########################			
 			step0_filepath_ts <- reactive({
-			  
-			  inFile_ts <- input$xlfile_ts      
-			  if (is.null(inFile_ts)){        return(NULL)
-			  } else {
-			    data$path_step0_ts <- inFile_ts$datapath #path to a temp file
-			    if (grepl(c("glass"),tolower(inFile_ts$name))) 
-			      updateRadioButtons(session, "file_type_ts", selected = "glass_eel")
-			    if (grepl(c("yellow"),tolower(inFile_ts$name)))
-			      updateRadioButtons(session, "file_type_ts", selected = "yellow_eel")
-			    if (grepl(c("silver"),tolower(inFile_ts$name)))
-			      updateRadioButtons(session, "file_type_ts", selected = "silver_eel")						
-			  }
-			}) 			
+						
+						inFile_ts <- input$xlfile_ts      
+						if (is.null(inFile_ts)){        return(NULL)
+						} else {
+							data$path_step0_ts <- inFile_ts$datapath #path to a temp file
+							if (grepl(c("glass"),tolower(inFile_ts$name))) 
+								updateRadioButtons(session, "file_type_ts", selected = "glass_eel")
+							if (grepl(c("yellow"),tolower(inFile_ts$name)))
+								updateRadioButtons(session, "file_type_ts", selected = "yellow_eel")
+							if (grepl(c("silver"),tolower(inFile_ts$name)))
+								updateRadioButtons(session, "file_type_ts", selected = "silver_eel")						
+						}
+					}) 			
 			###########################
 			# step0load_data_ts (same for time series)
 			###########################
 			step0load_data_ts<-function(){
-			  validate(need(data$connectOK,"No connection"))
-			  path<- step0_filepath_ts()   
-			  if (is.null(data$path_step0_ts)) return(NULL)
-			  
-			  #file_type_ts is generated on the ui side
-			  #load series returns a list with several sheets
-			  #return(invisible(list(series=series,
-			  #						station = station,
-			  #						new_data=new_data,
-			  #						updated_data=updated_data,
-			  #						new_biometry=new_biometry,
-			  #						updated_biometry=updated_biometry,
-			  #						error=data_error,
-			  #						the_metadata=the_metadata))) 
-			  # it also prints error or comments captured by capture.output
-			  
-			  switch (input$file_type_ts, 
-			          "glass_eel"={                  
-			            message<-capture.output(res <- load_series(data$path_step0_ts, 
-			                                                       datasource = the_eel_datasource,
-			                                                       stage="glass_eel"
-			            ))},
-			          "yellow_eel"={
-			            message<-capture.output(res <- load_series(data$path_step0_ts, 
-			                                                       datasource = the_eel_datasource,
-			                                                       stage="yellow_eel"))},
-			          "silver_eel"={
-			            message<-capture.output(res <- load_series(data$path_step0_ts, 
-			                                                       datasource = the_eel_datasource,
-			                                                       stage="silver_eel"))}
-			          # -------------------------------------------------------------				
-			          # see  #130			https://github.com/ices-eg/wg_WGEEL/issues/130			
-			          #						"biometry"={
-			          #							message<-capture.output(res<-load_biometry(data$path_step0, 
-			          #											datasource = the_eel_datasource ))},
-			          #						}
-			          #---------------------------------------------------------------	
-			  )
-			  return(list(res=res,message=message))
+				validate(need(data$connectOK,"No connection"))
+				path<- step0_filepath_ts()   
+				if (is.null(data$path_step0_ts)) return(NULL)
+				
+				#file_type_ts is generated on the ui side
+				#load series returns a list with several sheets
+				#return(invisible(list(series=series,
+				#						station = station,
+				#						new_data=new_data,
+				#						updated_data=updated_data,
+				#						new_biometry=new_biometry,
+				#						updated_biometry=updated_biometry,
+				#						error=data_error,
+				#						the_metadata=the_metadata))) 
+				# it also prints error or comments captured by capture.output
+				
+				switch (input$file_type_ts, 
+						"glass_eel"={                  
+							message<-capture.output(res <- load_series(data$path_step0_ts, 
+											datasource = the_eel_datasource,
+											stage="glass_eel"
+									))},
+						"yellow_eel"={
+							message<-capture.output(res <- load_series(data$path_step0_ts, 
+											datasource = the_eel_datasource,
+											stage="yellow_eel"))},
+						"silver_eel"={
+							message<-capture.output(res <- load_series(data$path_step0_ts, 
+											datasource = the_eel_datasource,
+											stage="silver_eel"))}
+				# -------------------------------------------------------------				
+				# see  #130			https://github.com/ices-eg/wg_WGEEL/issues/130			
+				#						"biometry"={
+				#							message<-capture.output(res<-load_biometry(data$path_step0, 
+				#											datasource = the_eel_datasource ))},
+				#						}
+				#---------------------------------------------------------------	
+				)
+				return(list(res=res,message=message))
 			}			
 			
 			##################################################
 			# Events triggerred by step0_button (time series page)
 			###################################################
 			observeEvent(input$ts_check_file_button, {
-			  
-			  ##################################################
-			  # integrate verbatimtextoutput
-			  # this will print the error messages to the console
-			  #################################################
-			  output$integrate_ts<-renderText({
-			    validate(need(data$connectOK,"No connection"))
-			    # call to  function that loads data
-			    # this function does not need to be reactive
-			    if (is.null(data$path_step0_ts)) "please select a dataset" else {          
-			      rls <- step0load_data_ts() # result list
-			      # this will fill the log_datacall file (database_tools.R)
-			      stopifnot(length(unique(rls$res$series$ser_cou_code))==1)
-			      cou_code <- rls$res$series$ser_cou_code[1]
-			      # the following three lines might look silly but passing input$something to the log_datacall function results
-			      # in an error (input not found), I guess input$something has to be evaluated within the frame of the shiny app
-			      main_assessor <- input$main_assessor
-			      secondary_assessor <- input$secondary_assessor
-			      file_type <- input$file_type
-			      # this will fill the log_datacall file (database_tools.R)
-			      log_datacall( "check data time series",cou_code = cou_code, message = paste(rls$message,collapse="\n"), the_metadata = rls$res$the_metadata, file_type = file_type, main_assessor = main_assessor, secondary_assessor = secondary_assessor )
-			      paste(rls$message, collapse="\n")						
-			    }
-			    
-			  }) 
-			  ##################################
-			  # Actively generates UI component on the ui side 
-			  # which displays text for xls download
-			  ##################################
-			  
-			  output$"step0_message_xls_ts"<-renderUI(
-			    HTML(
-			      paste(
-			        h4("Time series file checking messages (xls)"),
-			        "<p align='left'>Please click on excel",'<br/>',
-			        "to download this file and correct the errors",'<br/>',
-			        "and submit again in <strong>step0</strong> the file once it's corrected<p>"
-			      )))  
-			  
-			  ##################################
-			  # Actively generates UI component on the ui side
-			  # which generates text for txt
-			  ################################## 									
-			  
-			  output$"step0_message_txt_ts"<-renderUI(
-			    HTML(
-			      paste(
-			        h4("Time series file checking messages (txt)"),
-			        "<p align='left'>Please read carefully and ensure that you have",
-			        "checked all possible errors. This output is the same as the table",
-			        " output<p>"
-			      )))
-			  
-			  
-			  #####################
-			  # DataTable integration error (TIME SERIES)
-			  ########################
-			  
-			  output$dt_integrate_ts <- DT::renderDataTable({
-			    validate(need(input$xlfile_ts != "", "Please select a data set"))
-			    ls <- step0load_data_ts()
-			    stopifnot(length(unique(ls$res$series$ser_cou_code))==1)
-			    cou_code <- ls$res$series$ser_cou_code[1]
-			    datatable(ls$res$error,
-			              rownames=FALSE,
-			              filter = 'top',
-			              #                      !!removed caption otherwise included in the file content
-			              #                      caption = htmltools::tags$caption(
-			              #                          style = 'caption-side: bottom; text-align: center;',
-			              #                          'Table 1: ', htmltools::em('Please check the following values, click on excel button to download.')
-			              #                      ),
-			              extensions = "Buttons",
-			              option=list(
-			                "pagelength"=5,
-			                searching = FALSE, # no filtering options
-			                lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
-			                order=list(1,"asc"),
-			                dom= "Blfrtip",
-			                buttons=list(
-			                  list(extend="excel",
-			                       filename = paste0("datats_",cou_code, Sys.Date())))
-			              )
-			    )
-			  })
-		})
-			
-		##################################################
-		# Events triggered by step1_button TIME SERIES
-		###################################################      
-		##########################
-		# When check_duplicate_button is clicked
-		# this will render a datatable containing rows
-		# with duplicates values
-		#############################
-		observeEvent(input$check_duplicate_button_ts, { 
-					
-					
-					# see step0load_data returns a list with res and messages
-					# and within res data and a dataframe of errors
-					validate(
-							need(input$xlfile_ts != "", "Please select a data set")
-					)
-					res <- step0load_data_ts()$res
-					series <- res$series
-					station	<- res$station
-					new_data	<- res$new_data
-					updated_data	<- res$updated_data
-					new_biometry <- res$new_biometry
-					updated_biometry <- res$updated_biometry
-
-					suppressWarnings(t_series_ser <- extract_data("t_series_ser",  quality_check=FALSE)) 
-					t_dataseries_das <- extract_data("t_dataseries_das", quality_check=FALSE)  
-					t_biometry_series_bis <- extract_data("t_biometry_series_bis", quality_check=FALSE)
-					
-					switch (input$file_type, 
-							"glass_eel"={                                     
-								t_series_ser <- t_series_ser %>%  filter(ser_typ_id==1)    
-								t_dataseries_das <- t_dataseries_das %>% filter (das_ser_id %in% t_series_ser$ser_id)
-							},
-							"yellow_eel"={
-								t_series_ser <- t_series_ser %>%  filter(ser_typ_id==2)    
-								t_dataseries_das <- t_dataseries_das %>% filter (das_ser_id %in% t_series_ser$ser_id)
-							},
-							"silver_eel"={             
-								t_series_ser <- t_series_ser %>%  filter(ser_typ_id==3)    
-								t_dataseries_das <- t_dataseries_das %>% filter (das_ser_id %in% t_series_ser$ser_id)
-							}                
-					)
-					# the compare_with_database function will compare
-					# what is in the database and the content of the excel file
-					# previously loaded. It will return a list with two components
-					# the first duplicates contains elements to be returned to the use
-					# the second new contains a dataframe to be inserted straight into
-					# the database
-					#cat("step0")
-					if (nrow(data_from_excel)>0){
-						list_comp<-compare_with_database(data_from_excel,data_from_base)
-						duplicates <- list_comp$duplicates
-						new <- list_comp$new 
-						current_cou_code <- list_comp$current_cou_code
-						#cat("step1")
-						#####################      
-						# Duplicates values
+						
+						##################################################
+						# integrate verbatimtextoutput
+						# this will print the error messages to the console
+						#################################################
+						output$integrate_ts<-renderText({
+									validate(need(data$connectOK,"No connection"))
+									# call to  function that loads data
+									# this function does not need to be reactive
+									if (is.null(data$path_step0_ts)) "please select a dataset" else {          
+										rls <- step0load_data_ts() # result list
+										# this will fill the log_datacall file (database_tools.R)
+										stopifnot(length(unique(rls$res$series$ser_cou_code))==1)
+										cou_code <- rls$res$series$ser_cou_code[1]
+										# the following three lines might look silly but passing input$something to the log_datacall function results
+										# in an error (input not found), I guess input$something has to be evaluated within the frame of the shiny app
+										main_assessor <- input$main_assessor
+										secondary_assessor <- input$secondary_assessor
+										file_type <- input$file_type
+										# this will fill the log_datacall file (database_tools.R)
+										log_datacall( "check data time series",cou_code = cou_code, message = paste(rls$message,collapse="\n"), the_metadata = rls$res$the_metadata, file_type = file_type, main_assessor = main_assessor, secondary_assessor = secondary_assessor )
+										paste(rls$message, collapse="\n")						
+									}
+									
+								}) 
+						##################################
+						# Actively generates UI component on the ui side 
+						# which displays text for xls download
+						##################################
+						
+						output$"step0_message_xls_ts"<-renderUI(
+								HTML(
+										paste(
+												h4("Time series file checking messages (xls)"),
+												"<p align='left'>Please click on excel",'<br/>',
+												"to download this file and correct the errors",'<br/>',
+												"and submit again in <strong>step0</strong> the file once it's corrected<p>"
+										)))  
+						
+						##################################
+						# Actively generates UI component on the ui side
+						# which generates text for txt
+						################################## 									
+						
+						output$"step0_message_txt_ts"<-renderUI(
+								HTML(
+										paste(
+												h4("Time series file checking messages (txt)"),
+												"<p align='left'>Please read carefully and ensure that you have",
+												"checked all possible errors. This output is the same as the table",
+												" output<p>"
+										)))
+						
+						
 						#####################
+						# DataTable integration error (TIME SERIES)
+						########################
 						
-						if (nrow(duplicates)==0) {
-							output$"step1_message_duplicates"<-renderUI(
-									HTML(
-											paste(
-													h4("No duplicates")                             
-											)))                 
-						}else{      
-							output$"step1_message_duplicates"<-renderUI(
-									HTML(
-											paste(
-													h4("Table of duplicates (xls)"),
-													"<p align='left'>Please click on excel",
-													"to download this file. In <strong>keep new value</strong> choose true",
-													"to replace data using the new datacall data (true)",
-													"if new is selected don't forget to qualify your data in column <strong> eel_qal_id.xls, eel_qal_comment.xls </strong>",
-													"once this is done download the file and proceed to next step.",
-													"Rows with false will be ignored and kept as such in the database",
-													"Rows with true will use the column labelled .xls for the new insertion, and flag existing values as removed ",
-													"If you see an error in old data, use panel datacorrection (on top of the application), this will allow you to make changes directly in the database <p>"                         
-											)))  
-						}
-						
-						# table of number of duplicates values per year (hilaire)
-						
-						years=sort(unique(c(duplicates$eel_year,new$eel_year)))
-						
-						summary_check_duplicates=data.frame(years=years,
-								nb_new=sapply(years, function(y) length(which(new$eel_year==y))),
-								nb_updated_duplicates=sapply(years,function(y) length(which(duplicates$eel_year==y & (duplicates$eel_value.base!=duplicates$eel_value.xls)))),
-								nb_no_changes=sapply(years,function(y) length(which(duplicates$eel_year==y & (duplicates$eel_value.base==duplicates$eel_value.xls)))))
-						
-						output$dt_check_duplicates <-DT::renderDataTable({ 
-									validate(need(data$connectOK,"No connection"))
-									datatable(summary_check_duplicates,
-											rownames=FALSE,                                                    
-											options=list(dom="t"
-											),
-											scroller = TRUE,
-											scrollX = TRUE,
-											scrollY = TRUE)
-								})
-						output$dt_duplicates <-DT::renderDataTable({
-									validate(need(data$connectOK,"No connection"))
-									datatable(duplicates,
-											rownames=FALSE,                                                    
+						output$dt_integrate_ts <- DT::renderDataTable({
+									validate(need(input$xlfile_ts != "", "Please select a data set"))
+									ls <- step0load_data_ts()
+									stopifnot(length(unique(ls$res$series$ser_cou_code))==1)
+									cou_code <- ls$res$series$ser_cou_code[1]
+									datatable(ls$res$error,
+											rownames=FALSE,
+											filter = 'top',
+											#                      !!removed caption otherwise included in the file content
+											#                      caption = htmltools::tags$caption(
+											#                          style = 'caption-side: bottom; text-align: center;',
+											#                          'Table 1: ', htmltools::em('Please check the following values, click on excel button to download.')
+											#                      ),
 											extensions = "Buttons",
 											option=list(
-													rownames = FALSE,
-													scroller = TRUE,
-													scrollX = TRUE,
-													scrollY = "500px",
-													order=list(3,"asc"),
-													lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
-													"pagelength"=-1,
+													"pagelength"=5,
+													searching = FALSE, # no filtering options
+													lengthMenu=list(c(5,20,50,-1),c("5","20","50","All")),
+													order=list(1,"asc"),
 													dom= "Blfrtip",
 													buttons=list(
 															list(extend="excel",
-																	filename = paste0("duplicates_",input$file_type,"_",Sys.Date(),current_cou_code))) 
-											))
-									
-								})
-						
-						if (nrow(new)==0) {
-							output$"step1_message_new"<-renderUI(
-									HTML(
-											paste(
-													h4("No new values")                             
-											)))                    
-						} else {
-							output$"step1_message_new"<-renderUI(
-									HTML(
-											paste(
-													h4("Table of new values (xls)"),
-													"<p align='left'>Please click on excel ",
-													"to download this file and qualify your data with columns <strong>qal_id, qal_comment</strong> ",
-													"once this is done download the file with button <strong>download new</strong> and proceed to next step.<p>"                         
-											)))  
-							
-						}
-						
-						output$dt_new <-DT::renderDataTable({ 
-									validate(need(data$connectOK,"No connection"))
-									datatable(new,
-											rownames=FALSE,          
-											extensions = "Buttons",
-											option=list(
-													scroller = TRUE,
-													scrollX = TRUE,
-													scrollY = "500px",
-													order=list(3,"asc"),
-													lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
-													"pagelength"=-1,
-													dom= "Blfrtip",
-													scrollX = T, 
-													buttons=list(
-															list(extend="excel",
-																	filename = paste0("new_",input$file_type,"_",Sys.Date(),current_cou_code))) 
-											))
-								})
-						######
-						#Missing data
-						######
-						if (input$file_type == "catch_landings" & nrow(list_comp$complete)>0) {
-							output$dt_missing <- DT::renderDataTable({
-										validate(need(data$connectOK,"No connection"))
-										check_missing_data(list_comp$complete, new)
-									})
-						}
-						
-						
-					} # closes if nrow(...      
-					#data$new <- new # new is stored in the reactive dataset to be inserted later.      
-				})
-		
-			
-						#######################################
-						# III. Data correction table  
-						# This section provides a direct interaction with the database
-						# Currently only developped for modifying data.
-						# Deletion must be done by changing data code or asking Database handler
-						#######################################
-						rvs <- reactiveValues(
-								data = NA, 
-								dbdata = NA,
-								dataSame = TRUE,
-								editedInfo = NA
-						
-						)
-						
-						#-----------------------------------------  
-						# Generate source via reactive expression
-						
-						mysource <- reactive({
-									req(input$passwordbutton)
-									validate(need(data$connectOK,"No connection"))
-									vals = input$country
-									if (is.null(vals)) 
-										vals <- c("FR")
-									types = input$typ
-									if (is.null(types)) 
-										types <- c(4, 5, 6, 7)
-									the_years <- input$year
-									if (is.null(input$year)) {
-										the_years <- c(the_years$min_year, the_years$max_year)
-									}
-									# glue_sql to protect against injection, used with a vector with *
-									query <- glue_sql("SELECT * from datawg.t_eelstock_eel where eel_cou_code in ({vals*}) and eel_typ_id in ({types*}) and eel_year>={minyear} and eel_year<={maxyear}", 
-											vals = vals, types = types, minyear = the_years[1], maxyear = the_years[2], 
-											.con = pool)
-									# https:/stackoverflow.com/questions/34332769/how-to-use-dbgetquery-in-trycatch-with-postgresql
-									# it seems that dbgetquery doesn't raise an error
-									out_data <- dbGetQuery(pool, query)
-									return(out_data)
-									
-								})
-						
-						# Observe the source, update reactive values accordingly
-						
-						observeEvent(mysource(), {               
-									data <- mysource() %>% arrange(eel_emu_nameshort,eel_year)
-									rvs$data <- data
-									rvs$dbdata <- data
-									disable("clear_table")                
-								})
-						
-						#-----------------------------------------
-						# Render DT table 
-						# 
-						# selection better be none
-						# editable must be TRUE
-						#
-						output$table_cor <- DT::renderDataTable({
-									validate(need(data$connectOK,"No connection"))
-									DT::datatable(
-											rvs$dbdata, 
-											rownames = FALSE,
-											extensions = "Buttons",
-											editable = TRUE, 
-											selection = 'none',
-											options=list(
-													order=list(3,"asc"),              
-													searching = TRUE,
-													rownames = FALSE,
-													scroller = TRUE,
-													scrollX = TRUE,
-													scrollY = "500px",
-													lengthMenu=list(c(-1,5,20,50,100),c("All","5","20","50","100")),
-													dom= "Blfrtip", #button fr search, t table, i information (showing..), p pagination
-													buttons=list(
-															list(extend="excel",
-																	filename = paste0("data_",Sys.Date())))
-											))})
-						#-----------------------------------------
-						# Create a DT proxy to manipulate data
-						# 
-						#
-						proxy_table_cor = dataTableProxy('table_cor')
-						#--------------------------------------
-						# Edit table data
-						# Expamples at
-						# https://yihui.shinyapps.io/DT-edit/
-						observeEvent(input$table_cor_cell_edit, {
-									
-									info = input$table_cor_cell_edit
-									
-									i = info$row
-									j = info$col = info$col + 1  # column index offset by 1
-									v = info$value
-									
-									rvs$data[i, j] <<- DT::coerceValue(v, rvs$data[i, j])
-									replaceData(proxy_table_cor, rvs$data, resetPaging = FALSE, rownames = FALSE)
-									# datasame is set to TRUE when save or update buttons are clicked
-									# here if it is different it might be set to FALSE
-									rvs$dataSame <- identical(rvs$data, rvs$dbdata)
-									# this will collate all editions (coming from datatable observer in a data.frame
-									# and store it in the reactive dataset rvs$editedInfo
-									if (all(is.na(rvs$editedInfo))) {
-										
-										rvs$editedInfo <- data.frame(info)
-									} else {
-										rvs$editedInfo <- dplyr::bind_rows(rvs$editedInfo, data.frame(info))
-									}
-									
-								})
-						
-						# Update edited values in db once save is clicked---------------------------------------------
-						
-						observeEvent(input$save, {
-									errors<-update_t_eelstock_eel(editedValue = rvs$editedInfo, pool = pool, data=rvs$data)
-									if (length(errors)>0) {
-										output$database_errors<-renderText({iconv(unlist(errors,"UTF8"))})
-										enable("clear_table")
-									} else {
-										output$database_errors<-renderText({"Database updated"})
-									}
-									rvs$dbdata <- rvs$data
-									rvs$dataSame <- TRUE
-								})
-						
-						# Observe clear_table button -> revert to database table---------------------------------------
-						
-						observeEvent(input$clear_table,
-								{
-									data <- mysource() %>% arrange(eel_emu_nameshort,eel_year)
-									rvs$data <- data
-									rvs$dbdata <- data
-									disable("clear_table")
-									output$database_errors<-renderText({""})
-								})
-						
-						# Oberve cancel -> revert to last saved version -----------------------------------------------
-						
-						observeEvent(input$cancel, {
-									rvs$data <- rvs$dbdata
-									rvs$dataSame <- TRUE
-								})
-						
-						# UI buttons ----------------------------------------------------------------------------------
-						# Appear only when data changed
-						
-						output$buttons_data_correction <- renderUI({
-									div(
-											if (! rvs$dataSame) {
-														span(
-																actionBttn(inputId = "save", label = "Save",
-																		style = "material-flat", color = "danger"),
-																actionButton(inputId = "cancel", label = "Cancel")
-														)
-													} else {
-														span()
-													}
+																	filename = paste0("datats_",cou_code, Sys.Date())))
+											)
 									)
 								})
-						#################################################
-						# GRAPHS ----------------------------------------
-						#################################################
+					})
+			
+			##################################################
+			# Events triggered by step1_button TIME SERIES
+			###################################################      
+			##########################
+			# When check_duplicate_button is clicked
+			# this will render a datatable containing rows
+			# with duplicates values
+			#############################
+			observeEvent(input$check_duplicate_button_ts, { 
 						
-						# Same as mysource but for graphs, different page, so different buttons
-						# there must be a way by reorganizing the buttons to do a better job
-						# but buttons don't apply to the data integration sheet and here we don't
-						# want multiple choices (to check for duplicates we need to narrow down the search) ....
 						
-						mysource_graph <- reactive(					
-								{
-									req(input$passwordbutton)
-									validate(need(data$connectOK,"No connection"))
-									validate(need(!is.null(pool), "Waiting for database connection"))
-									vals = input$country_g
-									if (is.null(vals)) 
-										vals <- c("FR")
-									types = input$typ_g
-									if (is.null(types)) 
-										types <- c(4, 5, 6, 7)
-									the_years <- input$year_g
-									if (is.null(input$year)) {
-										the_years <- c(the_years$min_year, the_years$max_year)
-									}
-									# glue_sql to protect against injection, used with a vector with *
-									query <- glue_sql("SELECT * from datawg.t_eelstock_eel where eel_cou_code in ({vals*}) and eel_typ_id in ({types*}) and eel_year>={minyear} and eel_year<={maxyear}", 
-											vals = vals, types = types, minyear = the_years[1], maxyear = the_years[2], 
-											.con = pool)
-									# https:/stackoverflow.com/questions/34332769/how-to-use-dbgetquery-in-trycatch-with-postgresql
-									# it seems that dbgetquery doesn't raise an error
-									out_data <- dbGetQuery(pool, query)
-									return(out_data)
-									
-								})
-						
-						# store data in reactive values ---------------------------------------------------------------
-						
-						observeEvent(mysource_graph(), {               
-									data <- mysource_graph() %>% arrange(eel_emu_nameshort,eel_year)
-									rvs$datagr <- data                           
-								})
-						
-						# plot -------------------------------------------------------------------------------------------
-						# the plots groups by kept (typ id = 1,2,4) or not (other typ_id) and year 
-						# and calculate thenumber of values 
-						
-						output$duplicated_ggplot <- renderPlot({
-									validate(need(data$connectOK,"No connection"))
-									if (is.null(rvs$datagr)) return(NULL)
-									# duplicated_values_graph performs a group by, see graph.R inside the shiny data integration
-									# tab
-									duplicated_values_graph(rvs$datagr)
-								}
+						# see step0load_data returns a list with res and messages
+						# and within res data and a dataframe of errors
+						validate(
+								need(input$xlfile_ts != "", "Please select a data set")
 						)
+						res <- step0load_data_ts()$res
+						series <- res$series
+						station	<- res$station
+						new_data	<- res$new_data
+						updated_data	<- res$updated_data
+						new_biometry <- res$new_biometry
+						updated_biometry <- res$updated_biometry
+						t_series_ser <- res$t_series_ser
 						
-						# the observeEvent will not execute untill the user clicks, here it runs
-						# both the plotly and datatable component -----------------------------------------------------
+						new_data <- left_join(new_data, t_series_ser[,c("ser_id","ser_nameshort")], by="ser_nameshort")
+						new_data <- rename(new_data,"das_ser_id"="ser_id")
 						
-						observeEvent(input$duplicated_ggplot_click,  {
-									# the nearpoint function does not work straight with bar plots
-									# we have to retreive the x data and check the year it corresponds to ... 
-									year_selected = round(input$duplicated_ggplot_click$x)  
-									datagr <- rvs$datagr
-									datagr <- datagr[datagr$eel_year==year_selected, ] 
-									
-									# Data table for individual data corresponding to the year bar on the graph -------------
-									
-									output$datatablenearpoints <- DT::renderDataTable({            
-												datatable(datagr,
-														rownames = FALSE,
-														extensions = 'Buttons',
-														options=list(
-																order=list(3,"asc"),    
-																lengthMenu=list(c(-1,5,10,30),c("All","5","10","30")),                           
-																searching = FALSE,                          
-																scroller = TRUE,
-																scrollX = TRUE,                         
-																dom= "Blfrtip", # l length changing,  
-																buttons=list('copy',I('colvis')) 
-														)
-												)
-											})        
-									
-									# Plotly output allowing to brush out individual values per EMU
-									x <- sample(c(1:5, NA, NA, NA))
-									coalesce(x, 0L)
-									output$plotly_selected_year <-renderPlotly({  
-												coalesce 
-												datagr$hl <- as.factor(str_c(datagr$eel_lfs_code, coalesce(datagr$eel_hty_code,"no"),collapse= "&"))   
-												p <-plot_ly(datagr, x = ~eel_emu_nameshort, y = ~eel_value,
-														# Hover text:
-														text = ~paste("Lifestage: ", eel_lfs_code, 
-																'$<br> Hty_code:', eel_hty_code,
-																'$<br> Area_division:', eel_area_division,
-																'$<br> Source:', eel_datasource,
-																'$<br> Value:', eel_value),
-														color = ~ eel_lfs_code,
-														split = ~eel_hty_code)  
-												p$elementId <- NULL # a hack to remove warning : ignoring explicitly provided widget
-												p           
-											}) 
-									
-								}, ignoreNULL = TRUE) # additional arguments to observe ...
+						# bis_ser_id is missing from excel so I'm reloading it
+						new_biometry <- select(new_biometry,-"bis_ser_id")
+						new_biometry <-  left_join(new_biometry, t_series_ser[,c("ser_id","ser_nameshort")], by="ser_nameshort")
+						new_biometry <- rename(new_biometry,"bis_ser_id"="ser_id")
+						
+						# TODO updated biometry
+						
+						suppressWarnings(t_series_ser <- extract_data("t_series_ser",  quality_check=FALSE)) 
+						t_dataseries_das <- extract_data("t_dataseries_das", quality_check=FALSE)  
+						t_biometry_series_bis <- extract_data("t_biometry_series_bis", quality_check=FALSE)
+						
+						switch (input$file_type, 
+								"glass_eel"={                                     
+									t_series_ser <- t_series_ser %>%  filter(ser_typ_id==1)    
+									t_dataseries_das <- t_dataseries_das %>% filter (das_ser_id %in% t_series_ser$ser_id)
+								},
+								"yellow_eel"={
+									t_series_ser <- t_series_ser %>%  filter(ser_typ_id==2)    
+									t_dataseries_das <- t_dataseries_das %>% filter (das_ser_id %in% t_series_ser$ser_id)
+								},
+								"silver_eel"={             
+									t_series_ser <- t_series_ser %>%  filter(ser_typ_id==3)    
+									t_dataseries_das <- t_dataseries_das %>% filter (das_ser_id %in% t_series_ser$ser_id)
+								}                
+						)
+						# the compare_with_database function will compare
+						# what is in the database and the content of the excel file
+						# previously loaded. It will return a list with two components
+						# the first duplicates contains elements to be returned to the use
+						# the second new contains a dataframe to be inserted straight into
+						# the database
+						#cat("step0")
+						if (nrow(series)>0){						
+							list_comp_series <- compare_with_database_series(data_from_excel=series, data_from_base=t_series_ser)
+						}
+						if (nrow(new_data)>0){
+							list_comp_dataseries <- compare_with_database_dataseries(data_from_excel=new_data, data_from_base=t_dataseries_das, sheetorigin="new_data")
+						}
+						if (nrow(updated_data)>0){
+						 	list_comp_updateddataseries <- compare_with_database_dataseries(data_from_excel=updated_data, data_from_base=t_dataseries_das, sheetorigin="updated_data")
+				
+							if (nrow(new_data)>0){
+								list_comp_dataseries$new <- rbind(list_comp_dataseries$new,list_comp_updateddataseries$new)
+								list_comp_dataseries$modified <- rbind(list_comp_dataseries$modified,list_comp_updateddataseries$modified)
+								# note highlight change is not passed from one list to the other, both will be shown
+							}
+						}	else {
+							list_comp_updateddataseries <- list
+							list_comp_updateddataseries$error_id_message <- "" # this message would have been displayed if pb of id
+						}			
+						if (nrow(new_biometry)>0){
+							list_comp_biometry <- compare_with_database_biometry(data_from_excel=new_biometry, data_from_base=t_biometry_series_bis, sheetorigin="new_data")
+						}
+						current_cou_code <- list_comp_series$current_cou_code
+						
+						#cat("step1")					
+						# step1 new series -------------------------------------------------------------
+						
+						if (nrow(list_comp_series$new)==0) {
+							output$"step1_message_new_series"<-renderUI(
+									HTML(
+											paste(
+													h4("No new series")                             
+											)))                 
+						} else {      
+							output$"step1_message_new_series"<-renderUI(
+									HTML(
+											paste(
+													paste(
+															h4("Table of new values (series) (xls)"),
+															"<p align='left'>Please click on excel ",
+															"to download this file and eventually qualify your data with columns <strong>qal_id, qal_comment</strong> ",
+															"once this is done download the file with button <strong>download new</strong> and proceed to next step.",
+															"<strong>Do this before integrating dataseries.</strong><p>"
+													)))
+							)
+							output$dt_new_series <-DT::renderDataTable({ 
+										validate(need(data$connectOK,"No connection"))
+										datatable(list_comp_series$new,
+												rownames=FALSE,          
+												extensions = "Buttons",
+												option=list(
+														scroller = TRUE,
+														scrollX = TRUE,
+														scrollY = "500px",
+														order=list(3,"asc"),
+														lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
+														"pagelength"=-1,
+														dom= "Blfrtip",
+														scrollX = T, 
+														autoWidth = TRUE,
+														columnDefs = list(list(width = '200px', targets = c(4, 8))),
+														buttons=list(
+																list(extend="excel",
+																		filename = paste0("new_series","_",Sys.Date(),"_",current_cou_code))) 
+												))
+									})
+						} 					
+						# step1 new dataseries -------------------------------------------------------------						
+						if (nrow(list_comp_dataseries$new)==0) {
+							output$"step1_message_new_dataseries"<-renderUI(
+									HTML(
+											paste(
+													h4("No new data")                             
+											)))                 
+						} else {      
+							output$"step1_message_new_dataseries"<-renderUI(
+									HTML(
+											paste(
+													paste(
+															h4("Table of new values (data) (xls)"),
+															list_comp_updateddataseries$error_id_message,
+															"<p align='left'>Please click on excel ",
+															"Data may come from new_data or updated_data (error)",
+															" Series should have been <strong>updated</strong> before getting data <p>"
+													)))
+							)
+							output$dt_new_dataseries <-DT::renderDataTable({ 
+										validate(need(data$connectOK,"No connection"))
+										datatable(list_comp_dataseries$new,
+												rownames=FALSE,          
+												extensions = "Buttons",
+												option=list(
+														scroller = TRUE,
+														scrollX = TRUE,
+														scrollY = "500px",
+														order=list(3,"asc"),
+														lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
+														"pagelength"=-1,
+														dom= "Blfrtip",
+														scrollX = T, 
+														autoWidth = TRUE,
+														columnDefs = list(list(width = '200px', targets = c(4, 8))),
+														buttons=list(
+																list(extend="excel",
+																		filename = paste0("new_dataseries","_",Sys.Date(),"_",current_cou_code))) 
+												))
+									})
+						} 			
+						# step1 new biometry -------------------------------------------------------------						
+						
+						if (nrow(list_comp_biometry$new)==0) {
+							output$"step1_message_new_biometry"<-renderUI(
+									HTML(
+											paste(
+													h4("No new data")                             
+											)))                 
+						} else {      
+							output$"step1_message_new_biometry"<-renderUI(
+									HTML(
+											paste(
+													paste(
+															h4("Table of new values (data) (xls)"),
+															"<p align='left'>Please click on excel <p>"
+													)))
+							)
+							output$dt_new_biometry <-DT::renderDataTable({ 
+										validate(need(data$connectOK,"No connection"))
+										datatable(list_comp_biometry$new,
+												rownames=FALSE,          
+												extensions = "Buttons",
+												option=list(
+														scroller = TRUE,
+														scrollX = TRUE,
+														scrollY = "500px",
+														order=list(3,"asc"),
+														lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
+														"pagelength"=-1,
+														dom= "Blfrtip",
+														scrollX = T, 
+														buttons=list(
+																list(extend="excel",
+																		filename = paste0("new_biometry","_",Sys.Date(),"_",current_cou_code))) 
+												))
+									})
+						} 
+						# step1 modified series -------------------------------------------------------------						
+						
+						if (nrow(list_comp_series$modified)==0) {
+							output$"step1_message_modified_series"<-renderUI(
+									HTML(
+											paste(
+													h4("No new data")                             
+											)))                 
+						} else {      
+							output$"step1_message_modified_series"<-renderUI(
+									HTML(
+											paste(
+													paste(
+															h4("Table of modified series (data) (xls)"),
+															"<p align='left'>Please click on excel <p>"
+													)))
+							)
+							output$dt_modified_series <-DT::renderDataTable({ 
+										validate(need(data$connectOK,"No connection"))
+										datatable(list_comp_series$modified,
+												rownames=FALSE,          
+												extensions = "Buttons",
+												option=list(
+														scroller = TRUE,
+														scrollX = TRUE,
+														scrollY = "500px",
+														order=list(3,"asc"),
+														lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
+														"pagelength"=-1,
+														dom= "Blfrtip",
+														scrollX = T, 
+														buttons=list(
+																list(extend="excel",
+																		filename = paste0("modified_series","_",Sys.Date(),"_",current_cou_code))) 
+												))
+									})
+							output$dt_highlight_change_series <-DT::renderDataTable({ 
+										validate(need(data$connectOK,"No connection"))
+										datatable(list_comp_dataseries$highlight_change,
+												rownames=FALSE,          
+												extensions = "Buttons",
+												option=list(
+														scroller = TRUE,
+														scrollX = TRUE,
+														scrollY = "500px",
+														order=list(3,"asc"),
+														lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
+														"pagelength"=-1,
+														dom= "Blfrtip",
+														scrollX = T, 
+														buttons=list(
+																list(extend="excel",
+																		filename = paste0("highlight_change_series","_",Sys.Date(),"_",current_cou_code))) 
+												))
+									})
+						} 				
+						
+						# step1 modified dataseries -------------------------------------------------------------						
+						
+						if (nrow(list_comp_dataseries$modified)==0) {
+							output$"step1_message_modified_dataseries"<-renderUI(
+									HTML(
+											paste(
+													h4("No new data")                             
+											)))                 
+						} else {      
+							output$"step1_message_modified_dataseries"<-renderUI(
+									HTML(
+											paste(
+													paste(
+															h4("Table of modified dataseries (data) (xls)"),
+															"<p align='left'> This is the file to import ",
+															"Data may come from new_data (error) or updated_data",
+															"Please click on excel<p>"
+													)))
+							)
+							output$dt_modified_dataseries <-DT::renderDataTable({ 
+										validate(need(data$connectOK,"No connection"))
+										datatable(list_comp_dataseries$modified,
+												rownames=FALSE,          
+												extensions = "Buttons",
+												option=list(
+														scroller = TRUE,
+														scrollX = TRUE,
+														scrollY = "500px",
+														order=list(3,"asc"),
+														lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
+														"pagelength"=-1,
+														dom= "Blfrtip",
+														scrollX = T, 
+														buttons=list(
+																list(extend="excel",
+																		filename = paste0("modified_dataseries","_",Sys.Date(),"_",current_cou_code))) 
+												))
+									})
+							
+							# Data are coming for either updated or new series, they are checked and
+							# data from updated and new have been collated
+							# but for highlight for change they are kept in each source list to be shown below
+							
+							output$dt_highlight_change_newdata_dataseries <-DT::renderDataTable({ 
+										validate(need(data$connectOK,"No connection"))
+										datatable(list_comp_dataseries$highlight_change,
+												rownames=FALSE,          
+												extensions = "Buttons",
+												option=list(
+														scroller = TRUE,
+														scrollX = TRUE,
+														scrollY = "500px",
+														order=list(3,"asc"),
+														lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
+														"pagelength"=-1,
+														dom= "Blfrtip",
+														scrollX = T, 
+														buttons=list(
+																list(extend="excel",
+																		filename = paste0("highlight_change_newdata_dataseries","_",Sys.Date(),"_",current_cou_code))) 
+												))
+									})
+							
+							output$dt_highlight_change_modified_dataseries <-DT::renderDataTable({ 
+										validate(need(data$connectOK,"No connection"))
+										datatable(list_comp_updateddataseries$highlight_change,
+												rownames=FALSE,          
+												extensions = "Buttons",
+												option=list(
+														scroller = TRUE,
+														scrollX = TRUE,
+														scrollY = "500px",
+														order=list(3,"asc"),
+														lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
+														"pagelength"=-1,
+														dom= "Blfrtip",
+														scrollX = T, 
+														buttons=list(
+																list(extend="excel",
+																		filename = paste0("highlightchange_modified_dataseries","_",Sys.Date(),"_",current_cou_code))) 
+												))
+									})
+							
+						} 	
+						
+						# step1 modified biometry -------------------------------------------------------------						
+						
+						if (nrow(list_comp_biometry$modified)==0) {
+							
+							output$"step1_message_modified_biometry"<-renderUI(
+									HTML(
+											paste(
+													h4("No new data")                             
+											)))                 
+						} else {      
+							output$"step1_message_modified_dataseries"<-renderUI(
+									HTML(
+											paste(
+													paste(
+															h4("Table of modified biometry (data) (xls)"),
+															"<p align='left'> This is the file to import ",															
+															"Please click on excel<p>"
+													)))
+							)
+							
+							# NO renderUI
+							
+							output$dt_modified_biometry <-DT::renderDataTable({ 
+										validate(need(data$connectOK,"No connection"))
+										datatable(list_comp_biometry$modified,
+												rownames=FALSE,          
+												extensions = "Buttons",
+												option=list(
+														scroller = TRUE,
+														scrollX = TRUE,
+														scrollY = "500px",
+														order=list(3,"asc"),
+														lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
+														"pagelength"=-1,
+														dom= "Blfrtip",
+														scrollX = T, 
+														buttons=list(
+																list(extend="excel",
+																		filename = paste0("modified_biometry","_",Sys.Date(),"_",current_cou_code))) 
+												))
+									})
+							
+							
+							output$dt_highlight_change_biometry <-DT::renderDataTable({ 
+										validate(need(data$connectOK,"No connection"))
+										datatable(list_comp_biometry$highlight_change,
+												rownames=FALSE,          
+												extensions = "Buttons",
+												option=list(
+														scroller = TRUE,
+														scrollX = TRUE,
+														scrollY = "500px",
+														order=list(3,"asc"),
+														lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
+														"pagelength"=-1,
+														dom= "Blfrtip",
+														scrollX = T, 
+														buttons=list(
+																list(extend="excel",
+																		filename = paste0("highlight_change_newdata_dataseries","_",Sys.Date(),"_",current_cou_code))) 
+												))
+									})						
+						}
 						
 						
-						
-						
+					}) # end observe event
+			
+					##########################
+					# STEP 2.2 TIME SERIES INTEGRATION
+					# When database_new_button is clicked
+					# this will trigger the data integration
+					#############################      
+					observeEvent(input$integrate_new_series_button, {
+								
+								###########################
+								# step2_filepath_integrate new series
+								# reactive function, when clicked return value in reactive data 
+								###########################
+								step22_filepath_new_series <- reactive({
+											inFile <- isolate(input$xl_new_series)     
+											if (is.null(inFile)){        return(NULL)
+											} else {
+												data$path_step22_new_series <- inFile$datapath #path to a temp file             
+											}
+										})
+								###########################
+								# step22load_data
+								#  function, returns a message
+								#  indicating that data integration was a success
+								#  or an error message
+								###########################
+								step22load_data <- function() {
+									path <- step22_filepath_new_series()
+									if (is.null(data$path_step22_new_series)) 
+										return(NULL)
+									rls <- write_new(path)
+									message <- rls$message
+									cou_code <- rls$cou_code
+									main_assessor <- input$main_assessor
+									secondary_assessor <- input$secondary_assessor
+									file_type <- input$file_type
+									log_datacall("new data integration", cou_code = cou_code, message = sQuote(message), 
+											the_metadata = NULL, file_type = file_type, main_assessor = main_assessor, 
+											secondary_assessor = secondary_assessor)
+									return(message)
+								}
+								###########################
+								# new_data_integration
+								# textoutput component
+								###########################            
+								output$textoutput_step2.2<-renderText({
+											validate(need(data$connectOK,"No connection"))
+											# call to  function that loads data
+											# this function does not need to be reactive
+											message <- step22load_data()
+											if (is.null(data$path_step22_new_series)) "please select a dataset" else {                                      
+												paste(message,collapse="\n")
+											}                  
+										})  
+							})			
+#######################################
+# III. Data correction table  
+# This section provides a direct interaction with the database
+# Currently only developped for modifying data.
+# Deletion must be done by changing data code or asking Database handler
+#######################################
+			rvs <- reactiveValues(
+					data = NA, 
+					dbdata = NA,
+					dataSame = TRUE,
+					editedInfo = NA
+			
+			)
+			
+#-----------------------------------------  
+# Generate source via reactive expression
+			
+			mysource <- reactive({
+						req(input$passwordbutton)
+						validate(need(data$connectOK,"No connection"))
+						vals = input$country
+						if (is.null(vals)) 
+							vals <- c("FR")
+						types = input$typ
+						if (is.null(types)) 
+							types <- c(4, 5, 6, 7)
+						the_years <- input$year
+						if (is.null(input$year)) {
+							the_years <- c(the_years$min_year, the_years$max_year)
+						}
+						# glue_sql to protect against injection, used with a vector with *
+						query <- glue_sql("SELECT * from datawg.t_eelstock_eel where eel_cou_code in ({vals*}) and eel_typ_id in ({types*}) and eel_year>={minyear} and eel_year<={maxyear}", 
+								vals = vals, types = types, minyear = the_years[1], maxyear = the_years[2], 
+								.con = pool)
+						# https:/stackoverflow.com/questions/34332769/how-to-use-dbgetquery-in-trycatch-with-postgresql
+						# it seems that dbgetquery doesn't raise an error
+						out_data <- dbGetQuery(pool, query)
+						return(out_data)
 						
 					})
+			
+# Observe the source, update reactive values accordingly
+			
+			observeEvent(mysource(), {               
+						data <- mysource() %>% arrange(eel_emu_nameshort,eel_year)
+						rvs$data <- data
+						rvs$dbdata <- data
+						disable("clear_table")                
+					})
+			
+#-----------------------------------------
+# Render DT table 
+# 
+# selection better be none
+# editable must be TRUE
+#
+			output$table_cor <- DT::renderDataTable({
+						validate(need(data$connectOK,"No connection"))
+						DT::datatable(
+								rvs$dbdata, 
+								rownames = FALSE,
+								extensions = "Buttons",
+								editable = TRUE, 
+								selection = 'none',
+								options=list(
+										order=list(3,"asc"),              
+										searching = TRUE,
+										rownames = FALSE,
+										scroller = TRUE,
+										scrollX = TRUE,
+										scrollY = "500px",
+										lengthMenu=list(c(-1,5,20,50,100),c("All","5","20","50","100")),
+										dom= "Blfrtip", #button fr search, t table, i information (showing..), p pagination
+										buttons=list(
+												list(extend="excel",
+														filename = paste0("data_",Sys.Date())))
+								))})
+#-----------------------------------------
+# Create a DT proxy to manipulate data
+# 
+#
+			proxy_table_cor = dataTableProxy('table_cor')
+#--------------------------------------
+# Edit table data
+# Expamples at
+# https://yihui.shinyapps.io/DT-edit/
+			observeEvent(input$table_cor_cell_edit, {
+						
+						info = input$table_cor_cell_edit
+						
+						i = info$row
+						j = info$col = info$col + 1  # column index offset by 1
+						v = info$value
+						
+						rvs$data[i, j] <<- DT::coerceValue(v, rvs$data[i, j])
+						replaceData(proxy_table_cor, rvs$data, resetPaging = FALSE, rownames = FALSE)
+						# datasame is set to TRUE when save or update buttons are clicked
+						# here if it is different it might be set to FALSE
+						rvs$dataSame <- identical(rvs$data, rvs$dbdata)
+						# this will collate all editions (coming from datatable observer in a data.frame
+						# and store it in the reactive dataset rvs$editedInfo
+						if (all(is.na(rvs$editedInfo))) {
+							
+							rvs$editedInfo <- data.frame(info)
+						} else {
+							rvs$editedInfo <- dplyr::bind_rows(rvs$editedInfo, data.frame(info))
+						}
+						
+					})
+			
+# Update edited values in db once save is clicked---------------------------------------------
+			
+			observeEvent(input$save, {
+						errors<-update_t_eelstock_eel(editedValue = rvs$editedInfo, pool = pool, data=rvs$data)
+						if (length(errors)>0) {
+							output$database_errors<-renderText({iconv(unlist(errors,"UTF8"))})
+							enable("clear_table")
+						} else {
+							output$database_errors<-renderText({"Database updated"})
+						}
+						rvs$dbdata <- rvs$data
+						rvs$dataSame <- TRUE
+					})
+			
+# Observe clear_table button -> revert to database table---------------------------------------
+			
+			observeEvent(input$clear_table,
+					{
+						data <- mysource() %>% arrange(eel_emu_nameshort,eel_year)
+						rvs$data <- data
+						rvs$dbdata <- data
+						disable("clear_table")
+						output$database_errors<-renderText({""})
+					})
+			
+# Oberve cancel -> revert to last saved version -----------------------------------------------
+			
+			observeEvent(input$cancel, {
+						rvs$data <- rvs$dbdata
+						rvs$dataSame <- TRUE
+					})
+			
+# UI buttons ----------------------------------------------------------------------------------
+# Appear only when data changed
+			
+			output$buttons_data_correction <- renderUI({
+						div(
+								if (! rvs$dataSame) {
+											span(
+													actionBttn(inputId = "save", label = "Save",
+															style = "material-flat", color = "danger"),
+													actionButton(inputId = "cancel", label = "Cancel")
+											)
+										} else {
+											span()
+										}
+						)
+					})
+			#################################################
+# GRAPHS ----------------------------------------
+			#################################################
+			
+# Same as mysource but for graphs, different page, so different buttons
+# there must be a way by reorganizing the buttons to do a better job
+# but buttons don't apply to the data integration sheet and here we don't
+# want multiple choices (to check for duplicates we need to narrow down the search) ....
+			
+			mysource_graph <- reactive(					
+					{
+						req(input$passwordbutton)
+						validate(need(data$connectOK,"No connection"))
+						validate(need(!is.null(pool), "Waiting for database connection"))
+						vals = input$country_g
+						if (is.null(vals)) 
+							vals <- c("FR")
+						types = input$typ_g
+						if (is.null(types)) 
+							types <- c(4, 5, 6, 7)
+						the_years <- input$year_g
+						if (is.null(input$year)) {
+							the_years <- c(the_years$min_year, the_years$max_year)
+						}
+						# glue_sql to protect against injection, used with a vector with *
+						query <- glue_sql("SELECT * from datawg.t_eelstock_eel where eel_cou_code in ({vals*}) and eel_typ_id in ({types*}) and eel_year>={minyear} and eel_year<={maxyear}", 
+								vals = vals, types = types, minyear = the_years[1], maxyear = the_years[2], 
+								.con = pool)
+						# https:/stackoverflow.com/questions/34332769/how-to-use-dbgetquery-in-trycatch-with-postgresql
+						# it seems that dbgetquery doesn't raise an error
+						out_data <- dbGetQuery(pool, query)
+						return(out_data)
+						
+					})
+			
+# store data in reactive values ---------------------------------------------------------------
+			
+			observeEvent(mysource_graph(), {               
+						data <- mysource_graph() %>% arrange(eel_emu_nameshort,eel_year)
+						rvs$datagr <- data                           
+					})
+			
+# plot -------------------------------------------------------------------------------------------
+# the plots groups by kept (typ id = 1,2,4) or not (other typ_id) and year 
+# and calculate thenumber of values 
+			
+			output$duplicated_ggplot <- renderPlot({
+						validate(need(data$connectOK,"No connection"))
+						if (is.null(rvs$datagr)) return(NULL)
+						# duplicated_values_graph performs a group by, see graph.R inside the shiny data integration
+						# tab
+						duplicated_values_graph(rvs$datagr)
+					}
+			)
+			
+# the observeEvent will not execute untill the user clicks, here it runs
+# both the plotly and datatable component -----------------------------------------------------
+			
+			observeEvent(input$duplicated_ggplot_click,  {
+						# the nearpoint function does not work straight with bar plots
+						# we have to retreive the x data and check the year it corresponds to ... 
+						year_selected = round(input$duplicated_ggplot_click$x)  
+						datagr <- rvs$datagr
+						datagr <- datagr[datagr$eel_year==year_selected, ] 
+						
+						# Data table for individual data corresponding to the year bar on the graph -------------
+						
+						output$datatablenearpoints <- DT::renderDataTable({            
+									datatable(datagr,
+											rownames = FALSE,
+											extensions = 'Buttons',
+											options=list(
+													order=list(3,"asc"),    
+													lengthMenu=list(c(-1,5,10,30),c("All","5","10","30")),                           
+													searching = FALSE,                          
+													scroller = TRUE,
+													scrollX = TRUE,                         
+													dom= "Blfrtip", # l length changing,  
+													buttons=list('copy',I('colvis')) 
+											)
+									)
+								})        
+						
+						# Plotly output allowing to brush out individual values per EMU
+						x <- sample(c(1:5, NA, NA, NA))
+						coalesce(x, 0L)
+						output$plotly_selected_year <-renderPlotly({  
+									coalesce 
+									datagr$hl <- as.factor(str_c(datagr$eel_lfs_code, coalesce(datagr$eel_hty_code,"no"),collapse= "&"))   
+									p <-plot_ly(datagr, x = ~eel_emu_nameshort, y = ~eel_value,
+											# Hover text:
+											text = ~paste("Lifestage: ", eel_lfs_code, 
+													'$<br> Hty_code:', eel_hty_code,
+													'$<br> Area_division:', eel_area_division,
+													'$<br> Source:', eel_datasource,
+													'$<br> Value:', eel_value),
+											color = ~ eel_lfs_code,
+											split = ~eel_hty_code)  
+									p$elementId <- NULL # a hack to remove warning : ignoring explicitly provided widget
+									p           
+								}) 
+						
+					}, ignoreNULL = TRUE) # additional arguments to observe ...
+			
+			
+			
+			
+			
+		})

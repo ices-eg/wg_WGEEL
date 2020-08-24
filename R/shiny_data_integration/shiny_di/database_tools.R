@@ -2,7 +2,7 @@
 
 
 
-#' @title compare with database
+#' @title compare with database for t_eelstock_eel
 #' @description This function loads the data from the database and compare it with data
 #' loaded from excel, the 
 #' @param data_from_excel Dataset loaded from excel
@@ -50,10 +50,10 @@ compare_with_database <- function(data_from_excel, data_from_base) {
   # all data returned by loading functions have only a name just in case to avoid doubles
   
   if (!"eel_typ_id"%in%colnames(data_from_excel)) {
-      # extract subset suitable for merge
-      tr_type_typ_for_merge <- tr_type_typ[, c("typ_id", "typ_name")]
-      colnames(tr_type_typ_for_merge) <- c("eel_typ_id", "eel_typ_name")
-      data_from_excel <- merge(data_from_excel, tr_type_typ_for_merge, by = "eel_typ_name") 
+    # extract subset suitable for merge
+    tr_type_typ_for_merge <- tr_type_typ[, c("typ_id", "typ_name")]
+    colnames(tr_type_typ_for_merge) <- c("eel_typ_id", "eel_typ_name")
+    data_from_excel <- merge(data_from_excel, tr_type_typ_for_merge, by = "eel_typ_name") 
   }
   if (nrow(data_from_base) == 0) {
     # the data_from_base has 0 lines and 0 columns
@@ -67,46 +67,45 @@ compare_with_database <- function(data_from_excel, data_from_base) {
     current_typ_id <- unique(data_from_excel$eel_typ_id)
     if (!all(current_typ_id %in% data_from_base$eel_typ_id)) 
       stop(paste("There is a mismatch between selected typ_id", paste0(current_typ_id, 
-                  collapse = ";"), "and the dataset loaded from base", paste0(unique(data_from_base$eel_typ_id), 
-                  collapse = ";"), "did you select the right File type ?"))
+                                                                       collapse = ";"), "and the dataset loaded from base", paste0(unique(data_from_base$eel_typ_id), 
+                                                                                                                                   collapse = ";"), "did you select the right File type ?"))
   }
   # Can't join on 'eel_area_division' x 'eel_area_division' because of incompatible
   # types (character / logical)
   data_from_excel$eel_area_division <- as.character(data_from_excel$eel_area_division)
   data_from_excel$eel_hty_code <- as.character(data_from_excel$eel_hty_code)
   eel_colnames <- colnames(data_from_base)[grepl("eel", colnames(data_from_base))]
-  
+
   #since dc2020, qal_id are automatically created during the import
   data_from_excel$eel_qal_id <- ifelse(data_from_excel$eel_missvaluequal %in% c("NP","NC"),0,1)
   data_from_excel$eel_qal_comment <- rep(NA,nrow(data_from_excel))
+
   # duplicates are inner_join eel_cou_code added to the join just to avoid
   # duplication
   duplicates <- data_from_base %>% dplyr::filter(eel_typ_id %in% current_typ_id & 
-              eel_cou_code == current_cou_code) %>% dplyr::select(eel_colnames) %>% # dplyr::select(-eel_cou_code)%>%
-      dplyr::inner_join(data_from_excel, by = c("eel_typ_id", "eel_year", "eel_lfs_code", 
-              "eel_emu_nameshort", "eel_cou_code", "eel_hty_code", "eel_area_division"), 
-          suffix = c(".base", ".xls"))
+                                                   eel_cou_code == current_cou_code) %>% dplyr::select(eel_colnames) %>% # dplyr::select(-eel_cou_code)%>%
+    dplyr::inner_join(data_from_excel, by = c("eel_typ_id", "eel_year", "eel_lfs_code", 
+                                              "eel_emu_nameshort", "eel_cou_code", "eel_hty_code", "eel_area_division"), 
+                      suffix = c(".base", ".xls"))
   duplicates$keep_new_value <- vector("logical", nrow(duplicates))
   duplicates <- duplicates[, c("eel_id", "eel_typ_id", "eel_typ_name", "eel_year", 
-          "eel_value.base", "eel_value.xls", "keep_new_value", "eel_qal_id.xls", "eel_qal_comment.xls", 
-          "eel_qal_id.base", "eel_qal_comment.base", "eel_missvaluequal.base", "eel_missvaluequal.xls", 
-          "eel_emu_nameshort", "eel_cou_code", "eel_lfs_code", "eel_hty_code", "eel_area_division", 
-          "eel_comment.base", "eel_comment.xls", "eel_datasource.base", "eel_datasource.xls")]
-   new <- dplyr::anti_join(data_from_excel, data_from_base, by = c("eel_typ_id", 
-          "eel_year", "eel_lfs_code", "eel_emu_nameshort", "eel_hty_code", "eel_area_division", 
-          "eel_cou_code"), suffix = c(".base", ".xls"))
+                               "eel_value.base", "eel_value.xls", "keep_new_value", "eel_qal_id.xls", "eel_qal_comment.xls", 
+                               "eel_qal_id.base", "eel_qal_comment.base", "eel_missvaluequal.base", "eel_missvaluequal.xls", 
+                               "eel_emu_nameshort", "eel_cou_code", "eel_lfs_code", "eel_hty_code", "eel_area_division", 
+                               "eel_comment.base", "eel_comment.xls", "eel_datasource.base", "eel_datasource.xls")]
+  new <- dplyr::anti_join(data_from_excel, data_from_base, by = c("eel_typ_id", 
+                                                                  "eel_year", "eel_lfs_code", "eel_emu_nameshort", "eel_hty_code", "eel_area_division", 
+                                                                  "eel_cou_code"), suffix = c(".base", ".xls"))
   new <- new[, c("eel_typ_id", "eel_typ_name", "eel_year", "eel_value", "eel_missvaluequal", 
-          "eel_emu_nameshort", "eel_cou_code", "eel_lfs_code", "eel_hty_code", "eel_area_division", 
-          "eel_qal_id", "eel_qal_comment", "eel_datasource", "eel_comment")]
+                 "eel_emu_nameshort", "eel_cou_code", "eel_lfs_code", "eel_hty_code", "eel_area_division", 
+                 "eel_qal_id", "eel_qal_comment", "eel_datasource", "eel_comment")]
   complete <- rbind.data.frame(data_from_base[data_from_base$eel_cou_code %in% unique(new$eel_cou_code),
                                               c("eel_typ_id", "eel_year", "eel_lfs_code", 
                                                 "eel_emu_nameshort", "eel_cou_code", "eel_hty_code")],
                                new[,c("eel_typ_id", "eel_year", "eel_lfs_code", 
                                       "eel_emu_nameshort", "eel_cou_code", "eel_hty_code")])
-  return(list(duplicates = duplicates, new = new, current_cou_code= current_cou_code,complete=complete))
+  return(list(duplicates = duplicates, new = new, current_cou_code= current_cou_code, complete=complete))
 }
-
-
 #' @title compare with database for updated values
 #' @description This function retrieves older values in the database and compares it with data
 #' loaded from excel, the 
@@ -175,7 +174,357 @@ compare_with_database_updated_values <- function(updated_from_excel, data_from_b
 
 
 
+#' @title compare with database series
+#' @description This function loads the data from the database and compare it with data
+#' loaded from excel
+#' @param data_from_excel Dataset loaded from excel
+#' @param data_from_base dataset loaded from the database with previous values to be replaced
+#' @return A list with three dataset, one is duplicate the other new, 
+#' in the case of series the duplicates are ignored
+#' THe second dataset (new) contains new value, these also will need to be qualified by wgeel
+#' the last data set contains all records that will be in the db for the country after
+#' inclusion of the new records
+#' @examples 
+#' \dontrun{
+#' if(interactive()){
+#' wg_file.choose<-file.choose
+#' path <- "C:\\Users\\cedric.briand\\OneDrive - EPTB Vilaine\\Projets\\GRISAM\\2020\\wgeel\\datacall\\FR\\Eel_Data_Call_2020_Annex1_time_series_FR_Recruitment.xlsx"
+#' data_from_excel <- read_excel(path=path,	sheet ="series_info",	skip=0) #'  
+#' data_from_base <- extract_data('t_series_ser')
+#' 
+#' list_comp <- compare_with_database_series(data_from_excel,data_from_base)
+#'  }
+#' }
+compare_with_database_series <- function(data_from_excel, data_from_base) {
+  # data integrity checks
+  if (nrow(data_from_excel) == 0) 
+    stop("There are no data coming from the excel file")
+  current_cou_code <- unique(data_from_excel$ser_cou_code)
+  if (length(current_cou_code) != 1) 
+    stop("There is more than one country code, this is wrong")	
+  if (nrow(data_from_base) == 0) {
+    # the data_from_base has 0 lines and 0 columns
+    # this poses computation problems
+    # I'm changing it here by loading a correct empty dataset
+    #data_from_base_series <- data_from_base[FALSE,]		
+    #save(data_from_base_series, file = "C:\\workspace\\gitwgeel\\R\\shiny_data_integration\\shiny_di\\common\\data\\data_from_base_series_0L.Rdata")
+    load("common/data/data_from_base_series_0L.Rdata")
+    data_from_base <- data_from_base_series
+    warning("No data in the file coming from the database")
+    current_typ_id <- 0
+  } else {   
+    current_typ_id <- unique(data_from_excel$ser_typ_id)
+    if (!all(current_typ_id %in% data_from_base$ser_typ_id)) 
+      stop(paste("There is a mismatch between selected typ_id", paste0(current_typ_id, 
+                                                                       collapse = ";"), "and the dataset loaded from base", paste0(unique(data_from_base$ser_typ_id), 
+                                                                                                                                   collapse = ";"), "did you select the right File type ?"))
+  }
+  
+  ser_colnames <- colnames(data_from_base)[grepl("ser", colnames(data_from_base))]
+  # avoid importing problems when line is null
+  data_from_excel <- data_from_excel %>% mutate_if(is.logical,list(as.numeric)) 
+  data_from_excel <- data_from_excel %>% 
+    mutate_at(vars(ser_dts_datasource, ser_comment, ser_lfs_code, ser_hty_code, ser_locationdescription, ser_emu_nameshort,
+                   ser_area_division,ser_cou_code),list(as.character)) 
+  duplicates <- data_from_base %>% dplyr::filter(ser_typ_id %in% current_typ_id & 
+                                                   ser_cou_code == current_cou_code) %>% dplyr::select(ser_colnames) %>% # dplyr::select(-eel_cou_code)%>%
+    dplyr::inner_join(data_from_excel, by = c("ser_typ_id",  "ser_nameshort"), 
+                      suffix = c(".base", ".xls"))
+  duplicates <- duplicates[, 
+                           # not in the datacall or used as pivot :
+                           c("ser_id", "ser_order", "ser_nameshort", "ser_typ_id", "ser_qal_id" ,"ser_qal_comment","ser_ccm_wso_id", 
+                             
+                             # other columns
+                             "ser_dts_datasource.base","ser_dts_datasource.xls",
+                             "ser_namelong.base", "ser_namelong.xls", 
+                             "ser_effort_uni_code.base", "ser_effort_uni_code.xls",
+                             "ser_comment.base", "ser_comment.xls", 
+                             "ser_uni_code.base", "ser_uni_code.xls", 
+                             "ser_lfs_code.base", "ser_lfs_code.xls",
+                             "ser_hty_code.base", "ser_hty_code.xls",
+                             "ser_locationdescription.base",  "ser_locationdescription.xls",
+                             "ser_emu_nameshort.base", "ser_emu_nameshort.xls",
+                             "ser_cou_code.base", "ser_cou_code.xls",
+                             "ser_area_division.base", "ser_area_division.xls",
+                             "ser_tblcodeid.base", "ser_tblcodeid.xls", 
+                             "ser_x.base","ser_x.xls",
+                             "ser_y.base", "ser_y.xls",
+                             "ser_sam_id.base",  "ser_sam_id.xls")]
+  # Anti join only keeps columns from X
+  new <-  dplyr::anti_join(data_from_excel, data_from_base, 
+                           by = c("ser_nameshort", "ser_typ_id"))
+  if (nrow(new) >0 ){
+    new$ser_qal_id <- NA
+    new$ser_qal_comment <- NA
+    new$ser_order <- NA
+    new$ser_ccm_wso_id <- "{}"
+    new$ser_dts_datasource <- the_eel_datasource
+  }
+  modified <- dplyr::anti_join(data_from_excel, data_from_base, 
+                               by = c("ser_nameshort", "ser_typ_id", "ser_effort_uni_code", "ser_comment", "ser_uni_code", 
+                                      "ser_lfs_code", "ser_hty_code", "ser_locationdescription", "ser_emu_nameshort",
+                                      "ser_cou_code", "ser_area_division", "ser_x", "ser_y", "ser_sam_id" ))
+  modified <- modified[!modified$ser_nameshort %in% new$ser_nameshort,]
+  # after anti join there are still values that are not really changed.
+  # this is further investigated below
+  highlight_change <- duplicates[duplicates$ser_nameshort %in% modified$ser_nameshort,]
+  
+  if (nrow(highlight_change)>0){
+    num_common_col <- grep(".xls|.base",colnames(highlight_change))
+    possibly_changed <- colnames(highlight_change)[num_common_col]
+    
+    mat <-	matrix(FALSE,nrow(highlight_change),length(num_common_col))
+    for(v in 0:(length(num_common_col)/2-1))
+    {
+      v=v*2+1
+      test <- highlight_change %>% select(num_common_col)%>%select(v,v+1) %>%
+        mutate_all(as.character) %>%	mutate_all(type.convert, as.is = TRUE) %>%	
+        mutate(test=identical(.[[1]], .[[2]])) %>% pull(test)
+      mat[,c(v,v+1)]<-test
+      
+    }
+    # select only rows where there are true modified 
+    modified <- modified[!apply(mat,1,all),]	 
+    # show only modifications to the user (any colname modified)
+    
+    highlight_change <- highlight_change[!apply(mat,1,all),num_common_col[!apply(mat,2,all)]]
+  }
+  
+  return(list(new = new, modified=modified, highlight_change=highlight_change, current_cou_code= current_cou_code))
+}
 
+#' @title compare with database dataseries
+#' @description This function loads the data from the database and compare it with data
+#' loaded from excel
+#' @param data_from_excel Dataset loaded from excel
+#' @param data_from_base dataset loaded from the database with previous values to be replaced
+#' @param sheetorigin = c("new","updated"), to indicate that this comes from the "new_data" or "updated_data" sheet in the datacall as these will be treated together
+#' @return A list with three dataset, one is duplicate the other new, 
+#' in the case of series the duplicates are ignored
+#' THe second dataset (new) contains new value, these also will need to be qualified by wgeel
+#' the last data set contains all records that will be in the db for the country after
+#' inclusion of the new records
+#' @examples 
+#' \dontrun{
+#' if(interactive()){
+#' wg_file.choose<-file.choose
+#' path <- "C:\\Users\\cedric.briand\\OneDrive - EPTB Vilaine\\Projets\\GRISAM\\2020\\wgeel\\datacall\\FR\\Eel_Data_Call_2020_Annex1_time_series_FR_Recruitment.xlsx"
+#' data_from_excel <- read_excel(path=path,	sheet ="new_data",	skip=0) 
+#' data_from_base <- extract_data('t_dataseries_das',quality_check=FALSE)
+#' series <- extract_data('t_series_ser',quality_check=FALSE)
+#' data_from_excel <- left_join(data_from_excel, series[,c("ser_id","ser_nameshort")], by="ser_nameshort")
+#' data_from_excel <- rename(data_from_excel,"das_ser_id"="ser_id")
+#' list_comp <- compare_with_database_dataseries(data_from_excel,data_from_base)
+#'  }
+#' }
+compare_with_database_dataseries <- function(data_from_excel, data_from_base, sheetorigin="new_data") {
+  # data integrity checks
+  error_id_message <- ""
+  if (nrow(data_from_excel) == 0) 
+    stop("There are no data coming from the excel file")
+  if (nrow(data_from_base) == 0) {
+    # the data_from_base has 0 lines and 0 columns
+    # this poses computation problems
+    # I'm changing it here by loading a correct empty dataset
+    #data_from_base_dataseries <- data_from_base[FALSE,]		
+    #save(data_from_base_dataseries, file = "C:\\workspace\\gitwgeel\\R\\shiny_data_integration\\shiny_di\\common\\data\\data_from_base_dataseries_0L.Rdata")
+    load("common/data/data_from_base_dataseries_0L.Rdata")
+    data_from_base <- data_from_base_dataseries
+    warning("No data in the file coming from the database")
+  }
+  # convert columns with missing data to numeric	  
+  data_from_excel <- data_from_excel %>% mutate_if(is.logical,list(as.numeric)) 
+  data_from_excel <- data_from_excel %>% mutate_at(vars(das_dts_datasource,das_comment),list(as.character)) 
+  #data_from_excel <- data_from_excel %>% mutate_at(vars(matches("update")),list(as.Date)) 	
+  
+  data_from_excel$sheetorigin <- sheetorigin
+  
+  
+  duplicates <- data_from_base %>% 	dplyr::inner_join(data_from_excel, by = c("das_ser_id","das_year"), 
+                                                      suffix = c(".base", ".xls"))
+  # If the data_from_excel corresponds to the updated_data tab, then there is a das_id
+  if ("das_id" %in% colnames(data_from_excel)){
+    
+    duplicates <- duplicates[, 
+                             # not in the datacall or used as pivot :
+                             c("das_ser_id","das_year", "ser_nameshort", "das_last_update",
+                               # duplicates columns
+                               "das_id.base", "das_id.xls",
+                               "das_qal_id.base", "das_qal_id.xls",
+                               "das_dts_datasource.base", "das_dts_datasource.xls",
+                               "das_value.base", "das_value.xls",					
+                               "das_comment.base", "das_comment.xls",
+                               "das_effort.base", "das_effort.xls",
+                               "sheetorigin")]
+    if (any(duplicates$das_id.base!=duplicates$das_id.excel)) error_id_message <- "<p style='color:red;'>There is a problem with id, 
+	  they have changed this indicates that year or series has changed, check carefully </p>"
+    
+    
+  } else {
+    duplicates <- duplicates[, 
+                             # not in the datacall or used as pivot :
+                             c("das_id", "das_ser_id","das_year", "ser_nameshort", "das_qal_id","das_last_update",
+                               # duplicates columns
+                               "das_dts_datasource.base", "das_dts_datasource.xls",
+                               "das_value.base", "das_value.xls",					
+                               "das_comment.base", "das_comment.xls",
+                               "das_effort.base", "das_effort.xls",
+                               "sheetorigin")]
+  }
+  # Anti join only keeps columns from X
+  new <-  dplyr::anti_join(as.data.frame(data_from_excel), data_from_base, 
+                           by = c("das_ser_id","das_year"))
+  if (nrow(new)>0){
+    new$das_qal_id <- NA
+    new$das_dts_datasource <- the_eel_datasource
+  }
+  
+  # normally there should not be any modified in new but let's check
+  modified <- dplyr::anti_join(data_from_excel, data_from_base, 
+                               by = c("das_year", "das_value", "das_comment", "das_effort", "das_ser_id")
+  )
+  modified <- modified[!modified$ser_nameshort %in% new$ser_nameshort,]
+  highlight_change <- duplicates[duplicates$ser_nameshort %in% modified$ser_nameshort,]
+  if (nrow(modified) >0 ) {
+    
+    
+    
+    num_common_col <- grep(".xls|.base",colnames(highlight_change))
+    possibly_changed <- colnames(highlight_change)[num_common_col]
+    
+    mat <-	matrix(FALSE,nrow(highlight_change),length(num_common_col))
+    for(v in 0:(length(num_common_col)/2-1))
+    {
+      v=v*2+1
+      test <- highlight_change %>% select(num_common_col)%>%select(v,v+1) %>%
+        mutate_all(as.character) %>%	mutate_all(type.convert, as.is = TRUE) %>%	
+        mutate(test=identical(.[[1]], .[[2]]))%>%pull(test)
+      mat[,c(v,v+1)]<-test
+      
+    }
+    # select only rows where there are true modified 
+    modified <- modified[!apply(mat,1,all),]	 
+    # show only modifications to the user (any colname modified)	
+    highlight_change <- highlight_change[!apply(mat,1,all),num_common_col[!apply(mat,2,all)]]
+  }
+  
+  return(list(new = new, modified=modified, highlight_change=highlight_change, error_id_message=error_id_message))
+}
+
+#' @title compare with database biometry
+#' @description This function loads the data from the database and compare it with data
+#' loaded from excel
+#' @param data_from_excel Dataset loaded from excel
+#' @param data_from_base dataset loaded from the database with previous values to be replaced
+#' @return A list with three dataset, one is duplicate the other new, 
+#' in the case of series the duplicates are ignored
+#' THe second dataset (new) contains new value, these also will need to be qualified by wgeel
+#' the last data set contains all records that will be in the db for the country after
+#' inclusion of the new records
+#' @examples 
+#' \dontrun{
+#' if(interactive()){
+#' wg_file.choose<-file.choose
+#' path <- "C:\\Users\\cedric.briand\\OneDrive - EPTB Vilaine\\Projets\\GRISAM\\2020\\wgeel\\datacall\\FR\\Eel_Data_Call_2020_Annex1_time_series_FR_Recruitment.xlsx"
+#' data_from_excel <- read_excel(path=path,	sheet ="new_biometry",	skip=0) 
+#' data_from_base <- extract_data('t_biometry_series_bis',quality_check=FALSE)
+#' series <- extract_data('t_series_ser',quality_check=FALSE)
+#' list_comp <- compare_with_database_biometry(data_from_excel,data_from_base)
+#'  }
+#' }
+compare_with_database_biometry <- function(data_from_excel, data_from_base, sheetorigin="new_data") {
+  # data integrity checks
+  
+  if (nrow(data_from_excel) == 0) 
+    stop("There are no data coming from the excel file")
+  if (nrow(data_from_base) == 0) {
+    # the data_from_base has 0 lines and 0 columns
+    # this poses computation problems
+    # I'm changing it here by loading a correct empty dataset
+    #data_from_base_biometry0L <- data_from_base[FALSE,]		
+    #save(data_from_base_biometry0L, file = "C:\\workspace\\gitwgeel\\R\\shiny_data_integration\\shiny_di\\common\\data\\data_from_base_biometry_0L.Rdata")
+    load("common/data/data_from_base_biometry_0L.Rdata")
+    data_from_base <- data_from_base_biometry0L
+    warning("No data in the file coming from the database")
+  }
+  # convert columns with missing data to numeric	  
+  data_from_excel <- data_from_excel %>% mutate_if(is.logical,list(as.numeric)) 
+  data_from_excel <- data_from_excel %>% mutate_at(vars(matches("comment")),list(as.character)) 
+  #data_from_excel <- data_from_excel %>% mutate_at(vars(matches("update")),list(as.Date)) 	
+  data_from_excel <- data_from_excel %>% select(-"bio_qal_id")
+  data_from_excel$sheetorigin <- sheetorigin
+  
+  # removed pre-filled data not modified by user.
+  
+  remove_all_na <- data_from_excel %>% 
+    select(-bis_ser_id,-ser_nameshort,-bio_year, -sheetorigin) %>%
+    filter_all(any_vars(is.na(.))) %>%
+    tibble::rowid_to_column("id") %>%
+    pull(id)
+  
+  data_from_excel <- data_from_excel[-remove_all_na,]
+  
+  duplicates <- data_from_base %>% 	dplyr::inner_join(data_from_excel, by = c("bis_ser_id"), 
+                                                      suffix = c(".base", ".xls"))
+  duplicates <- duplicates[, 
+                           # not in the datacall or used as pivot :
+                           c("bio_id", "bio_lfs_code", "bio_qal_id", "bis_ser_id", "ser_nameshort",
+                             "bio_dts_datasource.base", "bio_dts_datasource.xls",
+                             "bio_year.base","bio_year.xls",
+                             "bio_length.base", "bio_length.xls",
+                             "bio_weight.base","bio_weight.xls",
+                             "bio_age.base", "bio_age.xls",
+                             "bio_sex_ratio.base","bio_sex_ratio.xls",
+                             "bio_length_f.base", "bio_length_f.xls",
+                             "bio_weight_f.base", "bio_weight_f.xls",
+                             "bio_age_f.base", "bio_age_f.xls",
+                             "bio_length_m.base", "bio_length_m.xls",
+                             "bio_weight_m.base","bio_weight_m.xls",
+                             "bio_age_m.base", "bio_age_m.xls",
+                             "bio_comment.base", "bio_comment.xls",
+                             "bio_last_update.base", "bio_last_update.xls",
+                             "bis_g_in_gy.base",  "bis_g_in_gy.xls" )%in% colnames(duplicates)]
+  
+  # Anti join only keeps columns from X
+  new <-  dplyr::anti_join(as.data.frame(data_from_excel), data_from_base, 
+                           by = c("bis_ser_id","bio_year"))
+  
+  
+  
+  if (nrow(new)>0)	new$bio_dts_datasource <- the_eel_datasource
+  
+  # normally there should not be any modified in new but let's check
+  modified <- dplyr::anti_join(as.data.frame(data_from_excel), data_from_base, 
+                               by =c( "bio_year", "bio_length", "bio_weight", "bio_age", "bio_sex_ratio", "bio_length_f", "bio_weight_f", "bio_age_f", "bio_length_m", "bio_weight_m", "bio_age_m", "bio_comment", "bis_g_in_gy", "bis_ser_id" )
+  )
+  modified <- modified[!modified$ser_nameshort %in% new$ser_nameshort,]
+  highlight_change <- duplicates[duplicates$ser_nameshort %in% modified$ser_nameshort,]
+  
+  if (nrow(modified) >0 ) {
+    
+    
+    
+    num_common_col <- grep(".xls|.base",colnames(highlight_change))
+    possibly_changed <- colnames(highlight_change)[num_common_col]
+    
+    mat <-	matrix(FALSE,nrow(highlight_change),length(num_common_col))
+    for(v in 0:(length(num_common_col)/2-1))
+    {
+      v=v*2+1
+      test <- highlight_change %>% select(num_common_col)%>%select(v,v+1) %>%
+        mutate_all(as.character) %>%	mutate_all(type.convert, as.is = TRUE) %>%	
+        mutate(test=identical(.[[1]], .[[2]]))%>%pull(test)
+      mat[,c(v,v+1)]<-test
+      
+    }
+    # select only rows where there are true modified 
+    modified <- modified[!apply(mat,1,all),]	 
+    # show only modifications to the user (any colname modified)	
+    highlight_change <- highlight_change[!apply(mat,1,all),num_common_col[!apply(mat,2,all)]]
+  }
+  
+  return(list(new = new, modified=modified, highlight_change=highlight_change))
+}
 
 
 #' @title write duplicated results into the database
@@ -208,12 +557,12 @@ write_duplicates <- function(path, qualify_code = 19) {
   # should ensure file integrity
   validate(need(ncol(duplicates2) == 22, "number column wrong (should be 22) \n"))
   validate(need(all(colnames(duplicates2) %in% c("eel_id", "eel_typ_id", "eel_typ_name", 
-                  "eel_year", "eel_value.base", "eel_value.xls", "keep_new_value", "eel_qal_id.xls", 
-                  "eel_qal_comment.xls", "eel_qal_id.base", "eel_qal_comment.base", "eel_missvaluequal.base", 
-                  "eel_missvaluequal.xls", "eel_emu_nameshort", "eel_cou_code", "eel_lfs_code", 
-                  "eel_hty_code", "eel_area_division", "eel_comment.base", "eel_comment.xls", 
-                  "eel_datasource.base", "eel_datasource.xls")), 
-          "Error in replicated dataset : column name changed, have you removed the empty line on top of the dataset ?"))
+                                                 "eel_year", "eel_value.base", "eel_value.xls", "keep_new_value", "eel_qal_id.xls", 
+                                                 "eel_qal_comment.xls", "eel_qal_id.base", "eel_qal_comment.base", "eel_missvaluequal.base", 
+                                                 "eel_missvaluequal.xls", "eel_emu_nameshort", "eel_cou_code", "eel_lfs_code", 
+                                                 "eel_hty_code", "eel_area_division", "eel_comment.base", "eel_comment.xls", 
+                                                 "eel_datasource.base", "eel_datasource.xls")), 
+                "Error in replicated dataset : column name changed, have you removed the empty line on top of the dataset ?"))
   
   cou_code = unique(duplicates2$eel_cou_code)
   validate(need(length(cou_code) == 1, "There is more than one country code, please check your file"))
@@ -230,7 +579,7 @@ write_duplicates <- function(path, qualify_code = 19) {
   duplicates2$keep_new_value[duplicates2$keep_new_value == "NO"] <- "false"
   
   validate( need(all(duplicates2$keep_new_value %in% c("TRUE", "FALSE")), 
-          "value in keep_new_value should be false or true"))
+                 "value in keep_new_value should be false or true"))
   
   duplicates2$keep_new_value <- as.logical(toupper(duplicates2$keep_new_value))
   
@@ -243,7 +592,7 @@ write_duplicates <- function(path, qualify_code = 19) {
   
   
   validate( need(all(!is.na(replaced$eel_qal_id.xls)), 
-          "All values with true in keep_new_value column should have a value in eel_qal_id \n"))
+                 "All values with true in keep_new_value column should have a value in eel_qal_id \n"))
   
   
   
@@ -251,27 +600,27 @@ write_duplicates <- function(path, qualify_code = 19) {
     
     replaced$eel_comment.base[is.na(replaced$eel_comment.base)] <- ""
     replaced$eel_comment.base <- paste0(replaced$eel_comment.base, " Value ", 
-        replaced$eel_value.base, " replaced by value ", replaced$eel_value.xls, 
-        " for datacall ", format(Sys.time(), "%Y"))
-
+                                        replaced$eel_value.base, " replaced by value ", replaced$eel_value.xls, 
+                                        " for datacall ", format(Sys.time(), "%Y"))
+    
     
     
     query0 <- paste0("update datawg.t_eelstock_eel set (eel_qal_id,eel_comment)=(", qualify_code ,",r.eel_comment) from ", 
-       "replaced_temp_", cou_code, " r where t_eelstock_eel.eel_id=r.eel_id;")
+                     "replaced_temp_", cou_code, " r where t_eelstock_eel.eel_id=r.eel_id;")
     
     # this will perform the reverse operation if error in query 1 or 2
     # sqldf will handle this one as it is a several liners
     query0_reverse <- paste0("update datawg.t_eelstock_eel set (eel_qal_id,eel_comment)=(", 
-        replaced$eel_qal_id.base , ",'", replaced$eel_comment.base, "') where eel_id=", replaced$eel_id,";")
+                             replaced$eel_qal_id.base , ",'", replaced$eel_comment.base, "') where eel_id=", replaced$eel_id,";")
     
     # this query will be run later cause we don't want it to run if the other fail
     
     # second insert the new lines into the database -------------------------------------------------
     
     replaced <- replaced[, c("eel_id", "eel_typ_id", "eel_year", "eel_value.xls", "eel_missvaluequal.xls", 
-            "eel_emu_nameshort", "eel_cou_code", "eel_lfs_code", "eel_hty_code", 
-            "eel_area_division", "eel_qal_id.xls", "eel_qal_comment.xls", "eel_datasource.xls", 
-            "eel_comment.xls")]
+                             "eel_emu_nameshort", "eel_cou_code", "eel_lfs_code", "eel_hty_code", 
+                             "eel_area_division", "eel_qal_id.xls", "eel_qal_comment.xls", "eel_datasource.xls", 
+                             "eel_comment.xls")]
     
     replaced$eel_qal_comment.xls <- iconv(replaced$eel_qal_comment.xls,"UTF8")
     replaced$eel_comment.xls <- iconv(replaced$eel_comment.xls,"UTF8")
@@ -279,40 +628,40 @@ write_duplicates <- function(path, qualify_code = 19) {
     colnames(replaced) <- gsub(".xls", "", colnames(replaced))
     
     query1 <- str_c("insert into datawg.t_eelstock_eel (         
-            eel_typ_id,       
-            eel_year,
-            eel_value,
-            eel_missvaluequal,
-            eel_emu_nameshort,
-            eel_cou_code,
-            eel_lfs_code,
-            eel_hty_code,
-            eel_area_division,
-            eel_qal_id,
-            eel_qal_comment,            
-            eel_datasource,
-            eel_comment) 
-            select eel_typ_id,       
-            eel_year,
-            eel_value,
-            eel_missvaluequal,
-            eel_emu_nameshort,
-            eel_cou_code,
-            eel_lfs_code,
-            eel_hty_code,
-            eel_area_division,
-            eel_qal_id,
-            eel_qal_comment,            
-            eel_datasource,
-            eel_comment from replaced_temp_", cou_code ,";")
+						eel_typ_id,       
+						eel_year,
+						eel_value,
+						eel_missvaluequal,
+						eel_emu_nameshort,
+						eel_cou_code,
+						eel_lfs_code,
+						eel_hty_code,
+						eel_area_division,
+						eel_qal_id,
+						eel_qal_comment,            
+						eel_datasource,
+						eel_comment) 
+						select eel_typ_id,       
+						eel_year,
+						eel_value,
+						eel_missvaluequal,
+						eel_emu_nameshort,
+						eel_cou_code,
+						eel_lfs_code,
+						eel_hty_code,
+						eel_area_division,
+						eel_qal_id,
+						eel_qal_comment,            
+						eel_datasource,
+						eel_comment from replaced_temp_", cou_code ,";")
     # again this query will be run later cause we don't want it to run if the other fail
     
     # this query will be run to rollback when query2 crashes
     
     query1_reverse <- str_c("delete from datawg.t_eelstock_eel", 
-        " where eel_datelastupdate = current_date",
-        " and eel_cou_code='",cou_code,"'", 
-        " and eel_datasource='",the_eel_datasource ,"';")
+                            " where eel_datelastupdate = current_date",
+                            " and eel_cou_code='",cou_code,"'", 
+                            " and eel_datasource='",the_eel_datasource ,"';")
     
     
     
@@ -325,7 +674,7 @@ write_duplicates <- function(path, qualify_code = 19) {
     
   }
   
-# Values not chosen, but we store them in the database --------------------------------------------
+  # Values not chosen, but we store them in the database --------------------------------------------
   
   not_replaced <- duplicates2[!duplicates2$keep_new_value, ]
   
@@ -333,32 +682,32 @@ write_duplicates <- function(path, qualify_code = 19) {
     
     not_replaced$eel_comment.xls[is.na(not_replaced$eel_comment.xls)] <- ""
     not_replaced$eel_comment.xls <- paste0(not_replaced$eel_comment.xls, " Value ", 
-        not_replaced$eel_value.xls, " not used, value from the database ", not_replaced$eel_value.base, 
-        " kept instead for datacall ", format(Sys.time(), "%Y"))
+                                           not_replaced$eel_value.xls, " not used, value from the database ", not_replaced$eel_value.base, 
+                                           " kept instead for datacall ", format(Sys.time(), "%Y"))
     not_replaced$eel_qal_id <- qualify_code
     not_replaced <- not_replaced[, c("eel_typ_id", "eel_year", "eel_value.xls", 
-            "eel_missvaluequal.xls", "eel_emu_nameshort", "eel_cou_code", "eel_lfs_code", 
-            "eel_hty_code", "eel_area_division", "eel_qal_id", "eel_qal_comment.xls", 
-            "eel_datasource.xls", "eel_comment.xls")]
+                                     "eel_missvaluequal.xls", "eel_emu_nameshort", "eel_cou_code", "eel_lfs_code", 
+                                     "eel_hty_code", "eel_area_division", "eel_qal_id", "eel_qal_comment.xls", 
+                                     "eel_datasource.xls", "eel_comment.xls")]
     
     not_replaced$eel_qal_comment.xls <- iconv(not_replaced$eel_qal_comment.xls,"UTF8")
     not_replaced$eel_comment.xls <- iconv(not_replaced$eel_comment.xls,"UTF8")
     
     query2 <- str_c( "insert into datawg.t_eelstock_eel (         
-            eel_typ_id,       
-            eel_year,
-            eel_value,
-            eel_missvaluequal,
-            eel_emu_nameshort,
-            eel_cou_code,
-            eel_lfs_code,
-            eel_hty_code,
-            eel_area_division,
-            eel_qal_id,
-            eel_qal_comment,            
-            eel_datasource,
-            eel_comment) 
-            select * from not_replaced_temp_",cou_code,";")
+						eel_typ_id,       
+						eel_year,
+						eel_value,
+						eel_missvaluequal,
+						eel_emu_nameshort,
+						eel_cou_code,
+						eel_lfs_code,
+						eel_hty_code,
+						eel_area_division,
+						eel_qal_id,
+						eel_qal_comment,            
+						eel_datasource,
+						eel_comment) 
+						select * from not_replaced_temp_",cou_code,";")
     
   } else {
     
@@ -366,8 +715,8 @@ write_duplicates <- function(path, qualify_code = 19) {
   }
   
   
-# Inserting temporary tables
-# running this with more than one sesssion might lead to crash
+  # Inserting temporary tables
+  # running this with more than one sesssion might lead to crash
   
   sqldf( str_c("drop table if exists not_replaced_temp_",cou_code) )
   sqldf( str_c("create table not_replaced_temp_", cou_code, " as select * from not_replaced") )
@@ -375,11 +724,11 @@ write_duplicates <- function(path, qualify_code = 19) {
   sqldf( str_c("create table replaced_temp_", cou_code, " as select * from replaced") )
   
   
-# Insertion of the three queries ----------------------------------------------------------------
+  # Insertion of the three queries ----------------------------------------------------------------
   
-# if fails replaces the message with this trycatch !  I've tried many ways with
-# sqldf but trycatch failed to catch the error Hence the use of DBI 
-# 
+  # if fails replaces the message with this trycatch !  I've tried many ways with
+  # sqldf but trycatch failed to catch the error Hence the use of DBI 
+  # 
   
   
   
@@ -397,23 +746,23 @@ write_duplicates <- function(path, qualify_code = 19) {
     print(message)   
   }, finally = {
     poolReturn(conn)
-  
+    
   })
   
   # Second step insert replaced ------------------------------------------------------------------
   if (is.null(message)) {
-  conn <- poolCheckout(pool)
-  nr1 <- tryCatch({     
-        dbExecute(conn, query1)
-      }, error = function(e) {
-        message <<- e  
-        sqldf (query0_reverse)      # perform reverse operation
-        cat("step2 message :")
-        print(message)
-      }, finally = {
-        poolReturn(conn)
-        sqldf( str_c( "drop table if exists replaced_temp_", cou_code))        
-      })
+    conn <- poolCheckout(pool)
+    nr1 <- tryCatch({     
+      dbExecute(conn, query1)
+    }, error = function(e) {
+      message <<- e  
+      sqldf (query0_reverse)      # perform reverse operation
+      cat("step2 message :")
+      print(message)
+    }, finally = {
+      poolReturn(conn)
+      sqldf( str_c( "drop table if exists replaced_temp_", cou_code))        
+    })
   }
   # Third step insert not replaced values into the database -----------------------------------------
   
@@ -421,25 +770,25 @@ write_duplicates <- function(path, qualify_code = 19) {
   if (is.null(message)){ # the previous operation had no error
     conn <- poolCheckout(pool) 
     nr2 <- tryCatch({     
-          dbExecute(conn, query2)
-        }, error = function(e) {
-          message <<- e 
-          cat("step3 message :")
-          print(message)
-          dbExecute(conn, query1_reverse) # this is not surrounded by trycatch, pray it does not fail ....
-          sqldf (query0_reverse)      # perform reverse operation    
-        }, finally = {
-          poolReturn(conn)
-          sqldf( str_c( "drop table if exists not_replaced_temp_", cou_code))   
-        })
+      dbExecute(conn, query2)
+    }, error = function(e) {
+      message <<- e 
+      cat("step3 message :")
+      print(message)
+      dbExecute(conn, query1_reverse) # this is not surrounded by trycatch, pray it does not fail ....
+      sqldf (query0_reverse)      # perform reverse operation    
+    }, finally = {
+      poolReturn(conn)
+      sqldf( str_c( "drop table if exists not_replaced_temp_", cou_code))   
+    })
     
   } else {
     sqldf( str_c( "drop table if exists not_replaced_temp_", cou_code))
   }
   if (is.null(message)){  
     message <- sprintf("For duplicates %s values replaced in the database (old values kept with code eel_qal_id=%s)\n,
-            %s values not replaced (values from current datacall stored with code eel_qal_id %s)", 
-        nr1, qualify_code, nr2, qualify_code)  
+						%s values not replaced (values from current datacall stored with code eel_qal_id %s)", 
+                       nr1, qualify_code, nr2, qualify_code)  
   }
   return(list(message = message, cou_code = cou_code))
 }
@@ -468,7 +817,7 @@ write_duplicates <- function(path, qualify_code = 19) {
 #' @rdname write_duplicate
 
 write_new <- function(path) {
-
+  
   new <- read_excel(path = path, sheet = 1, skip = 1)
   
   ####when there are no data, new values have incorrect type
@@ -484,39 +833,39 @@ write_new <- function(path) {
   
   
   new <- new[, c("eel_typ_id", "eel_year", "eel_value", "eel_missvaluequal", "eel_emu_nameshort", 
-          "eel_cou_code", "eel_lfs_code", "eel_hty_code", "eel_area_division", "eel_qal_id", 
-          "eel_qal_comment", "eel_datasource", "eel_comment")]
+                 "eel_cou_code", "eel_lfs_code", "eel_hty_code", "eel_area_division", "eel_qal_id", 
+                 "eel_qal_comment", "eel_datasource", "eel_comment")]
   sqldf::sqldf("drop table if exists new_temp ")
   sqldf::sqldf("create table new_temp as select * from new")
   
   # Query uses temp table just created in the database by sqldf
-    query <- "insert into datawg.t_eelstock_eel (
-      eel_typ_id,
-      eel_year,
-      eel_value,
-      eel_missvaluequal,
-      eel_emu_nameshort,
-      eel_cou_code,
-      eel_lfs_code,
-      eel_hty_code,
-      eel_area_division,
-      eel_qal_id,
-      eel_qal_comment,
-      eel_datasource,
-      eel_comment)
-      select * from new_temp"
+  query <- "insert into datawg.t_eelstock_eel (         
+			eel_typ_id,       
+			eel_year,
+			eel_value,
+			eel_missvaluequal,
+			eel_emu_nameshort,
+			eel_cou_code,
+			eel_lfs_code,
+			eel_hty_code,
+			eel_area_division,
+			eel_qal_id,
+			eel_qal_comment,            
+			eel_datasource,
+			eel_comment) 
+			select * from new_temp"
   # if fails replaces the message with this trycatch !  I've tried many ways with
   # sqldf but trycatch failed to catch the error Hence the use of DBI
   conn <- poolCheckout(pool)
   message <- NULL
   nr <- tryCatch({
-        dbExecute(conn, query)
-      }, error = function(e) {
-        message <<- e
-      }, finally = {
-        poolReturn(conn)
-        sqldf::sqldf("drop table if exists new_temp ")
-      })
+    dbExecute(conn, query)
+  }, error = function(e) {
+    message <<- e
+  }, finally = {
+    poolReturn(conn)
+    sqldf::sqldf("drop table if exists new_temp ")
+  })
   
   
   if (is.null(message))   
@@ -524,6 +873,9 @@ write_new <- function(path) {
   
   return(list(message = message, cou_code = cou_code))
 }
+
+
+
 
 
 
@@ -623,29 +975,29 @@ update_t_eelstock_eel <- function(editedValue, pool, data) {
   # columns row, col, value this part ensures that only the last value changed in a
   # cell is replaced.  Previous edits are ignored
   editedValue <- editedValue %>% group_by(row, col) %>% filter(value == dplyr::last(value) | 
-          is.na(value)) %>% ungroup()
+                                                                 is.na(value)) %>% ungroup()
   # opens the connection, this must be followed by poolReturn
   conn <- poolCheckout(pool)
   # Apply to all rows of editedValue dataframe
   t_eelstock_eel_ids <- data$eel_id
   error = list()
   lapply(seq_len(nrow(editedValue)), function(i) {
-        row = editedValue$row[i]
-        id = t_eelstock_eel_ids[row]
-        col = t_eelstock_eel_fields[editedValue$col[i]]
-        value = editedValue$value[i]
-        # glue sql will use arguments tbl, col, value and id
-        query <- glue::glue_sql("UPDATE datawg.t_eelstock_eel SET
-                {`col`} = {value}
-                WHERE eel_id = {id}
-                ", 
-            .con = conn)
-        tryCatch({
-              dbExecute(conn, sqlInterpolate(ANSI(), query))
-            }, error = function(e) {
-              error[i] <<- e
-            })
-      })
+    row = editedValue$row[i]
+    id = t_eelstock_eel_ids[row]
+    col = t_eelstock_eel_fields[editedValue$col[i]]
+    value = editedValue$value[i]
+    # glue sql will use arguments tbl, col, value and id
+    query <- glue::glue_sql("UPDATE datawg.t_eelstock_eel SET
+								{`col`} = {value}
+								WHERE eel_id = {id}
+								", 
+                            .con = conn)
+    tryCatch({
+      dbExecute(conn, sqlInterpolate(ANSI(), query))
+    }, error = function(e) {
+      error[i] <<- e
+    })
+  })
   poolReturn(conn)
   # print(editedValue)
   return(error)
@@ -663,22 +1015,22 @@ update_t_eelstock_eel <- function(editedValue, pool, data) {
 #' @param secondary_assessor : the person who helps from the data subgroup
 #' @return nothing
 log_datacall <- function(step, cou_code, message, the_metadata, file_type, main_assessor, 
-    secondary_assessor) {
+                         secondary_assessor) {
   if (is.null(the_metadata)) {
     the_metadata[["contact"]] <- NA
     the_metadata[["method"]] <- NA
   }
   query <- glue_sql("INSERT INTO datawg.log(log_cou_code,log_data,log_evaluation_name,log_main_assessor,log_secondary_assessor,log_contact_person_name, log_method, log_message, log_date) VALUES
- ({cou_code},{data},{evaluation},{main},{secondary},{log_contact_person_name},{log_method},{log_message},{date})", 
-      cou_code = cou_code, 
-			data = file_type, 
-			evaluation = step, main = main_assessor, 
-      secondary = secondary_assessor, 
-			log_contact_person_name = the_metadata[["contact"]], 
-      log_method = the_metadata[["method"]], 
-			log_message = message,
-			date = Sys.Date(), 
-      .con = pool)
+					({cou_code},{data},{evaluation},{main},{secondary},{log_contact_person_name},{log_method},{log_message},{date})", 
+                    cou_code = cou_code, 
+                    data = file_type, 
+                    evaluation = step, main = main_assessor, 
+                    secondary = secondary_assessor, 
+                    log_contact_person_name = the_metadata[["contact"]], 
+                    log_method = the_metadata[["method"]], 
+                    log_message = message,
+                    date = Sys.Date(), 
+                    .con = pool)
   
   out_data <- dbGetQuery(pool, query)
   return(out_data)
@@ -696,20 +1048,20 @@ log_datacall <- function(step, cou_code, message, the_metadata, file_type, main_
 check_missing_data <- function(complete, newdata, restricted=TRUE) {
   load_library("data.table")
   all_comb <- expand.grid(eel_lfs_code=c("G","Y","S"),
-                        eel_hty_code=c("F","T","C"),
-                        eel_emu_nameshort=unique(complete$eel_emu_nameshort),
-                        eel_cou_code=unique(complete$eel_cou_code),
-                        eel_year=unique(complete$eel_year),
-                        eel_typ_id=c(4,6))
+                          eel_hty_code=c("F","T","C"),
+                          eel_emu_nameshort=unique(complete$eel_emu_nameshort),
+                          eel_cou_code=unique(complete$eel_cou_code),
+                          eel_year=unique(complete$eel_year),
+                          eel_typ_id=c(4,6))
   missing_comb <- anti_join(all_comb, complete)
   missing_comb$id <- 1:nrow(missing_comb)
   found_matches <- sqldf("select id from missing_comb m inner join complete c on c.eel_cou_code=m.eel_cou_code and
-                                                            c.eel_year=m.eel_year and
-                                                            c.eel_typ_id=m.eel_typ_id and
-                                                            c.eel_lfs_code like '%'||m.eel_lfs_code||'%'
-                                                            and c.eel_hty_code like '%'||m.eel_hty_code||'%' 
-                                                            and (c.eel_emu_nameshort=m.eel_emu_nameshort or
-                                                                c.eel_emu_nameshort=substr(m.eel_emu_nameshort,1,3)||'total')")
+					c.eel_year=m.eel_year and
+					c.eel_typ_id=m.eel_typ_id and
+					c.eel_lfs_code like '%'||m.eel_lfs_code||'%'
+					and c.eel_hty_code like '%'||m.eel_hty_code||'%' 
+					and (c.eel_emu_nameshort=m.eel_emu_nameshort or
+					c.eel_emu_nameshort=substr(m.eel_emu_nameshort,1,3)||'total')")
   #looks for missing combinations
   missing_comb <- missing_comb %>%
     filter(!missing_comb$id %in% found_matches$id)%>%
@@ -719,19 +1071,19 @@ check_missing_data <- function(complete, newdata, restricted=TRUE) {
     missing_comb <-missing_comb %>%
       filter(eel_year>=min(newdata$eel_year) & eel_year<=max(newdata$eel_year))
   }
-
+  
   missing_comb$eel_hty_code=as.character(missing_comb$eel_hty_code)
   missing_comb$eel_lfs_code=as.character(missing_comb$eel_lfs_code)
   missing_comb$eel_emu_nameshort =as.character(missing_comb$eel_emu_nameshort)
   missing_comb$eel_cou_code =as.character(missing_comb$eel_cou_code)
-
+  
   #creates a nested data table to facilitate display in shiny
   missing_comb_dt = data.table(missing_comb)
   setkey(missing_comb_dt, eel_cou_code, eel_typ_id,eel_emu_nameshort,eel_lfs_code,eel_hty_code)
-
+  
   hty_dt = data.table(missing_comb %>%
-    group_by(eel_cou_code, eel_typ_id,eel_emu_nameshort,eel_lfs_code,eel_hty_code) %>%
-    summarise(nb=n()))
+                        group_by(eel_cou_code, eel_typ_id,eel_emu_nameshort,eel_lfs_code,eel_hty_code) %>%
+                        summarise(nb=n()))
   setkey(hty_dt, eel_cou_code, eel_typ_id,eel_emu_nameshort,eel_lfs_code,eel_hty_code)
   
   lfs_dt = data.table(missing_comb %>% 
@@ -751,9 +1103,9 @@ check_missing_data <- function(complete, newdata, restricted=TRUE) {
   setkey(main_dt, eel_cou_code, eel_typ_id)
   
   
-#  missing_comb_dt = 
-#    missing_comb_dt[, list("_details" = list(purrr::transpose(.SD))), by = list(eel_cou_code, eel_typ_id,eel_emu_nameshort,eel_lfs_code,eel_hty_code)]
-#  missing_comb_dt[, ' ' := '&oplus;']
+  #  missing_comb_dt = 
+  #    missing_comb_dt[, list("_details" = list(purrr::transpose(.SD))), by = list(eel_cou_code, eel_typ_id,eel_emu_nameshort,eel_lfs_code,eel_hty_code)]
+  #  missing_comb_dt[, ' ' := '&oplus;']
   
   
   
@@ -787,7 +1139,7 @@ check_missing_data <- function(complete, newdata, restricted=TRUE) {
   
   main_dt = merge(main_dt, emu_dt, all.x = TRUE,allow.cartesian=TRUE, by=c("eel_cou_code","eel_typ_id"),suffixes=c(".x","") )
   setcolorder(main_dt, c(length(main_dt),c(1:(length(main_dt) - 1))))
- 
+  
   main_dt = main_dt[,list("_details" = list(purrr::transpose(.SD))), by = list(eel_cou_code, eel_typ_id,nb.x)]
   names(main_dt)[names(main_dt)=="nb.x"]="nb"
   main_dt=cbind(' '='&oplus;',main_dt)
@@ -913,7 +1265,7 @@ check_missing_data <- function(complete, newdata, restricted=TRUE) {
     "    format_datatable(row.data(), childId);",
     "  }",
     "});")
-
+  
   datatable(main_dt, callback = callback, escape = -2,
             options = list(
               columnDefs = list(

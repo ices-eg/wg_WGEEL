@@ -2068,6 +2068,7 @@ if ("updated_biometry" %in% excel_sheets(path)) {
 							updated_data=updated_data,
 							new_biometry=new_biometry,
 							updated_biometry=updated_biometry,
+							t_series_ser=t_series_ser,
 							error=data_error,
 							the_metadata=the_metadata))) 
 }

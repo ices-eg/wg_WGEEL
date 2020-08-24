@@ -211,4 +211,3 @@ UPDATE datawg.t_biometry_bio SET bio_dts_datasource = datasource.dts_datasource 
 
 
 
-
