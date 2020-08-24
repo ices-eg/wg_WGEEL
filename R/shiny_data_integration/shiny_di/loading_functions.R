@@ -659,6 +659,10 @@ load_aquaculture<-function(path,datasource){
     data_error = rbind(data_error,   check_missing(dataset=data_xls,
             column="eel_emu_nameshort",
             country=country))
+
+    data_error = rbind(data_error,   check_emu_country(dataset=data_xls,
+                                                   column="eel_emu_nameshort",
+                                                   country=country))
     
     data_error= rbind(data_error,  check_type(dataset=data_xls,
             column="eel_emu_nameshort",

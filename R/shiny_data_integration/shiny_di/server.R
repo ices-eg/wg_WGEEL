@@ -457,7 +457,11 @@ shinyServer(function(input, output, session){
 									  validate(need(data$connectOK,"No connection"))
 									  datatable(summary_check_duplicates,
 									            rownames=FALSE,                                                    
-									            options=list(dom="t"
+									            options=list(dom="t",
+									                         rownames = FALSE,
+									                         scroller = TRUE,
+									                         scrollX = TRUE,
+									                         scrollY = "500px"
 									            ))
 									})
 									#data$new <- new # new is stored in the reactive dataset to be inserted later.      
