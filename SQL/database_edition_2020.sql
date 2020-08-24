@@ -209,7 +209,17 @@ WITH datasource AS (
 UPDATE datawg.t_biometry_bio SET bio_dts_datasource = datasource.dts_datasource FROM datasource WHERE t_biometry_bio.bio_id=datasource.bio_id; --1319
     
 GRANT ALL ON SEQUENCE datawg.t_series_ser_ser_id_seq TO wgeel;
-SELECT * FROM datawg.t_dataseries_das tdd WHERE das_ser_id = 42
 
-SELECT * FROM datawg.t_dataseries_das WHERE das_dts_datasource='test'
-SELECT * FROM datawg.t_eelstock_eel WHERE eel_typ_id =11  AND eel_qal_id=1
+
+CREATE OR REPLACE FUNCTION checkemu_whole_country(emu text) RETURNS boolean AS $$
+declare
+exist boolean;
+begin
+ exist:=false;
+ perform * from ref.tr_emu_emu where emu_nameshort=emu and emu_wholecountry=true;
+ exist:=FOUND;
+ RETURN exist;
+end
+$$ LANGUAGE plpgsql IMMUTABLE STRICT; 
+
+ALTER TABLE datawg.t_eelstock_eel ADD CONSTRAINT ck_emu_whole_aquaculture CHECK (eel_qal_id!=1 or eel_typ_id != 11 or checkemu_whole_country(eel_emu_nameshort));
