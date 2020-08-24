@@ -1151,16 +1151,16 @@ write_new_dataseries <- function(path) {
 #' \dontrun{
 #' if(interactive()){
 #'  path<-wg_file.choose()
-#port <- 5432
-#host <- "localhost"#"192.168.0.100"
-#userwgeel <-"wgeel"
-#pool <<- pool::dbPool(drv = dbDriver("PostgreSQL"),
-#		dbname="wgeel",
-#		host=host,
-#		port=port,
-#		user= userwgeel,
-#		password= passwordwgeel) 
-#'  # path<-"C:\\Users\\cedric.briand\\Downloads\\new_dataseries_2020-08-23_FR.xlsx"
+#'port <- 5432
+#'host <- "localhost"#"192.168.0.100"
+#'userwgeel <-"wgeel"
+#'pool <<- pool::dbPool(drv = dbDriver("PostgreSQL"),
+#'		dbname="wgeel",
+#'		host=host,
+#'		port=port,
+#'		user= userwgeel,
+#'		password= passwordwgeel) 
+#'  # path<-"C:\\Users\\cedric.briand\\Downloads\\new_biometry_2020-08-24_FR.xlsx"
 #'  write_new(path)
 #' 
 #'  }
@@ -1169,25 +1169,34 @@ write_new_dataseries <- function(path) {
 write_new_biometry <- function(path) {
 	
 	new <- read_excel(path = path, sheet = 1, skip = 1)
-	new$das_qal_id <- as.integer(new$das_qal_id)
+
 	
 	####when there are no data, new values have incorrect type
 	new <- new %>% mutate_if(is.logical,list(as.numeric)) 
-	
+	new <- new %>% mutate_at(vars(bio_last_update, bio_comment, bio_dts_datasource), list(as.character)) 
 	# create dataset for insertion -------------------------------------------------------------------
 	
 	
-	new <- new[, c("das_year", "das_value", "das_comment",
-					"das_effort", "das_dts_datasource", "das_ser_id", "das_qal_id")	]
-	sqldf::sqldf("drop table if exists new_dataseries_temp ")
-	sqldf::sqldf("create table new_dataseries_temp as select * from new")
+	new <- new[, c(c( "bio_year", "bio_length", "bio_weight", "bio_age", 
+							"bio_sex_ratio", "bio_length_f", "bio_weight_f", "bio_age_f", "bio_length_m", 
+							"bio_weight_m", "bio_age_m", "bio_comment", "bio_last_update", "bis_g_in_gy", 
+							"bio_dts_datasource", "bis_ser_id" )
+	)	]
+	sqldf::sqldf("drop table if exists new_biometry_temp ")
+	sqldf::sqldf("create table new_biometry_temp as select * from new")
 	
 	# Query uses temp table just created in the database by sqldf
-	query <- "insert into datawg.t_dataseries_das (das_year, das_value, das_comment,
-			das_effort, das_dts_datasource, das_ser_id, das_qal_id)
+	query <- "insert into datawg.t_biometry_series_bis (
+ bio_year, bio_lfs_code, bio_length, bio_weight, bio_age, bio_sex_ratio,
+ bio_length_f, bio_weight_f, bio_age_f, bio_length_m, bio_weight_m, bio_age_m,
+ bio_comment, bio_last_update, bis_g_in_gy, bio_dts_datasource, bis_ser_id
+)
 			select 
-			das_year, das_value, das_comment,	das_effort, das_dts_datasource, das_ser_id, das_qal_id
-			from new_dataseries_temp"
+			 bio_year, ser_lfs_code as bio_lsf_code, bio_length, bio_weight, bio_age, bio_sex_ratio,
+ bio_length_f, bio_weight_f, bio_age_f, bio_length_m, bio_weight_m, bio_age_m,
+ bio_comment, bio_last_update::date, bis_g_in_gy, bio_dts_datasource, bis_ser_id
+			from  new_biometry_temp
+      JOIN datawg.t_series_ser on ser_id=bis_ser_id"
 	# if fails replaces the message with this trycatch !  I've tried many ways with
 	# sqldf but trycatch failed to catch the error Hence the use of DBI
 	conn <- poolCheckout(pool)
@@ -1198,7 +1207,7 @@ write_new_biometry <- function(path) {
 							message <<- e
 						}, finally = {
 							poolReturn(conn)
-							sqldf::sqldf("drop table if exists new_dataseries_temp")
+							sqldf::sqldf("drop table if exists new_biometry_temp")
 						}))
 	
 	
