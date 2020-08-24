@@ -1634,7 +1634,6 @@ load_series<-function(path,datasource,stage="glass_eel"){
 		
 		
 		###### ser_uni_code ##############
-		
 # should not have any missing value
 		data_error <- rbind(data_error, check_missing(dataset=series,
 						column="ser_uni_code",
@@ -1672,7 +1671,7 @@ load_series<-function(path,datasource,stage="glass_eel"){
 # note this is more restrictive than the database
 		
 		data_error <- rbind(data_error, check_values(dataset=series,
-						column="ser_uni_code",
+						column="ser_lfs_code",
 						country=country,
 						values=c('G','Y','S','GY')))	
 		
