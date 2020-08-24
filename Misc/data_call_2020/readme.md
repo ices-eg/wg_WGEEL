@@ -301,7 +301,7 @@ Data call sent to ICES in time
 ---------------------------
 
  
-## MO (Morocco) 
+## MA (Morocco) 
 
 check with Fatima
 
