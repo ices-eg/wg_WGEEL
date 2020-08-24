@@ -355,3 +355,20 @@ check_between <- function(dataset, column, country, minvalue, maxvalue){
 	}
 	return(answer)  
 }
+
+#' check that emu is a whole country emu
+#' 
+#' @param dataset the name of the dataset
+#' @param column the name of the column
+#' @param country the current country being evaluated
+#' 
+check_emu_country <- function(dataset, column, country){
+  answer=NULL
+  conn <- poolCheckout(pool)
+  emu_whole <- dbGetQuery(conn,paste("select emu_nameshort from ref.tr_emu_emu where emu_wholecountry=true and emu_cou_code='",country,"'",sep=""))[,1]
+  poolReturn(conn)
+  if (length(!dataset[,column] %in% emu_whole))
+    answer=data.frame(nline = which(!dataset[,column] %in% emu_whole),
+                      error_message=paste("eel_emu_nameshort should be in {",paste(emu_whole,collapse=", "),"}",sep=""))
+  return(answer)
+}

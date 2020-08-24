@@ -1019,26 +1019,25 @@ write_updated_values <- function(updated_values_table, qualify_code) {
   sqldf::sqldf("drop table if exists updated_temp ")
   sqldf::sqldf("create table updated_temp as select * from updated_values_table")
   cyear=format(Sys.Date(), "%Y")
-  browser()
   query=paste("
-  DO $$
-    DECLARE
-  rec RECORD;
-  oldid integer;
-  newid integer;
-  BEGIN
-  FOR rec in SELECT * from updated_temp
-    LOOP
-    BEGIN
-      oldid:=rec.eel_id;
-      update datawg.t_eelstock_eel set eel_qal_id=",qualify_code," where eel_id=oldid;
-        insert into datawg.t_eelstock_eel (eel_typ_id,eel_year,eel_value,eel_missvaluequal,eel_emu_nameshort,eel_cou_code,eel_lfs_code,eel_hty_code,eel_area_division,eel_qal_id, eel_qal_comment,eel_datasource,eel_comment)
-        (select eel_typ_id,eel_year_xls,eel_value_xls,eel_missvaluequal_xls,eel_emu_nameshort_xls,eel_cou_code_xls,eel_lfs_code_xls,eel_hty_code_xls,eel_area_division_xls,eel_qal_id_xls,eel_qal_comment_xls,eel_datasource_xls,eel_comment_xls from updated_temp where eel_id=oldid ) returning eel_id into newid;
-        update datawg.t_eelstock_eel set eel_qal_comment=coalesce(eel_qal_comment,'') || ' updated to eel_id ' || newid::text || ' in ",cyear,"' where eel_id=oldid;
-    END;
-    END LOOP;
-    END;
-  $$ LANGUAGE 'plpgsql';",sep="")
+      DO $$
+        DECLARE
+      rec RECORD;
+      oldid integer;
+      newid integer;
+      BEGIN
+      FOR rec in SELECT * from updated_temp
+        LOOP
+        BEGIN
+          oldid:=rec.eel_id;
+          update datawg.t_eelstock_eel set eel_qal_id=",qualify_code," where eel_id=oldid;
+            insert into datawg.t_eelstock_eel (eel_typ_id,eel_year,eel_value,eel_missvaluequal,eel_emu_nameshort,eel_cou_code,eel_lfs_code,eel_hty_code,eel_area_division,eel_qal_id, eel_qal_comment,eel_datasource,eel_comment)
+            (select eel_typ_id,eel_year_xls,eel_value_xls,eel_missvaluequal_xls,eel_emu_nameshort_xls,eel_cou_code_xls,eel_lfs_code_xls,eel_hty_code_xls,eel_area_division_xls,eel_qal_id_xls,eel_qal_comment_xls,eel_datasource_xls,eel_comment_xls from updated_temp where eel_id=oldid ) returning eel_id into newid;
+            update datawg.t_eelstock_eel set eel_qal_comment=coalesce(eel_qal_comment,'') || ' updated to eel_id ' || newid::text || ' in ",cyear,"' where eel_id=oldid;
+        END;
+        END LOOP;
+        END;
+      $$ LANGUAGE 'plpgsql';",sep="")
   conn <- poolCheckout(pool)
   message <- NULL
   nr <- tryCatch({
@@ -1051,7 +1050,7 @@ write_updated_values <- function(updated_values_table, qualify_code) {
   
   
   if (is.null(message))   
-    message <- sprintf(" %s new values inserted in the database", nr)
+    message <- paste(nrow(updated_values_table),"values updated in the db")
   
   return(list(message = message, cou_code = cou_code))
 }
