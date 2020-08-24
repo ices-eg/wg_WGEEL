@@ -1179,19 +1179,29 @@ write_new_biometry <- function(path) {
 #' @description Performs update queries
 #' @param path path to file (collected from shiny button)
 #' @return message indicating success or failure at data insertion
-#' @details This function uses sqldf to create temporary table then dbExecute as
-#' this version allows to catch exceptions and sqldf does not
+#
+#port <- 5432
+#host <- "localhost"#"192.168.0.100"
+#userwgeel <-"wgeel"
+#pool <<- pool::dbPool(drv = dbDriver("PostgreSQL"),
+#		dbname="wgeel",
+#		host=host,
+#		port=port,
+#		user= userwgeel,
+#		password= passwordwgeel) 
+#path<-"C:\\Users\\cedric.briand\\Downloads\\modified_series_2020-08-23_FR.xlsx"
 
 update_series <- function(path) {
-	cou_code = unique(updated_values_table$eel_cou_code.xls)  
+	
+	updated_values_table <- 	read_excel(path = path, sheet = 1, skip = 1)	
+	cou_code = unique(updated_values_table$ser_cou_code)  
 	validate(need(length(cou_code) == 1, "There is more than one country code, please check your file"))
 	
 	# create dataset for insertion -------------------------------------------------------------------
 	
 	
-	names(updated_values_table) = gsub(".","_",names(updated_values_table),fixed=TRUE)
-	sqldf::sqldf("drop table if exists updated_temp ")
-	sqldf::sqldf("create table updated_temp as select * from updated_values_table")
+	sqldf::sqldf("drop table if exists updated_series_temp ")
+	sqldf::sqldf("create table updated_series_temp as select * from updated_values_table")
 	cyear=format(Sys.Date(), "%Y")
 	query=paste("
 					DO $$
@@ -1220,6 +1230,7 @@ update_series <- function(path) {
 				message <<- e
 			}, finally = {
 				poolReturn(conn)
+				sqldf("DROP TABLE updated_series_temp")
 			})
 	
 	
