@@ -228,15 +228,16 @@ load_catch_landings<-function(path,datasource){
   #            values=c(0,1,2,3)))
       
       ###### eel_datasource ############## 
+      #####removed in dc2020
       
-      data_error= rbind(data_error, check_missing(dataset=data_xls,
-              column="eel_datasource",
-              country=country))
-      
-      data_error= rbind(data_error, check_values(dataset=data_xls,
-              column="eel_datasource",
-              country=country,
-              values=c("dc_2017","wgeel_2016","wgeel_2017","dc_2018","dc_2019","dc_2020","dc_2020_missing")))
+      # data_error= rbind(data_error, check_missing(dataset=data_xls,
+      #         column="eel_datasource",
+      #         country=country))
+      # 
+      # data_error= rbind(data_error, check_values(dataset=data_xls,
+      #         column="eel_datasource",
+      #         country=country,
+      #         values=c("dc_2017","wgeel_2016","wgeel_2017","dc_2018","dc_2019","dc_2020","dc_2020_missing")))
       
       ###### freshwater shouldn't have area ########################
       
@@ -481,16 +482,17 @@ load_release<-function(path,datasource){
               country=country,
               values=ices_division))
   ###### eel_datasource ############## 
-  
-  data_error= rbind(data_error, check_missing(dataset=data_xls,
-  				column="eel_datasource",
-  				country=country))
-  
-  data_error= rbind(data_error, check_values(dataset=data_xls,
-  				column="eel_datasource",
-  				country=country,
-  				values=c("dc_2017","wgeel_2016","wgeel_2017","dc_2018","dc_2019","dc_2020","dc_2020_missing")))
-  
+  #####removed in dc2020
+  #     
+  # data_error= rbind(data_error, check_missing(dataset=data_xls,
+  # 				column="eel_datasource",
+  # 				country=country))
+  # 
+  # data_error= rbind(data_error, check_values(dataset=data_xls,
+  # 				column="eel_datasource",
+  # 				country=country,
+  # 				values=c("dc_2017","wgeel_2016","wgeel_2017","dc_2018","dc_2019","dc_2020","dc_2020_missing")))
+  # 
       if (sheet=="new_data"){
         ###  deal with eel_value_number and eel_value_kg to import to database
         
@@ -587,7 +589,7 @@ load_aquaculture<-function(path,datasource){
   
   data_xls<-read_excel(
       path=path,
-      sheet=3,
+      sheet="new_data",
       skip=0)
   data_xls <- correct_me(data_xls)
   country =as.character(data_xls[1,6])
@@ -704,15 +706,15 @@ load_aquaculture<-function(path,datasource){
             values=c("G","GY","Y","YS","S","OG","QG","AL")))
 
 ###### eel_datasource ############## 
-
-data_error= rbind(data_error, check_missing(dataset=data_xls,
-				column="eel_datasource",
-				country=country))
-
-data_error= rbind(data_error, check_values(dataset=data_xls,
-				column="eel_datasource",
-				country=country,
-				values=c("dc_2017","wgeel_2016","wgeel_2017","dc_2018","dc_2019","dc_2020","dc_2020_missing")))
+##### removed in dc 2020
+# data_error= rbind(data_error, check_missing(dataset=data_xls,
+# 				column="eel_datasource",
+# 				country=country))
+# 
+# data_error= rbind(data_error, check_values(dataset=data_xls,
+# 				column="eel_datasource",
+# 				country=country,
+# 				values=c("dc_2017","wgeel_2016","wgeel_2017","dc_2018","dc_2019","dc_2020","dc_2020_missing")))
 
     
     ###### freshwater shouldn't have area ########################
