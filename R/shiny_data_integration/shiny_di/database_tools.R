@@ -35,76 +35,76 @@
 #' @rdname compare_with_database
 #' @importFrom dplyr filter select inner_join right_join
 compare_with_database <- function(data_from_excel, data_from_base) {
-  # tr_type_typ should have been loaded by global.R in the program in the shiny app
-  if (!exists("tr_type_typ")) {
-    tr_type_typ<-extract_ref("Type of series")
-  }
-  # data integrity checks
-  if (nrow(data_from_excel) == 0) 
-    stop("There are no data coming from the excel file")
-  current_cou_code <- unique(data_from_excel$eel_cou_code)
-  if (length(current_cou_code) != 1) 
-    stop("There is more than one country code, this is wrong")
-  current_typ_name <- unique(data_from_excel$eel_typ_name)
-  if (!all(current_typ_name %in% tr_type_typ$typ_name)) stop(str_c("Type ",current_typ_name[!current_typ_name %in% tr_type_typ$typ_name]," not in list of type name check excel file"))
-  # all data returned by loading functions have only a name just in case to avoid doubles
-  
-  if (!"eel_typ_id"%in%colnames(data_from_excel)) {
-    # extract subset suitable for merge
-    tr_type_typ_for_merge <- tr_type_typ[, c("typ_id", "typ_name")]
-    colnames(tr_type_typ_for_merge) <- c("eel_typ_id", "eel_typ_name")
-    data_from_excel <- merge(data_from_excel, tr_type_typ_for_merge, by = "eel_typ_name") 
-  }
-  if (nrow(data_from_base) == 0) {
-    # the data_from_base has 0 lines and 0 columns
-    # this poses computation problems
-    # I'm changing it here by loading a correct empty dataset
-    load("common/data/data_from_base_0L.Rdata")
-    data_from_base<-data_from_base0L
-    warning("No data in the file coming from the database")
-    current_typ_id<-0
-  } else {   
-    current_typ_id <- unique(data_from_excel$eel_typ_id)
-    if (!all(current_typ_id %in% data_from_base$eel_typ_id)) 
-      stop(paste("There is a mismatch between selected typ_id", paste0(current_typ_id, 
-                                                                       collapse = ";"), "and the dataset loaded from base", paste0(unique(data_from_base$eel_typ_id), 
-                                                                                                                                   collapse = ";"), "did you select the right File type ?"))
-  }
-  # Can't join on 'eel_area_division' x 'eel_area_division' because of incompatible
-  # types (character / logical)
-  data_from_excel$eel_area_division <- as.character(data_from_excel$eel_area_division)
-  data_from_excel$eel_hty_code <- as.character(data_from_excel$eel_hty_code)
-  eel_colnames <- colnames(data_from_base)[grepl("eel", colnames(data_from_base))]
-
-  #since dc2020, qal_id are automatically created during the import
-  data_from_excel$eel_qal_id <- ifelse(is.na(data_from_excel$eel_value),0,1)
-  data_from_excel$eel_qal_comment <- rep(NA,nrow(data_from_excel))
-
-  # duplicates are inner_join eel_cou_code added to the join just to avoid
-  # duplication
-  duplicates <- data_from_base %>% dplyr::filter(eel_typ_id %in% current_typ_id & 
-                                                   eel_cou_code == current_cou_code) %>% dplyr::select(eel_colnames) %>% # dplyr::select(-eel_cou_code)%>%
-    dplyr::inner_join(data_from_excel, by = c("eel_typ_id", "eel_year", "eel_lfs_code", 
-                                              "eel_emu_nameshort", "eel_cou_code", "eel_hty_code", "eel_area_division"), 
-                      suffix = c(".base", ".xls"))
-  duplicates$keep_new_value <- vector("logical", nrow(duplicates))
-  duplicates <- duplicates[, c("eel_id", "eel_typ_id", "eel_typ_name", "eel_year", 
-                               "eel_value.base", "eel_value.xls", "keep_new_value", "eel_qal_id.xls", "eel_qal_comment.xls", 
-                               "eel_qal_id.base", "eel_qal_comment.base", "eel_missvaluequal.base", "eel_missvaluequal.xls", 
-                               "eel_emu_nameshort", "eel_cou_code", "eel_lfs_code", "eel_hty_code", "eel_area_division", 
-                               "eel_comment.base", "eel_comment.xls", "eel_datasource.base", "eel_datasource.xls")]
-  new <- dplyr::anti_join(data_from_excel, data_from_base, by = c("eel_typ_id", 
-                                                                  "eel_year", "eel_lfs_code", "eel_emu_nameshort", "eel_hty_code", "eel_area_division", 
-                                                                  "eel_cou_code"), suffix = c(".base", ".xls"))
-  new <- new[, c("eel_typ_id", "eel_typ_name", "eel_year", "eel_value", "eel_missvaluequal", 
-                 "eel_emu_nameshort", "eel_cou_code", "eel_lfs_code", "eel_hty_code", "eel_area_division", 
-                 "eel_qal_id", "eel_qal_comment", "eel_datasource", "eel_comment")]
-  complete <- rbind.data.frame(data_from_base[data_from_base$eel_cou_code %in% unique(new$eel_cou_code),
-                                              c("eel_typ_id", "eel_year", "eel_lfs_code", 
-                                                "eel_emu_nameshort", "eel_cou_code", "eel_hty_code")],
-                               new[,c("eel_typ_id", "eel_year", "eel_lfs_code", 
-                                      "eel_emu_nameshort", "eel_cou_code", "eel_hty_code")])
-  return(list(duplicates = duplicates, new = new, current_cou_code= current_cou_code, complete=complete))
+	# tr_type_typ should have been loaded by global.R in the program in the shiny app
+	if (!exists("tr_type_typ")) {
+		tr_type_typ<-extract_ref("Type of series")
+	}
+	# data integrity checks
+	if (nrow(data_from_excel) == 0) 
+		stop("There are no data coming from the excel file")
+	current_cou_code <- unique(data_from_excel$eel_cou_code)
+	if (length(current_cou_code) != 1) 
+		stop("There is more than one country code, this is wrong")
+	current_typ_name <- unique(data_from_excel$eel_typ_name)
+	if (!all(current_typ_name %in% tr_type_typ$typ_name)) stop(str_c("Type ",current_typ_name[!current_typ_name %in% tr_type_typ$typ_name]," not in list of type name check excel file"))
+	# all data returned by loading functions have only a name just in case to avoid doubles
+	
+	if (!"eel_typ_id"%in%colnames(data_from_excel)) {
+		# extract subset suitable for merge
+		tr_type_typ_for_merge <- tr_type_typ[, c("typ_id", "typ_name")]
+		colnames(tr_type_typ_for_merge) <- c("eel_typ_id", "eel_typ_name")
+		data_from_excel <- merge(data_from_excel, tr_type_typ_for_merge, by = "eel_typ_name") 
+	}
+	if (nrow(data_from_base) == 0) {
+		# the data_from_base has 0 lines and 0 columns
+		# this poses computation problems
+		# I'm changing it here by loading a correct empty dataset
+		load("common/data/data_from_base_0L.Rdata")
+		data_from_base<-data_from_base0L
+		warning("No data in the file coming from the database")
+		current_typ_id<-0
+	} else {   
+		current_typ_id <- unique(data_from_excel$eel_typ_id)
+		if (!all(current_typ_id %in% data_from_base$eel_typ_id)) 
+			stop(paste("There is a mismatch between selected typ_id", paste0(current_typ_id, 
+									collapse = ";"), "and the dataset loaded from base", paste0(unique(data_from_base$eel_typ_id), 
+									collapse = ";"), "did you select the right File type ?"))
+	}
+	# Can't join on 'eel_area_division' x 'eel_area_division' because of incompatible
+	# types (character / logical)
+	data_from_excel$eel_area_division <- as.character(data_from_excel$eel_area_division)
+	data_from_excel$eel_hty_code <- as.character(data_from_excel$eel_hty_code)
+	eel_colnames <- colnames(data_from_base)[grepl("eel", colnames(data_from_base))]
+	
+	#since dc2020, qal_id are automatically created during the import
+	data_from_excel$eel_qal_id <- ifelse(is.na(data_from_excel$eel_value),0,1)
+	data_from_excel$eel_qal_comment <- rep(NA,nrow(data_from_excel))
+	
+	# duplicates are inner_join eel_cou_code added to the join just to avoid
+	# duplication
+	duplicates <- data_from_base %>% dplyr::filter(eel_typ_id %in% current_typ_id & 
+							eel_cou_code == current_cou_code) %>% dplyr::select(eel_colnames) %>% # dplyr::select(-eel_cou_code)%>%
+			dplyr::inner_join(data_from_excel, by = c("eel_typ_id", "eel_year", "eel_lfs_code", 
+							"eel_emu_nameshort", "eel_cou_code", "eel_hty_code", "eel_area_division"), 
+					suffix = c(".base", ".xls"))
+	duplicates$keep_new_value <- vector("logical", nrow(duplicates))
+	duplicates <- duplicates[, c("eel_id", "eel_typ_id", "eel_typ_name", "eel_year", 
+					"eel_value.base", "eel_value.xls", "keep_new_value", "eel_qal_id.xls", "eel_qal_comment.xls", 
+					"eel_qal_id.base", "eel_qal_comment.base", "eel_missvaluequal.base", "eel_missvaluequal.xls", 
+					"eel_emu_nameshort", "eel_cou_code", "eel_lfs_code", "eel_hty_code", "eel_area_division", 
+					"eel_comment.base", "eel_comment.xls", "eel_datasource.base", "eel_datasource.xls")]
+	new <- dplyr::anti_join(data_from_excel, data_from_base, by = c("eel_typ_id", 
+					"eel_year", "eel_lfs_code", "eel_emu_nameshort", "eel_hty_code", "eel_area_division", 
+					"eel_cou_code"), suffix = c(".base", ".xls"))
+	new <- new[, c("eel_typ_id", "eel_typ_name", "eel_year", "eel_value", "eel_missvaluequal", 
+					"eel_emu_nameshort", "eel_cou_code", "eel_lfs_code", "eel_hty_code", "eel_area_division", 
+					"eel_qal_id", "eel_qal_comment", "eel_datasource", "eel_comment")]
+	complete <- rbind.data.frame(data_from_base[data_from_base$eel_cou_code %in% unique(new$eel_cou_code),
+					c("eel_typ_id", "eel_year", "eel_lfs_code", 
+							"eel_emu_nameshort", "eel_cou_code", "eel_hty_code")],
+			new[,c("eel_typ_id", "eel_year", "eel_lfs_code", 
+							"eel_emu_nameshort", "eel_cou_code", "eel_hty_code")])
+	return(list(duplicates = duplicates, new = new, current_cou_code= current_cou_code, complete=complete))
 }
 #' @title compare with database for updated values
 #' @description This function retrieves older values in the database and compares it with data
@@ -413,10 +413,10 @@ compare_with_database_dataseries <- function(data_from_excel, data_from_base, sh
 	}
 	# when modified come from new data, I need the id
 	if (!"das_id" %in% colnames(modified)){
-			modified <- inner_join(
-					data_from_base[,c("das_year","das_ser_id","das_id", "das_qal_id")], 
-					modified, by= c("das_ser_id","das_year"))
-		}
+		modified <- inner_join(
+				data_from_base[,c("das_year","das_ser_id","das_id", "das_qal_id")], 
+				modified, by= c("das_ser_id","das_year"))
+	}
 	
 	return(list(new = new, modified=modified, highlight_change=highlight_change, error_id_message=error_id_message))
 }
@@ -900,51 +900,51 @@ write_new <- function(path) {
 #' this version allows to catch exceptions and sqldf does not
 
 write_updated_values <- function(updated_values_table, qualify_code) {
-  cou_code = unique(updated_values_table$eel_cou_code.xls)  
-  validate(need(length(cou_code) == 1, "There is more than one country code, please check your file"))
-
-  # create dataset for insertion -------------------------------------------------------------------
-  
-  
-  names(updated_values_table) = gsub(".","_",names(updated_values_table),fixed=TRUE)
-  sqldf::sqldf("drop table if exists updated_temp ")
-  sqldf::sqldf("create table updated_temp as select * from updated_values_table")
-  cyear=format(Sys.Date(), "%Y")
-  query=paste("
-      DO $$
-        DECLARE
-      rec RECORD;
-      oldid integer;
-      newid integer;
-      BEGIN
-      FOR rec in SELECT * from updated_temp
-        LOOP
-        BEGIN
-          oldid:=rec.eel_id;
-          update datawg.t_eelstock_eel set eel_qal_id=",qualify_code," where eel_id=oldid;
-            insert into datawg.t_eelstock_eel (eel_typ_id,eel_year,eel_value,eel_missvaluequal,eel_emu_nameshort,eel_cou_code,eel_lfs_code,eel_hty_code,eel_area_division,eel_qal_id, eel_qal_comment,eel_datasource,eel_comment)
-            (select eel_typ_id,eel_year_xls,eel_value_xls,eel_missvaluequal_xls,eel_emu_nameshort_xls,eel_cou_code_xls,eel_lfs_code_xls,eel_hty_code_xls,eel_area_division_xls,eel_qal_id_xls,eel_qal_comment_xls,eel_datasource_xls,eel_comment_xls from updated_temp where eel_id=oldid ) returning eel_id into newid;
-            update datawg.t_eelstock_eel set eel_qal_comment=coalesce(eel_qal_comment,'') || ' updated to eel_id ' || newid::text || ' in ",cyear,"' where eel_id=oldid;
-        END;
-        END LOOP;
-        END;
-      $$ LANGUAGE 'plpgsql';",sep="")
-  conn <- poolCheckout(pool)
-  message <- NULL
-  nr <- tryCatch({
-    dbExecute(conn, query)
-  }, error = function(e) {
-    message <<- e
-  }, finally = {
-    poolReturn(conn)
-    sqldf::sqldf("drop table if exists updated_temp ")
-  })
-  
-  
-  if (is.null(message))   
-    message <- paste(nrow(updated_values_table),"values updated in the db")
-  
-  return(list(message = message, cou_code = cou_code))
+	cou_code = unique(updated_values_table$eel_cou_code.xls)  
+	validate(need(length(cou_code) == 1, "There is more than one country code, please check your file"))
+	
+	# create dataset for insertion -------------------------------------------------------------------
+	
+	
+	names(updated_values_table) = gsub(".","_",names(updated_values_table),fixed=TRUE)
+	sqldf::sqldf("drop table if exists updated_temp ")
+	sqldf::sqldf("create table updated_temp as select * from updated_values_table")
+	cyear=format(Sys.Date(), "%Y")
+	query=paste("
+					DO $$
+					DECLARE
+					rec RECORD;
+					oldid integer;
+					newid integer;
+					BEGIN
+					FOR rec in SELECT * from updated_temp
+					LOOP
+					BEGIN
+					oldid:=rec.eel_id;
+					update datawg.t_eelstock_eel set eel_qal_id=",qualify_code," where eel_id=oldid;
+					insert into datawg.t_eelstock_eel (eel_typ_id,eel_year,eel_value,eel_missvaluequal,eel_emu_nameshort,eel_cou_code,eel_lfs_code,eel_hty_code,eel_area_division,eel_qal_id, eel_qal_comment,eel_datasource,eel_comment)
+					(select eel_typ_id,eel_year_xls,eel_value_xls,eel_missvaluequal_xls,eel_emu_nameshort_xls,eel_cou_code_xls,eel_lfs_code_xls,eel_hty_code_xls,eel_area_division_xls,eel_qal_id_xls,eel_qal_comment_xls,eel_datasource_xls,eel_comment_xls from updated_temp where eel_id=oldid ) returning eel_id into newid;
+					update datawg.t_eelstock_eel set eel_qal_comment=coalesce(eel_qal_comment,'') || ' updated to eel_id ' || newid::text || ' in ",cyear,"' where eel_id=oldid;
+					END;
+					END LOOP;
+					END;
+					$$ LANGUAGE 'plpgsql';",sep="")
+	conn <- poolCheckout(pool)
+	message <- NULL
+	nr <- tryCatch({
+				dbExecute(conn, query)
+			}, error = function(e) {
+				message <<- e
+			}, finally = {
+				poolReturn(conn)
+				sqldf::sqldf("drop table if exists updated_temp ")
+			})
+	
+	
+	if (is.null(message))   
+		message <- paste(nrow(updated_values_table),"values updated in the db")
+	
+	return(list(message = message, cou_code = cou_code))
 }
 
 
@@ -1062,7 +1062,7 @@ write_new_dataseries <- function(path) {
 	
 	####when there are no data, new values have incorrect type
 	new <- new %>% mutate_if(is.logical,list(as.numeric)) 
-		
+	
 	# create dataset for insertion -------------------------------------------------------------------
 	
 	
@@ -1073,7 +1073,7 @@ write_new_dataseries <- function(path) {
 	
 	# Query uses temp table just created in the database by sqldf
 	query <- "insert into datawg.t_dataseries_das (das_year, das_value, das_comment,
-	das_effort, das_dts_datasource, das_ser_id, das_qal_id)
+			das_effort, das_dts_datasource, das_ser_id, das_qal_id)
 			select 
 			das_year, das_value, das_comment,	das_effort, das_dts_datasource, das_ser_id, das_qal_id
 			from new_dataseries_temp"
@@ -1126,7 +1126,7 @@ write_new_dataseries <- function(path) {
 write_new_biometry <- function(path) {
 	
 	new <- read_excel(path = path, sheet = 1, skip = 1)
-
+	
 	
 	####when there are no data, new values have incorrect type
 	new <- new %>% mutate_if(is.logical,list(as.numeric)) 
@@ -1138,22 +1138,22 @@ write_new_biometry <- function(path) {
 							"bio_sex_ratio", "bio_length_f", "bio_weight_f", "bio_age_f", "bio_length_m", 
 							"bio_weight_m", "bio_age_m", "bio_comment", "bio_last_update", "bis_g_in_gy", 
 							"bio_dts_datasource", "bis_ser_id" )
-	)	]
+			)	]
 	sqldf::sqldf("drop table if exists new_biometry_temp ")
 	sqldf::sqldf("create table new_biometry_temp as select * from new")
 	
 	# Query uses temp table just created in the database by sqldf
 	query <- "insert into datawg.t_biometry_series_bis (
- bio_year, bio_lfs_code, bio_length, bio_weight, bio_age, bio_sex_ratio,
- bio_length_f, bio_weight_f, bio_age_f, bio_length_m, bio_weight_m, bio_age_m,
- bio_comment, bio_last_update, bis_g_in_gy, bio_dts_datasource, bis_ser_id
-)
+			bio_year, bio_lfs_code, bio_length, bio_weight, bio_age, bio_sex_ratio,
+			bio_length_f, bio_weight_f, bio_age_f, bio_length_m, bio_weight_m, bio_age_m,
+			bio_comment, bio_last_update, bis_g_in_gy, bio_dts_datasource, bis_ser_id
+			)
 			select 
-			 bio_year, ser_lfs_code as bio_lsf_code, bio_length, bio_weight, bio_age, bio_sex_ratio,
- bio_length_f, bio_weight_f, bio_age_f, bio_length_m, bio_weight_m, bio_age_m,
- bio_comment, bio_last_update::date, bis_g_in_gy, bio_dts_datasource, bis_ser_id
+			bio_year, ser_lfs_code as bio_lsf_code, bio_length, bio_weight, bio_age, bio_sex_ratio,
+			bio_length_f, bio_weight_f, bio_age_f, bio_length_m, bio_weight_m, bio_age_m,
+			bio_comment, bio_last_update::date, bis_g_in_gy, bio_dts_datasource, bis_ser_id
 			from  new_biometry_temp
-      JOIN datawg.t_series_ser on ser_id=bis_ser_id"
+			JOIN datawg.t_series_ser on ser_id=bis_ser_id"
 	# if fails replaces the message with this trycatch !  I've tried many ways with
 	# sqldf but trycatch failed to catch the error Hence the use of DBI
 	conn <- poolCheckout(pool)
@@ -1203,26 +1203,43 @@ update_series <- function(path) {
 	
 	sqldf::sqldf("drop table if exists updated_series_temp ")
 	sqldf::sqldf("create table updated_series_temp as select * from updated_values_table")
-	cyear=format(Sys.Date(), "%Y")
-	query=paste("
-					DO $$
-					DECLARE
-					rec RECORD;
-					oldid integer;
-					newid integer;
-					BEGIN
-					FOR rec in SELECT * from updated_temp
-					LOOP
-					BEGIN
-					oldid:=rec.eel_id;
-					update datawg.t_eelstock_eel set eel_qal_id=",qualify_code," where eel_id=oldid;
-					insert into datawg.t_eelstock_eel (eel_typ_id,eel_year,eel_value,eel_missvaluequal,eel_emu_nameshort,eel_cou_code,eel_lfs_code,eel_hty_code,eel_area_division,eel_qal_id, eel_qal_comment,eel_datasource,eel_comment)
-					(select eel_typ_id,eel_year_xls,eel_value_xls,eel_missvaluequal_xls,eel_emu_nameshort_xls,eel_cou_code_xls,eel_lfs_code_xls,eel_hty_code_xls,eel_area_division_xls,eel_qal_id_xls,eel_qal_comment_xls,eel_datasource_xls,eel_comment_xls from updated_temp where eel_id=oldid ) returning eel_id into newid;
-					update datawg.t_eelstock_eel set eel_qal_comment=coalesce(eel_qal_comment,'') || ' updated to eel_id ' || newid::text || ' in ",cyear,"' where eel_id=oldid;
-					END;
-					END LOOP;
-					END;
-					$$ LANGUAGE 'plpgsql';",sep="")
+	query="UPDATE datawg.t_series_ser set 
+					(
+					ser_namelong, 
+					ser_typ_id,
+					ser_effort_uni_code, 
+					ser_comment, 
+					ser_uni_code, 
+					ser_lfs_code, 
+					ser_hty_code, 
+					ser_locationdescription, 
+					ser_emu_nameshort, 
+					ser_cou_code, 
+					ser_area_division, 
+					ser_tblcodeid, 
+					ser_x, 
+					ser_y, 
+					ser_sam_id,
+					ser_dts_datasource) =
+					(
+					t.ser_namelong, 
+					t.ser_typ_id,
+					t.ser_effort_uni_code, 
+					t.ser_comment, 
+					t.ser_uni_code, 
+					t.ser_lfs_code, 
+					t.ser_hty_code, 
+					t.ser_locationdescription, 
+					t.ser_emu_nameshort, 
+					t.ser_cou_code, 
+					t.ser_area_division, 
+					t.ser_tblcodeid, 
+					t.ser_x, 
+					t.ser_y, 
+					t.ser_sam_id,
+					t.ser_dts_datasource)
+					FROM updated_series_temp t WHERE t.ser_nameshort = t_series_ser.ser_nameshort"
+
 	conn <- poolCheckout(pool)
 	message <- NULL
 	nr <- tryCatch({
