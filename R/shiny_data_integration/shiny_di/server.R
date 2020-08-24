@@ -844,7 +844,7 @@ shinyServer(function(input, output, session){
 								# note highlight change is not passed from one list to the other, both will be shown
 							}
 						}	else {
-							list_comp_updateddataseries <- list
+							list_comp_updateddataseries <- list()
 							list_comp_updateddataseries$error_id_message <- "" # this message would have been displayed if pb of id
 						}			
 						if (nrow(new_biometry)>0){
@@ -1011,7 +1011,7 @@ shinyServer(function(input, output, session){
 									})
 							output$dt_highlight_change_series <-DT::renderDataTable({ 
 										validate(need(data$connectOK,"No connection"))
-										datatable(list_comp_dataseries$highlight_change,
+										datatable(list_comp_series$highlight_change,
 												rownames=FALSE,          
 												extensions = "Buttons",
 												option=list(
@@ -1051,7 +1051,7 @@ shinyServer(function(input, output, session){
 							)
 							output$dt_modified_dataseries <-DT::renderDataTable({ 
 										validate(need(data$connectOK,"No connection"))
-										datatable(list_comp_dataseries$modified,
+										datatable(list_comp_updateddataseries$modified,
 												rownames=FALSE,          
 												extensions = "Buttons",
 												option=list(
