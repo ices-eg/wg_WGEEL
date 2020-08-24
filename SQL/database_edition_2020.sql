@@ -208,6 +208,8 @@ WITH datasource AS (
       FROM datawg.t_biometry_bio)
 UPDATE datawg.t_biometry_bio SET bio_dts_datasource = datasource.dts_datasource FROM datasource WHERE t_biometry_bio.bio_id=datasource.bio_id; --1319
     
+GRANT ALL ON SEQUENCE datawg.t_series_ser_ser_id_seq TO wgeel;
+SELECT * FROM datawg.t_dataseries_das tdd WHERE das_ser_id = 42
 
-
-
+SELECT * FROM datawg.t_dataseries_das WHERE das_dts_datasource='test'
+SELECT * FROM datawg.t_eelstock_eel WHERE eel_typ_id =11  AND eel_qal_id=1
