@@ -210,7 +210,9 @@ UPDATE datawg.t_biometry_bio SET bio_dts_datasource = datasource.dts_datasource 
     
 GRANT ALL ON SEQUENCE datawg.t_series_ser_ser_id_seq TO wgeel;
 
-
+/* this piece of script aimed at fixing
+*  issue https://github.com/ices-eg/wg_WGEEL/issues/92
+*/
 CREATE OR REPLACE FUNCTION checkemu_whole_country(emu text) RETURNS boolean AS $$
 declare
 exist boolean;
@@ -223,3 +225,16 @@ end
 $$ LANGUAGE plpgsql IMMUTABLE STRICT; 
 
 ALTER TABLE datawg.t_eelstock_eel ADD CONSTRAINT ck_emu_whole_aquaculture CHECK (eel_qal_id!=1 or eel_typ_id != 11 or checkemu_whole_country(eel_emu_nameshort));
+
+
+/* this piece of script aimed at fixing
+*  issue https://github.com/ices-eg/wg_WGEEL/issues/93
+*/
+--to be checked with Esti, I think that the type is aquaculture_kg not aquaculture_number (anyway, it is declared at the emu scale not at the country scale so no valid)
+update datawg.t_eelstock_eel set eel_typ_id =11,
+								 eel_qal_id=20,
+								 eel_comment ='type corrected in 2020' 
+		where eel_typ_id =12 and eel_year=2014 and eel_emu_nameshort ='ES_Vale' and eel_lfs_code='OG' and eel_hty_code='MO'
+--other data correspond to restocking so should not be in the db
+delete from datawg.t_eelstock_eel where eel_typ_id=12;
+ALTER TABLE datawg.t_eelstock_eel ADD CONSTRAINT ck_removed_typid CHECK (eel_typ_id != 12);
