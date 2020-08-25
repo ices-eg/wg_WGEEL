@@ -241,6 +241,20 @@ ALTER TABLE datawg.t_eelstock_eel ADD CONSTRAINT ck_removed_typid CHECK (eel_typ
 
 UPDATE datawg.t_biometry_other_bit SET bio_last_update='2019-09-08' WHERE bio_last_update IS NULL; --180
 UPDATE datawg.t_biometry_series_bis SET bio_last_update='2019-09-08' WHERE bio_last_update IS NULL; --1194
+
+/*
 SELECT * FROM datawg.t_biometry_other_bit WHERE bio_id=6
 SELECT * FROM datawg.t_biometry_series_bis tbsb WHERE bio_last_update IS NOT NULL;
 SELECT * FROM datawg.t_biometry_series_bis tbsb WHERE bio_id IN (1363,1364) ;
+*/
+
+/*
+ * 
+ * Drop the ser_order series, we will order by cou_order and ser_y
+ */
+
+
+ALTER TABLE datawg.t_series_ser DROP COLUMN ser_order;
+
+
+
