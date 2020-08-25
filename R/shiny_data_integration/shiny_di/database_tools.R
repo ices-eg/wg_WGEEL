@@ -410,13 +410,15 @@ compare_with_database_dataseries <- function(data_from_excel, data_from_base, sh
 		modified <- modified[!apply(mat,1,all),]	 
 		# show only modifications to the user (any colname modified)	
 		highlight_change <- highlight_change[!apply(mat,1,all),num_common_col[!apply(mat,2,all)]]
+		
+		# when modified come from new data, I need the id
+		if (!"das_id" %in% colnames(modified)){
+			modified <- inner_join(
+					data_from_base[,c("das_year","das_ser_id","das_id", "das_qal_id")], 
+					modified, by= c("das_ser_id","das_year"))
+		}
 	}
-	# when modified come from new data, I need the id
-	if (!"das_id" %in% colnames(modified)){
-		modified <- inner_join(
-				data_from_base[,c("das_year","das_ser_id","das_id", "das_qal_id")], 
-				modified, by= c("das_ser_id","das_year"))
-	}
+	
 	
 	return(list(new = new, modified=modified, highlight_change=highlight_change, error_id_message=error_id_message))
 }
@@ -530,7 +532,15 @@ compare_with_database_biometry <- function(data_from_excel, data_from_base, shee
 		modified <- modified[!apply(mat,1,all),]	 
 		# show only modifications to the user (any colname modified)	
 		highlight_change <- highlight_change[!apply(mat,1,all),num_common_col[!apply(mat,2,all)]]
+		
+		if (!"bis_id" %in% colnames(modified)){
+			modified <- inner_join(
+					data_from_base[,c("bis_year","bis_ser_id","bis_id", "bio_qal_id")], 
+					modified, by= c("bis_year","bis_ser_id"))
+		}
 	}
+	
+	
 	
 	return(list(new = new, modified=modified, highlight_change=highlight_change))
 }
@@ -1068,6 +1078,7 @@ write_new_dataseries <- function(path) {
 	
 	new <- new[, c("das_year", "das_value", "das_comment",
 					"das_effort", "das_dts_datasource", "das_ser_id", "das_qal_id")	]
+	# das_last_update : there is a trigger
 	sqldf::sqldf("drop table if exists new_dataseries_temp ")
 	sqldf::sqldf("create table new_dataseries_temp as select * from new")
 	
@@ -1139,6 +1150,7 @@ write_new_biometry <- function(path) {
 							"bio_weight_m", "bio_age_m", "bio_comment", "bio_last_update", "bis_g_in_gy", 
 							"bio_dts_datasource", "bis_ser_id" )
 			)	]
+	new$bio_last_update <- Sys.Date()
 	sqldf::sqldf("drop table if exists new_biometry_temp ")
 	sqldf::sqldf("create table new_biometry_temp as select * from new")
 	
@@ -1204,42 +1216,42 @@ update_series <- function(path) {
 	sqldf::sqldf("drop table if exists updated_series_temp ")
 	sqldf::sqldf("create table updated_series_temp as select * from updated_values_table")
 	query="UPDATE datawg.t_series_ser set 
-					(
-					ser_namelong, 
-					ser_typ_id,
-					ser_effort_uni_code, 
-					ser_comment, 
-					ser_uni_code, 
-					ser_lfs_code, 
-					ser_hty_code, 
-					ser_locationdescription, 
-					ser_emu_nameshort, 
-					ser_cou_code, 
-					ser_area_division, 
-					ser_tblcodeid, 
-					ser_x, 
-					ser_y, 
-					ser_sam_id,
-					ser_dts_datasource) =
-					(
-					t.ser_namelong, 
-					t.ser_typ_id,
-					t.ser_effort_uni_code, 
-					t.ser_comment, 
-					t.ser_uni_code, 
-					t.ser_lfs_code, 
-					t.ser_hty_code, 
-					t.ser_locationdescription, 
-					t.ser_emu_nameshort, 
-					t.ser_cou_code, 
-					t.ser_area_division, 
-					t.ser_tblcodeid, 
-					t.ser_x, 
-					t.ser_y, 
-					t.ser_sam_id,
-					t.ser_dts_datasource)
-					FROM updated_series_temp t WHERE t.ser_nameshort = t_series_ser.ser_nameshort"
-
+			(
+			ser_namelong, 
+			ser_typ_id,
+			ser_effort_uni_code, 
+			ser_comment, 
+			ser_uni_code, 
+			ser_lfs_code, 
+			ser_hty_code, 
+			ser_locationdescription, 
+			ser_emu_nameshort, 
+			ser_cou_code, 
+			ser_area_division, 
+			ser_tblcodeid, 
+			ser_x, 
+			ser_y, 
+			ser_sam_id,
+			ser_dts_datasource) =
+			(
+			t.ser_namelong, 
+			t.ser_typ_id,
+			t.ser_effort_uni_code, 
+			t.ser_comment, 
+			t.ser_uni_code, 
+			t.ser_lfs_code, 
+			t.ser_hty_code, 
+			t.ser_locationdescription, 
+			t.ser_emu_nameshort, 
+			t.ser_cou_code, 
+			t.ser_area_division, 
+			t.ser_tblcodeid, 
+			t.ser_x, 
+			t.ser_y, 
+			t.ser_sam_id,
+			t.ser_dts_datasource)
+			FROM updated_series_temp t WHERE t.ser_nameshort = t_series_ser.ser_nameshort"
+	
 	conn <- poolCheckout(pool)
 	message <- NULL
 	nr <- tryCatch({
@@ -1258,11 +1270,136 @@ update_series <- function(path) {
 	return(list(message = message, cou_code = cou_code))
 }
 
+#path<-"C:\\Users\\cedric.briand\\Downloads\\modified_dataseries_2020-08-24_FR.xlsx"
+update_dataseries <- function(path) {
+	updated_values_table <- 	read_excel(path = path, sheet = 1, skip = 1)	
+	cou_code = sqldf(paste0("SELECT ser_cou_code FROM datawg.t_series_ser WHERE ser_nameshort='",
+					updated_values_table$ser_nameshort[1],"';"))$ser_cou_code  
+	
+	# create dataset for insertion -------------------------------------------------------------------
+	
+	updated_values_table$das_qal_id <- as.integer(updated_values_table$das_qal_id)
+	sqldf::sqldf("drop table if exists updated_dataseries_temp ")
+	sqldf::sqldf("create table updated_dataseries_temp as select * from updated_values_table")
+	query="UPDATE datawg.t_dataseries_das set 
+			(
+			das_year, 
+			das_value, 
+			das_comment,
+			das_effort, 
+			das_dts_datasource, 
+			das_ser_id, 
+			das_qal_id) =
+			(
+			t.das_year, 
+			t.das_value,
+			t.das_comment,
+			t.das_effort, 
+			t.das_dts_datasource, 
+			t.das_ser_id, 
+			t.das_qal_id)
+			FROM updated_dataseries_temp t WHERE t.das_id = t_dataseries_das.das_id"
+	
+	conn <- poolCheckout(pool)
+	message <- NULL
+	nr <- tryCatch({
+				dbExecute(conn, query)
+			}, error = function(e) {
+				message <<- e
+			}, finally = {
+				poolReturn(conn)
+				sqldf("DROP TABLE updated_series_temp")
+			})
+	
+	
+	if (is.null(message))   
+		message <- paste(nrow(updated_values_table),"values updated in the db")
+	
+	return(list(message = message, cou_code = cou_code))
+}
 
-update_dataseries <- function(path) {}
-
-
-update_biometry <- function(path) {}
+#path<-"C:\\Users\\cedric.briand\\Downloads\\updated_biometry_test.xlsx"
+#port <- 5432
+#host <- "localhost"#"192.168.0.100"
+#userwgeel <-"wgeel"
+#pool <<- pool::dbPool(drv = dbDriver("PostgreSQL"),
+#		dbname="wgeel",
+#		host=host,
+#		port=port,
+#		user= userwgeel,
+#		password= passwordwgeel) 
+update_biometry <- function(path) {
+	updated_values_table <- 	read_excel(path = path, sheet = 1, skip = 1)	
+	cou_code = sqldf(paste0("SELECT ser_cou_code FROM datawg.t_series_ser WHERE ser_nameshort='",
+					updated_values_table$ser_nameshort[1],"';"))$ser_cou_code
+	updated_values_table <- updated_values_table %>% mutate_if(is.logical,list(as.numeric)) 
+	updated_values_table <- updated_values_table %>% mutate_at(vars(matches("comment")),list(as.character)) 
+	#data_from_excel <- data_from_excel %>% mutate_at(vars(matches("update")),list(as.Date)) 	
+	
+	# create dataset for insertion -------------------------------------------------------------------
+	
+	updated_values_table$bio_last_update <- Sys.Date()
+	sqldf::sqldf("drop table if exists updated_biometry_temp ")
+	sqldf::sqldf("create table updated_biometry_temp as select * from updated_values_table")
+	query="UPDATE datawg.t_biometry_series_bis set 
+			(
+			bio_lfs_code,
+			bio_year, 
+			bio_length, 
+			bio_weight, 
+			bio_age, 
+			bio_sex_ratio, 
+			bio_length_f, 
+			bio_weight_f, 
+			bio_age_f, 
+			bio_length_m, 
+			bio_weight_m, 
+			bio_age_m, 
+			bio_comment, 
+			bio_last_update,
+			bio_qal_id, 
+			bis_g_in_gy, 
+			bis_ser_id,
+			bio_dts_datasource)=
+			
+			(
+			t.bio_lfs_code,
+			t.bio_year, 
+			t.bio_length, 
+			t.bio_weight, 
+			t.bio_age, 
+			t.bio_sex_ratio, 
+			t.bio_length_f, 
+			t.bio_weight_f, 
+			t.bio_age_f, 
+			t.bio_length_m, 
+			t.bio_weight_m, 
+			t.bio_age_m, 
+			t.bio_comment, 
+			t.bio_last_update,
+			t.bio_qal_id, 
+			t.bis_g_in_gy, 
+			t.bis_ser_id,
+			t.bio_dts_datasource)
+			FROM updated_biometry_temp t WHERE t.bio_id = t_biometry_series_bis.bio_id"
+	
+	conn <- poolCheckout(pool)
+	message <- NULL
+	nr <- tryCatch({
+				dbExecute(conn, query)
+			}, error = function(e) {
+				message <<- e
+			}, finally = {
+				poolReturn(conn)
+				sqldf("DROP TABLE updated_series_temp")
+			})
+	
+	
+	if (is.null(message))   
+		message <- paste(nrow(updated_values_table),"values updated in the db")
+	
+	return(list(message = message, cou_code = cou_code))
+}
 
 
 #' @title Update t_eelstock_eel table in the database

@@ -238,3 +238,9 @@ update datawg.t_eelstock_eel set eel_typ_id =11,
 --other data correspond to restocking so should not be in the db
 delete from datawg.t_eelstock_eel where eel_typ_id=12;
 ALTER TABLE datawg.t_eelstock_eel ADD CONSTRAINT ck_removed_typid CHECK (eel_typ_id != 12);
+
+UPDATE datawg.t_biometry_other_bit SET bio_last_update='2019-09-08' WHERE bio_last_update IS NULL; --180
+UPDATE datawg.t_biometry_series_bis SET bio_last_update='2019-09-08' WHERE bio_last_update IS NULL; --1194
+SELECT * FROM datawg.t_biometry_other_bit WHERE bio_id=6
+SELECT * FROM datawg.t_biometry_series_bis tbsb WHERE bio_last_update IS NOT NULL;
+SELECT * FROM datawg.t_biometry_series_bis tbsb WHERE bio_id IN (1363,1364) ;
