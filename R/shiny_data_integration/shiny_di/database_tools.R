@@ -201,7 +201,9 @@ compare_with_database_series <- function(data_from_excel, data_from_base) {
 		stop("There are no data coming from the excel file")
 	current_cou_code <- unique(data_from_excel$ser_cou_code)
 	if (length(current_cou_code) != 1) 
-		stop("There is more than one country code, this is wrong")	
+		stop("There is more than one country code, this is wrong")
+	current_lfs_code <- unique(data_from_excel$ser_lfs_code)
+	
 	if (nrow(data_from_base) == 0) {
 		# the data_from_base has 0 lines and 0 columns
 		# this poses computation problems
@@ -290,7 +292,7 @@ compare_with_database_series <- function(data_from_excel, data_from_base) {
 		highlight_change <- highlight_change[!apply(mat,1,all),num_common_col[!apply(mat,2,all)]]
 	}
 	
-	return(list(new = new, modified=modified, highlight_change=highlight_change, current_cou_code= current_cou_code))
+	return(list(new = new, modified=modified, highlight_change=highlight_change, current_cou_code= current_cou_code, current_lfs_code=current_lfs_code))
 }
 
 #' @title compare with database dataseries

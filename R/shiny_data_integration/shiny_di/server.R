@@ -855,7 +855,7 @@ shinyServer(function(input, output, session){
 							list_comp_biometry <- compare_with_database_biometry(data_from_excel=new_biometry, data_from_base=t_biometry_series_bis, sheetorigin="new_data")
 						}
 						current_cou_code <- list_comp_series$current_cou_code
-						
+						current_lfs_code <- list_comp_series$current_lfs_code
 						#cat("step1")					
 						# step1 new series -------------------------------------------------------------
 						
@@ -895,7 +895,7 @@ shinyServer(function(input, output, session){
 														columnDefs = list(list(width = '200px', targets = c(4, 8))),
 														buttons=list(
 																list(extend="excel",
-																		filename = paste0("new_series","_",Sys.Date(),"_",current_cou_code))) 
+																		filename = paste0("new_series",current_lfs_code, "_",Sys.Date(),"_",current_cou_code))) 
 												))
 									})
 						} 					
@@ -936,7 +936,7 @@ shinyServer(function(input, output, session){
 														columnDefs = list(list(width = '200px', targets = c(4, 8))),
 														buttons=list(
 																list(extend="excel",
-																		filename = paste0("new_dataseries","_",Sys.Date(),"_",current_cou_code))) 
+																		filename = paste0("new_dataseries",current_lfs_code,"_",Sys.Date(),"_",current_cou_code))) 
 												))
 									})
 						} 			
@@ -973,7 +973,7 @@ shinyServer(function(input, output, session){
 														scrollX = T, 
 														buttons=list(
 																list(extend="excel",
-																		filename = paste0("new_biometry","_",Sys.Date(),"_",current_cou_code))) 
+																		filename = paste0("new_biometry",current_lfs_code,"_",Sys.Date(),"_",current_cou_code))) 
 												))
 									})
 						} 
@@ -1010,7 +1010,7 @@ shinyServer(function(input, output, session){
 														scrollX = T, 
 														buttons=list(
 																list(extend="excel",
-																		filename = paste0("modified_series","_",Sys.Date(),"_",current_cou_code))) 
+																		filename = paste0("modified_series",current_lfs_code,"_",Sys.Date(),"_",current_cou_code))) 
 												))
 									})
 							output$dt_highlight_change_series <-DT::renderDataTable({ 
@@ -1069,7 +1069,7 @@ shinyServer(function(input, output, session){
 														scrollX = T, 
 														buttons=list(
 																list(extend="excel",
-																		filename = paste0("modified_dataseries","_",Sys.Date(),"_",current_cou_code))) 
+																		filename = paste0("modified_dataseries",current_lfs_code,"_",Sys.Date(),"_",current_cou_code))) 
 												))
 									})
 							
@@ -1093,7 +1093,7 @@ shinyServer(function(input, output, session){
 														scrollX = T, 
 														buttons=list(
 																list(extend="excel",
-																		filename = paste0("highlight_change_newdata_dataseries","_",Sys.Date(),"_",current_cou_code))) 
+																		filename = paste0("highlight_change_newdata_dataseries",current_lfs_code,"_",Sys.Date(),"_",current_cou_code))) 
 												))
 									})
 							
@@ -1113,7 +1113,7 @@ shinyServer(function(input, output, session){
 														scrollX = T, 
 														buttons=list(
 																list(extend="excel",
-																		filename = paste0("highlightchange_modified_dataseries","_",Sys.Date(),"_",current_cou_code))) 
+																		filename = paste0("highlightchange_modified_dataseries",current_lfs_code,"_",Sys.Date(),"_",current_cou_code))) 
 												))
 									})
 							
@@ -1157,7 +1157,7 @@ shinyServer(function(input, output, session){
 														scrollX = T, 
 														buttons=list(
 																list(extend="excel",
-																		filename = paste0("modified_biometry","_",Sys.Date(),"_",current_cou_code))) 
+																		filename = paste0("modified_biometry",current_lfs_code,"_",Sys.Date(),"_",current_cou_code))) 
 												))
 									})
 							
@@ -1178,7 +1178,7 @@ shinyServer(function(input, output, session){
 														scrollX = T, 
 														buttons=list(
 																list(extend="excel",
-																		filename = paste0("highlight_change_newdata_dataseries","_",Sys.Date(),"_",current_cou_code))) 
+																		filename = paste0("highlight_change_newdata_dataseries",current_lfs_code,"_",Sys.Date(),"_",current_cou_code))) 
 												))
 									})						
 						}
