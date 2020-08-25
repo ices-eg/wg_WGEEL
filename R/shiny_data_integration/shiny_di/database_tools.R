@@ -941,13 +941,14 @@ write_new <- function(path) {
 					END;
 					END LOOP;
 					END;
-					$$ LANGUAGE 'plpgsql'; drop table if exists updated_temp;",sep="")
+					$$ LANGUAGE 'plpgsql';",sep="")
 	message <- NULL
 	nr <- tryCatch({
 				dbExecute(conn, query)
 			}, error = function(e) {
 				message <<- e
 			}, finally = {
+			  dbExecute(conn,"drop table if exists updated_temp;")
 				poolReturn(conn)
 			})
 	
@@ -985,7 +986,6 @@ write_new <- function(path) {
 #' }
 #' @rdname write_new series
   write_new_series <- function(path) {
-	
 	new <- read_excel(path = path, sheet = 1, skip = 1)
 	
 	####when there are no data, new values have incorrect type
@@ -1027,7 +1027,7 @@ write_new <- function(path) {
 			ser_comment, ser_uni_code, ser_lfs_code, ser_hty_code, ser_locationdescription,
 			ser_emu_nameshort, ser_cou_code, ser_area_division, ser_tblcodeid::integer,
 			ser_x, ser_y, ser_sam_id, ser_dts_datasource, ser_qal_id::integer, ser_qal_comment,
-			ser_ccm_wso_id::integer[] from new_series_temp;drop table if exists new_series_temp"
+			ser_ccm_wso_id::integer[] from new_series_temp;"
 	# if fails replaces the message with this trycatch !  I've tried many ways with
 	# sqldf but trycatch failed to catch the error Hence the use of DBI
 
@@ -1037,6 +1037,7 @@ write_new <- function(path) {
 						}, error = function(e) {
 							message <<- e
 						}, finally = {
+						  dbExecute(conn,"drop table if exists new_series_temp;")
 							poolReturn(conn)
 						}))
 	
@@ -1186,8 +1187,8 @@ write_new_biometry <- function(path) {
 						}, error = function(e) {
 							message <<- e
 						}, finally = {
-							poolReturn(conn)
-							sqldf::sqldf("drop table if exists new_biometry_temp")
+						  dbExecute(conn,"drop table if exists new_biometry_temp")
+						  poolReturn(conn)
 						}))
 	
 	
