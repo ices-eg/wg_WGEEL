@@ -38,6 +38,7 @@ series_info<-read_excel(path=str_c(datawd,"Eel_Data_Call_Annex1_Recruitment_GB_S
 # series is currently 17
 # so I'm inserting 3 new numbers....
 # RUN ONCE ONLY
+#DEPRECATED NO LONGER USED LFS
 #sqldf("update datawg.t_series_ser set ser_order=ser_order+3 where ser_order>17;")
 series_info$ser_order <- 18:20
 

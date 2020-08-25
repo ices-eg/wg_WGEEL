@@ -84,7 +84,6 @@ create_datacall_file_series<-function(country, name, ser_typ_id){
 	
 	t_series_ser<-sqldf(str_c("SELECT 
 							t_series_ser.ser_id, 
-							t_series_ser.ser_order, 
 							t_series_ser.ser_nameshort, 
 							t_series_ser.ser_namelong, 
 							t_series_ser.ser_typ_id, 

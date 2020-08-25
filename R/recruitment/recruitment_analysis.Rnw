@@ -587,7 +587,7 @@ vv$nCYY<-nrow(series_CY[series_CY$ser_lfs_code=="Y",]) # number of series with y
 
 #"stations updated to",CY-1
 series_CYm1<-R_stations[R_stations$ser_nameshort%in%names(last_year[last_year==CY-1]),
-		c("ser_nameshort","ser_namelong","cou_code","ser_lfs_code","areashort","ser_area_division","ser_order","ser_y")]
+		c("ser_nameshort","ser_namelong","cou_code","ser_lfs_code","areashort","ser_area_division","cou_order","ser_y")]
 series_CYm1<-series_CYm1[order(series_CYm1$ser_lfs_code,series_CYm1$cou_order),-ncol(series_CYm1)]
 vv$nCYm1<-nrow(series_CYm1) # number series updated last year only (and not this year)
 vv$nCYm1G<-nrow(series_CYm1[series_CYm1$ser_lfs_code=="G",]) # same for glass eel 
@@ -835,9 +835,10 @@ rien<-dev.off()
 ## This will fail if saved twice, run at the end of the working group to generate the table of values
 dat<-wger_init[order(wger_init$cou_order,wger_init$ser_y, wger_init$year),]
 dat$year=as.factor(dat$year)
-stopifnot(length(unique(dat$ser_order))== length(unique(dat$ser_id)))
+# TODO check change with cou_order CHECK THIS AGAIN
+#stopifnot(length(unique(dat$ser_order))== length(unique(dat$ser_id)))
 # this will create the table to export to excel with all raw data
-# TODO check change with cou_order
+
 tab1<-reshape2::dcast(dat,year~cou_order,value.var="value")
 tab1[,2:ncol(tab1)]=round(tab1[,2:ncol(tab1)],2)
 colnames(tab1)<-c("year",statseries$site)

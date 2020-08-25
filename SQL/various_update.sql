@@ -16,6 +16,7 @@ DROP TRIGGER IF EXISTS update_geom ON datawg.t_series_ser;
 CREATE TRIGGER update_geom BEFORE INSERT OR UPDATE ON datawg.t_series_ser FOR EACH ROW EXECUTE PROCEDURE  datawg.update_geom();
 
 -- correct missing stat
+-- change 2020 removed ser_order replaced with cou_order
 CREATE OR REPLACE VIEW datawg.series_stats
 AS SELECT t_series_ser.ser_id,
     t_series_ser.ser_nameshort AS site,
@@ -26,5 +27,6 @@ AS SELECT t_series_ser.ser_id,
     count(*) - count(das_value) AS missing
    FROM datawg.t_dataseries_das
      JOIN datawg.t_series_ser ON t_dataseries_das.das_ser_id = t_series_ser.ser_id
-  GROUP BY t_series_ser.ser_id
-  ORDER BY t_series_ser.ser_order;
+     LEFT JOIN REF.tr_country_cou ON cou_code=ser_cou_code 
+  GROUP BY t_series_ser.ser_id, cou_order
+  ORDER BY cou_order;

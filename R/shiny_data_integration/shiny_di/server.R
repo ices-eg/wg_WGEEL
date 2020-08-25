@@ -1206,10 +1206,10 @@ shinyServer(function(input, output, session){
 										})
 
 								step21load_data <- function() {
-									path <- step21_filepath_new_series
+									path <- step21_filepath_new_series()
 									if (is.null(data$path_step21_new_series)) 
 										return(NULL)
-									rls <- write_new(path)
+									rls <- write_new_series(path)
 									message <- rls$message
 									cou_code <- rls$cou_code
 									main_assessor <- input$main_assessor
@@ -1225,7 +1225,7 @@ shinyServer(function(input, output, session){
 											validate(need(data$connectOK,"No connection"))
 											# call to  function that loads data
 											# this function does not need to be reactive
-											message <- step21load_data
+											message <- step21load_data()
 											if (is.null(data$path_step21_new_series)) "please select a dataset" else {                                      
 												paste(message,collapse="\n")
 											}                  

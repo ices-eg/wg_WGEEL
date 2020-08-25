@@ -53,7 +53,7 @@ query='SELECT
 		das_qal_id,
 		*/ 
 		ser_id,            
-		ser_order,
+		cou_order,
 		ser_nameshort,
 		ser_area_division,
 		ser_qal_id,
@@ -71,6 +71,7 @@ query='SELECT
 		join datawg.t_series_ser on das_ser_id=ser_id
 		left join ref.tr_lifestage_lfs on ser_lfs_code=lfs_code
 		left join ref.tr_faoareas on ser_area_division=f_division
+		left join ref.tr_country_cou on cou_code = ser_cou_code
 		where ser_typ_id=2'
 
 wger_init=sqldf(query) # (wge)el (r)ecruitment data

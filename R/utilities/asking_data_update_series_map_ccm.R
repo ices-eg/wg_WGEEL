@@ -54,7 +54,6 @@ options(sqldf.RPostgreSQL.user = "postgres",
 ##################################
 t_series_ser<-sqldf("SELECT 
           t_series_ser.ser_id, 
-      t_series_ser.ser_order, 
       t_series_ser.ser_nameshort, 
       t_series_ser.ser_namelong, 
       t_series_ser.ser_typ_id, 

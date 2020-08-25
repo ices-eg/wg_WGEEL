@@ -51,11 +51,11 @@ SELECT *
 FROM ts.t_yellowstdstock_yss JOIN ts.t_location_loc ON yss_loc_id = loc_id;
 
 -- current ref series
-SELECT ser_id, ser_order, ser_nameshort, ser_namelong, ser_typ_id, ser_effort_uni_code, ser_comment, ser_uni_code, ser_lfs_code, ser_hty_code, ser_locationdescription, ser_emu_nameshort, ser_cou_code, ser_area_division, ser_tblcodeid, ser_x, ser_y, geom, ser_sam_id, ser_qal_id, ser_qal_comment
+SELECT ser_id,  ser_nameshort, ser_namelong, ser_typ_id, ser_effort_uni_code, ser_comment, ser_uni_code, ser_lfs_code, ser_hty_code, ser_locationdescription, ser_emu_nameshort, ser_cou_code, ser_area_division, ser_tblcodeid, ser_x, ser_y, geom, ser_sam_id, ser_qal_id, ser_qal_comment
 FROM datawg.t_series_ser;
 
 -- extract data from old db and insert into new db
-INSERT INTO datawg.t_series_ser (ser_order, ser_nameshort, ser_namelong, ser_typ_id, ser_comment, ser_uni_code, ser_lfs_code, ser_locationdescription, ser_emu_nameshort, ser_cou_code, ser_x, ser_y, geom)
+INSERT INTO datawg.t_series_ser ( ser_nameshort, ser_namelong, ser_typ_id, ser_comment, ser_uni_code, ser_lfs_code, ser_locationdescription, ser_emu_nameshort, ser_cou_code, ser_x, ser_y, geom)
 WITH 
 	series_type AS
 (SELECT typ_id FROM "ref".tr_typeseries_typ WHERE typ_name = 'Yellow eel index'),
@@ -66,7 +66,7 @@ WITH
 	country AS
 (SELECT cou_code, cou_country FROM "ref".tr_country_cou)
 SELECT 
-	200 AS ser_order, yss_nameshort AS ser_nameshort, yss_namelong AS ser_namelong, typ_id AS ser_typ_id, 
+	 yss_nameshort AS ser_nameshort, yss_namelong AS ser_namelong, typ_id AS ser_typ_id, 
 	 yss_remark || ' / ' || loc_comment AS ser_comment, uni_code AS ser_uni_code, lfs_code AS ser_lfs_code,
 	 loc_name AS ser_locationdescription, loc_emu_name_short AS ser_emu_nameshort, cou_code AS ser_cou_code,
 	 round(st_x(st_transform(the_geom, 4326))::numeric, 5) AS ser_x, round(st_y(st_transform(the_geom, 4326))::numeric, 5) AS ser_y,
@@ -144,7 +144,7 @@ FROM ts.t_silverprod_sil
 JOIN ts.t_location_loc ON sil_loc_id = loc_id;
 
 -- extract data from old db and insert into new db
-INSERT INTO datawg.t_series_ser (ser_order, ser_nameshort, ser_namelong, ser_typ_id, ser_comment, ser_uni_code, ser_lfs_code, ser_locationdescription, ser_emu_nameshort, ser_cou_code, ser_x, ser_y, geom)
+INSERT INTO datawg.t_series_ser ( ser_nameshort, ser_namelong, ser_typ_id, ser_comment, ser_uni_code, ser_lfs_code, ser_locationdescription, ser_emu_nameshort, ser_cou_code, ser_x, ser_y, geom)
 WITH 
 	series_type AS
 (SELECT typ_id FROM "ref".tr_typeseries_typ WHERE typ_name = 'silver eel series'),
@@ -155,7 +155,7 @@ WITH
 	country AS
 (SELECT cou_code, cou_country FROM "ref".tr_country_cou)
 SELECT 
-	200 AS ser_order, sil_nameshort AS ser_nameshort, sil_namelong AS ser_namelong, typ_id AS ser_typ_id, 
+	 sil_nameshort AS ser_nameshort, sil_namelong AS ser_namelong, typ_id AS ser_typ_id, 
 	 sil_remark || ' / ' || loc_comment AS ser_comment, uni_code AS ser_uni_code, lfs_code AS ser_lfs_code,
 	 loc_name AS ser_locationdescription, loc_emu_name_short AS ser_emu_nameshort, cou_code AS ser_cou_code,
 	 round(st_x(st_centroid(st_transform(the_geom, 4326)))::numeric, 5) AS ser_x, round(st_y(st_centroid(st_transform(the_geom, 4326)))::numeric, 5) AS ser_y,
@@ -304,7 +304,7 @@ FROM ts.silver LEFT OUTER JOIN ts.t_location_loc ON (loc_id = si_loc_id);
 -- query to the table for yellow and silver series
 -------------------------------
 
-SELECT das.*,  ser_id, ser_order, ser_nameshort, ser_namelong, ser_typ_id, ser_effort_uni_code, 
+SELECT das.*,  ser_id,  ser_nameshort, ser_namelong, ser_typ_id, ser_effort_uni_code, 
 ser_comment, ser_uni_code, ser_lfs_code, ser_hty_code, ser_locationdescription, ser_emu_nameshort, 
 ser_cou_code, ser_area_division, ser_tblcodeid, ser_x, ser_y, ser_sam_id, ser_qal_id, ser_qal_comment
  FROM datawg.t_dataseries_das das join datawg.t_series_ser ser ON das_ser_id=ser_id WHERE ser_typ_id=3;

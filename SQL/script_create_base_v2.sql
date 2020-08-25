@@ -365,7 +365,7 @@ to be able to add type G GY ... to glass eel series names
 CREATE TABLE datawg.t_series_ser
 (
   ser_id serial NOT NULL, -- serial number internal use, identifier of the series
-  ser_order integer NOT NULL, -- order internal, used to display the data from North to South
+  --ser_order integer NOT NULL, -- order internal, used to display the data from North to South REMOVED IN 2020 use cou_order and ser_y
   ser_nameshort text, -- short name of the recuitment series eg `Vil` for the Vilaine
   ser_namelong text, -- long name of the recuitment series eg `Vilaine estuary` for the Vilaine
   ser_typ_id integer, -- type of series 1= recruitment series, FOREIGN KEY to table ref.tr_typeseries_ser(ser_typ_id)
@@ -428,7 +428,7 @@ COMMENT ON TABLE datawg.t_series_ser
   IS 'This table contains geographical informations 
 and comments on the recruitment, silver eel migration and yellow eel standing stock survey series';
 COMMENT ON COLUMN datawg.t_series_ser.ser_id IS 'serial number internal use, identifier of the series';
-COMMENT ON COLUMN datawg.t_series_ser.ser_order IS 'order internal, used to display the data from North to South';
+--COMMENT ON COLUMN datawg.t_series_ser.ser_order IS 'order internal, used to display the data from North to South';
 COMMENT ON COLUMN datawg.t_series_ser.ser_nameshort IS 'short name of the recuitment series eg `VilG` for the Vilaine';
 COMMENT ON COLUMN datawg.t_series_ser.ser_namelong IS 'long name of the recuitment series eg `Vilaine estuary` for the Vilaine';
 COMMENT ON COLUMN datawg.t_series_ser.ser_typ_id IS 'type of series 1= recruitment series, FOREIGN KEY to table ref.tr_typeseries_ser(ser_typ_id)';

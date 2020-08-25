@@ -39,14 +39,14 @@ release = extract_data("Release",quality=c(1,2,4),quality_check=TRUE)
 
 precodata = extract_precodata() # for tables
 # below by default in the view the quality 1,2,and 4 are used
-precodata_all = extract_data("PrecoData All",quality_check=FALSE) # for precodiagram
-precodata_emu = extract_data("PrecoData EMU",quality_check=FALSE) 
-precodata_country = extract_data("PrecoData Country",quality_check=FALSE) 
+precodata_all = extract_data("precodata_all",quality_check=FALSE) # for precodiagram
+precodata_emu = extract_data("precodata_emu",quality_check=FALSE) 
+precodata_country = extract_data("precodata_country",quality_check=FALSE) 
 
 # yellow and silver eel series
 ys_stations = sqldf('
 				SELECT 
-				ser_id, ser_order, ser_nameshort, ser_namelong, ser_typ_id, ser_effort_uni_code,
+				ser_id,  ser_nameshort, ser_namelong, ser_typ_id, ser_effort_uni_code,
 				ser_comment, ser_uni_code, ser_lfs_code, ser_hty_code, ser_locationdescription,
 				ser_emu_nameshort, ser_cou_code, ser_area_division, ser_x, ser_y,             
 				ser_sam_id, ser_qal_id, ser_qal_comment,     
@@ -81,7 +81,6 @@ SELECT
 	das_qal_id,
 	*/ 
 	ser_id,            
-	ser_order,
 	ser_nameshort,
 	ser_area_division,
 	f_subarea,
@@ -114,7 +113,6 @@ SELECT
 	das_qal_id,
 	*/ 
 			ser_id,            
-	ser_order,
 	ser_nameshort AS site,
 	ser_area_division AS area_division,
 	ser_qal_id,

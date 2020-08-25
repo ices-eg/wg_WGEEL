@@ -234,7 +234,7 @@ compare_with_database_series <- function(data_from_excel, data_from_base) {
 					suffix = c(".base", ".xls"))
 	duplicates <- duplicates[, 
 			# not in the datacall or used as pivot :
-			c("ser_id", "ser_order", "ser_nameshort", "ser_typ_id", "ser_qal_id" ,"ser_qal_comment","ser_ccm_wso_id", 
+			c("ser_id",  "ser_nameshort", "ser_typ_id", "ser_qal_id" ,"ser_qal_comment","ser_ccm_wso_id", 
 					
 					# other columns
 					"ser_dts_datasource.base","ser_dts_datasource.xls",
@@ -258,7 +258,6 @@ compare_with_database_series <- function(data_from_excel, data_from_base) {
 	if (nrow(new) >0 ){
 		new$ser_qal_id <- NA
 		new$ser_qal_comment <- NA
-		new$ser_order <- NA
 		new$ser_ccm_wso_id <- "{}"
 		new$ser_dts_datasource <- the_eel_datasource
 	}
@@ -991,6 +990,12 @@ write_new_series <- function(path) {
 	
 	####when there are no data, new values have incorrect type
 	new <- new %>% mutate_if(is.logical,list(as.character)) 
+
+	new <- new %>% 
+			mutate_at(vars(ser_dts_datasource, ser_comment, ser_lfs_code, ser_hty_code, ser_locationdescription, ser_emu_nameshort,
+							ser_area_division,ser_cou_code),list(as.character)) 
+	new <- new %>% 
+			mutate_at(vars(ser_sam_id),list(as.integer)) 
 	# check for new file -----------------------------------------------------------------------------
 	
 	validate(need(all(!is.na(new$ser_qal_id)), "There are still lines without ser_qal_id, please check your file"))
@@ -1004,7 +1009,7 @@ write_new_series <- function(path) {
 					"ser_comment", "ser_uni_code", "ser_lfs_code", "ser_hty_code", "ser_locationdescription",
 					"ser_emu_nameshort", "ser_cou_code", "ser_area_division", "ser_tblcodeid",
 					"ser_x", "ser_y", "ser_sam_id", "ser_dts_datasource", "ser_qal_id", "ser_qal_comment",
-					"ser_order", "ser_ccm_wso_id" )	]
+					 "ser_ccm_wso_id" )	]
 	sqldf::sqldf("drop table if exists new_series_temp ")
 	sqldf::sqldf("create table new_series_temp as select * from new")
 	
@@ -1015,12 +1020,12 @@ write_new_series <- function(path) {
 			ser_comment, ser_uni_code, ser_lfs_code, ser_hty_code, ser_locationdescription,
 			ser_emu_nameshort, ser_cou_code, ser_area_division, ser_tblcodeid,
 			ser_x, ser_y, ser_sam_id, ser_dts_datasource, ser_qal_id, ser_qal_comment,
-			ser_order, ser_ccm_wso_id ) 
+			ser_ccm_wso_id ) 
 			select ser_nameshort, ser_namelong, ser_typ_id, ser_effort_uni_code, 
 			ser_comment, ser_uni_code, ser_lfs_code, ser_hty_code, ser_locationdescription,
 			ser_emu_nameshort, ser_cou_code, ser_area_division, ser_tblcodeid::integer,
 			ser_x, ser_y, ser_sam_id, ser_dts_datasource, ser_qal_id::integer, ser_qal_comment,
-			ser_order::integer, ser_ccm_wso_id::integer[] from new_series_temp"
+			ser_ccm_wso_id::integer[] from new_series_temp"
 	# if fails replaces the message with this trycatch !  I've tried many ways with
 	# sqldf but trycatch failed to catch the error Hence the use of DBI
 	conn <- poolCheckout(pool)

@@ -256,5 +256,61 @@ SELECT * FROM datawg.t_biometry_series_bis tbsb WHERE bio_id IN (1363,1364) ;
 
 ALTER TABLE datawg.t_series_ser DROP COLUMN ser_order;
 
+----------------------------------------------
+-- DYNAMIC VIEWS FOR WGEEL
+----------------------------------------------
+DROP VIEW IF EXISTS datawg.series_stats CASCADE;
+CREATE OR REPLACE VIEW datawg.series_stats AS 
+ SELECT ser_id, 
+ ser_nameshort AS site,
+ ser_namelong AS namelong,
+ min(das_year) AS min, max(das_year) AS max, 
+ max(das_year) - min(das_year) + 1 AS duration,
+ max(das_year) - min(das_year) + 1 - count(*) AS missing
+   FROM datawg.t_dataseries_das
+   JOIN datawg.t_series_ser ON das_ser_id=ser_id
+   LEFT JOIN ref.tr_country_cou ON ser_cou_code=cou_code
+  GROUP BY ser_id
+  ORDER BY cou_order;
+
+ALTER TABLE datawg.series_stats
+  OWNER TO postgres;
+ GRANT ALL ON TABLE datawg.series_stats TO wgeel;
+    
+ --select * from datawg.series_stats
+ 
+ 
+----------------------------------------------
+-- SERIES SUMMARY
+----------------------------------------------
+DROP VIEW IF EXISTS datawg.series_summary CASCADE;
+CREATE OR REPLACE VIEW datawg.series_summary AS 
+ SELECT ss.site AS site, 
+ ss.namelong, 
+ ss.min, 
+ ss.max, 
+ ss.duration,
+ ss.missing,
+ ser_lfs_code as life_stage,
+ sam_samplingtype as sampling_type,
+ ser_uni_code as unit,
+ ser_hty_code as habitat_type,
+ cou_order as order,
+ ser_typ_id,
+ ser_qal_id AS series_kept
+   FROM datawg.series_stats ss
+   JOIN datawg.t_series_ser ser ON ss.ser_id = ser.ser_id
+   LEFT JOIN ref.tr_samplingtype_sam on ser_sam_id=sam_id
+   LEFT JOIN REF.tr_country_cou ON cou_code=ser_cou_code
+  ORDER BY cou_order, ser_y;
+
+ALTER TABLE datawg.series_summary
+  OWNER TO postgres;
+ GRANT ALL ON TABLE datawg.series_summary TO wgeel;
+  
+---
+-- view with distance to the sargasso
+----
+
 
 

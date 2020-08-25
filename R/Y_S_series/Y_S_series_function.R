@@ -186,7 +186,7 @@ create_series = function(series_info, meta, icountry = country)
 	series_info$ser_comment = str_c(meta$ser_comment, " | ", series_info$ser_comment)
 	
 	# insert data in the database 
-	wgeel_execute(str_c("INSERT INTO datawg.t_series_ser (ser_nameshort, ser_namelong, ser_typ_id, ser_effort_uni_code, ser_comment, ser_uni_code, ser_lfs_code, ser_hty_code, ser_locationdescription, ser_emu_nameshort, ser_cou_code, ser_area_division, ser_x, ser_y, ", ifelse(type_series == "Silver_Eel", " ser_sam_id,", ""), "ser_order) SELECT *, 999 FROM temp_", tolower(icountry), "_series_info;"), extra_data = "series_info",  country = tolower(icountry), environment = environment())
+	wgeel_execute(str_c("INSERT INTO datawg.t_series_ser (ser_nameshort, ser_namelong, ser_typ_id, ser_effort_uni_code, ser_comment, ser_uni_code, ser_lfs_code, ser_hty_code, ser_locationdescription, ser_emu_nameshort, ser_cou_code, ser_area_division, ser_x, ser_y, ", ifelse(type_series == "Silver_Eel", " ser_sam_id,", ""), ") SELECT *, 999 FROM temp_", tolower(icountry), "_series_info;"), extra_data = "series_info",  country = tolower(icountry), environment = environment())
 	
 	# retrieve le ser_id for further use
 	new_ser_id = wgeel_query(str_c("SELECT ser_id FROM datawg.t_series_ser JOIN temp_", tolower(icountry), "_series_info USING(ser_nameshort)"))

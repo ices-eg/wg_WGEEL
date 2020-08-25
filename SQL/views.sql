@@ -11,8 +11,9 @@ CREATE OR REPLACE VIEW datawg.series_stats AS
  max(das_year) - min(das_year) + 1 - count(*) AS missing
    FROM datawg.t_dataseries_das
    JOIN datawg.t_series_ser ON das_ser_id=ser_id
+   LEFT JOIN ref.tr_country_cou ON ser_cou_code=cou_code
   GROUP BY ser_id
-  ORDER BY ser_order;
+  ORDER BY cou_order;
 
 ALTER TABLE datawg.series_stats
   OWNER TO postgres;
@@ -36,13 +37,14 @@ CREATE OR REPLACE VIEW datawg.series_summary AS
  sam_samplingtype as sampling_type,
  ser_uni_code as unit,
  ser_hty_code as habitat_type,
- ser_order as order,
+ cou_order as order,
  ser_typ_id,
  ser_qal_id AS series_kept
    FROM datawg.series_stats ss
    JOIN datawg.t_series_ser ser ON ss.ser_id = ser.ser_id
    LEFT JOIN ref.tr_samplingtype_sam on ser_sam_id=sam_id
-  ORDER BY ser_order;
+   LEFT JOIN REF.tr_country_cou ON cou_code=ser_cou_code
+  ORDER BY cou_order, ser_y;
 
 ALTER TABLE datawg.series_summary
   OWNER TO postgres;
