@@ -917,8 +917,10 @@ write_updated_values <- function(updated_values_table, qualify_code) {
 	
 	
 	names(updated_values_table) = gsub(".","_",names(updated_values_table),fixed=TRUE)
-	sqldf::sqldf("drop table if exists updated_temp ")
-	sqldf::sqldf("create table updated_temp as select * from updated_values_table")
+	conn <- poolCheckout(pool)
+	dbExecute(conn,"drop table if exists updated_temp ")
+	dbWriteTable(conn,"updated_temp",updated_values_table,row.names=FALSE,temporary=TRUE)
+	browser()
 	cyear=format(Sys.Date(), "%Y")
 	query=paste("
 					DO $$
@@ -938,8 +940,7 @@ write_updated_values <- function(updated_values_table, qualify_code) {
 					END;
 					END LOOP;
 					END;
-					$$ LANGUAGE 'plpgsql';",sep="")
-	conn <- poolCheckout(pool)
+					$$ LANGUAGE 'plpgsql'; drop table if exists updated_temp;",sep="")
 	message <- NULL
 	nr <- tryCatch({
 				dbExecute(conn, query)
@@ -947,7 +948,6 @@ write_updated_values <- function(updated_values_table, qualify_code) {
 				message <<- e
 			}, finally = {
 				poolReturn(conn)
-				sqldf::sqldf("drop table if exists updated_temp ")
 			})
 	
 	
