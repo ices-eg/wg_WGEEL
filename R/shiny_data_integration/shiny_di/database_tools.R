@@ -566,7 +566,7 @@ compare_with_database_biometry <- function(data_from_excel, data_from_base, shee
 #'  }
 #' }
 #' @rdname write_duplicate
-write_duplicates <- function(path, qualify_code = 19) {
+  write_duplicates <- function(path, qualify_code = 19) {
 	
 	duplicates2 <- read_excel(path = path, sheet = 1, skip = 1)
 	
@@ -909,7 +909,7 @@ write_new <- function(path) {
 #' @details This function uses sqldf to create temporary table then dbExecute as
 #' this version allows to catch exceptions and sqldf does not
 
-write_updated_values <- function(updated_values_table, qualify_code) {
+  write_updated_values <- function(updated_values_table, qualify_code) {
 	cou_code = unique(updated_values_table$eel_cou_code.xls)  
 	validate(need(length(cou_code) == 1, "There is more than one country code, please check your file"))
 	
@@ -983,7 +983,7 @@ write_updated_values <- function(updated_values_table, qualify_code) {
 #'  }
 #' }
 #' @rdname write_new series
-write_new_series <- function(path) {
+  write_new_series <- function(path) {
 	
 	new <- read_excel(path = path, sheet = 1, skip = 1)
 	
@@ -1003,8 +1003,10 @@ write_new_series <- function(path) {
 					"ser_emu_nameshort", "ser_cou_code", "ser_area_division", "ser_tblcodeid",
 					"ser_x", "ser_y", "ser_sam_id", "ser_dts_datasource", "ser_qal_id", "ser_qal_comment",
 					"ser_order", "ser_ccm_wso_id" )	]
-	sqldf::sqldf("drop table if exists new_series_temp ")
-	sqldf::sqldf("create table new_series_temp as select * from new")
+	conn <- poolCheckout(pool)	
+	dbExecute(conn,"drop table if exists new_series_temp ")
+	dbWriteTable(conn, "new_series_temp",new,temporary=TRUE,row.names=FALSE)
+
 	
 	# Query uses temp table just created in the database by sqldf
 	query <- "insert into datawg.t_series_ser (         
@@ -1018,10 +1020,10 @@ write_new_series <- function(path) {
 			ser_comment, ser_uni_code, ser_lfs_code, ser_hty_code, ser_locationdescription,
 			ser_emu_nameshort, ser_cou_code, ser_area_division, ser_tblcodeid::integer,
 			ser_x, ser_y, ser_sam_id, ser_dts_datasource, ser_qal_id::integer, ser_qal_comment,
-			ser_order::integer, ser_ccm_wso_id::integer[] from new_series_temp"
+			ser_order::integer, ser_ccm_wso_id::integer[] from new_series_temp;drop table if exists new_series_temp"
 	# if fails replaces the message with this trycatch !  I've tried many ways with
 	# sqldf but trycatch failed to catch the error Hence the use of DBI
-	conn <- poolCheckout(pool)
+
 	message <- NULL
 	(nr <- tryCatch({
 							dbExecute(conn, query)
@@ -1029,7 +1031,6 @@ write_new_series <- function(path) {
 							message <<- e
 						}, finally = {
 							poolReturn(conn)
-							sqldf::sqldf("drop table if exists new_series_temp")
 						}))
 	
 	
@@ -1134,7 +1135,7 @@ write_new_dataseries <- function(path) {
 #'  }
 #' }
 #' @rdname write_new biometry
-write_new_biometry <- function(path) {
+  write_new_biometry <- function(path) {
 	
 	new <- read_excel(path = path, sheet = 1, skip = 1)
 	
@@ -1151,8 +1152,9 @@ write_new_biometry <- function(path) {
 							"bio_dts_datasource", "bis_ser_id" )
 			)	]
 	new$bio_last_update <- Sys.Date()
-	sqldf::sqldf("drop table if exists new_biometry_temp ")
-	sqldf::sqldf("create table new_biometry_temp as select * from new")
+	conn <- poolCheckout(pool)
+	dbExecute(conn,"drop table if exists new_biometry_temp ")
+	dbWriteTable(conn,"new_biometry_temp",new,row.names=FALSE,temporary=TRUE)
 	
 	# Query uses temp table just created in the database by sqldf
 	query <- "insert into datawg.t_biometry_series_bis (
@@ -1165,10 +1167,9 @@ write_new_biometry <- function(path) {
 			bio_length_f, bio_weight_f, bio_age_f, bio_length_m, bio_weight_m, bio_age_m,
 			bio_comment, bio_last_update::date, bis_g_in_gy, bio_dts_datasource, bis_ser_id
 			from  new_biometry_temp
-			JOIN datawg.t_series_ser on ser_id=bis_ser_id"
+			JOIN datawg.t_series_ser on ser_id=bis_ser_id; drop table if exists new_biometry_temp;"
 	# if fails replaces the message with this trycatch !  I've tried many ways with
 	# sqldf but trycatch failed to catch the error Hence the use of DBI
-	conn <- poolCheckout(pool)
 	message <- NULL
 	(nr <- tryCatch({
 							dbExecute(conn, query)
@@ -1176,7 +1177,6 @@ write_new_biometry <- function(path) {
 							message <<- e
 						}, finally = {
 							poolReturn(conn)
-							sqldf::sqldf("drop table if exists new_biometry_temp")
 						}))
 	
 	
