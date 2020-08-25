@@ -24,7 +24,7 @@ load_package("htmltools")
 
 load_package("pool")
 load_package("DBI")
-load_package("RPostgreSQL")
+load_package("RPostgres")
 load_package("dplyr")
 load_package("glue")
 load_package("shinyjs")
