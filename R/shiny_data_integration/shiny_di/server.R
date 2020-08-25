@@ -682,6 +682,26 @@ shinyServer(function(input, output, session){
 				)
 				return(list(res=res,message=message))
 			}			
+			plotseries <- function(series){
+			  output$maps_timeseries<- renderLeaflet({
+			    leaflet() %>% addTiles() %>%
+			      addMarkers(data=series,lat=~ser_y,lng=~ser_x,label=~ser_nameshort) %>%
+			      addPolygons(data=ccm_light, 
+			                  popup=~as.character(wso_id),
+			                  fill=TRUE, 
+			                  highlight = highlightOptions(color='white',
+			                                               weight=1,
+			                                               bringToFront = TRUE,
+			                                               fillColor="red",opacity=.2,
+			                                               fill=TRUE))%>%
+			        fitBounds(min(series$ser_x,na.rm=TRUE)-.1,
+			                  min(series$ser_y,na.rm=TRUE)-.1,
+			                  max(series$ser_x,na.rm=TRUE)+.1,
+			                  max(series$ser_y,na.rm=TRUE)+.1)
+			      
+			})
+			}
+			
 			
 			##################################################
 			# Events triggerred by step0_button (time series page)
@@ -701,6 +721,7 @@ shinyServer(function(input, output, session){
 										# this will fill the log_datacall file (database_tools.R)
 										stopifnot(length(unique(rls$res$series$ser_cou_code))==1)
 										cou_code <- rls$res$series$ser_cou_code[1]
+										if (nrow(rls$res$series)>0) plotseries(rls$res$series)
 										# the following three lines might look silly but passing input$something to the log_datacall function results
 										# in an error (input not found), I guess input$something has to be evaluated within the frame of the shiny app
 										main_assessor <- input$main_assessor
@@ -1187,27 +1208,32 @@ shinyServer(function(input, output, session){
 					}) # end observe event
 			
 					##########################
-					# STEP 2 TIME SERIES INTEGRATION
+					# STEP 2.2 TIME SERIES INTEGRATION
 					# When database_new_button is clicked
 					# this will trigger the data integration
 					#############################      
-					
-					# 2.1 new series --------------------------------------------------------
-
 					observeEvent(input$integrate_new_series_button, {
 								
-		
-								step21_filepath_new_series <- reactive({
+								###########################
+								# step2_filepath_integrate new series
+								# reactive function, when clicked return value in reactive data 
+								###########################
+								step22_filepath_new_series <- reactive({
 											inFile <- isolate(input$xl_new_series)     
 											if (is.null(inFile)){        return(NULL)
 											} else {
-												data$path_step21_new_series <- inFile$datapath #path to a temp file             
+												data$path_step22_new_series <- inFile$datapath #path to a temp file             
 											}
 										})
-
-								step21load_data <- function() {
-									path <- step21_filepath_new_series
-									if (is.null(data$path_step21_new_series)) 
+								###########################
+								# step22load_data
+								#  function, returns a message
+								#  indicating that data integration was a success
+								#  or an error message
+								###########################
+								step22load_data <- function() {
+									path <- step22_filepath_new_series()
+									if (is.null(data$path_step22_new_series)) 
 										return(NULL)
 									rls <- write_new(path)
 									message <- rls$message
@@ -1215,219 +1241,25 @@ shinyServer(function(input, output, session){
 									main_assessor <- input$main_assessor
 									secondary_assessor <- input$secondary_assessor
 									file_type <- input$file_type
-									log_datacall("new series integration", cou_code = cou_code, message = sQuote(message), 
+									log_datacall("new data integration", cou_code = cou_code, message = sQuote(message), 
 											the_metadata = NULL, file_type = file_type, main_assessor = main_assessor, 
 											secondary_assessor = secondary_assessor)
 									return(message)
 								}
-      
-								output$textoutput_step2.1_ts<-renderText({
+								###########################
+								# new_data_integration
+								# textoutput component
+								###########################            
+								output$textoutput_step2.2<-renderText({
 											validate(need(data$connectOK,"No connection"))
 											# call to  function that loads data
 											# this function does not need to be reactive
-											message <- step21load_data
-											if (is.null(data$path_step21_new_series)) "please select a dataset" else {                                      
+											message <- step22load_data()
+											if (is.null(data$path_step22_new_series)) "please select a dataset" else {                                      
 												paste(message,collapse="\n")
 											}                  
 										})  
 							})			
-
-							# 2.2 update modified series  --------------------------------------------------------
-
-
-							observeEvent(input$update_series_button, {
-										
-										step22_filepath_modified_series <- reactive({
-													inFile <- isolate(input$xl_updated_series)     
-													if (is.null(inFile)){        return(NULL)
-													} else {
-														data$path_step22_modified_series <- inFile$datapath #path to a temp file             
-													}
-												})
-
-										step22load_data <- function() {
-											path <- step22_filepath_modified_series()
-											if (is.null(data$path_step22_modified_series)) 
-												return(NULL)
-											rls <- update_series(path)
-											message <- rls$message
-											cou_code <- rls$cou_code
-											main_assessor <- input$main_assessor
-											secondary_assessor <- input$secondary_assessor
-											file_type <- input$file_type
-											log_datacall("update series", cou_code = cou_code, message = sQuote(message), 
-													the_metadata = NULL, file_type = file_type, main_assessor = main_assessor, 
-													secondary_assessor = secondary_assessor)
-											return(message)
-										}
-									          
-										output$textoutput_step2.2_ts<-renderText({
-													validate(need(data$connectOK,"No connection"))
-													# call to  function that loads data
-													# this function does not need to be reactive
-													message <- step22load_data()
-													if (is.null(data$path_step22_modified_series)) "please select a dataset" else {                                      
-														paste(message,collapse="\n")
-													}                  
-												})  
-									})	
-							
-							# 2.3 new dataseries  --------------------------------------------------------							
-							
-							observeEvent(input$integrate_new_dataseries_button, {
-										
-										step23_filepath_new_dataseries <- reactive({
-													inFile <- isolate(input$xl_new_dataseries)     
-													if (is.null(inFile)){        return(NULL)
-													} else {
-														data$path_step_23_new_dataseries <- inFile$datapath #path to a temp file             
-													}
-												})
-										
-										step23load_data <- function() {
-											path <- step23_filepath_new_dataseries()
-											if (is.null(data$path_step_23_new_dataseries)) 
-												return(NULL)
-											rls <- write_new_dataseries(path)
-											message <- rls$message
-											cou_code <- rls$cou_code
-											main_assessor <- input$main_assessor
-											secondary_assessor <- input$secondary_assessor
-											file_type <- input$file_type
-											log_datacall("new dataseries integration", cou_code = cou_code, message = sQuote(message), 
-													the_metadata = NULL, file_type = file_type, main_assessor = main_assessor, 
-													secondary_assessor = secondary_assessor)
-											return(message)
-										}
-										
-										output$textoutput_step2.3_ts <- renderText({
-													validate(need(data$connectOK,"No connection"))
-													# call to  function that loads data
-													# this function does not need to be reactive
-													message <- step23load_data()
-													if (is.null(data$path_step_23_new_dataseries)) "please select a dataset" else {                                      
-														paste(message,collapse="\n")
-													}                  
-												})  
-									})	
-							
-							# 2.4 update modified dataseries  --------------------------------------------------------							
-							
-							observeEvent(input$update_dataseries_button, {
-										
-										step24_filepath_modified_dataseries <- reactive({
-													inFile <- isolate(input$xl_updated_dataseries)     
-													if (is.null(inFile)){        return(NULL)
-													} else {
-														data$path_step_24_modified_dataseries <- inFile$datapath #path to a temp file             
-													}
-												})
-										
-										step24load_data <- function() {
-											path <- step24_filepath_modified_dataseries()
-											if (is.null(data$path_step_24_modified_dataseries)) 
-												return(NULL)
-											rls <- update_dataseries(path)
-											message <- rls$message
-											cou_code <- rls$cou_code
-											main_assessor <- input$main_assessor
-											secondary_assessor <- input$secondary_assessor
-											file_type <- input$file_type
-											log_datacall("update dataseries", cou_code = cou_code, message = sQuote(message), 
-													the_metadata = NULL, file_type = file_type, main_assessor = main_assessor, 
-													secondary_assessor = secondary_assessor)
-											return(message)
-										}
-										
-										output$textoutput_step2.4_ts <- renderText({
-													validate(need(data$connectOK,"No connection"))
-													# call to  function that loads data
-													# this function does not need to be reactive
-													message <- step24load_data()
-													if (is.null(data$path_step_24_modified_dataseries)) "please select a dataset" else {                                      
-														paste(message,collapse="\n")
-													}                  
-												})  
-									})	
-							
-							# 2.5 Integrate new biometry  --------------------------------------------------------							
-							
-							observeEvent(input$integrate_new_biometry_button, {
-										
-										step25_filepath_new_biometry <- reactive({
-													inFile <- isolate(input$xl_new_biometry)     
-													if (is.null(inFile)){        return(NULL)
-													} else {
-														data$path_step_25_new_biometry <- inFile$datapath #path to a temp file             
-													}
-												})
-										
-										step25load_data <- function() {
-											path <- step25_filepath_new_biometry()
-											if (is.null(data$path_step_25_new_biometry)) 
-												return(NULL)
-											rls <- write_new_biometry(path)
-											message <- rls$message
-											cou_code <- rls$cou_code
-											main_assessor <- input$main_assessor
-											secondary_assessor <- input$secondary_assessor
-											file_type <- input$file_type
-											log_datacall("write new biometry", cou_code = cou_code, message = sQuote(message), 
-													the_metadata = NULL, file_type = file_type, main_assessor = main_assessor, 
-													secondary_assessor = secondary_assessor)
-											return(message)
-										}
-										
-										output$textoutput_step2.5_ts <- renderText({
-													validate(need(data$connectOK,"No connection"))
-													# call to  function that loads data
-													# this function does not need to be reactive
-													message <- step25load_data()
-													if (is.null(data$path_step_25_new_biometry)) "please select a dataset" else {                                      
-														paste(message,collapse="\n")
-													}                  
-												})  
-									})
-							
-							# 2.6 update modified biometries  --------------------------------------------------------							
-							
-							observeEvent(input$update_biometry_button, {
-										
-										step26_filepath_update_biometry <- reactive({
-													inFile <- isolate(input$xl_modified_biometry)     
-													if (is.null(inFile)){        return(NULL)
-													} else {
-														data$path_step_26_update_biometry <- inFile$datapath #path to a temp file             
-													}
-												})
-										
-										step26load_data <- function() {
-											path <- step26_filepath_update_biometry()
-											if (is.null(data$path_step_26_update_biometry)) 
-												return(NULL)
-											rls <- update_biometry(path)
-											message <- rls$message
-											cou_code <- rls$cou_code
-											main_assessor <- input$main_assessor
-											secondary_assessor <- input$secondary_assessor
-											file_type <- input$file_type
-											log_datacall("update biometry", cou_code = cou_code, message = sQuote(message), 
-													the_metadata = NULL, file_type = file_type, main_assessor = main_assessor, 
-													secondary_assessor = secondary_assessor)
-											return(message)
-										}
-										
-										output$textoutput_step2.6_ts <- renderText({
-													validate(need(data$connectOK,"No connection"))
-													# call to  function that loads data
-													# this function does not need to be reactive
-													message <- step26load_data()
-													if (is.null(data$path_step_26_update_biometry)) "please select a dataset" else {                                      
-														paste(message,collapse="\n")
-													}                  
-												})  
-									})								
-							
 #######################################
 # III. Data correction table  
 # This section provides a direct interaction with the database

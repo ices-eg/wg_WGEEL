@@ -32,6 +32,7 @@ load_package("shinydashboard")
 load_package("shinyWidgets")
 load_package("shinyBS")
 load_package("sqldf")
+load_package("leaflet")
 
 #----------------------
 # Graphics
@@ -67,6 +68,7 @@ source("loading_functions.R")
 source("check_utilities.R")
 source("database_data.R") #function extract_data
 source("database_reference.R") # function extract_ref
+load("common/data/ccm.rdata")
 
 # Local shiny files ---------------------------------------------------------------------------------
 
