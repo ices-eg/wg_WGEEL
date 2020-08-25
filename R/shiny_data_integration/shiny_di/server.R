@@ -47,7 +47,7 @@ shinyServer(function(input, output, session){
 								sqldf.RPostgreSQL.port = port)
 						
 						# Define pool handler by pool on global level
-						pool <<- pool::dbPool(drv = dbDriver("PostgreSQL"),
+						pool <<- pool::dbPool(drv = RPostgres::Postgres(),
 								dbname="wgeel",
 								host=host,
 								port=port,
