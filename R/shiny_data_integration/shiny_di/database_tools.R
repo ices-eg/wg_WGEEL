@@ -1067,7 +1067,7 @@ write_new <- function(path) {
 #		port=port,
 #		user= userwgeel,
 #		password= passwordwgeel) 
-#'  # path<-"C:\\Users\\cedric.briand\\Downloads\\new_dataseries_2020-08-23_FR.xlsx"
+#'  # path<-"C:\\Users\\cedric.briand\\Downloads\\new_dataseriesY_2020-08-25_FR.xlsx"
 #'  write_new(path)
 #' 
 #'  }
@@ -1080,7 +1080,9 @@ write_new_dataseries <- function(path) {
 	
 	####when there are no data, new values have incorrect type
 	new <- new %>% mutate_if(is.logical,list(as.numeric)) 
-	
+	validate(need(all(!is.na(new$das_ser_id)),"You probably didn't integrate all series, 
+you need to re-run check duplicates after integrating new series, 
+otherwise you will have missing values in das_ser_id"))
 	# create dataset for insertion -------------------------------------------------------------------
 	
 	
@@ -1218,7 +1220,14 @@ update_series <- function(path) {
 	updated_values_table <- 	read_excel(path = path, sheet = 1, skip = 1)	
 	cou_code = unique(updated_values_table$ser_cou_code)  
 	validate(need(length(cou_code) == 1, "There is more than one country code, please check your file"))
+	updated_values_table <- updated_values_table %>% mutate_if(is.logical,list(as.character)) 
 	
+	updated_values_table <- updated_values_table %>% 
+			mutate_at(vars(ser_dts_datasource, ser_comment, ser_lfs_code, ser_hty_code, ser_locationdescription, ser_emu_nameshort,
+							ser_area_division,ser_cou_code),list(as.character)) 
+	updated_values_table <- updated_values_table %>% 
+			mutate_at(vars(ser_sam_id, ser_tblcodeid),list(as.integer)) 
+
 	# create dataset for insertion -------------------------------------------------------------------
 	
 	
@@ -1288,6 +1297,7 @@ update_dataseries <- function(path) {
 	# create dataset for insertion -------------------------------------------------------------------
 	
 	updated_values_table$das_qal_id <- as.integer(updated_values_table$das_qal_id)
+
 	sqldf::sqldf("drop table if exists updated_dataseries_temp ")
 	sqldf::sqldf("create table updated_dataseries_temp as select * from updated_values_table")
 	query="UPDATE datawg.t_dataseries_das set 

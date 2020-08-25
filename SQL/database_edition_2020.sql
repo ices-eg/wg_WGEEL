@@ -312,5 +312,5 @@ ALTER TABLE datawg.series_summary
 -- view with distance to the sargasso
 ----
 
-
+DELETE FROM 
 
