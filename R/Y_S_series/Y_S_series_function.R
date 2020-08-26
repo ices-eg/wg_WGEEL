@@ -244,7 +244,11 @@ check_dataseries_update = function(dataseries)
 {
 	#chek for das_value
 	# use identical instead of == because of NA
-	updated_dataseries = dataseries  %>% mutate_all(as.character) %>% mutate_all(type.convert, as.is = TRUE) %>% mutate(updated_value = !f_identical(das_value_xl, das_value_base), updated_effort = !f_identical(das_effort_xl, das_effort_base), updated_comment = !f_identical(das_comment_xl, das_comment_base))
+	updated_dataseries = dataseries  %>% mutate_all(as.character) %>% 
+			mutate_all(type.convert, as.is = TRUE) %>% 
+			mutate(updated_value = !f_identical(das_value_xl, das_value_base), 
+					updated_effort = !f_identical(das_effort_xl, das_effort_base), 
+					updated_comment = !f_identical(das_comment_xl, das_comment_base))
 	
 	print(str_c("updated value: ", sum(updated_dataseries$updated_value, na.rm = TRUE)))
 	print(str_c("updated effort: ", sum(updated_dataseries$updated_effort, na.rm = TRUE)))

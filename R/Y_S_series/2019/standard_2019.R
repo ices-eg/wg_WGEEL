@@ -1,4 +1,5 @@
 # standard 2019 file for integration
+# DEPRECATED SEE SHINY APP
 ###############################################################################
 
 country = "FRA" # name of the folder
@@ -47,7 +48,7 @@ if(nrow(country_data$data) > 0)
 	
 # if you need to update
 	updated_dataseries = check_dataseries_update(dataseries = chk_dataseries$existing_series)
-# TODO: create a function to visualise data to be updated
+# DONE: create a function to visualise data to be updated
 	update_dataseries(dataseries = updated_dataseries)
 } else
 	print("No dataseries!")
@@ -62,7 +63,7 @@ if(nrow(country_data$biom)>0)
 	chk_biom = check_biometry(biometry = series_info %>% select(ser_id, ser_nameshort) %>% inner_join(country_data$biom), ser_biom, stage = type_series)
 	
 	chk_biom$to_be_created_series$bio_id = insert_biometry(biometry = chk_biom$to_be_created_series %>% select(-nrow, - ser_nameshort) %>% mutate_if(colnames(.) != "bio_comment", convert_round), stage = type_series)
-	# TODO: design a function for checking and updating data
+	# DONE: design a function for checking and updating data
 } else
 	print("No biometry data!")
 

@@ -286,8 +286,7 @@ compare_with_database_series <- function(data_from_excel, data_from_base) {
 		}
 		# select only rows where there are true modified 
 		modified <- modified[!apply(mat,1,all),]	 
-		# show only modifications to the user (any colname modified)
-		
+		# show only modifications to the user (any colname modified)		
 		highlight_change <- highlight_change[!apply(mat,1,all),num_common_col[!apply(mat,2,all)]]
 	}
 	
@@ -855,8 +854,10 @@ write_new <- function(path) {
 	new <- new[, c("eel_typ_id", "eel_year", "eel_value", "eel_missvaluequal", "eel_emu_nameshort", 
 					"eel_cou_code", "eel_lfs_code", "eel_hty_code", "eel_area_division", "eel_qal_id", 
 					"eel_qal_comment", "eel_datasource", "eel_comment")]
-	sqldf::sqldf("drop table if exists new_temp ")
-	sqldf::sqldf("create table new_temp as select * from new")
+	conn <- poolCheckout(pool)
+	dbExecute(conn,"drop table if exists new_temp ")
+	dbWriteTable(conn,"new_temp",new,row.names=FALSE,temporary=TRUE)
+
 	
 	# Query uses temp table just created in the database by sqldf
 	query <- "insert into datawg.t_eelstock_eel (         
@@ -876,7 +877,6 @@ write_new <- function(path) {
 			select * from new_temp"
 	# if fails replaces the message with this trycatch !  I've tried many ways with
 	# sqldf but trycatch failed to catch the error Hence the use of DBI
-	conn <- poolCheckout(pool)
 	message <- NULL
 	nr <- tryCatch({
 				dbExecute(conn, query)
@@ -884,7 +884,7 @@ write_new <- function(path) {
 				message <<- e
 			}, finally = {
 				poolReturn(conn)
-				sqldf::sqldf("drop table if exists new_temp ")
+				dbExecute(conn,"drop table if exists new_temp ")
 			})
 	
 	
@@ -921,7 +921,6 @@ write_new <- function(path) {
 	conn <- poolCheckout(pool)
 	dbExecute(conn,"drop table if exists updated_temp ")
 	dbWriteTable(conn,"updated_temp",updated_values_table,row.names=FALSE,temporary=TRUE)
-	browser()
 	cyear=format(Sys.Date(), "%Y")
 	query=paste("
 					DO $$
@@ -1232,9 +1231,10 @@ update_series <- function(path) {
 
 	# create dataset for insertion -------------------------------------------------------------------
 	
+	conn <- poolCheckout(pool)
+	dbExecute(conn,"drop table if exists updated_series_temp ")
+	dbWriteTable(conn,"updated_series_temp",updated_values_table, row.names=FALSE,temporary=TRUE)
 	
-	sqldf::sqldf("drop table if exists updated_series_temp ")
-	sqldf::sqldf("create table updated_series_temp as select * from updated_values_table")
 	query="UPDATE datawg.t_series_ser set 
 			(
 			ser_namelong, 
@@ -1271,16 +1271,16 @@ update_series <- function(path) {
 			t.ser_sam_id,
 			t.ser_dts_datasource)
 			FROM updated_series_temp t WHERE t.ser_nameshort = t_series_ser.ser_nameshort"
-	
-	conn <- poolCheckout(pool)
+
 	message <- NULL
 	nr <- tryCatch({
 				dbExecute(conn, query)
 			}, error = function(e) {
 				message <<- e
 			}, finally = {
+				dbExecute(conn, "DROP TABLE updated_series_temp")
 				poolReturn(conn)
-				sqldf("DROP TABLE updated_series_temp")
+				
 			})
 	
 	
@@ -1300,8 +1300,11 @@ update_dataseries <- function(path) {
 	
 	updated_values_table$das_qal_id <- as.integer(updated_values_table$das_qal_id)
 
-	sqldf::sqldf("drop table if exists updated_dataseries_temp ")
-	sqldf::sqldf("create table updated_dataseries_temp as select * from updated_values_table")
+	
+	conn <- poolCheckout(pool)
+	dbExecute(conn,"drop table if exists updated_dataseries_temp ")
+	dbWriteTable(conn,"updated_dataseries_temp",updated_values_table, row.names=FALSE,temporary=TRUE)
+	
 	query="UPDATE datawg.t_dataseries_das set 
 			(
 			das_year, 
@@ -1321,15 +1324,16 @@ update_dataseries <- function(path) {
 			t.das_qal_id)
 			FROM updated_dataseries_temp t WHERE t.das_id = t_dataseries_das.das_id"
 	
-	conn <- poolCheckout(pool)
+
 	message <- NULL
 	nr <- tryCatch({
 				dbExecute(conn, query)
 			}, error = function(e) {
 				message <<- e
 			}, finally = {
+				dbExecute(conn, "DROP TABLE updated_series_temp")
 				poolReturn(conn)
-				sqldf("DROP TABLE updated_series_temp")
+				
 			})
 	
 	
@@ -1351,8 +1355,7 @@ update_dataseries <- function(path) {
 #		password= passwordwgeel) 
 update_biometry <- function(path) {
 	updated_values_table <- 	read_excel(path = path, sheet = 1, skip = 1)	
-	cou_code = sqldf(paste0("SELECT ser_cou_code FROM datawg.t_series_ser WHERE ser_nameshort='",
-					updated_values_table$ser_nameshort[1],"';"))$ser_cou_code
+
 	updated_values_table <- updated_values_table %>% mutate_if(is.logical,list(as.numeric)) 
 	updated_values_table <- updated_values_table %>% mutate_at(vars(matches("comment")),list(as.character)) 
 	#data_from_excel <- data_from_excel %>% mutate_at(vars(matches("update")),list(as.Date)) 	
@@ -1360,8 +1363,13 @@ update_biometry <- function(path) {
 	# create dataset for insertion -------------------------------------------------------------------
 	
 	updated_values_table$bio_last_update <- Sys.Date()
-	sqldf::sqldf("drop table if exists updated_biometry_temp ")
-	sqldf::sqldf("create table updated_biometry_temp as select * from updated_values_table")
+	conn <- poolCheckout(pool)
+	query <- paste0("SELECT ser_cou_code FROM datawg.t_series_ser WHERE ser_nameshort='",
+					updated_values_table$ser_nameshort[1],"';")			
+	cou_code = dbGetQuery(conn,query)$ser_cou_code
+	dbExecute(conn,"drop table if exists updated_biometry_temp ")
+	dbWriteTable(conn,"updated_biometry_temp",updated_values_table, row.names=FALSE,temporary=TRUE)
+
 	query="UPDATE datawg.t_biometry_series_bis set 
 			(
 			bio_lfs_code,
@@ -1411,8 +1419,9 @@ update_biometry <- function(path) {
 			}, error = function(e) {
 				message <<- e
 			}, finally = {
+				dbExecute(conn,"updated_biometry_temp")
 				poolReturn(conn)
-				sqldf("DROP TABLE updated_series_temp")
+
 			})
 	
 	
