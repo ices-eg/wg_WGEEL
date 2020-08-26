@@ -737,11 +737,11 @@ compare_with_database_biometry <- function(data_from_excel, data_from_base, shee
 	
 	# Inserting temporary tables
 	# running this with more than one sesssion might lead to crash
-	
-	sqldf( str_c("drop table if exists not_replaced_temp_",cou_code) )
-	sqldf( str_c("create table not_replaced_temp_", cou_code, " as select * from not_replaced") )
-	sqldf( str_c("drop table if exists replaced_temp_",cou_code) )
-	sqldf( str_c("create table replaced_temp_", cou_code, " as select * from replaced") )
+	conn <- poolCheckout(pool)
+	dbExecute(conn,str_c("drop table if exists not_replaced_temp_",cou_code) )
+	dbWriteTable(conn,str_c("not_replaced_temp_", cou_code),not_replaced,temporary=TRUE,row.names=FALSE )
+	dbExecute(conn,str_c("drop table if exists replaced_temp_",cou_code) )
+	dbWriteTable(conn, str_c("replaced_temp_", cou_code), replaced,temporary=TRUE,row.names=FALSE )
 	
 	
 	# Insertion of the three queries ----------------------------------------------------------------
@@ -757,7 +757,6 @@ compare_with_database_biometry <- function(data_from_excel, data_from_base, shee
 	# First step, replace values in the database --------------------------------------------------
 	
 	#sqldf(query0)
-	conn <- poolCheckout(pool)
 	nr0 <- tryCatch({     
 				dbExecute(conn, query0)
 			}, error = function(e) {
@@ -765,13 +764,13 @@ compare_with_database_biometry <- function(data_from_excel, data_from_base, shee
 				cat("step1 message :")
 				print(message)   
 			}, finally = {
-				poolReturn(conn)
+				#poolReturn(conn)
 				
 			})
 	
 	# Second step insert replaced ------------------------------------------------------------------
 	if (is.null(message)) {
-		conn <- poolCheckout(pool)
+		#conn <- poolCheckout(pool)
 		nr1 <- tryCatch({     
 					dbExecute(conn, query1)
 				}, error = function(e) {
@@ -780,15 +779,15 @@ compare_with_database_biometry <- function(data_from_excel, data_from_base, shee
 					cat("step2 message :")
 					print(message)
 				}, finally = {
-					poolReturn(conn)
-					sqldf( str_c( "drop table if exists replaced_temp_", cou_code))        
+					#poolReturn(conn)
+					dbExecute(conn, str_c( "drop table if exists replaced_temp_", cou_code))        
 				})
 	}
 	# Third step insert not replaced values into the database -----------------------------------------
 	
 	
 	if (is.null(message)){ # the previous operation had no error
-		conn <- poolCheckout(pool) 
+		#conn <- poolCheckout(pool) 
 		nr2 <- tryCatch({     
 					dbExecute(conn, query2)
 				}, error = function(e) {
@@ -798,18 +797,19 @@ compare_with_database_biometry <- function(data_from_excel, data_from_base, shee
 					dbExecute(conn, query1_reverse) # this is not surrounded by trycatch, pray it does not fail ....
 					sqldf (query0_reverse)      # perform reverse operation    
 				}, finally = {
-					poolReturn(conn)
-					sqldf( str_c( "drop table if exists not_replaced_temp_", cou_code))   
+					#poolReturn(conn)
+					dbExecute(conn, str_c( "drop table if exists not_replaced_temp_", cou_code))   
 				})
 		
 	} else {
-		sqldf( str_c( "drop table if exists not_replaced_temp_", cou_code))
+	  dbExecute(conn, str_c( "drop table if exists not_replaced_temp_", cou_code))
 	}
 	if (is.null(message)){  
 		message <- sprintf("For duplicates %s values replaced in the database (old values kept with code eel_qal_id=%s)\n,
 						%s values not replaced (values from current datacall stored with code eel_qal_id %s)", 
 				nr1, qualify_code, nr2, qualify_code)  
 	}
+	poolReturn(conn)
 	return(list(message = message, cou_code = cou_code))
 }
 
@@ -1090,8 +1090,9 @@ otherwise you will have missing values in das_ser_id"))
 	new <- new[, c("das_year", "das_value", "das_comment",
 					"das_effort", "das_dts_datasource", "das_ser_id", "das_qal_id")	]
 	# das_last_update : there is a trigger
-	sqldf::sqldf("drop table if exists new_dataseries_temp ")
-	sqldf::sqldf("create table new_dataseries_temp as select * from new")
+	conn <- poolCheckout(pool)
+	dbExecute(conn,"drop table if exists new_dataseries_temp ")
+	dbWriteTable(conn,"new_dataseries_temp",new,temporary=TRUE,row.names=FALSE)
 	
 	# Query uses temp table just created in the database by sqldf
 	query <- "insert into datawg.t_dataseries_das (das_year, das_value, das_comment,
@@ -1101,15 +1102,15 @@ otherwise you will have missing values in das_ser_id"))
 			from new_dataseries_temp"
 	# if fails replaces the message with this trycatch !  I've tried many ways with
 	# sqldf but trycatch failed to catch the error Hence the use of DBI
-	conn <- poolCheckout(pool)
+
 	message <- NULL
 	(nr <- tryCatch({
 							dbExecute(conn, query)
 						}, error = function(e) {
 							message <<- e
 						}, finally = {
+						  dbExecute(conn,"drop table if exists new_dataseries_temp ")
 							poolReturn(conn)
-							sqldf::sqldf("drop table if exists new_dataseries_temp")
 						}))
 	
 	
