@@ -786,9 +786,11 @@ shinyServer(function(input, output, session){
 						
 						# see step0load_data returns a list with res and messages
 						# and within res data and a dataframe of errors
+			
 						validate(
 								need(input$xlfile_ts != "", "Please select a data set")
 						)
+						validate(need(data$connectOK,"No connection"))
 						res <- step0load_data_ts()$res
 						series <- res$series
 						station	<- res$station
@@ -797,6 +799,7 @@ shinyServer(function(input, output, session){
 						new_biometry <- res$new_biometry
 						updated_biometry <- res$updated_biometry
 						t_series_ser <- res$t_series_ser
+						#suppressWarnings(t_series_ser <- extract_data("t_series_ser",  quality_check=FALSE)) 
 						
 						new_data <- left_join(new_data, t_series_ser[,c("ser_id","ser_nameshort")], by="ser_nameshort")
 						new_data <- rename(new_data,"das_ser_id"="ser_id")
@@ -808,7 +811,7 @@ shinyServer(function(input, output, session){
 						
 						# TODO updated biometry
 						
-						suppressWarnings(t_series_ser <- extract_data("t_series_ser",  quality_check=FALSE)) 
+
 						t_dataseries_das <- extract_data("t_dataseries_das", quality_check=FALSE)  
 						t_biometry_series_bis <- extract_data("t_biometry_series_bis", quality_check=FALSE)
 						

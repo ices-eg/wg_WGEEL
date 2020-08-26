@@ -189,10 +189,14 @@ compare_with_database_updated_values <- function(updated_from_excel, data_from_b
 #' if(interactive()){
 #' wg_file.choose<-file.choose
 #' path <- "C:\\Users\\cedric.briand\\OneDrive - EPTB Vilaine\\Projets\\GRISAM\\2020\\wgeel\\datacall\\FR\\Eel_Data_Call_2020_Annex1_time_series_FR_Recruitment.xlsx"
+#' path <- "Z:\\data call\\GB\\Eel_Data_Call_2020_Annex1_time_series_NL_Recruitment.xlsx"
 #' data_from_excel <- read_excel(path=path,	sheet ="series_info",	skip=0) #'  
+#  res <- load_series(path, 
+# 											datasource = the_eel_datasource,
+# 											stage="glass_eel")
 #' data_from_base <- extract_data('t_series_ser')
 #' 
-#' list_comp <- compare_with_database_series(data_from_excel,data_from_base)
+#' list_comp <- compare_with_database_series(data_from_excel=res$series,data_from_base=res$t_series_ser%>%  filter(ser_typ_id==1)  )
 #'  }
 #' }
 compare_with_database_series <- function(data_from_excel, data_from_base) {
@@ -225,9 +229,11 @@ compare_with_database_series <- function(data_from_excel, data_from_base) {
 	ser_colnames <- colnames(data_from_base)[grepl("ser", colnames(data_from_base))]
 	# avoid importing problems when line is null
 	data_from_excel <- data_from_excel %>% mutate_if(is.logical,list(as.numeric)) 
+
 	data_from_excel <- data_from_excel %>% 
 			mutate_at(vars(ser_dts_datasource, ser_comment, ser_lfs_code, ser_hty_code, ser_locationdescription, ser_emu_nameshort,
-							ser_area_division,ser_cou_code),list(as.character)) 
+							ser_area_division,ser_cou_code,ser_effort_uni_code, ser_uni_code),list(as.character)) 
+	
 	duplicates <- data_from_base %>% dplyr::filter(ser_typ_id %in% current_typ_id & 
 							ser_cou_code == current_cou_code) %>% dplyr::select(ser_colnames) %>% # dplyr::select(-eel_cou_code)%>%
 			dplyr::inner_join(data_from_excel, by = c("ser_typ_id",  "ser_nameshort"), 
