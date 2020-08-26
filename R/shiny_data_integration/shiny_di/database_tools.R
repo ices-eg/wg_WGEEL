@@ -883,8 +883,9 @@ write_new <- function(path) {
 			}, error = function(e) {
 				message <<- e
 			}, finally = {
-				poolReturn(conn)
+				
 				dbExecute(conn,"drop table if exists new_temp ")
+				poolReturn(conn)
 			})
 	
 	
