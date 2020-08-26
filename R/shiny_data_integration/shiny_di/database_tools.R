@@ -1166,7 +1166,7 @@ write_new_biometry <- function(path) {
 	dbExecute(conn,"drop table if exists new_biometry_temp ")
 	dbWriteTable(conn,"new_biometry_temp",new,row.names=FALSE,temporary=TRUE)
 	
-	# Query uses temp table just created in the database by sqldf
+	# Query uses temp table just created in the database 
 	query <- "insert into datawg.t_biometry_series_bis (
 			bio_year, bio_lfs_code, bio_length, bio_weight, bio_age, bio_sex_ratio,
 			bio_length_f, bio_weight_f, bio_age_f, bio_length_m, bio_weight_m, bio_age_m,
@@ -1180,7 +1180,7 @@ write_new_biometry <- function(path) {
 			JOIN datawg.t_series_ser on ser_id=bis_ser_id"
 	# if fails replaces the message with this trycatch !  I've tried many ways with
 	# sqldf but trycatch failed to catch the error Hence the use of DBI
-	conn <- poolCheckout(pool)
+
 	message <- NULL
 	(nr <- tryCatch({
 							dbExecute(conn, query)
