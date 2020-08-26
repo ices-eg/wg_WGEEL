@@ -189,7 +189,7 @@ compare_with_database_updated_values <- function(updated_from_excel, data_from_b
 #' if(interactive()){
 #' wg_file.choose<-file.choose
 #' path <- "C:\\Users\\cedric.briand\\OneDrive - EPTB Vilaine\\Projets\\GRISAM\\2020\\wgeel\\datacall\\FR\\Eel_Data_Call_2020_Annex1_time_series_FR_Recruitment.xlsx"
-#' path <- "Z:\\data call\\GB\\Eel_Data_Call_2020_Annex1_time_series_NL_Recruitment.xlsx"
+#' path <- "Z:\\data call\\GB\\Eel_Data_Call_2020_Annex1_time_series_GB_Recruitment.xlsx"
 #' data_from_excel <- read_excel(path=path,	sheet ="series_info",	skip=0) #'  
 #  res <- load_series(path, 
 # 											datasource = the_eel_datasource,
@@ -206,8 +206,6 @@ compare_with_database_series <- function(data_from_excel, data_from_base) {
 	current_cou_code <- unique(data_from_excel$ser_cou_code)
 	if (length(current_cou_code) != 1) 
 		stop("There is more than one country code, this is wrong")
-	current_lfs_code <- unique(data_from_excel$ser_lfs_code)
-	
 	if (nrow(data_from_base) == 0) {
 		# the data_from_base has 0 lines and 0 columns
 		# this poses computation problems
@@ -1084,19 +1082,22 @@ write_new_dataseries <- function(path) {
 	
 	new <- read_excel(path = path, sheet = 1, skip = 1)
 	new$das_qal_id <- as.integer(new$das_qal_id)
-	
+	ser_nameshort	 <- new$ser_nameshort	 # these will be dropped later
 	####when there are no data, new values have incorrect type
 	new <- new %>% mutate_if(is.logical,list(as.numeric)) 
 	validate(need(all(!is.na(new$das_ser_id)),"You probably didn't integrate all series, 
 you need to re-run check duplicates after integrating new series, 
 otherwise you will have missing values in das_ser_id"))
 	# create dataset for insertion -------------------------------------------------------------------
-	
-	
 	new <- new[, c("das_year", "das_value", "das_comment",
 					"das_effort", "das_dts_datasource", "das_ser_id", "das_qal_id")	]
+
 	# das_last_update : there is a trigger
 	conn <- poolCheckout(pool)
+	cou_code <- (dbGetQuery(conn, statement=paste0("SELECT ser_cou_code FROM datawg.t_series_ser WHERE ser_nameshort='",
+					ser_nameshort[1],"';")))$ser_cou_code  
+
+
 	dbExecute(conn,"drop table if exists new_dataseries_temp ")
 	dbWriteTable(conn,"new_dataseries_temp",new,temporary=TRUE,row.names=FALSE)
 	

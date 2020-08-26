@@ -705,7 +705,7 @@ shinyServer(function(input, output, session){
 										# in an error (input not found), I guess input$something has to be evaluated within the frame of the shiny app
 										main_assessor <- input$main_assessor
 										secondary_assessor <- input$secondary_assessor
-										file_type <- input$file_type
+										file_type <- input$file_type_ts
 										# this will fill the log_datacall file (database_tools.R)
 										log_datacall( "check data time series",cou_code = cou_code, message = paste(rls$message,collapse="\n"), the_metadata = rls$res$the_metadata, file_type = file_type, main_assessor = main_assessor, secondary_assessor = secondary_assessor )
 										paste(rls$message, collapse="\n")						
@@ -815,7 +815,7 @@ shinyServer(function(input, output, session){
 						t_dataseries_das <- extract_data("t_dataseries_das", quality_check=FALSE)  
 						t_biometry_series_bis <- extract_data("t_biometry_series_bis", quality_check=FALSE)
 						
-						switch (input$file_type, 
+						switch (input$file_type_ts, 
 								"glass_eel"={                                     
 									t_series_ser <- t_series_ser %>%  filter(ser_typ_id==1)    
 									t_dataseries_das <- t_dataseries_das %>% filter (das_ser_id %in% t_series_ser$ser_id)
@@ -858,7 +858,7 @@ shinyServer(function(input, output, session){
 							list_comp_biometry <- compare_with_database_biometry(data_from_excel=new_biometry, data_from_base=t_biometry_series_bis, sheetorigin="new_data")
 						}
 						current_cou_code <- list_comp_series$current_cou_code
-						current_lfs_code <- list_comp_series$current_lfs_code
+		
 						#cat("step1")					
 						# step1 new series -------------------------------------------------------------
 						
@@ -898,7 +898,7 @@ shinyServer(function(input, output, session){
 														columnDefs = list(list(width = '200px', targets = c(4, 8))),
 														buttons=list(
 																list(extend="excel",
-																		filename = paste0("new_series",current_lfs_code, "_",Sys.Date(),"_",current_cou_code))) 
+																		filename = paste0("new_series_",input$file_type_ts, "_",Sys.Date(),"_",current_cou_code))) 
 												))
 									})
 						} 					
@@ -939,7 +939,7 @@ shinyServer(function(input, output, session){
 														columnDefs = list(list(width = '200px', targets = c(4, 8))),
 														buttons=list(
 																list(extend="excel",
-																		filename = paste0("new_dataseries",current_lfs_code,"_",Sys.Date(),"_",current_cou_code))) 
+																		filename = paste0("new_dataseries_",input$file_type_ts,"_",Sys.Date(),"_",current_cou_code))) 
 												))
 									})
 						} 			
@@ -976,7 +976,7 @@ shinyServer(function(input, output, session){
 														scrollX = T, 
 														buttons=list(
 																list(extend="excel",
-																		filename = paste0("new_biometry",current_lfs_code,"_",Sys.Date(),"_",current_cou_code))) 
+																		filename = paste0("new_biometry_",input$file_type_ts,"_",Sys.Date(),"_",current_cou_code))) 
 												))
 									})
 						} 
@@ -1013,7 +1013,7 @@ shinyServer(function(input, output, session){
 														scrollX = T, 
 														buttons=list(
 																list(extend="excel",
-																		filename = paste0("modified_series",current_lfs_code,"_",Sys.Date(),"_",current_cou_code))) 
+																		filename = paste0("modified_series_",input$file_type_ts,"_",Sys.Date(),"_",current_cou_code))) 
 												))
 									})
 							output$dt_highlight_change_series <-DT::renderDataTable({ 
@@ -1032,7 +1032,7 @@ shinyServer(function(input, output, session){
 														scrollX = T, 
 														buttons=list(
 																list(extend="excel",
-																		filename = paste0("highlight_change_series","_",Sys.Date(),"_",current_cou_code))) 
+																		filename = paste0("highlight_change_series_",input$file_type_ts,"_",Sys.Date(),"_",current_cou_code))) 
 												))
 									})
 						} 				
@@ -1072,7 +1072,7 @@ shinyServer(function(input, output, session){
 														scrollX = T, 
 														buttons=list(
 																list(extend="excel",
-																		filename = paste0("modified_dataseries",current_lfs_code,"_",Sys.Date(),"_",current_cou_code))) 
+																		filename = paste0("modified_dataseries_",input$file_type_ts,"_",Sys.Date(),"_",current_cou_code))) 
 												))
 									})
 							
@@ -1096,7 +1096,7 @@ shinyServer(function(input, output, session){
 														scrollX = T, 
 														buttons=list(
 																list(extend="excel",
-																		filename = paste0("highlight_change_newdata_dataseries",current_lfs_code,"_",Sys.Date(),"_",current_cou_code))) 
+																		filename = paste0("highlight_change_newdata_dataseries_",input$file_type_ts,"_",Sys.Date(),"_",current_cou_code))) 
 												))
 									})
 							
@@ -1116,7 +1116,7 @@ shinyServer(function(input, output, session){
 														scrollX = T, 
 														buttons=list(
 																list(extend="excel",
-																		filename = paste0("highlightchange_modified_dataseries",current_lfs_code,"_",Sys.Date(),"_",current_cou_code))) 
+																		filename = paste0("highlightchange_modified_dataseries_",input$file_type_ts,"_",Sys.Date(),"_",current_cou_code))) 
 												))
 									})
 							
@@ -1160,7 +1160,7 @@ shinyServer(function(input, output, session){
 														scrollX = T, 
 														buttons=list(
 																list(extend="excel",
-																		filename = paste0("modified_biometry",current_lfs_code,"_",Sys.Date(),"_",current_cou_code))) 
+																		filename = paste0("modified_biometry_",input$file_type_ts,"_",Sys.Date(),"_",current_cou_code))) 
 												))
 									})
 							
@@ -1181,7 +1181,7 @@ shinyServer(function(input, output, session){
 														scrollX = T, 
 														buttons=list(
 																list(extend="excel",
-																		filename = paste0("highlight_change_newdata_dataseries",current_lfs_code,"_",Sys.Date(),"_",current_cou_code))) 
+																		filename = paste0("highlight_change_newdata_dataseries_",input$file_type_ts,"_",Sys.Date(),"_",current_cou_code))) 
 												))
 									})						
 						}
@@ -1217,7 +1217,7 @@ shinyServer(function(input, output, session){
 									cou_code <- rls$cou_code
 									main_assessor <- input$main_assessor
 									secondary_assessor <- input$secondary_assessor
-									file_type <- input$file_type
+									file_type <- input$file_type_ts
 									log_datacall("new series integration", cou_code = cou_code, message = sQuote(message), 
 											the_metadata = NULL, file_type = file_type, main_assessor = main_assessor, 
 											secondary_assessor = secondary_assessor)
@@ -1257,7 +1257,7 @@ shinyServer(function(input, output, session){
 											cou_code <- rls$cou_code
 											main_assessor <- input$main_assessor
 											secondary_assessor <- input$secondary_assessor
-											file_type <- input$file_type
+											file_type <- input$file_type_ts
 											log_datacall("update series", cou_code = cou_code, message = sQuote(message), 
 													the_metadata = NULL, file_type = file_type, main_assessor = main_assessor, 
 													secondary_assessor = secondary_assessor)
@@ -1296,7 +1296,7 @@ shinyServer(function(input, output, session){
 											cou_code <- rls$cou_code
 											main_assessor <- input$main_assessor
 											secondary_assessor <- input$secondary_assessor
-											file_type <- input$file_type
+											file_type <- input$file_type_ts
 											log_datacall("new dataseries integration", cou_code = cou_code, message = sQuote(message), 
 													the_metadata = NULL, file_type = file_type, main_assessor = main_assessor, 
 													secondary_assessor = secondary_assessor)
@@ -1335,7 +1335,7 @@ shinyServer(function(input, output, session){
 											cou_code <- rls$cou_code
 											main_assessor <- input$main_assessor
 											secondary_assessor <- input$secondary_assessor
-											file_type <- input$file_type
+											file_type <- input$file_type_ts
 											log_datacall("update dataseries", cou_code = cou_code, message = sQuote(message), 
 													the_metadata = NULL, file_type = file_type, main_assessor = main_assessor, 
 													secondary_assessor = secondary_assessor)
@@ -1374,7 +1374,7 @@ shinyServer(function(input, output, session){
 											cou_code <- rls$cou_code
 											main_assessor <- input$main_assessor
 											secondary_assessor <- input$secondary_assessor
-											file_type <- input$file_type
+											file_type <- input$file_type_ts
 											log_datacall("write new biometry", cou_code = cou_code, message = sQuote(message), 
 													the_metadata = NULL, file_type = file_type, main_assessor = main_assessor, 
 													secondary_assessor = secondary_assessor)
@@ -1413,7 +1413,7 @@ shinyServer(function(input, output, session){
 											cou_code <- rls$cou_code
 											main_assessor <- input$main_assessor
 											secondary_assessor <- input$secondary_assessor
-											file_type <- input$file_type
+											file_type <- input$file_type_ts
 											log_datacall("update biometry", cou_code = cou_code, message = sQuote(message), 
 													the_metadata = NULL, file_type = file_type, main_assessor = main_assessor, 
 													secondary_assessor = secondary_assessor)
