@@ -681,7 +681,26 @@ shinyServer(function(input, output, session){
 				#---------------------------------------------------------------	
 				)
 				return(list(res=res,message=message))
-			}			
+			}
+			plotseries <- function(series){
+			  output$maps_timeseries<- renderLeaflet({
+			    leaflet() %>% addTiles() %>%
+			      addMarkers(data=series,lat=~ser_y,lng=~ser_x,label=~ser_nameshort) %>%
+			      addPolygons(data=ccm_light, 
+			                  popup=~as.character(wso_id),
+			                  fill=TRUE, 
+			                  highlight = highlightOptions(color='white',
+			                                               weight=1,
+			                                               bringToFront = TRUE,
+			                                               fillColor="red",opacity=.2,
+			                                               fill=TRUE))%>%
+			      fitBounds(min(series$ser_x,na.rm=TRUE)-.1,
+			                min(series$ser_y,na.rm=TRUE)-.1,
+			                max(series$ser_x,na.rm=TRUE)+.1,
+			                max(series$ser_y,na.rm=TRUE)+.1)
+			    
+			  })
+			}
 			
 			##################################################
 			# Events triggerred by step0_button (time series page)
