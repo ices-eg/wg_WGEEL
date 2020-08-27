@@ -1,7 +1,12 @@
 # Shiny data integration
 
 
-This is the interface to run the shiny data integration. The basic idea is (1) to let wgeel experts do the checks on the files, (2) help them to qualify the data (3) compare data with those existing in the database and check for duplicates. There are two tabs, one to edit data straight into the database, the other to display graph to check for duplicates once data are submitted.
+This is the interface to run the shiny data integration. The basic idea is (1) to let wgeel experts do the checks on the files, (2) help them to qualify the data (3) compare data with those existing in the database and check for duplicates. There are four tabs :
+
+* **Import** Import landings, aquaculture, release, and biomass files. 
+* **Import time series** Import data for annex 1, 2 and 3 (e.g. glass eel, yellow eel and silver eel series).
+* **edit** This is for correcting values in the database, go there only if you know what you are doing.
+* **plot duplicates** This tab is to see what kind of data you have for a given country and a given type of series (does not currently applies to time series, but we have less risk of having duplicates there).
 
 ![start_screen](https://user-images.githubusercontent.com/26055877/91455981-0a562900-e883-11ea-80cc-6dc1db4e1974.png)
 *last update 2020*
