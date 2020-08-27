@@ -11,7 +11,75 @@ This is the interface to run the shiny data integration. The basic idea is (1) t
 ![start_screen](https://user-images.githubusercontent.com/26055877/91455981-0a562900-e883-11ea-80cc-6dc1db4e1974.png)
 *last update 2020*
 
+# Log in an select a national correspondent (Main assessor) and a secondary assessor (you in the data subgroup)
 
+You need to login using the password. If not you will get warnings and the app will not work.
+Just type the password and click the "go" button, <enter> does not work
+Select a national correspondent from the list, if not there ask Cédric
+Select a secondary assessor from the data subgroup (you !)
+
+_note the tab on the left might not show, if not clik on the button at the top of the app near ICES logo_
+
+# Integration of "stock indicators" : landings, aquaculture, release...
+
+Data entry should be done with someone familiar with the app (someone from the data subgroup ... enter name in the secondary assessor box) and one country leader (Main assessor national). Only the national assessor can truly say what to do in case of duplicates. 
+
+![check_data](https://user-images.githubusercontent.com/26055877/91458170-805b8f80-e885-11ea-9915-3c2a260031dc.png)
+
+ * click button **1**, browse to select file, _from this step the road to the next steps will be explained by rows of text_. 
+ * click on the button **2**, the functions running the check on your data will return a list of error, and an excel file with those errors, check them, re-run untill you have solved all errors. You have them as text on the left **A** and you could download an excel file **B** to return it to data providers.
+ * click on the button **3**, this will load existing data from the database and run comparison checks with your current data. You will get two datasets one excel file with duplicated values and one excel file with new lines to be integrated. *to download the file select "all" values in the choice box on top of values. There is an empty line at the head of the dataset, remove it if you need to filter data but don't forget to put it again otherwise you'll get a changed_colnames error*
+ 	* In the dataset with duplicates you will need to select which value is to be kept from the database or the new dataset: in the column keep new value choose true to replace data using the new datacall data. Duplicated lines (old or new) will be kept in the database with an eel\_qual\_id of 18 if the year of integration is 2018. Don't forget to set a value for **eel_qal_id.xls** when keep_new_value=true. IF necessary for values to be replaced also put a comment in **eel_qal_comment.xls**. Possible values for qal_id are as following :
+  
+| qal_id | qal_level | qal_text |
+| --- | --- | -------------------------------|
+| 0 | missing | missing data |
+| 1 | good quality | the data passed the quality checks of the wgeel |
+| 2 | modified | The wgeel has modified that data |
+| 3 | bad quality | The data has been judged of too poor quality to be used by the wgeel, it is not used |
+| 4 | warnings | The data is used by the wgeel, but there are warnings on its quality (see comments) |
+| 18 | discarded_wgeel_2018 | This data has either been removed from the database in favour of new data, or corresponds to new data not kept in the database during datacall 2018 |
+
+  
+  You will also need to give a qal comment if you select to replace the value currently in the database. *don't change the structure of the file, if you insert some to run checks or calculations, remove them before integration*
+ 	* In the dataset with new lines, you will still need to give a qal_id statement to all lines
+ * click on the button **4** to select the dataset just processed and try integration in the database **5**. If it fails, try to understand with the message why the database refused your data and reprocess it.
+ 
+ This is how it looks like when files are loaded
+ 
+  * do the same for new data.
+ 
+ ![alt text][data_check_step0]
+
+ ![alt text][data_check_step1]
+
+
+
+### Application details : data correction
+
+Click on button edit in the tab panel on the left
+Select a country, a type of data and choose a year range.
+
+#### Choice of county and type :
+
+ ![alt text][data_correction_step0]
+ 
+To *edit* a cell, simply click inside modify the value, you can edit several cell,
+Then click on the save button, a message will be displayed. Once changes are made, you can click on the clear button if you want to go back to the previous values. 
+
+#### Data edition straight into the database :
+ ![alt text][data_correction_step1]
+
+
+### Data exploration tab to check for duplicates 
+
+You can select a type (e.g. aquaculture or com_landings kg)  and a country (this is intented to country report leaders). This graph will diplay selected values on the left and discarded values on the right  (note : here the graph does not contain any discarded value.)
+
+This creates a graph where total values are displayed and color according to the number of observation in the database for that year. There can be many as there are observations per emu, per lifestage and per habitat type.  
+
+When you click on a bar, all corresponding lines are displayed, you can also explore details on plotly graph displayed by emu_code and stage on the right, hovering on this graph produces information.
+
+![image](https://user-images.githubusercontent.com/26055877/44299808-ee673680-a2fc-11e8-8810-42160141eda6.png)
 
 # Some technical stuff for developpers
 ## Recipe
@@ -93,64 +161,7 @@ setwd("C:\\Users\\cedric.briand\\Documents\\GitHub\\WGEEL")
 to test the app you need to put the files from wgeel 2018 datacall in a folder
 launch by running run.R. In R studio, open the [ui.R](https://github.com/ices-eg/wg_WGEEL/blob/master/R/shiny_data_integration/shiny/ui.R) or [server.r](https://github.com/ices-eg/wg_WGEEL/blob/master/R/shiny_data_integration/shiny/server.R) and click on the RunApp button appearing at the top of the file.
 
-Data entry should be done with someone familiar with the app (someone from the data subgroup ... enter name in the secondary assessor box) and one country leader (Main assessor national). Only the national assessor can truly say what to do in case of duplicates. 
 
-![check_data](https://user-images.githubusercontent.com/26055877/91458170-805b8f80-e885-11ea-9915-3c2a260031dc.png)
-
- * click button **1**, browse to select file, _from this step the road to the next steps will be explained by rows of text_. 
- * click on the button **2**, the functions running the check on your data will return a list of error, and an excel file with those errors, check them, re-run untill you have solved all errors. You have them as text on the left **A** and you could download an excel file **B** to return it to data providers.
- * click on the button **3**, this will load existing data from the database and run comparison checks with your current data. You will get two datasets one excel file with duplicated values and one excel file with new lines to be integrated. *to download the file select "all" values in the choice box on top of values. There is an empty line at the head of the dataset, remove it if you need to filter data but don't forget to put it again otherwise you'll get a changed_colnames error*
- 	* In the dataset with duplicates you will need to select which value is to be kept from the database or the new dataset: in the column keep new value choose true to replace data using the new datacall data. Duplicated lines (old or new) will be kept in the database with an eel\_qual\_id of 18 if the year of integration is 2018. Don't forget to set a value for **eel_qal_id.xls** when keep_new_value=true. IF necessary for values to be replaced also put a comment in **eel_qal_comment.xls**. Possible values for qal_id are as following :
-  
-| qal_id | qal_level | qal_text |
-| --- | --- | -------------------------------|
-| 0 | missing | missing data |
-| 1 | good quality | the data passed the quality checks of the wgeel |
-| 2 | modified | The wgeel has modified that data |
-| 3 | bad quality | The data has been judged of too poor quality to be used by the wgeel, it is not used |
-| 4 | warnings | The data is used by the wgeel, but there are warnings on its quality (see comments) |
-| 18 | discarded_wgeel_2018 | This data has either been removed from the database in favour of new data, or corresponds to new data not kept in the database during datacall 2018 |
-
-  
-  You will also need to give a qal comment if you select to replace the value currently in the database. *don't change the structure of the file, if you insert some to run checks or calculations, remove them before integration*
- 	* In the dataset with new lines, you will still need to give a qal_id statement to all lines
- * click on the button **4** to select the dataset just processed and try integration in the database **5**. If it fails, try to understand with the message why the database refused your data and reprocess it.
- 
- This is how it looks like when files are loaded
- 
-  * do the same for new data.
- 
- ![alt text][data_check_step0]
-
- ![alt text][data_check_step1]
-
-
-
-### Application details : data correction
-
-Click on button edit in the tab panel on the left
-Select a country, a type of data and choose a year range.
-
-#### Choice of county and type :
-
- ![alt text][data_correction_step0]
- 
-To *edit* a cell, simply click inside modify the value, you can edit several cell,
-Then click on the save button, a message will be displayed. Once changes are made, you can click on the clear button if you want to go back to the previous values. 
-
-#### Data edition straight into the database :
- ![alt text][data_correction_step1]
-
-
-### Data exploration tab to check for duplicates 
-
-You can select a type (e.g. aquaculture or com_landings kg)  and a country (this is intented to country report leaders). This graph will diplay selected values on the left and discarded values on the right  (note : here the graph does not contain any discarded value.)
-
-This creates a graph where total values are displayed and color according to the number of observation in the database for that year. There can be many as there are observations per emu, per lifestage and per habitat type.  
-
-When you click on a bar, all corresponding lines are displayed, you can also explore details on plotly graph displayed by emu_code and stage on the right, hovering on this graph produces information.
-
-![image](https://user-images.githubusercontent.com/26055877/44299808-ee673680-a2fc-11e8-8810-42160141eda6.png)
 
 
 
