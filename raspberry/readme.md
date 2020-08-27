@@ -282,6 +282,8 @@ R
 ```R
 library(shiny)
 runApp('/srv/shiny-server/shiny_di/')
+install.packages("RPostgres",lib=.libPaths()[4])install.packages("RPostgres",lib=.libPaths()[4])
+
 ```
 
 
