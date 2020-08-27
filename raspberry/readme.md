@@ -273,16 +273,21 @@ R -e "source('R/shiny_data_integration/run.R')"
 sudo systemctl restart shiny-server
 ```
 
-## manual launch
+## install new packages
+
+the packages must not be installed as the user...
 
 ```shell
+sudo su - -c "R -e \"install.packages('RPostgres')\""
 R
 ```
 
 ```R
 library(shiny)
 runApp('/srv/shiny-server/shiny_di/')
-install.packages("RPostgres",lib=.libPaths()[4])install.packages("RPostgres",lib=.libPaths()[4])
+install.packages("RPostgres",lib=.libPaths()[3])
+save(ccm_light,file="common/data/ccm.Rdata", version= 2)
+
 
 ```
 
