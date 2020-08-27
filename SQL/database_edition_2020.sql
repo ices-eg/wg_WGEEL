@@ -172,6 +172,9 @@ SELECT * FROM datawg.t_series_ser WHERE ser_cou_code='NO'
 
 
 INSERT INTO REF.tr_datasource_dts  VALUES ('dc_2020', 'Joint EIFAAC/GFCM/ICES Eel Data Call 2020');
+INSERT INTO ref.tr_quality_qal SELECT 20,	'discarded_wgeel_2020',	
+'This data has either been removed from the database in favour of new data, or corresponds to new data not kept in the database during datacall 2020',	FALSE;
+
 
 
 /*
@@ -230,13 +233,9 @@ ALTER TABLE datawg.t_eelstock_eel ADD CONSTRAINT ck_emu_whole_aquaculture CHECK 
 /* this piece of script aimed at fixing
 *  issue https://github.com/ices-eg/wg_WGEEL/issues/93
 */
---to be checked with Esti, I think that the type is aquaculture_kg not aquaculture_number (anyway, it is declared at the emu scale not at the country scale so no valid)
-update datawg.t_eelstock_eel set eel_typ_id =11,
-								 eel_qal_id=20,
-								 eel_comment ='type corrected in 2020' 
-		where eel_typ_id =12 and eel_year=2014 and eel_emu_nameshort ='ES_Vale' and eel_lfs_code='OG' and eel_hty_code='MO'
+
 --other data correspond to restocking so should not be in the db
-delete from datawg.t_eelstock_eel where eel_typ_id=12;
+delete from datawg.t_eelstock_eel where eel_typ_id=12;--14
 ALTER TABLE datawg.t_eelstock_eel ADD CONSTRAINT ck_removed_typid CHECK (eel_typ_id != 12);
 
 UPDATE datawg.t_biometry_other_bit SET bio_last_update='2019-09-08' WHERE bio_last_update IS NULL; --180
@@ -270,7 +269,7 @@ CREATE OR REPLACE VIEW datawg.series_stats AS
    FROM datawg.t_dataseries_das
    JOIN datawg.t_series_ser ON das_ser_id=ser_id
    LEFT JOIN ref.tr_country_cou ON ser_cou_code=cou_code
-  GROUP BY ser_id
+  GROUP BY ser_id, cou_order
   ORDER BY cou_order;
 
 ALTER TABLE datawg.series_stats
@@ -308,9 +307,28 @@ ALTER TABLE datawg.series_summary
   OWNER TO postgres;
  GRANT ALL ON TABLE datawg.series_summary TO wgeel;
   
----
--- view with distance to the sargasso
-----
 
-DELETE FROM 
 
+-- NOT LAUCHED YET ON SERVER
+--to be checked with Esti, I think that the type is aquaculture_kg not aquaculture_number (anyway, it is declared at the emu scale not at the country scale so no valid)
+update datawg.t_eelstock_eel set eel_typ_id =11,
+								 eel_qal_id=20,
+								 eel_comment ='type corrected in 2020' 
+		where eel_typ_id =12 and eel_year=2014 and eel_emu_nameshort ='ES_Vale' and eel_lfs_code='OG' and eel_hty_code='MO';
+	
+	
+
+	INSERT INTO datawg.participants SELECT 'Clarisse Boulenger';
+--------------------------
+/* RCODE
+ pool <- pool::dbPool(drv = dbDriver("PostgreSQL"),
+ 		dbname="wgeel",
+ 		host=host,
+ 		port=port,
+ 		user= userwgeel,
+ 		password= passwordwgeel)
+ query <- "SELECT name from datawg.participants"
+ participants<<- dbGetQuery(pool, sqlInterpolate(ANSI(), query)) 
+ save(participants,list_country,typ_id,the_years,t_eelstock_eel_fields, file=str_c(getwd(),"/common/data/init_data.Rdata"))
+						
+---------------------------------------------------------

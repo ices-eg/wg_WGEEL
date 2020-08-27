@@ -119,9 +119,9 @@ stopifnot(exists("passwordwgeel"))
 #query <- "SELECT min(eel_year) as min_year, max(eel_year) as max_year from datawg.t_eelstock_eel eel_cou "
 #the_years <<- dbGetQuery(pool, sqlInterpolate(ANSI(), query))   
 #
-#query <- "SELECT name from datawg.participants"
-#participants<<- dbGetQuery(pool, sqlInterpolate(ANSI(), query))  
-## save(participants,list_country,typ_id,the_years,t_eelstock_eel_fields, file=str_c(getwd(),"/common/data/init_data.Rdata"))
+query <- "SELECT name from datawg.participants"
+participants<<- dbGetQuery(pool, sqlInterpolate(ANSI(), query))  
+# save(participants,list_country,typ_id,the_years,t_eelstock_eel_fields, file=str_c(getwd(),"/common/data/init_data.Rdata"))
 #ices_division <- extract_ref("FAO area")$f_code
 #emus <- extract_ref("EMU")
 #

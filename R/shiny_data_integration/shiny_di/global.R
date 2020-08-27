@@ -25,7 +25,7 @@ load_package("htmltools")
 load_package("pool")
 load_package("DBI")
 load_package("RPostgreSQL") # this one works with sqldf
-load_package("RPostgres")
+library("RPostgres")
 load_package("dplyr")
 load_package("glue")
 load_package("shinyjs")
@@ -92,5 +92,5 @@ onStop(function() {
 # BEFORE WGEEL sqldf('delete from datawg.t_eelstock_eel where eel_datasource='test')
 ########################
 qualify_code<-20 # change this code here and in tr_quality_qal for next wgeel
-the_eel_datasource <- "test" # change to dc_2020
-#the_eel_datasource <- "dc_2019"
+the_eel_datasource <- "dc_2020" 
+
