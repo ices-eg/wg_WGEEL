@@ -286,7 +286,7 @@ R
 library(shiny)
 runApp('/srv/shiny-server/shiny_di/')
 install.packages("RPostgres",lib=.libPaths()[3])
-
+save(ccm_light,file="common/data/ccm.Rdata", version= 2)
 
 
 ```
