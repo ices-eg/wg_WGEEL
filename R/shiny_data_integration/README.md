@@ -427,7 +427,7 @@ update_t_eelstock_eel <- function(editedValue, pool, data) {
 }
 ```
 
-[data_check]: https://github.com/ices-eg/wg_WGEEL/blob/master/R/shiny_data_integration/shiny/common/images/data_check.png "Shiny app for data integration"
+[data_check]: https://github.com/ices-eg/wg_WGEEL/blob/master/R/shiny_di/shiny/common/images/data_check.png "Shiny app for data integration"
 [data_check_step0]: 
 https://user-images.githubusercontent.com/26055877/42418061-9b6dcf0e-8298-11e8-9fd1-89fed97f832a.png
 [data_check_step1]: 
