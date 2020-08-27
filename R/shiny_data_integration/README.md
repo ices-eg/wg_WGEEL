@@ -11,7 +11,7 @@ This is the interface to run the shiny data integration. The basic idea is (1) t
 ![start_screen](https://user-images.githubusercontent.com/26055877/91455981-0a562900-e883-11ea-80cc-6dc1db4e1974.png)
 *last update 2020*
 
-# Log in an select a national correspondent (Main assessor) and a secondary assessor (you in the data subgroup)
+## sidebar
 
 You need to login using the password. If not you will get warnings and the app will not work.
 Just type the password and click the "go" button, <enter> does not work
@@ -20,8 +20,9 @@ Select a secondary assessor from the data subgroup (you !)
 
 _note the tab on the left might not show, if not clik on the button at the top of the app near ICES logo_
 
-# Integration of "stock indicators" : landings, aquaculture, release...
+## Import
 
+Integration of "stock indicators" : landings, aquaculture, release...
 Data entry should be done with someone familiar with the app (someone from the data subgroup ... enter name in the secondary assessor box) and one country leader (Main assessor national). Only the national assessor can truly say what to do in case of duplicates. 
 
 ![check_data](https://user-images.githubusercontent.com/26055877/91458170-805b8f80-e885-11ea-9915-3c2a260031dc.png)
