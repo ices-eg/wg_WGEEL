@@ -272,3 +272,19 @@ R -e "source('R/shiny_data_integration/run.R')"
 ```shell
 sudo systemctl restart shiny-server
 ```
+
+## manual launch
+
+```shell
+R
+```
+
+```R
+library(shiny)
+runApp('/srv/shiny-server/shiny_di/')
+install.packages("RPostgres",lib=.libPaths()[4])install.packages("RPostgres",lib=.libPaths()[4])
+
+```
+
+
+
