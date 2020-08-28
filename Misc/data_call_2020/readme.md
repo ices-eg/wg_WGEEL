@@ -10,6 +10,7 @@ _GT1 subgroup_
 General notes (feedback on datacall for next year are there : https://github.com/ices-eg/wg_WGEEL/issues/129
 
 **CHECK** you need to check, **MISSING** corresponds to missing data, **IMPORTANT NOTE** is a big change we have brought to your data.
+**TODO** something to be done at series level
 
 
 
@@ -187,7 +188,8 @@ Updates expected for other landings (mediterranean lagoons) ... finally no landi
  
 ## GB (Great Britain) 
 
-Data call sent to ICES in time
+Data call sent to ICES in time.
+**TODO** Change series names and replace E (Elver) with GY or G.
 
 ### annex 1
 
