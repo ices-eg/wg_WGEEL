@@ -2,6 +2,7 @@
 *last update 2020*
 
 
+<<<<<<< HEAD
 ## Before starting
 
 It is handy to keep [notes](https://github.com/ices-eg/wg_WGEEL/tree/master/Misc/data_call_2020) about data call integration. Those have proved very useful when checking the next year on change or problems or decision made about the data. The steps during integration, errors reported by data check are all stored in a log in the database but it is preferable to have those as plain text. So at the start, before processing any data, copy the comments in metadata to the [notes](https://github.com/ices-eg/wg_WGEEL/tree/master/Misc/data_call_2020). And later on keep notes of what (how many rows) have been integrated, what problems you had, comments sent by the national data correspondents....
@@ -11,6 +12,17 @@ It is handy to keep [notes](https://github.com/ices-eg/wg_WGEEL/tree/master/Misc
 Shiny is an R process allowing to port R code in web interfaces. Two interface are currently maintained by ICES wgeel, the first is for [data visualisation](http://185.135.126.249:8080/shiny_dv/), the second for [data integration](http://185.135.126.249:8080/shiny_di/). 
 
 ## Data integration
+=======
+## before starting
+
+It is handy to keep ![notes](https://github.com/ices-eg/wg_WGEEL/tree/master/Misc/data_call_2020) about data call integration. Those have proved very useful when checking the next year on change or problems or decision made about the data. The steps during integration, errors reported by data check are all stored in a log in the database but it is preferable to have those as plain text. So at the start, before processing any data, copy the comments in metadata to the ![notes](https://github.com/ices-eg/wg_WGEEL/tree/master/Misc/data_call_2020). And later on keep notes of what (how many rows) have been integrated, what problems you had, comments sent by the national data correspondents....
+
+## accessing the interface
+
+Shiny is an R process allowing to port R code in web interfaces. Two interface are currently maintained by ICES wgeel, the first is for [data visualisation](http://185.135.126.249:8080/shiny_dv/), the second for [data integration](http://185.135.126.249:8080/shiny_di/). 
+
+## data integration
+>>>>>>> branch 'master' of https://github.com/ices-eg/wg_WGEEL.git
 
 The basic idea is (1) to let wgeel experts do the checks on the files, (2) help them to qualify the data (3) compare data with those existing in the database and check for duplicates. There are four tabs :
 
@@ -40,12 +52,19 @@ Data entry should be done with someone familiar with the app (someone from the d
  * click button **1**, browse to select file, _from this step the road to the next steps will be explained by rows of text_. 
  * click on the button **2**, the functions running the check on your data will return a list of error, and an excel file with those errors, check them, re-run untill you have solved all errors. You have them as text on the left **A** and you could download an excel file **B** to return it to data providers.
  * click on the button **3** _check duplicates, compare with database_, this will load existing data from the database and run comparison checks with your current data. You will get four datasets. The first two on the top correspond to the  `new_data` sheet in excel. On the left you have one excel file with duplicated values and on the right one excel file with new lines to be integrated.  The third and fourth dataset on the second row correspond to the updated data tab. Normally if the national stock assessor has done his job correctly the top row should only have values in the new data tab, and the bottom row should only be duplicates, but it's very easy to make a mistake when you are compiling data for integration so we don't trust the end user.
+<<<<<<< HEAD
 
  ![Step 1 after running button check][data_check_step1]
 
  *to download the file select "all" values in the choice box on top of values. There is an empty line at the head of the dataset, remove it if you need to filter data but don't forget to put it again otherwise you'll get a changed_colnames error at the next step*
  
  * In the dataset with duplicates you will need to select which value is to be kept from the database or the new dataset: in the column `keep_new_value` choose `true` to replace data using the new datacall data. Duplicated lines (old or new) will be kept in the database with an eel\_qual\_id of `20` if the year of integration is 2020. Don't forget to set a value for `eel_qal_id.xls` when `keep_new_value=true`.  Possible values for qal_id are as following :
+=======
+ 
+ *to download the file select "all" values in the choice box on top of values. There is an empty line at the head of the dataset, remove it if you need to filter data but don't forget to put it again otherwise you'll get a changed_colnames error at the next step*
+ 
+ 	* In the dataset with duplicates you will need to select which value is to be kept from the database or the new dataset: in the column `keep_new_value` choose `true` to replace data using the new datacall data. Duplicated lines (old or new) will be kept in the database with an eel\_qual\_id of `20` if the year of integration is 2020. Don't forget to set a value for `eel_qal_id.xls` when `keep_new_value=true`.  Possible values for qal_id are as following :
+>>>>>>> branch 'master' of https://github.com/ices-eg/wg_WGEEL.git
   
 | qal_id | qal_level | qal_text |
 | --- | --- | -------------------------------|
