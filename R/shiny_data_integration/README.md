@@ -26,7 +26,7 @@ The basic idea is (1) to let wgeel experts do the checks on the files, (2) help 
 
 ![start_screen](https://user-images.githubusercontent.com/26055877/91455981-0a562900-e883-11ea-80cc-6dc1db4e1974.png)
 
-## sidebar 
+## Sidebar 
 
 You need to login using the password. If not you will get warnings and the app will not work.
 Just type the password and click the "go" button, <enter> does not work
@@ -39,12 +39,16 @@ _note the tab on the left might not show, if not clik on the button at the top o
 
 ## Data integration
 
-## Import tab
 
-### Step 0 and step1 check data
-
-Integration of "stock indicators" : landings, aquaculture, release...
 Data entry should be done with someone familiar with the app (someone from the data subgroup ... enter name in the secondary assessor box) and one country leader (Main assessor national). Only the national assessor can truly say what to do in case of duplicates. 
+
+### Import tab
+
+This tabs is for the integration of "stock indicators" : landings, aquaculture, release...
+*I would love to have a name for those but aquaculture and release are not stock indicator. Annual data doesn't do because times series for glass, yellow and silver are annual. Anyone with an idea please edit this page*.
+
+#### Step 0 check data
+
 
 ![check_data](https://user-images.githubusercontent.com/26055877/91458170-805b8f80-e885-11ea-9915-3c2a260031dc.png)
 
@@ -82,7 +86,7 @@ Data entry should be done with someone familiar with the app (someone from the d
 
 > Note : Until this point you have not integrated anything in the database 
 
-### Step 2 : Integrate data in the database
+#### Step 2 : Integrate data in the database
 
 *Hint :After completing the excel files, you are ready to integrate data into the database. The shiny does a lot of checks to tell you which data might be duplicates, what format or names can be wrong, but the real quality check is set by constraints in the database. So at this stage you might get an error message. In that case, try to understand what it means and fix it, if not ask one
 of the database administrator to help you*
@@ -97,7 +101,7 @@ of the database administrator to help you*
 
 
 
-
+---
 
 ## Application details : data correction
 
@@ -124,6 +128,8 @@ This creates a graph where total values are displayed and color according to the
 When you click on a bar, all corresponding lines are displayed, you can also explore details on plotly graph displayed by emu_code and stage on the right, hovering on this graph produces information.
 
 ![image](https://user-images.githubusercontent.com/26055877/44299808-ee673680-a2fc-11e8-8810-42160141eda6.png)
+
+---
 
 # Some technical stuff for developpers
 
@@ -214,7 +220,7 @@ launch by running run.R. In R studio, open the [ui.R](https://github.com/ices-eg
 
 
 
-# Programming details
+## Programming details
 
 ## global.R
 
@@ -226,13 +232,13 @@ setwd("C:\\Users\\cedric.briand\\Documents\\GitHub\\WGEEL\\R\\shiny_data_integra
 
 ## ui.R
 
-the ui uses shinydashboard for appearance, it also uses Shinyjs to create a stop button [closewindow](https://github.com/daattali/advanced-shiny/blob/master/close-window/app.R) usefull when developping the app.
-several html tabs are generated dynamically in server.R according to checks on the user input (for instance in some cases there are no duplicates, then the user is returned the information no duplicates). Small pieces of text will inform the user on the way forward.
+the ui uses shinydashboard for appearance. several html tabs are generated dynamically in server.R according to checks on the user input (for instance in some cases there are no duplicates, then the user is returned the information no duplicates). Small pieces of text will inform the user on the way forward.
 ## Server.R
 
 ### data load
 
 The excel files are processed. Upon reading the input the interface switches automatically to the right type of data. 
+
 ```r
       step0_filepath <- reactive({
             inFile <- input$xlfile      
@@ -262,8 +268,10 @@ Pressing the button will trigger the insertion of a data in the log file via
 ```r
 log_datacall( "check data",cou_code = cou_code, message = paste(rls$message,collapse="\n"), the_metadata = rls$res$the_metadata, file_type = file_type, main_assessor = main_assessor, secondary_assessor = secondary_assessor )
 ```
+
 When the button is pressed, the files are processed using the [check_utilities](https://github.com/ices-eg/wg_WGEEL/blob/master/R/utilities/check_utilities.R) functions which are built to assess the integrity of a column, for instance for 
 countries we have 
+
 ```r
 ###### eel_cou_code ##############
    
@@ -287,7 +295,9 @@ countries we have
 Those functions are then applied differently according to the dataset, in [loading functions.R](https://github.com/ices-eg/wg_WGEEL/blob/master/R/utilities/loading_functions.R)
 
 ### check for duplicates
+
 Data are retrieved from the database using the extract data function which is built on postgreSQL [views](https://github.com/ices-eg/wg_WGEEL/blob/master/SQL/views.sql) per data type
+
 ```r
  switch (input$file_type, "catch_landings"={                                     
                   data_from_base<-extract_data("Landings")                  
@@ -323,6 +333,7 @@ Data are retrieved from the database using the extract data function which is bu
 
 They are compared to the current data type via [database_tools.R](https://github.com/ices-eg/wg_WGEEL/blob/master/R/shiny_data_integration/shiny/database_tools.R) using inner join on columns
 `"eel_typ_id", "eel_year", "eel_lfs_code","eel_emu_nameshort", "eel_cou_code", "eel_hty_code", "eel_area_division"`
+
 ```r
 duplicates <- data_from_base %>% dplyr::filter(eel_typ_id %in% current_typ_id & 
               eel_cou_code == current_cou_code) %>% dplyr::select(eel_colnames) %>% # dplyr::select(-eel_cou_code)%>%
@@ -331,12 +342,17 @@ duplicates <- data_from_base %>% dplyr::filter(eel_typ_id %in% current_typ_id &
           suffix = c(".base", ".xls"))
 
 ```
+
 New data correspond to an anti-join
+
 ```r
   new <- dplyr::anti_join(data_from_excel, data_from_base, by = c("eel_typ_id", 
           "eel_year", "eel_lfs_code", "eel_emu_nameshort", "eel_hty_code", "eel_area_division", 
           "eel_cou_code"), suffix = c(".base", ".xls"))
 ```
+
+The code for new series, new dataseries, updated_dataseries .... is similar.
+
 ### Treating the case of duplicates
 
 We should not loose any data. This is a problem discussed (here)[
