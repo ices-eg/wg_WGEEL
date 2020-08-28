@@ -140,12 +140,16 @@ This step of comparison is done at once for all sheets. Again we never trust the
     * qal_id 3 (discarded) if the series is affected by stocking
   We will start analyses of yellow and silver series this year. Health warning about those (discontinuities, changes of protocol) should be provided qal_id 4 but I guess at the beginning we leave all series as 1.
 
+  * Report  the number of rows integrated in [notes](https://github.com/ices-eg/wg_WGEEL/tree/master/Misc/data_call_2020).
+
 *The ccm is a database of basins covering europe (not all countries in the Mediterranean). The identifier of the basin ws0_id is an integer.*
 
 
 ### 3.2.2.2  Step 2.2 Update modified series
 
 When checking if the series has been changed, sometimes changes are due to series saved as excel, and re-loaded back to R. For this reason you an additional excel file, doing different tests than the anti_join and returning only the columns that have changed in the dataset. This way you can quickly check what the change is. 
+
+ Report the number of rows modified in [notes](https://github.com/ices-eg/wg_WGEEL/tree/master/Misc/data_call_2020).
 
 *Hint: Once you have entered the series, if you re-run the series might appear as modified*s
 ### 3.2.2.3  Step 2.3 Integrate new dataserie
@@ -161,18 +165,28 @@ There is a separate treatment of new_data and updated_data, again we don't blind
  
  Once the series is integrated you can go to the shiny data visualisation tools to have a look at the series and check for a break in the trend. For new series we will have to compile data first as the server works on Rdata and we need to re-extract data from the database.
  
+  Report the number of rows integrated in [notes](https://github.com/ices-eg/wg_WGEEL/tree/master/Misc/data_call_2020).
+ 
+ 
  ### 3.2.2.4  Step 2.4 Update modified dataserie
  
- Check that the comment provided by the user is still giving the old value. In the "time series" sheet we don't keep old values, so the only way to have and history is those comments. These are important, if a series was misreported as 10 time it's value (it happened) a given year, then this will have had an influence on the recruitment trend reported that year. Especially for recruitment, if you note large change report it in the [notes](https://github.com/ices-eg/wg_WGEEL/tree/master/Misc/data_call_2020) tab.s
+ Check that the comment provided by the user is still giving the old value. In the "time series" sheet we don't keep old values, so the only way to have and history is those comments. These are important, if a series was misreported as 10 time it's value (it happened) a given year, then this will have had an influence on the recruitment trend reported that year. Especially for recruitment, if you note large change report it in the [notes](https://github.com/ices-eg/wg_WGEEL/tree/master/Misc/data_call_2020) tab.
+ 
+  Report the number of rows modified in [notes](https://github.com/ices-eg/wg_WGEEL/tree/master/Misc/data_call_2020).
+ s
 
 ### 3.2.2.5  Step 2.5 Integrate new biometries
 
 
 If you have only lines with year and no values (those values were pre-filled) in the excel sheets and sometimes those empty lines were not removed, these will be removed. 
 
+ Report the number of rows integrated in [notes](https://github.com/ices-eg/wg_WGEEL/tree/master/Misc/data_call_2020).
+
+
 ### 3.2.2.5  Step 2.6 Update modified biometry
 
-There was no updated biometry sheet but any duplicated value in biometry will end up in the modified excel datatab.y
+There was no updated biometry sheet but any duplicated value in biometry will end up in the modified excel datatab.y Report the number of rows modified in [notes](https://github.com/ices-eg/wg_WGEEL/tree/master/Misc/data_call_2020).
+
 
 ---
 
