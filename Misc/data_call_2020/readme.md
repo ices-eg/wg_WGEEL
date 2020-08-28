@@ -7,6 +7,7 @@ _GT1 subgroup_
 
 # General notes
 
+General notes (feedback on datacall for next year are there : https://github.com/ices-eg/wg_WGEEL/issues/129
 
 **CHECK** you need to check, **MISSING** corresponds to missing data, **IMPORTANT NOTE** is a big change we have brought to your data.
 
@@ -20,7 +21,7 @@ _GT1 subgroup_
  
 ## BE (Belgium) 
 
-Not files yet
+Files sent to ICES 26/08, not copied to wgeel folder yet.
 
 ### annex 1
 
@@ -66,7 +67,7 @@ The data call files we be late by one week, mail explaining why (some landers di
 
  ## DK (Denmark) 
 
-Nothing yet
+Received 28/08 in ICES submission (I didn't copy it to ICES folder yet)
 
 ### annex 1
 
@@ -114,7 +115,7 @@ Files sent to ICES  in time
  
 ## ES (Spain) 
 
-No files received yet
+Mail from ICES not received, working on it. Recruitment file sent straight by Esti.
 
 ### annex 1
 
@@ -163,7 +164,7 @@ Files sent to ICES in time
 ## FR (France) 
 
 Data call sent in time
-Updates expected for other landings (mediterranean lagoons)
+Updates expected for other landings (mediterranean lagoons) ... finally no landings are in commercial landings.
 
 ### annex 1
 
@@ -210,7 +211,7 @@ Data call sent to ICES in time
  
 ## IE (Ireland) 
 
-Data call sent to ICES in time
+Data call sent to ICES in time, one update file sent straight to Cédric and put to the wgeel folder.
 
 ### annex 1
 
@@ -274,6 +275,31 @@ Data call sent to ICES in time
 ### annex 7
 
 ### annex 8
+
+---------------------------
+
+ 
+## HR (Croatia) 
+
+File sent to ICES 25/08 not copied to ICES folder yet.
+
+### annex 1
+
+### annex 2
+
+### annex 3
+
+### annex 4
+
+### annex 5
+
+### annex 6
+
+### annex 7
+
+### annex 8
+
+---------------------------
 
 ---------------------------
 
