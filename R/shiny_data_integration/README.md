@@ -159,14 +159,18 @@ There is a separate treatment of new_data and updated_data, again we don't blind
  * das_qal_id = 0 missing year or value
  * das_qal_id = 4 the data provider tells you not to trust this line.
  
- Check that the comment provided by the user is still giving the old value. In the "time series" sheet we don't keep old values, so the only way to have and history is those comments. These are important, if a series was misreported as 10 time it's value (it happened) a given year, then this will have had an influence on the recruitment trend reported that year. Especially for recruitment, if you note large change report it in the [notes](https://github.com/ices-eg/wg_WGEEL/tree/master/Misc/data_call_2020) tab.
+ Once the series is integrated you can go to the shiny data visualisation tools to have a look at the series and check for a break in the trend. For new series we will have to compile data first as the server works on Rdata and we need to re-extract data from the database.
  
- ### 3.2.2.4  Step 2.4 Update modified dataseries
+ ### 3.2.2.4  Step 2.4 Update modified dataserie
+ 
+ Check that the comment provided by the user is still giving the old value. In the "time series" sheet we don't keep old values, so the only way to have and history is those comments. These are important, if a series was misreported as 10 time it's value (it happened) a given year, then this will have had an influence on the recruitment trend reported that year. Especially for recruitment, if you note large change report it in the [notes](https://github.com/ices-eg/wg_WGEEL/tree/master/Misc/data_call_2020) tab.s
 
 ### 3.2.2.5  Step 2.5 Integrate new biometriesy
+If you have only lines with year and no values (those values were pre-filled) in the excel sheets and sometimes those empty lines were not removed, these will be removed. 
 
 ### 3.2.2.5  Step 2.6 Update modified biometry
- 
+
+There was no updated biometry sheet but any duplicated value in biometry will end up in the modified excel datatab.y
 
 ---
 
