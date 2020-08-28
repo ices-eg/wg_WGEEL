@@ -720,6 +720,7 @@ shinyServer(function(input, output, session){
 										# this will fill the log_datacall file (database_tools.R)
 										stopifnot(length(unique(rls$res$series$ser_cou_code))==1)
 										cou_code <- rls$res$series$ser_cou_code[1]
+										if (nrow(rls$res$series)>0) plotseries(rls$res$series)
 										# the following three lines might look silly but passing input$something to the log_datacall function results
 										# in an error (input not found), I guess input$something has to be evaluated within the frame of the shiny app
 										main_assessor <- input$main_assessor
