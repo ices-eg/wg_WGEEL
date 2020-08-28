@@ -115,42 +115,55 @@ The check are done for all files, series, dataseries, and biometry.
 
 ## 3.2.1 Step 1 - Compare with database
 
-This step of comparison is done at once for all sheets :
+This step of comparison is done at once for all sheets. Again we never trust the end user, so there are checks for duplicates for series reported in newdata, and duplicated might be entered as new. If that is the case check carefully. The work to be done on the different files is detailed in the following.
 
-* series : checked both for duplicates and new series. 
+## 3.2.2 Step 2 - Data Integration
 
-  * Look at the excel files, we highlighted cells changes to be made in yellow, check that the current format of `ser_comment`  and  `ser_location_description` corresponds to the format asked in the comment in the first row of the excel files. c
+### 3.2.2.1 Step 2.1 Integrate new serie
+
+ 
+
+  * Look at the excel files, we highlighted cells changes to be made in yellow, check that the current format of `ser_comment`  and  `ser_location_description` corresponds to the format asked in the comment in the first row of the excel files. 
+
 
   * Using  the `maps` tap check the geographical position, we have made some checks on the position but this only ensures that the series is lying in Europe somewhere. Check the position in the country, if something seems weird contact the national data provider. 
 
   * In the excel sheet, even for existing series, check comments about the ccm basin related to the series to ensure that we selected the proper catchment (national correspondents have put notes - or didn't check but there might still be problems where the geographical coordinates of the series does not correspond to the catchment chosen.
   
-  * The position of the series is provided by a vector of ccm basin id. For some basins there might be several catchments associated with one series, hence the link between catchment and series is provided as an integer. The postgreSQL database reads those as coma sperated values and curly brackets `{ws0_id1, wso0_id2,...,ws0_idn}`. Find the ws0_id associated with the series. Check with national correspondent that this values is correct. .
-  * The short name of the series must be 4 letters + stage name, e.g. VilG, LiffGY, FremS, the first letter is capitalised and the stage name too. Stages allowed are G, GY, Y or S. Note that E `Elver` is not to be used.
+  * The position of the series is provided by a vector of ccm basin id. For some basins there might be several catchments associated with one series, hence the link between catchment and series is provided as an integer. The postgreSQL database reads those as coma sperated values and curly brackets `{ws0_id1, wso0_id2,...,ws0_idn}`. Find the ws0_id associated with the series. Check with national correspondent that this values is correct. 
+
+  * The short name of the series must be 4 letters + stage name, e.g. VilG, LiffGY, FremS, the first letter is capitalised and the stage name too. Stages allowed are `G, GY, Y or S`. Note that `E` Elver is not to be used.
   
-  * qal_id will decide whether a series is used or not in the annual assessment of recruitment done by wgeel. To quality the series the rules are :
+  * qal_id will decide whether a series is used or not in the annual assessment of recruitment done by wgeel. To qualify the recruitment series (annex 1) the rules are :
     * qal_id 0 if the series is too short < 10 years
     * qal_id 1 if the series is >= 10 years and has no problem
     * qal_id 3 (discarded) if the series is affected by stocking
+  We will start analyses of yellow and silver series this year. Health warning about those (discontinuities, changes of protocol) should be provided qal_id 4 but I guess at the beginning we leave all series as 1.
 
 *The ccm is a database of basins covering europe (not all countries in the Mediterranean). The identifier of the basin ws0_id is an integer.*
 
 
-*
-
-
-
-## 3.2.2 Step 2 - Data Integration
-
-### 3.2.2.1 Step 2.1 Integrate new series
-
 ### 3.2.2.2  Step 2.2 Update modified series
 
-### 3.2.2.3  Step 2.3 Integrate new dataseries
+When checking if the series has been changed, sometimes changes are due to series saved as excel, and re-loaded back to R. For this reason you an additional excel file, doing different tests than the anti_join and returning only the columns that have changed in the dataset. This way you can quickly check what the change is. 
 
-### 3.2.2.4  Step 2.4 Update modified dataseries
+*Hint: Once you have entered the series, if you re-run the series might appear as modified*s
+### 3.2.2.3  Step 2.3 Integrate new dataserie
 
-### 3.2.2.5  Step 2.5 Integrate new biometry
+***Don't do this if you didn't integrate the series first and re-run `check`***. Otherwise the foreign key to the series table will fire an error.
+There is a separate treatment of new_data and updated_data, again we don't blindly trust data providers and newdata might end up as updated and *vice-versa*. In the excel sheet, the column sheetorigin tells you if data come from the `new_data` sheet or from the `updated_data`. 
+
+ You need to quality data in column `das_qal_id`. The rules are :
+ 
+ * das_qal_id = 1 default
+ * das_qal_id = 0 missing year or value
+ * das_qal_id = 4 the data provider tells you not to trust this line.
+ 
+ Check that the comment provided by the user is still giving the old value. In the "time series" sheet we don't keep old values, so the only way to have and history is those comments. These are important, if a series was misreported as 10 time it's value (it happened) a given year, then this will have had an influence on the recruitment trend reported that year. Especially for recruitment, if you note large change report it in the [notes](https://github.com/ices-eg/wg_WGEEL/tree/master/Misc/data_call_2020) tab.
+ 
+ ### 3.2.2.4  Step 2.4 Update modified dataseries
+
+### 3.2.2.5  Step 2.5 Integrate new biometriesy
 
 ### 3.2.2.5  Step 2.6 Update modified biometry
  
