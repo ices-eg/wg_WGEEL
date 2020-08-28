@@ -437,30 +437,6 @@ Data call sent to ICES in time
 
 ### annex 8
 
----------------------------
-
- 
-## SE (Sweden) 
-
-Data call sent to ICES in time
-Still waiting for updates on annex  4, 6 and 7  and possibly too
-
-### annex 1
-
-### annex 2
-
-### annex 3
-
-### annex 4
-
-### annex 5
-
-### annex 6
-
-### annex 7
-
-### annex 8
-
 
 ---------------------------
 
