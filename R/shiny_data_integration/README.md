@@ -52,7 +52,7 @@ This tabs is for the integration of "stock indicators" : landings, aquaculture, 
 
 ![check_data](https://user-images.githubusercontent.com/26055877/91458170-805b8f80-e885-11ea-9915-3c2a260031dc.png)
 
-* click button **1**, browse to select file, _from this step the road to the next steps will be explained by rows of text_. 
+* click button **1**, browse to select file, _from this step the road to the next steps will be explained by rows of text_.  The app will detect the type of file according to the names.
 
 * click on the button **2**, the functions running the check on your data will return a list of error, and an excel file with those errors, check them, re-run untill you have solved all errors. You have them as text on the left **A** and you could download an excel file **B** to return it to data providers.
 
@@ -105,7 +105,7 @@ of the database administrator to help you*
 
 ## 3.2.0 Step 0 - Check file 
 
-Click on button to check file.
+Click on button to check file. The app will detect the type of file according to the names.
 
 Check message for missing values or errors and correct the file if necessary
 
@@ -131,6 +131,8 @@ This step of comparison is done at once for all sheets. Again we never trust the
   * In the excel sheet, even for existing series, check comments about the ccm basin related to the series to ensure that we selected the proper catchment (national correspondents have put notes - or didn't check but there might still be problems where the geographical coordinates of the series does not correspond to the catchment chosen.
   
   * The position of the series is provided by a vector of ccm basin id. For some basins there might be several catchments associated with one series, hence the link between catchment and series is provided as an integer. The postgreSQL database reads those as coma sperated values and curly brackets `{ws0_id1, wso0_id2,...,ws0_idn}`. Find the ws0_id associated with the series. Check with national correspondent that this values is correct. 
+  
+  ![something_wrong](https://user-images.githubusercontent.com/26055877/91558147-13ec9900-e936-11ea-8327-14e87c6860bc.png "example of wrong wso_id in France")
 
   * The short name of the series must be 4 letters + stage name, e.g. VilG, LiffGY, FremS, the first letter is capitalised and the stage name too. Stages allowed are `G, GY, Y or S`. Note that `E` Elver is not to be used.
   
@@ -188,26 +190,26 @@ There is a separate treatment of new_data and updated_data, again we don't blind
 There was no updated biometry sheet but any duplicated value in biometry will end up in the modified excel datatab.y Report the number of rows modified in [notes](https://github.com/ices-eg/wg_WGEEL/tree/master/Misc/data_call_2020).
 
 
----
+----
 
-## 4. Application details : data correctionn
+# 4. Data correction
 
 Click on button edit in the tab panel on the leftt
 Select a country, a type of data and choose a year range.
 
-#### 4.1 Choice of county and type :
+## 4.1 Choice of county and type :
 
  ![alt text][data_correction_step0]
  
 To *edit* a cell, simply click inside modify the value, you can edit several cells,
 Then click on the save button, a message will be displayed. Once changes are made, you can click on the clear button if you want to go back to the previous values. 
 
-#### 4.2 Data edition straight into the database :
+## 4.2 Data edition straight into the database :
 
  ![alt text][data_correction_step1]
 
 
-### 4.3 Data exploration tab to check for duplicates 
+# 5 Data exploration tab to check for duplicates 
 
 You can select a type (e.g. aquaculture or com_landings kg)  and a country (this is intented to country report leaders). This graph will diplay selected values on the left and discarded values on the right  (note : here the graph does not contain any discarded value.)
 
@@ -217,11 +219,11 @@ When you click on a bar, all corresponding lines are displayed, you can also exp
 
 ![image](https://user-images.githubusercontent.com/26055877/44299808-ee673680-a2fc-11e8-8810-42160141eda6.png)
 
----
+----
 
-# Some technical stuff for developer : read this if you needs
+# 6. Some technical stuff for developers
 
----
+
 
 ### First things to do before new wgeel (section for database and app. maintainer.... skip to next....)
 
