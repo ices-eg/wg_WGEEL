@@ -7,6 +7,7 @@ _GT1 subgroup_
 
 # General notes
 
+General notes (feedback on datacall for next year are there : https://github.com/ices-eg/wg_WGEEL/issues/129
 
 **CHECK** you need to check, **MISSING** corresponds to missing data, **IMPORTANT NOTE** is a big change we have brought to your data.
 
