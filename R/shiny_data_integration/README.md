@@ -68,9 +68,9 @@ Data entry should be done with someone familiar with the app (someone from the d
   
 *don't change the structure of the file, if you insert some to run checks or calculations, remove them before integration*
 
- 	* In the dataset with new lines, you will also need to give a qal_id statement to all lines before integration. Those will have been pre-filled with `1`.  
+ * In the dataset with new lines, you will also need to give a qal_id statement to all lines before integration. Those will have been pre-filled with `1`.  
  	
->Until this point you have not integrated anything in the database 	
+> Note : Until this point you have not integrated anything in the database 	
 
  	
  * click on the button **4** to select the dataset just processed and try integration in the database **5**. If it fails, try to understand with the message why the database refused your data and reprocess it.
