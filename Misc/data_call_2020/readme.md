@@ -21,7 +21,7 @@ General notes (feedback on datacall for next year are there : https://github.com
  
 ## BE (Belgium) 
 
-Not files yet
+Files sent to ICES 26/08, not copied to wgeel folder yet.
 
 ### annex 1
 
