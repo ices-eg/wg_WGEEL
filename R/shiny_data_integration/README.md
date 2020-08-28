@@ -1,7 +1,18 @@
 # Shiny data integration
 *last update 2020*
 
-This is the interface to run the shiny data integration. The basic idea is (1) to let wgeel experts do the checks on the files, (2) help them to qualify the data (3) compare data with those existing in the database and check for duplicates. There are four tabs :
+
+## Before starting
+
+It is handy to keep [notes](https://github.com/ices-eg/wg_WGEEL/tree/master/Misc/data_call_2020) about data call integration. Those have proved very useful when checking the next year on change or problems or decision made about the data. The steps during integration, errors reported by data check are all stored in a log in the database but it is preferable to have those as plain text. So at the start, before processing any data, copy the comments in metadata to the [notes](https://github.com/ices-eg/wg_WGEEL/tree/master/Misc/data_call_2020). And later on keep notes of what (how many rows) have been integrated, what problems you had, comments sent by the national data correspondents....
+
+## Accessing the interface
+
+Shiny is an R process allowing to port R code in web interfaces. Two interface are currently maintained by ICES wgeel, the first is for [data visualisation](http://185.135.126.249:8080/shiny_dv/), the second for [data integration](http://185.135.126.249:8080/shiny_di/). 
+
+## Data integration
+
+The basic idea is (1) to let wgeel experts do the checks on the files, (2) help them to qualify the data (3) compare data with those existing in the database and check for duplicates. There are four tabs :
 
 * **Import** Import landings, aquaculture, release, and biomass files. 
 * **Import time series** Import data for annex 1, 2 and 3 (e.g. glass eel, yellow eel and silver eel series).
@@ -10,12 +21,11 @@ This is the interface to run the shiny data integration. The basic idea is (1) t
 
 ![start_screen](https://user-images.githubusercontent.com/26055877/91455981-0a562900-e883-11ea-80cc-6dc1db4e1974.png)
 
-
-## sidebar
+## sidebar 
 
 You need to login using the password. If not you will get warnings and the app will not work.
 Just type the password and click the "go" button, <enter> does not work
-Select a national correspondent from the list, if not there ask Cédric
+Select a national correspondent from the list, if not there ask Cédric.
 Select a secondary assessor from the data subgroup (you !)
 
 _note the tab on the left might not show, if not clik on the button at the top of the app near ICES logo_
@@ -29,8 +39,13 @@ Data entry should be done with someone familiar with the app (someone from the d
 
  * click button **1**, browse to select file, _from this step the road to the next steps will be explained by rows of text_. 
  * click on the button **2**, the functions running the check on your data will return a list of error, and an excel file with those errors, check them, re-run untill you have solved all errors. You have them as text on the left **A** and you could download an excel file **B** to return it to data providers.
- * click on the button **3**, this will load existing data from the database and run comparison checks with your current data. You will get two datasets one excel file with duplicated values and one excel file with new lines to be integrated. *to download the file select "all" values in the choice box on top of values. There is an empty line at the head of the dataset, remove it if you need to filter data but don't forget to put it again otherwise you'll get a changed_colnames error*
- 	* In the dataset with duplicates you will need to select which value is to be kept from the database or the new dataset: in the column keep new value choose true to replace data using the new datacall data. Duplicated lines (old or new) will be kept in the database with an eel\_qual\_id of 18 if the year of integration is 2018. Don't forget to set a value for **eel_qal_id.xls** when keep_new_value=true. IF necessary for values to be replaced also put a comment in **eel_qal_comment.xls**. Possible values for qal_id are as following :
+ * click on the button **3** _check duplicates, compare with database_, this will load existing data from the database and run comparison checks with your current data. You will get four datasets. The first two on the top correspond to the  `new_data` sheet in excel. On the left you have one excel file with duplicated values and on the right one excel file with new lines to be integrated.  The third and fourth dataset on the second row correspond to the updated data tab. Normally if the national stock assessor has done his job correctly the top row should only have values in the new data tab, and the bottom row should only be duplicates, but it's very easy to make a mistake when you are compiling data for integration so we don't trust the end user.
+
+ ![Step 1 after running button check][data_check_step1]
+
+ *to download the file select "all" values in the choice box on top of values. There is an empty line at the head of the dataset, remove it if you need to filter data but don't forget to put it again otherwise you'll get a changed_colnames error at the next step*
+ 
+ * In the dataset with duplicates you will need to select which value is to be kept from the database or the new dataset: in the column `keep_new_value` choose `true` to replace data using the new datacall data. Duplicated lines (old or new) will be kept in the database with an eel\_qual\_id of `20` if the year of integration is 2020. Don't forget to set a value for `eel_qal_id.xls` when `keep_new_value=true`.  Possible values for qal_id are as following :
   
 | qal_id | qal_level | qal_text |
 | --- | --- | -------------------------------|
@@ -39,20 +54,24 @@ Data entry should be done with someone familiar with the app (someone from the d
 | 2 | modified | The wgeel has modified that data |
 | 3 | bad quality | The data has been judged of too poor quality to be used by the wgeel, it is not used |
 | 4 | warnings | The data is used by the wgeel, but there are warnings on its quality (see comments) |
-| 18 | discarded_wgeel_2018 | This data has either been removed from the database in favour of new data, or corresponds to new data not kept in the database during datacall 2018 |
+| 18 | discarded_wgeel_2020 | This data has either been removed from the database in favour of new data, or corresponds to new data not kept in the database during datacall 2018 |
+| 19 | discarded_wgeel_2020 | This data has either been removed from the database in favour of new data, or corresponds to new data not kept in the database during datacall 2019 |
+| 20 | discarded_wgeel_2020 | This data has either been removed from the database in favour of new data, or corresponds to new data not kept in the database during datacall 2020 |
 
+  If after looking at the data or checking with the national assessor you decide to replace the data also put a comment in `eel_qal_comment.xls`.
   
-  You will also need to give a qal comment if you select to replace the value currently in the database. *don't change the structure of the file, if you insert some to run checks or calculations, remove them before integration*
- 	* In the dataset with new lines, you will still need to give a qal_id statement to all lines
+*don't change the structure of the file, if you insert some to run checks or calculations, remove them before integration*
+
+ 	* In the dataset with new lines, you will also need to give a qal_id statement to all lines before integration. Those will have been pre-filled with `1`.  
+ 	
  * click on the button **4** to select the dataset just processed and try integration in the database **5**. If it fails, try to understand with the message why the database refused your data and reprocess it.
  
  This is how it looks like when files are loaded
  
-  * do the same for new data.
+ * do the same for new data.
  
- ![alt text][data_check_step0]
 
- ![alt text][data_check_step1]
+
 
 
 
@@ -443,8 +462,7 @@ update_t_eelstock_eel <- function(editedValue, pool, data) {
 [data_check]: https://github.com/ices-eg/wg_WGEEL/blob/master/R/shiny_di/shiny/common/images/data_check.png "Shiny app for data integration"
 [data_check_step0]: 
 https://user-images.githubusercontent.com/26055877/42418061-9b6dcf0e-8298-11e8-9fd1-89fed97f832a.png
-[data_check_step1]: 
-https://user-images.githubusercontent.com/26055877/42418064-ae3a6976-8298-11e8-8874-765c0218422e.png
+![data_check_step1]:(https://user-images.githubusercontent.com/26055877/91530339-37e6b500-e90b-11ea-85b9-e41f4da17bd3.png)
 [data_correction_step0]:
 https://user-images.githubusercontent.com/26055877/44337425-fa790280-a47a-11e8-9f04-916f3fa5887e.png
 [data_correction_step1]:
