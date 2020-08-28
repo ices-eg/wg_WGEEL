@@ -9,7 +9,9 @@ It is handy to keep [notes](https://github.com/ices-eg/wg_WGEEL/tree/master/Misc
 
 ## Accessing the interface
 
-Shiny is an R process allowing to port R code in web interfaces. Two interface are currently maintained by ICES wgeel, the first is for [data visualisation](http://185.135.126.249:8080/shiny_dv/), the second for [data integration](http://185.135.126.249:8080/shiny_di/). 
+Shiny is an R process allowing to port R code in web interfaces. Two interface are currently maintained by ICES wgeel, the first is for [data visualisation](http://185.135.126.249:8080/shiny_dv/), the second for [data integration](http://185.135.126.249:8080/shiny_di/).
+
+*Hint: There might be bugs in the app. If an error is fired by the server, the screen will freeze. Be sure you have entered the password, maybe try again, but most likely there is a bug. And in that case the shiny will not be very user friendly, send us the files, explain at what step it fails, and we will try to correct the bug in the machine.*
 
 ## Data integration
 
@@ -33,7 +35,9 @@ Select a secondary assessor from the data subgroup (you !)
 
 _note the tab on the left might not show, if not clik on the button at the top of the app near ICES logo_
 
-## Import
+## Import tab
+
+### Step 0 and step1 check data
 
 Integration of "stock indicators" : landings, aquaculture, release...
 Data entry should be done with someone familiar with the app (someone from the data subgroup ... enter name in the secondary assessor box) and one country leader (Main assessor national). Only the national assessor can truly say what to do in case of duplicates. 
@@ -42,12 +46,12 @@ Data entry should be done with someone familiar with the app (someone from the d
 
  * click button **1**, browse to select file, _from this step the road to the next steps will be explained by rows of text_. 
  * click on the button **2**, the functions running the check on your data will return a list of error, and an excel file with those errors, check them, re-run untill you have solved all errors. You have them as text on the left **A** and you could download an excel file **B** to return it to data providers.
- * click on the button **3** _check duplicates, compare with database_, this will load existing data from the database and run comparison checks with your current data. You will get four datasets. The first two on the top correspond to the  `new_data` sheet in excel. On the left you have one excel file with duplicated values and on the right one excel file with new lines to be integrated.  The third and fourth dataset on the second row correspond to the updated data tab. Normally if the national stock assessor has done his job correctly the top row should only have values in the new data tab, and the bottom row should only be duplicates, but it's very easy to make a mistake when you are compiling data for integration so we don't trust the end user.
+ * click on the button **3** _check duplicates, compare with database_, this will load existing data from the database and run comparison checks with your current data. You will get four datasets. The first two on the top correspond to the  `new_data` sheet in excel. On the left you have one excel file with duplicated values and on the right one excel file with new lines to be integrated.  The third and fourth dataset on the second row correspond to the `updated data` tab. Normally if the national stock assessor has done his job correctly the top row should only have values in the new data tab, and the bottom row should only be duplicates, but it's very easy to make a mistake when you are compiling data for integration so we don't trust the end user and check anyways :-)
 
 
- ![Step 1 after running button check][data_check_step1]
+![check_data_step1](https://user-images.githubusercontent.com/26055877/91530339-37e6b500-e90b-11ea-85b9-e41f4da17bd3.png "Step 1 of data integration")
 
- *to download the file select "all" values in the choice box on top of values. There is an empty line at the head of the dataset, remove it if you need to filter data but don't forget to put it again otherwise you'll get a changed_colnames error at the next step*
+ * Hint: to download the file select "all" values in the choice box on top of values. There is an empty line at the head of the dataset, remove it if you need to filter data but don't forget to put it again otherwise you'll get a changed_colnames error at the next step*
  
  * In the dataset with duplicates you will need to select which value is to be kept from the database or the new dataset: in the column `keep_new_value` choose `true` to replace data using the new datacall data. Duplicated lines (old or new) will be kept in the database with an eel\_qual\_id of `20` if the year of integration is 2020. Don't forget to set a value for `eel_qal_id.xls` when `keep_new_value=true`.  Possible values for qal_id are as following :
 
@@ -60,23 +64,28 @@ Data entry should be done with someone familiar with the app (someone from the d
 | 2 | modified | The wgeel has modified that data |
 | 3 | bad quality | The data has been judged of too poor quality to be used by the wgeel, it is not used |
 | 4 | warnings | The data is used by the wgeel, but there are warnings on its quality (see comments) |
-| 18 | discarded_wgeel_2020 | This data has either been removed from the database in favour of new data, or corresponds to new data not kept in the database during datacall 2018 |
-| 19 | discarded_wgeel_2020 | This data has either been removed from the database in favour of new data, or corresponds to new data not kept in the database during datacall 2019 |
+| 18 | discarded_wgeel_2018 | This data has either been removed from the database in favour of new data, or corresponds to new data not kept in the database during datacall 2018 |
+| 19 | discarded_wgeel_2019 | This data has either been removed from the database in favour of new data, or corresponds to new data not kept in the database during datacall 2019 |
 | 20 | discarded_wgeel_2020 | This data has either been removed from the database in favour of new data, or corresponds to new data not kept in the database during datacall 2020 |
 
   If after looking at the data or checking with the national assessor you decide to replace the data also put a comment in `eel_qal_comment.xls`.
   
-*don't change the structure of the file, if you insert some to run checks or calculations, remove them before integration*
+* Hint: don't change the structure of the file, if you insert some to run checks or calculations, remove them before integration*
 
- * In the dataset with new lines, you will also need to give a qal_id statement to all lines before integration. Those will have been pre-filled with `1`.  
+ * In the dataset with new lines, you will also need to give a qal_id statement to all lines before integration. Those will have been pre-filled with `1`. 
  	
-> Note : Until this point you have not integrated anything in the database 	
+> Note : Until this point you have not integrated anything in the database 
 
- 	
- * click on the button **4** to select the dataset just processed and try integration in the database **5**. If it fails, try to understand with the message why the database refused your data and reprocess it.
+### Step 2 : Integrate data in the database
+
+*Hint :After completing the excel files, you are ready to integrate data into the database. The shiny does a lot of checks to tell you which data might be duplicates, what format or names can be wrong, but the real quality check is set by constraints in the database. So at this stage you might get an error message. In that case, try to understand what it means and fix it, if not ask one
+of the database administrator to help you*
+
+ * click on the button **21** to process `duplicated data` using the excel file you downloaded and treated in step 1. Report  the number of rows integrated in [notes](https://github.com/ices-eg/wg_WGEEL/tree/master/Misc/data_call_2020).
+  
+ * click on the button **22** to process `new data`. *note if a data was not found in the database in the updated data tab, it will be treated as new*. Report  the number of rows integrated in [notes](https://github.com/ices-eg/wg_WGEEL/tree/master/Misc/data_call_2020).
  
- 
- * do the same for new data.
+ * click on the button **23** to update data from the updated data tab. Those data will be treated similarly to `duplicated data`. Report  the number of rows integrated in [notes](https://github.com/ices-eg/wg_WGEEL/tree/master/Misc/data_call_2020).
  
 
 
@@ -464,10 +473,9 @@ update_t_eelstock_eel <- function(editedValue, pool, data) {
 }
 ```
 
-[data_check]: https://github.com/ices-eg/wg_WGEEL/blob/master/R/shiny_di/shiny/common/images/data_check.png "Shiny app for data integration"
-[data_check_step0]: 
-https://user-images.githubusercontent.com/26055877/42418061-9b6dcf0e-8298-11e8-9fd1-89fed97f832a.png
-[data_check_step1]:https://user-images.githubusercontent.com/26055877/91530339-37e6b500-e90b-11ea-85b9-e41f4da17bd3.png
+
+
+
 [data_correction_step0]:
 https://user-images.githubusercontent.com/26055877/44337425-fa790280-a47a-11e8-9f04-916f3fa5887e.png
 [data_correction_step1]:
