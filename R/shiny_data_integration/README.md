@@ -7,7 +7,7 @@
 
 It is handy to keep [notes](https://github.com/ices-eg/wg_WGEEL/tree/master/Misc/data_call_2020) about data call integration. Those have proved very useful when checking the next year on change or problems or decision made about the data. The steps during integration, errors reported by data check are all stored in a log in the database but it is preferable to have those as plain text. So at the start, before processing any data, copy the comments in metadata to the [notes](https://github.com/ices-eg/wg_WGEEL/tree/master/Misc/data_call_2020). And later on keep notes of what (how many rows) have been integrated, what problems you had, comments sent by the national data correspondents....
 
-## Accessing the interface
+## 1. Accessing the interface
 
 Shiny is an R process allowing to port R code in web interfaces. Two interface are currently maintained by ICES wgeel, the first is for [data visualisation](http://185.135.126.249:8080/shiny_dv/), the second for [data integration](http://185.135.126.249:8080/shiny_di/).
 
@@ -26,7 +26,7 @@ The basic idea is (1) to let wgeel experts do the checks on the files, (2) help 
 
 ![start_screen](https://user-images.githubusercontent.com/26055877/91455981-0a562900-e883-11ea-80cc-6dc1db4e1974.png)
 
-## Sidebar 
+## 2. Sidebar 
 
 You need to login using the password. If not you will get warnings and the app will not work.
 Just type the password and click the "go" button, <enter> does not work
@@ -37,17 +37,17 @@ _note the tab on the left might not show, if not clik on the button at the top o
 
 ---
 
-## Data integration
+## 3. Data integration
 
 
 Data entry should be done with someone familiar with the app (someone from the data subgroup ... enter name in the secondary assessor box) and one country leader (Main assessor national). Only the national assessor can truly say what to do in case of duplicates. 
 
-### Import tab
+### 3.1 Import tab
 
 This tabs is for the integration of "stock indicators" : landings, aquaculture, release...
 *I would love to have a name for those but aquaculture and release are not stock indicator. Annual data doesn't do because times series for glass, yellow and silver are annual. Anyone with an idea please edit this page*.
 
-#### Step 0 check data
+#### 3.1.0 Step 0 check data
 
 
 ![check_data](https://user-images.githubusercontent.com/26055877/91458170-805b8f80-e885-11ea-9915-3c2a260031dc.png)
@@ -55,6 +55,8 @@ This tabs is for the integration of "stock indicators" : landings, aquaculture, 
 * click button **1**, browse to select file, _from this step the road to the next steps will be explained by rows of text_. 
 
 * click on the button **2**, the functions running the check on your data will return a list of error, and an excel file with those errors, check them, re-run untill you have solved all errors. You have them as text on the left **A** and you could download an excel file **B** to return it to data providers.
+
+#### 3.1.2 Step 1 : Check for duplicates
 
 * click on the button **3** _check duplicates, compare with database_, this will load existing data from the database and run comparison checks with your current data. You will get four datasets. The first two on the top correspond to the  `new_data` sheet in excel. On the left you have one excel file with duplicated values and on the right one excel file with new lines to be integrated.  The third and fourth dataset on the second row correspond to the `updated data` tab. Normally if the national stock assessor has done his job correctly the top row should only have values in the new data tab, and the bottom row should only be duplicates, but it's very easy to make a mistake when you are compiling data for integration so we don't trust the end user and check anyways :-)
 
@@ -86,7 +88,7 @@ This tabs is for the integration of "stock indicators" : landings, aquaculture, 
 
 > Note : Until this point you have not integrated anything in the database 
 
-#### Step 2 : Integrate data in the database
+#### 3.1.2 Step 2 : Integrate data in the database
 
 *Hint :After completing the excel files, you are ready to integrate data into the database. The shiny does a lot of checks to tell you which data might be duplicates, what format or names can be wrong, but the real quality check is set by constraints in the database. So at this stage you might get an error message. In that case, try to understand what it means and fix it, if not ask one
 of the database administrator to help you*
@@ -99,27 +101,80 @@ of the database administrator to help you*
  
 ---
 
+# 3.2 Time series integration
 
+## 3.2.0 Step 0 - Check file 
+
+Click on button to check file.
+
+Check message for missing values or errors and correct the file if necessary
+
+The check are done for all files, series, dataseries, and biometry.
+
+*If some series have not been integrated, you will be issued a waring, this should disappear after step 1.*
+
+## 3.2.1 Step 1 - Compare with database
+
+This step of comparison is done at once for all sheets :
+
+* series : checked both for duplicates and new series. 
+
+  * Look at the excel files, we highlighted cells changes to be made in yellow, check that the current format of `ser_comment`  and  `ser_location_description` corresponds to the format asked in the comment in the first row of the excel files. c
+
+  * Using  the `maps` tap check the geographical position, we have made some checks on the position but this only ensures that the series is lying in Europe somewhere. Check the position in the country, if something seems weird contact the national data provider. 
+
+  * In the excel sheet, even for existing series, check comments about the ccm basin related to the series to ensure that we selected the proper catchment (national correspondents have put notes - or didn't check but there might still be problems where the geographical coordinates of the series does not correspond to the catchment chosen.
+  
+  * The position of the series is provided by a vector of ccm basin id. For some basins there might be several catchments associated with one series, hence the link between catchment and series is provided as an integer. The postgreSQL database reads those as coma sperated values and curly brackets `{ws0_id1, wso0_id2,...,ws0_idn}`. Find the ws0_id associated with the series. Check with national correspondent that this values is correct. .
+  * The short name of the series must be 4 letters + stage name, e.g. VilG, LiffGY, FremS, the first letter is capitalised and the stage name too. Stages allowed are G, GY, Y or S. Note that E `Elver` is not to be used.
+  
+  * qal_id will decide whether a series is used or not in the annual assessment of recruitment done by wgeel. To quality the series the rules are :
+    * qal_id 0 if the series is too short < 10 years
+    * qal_id 1 if the series is >= 10 years and has no problem
+    * qal_id 3 (discarded) if the series is affected by stocking
+
+*The ccm is a database of basins covering europe (not all countries in the Mediterranean). The identifier of the basin ws0_id is an integer.*
+
+
+*
+
+
+
+## 3.2.2 Step 2 - Data Integration
+
+### 3.2.2.1 Step 2.1 Integrate new series
+
+### 3.2.2.2  Step 2.2 Update modified series
+
+### 3.2.2.3  Step 2.3 Integrate new dataseries
+
+### 3.2.2.4  Step 2.4 Update modified dataseries
+
+### 3.2.2.5  Step 2.5 Integrate new biometry
+
+### 3.2.2.5  Step 2.6 Update modified biometry
+ 
 
 ---
 
-## Application details : data correction
+## 4. Application details : data correction
 
 Click on button edit in the tab panel on the left
 Select a country, a type of data and choose a year range.
 
-#### Choice of county and type :
+#### 4.1 Choice of county and type :
 
  ![alt text][data_correction_step0]
  
 To *edit* a cell, simply click inside modify the value, you can edit several cell,
 Then click on the save button, a message will be displayed. Once changes are made, you can click on the clear button if you want to go back to the previous values. 
 
-#### Data edition straight into the database :
+#### 4.2 Data edition straight into the database :
+
  ![alt text][data_correction_step1]
 
 
-### Data exploration tab to check for duplicates 
+### 4.3 Data exploration tab to check for duplicates 
 
 You can select a type (e.g. aquaculture or com_landings kg)  and a country (this is intented to country report leaders). This graph will diplay selected values on the left and discarded values on the right  (note : here the graph does not contain any discarded value.)
 
