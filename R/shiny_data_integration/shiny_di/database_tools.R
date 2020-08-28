@@ -294,7 +294,7 @@ compare_with_database_series <- function(data_from_excel, data_from_base) {
 		highlight_change <- highlight_change[!apply(mat,1,all),num_common_col[!apply(mat,2,all)]]
 	}
 	
-	return(list(new = new, modified=modified, highlight_change=highlight_change, current_cou_code= current_cou_code, current_lfs_code=current_lfs_code))
+	return(list(new = new, modified=modified, highlight_change=highlight_change, current_cou_code= current_cou_code))
 }
 
 #' @title compare with database dataseries
@@ -539,8 +539,8 @@ compare_with_database_biometry <- function(data_from_excel, data_from_base, shee
 		
 		if (!"bis_id" %in% colnames(modified)){
 			modified <- inner_join(
-					data_from_base[,c("bis_year","bis_ser_id","bis_id", "bio_qal_id")], 
-					modified, by= c("bis_year","bis_ser_id"))
+					data_from_base[,c("bio_year","bis_ser_id","bio_id", "bio_qal_id")], 
+					modified, by= c("bio_year","bis_ser_id"))
 		}
 	}
 	
