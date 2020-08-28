@@ -165,7 +165,9 @@ There is a separate treatment of new_data and updated_data, again we don't blind
  
  Check that the comment provided by the user is still giving the old value. In the "time series" sheet we don't keep old values, so the only way to have and history is those comments. These are important, if a series was misreported as 10 time it's value (it happened) a given year, then this will have had an influence on the recruitment trend reported that year. Especially for recruitment, if you note large change report it in the [notes](https://github.com/ices-eg/wg_WGEEL/tree/master/Misc/data_call_2020) tab.s
 
-### 3.2.2.5  Step 2.5 Integrate new biometriesy
+### 3.2.2.5  Step 2.5 Integrate new biometries
+
+
 If you have only lines with year and no values (those values were pre-filled) in the excel sheets and sometimes those empty lines were not removed, these will be removed. 
 
 ### 3.2.2.5  Step 2.6 Update modified biometry
@@ -174,16 +176,16 @@ There was no updated biometry sheet but any duplicated value in biometry will en
 
 ---
 
-## 4. Application details : data correction
+## 4. Application details : data correctionn
 
-Click on button edit in the tab panel on the left
+Click on button edit in the tab panel on the leftt
 Select a country, a type of data and choose a year range.
 
 #### 4.1 Choice of county and type :
 
  ![alt text][data_correction_step0]
  
-To *edit* a cell, simply click inside modify the value, you can edit several cell,
+To *edit* a cell, simply click inside modify the value, you can edit several cells,
 Then click on the save button, a message will be displayed. Once changes are made, you can click on the clear button if you want to go back to the previous values. 
 
 #### 4.2 Data edition straight into the database :
@@ -203,7 +205,7 @@ When you click on a bar, all corresponding lines are displayed, you can also exp
 
 ---
 
-# Some technical stuff for developpers
+# Some technical stuff for developer : read this if you needs
 
 ---
 
