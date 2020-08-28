@@ -11,7 +11,7 @@ It is handy to keep [notes](https://github.com/ices-eg/wg_WGEEL/tree/master/Misc
 
 Shiny is an R process allowing to port R code in web interfaces. Two interface are currently maintained by ICES wgeel, the first is for [data visualisation](http://185.135.126.249:8080/shiny_dv/), the second for [data integration](http://185.135.126.249:8080/shiny_di/).
 
-*Hint: There might be bugs in the app. If an error is fired by the server, the screen will freeze. Be sure you have entered the password, maybe try again, but most likely there is a bug. And in that case the shiny will not be very user friendly, send us the files, explain at what step it fails, and we will try to correct those bugs in the machine which will be more talkative.*
+*Hint: There might be bugs in the app. If an error is fired by the server, the screen will freeze (famously known as "ça crashe" by people who attended WG in Gdansk). Be sure you have entered the password, maybe try again, but most likely there is a bug. And in that case the shiny will not be very user friendly, send us the files, explain at what step it fails, and we will try to correct those bugs in the machine which will be more talkative.*
 
 
 
@@ -52,7 +52,7 @@ This tabs is for the integration of "stock indicators" : landings, aquaculture, 
 
 ![check_data](https://user-images.githubusercontent.com/26055877/91458170-805b8f80-e885-11ea-9915-3c2a260031dc.png)
 
-* click button **1**, browse to select file, _from this step the road to the next steps will be explained by rows of text_.  The app will detect the type of file according to the names.
+* click button **1**, browse to select file, _from this step the road to the next steps will be explained by rows of text_. 
 
 * click on the button **2**, the functions running the check on your data will return a list of error, and an excel file with those errors, check them, re-run untill you have solved all errors. You have them as text on the left **A** and you could download an excel file **B** to return it to data providers.
 
@@ -105,11 +105,14 @@ of the database administrator to help you*
 
 ## 3.2.0 Step 0 - Check file 
 
-Click on button to check file. The app will detect the type of file according to the names.
+Click on button to check file.
 
 Check message for missing values or errors and correct the file if necessary
 
 The check are done for all files, series, dataseries, and biometry.
+
+You can also click on the "MAPS" tab to quickly check whether the coordinates of the time series are correct.
+![start_screen](https://user-images.githubusercontent.com/43066644/91566144-831cba00-e943-11ea-9814-dbbda212c5f0.png)
 
 *If some series have not been integrated, you will be issued a waring, this should disappear after step 1.*
 
@@ -130,9 +133,7 @@ This step of comparison is done at once for all sheets. Again we never trust the
 
   * In the excel sheet, even for existing series, check comments about the ccm basin related to the series to ensure that we selected the proper catchment (national correspondents have put notes - or didn't check but there might still be problems where the geographical coordinates of the series does not correspond to the catchment chosen.
   
-  * The position of the series is provided by a vector of ccm basin id. For some basins there might be several catchments associated with one series, hence the link between catchment and series is provided as an integer. The postgreSQL database reads those as coma sperated values and curly brackets `{ws0_id1, wso0_id2,...,ws0_idn}`. Find the ws0_id associated with the series. Check with national correspondent that this values is correct. 
-  
-  ![something_wrong](https://user-images.githubusercontent.com/26055877/91558147-13ec9900-e936-11ea-8327-14e87c6860bc.png "example of wrong wso_id in France")
+  * The position of the series is provided by a vector of ccm basin id. For some basins there might be several catchments associated with one series, hence the link between catchment and series is provided as an integer. The postgreSQL database reads those as coma sperated values and curly brackets `{ws0_id1, wso0_id2,...,ws0_idn}`. Find the ws0_id associated with the series. Check with national correspondent that this values is correct. You can have a look at the maps in the "MAP" tab to see the river basins and corresponding wso_id.
 
   * The short name of the series must be 4 letters + stage name, e.g. VilG, LiffGY, FremS, the first letter is capitalised and the stage name too. Stages allowed are `G, GY, Y or S`. Note that `E` Elver is not to be used.
   
@@ -154,7 +155,8 @@ When checking if the series has been changed, sometimes changes are due to serie
  Report the number of rows modified in [notes](https://github.com/ices-eg/wg_WGEEL/tree/master/Misc/data_call_2020).
 
 *Hint: Once you have entered the series, if you re-run the series might appear as modified*s
-### 3.2.2.3  Step 2.3 Integrate new dataserie
+
+### 3.2.2.3  Step 2.3 Integrate new dataseries
 
 ***Don't do this if you didn't integrate the series first and re-run `check`***. Otherwise the foreign key to the series table will fire an error.
 There is a separate treatment of new_data and updated_data, again we don't blindly trust data providers and newdata might end up as updated and *vice-versa*. In the excel sheet, the column sheetorigin tells you if data come from the `new_data` sheet or from the `updated_data`. 
@@ -170,7 +172,7 @@ There is a separate treatment of new_data and updated_data, again we don't blind
   Report the number of rows integrated in [notes](https://github.com/ices-eg/wg_WGEEL/tree/master/Misc/data_call_2020).
  
  
- ### 3.2.2.4  Step 2.4 Update modified dataserie
+ ### 3.2.2.4  Step 2.4 Update modified dataseries
  
  Check that the comment provided by the user is still giving the old value. In the "time series" sheet we don't keep old values, so the only way to have and history is those comments. These are important, if a series was misreported as 10 time it's value (it happened) a given year, then this will have had an influence on the recruitment trend reported that year. Especially for recruitment, if you note large change report it in the [notes](https://github.com/ices-eg/wg_WGEEL/tree/master/Misc/data_call_2020) tab.
  
@@ -180,36 +182,38 @@ There is a separate treatment of new_data and updated_data, again we don't blind
 ### 3.2.2.5  Step 2.5 Integrate new biometries
 
 
-If you have only lines with year and no values (those values were pre-filled) in the excel sheets and sometimes those empty lines were not removed, these will be removed. 
+
+If you have only lines with year and no values (those values were pre-filled) in the excel sheets and sometimes those empty lines were not removed, these will be removed. 
 
  Report the number of rows integrated in [notes](https://github.com/ices-eg/wg_WGEEL/tree/master/Misc/data_call_2020).
 
 
 ### 3.2.2.5  Step 2.6 Update modified biometry
 
-There was no updated biometry sheet but any duplicated value in biometry will end up in the modified excel datatab.y Report the number of rows modified in [notes](https://github.com/ices-eg/wg_WGEEL/tree/master/Misc/data_call_2020).
+There was no updated biometry sheet but any duplicated value in biometry will end up in the modified excel datatab.y
+ Report the number of rows modified in [notes](https://github.com/ices-eg/wg_WGEEL/tree/master/Misc/data_call_2020).
 
 
-----
+---
 
-# 4. Data correction
+## 4. Application details : data correction
 
 Click on button edit in the tab panel on the leftt
 Select a country, a type of data and choose a year range.
 
-## 4.1 Choice of county and type :
+#### 4.1 Choice of country and type :
 
  ![alt text][data_correction_step0]
  
 To *edit* a cell, simply click inside modify the value, you can edit several cells,
 Then click on the save button, a message will be displayed. Once changes are made, you can click on the clear button if you want to go back to the previous values. 
 
-## 4.2 Data edition straight into the database :
+#### 4.2 Data edition straight into the database :
 
  ![alt text][data_correction_step1]
 
 
-# 5 Data exploration tab to check for duplicates 
+### 4.3 Data exploration tab to check for duplicates 
 
 You can select a type (e.g. aquaculture or com_landings kg)  and a country (this is intented to country report leaders). This graph will diplay selected values on the left and discarded values on the right  (note : here the graph does not contain any discarded value.)
 
@@ -219,11 +223,11 @@ When you click on a bar, all corresponding lines are displayed, you can also exp
 
 ![image](https://user-images.githubusercontent.com/26055877/44299808-ee673680-a2fc-11e8-8810-42160141eda6.png)
 
-----
+---
 
-# 6. Some technical stuff for developers
+# Some technical stuff for developer : read this if you needs
 
-
+---
 
 ### First things to do before new wgeel (section for database and app. maintainer.... skip to next....)
 
@@ -306,7 +310,7 @@ setwd("C:\\Users\\cedric.briand\\Documents\\GitHub\\WGEEL")
 to test the app you need to put the files from wgeel 2018 datacall in a folder
 launch by running run.R. In R studio, open the [ui.R](https://github.com/ices-eg/wg_WGEEL/blob/master/R/shiny_data_integration/shiny/ui.R) or [server.r](https://github.com/ices-eg/wg_WGEEL/blob/master/R/shiny_data_integration/shiny/server.R) and click on the RunApp button appearing at the top of the file.
 
-
+You also need a file named ccm.rdata that should be put in the common/data folder. Ask it to Cedric or Hilaire if you want to run the app locally.
 
 
 
