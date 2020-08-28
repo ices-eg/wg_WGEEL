@@ -66,7 +66,7 @@ The data call files we be late by one week, mail explaining why (some landers di
 
  ## DK (Denmark) 
 
-Nothing yet
+Received 28/08 in ICES submission (I didn't copy it to ICES folder yet)
 
 ### annex 1
 
@@ -114,7 +114,7 @@ Files sent to ICES  in time
  
 ## ES (Spain) 
 
-No files received yet
+Mail from ICES not received, working on it. Recruitment file sent straight by Esti.
 
 ### annex 1
 
@@ -163,7 +163,7 @@ Files sent to ICES in time
 ## FR (France) 
 
 Data call sent in time
-Updates expected for other landings (mediterranean lagoons)
+Updates expected for other landings (mediterranean lagoons) ... finally no landings are in commercial landings.
 
 ### annex 1
 
@@ -210,7 +210,7 @@ Data call sent to ICES in time
  
 ## IE (Ireland) 
 
-Data call sent to ICES in time
+Data call sent to ICES in time, one update file sent straight to Cédric and put to the wgeel folder.
 
 ### annex 1
 
