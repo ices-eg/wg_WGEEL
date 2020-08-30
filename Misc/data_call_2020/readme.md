@@ -46,7 +46,8 @@ Files sent to ICES 26/08, not copied to wgeel folder yet.
 
 ## DE (Germany) 
 
-The data call files we be late by one week, mail explaining why (some landers didn't answer ... files incomplete)
+*The data call files we be late by one week, mail explaining why (some landers didn't answer ... files incomplete)
+Files sent 28/08 to ICES. Data on the server*
 
 ### annex 1
 
@@ -68,7 +69,7 @@ The data call files we be late by one week, mail explaining why (some landers di
 
  ## DK (Denmark) 
 
-Received 28/08 in ICES submission (I didn't copy it to ICES folder yet)
+*Received 28/08 in ICES submission*
 
 ### annex 1
 
@@ -93,7 +94,7 @@ Received 28/08 in ICES submission (I didn't copy it to ICES folder yet)
  
 ## EE (Estonia) 
 
-Files sent to ICES  in time
+*Files sent to ICES  in time*
 
 ### annex 1
 
@@ -116,7 +117,7 @@ Files sent to ICES  in time
  
 ## ES (Spain) 
 
-Mail from ICES not received, working on it. Recruitment file sent straight by Esti.
+*Mail from ICES not received, working on it. Recruitment file sent straight by Esti.*
 
 ### annex 1
 
@@ -164,8 +165,8 @@ Files sent to ICES in time
  
 ## FR (France) 
 
-Data call sent in time
-Updates expected for other landings (mediterranean lagoons) ... finally no landings are in commercial landings.
+*Data call sent in time
+Updates expected for other landings (mediterranean lagoons) ... but in the end those landings were already there so there is nothing to change.*
 
 ### annex 1
 
@@ -188,7 +189,7 @@ Updates expected for other landings (mediterranean lagoons) ... finally no landi
  
 ## GB (Great Britain) 
 
-Data call sent to ICES in time.
+*Data call sent to ICES in time.*
 **TODO** Change series names and replace E (Elver) with GY or G.
 
 ### annex 1
@@ -236,7 +237,7 @@ Data call sent to ICES in time, one update file sent straight to Cédric and put
  
 ## IT (Italy) 
 
-Nothing yet
+*Nothing yet*
 
 ### annex 1
 
@@ -260,7 +261,7 @@ Nothing yet
  
 ## GR (Greece) 
 
-Data call sent to ICES in time
+*Data call sent to ICES in time*
 
 ### annex 1
 
@@ -283,7 +284,7 @@ Data call sent to ICES in time
  
 ## HR (Croatia) 
 
-File sent to ICES 25/08 not copied to ICES folder yet.
+*File sent to ICES 25/08.*
 
 ### annex 1
 
@@ -301,14 +302,13 @@ File sent to ICES 25/08 not copied to ICES folder yet.
 
 ### annex 8
 
----------------------------
 
 ---------------------------
 
  
 ## LV (Latvia) 
 
-Data call sent to ICES in time
+*Data call sent to ICES in time*
 
 ### annex 1
 
@@ -331,7 +331,7 @@ Data call sent to ICES in time
  
 ## MA (Morocco) 
 
-check with Fatima
+*No data, check with Fatima*
 
 ### annex 1
 
@@ -353,7 +353,7 @@ check with Fatima
  
 ## NO (Norway) 
 
-Data call sent to ICES in time
+*Data call sent to ICES in time*
 
 ### annex 1
 
@@ -374,7 +374,7 @@ Data call sent to ICES in time
 
 ## NL (Netherlands) 
 
-First to answer the datacall
+*First to answer the datacall*
 
 ### annex 1
 
@@ -397,7 +397,7 @@ First to answer the datacall
 
 ## PL (Poland) 
 
-Data call sent to ICES in time
+*Data call sent to ICES in time*
 
 ### annex 1
 
@@ -419,7 +419,7 @@ Data call sent to ICES in time
 
 ## PT (Portugal) 
 
-Data call sent to ICES in time
+*Data call sent to ICES in time*
 
 ### annex 1
 
@@ -443,8 +443,8 @@ Data call sent to ICES in time
  
 ## SE (Sweden) 
 
-Data call sent to ICES in time
-Still waiting for updates on annex  4, 6 and 7  and possibly too
+*Data call sent to ICES in time*
+Still waiting for updates on annex  4, 6 and 7  and possibly 2
 
 ### annex 1
 
@@ -467,7 +467,7 @@ Still waiting for updates on annex  4, 6 and 7  and possibly too
  
 ## TN (Tunisia) 
 
-Nothing yet
+*Nothing yet*
 
 ### annex 1
 
@@ -490,7 +490,7 @@ Nothing yet
  
 ## TR (Turkey) 
 
-Nothing yet, check with Sukran
+*Nothing yet, check with Sukran*
 
 ### annex 1
 
