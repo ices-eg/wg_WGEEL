@@ -120,11 +120,12 @@ You can also click on the "MAPS" tab to quickly check whether the coordinates of
 
 This step of comparison is done at once for all sheets. Again we never trust the end user, so there are checks for duplicates for series reported in newdata, and duplicated might be entered as new. If that is the case check carefully. The work to be done on the different files is detailed in the following.
 
+ ![time_series_step1](https://user-images.githubusercontent.com/26055877/91651926-ba4db100-ea92-11ea-97c6-ce083f1259da.png)
+
 ## 3.2.2 Step 2 - Data Integration
 
 ### 3.2.2.1 Step 2.1 Integrate new serie
 
- 
 
   * Look at the excel files, we highlighted cells changes to be made in yellow, check that the current format of `ser_comment`  and  `ser_location_description` corresponds to the format asked in the comment in the first row of the excel files. 
 
@@ -133,9 +134,12 @@ This step of comparison is done at once for all sheets. Again we never trust the
 
   * In the excel sheet, even for existing series, check comments about the ccm basin related to the series to ensure that we selected the proper catchment (national correspondents have put notes - or didn't check but there might still be problems where the geographical coordinates of the series does not correspond to the catchment chosen.
   
+  ![something_wrong](https://user-images.githubusercontent.com/26055877/91558147-13ec9900-e936-11ea-8327-14e87c6860bc.png "An example in France where the Frémur basin in obviously not the right basin")
+  
   * The position of the series is provided by a vector of ccm basin id. For some basins there might be several catchments associated with one series, hence the link between catchment and series is provided as an integer. The postgreSQL database reads those as coma sperated values and curly brackets `{ws0_id1, wso0_id2,...,ws0_idn}`. Find the ws0_id associated with the series. Check with national correspondent that this values is correct. You can have a look at the maps in the "MAP" tab to see the river basins and corresponding wso_id.
 
   * The short name of the series must be 4 letters + stage name, e.g. VilG, LiffGY, FremS, the first letter is capitalised and the stage name too. Stages allowed are `G, GY, Y or S`. Note that `E` Elver is not to be used.
+  Also go in the excel tab (last tab on the right), on the right there is the wkeelmigration series. Check for the name of the series used in wkeelmigration, and check that it is consistent with the current new name. If there are new series, give a comment with their names in notes, we will use that in the report.
   
   * qal_id will decide whether a series is used or not in the annual assessment of recruitment done by wgeel. To qualify the recruitment series (annex 1) the rules are :
     * qal_id 0 if the series is too short < 10 years
@@ -153,13 +157,20 @@ This step of comparison is done at once for all sheets. Again we never trust the
 When checking if the series has been changed, sometimes changes are due to series saved as excel, and re-loaded back to R. For this reason you an additional excel file, doing different tests than the anti_join and returning only the columns that have changed in the dataset. This way you can quickly check what the change is. 
 
  Report the number of rows modified in [notes](https://github.com/ices-eg/wg_WGEEL/tree/master/Misc/data_call_2020).
+ 
+ ![modification_for_only_three_columns](https://user-images.githubusercontent.com/26055877/91652007-67c0c480-ea93-11ea-907e-b584a05d724f.png "modified series, change in three columns highlighted by the 'what changed' tab")
 
 *Hint: Once you have entered the series, if you re-run the series might appear as modified*s
 
 ### 3.2.2.3  Step 2.3 Integrate new dataseries
 
 ***Don't do this if you didn't integrate the series first and re-run `check`***. Otherwise the foreign key to the series table will fire an error.
+
+
 There is a separate treatment of new_data and updated_data, again we don't blindly trust data providers and newdata might end up as updated and *vice-versa*. In the excel sheet, the column sheetorigin tells you if data come from the `new_data` sheet or from the `updated_data`. 
+
+![sheetorigin](https://user-images.githubusercontent.com/26055877/91652112-457b7680-ea94-11ea-84c9-6cc1fd34233a.png "the origin of data, either form the updated_data tab, or the new_data tab, is highlighted in this column.")
+
 
  You need to quality data in column `das_qal_id`. The rules are :
  
@@ -167,14 +178,18 @@ There is a separate treatment of new_data and updated_data, again we don't blind
  * das_qal_id = 0 missing year or value
  * das_qal_id = 4 the data provider tells you not to trust this line.
  
- Once the series is integrated you can go to the shiny data visualisation tools to have a look at the series and check for a break in the trend. For new series we will have to compile data first as the server works on Rdata and we need to re-extract data from the database.
- 
   Report the number of rows integrated in [notes](https://github.com/ices-eg/wg_WGEEL/tree/master/Misc/data_call_2020).
+  
+
+*Hint :  Once the series is integrated you can go to the shiny data visualisation tools to have a look at the series and check for a break in the trend. For new series we will have to compile data first as the server works on Rdata and we need to re-extract data from the database.*
  
  
  ### 3.2.2.4  Step 2.4 Update modified dataseries
  
- Check that the comment provided by the user is still giving the old value. In the "time series" sheet we don't keep old values, so the only way to have and history is those comments. These are important, if a series was misreported as 10 time it's value (it happened) a given year, then this will have had an influence on the recruitment trend reported that year. Especially for recruitment, if you note large change report it in the [notes](https://github.com/ices-eg/wg_WGEEL/tree/master/Misc/data_call_2020) tab.
+ Check that the comment provided by the user is still giving the old value. 
+ In the "time series" sheet we don't keep old values, so the only way to have and history is those comments. These are important, if a series was misreported as 10 time it's value (it happened) a given year, then this will have had an influence on the recruitment trend reported that year. Especially for recruitment, it's the reason why we asked to format the comment like `<previous comment> updated 2020  <old value> changed to <new value> <new comment>`. If the old value is not in the comment, go the existing_data tab and update the comment.
+  
+  If you note large change report it in the [notes](https://github.com/ices-eg/wg_WGEEL/tree/master/Misc/data_call_2020) tab.
  
   Report the number of rows modified in [notes](https://github.com/ices-eg/wg_WGEEL/tree/master/Misc/data_call_2020).
  s
@@ -225,7 +240,9 @@ When you click on a bar, all corresponding lines are displayed, you can also exp
 
 ---
 
-# Some technical stuff for developer : read this if you needs
+# Some technical stuff for developer 
+
+***read this if you need***
 
 ---
 
