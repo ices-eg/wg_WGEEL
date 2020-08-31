@@ -825,10 +825,11 @@ shinyServer(function(input, output, session){
 						new_data <- rename(new_data,"das_ser_id"="ser_id")
 						
 						# bis_ser_id is missing from excel so I'm reloading it
-						new_biometry <- select(new_biometry,-"bis_ser_id")
-						new_biometry <-  left_join(new_biometry, t_series_ser[,c("ser_id","ser_nameshort")], by="ser_nameshort")
-						new_biometry <- rename(new_biometry,"bis_ser_id"="ser_id")
-						
+						if (nrow(new_biometry)>0){
+						  new_biometry <- select(new_biometry,-"bis_ser_id")
+						  new_biometry <-  left_join(new_biometry, t_series_ser[,c("ser_id","ser_nameshort")], by="ser_nameshort")
+						  new_biometry <- rename(new_biometry,"bis_ser_id"="ser_id")
+						}
 						# TODO updated biometry
 						
 
@@ -965,7 +966,7 @@ shinyServer(function(input, output, session){
 						} 			
 						# step1 new biometry -------------------------------------------------------------						
 						
-						if (nrow(list_comp_biometry$new)==0) {
+						if (!exists("list_comp_biometry") || nrow(list_comp_biometry$new)==0) {
 							output$"step1_message_new_biometry"<-renderUI(
 									HTML(
 											paste(
@@ -1141,7 +1142,7 @@ shinyServer(function(input, output, session){
 						
 						# step1 modified biometry -------------------------------------------------------------						
 						
-						if (nrow(list_comp_biometry$modified)==0) {
+						if ((!exists("list_comp_biometry")) || nrow(list_comp_biometry$modified)==0) {
 							
 							output$"step1_message_modified_biometry"<-renderUI(
 									HTML(
