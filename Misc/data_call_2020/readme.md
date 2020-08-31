@@ -211,7 +211,11 @@ series : 8 values updated in the db
 
 Updates in GiScG series
 
-dataseries 13 values inserted
+dataseries 13 values inserted / 28 values updated in the db
+
+new biometry
+
+55 new values inserted in the database
 
 
 
@@ -234,13 +238,16 @@ YerY	YerY electrofishing survey
 
 AdoY	Adour elecrofishing survey
 
-modified series
-
+modified series => 
 5 values 
 
-udpated dataseries
+new dataseries =>  59 new values inserted in the database
 
-28 values updated in the db
+updated dataseries => 42 values updated in the db
+
+new biometry =>  59 new values inserted in the database
+
+
 
 
 
