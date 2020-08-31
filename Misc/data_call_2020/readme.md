@@ -180,6 +180,8 @@ One new series : sousGY 2013:2019, does not qualify for entry : too short.
 
 Updates in GiScG series
 
+**TODO** change ccm wso_id for Frémur, and find the one for SOUSTONS
+
 ### annex 2
 
 ### annex 3
