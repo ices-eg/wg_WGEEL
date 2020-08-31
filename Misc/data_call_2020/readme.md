@@ -20,15 +20,32 @@ General notes (feedback on datacall for next year are there : https://github.com
 ---------------------------
 
  
-## BE (Belgium) 
+## BE (Belgium)
+(HILAIRE)
 
 Files sent to ICES 26/08
+Add a new participants as main assessor: Kristof Vlietinck
 
 ### annex 1
+* new dataseries
+  * VeAmGY data from 2010 to 2016 not taken into account (monitoring started in 2017)
+  * all new dataseries qal_id set to 3 because very impacted by covid crisis
+  * 3 rows integrated
+* new biometry: no data
+* modified series
+  * updates the location of YserG which was in sea in front of Dunkerque
+  * update of datasource
+  * updates units and description of VeAmGY
+  * 3 rows updated
+* modified dataseries
+  * updated value for MeusY (incomplete value in 2019)
+
 
 ### annex 2
+Empty
 
 ### annex 3
+Empty
 
 ### annex 4
 
@@ -176,7 +193,8 @@ Updates expected for other landings (mediterranean lagoons) ... but in the end t
 
 metadata : The method to estimate the index of the GiScG serie was changed this year then it's necessary to delete the 1992 and 1993 lines as the protocol was changed in 1994 and the data before this change were not used in the new method.
 
-One new series : sousGY 2013:2019, does not qualify for entry : too short.
+One new series : sousGY 2013:2019, does not qualify for entry : too short.  1 new values inserted in the database
+series : 8 values updated in the db
 
 Updates in GiScG series
 
