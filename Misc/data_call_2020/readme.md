@@ -202,6 +202,26 @@ Updates in GiScG series
 
 ### annex 2
 
+new series (6)
+
+OrnY	Orne electrofishing survey
+
+SciY	Scie electrofishing survey
+
+TouY	Touques electrofishing survey
+
+VirY	VirY electrofishing survey
+
+YerY	YerY electrofishing survey
+
+AdoY	Adour elecrofishing survey
+
+ 6 new values inserted in the database
+ 
+ 
+ 
+
+
 ### annex 3
 
 ### annex 4
