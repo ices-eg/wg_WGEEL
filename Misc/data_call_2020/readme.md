@@ -234,7 +234,13 @@ YerY	YerY electrofishing survey
 
 AdoY	Adour elecrofishing survey
 
-5 modified series
+modified series
+
+5 values 
+
+udpated dataseries
+
+28 values updated in the db
 
 
 

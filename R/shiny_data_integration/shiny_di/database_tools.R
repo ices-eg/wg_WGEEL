@@ -1171,6 +1171,8 @@ write_new_biometry <- function(path) {
 			)	]
 	new$bio_last_update <- Sys.Date()
 	conn <- poolCheckout(pool)
+	cou_code <- (dbGetQuery(conn, statement=paste0("SELECT ser_cou_code FROM datawg.t_series_ser WHERE ser_id=",
+								new$bis_ser_id[1],";")))$ser_cou_code  
 	dbExecute(conn,"drop table if exists new_biometry_temp ")
 	dbWriteTable(conn,"new_biometry_temp",new,row.names=FALSE,temporary=TRUE)
 	
@@ -1339,7 +1341,7 @@ update_dataseries <- function(path) {
 			}, error = function(e) {
 				message <<- e
 			}, finally = {
-				dbExecute(conn, "DROP TABLE updated_series_temp")
+				dbExecute(conn, "DROP TABLE updated_dataseries_temp")
 				poolReturn(conn)
 				
 			})
