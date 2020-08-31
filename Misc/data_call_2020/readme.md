@@ -199,13 +199,38 @@ Updates expected for other landings (mediterranean lagoons) ... but in the end t
 metadata : The method to estimate the index of the GiScG serie was changed this year then it's necessary to delete the 1992 and 1993 lines as the protocol was changed in 1994 and the data before this change were not used in the new method.
 
 One new series : sousGY 2013:2019, does not qualify for entry : too short.  1 new values inserted in the database
+
 series : 8 values updated in the db
 
 Updates in GiScG series
 
+dataseries 13 values inserted
+
+
+
+
 **TODO** change ccm wso_id for Frémur, and find the one for SOUSTONS
 
 ### annex 2
+
+6 new series integrated
+
+OrnY	Orne electrofishing survey
+
+SciY	Scie electrofishing survey
+
+TouY	Touques electrofishing survey
+
+VirY	VirY electrofishing survey
+
+YerY	YerY electrofishing survey
+
+AdoY	Adour elecrofishing survey
+
+5 modified series
+
+
+
 
 ### annex 3
 
