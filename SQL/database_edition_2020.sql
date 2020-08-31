@@ -330,5 +330,7 @@ update datawg.t_eelstock_eel set eel_typ_id =11,
  query <- "SELECT name from datawg.participants"
  participants<<- dbGetQuery(pool, sqlInterpolate(ANSI(), query)) 
  save(participants,list_country,typ_id,the_years,t_eelstock_eel_fields, file=str_c(getwd(),"/common/data/init_data.Rdata"))
-						
+						*/
 ---------------------------------------------------------
+
+SELECT * FROM datawg.t_series_ser WHERE ser_nameshort LIKE '%Sous%'
