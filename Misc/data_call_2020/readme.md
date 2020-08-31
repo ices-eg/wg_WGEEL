@@ -76,6 +76,10 @@ Files sent 28/08 to ICES. Data on the server*
 * modified series:
   * update of datasource
   * update of coordinates of EmsG which was too far in the West
+* updated dataseries
+  * 7 values updates corresponding to finalization of data (3 LangGY, 2 BrokGY, 1 EmsBGY, 1 VerlGY). qal_id 1
+* biometry: nothing
+
 ### annex 2
 
 ### annex 3
