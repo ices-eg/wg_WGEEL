@@ -27,6 +27,7 @@ Files sent to ICES 26/08
 Add a new participants as main assessor: Kristof Vlietinck
 
 ### annex 1
+* new series: nothing
 * new dataseries
   * VeAmGY data from 2010 to 2016 not taken into account (monitoring started in 2017)
   * all new dataseries qal_id set to 3 because very impacted by covid crisis
