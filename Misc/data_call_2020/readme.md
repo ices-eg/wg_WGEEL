@@ -203,31 +203,24 @@ Updates expected for other landings (mediterranean lagoons) ... but in the end t
 
 ### annex 1
 
-metadata : The method to estimate the index of the GiScG serie was changed this year then it's necessary to delete the 1992 and 1993 lines as the protocol was changed in 1994 and the data before this change were not used in the new method.
+* metadata : The method to estimate the index of the GiScG serie was changed this year then it's necessary to delete the 1992 and 1993 lines as the protocol was changed in 1994 and the data before this change were not used in the new method.
 
-One new series : sousGY 2013:2019, does not qualify for entry : too short.  1 new values inserted in the database
+* One new series : sousGY 2013:2019, does not qualify for entry : too short.  1 new values inserted in the database
 
-series : 8 values updated in the db
+* series : 8 values updated in the db, Updates in GiScG series
 
-Updates in GiScG series
+* dataseries 13 values inserted / 28 values updated in the db / many doubtfull quality (4) not finished or partly impacted by covid
 
-dataseries 13 values inserted / 28 values updated in the db
-
-new biometry
-
-55 new values inserted in the database
-
-
+* new biometry 55 new values inserted in the database
 
 
 **TODO** change ccm wso_id for Frémur, and find the one for SOUSTONS
 
 ### annex 2
 
-metadata: New series were added and the method used to estimate the index was changed for the series: BreY, SeiY, SeNY and SouY
+* metadata: New series were added and the method used to estimate the index was changed for the series: BreY, SeiY, SeNY and SouY
 
-
-6 new series integrated
+* new series 6 new series integrated
 
 OrnY	Orne electrofishing survey
 
@@ -241,17 +234,14 @@ YerY	YerY electrofishing survey
 
 AdoY	Adour elecrofishing survey
 
-modified series => 
+* modified series => 
 5 values 
 
-new dataseries =>  59 new values inserted in the database
+* new dataseries =>  59 new values inserted in the database
 
-updated dataseries => 42 values updated in the db
+* updated dataseries => 42 values updated in the db
 
-new biometry =>  59 new values inserted in the database
-
-
-
+* new biometry =>  59 new values inserted in the database
 
 
 
@@ -259,7 +249,17 @@ new biometry =>  59 new values inserted in the database
 
 metadata : 2018 Biometry data of the FreS serie have been updated and put into the new_biometry sheet; For 2019 SouS serie, estimated could not be made due to exceptional climatic conditions; Biometry data of the SeNS serie have been updated and put into the new_biometry sheet
 
+* new series : no new series
 
+* updated series : 1 value. Comment updated for Vilaine Silver.
+ 
+* new data series : one missing data and all other data provisional (qal_id 4).  One data complete.
+
+* updated data series : 6 new values integrated in the database
+
+* modified data series : 6 provisional data set to qal_id = 4, 10 values updated in the db
+
+* new biometry :  4 new values inserted in the database
 
 ### annex 4
 
