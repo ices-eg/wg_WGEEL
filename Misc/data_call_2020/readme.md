@@ -166,6 +166,7 @@ Files sent to ICES in time
 ## FR (France) 
 
 (CEDRIC)
+
 *Data call sent in time
 Updates expected for other landings (mediterranean lagoons) ... but in the end those landings were already there so there is nothing to change.*
 
@@ -174,6 +175,10 @@ Updates expected for other landings (mediterranean lagoons) ... but in the end t
 ### annex 1
 
 metadata : The method to estimate the index of the GiScG serie was changed this year then it's necessary to delete the 1992 and 1993 lines as the protocol was changed in 1994 and the data before this change were not used in the new method.
+
+One new series : sousGY 2013:2019, does not qualify for entry : too short.
+
+Updates in GiScG series
 
 ### annex 2
 
