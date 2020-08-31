@@ -176,7 +176,8 @@ Updates expected for other landings (mediterranean lagoons) ... but in the end t
 
 metadata : The method to estimate the index of the GiScG serie was changed this year then it's necessary to delete the 1992 and 1993 lines as the protocol was changed in 1994 and the data before this change were not used in the new method.
 
-One new series : sousGY 2013:2019, does not qualify for entry : too short.
+One new series : sousGY 2013:2019, does not qualify for entry : too short.  1 new values inserted in the database
+series : 8 values updated in the db
 
 Updates in GiScG series
 
