@@ -224,6 +224,9 @@ new biometry
 
 ### annex 2
 
+metadata: New series were added and the method used to estimate the index was changed for the series: BreY, SeiY, SeNY and SouY
+
+
 6 new series integrated
 
 OrnY	Orne electrofishing survey
@@ -253,6 +256,10 @@ new biometry =>  59 new values inserted in the database
 
 
 ### annex 3
+
+metadata : 2018 Biometry data of the FreS serie have been updated and put into the new_biometry sheet; For 2019 SouS serie, estimated could not be made due to exceptional climatic conditions; Biometry data of the SeNS serie have been updated and put into the new_biometry sheet
+
+
 
 ### annex 4
 
@@ -524,9 +531,19 @@ Data call sent to ICES in time, one update file sent straight to Cédric and put
 ## SE (Sweden) 
 
 *Data call sent to ICES in time*
-Still waiting for updates on annex  4, 6 and 7  and possibly 2
+New data submitted by Josefin 31/08
+
+We have completed those files now, please use the attached. And I apologise for the inconvenience. The info below has been added to the meta data tabs.
+
+Annex 2: No data with high enough quality in the end, so this file is essentially the same as the one submitted before.
+Annex 4: Commercial landings for 2019 for inland and east.
+Annex 6: Other landings kg and n for 2019.
+Annex 7: restocked and assisted for 2019 (T&T not ready to report). Restocked for 2018 (was not reported last year).
 
 ### annex 1
+
+
+
 
 ### annex 2
 
