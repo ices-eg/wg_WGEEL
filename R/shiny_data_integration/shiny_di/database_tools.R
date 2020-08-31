@@ -1771,3 +1771,38 @@ check_missing_data <- function(complete, newdata, restricted=TRUE) {
 	
 	
 }
+
+
+write_new_participants <- function(p){
+  browser()
+  
+  p <- str_to_title(p)
+  conn <- poolCheckout(pool)
+  message <- NULL
+  exists <- dbGetQuery(conn, str_c("select name from datawg.participants where 
+                                   name='",p,"'"))
+  if (nrow(exists) > 0)
+    message <- str_c("participant ",p," already exists")
+  
+  if (is.null(message)){
+    query <- str_c("INSERT INTO datawg.participants SELECT '",p,"'")
+    tryCatch({     
+      dbExecute(conn, query)
+      message <- str_c("participant ",p," insterted in the db")
+      query <- "SELECT name from datawg.participants order by name asc"
+      participants<<- dbGetQuery(conn, sqlInterpolate(ANSI(), query)) 
+      save(participants,list_country,typ_id,the_years,t_eelstock_eel_fields, file=str_c(getwd(),"/common/data/init_data.Rdata"))
+    }, error = function(e) {
+      message <- e  
+      cat("step1 message :")
+      print(message)   
+    }, finally = {
+      #poolReturn(conn)
+      
+    })
+  }
+  
+  poolReturn(conn)
+  
+  return (message)
+}

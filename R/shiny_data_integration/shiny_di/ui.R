@@ -18,10 +18,11 @@ ui <- dashboardPage(title="ICES Data Integration",
 						menuItem("Import",tabName= "import", icon= icon("align-left")),
 						menuItem("Import Time Series",tabName= "import_ts", icon= icon("align-left")),					
 						menuItem("Edit", tabName="edit", icon=icon("table")),
-						menuItem("Plot duplicates", tabName='plot_duplicates',icon= icon("area-chart")#,
+						menuItem("Plot duplicates", tabName='plot_duplicates',icon= icon("area-chart")),
+						menuItem("New Participants", tabName='integrate_new_participants',icon= icon("user-friends"))
 						#menuSubItem("Plot duplicates",  tabName="plot_duplicates"),
 						#menuSubItem("plot2", tabName="plot2")
-						),
+						,
 						pickerInput(
 								inputId = "main_assessor",
 								label = "Main assessor (National)", 
@@ -379,6 +380,20 @@ ui <- dashboardPage(title="ICES Data Integration",
 												plotlyOutput("plotly_selected_year"))
 								),     
 								dataTableOutput("datatablenearpoints",width='100%')                                        
+						),
+						tabItem(tabName="integrate_new_participants",
+						        h2("Enter the name of a new participant"),
+						        fluidRow(
+						          column(width=10,textInput("new_participants_id", "Enter the name of the new participant (FirstName LastName)",
+						                                   value=""
+						          )),
+						          column(width=2,  actionButton(inputId="new_participants_ok", label="Validate"))
+						        ),
+						        
+						        fluidRow(
+						          column(width=10,
+						                 htmlOutput("new_participants_txt")
+						        ))
 						)#,
 				
 				# second plot (not dev yet) -------------------------------------------------------------
