@@ -20,15 +20,32 @@ General notes (feedback on datacall for next year are there : https://github.com
 ---------------------------
 
  
-## BE (Belgium) 
+## BE (Belgium)
+(HILAIRE)
 
-Files sent to ICES 26/08, not copied to wgeel folder yet.
+Files sent to ICES 26/08
+Add a new participants as main assessor: Kristof Vlietinck
 
 ### annex 1
+* new dataseries
+  * VeAmGY data from 2010 to 2016 not taken into account (monitoring started in 2017)
+  * all new dataseries qal_id set to 3 because very impacted by covid crisis
+  * 3 rows integrated
+* new biometry: no data
+* modified series
+  * updates the location of YserG which was in sea in front of Dunkerque
+  * update of datasource
+  * updates units and description of VeAmGY
+  * 3 rows updated
+* modified dataseries
+  * updated value for MeusY (incomplete value in 2019)
+
 
 ### annex 2
+Empty
 
 ### annex 3
+Empty
 
 ### annex 4
 
@@ -46,7 +63,8 @@ Files sent to ICES 26/08, not copied to wgeel folder yet.
 
 ## DE (Germany) 
 
-The data call files we be late by one week, mail explaining why (some landers didn't answer ... files incomplete)
+*The data call files we be late by one week, mail explaining why (some landers didn't answer ... files incomplete)
+Files sent 28/08 to ICES. Data on the server*
 
 ### annex 1
 
@@ -68,7 +86,7 @@ The data call files we be late by one week, mail explaining why (some landers di
 
  ## DK (Denmark) 
 
-Received 28/08 in ICES submission (I didn't copy it to ICES folder yet)
+*Received 28/08 in ICES submission*
 
 ### annex 1
 
@@ -93,7 +111,7 @@ Received 28/08 in ICES submission (I didn't copy it to ICES folder yet)
  
 ## EE (Estonia) 
 
-Files sent to ICES  in time
+*Files sent to ICES  in time*
 
 ### annex 1
 
@@ -116,7 +134,7 @@ Files sent to ICES  in time
  
 ## ES (Spain) 
 
-Mail from ICES not received, working on it. Recruitment file sent straight by Esti.
+*Mail from ICES not received, working on it. Recruitment file sent straight by Esti.*
 
 ### annex 1
 
@@ -164,12 +182,45 @@ Files sent to ICES in time
  
 ## FR (France) 
 
-Data call sent in time
-Updates expected for other landings (mediterranean lagoons) ... finally no landings are in commercial landings.
+(CEDRIC)
+
+*Data call sent in time
+Updates expected for other landings (mediterranean lagoons) ... but in the end those landings were already there so there is nothing to change.*
+
+
 
 ### annex 1
 
+metadata : The method to estimate the index of the GiScG serie was changed this year then it's necessary to delete the 1992 and 1993 lines as the protocol was changed in 1994 and the data before this change were not used in the new method.
+
+One new series : sousGY 2013:2019, does not qualify for entry : too short.  1 new values inserted in the database
+series : 8 values updated in the db
+
+Updates in GiScG series
+
+**TODO** change ccm wso_id for Frémur, and find the one for SOUSTONS
+
 ### annex 2
+
+new series (6)
+
+OrnY	Orne electrofishing survey
+
+SciY	Scie electrofishing survey
+
+TouY	Touques electrofishing survey
+
+VirY	VirY electrofishing survey
+
+YerY	YerY electrofishing survey
+
+AdoY	Adour elecrofishing survey
+
+ 6 new values inserted in the database
+ 
+ 
+ 
+
 
 ### annex 3
 
@@ -188,7 +239,7 @@ Updates expected for other landings (mediterranean lagoons) ... finally no landi
  
 ## GB (Great Britain) 
 
-Data call sent to ICES in time.
+*Data call sent to ICES in time.*
 **TODO** Change series names and replace E (Elver) with GY or G.
 
 ### annex 1
@@ -236,7 +287,7 @@ Data call sent to ICES in time, one update file sent straight to Cédric and put
  
 ## IT (Italy) 
 
-Nothing yet
+*Nothing yet*
 
 ### annex 1
 
@@ -260,7 +311,7 @@ Nothing yet
  
 ## GR (Greece) 
 
-Data call sent to ICES in time
+*Data call sent to ICES in time*
 
 ### annex 1
 
@@ -283,7 +334,7 @@ Data call sent to ICES in time
  
 ## HR (Croatia) 
 
-File sent to ICES 25/08 not copied to ICES folder yet.
+*File sent to ICES 25/08.*
 
 ### annex 1
 
@@ -301,14 +352,13 @@ File sent to ICES 25/08 not copied to ICES folder yet.
 
 ### annex 8
 
----------------------------
 
 ---------------------------
 
  
 ## LV (Latvia) 
 
-Data call sent to ICES in time
+*Data call sent to ICES in time*
 
 ### annex 1
 
@@ -331,7 +381,7 @@ Data call sent to ICES in time
  
 ## MA (Morocco) 
 
-check with Fatima
+*No data, check with Fatima*
 
 ### annex 1
 
@@ -353,7 +403,7 @@ check with Fatima
  
 ## NO (Norway) 
 
-Data call sent to ICES in time
+*Data call sent to ICES in time*
 
 ### annex 1
 
@@ -374,7 +424,7 @@ Data call sent to ICES in time
 
 ## NL (Netherlands) 
 
-First to answer the datacall
+*First to answer the datacall*
 
 ### annex 1
 
@@ -397,7 +447,7 @@ First to answer the datacall
 
 ## PL (Poland) 
 
-Data call sent to ICES in time
+*Data call sent to ICES in time*
 
 ### annex 1
 
@@ -419,7 +469,7 @@ Data call sent to ICES in time
 
 ## PT (Portugal) 
 
-Data call sent to ICES in time
+*Data call sent to ICES in time*
 
 ### annex 1
 
@@ -443,8 +493,8 @@ Data call sent to ICES in time
  
 ## SE (Sweden) 
 
-Data call sent to ICES in time
-Still waiting for updates on annex  4, 6 and 7  and possibly too
+*Data call sent to ICES in time*
+Still waiting for updates on annex  4, 6 and 7  and possibly 2
 
 ### annex 1
 
@@ -467,7 +517,7 @@ Still waiting for updates on annex  4, 6 and 7  and possibly too
  
 ## TN (Tunisia) 
 
-Nothing yet
+*Nothing yet*
 
 ### annex 1
 
@@ -490,7 +540,7 @@ Nothing yet
  
 ## TR (Turkey) 
 
-Nothing yet, check with Sukran
+*Nothing yet, check with Sukran*
 
 ### annex 1
 

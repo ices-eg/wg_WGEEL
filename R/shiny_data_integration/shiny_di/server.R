@@ -90,7 +90,7 @@ shinyServer(function(input, output, session){
 						query <- "SELECT min(eel_year) as min_year, max(eel_year) as max_year from datawg.t_eelstock_eel eel_cou "
 						the_years <<- dbGetQuery(pool, sqlInterpolate(ANSI(), query))   
 						
-						query <- "SELECT name from datawg.participants"
+						query <- "SELECT name from datawg.participants order by name asc"
 						participants<<- dbGetQuery(pool, sqlInterpolate(ANSI(), query))  
 						# save(participants,list_country,typ_id,the_years,t_eelstock_eel_fields, file=str_c(getwd(),"/common/data/init_data.Rdata"))
 						
@@ -1045,7 +1045,6 @@ shinyServer(function(input, output, session){
 														scroller = TRUE,
 														scrollX = TRUE,
 														scrollY = "500px",
-														order=list(3,"asc"),
 														lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
 														"pagelength"=-1,
 														dom= "Blfrtip",
@@ -1109,7 +1108,6 @@ shinyServer(function(input, output, session){
 														scroller = TRUE,
 														scrollX = TRUE,
 														scrollY = "500px",
-														order=list(3,"asc"),
 														lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
 														"pagelength"=-1,
 														dom= "Blfrtip",
@@ -1129,7 +1127,6 @@ shinyServer(function(input, output, session){
 														scroller = TRUE,
 														scrollX = TRUE,
 														scrollY = "500px",
-														order=list(3,"asc"),
 														lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
 														"pagelength"=-1,
 														dom= "Blfrtip",
@@ -1194,11 +1191,9 @@ shinyServer(function(input, output, session){
 														scroller = TRUE,
 														scrollX = TRUE,
 														scrollY = "500px",
-														order=list(3,"asc"),
 														lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
 														"pagelength"=-1,
 														dom= "Blfrtip",
-														scrollX = T, 
 														buttons=list(
 																list(extend="excel",
 																		filename = paste0("highlight_change_newdata_dataseries_",input$file_type_ts,"_",Sys.Date(),"_",current_cou_code))) 
@@ -1714,6 +1709,15 @@ shinyServer(function(input, output, session){
 					}, ignoreNULL = TRUE) # additional arguments to observe ...
 			
 			
+			# Insert new participants
+			observeEvent(input$new_participants_ok,{
+			  validate(need(data$connectOK,"No connection"))
+			  validate(need(nchar(input$new_participants_id)>0,"need a participant name"))
+			  message <- write_new_participants(input$new_participants_id)
+			  output$new_participants_txt <- renderText({message}) 
+			  updatePickerInput(session=session,"main_assessor",choices=participants)
+			  updatePickerInput(session=session,"secondary_assessor",choices=participants)
+			})
 			
 			
 			
