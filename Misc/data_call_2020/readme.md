@@ -65,6 +65,8 @@ Empty
   * old estimates in BE_Meus and BE_Sche for Y. removed NP in eel_missavalueequal since a value was provided. qal_id=4
   * data provider has deleted all NP for C, T and MO habitats, but they correspond to NP: we should tell him to leave this next year
   * 250 new values inserted in the database
+* updated values:
+  * 2 values updated in the db
 
 
 ### annex 6
