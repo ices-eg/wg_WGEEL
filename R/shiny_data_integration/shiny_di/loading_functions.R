@@ -43,7 +43,7 @@ load_catch_landings<-function(path,datasource){
     data_xls<-read_excel(
         path=path,
         sheet =sheet,
-        skip=0)
+        skip=0, guess_max=10000)
     data_error <- data.frame(nline = NULL, error_message = NULL)
     country=as.character(data_xls[1,6])
 #    data_xls <- correct_me(data_xls)
