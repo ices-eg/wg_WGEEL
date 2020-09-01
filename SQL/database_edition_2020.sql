@@ -319,6 +319,9 @@ update datawg.t_eelstock_eel set eel_typ_id =11,
 	
 
 	INSERT INTO datawg.participants SELECT 'Clarisse Boulenger';
+	INSERT INTO datawg.participants SELECT 'Tessa Vanderhammen';
+
+SELECT * FROM datawg.participants ORDER BY 1
 --------------------------
 /* RCODE
  pool <- pool::dbPool(drv = dbDriver("PostgreSQL"),

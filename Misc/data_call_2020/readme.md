@@ -523,7 +523,7 @@ Data call sent to ICES in time, one update file sent straight to Cédric and put
  
 ## NO (Norway) 
 
-*Data call sent to ICES in time*
+*No data yet*
 
 ### annex 1
 
@@ -548,7 +548,17 @@ Data call sent to ICES in time, one update file sent straight to Cédric and put
 
 ### annex 1
 
+No new series 
+
+modified series = > 5 values updated in the db
+
+new dataseries => 5 new values
+
+biometry => No biometry
+
 ### annex 2
+
+
 
 ### annex 3
 
@@ -593,6 +603,12 @@ Data call sent to ICES in time, one update file sent straight to Cédric and put
 
 ### annex 1
 
+* Modified series => 1 value
+
+* new dataseries => 5
+
+* Modified dataseries => 4 values
+
 ### annex 2
 
 ### annex 3
@@ -616,7 +632,7 @@ Data call sent to ICES in time, one update file sent straight to Cédric and put
 *Data call sent to ICES in time*
 New data submitted by Josefin 31/08
 
-We have completed those files now, please use the attached. And I apologise for the inconvenience. The info below has been added to the meta data tabs.
+We have completed those files now, please use the attached. The info below has been added to the meta data tabs.
 
 Annex 2: No data with high enough quality in the end, so this file is essentially the same as the one submitted before.
 Annex 4: Commercial landings for 2019 for inland and east.
@@ -624,6 +640,8 @@ Annex 6: Other landings kg and n for 2019.
 Annex 7: restocked and assisted for 2019 (T&T not ready to report). Restocked for 2018 (was not reported last year).
 
 ### annex 1
+
+
 
 
 
