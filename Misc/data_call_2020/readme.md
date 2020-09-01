@@ -125,6 +125,11 @@ none
 * updated data : nothing
 
 ### annex 5
+* new data:
+  * mostly NP or NC for old data
+  * a few data for DE_Warn from 2017 to 2019, eel_qal_id=4 given comments
+  * 1846 new values inserted in the database
+* updated data: nothing
 
 ### annex 6
 
