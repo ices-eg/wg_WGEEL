@@ -119,6 +119,10 @@ none
 
 
 ### annex 4
+* new data:
+  * removed some duplicates DE_Warn Y and S from 2017 to 2019 due to bug in template filling procedure (chech with Lasse Marohn)
+  * 1862 new values inserted in the database
+* updated data : nothing
 
 ### annex 5
 
