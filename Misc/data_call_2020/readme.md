@@ -56,16 +56,27 @@ Empty
   * mostly NP for past data
   * values for YS in BE_Sche till 2005 in F. Same value for all years, not official data but rough estimate. qal_id=4
   * data provider has deleted all NP for C, T and MO habitats, but they correspond to NP: we should tell him to leave this next year
+  * 231 new values inserted in the database
 * updated data: none
 
 ### annex 5
+* new data:
+  * mostly NP for past data
+  * old estimates in BE_Meus and BE_Sche for Y. removed NP in eel_missavalueequal since a value was provided. qal_id=4
+  * data provider has deleted all NP for C, T and MO habitats, but they correspond to NP: we should tell him to leave this next year
+  * 250 new values inserted in the database
+* updated values:
+  * 2 values updated in the db
+
 
 ### annex 6
+none
 
 ### annex 7
+release only provided in kg. Asked for numbers to the data provider.
 
 ### annex 8
-
+none
 
 ---------------------------
 
@@ -123,7 +134,18 @@ none
 
 *Received 28/08 in ICES submission*
 
+CEDRIC
+
 ### annex 1
+
+* new series : no new series
+
+* modified series : 7 values updated in the db
+
+* new dataseries : 10
+
+* biometry = nothing
+
 
 ### annex 2
 
@@ -172,6 +194,22 @@ none
 *Mail from ICES not received, working on it. Recruitment file sent straight by Esti.*
 
 ### annex 1
+
+* New series => MiSpY 1, qal_id 0
+
+*TODO* update ccm catchment
+
+* Updated series => 5 values updated in the db
+
+* New dataseries => 9
+
+* Modified dataseries => added comments, all values in Oria changed. 8 values changed
+
+* No biometry.
+
+
+
+
 
 ### annex 2
 
@@ -336,9 +374,18 @@ Decision for inclusion new, series
  
  * modified series => 12 values updated in the db
  
- *  94 new values inserted in the database, Qal_id set to 4 for series to be updated, 0 for missing data, removed lines automatically generated saying "no data".
+ *  new dataseries => 94 new values inserted in the database, Qal_id set to 4 for series to be updated, 0 for missing data, removed lines automatically generated saying "no data".
  
- * 
+ * modified dataseries => 12 values updated in the db
+ 
+ * new biometry =>  110 new values inserted in the database
+ 
+ 
+ 
+ --------------------------------------------------------------
+ 
+ 
+ 
  
  
 
@@ -502,7 +549,7 @@ Data call sent to ICES in time, one update file sent straight to Cédric and put
  
 ## NO (Norway) 
 
-*Data call sent to ICES in time*
+*No data yet*
 
 ### annex 1
 
@@ -527,7 +574,17 @@ Data call sent to ICES in time, one update file sent straight to Cédric and put
 
 ### annex 1
 
+No new series 
+
+modified series = > 5 values updated in the db
+
+new dataseries => 5 new values
+
+biometry => No biometry
+
 ### annex 2
+
+
 
 ### annex 3
 
@@ -572,6 +629,12 @@ Data call sent to ICES in time, one update file sent straight to Cédric and put
 
 ### annex 1
 
+* Modified series => 1 value
+
+* new dataseries => 5
+
+* Modified dataseries => 4 values
+
 ### annex 2
 
 ### annex 3
@@ -595,7 +658,7 @@ Data call sent to ICES in time, one update file sent straight to Cédric and put
 *Data call sent to ICES in time*
 New data submitted by Josefin 31/08
 
-We have completed those files now, please use the attached. And I apologise for the inconvenience. The info below has been added to the meta data tabs.
+We have completed those files now, please use the attached. The info below has been added to the meta data tabs.
 
 Annex 2: No data with high enough quality in the end, so this file is essentially the same as the one submitted before.
 Annex 4: Commercial landings for 2019 for inland and east.
@@ -604,8 +667,13 @@ Annex 7: restocked and assisted for 2019 (T&T not ready to report). Restocked fo
 
 ### annex 1
 
+* new series => no new series
 
+* Modified series => 10 values updated in the db
 
+* new dataseries => 10 new values inserted in the database
+
+* new biometry =>  121 new values inserted in the database
 
 ### annex 2
 

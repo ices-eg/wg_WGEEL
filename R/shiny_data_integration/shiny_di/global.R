@@ -75,7 +75,7 @@ load("common/data/ccm.rdata")
 
 source("database_tools.R")
 source("graphs.R")
-options(shiny.maxRequestSize=15*1024^2) #15 MB for excel files
+options(shiny.maxRequestSize=20*1024^2) #20 MB for excel files
 #pool <- pool::dbPool(drv = dbDriver("PostgreSQL"),
 #		dbname="postgres",
 #		host="localhost",

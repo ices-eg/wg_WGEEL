@@ -32,7 +32,7 @@ shinyServer(function(input, output, session){
 			load_database <- reactive({
 						# take a dependency on passwordbutton
 						req(input$passwordbutton)						
-						port <- 5432
+						port <- 5435
 						host <- "localhost"#"192.168.0.100"
 						userwgeel <-"wgeel"
 						# we use isolate as we want no dependency on the value (only the button being clicked)
