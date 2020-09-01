@@ -52,6 +52,10 @@ Empty
 Empty
 
 ### annex 4
+* new_data:
+  * mostly NP for past data
+  * values for YS in BE_Sche till 2005 in F. Same value for all years, not official data but rough estimate. qal_id=4
+* updated data: none
 
 ### annex 5
 
