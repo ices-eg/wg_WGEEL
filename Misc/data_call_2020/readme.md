@@ -76,6 +76,7 @@ Files sent 28/08 to ICES. Data on the server*
   * WisWGY, WisWGY, WaSEY, WaSG, BrokGY, LangGY, VerlGY, WaSEY qal_id 4 given comments
   * DoElY, DoFpY, EmsBGY, EmsHG, FarpGY, WaSEY, WaSG qal_id 1
   * Not considered (series not started or ended): HHKGY after 2013, BrokGY before 2012, EmsBGY before 2013, EmsHG before 2014, LangGY before 2015, WaSEY before 2015, WaSG before 2015, HoSGY other than 2010
+  * 14 new values inserted in the database
 * modified series:
   * update of datasource
   * update of coordinates of EmsG which was too far in the West
