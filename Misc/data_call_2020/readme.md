@@ -128,6 +128,15 @@ CEDRIC
 
 ### annex 1
 
+* new series : no new series
+
+* modified series : 7 values updated in the db
+
+* new dataseries : 10
+
+* biometry = nothing
+
+
 ### annex 2
 
 ### annex 3
