@@ -142,6 +142,13 @@ nothing
   * 135 values updated in the db
 
 ### annex 8
+* new_data
+  * 2 values, eel_qal_id=4 (provisional data)
+  * 2 new values inserted in the database
+* duplicates:
+  * update of some values which were in tonnes instead of kg
+  * For duplicates 4 values replaced in the database (old values kept with code eel_qal_id=20) / 0 values not replaced (values from current datacall stored with code eel_qal_id 20)
+
 
 ---------------------------
 
