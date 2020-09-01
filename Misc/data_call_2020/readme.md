@@ -73,6 +73,7 @@ Empty
 none
 
 ### annex 7
+release only provided in kg. Asked for numbers to the data provider.
 
 ### annex 8
 none
