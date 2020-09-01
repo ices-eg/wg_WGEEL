@@ -56,6 +56,7 @@ Empty
   * mostly NP for past data
   * values for YS in BE_Sche till 2005 in F. Same value for all years, not official data but rough estimate. qal_id=4
   * data provider has deleted all NP for C, T and MO habitats, but they correspond to NP: we should tell him to leave this next year
+  * 231 new values inserted in the database
 * updated data: none
 
 ### annex 5
