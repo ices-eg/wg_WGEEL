@@ -39,7 +39,7 @@ Add a new participants as main assessor: Kristof Vlietinck
   * updates the location of YserG which was in sea in front of Dunkerque
   * update of datasource
   * updates units and description of VeAmGY
-  * 3 rows updated
+  * 3 values updated in the db
 * modified dataseries
   * updated value for MeusY (incomplete value in 2019)
   * 1 value updated
