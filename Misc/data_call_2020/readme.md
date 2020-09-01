@@ -135,6 +135,10 @@ none
 nothing 
 
 ### annex 7
+* new data:
+  * 56 new values inserted in the database
+* updated data:
+  * 
 
 ### annex 8
 
