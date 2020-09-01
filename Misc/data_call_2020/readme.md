@@ -651,10 +651,13 @@ Annex 7: restocked and assisted for 2019 (T&T not ready to report). Restocked fo
 
 ### annex 1
 
+* new series => no new series
 
+* Modified series => 10 values updated in the db
 
+* new dataseries => 10 new values inserted in the database
 
-
+* new biometry =>  121 new values inserted in the database
 
 ### annex 2
 
