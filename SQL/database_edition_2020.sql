@@ -344,3 +344,4 @@ COMMIT;
 
 
 SELECT * FROM datawg.t_series_ser WHERE ser_cou_code = 'GB' ORDER BY ser_nameshort;
+SELECT * FROM datawg.t_series_ser WHERE ser_nameshort = 'BeeGY' ;

@@ -298,6 +298,28 @@ I've made a link between stage in the table and name, so RodE for yellow eel bec
 
 Changed location to Colleraine for the Bann
 
+Decision for inclusion new, series
+
+| ser_qal_id 	| ser_qal_comment 	|            	|
+|------------	|-----------------	|------------	|
+| BeeGY      	| 0               	| < 10 years 	|
+| BeeY       	| 0               	| < 10 years 	|
+| NmiGY      	| 1               	| > 10 years 	|
+| OatY       	| 0               	| < 10 years 	|
+| MillY      	| 0               	| < 10 years 	|
+| RodY       	| 1               	| > 10 years 	|
+| MolY       	| 1               	| > 10 years 	|
+| MerY       	| 0               	| 9 years    	|
+ 
+ 8 new values inserted in the database
+ 
+ * modified series => 12 values updated in the db
+ 
+ *  94 new values inserted in the database, Qal_id set to 4 for series to be updated, 0 for missing data, removed lines automatically generated saying "no data".
+ 
+ * 
+ 
+ 
 
 
 ### annex 2
