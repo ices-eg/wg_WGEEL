@@ -138,7 +138,8 @@ nothing
 * new data:
   * 56 new values inserted in the database
 * updated data:
-  * 
+  * mostly lfs_code correction, a few values corrections and some rows deletion
+  * 135 values updated in the db
 
 ### annex 8
 
