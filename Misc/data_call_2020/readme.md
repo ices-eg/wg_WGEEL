@@ -315,9 +315,18 @@ Decision for inclusion new, series
  
  * modified series => 12 values updated in the db
  
- *  94 new values inserted in the database, Qal_id set to 4 for series to be updated, 0 for missing data, removed lines automatically generated saying "no data".
+ *  new dataseries => 94 new values inserted in the database, Qal_id set to 4 for series to be updated, 0 for missing data, removed lines automatically generated saying "no data".
  
- * 
+ * modified dataseries => 12 values updated in the db
+ 
+ * new biometry =>  110 new values inserted in the database
+ 
+ 
+ 
+ --------------------------------------------------------------
+ 
+ 
+ 
  
  
 
