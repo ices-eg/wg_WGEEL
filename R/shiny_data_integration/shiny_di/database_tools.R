@@ -1309,7 +1309,7 @@ update_dataseries <- function(path) {
 	# create dataset for insertion -------------------------------------------------------------------
 	
 	updated_values_table$das_qal_id <- as.integer(updated_values_table$das_qal_id)
-
+	updated_values_table$das_effort <- as.numeric(updated_values_table$das_effort)
 	
 	conn <- poolCheckout(pool)
 	dbExecute(conn,"drop table if exists updated_dataseries_temp ")
