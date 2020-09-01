@@ -13,6 +13,8 @@ General notes (feedback on datacall for next year are there : https://github.com
 **TODO** something to be done at series level
 
 
+**TODO** Stations all series ... manually
+
 
 # Series integration 
 
@@ -200,7 +202,6 @@ Files sent to ICES in time
 Updates expected for other landings (mediterranean lagoons) ... but in the end those landings were already there so there is nothing to change.*
 
 
-
 ### annex 1
 
 * metadata : The method to estimate the index of the GiScG serie was changed this year then it's necessary to delete the 1992 and 1993 lines as the protocol was changed in 1994 and the data before this change were not used in the new method.
@@ -280,6 +281,24 @@ metadata : 2018 Biometry data of the FreS serie have been updated and put into t
 **TODO** Change series names and replace E (Elver) with GY or G.
 
 ### annex 1
+
+
+* new series
+changed series names as following, I've only kept E for two series where you already have GY and Y, these two were already in the database.
+I've made a link between stage in the table and name, so RodE for yellow eel becomes RodY
+
+  * BeeGY	Beeleigh_Elver_>80mm
+  * BeeY	Beeleigh_Yellow_>120mm
+  * NmiGY	New Mills Elvers/Yellow (>120mm)
+  * OatY	Oath Lock Yellow (>120mm)
+  * MillY	Thames - Hogsmill  Middle Mill
+  * RodY	Thames - Roding
+  * MolY	Thames-Molesey weir
+  * MerY	Thames - Wandle - Merton Abbey Mills
+
+Changed location to Colleraine for the Bann
+
+
 
 ### annex 2
 

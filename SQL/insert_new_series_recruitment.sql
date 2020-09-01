@@ -570,3 +570,11 @@ UPDATE datawg.t_series_se
 
 
 SELECT * FROM datawg.t_series_ser WHERE ser_nameshort ='RhDOG'
+
+
+BEGIN;
+UPDATE datawg.t_series_ser SET geom=ST_SETSRID(ST_MakePoint(-6.66658,55.11531),4326) WHERE ser_nameshort='BannGY';
+UPDATE datawg.t_series_ser SET (ser_x,ser_y)=(st_x(geom),st_y(geom)) WHERE ser_nameshort = 'BannGY';
+COMMIT;
+
+

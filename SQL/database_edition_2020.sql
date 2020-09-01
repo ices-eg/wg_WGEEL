@@ -334,3 +334,13 @@ update datawg.t_eelstock_eel set eel_typ_id =11,
 ---------------------------------------------------------
 
 SELECT * FROM datawg.t_series_ser WHERE ser_nameshort LIKE '%Sous%'
+
+
+
+BEGIN;
+UPDATE datawg.t_series_ser SET geom=ST_SETSRID(ST_MakePoint(-6.66658,55.11531),4326) WHERE ser_nameshort='BannGY';
+UPDATE datawg.t_series_ser SET (ser_x,ser_y)=(st_x(geom),st_y(geom)) WHERE ser_nameshort = 'BannGY';
+COMMIT;
+
+
+SELECT * FROM datawg.t_series_ser WHERE ser_cou_code = 'GB' ORDER BY ser_nameshort;
