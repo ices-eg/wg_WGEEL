@@ -39,9 +39,10 @@ Add a new participants as main assessor: Kristof Vlietinck
   * updates the location of YserG which was in sea in front of Dunkerque
   * update of datasource
   * updates units and description of VeAmGY
-  * 3 rows updated
+  * 3 values updated in the db
 * modified dataseries
   * updated value for MeusY (incomplete value in 2019)
+  * 1 value updated
 
 
 ### annex 2
@@ -51,6 +52,12 @@ Empty
 Empty
 
 ### annex 4
+* new_data:
+  * mostly NP for past data
+  * values for YS in BE_Sche till 2005 in F. Same value for all years, not official data but rough estimate. qal_id=4
+  * data provider has deleted all NP for C, T and MO habitats, but they correspond to NP: we should tell him to leave this next year
+  * 231 new values inserted in the database
+* updated data: none
 
 ### annex 5
 
@@ -75,16 +82,31 @@ Files sent 28/08 to ICES. Data on the server*
   * WisWGY, WisWGY, WaSEY, WaSG, BrokGY, LangGY, VerlGY, WaSEY qal_id 4 given comments
   * DoElY, DoFpY, EmsBGY, EmsHG, FarpGY, WaSEY, WaSG qal_id 1
   * Not considered (series not started or ended): HHKGY after 2013, BrokGY before 2012, EmsBGY before 2013, EmsHG before 2014, LangGY before 2015, WaSEY before 2015, WaSG before 2015, HoSGY other than 2010
+  * 14 new values inserted in the database
 * modified series:
   * update of datasource
   * update of coordinates of EmsG which was too far in the West
 * updated dataseries
   * 7 values updates corresponding to finalization of data (3 LangGY, 2 BrokGY, 1 EmsBGY, 1 VerlGY). qal_id 1
+  * 7 values updated in the db
 * biometry: nothing
 
 ### annex 2
+none
 
 ### annex 3
+* new series: none
+* modified series:
+  * only datasource updated (WarS)
+  * 1 values updated in the db
+* new dataseries
+  * qal_id set to 1 given comment (WarS)
+  * 1 new values inserted in the database
+* modified data series
+  * update of value for 2019 qal_id=1 (WarS)
+  * 1 values updated in the db
+* biometry: nothing
+
 
 ### annex 4
 
@@ -101,6 +123,8 @@ Files sent 28/08 to ICES. Data on the server*
  ## DK (Denmark) 
 
 *Received 28/08 in ICES submission*
+
+CEDRIC
 
 ### annex 1
 
