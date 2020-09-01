@@ -86,8 +86,21 @@ Files sent 28/08 to ICES. Data on the server*
 * biometry: nothing
 
 ### annex 2
+none
 
 ### annex 3
+* new series: none
+* modified series:
+  * only datasource updated (WarS)
+  * 1 values updated in the db
+* new dataseries
+  * qal_id set to 1 given comment (WarS)
+  * 1 new values inserted in the database
+* modified data series
+  * update of value for 2019 qal_id=1 (WarS)
+  * 1 values updated in the db
+* biometry: nothing
+
 
 ### annex 4
 
