@@ -195,6 +195,22 @@ CEDRIC
 
 ### annex 1
 
+* New series => MiSpY 1, qal_id 0
+
+*TODO* update ccm catchment
+
+* Updated series => 5 values updated in the db
+
+* New dataseries => 9
+
+* Modified dataseries => added comments, all values in Oria changed. 8 values changed
+
+* No biometry.
+
+
+
+
+
 ### annex 2
 
 ### annex 3
