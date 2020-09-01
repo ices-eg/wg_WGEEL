@@ -571,7 +571,7 @@ compare_with_database_biometry <- function(data_from_excel, data_from_base, shee
 #' }
 #' @rdname write_duplicate
   write_duplicates <- function(path, qualify_code = 19) {
-	
+
 	duplicates2 <- read_excel(path = path, sheet = 1, skip = 1)
 	
 	# Initial checks ----------------------------------------------------------------------------------
@@ -742,9 +742,9 @@ compare_with_database_biometry <- function(data_from_excel, data_from_base, shee
 	# running this with more than one sesssion might lead to crash
 	conn <- poolCheckout(pool)
 	dbExecute(conn,str_c("drop table if exists not_replaced_temp_",cou_code) )
-	dbWriteTable(conn,str_c("not_replaced_temp_", cou_code),not_replaced,temporary=TRUE,row.names=FALSE )
+	dbWriteTable(conn,str_c("not_replaced_temp_", tolower(cou_code)),not_replaced,temporary=TRUE,row.names=FALSE )
 	dbExecute(conn,str_c("drop table if exists replaced_temp_",cou_code) )
-	dbWriteTable(conn, str_c("replaced_temp_", cou_code), replaced,temporary=TRUE,row.names=FALSE )
+	dbWriteTable(conn, str_c("replaced_temp_", tolower(cou_code)), replaced,temporary=TRUE,row.names=FALSE )
 	
 	
 	# Insertion of the three queries ----------------------------------------------------------------
@@ -1780,8 +1780,7 @@ check_missing_data <- function(complete, newdata, restricted=TRUE) {
 
 
 write_new_participants <- function(p){
-  browser()
-  
+
   p <- str_to_title(p)
   conn <- poolCheckout(pool)
   message <- NULL
