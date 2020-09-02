@@ -222,6 +222,7 @@ CEDRIC
 *TODO* update ccm catchment
 
 * Updated series => 5 values updated in the db
+* updated series (second round by Esti) 4 values updated in the db
 
 * New dataseries => 9
 
