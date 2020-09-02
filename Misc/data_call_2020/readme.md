@@ -411,6 +411,12 @@ Decision for inclusion new, series
 
 * Updated coordinates for series KilY
 
+```sql
+BEGIN;
+UPDATE datawg.t_series_ser SET geom=ST_SETSRID(ST_MakePoint(-5.6338,54.26285),4326) WHERE ser_nameshort='KilY';
+UPDATE datawg.t_series_ser SET (ser_x,ser_y)=(st_x(geom),st_y(geom)) WHERE ser_nameshort = 'KilY';
+COMMIT;
+```
 * no new series
 
 * modified series  44 values updated in the db
@@ -435,6 +441,13 @@ UPDATE datawg.t_dataseries_das set(das_value,das_effort,das_qal_id)=(NULL,NULL, 
 
 * new series : FowS;LevS, added ccm basins. Set to qal_id 1 by default (no information indicating otherwise).
 
+edition : coordinates for the strangford silver eel trap, again on the Killough river.
+```sql
+BEGIN;
+UPDATE datawg.t_series_ser SET geom=ST_SETSRID(ST_MakePoint(-5.6338,54.26285),4326) WHERE ser_nameshort='StrS';
+UPDATE datawg.t_series_ser SET (ser_x,ser_y)=(st_x(geom),st_y(geom)) WHERE ser_nameshort = 'StrS';
+COMMIT;
+```
 Error: Failed to fetch row: ERROR:  duplicate key value violates unique constraint "unique_name_short"
 DETAIL:  Key (ser_nameshort)=(FowS) already exists.
 

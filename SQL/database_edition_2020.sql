@@ -369,4 +369,9 @@ UPDATE datawg.t_dataseries_das SET das_qal_id= 1 WHERE das_qal_id IS NULL AND da
 UPDATE datawg.t_dataseries_das SET (das_value,das_qal_id)=(NULL,0) WHERE das_ser_id=271 AND das_year=2008;
 UPDATE datawg.t_dataseries_das set(das_value,das_effort,das_qal_id)=(NULL,NULL, 0) WHERE das_value=0 AND das_year=2000 AND das_ser_id=271;
 
-SELECT  * FROM datawg.t_series_ser WHERE ser_nameshort = 'FowS' ;
+SELECT  * FROM datawg.t_series_ser WHERE ser_nameshort = 'StrS' ;
+
+BEGIN;
+UPDATE datawg.t_series_ser SET geom=ST_SETSRID(ST_MakePoint(-5.6338,54.26285),4326) WHERE ser_nameshort='StrS';
+UPDATE datawg.t_series_ser SET (ser_x,ser_y)=(st_x(geom),st_y(geom)) WHERE ser_nameshort = 'StrS';
+COMMIT;
