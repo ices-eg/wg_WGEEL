@@ -119,14 +119,36 @@ none
 
 
 ### annex 4
+* new data:
+  * removed some duplicates DE_Warn Y and S from 2017 to 2019 due to bug in template filling procedure (chech with Lasse Marohn)
+  * 1862 new values inserted in the database
+* updated data : nothing
 
 ### annex 5
+* new data:
+  * mostly NP or NC for old data
+  * a few data for DE_Warn from 2017 to 2019, eel_qal_id=4 given comments
+  * 1846 new values inserted in the database
+* updated data: nothing
 
 ### annex 6
+nothing 
 
 ### annex 7
+* new data:
+  * 56 new values inserted in the database
+* updated data:
+  * mostly lfs_code correction, a few values corrections and some rows deletion
+  * 135 values updated in the db
 
 ### annex 8
+* new_data
+  * 2 values, eel_qal_id=4 (provisional data)
+  * 2 new values inserted in the database
+* duplicates:
+  * update of some values which were in tonnes instead of kg
+  * For duplicates 4 values replaced in the database (old values kept with code eel_qal_id=20) / 0 values not replaced (values from current datacall stored with code eel_qal_id 20)
+
 
 ---------------------------
 

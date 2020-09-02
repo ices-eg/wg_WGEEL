@@ -43,7 +43,7 @@ load_catch_landings<-function(path,datasource){
     data_xls<-read_excel(
         path=path,
         sheet =sheet,
-        skip=0)
+        skip=0, guess_max=10000)
     data_error <- data.frame(nline = NULL, error_message = NULL)
     country=as.character(data_xls[1,6])
 #    data_xls <- correct_me(data_xls)
@@ -348,10 +348,17 @@ load_release<-function(path,datasource){
               country=country))
       
       #  eel_typ_id should be one of q_data__n, gee_n
-      data_error= rbind(data_error, check_values(dataset=data_xls,
-              column="eel_typ_name",
-              country=country,
-              values=c("release_n", "gee_n")))
+      if (sheet=="new_data"){
+        data_error= rbind(data_error, check_values(dataset=data_xls,
+                column="eel_typ_name",
+                country=country,
+                values=c("release_n", "gee_n")))
+      } else {
+        data_error= rbind(data_error, check_values(dataset=data_xls,
+                                                   column="eel_typ_name",
+                                                   country=country,
+                                                   values=c("q_release_n", "gee_n","q_release_kg")))
+      }
       
       ###### eel_year ##############
       
@@ -405,7 +412,7 @@ load_release<-function(path,datasource){
       # if there is data in neither eel_value_number and eel_value_kg, check if there are data in missvaluequa 
       
       data_error= rbind(data_error, check_missvalue_release(dataset=data_xls,
-              country=country))
+              country=country,updated= (sheet!="new_data")))
       
       ###### eel_emu_name ##############
       
