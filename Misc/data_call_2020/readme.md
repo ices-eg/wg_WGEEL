@@ -358,8 +358,10 @@ metadata : 2018 Biometry data of the FreS serie have been updated and put into t
  
 ## GB (Great Britain) 
 
+(CEDRIC)
+
 *Data call sent to ICES in time.*
-**TODO** Change series names and replace E (Elver) with GY or G.
+**DONE** Change series names and replace E (Elver) with GY or G.
 
 ### annex 1
 
