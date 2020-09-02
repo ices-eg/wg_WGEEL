@@ -483,9 +483,116 @@ Data call sent to ICES in time, one update file sent straight to Cédric and put
 
 ### annex 1
 
+Importing file from new version by Russell
+
+***CHECK*** There is a difference between ccm catchment and series position for InagGY, could you check ?
+OK was wrong
+https://www.google.fr/maps/place/52%C2%B056'24.9%22N+9%C2%B018'04.2%22W/@52.9324866,-9.3216336,13.88z/data=!4m5!3m4!1s0x0:0x0!8m2!3d52.94025!4d-9.3011667
+
+```sql
+UPDATE datawg.t_series_ser SET geom=ST_SETSRID(ST_MakePoint(-9.301167,52.940250),4326) WHERE ser_nameshort='InagGY';
+UPDATE datawg.t_series_ser SET (ser_x,ser_y)=(st_x(geom),st_y(geom)) WHERE ser_nameshort = 'InagGY';
+```
+
+Corrected now
+
+
+* empty lines in new_data tab => removed
+
+* modified series => 4 values updated in the db
+
+* new dataseries =>  10 new values inserted in the database
+
+* new biometries => I had to find and drop the empty lines,  12 new values inserted in the database
+
 ### annex 2
 
+* No new series
+
+* new dataseries  4 new values inserted in the database
+
+* new biometries 4 new rows inserted 
+
+
 ### annex 3
+
+Ciara and Russell
+
+> Data from MI & ESB/NUIG. The Burrishoole silver sex ratio data needs to be replaced for the full time series, 1971 - 2019.  The data here is % male. I will email you the % female. Or you can subtract the % male from 100 to make % Female. 
+
+  > DONE
+
+```sql
+UPDATE  datawg.t_biometry_series_bis SET bio_sex_ratio = 100-bio_sex_ratio WHERE bis_ser_id = 230 AND bio_sex_ratio IS NOT NULL; --36
+```
+
+|bio_year|bio_sex_ratio|
+|--------|-------------|
+|1971||
+|1972||
+|1973||
+|1974||
+|1975||
+|1976|42.7|
+|1977||
+|1978||
+|1979|36.5|
+|1980||
+|1981||
+|1982||
+|1983||
+|1984|45|
+|1985|59.3|
+|1986|60.8|
+|1987|64.6|
+|1988|62.7|
+|1989||
+|1990|50|
+|1991|69.3|
+|1992|54.7|
+|1993|83.3|
+|1994|75.5|
+|1995|71.4|
+|1996|90.6|
+|1997|75.3|
+|1998|58.7|
+|1999|65.4|
+|2000|62.5|
+|2001|73.4|
+|2002|61.3|
+|2003|55.2|
+|2004|70.9|
+|2005|71.9|
+|2006|77|
+|2007|60.1|
+|2008|76.2|
+|2009|65.1|
+|2010|64.5|
+|2011|59.9|
+|2012|54.8|
+|2013|54.3|
+|2014|67.8|
+|2015|55.3|
+|2016|63.2|
+|2017|65.3|
+|2018|59.2|
+
+
+> Also, delete the value for 1996 (9.4%).
+
+```sql
+DELETE FROM datawg.t_biometry_series_bis WHERE bio_year=1996 AND bis_ser_id = 230 --1
+```
+
+> Why no sample size in the biometry tab? 
+  > https://github.com/ices-eg/wg_WGEEL/issues/144
+ 
+> There are no units in the data tabs, KilS is kg and BurS is numbers. 
+ 
+ 
+ 
+ For KilS biometry, there was no updated biometry tab so we created one. This means there is dupication between the Updated Sheet and the New Data sheet.
+
 
 ### annex 4
 
