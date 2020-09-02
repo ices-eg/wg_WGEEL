@@ -348,3 +348,25 @@ COMMIT;
 
 SELECT * FROM datawg.t_series_ser WHERE ser_cou_code = 'GB' ORDER BY ser_nameshort;
 SELECT * FROM datawg.t_series_ser WHERE ser_nameshort = 'BeeGY' ;
+
+BEGIN;
+UPDATE datawg.t_series_ser SET geom=ST_SETSRID(ST_MakePoint(-5.6338,54.26285),4326) WHERE ser_nameshort='KilY';
+UPDATE datawg.t_series_ser SET (ser_x,ser_y)=(st_x(geom),st_y(geom)) WHERE ser_nameshort = 'KilY';
+COMMIT;
+
+
+-- forgot to qualify some data
+SELECT * FROM datawg.t_series_ser WHERE ser_id = 271 ;
+SELECT * FROM datawg.t_dataseries_das WHERE das_dts_datasource ='dc_2020' AND das_qal_id IS NULL;
+UPDATE datawg.t_dataseries_das SET das_qal_id= 0 WHERE das_comment LIKE '%deleted%' AND das_qal_id IS NULL AND das_dts_datasource ='dc_2020' ;
+UPDATE datawg.t_dataseries_das SET das_qal_id= 1 WHERE das_comment is NULL AND das_qal_id IS NULL AND das_dts_datasource ='dc_2020' ; --308
+UPDATE datawg.t_dataseries_das SET das_qal_id= 4 WHERE das_comment LIKE '%incomplete%' AND das_qal_id IS NULL AND das_dts_datasource ='dc_2020' ; --2
+UPDATE datawg.t_dataseries_das SET das_qal_id= 4 WHERE das_comment LIKE '%provisional%' AND das_qal_id IS NULL AND das_dts_datasource ='dc_2020' ; --4
+-- the others...
+UPDATE datawg.t_dataseries_das SET das_qal_id= 1 WHERE das_qal_id IS NULL AND das_dts_datasource ='dc_2020' ; --13
+
+
+UPDATE datawg.t_dataseries_das SET (das_value,das_qal_id)=(NULL,0) WHERE das_ser_id=271 AND das_year=2008;
+UPDATE datawg.t_dataseries_das set(das_value,das_effort,das_qal_id)=(NULL,NULL, 0) WHERE das_value=0 AND das_year=2000 AND das_ser_id=271;
+
+SELECT  * FROM datawg.t_series_ser WHERE ser_nameshort = 'FowS' ;

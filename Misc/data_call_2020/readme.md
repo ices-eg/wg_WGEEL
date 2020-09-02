@@ -385,14 +385,45 @@ Decision for inclusion new, series
  --------------------------------------------------------------
  
  
- 
- 
- 
-
-
 ### annex 2
 
+* Updated coordinates for series KilY
+
+* no new series
+
+* modified series  44 values updated in the db
+
+* new dataseries  312 new values inserted in the database
+
+* modified dataseries 638
+
+*CHECK* new data series medY I have two values for 2001, none for 2000, I put 0 for 2000 (transformed 2001 in 2000) OK ?
+=> ANSWER : no don't add a line for 2000 DELETE THE LINE
+
+*CHECK* remove data with delete this line or keep value ? Answer remove
+
+```sql
+UPDATE datawg.t_dataseries_das SET (das_value,das_qal_id)=(NULL,0) WHERE das_ser_id=271 AND das_year=2008;
+UPDATE datawg.t_dataseries_das set(das_value,das_effort,das_qal_id)=(NULL,NULL, 0) WHERE das_value=0 AND das_year=2000 AND das_ser_id=271;
+```
+
+*  new biometry  73 new values inserted in the database
+
 ### annex 3
+
+* new series : FowS;LevS, added ccm basins. Set to qal_id 1 by default (no information indicating otherwise).
+
+Error: Failed to fetch row: ERROR:  duplicate key value violates unique constraint "unique_name_short"
+DETAIL:  Key (ser_nameshort)=(FowS) already exists.
+
+
+
+* updated series : Baddoch Burn
+
+* new data series : das_qal_id set to 4 when incomplete year or flooding event otherwise das_qal_id=1 .  29 new values inserted in the database
+
+* new biometry :  10 new values inserted in the database.
+
 
 ### annex 4
 
