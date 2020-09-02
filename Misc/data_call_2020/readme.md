@@ -579,19 +579,21 @@ UPDATE  datawg.t_biometry_series_bis SET bio_sex_ratio = 100-bio_sex_ratio WHERE
 
 
 > Also, delete the value for 1996 (9.4%).
+>> OK done
 
 ```sql
 DELETE FROM datawg.t_biometry_series_bis WHERE bio_year=1996 AND bis_ser_id = 230 --1
 ```
 
 > Why no sample size in the biometry tab? 
-  > https://github.com/ices-eg/wg_WGEEL/issues/144
+>> CEDRIC : https://github.com/ices-eg/wg_WGEEL/issues/144
  
 > There are no units in the data tabs, KilS is kg and BurS is numbers. 
+>> CEDRIC : The units should be set in the series tab (you don't change units in the middle of one series. All is fine.
  
  
- 
- For KilS biometry, there was no updated biometry tab so we created one. This means there is dupication between the Updated Sheet and the New Data sheet.
+> For KilS biometry, there was no updated biometry tab so we created one. This means there is dupication between the Updated Sheet and the New Data sheet.
+>> CEDRIC : I'll copy them back in new biometries and the shiny will handle duplicates.
 
 
 ### annex 4
