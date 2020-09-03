@@ -394,6 +394,8 @@ SELECT bio_year, bio_sex_ratio FROM datawg.t_biometry_series_bis WHERE bis_ser_i
 
 
 
+
+
 DELETE FROM datawg.t_biometry_series_bis WHERE bio_year=1996 AND bis_ser_id = 230 --1
 
 SELECT * FROM datawg.t_series_ser WHERE ser_cou_code='NL';
@@ -403,3 +405,18 @@ SELECT * FROM datawg.t_series_ser WHERE ser_cou_code='NL';
 UPDATE datawg.t_eelstock_eel SET (eel_qal_id, eel_qal_comment)=
 ('20',coalesce(eel_qal_comment,'')||'national assessor asks for deletion')  
 WHERE eel_cou_code='IE' AND eel_lfs_code='AL' AND eel_typ_id=4 AND eel_qal_id IN (1,2,4);--48
+
+
+SELECT * FROM datawg.t_eelstock_eel WHERE eel_emu_nameshort='TR_total'  
+
+
+SELECT * FROM  datawg.t_eelstock_eel WHERE eel_id= 422202
+
+UPDATE datawg.t_eelstock_eel SET (eel_qal_id, eel_qal_comment)=
+('20',coalesce(eel_qal_comment,'')||'national assessor asks for deletion')  
+WHERE eel_id= 422202;--48
+
+SELECT * FROM datawg.t_eelstock_eel WHERE 
+
+
+
