@@ -375,3 +375,23 @@ BEGIN;
 UPDATE datawg.t_series_ser SET geom=ST_SETSRID(ST_MakePoint(-5.6338,54.26285),4326) WHERE ser_nameshort='StrS';
 UPDATE datawg.t_series_ser SET (ser_x,ser_y)=(st_x(geom),st_y(geom)) WHERE ser_nameshort = 'StrS';
 COMMIT;
+
+
+SELECT * FROM datawg.t_series_ser WHERE ser_nameshort='InagGY';
+
+, 
+BEGIN;
+UPDATE datawg.t_series_ser SET geom=ST_SETSRID(ST_MakePoint(-9.301167,52.940250),4326) WHERE ser_nameshort='InagGY';
+UPDATE datawg.t_series_ser SET (ser_x,ser_y)=(st_x(geom),st_y(geom)) WHERE ser_nameshort = 'InagGY';
+COMMIT;
+
+
+SELECT * FROM datawg.t_series_ser WHERE ser_nameshort='BurS'; -- ser_id 230
+SELECT * FROM datawg.t_series_ser WHERE ser_nameshort='InagGY'; -- ser_id 230
+
+UPDATE  datawg.t_biometry_series_bis SET bio_sex_ratio = 100-bio_sex_ratio WHERE bis_ser_id = 230 AND bio_sex_ratio IS NOT NULL; --36
+SELECT bio_year, bio_sex_ratio FROM datawg.t_biometry_series_bis WHERE bis_ser_id = 230 ORDER BY bio_year ASC;
+
+
+
+DELETE FROM datawg.t_biometry_series_bis WHERE bio_year=1996 AND bis_ser_id = 230 --1

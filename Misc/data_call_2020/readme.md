@@ -519,8 +519,7 @@ Corrected now
 Ciara and Russell
 
 > Data from MI & ESB/NUIG. The Burrishoole silver sex ratio data needs to be replaced for the full time series, 1971 - 2019.  The data here is % male. I will email you the % female. Or you can subtract the % male from 100 to make % Female. 
-
-  > DONE
+>> DONE
 
 ```sql
 UPDATE  datawg.t_biometry_series_bis SET bio_sex_ratio = 100-bio_sex_ratio WHERE bis_ser_id = 230 AND bio_sex_ratio IS NOT NULL; --36
