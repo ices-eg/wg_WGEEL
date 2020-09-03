@@ -97,7 +97,9 @@ of the database administrator to help you*
   
  * click on the button **22** to process `new data`. *note if a data was not found in the database in the updated data tab, it will be treated as new*. Report  the number of rows integrated in [notes](https://github.com/ices-eg/wg_WGEEL/tree/master/Misc/data_call_2020).
  
- * click on the button **23** to update data from the updated data tab. Those data will be treated similarly to `duplicated data`. Report  the number of rows integrated in [notes](https://github.com/ices-eg/wg_WGEEL/tree/master/Misc/data_call_2020).
+ * click on the button **23** to update data from the updated data tab. Those data will be treated similarly to `duplicated data`. 
+ *The data are not downloaded as an excel file, you can edit straight in the original file, the message is at bottom of the table.*
+ Report  the number of rows integrated in [notes](https://github.com/ices-eg/wg_WGEEL/tree/master/Misc/data_call_2020). 
  
 ---
 
