@@ -119,11 +119,10 @@ compare_with_database_updated_values <- function(updated_from_excel, data_from_b
 		tr_type_typ<-extract_ref("Type of series")
 	}
 	# data integrity checks
-	if (nrow(updated_from_excel) == 0) 
-		stop("There are no data coming from the excel file")
+	validate(need(nrow(updated_from_excel) != 0,"There are no data coming from the excel file")) 
 	current_cou_code <- unique(updated_from_excel$eel_cou_code)
-	if (length(current_cou_code) != 1) 
-		stop("There is more than one country code, this is wrong")
+	validate(need(length(current_cou_code) == 1, "There is more than one country code, this is wrong"))
+
 	current_typ_name <- unique(updated_from_excel$eel_typ_name)
 	if (!all(current_typ_name %in% tr_type_typ$typ_name)) stop(str_c("Type ",current_typ_name[!current_typ_name %in% tr_type_typ$typ_name]," not in list of type name check excel file"))
 	# all data returned by loading functions have only a name just in case to avoid doubles
@@ -135,17 +134,17 @@ compare_with_database_updated_values <- function(updated_from_excel, data_from_b
 		updated_from_excel <- merge(updated_from_excel, tr_type_typ_for_merge, by = "eel_typ_name") 
 	}
 	if (nrow(data_from_base) == 0) {
-		stop("No data in the db")
+		validate(need(FALSE, "No data in the db"))
 		current_typ_id<-0
 	} else {   
 		if (!all(updated_from_excel$eel_id %in% data_from_base$eel_id))
-			stop(paste("eel_id",paste(updated_from_excel$eel_id[!updated_from_excel$eel_id %in% data_from_base$eel_id],collapse=","),
-							"not found in db",sep=""))
+			validate(need(FALSE,paste("eel_id",paste(updated_from_excel$eel_id[!updated_from_excel$eel_id %in% data_from_base$eel_id],collapse=","),
+							"not found in db",sep="")))
 		current_typ_id <- unique(updated_from_excel$eel_typ_id)
 		if (!all(current_typ_id %in% data_from_base$eel_typ_id)) 
-			stop(paste("There is a mismatch between selected typ_id", paste0(current_typ_id, 
+			validate(need(FALSE,paste("There is a mismatch between selected typ_id", paste0(current_typ_id, 
 									collapse = ";"), "and the dataset loaded from base", paste0(unique(data_from_base$eel_typ_id), 
-									collapse = ";"), "did you select the right File type ?"))
+									collapse = ";"), "did you select the right File type ?")))
 	}
 	# Can't join on 'eel_area_division' x 'eel_area_division' because of incompatible
 	# types (character / logical)
@@ -941,7 +940,7 @@ write_new <- function(path) {
 					BEGIN
 					oldid:=rec.eel_id;
 					update datawg.t_eelstock_eel set eel_qal_id=",qualify_code," where eel_id=oldid;
-					comment!=rec.eel_comment_xls;
+					comment:=rec.eel_comment_xls;
 					if  comment != 'delete row' then 
 					  insert into datawg.t_eelstock_eel (eel_typ_id,eel_year,eel_value,eel_missvaluequal,eel_emu_nameshort,eel_cou_code,eel_lfs_code,eel_hty_code,eel_area_division,eel_qal_id, eel_qal_comment,eel_datasource,eel_comment)
 					  (select eel_typ_id,eel_year_xls,eel_value_xls,eel_missvaluequal_xls,eel_emu_nameshort_xls,eel_cou_code_xls,eel_lfs_code_xls,eel_hty_code_xls,eel_area_division_xls,eel_qal_id_xls,eel_qal_comment_xls,eel_datasource_xls,eel_comment_xls from updated_temp where eel_id=oldid ) returning eel_id into newid;
