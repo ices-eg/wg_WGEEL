@@ -73,7 +73,10 @@ Empty
 none
 
 ### annex 7
-release only provided in kg. Asked for numbers to the data provider.
+* new data
+  * release only provided in kg. Asked for numbers to the data provider. conversion 3000eels/kg according to data provider
+  * 54 new values inserted in the database
+* updated data: none
 
 ### annex 8
 none
@@ -195,32 +198,20 @@ CEDRIC
 *Files sent to ICES  in time*
 
 ### annex 1
-none 
 
 ### annex 2
-none
 
 ### annex 3
-none
 
 ### annex 4
-* new_data:
-  * 2 news values for 2019, NP for historical data
-  * 424 new values inserted in the database
-* updated values: none
+
 ### annex 5
-* new_data:
-  * 2 news values for 2019, NP for historical data
-  * 442 new values inserted in the database
-* updated values: none
 
 ### annex 6
-none
 
 ### annex 7
 
 ### annex 8
-none
 
 ---------------------------
 
@@ -608,7 +599,6 @@ DELETE FROM datawg.t_biometry_series_bis WHERE bio_year=1996 AND bis_ser_id = 23
 > For KilS biometry, there was no updated biometry tab so we created one. This means there is dupication between the Updated Sheet and the New Data sheet.
 >> CEDRIC : I'll copy them back in new biometries and the shiny will handle duplicates.
 
-> CEDRIC there is a duplicate => fixed by Ciara and Russell
 
 * series no new seres
 
@@ -722,6 +712,7 @@ WHERE eel_cou_code='IE' AND eel_lfs_code='AL' AND eel_typ_id=4 AND eel_qal_id IN
  
 ## LV (Latvia) 
 
+(Tessa)
 *Data call sent to ICES in time*
 
 ### annex 1
@@ -829,6 +820,8 @@ No new series
 
 ### annex 4
 
+* new data 128 new values inserted in the database
+
 ### annex 5
 
 ### annex 6
@@ -841,6 +834,7 @@ No new series
 ---------------------------
 
 ## PL (Poland) 
+
 
 *Data call sent to ICES in time*
 
