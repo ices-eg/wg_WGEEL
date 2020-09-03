@@ -596,6 +596,22 @@ DELETE FROM datawg.t_biometry_series_bis WHERE bio_year=1996 AND bis_ser_id = 23
 > For KilS biometry, there was no updated biometry tab so we created one. This means there is dupication between the Updated Sheet and the New Data sheet.
 >> CEDRIC : I'll copy them back in new biometries and the shiny will handle duplicates.
 
+> CEDRIC there is a duplicate => fixed by Ciara and Russell
+
+* series no new seres
+
+* updated series no update
+
+* new dataseries : 2 values
+
+* modified dataseries : 14 values
+
+* new biometry : 2 values
+
+ 
+
+
+
 
 ### annex 4
 
