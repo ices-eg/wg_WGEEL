@@ -198,20 +198,34 @@ CEDRIC
 *Files sent to ICES  in time*
 
 ### annex 1
+none 
+ 
+ ### annex 2
+none
+ 
+ ### annex 3
+none
+ 
+ ### annex 4
+* new_data:
+  * 2 news values for 2019, NP for historical data
+  * 424 new values inserted in the database
+* updated values: none
 
-### annex 2
-
-### annex 3
-
-### annex 4
-
-### annex 5
-
-### annex 6
-
-### annex 7
-
-### annex 8
+ ### annex 5
+* new_data:
+  * 2 news values for 2019, NP for historical data
+  * 442 new values inserted in the database
+* updated values: none
+ 
+ ### annex 6
+none
+ 
+ ### annex 7
+ * newdata: 4 new values inserted in the database
+ 
+ ### annex 8
+none
 
 ---------------------------
 
