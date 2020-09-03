@@ -765,6 +765,8 @@ No new series
 
 * new series As stated in the excel sheets, series should end with the name of the stage, I have changed accordingly.
 
+|nameshort| namelong                  |
+|-------- |---------------------------|
 | DeBY   	| Den Burg fyke net survey 	|
 | IjsY   	| FYMA_IJSSELMEER          	|
 | MarY   	| FYMA_MARKERMEER          	|
