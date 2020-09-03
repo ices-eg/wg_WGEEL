@@ -204,7 +204,10 @@ none
 none
 
 ### annex 4
-
+* new_data:
+  * 2 news values for 2019, NP for historical data
+  * 424 new values inserted in the database
+* updated values: none
 ### annex 5
 
 ### annex 6
