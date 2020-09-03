@@ -640,6 +640,9 @@ UPDATE datawg.t_eelstock_eel SET (eel_qal_id, eel_qal_comment)=
 WHERE eel_cou_code='IE' AND eel_lfs_code='AL' AND eel_typ_id=4 AND eel_qal_id IN (1,2,4);--48
 ```
 
+* new data  => 756 lines
+
+* Updated data => 648 values updated in the db
 
 
 
