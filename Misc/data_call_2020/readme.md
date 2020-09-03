@@ -73,7 +73,10 @@ Empty
 none
 
 ### annex 7
-release only provided in kg. Asked for numbers to the data provider.
+* new data
+  * release only provided in kg. Asked for numbers to the data provider. conversion 3000eels/kg according to data provider
+  * 54 new values inserted in the database
+* updated data: none
 
 ### annex 8
 none
