@@ -198,20 +198,35 @@ CEDRIC
 *Files sent to ICES  in time*
 
 ### annex 1
-
+none 
+ 
 ### annex 2
-
+none
+ 
 ### annex 3
-
+none
+ 
 ### annex 4
+* new_data:
+  * 2 news values for 2019, NP for historical data
+  * 424 new values inserted in the database
+* updated values: none
 
 ### annex 5
-
+* new_data:
+ * 2 news values for 2019, NP for historical data
+ * 442 new values inserted in the database
+* updated values: none
+ 
 ### annex 6
-
+none
+ 
 ### annex 7
-
+* newdata: 4 new values inserted in the database
+* updated data: 16 values updated in the db
+ 
 ### annex 8
+none
 
 ---------------------------
 
@@ -600,7 +615,33 @@ DELETE FROM datawg.t_biometry_series_bis WHERE bio_year=1996 AND bis_ser_id = 23
 >> CEDRIC : I'll copy them back in new biometries and the shiny will handle duplicates.
 
 
+* series no new seres
+
+* updated series no update
+
+* new dataseries : 2 values
+
+* modified dataseries : 14 values
+
+* new biometry : 2 values
+
+ 
+
 ### annex 4
+
+> We have decided to delete any duplicate data, and for habitats where there was never a fishery, to insert NP. For transitional waters where there was a fishery, but the landings were reported combined with freshwater, we have inserted NP. There may be some duplication here between data in the Updated_Data tab and the New_Data tab
+
+DELETE records for stage AL 
+
+
+```sql
+UPDATE datawg.t_eelstock_eel SET (eel_qal_id, eel_qal_comment)=
+('20',coalesce(eel_qal_comment,'')||'national assessor asks for deletion')  
+WHERE eel_cou_code='IE' AND eel_lfs_code='AL' AND eel_typ_id=4 AND eel_qal_id IN (1,2,4);--48
+```
+
+
+
 
 ### annex 5
 
