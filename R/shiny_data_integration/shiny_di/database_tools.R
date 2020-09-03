@@ -920,7 +920,7 @@ write_new <- function(path) {
 	validate(need(length(cou_code) == 1, "There is more than one country code, please check your file"))
 	
 	# create dataset for insertion -------------------------------------------------------------------
-	
+	updated_values_table$eel_value.xls<- as.numeric(updated_values_table$eel_value.xls)
 	
 	names(updated_values_table) = gsub(".","_",names(updated_values_table),fixed=TRUE)
 	conn <- poolCheckout(pool)
