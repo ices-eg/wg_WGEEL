@@ -191,24 +191,36 @@ CEDRIC
 
  
 ## EE (Estonia) 
-
+(HILAIRE)
 *Files sent to ICES  in time*
 
 ### annex 1
+none 
 
 ### annex 2
+none
 
 ### annex 3
+none
 
 ### annex 4
-
+* new_data:
+  * 2 news values for 2019, NP for historical data
+  * 424 new values inserted in the database
+* updated values: none
 ### annex 5
+* new_data:
+  * 2 news values for 2019, NP for historical data
+  * 442 new values inserted in the database
+* updated values: none
 
 ### annex 6
+none
 
 ### annex 7
 
 ### annex 8
+none
 
 ---------------------------
 
@@ -781,6 +793,8 @@ No new series
 
 * new series As stated in the excel sheets, series should end with the name of the stage, I have changed accordingly.
 
+|nameshort| namelong                  |
+|-------- |---------------------------|
 | DeBY   	| Den Burg fyke net survey 	|
 | IjsY   	| FYMA_IJSSELMEER          	|
 | MarY   	| FYMA_MARKERMEER          	|
