@@ -395,3 +395,5 @@ SELECT bio_year, bio_sex_ratio FROM datawg.t_biometry_series_bis WHERE bis_ser_i
 
 
 DELETE FROM datawg.t_biometry_series_bis WHERE bio_year=1996 AND bis_ser_id = 230 --1
+
+SELECT * FROM datawg.t_series_ser WHERE ser_cou_code='NL';

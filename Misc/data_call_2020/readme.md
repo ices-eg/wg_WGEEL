@@ -753,14 +753,33 @@ DELETE FROM datawg.t_biometry_series_bis WHERE bio_year=1996 AND bis_ser_id = 23
 
 No new series 
 
-modified series = > 5 values updated in the db
+* modified series = > 5 values updated in the db
 
-new dataseries => 5 new values
+* new dataseries => 5 new values
 
-biometry => No biometry
+* biometry => No biometry
 
 ### annex 2
 
+* new series As stated in the excel sheets, series should end with the name of the stage, I have changed accordingly.
+
+| DeBY   	| Den Burg fyke net survey 	|
+| IjsY   	| FYMA_IJSSELMEER          	|
+| MarY   	| FYMA_MARKERMEER          	|
+| IJsFVY 	| FYOE-IJM-Veg             	|
+| MmFVY  	| FYOE-MM-Veg              	|
+| IJsFVY 	| FYOE-IJM-Rock            	|
+| MmFRY  	| FYOE-MM-Rock             	|
+
+ 4 new values inserted in the database
+
+* No updated series
+
+* New dataseries  62 new values inserted in the database
+
+* Modified dataseries 105 values updated in the db
+
+* New biometries 113 values
 
 
 ### annex 3
