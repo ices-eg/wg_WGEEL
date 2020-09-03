@@ -605,7 +605,8 @@ compare_with_database_biometry <- function(data_from_excel, data_from_base, shee
 					"value in keep_new_value should be false or true"))
 	
 	duplicates2$keep_new_value <- as.logical(toupper(duplicates2$keep_new_value))
-	
+	# Issue #149
+	duplicates2$eel_value.xls <- as.numeric(duplicates2$eel_value.xls )
 	
 	# first deprecate old values in the database ----------------------------------------------------
 	
