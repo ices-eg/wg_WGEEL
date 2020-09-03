@@ -256,6 +256,8 @@ none
 
 ### annex 2
 
+***Esti working on the file now. Don't touch Spain***
+
 ### annex 3
 
 ### annex 4
@@ -494,8 +496,55 @@ DETAIL:  Key (ser_nameshort)=(FowS) already exists.
 ### annex 8
 
 
+
 ---------------------------
 
+ 
+## GR (Greece) 
+
+*Data call sent to ICES in time*
+
+### annex 1
+
+### annex 2
+
+### annex 3
+
+### annex 4
+
+### annex 5
+
+### annex 6
+
+### annex 7
+
+### annex 8
+
+---------------------------
+
+ 
+## HR (Croatia) 
+
+*File sent to ICES 25/08.*
+
+### annex 1
+
+### annex 2
+
+### annex 3
+
+### annex 4
+
+### annex 5
+
+### annex 6
+
+### annex 7
+
+### annex 8
+
+
+---------------------------
  
 ## IE (Ireland) 
 
@@ -678,54 +727,7 @@ WHERE eel_cou_code='IE' AND eel_lfs_code='AL' AND eel_typ_id=4 AND eel_qal_id IN
 ### annex 8
 
 
----------------------------
 
- 
-## GR (Greece) 
-
-*Data call sent to ICES in time*
-
-### annex 1
-
-### annex 2
-
-### annex 3
-
-### annex 4
-
-### annex 5
-
-### annex 6
-
-### annex 7
-
-### annex 8
-
----------------------------
-
- 
-## HR (Croatia) 
-
-*File sent to ICES 25/08.*
-
-### annex 1
-
-### annex 2
-
-### annex 3
-
-### annex 4
-
-### annex 5
-
-### annex 6
-
-### annex 7
-
-### annex 8
-
-
----------------------------
 
  
 ## LV (Latvia) 
