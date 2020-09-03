@@ -246,7 +246,7 @@ check_missvalue_release <- function(dataset,country,updated=FALSE){
   # if there is any missing values
     if (any(is.na(ddataset[,name_value]))){
     # get eel_values where missing has been filled in
-    line3<-which(is.na(ddataset[,name_value]))
+    line3<-which(is.na(ddataset[,name_value] & ddataset$eel_typ_name!="gee_n" ))
     if (length(line3)>0){
     # if in those lines, one missing value has not been commented upon
       cat(sprintf("column <%s>, lines <%s>, there should be a value in both column eel_value_number and eel_value_kg \n",

@@ -523,7 +523,7 @@ load_release<-function(path,datasource){
         colnames(release_N)[colnames(release_N)=="eel_value_number"] <- "eel_value" 
         
         #create release for kg and add eel_typ_id 8 
-        release_kg <- data_xls[,-3] 
+        release_kg <- data_xls[data_xls$eel_typ_name!="gee_n",-3] 
         #release_kg$eel_typ_id <- rep(8, nrow(data_xls)) 
         release_kg$eel_typ_name <- "q_release_kg"
         colnames(release_kg)[colnames(release_kg)=="eel_value_kg"] <- "eel_value" 
