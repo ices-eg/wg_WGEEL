@@ -927,20 +927,37 @@ Done by Sukran
 *Data call sent to ICES in time*
 
 ### annex 1
+none
 
 ### annex 2
+* one new data for 2019
 
 ### annex 3
+none
 
 ### annex 4
-*proceed*
+* done by Sukran
+
+
 ### annex 5
+* new_data:
+  * a few data fro 2018 and 2019
+  * 482 new values inserted in the database
+* updated_data nothing
 
 ### annex 6
+none
 
 ### annex 7
+* new data
+  * 6 new values inserted in the database
+  * 2018 whole country and 2019 detailed for 2 EMUs
+* updated_data: none
 
 ### annex 8
+* new data
+  * values for 2015 to 2018
+  * 4 new values inserted in the database
 
 ---------------------------
 
