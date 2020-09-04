@@ -178,7 +178,7 @@ CEDRIC
 
 ### annex 4
 
-(Sukran)
+* 4 new values inserted in the database*
 
 ### annex 5
 
