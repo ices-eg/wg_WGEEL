@@ -548,7 +548,7 @@ shinyServer(function(input, output, session){
 									#  or an error message
 									###########################
 									step22load_data <- function() {
-										path <- step22_filepath()
+										path <- isolate(step22_filepath())
 										if (is.null(data$path_step22)) 
 											return(NULL)
 										rls <- write_new(path)
@@ -643,7 +643,7 @@ shinyServer(function(input, output, session){
 			###########################
 			step0load_data_ts<-function(){
 				validate(need(data$connectOK,"No connection"))
-				path<- step0_filepath_ts()   
+				path<- isolate(step0_filepath_ts())   
 				if (is.null(data$path_step0_ts)) return(NULL)
 				
 				#file_type_ts is generated on the ui side
@@ -811,7 +811,7 @@ shinyServer(function(input, output, session){
 								need(input$xlfile_ts != "", "Please select a data set")
 						)
 						validate(need(data$connectOK,"No connection"))
-						res <- step0load_data_ts()$res
+						res <- isolate(step0load_data_ts()$res)
 						series <- res$series
 						station	<- res$station
 						new_data	<- res$new_data
@@ -1225,7 +1225,7 @@ shinyServer(function(input, output, session){
 										})
 
 								step21load_data <- function() {
-									path <- step21_filepath_new_series()
+									path <- isolate(step21_filepath_new_series())
 									if (is.null(data$path_step21_new_series)) 
 										return(NULL)
 									rls <- write_new_series(path)
@@ -1265,7 +1265,7 @@ shinyServer(function(input, output, session){
 												})
 
 										step22load_data <- function() {
-											path <- step22_filepath_modified_series()
+											path <- isolate(step22_filepath_modified_series())
 											if (is.null(data$path_step22_modified_series)) 
 												return(NULL)
 											rls <- update_series(path)
@@ -1304,7 +1304,7 @@ shinyServer(function(input, output, session){
 												})
 										
 										step23load_data <- function() {
-											path <- step23_filepath_new_dataseries()
+											path <- isolate(step23_filepath_new_dataseries())
 											if (is.null(data$path_step_23_new_dataseries)) 
 												return(NULL)
 											rls <- write_new_dataseries(path)
@@ -1343,7 +1343,7 @@ shinyServer(function(input, output, session){
 												})
 										
 										step24load_data <- function() {
-											path <- step24_filepath_modified_dataseries()
+											path <- isolate(step24_filepath_modified_dataseries())
 											if (is.null(data$path_step_24_modified_dataseries)) 
 												return(NULL)
 											rls <- update_dataseries(path)
@@ -1382,7 +1382,7 @@ shinyServer(function(input, output, session){
 												})
 										
 										step25load_data <- function() {
-											path <- step25_filepath_new_biometry()
+											path <- isolate(step25_filepath_new_biometry())
 											if (is.null(data$path_step_25_new_biometry)) 
 												return(NULL)
 											rls <- write_new_biometry(path)
@@ -1421,7 +1421,7 @@ shinyServer(function(input, output, session){
 												})
 										
 										step26load_data <- function() {
-											path <- step26_filepath_update_biometry()
+											path <- isolate(step26_filepath_update_biometry())
 											if (is.null(data$path_step_26_update_biometry)) 
 												return(NULL)
 											rls <- update_biometry(path)
