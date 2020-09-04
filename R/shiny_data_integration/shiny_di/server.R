@@ -29,6 +29,28 @@ shinyServer(function(input, output, session){
 			
 			data<-reactiveValues(pool=NULL,connectOK=FALSE)
 			
+			observeEvent(input$xlfile,{
+			  if (input$xlfile!="") {
+			    output$integrate<-renderText({input$xlfile$datapath})
+			  } else {
+			    output$integrate<-renderText({"no dataset seleted"})
+			  }
+			  output$dt_integrate<-renderDataTable(data.frame())
+			  output$dt_duplicates<-renderDataTable(data.frame())
+			  output$dt_check_duplicates<-renderDataTable(data.frame())
+			  output$dt_new<-renderDataTable(data.frame())
+			  output$dt_missing<-renderDataTable(data.frame())
+			  output$dt_updated_values <- renderDataTable(data.frame())
+			  output$textoutput_step2.1 <- renderText("")
+			  output$textoutput_step2.2 <- renderText("")
+			  output$textoutput_step2.3 <- renderText("")
+			  output$integrate <- renderText("")
+			  if ("updated_values_table" %in% names(data)) {
+			    data$updated_values_table<-data.frame()
+			  }
+			  
+			})
+			
 			load_database <- reactive({
 						# take a dependency on passwordbutton
 						req(input$passwordbutton)						
