@@ -270,6 +270,35 @@ You don't have numeric values in new_data check your file,
 
 Y, S  data has been removed from existing data. 
 
+```sql
+WITH delete_me AS (
+SELECT * FROM datawg.t_eelstock_eel WHERE eel_emu_nameshort='ES_Vale' 
+AND eel_typ_id=4 and eel_qal_id IN (1,2,4) 
+AND eel_lfs_code IN ('Y', 'S')
+AND eel_datasource !='dc_2020'
+ORDER BY eel_lfs_code, eel_year)
+
+UPDATE datawg.t_eelstock_eel SET (eel_qal_id, eel_qal_comment)=
+('20',coalesce(t_eelstock_eel.eel_qal_comment,'')||'national assessor asks for deletion')  
+FROM delete_me
+WHERE t_eelstock_eel.eel_id= delete_me.eel_id; --126
+
+
+
+
+SELECT * FROM datawg.t_eelstock_eel WHERE eel_emu_nameshort='ES_Vale' 
+AND eel_typ_id=4 and eel_qal_id IN (1,2,4) 
+AND eel_lfs_code IN ('YS')
+AND eel_datasource ='dc_2020'
+ORDER BY eel_lfs_code, eel_year; --65
+
+SELECT * FROM datawg.t_eelstock_eel WHERE eel_emu_nameshort='ES_Vale' 
+AND eel_typ_id=4 and eel_qal_id IN (20) 
+AND eel_lfs_code IN ('YS')
+
+ORDER BY eel_lfs_code, eel_year
+```
+
 ## annex 5
 
 >It gives an error saying we miss values for ICES area adivision, but those lines correspond to an  habitat that does not exist in this EMU.
