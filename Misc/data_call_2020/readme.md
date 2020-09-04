@@ -535,20 +535,36 @@ DETAIL:  Key (ser_nameshort)=(FowS) already exists.
 *File sent to ICES 25/08.*
 
 ### annex 1
+none
 
 ### annex 2
+none
 
 ### annex 3
+none
 
 ### annex 4
+* new data:
+  * 2 news values for 2018 and 2019
+  * NP and NC for historical data
+  * 247 new values inserted in the database
+* udpated data: none  
 
 ### annex 5
+* new data:
+  * only NP
+  * 252 new values inserted in the database
+* updated data: none
 
 ### annex 6
+none
 
 ### annex 7
+none
 
 ### annex 8
+none
+
 
 
 ---------------------------
