@@ -513,7 +513,16 @@ DETAIL:  Key (ser_nameshort)=(FowS) already exists.
 
 ### annex 1
 
+Nothing
+
 ### annex 2
+
+series ****now named VistY for Vistonida*** 1 new
+
+dataseries 1 line
+
+biometries 1 line
+
 
 ### annex 3
 
