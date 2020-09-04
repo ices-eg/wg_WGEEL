@@ -821,7 +821,7 @@ WHERE eel_cou_code='IE' AND eel_lfs_code='AL' AND eel_typ_id=4 AND eel_qal_id IN
 ### annex 3
 
 ### annex 4
-
+*221 new values inserted in the database* proceed
 ### annex 5
 
 ### annex 6
