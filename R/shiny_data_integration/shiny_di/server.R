@@ -187,7 +187,7 @@ shinyServer(function(input, output, session){
 									# this function does not need to be reactive
 									if (is.null(data$path_step0)) "please select a dataset" else {          
 										rls <- step0load_data() # result list
-										validate(need(length(unique(rls$res$data$eel_cou_code))==1,paste("There are more than one country",paste(unique(rls$res$data$eel_cou_code),collapse=";"))))
+										#validate(need(length(unique(rls$res$data$eel_cou_code))==1,paste("There are more than one country",paste(unique(rls$res$data$eel_cou_code),collapse=";"))))
 										cou_code <- rls$res$data$eel_cou_code[1]
 										# the following three lines might look silly but passing input$something to the log_datacall function results
 										# in an error (input not found), I guess input$something has to be evaluated within the frame of the shiny app

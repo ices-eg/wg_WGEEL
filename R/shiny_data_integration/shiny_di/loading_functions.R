@@ -42,13 +42,16 @@ load_catch_landings<-function(path,datasource){
 	output <- lapply(c("new_data","updated_data"),function(sheet){
 				data_xls<-read_excel(
 						path=path,
-						sheet =sheet,
+						sheet=sheet,
 						skip=0, guess_max=10000)
 				data_error <- data.frame(nline = NULL, error_message = NULL)
 				country=as.character(data_xls[1,6])
 #    data_xls <- correct_me(data_xls)
 				# check for the file integrity
-				if (ncol(data_xls)!=11) cat(str_c("number column wrong, should have been 11 in file from ",country,"\n"))
+				
+				if (ncol(data_xls)!=11 & sheet=="new_data") cat(str_c("newdata : number column wrong, should have been 11 in file from ",country,"\n"))
+				if (ncol(data_xls)!=11 & sheet=="updated_data") cat(str_c("udated_data : number column wrong, should have been 11 in file from ",country,"\n"))
+				
 				# check column names
 				
 				###TEMPORARY FIX 2020 due to incorrect typ_name
