@@ -379,10 +379,20 @@ metadata : 2018 Biometry data of the FreS serie have been updated and put into t
  * 28 values updated in the db
 
 ### annex 5
+(Clarisse)
+
+* For duplicates 0 values replaced in the database (old values kept with code eel_qal_id=20),	6 values not replaced (values from current datacall stored with code eel_qal_id 20)
+The new data did'nt take into account of recreational landings of anglers (estimates)
+* 2257 new values inserted in the database
 
 ### annex 6
 
 ### annex 7
+(Clarisse)
+
+* For duplicates 0 values replaced in the database (old values kept with code eel_qal_id=20),2 values not replaced (values from current datacall stored with code eel_qal_id 20)
+*  20 new values inserted in the database
+* 2 values updated in the db
 
 ### annex 8
 
