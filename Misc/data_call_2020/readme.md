@@ -375,7 +375,8 @@ metadata : 2018 Biometry data of the FreS serie have been updated and put into t
 
 ### annex 4
 (Clarisse)
- 2193 new values inserted in the database
+ * 2193 new values inserted in the database
+ * 28 values updated in the db
 
 ### annex 5
 
