@@ -9,11 +9,11 @@
 #' check for missing values
 #' 
 #' @param dataset the name of the dataset
+#' @param namedataset the name of the sheet 
 #' @param column the name of the column
 #' @param country the current country being evaluated
-check_missing <- function(dataset,column,country){
+check_missing <- function(dataset, namedataset, column,country){
   answer = NULL
-	namedataset <-  deparse(substitute(dataset))
   if (any(is.na(dataset[,column]))){
     line<-(1:nrow(dataset))[is.na(dataset[,column])]
     if (length(line)>10) line <-str_c(str_c(line[1:10],collapse=";"),"...") else
@@ -37,10 +37,11 @@ check_missing <- function(dataset,column,country){
 #' check the values in the current column against a list of values, missing values are removed
 #' prior to assessment
 #' @param dataset the name of the dataset
+#' @param namedataset the name of the sheet 
 #' @param column the name of the column
 #' @param country the current country being evaluated
 
-check_values <- function(dataset,column,country,values){
+check_values <- function(dataset,namedataset, column,country,values){
   answer = NULL
 	namedataset <-  deparse(substitute(dataset))
   newdataset <- dataset
@@ -75,11 +76,12 @@ check_values <- function(dataset,column,country,values){
 #' 
 #' check for a specific type, e.g. numeric or character
 #' @param dataset the name of the dataset
+#' @param namedataset the name of the sheet 
 #' @param column the name of the column
 #' @param country the current country being evaluated
 #' @param type, a class described as a character e.g. "numeric"
 
-check_type <- function(dataset,column,country,values,type){
+check_type <- function(dataset,namedataset, column,country,values,type){
   answer = NULL
   newdataset <- dataset
   newdataset$nline <- 1:nrow(newdataset)
@@ -93,9 +95,10 @@ check_type <- function(dataset,column,country,values,type){
       options("warn"=0)
       line <- ddataset$nline[is.na(ddataset[,column])]
       if (length(line)>0){
-        cat(sprintf("column <%s>, line <%s>,  should be of type %s \n",
+        cat(sprintf("column <%s>, line <%s>, dataset <%s>,  should be of type %s \n",
                     column,
                     line,
+										namedataset,
                     type))
         
         answer  = data.frame(nline = line, error_message = sprintf("column <%s>, should be of type %s \n",
@@ -113,10 +116,11 @@ check_type <- function(dataset,column,country,values,type){
 #' 
 #' check that there is only one value in the column
 #' @param dataset the name of the dataset
+#' @param namedataset the name of the sheet 
 #' @param column the name of the column
 #' @param country the current country being evaluated
 #' @param type, a class described as a character e.g. "numeric"
-check_unique <- function(dataset,column,country){
+check_unique <- function(dataset, namedataset, column,country){
   answer = NULL
   newdataset <- dataset
   newdataset$nline <- 1:nrow(newdataset)
@@ -126,9 +130,10 @@ check_unique <- function(dataset,column,country){
   if (length(unique(ddataset[,column])) != 1) {   
     line <- ddataset$nline[which(ddataset[,column] != country)]
     if (length(line)>0){
-    cat(sprintf("column <%s>, line <%s> , should only have one value \n",
+    cat(sprintf("column <%s>, line <%s> , dataset <%s>, should only have one value \n",
             column,
-            line))
+            line,
+						namedataset))
     
     answer  = data.frame(nline = line, error_message = paste("different names in column : ", column, sep = ""))
   return(answer)  
@@ -142,10 +147,11 @@ check_unique <- function(dataset,column,country){
 #' 
 #' check that there are data in missvaluequal only when there are missing value (NA) is eel_value
 #' @param dataset the name of the dataset
+#' @param namedataset the name of the sheet 
 #' @param column the name of the column
 #' @param country the current country being evaluated
 #' @param type, a class described as a character e.g. "numeric"
-check_missvaluequal <- function(dataset,country){
+check_missvaluequal <- function(dataset, namedataset, country){
   answer1 = NULL
   answer2 = NULL
   # tibbles are weird, change to dataframe
@@ -159,9 +165,10 @@ check_missvaluequal <- function(dataset,country){
     if (! all(is.na(eel_values_for_missing))) {
       line1 <- lines[!is.na(eel_values_for_missing)]
       if (length(line1)>0){
-        cat(sprintf("column <%s>, lines <%s>, there is a code, but the eel_value field should be empty \n",
+        cat(sprintf("column <%s>, lines <%s>, dataset <%s>, there is a code, but the eel_value field should be empty \n",
                     "eel_missvaluequal",
-                    line1))
+                    line1,
+										namedataset))
         
         answer1  = data.frame(nline = line1, error_message = paste("there is a code in eel_missvaluequal, but the eel_value field should be empty", sep = ""))
       }
@@ -196,11 +203,12 @@ check_missvaluequal <- function(dataset,country){
 #' if there is data in neither eel_value_number and eel_value_kg, check if there are data in missvaluequa 
 #' 
 #' @param dataset the name of the dataset
+#' @param namedataset the name of the sheet 
 #' @param column the name of the column
 #' @param country the current country being evaluated
 #' @param type, a class described as a character e.g. "numeric"
 #' 
-check_missvalue_release <- function(dataset,country,updated=FALSE){
+check_missvalue_release <- function(dataset, namedataset, country,updated=FALSE){
   answer1 = NULL
   answer2 = NULL
   answer3 = NULL
@@ -264,11 +272,12 @@ check_missvalue_release <- function(dataset,country,updated=FALSE){
 #' check that the data in ee_value is positive
 #' 
 #' @param dataset the name of the dataset
+#' @param namedataset the name of the sheet 
 #' @param column the name of the column
 #' @param country the current country being evaluated
 #' @param type, a class described as a character e.g. "numeric"
 #' 
-check_positive <- function(dataset,column,country){
+check_positive <- function(dataset, namedataset, column,country){
   answer = NULL
   newdataset <- dataset
   newdataset$nline <- 1:nrow(newdataset)
@@ -279,7 +288,7 @@ check_positive <- function(dataset,column,country){
     if (length(line)>0){
       cat(sprintf("Country <%s>,  dataset <%s>, column <%s>, line <%s>,  should be a positive value \n",
                   country,
-                  deparse(substitute(dataset)),
+									namedataset,
                   column,
                   line))
       answer  = data.frame(nline = line, error_message = paste("negative value in: ", column, sep = ""))
@@ -292,8 +301,9 @@ check_positive <- function(dataset,column,country){
 #' check if there is an ICES area division for freshwater data
 #' prior to assessment
 #' @param dataset the name of the dataset
+#' @param namedataset the name of the sheet 
 #' @param country the current country being evaluated
-check_freshwater_without_area <- function(dataset,country){
+check_freshwater_without_area <- function(dataset,namedataset, country){
   #browser()
   answer = NULL
   newdataset <- dataset
@@ -327,7 +337,7 @@ check_freshwater_without_area <- function(dataset,country){
 #' @param country the current country being evaluated
 #' @param type, a class described as a character e.g. "numeric"
 #' 
-check_between <- function(dataset, column, country, minvalue, maxvalue){
+check_between <- function(dataset, namedataset, column, country, minvalue, maxvalue){
 	answer = NULL
 	newdataset <- dataset
 	newdataset$nline <- 1:nrow(newdataset)
@@ -338,7 +348,7 @@ check_between <- function(dataset, column, country, minvalue, maxvalue){
 		if (length(line)>0){
 			cat(sprintf("Country <%s>,  dataset <%s>, column <%s>, line <%s>,  should be larger than <%s> \n",
 							country,
-							deparse(substitute(dataset)),
+							namedataset,
 							column,
 							line,
 							minvalue))
@@ -348,7 +358,7 @@ check_between <- function(dataset, column, country, minvalue, maxvalue){
 			if (length(line)>0){
 				cat(sprintf("Country <%s>,  dataset <%s>, column <%s>, line <%s>,  should be lower than <%s> \n",
 								country,
-								deparse(substitute(dataset)),
+								namedataset,
 								column,
 								line,
 								maxvalue))
@@ -361,10 +371,11 @@ check_between <- function(dataset, column, country, minvalue, maxvalue){
 #' check that emu is a whole country emu
 #' 
 #' @param dataset the name of the dataset
+#' @param namedataset the name of the sheet 
 #' @param column the name of the column
 #' @param country the current country being evaluated
 #' 
-check_emu_country <- function(dataset, column, country){
+check_emu_country <- function(dataset, namedataset, column, country){
   answer=NULL
   conn <- poolCheckout(pool)
   emu_whole <- dbGetQuery(conn,paste("select emu_nameshort from ref.tr_emu_emu where emu_wholecountry=true and emu_cou_code='",country,"'",sep=""))[,1]
