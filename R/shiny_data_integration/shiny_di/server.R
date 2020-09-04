@@ -592,7 +592,7 @@ shinyServer(function(input, output, session){
           			  #  or an error message
           			  ###########################
           			  step23load_updated_value_data <- function() {
-          			    rls <- write_updated_values(data$updated_values_table,qualify_code=qualify_code)
+          			    rls <- write_updated_values(isolate(data$updated_values_table),qualify_code=qualify_code)
           			    message <- rls$message
           			    cou_code <- rls$cou_code
           			    main_assessor <- input$main_assessor
