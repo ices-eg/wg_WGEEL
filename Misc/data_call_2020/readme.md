@@ -283,6 +283,7 @@ Files sent to ICES in time
 none
 
 ### annex 2
+empty file
 
 ### annex 3
 
