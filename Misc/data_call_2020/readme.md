@@ -292,15 +292,33 @@ empty file
 ### annex 4
 * new data
   * I remove two lines that were provided as NC for Y and S while data were provided for NS
+  * NC for old data
+  * 209 new values inserted in the database
 * updated_data:
-  * 2 updated values
+  * 2 updated values: provide two values for 2016 and 2017 YS F which used to be NR or NC
 ### annex 5
+* new data:
+  * only NP or NC
+  * 196 new values inserted in the database
+* updated data
+  * data provided for 2016 and 2018 while they use to be NC
+  * 4 values updated in the db
 
 ### annex 6
+* new data:
+  * one line for 2019 in F S
+  * 1 new values inserted in the database
+* updated_data:
+  * change life stage (YS to S) from 2014 to 2018
+  * 5 updated values
 
 ### annex 7
+* new data:
+  * 24 new values inserted in the database
+* updated_data: nothing
 
 ### annex 8
+empty
 
 ---------------------------
 
