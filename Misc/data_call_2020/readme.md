@@ -178,7 +178,7 @@ CEDRIC
 
 ### annex 4
 
-(Sukran)
+* 4 new values inserted in the database*
 
 ### annex 5
 
@@ -435,12 +435,25 @@ metadata : 2018 Biometry data of the FreS serie have been updated and put into t
 * new biometry :  4 new values inserted in the database
 
 ### annex 4
+(Clarisse)
+ * 2193 new values inserted in the database
+ * 28 values updated in the db
 
 ### annex 5
+(Clarisse)
+
+* For duplicates 0 values replaced in the database (old values kept with code eel_qal_id=20),	6 values not replaced (values from current datacall stored with code eel_qal_id 20)
+The new data did'nt take into account of recreational landings of anglers (estimates)
+* 2257 new values inserted in the database
 
 ### annex 6
 
 ### annex 7
+(Clarisse)
+
+* For duplicates 0 values replaced in the database (old values kept with code eel_qal_id=20),2 values not replaced (values from current datacall stored with code eel_qal_id 20)
+*  20 new values inserted in the database
+* 2 values updated in the db
 
 ### annex 8
 
@@ -612,20 +625,36 @@ Argyios, please never merge cells.
 *File sent to ICES 25/08.*
 
 ### annex 1
+none
 
 ### annex 2
+none
 
 ### annex 3
+none
 
 ### annex 4
+* new data:
+  * 2 news values for 2018 and 2019
+  * NP and NC for historical data
+  * 247 new values inserted in the database
+* udpated data: none  
 
 ### annex 5
+* new data:
+  * only NP
+  * 252 new values inserted in the database
+* updated data: none
 
 ### annex 6
+none
 
 ### annex 7
+none
 
 ### annex 8
+none
+
 
 
 ---------------------------
@@ -818,9 +847,29 @@ WHERE eel_cou_code='IE' AND eel_lfs_code='AL' AND eel_typ_id=4 AND eel_qal_id IN
 
 ### annex 8
 
+--------------------------
 
 
+## LT (Lithuania)
 
+### annex 1
+
+### annex 2
+
+### annex 3
+
+### annex 4
+*244 new values inserted in the database:proceed*
+### annex 5
+
+### annex 6
+
+### annex 7
+
+### annex 8
+
+----------------------
+ 
  
 ## LV (Latvia) 
 
@@ -834,7 +883,8 @@ WHERE eel_cou_code='IE' AND eel_lfs_code='AL' AND eel_typ_id=4 AND eel_qal_id IN
 ### annex 3
 
 ### annex 4
-
+*202 new values inserted in the database*
+*13 values updated in the db*: proceed
 ### annex 5
 
 ### annex 6
@@ -982,25 +1032,42 @@ Done by Sukran
 ---------------------------
 
 ## PL (Poland) 
-
+(HILAIRE)
 
 *Data call sent to ICES in time*
 
 ### annex 1
+none
 
 ### annex 2
+* one new data for 2019
 
 ### annex 3
+none
 
 ### annex 4
+* done by Sukran
+
 
 ### annex 5
+* new_data:
+  * a few data fro 2018 and 2019
+  * 482 new values inserted in the database
+* updated_data nothing
 
 ### annex 6
+none
 
 ### annex 7
+* new data
+  * 6 new values inserted in the database
+  * 2018 whole country and 2019 detailed for 2 EMUs
+* updated_data: none
 
 ### annex 8
+* new data
+  * values for 2015 to 2018
+  * 4 new values inserted in the database
 
 ---------------------------
 
