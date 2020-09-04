@@ -2172,6 +2172,7 @@ load_series<-function(path,datasource,stage="glass_eel"){
 			path=path,
 			sheet ="new_data",
 			skip=0)
+
 	if (ncol(new_data)!=5) cat(str_c("number column wrong for newdata, should have been 5 in file from ",country,"\n"))
 	validate(need(class(new_data$das_value)=="numeric",message="You don't have numeric values in new_data check your file, maybe convert pasted value to numeric in excel, or maybe you don't have any data."))
 	

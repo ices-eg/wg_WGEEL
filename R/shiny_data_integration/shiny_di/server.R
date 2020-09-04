@@ -657,7 +657,6 @@ shinyServer(function(input, output, session){
 				#						error=data_error,
 				#						the_metadata=the_metadata))) 
 				# it also prints error or comments captured by capture.output
-				
 				switch (input$file_type_ts, 
 						"glass_eel"={                  
 							message<-capture.output(res <- load_series(data$path_step0_ts, 
