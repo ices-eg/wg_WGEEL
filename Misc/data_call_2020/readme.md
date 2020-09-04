@@ -253,22 +253,54 @@ none
 
 
 
-
 ### annex 2
-
-***Esti working on the file now. Don't touch Spain***
+> It gives an error message
+You don't have numeric values in new_data check your file, 
+>							maybe convert pasted value to numeric in excel, or maybe you don't have any data.
 
 ### annex 3
 
+1 new series
+65 new values inserted in the database
+
 ### annex 4
+>It gives an error saying we miss values for ICES area adivision, but those lines correspond to an habitat that does not exist in this EMU.
+>> so OK
+>Since 1951, separate catches of yellow and silver eels have been reported for the Albufera de Valencia. In addition, since 1998 mixed yellow and silver catches have been reported for the rest of Valencia. It has been decided to add up all these catches and report only a mixture of yellow and silver in the catch annex and to pass the data for the Albufera for yellow and silver separately to the time series. Thus, this updated information has been included in new data and updates series.
 
-### annex 5
+Y, S  data has been removed from existing data. 
 
-### annex 6
+## annex 5
 
-### annex 7
+>It gives an error saying we miss values for ICES area adivision, but those lines correspond to an  habitat that does not exist in this EMU.
+Finished
+
+## annex 6
+Problem uploading the file 
+
+
+
+```
+number column wrong, should have been 11 in file from ES
+dataset <data_xls>, column <eel_typ_name>, line <1>, value <release_n> is wrong, possibly not entered yet
+```
+
+## annex 7
+
+Problem with the file
+I have a message: release 
+```
+number of column wrong should have been 10 in the file for ES
+dataset <data_xls>, column <eel_area_division>, line <12>, value <1> is wrong, possibly not entered yet 
+line <12>, there should not be any area divsion in freshwater
+annex 8
+Done, 1 new values inserted in the database
+```
+
 
 ### annex 8
+
+Done, 1 new values inserted in the database
 
 
 ---------------------------
@@ -523,8 +555,15 @@ dataseries 1 line
 
 biometries 1 line
 
-
 ### annex 3
+
+Argyios, please never merge cells.
+
+* new series NorwS, WepeS, EamtS should add all ccm basins from EMU ?
+
+* new dataseries 15
+
+*new biometries 15
 
 ### annex 4
 
