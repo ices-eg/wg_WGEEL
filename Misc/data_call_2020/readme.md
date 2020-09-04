@@ -531,7 +531,7 @@ DETAIL:  Key (ser_nameshort)=(FowS) already exists.
 
  
 ## HR (Croatia) 
-
+(HILAIRE)
 *File sent to ICES 25/08.*
 
 ### annex 1
@@ -802,7 +802,7 @@ WHERE eel_cou_code='IE' AND eel_lfs_code='AL' AND eel_typ_id=4 AND eel_qal_id IN
 ### annex 3
 
 ### annex 4
-
+*221 new values inserted in the database* proceed
 ### annex 5
 
 ### annex 6
@@ -1021,15 +1021,16 @@ Annex 7: restocked and assisted for 2019 (T&T not ready to report). Restocked fo
  
 ## TR (Turkey) 
 
-*Nothing yet, check with Sukran*
+*proceed Annex 4*
 
 ### annex 1
-
+*n
 ### annex 2
 
 ### annex 3
 
 ### annex 4
+*proceed*
 
 ### annex 5
 
