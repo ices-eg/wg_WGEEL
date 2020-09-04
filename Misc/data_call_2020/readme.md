@@ -865,6 +865,19 @@ No new series
 
 ### annex 8
 
+---------------------------
+
+## No (Norway)
+
+### annex 1
+
+new dataseries 1
+
+modified dataseries 1
+
+new biometry 1
+
+### annex 2
 
 ---------------------------
 
