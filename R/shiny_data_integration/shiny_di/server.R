@@ -175,17 +175,16 @@ shinyServer(function(input, output, session){
 			###################################################
 			
 			observeEvent(input$check_file_button, {
-						
-						cat(data$path_step0)
+						cat(isolate(data$path_step0))
 						##################################################
 						# integrate verbatimtextoutput
 						# this will print the error messages to the console
 						#################################################
-						output$integrate<-renderText({
+						output$integrate<-renderText(isolate({
 									validate(need(data$connectOK,"No connection"))
 									# call to  function that loads data
 									# this function does not need to be reactive
-									if (is.null(data$path_step0)) "please select a dataset" else {          
+									if (input$xlfile == "") "please select a dataset" else {          
 										rls <- step0load_data() # result list
 										#validate(need(length(unique(rls$res$data$eel_cou_code))==1,paste("There are more than one country",paste(unique(rls$res$data$eel_cou_code),collapse=";"))))
 										cou_code <- rls$res$data$eel_cou_code[1]
@@ -200,7 +199,7 @@ shinyServer(function(input, output, session){
 										
 									}
 									
-								}) 			
+								})) 			
 			
 									##################################
 									# Actively generates UI component on the ui side 
@@ -234,7 +233,7 @@ shinyServer(function(input, output, session){
 									# DataTable integration error
 									########################
 									
-									output$dt_integrate<-DT::renderDataTable({                 
+									output$dt_integrate<-DT::renderDataTable(isolate({                 
 												validate(need(input$xlfile != "", "Please select a data set"))           
 												ls <- step0load_data()   
 												country <- ls$res$series
@@ -258,7 +257,7 @@ shinyServer(function(input, output, session){
 																				filename = paste0("data_",Sys.Date()))) 
 														)            
 												)
-											})
+											}))
 								})
 								
 								
