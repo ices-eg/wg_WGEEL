@@ -41,10 +41,10 @@ compare_with_database <- function(data_from_excel, data_from_base) {
 	}
 	# data integrity checks
 	if (nrow(data_from_excel) == 0) 
-		stop("There are no data coming from the excel file")
+		validate(need(FALSE,"There are no data coming from the excel file"))
 	current_cou_code <- unique(data_from_excel$eel_cou_code)
 	if (length(current_cou_code) != 1) 
-		stop("There is more than one country code, this is wrong")
+		validate(need(FALSE,"There is more than one country code, this is wrong"))
 	current_typ_name <- unique(data_from_excel$eel_typ_name)
 	if (!all(current_typ_name %in% tr_type_typ$typ_name)) stop(str_c("Type ",current_typ_name[!current_typ_name %in% tr_type_typ$typ_name]," not in list of type name check excel file"))
 	# all data returned by loading functions have only a name just in case to avoid doubles
@@ -66,9 +66,9 @@ compare_with_database <- function(data_from_excel, data_from_base) {
 	} else {   
 		current_typ_id <- unique(data_from_excel$eel_typ_id)
 		if (!all(current_typ_id %in% data_from_base$eel_typ_id)) 
-			stop(paste("There is a mismatch between selected typ_id", paste0(current_typ_id, 
+			validate(need(FALSE,paste("There is a mismatch between selected typ_id", paste0(current_typ_id, 
 									collapse = ";"), "and the dataset loaded from base", paste0(unique(data_from_base$eel_typ_id), 
-									collapse = ";"), "did you select the right File type ?"))
+									collapse = ";"), "did you select the right File type ?")))
 	}
 	# Can't join on 'eel_area_division' x 'eel_area_division' because of incompatible
 	# types (character / logical)
@@ -201,10 +201,10 @@ compare_with_database_updated_values <- function(updated_from_excel, data_from_b
 compare_with_database_series <- function(data_from_excel, data_from_base) {
 	# data integrity checks
 	if (nrow(data_from_excel) == 0) 
-		stop("There are no data coming from the excel file")
+		validate(need(FALSE,"There are no data coming from the excel file"))
 	current_cou_code <- unique(data_from_excel$ser_cou_code)
 	if (length(current_cou_code) != 1) 
-		stop("There is more than one country code, this is wrong")
+		validate(need(FALSE,"There is more than one country code, this is wrong"))
 	if (nrow(data_from_base) == 0) {
 		# the data_from_base has 0 lines and 0 columns
 		# this poses computation problems
@@ -324,7 +324,7 @@ compare_with_database_dataseries <- function(data_from_excel, data_from_base, sh
 	# data integrity checks
 	error_id_message <- ""
 	if (nrow(data_from_excel) == 0) 
-		stop("There are no data coming from the excel file")
+		validate(need(FALSE,"There are no data coming from the excel file"))
 	if (nrow(data_from_base) == 0) {
 		# the data_from_base has 0 lines and 0 columns
 		# this poses computation problems
@@ -451,7 +451,7 @@ compare_with_database_biometry <- function(data_from_excel, data_from_base, shee
 	# data integrity checks
 	
 	if (nrow(data_from_excel) == 0) 
-		stop("There are no data coming from the excel file")
+		validate(need(FALSE,"There are no data coming from the excel file"))
 	if (nrow(data_from_base) == 0) {
 		# the data_from_base has 0 lines and 0 columns
 		# this poses computation problems
