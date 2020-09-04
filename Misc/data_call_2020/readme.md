@@ -710,6 +710,10 @@ WHERE eel_cou_code='IE' AND eel_lfs_code='AL' AND eel_typ_id=4 AND eel_qal_id IN
 
 ### annex 6
 
+ 394 new values inserted in the database
+ 
+ ***note stage GY accepted for assisted migration***
+
 ### annex 7
 
 ### annex 8
