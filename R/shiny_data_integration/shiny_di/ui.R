@@ -119,291 +119,290 @@ ui <- dashboardPage(title="ICES Data Integration",
 								),
 								h2("step 2.3 Updated values"),
 								fluidRow(
-								  column(width=6,DT::dataTableOutput("dt_updated_values")
-								  ),                   
-								  column(width=2,
-								         actionButton("database_updated_value_button", "Proceed"))
-								  
-								),
-								fluidRow(
-								  column(width=6,verbatimTextOutput("textoutput_step2.3"))
-								)
-						),
-						
-						# time series integration table ---------------------------------------------------------
-						
-						tabItem(tabName="import_ts",
-								h2("Datacall time series (glass / yellow / silver) integration"),								
-								h2("step 0 : Data check"),
-								tabsetPanel(tabPanel("MAIN",
-								fluidRow(
-										column(width=4,fileInput("xlfile_ts", "Choose xls File",
-														multiple=FALSE,
-														accept = c(".xls",".xlsx")
-												)),
-										column(width=4,  radioButtons(inputId="file_type_ts", label="File type:",
-														c(	"Glass eel"="glass_eel",
-																"Yellow eel"="yellow_eel",
-																"Silver eel"="silver_eel"
-														))),
-										column(width=4, actionButton("ts_check_file_button", "Check file") )                     
+										column(width=6,DT::dataTableOutput("dt_updated_values")
+										),                   
+										column(width=6,
+												actionButton("database_updated_value_button", "Proceed"),
+												verbatimTextOutput("textoutput_step2.3")
+												)										
+										)
+								
 								),
 								
-								fluidRow(
-										column(width=6,
-												htmlOutput("step0_message_txt_ts"),
-												verbatimTextOutput("integrate_ts"),placeholder=TRUE),
-										column(width=6,
-												htmlOutput("step0_message_xls_ts"),
-												DT::dataTableOutput("dt_integrate_ts"))
-								)),
-								tabPanel("MAPS",
-								fluidRow(column(width=10),
-								         leafletOutput("maps_timeseries")))),
+								# time series integration table ---------------------------------------------------------
 								
-								tags$hr(),
-								h2("step 1 : Compare with database"),								
-								fluidRow(                                       
-										column(width=2,                        
-												actionButton("check_duplicate_button_ts", "Check duplicate")), 
-										column(width=5,
-												h3("new series"),
-												htmlOutput("step1_message_new_series"),
-												DT::dataTableOutput("dt_new_series"),
-												h3("new dataseries"),
-												htmlOutput("step1_message_new_dataseries"),
-												DT::dataTableOutput("dt_new_dataseries"),
-												h3("new biometry"),
-												htmlOutput("step1_message_new_biometry"),
-												DT::dataTableOutput("dt_new_biometry")
+								tabItem(tabName="import_ts",
+										h2("Datacall time series (glass / yellow / silver) integration"),								
+										h2("step 0 : Data check"),
+										tabsetPanel(tabPanel("MAIN",
+														fluidRow(
+																column(width=4,fileInput("xlfile_ts", "Choose xls File",
+																				multiple=FALSE,
+																				accept = c(".xls",".xlsx")
+																		)),
+																column(width=4,  radioButtons(inputId="file_type_ts", label="File type:",
+																				c(	"Glass eel"="glass_eel",
+																						"Yellow eel"="yellow_eel",
+																						"Silver eel"="silver_eel"
+																				))),
+																column(width=4, actionButton("ts_check_file_button", "Check file") )                     
+														),
+														
+														fluidRow(
+																column(width=6,
+																		htmlOutput("step0_message_txt_ts"),
+																		verbatimTextOutput("integrate_ts"),placeholder=TRUE),
+																column(width=6,
+																		htmlOutput("step0_message_xls_ts"),
+																		DT::dataTableOutput("dt_integrate_ts"))
+														)),
+												tabPanel("MAPS",
+														fluidRow(column(width=10),
+																leafletOutput("maps_timeseries")))),
+										
+										tags$hr(),
+										h2("step 1 : Compare with database"),								
+										fluidRow(                                       
+												column(width=2,                        
+														actionButton("check_duplicate_button_ts", "Check duplicate")), 
+												column(width=5,
+														h3("new series"),
+														htmlOutput("step1_message_new_series"),
+														DT::dataTableOutput("dt_new_series"),
+														h3("new dataseries"),
+														htmlOutput("step1_message_new_dataseries"),
+														DT::dataTableOutput("dt_new_dataseries"),
+														h3("new biometry"),
+														htmlOutput("step1_message_new_biometry"),
+														DT::dataTableOutput("dt_new_biometry")
 												),
-										column(width=5,
-												h3("modified series"),
-												htmlOutput("step1_message_modified_series"),
-												DT::dataTableOutput("dt_modified_series"),	
-												h3("modified series : what changed at series level ?"),
-												DT::dataTableOutput("dt_highlight_change_series"),
-												h3("modified dataseries"),
-												htmlOutput("step1_message_modified_dataseries"),
-												DT::dataTableOutput("dt_modified_dataseries"),
-												h3("modified dataseries : what changed for new_data and updated_data ?"),	
-												DT::dataTableOutput("dt_highlight_change_newdata_dataseries"),
-												DT::dataTableOutput("dt_highlight_change_modified_dataseries"),	
-												h3("modified biometry"),	
-												DT::dataTableOutput("dt_modified_biometry"),
-												htmlOutput("step1_message_modified_biometry"),
-												h3("modified biometry : what changed ?"),
-												DT::dataTableOutput("dt_highlight_change_biometry")												
-										)
-								),
-								tags$hr(),
-								h2("step 2.1 Integrate new series"),
-								fluidRow(
-										column(
-												width=4,
-												fileInput("xl_new_series", "xls new series, do this first and re-run compare",
-														multiple=FALSE,
-														accept = c(".xls",".xlsx")
+												column(width=5,
+														h3("modified series"),
+														htmlOutput("step1_message_modified_series"),
+														DT::dataTableOutput("dt_modified_series"),	
+														h3("modified series : what changed at series level ?"),
+														DT::dataTableOutput("dt_highlight_change_series"),
+														h3("modified dataseries"),
+														htmlOutput("step1_message_modified_dataseries"),
+														DT::dataTableOutput("dt_modified_dataseries"),
+														h3("modified dataseries : what changed for new_data and updated_data ?"),	
+														DT::dataTableOutput("dt_highlight_change_newdata_dataseries"),
+														DT::dataTableOutput("dt_highlight_change_modified_dataseries"),	
+														h3("modified biometry"),	
+														DT::dataTableOutput("dt_modified_biometry"),
+														htmlOutput("step1_message_modified_biometry"),
+														h3("modified biometry : what changed ?"),
+														DT::dataTableOutput("dt_highlight_change_biometry")												
 												)
-										),                   
-										column(
-												width=2,
-												actionButton("integrate_new_series_button", "Proceed")
 										),
-										column(
-												width=6,
-												verbatimTextOutput("textoutput_step2.1_ts")
-										)
-								),
-								h2("step 2.2 Update modified series"),
-								fluidRow(
-										column(
-												width=4,
-												fileInput("xl_updated_series", "xls modified series, do this first and re-run compare",
-														multiple=FALSE,
-														accept = c(".xls",".xlsx"))
-										),                   
-										column(
-												width=2,
-												actionButton("update_series_button", "Proceed")
-										),
-										column(
-												width=6,
-												verbatimTextOutput("textoutput_step2.2_ts")
-										)
-								),
-								h2("step 2.3 Integrate new dataseries"),
-								fluidRow(
-										column(
-												width=4,
-												fileInput("xl_new_dataseries", "Once the series are updated, integrate new dataseries",
-														multiple=FALSE,
-														accept = c(".xls",".xlsx"))
-										),                   
-										column(
-												width=2,
-												actionButton("integrate_new_dataseries_button", "Proceed")
-										),
-										column(
-												width=6,
-												verbatimTextOutput("textoutput_step2.3_ts")
-										)
-								),
-								h2("step 2.4 Update modified dataseries"),
-								fluidRow(
-										column(
-												width=4,
-												fileInput("xl_updated_dataseries", "Update the modified dataseries",
-														multiple=FALSE,
-														accept = c(".xls",".xlsx")
+										tags$hr(),
+										h2("step 2.1 Integrate new series"),
+										fluidRow(
+												column(
+														width=4,
+														fileInput("xl_new_series", "xls new series, do this first and re-run compare",
+																multiple=FALSE,
+																accept = c(".xls",".xlsx")
+														)
+												),                   
+												column(
+														width=2,
+														actionButton("integrate_new_series_button", "Proceed")
+												),
+												column(
+														width=6,
+														verbatimTextOutput("textoutput_step2.1_ts")
 												)
-										),                   
-										column(
-												width=2,
-												actionButton("update_dataseries_button", "Proceed")
 										),
-										column(
-												width=6,
-												verbatimTextOutput("textoutput_step2.4_ts")
+										h2("step 2.2 Update modified series"),
+										fluidRow(
+												column(
+														width=4,
+														fileInput("xl_updated_series", "xls modified series, do this first and re-run compare",
+																multiple=FALSE,
+																accept = c(".xls",".xlsx"))
+												),                   
+												column(
+														width=2,
+														actionButton("update_series_button", "Proceed")
+												),
+												column(
+														width=6,
+														verbatimTextOutput("textoutput_step2.2_ts")
+												)
+										),
+										h2("step 2.3 Integrate new dataseries"),
+										fluidRow(
+												column(
+														width=4,
+														fileInput("xl_new_dataseries", "Once the series are updated, integrate new dataseries",
+																multiple=FALSE,
+																accept = c(".xls",".xlsx"))
+												),                   
+												column(
+														width=2,
+														actionButton("integrate_new_dataseries_button", "Proceed")
+												),
+												column(
+														width=6,
+														verbatimTextOutput("textoutput_step2.3_ts")
+												)
+										),
+										h2("step 2.4 Update modified dataseries"),
+										fluidRow(
+												column(
+														width=4,
+														fileInput("xl_updated_dataseries", "Update the modified dataseries",
+																multiple=FALSE,
+																accept = c(".xls",".xlsx")
+														)
+												),                   
+												column(
+														width=2,
+														actionButton("update_dataseries_button", "Proceed")
+												),
+												column(
+														width=6,
+														verbatimTextOutput("textoutput_step2.4_ts")
+												)
+										),
+										h2("step 2.5 Integrate new biometry"),
+										fluidRow(
+												column(
+														width=4,
+														fileInput("xl_new_biometry", "xls update",
+																multiple=FALSE,
+																accept = c(".xls",".xlsx"))
+												),                   
+												column(
+														width=2,
+														actionButton("integrate_new_biometry_button", "Proceed")
+												),
+												column(width=6,
+														verbatimTextOutput("textoutput_step2.5_ts")
+												)
+										),
+										h2("step 2.6 Update modified biometry"),
+										fluidRow(
+												column(
+														width=4,
+														fileInput("xl_modified_biometry", "xls update",
+																multiple=FALSE,
+																accept = c(".xls",".xlsx"))
+												),                   
+												column(
+														width=2,
+														actionButton("update_biometry_button", "Proceed")
+												),
+												column(
+														width=6,
+														verbatimTextOutput("textoutput_step2.6_ts")
+												)
 										)
 								),
-								h2("step 2.5 Integrate new biometry"),
-								fluidRow(
-										column(
-												width=4,
-												fileInput("xl_new_biometry", "xls update",
-														multiple=FALSE,
-														accept = c(".xls",".xlsx"))
-										),                   
-										column(
-												width=2,
-												actionButton("integrate_new_biometry_button", "Proceed")
-										),
-										column(width=6,
-												verbatimTextOutput("textoutput_step2.5_ts")
-										)
-								),
-								h2("step 2.6 Update modified biometry"),
-								fluidRow(
-										column(
-												width=4,
-												fileInput("xl_modified_biometry", "xls update",
-														multiple=FALSE,
-														accept = c(".xls",".xlsx"))
-										),                   
-										column(
-												width=2,
-												actionButton("update_biometry_button", "Proceed")
-										),
-										column(
-												width=6,
-												verbatimTextOutput("textoutput_step2.6_ts")
-										)
-								)
-						),
-						
-						# Data correction table  ----------------------------------------------------------------
-						
-						tabItem("edit",
-								h2("Data correction table"),
-								br(),        
-								h3("Filter"),
-								fluidRow(
-										column(width=4,
-												pickerInput(inputId = "country", 
-														label = "Select a country :", 
-														choices = list_country,
-														multiple = TRUE,  
-														options = list(
-																style = "btn-primary", size = 5))),
-										column(width=4, 
-												pickerInput(inputId = "typ", 
-														label = "Select a type :", 
-														choices = typ_id,
-														multiple = TRUE, 
-														options = list(
-																style = "btn-primary", size = 5))),
-										column(width=4,
-												sliderTextInput(inputId ="year", 
-														label = "Choose a year range:",
-														choices=seq(the_years$min_year, the_years$max_year),
-														selected = c(the_years$min_year,the_years$max_year)
-												))),                                                         
-								helpText("This table is used to edit data in the database
-												After you double click on a cell and edit the value, 
-												the Save and Cancel buttons will show up. Click on Save if
-												you want to save the updated values to database; click on
-												Cancel to reset."),
-								br(), 
-								fluidRow(                                       
-										column(width=8,verbatimTextOutput("database_errors")),
-										column(width=2,actionButton("clear_table", "clear")),
-										column(width=2,uiOutput("buttons_data_correction"))
-								),                
-								br(),
-								DT::dataTableOutput("table_cor")),
-						
-						# plot for duplicates  ------------------------------------------------------------------
-						
-						tabItem("plot_duplicates", 
-								box(width=NULL, title= "Data exploration tab",
+								
+								# Data correction table  ----------------------------------------------------------------
+								
+								tabItem("edit",
+										h2("Data correction table"),
+										br(),        
+										h3("Filter"),
 										fluidRow(
 												column(width=4,
-														pickerInput(inputId = "country_g", 
+														pickerInput(inputId = "country", 
 																label = "Select a country :", 
 																choices = list_country,
-																selected = "FR",
-																multiple = FALSE, 
+																multiple = TRUE,  
 																options = list(
 																		style = "btn-primary", size = 5))),
 												column(width=4, 
-														pickerInput(inputId = "typ_g", 
+														pickerInput(inputId = "typ", 
 																label = "Select a type :", 
 																choices = typ_id,
-																selected= 4,
-																multiple = FALSE,
+																multiple = TRUE, 
 																options = list(
 																		style = "btn-primary", size = 5))),
 												column(width=4,
-														sliderTextInput(inputId ="year_g", 
+														sliderTextInput(inputId ="year", 
 																label = "Choose a year range:",
 																choices=seq(the_years$min_year, the_years$max_year),
 																selected = c(the_years$min_year,the_years$max_year)
-														)))),               
+														))),                                                         
+										helpText("This table is used to edit data in the database
+														After you double click on a cell and edit the value, 
+														the Save and Cancel buttons will show up. Click on Save if
+														you want to save the updated values to database; click on
+														Cancel to reset."),
+										br(), 
+										fluidRow(                                       
+												column(width=8,verbatimTextOutput("database_errors")),
+												column(width=2,actionButton("clear_table", "clear")),
+												column(width=2,uiOutput("buttons_data_correction"))
+										),                
+										br(),
+										DT::dataTableOutput("table_cor")),
 								
-								fluidRow(
-										column(width=6,
-												plotOutput("duplicated_ggplot",
-														click = clickOpts(id = "duplicated_ggplot_click")
-												)),
-										column(width=6,
-												plotlyOutput("plotly_selected_year"))
-								),     
-								dataTableOutput("datatablenearpoints",width='100%')                                        
-						),
-						tabItem(tabName="integrate_new_participants",
-						        h2("Enter the name of a new participant"),
-						        fluidRow(
-						          column(width=10,textInput("new_participants_id", "Enter the name of the new participant (FirstName LastName)",
-						                                   value=""
-						          )),
-						          column(width=2,  actionButton(inputId="new_participants_ok", label="Validate"))
-						        ),
-						        
-						        fluidRow(
-						          column(width=10,
-						                 htmlOutput("new_participants_txt")
-						        ))
-						)#,
-				
-				# second plot (not dev yet) -------------------------------------------------------------
-				
+								# plot for duplicates  ------------------------------------------------------------------
+								
+								tabItem("plot_duplicates", 
+										box(width=NULL, title= "Data exploration tab",
+												fluidRow(
+														column(width=4,
+																pickerInput(inputId = "country_g", 
+																		label = "Select a country :", 
+																		choices = list_country,
+																		selected = "FR",
+																		multiple = FALSE, 
+																		options = list(
+																				style = "btn-primary", size = 5))),
+														column(width=4, 
+																pickerInput(inputId = "typ_g", 
+																		label = "Select a type :", 
+																		choices = typ_id,
+																		selected= 4,
+																		multiple = FALSE,
+																		options = list(
+																				style = "btn-primary", size = 5))),
+														column(width=4,
+																sliderTextInput(inputId ="year_g", 
+																		label = "Choose a year range:",
+																		choices=seq(the_years$min_year, the_years$max_year),
+																		selected = c(the_years$min_year,the_years$max_year)
+																)))),               
+										
+										fluidRow(
+												column(width=6,
+														plotOutput("duplicated_ggplot",
+																click = clickOpts(id = "duplicated_ggplot_click")
+														)),
+												column(width=6,
+														plotlyOutput("plotly_selected_year"))
+										),     
+										dataTableOutput("datatablenearpoints",width='100%')                                        
+								),
+								tabItem(tabName="integrate_new_participants",
+										h2("Enter the name of a new participant"),
+										fluidRow(
+												column(width=10,textInput("new_participants_id", "Enter the name of the new participant (FirstName LastName)",
+																value=""
+														)),
+												column(width=2,  actionButton(inputId="new_participants_ok", label="Validate"))
+										),
+										
+										fluidRow(
+												column(width=10,
+														htmlOutput("new_participants_txt")
+												))
+								)#,
+						
+						# second plot (not dev yet) -------------------------------------------------------------
+						
 #            tabItem("plot2", fluidRow(
 #                    column(width=6,plotOutput("mon_graph2")),
 #                    column(width=6,plotOutput("mon_ggplot2"))
 #                ))
+						)
 				)
 		)
-)
 
 
