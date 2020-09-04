@@ -697,6 +697,10 @@ WHERE eel_cou_code='IE' AND eel_lfs_code='AL' AND eel_typ_id=4 AND eel_qal_id IN
 
 ### annex 5
 
+* 1440 new values inserted in the database
+ 
+* 96 updated values 
+
 ### annex 6
 
 ### annex 7
