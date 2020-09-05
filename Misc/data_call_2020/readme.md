@@ -914,7 +914,17 @@ WHERE eel_cou_code='IE' AND eel_lfs_code='AL' AND eel_typ_id=4 AND eel_qal_id IN
 
 ### annex 7
 
+* 2 updated values
+
+* 36 new rows
+
+
 ### annex 8
+
+> We have filled in this table as zero as we have no aquaculture - this could also be entered as NP?  Which do you want?.  We have also entered data back to 2000.  There was a pilot farm in the 1990s but production was in only two years and was tiny.
+
+>> No just don't report this annex if you don't have any aquaculture
+
 
 ---------------------------
 
