@@ -276,6 +276,8 @@ none
 You don't have numeric values in new_data check your file, 
 >							maybe convert pasted value to numeric in excel, or maybe you don't have any data.
 
+THERE IS SOMETHING WRONG WITH THE NUMBERS? NOT DONE YET
+
 ### annex 3
 
 1 new series
@@ -374,6 +376,14 @@ empty file
 * updated_data:
   * 2 updated values
 ### annex 5
+
+> In landings yellow and silver eels are altogether. In recreational fisheries landings are based on data collected by questionnaires every second year. Data is collected with a postal survey. The sample is taken from the population information system maintained by the Population Register Centre. Data is collected from household-dwellings, the statistical unit of the survey.  Recreational fishing refers to all fishing by Finnish household-dwellings (including crayfish), with the exception of fishing by professional fishermen and their household-dwellings. The statistics do not include fishing by foreign travellers in Finland or fishing by Finns abroad.
+
+
+
+
+
+
 
 ### annex 6
 
