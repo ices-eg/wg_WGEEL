@@ -390,6 +390,9 @@ Someone has integrated finland annex 5 but notes not there.
 
 ### annex 6
 
+> Other landings are all from one "trap and transport"-operation of assisted migration in the Kymijoki watercourse.
+
+already integrated....
 
 
 ### annex 7
@@ -601,14 +604,67 @@ DETAIL:  Key (ser_nameshort)=(FowS) already exists.
 
 ### annex 4
 
+GB_Scot
+
+> There are no commercial fisheries and therefore no landings in GB_Scot.	
+
+GB_Neag & GB_NorE
+
+>Data provided by Lough Neagh Fishermens Co-operative Society ltd for GB_Neag. There are no commercial fisheries and therefore no landings in GB_NorE.	
+
+GB_Angl; GB_Dee; GB_Humb; GB_Nort; GB_NorW; GB_Seve; GB_Solw; GB_SouE; GB_SouW; GB_Tham; GB_Wale
+
+> Updated data for glass eel fisheries catch in 2019.
+Note that due to COVID-19, 2019 and 2020 silver and yellow eel data are not yet available.
+Note that due to COVID-19, 2020 glass eel data are not yet available."
+
+* 22 updated values
+
+* 2651 new values inserted in the database
+
 ### annex 5
+
+
+GB_Scot	
+> There are no recreational landings in GB_Scot.
+
+GB_Neag and GB_NorE	
+> Recreational angling for eel is not permitted in NI and no records exist of catches 
+
+GB_Angl; GB_Dee; GB_Humb; GB_Nort; GB_NorW; GB_Seve; GB_Solw; GB_SouE; GB_SouW; GB_Tham; GB_Wale
+> prior to Eel Regulation. 	There are no recreational landings in England and Wales. 
+
+
+*  3516 new values inserted in the database
 
 ### annex 6
 
+N. Ireland Data series, including Lough Neagh.
+
+* 2 new rows
+
 ### annex 7
+
+
 
 ### annex 8
 
+GB_Neag and GB_NorE	 
+
+N. Ireland Data series, including Lough Neagh,  provided by Lough Neagh Fishermens Co-operative Society ltd.	
+
+GB_Scot	GB_Angl; 
+
+There are no releases in GB_Scot.
+
+GB_Dee; GB_Humb; GB_Nort; GB_NorW; GB_Seve; GB_Solw; GB_SouE; GB_SouW; GB_Tham; GB_Wale
+
+2019 data updated - number data only from 'Eels in Schools' (this is a programme where by glass eels are obtained from commercial fishers, and shared with various schools for educational purposes for children to learn about eels and their lifecycles before they are stocked to a nearby watercourse).
+2020 data- no stocking records to date- due to COVID-19 it is likely that there will be no stocking in 2020. 
+
+* 2 new rows
+
+* 10 updated values
 
 
 ---------------------------
