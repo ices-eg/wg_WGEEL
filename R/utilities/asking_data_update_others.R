@@ -166,7 +166,20 @@ country <- "NO";eel_typ_id <- 4; name <- "Eel_Data_Call_2020_Annex4_Landings_Com
 maxyear=2020;host="localhost";dbname="wgeel";user="wgeel";port=5432;datasource="dc_2020";
 #test
 create_datacall_file ( 
-		country <- "BE",
+		country <- "MA",
+		eel_typ_id <- 4, 
+		name <- "Eel_Data_Call_2020_Annex4_Landings_Commercial",
+		minyear=2000,
+		maxyear=2020, #maxyear corresponds to the current year where we have to fill data
+		host="localhost",
+		dbname="wgeel",
+		user="wgeel",
+		port=5432,
+		datasource="dc_2020")
+
+
+create_datacall_file ( 
+		country <- "MA",
 		eel_typ_id <- 4, 
 		name <- "Eel_Data_Call_2020_Annex4_Landings_Commercial",
 		minyear=2000,
@@ -261,6 +274,7 @@ for (cou in cou_code){
 
 cou_code_aqua<-unique(t_eelstock_eel$eel_cou_code[t_eelstock_eel$eel_typ_id%in%c(11)])
 
+cou <-"MA"
 
 for (cou in cou_code_aqua){
 	
