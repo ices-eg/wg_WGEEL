@@ -567,8 +567,8 @@ COMMIT;
 
 * modified dataseries 638
 
-*CHECK* new data series medY I have two values for 2001, none for 2000, I put 0 for 2000 (transformed 2001 in 2000) OK ?
-=> ANSWER : no don't add a line for 2000 DELETE THE LINE
+>*CHECK* new data series medY I have two values for 2001, none for 2000, I put 0 for 2000 (transformed 2001 in 2000) OK ?
+>> ANSWER : no don't add a line for 2000 DELETE THE LINE
 
 *CHECK* remove data with delete this line or keep value ? Answer remove
 
@@ -584,12 +584,14 @@ UPDATE datawg.t_dataseries_das set(das_value,das_effort,das_qal_id)=(NULL,NULL, 
 * new series : FowS;LevS, added ccm basins. Set to qal_id 1 by default (no information indicating otherwise).
 
 edition : coordinates for the strangford silver eel trap, again on the Killough river.
+
 ```sql
 BEGIN;
 UPDATE datawg.t_series_ser SET geom=ST_SETSRID(ST_MakePoint(-5.6338,54.26285),4326) WHERE ser_nameshort='StrS';
 UPDATE datawg.t_series_ser SET (ser_x,ser_y)=(st_x(geom),st_y(geom)) WHERE ser_nameshort = 'StrS';
 COMMIT;
 ```
+
 Error: Failed to fetch row: ERROR:  duplicate key value violates unique constraint "unique_name_short"
 DETAIL:  Key (ser_nameshort)=(FowS) already exists.
 
@@ -645,9 +647,7 @@ N. Ireland Data series, including Lough Neagh.
 
 ### annex 7
 
-
-
-### annex 8
+>>CEDRIC to Alan and Derek : Please consider that for release you have to provide both values on the same line, check readme for explanations :-).
 
 GB_Neag and GB_NorE	 
 
@@ -664,7 +664,10 @@ GB_Dee; GB_Humb; GB_Nort; GB_NorW; GB_Seve; GB_Solw; GB_SouE; GB_SouW; GB_Tham; 
 
 * 2 new rows
 
+I have removed the lines with no values yet.
+
 * 10 updated values
+
 
 
 ---------------------------
