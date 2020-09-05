@@ -883,7 +883,7 @@ DELETE FROM datawg.t_biometry_series_bis WHERE bio_year=1996 AND bis_ser_id = 23
 
 ### annex 4
 
-> We have decided to delete any duplicate data, and for habitats where there was never a fishery, to insert NP. For transitional waters where there was a fishery, but the landings were reported combined with freshwater, we have inserted NP. There may be some duplication here between data in the Updated_Data tab and the New_Data tab
+> We have decided to delete any duplicate data, and for habitats where there was never a fishery, to insert NP. For transitional waters where there was a fishery, but the landings were reported combined with freshwater, we have inserted NP. There may be some duplication here between data in the Updated_Data tab and the New Data tab
 
 DELETE records for stage AL 
 
@@ -956,19 +956,53 @@ WHERE eel_cou_code='IE' AND eel_lfs_code='AL' AND eel_typ_id=4 AND eel_qal_id IN
 
 ### annex 1
 
+* No data
+
 ### annex 2
+
+Note : 55.18.51,468	21.3.38,1129 is not a decimal coordinate. I've picked somewhere in the Curonian lagoon.
+Note longitude and latitude were switched.
+
+* 3 new series
+
+* 3 dataseries
+
+* 2 biometries
 
 ### annex 3
 
+* 5 new series
+
+* 6 dataseries
+
+* 4 biometries
+
 ### annex 4
-*244 new values inserted in the database:proceed*
+
+*244 new values inserted in the database:proceed
+
+
 ### annex 5
+
+> The number of fishermen surveyed every year is 1,100 people. In 2019, a smaller number of fishermen were interviewed. 553 fishermen took part in the survey. This may have affected the estimated eel catch. However, an effective eel release program has led to a significant increase in eel catches.
+
+problem of duplicated lines in the program (probably our fault for freshwater in 2000--2011)
+
+*  243 new values inserted in the database
+
+* no updated values
 
 ### annex 6
 
+* no data
+
 ### annex 7
 
+* no data
+
 ### annex 8
+
+
 
 ----------------------
  
