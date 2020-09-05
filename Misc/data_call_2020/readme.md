@@ -1010,27 +1010,6 @@ WHERE eel_cou_code='IE' AND eel_lfs_code='AL' AND eel_typ_id=4 AND eel_qal_id IN
 ---------------------------
 
  
-## NO (Norway) 
-
-*No data yet*
-
-### annex 1
-
-### annex 2
-
-### annex 3
-
-### annex 4
-*221 new values inserted in the database* proceed
-### annex 5
-
-### annex 6
-
-### annex 7
-
-### annex 8
-
-
 ## NL (Netherlands) 
 
 *First to answer the datacall*
@@ -1090,23 +1069,25 @@ No new series
 
 ### annex 1
 
-new dataseries 1
+* new dataseries 1
 
-modified dataseries 1
+* modified dataseries 1
 
-new biometry 1
+* new biometry 1
 
 ### annex 2
 
-new dataseries 1
+* new dataseries 1
 
-new biometry 1
+* new biometry 1
 
 ### annex 3
 
 ### annex 4
 
-Done by Sukran
+Sukran : 
+
+* 221 new values inserted in the database 
 
 ### annex 5
 
