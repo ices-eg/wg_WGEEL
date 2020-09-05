@@ -174,6 +174,15 @@ CEDRIC
 
 ### annex 2
 
+> I found no old data in this annex 2. Therefore i filled in  the old data in"updated_data" but thery were not updated simply they were missing.
+>> CEDRIC : funnily enough the series appears as duplicate and was included in 2019 ? Probably we forgot to include the data. Ive added the habitat as freshwater in the series description.
+
+>> CEDRIC : Mickael you forgot to provide organisation. I corrected the tab for inport by putting it back in new data. 
+
+* modified series 1
+
+* new dataseries 12
+
 ### annex 3
 
 ### annex 4
