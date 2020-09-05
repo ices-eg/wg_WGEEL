@@ -185,13 +185,19 @@ CEDRIC
 
 ### annex 3
 
+* No change in file
+
 ### annex 4
 
-* 4 new values inserted in the database*
+* 4 new values inserted in the database (Sukran)
 
 ### annex 5
 
+* 2 new values
+
 ### annex 6
+
+
 
 ### annex 7
 
