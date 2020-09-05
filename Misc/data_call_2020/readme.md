@@ -197,12 +197,15 @@ CEDRIC
 
 ### annex 6
 
-
+No data
 
 ### annex 7
 
+4 new rows (2 lines)
+
 ### annex 8
 
+3 values
 
 
 ---------------------------
