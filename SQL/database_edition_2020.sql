@@ -321,6 +321,7 @@ update datawg.t_eelstock_eel set eel_typ_id =11,
 	INSERT INTO datawg.participants SELECT 'Clarisse Boulenger';
 	INSERT INTO datawg.participants SELECT 'Tessa Vanderhammen';
 
+
 SELECT * FROM datawg.participants ORDER BY 1
 --------------------------
 /* RCODE
@@ -441,8 +442,8 @@ ORDER BY eel_lfs_code, eel_year; --65
 SELECT * FROM datawg.t_eelstock_eel WHERE eel_emu_nameshort='ES_Vale' 
 AND eel_typ_id=4 and eel_qal_id IN (20) 
 AND eel_lfs_code IN ('YS')
+ORDER BY eel_lfs_code, eel_year;
 
-ORDER BY eel_lfs_code, eel_year
 
 
 

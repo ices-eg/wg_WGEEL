@@ -114,12 +114,22 @@ shinyServer(function(input, output, session){
 						
 						query <- "SELECT name from datawg.participants order by name asc"
 						participants<<- dbGetQuery(pool, sqlInterpolate(ANSI(), query))  
-						# save(participants,list_country,typ_id,the_years,t_eelstock_eel_fields, file=str_c(getwd(),"/common/data/init_data.Rdata"))
-						
+
 						ices_division <<- extract_ref("FAO area")$f_code
 						
 						emus <<- extract_ref("EMU")
 						
+						updatePickerInput(
+								session = session, inputId = "main_assessor",
+								choices = participants,
+								selected =NULL
+						)
+						
+						updatePickerInput(
+								session = session, inputId = "secondary_assessor",
+								choices = participants,
+								selected = "Cedric Briand"
+						)
 						
 					})
 			###########################

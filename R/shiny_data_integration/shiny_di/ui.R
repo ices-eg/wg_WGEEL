@@ -34,7 +34,7 @@ ui <- dashboardPage(title="ICES Data Integration",
 						inputId = "secondary_assessor",
 						label = "Secondary assessor (Data)", 
 						choices = participants,
-						selected="Jan-Dag Pohlmann"
+						selected="Cedric Briand"
 				
 				),
 				passwordInput("password", "Password:"),

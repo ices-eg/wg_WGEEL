@@ -15,4 +15,4 @@ pool <- pool::dbPool(drv = dbDriver("PostgreSQL"),
 dbExecute(pool,"INSERT INTO datawg.participants SELECT 'Kristof Vlietinck'")
 query <- "SELECT name from datawg.participants order by name asc"
 participants<<- dbGetQuery(pool, sqlInterpolate(ANSI(), query)) 
-save(participants,list_country,typ_id,the_years,t_eelstock_eel_fields, file=str_c(getwd(),"/common/data/init_data.Rdata"), version=2)
+save(participants, file=str_c(getwd(),"/common/data/participants.Rdata"), version=2)
