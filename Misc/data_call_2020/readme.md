@@ -1014,14 +1014,31 @@ problem of duplicated lines in the program (probably our fault for freshwater in
 
 ### annex 1
 
+> naturally recruited European eels in 2011 (Lin Y. J., Shiao J. C., Plikshs M., Minde A., Iizuka Y., Rashal I., Tzeng W. N., 2011. Otolith Sr:Ca Ratios as Natural Mark to Discriminate the Restocked and Naturally Recruited European Eels in Latvia. 76th American Fisheries Society Symposium). New otolith microchemistry studies planned in the coming years.
+
+
 ### annex 2
+
+> naturally recruited European eels in 2011 (Lin Y. J., Shiao J. C., Plikshs M., Minde A., Iizuka Y., Rashal I., Tzeng W. N., 2011. Otolith Sr:Ca Ratios as Natural Mark to Discriminate the Restocked and Naturally Recruited European Eels in Latvia. 76th American Fisheries Society Symposium). New otolith microchemistry studies planned in the coming years.
+
+
+
+* 2 new series
+* 6 biometries
+**TODO** Send annual data for the series, mail sent to Janis
 
 ### annex 3
 
+**TODO*** Mail sent to Janis, add EMU, change sex ratio format (currently as hour), add new_data
+
 ### annex 4
-*202 new values inserted in the database*
-*13 values updated in the db*: proceed
+
+* 202 new values inserted in the database
+* 13 values updated in the db
+
 ### annex 5
+
+
 
 ### annex 6
 
