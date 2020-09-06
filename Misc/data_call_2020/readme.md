@@ -1255,9 +1255,29 @@ none
 
 ### annex 2
 
+>MonY: Electric fishing conducted in Mondego river and in its tributaries in spring and autumn each year. Data collection is being done under the European DCF (Data Collection Framework).                                                                  MinY: Electric fishing conducted in River Minho tributaries in Spring and Autumn. Please note: 2 corrections need to be added in the SHEET series_info. The column ser_emu_nameshort is WRONG. It should be substituted by ES_Minh and NOT PT_Port; the column ser_area_division is empty. It needs to be filled in with 27.9.a.
+>> CEDRIC : the series are freshwater series no need for area division.
+
+* 1 series updated (removed area division, updated EMU)
+
+* New dataseries 2
+
+* new biometry 2 values
+
 ### annex 3
 
+> MonS: Electric fishing conducted in Mondego river and in its tributaries in the autumn. Sampling is being done under the European DCF (Data Collection Framework).                                                  MinS: Electric fishing conducted in River Minho tributaries. Please note: 1 correction needs to be added in the SHEET series_info. The column ser_emu_nameshort is WRONG. It should be substituted by ES_Minh and NOT PT_Port.
+
+
 ### annex 4
+
+* modified series 1
+
+* new dataseries 2
+
+* new biometry  
+
+
 
 ### annex 5
 
