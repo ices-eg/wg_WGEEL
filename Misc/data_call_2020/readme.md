@@ -1038,13 +1038,23 @@ problem of duplicated lines in the program (probably our fault for freshwater in
 
 ### annex 5
 
+> In Latvia the provision of information on recreational landings is mandatory only in costal waters and also in inland waters where licensed angling is organised. That is why there is no information on ell recreational landings in the inland waters for some of the erlier years - there was less places where licensed angling was organised and the provision of information was weak. Missing data on recreational eel landings in coastal fishery will be provided untill the start of the 2020 working group.
 
+* 2 updated lines
+* 233 new values inserted in the database
 
 ### annex 6
 
+* no values
+
+
 ### annex 7
 
+* 2 lines
+
 ### annex 8
+
+* no values 
 
 ---------------------------
 
@@ -1112,17 +1122,31 @@ No new series
 
 ### annex 3
 
+* new dataseries  6 new values inserted in the database
+
 ### annex 4
 
 * new data 128 new values inserted in the database
 
+CEDRIC : There were updated values : 74 values updated in the db
+
 ### annex 5
+
+* 236 new values inserted
 
 ### annex 6
 
+no data
+
 ### annex 7
 
+* 2 updated values
+
+* 4 new values inserted
+
 ### annex 8
+
+* 1 new row
 
 ---------------------------
 
@@ -1144,11 +1168,15 @@ No new series
 
 ### annex 3
 
+No annex 3
+
 ### annex 4
 
 Sukran : 
 
 * 221 new values inserted in the database 
+
+
 
 ### annex 5
 
