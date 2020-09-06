@@ -1268,25 +1268,44 @@ none
 
 > MonS: Electric fishing conducted in Mondego river and in its tributaries in the autumn. Sampling is being done under the European DCF (Data Collection Framework).                                                  MinS: Electric fishing conducted in River Minho tributaries. Please note: 1 correction needs to be added in the SHEET series_info. The column ser_emu_nameshort is WRONG. It should be substituted by ES_Minh and NOT PT_Port.
 
-
-### annex 4
-
 * modified series 1
 
 * new dataseries 2
 
-* new biometry  
+* new biometry  2
 
 
+### annex 4
+
+
+> The data are collected from auction places and correspond to landings. The values for glass eel are presented by fishing season, while the data on yellow eel are presented by the years when the landings took place (civil year).
+
+* removed two emply lines for 2020
+*  446 new values inserted in the database
+* 67 values updated in the db
 
 ### annex 5
 
+> There are no data for recreational landings. In Portugal, recreational fisheries of eel are forbiden in all habitat types since 2018.
+
+
+*  480 new values inserted in the database
+
+
 ### annex 6
+
+> no other landings in Portugal
 
 ### annex 7
 
+> There is no restocking in Portugal
+
+
 ### annex 8
 
+> The data between 2010 and 2016 are retrieved from the fisheries statistics and refer to brackish water systems. Eel production is a by-product in aquaculture systems directed towards extensive and semi-intensive breeding of seabass (Dicentrarchus labrax) and seabream (Sparus aurata) farming. In 2017, an intensive eel aquaculture unit has started to produce, contributing to a large increase in production. In 2018 there was no production.
+
+* 4 values  changes `PT_Port` to `PT_total`
 
 ---------------------------
 
