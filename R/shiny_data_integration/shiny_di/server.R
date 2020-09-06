@@ -48,6 +48,14 @@ shinyServer(function(input, output, session){
 						if ("updated_values_table" %in% names(data)) {
 							data$updated_values_table<-data.frame()
 						}
+						reset("xl_new_file")
+						reset("xl_duplicates_file")
+					
+						
+						output$"textoutput_step2.1" <- renderText("")
+						output$"textoutput_step2.2" <- renderText("")
+						output$"textoutput_step2.3" <- renderText("")
+
 						
 					})
 			
@@ -114,7 +122,7 @@ shinyServer(function(input, output, session){
 						
 						query <- "SELECT name from datawg.participants order by name asc"
 						participants<<- dbGetQuery(pool, sqlInterpolate(ANSI(), query))  
-
+						
 						ices_division <<- extract_ref("FAO area")$f_code
 						
 						emus <<- extract_ref("EMU")
@@ -741,13 +749,12 @@ shinyServer(function(input, output, session){
 						
 						##################################################
 						# clean up
-						# this will print the error messages to the console
 						#################################################						
 						
 						output$textoutput_step2.1_ts <- renderText("")
 						output$dt_integrate_ts <- renderDataTable(data.frame(),
-										options = list(searching = FALSE,paging = FALSE,
-												language = list(zeroRecords = "Not run yet")))  
+								options = list(searching = FALSE,paging = FALSE,
+										language = list(zeroRecords = "Not run yet")))  
 						output$dt_duplicates_ts <- renderDataTable(data.frame(),
 								options = list(searching = FALSE,paging = FALSE,
 										language = list(zeroRecords = "Not run yet")))  
@@ -803,6 +810,20 @@ shinyServer(function(input, output, session){
 								options = list(searching = FALSE,paging = FALSE,
 										language = list(zeroRecords = "Not run yet")))   
 						
+						reset("xl_modified_biometry")
+						reset("xl_new_biometry")
+						reset("xl_updated_dataseries")
+						reset("xl_new_dataseries")
+						reset("xl_updated_series")
+						reset("xl_new_series")
+						
+						
+						output$"textoutput_step2.1_ts" <- renderText("")
+						output$"textoutput_step2.2_ts" <- renderText("")
+						output$"textoutput_step2.3_ts" <- renderText("")
+						output$"textoutput_step2.4_ts" <- renderText("")
+						output$"textoutput_step2.5_ts" <- renderText("")
+						output$"textoutput_step2.6_ts" <- renderText("")
 						
 						##################################################
 						# integrate verbatimtextoutput
@@ -986,12 +1007,12 @@ shinyServer(function(input, output, session){
 											paste(
 													h4("No new series")                             
 											))) 
-
+							
 							output$dt_new_series <- renderDataTable(data.frame(),
 									options = list(searching = FALSE,paging = FALSE,
 											language = list(zeroRecords = "No data")))  
 							
-
+							
 						} else {      
 							output$"step1_message_new_series"<-renderUI(
 									HTML(
@@ -1033,7 +1054,7 @@ shinyServer(function(input, output, session){
 											paste(
 													h4("No new data")                             
 											)))      
-						
+							
 							output$dt_new_dataseries <-  renderDataTable(data.frame(),
 									options = list(searching = FALSE,paging = FALSE,
 											language = list(zeroRecords = "No data")))  
@@ -1084,7 +1105,7 @@ shinyServer(function(input, output, session){
 									options = list(searching = FALSE,paging = FALSE,
 											language = list(zeroRecords = "No biometry")))  
 							
-
+							
 						} else {      
 							output$"step1_message_new_biometry"<-renderUI(
 									HTML(
@@ -1202,7 +1223,7 @@ shinyServer(function(input, output, session){
 									data.frame(),
 									options = list(searching = FALSE,paging = FALSE,
 											language = list(zeroRecords = "No change from modified")))  
-														
+							
 						} else {      
 							output$"step1_message_modified_dataseries"<-renderUI(
 									HTML(
