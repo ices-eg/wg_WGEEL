@@ -1168,7 +1168,8 @@ no data
 
 ### annex 3
 
-No annex 3
+* new dataseries 1
+* new biometry 11
 
 ### annex 4
 
@@ -1180,12 +1181,19 @@ Sukran :
 
 ### annex 5
 
+* new data 252 lines
+
 ### annex 6
+
+no data
 
 ### annex 7
 
+no releases
+
 ### annex 8
 
+no aquaculture
 
 
 
