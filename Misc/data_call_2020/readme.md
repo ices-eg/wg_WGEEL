@@ -1334,17 +1334,34 @@ Annex 7: restocked and assisted for 2019 (T&T not ready to report). Restocked fo
 
 ### annex 2
 
+> This file sent 2020-08-31 should replace file sent 2020-08-21. No data with high enough quality available.
+
+
 ### annex 3
+
+> For series SosS, the fisherman retired and no replacement has been found. Hence no fishing and no data.
+
+* 2 values inserted
 
 ### annex 4
 
+* 340 values inserted
+
 ### annex 5
+
+> NP, recreational fishing is illegal in Sweden.
 
 ### annex 6
 
+* 737 new values
+
 ### annex 7
 
+* 2 lines
+
 ### annex 8
+
+* 1 line
 
 ---------------------------
 
@@ -1377,13 +1394,15 @@ Annex 7: restocked and assisted for 2019 (T&T not ready to report). Restocked fo
 *proceed Annex 4*
 
 ### annex 1
-*n
+
 ### annex 2
 
 ### annex 3
 
 ### annex 4
-*proceed*
+
+Done
+
 
 ### annex 5
 

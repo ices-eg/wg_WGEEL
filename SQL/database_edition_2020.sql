@@ -445,5 +445,5 @@ AND eel_lfs_code IN ('YS')
 ORDER BY eel_lfs_code, eel_year;
 
 
-
+SELECT * FROM datawg.t_eelstock_eel WHERE eel_cou_code='TR' AND eel_typ_id=4
 
