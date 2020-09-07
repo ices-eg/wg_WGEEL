@@ -450,3 +450,14 @@ SELECT * FROM datawg.t_eelstock_eel WHERE eel_cou_code='TR' AND eel_typ_id=4
 SELECT * FROM datawg.t_eelstock_eel WHERE
 (eel_year, eel_lfs_code, eel_emu_nameshort, eel_typ_id, eel_hty_code, eel_qal_id)=(2019, 'G', 'ES_Anda', 8, 'F', 1)
 
+
+
+/*
+ * 
+ * UPDATING STATIONS.
+ * 
+ */
+
+SELECT ser_nameshort, ser_cou_code, ser_typ_id, ser_lfs_code FROM datawg.t_series_ser ORDER BY ser_cou_code,ser_lfs_code
+
+
