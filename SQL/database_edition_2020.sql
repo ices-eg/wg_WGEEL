@@ -447,3 +447,6 @@ ORDER BY eel_lfs_code, eel_year;
 
 SELECT * FROM datawg.t_eelstock_eel WHERE eel_cou_code='TR' AND eel_typ_id=4
 
+SELECT * FROM datawg.t_eelstock_eel WHERE
+(eel_year, eel_lfs_code, eel_emu_nameshort, eel_typ_id, eel_hty_code, eel_qal_id)=(2019, 'G', 'ES_Anda', 8, 'F', 1)
+

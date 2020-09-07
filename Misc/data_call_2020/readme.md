@@ -276,7 +276,11 @@ none
 You don't have numeric values in new_data check your file, 
 >							maybe convert pasted value to numeric in excel, or maybe you don't have any data.
 
-THERE IS SOMETHING WRONG WITH THE NUMBERS? NOT DONE YET
+modified series 1
+
+new data series 1
+
+new biometry 1
 
 ### annex 3
 
@@ -322,11 +326,11 @@ ORDER BY eel_lfs_code, eel_year
 ## annex 5
 
 >It gives an error saying we miss values for ICES area adivision, but those lines correspond to an  habitat that does not exist in this EMU.
+
 Finished
 
 ## annex 6
-Problem uploading the file 
-
+* 1 row
 
 
 ```
@@ -336,16 +340,8 @@ dataset <data_xls>, column <eel_typ_name>, line <1>, value <release_n> is wrong,
 
 ## annex 7
 
-Problem with the file
-I have a message: release 
-```
-number of column wrong should have been 10 in the file for ES
-dataset <data_xls>, column <eel_area_division>, line <12>, value <1> is wrong, possibly not entered yet 
-line <12>, there should not be any area divsion in freshwater
-annex 8
-Done, 1 new values inserted in the database
-```
-
+* 4 duplicates, question sent about numbers in ES_Anda
+* 20 values
 
 ### annex 8
 
@@ -397,7 +393,11 @@ already integrated....
 
 ### annex 7
 
+* 24 lines
+
 ### annex 8
+
+No aquaculture.
 
 ---------------------------
 
