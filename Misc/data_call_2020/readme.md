@@ -174,20 +174,38 @@ CEDRIC
 
 ### annex 2
 
+> I found no old data in this annex 2. Therefore i filled in  the old data in"updated_data" but thery were not updated simply they were missing.
+>> CEDRIC : funnily enough the series appears as duplicate and was included in 2019 ? Probably we forgot to include the data. Ive added the habitat as freshwater in the series description.
+
+>> CEDRIC : Mickael you forgot to provide organisation. I corrected the tab for inport by putting it back in new data. 
+
+* modified series 1
+
+* new dataseries 12
+
 ### annex 3
+
+* No change in file
 
 ### annex 4
 
-(Sukran)
+* 4 new values inserted in the database (Sukran)
 
 ### annex 5
 
+* 2 new values
+
 ### annex 6
+
+No data
 
 ### annex 7
 
+4 new rows (2 lines)
+
 ### annex 8
 
+3 values
 
 
 ---------------------------
@@ -253,22 +271,81 @@ none
 
 
 
-
 ### annex 2
+> It gives an error message
+You don't have numeric values in new_data check your file, 
+>							maybe convert pasted value to numeric in excel, or maybe you don't have any data.
 
-***Esti working on the file now. Don't touch Spain***
+modified series 1
+
+new data series 1
+
+new biometry 1
 
 ### annex 3
 
+1 new series
+65 new values inserted in the database
+
 ### annex 4
+>It gives an error saying we miss values for ICES area adivision, but those lines correspond to an habitat that does not exist in this EMU.
+>> so OK
+>Since 1951, separate catches of yellow and silver eels have been reported for the Albufera de Valencia. In addition, since 1998 mixed yellow and silver catches have been reported for the rest of Valencia. It has been decided to add up all these catches and report only a mixture of yellow and silver in the catch annex and to pass the data for the Albufera for yellow and silver separately to the time series. Thus, this updated information has been included in new data and updates series.
 
-### annex 5
+Y, S  data has been removed from existing data. 
 
-### annex 6
+```sql
+WITH delete_me AS (
+SELECT * FROM datawg.t_eelstock_eel WHERE eel_emu_nameshort='ES_Vale' 
+AND eel_typ_id=4 and eel_qal_id IN (1,2,4) 
+AND eel_lfs_code IN ('Y', 'S')
+AND eel_datasource !='dc_2020'
+ORDER BY eel_lfs_code, eel_year)
 
-### annex 7
+UPDATE datawg.t_eelstock_eel SET (eel_qal_id, eel_qal_comment)=
+('20',coalesce(t_eelstock_eel.eel_qal_comment,'')||'national assessor asks for deletion')  
+FROM delete_me
+WHERE t_eelstock_eel.eel_id= delete_me.eel_id; --126
+
+
+
+
+SELECT * FROM datawg.t_eelstock_eel WHERE eel_emu_nameshort='ES_Vale' 
+AND eel_typ_id=4 and eel_qal_id IN (1,2,4) 
+AND eel_lfs_code IN ('YS')
+AND eel_datasource ='dc_2020'
+ORDER BY eel_lfs_code, eel_year; --65
+
+SELECT * FROM datawg.t_eelstock_eel WHERE eel_emu_nameshort='ES_Vale' 
+AND eel_typ_id=4 and eel_qal_id IN (20) 
+AND eel_lfs_code IN ('YS')
+
+ORDER BY eel_lfs_code, eel_year
+```
+
+## annex 5
+
+>It gives an error saying we miss values for ICES area adivision, but those lines correspond to an  habitat that does not exist in this EMU.
+
+Finished
+
+## annex 6
+* 1 row
+
+
+```
+number column wrong, should have been 11 in file from ES
+dataset <data_xls>, column <eel_typ_name>, line <1>, value <release_n> is wrong, possibly not entered yet
+```
+
+## annex 7
+
+* 4 duplicates, question sent about numbers in ES_Anda
+* 20 values
 
 ### annex 8
+
+Done, 1 new values inserted in the database
 
 
 ---------------------------
@@ -296,11 +373,31 @@ empty file
   * 2 updated values
 ### annex 5
 
+> In landings yellow and silver eels are altogether. In recreational fisheries landings are based on data collected by questionnaires every second year. Data is collected with a postal survey. The sample is taken from the population information system maintained by the Population Register Centre. Data is collected from household-dwellings, the statistical unit of the survey.  Recreational fishing refers to all fishing by Finnish household-dwellings (including crayfish), with the exception of fishing by professional fishermen and their household-dwellings. The statistics do not include fishing by foreign travellers in Finland or fishing by Finns abroad.
+
+
+Funnily duplicates show that values have been integrated in 2020 but not for coastal ???
+
+* 164 duplicates seem to be exact duplicates > removed
+
+* new rows are also inserted but with qal_id 0
+
+Someone has integrated finland annex 5 but notes not there.
+
 ### annex 6
+
+> Other landings are all from one "trap and transport"-operation of assisted migration in the Kymijoki watercourse.
+
+already integrated....
+
 
 ### annex 7
 
+* 24 lines
+
 ### annex 8
+
+No aquaculture.
 
 ---------------------------
 
@@ -374,15 +471,28 @@ metadata : 2018 Biometry data of the FreS serie have been updated and put into t
 * new biometry :  4 new values inserted in the database
 
 ### annex 4
+(Clarisse)
+ * 2193 new values inserted in the database
+ * 28 values updated in the db
 
 ### annex 5
+(Clarisse)
+
+* For duplicates 0 values replaced in the database (old values kept with code eel_qal_id=20),	6 values not replaced (values from current datacall stored with code eel_qal_id 20)
+The new data did'nt take into account of recreational landings of anglers (estimates)
+* 2257 new values inserted in the database
 
 ### annex 6
-
+ * none
 ### annex 7
+(Clarisse)
+
+* For duplicates 0 values replaced in the database (old values kept with code eel_qal_id=20),2 values not replaced (values from current datacall stored with code eel_qal_id 20)
+*  20 new values inserted in the database
+* 2 values updated in the db
 
 ### annex 8
-
+* none
 ---------------------------
 
  
@@ -457,8 +567,8 @@ COMMIT;
 
 * modified dataseries 638
 
-*CHECK* new data series medY I have two values for 2001, none for 2000, I put 0 for 2000 (transformed 2001 in 2000) OK ?
-=> ANSWER : no don't add a line for 2000 DELETE THE LINE
+>*CHECK* new data series medY I have two values for 2001, none for 2000, I put 0 for 2000 (transformed 2001 in 2000) OK ?
+>> ANSWER : no don't add a line for 2000 DELETE THE LINE
 
 *CHECK* remove data with delete this line or keep value ? Answer remove
 
@@ -474,12 +584,14 @@ UPDATE datawg.t_dataseries_das set(das_value,das_effort,das_qal_id)=(NULL,NULL, 
 * new series : FowS;LevS, added ccm basins. Set to qal_id 1 by default (no information indicating otherwise).
 
 edition : coordinates for the strangford silver eel trap, again on the Killough river.
+
 ```sql
 BEGIN;
 UPDATE datawg.t_series_ser SET geom=ST_SETSRID(ST_MakePoint(-5.6338,54.26285),4326) WHERE ser_nameshort='StrS';
 UPDATE datawg.t_series_ser SET (ser_x,ser_y)=(st_x(geom),st_y(geom)) WHERE ser_nameshort = 'StrS';
 COMMIT;
 ```
+
 Error: Failed to fetch row: ERROR:  duplicate key value violates unique constraint "unique_name_short"
 DETAIL:  Key (ser_nameshort)=(FowS) already exists.
 
@@ -494,13 +606,67 @@ DETAIL:  Key (ser_nameshort)=(FowS) already exists.
 
 ### annex 4
 
+GB_Scot
+
+> There are no commercial fisheries and therefore no landings in GB_Scot.	
+
+GB_Neag & GB_NorE
+
+>Data provided by Lough Neagh Fishermens Co-operative Society ltd for GB_Neag. There are no commercial fisheries and therefore no landings in GB_NorE.	
+
+GB_Angl; GB_Dee; GB_Humb; GB_Nort; GB_NorW; GB_Seve; GB_Solw; GB_SouE; GB_SouW; GB_Tham; GB_Wale
+
+> Updated data for glass eel fisheries catch in 2019.
+Note that due to COVID-19, 2019 and 2020 silver and yellow eel data are not yet available.
+Note that due to COVID-19, 2020 glass eel data are not yet available."
+
+* 22 updated values
+
+* 2651 new values inserted in the database
+
 ### annex 5
+
+
+GB_Scot	
+> There are no recreational landings in GB_Scot.
+
+GB_Neag and GB_NorE	
+> Recreational angling for eel is not permitted in NI and no records exist of catches 
+
+GB_Angl; GB_Dee; GB_Humb; GB_Nort; GB_NorW; GB_Seve; GB_Solw; GB_SouE; GB_SouW; GB_Tham; GB_Wale
+> prior to Eel Regulation. 	There are no recreational landings in England and Wales. 
+
+
+*  3516 new values inserted in the database
 
 ### annex 6
 
+N. Ireland Data series, including Lough Neagh.
+
+* 2 new rows
+
 ### annex 7
 
-### annex 8
+>>CEDRIC to Alan and Derek : Please consider that for release you have to provide both values on the same line, check readme for explanations :-).
+
+GB_Neag and GB_NorE	 
+
+N. Ireland Data series, including Lough Neagh,  provided by Lough Neagh Fishermens Co-operative Society ltd.	
+
+GB_Scot	GB_Angl; 
+
+There are no releases in GB_Scot.
+
+GB_Dee; GB_Humb; GB_Nort; GB_NorW; GB_Seve; GB_Solw; GB_SouE; GB_SouW; GB_Tham; GB_Wale
+
+2019 data updated - number data only from 'Eels in Schools' (this is a programme where by glass eels are obtained from commercial fishers, and shared with various schools for educational purposes for children to learn about eels and their lifecycles before they are stocked to a nearby watercourse).
+2020 data- no stocking records to date- due to COVID-19 it is likely that there will be no stocking in 2020. 
+
+* 2 new rows
+
+I have removed the lines with no values yet.
+
+* 10 updated values
 
 
 
@@ -513,9 +679,25 @@ DETAIL:  Key (ser_nameshort)=(FowS) already exists.
 
 ### annex 1
 
+Nothing
+
 ### annex 2
 
+series ****now named VistY for Vistonida*** 1 new
+
+dataseries 1 line
+
+biometries 1 line
+
 ### annex 3
+
+Argyios, please never merge cells.
+
+* new series NorwS, WepeS, EamtS should add all ccm basins from EMU ?
+
+* new dataseries 15
+
+*new biometries 15
 
 ### annex 4
 
@@ -701,7 +883,7 @@ DELETE FROM datawg.t_biometry_series_bis WHERE bio_year=1996 AND bis_ser_id = 23
 
 ### annex 4
 
-> We have decided to delete any duplicate data, and for habitats where there was never a fishery, to insert NP. For transitional waters where there was a fishery, but the landings were reported combined with freshwater, we have inserted NP. There may be some duplication here between data in the Updated_Data tab and the New_Data tab
+> We have decided to delete any duplicate data, and for habitats where there was never a fishery, to insert NP. For transitional waters where there was a fishery, but the landings were reported combined with freshwater, we have inserted NP. There may be some duplication here between data in the Updated_Data tab and the New Data tab
 
 DELETE records for stage AL 
 
@@ -732,7 +914,17 @@ WHERE eel_cou_code='IE' AND eel_lfs_code='AL' AND eel_typ_id=4 AND eel_qal_id IN
 
 ### annex 7
 
+* 2 updated values
+
+* 36 new rows
+
+
 ### annex 8
+
+> We have filled in this table as zero as we have no aquaculture - this could also be entered as NP?  Which do you want?.  We have also entered data back to 2000.  There was a pilot farm in the 1990s but production was in only two years and was tiny.
+
+>> No just don't report this annex if you don't have any aquaculture
+
 
 ---------------------------
 
@@ -757,9 +949,63 @@ WHERE eel_cou_code='IE' AND eel_lfs_code='AL' AND eel_typ_id=4 AND eel_qal_id IN
 
 ### annex 8
 
+--------------------------
+
+
+## LT (Lithuania)
+
+### annex 1
+
+* No data
+
+### annex 2
+
+Note : 55.18.51,468	21.3.38,1129 is not a decimal coordinate. I've picked somewhere in the Curonian lagoon.
+Note longitude and latitude were switched.
+
+* 3 new series
+
+* 3 dataseries
+
+* 2 biometries
+
+### annex 3
+
+* 5 new series
+
+* 6 dataseries
+
+* 4 biometries
+
+### annex 4
+
+*244 new values inserted in the database:proceed
+
+
+### annex 5
+
+> The number of fishermen surveyed every year is 1,100 people. In 2019, a smaller number of fishermen were interviewed. 553 fishermen took part in the survey. This may have affected the estimated eel catch. However, an effective eel release program has led to a significant increase in eel catches.
+
+problem of duplicated lines in the program (probably our fault for freshwater in 2000--2011)
+
+*  243 new values inserted in the database
+
+* no updated values
+
+### annex 6
+
+* no data
+
+### annex 7
+
+* no data
+
+### annex 8
 
 
 
+----------------------
+ 
  
 ## LV (Latvia) 
 
@@ -768,20 +1014,47 @@ WHERE eel_cou_code='IE' AND eel_lfs_code='AL' AND eel_typ_id=4 AND eel_qal_id IN
 
 ### annex 1
 
+> naturally recruited European eels in 2011 (Lin Y. J., Shiao J. C., Plikshs M., Minde A., Iizuka Y., Rashal I., Tzeng W. N., 2011. Otolith Sr:Ca Ratios as Natural Mark to Discriminate the Restocked and Naturally Recruited European Eels in Latvia. 76th American Fisheries Society Symposium). New otolith microchemistry studies planned in the coming years.
+
+
 ### annex 2
+
+> naturally recruited European eels in 2011 (Lin Y. J., Shiao J. C., Plikshs M., Minde A., Iizuka Y., Rashal I., Tzeng W. N., 2011. Otolith Sr:Ca Ratios as Natural Mark to Discriminate the Restocked and Naturally Recruited European Eels in Latvia. 76th American Fisheries Society Symposium). New otolith microchemistry studies planned in the coming years.
+
+
+
+* 2 new series
+* 6 biometries
+**TODO** Send annual data for the series, mail sent to Janis
 
 ### annex 3
 
+**TODO*** Mail sent to Janis, add EMU, change sex ratio format (currently as hour), add new_data
+
 ### annex 4
-*202 new values inserted in the database*
-*13 values updated in the db*: proceed
+
+* 202 new values inserted in the database
+* 13 values updated in the db
+
 ### annex 5
+
+> In Latvia the provision of information on recreational landings is mandatory only in costal waters and also in inland waters where licensed angling is organised. That is why there is no information on ell recreational landings in the inland waters for some of the erlier years - there was less places where licensed angling was organised and the provision of information was weak. Missing data on recreational eel landings in coastal fishery will be provided untill the start of the 2020 working group.
+
+* 2 updated lines
+* 233 new values inserted in the database
 
 ### annex 6
 
+* no values
+
+
 ### annex 7
 
+* 2 lines
+
 ### annex 8
+
+* no values 
 
 ---------------------------
 
@@ -808,27 +1081,6 @@ WHERE eel_cou_code='IE' AND eel_lfs_code='AL' AND eel_typ_id=4 AND eel_qal_id IN
 ---------------------------
 
  
-## NO (Norway) 
-
-*No data yet*
-
-### annex 1
-
-### annex 2
-
-### annex 3
-
-### annex 4
-*221 new values inserted in the database* proceed
-### annex 5
-
-### annex 6
-
-### annex 7
-
-### annex 8
-
-
 ## NL (Netherlands) 
 
 *First to answer the datacall*
@@ -870,17 +1122,31 @@ No new series
 
 ### annex 3
 
+* new dataseries  6 new values inserted in the database
+
 ### annex 4
 
 * new data 128 new values inserted in the database
 
+CEDRIC : There were updated values : 74 values updated in the db
+
 ### annex 5
+
+* 236 new values inserted
 
 ### annex 6
 
+no data
+
 ### annex 7
 
+* 2 updated values
+
+* 4 new values inserted
+
 ### annex 8
+
+* 1 new row
 
 ---------------------------
 
@@ -888,32 +1154,46 @@ No new series
 
 ### annex 1
 
-new dataseries 1
+* new dataseries 1
 
-modified dataseries 1
+* modified dataseries 1
 
-new biometry 1
+* new biometry 1
 
 ### annex 2
 
-new dataseries 1
+* new dataseries 1
 
-new biometry 1
+* new biometry 1
 
 ### annex 3
 
+* new dataseries 1
+* new biometry 11
+
 ### annex 4
 
-Done by Sukran
+Sukran : 
+
+* 221 new values inserted in the database 
+
+
 
 ### annex 5
 
+* new data 252 lines
+
 ### annex 6
+
+no data
 
 ### annex 7
 
+no releases
+
 ### annex 8
 
+no aquaculture
 
 
 
@@ -975,23 +1255,62 @@ none
 
 ### annex 2
 
+>MonY: Electric fishing conducted in Mondego river and in its tributaries in spring and autumn each year. Data collection is being done under the European DCF (Data Collection Framework).                                                                  MinY: Electric fishing conducted in River Minho tributaries in Spring and Autumn. Please note: 2 corrections need to be added in the SHEET series_info. The column ser_emu_nameshort is WRONG. It should be substituted by ES_Minh and NOT PT_Port; the column ser_area_division is empty. It needs to be filled in with 27.9.a.
+>> CEDRIC : the series are freshwater series no need for area division.
+
+* 1 series updated (removed area division, updated EMU)
+
+* New dataseries 2
+
+* new biometry 2 values
+
 ### annex 3
+
+> MonS: Electric fishing conducted in Mondego river and in its tributaries in the autumn. Sampling is being done under the European DCF (Data Collection Framework).                                                  MinS: Electric fishing conducted in River Minho tributaries. Please note: 1 correction needs to be added in the SHEET series_info. The column ser_emu_nameshort is WRONG. It should be substituted by ES_Minh and NOT PT_Port.
+
+* modified series 1
+
+* new dataseries 2
+
+* new biometry  2
+
 
 ### annex 4
 
+
+> The data are collected from auction places and correspond to landings. The values for glass eel are presented by fishing season, while the data on yellow eel are presented by the years when the landings took place (civil year).
+
+* removed two emply lines for 2020
+*  446 new values inserted in the database
+* 67 values updated in the db
+
 ### annex 5
+
+> There are no data for recreational landings. In Portugal, recreational fisheries of eel are forbiden in all habitat types since 2018.
+
+
+*  480 new values inserted in the database
+
 
 ### annex 6
 
+> no other landings in Portugal
+
 ### annex 7
+
+> There is no restocking in Portugal
+
 
 ### annex 8
 
+> The data between 2010 and 2016 are retrieved from the fisheries statistics and refer to brackish water systems. Eel production is a by-product in aquaculture systems directed towards extensive and semi-intensive breeding of seabass (Dicentrarchus labrax) and seabream (Sparus aurata) farming. In 2017, an intensive eel aquaculture unit has started to produce, contributing to a large increase in production. In 2018 there was no production.
+
+* 4 values  changes `PT_Port` to `PT_total`
 
 ---------------------------
 
  
-## SE (Sweden) 
+## SE (Sweeden) 
 
 *Data call sent to ICES in time*
 New data submitted by Josefin 31/08
@@ -1014,18 +1333,34 @@ Annex 7: restocked and assisted for 2019 (T&T not ready to report). Restocked fo
 * new biometry =>  121 new values inserted in the database
 
 ### annex 2
+(HILAIRE) Andreas sent a file on the 4th of september. 6 new series inserted, 5 in SE_West (FjaY, LysY, HakY, VenY and KulY) and 1 in SE_East (BarY). KulY is only 4 years long => qal_id=2. The others are ok. 137 new values inserted in the database
+
 
 ### annex 3
 
+> For series SosS, the fisherman retired and no replacement has been found. Hence no fishing and no data.
+
+* 2 values inserted
+
 ### annex 4
+
+* 340 values inserted
 
 ### annex 5
 
+> NP, recreational fishing is illegal in Sweden.
+
 ### annex 6
+
+* 737 new values
 
 ### annex 7
 
+* 2 lines
+
 ### annex 8
+
+* 1 line
 
 ---------------------------
 
@@ -1058,13 +1393,15 @@ Annex 7: restocked and assisted for 2019 (T&T not ready to report). Restocked fo
 *proceed Annex 4*
 
 ### annex 1
-*n
+
 ### annex 2
 
 ### annex 3
 
 ### annex 4
-*proceed*
+
+Done
+
 
 ### annex 5
 

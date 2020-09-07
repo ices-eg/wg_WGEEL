@@ -321,6 +321,7 @@ update datawg.t_eelstock_eel set eel_typ_id =11,
 	INSERT INTO datawg.participants SELECT 'Clarisse Boulenger';
 	INSERT INTO datawg.participants SELECT 'Tessa Vanderhammen';
 
+
 SELECT * FROM datawg.participants ORDER BY 1
 --------------------------
 /* RCODE
@@ -416,7 +417,47 @@ UPDATE datawg.t_eelstock_eel SET (eel_qal_id, eel_qal_comment)=
 ('20',coalesce(eel_qal_comment,'')||'national assessor asks for deletion')  
 WHERE eel_id= 422202;--48
 
-SELECT * FROM datawg.t_eelstock_eel WHERE 
 
+WITH delete_me AS (
+SELECT * FROM datawg.t_eelstock_eel WHERE eel_emu_nameshort='ES_Vale' 
+AND eel_typ_id=4 and eel_qal_id IN (1,2,4) 
+AND eel_lfs_code IN ('Y', 'S')
+AND eel_datasource !='dc_2020'
+ORDER BY eel_lfs_code, eel_year)
+
+UPDATE datawg.t_eelstock_eel SET (eel_qal_id, eel_qal_comment)=
+('20',coalesce(t_eelstock_eel.eel_qal_comment,'')||'national assessor asks for deletion')  
+FROM delete_me
+WHERE t_eelstock_eel.eel_id= delete_me.eel_id; --126
+
+
+
+
+SELECT * FROM datawg.t_eelstock_eel WHERE eel_emu_nameshort='ES_Vale' 
+AND eel_typ_id=4 and eel_qal_id IN (1,2,4) 
+AND eel_lfs_code IN ('YS')
+AND eel_datasource ='dc_2020'
+ORDER BY eel_lfs_code, eel_year; --65
+
+SELECT * FROM datawg.t_eelstock_eel WHERE eel_emu_nameshort='ES_Vale' 
+AND eel_typ_id=4 and eel_qal_id IN (20) 
+AND eel_lfs_code IN ('YS')
+ORDER BY eel_lfs_code, eel_year;
+
+
+SELECT * FROM datawg.t_eelstock_eel WHERE eel_cou_code='TR' AND eel_typ_id=4
+
+SELECT * FROM datawg.t_eelstock_eel WHERE
+(eel_year, eel_lfs_code, eel_emu_nameshort, eel_typ_id, eel_hty_code, eel_qal_id)=(2019, 'G', 'ES_Anda', 8, 'F', 1)
+
+
+
+/*
+ * 
+ * UPDATING STATIONS.
+ * 
+ */
+
+SELECT ser_nameshort, ser_cou_code, ser_typ_id, ser_lfs_code FROM datawg.t_series_ser ORDER BY ser_cou_code,ser_lfs_code
 
 
