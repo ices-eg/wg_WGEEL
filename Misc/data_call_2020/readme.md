@@ -1310,7 +1310,7 @@ none
 ---------------------------
 
  
-## SE (Sweden) 
+## SE (Sweeden) 
 
 *Data call sent to ICES in time*
 New data submitted by Josefin 31/08
@@ -1333,8 +1333,7 @@ Annex 7: restocked and assisted for 2019 (T&T not ready to report). Restocked fo
 * new biometry =>  121 new values inserted in the database
 
 ### annex 2
-
-> This file sent 2020-08-31 should replace file sent 2020-08-21. No data with high enough quality available.
+(HILAIRE) Andreas sent a file on the 4th of september. 6 new series inserted, 5 in SE_West (FjaY, LysY, HakY, VenY and KulY) and 1 in SE_East (BarY). KulY is only 4 years long => qal_id=2. The others are ok. 137 new values inserted in the database
 
 
 ### annex 3
