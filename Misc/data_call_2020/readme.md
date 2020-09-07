@@ -483,7 +483,7 @@ The new data did'nt take into account of recreational landings of anglers (estim
 * 2257 new values inserted in the database
 
 ### annex 6
-
+ * none
 ### annex 7
 (Clarisse)
 
@@ -492,7 +492,7 @@ The new data did'nt take into account of recreational landings of anglers (estim
 * 2 values updated in the db
 
 ### annex 8
-
+* none
 ---------------------------
 
  
