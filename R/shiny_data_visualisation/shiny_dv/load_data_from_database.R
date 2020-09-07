@@ -32,10 +32,10 @@ emu_cou<-emu_cou[order(emu_cou$cou_order,emu_cou$emu_nameshort),]
 emu_cou<-data.frame(emu_cou,emu_order=1:nrow(emu_cou))
 # Extract data from the database -------------------------------------------------------------------
 
-landings = extract_data("Landings",quality=c(1,2,4),quality_check=TRUE)
+landings = extract_data("landings",quality=c(1,2,4),quality_check=TRUE)
 # ONLY FOR AQUACULTURE WE HAVE A DATA PROTECTION LAW RESTRICTING THE ACCESS
-aquaculture = extract_data("Aquaculture",quality=c(1,2,4),quality_check=TRUE)
-release = extract_data("Release",quality=c(1,2,4),quality_check=TRUE)
+aquaculture = extract_data("aquaculture",quality=c(1,2,4),quality_check=TRUE)
+release = extract_data("release",quality=c(1,2,4),quality_check=TRUE)
 
 precodata = extract_precodata() # for tables
 # below by default in the view the quality 1,2,and 4 are used
