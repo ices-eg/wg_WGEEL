@@ -93,4 +93,5 @@ onStop(function() {
 ########################
 qualify_code<-20 # change this code here and in tr_quality_qal for next wgeel
 the_eel_datasource <- "dc_2020" 
+current_year <- 2020
 
