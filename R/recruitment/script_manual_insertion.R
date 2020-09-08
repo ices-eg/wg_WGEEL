@@ -823,7 +823,7 @@ sqldf(str_c("INSERT INTO datawg.t_biometry_series_bis(
 #----------------------------------------------------
 
 #first run global.R shiny data integration
-require(getpath)
+require(getPass)
 path <- "C:\\Users\\cedric.briand\\OneDrive - EPTB Vilaine\\Projets\\GRISAM\\2020\\wgeel\\stations.xlsx"
 station <- read_excel(path,sheet=2)
 con_wgeel=dbConnect(PostgreSQL(),
@@ -881,7 +881,28 @@ new$StartYear <- new$startyear
 new$EndYear <- NA
 stationtemp <- new[,c("tblCodeID", "Station_Code", "Country", "Organisation", "Station_Name", "WLTYP", 
 						"Lat", "Lon", "StartYear", "EndYear", "PURPM", "Notes" )]
-
+dbExecute(con_wgeel,"drop table if exists stationtemp")
 dbWriteTable(con_wgeel, "stationtemp", stationtemp) 
+
+
+# run this straight in sql see database_edition_2020
+dbExecute(con_wgeel,'
+INSERT INTO ref.tr_station(
+		"tblCodeID",  "Country", "Organisation", "Station_Name", "WLTYP", 
+		"Lat", "Lon", "StartYear",  "PURPM", "Notes"
+)
+
+SELECT 
+"tblCodeID",  "Country", "Organisation", "Station_Name", "WLTYP", 
+"Lat", "Lon", "StartYear",  "PURPM", "Notes"
+FROM stationtemp;
+
+
+UPDATE datawg.t_series_ser SET ser_tblcodeid = "tblCodeID"
+FROM ref.tr_station
+WHERE tr_station."Station_Name"=ser_nameshort; ')
+
+# remaining series without station :
+dbGetQuery(con_wgeel,"SELECT * FROM datawg.t_series_ser WHERE ser_tblcodeid IS NULL;")
 
 

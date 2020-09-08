@@ -480,8 +480,29 @@ SELECT * FROM datawg.t_eelstock_eel  WHERE eel_id in(498283,498284);
 SELECT min(eel_year) as min_year, max(eel_year) as max_year from datawg.t_eelstock_eel 
 
 
-SELECT * FROM datawg.t_eelstock_eel WHERE eel_cou_code ='FR' AND eel_year = 2020 AND eel_typ_id=4
+SELECT * FROM datawg.t_series_ser WHERE ser_nameshort LIKE '%Mill%'
 
+/*
+ * INSERT MISSING VALUES IN STATIONS TABLE
+ */
+
+INSERT INTO ref.tr_station(
+"tblCodeID",  "Country", "Organisation", "Station_Name", "WLTYP", 
+						"Lat", "Lon", "StartYear",  "PURPM", "Notes"
+						)
+
+SELECT 
+"tblCodeID",  "Country", "Organisation", "Station_Name", "WLTYP", 
+						"Lat", "Lon", "StartYear",  "PURPM", "Notes"
+FROM stationtemp
+WHERE "Station_Name" NOT IN ('MillGY','EaMTY'); --140
+
+UPDATE datawg.t_series_ser SET ser_tblcodeid = "tblCodeID"
+FROM ref.tr_station
+WHERE tr_station."Station_Name"=ser_nameshort; --221
+
+-- remaining series without station :
+SELECT * FROM datawg.t_series_ser WHERE ser_tblcodeid IS NULL;
 
 
 
