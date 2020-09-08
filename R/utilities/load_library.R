@@ -22,7 +22,7 @@ load_package <- function(x)
   if (!is.character(x)) stop("Package should be a string")
   if (!require(x,character.only = TRUE))
   {
-    install.packages(x, lib=.libPaths()[1], dep=TRUE)
+    install.packages(x, lib=.libPaths()[1],repos="http://cran.us.r-project.org", dep=TRUE)
     if(!require(x,character.only = TRUE)) stop("Package not found")
   }
 }
