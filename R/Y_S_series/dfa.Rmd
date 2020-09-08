@@ -2,6 +2,7 @@
 title: "DFA yellow and silver eels"
 author: "ICES Data Group"
 date: "18/08/2020"
+bibliography: references_dfa.bib
 output: html_document
 ---
 
@@ -24,6 +25,7 @@ load_library("getPass")
 load_library("RPostgreSQL")
 load_library("sf")
 load_library("broom")
+load_library("eulerr")
 load_library("dplyr")
 load_library("knitr")
 load_library("ggplot2")
@@ -50,6 +52,53 @@ format_dfa =function(the.fit){
   scale_val=coef(the.fit)$A
   list(Z=Z,trends=trends,scale_val=scale_alpha)
 }
+
+#a function to display nice Venn diagram
+venn <- function(nameseries,Z,minZ){
+  nameseries=as.character(nameseries)
+  list_venn=do.call(c,lapply(1:(dim(Z)[2]),function(j){
+    res=list(nameseries[which(Z[,j]>minZ)],nameseries[which(Z[,j]< -minZ)])
+    names(res)=paste("Trend",j,c("+","-"),sep="")
+    res
+  }))
+  list_venn$Any =nameseries[!nameseries %in%unlist(list_venn)]
+  euler_fit<-euler(list_venn)
+  lab=sapply(names(euler_fit$original.values),function(n){
+    groups=strsplit(n,"&")[[1]]
+    group_not=names(list_venn)[!names(list_venn) %in%groups]
+    okgroup = apply(sapply(groups,function(g) nameseries %in% list_venn[[g]]),
+            1,
+            prod) 
+    oknotgroup=1
+    if(length(group_not)>0){
+      oknotgroup=apply(sapply(group_not,
+                              function(g) !nameseries %in% list_venn[[g]]),
+            1,
+            prod)
+    }
+    paste(nameseries[as.logical(
+      okgroup*oknotgroup)],
+      collapse="\n")
+  })
+   eulerr_options(quantities=list(cex=.6))
+  plot(euler_fit,quantities=lab)
+}
+
+
+venn_belonging <- function(nameseries,Z,minZ){
+  nameseries=as.character(nameseries)
+  list_venn=do.call(c,lapply(1:(dim(Z)[2]),function(j){
+    res=list(nameseries[which(Z[,j]>minZ)],nameseries[which(Z[,j]< -minZ)])
+    names(res)=paste("Trend",j,c("+","-"),sep="")
+    res
+  }))
+  list_venn$Any =nameseries[!nameseries %in%unlist(list_venn)]
+  sapply(nameseries,function(ser) 
+    paste(names(list_venn)[sapply(names(list_venn),
+           function(g) ifelse(ser %in% list_venn[[g]], TRUE,FALSE))],
+          collapse="; "))
+}
+
 ```
 
 ```{r data loading, include=FALSE}
@@ -78,7 +127,7 @@ query='SELECT
 		left join ref.tr_lifestage_lfs on ser_lfs_code=lfs_code
 		left join ref.tr_faoareas on ser_area_division=f_division
         left join ref.tr_country_cou on cou_code=ser_cou_code
-		where ser_typ_id in (2,3)'
+		where ser_typ_id in (2,3) and das_value is not null'
 mydata = dbGetQuery(con_wgeel,query)
 mydata$ser_nameshort=as.factor(mydata$ser_nameshort)
 mydata$ser_area_division=as.factor(mydata$ser_area_division)
@@ -103,8 +152,8 @@ dbDisconnect(con_wgeel)
 
 
 # Introduction
-Several time series of abundance of yellow eels and silver eels are collected throughout Europe. However, the analysis of their trends is more complex than for glass eel time-series since yellow and silver abundances are the results of both the general status of the population and local conditions (environmental condition and anthropogenic pressures) in river basins in which they are collected. Despite these difficulties, it would be interested to detect whether some common trends exist among the available data series and whether they can be related to monitoring methods, locations of the data or other factors. This would be a first exploration step before moving forward in a potential assessment of the standing stock.
-In this context, we carry out a dynamic Factor Analysis, a multivariate method aiming at detecting common trends in a set of time-series (Zuur et al., 2003). Similary to glass-eel recruitment models, we restricted the data set to times series for which at least 10 years of data were available and carry out silver eel and yellow eel analysis separetely.
+Several time series of abundance of yellow eels and silver eels are collected throughout Europe. However, the analysis of their trends is more complex than for glass eel time-series since yellow and silver abundances are the results of both the general status of the population and local conditions (environmental condition, anthropogenic pressures, life history traits, management actions...) in river basins in which they are collected [@ices2014]. Despite these difficulties, it would be interested to detect whether some common trends exist among the available data series and whether they can be related to monitoring methods, locations of the data or other factors. This would be a first exploration step before moving forward in a potential assessment of the standing stock.
+In this context, we carry out a dynamic Factor Analysis, a multivariate method aiming at detecting common trends in a set of time-series [@zuur2003a]. Similary to glass-eel recruitment models, we restricted the data set to times series for which at least 10 years of data were available and carry out silver eel and yellow eel analysis separetely.
 
 # Yellow eel
 ## Available data
@@ -113,13 +162,13 @@ In this context, we carry out a dynamic Factor Analysis, a multivariate method a
 ```{r map yellow,echo=FALSE,message=FALSE,warning=FALSE}
 worldmap <- ne_countries(scale = 'medium', type = 'map_units',
                          returnclass = 'sf')
-europe_cropped <- st_crop(worldmap, xmin = -13, xmax = 25,
+europe_cropped <- st_crop(worldmap, xmin = -13, xmax = 27,
                                     ymin = 35, ymax = 65)
 ggplot(yellow_map)+geom_sf(data=europe_cropped)+geom_sf(data=yellow_map,col="red")+
   theme_bw()
 ```
 
-There are few data series started before 2000 so we sill restrict the analysis to the dataseries that have at least 10 observations after 2000. 
+There are few data series started before 2000 so we sill restrict the analysis to the dataseries that have at least 10 observations after 2000 and stops in 2019 to avoid incomplete data in 2020. 
 
 ```{r pointperyearYE,echo=FALSE}
 point_per_year_YE<- yellow_data %>%
@@ -138,9 +187,17 @@ nbpoints = yellow_data %>%
   summarise(nbyear=n_distinct(das_year))%>%
   filter(nbyear>=10)
 yellow_data <-yellow_data %>%
-  filter(ser_id %in% nbpoints$ser_id & das_year>=2000)
+  filter(ser_id %in% nbpoints$ser_id & das_year>=2000 & das_year <= 2019)
+
+#we also removed ser_id for which 0 represents more than 10% of data
+yellow_data <- yellow_data %>%
+  group_by(ser_id) %>%
+  mutate(nb_values=n(),nb_zeros=sum(das_value==0)) %>%
+  mutate(freq_zero=nb_zeros/nb_values)%>%
+  filter(freq_zero < .1)
 ```
-This leaves `r length(unique(yellow_data$ser_id))` time series.
+
+This leaves `r length(unique(yellow_data$ser_id))` time series. If we plot all the series, a gam smoother indicates an overall decreasing trend.
 
 ```{r plotTS YE,echo=FALSE,warning=FALSE}
 yellow_data_std=yellow_data%>%
@@ -156,7 +213,7 @@ ggplot(yellow_data_std,aes(x=das_year,y=das_value))+
 
 
 ## Running the DFA
-The DFA method is fully detailed in Zuur 2003. The basic idea is to decompose each time series into a weighted sum of a few common trends and a noise factor:
+The DFA method is fully detailed in [@zuur2003]. The basic idea is to decompose each time series into a weighted sum of a few common trends and a noise factor:
 $$
 \begin{aligned}
 Y_{j,t}=\mu_j + \sum_{i=1}^{n} w_{i,j} \cdot X_{i,t} +\epsilon_{j,t} \qquad \mbox{ with } \left \{ \epsilon_{j,t} \right \}  \sim N(0,\Sigma)
@@ -169,7 +226,7 @@ X_{i,t}=X_{i,t-1}+f_{i,t} \qquad \mbox{ with } f_{i,t} \sim N(0,Q)
 \end{aligned}
 $$
 
-with $f_{i,t} the noise on the trend $i$ at time $t$ which follows a normal law, possibly correlated between trends with the covariance covariance matrix $Q$ which can be set to the identity matrix (Zuur et al. 2003).
+with $f_{i,t} the noise on the trend $i$ at time $t$ which follows a normal law, possibly correlated between trends with the covariance covariance matrix $Q$ which can be set to the identity matrix [@zuur2003a].
 The method thus allows both to extract the common trends through the estimates of $X$, but also to see to what extent each of the importance of each trend in each series through $w$.
 
 To fit the DFA, the user as to put some additionnal constraints. We will make 3 kind of assumptions on $\Sigma$:
@@ -180,14 +237,21 @@ To fit the DFA, the user as to put some additionnal constraints. We will make 3 
 
 
 ## Common trends
-Before running the DFA, values were logtransformed (a 0 value was recorded for a single observation (time series SkaY) and was replaced by 10% of its lower value) and scales ((mean deleted and divided by the standard deviation)).
+Before running the DFA, values were logtransformed (few 0 value were recorded and were replaced by 10% of the lower value of the series) and scales ((mean deleted and divided by the standard deviation)).
 
 ```{r dfa yellow, results='hide',eval=FALSE}
 #replace 0 value
-yellow_data$das_value[yellow_data$das_value==0 & yellow_data$ser_nameshort=="SkaY"] <- 0.1 * min(yellow_data$das_value[yellow_data$das_value>0 & yellow_data$ser_nameshort=="SkaY"],na.rm=TRUE)
+list_zeros <- which(yellow_data$das_value == 0)
+for (i in list_zeros){
+  ser_id=yellow_data$ser_id[i]
+  yellow_data$das_value[i] <- 0.1 *
+    min(yellow_data$das_value[yellow_data$das_value>0 & 
+                                yellow_data$ser_id == ser_id],na.rm=TRUE)
+}
 
 #put data in wide format and select from 1980
 yellow_wide <-yellow_data %>%
+  ungroup %>% #removed the ser_id grouping
   mutate(das_value=log(das_value))%>%
   select(ser_nameshort,das_value,das_year) %>%
   arrange(das_year)%>%
@@ -235,9 +299,8 @@ best_fit_yellow=model_comparisonsYE[[which(results_yellow$AIC==min(results_yello
 ```
 
 
-The factor loadings are displayed in the following plots (importance of each trend in each time series)
 
-```{r series loadings yellow, echo=FALSE}
+```{r trends yellow, echo=FALSE}
 N_ts=nrow(yellow_wide) #number of time series
 TT=ncol(yellow_wide)-1 #number of time steps
 y=as.matrix(yellow_wide[,-1]) #matrix of obseravation
@@ -250,8 +313,27 @@ namesseries=yellow_wide$ser_nameshort
 trends=formatted_matrices_yellow$trends
 Z=formatted_matrices_yellow$Z
 #plot the factor loadings
-minZ = 0.15
+minZ = 0.1
 m=dim(trends)[1]
+
+trends_long <- as.data.frame(t(trends))
+names(trends_long)=paste("Trend",1:ncol(trends_long))
+trends_long$year=as.numeric(names(yellow_wide)[-1])
+trends_long<-trends_long %>%
+  pivot_longer(starts_with("Trend"),names_to="Trend")
+ggplot(trends_long,aes(x=year,y=value))+
+  geom_line()+
+  facet_wrap(.~Trend)+
+  theme_bw()
+
+```
+
+Trend 1 shows a monotonous trend over the period while trend 2 indicates a shift after 2007.
+
+The factor loadings are displayed in the following plots (importance of each trend in each time series). Following @zuur2003, we only focused on loading with absolute values greater than 0.1 to focus on the most important trends. 
+
+
+```{r series loadings yellow, echo=FALSE}
 ylims = c(-1.1*max(abs(Z)), 1.1*max(abs(Z)))
 par(mfrow=c(ceiling(m/2),2), mar=c(0.5,2.5,1.5,0.5), oma=c(0.4,1,1,1))
 for(i in 1:m) {
@@ -269,27 +351,53 @@ for(i in 1:m) {
   mtext(bquote(~italic(z[list(i,.(i))])),side=3,line=.5)
 } # end i loop
 
-##kept if two trends
-loadings_y = as.data.frame(Z[,1:2])
-names(loadings_y)=c("loading_trend_1","loading_trend_2")
-ggplot(loadings_y,aes(x=loading_trend_1,y=loading_trend_2))+
-  geom_point()+
+# ##kept if two trends
+# loadings_y = as.data.frame(Z[,1:2])
+# names(loadings_y)=c("loading_trend_1","loading_trend_2")
+# ggplot(loadings_y,aes(x=loading_trend_1,y=loading_trend_2))+
+#   geom_point()+
+#   theme_bw()
+```
+
+```{r venn yellow, echo=FALSE}
+venn(namesseries,Z,minZ)
+yellow_belonging=data.frame(ser_nameshort=namesseries,
+                            Trend=venn_belonging(namesseries,
+                                                 Z,
+                                                 minZ))
+yellow_belonging <- yellow_belonging %>%
+  mutate(Trend1=ifelse(Z[,1]>minZ,"+",
+                       ifelse(Z[,1]< -minZ, "-",0)),
+         Trend2=ifelse(Z[,2]>minZ,"+",
+                       ifelse(Z[,2]< -minZ, "-",0)))
+yellow_belonging = merge(yellow_belonging,
+                         unique(yellow_data[,c("ser_id","ser_nameshort")]))
+yellow_belonging=merge(yellow_map,
+                       yellow_belonging)
+ggplot(yellow_belonging)+
+  geom_sf(data=europe_cropped)+
+  geom_sf(data=yellow_belonging,aes(fill=Trend,col=Trend))+
+  scale_fill_brewer(type="qual")+
+  scale_color_brewer(type="qual")+
+  theme_bw()
+
+
+ggplot(yellow_belonging)+
+  geom_sf(data=europe_cropped)+
+  geom_sf(data=yellow_belonging,aes(fill=Trend2,col=Trend2))+
+  scale_fill_brewer(type="qual")+
+  scale_color_brewer(type="qual")+
+  theme_bw()
+
+ggplot(yellow_belonging)+
+  geom_sf(data=europe_cropped)+
+  geom_sf(data=yellow_belonging,aes(fill=Trend1,col=Trend1))+
+  scale_fill_brewer(type="qual")+
+  scale_color_brewer(type="qual")+
   theme_bw()
 ```
 
-
-```{r trends yellow, echo=FALSE}
-trends_long <- as.data.frame(t(trends))
-names(trends_long)=paste("Trend",1:ncol(trends_long))
-trends_long$year=as.numeric(names(yellow_wide)[-1])
-trends_long<-trends_long %>%
-  pivot_longer(starts_with("Trend"),names_to="Trend")
-ggplot(trends_long,aes(x=year,y=value))+
-  geom_line()+
-  facet_wrap(.~Trend)+
-  theme_bw()
-
-```
+Many series are positively correlated to Trend 1 which that indicates a constant decline of the abundance since the 2000s. Some timeseries are negatively correlated to trend 2, but amont them, many are also positively correlated to trend2, indicating a slight increase or stability at the beginning of the period and then a decrease till 2007. Regarding time series dominated mostly by a negative correlation with trend 1 (i.e. a monotonic increase over the period), they all came from Great Britain, and half of them are located far from the coast. On the whole, it is difficult to distinguish any clear spatial pattern in the trends.
 
 
 
@@ -334,10 +442,20 @@ nbpoints = silver_data %>%
   summarise(nbyear=n_distinct(das_year))%>%
   filter(nbyear>=10)
 silver_data <-silver_data %>%
-  filter(ser_id %in% nbpoints$ser_id & das_year>=2000)
+  filter(ser_id %in% nbpoints$ser_id & das_year>=2000 & das_year<=2019)
+
+
+
+#we also removed ser_id for which 0 represents more than 10% of data
+silver_data <- silver_data %>%
+  group_by(ser_id) %>%
+  mutate(nb_values=n(),nb_zeros=sum(das_value==0)) %>%
+  mutate(freq_zero=nb_zeros/nb_values)%>%
+  filter(freq_zero < .1)
+
 ```
 
-This leaves `r length(unique(silver_data$ser_id))` time series.
+This leaves `r length(unique(silver_data$ser_id))` time series. If we plot all the series, a gam smoother indicates an overall decreasing trend.
 
 
 ```{r plotTS SE,echo=FALSE,warnings=FALSE}
@@ -358,13 +476,9 @@ We applied the same method as for yellow eel so readers can refer to the corresp
 Before running the DFA, values were logtransformed (a 0 value was recorded for a single observation (time series SkaY) and was replaced by 10% of its lower value) and scales ((mean deleted and divided by the standard deviation)).
 
 ```{r dfa silver, results='hide',eval=FALSE}
-N_ts=nrow(silver_wide) #number of time series
-TT=ncol(silver_wide)-1 #number of time steps
-y=as.matrix(silver_wide[,-1]) #matrix of obseravation
-rownames(y)=silver_wide$ser_nameshort
-
 #put data in wide format and select from 1980
 silver_wide <-silver_data %>%
+  ungroup(ser_id)%>%
   mutate(das_value=log(das_value))%>%
   select(ser_nameshort,das_value,das_year) %>%
   arrange(das_year)%>%
@@ -412,11 +526,7 @@ load("./dfa.rdata")
 kable(results_silver,digits=2)
 best_fit_silver=model_comparisonsSE[[which(results_silver$AIC==min(results_silver$AIC))]]$dfa
 ```
-
-
-The factor loadings are displayed in the following plots (importance of each trend in each time series)
-
-```{r series loadings silver, echo=FALSE}
+```{r trends silver, echo=FALSE}
 N_ts=nrow(silver_wide) #number of time series
 TT=ncol(silver_wide)-1 #number of time steps
 y=as.matrix(silver_wide[,-1]) #matrix of obseravation
@@ -429,8 +539,26 @@ namesseries=silver_wide$ser_nameshort
 trends=formatted_matrices_silver$trends
 Z=formatted_matrices_silver$Z
 #plot the factor loadings
-minZ = 0.15
+minZ = 0.1
 m=dim(trends)[1]
+
+trends_long <- as.data.frame(t(trends))
+names(trends_long)=paste("Trend",1:ncol(trends_long))
+trends_long$year=as.numeric(names(silver_wide)[-1])
+trends_long<-trends_long %>%
+  pivot_longer(starts_with("Trend"),names_to="Trend")
+ggplot(trends_long,aes(x=year,y=value))+
+  geom_line()+
+  facet_wrap(.~Trend)+
+  theme_bw()
+
+```
+
+
+
+The factor loadings are displayed in the following plots (importance of each trend in each time series)
+
+```{r series loadings silver, echo=FALSE}
 ylims = c(-1.1*max(abs(Z)), 1.1*max(abs(Z)))
 par(mfrow=c(ceiling(m/2),2), mar=c(0.5,2.5,1.5,0.5), oma=c(0.4,1,1,1))
 for(i in 1:m) {
@@ -457,19 +585,29 @@ for(i in 1:m) {
 ```
 
 
-```{r trends silver, echo=FALSE}
-trends_long <- as.data.frame(t(trends))
-names(trends_long)=paste("Trend",1:ncol(trends_long))
-trends_long$year=as.numeric(names(silver_wide)[-1])
-trends_long<-trends_long %>%
-  pivot_longer(starts_with("Trend"),names_to="Trend")
-ggplot(trends_long,aes(x=year,y=value))+
-  geom_line()+
-  facet_wrap(.~Trend)+
+```{r venn silver, echo=FALSE}
+venn(namesseries,Z,minZ)
+silver_belonging=data.frame(ser_nameshort=namesseries,
+                            Trend=venn_belonging(namesseries,
+                                                 Z,
+                                                 minZ))
+silver_belonging <- silver_belonging %>%
+  mutate(Trend1=ifelse(Z[,1]>minZ,"+",
+                       ifelse(Z[,1]< -minZ, "-",0)))
+silver_belonging = merge(silver_belonging,
+                         unique(silver_data[,c("ser_id","ser_nameshort")]))
+silver_belonging=merge(silver_map,
+                       silver_belonging)
+ggplot(silver_belonging)+
+  geom_sf(data=europe_cropped)+
+  geom_sf(data=silver_belonging,aes(fill=Trend1,col=Trend1))+
+  scale_fill_brewer(type="qual")+
+  scale_color_brewer(type="qual")+
   theme_bw()
-
 ```
 
+
+About `r round(100*sum(silver_belonging$Trend=="Trend1+")/nrow(silver_belonging))`%  of the series are positively correlated to tend 1 indicating a decline in the abundance. However, about `r round(100*sum(silver_belonging$Trend=="Trend1-")/nrow(silver_belonging))`% are negatively correlated suggesting an increase, and about `r round(100*sum(silver_belonging$Trend=="Any")/nrow(silver_belonging))`% are not correlated to any trends, suggesting a stability. As for yellow eel, there are no obvious spatial pattern in the trends.
 
 
 ```{r fits silver, echo=FALSE,warning=FALSE}
@@ -483,3 +621,8 @@ ggplot(data = d) +
   scale_x_continuous(breaks=seq(1,TT,10),labels=colnames(y)[seq(1,TT,10)])+
   theme_bw()
 ```
+
+# Conclusion
+Yellow and silver eels time series of abundance have been collected in many countries all over Europe for many years. While the majority of the time series indicate a declining trend of abundance, this general picture hinders very contrasted situations and increases of abundance of yellow eels and silver eels have been observed in some river basins. This contrast is likely to be related to different conditions (environmental conditions, anthropogenic pressures, management practices) among river basins and there are no clear spatial pattern in the trends. Interestingly, while a shift of trend was detected for yellow eel in 2007 (trend 2), this shift occured before the implementation of the Eel Regulation. Since other trends are nearly monotic, it suggests that the Eel Regulation has not led to major changes in the abundance of yellow and silver eel, but this it not necessarily a surprise since the growth phase last from 5 to 20 years depending on the habitats and sex [@vollestad1992].
+
+#References
