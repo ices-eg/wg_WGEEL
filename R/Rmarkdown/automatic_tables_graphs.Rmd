@@ -2,19 +2,19 @@
 title: "Trend in fisheries"
 author: "WGEEL"
 date: "30 August 2019"
-output: word_document
+output: html_document
 keep_md: yes
 test: "`r paste('_metadata.yaml')`"
 ---
 \newline
 ```{r setup, include=TRUE}
 knitr::opts_chunk$set(echo = TRUE, warnings=FALSE)
-setwd("C:/workspace/gitwgeel/R/Rmarkdown")
+setwd("C:/Users/cboulenger/Documents/wg_WGEEL/R/Rmarkdown")
 #source("R/utilities/set_directory.R")
 #data_directory <- wg_choose.dir(caption = "Where do you want to save the tables and the graphs")
 #data_directory <-"C:/temp"
 #knitr::opts_knit$set(root.dir = data_directory)
-CY=2019
+CY=2020
 render="docx"  # html 
 # temporary file to store the variables (this is necessary to print the text)
 load("vvv.Rdata")
@@ -199,6 +199,7 @@ ka_com_land_G <- kable(format(table,digt=3,drop0trailing=TRUE),
 		format="pandoc",
 		caption =paste("Table 1: Raw commercial landings (tonnes) for glass eels ","(",min(year),"-",max(year),")", "for", paste(paste(country,collapse=","),".", sep="")))
 
+ka_com_land_G2 <-table %>%  kbl() %>%  kable_paper("hover", full_width = F)
 ```
 
 
@@ -943,18 +944,18 @@ print(g_aquaculture)
 
 # tables
 
-```{r table,echo=FALSE, warning=FALSE}
+```{r table, echo=FALSE, warning=FALSE}
 
-print(ka_com_land_G)
-print(ka_com_land_YS)
-print(ka_rec_land_Y)
-print(ka_rec_land_G)
-print(ka_release_G)
-print(ka_release_Y)
-print(ka_release_S)
-print(ka_release_QG)
-print(ka_release_OG)
-
+# print(ka_com_land_G)
+# print(ka_com_land_YS)
+# print(ka_rec_land_Y)
+# print(ka_rec_land_G)
+# print(ka_release_G)
+# print(ka_release_Y)
+# print(ka_release_S)
+# print(ka_release_QG)
+# print(ka_release_OG)
+print(ka_com_land_G2)
 
 ```
 
