@@ -186,6 +186,7 @@ table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.a
 table<-data.frame(table,sum=rowSums(table[,-1],na.rm=T))
 
 
+
 #ordering the column accordign to country order
 country_to_order = names(table)[-1]
 n_order = order(country_ref$cou_order[match(country_to_order, country_ref$cou_code)])
