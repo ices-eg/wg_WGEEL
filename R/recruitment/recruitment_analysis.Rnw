@@ -23,7 +23,7 @@
 Sys.setlocale("LC_ALL", "English_United States.932")
 # Password are stored in R/etc/Rprofile.site
 # For the moment the database is stored locally
-CY<-2019 # current year ==> dont forget to update the graphics path below
+CY<-2020 # current year ==> dont forget to update the graphics path below
 # ----------------------------------
 # wgeel2016 discussed that the correct way of 
 # calculating average of predictions was to use geomean

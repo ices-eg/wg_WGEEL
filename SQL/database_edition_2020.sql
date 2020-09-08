@@ -452,12 +452,36 @@ SELECT * FROM datawg.t_eelstock_eel WHERE
 
 
 
+
+
 /*
  * 
- * UPDATING STATIONS.
+ * EXTRACT DATA BIOMETRY ANALYSIS
  * 
  */
 
-SELECT ser_nameshort, ser_cou_code, ser_typ_id, ser_lfs_code FROM datawg.t_series_ser ORDER BY ser_cou_code,ser_lfs_code
+
+SELECT * FROM datawg.t_series_ser LEFT JOIN datawg.t_biometry_series_bis ON bis_ser_id=ser_id
+
+
+/*
+ * ES cata 2020
+ */
+
+
+
+UPDATE  datawg.t_eelstock_eel SET eel_qal_id=1 WHERE eel_id in(422465,422463);
+
+- -SET TO 2020
+
+UPDATE  datawg.t_eelstock_eel SET eel_year=2020 WHERE eel_id in(498283,498284);
+SELECT * FROM datawg.t_eelstock_eel  WHERE eel_id in(498283,498284);
+
+SELECT min(eel_year) as min_year, max(eel_year) as max_year from datawg.t_eelstock_eel 
+
+
+SELECT * FROM datawg.t_eelstock_eel WHERE eel_cou_code ='FR' AND eel_year = 2020 AND eel_typ_id=4
+
+
 
 

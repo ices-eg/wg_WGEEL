@@ -436,7 +436,7 @@ options(sqldf.RPostgreSQL.user = userwgeel,
 
 country <-"UK"
 path <- str_c("\\\\community.ices.dk@SSL\\DavWWWRoot\\ExpertGroups\\wgeel\\2019 Meeting Documents\\06. Data\\02 Recuitment Submission 2019",
-country,"_Eel_Data_Call_Annex1_Recruitment.xlsx")
+		country,"_Eel_Data_Call_Annex1_Recruitment.xlsx")
 
 
 ###########################
@@ -509,23 +509,23 @@ sqldf( str_c("CREATE TABLE temp_t_biometry_bio_", country, " AS SELECT * FROM bi
 sqldf("INSERT INTO datawg.t_biometry_series_bis(
 				bio_lfs_code,
 				--bio_id
-bio_year,
-bio_length,
-bio_weight,
-bio_age,
-bio_sex_ratio,
-bio_length_f,
-bio_weight_f,
-bio_age_f,
-bio_length_m,
-bio_weight_m,
-bio_age_m,
-bio_comment,
---bio_last_update 
-bio_qal_id, 
-bis_g_in_gy, 
-bis_ser_id) 
-SELECT * FROM temp_t_biometry_bio_UK;")
+				bio_year,
+				bio_length,
+				bio_weight,
+				bio_age,
+				bio_sex_ratio,
+				bio_length_f,
+				bio_weight_f,
+				bio_age_f,
+				bio_length_m,
+				bio_weight_m,
+				bio_age_m,
+				bio_comment,
+				--bio_last_update 
+				bio_qal_id, 
+				bis_g_in_gy, 
+				bis_ser_id) 
+				SELECT * FROM temp_t_biometry_bio_UK;")
 
 # ---------------------------------------------------------------------------------------------------------
 
@@ -608,25 +608,25 @@ sqldf( str_c("DROP TABLE if exists temp_t_biometry_bio_", country))
 sqldf( str_c("CREATE TABLE temp_t_biometry_bio_", country, " AS SELECT * FROM biom3"))
 
 sqldf(str_c("INSERT INTO datawg.t_biometry_series_bis(
-				bio_lfs_code,
-				--bio_id
-				bio_year,
-				bio_length,
-				bio_weight,
-				bio_age,
-				bio_sex_ratio,
-				bio_length_f,
-				bio_weight_f,
-				bio_age_f,
-				bio_length_m,
-				bio_weight_m,
-				bio_age_m,
-				bio_comment,
-				--bio_last_update 
-				bio_qal_id, 
-				bis_g_in_gy, 
-				bis_ser_id) 
-				SELECT * FROM temp_t_biometry_bio_",country,";"))
+						bio_lfs_code,
+						--bio_id
+						bio_year,
+						bio_length,
+						bio_weight,
+						bio_age,
+						bio_sex_ratio,
+						bio_length_f,
+						bio_weight_f,
+						bio_age_f,
+						bio_length_m,
+						bio_weight_m,
+						bio_age_m,
+						bio_comment,
+						--bio_last_update 
+						bio_qal_id, 
+						bis_g_in_gy, 
+						bis_ser_id) 
+						SELECT * FROM temp_t_biometry_bio_",country,";"))
 
 country <-"PT"
 path <- str_c("\\\\community.ices.dk@SSL\\DavWWWRoot\\ExpertGroups\\wgeel\\2019 Meeting Documents\\06. Data\\02 Recuitment Submission 2019/",
@@ -816,3 +816,72 @@ sqldf(str_c("INSERT INTO datawg.t_biometry_series_bis(
 						bis_g_in_gy, 
 						bis_ser_id) 
 						SELECT * FROM temp_t_biometry_bio_",country,";"))
+
+
+
+#	2020 INSERTION OF STATIONS : Esti & Cedric
+#----------------------------------------------------
+
+#first run global.R shiny data integration
+require(getpath)
+path <- "C:\\Users\\cedric.briand\\OneDrive - EPTB Vilaine\\Projets\\GRISAM\\2020\\wgeel\\stations.xlsx"
+station <- read_excel(path,sheet=2)
+con_wgeel=dbConnect(PostgreSQL(),
+		dbname="wgeel",
+		host="localhost",
+		port=5435,
+		user= getPass(msg="username"),
+		password= getPass())
+query='SELECT * FROM ref.tr_station'
+stationdb = dbGetQuery(con_wgeel,query)
+stationdb$Station_Name %in%station$ser_nameshort
+stationdb$Station_Name[!stationdb$Station_Name %in%station$ser_nameshort]
+query = 'SELECT t_series_ser.*, cou_country FROM datawg.t_series_ser JOIN ref.tr_country_cou on cou_code=ser_cou_code '
+series <- dbGetQuery(con_wgeel,query)
+
+station$ser_nameshort[!station$ser_nameshort %in%stationdb$Station_Name]
+query = "SELECT ser_id, 
+		ser_nameshort, ser_namelong, ser_typ_id, 
+		ser_comment, ser_uni_code, ser_lfs_code, ser_hty_code,
+		ser_locationdescription, ser_emu_nameshort, ser_cou_code,
+		ser_area_division,  ser_x, ser_y, 
+		cou_country, 
+		min(das_year) as StartYear
+		FROM datawg.t_series_ser 
+		JOIN ref.tr_country_cou on cou_code=ser_cou_code
+		LEFT JOIN datawg.t_dataseries_das on das_ser_id=ser_id
+		group by ser_id, 
+		ser_nameshort, ser_namelong, ser_typ_id, 
+		ser_comment, ser_uni_code, ser_lfs_code, ser_hty_code,
+		ser_locationdescription, ser_emu_nameshort, ser_cou_code,
+		ser_area_division,  ser_x, ser_y, 
+		cou_country"
+
+
+series <- dbGetQuery(con_wgeel,query)
+
+station2 <- left_join(station,series, by="ser_nameshort")
+
+new <- anti_join(station2,stationdb,by=c("ser_nameshort"="Station_Name"))
+# remove missing ones
+
+str(stationdb)
+str(new)
+new$tblCodeID <- seq(from=18000,by=1,length.out=nrow(new))
+new$Station_Code <- NA
+new$Country <-toupper(new$cou_country)
+new[is.na(new$Country),]
+new$Lat <- new$ser_y
+new$Lon <- new$ser_x
+new$PURPM <- 'S~T'
+new$WLTYP<- NA
+new$Notes <- new$ser_comment
+new$Station_Name <- new$ser_nameshort
+new$StartYear <- new$startyear
+new$EndYear <- NA
+stationtemp <- new[,c("tblCodeID", "Station_Code", "Country", "Organisation", "Station_Name", "WLTYP", 
+						"Lat", "Lon", "StartYear", "EndYear", "PURPM", "Notes" )]
+
+dbWriteTable(con_wgeel, "stationtemp", stationtemp) 
+
+
