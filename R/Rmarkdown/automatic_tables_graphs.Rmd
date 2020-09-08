@@ -1,20 +1,20 @@
 ---
 title: "Trend in fisheries"
 author: "WGEEL"
-date: "30 August 2019"
-output: word_document
+date: "08 September 2020"
+output: html_document
 keep_md: yes
 test: "`r paste('_metadata.yaml')`"
 ---
 \newline
 ```{r setup, include=TRUE}
 knitr::opts_chunk$set(echo = TRUE, warnings=FALSE)
-setwd("C:/workspace/gitwgeel/R/Rmarkdown")
+setwd("C:/Users/cboulenger/Documents/wg_WGEEL/R/Rmarkdown")
 #source("R/utilities/set_directory.R")
 #data_directory <- wg_choose.dir(caption = "Where do you want to save the tables and the graphs")
 #data_directory <-"C:/temp"
 #knitr::opts_knit$set(root.dir = data_directory)
-CY=2019
+CY=2020
 render="docx"  # html 
 # temporary file to store the variables (this is necessary to print the text)
 load("vvv.Rdata")
@@ -198,6 +198,7 @@ tableComLandG<-table
 ka_com_land_G <- kable(format(table,digt=3,drop0trailing=TRUE),
 		format="pandoc",
 		caption =paste("Table 1: Raw commercial landings (tonnes) for glass eels ","(",min(year),"-",max(year),")", "for", paste(paste(country,collapse=","),".", sep="")))
+
 
 ```
 
@@ -551,7 +552,7 @@ table = table[, n_order]
 names(table)[1]<-"Year"
 table[is.na(table)]<-''
 tablerecLandG<-table
-ka_rec_land_G <- kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 4: Raw recreational landings (tonnes) for yellow and silver eels  ","(",min(year),"-",max(year),")"," for ",paste(paste(country,collapse=","), ".", sep="")))
+ka_rec_land_G <- kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 4: Raw recreational landings (tonnes) for glass eels  ","(",min(year),"-",max(year),")"," for ",paste(paste(country,collapse=","), ".", sep="")))
 ```
 
 \newline
@@ -610,7 +611,7 @@ names(table)[1]<-"Year"
 table[is.na(table)]<-''
 tableRelG<-table
 ka_release_G <- kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =
-				paste("Table XX: Release (nb in millions) of glass eels (G and OG)","(",min(year),"-",max(year),")","for",paste(paste(country,collapse=","), ".", sep="")))
+				paste("Table 5: Release (nb in millions) of glass eels (G and OG)","(",min(year),"-",max(year),")","for",paste(paste(country,collapse=","), ".", sep="")))
 
 ```
 
@@ -943,7 +944,7 @@ print(g_aquaculture)
 
 # tables
 
-```{r table,echo=FALSE, warning=FALSE}
+```{r table, echo=FALSE, warning=FALSE, results="asis"}
 
 print(ka_com_land_G)
 print(ka_com_land_YS)
