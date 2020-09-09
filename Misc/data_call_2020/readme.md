@@ -29,6 +29,11 @@ Files sent to ICES 26/08
 Add a new participants as main assessor: Kristof Vlietinck
 
 ### annex 1
+
+> YserG :In 2020, monitoring started on 3 February and stopped on 19 March. After 19 March the monitoring was not allowed any more due to Covid 19. Fishing effort was thus much lower than during other years, and fishing was only performed during start of the season. Considering the very low fishing effort and the temporal bias in fishing, comparison of the 2020 data with recruitment data of previous years is not appropriate. Due to COVID-19 measures, the 2020 data of theVeurne-Ambacht recruitment series are incomplete and not representative, and should not be used for statistical purposes, nor for international stock assessment and should be treated as “NON-AVAILABLE” for international assessments.
+
+
+> MeusY  :In 2020, up to 17 August, 84 eels were caught (biomass 2352.2 g). Sizes of eels caught ranged from 12.4 cm to 67.3 cm (median 22.8 cm). Maximum CPUE was 40 individuals per day. This observed number of eels caught has been impacted by the Covid-19 pandemic. Due to Covid, the monitoring of the fish pass started late (from June 10, 2020). The reported number of eels includes both wild and restocked eels. 
 * new series: nothing
 * new dataseries
   * VeAmGY data from 2010 to 2016 not taken into account (monitoring started in 2017)
@@ -73,6 +78,9 @@ Empty
 none
 
 ### annex 7
+
+> On 9 March 2018, the Belgian Meuse was restocked with a great quantity of imported glass eels (110 kg, 70 sites). This figure for 2020 may be incomplete. While the 2020 data may be underestimated due to Covid, they may be used in the international analysis (considering mentioning there may be under estimation).
+
 * new data
   * release only provided in kg. Asked for numbers to the data provider. conversion 3000eels/kg according to data provider
   * 54 new values inserted in the database
