@@ -237,7 +237,8 @@ print(g_raw_Clandings_G)
 
 
 
-```{r corr_com_G,echo=FALSE, warning=FALSE}
+```{r corr_com_G,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure 2: Time-series of reported or reconstructed commercial glass eel fishery landings (tonnes), 1970-2020, by country. United Kingdom (GB), France (FR), Spain (ES), Portugal (PT) and Italy (IT) combining information from the Data call 2020 and the WGEEL database, and a reconstruction of the non-reported countries/years combinations (see text). The inset box shows the proportion of data reconstructed per year."}
+
 # corrected landings
 filtered_data<-filter_data("landings",
 		typ = 4,
