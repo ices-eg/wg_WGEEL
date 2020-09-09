@@ -218,7 +218,7 @@ datacall_map<-function(
 #' @export 
 #validateCoords(mrd$ser_x,mrd$ser_y)
 
-recruitment_map <- function(R_stations, statseries, wger, CY){
+recruitment_map <- function(R_stations, statseries, wger, CY, colors= c("#FEE301","#B0E44B","#00AAB6")){
   
   # when has this series last been edited (this does not mean that last data is the year it was edited)
   
@@ -235,7 +235,7 @@ recruitment_map <- function(R_stations, statseries, wger, CY){
   
   mrd <- inner_join(mrd, last_update, by ="site")
   
-  color_pal <- colorFactor(c("#FEE301","#B0E44B","#00AAB6") , mrd$ser_lfs_code) 
+  color_pal <- colorFactor(colors , mrd$ser_lfs_code) 
  
   # Get popup ------------------------------------------------------------------------------------
   mrd$ser_x=jitter(mrd$ser_x,0.05)

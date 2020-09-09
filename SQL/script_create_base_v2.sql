@@ -118,7 +118,7 @@ CREATE TABLE ref.tr_station(
 
 COMMENT ON COLUMN ref.tr_station."Country" IS 'country responsible of the data collection ?';
 COMMENT ON COLUMN ref.tr_station."WLTYP" IS 'Water and land station types ';
-COMMENT ON COLUMN ref.tr_station."PURPM" IS 'Purpose of monitoring';
+COMMENT ON COLUMN ref.tr_station."PURPM" IS 'Purpose of monitoring, R Research, S spatial, T temporal';
 	
 
 --------------------------------------------------

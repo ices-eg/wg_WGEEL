@@ -9,7 +9,8 @@ test: "`r paste('_metadata.yaml')`"
 \newline
 ```{r setup, include=TRUE}
 knitr::opts_chunk$set(echo = TRUE, warnings=FALSE)
-setwd("C:/Users/cboulenger/Documents/wg_WGEEL/R/Rmarkdown")
+#setwd("C:/Users/cboulenger/Documents/wg_WGEEL/R/Rmarkdown")
+setwd("D:/R-4.0.2/wgeel_project/R/Rmarkdown")
 #source("R/utilities/set_directory.R")
 #data_directory <- wg_choose.dir(caption = "Where do you want to save the tables and the graphs")
 #data_directory <-"C:/temp"
@@ -50,12 +51,11 @@ the 1960s, reported commercial landings have now dropped to `r vvv$total` tonnes
 Landings data for commercial eel fisheries are available from the Eel Data call
 and from the WGEEL database. When data are absent and presumed missing for a
 country or year, a predicted catch is used. This “correction” is based on a
-simple General Linear Model (GLM) ex-trapolation of the log-transformed landings
+simple General Linear Model (GLM) extrapolation of the log-transformed landings
 (after Dekker, 2003a), with year and countries as the explanatory factors. This
 is applied to account for non-reporting, but it is not a complete solution.
 
-Figure XX presents the time-series up to and including XX (though some XX
-data are pro-visional) for total glass eel landings as reported by five
+Figure XX presents the time-series up to and including 2019 (though some 2020 data are provisional) for total glass eel landings as reported by five
 countries in the Eel Data call and from the WGEEL database. Figure XX presents
 the same time-series but corrected for missing data (see above), with an inset
 box showing the proportion of data corrected per year. Glass eel landings show a
@@ -65,8 +65,6 @@ onwards. In 2018, the raw (uncorrected) landings data for glass eels is
 corrected data). 
 
 
-
- ##### glass eel 
 
  
 
@@ -185,6 +183,7 @@ table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.a
 table<-data.frame(table,sum=rowSums(table[,-1],na.rm=T))
 
 
+
 #ordering the column accordign to country order
 country_to_order = names(table)[-1]
 n_order = order(country_ref$cou_order[match(country_to_order, country_ref$cou_code)])
@@ -203,7 +202,7 @@ ka_com_land_G <- kable(format(table,digt=3,drop0trailing=TRUE),
 
 
 
-```{r com_land_Gf,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure 1: Commercial landings per country, stage = G and habitat = T+F+C+MO.", fig.height=5, fig.width=10}
+```{r com_land_Gf,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure 1: Time-series of reported commercial glass eel fishery landings (tonnes), by country. United King-dom (GB), France (FR), Spain (ES), Portugal (PT) and Italy (IT) are included combining information from the Data call 2020 and the WGEEL database.", fig.height=5, fig.width=10}
 
 ##Graph
 landings3<-grouped_data
@@ -237,7 +236,8 @@ print(g_raw_Clandings_G)
 
 
 
-```{r corr_com_G,echo=FALSE, warning=FALSE}
+```{r corr_com_G,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure 2: Time-series of reported or reconstructed commercial glass eel fishery landings (tonnes), 1970-2020, by country. United Kingdom (GB), France (FR), Spain (ES), Portugal (PT) and Italy (IT) combining information from the Data call 2020 and the WGEEL database, and a reconstruction of the non-reported countries/years combinations (see text). The inset box shows the proportion of data reconstructed per year."}
+
 # corrected landings
 filtered_data<-filter_data("landings",
 		typ = 4,
@@ -363,7 +363,7 @@ ka_com_land_YS2 <- kable(format(table2,digt=3,drop0trailing=TRUE),format="pandoc
 
 \newline
 
-```{r raw_com_land_YSf, echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure 2: Commercial landings per country, stage = Y, S and YS and habitat = F+C+T+NA+MO+AL.", fig.height=5, fig.width=10}
+```{r raw_com_land_YSf, echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure 3: Time-series of reported commercial yellow (Y), silver (S) and yellow-silver (YS) eel fishery landings (tonnes) 1908�2018, by country, Norway (NO), Sweden (SE), Finland (FI), Estonia (EE), Latvia (LV), Lithuania (LT), Poland (PL), Ger-many (DE), Denmark (DK), Netherlands (NL), Ireland (IE), United Kingdom (GB), France (FR), Spain (ES), Portugal (PT), Italy (IT), Slovenia (SI), Croatia (HR), Greece (GR), Turkey (TR) and Tunisia (TN), combining information from the Data call and the WGEEL database.", fig.height=5, fig.width=10}
 
 ## Graph
 landings3<-grouped_data
@@ -385,7 +385,8 @@ print(g_raw_Clandings_YS)
 
 
 
-```{r corr_com_YS,echo=FALSE, warning=FALSE}
+
+```{r corr_com_YS,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure 4: Time-series of reported or reconstructed commercial yellow and silver eel fishery landings (tonnes), by country, Norway (NO), Sweden (SE), Finland (FI), Estonia (EE), Latvia (LV), Lithuania (LT), Poland (PL), Germany (DE), Denmark (DK), Netherlands (NL), Ireland (IE), United Kingdom (GB), France (FR), Spain (ES), Portugal (PT), Italy (IT), Croatia (HR), Slovenia (SI), Greece (GR), Turkey (TR) and Tunisia (TN) combining information from the Data call, the WGEEL database and a reconstruction of the non-reported countries/years combinations. Inset box shows the proportion of reconstructed landings, per year."}
 
 ##Table raw + corr commercial landings for Yellow eel and every country
 
@@ -511,7 +512,7 @@ ka_rec_land_Y2<-kable(format(table2,digt=3,drop0trailing=TRUE),format="pandoc",c
 
 \newline
 
-```{r recLand_Y_Sf,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure 3: Recreational landings per country, stage = G and habitat = F+C+T+MO.", fig.height=5, fig.width=10}
+```{r recLand_Y_Sf,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure 5: Time-series of reported or reconstructed commercial yellow and silver eel fishery landings (tonnes), by country, Norway (NO), Sweden (SE), Finland (FI), Estonia (EE), Latvia (LV), Lithuania (LT), Poland (PL), Germany (DE), Denmark (DK), Netherlands (NL), Ireland (IE), United Kingdom (GB), France (FR), Spain (ES), Portugal (PT), Italy (IT), Croatia (HR), Slovenia (SI), Greece (GR), Turkey (TR) and Tunisia (TN) combining information from the Data call.", fig.height=5, fig.width=10}
 
 ##Graph
 landings3<-grouped_data
@@ -568,7 +569,7 @@ ka_rec_land_G1 <- kable(format(table1,digt=3,drop0trailing=TRUE),format="pandoc"
 
 \newline
 
-```{r recLand_Gf,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure 4: Recreational landings per country,stage = Y, S and YS and habitat = T,C,MO+F.", fig.height=5, fig.width=10}
+```{r recLand_Gf,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure 6: Time-series of reported recreational glass eel fishery landings (tonnes), by country Norway (NO), Sweden (SE), Finland (FI), Estonia (EE), Latvia (LV), Lithuania (LT), Poland (PL), Germany (DE), Netherlands (NL), Belgium (BE), Ireland (IE), United Kingdom (GB), France (FR), Spain (ES), Portugal (PT), Croatia (HR), combining information from the Data call and the WGEEL database.", fig.height=5, fig.width=10}
 
 ## Graph
 landings3<-grouped_data

@@ -804,7 +804,7 @@ server = function(input, output, session) {
 	observe({
 				output$mapstation = renderLeaflet({
 							
-							recruitment_map(R_stations, statseries, wger_init, CY)                               
+							recruitment_map(R_stations, statseries, wger_init, CY, colors=c("#F2F3F4","#FFA625","#FFFF66"))                               
 							
 						})
 				
@@ -1199,7 +1199,7 @@ server = function(input, output, session) {
 	observe({
 				output$mapstation_ys = renderLeaflet({
 							
-							recruitment_map(ys_stations, statseries_ys, wger_init_ys, CY)                               
+							recruitment_map(ys_stations, statseries_ys, wger_init_ys, CY, colors= c("#CACFD4","#B0E44B","#FFFF66"))                               
 							
 						})
 				

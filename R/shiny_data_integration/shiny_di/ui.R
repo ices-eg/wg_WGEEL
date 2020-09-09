@@ -366,7 +366,7 @@ ui <- dashboardPage(title="ICES Data Integration",
 														column(width=4,
 																sliderTextInput(inputId ="year_g", 
 																		label = "Choose a year range:",
-																		choices=seq(the_years$min_year, the_years$max_year),
+																		choices=seq(the_years$min_year, current_year),
 																		selected = c(the_years$min_year,the_years$max_year)
 																)))),               
 										
