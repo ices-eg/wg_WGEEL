@@ -382,7 +382,8 @@ print(g_raw_Clandings_YS)
 
 
 
-```{r corr_com_YS,echo=FALSE, warning=FALSE}
+
+```{r corr_com_YS,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure 4: Time-series of reported or reconstructed commercial yellow and silver eel fishery landings (tonnes), by country, Norway (NO), Sweden (SE), Finland (FI), Estonia (EE), Latvia (LV), Lithuania (LT), Poland (PL), Germany (DE), Denmark (DK), Netherlands (NL), Ireland (IE), United Kingdom (GB), France (FR), Spain (ES), Portugal (PT), Italy (IT), Croatia (HR), Slovenia (SI), Greece (GR), Turkey (TR) and Tunisia (TN) combining information from the Data call, the WGEEL database and a reconstruction of the non-reported countries/years combinations. Inset box shows the proportion of reconstructed landings, per year."}
 
 ##Table raw + corr commercial landings for Yellow eel and every country
 
