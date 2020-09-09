@@ -360,7 +360,7 @@ ka_com_land_YS <- kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",
 
 \newline
 
-```{r raw_com_land_YSf, echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure 2: Commercial landings per country, stage = Y, S and YS and habitat = F+C+T+NA+MO+AL.", fig.height=5, fig.width=10}
+```{r raw_com_land_YSf, echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure 3: Time-series of reported commercial yellow (Y), silver (S) and yellow-silver (YS) eel fishery landings (tonnes) 1908–2018, by country, Norway (NO), Sweden (SE), Finland (FI), Estonia (EE), Latvia (LV), Lithuania (LT), Poland (PL), Ger-many (DE), Denmark (DK), Netherlands (NL), Ireland (IE), United Kingdom (GB), France (FR), Spain (ES), Portugal (PT), Italy (IT), Slovenia (SI), Croatia (HR), Greece (GR), Turkey (TR) and Tunisia (TN), combining information from the Data call and the WGEEL database.", fig.height=5, fig.width=10}
 
 ## Graph
 landings3<-grouped_data
