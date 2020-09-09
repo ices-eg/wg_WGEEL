@@ -504,7 +504,7 @@ ka_rec_land_Y<- kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",ca
 
 \newline
 
-```{r recLand_Y_Sf,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure 3: Recreational landings per country, stage = G and habitat = F+C+T+MO.", fig.height=5, fig.width=10}
+```{r recLand_Y_Sf,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure 5: Time-series of reported or reconstructed commercial yellow and silver eel fishery landings (tonnes), by country, Norway (NO), Sweden (SE), Finland (FI), Estonia (EE), Latvia (LV), Lithuania (LT), Poland (PL), Germany (DE), Denmark (DK), Netherlands (NL), Ireland (IE), United Kingdom (GB), France (FR), Spain (ES), Portugal (PT), Italy (IT), Croatia (HR), Slovenia (SI), Greece (GR), Turkey (TR) and Tunisia (TN) combining information from the Data call.", fig.height=5, fig.width=10}
 
 ##Graph
 landings3<-grouped_data
@@ -558,7 +558,7 @@ ka_rec_land_G <- kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",c
 
 \newline
 
-```{r recLand_Gf,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure 4: Recreational landings per country,stage = Y, S and YS and habitat = T,C,MO+F.", fig.height=5, fig.width=10}
+```{r recLand_Gf,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure 6: Time-series of reported recreational glass eel fishery landings (tonnes), by country Norway (NO), Sweden (SE), Finland (FI), Estonia (EE), Latvia (LV), Lithuania (LT), Poland (PL), Germany (DE), Netherlands (NL), Belgium (BE), Ireland (IE), United Kingdom (GB), France (FR), Spain (ES), Portugal (PT), Croatia (HR), combining information from the Data call and the WGEEL database.", fig.height=5, fig.width=10}
 
 ## Graph
 landings3<-grouped_data
