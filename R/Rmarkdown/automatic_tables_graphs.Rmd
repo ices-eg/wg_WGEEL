@@ -195,8 +195,7 @@ names(table)[1]<-"Year"
 table[is.na(table)]<-''
 tableComLandG<-table
 ka_com_land_G <- kable(format(table,digt=3,drop0trailing=TRUE),
-		format="pandoc",
-		caption =paste("Table 1: Raw commercial landings (tonnes) for glass eels ","(",min(year),"-",max(year),")", "for", paste(paste(country,collapse=","),".", sep="")))
+		format="pandoc",caption =paste("Table 1:  Glass eel commercial fisheries landings (in tonnes) from 1984 to ",max(year),", reported by countries: GB United Kingdom, FR France, ES Spain, PT Portugal, IT Italy.", sep=""))
 
 
 ```
@@ -353,8 +352,12 @@ table = table[, n_order]
 names(table)[1]<-"Year"
 table[is.na(table)]<-''
 tableComLandYS<-table
-ka_com_land_YS <- kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 2: Raw commercial landings (tonnes) for yellow and silver eels " ,"(",min(year),"-",max(year),")", "for",paste(paste(country,collapse=","), ".", sep="")))
-
+table1<-table[,c(1,2:12)]
+table2<-table[,c(1,13:ncol(table))]
+#table3<-table[,c(1,23:ncol(table))]
+ka_com_land_YS1 <- kable(format(table1,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 2a:  Commercial fisheries landings (in tonnes) for yellow eel and silver eel from ", min(year)," to ",max(year)," (part 1), reported by countries: NO Norway, SE Sweden, FI Finland, EE Estonia, LV Latvia, LT Lithuania, PL Poland, DE Germany, DK Denmark,
+NL Netherlands, BE Belgium (to be continued for other countries in next table).", sep=""))
+ka_com_land_YS2 <- kable(format(table2,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 2b:  Commercial fisheries landings (in tonnes) for yellow eel and silver eel from ", min(year)," to ",max(year)," (part 2), reported by countries and all countries: IE Ireland, GB United Kingdom, FR France, ES Spain, PT Portugal, IT Italy, Sl Sovenia, HR Croatia, GR Greece, sum .", sep=""))
 
 ```
 
@@ -499,7 +502,12 @@ table = table[, n_order]
 names(table)[1]<-"Year"
 table[is.na(table)]<-''
 tableRecLandYS<-table
+table1<-table[,c(1,2:12)]
+table2<-table[,c(1,13:ncol(table))]
 ka_rec_land_Y<- kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 3: Raw recreational landings (tonnes) for yellow and silver eels  ","(",min(year),"-",max(year),")","for",paste(paste(country,collapse=","), ".", sep="")))
+ka_rec_land_Y1<- kable(format(table1,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 3a:  Recreational fisheries landings (in tonnes) for yellow eel and silver eel from ", min(year)," to ",max(year)," (part 1), reported by countries: NO Norway, SE Sweden, FI Finland, EE Estonia, LV Latvia, LT Lithuania, PL Poland, DE Germany, DK Denmark,NL Netherlands, BE Belgium (to be continued for other countries in next table).", sep=""))
+
+ka_rec_land_Y2<-kable(format(table2,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 3b:  Recreational fisheries landings (in tonnes) for yellow eel and silver eel from ", min(year)," to ",max(year)," (part 2), reported by countries and all countries: IE Ireland, GB United Kingdom, FR France, ES Spain, PT Portugal, IT Italy, Sl Sovenia, HR Croatia, GR Greece, sum .", sep=""))
 ```
 
 \newline
@@ -553,7 +561,10 @@ table = table[, n_order]
 names(table)[1]<-"Year"
 table[is.na(table)]<-''
 tablerecLandG<-table
+table1<-table[,c(1,14,15,ncol(table))]
 ka_rec_land_G <- kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 4: Raw recreational landings (tonnes) for glass eels  ","(",min(year),"-",max(year),")"," for ",paste(paste(country,collapse=","), ".", sep="")))
+ka_rec_land_G1 <- kable(format(table1,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 4:  Glass eel recreational fisheries landings (in tonnes) from ", min(year)," to ",max(year),")",", reported by countries: FR France, ES Spain.", sep=""))
+
 ```
 
 \newline
@@ -611,8 +622,12 @@ table = table[, n_order]
 names(table)[1]<-"Year"
 table[is.na(table)]<-''
 tableRelG<-table
+table1<-table[,c(1,2:8)]
+table2<-table[,c(1,9:ncol(table))]
 ka_release_G <- kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =
 				paste("Table 5: Release (nb in millions) of glass eels (G and OG)","(",min(year),"-",max(year),")","for",paste(paste(country,collapse=","), ".", sep="")))
+ka_release_G1 <- kable(format(table1,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 5a:  Release of glass eel in millions from ", min(year)," to ",max(year),")",",  reported by countries SE Sweden, EE Estonia, LV Latvia, PL Poland, DE Germany, NL Netherlands, BE Belgium(to be continued for other countries in next table).", sep=""))
+ka_release_G2 <- kable(format(table2,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 5b:  Release of glass eel in millions from ", min(year)," to ",max(year),")",",  reported by countries: IE Ireland, GB United Kingdom, FR France, ES Spain, IT Italy, GR Greece.", sep=""))
 
 ```
 
@@ -665,7 +680,7 @@ table = table[, n_order]
 names(table)[1]<-"Year"
 table[is.na(table)]<-''
 tableRelY<-table
-ka_release_Y <- kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 7: Release (nb in millions) of yellow eels  ","(",min(year),"-",max(year),")"," for ",paste(paste(country,collapse=","), ".", sep="")))
+ka_release_Y <- kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 6:  Releases for yellow eel from ", min(year)," to ",max(year)," in millions, reported by countries SE Sweden, DE Germany, NL Netherlands, IE Ireland, ES Spain, IT Italy.", sep=""))
 
 ```
 
@@ -718,7 +733,7 @@ table = table[, n_order]
 names(table)[1]<-"Year"
 table[is.na(table)]<-''
 tableRelS<-table
-ka_release_S <- kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 8: Release (nb in millions) of silver eels  ","(",min(year),"-",max(year),")"," for ",paste(paste(country,collapse=","), ".", sep="")))
+ka_release_S <- kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 7: Releases for silver eel from ", min(year)," to ",max(year)," in millions, reported by countries SE Sweden, FI Finland, IE Ireland, Fr France, ES Spain, GR Greece.", sep=""))
 
 ```
 
@@ -771,7 +786,7 @@ table = table[, n_order]
 names(table)[1]<-"Year"
 table[is.na(table)]<-''
 tableRelQG<-table
-ka_release_QG <- kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 9: Release (nb in millions) of quarantine glass eels  ","(",min(year),"-",max(year),")"," for ",paste(paste(country,collapse=","), ".", sep="")))
+ka_release_QG <- kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 8: Releases for quarantined glass eel from ", min(year)," to ",max(year)," in millions, reported by countries SE Sweden, FI Finland.", sep=""))
 
 ```
 
@@ -825,7 +840,7 @@ table = table[, n_order]
 names(table)[1]<-"Year"
 table[is.na(table)]<-''
 tableRelOG<-table
-ka_release_OG <- kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 10: Release (nb in millions) of ongrown eels  ","(",min(year),"-",max(year),")"," for ",paste(paste(country,collapse=","), ".", sep="")))
+ka_release_OG <- kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 9: Releases for ongrown glass eel from ", min(year)," to ",max(year)," in millions, reported by countries: EE Estonia, LV Latvia, LT Lithuania, PL Poland, DE Germany, DK Denmark, ES Spain.", sep=""))
 
 ```
 
@@ -917,7 +932,11 @@ table = table[, n_order]
 names(table)[1]<-"Year"
 table[is.na(table)]<-''
 tableAqua<-table
-ka_aqua <- kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 5: Aquaculture (tonnes)  ","(",min(year),"-",max(year),")"," for ",paste(paste(country,collapse=","), ".", sep="")))
+table1<-table[,c(1,2:8)]
+table2<-table[,c(1,9:ncol(table))]
+ka_aqua <- kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 10: Aquaculture for all stages in tonnes from ",min(year)," to ",max(year)," reported by countries: SE Sweden, FI Finland, EE Estonia, LT Lithuania, PL Poland, DE Germany, DK Denmark, NL Netherlands, IE Ireland, ES Spain, PT Portugal, IT Italy, GR Greece.", sep=""))
+ka_aqua1 <- kable(format(table1,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 10a: Aquaculture for all stages in tonnes from ",min(year)," to ",max(year)," reported by countries: SE Sweden, FI Finland, EE Estonia, LT Lithuania, PL Poland, DE Germany, DK Denmark.(to be continued for other countries in next table)", sep=""))
+ka_aqua2 <- kable(format(table2,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 10b: Aquaculture for all stages in tonnes from ",min(year)," to ",max(year)," reported by countries: NL Netherlands, IE Ireland, ES Spain, PT Portugal, IT Italy, GR Greece.", sep=""))
 
 ```
 
@@ -948,15 +967,19 @@ print(g_aquaculture)
 ```{r table, echo=FALSE, warning=FALSE, results="asis"}
 
 print(ka_com_land_G)
-print(ka_com_land_YS)
-print(ka_rec_land_Y)
-print(ka_rec_land_G)
-print(ka_release_G)
+print(ka_com_land_YS1)
+print(ka_com_land_YS2)
+print(ka_rec_land_Y1)
+print(ka_rec_land_Y2)
+print(ka_rec_land_G1)
+print(ka_release_G1)
+print(ka_release_G2)
 print(ka_release_Y)
 print(ka_release_S)
 print(ka_release_QG)
 print(ka_release_OG)
-
+print(ka_aqua1)
+print(ka_aqua2)
 
 ```
 
@@ -967,7 +990,7 @@ print(ka_release_OG)
 #setwd(data_directory)
 save(vvv,file="vvv.Rdata")
 write.csv2(tableComLandG,"Raw_Com_landings_G.csv",row.names=FALSE)
-write.csv2(tableComLandYS,"Raw_Com_landings_Y_S.csv",row.names=FALSE)
+#write.csv2(tableComLandYS,"Raw_Com_landings_Y_S.csv",row.names=FALSE)
 write.csv2(tableRecLandYS,"Raw_Rec_landings_Y_S.csv",row.names=FALSE)
 write.csv2(tablerecLandG,"Raw_Rec_landings_G.csv",row.names=FALSE)
 write.csv2(tableAqua,"Aquaculture_tons.csv",row.names=FALSE)
