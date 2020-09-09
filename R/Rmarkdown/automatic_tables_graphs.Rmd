@@ -618,7 +618,7 @@ ka_release_G <- kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",ca
 
 \newline
 
-```{r release_Gf,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure 6: Released (in thousands) per country, stage = G and OG and habitat = F+T+C.", fig.height=5, fig.width=10}
+```{r release_Gf,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure 7: Reported released of glass eel and ongrown glass eel (in thousands) per country, Sweden (SE), Estonia (EE), Latvia (LV), Poland (PL), Germany (DE), Netherlands (NL), Belgium (BE), Ireland (IE), United Kingdom (GB), France (FR), Spain (ES), Italy (IT) and Greece (GR).", fig.height=5, fig.width=10}
 
 ##Graph
 release3<-grouped_data
@@ -671,7 +671,7 @@ ka_release_Y <- kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",ca
 
 \newline
 
-```{r release_Yf,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure 7:Released (in thousands) per country,stage = Y and habitat = F+C+T.", fig.height=5, fig.width=10}
+```{r release_Yf,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure 8:Reported released of yellow eel (in thousands) per country, Sweden (SE), Germany (DE), Netherlands (NL),  Ireland (IE), Spain (ES) and Italy (IT).", fig.height=5, fig.width=10}
 ##Graph
 
 release3<-grouped_data
@@ -724,7 +724,7 @@ ka_release_S <- kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",ca
 
 \newline
 
-```{r release_Sf,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure 8: Released (in thousands) per country, stage = S and habitat = F+T+MO+C.", fig.height=5, fig.width=10}
+```{r release_Sf,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure 9: Reported released of silver eel (in thousands) per country, Sweden (SE), Finland (FI), Ireland (IE), France (FR), Spain (ES), and Greece (GR).", fig.height=5, fig.width=10}
 
 ##Graph
 release3<-grouped_data
@@ -777,7 +777,7 @@ ka_release_QG <- kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",c
 
 \newline
 
-```{r release_QGf,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure 9: Released (in thousands) per country, stage = QG and habitat = C+F.", fig.height=5, fig.width=10}
+```{r release_QGf,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure 10: Reported released of Quarantined glass eel (in thousands) per country, Sweden (SE) and Finland (FI).", fig.height=5, fig.width=10}
 
 ##Graph
 release3<-grouped_data
@@ -831,7 +831,7 @@ ka_release_OG <- kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",c
 
 \newline
 
-```{r release_OGf,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure 10: Released (in thousands) per country, stage = OG and habitat = C+F+T.", fig.height=5, fig.width=10}
+```{r release_OGf,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure 11: Reported released of ongrown glass eel (in thousands) per country, Estonia (EE), Latvia (LV), Lithuania (LT), Poland (PL), Germany (DE), Denmark (DK) and Spain (ES).", fig.height=5, fig.width=10}
 
 ##Graph
 release3<-grouped_data
@@ -852,7 +852,7 @@ print(g_release_OG)
 
 \newline
 
-```{r release_all_stages,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure 11: Released (in millions) per country, habitat = C+F+T+MO and stage = Y+YS+OG+S+QG+AL.", fig.height=5, fig.width=10}
+```{r release_all_stages,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure 12: Reported released of all stages (Y, YS, OG, S, QG, AL) (in thousands) per country, Sweden (SE), Finland (FI), Estonia (EE), Latvia (LV), Lithuania (LT), Poland (PL), Germany (DE), Denmark (DK), Netherlands (NL), Belgium (BE), Ireland (IE), United Kingdom (GB), France (FR), Spain (ES), Italy (IT) and Greece (GR)..", fig.height=5, fig.width=10}
 
 ##Table release of all stages for all the countries
 
