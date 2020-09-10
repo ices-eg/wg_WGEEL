@@ -1,0 +1,627 @@
+---
+title: "GEREM"
+author: "ICES Data Group"
+date: "08/09/2020"
+documentclass: article
+output: 
+  bookdown::html_document2:
+    fig_caption: yes
+    number_sections: yes
+bibliography: gerem.bib
+params:
+  updateData: FALSE
+  runModel:   FALSE
+---
+
+```{r setup, include=FALSE}
+load_library=function(necessary) {
+	if(!all(necessary %in% installed.packages()[, 'Package']))
+		install.packages(
+		  necessary[!necessary %in% installed.packages()[, 'Package']], dep = T)
+	for(i in 1:length(necessary))
+		library(necessary[i], character.only = TRUE)
+}
+
+CY<-2020 # current year ==> dont forget to update the graphics path below (
+
+load_library("bookdown")
+load_library("coda")
+load_library("runjags")
+load_library("getPass")
+load_library("RPostgres")
+load_library("sf")
+load_library("dplyr")
+load_library("ggplot2")
+load_library("parallel")
+load_library("tidyr")
+load_library("reshape2")
+load_library("rnaturalearth")
+knitr::opts_chunk$set(echo = TRUE)
+username = Sys.info()[["user"]]
+
+updatedData = FALSE
+if ((!file.exists(paste("datagerem",CY,".rdata",sep=""))) | params$updateData){
+  if (username=="hilaire.drouineau"){
+    setwd("~/Documents/Bordeaux/migrateurs/WGEEL/github/wg_WGEEL/R/recruitment/auto_gerem/")
+    con_ccm=dbConnect(Postgres(),host="citerne.bordeaux.irstea.priv",dbname="referentiel",
+                      user="hilaire.drouineau",
+                      password=getPass("Password for ccm database"))
+    table_seaoutlets="hydrographie.ccm_v2_1_riverbasin_seaoutlets"
+  }
+  
+  #get the surface of a catchment given a list of wso_id
+  getSurface=function(w,con){
+    if (is.na(w)) return(1) #corresponds to unreal catchments
+    w <- gsub("\\{","(",w)
+    w <- gsub("\\}",")",w)
+    dbGetQuery(con,paste("select sum(area_km2) from",
+                         table_seaoutlets,
+                         "where wso_id in ",w))[1,1]
+  }
+  
+  con_wgeel=dbConnect(Postgres(),
+                      dbname="wgeel",
+                      host="localhost",
+                      port=5435,
+  	                  user= getPass(msg="username"),
+  	                  password= getPass())
+  updatedData = TRUE
+
+} else {
+  load(paste("datagerem",CY,".rdata",sep=""))
+}
+```
+
+# Introduction
+GEREM is a Bayesian model aiming at estimating glass eel recruitment at different nested spatial scales (overall recruitment, sub-regions/zone, river basins) through the analysis of available recruitment time-series [@drouineau2016]. The model has already applied in France [@drouineau2016], to a large part of Europe [@bornarel2018a] and is currently used in the Sudoang Interreg projet. The model assumes that each year, the overall recruitment $R(y)$ is distributed among various zones (i.e. subregions) which receive recruitment $R_z(y)$. Then, zone recruitment is distributed among river catchments as a function of their surface, leading to recruitment $R_{c,z}(y)$. Basically, GEREM is a mixiong of a Dynamic Factor Analysis (DFA) [@zuur2003a] and a "rule of three". Similarly to a DFA model, GEREM  is state-space model based on a random walk structure, that estimates common trends in a set of time-series. The rule of three is used to extrapolate absolute recruitment estimates in a river basin to recruitment in other basins in the same zone, stating that the recruitment in each basin is a simple function of its surface.
+After having inventoried available time series and listed their characteristics, it is necessary to define zones. In each zone:
+* river catchements should have similar trends in recruitment
+* the rule of three must apply, i.e. it should be possible to extrapolate recruitment in a basin to another basin of the same zone as a simple function of their relative surfaces
+* time series of recruitment should be available. Morevover, there should be at least on time series of absolute recruitment.
+
+The model is detailed in [@drouineau2016] and [@bornarel2018a]. The current exercice is mainly an update from [@bornarel2018a]. We will use the same zone and the nearly the same time series but with updated values.
+
+# Material and Methods
+
+```{r dataLoadingFormatting, echo=FALSE, warning=FALSE, message=FALSE}
+####loading time series from WGEEL
+if ((!file.exists(paste("datagerem",CY,".rdata",sep=""))) | params$updateData){
+  
+  series_wgeel=read.table("catchment_wgeel.csv",header=TRUE,sep=";")
+  wgeel=dbGetQuery(con_wgeel,paste("select das_year,ser_nameshort,ser_uni_code,das_value,ser_ccm_wso_id,ser_x,ser_y from datawg.t_dataseries_das left join datawg.t_series_ser on das_ser_id =ser_id where das_year>=1960 and ser_nameshort in ('",paste(series_wgeel$ser_nameshort,collapse="','"),"')",sep="") )
+  series_wgeel <- merge(series_wgeel,
+                        unique(wgeel[,c("ser_nameshort","ser_ccm_wso_id","ser_x","ser_y")]),
+                        all.x=TRUE)
+  series_wgeel$ser_ccm_wso_id[series_wgeel$ser_nameshort=="MinG"] <-
+    series_wgeel$ser_ccm_wso_id[series_wgeel$ser_nameshort=="MiSpG"]
+  series_wgeel$surface=sapply(series_wgeel$ser_ccm_wso_id,getSurface,con=con_ccm )
+  
+  
+  ###converting to kg
+  wgeel$das_value=ifelse(wgeel$ser_uni_code=="t",
+                         wgeel$das_value*1000,
+                         ifelse(wgeel$ser_uni_code=="nr",
+                                wgeel$das_value*0.3/1000,
+                                wgeel$das_value))
+  
+  ###reshaping and merging Minho Spain and Portugal
+  wgeel_wide=wgeel %>%
+    select(das_year,das_value,ser_nameshort) %>%
+    pivot_wider(names_from=ser_nameshort,values_from=das_value,id_cols=das_year)
+  wgeel_wide$MinG=wgeel_wide$MiPoG+wgeel_wide$MiSpG
+  series_wgeel[series_wgeel$ser_nameshort=="MinG",c("ser_x","ser_y")]=
+    series_wgeel[series_wgeel$ser_nameshort=="MiSpG",c("ser_x","ser_y")]
+  wgeel_wide <- wgeel_wide %>%
+    select(-MiPoG,-MiSpG)
+  series_wgeel <- series_wgeel %>%
+    filter(!ser_nameshort %in% c("MiSpG","MiPoG"))
+  
+    
+  
+  
+  ####loading additional french series
+  french_wide=read.table("french_serie2.csv",header=TRUE,sep=";")
+  names(french_wide)[1]="das_year"
+  french_wide=subset(french_wide,french_wide$das_year>=1960)
+  
+  series_french=read.table("catchment_french.csv",header=TRUE,sep=";")
+  series_french$ser_ccm_wso_id = as.character(series_french$ser_ccm_wso_id)
+  series_french$surface=sapply(series_french$ser_ccm_wso_id,getSurface,con=con_ccm )
+  series_french$ser_x=series_french$ser_y=0
+  series_french$ser_x=series_wgeel$ser_x[match(series_french$ser_ccm_wso_id,
+                                               series_wgeel$ser_ccm_wso_id)]
+  series_french$ser_y=series_wgeel$ser_y[match(series_french$ser_ccm_wso_id,
+                                               series_wgeel$ser_ccm_wso_id)]
+                
+  series_french[series_french$ser_nameshort=="SeGEMAC",c("ser_x","ser_y")] =
+    c(-1.136938,45.796857)
+  series_french[series_french$ser_nameshort=="ChGEMAC",c("ser_x","ser_y")] =
+    c(-1.076013,45.953153)
+  series_french[series_french$ser_nameshort=="Somme",c("ser_x","ser_y")] =
+    c(1.644597,50.181853)
+  series_french[series_french$ser_nameshort=="Oria",c("ser_x","ser_y")] =
+    c(-2.1307297,43.2827)
+  
+  
+  values_wide=merge(wgeel_wide,french_wide,all=TRUE)
+  series=bind_rows(series_wgeel,series_french)
+  
+  values_long <- values_wide %>%
+    pivot_longer(-das_year,
+                 names_to="ser_nameshort",
+                 values_to="das_value")
+  
+  series_stat <- merge(series, values_long) %>%
+    select(-wso_id,-ser_ccm_wso_id) %>%
+    filter(!is.na(das_value)) %>%
+    group_by(ser_nameshort, type, zone, surface) %>%
+    summarize(first_year=min(das_year),
+              last_year=max(das_year),
+              nbyear=n_distinct(das_year))
+  values_long <- na.omit(merge(values_long,
+                               series[,c("ser_nameshort","zone")]))
+}
+```
+
+```{r buildingZone, echo=FALSE, warning=FALSE, message=FALSE}
+######building zones
+if ((!file.exists(paste("datagerem",CY,".rdata",sep=""))) | params$updateData){
+  
+  allcatchments=st_read(con_ccm,query=paste('select wso_id,area_km2,"window",sea_cd,geom from',table_seaoutlets,' where strahler>0 and ("window"<=2004 or "window"=2008)'))
+  outlets=st_read(con_ccm,query='select "window",gid, wso_id, geom from hydrographie.ccm_v2_1_w2000_rivernodes where num_seg=0 union
+                  select "window",gid, wso_id, geom from hydrographie.ccm_v2_1_w2001_rivernodes where num_seg=0 union
+                  select "window",gid, wso_id, geom from hydrographie.ccm_v2_1_w2002_rivernodes where num_seg=0 union
+                  select "window",gid, wso_id, geom from hydrographie.ccm_v2_1_w2003_rivernodes where num_seg=0 union
+                  select "window",gid, wso_id, geom from hydrographie.ccm_v2_1_w2004_rivernodes where num_seg=0 union
+                  select "window",gid, wso_id, geom from hydrographie.ccm_v2_1_w2008_rivernodes where num_seg=0')
+  outlets=subset(outlets,outlets$wso_id %in% allcatchments$wso_id)
+  
+  emu=st_read(con_wgeel,query='select * from ref.tr_emu_emu')
+  asso=st_nearest_feature(st_transform(outlets,4326),emu)
+  outlets$emu=emu$emu_nameshort[asso]
+  allcatchments$emu=outlets$emu[match(allcatchments$wso_id,outlets$wso_id)]
+  
+  allcatchments$zone=NA
+  allcatchments$zone[startsWith(allcatchments$emu,"FR_") & allcatchments$sea_cd==1]="ATL_F"
+  allcatchments$zone[(startsWith(allcatchments$emu,"ES_") | startsWith(allcatchments$emu,"PT_")) & allcatchments$sea_cd==1]="ATL_IB"
+  allcatchments$zone[(allcatchments$sea_cd==4 & allcatchments$window!=2002) & (startsWith(allcatchments$emu,'FR_') | allcatchments$emu %in% c("GB_Wale","GB_Seve","GB_SouW","GB_SouE"))]="Channel"
+  allcatchments$zone[allcatchments$sea_cd==5]="NS"
+  allcatchments$zone[allcatchments$sea_cd!=5 &  ((startsWith(allcatchments$emu,'GB_') | startsWith(allcatchments$emu,'IE_')) &  !allcatchments$emu %in% c("GB_Wale","GB_Seve","GB_SouW","GB_SouE"))]="BI"
+  allcatchments$zone[(startsWith(allcatchments$emu,"ES_") | startsWith(allcatchments$emu,"FR_")| startsWith(allcatchments$emu,"IT_")) & allcatchments$sea_cd==2]="Med"
+  
+  allcatchments=subset(allcatchments,!is.na(allcatchments$zone))
+  allcatchments$zone=as.factor(allcatchments$zone)
+  
+  zone=aggregate(allcatchments$area_km2,list(allcatchments$zone),sum)
+  names(zone)=c("zone","surface")
+}
+```
+
+
+## Zone definition
+
+We used the same zones as @bornarel2018a \@ref(fig:mapsZones):
+* a North Sea zone (NS)
+* a Channel zone which covers Southwestern Great Britanny and NorthWestern France
+* ATL_F which covers the French coast along the Bay of Biscay
+* ATL_IB which extends from the Cantabrian Sea to the the Gibraltar strait
+* Med which extends from the Gibraltar strait to Sicilia
+
+```{r mapsZones, fig.cap="Zone definition and available data", echo=FALSE,warning=FALSE,message=FALSE}
+worldmap <- ne_countries(scale = 'medium', type = 'map_units',
+                         returnclass = 'sf')
+europe_cropped <- st_crop(worldmap, xmin = -13, xmax = 27,
+                                    ymin = 35, ymax = 65)
+ggplot(europe_cropped)+geom_sf(data=europe_cropped)+
+  geom_point(data=series,aes(x=jitter(ser_x,amount=.5),
+                             y=jitter(ser_y,amount=.5),
+                             pch=type,
+                             col=type))+
+  geom_sf(data=allcatchments,aes(fill=zone),alpha=.3,col=NA)+
+  scale_fill_viridis_d()+
+  xlab("")+
+  ylab("")+
+  theme_bw()
+```
+
+## Available Data
+Table \@ref(tab:availableData) summarizes the data use to fit the model. While time series are available in all zones, most absolute estimates come from ATL_F. In other zones, trap monitoring and commercial catches can inform on absolute estimates given but this requires making assumption on trapping efficiency or on exploitation rate. We also note the the number of time series is limited in the Channel area. Conversely, there are many time series in ATL_F, but most of them ended after the implementation of the French Eel Management Plan [@ministeredelecologiedelenergiedudeveloppementdurableetdelamenagementduterritoire2010] and presently, there is only one still updated time series. We also note that the Mediterranean zone is large with only four available time series.
+
+```{r availableData, echo=FALSE}
+knitr::kable(series_stat[order(series_stat$zone,series_stat$ser_nameshort),],
+             caption="Availabe time-series of recruitment",
+            col.names=c("Series","Type","Zone",
+                        "Surface (km²)","First Year",
+                        "Last Year","Nb data"))
+```
+
+For traps (respectively commercial catches), we use vague priors on trap efficiencies (respectively exploitation rates) to give an insight on the possible recruitment (Figure \@ref(fig:priorsScaling)). For traps, we use a vague prior around 1/3, value often estimated for trap efficiency [@briand2005; @drouineau2015; @jessop2000; @noonan2012]. For commercial catch, we assume a very flat prior between 0 and 1 (i.e. stating that we do not know anything about exploitation rate but that catches are by definition smaller than recruitment), except for the Somme where, based on expert knowledge, we assume that the exploitation rate was around 0.75.
+
+```{r priorsScaling, fig.cap="Priors for exploitation rates and trap efficiencies", echo=FALSE, warning=FALSE, message=FALSE}
+prior=data.frame(shape1=c(1.5,4.5,1.1),shape2=c(3,1.5,1.1),type=c("Trapping efficiency","Somme exploitation rate","Other exploitation rates"))
+ggplot(data.frame(scaling=c(0,1)),aes(x=scaling))+
+  stat_function(fun=dbeta,
+                args=as.list(prior[prior$type=="Trapping efficiency",
+                                   c("shape1","shape2")]),
+                aes(col="Trapping efficiency")) + 
+  stat_function(fun=dbeta,
+                args=as.list(prior[prior$type=="Somme exploitation rate",
+                                   c("shape1","shape2")]),
+                aes(col="Somme exploitation rate")) + 
+  stat_function(fun=dbeta,
+                args=as.list(prior[prior$type=="Other exploitation rates",
+                                   c("shape1","shape2")]),
+                aes(col="Other exploitation rates")) + 
+  xlab("scaling factor") + ylab("prior density")+
+  scale_color_brewer("factor",type="qual")+
+  theme_bw()
+```
+
+## Running the model
+```{r runningConfig, echo=FALSE}
+if ((!file.exists(paste("datagerem",CY,".rdata",sep=""))) | params$updateData){
+  
+  burnin=100000
+  sample=50000
+  
+  tmp=matrix(0,max(table(allcatchments$zone)),length(table(allcatchments$zone)))
+  tab=table(allcatchments$zone)
+  for (i in 1:length(tab)){
+    tmp[1:tab[i],i]=allcatchments$area_km2[allcatchments$zone==names(tab)[i]]
+    
+  }
+  colnames(tmp)=names(tab)
+  tmp=tmp[,match(zone$zone,colnames(tmp))]
+  surfaceallcatchment=t(tmp)
+  
+  
+  
+  
+  
+  
+  
+  row.names(values_wide)=values_wide$das_year
+  values_wide=values_wide[,-1]
+  
+  
+  ###############formatting data and inputs
+  
+  
+  nbyear=nrow(values_wide)
+  absolute=subset(values_wide,select=which(series$type[match(names(values_wide),series$ser_nameshort)]=="absolute"))
+  serie=subset(values_wide,select=which(series$type[match(names(values_wide),series$ser_nameshort)]=="relative"))
+  trap=subset(values_wide,select=which(series$type[match(names(values_wide),series$ser_nameshort)]=="trap"))
+  catch=subset(values_wide,select=which(series$type[match(names(values_wide),series$ser_nameshort)]=="catch"))
+  
+  
+  #serie=serie+1
+  serie=sweep(serie,2, colMeans(serie,na.rm=TRUE),"/")
+  logIAObs=as.matrix(log(serie))
+  logIAObs[is.infinite(logIAObs)]=NA #we removed 0 
+  logUObs=log(absolute)
+  logIPObs=as.matrix(log(trap))
+  logIPObs[is.infinite(logIPObs)]=NA #we removed 0 
+  logIEObs=log(catch)
+  
+  nbsurvey=ncol(serie)
+  nbabsolute=ncol(absolute)
+  nbtrap=ncol(trap)
+  nbcatch=ncol(catch)
+  
+  ########formatting catchments
+  nbzone=nrow(zone)
+  tab_series=unique(series[,c("ser_wso_id","surface","zone")]) # a table with one row per catchment in which we have data
+  nbcatchments=nrow(tab_series)
+  
+  surface=tab_series$surface #vector of surfaces of the catchments
+  zonecatchment=match(tab_series$zone,zone$zone)
+  
+  surfaceZone=zone$surface
+  
+  
+  ###############creating vector of indices to match the different dataset
+  catchment_survey=match(series$wso_id[match(names(serie),series$ser_nameshort)],tab_series$wso_id)
+  catchment_absolute=match(series$wso_id[match(names(absolute),series$ser_nameshort)],tab_series$wso_id)
+  catchment_trap=match(series$wso_id[match(names(trap),series$ser_nameshort)],tab_series$wso_id)
+  catchment_catch=match(series$wso_id[match(names(catch),series$ser_nameshort)],tab_series$wso_id)
+  
+  meanlogq=rep(log(.5),ncol(serie))
+  
+  
+  
+  mulogRglobal1=log(sum(colMeans(absolute,na.rm=TRUE)))+log(sum(surfaceZone)/sum(surface[catchment_absolute]))
+  
+  initpropR=rep(1/nbzone,nbzone)
+  
+  #priors for scaling factors, alpha and beta of a beta distrition. If no data is provided, 
+  #default uninformative prior will be used
+  scale_bound=list(Vac=c(1.5,3), #trap around 1/3
+                   Bann=c(1.5,3),#trap around 1/3
+                   Bres=c(1.5,3),#trap around 1/3
+                   Erne=c(1.5,3),#trap around 1/3
+                   Fre=c(1.5,3),#trap around 1/3
+                   Imsa=c(1.5,3),#trap around 1/3
+                   Feal=c(1.5,3),#trap around 1/3
+                   Inag=c(1.5,3),#trap around 1/3
+                   Maig=c(1.5,3),#trap around 1/3,
+                   Visk=c(1.5,3),#trap around 1/3
+                   ShaA=c(1.5,3),#trap around 1/3
+                   Somme=c(4.5,1.5)) #something wide around 0.75)
+  
+  
+  mydata=list(
+    initpropR=initpropR,
+    nbzone=nbzone,
+    nbsurvey=nbsurvey,
+    nbtrap=nbtrap,
+    nbcatchments=nbcatchments,
+    nbabsolute=nbabsolute,
+    nbcatch=nbcatch,
+    catchment_survey=catchment_survey,
+    catchment_trap=catchment_trap,
+    catchment_catch=catchment_catch,
+    catchment_absolute=catchment_absolute,
+    zonecatchment=zonecatchment,
+    surface=ifelse(!is.na(surface),surface,1),
+    nbyear=nbyear,
+    logIAObs=as.matrix(logIAObs),
+    logIPObs=as.matrix(logIPObs),
+    logUObs=as.matrix(logUObs),
+    logIEObs=as.matrix(logIEObs),
+    surfaceallcatchment=surfaceallcatchment,
+    scale_trap=sapply(1:nbtrap,function(i){
+      if(names(trap)[i] %in% names(scale_bound)) {
+        scale_bound[[names(trap)[i]]]
+      } else { 
+        c(1.01,1.01)
+      }}
+    ),
+    scale_catch=sapply(1:nbcatch,function(i){
+      if(names(catch)[i] %in% names(scale_bound)) {
+        scale_bound[[names(catch)[i]]]
+      } else { 
+        c(1.01,1.01)
+      }}
+    )
+  )
+  
+  generate_init=function(){
+    gen_init=function(x){
+      epsilonRcm=rnorm(mydata$nbcatchments*mydata$nbyear)
+      logIAObs=apply(mydata$logIAObs,2,function(x){
+        d=which(!is.na(x))
+        x[which(is.na(x))]=runif(length(which(is.na(x))),min(x,na.rm = TRUE)*2,max(x,na.rm = TRUE)*2)
+        x[d]=NA
+        x
+      })
+      logIPObs=apply(mydata$logIPObs,2,function(x){
+        d=which(!is.na(x))
+        x[which(is.na(x))]=runif(length(which(is.na(x))),min(x,na.rm = TRUE)*2,max(x,na.rm = TRUE)*2)
+        x[d]=NA
+        x
+      })
+      
+      logUObs=apply(mydata$logUObs,2,function(x){
+        d=which(!is.na(x))
+        x[which(is.na(x))]=runif(length(which(is.na(x))),min(x,na.rm = TRUE)*2,max(x,na.rm = TRUE)*2)
+        x[d]=NA
+        x
+      })
+      logIEObs=apply(mydata$logIEObs,2,function(x){
+        d=which(!is.na(x))
+        x[which(is.na(x))]=runif(length(which(is.na(x))),min(x,na.rm = TRUE)*2,max(x,na.rm = TRUE)*2)
+        x[d]=NA
+        x
+      })
+      
+      
+      #inits
+      propR=matrix(0,nbzone,nbyear)
+      for (i in 1:nbyear){
+        tmp=rbeta(mydata$nbzone,1,1)
+        propR[,i]=tmp/sum(tmp)
+      }
+      
+      tauq=1/(runif(1,0.26,1)^2)
+      tauRglob=1/(runif(1,0.26,1)^2)
+      tauRwalk=1/(runif(1,0.26,1)^2)
+      precisionpropRwalk=runif(1,0.5,1)
+      tauIA=1/(runif(mydata$nbsurvey,0.26,1)^2)
+      tauIP=1/(runif(mydata$nbtrap,0.26,1)^2)
+      tauU=1/(runif(mydata$nbabsolute,0.26,1)^2)
+      tauIE=1/(runif(mydata$nbcatch,0.26,1)^2)
+      
+      epsilonRzone=rnorm(mydata$nbyear*mydata$nbzone,0,1)
+      epsilonR=rnorm(mydata$nbyear,0,1)
+      beta=runif(1,0.01,2)
+      logR1=runif(1,14,17)
+      logq=runif(ncol(mydata$logIAObs),-13,0)
+      a=apply(mydata$scale_trap,2,function(x) rbeta(1,x[1],x[2]))
+      p=apply(mydata$scale_catch,2,function(x) rbeta(1,x[1],x[2]))
+      inits=list(tauIE=tauIE,tauq=tauq,propR=propR,tauRglob=tauRglob,
+                 tauIA=tauIA,tauIP=tauIP,tauU=tauU, #precisionpropRwalk=precisionpropRwalk,      
+                 epsilonRzone=epsilonRzone,epsilonR=epsilonR,epsilonRcm=epsilonRcm,
+                 tauRwalk=tauRwalk,beta=beta,
+                 logR1=logR1,logIAObs=logIAObs,logIPObs=logIPObs,logUObs=logUObs,logq=logq,a=a,p=p)
+      inits
+    }
+    gen_init(1)
+  }
+} else{
+  save.image(paste("datagerem",CY,".rdata",sep=""))
+  dbDisconnect(con_wgeel)
+  dbDisconnect(con_ccm)
+}
+```
+Three independent MCMC chains are run in parallel using JAGS [@plummer2003] through R package runjags [@denwood2016]. Chains were run `r format(sample, scientific=FALSE)` iterations after an initial burnin period of `r format(burnin, scientific=FALSE)` iterations. Gelman and Rubin diagnostics were used to check model convergence [@gelman1992].
+
+```{r modelRun,echo=FALSE,message=FALSE,warning=FALSE}
+if  ((!file.exists(paste("gerem",CY,".rdata",sep=""))) | updatedData | params$runModel){
+  jags_res=run.jags("versionBugs2_1.txt",
+                    monitor=c("beta","logq","loga",
+                              "logRglobal","Rzone","propR","logp"),
+                    data=mydata,n.chains=3,
+                    inits=generate_init,
+                    burnin=burnin,
+                    sample=sample,
+                    thin=1,
+                    tempdir=FALSE,
+                    summarise=FALSE,adapt = 80000,
+                    keep.jags.files=FALSE,
+                    method="parallel")
+  
+  jags_res=as.mcmc.list(jags_res)
+  jags_mat=as.matrix(jags_res)
+  colname=varnames(jags_res)
+  save.image(paste("gerem",CY,".rdata",sep=""))
+          
+  
+} else {
+  load(paste("gerem",CY,".rdata",sep=""))
+}
+```
+
+
+# Results
+## Overall recruitment and zone zone recruitments
+```{r statsRglobal}
+rCy=jags_mat[,paste("logRglobal[",mydata$nbyear,"]",sep="")] #last year estimate
+rRef=rowMeans(jags_mat[,paste("logRglobal[",1:match("1979",rownames(values_wide)),"]",sep="")])
+rstdCY=round(quantile(exp(rCy)/exp(rRef),probs=c(0.025,0.5,0.975))*100,digits=2)
+```
+Unsurprisingly, overall recruitment (Figure \@ref(fig:rglobal)) shows a steep decline since the early 1980s, despite some oscillations. In the recent period, a period of increase in the early 2010s but seems to stabilize or slightly decrease after this. Credibility interval are rather large at the end of the period both because 2020 were not available when the model was run, and because many time series (especially French fishery based time series) ended after the implementation of the Eel Regulation. The 2020 recruitment is estimated to be `r rstdCY[2]`% (credibility interval [`r paste(rstdCY[c(1,3)],collapse="%-")`%]). 
+
+```{r rglobal, fig.cap="Overall trend in recruitment: median of the posterior distribution (solid line) and corresponding 95% credibility interval (shaded area)",echo=FALSE}
+col=grep("logRglobal",colname)
+year=sapply(strsplit(colname[col],"[[:punct:]]"),function(x) as.numeric(row.names(values_wide)[as.numeric(x[2])]))
+logrglobal=data.frame(t(apply(jags_mat[,col],2,quantile,probs=c(0.025,.5,.975))))
+names(logrglobal)=c("q2.5","q50","q97.5")
+logrglobal=rbind.data.frame(logrglobal-log(1e3),exp(logrglobal)/1e3)
+
+logrglobal$year=c(year,year)
+logrglobal$type=c(rep("log R",length(year)),rep("R",length(year)))
+
+mylabels <- c(`R`="R[y]~~~plain((t))",`log R`="log(R[y])~~~plain((log (t)))")
+new.labs <- as_labeller(mylabels, label_parsed)
+
+ggplot(logrglobal,aes(x=year,y=q50))+
+  geom_line()+
+  geom_ribbon(aes(ymin=q2.5,ymax=q97.5),alpha=0.3)+
+  facet_wrap(~type,scales="free",
+             labeller=new.labs)+
+  theme_bw()+
+  ylab("")+
+  xlab("")
+
+```
+
+At the zone level (Figure \@ref(fig:rzone)), all zones display a decrease of recruitment. Results confirm that the decline in North Sea started earlier than in the other zones. The Mediterreanean area also displays a decline in the 1960s, however, estimates in this period are based on few fishery-based time series and the assumption about constant exploitation rate and reporting rate is questionnable, moreover, it is worthwile mentionning that there are currently only 4 time-series are available while the zone is large and include both lagoons and "usual" river basins. For the Channel, the lack of data in the begginning of the time series explain the large credibility interval for the beginning of the series when estimates should be taken with great care. ATL_F does not display any increase at the end of the time-series, however, results are based on single time-series (GiscG) and, consequently, confidence interval are rather large.
+
+```{r rzone,echo=FALSE, fig.cap="Trend in recruitment in each zone of the model: median of the posterior distribution (solid line) and corresponding 95% credibility interval (shaded area). The colour of the points on the x axis indicate the number of available data series for the corresponding zone and year"}
+col=grep("Rzone",colname)
+name_zone=sapply(strsplit(colname[col],"[[:punct:]]"),function(x) zone$zone[as.numeric(x[3])])
+year=sapply(strsplit(colname[col],"[[:punct:]]"),function(x) as.numeric(row.names(values_wide)[as.numeric(x[2])]))
+rzone=data.frame(t(apply(log(jags_mat[,col]/1e3),2,quantile,probs=c(0.025,.5,.975))))
+names(rzone)=c("q2.5","q50","q97.5")
+rzone$year=year
+rzone$zone=name_zone
+
+ggplot(rzone,aes(x=year,y=q50))+
+  geom_line()+
+  geom_point(data=data_points,aes(x=das_year,y=0,pch=pre,col=n),cex=.8)+
+  geom_ribbon(aes(ymin=q2.5,ymax=q97.5),alpha=0.3)+
+  facet_wrap(~zone)+
+  ylab(expression(log(R[z])~~~~~(log(t))))+
+  scale_colour_viridis_c("number of\ndata points")+
+  guides(pch=FALSE)+
+  theme_bw()
+```
+
+It is also possible to analyse the proportions of recruitment arriving in each zone of the model (Figure @\ref(fig:propZone)). However, these results should be taken with great care: creadibility intervals are large and some zones estimates are based on few absolute (or trap/commercial catch) time series.
+
+```{r propZone,fig.caption="Poportions of overall recruitment arriving in each zone: : median of the posterior distribution (solid line) and corresponding 95% credibility interval (shaded area)", echo=FALSE }
+col=grep("propR",colname)
+name_zone=sapply(strsplit(colname[col],"[[:punct:]]"),function(x) zone$zone[as.numeric(x[2])])
+year=sapply(strsplit(colname[col],"[[:punct:]]"),function(x) as.numeric(row.names(values_wide)[as.numeric(x[3])]))
+propR=data.frame(t(apply(jags_mat[,col],2,quantile,probs=c(0.025,.5,.975))))
+names(propR)=c("q2.5","q50","q97.5")
+propR$year=year
+propR$zone=name_zone
+
+
+ggplot(propR,aes(x=year,y=q50))+
+  geom_line()+
+  geom_point(data=data_points,aes(x=das_year,y=0,pch=pre,col=n),cex=.8)+
+  geom_ribbon(aes(ymin=q2.5,ymax=q97.5),alpha=0.3)+
+  facet_wrap(~zone)+
+  ylab(expression(log(R[z])~~~~~(log(t))))+
+  scale_colour_viridis_c("number of\ndata points")+
+  guides(pch=FALSE)+
+  theme_bw()
+```
+
+## Convergence and priors vs posterior distributions (this section if for internal check)
+```{r gelman_beta,include=FALSE}
+gelman=gelman.diag(jags_res,multivariate=FALSE)
+propconv=sum(gelman$psrf[,1]<=1.05)/nrow(gelman$psrf)
+beta=quantile(jags_mat[,"beta"],probs=c(0.025,.5,.975))
+```
+Gelman R hat statistics was below 1.05 for `r round(propconv*100,digits=1)`% of the parameters, demonstrating a good convergence of the model. 
+
+```{r priorsposterios,echo=FALSE,warning=FALSE, error=FALSE}
+###trap
+scale_trap=as.data.frame(exp(jags_mat[,grep("loga",colname)]))%>%
+  pivot_longer(cols=everything(),names_to="ser_id",values_to="a") %>%
+  mutate(ser_nameshort=colnames(logIPObs)[as.integer(gsub("loga\\[|\\]","",ser_id))])
+  
+ggplot(scale_trap,aes(x=a))+
+  geom_histogram(stat="density")+
+  stat_function(fun=dbeta,args=as.list(prior[prior$type=="Trapping efficiency",
+                                   c("shape1","shape2")]),
+                col=2)+
+  facet_wrap(~ser_nameshort,scales="free_y")+
+  theme_bw()
+
+
+###commercial catch
+scale_catch=as.data.frame(exp(jags_mat[,grep("logp",colname)]))%>%
+  pivot_longer(cols=everything(),names_to="ser_id",values_to="p") %>%
+  mutate(ser_nameshort=colnames(logIEObs)[as.integer(gsub("logp\\[|\\]","",ser_id))])
+  
+ggplot(scale_trap,aes(x=a))+
+  geom_histogram(stat="density")+
+  stat_function(fun=dbeta,args=as.list(prior[prior$type=="Trapping efficiency",
+                                   c("shape1","shape2")]),
+                col=2)+
+  facet_wrap(~ser_nameshort,scales="free_y")+
+  theme_bw()
+```
+
+```{r rbasinfunction,include=FALSE}
+compute_r_basins=function(basins){
+  #take one 1000 iterations of MCMC chain
+  basins=basins[basins%in%allcatchments$wso_id]
+  zone_basin=match(allcatchments$zone[match(basins,allcatchments$wso_id)],zone$zone)
+  surface_basin=allcatchments$area_km2[match(basins,allcatchments$wso_id)]
+  Rmat=(apply(sample_mcmc,1,function(x){
+    Rzone=sapply(1:nbzone,function(z){
+      x[grep(paste("Rzone\\[[0-9]*,",z,"\\]",sep=""),colname)]
+    })
+    beta=x["beta"]
+    totalweights=rowSums(surfaceallcatchment^beta)
+    props=surface_basin^beta/totalweights[zone_basin]
+    if(length(basins)>1){
+      meanR=sweep(Rzone[,zone_basin],2,props,"*")
+      varR=sweep(meanR,2,(1-props),"*")
+      return(rowSums(meanR)+rnorm(nbyear)*sqrt(rowSums(varR)))
+    } else{
+      meanR=Rzone[,zone_basin]*props
+      varR=meanR*(1-props)
+      return(meanR+rnorm(nbyear)*sqrt((varR)))
+    }
+  }))
+  rownames(Rmat)=rownames(logUObs)
+  t(apply(Rmat,1,quantile,probs=c(0.025,.5,.975)))
+}
+```
+#References
