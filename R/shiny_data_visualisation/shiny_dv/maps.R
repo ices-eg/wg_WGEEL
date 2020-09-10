@@ -621,8 +621,8 @@ load_maps = function(full_load = FALSE, to_save = FALSE)
 		#path to shapes on the sharepoint
 		#shpwd = wg_choose.dir(caption = "Shapefile directory")
 		
-		emu <- st_read(str_c(dsn= "PG:dbname='wgeel' host='localhost' port='5436' user='",userlocal,"' 
-						password='",passwordlocal,"'"), layer="ref.tr_emu_emu")
+		emu <- st_read(str_c(dsn= "PG:dbname='wgeel' host='localhost' port='5435' user='",userwgeel,"' 
+						password='",passwordwgeel,"'"), layer="ref.tr_emu_emu")
 		# This is the map of the emu
 		#emu_p <<- rmapshaper::ms_simplify(rgdal::readOGR(str_c(shpwd,"/","emu_polygons_4326.shp")), keep = 0.7) # a spatial object of class sp, symplified to be displayed easily
 		emu_p <<- rmapshaper::ms_simplify(emu$geom, keep = 0.7) # a spatial object of class sp, symplified to be displayed easily
@@ -635,8 +635,8 @@ load_maps = function(full_load = FALSE, to_save = FALSE)
 		emu_c <- st_centroid(emu_no_empty_geom$geom)
 		#emu_c@data <- stacomirtools::chnames(emu_c@data,"emu_namesh","emu_nameshort") # names have been trucated
 		
-		country <- st_read(dsn= str("PG:dbname='wgeel' host='localhost' port='5436' user='",userlocal,"' 
-						password='",passwordlocal,"'"), layer="ref.tr_country_cou")
+		country <- st_read(dsn= str("PG:dbname='wgeel' host='localhost' port='5435' user='",userwgeel,"' 
+						password='",passwordwgeel,"'"), layer="ref.tr_country_cou")
 
 		# This is the map of the emu
 		#country_p <<- rmapshaper::ms_simplify(rgdal::readOGR(str_c(shpwd,"/","country_polygons_4326.shp")), keep = 0.01)# a spatial object of class sp, symplified to be displayed easily
@@ -650,7 +650,7 @@ load_maps = function(full_load = FALSE, to_save = FALSE)
 		country_c <- st_centroid(country_no_empty_geom$geom)
 		
 		# transform spatial point dataframe to 
-		if(to_save) save(emu_c,country_p,emu_p,country_c,file=str_c(data_directory,"/maps_for_shiny.Rdata"))
+		if(to_save) save(emu_c,country_p,emu_p,country_c,file=str_c(data_directory,"/maps_for_shiny.Rdata"), version =2)
 	} else 
 	{
 		if(!exists("data_directory")) 
