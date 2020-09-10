@@ -942,7 +942,7 @@ ka_aqua2 <- kable(format(table2,digt=3,drop0trailing=TRUE),format="pandoc",capti
 
 \newline
 
-```{r aquaf,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure 5: Aquaculture per country, all stages and all habitats.", fig.height=5, fig.width=10}
+```{r aquaf,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure 13: Reported aquaculture production of European eel in Europe from 1984 onwards, in tonnes, in Sweden (SE), Finland (FI), Estonia (EE), Lithuania (LT), Poland (PL), Germany (DE), Denmark (DK), Netherlands (NL), Ireland (IE), Spain (ES), Portugal (PT), Italy (IT) and Greece (GR).", fig.height=5, fig.width=10}
 
 ## Graph
 aquaculture3<-grouped_data
