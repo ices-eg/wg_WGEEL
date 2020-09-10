@@ -247,7 +247,7 @@ vv <- list()
 %\addtocounter{chapter}{3} % this will set initial chapter counter to  4
 %======================================================================
 \addtocounter{chapter}{1}
-\chapter{Report on developments in the state of the European eel (Anguilla
+\chapter{Report on developments on the state of the European eel (Anguilla
 anguilla) stock, the fisheries on it and other anthropogenic impacts.}
 
 
@@ -914,18 +914,20 @@ adressed. The time-series data are derived from fishery-dependent sources
 the geographic range of European eel.  The
 stages are categorized as :
 \begin{itemize}
-\item glass eel (G), 
+\item glass eel (G), continental age 0 years, 
 \item mixture of glass eel and young
-yellow eel dominated by recruits from the year (GY) and young yellow eel (Y)
+yellow eel dominated by recruits from the year (GY)
 recruiting to continental habitats (Dekker, 2002). 
-\item Yellow eel (Y) which might consist of yellow eel of several ages. 
-This is certainly the case for all series from the Baltic, and other sites. 
+\item older yellow eel (Y) recruiting to continental habitats. The yellow
+eel series might consist of yellow eel of several ages.
+This is certainly the case for all series from the Baltic (mean age up to 6),
+and sites located far upstream.
 \end{itemize}
 The glass eel recruitment time-series have been grouped into two geographical
 areas: 'continental North Sea' (NS) and 'Elsewhere Europe' (EE) (Figure
 \ref{figure1}). The glass eel recruitment time-series have been grouped into two geographical
 areas: 'continental North Sea' (NS) and 'Elsewhere Europe' (EE) (Figure 3.4.1).
-Previous analyses by the working group (ICES, 2010b, p19), Bornarel et al. (2017) 
+Previous analyses by the working group (ICES, 2010b, p19, Bornarel et al. (2017) 
 have shown a difference between the two sets. This is mostly due to a more pronounced
 decline of the North Sea series compared to the Elsewhere Europe area during the 1980's.
 
