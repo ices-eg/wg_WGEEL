@@ -1375,7 +1375,6 @@ Annex 7: restocked and assisted for 2019 (T&T not ready to report). Restocked fo
  
 ## TN (Tunisia) 
 
-*Nothing yet*
 
 ### annex 1
 
@@ -1384,7 +1383,7 @@ Annex 7: restocked and assisted for 2019 (T&T not ready to report). Restocked fo
 ### annex 3
 
 ### annex 4
-
+* 716 new values inserted in the database*
 ### annex 5
 
 ### annex 6
@@ -1409,7 +1408,6 @@ Annex 7: restocked and assisted for 2019 (T&T not ready to report). Restocked fo
 ### annex 4
 
 Done
-
 
 ### annex 5
 
