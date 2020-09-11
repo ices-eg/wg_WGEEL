@@ -233,17 +233,20 @@ ggplot(yellow_data_std,aes(x=das_year,y=das_value))+
 
 When plotted per country, a simple gam smoother shows descreating and
 stabilizing curves in  FR, NL, the same with a more pronounced increase after
-2012 for DK, ES, a linear decrease in IE, GB, DE, and a more complex curve for
-SE. The trend correspdond to log transformed and scaled values.
+2012 for DK, ES, a linear decrease in IE, GB, and an increase for
+NO SE, with a more complex curve for SE. The trend correspdond to log
+transformed and scaled values.
 
-```{r gam, echo=FALSE,warning=FALSE}
+```{r gam_yellow, echo=FALSE,warning=FALSE}
 
 
 g0 <- gam(das_value~s(yellow_data$das_year), data=yellow_data_std)
 g1 <- gam(das_value~s(yellow_data$das_year, by=ser_cou_code), data=yellow_data_std)
+g2 <- gam(das_value~s(yellow_data$das_year, by=ser_nameshort), data=yellow_data_std)
+AIC(g0, g1, g2)
 cou_code <- levels(droplevels (yellow_data_std$ser_cou_code))
 
-layout(matrix(1:length(cou_code), nrow = 3, byrow = TRUE))
+layout(matrix(1:9, nrow = 3, byrow = TRUE))
 cols<-colorRampPalette(c("chartreuse", "grey",  "navy"),space = "rgb")(length(cou_code))
 for (i in 1:length(cou_code)){
 	plot(g1,residuals=TRUE,select=i, shade=TRUE,shade.col=cols[i], ylab=cou_code[i])
@@ -513,6 +516,28 @@ ggplot(silver_data_std,aes(x=das_year,y=das_value))+
 		geom_smooth(method="gam")+theme_bw()+xlab("year")+
 		ylab("Standardised abundance index (log scale)")
 ```
+
+```{r gam_silver, echo=FALSE,warning=FALSE}
+
+#TODO ADAPT CODE
+g0 <- gam(das_value~s(yellow_data$das_year), data=yellow_data_std)
+g1 <- gam(das_value~s(yellow_data$das_year, by=ser_cou_code), data=yellow_data_std)
+g2 <- gam(das_value~s(yellow_data$das_year, by=ser_nameshort), data=yellow_data_std)
+AIC(g0, g1, g2)
+cou_code <- levels(droplevels (yellow_data_std$ser_cou_code))
+
+layout(matrix(1:9, nrow = 3, byrow = TRUE))
+cols<-colorRampPalette(c("chartreuse", "grey",  "navy"),space = "rgb")(length(cou_code))
+for (i in 1:length(cou_code)){
+	plot(g1,residuals=TRUE,select=i, shade=TRUE,shade.col=cols[i], ylab=cou_code[i])
+}
+kable(nb_per_country <- yellow_data %>%
+				group_by(ser_cou_code) %>%
+				summarize(N=n(),Nseries=n_distinct(ser_id)) %>%
+				dplyr::rename(Country=ser_cou_code))
+```
+
+
 ## Running the DFA
 We applied the same method as for yellow eel so readers can refer to the corresponding section for further details.
 
@@ -665,6 +690,9 @@ ggplot(data = d) +
 		scale_x_continuous(breaks=seq(1,TT,10),labels=colnames(y)[seq(1,TT,10)])+
 		theme_bw()
 ```
+# Discussion
+
+A gam model per country does not accounts for the variability between sites.
 
 # Conclusion
 Yellow and silver eels time series of abundance have been collected in many countries all over Europe for many years. While the majority of the time series indicate a declining trend of abundance, this general picture hinders very contrasted situations and increases of abundance of yellow eels and silver eels have been observed in some river basins. This contrast is likely to be related to different conditions (environmental conditions, anthropogenic pressures, management practices) among river basins and there are no clear spatial pattern in the trends. Interestingly, while a shift of trend was detected for yellow eel in 2007 (trend 2), this shift occured before the implementation of the Eel Regulation. Since other trends are nearly monotic, it suggests that the Eel Regulation has not led to major changes in the abundance of yellow and silver eel, but this it not necessarily a surprise since the growth phase last from 5 to 20 years depending on the habitats and sex [@vollestad1992].
