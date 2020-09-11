@@ -552,7 +552,7 @@ Decision for inclusion new, series
  
  * new biometry =>  110 new values inserted in the database
  
- 
+ * JASON => UPDATED series with the right ser_area_division
  
  --------------------------------------------------------------
  
@@ -587,6 +587,8 @@ UPDATE datawg.t_dataseries_das set(das_value,das_effort,das_qal_id)=(NULL,NULL, 
 
 *  new biometry  73 new values inserted in the database
 
+ * JASON => UPDATED series with the right ser_area_division
+
 ### annex 3
 
 * new series : FowS;LevS, added ccm basins. Set to qal_id 1 by default (no information indicating otherwise).
@@ -611,6 +613,7 @@ DETAIL:  Key (ser_nameshort)=(FowS) already exists.
 
 * new biometry :  10 new values inserted in the database.
 
+ * JASON => UPDATED series with the right ser_area_division
 
 ### annex 4
 
@@ -1375,7 +1378,6 @@ Annex 7: restocked and assisted for 2019 (T&T not ready to report). Restocked fo
  
 ## TN (Tunisia) 
 
-*Nothing yet*
 
 ### annex 1
 
@@ -1384,7 +1386,7 @@ Annex 7: restocked and assisted for 2019 (T&T not ready to report). Restocked fo
 ### annex 3
 
 ### annex 4
-
+* 716 new values inserted in the database*
 ### annex 5
 
 ### annex 6
@@ -1410,7 +1412,6 @@ Annex 7: restocked and assisted for 2019 (T&T not ready to report). Restocked fo
 
 Done
 
-
 ### annex 5
 
 ### annex 6
@@ -1420,7 +1421,22 @@ Done
 ### annex 8
 
 
+ # Notes for recruitment
  
+ Series FarpGY SeHMG passed from 0 to 3 in qal_id to distinguish them from series too short.
+ These series are really discarded because they have quality problems
+ 
+ Series DOFpY changed from recruitment series to yellow eel series.
+ It's fyke net based in a trap, but 224 km from the sea.
+ It was qal_id =0 last year so not used
+ 
+ Series FlaG, BroG, HellGY, OriaG, GuadG
+ 
+ Do we want to include three series at the same site. 
+Currently using FlaG and will remove the others ?
+ 
+ 
+ .
 
 
 

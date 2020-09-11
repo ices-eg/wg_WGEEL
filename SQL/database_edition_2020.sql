@@ -505,4 +505,71 @@ WHERE tr_station."Station_Name"=ser_nameshort; --221
 SELECT * FROM datawg.t_series_ser WHERE ser_tblcodeid IS NULL;
 
 
+-- area
+SELECT * FROM datawg.t_series_ser WHERE ser_area_division IS NULL AND ser_typ_id=1
+
+
+
+-- update areas in the case where all series from one emu return the same area division
+WITH areas AS (
+SELECT ser_area_division, ser_emu_nameshort,
+count(ser_area_division) OVER (PARTITION BY ser_emu_nameshort)
+FROM datawg.t_series_ser 
+WHERE ser_area_division IS NOT NULL 
+GROUP BY ser_emu_nameshort, ser_area_division
+ORDER BY ser_emu_nameshort),
+sureareas AS (
+SELECT * FROM areas WHERE count=1),
+joined_with_missing AS (
+SELECT sureareas.ser_area_division, ser_id FROM sureareas
+JOIN datawg.t_series_ser ser
+ON ser.ser_emu_nameshort=sureareas.ser_emu_nameshort
+WHERE ser.ser_area_division IS NULL)
+
+UPDATE datawg.t_series_ser SET ser_area_division=  joined_with_missing.ser_area_division 
+FROM joined_with_missing
+WHERE joined_with_missing.ser_id=t_series_ser.ser_id;--35
+
+SELECT * FROM datawg.t_series_ser WHERE ser_area_division IS NULL AND ser_typ_id=1
+
+WITH areas AS (
+SELECT ser_area_division, ser_emu_nameshort,
+count(ser_area_division) OVER (PARTITION BY ser_emu_nameshort)
+FROM datawg.t_series_ser 
+WHERE ser_area_division IS NOT NULL 
+GROUP BY ser_emu_nameshort, ser_area_division
+ORDER BY ser_emu_nameshort)
+
+UPDATE datawg.t_series_ser SET ser_area_division='27.6.a' WHERE ser_emu_nameshort IN ('GB_NorE','GB_Neag')
+AND ser_area_division IS NULL; --5
+
+
+-- update shieldaig
+SELECT * FROM datawg.t_biometry_series_bis tbsb WHERE bis_ser_id IN (172,173);
+DELETE FROM datawg.t_biometry_series_bis tbsb WHERE bio_id IN (1794,1796);
+
+
+ALTER TABLE datawg.t_biometry_series_bis ADD CONSTRAINT c_uk_bio_year UNIQUE (bis_ser_id, bio_year);
+
+SELECT * FROM datawg.t_biometry_series_bis WHERE bis_ser_id = 196
+-- empty series
+DELETE FROM datawg.t_biometry_series_bis tbsb WHERE bio_id >= 2427
+AND bio_id <=2439; --13
+DELETE FROM datawg.t_biometry_series_bis tbsb WHERE bio_id=2448; -- empty line
+
+
+SELECT * FROM datawg.t_biometry_series_bis Where
+bio_length IS NULL AND
+bio_weight IS NULL AND
+bio_age IS NULL AND
+bio_sex_ratio IS NULL AND
+bio_length_f IS NULL AND
+bio_weight_f IS NULL AND
+bio_age_f IS NULL AND
+bio_length_m IS NULL AND
+bio_weight_m IS NULL AND
+bio_age_m IS NULL AND
+bio_comment IS NULL AND
+bis_g_in_gy IS NULL 
+
 

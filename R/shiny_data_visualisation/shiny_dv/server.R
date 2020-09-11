@@ -804,7 +804,7 @@ server = function(input, output, session) {
 	observe({
 				output$mapstation = renderLeaflet({
 							
-							recruitment_map(R_stations, statseries, wger_init, CY, colors=c("#F2F3F4","#FFA625","#FFFF66"))                               
+							recruitment_map(R_stations, statseries, wger_init, CY, colors=c("#F2F3F4","#CCFF99","#FFFF00"))                               
 							
 						})
 				
@@ -1033,7 +1033,7 @@ server = function(input, output, session) {
 														mode="lines+markers",
 														color = switch(the_area,"Elsewhere Europe"= I("red"),
 																"North Sea"= I("dodgerblue"),
-																"Yellow"=I("greenyellow")),
+																"Yellow"=I("black")),
 														symbol = I('circle-open') ,
 														yaxis = "y",
 														marker = list(size = 9)) %>% 
