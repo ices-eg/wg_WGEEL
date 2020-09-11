@@ -88,12 +88,14 @@ The model is detailed in [@drouineau2016] and [@bornarel2018a]. The current exer
 if ((!file.exists(paste("datagerem",CY,".rdata",sep=""))) | params$updateData){
   
   series_wgeel=read.table("catchment_wgeel.csv",header=TRUE,sep=";")
-  wgeel=dbGetQuery(con_wgeel,paste("select das_year,ser_nameshort,ser_uni_code,das_value,ser_ccm_wso_id,ser_x,ser_y from datawg.t_dataseries_das left join datawg.t_series_ser on das_ser_id =ser_id where das_year>=1960 and ser_nameshort in ('",paste(series_wgeel$ser_nameshort,collapse="','"),"')",sep="") )
+  wgeel=dbGetQuery(con_wgeel,paste("select das_year,ser_nameshort,ser_uni_code,das_value,ser_ccm_wso_id,ser_x,ser_y from datawg.t_dataseries_das left join datawg.t_series_ser on das_ser_id =ser_id where das_year>=1960 and ser_nameshort in ('",paste(series_wgeel$ser_nameshort[series_wgeel$from_wgeel],collapse="','"),"')",sep="") )
   series_wgeel <- merge(series_wgeel,
                         unique(wgeel[,c("ser_nameshort","ser_ccm_wso_id","ser_x","ser_y")]),
                         all.x=TRUE)
   series_wgeel$ser_ccm_wso_id[series_wgeel$ser_nameshort=="MinG"] <-
     series_wgeel$ser_ccm_wso_id[series_wgeel$ser_nameshort=="MiSpG"]
+  series_wgeel$ser_ccm_wso_id[!series_wgeel$from_wgeel] = 
+    as.character(series_wgeel$wso_id[!series_wgeel$from_wgeel])
   series_wgeel$surface=sapply(series_wgeel$ser_ccm_wso_id,getSurface,con=con_ccm )
   
   
@@ -124,35 +126,35 @@ if ((!file.exists(paste("datagerem",CY,".rdata",sep=""))) | params$updateData){
   names(french_wide)[1]="das_year"
   french_wide=subset(french_wide,french_wide$das_year>=1960)
   
-  series_french=read.table("catchment_french.csv",header=TRUE,sep=";")
-  series_french$ser_ccm_wso_id = as.character(series_french$ser_ccm_wso_id)
-  series_french$surface=sapply(series_french$ser_ccm_wso_id,getSurface,con=con_ccm )
-  series_french$ser_x=series_french$ser_y=0
-  series_french$ser_x=series_wgeel$ser_x[match(series_french$ser_ccm_wso_id,
-                                               series_wgeel$ser_ccm_wso_id)]
-  series_french$ser_y=series_wgeel$ser_y[match(series_french$ser_ccm_wso_id,
-                                               series_wgeel$ser_ccm_wso_id)]
+
+  tmp <- unique(na.omit(series_wgeel[,c("ser_x","ser_y","ser_ccm_wso_id")]))
+  series_wgeel$ser_x[!series_wgeel$from_wgeel]=
+    tmp$ser_x[match(series_wgeel$ser_ccm_wso_id[!series_wgeel$from_wgeel],
+                             tmp$ser_ccm_wso_id)]
+  series_wgeel$ser_y[!series_wgeel$from_wgeel]=
+    tmp$ser_y[match(series_wgeel$ser_ccm_wso_id[!series_wgeel$from_wgeel],
+                             tmp$ser_ccm_wso_id)]
                 
-  series_french[series_french$ser_nameshort=="SeGEMAC",c("ser_x","ser_y")] =
+  series_wgeel[series_wgeel$ser_nameshort=="SeGEMAC",c("ser_x","ser_y")] =
     c(-1.136938,45.796857)
-  series_french[series_french$ser_nameshort=="ChGEMAC",c("ser_x","ser_y")] =
+  series_wgeel[series_wgeel$ser_nameshort=="ChGEMAC",c("ser_x","ser_y")] =
     c(-1.076013,45.953153)
-  series_french[series_french$ser_nameshort=="Somme",c("ser_x","ser_y")] =
+  series_wgeel[series_wgeel$ser_nameshort=="Somme",c("ser_x","ser_y")] =
     c(1.644597,50.181853)
-  series_french[series_french$ser_nameshort=="Oria",c("ser_x","ser_y")] =
+  series_wgeel[series_wgeel$ser_nameshort=="Oria",c("ser_x","ser_y")] =
     c(-2.1307297,43.2827)
   
   
   values_wide=merge(wgeel_wide,french_wide,all=TRUE)
-  series=bind_rows(series_wgeel,series_french)
+  series=series_wgeel
   
   values_long <- values_wide %>%
     pivot_longer(-das_year,
                  names_to="ser_nameshort",
                  values_to="das_value")
-  
+
   series_stat <- merge(series, values_long) %>%
-    select(-wso_id,-ser_ccm_wso_id) %>%
+    select(-wso_id,-ser_ccm_wso_id,-scale_bound_shape2,-scale_bound_shape1) %>%
     filter(!is.na(das_value)) %>%
     group_by(ser_nameshort, type, zone, surface) %>%
     summarize(first_year=min(das_year),
@@ -160,6 +162,9 @@ if ((!file.exists(paste("datagerem",CY,".rdata",sep=""))) | params$updateData){
               nbyear=n_distinct(das_year))
   values_long <- na.omit(merge(values_long,
                                series[,c("ser_nameshort","zone")]))
+  data_points <- values_long %>%
+    group_by(zone,das_year) %>%
+    summarise(n=n(),pre=n()>0)
 }
 ```
 
@@ -167,19 +172,19 @@ if ((!file.exists(paste("datagerem",CY,".rdata",sep=""))) | params$updateData){
 ######building zones
 if ((!file.exists(paste("datagerem",CY,".rdata",sep=""))) | params$updateData){
   
-  allcatchments=st_read(con_ccm,query=paste('select wso_id,area_km2,"window",sea_cd,geom from',table_seaoutlets,' where strahler>0 and ("window"<=2004 or "window"=2008)'))
-  outlets=st_read(con_ccm,query='select "window",gid, wso_id, geom from hydrographie.ccm_v2_1_w2000_rivernodes where num_seg=0 union
-                  select "window",gid, wso_id, geom from hydrographie.ccm_v2_1_w2001_rivernodes where num_seg=0 union
-                  select "window",gid, wso_id, geom from hydrographie.ccm_v2_1_w2002_rivernodes where num_seg=0 union
-                  select "window",gid, wso_id, geom from hydrographie.ccm_v2_1_w2003_rivernodes where num_seg=0 union
-                  select "window",gid, wso_id, geom from hydrographie.ccm_v2_1_w2004_rivernodes where num_seg=0 union
-                  select "window",gid, wso_id, geom from hydrographie.ccm_v2_1_w2008_rivernodes where num_seg=0')
-  outlets=subset(outlets,outlets$wso_id %in% allcatchments$wso_id)
+  allcatchments=st_read(con_ccm,query=paste('select wso_id ser_ccm_wso_id,area_km2,"window",sea_cd,geom from',table_seaoutlets,' where strahler>0 and ("window"<=2004 or "window"=2008)'))
+  outlets=st_read(con_ccm,query='select "window",gid, wso_id ser_ccm_wso_id, geom from hydrographie.ccm_v2_1_w2000_rivernodes where num_seg=0 union
+                  select "window",gid, wso_id ser_ccm_wso_id, geom from hydrographie.ccm_v2_1_w2001_rivernodes where num_seg=0 union
+                  select "window",gid, wso_id ser_ccm_wso_id, geom from hydrographie.ccm_v2_1_w2002_rivernodes where num_seg=0 union
+                  select "window",gid, wso_id ser_ccm_wso_id, geom from hydrographie.ccm_v2_1_w2003_rivernodes where num_seg=0 union
+                  select "window",gid, wso_id ser_ccm_wso_id, geom from hydrographie.ccm_v2_1_w2004_rivernodes where num_seg=0 union
+                  select "window",gid, wso_id ser_ccm_wso_id, geom from hydrographie.ccm_v2_1_w2008_rivernodes where num_seg=0')
+  outlets=subset(outlets,outlets$ser_ccm_wso_id %in% allcatchments$ser_ccm_wso_id)
   
   emu=st_read(con_wgeel,query='select * from ref.tr_emu_emu')
   asso=st_nearest_feature(st_transform(outlets,4326),emu)
   outlets$emu=emu$emu_nameshort[asso]
-  allcatchments$emu=outlets$emu[match(allcatchments$wso_id,outlets$wso_id)]
+  allcatchments$emu=outlets$emu[match(allcatchments$ser_ccm_wso_id,outlets$ser_ccm_wso_id)]
   
   allcatchments$zone=NA
   allcatchments$zone[startsWith(allcatchments$emu,"FR_") & allcatchments$sea_cd==1]="ATL_F"
@@ -238,20 +243,18 @@ knitr::kable(series_stat[order(series_stat$zone,series_stat$ser_nameshort),],
 For traps (respectively commercial catches), we use vague priors on trap efficiencies (respectively exploitation rates) to give an insight on the possible recruitment (Figure \@ref(fig:priorsScaling)). For traps, we use a vague prior around 1/3, value often estimated for trap efficiency [@briand2005; @drouineau2015; @jessop2000; @noonan2012]. For commercial catch, we assume a very flat prior between 0 and 1 (i.e. stating that we do not know anything about exploitation rate but that catches are by definition smaller than recruitment), except for the Somme where, based on expert knowledge, we assume that the exploitation rate was around 0.75.
 
 ```{r priorsScaling, fig.cap="Priors for exploitation rates and trap efficiencies", echo=FALSE, warning=FALSE, message=FALSE}
-prior=data.frame(shape1=c(1.5,4.5,1.1),shape2=c(3,1.5,1.1),type=c("Trapping efficiency","Somme exploitation rate","Other exploitation rates"))
-ggplot(data.frame(scaling=c(0,1)),aes(x=scaling))+
-  stat_function(fun=dbeta,
-                args=as.list(prior[prior$type=="Trapping efficiency",
-                                   c("shape1","shape2")]),
-                aes(col="Trapping efficiency")) + 
-  stat_function(fun=dbeta,
-                args=as.list(prior[prior$type=="Somme exploitation rate",
-                                   c("shape1","shape2")]),
-                aes(col="Somme exploitation rate")) + 
-  stat_function(fun=dbeta,
-                args=as.list(prior[prior$type=="Other exploitation rates",
-                                   c("shape1","shape2")]),
-                aes(col="Other exploitation rates")) + 
+priors=na.omit(unique(series[,c("type","scale_bound_shape1","scale_bound_shape2")]))
+priors=expand_grid(priors,x=seq(0,1,.01))
+priors <- priors %>%
+  mutate(prior=dbeta(x,scale_bound_shape1,scale_bound_shape2))
+priors$series=mapply(function(t,s1,s2) 
+  paste(series$ser_nameshort[series$type==t &
+                               series$scale_bound_shape1==s1 &
+                               series$scale_bound_shape2==s2],
+        collapse="\n"),
+  priors$type,priors$scale_bound_shape1,priors$scale_bound_shape2)
+ggplot(priors,aes(x=x, y=prior))+
+  geom_line(aes(col=series))+
   xlab("scaling factor") + ylab("prior density")+
   scale_color_brewer("factor",type="qual")+
   theme_bw()
@@ -310,7 +313,7 @@ if ((!file.exists(paste("datagerem",CY,".rdata",sep=""))) | params$updateData){
   
   ########formatting catchments
   nbzone=nrow(zone)
-  tab_series=unique(series[,c("ser_wso_id","surface","zone")]) # a table with one row per catchment in which we have data
+  tab_series=unique(series[,c("ser_ccm_wso_id","surface","zone")]) # a table with one row per catchment in which we have data
   nbcatchments=nrow(tab_series)
   
   surface=tab_series$surface #vector of surfaces of the catchments
@@ -320,10 +323,10 @@ if ((!file.exists(paste("datagerem",CY,".rdata",sep=""))) | params$updateData){
   
   
   ###############creating vector of indices to match the different dataset
-  catchment_survey=match(series$wso_id[match(names(serie),series$ser_nameshort)],tab_series$wso_id)
-  catchment_absolute=match(series$wso_id[match(names(absolute),series$ser_nameshort)],tab_series$wso_id)
-  catchment_trap=match(series$wso_id[match(names(trap),series$ser_nameshort)],tab_series$wso_id)
-  catchment_catch=match(series$wso_id[match(names(catch),series$ser_nameshort)],tab_series$wso_id)
+  catchment_survey=match(series$ser_ccm_wso_id[match(names(serie),series$ser_nameshort)],tab_series$ser_ccm_wso_id)
+  catchment_absolute=match(series$ser_ccm_wso_id[match(names(absolute),series$ser_nameshort)],tab_series$ser_ccm_wso_id)
+  catchment_trap=match(series$ser_ccm_wso_id[match(names(trap),series$ser_nameshort)],tab_series$ser_ccm_wso_id)
+  catchment_catch=match(series$ser_ccm_wso_id[match(names(catch),series$ser_nameshort)],tab_series$ser_ccm_wso_id)
   
   meanlogq=rep(log(.5),ncol(serie))
   
@@ -332,22 +335,7 @@ if ((!file.exists(paste("datagerem",CY,".rdata",sep=""))) | params$updateData){
   mulogRglobal1=log(sum(colMeans(absolute,na.rm=TRUE)))+log(sum(surfaceZone)/sum(surface[catchment_absolute]))
   
   initpropR=rep(1/nbzone,nbzone)
-  
-  #priors for scaling factors, alpha and beta of a beta distrition. If no data is provided, 
-  #default uninformative prior will be used
-  scale_bound=list(Vac=c(1.5,3), #trap around 1/3
-                   Bann=c(1.5,3),#trap around 1/3
-                   Bres=c(1.5,3),#trap around 1/3
-                   Erne=c(1.5,3),#trap around 1/3
-                   Fre=c(1.5,3),#trap around 1/3
-                   Imsa=c(1.5,3),#trap around 1/3
-                   Feal=c(1.5,3),#trap around 1/3
-                   Inag=c(1.5,3),#trap around 1/3
-                   Maig=c(1.5,3),#trap around 1/3,
-                   Visk=c(1.5,3),#trap around 1/3
-                   ShaA=c(1.5,3),#trap around 1/3
-                   Somme=c(4.5,1.5)) #something wide around 0.75)
-  
+
   
   mydata=list(
     initpropR=initpropR,
@@ -370,19 +358,15 @@ if ((!file.exists(paste("datagerem",CY,".rdata",sep=""))) | params$updateData){
     logIEObs=as.matrix(logIEObs),
     surfaceallcatchment=surfaceallcatchment,
     scale_trap=sapply(1:nbtrap,function(i){
-      if(names(trap)[i] %in% names(scale_bound)) {
-        scale_bound[[names(trap)[i]]]
-      } else { 
-        c(1.01,1.01)
-      }}
-    ),
+        series[series$ser_nameshort==names(trap)[i],
+               c("scale_bound_shape1",
+                 "scale_bound_shape2")]
+      }),
     scale_catch=sapply(1:nbcatch,function(i){
-      if(names(catch)[i] %in% names(scale_bound)) {
-        scale_bound[[names(catch)[i]]]
-      } else { 
-        c(1.01,1.01)
-      }}
-    )
+      series[series$ser_nameshort==names(catch)[i],
+               c("scale_bound_shape1",
+                 "scale_bound_shape2")]
+    })
   )
   
   generate_init=function(){
@@ -447,10 +431,11 @@ if ((!file.exists(paste("datagerem",CY,".rdata",sep=""))) | params$updateData){
     }
     gen_init(1)
   }
-} else{
   save.image(paste("datagerem",CY,".rdata",sep=""))
   dbDisconnect(con_wgeel)
   dbDisconnect(con_ccm)
+} else{
+
 }
 ```
 Three independent MCMC chains are run in parallel using JAGS [@plummer2003] through R package runjags [@denwood2016]. Chains were run `r format(sample, scientific=FALSE)` iterations after an initial burnin period of `r format(burnin, scientific=FALSE)` iterations. Gelman and Rubin diagnostics were used to check model convergence [@gelman1992].
@@ -569,6 +554,12 @@ beta=quantile(jags_mat[,"beta"],probs=c(0.025,.5,.975))
 Gelman R hat statistics was below 1.05 for `r round(propconv*100,digits=1)`% of the parameters, demonstrating a good convergence of the model. 
 
 ```{r priorsposterios,echo=FALSE,warning=FALSE, error=FALSE}
+priors2=na.omit(unique(series[,c("ser_nameshort","type","scale_bound_shape1","scale_bound_shape2")]))
+priors2=expand_grid(priors2,x=seq(0,1,.01))
+priors2 <- priors2 %>%
+  mutate(prior=dbeta(x,scale_bound_shape1,scale_bound_shape2))
+
+
 ###trap
 scale_trap=as.data.frame(exp(jags_mat[,grep("loga",colname)]))%>%
   pivot_longer(cols=everything(),names_to="ser_id",values_to="a") %>%
@@ -576,8 +567,8 @@ scale_trap=as.data.frame(exp(jags_mat[,grep("loga",colname)]))%>%
   
 ggplot(scale_trap,aes(x=a))+
   geom_histogram(stat="density")+
-  stat_function(fun=dbeta,args=as.list(prior[prior$type=="Trapping efficiency",
-                                   c("shape1","shape2")]),
+  geom_line(data=filter(priors2,type=="trap"),
+            aes(x=x,y=prior),
                 col=2)+
   facet_wrap(~ser_nameshort,scales="free_y")+
   theme_bw()
@@ -588,40 +579,41 @@ scale_catch=as.data.frame(exp(jags_mat[,grep("logp",colname)]))%>%
   pivot_longer(cols=everything(),names_to="ser_id",values_to="p") %>%
   mutate(ser_nameshort=colnames(logIEObs)[as.integer(gsub("logp\\[|\\]","",ser_id))])
   
-ggplot(scale_trap,aes(x=a))+
+ggplot(scale_catch,aes(x=p))+
   geom_histogram(stat="density")+
-  stat_function(fun=dbeta,args=as.list(prior[prior$type=="Trapping efficiency",
-                                   c("shape1","shape2")]),
+  geom_line(data=filter(priors2,type=="catch"),
+            aes(x=x,y=prior),
                 col=2)+
   facet_wrap(~ser_nameshort,scales="free_y")+
   theme_bw()
 ```
 
-```{r rbasinfunction,include=FALSE}
-compute_r_basins=function(basins){
-  #take one 1000 iterations of MCMC chain
-  basins=basins[basins%in%allcatchments$wso_id]
-  zone_basin=match(allcatchments$zone[match(basins,allcatchments$wso_id)],zone$zone)
-  surface_basin=allcatchments$area_km2[match(basins,allcatchments$wso_id)]
-  Rmat=(apply(sample_mcmc,1,function(x){
-    Rzone=sapply(1:nbzone,function(z){
-      x[grep(paste("Rzone\\[[0-9]*,",z,"\\]",sep=""),colname)]
-    })
-    beta=x["beta"]
-    totalweights=rowSums(surfaceallcatchment^beta)
-    props=surface_basin^beta/totalweights[zone_basin]
-    if(length(basins)>1){
-      meanR=sweep(Rzone[,zone_basin],2,props,"*")
-      varR=sweep(meanR,2,(1-props),"*")
-      return(rowSums(meanR)+rnorm(nbyear)*sqrt(rowSums(varR)))
-    } else{
-      meanR=Rzone[,zone_basin]*props
-      varR=meanR*(1-props)
-      return(meanR+rnorm(nbyear)*sqrt((varR)))
-    }
-  }))
-  rownames(Rmat)=rownames(logUObs)
-  t(apply(Rmat,1,quantile,probs=c(0.025,.5,.975)))
-}
+```{r rbasincatch,include=FALSE}
+catch_long=pivot_longer(cbind.data.frame(catch,data.frame(year=as.numeric(rownames(catch)))),
+                        cols=-year,names_to="ser_name_short",values_to="obs")
+catch_long$icatch=match(catch_long$ser_name_short,colnames(catch))
+
+catch_pred=do.call(rbind.data.frame,lapply(1:ncol(catch),function(i){
+  ser_name_short=names(catch)[i]
+  cm=mydata$catchment_catch[i]
+  Rcm=jags_mat[,grep(paste("Rcm\\[[0-9]*,",cm,"\\]",sep=""),colname)]
+  scale=jags_mat[,paste("logp[",i,"]",sep="")]
+  tau=0#-0.5/jags_mat[,paste("tauIE[",i,"]",sep="")]
+  
+  logRpred=data.frame(t(apply(sweep(log(Rcm),1,scale+tau,"+"),2,quantile,probs=c(0.025,.5,.975))))
+  names(logRpred)=c("q2.5","q50","q97.5")
+  logRpred$ser_name_short=ser_name_short
+  logRpred$year=as.integer(rownames(catch))
+  logRpred
+}))
+catch_obs_pred=merge(catch_long,catch_pred)
+ggplot(catch_obs_pred,aes(x=year))+
+  geom_point(aes(y=log(obs)),col=2)+
+  geom_line(aes(y=q50),col="blue")+
+  geom_ribbon(aes(ymin=q2.5,ymax=q97.5),alpha=.3,fill="blue")+
+  facet_wrap(~ser_name_short)+
+  theme_bw()
+
+
 ```
 #References
