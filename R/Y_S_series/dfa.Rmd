@@ -220,7 +220,7 @@ yellow_data_std <- yellow_data%>%
 		mutate(das_value=log(das_value))%>%
 		group_by(ser_id)%>%
 		mutate(das_value=(das_value-mean(das_value,na.rm=TRUE))/sd(das_value,na.rm=TRUE))
-
+# mutate(das_value=scale(das_value)
 ggplot(yellow_data_std,aes(x=das_year,y=das_value))+
 		geom_line(aes(col=as.factor(ser_nameshort)))+
 		geom_smooth(method="gam")+theme_bw()+xlab("year")+

@@ -70,7 +70,7 @@ getUsername <- function(){
 #--------------------------------
 # the code below is adapted to the three persons who currently 
 # load this script
-# TODO: be more generic
+#ï¿½TODO: be more generic
 # It is necessary to create a folder, your code is currently stored in
 #--------------------------------------------------
 # FOLDER>WGEELgit>R>recruitment>recruitment_analysis.Rnw
@@ -87,100 +87,28 @@ getUsername <- function(){
 # the reason for this is that we don't want to put data or figures in the git.
 #--------------------------------
 
-if(getUsername() == 'cedric.briand')
-{
-	# I have two password in the R.site of c:/program files/R... so I don't need no prompt
-	
-	#baseODBC=c("wgeel","wgeel",passwordwgeel) #"w3.eptb-vilaine.fr" "localhost" "wgeel" "wgeel_distant" 
-	options(sqldf.RPostgreSQL.user = "wgeel", 
-			sqldf.RPostgreSQL.password = passwordwgeel,
-			sqldf.RPostgreSQL.dbname = "wgeel",
-			sqldf.RPostgreSQL.host = "localhost", # "localhost"
-			sqldf.RPostgreSQL.port = 5435) # 5435 launch the ssh tunnel
-	setwd("C:/workspace/gitwgeel/R/recruitment")
-	
-	wd <- getwd()
-	wddata <- gsub("C:/workspace/gitwgeel/R","C:/workspace/wgeeldata",wd)
-	datawd <- str_c(wddata,"/",CY,"/data/")
-	imgwd <- str_c(wddata,"/",CY,"/image/")
-	tabwd <- str_c(wddata,"/",CY,"/table/")
-	shpwd <- str_c("C:/workspace/wgeeldata/shp/") 
-	shinywd <- "C:/workspace/gitwgeel/R/shiny_data_visualisation/shiny_dv/data/recruitment/"
-}
-if(getUsername() == 'lbeaulaton')
-{
-	getpassword <- function(){  
-		require(tcltk);  
-		wnd <- tktoplevel();tclVar("")->passVar;  
-		#Label  
-		tkgrid(tklabel(wnd,text="Enter password:"));  
-		#Password box  
-		tkgrid(tkentry(wnd,textvariable=passVar,show="*")->passBox);  
-		#Hitting return will also submit password  
-		tkbind(passBox,"<Return>",function() tkdestroy(wnd));  
-		#OK button  
-		tkgrid(tkbutton(wnd,text="OK",command=function() tkdestroy(wnd)));  
-		#Wait for user to click OK  
-		tkwait.window(wnd);  
-		password <- tclvalue(passVar);  
-		return(password);  
-	}  
-	if (!exists("password"))  { 
-		password <- getpassword()
-	}
-	#baseODBC=c("wgeel","postgres",password)
-	options(sqldf.RPostgreSQL.user = "lolo", 
-			sqldf.RPostgreSQL.password = password,
-			sqldf.RPostgreSQL.dbname = "wgeel_ices",
-			sqldf.RPostgreSQL.host = "localhost", 
-			sqldf.RPostgreSQL.port = 5432)
-	
-	setwd(str_c(getwd(), "/R/recruitment"))
-	wd=getwd()
-	
-	wddata <- "/home/lbeaulaton/Documents/ANGUILLE/ICES/WGEEL/Ranalysis"
-	datawd <- str_c(wddata,"/",CY,"/data/")
-	imgwd <- str_c(wddata,"/",CY,"/image/")
-	tabwd <- str_c(wddata,"/",CY,"/table/")
-	shpwd="/home/lbeaulaton/Documents/ANGUILLE/ICES/WGEEL/SIG/" # emu, rbd, country
-}
+if (getUsername() == "cedric.briand") setwd("C:/workspace/gitwgeel/R/recruitment") 
+#baseODBC=c("wgeel","wgeel",passwordwgeel) #"w3.eptb-vilaine.fr" "localhost" "wgeel" "wgeel_distant" 
+options(sqldf.RPostgreSQL.user = "wgeel", 
+		sqldf.RPostgreSQL.password = passwordwgeel,
+		sqldf.RPostgreSQL.dbname = "wgeel",
+		sqldf.RPostgreSQL.host = "localhost", # "localhost"
+		sqldf.RPostgreSQL.port = 5435) # 5435 launch the ssh tunnel
+wddata <- getwd()
+wd <- wddata
+#wddata <- gsub("C:/workspace/gitwgeel/R","C:/workspace/wgeeldata",wd)
 
-if(getUsername() == 'EDIAZ')
-{
-	getpassword <- function(){  
-		require(tcltk);  
-		wnd <- tktoplevel();tclVar("")->passVar;  
-		#Label  
-		tkgrid(tklabel(wnd,text="Enter password:"));  
-		#Password box  
-		tkgrid(tkentry(wnd,textvariable=passVar,show="*")->passBox);  
-		#Hitting return will also submit password  
-		tkbind(passBox,"<Return>",function() tkdestroy(wnd));  
-		#OK button  
-		tkgrid(tkbutton(wnd,text="OK",command=function() tkdestroy(wnd)));  
-		#Wait for user to click OK  
-		tkwait.window(wnd);  
-		password <- tclvalue(passVar);  
-		return(password);  
-	}  
-	if (!exists("password"))  { 
-		password <- getpassword()
-	}
-	baseODBC=c("wgeel","postgres",password)
-	options(sqldf.RPostgreSQL.user = "postgres", 
-			sqldf.RPostgreSQL.password = password,
-			sqldf.RPostgreSQL.dbname = "wgeel",
-			sqldf.RPostgreSQL.host = "w3.eptb-vilaine.fr", 
-			sqldf.RPostgreSQL.port = 5432)
-	setwd("C:/Users/ediaz/workspace/wgeel/sweave")
-	wd <- getwd()
-	wddata <- gsub("wgeel","wgeeldata",wd) # replacing the path to wgeel by wgeeldata ...
+datawd <- str_c(wddata,"/",CY,"/data/")
+imgwd <- str_c(wddata,"/",CY,"/image/")
+tabwd <- str_c(wddata,"/",CY,"/table/")
+#shpwd <- str_c("C:/workspace/wgeeldata/shp/") 
+shinywd <- "C:/workspace/gitwgeel/R/shiny_data_visualisation/shiny_dv/data/recruitment/"
+dir.create(str_c(wddata,"/",CY),showWarnings = FALSE)
+dir.create(datawd, showWarnings = FALSE)
+dir.create(imgwd, showWarnings = FALSE)
+dir.create(tabwd, showWarnings = FALSE)
+
 	
-	datawd <- str_c(wddata,"/",CY,"/data/")
-	imgwd <- str_c(wddata,"/",CY,"/image/")
-	tabwd <- str_c(wddata,"/",CY,"/table/")
-	shpwd=str_c(wddata,"/wgeel2013/emu/") 
-}
 # some of the functions used later in that script :
 source('utility_functions.R')
 graphics.off() # close all graphics devices
@@ -198,7 +126,7 @@ vv <- list()
 \usepackage[pdftex]{graphicx}
 \usepackage[utf8]{inputenc} %encodage du fichier source
 %\usepackage[T1]{fontenc}  %gestion des accents (pour les pdf) 
-%\usepackage[swedish]{babel}
+\usepackage[swedish]{babel}
 \usepackage{Sweave}
 \usepackage{float}
 \usepackage[left=3cm, right=3cm, top=2cm, bottom=2cm]{geometry}
@@ -211,14 +139,14 @@ vv <- list()
      pagebackref=true,%...les bibliographies
      hyperindex=true, %ajoute des liens dans les index.
      colorlinks=true, %colorise les liens
-     breaklinks=true, %permet le retour à la ligne dans les liens trop longs
+     breaklinks=true, %permet le retour ï¿½ la ligne dans les liens trop longs
      urlcolor= blue,  %couleur des hyperliens
      linkcolor= blue, %couleur des liens internes
-     bookmarks=true,  %créé des signets pour Acrobat
-     bookmarksopen=true,            %si les signets Acrobat sont créés,
-                                    %les afficher complètement.
+     bookmarks=true,  %crï¿½ï¿½ des signets pour Acrobat
+     bookmarksopen=true,            %si les signets Acrobat sont crï¿½ï¿½s,
+                                    %les afficher complï¿½tement.
      pdftitle={WGEEL recruitment analysis output}, %informations apparaissant dans
-     pdfauthor={Cédric Briand},     %dans les informations du document
+     pdfauthor={Cï¿½dric Briand},     %dans les informations du document
      pdfsubject={Glass eel recruitment}          %sous Acrobat
      pdfkeywords={Glass eel, WGEEL, recruitment, time-series, ICES}
 }
@@ -256,13 +184,13 @@ anguilla) stock, the fisheries on it and other anthropogenic impacts.}
 %*******Here put eval=FALSE if you plan to use Rdata *********************************
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-<<load_database, echo=FALSE, fig=FALSE, eval=TRUE,results=hide>>=
+<<load_database, echo=FALSE, fig=FALSE, eval=FALSE,results=hide>>=
 # In this chunk everything will be loaded. 
 # The data selection is made tranparently later in the chunk "select_series"
 # This chunks uses the RequeteODBC connection object from stacomirtools and sqldf
 # an odbc link must be configured to the database : i.e. you must have the postgres
 # database available, and an ODBC link pointing to the database.
-# If you don't and still want to run this script, ask Cédric cedric.briand@eptb-vilaine.fr
+# If you don't and still want to run this script, ask Cï¿½dric cedric.briand@eptb-vilaine.fr
 # he will send you the Rdata saved during this chunk.
 
 
@@ -417,15 +345,15 @@ vv$nb_series_init <- length(unique(wger$site)) # this is the true number at the 
 # Series with qal_id = 0 and spanning more than ten years, along with their true length ?
 
 left_join(
-wger_init %>% group_by(ser_id, site, ser_qal_id) %>%
-		summarize(span=max(year)-min(year)+1) %>% 
-		mutate(sup10=span>=10) %>%
-		filter(ser_qal_id %in% c(0,3) & sup10)%>%
-		dplyr::select(site,ser_qal_id,span ),
-wger_init %>% group_by(ser_id, site, ser_qal_id) %>%
-		filter(!is.na(value)) %>% 
-		summarize(len=n()) %>% 
-		dplyr::select(site, len)
+		wger_init %>% group_by(ser_id, site, ser_qal_id) %>%
+				summarize(span=max(year)-min(year)+1) %>% 
+				mutate(sup10=span>=10) %>%
+				filter(ser_qal_id %in% c(0,3) & sup10)%>%
+				dplyr::select(site,ser_qal_id,span ),
+		wger_init %>% group_by(ser_id, site, ser_qal_id) %>%
+				filter(!is.na(value)) %>% 
+				summarize(len=n()) %>% 
+				dplyr::select(site, len)
 )%>%	print(n=Inf) 
 
 # Series with qal_id = 1 and spanning less than ten years, number consecutive years ?
@@ -491,8 +419,8 @@ removed_id <-  wger[!is.na(wger$das_qal_id)&wger$das_qal_id==3,c("id")]
 removed_year <-  wger[!is.na(wger$das_qal_id)&wger$das_qal_id==3,c("year")]
 removed_site <-  unique(wger[!is.na(wger$das_qal_id)&wger$das_qal_id==3,c("site")])
 warnings("Rows with ids: ", paste(removed_id,collapse=","),     
-				" years: ", paste(removed_year,collapse=","),
-				" sites: ", paste(removed_site,collapse=","),     
+		" years: ", paste(removed_year,collapse=","),
+		" sites: ", paste(removed_site,collapse=","),     
 		" with qal_id = 3 removed from analysis")
 vv$qual_id_3_removed <- list()
 vv$qual_id_3_removed$length <- length(removed_id)
@@ -524,7 +452,7 @@ R_stations[R_stations$rec_nameshort %in% unused_series_2000_2009, "unused_2000_2
 # Inag and Maig left out from the analysis 
 mean_site <- data.frame(mean_2000_2009=tapply(mdata$value,mdata$site,mean,na.rm=TRUE))
 mean_site$site <- rownames(mean_site)
-wger <- merge(wger,mean_site,by="site",all.x=TRUE,all.y=FALSE) # here we loose the two stations Inag and Maig and also Frémur
+wger <- merge(wger,mean_site,by="site",all.x=TRUE,all.y=FALSE) # here we loose the two stations Inag and Maig and also Frï¿½mur
 wger$value_std_2000_2009 <- wger$value/wger$mean_2000_2009
 
 #########################################################################
@@ -893,7 +821,7 @@ createxl <- function(data=tab1,sheet="recruitment_series"){
 	createSheet(wb,sheet)
 	writeWorksheet (wb , data , sheet=sheet ,header = TRUE )
 	saveWorkbook(wb)
-	#cat("travail terminé\n")
+	#cat("travail terminï¿½\n")
 }
 createxl(data=tab1, sheet="recruitment_series")
 createxl(data=statseries, sheet="series_description")
@@ -933,7 +861,7 @@ decline of the North Sea series compared to the Elsewhere Europe area during the
 
 The WGEEL has collated information on recruitment from
 \Sexpr{sn(vv[["nb_series_init"]])} time-series. Some time-series date back to the
-beginning of 20th century (yellow eel, Göta Älv, Sweden) or 1920 (glass eel,
+beginning of 20th century (yellow eel, GÃ¶ta Ã„lv, Sweden) or 1920 (glass eel,
 Loire, France). Among those series \Sexpr{sn(vv[["nb_series_init_qual1"]])} have been
 selected for further analysis in the wgeel indices, see details on data
 selection and processing below). Depending on the period on which we
@@ -1355,13 +1283,19 @@ figure_check_one_series("Katw",limits=c(1960,2019))
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %************************************************************************************
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-<< model_for_glass_eel_and_yellow_eel_and_datasets, echo=FALSE, eval=TRUE, results=hide >>=
+<< model_for_glass_eel_and_yellow_eel_datasets, echo=FALSE, eval=TRUE, results=hide >>=
 
 glass_eel_yoy$site <- as.factor(glass_eel_yoy$site)
 
 model_ge_area=glm(value_std~year_f:area+site,
 		data=glass_eel_yoy[glass_eel_yoy$value>0 & glass_eel_yoy$year>1959,],
 		family=Gamma(link=log), maxit=300)
+
+# lesser fit :
+#model_ge_area1=glm(value_std~year_f:area + as.factor(lfs_code),
+#		data=glass_eel_yoy[glass_eel_yoy$value>0 & glass_eel_yoy$year>1959,],
+#		family=Gamma(link=log), maxit=300)
+
 print("Analysis for glass eel")
 print("data available")
 (area_year=table(glass_eel_yoy$year,glass_eel_yoy$area))
@@ -1399,6 +1333,83 @@ o <- print(xt_a, file = str_c(tabwd,"/table_anova.tex"),
 save(model_ge_area,model_older,file=paste0(shinywd,"recruitment_models.Rdata"), version =2)
 #plot(model_ge_area)
 @
+
+<< mixed_models, echo=TRUE, eval=FALSE >>=
+
+
+library(lme4)
+# Mixed models are used because there is no independence between series collected at the same site.
+# Here we create a new column location to "join" those series and treat the location as a mixed effect in the model.
+glass_eel_yoy$location <- as.character(glass_eel_yoy$site)
+unique(glass_eel_yoy$location)
+adour_id <- grep("Ad", glass_eel_yoy$location); glass_eel_yoy$location[adour_id]
+glass_eel_yoy$location[adour_id] <- "Adou"
+albufera_id <- grep("Al", glass_eel_yoy$location); glass_eel_yoy$location[albufera_id]
+glass_eel_yoy$location[albufera_id] <-"Albu"
+minho_id <- grep("Mi", glass_eel_yoy$location); glass_eel_yoy$location[minho_id]
+glass_eel_yoy$location[minho_id] <-"Minho"
+gironde_id <- grep("Gi", glass_eel_yoy$location); glass_eel_yoy$location[gironde_id]
+glass_eel_yoy$location[minho_id] <-"Giro"
+brownhill_id <- grep("Bro", glass_eel_yoy$location); glass_eel_yoy$location[brownhill_id]
+glass_eel_yoy$location[minho_id] <-"Bro"
+flatford_id <- grep("Fla", glass_eel_yoy$location); glass_eel_yoy$location[flatford_id]
+glass_eel_yoy$location[minho_id] <-"Fla"
+
+glass_eel_yoy$lfs_code <- as.factor(glass_eel_yoy$lfs_code)
+glass_eel_yoy$location <- as.factor(glass_eel_yoy$location)
+
+# glmer is used to fit generalized (non-Gaussian) linear mixed models
+glmer1 <- glmer(value_std~year_f:area+(1|location), data=glass_eel_yoy[glass_eel_yoy$value>0 & glass_eel_yoy$year>1959,],
+		family=Gamma(link=log))
+
+glmer11 <- glmer(value_std~year_f:area+location+(1|site), data=glass_eel_yoy[glass_eel_yoy$value>0 & glass_eel_yoy$year>1959,],
+		family=Gamma(link=log))
+
+glmer12 <- glmer(value_std~year_f:area+site+(1|location), data=glass_eel_yoy[glass_eel_yoy$value>0 & glass_eel_yoy$year>1959,],
+		family=Gamma(link=log))
+
+# model_ge_area is the glm, compare it with ANOVA, this should be fine since is ML
+
+
+
+# The deviance The deviance is basically a measure of how much unexplained variation there is in 
+# regression model â€“ the higher the value the less accurate the model
+devglmer1 <- -2*logLik(glmer1)
+devglm <- -2*logLik(model_ge_area)
+# diffence of deviance between the two models
+(delta_dev <- as.numeric(devglmer1-devglm))
+(delta_df <- attr(devglm,"df")-attr(devglmer1,"df"))
+## the GLM has a better fit
+cat('Chi-square =', delta_dev, '(df=', delta_df,'), p =', 
+		pchisq(delta_dev,delta_df,lower.tail=FALSE), "\n")
+# same shown here
+anova( glmer1, model_ge_area,  test="Chisq")
+# So the glm is better than the mixed model
+
+
+
+# Here we compare the mixed structure of the models, so we are using REML
+
+glmer1 <- glmer(value_std~year_f:area+site+(1|location), data=glass_eel_yoy[glass_eel_yoy$value>0 & glass_eel_yoy$year>1959,],
+		family=Gamma(link=log))
+
+glass_eel_yoy$year2 <- pmax(year,2011)
+# model with  lfs_code
+
+glmer2 <- glmer(value_std~year_f:area+(1+year|location), data=glass_eel_yoy[glass_eel_yoy$value>0 & glass_eel_yoy$year>1959,],
+		family=Gamma(link=log))
+
+glmer3 <- glmer(value_std~year_f:area+(1+year|location) + (1+year2|location), data=glass_eel_yoy[glass_eel_yoy$value>0 & glass_eel_yoy$year>1959,],
+		family=Gamma(link=log))
+
+anova(glmer2, glmer1, refit=FALSE)
+
+save(glmer1, glmer2, glmer3, file=paste0(datawd,glmer.Rdata))
+#fixef(glmer1)['(Intercept)'] + ranef(glmer1)$location
+
+@
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %************************************************************************************
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1608,7 +1619,7 @@ xlsx::write.xlsx(x=data.frame(
 				"NS_minCI_percent"=100*synthesis$NSminCI,
 				"NS_percent"=100*synthesis$"North Sea",
 				"NS_maxCI_percent"=100*synthesis$NSmaxCI
-				),
+		),
 		file=str_c(datawd,"glm_results_glass_and_yellow.xlsx"),
 		sheetName="Glass eel",
 		row.names=FALSE	)
@@ -1751,7 +1762,7 @@ xyplot(res~P|site, data=gey,scales=list(cex=.8, col="black"),
 		panel=panel.smoother,
 		xlab="Predicted", ylab="residuals", 
 		main="Jacknife deviance residuals agains the fitted value")
-# un résidu / carte par annee
+# un rï¿½sidu / carte par annee
 
 
 # pour aller chercher les stations en 3035
