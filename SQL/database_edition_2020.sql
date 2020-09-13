@@ -380,12 +380,39 @@ COMMIT;
 
 SELECT * FROM datawg.t_series_ser WHERE ser_nameshort='InagGY';
 
-, 
+SELECT st_srid(geom) FROM  datawg.t_series_ser WHERE ser_nameshort='InagGY'; --4326
 BEGIN;
-UPDATE datawg.t_series_ser SET geom=ST_SETSRID(ST_MakePoint(-9.301167,52.940250),4326) WHERE ser_nameshort='InagGY';
+UPDATE datawg.t_series_ser SET geom=ST_SetSRID(ST_MakePoint(-9.30116,52.9402),4326) WHERE ser_nameshort='InagGY';
 UPDATE datawg.t_series_ser SET (ser_x,ser_y)=(st_x(geom),st_y(geom)) WHERE ser_nameshort = 'InagGY';
 COMMIT;
 
+-------------------------- uhhh ???? -------------------------------------------------------------
+UPDATE datawg.t_series_ser SET geom=st_transform(ST_SetSRID(ST_MakePoint(-9.30116,52.9402),3857),4326) WHERE ser_nameshort='InagGY';
+UPDATE datawg.t_series_ser SET (ser_x,ser_y)=(st_x(geom),st_y(geom)) WHERE ser_nameshort = 'InagGY';
+
+SELECT ser_x FROM datawg.t_series_ser WHERE ser_nameshort='InagGY'; ---9.43
+SELECT st_x(geom) FROM datawg.t_series_ser WHERE ser_nameshort='InagGY'; -- -9.43
+
+-- en vrai c'est comme ça (google maps c'est du 3857) mais ça doit changer juste un chouilla, ci dessous avec 4326 seulement :
+
+UPDATE datawg.t_series_ser SET geom=ST_SetSRID(ST_MakePoint(-9.30116,52.9402),4326) WHERE ser_nameshort='InagGY';
+UPDATE datawg.t_series_ser SET (ser_x,ser_y)=(st_x(geom),st_y(geom)) WHERE ser_nameshort = 'InagGY';
+-- pareil
+
+SELECT ser_x FROM datawg.t_series_ser WHERE ser_nameshort='InagGY'; ---9.43
+SELECT st_x(geom) FROM datawg.t_series_ser WHERE ser_nameshort='InagGY'; -- -9.43
+
+-- Mais en direct ça marche
+SELECT st_x(ST_SETSRID(ST_MakePoint(-9.30116,52.9402),4326)) -- -9.3
+-- Celui là est correct
+SELECT st_x(st_transform(ST_SetSRID(ST_MakePoint(-9.30116, 52.9402),3857),4326)) -- -9.35
+-- Et c'est  pas un truc à la con genre j'ai deux lignes
+SELECT * FROM  datawg.t_series_ser  WHERE ser_nameshort = 'InagGY'; -- one line
+-- Et le point est bien en 4326
+SELECT st_srid(geom) FROM  datawg.t_series_ser WHERE ser_nameshort='InagGY'; --4326 
+
+
+-----------------------------------------------------------
 
 SELECT * FROM datawg.t_series_ser WHERE ser_nameshort='BurS'; -- ser_id 230
 SELECT * FROM datawg.t_series_ser WHERE ser_nameshort='InagGY'; -- ser_id 230
