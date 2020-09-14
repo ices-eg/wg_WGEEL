@@ -178,6 +178,7 @@ agg_precodata<-function(dataset,geo="country",country=NULL,habitat=NULL, year_ra
 #' @param geo One of 'country' or 'emu', Default: 'country'
 #' @param habitat Do you want result split per habitat, Default: FALSE
 #' @param lfs Do you want results split by life stage, Default: FALSE
+#' @param na.rm What to do when sum
 #' @return A grouped dataset
 #' @details ...
 #' @examples 
