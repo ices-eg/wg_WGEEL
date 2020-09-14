@@ -19,6 +19,7 @@ library(dplyr)
 library(ggplot2)
 library(Kendall)
 library(RPostgres)
+library(ggmap)
 
 if(Sys.info()["user"]=="hilaire.drouineau"){
   data=read_excel("~/Bureau/biometryclean.xlsx")
@@ -65,6 +66,9 @@ mean_biom_hty_emuyear <- data %>%
                           returnclass = 'sf')
  europe_cropped <- st_crop(worldmap, xmin = -13, xmax = 27,
                                      ymin = 35, ymax = 65)
+ my_map=get_stamenmap(bbox = c(left = -13, bottom = 35, right =
+  27, top = 65), zoom = 6, maptype = c("watercolor"))
+
 ```
 
 # Maps
@@ -82,24 +86,24 @@ The length of monitored standing stock yeelow eel appear to increase with the di
 
 
 ```{r yellowlengthmap,echo=FALSE}
-ggplot(subset(mean_biom_hty_emuY,!is.na(bio_length)))+
-  geom_sf(data=europe_cropped,alpha=.3)+
-  geom_point(aes(x=ser_x,y=ser_y,col=bio_length,shape=ser_hty_code))+
+ggmap(my_map) + 
+  geom_point(data=subset(mean_biom_hty_emuY,!is.na(bio_length)),
+                         aes(x=ser_x,y=ser_y,col=bio_length,shape=ser_hty_code))+
   scale_color_viridis_c("Length (mm)")+
   scale_shape_manual(values = c(15, 17))+
   theme_bw()+xlab("")+ylab("")
 
 
-ggplot(subset(mean_biom_hty_emuY,!is.na(bio_length_m)))+
-  geom_sf(data=europe_cropped,alpha=.3)+
-  geom_point(aes(x=ser_x,y=ser_y,col=bio_length_m,shape=ser_hty_code))+
+ggmap(my_map) + 
+  geom_point(data=subset(mean_biom_hty_emuY,!is.na(bio_length_m)),
+             aes(x=ser_x,y=ser_y,col=bio_length_m,shape=ser_hty_code))+
   scale_color_viridis_c("Length male (mm)")+
   scale_shape_manual(values = c(15, 17))+
   theme_bw()+xlab("")+ylab("")
 
-ggplot(subset(mean_biom_hty_emuY,!is.na(bio_length_f)))+
-  geom_sf(data=europe_cropped,alpha=.3)+
-  geom_point(aes(x=ser_x,y=ser_y,col=bio_length_f,shape=ser_hty_code))+
+ggmap(my_map) + 
+  geom_point(data=subset(mean_biom_hty_emuY,!is.na(bio_length_f)),
+             aes(x=ser_x,y=ser_y,col=bio_length_f,shape=ser_hty_code))+
   scale_color_viridis_c("Length female (mm)")+
   scale_shape_manual("Habitat type",values = c(15, 17))+
   theme_bw()+xlab("")+ylab("")
@@ -111,23 +115,23 @@ ggplot(subset(mean_biom_hty_emuY,!is.na(bio_length_f)))+
 Similarly to length, a pattern is visible for weight of monitored standing stock yeelow eel. This is confirmed by the Kendall correlation test (tau=`r round(Kendall(mean_biom_hty_emuY$bio_weight,mean_biom_hty_emuY$distance)$tau[1],digits=2)`, p.value=`r Kendall(mean_biom_hty_emuY$bio_weight,mean_biom_hty_emuY$distance)$sl[1]`. There are not enougth time sex disaggregated data to detect sex-specific length-pattern.
 
 ```{r yellowweighthmap,echo=FALSE}
-ggplot(subset(mean_biom_hty_emuY,!is.na(bio_weight)))+
-  geom_sf(data=europe_cropped,alpha=.3)+
-  geom_point(aes(x=ser_x,y=ser_y,col=bio_weight,shape=ser_hty_code))+
+ggmap(my_map) + 
+  geom_point(data=subset(mean_biom_hty_emuY,!is.na(bio_weight)),
+             aes(x=ser_x,y=ser_y,col=bio_weight,shape=ser_hty_code))+
   scale_color_viridis_c("Weight (g)")+
   scale_shape_manual("Habitat type",values = c(15, 17))+
   theme_bw()+xlab("")+ylab("")
 
-ggplot(subset(mean_biom_hty_emuY,!is.na(bio_weight_m)))+
-  geom_sf(data=europe_cropped,alpha=.3)+
-  geom_point(aes(x=ser_x,y=ser_y,col=bio_weight_m,shape=ser_hty_code))+
+ggmap(my_map) + 
+  geom_point(data=subset(mean_biom_hty_emuY,!is.na(bio_weight_m)),
+             aes(x=ser_x,y=ser_y,col=bio_weight_m,shape=ser_hty_code))+
   scale_color_viridis_c("Weight (g)")+
   scale_shape_manual("Habitat type",values = c(15, 17))+
   theme_bw()+xlab("")+ylab("")
 
-ggplot(subset(mean_biom_hty_emuY,!is.na(bio_weight_f)))+
-  geom_sf(data=europe_cropped,alpha=.3)+
-  geom_point(aes(x=ser_x,y=ser_y,col=bio_weight_f,shape=ser_hty_code))+
+ggmap(my_map) +
+  geom_point(data=subset(mean_biom_hty_emuY,!is.na(bio_weight_f)),
+             aes(x=ser_x,y=ser_y,col=bio_weight_f,shape=ser_hty_code))+
   scale_color_viridis_c("Weight (g)")+
   scale_shape_manual("Habitat type",values = c(15, 17))+
   theme_bw()+xlab("")+ylab("")
@@ -138,9 +142,9 @@ ggplot(subset(mean_biom_hty_emuY,!is.na(bio_weight_f)))+
 Too few data were correlected regarding sex to draw any conclusions regarding differences in sex-ratios among locations.
 
 ```{r yellowsexratiomap,echo=FALSE}
-ggplot(subset(mean_biom_hty_emuY,!is.na(bio_sex_ratio)))+
-  geom_sf(data=europe_cropped,alpha=.3)+
-  geom_point(aes(x=ser_x,y=ser_y,col=bio_sex_ratio,shape=ser_hty_code))+
+ggmap(my_map)+
+  geom_point(data=subset(mean_biom_hty_emuY,!is.na(bio_sex_ratio)),
+             aes(x=ser_x,y=ser_y,col=bio_sex_ratio,shape=ser_hty_code))+
   scale_color_viridis_c("sex ratio (%)")+
   scale_shape_manual("Habitat type",values = c(15, 17))+
   theme_bw()+xlab("")+ylab("")
@@ -159,23 +163,23 @@ For silver eels, there is few available biometry data, therefore, so it is diffi
 The length measured in the Adour estuary (most southern estuary on the map) is the smallest among all the estuary. The Kendall correlation test does not detect any spatial pattern (tau=`r round(Kendall(mean_biom_hty_emuS$bio_length,mean_biom_hty_emuS$distance)$tau[1],digits=2)`, p.value=`r Kendall(mean_biom_hty_emuS$bio_length,mean_biom_hty_emuS$distance)$sl[1]`.
 
 ```{r silverlengthmap,echo=FALSE}
-ggplot(subset(mean_biom_hty_emuS,!is.na(bio_length)))+
-  geom_sf(data=europe_cropped,alpha=.3)+
-  geom_point(aes(x=ser_x,y=ser_y,col=bio_length,shape=ser_hty_code))+
+ggmap(my_map)+
+  geom_point(data=subset(mean_biom_hty_emuS,!is.na(bio_length)),
+             aes(x=ser_x,y=ser_y,col=bio_length,shape=ser_hty_code))+
   scale_color_viridis_c("Length (mm)")+
   scale_shape_manual("Habitat type",values = c(15, 17))+
   theme_bw()+xlab("")+ylab("")
 
-ggplot(subset(mean_biom_hty_emuS,!is.na(bio_length_m)))+
-  geom_sf(data=europe_cropped,alpha=.3)+
-  geom_point(aes(x=ser_x,y=ser_y,col=bio_length_m,shape=ser_hty_code))+
+ggmap(my_map)+
+  geom_point(data=subset(mean_biom_hty_emuS,!is.na(bio_length_m)),
+             aes(x=ser_x,y=ser_y,col=bio_length_m,shape=ser_hty_code))+
   scale_color_viridis_c("Length male (mm)")+
   scale_shape_manual("Habitat type",values = c(15, 17))+
   theme_bw()+xlab("")+ylab("")
 
-ggplot(subset(mean_biom_hty_emuS,!is.na(bio_length_f)))+
-  geom_sf(data=europe_cropped,alpha=.3)+
-  geom_point(aes(x=ser_x,y=ser_y,col=bio_length_f,shape=ser_hty_code))+
+ggmap(my_map)+
+  geom_point(data=subset(mean_biom_hty_emuS,!is.na(bio_length_f)),
+             aes(x=ser_x,y=ser_y,col=bio_length_f,shape=ser_hty_code))+
   scale_color_viridis_c("Length female (mm)")+
   scale_shape_manual("Habitat type",values = c(15, 17))+
   theme_bw()+xlab("")+ylab("")
@@ -187,23 +191,23 @@ ggplot(subset(mean_biom_hty_emuS,!is.na(bio_length_f)))+
 Results are very similar than for the length with smallest weights in the Adour estuary. The Kendall correlation test does not detect any spatial pattern (tau=`r round(Kendall(mean_biom_hty_emuS$bio_weight,mean_biom_hty_emuS$distance)$tau[1],digits=2)`, p.value=`r Kendall(mean_biom_hty_emuS$bio_weight,mean_biom_hty_emuS$distance)$sl[1]`.
 
 ```{r silverweightmap,echo=FALSE}
-ggplot(subset(mean_biom_hty_emuS,!is.na(bio_weight)))+
-  geom_sf(data=europe_cropped,alpha=.3)+
-  geom_point(aes(x=ser_x,y=ser_y,col=bio_weight,shape=ser_hty_code))+
+ggmap(my_map)+
+  geom_point(data=subset(mean_biom_hty_emuS,!is.na(bio_weight)),
+             aes(x=ser_x,y=ser_y,col=bio_weight,shape=ser_hty_code))+
   scale_color_viridis_c("Weight (g)")+
   scale_shape_manual(values = c(15, 17))+
   theme_bw()+xlab("")+ylab("")
 
-ggplot(subset(mean_biom_hty_emuS,!is.na(bio_weight_m)))+
-  geom_sf(data=europe_cropped,alpha=.3)+
-  geom_point(aes(x=ser_x,y=ser_y,col=bio_weight_m,shape=ser_hty_code))+
+ggmap(my_map)+
+  geom_point(data=subset(mean_biom_hty_emuS,!is.na(bio_weight_m)),
+             aes(x=ser_x,y=ser_y,col=bio_weight_m,shape=ser_hty_code))+
   scale_color_viridis_c("Weight (g)")+
   scale_shape_manual(values = c(15, 17))+
   theme_bw()+xlab("")+ylab("")
 
-ggplot(subset(mean_biom_hty_emuS,!is.na(bio_weight_f)))+
-  geom_sf(data=europe_cropped,alpha=.3)+
-  geom_point(aes(x=ser_x,y=ser_y,col=bio_weight_f,shape=ser_hty_code))+
+ggmap(my_map)+
+  geom_point(data=subset(mean_biom_hty_emuS,!is.na(bio_weight_f)),
+             aes(x=ser_x,y=ser_y,col=bio_weight_f,shape=ser_hty_code))+
   scale_color_viridis_c("Weight (g)")+
   scale_shape_manual("Habitat type",values = c(15, 17))+
   theme_bw()+xlab("")+ylab("")
@@ -214,9 +218,9 @@ ggplot(subset(mean_biom_hty_emuS,!is.na(bio_weight_f)))+
 The number of points is again very limited and no significant spatial pattern is detected (tau=`r round(Kendall(mean_biom_hty_emuS$bio_sex_ratio,mean_biom_hty_emuS$distance)$tau[1],digits=2)`, p.value=`r Kendall(mean_biom_hty_emuS$bio_sex_ratio,mean_biom_hty_emuS$distance)$sl[1]`.
 
 ```{r silversexratiomap,echo=FALSE}
-ggplot(subset(mean_biom_hty_emuS,!is.na(bio_sex_ratio)))+
-  geom_sf(data=europe_cropped,alpha=.3)+
-  geom_point(aes(x=ser_x,y=ser_y,col=bio_sex_ratio,shape=ser_hty_code))+
+ggmap(my_map)+
+  geom_point(data=subset(mean_biom_hty_emuS,!is.na(bio_sex_ratio)),
+             aes(x=ser_x,y=ser_y,col=bio_sex_ratio,shape=ser_hty_code))+
   scale_color_viridis_c("sex ratio (%)")+
   scale_shape_manual("Habitat type",values = c(15, 17))+
   theme_bw()+xlab("")+ylab("")
@@ -227,9 +231,9 @@ Linear regression between logtransformed length and weights were carried out to 
 
 
 ```{r lengthweightmap,echo=FALSE}
-ggplot(data=allometry)+
-  geom_sf(data=europe_cropped,alpha=.3)+
-  geom_point(data=allometry,aes(shape=Stage,col=slopes,x=Ser_x,y=Ser_y))+
+ggmap(my_map)+
+  geom_point(data=allometry,
+             aes(shape=Stage,col=slopes,x=Ser_x,y=Ser_y))+
   scale_color_viridis_c("Slope")+
   theme_bw()
 
