@@ -8,3 +8,8 @@
 /wger.Rdata
 /wger_init.Rdata
 /glm_results_glass.csv
+/dat_ge.Rdata
+/dat_ye.Rdata
+/glm_results_glass_and_yellow.xlsx
+/glm_results_yellow.csv
+/yellow_eel_pred.Rdata

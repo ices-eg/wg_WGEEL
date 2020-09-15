@@ -1,5 +1,5 @@
 ---
-title: "Country report for `r params$country`"
+title: "Country report export for `r if (exists('params')) params$country else 'test'`"
 author: "ICES Data Group"
 date: "`r Sys.Date()`"
 documentclass: article
@@ -11,6 +11,14 @@ output:
     toc_depth: 3
     toc_float: true
 params:
+  year:
+    label: "year start"
+    value: 1960
+    input: slider
+    min: 1900
+    max: 2020
+    step: 1
+    sep: ""
   country:   
     label: "Country"
     value: FR
@@ -28,6 +36,37 @@ params:
   S:   
     label: "Silver eel"
     value: TRUE
+  Gr:   
+    label: "Glass eel rec"
+    value: TRUE
+  Yr:   
+    label: "Yellow eel rec"
+    value: TRUE
+  YSr:   
+    label: "Yellow silver eel rec"
+    value: TRUE    
+  Sr:   
+    label: "Silver eel rec"
+    value: TRUE
+  releaseG:   
+    label: "Release G"
+    value: TRUE
+  releaseOG:   
+    label: "Release OG"
+    value: TRUE
+  releaseQG:   
+    label: "Release QG"
+    value: TRUE
+  releaseY:   
+    label: "Release Y"
+    value: TRUE
+  releaseYS:   
+    label: "Release YS"
+    value: TRUE    
+  releaseS:   
+    label: "Release S"
+    value: TRUE
+
 ---
 
 ```{r setup, include=FALSE}
@@ -43,6 +82,12 @@ getUsername <- function(){
 	return(name)
 }
 if (getUsername() == "cedric.briand") setwd("C:/workspace/gitwgeel/R/Rmarkdown") 
+if (!exists("params")){
+  warnings("You are not using Rstudio, params set in setup")
+  params<-list("country"='FR',G=TRUE,Y=TRUE,YS=TRUE,S=TRUE,Gr=TRUE,Yr=TRUE,YSr=TRUE,Sr=TRUE,
+			releaseG=TRUE, releaseY=TRUE,releaseQG=TRUE,releaseOG=TRUE,releaseYS=TRUE,releaseS=TRUE,
+			year=1960)
+}
 ```
 
 
@@ -113,13 +158,25 @@ nrfigure <- 0
 
 ```{r functions, echo=FALSE, warning=FALSE}
 
-
+fun.agg<-function(X, scalef){
+	if(length(X)>0){
+		round(sum(X)/scalef,ifelse(sum(X)>scalef,0,3))
+	}
+	else{
+		sum(c(X,NA))
+	}
+}
 #dataset="landings"; country= 'IE';dataset="landings"; typ=4 ; life_stage="G"; habitat=NULL; year_range=1980:2020; geo="emu";grouphabitat=FALSE; grouplfs=FALSE
 # table_pc(dataset="landings", country= 'FR', typ=4 , life_stage="G", habitat=NULL, year_range=1980:2020, geo="emu", grouphabitat=FALSE, grouplfs=FALSE)
 library(ggthemes)
-# table per country
-table_pc <- function(country, dataset, typ=NULL, life_stage = NULL, habitat=NULL, 
-		year_range = 1900:2100,  grouphabitat=TRUE, grouplfs=TRUE){
+#' table per country, only pass one stage
+table_pc <- function(country, 
+		dataset, 
+		typ=NULL, 
+		life_stage = NULL, 
+		habitat=NULL, 
+		year_range = 1900:2100, 
+		scalef=1){
 	filtered_data <- filter_data(dataset = dataset,
 			typ = typ,
 			life_stage = life_stage,
@@ -127,23 +184,18 @@ table_pc <- function(country, dataset, typ=NULL, life_stage = NULL, habitat=NULL
 			habitat = habitat,
 			year_range = year_range
 	) 
+	if (nrow(filtered_data)>0){
 	grouped_data <-group_data(filtered_data,
 			geo = "emu",
-			habitat = grouphabitat,
-			lfs = grouplfs,
+			habitat = FALSE,
+			lfs = FALSE,
 			na.rm=TRUE)
-	fun.agg<-function(X){
-		if(length(X)>0){
-			round(sum(X)/1000,ifelse(sum(X)>1000,0,3))
-		}
-		else{
-			sum(c(X,NA))
-		}
-	}
-	table = dcast(grouped_data, 
+    # dcast take a ... arguments and additional params can be passed to fun.aggreagate
+	table <- dcast(grouped_data, 
 			eel_year~eel_emu_nameshort, 
 			value.var = "eel_value",
-			fun.aggregate = fun.agg)
+			fun.aggregate = fun.agg,
+			scalef = scalef)
 	
 	table <- dplyr::rename(table, year="eel_year")
 	table<-data.frame(table,
@@ -153,15 +205,22 @@ table_pc <- function(country, dataset, typ=NULL, life_stage = NULL, habitat=NULL
 	
 	the_kable <- kable(table,			
 			digits=2)
+	} else {
+	the_kable <- kable(data.frame("warning"="no data"))  
+	}
 	return(the_kable)
 }
 
 # dataset="landings"; country= 'IE';dataset="landings"; typ=4 ; life_stage="Y"; habitat=NULL; year_range=1980:2020; 
-# geo="emu";grouphabitat=FALSE; grouplfs=FALSE; scalingf=1/1000; ylb <- "Landings T"
-
-plot_pc <- function(country, dataset, typ=NULL, life_stage = NULL, habitat=NULL, 
-		year_range = 1900:2100,  grouphabitat=TRUE, grouplfs=TRUE,
-		ylb="Landings T", scalingf=1/1000){
+# geo="emu";grouphabitat=FALSE; grouplfs=FALSE;  ylab. <- "Landings T"
+#' plot per country only pass one stage
+plot_pc <- function(country, dataset, 
+		typ=NULL, 
+		life_stage = NULL,
+		habitat=NULL, 
+		year_range = 1900:2100,	
+		ylab.="Landings T", 
+		scalef=1){
 	filtered_data <- filter_data(dataset = dataset,
 			typ = typ,
 			life_stage = life_stage,
@@ -171,29 +230,119 @@ plot_pc <- function(country, dataset, typ=NULL, life_stage = NULL, habitat=NULL,
 	) 
 	grouped_data <- group_data(filtered_data,
 			geo = "emu",
-			habitat = grouphabitat,
-			lfs = grouplfs,
+			habitat = FALSE,
+			lfs = FALSE,
 			na.rm=TRUE)
-	
-	grouped_data$eel_value <- as.numeric(grouped_data$eel_value) * scalingf
+	grouped_data$eel_value <- as.numeric(grouped_data$eel_value)/scalef
 	grouped_data$eel_emu_nameshort = as.factor(grouped_data$eel_emu_nameshort)
 	emus <- levels(grouped_data$eel_emu_nameshort)
 	if (length(emus) <11) palette <- gdocs_pal()(length(emus)) else palette <- sequential_hcl(length(emus), "Viridis")
 	#palette	[grep("total",emus)] <- "grey50"
+	if (nrow(grouped_data) > 0) {
 	gg <- 	ggplot(grouped_data) + 
 			geom_col(aes(x=eel_year,y=eel_value,fill=eel_emu_nameshort), position='stack')+
 			xlab("year") + 
-			ylab(ylb)+		
+			ylab(ylab.)+		
 			scale_fill_manual(values=palette)+
 	theme_gdocs()
+} else {
+	gg <- ggplot() +
+			theme_void() +
+			geom_text(aes(0,0,label='N/A')) +
+			xlab(NULL)
+}
 	
 	return(gg)
 }
+# dataset="release"; country= 'FR'; typ=9 ; life_stage=c("G","Y","QG","OG","YS","S"); habitat=NULL; year_range=1980:2020; 
+# geo="emu";grouphabitat=FALSE; grouplfs=FALSE;
+#' Table per country per lifestage.
+table_pc_lfs <- function(country, dataset, typ = 9,
+		life_stage=c("G","Y","QG","OG","YS","S"),  
+		year_range = 1900:2100, 
+		habitat=FALSE, 
+		scalef=1){
+	filtered_data <- filter_data(dataset = dataset,
+			life_stage = life_stage,
+			country = country,
+			year_range = year_range
+	) 
+	if (nrow(filtered_data)>0){
+		grouped_data <-group_data(filtered_data,
+				geo = "emu",
+				habitat = FALSE,
+				lfs = TRUE,
+				na.rm=TRUE)
+		table = dcast(grouped_data, 
+				eel_year~eel_emu_nameshort+eel_lfs_code, 
+				value.var = "eel_value",
+				fun.aggregate = fun.agg,
+				scalef = scalef)
+		
+		table <- dplyr::rename(table, year="eel_year")
+		table<-data.frame(table,
+				Sum=rowSums(table[,-1],na.rm=T)
+		)
+		colnames(table)[2:(ncol(table)-1)]<-substr(colnames(table)[2:(ncol(table)-1)],4,10)
+		
+		the_kable <- kable(table,			
+				digits=2)
+	} else {
+		the_kable <- kable(data.frame("warning"="no data"))  
+	}
+	return(the_kable)
+}
+#' Plot per country per life stage
+plot_pc_lfs <- function(country, 
+		dataset, 
+		typ=NULL, 
+		life_stage = NULL, 
+		habitat=NULL, 
+		year_range = 1900:2100, 
+		ylab.="Landings T",  
+		scalef=1){
+	filtered_data <- filter_data(dataset = dataset,
+			typ = typ,
+			life_stage = life_stage,
+			country = country,
+			habitat = habitat,
+			year_range = year_range
+	) 
+	grouped_data <- group_data(filtered_data,
+			geo = "emu",
+			habitat = FALSE,
+			lfs = TRUE,
+			na.rm=TRUE)
+	grouped_data$eel_value <- as.numeric(grouped_data$eel_value)/scalef
+	grouped_data$eel_emu_nameshort = as.factor(grouped_data$eel_emu_nameshort)
+	emus <- levels(grouped_data$eel_emu_nameshort)
+	if (length(emus) <11) palette <- gdocs_pal()(length(emus)) else palette <- sequential_hcl(length(emus), "Viridis")
+	#palette	[grep("total",emus)] <- "grey50"
+	if (nrow(grouped_data) > 0) {
+		gg <- 	ggplot(grouped_data) + 
+				geom_col(aes(x=eel_year,y=eel_value,fill=eel_emu_nameshort), position='stack')+
+				xlab("year") + 
+				ylab(ylab.)+		
+				scale_fill_manual(values=palette)+
+				facet_wrap(~eel_lfs_code)
+				theme_gdocs()
+	} else {
+		gg <- ggplot() +
+				theme_void() +
+				geom_text(aes(0,0,label='N/A')) +
+				xlab(NULL)
+	}
+	
+	return(gg)
+}
+
+
+
 ```
 
 
 ```{r G, echo=FALSE, warning=FALSE, results="asis"}
-pandoc.header("Landings", level=1)
+pandoc.header("Landings commercial fisheries", level=1)
 if (params$G){
 	pandoc.header("Glass eel", level=2)
 	nrtable=nrtable+1
@@ -202,21 +351,22 @@ if (params$G){
 			country=  params$country, 
 			typ=4 , 
 			life_stage="G",
-			habitat=NULL, 
-			year_range=1960:2020
+			year_range=params$year:CY,
+			scalef=1000 # in tons
 			)
 	print(res %>% kable_styling())
 	
 	nrfigure=nrfigure+1
-	pandoc.p(str_c("Figure ",nrfigure," : landings G"))
+
 	gg <-plot_pc(dataset="landings", 
 			country= params$country, 
 			typ=4 , 
 			life_stage="G",
-			habitat=NULL, 
-			year_range=1960:2020
+			year_range=1960:2020,
+			scalef=1000
 			)
 	print(gg)
+	pandoc.p(str_c("Figure ",nrfigure," : landings G"))
 }
 ```
 	
@@ -230,23 +380,21 @@ if (params$Y){
 			country=  params$country, 
 			typ=4 , 
 			life_stage="Y",
-			habitat=NULL, 
 			year_range=1960:2020, 
-			grouphabitat=FALSE, 
-			grouplfs=FALSE)
+			scalef=1000
+			)
 	print(res %>% kable_styling())
 	
 	nfigure=nrfigure+1
-	pandoc.p(str_c("Figure ",nrfigure," : landings Yellow"))
+
 	gg <-plot_pc(dataset="landings", 
 			country= params$country, 
 			typ=4 , 
 			life_stage="Y",
-			habitat=NULL, 
-			year_range=1960:2020, 
-			grouphabitat=FALSE, 
-			grouplfs=FALSE)
+			year_range=1960:2020, 		
+			scalef=1000)
 	print(gg)
+	pandoc.p(str_c("Figure ",nrfigure," : landings Yellow"))
 }
 ```
 
@@ -260,23 +408,20 @@ if (params$YS){
 			country=  params$country, 
 			typ=4 , 
 			life_stage=c("YS"),
-			habitat=NULL, 
 			year_range=1960:2020, 
-			grouphabitat=FALSE, 
-			grouplfs=FALSE)
+			scalef=1000)
 	print(res %>% kable_styling())
 	
 	nfigure=nrfigure+1
-	pandoc.p(str_c("Figure ",nrfigure," : landings Yellow silver"))
+
 	gg <-plot_pc(dataset="landings", 
 			country= params$country, 
 			typ=4 , 
 			life_stage=c("YS"),
-			habitat=NULL, 
-			year_range=1960:2020, 
-			grouphabitat=FALSE, 
-			grouplfs=FALSE)
+			year_range=1960:2020, 		
+			scalef=1000)
 	print(gg)
+	pandoc.p(str_c("Figure ",nrfigure," : landings Yellow silver"))
 }
 ```
 
@@ -291,22 +436,197 @@ if (params$S){
 			country=  params$country, 
 			typ=4 , 
 			life_stage=c("S"),
-			habitat=NULL, 
-			year_range=1960:2020, 
-			grouphabitat=FALSE, 
-			grouplfs=FALSE)
+			year_range=1960:2020, 			
+			scalef=1000)
 	print(res %>% kable_styling())
 	
 	nfigure=nrfigure+1
-	pandoc.p(str_c("Figure ",nrfigure," : landings Silver"))
+
 	gg <-plot_pc(dataset="landings", 
 			country= params$country, 
 			typ=4 , 
 			life_stage=c("S"),
-			habitat=NULL, 
-			year_range=1960:2020, 
-			grouphabitat=FALSE, 
-			grouplfs=FALSE)
+			year_range=1960:2020, 			
+			scalef=1000)
 	print(gg)
+	pandoc.p(str_c("Figure ",nrfigure," : landings Silver"))
 }
+```
+
+
+```{r Gr, echo=FALSE, warning=FALSE, results="asis"}
+pandoc.header("Landings Recreational fisheries", level=1)
+if (params$Gr){
+	pandoc.header("Glass eel", level=2)
+	nrtable=nrtable+1
+	pandoc.p(str_c("Table ",nrtable," : landings G recrational"))
+	res <- table_pc(dataset="landings", 
+			country=  params$country, 
+			typ=6 , 
+			life_stage="G",
+			year_range=1960:2020, 
+			scalef=1000
+			)
+	print(res %>% kable_styling())
+	
+	nrfigure=nrfigure+1
+
+	gg <-plot_pc(dataset="landings", 
+			country= params$country, 
+			typ=6 , 
+			life_stage="G",
+			year_range=1960:2020, 
+			scalef=1000
+			)
+	print(gg)
+	pandoc.p(str_c("Figure ",nrfigure," : landings G"))
+}
+```
+	
+```{r Yr, echo=FALSE, warning=FALSE, results="asis"}
+
+if (params$Yr){
+	pandoc.header("Yellow eel", level=2)
+	nrtable=nrtable+1
+	pandoc.p(str_c("Table ",nrtable," : landings Yellow"))
+	res <- table_pc(dataset="landings", 
+			country=  params$country, 
+			typ=6 , 
+			life_stage="Y",
+			year_range=1960:2020,
+			scalef=1000
+)
+	print(res %>% kable_styling())
+	
+	nfigure=nrfigure+1
+
+	gg <-plot_pc(dataset="landings", 
+			country= params$country, 
+			typ=6 , 
+			life_stage="Y",
+			year_range=1960:2020, 
+			scalef=1000
+)
+	print(gg)
+	pandoc.p(str_c("Figure ",nrfigure," : landings Yellow recreational"))
+}
+```
+
+```{r YSr, echo=FALSE, warning=FALSE, results="asis"}
+
+if (params$YSr){
+	pandoc.header("Yellow silver", level=2)
+	nrtable=nrtable+1
+	pandoc.p(str_c("Table ",nrtable," : landings Yellow silver recreational"))
+	res <- table_pc(dataset="landings", 
+			country=  params$country, 
+			typ=6 , 
+			life_stage=c("YS"),
+			year_range=1960:2020, 
+			scalef=1000)
+	print(res %>% kable_styling())
+	
+	nfigure=nrfigure+1
+	gg <-plot_pc(dataset="landings", 
+			country= params$country, 
+			typ=6 , 
+			life_stage=c("YS"),
+			year_range=1960:2020,
+			scalef=1000)
+	print(gg)
+	pandoc.p(str_c("Figure ",nrfigure," : landings Yellow silver recreational"))
+}
+```
+
+
+```{r Sr, echo=FALSE, warning=FALSE, results="asis"}
+
+if (params$Sr){
+	pandoc.header("Silver eel", level=2)
+	nrtable=nrtable+1
+	pandoc.p(str_c("Table ",nrtable," : landings Silver recreational"))
+	res <- table_pc(dataset="landings", 
+			country=  params$country, 
+			typ=6 , 
+			life_stage=c("S"),
+			year_range=1960:2020, 
+			scalef=1000)
+	print(res %>% kable_styling())
+	
+	nfigure=nrfigure+1
+
+	gg <-plot_pc(dataset="landings", 
+			country= params$country, 
+			typ=6 , 
+			life_stage=c("S"),
+			year_range=1960:2020, 
+			scalef=1000)
+	print(gg)
+	pandoc.p(str_c("Figure ",nrfigure," : landings Silver recreational"))
+}
+```
+
+```{r release, echo=FALSE, warning=FALSE, results="asis"}
+pandoc.header("Release", level=1)
+# RELEASE IN NUMBER --------------------------
+pandoc.header("In number", level=2)
+	nrtable=nrtable+1
+	pandoc.p(str_c("Table ",nrtable," : Release in millions"))
+	res <- table_pc_lfs(dataset="release", 
+			country=  params$country, 
+			typ=9 , 
+			life_stage=c("G","Y","QG","OG","YS","S")[
+					c(params$releaseG, params$releaseY, params$releaseQG,
+							params$releaseOG, params$releaseYS, params$releaseS)],
+
+			year_range=1960:2020, 
+			scalef=10^6
+			)
+	print(res %>% kable_styling())
+# FIGURE -------------------------------	
+	nrfigure=nrfigure+1
+
+	gg <- plot_pc_lfs(dataset="release", 
+			country= params$country, 
+			typ=9 , 
+			life_stage=c("G","Y","QG","OG","YS","S")[
+					c(params$releaseG, params$releaseY, params$releaseQG,
+							params$releaseOG, params$releaseYS, params$releaseS)],
+			year_range=params$year:CY, 
+			scalef=10^6,
+			ylab.="Release in million"
+	)
+	pandoc.p(str_c("Figure ",nrfigure," : Release in million"))
+	print(gg)
+# RELEASE IN KG --------------------------	
+	pandoc.header("In kg", level=2)
+	nrtable=nrtable+1
+	pandoc.p(str_c("Table ",nrtable," : Release in kg"))
+	res <- table_pc_lfs(dataset="release", 
+			country=  params$country, 
+			typ=8 , 
+			life_stage=c("G","Y","QG","OG","YS","S")[
+					c(params$releaseG, params$releaseY, params$releaseQG,
+							params$releaseOG, params$releaseYS, params$releaseS)],
+			
+			year_range=params$year:CY, 
+			scalef=1
+	)
+	print(res %>% kable_styling())
+	
+
+	gg <- plot_pc_lfs(dataset="release", 
+			country= params$country, 
+			typ=8 , 
+			life_stage=c("G","Y","QG","OG","YS","S")[
+					c(params$releaseG, params$releaseY, params$releaseQG,
+							params$releaseOG, params$releaseYS, params$releaseS)],
+			year_range=params$year:CY, 
+			scalef=,
+			ylab.="Release in kg"
+	)
+	print(gg)
+	pandoc.p(str_c("Figure ",nrfigure," : Release in kg"))
+
+
 ```
