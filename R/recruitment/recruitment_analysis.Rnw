@@ -818,14 +818,12 @@ colnames(tab1) <- c("year",statseries$site)
 tab1[,1] <- as.character(tab1[,1])
 first_line <- c("kept",statseries$series_kept)
 tab1 <- rbind(first_line,tab1)
-createxl <- function(data=tab1,sheet="recruitment_series"){
-	xls.file <- str_c(datawd,"table_rec", CY, ".xls")
-	openxlsx::write.xlsx(data,file=xls.file)
 
 
-}
-createxl(data=tab1, sheet="recruitment_series")
-createxl(data=statseries, sheet="series_description")
+openxlsx::write.xlsx(x=list("recruitment_series"=tab1,
+					"series_description"=statseries),file=str_c(datawd,"table_rec", CY, ".xls"))
+
+
 
 @
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1611,19 +1609,7 @@ nothing <- latex(gg,
 
 
 write.table(synthesis,file=str_c(datawd,"glm_results_glass.csv"),sep=";")
-if (file.exists(str_c(datawd,"glm_results_glass_and_yellow.xlsx"))) unlink(str_c(datawd,"glm_results_glass_and_yellow.xlsx"))
-xlsx::write.xlsx(x=data.frame(
-				"year"=synthesis$year,
-				"EE_minCI_percent"=100*synthesis$EEminCI,
-				"EE_percent"=100*synthesis$"Elsewhere Europe",
-				"EE_maxCI_percent"=100*synthesis$EEmaxCI,
-				"NS_minCI_percent"=100*synthesis$NSminCI,
-				"NS_percent"=100*synthesis$"North Sea",
-				"NS_maxCI_percent"=100*synthesis$NSmaxCI
-		),
-		file=str_c(datawd,"glm_results_glass_and_yellow.xlsx"),
-		sheetName="Glass eel",
-		row.names=FALSE	)
+
 #plot(log(synthesis[synthesis$year>1979,"Elsewhere Europe"]))
 trend <- synthesis[synthesis$year>1979,]
 trend$EE <- trend$"Elsewhere Europe"
@@ -1955,14 +1941,24 @@ dat_ye <- dat_ye[,c("year","p","se","mean_1960_1979","yellow_eel_min","yellow_ee
 #colnames(dat_ye)  <- c("year","geomean_p_std_1960_1979") 
 save(dat_ye,file=paste0(datawd,"dat_ye.Rdata")) 
 save(dat_ye,file=paste0(shinywd,"dat_ye.Rdata"), version =2) 
-xlsx::write.xlsx(data.frame("year"=dat_ye$year,
-				"Y_minCI_percent"=100*dat_ye$yellow_eel_min,
-				"Y_percent"=100*dat_ye$value_std_1960_1979,
-				"Y_maxCI_percent"=100*dat_ye$yellow_eel_max),
-		file=str_c(datawd,"glm_results_glass_and_yellow.xlsx"),
-		sheetName="Yellow eel",
-		row.names=FALSE,
-		append=TRUE)
+
+if (file.exists(str_c(datawd,"glm_results_glass_and_yellow.xlsx"))) unlink(str_c(datawd,"glm_results_glass_and_yellow.xlsx"))
+openxlsx::write.xlsx(x=list("Glass eel"=data.frame(
+						"year"=synthesis$year,
+						"EE_minCI_percent"=100*synthesis$EEminCI,
+						"EE_percent"=100*synthesis$"Elsewhere Europe",
+						"EE_maxCI_percent"=100*synthesis$EEmaxCI,
+						"NS_minCI_percent"=100*synthesis$NSminCI,
+						"NS_percent"=100*synthesis$"North Sea",
+						"NS_maxCI_percent"=100*synthesis$NSmaxCI
+				), "Yellow eel"= data.frame("year"=dat_ye$year,
+						"Y_minCI_percent"=100*dat_ye$yellow_eel_min,
+						"Y_percent"=100*dat_ye$value_std_1960_1979,
+						"Y_maxCI_percent"=100*dat_ye$yellow_eel_max)),
+				file=str_c(datawd,"glm_results_glass_and_yellow.xlsx"),
+				row.names=FALSE)
+
+
 # saving yellow_eel_pred for shiny ---------------------------------------------------------------------
 yellow_eel_pred <- dat_ye
 
