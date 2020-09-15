@@ -23,7 +23,7 @@ params:
     label: "Country"
     value: FR
     input: select
-    choices: [FR, IE, SE]
+    choices: [FR, IE, SE, ES]
   area:
     label: Area
     value: "Elsewhere Europe"
@@ -77,7 +77,7 @@ params:
 
 ```{r setup, include=FALSE}
 require(knitr)
-knitr::opts_chunk$set(echo = FALSE, warnings=FALSE, fig.width=12, fig.height=8)
+knitr::opts_chunk$set(echo = FALSE, warnings=FALSE, fig.width=12, fig.height=8, message=FALSE)
 opts_knit$set(eval.after = 'fig.cap' ) # to be used in chunks used only to plot pictures
 options(knitr.table.format = 'pandoc') # options pour kable
 options(knitr.kable.NA = '.')
@@ -89,7 +89,7 @@ getUsername <- function(){
 }
 if (getUsername() == "cedric.briand") setwd("C:/workspace/gitwgeel/R/Rmarkdown") 
 if (!exists("params")){
-	warnings("You are not using Rstudio, params set in setup")
+	warnings("You are not using Rstudio, message=FALSEparams set in setup")
 	params <- list("country"='FR',G=TRUE,Y=TRUE,YS=TRUE,S=TRUE,Gr=TRUE,Yr=TRUE,YSr=TRUE,Sr=TRUE,
 			releaseG=TRUE, releaseY=TRUE,releaseQG=TRUE,releaseOG=TRUE,releaseYS=TRUE,releaseS=TRUE,
 			year=1960, area="Elsewhere Europe")
@@ -719,8 +719,9 @@ gg <- plot_pc_lfs(dataset="release",
 		scalef=10^6,
 		ylab.="Release in million"
 )
-pandoc.p(str_c("Figure ",nrfigure," : Release in million"))
 print(gg)
+pandoc.p(str_c("Figure ",nrfigure," : Release in million"))
+
 # RELEASE IN KG --------------------------	
 pandoc.header("In kg", level=2)
 nrtable=nrtable+1
@@ -754,10 +755,12 @@ pandoc.p(str_c("Figure ",nrfigure," : Release in kg"))
 ```
 		
 ```{r recruit, echo=FALSE, warning=FALSE, results="asis"}
+pandoc.header("Recruitment series", level=1)
 g <- figure_recruitment()
 nrfigure=nrfigure+1
 print(g)
-pandoc.p(str_c("Figure ",nrfigure," : Recruitment"))
+pandoc.p(str_c("Figure ",nrfigure," : Recruitment, panel indicate if selected"))
+nrfigure=nrfigure+1
 print(g + scale_y_log10(limits=c(0.01,30),breaks=c(0.01,0.1,1,10,100,1000),labels=c("0.01","0.1","1","10","100","1000")))
 pandoc.p(str_c("Figure ",nrfigure," : Recruitment log scale"))
 ```
