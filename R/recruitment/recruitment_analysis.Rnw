@@ -1268,7 +1268,7 @@ figure_check_one_series <- function(site='Katw',limits=c(1900,CY)){
 			geom_line(aes(x=year, y=value_std_2000_2009),col="grey",size=0.4)+
 			geom_point(aes(x=year, y=value_std_2000_2009),colour="blue",size=1,data=scaldata_2000_2009[scaldata_2000_2009$site==site,])+
 			geom_line(aes(x=year, y=value_std_2000_2009),colour="blue",size=1,data=scaldata_2000_2009[scaldata_2000_2009$site==site,])+
-			ylab("scaled 1979-1994 values")+
+			ylab("scaled 2000-2009 values")+
 			geom_pointrange(data=bootscal_2000_2009,aes(x=year,y=mean,ymin=ymin,ymax=ymax),size=0.5,colour="black")+
 			geom_line(data=scal_2000_2009,aes(x=year,y=geomean),colour="red",size=1.2)+
 			theme(legend.position = "none")+
