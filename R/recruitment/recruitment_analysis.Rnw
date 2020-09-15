@@ -21,6 +21,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 <<init, eval=TRUE,echo=FALSE,results=hide>>=
 Sys.setlocale("LC_ALL", "English_United States.932")
+Sys.setenv(JAVA_HOME='C:\\Program Files\\Java\\jre1.8.0_221\\bin')
 options(save.defaults = list(version=2))
 # Password are stored in R/etc/Rprofile.site
 # For the moment the database is stored locally
@@ -60,6 +61,8 @@ if(!require(boot)) install.packages("boot") ; require(boot)
 if(!require(MASS)) install.packages("MASS") ; require(MASS)
 if(!require(lme4)) install.packages("lme4") ; require(lme4)
 if(!require(multcomp)) install.packages("multcomp") ; require(multcomp)
+if(!require(openxlsx)) install.packages("openxlsx") ; require(openxlsx)
+
 #--------------------------------
 # get your current name 
 #--------------------------------
@@ -215,6 +218,7 @@ query ='select
 		where ser_typ_id=1'
 
 R_stations= sqldf(query)
+
 
 
 ##########################
@@ -799,7 +803,7 @@ rien <- dev.off()
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %************************************************************************************
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-<<tableswgeel,echo=FALSE, eval=TRUE,results=hide>>=
+<<tableswgeel,echo=FALSE, eval=FALSE,results=hide>>=
 # THIS R CHUNCK IS USED ONCE AT THE END TO GENERATE THE TABLES.
 ## This will fail if saved twice, run at the end of the working group to generate the table of values
 wger_init$das_order <- order(wger_init$cou_order, wger_init$ser_y, wger_init$site, wger_init$year)
@@ -815,13 +819,10 @@ tab1[,1] <- as.character(tab1[,1])
 first_line <- c("kept",statseries$series_kept)
 tab1 <- rbind(first_line,tab1)
 createxl <- function(data=tab1,sheet="recruitment_series"){
-	library("XLConnect")
 	xls.file <- str_c(datawd,"table_rec", CY, ".xls")
-	wb = loadWorkbook(xls.file, create = TRUE)
-	createSheet(wb,sheet)
-	writeWorksheet (wb , data , sheet=sheet ,header = TRUE )
-	saveWorkbook(wb)
-	#cat("travail termin�\n")
+	openxlsx::write.xlsx(data,file=xls.file)
+
+
 }
 createxl(data=tab1, sheet="recruitment_series")
 createxl(data=statseries, sheet="series_description")
