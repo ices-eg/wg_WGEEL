@@ -181,8 +181,8 @@ fun.agg<-function(X, scalef){
 		sum(c(X,NA))
 	}
 }
-#dataset="landings"; country= 'IE';dataset="landings"; typ=4 ; life_stage="G"; habitat=NULL; year_range=1980:2020; geo="emu";grouphabitat=FALSE; grouplfs=FALSE
-# table_pc(dataset="landings", country= 'FR', typ=4 , life_stage="G", habitat=NULL, year_range=1980:2020, geo="emu", grouphabitat=FALSE, grouplfs=FALSE)
+# dataset="landings"; country= 'ES';dataset="landings"; typ=6 ; life_stage="YS"; habitat=NULL; year_range=1980:2020; scalef=1000
+# table_pc(dataset="landings", country= 'FR', typ=4 , life_stage="G", habitat=NULL, year_range=1980:2020)
 library(ggthemes)
 #' table per country, only pass one stage
 table_pc <- function(country, 
@@ -213,8 +213,9 @@ table_pc <- function(country,
 				scalef = scalef)
 		
 		table <- dplyr::rename(table, year="eel_year")
+		if(ncol(table))
 		table<-data.frame(table,
-				Sum=rowSums(table[,-1],na.rm=T)
+				Sum=rowSums(table[,-1,drop=FALSE],na.rm=T)
 		)
 		colnames(table)[2:(ncol(table)-1)]<-substr(colnames(table)[2:(ncol(table)-1)],4,10)
 		
@@ -751,6 +752,37 @@ gg <- plot_pc_lfs(dataset="release",
 )
 print(gg)
 pandoc.p(str_c("Figure ",nrfigure," : Release in kg"))
+
+```
+
+```{r aquaculture, echo=FALSE, warning=FALSE, results="asis"}
+pandoc.header("Aquaculture", level=1)
+# RELEASE IN NUMBER --------------------------
+nrtable=nrtable+1
+pandoc.p(str_c("Table ",nrtable," : Aquaculture in Tons"))
+res <- table_pc_lfs(dataset="aquaculture", 
+		country=  params$country, 
+		typ=11 , 
+		life_stage=c("G","Y","QG","OG"),		
+		year_range=1960:2020, 
+		scalef=1000	    
+)
+print(res %>% kable_styling())
+# FIGURE -------------------------------	
+nrfigure=nrfigure+1
+
+gg <- plot_pc_lfs(dataset="aquaculture", 
+		country= params$country, 
+		typ=11 , 
+		life_stage=c("G","Y","QG","OG")	,
+		year_range=params$year:CY, 
+		scalef=1000,
+		ylab.="Aquaculture in tons"
+)
+print(gg)
+pandoc.p(str_c("Figure ",nrfigure," : Aquaculture"))
+
+
 
 ```
 		
