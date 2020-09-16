@@ -1,6 +1,6 @@
 ---
 title: "Country report export for `r if (exists('params')) params$country else 'test'`"
-author: "ICES Data Group"
+author: "ICES EIFAAC GFCM wgeel - Data Group"
 date: "`r Sys.Date()`"
 documentclass: article
 output: 
@@ -89,7 +89,7 @@ getUsername <- function(){
 }
 if (getUsername() == "cedric.briand") setwd("C:/workspace/gitwgeel/R/Rmarkdown") 
 if (!exists("params")){
-	warnings("You are not using Rstudio, message=FALSEparams set in setup")
+	warnings("You are not using Rstudio or rmarkdown::render, params have been set by default setup")
 	params <- list("country"='FR',G=TRUE,Y=TRUE,YS=TRUE,S=TRUE,Gr=TRUE,Yr=TRUE,YSr=TRUE,Sr=TRUE,
 			releaseG=TRUE, releaseY=TRUE,releaseQG=TRUE,releaseOG=TRUE,releaseYS=TRUE,releaseS=TRUE,
 			year=1960, area="Elsewhere Europe")
