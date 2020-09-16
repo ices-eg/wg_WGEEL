@@ -112,6 +112,7 @@ source("../utilities/load_library.R")
 # other libraries
 #-----------------
 load_package("readxl")
+load_package("reshape2")
 load_package("stringr")
 load_package("tidyverse")
 load_package("rlang")
@@ -499,6 +500,10 @@ map_recruitment <- function(){
 	
 	
 	all_data <- rbind(selected, not_selected)	
+	sites_cou <- unique(all_data$site)
+	if (length(sites_cou) <11) palette <- gdocs_pal()(length(sites_cou)) else 
+		palette <- gdocs_pal()(10)
+		palette <- colorRampPalette(palette)(length(sites_cou))
 	
 	location=c(left=min(all_data$ser_x,na.rm=TRUE)-0.5,
 	                        bottom=min(all_data$ser_y,na.rm=TRUE)-0.5,
@@ -512,7 +517,7 @@ map_recruitment <- function(){
   zoomlat <- ceiling(log2(180 * 2/latlength))
   zoom <- max(zoomlon, zoomlat)
 	
-	mymap <-get_map(location,
+	mymap <-get_stamenmap(location,zoom=zoom,
 	                maptype = "terrain-background",
 	                source="stamen")
 	
@@ -523,6 +528,7 @@ map_recruitment <- function(){
 	                 col=site),
 	             cex=3)+
 	  scale_shape("Used in GLM")+
+	  scale_colour_manual(values=palette)+
 	  xlab("")+
 	  ylab("")
 	return(g)
