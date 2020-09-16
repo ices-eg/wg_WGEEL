@@ -1,0 +1,24 @@
+REM to be launched in cmd
+cd C:/workspace/gitwgeel/R/Rmarkdown/2020/
+pandoc +RTS -K512m -RTS "BE.md" --to docx --from markdown+autolink_bare_uris+ascii_identifiers+tex_math_single_backslash+smart --output "BE.docx"  --highlight-style tango
+pandoc +RTS -K512m -RTS "DE.md" --to docx --from markdown+autolink_bare_uris+ascii_identifiers+tex_math_single_backslash+smart --output "DE.docx"  --highlight-style tango
+pandoc +RTS -K512m -RTS "DK.md" --to docx --from markdown+autolink_bare_uris+ascii_identifiers+tex_math_single_backslash+smart --output "DK.docx"  --highlight-style tango
+pandoc +RTS -K512m -RTS "EE.md" --to docx --from markdown+autolink_bare_uris+ascii_identifiers+tex_math_single_backslash+smart --output "EE.docx"  --highlight-style tango
+pandoc +RTS -K512m -RTS "ES.md" --to docx --from markdown+autolink_bare_uris+ascii_identifiers+tex_math_single_backslash+smart --output "ES.docx"  --highlight-style tango
+pandoc +RTS -K512m -RTS "FI.md" --to docx --from markdown+autolink_bare_uris+ascii_identifiers+tex_math_single_backslash+smart --output "FI.docx"  --highlight-style tango
+pandoc +RTS -K512m -RTS "FR.md" --to docx --from markdown+autolink_bare_uris+ascii_identifiers+tex_math_single_backslash+smart --output "FR.docx"  --highlight-style tango
+pandoc +RTS -K512m -RTS "GB.md" --to docx --from markdown+autolink_bare_uris+ascii_identifiers+tex_math_single_backslash+smart --output "GB.docx"  --highlight-style tango
+pandoc +RTS -K512m -RTS "GR.md" --to docx --from markdown+autolink_bare_uris+ascii_identifiers+tex_math_single_backslash+smart --output "GR.docx"  --highlight-style tango
+pandoc +RTS -K512m -RTS "HR.md" --to docx --from markdown+autolink_bare_uris+ascii_identifiers+tex_math_single_backslash+smart --output "HR.docx"  --highlight-style tango
+pandoc +RTS -K512m -RTS "IE.md" --to docx --from markdown+autolink_bare_uris+ascii_identifiers+tex_math_single_backslash+smart --output "IE.docx"  --highlight-style tango
+pandoc +RTS -K512m -RTS "IT.md" --to docx --from markdown+autolink_bare_uris+ascii_identifiers+tex_math_single_backslash+smart --output "IT.docx"  --highlight-style tango
+pandoc +RTS -K512m -RTS "LT.md" --to docx --from markdown+autolink_bare_uris+ascii_identifiers+tex_math_single_backslash+smart --output "LT.docx"  --highlight-style tango
+pandoc +RTS -K512m -RTS "LV.md" --to docx --from markdown+autolink_bare_uris+ascii_identifiers+tex_math_single_backslash+smart --output "LV.docx"  --highlight-style tango
+pandoc +RTS -K512m -RTS "NL.md" --to docx --from markdown+autolink_bare_uris+ascii_identifiers+tex_math_single_backslash+smart --output "NL.docx"  --highlight-style tango
+pandoc +RTS -K512m -RTS "NO.md" --to docx --from markdown+autolink_bare_uris+ascii_identifiers+tex_math_single_backslash+smart --output "NO.docx"  --highlight-style tango
+pandoc +RTS -K512m -RTS "PL.md" --to docx --from markdown+autolink_bare_uris+ascii_identifiers+tex_math_single_backslash+smart --output "PL.docx"  --highlight-style tango
+pandoc +RTS -K512m -RTS "PT.md" --to docx --from markdown+autolink_bare_uris+ascii_identifiers+tex_math_single_backslash+smart --output "PT.docx"  --highlight-style tango
+pandoc +RTS -K512m -RTS "SE.md" --to docx --from markdown+autolink_bare_uris+ascii_identifiers+tex_math_single_backslash+smart --output "SE.docx"  --highlight-style tango
+pandoc +RTS -K512m -RTS "SI.md" --to docx --from markdown+autolink_bare_uris+ascii_identifiers+tex_math_single_backslash+smart --output "SI.docx"  --highlight-style tango
+pandoc +RTS -K512m -RTS "TN.md" --to docx --from markdown+autolink_bare_uris+ascii_identifiers+tex_math_single_backslash+smart --output "TN.docx"  --highlight-style tango
+pandoc +RTS -K512m -RTS "TR.md" --to docx --from markdown+autolink_bare_uris+ascii_identifiers+tex_math_single_backslash+smart --output "TR.docx"  --highlight-style tango
