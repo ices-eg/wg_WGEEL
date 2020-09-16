@@ -71,6 +71,9 @@ params:
   releaseS:   
     label: "Release S"
     value: TRUE
+  map:
+    label: "Draw maps"
+    value: TRUE
     
 
 ---
@@ -87,6 +90,7 @@ getUsername <- function(){
 	name <- Sys.info()[["user"]]
 	return(name)
 }
+if (getUsername() == "hilaire.drouineau") setwd("~/Documents/Bordeaux/migrateurs/WGEEL/github/wg_WGEEL/R/Rmarkdown/") 
 if (getUsername() == "cedric.briand") setwd("C:/workspace/gitwgeel/R/Rmarkdown") 
 if (!exists("params")){
 	warnings("You are not using Rstudio or rmarkdown::render, params have been set by default setup")
@@ -123,6 +127,8 @@ load_package("viridis")
 load_package("glue")
 load_package("kableExtra")
 load_package("pander")
+load_package("ggmap")
+
 
 # load functions ------------------------------------------------------------------------------------
 # retrieve reference tables needed
@@ -462,6 +468,66 @@ figure_recruitment <- function(){
 }
 
 
+
+
+
+map_recruitment <- function(){	
+	
+	# These values are standardized against the predictions in 1960s-1970s
+	# the predictions are the predictions of the expand.grid(year,site,area)		
+	# this is the North Sea or Elswhere Europe series
+  
+  
+  	selected <- wger_init %>% dplyr::select(site,ser_qal_id,ser_id) %>%			         
+			filter(ser_qal_id==1) %>% select(site,ser_id) %>%
+	  distinct() %>%
+	  inner_join(R_stations %>% 
+	               select(ser_id,ser_nameshort,cou_code,ser_x,ser_y) %>%
+	               rename(site = ser_nameshort )) %>%
+	  mutate(selected=TRUE)%>%
+	  filter(cou_code==params$country)
+	
+	not_selected <-	 wger_init %>% dplyr::select(site,ser_qal_id,ser_id) %>%			         
+			filter(ser_qal_id==0|ser_qal_id==3) %>% select(site,ser_id) %>%
+	  distinct() %>%
+	  inner_join(R_stations %>% 
+	               select(ser_id,ser_nameshort,cou_code,ser_x,ser_y) %>%
+	               rename(site = ser_nameshort )) %>%
+	  mutate(selected=FALSE)%>%
+	  filter(cou_code==params$country)
+	
+	
+	
+	all_data <- rbind(selected, not_selected)	
+	
+	location=c(left=min(all_data$ser_x,na.rm=TRUE)-0.5,
+	                        bottom=min(all_data$ser_y,na.rm=TRUE)-0.5,
+	                        right=max(all_data$ser_x,na.rm=TRUE)+0.5,
+	                        top=max(all_data$ser_y,na.rm=TRUE)+0.5)
+	lon_range <- location[c("left", "right")]
+  lat_range <- location[c("bottom", "top")]
+  lonlength <- diff(lon_range)
+  latlength <- diff(lat_range)
+  zoomlon <- ceiling(log2(360 * 2/lonlength))
+  zoomlat <- ceiling(log2(180 * 2/latlength))
+  zoom <- max(zoomlon, zoomlat)
+	
+	mymap <-get_map(location,
+	                maptype = "terrain-background",
+	                source="stamen")
+	
+	g <- ggmap(mymap)+
+	  geom_point(data=all_data,
+	             aes(x=ser_x, y=ser_y,
+	                 shape=as.factor(selected),
+	                 col=site),
+	             cex=3)+
+	  scale_shape("Used in GLM")+
+	  xlab("")+
+	  ylab("")
+	return(g)
+}
+
 ```
 
 
@@ -795,4 +861,16 @@ pandoc.p(str_c("Figure ",nrfigure," : Recruitment, panel indicate if selected"))
 nrfigure=nrfigure+1
 print(g + scale_y_log10(limits=c(0.01,30),breaks=c(0.01,0.1,1,10,100,1000),labels=c("0.01","0.1","1","10","100","1000")))
 pandoc.p(str_c("Figure ",nrfigure," : Recruitment log scale"))
+```
+
+
+
+```{r map, echo=FALSE, warning=FALSE, results="asis"}
+if (params$map){
+  pandoc.header("Maps of recruitment series", level=1)
+  g <- map_recruitment()
+  nrfigure=nrfigure+1
+  print(g)
+  pandoc.p(str_c("Figure ",nrfigure," : Maps of recruitment time series"))
+}
 ```
