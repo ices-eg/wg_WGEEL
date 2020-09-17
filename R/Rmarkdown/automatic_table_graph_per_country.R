@@ -15,7 +15,7 @@ load("../shiny_data_visualisation/shiny_dv/data/ref_and_eel_data.Rdata")
 cou_code <- unique(landings$eel_cou_code[!is.na(landings$eel_cou_code)])
 dir.create("C:/workspace/gitwgeel/R/Rmarkdown/2020",showWarnings = FALSE)
 dir.create("C:/workspace/gitwgeel/R/Rmarkdown/files",showWarnings = FALSE)
-
+CY <- 2020
 
 # North Sea
 for (cou in c("DK","NL","DE")){

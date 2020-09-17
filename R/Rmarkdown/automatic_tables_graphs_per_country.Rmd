@@ -7,12 +7,12 @@ output:
   bookdown::html_document2:
     keep_md: true
     self_contained: true
-    fig_caption: yes
-    number_sections: yes
+    fig_caption: true
+    number_sections: true
     toc: yes
     toc_depth: 3
-    toc_float: true 
-  bookdown::word_document2: default  
+    toc_float: true
+  bookdown::word_document2: default
 params:
   year:
     label: "year start"
@@ -589,7 +589,7 @@ nG <- !is.null(res)
 	print(gg)
 ```
 	
-	
+
 ```{r prepY, echo=FALSE,warning=FALSE,result="asis",eval=params$Y}
 res <- table_pc(dataset="landings", 
 			country=  params$country, 
@@ -702,7 +702,7 @@ print(res %>% kable_styling())
 	print(gg)
 ```
 	
-	
+
 	
 ```{r prepYr, echo=FALSE,warning=FALSE,result="asis",eval=params$Yr}
 res <- table_pc(dataset="landings", 
@@ -824,12 +824,12 @@ release_T <- release_kg | release_n
 
 
 ```{r releaseheader,echo=FALSE,warning=FALSE,result="asis",eval=release_T}
-asis_output("# Release\n")
+asis_output("# Release\\n")
 ```
 
 
 ```{r releasen, echo=FALSE, warning=FALSE, results="asis",eval=release_n}
-asis_output("## In number\n")
+asis_output("## In number\\n")
 print(res_number %>% kable_styling())
 ```
 
@@ -851,7 +851,7 @@ print(gg)
 
 
 ```{r releasekg, echo=FALSE, warning=FALSE, results="asis",eval=release_kg}
-asis_output("## In kg\n")
+asis_output("## In kg\\n")
 print(res_kg %>% kable_styling())
 ```
 
@@ -883,7 +883,7 @@ aqua_n <- !is.null(res)
 ```
 
 ```{r aquaculture, echo=FALSE, warning=FALSE, results="asis",eval=aqua_n}
-asis_output("# Aquaculture\n")
+asis_output("# Aquaculture\\n")
 
 print(res %>% kable_styling())
 ```
@@ -897,10 +897,13 @@ gg <- plot_pc_lfs(dataset="aquaculture",
 		scalef=1000,
 		ylab.="Aquaculture in tons"
 )
-print(gg)
+pandoc.p(str_c("Figure ",nrfigure," : Aquaculture"))
+
+
+
 ```
 		
-		
+
 ```{r recruitprep,echo=FALSE,warning=FALSE}
 g <- figure_recruitment()
 figR <-  !is.null(g)
@@ -909,13 +912,14 @@ figR <-  !is.null(g)
 ```{r recruit, echo=FALSE, warning=FALSE, results="asis",fig.cap="Recruitment, panel indicate if selected",eval=figR}
 asis_output("# Recruitment series\n")
 glog<- g+ scale_y_log10(limits=c(0.01,30),breaks=c(0.01,0.1,1,10,100,1000),labels=c("0.01","0.1","1","10","100","1000"))
-gridExtra::grid.arrange(g+ggtitle("Natural Scale"),glog+ggtitle("Log Scale"),nrow=2)
+gg <- gridExtra::grid.arrange(g+ggtitle("Natural Scale"),glog+ggtitle("Log Scale"),nrow=2)
+print(gg)
 ```
 
 
 ```{r maprecruitprep,echo=FALSE,warning=FALSE,eval=params$map}
 g <- g <- map_recruitment()
-figmap <- ! (ggplot_build(g)$data[[1]][1,3]=="N/A")
+figmap <- ! is.null(g)
 ```		
 
 ```{r maprecruit, echo=FALSE, warning=FALSE, results="asis",fig.cap="Maps of recruitment time series",eval=figmap}
