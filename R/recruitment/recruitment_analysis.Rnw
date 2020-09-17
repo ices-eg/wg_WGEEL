@@ -52,7 +52,7 @@ if(!require(grid)) install.packages("grid") ; require(grid)
 if(!require(sqldf)) install.packages("sqldf") ; require(sqldf)
 if(!require(RPostgreSQL)) install.packages("RPostgreSQL") ; require(RPostgreSQL)
 if(!require(RColorBrewer)) install.packages("RColorBrewer") ; require(RColorBrewer)
-if(!require(stacomiR)) install.packages("stacomiR") ; require(stacomiR)
+#if(!require(stacomiR)) install.packages("stacomiR") ; require(stacomiR)
 if(!require(dplyr)) install.packages("dplyr") ; require(dplyr)
 if(!require(sp)) install.packages("sp") ; require(sp)
 if(!require(maptools)) install.packages("maptools") ; require(maptools)
@@ -91,6 +91,7 @@ getUsername <- function(){
 #--------------------------------
 
 if (getUsername() == "cedric.briand") setwd("C:/workspace/gitwgeel/R/recruitment") 
+if (getUsername() == "hamme005") setwd("C:/Tessa/wg_WGEEL/R/recruitment") 
 #baseODBC=c("wgeel","wgeel",passwordwgeel) #"w3.eptb-vilaine.fr" "localhost" "wgeel" "wgeel_distant" 
 options(sqldf.RPostgreSQL.user = "wgeel", 
 		sqldf.RPostgreSQL.password = passwordwgeel,
