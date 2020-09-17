@@ -4,6 +4,8 @@
 ALTER TABLE datawg.t_series_ser ADD CONSTRAINT unique_name_short UNIQUE (ser_nameshort);
 
 -- update the geom 
+-- THIS IS WRONG DON'T USE THIS
+/*
 CREATE OR REPLACE FUNCTION datawg.update_geom()	
 RETURNS TRIGGER AS $$
 BEGIN
@@ -14,7 +16,7 @@ $$ language 'plpgsql';
 
 DROP TRIGGER IF EXISTS update_geom ON datawg.t_series_ser;
 CREATE TRIGGER update_geom BEFORE INSERT OR UPDATE ON datawg.t_series_ser FOR EACH ROW EXECUTE PROCEDURE  datawg.update_geom();
-
+*/
 -- correct missing stat
 -- change 2020 removed ser_order replaced with cou_order
 CREATE OR REPLACE VIEW datawg.series_stats
