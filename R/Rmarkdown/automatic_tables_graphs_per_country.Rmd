@@ -7,12 +7,12 @@ output:
   bookdown::html_document2:
     keep_md: true
     self_contained: true
-    fig_caption: yes
-    number_sections: yes
+    fig_caption: true
+    number_sections: true
     toc: yes
     toc_depth: 3
-    toc_float: true 
-  bookdown::word_document2: default  
+    toc_float: true
+  bookdown::word_document2: default
 params:
   year:
     label: "year start"
@@ -584,7 +584,8 @@ map_recruitment <- function(){
 ```
 	
 ```{r Y, echo=FALSE, warning=FALSE, results="asis", eval=params$Y}
-	asis_output("## Yellow eel\n")
+
+	asis_output("## Yellow eel\\n")
 	res <- table_pc(dataset="landings", 
 			country=  params$country, 
 			typ=4 , 
@@ -610,7 +611,7 @@ map_recruitment <- function(){
 
 ```{r YS, echo=FALSE, warning=FALSE, results="asis", eval=params$YS}
 
-	asis_output("## Yellow silver\n")
+	asis_output("## Yellow silver\\n")
 	res <- table_pc(dataset="landings", 
 			country=  params$country, 
 			typ=4 , 
@@ -633,7 +634,7 @@ map_recruitment <- function(){
 
 ```{r S, echo=FALSE, warning=FALSE, results="asis", eval=params$S}
 
-	asis_output("## Silver silver\n")
+	asis_output("## Silver silver\\n")
 	res <- table_pc(dataset="landings", 
 			country=  params$country, 
 			typ=4 , 
@@ -656,7 +657,7 @@ map_recruitment <- function(){
 # Landings Recreational fisheries
 ```{r Gr, echo=FALSE, warning=FALSE, results="asis", eval=params$Gr}
 
-asis_output("## Glass eel\n")
+asis_output("## Glass eel\\n")
 	res <- table_pc(dataset="landings", 
 			country=  params$country, 
 			typ=6 , 
@@ -680,7 +681,7 @@ asis_output("## Glass eel\n")
 	
 ```{r Yr, echo=FALSE, warning=FALSE, results="asis", eval=params$Yr}
 
-asis_output("## Yellow eel\n")
+asis_output("## Yellow eel\\n")
 	res <- table_pc(dataset="landings", 
 			country=  params$country, 
 			typ=6 , 
@@ -704,7 +705,7 @@ asis_output("## Yellow eel\n")
 ```
 
 ```{r YSr, echo=FALSE, warning=FALSE, results="asis", eval=params$YSr}
-asis_output("## Yellow silver\n")
+asis_output("## Yellow silver\\n")
 res <- table_pc(dataset="landings", 
 			country=  params$country, 
 			typ=6 , 
@@ -729,7 +730,7 @@ res <- table_pc(dataset="landings",
 
 
 ```{r Sr, echo=FALSE, warning=FALSE, results="asis", eval=params$Sr}
-asis_output("## Silver eel\n")
+asis_output("## Silver eel\\n")
 	res <- table_pc(dataset="landings", 
 			country=  params$country, 
 			typ=6 , 
@@ -782,12 +783,12 @@ release_T <- release_kg | release_n
 
 
 ```{r releaseheader,echo=FALSE,warning=FALSE,result="asis",eval=release_T}
-asis_output("# Release\n")
+asis_output("# Release\\n")
 ```
 
 
 ```{r releasen, echo=FALSE, warning=FALSE, results="asis",eval=release_n}
-asis_output("## In number\n")
+asis_output("## In number\\n")
 print(res_number %>% kable_styling())
 ```
 
@@ -809,7 +810,7 @@ print(gg)
 
 
 ```{r releasekg, echo=FALSE, warning=FALSE, results="asis",eval=release_kg}
-asis_output("## In kg\n")
+asis_output("## In kg\\n")
 print(res_kg %>% kable_styling())
 ```
 
@@ -841,7 +842,7 @@ aqua_n <- nrow(res>0)
 ```
 
 ```{r aquaculture, echo=FALSE, warning=FALSE, results="asis",eval=aqua_n}
-asis_output("# Aquaculture\n")
+asis_output("# Aquaculture\\n")
 
 print(res %>% kable_styling())
 ```
@@ -855,20 +856,24 @@ gg <- plot_pc_lfs(dataset="aquaculture",
 		scalef=1000,
 		ylab.="Aquaculture in tons"
 )
-print(gg)
+pandoc.p(str_c("Figure ",nrfigure," : Aquaculture"))
+
+
+
 ```
 		
 ```{r recruit, echo=FALSE, warning=FALSE, results="asis",fig.cap="Recruitment, panel indicate if selected"}
-asis_output("# Recruitment series\n")
+asis_output("# Recruitment series")
 g <- figure_recruitment()
 glog<- g+ scale_y_log10(limits=c(0.01,30),breaks=c(0.01,0.1,1,10,100,1000),labels=c("0.01","0.1","1","10","100","1000"))
-gridExtra::grid.arrange(g+ggtitle("Natural Scale"),glog+ggtitle("Log Scale"),nrow=2)
+gg <- gridExtra::grid.arrange(g+ggtitle("Natural Scale"),glog+ggtitle("Log Scale"),nrow=2)
+print(gg)
 ```
 
 
 
 ```{r map, echo=FALSE, warning=FALSE, results="asis",eval=params$map,fig.cap="Maps of recruitment time series"}
-asis_output("# Maps of recruitment series\n")
+asis_output("# Maps of recruitment series\\n")
 	g <- map_recruitment()
 	print(g)
 ```
