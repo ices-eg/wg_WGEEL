@@ -350,6 +350,10 @@ ui <- dashboardPage(title="ICES Data Integration",
 						
 						tabItem("editTS",
 						        h2("Data correction table"),
+						        
+						        
+						        tabsetPanel(tabPanel("SERIES INFO"),
+						                    tabPanel("DASSERIES VALIES",
 						        br(),        
 						        h3("Filter"),
 						        fluidRow(
@@ -385,7 +389,7 @@ ui <- dashboardPage(title="ICES Data Integration",
 						          column(width=2,uiOutput("buttons_data_correctionTS"))
 						        ),                
 						        br(),
-						        DT::dataTableOutput("table_corTS")),
+						        DT::dataTableOutput("table_corTS")))),
 								
 								# plot for duplicates  ------------------------------------------------------------------
 								
