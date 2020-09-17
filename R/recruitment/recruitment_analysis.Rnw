@@ -62,6 +62,7 @@ if(!require(MASS)) install.packages("MASS") ; require(MASS)
 if(!require(lme4)) install.packages("lme4") ; require(lme4)
 if(!require(multcomp)) install.packages("multcomp") ; require(multcomp)
 if(!require(openxlsx)) install.packages("openxlsx") ; require(openxlsx)
+if(!require(getPass)) install.packages("getPass") ; require(getPass)
 
 #--------------------------------
 # get your current name 
