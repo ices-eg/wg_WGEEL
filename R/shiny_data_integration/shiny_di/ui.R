@@ -18,6 +18,7 @@ ui <- dashboardPage(title="ICES Data Integration",
 						menuItem("Import",tabName= "import", icon= icon("align-left")),
 						menuItem("Import Time Series",tabName= "import_ts", icon= icon("align-left")),					
 						menuItem("Edit", tabName="edit", icon=icon("table")),
+						menuItem("Edit Time series", tabName="editTS", icon=icon("table")),
 						menuItem("Plot duplicates", tabName='plot_duplicates',icon= icon("area-chart")),
 						menuItem("New Participants", tabName='integrate_new_participants',icon= icon("user-friends"))
 						#menuSubItem("Plot duplicates",  tabName="plot_duplicates"),
@@ -341,6 +342,50 @@ ui <- dashboardPage(title="ICES Data Integration",
 										),                
 										br(),
 										DT::dataTableOutput("table_cor")),
+						
+						
+						
+						
+						# Data correction table Time Series  ----------------------------------------------------------------
+						
+						tabItem("editTS",
+						        h2("Data correction table"),
+						        br(),        
+						        h3("Filter"),
+						        fluidRow(
+						          column(width=4,
+						                 pickerInput(inputId="lfsTS",
+						                             label="Select a stage :",
+						                             choices=c("G","GY","Y","S"),
+						                             multiple=TRUE,
+						                             options = list(
+						                               style = "btn-primary", size = 5))),
+						          column(width=4, 
+						                 pickerInput(inputId = "series", 
+						                             label = "Select series :", 
+						                             choices = ser_list,
+						                             multiple = TRUE, 
+						                             options = list(
+						                               style = "btn-primary", size = 5))),
+						          column(width=4,
+						                 sliderTextInput(inputId ="yearTS", 
+						                                 label = "Choose a year range:",
+						                                 choices=seq(the_years$min_year, the_years$max_year),
+						                                 selected = c(the_years$min_year,the_years$max_year)
+						                 ))),                                                         
+						        helpText("This table is used to edit data in the database
+														After you double click on a cell and edit the value, 
+														the Save and Cancel buttons will show up. Click on Save if
+														you want to save the updated values to database; click on
+														Cancel to reset."),
+						        br(), 
+						        fluidRow(                                       
+						          column(width=8,verbatimTextOutput("database_errorsTS")),
+						          column(width=2,actionButton("clear_tableTS", "clear")),
+						          column(width=2,uiOutput("buttons_data_correctionTS"))
+						        ),                
+						        br(),
+						        DT::dataTableOutput("table_corTS")),
 								
 								# plot for duplicates  ------------------------------------------------------------------
 								
