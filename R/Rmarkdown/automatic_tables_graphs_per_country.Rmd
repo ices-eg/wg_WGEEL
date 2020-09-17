@@ -4,14 +4,15 @@ author: "ICES EIFAAC GFCM wgeel - Data Group"
 date: "`r Sys.Date()`"
 documentclass: article
 output: 
-  bookdown::word_document2:
+  bookdown::html_document2:
     keep_md: true
     self_contained: true
     fig_caption: true
     number_sections: true
     toc: yes
     toc_depth: 3
-    toc_float: true   
+    toc_float: true
+  bookdown::word_document2: default
 params:
   year:
     label: "year start"
