@@ -95,8 +95,8 @@ if (getUsername() == "cedric.briand") setwd("C:/workspace/gitwgeel/R/recruitment
 if (getUsername() == "hamme005") setwd("C:/Tessa/wg_WGEEL/R/recruitment") 
 #baseODBC=c("wgeel","wgeel",passwordwgeel) #"w3.eptb-vilaine.fr" "localhost" "wgeel" "wgeel_distant" 
 options(sqldf.RPostgreSQL.user = getPass(msg="username"), 
-		sqldf.RPostgreSQL.password = passwordwgeel,
-		sqldf.RPostgreSQL.dbname = getPass(),
+		sqldf.RPostgreSQL.password = getPass(),
+		sqldf.RPostgreSQL.dbname = wgeel,
 		sqldf.RPostgreSQL.host = "localhost", # "localhost"
 		sqldf.RPostgreSQL.port = 5435) # 5435 launch the ssh tunnel
 wddata <- getwd()
