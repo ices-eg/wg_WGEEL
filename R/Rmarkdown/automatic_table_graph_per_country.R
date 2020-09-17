@@ -18,10 +18,11 @@ dir.create("C:/workspace/gitwgeel/R/Rmarkdown/files",showWarnings = FALSE)
 
 # North Sea
 for (cou in c("DK","NL","DE")){
+  knit_with_parameters
 rmarkdown::render("automatic_tables_graphs_per_country.Rmd", 	
 		output_file = cou,
 		output_dir =str_c("./",CY), 
-	  output_format	=  NULL, # calling doc either here or in the yaml ends up with the wrong name
+	  output_format	=  "bookdown::word_document2", # calling doc either here or in the yaml ends up with the wrong name
 		intermediates_dir ="./files",
 		clean = FALSE,
 		params = list("country"=cou,
@@ -39,7 +40,7 @@ for (cou in c("EE", "SE", "LT", "LV", "NO", "PL", "FI")){
 	rmarkdown::render("automatic_tables_graphs_per_country.Rmd", 	
 			output_file = cou,
 			output_dir =str_c("./",CY), 
-			output_format	=  NULL,
+			output_format	=  "bookdown::word_document2",
 			intermediates_dir ="./files",
 			clean = FALSE,
 			params = list("country"=cou,

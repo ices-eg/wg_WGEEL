@@ -4,7 +4,7 @@ author: "ICES EIFAAC GFCM wgeel - Data Group"
 date: "`r Sys.Date()`"
 documentclass: article
 output: 
-  html_document:
+  bookdown::word_document2:
     keep_md: true
     self_contained: true
     fig_caption: true
@@ -114,7 +114,6 @@ source("../utilities/load_library.R")
 # other libraries
 #-----------------
 load_package("readxl")
-load_package("reshape2")
 load_package("stringr")
 load_package("tidyverse")
 load_package("rlang")
@@ -215,7 +214,7 @@ table_pc <- function(country,
 				lfs = FALSE,
 				na.rm=TRUE)
 		# dcast take a ... arguments and additional params can be passed to fun.aggreagate
-		table <- dcast(grouped_data, 
+		table <- reshape2::dcast(grouped_data, 
 				eel_year~eel_emu_nameshort, 
 				value.var = "eel_value",
 				fun.aggregate = fun.agg,
@@ -229,7 +228,7 @@ table_pc <- function(country,
 		colnames(table)[2:(ncol(table)-1)]<-substr(colnames(table)[2:(ncol(table)-1)],4,10)
 		
 		the_kable <- kable(table,			
-				digits=2)
+				digits=2, caption=paste(dataset,life_stage,ifelse(typ==6,"recreational","")))
 	} else {
 		the_kable <- kable(data.frame("warning"="no data"))  
 	}
@@ -288,6 +287,7 @@ table_pc_lfs <- function(country, dataset, typ = 9,
 		habitat=FALSE, 
 		scalef=1){
 	filtered_data <- filter_data(dataset = dataset,
+	                             typ = typ,
 			life_stage = life_stage,
 			country = country,
 			year_range = year_range
@@ -298,7 +298,7 @@ table_pc_lfs <- function(country, dataset, typ = 9,
 				habitat = FALSE,
 				lfs = TRUE,
 				na.rm=TRUE)
-		table = dcast(grouped_data, 
+		table = reshape2::dcast(grouped_data, 
 				eel_year~eel_emu_nameshort+eel_lfs_code, 
 				value.var = "eel_value",
 				fun.aggregate = fun.agg,
@@ -309,9 +309,12 @@ table_pc_lfs <- function(country, dataset, typ = 9,
 				Sum=rowSums(table[,-1,drop=FALSE],na.rm=T)
 		)
 		colnames(table)[2:(ncol(table)-1)]<-substr(colnames(table)[2:(ncol(table)-1)],4,10)
-		
+		caption=ifelse(typ %in% c(8,9),
+		               paste("Release in", ifelse(typ==8,"kg","number")),
+		               "Aquaculture in tons")
 		the_kable <- kable(table,			
-				digits=2)
+				digits=2,
+				caption=caption)
 	} else {
 		the_kable <- kable(data.frame("warning"="no data"))  
 	}
@@ -553,13 +556,10 @@ map_recruitment <- function(){
 
 ```
 
-
-```{r G, echo=FALSE, warning=FALSE, results="asis"}
-pandoc.header("Landings commercial fisheries", level=1)
-if (params$G){
-	pandoc.header("Glass eel", level=2)
+# Landings commercial fisheries
+```{r G, echo=FALSE, warning=FALSE, results="asis", eval=params$G}
+  asis_output("## Glass eel\n")
 	nrtable=nrtable+1
-	pandoc.p(str_c("Table ",nrtable," : landings G"))
 	res <- table_pc(dataset="landings", 
 			country=  params$country, 
 			typ=4 , 
@@ -569,8 +569,9 @@ if (params$G){
 	)
 	print(res %>% kable_styling())
 	
-	nrfigure=nrfigure+1
-	
+
+```
+```{r Gfig, echo=FALSE, warning=FALSE, results="asis",fig.cap="landings G", eval=params$G}
 	gg <-plot_pc(dataset="landings", 
 			country= params$country, 
 			typ=4 , 
@@ -579,16 +580,11 @@ if (params$G){
 			scalef=1000
 	)
 	print(gg)
-	pandoc.p(str_c("Figure ",nrfigure," : landings G"))
-}
 ```
 	
-```{r Y, echo=FALSE, warning=FALSE, results="asis"}
+```{r Y, echo=FALSE, warning=FALSE, results="asis", eval=params$Y}
 
-if (params$Y){
-	pandoc.header("Yellow eel", level=2)
-	nrtable=nrtable+1
-	pandoc.p(str_c("Table ",nrtable," : landings Yellow"))
+	asis_output("## Yellow eel\\n")
 	res <- table_pc(dataset="landings", 
 			country=  params$country, 
 			typ=4 , 
@@ -598,8 +594,10 @@ if (params$Y){
 	)
 	print(res %>% kable_styling())
 	
-	nfigure=nrfigure+1
-	
+```	
+
+```{r Yfig, echo=FALSE, warning=FALSE, results="asis",fig.cap="landings Y", eval=params$Y}
+
 	gg <-plot_pc(dataset="landings", 
 			country= params$country, 
 			typ=4 , 
@@ -607,16 +605,12 @@ if (params$Y){
 			year_range=1960:2020, 		
 			scalef=1000)
 	print(gg)
-	pandoc.p(str_c("Figure ",nrfigure," : landings Yellow"))
-}
+
 ```
 
-```{r YS, echo=FALSE, warning=FALSE, results="asis"}
+```{r YS, echo=FALSE, warning=FALSE, results="asis", eval=params$YS}
 
-if (params$YS){
-	pandoc.header("Yellow silver", level=2)
-	nrtable=nrtable+1
-	pandoc.p(str_c("Table ",nrtable," : landings Yellow silver"))
+	asis_output("## Yellow silver\\n")
 	res <- table_pc(dataset="landings", 
 			country=  params$country, 
 			typ=4 , 
@@ -624,9 +618,9 @@ if (params$YS){
 			year_range=1960:2020, 
 			scalef=1000)
 	print(res %>% kable_styling())
-	
-	nfigure=nrfigure+1
-	
+```
+
+```{r YSfig, echo=FALSE, warning=FALSE, results="asis",fig.cap="landings YS", eval=params$YS}	
 	gg <-plot_pc(dataset="landings", 
 			country= params$country, 
 			typ=4 , 
@@ -634,17 +628,12 @@ if (params$YS){
 			year_range=1960:2020, 		
 			scalef=1000)
 	print(gg)
-	pandoc.p(str_c("Figure ",nrfigure," : landings Yellow silver"))
-}
 ```
 
 
-```{r S, echo=FALSE, warning=FALSE, results="asis"}
+```{r S, echo=FALSE, warning=FALSE, results="asis", eval=params$S}
 
-if (params$S){
-	pandoc.header("Silver eel", level=2)
-	nrtable=nrtable+1
-	pandoc.p(str_c("Table ",nrtable," : landings Silver"))
+	asis_output("## Silver silver\\n")
 	res <- table_pc(dataset="landings", 
 			country=  params$country, 
 			typ=4 , 
@@ -652,9 +641,9 @@ if (params$S){
 			year_range=1960:2020, 			
 			scalef=1000)
 	print(res %>% kable_styling())
-	
-	nfigure=nrfigure+1
-	
+```
+
+```{r Sfig, echo=FALSE, warning=FALSE, results="asis",fig.cap="landings S", eval=params$S}
 	gg <-plot_pc(dataset="landings", 
 			country= params$country, 
 			typ=4 , 
@@ -662,17 +651,12 @@ if (params$S){
 			year_range=1960:2020, 			
 			scalef=1000)
 	print(gg)
-	pandoc.p(str_c("Figure ",nrfigure," : landings Silver"))
-}
 ```
 
+# Landings Recreational fisheries
+```{r Gr, echo=FALSE, warning=FALSE, results="asis", eval=params$Gr}
 
-```{r Gr, echo=FALSE, warning=FALSE, results="asis"}
-pandoc.header("Landings Recreational fisheries", level=1)
-if (params$Gr){
-	pandoc.header("Glass eel", level=2)
-	nrtable=nrtable+1
-	pandoc.p(str_c("Table ",nrtable," : landings G recrational"))
+asis_output("## Glass eel\\n")
 	res <- table_pc(dataset="landings", 
 			country=  params$country, 
 			typ=6 , 
@@ -681,9 +665,9 @@ if (params$Gr){
 			scalef=1000
 	)
 	print(res %>% kable_styling())
-	
-	nrfigure=nrfigure+1
-	
+```
+
+```{r Grfig, echo=FALSE, warning=FALSE, results="asis", eval=params$Gr,fig.cap="landings G recreational"}	
 	gg <-plot_pc(dataset="landings", 
 			country= params$country, 
 			typ=6 , 
@@ -692,16 +676,11 @@ if (params$Gr){
 			scalef=1000
 	)
 	print(gg)
-	pandoc.p(str_c("Figure ",nrfigure," : landings G"))
-}
 ```
 	
-```{r Yr, echo=FALSE, warning=FALSE, results="asis"}
+```{r Yr, echo=FALSE, warning=FALSE, results="asis", eval=params$Yr}
 
-if (params$Yr){
-	pandoc.header("Yellow eel", level=2)
-	nrtable=nrtable+1
-	pandoc.p(str_c("Table ",nrtable," : landings Yellow"))
+asis_output("## Yellow eel\\n")
 	res <- table_pc(dataset="landings", 
 			country=  params$country, 
 			typ=6 , 
@@ -710,8 +689,9 @@ if (params$Yr){
 			scalef=1000
 	)
 	print(res %>% kable_styling())
+```
 	
-	nfigure=nrfigure+1
+```{r Yrfig, echo=FALSE, warning=FALSE, results="asis", eval=params$Yr,fig.cap="landings Y recreational"}
 	
 	gg <-plot_pc(dataset="landings", 
 			country= params$country, 
@@ -721,17 +701,11 @@ if (params$Yr){
 			scalef=1000
 	)
 	print(gg)
-	pandoc.p(str_c("Figure ",nrfigure," : landings Yellow recreational"))
-}
 ```
 
-```{r YSr, echo=FALSE, warning=FALSE, results="asis"}
-
-if (params$YSr){
-	pandoc.header("Yellow silver", level=2)
-	nrtable=nrtable+1
-	pandoc.p(str_c("Table ",nrtable," : landings Yellow silver recreational"))
-	res <- table_pc(dataset="landings", 
+```{r YSr, echo=FALSE, warning=FALSE, results="asis", eval=params$YSr}
+asis_output("## Yellow silver\\n")
+res <- table_pc(dataset="landings", 
 			country=  params$country, 
 			typ=6 , 
 			life_stage=c("YS"),
@@ -739,7 +713,11 @@ if (params$YSr){
 			scalef=1000)
 	print(res %>% kable_styling())
 	
-	nfigure=nrfigure+1
+```
+
+
+```{r YSrfig, echo=FALSE, warning=FALSE, results="asis", eval=params$YSr,fig.cap="landings YS recreational"}
+
 	gg <-plot_pc(dataset="landings", 
 			country= params$country, 
 			typ=6 , 
@@ -747,17 +725,11 @@ if (params$YSr){
 			year_range=1960:2020,
 			scalef=1000)
 	print(gg)
-	pandoc.p(str_c("Figure ",nrfigure," : landings Yellow silver recreational"))
-}
 ```
 
 
-```{r Sr, echo=FALSE, warning=FALSE, results="asis"}
-
-if (params$Sr){
-	pandoc.header("Silver eel", level=2)
-	nrtable=nrtable+1
-	pandoc.p(str_c("Table ",nrtable," : landings Silver recreational"))
+```{r Sr, echo=FALSE, warning=FALSE, results="asis", eval=params$Sr}
+asis_output("## Silver eel\\n")
 	res <- table_pc(dataset="landings", 
 			country=  params$country, 
 			typ=6 , 
@@ -765,9 +737,9 @@ if (params$Sr){
 			year_range=1960:2020, 
 			scalef=1000)
 	print(res %>% kable_styling())
-	
-	nfigure=nrfigure+1
-	
+```
+
+```{r Srfig, echo=FALSE, warning=FALSE, results="asis", eval=params$Sr,fig.cap="landings S recreational"}
 	gg <-plot_pc(dataset="landings", 
 			country= params$country, 
 			typ=6 , 
@@ -775,17 +747,13 @@ if (params$Sr){
 			year_range=1960:2020, 
 			scalef=1000)
 	print(gg)
-	pandoc.p(str_c("Figure ",nrfigure," : landings Silver recreational"))
-}
 ```
 
-```{r release, echo=FALSE, warning=FALSE, results="asis"}
-pandoc.header("Release", level=1)
-# RELEASE IN NUMBER --------------------------
-pandoc.header("In number", level=2)
-nrtable=nrtable+1
-pandoc.p(str_c("Table ",nrtable," : Release in millions"))
-res <- table_pc_lfs(dataset="release", 
+
+
+
+```{r releaseprep,echo=FALSE,warning=FALSE}
+res_number <- table_pc_lfs(dataset="release", 
 		country=  params$country, 
 		typ=9 , 
 		life_stage=c("G","Y","QG","OG","YS","S")[
@@ -795,9 +763,35 @@ res <- table_pc_lfs(dataset="release",
 		year_range=1960:2020, 
 		scalef=10^6
 )
-print(res %>% kable_styling())
-# FIGURE -------------------------------	
-nrfigure=nrfigure+1
+release_n <- nrow(res_number)>0
+
+res_kg <- table_pc_lfs(dataset="release", 
+		country=  params$country, 
+		typ=8 , 
+		life_stage=c("G","Y","QG","OG","YS","S")[
+				c(params$releaseG, params$releaseY, params$releaseQG,
+						params$releaseOG, params$releaseYS, params$releaseS)],
+		
+		year_range=params$year:CY, 
+		scalef=1
+)
+release_kg <- nrow(res_kg)>0
+release <- release_kg | release_n
+
+```
+
+
+```{r releaseheader,echo=FALSE,warning=FALSE,result="asis",eval=release}
+asis_output("# Release\\n")
+```
+
+
+```{r releasen, echo=FALSE, warning=FALSE, results="asis",eval=release_n}
+asis_output("## In number\\n")
+print(res_number %>% kable_styling())
+```
+
+```{r releasenfig, echo=FALSE, warning=FALSE, results="asis",eval=release_n,fig.cap="Release in million"}
 
 gg <- plot_pc_lfs(dataset="release", 
 		country= params$country, 
@@ -810,25 +804,16 @@ gg <- plot_pc_lfs(dataset="release",
 		ylab.="Release in million"
 )
 print(gg)
-pandoc.p(str_c("Figure ",nrfigure," : Release in million"))
-
-# RELEASE IN KG --------------------------	
-pandoc.header("In kg", level=2)
-nrtable=nrtable+1
-pandoc.p(str_c("Table ",nrtable," : Release in kg"))
-res <- table_pc_lfs(dataset="release", 
-		country=  params$country, 
-		typ=8 , 
-		life_stage=c("G","Y","QG","OG","YS","S")[
-				c(params$releaseG, params$releaseY, params$releaseQG,
-						params$releaseOG, params$releaseYS, params$releaseS)],
-		
-		year_range=params$year:CY, 
-		scalef=1
-)
-print(res %>% kable_styling())
+```
 
 
+
+```{r releasekg, echo=FALSE, warning=FALSE, results="asis",eval=release_kg}
+asis_output("## In kg\\n")
+print(res_kg %>% kable_styling())
+```
+
+```{r releasekgfig, echo=FALSE, warning=FALSE, results="asis",eval=release_kg, fig.cap="Release in kg"}
 gg <- plot_pc_lfs(dataset="release", 
 		country= params$country, 
 		typ=8 , 
@@ -840,15 +825,11 @@ gg <- plot_pc_lfs(dataset="release",
 		ylab.="Release in kg"
 )
 print(gg)
-pandoc.p(str_c("Figure ",nrfigure," : Release in kg"))
-
 ```
 
-```{r aquaculture, echo=FALSE, warning=FALSE, results="asis"}
-pandoc.header("Aquaculture", level=1)
-# RELEASE IN NUMBER --------------------------
-nrtable=nrtable+1
-pandoc.p(str_c("Table ",nrtable," : Aquaculture in Tons"))
+
+
+```{r aquacultureprep,echo=FALSE,warning=FALSE}
 res <- table_pc_lfs(dataset="aquaculture", 
 		country=  params$country, 
 		typ=11 , 
@@ -856,10 +837,16 @@ res <- table_pc_lfs(dataset="aquaculture",
 		year_range=1960:2020, 
 		scalef=1000	    
 )
-print(res %>% kable_styling())
-# FIGURE -------------------------------	
-nrfigure=nrfigure+1
+aqua_n <- nrow(res>0)
+```
 
+```{r aquaculture, echo=FALSE, warning=FALSE, results="asis",eval=aqua_n}
+asis_output("# Aquaculture\\n")
+
+print(res %>% kable_styling())
+```
+
+```{r aquaculturefig, echo=FALSE, warning=FALSE, results="asis",eval=aqua_n,fig.cap="Aquaculture"}
 gg <- plot_pc_lfs(dataset="aquaculture", 
 		country= params$country, 
 		typ=11 , 
@@ -868,32 +855,24 @@ gg <- plot_pc_lfs(dataset="aquaculture",
 		scalef=1000,
 		ylab.="Aquaculture in tons"
 )
-print(gg)
 pandoc.p(str_c("Figure ",nrfigure," : Aquaculture"))
 
 
 
 ```
 		
-```{r recruit, echo=FALSE, warning=FALSE, results="asis"}
-pandoc.header("Recruitment series", level=1)
+```{r recruit, echo=FALSE, warning=FALSE, results="asis",fig.cap="Recruitment, panel indicate if selected"}
+asis_output("# Recruitment series")
 g <- figure_recruitment()
-nrfigure=nrfigure+1
-print(g)
-pandoc.p(str_c("Figure ",nrfigure," : Recruitment, panel indicate if selected"))
-nrfigure=nrfigure+1
-print(g + scale_y_log10(limits=c(0.01,30),breaks=c(0.01,0.1,1,10,100,1000),labels=c("0.01","0.1","1","10","100","1000")))
-pandoc.p(str_c("Figure ",nrfigure," : Recruitment log scale"))
+glog<- g+ scale_y_log10(limits=c(0.01,30),breaks=c(0.01,0.1,1,10,100,1000),labels=c("0.01","0.1","1","10","100","1000"))
+gg <- gridExtra::grid.arrange(g+ggtitle("Natural Scale"),glog+ggtitle("Log Scale"),nrow=2)
+print(gg)
 ```
 
 
 
-```{r map, echo=FALSE, warning=FALSE, results="asis"}
-if (params$map){
-	pandoc.header("Maps of recruitment series", level=1)
+```{r map, echo=FALSE, warning=FALSE, results="asis",eval=params$map,fig.cap="Maps of recruitment time series"}
+asis_output("# Maps of recruitment series\\n")
 	g <- map_recruitment()
-	nrfigure=nrfigure+1
 	print(g)
-	pandoc.p(str_c("Figure ",nrfigure," : Maps of recruitment time series"))
-}
 ```
