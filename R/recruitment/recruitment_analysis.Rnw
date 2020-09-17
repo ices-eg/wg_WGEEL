@@ -96,7 +96,7 @@ if (getUsername() == "hamme005") setwd("C:/Tessa/wg_WGEEL/R/recruitment")
 #baseODBC=c("wgeel","wgeel",passwordwgeel) #"w3.eptb-vilaine.fr" "localhost" "wgeel" "wgeel_distant" 
 options(sqldf.RPostgreSQL.user = getPass(msg="username"), 
 		sqldf.RPostgreSQL.password = getPass(),
-		sqldf.RPostgreSQL.dbname = wgeel,
+		sqldf.RPostgreSQL.dbname = "wgeel",
 		sqldf.RPostgreSQL.host = "localhost", # "localhost"
 		sqldf.RPostgreSQL.port = 5435) # 5435 launch the ssh tunnel
 wddata <- getwd()
@@ -107,7 +107,8 @@ datawd <- str_c(wddata,"/",CY,"/data/")
 imgwd <- str_c(wddata,"/",CY,"/image/")
 tabwd <- str_c(wddata,"/",CY,"/table/")
 #shpwd <- str_c("C:/workspace/wgeeldata/shp/") 
-shinywd <- "C:/workspace/gitwgeel/R/shiny_data_visualisation/shiny_dv/data/recruitment/"
+shinywd <-  str_c(wddata,"/../shiny_data_visualisation/shiny_dv/data/recruitment/")
+
 dir.create(str_c(wddata,"/",CY),showWarnings = FALSE)
 dir.create(datawd, showWarnings = FALSE)
 dir.create(imgwd, showWarnings = FALSE)
@@ -131,7 +132,7 @@ vv <- list()
 \usepackage[pdftex]{graphicx}
 \usepackage[utf8]{inputenc} %encodage du fichier source
 %\usepackage[T1]{fontenc}  %gestion des accents (pour les pdf) 
-\usepackage[swedish]{babel}
+\usepackage[english]{babel}
 \usepackage{Sweave}
 \usepackage{float}
 \usepackage[left=3cm, right=3cm, top=2cm, bottom=2cm]{geometry}
