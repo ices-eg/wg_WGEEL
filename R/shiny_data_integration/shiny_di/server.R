@@ -1757,6 +1757,8 @@ shinyServer(function(input, output, session){
 			
 			observeEvent(input$cancel, {
 						rvs$data <- rvs$dbdata
+						rvs$dbdata <- NA
+						rvs$dbdata <- rvs$data #this is to ensure that the table display is updated (reactive value)
 						rvs$dataSame <- TRUE
 					})
 			
