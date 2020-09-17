@@ -52,7 +52,7 @@ if(!require(grid)) install.packages("grid") ; require(grid)
 if(!require(sqldf)) install.packages("sqldf") ; require(sqldf)
 if(!require(RPostgreSQL)) install.packages("RPostgreSQL") ; require(RPostgreSQL)
 if(!require(RColorBrewer)) install.packages("RColorBrewer") ; require(RColorBrewer)
-if(!require(stacomiR)) install.packages("stacomiR") ; require(stacomiR)
+#if(!require(stacomiR)) install.packages("stacomiR") ; require(stacomiR)
 if(!require(dplyr)) install.packages("dplyr") ; require(dplyr)
 if(!require(sp)) install.packages("sp") ; require(sp)
 if(!require(maptools)) install.packages("maptools") ; require(maptools)
@@ -62,6 +62,7 @@ if(!require(MASS)) install.packages("MASS") ; require(MASS)
 if(!require(lme4)) install.packages("lme4") ; require(lme4)
 if(!require(multcomp)) install.packages("multcomp") ; require(multcomp)
 if(!require(openxlsx)) install.packages("openxlsx") ; require(openxlsx)
+if(!require(getPass)) install.packages("getPass") ; require(getPass)
 
 #--------------------------------
 # get your current name 
@@ -91,9 +92,10 @@ getUsername <- function(){
 #--------------------------------
 
 if (getUsername() == "cedric.briand") setwd("C:/workspace/gitwgeel/R/recruitment") 
+if (getUsername() == "hamme005") setwd("C:/Tessa/wg_WGEEL/R/recruitment") 
 #baseODBC=c("wgeel","wgeel",passwordwgeel) #"w3.eptb-vilaine.fr" "localhost" "wgeel" "wgeel_distant" 
-options(sqldf.RPostgreSQL.user = "wgeel", 
-		sqldf.RPostgreSQL.password = passwordwgeel,
+options(sqldf.RPostgreSQL.user = getPass(msg="username"), 
+		sqldf.RPostgreSQL.password = getPass(),
 		sqldf.RPostgreSQL.dbname = "wgeel",
 		sqldf.RPostgreSQL.host = "localhost", # "localhost"
 		sqldf.RPostgreSQL.port = 5435) # 5435 launch the ssh tunnel
@@ -105,7 +107,7 @@ datawd <- str_c(wddata,"/",CY,"/data/")
 imgwd <- str_c(wddata,"/",CY,"/image/")
 tabwd <- str_c(wddata,"/",CY,"/table/")
 #shpwd <- str_c("C:/workspace/wgeeldata/shp/") 
-shinywd <- "C:/workspace/gitwgeel/R/shiny_data_visualisation/shiny_dv/data/recruitment/"
+shinywd <-  str_c(wddata,"/../shiny_data_visualisation/shiny_dv/data/recruitment/")
 dir.create(str_c(wddata,"/",CY),showWarnings = FALSE)
 dir.create(datawd, showWarnings = FALSE)
 dir.create(imgwd, showWarnings = FALSE)
@@ -125,10 +127,11 @@ vv <- list()
 % this is the preamble of the latex file
 % it is used to load the packages necessary to the analysis
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\documentclass[pdftex,11pt,a4paper]{report}
+ruitme\documentclass[pdftex,11pt,a4paper]{report}
 \usepackage[pdftex]{graphicx}
 \usepackage[utf8]{inputenc} %encodage du fichier source
 %\usepackage[T1]{fontenc}  %gestion des accents (pour les pdf) 
+\usepackage[english]{babel}
 \usepackage[swedish]{babel}
 \usepackage{Sweave}
 \usepackage{float}
@@ -378,7 +381,6 @@ left_join(
 
 wger_init %>% group_by(ser_qal_id) %>% summarize(len=n()) 
 wger <- wger[wger$ser_qal_id==1,]
-#TODO calculate which series longer than 10 which have qal 0, issue a message
 
 
 vv$nb_series_init_qual1 <- length(unique(wger$site))

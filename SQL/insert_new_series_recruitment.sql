@@ -503,8 +503,8 @@ update datawg.t_series_ser SET ser_order=ser_order+1 WHERE ser_order>=52; --37
 update datawg.t_series_ser SET ser_order=52 WHERE ser_nameshort='VeAm'
 
 -- change the Den Oever series, the location was really wrong
-begin;
-update datawg.t_series_ser SET geom=ST_SETSRID(ST_MakePoint(5.327523,53.073100),4326) WHERE ser_nameshort='RhDO';
+BEGIN;
+UPDATE datawg.t_series_ser SET geom=ST_SETSRID(ST_MakePoint(5.327523,53.073100),4326) WHERE ser_nameshort='RhDO';
 UPDATE datawg.t_series_ser SET (ser_x,ser_y)=(st_x(geom),st_y(geom)) WHERE ser_nameshort = 'RhDO';
 commit;
  
