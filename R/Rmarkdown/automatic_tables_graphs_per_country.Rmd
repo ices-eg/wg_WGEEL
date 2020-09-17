@@ -171,6 +171,9 @@ color_countries = setNames(values,country_ref$cou_code)
 nrtable <-  0
 nrfigure <- 0
 
+nG <- nY <- nYS <- nS <- nGr <- nYr <- nYSr <- nSr <- FALSE
+
+figmap <- release_T <- release_kg <- release_n <- aqua_n <- FALSE
 
 
 ```
@@ -231,7 +234,7 @@ table_pc <- function(country,
 		the_kable <- kable(table,			
 				digits=2, caption=paste(dataset,life_stage,ifelse(typ==6,"recreational","")))
 	} else {
-		the_kable <- kable(data.frame("warning"="no data"))  
+		the_kable <- NULL
 	}
 	return(the_kable)
 }
@@ -317,7 +320,7 @@ table_pc_lfs <- function(country, dataset, typ = 9,
 				digits=2,
 				caption=caption)
 	} else {
-		the_kable <- kable(data.frame("warning"="no data"))  
+		the_kable <- NULL
 	}
 	return(the_kable)
 }
@@ -356,10 +359,7 @@ plot_pc_lfs <- function(country,
 				facet_wrap(~eel_lfs_code)
 		theme_gdocs()
 	} else {
-		gg <- ggplot() +
-				theme_void() +
-				geom_text(aes(0,0,label='N/A')) +
-				xlab(NULL)
+		gg <- NULL
 	}
 	
 	return(gg)
@@ -558,9 +558,7 @@ map_recruitment <- function(){
 ```
 
 # Landings commercial fisheries
-```{r G, echo=FALSE, warning=FALSE, results="asis", eval=params$G}
-  asis_output("## Glass eel\n")
-	nrtable=nrtable+1
+```{r prepG, echo=FALSE,warning=FALSE,result="asis",eval=params$G}
 	res <- table_pc(dataset="landings", 
 			country=  params$country, 
 			typ=4 , 
@@ -568,11 +566,19 @@ map_recruitment <- function(){
 			year_range=params$year:CY,
 			scalef=1000 # in tons
 	)
+
+nG <- !is.null(res)
+
+```
+
+```{r G, echo=FALSE, warning=FALSE, results="asis", eval=nG}
+  asis_output("## Glass eel\n")
 	print(res %>% kable_styling())
 	
 
 ```
-```{r Gfig, echo=FALSE, warning=FALSE, results="asis",fig.cap="landings G", eval=params$G}
+
+```{r Gfig, echo=FALSE, warning=FALSE, results="asis",fig.cap="landings G", eval=nG}
 	gg <-plot_pc(dataset="landings", 
 			country= params$country, 
 			typ=4 , 
@@ -583,20 +589,25 @@ map_recruitment <- function(){
 	print(gg)
 ```
 	
-```{r Y, echo=FALSE, warning=FALSE, results="asis", eval=params$Y}
-	asis_output("## Yellow eel\n")
-	res <- table_pc(dataset="landings", 
+	
+```{r prepY, echo=FALSE,warning=FALSE,result="asis",eval=params$Y}
+res <- table_pc(dataset="landings", 
 			country=  params$country, 
 			typ=4 , 
 			life_stage="Y",
 			year_range=1960:2020, 
 			scalef=1000
 	)
+nY <- !is.null(res)
+```
+
+```{r Y, echo=FALSE, warning=FALSE, results="asis", eval=nY}
+	asis_output("## Yellow eel\n")
 	print(res %>% kable_styling())
 	
 ```	
 
-```{r Yfig, echo=FALSE, warning=FALSE, results="asis",fig.cap="landings Y", eval=params$Y}
+```{r Yfig, echo=FALSE, warning=FALSE, results="asis",fig.cap="landings Y", eval=nY}
 
 	gg <-plot_pc(dataset="landings", 
 			country= params$country, 
@@ -608,19 +619,24 @@ map_recruitment <- function(){
 
 ```
 
-```{r YS, echo=FALSE, warning=FALSE, results="asis", eval=params$YS}
 
-	asis_output("## Yellow silver\n")
+```{r prepYS, echo=FALSE,warning=FALSE,result="asis",eval=params$YS}
 	res <- table_pc(dataset="landings", 
 			country=  params$country, 
 			typ=4 , 
 			life_stage=c("YS"),
 			year_range=1960:2020, 
 			scalef=1000)
-	print(res %>% kable_styling())
+nYS <- !is.null(res)
 ```
 
-```{r YSfig, echo=FALSE, warning=FALSE, results="asis",fig.cap="landings YS", eval=params$YS}	
+```{r YS, echo=FALSE, warning=FALSE, results="asis", eval=nYS}
+
+asis_output("## Yellow silver\n")
+print(res %>% kable_styling())
+```
+
+```{r YSfig, echo=FALSE, warning=FALSE, results="asis",fig.cap="landings YS", eval=nYS}	
 	gg <-plot_pc(dataset="landings", 
 			country= params$country, 
 			typ=4 , 
@@ -631,19 +647,23 @@ map_recruitment <- function(){
 ```
 
 
-```{r S, echo=FALSE, warning=FALSE, results="asis", eval=params$S}
-
-	asis_output("## Silver silver\n")
-	res <- table_pc(dataset="landings", 
+```{r prepS, echo=FALSE,warning=FALSE,result="asis",eval=params$S}
+res <- table_pc(dataset="landings", 
 			country=  params$country, 
 			typ=4 , 
 			life_stage=c("S"),
 			year_range=1960:2020, 			
 			scalef=1000)
-	print(res %>% kable_styling())
+nS <- !is.null(res)
 ```
 
-```{r Sfig, echo=FALSE, warning=FALSE, results="asis",fig.cap="landings S", eval=params$S}
+```{r S, echo=FALSE, warning=FALSE, results="asis", eval=nS}
+
+asis_output("## Silver silver\n")
+print(res %>% kable_styling())
+```
+
+```{r Sfig, echo=FALSE, warning=FALSE, results="asis",fig.cap="landings S", eval=nS}
 	gg <-plot_pc(dataset="landings", 
 			country= params$country, 
 			typ=4 , 
@@ -654,9 +674,7 @@ map_recruitment <- function(){
 ```
 
 # Landings Recreational fisheries
-```{r Gr, echo=FALSE, warning=FALSE, results="asis", eval=params$Gr}
-
-asis_output("## Glass eel\n")
+```{r prepGr, echo=FALSE,warning=FALSE,result="asis",eval=params$Gr}
 	res <- table_pc(dataset="landings", 
 			country=  params$country, 
 			typ=6 , 
@@ -664,10 +682,16 @@ asis_output("## Glass eel\n")
 			year_range=1960:2020, 
 			scalef=1000
 	)
-	print(res %>% kable_styling())
+nGr <- !is.null(res)
 ```
 
-```{r Grfig, echo=FALSE, warning=FALSE, results="asis", eval=params$Gr,fig.cap="landings G recreational"}	
+```{r Gr, echo=FALSE, warning=FALSE, results="asis", eval=nGr}
+
+asis_output("## Glass eel\n")
+print(res %>% kable_styling())
+```
+
+```{r Grfig, echo=FALSE, warning=FALSE, results="asis", eval=nGr,fig.cap="landings G recreational"}	
 	gg <-plot_pc(dataset="landings", 
 			country= params$country, 
 			typ=6 , 
@@ -678,20 +702,27 @@ asis_output("## Glass eel\n")
 	print(gg)
 ```
 	
-```{r Yr, echo=FALSE, warning=FALSE, results="asis", eval=params$Yr}
-
-asis_output("## Yellow eel\n")
-	res <- table_pc(dataset="landings", 
+	
+	
+```{r prepYr, echo=FALSE,warning=FALSE,result="asis",eval=params$Yr}
+res <- table_pc(dataset="landings", 
 			country=  params$country, 
 			typ=6 , 
 			life_stage="Y",
 			year_range=1960:2020,
 			scalef=1000
 	)
-	print(res %>% kable_styling())
+nYr <- !is.null(res)
+```	
+
+
+```{r Yr, echo=FALSE, warning=FALSE, results="asis", eval=nYr}
+
+asis_output("## Yellow eel\n")
+print(res %>% kable_styling())
 ```
 	
-```{r Yrfig, echo=FALSE, warning=FALSE, results="asis", eval=params$Yr,fig.cap="landings Y recreational"}
+```{r Yrfig, echo=FALSE, warning=FALSE, results="asis", eval=nYr,fig.cap="landings Y recreational"}
 	
 	gg <-plot_pc(dataset="landings", 
 			country= params$country, 
@@ -703,20 +734,25 @@ asis_output("## Yellow eel\n")
 	print(gg)
 ```
 
-```{r YSr, echo=FALSE, warning=FALSE, results="asis", eval=params$YSr}
-asis_output("## Yellow silver\n")
+
+
+```{r prepYSr, echo=FALSE,warning=FALSE,result="asis",eval=params$YSr}
 res <- table_pc(dataset="landings", 
 			country=  params$country, 
 			typ=6 , 
 			life_stage=c("YS"),
 			year_range=1960:2020, 
 			scalef=1000)
-	print(res %>% kable_styling())
-	
+nYSr <- !is.null(res)
+```
+
+```{r YSr, eval=nYSr, echo=FALSE, warning=FALSE, results="asis"}
+asis_output("## Yellow silver\n")
+print(res %>% kable_styling())
 ```
 
 
-```{r YSrfig, echo=FALSE, warning=FALSE, results="asis", eval=params$YSr,fig.cap="landings YS recreational"}
+```{r YSrfig, eval=nYSr, echo=FALSE, warning=FALSE, results="asis",fig.cap="landings YS recreational"}
 
 	gg <-plot_pc(dataset="landings", 
 			country= params$country, 
@@ -728,18 +764,24 @@ res <- table_pc(dataset="landings",
 ```
 
 
-```{r Sr, echo=FALSE, warning=FALSE, results="asis", eval=params$Sr}
-asis_output("## Silver eel\n")
+
+```{r prepSr, echo=FALSE,warning=FALSE,result="asis",eval=params$Sr}
 	res <- table_pc(dataset="landings", 
 			country=  params$country, 
 			typ=6 , 
 			life_stage=c("S"),
 			year_range=1960:2020, 
 			scalef=1000)
+	nSr <- !is.null(res)
+
+```
+
+```{r Sr, echo=FALSE, warning=FALSE, results="asis", eval=nSr}
+asis_output("## Silver eel\n")
 	print(res %>% kable_styling())
 ```
 
-```{r Srfig, echo=FALSE, warning=FALSE, results="asis", eval=params$Sr,fig.cap="landings S recreational"}
+```{r Srfig, echo=FALSE, warning=FALSE, results="asis", eval=nSr,fig.cap="landings S recreational"}
 	gg <-plot_pc(dataset="landings", 
 			country= params$country, 
 			typ=6 , 
@@ -763,7 +805,7 @@ res_number <- table_pc_lfs(dataset="release",
 		year_range=1960:2020, 
 		scalef=10^6
 )
-release_n <- nrow(res_number)>0
+release_n <- !is.null(res_number)
 
 res_kg <- table_pc_lfs(dataset="release", 
 		country=  params$country, 
@@ -775,7 +817,7 @@ res_kg <- table_pc_lfs(dataset="release",
 		year_range=params$year:CY, 
 		scalef=1
 )
-release_kg <- nrow(res_kg)>0
+release_kg <- !is.null(res_kg)
 release_T <- release_kg | release_n
 
 ```
@@ -837,7 +879,7 @@ res <- table_pc_lfs(dataset="aquaculture",
 		year_range=1960:2020, 
 		scalef=1000	    
 )
-aqua_n <- nrow(res>0)
+aqua_n <- !is.null(res)
 ```
 
 ```{r aquaculture, echo=FALSE, warning=FALSE, results="asis",eval=aqua_n}
@@ -858,17 +900,25 @@ gg <- plot_pc_lfs(dataset="aquaculture",
 print(gg)
 ```
 		
-```{r recruit, echo=FALSE, warning=FALSE, results="asis",fig.cap="Recruitment, panel indicate if selected"}
-asis_output("# Recruitment series\n")
+		
+```{r recruitprep,echo=FALSE,warning=FALSE}
 g <- figure_recruitment()
+figR <-  !is.null(g)
+```		
+		
+```{r recruit, echo=FALSE, warning=FALSE, results="asis",fig.cap="Recruitment, panel indicate if selected",eval=figR}
+asis_output("# Recruitment series\n")
 glog<- g+ scale_y_log10(limits=c(0.01,30),breaks=c(0.01,0.1,1,10,100,1000),labels=c("0.01","0.1","1","10","100","1000"))
 gridExtra::grid.arrange(g+ggtitle("Natural Scale"),glog+ggtitle("Log Scale"),nrow=2)
 ```
 
 
+```{r maprecruitprep,echo=FALSE,warning=FALSE,eval=params$map}
+g <- g <- map_recruitment()
+figmap <- ! (ggplot_build(g)$data[[1]][1,3]=="N/A")
+```		
 
-```{r map, echo=FALSE, warning=FALSE, results="asis",eval=params$map,fig.cap="Maps of recruitment time series"}
+```{r maprecruit, echo=FALSE, warning=FALSE, results="asis",fig.cap="Maps of recruitment time series",eval=figmap}
 asis_output("# Maps of recruitment series\n")
-	g <- map_recruitment()
-	print(g)
+print(g)
 ```
