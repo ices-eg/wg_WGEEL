@@ -1336,7 +1336,7 @@ save(model_ge_area,model_older,file=paste0(shinywd,"recruitment_models.Rdata"), 
 #plot(model_ge_area)
 @
 
-<< mixed_models, echo=TRUE, eval=FALSE >>=
+<< mixed_models, echo=FALSE, eval=FALSE >>=
 
 
 library(lme4)
