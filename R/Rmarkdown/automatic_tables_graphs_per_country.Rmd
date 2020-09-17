@@ -776,12 +776,12 @@ res_kg <- table_pc_lfs(dataset="release",
 		scalef=1
 )
 release_kg <- nrow(res_kg)>0
-release <- release_kg | release_n
+release_T <- release_kg | release_n
 
 ```
 
 
-```{r releaseheader,echo=FALSE,warning=FALSE,result="asis",eval=release}
+```{r releaseheader,echo=FALSE,warning=FALSE,result="asis",eval=release_T}
 asis_output("# Release\\n")
 ```
 
