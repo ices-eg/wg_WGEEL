@@ -1506,6 +1506,69 @@ update_t_eelstock_eel <- function(editedValue, pool, data) {
 }
 
 
+
+
+#' @title Update t_dataseries_das table in the database
+#' @description Function to safely modify data into the database from DT edits
+#' @param editedValue A dataframe wich collates all rows changed in the datatable, using the 
+#' observeEvent(input$table_cor_cell_edit, ... on the server.R side
+#' @param pool A database pool
+#' @return Nothing
+#' @details Modified from https://github.com/MangoTheCat/dtdbshiny, when compared with this example the original dbListFields from RPostgres
+#' doesn't seem to work with shema.table. So I changed the function to pass colnames once only
+#' @examples 
+#' editedValue <-tibble(row=1,col=4,value=456)
+#' editedValue <-tibble(row=1,col=5,value='ERROR')
+#' pool <- pool::dbPool(drv = dbDriver('PostgreSQL'),
+#'    dbname='wgeel',
+#'    host='localhost',
+#'    user= userlocal,
+#'    password=passwordlocal)
+#' update_t_eelstock_eel(editedValue, pool)
+#' data <- sqldf('SELECT * from datawg.t_eelstock_eel where eel_cou_code='VA'')
+#' @seealso 
+#'  \code{\link[dplyr]{last}}
+#'  \code{\link[glue]{glue_sql}}
+#' @rdname updateDB
+#' @importFrom dplyr last
+#' @importFrom glue glue_sql
+update_t_dataseries_das <- function(editedValue, pool, data) {
+  # Keep only the last modification for a cell edited Value is a data frame with
+  # columns row, col, value this part ensures that only the last value changed in a
+  # cell is replaced.  Previous edits are ignored
+  editedValue <- editedValue %>% group_by(row, col) %>% filter(value == dplyr::last(value) | 
+                                                                 is.na(value)) %>% ungroup()
+  # opens the connection, this must be followed by poolReturn
+  conn <- poolCheckout(pool)
+  # Apply to all rows of editedValue dataframe
+  t_dataseries_das_ids <- data$das_id
+  data %>%
+    select(das_id,das_value, das_ser_id, das_year,das_comment, das_effort,
+           das_last_update, das_qal_id, das_dts_datasource)
+  error = list()
+  lapply(seq_len(nrow(editedValue)), function(i) {
+    row = editedValue$row[i]
+    id = t_dataseries_das_ids[row]
+    col = t_dataseries_das_fields[editedValue$col[i]]
+    value = editedValue$value[i]
+    # glue sql will use arguments tbl, col, value and id
+    query <- glue::glue_sql("UPDATE datawg.t_dataseries_das SET
+								{`col`} = {value}
+								WHERE das_id = {id}
+								", 
+                            .con = conn)
+    tryCatch({
+      dbExecute(conn, sqlInterpolate(ANSI(), query))
+    }, error = function(e) {
+      error[i] <<- e
+    })
+  })
+  poolReturn(conn)
+  # print(editedValue)
+  return(error)
+}
+
+
 #' @title Function to create log of user action during data integration
 #' @description connects to the database and automatically stores the user's actions
 #' @param step one of 'check data', 'check duplicates', 'new data integration'

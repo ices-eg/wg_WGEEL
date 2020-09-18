@@ -52,7 +52,7 @@ if(!require(grid)) install.packages("grid") ; require(grid)
 if(!require(sqldf)) install.packages("sqldf") ; require(sqldf)
 if(!require(RPostgreSQL)) install.packages("RPostgreSQL") ; require(RPostgreSQL)
 if(!require(RColorBrewer)) install.packages("RColorBrewer") ; require(RColorBrewer)
-if(!require(stacomiR)) install.packages("stacomiR") ; require(stacomiR)
+#if(!require(stacomiR)) install.packages("stacomiR") ; require(stacomiR)
 if(!require(dplyr)) install.packages("dplyr") ; require(dplyr)
 if(!require(sp)) install.packages("sp") ; require(sp)
 if(!require(maptools)) install.packages("maptools") ; require(maptools)
@@ -94,7 +94,6 @@ getUsername <- function(){
 if (getUsername() == "cedric.briand") setwd("C:/workspace/gitwgeel/R/recruitment") 
 if (getUsername() == "hamme005") setwd("C:/Tessa/wg_WGEEL/R/recruitment") 
 #baseODBC=c("wgeel","wgeel",passwordwgeel) #"w3.eptb-vilaine.fr" "localhost" "wgeel" "wgeel_distant" 
-
 options(sqldf.RPostgreSQL.user = getPass(msg="username"), 
 		sqldf.RPostgreSQL.password = getPass(),
 		sqldf.RPostgreSQL.dbname = "wgeel",
@@ -109,7 +108,6 @@ imgwd <- str_c(wddata,"/",CY,"/image/")
 tabwd <- str_c(wddata,"/",CY,"/table/")
 #shpwd <- str_c("C:/workspace/wgeeldata/shp/") 
 shinywd <-  str_c(wddata,"/../shiny_data_visualisation/shiny_dv/data/recruitment/")
-
 dir.create(str_c(wddata,"/",CY),showWarnings = FALSE)
 dir.create(datawd, showWarnings = FALSE)
 dir.create(imgwd, showWarnings = FALSE)
@@ -129,11 +127,12 @@ vv <- list()
 % this is the preamble of the latex file
 % it is used to load the packages necessary to the analysis
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\documentclass[pdftex,11pt,a4paper]{report}
+ruitme\documentclass[pdftex,11pt,a4paper]{report}
 \usepackage[pdftex]{graphicx}
 \usepackage[utf8]{inputenc} %encodage du fichier source
 %\usepackage[T1]{fontenc}  %gestion des accents (pour les pdf) 
 \usepackage[english]{babel}
+\usepackage[swedish]{babel}
 \usepackage{Sweave}
 \usepackage{float}
 \usepackage[left=3cm, right=3cm, top=2cm, bottom=2cm]{geometry}
@@ -382,7 +381,6 @@ left_join(
 
 wger_init %>% group_by(ser_qal_id) %>% summarize(len=n()) 
 wger <- wger[wger$ser_qal_id==1,]
-#TODO calculate which series longer than 10 which have qal 0, issue a message
 
 
 vv$nb_series_init_qual1 <- length(unique(wger$site))
@@ -1329,7 +1327,7 @@ save(model_ge_area,model_older,file=paste0(shinywd,"recruitment_models.Rdata"), 
 #plot(model_ge_area)
 @
 
-<< mixed_models, echo=FALSE, eval=FALSE >>=
+<< mixed_models, echo=TRUE, eval=FALSE >>=
 
 
 library(lme4)

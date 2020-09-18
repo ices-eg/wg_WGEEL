@@ -99,6 +99,13 @@ shinyServer(function(input, output, session){
 						t_eelstock_eel_fields <- dbGetQuery(pool, sqlInterpolate(ANSI(), query))     
 						t_eelstock_eel_fields <<- t_eelstock_eel_fields$column_name
 						
+						query <- "SELECT column_name
+								FROM   information_schema.columns
+								WHERE  table_name = 't_dataseries_das'
+								ORDER  BY ordinal_position"
+						t_dataseries_das_fields <- dbGetQuery(pool, sqlInterpolate(ANSI(), query))     
+						t_dataseries_das_fields <<- t_dataseries_das_fields$column_name
+						
 						query <- "SELECT cou_code,cou_country from ref.tr_country_cou order by cou_country"
 						list_countryt <- dbGetQuery(pool, sqlInterpolate(ANSI(), query))   
 						list_country <- list_countryt$cou_code
@@ -108,6 +115,9 @@ shinyServer(function(input, output, session){
 						query <- "SELECT * from ref.tr_typeseries_typ order by typ_name"
 						tr_typeseries_typt <- dbGetQuery(pool, sqlInterpolate(ANSI(), query))   
 						typ_id <- tr_typeseries_typt$typ_id
+						query <- "SELECT distinct ser_nameshort from datawg.t_series_ser"
+						tr_series_list <- dbGetQuery(pool, sqlInterpolate(ANSI(), query))   
+						ser_list <- tr_series_list$ser_nameshort
 						tr_typeseries_typt$typ_name <- tolower(tr_typeseries_typt$typ_name)
 						names(typ_id) <- tr_typeseries_typt$typ_name
 						# tr_type_typ<-extract_ref('Type of series') this works also !
@@ -1757,6 +1767,8 @@ shinyServer(function(input, output, session){
 			
 			observeEvent(input$cancel, {
 						rvs$data <- rvs$dbdata
+						rvs$dbdata <- NA
+						rvs$dbdata <- rvs$data #this is to ensure that the table display is updated (reactive value)
 						rvs$dataSame <- TRUE
 					})
 			
@@ -1776,6 +1788,182 @@ shinyServer(function(input, output, session){
 										}
 						)
 					})
+			
+			
+			
+			#######################################
+			# IV. Data correction table TS  
+			# This section provides a direct interaction with the database
+			# Currently only developped for modifying data.
+			# Deletion must be done by changing data code or asking Database handler
+			#######################################
+			rvsTS <- reactiveValues(
+			  data = NA, 
+			  dbdata = NA,
+			  dataSame = TRUE,
+			  editedInfo = NA
+			  
+			)
+			
+			#-----------------------------------------  
+			# Generate source via reactive expression
+			
+			mysourceTS <- reactive({
+			  req(input$passwordbutton)
+			  validate(need(data$connectOK,"No connection"))
+			  vals = input$countryTS
+			  series = input$series
+			  if (is.null(series)) 
+			    series=ser_list
+			  lfs = input$lfsTS
+			  if (is.null(lfs)) 
+			    lfs=c("G")
+			  the_years <- input$yearTS
+			  if (is.null(input$yearTS)) {
+			    the_years <- c(the_years$min_year, the_years$max_year)
+			  }
+			  # glue_sql to protect against injection, used with a vector with *
+			  query <- glue_sql(str_c("SELECT das.*,ser_nameshort,ser_cou_code from datawg.t_dataseries_das das join datawg.t_series_ser on das_ser_id=ser_id where ser_nameshort in ({series*}) and ser_lfs_code in ({lfs*}) and das_year>={minyear} and das_year<={maxyear}"), 
+			                    series = series, lfs = lfs, minyear = the_years[1], maxyear = the_years[2], 
+			                    .con = pool)
+			  # https:/stackoverflow.com/questions/34332769/how-to-use-dbgetquery-in-trycatch-with-postgresql
+			  # it seems that dbgetquery doesn't raise an error
+			  out_data <- dbGetQuery(pool, query)
+			  return(out_data)
+			  
+			})
+			
+			# Observe the source, update reactive values accordingly
+			
+			observeEvent(mysourceTS(), {               
+			  data <- mysourceTS() %>% arrange(ser_nameshort,das_year)
+			  rvsTS$data <- data
+			  rvsTS$dbdata <- data
+			  disable("clear_tableTS")                
+			})
+			
+			#-----------------------------------------
+			# Render DT table 
+			# 
+			# selection better be none
+			# editable must be TRUE
+			#
+			output$table_corTS <- DT::renderDataTable({
+			  validate(need(data$connectOK,"No connection"))
+			  noteditable=which(names(rvsTS$dbdata) %in% c("ser_nameshort","ser_cou_code"))
+			  DT::datatable(
+			    rvsTS$dbdata, 
+			    rownames = FALSE,
+			    extensions = "Buttons",
+			    editable = list(target = 'cell', 
+			                    disable = list(columns = noteditable)), 
+			    selection = 'none',
+			    options=list(
+			      order=list(3,"asc"),              
+			      searching = TRUE,
+			      rownames = FALSE,
+			      scroller = TRUE,
+			      scrollX = TRUE,
+			      scrollY = "500px",
+			      lengthMenu=list(c(-1,5,20,50,100),c("All","5","20","50","100")),
+			      dom= "Blfrtip", #button fr search, t table, i information (showing..), p pagination
+			      buttons=list(
+			        list(extend="excel",
+			             filename = paste0("data_",Sys.Date())))
+			    ))})
+			#-----------------------------------------
+			# Create a DT proxy to manipulate data
+			# 
+			#
+			proxy_table_corTS = dataTableProxy('table_corTS')
+			#--------------------------------------
+			# Edit table data
+			# Expamples at
+			# https://yihui.shinyapps.io/DT-edit/
+			observeEvent(input$table_corTS_cell_edit, {
+			  
+			  info = input$table_corTS_cell_edit
+			  
+			  i = info$row
+			  j = info$col = info$col + 1  # column index offset by 1
+			  v = info$value
+			  
+			  rvsTS$data[i, j] <<- DT::coerceValue(v, rvsTS$data[i, j])
+			  replaceData(proxy_table_cor, rvsTS$data, resetPaging = FALSE, rownames = FALSE)
+			  # datasame is set to TRUE when save or update buttons are clicked
+			  # here if it is different it might be set to FALSE
+			  rvsTS$dataSame <- identical(rvsTS$data, rvsTS$dbdata)
+			  # this will collate all editions (coming from datatable observer in a data.frame
+			  # and store it in the reactive dataset rvs$editedInfo
+			  if (all(is.na(rvsTS$editedInfo))) {
+			    
+			    rvsTS$editedInfo <- data.frame(info)
+			  } else {
+			    rvsTS$editedInfo <- dplyr::bind_rows(rvsTS$editedInfo, data.frame(info))
+			  }
+			  
+			})
+			
+			
+			observeEvent(input$lfsTS, {
+			  stageser=ifelse(endsWith(ser_list,"GY"),
+			                  "GY",
+			                  str_sub(ser_list,-1,-1))
+			  updatePickerInput(session=session,
+			                    inputId="series",
+			                    choices = ser_list[stageser %in% input$lfsTS])
+			})
+			
+			# Update edited values in db once save is clicked---------------------------------------------
+			
+			observeEvent(input$saveTS, {
+			  errors<-update_t_dataseries_das(editedValue = rvsTS$editedInfo, pool = pool, data=rvsTS$data)
+			  if (length(errors)>0) {
+			    output$database_errorsTS<-renderText({iconv(unlist(errors,"UTF8"))})
+			    enable("clear_table")
+			  } else {
+			    output$database_errorsTS<-renderText({"Database updated"})
+			  }
+			  rvsTS$dbdata <- rvsTS$data
+			  rvsTS$dataSame <- TRUE
+			})
+			
+			# Observe clear_table button -> revert to database table---------------------------------------
+			
+			observeEvent(input$clear_tableTS,
+			             {
+			               data <- mysourceTS() %>%arrange(ser_nameshort,das_year)
+			               rvsTS$data <- data
+			               rvsTS$dbdata <- data
+			               disable("clear_tableTS")
+			               output$database_errorsTS<-renderText({""})
+			             })
+			
+			# Oberve cancel -> revert to last saved version -----------------------------------------------
+			
+			observeEvent(input$cancelTS, {
+			  rvsTS$data <- rvsTS$dbdata
+			  rvsTS$dbdata <- NA
+			  rvsTS$dbdata <- rvsTS$data #this is to ensure that the table display is updated (reactive value)
+			  rvsTS$dataSame <- TRUE
+			})
+			
+			# UI buttons ----------------------------------------------------------------------------------
+			# Appear only when data changed
+			
+			output$buttons_data_correctionTS <- renderUI({
+			  div(
+			    if (! rvsTS$dataSame) {
+			      span(
+			        actionBttn(inputId = "saveTS", label = "Save",
+			                   style = "material-flat", color = "danger"),
+			        actionButton(inputId = "cancelTS", label = "Cancel")
+			      )
+			    } else {
+			      span()
+			    }
+			  )
+			})
 			#################################################
 # GRAPHS ----------------------------------------
 			#################################################
