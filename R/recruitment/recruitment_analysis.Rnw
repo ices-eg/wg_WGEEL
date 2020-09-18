@@ -837,36 +837,34 @@ openxlsx::write.xlsx(x=list("recruitment_series"=tab1,
 \section{Data sources}
 \section{Recruitment}
 
-In this section, the latest trend in glass and yellow eel recruitment are
-adressed. The time-series data are derived from fishery-dependent sources
+In this section, the latest trends in glass and yellow eel recruitment are
+addressed. The time-series data are derived from fishery-dependent sources
 (i.e. catch records) and also from fishery-independent surveys across much of
 the geographic range of European eel.  The
 stages are categorized as :
 \begin{itemize}
 \item glass eel (G), continental age 0 years, 
-\item mixture of glass eel and young
-yellow eel dominated by recruits from the year (GY)
-recruiting to continental habitats (Dekker, 2002). 
+\item a mixture of glass eel and young
+yellow eel dominated by recruits from the same year (GY), and
 \item older yellow eel (Y) recruiting to continental habitats. The yellow
 eel series might consist of yellow eel of several ages.
 This is certainly the case for all series from the Baltic (mean age up to 6),
-and sites located far upstream.
+ some Irish sites, and sites located far upstream.
 \end{itemize}
 The glass eel recruitment time-series have been grouped into two geographical
 areas: 'continental North Sea' (NS) and 'Elsewhere Europe' (EE) (Figure
 \ref{figure1}). The glass eel recruitment time-series have been grouped into two geographical
 areas: 'continental North Sea' (NS) and 'Elsewhere Europe' (EE) (Figure 3.4.1).
 Previous analyses by the working group (ICES, 2010b, p19, Bornarel et al. (2017) 
-have shown a difference between the two sets. This is mostly due to a more pronounced
-decline of the North Sea series compared to the Elsewhere Europe area during the 1980's.
+have shown a different trend between the two sets. This is mostly due to a more pronounced
+decline of the North Sea series compared to the Elsewhere Europe area during the 1980s.
 
 The WGEEL has collated information on recruitment from
 \Sexpr{sn(vv[["nb_series_init"]])} time-series. Some time-series date back to the
 beginning of 20th century (yellow eel, Göta Älv, Sweden) or 1920 (glass eel,
 Loire, France). Among those series \Sexpr{sn(vv[["nb_series_init_qual1"]])} have been
-selected for further analysis in the wgeel indices, see details on data
-selection and processing below). Depending on the period on which we
-standardized, the number of series really used can be lower and are given for
+selected for further analysis in the wgeel indices; see details on data
+selection and processing below. Depending on the standardization period, the number of series  used can be lower and is given for
 each analysis. 
 
 %==================================================
@@ -885,19 +883,13 @@ Out of \Sexpr{sn(vv[["nb_series_init"]])},
 \Sexpr{sn(vv[["nb_series_final"]])} series were used in the analysis. Three
 rules have been used for this selection procedure.
 \begin{enumerate}
-\item The first rule is to keep only one series at one location when two
-series from different source display different information. For instance, the longest series has been kept for the severn (Severn EA) and the other (Severn
-HMRC) has been dropped from the list, as it was considered a double being based
-on the same fishery. \textcolor{Plum}{TODO work on Minho sp and Minho
+\item First, if there are two or more series from the same location, i.e. they are not independent,only one series is kept. For instance, the longer series has been kept for the Severn (Severn EA) while the other series (Severn HMRC) has been dropped from the list, as it was considered a duplicate being based on the same fishery.Noting that the 'Severn' here actually represents all the glass eel fisheries for England and Wales but the naming convention has been used for many
+years so is retained for consistency.
+\textcolor{Plum}{TODO work on Minho sp and Minho
 pt. and Gironde....}
-\item The second rule is not to include a series when it is too short. It was
-decided in 2019 to include the practical rule that series of less than 10
-years, should not be kept. They are still updated in the database untill they
-can be included. \textcolor{Plum}{But clarify now what we are going to do
+\item The second rule is to exclude a series from the analysis when it is less than ten years long. The series are, however, still updated in the database until they are long enough to be included. \textcolor{Plum}{But clarify now what we are going to do
 when there are missing years....} 
-\item Finally, it was also decided to discard
-recruitment series that were obviously biased by restocking e.g. Farpener Bach
-in Germany.
+\item Finally, it was decided to discard recruitment series that were obviously biased by restocking (e.g. Farpener Bach in Germany).
 \end{enumerate}
 
 
@@ -935,7 +927,7 @@ yellow eel time-series has increased to \Sexpr{vv[["nbmaxyellow"]]} in
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.5\textwidth]{figure2.png}
-\caption{Trends in number of glass (black circle), glass+young yellow eel
+\caption{Trends in number of glass eel (black circle), glass+young yellow eel
 (grey triangle) and older yellow eel (black triangle) time-series giving a
 report in  any specific year.}
 \label{figure2}
