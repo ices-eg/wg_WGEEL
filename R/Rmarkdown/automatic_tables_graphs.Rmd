@@ -29,6 +29,8 @@ output <- rmarkdown::metadata$output
 ```
 
 
+
+\newline
 This section presents and describes data from commercial, recreational and
 non-commercial fisheries, aquaculture production and restocking of eel. Data can
 be reported by eel life stage (glass, yellow, silver), habitat type (freshwater,
@@ -161,6 +163,25 @@ color_countries = setNames(values,country_ref$cou_code)
 
 
 ```
+
+# Key numbers
+
+## Landings
+```{r key numbers, results="asis", eval=TRUE, echo=FALSE}
+
+landings_all<-filter_data("landings",		typ = 4)
+select_land<-aggregate(landings_all$eel_value,by=list(landings_all$eel_year,landings_all$eel_lfs_code),sum,na.rm=T)
+g_CY<-round(select_land$x[select_land$Group.1==CY & select_land$Group.2=="G"]/1000,2)
+g_CY1<-round(select_land$x[select_land$Group.1==CY-1 & select_land$Group.2=="G"]/1000,2)
+cou_CY<-unique(landings_all$eel_cou_code[landings_all$eel_year==CY & is.na(landings_all$eel_missvaluequal) & landings_all$eel_lfs_code=="G"])
+cou_CY1<-unique(landings_all$eel_cou_code[landings_all$eel_year==CY-1 & is.na(landings_all$eel_missvaluequal) & landings_all$eel_lfs_code=="G"])
+
+
+knitr::asis_output(paste("Glass eel fisheries within the EU in ",CY-1," = ",g_CY1," t ", "countries where data were reported: ", paste(cou_CY1,sep="", collapse=","),"<br>"))
+knitr::asis_output(paste("Glass eel fisheries within the EU in ",CY," = ",g_CY," t ", "countries where data were reported: ", paste(cou_CY,sep="", collapse=",")))
+```
+
+
 
 
 ```{r com_land_Gt,echo=FALSE, warning=FALSE}
