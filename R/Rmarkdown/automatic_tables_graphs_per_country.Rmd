@@ -483,21 +483,29 @@ figure_recruitment <- function(){
 }
 
 #
-figure_ys <- function(stage_selected="Y"){	
-	
-	
 
 
 
-    wger_ys1 <- wger_ys %>% pivot_wider(names_from=ser_nameshort,values_from=das_value) %>%
-				filter(lfs_code==stage_selected)
-	od_col <- c("das_comment","das_id","ser_id","ser_area_division","f_subarea","lfs_code","lfs_name")	
-    wger_ys1_idcol <- wger_ys1 %>% 	filter(idcol)	
-    wger_ys1_val <- 
-		
+
+figure_yellow_recruitment <- function(){	
 	
-				select(-c("das_comment","das_id","ser_id","ser_area_division","f_subarea","lfs_code","lfs_name"))%>%
-				
+	# These values are standardized against the predictions in 1960s-1970s
+	# the predictions are the predictions of the expand.grid(year,site,area)		
+	# this is the North Sea or Elswhere Europe series
+	
+	the_series <- dat_ye	%>%
+			dplyr::rename(p_std_1960_1979 = value_std_1960_1979,
+					p_std_1960_1979_min =yellow_eel_min,
+					p_std_1960_1979_max = yellow_eel_max)
+	
+	# extracting scaled value for the plot -------------------------------------------
+	model_data <- model_older$model 
+	model_data$r <- resid(model_older)
+	df_coeff_site<- data.frame("site"=
+					gsub("site","",names(coefficients(model_older)[grep("site",names(coefficients(model_older)))])),
+			"co"= coefficients(model_older)[grep("site",names(coefficients(model_older)))]
+	)
+	
 	
 	selected <- model_data %>% 
 			stacomirtools::killfactor()%>%
@@ -569,122 +577,6 @@ figure_ys <- function(stage_selected="Y"){
 		palette <- colorRampPalette(palette)(length(sites_cou))
 		
 		
-		gy <- ggplot(filter(all_data, cou_code==params$country)) +
-				geom_ribbon(data=dat_ye,
-						aes(x=year, ymin=yellow_eel_min, ymax=yellow_eel_max),
-						size=0.5,fill="dodgerblue",alpha=0.5) +
-				geom_line(data=dat_ye,
-						aes(x=year, y=value_std_1960_1979), colour="darkblue", alpha=0.2) +
-				geom_point(aes(x=year, y=value_std_1960_1979, color=site),size=1.5) +
-				geom_line(aes(x=year, y=value_std_1960_1979, group=site, color=site),size=0.8, alpha=0.5) +
-				scale_x_continuous( limits=c(1960,CY),breaks=c(1970,1980,1990,2000,2010,2020),
-						minor_breaks=seq(from=min(1960,
-										to=max(all_data$year),by=2))) +
-				scale_colour_manual(values=palette) +
-				facet_wrap(~selected)
-	} else{
-		gy <- ggplot() +
-				theme_void() +
-				geom_text(aes(0,0,label='N/A')) +
-				xlab(NULL)
-	}
-	return(gy)
-	
-}
-
-figure_recruitment <- function(){	
-	
-	# These values are standardized against the predictions in 1960s-1970s
-	# the predictions are the predictions of the expand.grid(year,site,area)		
-	# this is the North Sea or Elswhere Europe series
-	
-	the_series <-  	dat_ge[,c("year",
-					"p", # predictions in the log scale for EE or NS series
-					"mean", # mean of predictions 1960-1979 log scale
-					"p_std_1960_1979", # scaled prediction exp(p-mean)
-					"p_std_1960_1979_min",     
-					"p_std_1960_1979_max",
-					"p_std_1960_1979_maxgraph")]
-	
-	# extracting scaled value for the plot -------------------------------------------
-	model_data <- model_ge_area$model 	
-	df_coeff_site<- data.frame("site"=
-					gsub("site","",names(coefficients(model_ge_area)[grep("site",names(coefficients(model_ge_area)))])),
-			"co"= coefficients(model_ge_area)[grep("site",names(coefficients(model_ge_area)))]
-	)
-	
-	
-	selected <- model_data %>% 
-			stacomirtools::killfactor()%>%
-			left_join(df_coeff_site) %>%
-			mutate(year=as.numeric(as.character(year_f))) %>% 
-			mutate_at(c("co"),replace_na, replace = 0) %>% 
-			full_join(                             
-					dat_ge[,c("year",
-									"area",
-									"p", # predictions in the log scale for EE or NS series
-									"mean", # mean of predictions 1960-1979 log scale
-									"p_std_1960_1979", # scaled prediction exp(p-mean)
-									"p_std_1960_1979_min",     
-									"p_std_1960_1979_max",
-									"p_std_1960_1979_maxgraph")],
-					by=c("year", "area"))	%>% # join by year
-			right_join(wger %>% dplyr::select(year, das_qal_id, site,lfs_code) %>%			         
-							filter(lfs_code %in% c('G','GY')) ,
-					by=c("year","site"))%>% # getting das_qal_id for the graph 
-			inner_join(R_stations %>% select(ser_nameshort,cou_code) %>%rename(site = ser_nameshort ))%>%
-			mutate(value_std_1960_1979=exp(log(value_std)-co-mean))	%>%
-			arrange(site,year)  %>%
-			mutate("selected" = TRUE) %>%
-			select("year","area","cou_code","site","value_std_1960_1979","p_std_1960_1979","p_std_1960_1979_min","p_std_1960_1979_max","p_std_1960_1979_maxgraph","selected")
-	
-	
-	not_selected <-	 wger_init %>% dplyr::select(value,year,site,ser_qal_id,area, lfs_code) %>%			         
-			filter((ser_qal_id==0|ser_qal_id==3) & lfs_code %in% c('G','GY')) %>% select(value,year,site,area)
-	not_selected <-	left_join(not_selected,
-					not_selected %>% group_by(site) %>% summarize(meanser=mean(value,na.rm=TRUE))
-			) %>% mutate(value=value/meanser) %>%
-			full_join(                             
-					dat_ge[,c("year",
-									"area",
-									"p", # predictions in the log scale for EE or NS series
-									"mean", # mean of predictions 1960-1979 log scale
-									"p_std_1960_1979", # scaled prediction exp(p-mean)
-									"p_std_1960_1979_min",     
-									"p_std_1960_1979_max",
-									"p_std_1960_1979_maxgraph"
-							)],
-					by=c("year","area") ) %>%		
-			# calculate log average when value is not missing to rescale only on the common period
-			inner_join(R_stations %>% select(ser_nameshort,cou_code) %>%rename(site = ser_nameshort ))
-	
-	not_selected <- inner_join(not_selected,
-					not_selected %>% group_by(site) %>%
-							summarize(		
-									mean_pred_when_existing = mean(p[!is.na(value)]), # geometric mean log scale
-									mean_pred_value_std = mean(log(value),na.rm=TRUE) # mean of log of existing observed											
-							)
-			) %>%						
-			# Standardize the value to existing predictions
-			mutate(
-					standardized_same_period= log(value) - mean_pred_value_std + mean_pred_when_existing
-			)%>% 	 
-			# calculate the value standardized to 1960_1979, the wgeel series has also been scaled by mean 
-			# which is the average 1960_1979
-			mutate(
-					value_std_1960_1979= exp(standardized_same_period -mean), 
-					selected=FALSE
-			)%>%
-			select("year","area","cou_code","site","value_std_1960_1979","p_std_1960_1979","p_std_1960_1979_min","p_std_1960_1979_max","p_std_1960_1979_maxgraph","selected")
-	
-	all_data <- rbind(selected, not_selected)	
-	sites_cou <- unique(filter(all_data, cou_code==params$country)$site)
-	if (length(sites_cou)>0){
-		if (length(sites_cou) <11) palette <- gdocs_pal()(length(sites_cou)) else 
-			palette <- gdocs_pal()(10)
-		palette <- colorRampPalette(palette)(length(sites_cou))
-		
-		
 		g <- ggplot(filter(all_data, cou_code==params$country)) +
 				geom_ribbon(data=dat_ge[dat_ge$area==params$area,],
 						aes(x=year, ymin=p_std_1960_1979_min, ymax=p_std_1960_1979_max),
@@ -709,6 +601,55 @@ figure_recruitment <- function(){
 }
 
 
+figure_ys <- function(stage_selected="Y"){	
+	
+	
+	
+	idcol <- c("das_comment","das_id","ser_id","ser_area_division","f_subarea","lfs_code","lfs_name")	
+	
+	wger_ys1 <- wger_ys %>% 
+			filter(lfs_code==stage_selected) %>%	
+			dplyr::select(-idcol) %>%
+			pivot_wider(names_from=c(ser_nameshort),values_from=das_value) %>% 
+			arrange(das_year)   
+	
+	
+	wger_ys2 <- wger_ys1 %>% mutate_at(vars(-das_year),scale)
+	
+	
+	wger_ys3 <- wger_ys2 %>%  pivot_longer(-das_year, names_to="ser_nameshort", values_to="scaled_value") %>%
+			inner_join(ys_stations %>% dplyr::select(ser_nameshort,cou_code)) %>%
+			rename(site="ser_nameshort", year="das_year") %>%
+			arrange(site,year) 
+	
+	
+	sites_cou <- unique(filter(wger_ys3, cou_code==params$country)$site)
+	if (length(sites_cou)>0){
+		if (length(sites_cou) <11) palette <- gdocs_pal()(length(sites_cou)) else 
+			palette <- ggthemes::gdocs_pal()(10)
+		palette <- grDevices::colorRampPalette(palette)(length(sites_cou))
+		
+		minyear <- 	wger_ys3 %>% filter(cou_code==params$country) %>% 
+				filter(!is.na(scaled_value)) %>%
+				pull(year) %>%
+				min()
+		gy <- ggplot(filter(wger_ys3, cou_code==params$country)) +		
+				geom_point(aes(x=year, y=scaled_value, color=site),size=1.5) +
+				geom_line(aes(x=year, y=scaled_value, group=site, color=site),size=0.8, alpha=0.5) + 
+				scale_colour_manual(values=palette) +
+				scale_x_continuous(limits = c(minyear,CY)) +
+				geom_smooth(aes(x=year, y=scaled_value), method="gam",col="red")+
+				theme_bw()
+		
+	} else{
+		gy <- ggplot() +
+				theme_void() +
+				geom_text(aes(0,0,label='N/A')) +
+				xlab(NULL)
+	}
+	return(gy)
+	
+}
 
 map_yellow_recruitment <- function(){	
 	
@@ -851,7 +792,63 @@ map_recruitment <- function(){
 	return(g)
 }
 
+
+
+map_ys <- function(){	
+	
+	station <- ys_stations %>% dplyr::select(ser_nameshort,cou_code, ser_x, ser_y, ser_lfs_code) %>%
+			rename(site="ser_nameshort", stage = "ser_lfs_code") %>%
+			arrange(site) %>%
+			filter(cou_code==params$country)
+	sites_cou <- station %>% pull(site) 
+	if (length(sites_cou)>0){
+		if (length(sites_cou) <11) palette <- gdocs_pal()(length(sites_cou)) else 
+			palette <- ggthemes::gdocs_pal()(10)
+		palette <- grDevices::colorRampPalette(palette)(length(sites_cou))
+		location=c(left=min(station$ser_x,na.rm=TRUE)-0.5,
+				bottom=min(station$ser_y,na.rm=TRUE)-0.5,
+				right=max(station$ser_x,na.rm=TRUE)+0.5,
+				top=max(station$ser_y,na.rm=TRUE)+0.5)
+		lon_range <- location[c("left", "right")]
+		lat_range <- location[c("bottom", "top")]
+		lonlength <- diff(lon_range)
+		latlength <- diff(lat_range)
+		zoomlon <- ceiling(log2(360 * 2/lonlength))
+		zoomlat <- ceiling(log2(180 * 2/latlength))
+		zoom <- max(zoomlon, zoomlat)
+		
+		mymap <-get_stamenmap(location,zoom=zoom,
+				maptype = "terrain-background",
+				source="stamen")
+		
+		g <- ggmap(mymap)+							
+				geom_point(data=station,
+						aes(x=ser_x, y=ser_y,
+								shape = stage,								
+								col=site),
+						size=2)+
+				geom_point(data=station[station$stage=="S",],
+						aes(x=ser_x, y=ser_y),
+						shape=21,						
+						size = 2,
+						color= "black")+		
+				scale_shape("Stage")+
+				scale_colour_manual(values=palette)+
+				scale_size_manual(values=c(2,3))+				
+				xlab("")+
+				ylab("")
+	} else {
+		gg <- ggplot() +
+				theme_void() +
+				geom_text(aes(0,0,label='N/A')) +
+				xlab(NULL)
+	}
+	return(g)
+}
+
 ```
+
+
 
 # Landings commercial fisheries
 ```{r G, echo=FALSE, warning=FALSE, results="asis", eval=params$G}
@@ -1244,6 +1241,25 @@ cat("\n")
 ```
 
 
+```{r yellow, echo=FALSE, warning=FALSE, results="asis",fig.cap="Recruitment Y, panel indicate if selected"}
+asis_output("# Yellow standing stock series Y")
+cat("\n")
+g <- figure_ys(stage_selected = "Y")
+print(g)
+cat("\n")
+```
+
+
+
+```{r silver, echo=FALSE, warning=FALSE, results="asis",fig.cap="Silver series"}
+asis_output("# Silver series S")
+cat("\n")
+g <- figure_ys(stage_selected = "S")
+print(g)
+cat("\n")
+```
+
+
 ```{r mapr, echo=FALSE, warning=FALSE, results="asis",eval=params$map,fig.cap="Maps of recruitment time series (G+GY)"}
 asis_output("# Maps of recruitment series (G + GY)")
 cat("\n")
@@ -1260,3 +1276,5 @@ g <- map_yellow_recruitment()
 print(g)
 cat("\n")
 ```
+
+
