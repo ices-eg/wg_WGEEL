@@ -1284,3 +1284,11 @@ cat("\n")
 ```
 
 
+
+```{r mapy, echo=FALSE, warning=FALSE, results="asis",eval=params$map,fig.cap="Maps of Yellow (Y) and silver (S) time series"}
+asis_output("# Maps of yellow (standing stock) and silver time series\\n")
+cat("\n")
+g <- map_ys()
+print(g)
+cat("\n")
+```
