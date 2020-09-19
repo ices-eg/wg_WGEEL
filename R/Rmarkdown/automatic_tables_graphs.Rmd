@@ -9,8 +9,8 @@ test: "`r paste('_metadata.yaml')`"
 \newline
 ```{r setup, include=TRUE}
 knitr::opts_chunk$set(echo = TRUE, warnings=FALSE)
-setwd("C:/Users/cboulenger/Documents/wg_WGEEL/R/Rmarkdown")
-#setwd("D:/R-4.0.2/wgeel_project/R/Rmarkdown")
+#setwd("C:/Users/cboulenger/Documents/wg_WGEEL/R/Rmarkdown")
+setwd("D:/R-4.0.2/wgeel_project/R/Rmarkdown")
 #source("R/utilities/set_directory.R")
 #data_directory <- wg_choose.dir(caption = "Where do you want to save the tables and the graphs")
 #data_directory <-"C:/temp"
@@ -264,22 +264,8 @@ knitr::asis_output(paste("Mean aquaculture for the previous 5 years (",CY-6,"-",
 
 \newline
 # Commercial fisheries landings 
-
-Landings data for commercial eel fisheries are available from the Eel Data call
-and from the WGEEL database. When data are absent and presumed missing for a
-country or year, a predicted catch is used. This “correction” is based on a
-simple General Linear Model (GLM) extrapolation of the log-transformed landings
-(after Dekker, 2003a), with year and countries as the explanatory factors. This
-is applied to account for non-reporting, but it is not a complete solution.
-
-Figure XX presents the time-series up to and including 2019 (though some 2020 data are provisional) for total glass eel landings as reported by five
-countries in the Eel Data call and from the WGEEL database. Figure XX presents
-the same time-series but corrected for missing data (see above), with an inset
-box showing the proportion of data corrected per year. Glass eel landings show a
-sharp decline since 1980 from 2 000 tonnes to around 40–60 tonnes since 2009
-onwards. In 2018, the raw (uncorrected) landings data for glass eels is
-`r vvv$G_total_CY` (Annex XXX Table XXX for raw data and Table XXX for raw and
-corrected data). 
+#### Glass eel
+Glass eel landings show a sharp decline since 1980 from 2 000 tonnes to around 40–60 tonnes since 2009 onwards. In 2019, the raw (uncorrected) landings data for glass eels is `r vvv$G_total_CY` (Annex XXX Table XXX for raw data and Table XXX for raw and corrected data). 
 
 
 ```{r com_land_Gt,echo=FALSE, warning=FALSE}
@@ -432,10 +418,10 @@ print(g_combined_landings_G)
 
 ```
 
-##### yellow and silver eel 
+#### Yellow and silver eel 
 
-Figure 2.11 presents data but for yellow and silver eels aggregated coming from
-20 countries, and Figure 2.12 presents the time-series including reconstructed
+Figure 3 presents data but for yellow and silver eels aggregated coming from
+20 countries, and Figure 4 presents the time-series including reconstructed
 data to fill the gaps. The proportion of “corrected” landing was as high as 50%
 in the 1950s, but rather low since the mid-1980s. Annex 8 Table 3 presents the
 raw data for yellow and silver eel combined, Annex 8 Table 4 presents the raw
