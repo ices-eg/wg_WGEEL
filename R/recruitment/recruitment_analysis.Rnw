@@ -21,7 +21,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 <<init, eval=TRUE,echo=FALSE,results=hide>>=
 Sys.setlocale("LC_ALL", "English_United States.932")
-Sys.setenv(JAVA_HOME='C:\\Program Files\\Java\\jre1.8.0_221\\bin')
 options(save.defaults = list(version=2))
 # Password are stored in R/etc/Rprofile.site
 # For the moment the database is stored locally
@@ -54,9 +53,6 @@ if(!require(RPostgreSQL)) install.packages("RPostgreSQL") ; require(RPostgreSQL)
 if(!require(RColorBrewer)) install.packages("RColorBrewer") ; require(RColorBrewer)
 #if(!require(stacomiR)) install.packages("stacomiR") ; require(stacomiR)
 if(!require(dplyr)) install.packages("dplyr") ; require(dplyr)
-if(!require(sp)) install.packages("sp") ; require(sp)
-if(!require(maptools)) install.packages("maptools") ; require(maptools)
-if(!require(maps)) install.packages("maps") ; require(maps)
 if(!require(boot)) install.packages("boot") ; require(boot)
 if(!require(MASS)) install.packages("MASS") ; require(MASS)
 if(!require(lme4)) install.packages("lme4") ; require(lme4)
@@ -94,11 +90,7 @@ getUsername <- function(){
 if (getUsername() == "cedric.briand") setwd("C:/workspace/gitwgeel/R/recruitment") 
 if (getUsername() == "hamme005") setwd("C:/Tessa/wg_WGEEL/R/recruitment") 
 #baseODBC=c("wgeel","wgeel",passwordwgeel) #"w3.eptb-vilaine.fr" "localhost" "wgeel" "wgeel_distant" 
-options(sqldf.RPostgreSQL.user = getPass(msg="username"), 
-		sqldf.RPostgreSQL.password = getPass(),
-		sqldf.RPostgreSQL.dbname = "wgeel",
-		sqldf.RPostgreSQL.host = "localhost", # "localhost"
-		sqldf.RPostgreSQL.port = 5435) # 5435 launch the ssh tunnel
+
 wddata <- getwd()
 wd <- wddata
 #wddata <- gsub("C:/workspace/gitwgeel/R","C:/workspace/wgeeldata",wd)
@@ -199,6 +191,11 @@ anguilla) stock, the fisheries on it and other anthropogenic impacts.}
 # If you don't and still want to run this script, ask C�dric cedric.briand@eptb-vilaine.fr
 # he will send you the Rdata saved during this chunk.
 
+options(sqldf.RPostgreSQL.user = getPass(msg="username"), 
+		sqldf.RPostgreSQL.password = getPass(),
+		sqldf.RPostgreSQL.dbname = "wgeel",
+		sqldf.RPostgreSQL.host = "localhost", # "localhost"
+		sqldf.RPostgreSQL.port = 5435) # 5435 launch the ssh tunnel
 
 ##########################"
 # Description of the series -------------------------------
@@ -786,19 +783,111 @@ figure2 <- function(){
 }
 
 figname <- "figure2"
-# {{{{{{{{{{{{{{{{{{{{{{{{{
+
 jpeg(filename = paste(imgwd,"/",figname,".jpeg",sep="")) #, width =480, height = 600
 figure2()
 rien <- dev.off()
-# {{{{{{{{{{{{{{{{{{{{{{{{{
+
 bmp(filename = paste(imgwd,"/",figname,".bmp",sep=""))
 figure2()
 rien <- dev.off()
-# {{{{{{{{{{{{{{{{{{{{{{{{{
+
 png(filename = paste(imgwd,"/",figname,".png",sep=""))
 figure2()
 rien <- dev.off()
-# {{{{{{{{{{{{{{{{{{{{{{{{{
+
+
+
+@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%************************************************************************************
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+<<mapseries,echo=FALSE, eval=FALSE,results=hide>>=
+if(!require(ggmap)) install.packages("ggmap") ; require(ggmap)
+if(!require(sf)) install.packages("sf") ; require(sf)
+if(!require(RPostgres)) install.packages("RPostgres") ; require(RPostgres)
+
+
+load("../shiny_data_visualisation/shiny_dv/data/ref_and_eel_data.Rdata")
+source("../utilities/load_library.R")
+source("../shiny_data_visualisation/shiny_dv/database_connection.R")
+
+
+
+my_map <- get_stamenmap( c(left = -13, bottom = 35, right =
+						27, top = 65),zoom=5, maptype = c("watercolor"))
+
+con <- dbConnect(Postgres(),host=host,password=pwd,dbname="wgeel",user=user)
+fao <- st_read(con,query="select * from ref.tr_faoareas")
+fao <- st_crop(fao, xmin = -13, xmax = 27,
+		ymin = 35, ymax = 65)
+fao <- (st_transform(fao,3857))
+fao$zone <- ifelse(fao$f_code %in% c("27.3.d",'27.3.b, c'),"Baltic",
+		ifelse(startsWith(fao$f_code,"27.4.") | startsWith(fao$f_code,"27.3."),
+				"North Sea",
+				"Elsewhere Europe"))
+
+attr(my_map, "bb")$ll.lat <- st_bbox(fao)["ymin"]
+attr(my_map, "bb")$ll.lon <- st_bbox(fao)["xmin"]
+attr(my_map, "bb")$ur.lat <- st_bbox(fao)["ymax"]
+attr(my_map, "bb")$ur.lon <- st_bbox(fao)["xmax"]
+
+stations <- st_transform(st_as_sf(R_stations,coords=c("ser_x","ser_y"),crs=4326),3857)
+
+stations$X = st_coordinates(stations)[,"X"]
+stations$Y = st_coordinates(stations)[,"Y"]
+
+figure1 <- ggmap(my_map)+  
+		coord_sf(crs = st_crs(3857)) + # force it to be 3857
+		geom_sf(data=fao, inherit.aes = FALSE,aes(fill=zone,alpha="1")) +
+		geom_sf(data=fao, inherit.aes = FALSE,aes(fill=zone)) +
+		geom_sf_text(data=st_centroid(fao), inherit.aes=FALSE,aes(label=f_code),cex=1.5) +
+#		geom_sf(data=stations,aes(color=ser_lfs_code,shape=ser_lfs_code),size=2, inherit.aes = FALSE)+
+#		geom_sf(data=subset(stations,ser_lfs_code!="Y" & ser_qal_id==1),color = 'black',size=2, shape = 21,
+#				inherit.aes=FALSE) +
+#		geom_sf(data=subset(stations,ser_lfs_code=="Y"& ser_qal_id==1),color = 'black',size=2, shape = 24,
+#				inherit.aes=FALSE) +
+		geom_point(data=stations,aes(x=X,y=Y,
+						color=ser_lfs_code,shape=ser_lfs_code,stroke=0),size=3)+
+		geom_point(data=subset(stations,ser_lfs_code!="Y"& ser_qal_id==1),
+				color = 'black', 
+				size=3, 
+				shape = 21,
+				stroke=1,
+				aes(x=X,y=Y)) +
+		geom_point(data=subset(stations,ser_lfs_code=="Y"& ser_qal_id==1),
+				color = 'black',		
+				size= 3, 
+				shape = 24,
+				stroke =1,
+				aes(x=X,y=Y)) +
+	
+		scale_color_manual("Life stage",values=c("white","grey","yellow")) +
+		scale_shape_manual("Life stage", values=c(19,19,17)) + xlab("") + ylab("") +
+		scale_fill_manual(NULL,values=c("#30ff8a","#33b1c4","#1a81db")) +
+		guides(alpha=guide_legend("Recruitment series",
+						legend.background = element_blank(),
+						title.theme=element_text(face="bold"),
+						keyheight=0,
+						label.theme=element_text(size=0,lineheight=0),
+						order=1, 
+						override.aes=list(color=NA, shape=NA, alpha=NA, fill=NA))) +
+		theme(
+				legend.box.background = element_rect(fill="#EFD9C1",color=NA),
+				legend.background = element_blank(),
+				legend.position = c(.995, .3),
+				legend.justification = c("right", "center"),
+				legend.box.just = "left",
+				legend.box.margin = margin(1, 1, 1, 1),
+				legend.margin = margin(1, 1, 1, 1),
+				legend.key = element_rect(colour = "transparent", fill = "transparent")
+				
+		)
+print(figure1)
+
+
+save_figure("figure1",g,550,600)
+
 
 
 @
