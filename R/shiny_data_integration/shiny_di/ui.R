@@ -18,7 +18,7 @@ ui <- dashboardPage(title="ICES Data Integration",
 						menuItem("Import",tabName= "import", icon= icon("align-left")),
 						menuItem("Import Time Series",tabName= "import_ts", icon= icon("align-left")),					
 						menuItem("Edit", tabName="edit", icon=icon("table")),
-						menuItem("Edit Time series", tabName="editTS", icon=icon("table")),
+						menuItem("Edit Data", tabName="editAll", icon=icon("table")),
 						menuItem("Plot duplicates", tabName='plot_duplicates',icon= icon("area-chart")),
 						menuItem("New Participants", tabName='integrate_new_participants',icon= icon("user-friends"))
 						#menuSubItem("Plot duplicates",  tabName="plot_duplicates"),
@@ -343,36 +343,44 @@ ui <- dashboardPage(title="ICES Data Integration",
 										br(),
 										DT::dataTableOutput("table_cor")),
 						
+				
 						
 						
+
+						# Data correction table  ----------------------------------------------------------------
 						
-						# Data correction table Time Series  ----------------------------------------------------------------
-						
-						tabItem("editTS",
+						tabItem("editAll",
 						        h2("Data correction table"),
-						        
-						        
-						        tabsetPanel(tabPanel("SERIES INFO"),
-						                    tabPanel("DASSERIES VALIES",
 						        br(),        
 						        h3("Filter"),
 						        fluidRow(
 						          column(width=4,
-						                 pickerInput(inputId="lfsTS",
-						                             label="Select a stage :",
-						                             choices=c("G","GY","Y","S"),
-						                             multiple=TRUE,
+						                 pickerInput(inputId = "edit_datatype", 
+						                             label = "Select table to edit :", 
+						                             choices = sort(c("NULL","t_series_ser",
+						                                              "t_eelstock_eel",
+						                                              "t_biometry_series_bis",
+						                                              "t_dataseries_das")),
+						                             selected="NULL",
+						                             multiple = FALSE,  
 						                             options = list(
 						                               style = "btn-primary", size = 5))),
 						          column(width=4, 
-						                 pickerInput(inputId = "series", 
-						                             label = "Select series :", 
-						                             choices = ser_list,
+						                 pickerInput(inputId = "editpicker1", 
+						                             label = "", 
+						                             choices = "",
+						                             multiple = TRUE, 
+						                             options = list(
+						                               style = "btn-primary", size = 5))),
+						          column(width=4, 
+						                 pickerInput(inputId = "editpicker2", 
+						                             label = "", 
+						                             choices = "",
 						                             multiple = TRUE, 
 						                             options = list(
 						                               style = "btn-primary", size = 5))),
 						          column(width=4,
-						                 sliderTextInput(inputId ="yearTS", 
+						                 sliderTextInput(inputId ="yearAll", 
 						                                 label = "Choose a year range:",
 						                                 choices=seq(the_years$min_year, the_years$max_year),
 						                                 selected = c(the_years$min_year,the_years$max_year)
@@ -384,12 +392,12 @@ ui <- dashboardPage(title="ICES Data Integration",
 														Cancel to reset."),
 						        br(), 
 						        fluidRow(                                       
-						          column(width=8,verbatimTextOutput("database_errorsTS")),
-						          column(width=2,actionButton("clear_tableTS", "clear")),
-						          column(width=2,uiOutput("buttons_data_correctionTS"))
+						          column(width=8,verbatimTextOutput("database_errorsAll")),
+						          column(width=2,actionButton("clear_tableAll", "clear")),
+						          column(width=2,uiOutput("buttons_data_correctionAll"))
 						        ),                
 						        br(),
-						        DT::dataTableOutput("table_corTS")))),
+						        DT::dataTableOutput("table_corAll")),
 								
 								# plot for duplicates  ------------------------------------------------------------------
 								
