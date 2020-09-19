@@ -1951,7 +1951,7 @@ shinyServer(function(input, output, session){
 			                        value=as.character(c(newx,newy)))
 			  rvsAll$data[i, cx] <<- DT::coerceValue(newx, rvsAll$data[i, cx])
 			  rvsAll$data[i, cy] <<- DT::coerceValue(newy, rvsAll$data[i, cy])
-			  replaceData(proxy_table_cor, rvsAll$data, resetPaging = FALSE)
+			  replaceData(proxy_table_corAll, rvsAll$data, resetPaging = FALSE,rownames=FALSE)
 			  # datasame is set to TRUE when save or update buttons are clicked
 			  # here if it is different it might be set to FALSE
 			  rvsAll$dataSame <- identical(rvsAll$data, rvsAll$dbdata)
