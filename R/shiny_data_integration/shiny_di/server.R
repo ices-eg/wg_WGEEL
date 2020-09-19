@@ -1901,6 +1901,71 @@ shinyServer(function(input, output, session){
 			        list(extend="excel",
 			             filename = paste0("data_",Sys.Date())))
 			    ))})
+			
+			
+			output$maps_editedtimeseries <-renderLeaflet({
+			  validate(need(data$connectOK,"No connection"))
+			  req(input$edit_datatype=="t_series_ser")
+			  colors=rep("blue",nrow(rvsAll$data))
+			  if (!all(is.na(rvsAll$editedInfo))){
+			    colx=which(names(rvsAll$data)=="ser_x")
+			    coly=which(names(rvsAll$data)=="ser_y")
+			    colors[rvsAll$editedInfo$row[rvsAll$editedInfo$col %in% c(colx,coly)]]="red"
+			  }
+			  pal <- 
+			    colorFactor(palette = c("blue", "red"), 
+			                levels = c("blue", "red"))
+			  leaflet(rvsAll$data) %>%
+			    addTiles(group="OSM") %>%
+			    addProviderTiles(providers$Esri.WorldImagery, group="satellite") %>%
+			    addCircleMarkers(layerId=~ser_nameshort,
+			               color=~pal(colors),
+			               lat=~ser_y,
+			               lng=~ser_x,
+			               label=~ser_nameshort,
+			               group="stations") %>%
+			    addDrawToolbar(targetGroup="stations",
+			                   editOptions = editToolbarOptions(edit=TRUE,
+			                                                    remove=FALSE),
+			                   rectangleOptions=FALSE,
+			                   circleOptions=FALSE,
+			                   polygonOptions=FALSE,
+			                   polylineOptions=FALSE,
+			                   markerOptions=FALSE,
+			                   circleMarkerOptions=FALSE) %>%
+			    addLayersControl(baseGroups=c("OSM","satellite"))
+			})
+			
+			observeEvent(input$maps_editedtimeseries_draw_edited_features, {
+			  edited <- input$maps_editedtimeseries_draw_edited_features
+			  nedited=length(edited$features)
+			  ids <- edited$features[[nedited]]$properties$`layerId`
+			  i=which(rvsAll$dbdata$ser_nameshort==ids)
+			  newx =edited$features[[nedited]]$geometry$coordinates[[1]]
+			  newy= edited$features[[nedited]]$geometry$coordinates[[2]]
+			  cx=which(names(rvsAll$dbdata)=="ser_x")
+			  cy=which(names(rvsAll$dbdata)=="ser_y")
+			  info=data.frame(row=rep(i,2),
+			                  col=c(cx,
+			                        cy),
+			                        value=as.character(c(newx,newy)))
+			  rvsAll$data[i, cx] <<- DT::coerceValue(newx, rvsAll$data[i, cx])
+			  rvsAll$data[i, cy] <<- DT::coerceValue(newy, rvsAll$data[i, cy])
+			  replaceData(proxy_table_cor, rvsAll$data, resetPaging = FALSE)
+			  # datasame is set to TRUE when save or update buttons are clicked
+			  # here if it is different it might be set to FALSE
+			  rvsAll$dataSame <- identical(rvsAll$data, rvsAll$dbdata)
+			  # this will collate all editions (coming from datatable observer in a data.frame
+			  # and store it in the reactive dataset rvs$editedInfo
+			  if (all(is.na(rvsAll$editedInfo))) {
+			    
+			    rvsAll$editedInfo <- data.frame(info)
+			  } else {
+			    rvsAll$editedInfo <- dplyr::bind_rows(rvsAll$editedInfo, data.frame(info))
+			  }
+
+			})
+			
 			#-----------------------------------------
 			# Create a DT proxy to manipulate data
 			# 
@@ -2037,6 +2102,7 @@ shinyServer(function(input, output, session){
 			  rvsAll$dbdata <- NA
 			  rvsAll$dbdata <- rvsAll$data #this is to ensure that the table display is updated (reactive value)
 			  rvsAll$dataSame <- TRUE
+			  rvsAll$editedInfo = NA
 			})
 			
 			# UI buttons ----------------------------------------------------------------------------------

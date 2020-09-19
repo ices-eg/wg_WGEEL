@@ -12,6 +12,8 @@
 #setwd("C:\\workspace\\gitwgeel\\R\\shiny_data_integration\\shiny_di")
 source("load_library.R")
 load_package("shiny")
+load_package("leaflet.extras")
+
 load_package("shinythemes")
 load_package("DT")
 load_package("readxl")

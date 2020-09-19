@@ -397,7 +397,9 @@ ui <- dashboardPage(title="ICES Data Integration",
 						          column(width=2,uiOutput("buttons_data_correctionAll"))
 						        ),                
 						        br(),
-						        DT::dataTableOutput("table_corAll")),
+						        DT::dataTableOutput("table_corAll"),
+						        fluidRow(column(width=10),
+						                 leafletOutput("maps_editedtimeseries"))),
 								
 								# plot for duplicates  ------------------------------------------------------------------
 								
@@ -435,7 +437,7 @@ ui <- dashboardPage(title="ICES Data Integration",
 												column(width=6,
 														plotlyOutput("plotly_selected_year"))
 										),     
-										dataTableOutput("datatablenearpoints",width='100%')                                        
+										DT::dataTableOutput("datatablenearpoints",width='100%')                                        
 								),
 								tabItem(tabName="integrate_new_participants",
 										h2("Enter the name of a new participant"),
