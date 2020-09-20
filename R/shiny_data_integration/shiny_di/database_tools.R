@@ -1536,7 +1536,7 @@ update_t_eelstock_eel <- function(editedValue, pool, data) {
 #' @importFrom dplyr last
 #' @importFrom glue glue_sql
 update_data_generic <- function(editedValue, pool, data,edit_datatype) {
-  # Keep only the last modification for a cell edited Value is a data frame with
+  # Keep only the last modification for a cell. edited Value is a data frame with
   # columns row, col, value this part ensures that only the last value changed in a
   # cell is replaced.  Previous edits are ignored
   editedValue <- editedValue %>% group_by(row, col) %>% filter(value == dplyr::last(value) | 
