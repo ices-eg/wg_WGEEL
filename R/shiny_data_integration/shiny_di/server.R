@@ -1868,6 +1868,7 @@ shinyServer(function(input, output, session){
 			  )
 			  rvsAll$data <- data
 			  rvsAll$dbdata <- data
+			  rvsAll$editedInfo = NA
 			  disable("clear_tableAll")                
 			})
 			
@@ -2073,6 +2074,7 @@ shinyServer(function(input, output, session){
 			  }
 			  rvsAll$dbdata <- rvsAll$data
 			  rvsAll$dataSame <- TRUE
+			  rvsAll$editedInfo = NA
 			})
 			
 			# Observe clear_table button -> revert to database table---------------------------------------
@@ -2095,6 +2097,7 @@ shinyServer(function(input, output, session){
 										 rvsAll$editedInfo = NA
 			               disable("clear_tableAll")
 			               output$database_errorsAll<-renderText({""})
+			               rvsAll$editedInfo = NA
 			             })
 			
 			# Oberve cancel -> revert to last saved version -----------------------------------------------
