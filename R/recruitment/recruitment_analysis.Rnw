@@ -270,6 +270,12 @@ wger_init=sqldf(query) # (wge)el (r)ecruitment data
 wger_init <- chnames(wger_init,
 		c("das_id","das_value","das_year","ser_nameshort","ser_area_division","lfs_name"),
 		c("id","value","year","site","area_division","lifestage"))
+
+
+query <- paste("SELECT * FROM datawg.t_series_ser join  datawg.t_dataseries_das ON das_ser_id = ser_id
+ WHERE das_year = ", c(CY,CY-1)," AND das_qal_id IN (0,3,4);")
+last_years_with_problem <- sqldf(query)
+
 ############################################################################
 # Rebuilding areas used by wgeel (North Sea, Elswhere Europe) from area_divisions
 # See Ices (2008) for the reason why we need to do that
@@ -320,10 +326,14 @@ statseries <- sqldf('select site,namelong,min,max,duration,missing,life_stage,sa
 save(wger_init,file=str_c(datawd,"wger_init.Rdata"))
 save(statseries,file=str_c(datawd,"statseries.Rdata"))
 save(R_stations,file=str_c(datawd,"R_stations.Rdata"))
+save(last_years_with_problem,file=str_c(datawd,"last_years_wih_problem.Rdata"))
+
+
 
 save(wger_init,file=str_c(shinywd,"wger_init.Rdata"), version =2)
 save(statseries,file=str_c(shinywd,"statseries.Rdata"), version =2)
 save(R_stations,file=str_c(shinywd,"R_stations.Rdata"), version =2)
+
 @
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %************************************************************************************
@@ -546,6 +556,7 @@ last_year <- tapply(wger$year,wger$site, function(X) max(X))
 R_stations$areashort <- "EE"
 R_stations$areashort[R_stations$area=="North Sea"] <- "NS"
 R_stations$ser_namelong <- iconv(R_stations$ser_namelong,"UTF8")
+
 series_CY <- R_stations[R_stations$ser_nameshort%in%names(last_year[last_year==CY]),
 		c("ser_nameshort","ser_namelong","cou_code","ser_lfs_code","areashort","ser_area_division","cou_order","ser_y")]
 series_CY <- series_CY[order(series_CY$ser_lfs_code,series_CY$cou_order),-c(ncol(series_CY)-1,ncol(series_CY))]
@@ -751,6 +762,15 @@ print(xstatseriesY,
 		NA.string = ".",
 		include.rownames=FALSE
 )
+
+################################################################
+# Table of the problem in series for this year
+################################################################
+
+
+
+
+
 ################################################################
 # some additional stats for the report
 #################################################################
