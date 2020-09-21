@@ -190,7 +190,8 @@ eel and yellow eel analysis separetely.
 knitr::include_graphics("images/yellow.png")
 ```
 
-There are few data series started before 2000 (Figure \@ref(fig:pointperyearYE)) so we sill restrict the analysis to the dataseries that have at least 10 observations after 2000 and stops in 2019 to avoid incomplete data in 2020. 
+## Trends after 2000
+There are few data series started before 2000 (Figure \@ref(fig:pointperyearYE)) so we restrict the analysis to the dataseries that have at least 10 observations after 2000 and stops in 2019 to avoid incomplete data in 2020. 
 
 ```{r pointperyearYE,echo=FALSE, fig.cap="number of yellow eel time series available per year"}
 point_per_year_YE<- yellow_data %>%
@@ -201,6 +202,22 @@ ggplot(point_per_year_YE,aes(y=n,x=das_year))+
   geom_line()+
   xlab("")+ylab("number of available data")+
   theme_bw()
+
+#For GAMS, we do not restrict to the post 2000 period
+#we keep only data with at least 10 years
+nbpointsgam = yellow_data %>%
+  group_by(ser_id) %>%
+  summarise(nbyear=n_distinct(das_year))%>%
+  filter(nbyear>=10)
+yellow_data_gam <-yellow_data %>%
+  filter(ser_id %in% nbpointsgam$ser_id & das_year <= 2019)
+
+#we also removed ser_id for which 0 represents more than 10% of data
+yellow_data_gam <- yellow_data_gam %>%
+  group_by(ser_id) %>%
+  mutate(nb_values=n(),nb_zeros=sum(das_value==0)) %>%
+  mutate(freq_zero=nb_zeros/nb_values)%>%
+  filter(freq_zero < .1)
 
 #we keep only data with at least 10 years
 nbpoints = yellow_data %>%
@@ -217,6 +234,9 @@ yellow_data <- yellow_data %>%
   mutate(nb_values=n(),nb_zeros=sum(das_value==0)) %>%
   mutate(freq_zero=nb_zeros/nb_values)%>%
   filter(freq_zero < .1)
+
+
+
 ```
 
 This leaves `r length(unique(yellow_data$ser_id))` time series. If we plot all the series, a gam smoother indicates an overall decreasing trend (Figure \@ref(fig:plotTSYE)).
@@ -240,20 +260,21 @@ NO SE, with a more complex curve for SE (Figure \@ref(fig:gamYellow)). The trend
 transformed and scaled values.
 
 ```{r gamYellow, echo=FALSE,warning=FALSE, fig.cap="Trends per country in yellow eel abundance estimated by a gam"}
-
-
 g0 <- gam(das_value~s(das_year), data=yellow_data_std)
 g1 <- gam(das_value~s(das_year, by=ser_cou_code), data=yellow_data_std)
 g2 <- gam(das_value~s(das_year, by=ser_nameshort), data=yellow_data_std)
-#AIC(g0, g1, g2)
 cou_code <- levels(droplevels (yellow_data_std$ser_cou_code))
+#AIC(g0, g1, g2)
 
+plot(g1,residuals=TRUE,select=i, shade=TRUE,shade.col=cols[i], ylab=cou_code[i])
 layout(matrix(1:9, nrow = 3, byrow = TRUE))
 cols<-colorRampPalette(c("chartreuse", "grey",  "navy"),space = "rgb")(length(cou_code))
 for (i in 1:length(cou_code)){
 	plot(g1,residuals=TRUE,select=i, shade=TRUE,shade.col=cols[i], ylab=cou_code[i])
-}
+ }
 ```
+
+
 ```{r,include=FALSE}
 kable(nb_per_country <- yellow_data %>%
 				group_by(ser_cou_code) %>%
@@ -263,7 +284,7 @@ kable(nb_per_country <- yellow_data %>%
 
 
 
-## Running the DFA
+### Running the DFA
 The DFA method is fully detailed in [@zuur2003]. The basic idea is to decompose each time series into a weighted sum of a few common trends and a noise factor:
 $$
 \begin{aligned}
@@ -287,7 +308,7 @@ To fit the DFA, the user as to put some additionnal constraints. We will make 3 
 1 to 4 common trends are tested. The best combination of $\Sigma$ and number of trends is chosen by comparing AICc criterion. 
 
 
-## Common trends
+### Common trends
 Before running the DFA, values were logtransformed (few 0 value were recorded and were replaced by 10% of the lower value of the series) and scales ((mean deleted and divided by the standard deviation)).
 
 ```{r dfa yellow, results='hide',eval=FALSE}
@@ -490,6 +511,40 @@ ggplot(data = d) +
   theme_bw()
 ```
 
+
+## Historical trends
+
+We also fitted gam over the whole period of available data in order to put the post-2000
+trends in an historical perspective. When carrying out this, the gam smoother clearl show
+a decrease in abundance in all countries since the beggining of the period (Figure \@ref(fig:gamYellowHist)).
+
+```{r gamYellowHist, echo=FALSE,warning=FALSE, fig.cap="Trends per country in yellow eel abundance estimated by a gam"}
+yellow_data_std_gam=yellow_data_gam%>%
+  mutate(das_value=log(das_value))%>%
+  group_by(ser_id)%>%
+  mutate(das_value=(das_value-mean(ifelse(das_year>=2000,
+                                          das_value,
+                                          NA),na.rm=TRUE))/sd(ifelse(das_year>=2000,
+                                          das_value,
+                                          NA),na.rm=TRUE))
+
+
+g0 <- gam(das_value~s(das_year), data=subset(yellow_data_std_gam,das_value>0))
+g1 <- gam(das_value~s(das_year, by=ser_cou_code), data=subset(yellow_data_std_gam,das_value>0))
+g2 <- gam(das_value~s(das_year, by=ser_nameshort), data=yellow_data_std_gam)
+#AIC(g0, g1, g2)
+cou_code <- levels(droplevels (yellow_data_std_gam$ser_cou_code))
+
+layout(matrix(1:9, nrow = 3, byrow = TRUE))
+cols<-colorRampPalette(c("chartreuse", "grey",  "navy"),space = "rgb")(length(cou_code))
+for (i in 1:length(cou_code)){
+	plot(g1,residuals=TRUE,select=i, shade=TRUE,shade.col=cols[i], ylab=cou_code[i],
+  scale=0)
+}
+```
+
+
+
 # Silver eel
 ## Available data
 `r length(unique(silver_data$ser_id))` time series are available (Figure \@ref(fig:mapsilver)), originating from `r length(unique(silver_data$ser_cou_code))` countries and `r length(unique(silver_data$ser_emu_nameshort))` EMUs. Most of them are located in Northern Europe. `r length(unique(silver_data$ser_id[silver_data$ser_hty_code=="C"]))` time series are collected in coastal waters and `r length(unique(silver_data$ser_id[silver_data$ser_hty_code=="F"]))` in freshwater, while the habitat type was not reported for .`r length(unique(silver_data$ser_id[is.na(silver_data$ser_hty_code)]))`
@@ -501,7 +556,8 @@ ggplot(data = d) +
 knitr::include_graphics("images/silver.png")
 ```
 
-There are few data series started before 2000 so we sill restrict the analysis to the dataseries that have at least 10 observations after 2000 (Figure \@ref(fig:pointperyearSE)). 
+## Trends since 2000
+There are few data series started before 2000 so, as a first start, we restrict the analysis to the dataseries that have at least 10 observations after 2000 (Figure \@ref(fig:pointperyearSE)). 
 
 ```{r pointperyearSE,echo=FALSE, fig.cap="number of yellow eel time series available per year"}
 point_per_year_SE<- silver_data %>%
@@ -512,6 +568,24 @@ ggplot(point_per_year_SE,aes(y=n,x=das_year))+
   geom_line()+
   xlab("")+ylab("number of available data")+
   theme_bw()
+
+
+#For GAMS, we do not restrict to the post 2000 period
+#we keep only data with at least 10 years
+nbpointsgam = silver_data %>%
+  group_by(ser_id) %>%
+  summarise(nbyear=n_distinct(das_year))%>%
+  filter(nbyear>=10)
+silver_data_gam <-silver_data %>%
+  filter(ser_id %in% nbpointsgam$ser_id & das_year <= 2019)
+
+#we also removed ser_id for which 0 represents more than 10% of data
+silver_data_gam <- silver_data_gam %>%
+  group_by(ser_id) %>%
+  mutate(nb_values=n(),nb_zeros=sum(das_value==0)) %>%
+  mutate(freq_zero=nb_zeros/nb_values)%>%
+  filter(freq_zero < .1)
+
 
 #we keep only data with at least 10 years
 nbpoints = silver_data %>%
@@ -553,7 +627,7 @@ ggplot(silver_data_std,aes(x=das_year,y=das_value))+
 When plotted per country, a simple gam smoother shows descreating trend in DK, FR, NO, the same but with a stabilization in GB (Figure \@ref(fig:gamSilver)). SE and ES display rather increasing trend, while IE is more stable. DE is erratic, especially because there are no data at the beginning of the period. The trend correspdond to log
 transformed and scaled values.
 
-```{r gamSilver, echo=FALSE,warning=FALSE, fig.cap="Trends per country in yellow eel abundance estimated by a gam"}
+```{r gamSilver, echo=FALSE,warning=FALSE, fig.cap="Trends per country in silver eel abundance estimated by a gam"}
 
 g0 <- gam(das_value~s(das_year), data=silver_data_std)
 g1 <- gam(das_value~s(das_year, by=ser_cou_code), data=silver_data_std)
@@ -575,10 +649,10 @@ kable(nb_per_country <- silver_data %>%
 				dplyr::rename(Country=ser_cou_code))
 ```
 
-## Running the DFA
+### Running the DFA
 We applied the same method as for yellow eel so readers can refer to the corresponding section for further details.
 
-## Common trends
+### Common trends
 Before running the DFA, values were logtransformed (a 0 value was recorded for a single observation (time series SkaY) and was replaced by 10% of its lower value) and scales ((mean deleted and divided by the standard deviation)).
 
 ```{r dfa silver, results='hide',eval=FALSE}
@@ -697,7 +771,7 @@ for(i in 1:m) {
 ```
 
 
-```{r vennsilver, echo=FALSE, fig.cap="Venn diagram of the yellow eel DFA"}
+```{r vennsilver, echo=FALSE, fig.cap="Venn diagram of the silver eel DFA"}
 venn(namesseries,Z,minZ)
 ```
 
@@ -738,6 +812,39 @@ ggplot(data = d) +
   scale_x_continuous(breaks=seq(1,TT,10),labels=colnames(y)[seq(1,TT,10)])+
   theme_bw()
 ```
+
+## Historical trends
+
+We also fitted gam over the whole period of available data in order to put the post-2000
+trends in an historical perspective. When carrying out this, the gam smoother clearl show
+a decrease in abundance in all countries since the beggining of the period (Figure \@ref(fig:gamSilverHist)).
+
+```{r gamSilverHist, echo=FALSE,warning=FALSE, fig.cap="Trends per country in yellow eel abundance estimated by a gam"}
+silver_data_std_gam=silver_data_gam%>%
+  mutate(das_value=log(das_value))%>%
+  group_by(ser_id)%>%
+  mutate(das_value=(das_value-mean(ifelse(das_year>=2000,
+                                          das_value,
+                                          NA),na.rm=TRUE))/sd(ifelse(das_year>=2000,
+                                          das_value,
+                                          NA),na.rm=TRUE))
+
+
+g0 <- gam(das_value~s(das_year), data=subset(silver_data_std_gam,das_value>0))
+g1 <- gam(das_value~s(das_year, by=ser_cou_code), data=subset(silver_data_std_gam,das_value>0))
+g2 <- gam(das_value~s(das_year, by=ser_nameshort), data=silver_data_std_gam)
+#AIC(g0, g1, g2)
+cou_code <- levels(droplevels (silver_data_std_gam$ser_cou_code))
+
+layout(matrix(1:9, nrow = 3, byrow = TRUE))
+cols<-colorRampPalette(c("chartreuse", "grey",  "navy"),space = "rgb")(length(cou_code))
+for (i in 1:length(cou_code)){
+	plot(g1,residuals=TRUE,select=i, shade=TRUE,shade.col=cols[i], ylab=cou_code[i],
+  scale=0)
+}
+```
+
+
 # Discussion
 
 A gam model per country does not accounts for the variability between sites.
