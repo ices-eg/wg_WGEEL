@@ -129,6 +129,9 @@ shinyServer(function(input, output, session){
 						
 						query <- "SELECT min(eel_year) as min_year, max(eel_year) as max_year from datawg.t_eelstock_eel"
 						the_years <<- dbGetQuery(pool, sqlInterpolate(ANSI(), query))   
+						updateSliderTextInput(session,"yearAll",
+						                      choices=seq(the_years$min_year, the_years$max_year),
+						                      selected = c(the_years$min_year,the_years$max_year))
 						
 						query <- "SELECT name from datawg.participants order by name asc"
 						participants<<- dbGetQuery(pool, sqlInterpolate(ANSI(), query))  
@@ -1882,6 +1885,7 @@ shinyServer(function(input, output, session){
 			  validate(need(data$connectOK,"No connection"))
 			  req(input$edit_datatype!="NULL")
 			  noteditable=c(1,grep("_ref",names(rvsAll$dbdata)))-1
+
 			  DT::datatable(
 			    rvsAll$dbdata, 
 			    rownames = FALSE,
@@ -1977,15 +1981,14 @@ shinyServer(function(input, output, session){
 			# Expamples at
 			# https://yihui.shinyapps.io/DT-edit/
 			observeEvent(input$table_corAll_cell_edit, {
-			  
 			  info <- input$table_corAll_cell_edit
 			  
 			  i <- info$row
-			  j <- info$col = info$col + 1  # column index offset by 1
+			  j <- info$col <- info$col + 1  # column index offset by 1
 			  v <- info$value
 			  
 			  rvsAll$data[i, j] <<- DT::coerceValue(v, rvsAll$data[i, j])
-			  replaceData(proxy_table_cor, rvsAll$data, resetPaging = FALSE, rownames = FALSE)
+			  replaceData(proxy_table_corAll, rvsAll$data, resetPaging = FALSE, rownames = FALSE)
 			  # datasame is set to TRUE when save or update buttons are clicked
 			  # here if it is different it might be set to FALSE
 			  rvsAll$dataSame <- identical(rvsAll$data, rvsAll$dbdata)
