@@ -37,6 +37,8 @@ load_package("shinyBS")
 load_package("sqldf")
 load_package("leaflet")
 
+options(shiny.sanitize.errors = FALSE)
+
 #----------------------
 # Graphics
 #----------------------
