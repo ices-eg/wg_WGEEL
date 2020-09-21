@@ -129,6 +129,9 @@ shinyServer(function(input, output, session){
 						
 						query <- "SELECT min(eel_year) as min_year, max(eel_year) as max_year from datawg.t_eelstock_eel"
 						the_years <<- dbGetQuery(pool, sqlInterpolate(ANSI(), query))   
+						updateSliderTextInput(session,"yearAll",
+						                      choices=seq(the_years$min_year, the_years$max_year),
+						                      selected = c(the_years$min_year,the_years$max_year))
 						
 						query <- "SELECT name from datawg.participants order by name asc"
 						participants<<- dbGetQuery(pool, sqlInterpolate(ANSI(), query))  
