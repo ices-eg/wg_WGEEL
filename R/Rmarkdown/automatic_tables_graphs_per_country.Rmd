@@ -131,6 +131,7 @@ load_package("glue")
 load_package("kableExtra")
 load_package("pander")
 load_package("ggmap")
+load_package("sp")
 
 
 # load functions ------------------------------------------------------------------------------------
