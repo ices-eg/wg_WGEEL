@@ -600,3 +600,6 @@ bio_comment IS NULL AND
 bis_g_in_gy IS NULL 
 
 
+# covid
+
+SELECT * FROM datawg.t_series_ser join  datawg.t_dataseries_das ON das_ser_id = ser_id WHERE das_year = 2020  AND das_qal_id IN (0,3,4);
