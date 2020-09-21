@@ -53,7 +53,7 @@ if ((!file.exists(paste("datagerem",CY,".rdata",sep=""))) | params$updateData){
   
   #get the surface of a catchment given a list of wso_id
   getSurface=function(w,con){
-    if (is.na(w)) return(1) #corresponds to unreal catchments
+    if (is.na(w)) return(2.133000e+16) #corresponds to unreal catchments
     w <- gsub("\\{","(",w)
     w <- gsub("\\}",")",w)
     dbGetQuery(con,paste("select sum(area_km2) from",
@@ -87,7 +87,7 @@ The model is detailed in [@drouineau2016] and [@bornarel2018a]. The current exer
 if ((!file.exists(paste("datagerem",CY,".rdata",sep=""))) | params$updateData){
   
   series_wgeel=read.table("catchment_wgeel.csv",header=TRUE,sep=";")
-  wgeel=dbGetQuery(con_wgeel,paste("select das_year,ser_nameshort,ser_uni_code,das_value,ser_ccm_wso_id,ser_x,ser_y from datawg.t_dataseries_das left join datawg.t_series_ser on das_ser_id =ser_id where das_year>=1960 and ser_nameshort in ('",paste(series_wgeel$ser_nameshort[series_wgeel$from_wgeel],collapse="','"),"')",sep="") )
+  wgeel=dbGetQuery(con_wgeel,paste("select das_year,ser_nameshort,ser_uni_code,das_value,ser_ccm_wso_id,ser_x,ser_y from datawg.t_dataseries_das left join datawg.t_series_ser on das_ser_id =ser_id where das_year>=1960 and das_year <=",CY," and ser_nameshort in ('",paste(series_wgeel$ser_nameshort[series_wgeel$from_wgeel],collapse="','"),"')",sep="") )
   series_wgeel <- merge(series_wgeel,
                         unique(wgeel[,c("ser_nameshort","ser_ccm_wso_id","ser_x","ser_y")]),
                         all.x=TRUE)
@@ -123,7 +123,7 @@ if ((!file.exists(paste("datagerem",CY,".rdata",sep=""))) | params$updateData){
   ####loading additional french series
   french_wide=read.table("french_serie2.csv",header=TRUE,sep=";")
   names(french_wide)[1]="das_year"
-  french_wide=subset(french_wide,french_wide$das_year>=1960)
+  french_wide=subset(french_wide,french_wide$das_year>=1960 & french_wide$das_year<=CY)
   
 
   tmp <- unique(na.omit(series_wgeel[,c("ser_x","ser_y","ser_ccm_wso_id")]))
@@ -482,7 +482,7 @@ rCy=jags_mat[,paste("logRglobal[",mydata$nbyear,"]",sep="")] #last year estimate
 rRef=rowMeans(jags_mat[,paste("logRglobal[",1:match("1979",rownames(values_wide)),"]",sep="")])
 rstdCY=round(quantile(exp(rCy)/exp(rRef),probs=c(0.025,0.5,0.975))*100,digits=2)
 ```
-Unsurprisingly, overall recruitment (Figure \@ref(fig:rglobal)) shows a steep decline since the early 1980s, despite some oscillations. In the recent period, a period of increase in the early 2010s but seems to stabilize or slightly decrease after this. Credibility interval are rather large at the end of the period both because 2020 were not available when the model was run, and because many time series (especially French fishery based time series) ended after the implementation of the Eel Regulation. The 2020 recruitment is estimated to be `r rstdCY[2]`% (credibility interval [`r paste(rstdCY[c(1,3)],collapse="%-")`%]). 
+Unsurprisingly, overall recruitment (Figure \@ref(fig:rglobal)) shows a steep decline since the early 1980s, despite some oscillations. In the recent period, a period of increase in the early 2010s but seems to stabilize or slightly decrease after this. Credibility intervals are rather large at the end of the period both because 2020 were not available when the model was run, and because many time series (especially French fishery based time series) ended after the implementation of the Eel Regulation. The 2020 recruitment is estimated to be `r rstdCY[2]`% (credibility interval [`r paste(rstdCY[c(1,3)],collapse="%-")`%]). 
 
 ```{r rglobal, fig.cap="Overall trend in recruitment: median of the posterior distribution (solid line) and corresponding 95% credibility interval (shaded area)",echo=FALSE}
 col=grep("logRglobal",colname)
@@ -508,7 +508,7 @@ ggplot(logrglobal,aes(x=year,y=q50))+
 
 ```
 
-At the zone level (Figure \@ref(fig:rzone)), all zones display a decrease of recruitment. Results confirm that the decline in North Sea started earlier than ATL_F and ATL_IB. The Mediterreanean area also displays a decline in the 1960s, however, estimates in this period are based on few fishery-based time series and the assumption about constant exploitation rate and reporting rate is questionnable, moreover, it is worthwile mentionning that there are currently only 4 time-series are available while the zone is large and include both lagoons and “usual” river basins. For the Channel, the lack of data in the begginning of the time series explain the large credibility interval at the beginning of period, therefore estimates should be taken with great care. ATL_F does not display any increase at the end of the time-series, however, results are based on single time-series (GiscG) and, consequently, confidence interval are rather large.
+At the zone level (Figure \@ref(fig:rzone)), all zones display a decrease of recruitment. Results confirm that the decline in North Sea started earlier than ATL_F and ATL_IB. The Mediterreanean area also displays a decline in the 1960s, however, estimates in this period are based on few fishery-based time series and the assumption about constant exploitation rate and reporting rate is questionnable. Moreover, it is worthwile mentionning that there are currently only 4 available time-series while the zone is large and include both lagoons and “usual” river basins. For the Channel, the lack of data in the begginning of the time series explain the large credibility interval at the beginning of period, therefore estimates should be taken with great care. ATL_F does not display any increase at the end of the time-series, however, results are based on single time-series (GiscG) and, consequently, confidence interval are rather large.
 
 ```{r rzone,echo=FALSE, fig.cap="Trend in recruitment in each zone of the model: median of the posterior distribution (solid line) and corresponding 95% credibility interval (shaded area). The colour of the points on the x axis indicate the number of available data series for the corresponding zone and year"}
 col=grep("Rzone",colname)
@@ -562,9 +562,10 @@ Figures \@ref(fig:rbasintrap), \@ref(fig:rbasinabsolute), \@ref(fig:rbasinsurvey
 
 
 ```{r rbasintrap, echo=FALSE,fig.cap="Model fits to trap time series. The blue lines indicates the median of the posterior distribution and the blue ribbon the corresponding 95% credibility interval, the red points indicate observation"}
-trap_long=pivot_longer(cbind.data.frame(trap,data.frame(year=as.numeric(rownames(trap)))),
+trap_long=pivot_longer(cbind.data.frame(as.data.frame(logIPObs),
+                                        data.frame(year=as.numeric(rownames(logIPObs)))),
                         cols=-year,names_to="ser_name_short",values_to="obs")
-trap_long$itrap=match(trap_long$ser_name_short,colnames(trap))
+trap_long$itrap=match(trap_long$ser_name_short,colnames(logIPObs))
 
 trap_pred=do.call(rbind.data.frame,lapply(1:ncol(trap),function(i){
   ser_name_short=names(trap)[i]
@@ -585,7 +586,7 @@ trap_pred=do.call(rbind.data.frame,lapply(1:ncol(trap),function(i){
 }))
 trap_obs_pred=merge(trap_long,trap_pred)
 print(ggplot(trap_obs_pred,aes(x=year))+
-  geom_point(aes(y=log(obs)),col=2)+
+  geom_point(aes(y=(obs)),col=2)+
   geom_line(aes(y=q50),col="blue")+
   geom_ribbon(aes(ymin=q2.5,ymax=q97.5),alpha=.3,fill="blue")+
   facet_wrap(~ser_name_short)+
@@ -596,9 +597,9 @@ print(ggplot(trap_obs_pred,aes(x=year))+
 ```
 
 ```{r rbasinabsolute,echo=FALSE,fig.cap="Model fits to absolute time series. The blue lines indicates the median of the posterior distribution and the blue ribbon the corresponding 95% credibility interval, the red points indicate observation"}
-absolute_long=pivot_longer(cbind.data.frame(absolute,data.frame(year=as.numeric(rownames(absolute)))),
+absolute_long=pivot_longer(cbind.data.frame(logUObs,data.frame(year=as.numeric(rownames(logUObs)))),
                         cols=-year,names_to="ser_name_short",values_to="obs")
-absolute_long$iabsolute=match(absolute_long$ser_name_short,colnames(absolute))
+absolute_long$iabsolute=match(absolute_long$ser_name_short,colnames(logUObs))
 
 absolute_pred=do.call(rbind.data.frame,lapply(1:ncol(absolute),function(i){
   ser_name_short=names(absolute)[i]
@@ -626,9 +627,9 @@ ggplot(absolute_obs_pred,aes(x=year))+
 
 
 ```{r rbasincatch,echo=FALSE, fig.cap="Model fits to the Somme series. The blue lines indicates the median of the posterior distribution and the blue ribbon the corresponding 95% credibility interval, the red points indicate observation"}
-catch_long=pivot_longer(cbind.data.frame(catch,data.frame(year=as.numeric(rownames(catch)))),
+catch_long=pivot_longer(cbind.data.frame(logIEObs,data.frame(year=as.numeric(rownames(logIEObs)))),
                         cols=-year,names_to="ser_name_short",values_to="obs")
-catch_long$icatch=match(catch_long$ser_name_short,colnames(catch))
+catch_long$icatch=match(catch_long$ser_name_short,colnames(logIEObs))
 
 catch_pred=do.call(rbind.data.frame,lapply(1:ncol(catch),function(i){
   ser_name_short=names(catch)[i]
@@ -654,7 +655,7 @@ catch_pred=do.call(rbind.data.frame,lapply(1:ncol(catch),function(i){
 }))
 catch_obs_pred=merge(catch_long,catch_pred)
 ggplot(catch_obs_pred,aes(x=year))+
-  geom_point(aes(y=log(obs)),col=2)+
+  geom_point(aes(y=(obs)),col=2)+
   geom_line(aes(y=q50),col="blue")+
   geom_ribbon(aes(ymin=q2.5,ymax=q97.5),alpha=.3,fill="blue")+
   facet_wrap(~ser_name_short)+
@@ -665,9 +666,9 @@ ggplot(catch_obs_pred,aes(x=year))+
 ```
 
 ```{r rbasinsurvey, echo=FALSE,fig.cap="Model fits to relative time series. The blue lines indicates the median of the posterior distribution and the blue ribbon the corresponding 95% credibility interval, the red points indicate observation"}
-survey_long=pivot_longer(cbind.data.frame(serie,data.frame(year=as.numeric(rownames(serie)))),
+survey_long=pivot_longer(cbind.data.frame(logIAObs,data.frame(year=as.numeric(rownames(logIAObs)))),
                         cols=-year,names_to="ser_name_short",values_to="obs")
-survey_long$isurvey=match(survey_long$ser_name_short,colnames(serie))
+survey_long$isurvey=match(survey_long$ser_name_short,colnames(logIAObs))
 
 survey_pred=do.call(rbind.data.frame,lapply(1:ncol(serie),function(i){
   ser_name_short=names(serie)[i]
