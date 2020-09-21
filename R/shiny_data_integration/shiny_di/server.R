@@ -1882,6 +1882,7 @@ shinyServer(function(input, output, session){
 			  validate(need(data$connectOK,"No connection"))
 			  req(input$edit_datatype!="NULL")
 			  noteditable=c(1,grep("_ref",names(rvsAll$dbdata)))-1
+
 			  DT::datatable(
 			    rvsAll$dbdata, 
 			    rownames = FALSE,
@@ -1977,15 +1978,14 @@ shinyServer(function(input, output, session){
 			# Expamples at
 			# https://yihui.shinyapps.io/DT-edit/
 			observeEvent(input$table_corAll_cell_edit, {
-			  
 			  info <- input$table_corAll_cell_edit
 			  
 			  i <- info$row
-			  j <- info$col = info$col + 1  # column index offset by 1
+			  j <- info$col <- info$col + 1  # column index offset by 1
 			  v <- info$value
 			  
 			  rvsAll$data[i, j] <<- DT::coerceValue(v, rvsAll$data[i, j])
-			  replaceData(proxy_table_cor, rvsAll$data, resetPaging = FALSE, rownames = FALSE)
+			  replaceData(proxy_table_corAll, rvsAll$data, resetPaging = FALSE, rownames = FALSE)
 			  # datasame is set to TRUE when save or update buttons are clicked
 			  # here if it is different it might be set to FALSE
 			  rvsAll$dataSame <- identical(rvsAll$data, rvsAll$dbdata)
