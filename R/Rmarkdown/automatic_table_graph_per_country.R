@@ -5,6 +5,8 @@
 
 require(rmarkdown)
 require(bookdown)
+require(stringr)
+require(dplyr)
 getUsername <- function(){
 	name <- Sys.info()[["user"]]
 	return(name)
@@ -16,7 +18,7 @@ cou_code <- unique(landings$eel_cou_code[!is.na(landings$eel_cou_code)])
 dir.create("C:/workspace/gitwgeel/R/Rmarkdown/2020",showWarnings = FALSE)
 dir.create("C:/workspace/gitwgeel/R/Rmarkdown/files",showWarnings = FALSE)
 CY <- 2020
-
+if (exists("params")) rm(params)
 # North Sea
 for (cou in c("DK","NL","DE")){
 rmarkdown::render("automatic_tables_graphs_per_country.Rmd", 	

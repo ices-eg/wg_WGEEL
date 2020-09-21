@@ -942,7 +942,7 @@ WHERE eel_cou_code='IE' AND eel_lfs_code='AL' AND eel_typ_id=4 AND eel_qal_id IN
  
 ## IT (Italy) 
 
-*Nothing yet*
+*No answer to the data call, national correspondent were able to do the correction on existing data
 
 ### annex 1
 
@@ -952,7 +952,11 @@ WHERE eel_cou_code='IE' AND eel_lfs_code='AL' AND eel_typ_id=4 AND eel_qal_id IN
 
 ### annex 4
 
+new values  4731 new values inserted in the database
+
 ### annex 5
+
+new values :  4866 new values inserted in the database
 
 ### annex 6
 

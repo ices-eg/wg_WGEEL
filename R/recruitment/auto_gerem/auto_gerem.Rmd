@@ -14,6 +14,8 @@ params:
 ---
 
 ```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,warning=FALSE,message=FALSE)
+thin=1
 load_library=function(necessary) {
 	if(!all(necessary %in% installed.packages()[, 'Package']))
 		install.packages(
@@ -73,13 +75,10 @@ if ((!file.exists(paste("datagerem",CY,".rdata",sep=""))) | params$updateData){
 ```
 
 # Introduction
-GEREM is a Bayesian model aiming at estimating glass eel recruitment at different nested spatial scales (overall recruitment, sub-regions/zone, river basins) through the analysis of available recruitment time-series [@drouineau2016]. The model has already applied in France [@drouineau2016], to a large part of Europe [@bornarel2018a] and is currently used in the Sudoang Interreg projet. The model assumes that each year, the overall recruitment $R(y)$ is distributed among various zones (i.e. subregions) which receive recruitment $R_z(y)$. Then, zone recruitment is distributed among river catchments as a function of their surface, leading to recruitment $R_{c,z}(y)$. Basically, GEREM is a mixiong of a Dynamic Factor Analysis (DFA) [@zuur2003a] and a "rule of three". Similarly to a DFA model, GEREM  is state-space model based on a random walk structure, that estimates common trends in a set of time-series. The rule of three is used to extrapolate absolute recruitment estimates in a river basin to recruitment in other basins in the same zone, stating that the recruitment in each basin is a simple function of its surface.
-After having inventoried available time series and listed their characteristics, it is necessary to define zones. In each zone:
-* river catchements should have similar trends in recruitment
-* the rule of three must apply, i.e. it should be possible to extrapolate recruitment in a basin to another basin of the same zone as a simple function of their relative surfaces
-* time series of recruitment should be available. Morevover, there should be at least on time series of absolute recruitment.
+GEREM is a Bayesian model aiming at estimating glass eel recruitment at different nested spatial scales (overall recruitment, sub-regions/zone, river basins) through the analysis of available recruitment time-series [@drouineau2016]. The model has already applied in France [@drouineau2016], to a large part of Europe [@bornarel2018a] and is currently used in the Sudoang Interreg projet. The model assumes that each year, the overall recruitment $R(y)$ is distributed among various zones (i.e. subregions) which receive recruitment $R_z(y)$. Then, zone recruitment is distributed among river catchments as a function of their surface, leading to recruitment $R_{c,z}(y)$. Basically, GEREM is a mixiong of a Dynamic Factor Analysis (DFA) [@zuur2003a] and a “rule of three”. Similarly to a DFA model, GEREM is state-space model based on a random walk structure, that estimates common trends in a set of time-series. The rule of three is used to extrapolate absolute recruitment estimates in a river basin to recruitment in other basins in the same zone, stating that the recruitment in each basin is a simple function of its surface. After having inventoried available time series and listed their characteristics, it is necessary to define zones. In each zone: * river catchements should have similar trends in recruitment * the rule of three must apply, i.e. it should be possible to extrapolate recruitment in a basin to another basin of the same zone as a simple function of their relative surfaces * time series of recruitment should be available. Morevover, there should be at least on time series of absolute recruitment.
 
 The model is detailed in [@drouineau2016] and [@bornarel2018a]. The current exercice is mainly an update from [@bornarel2018a]. We will use the same zone and the nearly the same time series but with updated values.
+
 
 # Material and Methods
 
@@ -206,6 +205,7 @@ if ((!file.exists(paste("datagerem",CY,".rdata",sep=""))) | params$updateData){
 ## Zone definition
 
 We used the same zones as @bornarel2018a \@ref(fig:mapsZones):
+
 * a North Sea zone (NS)
 * a Channel zone which covers Southwestern Great Britanny and NorthWestern France
 * ATL_F which covers the French coast along the Bay of Biscay
@@ -240,7 +240,7 @@ knitr::kable(series_stat[order(series_stat$zone,series_stat$ser_nameshort),],
                         "Last Year","Nb data"))
 ```
 
-For traps (respectively commercial catches), we use vague priors on trap efficiencies (respectively exploitation rates) to give an insight on the possible recruitment (Figure \@ref(fig:priorsScaling)). For traps, we use a vague prior around 1/3, value often estimated for trap efficiency [@briand2005; @drouineau2015; @jessop2000; @noonan2012]. For commercial catch, we assume a very flat prior between 0 and 1 (i.e. stating that we do not know anything about exploitation rate but that catches are by definition smaller than recruitment), except for the Somme where, based on expert knowledge, we assume that the exploitation rate was around 0.75.
+For traps, we use vague priors on trap efficiencies to give an insight on the possible recruitment (Figure \@ref(fig:priorsScaling)): we used a prior around 1/3, value often estimated for trap efficiency [@briand2005; @drouineau2015; @jessop2000; @noonan2012]. Commercial catches time series were used as relative time series, except in the Somme river. In this river, the presence of an obstacle in the estuary leads to high catch rates. Therefore, following @bornarel2018a, we assumed that the exploitation rate was around 0.75 in this basin.
 
 ```{r priorsScaling, fig.cap="Priors for exploitation rates and trap efficiencies", echo=FALSE, warning=FALSE, message=FALSE}
 priors=na.omit(unique(series[,c("type","scale_bound_shape1","scale_bound_shape2")]))
@@ -261,7 +261,7 @@ ggplot(priors,aes(x=x, y=prior))+
 ```
 
 ## Running the model
-```{r runningConfig, echo=FALSE}
+```{r runningConfig, echo=FALSE, include=FALSE}
 if ((!file.exists(paste("datagerem",CY,".rdata",sep=""))) | params$updateData){
   
   burnin=100000
@@ -438,10 +438,10 @@ if ((!file.exists(paste("datagerem",CY,".rdata",sep=""))) | params$updateData){
 
 }
 ```
-Three independent MCMC chains are run in parallel using JAGS [@plummer2003] through R package runjags [@denwood2016]. Chains were run `r format(sample, scientific=FALSE)` iterations after an initial burnin period of `r format(burnin, scientific=FALSE)` iterations. Gelman and Rubin diagnostics were used to check model convergence [@gelman1992].
+Three independent MCMC chains are run in parallel using JAGS [@plummer2003] through R package runjags [@denwood2016]. Chains were run `r format(sample*thin, scientific=FALSE)` iterations, with a thinning of `r format(thin,scientif=FALSE)` iterations, after an initial burnin period of `r format(burnin, scientific=FALSE)` iterations. Gelman and Rubin diagnostics were used to check model convergence [@gelman1992].
 
 ```{r modelRun,echo=FALSE,message=FALSE,warning=FALSE}
-if  ((!file.exists(paste("gerem",CY,".rdata",sep=""))) | updatedData | params$runModel){
+if  ((!file.exists(paste("gerem",CY,".rdata",sep=""))) | params$runModel){
   jags_res=run.jags("versionBugs2_1.txt",
                     monitor=c("beta","logq","loga",
                               "logRglobal","Rzone","propR","logp"),
@@ -468,6 +468,14 @@ if  ((!file.exists(paste("gerem",CY,".rdata",sep=""))) | updatedData | params$ru
 
 
 # Results
+```{r gelman_beta,include=FALSE}
+gelman=gelman.diag(jags_res,multivariate=FALSE)
+propconv=sum(gelman$psrf[,1]<=1.05)/nrow(gelman$psrf)
+beta=quantile(jags_mat[,"beta"],probs=c(0.025,.5,.975))
+```
+Gelman R hat statistics was below 1.05 for `r round(propconv*100,digits=1)`% of the parameters, demonstrating a good convergence of the model. 
+
+
 ## Overall recruitment and zone zone recruitments
 ```{r statsRglobal}
 rCy=jags_mat[,paste("logRglobal[",mydata$nbyear,"]",sep="")] #last year estimate
@@ -500,7 +508,7 @@ ggplot(logrglobal,aes(x=year,y=q50))+
 
 ```
 
-At the zone level (Figure \@ref(fig:rzone)), all zones display a decrease of recruitment. Results confirm that the decline in North Sea started earlier than in the other zones. The Mediterreanean area also displays a decline in the 1960s, however, estimates in this period are based on few fishery-based time series and the assumption about constant exploitation rate and reporting rate is questionnable, moreover, it is worthwile mentionning that there are currently only 4 time-series are available while the zone is large and include both lagoons and "usual" river basins. For the Channel, the lack of data in the begginning of the time series explain the large credibility interval for the beginning of the series when estimates should be taken with great care. ATL_F does not display any increase at the end of the time-series, however, results are based on single time-series (GiscG) and, consequently, confidence interval are rather large.
+At the zone level (Figure \@ref(fig:rzone)), all zones display a decrease of recruitment. Results confirm that the decline in North Sea started earlier than ATL_F and ATL_IB. The Mediterreanean area also displays a decline in the 1960s, however, estimates in this period are based on few fishery-based time series and the assumption about constant exploitation rate and reporting rate is questionnable, moreover, it is worthwile mentionning that there are currently only 4 time-series are available while the zone is large and include both lagoons and “usual” river basins. For the Channel, the lack of data in the begginning of the time series explain the large credibility interval at the beginning of period, therefore estimates should be taken with great care. ATL_F does not display any increase at the end of the time-series, however, results are based on single time-series (GiscG) and, consequently, confidence interval are rather large.
 
 ```{r rzone,echo=FALSE, fig.cap="Trend in recruitment in each zone of the model: median of the posterior distribution (solid line) and corresponding 95% credibility interval (shaded area). The colour of the points on the x axis indicate the number of available data series for the corresponding zone and year"}
 col=grep("Rzone",colname)
@@ -522,9 +530,11 @@ ggplot(rzone,aes(x=year,y=q50))+
   theme_bw()
 ```
 
-It is also possible to analyse the proportions of recruitment arriving in each zone of the model (Figure @\ref(fig:propZone)). However, these results should be taken with great care: creadibility intervals are large and some zones estimates are based on few absolute (or trap/commercial catch) time series.
+It is also possible to analyse the proportions of recruitment arriving in each zone of the model (Figure \@ref(fig:propZone)). However, these results should be taken with great care: creadibility intervals are large and some zones estimates are based on few absolute (or trap/commercial catch) time series. The decrease in ATL_F is due to the absence of detected increase at the end of the time-series, but this result is based on a single time series and therefore should be taken with care.
 
-```{r propZone,fig.caption="Poportions of overall recruitment arriving in each zone: : median of the posterior distribution (solid line) and corresponding 95% credibility interval (shaded area)", echo=FALSE }
+
+
+```{r propZone, fig.caption="Poportions of overall recruitment arriving in each zone: : median of the posterior distribution (solid line) and corresponding 95% credibility interval (shaded area)", echo=FALSE }
 col=grep("propR",colname)
 name_zone=sapply(strsplit(colname[col],"[[:punct:]]"),function(x) zone$zone[as.numeric(x[2])])
 year=sapply(strsplit(colname[col],"[[:punct:]]"),function(x) as.numeric(row.names(values_wide)[as.numeric(x[3])]))
@@ -544,51 +554,78 @@ ggplot(propR,aes(x=year,y=q50))+
   guides(pch=FALSE)+
   theme_bw()
 ```
+## Model fits to observations
+Figures \@ref(fig:rbasintrap), \@ref(fig:rbasinabsolute), \@ref(fig:rbasinsurvey) and \@ref(fig:rbasincatch) shows how the model fits observations. In most situations, the model appropriately mimicks the trends of the time series. However, some understimations (e. g. Somme river) or overestimations (ImsaGY) are observed for some series, because absolute estimates are a tradeoff between all time series. Some details on each time series and possible explaination for those biases are detailed in the supporting information of @bornarel2018a. This leads to two conclusions regarding the results:
 
-## Convergence and priors vs posterior distributions (this section if for internal check)
-```{r gelman_beta,include=FALSE}
-gelman=gelman.diag(jags_res,multivariate=FALSE)
-propconv=sum(gelman$psrf[,1]<=1.05)/nrow(gelman$psrf)
-beta=quantile(jags_mat[,"beta"],probs=c(0.025,.5,.975))
-```
-Gelman R hat statistics was below 1.05 for `r round(propconv*100,digits=1)`% of the parameters, demonstrating a good convergence of the model. 
-
-```{r priorsposterios,echo=FALSE,warning=FALSE, error=FALSE}
-priors2=na.omit(unique(series[,c("ser_nameshort","type","scale_bound_shape1","scale_bound_shape2")]))
-priors2=expand_grid(priors2,x=seq(0,1,.01))
-priors2 <- priors2 %>%
-  mutate(prior=dbeta(x,scale_bound_shape1,scale_bound_shape2))
+* trends seem well estimated provided that data are available (see the credibility intervals in Figure 3.2 as soon as data are missing) 
+* absolutes estimates should be taken with caution and it was demonstrated that they are sensitive to some parameters of the model [@bornarel2018a].
 
 
-###trap
-scale_trap=as.data.frame(exp(jags_mat[,grep("loga",colname)]))%>%
-  pivot_longer(cols=everything(),names_to="ser_id",values_to="a") %>%
-  mutate(ser_nameshort=colnames(logIPObs)[as.integer(gsub("loga\\[|\\]","",ser_id))])
+```{r rbasintrap, echo=FALSE,fig.cap="Model fits to trap time series. The blue lines indicates the median of the posterior distribution and the blue ribbon the corresponding 95% credibility interval, the red points indicate observation"}
+trap_long=pivot_longer(cbind.data.frame(trap,data.frame(year=as.numeric(rownames(trap)))),
+                        cols=-year,names_to="ser_name_short",values_to="obs")
+trap_long$itrap=match(trap_long$ser_name_short,colnames(trap))
+
+trap_pred=do.call(rbind.data.frame,lapply(1:ncol(trap),function(i){
+  ser_name_short=names(trap)[i]
+  cm=mydata$catchment_trap[i]
+  Rcm=jags_mat[,grep(paste("Rcm\\[[0-9]*,",cm,"\\]",sep=""),colname)]
+  if (mydata$nbtrap>1){
+    scale=jags_mat[,paste("loga[",i,"]",sep="")]
+  } else{
+    scale=jags_mat[,"loga"]
+  }
+  tau=-0.5/jags_mat[,paste("tauIP[",i,"]",sep="")]
   
-ggplot(scale_trap,aes(x=a))+
-  geom_histogram(stat="density")+
-  geom_line(data=filter(priors2,type=="trap"),
-            aes(x=x,y=prior),
-                col=2)+
-  facet_wrap(~ser_nameshort,scales="free_y")+
+  logRpred=data.frame(t(apply(sweep(log(Rcm),1,scale+tau,"+"),2,quantile,probs=c(0.025,.5,.975))))
+  names(logRpred)=c("q2.5","q50","q97.5")
+  logRpred$ser_name_short=ser_name_short
+  logRpred$year=as.integer(rownames(trap))
+  logRpred
+}))
+trap_obs_pred=merge(trap_long,trap_pred)
+print(ggplot(trap_obs_pred,aes(x=year))+
+  geom_point(aes(y=log(obs)),col=2)+
+  geom_line(aes(y=q50),col="blue")+
+  geom_ribbon(aes(ymin=q2.5,ymax=q97.5),alpha=.3,fill="blue")+
+  facet_wrap(~ser_name_short)+
+  ylab("observed abundance (log scale)")+
+  theme_bw())
+
+
+```
+
+```{r rbasinabsolute,echo=FALSE,fig.cap="Model fits to absolute time series. The blue lines indicates the median of the posterior distribution and the blue ribbon the corresponding 95% credibility interval, the red points indicate observation"}
+absolute_long=pivot_longer(cbind.data.frame(absolute,data.frame(year=as.numeric(rownames(absolute)))),
+                        cols=-year,names_to="ser_name_short",values_to="obs")
+absolute_long$iabsolute=match(absolute_long$ser_name_short,colnames(absolute))
+
+absolute_pred=do.call(rbind.data.frame,lapply(1:ncol(absolute),function(i){
+  ser_name_short=names(absolute)[i]
+  cm=mydata$catchment_absolute[i]
+  Rcm=jags_mat[,grep(paste("Rcm\\[[0-9]*,",cm,"\\]",sep=""),colname)]
+  tau=-0.5/jags_mat[,paste("tauU[",i,"]",sep="")]
+  
+  logRpred=data.frame(t(apply(sweep(log(Rcm),1,tau,"+"),2,quantile,probs=c(0.025,.5,.975))))
+  names(logRpred)=c("q2.5","q50","q97.5")
+  logRpred$ser_name_short=ser_name_short
+  logRpred$year=as.integer(rownames(absolute))
+  logRpred
+}))
+absolute_obs_pred=merge(absolute_long,absolute_pred)
+ggplot(absolute_obs_pred,aes(x=year))+
+  geom_point(aes(y=log(obs)),col=2)+
+  geom_line(aes(y=q50),col="blue")+
+  geom_ribbon(aes(ymin=q2.5,ymax=q97.5),alpha=.3,fill="blue")+
+  facet_wrap(~ser_name_short)+
+  ylab("observed abundance (log scale)")+
   theme_bw()
 
 
-###commercial catch
-scale_catch=as.data.frame(exp(jags_mat[,grep("logp",colname)]))%>%
-  pivot_longer(cols=everything(),names_to="ser_id",values_to="p") %>%
-  mutate(ser_nameshort=colnames(logIEObs)[as.integer(gsub("logp\\[|\\]","",ser_id))])
-  
-ggplot(scale_catch,aes(x=p))+
-  geom_histogram(stat="density")+
-  geom_line(data=filter(priors2,type=="catch"),
-            aes(x=x,y=prior),
-                col=2)+
-  facet_wrap(~ser_nameshort,scales="free_y")+
-  theme_bw()
 ```
 
-```{r rbasincatch,include=FALSE}
+
+```{r rbasincatch,echo=FALSE, fig.cap="Model fits to the Somme series. The blue lines indicates the median of the posterior distribution and the blue ribbon the corresponding 95% credibility interval, the red points indicate observation"}
 catch_long=pivot_longer(cbind.data.frame(catch,data.frame(year=as.numeric(rownames(catch)))),
                         cols=-year,names_to="ser_name_short",values_to="obs")
 catch_long$icatch=match(catch_long$ser_name_short,colnames(catch))
@@ -597,8 +634,17 @@ catch_pred=do.call(rbind.data.frame,lapply(1:ncol(catch),function(i){
   ser_name_short=names(catch)[i]
   cm=mydata$catchment_catch[i]
   Rcm=jags_mat[,grep(paste("Rcm\\[[0-9]*,",cm,"\\]",sep=""),colname)]
-  scale=jags_mat[,paste("logp[",i,"]",sep="")]
-  tau=0#-0.5/jags_mat[,paste("tauIE[",i,"]",sep="")]
+  if (mydata$nbcatch>1){
+    scale=jags_mat[,paste("logp[",i,"]",sep="")]
+  } else{
+    scale=jags_mat[,"logp"]
+  }
+  if (mydata$nbcatch>1){
+    tau=-0.5/jags_mat[,paste("tauIE[",i,"]",sep="")]
+  } else{
+    tau=-0.5/jags_mat[,"tauIE"]
+  }
+  
   
   logRpred=data.frame(t(apply(sweep(log(Rcm),1,scale+tau,"+"),2,quantile,probs=c(0.025,.5,.975))))
   names(logRpred)=c("q2.5","q50","q97.5")
@@ -612,8 +658,53 @@ ggplot(catch_obs_pred,aes(x=year))+
   geom_line(aes(y=q50),col="blue")+
   geom_ribbon(aes(ymin=q2.5,ymax=q97.5),alpha=.3,fill="blue")+
   facet_wrap(~ser_name_short)+
+  ylab("observed abundance (log scale)")+
   theme_bw()
 
 
 ```
+
+```{r rbasinsurvey, echo=FALSE,fig.cap="Model fits to relative time series. The blue lines indicates the median of the posterior distribution and the blue ribbon the corresponding 95% credibility interval, the red points indicate observation"}
+survey_long=pivot_longer(cbind.data.frame(serie,data.frame(year=as.numeric(rownames(serie)))),
+                        cols=-year,names_to="ser_name_short",values_to="obs")
+survey_long$isurvey=match(survey_long$ser_name_short,colnames(serie))
+
+survey_pred=do.call(rbind.data.frame,lapply(1:ncol(serie),function(i){
+  ser_name_short=names(serie)[i]
+  cm=mydata$catchment_survey[i]
+  Rcm=jags_mat[,grep(paste("Rcm\\[[0-9]*,",cm,"\\]",sep=""),colname)]
+  if (mydata$nbsurvey>1){
+    scale=jags_mat[,paste("logq[",i,"]",sep="")]
+  } else{
+    scale=jags_mat[,"logq"]
+  }
+  tau=-0.5/jags_mat[,paste("tauIA[",i,"]",sep="")]
+  
+  logRpred=data.frame(t(apply(sweep(log(Rcm),1,tau+scale,"+"),2,quantile,probs=c(0.025,.5,.975))))
+  names(logRpred)=c("q2.5","q50","q97.5")
+  logRpred$ser_name_short=ser_name_short
+  logRpred$year=as.integer(rownames(serie))
+  logRpred
+}))
+survey_obs_pred=merge(survey_long,survey_pred)
+ggplot(survey_obs_pred,aes(x=year))+
+  geom_point(aes(y=log(obs)),col=2)+
+  geom_line(aes(y=q50),col="blue")+
+  geom_ribbon(aes(ymin=q2.5,ymax=q97.5),alpha=.3,fill="blue")+
+  facet_wrap(~ser_name_short)+
+  ylab("observed abundance (log scale)")+
+  theme_bw()
+
+
+```
+
+
+# Discussion
+The use of GEREM does not change the overall image of the recruitment as provided by the GLM analysis. It confirms the decline of recruitment since the 1980s and the currently very low level of recruitment. However, it raises additional questions regarding some potential differences in trends among zones, such as the recent decline in the recruitment received in ATL_F. While definitive conclusions can not be drawn, this result shows the importance of establishing new monitoring time series in areas where data are missing. As such, the monitoring networing implemented in Sudoang appears to be an interesting opportunity. Regarding absolute recruitments, as already mentioned, results should be taken with great care since the number of time series is limited, the estimates are sensitive to some parameters and biases are observed in the model fits. However, achieving absolute estimates would be required to compare the importance of recruitment among zones. Since estimation of escapments was requested by the Eel Regulation, the parallel estimation of absolute recruitment would allow comparison of survival rates during the continental stage among zones. As such a better understing on how local recruitment in river basins depends on local characteristics (basin surface and potentially other factors) would be a valuable information for management of standing stocks and would subsequently allow to improve the model. This calls for achieving more absolute recruitment estimates.
+
+
+# Conclusion
+The idea of presenting this modelling exercice was not to replace the GLM exercice nor to conduct a benchmark exercice of model but to provide an additional tool that provides complementary information. The two modelling approaches have two different level of complexity and provide similar general picture of the trend of recruitment. While GEREM does not provide any definitive conclusions, it raises interesting complementary questions and highlights the need of new data in some regions and of new types.
+
+
 #References

@@ -21,7 +21,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 <<init, eval=TRUE,echo=FALSE,results=hide>>=
 Sys.setlocale("LC_ALL", "English_United States.932")
-Sys.setenv(JAVA_HOME='C:\\Program Files\\Java\\jre1.8.0_221\\bin')
 options(save.defaults = list(version=2))
 # Password are stored in R/etc/Rprofile.site
 # For the moment the database is stored locally
@@ -54,9 +53,6 @@ if(!require(RPostgreSQL)) install.packages("RPostgreSQL") ; require(RPostgreSQL)
 if(!require(RColorBrewer)) install.packages("RColorBrewer") ; require(RColorBrewer)
 #if(!require(stacomiR)) install.packages("stacomiR") ; require(stacomiR)
 if(!require(dplyr)) install.packages("dplyr") ; require(dplyr)
-if(!require(sp)) install.packages("sp") ; require(sp)
-if(!require(maptools)) install.packages("maptools") ; require(maptools)
-if(!require(maps)) install.packages("maps") ; require(maps)
 if(!require(boot)) install.packages("boot") ; require(boot)
 if(!require(MASS)) install.packages("MASS") ; require(MASS)
 if(!require(lme4)) install.packages("lme4") ; require(lme4)
@@ -94,11 +90,7 @@ getUsername <- function(){
 if (getUsername() == "cedric.briand") setwd("C:/workspace/gitwgeel/R/recruitment") 
 if (getUsername() == "hamme005") setwd("C:/Tessa/wg_WGEEL/R/recruitment") 
 #baseODBC=c("wgeel","wgeel",passwordwgeel) #"w3.eptb-vilaine.fr" "localhost" "wgeel" "wgeel_distant" 
-options(sqldf.RPostgreSQL.user = getPass(msg="username"), 
-		sqldf.RPostgreSQL.password = getPass(),
-		sqldf.RPostgreSQL.dbname = "wgeel",
-		sqldf.RPostgreSQL.host = "localhost", # "localhost"
-		sqldf.RPostgreSQL.port = 5435) # 5435 launch the ssh tunnel
+
 wddata <- getwd()
 wd <- wddata
 #wddata <- gsub("C:/workspace/gitwgeel/R","C:/workspace/wgeeldata",wd)
@@ -199,6 +191,11 @@ anguilla) stock, the fisheries on it and other anthropogenic impacts.}
 # If you don't and still want to run this script, ask C�dric cedric.briand@eptb-vilaine.fr
 # he will send you the Rdata saved during this chunk.
 
+options(sqldf.RPostgreSQL.user = getPass(msg="username"), 
+		sqldf.RPostgreSQL.password = getPass(),
+		sqldf.RPostgreSQL.dbname = "wgeel",
+		sqldf.RPostgreSQL.host = "localhost", # "localhost"
+		sqldf.RPostgreSQL.port = 5435) # 5435 launch the ssh tunnel
 
 ##########################"
 # Description of the series -------------------------------
@@ -786,19 +783,111 @@ figure2 <- function(){
 }
 
 figname <- "figure2"
-# {{{{{{{{{{{{{{{{{{{{{{{{{
+
 jpeg(filename = paste(imgwd,"/",figname,".jpeg",sep="")) #, width =480, height = 600
 figure2()
 rien <- dev.off()
-# {{{{{{{{{{{{{{{{{{{{{{{{{
+
 bmp(filename = paste(imgwd,"/",figname,".bmp",sep=""))
 figure2()
 rien <- dev.off()
-# {{{{{{{{{{{{{{{{{{{{{{{{{
+
 png(filename = paste(imgwd,"/",figname,".png",sep=""))
 figure2()
 rien <- dev.off()
-# {{{{{{{{{{{{{{{{{{{{{{{{{
+
+
+
+@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%************************************************************************************
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+<<mapseries,echo=FALSE, eval=FALSE,results=hide>>=
+if(!require(ggmap)) install.packages("ggmap") ; require(ggmap)
+if(!require(sf)) install.packages("sf") ; require(sf)
+if(!require(RPostgres)) install.packages("RPostgres") ; require(RPostgres)
+
+
+load("../shiny_data_visualisation/shiny_dv/data/ref_and_eel_data.Rdata")
+source("../utilities/load_library.R")
+source("../shiny_data_visualisation/shiny_dv/database_connection.R")
+
+
+
+my_map <- get_stamenmap( c(left = -13, bottom = 35, right =
+						27, top = 65),zoom=5, maptype = c("watercolor"))
+
+con <- dbConnect(Postgres(),host=host,password=pwd,dbname="wgeel",user=user)
+fao <- st_read(con,query="select * from ref.tr_faoareas")
+fao <- st_crop(fao, xmin = -13, xmax = 27,
+		ymin = 35, ymax = 65)
+fao <- (st_transform(fao,3857))
+fao$zone <- ifelse(fao$f_code %in% c("27.3.d",'27.3.b, c'),"Baltic",
+		ifelse(startsWith(fao$f_code,"27.4.") | startsWith(fao$f_code,"27.3."),
+				"North Sea",
+				"Elsewhere Europe"))
+
+attr(my_map, "bb")$ll.lat <- st_bbox(fao)["ymin"]
+attr(my_map, "bb")$ll.lon <- st_bbox(fao)["xmin"]
+attr(my_map, "bb")$ur.lat <- st_bbox(fao)["ymax"]
+attr(my_map, "bb")$ur.lon <- st_bbox(fao)["xmax"]
+
+stations <- st_transform(st_as_sf(R_stations,coords=c("ser_x","ser_y"),crs=4326),3857)
+
+stations$X = st_coordinates(stations)[,"X"]
+stations$Y = st_coordinates(stations)[,"Y"]
+
+figure1 <- ggmap(my_map)+  
+		coord_sf(crs = st_crs(3857)) + # force it to be 3857
+		geom_sf(data=fao, inherit.aes = FALSE,aes(fill=zone,alpha="1")) +
+		geom_sf(data=fao, inherit.aes = FALSE,aes(fill=zone)) +
+		geom_sf_text(data=st_centroid(fao), inherit.aes=FALSE,aes(label=f_code),cex=1.5) +
+#		geom_sf(data=stations,aes(color=ser_lfs_code,shape=ser_lfs_code),size=2, inherit.aes = FALSE)+
+#		geom_sf(data=subset(stations,ser_lfs_code!="Y" & ser_qal_id==1),color = 'black',size=2, shape = 21,
+#				inherit.aes=FALSE) +
+#		geom_sf(data=subset(stations,ser_lfs_code=="Y"& ser_qal_id==1),color = 'black',size=2, shape = 24,
+#				inherit.aes=FALSE) +
+		geom_point(data=stations,aes(x=X,y=Y,
+						color=ser_lfs_code,shape=ser_lfs_code,stroke=0),size=3)+
+		geom_point(data=subset(stations,ser_lfs_code!="Y"& ser_qal_id==1),
+				color = 'black', 
+				size=3, 
+				shape = 21,
+				stroke=1,
+				aes(x=X,y=Y)) +
+		geom_point(data=subset(stations,ser_lfs_code=="Y"& ser_qal_id==1),
+				color = 'black',		
+				size= 3, 
+				shape = 24,
+				stroke =1,
+				aes(x=X,y=Y)) +
+	
+		scale_color_manual("Life stage",values=c("white","grey","yellow")) +
+		scale_shape_manual("Life stage", values=c(19,19,17)) + xlab("") + ylab("") +
+		scale_fill_manual(NULL,values=c("#30ff8a","#33b1c4","#1a81db")) +
+		guides(alpha=guide_legend("Recruitment series",
+						legend.background = element_blank(),
+						title.theme=element_text(face="bold"),
+						keyheight=0,
+						label.theme=element_text(size=0,lineheight=0),
+						order=1, 
+						override.aes=list(color=NA, shape=NA, alpha=NA, fill=NA))) +
+		theme(
+				legend.box.background = element_rect(fill="#EFD9C1",color=NA),
+				legend.background = element_blank(),
+				legend.position = c(.995, .3),
+				legend.justification = c("right", "center"),
+				legend.box.just = "left",
+				legend.box.margin = margin(1, 1, 1, 1),
+				legend.margin = margin(1, 1, 1, 1),
+				legend.key = element_rect(colour = "transparent", fill = "transparent")
+				
+		)
+print(figure1)
+
+
+save_figure("figure1",g,550,600)
+
 
 
 @
@@ -837,36 +926,34 @@ openxlsx::write.xlsx(x=list("recruitment_series"=tab1,
 \section{Data sources}
 \section{Recruitment}
 
-In this section, the latest trend in glass and yellow eel recruitment are
-adressed. The time-series data are derived from fishery-dependent sources
+In this section, the latest trends in glass and yellow eel recruitment are
+addressed. The time-series data are derived from fishery-dependent sources
 (i.e. catch records) and also from fishery-independent surveys across much of
 the geographic range of European eel.  The
 stages are categorized as :
 \begin{itemize}
 \item glass eel (G), continental age 0 years, 
-\item mixture of glass eel and young
-yellow eel dominated by recruits from the year (GY)
-recruiting to continental habitats (Dekker, 2002). 
+\item a mixture of glass eel and young
+yellow eel dominated by recruits from the same year (GY), and
 \item older yellow eel (Y) recruiting to continental habitats. The yellow
 eel series might consist of yellow eel of several ages.
 This is certainly the case for all series from the Baltic (mean age up to 6),
-and sites located far upstream.
+ some Irish sites, and sites located far upstream.
 \end{itemize}
 The glass eel recruitment time-series have been grouped into two geographical
 areas: 'continental North Sea' (NS) and 'Elsewhere Europe' (EE) (Figure
 \ref{figure1}). The glass eel recruitment time-series have been grouped into two geographical
 areas: 'continental North Sea' (NS) and 'Elsewhere Europe' (EE) (Figure 3.4.1).
 Previous analyses by the working group (ICES, 2010b, p19, Bornarel et al. (2017) 
-have shown a difference between the two sets. This is mostly due to a more pronounced
-decline of the North Sea series compared to the Elsewhere Europe area during the 1980's.
+have shown a different trend between the two sets. This is mostly due to a more pronounced
+decline of the North Sea series compared to the Elsewhere Europe area during the 1980s.
 
 The WGEEL has collated information on recruitment from
 \Sexpr{sn(vv[["nb_series_init"]])} time-series. Some time-series date back to the
 beginning of 20th century (yellow eel, Göta Älv, Sweden) or 1920 (glass eel,
 Loire, France). Among those series \Sexpr{sn(vv[["nb_series_init_qual1"]])} have been
-selected for further analysis in the wgeel indices, see details on data
-selection and processing below). Depending on the period on which we
-standardized, the number of series really used can be lower and are given for
+selected for further analysis in the wgeel indices; see details on data
+selection and processing below. Depending on the standardization period, the number of series  used can be lower and is given for
 each analysis. 
 
 %==================================================
@@ -885,19 +972,13 @@ Out of \Sexpr{sn(vv[["nb_series_init"]])},
 \Sexpr{sn(vv[["nb_series_final"]])} series were used in the analysis. Three
 rules have been used for this selection procedure.
 \begin{enumerate}
-\item The first rule is to keep only one series at one location when two
-series from different source display different information. For instance, the longest series has been kept for the severn (Severn EA) and the other (Severn
-HMRC) has been dropped from the list, as it was considered a double being based
-on the same fishery. \textcolor{Plum}{TODO work on Minho sp and Minho
+\item First, if there are two or more series from the same location, i.e. they are not independent,only one series is kept. For instance, the longer series has been kept for the Severn (Severn EA) while the other series (Severn HMRC) has been dropped from the list, as it was considered a duplicate being based on the same fishery.Noting that the 'Severn' here actually represents all the glass eel fisheries for England and Wales but the naming convention has been used for many
+years so is retained for consistency.
+\textcolor{Plum}{TODO work on Minho sp and Minho
 pt. and Gironde....}
-\item The second rule is not to include a series when it is too short. It was
-decided in 2019 to include the practical rule that series of less than 10
-years, should not be kept. They are still updated in the database untill they
-can be included. \textcolor{Plum}{But clarify now what we are going to do
+\item The second rule is to exclude a series from the analysis when it is less than ten years long. The series are, however, still updated in the database until they are long enough to be included. \textcolor{Plum}{But clarify now what we are going to do
 when there are missing years....} 
-\item Finally, it was also decided to discard
-recruitment series that were obviously biased by restocking e.g. Farpener Bach
-in Germany.
+\item Finally, it was decided to discard recruitment series that were obviously biased by restocking (e.g. Farpener Bach in Germany).
 \end{enumerate}
 
 
@@ -935,7 +1016,7 @@ yellow eel time-series has increased to \Sexpr{vv[["nbmaxyellow"]]} in
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.5\textwidth]{figure2.png}
-\caption{Trends in number of glass (black circle), glass+young yellow eel
+\caption{Trends in number of glass eel (black circle), glass+young yellow eel
 (grey triangle) and older yellow eel (black triangle) time-series giving a
 report in  any specific year.}
 \label{figure2}

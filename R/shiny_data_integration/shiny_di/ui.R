@@ -17,8 +17,8 @@ ui <- dashboardPage(title="ICES Data Integration",
 				sidebarMenu(          
 						menuItem("Import",tabName= "import", icon= icon("align-left")),
 						menuItem("Import Time Series",tabName= "import_ts", icon= icon("align-left")),					
-						menuItem("Edit", tabName="edit", icon=icon("table")),
-						menuItem("Edit Time series", tabName="editTS", icon=icon("table")),
+						#menuItem("Edit", tabName="edit", icon=icon("table")),
+						menuItem("Edit Data", tabName="editAll", icon=icon("table")),
 						menuItem("Plot duplicates", tabName='plot_duplicates',icon= icon("area-chart")),
 						menuItem("New Participants", tabName='integrate_new_participants',icon= icon("user-friends"))
 						#menuSubItem("Plot duplicates",  tabName="plot_duplicates"),
@@ -302,77 +302,85 @@ ui <- dashboardPage(title="ICES Data Integration",
 										)
 								),
 								
-								# Data correction table  ----------------------------------------------------------------
-								
-								tabItem("edit",
-										h2("Data correction table"),
-										br(),        
-										h3("Filter"),
-										fluidRow(
-												column(width=4,
-														pickerInput(inputId = "country", 
-																label = "Select a country :", 
-																choices = list_country,
-																multiple = TRUE,  
-																options = list(
-																		style = "btn-primary", size = 5))),
-												column(width=4, 
-														pickerInput(inputId = "typ", 
-																label = "Select a type :", 
-																choices = typ_id,
-																multiple = TRUE, 
-																options = list(
-																		style = "btn-primary", size = 5))),
-												column(width=4,
-														sliderTextInput(inputId ="year", 
-																label = "Choose a year range:",
-																choices=seq(the_years$min_year, the_years$max_year),
-																selected = c(the_years$min_year,the_years$max_year)
-														))),                                                         
-										helpText("This table is used to edit data in the database
-														After you double click on a cell and edit the value, 
-														the Save and Cancel buttons will show up. Click on Save if
-														you want to save the updated values to database; click on
-														Cancel to reset."),
-										br(), 
-										fluidRow(                                       
-												column(width=8,verbatimTextOutput("database_errors")),
-												column(width=2,actionButton("clear_table", "clear")),
-												column(width=2,uiOutput("buttons_data_correction"))
-										),                
-										br(),
-										DT::dataTableOutput("table_cor")),
+#								# Data correction table  ----------------------------------------------------------------
+#								
+#								tabItem("edit",
+#										h2("Data correction table"),
+#										br(),        
+#										h3("Filter"),
+#										fluidRow(
+#												column(width=4,
+#														pickerInput(inputId = "country", 
+#																label = "Select a country :", 
+#																choices = list_country,
+#																multiple = TRUE,  
+#																options = list(
+#																		style = "btn-primary", size = 5))),
+#												column(width=4, 
+#														pickerInput(inputId = "typ", 
+#																label = "Select a type :", 
+#																choices = typ_id,
+#																multiple = TRUE, 
+#																options = list(
+#																		style = "btn-primary", size = 5))),
+#												column(width=4,
+#														sliderTextInput(inputId ="year", 
+#																label = "Choose a year range:",
+#																choices=seq(the_years$min_year, the_years$max_year),
+#																selected = c(the_years$min_year,the_years$max_year)
+#														))),                                                         
+#										helpText("This table is used to edit data in the database
+#														After you double click on a cell and edit the value, 
+#														the Save and Cancel buttons will show up. Click on Save if
+#														you want to save the updated values to database; click on
+#														Cancel to reset."),
+#										br(), 
+#										fluidRow(                                       
+#												column(width=8,verbatimTextOutput("database_errors")),
+#												column(width=2,actionButton("clear_table", "clear")),
+#												column(width=2,uiOutput("buttons_data_correction"))
+#										),                
+#										br(),
+#										DT::dataTableOutput("table_cor")),
+#						
+				
 						
 						
+
+						# Data correction table  ----------------------------------------------------------------
 						
-						
-						# Data correction table Time Series  ----------------------------------------------------------------
-						
-						tabItem("editTS",
+						tabItem("editAll",
 						        h2("Data correction table"),
-						        
-						        
-						        tabsetPanel(tabPanel("SERIES INFO"),
-						                    tabPanel("DASSERIES VALIES",
 						        br(),        
 						        h3("Filter"),
 						        fluidRow(
 						          column(width=4,
-						                 pickerInput(inputId="lfsTS",
-						                             label="Select a stage :",
-						                             choices=c("G","GY","Y","S"),
-						                             multiple=TRUE,
+						                 pickerInput(inputId = "edit_datatype", 
+						                             label = "Select table to edit :", 
+						                             choices = sort(c("NULL","t_series_ser",
+						                                              "t_eelstock_eel",
+						                                              "t_biometry_series_bis",
+						                                              "t_dataseries_das")),
+						                             selected="NULL",
+						                             multiple = FALSE,  
 						                             options = list(
 						                               style = "btn-primary", size = 5))),
 						          column(width=4, 
-						                 pickerInput(inputId = "series", 
-						                             label = "Select series :", 
-						                             choices = ser_list,
+						                 pickerInput(inputId = "editpicker1", 
+						                             label = "", 
+						                             choices = "",
+						                             multiple = TRUE, 
+						                             options = list(
+						                               style = "btn-primary", size = 5))),
+						          column(width=4, 
+						                 pickerInput(inputId = "editpicker2", 
+						                             label = "", 
+						                             choices = "",
 						                             multiple = TRUE, 
 						                             options = list(
 						                               style = "btn-primary", size = 5))),
 						          column(width=4,
-						                 sliderTextInput(inputId ="yearTS", 
+						                 sliderTextInput(inputId ="yearAll", 
 						                                 label = "Choose a year range:",
 						                                 choices=seq(the_years$min_year, the_years$max_year),
 						                                 selected = c(the_years$min_year,the_years$max_year)
@@ -384,12 +392,14 @@ ui <- dashboardPage(title="ICES Data Integration",
 														Cancel to reset."),
 						        br(), 
 						        fluidRow(                                       
-						          column(width=8,verbatimTextOutput("database_errorsTS")),
-						          column(width=2,actionButton("clear_tableTS", "clear")),
-						          column(width=2,uiOutput("buttons_data_correctionTS"))
+						          column(width=8,verbatimTextOutput("database_errorsAll")),
+						          column(width=2,actionButton("clear_tableAll", "clear")),
+						          column(width=2,uiOutput("buttons_data_correctionAll"))
 						        ),                
 						        br(),
-						        DT::dataTableOutput("table_corTS")))),
+						        DT::dataTableOutput("table_corAll"),
+						        fluidRow(column(width=10),
+						                 leafletOutput("maps_editedtimeseries"))),
 								
 								# plot for duplicates  ------------------------------------------------------------------
 								
@@ -427,7 +437,7 @@ ui <- dashboardPage(title="ICES Data Integration",
 												column(width=6,
 														plotlyOutput("plotly_selected_year"))
 										),     
-										dataTableOutput("datatablenearpoints",width='100%')                                        
+										DT::dataTableOutput("datatablenearpoints",width='100%')                                        
 								),
 								tabItem(tabName="integrate_new_participants",
 										h2("Enter the name of a new participant"),
@@ -442,14 +452,8 @@ ui <- dashboardPage(title="ICES Data Integration",
 												column(width=10,
 														htmlOutput("new_participants_txt")
 												))
-								)#,
-						
-						# second plot (not dev yet) -------------------------------------------------------------
-						
-#            tabItem("plot2", fluidRow(
-#                    column(width=6,plotOutput("mon_graph2")),
-#                    column(width=6,plotOutput("mon_ggplot2"))
-#                ))
+								)						
+
 						)
 				)
 		)

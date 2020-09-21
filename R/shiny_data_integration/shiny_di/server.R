@@ -1628,176 +1628,178 @@ shinyServer(function(input, output, session){
 								})  
 					})								
 			
+#			#######################################
+## III. Data correction table  
+## This section provides a direct interaction with the database
+## Currently only developped for modifying data.
+## Deletion must be done by changing data code or asking Database handler
+#			#######################################
+#			rvs <- reactiveValues(
+#					data = NA, 
+#					dbdata = NA,
+#					dataSame = TRUE,
+#					editedInfo = NA
+#			
+#			)
+#			
+##-----------------------------------------  
+## Generate source via reactive expression
+#			
+#			mysource <- reactive({
+#						req(input$passwordbutton)
+#						validate(need(data$connectOK,"No connection"))
+#						vals = input$country
+#						if (is.null(vals)) 
+#							vals <- c("FR")
+#						types = input$typ
+#						if (is.null(types)) 
+#							types <- c(4, 5, 6, 7)
+#						the_years <- input$year
+#						if (is.null(input$year)) {
+#							the_years <- c(the_years$min_year, the_years$max_year)
+#						}
+#						# glue_sql to protect against injection, used with a vector with *
+#						query <- glue_sql("SELECT * from datawg.t_eelstock_eel where eel_cou_code in ({vals*}) and eel_typ_id in ({types*}) and eel_year>={minyear} and eel_year<={maxyear}", 
+#								vals = vals, types = types, minyear = the_years[1], maxyear = the_years[2], 
+#								.con = pool)
+#						# https:/stackoverflow.com/questions/34332769/how-to-use-dbgetquery-in-trycatch-with-postgresql
+#						# it seems that dbgetquery doesn't raise an error
+#						out_data <- dbGetQuery(pool, query)
+#						return(out_data)
+#						
+#					})
+#			
+## Observe the source, update reactive values accordingly
+#			
+#			observeEvent(mysource(), {               
+#						data <- mysource() %>% arrange(eel_emu_nameshort,eel_year)
+#						rvs$data <- data
+#						rvs$dbdata <- data
+#						disable("clear_table")                
+#					})
+#			
+##-----------------------------------------
+## Render DT table 
+## 
+## selection better be none
+## editable must be TRUE
+##
+#			output$table_cor <- DT::renderDataTable({
+#						validate(need(data$connectOK,"No connection"))
+#						DT::datatable(
+#								rvs$dbdata, 
+#								rownames = FALSE,
+#								extensions = "Buttons",
+#								editable = TRUE, 
+#								selection = 'none',
+#								options=list(
+#										order=list(3,"asc"),              
+#										searching = TRUE,
+#										rownames = FALSE,
+#										scroller = TRUE,
+#										scrollX = TRUE,
+#										scrollY = "500px",
+#										lengthMenu=list(c(-1,5,20,50,100),c("All","5","20","50","100")),
+#										dom= "Blfrtip", #button fr search, t table, i information (showing..), p pagination
+#										buttons=list(
+#												list(extend="excel",
+#														filename = paste0("data_",Sys.Date())))
+#								))})
+##-----------------------------------------
+## Create a DT proxy to manipulate data
+## 
+##
+#			proxy_table_cor = dataTableProxy('table_cor')
+##--------------------------------------
+## Edit table data
+## Expamples at
+## https://yihui.shinyapps.io/DT-edit/
+#			observeEvent(input$table_cor_cell_edit, {
+#						
+#						info = input$table_cor_cell_edit
+#						
+#						i = info$row
+#						j = info$col = info$col + 1  # column index offset by 1
+#						v = info$value
+#						
+#						rvs$data[i, j] <<- DT::coerceValue(v, rvs$data[i, j])
+#						replaceData(proxy_table_cor, rvs$data, resetPaging = FALSE, rownames = FALSE)
+#						# datasame is set to TRUE when save or update buttons are clicked
+#						# here if it is different it might be set to FALSE
+#						rvs$dataSame <- identical(rvs$data, rvs$dbdata)
+#						# this will collate all editions (coming from datatable observer in a data.frame
+#						# and store it in the reactive dataset rvs$editedInfo
+#						if (all(is.na(rvs$editedInfo))) {
+#							
+#							rvs$editedInfo <- data.frame(info)
+#						} else {
+#							rvs$editedInfo <- dplyr::bind_rows(rvs$editedInfo, data.frame(info))
+#						}
+#						
+#					})
+#			
+## Update edited values in db once save is clicked---------------------------------------------
+#			
+#			observeEvent(input$save, {
+#						errors<-update_t_eelstock_eel(editedValue = rvs$editedInfo, pool = pool, data=rvs$data)
+#						if (length(errors)>0) {
+#							output$database_errors<-renderText({iconv(unlist(errors,"UTF8"))})
+#							enable("clear_table")
+#						} else {
+#							output$database_errors<-renderText({"Database updated"})
+#						}
+#						rvs$dbdata <- rvs$data
+#						rvs$dataSame <- TRUE
+#					})
+#			
+## Observe clear_table button -> revert to database table---------------------------------------
+#			
+#			observeEvent(input$clear_table,
+#					{
+#						data <- mysource() %>% arrange(eel_emu_nameshort,eel_year)
+#						rvs$data <- data
+#						rvs$dbdata <- data
+#						disable("clear_table")
+#						output$database_errors<-renderText({""})
+#					})
+#			
+## Oberve cancel -> revert to last saved version -----------------------------------------------
+#			
+#			observeEvent(input$cancel, {
+#						rvs$data <- rvs$dbdata
+#						rvs$dbdata <- NA
+#						rvs$dbdata <- rvs$data #this is to ensure that the table display is updated (reactive value)
+#						rvs$dataSame <- TRUE
+#					})
+#			
+## UI buttons ----------------------------------------------------------------------------------
+## Appear only when data changed
+#			
+#			output$buttons_data_correction <- renderUI({
+#						div(
+#								if (! rvs$dataSame) {
+#											span(
+#													actionBttn(inputId = "save", label = "Save",
+#															style = "material-flat", color = "danger"),
+#													actionButton(inputId = "cancel", label = "Cancel")
+#											)
+#										} else {
+#											span()
+#										}
+#						)
+#					})
+#			
+#			
+#			
+			
+
 			#######################################
-# III. Data correction table  
-# This section provides a direct interaction with the database
-# Currently only developped for modifying data.
-# Deletion must be done by changing data code or asking Database handler
-			#######################################
-			rvs <- reactiveValues(
-					data = NA, 
-					dbdata = NA,
-					dataSame = TRUE,
-					editedInfo = NA
-			
-			)
-			
-#-----------------------------------------  
-# Generate source via reactive expression
-			
-			mysource <- reactive({
-						req(input$passwordbutton)
-						validate(need(data$connectOK,"No connection"))
-						vals = input$country
-						if (is.null(vals)) 
-							vals <- c("FR")
-						types = input$typ
-						if (is.null(types)) 
-							types <- c(4, 5, 6, 7)
-						the_years <- input$year
-						if (is.null(input$year)) {
-							the_years <- c(the_years$min_year, the_years$max_year)
-						}
-						# glue_sql to protect against injection, used with a vector with *
-						query <- glue_sql("SELECT * from datawg.t_eelstock_eel where eel_cou_code in ({vals*}) and eel_typ_id in ({types*}) and eel_year>={minyear} and eel_year<={maxyear}", 
-								vals = vals, types = types, minyear = the_years[1], maxyear = the_years[2], 
-								.con = pool)
-						# https:/stackoverflow.com/questions/34332769/how-to-use-dbgetquery-in-trycatch-with-postgresql
-						# it seems that dbgetquery doesn't raise an error
-						out_data <- dbGetQuery(pool, query)
-						return(out_data)
-						
-					})
-			
-# Observe the source, update reactive values accordingly
-			
-			observeEvent(mysource(), {               
-						data <- mysource() %>% arrange(eel_emu_nameshort,eel_year)
-						rvs$data <- data
-						rvs$dbdata <- data
-						disable("clear_table")                
-					})
-			
-#-----------------------------------------
-# Render DT table 
-# 
-# selection better be none
-# editable must be TRUE
-#
-			output$table_cor <- DT::renderDataTable({
-						validate(need(data$connectOK,"No connection"))
-						DT::datatable(
-								rvs$dbdata, 
-								rownames = FALSE,
-								extensions = "Buttons",
-								editable = TRUE, 
-								selection = 'none',
-								options=list(
-										order=list(3,"asc"),              
-										searching = TRUE,
-										rownames = FALSE,
-										scroller = TRUE,
-										scrollX = TRUE,
-										scrollY = "500px",
-										lengthMenu=list(c(-1,5,20,50,100),c("All","5","20","50","100")),
-										dom= "Blfrtip", #button fr search, t table, i information (showing..), p pagination
-										buttons=list(
-												list(extend="excel",
-														filename = paste0("data_",Sys.Date())))
-								))})
-#-----------------------------------------
-# Create a DT proxy to manipulate data
-# 
-#
-			proxy_table_cor = dataTableProxy('table_cor')
-#--------------------------------------
-# Edit table data
-# Expamples at
-# https://yihui.shinyapps.io/DT-edit/
-			observeEvent(input$table_cor_cell_edit, {
-						
-						info = input$table_cor_cell_edit
-						
-						i = info$row
-						j = info$col = info$col + 1  # column index offset by 1
-						v = info$value
-						
-						rvs$data[i, j] <<- DT::coerceValue(v, rvs$data[i, j])
-						replaceData(proxy_table_cor, rvs$data, resetPaging = FALSE, rownames = FALSE)
-						# datasame is set to TRUE when save or update buttons are clicked
-						# here if it is different it might be set to FALSE
-						rvs$dataSame <- identical(rvs$data, rvs$dbdata)
-						# this will collate all editions (coming from datatable observer in a data.frame
-						# and store it in the reactive dataset rvs$editedInfo
-						if (all(is.na(rvs$editedInfo))) {
-							
-							rvs$editedInfo <- data.frame(info)
-						} else {
-							rvs$editedInfo <- dplyr::bind_rows(rvs$editedInfo, data.frame(info))
-						}
-						
-					})
-			
-# Update edited values in db once save is clicked---------------------------------------------
-			
-			observeEvent(input$save, {
-						errors<-update_t_eelstock_eel(editedValue = rvs$editedInfo, pool = pool, data=rvs$data)
-						if (length(errors)>0) {
-							output$database_errors<-renderText({iconv(unlist(errors,"UTF8"))})
-							enable("clear_table")
-						} else {
-							output$database_errors<-renderText({"Database updated"})
-						}
-						rvs$dbdata <- rvs$data
-						rvs$dataSame <- TRUE
-					})
-			
-# Observe clear_table button -> revert to database table---------------------------------------
-			
-			observeEvent(input$clear_table,
-					{
-						data <- mysource() %>% arrange(eel_emu_nameshort,eel_year)
-						rvs$data <- data
-						rvs$dbdata <- data
-						disable("clear_table")
-						output$database_errors<-renderText({""})
-					})
-			
-# Oberve cancel -> revert to last saved version -----------------------------------------------
-			
-			observeEvent(input$cancel, {
-						rvs$data <- rvs$dbdata
-						rvs$dbdata <- NA
-						rvs$dbdata <- rvs$data #this is to ensure that the table display is updated (reactive value)
-						rvs$dataSame <- TRUE
-					})
-			
-# UI buttons ----------------------------------------------------------------------------------
-# Appear only when data changed
-			
-			output$buttons_data_correction <- renderUI({
-						div(
-								if (! rvs$dataSame) {
-											span(
-													actionBttn(inputId = "save", label = "Save",
-															style = "material-flat", color = "danger"),
-													actionButton(inputId = "cancel", label = "Cancel")
-											)
-										} else {
-											span()
-										}
-						)
-					})
-			
-			
-			
-			#######################################
-			# IV. Data correction table TS  
+			# IV. Data correction table All  
 			# This section provides a direct interaction with the database
 			# Currently only developped for modifying data.
 			# Deletion must be done by changing data code or asking Database handler
 			#######################################
-			rvsTS <- reactiveValues(
+			rvsAll <- reactiveValues(
 			  data = NA, 
 			  dbdata = NA,
 			  dataSame = TRUE,
@@ -1808,38 +1810,66 @@ shinyServer(function(input, output, session){
 			#-----------------------------------------  
 			# Generate source via reactive expression
 			
-			mysourceTS <- reactive({
+			mysourceAll <- reactive({
 			  req(input$passwordbutton)
+			  req(input$edit_datatype!="NULL")
 			  validate(need(data$connectOK,"No connection"))
-			  vals = input$countryTS
-			  series = input$series
-			  if (is.null(series)) 
-			    series=ser_list
-			  lfs = input$lfsTS
-			  if (is.null(lfs)) 
-			    lfs=c("G")
-			  the_years <- input$yearTS
-			  if (is.null(input$yearTS)) {
+			  pick1 = input$editpicker1
+			  pick2= input$editpicker2
+			  if (is.null(pick1)) 
+			   pick1=switch(input$edit_datatype,
+			              "t_eelstock_eel"=c("FR"),
+			              c("G")
+			             )
+			  if (is.null(pick2)) 
+			    pick2=switch(input$edit_datatype,
+			                 "t_eelstock_eel"=c(4, 5, 6, 7),
+			                 ser_list)
+			  the_years <- input$yearAll
+			  if (is.null(input$yearAll)) {
 			    the_years <- c(the_years$min_year, the_years$max_year)
 			  }
+			  query = switch (input$edit_datatype,
+			                  "t_dataseries_das" = glue_sql(str_c("SELECT das.*,ser_nameshort as ser_nameshort_ref,ser_emu_nameshort as ser_emu_nameshort_ref,ser_lfs_code as ser_lfs_code_ref from datawg.t_dataseries_das das join datawg.t_series_ser on das_ser_id=ser_id where ser_nameshort in ({pick2*}) and ser_lfs_code in ({pick1*}) and das_year>={minyear} and das_year<={maxyear}"), 
+			                                                series = series, lfs = lfs, minyear = the_years[1], maxyear = the_years[2], 
+			                                                .con = pool),
+			                  "t_eelstock_eel" =  query <- glue_sql("SELECT *,typ_name as typ_name_ref from datawg.t_eelstock_eel join ref.tr_typeseries_typ on typ_id=eel_typ_id where eel_cou_code in ({pick1*}) and eel_typ_id in ({pick2*}) and eel_year>={minyear} and eel_year<={maxyear}", 
+			                                                        vals = vals, types = types, minyear = the_years[1], maxyear = the_years[2], 
+			                                                        .con = pool),
+			                  "t_series_ser" =  glue_sql("SELECT * from datawg.t_series_ser where ser_nameshort in ({pick2*}) and ser_lfs_code in ({pick1*})", 
+			                                             vals = vals, types = types, minyear = the_years[1], maxyear = the_years[2], 
+			                                             .con = pool),
+			                  "t_biometry_series_bis" = glue_sql(str_c("SELECT bio.*,ser_nameshort as ser_nameshort_ref,ser_emu_nameshort as ser_emu_nameshort_ref,ser_lfs_code as ser_lfs_code_ref from datawg.t_biometry_series_bis bio join datawg.t_series_ser on bis_ser_id=ser_id where ser_nameshort in ({pick2*}) and bio_lfs_code in ({pick1*}) and bio_year>={minyear} and bio_year<={maxyear}"), 
+			                                                  series = series, lfs = lfs, minyear = the_years[1], maxyear = the_years[2], 
+			                                                  .con = pool)
+			  )
 			  # glue_sql to protect against injection, used with a vector with *
-			  query <- glue_sql(str_c("SELECT das.*,ser_nameshort,ser_cou_code from datawg.t_dataseries_das das join datawg.t_series_ser on das_ser_id=ser_id where ser_nameshort in ({series*}) and ser_lfs_code in ({lfs*}) and das_year>={minyear} and das_year<={maxyear}"), 
-			                    series = series, lfs = lfs, minyear = the_years[1], maxyear = the_years[2], 
-			                    .con = pool)
-			  # https:/stackoverflow.com/questions/34332769/how-to-use-dbgetquery-in-trycatch-with-postgresql
-			  # it seems that dbgetquery doesn't raise an error
-			  out_data <- dbGetQuery(pool, query)
+			  query <- 
+			    # https:/stackoverflow.com/questions/34332769/how-to-use-dbgetquery-in-trycatch-with-postgresql
+			    # it seems that dbgetquery doesn't raise an error
+			    out_data <- dbGetQuery(pool, query)
 			  return(out_data)
 			  
 			})
 			
 			# Observe the source, update reactive values accordingly
 			
-			observeEvent(mysourceTS(), {               
-			  data <- mysourceTS() %>% arrange(ser_nameshort,das_year)
-			  rvsTS$data <- data
-			  rvsTS$dbdata <- data
-			  disable("clear_tableTS")                
+			observeEvent(mysourceAll(), {
+			  data <- switch(input$edit_datatype,
+			                 "t_dataseries_das" = mysourceAll() %>%
+			                   arrange(ser_nameshort_ref,das_year), 
+			                 .con = pool,
+			                 "t_eelstock_eel" =  mysourceAll() %>%
+			                   arrange(eel_emu_nameshort,eel_year),
+			                 "t_series_ser" =  mysourceAll() %>% 
+			                   arrange(ser_nameshort,ser_cou_code),
+			                 "t_biometry_series_bis" = mysourceAll() %>%
+			                   arrange(ser_nameshort_ref,bio_year)
+			  )
+			  rvsAll$data <- data
+			  rvsAll$dbdata <- data
+			  rvsAll$editedInfo = NA
+			  disable("clear_tableAll")                
 			})
 			
 			#-----------------------------------------
@@ -1848,14 +1878,15 @@ shinyServer(function(input, output, session){
 			# selection better be none
 			# editable must be TRUE
 			#
-			output$table_corTS <- DT::renderDataTable({
+			output$table_corAll <- DT::renderDataTable({
 			  validate(need(data$connectOK,"No connection"))
-			  noteditable=which(names(rvsTS$dbdata) %in% c("ser_nameshort","ser_cou_code"))
+			  req(input$edit_datatype!="NULL")
+			  noteditable=c(1,grep("_ref",names(rvsAll$dbdata)))-1
 			  DT::datatable(
-			    rvsTS$dbdata, 
+			    rvsAll$dbdata, 
 			    rownames = FALSE,
 			    extensions = "Buttons",
-			    editable = list(target = 'cell', 
+			    editable = list(target = 'cell',
 			                    disable = list(columns = noteditable)), 
 			    selection = 'none',
 			    options=list(
@@ -1871,103 +1902,236 @@ shinyServer(function(input, output, session){
 			        list(extend="excel",
 			             filename = paste0("data_",Sys.Date())))
 			    ))})
+			
+			
+			output$maps_editedtimeseries <-renderLeaflet({
+			  validate(need(data$connectOK,"No connection"))
+			  req(input$edit_datatype=="t_series_ser")
+			  colors=rep("blue",nrow(rvsAll$data))
+			  if (!all(is.na(rvsAll$editedInfo))){
+			    colx=which(names(rvsAll$data)=="ser_x")
+			    coly=which(names(rvsAll$data)=="ser_y")
+			    colors[rvsAll$editedInfo$row[rvsAll$editedInfo$col %in% c(colx,coly)]]="red"
+			  }
+			  pal <- 
+			    colorFactor(palette = c("blue", "red"), 
+			                levels = c("blue", "red"))
+			  leaflet(rvsAll$data) %>%
+			    addTiles(group="OSM") %>%
+			    addProviderTiles(providers$Esri.WorldImagery, group="satellite") %>%
+			    addCircleMarkers(layerId=~ser_nameshort,
+			               color=~pal(colors),
+			               lat=~ser_y,
+			               lng=~ser_x,
+			               label=~ser_nameshort,
+			               group="stations") %>%
+			    addDrawToolbar(targetGroup="stations",
+			                   editOptions = editToolbarOptions(edit=TRUE,
+			                                                    remove=FALSE),
+			                   rectangleOptions=FALSE,
+			                   circleOptions=FALSE,
+			                   polygonOptions=FALSE,
+			                   polylineOptions=FALSE,
+			                   markerOptions=FALSE,
+			                   circleMarkerOptions=FALSE) %>%
+			    addLayersControl(baseGroups=c("OSM","satellite"))
+			})
+			
+			observeEvent(input$maps_editedtimeseries_draw_edited_features, {
+			  edited <- input$maps_editedtimeseries_draw_edited_features
+			  nedited <- length(edited$features)
+			  ids <- edited$features[[nedited]]$properties$`layerId`
+			  i <- which(rvsAll$dbdata$ser_nameshort==ids)
+			  newx <- edited$features[[nedited]]$geometry$coordinates[[1]]
+			  newy <- edited$features[[nedited]]$geometry$coordinates[[2]]
+			  cx <- which(names(rvsAll$dbdata)=="ser_x")
+			  cy <- which(names(rvsAll$dbdata)=="ser_y")
+			  info <- data.frame(row=rep(i,2),
+			                  col=c(cx,
+			                        cy),
+			                        value=as.character(c(newx,newy)))
+			  rvsAll$data[i, cx] <<- DT::coerceValue(newx, rvsAll$data[i, cx])
+			  rvsAll$data[i, cy] <<- DT::coerceValue(newy, rvsAll$data[i, cy])
+			  replaceData(proxy_table_corAll, rvsAll$data, resetPaging = FALSE, rownames=FALSE)
+			  # datasame is set to TRUE when save or update buttons are clicked
+			  # here if it is different it might be set to FALSE
+			  rvsAll$dataSame <- identical(rvsAll$data, rvsAll$dbdata)
+			  # this will collate all editions (coming from datatable observer in a data.frame
+			  # and store it in the reactive dataset rvs$editedInfo
+			  if (all(is.na(rvsAll$editedInfo))) {
+			    
+			    rvsAll$editedInfo <- info
+				} else {
+			    rvsAll$editedInfo <- dplyr::bind_rows(rvsAll$editedInfo, info)
+			  }
+
+			})
+			
 			#-----------------------------------------
 			# Create a DT proxy to manipulate data
 			# 
 			#
-			proxy_table_corTS = dataTableProxy('table_corTS')
+			proxy_table_corAll = dataTableProxy('table_corAll')
 			#--------------------------------------
 			# Edit table data
 			# Expamples at
 			# https://yihui.shinyapps.io/DT-edit/
-			observeEvent(input$table_corTS_cell_edit, {
+			observeEvent(input$table_corAll_cell_edit, {
 			  
-			  info = input$table_corTS_cell_edit
+			  info <- input$table_corAll_cell_edit
 			  
-			  i = info$row
-			  j = info$col = info$col + 1  # column index offset by 1
-			  v = info$value
+			  i <- info$row
+			  j <- info$col = info$col + 1  # column index offset by 1
+			  v <- info$value
 			  
-			  rvsTS$data[i, j] <<- DT::coerceValue(v, rvsTS$data[i, j])
-			  replaceData(proxy_table_cor, rvsTS$data, resetPaging = FALSE, rownames = FALSE)
+			  rvsAll$data[i, j] <<- DT::coerceValue(v, rvsAll$data[i, j])
+			  replaceData(proxy_table_cor, rvsAll$data, resetPaging = FALSE, rownames = FALSE)
 			  # datasame is set to TRUE when save or update buttons are clicked
 			  # here if it is different it might be set to FALSE
-			  rvsTS$dataSame <- identical(rvsTS$data, rvsTS$dbdata)
+			  rvsAll$dataSame <- identical(rvsAll$data, rvsAll$dbdata)
 			  # this will collate all editions (coming from datatable observer in a data.frame
 			  # and store it in the reactive dataset rvs$editedInfo
-			  if (all(is.na(rvsTS$editedInfo))) {
+			  if (all(is.na(rvsAll$editedInfo))) {
 			    
-			    rvsTS$editedInfo <- data.frame(info)
+			    rvsAll$editedInfo <- data.frame(info)
 			  } else {
-			    rvsTS$editedInfo <- dplyr::bind_rows(rvsTS$editedInfo, data.frame(info))
+			    rvsAll$editedInfo <- dplyr::bind_rows(rvsAll$editedInfo, data.frame(info))
 			  }
 			  
 			})
 			
 			
-			observeEvent(input$lfsTS, {
-			  stageser=ifelse(endsWith(ser_list,"GY"),
-			                  "GY",
-			                  str_sub(ser_list,-1,-1))
-			  updatePickerInput(session=session,
-			                    inputId="series",
-			                    choices = ser_list[stageser %in% input$lfsTS])
+			#depending on the data type we want to edit, the picker change
+			observeEvent(input$edit_datatype,{
+			  if (input$edit_datatype=="t_eelstock_eel"){
+			    updatePickerInput(session=session,
+			                      inputId="editpicker2",
+			                      choices=typ_id,
+			                      label="Select a type :",
+			                      selected=NULL)
+			    updatePickerInput(session=session,
+			                      inputId="editpicker1",
+			                      label = "Select a country :", 
+			                      choices = list_country,
+			                      selected=NULL)
+			    
+			  } else {
+			    updatePickerInput(session=session,
+			                      inputId="editpicker2",
+			                      label = "Select series :", 
+			                      choices = ser_list,
+			                      selected=NULL)
+			    updatePickerInput(session=session,
+			                      inputId="editpicker1",
+			                      label="Select a stage :",
+			                      choices=c("G","GY","Y","S"),
+			                      selected=NULL)
+												
+			    if (input$edit_datatype=="t_series_ser")  disable("yearAll")
+					
+			    rvsAll$dataSame <- TRUE
+			    rvsAll$editedInfo <- NA
+			    data <- switch(input$edit_datatype,
+			                   "t_dataseries_das" = mysourceAll() %>%
+			                     arrange(ser_nameshort_ref,das_year), 
+			                   .con = pool,
+			                   "t_eelstock_eel" =  mysourceAll() %>%
+			                     arrange(eel_emu_nameshort,eel_year),
+			                   "t_series_ser" =  mysourceAll() %>% 
+			                     arrange(ser_nameshort,ser_cou_code),
+			                   "t_biometry_series_bis" = mysourceAll() %>%
+			                     arrange(ser_nameshort_ref,bio_year)
+			    )
+			    rvsAll$data <- data
+			    rvsAll$dbdata <- data
+			  }})
+			
+			#when we want to edit time series related data, if a life stage is selected,
+			#we can restrict available time series choices
+			observeEvent(input$editpicker1,{
+			  if (input$edit_datatype!="t_eelstock_eel"){
+			    stageser=ifelse(endsWith(ser_list,"GY"),
+			                    "GY",
+			                    str_sub(ser_list,-1,-1))
+			    updatePickerInput(session=session,
+			                      inputId="editpicker2",
+			                      choices = ser_list[stageser %in% input$editpicker1])
+			  }
+			  
 			})
 			
 			# Update edited values in db once save is clicked---------------------------------------------
 			
-			observeEvent(input$saveTS, {
-			  errors<-update_t_dataseries_das(editedValue = rvsTS$editedInfo, pool = pool, data=rvsTS$data)
+			observeEvent(input$saveAll, {
+			  errors <- update_data_generic(editedValue = rvsAll$editedInfo,
+			                              pool = pool, data=rvsAll$data,
+			                              edit_datatype=input$edit_datatype)
 			  if (length(errors)>0) {
-			    output$database_errorsTS<-renderText({iconv(unlist(errors,"UTF8"))})
-			    enable("clear_table")
+			    output$database_errorsAll<-renderText({iconv(unlist(errors,"UTF8"))})
+			    enable("clear_tableAll")
 			  } else {
-			    output$database_errorsTS<-renderText({"Database updated"})
+			    output$database_errorsAll<-renderText({"Database updated"})
 			  }
-			  rvsTS$dbdata <- rvsTS$data
-			  rvsTS$dataSame <- TRUE
+			  rvsAll$dbdata <- rvsAll$data
+			  rvsAll$dataSame <- TRUE
+			  rvsAll$editedInfo = NA
 			})
 			
 			# Observe clear_table button -> revert to database table---------------------------------------
 			
-			observeEvent(input$clear_tableTS,
+			observeEvent(input$clear_tableAll,
 			             {
-			               data <- mysourceTS() %>%arrange(ser_nameshort,das_year)
-			               rvsTS$data <- data
-			               rvsTS$dbdata <- data
-			               disable("clear_tableTS")
-			               output$database_errorsTS<-renderText({""})
+			               data <- switch(input$edit_datatype,
+			                              "t_dataseries_das" = mysourceAll() %>%
+			                                arrange(ser_nameshort_ref,das_year), 
+			                              .con = pool,
+			                              "t_eelstock_eel" =  mysourceAll() %>%
+			                                arrange(eel_emu_nameshort,eel_year),
+			                              "t_series_ser" =  mysourceAll() %>% 
+			                                arrange(ser_nameshort,ser_cou_code),
+			                              "t_biometry_series_bis" = mysourceAll() %>%
+			                                arrange(ser_nameshort_ref,bio_year)
+			               )
+			               rvsAll$data <- data
+			               rvsAll$dbdata <- data
+										 rvsAll$editedInfo = NA
+			               disable("clear_tableAll")
+			               output$database_errorsAll<-renderText({""})
+			               rvsAll$editedInfo = NA
 			             })
 			
 			# Oberve cancel -> revert to last saved version -----------------------------------------------
 			
-			observeEvent(input$cancelTS, {
-			  rvsTS$data <- rvsTS$dbdata
-			  rvsTS$dbdata <- NA
-			  rvsTS$dbdata <- rvsTS$data #this is to ensure that the table display is updated (reactive value)
-			  rvsTS$dataSame <- TRUE
+			observeEvent(input$cancelAll, {
+			  rvsAll$data <- rvsAll$dbdata
+			  rvsAll$dbdata <- NA
+			  rvsAll$dbdata <- rvsAll$data #this is to ensure that the table display is updated (reactive value)
+			  rvsAll$dataSame <- TRUE
+			  rvsAll$editedInfo = NA
 			})
 			
 			# UI buttons ----------------------------------------------------------------------------------
 			# Appear only when data changed
 			
-			output$buttons_data_correctionTS <- renderUI({
+			output$buttons_data_correctionAll <- renderUI({
 			  div(
-			    if (! rvsTS$dataSame) {
+			    if (! rvsAll$dataSame) {
 			      span(
-			        actionBttn(inputId = "saveTS", label = "Save",
+			        actionBttn(inputId = "saveAll", label = "Save",
 			                   style = "material-flat", color = "danger"),
-			        actionButton(inputId = "cancelTS", label = "Cancel")
+			        actionButton(inputId = "cancelAll", label = "Cancel")
 			      )
 			    } else {
 			      span()
 			    }
 			  )
 			})
-			#################################################
+#################################################
 # GRAPHS ----------------------------------------
-			#################################################
-			
+#################################################
+		rvs <- reactiveValues(
+					datagr = NA			
+			)
 # Same as mysource but for graphs, different page, so different buttons
 # there must be a way by reorganizing the buttons to do a better job
 # but buttons don't apply to the data integration sheet and here we don't
@@ -1985,7 +2149,7 @@ shinyServer(function(input, output, session){
 						if (is.null(types)) 
 							types <- c(4, 5, 6, 7)
 						the_years <- input$year_g
-						if (is.null(input$year)) {
+						if (is.null(input$year_g)) {
 							the_years <- c(the_years$min_year, the_years$max_year)
 						}
 						# glue_sql to protect against injection, used with a vector with *
