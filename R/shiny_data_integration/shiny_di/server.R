@@ -1920,6 +1920,7 @@ shinyServer(function(input, output, session){
 
 			  DT::datatable(
 			    rvsAll$dbdata, 
+			    filter="top",
 			    rownames = FALSE,
 			    extensions = "Buttons",
 			    editable = list(target = 'cell',
