@@ -254,7 +254,7 @@ plot_pc <- function(country, dataset,
 			country = country,
 			habitat = habitat,
 			year_range = year_range
-	) 
+	)%>% dplyr::filter(is.na(eel_missvaluequal)) 
 	grouped_data <- group_data(filtered_data,
 			geo = "emu",
 			habitat = FALSE,
@@ -294,7 +294,7 @@ table_pc_lfs <- function(country, dataset, typ = 9,
 			life_stage = life_stage,
 			country = country,
 			year_range = year_range
-	) 
+	)%>% dplyr::filter(is.na(eel_missvaluequal)) 
 	if (nrow(filtered_data)>0){
 		grouped_data <-group_data(filtered_data,
 				geo = "emu",
@@ -338,7 +338,7 @@ plot_pc_lfs <- function(country,
 			country = country,
 			habitat = habitat,
 			year_range = year_range
-	) 
+	)%>% dplyr::filter(is.na(eel_missvaluequal)) 
 	grouped_data <- group_data(filtered_data,
 			geo = "emu",
 			habitat = FALSE,
@@ -1194,6 +1194,7 @@ res <- table_pc_lfs(dataset="aquaculture",
 		scalef=1000	    
 )
 aqua_n <- nrow(res>0)
+print(res %>% kable_styling())
 cat("\n")
 ```
 
