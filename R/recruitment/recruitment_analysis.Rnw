@@ -822,9 +822,12 @@ vv$nbcurrentyellow <- n_y_lfs$"yellow"[n_y_lfs$year==CY]
 dd <- as.data.frame(table(year=wger$year,lifestage=wger$lifestage))
 
 figure2 <- ggplot(dd, aes(x=as.numeric(as.character(year)), y=Freq, group=lifestage, col=lifestage)) + geom_point() + geom_line(lwd=2) + ylab('number of series') +xlab('year')+
-  theme(text=element_text(size=15))+
-  	scale_x_continuous(limits=c(1900,CY))
-x11()
+  theme(text=element_text(size=12))+
+  	scale_x_continuous(limits=c(1900,CY))+
+  theme(text = element_text(size=30),
+        axis.text.x = element_text(angle=0, hjust=1))+
+   theme(legend.position = c(0.25,0.75), legend.text = element_text( size = 35))
+X11(400,250)
 
 print(figure2)
 save_figure(figname="figure2",figure2,800,600)
@@ -1062,6 +1065,8 @@ report in  any specific year.}
 \label{figure2}
 \end{figure}
  %========================================== 
+ 
+ 
  
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %************************************************************************************
