@@ -85,18 +85,30 @@ ui <- dashboardPage(title="ICES Data Integration",
 								),              
 								tags$hr(),
 								h2("step 1 : Compare with database"),
-								fluidRow(                                       
-										column(width=2,                        
-												actionButton("check_duplicate_button", "Check duplicate")), 
+								fluidRow(
+								  fluidRow(column(width=2,                        
+												actionButton("check_duplicate_button", "Check duplicate")) ),
+								  fluidRow(
 										column(width=5,
-												htmlOutput("step1_message_duplicates"),
-												DT::dataTableOutput("dt_duplicates"),
-												DT::dataTableOutput("dt_check_duplicates")),
+										       h3("Duplicated data"),
+										       htmlOutput("step1_message_duplicates"),
+										       DT::dataTableOutput("dt_duplicates"),
+										       h3("Updated data"),
+										       htmlOutput("step1_message_updated"),
+										       DT::dataTableOutput("dt_updated_values")),
 										column(width=5,
-												htmlOutput("step1_message_new"),
-												DT::dataTableOutput("dt_new"),
-												DT::dataTableOutput("dt_missing"))
-								),
+										       h3("New values"),
+										       htmlOutput("step1_message_new"),
+										       DT::dataTableOutput("dt_new"))),
+								  fluidRow(
+								    column(width=5,
+								           h3("Summary modifications"),
+								           DT::dataTableOutput("dt_check_duplicates")),
+								    column(width=5,
+								           h3("summary still missing"),
+												  DT::dataTableOutput("dt_missing")))
+											
+								  ),
 								tags$hr(),
 								h2("step 2.1 Integrate/ proceed duplicates rows"),
 								fluidRow(
@@ -120,8 +132,10 @@ ui <- dashboardPage(title="ICES Data Integration",
 								),
 								h2("step 2.3 Updated values"),
 								fluidRow(
-										column(width=6,DT::dataTableOutput("dt_updated_values")
-										),                   
+										column(width=4,fileInput("xl_updated_file", "xls new",
+										                         multiple=FALSE,
+										                         accept = c(".xls",".xlsx")
+										)),
 										column(width=6,
 												actionButton("database_updated_value_button", "Proceed"),
 												verbatimTextOutput("textoutput_step2.3")
