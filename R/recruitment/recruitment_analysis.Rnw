@@ -343,6 +343,7 @@ save(R_stations,file=str_c(shinywd,"R_stations.Rdata"), version =2)
 load(file=str_c(datawd,"wger_init.Rdata"))
 load(file=str_c(datawd,"statseries.Rdata"))
 load(file=str_c(datawd,"R_stations.Rdata"))
+load(file=str_c(datawd,"last_years_wih_problem.Rdata"))
 @
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 				SERIES SELECTION AND STATISTICS ABOUT DATA ENTRY 
@@ -559,7 +560,12 @@ R_stations$ser_namelong <- iconv(R_stations$ser_namelong,"UTF8")
 
 series_CY <- R_stations[R_stations$ser_nameshort%in%names(last_year[last_year==CY]),
 		c("ser_nameshort","ser_namelong","cou_code","ser_lfs_code","areashort","ser_area_division","cou_order","ser_y")]
+#series_CY <- merge(series_CY,last_years_with_problem[,c("das_qal_id", "ser_nameshort")], by="ser_nameshort", all.x=T)
+#series_CY$das_qal_id[is.na(series_CY$das_qal_id)] <- 1
+
 series_CY <- series_CY[order(series_CY$ser_lfs_code,series_CY$cou_order),-c(ncol(series_CY)-1,ncol(series_CY))]
+#series_CY <- series_CY[order(series_CY$ser_lfs_code,series_CY$cou_order),	c("ser_nameshort","ser_namelong","cou_code","ser_lfs_code","areashort","ser_area_division")]
+
 vv$nCY <- nrow(series_CY) # number of series updated to the current year (for later use)
 vv$nCYG <- nrow(series_CY[series_CY$ser_lfs_code=="G",]) # number of series with glass eel updated to the current year
 vv$nCYGY <- nrow(series_CY[series_CY$ser_lfs_code=="GY",]) # number of series with glass eel updated to the current year
@@ -631,7 +637,7 @@ print(xseries_CYm1,
 		include.rownames=FALSE
 )
 #------------------------------------------------------
-# xtable of series that have not been udpated
+# xtable of series that have not been updated
 #------------------------------------------------------
 colnames(series_lost) <- str_c("\\scshape{",c("Site","Name","Coun.","Stage","Area","Division","Last Year"),"}")
 xseries_lost <- xtable(x = series_lost,
@@ -767,8 +773,25 @@ print(xstatseriesY,
 # Table of the problem in series for this year
 ################################################################
 
+series_prob <- last_years_with_problem[,c(  "ser_nameshort" ,"ser_lfs_code" , "ser_cou_code"       ,  "ser_area_division"        ,"das_year"    ,    "das_qal_id"  )]
+series_prob <- series_prob[order(series_prob$ser_lfs_code,series_prob$das_year, series_prob$ser_nameshort),]
+colnames(series_prob) <- str_c("\\scshape{",c("Name","Stage", "Country","Division","Year", "Kept"),"}")
 
-
+xseries_prob <- xtable(x = series_prob,
+		label = "table_series_prob",
+		caption = str_c("Data in " ,CY, " and ", CY-1, "having problems causing the data in the specific year to be excluded from the analysis. Codes for stages are G = glass eel, GY = glass eel + yellow eel, Y = yellow eel, Division = FAO marine division. Kept: 0 = missing, 1 = good quality,
+		2 = wgeel has modified the data, 3 = not used due to poor quality, 4 =	data is used, but there are warnings on its quality"),
+		align=c("p{0cm}","p{2.5cm}","p{2.5cm}","p{2.5cm}","p{2.5cm}","p{2.5cm}","p{2.5cm}"))
+print(xseries_prob,
+    file = str_c(	tabwd,"/table_series_prob.tex"),
+		table.placement = "htbp",
+		caption.placement = "top",
+		sanitize.colnames.function=function(x){x}, # otherwise \\ are escaped
+		NA.string = ".",
+		tabular.environment="tabularx",
+		width="\\textwidth",
+		include.rownames=FALSE
+)
 
 
 ################################################################
@@ -796,27 +819,17 @@ vv$nbcurrentyellow <- n_y_lfs$"yellow"[n_y_lfs$year==CY]
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 << figure_series, echo=FALSE,  eval=FALSE, results=hide >>=
 
-figure2 <- function(){
-	par(mar=c(4,4,0,0)+.5)
-	matplot(rownames(table(wger$year,wger$lifestage)),table(wger$year,wger$lifestage),type="b",lty=c(1,2,3),pch=c(16,17,18),col=c("black","black","grey"),xlab="year",ylab="number of series")
-	legend("topleft",legend=colnames(table(wger$year,wger$lifestage)),lty=c(1,2,3),pch=c(16,17,18),col=c("black","black","grey"))
-}
+dd <- as.data.frame(table(year=wger$year,lifestage=wger$lifestage))
 
-figname <- "figure2"
+figure2 <- ggplot(dd, aes(x=as.numeric(as.character(year)), y=Freq, group=lifestage, col=lifestage)) + geom_point() + geom_line(lwd=2) + ylab('number of series') +xlab('year')+
+  theme(text=element_text(size=15))+
+  	scale_x_continuous(limits=c(1900,CY))
+x11()
 
-jpeg(filename = paste(imgwd,"/",figname,".jpeg",sep="")) #, width =480, height = 600
-figure2()
-rien <- dev.off()
+print(figure2)
+save_figure(figname="figure2",figure2,800,600)
 
-bmp(filename = paste(imgwd,"/",figname,".bmp",sep=""))
-figure2()
-rien <- dev.off()
-
-png(filename = paste(imgwd,"/",figname,".png",sep=""))
-figure2()
-rien <- dev.off()
-
-
+		
 
 @
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1020,6 +1033,13 @@ as provisional especially those for the yellow eel.}
  %====================================
 	\input{\Sexpr{str_c(tabwd,"/table_statseriesY.tex")}}
  %====================================
+ 
+ 
+  %====================================
+	\input{\Sexpr{str_c(tabwd,"/table_series_prob.tex")}}
+ %====================================
+ 
+ 
  
 \subsection{Number of series available}
 
