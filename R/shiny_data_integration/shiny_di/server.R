@@ -2088,9 +2088,23 @@ shinyServer(function(input, output, session){
 			    stageser=ifelse(endsWith(ser_list,"GY"),
 			                    "GY",
 			                    str_sub(ser_list,-1,-1))
+			    selected=input$editpicker2
 			    updatePickerInput(session=session,
 			                      inputId="editpicker2",
-			                      choices = ser_list[stageser %in% input$editpicker1])
+			                      choices = ser_list[stageser %in% input$editpicker1],
+			                      selected=selected)
+			  }
+			  
+			})
+			
+			observeEvent(input$editpicker2,{
+			  if (input$edit_datatype!="t_eelstock_eel" & is.null(input$editpicker1)){
+			    stageser=ifelse(endsWith(input$editpicker2,"GY"),
+			                    "GY",
+			                    str_sub(input$editpicker2,-1,-1))
+			    updatePickerInput(session=session,
+			                      inputId="editpicker1",
+			                      selected = stageser)
 			  }
 			  
 			})
