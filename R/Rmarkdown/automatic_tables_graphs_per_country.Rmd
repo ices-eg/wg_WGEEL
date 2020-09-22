@@ -311,7 +311,9 @@ table_pc_lfs <- function(country, dataset, typ = 9,
 		table<-data.frame(table,
 				Sum=rowSums(table[,-1,drop=FALSE],na.rm=T)
 		)
-		colnames(table)[2:(ncol(table)-1)]<-substr(colnames(table)[2:(ncol(table)-1)],4,10)
+		colnames(table)<-gsub(paste(country,"_",sep=""),
+		                                         "",
+		                                         colnames(table))
 		caption=ifelse(typ %in% c(8,9),
 				paste("Release in", ifelse(typ==8,"kg","number")),
 				"Aquaculture in tons")
@@ -1189,12 +1191,11 @@ asis_output("<br/>")
 res <- table_pc_lfs(dataset="aquaculture", 
 		country=  params$country, 
 		typ=11 , 
-		life_stage=c("G","Y","QG","OG"),		
+		life_stage=c("G","Y","YS","QG","OG"),		
 		year_range=1960:2020, 
 		scalef=1000	    
 )
 aqua_n <- nrow(res>0)
-print(res %>% kable_styling())
 cat("\n")
 ```
 
@@ -1216,7 +1217,7 @@ cat("\n")
 gg <- plot_pc_lfs(dataset="aquaculture", 
 		country= params$country, 
 		typ=11 , 
-		life_stage=c("G","Y","QG","OG")	,
+		life_stage=c("G","Y","YS","QG","OG")	,
 		year_range=params$year:CY, 
 		scalef=1000,
 		ylab.="Aquaculture in tons"
