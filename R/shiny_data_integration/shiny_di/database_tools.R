@@ -915,7 +915,27 @@ write_new <- function(path) {
 #' @details This function uses sqldf to create temporary table then dbExecute as
 #' this version allows to catch exceptions and sqldf does not
 
-  write_updated_values <- function(updated_values_table, qualify_code) {
+  write_updated_values <- function(path, qualify_code) {
+    browser()
+    updated_values_table <- read_excel(path = path, sheet = 1, skip = 1)
+    validate(need(ncol(updated_values_table) == 27, "number column wrong (should be 22) \n"))
+    validate(need(all(colnames(updated_values_table) %in% c("eel_id", "eel_typ_id", "eel_typ_name", 
+                                                   "eel_year.base","eel_year.xls","eel_value.base", "eel_value.xls", 
+                                                   "eel_missvaluequal.base","eel_missvaluequal.xls",
+                                                   "eel_emu_nameshort.base","eel_emu_nameshort.xls",
+                                                   "eel_qal_id.xls", "eel_qal_id.base",
+                                                   "eel_qal_comment.xls","eel_qal_comment.base",
+                                                   "eel_qal_comment.xls", "eel_qal_id.base", "eel_qal_comment.base", "eel_missvaluequal.base", 
+                                                   "eel_missvaluequal.xls", "eel_emu_nameshort", "eel_cou_code.base","eel_cou_code.xls",
+                                                   "eel_lfs_code.base", "eel_lfs_code.xls",
+                                                   "eel_hty_code.base","eel_hty_code.xls", "eel_area_division.base", "eel_area_division.xls",
+                                                   "eel_comment.base", "eel_comment.xls", 
+                                                   "eel_datasource.base", "eel_datasource.xls")), 
+                  "Error in updated dataset : column name changed, have you removed the empty line on top of the dataset ?"))
+    validate(need(all(!is.na(updated_values_table$eel_qal_id.xls)), "There are still lines without eel_qal_id, please check your file"))
+    cou_code = unique(updated_values_table$eel_cou_code.base)
+    validate(need(length(cou_code) == 1, "There is more than one country code, please check your file"))
+    
 	cou_code = unique(updated_values_table$eel_cou_code.xls)  
 	validate(need(length(cou_code) == 1, "There is more than one country code, please check your file"))
 	

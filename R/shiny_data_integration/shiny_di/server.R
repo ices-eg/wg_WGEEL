@@ -483,15 +483,34 @@ shinyServer(function(input, output, session){
 						} # closes if nrow(...  
 						if (input$file_type %in% c("catch_landings","release")){
 							if (nrow(updated_from_excel)>0){
+							  output$"step1_message_updated"<-renderUI(
+							    HTML(
+							      paste(
+							        h4("Table of updated values (xls)"),
+							        "<p align='left'>Please click on excel",
+							        "to download this file. <p>"                         
+							      ))) 
 								data$updated_values_table <- compare_with_database_updated_values(updated_from_excel,data_from_base) 
-								output$dt_updated_values <- DT::renderDataTable({
-											data$updated_values_table
-										},option=list(
-												rownames = FALSE,
-												scroller = TRUE,
-												scrollX = TRUE,
-												scrollY = TRUE))
-							}
+								output$dt_updated_values <- DT::renderDataTable(
+											data$updated_values_table,
+											rownames=FALSE,
+											extensions = "Buttons",
+										option=list(
+										  scroller = TRUE,
+										  scrollX = TRUE,
+										  scrollY = "500px",
+										  order=list(3,"asc"),
+										  lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
+										  "pagelength"=-1,
+										  dom= "Blfrtip",
+										  scrollX = T, 
+										  buttons=list(
+										    list(extend="excel",
+										         filename = paste0("updated_",input$file_type,"_",Sys.Date(),current_cou_code))) 
+										))
+							}else{
+							  output$"step1_message_updated"<-renderUI("")
+							} 
 						}
 						if (input$file_type %in% c("catch_landings","release")){
 							summary_check_duplicates=data.frame(years=years,
@@ -636,8 +655,18 @@ shinyServer(function(input, output, session){
 			# 
 			#############################
 			observeEvent(input$database_updated_value_button, {
-						validate(need(data$updated_values_table,"need data to be updated"))
-						
+			  ###########################
+			  # step2_filepath
+			  # reactive function, when clicked return value in reactive data 
+			  ###########################
+			  step23_filepath <- reactive({
+			    inFile <- isolate(input$xl_updated_file)     
+			    if (is.null(inFile)){        return(NULL)
+			    } else {
+			      data$path_step23<-inFile$datapath #path to a temp file             
+			    }
+			  })
+					
 						###########################
 						# step23load_updated_value_data
 						#  function, returns a message
@@ -645,7 +674,10 @@ shinyServer(function(input, output, session){
 						#  or an error message
 						###########################
 						step23load_updated_value_data <- function() {
-							rls <- write_updated_values(isolate(data$updated_values_table),qualify_code=qualify_code)
+						  path <- isolate(step23_filepath())
+						  if (is.null(data$path_step23)) 
+						    return(NULL)
+							rls <- write_updated_values(path,qualify_code=qualify_code)
 							message <- rls$message
 							cou_code <- rls$cou_code
 							main_assessor <- input$main_assessor
