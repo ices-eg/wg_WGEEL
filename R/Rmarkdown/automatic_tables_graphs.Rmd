@@ -1011,7 +1011,9 @@ print(g_release_OG)
 
 ```
 
+
 \newline
+
 
 
 ```{r release_all_stages,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure 12: Reported released of all stages (Y, YS, OG, S, QG) (in millions) per country, Sweden (SE), Finland (FI), Estonia (EE), Latvia (LV), Lithuania (LT), Poland (PL), Germany (DE), Denmark (DK), Netherlands (NL), Belgium (BE), Ireland (IE), United Kingdom (GB), France (FR), Spain (ES), Italy (IT) and Greece (GR)..", fig.height=5, fig.width=10}
@@ -1052,7 +1054,10 @@ print(g_release_all)
 
 
 ## Aquaculture
+
+
 \newline
+
 
 ```{r aquat,echo=FALSE, warning=FALSE}
 
@@ -1110,6 +1115,8 @@ g_aquaculture <-  ggplot(aquaculture3) +
 print(g_aquaculture)
 
 ```
+
+
 \newline
 
 
