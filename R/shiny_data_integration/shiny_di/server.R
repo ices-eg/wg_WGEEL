@@ -333,36 +333,36 @@ shinyServer(function(input, output, session){
 						) 
 						data_from_excel<- step0load_data()$res$data
 						switch (input$file_type, "catch_landings"={                                     
-									data_from_base<-extract_data("landings", quality=c(1,2,3,4), quality_check=TRUE)
+									data_from_base<-extract_data("landings", quality=c(0,1,2,3,4), quality_check=TRUE)
 									updated_from_excel<- step0load_data()$res$updated_data
 								},
 								"release"={
-									data_from_base<-extract_data("release", quality=c(1,2,3,4), quality_check=TRUE)
+									data_from_base<-extract_data("release", quality=c(0,1,2,3,4), quality_check=TRUE)
 									updated_from_excel<- step0load_data()$res$updated_data
 								},
 								"aquaculture"={             
-									data_from_base<-extract_data("aquaculture", quality=c(1,2,3,4), quality_check=TRUE)},
+									data_from_base<-extract_data("aquaculture", quality=c(0,1,2,3,4), quality_check=TRUE)},
 								"biomass"={
 									# bug in excel file
 									colnames(data_from_excel)[colnames(data_from_excel)=="typ_name"]<-"eel_typ_name"
 									data_from_base<-rbind(
-											extract_data("b0", quality=c(1,2,3,4), quality_check=TRUE),
-											extract_data("bbest", quality=c(1,2,3,4), quality_check=TRUE),
-											extract_data("bcurrent", quality=c(1,2,3,4), quality_check=TRUE))
+											extract_data("b0", quality=c(0,1,2,3,4), quality_check=TRUE),
+											extract_data("bbest", quality=c(0,1,2,3,4), quality_check=TRUE),
+											extract_data("bcurrent", quality=c(0,1,2,3,4), quality_check=TRUE))
 								},
 								"potential_available_habitat"={
-									data_from_base<-extract_data("potential_available_habitat", quality=c(1,2,3,4), quality_check=TRUE)                  
+									data_from_base<-extract_data("potential_available_habitat", quality=c(0,1,2,3,4), quality_check=TRUE)                  
 								},
 								# mortality in silver eel equivalent
 								"silver_eel_equivalents"={
-									data_from_base<-extract_data("silver_eel_equivalents", quality=c(1,2,3,4), quality_check=TRUE)      
+									data_from_base<-extract_data("silver_eel_equivalents", quality=c(0,1,2,3,4), quality_check=TRUE)      
 									
 								},
 								"mortality_rates"={
 									data_from_base<-rbind(
-											extract_data("sigmaa", quality=c(1,2,3,4), quality_check=TRUE),
-											extract_data("sigmafallcat", quality=c(1,2,3,4), quality_check=TRUE),
-											extract_data("sigmahallcat", quality=c(1,2,3,4), quality_check=TRUE))
+											extract_data("sigmaa", quality=c(0,1,2,3,4), quality_check=TRUE),
+											extract_data("sigmafallcat", quality=c(0,1,2,3,4), quality_check=TRUE),
+											extract_data("sigmahallcat", quality=c(0,1,2,3,4), quality_check=TRUE))
 								}                
 						)
 						# the compare_with_database function will compare
