@@ -17,16 +17,22 @@ getUsername <- function(){
 	return(name)
 }
 #--------------------------------
-
+if (getUsername() == "hilaire.drouineau") setwd("~/Documents/Bordeaux/migrateurs/WGEEL/github/wg_WGEEL/R/Rmarkdown/")
 if (getUsername() == "cedric.briand") setwd("C:/workspace/gitwgeel/R/Rmarkdown") 
 if (getUsername() == "cboulenger") setwd("C:/Users/cboulenger/Documents/wg_WGEEL/R/Rmarkdown") 
+
+CY=2020
+imgwd <- str_c(getwd(),"/",CY,"/00international/image/")
+tabwd <- str_c(getwd(),"/",CY,"/00international/table/")
+dir.create(imgwd, showWarnings = FALSE)
+dir.create(tabwd, showWarnings = FALSE)
 
 knitr::opts_chunk$set(echo = TRUE, warnings=FALSE)
 #source("R/utilities/set_directory.R")
 #data_directory <- wg_choose.dir(caption = "Where do you want to save the tables and the graphs")
 #data_directory <-"C:/temp"
 #knitr::opts_knit$set(root.dir = data_directory)
-CY=2020
+
 render="docx"  # html 
 # temporary file to store the variables (this is necessary to print the text)
 
@@ -1049,6 +1055,8 @@ g_release_all <-  ggplot(release3) +
 print(g_release_all)
 
 ```
+
+
 \newline
 
 
@@ -1147,44 +1155,44 @@ print(ka_aqua2)
 #data_directory <- wg_choose.dir(caption = "Where do you want to save the tables and the graphs")
 #setwd(data_directory)
 #save(vvv,file="vvv.Rdata")
-write.csv2(tableComLandG,"Raw_Com_landings_G.csv",row.names=FALSE)
+write.csv2(tableComLandG, paste0(tabwd,"Raw_Com_landings_G.csv"),row.names=FALSE)
 #write.csv2(tableComLandYS,"Raw_Com_landings_Y_S.csv",row.names=FALSE)
-write.csv2(tableRecLandYS,"Raw_Rec_landings_Y_S.csv",row.names=FALSE)
-write.csv2(tablerecLandG,"Raw_Rec_landings_G.csv",row.names=FALSE)
-write.csv2(tableAqua,"Aquaculture_tons.csv",row.names=FALSE)
-write.csv2(tableRelG,"releases_nb_G.csv",row.names=FALSE)
-write.csv2(tableRelS,"releases_nb_S.csv",row.names=FALSE)
-write.csv2(tableRelY,"releases_nb_Y.csv",row.names=FALSE)
-write.csv2(tableRelQG,"releases_nb_QG.csv",row.names=FALSE)
-write.csv2(tableRelOG,"releases_nb_OG.csv",row.names=FALSE)
-write.csv2(tableCorLandYS,"Raw_Corr_Com_landings_Y_S.csv",row.names=FALSE)
+write.csv2(tableRecLandYS, paste0(tabwd,"Raw_Rec_landings_Y_S.csv"),row.names=FALSE)
+write.csv2(tablerecLandG, paste0(tabwd,"Raw_Rec_landings_G.csv"),row.names=FALSE)
+write.csv2(tableAqua, paste0(tabwd,"Aquaculture_tons.csv"),row.names=FALSE)
+write.csv2(tableRelG, paste0(tabwd,"releases_nb_G.csv"),row.names=FALSE)
+write.csv2(tableRelS, paste0(tabwd,"releases_nb_S.csv"),row.names=FALSE)
+write.csv2(tableRelY, paste0(tabwd,"releases_nb_Y.csv"),row.names=FALSE)
+write.csv2(tableRelQG, paste0(tabwd,"releases_nb_QG.csv"),row.names=FALSE)
+write.csv2(tableRelOG, paste0(tabwd,"releases_nb_OG.csv"),row.names=FALSE)
+write.csv2(tableCorLandYS, paste0(tabwd,"Raw_Corr_Com_landings_Y_S.csv"),row.names=FALSE)
 
-ggsave("Raw_Com_landings_G.png", g_raw_Clandings_G, device = "png", width = 30, height = 20, 
+ggsave(paste0(imgwd,"Raw_Com_landings_G.png"), g_raw_Clandings_G, device = "png", width = 30, height = 20, 
 		units = "cm")
-ggsave("Raw_Com_landings_YS.png", g_raw_Clandings_YS, device = "png", width = 30, height = 20, 
+ggsave(paste0(imgwd,"Raw_Com_landings_YS.png"), g_raw_Clandings_YS, device = "png", width = 30, height = 20, 
 		units = "cm")
-ggsave("Raw_Rec_landings_G.png", g_raw_Rlandings_G, device = "png", width = 30, height = 20,  
+ggsave(paste0(imgwd,"Raw_Rec_landings_G.png"), g_raw_Rlandings_G, device = "png", width = 30, height = 20,  
 		units = "cm")
-ggsave("Raw_Rec_landings_YS.png", g_raw_Rlandings_YS, device = "png", width = 30, height = 20,  
+ggsave(paste0(imgwd,"Raw_Rec_landings_YS.png"), g_raw_Rlandings_YS, device = "png", width = 30, height = 20,  
 		units = "cm")
-ggsave("Aquaculture.png", g_aquaculture, device = "png", width = 30, height = 20,
+ggsave(paste0(imgwd,"Aquaculture.png"), g_aquaculture, device = "png", width = 30, height = 20,
 		units = "cm")
 
-ggsave("Releases_G.png", g_release_G, device = "png", width = 30, height = 20,  
+ggsave(paste0(imgwd,"Releases_G.png"), g_release_G, device = "png", width = 30, height = 20,  
 		units = "cm")
-ggsave("Releases_Y.png", g_release_Y, device = "png", width = 30, height = 20,  
+ggsave(paste0(imgwd,"Releases_Y.png"), g_release_Y, device = "png", width = 30, height = 20,  
 		units = "cm")
-ggsave("Releases_S.png", g_release_S, device = "png", width = 30, height = 20,  
+ggsave(paste0(imgwd,"Releases_S.png"), g_release_S, device = "png", width = 30, height = 20,  
 		units = "cm")
-ggsave("Releases_QG.png", g_release_QG, device = "png", width = 30, height = 20, 
+ggsave(paste0(imgwd,"Releases_QG.png"), g_release_QG, device = "png", width = 30, height = 20, 
 		units = "cm")
-ggsave("Releases_OG.png", g_release_OG, device = "png", width = 30, height = 20, 
+ggsave(paste0(imgwd,"Releases_OG.png"), g_release_OG, device = "png", width = 30, height = 20, 
 		units = "cm")
-ggsave("Releases_all.png",g_release_all, device = "png", width = 30, height = 20, 
+ggsave(paste0(imgwd,"Releases_all.png"),g_release_all, device = "png", width = 30, height = 20, 
 		units = "cm")
-ggsave("Raw_Corr_com_landings_YS.png", g_combined_landings_YS, device = "png", width = 30, height = 20, 
+ggsave(paste0(imgwd,"Raw_Corr_com_landings_YS.png"), g_combined_landings_YS, device = "png", width = 30, height = 20, 
 		units = "cm")
-ggsave("Raw_Corr_com_landings_G.png", g_combined_landings_G, device = "png", width = 30, height = 20, 
+ggsave(paste0(imgwd,"Raw_Corr_com_landings_G.png"), g_combined_landings_G, device = "png", width = 30, height = 20, 
 		units = "cm")
 
 ```
