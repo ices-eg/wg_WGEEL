@@ -8,9 +8,20 @@ test: "`r paste('_metadata.yaml')`"
 ---
 \newline
 ```{r setup, include=TRUE, echo=FALSE}
+
+#--------------------------------
+# get your current name 
+#--------------------------------
+getUsername <- function(){
+	name <- Sys.info()[["user"]]
+	return(name)
+}
+#--------------------------------
+
+if (getUsername() == "cedric.briand") setwd("C:/workspace/gitwgeel/R/Rmarkdown") 
+if (getUsername() == "cboulenger") setwd("C:/Users/cboulenger/Documents/wg_WGEEL/R/Rmarkdown") 
+
 knitr::opts_chunk$set(echo = TRUE, warnings=FALSE)
-setwd("C:/Users/cboulenger/Documents/wg_WGEEL/R/Rmarkdown")
-#setwd("D:/R-4.0.2/wgeel_project/R/Rmarkdown")
 #source("R/utilities/set_directory.R")
 #data_directory <- wg_choose.dir(caption = "Where do you want to save the tables and the graphs")
 #data_directory <-"C:/temp"
@@ -18,11 +29,6 @@ setwd("C:/Users/cboulenger/Documents/wg_WGEEL/R/Rmarkdown")
 CY=2020
 render="docx"  # html 
 # temporary file to store the variables (this is necessary to print the text)
-load("vvv.Rdata")
-vvv<-list()
-vvv$total<-NA
-vvv$G_total_CY<-NA
-vvv$YS_total_CY<-NA
 
 # to test the output and adapt the type of table
 output <- rmarkdown::metadata$output
@@ -45,7 +51,7 @@ Care should also be taken with the interpretation of the landings as indicators
 of the stock, since the catch statistics now reflect the status of reduced
 activity as well as of stock levels. In summary, reported commercial landings
 are declining, a long-term continuing trend, from a level of around 10,000 t in
-the 1960s, reported commercial landings have now dropped to `r vvv$total` tonnes
+the 1960s, reported commercial landings have now dropped to xxx tonnes
 (glass eel + yellow eel + silver eel) in `r CY-1`. 
 
 
@@ -290,7 +296,7 @@ knitr::asis_output(paste("Number of silver eels (S) released in ",CY-1," = ",rel
 # Figures
 ## Commercial fisheries landings 
 #### Glass eel
-Glass eel landings show a sharp decline since 1980 from 2 000 tonnes to around 40–60 tonnes since 2009 onwards. In 2019, the raw (uncorrected) landings data for glass eels is `r vvv$G_total_CY` (Annex XXX Table XXX for raw data and Table XXX for raw and corrected data). 
+Glass eel landings show a sharp decline since 1980 from 2 000 tonnes to around 40–60 tonnes since 2009 onwards. In 2019, the raw (uncorrected) landings data for glass eels is XXX (Annex XXX Table XXX for raw data and Table XXX for raw and corrected data). 
 
 
 ```{r comLandGt,echo=FALSE, warning=FALSE}
@@ -350,7 +356,7 @@ GCYm1 <- landings3%>%
 		group_by(eel_year)%>%
 		summarize(s=sum(eel_value,na.rm=TRUE))%>%
 		pull(s)
-vvv$G_total_CY <- sprintf("%0.2f tons",GCY)
+#vvv$G_total_CY <- sprintf("%0.2f tons",GCY)
 
 title <- paste("Commercial landings for glass eel in all habitats")
 g_raw_Clandings_G<- ggplot(landings3) + 
@@ -452,7 +458,7 @@ in the 1950s, but rather low since the mid-1980s. Annex 8 Table 3 presents the
 raw data for yellow and silver eel combined, Annex 8 Table 4 presents the raw
 and corrected data for yellow and silver eel landings data. The total landings
 of yellow and silver eels decrease from 18,000–20,000 tonnes in the 1950s to
-2,000–3,000 tonnes since 2009. In XXCY-1XX, the amount was `vvv$YS_total_CYm1`
+2,000–3,000 tonnes since 2009. In XXCY-1XX, the amount was XXX
 for yellow and silver landings, combined. 
 ```{r rawComLandYS, echo=FALSE, warning=FALSE}
 
@@ -501,8 +507,8 @@ landings3$eel_value <- as.numeric(landings3$eel_value) / 1000
 landings3$eel_cou_code = as.factor(landings3$eel_cou_code)
 landings3$eel_cou_code<-factor(landings3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
 YCYm1 <- landings3%>%filter(eel_year==CY-1)%>%group_by(eel_year)%>%summarize(s=sum(eel_value,na.rm=TRUE))%>%pull(s)
-vvv$YS_total_CYm1 <- sprintf("%0.1f tons", YCYm1)
-vvv$total <- YCYm1+GCYm1
+#vvv$YS_total_CYm1 <- sprintf("%0.1f tons", YCYm1)
+#vvv$total <- YCYm1+GCYm1
 
 title <-  paste("Commercial landings for yellow and silver eels in all habitats")
 g_raw_Clandings_YS<- ggplot(landings3) + geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
@@ -1133,7 +1139,7 @@ print(ka_aqua2)
 
 #data_directory <- wg_choose.dir(caption = "Where do you want to save the tables and the graphs")
 #setwd(data_directory)
-save(vvv,file="vvv.Rdata")
+#save(vvv,file="vvv.Rdata")
 write.csv2(tableComLandG,"Raw_Com_landings_G.csv",row.names=FALSE)
 #write.csv2(tableComLandYS,"Raw_Com_landings_Y_S.csv",row.names=FALSE)
 write.csv2(tableRecLandYS,"Raw_Rec_landings_Y_S.csv",row.names=FALSE)
