@@ -85,7 +85,7 @@ mean_biom_hty_emuY=mean_biom_hty_emu %>%
 The length of monitored standing stock yeelow eel appear to increase with the distance to Gibraltar. This is confirmed by the Kendall correlation test (tau=`r round(Kendall(mean_biom_hty_emuY$bio_length,mean_biom_hty_emuY$distance)$tau[1],digits=2)`, p.value=`r Kendall(mean_biom_hty_emuY$bio_length,mean_biom_hty_emuY$distance)$sl[1]`. There are not enougth time sex disaggregated data to detect sex-specific length-pattern.
 
 
-```{r yellowlengthmap,echo=FALSE}
+```{r yellowlengthmap,echo=TRUE}
 ggmap(my_map) + 
   geom_point(data=subset(mean_biom_hty_emuY,!is.na(bio_length)),
                          aes(x=ser_x,y=ser_y,col=bio_length,shape=ser_hty_code))+
@@ -114,7 +114,7 @@ ggmap(my_map) +
 ### Weight
 Similarly to length, a pattern is visible for weight of monitored standing stock yeelow eel. This is confirmed by the Kendall correlation test (tau=`r round(Kendall(mean_biom_hty_emuY$bio_weight,mean_biom_hty_emuY$distance)$tau[1],digits=2)`, p.value=`r Kendall(mean_biom_hty_emuY$bio_weight,mean_biom_hty_emuY$distance)$sl[1]`. There are not enougth time sex disaggregated data to detect sex-specific length-pattern.
 
-```{r yellowweighthmap,echo=FALSE}
+```{r yellowweighthmap,echo=TRUE}
 ggmap(my_map) + 
   geom_point(data=subset(mean_biom_hty_emuY,!is.na(bio_weight)),
              aes(x=ser_x,y=ser_y,col=bio_weight,shape=ser_hty_code))+
@@ -141,7 +141,7 @@ ggmap(my_map) +
 ### Sex Ratio
 Too few data were correlected regarding sex to draw any conclusions regarding differences in sex-ratios among locations.
 
-```{r yellowsexratiomap,echo=FALSE}
+```{r yellowsexratiomap,echo=TRUE}
 ggmap(my_map)+
   geom_point(data=subset(mean_biom_hty_emuY,!is.na(bio_sex_ratio)),
              aes(x=ser_x,y=ser_y,col=bio_sex_ratio,shape=ser_hty_code))+
@@ -162,7 +162,7 @@ For silver eels, there is few available biometry data, therefore, so it is diffi
 ### Length
 The length measured in the Adour estuary (most southern estuary on the map) is the smallest among all the estuary. The Kendall correlation test does not detect any spatial pattern (tau=`r round(Kendall(mean_biom_hty_emuS$bio_length,mean_biom_hty_emuS$distance)$tau[1],digits=2)`, p.value=`r Kendall(mean_biom_hty_emuS$bio_length,mean_biom_hty_emuS$distance)$sl[1]`.
 
-```{r silverlengthmap,echo=FALSE}
+```{r silverlengthmap,echo=TRUE}
 ggmap(my_map)+
   geom_point(data=subset(mean_biom_hty_emuS,!is.na(bio_length)),
              aes(x=ser_x,y=ser_y,col=bio_length,shape=ser_hty_code))+
@@ -190,7 +190,7 @@ ggmap(my_map)+
 ### Weight
 Results are very similar than for the length with smallest weights in the Adour estuary. The Kendall correlation test does not detect any spatial pattern (tau=`r round(Kendall(mean_biom_hty_emuS$bio_weight,mean_biom_hty_emuS$distance)$tau[1],digits=2)`, p.value=`r Kendall(mean_biom_hty_emuS$bio_weight,mean_biom_hty_emuS$distance)$sl[1]`.
 
-```{r silverweightmap,echo=FALSE}
+```{r silverweightmap,echo=TRUE}
 ggmap(my_map)+
   geom_point(data=subset(mean_biom_hty_emuS,!is.na(bio_weight)),
              aes(x=ser_x,y=ser_y,col=bio_weight,shape=ser_hty_code))+
@@ -217,7 +217,7 @@ ggmap(my_map)+
 ### Sex Ratio
 The number of points is again very limited and no significant spatial pattern is detected (tau=`r round(Kendall(mean_biom_hty_emuS$bio_sex_ratio,mean_biom_hty_emuS$distance)$tau[1],digits=2)`, p.value=`r Kendall(mean_biom_hty_emuS$bio_sex_ratio,mean_biom_hty_emuS$distance)$sl[1]`.
 
-```{r silversexratiomap,echo=FALSE}
+```{r silversexratiomap,echo=TRUE}
 ggmap(my_map)+
   geom_point(data=subset(mean_biom_hty_emuS,!is.na(bio_sex_ratio)),
              aes(x=ser_x,y=ser_y,col=bio_sex_ratio,shape=ser_hty_code))+
@@ -230,7 +230,7 @@ ggmap(my_map)+
 Linear regression between logtransformed length and weights were carried out to compare allometric relationships among time series. The slope informs on the allometric growth: higher slope means that the fish becomes heavier and suggests good growth condition. The following maps display the results for all stages. No clear spatial pattern is detected. The Bann river displays very pronounced slopes: while references as a mixed of glass-eel and yellow-eel, reported length were always smaller than 70mm but heavy compared to other sites (max: 0.41g, mean: 0.34g). 
 
 
-```{r lengthweightmap,echo=FALSE}
+```{r lengthweightmap,echo=TRUE}
 ggmap(my_map)+
   geom_point(data=allometry,
              aes(shape=Stage,col=slopes,x=Ser_x,y=Ser_y))+
@@ -251,7 +251,7 @@ mean_biom_hty_emuyearY=mean_biom_hty_emuyear %>%
 
 
 ### Length
-```{r yellowlengthtrend,echo=FALSE}
+```{r yellowlengthtrend,echo=TRUE}
 #Mixed
 kept=mean_biom_hty_emuyearY %>% 
   group_by(ser_emu_nameshort,ser_hty_code) %>%
@@ -297,7 +297,7 @@ Significant trends are detected for 5 GB EMUs over 12, with a decrease of mean l
 
 
 ### Weight
-```{r yellowweightlengthtrend,echo=FALSE}
+```{r yellowweightlengthtrend,echo=TRUE}
 #Mixed
 kept=mean_biom_hty_emuyearY %>% 
   group_by(ser_emu_nameshort,ser_hty_code) %>%
@@ -342,7 +342,7 @@ Significant trends are detected for 6 GB EMUs over 12, with a decrease of mean l
 
 ### Sex Ratio
 It was not possible to carry out any sex ratio analysis for yellow eels.
-```{r yellowsexratiotrend,echo=FALSE}
+```{r yellowsexratiotrend,echo=TRUE}
 #Mixed
 kept=mean_biom_hty_emuyearY %>% 
   group_by(ser_emu_nameshort,ser_hty_code) %>%
@@ -362,7 +362,7 @@ mean_biom_hty_emuyearS=mean_biom_hty_emuyear %>%
 
 
 ### Length
-```{r silverlengthtrend,echo=FALSE}
+```{r silverlengthtrend,echo=TRUE}
 #Mixed
 kept=mean_biom_hty_emuyearS %>% 
   group_by(ser_emu_nameshort,ser_hty_code) %>%
@@ -435,7 +435,7 @@ ggplot(inner_join(kept,mean_biom_hty_emuyearS),aes(x=bio_year,y=bio_length_m))+
 Many significant trends were detected in length of silver eels. It appears to be related mainly to changes in female length. Both negative and positive trends were detected.
 
 ### Weight
-```{r silverweightlengthtrend,echo=FALSE}
+```{r silverweightlengthtrend,echo=TRUE}
 #Mixed
 kept=mean_biom_hty_emuyearS %>% 
   group_by(ser_emu_nameshort,ser_hty_code) %>%
@@ -509,7 +509,7 @@ ggplot(inner_join(kept,mean_biom_hty_emuyearS),aes(x=bio_year,y=bio_weight_m))+
 Results are very similar than for length, except than an additional increasing significant trend was detected for male weight in FR_Bret.
 
 ### Sex Ratio
-```{r silversexratiotrend,echo=FALSE}
+```{r silversexratiotrend,echo=TRUE}
 #Mixed
 kept=mean_biom_hty_emuyearS %>% 
   group_by(ser_emu_nameshort,ser_hty_code) %>%
@@ -546,7 +546,7 @@ For glass eel, of mixed G and GY, we remain at the time series scale (i.e. we do
 ### Length
 Mean length of monitored eels has significantly increased over time in ImsaGY and SousGY.
 
-```{r gelengthtrend,echo=FALSE}
+```{r gelengthtrend,echo=TRUE}
 kept=data %>% 
   filter(ser_lfs_code %in% c("G","GY")) %>%
   group_by(ser_nameshort,ser_hty_code,ser_lfs_code) %>%
@@ -576,7 +576,7 @@ ggplot(inner_join(kept,data),aes(x=bio_year,y=bio_length))+
 ### Weight
 Significant trends are also detected for weights.
 
-```{r geweightlengthtrend,echo=FALSE}
+```{r geweightlengthtrend,echo=TRUE}
 kept=data %>% 
   filter(ser_lfs_code %in% c("G","GY")) %>%
   group_by(ser_nameshort,ser_hty_code,ser_lfs_code) %>%
