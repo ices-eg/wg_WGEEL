@@ -655,10 +655,20 @@ CREATE TRIGGER trg_check_the_stage
 
   
 /* test
- insert into datawg.t_eelstock_eel (eel_typ_id, eel_year,eel_emu_nameshort, eel_cou_code, eel_lfs_code, eel_qal_id,eel_value)
- values(4,2020,'FR_Rhon','FR','OG',18,1)
+ insert into datawg.t_eelstock_eel 
+ (eel_typ_id, eel_year,eel_emu_nameshort, eel_cou_code, eel_lfs_code, eel_qal_id,eel_value)
+ values(4,2020,'FR_Rhon','FR','OG',1,1)
 */
 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
 
 ---------------
 -- trigger to refuse eel_area_division 
@@ -814,3 +824,108 @@ COMMENT ON COLUMN datawg.t_biometry_other_bit.bit_hty_code IS 'habitat FOREIGN K
 COMMENT ON COLUMN datawg.t_biometry_other_bit.bit_latitude IS 'latitude EPSG:4326. WGS 84 (Google it)';
 COMMENT ON COLUMN datawg.t_biometry_other_bit.bit_longitude IS 'longitude EPSG:4326. WGS 84 (Google it)';
 COMMENT ON COLUMN datawg.t_biometry_other_bit.bit_geom IS 'internal use, a postgis geometry point in EPSG:3035 (ETRS89 / ETRS-LAEA)';
+
+
+
+
+
+---------------
+-- trigger to ensure we don't have both stage 0,1,2,3 for a given datatype
+-----------------
+
+CREATE OR REPLACE FUNCTION datawg.check_unicity()
+  RETURNS trigger AS
+$BODY$   
+
+ 	DECLARE nbduplicate INTEGER ;
+
+ 	BEGIN
+ 	 	-- not twice the same line when eel_qal_id is null
+ 	 	IF (NEW.eel_qal_id <4 AND NEW.eel_hty_code IS NULL and NEW.eel_area_division IS NULL) 	THEN
+ 	     
+ 	 	SELECT COUNT(*) INTO nbduplicate
+ 	 	FROM   datawg.t_eelstock_eel eel
+ 	 	WHERE (NEW.eel_year, NEW.eel_lfs_code, NEW.eel_emu_nameshort, NEW.eel_typ_id) =
+ 	 	(eel.eel_year, eel.eel_lfs_code, eel.eel_emu_nameshort, eel.eel_typ_id)
+ 	 	AND  NEW.eel_qal_id <=4 AND 
+ 	 	eel.eel_qal_id <=4;
+ 	    
+ 	 	ELSIF (NEW.eel_qal_id <4 AND NEW.eel_hty_code IS NULL and NEW.eel_area_division IS NOT NULL) THEN
+ 	 	
+ 	 	SELECT COUNT(*) INTO nbduplicate
+ 	 	FROM   datawg.t_eelstock_eel eel
+ 	 	WHERE (NEW.eel_year, NEW.eel_lfs_code, NEW.eel_emu_nameshort, NEW.eel_typ_id, NEW.eel_area_division) =
+ 	 	(eel.eel_year, eel.eel_lfs_code, eel.eel_emu_nameshort, eel.eel_typ_id, eel.eel_area_division)
+ 	 	AND  NEW.eel_qal_id <=4 AND 
+ 	 	eel.eel_qal_id <=4;
+ 	 
+ 	 	ELSIF (NEW.eel_qal_id <4 AND NEW.eel_hty_code IS NOT NULL and NEW.eel_area_division IS NOT NULL) THEN
+ 	 
+ 	 	SELECT COUNT(*) INTO nbduplicate
+ 	 	FROM   datawg.t_eelstock_eel eel
+ 	 	WHERE (NEW.eel_year, NEW.eel_lfs_code, NEW.eel_emu_nameshort, NEW.eel_typ_id, NEW.eel_area_division, NEW.eel_hty_code) =
+ 	 	(eel.eel_year, eel.eel_lfs_code, eel.eel_emu_nameshort, eel.eel_typ_id, eel.eel_area_division, eel.eel_hty_code)
+ 	 	AND  NEW.eel_qal_id <=4 AND 
+ 	 	eel.eel_qal_id <=4;
+ 	 	
+ 	 	END IF;	 	
+ 	 	
+ 	 	IF (nbduplicate > 0) THEN
+ 	 	 	RAISE EXCEPTION 'you have more than % line for year %, lifestage %, 
+			EMU %, typ %, Area division %, habitat %  ', 
+			nbduplicate, NEW.eel_year, NEW.eel_lfs_code, NEW.eel_emu_nameshort, NEW.eel_typ_id, NEW.eel_area_division, NEW.eel_hty_code;
+ 	 	END IF  ;
+		RETURN NEW ;
+ 	END  ;
+$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;
+
+
+
+-- DROP TRIGGER trg_check_unicity ON datawg.t_eelstock_eel;
+
+CREATE TRIGGER trg_check_unicity
+  AFTER INSERT OR UPDATE
+  ON datawg.t_eelstock_eel
+  FOR EACH ROW
+  EXECUTE PROCEDURE datawg.check_unicity();
+
+  
+/* test
+ *  
+ DELETE FROM datawg.t_eelstock_eel where eel_cou_code='VA';
+ SELECT * FROM datawg.t_eelstock_eel where eel_cou_code='VA';
+ insert into datawg.t_eelstock_eel (eel_typ_id, eel_year,eel_emu_nameshort, eel_cou_code, eel_lfs_code, eel_qal_id,eel_value)
+ values(1,1900,'VA_Lazi','VA','G',1,0.00001);
+  insert into datawg.t_eelstock_eel (eel_typ_id, eel_year,eel_emu_nameshort, eel_cou_code, eel_lfs_code, eel_qal_id,eel_value)
+ values(1,1900,'VA_Lazi','VA','G',18,4,0.00001);
+ WITH new AS (SELECT 
+ 1 as eel_typ_id,
+ 1900 as eel_year,
+ 'VA_Lazi' as eel_emu_nameshort,
+ 'VA' as eel_co_code,
+ 'G' as eel_lfs_code,
+ 1 as eel_qal_id,
+ 0.00001 as das_value,
+ NULL as eel_area_division)
+ 
+
+	SELECT count(*)
+ 	 	FROM   datawg.t_eelstock_eel eel,
+ 	 	new
+ 	 	WHERE (NEW.eel_year, NEW.eel_lfs_code, NEW.eel_emu_nameshort, NEW.eel_typ_id, NEW.eel_area_division) =
+ 	 	(eel.eel_year, eel.eel_lfs_code, eel.eel_emu_nameshort, eel.eel_typ_id, eel.eel_area_division)
+ 	 	AND  NEW.eel_qal_id <=4 AND 
+ 	 	eel.eel_qal_id <=4; 
+ 
+ 
+*/
+
+ 
+ 
+ 
+ 
+ 
+
+

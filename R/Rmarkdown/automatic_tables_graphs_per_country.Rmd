@@ -24,7 +24,7 @@ params:
     sep: ""
   country:   
     label: "Country"
-    value: SE
+    value: FR
     input: select
     choices: ["BE","DE","DK","EE","ES","FI","FR","GB","GR","HR","IE","IT","LT","LV","NL","NO","PL","PT","SE","SI","TN","TR"]
   area:
@@ -463,7 +463,7 @@ figure_recruitment <- function(){
 		palette <- colorRampPalette(palette)(length(sites_cou))
 		
 		
-		g <- ggplot(filter(all_data, cou_code==params$country)) +
+		gg <- ggplot(filter(all_data, cou_code==params$country)) +
 				geom_ribbon(data=dat_ge[dat_ge$area==params$area,],
 						aes(x=year, ymin=p_std_1960_1979_min, ymax=p_std_1960_1979_max),
 						size=0.5,fill="dodgerblue",alpha=0.5) +
@@ -482,7 +482,7 @@ figure_recruitment <- function(){
 				geom_text(aes(0,0,label='N/A')) +
 				xlab(NULL)
 	}
-	return(g)
+	return(gg)
 	
 }
 
@@ -623,7 +623,7 @@ figure_ys <- function(stage_selected="Y"){
 	
 	wger_ys3 <- wger_ys2 %>%  pivot_longer(-das_year, names_to="ser_nameshort", values_to="scaled_value") %>%
 			inner_join(ys_stations %>% dplyr::select(ser_nameshort,cou_code)) %>%
-			rename(site="ser_nameshort", year="das_year") %>%
+			dplyr::rename(site="ser_nameshort", year="das_year") %>%
 			arrange(site,year) 
 	
 	
@@ -637,12 +637,12 @@ figure_ys <- function(stage_selected="Y"){
 				filter(!is.na(scaled_value)) %>%
 				pull(year) %>%
 				min()
-		gy <- ggplot(filter(wger_ys3, cou_code==params$country)) +		
-				geom_point(aes(x=year, y=scaled_value, color=site),size=1.5) +
-				geom_line(aes(x=year, y=scaled_value, group=site, color=site),size=0.8, alpha=0.5) + 
+		gy <- ggplot(filter(wger_ys3, cou_code==params$country), aes(x=year, y=scaled_value)) +		
+				geom_point(aes( color=site),size=1.5) +
+				geom_line(aes( group=site, color=site),size=0.8, alpha=0.5) + 
 				scale_colour_manual(values=palette) +
 				scale_x_continuous(limits = c(minyear,CY)) +
-				geom_smooth(aes(x=year, y=scaled_value), method="gam",col="red")+
+				stat_smooth(method=mgcv::gam,col="red", formula = y ~ s(x) )+
 				theme_bw()
 		
 	} else{

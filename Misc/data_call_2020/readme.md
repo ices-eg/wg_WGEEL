@@ -596,6 +596,8 @@ UPDATE datawg.t_dataseries_das set(das_value,das_effort,das_qal_id)=(NULL,NULL, 
 *  new biometry  73 new values inserted in the database
 
  * JASON => UPDATED series with the right ser_area_division
+ 
+ * GIRN series updated but not the biometries, will have to do it next year
 
 ### annex 3
 
@@ -1050,10 +1052,14 @@ problem of duplicated lines in the program (probably our fault for freshwater in
 * 6 biometries
 **TODO** Send annual data for the series, mail sent to Janis
 
+**yellow series: 2 values updated in the db and 8 new values inserted in the database
 ### annex 3
 
 **TODO*** Mail sent to Janis, add EMU, change sex ratio format (currently as hour), add new_data
-
+**
+*Silver: new series: 2 new values inserted in the database
+         *new dataseries:  8 new values inserted in the database     
+         *new biometry: 5 new values inserted in the database
 ### annex 4
 
 * 202 new values inserted in the database
