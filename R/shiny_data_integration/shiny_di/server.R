@@ -1974,6 +1974,14 @@ shinyServer(function(input, output, session){
 			    addLayersControl(baseGroups=c("OSM","satellite"))
 			})
 			
+			observeEvent(eventExpr = input$addRowTable_corAll, {
+			  emptyRow <- rvsAll$dbdata[1,,drop=FALSE]
+			  emptyRow[1,] <- NA
+			  rvsAll$data <- bind_rows(rvsAll$data,emptyRow)
+			  replaceData(proxy_table_corAll,rvsAll$data , resetPaging = FALSE, rownames = FALSE)
+			})
+			
+			
 			observeEvent(input$maps_editedtimeseries_draw_edited_features, {
 			  edited <- input$maps_editedtimeseries_draw_edited_features
 			  nedited <- length(edited$features)
@@ -2116,11 +2124,11 @@ shinyServer(function(input, output, session){
 			  errors <- update_data_generic(editedValue = rvsAll$editedInfo,
 			                              pool = pool, data=rvsAll$data,
 			                              edit_datatype=input$edit_datatype)
-			  if (length(errors)>0) {
-			    output$database_errorsAll<-renderText({iconv(unlist(errors,"UTF8"))})
+			  if (length(errors$error)>0) {
+			    output$database_errorsAll<-renderText({iconv(unlist(errors$errors,"UTF8"))})
 			    enable("clear_tableAll")
 			  } else {
-			    output$database_errorsAll<-renderText({"Database updated"})
+			    output$database_errorsAll<-renderText({errors$message})
 			  }
 			  rvsAll$dbdata <- rvsAll$data
 			  rvsAll$dataSame <- TRUE
