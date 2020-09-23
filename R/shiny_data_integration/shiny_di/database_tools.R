@@ -915,7 +915,27 @@ write_new <- function(path) {
 #' @details This function uses sqldf to create temporary table then dbExecute as
 #' this version allows to catch exceptions and sqldf does not
 
-  write_updated_values <- function(updated_values_table, qualify_code) {
+  write_updated_values <- function(path, qualify_code) {
+    browser()
+    updated_values_table <- read_excel(path = path, sheet = 1, skip = 1)
+    validate(need(ncol(updated_values_table) == 27, "number column wrong (should be 22) \n"))
+    validate(need(all(colnames(updated_values_table) %in% c("eel_id", "eel_typ_id", "eel_typ_name", 
+                                                   "eel_year.base","eel_year.xls","eel_value.base", "eel_value.xls", 
+                                                   "eel_missvaluequal.base","eel_missvaluequal.xls",
+                                                   "eel_emu_nameshort.base","eel_emu_nameshort.xls",
+                                                   "eel_qal_id.xls", "eel_qal_id.base",
+                                                   "eel_qal_comment.xls","eel_qal_comment.base",
+                                                   "eel_qal_comment.xls", "eel_qal_id.base", "eel_qal_comment.base", "eel_missvaluequal.base", 
+                                                   "eel_missvaluequal.xls", "eel_emu_nameshort", "eel_cou_code.base","eel_cou_code.xls",
+                                                   "eel_lfs_code.base", "eel_lfs_code.xls",
+                                                   "eel_hty_code.base","eel_hty_code.xls", "eel_area_division.base", "eel_area_division.xls",
+                                                   "eel_comment.base", "eel_comment.xls", 
+                                                   "eel_datasource.base", "eel_datasource.xls")), 
+                  "Error in updated dataset : column name changed, have you removed the empty line on top of the dataset ?"))
+    validate(need(all(!is.na(updated_values_table$eel_qal_id.xls)), "There are still lines without eel_qal_id, please check your file"))
+    cou_code = unique(updated_values_table$eel_cou_code.base)
+    validate(need(length(cou_code) == 1, "There is more than one country code, please check your file"))
+    
 	cou_code = unique(updated_values_table$eel_cou_code.xls)  
 	validate(need(length(cou_code) == 1, "There is more than one country code, please check your file"))
 	
@@ -1539,8 +1559,13 @@ update_data_generic <- function(editedValue, pool, data,edit_datatype) {
   # Keep only the last modification for a cell. edited Value is a data frame with
   # columns row, col, value this part ensures that only the last value changed in a
   # cell is replaced.  Previous edits are ignored
-  editedValue <- editedValue %>% group_by(row, col) %>% filter(value == dplyr::last(value) | 
-                                                                 is.na(value)) %>% ungroup()
+  new_rows <- which(is.na(data[,1]))
+  insertedValue <- editedValue %>% filter(row %in% new_rows)
+  insertedValue <- insertedValue %>% group_by(row,col) %>% 
+    filter(value == dplyr::last(value) | is.na(value)) %>% ungroup() %>%
+    pivot_wider(row,names_from=col,values_from=value)
+  editedValue <- editedValue %>% filter(!row %in% new_rows) %>%
+    group_by(row, col) %>% filter(value == dplyr::last(value) | is.na(value)) %>% ungroup()
   # opens the connection, this must be followed by poolReturn
   conn <- poolCheckout(pool)
   idcolname <- names(data)[1]
@@ -1550,6 +1575,9 @@ update_data_generic <- function(editedValue, pool, data,edit_datatype) {
     select(-ends_with("_ref"))
   tablename=str_c("datawg.",edit_datatype)
   error = list()
+  nupdate=0
+  dbExecute(conn,"begin;")
+  
   lapply(seq_len(nrow(editedValue)), function(i) {
     row = editedValue$row[i]
     id = data_ids[row]
@@ -1563,13 +1591,38 @@ update_data_generic <- function(editedValue, pool, data,edit_datatype) {
                             .con = conn)
     tryCatch({
       dbExecute(conn, sqlInterpolate(ANSI(), query))
+      nupdate=nupdate+1
     }, error = function(e) {
-      error[i] <<- e
+      error[i] <<- paste("update:", e)
     })
   })
+  ninsert=0
+  lapply(seq_len(nrow(insertedValue)), function(i) {
+    row = insertedValue$row[i]
+    col = names(data)[as.integer(names(insertedValue)[-1])]
+    value = insertedValue[i,-1]
+    col=col[!is.na(value)]
+    value=as.character(value[1,])
+    value=value[!is.na(value)]
+    # glue sql will use arguments tbl, col, value and id
+    query <- glue::glue_sql(str_c("insert into ",tablename," ({`col`*})
+    values ({value*})"), .con = conn)
+    tryCatch({
+      dbExecute(conn, sqlInterpolate(ANSI(), query))
+      ninsert=ninsert+1
+    }, error = function(e) {
+      error[i] <<- paste("insert:", e)
+    })
+  })
+  if (length(error)>0){
+    dbExecute(conn,"rollback;")
+  } else{
+    dbExecute(conn,"commit;")
+  }
   poolReturn(conn)
   # print(editedValue)
-  return(error)
+  return(list(error=error,message=paste(nupdate,"values updated -",
+                                        ninsert,"rows inserted")))
 }
 
 

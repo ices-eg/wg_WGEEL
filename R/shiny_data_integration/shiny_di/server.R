@@ -333,36 +333,36 @@ shinyServer(function(input, output, session){
 						) 
 						data_from_excel<- step0load_data()$res$data
 						switch (input$file_type, "catch_landings"={                                     
-									data_from_base<-extract_data("landings", quality=c(1,2,3,4), quality_check=TRUE)
+									data_from_base<-extract_data("landings", quality=c(0,1,2,3,4), quality_check=TRUE)
 									updated_from_excel<- step0load_data()$res$updated_data
 								},
 								"release"={
-									data_from_base<-extract_data("release", quality=c(1,2,3,4), quality_check=TRUE)
+									data_from_base<-extract_data("release", quality=c(0,1,2,3,4), quality_check=TRUE)
 									updated_from_excel<- step0load_data()$res$updated_data
 								},
 								"aquaculture"={             
-									data_from_base<-extract_data("aquaculture", quality=c(1,2,3,4), quality_check=TRUE)},
+									data_from_base<-extract_data("aquaculture", quality=c(0,1,2,3,4), quality_check=TRUE)},
 								"biomass"={
 									# bug in excel file
 									colnames(data_from_excel)[colnames(data_from_excel)=="typ_name"]<-"eel_typ_name"
 									data_from_base<-rbind(
-											extract_data("b0", quality=c(1,2,3,4), quality_check=TRUE),
-											extract_data("bbest", quality=c(1,2,3,4), quality_check=TRUE),
-											extract_data("bcurrent", quality=c(1,2,3,4), quality_check=TRUE))
+											extract_data("b0", quality=c(0,1,2,3,4), quality_check=TRUE),
+											extract_data("bbest", quality=c(0,1,2,3,4), quality_check=TRUE),
+											extract_data("bcurrent", quality=c(0,1,2,3,4), quality_check=TRUE))
 								},
 								"potential_available_habitat"={
-									data_from_base<-extract_data("potential_available_habitat", quality=c(1,2,3,4), quality_check=TRUE)                  
+									data_from_base<-extract_data("potential_available_habitat", quality=c(0,1,2,3,4), quality_check=TRUE)                  
 								},
 								# mortality in silver eel equivalent
 								"silver_eel_equivalents"={
-									data_from_base<-extract_data("silver_eel_equivalents", quality=c(1,2,3,4), quality_check=TRUE)      
+									data_from_base<-extract_data("silver_eel_equivalents", quality=c(0,1,2,3,4), quality_check=TRUE)      
 									
 								},
 								"mortality_rates"={
 									data_from_base<-rbind(
-											extract_data("sigmaa", quality=c(1,2,3,4), quality_check=TRUE),
-											extract_data("sigmafallcat", quality=c(1,2,3,4), quality_check=TRUE),
-											extract_data("sigmahallcat", quality=c(1,2,3,4), quality_check=TRUE))
+											extract_data("sigmaa", quality=c(0,1,2,3,4), quality_check=TRUE),
+											extract_data("sigmafallcat", quality=c(0,1,2,3,4), quality_check=TRUE),
+											extract_data("sigmahallcat", quality=c(0,1,2,3,4), quality_check=TRUE))
 								}                
 						)
 						# the compare_with_database function will compare
@@ -483,15 +483,34 @@ shinyServer(function(input, output, session){
 						} # closes if nrow(...  
 						if (input$file_type %in% c("catch_landings","release")){
 							if (nrow(updated_from_excel)>0){
+							  output$"step1_message_updated"<-renderUI(
+							    HTML(
+							      paste(
+							        h4("Table of updated values (xls)"),
+							        "<p align='left'>Please click on excel",
+							        "to download this file. <p>"                         
+							      ))) 
 								data$updated_values_table <- compare_with_database_updated_values(updated_from_excel,data_from_base) 
-								output$dt_updated_values <- DT::renderDataTable({
-											data$updated_values_table
-										},option=list(
-												rownames = FALSE,
-												scroller = TRUE,
-												scrollX = TRUE,
-												scrollY = TRUE))
-							}
+								output$dt_updated_values <- DT::renderDataTable(
+											data$updated_values_table,
+											rownames=FALSE,
+											extensions = "Buttons",
+										option=list(
+										  scroller = TRUE,
+										  scrollX = TRUE,
+										  scrollY = "500px",
+										  order=list(3,"asc"),
+										  lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
+										  "pagelength"=-1,
+										  dom= "Blfrtip",
+										  scrollX = T, 
+										  buttons=list(
+										    list(extend="excel",
+										         filename = paste0("updated_",input$file_type,"_",Sys.Date(),current_cou_code))) 
+										))
+							}else{
+							  output$"step1_message_updated"<-renderUI("")
+							} 
 						}
 						if (input$file_type %in% c("catch_landings","release")){
 							summary_check_duplicates=data.frame(years=years,
@@ -636,8 +655,18 @@ shinyServer(function(input, output, session){
 			# 
 			#############################
 			observeEvent(input$database_updated_value_button, {
-						validate(need(data$updated_values_table,"need data to be updated"))
-						
+			  ###########################
+			  # step2_filepath
+			  # reactive function, when clicked return value in reactive data 
+			  ###########################
+			  step23_filepath <- reactive({
+			    inFile <- isolate(input$xl_updated_file)     
+			    if (is.null(inFile)){        return(NULL)
+			    } else {
+			      data$path_step23<-inFile$datapath #path to a temp file             
+			    }
+			  })
+					
 						###########################
 						# step23load_updated_value_data
 						#  function, returns a message
@@ -645,7 +674,10 @@ shinyServer(function(input, output, session){
 						#  or an error message
 						###########################
 						step23load_updated_value_data <- function() {
-							rls <- write_updated_values(isolate(data$updated_values_table),qualify_code=qualify_code)
+						  path <- isolate(step23_filepath())
+						  if (is.null(data$path_step23)) 
+						    return(NULL)
+							rls <- write_updated_values(path,qualify_code=qualify_code)
 							message <- rls$message
 							cou_code <- rls$cou_code
 							main_assessor <- input$main_assessor
@@ -1888,6 +1920,7 @@ shinyServer(function(input, output, session){
 
 			  DT::datatable(
 			    rvsAll$dbdata, 
+			    filter="top",
 			    rownames = FALSE,
 			    extensions = "Buttons",
 			    editable = list(target = 'cell',
@@ -1940,6 +1973,14 @@ shinyServer(function(input, output, session){
 			                   circleMarkerOptions=FALSE) %>%
 			    addLayersControl(baseGroups=c("OSM","satellite"))
 			})
+			
+			observeEvent(eventExpr = input$addRowTable_corAll, {
+			  emptyRow <- rvsAll$dbdata[1,,drop=FALSE]
+			  emptyRow[1,] <- NA
+			  rvsAll$data <- bind_rows(rvsAll$data,emptyRow)
+			  replaceData(proxy_table_corAll,rvsAll$data , resetPaging = FALSE, rownames = FALSE)
+			})
+			
 			
 			observeEvent(input$maps_editedtimeseries_draw_edited_features, {
 			  edited <- input$maps_editedtimeseries_draw_edited_features
@@ -2056,9 +2097,23 @@ shinyServer(function(input, output, session){
 			    stageser=ifelse(endsWith(ser_list,"GY"),
 			                    "GY",
 			                    str_sub(ser_list,-1,-1))
+			    selected=input$editpicker2
 			    updatePickerInput(session=session,
 			                      inputId="editpicker2",
-			                      choices = ser_list[stageser %in% input$editpicker1])
+			                      choices = ser_list[stageser %in% input$editpicker1],
+			                      selected=selected)
+			  }
+			  
+			})
+			
+			observeEvent(input$editpicker2,{
+			  if (input$edit_datatype!="t_eelstock_eel" & is.null(input$editpicker1)){
+			    stageser=ifelse(endsWith(input$editpicker2,"GY"),
+			                    "GY",
+			                    str_sub(input$editpicker2,-1,-1))
+			    updatePickerInput(session=session,
+			                      inputId="editpicker1",
+			                      selected = stageser)
 			  }
 			  
 			})
@@ -2069,11 +2124,11 @@ shinyServer(function(input, output, session){
 			  errors <- update_data_generic(editedValue = rvsAll$editedInfo,
 			                              pool = pool, data=rvsAll$data,
 			                              edit_datatype=input$edit_datatype)
-			  if (length(errors)>0) {
-			    output$database_errorsAll<-renderText({iconv(unlist(errors,"UTF8"))})
+			  if (length(errors$error)>0) {
+			    output$database_errorsAll<-renderText({iconv(unlist(errors$errors,"UTF8"))})
 			    enable("clear_tableAll")
 			  } else {
-			    output$database_errorsAll<-renderText({"Database updated"})
+			    output$database_errorsAll<-renderText({errors$message})
 			  }
 			  rvsAll$dbdata <- rvsAll$data
 			  rvsAll$dataSame <- TRUE

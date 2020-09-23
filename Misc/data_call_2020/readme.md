@@ -386,22 +386,30 @@ empty file
 
 Funnily duplicates show that values have been integrated in 2020 but not for coastal ???
 
-* 164 duplicates seem to be exact duplicates > removed
-
-* new rows are also inserted but with qal_id 0
-
-Someone has integrated finland annex 5 but notes not there.
+* new data:
+  * only NP or NC
+  * 196 new values inserted in the database
+* updated data
+  * data provided for 2016 and 2018 while they use to be NC
+  * 4 values updated in the db
 
 ### annex 6
 
 > Other landings are all from one "trap and transport"-operation of assisted migration in the Kymijoki watercourse.
 
-already integrated....
-
+* new data:
+  * one line for 2019 in F S
+  * 1 new values inserted in the database
+* updated_data:
+  * change life stage (YS to S) from 2014 to 2018
+  * 5 updated values
 
 ### annex 7
 
-* 24 lines
+* new data:
+  * 24 new values inserted in the database
+* updated_data: nothing
+ 
 
 ### annex 8
 
@@ -1085,7 +1093,7 @@ problem of duplicated lines in the program (probably our fault for freshwater in
 ### annex 3
 
 ### annex 4
-
+*6 new values inserted in the database*
 ### annex 5
 
 ### annex 6
@@ -1093,6 +1101,7 @@ problem of duplicated lines in the program (probably our fault for freshwater in
 ### annex 7
 
 ### annex 8
+*8 new values inserted in the database*
 ---------------------------
 
  
