@@ -24,7 +24,7 @@ params:
     sep: ""
   country:   
     label: "Country"
-    value: SE
+    value: FR
     input: select
     choices: ["BE","DE","DK","EE","ES","FI","FR","GB","GR","HR","IE","IT","LT","LV","NL","NO","PL","PT","SE","SI","TN","TR"]
   area:
