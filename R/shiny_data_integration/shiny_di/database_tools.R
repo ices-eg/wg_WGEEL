@@ -1559,8 +1559,13 @@ update_data_generic <- function(editedValue, pool, data,edit_datatype) {
   # Keep only the last modification for a cell. edited Value is a data frame with
   # columns row, col, value this part ensures that only the last value changed in a
   # cell is replaced.  Previous edits are ignored
-  editedValue <- editedValue %>% group_by(row, col) %>% filter(value == dplyr::last(value) | 
-                                                                 is.na(value)) %>% ungroup()
+  new_rows <- which(is.na(data[,1]))
+  insertedValue <- editedValue %>% filter(row %in% new_rows)
+  insertedValue <- insertedValue %>% group_by(row,col) %>% 
+    filter(value == dplyr::last(value) | is.na(value)) %>% ungroup() %>%
+    pivot_wider(row,names_from=col,values_from=value)
+  editedValue <- editedValue %>% filter(!row %in% new_rows) %>%
+    group_by(row, col) %>% filter(value == dplyr::last(value) | is.na(value)) %>% ungroup()
   # opens the connection, this must be followed by poolReturn
   conn <- poolCheckout(pool)
   idcolname <- names(data)[1]
@@ -1570,6 +1575,9 @@ update_data_generic <- function(editedValue, pool, data,edit_datatype) {
     select(-ends_with("_ref"))
   tablename=str_c("datawg.",edit_datatype)
   error = list()
+  nupdate=0
+  dbExecute(conn,"begin;")
+  
   lapply(seq_len(nrow(editedValue)), function(i) {
     row = editedValue$row[i]
     id = data_ids[row]
@@ -1583,13 +1591,38 @@ update_data_generic <- function(editedValue, pool, data,edit_datatype) {
                             .con = conn)
     tryCatch({
       dbExecute(conn, sqlInterpolate(ANSI(), query))
+      nupdate=nupdate+1
     }, error = function(e) {
-      error[i] <<- e
+      error[i] <<- paste("update:", e)
     })
   })
+  ninsert=0
+  lapply(seq_len(nrow(insertedValue)), function(i) {
+    row = insertedValue$row[i]
+    col = names(data)[as.integer(names(insertedValue)[-1])]
+    value = insertedValue[i,-1]
+    col=col[!is.na(value)]
+    value=as.character(value[1,])
+    value=value[!is.na(value)]
+    # glue sql will use arguments tbl, col, value and id
+    query <- glue::glue_sql(str_c("insert into ",tablename," ({`col`*})
+    values ({value*})"), .con = conn)
+    tryCatch({
+      dbExecute(conn, sqlInterpolate(ANSI(), query))
+      ninsert=ninsert+1
+    }, error = function(e) {
+      error[i] <<- paste("insert:", e)
+    })
+  })
+  if (length(error)>0){
+    dbExecute(conn,"rollback;")
+  } else{
+    dbExecute(conn,"commit;")
+  }
   poolReturn(conn)
   # print(editedValue)
-  return(error)
+  return(list(error=error,message=paste(nupdate,"values updated -",
+                                        ninsert,"rows inserted")))
 }
 
 

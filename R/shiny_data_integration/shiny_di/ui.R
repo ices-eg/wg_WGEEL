@@ -406,7 +406,8 @@ ui <- dashboardPage(title="ICES Data Integration",
 														Cancel to reset."),
 						        br(), 
 						        fluidRow(                                       
-						          column(width=8,verbatimTextOutput("database_errorsAll")),
+						          column(width=6,verbatimTextOutput("database_errorsAll")),
+						          column(width=2,actionButton("addRowTable_corAll", "Add Row")),
 						          column(width=2,actionButton("clear_tableAll", "clear")),
 						          column(width=2,uiOutput("buttons_data_correctionAll"))
 						        ),                
