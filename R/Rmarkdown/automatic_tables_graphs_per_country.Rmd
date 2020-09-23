@@ -463,7 +463,7 @@ figure_recruitment <- function(){
 		palette <- colorRampPalette(palette)(length(sites_cou))
 		
 		
-		g <- ggplot(filter(all_data, cou_code==params$country)) +
+		gg <- ggplot(filter(all_data, cou_code==params$country)) +
 				geom_ribbon(data=dat_ge[dat_ge$area==params$area,],
 						aes(x=year, ymin=p_std_1960_1979_min, ymax=p_std_1960_1979_max),
 						size=0.5,fill="dodgerblue",alpha=0.5) +
@@ -482,7 +482,7 @@ figure_recruitment <- function(){
 				geom_text(aes(0,0,label='N/A')) +
 				xlab(NULL)
 	}
-	return(g)
+	return(gg)
 	
 }
 
