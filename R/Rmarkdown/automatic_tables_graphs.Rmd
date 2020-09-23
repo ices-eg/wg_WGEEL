@@ -828,13 +828,13 @@ table = table[, n_order]
 names(table)[1]<-"Year"
 table[is.na(table)]<-''
 tableRelY<-table
-ka_release_Y <- kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 6:  Releases for yellow eel from ", min(year)," to ",max(year)," in millions, reported by countries SE Sweden, DE Germany, NL Netherlands, IE Ireland, ES Spain, IT Italy.", sep=""))
+ka_release_Y <- kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 6:  Releases for yellow eel from ", min(year)," to ",max(year)," in millions, reported by countries DE Germany, NL Netherlands, IE Ireland, ES Spain, IT Italy.", sep=""))
 
 ```
 
 \newline
 
-```{r release_Yf,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure 8:Reported released of yellow eel (in millions) per country, Sweden (SE), Germany (DE), Netherlands (NL),  Ireland (IE), Spain (ES) and Italy (IT).", fig.height=5, fig.width=10}
+```{r release_Yf,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure 8:Reported released of yellow eel (in millions) per country, Germany (DE), Netherlands (NL),  Ireland (IE), Spain (ES) and Italy (IT).", fig.height=5, fig.width=10}
 ##Graph
 
 release3<-grouped_data
