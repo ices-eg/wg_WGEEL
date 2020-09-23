@@ -596,6 +596,8 @@ UPDATE datawg.t_dataseries_das set(das_value,das_effort,das_qal_id)=(NULL,NULL, 
 *  new biometry  73 new values inserted in the database
 
  * JASON => UPDATED series with the right ser_area_division
+ 
+ * GIRN series updated but not the biometries, will have to do it next year
 
 ### annex 3
 
