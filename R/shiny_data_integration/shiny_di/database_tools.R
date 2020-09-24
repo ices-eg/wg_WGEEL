@@ -1591,7 +1591,7 @@ update_data_generic <- function(editedValue, pool, data,edit_datatype) {
                             .con = conn)
     tryCatch({
       dbExecute(conn, sqlInterpolate(ANSI(), query))
-      nupdate=nupdate+1
+      nupdate<<-nupdate+1
     }, error = function(e) {
       error[i] <<- paste("update:", e)
     })
@@ -1609,7 +1609,7 @@ update_data_generic <- function(editedValue, pool, data,edit_datatype) {
     values ({value*})"), .con = conn)
     tryCatch({
       dbExecute(conn, sqlInterpolate(ANSI(), query))
-      ninsert=ninsert+1
+      ninsert<<-ninsert+1
     }, error = function(e) {
       error[i] <<- paste("insert:", e)
     })

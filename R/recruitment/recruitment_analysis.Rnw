@@ -182,7 +182,7 @@ anguilla) stock, the fisheries on it and other anthropogenic impacts.}
 %*******Here put eval=FALSE if you plan to use Rdata *********************************
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-<<load_database, echo=FALSE, fig=FALSE, eval=FALSE,results=hide>>=
+<<load_database, echo=FALSE, fig=FALSE, eval=TRUE,results=hide>>=
 # In this chunk everything will be loaded. 
 # The data selection is made tranparently later in the chunk "select_series"
 # This chunks uses the RequeteODBC connection object from stacomirtools and sqldf
@@ -272,8 +272,8 @@ wger_init <- chnames(wger_init,
 		c("id","value","year","site","area_division","lifestage"))
 
 
-query <- paste("SELECT * FROM datawg.t_series_ser join  datawg.t_dataseries_das ON das_ser_id = ser_id
- WHERE das_year = ", c(CY,CY-1)," AND das_qal_id IN (0,3,4);")
+query <- paste0("SELECT * FROM datawg.t_series_ser join  datawg.t_dataseries_das ON das_ser_id = ser_id
+ WHERE das_year in(", paste(CY,CY-1,sep=",",collapse=","),") AND das_qal_id IN (0,3,4);")
 last_years_with_problem <- sqldf(query)
 
 ############################################################################
@@ -1461,7 +1461,7 @@ save(model_ge_area,model_older,file=paste0(shinywd,"recruitment_models.Rdata"), 
 #plot(model_ge_area)
 @
 
-<< mixed_models, echo=TRUE, eval=FALSE >>=
+<< mixed_models, echo=FALSE, eval=FALSE >>=
 
 
 library(lme4)
@@ -1698,14 +1698,8 @@ colnames(synthesis) <- c("year","Elsewhere Europe","North Sea", "EEminCI","NSmin
 #	synthesis=as.data.frame(tapply(dat_ge[,"p_std_1960_1979"],
 #					list(dat_ge[,"year_f"],dat_ge[,"area"]),mean,na.rm=TRUE))
 #}
-#synthesis$year=as.numeric(rownames(synthesis))
-#synthesis$decade=trunc(as.numeric(synthesis$year)/5)*5
-#five_year_avg_glass <- data.frame("Elsewhere Europe"=tapply(synthesis$"Elsewhere Europe",synthesis$decade,mean,na.rm=T),
-#		"North Sea"=tapply(synthesis$"North Sea",synthesis$decade,mean,na.rm=T))
-#synthesis$rebour <- nrow(synthesis):1
-#last <- synthesis$rebour<=5
-#five_year_avg_glass <- rbind(five_year_avg_glass,apply(synthesis[last,c("Elsewhere Europe","North Sea") ],2,mean))
-#rownames(five_year_avg_glass)[nrow(five_year_avg_glass)] <- "last"
+vv$five_year_average <- synthesis %>% filter(year>CY-5) %>% dplyr::select(c(1,2,3)) %>% colMeans() %>% round(digits=3)
+vv$five_year_averagem3 <- synthesis %>% filter(year<=CY-2,year>CY-7) %>% dplyr::select(c(1,2,3)) %>% colMeans() %>% round(digits=3)
 
 #xfive_year_avg_glass <- xtable(x = five_year_avg_glass,
 #		label = "table_five_year_avg_glass",
@@ -1715,6 +1709,10 @@ colnames(synthesis) <- c("year","Elsewhere Europe","North Sea", "EEminCI","NSmin
 #		table.placement = "htbp",
 #		caption.placement = "top", 
 #		NA.string = ".")
+
+
+
+
 gg0 <- synthesis[,c("Elsewhere Europe","North Sea")]
 colnames(gg0) <- c("EE","NS")
 rownames(gg0) <- synthesis$year
@@ -2066,6 +2064,15 @@ save_figure("figure6",figure6,600,480)
 
 write.table(synthesis,file=str_c(datawd,"glm_results_yellow.csv"),sep=";")
 dat_ye <- dat_ye[,c("year","p","se","mean_1960_1979","yellow_eel_min","yellow_eel_max","value_std_1960_1979")]
+vv$five_year_averagey <- dat_ye %>% filter(year>CY-5) %>% dplyr::select(c(year,value_std_1960_1979)) %>% colMeans() %>% round(digits=3)
+vv$dat_ye <- 
+		dat_ye %>% 
+		filter(year<=CY-2,year>CY-7) %>% 
+		dplyr::select(c(year,value_std_1960_1979)) %>% 
+		colMeans() %>% 
+		round(digits=3)
+
+
 #colnames(dat_ye)  <- c("year","geomean_p_std_1960_1979") 
 save(dat_ye,file=paste0(datawd,"dat_ye.Rdata")) 
 save(dat_ye,file=paste0(shinywd,"dat_ye.Rdata"), version =2) 
