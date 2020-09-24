@@ -183,25 +183,21 @@ dbDisconnect(con_wgeel)
 # Introduction
 Several time series of abundance of yellow eels and silver eels are collected
 throughout Europe. However, the analysis of their trends is more complex than
-for glass eel time series since yellow and silver abundances are the results of
+for glass eel time series since yellow and silver eels abundances are the results of
 both the general status of the population and local conditions (environmental
-condition, anthropogenic pressures, life history traits, management actions...)
-in river basins in which they are collected [@ices2014]. Despite these
+condition, anthropogenic pressures, life history traits, management actions,...)
+in localities in which they are collected [@ices2014]. Despite these
 difficulties, it is interesting to explore whether some common trends exist
 among the available time series and whether they can be related to some factors,
 especially whether some spatial patterns exist in these trends. This would be a first
 exploration step before moving forward in a potential assessment of the standing
 stock. In this context, we carry out a Dynamic Factor Analysis, a multivariate
 method aiming at detecting common trends in a set of time series [@zuur2003a].
-This method allows summarising the sets of time series as a mixture of a few common trends. Then, it is possible to analyse the importance of each common 
-trend in the different time series and to carry out cluster analysis. Such a clustering
-exercise is worthwhile only when the number of available time series is important, 
+Such an exercise is worthwhile only when the number of available time series is important, 
 therefore, we restricted this analysis to the recent period (post 2000) and focus
-on recent trends. To complete the overview, we carried out gam analysis on a longer period
-(since 1975) to analyse the long-term trends.
-Similarly to glass-eel recruitment models, we restricted the data set to time
-series for which at least 10 years of data were available and carry out silver
-eel and yellow eel analysis separately
+on recent trends. To complete the overview, we carried out gam analyses on a longer period
+(since 1975) to analyse the long-term trends. The trends were analysed separately for yellow and 
+silver eels.
 
 # Yellow eel
 ## Available data
@@ -329,6 +325,7 @@ Y_{j,t}=\mu_j + \sum_{i=1}^{n} w_{i,j} \cdot X_{i,t} +\epsilon_{j,t} \qquad \mbo
 \end{aligned}
 $$
 with $Y_{j, t}$ the value of the series $j$ at time $t$, $\mu_j$ an intercept, $n$ the number of common trends, $w_{i, j}$ the weight of trend $i$ in the series $j$, $X_{i,t}$ the value of trend $i$ at time $t$ and $\epsilon_{j,t}$ a normal noise, potentially correlated between series through the variance-covariance matrix $\Sigma$ . Therefore, $X_{i,t}$ represent the trends common to the series and are modelled as random walks:
+
 $$
 \begin{aligned}
 X_{i,t}=X_{i,t-1}+f_{i,t} \qquad \mbox{ with } f_{i,t} \sim N(0,Q)
@@ -336,18 +333,19 @@ X_{i,t}=X_{i,t-1}+f_{i,t} \qquad \mbox{ with } f_{i,t} \sim N(0,Q)
 $$
 
 with $f_{i,t}$ the noise on the trend $i$ at time $t$ which follows a normal law, possibly correlated between trends with the variance-covariance matrix $Q$ which can be set to the identity matrix [@zuur2003a].
-The method thus allows both to extract the common trends through the estimates of $X$, but also to see to what extent each of the importance of each trend in each series through $w$.
+The method thus allows both to extract the common trends through the estimates of $X$, but also to see the importance of each trend in each series through $w$.
 
 To fit the DFA, the user as to put some additional constraints. We will make 3 kinds of assumptions on $\Sigma$:
 
 * $\Sigma$ is a diagonal matrix with equal elements in the diagonal (e.g. time series are independent with similar values of noise)
 * $\Sigma$ is a diagonal matrix with unequal elements in the diagonal (e.g. time series are independent with different values of noise)
-* $\Sigma$ is an unconstrained (e.g. time series are potentially not independent with different values of noise) (this solution was not tested for yellow eels since the number of time series was too large compared to the number of observations)
-1 to 4 common trends are tested. The best combination of $\Sigma$ and number of trends is chosen by comparing AICc criteria. 
+* $\Sigma$ is an unconstrained (e.g. time series are potentially not independent with different values of noise). This solution was not tested for yellow eels since the number of time series was too large compared to the number of observations.
+
+One to 4 common trends are tested. The best combination of $\Sigma$ and number of trends is chosen by comparing AIC criteria. 
+Before running the DFA, values were logtransformed (few 0 values were recorded and were replaced by 10% of the lower value of the series) and scales ((mean deleted and divided by the standard deviation)).
 
 
 ### Common trends
-Before running the DFA, values were logtransformed (few 0 values were recorded and were replaced by 10% of the lower value of the series) and scales ((mean deleted and divided by the standard deviation)).
 
 ```{r dfa yellow, results='hide',eval=FALSE,echo=FALSE}
 if (params$rerunDFA){
@@ -398,7 +396,8 @@ if (params$rerunDFA){
     data.frame(Trends=x["Trends"],
                Sigma=x["Sigma"],
                AIC=x["AIC"],
-               AICc=x["AICc"])})
+               AICc=x["AICc"]
+               )})
   )
   save.image(file="./dfa.rdata")
 }
@@ -408,8 +407,8 @@ Two common trends were estimated after selection by AIC criteria (Table \@ref(ta
 
 ```{r comparisonYE,echo=FALSE,tab.cap='Model comparisons for yellow eel DFA'}
 load("./dfa.rdata")
-ft <- flextable(results_yellow)
-ft <- colformat_num(ft,digits=2)
+ft <- flextable(results_yellow[,c("Trends","Sigma","AIC")])
+ft <- colformat_num(ft,j="AIC",digits=2)
 autofit(ft)
 best_fit_yellow=model_comparisonsYE[[which(results_yellow$AIC==min(results_yellow$AIC))]]$dfa
 ```
@@ -445,12 +444,12 @@ ggplot(trends_long,aes(x=year,y=value))+
 
 Trend 1 shows a monotonous trend over the period while trend 2 indicates a shift after 2007.
 
-The factor loadings are displayed in the following plots (Figure \@ref(fig:seriesloadingsYE)). Following @zuur2003, we only focused on loading with absolute values greater than 0.1 to focus on the most important trends and presented on a Venn diagram (Figure \@ref(fig:vennyellow))
+The factor loadings $w$ are displayed in the following plots (Figure \@ref(fig:seriesloadingsYE)). Following @zuur2003, we only focused on loading with absolute values greater than 0.1 to focus on the most important trends and presented on a Venn diagram (Figure \@ref(fig:vennyellow))
 
 
-```{r seriesloadingsYE, echo=FALSE,fig.cap="Factor loadings of the yellow eel DFA"}
+```{r seriesloadingsYE, echo=FALSE,fig.cap="Factor loadings of the yellow eel DFA (red name stands form loadings absolute values greater than 0.1)",fig.height=16/2.54}
 ylims = c(-1.1*max(abs(Z)), 1.1*max(abs(Z)))
-par(mfrow=c(ceiling(m/2),2), mar=c(0.5,2.5,1.5,0.5), oma=c(0.4,1,1,1))
+par(mfrow=c(2,1), mar=c(0.5,2.5,1.5,0.5), oma=c(0.4,1,1,1))
 for(i in 1:m) {
     #plot(c(1:N_ts)[abs(Z[,i])>minZ], as.vector(Z[abs(Z[,i])>minZ,i]),
   #     type="h", lwd=2, xlab="", ylab="", xaxt="n", ylim=ylims, xlim=c(0,N_ts+1))
@@ -463,7 +462,7 @@ for(i in 1:m) {
     if(Z[j,i] < 0) {text(j, 0.05, namesseries[j], srt=90, adj=0, cex=0.5,col=ifelse(Z[j,i]< -minZ,2,1))}
     abline(h=0, lwd=1, col="gray")
   } # end j loop
-  mtext(bquote(~italic(z[list(i,.(i))])),side=3,line=.5)
+  mtext(bquote(~italic(w[list(i,.(i))])),side=3,line=.5)
 } # end i loop
 
 # ##kept if two trends
@@ -603,7 +602,7 @@ ggplot(yellow_gam_plot,aes(x=year,y=pred))+
 
 # Silver eel
 ## Available data
-`r length(unique(silver_dataall$ser_id))` time series are available (Figure \@ref(fig:mapsilver)), originating from `r length(unique(silver_dataall$ser_cou_code))` countries and `r length(unique(silver_dataall$ser_emu_nameshort))` EMUs. Most of them are located in Northern Europe. `r length(unique(silver_dataall$ser_id[silver_dataall$ser_hty_code=="C"]))` time series are collected in coastal waters and `r length(unique(silver_dataall$ser_id[silver_dataall$ser_hty_code=="F"]))` in freshwater, while the habitat type was not reported for .`r length(unique(silver_dataall$ser_id[is.na(silver_dataall$ser_hty_code)]))`
+`r length(unique(silver_dataall$ser_id))` time series are available (Figure \@ref(fig:mapsilver)), originating from `r length(unique(silver_dataall$ser_cou_code))` countries and `r length(unique(silver_dataall$ser_emu_nameshort))` EMUs. Most of them are located in Northern Europe. `r length(unique(silver_dataall$ser_id[silver_dataall$ser_hty_code=="C"]))` time series are collected in coastal waters and `r length(unique(silver_dataall$ser_id[silver_dataall$ser_hty_code=="F"]))` in freshwater, while the habitat type was not reported for `r length(unique(silver_dataall$ser_id[is.na(silver_dataall$ser_hty_code)]))`.
 
 ```{r mapsilver,echo=FALSE,message=FALSE,warning=FALSE,fig.cap="Map of available silver eel time series"}
 # g=ggplot(silver_map)+geom_sf(data=europe_cropped)+geom_sf(data=silver_map,col="red")+
@@ -615,7 +614,7 @@ knitr::include_graphics("images/silver.png")
 ## Trends since 2000
 Similarly to yellow eels, few data series started before 2000 so (Figure 
 \@ref(fig:pointperyearSE)). In view of this, we restricted the analysis to the period 2000 to 2019,
-with time series having at least 10 observations over the period. . 
+with time series having at least 10 observations over the period. 
 
 ```{r pointperyearSE,echo=FALSE, fig.cap="number of yellow eel time series available per year"}
 point_per_year_SE<- silver_dataall %>%
@@ -667,7 +666,7 @@ silver_data <- silver_data %>%
 ```
 
 This leaves `r length(unique(silver_data$ser_id))` time series. If we plot all
-the series, a gam smoother indicates an overall decreasing trend (Figure
+the series, a gam smoother indicates an overall slightly decreasing trend (Figure
 \@ref(fig:plotTSSE)).
 
 
@@ -725,9 +724,6 @@ We applied the same method as for yellow eels so readers can refer to the
 corresponding section for further details.
 
 ### Common trends
-Before running the DFA, values were logtransformed (a 0 value was recorded for a
-single observation (time series SkaY) and was replaced by 10% of its lower value)
-and scales ((mean deleted and divided by the standard deviation)).
 
 ```{r dfa silver, results='hide',eval=FALSE,echo=FALSE}
 if (params$rerunDFA){
@@ -778,14 +774,14 @@ if (params$rerunDFA){
 ```
   
 The model selection leads to the estimation of a single trend (Table
-\@ref(tab:comparisonSE) and Figure \@ref(fig:trendssilver))
+\@ref(tab:comparisonSE) and Figure \@ref(fig:trendssilver)).
 
 
 ```{r comparisonSE,echo=FALSE,tab.cap="Model comparisons for silver eel DFA"}
 load("./dfa.rdata")
 results_silver$convergence=as.character(results_silver$convergence)
-ft <- flextable(results_silver[,-5])
-ft <- colformat_num(ft,digits=2)
+ft <- flextable(results_silver[,-c(4,5)])
+ft <- colformat_num(ft,j="AIC",digits=2)
 autofit(ft)
 best_fit_silver=model_comparisonsSE[[which(results_silver$AIC==min(results_silver$AIC))]]$dfa
 ```
@@ -839,7 +835,7 @@ for(i in 1:m) {
     if(Z[j,i] < 0) {text(j, 0.05, namesseries[j], srt=90, adj=0, cex=0.5,col=ifelse(Z[j,i]< -minZ,2,1))}
     abline(h=0, lwd=1, col="gray")
   } # end j loop
-  mtext(bquote(~italic(z[list(i,.(i))])),side=3,line=.5)
+  mtext(bquote(~italic(w[list(i,.(i))])),side=3,line=.5)
 } # end i loop
   
 ##kept if two trends
@@ -856,7 +852,7 @@ venn(namesseries,Z,minZ)
 ```
 
 
-```{r spatialpatternAllSE,echo=FALSE,fig.cap="Spatial maps of silver DFA loadings", warning=FALSE, message=FALSE, fig.width=10}
+```{r spatialpatternAllSE,echo=FALSE,fig.cap="Spatial maps of silver DFA loadings (+ stands for a positive correlaction to trend 1)", warning=FALSE, message=FALSE, fig.width=10}
 silver_belonging=data.frame(ser_nameshort=namesseries,
                             Trend=venn_belonging(namesseries,
                                                  Z,
@@ -910,11 +906,10 @@ are very low with respect to the late 1970s levels (Figure \@ref(fig:gamSilverHi
 However, the dynamic is slightly different among countries:
 
 * an early decrease in the late 1970s in IE or GB and then a relative stability
-* a decrease in the late 80s in Spain and then a period of stability or small increase
+* a decrease in the late 1980s in Spain and then a period of stability or small increase
 * a rather monotonic decrease in Norway
 
-In France, an increase is observed in the 1980s and then decreased, however for 
-this country the y-scale has a limited range indicating that abundance is more stable than in other countries.
+In France, an increase is observed in the 1980s and then decreased.
 Finally, and similarly to yellow eels, Sweden is the only country displaying an increase
 of abundance, especially after the 1980s. 
 
@@ -952,9 +947,9 @@ ggplot(silver_gam_plot,aes(x=year,y=pred))+
 
 
 # Discussion / Conclusion
-Yellow and silver eels time series of abundance have been collected in many countries
-all over Europe for many years. This analysis is a first intent to analyse the 
-available data. As explained in the introduction, such as analysis is complex
+Yellow and silver eels time series of abundance have been collected in at least 14 countries
+all over Europe for as long as nearly 1 century. This analysis is a first intent to analyse the 
+provided data. As explained in the introduction, such as analysis is complex
 du to the complexity of the life of the species and its fractal dimension during
 the continental growth phase [@dekker2000a].
 
@@ -973,7 +968,7 @@ changes in monitoring protocol in anticipation or in response to Eel Management
 Plan, but also changes in local environmental conditions. On the
 whole, since other trends are nearly monotonic, it suggests that the Eel
 Regulation has not led to major changes in the abundance of yellow and 
-silver eels, but this is not necessarily a surprise since the growth phase 
+silver eels in these basins, but this is not necessarily a surprise since the growth phase 
 last from 5 to 20 years depending on the habitats and sex [@vollestad1992].
 
 The few available time series allow to put the recent trends into an historical perspective. 
@@ -990,12 +985,12 @@ to other countries. It is difficult to conclude on the reasons of these trends, 
 suggest that fishery closure in Western Sweden may have played a role, and restocking may also
 have played a role (though it occurs mainly in Inland EMUs).
 
-As a first analysis, the results do provide a very partial overview of what have ineed happened. It would be worthwhile
-carrying out further analyis to understand the reasons of these different trends. More
+As a first analysis, the results do provide a very partial overview of what have indeed happened. It would be worthwhile
+collecting more series and carrying out further analysis to understand the reasons of these different trends. More
 specifically, it would be interesting to analyse whether the distance to the sea (data
 not available currently) plays a role in the results. Other factors, such as monitoring
-method may also be analysed. As a next step, it would be worthwhile comparing trends with
-recruitment trends.
+method or particular management measure (restocking, barrier’s mitigation, fishery closure, …) may also be analysed. As a next step, it would be worthwhile comparing trends with
+recruitment and mortalities estimates in each EMU.
 
 
 #References
