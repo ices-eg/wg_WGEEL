@@ -290,6 +290,10 @@ save(ccm_light,file="common/data/ccm.Rdata", version= 2)
 
 
 ```
+to log as a shiny user and check packages
 
+```shell
+su shiny
+```
 
 
