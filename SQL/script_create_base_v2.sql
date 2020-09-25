@@ -841,7 +841,7 @@ $BODY$
 
  	BEGIN
  	 	-- not twice the same line when eel_qal_id is null
- 	 	IF (NEW.eel_qal_id <4 AND NEW.eel_hty_code IS NULL and NEW.eel_area_division IS NULL) 	THEN
+ 	 	IF (NEW.eel_qal_id <=4 AND NEW.eel_hty_code IS NULL and NEW.eel_area_division IS NULL) 	THEN
  	     
  	 	SELECT COUNT(*) INTO nbduplicate
  	 	FROM   datawg.t_eelstock_eel eel
@@ -886,7 +886,7 @@ $BODY$
 -- DROP TRIGGER trg_check_unicity ON datawg.t_eelstock_eel;
 
 CREATE TRIGGER trg_check_unicity
-  AFTER INSERT OR UPDATE
+  before INSERT OR UPDATE
   ON datawg.t_eelstock_eel
   FOR EACH ROW
   EXECUTE PROCEDURE datawg.check_unicity();
