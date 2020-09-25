@@ -1,33 +1,28 @@
 ---
-title: "GEREM"
-author: "ICES Data Group"
-date: "08/09/2020"
-documentclass: article
-output: 
-  bookdown::word_document2:
-    fig_caption: yes
-    number_sections: yes
-    reference_docx: "../../ICES_template.docx"
-bibliography: gerem.bib
-params:
-  updateData: FALSE
-  runModel:   FALSE
-csl: "../../ices-journal-of-marine-science.csl"
+  title: "GEREM"
+  author: "ICES Data Group"
+  date: "08/09/2020"
+  documentclass: article
+  output: 
+    bookdown::word_document2:
+      fig_caption: yes
+      number_sections: yes
+      reference_docx: "../../ICES_template.docx"
+  bibliography: gerem.bib
+  params:
+    updateData: FALSE
+    runModel:   FALSE
+  csl: "../../ices-journal-of-marine-science.csl"
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE,warning=FALSE,message=FALSE,fig.width=14.9/2.54,
                       fig.height=10/2.54,dpi=300)
-load_library=function(necessary) {
-	if(!all(necessary %in% installed.packages()[, 'Package']))
-		install.packages(
-		  necessary[!necessary %in% installed.packages()[, 'Package']], dep = T)
-	for(i in 1:length(necessary))
-		library(necessary[i], character.only = TRUE)
-}
+source("../utilities/load_library.R")
 
 CY<-2020 # current year ==> dont forget to update the graphics path below (
 
+load_library("RPostgres")
 load_library("hues")
 load_library("bookdown")
 load_library("coda")
