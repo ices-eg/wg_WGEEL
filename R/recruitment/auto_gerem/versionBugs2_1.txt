@@ -1,9 +1,15 @@
 model{
 for (zone in 1:nbzone){
-	weightZone[zone]<-sum(pow(surfaceallcatchment[zone,],beta))
+	#weightZone[zone]<-sum(pow(surfaceallcatchment[zone,],beta))
+	###see https://en.wikipedia.org/wiki/Log-normal_distribution#Related_distributions
+	VZ[zone] <- log((exp(1/tauLocal)-1)*(sum(pow(surfaceallcatchment[zone,1:nbcatchmentzone[zone]]*exp(-0.5/tauLocal),2))/pow(sum(surfaceallcatchment[zone,1:nbcatchmentzone[zone]]*exp(-0.5/tauLocal)),2))+1)
+	sigmaZone[zone] <- sqrt(VZ[zone])
+	muWeightZone[zone] <- log(sum(surfaceallcatchment[zone,1:nbcatchmentzone[zone]]*exp(-0.5/tauLocal)))+0.5/tauLocal-0.5*VZ[zone]
+	weightZone[zone]~dlnorm(muWeightZone[zone],sigmaZone[zone])
 }
 for (icm in 1:nbcatchments){
-	weight[icm]<-ifelse(sum(surfaceallcatchment[zonecatchment[icm],])<surface[icm],1,pow(surface[icm],beta)/weightZone[zonecatchment[icm]])
+	localeffect[icm]~dlnorm(-0.5/tauLocal,tauLocal)
+	weight[icm]<-ifelse(sum(surfaceallcatchment[zonecatchment[icm],])<surface[icm],1,pow(surface[icm],beta)*localeffect[icm]/weightZone[zonecatchment[icm]])
 }
 
 #prior for first year of recruitment

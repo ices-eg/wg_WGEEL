@@ -182,7 +182,7 @@ anguilla) stock, the fisheries on it and other anthropogenic impacts.}
 %*******Here put eval=FALSE if you plan to use Rdata *********************************
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-<<load_database, echo=FALSE, fig=FALSE, eval=TRUE,results=hide>>=
+<<load_database, echo=FALSE, fig=FALSE, eval=FALSE,results=hide>>=
 # In this chunk everything will be loaded. 
 # The data selection is made tranparently later in the chunk "select_series"
 # This chunks uses the RequeteODBC connection object from stacomirtools and sqldf
@@ -559,7 +559,7 @@ R_stations$areashort[R_stations$area=="North Sea"] <- "NS"
 R_stations$ser_namelong <- iconv(R_stations$ser_namelong,"UTF8")
 
 series_CY <- R_stations[R_stations$ser_nameshort%in%names(last_year[last_year==CY]),
-		c("ser_nameshort","ser_namelong","cou_code","ser_lfs_code","areashort","ser_area_division","cou_order","ser_y")]
+		c("ser_nameshort","ser_namelong","cou_code","ser_lfs_code","areashort","ser_area_division","ser_qal_id","cou_order","ser_y")]
 #series_CY <- merge(series_CY,last_years_with_problem[,c("das_qal_id", "ser_nameshort")], by="ser_nameshort", all.x=T)
 #series_CY$das_qal_id[is.na(series_CY$das_qal_id)] <- 1
 
@@ -574,7 +574,7 @@ vv$nCYY <- nrow(series_CY[series_CY$ser_lfs_code=="Y",]) # number of series with
 #"stations updated to",CY-1
 series_CYm1 <- R_stations[R_stations$ser_nameshort%in%names(last_year[last_year==CY-1]),
 		c("ser_nameshort","ser_namelong","cou_code","ser_lfs_code","areashort","ser_area_division","cou_order","ser_y")]
-series_CYm1 <- series_CYm1[order(series_CYm1$ser_lfs_code,series_CYm1$cou_order),-c(ncol(series_CY)-1,ncol(series_CY))]
+series_CYm1 <- series_CYm1[order(series_CYm1$ser_lfs_code,series_CYm1$cou_order),c("ser_nameshort","ser_namelong","cou_code","ser_lfs_code","areashort","ser_area_division")]
 vv$nCYm1 <- nrow(series_CYm1) # number series updated last year only (and not this year)
 vv$nCYm1G <- nrow(series_CYm1[series_CYm1$ser_lfs_code=="G",]) # same for glass eel 
 vv$nCYm1GY <- nrow(series_CYm1[series_CYm1$ser_lfs_code=="GY",]) # same for glass eel 
@@ -600,12 +600,12 @@ vv$nseries_lostGY <- nrow(series_lost[series_lost$ser_lfs_code=="GY",])
 #------------------------------------------------------
 
 
-colnames(series_CY) <- str_c("\\scshape{",c("Site","Name","Coun.","Stage","Area","Division"),"}")
+colnames(series_CY) <- str_c("\\scshape{",c("Site","Name","Coun.","Stage","Area","Division", "Kept"),"}")
 
 xseries_CY <- xtable(x = series_CY,
 		label = "table_seriesCY",
 		caption = str_c("Series updated to ",CY, ". Codes for stages are G = glass eel, GY = glass eel + yellow eel, Y = yellow eel, Area NS = North Sea, EE = Elsewhere Europe, Division = FAO marine division. Series ordered by stage and from North to South"),
-		align=c("p{0cm}","p{1.3cm}","p{6.5cm}","p{1cm}","p{1cm}","p{1cm}","p{1.4cm}"))
+		align=c("p{0cm}","p{1.3cm}","p{6.5cm}","p{1cm}","p{1cm}","p{1cm}", "p{1cm}","p{1.4cm}"))
 print(xseries_CY, file = str_c(	tabwd,"/table_seriesCY.tex"),
 		table.placement = "htbp",
 		caption.placement = "top",
@@ -773,15 +773,15 @@ print(xstatseriesY,
 # Table of the problem in series for this year
 ################################################################
 
-series_prob <- last_years_with_problem[,c(  "ser_nameshort" ,"ser_lfs_code" , "ser_cou_code"       ,  "ser_area_division"        ,"das_year"    ,    "das_qal_id"  )]
+series_prob <- last_years_with_problem[last_years_with_problem$ser_typ_id %in% 1,c("ser_nameshort","ser_lfs_code","ser_cou_code","ser_area_division","das_year","das_qal_id","das_comment" )]
 series_prob <- series_prob[order(series_prob$ser_lfs_code,series_prob$das_year, series_prob$ser_nameshort),]
-colnames(series_prob) <- str_c("\\scshape{",c("Name","Stage", "Country","Division","Year", "Kept"),"}")
+colnames(series_prob) <- str_c("\\scshape{",c("Name","Stage", "Country","Division","Year", "Kept", "Comment"),"}")
 
 xseries_prob <- xtable(x = series_prob,
 		label = "table_series_prob",
 		caption = str_c("Data in " ,CY, " and ", CY-1, "having problems causing the data in the specific year to be excluded from the analysis. Codes for stages are G = glass eel, GY = glass eel + yellow eel, Y = yellow eel, Division = FAO marine division. Kept: 0 = missing, 1 = good quality,
 		2 = wgeel has modified the data, 3 = not used due to poor quality, 4 =	data is used, but there are warnings on its quality"),
-		align=c("p{0cm}","p{2.5cm}","p{2.5cm}","p{2.5cm}","p{2.5cm}","p{2.5cm}","p{2.5cm}"))
+		align=c("p{0cm}","p{1cm}","p{1cm}","p{1cm}","p{1cm}","p{1cm}","p{1cm}","p{10cm}"))
 print(xseries_prob,
     file = str_c(	tabwd,"/table_series_prob.tex"),
 		table.placement = "htbp",

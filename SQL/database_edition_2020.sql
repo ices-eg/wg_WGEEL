@@ -605,6 +605,27 @@ bis_g_in_gy IS NULL
 SELECT * FROM datawg.t_series_ser join  datawg.t_dataseries_das ON das_ser_id = ser_id WHERE das_year = 2020  AND das_qal_id IN (0,3,4);
 
 
+--trigger see issue 165
+create trigger update_geom after
+insert or update of ser_x,ser_y on
+datawg.t_series_ser for each row execute procedure datawg.update_geom();
+
+CREATE OR REPLACE FUNCTION datawg.update_coordinates()
+RETURNS trigger
+LANGUAGE plpgsql
+AS $function$
+BEGIN
+NEW.ser_x = st_x(geom);
+NEW.ser_y = st_y(geom);
+RETURN NEW;
+END;
+$function$
+;
+
+create trigger update_coordinates after
+update of geom on
+datawg.t_series_ser for each row execute procedure datawg.update_coordinates();
+
 SELECT * datawg.t_eelstock_eel   WHERE eel_cou_code='SE' AND eel_lfs_code='Y' AND eel_emu_nameshort in('SE_East','SE_Inla');
 
 
