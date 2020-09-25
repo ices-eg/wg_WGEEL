@@ -8,19 +8,19 @@ output:
   bookdown::word_document2:
     fig_caption: yes
     number_sections: yes
+    reference_docx: "../ICES_template.docx"
 params:
   rerunDFA: FALSE
+csl: "../ices-journal-of-marine-science.csl"
+
 ---
 
-```{r setup, include=FALSE}
-load_library=function(necessary) {
-	if(!all(necessary %in% installed.packages()[, 'Package']))
-		install.packages(necessary[!necessary %in% installed.packages()[, 'Package']], dep = T)
-	for(i in 1:length(necessary))
-		library(necessary[i], character.only = TRUE)
-}
 
-knitr::opts_chunk$set(echo = TRUE,warning=FALSE,message=FALSE,fig.width=16/2.54)
+```{r setup, include=FALSE}
+source("../utilities/load_library.R")
+
+knitr::opts_chunk$set(echo = TRUE,warning=FALSE,message=FALSE,fig.width=14.9/2.54,dpi=300,
+                      fig.height=10/2.54)
 username = Sys.info()[["user"]]
 if (username=="hilaire.drouineau"){
   setwd("/home/hilaire.drouineau/Documents/Bordeaux/migrateurs/WGEEL/github/wg_WGEEL/R/Y_S_series/")
@@ -43,6 +43,7 @@ load_library("rnaturalearth")
 load_library("parallel")
 load_library("kableExtra")
 load_library("mgcv")
+load_library("ggmap")
 con_wgeel=dbConnect(PostgreSQL(),
                     dbname="wgeel",
                     host="localhost",
@@ -172,8 +173,10 @@ silver_dataall <- mydata %>%
   filter(lfs_code=="S")
 yellow_dataall <- mydata %>%
   filter(lfs_code=="Y")
-yellow_map=st_read(con_wgeel,query=paste("select ser_id,geom from datawg.t_series_ser where ser_id in (", paste(unique(yellow_dataall$ser_id),collapse=","),")",sep=""))
-silver_map=st_read(con_wgeel,query=paste("select ser_id,geom from datawg.t_series_ser where ser_id in (", paste(unique(silver_dataall$ser_id),collapse=","),")",sep=""))
+yellow_map=st_read(con_wgeel,query=paste("select ser_id,ser_x,ser_y,geom,ser_nameshort from datawg.t_series_ser where ser_id in (",
+                                         paste(unique(yellow_dataall$ser_id),collapse=","),")",sep=""))
+silver_map=st_as_sf(st_read(con_wgeel,query=paste("select ser_id,ser_x,ser_y,geom,ser_nameshort from datawg.t_series_ser where ser_id in (",
+                                         paste(unique(silver_dataall$ser_id),collapse=","),")",sep="")))
 
 dbDisconnect(con_wgeel)
 
@@ -203,21 +206,30 @@ silver eels.
 ## Available data
 `r length(unique(yellow_dataall$ser_id))` time series are available (Figure \@ref(fig:mapyellow)), originating from `r length(unique(yellow_dataall$ser_cou_code))` countries and `r length(unique(yellow_dataall$ser_emu_nameshort))` EMUs. Most of them are located in Great Britain or France. `r length(unique(yellow_dataall$ser_id[yellow_dataall$ser_hty_code=="C"]))` time series are collected in coastal waters, `r length(unique(yellow_dataall$ser_id[yellow_dataall$ser_hty_code=="T"]))` in transitional waters and `r length(unique(yellow_dataall$ser_id[yellow_dataall$ser_hty_code=="F"]))` in freshwater.
 
-```{r mapyellow,echo=FALSE,message=FALSE,warning=FALSE,fig.cap="Map of available yellow time series"}
+
+```{r mapyellow,echo=FALSE,message=FALSE,warning=FALSE,fig.cap="Map of available yellow time series",fig.height=14/2.54}
  worldmap <- ne_countries(scale = 'medium', type = 'map_units',
                           returnclass = 'sf')
  europe_cropped <- st_crop(worldmap, xmin = -13, xmax = 27,
                                      ymin = 35, ymax = 65)
 # ggplot(yellow_map)+geom_sf(data=europe_cropped)+geom_sf(data=yellow_map,col="red")+
-#   theme_bw()
-knitr::include_graphics("images/yellow.png")
+   #theme_bw()
+  my_map=get_stamenmap(bbox = c(left = -13, bottom = 35, right =
+                                  27, top = 65), zoom = 6, maptype = c("watercolor"))
+  ggmap(my_map) + 
+    geom_point(data=yellow_map,
+               aes(x=ser_x,y=ser_y),cex=.5,pch=".")+
+    geom_text(data=yellow_map,
+               aes(x=ser_x,y=ser_y,label=ser_nameshort),cex=1.5)+
+    ylab("")+xlab("")
+#knitr::include_graphics("images/yellow.png")
 ```
 
 ## Trends after 2000
 There are few data series started before 2000 (Figure \@ref(fig:pointperyearYE)) 
 and many data values for 2020 were still missing when carrying out the analysis.
 
-```{r pointperyearYE,echo=FALSE, fig.cap="number of yellow eel time series available per year"}
+```{r pointperyearYE,echo=FALSE, fig.cap="number of yellow eel time series available per year",fig.height=8/2.54}
 point_per_year_YE<- yellow_dataall %>%
   group_by(das_year) %>%
   summarize(n=n_distinct(ser_id))
@@ -263,6 +275,7 @@ yellow_data <- yellow_data %>%
 
 
 ```
+
 In view of this, the analysis was restricted to the period ranging from 2000 to 
 2019, with data series that have at least 10 observations on the period.
 
@@ -478,7 +491,7 @@ venn(namesseries,Z,minZ)
 ```
 
 
-```{r spatialpatternAllYE,echo=FALSE,fig.cap="Spatial maps of yellow DFA loadings", warning=FALSE, message=FALSE, fig.width=10}
+```{r spatialpatternAllYE,echo=FALSE,fig.cap="Spatial maps of yellow DFA loadings", warning=FALSE, message=FALSE, fig.height=16/2.54}
 yellow_belonging=data.frame(ser_nameshort=namesseries,
                             Trend=venn_belonging(namesseries,
                                                  Z,
@@ -501,7 +514,7 @@ ggplot(yellow_belonging)+
 ```
 
 
-```{r spatialpatternTrendsYE,echo=FALSE,fig.cap="Spatial maps of yellow DFA loadings", warning=FALSE, message=FALSE, fig.width=10}
+```{r spatialpatternTrendsYE,echo=FALSE,fig.cap="Spatial maps of yellow DFA loadings, detailed by trend", warning=FALSE, message=FALSE, fig.height=16/2.54}
 yellow_belonging=data.frame(ser_nameshort=namesseries,
                             Trend=venn_belonging(namesseries,
                                                  Z,
@@ -528,7 +541,7 @@ t1 <- ggplot(yellow_belonging)+
   scale_fill_brewer(type="qual")+
   scale_color_brewer(type="qual")+
   theme_bw()
-grid.arrange(t1,t2,ncol=2)
+grid.arrange(t1,t2,ncol=1)
 ```
 
 
@@ -604,11 +617,17 @@ ggplot(yellow_gam_plot,aes(x=year,y=pred))+
 ## Available data
 `r length(unique(silver_dataall$ser_id))` time series are available (Figure \@ref(fig:mapsilver)), originating from `r length(unique(silver_dataall$ser_cou_code))` countries and `r length(unique(silver_dataall$ser_emu_nameshort))` EMUs. Most of them are located in Northern Europe. `r length(unique(silver_dataall$ser_id[silver_dataall$ser_hty_code=="C"]))` time series are collected in coastal waters and `r length(unique(silver_dataall$ser_id[silver_dataall$ser_hty_code=="F"]))` in freshwater, while the habitat type was not reported for `r length(unique(silver_dataall$ser_id[is.na(silver_dataall$ser_hty_code)]))`.
 
-```{r mapsilver,echo=FALSE,message=FALSE,warning=FALSE,fig.cap="Map of available silver eel time series"}
+```{r mapsilver,echo=FALSE,message=FALSE,warning=FALSE,fig.cap="Map of available silver eel time series",fig.height=14/2.54}
 # g=ggplot(silver_map)+geom_sf(data=europe_cropped)+geom_sf(data=silver_map,col="red")+
 #  theme_bw()
 # print(g)
-knitr::include_graphics("images/silver.png")
+ggmap(my_map) + 
+    geom_point(data=silver_map,
+               aes(x=ser_x,y=ser_y),cex=.5,pch=".")+
+    geom_text(data=silver_map,
+               aes(x=ser_x,y=ser_y,label=ser_nameshort),cex=1.5)+
+    ylab("")+xlab("")
+#knitr::include_graphics("images/silver.png")
 ```
 
 ## Trends since 2000
@@ -616,7 +635,7 @@ Similarly to yellow eels, few data series started before 2000 so (Figure
 \@ref(fig:pointperyearSE)). In view of this, we restricted the analysis to the period 2000 to 2019,
 with time series having at least 10 observations over the period. 
 
-```{r pointperyearSE,echo=FALSE, fig.cap="number of yellow eel time series available per year"}
+```{r pointperyearSE,echo=FALSE, fig.cap="number of yellow eel time series available per year",fig.height=8/2.54}
 point_per_year_SE<- silver_dataall %>%
   group_by(das_year) %>%
   summarize(n=n_distinct(ser_id))
@@ -852,7 +871,7 @@ venn(namesseries,Z,minZ)
 ```
 
 
-```{r spatialpatternAllSE,echo=FALSE,fig.cap="Spatial maps of silver DFA loadings (+ stands for a positive correlaction to trend 1)", warning=FALSE, message=FALSE, fig.width=10}
+```{r spatialpatternAllSE,echo=FALSE,fig.cap="Spatial maps of silver DFA loadings (+ stands for a positive correlaction to trend 1)", warning=FALSE, message=FALSE, fig.heigth=16/2.54}
 silver_belonging=data.frame(ser_nameshort=namesseries,
                             Trend=venn_belonging(namesseries,
                                                  Z,
@@ -993,4 +1012,4 @@ method or particular management measure (restocking, barrier’s mitigation, fis
 recruitment and mortalities estimates in each EMU.
 
 
-#References
+# References
