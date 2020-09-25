@@ -22,3 +22,7 @@ pandoc +RTS -K512m -RTS "SE.md" --to docx --from markdown+autolink_bare_uris+asc
 pandoc +RTS -K512m -RTS "SI.md" --to docx --from markdown+autolink_bare_uris+ascii_identifiers+tex_math_single_backslash+smart --output "SI.docx"  --highlight-style tango
 pandoc +RTS -K512m -RTS "TN.md" --to docx --from markdown+autolink_bare_uris+ascii_identifiers+tex_math_single_backslash+smart --output "TN.docx"  --highlight-style tango
 pandoc +RTS -K512m -RTS "TR.md" --to docx --from markdown+autolink_bare_uris+ascii_identifiers+tex_math_single_backslash+smart --output "TR.docx"  --highlight-style tango
+
+# main document
+
+pandoc +RTS -K512m -RTS "automatic_tables_graphs.md" --to docx --from markdown+autolink_bare_uris+ascii_identifiers+tex_math_single_backslash+smart --output "automatic_tables_graphs.docx"  --highlight-style tango
