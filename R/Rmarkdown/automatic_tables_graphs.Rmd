@@ -658,9 +658,9 @@ landings3$eel_cou_code = as.factor(landings3$eel_cou_code)
 landings3$eel_cou_code<-factor(landings3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
 title <- paste("Recreational landings per country,", "stage = yellow and silver ", "and habitat =", paste(hty,collapse="+"))
 
-g_raw_Rlandings_YS<- ggplot(landings3) + geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
-		#ggtitle(title) + 
-    xlab("year") + ylab("Landings (tonnes)")+
+g_raw_Rlandings_YS<- ggplot(filter(landings3,eel_value>0)) + 
+		geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
+		xlab("year") + ylab("Landings (tonnes)")+
 		scale_fill_manual("Country",values=color_countries)+
 		theme_bw()
 print(g_raw_Rlandings_YS)
@@ -710,16 +710,18 @@ ka_rec_land_G1 <- kable(format(table1,digt=3,drop0trailing=TRUE),format="pandoc"
 ```{r recLand_Gf,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure 6: Time-series of reported recreational glass eel fishery landings (tonnes), by country Norway (NO), Sweden (SE), Finland (FI), Estonia (EE), Latvia (LV), Lithuania (LT), Poland (PL), Germany (DE), Netherlands (NL), Belgium (BE), Ireland (IE), United Kingdom (GB), France (FR), Spain (ES), Portugal (PT), Croatia (HR), combining information from the Data call and the WGEEL database.", fig.height=5, fig.width=10}
 
 ## Graph
-landings3<-grouped_data
+landings3 <- grouped_data
 landings3$eel_value <- as.numeric(landings3$eel_value) / 1000
-landings3$eel_cou_code = as.factor(landings3$eel_cou_code)
-landings3$eel_cou_code<-factor(landings3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
+landings3$eel_cou_code <- as.factor(landings3$eel_cou_code)
+landings3$eel_cou_code <- factor(landings3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
 title <- paste("Recreational landings per country,", "stage = Glass eel", "and habitat =", paste(hty,collapse="+"))
-
-g_raw_Rlandings_G <- ggplot(landings3) + geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
+# Esti asks for contrasted colors there
+g_raw_Rlandings_G <- ggplot(filter(landings3,eel_value>0)) + 
+				geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
 		#ggtitle(title) + 
-    xlab("year") + ylab("Landings (tonnes)")+
-		scale_fill_manual("Country",values=color_countries)+
+    xlab("year") + 
+		ylab("Landings (tonnes)")+
+		scale_fill_brewer("Country",palette="Dark2")+
 		theme_bw()
 print(g_raw_Rlandings_G)
 

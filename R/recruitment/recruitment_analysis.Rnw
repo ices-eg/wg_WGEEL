@@ -11,7 +11,7 @@
 % Note the following does not work :
 % iconv -f CP1252 -t UTF-8 recruitment_analysis.tex > recruitment_analysis_utf8.tex
 % finally the command to run is : 
-% cd C:\Users\cedric.briand\Documents\GitHub\WGEEL\R\recruitment
+% cd C:\workspace\gitwgeel\R\recruitment
 % pandoc -s -o recruitment.docx --from=latex --to=docx  recruitment_analysis.tex
 % All this for producing a ugly word report :-( 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -273,7 +273,7 @@ wger_init <- chnames(wger_init,
 
 
 query <- paste0("SELECT * FROM datawg.t_series_ser join  datawg.t_dataseries_das ON das_ser_id = ser_id
- WHERE das_year in(", paste(CY,CY-1,sep=",",collapse=","),") AND das_qal_id IN (0,3,4);")
+ WHERE das_year in(", paste(CY,CY-1,sep=",",collapse=","),") AND das_qal_id IN (0,3,4) and ser_typ_id=1;")
 last_years_with_problem <- sqldf(query)
 
 ############################################################################
@@ -326,7 +326,7 @@ statseries <- sqldf('select site,namelong,min,max,duration,missing,life_stage,sa
 save(wger_init,file=str_c(datawd,"wger_init.Rdata"))
 save(statseries,file=str_c(datawd,"statseries.Rdata"))
 save(R_stations,file=str_c(datawd,"R_stations.Rdata"))
-save(last_years_with_problem,file=str_c(datawd,"last_years_wih_problem.Rdata"))
+save(last_years_with_problem,file=str_c(datawd,"last_years_with_problem.Rdata"))
 
 
 
@@ -343,7 +343,7 @@ save(R_stations,file=str_c(shinywd,"R_stations.Rdata"), version =2)
 load(file=str_c(datawd,"wger_init.Rdata"))
 load(file=str_c(datawd,"statseries.Rdata"))
 load(file=str_c(datawd,"R_stations.Rdata"))
-load(file=str_c(datawd,"last_years_wih_problem.Rdata"))
+load(file=str_c(datawd,"last_years_with_problem.Rdata"))
 @
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 				SERIES SELECTION AND STATISTICS ABOUT DATA ENTRY 
@@ -1812,7 +1812,12 @@ sgipee_test_for_change_ee <- summary(model_ge_area_b)$coefficients[len-1,4]
 sgipee_test_for_change_ns <- summary(model_ge_area_b)$coefficients[len,4]
 
 Kee = matrix(c(rep(0,len-4),1,0,1,0), nrow = 1) # we just add the to coef trend to have the trend after 2011
-summary_coefficient_afteree <- summary(glht(model_ge_area_b, linfct = Kee, alternative="greater",rhs=0.05))
+# test if the coefficient alpha + beta > 0 so the slope of increase is larger than 0
+# H0 alpha+beta = 0.5 / alternative alpha+beta >0
+summary_coefficient_afteree <-  summary(glht(model_ge_area_b, linfct = Kee, alternative="greater",rhs=0)) 
+# test if the coefficient alpha + beta > 0.05 so the slope of the increase is larger than the slope of decrease
+# H0 alpha+beta = 0.5 / alternative alpha+beta >0.5
+summary(glht(model_ge_area_b, linfct = Kee, alternative="less",rhs=0.05))
 Kns = matrix(c(rep(0,len-4),0,1,0,1), nrow = 1) # we just add the to coef trend to have the trend after 2011
 summary_coefficient_afterns <- summary(glht(model_ge_area_b, linfct = Kns, alternative="greater"))
 trend_test_for_change_ee <- sprintf("Estimate = %.3f P-value %.4f",
@@ -1953,6 +1958,11 @@ M.gls1  <- glmmPQL(value_std~year_f:area+site,
 #legend("topright",col=c("black","grey20"),lty=c(1,2),pch=c(1,18),legend=c("predicted for Bann","Bann (observed)"))
 #write.table(gey2,file=str_c(datawd,"Bann_data.csv"),sep=";")
 #write.table(newdata,file=str_c(datawd,"Bann_predictions.csv"),sep=";")
+
+# Segmented regression
+
+
+
 @
 
 << model_for_yellow_eel, echo=FALSE, eval=TRUE, results=hide >>=
