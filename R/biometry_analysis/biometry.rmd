@@ -3,6 +3,7 @@ title: "Untitled"
 author: "ICES Data Group"
 date: "14/09/2020"
 bibliography: biometry.bib
+csl: "../ices-journal-of-marine-science.csl"
 output: 
   bookdown::html_document2:
     fig_caption: yes
@@ -10,7 +11,7 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE,warning=FALSE,message=FALSE,error=FALSE)
+knitr::opts_chunk$set(echo = TRUE,warning=FALSE,message=FALSE,error=FALSE,fig.width=14.9/2.54,dpi=150)
 library(readxl)
 library(sf)
 library(rnaturalearth)
