@@ -622,5 +622,20 @@ GROUP BY eel_lfs_code,eel_emu_nameshort, eel_typ_id, eel_qal_id, eel_area_divisi
 ORDER BY typ_name, eel_datasource
 
 
+SELECT * FROM datawg.t_series_ser FULL OUTER join  datawg.t_dataseries_das ON das_ser_id=ser_id WHERE ser_nameshort='StrS'
 
 
+
+SELECT *  FROM datawg.t_eelstock_eel   WHERE eel_cou_code='NL' AND eel_lfs_code='Y' AND eel_typ_id IN (8,9);
+
+
+SELECT * FROM datawg.t_series_ser WHERE ser_nameshort='BroE'
+SELECT * FROM datawg.t_series_ser WHERE ser_nameshort='BroY'
+
+
+
+SELECT * FROM datawg.t_series_ser WHERE ser_nameshort='LakS'
+
+
+-- fix problem with that series which is a mix of yellow and silver but is a trap for downstream migration
+UPDATE datawg.t_series_ser SET ser_lfs_code='S' WHERE ser_nameshort='LakS'
