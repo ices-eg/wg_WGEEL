@@ -1,9 +1,0 @@
-ser_nameshort;type;ser_ccm_wso_id;zone
-AdGERMA;absolute;{291194};ATL_F
-GiGEMAC;absolute;{291126,291125};ATL_F
-SeGEMAC;absolute;{295574};ATL_F
-ChGEMAC;absolute;{291364};ATL_F
-LoGERMA;absolute;{291111};ATL_F
-Somme;catch;{291223};Channel
-Oria;absolute;{442368};ATL_IB
-Tiber;absolute;{129496};Med
