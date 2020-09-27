@@ -109,7 +109,6 @@ create_datacall_file <- function(country, eel_typ_id, name, ...){
 	
 	# limit dataset to country
 	r_coun <- t_eelstock_eel[t_eelstock_eel$eel_cou_code==country & t_eelstock_eel$eel_typ_id %in% eel_typ_id,]
-	r_coun <- t_eelstock_eel[t_eelstock_eel$eel_cou_code==country & t_eelstock_eel$eel_typ_id %in% eel_typ_id,]
 	r_coun <- r_coun[,c(1,18,3:17)]
 	wb = loadWorkbook(templatefile)
 	
