@@ -182,7 +182,7 @@ anguilla) stock, the fisheries on it and other anthropogenic impacts.}
 %*******Here put eval=FALSE if you plan to use Rdata *********************************
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-<<load_database, echo=FALSE, fig=FALSE, eval=FALSE,results=hide>>=
+<<load_database, echo=FALSE, fig=FALSE, eval=FALSE, results=hide>>=
 # In this chunk everything will be loaded. 
 # The data selection is made tranparently later in the chunk "select_series"
 # This chunks uses the RequeteODBC connection object from stacomirtools and sqldf
@@ -521,6 +521,8 @@ names(nb_year) <- colnames(xtabs(formula = value_std_1979_1994~year+site,data=wg
 
 nb_series_glass_eel <- length(unique(glass_eel_yoy$site)) # this will be reported in the pdf later
 vv$nb_series_glass_eel <- nb_series_glass_eel
+
+vv$nb_series_glass_eel_per_area <-glass_eel_yoy %>% distinct(site, area) %>% group_by(area)%>%summarize(n())
 nb_series_older <- length(unique(older$site)) # this will be reported in the pdf later
 vv$nb_series_older <- nb_series_older
 nb_series_final <- nb_series_glass_eel+nb_series_older
@@ -817,13 +819,14 @@ vv$nbcurrentyellow <- n_y_lfs$"yellow"[n_y_lfs$year==CY]
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %************************************************************************************
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-<< figure_series, echo=FALSE,  eval=FALSE, results=hide >>=
+<< figure_series, echo=FALSE,  eval=TRUE, results=hide >>=
 
 dd <- as.data.frame(table(year=wger$year,lifestage=wger$lifestage))
 
 figure2 <- ggplot(dd, aes(x=as.numeric(as.character(year)), y=Freq, group=lifestage, col=lifestage)) + geom_point() + geom_line(lwd=2) + ylab('number of series') +xlab('year')+
   theme(text=element_text(size=12))+
   	scale_x_continuous(limits=c(1900,CY))+
+		theme_bw()+
   theme(text = element_text(size=30),
         axis.text.x = element_text(angle=0, hjust=1))+
    theme(legend.position = c(0.25,0.75), legend.text = element_text( size = 35))
@@ -922,7 +925,7 @@ figure1 <- ggmap(my_map)+
 print(figure1)
 
 
-save_figure("figure1",g,550,600)
+save_figure("figure1",figure1,550,600)
 
 
 
