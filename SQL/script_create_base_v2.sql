@@ -841,8 +841,8 @@ $BODY$
 
  	BEGIN
  	 	-- not twice the same line when eel_qal_id is null
- 	 	IF (NEW.eel_qal_id <4 AND NEW.eel_hty_code IS NULL and NEW.eel_area_division IS NULL) 	THEN
- 	    
+ 	 	IF (NEW.eel_qal_id <=4 AND NEW.eel_hty_code IS NULL and NEW.eel_area_division IS NULL) 	THEN
+ 	     
  	 	SELECT COUNT(*) INTO nbduplicate
  	 	FROM   datawg.t_eelstock_eel eel
  	 	WHERE (NEW.eel_year, NEW.eel_lfs_code, NEW.eel_emu_nameshort, NEW.eel_typ_id) =
@@ -926,7 +926,3 @@ CREATE TRIGGER trg_check_unicity
  
  
  
- SELECT * FROM datawg.t_biometry_other_bit tbob 
- SELECT * FROM datawg.t_biometry_series_bis bis JOIN datawg.t_series_ser ON bis_ser_id=ser_id  WHERE ser_nameshort='ImsaS'
- SELECT * FROM datawg.t_biometry_series_bis bis JOIN datawg.t_series_ser ON bis_ser_id=ser_id  WHERE ser_nameshort='BurS'
-
