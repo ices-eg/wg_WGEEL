@@ -927,7 +927,16 @@ CREATE TRIGGER trg_check_unicity
  
  
  
- 
+ --update names of two series
+begin;
+alter table "ref".tr_station 	drop CONSTRAINT c_fk_station_name,
+	ADD CONSTRAINT c_fk_station_name FOREIGN KEY ("Station_Name") REFERENCES datawg.t_series_ser(ser_nameshort) on update cascade;
+update datawg.t_series_ser set ser_nameshort ='FlaGY' where ser_nameshort ='FlaE';
+update datawg.t_series_ser set ser_nameshort ='BroGY' where ser_nameshort ='BroE';
+--alter table "ref".tr_station drop CONSTRAINT c_fk_station_name;
+--ALTER TABLE "ref".tr_station ADD CONSTRAINT c_fk_station_name FOREIGN KEY ("Station_Name") REFERENCES datawg.t_series_ser(ser_nameshort);
+
+commit;
  
 
 
