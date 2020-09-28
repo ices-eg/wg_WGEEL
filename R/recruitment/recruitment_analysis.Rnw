@@ -1836,6 +1836,78 @@ trend_test_for_change_ns <- sprintf("Estimate = %.3f P-value %.4f",
 save(dat_ge, file=str_c(datawd,"dat_ge.Rdata"))
 save(dat_ge, file=str_c(shinywd,"dat_ge.Rdata"), version =2)
 @
+
+<< segmented_regression, echo=FALSE, eval=FALSE, results=hide >>=
+
+
+dat_ge1 <- expand.grid(year=1980:2060,area=as.factor(model_ge_area_b$xlevels$area),
+		site=model_ge_area_b$xlevels$site[1])
+
+dat_ge1$p <- predict(model_ge_area_b,newdata=dat_ge1)
+dat_ge1$se <- predict(model_ge_area_b,newdata=dat_ge1,se.fit=TRUE)[["se.fit"]]
+
+mean_1980 <- dat_ge1 %>% group_by(area) %>% dplyr::filter(year< 2011) %>%summarize(mean=max(p))
+original_graph <- dat_ge[dat_ge$year==1980,c("p_std_1960_1979","area")]
+dat_ge1 <- merge(dat_ge1, original_graph, by="area")
+
+dat_ge1 <- merge(dat_ge1, mean_1980, by="area")
+dat_ge1$p_std_1980=exp((dat_ge1$p-dat_ge1$mean)/dat_ge1$p_std_1960_1979)
+dat_ge1$p_std_1980_min=exp(dat_ge1$p-dat_ge1$mean-1.96*dat_ge1$se)
+dat_ge1$p_std_1980_max=exp(dat_ge1$p-dat_ge1$mean+1.96*dat_ge1$se)
+
+
+
+
+
+
+figure51 <-  
+		ggplot(dat_ge,aes(x=year,y=p_std_1960_1979))+
+		geom_line(aes(colour=area,lty=area),lwd=1.3)+
+		geom_point(aes(colour=area,fill=area,shape=area),size=3)+
+		geom_line(data=dat_ge1, aes(x=year,y=p_std_1980,colour=area))+
+		#ggtitle("Recruitment overview glass eel series")+
+		scale_colour_brewer(name="area",palette="Set1")  +
+		#annotate("text",x=dat$year[length(dat$year)-2],y=datEE$p_std_1960_1979[length(datEE$p_std_1960_1979)],size=5,label=labelEE)+
+		#annotate("text",x=dat$year[length(dat$year)-2],y=datNS$p_std_1960_1979[length(datNS$p_std_1960_1979)],size=5,label=labelNS)+		
+		scale_y_log10(name=expression(frac(p,bar(p)[1960-1979])~' log scale'),
+				#limits=c(0.005,10),
+				breaks=c(0.01,0.1,1,10),
+				labels=c("1%","10%","100%","1000%"))+
+		theme_bw()+
+		theme(legend.box =NULL,
+				legend.key = element_rect(colour = NA, fill = 'white'),
+				legend.text = element_text(size = 10, colour = 'black'), 
+				legend.background = element_rect(colour = NA, fill = 'white'),
+				legend.position=c(.8,.9))+geom_ribbon(aes(ymin=p_std_1960_1979_min,ymax=p_std_1960_1979_max,fill=area),alpha=.3)
+
+
+ggplot(dat_ge1) 
+
+datNS <- dat_ge %>%filter(area=="North Sea") %>% dplyr::select(year, p_std_1960_1979)
+out.lm<-lm(log(p_std_1960_1979)~year,data=datNS)
+o1<-segmented.lm(out.lm,seg.Z=~year,psi=list(year=c(1980,2011,2014)), 
+		control=seg.control(fix.npsi=FALSE, n.boot=0, tol=1e-7, it.max = 50, K=5, display=TRUE))
+plot(o1)
+datEE <- dat_ge %>%filter(area=="Elsewhere Europe") %>% dplyr::select(year, p_std_1960_1979)
+out.lm<-lm(log(p_std_1960_1979)~year,data=datEE)
+o2<-segmented.lm(out.lm,seg.Z=~year,psi=list(year=c(1980,2011,2014)), 
+		control=seg.control(fix.npsi=FALSE, n.boot=0, tol=1e-7, it.max = 500, display=TRUE))
+plot(o2)
+
+datNS <- dat_ge %>%filter(area=="North Sea") %>% dplyr::select(year, p_std_1960_1979)
+out.lm<-lm(log(p_std_1960_1979)~year,data=datNS)
+o11 <- segmented.lm(out.lm,seg.Z=~year,psi=list(year=c(1980,2011)), 
+		control=seg.control(fix.npsi=FALSE, n.boot=0, tol=1e-7, it.max = 50, K=5, display=TRUE))
+plot(o11)
+datEE <- dat_ge %>%filter(area=="Elsewhere Europe") %>% dplyr::select(year, p_std_1960_1979)
+out.lm<-lm(log(p_std_1960_1979)~year,data=datEE)
+o21<-segmented.lm(out.lm,seg.Z=~year,psi=list(year=c(1980,2011)), 
+		control=seg.control(fix.npsi=FALSE, n.boot=0, tol=1e-7, it.max = 50, K=5, display=TRUE))
+plot(o21)
+AIC(o1, o11, o2, o21)
+
+
+@
 << model_diagnostics, echo=FALSE, eval=FALSE, results=hide >>=
 # summary(model_ge_area)
 # influence_plot
@@ -1962,7 +2034,6 @@ M.gls1  <- glmmPQL(value_std~year_f:area+site,
 #write.table(gey2,file=str_c(datawd,"Bann_data.csv"),sep=";")
 #write.table(newdata,file=str_c(datawd,"Bann_predictions.csv"),sep=";")
 
-# Segmented regression
 
 
 
