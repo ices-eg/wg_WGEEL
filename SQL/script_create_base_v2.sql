@@ -848,12 +848,11 @@ $BODY$
  	 	WHERE (NEW.eel_year, NEW.eel_lfs_code, NEW.eel_emu_nameshort, NEW.eel_typ_id) =
  	 	(eel.eel_year, eel.eel_lfs_code, eel.eel_emu_nameshort, eel.eel_typ_id)
  	 	AND  NEW.eel_qal_id <=4 AND 
- 	 	eel.eel_qal_id <=4 AND 
- 	    NEW.eel_id != eel.eel_id;
- 	  RAISE NOTICE ' nbduplicate : %', nbduplicate ;
+ 	 	eel.eel_qal_id <=4;
+
  	   
  	 	ELSIF (NEW.eel_qal_id <4 AND NEW.eel_hty_code IS NULL and NEW.eel_area_division IS NOT NULL) THEN
- 	 	 RAISE NOTICE ' Im in two';
+
  	 	SELECT COUNT(*) INTO nbduplicate
  	 	FROM   datawg.t_eelstock_eel eel
  	 	WHERE (NEW.eel_year, NEW.eel_lfs_code, NEW.eel_emu_nameshort, NEW.eel_typ_id, NEW.eel_area_division) =
@@ -862,7 +861,7 @@ $BODY$
  	 	eel.eel_qal_id <=4;
  	 
  	 	ELSIF (NEW.eel_qal_id <4 AND NEW.eel_hty_code IS NOT NULL and NEW.eel_area_division IS NOT NULL) THEN
- 	  	 	 RAISE NOTICE ' Im in three';
+
  	 	SELECT COUNT(*) INTO nbduplicate
  	 	FROM   datawg.t_eelstock_eel eel
  	 	WHERE (NEW.eel_year, NEW.eel_lfs_code, NEW.eel_emu_nameshort, NEW.eel_typ_id, NEW.eel_area_division, NEW.eel_hty_code) =
@@ -888,7 +887,7 @@ $BODY$
 -- DROP TRIGGER trg_check_unicity ON datawg.t_eelstock_eel;
 
 CREATE TRIGGER trg_check_unicity
-  before INSERT OR UPDATE
+  BEFORE INSERT OR UPDATE
   ON datawg.t_eelstock_eel
   FOR EACH ROW
   EXECUTE PROCEDURE datawg.check_unicity();
@@ -901,7 +900,7 @@ CREATE TRIGGER trg_check_unicity
  insert into datawg.t_eelstock_eel (eel_typ_id, eel_year,eel_emu_nameshort, eel_cou_code, eel_lfs_code, eel_qal_id,eel_value)
  values(1,1900,'VA_Lazi','VA','G',1,0.00001);
   insert into datawg.t_eelstock_eel (eel_typ_id, eel_year,eel_emu_nameshort, eel_cou_code, eel_lfs_code, eel_qal_id,eel_value)
- values(1,1900,'VA_Lazi','VA','G',18,4,0.00001);
+ values(1,1900,'VA_Lazi','VA','G',4,0.00001);
  WITH new AS (SELECT 
  1 as eel_typ_id,
  1900 as eel_year,
@@ -927,6 +926,7 @@ CREATE TRIGGER trg_check_unicity
  
  
  
+
  --update names of two series
 begin;
 alter table "ref".tr_station 	drop CONSTRAINT c_fk_station_name,
@@ -938,5 +938,4 @@ update datawg.t_series_ser set ser_nameshort ='BroGY' where ser_nameshort ='BroE
 
 commit;
  
-
 

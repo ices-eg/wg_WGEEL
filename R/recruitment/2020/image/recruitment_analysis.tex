@@ -1,0 +1,494 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Sweave script for wgeel recruitment analysis
+% Author Cedric Briand / Estibaliz Diaz
+% you can run this script with command sweave() or appropriate tools
+% such as Eclipse or Rstudio
+% this script is intended to run with sweave not knitr
+% It produces a nice pdf which has to be turned into a less nice word document
+% The problem is that the encoding of my files is Cp1252
+% The only way out is a full shift to utf8, in init pass locale for R to Sys.setlocale("LC_ALL", "English_United States.932")
+% In the preamble replace \usepackage[latin1]{inputenc} by \usepackage[utf8]{inputenc}
+% Note the following does not work :
+% iconv -f CP1252 -t UTF-8 recruitment_analysis.tex > recruitment_analysis_utf8.tex
+% finally the command to run is : 
+% cd C:\workspace\gitwgeel\R\recruitment
+% pandoc -s -o recruitment.docx --from=latex --to=docx  recruitment_analysis.tex
+% All this for producing a ugly word report :-( 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%************************************************************************************
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% this is the preamble of the latex file
+% it is used to load the packages necessary to the analysis
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ruitme\documentclass[pdftex,11pt,a4paper]{report}
+\usepackage[pdftex]{graphicx}
+\usepackage[utf8]{inputenc} %encodage du fichier source
+%\usepackage[T1]{fontenc}  %gestion des accents (pour les pdf) 
+\usepackage[english]{babel}
+\usepackage[swedish]{babel}
+\usepackage{Sweave}
+\usepackage{float}
+\usepackage[left=3cm, right=3cm, top=2cm, bottom=2cm]{geometry}
+\usepackage{pdflscape}% to rotate the table
+\geometry{dvips,a4paper,hmargin=2.5cm,vmargin=2.5cm}
+\setcounter{secnumdepth}{10}
+\usepackage{hyperref} %managing hyperlinks
+\hypersetup{
+     backref=true,    %permet d'ajouter des liens dans...
+     pagebackref=true,%...les bibliographies
+     hyperindex=true, %ajoute des liens dans les index.
+     colorlinks=true, %colorise les liens
+     breaklinks=true, %permet le retour <U+FFFD> la ligne dans les liens trop longs
+     urlcolor= blue,  %couleur des hyperliens
+     linkcolor= blue, %couleur des liens internes
+     bookmarks=true,  %cr<U+FFFD><U+FFFD> des signets pour Acrobat
+     bookmarksopen=true,            %si les signets Acrobat sont cr<U+FFFD><U+FFFD>s,
+                                    %les afficher compl<U+FFFD>tement.
+     pdftitle={WGEEL recruitment analysis output}, %informations apparaissant dans
+     pdfauthor={C<U+FFFD>dric Briand},     %dans les informations du document
+     pdfsubject={Glass eel recruitment}          %sous Acrobat
+     pdfkeywords={Glass eel, WGEEL, recruitment, time-series, ICES}
+}
+\usepackage{wrapfig}
+\usepackage{tabularx}
+\usepackage{longtable}
+\usepackage[table,usenames,dvipsnames]{xcolor}
+\newcolumntype{R}{>{\raggedleft\arraybackslash}X}
+\newcolumntype{L}{>{\raggedright\arraybackslash}X}
+% this is where I'm storing files locally
+\graphicspath{{C:/workspace/gitwgeel/R/recruitment/2020/image//}} 
+% TO UPDATE TO THE NEW YEAR
+% DO REPLACE FOR INSTANCE F:/workspace/wgeeldata/sweave/2016/table by F:/workspace/wgeeldata/sweave/2019/table
+%%%%%%%%%%%%%%%%%%%%%%%%%% END OF THE PREAMBLE  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+\input{recruitment_analysis-concordance}
+\bibliographystyle{plain}
+\title{ Analysis of recruitment trend}
+\author{EIFAAC/ICES/GFCM Working Group on Eel}
+\date\today
+\maketitle
+\newpage
+\tableofcontents
+\subsection*{}
+% use this if the chair wants a different chapter heading
+%\addtocounter{chapter}{3} % this will set initial chapter counter to  4
+%======================================================================
+\addtocounter{chapter}{1}
+\chapter{Report on developments on the state of the European eel (Anguilla
+anguilla) stock, the fisheries on it and other anthropogenic impacts.}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%*******Here put eval=FALSE if you plan to use Rdata *********************************
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%************************************************************************************
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 				SERIES SELECTION AND STATISTICS ABOUT DATA ENTRY 
+% the statistics about the series are usefull while filling in new data, to check
+% which series have been already entered and which still need to be
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%				THIS CHUNK CREATES THE TABLES	
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%************************************************************************************
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%************************************************************************************
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%************************************************************************************
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%************************************************************************************
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+\section{Data sources}
+\section{Recruitment}
+
+In this section, the latest trends in glass and yellow eel recruitment are
+addressed. The time-series data are derived from fishery-dependent sources
+(i.e. catch records) and also from fishery-independent surveys across much of
+the geographic range of European eel.  The
+stages are categorized as :
+\begin{itemize}
+\item glass eel (G), continental age 0 years, 
+\item a mixture of glass eel and young
+yellow eel dominated by recruits from the same year (GY), and
+\item older yellow eel (Y) recruiting to continental habitats. The yellow
+eel series might consist of yellow eel of several ages.
+This is certainly the case for all series from the Baltic (mean age up to 6),
+ some Irish sites, and sites located far upstream.
+\end{itemize}
+The glass eel recruitment time-series have been grouped into two geographical
+areas: 'continental North Sea' (NS) and 'Elsewhere Europe' (EE) (Figure
+\ref{figure1}). The glass eel recruitment time-series have been grouped into two geographical
+areas: 'continental North Sea' (NS) and 'Elsewhere Europe' (EE) (Figure 3.4.1).
+Previous analyses by the working group (ICES, 2010b, p19, Bornarel et al. (2017) 
+have shown a different trend between the two sets. This is mostly due to a more pronounced
+decline of the North Sea series compared to the Elsewhere Europe area during the 1980s.
+
+The WGEEL has collated information on recruitment from
+$95$ time-series. Some time-series date back to the
+beginning of 20th century (yellow eel, Gota Alv, Sweden) or 1920 (glass eel,
+Loire, France). Among those series $68$ have been
+selected for further analysis in the wgeel indices; see details on data
+selection and processing below. Depending on the standardization period, the number of series  used can be lower and is given for
+each analysis. 
+
+%==================================================
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.7\textwidth]{figure1.png}
+\caption{Map of recruitment sampling stations, color according to stage (grey =
+G and GY) yellow = Y.}
+\label{figure1}
+\end{figure}
+%==========================================
+
+\subsection{Details on data selection and processing}
+
+Out of $95$, 
+$68$ series were used in the analysis. Three
+rules have been used for this selection procedure.
+\begin{enumerate}
+\item First, if there are two or more series from the same location, i.e. they are not independent,only one series is kept. For instance, the longer series has been kept for the Severn (Severn EA) while the other series (Severn HMRC) has been dropped from the list, as it was considered a duplicate being based on the same fishery.Noting that the 'Severn' here actually represents all the glass eel fisheries for England and Wales but the naming convention has been used for many
+years so is retained for consistency.
+\textcolor{Plum}{TODO work on Minho sp and Minho
+pt. and Gironde....}
+\item The second rule is to exclude a series from the analysis when it is less than ten years long. The series are, however, still updated in the database until they are long enough to be included. \textcolor{Plum}{But clarify now what we are going to do
+when there are missing years....} 
+\item Finally, it was decided to discard recruitment series that were obviously biased by restocking (e.g. Farpener Bach in Germany).
+\end{enumerate}
+
+
+Among the time-series based on trap indices, some have reported
+preliminary data for 2020 as their trapping season had not
+finished. \textbf{As usual, the indices given for 2020 must be considered
+as provisional especially those for the yellow eel.}
+
+
+
+ %====================================
+	\input{C:/workspace/gitwgeel/R/recruitment/2020/table//table_statseriesG.tex}
+ %====================================
+
+ %====================================
+	\input{C:/workspace/gitwgeel/R/recruitment/2020/table//table_statseriesGY.tex}
+ %====================================F
+
+ %====================================
+	\input{C:/workspace/gitwgeel/R/recruitment/2020/table//table_statseriesY.tex}
+ %====================================
+ 
+ 
+  %====================================
+	\input{C:/workspace/gitwgeel/R/recruitment/2020/table//table_series_prob.tex}
+ %====================================
+ 
+ 
+ 
+\subsection{Number of series available}
+
+
+Glass eel and glass eel + young yellow eel time-series available maximum :
+41 in
+2015
+34 in 2020. The maximum number of older
+yellow eel time-series has increased to 16 in
+2019 but dropped to
+7 (Figure \ref{figure2}).
+
+ %========================================== 
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.5\textwidth]{figure2.png}
+\caption{Trends in number of glass eel (black circle), glass+young yellow eel
+(grey triangle) and older yellow eel (black triangle) time-series giving a
+report in  any specific year.}
+\label{figure2}
+\end{figure}
+ %========================================== 
+ 
+ 
+ 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%************************************************************************************
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%************************************************************************************
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%************************************************************************************
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%************************************************************************************
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Check on series updates for the 2019 analyses[remove this paragraph]}
+
+$41$ time-series  updated to 2020 
+$25$ for glass eel \\ 
+$9$ forglass + yellow eel  \\
+and $7$ for yellow eel \\
+$12$ time-series (0 for glass eel,
+$3$ for glass + yellow eel and
+$9$ for yellow eel) were updated to 2019
+only (Table \ref{table_seriesCYm1})).  
+
+$15$ time-series have been stopped or not updated
+beyond 2016 ($13$ for glass eel,
+$2$ for glass eel + yellow eel and
+0 for yellow eel (Table
+\ref{table_serieslost})) but are still included in the analysis.
+Some have stopped reporting either because of a lack of recruits in the case of
+the fishery-based surveys (Ems in Germany, stopped in 2001; Vidaa in Denmark, stopped in 1990),
+ a lack of financial support (the Tiber in Italy, 2006) or the introduction of
+quota from from 2008 to 2011 that has disrupted the five fishery-based French
+time-series . The two English series (FlaE and BeeG) are still operating but
+data have not been updated since 2016.
+
+
+ %====================================
+	\input{C:/workspace/gitwgeel/R/recruitment/2020/table//table_seriesCY.tex}
+ %====================================
+
+ %====================================
+	\input{C:/workspace/gitwgeel/R/recruitment/2020/table//table_seriesCYm1.tex}
+ %====================================
+
+ %====================================
+	\input{C:/workspace/gitwgeel/R/recruitment/2020/table//table_serieslost.tex}
+ %====================================
+
+
+\setlength{\tabcolsep}{4pt} % defaut 6pt (table column separator)
+
+\subsection{Raw data}
+ 
+Calculation of the geometric mean of all time-series \footnote{This figure is given as it
+consistent with the trend provided by WGEEL from 2002 to 2006. The scaling is
+performed on the 1979-1994 average of each time-series, and 24 time-series without data during that
+period are excluded from the analysis. The time-series left out are :
+BeeG, BresGY, BroG, BroY, DoElY, FlaG, FreY, GirnY, GreyGY, GuadG, HellGY, InagGY, KlitG, MaigG, MolY, NmiGY, NorsG, OriaG, RodY, SleG, VacG, VerlGY, WiFG, WisWGY}. \\
+ is given in (Figures
+\ref{figure3} and \ref{figure4}). 
+
+%==========================================
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.8\textwidth]{figure3.png}
+\caption{Time-series of glass eel and yellow eel recruitment in European rivers
+with time-series having data for the 1979-1994 period
+(44 sites).
+Each time-series has been scaled to its 1979-1994 average. Note the logarithmic scale
+on the y-axis. The mean values and their bootstrap confidence interval (95\%) are represented as
+black dots and bars. Geometric means are presented in red.}
+\label{figure3}
+\end{figure}
+
+%==========================================
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.8\textwidth]{figure4.png}
+\caption{Time-series of glass eel and yellow eel recruitment in Europe
+with 44 time-series out of the 95
+available to the working group. Each time-series has been scaled to its 1979-1994 average. 
+The mean values of combined yellow and glass eel time-series and their bootstrap 
+confidence interval (95\%) are represented as black dots and bars.
+ The brown line represents the mean value for yellow eel, the blue line represents the mean value for glass eel time-series.
+ The range of  these  time-series  is  indicated  by  a  grey  shade.  Note that
+ individual time-series  from  Figure \ref{figure3}  were  removed to make the
+ mean value more clear.  Note also the logarithmic scale on the y-axis.}
+\label{figure4}
+\end{figure}
+%==========================================
+
+
+\subsection{GLM based trend}
+
+The WGEEL recruitment index used in the ICES Annual Stock Advice is fitted using
+a GLM (Generalised Linear Model) with gamma distribution and a log link:
+$glass~eel \sim year:area + site $, where $glass~eel$ is individual glass eel
+time-series, including both pure G series and those identified as a mixture of
+glass and yel-low eel (G+Y), $site$ is the site monitored for recruitment,
+area is either the continental North Sea or Elsewhere Europe, and year is the
+year coded as a categorical value.
+For yellow eel time-series, only one estimate is provided:
+$yellow~eel \sim year + site $. 
+
+The trend is hindcast using the predictions from 1960 onwards for
+52 glass eel time-series and from 1950 onwards for
+16 yellow eel time-series.
+Some zero values have been excluded from the GLM analysis: 
+17 for the glass eel model and
+21 for the yellow eel model. This
+treatment is parcimoniuous and tests shows it has no effect on the trend (ICES,
+2017).\\
+
+The reconstructed values are then aggregated using geometric means of the two
+reference area (Elsewhere Europe EE, and North Sea NS). The predictions are given 
+in reference to the geometric mean of the 1960-1979 period.
+Note that the shift from arithmetic to geometric means was done this year
+because \textit{post-hoc} model checking confirmed that log-normal (or Gamma
+Distribution) and geometric means are the prefered choice. \\
+
+As some of the values were not complete the 2018, the
+level of European eel recruitment compared to the 1960-1979 average has changed 
+when compared to last year report. The value has decreased from 9.6\% in last
+year report to $5.6$\% for the Elsewhere Europe area.  It remains unchanged 
+ for the North Sea at $1.4$\%.
+ For 2019, data are \textbf{only provisional} and give estimates at
+ $0.5$\% for the North Sea and $6.5$\% for the
+Elsewhere Europe area, but some of the series are not yet complete (Figure
+\ref{figure5} \ref{figure5_with_logscale} (log.scale), Tables \ref{table_glm_glass_eel}).
+
+%==========================================
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\textwidth]{figure5_without_logscale_ribbon.png}
+\caption{WGEEL recruitment index: estimated (GLM) glass eel
+recruitment for the continental North Sea and Elsewhere Europe series with 95 \%
+confidence intervals updated to 2020.
+  The  GLM ($glass eel \sim area:year+site$)  was  fitted  on
+  52 time-series comprising either pure glass eel or a mixture of 
+  glass eels and yellow eels. The predictions $p$ have been scaled to the 1960-1979
+  average $\bar{p}_{1960-1979}$. In the Baltic area, recruitment occurs in the yellow eel stage only.}
+\label{figure5}
+\end{figure}
+%==========================================
+
+For yellow eel series, the autumn ascent has not been recorded yet and most of
+the series have reported data till the middle of the summer. The 2019 yellow eel
+index is at $17$\% of
+the 1960-1979 baseline. 
+
+
+%==========================================
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\textwidth]{figure6_without_log_scale.png}
+\caption {Geometric mean of estimated (GLM) yellow eel recruitment for Europe updated to 2020. The GLM ($yellow eel \sim year+site$) was fitted to
+16 yellow eel time-series $p$ and scaled to the
+1960-1979 average $\bar{p}_{1960-1979}$.}
+\label{figure6}
+\end{figure}
+%==========================================
+
+\subsection{Is there a positive trend in recruitment ?}
+After high levels in the late 1970s, the recruitment declined and has been very
+low for all years after 2000. From ICES (2014) onward a change in the
+recruitment has been detected. One of the test used to show that change in 2014
+was based on SGIPEE(2011) working group. We have used a test only slighly
+different from the test used in ICES 2011. The difference is that the model is
+now based on individual series as source data, not only the prediction. The model differs from that used by
+wgeel also as year is here treated as a continuous value, whereas it is treated
+as a factor in the glm for recruitment, and the years are restricted to
+decreasing part of the recruitment (after 1980).
+\begin{equation}
+glass~eel \sim  \alpha_{site} site + \beta_{area} Y_{>=1980} + \gamma_{area} Y_{>2011} + \epsilon,
+\end{equation}
+where glass eel is the number of glass eel in the glass eel series, either for the Elsewhere Europe or the North Sea time series, $year_{year>1980}$
+is a continuous value corresponding to year after 1980, $year_{year>2011}$ is also
+a continuous value, $\epsilon$ is a random error with mean 0 and standard deviation sigma, 
+and $\alpha_{site}$, $\beta_{area}$ and $\gamma_{area}$ are the estimated
+parameters. The parameters $\gamma_{area}$ are higly significant both in the
+Elsewhere Europe area (p=$2e-12$
+and for the North Sea p=$1e-21$ North Sea.
+This result confirms that there has been a change in the recruitment slope.
+
+\textcolor{purple}{Add a table with past coeff, current coeff, and probabilities and diminish the text}
+
+To test whether there is an increase in recruitment since 2011 the slope of
+$\beta_{area}+\gamma_{area}$, i.e. the slope of the recent increase in
+recruitment is positive, the NULL hypothesis $H0:b>0$ is tested.
+
+To summarize, after high levels in the late 1970s, the recruitment declined and has been very
+low for all years after 2000. There has been a change in the trend in 2011, the
+recruitment has stopped to decrease, and has been increasing in the period
+2011-2019 with a rate significantly different from zero. However,  this increase needs
+to be taken very carefully. Firstly , not all series have been reported for 2019
+and the results might change  when missing data is incorporated to the analysis. 
+Secondly, even if the results would not change, recruitment remains very low
+$0.5$\% for the North Sea 
+and $6.5$\% for the
+Elsewhere Europe area. Recruitment has been continually decreasing
+from 1980 to 2011 (31 years), thus, the positive trend should be maintained during more years in order
+to consider that the stock is safe. In that sense and finally,  during the 2011-2019 period, 
+the maximum values were reached in 2014; but recruitment has been decreasing
+since then.
+
+
+\tiny
+\input{C:/workspace/gitwgeel/R/recruitment/2020/table//table_glm_glass_eel.tex}
+\input{C:/workspace/gitwgeel/R/recruitment/2020/table//table_glm_yellow.tex}
+\normalsize
+
+\clearpage
+
+\section*{Annex}
+
+\subsection{Additional figures}
+
+We provide the same figures as in the main text but Figure \ref{figure3withoutlogscale} 
+without log scale for Figure \ref{figure3}. For the prediction, figures with log
+scales are provided (Figures \ref{figure5_with_logscale} and
+\ref{figure6_with_logscale}).
+
+%==========================================
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth]{figure3withoutlogscale.png}
+\caption{Same as figure \ref{figure3} but without log scale}
+\label{figure3withoutlogscale}
+\end{figure}
+%==========================================
+%==========================================
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth]{figure5_ribbon.png}
+\caption{Same as figure \ref{figure5} but with a log scale.}
+\label{figure5_with_logscale}
+\end{figure}
+%==========================================
+%==========================================
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth]{figure6.png}
+\caption{Same graph as figure \ref{figure6} but with a log scale.}
+\label{figure6_with_logscale}
+\end{figure}
+%==================================================
+
+
+
+
+
+ 
+
+ \subsection{Notes to ACOM}
+ 
+ \textcolor{Plum}{Were there comments raised last year ?}
+
+ \subsection{Shiny tab on data visualisation}
+ 
+ \dots{}
+\end{document}

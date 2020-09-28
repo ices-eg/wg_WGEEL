@@ -660,3 +660,14 @@ SELECT * FROM datawg.t_series_ser WHERE ser_nameshort='LakS'
 
 -- fix problem with that series which is a mix of yellow and silver but is a trap for downstream migration
 UPDATE datawg.t_series_ser SET ser_lfs_code='S' WHERE ser_nameshort='LakS'
+
+
+begin;
+alter table "ref".tr_station 	drop CONSTRAINT c_fk_station_name,
+	ADD CONSTRAINT c_fk_station_name FOREIGN KEY ("Station_Name") REFERENCES datawg.t_series_ser(ser_nameshort) on update cascade;
+update datawg.t_series_ser set ser_nameshort ='FlaGY' where ser_nameshort ='FlaE';
+update datawg.t_series_ser set ser_nameshort ='BroE' where ser_nameshort ='BroGY';
+--alter table "ref".tr_station drop CONSTRAINT c_fk_station_name;
+--ALTER TABLE "ref".tr_station ADD CONSTRAINT c_fk_station_name FOREIGN KEY ("Station_Name") REFERENCES datawg.t_series_ser(ser_nameshort);
+
+
