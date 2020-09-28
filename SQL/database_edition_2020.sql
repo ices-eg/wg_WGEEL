@@ -508,7 +508,7 @@ SELECT min(eel_year) as min_year, max(eel_year) as max_year from datawg.t_eelsto
 
 
 SELECT * FROM datawg.t_series_ser WHERE ser_nameshort LIKE '%Mill%'
-
+SELECT * FROM datawg.t_eelstock_eel WHERE eel_cou_code='FR' AND eel_year=2009 AND eel_lfs_code='G'
 /*
  * INSERT MISSING VALUES IN STATIONS TABLE
  */
@@ -671,3 +671,13 @@ update datawg.t_series_ser set ser_nameshort ='BroE' where ser_nameshort ='BroGY
 --ALTER TABLE "ref".tr_station ADD CONSTRAINT c_fk_station_name FOREIGN KEY ("Station_Name") REFERENCES datawg.t_series_ser(ser_nameshort);
 
 
+
+WITH drop_zero_for_ireland AS (
+SELECT * FROM datawg.t_eelstock_eel WHERE eel_cou_code='IE' AND eel_typ_id = 11)
+
+UPDATE datawg.t_eelstock_eel  SET eel_qal_id=20 WHERE eel_id IN (SELECT eel_id FROM drop_zero_for_ireland)
+
+
+
+
+SELECT * FROM datawg.t_eelstock_eel WHERE eel_cou_code='FR' AND eel_year=2009 AND eel_lfs_code='G' AND eel_typ_id= 4

@@ -3,6 +3,7 @@
 # Author: cedric.briand
 ###############################################################################
 
+#ATTENTION EN DATABASE CONNECTION CHANGE TO 5435 IF MANUAL BUILD
 #setwd("C:\\workspace\\gitwgeel\\R\\shiny_data_visualisation\\shiny_dv")
 source("../../utilities/load_library.R")
 load_package("RPostgreSQL")
@@ -32,7 +33,7 @@ emu_cou<-emu_cou[order(emu_cou$cou_order,emu_cou$emu_nameshort),]
 emu_cou<-data.frame(emu_cou,emu_order=1:nrow(emu_cou))
 # Extract data from the database -------------------------------------------------------------------
 
-landings = extract_data("landings",quality=c(1,2,4),quality_check=TRUE)
+landings = extract_data("landings",quality =c(1,2,4),quality_check=TRUE)
 # ONLY FOR AQUACULTURE WE HAVE A DATA PROTECTION LAW RESTRICTING THE ACCESS
 aquaculture = extract_data("aquaculture",quality=c(1,2,4),quality_check=TRUE)
 release = extract_data("release",quality=c(1,2,4),quality_check=TRUE)
