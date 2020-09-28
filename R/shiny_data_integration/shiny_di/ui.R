@@ -414,7 +414,7 @@ ui <- dashboardPage(title="ICES Data Integration",
 						        br(),
 						        DT::dataTableOutput("table_corAll"),
 						        fluidRow(column(width=10),
-						                 leafletOutput("maps_editedtimeseries"))),
+						                 leafletOutput("maps_editedtimeseries",height=600))),
 								
 								# plot for duplicates  ------------------------------------------------------------------
 								
