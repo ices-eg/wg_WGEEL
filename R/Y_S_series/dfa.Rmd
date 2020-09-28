@@ -8,10 +8,10 @@ output:
   bookdown::word_document2:
     fig_caption: yes
     number_sections: yes
-    reference_docx: "../ICES_template.docx"
+    reference_docx: "../Rmarkdown/ICES_template.docx" 
 params:
   rerunDFA: FALSE
-csl: "../ices-journal-of-marine-science.csl"
+csl: "../Rmarkdown/ices-journal-of-marine-science.csl"
 
 ---
 
@@ -131,7 +131,7 @@ generate_dataset_plot_gam = function(model){
 
 ```
 
-```{r data loading, include=FALSE}
+```{r dataloading, include=FALSE}
 query='SELECT 
 		das_id,
 		das_value,       
@@ -144,8 +144,10 @@ query='SELECT
 		ser_qal_id,
     ser_hty_code,
     ser_emu_nameshort,
+    ser_uni_code,
     ser_cou_code,
     ser_comment,
+    sam_samplingtype,
     ser_sam_id,
 		das_qal_id,
 		das_last_update,
@@ -154,6 +156,7 @@ query='SELECT
 		lfs_name
 		from datawg.t_dataseries_das 
 		join datawg.t_series_ser on das_ser_id=ser_id
+		left join ref.tr_samplingtype_sam on ser_sam_id=sam_id
 		left join ref.tr_lifestage_lfs on ser_lfs_code=lfs_code
 		left join ref.tr_faoareas on ser_area_division=f_division
         left join ref.tr_country_cou on cou_code=ser_cou_code
@@ -167,6 +170,12 @@ mydata$ser_cou_code=as.factor(mydata$ser_cou_code)
 mydata$ser_emu_nameshort=as.factor(mydata$ser_emu_nameshort)
 mydata$lfs_name=as.factor(mydata$lfs_name)
 mydata$ser_hty_code=as.factor(mydata$ser_hty_code)
+mydata$sam_samplingtype[mydata$ser_id %in% 292:295]="electrofishing"
+
+
+sampling=read.table("sampling.csv",header=TRUE,sep=";")
+mydata = merge(mydata,sampling[,c("ser_id","type")])
+
 
 
 silver_dataall <- mydata %>%
@@ -175,11 +184,13 @@ yellow_dataall <- mydata %>%
   filter(lfs_code=="Y")
 yellow_map=st_read(con_wgeel,query=paste("select ser_id,ser_x,ser_y,geom,ser_nameshort from datawg.t_series_ser where ser_id in (",
                                          paste(unique(yellow_dataall$ser_id),collapse=","),")",sep=""))
+yellow_map$Updated = yellow_map$ser_id %in% unique((mydata %>% filter(das_year >=2018) %>% select(ser_id) %>% pull()))
 silver_map=st_as_sf(st_read(con_wgeel,query=paste("select ser_id,ser_x,ser_y,geom,ser_nameshort from datawg.t_series_ser where ser_id in (",
                                          paste(unique(silver_dataall$ser_id),collapse=","),")",sep="")))
+silver_map$Updated = silver_map$ser_id %in% unique((mydata %>% filter(das_year >=2018) %>% select(ser_id) %>% pull()))
 
 dbDisconnect(con_wgeel)
-
+colorpalette=cbf_1 <- c("red","black")
 ```
 
 
@@ -200,14 +211,17 @@ Such an exercise is worthwhile only when the number of available time series is 
 therefore, we restricted this analysis to the recent period (post 2000) and focus
 on recent trends. To complete the overview, we carried out gam analyses on a longer period
 (since 1975) to analyse the long-term trends. The trends were analysed separately for yellow and 
-silver eels.
+silver eels. The analysis is based on the time series of yellow and silver eel (standing stock) 
+time series of abundance collected during the successive WGEEL Data Calls and 
+contribute to the response to ToR b “Report on developments in the state of the European eel
+(*Anguilla anguilla*) stock, the fisheries on it and other anthropogenic impacts”.
 
 # Yellow eel
 ## Available data
-`r length(unique(yellow_dataall$ser_id))` time series are available (Figure \@ref(fig:mapyellow)), originating from `r length(unique(yellow_dataall$ser_cou_code))` countries and `r length(unique(yellow_dataall$ser_emu_nameshort))` EMUs. Most of them are located in Great Britain or France. `r length(unique(yellow_dataall$ser_id[yellow_dataall$ser_hty_code=="C"]))` time series are collected in coastal waters, `r length(unique(yellow_dataall$ser_id[yellow_dataall$ser_hty_code=="T"]))` in transitional waters and `r length(unique(yellow_dataall$ser_id[yellow_dataall$ser_hty_code=="F"]))` in freshwater.
+`r length(unique(yellow_dataall$ser_id))` time series are available to the Data Call (Figure \@ref(fig:mapyellow)), originating from `r length(unique(yellow_dataall$ser_cou_code))` countries and `r length(unique(yellow_dataall$ser_emu_nameshort))` EMUs. Most of them are located in Great Britain or France. `r length(unique(yellow_dataall$ser_id[yellow_dataall$ser_hty_code=="C"]))` time series are collected in coastal waters, `r length(unique(yellow_dataall$ser_id[yellow_dataall$ser_hty_code=="T"]))` in transitional waters and `r length(unique(yellow_dataall$ser_id[yellow_dataall$ser_hty_code=="F"]))` in freshwater.
 
 
-```{r mapyellow,echo=FALSE,message=FALSE,warning=FALSE,fig.cap="Map of available yellow time series",fig.height=14/2.54}
+```{r mapyellow,echo=FALSE,message=FALSE,warning=FALSE,fig.cap="Map of available yellow time series. Updated time series correspond to time series for which at least one value was provided for years the three last years",fig.height=14/2.54}
  worldmap <- ne_countries(scale = 'medium', type = 'map_units',
                           returnclass = 'sf')
  europe_cropped <- st_crop(worldmap, xmin = -13, xmax = 27,
@@ -220,14 +234,15 @@ silver eels.
     geom_point(data=yellow_map,
                aes(x=ser_x,y=ser_y),cex=.5,pch=".")+
     geom_text(data=yellow_map,
-               aes(x=ser_x,y=ser_y,label=ser_nameshort),cex=1.5)+
+               aes(x=ser_x,y=ser_y,label=ser_nameshort,col=Updated),cex=1.5)+
+    scale_color_manual("Upated",values=colorpalette)+
     ylab("")+xlab("")
 #knitr::include_graphics("images/yellow.png")
 ```
 
 ## Trends after 2000
-There are few data series started before 2000 (Figure \@ref(fig:pointperyearYE)) 
-and many data values for 2020 were still missing when carrying out the analysis.
+Currently, few pre-2000 data are recorded in the database (Figure \@ref(fig:pointperyearYE)), 
+an effort should be made in the future to collect historical data. Many data values for 2020 were still missing when carrying out the analysis. 
 
 ```{r pointperyearYE,echo=FALSE, fig.cap="number of yellow eel time series available per year",fig.height=8/2.54}
 point_per_year_YE<- yellow_dataall %>%
@@ -296,9 +311,10 @@ ggplot(yellow_data_std,aes(x=das_year,y=das_value))+
 ```
 
 When plotted per country, a simple gam smoother shows decreasing and
-stabilising curves in  FR, NL, the same with a more pronounced increase after
-2012 for DK, ES, a linear decrease in IE, GB, and an increase for
-NO SE, with a more complex curve for SE (Figure \@ref(fig:gamYellow)). 
+stabilising curves in  FR, NL. The same with a more pronounced increase after
+2012 is estimated for ES (DK seems to display a similar trend but the time series is shorter).
+On the other hand, a linear decrease is estimated in IE, GB and DE, and an increase for
+SE (Figure \@ref(fig:gamYellow)). 
 
 ```{r gamYellow, echo=FALSE,warning=FALSE, fig.cap="Trends per country in yellow eel abundance estimated by a gam (log scale)"}
 g0 <- gam(das_value~s(das_year), data=yellow_data_std)
@@ -311,8 +327,8 @@ cols<-colorRampPalette(c("chartreuse", "grey",  "navy"),space = "rgb")(length(co
 
 yellow_gam_plot_recent=generate_dataset_plot_gam(g1)
 ggplot(yellow_gam_plot_recent,aes(x=year,y=pred))+
-  geom_line(aes(col=cou_code))+
-  geom_ribbon(aes(ymin=lower,ymax=upper,fill=cou_code),alpha=.3)+
+  geom_line()+
+  geom_ribbon(aes(ymin=lower,ymax=upper),alpha=.3)+
   facet_wrap(.~cou_code,scales="free_y")+
   scale_colour_manual(values=cols)+
   scale_fill_manual(values=cols)+
@@ -460,7 +476,7 @@ Trend 1 shows a monotonous trend over the period while trend 2 indicates a shift
 The factor loadings $w$ are displayed in the following plots (Figure \@ref(fig:seriesloadingsYE)). Following @zuur2003, we only focused on loading with absolute values greater than 0.1 to focus on the most important trends and presented on a Venn diagram (Figure \@ref(fig:vennyellow))
 
 
-```{r seriesloadingsYE, echo=FALSE,fig.cap="Factor loadings of the yellow eel DFA (red name stands form loadings absolute values greater than 0.1)",fig.height=16/2.54}
+```{r seriesloadingsYE, echo=FALSE,fig.cap="Factor loadings of the yellow eel DFA (red names stand for loadings absolute values greater than 0.1)",fig.height=16/2.54}
 ylims = c(-1.1*max(abs(Z)), 1.1*max(abs(Z)))
 par(mfrow=c(2,1), mar=c(0.5,2.5,1.5,0.5), oma=c(0.4,1,1,1))
 for(i in 1:m) {
@@ -577,7 +593,8 @@ ggplot(data = d) +
 We also fitted gam over a period starting in 1975 to put the post-2000
 trends in an historical perspective. For many countries, data do not start before the 2000s, so the reader should refer
 to the previous section (DE, DK, ES, FR). A decreasing trend is observed in most other countries
-(NL, NO, IE, GB) except in Sweden where an increasing trend is observed  (Figure \@ref(fig:gamYellowHist)).
+(NL, NO, IE, GB) except in Sweden where an increasing trend is observed  (Figure \@ref(fig:gamYellowHist)) though
+the early trend is only based on two time series.
 
 ```{r gamYellowHist, echo=FALSE,warning=FALSE, fig.cap="Trends per country in yellow eel abundance estimated by a gam "}
 yellow_data_std_gam=yellow_data_gam%>%
@@ -601,8 +618,8 @@ cols<-colorRampPalette(c("chartreuse", "grey",  "navy"),space = "rgb")(length(co
 
 yellow_gam_plot=generate_dataset_plot_gam(g1)
 ggplot(yellow_gam_plot,aes(x=year,y=pred))+
-  geom_line(aes(col=cou_code))+
-  geom_ribbon(aes(ymin=lower,ymax=upper,fill=cou_code),alpha=.3)+
+  geom_line()+
+  geom_ribbon(aes(ymin=lower,ymax=upper),alpha=.3)+
   facet_wrap(.~cou_code,scales="free_y")+
   scale_colour_manual(values=cols)+
   scale_fill_manual(values=cols)+
@@ -615,23 +632,29 @@ ggplot(yellow_gam_plot,aes(x=year,y=pred))+
 
 # Silver eel
 ## Available data
-`r length(unique(silver_dataall$ser_id))` time series are available (Figure \@ref(fig:mapsilver)), originating from `r length(unique(silver_dataall$ser_cou_code))` countries and `r length(unique(silver_dataall$ser_emu_nameshort))` EMUs. Most of them are located in Northern Europe. `r length(unique(silver_dataall$ser_id[silver_dataall$ser_hty_code=="C"]))` time series are collected in coastal waters and `r length(unique(silver_dataall$ser_id[silver_dataall$ser_hty_code=="F"]))` in freshwater, while the habitat type was not reported for `r length(unique(silver_dataall$ser_id[is.na(silver_dataall$ser_hty_code)]))`.
+`r length(unique(silver_dataall$ser_id))` time series are available to the Data Call (Figure \@ref(fig:mapsilver)), originating from `r length(unique(silver_dataall$ser_cou_code))` countries and `r length(unique(silver_dataall$ser_emu_nameshort))` EMUs. Most of them are located in Northern Europe. `r length(unique(silver_dataall$ser_id[silver_dataall$ser_hty_code=="C"]))` time series are collected in coastal waters and `r length(unique(silver_dataall$ser_id[silver_dataall$ser_hty_code=="F"]))` in freshwater, while the habitat type was not reported for `r length(unique(silver_dataall$ser_id[is.na(silver_dataall$ser_hty_code)]))`.
 
-```{r mapsilver,echo=FALSE,message=FALSE,warning=FALSE,fig.cap="Map of available silver eel time series",fig.height=14/2.54}
-# g=ggplot(silver_map)+geom_sf(data=europe_cropped)+geom_sf(data=silver_map,col="red")+
-#  theme_bw()
-# print(g)
-ggmap(my_map) + 
+```{r mapsilver,echo=FALSE,message=FALSE,warning=FALSE,fig.cap="Map of available silver time series. Updated time series correspond to time series for which at least one value was provided for years the three last years",fig.height=14/2.54}
+ worldmap <- ne_countries(scale = 'medium', type = 'map_units',
+                          returnclass = 'sf')
+ europe_cropped <- st_crop(worldmap, xmin = -13, xmax = 27,
+                                     ymin = 35, ymax = 65)
+# ggplot(silver_map)+geom_sf(data=europe_cropped)+geom_sf(data=silver_map,col="red")+
+   #theme_bw()
+  my_map=get_stamenmap(bbox = c(left = -13, bottom = 35, right =
+                                  27, top = 65), zoom = 6, maptype = c("watercolor"))
+  ggmap(my_map) + 
     geom_point(data=silver_map,
                aes(x=ser_x,y=ser_y),cex=.5,pch=".")+
     geom_text(data=silver_map,
-               aes(x=ser_x,y=ser_y,label=ser_nameshort),cex=1.5)+
+               aes(x=ser_x,y=ser_y,label=ser_nameshort,col=Updated),cex=1.5)+
+    scale_color_manual("Upated",values=colorpalette)+
     ylab("")+xlab("")
 #knitr::include_graphics("images/silver.png")
 ```
 
 ## Trends since 2000
-Similarly to yellow eels, few data series started before 2000 so (Figure 
+Similarly to yellow eels, few pre-2000 data series are available in the database (Figure 
 \@ref(fig:pointperyearSE)). In view of this, we restricted the analysis to the period 2000 to 2019,
 with time series having at least 10 observations over the period. 
 
@@ -721,8 +744,8 @@ cou_code <- levels(droplevels (silver_data_std$ser_cou_code))
 cols<-colorRampPalette(c("chartreuse", "grey",  "navy"),space = "rgb")(length(cou_code))
 silver_gam_plot_recent=generate_dataset_plot_gam(g1)
 ggplot(silver_gam_plot_recent,aes(x=year,y=pred))+
-  geom_line(aes(col=cou_code))+
-  geom_ribbon(aes(ymin=lower,ymax=upper,fill=cou_code),alpha=.3)+
+  geom_line()+
+  geom_ribbon(aes(ymin=lower,ymax=upper),alpha=.3)+
   facet_wrap(.~cou_code,scales="free_y")+
   scale_colour_manual(values=cols)+
   scale_fill_manual(values=cols)+
@@ -839,7 +862,7 @@ trends_long<-trends_long %>%
 The factor loadings are displayed in the Figure \@ref(fig:seriesloadingssilver) 
 (importance of each trend in each time series) and corresponding Venn diagram in Figure \@ref(fig:vennsilver).
   
-```{r seriesloadingssilver, echo=FALSE,fig.cap="Factor loadings of the silver eel DFA"}
+```{r seriesloadingssilver, echo=FALSE,fig.cap="Factor loadings of the silver eel DFA (red names stand for loadings absolute values greater than 0.1)"}
 ylims = c(-1.1*max(abs(Z)), 1.1*max(abs(Z)))
 par(mfrow=c(ceiling(m/2),2), mar=c(0.5,2.5,1.5,0.5), oma=c(0.4,1,1,1))
 for(i in 1:m) {
@@ -953,8 +976,8 @@ cols<-colorRampPalette(c("chartreuse", "grey",  "navy"),space = "rgb")(length(co
 
 silver_gam_plot=generate_dataset_plot_gam(g1)
 ggplot(silver_gam_plot,aes(x=year,y=pred))+
-  geom_line(aes(col=cou_code))+
-  geom_ribbon(aes(ymin=lower,ymax=upper,fill=cou_code),alpha=.3)+
+  geom_line()+
+  geom_ribbon(aes(ymin=lower,ymax=upper),alpha=.3)+
   facet_wrap(.~cou_code,scales="free_y")+
   scale_colour_manual(values=cols)+
   scale_fill_manual(values=cols)+
@@ -1011,5 +1034,46 @@ not available currently) plays a role in the results. Other factors, such as mon
 method or particular management measure (restocking, barrier’s mitigation, fishery closure, …) may also be analysed. As a next step, it would be worthwhile comparing trends with
 recruitment and mortalities estimates in each EMU.
 
+
+```{r summaryData}
+all_series = bind_rows(silver_dataall,yellow_dataall) %>%
+  group_by(ser_id,ser_nameshort,ser_cou_code,
+           lfs_code,
+         type,
+         ser_uni_code,
+         ser_hty_code) %>%
+  summarize(first_year=min(das_year,na.rm=TRUE),
+            last_year=max(das_year,na.rm=TRUE),
+            npres=sum(!(is.na(das_year)))) %>%
+  mutate(nmissing=1+last_year-first_year-npres) %>%
+  mutate(usedshort=as.integer(ser_id %in% c(yellow_data$ser_id,
+                                 silver_data$ser_id)),
+         usedlong=ser_id %in% as.integer(c(yellow_data_std_gam$ser_id,
+                                silver_data_std_gam$ser_id))) %>%
+  ungroup() %>%
+  select(ser_nameshort,
+         ser_cou_code,
+         first_year,
+         last_year,
+         npres,
+         nmissing,
+         lfs_code,
+         type,
+         ser_uni_code,
+         ser_hty_code,
+         usedshort,
+         usedlong) %>%
+  arrange(lfs_code,
+          ser_cou_code,ser_nameshort)
+
+colheader=c("code","country","min","max","n+","n-",
+           "life stage","sampling type","unit",
+           "habitat","kept short","kept long")
+names(colheader)=names(all_series)
+ft=flextable(all_series) %>%
+  set_header_labels(values=colheader)
+autofit(ft)
+  
+```
 
 # References

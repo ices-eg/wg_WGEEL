@@ -159,7 +159,7 @@ color_countries = setNames(values,country_ref$cou_code)
 ### Glass eel landings
 ```{r keyNumbersLandings_G, results="asis", eval=TRUE, echo=FALSE}
 
-landings_all<-filter_data("landings",		typ = 4)
+landings_all<-filter_data("landings",		typ = 4)%>% dplyr::filter(is.na(eel_missvaluequal))
 select_land<-aggregate(landings_all$eel_value,by=list(landings_all$eel_year,landings_all$eel_lfs_code),sum,na.rm=T)
 g_CY<-round(select_land$x[select_land$Group.1==CY & select_land$Group.2=="G"]/1000,2)
 g_CY1<-round(select_land$x[select_land$Group.1==CY-1 & select_land$Group.2=="G"]/1000,2)
@@ -178,7 +178,7 @@ knitr::asis_output(paste("Mean glass eel commercial fisheries for the previous 5
 ```{r keyNumbersLandings_YS, results="asis", eval=TRUE, echo=FALSE}
 
 landings_YS<-filter_data("landings",		typ = 4,
-		life_stage = c("Y","S","YS"))
+		life_stage = c("Y","S","YS"))%>% dplyr::filter(is.na(eel_missvaluequal))
 select_land_YS<-aggregate(landings_YS$eel_value,by=list(landings_YS$eel_year),sum,na.rm=T)
 YS_CY<-round(sum(select_land_YS$x[select_land_YS$Group.1==CY-1]/1000,2))
 YS_CY1<-round(select_land_YS$x[select_land_YS$Group.1==CY-2]/1000,2)
@@ -203,9 +203,9 @@ knitr::asis_output(paste("Yellow and Silver eel commercial fisheries within the 
 knitr::asis_output(paste("Yellow and Silver eel commercial fisheries within the EU (Y, S, YS) in ",CY-1," = ",YS_CY," t. ", "Number of countries reporting: ", paste(nb_cou_CY,sep="", collapse=","),"<br>"))
 knitr::asis_output(paste("Mean Yellow and Silver eel commercial fisheries for the previous 5 years (",CY-7,"-",CY-3,") within the EU = ",YS_mean," t. <br> <br>"))
 
-knitr::asis_output(paste("Reconstructed Yellow and Silver eel commercial fisheries within the EU (Y, S, YS) in ",CY-2," = ",YS_CY1," t. <br>"))
-knitr::asis_output(paste("Reconstructed Yellow and Silver eel commercial fisheries within the EU (Y, S, YS) in ",CY-1," = ",YS_CY," t. <br>"))
-knitr::asis_output(paste("Mean Reconstructed Yellow and Silver eel commercial fisheries for the previous 5 years (",CY-7,"-",CY-3,") within the EU = ",YS_mean," t.<br>"))
+knitr::asis_output(paste("Reconstructed Yellow and Silver eel commercial fisheries within the EU (Y, S, YS) in ",CY-2," = ",YS_corr_CY1," t. <br>"))
+knitr::asis_output(paste("Reconstructed Yellow and Silver eel commercial fisheries within the EU (Y, S, YS) in ",CY-1," = ",YS_corr_CY," t. <br>"))
+knitr::asis_output(paste("Mean Reconstructed Yellow and Silver eel commercial fisheries for the previous 5 years (",CY-7,"-",CY-3,") within the EU = ",YS_corr_mean," t.<br>"))
 
 ```
 
@@ -213,7 +213,7 @@ knitr::asis_output(paste("Mean Reconstructed Yellow and Silver eel commercial fi
 ### Glass eel recreational landings
 
 ```{r keyNumbersRecLandings_G, results="asis", eval=TRUE, echo=FALSE}
-landings_rec<-filter_data("landings",		typ = 6)
+landings_rec<-filter_data("landings",		typ = 6)%>% dplyr::filter(is.na(eel_missvaluequal))
 select_rec<-aggregate(landings_rec$eel_value,by=list(landings_rec$eel_year,landings_rec$eel_lfs_code),sum,na.rm=T)
 rec_CY<-round(select_rec$x[select_rec$Group.1==CY & select_rec$Group.2=="G"]/1000,2)
 rec_CY1<-round(select_rec$x[select_rec$Group.1==CY-1 & select_rec$Group.2=="G"]/1000,2)
@@ -221,6 +221,8 @@ rec_mean<-mean(round(select_rec$x[select_rec$Group.1 %in% c((CY-6):(CY-2)) & sel
 rec_cou_CY<-unique(landings_rec$eel_cou_code[landings_rec$eel_year==CY & is.na(landings_rec$eel_missvaluequal) & landings_rec$eel_lfs_code=="G"])
 rec_cou_CY1<-unique(landings_rec$eel_cou_code[landings_rec$eel_year==CY-1 & is.na(landings_rec$eel_missvaluequal) & landings_rec$eel_lfs_code=="G"])
 
+# mean(round(select_rec$x[select_rec$Group.1 %in% c(1978:2009) & select_rec$Group.2=="G"]/1000,2))
+# mean(round(select_rec$x[select_rec$Group.1 %in% c(2010:2019) & select_rec$Group.2=="G"]/1000,2))
 
 knitr::asis_output(paste("Glass eel recreational fisheries within the EU in ",CY-1," = ",rec_CY1," t ", "countries where data were reported: ", paste(rec_cou_CY1,sep="", collapse=","),"<br>"))
 knitr::asis_output(paste("Glass eel recreational fisheries within the EU in ",CY," = ",rec_CY," t ", "countries where data were reported: ", paste(rec_cou_CY,sep="", collapse=","),"<br>"))
@@ -236,13 +238,22 @@ knitr::asis_output(paste("Mean glass eel recreational fisheries for the previous
 ```{r keyNumbersRecLandingsYS, results="asis", eval=TRUE, echo=FALSE}
 
 landings_YS_rec<-filter_data("landings",		typ = 6,
-		life_stage = c("Y","S","YS"))
+		life_stage = c("Y","S","YS"))%>% dplyr::filter(is.na(eel_missvaluequal))
 select_land_YS_rec<-aggregate(landings_YS_rec$eel_value,by=list(landings_YS_rec$eel_year),sum,na.rm=T)
 YS_CY_rec<-round(sum(select_land_YS_rec$x[select_land_YS_rec$Group.1==CY-1]/1000,2))
 YS_CY1_rec<-round(select_land_YS_rec$x[select_land_YS_rec$Group.1==CY-2]/1000,2)
 YS_mean_rec<-mean(round(select_land_YS_rec$x[select_land_YS_rec$Group.1 %in% c((CY-7):(CY-3))]/1000,2))
 nb_cou_CY_rec<-length(unique(landings_YS_rec$eel_cou_code[landings_YS_rec$eel_year==CY-1 & is.na(landings_YS_rec$eel_missvaluequal)]))
 nb_cou_CY1_rec<-length(unique(landings_YS_rec$eel_cou_code[landings_YS_rec$eel_year==CY-2 & is.na(landings_YS_rec$eel_missvaluequal)]))
+
+
+
+# landings_YS_rec<-filter_data("landings",		typ = 6,
+# 		life_stage = c("G","Y","S","YS"))%>% dplyr::filter(is.na(eel_missvaluequal))
+# select_land_YS_rec<-aggregate(landings_YS_rec$eel_value,by=list(landings_YS_rec$eel_year),sum,na.rm=T)
+# mean(round(select_land_YS_rec$x[select_land_YS_rec$Group.1 %in% c(1978:1990)]/1000,2))
+# mean(round(select_land_YS_rec$x[select_land_YS_rec$Group.1 %in% c(2009:2018)]/1000,2))
+# mean(round(select_land_YS_rec$x[select_land_YS_rec$Group.1 %in% c(2019)]/1000,2))
 
 
 knitr::asis_output(paste("Yellow and Silver eel recreational fisheries within the EU (Y, S, YS) in ",CY-2," = ",YS_CY1_rec," t. ", "Number of countries reporting: ", paste(nb_cou_CY1_rec,sep="", collapse=","),"<br>"))
@@ -254,7 +265,7 @@ knitr::asis_output(paste("Mean Yellow and Silver eel recreational fisheries for 
 ### Aquaculture
 
 ```{r keNumbersAquaculture, results="asis", eval=TRUE, echo=FALSE}
-aqua<-filter_data("aquaculture", typ = 11)
+aqua<-filter_data("aquaculture", typ = 11)%>% dplyr::filter(is.na(eel_missvaluequal))
 select_aqua<-aggregate(aqua$eel_value,by=list(aqua$eel_year),sum,na.rm=T)
 aqua_CY<-round(select_aqua$x[select_aqua$Group.1==CY-2]/1000,2)
 aqua_mean<-mean(round(select_aqua$x[select_aqua$Group.1 %in% c((CY-7):(CY-3))]/1000,2))
@@ -273,7 +284,7 @@ knitr::asis_output(paste("Mean aquaculture for the previous 5 years (",CY-6,"-",
 rel <- filter_data("release",
 		typ = 9,
 		life_stage = c("G","QG","Y","S"),
-		year=1950:CY)
+		year=1950:CY)%>% dplyr::filter(is.na(eel_missvaluequal))
 #TODO REMOVE THIS NEXT YEAR
 rel <- rel %>% dplyr::filter(!(eel_cou_code == 'SE' & eel_lfs_code=='Y'))
 select_rel <- aggregate(rel$eel_value,by=list(rel$eel_year,rel$eel_lfs_code),sum,na.rm=T)
@@ -307,7 +318,7 @@ filtered_data <- filter_data("landings",
 		typ = 4,
 		life_stage = "G",
 		country=c("ES","FR","IT","PT","GB")
-) # removing data from Ireland
+) %>% dplyr::filter(is.na(eel_missvaluequal)) # removing data from Ireland
 year <- unique(filtered_data$eel_year)
 country <- unique(filtered_data$eel_cou_code)
 hty <- unique(filtered_data$eel_hty_code)
@@ -379,7 +390,7 @@ filtered_data<-filter_data("landings",
 		typ = 4,
 		life_stage = "G", 
 		year_range = 1970:CY,
-		country=c("ES","FR","IT","PT","GB"))
+		country=c("ES","FR","IT","PT","GB"))%>% dplyr::filter(is.na(eel_missvaluequal))
 year<-unique(filtered_data$eel_year)
 country<-unique(filtered_data$eel_cou_code)
 hty<-unique(filtered_data$eel_hty_code)
@@ -467,7 +478,7 @@ for yellow and silver landings, combined.
 filtered_data<-filter_data("landings",
 		typ = 4,
 		life_stage = c("Y","S","YS")
-)
+)%>% dplyr::filter(is.na(eel_missvaluequal))
 year<-unique(filtered_data$eel_year)
 country<-unique(filtered_data$eel_cou_code)
 hty<-unique(filtered_data$eel_hty_code)
@@ -532,7 +543,7 @@ print(g_raw_Clandings_YS)
 filtered_data<-filter_data("landings",
 		typ = 4,
 		life_stage = c("Y","S","YS") 
-)
+)%>% dplyr::filter(is.na(eel_missvaluequal))
 year<-unique(filtered_data$eel_year)
 country<-unique(filtered_data$eel_cou_code)
 hty<-unique(filtered_data$eel_hty_code)
@@ -615,7 +626,7 @@ print(g_combined_landings_YS)
 
 filtered_data<-filter_data("landings",
 		typ = 6,
-		life_stage = c("Y","S","YS"))
+		life_stage = c("Y","S","YS"))%>% dplyr::filter(is.na(eel_missvaluequal))
 year<-unique(filtered_data$eel_year)
 country<-unique(filtered_data$eel_cou_code)
 hty<-unique(filtered_data$eel_hty_code)
@@ -676,7 +687,7 @@ print(g_raw_Rlandings_YS)
 
 filtered_data<-filter_data("landings",
 		typ = 6,
-		life_stage = "G")
+		life_stage = "G")%>% dplyr::filter(is.na(eel_missvaluequal))
 year<-unique(filtered_data$eel_year)
 country<-unique(filtered_data$eel_cou_code)
 hty<-unique(filtered_data$eel_hty_code)
@@ -699,9 +710,9 @@ table = table[, n_order]
 names(table)[1]<-"Year"
 table[is.na(table)]<-''
 tablerecLandG<-table
-table1<-table[,c(1,14,15,ncol(table))]
+#table1<-table[,c(1,14,15,ncol(table))]
 ka_rec_land_G <- kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 4: Raw recreational landings (tonnes) for glass eels  ","(",min(year),"-",max(year),")"," for ",paste(paste(country,collapse=","), ".", sep="")))
-ka_rec_land_G1 <- kable(format(table1,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 4:  Glass eel recreational fisheries landings (in tonnes) from ", min(year)," to ",max(year),")",", reported by countries: FR France, ES Spain.", sep=""))
+#ka_rec_land_G1 <- kable(format(table1,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 4:  Glass eel recreational fisheries landings (in tonnes) from ", min(year)," to ",max(year),")",", reported by countries: FR France, ES Spain.", sep=""))
 
 ```
 
@@ -741,7 +752,7 @@ print(g_raw_Rlandings_G)
 filtered_data<-filter_data("release",
 		typ = 9,
 		life_stage = c("G"),
-		year=1950:CY)
+		year=1950:CY)%>% dplyr::filter(is.na(eel_missvaluequal))
 year<-unique(filtered_data$eel_year)
 country<-unique(filtered_data$eel_cou_code)
 hty<-unique(filtered_data$eel_hty_code)
@@ -802,7 +813,7 @@ print(g_release_G)
 
 filtered_data<-filter_data("release",
 		typ = 9,
-		life_stage = c("OG","Y"))
+		life_stage = c("OG","Y"))%>% dplyr::filter(is.na(eel_missvaluequal))
 #TODO REMOVE THIS NEXT YEAR
 filtered_data <- filtered_data %>% dplyr::filter(!(eel_cou_code == 'SE'))
 year<-unique(filtered_data$eel_year)
@@ -858,7 +869,7 @@ print(g_release_Y)
 
 filtered_data<-filter_data("release",
 		typ = 9,
-		life_stage = "S")
+		life_stage = "S")%>% dplyr::filter(is.na(eel_missvaluequal))
 year<-unique(filtered_data$eel_year)
 country<-unique(filtered_data$eel_cou_code)
 hty<-unique(filtered_data$eel_hty_code)
@@ -912,7 +923,7 @@ print(g_release_S)
 
 filtered_data<-filter_data("release",
 		typ = 9,
-		life_stage = "QG")
+		life_stage = "QG")%>% dplyr::filter(is.na(eel_missvaluequal))
 year<-unique(filtered_data$eel_year)
 country<-unique(filtered_data$eel_cou_code)
 hty<-unique(filtered_data$eel_hty_code)
@@ -967,7 +978,7 @@ print(g_release_QG)
 filtered_data<-filter_data("release",
 		typ = 9,
 		life_stage = "OG" 
-)
+)%>% dplyr::filter(is.na(eel_missvaluequal))
 year<-unique(filtered_data$eel_year)
 country<-unique(filtered_data$eel_cou_code)
 hty<-unique(filtered_data$eel_hty_code)
@@ -1025,7 +1036,7 @@ print(g_release_OG)
 filtered_data<-filter_data("release",
 		typ = 9,
 		life_stage=c("G","Y","QG","OG","YS","S"),
-		year_range = 1950:max(year))
+		year_range = 1950:max(year))%>% dplyr::filter(is.na(eel_missvaluequal))
 #TODO REMOVE THIS NEXT YEAR
 filtered_data <- filtered_data %>% dplyr::filter(!(eel_cou_code == 'SE' & eel_lfs_code=='Y'))
 year<-unique(filtered_data$eel_year)
@@ -1066,7 +1077,7 @@ print(g_release_all)
 ##Table aquaculture for all the countries
 
 filtered_data<-filter_data("aquaculture",
-		typ = 11)
+		typ = 11)%>% dplyr::filter(is.na(eel_missvaluequal))
 year<-unique(filtered_data$eel_year)
 country<-unique(filtered_data$eel_cou_code)
 hty<-unique(filtered_data$eel_hty_code)
@@ -1131,7 +1142,7 @@ print(ka_com_land_YS1)
 print(ka_com_land_YS2)
 print(ka_rec_land_Y1)
 print(ka_rec_land_Y2)
-print(ka_rec_land_G1)
+print(ka_rec_land_G)
 print(ka_release_G1)
 print(ka_release_G2)
 print(ka_release_Y)
