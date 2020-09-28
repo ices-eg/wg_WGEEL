@@ -1200,6 +1200,13 @@ no data
 
 * new dataseries 1
 * new biometry 11
+checked with Caroline: all silver eels are females, therefore
+begin;
+update datawg.t_biometry_series_bis set bio_length=bio_length_f,
+bio_weight=bio_weight_f,
+bio_sex_ratio = 100 from datawg.t_series_ser tss2 where  bis_ser_id = ser_id and ser_nameshort='ImsaS';
+commit ;
+
 
 ### annex 4
 
