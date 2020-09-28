@@ -12,7 +12,7 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE,warning=FALSE,message=FALSE,error=FALSE,fig.width=14.9/2.54,dpi=300)
+knitr::opts_chunk$set(echo = TRUE,warning=FALSE,message=FALSE,error=FALSE,fig.width=14.9/2.54,dpi=150)
 library(readxl)
 library(sf)
 library(rnaturalearth)
@@ -30,7 +30,8 @@ if(Sys.info()["user"]=="hilaire.drouineau"){
   allometry=read_excel("~/Bureau/slopesintercepts.xlsx")
   setwd("~/Documents/Bordeaux/migrateurs/WGEEL/github/wg_WGEEL/R/biometry_analysis/")
 }
-
+colorpalette=cbf_1 <- c("#999999", "#E69F00", "#56B4E9", "#009E73", 
+           "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 con_wgeel=dbConnect(Postgres(),
                       dbname="wgeel",
                       host="localhost",
@@ -72,9 +73,10 @@ ggplot(data,aes(x=bio_length_f,y=bio_weight_f))+geom_point()+
   facet_wrap(.~ser_lfs_code,scale="free")+
   theme_bw()+ggtitle("female")+xlab("Length (mm)")+ylab("Weight (g)")
 
+ser=data$bis_ser_id[which(data$bio_length>1250)]
 
 data <- data %>%
-  filter(bio_length< 1250)
+  filter(bis_ser_id!=ser)
 
 
 ```
@@ -282,6 +284,9 @@ plot_map_bio_emu("length","S",sex="f")
 ```
 
 
+The length of monitored silver eel appear to increase with the distance to Gibraltar. This is confirmed by the Kendall correlation test (tau=`r round(Kendall(mean_biom_hty_emuS$bio_length,mean_biom_hty_emuS$distance)$tau[1],digits=2)`, p.value=`r Kendall(mean_biom_hty_emuS$bio_length,mean_biom_hty_emuS$distance)$sl[1]`. There are not enougth time sex disaggregated data to detect sex-specific length-pattern.
+
+
 ### Weight
 ```{r rawdatatableweightS, include=TRUE}
 autofit(flextable(stats_data %>%
@@ -442,8 +447,8 @@ plot_temporal_trend = function(var,stage,trends,sex=NULL){
 
   data <- data %>%
     filter(!is.na(!!as.symbol(var_name)))
-  col_pal=iwanthue(nrow(trends))
-  ltypes=rep(c("solid","twodash","longdash"),length.out=(nrow(trends)))
+  col_pal=rep(colorpalette,length.out=nrow(trends))
+  ltypes=rep(c("solid","twodash","longdash","dotted","dashed"),length.out=(nrow(trends)))
   ggplot(data,aes_string(x="bio_year",y=var_name))+
     geom_line(aes(col=ser_emu_nameshort,lty=ser_emu_nameshort))+
     theme_bw()+xlab("")+ylab(ylab)+
@@ -458,20 +463,20 @@ plot_temporal_trend = function(var,stage,trends,sex=NULL){
 ```{r yellowlengthtrend,echo=TRUE}
 #Mixed
 trends=table_temporal_trend("length","Y",NULL)
-if (!is.na(trends)>0) knitr::kable(trends)
+if (!is.na(trends)>0) autofit(flextable(trends))
 
 if (!is.na(trends)>0) plot_temporal_trend("length","Y",trends)
 
 
 #female
 trends_f=table_temporal_trend("length","Y","f")
-if (!is.na(trends_f)) knitr::kable(trends_f)
+if (!is.na(trends_f)) autofit(flextable(trends_f))
 
 if (!is.na(trends_f)) plot_temporal_trend("length","Y",trends_f,"f")
 
 #male
 trends_m=table_temporal_trend("length","Y","m")
-if (!is.na(trends_f)) knitr::kable(trends_m)
+if (!is.na(trends_f)) autofit(flextable(trends_m))
 
 if (!is.na(trends_f)) plot_temporal_trend("length","Y",trends_m,"m")
 
@@ -486,20 +491,20 @@ except in 2 EMUs (`r paste(subset(trends$ser_emu_nameshort,trends$tau>=0 & trend
 ```{r yellowweighttrend,echo=TRUE}
 #Mixed
 trends=table_temporal_trend("weight","Y",NULL)
-knitr::kable(trends)
+autofit(flextable(trends))
 
 if (!is.na(trends)>0) plot_temporal_trend("weight","Y",trends)
 
 
 #female
 trends_f=table_temporal_trend("weight","Y","f")
-if (!is.na(trends_f)) knitr::kable(trends_f)
+if (!is.na(trends_f)) autofit(flextable(trends_f))
 
 if (!is.na(trends_f)) plot_temporal_trend("weight","Y",trends_f,"f")
 
 #male
 trends_m=table_temporal_trend("weight","Y","m")
-if (!is.na(trends_m)) knitr::kable(trends_m)
+if (!is.na(trends_m)) autofit(flextable(trends_m))
 
 if (!is.na(trends_m)) plot_temporal_trend("length","Y",trends_m,"m")
 
@@ -512,7 +517,7 @@ It was not possible to carry out any sex ratio analysis for yellow eels.
 ```{r yellowsexratiotrend,echo=TRUE}
 #Mixed
 trends=table_temporal_trend("sexratio","Y",NULL)
-if (!is.na(trends)>0) knitr::kable(trends)
+if (!is.na(trends)>0) autofit(flextable(trends))
 
 if (!is.na(trends)>0) plot_temporal_trend("sexratio","Y",trends)
 
@@ -531,20 +536,20 @@ mean_biom_hty_emuyearS=mean_biom_hty_emuyear %>%
 ```{r silverlengthtrend,echo=TRUE}
 #Mixed
 trends=table_temporal_trend("length","S",NULL)
-knitr::kable(trends)
+autofit(flextable(trends))
 
 if (!is.na(trends)>0) plot_temporal_trend("length","S",trends)
 
 
 #female
 trends_f=table_temporal_trend("length","S","f")
-if (!is.na(trends_f)) knitr::kable(trends_f)
+if (!is.na(trends_f)) autofit(flextable(trends_f))
 
 if (!is.na(trends_f)) plot_temporal_trend("length","S",trends_f,"f")
 
 #male
 trends_m=table_temporal_trend("length","S","m")
-if (!is.na(trends_m)) knitr::kable(trends_m)
+if (!is.na(trends_m)) autofit(flextable(trends_m))
 
 if (!is.na(trends_m)) plot_temporal_trend("length","S",trends_m,"m")
 ```
@@ -555,20 +560,20 @@ Many significant trends were detected in length of silver eels. It appears to be
 ```{r silverweightlengthtrend,echo=TRUE}
 #Mixed
 trends=table_temporal_trend("weight","S",NULL)
-if (!is.na(trends)>0) knitr::kable(trends)
+if (!is.na(trends)>0) autofit(flextable(trends))
 
 if (!is.na(trends)>0) plot_temporal_trend("weight","S",trends)
 
 
 #female
 trends_f=table_temporal_trend("weight","S","f")
-if (!is.na(trends_f)) knitr::kable(trends_f)
+if (!is.na(trends_f)) autofit(flextable(trends_f))
 
 if (!is.na(trends_f)) plot_temporal_trend("weight","S",trends_f,"f")
 
 #male
 trends_m=table_temporal_trend("weight","S","m")
-if (!is.na(trends_m)) knitr::kable(trends_m)
+if (!is.na(trends_m)) autofit(flextable(trends_m))
 
 if (!is.na(trends_m)) plot_temporal_trend("weight","S",trends_m,"m")
 
@@ -580,7 +585,7 @@ Results are very similar than for length, except than an additional increasing s
 ```{r silversexratiotrend,echo=TRUE}
 #Mixed
 trends=table_temporal_trend("sexratio","S",NULL)
-if (!is.na(trends)>0) knitr::kable(trends)
+if (!is.na(trends)>0) autofit(flextable(trends))
 
 if (!is.na(trends)>0) plot_temporal_trend("sexratio","S",trends)
 
@@ -647,7 +652,7 @@ plot_ge_trend = function(var,trends){
   ggplot(data,aes_string(x="bio_year",y=var_name))+
     geom_line(aes(col=ser_nameshort))+
     theme_bw()+xlab("")+ylab(ylab)+
-    scale_color_brewer("series",type="qual")
+    scale_color_manual("series",values=colorpalette)
 }
 ```
 
@@ -658,7 +663,7 @@ Mean length of monitored eels has significantly increased over time in ImsaGY an
 ```{r gelengthtrend,echo=TRUE}
 kept=table_ge_trend("length")
   
-knitr::kable(kept)
+autofit(flextable(kept))
 
 plot_ge_trend("length",kept)
 ```
@@ -670,7 +675,7 @@ Significant trends are also detected for weights.
 ```{r geweightlengthtrend,echo=TRUE}
 kept=table_ge_trend("weight")
   
-knitr::kable(kept)
+autofit(flextable(kept))
 
 plot_ge_trend("weight",kept)
 
