@@ -1006,6 +1006,8 @@ Note longitude and latitude were switched.
 
 *244 new values inserted in the database:proceed
 
+NOTE 2019 YS is a duplicate with stages Y and S, it was removed from the database.
+
 
 ### annex 5
 
