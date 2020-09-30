@@ -18,9 +18,15 @@ getUsername <- function(){
 }
 #--------------------------------
 
+if (getUsername() == "hilaire.drouineau") setwd("~/Documents/Bordeaux/migrateurs/WGEEL/github/wg_WGEEL/R/Rmarkdown/")
 if (getUsername() == "cedric.briand") setwd("C:/workspace/gitwgeel/R/Rmarkdown") 
 if (getUsername() == "cboulenger") setwd("C:/Users/cboulenger/Documents/wg_WGEEL/R/Rmarkdown") 
 
+CY=2020
+imgwd <- str_c(getwd(),"/",CY,"/00international/image/")
+tabwd <- str_c(getwd(),"/",CY,"/00international/table/")
+dir.create(imgwd, showWarnings = FALSE)
+dir.create(tabwd, showWarnings = FALSE)
 knitr::opts_chunk$set(echo = TRUE, warnings=FALSE)
 #source("R/utilities/set_directory.R")
 #data_directory <- wg_choose.dir(caption = "Where do you want to save the tables and the graphs")
@@ -785,14 +791,14 @@ ka_release_G2 <- kable(format(table2,digt=3,drop0trailing=TRUE),format="pandoc",
 
 \newline
 
-```{r release_Gf,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure 7: Reported released of glass eel and ongrown glass eel (in millions) per country, Sweden (SE), Estonia (EE), Latvia (LV), Poland (PL), Germany (DE), Netherlands (NL), Belgium (BE), Ireland (IE), United Kingdom (GB), France (FR), Spain (ES), Italy (IT) and Greece (GR).", fig.height=5, fig.width=10}
+```{r release_Gf,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure 7: Reported releases of glass eel and ongrown glass eel (in millions) per country, Sweden (SE), Estonia (EE), Latvia (LV), Poland (PL), Germany (DE), Netherlands (NL), Belgium (BE), Ireland (IE), United Kingdom (GB), France (FR), Spain (ES), Italy (IT) and Greece (GR).", fig.height=5, fig.width=10}
 
 ##Graph
 release3<-grouped_data
 release3$eel_value <- as.numeric(release3$eel_value)/10^6 
 release3$eel_cou_code = as.factor(release3$eel_cou_code)
 release3$eel_cou_code<-factor(release3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
-title <- paste("Released per country,", "stage = G and OG", "and habitat =", paste(hty,collapse="+"))
+title <- paste("Releases per country,", "stage = G and OG", "and habitat =", paste(hty,collapse="+"))
 
 g_release_G <-  ggplot(release3) + 
 		geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
@@ -806,7 +812,7 @@ print(g_release_G)
 ```
 
 
-```{r releasekg_Gf,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure X: Reported released of glass eel (in tonnes) per country Estonia (EE), Latvia (LV), Poland (PL), Germany (DE), Netherlands (NL), Belgium (BE), Ireland (IE), United Kingdom (GB), France (FR), Spain (ES), Italy (IT) and Greece (GR).", fig.height=5, fig.width=10}
+```{r releasekg_Gf,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure X: Reported releases of glass eel (in tonnes) per country Estonia (EE), Latvia (LV), Poland (PL), Germany (DE), Netherlands (NL), Belgium (BE), Ireland (IE), United Kingdom (GB), France (FR), Spain (ES), Italy (IT) and Greece (GR).", fig.height=5, fig.width=10}
 
 ##Table release (nb) for all the countries for G # 9 is q_release_kg
 
@@ -823,12 +829,12 @@ release3<-grouped_data
 release3$eel_value <- as.numeric(release3$eel_value)/1000 
 release3$eel_cou_code = as.factor(release3$eel_cou_code)
 release3$eel_cou_code<-factor(release3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
-title <- paste("Released per country,", "stage = G and OG", "and habitat =", paste(hty,collapse="+"))
+title <- paste("Releases per country,", "stage = G and OG", "and habitat =", paste(hty,collapse="+"))
 
 g_releasekg_G <-  ggplot(release3) + 
 		geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
 		#ggtitle(title) + 
-    xlab("year") + ylab("Release in tonnes")+
+    xlab("year") + ylab("Releases in tonnes")+
 		scale_fill_manual("Country",values=color_countries)+
 		theme_bw() 
 
@@ -872,14 +878,14 @@ ka_release_Y <- kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",ca
 \newline
 
 
-```{r release_Yf,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure 8:Reported released of yellow eel (in millions; OG and Y) per country, Germany (DE), Netherlands (NL),  Ireland (IE), Spain (ES) and Italy (IT).", fig.height=5, fig.width=10}
+```{r release_Yf,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure 8:Reported releases of yellow eel (in millions; OG and Y) per country, Germany (DE), Netherlands (NL),  Ireland (IE), Spain (ES) and Italy (IT).", fig.height=5, fig.width=10}
 ##Graph
 
 release3<-grouped_data
 release3$eel_value <- as.numeric(release3$eel_value) / 10^6
 release3$eel_cou_code = as.factor(release3$eel_cou_code)
 release3$eel_cou_code<-factor(release3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
-title <- paste("Released per country,", "stage = Y", "and habitat =", paste(hty,collapse="+"))
+title <- paste("Releases per country,", "stage = Y", "and habitat =", paste(hty,collapse="+"))
 
 g_release_Y <-  ggplot(release3) + 
 		geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
@@ -892,7 +898,7 @@ print(g_release_Y)
 ```
 
 
-```{r releasekg_Yf,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure x:Reported released of yellow eel (in tonnes) per country: Sweden (SE) Germany (DE), Netherlands (NL),  Ireland (IE), Spain (ES) and Italy (IT).", fig.height=5, fig.width=10}
+```{r releasekg_Yf,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure x:Reported releases of yellow eel (OG +Y) (in tonnes) per country: Sweden (SE) Germany (DE), Netherlands (NL),  Ireland (IE), Spain (ES) and Italy (IT).", fig.height=5, fig.width=10}
 
 filtered_data<-filter_data("release",
 		typ = 8,
@@ -908,7 +914,7 @@ release3<-grouped_data
 release3$eel_value <- as.numeric(release3$eel_value) / 1000
 release3$eel_cou_code = as.factor(release3$eel_cou_code)
 release3$eel_cou_code<-factor(release3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
-title <- paste("Released per country,", "stage = Y", "and habitat =", paste(hty,collapse="+"))
+title <- paste("Releases per country,", "stage = Y", "and habitat =", paste(hty,collapse="+"))
 
 g_releasekg_Y <-  ggplot(release3) + 
 		geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
@@ -957,14 +963,14 @@ ka_release_S <- kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",ca
 
 
 
-```{r release_Sf,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure 9: Reported released of silver eel (in thousands) per country, Sweden (SE), Finland (FI), Ireland (IE), France (FR), Spain (ES), and Greece (GR).", fig.height=5, fig.width=10}
+```{r release_Sf,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure 9: Reported releases of silver eel (in thousands) per country, Sweden (SE), Finland (FI), Ireland (IE), France (FR), Spain (ES), and Greece (GR).", fig.height=5, fig.width=10}
 
 ##Graph
 release3<-grouped_data
 release3$eel_value <- as.numeric(release3$eel_value) / 1000
 release3$eel_cou_code = as.factor(release3$eel_cou_code)
 release3$eel_cou_code<-factor(release3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
-title <- paste("Released per country,", "stage = S", "and habitat =", paste(hty,collapse="+"))
+title <- paste("Releases per country,", "stage = S", "and habitat =", paste(hty,collapse="+"))
 
 g_release_S <-  ggplot(release3) + 
 		geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
@@ -978,7 +984,7 @@ print(g_release_S)
 
 
 
-```{r releasekg_Sf,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure x: Reported released of silver eel (in tonnes) per country, Sweden (SE), Finland (FI), Ireland (IE), France (FR), Spain (ES), and Greece (GR).", fig.height=5, fig.width=10}
+```{r releasekg_Sf,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure x: Reported releases of silver eel (in tonnes) per country, Sweden (SE), Finland (FI), Ireland (IE), France (FR), Spain (ES), and Greece (GR).", fig.height=5, fig.width=10}
 
 filtered_data<-filter_data("release",
 		typ = 8,
@@ -993,7 +999,7 @@ release3<-grouped_data
 release3$eel_value <- as.numeric(release3$eel_value) / 1000
 release3$eel_cou_code = as.factor(release3$eel_cou_code)
 release3$eel_cou_code<-factor(release3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
-title <- paste("Released per country,", "stage = S", "and habitat =", paste(hty,collapse="+"))
+title <- paste("releases per country,", "stage = S", "and habitat =", paste(hty,collapse="+"))
 
 g_releasekg_S <-  ggplot(release3) + 
 		geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
@@ -1042,14 +1048,14 @@ ka_release_QG <- kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",c
 
 
 
-```{r release_QGf,echo=FALSE, warning=FALSE,  fig.cap="\\label{fig:figs}Figure 10: Reported released of Quarantined glass eel (in thousands) per country, Sweden (SE) and Finland (FI).", fig.height=5, fig.width=10}
+```{r release_QGf,echo=FALSE, warning=FALSE,  fig.cap="\\label{fig:figs}Figure 10: Reported releases of Quarantined glass eel (in thousands) per country, Sweden (SE) and Finland (FI).", fig.height=5, fig.width=10}
 
 ##Graph
 release3<-grouped_data
 release3$eel_value <- as.numeric(release3$eel_value) / 1000
 release3$eel_cou_code = as.factor(release3$eel_cou_code)
 release3$eel_cou_code<-factor(release3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
-title <- paste("Released per country,", "stage = QG", "and habitat =", paste(hty,collapse="+"))
+title <- paste("Releases per country,", "stage = QG", "and habitat =", paste(hty,collapse="+"))
 
 g_release_QG <-  ggplot(release3) + 
 		geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
@@ -1063,7 +1069,7 @@ print(g_release_QG)
 ```
 
 
-```{r releasekg_QGf,echo=FALSE, warning=FALSE,fig.cap="\\label{fig:figs}Figure x: Reported released of Quarantined glass eel (in tonnes) per country, Sweden (SE) and Finland (FI).", fig.height=5, fig.width=10}
+```{r releasekg_QGf,echo=FALSE, warning=FALSE,fig.cap="\\label{fig:figs}Figure x: Reported releases of Quarantined glass eel (in tonnes) per country, Sweden (SE) and Finland (FI).", fig.height=5, fig.width=10}
 
 filtered_data<-filter_data("release",
 		typ = 8,
@@ -1078,7 +1084,7 @@ release3<-grouped_data
 release3$eel_value <- as.numeric(release3$eel_value) / 1000
 release3$eel_cou_code = as.factor(release3$eel_cou_code)
 release3$eel_cou_code<-factor(release3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
-title <- paste("Released per country,", "stage = QG", "and habitat =", paste(hty,collapse="+"))
+title <- paste("Releases per country,", "stage = QG", "and habitat =", paste(hty,collapse="+"))
 
 g_releasekg_QG <-  ggplot(release3) + 
 		geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
@@ -1126,14 +1132,14 @@ ka_release_OG <- kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",c
 
 \newline
 
-```{r release_OGf,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure 11: Reported released of ongrown glass eel (in thousands) per country, Estonia (EE), Latvia (LV), Lithuania (LT), Poland (PL), Germany (DE), Denmark (DK) and Spain (ES).", fig.height=5, fig.width=10}
+```{r release_OGf,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure 11: Reported releases of ongrown glass eel (in thousands) per country, Estonia (EE), Latvia (LV), Lithuania (LT), Poland (PL), Germany (DE), Denmark (DK) and Spain (ES).", fig.height=5, fig.width=10}
 
 
 release3<-grouped_data
 release3$eel_value <- as.numeric(release3$eel_value) / 1000
 release3$eel_cou_code = as.factor(release3$eel_cou_code)
 release3$eel_cou_code<-factor(release3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
-title <- paste("Released per country,", "stage = OG", "and habitat =", paste(hty,collapse="+"))
+title <- paste("Releases per country,", "stage = OG", "and habitat =", paste(hty,collapse="+"))
 
 g_release_OG <-  ggplot(release3) + 
 		geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
@@ -1147,7 +1153,7 @@ print(g_release_OG)
 ```
 
 
-```{r releasekg_OGf,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure x: Reported released of ongrown glass eel (in tonnes) per country, Estonia (EE), Latvia (LV), Lithuania (LT), Poland (PL), Germany (DE), Denmark (DK) and Spain (ES).", fig.height=5, fig.width=10}
+```{r releasekg_OGf,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure x: Reported releases of ongrown glass eel (in tonnes) per country, Estonia (EE), Latvia (LV), Lithuania (LT), Poland (PL), Germany (DE), Denmark (DK) and Spain (ES).", fig.height=5, fig.width=10}
 
 filtered_data<-filter_data("release",
 		typ = 8,
@@ -1163,7 +1169,7 @@ release3<-grouped_data
 release3$eel_value <- as.numeric(release3$eel_value) / 1000
 release3$eel_cou_code = as.factor(release3$eel_cou_code)
 release3$eel_cou_code<-factor(release3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
-title <- paste("Released per country,", "stage = OG", "and habitat =", paste(hty,collapse="+"))
+title <- paste("releases per country,", "stage = OG", "and habitat =", paste(hty,collapse="+"))
 
 g_releasekg_OG <-  ggplot(release3) + 
 		geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
@@ -1183,7 +1189,7 @@ print(g_releasekg_OG)
 \newline
 
 
-```{r release_all_stages,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure 12: Reported released of all stages (Y, YS, OG, S, QG) (in millions) per country, Sweden (SE), Finland (FI), Estonia (EE), Latvia (LV), Lithuania (LT), Poland (PL), Germany (DE), Denmark (DK), Netherlands (NL), Belgium (BE), Ireland (IE), United Kingdom (GB), France (FR), Spain (ES), Italy (IT) and Greece (GR)..", fig.height=5, fig.width=10}
+```{r release_all_stages,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure 12: Reported releases of all stages (Y, YS, OG, S, QG) (in millions) per country, Sweden (SE), Finland (FI), Estonia (EE), Latvia (LV), Lithuania (LT), Poland (PL), Germany (DE), Denmark (DK), Netherlands (NL), Belgium (BE), Ireland (IE), United Kingdom (GB), France (FR), Spain (ES), Italy (IT) and Greece (GR)..", fig.height=5, fig.width=10}
 
 ##Table release of all stages for all the countries
 
@@ -1204,7 +1210,7 @@ release3<-grouped_data
 release3$eel_value <- as.numeric(release3$eel_value) / 10^6
 release3$eel_cou_code = as.factor(release3$eel_cou_code)
 release3$eel_cou_code<-factor(release3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
-title <- paste("Released per country,", "habitat =", paste(hty,collapse="+"), "and", "stage =", paste(lfs,collapse="+"))
+title <- paste("releases per country,", "habitat =", paste(hty,collapse="+"), "and", "stage =", paste(lfs,collapse="+"))
 
 g_release_all <-  ggplot(release3) + 
 		geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
@@ -1217,7 +1223,7 @@ print(g_release_all)
 ```
 
 
-```{r releasekg_all_stages,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure 12: Reported released of all stages (Y, YS, OG, S, QG) (in tonnes) per country, Sweden (SE), Finland (FI), Estonia (EE), Latvia (LV), Lithuania (LT), Poland (PL), Germany (DE), Denmark (DK), Netherlands (NL), Belgium (BE), Ireland (IE), United Kingdom (GB), France (FR), Spain (ES), Italy (IT) and Greece (GR)..", fig.height=5, fig.width=10}
+```{r releasekg_all_stages,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure 12: Reported releases of all stages (Y, YS, OG, S, QG) (in tonnes) per country, Sweden (SE), Finland (FI), Estonia (EE), Latvia (LV), Lithuania (LT), Poland (PL), Germany (DE), Denmark (DK), Netherlands (NL), Belgium (BE), Ireland (IE), United Kingdom (GB), France (FR), Spain (ES), Italy (IT) and Greece (GR)..", fig.height=5, fig.width=10}
 
 ##Table release of all stages for all the countries
 
@@ -1237,7 +1243,7 @@ release3<-grouped_data
 release3$eel_value <- as.numeric(release3$eel_value) / 1000
 release3$eel_cou_code = as.factor(release3$eel_cou_code)
 release3$eel_cou_code<-factor(release3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
-title <- paste("Released per country,", "habitat =", paste(hty,collapse="+"), "and", "stage =", paste(lfs,collapse="+"))
+title <- paste("releases per country,", "habitat =", paste(hty,collapse="+"), "and", "stage =", paste(lfs,collapse="+"))
 
 g_releasekg_all <-  ggplot(release3) + 
 		geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
@@ -1343,44 +1349,45 @@ print(ka_aqua2)
 #data_directory <- wg_choose.dir(caption = "Where do you want to save the tables and the graphs")
 #setwd(data_directory)
 #save(vvv,file="vvv.Rdata")
-write.csv2(tableComLandG,"Raw_Com_landings_G.csv",row.names=FALSE)
+write.csv2(tableComLandG, paste0(tabwd,"Raw_Com_landings_G.csv"),row.names=FALSE)
 #write.csv2(tableComLandYS,"Raw_Com_landings_Y_S.csv",row.names=FALSE)
-write.csv2(tableRecLandYS,"Raw_Rec_landings_Y_S.csv",row.names=FALSE)
-write.csv2(tablerecLandG,"Raw_Rec_landings_G.csv",row.names=FALSE)
-write.csv2(tableAqua,"Aquaculture_tons.csv",row.names=FALSE)
-write.csv2(tableRelG,"releases_nb_G.csv",row.names=FALSE)
-write.csv2(tableRelS,"releases_nb_S.csv",row.names=FALSE)
-write.csv2(tableRelY,"releases_nb_Y.csv",row.names=FALSE)
-write.csv2(tableRelQG,"releases_nb_QG.csv",row.names=FALSE)
-write.csv2(tableRelOG,"releases_nb_OG.csv",row.names=FALSE)
-write.csv2(tableCorLandYS,"Raw_Corr_Com_landings_Y_S.csv",row.names=FALSE)
+write.csv2(tableRecLandYS, paste0(tabwd,"Raw_Rec_landings_Y_S.csv"),row.names=FALSE)
+write.csv2(tablerecLandG, paste0(tabwd,"Raw_Rec_landings_G.csv"),row.names=FALSE)
+write.csv2(tableAqua, paste0(tabwd,"Aquaculture_tons.csv"),row.names=FALSE)
+write.csv2(tableRelG, paste0(tabwd,"releases_nb_G.csv"),row.names=FALSE)
+write.csv2(tableRelS, paste0(tabwd,"releases_nb_S.csv"),row.names=FALSE)
+write.csv2(tableRelY, paste0(tabwd,"releases_nb_Y.csv"),row.names=FALSE)
+write.csv2(tableRelQG, paste0(tabwd,"releases_nb_QG.csv"),row.names=FALSE)
+write.csv2(tableRelOG, paste0(tabwd,"releases_nb_OG.csv"),row.names=FALSE)
+write.csv2(tableCorLandYS, paste0(tabwd,"Raw_Corr_Com_landings_Y_S.csv"),row.names=FALSE)
 
-ggsave("Raw_Com_landings_G.png", g_raw_Clandings_G, device = "png", width = 30, height = 20, 
+
+ggsave(paste0(imgwd,"Raw_Com_landings_G.png"), g_raw_Clandings_G, device = "png", width = 30, height = 20, 
 		units = "cm")
-ggsave("Raw_Com_landings_YS.png", g_raw_Clandings_YS, device = "png", width = 30, height = 20, 
+ggsave(paste0(imgwd,"Raw_Com_landings_YS.png"), g_raw_Clandings_YS, device = "png", width = 30, height = 20, 
 		units = "cm")
-ggsave("Raw_Rec_landings_G.png", g_raw_Rlandings_G, device = "png", width = 30, height = 20,  
+ggsave(paste0(imgwd,"Raw_Rec_landings_G.png"), g_raw_Rlandings_G, device = "png", width = 30, height = 20,  
 		units = "cm")
-ggsave("Raw_Rec_landings_YS.png", g_raw_Rlandings_YS, device = "png", width = 30, height = 20,  
+ggsave(paste0(imgwd,"Raw_Rec_landings_YS.png"), g_raw_Rlandings_YS, device = "png", width = 30, height = 20,  
 		units = "cm")
-ggsave("Aquaculture.png", g_aquaculture, device = "png", width = 30, height = 20,
+ggsave(paste0(imgwd,"Aquaculture.png"), g_aquaculture, device = "png", width = 30, height = 20,
 		units = "cm")
 
-ggsave("Releases_G.png", g_release_G, device = "png", width = 30, height = 20,  
+ggsave(paste0(imgwd,"Releases_G.png"), g_release_G, device = "png", width = 30, height = 20,  
 		units = "cm")
-ggsave("Releases_Y.png", g_release_Y, device = "png", width = 30, height = 20,  
+ggsave(paste0(imgwd,"Releases_Y.png"), g_release_Y, device = "png", width = 30, height = 20,  
 		units = "cm")
-ggsave("Releases_S.png", g_release_S, device = "png", width = 30, height = 20,  
+ggsave(paste0(imgwd,"Releases_S.png"), g_release_S, device = "png", width = 30, height = 20,  
 		units = "cm")
-ggsave("Releases_QG.png", g_release_QG, device = "png", width = 30, height = 20, 
+ggsave(paste0(imgwd,"Releases_QG.png"), g_release_QG, device = "png", width = 30, height = 20, 
 		units = "cm")
-ggsave("Releases_OG.png", g_release_OG, device = "png", width = 30, height = 20, 
+ggsave(paste0(imgwd,"Releases_OG.png"), g_release_OG, device = "png", width = 30, height = 20, 
 		units = "cm")
-ggsave("Releases_all.png",g_release_all, device = "png", width = 30, height = 20, 
+ggsave(paste0(imgwd,"Releases_all.png"),g_release_all, device = "png", width = 30, height = 20, 
 		units = "cm")
-ggsave("Raw_Corr_com_landings_YS.png", g_combined_landings_YS, device = "png", width = 30, height = 20, 
+ggsave(paste0(imgwd,"Raw_Corr_com_landings_YS.png"), g_combined_landings_YS, device = "png", width = 30, height = 20, 
 		units = "cm")
-ggsave("Raw_Corr_com_landings_G.png", g_combined_landings_G, device = "png", width = 30, height = 20, 
+ggsave(paste0(imgwd,"Raw_Corr_com_landings_G.png"), g_combined_landings_G, device = "png", width = 30, height = 20, 
 		units = "cm")
 
 ```
