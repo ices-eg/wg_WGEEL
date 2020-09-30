@@ -677,7 +677,35 @@ SELECT * FROM datawg.t_eelstock_eel WHERE eel_cou_code='IE' AND eel_typ_id = 11)
 
 UPDATE datawg.t_eelstock_eel  SET eel_qal_id=20 WHERE eel_id IN (SELECT eel_id FROM drop_zero_for_ireland)
 
+SELECT ser_nameshort FROM datawg.t_series_ser
+EXCEPT
+SELECT  "Station_Name" FROM ref.tr_station 
 
 
+SELECT * FROM ref.tr_station 
 
-SELECT * FROM datawg.t_eelstock_eel WHERE eel_cou_code='FR' AND eel_year=2009 AND eel_lfs_code='G' AND eel_typ_id= 4
+INSERT INTO ref.tr_station( "tblCodeID",
+"Station_Code",
+"Country",
+"Organisation",
+"Station_Name",
+"WLTYP",
+"Lat",
+"Lon",
+"StartYear",
+"EndYear",
+"PURPM",
+"Notes") 
+select max("tblCodeID")+1,
+       max("Station_Code")+1,
+       'DANEMARK' as "Country",
+       'DTU Aqua' as "Organisation",
+	'Hell' as "Station_Name",
+	 NULL as "WLTYP",
+         12.55 as "Lat",
+	 56.07 as "Lon",
+	2011 as "StartYear",
+	NULL as "EndYear",
+	'S~T' as "PURPM", -- Not sure there
+	NULL as "Notes"
+from ref.tr_station; --1 
