@@ -791,14 +791,14 @@ ka_release_G2 <- kable(format(table2,digt=3,drop0trailing=TRUE),format="pandoc",
 
 \newline
 
-```{r release_Gf,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure 7: Reported releases of glass eel and ongrown glass eel (in millions) per country, Sweden (SE), Estonia (EE), Latvia (LV), Poland (PL), Germany (DE), Netherlands (NL), Belgium (BE), Ireland (IE), United Kingdom (GB), France (FR), Spain (ES), Italy (IT) and Greece (GR).", fig.height=5, fig.width=10}
+```{r release_Gf,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure 7: Reported releases of glass eel (in millions) per country, Sweden (SE), Estonia (EE), Latvia (LV), Poland (PL), Germany (DE), Netherlands (NL), Belgium (BE), Ireland (IE), United Kingdom (GB), France (FR), Spain (ES), Italy (IT) and Greece (GR).", fig.height=5, fig.width=10}
 
 ##Graph
 release3<-grouped_data
 release3$eel_value <- as.numeric(release3$eel_value)/10^6 
 release3$eel_cou_code = as.factor(release3$eel_cou_code)
 release3$eel_cou_code<-factor(release3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
-title <- paste("Releases per country,", "stage = G and OG", "and habitat =", paste(hty,collapse="+"))
+title <- paste("Releases per country,", "stage = G", "and habitat =", paste(hty,collapse="+"))
 
 g_release_G <-  ggplot(release3) + 
 		geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
@@ -829,7 +829,7 @@ release3<-grouped_data
 release3$eel_value <- as.numeric(release3$eel_value)/1000 
 release3$eel_cou_code = as.factor(release3$eel_cou_code)
 release3$eel_cou_code<-factor(release3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
-title <- paste("Releases per country,", "stage = G and OG", "and habitat =", paste(hty,collapse="+"))
+title <- paste("Releases per country,", "stage = G", "and habitat =", paste(hty,collapse="+"))
 
 g_releasekg_G <-  ggplot(release3) + 
 		geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
@@ -1376,6 +1376,8 @@ ggsave(paste0(imgwd,"Aquaculture.png"), g_aquaculture, device = "png", width = 3
 ggsave(paste0(imgwd,"Releases_G.png"), g_release_G, device = "png", width = 30, height = 20,  
 		units = "cm")
 ggsave(paste0(imgwd,"Releases_Y.png"), g_release_Y, device = "png", width = 30, height = 20,  
+		units = "cm")
+ggsave(paste0(imgwd,"Releases_kY.png"), g_release_Y, device = "png", width = 30, height = 20,  
 		units = "cm")
 ggsave(paste0(imgwd,"Releases_S.png"), g_release_S, device = "png", width = 30, height = 20,  
 		units = "cm")
