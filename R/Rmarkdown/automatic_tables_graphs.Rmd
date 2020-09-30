@@ -195,16 +195,16 @@ fun.agg<-function(X){if(length(X)>0){round(sum(X)/1000,ifelse(sum(X)>1000,0,3))}
 grouped_data$eel_cou_code = as.factor(grouped_data$eel_cou_code)                       
 grouped_data <- predict_missing_values(grouped_data, verbose=FALSE, na.rm=FALSE)
 select_corr_land_YS<-aggregate(grouped_data$eel_value,by=list(grouped_data$eel_year),sum,na.rm=T)
-YS_corr_CY<-round(sum(select_corr_land_YS$x[select_corr_land_YS$Group.1==CY-2]/1000,2))
-YS_corr_CY1<-round(sum(select_corr_land_YS$x[select_corr_land_YS$Group.1==CY-1]/1000,2))
+YS_corr_CY<-round(select_corr_land_YS$x[select_corr_land_YS$Group.1==CY-2]/1000,2)
+YS_corr_CY1<-round(select_corr_land_YS$x[select_corr_land_YS$Group.1==CY-1]/1000,2)
 YS_corr_mean<-mean(round(select_corr_land_YS$x[select_corr_land_YS$Group.1 %in% c((CY-7):(CY-3))]/1000,2))
 
 knitr::asis_output(paste("Yellow and Silver eel commercial fisheries within the EU (Y, S, YS) in ",CY-2," = ",YS_CY1," t. ", "Number of countries reporting: ", paste(nb_cou_CY1,sep="", collapse=","),"<br>"))
 knitr::asis_output(paste("Yellow and Silver eel commercial fisheries within the EU (Y, S, YS) in ",CY-1," = ",YS_CY," t. ", "Number of countries reporting: ", paste(nb_cou_CY,sep="", collapse=","),"<br>"))
 knitr::asis_output(paste("Mean Yellow and Silver eel commercial fisheries for the previous 5 years (",CY-7,"-",CY-3,") within the EU = ",YS_mean," t. <br> <br>"))
 
-knitr::asis_output(paste("Reconstructed Yellow and Silver eel commercial fisheries within the EU (Y, S, YS) in ",CY-2," = ",YS_corr_CY1," t. <br>"))
-knitr::asis_output(paste("Reconstructed Yellow and Silver eel commercial fisheries within the EU (Y, S, YS) in ",CY-1," = ",YS_corr_CY," t. <br>"))
+knitr::asis_output(paste("Reconstructed Yellow and Silver eel commercial fisheries within the EU (Y, S, YS) in ",CY-2," = ",YS_corr_CY," t. <br>"))
+knitr::asis_output(paste("Reconstructed Yellow and Silver eel commercial fisheries within the EU (Y, S, YS) in ",CY-1," = ",YS_corr_CY1," t. <br>"))
 knitr::asis_output(paste("Mean Reconstructed Yellow and Silver eel commercial fisheries for the previous 5 years (",CY-7,"-",CY-3,") within the EU = ",YS_corr_mean," t.<br>"))
 
 ```
@@ -805,6 +805,36 @@ print(g_release_G)
 
 ```
 
+
+```{r releasekg_Gf,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure X: Reported released of glass eel (in tonnes) per country Estonia (EE), Latvia (LV), Poland (PL), Germany (DE), Netherlands (NL), Belgium (BE), Ireland (IE), United Kingdom (GB), France (FR), Spain (ES), Italy (IT) and Greece (GR).", fig.height=5, fig.width=10}
+
+##Table release (nb) for all the countries for G # 9 is q_release_kg
+
+filtered_data<-filter_data("release",
+		typ = 8,
+		life_stage = c("G"),
+		year=1950:CY)%>% dplyr::filter(is.na(eel_missvaluequal))
+year<-unique(filtered_data$eel_year)
+country<-unique(filtered_data$eel_cou_code)
+hty<-unique(filtered_data$eel_hty_code)
+grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=TRUE)
+##Graph
+release3<-grouped_data
+release3$eel_value <- as.numeric(release3$eel_value)/1000 
+release3$eel_cou_code = as.factor(release3$eel_cou_code)
+release3$eel_cou_code<-factor(release3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
+title <- paste("Released per country,", "stage = G and OG", "and habitat =", paste(hty,collapse="+"))
+
+g_releasekg_G <-  ggplot(release3) + 
+		geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
+		#ggtitle(title) + 
+    xlab("year") + ylab("Release in tonnes")+
+		scale_fill_manual("Country",values=color_countries)+
+		theme_bw() 
+
+print(g_releasekg_G)
+```
+
 \newline
 
 ```{r release_Yt,echo=FALSE, warning=FALSE}
@@ -841,6 +871,7 @@ ka_release_Y <- kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",ca
 
 \newline
 
+
 ```{r release_Yf,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure 8:Reported released of yellow eel (in millions; OG and Y) per country, Germany (DE), Netherlands (NL),  Ireland (IE), Spain (ES) and Italy (IT).", fig.height=5, fig.width=10}
 ##Graph
 
@@ -858,7 +889,35 @@ g_release_Y <-  ggplot(release3) +
 		theme_bw() 
 
 print(g_release_Y)
+```
 
+
+```{r releasekg_Yf,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure x:Reported released of yellow eel (in tonnes) per country: Sweden (SE) Germany (DE), Netherlands (NL),  Ireland (IE), Spain (ES) and Italy (IT).", fig.height=5, fig.width=10}
+
+filtered_data<-filter_data("release",
+		typ = 8,
+		life_stage = c("Y"))%>% dplyr::filter(is.na(eel_missvaluequal))
+year<-unique(filtered_data$eel_year)
+country<-unique(filtered_data$eel_cou_code)
+hty<-unique(filtered_data$eel_hty_code)
+grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=TRUE)
+
+##Graph
+
+release3<-grouped_data
+release3$eel_value <- as.numeric(release3$eel_value) / 1000
+release3$eel_cou_code = as.factor(release3$eel_cou_code)
+release3$eel_cou_code<-factor(release3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
+title <- paste("Released per country,", "stage = Y", "and habitat =", paste(hty,collapse="+"))
+
+g_releasekg_Y <-  ggplot(release3) + 
+		geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
+		#ggtitle(title) + 
+    xlab("year") + ylab("Release in tonnes")+
+		scale_fill_manual("Country",values=color_countries)+
+		theme_bw() 
+
+print(g_releasekg_Y)
 ```
 
 \newline
@@ -895,6 +954,9 @@ ka_release_S <- kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",ca
 
 \newline
 
+
+
+
 ```{r release_Sf,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure 9: Reported released of silver eel (in thousands) per country, Sweden (SE), Finland (FI), Ireland (IE), France (FR), Spain (ES), and Greece (GR).", fig.height=5, fig.width=10}
 
 ##Graph
@@ -912,6 +974,35 @@ g_release_S <-  ggplot(release3) +
 		theme_bw() 
 
 print(g_release_S)
+```
+
+
+
+```{r releasekg_Sf,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure x: Reported released of silver eel (in tonnes) per country, Sweden (SE), Finland (FI), Ireland (IE), France (FR), Spain (ES), and Greece (GR).", fig.height=5, fig.width=10}
+
+filtered_data<-filter_data("release",
+		typ = 8,
+		life_stage = "S")%>% dplyr::filter(is.na(eel_missvaluequal))
+year<-unique(filtered_data$eel_year)
+country<-unique(filtered_data$eel_cou_code)
+hty<-unique(filtered_data$eel_hty_code)
+grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=TRUE)
+
+##Graph
+release3<-grouped_data
+release3$eel_value <- as.numeric(release3$eel_value) / 1000
+release3$eel_cou_code = as.factor(release3$eel_cou_code)
+release3$eel_cou_code<-factor(release3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
+title <- paste("Released per country,", "stage = S", "and habitat =", paste(hty,collapse="+"))
+
+g_releasekg_S <-  ggplot(release3) + 
+		geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
+		#ggtitle(title) + 
+    xlab("year") + ylab("Release in tonnes")+
+		scale_fill_manual("Country",values=color_countries)+
+		theme_bw() 
+
+print(g_releasekg_S)
 ```
 
 \newline
@@ -949,7 +1040,9 @@ ka_release_QG <- kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",c
 
 \newline
 
-```{r release_QGf,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure 10: Reported released of Quarantined glass eel (in thousands) per country, Sweden (SE) and Finland (FI).", fig.height=5, fig.width=10}
+
+
+```{r release_QGf,echo=FALSE, warning=FALSE,  fig.cap="\\label{fig:figs}Figure 10: Reported released of Quarantined glass eel (in thousands) per country, Sweden (SE) and Finland (FI).", fig.height=5, fig.width=10}
 
 ##Graph
 release3<-grouped_data
@@ -966,6 +1059,35 @@ g_release_QG <-  ggplot(release3) +
 		theme_bw() 
 
 print(g_release_QG)
+
+```
+
+
+```{r releasekg_QGf,echo=FALSE, warning=FALSE,fig.cap="\\label{fig:figs}Figure x: Reported released of Quarantined glass eel (in tonnes) per country, Sweden (SE) and Finland (FI).", fig.height=5, fig.width=10}
+
+filtered_data<-filter_data("release",
+		typ = 8,
+		life_stage = "QG")%>% dplyr::filter(is.na(eel_missvaluequal))
+year<-unique(filtered_data$eel_year)
+country<-unique(filtered_data$eel_cou_code)
+hty<-unique(filtered_data$eel_hty_code)
+grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=TRUE)
+
+##Graph
+release3<-grouped_data
+release3$eel_value <- as.numeric(release3$eel_value) / 1000
+release3$eel_cou_code = as.factor(release3$eel_cou_code)
+release3$eel_cou_code<-factor(release3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
+title <- paste("Released per country,", "stage = QG", "and habitat =", paste(hty,collapse="+"))
+
+g_releasekg_QG <-  ggplot(release3) + 
+		geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
+		#ggtitle(title) + 
+    xlab("year") + ylab("Release (tonnes)")+
+		scale_fill_manual("Country",values=color_countries)+
+		theme_bw() 
+
+print(g_releasekg_QG)
 
 ```
 
@@ -1006,7 +1128,7 @@ ka_release_OG <- kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",c
 
 ```{r release_OGf,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure 11: Reported released of ongrown glass eel (in thousands) per country, Estonia (EE), Latvia (LV), Lithuania (LT), Poland (PL), Germany (DE), Denmark (DK) and Spain (ES).", fig.height=5, fig.width=10}
 
-##Graph
+
 release3<-grouped_data
 release3$eel_value <- as.numeric(release3$eel_value) / 1000
 release3$eel_cou_code = as.factor(release3$eel_cou_code)
@@ -1025,8 +1147,40 @@ print(g_release_OG)
 ```
 
 
-\newline
+```{r releasekg_OGf,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure x: Reported released of ongrown glass eel (in tonnes) per country, Estonia (EE), Latvia (LV), Lithuania (LT), Poland (PL), Germany (DE), Denmark (DK) and Spain (ES).", fig.height=5, fig.width=10}
 
+filtered_data<-filter_data("release",
+		typ = 8,
+		life_stage = "OG" 
+)%>% dplyr::filter(is.na(eel_missvaluequal))
+year<-unique(filtered_data$eel_year)
+country<-unique(filtered_data$eel_cou_code)
+hty<-unique(filtered_data$eel_hty_code)
+grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=TRUE)
+##Graph
+##Graph
+release3<-grouped_data
+release3$eel_value <- as.numeric(release3$eel_value) / 1000
+release3$eel_cou_code = as.factor(release3$eel_cou_code)
+release3$eel_cou_code<-factor(release3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
+title <- paste("Released per country,", "stage = OG", "and habitat =", paste(hty,collapse="+"))
+
+g_releasekg_OG <-  ggplot(release3) + 
+		geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
+		#ggtitle(title) + 
+    xlab("year") + ylab("Release (tonnes)")+
+		scale_fill_manual("Country",values=color_countries)+
+		theme_bw() 
+
+print(g_releasekg_OG)
+
+
+
+```
+
+
+
+\newline
 
 
 ```{r release_all_stages,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure 12: Reported released of all stages (Y, YS, OG, S, QG) (in millions) per country, Sweden (SE), Finland (FI), Estonia (EE), Latvia (LV), Lithuania (LT), Poland (PL), Germany (DE), Denmark (DK), Netherlands (NL), Belgium (BE), Ireland (IE), United Kingdom (GB), France (FR), Spain (ES), Italy (IT) and Greece (GR)..", fig.height=5, fig.width=10}
@@ -1060,11 +1214,40 @@ g_release_all <-  ggplot(release3) +
 		theme_bw() 
 
 print(g_release_all)
-
 ```
-\newline
 
 
+```{r releasekg_all_stages,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure 12: Reported released of all stages (Y, YS, OG, S, QG) (in tonnes) per country, Sweden (SE), Finland (FI), Estonia (EE), Latvia (LV), Lithuania (LT), Poland (PL), Germany (DE), Denmark (DK), Netherlands (NL), Belgium (BE), Ireland (IE), United Kingdom (GB), France (FR), Spain (ES), Italy (IT) and Greece (GR)..", fig.height=5, fig.width=10}
+
+##Table release of all stages for all the countries
+
+filtered_data<-filter_data("release",
+		typ = 8,
+		life_stage=c("G","Y","QG","OG","YS","S"),
+		year_range = 1950:max(year))%>% dplyr::filter(is.na(eel_missvaluequal))
+#TODO REMOVE THIS NEXT YEAR
+year<-unique(filtered_data$eel_year)
+country<-unique(filtered_data$eel_cou_code)
+hty<-unique(filtered_data$eel_hty_code)
+lfs<-unique(filtered_data$eel_lfs_code)
+grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=TRUE)
+
+##Graph
+release3<-grouped_data
+release3$eel_value <- as.numeric(release3$eel_value) / 1000
+release3$eel_cou_code = as.factor(release3$eel_cou_code)
+release3$eel_cou_code<-factor(release3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
+title <- paste("Released per country,", "habitat =", paste(hty,collapse="+"), "and", "stage =", paste(lfs,collapse="+"))
+
+g_releasekg_all <-  ggplot(release3) + 
+		geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
+		#ggtitle(title) + 
+    xlab("year") + ylab("Release in tonnes")+
+		scale_fill_manual("Country",values=color_countries)+
+		theme_bw() 
+
+print(g_releasekg_all)
+```
 
 ## Aquaculture
 
