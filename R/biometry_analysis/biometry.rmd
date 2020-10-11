@@ -452,8 +452,8 @@ plot_temporal_trend = function(var,stage,trends,sex=NULL){
   ggplot(data,aes_string(x="bio_year",y=var_name))+
     geom_line(aes(col=ser_emu_nameshort,lty=ser_emu_nameshort))+
     theme_bw()+xlab("")+ylab(ylab)+
-    scale_color_manual("series",values=col_pal)+
-    scale_linetype_manual("series",values=ltypes)
+    scale_color_manual("series",values=col_pal,guide=guide_legend(ncol=2))+
+    scale_linetype_manual("series",values=ltypes,guide=guide_legend(ncol=2))
 }
 ```
 

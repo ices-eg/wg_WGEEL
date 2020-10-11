@@ -29,7 +29,7 @@ shinyServer(function(input, output, session){
 			
 			data<-reactiveValues(pool=NULL,connectOK=FALSE)
 			
-			observeEvent(input$xlfile,{
+			observeEvent(input$xlfile,tryCatch({
 						if (input$xlfile!="") {
 							output$integrate<-renderText({input$xlfile$datapath})
 						} else {
@@ -57,7 +57,9 @@ shinyServer(function(input, output, session){
 						output$"textoutput_step2.3" <- renderText("")
 
 						
-					})
+					},error = function(e) {
+					  showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+					}))
 			
 			load_database <- reactive({
 						# take a dependency on passwordbutton
@@ -227,7 +229,7 @@ shinyServer(function(input, output, session){
 			# Events triggerred by step0_button
 			###################################################
 			
-			observeEvent(input$check_file_button, {
+			observeEvent(input$check_file_button, tryCatch({
 						
 						cat(data$path_step0)
 						##################################################
@@ -312,7 +314,9 @@ shinyServer(function(input, output, session){
 											)            
 									)
 								})
-					})
+					},error = function(e) {
+					  showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+					}))
 			
 			
 			##################################################
@@ -323,7 +327,7 @@ shinyServer(function(input, output, session){
 			# this will render a datatable containing rows
 			# with duplicates values
 			#############################
-			observeEvent(input$check_duplicate_button, { 
+			observeEvent(input$check_duplicate_button, tryCatch({ 
 						
 						
 						# see step0load_data returns a list with res and messages
@@ -537,7 +541,9 @@ shinyServer(function(input, output, session){
 											))
 								})
 						#data$new <- new # new is stored in the reactive dataset to be inserted later.      
-					})
+					},error = function(e) {
+					  showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+					}))
 			
 			
 			##########################
@@ -546,7 +552,7 @@ shinyServer(function(input, output, session){
 			# this will trigger the data integration
 			#############################         
 			# this step only starts if step1 has been launched    
-			observeEvent(input$database_duplicates_button, { 
+			observeEvent(input$database_duplicates_button, tryCatch({ 
 						
 						###########################
 						# step2_filepath
@@ -594,13 +600,15 @@ shinyServer(function(input, output, session){
 										paste(message,collapse="\n")
 									}                  
 								})              
-					}) 
+					},,error = function(e) {
+					  showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+					})) 
 			##########################
 			# STEP 2.2
 			# When database_new_button is clicked
 			# this will trigger the data integration
 			#############################      
-			observeEvent(input$database_new_button, {
+			observeEvent(input$database_new_button, tryCatch({
 						
 						###########################
 						# step2_filepath
@@ -647,14 +655,16 @@ shinyServer(function(input, output, session){
 										paste(message,collapse="\n")
 									}                  
 								})  
-					})
+					},error = function(e) {
+					  showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+					}))
 			
 			##########################
 			# STEP 2.3
 			# Integration of updated_values when proceed is clicked
 			# 
 			#############################
-			observeEvent(input$database_updated_value_button, {
+			observeEvent(input$database_updated_value_button, tryCatch({
 			  ###########################
 			  # step2_filepath
 			  # reactive function, when clicked return value in reactive data 
@@ -699,7 +709,9 @@ shinyServer(function(input, output, session){
 									message<-step23load_updated_value_data()
 									paste(message,collapse="\n")
 								})  
-					})
+					},error = function(e) {
+					  showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+					}))
 			
 			#######################################
 			# II. Time series data
@@ -790,7 +802,7 @@ shinyServer(function(input, output, session){
 			##################################################
 			# Events triggerred by step0_button (time series page)
 			###################################################
-			observeEvent(input$ts_check_file_button, {
+			observeEvent(input$ts_check_file_button, tryCatch({
 						
 						##################################################
 						# clean up
@@ -954,7 +966,9 @@ shinyServer(function(input, output, session){
 											)
 									)
 								})
-					})
+					},error = function(e) {
+					  showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+					}))
 			
 			##################################################
 			# Events triggered by step1_button TIME SERIES
@@ -964,7 +978,7 @@ shinyServer(function(input, output, session){
 			# this will render a datatable containing rows
 			# with duplicates values
 			#############################
-			observeEvent(input$check_duplicate_button_ts, { 
+			observeEvent(input$check_duplicate_button_ts, tryCatch({ 
 						
 						
 						# see step0load_data returns a list with res and messages
@@ -1419,7 +1433,9 @@ shinyServer(function(input, output, session){
 						}
 						
 						
-					}) # end observe event
+					},error = function(e) {
+					  showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+					})) # end observe event
 			
 			##########################
 			# STEP 2 TIME SERIES INTEGRATION
@@ -1429,7 +1445,7 @@ shinyServer(function(input, output, session){
 			
 			# 2.1 new series --------------------------------------------------------
 			
-			observeEvent(input$integrate_new_series_button, {
+			observeEvent(input$integrate_new_series_button, tryCatch({
 						
 						
 						step21_filepath_new_series <- reactive({
@@ -1465,12 +1481,14 @@ shinyServer(function(input, output, session){
 										paste(message,collapse="\n")
 									}                  
 								})  
-					})			
+					},error = function(e) {
+					  showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+					}))			
 			
 			# 2.2 update modified series  --------------------------------------------------------
 			
 			
-			observeEvent(input$update_series_button, {
+			observeEvent(input$update_series_button, tryCatch({
 						
 						step22_filepath_modified_series <- reactive({
 									inFile <- isolate(input$xl_updated_series)     
@@ -1505,11 +1523,13 @@ shinyServer(function(input, output, session){
 										paste(message,collapse="\n")
 									}                  
 								})  
-					})	
+					},error = function(e) {
+					  showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+					}))	
 			
 			# 2.3 new dataseries  --------------------------------------------------------							
 			
-			observeEvent(input$integrate_new_dataseries_button, {
+			observeEvent(input$integrate_new_dataseries_button, tryCatch({
 						
 						step23_filepath_new_dataseries <- reactive({
 									inFile <- isolate(input$xl_new_dataseries)     
@@ -1544,11 +1564,13 @@ shinyServer(function(input, output, session){
 										paste(message,collapse="\n")
 									}                  
 								})  
-					})	
+					},error = function(e) {
+					  showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+					}))	
 			
 			# 2.4 update modified dataseries  --------------------------------------------------------							
 			
-			observeEvent(input$update_dataseries_button, {
+			observeEvent(input$update_dataseries_button, tryCatch({
 						
 						step24_filepath_modified_dataseries <- reactive({
 									inFile <- isolate(input$xl_updated_dataseries)     
@@ -1583,11 +1605,13 @@ shinyServer(function(input, output, session){
 										paste(message,collapse="\n")
 									}                  
 								})  
-					})	
+					},error = function(e) {
+					  showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+					}))	
 			
 			# 2.5 Integrate new biometry  --------------------------------------------------------							
 			
-			observeEvent(input$integrate_new_biometry_button, {
+			observeEvent(input$integrate_new_biometry_button, tryCatch({
 						
 						step25_filepath_new_biometry <- reactive({
 									inFile <- isolate(input$xl_new_biometry)     
@@ -1622,11 +1646,13 @@ shinyServer(function(input, output, session){
 										paste(message,collapse="\n")
 									}                  
 								})  
-					})
+					},error = function(e) {
+					  showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+					}))
 			
 			# 2.6 update modified biometries  --------------------------------------------------------							
 			
-			observeEvent(input$update_biometry_button, {
+			observeEvent(input$update_biometry_button, tryCatch({
 						
 						step26_filepath_update_biometry <- reactive({
 									inFile <- isolate(input$xl_modified_biometry)     
@@ -1661,7 +1687,9 @@ shinyServer(function(input, output, session){
 										paste(message,collapse="\n")
 									}                  
 								})  
-					})								
+					},error = function(e) {
+					  showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+					}))								
 			
 #			#######################################
 ## III. Data correction table  
@@ -1889,7 +1917,7 @@ shinyServer(function(input, output, session){
 			
 			# Observe the source, update reactive values accordingly
 			
-			observeEvent(mysourceAll(), {
+			observeEvent(mysourceAll(), tryCatch({
 			  data <- switch(input$edit_datatype,
 			                 "t_dataseries_das" = mysourceAll() %>%
 			                   arrange(ser_nameshort_ref,das_year), 
@@ -1905,7 +1933,9 @@ shinyServer(function(input, output, session){
 			  rvsAll$dbdata <- data
 			  rvsAll$editedInfo = NA
 			  disable("clear_tableAll")                
-			})
+			},error = function(e) {
+			  showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+			}))
 			
 			#-----------------------------------------
 			# Render DT table 
@@ -1974,15 +2004,17 @@ shinyServer(function(input, output, session){
 			    addLayersControl(baseGroups=c("OSM","satellite"))
 			})
 			
-			observeEvent(eventExpr = input$addRowTable_corAll, {
+			observeEvent(eventExpr = input$addRowTable_corAll, tryCatch({
 			  emptyRow <- rvsAll$dbdata[1,,drop=FALSE]
 			  emptyRow[1,] <- NA
 			  rvsAll$data <- bind_rows(rvsAll$data,emptyRow)
 			  replaceData(proxy_table_corAll,rvsAll$data , resetPaging = FALSE, rownames = FALSE)
-			})
+			},error = function(e) {
+			  showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+			}))
 			
 			
-			observeEvent(input$maps_editedtimeseries_draw_edited_features, {
+			observeEvent(input$maps_editedtimeseries_draw_edited_features, tryCatch({
 			  edited <- input$maps_editedtimeseries_draw_edited_features
 			  nedited <- length(edited$features)
 			  ids <- edited$features[[nedited]]$properties$`layerId`
@@ -2010,7 +2042,9 @@ shinyServer(function(input, output, session){
 			    rvsAll$editedInfo <- dplyr::bind_rows(rvsAll$editedInfo, info)
 			  }
 
-			})
+			},error = function(e) {
+			  showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+			}))
 			
 			#-----------------------------------------
 			# Create a DT proxy to manipulate data
@@ -2021,7 +2055,7 @@ shinyServer(function(input, output, session){
 			# Edit table data
 			# Expamples at
 			# https://yihui.shinyapps.io/DT-edit/
-			observeEvent(input$table_corAll_cell_edit, {
+			observeEvent(input$table_corAll_cell_edit, tryCatch({
 			  info <- input$table_corAll_cell_edit
 			  
 			  i <- info$row
@@ -2042,11 +2076,13 @@ shinyServer(function(input, output, session){
 			    rvsAll$editedInfo <- dplyr::bind_rows(rvsAll$editedInfo, data.frame(info))
 			  }
 			  
-			})
+			},error = function(e) {
+			  showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+			}))
 			
 			
 			#depending on the data type we want to edit, the picker change
-			observeEvent(input$edit_datatype,{
+			observeEvent(input$edit_datatype,tryCatch({
 			  if (input$edit_datatype=="t_eelstock_eel"){
 			    updatePickerInput(session=session,
 			                      inputId="editpicker2",
@@ -2088,11 +2124,13 @@ shinyServer(function(input, output, session){
 			    )
 			    rvsAll$data <- data
 			    rvsAll$dbdata <- data
-			  }})
+			  }},error = function(e) {
+			    showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+			  }))
 			
 			#when we want to edit time series related data, if a life stage is selected,
 			#we can restrict available time series choices
-			observeEvent(input$editpicker1,{
+			observeEvent(input$editpicker1,tryCatch({
 			  if (input$edit_datatype!="t_eelstock_eel"){
 			    stageser=ifelse(endsWith(ser_list,"GY"),
 			                    "GY",
@@ -2104,9 +2142,11 @@ shinyServer(function(input, output, session){
 			                      selected=selected)
 			  }
 			  
-			})
+			},error = function(e) {
+			  showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+			}))
 			
-			observeEvent(input$editpicker2,{
+			observeEvent(input$editpicker2,tryCatch({
 			  if (input$edit_datatype!="t_eelstock_eel" & is.null(input$editpicker1)){
 			    stageser=ifelse(endsWith(input$editpicker2,"GY"),
 			                    "GY",
@@ -2116,11 +2156,13 @@ shinyServer(function(input, output, session){
 			                      selected = stageser)
 			  }
 			  
-			})
+			},error = function(e) {
+			  showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+			}))
 			
 			# Update edited values in db once save is clicked---------------------------------------------
 			
-			observeEvent(input$saveAll, {
+			observeEvent(input$saveAll, tryCatch({
 			  errors <- update_data_generic(editedValue = rvsAll$editedInfo,
 			                              pool = pool, data=rvsAll$data,
 			                              edit_datatype=input$edit_datatype)
@@ -2133,12 +2175,14 @@ shinyServer(function(input, output, session){
 			  rvsAll$dbdata <- rvsAll$data
 			  rvsAll$dataSame <- TRUE
 			  rvsAll$editedInfo = NA
-			})
+			},error = function(e) {
+			  showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+			}))
 			
 			# Observe clear_table button -> revert to database table---------------------------------------
 			
 			observeEvent(input$clear_tableAll,
-			             {
+			             tryCatch({
 			               data <- switch(input$edit_datatype,
 			                              "t_dataseries_das" = mysourceAll() %>%
 			                                arrange(ser_nameshort_ref,das_year), 
@@ -2156,17 +2200,21 @@ shinyServer(function(input, output, session){
 			               disable("clear_tableAll")
 			               output$database_errorsAll<-renderText({""})
 			               rvsAll$editedInfo = NA
-			             })
+			             },error = function(e) {
+			               showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+			             }))
 			
 			# Oberve cancel -> revert to last saved version -----------------------------------------------
 			
-			observeEvent(input$cancelAll, {
+			observeEvent(input$cancelAll, tryCatch({
 			  rvsAll$data <- rvsAll$dbdata
 			  rvsAll$dbdata <- NA
 			  rvsAll$dbdata <- rvsAll$data #this is to ensure that the table display is updated (reactive value)
 			  rvsAll$dataSame <- TRUE
 			  rvsAll$editedInfo = NA
-			})
+			},error = function(e) {
+			  showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+			}))
 			
 			# UI buttons ----------------------------------------------------------------------------------
 			# Appear only when data changed
@@ -2223,10 +2271,12 @@ shinyServer(function(input, output, session){
 			
 # store data in reactive values ---------------------------------------------------------------
 			
-			observeEvent(mysource_graph(), {               
+			observeEvent(mysource_graph(), tryCatch({               
 						data <- mysource_graph() %>% arrange(eel_emu_nameshort,eel_year)
 						rvs$datagr <- data                           
-					})
+					},error = function(e) {
+					  showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+					}))
 			
 # plot -------------------------------------------------------------------------------------------
 # the plots groups by kept (typ id = 1,2,4) or not (other typ_id) and year 
@@ -2244,7 +2294,7 @@ shinyServer(function(input, output, session){
 # the observeEvent will not execute untill the user clicks, here it runs
 # both the plotly and datatable component -----------------------------------------------------
 			
-			observeEvent(input$duplicated_ggplot_click,  {
+			observeEvent(input$duplicated_ggplot_click,  tryCatch({
 						# the nearpoint function does not work straight with bar plots
 						# we have to retreive the x data and check the year it corresponds to ... 
 						year_selected = round(input$duplicated_ggplot_click$x)  
@@ -2288,18 +2338,22 @@ shinyServer(function(input, output, session){
 									p           
 								}) 
 						
-					}, ignoreNULL = TRUE) # additional arguments to observe ...
+					},error = function(e) {
+					  showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+					}), ignoreNULL = TRUE) # additional arguments to observe ...
 			
 			
 			# Insert new participants
-			observeEvent(input$new_participants_ok,{
+			observeEvent(input$new_participants_ok,tryCatch({
 						validate(need(data$connectOK,"No connection"))
 						validate(need(nchar(input$new_participants_id)>0,"need a participant name"))
 						message <- write_new_participants(input$new_participants_id)
 						output$new_participants_txt <- renderText({message}) 
 						updatePickerInput(session=session,"main_assessor",choices=participants)
 						updatePickerInput(session=session,"secondary_assessor",choices=participants)
-					})
+					},error = function(e) {
+					  showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+					}))
 			
 			
 			

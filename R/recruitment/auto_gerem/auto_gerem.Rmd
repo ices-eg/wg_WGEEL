@@ -416,10 +416,10 @@ if ((!file.exists(paste("datagerem",CY,".rdata",sep=""))) | params$updateData){
                c("scale_bound_shape1",
                  "scale_bound_shape2")]
     }),
-    min_trap=sapply(1:nbcatch,function(i){
+    min_trap=sapply(1:nbtrap,function(i){
       series[series$ser_nameshort==names(trap)[i],"min_bound"]
     }),
-    max_trap=sapply(1:nbcatch,function(i){
+    max_trap=sapply(1:nbtrap,function(i){
       series[series$ser_nameshort==names(trap)[i],"max_bound"]
     }),
     min_catch=sapply(1:nbcatch,function(i){
