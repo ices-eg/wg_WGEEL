@@ -140,9 +140,9 @@ ruitme\documentclass[pdftex,11pt,a4paper]{report}
      breaklinks=true, %permet le retour � la ligne dans les liens trop longs
      urlcolor= blue,  %couleur des hyperliens
      linkcolor= blue, %couleur des liens internes
-     bookmarks=true,  %cr�� des signets pour Acrobat
-     bookmarksopen=true,            %si les signets Acrobat sont cr��s,
-                                    %les afficher compl�tement.
+     bookmarks=true,  %cree des signets pour Acrobat
+     bookmarksopen=true,            %si les signets Acrobat sont crees,
+                                    %les afficher completement.
      pdftitle={WGEEL recruitment analysis output}, %informations apparaissant dans
      pdfauthor={C�dric Briand},     %dans les informations du document
      pdfsubject={Glass eel recruitment}          %sous Acrobat
@@ -2212,6 +2212,7 @@ time-series . The two English series (FlaE and BeeG) are still operating but
 data have not been updated since 2016.
 
 
+
  %====================================
 	\input{\Sexpr{str_c(tabwd,"/table_seriesCY.tex")}}
  %====================================
@@ -2316,7 +2317,10 @@ confidence intervals updated to \Sexpr{CY}.
   The  GLM ($glass eel \sim area:year+site$)  was  fitted  on
   \Sexpr{vv$modelge$nbsite} time-series comprising either pure glass eel or a mixture of 
   glass eels and yellow eels. The predictions $p$ have been scaled to the 1960-1979
-  average $\bar{p}_{1960-1979}$. In the Baltic area, recruitment occurs in the yellow eel stage only.}
+  average $\bar{p}_{1960-1979}$. Number of series  \Sexpr{pull(vv$nb_series_glass_eel_per_area[1,1])} =
+\Sexpr{sn(pull(vv$nb_series_glass_eel_per_area[1,2]))},
+\Sexpr{pull(vv$nb_series_glass_eel_per_area[2,1])} =
+\Sexpr{sn(pull(vv$nb_series_glass_eel_per_area[2,2]))}.}
 \label{figure5}
 \end{figure}
 %==========================================
