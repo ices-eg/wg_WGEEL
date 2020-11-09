@@ -4,8 +4,9 @@ for (zone in 1:nbzone){
 	###see https://en.wikipedia.org/wiki/Log-normal_distribution#Related_distributions
 	VZ[zone] <- log((exp(1/tauLocal)-1)*(sum(pow(surfaceallcatchment[zone,1:nbcatchmentzone[zone]]*exp(-0.5/tauLocal),2))/pow(sum(surfaceallcatchment[zone,1:nbcatchmentzone[zone]]*exp(-0.5/tauLocal)),2))+1)
 	sigmaZone[zone] <- sqrt(VZ[zone])
+	tauZone[zone] <- 1/VZ[zone]
 	muWeightZone[zone] <- log(sum(surfaceallcatchment[zone,1:nbcatchmentzone[zone]]*exp(-0.5/tauLocal)))+0.5/tauLocal-0.5*VZ[zone]
-	weightZone[zone]~dlnorm(muWeightZone[zone],sigmaZone[zone])
+	weightZone[zone]~dlnorm(muWeightZone[zone],tauZone[zone])
 }
 for (icm in 1:nbcatchments){
 	localeffect[icm]~dlnorm(-0.5/tauLocal,tauLocal)
@@ -72,7 +73,7 @@ for (y in 1:nbyear){
 		logUObs[y,iabsolute]~dnorm(logUpred[y,iabsolute],tauU[iabsolute])
 	}
 }
-beta~dunif(0.01,2)
+beta~dunif(0.71,1.3)
 propR[1:nbzone,1]~ddirich(alpha[1:nbzone])
 for (y in 2:nbyear){
 propR[1:nbzone,y]~ddirich(lambda*propR[1:nbzone,y-1])
@@ -93,12 +94,12 @@ for (survey in 1:nbsurvey){
 	logq[survey]~dunif(-13,0)
 }
 for (itrap in 1:nbtrap){
-	a[itrap]~dbeta(scale_trap[1,itrap],scale_trap[2,itrap])
+	a[itrap]~dbeta(scale_trap[1,itrap],scale_trap[2,itrap]) T(min_trap[itrap],max_trap[itrap])
 	loga[itrap]<-log(a[itrap])
 }
 for (icatch in 1:nbcatch){
-	p[icatch]~dbeta(scale_catch[1,icatch],scale_catch[2,icatch])
-	logp[icatch]<-log(p[icatch])
+	p[icatch]~dbeta(scale_catch[1,icatch],scale_catch[2,icatch]) T(min_catch[icatch],max_catch[icatch])
+	logp[icatch]<-log(p[icatch]) 
 }
 iprecision~dgamma(2,1)T(1,2)
 precisionpropRwalk<-1/iprecision
@@ -130,4 +131,5 @@ for (icatch in 1:nbcatch){
 tauq~dgamma(2,1)T(1,15)
 tauRwalk~dgamma(2,1)T(1,15)
 sdRwalk<-1/sqrt(tauRwalk)
+tauLocal~dgamma(2,1)T(,15)
 }
