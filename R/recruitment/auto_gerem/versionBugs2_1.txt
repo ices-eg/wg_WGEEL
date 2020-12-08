@@ -2,10 +2,10 @@ model{
 for (zone in 1:nbzone){
 	#weightZone[zone]<-sum(pow(surfaceallcatchment[zone,],beta))
 	###see https://en.wikipedia.org/wiki/Log-normal_distribution#Related_distributions
-	VZ[zone] <- log((exp(1/tauLocal)-1)*(sum(pow(surfaceallcatchment[zone,1:nbcatchmentzone[zone]]*exp(-0.5/tauLocal),2))/pow(sum(surfaceallcatchment[zone,1:nbcatchmentzone[zone]]*exp(-0.5/tauLocal)),2))+1)
+	VZ[zone] <- log((exp(1/tauLocal)-1)*(sum(pow(pow(surfaceallcatchment[zone,1:nbcatchmentzone[zone]],beta)*exp(-0.5/tauLocal),2))/pow(sum(pow(surfaceallcatchment[zone,1:nbcatchmentzone[zone]],beta)*exp(-0.5/tauLocal)),2))+1)
 	sigmaZone[zone] <- sqrt(VZ[zone])
 	tauZone[zone] <- 1/VZ[zone]
-	muWeightZone[zone] <- log(sum(surfaceallcatchment[zone,1:nbcatchmentzone[zone]]*exp(-0.5/tauLocal)))+0.5/tauLocal-0.5*VZ[zone]
+	muWeightZone[zone] <- log(sum(pow(surfaceallcatchment[zone,1:nbcatchmentzone[zone]],beta)*exp(-0.5/tauLocal)))+0.5/tauLocal-0.5*VZ[zone]
 	weightZone[zone]~dlnorm(muWeightZone[zone],tauZone[zone])
 }
 for (icm in 1:nbcatchments){
