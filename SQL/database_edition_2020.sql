@@ -709,3 +709,19 @@ select max("tblCodeID")+1,
 	'S~T' as "PURPM", -- Not sure there
 	NULL as "Notes"
 from ref.tr_station; --1 
+
+-- NOT done 2021 Hilaire has not fixed the problem
+UPDATE ref.tr_emusplit_ems SET geom = sub.geom FROM 
+(SELECT st_collect(geom) AS geom FROM ref.tr_emusplit_ems WHERE emu_nameshort IN ('ES_Inne', 'ES_Spai')) sub
+WHERE emu_nameshort = 'ES_Inne';
+DELETE FROM ref.tr_emusplit_ems WHERE emu_nameshort = 'ES_Spai';
+
+UPDATE ref.tr_emu_emu SET geom = sub.geom FROM 
+(SELECT st_union(geom) AS geom FROM ref.tr_emu_emu WHERE emu_nameshort IN ('ES_Inne', 'ES_Spai')) sub
+WHERE emu_nameshort = 'ES_Inne';
+DELETE FROM ref.tr_emu_emu WHERE emu_nameshort = 'ES_Spai';
+
+SELECT * FROM ref.tr_emu_emu WHERE emu_nameshort= 'ES_Spai';
+
+
+SELECT * FROM datawg.t_eelstock_eel WHERE eel_emu_nameshort='FR_Adou'  AND eel_lfs_code='G'

@@ -944,16 +944,19 @@ dat$year=as.factor(dat$year)
 
 tab1 <- reshape2::dcast(dat,year~site,value.var="value")
 tab1[,2:ncol(tab1)]=round(tab1[,2:ncol(tab1)],2)
-colnames(tab1) <- c("year",statseries$site)
 tab1[,1] <- as.character(tab1[,1])
+
+statseries <- statseries[order(statseries$site),]
+
 first_line <- c("kept",statseries$series_kept)
 tab1 <- rbind(first_line,tab1)
 
 
 openxlsx::write.xlsx(x=list("recruitment_series"=tab1,
-					"series_description"=statseries),file=str_c(datawd,"table_rec", CY, ".xls"))
+					"series_description"=statseries),file=str_c(datawd,"table_rec", CY, ".xlsx"))
 
-
+openxlsx::write.xlsx(x=list("wger_init"=wger_init,
+					"older"=older, "wger"=wger),file=str_c(datawd,"table_long", CY, ".xlsx"))
 
 @
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
