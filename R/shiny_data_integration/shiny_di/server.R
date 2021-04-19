@@ -90,7 +90,7 @@ shinyServer(function(input, output, session){
 						
 					}, blocking_level="error"))
 			
-			var_database <- reactive({
+			var_database <- reactive(shinyCatch({
 						req(input$passwordbutton)
 						# untill the password has been entered don't do anything
 						validate(need(data$connectOK,"No connection"))
@@ -154,12 +154,12 @@ shinyServer(function(input, output, session){
 								selected = "Cedric Briand"
 						)
 						
-					})
+					}, blocking_level="error"))
 			###########################
 			# step0_filepath
 			# this will add a path value to reactive data in step0
 			###########################
-			step0_filepath <- reactive({
+			step0_filepath <- reactive(shinyCatch({
 						cat("debug message : stetp0_filepath")
 						inFile <- input$xlfile      
 						if (is.null(inFile)){        return(NULL)
@@ -180,7 +180,7 @@ shinyServer(function(input, output, session){
 							if (grepl(c("rate"),tolower(inFile$name)))
 								updateRadioButtons(session, "file_type", selected = "mortality_rates")
 						}
-					}) 
+					}, blocking_level="error")) 
 			
 			
 			###########################
