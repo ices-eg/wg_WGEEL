@@ -1,8 +1,11 @@
 ###############################################
 # Ui file for ICES data integration tools
 ###############################################
+spsDepend("toastr")
 
-ui <- dashboardPage(title="ICES Data Integration",
+ui <- fluidPage(spsDepend("toastr"),
+                dashboardPage(title="ICES Data Integration",
+                    
 		dashboardHeader(title=div(img(src="iceslogo.png"),"wgeel")),
 		
 		################################################################################################
@@ -471,6 +474,6 @@ ui <- dashboardPage(title="ICES Data Integration",
 
 						)
 				)
-		)
-
+)
+)
 

@@ -19,6 +19,8 @@ load_package("DT")
 load_package("readxl")
 load_package("stringr")
 load_package("htmltools")
+load_package("spsComps")
+
 
 #-----------------
 # Data correction table
@@ -27,7 +29,7 @@ load_package("htmltools")
 load_package("pool")
 load_package("DBI")
 load_package("RPostgreSQL") # this one works with sqldf
-library("RPostgres")
+load_package("RPostgres")
 load_package("dplyr")
 load_package("tidyr")
 load_package("glue")
@@ -37,6 +39,7 @@ load_package("shinyWidgets")
 load_package("shinyBS")
 load_package("sqldf")
 load_package("leaflet")
+load_package("shinytoastr")
 
 options(shiny.sanitize.errors = FALSE)
 
