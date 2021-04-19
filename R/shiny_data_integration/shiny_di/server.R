@@ -61,7 +61,7 @@ shinyServer(function(input, output, session){
 					  showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
 					}))
 			
-			load_database <- reactive({
+			load_database <- reactive(shinyCatch({
 						# take a dependency on passwordbutton
 						req(input$passwordbutton)						
   						port <- 5432
@@ -88,7 +88,7 @@ shinyServer(function(input, output, session){
 						data$pool <-pool
 						data$connectOK <-dbGetInfo(data$pool)$valid
 						
-					})
+					}, blocking_level="error"))
 			
 			var_database <- reactive({
 						req(input$passwordbutton)
