@@ -31,7 +31,7 @@ WHERE eel_typ_id IN (13,14,15,17,18,19,20,21,22,23,25,26,27,28,29,30,31,24) and 
 ALTER TABLE datawg.t_series_ser ADD COLUMN ser_distanceseakm NUMERIC;
 COMMENT ON COLUMN datawg.t_series_ser.ser_distanceseakm IS 
 'Distance to the saline limit in km, for group of data, e.g. a set of electrofishing points 
-in a basin, this is the average distance of the different points':
+in a basin, this is the average distance of the different points';
 
 
 
