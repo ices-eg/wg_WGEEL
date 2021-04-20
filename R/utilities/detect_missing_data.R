@@ -168,7 +168,7 @@ detect_missing_biom_morta <- function(cou="FR",
                                 host="localhost",
                                 dbname="wgeel",
                                 user="wgeel",
-                                port=5432,
+                                port=5435,
                                 datasource="dc_2021") {
   #browser()
   
@@ -194,22 +194,22 @@ detect_missing_biom_morta <- function(cou="FR",
   
   
   complete <- dbGetQuery(con_wgeel,"select eel_cou_code,eel_year,eel_emu_nameshort,b0,bbest,bcurrent,suma,sumf,sumh from datawg.precodata_emu") %>%
-    pivot_longer(cols=all_of(c("b0","bbest","bcurrent","suma","sumf","sumh")),names_to="eel_typ_name",values_to="eel_value") %>%
+    pivot_longer(cols=all_of(c("b0","bbest","bcurrent","suma","sumf","sumh")),names_to="typ_name",values_to="eel_value") %>%
     filter(!is.na(eel_value)) %>%
     filter(eel_cou_code == cou) %>%
-    mutate(eel_typ_id=case_when(eel_typ_name == "b0" ~ 13,
-                                eel_typ_name == "bbest" ~ 14,
-                                eel_typ_name == "bcurrent" ~ 15,
-                                eel_typ_name == "suma" ~ 17,
-                                eel_typ_name == "sumf" ~ 18,
-                                eel_typ_name == "sumh" ~ 19
+    mutate(eel_typ_id=case_when(typ_name == "b0" ~ 13,
+                                typ_name == "bbest" ~ 14,
+                                typ_name == "bcurrent" ~ 15,
+                                typ_name == "suma" ~ 17,
+                                typ_name == "sumf" ~ 18,
+                                typ_name == "sumh" ~ 19
                                 )) %>%
     distinct() %>%
     mutate(eel_year=ifelse(eel_typ_id==13,0,eel_year))
   
   ##we check that's there only one B0 
   complete <- complete %>% 
-    group_by(eel_cou_code, eel_year, eel_emu_nameshort,eel_typ_name,eel_typ_id) %>%
+    group_by(eel_cou_code, eel_year, eel_emu_nameshort,typ_name,eel_typ_id) %>%
     summarize(n=n_distinct(eel_value),eel_value=mean(eel_value,na.rm=TRUE)) %>%
     filter(n==1)
   
@@ -243,6 +243,10 @@ detect_missing_biom_morta <- function(cou="FR",
   
   missing_comb <- base::merge(missing_comb,complete[,c("eel_year","eel_emu_nameshort","eel_value","eel_typ_id")],
                               all.x=TRUE)
+  eel_typ_name=dbGetQuery(con_wgeel,"select typ_id eel_typ_id,typ_name  from ref.tr_typeseries_typ")
+  missing_comb$eel_typ_id=as.integer(missing_comb$eel_typ_id)
+  
+  missing_comb=merge(missing_comb,eel_typ_name)
 
   return(missing_comb)
 }
