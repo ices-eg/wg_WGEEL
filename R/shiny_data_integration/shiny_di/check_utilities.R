@@ -385,3 +385,55 @@ check_emu_country <- function(dataset, namedataset, column, country){
                       error_message=paste("eel_emu_nameshort should be in {",paste(emu_whole,collapse=", "),"}",sep=""))
   return(answer)
 }
+
+
+#' check that biomass is numeric and only NP
+#' 
+#' @param dataset the name of the dataset
+#' @param namedataset the name of the sheet 
+#' @param column the name of the column
+#' @param country the current country being evaluated
+#' 
+
+check_biom_num <- function(dataset, namedataset, column, country){
+	answer = NULL
+	namedataset <-  deparse(substitute(dataset))
+	newdataset <- dataset
+	newdataset$nline <- 1:nrow(newdataset)
+	# remove NA from data
+	#ddataset <- as.data.frame(newdataset[!is.na(newdataset[,column]),])
+	
+	newdataset$num <- as.numeric(newdataset[,column])
+
+	if (nrow(newdataset)>0){ 
+		
+		if (! all(newdataset[is.na(newdataset$num),column]%in%c("NP"))) { # are all values matching ?
+			value1 <- newdataset[,column][!newdataset[,column]%in%c("NP") & is.na(newdataset$num)]
+			line1 <- newdataset$nline[!newdataset[,column]%in%c("NP") & is.na(newdataset$num)]
+		}else if (newdataset[!is.na(newdataset$num),column]) {
+				value2 <- as.numeric(newdataset[,column][!is.na(newdataset$num) & as.numeric(newdataset[,column]>0)
+										& as.numeric(newdataset[,column]>100)])
+				line2 <- newdataset$nline[!is.na(newdataset$num) & as.numeric(newdataset[,column]>0)
+								& as.numeric(newdataset[,column]>100)]
+			}
+			
+			value <- c(value1, value2)
+			line <- c(line1, line2)
+			
+			if (length(line)>0){
+				cat(sprintf("dataset <%s>, column <%s>, line <%s>, value <%s> is wrong, only numeric between 0 and 100 or NP is possible \n", 
+								namedataset,
+								column,
+								str_c(unique(line),collapse=";"),
+								str_c(value,collapse=";")))
+				# same but split and no end of line
+				answer  = data.frame(nline = line , 
+						error_message = sprintf("dataset <%s>, column <%s>, value <%s> is wrong, only numeric between 0 and 100 or NP is possible", 
+								namedataset,
+								column,
+								value))
+			}
+	}
+	return(answer)
+}
+
