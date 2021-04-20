@@ -520,7 +520,7 @@ if  ((!file.exists(paste("gerem",CY,".rdata",sep=""))) | params$runModel){
   jags_res=as.mcmc.list(jags_res)
   jags_mat=as.matrix(jags_res)
   colname=varnames(jags_res)
-  save(jags_res,jags_mat,colname,file=paste("gerem",CY,".rdata",sep=""))
+  save(paste(jags_res,jags_mat,colname,file="gerem",CY,".rdata",sep=""))
           
   
 } else {
