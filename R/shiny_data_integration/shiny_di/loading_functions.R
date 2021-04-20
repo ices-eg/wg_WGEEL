@@ -696,7 +696,7 @@ load_aquaculture<-function(path,datasource){
 	data_xls$eel_datasource <- datasource
 	# check column names
 	if (!all(colnames(data_xls)%in%
-					c("eel_typ_name","eel_year","eel_value","eel_missvaluequal","eel_emu_nameshort",
+					c(		"eel_typ_name","eel_year","eel_value","eel_missvaluequal","eel_emu_nameshort",
 							"eel_cou_code", "eel_lfs_code", "eel_hty_code","eel_area_division",
 							"eel_qal_id", "eel_qal_comment","eel_comment","eel_datasource"))) 
 		cat(str_c("problem in column names :",            
@@ -855,7 +855,7 @@ load_aquaculture<-function(path,datasource){
 
 
 ############# BIOMASS INDICATORS #############################################
-# path <- file.choose()
+#path <- file.choose()
 load_biomass<-function(path,datasource){
 	data_error <- data.frame(nline = NULL, error_message = NULL)
 	the_metadata<-list()
@@ -888,31 +888,36 @@ load_biomass<-function(path,datasource){
 	
 	data_xls<-read_excel(
 			path=path,
-			sheet=3,
+			sheet="new_data",
 			skip=0)
 	# correcting an error with typ_name
 	data_xls <- correct_me(data_xls)  
 	country =as.character(data_xls[1,6]) #country code is in the 6th column
 	
-	# check for the file integrity, only 11 column in this file
-	if (ncol(data_xls)!=10) cat(str_c("number column wrong should have been 10 in template for country",country,"\n"))
+	# check for the file integrity, only 12 column in this file
+	if (ncol(data_xls)!=12) cat(str_c("number column wrong should have been 10 in template for country",country,"\n"))
 	data_xls$eel_qal_id <- NA
 	data_xls$eel_qal_comment <- NA
 	data_xls$eel_datasource <- datasource
 	# check column names
 #FIXME there is a problem with name in data_xls, here we have to use typ_name
 	if (!all(colnames(data_xls)%in%
-					c("eel_typ_name", "eel_year","eel_value","eel_missvaluequal","eel_emu_nameshort",
-							"eel_cou_code", "eel_lfs_code", "eel_hty_code","eel_area_division",
-							"eel_qal_id", "eel_qal_comment","eel_comment","eel_datasource"))) 
+					c("typ_name", "eel_year", "eel_value", "eel_missvaluequal", "eel_emu_nameshort", 
+							"eel_cou_code", "biom_perc_F", "biom_perc_T", "biom_perc_C", "biom_perc_MO", 
+							"eel_comment", "eel_datasource"))) 
 		cat(str_c("problem in column names :",
 						paste(colnames(data_xls)[!colnames(data_xls)%in%
-												c("eel_typ_name", "eel_year","eel_value","eel_missvaluequal","eel_emu_nameshort",
-														"eel_cou_code", "eel_lfs_code", "eel_hty_code","eel_area_division",
-														"eel_qal_id", "eel_qal_comment","eel_comment","eel_datasource")],collapse= " & "),
+												c("typ_name", "eel_year", "eel_value", "eel_missvaluequal", "eel_emu_nameshort", 
+														"eel_cou_code", "biom_perc_F", "biom_perc_T", "biom_perc_C", "biom_perc_MO", 
+														"eel_comment", "eel_datasource")],collapse= " & "),
 						" file = ",file,"\n")) 
 	
 	if (nrow(data_xls)>0){
+
+		###### check_duplicate_biomass #############
+		data_error=rbind(data_error, check_duplicate_biomass(
+						dataset=data_xls,
+						namedataset="new_data"))
 		
 		
 		###### typ_name #############
@@ -1007,91 +1012,44 @@ load_biomass<-function(path,datasource){
 						column="eel_cou_code",
 						country=country))
 		
-		###### eel_lfs_code ##############
-		
-		data_error= rbind(data_error, check_type(
+		###### biom_perc_F ##############
+		#  biom_perc_F should be 1 to 100 or NP
+		data_error= rbind(data_error, check_biom_num(
 						dataset=data_xls,
 						namedataset= "new_data", 
-						column="eel_lfs_code",
-						country=country,
-						type="character"))
-		
-		# should not have any missing value
-		data_error= rbind(data_error, check_missing(
-						dataset=data_xls,
-						namedataset= "new_data", 
-						column="eel_lfs_code",
-						country=country))
-		
-		# should only correspond to the following list
-		data_error= rbind(data_error, check_values(
-						dataset=data_xls,
-						namedataset= "new_data", 
-						column="eel_lfs_code",
-						country=country,
-						values=c("G","Y","YS","S","AL")))
-		
-		###### eel_hty_code ##############
-		data_error= rbind(data_error, check_type(
-						dataset=data_xls,
-						namedataset= "new_data", 
-						column="eel_hty_code",
-						country=country,
-						type="character"))
-		
-		# should not have any missing value
-		data_error= rbind(data_error,check_missing(
-						dataset=data_xls,
-						namedataset= "new_data", 
-						column="eel_hty_code",
-						country=country))
-		
-		# should only correspond to the following list
-		data_error= rbind(data_error,check_values(
-						dataset=data_xls,
-						namedataset= "new_data", 
-						column="eel_hty_code",
-						country=country,
-						values=c("F","T","C","MO", "AL")))
-		
-		###### eel_area_div ##############
-		
-		data_error= rbind(data_error,check_type(
-						dataset=data_xls,
-						namedataset= "new_data", 
-						column="eel_area_division",
-						country=country,
-						type="character"))
-		
-		# should not have any missing value
-		data_error= rbind(data_error,check_missing(
-						dataset=data_xls,
-						namedataset= "new_data", 
-						column="eel_area_division",
-						country=country))
-		
-		# the dataset ices_division should have been loaded there
-		data_error= rbind(data_error,check_values(
-						dataset=data_xls,
-						namedataset= "new_data", 
-						column="eel_area_division",
-						country=country,
-						values=ices_division))
-		
-		###### freshwater shouldn't have area ########################
-		
-		data_error= rbind(data_error, check_freshwater_without_area(
-						dataset=data_xls,
-						namedataset= "new_data", 
-						country=country) 
-		)
-		
-	}
-	return(invisible(list(data=data_xls,error=data_error,the_metadata=the_metadata)))
-}
+						column="biom_perc_F",
+						country=country)) 
 
+		###### biom_perc_T ##############
+		#  biom_perc_T should be 1 to 100 or NP
+		data_error= rbind(data_error, check_biom_num(
+						dataset=data_xls,
+						namedataset= "new_data", 
+						column="biom_perc_T",
+						country=country)) 
+		
+		###### biom_perc_C ##############
+		#  biom_perc_C should be 1 to 100 or NP
+		data_error= rbind(data_error, check_biom_num(
+						dataset=data_xls,
+						namedataset= "new_data", 
+						column="biom_perc_C",
+						country=country)) 
+		
+		###### biom_perc_MO ##############
+		#  biom_perc_MO should be 1 to 100 or NP
+		data_error= rbind(data_error, check_biom_num(
+						dataset=data_xls,
+						namedataset= "new_data", 
+						column="biom_perc_MO",
+						country=country))
 
-
+		
+		}
+		return(invisible(list(data=data_xls,error=data_error,the_metadata=the_metadata)))
+		}
+		
+		
 ############# MORTALITY RATES #############################################
 
 # path <- file.choose()
