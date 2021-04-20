@@ -5,7 +5,7 @@
 #######################################################################################
 # put the current year there
 setwd("C:/workspace\\gitwgeel\\")
-CY<-2020
+CY<-2021
 # function to load packages if not available
 load_library=function(necessary) {
 	if(!all(necessary %in% installed.packages()[, 'Package']))
@@ -78,6 +78,9 @@ t_eelstock_eel<-sqldf("SELECT
 				left join ref.tr_quality_qal on eel_qal_id=tr_quality_qal.qal_id 
 				left join ref.tr_typeseries_typ on eel_typ_id=typ_id;")
 
+
+save(t_eelstock_eel, file=str_c(wddata,"t_eelstock_eel.Rdata"))
+# load(t_eelstock_eel.Rdata)
 #tr_eel_typ<- sqldf("SELECT * from ref.tr_typeseries_typ")
 
 #' function to create the data sheet 

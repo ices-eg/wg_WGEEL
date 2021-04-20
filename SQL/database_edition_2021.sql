@@ -28,10 +28,7 @@ WHERE eel_typ_id IN (13,14,15,17,18,19,20,21,22,23,25,26,27,28,29,30,31,24) and 
 /*
  *  THIS PART (about series)  HAS BEEN LAUNCHED ON SERVER
  */
-ALTER TABLE datawg.t_series_ser ADD COLUMN ser_distanceseakm NUMERIC;
-COMMENT ON COLUMN datawg.t_series_ser.ser_distanceseakm IS 
-'Distance to the saline limit in km, for group of data, e.g. a set of electrofishing points 
-in a basin, this is the average distance of the different points';
+
 
 
 
@@ -62,6 +59,19 @@ UPDATE datawg.t_series_ser SET ser_sam_gear= 230 WHERE ser_sam_gear IS NULL AND 
 UPDATE datawg.t_series_ser SET ser_sam_gear= 242 WHERE ser_sam_gear IS NULL AND ser_comment ILIKE '%electrofishing%'; --7
 UPDATE datawg.t_series_ser SET ser_comment ='partial monitoring of one gate, with a model reconstructing the total migration' WHERE ser_id = 224;
 
+ALTER TABLE datawg.t_series_ser ADD COLUMN ser_distanceseakm NUMERIC;
+COMMENT ON COLUMN datawg.t_series_ser.ser_distanceseakm IS 
+'Distance to the saline limit in km, for group of data, e.g. a set of electrofishing points 
+in a basin, this is the average distance of the different points';
+
+
+ALTER TABLE datawg.t_series_ser ADD COLUMN ser_method TEXT;
+COMMENT ON COLUMN datawg.t_series_ser.ser_method IS 
+'Description of the method used, includes precisions about the sampling method, period and life stages collected';
+
+
+ALTER TABLE datawg.t_biometry_bio ADD COLUMN bio_number NUMERIC;
+COMMENT ON COLUMN datawg.t_biometry_bio.bio_number IS 'number of individual corresponding to the measures';
 /*
 Table for percent habitat related to stock indicators
 */

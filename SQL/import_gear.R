@@ -43,7 +43,7 @@ library("DBI")
 #con=dbConnect(PostgreSQL(), 		
 #		dbname="wgeel", 		
 #		host="localhost",
-#		port=5435, 		
+#		port=5432, 		
 #		user= userlocal, 		
 #		password= passwordlocal)
 con=dbConnect(PostgreSQL(), 		

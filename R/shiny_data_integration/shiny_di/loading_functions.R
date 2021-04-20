@@ -1773,7 +1773,7 @@ load_potential_available_habitat<-function(path,datasource){
 }
 
 ############# time series #############################################
-# path <- "C:\\Users\\cedric.briand\\OneDrive - EPTB Vilaine\\Projets\\GRISAM\\2020\\wgeel\\datacall\\FR\\Eel_Data_Call_2020_Annex1_time_series_FR_Recruitment.xlsx"
+# path <- "C:\\Users\\cedric.briand\\OneDrive - EPTB Vilaine\\Projets\\GRISAM\\2021\\WKEELDATA\\00template\\Eel_Data_Call_2020_Annex1_time_series.xlsx"
 # path<-file.choose()
 # datasource<-the_eel_datasource
 # load_series(path,datasource,"glass_eel")
@@ -1798,20 +1798,9 @@ load_series<-function(path,datasource,stage="glass_eel"){
 	
 #---------------------- METADATA sheet ---------------------------------------------
 # read the metadata sheet
-	metadata<-read_excel(path=path,"metadata" , skip=4)
+	metadata<-read_excel(path=path,"metadata" , skip=1)
 # check if no rows have been added
-	if (names(metadata)[1]!="For each data series") cat(str_c("The structure of metadata has been changed ",datacallfiles[1]," in ",country,"\n"))
-# store the content of metadata in a list
-	if (ncol(metadata)>1){   
-		the_metadata[["contact"]] <- as.character(metadata[1,2])
-		the_metadata[["contactemail"]] <- as.character(metadata[2,2])
-		the_metadata[["method"]] <- as.character(metadata[3,2])
-	} else {
-		the_metadata[["contact"]] <- NA
-		the_metadata[["contactemail"]] <- NA
-		the_metadata[["method"]] <- NA
-	}
-# end loop for directories
+	if (names(metadata)[1]!="") cat(str_c("The structure of metadata has been changed ",datacallfiles[1]," in ",country,"\n"))
 	
 #---------------------- series info ---------------------------------------------
 	
