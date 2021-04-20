@@ -6,6 +6,10 @@
 # put the current year there
 setwd("C:/workspace\\gitwgeel\\")
 CY<-2021
+# and the annex name / type of data
+name_annex <- "Eel_Data_Call_Annex_9_Mortality rates"
+eel_typ_id_annex <- 17:25
+
 # function to load packages if not available
 load_library=function(necessary) {
 	if(!all(necessary %in% installed.packages()[, 'Package']))
@@ -46,7 +50,10 @@ source("R/utilities/detect_missing_data.R")
 ###################################
 # this set up the connextion to the postgres database
 # change parameters accordingly
-###################################"
+###################################
+# you must set the user and pwd for the database HERE
+# userwgeel = ""
+# passwordwgeel = ""
 options(sqldf.RPostgreSQL.user = userwgeel, 
 		sqldf.RPostgreSQL.password = passwordwgeel,
 		sqldf.RPostgreSQL.dbname = "wgeel",
@@ -76,10 +83,10 @@ t_eelstock_eel<-sqldf("SELECT
 				qal_kept,
 				typ_name
 				FROM datawg.t_eelstock_eel 
-				left join ref.tr_quality_qal on eel_qal_id=tr_quality_qal.qal_id 
-				left join ref.tr_typeseries_typ on eel_typ_id=typ_id;")
+				LEFT JOIN ref.tr_quality_qal on eel_qal_id=tr_quality_qal.qal_id 
+				LEFT JOIN ref.tr_typeseries_typ on eel_typ_id=typ_id;")
 
-#tr_eel_typ<- sqldf("SELECT * from ref.tr_typeseries_typ")
+#tr_eel_typ<- sqldf("SELECT typ_id, typ_name FROM ref.tr_typeseries_typ")
 
 #' function to create the data sheet 
 #' 
@@ -96,22 +103,20 @@ t_eelstock_eel<-sqldf("SELECT
 #' @param ... arguments  cou,	minyear, maxyear, host, dbname, user, and port passed to missing_data
 #' 
 #'  country <- "FR" ; name <- "Eel_Data_Call_Annex_9_Mortality rates" ; eel_typ_id <- 17:25 ;
-
-
 create_datacall_file <- function(country, eel_typ_id, name, ...){  
-	
-	
+
 	#create a folder for the country , names for source and destination files
-	dir.create(str_c(wddata,country),showWarnings = FALSE) # show warning= FALSE will create if not exist	
-	nametemplatefile <- str_c(name,".xlsx")
-	templatefile <- file.path(wddata,"00template",nametemplatefile)
-	namedestinationfile <- str_c(name,"_",country,".xlsx")	
+	dir.create(str_c(wddata,country), showWarnings = FALSE) # show warning= FALSE will create if not exist	
+	nametemplatefile <- str_c(name, ".xlsx")
+	templatefile <- file.path(wddata, "00template", nametemplatefile)
+	namedestinationfile <- str_c(name, "_",country,".xlsx")	
 	destinationfile <- file.path(wddata, country, namedestinationfile)		
-	
+
 	# limit dataset to country
 	r_coun <- t_eelstock_eel[t_eelstock_eel$eel_cou_code==country & t_eelstock_eel$eel_typ_id %in% eel_typ_id,]
 	r_coun <- r_coun[,c(1,18,3:17)]
 	wb = loadWorkbook(templatefile)
+	cat("ok")
 	
 	if (nrow(r_coun) >0) {
 		## separate sheets for discarded and kept data  
@@ -126,7 +131,7 @@ create_datacall_file <- function(country, eel_typ_id, name, ...){
 # XLConnect METHOD	
 #		writeWorksheet(wb, data_disc,  sheet = "existing_discarded",header=FALSE, startRow=2)
 #		writeWorksheet(wb, data_kept,  sheet = "existing_kept",header=FALSE,startRow=2)
-		
+		cat("ok")
 # openxlsx METHODS
 		openxlsx::writeData(wb, sheet = "existing_discarded", data_disc, startRow = 1)
 		openxlsx::writeData(wb, sheet = "existing_kept", data_kept, startRow = 1)		
@@ -138,177 +143,25 @@ create_datacall_file <- function(country, eel_typ_id, name, ...){
 
 }
 
-
 # TESTS -------------------------------------------
-# note passwordwgeel must be set and exist
-# passwordwgeel <- XXXXXXXX
-country <- "NO";eel_typ_id <- 4; name <- "Eel_Data_Call_2020_Annex4_Landings_Commercial";minyear=2000;
-maxyear=2020;host="localhost";dbname="wgeel";user="wgeel";port=5432;datasource="dc_2020";
-#test
 create_datacall_file ( 
-		country <- "MA",
-		eel_typ_id <- 4, 
-		name <- "Eel_Data_Call_2020_Annex4_Landings_Commercial",
-		minyear=2000,
-		maxyear=2020, #maxyear corresponds to the current year where we have to fill data
-		host="localhost",
-		dbname="wgeel",
-		user="wgeel",
-		port=5432,
-		datasource="dc_2020")
-
-
-create_datacall_file ( 
-		country <- "MA",
-		eel_typ_id <- 4, 
-		name <- "Eel_Data_Call_2020_Annex4_Landings_Commercial",
-		minyear=2000,
-		maxyear=2020, #maxyear corresponds to the current year where we have to fill data
-		host="localhost",
-		dbname="wgeel",
-		user="wgeel",
-		port=5432,
-		datasource="dc_2020")
+		country <- "NO",
+		eel_typ_id <- eel_typ_id_annex,
+		name <- name_annex)
 
 # END TEST -------------------------------------------
 
-# CLOSE EXCEL FILE FIST
+# CLOSE EXCEL FILE FIRST
 cou_code<-unique(t_eelstock_eel$eel_cou_code[!is.na(t_eelstock_eel$eel_cou_code)])
 
-# create an excel file for each of the countries and each typ_id
-# LANDINGS COMMERCIAL AND RECREATIONAL
-# problems with "NO", "TR", "HR" 
-cou <-"EE"
+# create an excel file for each of the countries
+#cou <-"EE"
 for (cou in cou_code){	
 	country <- cou
 	cat("country: ",country,"\n")
 	create_datacall_file ( 
 			country <- cou,
-			eel_typ_id <- 4, 
-			name <- "Eel_Data_Call_2020_Annex4_Landings_Commercial",
-			minyear=2000,
-			maxyear=2020, #maxyear corresponds to the current year where we have to fill data
-			host="localhost",
-			dbname="wgeel",
-			user="wgeel",
-			port=5432,
-			datasource="dc_2020")
+			eel_typ_id <- eel_typ_id_annex, 
+			name <- name_annex)
 	cat("work finished\n")
 }
-
-for (cou in cou_code){		
-	country <- cou
-	cat("country: ",country,"\n")
-	create_datacall_file ( 
-			country <- cou,
-			eel_typ_id <- 6, 
-			name <- "Eel_Data_Call_2020_Annex5_Landings_Recreational",
-			minyear=2000,
-			maxyear=2020, #maxyear corresponds to the current year where we have to fill data
-			host="localhost",
-			dbname="wgeel",
-			user="wgeel",
-			port=5432,
-			datasource="dc_2020")
-	cat("work finished",country,"\n")
-}
-
-# OTHER LANDINGS
-
-for (cou in cou_code){				
-	create_datacall_file ( 
-			country <- cou,
-			eel_typ_id <- c(32,33), 
-			name <- "Eel_Data_Call_2020_Annex6_Landings_Other",
-			minyear=2000,
-			maxyear=2020, #maxyear corresponds to the current year where we have to fill data
-			host="localhost",
-			dbname="wgeel",
-			user="wgeel",
-			port=5432,
-			datasource="dc_2020")
-	cat("work finished",country,"\n")
-}
-
-
-
-for (cou in cou_code){
-	
-	create_datacall_file ( 
-			country <- cou,
-			eel_typ_id <- c(8,9,10), 
-			name <- "Eel_Data_Call_2020_Annex7_Releases",
-			minyear=2000,
-			maxyear=2020, #maxyear corresponds to the current year where we have to fill data
-			host="localhost",
-			dbname="wgeel",
-			user="wgeel",
-			port=5432,
-			datasource="dc_2020")
-	cat("work finished",country,"\n")
-	
-}
-
-
-
-
-cou_code_aqua<-unique(t_eelstock_eel$eel_cou_code[t_eelstock_eel$eel_typ_id%in%c(11)])
-
-cou <-"MA"
-
-for (cou in cou_code_aqua){
-	
-	create_datacall_file ( 
-			country <- cou,
-			eel_typ_id <- c(11), 
-			name <- "Eel_Data_Call_2020_Annex8_Aquaculture",
-			minyear=2000,
-			maxyear=2020, #maxyear corresponds to the current year where we have to fill data
-			host="localhost",
-			dbname="wgeel",
-			user="wgeel",
-			port=5432,
-			datasource="dc_2020")
-	cat("work finished",country,"\n")
-	
-}
-
-
-
-
-
-## Not run: saveWorkbook(wb, file = "tableStylesGallery.xlsx", overwrite = TRUE)
-
-
-
-# lselect the countries and the typ_id you have
-
-
-#
-#
-#
-#	
-#}else if (eel_typ %in% c(11,12)){
-#	
-#	r_coun<-t_eelstock_eel[t_eelstock_eel$eel_cou_code==country & t_eelstock_eel$eel_typ_id %in% c(11,12),]
-#	data_type<-"aquaculture"
-#	
-#}else if (eel_typ %in% c(13,14,15)){
-#	
-#	r_coun<-t_eelstock_eel[t_eelstock_eel$eel_cou_code==country & t_eelstock_eel$eel_typ_id %in% c(13,14,15),]
-#	data_type<-"biomass_indicators"
-#}else if (eel_typ %in% c(17:25)){
-#	
-#	r_coun<-t_eelstock_eel[t_eelstock_eel$eel_cou_code==country & t_eelstock_eel$eel_typ_id %in% c(17:25),]
-#	data_type<-"mortality_rate"
-#	
-#}else if (eel_typ %in% c(26:31)){
-#	
-#	r_coun<-t_eelstock_eel[t_eelstock_eel$eel_cou_code==country & t_eelstock_eel$eel_typ_id %in% c(26:31),]
-#	data_type<-"mortality_see"
-#	
-#}else if (eel_typ %in% c(32:33)){
-#	
-#	r_coun<-t_eelstock_eel[t_eelstock_eel$eel_cou_code==country & t_eelstock_eel$eel_typ_id %in% c(32:33),]
-#	data_type<-"other_landings"
-	
