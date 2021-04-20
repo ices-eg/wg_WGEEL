@@ -407,18 +407,24 @@ check_biom_num <- function(dataset, namedataset, column, country){
 
 	if (nrow(newdataset)>0){ 
 		
-		if (! all(newdataset[is.na(newdataset$num),column]%in%c("NP"))) { # are all values matching ?
-			value1 <- newdataset[,column][!newdataset[,column]%in%c("NP") & is.na(newdataset$num)]
-			line1 <- newdataset$nline[!newdataset[,column]%in%c("NP") & is.na(newdataset$num)]
-		}else if (newdataset[!is.na(newdataset$num),column]) {
-				value2 <- as.numeric(newdataset[,column][!is.na(newdataset$num) & as.numeric(newdataset[,column]>0)
-										& as.numeric(newdataset[,column]>100)])
-				line2 <- newdataset$nline[!is.na(newdataset$num) & as.numeric(newdataset[,column]>0)
-								& as.numeric(newdataset[,column]>100)]
+		if (any(newdataset[is.na(newdataset$num),column]!="NP")) { # are all values matching ?
+			value1 <- newdataset[newdataset[,column]!="NP" & is.na(newdataset$num), column]
+			line1 <- newdataset$nline[newdataset[,column]!="NP" & is.na(newdataset$num)]
+		}else {	value1 <- vector() 
+				line1 <- vector()
 			}
+		
+		if (length(newdataset[!is.na(newdataset$num),column])>0) {
+				value2 <- newdataset[!is.na(newdataset$num) & (newdataset$num<0
+										| newdataset$num>100), "num"]
+				line2 <- newdataset$nline[!is.na(newdataset$num) & (newdataset$num<0
+									| newdataset$num>100)]
+			}else {	value2 <- vector() 
+					line2 <- vector()
+				}
 			
-			value <- c(value1, value2)
-			line <- c(line1, line2)
+		value <- c(value1, value2)
+		line <- c(line1, line2)
 			
 			if (length(line)>0){
 				cat(sprintf("dataset <%s>, column <%s>, line <%s>, value <%s> is wrong, only numeric between 0 and 100 or NP is possible \n", 
@@ -435,5 +441,24 @@ check_biom_num <- function(dataset, namedataset, column, country){
 			}
 	}
 	return(answer)
+}
+
+
+check_duplicate_biomass <- function(dataset, namedataset){
+	
+	dupl <- dataset[,c("eel_typ_name", "eel_year", "eel_emu_nameshort")]
+	value <- dupl[duplicated(dupl),]
+	
+	if(nrow(value) > 0){
+		cat(sprintf("dataset <%s>, line <%s>, value <%s> is duplicated, only one value per type, year and EMU is possible \n", 
+						namedataset,
+						str_c(as.numeric(rownames(value)),collapse=";"),
+						str_c(paste(value$eel_typ_name, value$eel_year, value$eel_emu_nameshort, sep=","),collapse="|")))
+		# same but split and no end of line
+		answer  = data.frame(nline = as.numeric(rownames(value)), 
+				error_message = sprintf("dataset <%s>, value <%s> is duplicated, only one value per type, year and EMU is possible", 
+						namedataset,
+						paste(value$eel_typ_name, value$eel_year, value$eel_emu_nameshort, sep=",")))
+	}
 }
 
