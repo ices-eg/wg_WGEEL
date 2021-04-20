@@ -5,7 +5,7 @@
 # This script will create an excel sheet per country that currently have recruitment series
 #######################################################################################
 # put the current year there
-CY<-2020
+CY<-2021
 # function to load packages if not available
 load_library=function(necessary) {
 	if(!all(necessary %in% installed.packages()[, 'Package']))
@@ -20,7 +20,7 @@ load_library("sqldf")
 load_library("RPostgreSQL")
 load_library("stacomirtools")
 load_library("stringr")
-load_library("XLConnect")
+load_library("openxlsx")
 load_library("sf")
 load_library("ggmap")
 
@@ -33,7 +33,7 @@ wd<-getwd()
 # as we don't want to commit data to git
 # read git user 
 ##################################
-wddata<-"C:/Users/cedric.briand/OneDrive - EPTB Vilaine/Projets/GRISAM/2020/wgeel/datacall/"
+wddata<-"C:/Users/cedric.briand/OneDrive - EPTB Vilaine/Projets/GRISAM/2021/WKEELDATA/datacall/"
 load("C:/workspace/gitwgeel/data/ccm_seaoutlets.rdata") #polygons off ccm seaoutlets WGS84
 
 # Finally we store the xl data in a sub chapter
@@ -60,7 +60,7 @@ options(sqldf.RPostgreSQL.user = userwgeel,
 #' @param country the country code, for instance "SW"
 #' @param name, the name of the file (without .xlsx) used as template and in the destination folders
 #' country='IE'; name="Eel_Data_Call_2020_Annex1_time_series"; ser_typ_id=1
-create_datacall_file_series<-function(country, name, ser_typ_id){
+create_datacall_file_series <- function(country, name, ser_typ_id){
 	if (!is.numeric(ser_typ_id)) stop("ser_typ_id must be numeric")
 	
 	
@@ -77,7 +77,7 @@ create_datacall_file_series<-function(country, name, ser_typ_id){
 	if (ser_typ_id==3) namedestinationfile <-gsub("Annex1","Annex3", namedestinationfile)
 	destinationfile <- file.path(wddata, country, namedestinationfile)		
 	
-	wb = loadWorkbook(templatefile, create = TRUE)
+	wb = openxlsx::loadWorkbook(templatefile)
 	
 	
 	# series description -------------------------------------------------------
@@ -116,7 +116,7 @@ create_datacall_file_series<-function(country, name, ser_typ_id){
 		t_series_ser[,4]<-iconv(t_series_ser[,4],from="UTF8",to="latin1")
 		t_series_ser[,11]<-iconv(t_series_ser[,11],from="UTF8",to="latin1")
 		t_series_ser[,7]<-iconv(t_series_ser[,7],from="UTF8",to="latin1")
-		writeWorksheet(wb, t_series_ser[,
+		openxlsx::writeData(wb, sheet = "series_info", x=t_series_ser[,
 						c("ser_nameshort",
 								"ser_namelong",
 								"ser_typ_id",
@@ -133,7 +133,7 @@ create_datacall_file_series<-function(country, name, ser_typ_id){
 								"ser_x",
 								"ser_y",
 								"ser_sam_id")		
-				],  sheet = "series_info")
+				] )
 	}
 	
 	
@@ -149,7 +149,8 @@ create_datacall_file_series<-function(country, name, ser_typ_id){
 		
 		if (nrow(station)>0){
 			
-			writeWorksheet(wb, station,  sheet = "station")
+			openxlsx::writeData(wb, sheet = "station", station, startRow = 1)
+
 		}
 	}
 	
@@ -274,7 +275,7 @@ create_datacall_file_series<-function(country, name, ser_typ_id){
 			addImage(wb,paste(tempdir(),"/",t_series_ser$ser_nameshort[i],".png",sep=""),name=paste("station_map_",i,sep=""),originalSize=TRUE)
 		}
 	}
-	saveWorkbook(wb, file = destinationfile)	
+	saveWorkbook(wb, file = destinationfile, overwrite = TRUE)	
 	cat("work finished\n")
 }
 

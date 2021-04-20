@@ -1,7 +1,7 @@
 ###################################################################################"
-# File create to build excel files sent to persons responsible for recruitment data
-# Author Cedric Briand
-# This script will create an excel sheet per country that currently have recruitment series
+# File create to build excel files sent to persons responsible for mortalities data
+# Author Cedric Briand - modified by Laurent Beaulatob
+# This script will create an excel sheet per country that currently have mortalities series
 #######################################################################################
 # put the current year there
 setwd("C:/workspace\\gitwgeel\\")
@@ -20,8 +20,8 @@ load_library("sqldf")
 load_library("RPostgreSQL")
 load_library("stacomirtools")
 load_library("stringr")
-load_library("XLConnect")
-#load_library("openxlsx")
+#load_library("XLConnect") ==> switch to openxlsx beacause I have problem with rJava
+load_library("openxlsx")
 load_library("dplyr")
 #############################
 # here is where the script is working change it accordingly
@@ -33,7 +33,8 @@ load_library("dplyr")
 # as we don't want to commit data to git
 # read git user 
 ##################################
-wddata<-"C:/Users/cedric.briand/OneDrive - EPTB Vilaine/Projets/GRISAM/2020/wgeel/datacall/"
+#wddata<-"C:/Users/cedric.briand/OneDrive - EPTB Vilaine/Projets/GRISAM/2020/wgeel/datacall/"
+wddata = paste0(getwd(), "/data/datacall_template/")
 ###################################
 # this set up the connextion to the postgres database
 # change parameters accordingly
@@ -73,14 +74,15 @@ t_eelstock_eel<-sqldf("SELECT
 				eel_datasource,
 				eel_dta_code,
 				qal_kept,
-				typ_name
-				FROM datawg.t_eelstock_eel 
+				typ_name,
+				perc_f,
+				perc_t,
+				perc_c,
+				perc_mo
+				FROM datawg.t_eelstock_eel left join datawg.t_eelstock_eel_percent on eel_id=percent_id 
 				left join ref.tr_quality_qal on eel_qal_id=tr_quality_qal.qal_id 
 				left join ref.tr_typeseries_typ on eel_typ_id=typ_id;")
 
-
-save(t_eelstock_eel, file=str_c(wddata,"t_eelstock_eel.Rdata"))
-# load(t_eelstock_eel.Rdata)
 #tr_eel_typ<- sqldf("SELECT * from ref.tr_typeseries_typ")
 
 #' function to create the data sheet 
@@ -97,11 +99,12 @@ save(t_eelstock_eel, file=str_c(wddata,"t_eelstock_eel.Rdata"))
 #' @param eel_typ_id the type to be included in the annex
 #' @param ... arguments  cou,	minyear, maxyear, host, dbname, user, and port passed to missing_data
 #' 
-#'  country <- "FR" ; name <- "Eel_Data_Call_2020_Annex4_Landings" ; eel_typ_id <- c(4,6) ;
+#'  country <- "FR" ; name <- "Eel_Data_Call_Annex_9_Mortality rates" ; eel_typ_id <- 17:25 ;
 
 
-create_datacall_file <- function(country, eel_typ_id, name, ...){  
-	
+create_datacall_file_biom_morta <- function(country, name, type="biom", ...){  
+	eel_typ_id = c(13, 14, 15)
+	if (type == "morta") eel_typ_id=17:19
 	
 	#create a folder for the country , names for source and destination files
 	dir.create(str_c(wddata,country),showWarnings = FALSE) # show warning= FALSE will create if not exist	
@@ -112,8 +115,12 @@ create_datacall_file <- function(country, eel_typ_id, name, ...){
 	
 	# limit dataset to country
 	r_coun <- t_eelstock_eel[t_eelstock_eel$eel_cou_code==country & t_eelstock_eel$eel_typ_id %in% eel_typ_id,]
-	r_coun <- r_coun[,c(1,18,3:17)]
+	r_coun <- r_coun[,c(1,18,3:7,19:22,8:17)]
+	r_coun <-
+	  rename_with(r_coun,function(x) paste("biom", x, sep = "_"), starts_with("perc"))
 	wb = loadWorkbook(templatefile)
+	r_coun <- r_coun %>%
+	  select(-eel_area_division)
 	
 	if (nrow(r_coun) >0) {
 		## separate sheets for discarded and kept data  
@@ -123,41 +130,42 @@ create_datacall_file <- function(country, eel_typ_id, name, ...){
 		data_disc <- r_coun[!r_coun$qal_kept,]
 		data_disc <- data_disc[,-ncol(r_coun)]
 		
-		
+
 		# pre-fill new data and missing for landings 
-		writeWorksheet(wb, data_disc,  sheet = "existing_discarded",header=FALSE, startRow=2)
-		writeWorksheet(wb, data_kept,  sheet = "existing_kept",header=FALSE,startRow=2)
+# XLConnect METHOD	
+#		writeWorksheet(wb, data_disc,  sheet = "existing_discarded",header=FALSE, startRow=2)
+#		writeWorksheet(wb, data_kept,  sheet = "existing_kept",header=FALSE,startRow=2)
+		
+# openxlsx METHODS
+		openxlsx::writeData(wb, sheet = "existing_discarded", data_disc, startRow = 1)
+		
+		
+	#removed for 2021	
+	#openxlsx::writeData(wb, sheet = "existing_kept", data_kept, startRow = 1)	
+		openxlsx::removeWorksheet(wb,"existing_kept")
 	} else {
 		cat("No data for country", country, "\n")
 	}
 	
-# XLConnect METHOD	
-#	createSheet(wb, name= "existing_discarded")
-#	setSheetColor(wb,"existing_discarded",color=XLC$COLOR.ORANGE)
-#	sheets <- getSheets(wb)
-#openxlsx METHODS
-#if ("existing_discarded"%in% sheets) removeSheet(wb,"existing_discarded")
-#	openxlsx::addWorksheet(wb=wb, 
-#			name= "existing_kept",
-#			tabColour="green")
-#	openxlsx::cloneWorksheet(wb=wb, 
-#			sheetName= "data_new",
-#			clonedSheet= "new_data")
+	data_missing <- detect_missing_biom_morta(cou=country,typ=type,...)
+	data_missing %>% 
+	  mutate(eel_missvaluequal = NA) %>%
+	  select(typ_name, 
+	         eel_year, 
+	         eel_value,
+	         eel_missvaluequal,
+	         eel_emu_nameshort,
+	         eel_cou_code) %>%
+	  mutate(perc_F=0,
+	         perc_T=0,
+	         perc_C=0,
+	         perc_MO=0) %>%
+	  rename_with(function(x) paste(type, x, sep="_"),starts_with("perc"))
+	openxlsx::writeData(wb,  sheet = "new_data", data_missing, startCol=1, startRow=1)
 	
 	
-	if (any(eel_typ_id%in%c(4,6))) datatype <- "landings" 	else datatype <-"other"
-	if (datatype=="landings") {
-		data_missing <- detect_missing_data(cou=country, ...)
-		data_typ_id=ifelse(startsWith(data_missing$eel_typ_name,"com"),4,6)
-		# here filter if there is only 4 or 6, detect missing returns all combinations for 4 and 6
-		data_missing <- data_missing[data_typ_id%in%eel_typ_id,]
-		data_missing <- data_missing[,-match(c("eel_qal_id","eel_qal_comment"),colnames(data_missing))]
-		#print(data_missing)
-		writeWorksheet(wb, data_missing,  sheet = "new_data")
-	} 
-	saveWorkbook(wb, file = destinationfile)	
-	
-	#openXL(wb)
+	saveWorkbook(wb, file = destinationfile, overwrite = TRUE)	
+
 }
 
 
@@ -165,7 +173,7 @@ create_datacall_file <- function(country, eel_typ_id, name, ...){
 # note passwordwgeel must be set and exist
 # passwordwgeel <- XXXXXXXX
 country <- "NO";eel_typ_id <- 4; name <- "Eel_Data_Call_2020_Annex4_Landings_Commercial";minyear=2000;
-maxyear=2020;host="localhost";dbname="wgeel";user="wgeel";port=5432;datasource="dc_2020";
+maxyear=2021;host="localhost";dbname="wgeel";user="wgeel";port=5432;datasource="dc_2020";
 #test
 create_datacall_file ( 
 		country <- "MA",
