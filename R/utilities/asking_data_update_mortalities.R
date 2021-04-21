@@ -143,9 +143,13 @@ create_datacall_file <- function(country, eel_typ_id, name, ...){
 
 }
 
-# TESTS -------------------------------------------
+# TESTS -----------------
+
+eel_typ_id_annex <-17:25
+eel_typ_id_annex <- "Eel_Data_Call_Annex_9_Mortality rates"
+name_annex <-  "Eel_Data_Call_Annex_9_Mortality rates"
 create_datacall_file ( 
-		country <- "NO",
+		country <- "FR",
 		eel_typ_id <- eel_typ_id_annex,
 		name <- name_annex)
 
