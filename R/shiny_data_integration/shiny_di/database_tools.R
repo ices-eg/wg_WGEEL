@@ -701,7 +701,7 @@ compare_with_database_biometry <- function(data_from_excel, data_from_base, shee
 						eel_datasource,
 						eel_comment from replaced_temp_", cou_code ," returning eel_id;")
 		#for mortality and biomass, we have to insert into t_eel_stock_eel_percent too
-		query1bis <- str_c("insert into datawg.t_eelstock_eel_perc (         
+		query1bis <- str_c("insert into datawg.t_eelstock_eel_percent (         
 						percent_id,       
 						perc_f,
 						perc_t,
@@ -782,7 +782,7 @@ compare_with_database_biometry <- function(data_from_excel, data_from_base, shee
 						eel_qal_comment,            
 						eel_datasource,
 						eel_comment from not_replaced_temp_",cou_code," returning eel_id;")
-		query2bis <- str_c( "insert into datawg.t_eelstock_eel_perc (         
+		query2bis <- str_c( "insert into datawg.t_eelstock_eel_percent (         
 						percent_id,       
 						perc_f,
 						perc_t,
@@ -927,9 +927,11 @@ write_new <- function(path) {
 	# create dataset for insertion -------------------------------------------------------------------
 	
 	
-	new <- new[, c("eel_typ_id", "eel_year", "eel_value", "eel_missvaluequal", "eel_emu_nameshort", 
+	new <- new %>%
+	  select(any_of(c("eel_typ_id", "eel_year", "eel_value", "eel_missvaluequal", "eel_emu_nameshort", 
 					"eel_cou_code", "eel_lfs_code", "eel_hty_code", "eel_area_division", "eel_qal_id", 
-					"eel_qal_comment", "eel_datasource", "eel_comment")]
+					"perc_f","perc_t","perc_c","perc_mo",
+					"eel_qal_comment", "eel_datasource", "eel_comment")))
 	conn <- poolCheckout(pool)
 	dbExecute(conn,"drop table if exists new_temp ")
 	dbWriteTable(conn,"new_temp",new,row.names=FALSE,temporary=TRUE)
@@ -950,12 +952,40 @@ write_new <- function(path) {
 			eel_qal_comment,            
 			eel_datasource,
 			eel_comment) 
-			select * from new_temp"
+			select eel_typ_id,       
+			eel_year,
+			eel_value,
+			eel_missvaluequal,
+			eel_emu_nameshort,
+			eel_cou_code,
+			eel_lfs_code,
+			eel_hty_code,
+			eel_area_division,
+			eel_qal_id,
+			eel_qal_comment,            
+			eel_datasource,
+			eel_comment from new_temp returning eel_id;"
+	
+	querybis <- "insert into datawg.t_eelstock_eel_percent (         
+			percent_id,       
+			perc_f,
+			perc_t,
+			perc_c,
+			perc_m) select eel_id,       
+			perc_f,
+			perc_t,
+			perc_c,
+			perc_m  from new_temp;"
 	# if fails replaces the message with this trycatch !  I've tried many ways with
 	# sqldf but trycatch failed to catch the error Hence the use of DBI
 	message <- NULL
 	nr <- tryCatch({
-				dbExecute(conn, query)
+				new$eel_id <- dbGetQuery(conn, query)
+				if (length(startsWith("perc_",names(new)))>0){#we have to insert into t_eelstock_eel_percent
+				  dbExecute(conn,"drop table if exists new_temp ")
+				  dbWriteTable(conn,"new_temp",new,row.names=FALSE,temporary=TRUE)
+				  dbExecute(conn, querybis)
+				}
 			}, error = function(e) {
 				message <<- e
 			}, finally = {
