@@ -397,7 +397,7 @@ check_emu_country <- function(dataset, namedataset, column, country){
 
 check_rates_num <- function(dataset, namedataset, column, country){
 	answer = NULL
-	namedataset <-  deparse(substitute(dataset))
+	#namedataset <-  deparse(substitute(dataset))
 	newdataset <- dataset
 	newdataset$nline <- 1:nrow(newdataset)
 	# remove NA from data
