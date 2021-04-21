@@ -13,6 +13,7 @@
 source("load_library.R")
 load_package("shiny")
 load_package("leaflet.extras")
+load_package("sf")
 
 # load_package("shinythemes")
 load_package("DT")
