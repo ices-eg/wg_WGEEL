@@ -74,8 +74,12 @@ t_eelstock_eel<-sqldf("SELECT
 				eel_datasource,
 				eel_dta_code,
 				qal_kept,
-				typ_name
-				FROM datawg.t_eelstock_eel 
+				typ_name,
+				perc_f,
+				perc_t,
+				perc_c,
+				perc_mo
+				FROM datawg.t_eelstock_eel left join datawg.t_eelstock_eel_percent on eel_id=percent_id 
 				left join ref.tr_quality_qal on eel_qal_id=tr_quality_qal.qal_id 
 				left join ref.tr_typeseries_typ on eel_typ_id=typ_id;")
 
@@ -98,8 +102,9 @@ t_eelstock_eel<-sqldf("SELECT
 #'  country <- "FR" ; name <- "Eel_Data_Call_Annex_9_Mortality rates" ; eel_typ_id <- 17:25 ;
 
 
-create_datacall_file <- function(country, eel_typ_id, name, ...){  
-	
+create_datacall_file_biom_morta <- function(country, name, type="biom", ...){  
+	eel_typ_id = c(13, 14, 15)
+	if (type == "morta") eel_typ_id=17:19
 	
 	#create a folder for the country , names for source and destination files
 	dir.create(str_c(wddata,country),showWarnings = FALSE) # show warning= FALSE will create if not exist	
@@ -110,8 +115,12 @@ create_datacall_file <- function(country, eel_typ_id, name, ...){
 	
 	# limit dataset to country
 	r_coun <- t_eelstock_eel[t_eelstock_eel$eel_cou_code==country & t_eelstock_eel$eel_typ_id %in% eel_typ_id,]
-	r_coun <- r_coun[,c(1,18,3:17)]
+	r_coun <- r_coun[,c(1,18,3:7,19:22,8:17)]
+	r_coun <-
+	  rename_with(r_coun,function(x) paste("biom", x, sep = "_"), starts_with("perc"))
 	wb = loadWorkbook(templatefile)
+	r_coun <- r_coun %>%
+	  select(-eel_area_division)
 	
 	if (nrow(r_coun) >0) {
 		## separate sheets for discarded and kept data  
@@ -129,10 +138,32 @@ create_datacall_file <- function(country, eel_typ_id, name, ...){
 		
 # openxlsx METHODS
 		openxlsx::writeData(wb, sheet = "existing_discarded", data_disc, startRow = 1)
-		openxlsx::writeData(wb, sheet = "existing_kept", data_kept, startRow = 1)		
+		
+		
+	#removed for 2021	
+	#openxlsx::writeData(wb, sheet = "existing_kept", data_kept, startRow = 1)	
+		openxlsx::removeWorksheet(wb,"existing_kept")
 	} else {
 		cat("No data for country", country, "\n")
 	}
+	
+	data_missing <- detect_missing_biom_morta(cou=country,typ=type,...)
+	data_missing %>% 
+	  mutate(eel_missvaluequal = NA) %>%
+	  select(typ_name, 
+	         eel_year, 
+	         eel_value,
+	         eel_missvaluequal,
+	         eel_emu_nameshort,
+	         eel_cou_code) %>%
+	  mutate(perc_F=0,
+	         perc_T=0,
+	         perc_C=0,
+	         perc_MO=0) %>%
+	  rename_with(function(x) paste(type, x, sep="_"),starts_with("perc")) %>%
+	  arrange(eel_emu_nameshort, typ_name, eel_year)
+	openxlsx::writeDataTable(wb,  sheet = "new_data", data_missing, startCol=1, startRow=1)
+	
 	
 	saveWorkbook(wb, file = destinationfile, overwrite = TRUE)	
 
@@ -143,7 +174,7 @@ create_datacall_file <- function(country, eel_typ_id, name, ...){
 # note passwordwgeel must be set and exist
 # passwordwgeel <- XXXXXXXX
 country <- "NO";eel_typ_id <- 4; name <- "Eel_Data_Call_2020_Annex4_Landings_Commercial";minyear=2000;
-maxyear=2020;host="localhost";dbname="wgeel";user="wgeel";port=5432;datasource="dc_2020";
+maxyear=2021;host="localhost";dbname="wgeel";user="wgeel";port=5432;datasource="dc_2020";
 #test
 create_datacall_file ( 
 		country <- "MA",

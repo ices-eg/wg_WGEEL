@@ -1731,7 +1731,7 @@ load_potential_available_habitat<-function(path,datasource){
 }
 
 ############# time series #############################################
-# path <- "C:\\Users\\cedric.briand\\OneDrive - EPTB Vilaine\\Projets\\GRISAM\\2021\\WKEELDATA\\00template\\Eel_Data_Call_2020_Annex1_time_series.xlsx"
+# path <- "C:\\Users\\cedric.briand\\OneDrive - EPTB Vilaine\\Projets\\GRISAM\\2020\\wgeel\\datacall\\FR\\Eel_Data_Call_2020_Annex1_time_series_FR_Recruitment.xlsx"
 # path<-file.choose()
 # datasource<-the_eel_datasource
 # load_series(path,datasource,"glass_eel")
