@@ -160,8 +160,9 @@ create_datacall_file_biom_morta <- function(country, name, type="biom", ...){
 	         perc_T=0,
 	         perc_C=0,
 	         perc_MO=0) %>%
-	  rename_with(function(x) paste(type, x, sep="_"),starts_with("perc"))
-	openxlsx::writeData(wb,  sheet = "new_data", data_missing, startCol=1, startRow=1)
+	  rename_with(function(x) paste(type, x, sep="_"),starts_with("perc")) %>%
+	  arrange(eel_emu_nameshort, typ_name, eel_year)
+	openxlsx::writeDataTable(wb,  sheet = "new_data", data_missing, startCol=1, startRow=1)
 	
 	
 	saveWorkbook(wb, file = destinationfile, overwrite = TRUE)	
