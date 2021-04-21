@@ -1020,7 +1020,7 @@ write_new <- function(path) {
   write_updated_values <- function(path, qualify_code) {
     browser()
     updated_values_table <- read_excel(path = path, sheet = 1, skip = 1)
-    validate(need(ncol(updated_values_table) == 27, "number column wrong (should be 22) \n"))
+    validate(need(ncol(updated_values_table) %in% c(27,35), "number column wrong (should be 27 or 35) \n"))
     validate(need(all(colnames(updated_values_table) %in% c("eel_id", "eel_typ_id", "eel_typ_name", 
                                                    "eel_year.base","eel_year.xls","eel_value.base", "eel_value.xls", 
                                                    "eel_missvaluequal.base","eel_missvaluequal.xls",
@@ -1031,7 +1031,8 @@ write_new <- function(path) {
                                                    "eel_missvaluequal.xls", "eel_emu_nameshort", "eel_cou_code.base","eel_cou_code.xls",
                                                    "eel_lfs_code.base", "eel_lfs_code.xls",
                                                    "eel_hty_code.base","eel_hty_code.xls", "eel_area_division.base", "eel_area_division.xls",
-                                                   "eel_comment.base", "eel_comment.xls", 
+                                                   "eel_comment.base", "eel_comment.xls",
+                                                   "perc_f.base","perc_f.xls","perc_t.base","perc_t.xls","perc_c.base","perc_c.xls", "perc_mo.base", "perc_mo.xls",
                                                    "eel_datasource.base", "eel_datasource.xls")), 
                   "Error in updated dataset : column name changed, have you removed the empty line on top of the dataset ?"))
     validate(need(all(!is.na(updated_values_table$eel_qal_id.xls)), "There are still lines without eel_qal_id, please check your file"))
@@ -1066,8 +1067,11 @@ write_new <- function(path) {
 					if  comment != 'delete row' then 
 					  insert into datawg.t_eelstock_eel (eel_typ_id,eel_year,eel_value,eel_missvaluequal,eel_emu_nameshort,eel_cou_code,eel_lfs_code,eel_hty_code,eel_area_division,eel_qal_id, eel_qal_comment,eel_datasource,eel_comment)
 					  (select eel_typ_id,eel_year_xls,eel_value_xls,eel_missvaluequal_xls,eel_emu_nameshort_xls,eel_cou_code_xls,eel_lfs_code_xls,eel_hty_code_xls,eel_area_division_xls,eel_qal_id_xls,eel_qal_comment_xls,eel_datasource_xls,eel_comment_xls from updated_temp where eel_id=oldid ) returning eel_id into newid;
-					  update datawg.t_eelstock_eel set eel_qal_comment=coalesce(eel_qal_comment,'') || ' updated to eel_id ' || newid::text || ' in ",cyear,"' where eel_id=oldid;
-					else
+					  update datawg.t_eelstock_eel set eel_qal_comment=coalesce(eel_qal_comment,'') || ' updated to eel_id ' || newid::text || ' in ",cyear,"' where eel_id=oldid;\n",
+	         ifelse(length(startsWith(names(updated_values_table), "perc_"))>0,
+	                "insert into datawg.t_eelstock_eel_percent values (newid,rec.perc_f,rec.perc_t,rec.perc_c,rec.perc_mo);\n",
+	                ""),
+					"else
 					  update datawg.t_eelstock_eel set eel_qal_comment='deleted in ",cyear,"' where eel_id=oldid;
 					end if;
 					END;
