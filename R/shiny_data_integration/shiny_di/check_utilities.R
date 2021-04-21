@@ -385,3 +385,80 @@ check_emu_country <- function(dataset, namedataset, column, country){
                       error_message=paste("eel_emu_nameshort should be in {",paste(emu_whole,collapse=", "),"}",sep=""))
   return(answer)
 }
+
+
+#' check that biomass is numeric and only NP
+#' 
+#' @param dataset the name of the dataset
+#' @param namedataset the name of the sheet 
+#' @param column the name of the column
+#' @param country the current country being evaluated
+#' 
+
+check_biom_num <- function(dataset, namedataset, column, country){
+	answer = NULL
+	namedataset <-  deparse(substitute(dataset))
+	newdataset <- dataset
+	newdataset$nline <- 1:nrow(newdataset)
+	# remove NA from data
+	#ddataset <- as.data.frame(newdataset[!is.na(newdataset[,column]),])
+	
+	newdataset$num <- as.numeric(newdataset[,column])
+
+	if (nrow(newdataset)>0){ 
+		
+		if (any(newdataset[is.na(newdataset$num),column]!="NP")) { # are all values matching ?
+			value1 <- newdataset[newdataset[,column]!="NP" & is.na(newdataset$num), column]
+			line1 <- newdataset$nline[newdataset[,column]!="NP" & is.na(newdataset$num)]
+		}else {	value1 <- vector() 
+				line1 <- vector()
+			}
+		
+		if (length(newdataset[!is.na(newdataset$num),column])>0) {
+				value2 <- newdataset[!is.na(newdataset$num) & (newdataset$num<0
+										| newdataset$num>100), "num"]
+				line2 <- newdataset$nline[!is.na(newdataset$num) & (newdataset$num<0
+									| newdataset$num>100)]
+			}else {	value2 <- vector() 
+					line2 <- vector()
+				}
+			
+		value <- c(value1, value2)
+		line <- c(line1, line2)
+			
+			if (length(line)>0){
+				cat(sprintf("dataset <%s>, column <%s>, line <%s>, value <%s> is wrong, only numeric between 0 and 100 or NP is possible \n", 
+								namedataset,
+								column,
+								str_c(unique(line),collapse=";"),
+								str_c(value,collapse=";")))
+				# same but split and no end of line
+				answer  = data.frame(nline = line , 
+						error_message = sprintf("dataset <%s>, column <%s>, value <%s> is wrong, only numeric between 0 and 100 or NP is possible", 
+								namedataset,
+								column,
+								value))
+			}
+	}
+	return(answer)
+}
+
+
+check_duplicate_biomass <- function(dataset, namedataset){
+	
+	dupl <- dataset[,c("eel_typ_name", "eel_year", "eel_emu_nameshort")]
+	value <- dupl[duplicated(dupl),]
+	
+	if(nrow(value) > 0){
+		cat(sprintf("dataset <%s>, line <%s>, value <%s> is duplicated, only one value per type, year and EMU is possible \n", 
+						namedataset,
+						str_c(as.numeric(rownames(value)),collapse=";"),
+						str_c(paste(value$eel_typ_name, value$eel_year, value$eel_emu_nameshort, sep=","),collapse="|")))
+		# same but split and no end of line
+		answer  = data.frame(nline = as.numeric(rownames(value)), 
+				error_message = sprintf("dataset <%s>, value <%s> is duplicated, only one value per type, year and EMU is possible", 
+						namedataset,
+						paste(value$eel_typ_name, value$eel_year, value$eel_emu_nameshort, sep=",")))
+	}
+}
+

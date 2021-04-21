@@ -461,7 +461,7 @@ biom<-read_excel(path,sheet="biometry")
 # bio_length 
 # bio_weight 
 # bio_age
-# bio_sex_ratio
+# bio_perc_female
 # bio_length_f 
 # bio_weight_f 
 # bio_age_f 
@@ -489,7 +489,7 @@ biom3 <- data.frame(# bio_id .... ignored
 		bio_length = biom2$bio_length ,
 		bio_weight = biom2$bio_weight ,
 		bio_age = biom2$bio_age,
-		bio_sex_ratio = as.numeric(NA),
+		bio_perc_female = as.numeric(NA),
 		bio_length_f = as.numeric(NA),
 		bio_weight_f = as.numeric(NA),
 		bio_age_f = as.numeric(NA),
@@ -513,7 +513,7 @@ sqldf("INSERT INTO datawg.t_biometry_series_bis(
 				bio_length,
 				bio_weight,
 				bio_age,
-				bio_sex_ratio,
+				bio_perc_female,
 				bio_length_f,
 				bio_weight_f,
 				bio_age_f,
@@ -562,7 +562,7 @@ biom<-read_excel(path,sheet="biometry")
 # bio_length 
 # bio_weight 
 # bio_age
-# bio_sex_ratio
+# bio_perc_female
 # bio_length_f 
 # bio_weight_f 
 # bio_age_f 
@@ -590,7 +590,7 @@ biom3 <- data.frame(# bio_id .... ignored
 		bio_length = biom2$bio_length ,
 		bio_weight = biom2$bio_weight ,
 		bio_age = biom2$bio_age,
-		bio_sex_ratio = as.numeric(NA),
+		bio_perc_female = as.numeric(NA),
 		bio_length_f = as.numeric(NA),
 		bio_weight_f = as.numeric(NA),
 		bio_age_f = as.numeric(NA),
@@ -614,7 +614,7 @@ sqldf(str_c("INSERT INTO datawg.t_biometry_series_bis(
 						bio_length,
 						bio_weight,
 						bio_age,
-						bio_sex_ratio,
+						bio_perc_female,
 						bio_length_f,
 						bio_weight_f,
 						bio_age_f,
@@ -655,7 +655,7 @@ biom<-read_excel(path,sheet="biometry")
 # bio_length 
 # bio_weight 
 # bio_age
-# bio_sex_ratio
+# bio_perc_female
 # bio_length_f 
 # bio_weight_f 
 # bio_age_f 
@@ -684,7 +684,7 @@ biom3 <- data.frame(# bio_id .... ignored
 		bio_length = biom2$bio_length ,
 		bio_weight = biom2$bio_weight ,
 		bio_age = biom2$bio_age,
-		bio_sex_ratio = as.numeric(NA),
+		bio_perc_female = as.numeric(NA),
 		bio_length_f = as.numeric(NA),
 		bio_weight_f = as.numeric(NA),
 		bio_age_f = as.numeric(NA),
@@ -708,7 +708,7 @@ sqldf(str_c("INSERT INTO datawg.t_biometry_series_bis(
 						bio_length,
 						bio_weight,
 						bio_age,
-						bio_sex_ratio,
+						bio_perc_female,
 						bio_length_f,
 						bio_weight_f,
 						bio_age_f,
@@ -750,7 +750,7 @@ biom<-read_excel(path,sheet="biometry")
 # bio_length 
 # bio_weight 
 # bio_age
-# bio_sex_ratio
+# bio_perc_female
 # bio_length_f 
 # bio_weight_f 
 # bio_age_f 
@@ -779,7 +779,7 @@ biom3 <- data.frame(# bio_id .... ignored
 		bio_length = biom2$bio_length ,
 		bio_weight = biom2$bio_weight ,
 		bio_age = biom2$bio_age,
-		bio_sex_ratio = as.numeric(NA),
+		bio_perc_female = as.numeric(NA),
 		bio_length_f = as.numeric(NA),
 		bio_weight_f = as.numeric(NA),
 		bio_age_f = as.numeric(NA),
@@ -803,7 +803,7 @@ sqldf(str_c("INSERT INTO datawg.t_biometry_series_bis(
 						bio_length,
 						bio_weight,
 						bio_age,
-						bio_sex_ratio,
+						bio_perc_female,
 						bio_length_f,
 						bio_weight_f,
 						bio_age_f,

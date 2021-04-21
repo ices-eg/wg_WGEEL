@@ -737,7 +737,7 @@ CREATE TABLE datawg.t_biometry_bio (
 	bio_length NUMERIC NULL,	
 	bio_weight NUMERIC NULL,
 	bio_age NUMERIC NULL,
-	bio_sex_ratio NUMERIC NULL,
+	bio_perc_female NUMERIC NULL,
 	bio_length_f NUMERIC NULL,
 	bio_weight_f NUMERIC NULL,
 	bio_age_f NUMERIC NULL,
@@ -757,7 +757,7 @@ COMMENT ON COLUMN datawg.t_biometry_bio.bio_year IS 'year during which biologica
 COMMENT ON COLUMN datawg.t_biometry_bio.bio_length IS 'mean length in mm';
 COMMENT ON COLUMN datawg.t_biometry_bio.bio_weight IS 'mean individual weight in g';
 COMMENT ON COLUMN datawg.t_biometry_bio.bio_age IS 'mean age';
-COMMENT ON COLUMN datawg.t_biometry_bio.bio_sex_ratio IS 'sex ratio express as a proportion of female ; between 0 (all males) and 100 (all females)';
+COMMENT ON COLUMN datawg.t_biometry_bio.bio_perc_female IS 'sex ratio expressed as a proportion of female ; between 0 (all males) and 100 (all females)';
 COMMENT ON COLUMN datawg.t_biometry_bio.bio_comment IS 'Comment (including comments about data quality for this year)';
 COMMENT ON COLUMN datawg.t_biometry_bio.bio_length_f IS 'mean length in mm of the female fraction';
 COMMENT ON COLUMN datawg.t_biometry_bio.bio_weight_f IS 'mean individual weight in g of the female fraction';

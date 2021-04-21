@@ -20,7 +20,9 @@ load_library("sqldf")
 load_library("RPostgreSQL")
 load_library("stacomirtools")
 load_library("stringr")
-load_library("openxlsx")
+# Issue still open https://github.com/awalker89/openxlsx/issues/348
+#load_library("openxlsx")
+load_library("XLConnect")
 load_library("sf")
 load_library("ggmap")
 
@@ -33,8 +35,8 @@ wd<-getwd()
 # as we don't want to commit data to git
 # read git user 
 ##################################
-wddata<-"C:/Users/cedric.briand/OneDrive - EPTB Vilaine/Projets/GRISAM/2021/WKEELDATA/datacall/"
-load("C:/workspace/gitwgeel/data/ccm_seaoutlets.rdata") #polygons off ccm seaoutlets WGS84
+wddata = paste0(getwd(), "/data/datacall_template/")
+load(str_c(getwd(),"/data/ccm_seaoutlets.rdata")) #polygons off ccm seaoutlets WGS84
 
 # Finally we store the xl data in a sub chapter
 ########################################
@@ -47,7 +49,7 @@ options(sqldf.RPostgreSQL.user = userwgeel,
 		sqldf.RPostgreSQL.password = passwordwgeel,
 		sqldf.RPostgreSQL.dbname = "wgeel",
 		sqldf.RPostgreSQL.host = "localhost",
-		sqldf.RPostgreSQL.port = 5432)
+		sqldf.RPostgreSQL.port = 5435)
 
 
 
@@ -77,12 +79,12 @@ create_datacall_file_series <- function(country, name, ser_typ_id){
 	if (ser_typ_id==3) namedestinationfile <-gsub("Annex1","Annex3", namedestinationfile)
 	destinationfile <- file.path(wddata, country, namedestinationfile)		
 	
-	wb = openxlsx::loadWorkbook(templatefile)
-	
+	#wb = openxlsx::loadWorkbook(templatefile)
+	wb = loadWorkbook(templatefile)
 	
 	# series description -------------------------------------------------------
 	
-	t_series_ser<-sqldf(str_c("SELECT 
+	t_series_ser<-sqldf(str_c("SELECT  
 							t_series_ser.ser_id, 
 							t_series_ser.ser_nameshort, 
 							t_series_ser.ser_namelong, 
@@ -102,8 +104,10 @@ create_datacall_file_series <- function(country, name, ser_typ_id){
 							t_series_ser.ser_sam_id,
 							t_series_ser.ser_qal_id,
 							t_series_ser.ser_qal_comment,
-							t_series_ser.ser_ccm_wso_id
-							
+							t_series_ser.ser_ccm_wso_id,
+							t_series_ser.ser_sam_gear,
+							t_series_ser.ser_distanceseakm,
+							t_series_ser.ser_method							
 							FROM 
 							datawg.t_series_ser
 							WHERE ser_cou_code='",country,"' ",
@@ -116,7 +120,28 @@ create_datacall_file_series <- function(country, name, ser_typ_id){
 		t_series_ser[,4]<-iconv(t_series_ser[,4],from="UTF8",to="latin1")
 		t_series_ser[,11]<-iconv(t_series_ser[,11],from="UTF8",to="latin1")
 		t_series_ser[,7]<-iconv(t_series_ser[,7],from="UTF8",to="latin1")
-		openxlsx::writeData(wb, sheet = "series_info", x=t_series_ser[,
+#		openxlsx::writeData(wb, sheet = "series_info", x=t_series_ser[,
+#						c("ser_nameshort",
+#								"ser_namelong",
+#								"ser_typ_id",
+#								"ser_effort_uni_code",
+#								"ser_comment",
+#								"ser_uni_code",
+#								"ser_lfs_code",
+#								"ser_hty_code",
+#								"ser_locationdescription",
+#								"ser_emu_nameshort",
+#								"ser_cou_code",
+#								"ser_area_division",
+#								"ser_tblcodeid",
+#								"ser_x",
+#								"ser_y",
+#								"ser_sam_id",
+#								"ser_sam_gear",
+#								"ser_distanceseakm",
+#								"ser_method")		
+#				] )
+	writeWorksheet(wb, sheet = "series_info", data=t_series_ser[,
 						c("ser_nameshort",
 								"ser_namelong",
 								"ser_typ_id",
@@ -132,7 +157,11 @@ create_datacall_file_series <- function(country, name, ser_typ_id){
 								"ser_tblcodeid",
 								"ser_x",
 								"ser_y",
-								"ser_sam_id")		
+								"ser_sam_id",
+								"ser_sam_gear",
+								"ser_distanceseakm",
+								"ser_method"	
+								)		
 				] )
 	}
 	
@@ -149,8 +178,8 @@ create_datacall_file_series <- function(country, name, ser_typ_id){
 		
 		if (nrow(station)>0){
 			
-			openxlsx::writeData(wb, sheet = "station", station, startRow = 1)
-
+			#openxlsx::writeData(wb, sheet = "station", station, startRow = 1)
+		   writeWorksheet(wb, sheet = "station", data=station, startRow = 1)
 		}
 	}
 	
@@ -172,6 +201,7 @@ create_datacall_file_series <- function(country, name, ser_typ_id){
 					" ORDER BY das_ser_id, das_year ASC"))
 	
 	if (nrow(dat)> 0){
+		#openxlsx::writeData(wb, sheet = "existing_data", dat, startRow = 1)
 		writeWorksheet(wb, dat,  sheet = "existing_data")
 	}
 	
@@ -185,6 +215,7 @@ create_datacall_file_series <- function(country, name, ser_typ_id){
 				dplyr::arrange(ser_nameshort, das_year)
 		
 		if (nrow(new_data)> 0){
+			#openxlsx::writeData(wb, sheet = "new_data", new_data, startRow = 1)
 			writeWorksheet(wb, new_data,  sheet = "new_data")
 		}
 	}
@@ -196,7 +227,7 @@ create_datacall_file_series <- function(country, name, ser_typ_id){
 							bio_length,
 							bio_weight,
 							bio_age,
-							bio_sex_ratio,
+							bio_perc_female,
 							bio_length_f,
 							bio_weight_f,
 							bio_age_f,
@@ -206,6 +237,7 @@ create_datacall_file_series <- function(country, name, ser_typ_id){
 							bio_comment,
 							bio_last_update,
 							bio_qal_id,
+							bio_number,
 							bis_g_in_gy,
 							bis_ser_id
 							FROM datawg.t_series_ser  
@@ -215,7 +247,8 @@ create_datacall_file_series <- function(country, name, ser_typ_id){
 					" ORDER BY bis_ser_id, bio_year  ASC"))
 	
 	biom <- biom0[!is.na(biom0$bio_year),]
-	if (nrow(biom)> 0){		
+	if (nrow(biom)> 0){	
+		#openxlsx::writeData(wb, sheet = "existing_biometry", biom, startRow = 1)
 		writeWorksheet(wb, biom,  sheet = "existing_biometry")
 	} 
 	
@@ -232,6 +265,7 @@ create_datacall_file_series <- function(country, name, ser_typ_id){
 				dplyr::arrange(ser_nameshort, bio_year)
 		
 		if (nrow(newbiom)>0) {
+			#openxlsx::writeData(wb, sheet = "new_biometry", newbiom, startRow = 1)
 			writeWorksheet(wb, newbiom,  sheet = "new_biometry")	
 		}
 	}
@@ -242,6 +276,8 @@ create_datacall_file_series <- function(country, name, ser_typ_id){
 		for (i in 1:nrow(t_series_ser)){
 			#turn a pgsql array into an R vector for ccm_wso_id
 			pols_id=eval(parse(text=paste("c(",gsub(pattern="\\{|\\}",replacement='',t_series_ser$ser_ccm_wso_id[i]),")")))
+			# NOT USED IN openxlsx
+			#createNamedRegion(wb, sheet= "station_map", name = paste("station_map_",i,sep=""), cols=2,rows=(i-1)*40+2)
 			createName(wb, name = paste("station_map_",i,sep=""), formula = paste("station_map!$B$",(i-1)*40+2,sep=""))
 			pol=subset(ccm,ccm$wso_id %in% pols_id)
 			st_crs(pol) <- 4326 
@@ -272,10 +308,19 @@ create_datacall_file_series <- function(country, name, ser_typ_id){
 				g=ggplot()+ggtitle(t_series_ser$ser_nameshort[i])
 			}
 			ggsave(paste(tempdir(),"/",t_series_ser$ser_nameshort[i],".png",sep=""),g,width=20/2.54,height=16/2.54,units="in",dpi=150)
+# OPENXLSX
+#			insertImage(wb, 
+#					sheet= "station_map", 
+#					startRow=(i-1)*40+2,
+#					file=paste(tempdir(),"/",t_series_ser$ser_nameshort[i],".png",sep="")
+#					)
+			
 			addImage(wb,paste(tempdir(),"/",t_series_ser$ser_nameshort[i],".png",sep=""),name=paste("station_map_",i,sep=""),originalSize=TRUE)
 		}
 	}
-	saveWorkbook(wb, file = destinationfile, overwrite = TRUE)	
+
+	#saveWorkbook(wb, file = destinationfile, overwrite = TRUE)
+	saveWorkbook(wb, file = destinationfile)
 	cat("work finished\n")
 }
 
@@ -285,7 +330,7 @@ create_datacall_file_series <- function(country, name, ser_typ_id){
 country_code <- c("DK","ES","EE","IE","SE","GB","FI","IT","GR","DE","LV","FR","NL","LT","PT",
 		"NO","PL","SI","TN","TR","BE")
 
-for (country in country_code ){
+for (country in country_code){
 	cat("country: ",country,"\n")
 	create_datacall_file_series(country, 
 			name="Eel_Data_Call_2020_Annex1_time_series", 
