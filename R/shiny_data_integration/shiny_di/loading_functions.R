@@ -1770,9 +1770,9 @@ load_series<-function(path,datasource,stage="glass_eel"){
 	
 #---------------------- METADATA sheet ---------------------------------------------
 # read the metadata sheet
-	metadata<-read_excel(path=path,"metadata" , skip=1)
+	metadata <- read_excel(path=path,"metadata" , skip=1)
 # check if no rows have been added
-	if (names(metadata)[1]!="") cat(str_c("The structure of metadata has been changed ",datacallfiles[1]," in ",country,"\n"))
+	if (names(metadata)[1]!="") cat(str_c("The structure of metadata has been changed ",file,"\n"))
 	
 #---------------------- series info ---------------------------------------------
 	
@@ -1785,21 +1785,21 @@ load_series<-function(path,datasource,stage="glass_eel"){
 	
 	
 # check for the file integrity
-	if (ncol(series)!=16) cat(str_c("number column wrong for t_series_ser, should have been 16 in file from ",country,"\n"))
+	if (ncol(series)!=19) cat(str_c("number column wrong for t_series_ser, should have been 19 in file \n"))
 	
 # check column names
 	if (!all(colnames(series)%in%
 					c(c("ser_nameshort", "ser_namelong", "ser_typ_id", "ser_effort_uni_code", "ser_comment", 
 									"ser_uni_code", "ser_lfs_code", "ser_hty_code", "ser_locationdescription", 
 									"ser_emu_nameshort", "ser_cou_code", "ser_area_division", "ser_tblcodeid", 
-									"ser_x", "ser_y", "ser_sam_id", "ser_dts_datasource" )
+									"ser_x", "ser_y", "ser_sam_id", "ser_dts_datasource","ser_sam_gear", "ser_distanceseakm", 	"ser_method" )
 					))) 
 		cat(str_c("problem in column names",            
 						paste(colnames(series)[!colnames(series)%in%
 												c("ser_nameshort", "ser_namelong", "ser_typ_id", "ser_effort_uni_code", "ser_comment", 
 														"ser_uni_code", "ser_lfs_code", "ser_hty_code", "ser_locationdescription", 
 														"ser_emu_nameshort", "ser_cou_code", "ser_area_division", "ser_tblcodeid", 
-														"ser_x", "ser_y", "ser_sam_id", "ser_dts_datasource" )],collapse= "&"),
+														"ser_x", "ser_y", "ser_sam_id", "ser_dts_datasource","ser_sam_gear", "ser_distanceseakm", 	"ser_method" )],collapse= "&"),
 						"file =",
 						file,"\n")) 
 	country <- "unknown"
@@ -2355,7 +2355,7 @@ load_series<-function(path,datasource,stage="glass_eel"){
 			path=path,
 			sheet ="new_biometry",
 			skip=0)
-	if (ncol(new_biometry)!=17) cat(str_c("number column wrong for new_biometry, should have been 17 in file from ",country,"\n"))
+	if (ncol(new_biometry)!=18) cat(str_c("number column wrong for new_biometry, should have been 18 in file from ",country,"\n"))
 	
 	if (nrow(new_biometry)>0) {
 		

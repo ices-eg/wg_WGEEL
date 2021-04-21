@@ -19,10 +19,14 @@ shinyServer(function(input, output, session){
 			
 			output$passwordtest <- renderText({
 						req(input$passwordbutton)
-						load_database()
-						var_database()
-						if (data$connectOK) textoutput <- "Connected" 
-						else textoutput <- paste0("password: ",isolate(input$password)," wrong")
+						textoutput <- tryCatch({
+									load_database()
+									var_database()
+									textoutput <- "Connected" 
+					},error = function(e) {
+						textoutput <- paste("password:",input$password,"wrong")
+					})							
+
 						return(textoutput)
 						
 					})
@@ -139,8 +143,9 @@ shinyServer(function(input, output, session){
 						participants<<- dbGetQuery(pool, sqlInterpolate(ANSI(), query))  
 						
 						ices_division <<- extract_ref("FAO area")$f_code
-						
+# TODO CEDRIC 2021 remove geom from extract_ref function so as not to get a warning						
 						emus <<- extract_ref("EMU")
+# TODO CEDRIC 2021 remove geom from extract_ref function so as not to get a warning						
 						
 						updatePickerInput(
 								session = session, inputId = "main_assessor",

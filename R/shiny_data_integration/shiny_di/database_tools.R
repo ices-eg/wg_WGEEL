@@ -203,12 +203,11 @@ compare_with_database_updated_values <- function(updated_from_excel, data_from_b
 #' \dontrun{
 #' if(interactive()){
 #' wg_file.choose<-file.choose
-#' path <- "C:\\Users\\cedric.briand\\OneDrive - EPTB Vilaine\\Projets\\GRISAM\\2020\\wgeel\\datacall\\FR\\Eel_Data_Call_2020_Annex1_time_series_FR_Recruitment.xlsx"
-#' path <- "Z:\\data call\\GB\\Eel_Data_Call_2020_Annex1_time_series_GB_Recruitment.xlsx"
+#' path <- file.choose()
 #' data_from_excel <- read_excel(path=path,	sheet ="series_info",	skip=0) #'  
-#  res <- load_series(path, 
-# 											datasource = the_eel_datasource,
-# 											stage="glass_eel")
+#'  res <- load_series(path, 
+#' 											datasource = the_eel_datasource,
+#' 											stage="glass_eel")
 #' data_from_base <- extract_data('t_series_ser')
 #' 
 #' list_comp <- compare_with_database_series(data_from_excel=res$series,data_from_base=res$t_series_ser%>%  filter(ser_typ_id==1)  )
@@ -242,10 +241,11 @@ compare_with_database_series <- function(data_from_excel, data_from_base) {
 	ser_colnames <- colnames(data_from_base)[grepl("ser", colnames(data_from_base))]
 	# avoid importing problems when line is null
 	data_from_excel <- data_from_excel %>% mutate_if(is.logical,list(as.numeric)) 
-
+	data_from_excel$ser_typ_id <- as.numeric(data_from_excel$ser_typ_id)
+	data_from_excel$ser_sam_gear <- as.numeric(data_from_excel$ser_sam_gear)
 	data_from_excel <- data_from_excel %>% 
 			mutate_at(vars(ser_dts_datasource, ser_comment, ser_lfs_code, ser_hty_code, ser_locationdescription, ser_emu_nameshort,
-							ser_area_division,ser_cou_code,ser_effort_uni_code, ser_uni_code, ser_sam_gear, ser_distanceseakm, 	ser_method),list(as.character)) 
+							ser_area_division,ser_cou_code,ser_effort_uni_code, ser_uni_code,  	ser_method),list(as.character)) 
 	
 	duplicates <- data_from_base %>% dplyr::filter(ser_typ_id %in% current_typ_id & 
 							ser_cou_code == current_cou_code) %>% dplyr::select(ser_colnames) %>% # dplyr::select(-eel_cou_code)%>%
@@ -1299,7 +1299,7 @@ write_new_biometry <- function(path) {
 	
 	new <- new[, c(c( "bio_year", "bio_length", "bio_weight", "bio_age", 
 							"bio_perc_female", "bio_length_f", "bio_weight_f", "bio_age_f", "bio_length_m", 
-							"bio_weight_m", "bio_age_m", "bio_comment", "bio_last_update", "bis_g_in_gy", 
+							"bio_weight_m", "bio_age_m", "bio_comment", "bio_last_update", "bio_number" ,"bis_g_in_gy", 
 							"bio_dts_datasource", "bis_ser_id" )
 			)	]
 	new$bio_last_update <- Sys.Date()
@@ -1313,12 +1313,12 @@ write_new_biometry <- function(path) {
 	query <- "insert into datawg.t_biometry_series_bis (
 			bio_year, bio_lfs_code, bio_length, bio_weight, bio_age, bio_perc_female,
 			bio_length_f, bio_weight_f, bio_age_f, bio_length_m, bio_weight_m, bio_age_m,
-			bio_comment, bio_last_update, bis_g_in_gy, bio_dts_datasource, bis_ser_id
+			bio_comment, bio_last_update, bis_g_in_gy, bio_dts_datasource, bis_ser_id, bio_number 
 			)
 			select 
 			bio_year, ser_lfs_code as bio_lsf_code, bio_length, bio_weight, bio_age, bio_perc_female,
 			bio_length_f, bio_weight_f, bio_age_f, bio_length_m, bio_weight_m, bio_age_m,
-			bio_comment, bio_last_update::date, bis_g_in_gy, bio_dts_datasource, bis_ser_id
+			bio_comment, bio_last_update::date, bis_g_in_gy, bio_dts_datasource, bis_ser_id, bio_number
 			from  new_biometry_temp
 			JOIN datawg.t_series_ser on ser_id=bis_ser_id"
 	# if fails replaces the message with this trycatch !  I've tried many ways with
@@ -1538,7 +1538,8 @@ update_biometry <- function(path) {
 			bio_qal_id, 
 			bis_g_in_gy, 
 			bis_ser_id,
-			bio_dts_datasource)=
+			bio_dts_datasource,
+			bio_number)=
 			
 			(
 			t.bio_lfs_code,
@@ -1558,7 +1559,8 @@ update_biometry <- function(path) {
 			t.bio_qal_id, 
 			t.bis_g_in_gy, 
 			t.bis_ser_id,
-			t.bio_dts_datasource)
+			t.bio_dts_datasource,
+			t.bio_number)
 			FROM updated_biometry_temp t WHERE t.bio_id = t_biometry_series_bis.bio_id"
 	
 	conn <- poolCheckout(pool)

@@ -3,7 +3,7 @@
 ###############################################################################
 
 
-#gear <- read_excel("C:/Users/cedric.briand/OneDrive - EPTB Vilaine/Projets/GRISAM/2021/WKEELDATA/CL_FI_GEAR_GROUPS.xlsx",sheet="import")
+#gear <- XLConnect::read_excel("C:/Users/cedric.briand/OneDrive - EPTB Vilaine/Projets/GRISAM/2021/WKEELDATA/CL_FI_GEAR_GROUPS.xlsx",sheet="import")
 
 gear <- structure(list(gea_id = c(111, 112, 201, 202, 203, 204, 206, 
 						208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220, 
