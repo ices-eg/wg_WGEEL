@@ -375,8 +375,8 @@ shinyServer(function(input, output, session){
 								                starts_with("mort_"))
 								  data_from_base<-rbind(
 											extract_data("sigmaa", quality=c(0,1,2,3,4), quality_check=TRUE),
-											extract_data("sigmafallcat", quality=c(0,1,2,3,4), quality_check=TRUE),
-											extract_data("sigmahallcat", quality=c(0,1,2,3,4), quality_check=TRUE))
+											extract_data("sigmaf", quality=c(0,1,2,3,4), quality_check=TRUE),
+											extract_data("sigmah", quality=c(0,1,2,3,4), quality_check=TRUE))
 								}                
 						)
 						# the compare_with_database function will compare
