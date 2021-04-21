@@ -1895,11 +1895,13 @@ shinyServer(function(input, output, session){
 			  if (is.null(pick1)) 
 			   pick1=switch(input$edit_datatype,
 			              "t_eelstock_eel"=c("FR"),
+			              "t_eelstock_eel_perc"=c("FR"),
 			              c("G")
 			             )
 			  if (is.null(pick2)) 
 			    pick2=switch(input$edit_datatype,
 			                 "t_eelstock_eel"=c(4, 5, 6, 7),
+			                 "t_eelstock_eel_perc"=c(13:15,17:19),
 			                 ser_list)
 			  the_years <- input$yearAll
 			  if (is.null(input$yearAll)) {
@@ -1910,6 +1912,9 @@ shinyServer(function(input, output, session){
 			                                                series = series, lfs = lfs, minyear = the_years[1], maxyear = the_years[2], 
 			                                                .con = pool),
 			                  "t_eelstock_eel" =  query <- glue_sql("SELECT *,typ_name as typ_name_ref from datawg.t_eelstock_eel join ref.tr_typeseries_typ on typ_id=eel_typ_id where eel_cou_code in ({pick1*}) and eel_typ_id in ({pick2*}) and eel_year>={minyear} and eel_year<={maxyear}", 
+			                                                        vals = vals, types = types, minyear = the_years[1], maxyear = the_years[2], 
+			                                                        .con = pool),
+			                  "t_eelstock_eel_perc" =  query <- glue_sql("SELECT eel_id,eel_year eel_year_ref,eel_emu_nameshort as eel_emu_nameshort_ref,eel_cou_code as eel_cou_code_ref,typ_name as typ_name_ref, perc_f, perc_t, perc_c,perc_mo from datawg.t_eelstock_eel join ref.tr_typeseries_typ on typ_id=eel_typ_id left join datawg.t_eelstock_eel_percent on percent_id=eel_id where eel_cou_code in ({pick1*}) and eel_typ_id in ({pick2*}) and eel_year>={minyear} and eel_year<={maxyear}", 
 			                                                        vals = vals, types = types, minyear = the_years[1], maxyear = the_years[2], 
 			                                                        .con = pool),
 			                  "t_series_ser" =  glue_sql("SELECT *, ser_ccm_wso_id[1]::integer AS wso_id1, ser_ccm_wso_id[2]::integer AS wso_id2, ser_ccm_wso_id[3]::integer AS wso_id3 from datawg.t_series_ser where ser_nameshort in ({pick2*}) and ser_lfs_code in ({pick1*})", # ser_ccm_wso_id is an array to deal with series being part of serval basins ; here we deal until 3 basins
@@ -1937,6 +1942,8 @@ shinyServer(function(input, output, session){
 			                 .con = pool,
 			                 "t_eelstock_eel" =  mysourceAll() %>%
 			                   arrange(eel_emu_nameshort,eel_year),
+			                 "t_eelstock_eel_perc" =  mysourceAll() %>%
+			                   arrange(eel_emu_nameshort_ref,eel_year_ref),
 			                 "t_series_ser" =  mysourceAll() %>% 
 			                   arrange(ser_nameshort,ser_cou_code),
 			                 "t_biometry_series_bis" = mysourceAll() %>%
@@ -2104,7 +2111,7 @@ shinyServer(function(input, output, session){
 			
 			#depending on the data type we want to edit, the picker change
 			observeEvent(input$edit_datatype,tryCatch({
-			  if (input$edit_datatype=="t_eelstock_eel"){
+			  if (input$edit_datatype == "t_eelstock_eel"){
 			    updatePickerInput(session=session,
 			                      inputId="editpicker2",
 			                      choices=typ_id,
@@ -2116,7 +2123,19 @@ shinyServer(function(input, output, session){
 			                      choices = list_country,
 			                      selected=NULL)
 			    
-			  } else {
+			  } else if (input$edit_datatype == "t_eelstock_eel_perc"){
+			    updatePickerInput(session=session,
+			                      inputId="editpicker2",
+			                      choices=typ_id[typ_id %in% c(13:15,17:19)],
+			                      label="Select a type :",
+			                      selected=NULL)
+			    updatePickerInput(session=session,
+			                      inputId="editpicker1",
+			                      label = "Select a country :", 
+			                      choices = list_country,
+			                      selected=NULL)
+			    
+			  }else {
 			    updatePickerInput(session=session,
 			                      inputId="editpicker2",
 			                      label = "Select series :", 
