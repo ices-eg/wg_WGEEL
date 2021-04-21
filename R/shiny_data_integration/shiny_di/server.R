@@ -139,8 +139,9 @@ shinyServer(function(input, output, session){
 						participants<<- dbGetQuery(pool, sqlInterpolate(ANSI(), query))  
 						
 						ices_division <<- extract_ref("FAO area")$f_code
-						
+# TODO CEDRIC 2021 remove geom from extract_ref function so as not to get a warning						
 						emus <<- extract_ref("EMU")
+# TODO CEDRIC 2021 remove geom from extract_ref function so as not to get a warning						
 						
 						updatePickerInput(
 								session = session, inputId = "main_assessor",
