@@ -50,7 +50,7 @@ load_catch_landings<-function(path,datasource){
 				# check for the file integrity
 				
 				if (ncol(data_xls)!=11 & sheet=="new_data") cat(str_c("newdata : number column wrong, should have been 11 in file from ",country,"\n"))
-				if (ncol(data_xls)!=11 & sheet=="updated_data") cat(str_c("udated_data : number column wrong, should have been 11 in file from ",country,"\n"))
+				if (ncol(data_xls)!=11 & sheet=="updated_data") cat(str_c("updated_data : number column wrong, should have been 11 in file from ",country,"\n"))
 				
 				# check column names
 				

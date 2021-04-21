@@ -27,7 +27,7 @@ load_library("sqldf")
 load_library("RPostgreSQL")
 load_library("stacomirtools")
 load_library("stringr")
-#load_library("XLConnect") ==> switch to openxlsx beacause I have problem with rJava
+load_library("XLConnect") #==> switch to openxlsx beacause I have problem with rJava
 load_library("openxlsx")
 load_library("dplyr")
 #############################
@@ -129,7 +129,8 @@ create_datacall_file_biom_morta <- function(country, type = type_of_data[1], ...
 #	r_coun <-
 #	  rename_with(r_coun,function(x) paste("biom", x, sep = "_"), starts_with("perc"))
 	r_coun <- r_coun %>% select(-eel_area_division)
-  	wb = loadWorkbook(templatefile)
+  	#wb = openxlsx::loadWorkbook(templatefile)
+  	wb= XLConnect::loadWorkbook(templatefile)
   
 	if (nrow(r_coun) >0) {
 		## separate sheets for discarded and kept data  
@@ -146,13 +147,16 @@ create_datacall_file_biom_morta <- function(country, type = type_of_data[1], ...
 #		writeWorksheet(wb, data_kept,  sheet = "existing_kept",header=FALSE,startRow=2)
 		
 # openxlsx METHODS
-		openxlsx::writeData(wb, sheet = "existing_discarded", data_disc, startRow = 2, colNames = FALSE)
+		#openxlsx::writeData(wb, sheet = "existing_discarded", data_disc, startRow = 2, colNames = FALSE)
+		XLConnect::writeWorksheet(wb, data_disc, "existing_discarded", startRow=2, header=FALSE)
 		
 		
 	#removed for 2021	
 	#openxlsx::writeData(wb, sheet = "existing_kept", data_kept, startRow = 1)	
-		openxlsx::removeWorksheet(wb,"existing_kept")
-		openxlsx::removeWorksheet(wb,"updated_data")
+		#openxlsx::removeWorksheet(wb,"existing_kept")
+		XLConnect::hideSheet(wb, "existing_kept",veryHidden=FALSE)
+		#openxlsx::removeWorksheet(wb,"updated_data")
+		XLConnect::hideSheet(wb, "updated_data",veryHidden=FALSE)
 	} else {
 		cat("No data for country", country, "\n")
 	}
@@ -172,10 +176,11 @@ create_datacall_file_biom_morta <- function(country, type = type_of_data[1], ...
 	         perc_MO=0) %>%
 	  rename_with(function(x) paste(type, x, sep="_"),starts_with("perc")) %>%
 	  arrange(eel_emu_nameshort, typ_name, eel_year)
-	openxlsx::writeData(wb,  sheet = "new_data", data_missing, startRow = 2, colNames = FALSE)
+	#openxlsx::writeData(wb,  sheet = "new_data", data_missing, startRow = 2, colNames = FALSE)
+	XLConnect::writeWorksheet(wb, data=data_missing, sheet = "new_data",  startRow = 2, header = FALSE)
 	
-	
-	saveWorkbook(wb, file = destinationfile, overwrite = TRUE)	
+	#openxlsx::saveWorkbook(wb, file = destinationfile, overwrite = TRUE)	
+	XLConnect::saveWorkbook(wb, destinationfile)
 
 }
 
