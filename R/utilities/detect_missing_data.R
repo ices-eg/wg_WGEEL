@@ -163,7 +163,7 @@ detect_missing_data <- function(cou="FR",
 
 detect_missing_biom_morta <- function(cou="FR",
                                       type="biomass", eel_typ_id=13:15,
-                                minyear=2000,
+                                minyear=2007,
                                 maxyear=2021, #maxyear corresponds to the current year where we have to fill data
 #                                host="localhost",
 #                                dbname="wgeel",
