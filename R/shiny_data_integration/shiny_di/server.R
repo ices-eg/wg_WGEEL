@@ -329,7 +329,6 @@ shinyServer(function(input, output, session){
 			#############################
 			observeEvent(input$check_duplicate_button, tryCatch({ 
 						
-						
 						# see step0load_data returns a list with res and messages
 						# and within res data and a dataframe of errors
 						validate(
@@ -347,8 +346,14 @@ shinyServer(function(input, output, session){
 								"aquaculture"={             
 									data_from_base<-extract_data("aquaculture", quality=c(0,1,2,3,4), quality_check=TRUE)},
 								"biomass"={
-									# bug in excel file
-									colnames(data_from_excel)[colnames(data_from_excel)=="typ_name"]<-"eel_typ_name"
+									# bug in excel file - fixed in the template
+									#colnames(data_from_excel)[colnames(data_from_excel)=="typ_name"]<-"eel_typ_name"
+									data_from_excel$eel_lfs_code <- 'S' #always S
+									data_from_excel$eel_hty_code <- 'AL' #always AL
+									data_from_excel <- data_from_excel %>% 
+									  rename_with(function(x) tolower(gsub("biom_", "", x)),
+									              starts_with("biom_"))
+									data_from_excel$eel_area_division <- as.vector(rep(NA,nrow(data_from_excel)),"character")
 									data_from_base<-rbind(
 											extract_data("b0", quality=c(0,1,2,3,4), quality_check=TRUE),
 											extract_data("bbest", quality=c(0,1,2,3,4), quality_check=TRUE),
@@ -363,7 +368,12 @@ shinyServer(function(input, output, session){
 									
 								},
 								"mortality_rates"={
-									data_from_base<-rbind(
+								  data_from_excel$eel_lfs_code <- 'S' #always S
+								  data_from_excel$eel_hty_code <- 'AL' #always AL
+								  data_from_excel <- data_from_excel %>% 
+								    rename_with(function(x) tolower(gsub("mort_", "", x)),
+								                starts_with("mort_"))
+								  data_from_base<-rbind(
 											extract_data("sigmaa", quality=c(0,1,2,3,4), quality_check=TRUE),
 											extract_data("sigmafallcat", quality=c(0,1,2,3,4), quality_check=TRUE),
 											extract_data("sigmahallcat", quality=c(0,1,2,3,4), quality_check=TRUE))
@@ -380,7 +390,10 @@ shinyServer(function(input, output, session){
 							###TEMPORARY FIX 2020 due to incorrect typ_name
 							data_from_excel$eel_typ_name[data_from_excel$eel_typ_name %in% c("rec_landings","com_landings")] <- paste(data_from_excel$eel_typ_name[data_from_excel$eel_typ_name %in% c("rec_landings","com_landings")],"_kg",sep="")
 							
-							list_comp<-compare_with_database(data_from_excel,data_from_base)
+							eel_typ_valid <- switch(input$file_type,
+							                        "biomass"=13:15,
+							                        "mortality_rates"=17:25)
+							list_comp<-compare_with_database(data_from_excel,data_from_base,eel_typ_valid)
 							duplicates <- list_comp$duplicates
 							new <- list_comp$new 
 							current_cou_code <- list_comp$current_cou_code

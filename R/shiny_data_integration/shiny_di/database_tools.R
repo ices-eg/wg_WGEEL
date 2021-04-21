@@ -7,6 +7,8 @@
 #' loaded from excel, the 
 #' @param data_from_excel Dataset loaded from excel
 #' @param data_from_base dataset loaded from the database with previous values to be replaced
+#' @param eel_typ_id_valid accepted eel_typ_id (if NULL, use the ones from db)
+#' this is useful for mortalities and biomasses
 #' @return A list with three dataset, one is duplicate the other new, they correspond 
 #' to duplicates values that have to be checked by wgeel and when a new value
 #' is selected the database data has to be removed and the new lines needs to be qualified.
@@ -34,7 +36,7 @@
 #'  \code{\link[dplyr]{filter}},\code{\link[dplyr]{select}},\code{\link[dplyr]{inner_join}},\code{\link[dplyr]{right_join}}
 #' @rdname compare_with_database
 #' @importFrom dplyr filter select inner_join right_join
-compare_with_database <- function(data_from_excel, data_from_base) {
+compare_with_database <- function(data_from_excel, data_from_base, eel_typ_id_valid = NULL) {
 	# tr_type_typ should have been loaded by global.R in the program in the shiny app
 	if (!exists("tr_type_typ")) {
 		tr_type_typ<-extract_ref("Type of series")
@@ -63,9 +65,17 @@ compare_with_database <- function(data_from_excel, data_from_base) {
 		data_from_base<-data_from_base0L
 		warning("No data in the file coming from the database")
 		current_typ_id<-0
+		if (is.null(eel_typ_id_valid)){ #for biom and mortalities, we have to add perc
+		  data_from_base <- cbind.data.frame(data_from_base, 
+		                                     data.frame(perc_f=numeric(0),
+		                                                perc_t=numeric(0),
+		                                                perc_c=numeric(0),
+		                                                perc_mo=numeric(0)))
+		}
 	} else {   
 		current_typ_id <- unique(data_from_excel$eel_typ_id)
-		if (!all(current_typ_id %in% data_from_base$eel_typ_id)) 
+		if (is.null(eel_typ_id_valid)) eel_typ_id_valid <- unique(data_from_base$eel_typ_id)
+		if (!all(current_typ_id %in% eel_typ_id_valid)) 
 			validate(need(FALSE,paste("There is a mismatch between selected typ_id", paste0(current_typ_id, 
 									collapse = ";"), "and the dataset loaded from base", paste0(unique(data_from_base$eel_typ_id), 
 									collapse = ";"), "did you select the right File type ?")))
@@ -88,17 +98,21 @@ compare_with_database <- function(data_from_excel, data_from_base) {
 							"eel_emu_nameshort", "eel_cou_code", "eel_hty_code", "eel_area_division"), 
 					suffix = c(".base", ".xls"))
 	duplicates$keep_new_value <- vector("logical", nrow(duplicates))
-	duplicates <- duplicates[, c("eel_id", "eel_typ_id", "eel_typ_name", "eel_year", 
+	duplicates <- duplicates %>%
+	  select(any_of(c("eel_id", "eel_typ_id", "eel_typ_name", "eel_year", 
 					"eel_value.base", "eel_value.xls", "keep_new_value", "eel_qal_id.xls", "eel_qal_comment.xls", 
 					"eel_qal_id.base", "eel_qal_comment.base", "eel_missvaluequal.base", "eel_missvaluequal.xls", 
 					"eel_emu_nameshort", "eel_cou_code", "eel_lfs_code", "eel_hty_code", "eel_area_division", 
-					"eel_comment.base", "eel_comment.xls", "eel_datasource.base", "eel_datasource.xls")]
+					"perc_f.base","perc_f.xls","perc_t.base","perc_t.xls","perc_c.base","perc_c.xls", "perc_mo.base", "perc_mo.xls",
+					"eel_comment.base", "eel_comment.xls", "eel_datasource.base", "eel_datasource.xls")))
 	new <- dplyr::anti_join(data_from_excel, data_from_base, by = c("eel_typ_id", 
 					"eel_year", "eel_lfs_code", "eel_emu_nameshort", "eel_hty_code", "eel_area_division", 
 					"eel_cou_code"), suffix = c(".base", ".xls"))
-	new <- new[, c("eel_typ_id", "eel_typ_name", "eel_year", "eel_value", "eel_missvaluequal", 
+	new <- new %>%
+	  select(any_of(c("eel_typ_id", "eel_typ_name", "eel_year", "eel_value", "eel_missvaluequal", 
 					"eel_emu_nameshort", "eel_cou_code", "eel_lfs_code", "eel_hty_code", "eel_area_division", 
-					"eel_qal_id", "eel_qal_comment", "eel_datasource", "eel_comment")]
+					"perc_f", "perc_c","perc_t","perc_c","perc_mo",
+					"eel_qal_id", "eel_qal_comment", "eel_datasource", "eel_comment")))
 	complete <- rbind.data.frame(data_from_base[data_from_base$eel_cou_code %in% unique(new$eel_cou_code),
 					c("eel_typ_id", "eel_year", "eel_lfs_code", 
 							"eel_emu_nameshort", "eel_cou_code", "eel_hty_code")],
