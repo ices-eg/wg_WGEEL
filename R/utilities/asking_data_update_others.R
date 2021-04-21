@@ -33,7 +33,8 @@ load_library("dplyr")
 # as we don't want to commit data to git
 # read git user 
 ##################################
-wddata<-"C:/Users/cedric.briand/OneDrive - EPTB Vilaine/Projets/GRISAM/2020/wgeel/datacall/"
+wddata = paste0(getwd(), "/data/datacall_template/")
+load(str_c(getwd(),"/data/ccm_seaoutlets.rdata")) #polygons off ccm seaoutlets WGS84
 ###################################
 # this set up the connextion to the postgres database
 # change parameters accordingly
@@ -80,7 +81,7 @@ t_eelstock_eel<-sqldf("SELECT
 
 
 save(t_eelstock_eel, file=str_c(wddata,"t_eelstock_eel.Rdata"))
-# load(t_eelstock_eel.Rdata)
+# load(str_c(wddata,"t_eelstock_eel.Rdata"))
 #tr_eel_typ<- sqldf("SELECT * from ref.tr_typeseries_typ")
 
 #' function to create the data sheet 
@@ -97,7 +98,7 @@ save(t_eelstock_eel, file=str_c(wddata,"t_eelstock_eel.Rdata"))
 #' @param eel_typ_id the type to be included in the annex
 #' @param ... arguments  cou,	minyear, maxyear, host, dbname, user, and port passed to missing_data
 #' 
-#'  country <- "FR" ; name <- "Eel_Data_Call_2020_Annex4_Landings" ; eel_typ_id <- c(4,6) ;
+#'  country <- "FR" ; name <- "Eel_Data_Call_2020_Annex4_Landings_Commercial" ; eel_typ_id <- c(4,6) ;
 
 
 create_datacall_file <- function(country, eel_typ_id, name, ...){  
@@ -113,7 +114,7 @@ create_datacall_file <- function(country, eel_typ_id, name, ...){
 	# limit dataset to country
 	r_coun <- t_eelstock_eel[t_eelstock_eel$eel_cou_code==country & t_eelstock_eel$eel_typ_id %in% eel_typ_id,]
 	r_coun <- r_coun[,c(1,18,3:17)]
-	wb = loadWorkbook(templatefile)
+	wb = XLConnect::loadWorkbook(templatefile)
 	
 	if (nrow(r_coun) >0) {
 		## separate sheets for discarded and kept data  
@@ -125,8 +126,8 @@ create_datacall_file <- function(country, eel_typ_id, name, ...){
 		
 		
 		# pre-fill new data and missing for landings 
-		writeWorksheet(wb, data_disc,  sheet = "existing_discarded",header=FALSE, startRow=2)
-		writeWorksheet(wb, data_kept,  sheet = "existing_kept",header=FALSE,startRow=2)
+		XLConnect::writeWorksheet(wb, data_disc,  sheet = "existing_discarded",header=FALSE, startRow=2)
+		XLConnect::writeWorksheet(wb, data_kept,  sheet = "existing_kept",header=FALSE,startRow=2)
 	} else {
 		cat("No data for country", country, "\n")
 	}
@@ -168,7 +169,7 @@ country <- "NO";eel_typ_id <- 4; name <- "Eel_Data_Call_2020_Annex4_Landings_Com
 maxyear=2020;host="localhost";dbname="wgeel";user="wgeel";port=5432;datasource="dc_2020";
 #test
 create_datacall_file ( 
-		country <- "MA",
+		country <- "FR",
 		eel_typ_id <- 4, 
 		name <- "Eel_Data_Call_2020_Annex4_Landings_Commercial",
 		minyear=2000,
@@ -177,7 +178,7 @@ create_datacall_file (
 		dbname="wgeel",
 		user="wgeel",
 		port=5432,
-		datasource="dc_2020")
+		datasource="dc_2021")
 
 
 create_datacall_file ( 

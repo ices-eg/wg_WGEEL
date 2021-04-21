@@ -51,8 +51,8 @@ ALTER TABLE datawg.t_series_ser ADD COLUMN ser_sam_gear INTEGER REFERENCES ref.t
 UPDATE datawg.t_series_ser SET ser_sam_gear= 226 WHERE ser_effort_uni_code='nr fyke.day'; --8 Fyke net
 UPDATE datawg.t_series_ser SET ser_sam_gear= 214 WHERE ser_effort_uni_code='nr haul'; -- 9 Portable lift nets
 UPDATE datawg.t_series_ser SET ser_sam_gear= 242 WHERE ser_effort_uni_code='nr electrofishing'; --59 Electric fishing
-UPDATE datawg.t_series_ser SET ser_sam_gear= 226 WHERE ser_sam_gear IS NULL AND ser_comment ILIKE '%fyke net%'; 10 --Fyke net
-UPDATE datawg.t_series_ser SET ser_sam_gear= 230 WHERE ser_sam_gear IS NULL AND ser_comment ILIKE '%trap%' OR ser_comment ILIKE '%pass%'; 58 --Trap
+UPDATE datawg.t_series_ser SET ser_sam_gear= 226 WHERE ser_sam_gear IS NULL AND ser_comment ILIKE '%fyke net%'; --10 --Fyke net
+UPDATE datawg.t_series_ser SET ser_sam_gear= 230 WHERE ser_sam_gear IS NULL AND ser_comment ILIKE '%trap%' OR ser_comment ILIKE '%pass%'; --58 --Trap
 UPDATE datawg.t_series_ser SET ser_sam_gear= 242 WHERE ser_sam_gear IS NULL AND ser_comment ILIKE '%electrofishing%'; --7
 UPDATE datawg.t_series_ser SET ser_comment ='partial monitoring of one gate, with a model reconstructing the total migration' WHERE ser_id = 224;
 
@@ -82,6 +82,25 @@ create table datawg.t_eelstock_eel_percent (
     perc_c numeric check((perc_c >=0 and perc_c<=100) or perc_c is null),
     perc_mo numeric check((perc_mo >=0 and perc_f<=100) or perc_mo is null)
 );
+
+
+
+
+
+
+  -- TODO apply server
+
+UPDATE datawg.t_eelstock_eel SET (eel_qal_id,eel_qal_comment)=(20,'discarded prior to datacall 2021, all data will be replaced')
+WHERE eel_typ_id IN (13,14,15,17,18,19,20,21,22,23,25,26,27,28,29,30,31,24) and eel_qal_id IN(1,2,3,4); --4922
+
+/*
+SELECT * FROM datawg.t_biometry_series_bis tbs 
+JOIN  datawg.t_series_ser ON ser_id=bis_ser_id
+WHERE bio_sex_ratio IS NOT NULL;
+*/
+
+ALTER TABLE datawg.t_biometry_bio RENAME COLUMN bio_sex_ratio TO bio_perc_female; 
+
 
 
 
@@ -215,7 +234,4 @@ AS SELECT t_eelstock_eel.eel_id,
   WHERE t_eelstock_eel.eel_typ_id = 15 AND (t_eelstock_eel.eel_qal_id = ANY (ARRAY[1, 2, 4]));
   
   
-  -- TODO apply server
 
-UPDATE datawg.t_eelstock_eel SET (eel_qal_id,eel_qal_comment)=(20,'discarded prior to datacall 2021, all data will be replaced')
-WHERE eel_typ_id IN (13,14,15,17,18,19,20,21,22,23,25,26,27,28,29,30,31,24) and eel_qal_id IN(1,2,3,4); --4922

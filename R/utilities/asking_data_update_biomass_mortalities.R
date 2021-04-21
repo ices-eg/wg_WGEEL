@@ -1,11 +1,18 @@
 ###################################################################################"
 # File create to build excel files sent to persons responsible for mortalities data
-# Author Cedric Briand - modified by Laurent Beaulatob
+# Author Cedric Briand - modified by Laurent Beaulaton & Hilaire Drouineau
 # This script will create an excel sheet per country that currently have mortalities series
 #######################################################################################
 # put the current year there
-setwd("C:/workspace\\gitwgeel\\")
+#setwd("C:/workspace\\gitwgeel\\")
 CY<-2021
+# and the annex name / type of data
+type_of_data <- c("mortalities", "biomass")
+name_annex <- c("Eel_Data_Call_Annex_9_Mortality rates", "Eel_Data_Call_Annex6_Biomass_Indicators")
+names(name_annex) <- type_of_data
+eel_typ_id_annex <- list(17:19,13:15)
+names(eel_typ_id_annex) <- type_of_data
+
 # function to load packages if not available
 load_library=function(necessary) {
 	if(!all(necessary %in% installed.packages()[, 'Package']))
@@ -46,7 +53,10 @@ source("R/utilities/detect_missing_data.R")
 ###################################
 # this set up the connextion to the postgres database
 # change parameters accordingly
-###################################"
+###################################
+# you must set the user and pwd for the database HERE
+# userwgeel = ""
+# passwordwgeel = ""
 options(sqldf.RPostgreSQL.user = userwgeel, 
 		sqldf.RPostgreSQL.password = passwordwgeel,
 		sqldf.RPostgreSQL.dbname = "wgeel",
@@ -99,12 +109,12 @@ t_eelstock_eel<-sqldf("SELECT
 #' @param eel_typ_id the type to be included in the annex
 #' @param ... arguments  cou,	minyear, maxyear, host, dbname, user, and port passed to missing_data
 #' 
-#'  country <- "FR" ; name <- "Eel_Data_Call_Annex_9_Mortality rates" ; eel_typ_id <- 17:25 ;
-
-
-create_datacall_file_biom_morta <- function(country, name, type="biom", ...){  
-	eel_typ_id = c(13, 14, 15)
-	if (type == "morta") eel_typ_id=17:19
+#'  country <- "FR" ; type <- "biomass" ;
+create_datacall_file_biom_morta <- function(country, type = type_of_data[1], ...){  
+	if(!(type %in% type_of_data)) stop(paste0("'type' should be one of: ", paste(type_of_data, collapse = " or ")))
+	
+	name <- name_annex[type]
+	eel_typ_id <- eel_typ_id_annex[[type]]
 	
 	#create a folder for the country , names for source and destination files
 	dir.create(str_c(wddata,country),showWarnings = FALSE) # show warning= FALSE will create if not exist	
@@ -116,19 +126,18 @@ create_datacall_file_biom_morta <- function(country, name, type="biom", ...){
 	# limit dataset to country
 	r_coun <- t_eelstock_eel[t_eelstock_eel$eel_cou_code==country & t_eelstock_eel$eel_typ_id %in% eel_typ_id,]
 	r_coun <- r_coun[,c(1,18,3:7,19:22,8:17)]
-	r_coun <-
-	  rename_with(r_coun,function(x) paste("biom", x, sep = "_"), starts_with("perc"))
-	wb = loadWorkbook(templatefile)
-	r_coun <- r_coun %>%
-	  select(-eel_area_division)
-	
+#	r_coun <-
+#	  rename_with(r_coun,function(x) paste("biom", x, sep = "_"), starts_with("perc"))
+	r_coun <- r_coun %>% select(-eel_area_division)
+  	wb = loadWorkbook(templatefile)
+  
 	if (nrow(r_coun) >0) {
 		## separate sheets for discarded and kept data  
 		data_kept <- r_coun[r_coun$qal_kept,]
-		data_kept <- data_kept[,-ncol(r_coun)]
+#		data_kept <- data_kept[,-ncol(r_coun)]
 		
 		data_disc <- r_coun[!r_coun$qal_kept,]
-		data_disc <- data_disc[,-ncol(r_coun)]
+#		data_disc <- data_disc[,-ncol(r_coun)]
 		
 
 		# pre-fill new data and missing for landings 
@@ -137,18 +146,19 @@ create_datacall_file_biom_morta <- function(country, name, type="biom", ...){
 #		writeWorksheet(wb, data_kept,  sheet = "existing_kept",header=FALSE,startRow=2)
 		
 # openxlsx METHODS
-		openxlsx::writeData(wb, sheet = "existing_discarded", data_disc, startRow = 1)
+		openxlsx::writeData(wb, sheet = "existing_discarded", data_disc, startRow = 2, colNames = FALSE)
 		
 		
 	#removed for 2021	
 	#openxlsx::writeData(wb, sheet = "existing_kept", data_kept, startRow = 1)	
 		openxlsx::removeWorksheet(wb,"existing_kept")
+		openxlsx::removeWorksheet(wb,"updated_data")
 	} else {
 		cat("No data for country", country, "\n")
 	}
 	
-	data_missing <- detect_missing_biom_morta(cou=country,typ=type,...)
-	data_missing %>% 
+	data_missing <- detect_missing_biom_morta(cou=country,typ=type, eel_typ_id = eel_typ_id, maxyear = CY)
+	data_missing %<>% 
 	  mutate(eel_missvaluequal = NA) %>%
 	  select(typ_name, 
 	         eel_year, 
@@ -162,7 +172,7 @@ create_datacall_file_biom_morta <- function(country, name, type="biom", ...){
 	         perc_MO=0) %>%
 	  rename_with(function(x) paste(type, x, sep="_"),starts_with("perc")) %>%
 	  arrange(eel_emu_nameshort, typ_name, eel_year)
-	openxlsx::writeDataTable(wb,  sheet = "new_data", data_missing, startCol=1, startRow=1)
+	openxlsx::writeData(wb,  sheet = "new_data", data_missing, startRow = 2, colNames = FALSE)
 	
 	
 	saveWorkbook(wb, file = destinationfile, overwrite = TRUE)	
@@ -171,175 +181,18 @@ create_datacall_file_biom_morta <- function(country, name, type="biom", ...){
 
 
 # TESTS -------------------------------------------
-# note passwordwgeel must be set and exist
-# passwordwgeel <- XXXXXXXX
-country <- "NO";eel_typ_id <- 4; name <- "Eel_Data_Call_2020_Annex4_Landings_Commercial";minyear=2000;
-maxyear=2021;host="localhost";dbname="wgeel";user="wgeel";port=5432;datasource="dc_2020";
-#test
-create_datacall_file ( 
-		country <- "MA",
-		eel_typ_id <- 4, 
-		name <- "Eel_Data_Call_2020_Annex4_Landings_Commercial",
-		minyear=2000,
-		maxyear=2020, #maxyear corresponds to the current year where we have to fill data
-		host="localhost",
-		dbname="wgeel",
-		user="wgeel",
-		port=5432,
-		datasource="dc_2020")
-
-
-create_datacall_file ( 
-		country <- "MA",
-		eel_typ_id <- 4, 
-		name <- "Eel_Data_Call_2020_Annex4_Landings_Commercial",
-		minyear=2000,
-		maxyear=2020, #maxyear corresponds to the current year where we have to fill data
-		host="localhost",
-		dbname="wgeel",
-		user="wgeel",
-		port=5432,
-		datasource="dc_2020")
-
+create_datacall_file_biom_morta(country <- "FR", type <- "biomass")
+create_datacall_file_biom_morta(country <- "FR", type <- "mortalities")
 # END TEST -------------------------------------------
 
-# CLOSE EXCEL FILE FIST
+# CLOSE EXCEL FILE FIRST
 cou_code<-unique(t_eelstock_eel$eel_cou_code[!is.na(t_eelstock_eel$eel_cou_code)])
 
-# create an excel file for each of the countries and each typ_id
-# LANDINGS COMMERCIAL AND RECREATIONAL
-# problems with "NO", "TR", "HR" 
-cou <-"EE"
+# create an excel file for each of the countries
 for (cou in cou_code){	
 	country <- cou
 	cat("country: ",country,"\n")
-	create_datacall_file ( 
-			country <- cou,
-			eel_typ_id <- 4, 
-			name <- "Eel_Data_Call_2020_Annex4_Landings_Commercial",
-			minyear=2000,
-			maxyear=2020, #maxyear corresponds to the current year where we have to fill data
-			host="localhost",
-			dbname="wgeel",
-			user="wgeel",
-			port=5432,
-			datasource="dc_2020")
+	create_datacall_file_biom_morta(country <- cou, type <- "biomass")
+	create_datacall_file_biom_morta(country <- cou, type <- "mortalities")
 	cat("work finished\n")
 }
-
-for (cou in cou_code){		
-	country <- cou
-	cat("country: ",country,"\n")
-	create_datacall_file ( 
-			country <- cou,
-			eel_typ_id <- 6, 
-			name <- "Eel_Data_Call_2020_Annex5_Landings_Recreational",
-			minyear=2000,
-			maxyear=2020, #maxyear corresponds to the current year where we have to fill data
-			host="localhost",
-			dbname="wgeel",
-			user="wgeel",
-			port=5432,
-			datasource="dc_2020")
-	cat("work finished",country,"\n")
-}
-
-# OTHER LANDINGS
-
-for (cou in cou_code){				
-	create_datacall_file ( 
-			country <- cou,
-			eel_typ_id <- c(32,33), 
-			name <- "Eel_Data_Call_2020_Annex6_Landings_Other",
-			minyear=2000,
-			maxyear=2020, #maxyear corresponds to the current year where we have to fill data
-			host="localhost",
-			dbname="wgeel",
-			user="wgeel",
-			port=5432,
-			datasource="dc_2020")
-	cat("work finished",country,"\n")
-}
-
-
-
-for (cou in cou_code){
-	
-	create_datacall_file ( 
-			country <- cou,
-			eel_typ_id <- c(8,9,10), 
-			name <- "Eel_Data_Call_2020_Annex7_Releases",
-			minyear=2000,
-			maxyear=2020, #maxyear corresponds to the current year where we have to fill data
-			host="localhost",
-			dbname="wgeel",
-			user="wgeel",
-			port=5432,
-			datasource="dc_2020")
-	cat("work finished",country,"\n")
-	
-}
-
-
-
-
-cou_code_aqua<-unique(t_eelstock_eel$eel_cou_code[t_eelstock_eel$eel_typ_id%in%c(11)])
-
-cou <-"MA"
-
-for (cou in cou_code_aqua){
-	
-	create_datacall_file ( 
-			country <- cou,
-			eel_typ_id <- c(11), 
-			name <- "Eel_Data_Call_2020_Annex8_Aquaculture",
-			minyear=2000,
-			maxyear=2020, #maxyear corresponds to the current year where we have to fill data
-			host="localhost",
-			dbname="wgeel",
-			user="wgeel",
-			port=5432,
-			datasource="dc_2020")
-	cat("work finished",country,"\n")
-	
-}
-
-
-
-
-
-## Not run: saveWorkbook(wb, file = "tableStylesGallery.xlsx", overwrite = TRUE)
-
-
-
-# lselect the countries and the typ_id you have
-
-
-#
-#
-#
-#	
-#}else if (eel_typ %in% c(11,12)){
-#	
-#	r_coun<-t_eelstock_eel[t_eelstock_eel$eel_cou_code==country & t_eelstock_eel$eel_typ_id %in% c(11,12),]
-#	data_type<-"aquaculture"
-#	
-#}else if (eel_typ %in% c(13,14,15)){
-#	
-#	r_coun<-t_eelstock_eel[t_eelstock_eel$eel_cou_code==country & t_eelstock_eel$eel_typ_id %in% c(13,14,15),]
-#	data_type<-"biomass_indicators"
-#}else if (eel_typ %in% c(17:25)){
-#	
-#	r_coun<-t_eelstock_eel[t_eelstock_eel$eel_cou_code==country & t_eelstock_eel$eel_typ_id %in% c(17:25),]
-#	data_type<-"mortality_rate"
-#	
-#}else if (eel_typ %in% c(26:31)){
-#	
-#	r_coun<-t_eelstock_eel[t_eelstock_eel$eel_cou_code==country & t_eelstock_eel$eel_typ_id %in% c(26:31),]
-#	data_type<-"mortality_see"
-#	
-#}else if (eel_typ %in% c(32:33)){
-#	
-#	r_coun<-t_eelstock_eel[t_eelstock_eel$eel_cou_code==country & t_eelstock_eel$eel_typ_id %in% c(32:33),]
-#	data_type<-"other_landings"
-	
