@@ -19,10 +19,14 @@ shinyServer(function(input, output, session){
 			
 			output$passwordtest <- renderText({
 						req(input$passwordbutton)
-						load_database()
-						var_database()
-						if (data$connectOK) textoutput <- "Connected" 
-						else textoutput <- paste0("password: ",isolate(input$password)," wrong")
+						textoutput <- tryCatch({
+									load_database()
+									var_database()
+									textoutput <- "Connected" 
+					},error = function(e) {
+						textoutput <- paste("password:",input$password,"wrong")
+					})							
+
 						return(textoutput)
 						
 					})

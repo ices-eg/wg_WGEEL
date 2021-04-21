@@ -2355,7 +2355,7 @@ load_series<-function(path,datasource,stage="glass_eel"){
 			path=path,
 			sheet ="new_biometry",
 			skip=0)
-	if (ncol(new_biometry)!=17) cat(str_c("number column wrong for new_biometry, should have been 17 in file from ",country,"\n"))
+	if (ncol(new_biometry)!=18) cat(str_c("number column wrong for new_biometry, should have been 18 in file from ",country,"\n"))
 	
 	if (nrow(new_biometry)>0) {
 		
