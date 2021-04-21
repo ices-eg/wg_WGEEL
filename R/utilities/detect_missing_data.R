@@ -1,4 +1,4 @@
-
+load_library("tidyr")
 #passwordwgeel <- getPass()
 
 
@@ -162,32 +162,29 @@ detect_missing_data <- function(cou="FR",
 
 
 detect_missing_biom_morta <- function(cou="FR",
-                                      typ="biom",
+                                      type="biomass", eel_typ_id=13:15,
                                 minyear=2000,
                                 maxyear=2021, #maxyear corresponds to the current year where we have to fill data
-                                host="localhost",
-                                dbname="wgeel",
-                                user="wgeel",
-                                port=5435,
+#                                host="localhost",
+#                                dbname="wgeel",
+#                                user="wgeel",
+#                                port=5435,
                                 datasource="dc_2021") {
   #browser()
   
-  eel_typ_id=13:15
-  if(typ=="morta") eel_typ_id = 17:19
-  con_wgeel<-dbConnect(PostgreSQL(),host=host,dbname=dbname,user=user,port=port,password=passwordwgeel)
+  con_wgeel<-dbConnect(PostgreSQL(),host=options("sqldf.RPostgreSQL.host"), dbname=options("sqldf.RPostgreSQL.dbname"), user=options("sqldf.RPostgreSQL.user"), port=options("sqldf.RPostgreSQL.port"), password=options("sqldf.RPostgreSQL.password"))
   
   #theoretically this one is the best solution but the table is not well filled
   emus <- unique(dbGetQuery(con_wgeel,paste("select emu_nameshort eel_emu_nameshort,emu_cou_code
- eel_cou_code, emu_wholecountry  from ref.tr_emu_emu
-                                          where emu_cou_code in ('",paste(cou,collapse="','",sep=""),"')",sep="")))
+ 			eel_cou_code, emu_wholecountry
+			from ref.tr_emu_emu
+            where emu_cou_code in ('",paste(cou,collapse="','",sep=""),"')",sep="")))
   #in Sweeden, there are historical subidivisions thate we do not take into account
   emus=emus[!grepl("_.._",emus$eel_emu_nameshort),]
   
   # in some cases there is just one total, otherwise remove total											
   if (nrow(emus)>2 & cou!="DK"){ #for Denmark, total EMUs as a different meanings that for other countries
     emus <- emus[!emus$emu_wholecountry,c(1,2)]		
-  } else if (nrow(emus)==2) {
-    emus = subset(emus, emus$eel_emu_nameshort %in% used_emus)[,c(1,2)]
   } else {
     emus <- emus[,c(1,2)]				
   }
@@ -224,7 +221,7 @@ detect_missing_biom_morta <- function(cou="FR",
                                 eel_typ_id= eel_typ_id[eel_typ_id != 13],
                                 eel_hty_code=hty_emus),
                     emus) 
-  if (type=="biom") all_comb <- all_comb %>%
+  if (type=="biomass") all_comb <- all_comb %>%
     bind_rows(merge(expand.grid(eel_lfs_code=c("S"),
                                 eel_year=0,
                                 eel_typ_id=13,
@@ -247,6 +244,8 @@ detect_missing_biom_morta <- function(cou="FR",
   missing_comb$eel_typ_id=as.integer(missing_comb$eel_typ_id)
   
   missing_comb=merge(missing_comb,eel_typ_name)
+  
+  dbDisconnect(con_wgeel) #otherwise you open many connections
 
   return(missing_comb)
 }

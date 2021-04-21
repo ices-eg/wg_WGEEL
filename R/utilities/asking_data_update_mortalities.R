@@ -1,6 +1,6 @@
 ###################################################################################"
 # File create to build excel files sent to persons responsible for mortalities data
-# Author Cedric Briand - modified by Laurent Beaulatob
+# Author Cedric Briand - modified by Laurent Beaulaton
 # This script will create an excel sheet per country that currently have mortalities series
 #######################################################################################
 # put the current year there
@@ -116,7 +116,6 @@ create_datacall_file <- function(country, eel_typ_id, name, ...){
 	r_coun <- t_eelstock_eel[t_eelstock_eel$eel_cou_code==country & t_eelstock_eel$eel_typ_id %in% eel_typ_id,]
 	r_coun <- r_coun[,c(1,18,3:17)]
 	wb = loadWorkbook(templatefile)
-	cat("ok")
 	
 	if (nrow(r_coun) >0) {
 		## separate sheets for discarded and kept data  
