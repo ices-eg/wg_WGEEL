@@ -357,7 +357,7 @@ insert_biometry = function(biometry, stage, icountry = country)
 	)
 	
 	# insert data in the database 
-	additional_var = ifelse(stage == "S", "bio_sex_ratio, bio_length_f, bio_weight_f, bio_age_f, bio_length_m, bio_weight_m, bio_age_m,", "")
+	additional_var = ifelse(stage == "S", "bio_perc_female, bio_length_f, bio_weight_f, bio_age_f, bio_length_m, bio_weight_m, bio_age_m,", "")
 	wgeel_execute(str_c("INSERT INTO datawg.t_biometry_series_bis (bis_ser_id, bio_year, bio_length, bio_weight, bio_age, ", additional_var, " bio_comment, bio_lfs_code) SELECT *, '", stage,"' FROM temp_", tolower(icountry), "_biometry;"), extra_data = "biometry",  country = tolower(icountry), environment = environment())
 	
 	# retrieve le bio_id for further use

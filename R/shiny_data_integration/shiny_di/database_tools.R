@@ -229,7 +229,7 @@ compare_with_database_series <- function(data_from_excel, data_from_base) {
 
 	data_from_excel <- data_from_excel %>% 
 			mutate_at(vars(ser_dts_datasource, ser_comment, ser_lfs_code, ser_hty_code, ser_locationdescription, ser_emu_nameshort,
-							ser_area_division,ser_cou_code,ser_effort_uni_code, ser_uni_code),list(as.character)) 
+							ser_area_division,ser_cou_code,ser_effort_uni_code, ser_uni_code, ser_sam_gear, ser_distanceseakm, 	ser_method),list(as.character)) 
 	
 	duplicates <- data_from_base %>% dplyr::filter(ser_typ_id %in% current_typ_id & 
 							ser_cou_code == current_cou_code) %>% dplyr::select(ser_colnames) %>% # dplyr::select(-eel_cou_code)%>%
@@ -252,6 +252,9 @@ compare_with_database_series <- function(data_from_excel, data_from_base) {
 					"ser_cou_code.base", "ser_cou_code.xls",
 					"ser_area_division.base", "ser_area_division.xls",
 					"ser_tblcodeid.base", "ser_tblcodeid.xls", 
+					"ser_sam_gear.base", 	"ser_sam_gear.xls",
+					"ser_distanceseakm.base", "ser_distanceseakm.xls",
+					"ser_method.base", "ser_method.xls",
 					"ser_x.base","ser_x.xls",
 					"ser_y.base", "ser_y.xls",
 					"ser_sam_id.base",  "ser_sam_id.xls")]
@@ -267,7 +270,7 @@ compare_with_database_series <- function(data_from_excel, data_from_base) {
 	modified <- dplyr::anti_join(data_from_excel, data_from_base, 
 			by = c("ser_nameshort", "ser_typ_id", "ser_effort_uni_code", "ser_comment", "ser_uni_code", 
 					"ser_lfs_code", "ser_hty_code", "ser_locationdescription", "ser_emu_nameshort",
-					"ser_cou_code", "ser_area_division", "ser_x", "ser_y", "ser_sam_id" ))
+					"ser_cou_code", "ser_area_division", "ser_x", "ser_y", "ser_sam_id", "ser_sam_gear", "ser_distanceseakm", 	"ser_method" ))
 	modified <- modified[!modified$ser_nameshort %in% new$ser_nameshort,]
 	# after anti join there are still values that are not really changed.
 	# this is further investigated below
@@ -488,7 +491,7 @@ compare_with_database_biometry <- function(data_from_excel, data_from_base, shee
 					"bio_length.base", "bio_length.xls",
 					"bio_weight.base","bio_weight.xls",
 					"bio_age.base", "bio_age.xls",
-					"bio_sex_ratio.base","bio_sex_ratio.xls",
+					"bio_perc_female.base","bio_perc_female.xls",
 					"bio_length_f.base", "bio_length_f.xls",
 					"bio_weight_f.base", "bio_weight_f.xls",
 					"bio_age_f.base", "bio_age_f.xls",
@@ -497,7 +500,8 @@ compare_with_database_biometry <- function(data_from_excel, data_from_base, shee
 					"bio_age_m.base", "bio_age_m.xls",
 					"bio_comment.base", "bio_comment.xls",
 					"bio_last_update.base", "bio_last_update.xls",
-					"bis_g_in_gy.base",  "bis_g_in_gy.xls" )%in% colnames(duplicates)]
+					"bis_g_in_gy.base",  "bis_g_in_gy.xls", "bio_number"
+					)%in% colnames(duplicates)]
 	
 	# Anti join only keeps columns from X
 	new <-  dplyr::anti_join(as.data.frame(data_from_excel), data_from_base, 
@@ -509,7 +513,7 @@ compare_with_database_biometry <- function(data_from_excel, data_from_base, shee
 	
 	# normally there should not be any modified in new but let's check
 	modified <- dplyr::anti_join(as.data.frame(data_from_excel), data_from_base, 
-			by =c( "bio_year", "bio_length", "bio_weight", "bio_age", "bio_sex_ratio", "bio_length_f", "bio_weight_f", "bio_age_f", "bio_length_m", "bio_weight_m", "bio_age_m", "bio_comment", "bis_g_in_gy", "bis_ser_id" )
+			by =c( "bio_year", "bio_length", "bio_weight", "bio_age", "bio_perc_female", "bio_length_f", "bio_weight_f", "bio_age_f", "bio_length_m", "bio_weight_m", "bio_age_m", "bio_comment", "bio_number", "bis_g_in_gy", "bis_ser_id" )
 	)
 	modified <- modified[!modified$ser_nameshort %in% new$ser_nameshort,]
 	highlight_change <- duplicates[duplicates$ser_nameshort %in% modified$ser_nameshort,]
@@ -1022,7 +1026,7 @@ write_new <- function(path) {
 	new <- new %>% mutate_if(is.logical,list(as.character)) 
 
 	new <- new %>% 
-			mutate_at(vars(ser_dts_datasource, ser_comment, ser_lfs_code, ser_hty_code, ser_locationdescription, ser_emu_nameshort,
+			mutate_at(vars(ser_dts_datasource, ser_comment, ser_lfs_code, ser_hty_code, ser_locationdescription, ser_emu_nameshort, ser_sam_gear, ser_distanceseakm, 	ser_method,
 							ser_area_division,ser_cou_code),list(as.character)) 
 	new <- new %>% 
 			mutate_at(vars(ser_sam_id),list(as.integer)) 
@@ -1038,7 +1042,8 @@ write_new <- function(path) {
 	new <- new[, c("ser_nameshort", "ser_namelong", "ser_typ_id", "ser_effort_uni_code", 
 					"ser_comment", "ser_uni_code", "ser_lfs_code", "ser_hty_code", "ser_locationdescription",
 					"ser_emu_nameshort", "ser_cou_code", "ser_area_division", "ser_tblcodeid",
-					"ser_x", "ser_y", "ser_sam_id", "ser_dts_datasource", "ser_qal_id", "ser_qal_comment",
+					"ser_x", "ser_y", "ser_sam_id", "ser_dts_datasource",
+					"ser_sam_gear", "ser_distanceseakm", 	"ser_method", "ser_qal_id", "ser_qal_comment",
 					 "ser_ccm_wso_id" )	]
 	conn <- poolCheckout(pool)	
 	dbExecute(conn,"drop table if exists new_series_temp ")
@@ -1052,12 +1057,12 @@ write_new <- function(path) {
 			ser_comment, ser_uni_code, ser_lfs_code, ser_hty_code, ser_locationdescription,
 			ser_emu_nameshort, ser_cou_code, ser_area_division, ser_tblcodeid,
 			ser_x, ser_y, ser_sam_id, ser_dts_datasource, ser_qal_id, ser_qal_comment,
-			ser_ccm_wso_id ) 
+			ser_ccm_wso_id,ser_sam_gear, ser_distanceseakm, 	ser_method ) 
 			select ser_nameshort, ser_namelong, ser_typ_id, ser_effort_uni_code, 
 			ser_comment, ser_uni_code, ser_lfs_code, ser_hty_code, ser_locationdescription,
 			ser_emu_nameshort, ser_cou_code, ser_area_division, ser_tblcodeid::integer,
 			ser_x, ser_y, ser_sam_id, ser_dts_datasource, ser_qal_id::integer, ser_qal_comment,
-			ser_ccm_wso_id::integer[] from new_series_temp;"
+			ser_ccm_wso_id::integer[], ser_sam_gear, ser_distanceseakm, 	ser_method from new_series_temp;"
 	# if fails replaces the message with this trycatch !  I've tried many ways with
 	# sqldf but trycatch failed to catch the error Hence the use of DBI
 
@@ -1191,7 +1196,7 @@ write_new_biometry <- function(path) {
 	
 	
 	new <- new[, c(c( "bio_year", "bio_length", "bio_weight", "bio_age", 
-							"bio_sex_ratio", "bio_length_f", "bio_weight_f", "bio_age_f", "bio_length_m", 
+							"bio_perc_female", "bio_length_f", "bio_weight_f", "bio_age_f", "bio_length_m", 
 							"bio_weight_m", "bio_age_m", "bio_comment", "bio_last_update", "bis_g_in_gy", 
 							"bio_dts_datasource", "bis_ser_id" )
 			)	]
@@ -1204,12 +1209,12 @@ write_new_biometry <- function(path) {
 	
 	# Query uses temp table just created in the database 
 	query <- "insert into datawg.t_biometry_series_bis (
-			bio_year, bio_lfs_code, bio_length, bio_weight, bio_age, bio_sex_ratio,
+			bio_year, bio_lfs_code, bio_length, bio_weight, bio_age, bio_perc_female,
 			bio_length_f, bio_weight_f, bio_age_f, bio_length_m, bio_weight_m, bio_age_m,
 			bio_comment, bio_last_update, bis_g_in_gy, bio_dts_datasource, bis_ser_id
 			)
 			select 
-			bio_year, ser_lfs_code as bio_lsf_code, bio_length, bio_weight, bio_age, bio_sex_ratio,
+			bio_year, ser_lfs_code as bio_lsf_code, bio_length, bio_weight, bio_age, bio_perc_female,
 			bio_length_f, bio_weight_f, bio_age_f, bio_length_m, bio_weight_m, bio_age_m,
 			bio_comment, bio_last_update::date, bis_g_in_gy, bio_dts_datasource, bis_ser_id
 			from  new_biometry_temp
@@ -1261,7 +1266,7 @@ update_series <- function(path) {
 	
 	updated_values_table <- updated_values_table %>% 
 			mutate_at(vars(ser_dts_datasource, ser_comment, ser_lfs_code, ser_hty_code, ser_locationdescription, ser_emu_nameshort,
-							ser_area_division,ser_cou_code),list(as.character)) 
+							ser_area_division,ser_cou_code, ser_sam_gear, ser_distanceseakm, 	ser_method),list(as.character)) 
 	updated_values_table <- updated_values_table %>% 
 			mutate_at(vars(ser_sam_id, ser_tblcodeid),list(as.integer)) 
 
@@ -1288,7 +1293,10 @@ update_series <- function(path) {
 			ser_x, 
 			ser_y, 
 			ser_sam_id,
-			ser_dts_datasource) =
+			ser_dts_datasource,
+			ser_sam_gear,
+		 	ser_distanceseakm, 
+			ser_method) =
 			(
 			t.ser_namelong, 
 			t.ser_typ_id,
@@ -1305,7 +1313,10 @@ update_series <- function(path) {
 			t.ser_x, 
 			t.ser_y, 
 			t.ser_sam_id,
-			t.ser_dts_datasource)
+			t.ser_dts_datasource,
+			t.ser_sam_gear,
+			t.ser_distanceseakm,
+		 	t.ser_method)
 			FROM updated_series_temp t WHERE t.ser_nameshort = t_series_ser.ser_nameshort"
 
 	message <- NULL
@@ -1413,7 +1424,7 @@ update_biometry <- function(path) {
 			bio_length, 
 			bio_weight, 
 			bio_age, 
-			bio_sex_ratio, 
+			bio_perc_female, 
 			bio_length_f, 
 			bio_weight_f, 
 			bio_age_f, 
@@ -1433,7 +1444,7 @@ update_biometry <- function(path) {
 			t.bio_length, 
 			t.bio_weight, 
 			t.bio_age, 
-			t.bio_sex_ratio, 
+			t.bio_perc_female, 
 			t.bio_length_f, 
 			t.bio_weight_f, 
 			t.bio_age_f, 

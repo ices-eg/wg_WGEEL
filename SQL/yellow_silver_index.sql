@@ -273,7 +273,7 @@ SELECT code, loc_code, loc_name, country, yr, lat, long, "temp", expl, dens, dis
 FROM ts.silver;
 
 -- new
-SELECT bio_id, bio_lfs_code, bio_year, bio_length, bio_weight, bio_age, bio_sex_ratio, bio_length_f, bio_weight_f, bio_age_f, bio_length_m, bio_weight_m, bio_age_m, bio_comment, bio_last_update, bio_qal_id, bit_n, bit_loc_name, bit_cou_code, bit_emu_nameshort, bit_area_division, bit_hty_code, bit_latitude, bit_longitude, bit_geom
+SELECT bio_id, bio_lfs_code, bio_year, bio_length, bio_weight, bio_age, bio_perc_female, bio_length_f, bio_weight_f, bio_age_f, bio_length_m, bio_weight_m, bio_age_m, bio_comment, bio_last_update, bio_qal_id, bit_n, bit_loc_name, bit_cou_code, bit_emu_nameshort, bit_area_division, bit_hty_code, bit_latitude, bit_longitude, bit_geom
 FROM datawg.t_biometry_other_bit;
 
 SELECT cou_code, cou_country FROM "ref".tr_country_cou ORDER BY cou_order;

@@ -87,12 +87,12 @@ stats_data= data %>% group_by(ser_emu_nameshort,ser_hty_code,ser_lfs_code) %>%
   summarize(series=paste(unique(ser_nameshort),collapse=", "),
             n_bio_length=(sum(!is.na(bio_length))),
             n_bio_weight=(sum(!is.na(bio_weight))),
-            n_bio_sex_ratio=(sum(!is.na(bio_sex_ratio))),
+            n_bio_perc_female=(sum(!is.na(bio_perc_female))),
             n_bio_length_m=(sum(!is.na(bio_length_m))),
             n_bio_length_f=(sum(!is.na(bio_length_f))),
             n_bio_weight_m=(sum(!is.na(bio_weight_m))),
             n_bio_weight_f=(sum(!is.na(bio_weight_f)))) %>%
-  filter((n_bio_length+n_bio_weight+n_bio_sex_ratio+n_bio_length_m+n_bio_length_f+n_bio_weight_m+n_bio_weight_f)>0) %>%
+  filter((n_bio_length+n_bio_weight+n_bio_perc_female+n_bio_length_m+n_bio_length_f+n_bio_weight_m+n_bio_weight_f)>0) %>%
   arrange(ser_lfs_code,ser_emu_nameshort,ser_hty_code)
 autofit(flextable(stats_data))
 
@@ -105,7 +105,7 @@ mean_biom_hty_emu <- data %>%
             ser_x=mean(ser_x),
             ser_y=mean(ser_y),
             bio_weight=mean(bio_weight,na.rm=TRUE),
-            bio_sex_ratio=mean(bio_sex_ratio,na.rm=TRUE),
+            bio_perc_female=mean(bio_perc_female,na.rm=TRUE),
             bio_length_f=mean(bio_length_f,na.rm=TRUE),
             bio_length_m=mean(bio_length_m,na.rm=TRUE),
             bio_weight_f=mean(bio_weight_f,na.rm=TRUE),
@@ -120,7 +120,7 @@ mean_biom_hty_emuyear <- data %>%
             ser_x=mean(ser_x),
             ser_y=mean(ser_y),
             bio_weight=mean(bio_weight,na.rm=TRUE),
-            bio_sex_ratio=mean(bio_sex_ratio,na.rm=TRUE),
+            bio_perc_female=mean(bio_perc_female,na.rm=TRUE),
             bio_length_f=mean(bio_length_f,na.rm=TRUE),
             bio_length_m=mean(bio_length_m,na.rm=TRUE),
             bio_weight_f=mean(bio_weight_f,na.rm=TRUE),
@@ -139,7 +139,7 @@ mean_biom_hty_emu <- mean_biom_hty_emu %>%
          bio_weight=ifelse(n_bio_weight>=5,bio_length,NA),
          bio_weight_f=ifelse(n_bio_weight_f>=5,bio_length_f,NA),
          bio_weight_m=ifelse(n_bio_weight_m>=5,bio_length_m,NA),
-         bio_sex_ratio=ifelse(n_bio_sex_ratio>=5,bio_sex_ratio,NA))
+         bio_perc_female=ifelse(n_bio_perc_female>=5,bio_perc_female,NA))
 
 
 mean_biom_hty_emuS=mean_biom_hty_emu %>%
@@ -179,7 +179,7 @@ plot_map_bio_emu = function(var,stage,sex=NULL){
   var_name=switch (var,
     "length" = "bio_length",
     "weight" = "bio_weight",
-    "sexratio" = "bio_sex_ratio"
+    "sexratio" = "bio_perc_female"
   )
   
   ylab=switch (var,
@@ -317,7 +317,7 @@ autofit(flextable(stats_data %>%
           filter(rowSums(select(.,starts_with("n_")))>0)))
 ```
 
-The number of points is again very limited and no significant spatial pattern is detected (tau=`r round(Kendall(mean_biom_hty_emuS$bio_sex_ratio,mean_biom_hty_emuS$distance)$tau[1],digits=2)`, p.value=`r Kendall(mean_biom_hty_emuS$bio_sex_ratio,mean_biom_hty_emuS$distance)$sl[1]`.
+The number of points is again very limited and no significant spatial pattern is detected (tau=`r round(Kendall(mean_biom_hty_emuS$bio_perc_female,mean_biom_hty_emuS$distance)$tau[1],digits=2)`, p.value=`r Kendall(mean_biom_hty_emuS$bio_perc_female,mean_biom_hty_emuS$distance)$sl[1]`.
 
 ```{r silversexratiomap,echo=TRUE}
 plot_map_bio_emu("sexratio","S",sex=NULL)
@@ -379,7 +379,7 @@ table_temporal_trend = function(var,stage,sex=NULL){
   var_name=switch (var,
     "length" = "bio_length",
     "weight" = "bio_weight",
-    "sexratio" = "bio_sex_ratio"
+    "sexratio" = "bio_perc_female"
   )
   
   ylab=switch (var,
@@ -428,7 +428,7 @@ plot_temporal_trend = function(var,stage,trends,sex=NULL){
   var_name=switch (var,
     "length" = "bio_length",
     "weight" = "bio_weight",
-    "sexratio" = "bio_sex_ratio"
+    "sexratio" = "bio_perc_female"
   )
   
   ylab=switch (var,
@@ -605,7 +605,7 @@ table_ge_trend = function(var){
   var_name=switch (var,
     "length" = "bio_length",
     "weight" = "bio_weight",
-    "sexratio" = "bio_sex_ratio"
+    "sexratio" = "bio_perc_female"
   )
   
   ylab=switch (var,
@@ -641,7 +641,7 @@ plot_ge_trend = function(var,trends){
   var_name=switch (var,
     "length" = "bio_length",
     "weight" = "bio_weight",
-    "sexratio" = "bio_sex_ratio"
+    "sexratio" = "bio_perc_female"
   )
   
   ylab=switch (var,
