@@ -395,30 +395,30 @@ check_emu_country <- function(dataset, namedataset, column, country){
 #' @param country the current country being evaluated
 #' 
 
-check_biom_num <- function(dataset, namedataset, column, country){
+check_rates_num <- function(dataset, namedataset, column, country){
 	answer = NULL
 	namedataset <-  deparse(substitute(dataset))
 	newdataset <- dataset
 	newdataset$nline <- 1:nrow(newdataset)
 	# remove NA from data
-	#ddataset <- as.data.frame(newdataset[!is.na(newdataset[,column]),])
+	ddataset <- as.data.frame(newdataset[!is.na(newdataset[,column]),])
 	
-	newdataset$num <- as.numeric(newdataset[,column])
+	ddataset$num <- as.numeric(ddataset[,column])
 
-	if (nrow(newdataset)>0){ 
+	if (nrow(ddataset)>0){ 
 		
-		if (any(newdataset[is.na(newdataset$num),column]!="NP")) { # are all values matching ?
-			value1 <- newdataset[newdataset[,column]!="NP" & is.na(newdataset$num), column]
-			line1 <- newdataset$nline[newdataset[,column]!="NP" & is.na(newdataset$num)]
+		if (any(ddataset[is.na(ddataset$num),column]!="NP")) { # are all values matching ?
+			value1 <- ddataset[ddataset[,column]!="NP" & is.na(ddataset$num), column]
+			line1 <- ddataset$nline[ddataset[,column]!="NP" & is.na(ddataset$num)]
 		}else {	value1 <- vector() 
 				line1 <- vector()
 			}
 		
-		if (length(newdataset[!is.na(newdataset$num),column])>0) {
-				value2 <- newdataset[!is.na(newdataset$num) & (newdataset$num<0
-										| newdataset$num>100), "num"]
-				line2 <- newdataset$nline[!is.na(newdataset$num) & (newdataset$num<0
-									| newdataset$num>100)]
+		if (length(ddataset[!is.na(ddataset$num),column])>0) {
+				value2 <- ddataset[!is.na(ddataset$num) & (ddataset$num<0
+										| ddataset$num>100), "num"]
+				line2 <- ddataset$nline[!is.na(ddataset$num) & (ddataset$num<0
+									| ddataset$num>100)]
 			}else {	value2 <- vector() 
 					line2 <- vector()
 				}
@@ -444,7 +444,7 @@ check_biom_num <- function(dataset, namedataset, column, country){
 }
 
 
-check_duplicate_biomass <- function(dataset, namedataset){
+check_duplicate_rates <- function(dataset, namedataset){
 	
 	dupl <- dataset[,c("eel_typ_name", "eel_year", "eel_emu_nameshort")]
 	value <- dupl[duplicated(dupl),]
