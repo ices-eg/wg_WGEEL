@@ -19,10 +19,7 @@ JOIN REF.tr_typeseries_typ ON typ_id=eel_typ_id
 WHERE eel_typ_id IN (14,15,17,18,19,20,21,22,23,25,26,27,28,29,30,31,24) 
 --AND eel_qal_id=3;
 
--- TODO apply server
 
-UPDATE datawg.t_eelstock_eel SET (eel_qal_id,eel_qal_comment)=(20,'discarded prior to datacall 2021, all data will be replaced')
-WHERE eel_typ_id IN (13,14,15,17,18,19,20,21,22,23,25,26,27,28,29,30,31,24) and eel_qal_id IN(1,2,3,4); --4922
 
 
 /*
@@ -72,13 +69,153 @@ COMMENT ON COLUMN datawg.t_series_ser.ser_method IS
 
 ALTER TABLE datawg.t_biometry_bio ADD COLUMN bio_number NUMERIC;
 COMMENT ON COLUMN datawg.t_biometry_bio.bio_number IS 'number of individual corresponding to the measures';
+
+
 /*
 Table for percent habitat related to stock indicators
 */
+drop table if exists datawg.t_eelstock_eel_percent;
 create table datawg.t_eelstock_eel_percent (
     percent_id integer primary key references datawg.t_eelstock_eel(eel_id),
-    perc_f numeric check((perc_f >=0 and perc_f<=0) or perc_f is null) ,
-    perc_t numeric check((perc_t >=0 and perc_f<=0) or perc_t is null),
-    perc_c numeric check((perc_c >=0 and perc_c<=0) or perc_c is null),
-    perc_mo numeric check((perc_mo >=0 and perc_f<=0) or perc_mo is null)
+    perc_f numeric check((perc_f >=0 and perc_f<=100) or perc_f is null) ,
+    perc_t numeric check((perc_t >=0 and perc_t<=100) or perc_t is null),
+    perc_c numeric check((perc_c >=0 and perc_c<=100) or perc_c is null),
+    perc_mo numeric check((perc_mo >=0 and perc_f<=100) or perc_mo is null)
 );
+
+
+
+
+/*
+* THIS PART SHOULD BE LAUNCHED AFTER TEMPLATES GENERATION BUT BEFORE DATA INTEGRATION
+*/
+
+
+
+/*
+Update view to include perc
+*/
+CREATE OR REPLACE VIEW datawg.b0
+AS SELECT t_eelstock_eel.eel_id,
+    t_eelstock_eel.eel_typ_id,
+    tr_typeseries_typ.typ_name,
+    tr_typeseries_typ.typ_uni_code,
+    t_eelstock_eel.eel_year,
+    t_eelstock_eel.eel_value,
+    t_eelstock_eel.eel_missvaluequal,
+    t_eelstock_eel.eel_emu_nameshort,
+    t_eelstock_eel.eel_cou_code,
+    tr_country_cou.cou_country,
+    tr_country_cou.cou_order,
+    tr_country_cou.cou_iso3code,
+    t_eelstock_eel.eel_lfs_code,
+    tr_lifestage_lfs.lfs_name,
+    t_eelstock_eel.eel_hty_code,
+    tr_habitattype_hty.hty_description,
+    t_eelstock_eel.eel_area_division,
+    t_eelstock_eel.eel_qal_id,
+    tr_quality_qal.qal_level,
+    tr_quality_qal.qal_text,
+    t_eelstock_eel.eel_qal_comment,
+    t_eelstock_eel.eel_comment,
+    t_eelstock_eel.eel_datasource,
+    perc_f biom_perc_f,
+    perc_t biom_perc_t,
+    perc_c biom_perc_c,
+    perc_mo biom_perc_mo
+   FROM datawg.t_eelstock_eel
+     LEFT JOIN ref.tr_lifestage_lfs ON t_eelstock_eel.eel_lfs_code::text = tr_lifestage_lfs.lfs_code::text
+     LEFT JOIN ref.tr_quality_qal ON t_eelstock_eel.eel_qal_id = tr_quality_qal.qal_id
+     LEFT JOIN ref.tr_country_cou ON t_eelstock_eel.eel_cou_code::text = tr_country_cou.cou_code::text
+     LEFT JOIN ref.tr_typeseries_typ ON t_eelstock_eel.eel_typ_id = tr_typeseries_typ.typ_id
+     LEFT JOIN ref.tr_habitattype_hty ON t_eelstock_eel.eel_hty_code::text = tr_habitattype_hty.hty_code::text
+     LEFT JOIN ref.tr_emu_emu ON tr_emu_emu.emu_nameshort::text = t_eelstock_eel.eel_emu_nameshort::text AND tr_emu_emu.emu_cou_code = t_eelstock_eel.eel_cou_code::text
+     LEFT JOIN datawg.t_eelstock_eel_percent on percent_id=eel_id
+  WHERE t_eelstock_eel.eel_typ_id = 13 AND (t_eelstock_eel.eel_qal_id = ANY (ARRAY[1, 2, 4]));
+  
+  
+  
+CREATE OR REPLACE VIEW datawg.bbest
+AS SELECT t_eelstock_eel.eel_id,
+    t_eelstock_eel.eel_typ_id,
+    tr_typeseries_typ.typ_name,
+    tr_typeseries_typ.typ_uni_code,
+    t_eelstock_eel.eel_year,
+    t_eelstock_eel.eel_value,
+    t_eelstock_eel.eel_missvaluequal,
+    t_eelstock_eel.eel_emu_nameshort,
+    t_eelstock_eel.eel_cou_code,
+    tr_country_cou.cou_country,
+    tr_country_cou.cou_order,
+    tr_country_cou.cou_iso3code,
+    t_eelstock_eel.eel_lfs_code,
+    tr_lifestage_lfs.lfs_name,
+    t_eelstock_eel.eel_hty_code,
+    tr_habitattype_hty.hty_description,
+    t_eelstock_eel.eel_area_division,
+    t_eelstock_eel.eel_qal_id,
+    tr_quality_qal.qal_level,
+    tr_quality_qal.qal_text,
+    t_eelstock_eel.eel_qal_comment,
+    t_eelstock_eel.eel_comment,
+    t_eelstock_eel.eel_datasource,
+    perc_f biom_perc_f,
+    perc_t biom_perc_t,
+    perc_c biom_perc_c,
+    perc_mo biom_perc_mo
+   FROM datawg.t_eelstock_eel
+     LEFT JOIN ref.tr_lifestage_lfs ON t_eelstock_eel.eel_lfs_code::text = tr_lifestage_lfs.lfs_code::text
+     LEFT JOIN ref.tr_quality_qal ON t_eelstock_eel.eel_qal_id = tr_quality_qal.qal_id
+     LEFT JOIN ref.tr_country_cou ON t_eelstock_eel.eel_cou_code::text = tr_country_cou.cou_code::text
+     LEFT JOIN ref.tr_typeseries_typ ON t_eelstock_eel.eel_typ_id = tr_typeseries_typ.typ_id
+     LEFT JOIN ref.tr_habitattype_hty ON t_eelstock_eel.eel_hty_code::text = tr_habitattype_hty.hty_code::text
+     LEFT JOIN ref.tr_emu_emu ON tr_emu_emu.emu_nameshort::text = t_eelstock_eel.eel_emu_nameshort::text AND tr_emu_emu.emu_cou_code = t_eelstock_eel.eel_cou_code::text
+     LEFT JOIN datawg.t_eelstock_eel_percent on percent_id=eel_id
+  WHERE t_eelstock_eel.eel_typ_id = 14 AND (t_eelstock_eel.eel_qal_id = ANY (ARRAY[1, 2, 4]));
+  
+  
+  
+  
+CREATE OR REPLACE VIEW datawg.bcurrent
+AS SELECT t_eelstock_eel.eel_id,
+    t_eelstock_eel.eel_typ_id,
+    tr_typeseries_typ.typ_name,
+    tr_typeseries_typ.typ_uni_code,
+    t_eelstock_eel.eel_year,
+    t_eelstock_eel.eel_value,
+    t_eelstock_eel.eel_missvaluequal,
+    t_eelstock_eel.eel_emu_nameshort,
+    t_eelstock_eel.eel_cou_code,
+    tr_country_cou.cou_country,
+    tr_country_cou.cou_order,
+    tr_country_cou.cou_iso3code,
+    t_eelstock_eel.eel_lfs_code,
+    tr_lifestage_lfs.lfs_name,
+    t_eelstock_eel.eel_hty_code,
+    tr_habitattype_hty.hty_description,
+    t_eelstock_eel.eel_area_division,
+    t_eelstock_eel.eel_qal_id,
+    tr_quality_qal.qal_level,
+    tr_quality_qal.qal_text,
+    t_eelstock_eel.eel_qal_comment,
+    t_eelstock_eel.eel_comment,
+    t_eelstock_eel.eel_datasource,
+    perc_f biom_perc_f,
+    perc_t biom_perc_t,
+    perc_c biom_perc_c,
+    perc_mo biom_perc_mo
+   FROM datawg.t_eelstock_eel
+     LEFT JOIN ref.tr_lifestage_lfs ON t_eelstock_eel.eel_lfs_code::text = tr_lifestage_lfs.lfs_code::text
+     LEFT JOIN ref.tr_quality_qal ON t_eelstock_eel.eel_qal_id = tr_quality_qal.qal_id
+     LEFT JOIN ref.tr_country_cou ON t_eelstock_eel.eel_cou_code::text = tr_country_cou.cou_code::text
+     LEFT JOIN ref.tr_typeseries_typ ON t_eelstock_eel.eel_typ_id = tr_typeseries_typ.typ_id
+     LEFT JOIN ref.tr_habitattype_hty ON t_eelstock_eel.eel_hty_code::text = tr_habitattype_hty.hty_code::text
+     LEFT JOIN ref.tr_emu_emu ON tr_emu_emu.emu_nameshort::text = t_eelstock_eel.eel_emu_nameshort::text AND tr_emu_emu.emu_cou_code = t_eelstock_eel.eel_cou_code::text
+     LEFT JOIN datawg.t_eelstock_eel_percent on percent_id=eel_id
+  WHERE t_eelstock_eel.eel_typ_id = 15 AND (t_eelstock_eel.eel_qal_id = ANY (ARRAY[1, 2, 4]));
+  
+  
+  -- TODO apply server
+
+UPDATE datawg.t_eelstock_eel SET (eel_qal_id,eel_qal_comment)=(20,'discarded prior to datacall 2021, all data will be replaced')
+WHERE eel_typ_id IN (13,14,15,17,18,19,20,21,22,23,25,26,27,28,29,30,31,24) and eel_qal_id IN(1,2,3,4); --4922
