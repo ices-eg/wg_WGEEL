@@ -411,7 +411,7 @@ ui <- fluidPage(spsDepend("toastr"),
 						        br(), 
 						        fluidRow(                                       
 						          column(width=6,verbatimTextOutput("database_errorsAll")),
-						          column(width=2,actionButton("addRowTable_corAll", "Add Row")),
+						          column(width=2,hidden(actionButton("addRowTable_corAll", "Add Row"))),
 						          column(width=2,actionButton("clear_tableAll", "clear")),
 						          column(width=2,uiOutput("buttons_data_correctionAll"))
 						        ),                

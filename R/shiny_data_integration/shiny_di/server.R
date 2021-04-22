@@ -1919,7 +1919,7 @@ shinyServer(function(input, output, session){
 			                  "t_eelstock_eel" =  query <- glue_sql("SELECT *,typ_name as typ_name_ref from datawg.t_eelstock_eel join ref.tr_typeseries_typ on typ_id=eel_typ_id where eel_cou_code in ({pick1*}) and eel_typ_id in ({pick2*}) and eel_year>={minyear} and eel_year<={maxyear}", 
 			                                                        vals = vals, types = types, minyear = the_years[1], maxyear = the_years[2], 
 			                                                        .con = pool),
-			                  "t_eelstock_eel_perc" =  query <- glue_sql("SELECT eel_id,eel_year eel_year_ref,eel_emu_nameshort as eel_emu_nameshort_ref,eel_cou_code as eel_cou_code_ref,typ_name as typ_name_ref, perc_f, perc_t, perc_c,perc_mo from datawg.t_eelstock_eel join ref.tr_typeseries_typ on typ_id=eel_typ_id left join datawg.t_eelstock_eel_percent on percent_id=eel_id where eel_cou_code in ({pick1*}) and eel_typ_id in ({pick2*}) and eel_year>={minyear} and eel_year<={maxyear}", 
+			                  "t_eelstock_eel_perc" =  query <- glue_sql("SELECT percent_id,eel_year eel_year_ref,eel_emu_nameshort as eel_emu_nameshort_ref,eel_cou_code as eel_cou_code_ref,typ_name as typ_name_ref, perc_f, perc_t, perc_c,perc_mo from datawg.t_eelstock_eel join ref.tr_typeseries_typ on typ_id=eel_typ_id left join datawg.t_eelstock_eel_percent on percent_id=eel_id where eel_cou_code in ({pick1*}) and eel_typ_id in ({pick2*}) and eel_year>={minyear} and eel_year<={maxyear}", 
 			                                                        vals = vals, types = types, minyear = the_years[1], maxyear = the_years[2], 
 			                                                        .con = pool),
 			                  "t_series_ser" =  glue_sql("SELECT *, ser_ccm_wso_id[1]::integer AS wso_id1, ser_ccm_wso_id[2]::integer AS wso_id2, ser_ccm_wso_id[3]::integer AS wso_id3 from datawg.t_series_ser where ser_nameshort in ({pick2*}) and ser_lfs_code in ({pick1*})", # ser_ccm_wso_id is an array to deal with series being part of serval basins ; here we deal until 3 basins
@@ -2127,7 +2127,7 @@ shinyServer(function(input, output, session){
 			                      label = "Select a country :", 
 			                      choices = list_country,
 			                      selected=NULL)
-			    
+			    shinyjs::show("addRowTable_corAll")
 			  } else if (input$edit_datatype == "t_eelstock_eel_perc"){
 			    updatePickerInput(session=session,
 			                      inputId="editpicker2",
@@ -2139,6 +2139,8 @@ shinyServer(function(input, output, session){
 			                      label = "Select a country :", 
 			                      choices = list_country,
 			                      selected=NULL)
+			    shinyjs::hide("addRowTable_corAll")
+			    
 			    
 			  }else {
 			    updatePickerInput(session=session,
@@ -2151,7 +2153,8 @@ shinyServer(function(input, output, session){
 			                      label="Select a stage :",
 			                      choices=c("G","GY","Y","S"),
 			                      selected=NULL)
-												
+			    shinyjs::show("addRowTable_corAll")
+			    
 			    if (input$edit_datatype=="t_series_ser")  disable("yearAll")
 					
 			    rvsAll$dataSame <- TRUE
@@ -2176,7 +2179,7 @@ shinyServer(function(input, output, session){
 			#when we want to edit time series related data, if a life stage is selected,
 			#we can restrict available time series choices
 			observeEvent(input$editpicker1,tryCatch({
-			  if (input$edit_datatype!="t_eelstock_eel"){
+			  if (!startsWith(input$edit_datatype, "t_eelstock_eel")){
 			    stageser=ifelse(endsWith(ser_list,"GY"),
 			                    "GY",
 			                    str_sub(ser_list,-1,-1))
@@ -2192,7 +2195,7 @@ shinyServer(function(input, output, session){
 			}))
 			
 			observeEvent(input$editpicker2,tryCatch({
-			  if (input$edit_datatype!="t_eelstock_eel" & is.null(input$editpicker1)){
+			  if ((!startsWith(input$edit_datatype,"t_eelstock_eel")) & is.null(input$editpicker1)){
 			    stageser=ifelse(endsWith(input$editpicker2,"GY"),
 			                    "GY",
 			                    str_sub(input$editpicker2,-1,-1))
