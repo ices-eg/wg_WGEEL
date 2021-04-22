@@ -985,12 +985,15 @@ write_new <- function(path) {
 	# sqldf but trycatch failed to catch the error Hence the use of DBI
 	message <- NULL
 	nr <- tryCatch({
+	  if(nrow(new)>0){
 				new$eel_id_perc <- dbGetQuery(conn, query)[,1]
 				if (sum(startsWith("perc_",names(new)))>0){#we have to insert into t_eelstock_eel_percent
 				  dbExecute(conn,"drop table if exists new_temp ")
 				  dbWriteTable(conn,"new_temp",new,row.names=FALSE,temporary=TRUE)
 				  dbExecute(conn, querybis)
 				}
+	  }
+	  nrow(new)
 			}, error = function(e) {
 				message <<- e
 			}, finally = {
