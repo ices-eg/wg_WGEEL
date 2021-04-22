@@ -334,7 +334,7 @@ shinyServer(function(input, output, session){
 			# with duplicates values
 			#############################
 			observeEvent(input$check_duplicate_button, tryCatch({ 
-						
+
 						# see step0load_data returns a list with res and messages
 						# and within res data and a dataframe of errors
 						validate(
@@ -364,6 +364,9 @@ shinyServer(function(input, output, session){
 											extract_data("b0", quality=c(0,1,2,3,4), quality_check=TRUE),
 											extract_data("bbest", quality=c(0,1,2,3,4), quality_check=TRUE),
 											extract_data("bcurrent", quality=c(0,1,2,3,4), quality_check=TRUE))
+									data_from_base <- data_from_base %>% 
+									  rename_with(function(x) tolower(gsub("biom_", "", x)),
+									              starts_with("biom_"))
 								},
 								"potential_available_habitat"={
 									data_from_base<-extract_data("potential_available_habitat", quality=c(0,1,2,3,4), quality_check=TRUE)                  
@@ -384,6 +387,9 @@ shinyServer(function(input, output, session){
 											extract_data("sigmaa", quality=c(0,1,2,3,4), quality_check=TRUE),
 											extract_data("sigmaf", quality=c(0,1,2,3,4), quality_check=TRUE),
 											extract_data("sigmah", quality=c(0,1,2,3,4), quality_check=TRUE))
+								  data_from_base <- data_from_base %>% 
+								    rename_with(function(x) tolower(gsub("mort_", "", x)),
+								                starts_with("biom_"))
 								}                
 						)
 						# the compare_with_database function will compare
