@@ -471,14 +471,25 @@ check_duplicate_rates <- function(dataset, namedataset){
 #' @param dataset the name of the dataset
 #' @param namedataset the name of the sheet 
 #' 
-check_consistency_missvalue_rates <- function(dataset, namedataset){
+check_consistency_missvalue_rates <- function(dataset, namedataset, rates){
   answer = NULL
   #namedataset <-  deparse(substitute(dataset))
   newdataset <- dataset
   newdataset$nline <- 1:nrow(newdataset) 
-   
-if (is.na(newdataset$eel_value)=TRUE & (!newdataset[,grepl( "perc" , names(newdataset))] %in% c("0","NP"))) {
+  newdataset <- newdataset %>% rename_at(vars(contains(rates)), funs(str_remove(.,paste(rates,"_",sep=""))))
   
-} 
-  
+  if (any(is.na(newdataset$eel_value) & (!newdataset$perc_F %in% c("NP","0") | !newdataset$perc_T %in% c("NP","0") | 
+				  !newdataset$perc_C %in% c("NP","0") | !newdataset$perc_MO %in% c("NP","0")))) {
+		  
+		  cat(sprintf("dataset <%s>, line <%s> is wrong, if eel_value is empty only 0 or NP is possible in percentages columns \n", 
+						  namedataset,
+						  str_c(newdataset$nline[is.na(newdataset$eel_value) & (!newdataset$perc_F %in% c("NP","0") | !newdataset$perc_T %in% c("NP","0") | 
+													  !newdataset$perc_C %in% c("NP","0") | !newdataset$perc_MO %in% c("NP","0"))], collapse=";")))
+		
+		  # same but split and no end of line
+		  answer  = data.frame(newdataset$nline[is.na(newdataset$eel_value) & (!newdataset$perc_F %in% c("NP","0") | !newdataset$perc_T %in% c("NP","0") | 
+									  !newdataset$perc_C %in% c("NP","0") | !newdataset$perc_MO %in% c("NP","0"))], 
+				  error_message = sprintf("dataset <%s> is wrong, if eel_value is empty only 0 or NP is possible in percentages columns", 
+						  namedataset))	  
+	  } 
 }

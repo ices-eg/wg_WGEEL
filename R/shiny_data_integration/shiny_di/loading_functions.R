@@ -1070,7 +1070,13 @@ load_biomass<-function(path,datasource){
 						namedataset= "new_data", 
 						column="biom_perc_MO",
 						country=country))
-
+		
+		###### check consistency missvalue biomass rate ##############
+		# if eel_value is empty, only 0 or NP is possible in percentages columns
+		data_error= rbind(data_error, check_consistency_missvalue_rates(
+						dataset=data_xls,
+						namedataset= "new_data", 
+						rates="biom"))
 		
 		}
 		return(invisible(list(data=data_xls,error=data_error,the_metadata=the_metadata)))
@@ -1299,6 +1305,13 @@ load_mortality_rates<-function(path,datasource){
 						namedataset= "new_data", 
 						column="mort_perc_MO",
 						country=country))
+		
+		###### check consistency missvalue mortality rate ##############
+		# if eel_value is empty, only 0 or NP is possible in percentages columns
+		data_error= rbind(data_error, check_consistency_missvalue_rates(
+						dataset=data_xls,
+						namedataset= "new_data", 
+						rates="mort"))
 		
 	}
 	return(invisible(list(data=data_xls,error=data_error,the_metadata=the_metadata)))
