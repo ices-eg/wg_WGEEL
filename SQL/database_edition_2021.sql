@@ -77,10 +77,10 @@ Table for percent habitat related to stock indicators
 drop table if exists datawg.t_eelstock_eel_percent;
 create table datawg.t_eelstock_eel_percent (
     percent_id integer primary key references datawg.t_eelstock_eel(eel_id) ON DELETE CASCADE;,
-    perc_f numeric check((perc_f >=0 and perc_f<=100) or perc_f is null) ,
-    perc_t numeric check((perc_t >=0 and perc_t<=100) or perc_t is null),
-    perc_c numeric check((perc_c >=0 and perc_c<=100) or perc_c is null),
-    perc_mo numeric check((perc_mo >=0 and perc_f<=100) or perc_mo is null)
+    perc_f numeric check((perc_f >=0 and perc_f<=100) or perc_f is null or perc_f=-1) ,
+    perc_t numeric check((perc_t >=0 and perc_t<=100) or perc_t is null or perc_t=-1),
+    perc_c numeric check((perc_c >=0 and perc_c<=100) or perc_c is null or perc_c=-1),
+    perc_mo numeric check((perc_mo >=0 and perc_f<=100) or perc_mo is null or perc_mo=-1)
 );
 
 
