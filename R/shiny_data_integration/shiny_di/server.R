@@ -378,6 +378,7 @@ shinyServer(function(input, output, session){
 								  data_from_excel <- data_from_excel %>% 
 								    rename_with(function(x) tolower(gsub("mort_", "", x)),
 								                starts_with("mort_"))
+								  data_from_excel$eel_area_division <- as.vector(rep(NA,nrow(data_from_excel)),"character")
 								  data_from_base<-rbind(
 											extract_data("sigmaa", quality=c(0,1,2,3,4), quality_check=TRUE),
 											extract_data("sigmaf", quality=c(0,1,2,3,4), quality_check=TRUE),
