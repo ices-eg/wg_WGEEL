@@ -443,7 +443,11 @@ check_rates_num <- function(dataset, namedataset, column, country){
 	return(answer)
 }
 
-
+#' check that only one value is provided by year, typ_name and emu
+#' 
+#' @param dataset the name of the dataset
+#' @param namedataset the name of the sheet 
+#' 
 check_duplicate_rates <- function(dataset, namedataset){
 	
 	dupl <- dataset[,c("eel_typ_name", "eel_year", "eel_emu_nameshort")]
@@ -462,3 +466,19 @@ check_duplicate_rates <- function(dataset, namedataset){
 	}
 }
 
+#' check consistency between eel_missingvalue and percentages
+#' 
+#' @param dataset the name of the dataset
+#' @param namedataset the name of the sheet 
+#' 
+check_consistency_missvalue_rates <- function(dataset, namedataset){
+  answer = NULL
+  #namedataset <-  deparse(substitute(dataset))
+  newdataset <- dataset
+  newdataset$nline <- 1:nrow(newdataset) 
+   
+if (is.na(newdataset$eel_value)=TRUE & (!newdataset[,grepl( "perc" , names(newdataset))] %in% c("0","NP"))) {
+  
+} 
+  
+}
