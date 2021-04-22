@@ -471,14 +471,14 @@ check_duplicate_rates <- function(dataset, namedataset){
 #' @param dataset the name of the dataset
 #' @param namedataset the name of the sheet 
 #' 
-check_consistency_missvalue_rates <- function(dataset, namedataset){
-  answer = NULL
-  #namedataset <-  deparse(substitute(dataset))
-  newdataset <- dataset
-  newdataset$nline <- 1:nrow(newdataset) 
-   
-if (is.na(newdataset$eel_value)=TRUE & (!newdataset[,grepl( "perc" , names(newdataset))] %in% c("0","NP"))) {
-  
-} 
-  
-}
+# check_consistency_missvalue_rates <- function(dataset, namedataset){
+#   answer = NULL
+#   #namedataset <-  deparse(substitute(dataset))
+#   newdataset <- dataset
+#   newdataset$nline <- 1:nrow(newdataset) 
+#    
+# if (is.na(newdataset$eel_value)=TRUE & (!newdataset[,grepl( "perc" , names(newdataset))] %in% c("0","NP"))) {
+#   
+# } 
+#   
+# }

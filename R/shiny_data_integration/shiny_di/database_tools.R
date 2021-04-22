@@ -84,7 +84,7 @@ compare_with_database <- function(data_from_excel, data_from_base, eel_typ_id_va
 	# types (character / logical)
 	data_from_excel$eel_area_division <- as.character(data_from_excel$eel_area_division)
 	data_from_excel$eel_hty_code <- as.character(data_from_excel$eel_hty_code)
-	eel_colnames <- colnames(data_from_base)[grepl("eel", colnames(data_from_base))]
+	eel_colnames <- colnames(data_from_base)[grepl("(eel|perc_)", colnames(data_from_base))]
 	
 	#since dc2020, qal_id are automatically created during the import
 	data_from_excel$eel_qal_id <- ifelse(is.na(data_from_excel$eel_value) & data_from_excel$eel_missvaluequal != "NP" ,0,1)
@@ -704,7 +704,7 @@ compare_with_database_biometry <- function(data_from_excel, data_from_base, shee
 						percent_id,       
 						perc_f,
 						perc_t,
-						perc_c
+						perc_c,
 						perc_mo) 
 						select eel_id_new,       
 						perc_f,
@@ -785,7 +785,7 @@ compare_with_database_biometry <- function(data_from_excel, data_from_base, shee
 						percent_id,       
 						perc_f,
 						perc_t,
-						perc_c
+						perc_c,
 						perc_mo) 
 						select eel_id_new,       
 						perc_f,
@@ -835,13 +835,16 @@ compare_with_database_biometry <- function(data_from_excel, data_from_base, shee
 	# Second step insert replaced ------------------------------------------------------------------
 	if (is.null(message)) {
 		#conn <- poolCheckout(pool)
-		nr1 <- tryCatch({     
+		nr1 <- tryCatch({
+		  if (nrow(replaced)>0){
 					replaced$eel_id_new <- dbGetQuery(conn, query1)[,1]
 					if (sum(startsWith(names(replaced),"perc_"))>0) { #we have to update also t_eelsock_eel_perc
 					  dbExecute(conn,str_c("drop table if exists replaced_temp_",cou_code) )
 					  dbWriteTable(conn, str_c("replaced_temp_", tolower(cou_code)), replaced,temporary=TRUE,row.names=FALSE )
 					  dbExecute(conn,query1bis)
 					}
+		  }
+					nrow(replaced)
 				}, error = function(e) {
 					message <<- e  
 					sqldf (query0_reverse)      # perform reverse operation
@@ -858,12 +861,15 @@ compare_with_database_biometry <- function(data_from_excel, data_from_base, shee
 	if (is.null(message)){ # the previous operation had no error
 		#conn <- poolCheckout(pool) 
 		nr2 <- tryCatch({     
-					not_replaced$eel_id_new <- dbGetQuery(conn, query2)[,1]
-					if (sum(startsWith(names(not_replaced),"perc_"))>0) { #we have to update also t_eelsock_eel_perc
-					  dbExecute(conn,str_c("drop table if exists not_replaced_temp_",cou_code) )
-					  dbWriteTable(conn,str_c("not_replaced_temp_", tolower(cou_code)),not_replaced,temporary=TRUE,row.names=FALSE )
-					  dbExecute(conn,query2bis)
+					if (nrow(not_replaced)>0){
+					  not_replaced$eel_id_new <- dbGetQuery(conn, query2)[,1]
+					  if (sum(startsWith(names(not_replaced),"perc_"))>0) { #we have to update also t_eelsock_eel_perc
+					    dbExecute(conn,str_c("drop table if exists not_replaced_temp_",cou_code) )
+					    dbWriteTable(conn,str_c("not_replaced_temp_", tolower(cou_code)),not_replaced,temporary=TRUE,row.names=FALSE )
+					    dbExecute(conn,query2bis)
+					  }
 					}
+					nrow(not_replaced)
 				}, error = function(e) {
 					message <<- e 
 					cat("step3 message :")
