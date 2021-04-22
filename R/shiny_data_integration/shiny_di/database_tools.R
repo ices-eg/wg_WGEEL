@@ -590,7 +590,6 @@ compare_with_database_biometry <- function(data_from_excel, data_from_base, shee
 #' }
 #' @rdname write_duplicate
   write_duplicates <- function(path, qualify_code = 19) {
-
 	duplicates2 <- read_excel(path = path, sheet = 1, skip = 1)
 	
 	# Initial checks ----------------------------------------------------------------------------------
@@ -707,7 +706,7 @@ compare_with_database_biometry <- function(data_from_excel, data_from_base, shee
 						perc_t,
 						perc_c
 						perc_mo) 
-						select eel_id,       
+						select eel_id_new,       
 						perc_f,
 						perc_t,
 						perc_c,
@@ -788,7 +787,7 @@ compare_with_database_biometry <- function(data_from_excel, data_from_base, shee
 						perc_t,
 						perc_c
 						perc_mo) 
-						select eel_id,       
+						select eel_id_new,       
 						perc_f,
 						perc_t,
 						perc_c,
@@ -837,8 +836,8 @@ compare_with_database_biometry <- function(data_from_excel, data_from_base, shee
 	if (is.null(message)) {
 		#conn <- poolCheckout(pool)
 		nr1 <- tryCatch({     
-					replaced$eel_id <- dbGetQuery(conn, query1)
-					if (length(startsWith(names(replaced),"perc_"))>0) { #we have to update also t_eelsock_eel_perc
+					replaced$eel_id_new <- dbGetQuery(conn, query1)[,1]
+					if (sum(startsWith(names(replaced),"perc_"))>0) { #we have to update also t_eelsock_eel_perc
 					  dbExecute(conn,str_c("drop table if exists replaced_temp_",cou_code) )
 					  dbWriteTable(conn, str_c("replaced_temp_", tolower(cou_code)), replaced,temporary=TRUE,row.names=FALSE )
 					  dbExecute(conn,query1bis)
@@ -859,8 +858,8 @@ compare_with_database_biometry <- function(data_from_excel, data_from_base, shee
 	if (is.null(message)){ # the previous operation had no error
 		#conn <- poolCheckout(pool) 
 		nr2 <- tryCatch({     
-					not_replaced$eel_id <- dbGetQuery(conn, query2)
-					if (length(startsWith(names(not_replaced),"perc_"))>0) { #we have to update also t_eelsock_eel_perc
+					not_replaced$eel_id_new <- dbGetQuery(conn, query2)[,1]
+					if (sum(startsWith(names(not_replaced),"perc_"))>0) { #we have to update also t_eelsock_eel_perc
 					  dbExecute(conn,str_c("drop table if exists not_replaced_temp_",cou_code) )
 					  dbWriteTable(conn,str_c("not_replaced_temp_", tolower(cou_code)),not_replaced,temporary=TRUE,row.names=FALSE )
 					  dbExecute(conn,query2bis)
@@ -1018,7 +1017,6 @@ write_new <- function(path) {
 #' this version allows to catch exceptions and sqldf does not
 
   write_updated_values <- function(path, qualify_code) {
-    browser()
     updated_values_table <- read_excel(path = path, sheet = 1, skip = 1)
     validate(need(ncol(updated_values_table) %in% c(27,35), "number column wrong (should be 27 or 35) \n"))
     validate(need(all(colnames(updated_values_table) %in% c("eel_id", "eel_typ_id", "eel_typ_name", 
