@@ -243,9 +243,10 @@ compare_with_database_series <- function(data_from_excel, data_from_base) {
 	data_from_excel <- data_from_excel %>% mutate_if(is.logical,list(as.numeric)) 
 	data_from_excel$ser_typ_id <- as.numeric(data_from_excel$ser_typ_id)
 	data_from_excel$ser_sam_gear <- as.numeric(data_from_excel$ser_sam_gear)
+	data_from_excel$ser_restocking <- as.logical(data_from_excel$ser_restocking)
 	data_from_excel <- data_from_excel %>% 
 			mutate_at(vars(ser_dts_datasource, ser_comment, ser_lfs_code, ser_hty_code, ser_locationdescription, ser_emu_nameshort,
-							ser_area_division,ser_cou_code,ser_effort_uni_code, ser_uni_code,  	ser_method),list(as.character)) 
+							ser_area_division,ser_cou_code,ser_effort_uni_code, ser_uni_code, ser_method ),list(as.character)) 
 	
 	duplicates <- data_from_base %>% dplyr::filter(ser_typ_id %in% current_typ_id & 
 							ser_cou_code == current_cou_code) %>% dplyr::select(ser_colnames) %>% # dplyr::select(-eel_cou_code)%>%
@@ -271,6 +272,7 @@ compare_with_database_series <- function(data_from_excel, data_from_base) {
 					"ser_sam_gear.base", 	"ser_sam_gear.xls",
 					"ser_distanceseakm.base", "ser_distanceseakm.xls",
 					"ser_method.base", "ser_method.xls",
+					"ser_restocking.base", "ser_restocking.xls",
 					"ser_x.base","ser_x.xls",
 					"ser_y.base", "ser_y.xls",
 					"ser_sam_id.base",  "ser_sam_id.xls")]
@@ -286,7 +288,7 @@ compare_with_database_series <- function(data_from_excel, data_from_base) {
 	modified <- dplyr::anti_join(data_from_excel, data_from_base, 
 			by = c("ser_nameshort", "ser_typ_id", "ser_effort_uni_code", "ser_comment", "ser_uni_code", 
 					"ser_lfs_code", "ser_hty_code", "ser_locationdescription", "ser_emu_nameshort",
-					"ser_cou_code", "ser_area_division", "ser_x", "ser_y", "ser_sam_id", "ser_sam_gear", "ser_distanceseakm", 	"ser_method" ))
+					"ser_cou_code", "ser_area_division", "ser_x", "ser_y", "ser_sam_id", "ser_sam_gear", "ser_distanceseakm", 	"ser_method" , "ser_restocking"))
 	modified <- modified[!modified$ser_nameshort %in% new$ser_nameshort,]
 	# after anti join there are still values that are not really changed.
 	# this is further investigated below
@@ -1143,7 +1145,7 @@ write_new <- function(path) {
 					"ser_comment", "ser_uni_code", "ser_lfs_code", "ser_hty_code", "ser_locationdescription",
 					"ser_emu_nameshort", "ser_cou_code", "ser_area_division", "ser_tblcodeid",
 					"ser_x", "ser_y", "ser_sam_id", "ser_dts_datasource",
-					"ser_sam_gear", "ser_distanceseakm", 	"ser_method", "ser_qal_id", "ser_qal_comment",
+					"ser_sam_gear", "ser_distanceseakm", 	"ser_method", "ser_restocking", "ser_qal_id", "ser_qal_comment",
 					 "ser_ccm_wso_id" )	]
 	conn <- poolCheckout(pool)	
 	dbExecute(conn,"drop table if exists new_series_temp ")
@@ -1157,12 +1159,12 @@ write_new <- function(path) {
 			ser_comment, ser_uni_code, ser_lfs_code, ser_hty_code, ser_locationdescription,
 			ser_emu_nameshort, ser_cou_code, ser_area_division, ser_tblcodeid,
 			ser_x, ser_y, ser_sam_id, ser_dts_datasource, ser_qal_id, ser_qal_comment,
-			ser_ccm_wso_id,ser_sam_gear, ser_distanceseakm, 	ser_method ) 
+			ser_ccm_wso_id,ser_sam_gear, ser_distanceseakm, 	ser_method, ser_restocking ) 
 			select ser_nameshort, ser_namelong, ser_typ_id, ser_effort_uni_code, 
 			ser_comment, ser_uni_code, ser_lfs_code, ser_hty_code, ser_locationdescription,
 			ser_emu_nameshort, ser_cou_code, ser_area_division, ser_tblcodeid::integer,
 			ser_x, ser_y, ser_sam_id, ser_dts_datasource, ser_qal_id::integer, ser_qal_comment,
-			ser_ccm_wso_id::integer[], ser_sam_gear, ser_distanceseakm, 	ser_method from new_series_temp;"
+			ser_ccm_wso_id::integer[], ser_sam_gear, ser_distanceseakm, 	ser_method, ser_restocking from new_series_temp;"
 	# if fails replaces the message with this trycatch !  I've tried many ways with
 	# sqldf but trycatch failed to catch the error Hence the use of DBI
 
@@ -1396,7 +1398,8 @@ update_series <- function(path) {
 			ser_dts_datasource,
 			ser_sam_gear,
 		 	ser_distanceseakm, 
-			ser_method) =
+			ser_method,
+			ser_restocking) =
 			(
 			t.ser_namelong, 
 			t.ser_typ_id,
@@ -1416,7 +1419,8 @@ update_series <- function(path) {
 			t.ser_dts_datasource,
 			t.ser_sam_gear,
 			t.ser_distanceseakm,
-		 	t.ser_method)
+		 	t.ser_method,
+			t.ser_restocking)
 			FROM updated_series_temp t WHERE t.ser_nameshort = t_series_ser.ser_nameshort"
 
 	message <- NULL

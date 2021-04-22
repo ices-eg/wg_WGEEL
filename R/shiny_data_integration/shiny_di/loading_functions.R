@@ -1792,14 +1792,14 @@ load_series<-function(path,datasource,stage="glass_eel"){
 					c(c("ser_nameshort", "ser_namelong", "ser_typ_id", "ser_effort_uni_code", "ser_comment", 
 									"ser_uni_code", "ser_lfs_code", "ser_hty_code", "ser_locationdescription", 
 									"ser_emu_nameshort", "ser_cou_code", "ser_area_division", "ser_tblcodeid", 
-									"ser_x", "ser_y", "ser_sam_id", "ser_dts_datasource","ser_sam_gear", "ser_distanceseakm", 	"ser_method" )
+									"ser_x", "ser_y", "ser_sam_id", "ser_dts_datasource","ser_sam_gear", "ser_distanceseakm", "ser_method", "ser_restocking")
 					))) 
 		cat(str_c("problem in column names",            
 						paste(colnames(series)[!colnames(series)%in%
 												c("ser_nameshort", "ser_namelong", "ser_typ_id", "ser_effort_uni_code", "ser_comment", 
 														"ser_uni_code", "ser_lfs_code", "ser_hty_code", "ser_locationdescription", 
 														"ser_emu_nameshort", "ser_cou_code", "ser_area_division", "ser_tblcodeid", 
-														"ser_x", "ser_y", "ser_sam_id", "ser_dts_datasource","ser_sam_gear", "ser_distanceseakm", 	"ser_method" )],collapse= "&"),
+														"ser_x", "ser_y", "ser_sam_id", "ser_dts_datasource","ser_sam_gear", "ser_distanceseakm", 	"ser_method", "ser_restocking" )],collapse= "&"),
 						"file =",
 						file,"\n")) 
 	country <- "unknown"
