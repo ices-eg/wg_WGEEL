@@ -96,7 +96,6 @@ shinyServer(function(input, output, session){
 					}, blocking_level="error"))
 			
 			var_database <- reactive(shinyCatch({
-			  browser()
 						req(input$passwordbutton)
 						# untill the password has been entered don't do anything
 						validate(need(data$connectOK,"No connection"))
