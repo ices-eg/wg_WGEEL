@@ -88,7 +88,8 @@ shinyServer(function(input, output, session){
 								host=host,
 								port=port,
 								user= userwgeel,
-								password= passwordwgeel)
+								password= passwordwgeel,
+								bigint="integer")
 						data$pool <-pool
 						data$connectOK <-dbGetInfo(data$pool)$valid
 						
