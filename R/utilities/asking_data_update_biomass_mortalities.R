@@ -28,7 +28,7 @@ load_library("RPostgreSQL")
 load_library("stacomirtools")
 load_library("stringr")
 load_library("XLConnect") #==> switch to openxlsx beacause I have problem with rJava
-load_library("openxlsx")
+#load_library("openxlsx")
 load_library("dplyr")
 #############################
 # here is where the script is working change it accordingly
@@ -129,18 +129,24 @@ create_datacall_file_biom_morta <- function(country, type = type_of_data[1], ...
 #	r_coun <-
 #	  rename_with(r_coun,function(x) paste("biom", x, sep = "_"), starts_with("perc"))
 	r_coun <- r_coun %>% select(-eel_area_division)
-  	#wb = openxlsx::loadWorkbook(templatefile)
-  	wb= XLConnect::loadWorkbook(templatefile)
-  
+	#wb = openxlsx::loadWorkbook(templatefile)
+	wb= XLConnect::loadWorkbook(templatefile)
+	
 	if (nrow(r_coun) >0) {
 		## separate sheets for discarded and kept data  
+		## this year special treatment we remove everything, but still need original
+		## values in the database (ie we have not applied eel_qal_id=20) because we need the view for detect_missing
+		if (CY == 2021) {
+			r_coun$qal_kept <-FALSE # 
+			r_coun[r_coun$eel_qal_id  %in% c(1,2,3,4),"eel_qal_id"] <- 20
+		}
 		data_kept <- r_coun[r_coun$qal_kept,]
 #		data_kept <- data_kept[,-ncol(r_coun)]
-		
-		data_disc <- r_coun[!r_coun$qal_kept,]
+		temp_disc_2021 <- 
+				data_disc <- r_coun[!r_coun$qal_kept,]
 #		data_disc <- data_disc[,-ncol(r_coun)]
 		
-
+		
 		# pre-fill new data and missing for landings 
 # XLConnect METHOD	
 #		writeWorksheet(wb, data_disc,  sheet = "existing_discarded",header=FALSE, startRow=2)
@@ -151,8 +157,8 @@ create_datacall_file_biom_morta <- function(country, type = type_of_data[1], ...
 		XLConnect::writeWorksheet(wb, data_disc, "existing_discarded", startRow=2, header=FALSE)
 		
 		
-	#removed for 2021	
-	#openxlsx::writeData(wb, sheet = "existing_kept", data_kept, startRow = 1)	
+		#removed for 2021	
+		#openxlsx::writeData(wb, sheet = "existing_kept", data_kept, startRow = 1)	
 		#openxlsx::removeWorksheet(wb,"existing_kept")
 		XLConnect::hideSheet(wb, "existing_kept",veryHidden=FALSE)
 		#openxlsx::removeWorksheet(wb,"updated_data")
@@ -161,27 +167,27 @@ create_datacall_file_biom_morta <- function(country, type = type_of_data[1], ...
 		cat("No data for country", country, "\n")
 	}
 	
-	data_missing <- detect_missing_biom_morta(cou=country,typ=type, eel_typ_id = eel_typ_id, maxyear = CY)
+	data_missing <- detect_missing_biom_morta(cou=country,typ=type, eel_typ_id = eel_typ_id, maxyear = CY-1)
 	data_missing %<>% 
-	  mutate(eel_missvaluequal = NA) %>%
-	  select(typ_name, 
-	         eel_year, 
-	         eel_value,
-	         eel_missvaluequal,
-	         eel_emu_nameshort,
-	         eel_cou_code) %>%
-	  mutate(perc_F=0,
-	         perc_T=0,
-	         perc_C=0,
-	         perc_MO=0) %>%
-	  rename_with(function(x) paste(type, x, sep="_"),starts_with("perc")) %>%
-	  arrange(eel_emu_nameshort, typ_name, eel_year)
+			mutate(eel_missvaluequal = NA) %>%
+			select(typ_name, 
+					eel_year, 
+					eel_value,
+					eel_missvaluequal,
+					eel_emu_nameshort,
+					eel_cou_code) %>%
+			mutate(perc_F=0,
+					perc_T=0,
+					perc_C=0,
+					perc_MO=0) %>%
+			rename_with(function(x) paste(type, x, sep="_"),starts_with("perc")) %>%
+			arrange(eel_emu_nameshort, typ_name, eel_year)
 	#openxlsx::writeData(wb,  sheet = "new_data", data_missing, startRow = 2, colNames = FALSE)
 	XLConnect::writeWorksheet(wb, data=data_missing, sheet = "new_data",  startRow = 2, header = FALSE)
 	
 	#openxlsx::saveWorkbook(wb, file = destinationfile, overwrite = TRUE)	
 	XLConnect::saveWorkbook(wb, destinationfile)
-
+	
 }
 
 

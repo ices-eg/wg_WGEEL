@@ -106,7 +106,8 @@ create_datacall_file_series <- function(country, name, ser_typ_id){
 							t_series_ser.ser_ccm_wso_id,
 							t_series_ser.ser_sam_gear,
 							t_series_ser.ser_distanceseakm,
-							t_series_ser.ser_method							
+							t_series_ser.ser_method,
+							t_series_ser.ser_restocking					
 							FROM 
 							datawg.t_series_ser
 							WHERE ser_cou_code='",country,"' ",
@@ -159,7 +160,8 @@ create_datacall_file_series <- function(country, name, ser_typ_id){
 								"ser_sam_id",
 								"ser_sam_gear",
 								"ser_distanceseakm",
-								"ser_method"	
+								"ser_method",
+								"ser_restocking"
 								)		
 				] )
 	}

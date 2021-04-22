@@ -71,6 +71,11 @@ ALTER TABLE datawg.t_biometry_bio ADD COLUMN bio_number NUMERIC;
 COMMENT ON COLUMN datawg.t_biometry_bio.bio_number IS 'number of individual corresponding to the measures';
 
 
+ALTER TABLE datawg.t_series_ser ADD COLUMN ser_restocking BOOLEAN;
+COMMENT ON COLUMN datawg.t_series_ser.ser_restocking IS 
+'Is the series affected by restocking, if yes you need to describe the effect in series description';
+
+
 /*
 Table for percent habitat related to stock indicators
 */
