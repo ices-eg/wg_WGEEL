@@ -96,6 +96,7 @@ shinyServer(function(input, output, session){
 					}, blocking_level="error"))
 			
 			var_database <- reactive(shinyCatch({
+			  browser()
 						req(input$passwordbutton)
 						# untill the password has been entered don't do anything
 						validate(need(data$connectOK,"No connection"))
@@ -143,9 +144,9 @@ shinyServer(function(input, output, session){
 						query <- "SELECT name from datawg.participants order by name asc"
 						participants<<- dbGetQuery(pool, sqlInterpolate(ANSI(), query))  
 						
-						ices_division <<- extract_ref("FAO area")$f_code
+						ices_division <<- suppressWarnings(extract_ref("FAO area")$f_code)
 # TODO CEDRIC 2021 remove geom from extract_ref function so as not to get a warning						
-						emus <<- extract_ref("EMU")
+						emus <<- suppressWarnings(extract_ref("EMU"))
 # TODO CEDRIC 2021 remove geom from extract_ref function so as not to get a warning						
 						
 						updatePickerInput(
