@@ -976,17 +976,17 @@ write_new <- function(path) {
 			perc_f,
 			perc_t,
 			perc_c,
-			perc_m) select eel_id,       
+			perc_mo) select eel_id_perc,       
 			perc_f,
 			perc_t,
 			perc_c,
-			perc_m  from new_temp;"
+			perc_mo from new_temp;"
 	# if fails replaces the message with this trycatch !  I've tried many ways with
 	# sqldf but trycatch failed to catch the error Hence the use of DBI
 	message <- NULL
 	nr <- tryCatch({
-				new$eel_id <- dbGetQuery(conn, query)
-				if (length(startsWith("perc_",names(new)))>0){#we have to insert into t_eelstock_eel_percent
+				new$eel_id_perc <- dbGetQuery(conn, query)[,1]
+				if (sum(startsWith("perc_",names(new)))>0){#we have to insert into t_eelstock_eel_percent
 				  dbExecute(conn,"drop table if exists new_temp ")
 				  dbWriteTable(conn,"new_temp",new,row.names=FALSE,temporary=TRUE)
 				  dbExecute(conn, querybis)
