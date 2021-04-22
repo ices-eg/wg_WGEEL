@@ -619,7 +619,7 @@ shinyServer(function(input, output, session){
 										paste(message,collapse="\n")
 									}                  
 								})              
-					},,error = function(e) {
+					},error = function(e) {
 					  showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
 					})) 
 			##########################
