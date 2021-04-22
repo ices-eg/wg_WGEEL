@@ -38,9 +38,7 @@ wd<-getwd()
 wddata = paste0(getwd(), "/data/datacall_template/")
 load(str_c(getwd(),"/data/ccm_seaoutlets.rdata")) #polygons off ccm seaoutlets WGS84
 
-# Finally we store the xl data in a sub chapter
-########################################
-dataxl<-wddata
+
 ###################################
 # this set up the connextion to the postgres database
 # change parameters accordingly
@@ -61,7 +59,7 @@ options(sqldf.RPostgreSQL.user = userwgeel,
 #' 
 #' @param country the country code, for instance "SW"
 #' @param name, the name of the file (without .xlsx) used as template and in the destination folders
-#' country='IE'; name="Eel_Data_Call_2020_Annex1_time_series"; ser_typ_id=1
+#' country='IE'; name="Eel_Data_Call_2021_Annex_time_series"; ser_typ_id=1
 create_datacall_file_series <- function(country, name, ser_typ_id){
 	if (!is.numeric(ser_typ_id)) stop("ser_typ_id must be numeric")
 	
@@ -75,8 +73,9 @@ create_datacall_file_series <- function(country, name, ser_typ_id){
 	key <- c("1" = "Recruitment","2" = "Yellow_standing_stock","3" = "Silver")
 	suffix <- key[ser_typ_id]
 	namedestinationfile <- str_c(name,"_",country, "_",suffix, ".xlsx")	
-	if (ser_typ_id==2) namedestinationfile <-gsub("Annex1","Annex2", namedestinationfile)
-	if (ser_typ_id==3) namedestinationfile <-gsub("Annex1","Annex3", namedestinationfile)
+	if (ser_typ_id==1) namedestinationfile <-gsub("Annex","Annex1", namedestinationfile)
+	if (ser_typ_id==2) namedestinationfile <-gsub("Annex","Annex2", namedestinationfile)
+	if (ser_typ_id==3) namedestinationfile <-gsub("Annex","Annex3", namedestinationfile)
 	destinationfile <- file.path(wddata, country, namedestinationfile)		
 	
 	#wb = openxlsx::loadWorkbook(templatefile)
@@ -333,7 +332,7 @@ country_code <- c("DK","ES","EE","IE","SE","GB","FI","IT","GR","DE","LV","FR","N
 for (country in country_code){
 	cat("country: ",country,"\n")
 	create_datacall_file_series(country, 
-			name="Eel_Data_Call_2020_Annex1_time_series", 
+			name="Eel_Data_Call_2021_Annex_time_series", 
 			ser_typ_id=1)
 }
 
@@ -345,7 +344,7 @@ for (country in country_code){
 for (country in country_code ){
 	cat("country: ",country,"\n")
 	create_datacall_file_series(country, 
-			name="Eel_Data_Call_2020_Annex1_time_series", 
+			name="Eel_Data_Call_2021_Annex_time_series", 
 			ser_typ_id=2)
 }
 
@@ -356,6 +355,6 @@ for (country in country_code ){
 for (country in country_code ){
 	cat("country: ",country,"\n")
 	create_datacall_file_series(country, 
-			name="Eel_Data_Call_2020_Annex1_time_series", 
+			name="Eel_Data_Call_2021_Annex_time_series", 
 			ser_typ_id=3)
 }

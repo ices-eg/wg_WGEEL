@@ -84,10 +84,6 @@ create table datawg.t_eelstock_eel_percent (
 );
 
 
-
-
-
-
   -- TODO apply server
 
 UPDATE datawg.t_eelstock_eel SET (eel_qal_id,eel_qal_comment)=(20,'discarded prior to datacall 2021, all data will be replaced')

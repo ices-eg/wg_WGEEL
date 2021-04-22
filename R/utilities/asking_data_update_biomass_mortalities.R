@@ -8,7 +8,7 @@
 CY<-2021
 # and the annex name / type of data
 type_of_data <- c("mortalities", "biomass")
-name_annex <- c("Eel_Data_Call_Annex_9_Mortality rates", "Eel_Data_Call_Annex6_Biomass_Indicators")
+name_annex <- c("Eel_Data_Call_2021_Annex9_Mortality_rates", "Eel_Data_Call_2021_Annex10_Biomass_Indicators")
 names(name_annex) <- type_of_data
 eel_typ_id_annex <- list(17:19,13:15)
 names(eel_typ_id_annex) <- type_of_data
@@ -186,8 +186,8 @@ create_datacall_file_biom_morta <- function(country, type = type_of_data[1], ...
 
 
 # TESTS -------------------------------------------
-create_datacall_file_biom_morta(country <- "FR", type <- "biomass")
-create_datacall_file_biom_morta(country <- "FR", type <- "mortalities")
+create_datacall_file_biom_morta(country = "FR", type = "biomass")
+create_datacall_file_biom_morta(country = "FR", type = "mortalities")
 # END TEST -------------------------------------------
 
 # CLOSE EXCEL FILE FIRST

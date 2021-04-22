@@ -51,7 +51,7 @@ options(sqldf.RPostgreSQL.user = userwgeel,
 		sqldf.RPostgreSQL.password = passwordwgeel,
 		sqldf.RPostgreSQL.dbname = "wgeel",
 		sqldf.RPostgreSQL.host = "localhost",
-		sqldf.RPostgreSQL.port = 5432)
+		sqldf.RPostgreSQL.port = 5435)
 
 #############################
 # Table storing information from the database
@@ -208,14 +208,14 @@ for (cou in cou_code){
 	create_datacall_file ( 
 			country <- cou,
 			eel_typ_id <- 4, 
-			name <- "Eel_Data_Call_2020_Annex4_Landings_Commercial",
+			name <- "Eel_Data_Call_2021_Annex4_Landings_Commercial",
 			minyear=2000,
-			maxyear=2020, #maxyear corresponds to the current year where we have to fill data
+			maxyear=2021, #maxyear corresponds to the current year where we have to fill data
 			host="localhost",
 			dbname="wgeel",
 			user="wgeel",
-			port=5432,
-			datasource="dc_2020")
+			port=5435,
+			datasource="dc_2021")
 	cat("work finished\n")
 }
 
@@ -225,14 +225,14 @@ for (cou in cou_code){
 	create_datacall_file ( 
 			country <- cou,
 			eel_typ_id <- 6, 
-			name <- "Eel_Data_Call_2020_Annex5_Landings_Recreational",
+			name <- "Eel_Data_Call_2021_Annex5_Landings_Recreational",
 			minyear=2000,
-			maxyear=2020, #maxyear corresponds to the current year where we have to fill data
+			maxyear=2021, #maxyear corresponds to the current year where we have to fill data
 			host="localhost",
 			dbname="wgeel",
 			user="wgeel",
-			port=5432,
-			datasource="dc_2020")
+			port=5435,
+			datasource="dc_2021")
 	cat("work finished",country,"\n")
 }
 
@@ -242,14 +242,10 @@ for (cou in cou_code){
 	create_datacall_file ( 
 			country <- cou,
 			eel_typ_id <- c(32,33), 
-			name <- "Eel_Data_Call_2020_Annex6_Landings_Other",
+			name <- "Eel_Data_Call_2021_Annex6_Landings_Other",
 			minyear=2000,
-			maxyear=2020, #maxyear corresponds to the current year where we have to fill data
-			host="localhost",
-			dbname="wgeel",
-			user="wgeel",
-			port=5432,
-			datasource="dc_2020")
+			maxyear=2021, #maxyear corresponds to the current year where we have to fill data
+			datasource="dc_2021")
 	cat("work finished",country,"\n")
 }
 
@@ -260,14 +256,10 @@ for (cou in cou_code){
 	create_datacall_file ( 
 			country <- cou,
 			eel_typ_id <- c(8,9,10), 
-			name <- "Eel_Data_Call_2020_Annex7_Releases",
+			name <- "Eel_Data_Call_2021_Annex7_Releases",
 			minyear=2000,
-			maxyear=2020, #maxyear corresponds to the current year where we have to fill data
-			host="localhost",
-			dbname="wgeel",
-			user="wgeel",
-			port=5432,
-			datasource="dc_2020")
+			maxyear=2021, #maxyear corresponds to the current year where we have to fill data
+			datasource="dc_2021")
 	cat("work finished",country,"\n")
 	
 }
@@ -277,21 +269,17 @@ for (cou in cou_code){
 
 cou_code_aqua<-unique(t_eelstock_eel$eel_cou_code[t_eelstock_eel$eel_typ_id%in%c(11)])
 
-cou <-"MA"
+#cou <-"MA"
 
 for (cou in cou_code_aqua){
 	
 	create_datacall_file ( 
 			country <- cou,
 			eel_typ_id <- c(11), 
-			name <- "Eel_Data_Call_2020_Annex8_Aquaculture",
+			name <- "Eel_Data_Call_2021_Annex8_Aquaculture",
 			minyear=2000,
-			maxyear=2020, #maxyear corresponds to the current year where we have to fill data
-			host="localhost",
-			dbname="wgeel",
-			user="wgeel",
-			port=5432,
-			datasource="dc_2020")
+			maxyear=2021, #maxyear corresponds to the current year where we have to fill data
+			datasource="dc_2021")
 	cat("work finished",country,"\n")
 	
 }
