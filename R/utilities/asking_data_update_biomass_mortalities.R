@@ -61,7 +61,7 @@ options(sqldf.RPostgreSQL.user = userwgeel,
 		sqldf.RPostgreSQL.password = passwordwgeel,
 		sqldf.RPostgreSQL.dbname = "wgeel",
 		sqldf.RPostgreSQL.host = "localhost",
-		sqldf.RPostgreSQL.port = 5432)
+		sqldf.RPostgreSQL.port = 5435)
 
 #############################
 # Table storing information from the database
