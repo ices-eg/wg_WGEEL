@@ -97,7 +97,6 @@ station$Organisation <-iconv(station$Organisation,from="UTF8",to="latin1")
 #' 
 #' @param country the country name, for instance "Sweden"
 createxl<-function(country){
-  browser()
   r_coun<-t_series_ser[t_series_ser$ser_cou_code==country,]
   # country names are displayed differently in this table, but Station_name correspond
   s_coun<-station[station$Station_Name%in%r_coun$ser_nameshort,]
