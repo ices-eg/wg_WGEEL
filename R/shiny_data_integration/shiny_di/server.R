@@ -143,9 +143,9 @@ shinyServer(function(input, output, session){
 						query <- "SELECT name from datawg.participants order by name asc"
 						participants<<- dbGetQuery(pool, sqlInterpolate(ANSI(), query))  
 						
-						ices_division <<- extract_ref("FAO area")$f_code
+						ices_division <<- suppressWarnings(extract_ref("FAO area")$f_code)
 # TODO CEDRIC 2021 remove geom from extract_ref function so as not to get a warning						
-						emus <<- extract_ref("EMU")
+						emus <<- suppressWarnings(extract_ref("EMU"))
 # TODO CEDRIC 2021 remove geom from extract_ref function so as not to get a warning						
 						
 						updatePickerInput(
@@ -358,12 +358,13 @@ shinyServer(function(input, output, session){
 									data_from_excel$eel_hty_code <- 'AL' #always AL
 									data_from_excel <- data_from_excel %>% 
 									  rename_with(function(x) tolower(gsub("biom_", "", x)),
-									              starts_with("biom_"))
+									              starts_with("biom_")) %>%
+									  mutate_at(vars(starts_with("perc_")), function(x) as.numeric(ifelse(x=='NP','-1',x)))
 									data_from_excel$eel_area_division <- as.vector(rep(NA,nrow(data_from_excel)),"character")
 									data_from_base<-rbind(
 											extract_data("b0", quality=c(0,1,2,3,4), quality_check=TRUE),
 											extract_data("bbest", quality=c(0,1,2,3,4), quality_check=TRUE),
-											extract_data("bcurrent", quality=c(0,1,2,3,4), quality_check=TRUE))
+											extract_data("bcurrent", quality=c(0,1,2,3,4), quality_check=TRUE)) 
 									data_from_base <- data_from_base %>% 
 									  rename_with(function(x) tolower(gsub("biom_", "", x)),
 									              starts_with("biom_"))
@@ -381,7 +382,8 @@ shinyServer(function(input, output, session){
 								  data_from_excel$eel_hty_code <- 'AL' #always AL
 								  data_from_excel <- data_from_excel %>% 
 								    rename_with(function(x) tolower(gsub("mort_", "", x)),
-								                starts_with("mort_"))
+								                starts_with("mort_")) %>%
+								    mutate_at(vars(starts_with("perc_")), function(x) as.numeric(ifelse(x=='NP','-1',x)))
 								  data_from_excel$eel_area_division <- as.vector(rep(NA,nrow(data_from_excel)),"character")
 								  data_from_base<-rbind(
 											extract_data("sigmaa", quality=c(0,1,2,3,4), quality_check=TRUE),
