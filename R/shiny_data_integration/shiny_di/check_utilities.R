@@ -476,18 +476,19 @@ check_consistency_missvalue_rates <- function(dataset, namedataset, rates){
   #namedataset <-  deparse(substitute(dataset))
   newdataset <- dataset
   newdataset$nline <- 1:nrow(newdataset) 
+  newdataset2 <- newdataset
   newdataset <- newdataset %>% rename_at(vars(contains(rates)), funs(str_remove(.,paste(rates,"_",sep=""))))
-  
+    
   if (any(is.na(newdataset$eel_value) & (!newdataset$perc_F %in% c("NP","0") | !newdataset$perc_T %in% c("NP","0") | 
 				  !newdataset$perc_C %in% c("NP","0") | !newdataset$perc_MO %in% c("NP","0")))) {
 		  
 		  cat(sprintf("dataset <%s>, line <%s> is wrong, if eel_value is empty only 0 or NP is possible in percentages columns \n", 
 						  namedataset,
-						  str_c(newdataset$nline[is.na(newdataset$eel_value) & (!newdataset$perc_F %in% c("NP","0") | !newdataset$perc_T %in% c("NP","0") | 
+						  str_c(newdataset2$nline[is.na(newdataset$eel_value) & (!newdataset$perc_F %in% c("NP","0") | !newdataset$perc_T %in% c("NP","0") | 
 													  !newdataset$perc_C %in% c("NP","0") | !newdataset$perc_MO %in% c("NP","0"))], collapse=";")))
 		
 		  # same but split and no end of line
-		  answer  = data.frame(newdataset$nline[is.na(newdataset$eel_value) & (!newdataset$perc_F %in% c("NP","0") | !newdataset$perc_T %in% c("NP","0") | 
+		  answer  = data.frame(nline = newdataset2$nline[is.na(newdataset$eel_value) & (!newdataset$perc_F %in% c("NP","0") | !newdataset$perc_T %in% c("NP","0") | 
 									  !newdataset$perc_C %in% c("NP","0") | !newdataset$perc_MO %in% c("NP","0"))], 
 				  error_message = sprintf("dataset <%s> is wrong, if eel_value is empty only 0 or NP is possible in percentages columns", 
 						  namedataset))	  
