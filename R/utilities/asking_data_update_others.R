@@ -224,7 +224,7 @@ for (cou in cou_code){
 	cat("country: ",country,"\n")
 	create_datacall_file ( 
 			country <- cou,
-			eel_typ_id <- 6, 
+			eel_typ_id <- c(6,7), 
 			name <- "Eel_Data_Call_2021_Annex5_Landings_Recreational",
 			minyear=2000,
 			maxyear=2021, #maxyear corresponds to the current year where we have to fill data

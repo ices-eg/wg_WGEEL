@@ -190,7 +190,7 @@ ui = dashboardPage(title="ICES Data Visualisation",
                         column(width=2,  awesomeCheckboxGroup(
                                 inputId = "raw_landings_eel_typ_id",
                                 label = "Dataset",
-                                choices = c("com"=4,"rec"=6),
+                                choices = c("com"=4,"rec"=6,"recdiscard"=7),
                                 selected=c("com"=4),
                                 status = "primary",
                                 inline=TRUE                                

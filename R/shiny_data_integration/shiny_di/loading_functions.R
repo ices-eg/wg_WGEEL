@@ -101,7 +101,7 @@ load_catch_landings<-function(path,datasource){
 									namedataset= sheet, 
 									column="eel_typ_name",
 									country=country,
-									values=c("com_landings_kg", "rec_landings_kg","other_landings_kg", "other_landings_n")))
+									values=c("com_landings_kg", "rec_landings_kg","other_landings_kg", "other_landings_n", "rec_discard_kg")))
 					
 					###### eel_year ##############
 					
