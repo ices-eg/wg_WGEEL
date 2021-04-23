@@ -104,7 +104,35 @@ ALTER TABLE datawg.t_biometry_bio RENAME COLUMN bio_sex_ratio TO bio_perc_female
 
 
 
+ -- SELECT * FROM datawg.t_eelstock_eel WHERE eel_typ_id = 7 ; -- nothing OK
+ 
+SELECT * FROM ref.tr_typeseries_typ ttt  WHERE typ_id=7
+UPDATE ref.tr_typeseries_typ SET (typ_name,typ_description) = ('rec_discard_kg', 'Recreational discard (catch and release) kg') WHERE typ_id = 7;
 
+
+-- Problems of duplicates in biometry 
+select * from datawg.t_biometry_series_bis where bis_ser_id=50 and bio_year=1994
+
+
+begin;
+create temporary table  rankedtable as (
+select bio_id,rank() over (partition by bio_year,bis_ser_id order by bio_id) rankbio from datawg.t_biometry_series_bis tbsb );--2234
+
+delete from datawg.t_biometry_series_bis tb where exists (select t2.bio_id from rankedtable t2 where rankbio>1 and t2.bio_id=tb.bio_id);--2 
+
+select bio_year,bis_ser_id, count(*)
+from datawg.t_biometry_series_bis  
+group by bio_year,bis_ser_id
+HAVING count(*)
+ > 1;--0
+
+CREATE UNIQUE INDEX idx_biometry_series1 ON datawg.t_biometry_series_bis 
+USING btree (bio_year, bio_lfs_code, bis_ser_id,  bio_qal_id) 
+WHERE (bio_qal_id IS NOT NULL);
+
+CREATE UNIQUE INDEX idx_biometry_series2 ON datawg.t_biometry_series_bis 
+USING btree (bio_year, bio_lfs_code, bis_ser_id) 
+WHERE (bio_qal_id IS NULL);
 
 /*
 * THIS PART SHOULD BE LAUNCHED AFTER TEMPLATES GENERATION BUT BEFORE DATA INTEGRATION
