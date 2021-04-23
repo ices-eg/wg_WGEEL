@@ -402,6 +402,7 @@ check_rates_num <- function(dataset, namedataset, column, country){
 	newdataset$nline <- 1:nrow(newdataset)
 	# remove NA from data
 	ddataset <- as.data.frame(newdataset[!is.na(newdataset[,column]),])
+	ddataset <- as.data.frame(newdataset[!is.na(newdataset[,"eel_value"]),])
 	
 	ddataset$num <- as.numeric(ddataset[,column])
 

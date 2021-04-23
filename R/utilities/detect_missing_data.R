@@ -211,7 +211,9 @@ detect_missing_biom_morta <- function(cou="FR",
   
 
 
-  
+  if (CY == 2021) {
+    complete <- complete[-(1:nrow(complete)),]
+  }
 
   
   hty_emus <- c("AL")  

@@ -143,15 +143,12 @@ create_datacall_file_biom_morta <- function(country, type = type_of_data[1], ...
 		data_kept <- r_coun[r_coun$qal_kept,]
 #		data_kept <- data_kept[,-ncol(r_coun)]
 		temp_disc_2021 <- 
-				data_disc <- r_coun[!r_coun$qal_kept,]
-#		data_disc <- data_disc[,-ncol(r_coun)]
+				data_disc <- r_coun[!r_coun$qal_kept,-ncol(r_coun)]
+#		data_disc <- data_disc[,]
 		
 		
 		# pre-fill new data and missing for landings 
-# XLConnect METHOD	
-#		writeWorksheet(wb, data_disc,  sheet = "existing_discarded",header=FALSE, startRow=2)
-#		writeWorksheet(wb, data_kept,  sheet = "existing_kept",header=FALSE,startRow=2)
-		
+
 # openxlsx METHODS
 		#openxlsx::writeData(wb, sheet = "existing_discarded", data_disc, startRow = 2, colNames = FALSE)
 		XLConnect::writeWorksheet(wb, data_disc, "existing_discarded", startRow=2, header=FALSE)
@@ -159,10 +156,8 @@ create_datacall_file_biom_morta <- function(country, type = type_of_data[1], ...
 		
 		#removed for 2021	
 		#openxlsx::writeData(wb, sheet = "existing_kept", data_kept, startRow = 1)	
-		#openxlsx::removeWorksheet(wb,"existing_kept")
-		XLConnect::hideSheet(wb, "existing_kept",veryHidden=FALSE)
-		#openxlsx::removeWorksheet(wb,"updated_data")
-		XLConnect::hideSheet(wb, "updated_data",veryHidden=FALSE)
+		#		writeWorksheet(wb, data_kept,  sheet = "existing_kept",header=FALSE,startRow=2)
+		
 	} else {
 		cat("No data for country", country, "\n")
 	}
