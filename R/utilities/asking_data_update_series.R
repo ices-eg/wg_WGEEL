@@ -116,11 +116,13 @@ create_datacall_file_series <- function(country, name, ser_typ_id){
 	
 	
 	if (nrow(t_series_ser)>0){
+		# maybe this is only needed on windows 
+		t_series_ser[,"ser_nameshort"]<-iconv(t_series_ser[,"ser_nameshort"],from="UTF-8",to="latin1")
+		t_series_ser[,"ser_comment"]<-iconv(t_series_ser[,"ser_comment"],from="UTF-8",to="latin1")
+		t_series_ser[,"ser_locationdescription"]<-iconv(t_series_ser[,"ser_locationdescription"],from="UTF-8",to="latin1")
+		t_series_ser[,"ser_method"]<-iconv(t_series_ser[,"ser_method"],from="UTF-8",to="latin1")
 		
-		t_series_ser[,4]<-iconv(t_series_ser[,4],from="UTF8",to="latin1")
-		t_series_ser[,11]<-iconv(t_series_ser[,11],from="UTF8",to="latin1")
-		t_series_ser[,7]<-iconv(t_series_ser[,7],from="UTF8",to="latin1")
-#		openxlsx::writeData(wb, sheet = "series_info", x=t_series_ser[,
+		#		openxlsx::writeData(wb, sheet = "series_info", x=t_series_ser[,
 #						c("ser_nameshort",
 #								"ser_namelong",
 #								"ser_typ_id",
@@ -177,6 +179,7 @@ create_datacall_file_series <- function(country, name, ser_typ_id){
 		station <- dplyr::left_join(t_series_ser[,c("ser_nameshort"),drop=F], station, by=c("ser_nameshort"="Station_Name"))
 		station <- station[,c("ser_nameshort",  "Organisation")]
 		
+		
 		if (nrow(station)>0){
 			
 			#openxlsx::writeData(wb, sheet = "station", station, startRow = 1)
@@ -200,7 +203,7 @@ create_datacall_file_series <- function(country, name, ser_typ_id){
 					" WHERE ser_typ_id=",ser_typ_id,
 					" AND ser_cou_code='",country,"' ",
 					" ORDER BY das_ser_id, das_year ASC"))
-	
+	dat[,"das_comment"]<-iconv(dat[,"das_comment"],from="UTF-8",to="latin1")
 	if (nrow(dat)> 0){
 		#openxlsx::writeData(wb, sheet = "existing_data", dat, startRow = 1)
 		writeWorksheet(wb, dat,  sheet = "existing_data")
@@ -223,7 +226,9 @@ create_datacall_file_series <- function(country, name, ser_typ_id){
 # biometry data existing ------------------------------------------
 	
 	
-	biom0 <- sqldf(str_c("select ser_nameshort, 
+	biom0 <- sqldf(str_c("select 
+							bio_id,
+							ser_nameshort, 
 							bio_year,
 							bio_length,
 							bio_weight,
