@@ -4,7 +4,7 @@ load_library("tidyr")
 
 detect_missing_data <- function(cou="FR",
 		minyear=2000,
-		maxyear=2020, #maxyear corresponds to the current year where we have to fill data
+		maxyear=2021, #maxyear corresponds to the current year where we have to fill data
 		host="localhost",
 		dbname="wgeel",
 		user="wgeel",
@@ -32,8 +32,7 @@ detect_missing_data <- function(cou="FR",
 		emus <- emus[!emus$emu_wholecountry,c(1,2)]		
 	} else if (nrow(emus)==2) {
 	  emus = subset(emus, emus$eel_emu_nameshort %in% used_emus)[,c(1,2)]
-	} 
-  else {
+	}   else {
 		emus <- emus[,c(1,2)]				
 	}
   
@@ -77,7 +76,7 @@ detect_missing_data <- function(cou="FR",
   missing_comb$eel_lfs_code=as.character(missing_comb$eel_lfs_code)
   missing_comb$eel_emu_nameshort =as.character(missing_comb$eel_emu_nameshort)
   missing_comb$eel_cou_code =as.character(missing_comb$eel_cou_code)
-  eel_typ_name=dbGetQuery(con_wgeel,"select typ_id,typ_name as eel_typ_name from ref.tr_typeseries_typ where typ_id in (4,6)")
+  eel_typ_name=dbGetQuery(con_wgeel,"select typ_id eel_typ_id,typ_name as eel_typ_name from ref.tr_typeseries_typ where typ_id in (4,6)")
   missing_comb <- merge(missing_comb,eel_typ_name)
   missing_comb$eel_value=NA
   
@@ -118,10 +117,10 @@ detect_missing_data <- function(cou="FR",
     filter(rank==1)
   
   missing_comb2 <- missing_comb %>% #this is the row that should be filled for this year
-    filter(eel_year == 2020 & is.na(eel_missvaluequal))
+    filter(eel_year == maxyear & is.na(eel_missvaluequal))
   
   missing_comb <- missing_comb %>%
-    filter(eel_year != 2020 | !is.na(eel_missvaluequal))
+    filter(eel_year != maxyear | !is.na(eel_missvaluequal))
   
   missing_comb2 <- merge(missing_comb2,na.omit(found_matches_last_year),all.x=TRUE)
   missing_comb2$eel_lfs_code[!is.na(missing_comb2$last_lfs)] <- missing_comb2$last_lfs[!is.na(missing_comb2$last_lfs)]
