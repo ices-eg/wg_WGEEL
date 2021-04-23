@@ -895,7 +895,7 @@ load_biomass<-function(path,datasource){
 	country =as.character(data_xls[1,6]) #country code is in the 6th column
 	
 	# check for the file integrity, only 12 column in this file
-	if (ncol(data_xls)!=12) cat(str_c("number column wrong should have been 12 in template for country",country,"\n"))
+	if (ncol(data_xls)!=11) cat(str_c("number column wrong should have been 11 in template for country",country,"\n"))
 	data_xls$eel_qal_id <- NA
 	data_xls$eel_qal_comment <- NA
 	data_xls$eel_datasource <- datasource
@@ -1123,7 +1123,7 @@ load_mortality_rates<-function(path,datasource){
 	data_xls <- correct_me(data_xls)
 	country =as.character(data_xls[1,6]) #country code is in the 6th column
 	# check for the file integrity, only 12 column in this file
-	if (ncol(data_xls)!=12) cat(str_c("number column wrong, should have been 12 in template, country ",country,"\n"))
+	if (ncol(data_xls)!=11) cat(str_c("number column wrong, should have been 11 in template, country ",country,"\n"))
 	# check column names
 	data_xls$eel_qal_id <- NA
 	data_xls$eel_qal_comment <- NA
@@ -1131,12 +1131,12 @@ load_mortality_rates<-function(path,datasource){
 	if (!all(colnames(data_xls)%in%
 					c("eel_typ_name", "eel_year","eel_value", "eel_missvaluequal","eel_emu_nameshort",
 							"eel_cou_code", "mort_perc_F", "mort_perc_T","mort_perc_C", "mort_perc_MO",
-							"eel_qal_id", "eel_qal_comment","eel_comment","eel_datasource"))) 
+							"eel_qal_id", "eel_qal_comment","eel_comment", "eel_datasource"))) 
 		cat(str_c("problem in column names :",            
 						paste(colnames(data_xls)[!colnames(data_xls)%in%
 												c("eel_typ_name", "eel_year", "eel_value", "eel_missvaluequal", "eel_emu_nameshort",
 														"eel_cou_code", "mort_perc_F", "mort_perc_T","mort_perc_C", "mort_perc_MO",
-														"eel_qal_id", "eel_qal_comment","eel_comment","eel_datasource")],collapse= " & "),
+														"eel_qal_id", "eel_qal_comment","eel_comment", "eel_datasource")],collapse= " & "),
 						" file =",
 						file,"\n"))     
 	
