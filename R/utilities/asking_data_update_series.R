@@ -203,8 +203,9 @@ create_datacall_file_series <- function(country, name, ser_typ_id){
 					" WHERE ser_typ_id=",ser_typ_id,
 					" AND ser_cou_code='",country,"' ",
 					" ORDER BY das_ser_id, das_year ASC"))
-	dat[,"das_comment"]<-iconv(dat[,"das_comment"],from="UTF-8",to="latin1")
+
 	if (nrow(dat)> 0){
+		dat[,"das_comment"]<-iconv(dat[,"das_comment"],from="UTF-8",to="latin1")
 		#openxlsx::writeData(wb, sheet = "existing_data", dat, startRow = 1)
 		writeWorksheet(wb, dat,  sheet = "existing_data")
 	}
