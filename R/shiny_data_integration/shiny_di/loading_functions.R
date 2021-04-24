@@ -2111,12 +2111,12 @@ load_series<-function(path,datasource,stage="glass_eel"){
 						column="ser_dts_datasource",
 						country=country))
 		
-		data_error <- rbind(data_error, check_values(
-						dataset=series,						
-						namedataset= "series_info",
-						column="ser_dts_datasource",
-						country=country,
-						values=c("dc_2017","wgeel_2016","wgeel_2017","dc_2018","dc_2019","dc_2020","dc_2020_missing")))
+		# data_error <- rbind(data_error, check_values(
+		# 				dataset=series,						
+		# 				namedataset= "series_info",
+		# 				column="ser_dts_datasource",
+		# 				country=country,
+		# 				values=c("dc_2017","wgeel_2016","wgeel_2017","dc_2018","dc_2019","dc_2020","dc_2020_missing")))
 		
 	} 
 #---------------------- station ---------------------------------------------	
@@ -2232,12 +2232,12 @@ load_series<-function(path,datasource,stage="glass_eel"){
 						column="das_dts_datasource",
 						country=country))
 		
-		data_error <- rbind(data_error, check_values(
-						dataset=new_data,					
-						namedataset= "new_data",
-						column="das_dts_datasource",
-						country=country,
-						values=c("dc_2017","wgeel_2016","wgeel_2017","dc_2018","dc_2019","dc_2020","dc_2020_missing")))
+		# data_error <- rbind(data_error, check_values(
+		# 				dataset=new_data,					
+		# 				namedataset= "new_data",
+		# 				column="das_dts_datasource",
+		# 				country=country,
+		# 				values=c("dc_2017","wgeel_2016","wgeel_2017","dc_2018","dc_2019","dc_2020","dc_2020_missing")))
 		
 	} 
 #---------------------- updated data ---------------------------------------------
@@ -2354,12 +2354,12 @@ load_series<-function(path,datasource,stage="glass_eel"){
 						column="das_dts_datasource",
 						country=country))
 		
-		data_error <- rbind(data_error, check_values(
-						dataset=updated_data,					
-						namedataset= "updated_data",
-						column="das_dts_datasource",
-						country=country,
-						values=c("dc_2017","wgeel_2016","wgeel_2017","dc_2018","dc_2019","dc_2020","dc_2020_missing")))
+		# data_error <- rbind(data_error, check_values(
+		# 				dataset=updated_data,					
+		# 				namedataset= "updated_data",
+		# 				column="das_dts_datasource",
+		# 				country=country,
+		# 				values=c("dc_2017","wgeel_2016","wgeel_2017","dc_2018","dc_2019","dc_2020","dc_2020_missing")))
 		
 	} 
 #---------------------- new biometry ---------------------------------------------
@@ -2419,12 +2419,12 @@ load_series<-function(path,datasource,stage="glass_eel"){
 						column="bio_dts_datasource",
 						country=country))
 		
-		data_error <- rbind(data_error, check_values(
-						dataset=new_biometry,				
-						namedataset= "new_biometry",
-						column="bio_dts_datasource",
-						country=country,
-						values=c("dc_2017","wgeel_2016","wgeel_2017","dc_2018","dc_2019","dc_2020","dc_2020_missing")))
+		# data_error <- rbind(data_error, check_values(
+		# 				dataset=new_biometry,				
+		# 				namedataset= "new_biometry",
+		# 				column="bio_dts_datasource",
+		# 				country=country,
+		# 				values=c("dc_2017","wgeel_2016","wgeel_2017","dc_2018","dc_2019","dc_2020","dc_2020_missing")))
 		
 	} 
 	

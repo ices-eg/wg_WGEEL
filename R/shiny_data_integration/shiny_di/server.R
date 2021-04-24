@@ -1083,6 +1083,15 @@ shinyServer(function(input, output, session){
 						if (nrow(new_biometry)>0){
 							list_comp_biometry <- compare_with_database_biometry(data_from_excel=new_biometry, data_from_base=t_biometry_series_bis, sheetorigin="new_data")
 						}
+						if (nrow(updated_biometry)>0){
+						  list_comp_updated_biometry <- compare_with_database_biometry(data_from_excel=updated_biometry, data_from_base=t_biometry_series_bis, sheetorigin="updated_biometry")
+						  if (nrow(new_biometry)>0){
+						    list_comp_biometry$new <- rbind(list_comp_biometry$new,list_comp_updated_biometry$new)
+						    list_comp_biometry$modified <- rbind(list_comp_biometry$modified,list_comp_updated_biometry$modified)
+						    # note highlight change is not passed from one list to the other, both will be shown
+						  }
+						}
+						browser()
 						current_cou_code <- list_comp_series$current_cou_code
 						
 						#cat("step1")					

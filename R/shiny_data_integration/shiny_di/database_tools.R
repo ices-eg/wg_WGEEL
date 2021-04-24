@@ -470,7 +470,6 @@ compare_with_database_dataseries <- function(data_from_excel, data_from_base, sh
 #' }
 compare_with_database_biometry <- function(data_from_excel, data_from_base, sheetorigin="new_data") {
 	# data integrity checks
-	
 	if (nrow(data_from_excel) == 0) 
 		validate(need(FALSE,"There are no data coming from the excel file"))
 	if (nrow(data_from_base) == 0) {
@@ -499,7 +498,7 @@ compare_with_database_biometry <- function(data_from_excel, data_from_base, shee
 			pull(id)
 	if (length(remove_all_na) > 0){	data_from_excel <- data_from_excel[-remove_all_na,]}
 	
-	duplicates <- data_from_base %>% 	dplyr::inner_join(data_from_excel, by = c("bis_ser_id"), 
+	duplicates <- data_from_base %>% 	dplyr::inner_join(data_from_excel, by = c("bis_ser_id", "bio_year"), 
 			suffix = c(".base", ".xls"))
 	duplicates <- duplicates[, 
 			# not in the datacall or used as pivot :
