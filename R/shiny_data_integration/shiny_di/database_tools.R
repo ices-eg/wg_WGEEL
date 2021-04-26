@@ -557,7 +557,7 @@ compare_with_database_biometry <- function(data_from_excel, data_from_base, shee
 		# show only modifications to the user (any colname modified)	
 		highlight_change <- highlight_change[!apply(mat,1,all),num_common_col[!apply(mat,2,all)]]
 		
-		if (!"bis_id" %in% colnames(modified)){
+		if (!"bio_id" %in% colnames(modified)){
 			modified <- inner_join(
 					data_from_base[,c("bio_year","bis_ser_id","bio_id", "bio_qal_id")], 
 					modified, by= c("bio_year","bis_ser_id"))
@@ -1545,14 +1545,13 @@ update_biometry <- function(path) {
 			bio_age_m, 
 			bio_comment, 
 			bio_last_update,
-			bio_qal_id, 
 			bis_g_in_gy, 
 			bis_ser_id,
 			bio_dts_datasource,
 			bio_number)=
 			
 			(
-			t.bio_lfs_code,
+			ser_lfs_code,
 			t.bio_year, 
 			t.bio_length, 
 			t.bio_weight, 
@@ -1566,21 +1565,20 @@ update_biometry <- function(path) {
 			t.bio_age_m, 
 			t.bio_comment, 
 			t.bio_last_update,
-			t.bio_qal_id, 
 			t.bis_g_in_gy, 
 			t.bis_ser_id,
 			t.bio_dts_datasource,
 			t.bio_number)
-			FROM updated_biometry_temp t WHERE t.bio_id = t_biometry_series_bis.bio_id"
+			FROM updated_biometry_temp t JOIN datawg.t_series_ser on ser_id=bis_ser_id
+	WHERE t.bio_id = t_biometry_series_bis.bio_id"
 	
-	conn <- poolCheckout(pool)
 	message <- NULL
 	nr <- tryCatch({
 				dbExecute(conn, query)
 			}, error = function(e) {
 				message <<- e
 			}, finally = {
-				dbExecute(conn,"updated_biometry_temp")
+				dbExecute(conn,"drop table updated_biometry_temp")
 				poolReturn(conn)
 
 			})

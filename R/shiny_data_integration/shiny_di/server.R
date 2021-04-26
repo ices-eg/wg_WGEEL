@@ -876,21 +876,14 @@ shinyServer(function(input, output, session){
 								data.frame(),
 								options = list(searching = FALSE,paging = FALSE,
 										language = list(zeroRecords = "Not run yet")))    
-						output$dt_highlight_change_newdata_dataseries <- renderDataTable(
+						output$dt_highlight_change_dataseries <- renderDataTable(
 								data.frame(),
 								options = list(searching = FALSE,paging = FALSE,
 										language = list(zeroRecords = "Not run yet")))   
-						output$dt_highlight_change_modified_dataseries <- renderDataTable(
-								data.frame(),
-								options = list(searching = FALSE,paging = FALSE,
-										language = list(zeroRecords = "Not run yet")))  
+
 						
 						output$step1_message_modified_biometry  <- renderText("") 
 						output$dt_modified_biometry <- renderDataTable(
-								data.frame(),
-								options = list(searching = FALSE,paging = FALSE,
-										language = list(zeroRecords = "Not run yet")))   
-						output$dt_highlight_change_modified_dataseries <- renderDataTable(
 								data.frame(),
 								options = list(searching = FALSE,paging = FALSE,
 										language = list(zeroRecords = "Not run yet")))   
@@ -1068,13 +1061,24 @@ shinyServer(function(input, output, session){
 						if (nrow(new_data)>0){
 							list_comp_dataseries <- compare_with_database_dataseries(data_from_excel=new_data, data_from_base=t_dataseries_das, sheetorigin="new_data")
 						}
+
 						if (nrow(updated_data)>0){
 							list_comp_updateddataseries <- compare_with_database_dataseries(data_from_excel=updated_data, data_from_base=t_dataseries_das, sheetorigin="updated_data")
 							
 							if (nrow(new_data)>0){
 								list_comp_dataseries$new <- rbind(list_comp_dataseries$new,list_comp_updateddataseries$new)
 								list_comp_dataseries$modified <- rbind(list_comp_dataseries$modified,list_comp_updateddataseries$modified)
+							  if (nrow(list_comp_dataseries$highlight_change)>0){
+								  list_comp_dataseries$highlight_change <- bind_rows(list_comp_dataseries$highlight_change,
+								                                                     list_comp_updateddataseries$highlight_change)
+								} else{
+								  list_comp_dataseries$highlight_change <- list_comp_updateddataseries$highlight_change
+								}
 								# note highlight change is not passed from one list to the other, both will be shown
+							} else {
+							  list_comp_dataseries$new <- list_comp_updateddataseries$new
+							  list_comp_dataseries$modified <- list_comp_updateddataseries$modified
+							  list_comp_dataseries$highlight_change <- list_comp_updateddataseries$highlight_change
 							}
 						}	else {
 							list_comp_updateddataseries <- list()
@@ -1083,15 +1087,25 @@ shinyServer(function(input, output, session){
 						if (nrow(new_biometry)>0){
 							list_comp_biometry <- compare_with_database_biometry(data_from_excel=new_biometry, data_from_base=t_biometry_series_bis, sheetorigin="new_data")
 						}
+						
 						if (nrow(updated_biometry)>0){
 						  list_comp_updated_biometry <- compare_with_database_biometry(data_from_excel=updated_biometry, data_from_base=t_biometry_series_bis, sheetorigin="updated_biometry")
 						  if (nrow(new_biometry)>0){
 						    list_comp_biometry$new <- rbind(list_comp_biometry$new,list_comp_updated_biometry$new)
 						    list_comp_biometry$modified <- rbind(list_comp_biometry$modified,list_comp_updated_biometry$modified)
+						    if (nrow(list_comp_biometry$highlight_change)>0){
+						      list_comp_biometry$highlight_change <- bind_rows(list_comp_biometry$highlight_change,
+						                                                        list_comp_updated_biometry$highlight_change)
+						    } else {
+						      list_comp_biometry$highlight_change <- list_comp_updated_biometry$highlight_change
+						    }
 						    # note highlight change is not passed from one list to the other, both will be shown
+						  } else {
+						    list_comp_biometry$new <- list_comp_updated_biometry$new
+						    list_comp_biometry$modified <- list_comp_updated_biometry$modified
+						    list_comp_biometry$highlight_change <- list_comp_updated_biometry$highlight_change
 						  }
 						}
-						browser()
 						current_cou_code <- list_comp_series$current_cou_code
 						
 						#cat("step1")					
@@ -1282,18 +1296,13 @@ shinyServer(function(input, output, session){
 										validate(need(data$connectOK,"No connection"))
 										datatable(list_comp_series$highlight_change,
 												rownames=FALSE,          
-												extensions = "Buttons",
 												option=list(
 														scroller = TRUE,
 														scrollX = TRUE,
 														scrollY = "500px",
 														lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
 														"pagelength"=-1,
-														dom= "Blfrtip",
-														scrollX = T, 
-														buttons=list(
-																list(extend="excel",
-																		filename = paste0("highlight_change_series_",input$file_type_ts,"_",Sys.Date(),"_",current_cou_code))) 
+														scrollX = T 
 												))
 									})
 						} 				
@@ -1311,16 +1320,13 @@ shinyServer(function(input, output, session){
 									data.frame(),
 									options = list(searching = FALSE,paging = FALSE,
 											language = list(zeroRecords = "No data")))    
-							output$dt_highlight_change_newdata_dataseries <- renderDataTable(
+							output$dt_highlight_change_dataseries <- renderDataTable(
 									data.frame(),
 									options = list(searching = FALSE,paging = FALSE,
 											language = list(zeroRecords = "No change from newdata")))   
-							output$dt_highlight_change_modified_dataseries <- renderDataTable(
-									data.frame(),
-									options = list(searching = FALSE,paging = FALSE,
-											language = list(zeroRecords = "No change from modified")))  
+
 							
-						} else {      
+						} else {
 							output$"step1_message_modified_dataseries"<-renderUI(
 									HTML(
 											paste(
@@ -1355,43 +1361,20 @@ shinyServer(function(input, output, session){
 							# data from updated and new have been collated
 							# but for highlight for change they are kept in each source list to be shown below
 							
-							output$dt_highlight_change_newdata_dataseries <-DT::renderDataTable({ 
+							output$dt_highlight_change_dataseries <-DT::renderDataTable({ 
 										validate(need(data$connectOK,"No connection"))
 										datatable(list_comp_dataseries$highlight_change,
 												rownames=FALSE,          
-												extensions = "Buttons",
 												option=list(
 														scroller = TRUE,
 														scrollX = TRUE,
 														scrollY = "500px",
 														lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
 														"pagelength"=-1,
-														dom= "Blfrtip",
-														scrollX = T, 
-														buttons=list(
-																list(extend="excel",
-																		filename = paste0("highlight_change_newdata_dataseries_",input$file_type_ts,"_",Sys.Date(),"_",current_cou_code))) 
+														scrollX = T
 												))
 									})
 							
-							output$dt_highlight_change_modified_dataseries <-DT::renderDataTable({ 
-										validate(need(data$connectOK,"No connection"))
-										datatable(list_comp_updateddataseries$highlight_change,
-												rownames=FALSE,          
-												extensions = "Buttons",
-												option=list(
-														scroller = TRUE,
-														scrollX = TRUE,
-														scrollY = "500px",
-														lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
-														"pagelength"=-1,
-														dom= "Blfrtip",
-														scrollX = T, 
-														buttons=list(
-																list(extend="excel",
-																		filename = paste0("highlightchange_modified_dataseries_",input$file_type_ts,"_",Sys.Date(),"_",current_cou_code))) 
-												))
-									})
 							
 						} 	
 						
@@ -1408,11 +1391,7 @@ shinyServer(function(input, output, session){
 							output$dt_modified_biometry <- renderDataTable(
 									data.frame(),
 									options = list(searching = FALSE,paging = FALSE,
-											language = list(zeroRecords = "No modified biometry")))   
-							output$dt_highlight_change_modified_dataseries <- renderDataTable(
-									data.frame(),
-									options = list(searching = FALSE,paging = FALSE,
-											language = list(zeroRecords = "No change in biometry")))  	
+											language = list(zeroRecords = "No modified biometry"))) 	
 							
 						} else {      
 							output$"step1_message_modified_biometry"<-renderUI(
@@ -1454,18 +1433,13 @@ shinyServer(function(input, output, session){
 										validate(need(data$connectOK,"No connection"))
 										datatable(list_comp_biometry$highlight_change,
 												rownames=FALSE,          
-												extensions = "Buttons",
 												option=list(
 														scroller = TRUE,
 														scrollX = TRUE,
 														scrollY = "500px",
 														lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
-														"pagelength"=-1,
-														dom= "Blfrtip",
-														buttons=list(
-																list(extend="excel",
-																		filename = paste0("highlight_change_newdata_dataseries_",input$file_type_ts,"_",Sys.Date(),"_",current_cou_code))) 
-												))
+														"pagelength"=-1
+										))
 									})						
 						}
 						

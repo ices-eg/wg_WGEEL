@@ -32,6 +32,36 @@ check_missing <- function(dataset, namedataset, column,country){
   return(answer)
 }
 
+
+
+
+
+#' check for all missing values send an error if all values in columns are null
+#' @param dataset the name of the dataset
+#' @param namedataset the name of the sheet 
+#' @param column the name of the column
+#' @param country the current country being evaluated
+check_all_missing <- function(dataset, namedataset, column,country){
+  answer = NULL
+  all_na <- apply(dataset[,column],1, function(x) all(is.na(x)))
+  if (any(all_na)){
+    line<-(1:nrow(dataset))[all_na]
+    if (length(line)>10) line <-str_c(str_c(line[1:10],collapse=";"),"...") else
+      line <- str_c(line) # before it was str_c(line, collapse=";") but it was crashing when checking for duplicates
+    if (length(line)>0){
+      cat(sprintf("dataset <%s>, columns <%s>, all missing line %s \n",
+                  namedataset,
+                  paste0(column,collapse=","),
+                  line))
+      answer  = data.frame(nline = line, error_message = sprintf("dataset <%s>, columns <%s>, all missing line %s \n",
+                                                                 namedataset,
+                                                                 paste0(column,collapse=","),
+                                                                 line))
+    }
+  }
+  return(answer)
+}
+
 #' check_values
 #' 
 #' check the values in the current column against a list of values, missing values are removed
