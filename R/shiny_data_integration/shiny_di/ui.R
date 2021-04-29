@@ -23,7 +23,8 @@ ui <- fluidPage(spsDepend("toastr"),
 						#menuItem("Edit", tabName="edit", icon=icon("table")),
 						menuItem("Edit Data", tabName="editAll", icon=icon("table")),
 						menuItem("Plot duplicates", tabName='plot_duplicates',icon= icon("area-chart")),
-						menuItem("New Participants", tabName='integrate_new_participants',icon= icon("user-friends"))
+						menuItem("New Participants", tabName='integrate_new_participants',icon= icon("user-friends")),
+						menuItem("Edit Data module", tabName="editAllmodule", icon=icon("table"))
 						#menuSubItem("Plot duplicates",  tabName="plot_duplicates"),
 						#menuSubItem("plot2", tabName="plot2")
 						,
@@ -470,7 +471,9 @@ ui <- fluidPage(spsDepend("toastr"),
 												column(width=10,
 														htmlOutput("new_participants_txt")
 												))
-								)						
+								),
+tabItem("editAllmodule",
+        tableEditUI("tableEditmodule"))
 
 						)
 				)

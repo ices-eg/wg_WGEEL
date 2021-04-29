@@ -25,13 +25,16 @@ shinyServer(function(input, output, session){
 									textoutput <- "Connected" 
 					},error = function(e) {
 						textoutput <- paste("password:",input$password,"wrong")
-					})							
-
+					})				
 						return(textoutput)
 						
 					})
 			
-			data<-reactiveValues(pool=NULL,connectOK=FALSE)
+			data<-reactiveValues(pool=NULL,connectOK=FALSE,
+			                     ser_list = NULL,
+			                     ccm_light = ccm_light,
+			                     typ_id = typ_id,
+			                     list_country = NULL)
 			
 			observeEvent(input$xlfile,tryCatch({
 						if (input$xlfile!="") {
@@ -117,6 +120,7 @@ shinyServer(function(input, output, session){
 						list_countryt <- dbGetQuery(pool, sqlInterpolate(ANSI(), query))   
 						list_country <- list_countryt$cou_code
 						names(list_country) <- list_countryt$cou_country
+						data$list_country<- list_country
 						list_country<<-list_country
 						
 						query <- "SELECT * from ref.tr_typeseries_typ order by typ_name"
@@ -124,9 +128,10 @@ shinyServer(function(input, output, session){
 						typ_id <- tr_typeseries_typt$typ_id
 						query <- "SELECT distinct ser_nameshort from datawg.t_series_ser"
 						tr_series_list <- dbGetQuery(pool, sqlInterpolate(ANSI(), query))   
-						ser_list <- tr_series_list$ser_nameshort
+						isolate({data$ser_list <- tr_series_list$ser_nameshort})
 						tr_typeseries_typt$typ_name <- tolower(tr_typeseries_typt$typ_name)
 						names(typ_id) <- tr_typeseries_typt$typ_name
+						data$typ_id <- typ_id
 						# tr_type_typ<-extract_ref('Type of series') this works also !
 						tr_typeseries_typt<<-tr_typeseries_typt
 						
@@ -811,7 +816,7 @@ shinyServer(function(input, output, session){
 				output$maps_timeseries<- renderLeaflet({
 							leaflet() %>% addTiles() %>%
 									addMarkers(data=series,lat=~ser_y,lng=~ser_x,label=~ser_nameshort) %>%
-									addPolygons(data=ccm_light, 
+									addPolygons(data=data$ccm_light, 
 											popup=~as.character(wso_id),
 											fill=TRUE, 
 											highlight = highlightOptions(color='white',
@@ -1900,7 +1905,7 @@ shinyServer(function(input, output, session){
 			    pick2=switch(input$edit_datatype,
 			                 "t_eelstock_eel"=c(4, 5, 6, 7),
 			                 "t_eelstock_eel_perc"=c(13:15,17:19),
-			                 ser_list)
+			                 data$ser_list)
 			  the_years <- input$yearAll
 			  if (is.null(input$yearAll)) {
 			    the_years <- c(the_years$min_year, the_years$max_year)
@@ -1937,7 +1942,6 @@ shinyServer(function(input, output, session){
 			  data <- switch(input$edit_datatype,
 			                 "t_dataseries_das" = mysourceAll() %>%
 			                   arrange(ser_nameshort_ref,das_year), 
-			                 .con = pool,
 			                 "t_eelstock_eel" =  mysourceAll() %>%
 			                   arrange(eel_emu_nameshort,eel_year),
 			                 "t_eelstock_eel_perc" =  mysourceAll() %>%
@@ -2004,7 +2008,7 @@ shinyServer(function(input, output, session){
 			  leaflet(rvsAll$data) %>%
 			    addTiles(group="OSM") %>%
 			    addProviderTiles(providers$Esri.WorldImagery, group="satellite")  %>%
-				addPolygons(data=ccm_light %>% inner_join(union(union(rvsAll$data %>% select(wso_id1) %>% distinct() %>% transmute(wso_id = wso_id1), rvsAll$data %>% select(wso_id2) %>% distinct() %>% transmute(wso_id = wso_id2)), rvsAll$data %>% select(wso_id3) %>% distinct() %>% transmute(wso_id = wso_id3))), 
+				addPolygons(data=data$ccm_light %>% inner_join(union(union(rvsAll$data %>% select(wso_id1) %>% distinct() %>% transmute(wso_id = wso_id1), rvsAll$data %>% select(wso_id2) %>% distinct() %>% transmute(wso_id = wso_id2)), rvsAll$data %>% select(wso_id3) %>% distinct() %>% transmute(wso_id = wso_id3))), 
 					popup=~as.character(wso_id),
 					fill=TRUE, 
 					highlight = highlightOptions(color='white',
@@ -2112,25 +2116,25 @@ shinyServer(function(input, output, session){
 			  if (input$edit_datatype == "t_eelstock_eel"){
 			    updatePickerInput(session=session,
 			                      inputId="editpicker2",
-			                      choices=typ_id,
+			                      choices=data$typ_id,
 			                      label="Select a type :",
 			                      selected=NULL)
 			    updatePickerInput(session=session,
 			                      inputId="editpicker1",
 			                      label = "Select a country :", 
-			                      choices = list_country,
+			                      choices = data$list_country,
 			                      selected=NULL)
 			    shinyjs::show("addRowTable_corAll")
 			  } else if (input$edit_datatype == "t_eelstock_eel_perc"){
 			    updatePickerInput(session=session,
 			                      inputId="editpicker2",
-			                      choices=typ_id[typ_id %in% c(13:15,17:19)],
+			                      choices=data$typ_id[data$typ_id %in% c(13:15,17:19)],
 			                      label="Select a type :",
 			                      selected=NULL)
 			    updatePickerInput(session=session,
 			                      inputId="editpicker1",
 			                      label = "Select a country :", 
-			                      choices = list_country,
+			                      choices = data$list_country,
 			                      selected=NULL)
 			    shinyjs::hide("addRowTable_corAll")
 			    
@@ -2139,7 +2143,7 @@ shinyServer(function(input, output, session){
 			    updatePickerInput(session=session,
 			                      inputId="editpicker2",
 			                      label = "Select series :", 
-			                      choices = ser_list,
+			                      choices = data$ser_list,
 			                      selected=NULL)
 			    updatePickerInput(session=session,
 			                      inputId="editpicker1",
@@ -2173,13 +2177,13 @@ shinyServer(function(input, output, session){
 			#we can restrict available time series choices
 			observeEvent(input$editpicker1,tryCatch({
 			  if (!startsWith(input$edit_datatype, "t_eelstock_eel")){
-			    stageser=ifelse(endsWith(ser_list,"GY"),
+			    stageser=ifelse(endsWith(data$ser_list,"GY"),
 			                    "GY",
-			                    str_sub(ser_list,-1,-1))
+			                    str_sub(data$ser_list,-1,-1))
 			    selected=input$editpicker2
 			    updatePickerInput(session=session,
 			                      inputId="editpicker2",
-			                      choices = ser_list[stageser %in% input$editpicker1],
+			                      choices = data$ser_list[stageser %in% input$editpicker1],
 			                      selected=selected)
 			  }
 			  
@@ -2395,6 +2399,11 @@ shinyServer(function(input, output, session){
 					},error = function(e) {
 					  showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
 					}))
+			
+			
+			
+			#module tableEdit
+			tableEditServer("tableEditmodule", data)
 			
 			
 			
