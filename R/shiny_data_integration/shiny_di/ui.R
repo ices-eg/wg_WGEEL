@@ -23,7 +23,8 @@ ui <- fluidPage(spsDepend("toastr"),
 						#menuItem("Edit", tabName="edit", icon=icon("table")),
 						menuItem("Edit Data", tabName="editAll", icon=icon("table")),
 						menuItem("Plot duplicates", tabName='plot_duplicates',icon= icon("area-chart")),
-						menuItem("New Participants", tabName='integrate_new_participants',icon= icon("user-friends"))
+						menuItem("New Participants", tabName='integrate_new_participants',icon= icon("user-friends")),
+						menuItem("Edit Data module", tabName="editAllmodule", icon=icon("table"))
 						#menuSubItem("Plot duplicates",  tabName="plot_duplicates"),
 						#menuSubItem("plot2", tabName="plot2")
 						,
@@ -204,8 +205,7 @@ ui <- fluidPage(spsDepend("toastr"),
 														htmlOutput("step1_message_modified_dataseries"),
 														DT::dataTableOutput("dt_modified_dataseries"),
 														h3("modified dataseries : what changed for new_data and updated_data ?"),	
-														DT::dataTableOutput("dt_highlight_change_newdata_dataseries"),
-														DT::dataTableOutput("dt_highlight_change_modified_dataseries"),	
+														DT::dataTableOutput("dt_highlight_change_dataseries"),
 														h3("modified biometry"),	
 														DT::dataTableOutput("dt_modified_biometry"),
 														htmlOutput("step1_message_modified_biometry"),
@@ -471,7 +471,9 @@ ui <- fluidPage(spsDepend("toastr"),
 												column(width=10,
 														htmlOutput("new_participants_txt")
 												))
-								)						
+								),
+tabItem("editAllmodule",
+        tableEditUI("tableEditmodule"))
 
 						)
 				)
