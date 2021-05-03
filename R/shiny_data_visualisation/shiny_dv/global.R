@@ -63,7 +63,8 @@ load_package("ggrepel")
 load_package("viridis")
 load_package("svglite")
 load_package("leaflet.minicharts")
-
+#load_package("spsComps") # handle errors
+#load_package("shinytoast")
 
 # load functions ------------------------------------------------------------------------------------
 

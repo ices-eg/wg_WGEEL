@@ -1,7 +1,7 @@
 ###############################################
 # Ui file for ICES data integration tools
 ###############################################
-spsDepend("toastr")
+spsDepend("toastr") #https://www.rdocumentation.org/packages/spsComps/versions/0.1.1/topics/spsDepend
 
 ui <- fluidPage(spsDepend("toastr"),
                 dashboardPage(title="ICES Data Integration",
