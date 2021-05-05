@@ -3,7 +3,7 @@
 # Authors: lbeaulaton Cedric
 ###############################################################################
 
-spsDepend("toastr")
+#spsDepend("toastr")
 ui = dashboardPage(title="ICES Data Visualisation",
     skin = "black",
     dashboardHeader(title=div(img(src="iceslogo.png")," wgeel")),
