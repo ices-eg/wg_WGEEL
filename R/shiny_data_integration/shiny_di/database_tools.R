@@ -1368,7 +1368,7 @@ write_new_biometry <- function(path) {
 #path<-"C:\\Users\\cedric.briand\\Downloads\\modified_series_2020-08-23_FR.xlsx"
 
 update_series <- function(path) {
-	
+
 	updated_values_table <- 	read_excel(path = path, sheet = 1, skip = 1)	
 	cou_code = unique(updated_values_table$ser_cou_code)  
 	validate(need(length(cou_code) == 1, "There is more than one country code, please check your file"))
@@ -1376,9 +1376,13 @@ update_series <- function(path) {
 	
 	updated_values_table <- updated_values_table %>% 
 			mutate_at(vars(ser_dts_datasource, ser_comment, ser_lfs_code, ser_hty_code, ser_locationdescription, ser_emu_nameshort,
-							ser_area_division,ser_cou_code, ser_sam_gear, ser_distanceseakm, 	ser_method),list(as.character)) 
+							ser_area_division,ser_cou_code, 	ser_method),list(as.character)) 
+	updated_values_table <- updated_values_table %>%
+	  mutate_at(vars(ser_distanceseakm), list(as.numeric))
+  updated_values_table$ser_restocking <- convert2boolean(updated_values_table$ser_restocking,
+                                                        "updated_values_table boolean")
 	updated_values_table <- updated_values_table %>% 
-			mutate_at(vars(ser_sam_id, ser_tblcodeid),list(as.integer)) 
+			mutate_at(vars(ser_sam_id, ser_tblcodeid, ser_sam_gear),list(as.integer)) 
 
 	# create dataset for insertion -------------------------------------------------------------------
 	
@@ -1793,12 +1797,13 @@ log_datacall <- function(step, cou_code, message, the_metadata, file_type, main_
 
 check_missing_data <- function(complete, newdata, restricted=TRUE) {
 	load_library("data.table")
+  typ <- unique(newdata$eel_typ_id)
 	all_comb <- expand.grid(eel_lfs_code=c("G","Y","S"),
 			eel_hty_code=c("F","T","C"),
 			eel_emu_nameshort=unique(complete$eel_emu_nameshort),
 			eel_cou_code=unique(complete$eel_cou_code),
 			eel_year=unique(complete$eel_year),
-			eel_typ_id=c(4,6))
+			eel_typ_id=typ)
 	missing_comb <- anti_join(all_comb, complete)
 	missing_comb$id <- 1:nrow(missing_comb)
 	found_matches <- sqldf("select id from missing_comb m inner join complete c on c.eel_cou_code=m.eel_cou_code and

@@ -11,6 +11,7 @@
 # debug tool
 #setwd("C:\\workspace\\gitwgeel\\R\\shiny_data_integration\\shiny_di")
 source("load_library.R")
+source("utilities.R")
 load_package("shiny")
 load_package("leaflet.extras")
 load_package("sf")
