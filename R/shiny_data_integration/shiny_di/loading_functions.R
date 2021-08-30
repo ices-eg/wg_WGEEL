@@ -2462,17 +2462,17 @@ load_series<-function(path,datasource,stage="glass_eel"){
 		  updated_biometry$bio_dts_datasource <- datasource
 		  
 		  ###### bio_id ##############
-		  
+
 		  # should not have any missing value
 		  data_error <- rbind(data_error, check_missing(
-		    dataset=new_biometry,					
+		    dataset=updated_biometry,					
 		    namedataset= "updated_biometry",
 		    column="bio_id",
 		    country=country))
 		  
 		  # check if numeric
 		  data_error <- rbind(data_error, check_type(
-		    dataset=new_biometry,					
+		    dataset=updated_biometry,					
 		    namedataset= "updated_biometry",
 		    column="bio_id",
 		    country=country,
@@ -2482,14 +2482,14 @@ load_series<-function(path,datasource,stage="glass_eel"){
 		  
 		  # should not have any missing value
 		  data_error <- rbind(data_error, check_missing(
-		    dataset=new_biometry,					
+		    dataset=updated_biometry,					
 		    namedataset= "updated_biometry",
 		    column="ser_nameshort",
 		    country=country))
 		  
 		  # check if exists
 		  data_error <- rbind(data_error, check_values(
-		    dataset=new_biometry,					
+		    dataset=updated_biometry,					
 		    namedataset= "updated_biometry",
 		    column="ser_nameshort",
 		    country=country,
@@ -2501,14 +2501,14 @@ load_series<-function(path,datasource,stage="glass_eel"){
 		  # should not have any missing value
 		  
 		  data_error <- rbind(data_error, check_missing(
-		    dataset=new_biometry,				
+		    dataset=updated_biometry,				
 		    namedataset= "updated_biometry",
 		    column="bio_year",
 		    country=country))
 		  # should be a numeric
 		  
 		  data_error <- rbind(data_error, check_type(
-		    dataset=new_biometry,				
+		    dataset=updated_biometry,				
 		    namedataset= "updated_biometry",
 		    column="bio_year",
 		    country=country,
@@ -2516,7 +2516,7 @@ load_series<-function(path,datasource,stage="glass_eel"){
 		  
 		  
 		  data_error <- rbind(data_error, check_all_missing(
-		    dataset=new_biometry,				
+		    dataset=updated_biometry,				
 		    namedataset= "updated_biometry",
 		    column=c('bio_length',
 		             'bio_weight',
@@ -2534,7 +2534,7 @@ load_series<-function(path,datasource,stage="glass_eel"){
 		  ###### bio_dts_datasource ############## 
 		  
 		  data_error <- rbind(data_error, check_missing(
-		    dataset=new_biometry,				
+		    dataset=updated_biometry,				
 		    namedataset= "updated_biometry",
 		    column="bio_dts_datasource",
 		    country=country))
