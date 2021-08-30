@@ -1,5 +1,13 @@
+# AL
+Annex 4 (by GFCM)
+Annex 7 (by GFCM)
+Annex 12 (by GFCM)
 
 # BE
+
+# EG
+
+Annex 4 (by GFCM)
 
 # DK
 
@@ -17,4 +25,16 @@ You can use it. This is for the management units
 
 TestJD
 
+
+# DZ
+Annex 4 (by GFCM)
+
+
+# TN
+Annex 4 (by GFCM)
+
+# TR
+Annex 4  (by GFCM)
+Annex 5  (by GFCM)
+Annex 12 (by GFCM)
 
