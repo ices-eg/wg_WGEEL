@@ -91,7 +91,7 @@ create table datawg.t_eelstock_eel_percent (
 
   -- TODO apply server
 
-UPDATE datawg.t_eelstock_eel SET (eel_qal_id,eel_qal_comment)=(20,'discarded prior to datacall 2021, all data will be replaced')
+UPDATE datawg.t_eelstock_eel SET (eel_qal_id,eel_qal_comment)=(-21,'discarded prior to datacall 2021, all data will be replaced')
 WHERE eel_typ_id IN (13,14,15,17,18,19,20,21,22,23,25,26,27,28,29,30,31,24) and eel_qal_id IN(1,2,3,4); --4922
 
 /*
@@ -133,6 +133,13 @@ WHERE (bio_qal_id IS NOT NULL);
 CREATE UNIQUE INDEX idx_biometry_series2 ON datawg.t_biometry_series_bis 
 USING btree (bio_year, bio_lfs_code, bis_ser_id) 
 WHERE (bio_qal_id IS NULL);
+
+
+--add foreign key to datasources in biometry_series_bis
+ALTER TABLE datawg.t_biometry_series_bis ADD CONSTRAINT c_fk_bio_series_bis_dts_datasource FOREIGN KEY (bio_dts_datasource) REFERENCES ref.tr_datasource_dts(dts_datasource);
+
+
+
 
 /*
 * THIS PART SHOULD BE LAUNCHED AFTER TEMPLATES GENERATION BUT BEFORE DATA INTEGRATION
