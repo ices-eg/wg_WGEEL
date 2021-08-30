@@ -392,6 +392,23 @@ AS SELECT t_eelstock_eel.eel_id,
      LEFT JOIN datawg.t_eelstock_eel_percent on percent_id=eel_id
    WHERE t_eelstock_eel.eel_typ_id = 19 AND (t_eelstock_eel.eel_qal_id = ANY (ARRAY[1, 2, 4]));
 
-
+-- issue #171  
   
+SELECT count(*) FROM datawg.t_eelstock_eel WHERE eel_lfs_code='OG' ; --519
+  
+ SELECT DISTINCT eel_typ_id FROM datawg.t_eelstock_eel t JOIN REF.tr_typeseries_typ ttt  ON ttt.typ_id = t.eel_typ_id 
+ WHERE eel_lfs_code='OG'
+ AND eel_qal_id IN (0,1,2,3,4);
  
+
+ SELECT DISTINCT eel_typ_id, typ_name FROM datawg.t_eelstock_eel t JOIN REF.tr_typeseries_typ ttt  ON ttt.typ_id = t.eel_typ_id 
+ WHERE eel_lfs_code='OG'
+ AND eel_qal_id IN (0,1,2,3,4);
+ 
+ SELECT DISTINCT count(*), eel_typ_id, typ_name, eel_emu_nameshort FROM datawg.t_eelstock_eel t JOIN REF.tr_typeseries_typ ttt  ON ttt.typ_id = t.eel_typ_id 
+ WHERE eel_lfs_code='OG'
+ AND eel_qal_id IN (0,1,2,3,4)
+ GROUP BY eel_typ_id, typ_name, eel_emu_nameshort;
+ 
+-- ISSUE 
+
