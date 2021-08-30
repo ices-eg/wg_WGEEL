@@ -1793,12 +1793,13 @@ log_datacall <- function(step, cou_code, message, the_metadata, file_type, main_
 
 check_missing_data <- function(complete, newdata, restricted=TRUE) {
 	load_library("data.table")
+  typ <- unique(newdata$eel_typ_id)
 	all_comb <- expand.grid(eel_lfs_code=c("G","Y","S"),
 			eel_hty_code=c("F","T","C"),
 			eel_emu_nameshort=unique(complete$eel_emu_nameshort),
 			eel_cou_code=unique(complete$eel_cou_code),
 			eel_year=unique(complete$eel_year),
-			eel_typ_id=c(4,6))
+			eel_typ_id=typ)
 	missing_comb <- anti_join(all_comb, complete)
 	missing_comb$id <- 1:nrow(missing_comb)
 	found_matches <- sqldf("select id from missing_comb m inner join complete c on c.eel_cou_code=m.eel_cou_code and
