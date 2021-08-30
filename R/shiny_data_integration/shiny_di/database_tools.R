@@ -1368,7 +1368,7 @@ write_new_biometry <- function(path) {
 #path<-"C:\\Users\\cedric.briand\\Downloads\\modified_series_2020-08-23_FR.xlsx"
 
 update_series <- function(path) {
-	
+
 	updated_values_table <- 	read_excel(path = path, sheet = 1, skip = 1)	
 	cou_code = unique(updated_values_table$ser_cou_code)  
 	validate(need(length(cou_code) == 1, "There is more than one country code, please check your file"))
@@ -1376,9 +1376,13 @@ update_series <- function(path) {
 	
 	updated_values_table <- updated_values_table %>% 
 			mutate_at(vars(ser_dts_datasource, ser_comment, ser_lfs_code, ser_hty_code, ser_locationdescription, ser_emu_nameshort,
-							ser_area_division,ser_cou_code, ser_sam_gear, ser_distanceseakm, 	ser_method),list(as.character)) 
+							ser_area_division,ser_cou_code, 	ser_method),list(as.character)) 
+	updated_values_table <- updated_values_table %>%
+	  mutate_at(vars(ser_distanceseakm), list(as.numeric))
+  updated_values_table$ser_restocking <- convert2boolean(updated_values_table$ser_restocking,
+                                                        "updated_values_table boolean")
 	updated_values_table <- updated_values_table %>% 
-			mutate_at(vars(ser_sam_id, ser_tblcodeid),list(as.integer)) 
+			mutate_at(vars(ser_sam_id, ser_tblcodeid, ser_sam_gear),list(as.integer)) 
 
 	# create dataset for insertion -------------------------------------------------------------------
 	
