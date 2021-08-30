@@ -39,7 +39,7 @@ Annex 4 (by GFCM)
 Annex 4 (by GFCM)
 
 # TR
-Annex 4  (by GFCM)
+Annex 4  (by GFCM): 2 new values inserted in the database
 Annex 5  (by GFCM)
 Annex 12 (by GFCM)
 
