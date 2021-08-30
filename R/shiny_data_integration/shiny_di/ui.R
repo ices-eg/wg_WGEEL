@@ -136,7 +136,7 @@ ui <- fluidPage(spsDepend("toastr"),
 										),
 										h2("step 2.3 Updated values"),
 										fluidRow(
-												column(width=4,fileInput("xl_updated_file", "xls new",
+												column(width=4,fileInput("xl_updated_file", "xls updated",
 																multiple=FALSE,
 																accept = c(".xls",".xlsx")
 														)),
