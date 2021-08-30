@@ -1033,7 +1033,7 @@ shinyServer(function(input, output, session){
 							new_biometry <-  left_join(new_biometry, t_series_ser[,c("ser_id","ser_nameshort")], by="ser_nameshort")
 							new_biometry <- rename(new_biometry,"bis_ser_id"="ser_id")
 						}
-						# TODO updated biometry
+						
 						
 						
 						t_dataseries_das <- extract_data("t_dataseries_das", quality_check=FALSE)  
