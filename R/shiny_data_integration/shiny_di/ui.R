@@ -4,145 +4,145 @@
 spsDepend("toastr") #https://www.rdocumentation.org/packages/spsComps/versions/0.1.1/topics/spsDepend
 
 ui <- fluidPage(spsDepend("toastr"),
-                dashboardPage(title="ICES Data Integration",
-                    
-		dashboardHeader(title=div(img(src="iceslogo.png"),"wgeel")),
-		
-		################################################################################################
-		# SIDEBAR
-		################################################################################################
-		
-		dashboardSidebar(
-				# A button that stops the application
-				extendShinyjs(text = jscode, functions = c("closeWindow")),
-				actionButton("close", "Close window"),  
-				h3("Data"),      
-				sidebarMenu(          
-						menuItem("Import",tabName= "import", icon= icon("align-left")),
-						menuItem("Import Time Series",tabName= "import_ts", icon= icon("align-left")),					
-						#menuItem("Edit", tabName="edit", icon=icon("table")),
-						menuItem("Edit Data", tabName="editAll", icon=icon("table")),
-						menuItem("Plot duplicates", tabName='plot_duplicates',icon= icon("area-chart")),
-						menuItem("New Participants", tabName='integrate_new_participants',icon= icon("user-friends")),
-						menuItem("Edit Data module", tabName="editAllmodule", icon=icon("table"))
-						#menuSubItem("Plot duplicates",  tabName="plot_duplicates"),
-						#menuSubItem("plot2", tabName="plot2")
-						,
+		dashboardPage(title="ICES Data Integration",
+				
+				dashboardHeader(title=div(img(src="iceslogo.png"),"wgeel")),
+				
+				################################################################################################
+				# SIDEBAR
+				################################################################################################
+				
+				dashboardSidebar(
+						# A button that stops the application
+						extendShinyjs(text = jscode, functions = c("closeWindow")),
+						actionButton("close", "Close window"),  
+						h3("Data"),      
+						sidebarMenu(          
+								menuItem("Import",tabName= "import", icon= icon("align-left")),
+								menuItem("Import Time Series",tabName= "import_ts", icon= icon("align-left")),					
+								#menuItem("Edit", tabName="edit", icon=icon("table")),
+								menuItem("Edit Data", tabName="editAll", icon=icon("table")),
+								menuItem("Plot duplicates", tabName='plot_duplicates',icon= icon("area-chart")),
+								menuItem("New Participants", tabName='integrate_new_participants',icon= icon("user-friends")),
+								menuItem("Edit Data module", tabName="editAllmodule", icon=icon("table"))
+								#menuSubItem("Plot duplicates",  tabName="plot_duplicates"),
+								#menuSubItem("plot2", tabName="plot2")
+								,
+								pickerInput(
+										inputId = "main_assessor",
+										label = "Main assessor (National)", 
+										choices = participants,
+										selected="Cedric Briand")
+						
+						),
 						pickerInput(
-								inputId = "main_assessor",
-								label = "Main assessor (National)", 
+								inputId = "secondary_assessor",
+								label = "Secondary assessor (Data)", 
 								choices = participants,
-								selected="Cedric Briand")
+								selected="Cedric Briand"
+						
+						),
+						passwordInput("password", "Password:"),
+						actionButton("passwordbutton", "Go"),
+						verbatimTextOutput("passwordtest")
 				
-				),
-				pickerInput(
-						inputId = "secondary_assessor",
-						label = "Secondary assessor (Data)", 
-						choices = participants,
-						selected="Cedric Briand"
+				), 
 				
-				),
-				passwordInput("password", "Password:"),
-				actionButton("passwordbutton", "Go"),
-				verbatimTextOutput("passwordtest")
-		
-		), 
-		
-		################################################################################################
-		# BODY
-		################################################################################################
-		
-		dashboardBody(
-				useShinyjs(), # to be able to use shiny js           
-				tabItems(
-						
-						# Importation tab  ----------------------------------------------------------------------
-						
-						
-						tabItem(tabName="import",
-								h2("Datacall Integration and checks"),
-								h2("step 0 : Data check"),
-								fluidRow(
-										column(width=4,fileInput("xlfile", "Choose xls File",
-														multiple=FALSE,
-														accept = c(".xls",".xlsx")
-												)),
-										column(width=4,  radioButtons(inputId="file_type", label="File type:",
-														c(" Catch and Landings" = "catch_landings",
-																"Release" = "release",
-																"Aquaculture" = "aquaculture",                                
-																"Biomass indicators" = "biomass",
-																"Habitat - wetted area"= "potential_available_habitat",
-																"Mortality silver equiv. Biom."="mortality_silver_equiv",
-																"Mortality_rates"="mortality_rates"					
-														))),
-										column(width=4, actionButton("check_file_button", "Check file") )                     
-								),
+				################################################################################################
+				# BODY
+				################################################################################################
+				
+				dashboardBody(
+						useShinyjs(), # to be able to use shiny js           
+						tabItems(
 								
-								fluidRow(
-										column(width=6,
-												htmlOutput("step0_message_txt"),
-												verbatimTextOutput("integrate"),placeholder=TRUE),
-										column(width=6,
-												htmlOutput("step0_message_xls"),
-												DT::dataTableOutput("dt_integrate"))
-								),              
-								tags$hr(),
-								h2("step 1 : Compare with database"),
-								fluidRow(
-								  fluidRow(column(width=2,                        
-												actionButton("check_duplicate_button", "Check duplicate")) ),
-								  fluidRow(
-										column(width=5,
-										       h3("Duplicated data"),
-										       htmlOutput("step1_message_duplicates"),
-										       DT::dataTableOutput("dt_duplicates"),
-										       h3("Updated data"),
-										       htmlOutput("step1_message_updated"),
-										       DT::dataTableOutput("dt_updated_values")),
-										column(width=5,
-										       h3("New values"),
-										       htmlOutput("step1_message_new"),
-										       DT::dataTableOutput("dt_new"))),
-								  fluidRow(
-								    column(width=5,
-								           h3("Summary modifications"),
-								           DT::dataTableOutput("dt_check_duplicates")),
-								    column(width=5,
-								           h3("summary still missing"),
-												  DT::dataTableOutput("dt_missing")))
-											
-								  ),
-								tags$hr(),
-								h2("step 2.1 Integrate/ proceed duplicates rows"),
-								fluidRow(
-										column(width=4,fileInput("xl_duplicates_file", "xls duplicates",
-														multiple=FALSE,
-														accept = c(".xls",".xlsx")
-												)),                   
-										column(width=2,
-												actionButton("database_duplicates_button", "Proceed")),
-										column(width=6,verbatimTextOutput("textoutput_step2.1"))
-								),
-								h2("step 2.2 Integrate new rows"),
-								fluidRow(
-										column(width=4,fileInput("xl_new_file", "xls new",
-														multiple=FALSE,
-														accept = c(".xls",".xlsx")
-												)),                   
-										column(width=2,
-												actionButton("database_new_button", "Proceed")),
-										column(width=6,verbatimTextOutput("textoutput_step2.2"))
-								),
-								h2("step 2.3 Updated values"),
-								fluidRow(
-										column(width=4,fileInput("xl_updated_file", "xls new",
-										                         multiple=FALSE,
-										                         accept = c(".xls",".xlsx")
-										)),
-										column(width=6,
-												actionButton("database_updated_value_button", "Proceed"),
-												verbatimTextOutput("textoutput_step2.3")
+								# Importation tab  ----------------------------------------------------------------------
+								
+								
+								tabItem(tabName="import",
+										h2("Datacall Integration and checks"),
+										h2("step 0 : Data check"),
+										fluidRow(
+												column(width=4,fileInput("xlfile", "Choose xls File",
+																multiple=FALSE,
+																accept = c(".xls",".xlsx")
+														)),
+												column(width=4,  radioButtons(inputId="file_type", label="File type:",
+																c(" Catch and Landings" = "catch_landings",
+																		"Release" = "release",
+																		"Aquaculture" = "aquaculture",                                
+																		"Biomass indicators" = "biomass",
+																		"Habitat - wetted area"= "potential_available_habitat",
+																		"Mortality silver equiv. Biom."="mortality_silver_equiv",
+																		"Mortality_rates"="mortality_rates"					
+																))),
+												column(width=4, actionButton("check_file_button", "Check file") )                     
+										),
+										
+										fluidRow(
+												column(width=6,
+														htmlOutput("step0_message_txt"),
+														verbatimTextOutput("integrate"),placeholder=TRUE),
+												column(width=6,
+														htmlOutput("step0_message_xls"),
+														DT::dataTableOutput("dt_integrate"))
+										),              
+										tags$hr(),
+										h2("step 1 : Compare with database"),
+										fluidRow(
+												fluidRow(column(width=2,                        
+																actionButton("check_duplicate_button", "Check duplicate")) ),
+												fluidRow(
+														column(width=5,
+																h3("Duplicated data"),
+																htmlOutput("step1_message_duplicates"),
+																DT::dataTableOutput("dt_duplicates"),
+																h3("Updated data"),
+																htmlOutput("step1_message_updated"),
+																DT::dataTableOutput("dt_updated_values")),
+														column(width=5,
+																h3("New values"),
+																htmlOutput("step1_message_new"),
+																DT::dataTableOutput("dt_new"))),
+												fluidRow(
+														column(width=5,
+																h3("Summary modifications"),
+																DT::dataTableOutput("dt_check_duplicates")),
+														column(width=5,
+																h3("summary still missing"),
+																DT::dataTableOutput("dt_missing")))
+										
+										),
+										tags$hr(),
+										h2("step 2.1 Integrate/ proceed duplicates rows"),
+										fluidRow(
+												column(width=4,fileInput("xl_duplicates_file", "xls duplicates",
+																multiple=FALSE,
+																accept = c(".xls",".xlsx")
+														)),                   
+												column(width=2,
+														actionButton("database_duplicates_button", "Proceed")),
+												column(width=6,verbatimTextOutput("textoutput_step2.1"))
+										),
+										h2("step 2.2 Integrate new rows"),
+										fluidRow(
+												column(width=4,fileInput("xl_new_file", "xls new",
+																multiple=FALSE,
+																accept = c(".xls",".xlsx")
+														)),                   
+												column(width=2,
+														actionButton("database_new_button", "Proceed")),
+												column(width=6,verbatimTextOutput("textoutput_step2.2"))
+										),
+										h2("step 2.3 Updated values"),
+										fluidRow(
+												column(width=4,fileInput("xl_updated_file", "xls new",
+																multiple=FALSE,
+																accept = c(".xls",".xlsx")
+														)),
+												column(width=6,
+														actionButton("database_updated_value_button", "Proceed"),
+														verbatimTextOutput("textoutput_step2.3")
 												)										
 										)
 								
@@ -360,65 +360,65 @@ ui <- fluidPage(spsDepend("toastr"),
 #										br(),
 #										DT::dataTableOutput("table_cor")),
 #						
-				
-						
-						
-
-						# Data correction table  ----------------------------------------------------------------
-						
-						tabItem("editAll",
-						        h2("Data correction table"),
-						        br(),        
-						        h3("Filter"),
-						        fluidRow(
-						          column(width=4,
-						                 pickerInput(inputId = "edit_datatype", 
-						                             label = "Select table to edit :", 
-						                             choices = sort(c("NULL","t_series_ser",
-						                                              "t_eelstock_eel",
-						                                              "t_eelstock_eel_perc",
-						                                              "t_biometry_series_bis",
-						                                              "t_dataseries_das")),
-						                             selected="NULL",
-						                             multiple = FALSE,  
-						                             options = list(
-						                               style = "btn-primary", size = 5))),
-						          column(width=4, 
-						                 pickerInput(inputId = "editpicker1", 
-						                             label = "", 
-						                             choices = "",
-						                             multiple = TRUE, 
-						                             options = list(
-						                               style = "btn-primary", size = 5))),
-						          column(width=4, 
-						                 pickerInput(inputId = "editpicker2", 
-						                             label = "", 
-						                             choices = "",
-						                             multiple = TRUE, 
-						                             options = list(
-						                               style = "btn-primary", size = 5))),
-						          column(width=4,
-						                 sliderTextInput(inputId ="yearAll", 
-						                                 label = "Choose a year range:",
-						                                 choices=seq(the_years$min_year, the_years$max_year),
-						                                 selected = c(the_years$min_year,the_years$max_year)
-						                 ))),                                                         
-						        helpText("This table is used to edit data in the database
+								
+								
+								
+								
+								# Data correction table  ----------------------------------------------------------------
+								
+								tabItem("editAll",
+										h2("Data correction table"),
+										br(),        
+										h3("Filter"),
+										fluidRow(
+												column(width=4,
+														pickerInput(inputId = "edit_datatype", 
+																label = "Select table to edit :", 
+																choices = sort(c("NULL","t_series_ser",
+																				"t_eelstock_eel",
+																				"t_eelstock_eel_perc",
+																				"t_biometry_series_bis",
+																				"t_dataseries_das")),
+																selected="NULL",
+																multiple = FALSE,  
+																options = list(
+																		style = "btn-primary", size = 5))),
+												column(width=4, 
+														pickerInput(inputId = "editpicker1", 
+																label = "", 
+																choices = "",
+																multiple = TRUE, 
+																options = list(
+																		style = "btn-primary", size = 5))),
+												column(width=4, 
+														pickerInput(inputId = "editpicker2", 
+																label = "", 
+																choices = "",
+																multiple = TRUE, 
+																options = list(
+																		style = "btn-primary", size = 5))),
+												column(width=4,
+														sliderTextInput(inputId ="yearAll", 
+																label = "Choose a year range:",
+																choices=seq(the_years$min_year, the_years$max_year),
+																selected = c(the_years$min_year,the_years$max_year)
+														))),                                                         
+										helpText("This table is used to edit data in the database
 														After you double click on a cell and edit the value, 
 														the Save and Cancel buttons will show up. Click on Save if
 														you want to save the updated values to database; click on
 														Cancel to reset."),
-						        br(), 
-						        fluidRow(                                       
-						          column(width=6,verbatimTextOutput("database_errorsAll")),
-						          column(width=2,hidden(actionButton("addRowTable_corAll", "Add Row"))),
-						          column(width=2,actionButton("clear_tableAll", "clear")),
-						          column(width=2,uiOutput("buttons_data_correctionAll"))
-						        ),                
-						        br(),
-						        DT::dataTableOutput("table_corAll"),
-						        fluidRow(column(width=10),
-						                 leafletOutput("maps_editedtimeseries",height=600))),
+										br(), 
+										fluidRow(                                       
+												column(width=6,verbatimTextOutput("database_errorsAll")),
+												column(width=2,hidden(actionButton("addRowTable_corAll", "Add Row"))),
+												column(width=2,actionButton("clear_tableAll", "clear")),
+												column(width=2,uiOutput("buttons_data_correctionAll"))
+										),                
+										br(),
+										DT::dataTableOutput("table_corAll"),
+										fluidRow(column(width=10),
+												leafletOutput("maps_editedtimeseries",height=600))),
 								
 								# plot for duplicates  ------------------------------------------------------------------
 								
@@ -472,11 +472,11 @@ ui <- fluidPage(spsDepend("toastr"),
 														htmlOutput("new_participants_txt")
 												))
 								),
-tabItem("editAllmodule",
-        tableEditUI("tableEditmodule"))
-
+								tabItem("editAllmodule",
+										tableEditUI("tableEditmodule"))
+						
 						)
 				)
-)
+		)
 )
 

@@ -2403,7 +2403,7 @@ shinyServer(function(input, output, session){
 			
 			
 			#module tableEdit
-			tableEditServer("tableEditmodule", data)
+			tableEditServer("tableEditmodule", data) # globaldata <- data in the module
 			
 			
 			
