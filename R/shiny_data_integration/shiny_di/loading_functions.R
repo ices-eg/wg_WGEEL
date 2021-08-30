@@ -1785,7 +1785,7 @@ load_series<-function(path,datasource,stage="glass_eel"){
 # read the metadata sheet
 	metadata <- read_excel(path=path,"metadata" , skip=1)
 # check if no rows have been added
-	if (names(metadata)[1]!="") cat(str_c("The structure of metadata has been changed ",file,"\n"))
+	if (names(metadata)[1]!="ser_nameshort") cat(str_c("The structure of metadata has been changed ",file,"\n"))
 	
 #---------------------- series info ---------------------------------------------
 	
