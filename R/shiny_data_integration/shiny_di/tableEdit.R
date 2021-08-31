@@ -6,7 +6,8 @@
 
 tableEditUI <- function(id){
   ns <- NS(id)
-  tagList(h2("Data correction table"),
+  tagList(useShinyjs(),
+          h2("Data correction table"),
           br(),        
           h3("Filter"),
           fluidRow(
@@ -39,8 +40,8 @@ tableEditUI <- function(id){
             column(width=4,
                    sliderTextInput(inputId =ns("yearAll"), 
                                    label = "Choose a year range:",
-                                   choices=seq(the_years$min_year, the_years$max_year),
-                                   selected = c(the_years$min_year,the_years$max_year)
+                                   choices=seq(the_years$min_year, as.integer(format(Sys.time(),"%Y"))),
+                                   selected = c(the_years$min_year,as.integer(format(Sys.time(),"%Y")))
                    ))),                                                         
           helpText("This table is used to edit data in the database
 														After you double click on a cell and edit the value, 
@@ -54,6 +55,13 @@ tableEditUI <- function(id){
             column(width=2,actionButton(ns("clear_tableAll"), "clear")),
             column(width=2,uiOutput(ns("buttons_data_correctionAll")))
           ),                
+          br(),
+          fluidRow(
+            column(width=2,actionBttn(inputId = ns("saveAllmod"), label = "Save",
+                                      style = "material-flat", color = "danger")),
+            column(width=2,actionButton(inputId = ns("cancelAllmod"),
+                                      label = "Cancel"))
+          ),
           br(),
           DT::dataTableOutput(ns("table_corAll")),
           fluidRow(column(width=10),
@@ -278,7 +286,7 @@ tableEditServer <- function(id,globaldata){
                  proxy_table_corAll = dataTableProxy('table_corAll')
                  #--------------------------------------
                  # Edit table data
-                 # Expamples at
+                 # Examples at
                  # https://yihui.shinyapps.io/DT-edit/
                  observeEvent(input$table_corAll_cell_edit, tryCatch({
                    info <- input$table_corAll_cell_edit
@@ -300,7 +308,6 @@ tableEditServer <- function(id,globaldata){
                    } else {
                      rvsAll$editedInfo <- dplyr::bind_rows(rvsAll$editedInfo, data.frame(info))
                    }
-                   
                  },error = function(e) {
                    showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
                  }))
@@ -353,7 +360,6 @@ tableEditServer <- function(id,globaldata){
                      
                      rvsAll$dataSame <- TRUE
                      rvsAll$editedInfo <- NA
-                     browser()
                      data <- switch(input$edit_datatype,
                                     "t_dataseries_das" = mysourceAll() %>%
                                       arrange(ser_nameshort_ref,das_year), 
@@ -404,7 +410,7 @@ tableEditServer <- function(id,globaldata){
                  
                  # Update edited values in db once save is clicked---------------------------------------------
                  
-                 observeEvent(input$saveAll, tryCatch({
+                 observeEvent(input$saveAllmod, tryCatch({
                    errors <- update_data_generic(editedValue = rvsAll$editedInfo,
                                                  pool = globaldata$pool, data=rvsAll$data,
                                                  edit_datatype=input$edit_datatype)
@@ -448,7 +454,7 @@ tableEditServer <- function(id,globaldata){
                  
                  # Oberve cancel -> revert to last saved version -----------------------------------------------
                  
-                 observeEvent(input$cancelAll, tryCatch({
+                 observeEvent(input$cancelAllmod, tryCatch({
                    rvsAll$data <- rvsAll$dbdata
                    rvsAll$dbdata <- NA
                    rvsAll$dbdata <- rvsAll$data #this is to ensure that the table display is updated (reactive value)
@@ -461,18 +467,15 @@ tableEditServer <- function(id,globaldata){
                  # UI buttons ----------------------------------------------------------------------------------
                  # Appear only when data changed
                  
-                 output$buttons_data_correctionAll <- renderUI({
-                   div(
+                 observe({
                      if (! rvsAll$dataSame) {
-                       span(
-                         actionBttn(inputId = "saveAll", label = "Save",
-                                    style = "material-flat", color = "danger"),
-                         actionButton(inputId = "cancelAll", label = "Cancel")
-                       )
+                       shinyjs::show("cancelAllmod")
+                       shinyjs::show("saveAllmod")
+
                      } else {
-                       span()
+                       shinyjs::hide("saveAllmod")
+                       shinyjs::hide("cancelAllmod")
                      }
-                   )
                  })
                  
                  
