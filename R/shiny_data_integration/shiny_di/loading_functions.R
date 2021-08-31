@@ -1233,7 +1233,6 @@ load_mortality_rates<-function(path,datasource){
 		# and also that no missing values are provided without a comment is eel_missvaluequal
 		data_error= rbind(data_error, check_missvaluequal(dataset=data_xls,
 						namedataset= "new_data", 
-						column="eel_missvaluequal",
 						country=country))
 		
 		###### eel_emu_name ##############
