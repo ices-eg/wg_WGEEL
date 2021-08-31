@@ -29,13 +29,14 @@ There is isn't it ?
 
 You can use it. This is for the management units
 
-# IR
-
-Annex 3: There is an empty first line on updated biometry
-
 # DZ
 Annex 4 (by GFCM)
 
+# IR
+Annex 3: There is an empty first line on updated biometry
+
+# NL 
+Annex 3: in dataset new_biometry ser_nameshort>, value <DOIJS> is wrong, possibly not entered yet
 
 # TN
 Annex 4 (by GFCM)
