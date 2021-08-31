@@ -34,6 +34,16 @@ Annex 4 (by GFCM) - missing qualifyer for empty value cell
 # IR
 Annex 3: There is an empty first line on updated biometry
 
+# IE
+
+## annex 7 release
+
+You cannot report other_landings there, it's fine if you put two lines in other landings instead, one for numbers and one for kilograms.
+32	other_landings_kg	This is neither recreational fishery, nor commercial fishery, for example catching a quantity of eel at a trapping ladder below a dam can be qualitied as other_landings, the exact purpose should be provided in the corresponding comment
+33	other_landings_n	This is neither recreational fishery, nor commercial fishery, for example catching a number of eel at a trapping ladder below a dam can be qualitied as other_landings, the exact purpose should be provided  in the corresponding comment
+![image](https://user-images.githubusercontent.com/26055877/131523004-b86ae0e4-9012-47ea-99b0-f6e5f7843354.png)
+
+
 # NL 
 Annex 3: in dataset new_biometry ser_nameshort>, value <DOIJS> is wrong, possibly not entered yet
 
