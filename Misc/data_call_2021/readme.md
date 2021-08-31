@@ -36,7 +36,9 @@ Annex 4 (by GFCM) - missing qualifyer for empty value cell
 # GR
 
 
-## Annex 8. remove data per habitat for aquaculture (in existing kept there are values for Freshwater, this is wrong.) These values are duplicated with values entered for 2017 without the Freshwater tag. Suggestion = remove all data for aquaculture and Freshwater and update the rest if wrong
+## Annex 8.
+
+remove data per habitat for aquaculture (in existing kept there are values for Freshwater, this is wrong.) These values are duplicated with values entered for 2017 without the Freshwater tag. Suggestion = remove all data for aquaculture and Freshwater and update the rest if wrong
 
 # IR
 Annex 3: There is an empty first line on updated biometry
