@@ -3,7 +3,7 @@
 ##############################################
 
 shinyServer(function(input, output, session){
-			# this stops the app when the browser stops
+			# this stops the app when the browsser stops
 			#session$onSessionEnded(stopApp)
 			# A button that stops the application
 #      observeEvent(input$close, {
@@ -752,7 +752,6 @@ shinyServer(function(input, output, session){
 			# this will add a path value to reactive data in step0
 			###########################			
 			step0_filepath_ts <- reactive({
-						
 						inFile_ts <- input$xlfile_ts      
 						if (is.null(inFile_ts)){        return(NULL)
 						} else {
@@ -770,7 +769,7 @@ shinyServer(function(input, output, session){
 			###########################
 			step0load_data_ts<-function(){
 				validate(need(data$connectOK,"No connection"))
-				isolate(path<- step0_filepath_ts())  
+				isolate(step0_filepath_ts())  #NOT USED
 				isolate(if (is.null(data$path_step0_ts)) return(NULL))
 				
 				#file_type_ts is generated on the ui side

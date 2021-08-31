@@ -1230,8 +1230,10 @@ load_mortality_rates<-function(path,datasource){
 		###### eel_missvaluequal ##############
 		
 		#check that there are data in missvaluequal only when there are missing value (NA) is eel_value
-		# and also that no missing values are provided without a comment is eel_missvaluequa
+		# and also that no missing values are provided without a comment is eel_missvaluequal
 		data_error= rbind(data_error, check_missvaluequal(dataset=data_xls,
+						namedataset= "new_data", 
+						column="eel_missvaluequal",
 						country=country))
 		
 		###### eel_emu_name ##############
