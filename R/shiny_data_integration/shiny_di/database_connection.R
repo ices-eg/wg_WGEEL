@@ -27,7 +27,7 @@ port <- 5432
 host <- "localhost"#"192.168.0.100"
 
 userwgeel <-"wgeel"
-passwordwgeel<-"wgeel"
+passwordwgeel<-"@civelle"
 
 
 if (exists("userwgeel")) 

@@ -106,3 +106,13 @@ qualify_code<-21 # change this code here and in tr_quality_qal for next wgeel
 the_eel_datasource <- "test"  # change this after tests
 current_year <- 2021
 
+
+
+
+
+###################################"
+#DATABASE CONNECTION INFO
+##################################"
+port <- 5432
+host <- "localhost"#"192.168.0.100"
+userwgeel <-"wgeel"
