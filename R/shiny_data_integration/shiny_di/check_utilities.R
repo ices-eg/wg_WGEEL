@@ -286,6 +286,36 @@ check_missvalue_release <- function(dataset, namedataset, country,updated=FALSE)
   return(rbind(answer1,answer2))  #,answer3
 }
 
+#' check_na
+#' 
+#' check that the data in ee_value is NA
+#' 
+#' @param dataset the name of the dataset
+#' @param namedataset the name of the sheet 
+#' @param column the name of the column
+#' @param country the current country being evaluated
+#' @param type, a class described as a character e.g. "numeric"
+#' 
+check_na <- function(dataset, namedataset, column,country){
+	answer = NULL
+	newdataset <- dataset
+	newdataset$nline <- 1:nrow(newdataset)
+	#remove NA from data
+	ddataset <- as.data.frame(newdataset)
+	if (nrow(ddataset)>0){
+		line <- which(!is.na(ddataset[,column]))
+		if (length(line)>0){
+			cat(sprintf("Country <%s>,  dataset <%s>, column <%s>, line <%s>,  should be empty \n",
+							country,
+							namedataset,
+							column,
+							line))
+			answer  = data.frame(nline = line, error_message = paste("values found in: ", column, " while should be empty", sep = ""))
+		}
+	}
+	return(answer)  
+}
+
 
 #' check_positive
 #' 
