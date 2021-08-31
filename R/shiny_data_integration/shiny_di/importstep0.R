@@ -54,6 +54,9 @@ importstep0UI <- function(id){
 importstep0Server <- function(id,globaldata){
   moduleServer(id,
                function(input, output, session) {
+                 rls <- reactiveValues(res = NULL,
+                                       message = NULL,
+                                       file_type = NULL)
                  data <- reactiveValues(path_step0 = NULL) 
                  
                  step0_filepath <- reactive(shinyCatch({
@@ -137,7 +140,9 @@ importstep0Server <- function(id,globaldata){
                      # call to  function that loads data
                      # this function does not need to be reactive
                      if (is.null(data$path_step0)) "please select a dataset" else {          
-                       rls <- step0load_data() # result list
+                       tmp <- step0load_data() # result list
+                       rls$res <- tmp$res
+                       rls$message <- tmp$message
                        #validate(need(length(unique(rls$res$data$eel_cou_code))==1,paste("There are more than one country",paste(unique(rls$res$data$eel_cou_code),collapse=";"))))
                        cou_code <- rls$res$data$eel_cou_code[1]
                        # the following three lines might look silly but passing input$something to the log_datacall function results
@@ -145,6 +150,7 @@ importstep0Server <- function(id,globaldata){
                        main_assessor <- input$main_assessor
                        secondary_assessor <- input$secondary_assessor
                        file_type <- input$file_type
+                       rls$file_type <- file_type
                        # this will fill the log_datacall file (database_tools.R)
                        log_datacall( "check data",cou_code = cou_code, message = paste(rls$message,collapse="\n"), the_metadata = rls$res$the_metadata, file_type = file_type, main_assessor = main_assessor, secondary_assessor = secondary_assessor )
                        paste(rls$message,collapse="\n")
@@ -214,7 +220,7 @@ importstep0Server <- function(id,globaldata){
                    showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
                  }))
                  
-                 return(NULL)
+                 return(rls)
                  
                  
                  

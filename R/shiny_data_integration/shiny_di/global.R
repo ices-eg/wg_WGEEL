@@ -86,7 +86,7 @@ source("database_tools.R")
 source("graphs.R")
 source("tableEdit.R")
 source("importstep0.R")
-#source("importstep1.R")
+source("importstep1.R")
 
 options(shiny.maxRequestSize=20*1024^2) #20 MB for excel files
 #pool <- pool::dbPool(drv = dbDriver("PostgreSQL"),
