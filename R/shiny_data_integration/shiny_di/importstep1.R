@@ -43,7 +43,7 @@ importstep1UI <- function(id){
 #' Step 1 of annex 4-10 integration
 #'
 #' @param id, character used to specify namespace, see \code{shiny::\link[shiny]{NS}}
-#' @param data a reactive value with global variable
+#' @param globaldata a reactive value with global variable
 #' @param loaded_data data from step 0
 #'
 #' @return nothing
