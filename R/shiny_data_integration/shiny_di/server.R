@@ -2406,5 +2406,13 @@ shinyServer(function(input, output, session){
 		  loaded_data <- importstep0Server("importstep0module", data) # globaldata <- data in the module
 			importstep1Server("importstep1module", data, loaded_data) # globaldata <- data in the module
 			importstep2Server("importstep2module", data, loaded_data)
+			newparticipants <- newparticipantsServer("newparticipantsmodule",data)
+			
+			observe({
+			  if (!is.null(newparticipants$participants)){
+			    updatePickerInput(session=session,"main_assessor",choices=newparticipants$participants)
+			    updatePickerInput(session=session,"secondary_assessor",choices=newparticipants$participants)
+			  }
+			})
 			
 		})
