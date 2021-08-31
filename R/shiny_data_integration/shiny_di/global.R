@@ -9,7 +9,6 @@
 ########################
 # the shiny is launched from shiny_data_integration/shiny
 # debug tool
-#setwd("C:\\workspace\\gitwgeel\\R\\shiny_data_integration\\shiny_di")
 source("load_library.R")
 source("utilities.R")
 load_package("shiny")
@@ -86,6 +85,9 @@ load("common/data/ccm.rdata")
 source("database_tools.R")
 source("graphs.R")
 source("tableEdit.R")
+source("importstep0.R")
+#source("importstep1.R")
+
 options(shiny.maxRequestSize=20*1024^2) #20 MB for excel files
 #pool <- pool::dbPool(drv = dbDriver("PostgreSQL"),
 #		dbname="postgres",

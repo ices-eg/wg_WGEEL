@@ -24,6 +24,7 @@ ui <- fluidPage(spsDepend("toastr"),
 								menuItem("Edit Data", tabName="editAll", icon=icon("table")),
 								menuItem("Plot duplicates", tabName='plot_duplicates',icon= icon("area-chart")),
 								menuItem("New Participants", tabName='integrate_new_participants',icon= icon("user-friends")),
+								menuItem("Import Data module", tabName="Importmodule", icon=icon("align-left")),
 								menuItem("Edit Data module", tabName="editAllmodule", icon=icon("table"))
 								#menuSubItem("Plot duplicates",  tabName="plot_duplicates"),
 								#menuSubItem("plot2", tabName="plot2")
@@ -472,6 +473,10 @@ ui <- fluidPage(spsDepend("toastr"),
 														htmlOutput("new_participants_txt")
 												))
 								),
+                tabItem("Importmodule",
+                        fluidRow(importstep0UI("importstep0module"))#,
+                                 #importstep1UI("importstep1module"))
+                        ),
 								tabItem("editAllmodule",
 										tableEditUI("tableEditmodule"))
 						
