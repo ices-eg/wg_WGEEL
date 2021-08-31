@@ -11,13 +11,8 @@ Annex 4 - Why is Schl updated, it did not change, did it?
 Annex 5 - e.g. 425800 updated but only quality changes... This is not for the provider to change, is it?
 Annex 7 - no kg provided, but is it needed? for what? only useful for Y / S and this is where it is probably not very accurate, is it?
 
-# EG
-
-Annex 4 (by GFCM) - missing qualifyer for empty value cell
 
 # DK
-
-
 Question about DK_total
 
 Concerning the annex 15 of the data call. 
@@ -29,11 +24,18 @@ There is isn't it ?
 
 You can use it. This is for the management units
 
-
-
 # DZ
 Annex 4 (by GFCM)
 
+# EG
+
+Annex 4 (by GFCM) - missing qualifyer for empty value cell
+
+# IR
+Annex 3: There is an empty first line on updated biometry
+
+# NL 
+Annex 3: in dataset new_biometry ser_nameshort>, value <DOIJS> is wrong, possibly not entered yet
 
 # TN
 Annex 4 (by GFCM)
