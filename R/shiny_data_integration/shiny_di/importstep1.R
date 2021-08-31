@@ -44,6 +44,7 @@ importstep1UI <- function(id){
 #'
 #' @param id, character used to specify namespace, see \code{shiny::\link[shiny]{NS}}
 #' @param data a reactive value with global variable
+#' @param loaded_data data from step 0
 #'
 #' @return nothing
 
@@ -51,6 +52,21 @@ importstep1UI <- function(id){
 importstep1Server <- function(id,globaldata, loaded_data){
   moduleServer(id,
                function(input, output, session) {
+                 
+                 observe({
+                   loaded_data
+                   tryCatch({
+                   output$dt_duplicates<-renderDataTable(data.frame())
+                   output$dt_check_duplicates<-renderDataTable(data.frame())
+                   output$dt_new<-renderDataTable(data.frame())
+                   output$dt_missing<-renderDataTable(data.frame())
+                   output$dt_updated_values <- renderDataTable(data.frame())
+                   if ("updated_values_table" %in% names(globaldata)) {
+                     globaldata$updated_values_table<-data.frame()
+                   }
+                 },error = function(e) {
+                   showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+                 })})
                  ##################################################
                  # Events triggerred by step1_button
                  ###################################################      
@@ -298,11 +314,7 @@ importstep1Server <- function(id,globaldata, loaded_data){
                  },error = function(e) {
                    showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
                  }))
-                 
-                 
-                 
-                 
-                 
+           
                })
 }
           

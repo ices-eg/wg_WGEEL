@@ -54,10 +54,30 @@ importstep0UI <- function(id){
 importstep0Server <- function(id,globaldata){
   moduleServer(id,
                function(input, output, session) {
+                 
+                 
+
+                 
+                 
                  rls <- reactiveValues(res = NULL,
                                        message = NULL,
                                        file_type = NULL)
                  data <- reactiveValues(path_step0 = NULL) 
+                 
+                 
+                 observeEvent(input$xlfile,tryCatch({
+                   rls$file_type=NULL
+                   if (input$xlfile!="") {
+                     output$integrate<-renderText({input$xlfile$datapath})
+                   } else {
+                     output$integrate<-renderText({"no dataset seleted"})
+                   }
+                   output$dt_integrate<-renderDataTable(data.frame())
+                 },error = function(e) {
+                   showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+                 }))
+                 
+                 
                  
                  step0_filepath <- reactive(shinyCatch({
                    cat("debug message : step0_filepath")
