@@ -241,17 +241,18 @@ check_missvaluequal <- function(dataset, namedataset, country){
 check_missvalue_release <- function(dataset, namedataset, country,updated=FALSE){
   answer1 = NULL
   answer2 = NULL
-  answer3 = NULL
+  #answer3 = NULL
   name_value = c("eel_value_number","eel_value_kg")
+	#browser()
   if (updated) name_value = "eel_value"
   # tibbles are weird, change to dataframe
-  ddataset<-as.data.frame(dataset)
-  # first check that any value in eel_missvaluequal corresponds to a NA in eel_value_number and eel_value_kg
+  ddataset <- as.data.frame(dataset)
+  # first check that all values in eel_missvaluequal correspond to a NA in eel_value_number and eel_value_kg
   # get the rows where a label has been put
   if (! all(is.na(ddataset[,"eel_missvaluequal"]))){
     # get eel_values where missing has been filled in
-    lines<-which(!is.na(ddataset[,"eel_missvaluequal"]))
-    eel_values_for_missing <-ddataset[lines,name_value]
+    lines <- which(!is.na(ddataset[,"eel_missvaluequal"]))
+    eel_values_for_missing <- ddataset[lines,name_value]
     if (! all(is.na(eel_values_for_missing))) {
       line1 <- lines[!is.na(eel_values_for_missing)]
       if (length(line1)>0){
@@ -264,10 +265,12 @@ check_missvalue_release <- function(dataset, namedataset, country,updated=FALSE)
   }
   # now check of missing values do all get a comment
   # if there is any missing values
-  if (all(is.na(ddataset[,name_value]))){
+  if (any(is.na(ddataset[,name_value]))){
     # get eel_values where missing has been filled in
-    lines<-which(is.na(ddataset[,name_value]))
-    eel_missingforvalues <-ddataset[lines,"eel_missvaluequal"]
+		lines <- ifelse (updated, which(is.na(ddataset[,name_value])),
+				which(is.na(rowSums(ddataset[,name_value]))))
+		
+    eel_missingforvalues <- ddataset[lines,"eel_missvaluequal"]
     # if in those lines, one missing value has not been commented upon
     if (any(is.na(eel_missingforvalues))) {
       line2 <- lines[is.na(eel_missingforvalues)]
@@ -280,20 +283,7 @@ check_missvalue_release <- function(dataset, namedataset, country,updated=FALSE)
     }
   }
   
-  # now check if there is data in eel_value_number or eel_value_kg, give warring to the user to fill the missing value 
-  # if there is any missing values
-    if (any(is.na(ddataset[,name_value]))){
-    # get eel_values where missing has been filled in
-    line3<-which(is.na(ddataset[,name_value] & ddataset$eel_typ_name!="gee_n" ))
-    if (length(line3)>0){
-    # if in those lines, one missing value has not been commented upon
-      cat(sprintf("column <%s>, lines <%s>, there should be a value in both column eel_value_number and eel_value_kg \n",
-                  "eel_missvaluequal",
-                  line3))
-      answer3 <- data.frame(nline = line3, error_message = paste("there should be a value in both column eel_value_number and eel_value_kg"))   
-        }
-    }
-  return(rbind(answer1,answer2,answer3))  
+  return(rbind(answer1,answer2))  #,answer3
 }
 
 

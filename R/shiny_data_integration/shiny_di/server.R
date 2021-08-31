@@ -916,10 +916,11 @@ shinyServer(function(input, output, session){
 									validate(need(data$connectOK,"No connection"))
 									# call to  function that loads data
 									# this function does not need to be reactive
-									if (is.null(data$path_step0_ts)) "please select a dataset" else {          
+									if (is.null(data$path_step0_ts)) "please select a dataset" else { 
 										rls <- step0load_data_ts() # result list
 										# this will fill the log_datacall file (database_tools.R)
-										stopifnot(length(unique(rls$res$series$ser_cou_code))==1)
+										if(!length(unique(rls$res$series$ser_cou_code[!is.na(rls$res$series$ser_cou_code)]))==1) stop(paste("More than one country there :",
+													paste(unique(rls$res$series$ser_cou_code[!is.na(rls$res$series$ser_cou_code)]),collapse=";"), ": while there should be only one country code"))
 										cou_code <- rls$res$series$ser_cou_code[1]
 										if (nrow(rls$res$series)>0) plotseries(rls$res$series)
 										# the following three lines might look silly but passing input$something to the log_datacall function results
@@ -969,7 +970,8 @@ shinyServer(function(input, output, session){
 						output$dt_integrate_ts <- DT::renderDataTable({
 									validate(need(input$xlfile_ts != "", "Please select a data set"))
 									ls <- step0load_data_ts()
-									stopifnot(length(unique(ls$res$series$ser_cou_code))==1)
+									if(!length(unique(ls$res$series$ser_cou_code[!is.na(ls$res$series$ser_cou_code)]))==1) stop(paste("More than one country there :",
+														paste(unique(ls$res$series$ser_cou_code[!is.na(ls$res$series$ser_cou_code)]),collapse=";"), ": while there should be only one country code"))
 									cou_code <- ls$res$series$ser_cou_code[1]
 									datatable(ls$res$error,
 											rownames=FALSE,

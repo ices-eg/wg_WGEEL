@@ -160,8 +160,8 @@ ui <- fluidPage(spsDepend("toastr"),
 																				accept = c(".xls",".xlsx")
 																		)),
 																column(width=4,  radioButtons(inputId="file_type_ts", label="File type:",
-																				c(	"Glass eel"="glass_eel",
-																						"Yellow eel"="yellow_eel",
+																				c(	"Glass eel (recruitment)"="glass_eel",
+																						"Yellow eel (standing stock)"="yellow_eel ",
 																						"Silver eel"="silver_eel"
 																				))),
 																column(width=4, actionButton("ts_check_file_button", "Check file") )                     

@@ -452,7 +452,7 @@ load_release<-function(path,datasource){
 							
 							###### eel_value_kg ##############
 							
-							# can have missing values if eel_missingvaluequa is filled (check later)
+						
 							
 							# should be numeric
 							data_error= rbind(data_error, check_type(
@@ -464,7 +464,7 @@ load_release<-function(path,datasource){
 						} else{
 							###### eel_value ##############
 							
-							# can have missing values if eel_missingvaluequal is filled (check later)
+						
 							
 							# should be numeric
 							data_error= rbind(data_error, check_type(
@@ -1825,7 +1825,7 @@ load_series<-function(path,datasource,stage="glass_eel"){
 	
 	
 # check for the file integrity
-	if (ncol(series)!=19) cat(str_c("number column wrong for t_series_ser, should have been 19 in file \n"))
+	if (ncol(series)!=20) cat(str_c("number column wrong for t_series_ser, should have been 20 in file \n"))
 	
 # check column names
 	if (!all(colnames(series)%in%
