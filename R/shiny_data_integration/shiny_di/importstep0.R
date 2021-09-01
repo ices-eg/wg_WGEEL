@@ -59,20 +59,23 @@ importstep0Server <- function(id,globaldata){
 
                  
                  
-                 rls <- reactiveValues(res = NULL,
-                                       message = NULL,
-                                       file_type = NULL)
+                 rls <- reactiveValues(res = list(),
+                                       message = "",
+                                       file_type = "")
                  data <- reactiveValues(path_step0 = NULL) 
                  
                  
                  observeEvent(input$xlfile,tryCatch({
-                   rls$file_type=NULL
-                   if (input$xlfile!="") {
+                   rls$file_type=""
+                   rls$message = ""
+                   rls$res=list()
+                   if (input$xlfile$name!="") {
                      output$integrate<-renderText({input$xlfile$datapath})
                    } else {
                      output$integrate<-renderText({"no dataset seleted"})
                    }
                    output$dt_integrate<-renderDataTable(data.frame())
+                   output$"step0_message_xls"<-renderText("")
                  },error = function(e) {
                    showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
                  }))
@@ -212,7 +215,7 @@ importstep0Server <- function(id,globaldata){
                    ########################
                    
                    output$dt_integrate<-DT::renderDataTable({                 
-                     validate(need(input$xlfile != "", "Please select a data set"))           
+                     validate(need(input$xlfile$name != "", "Please select a data set"))           
                      ls <- step0load_data()   
                      country <- ls$res$series
                      datatable(ls$res$error,
