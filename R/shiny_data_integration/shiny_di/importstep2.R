@@ -71,7 +71,7 @@ importstep2Server <- function(id,globaldata, loaded_data){
                  
                  data <- reactiveValues()
                  
-                 observe({loaded_data
+                 observe({loaded_data$res
                    tryCatch({
                    output$textoutput_step2.1 <- renderText("")				
                    output$textoutput_step2.2 <- renderText("")

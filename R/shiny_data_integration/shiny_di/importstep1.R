@@ -54,7 +54,7 @@ importstep1Server <- function(id,globaldata, loaded_data){
                function(input, output, session) {
                  
                  observe({
-                   loaded_data
+                   loaded_data$res
                    tryCatch({
                    output$dt_duplicates<-renderDataTable(data.frame())
                    output$dt_check_duplicates<-renderDataTable(data.frame())
@@ -80,7 +80,7 @@ importstep1Server <- function(id,globaldata, loaded_data){
                    # see step0load_data returns a list with res and messages
                    # and within res data and a dataframe of errors
                    validate(
-                     need(!is.null(loaded_data$res), "Please select a data set")
+                     need(length(loaded_data$res) > 0, "Please select a data set")
                    ) 
                    data_from_excel<- loaded_data$res$data
                    switch (loaded_data$file_type, "catch_landings"={                                     
