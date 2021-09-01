@@ -2408,6 +2408,7 @@ shinyServer(function(input, output, session){
 
 			loaded_data_ts <- importtsstep0Server("importtsstep0module", data) # globaldata <- data in the module 
 			importtsstep1Server("importtsstep1module", data, loaded_data_ts) # globaldata <- data in the module 
+			importtsstep2Server("importtsstep2module", data, loaded_data_ts) # globaldata <- data in the module 
 			
 			newparticipants <- newparticipantsServer("newparticipantsmodule",data)
 			plotduplicatesServer("plotduplicatesmodule",data)

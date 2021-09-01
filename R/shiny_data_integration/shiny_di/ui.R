@@ -483,8 +483,8 @@ ui <- fluidPage(spsDepend("toastr"),
                         ),
                 tabItem("Importtsmodule",
                     fluidRow(importtsstep0UI("importtsstep0module"),
-                    importtsstep1UI("importtsstep1module"))#,
-                     #importtsstep2UI("importtsstep2module"))
+                    importtsstep1UI("importtsstep1module"),
+                    importtsstep2UI("importtsstep2module"))
                   ),
 								tabItem("editAllmodule",
 										tableEditUI("tableEditmodule")),

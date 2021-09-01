@@ -92,6 +92,7 @@ source("newparticipants.R")
 source("plotduplicates.R")
 source("importtsstep0.R")
 source("importtsstep1.R")
+source("importtsstep2.R")
 
 
 options(shiny.maxRequestSize=20*1024^2) #20 MB for excel files
