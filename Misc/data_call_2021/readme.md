@@ -202,9 +202,9 @@ Annex 4 (by GFCM) 6 new values are added.
 
 # TR
 
-Annex 4  (by GFCM): 
+Annex 4  (by GFCM): data integrated.
 
-Annex 5  (by GFCM):
+Annex 5  (by GFCM): data integrated.
 
 Annex 12 (by GFCM)
 

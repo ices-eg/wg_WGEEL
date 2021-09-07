@@ -332,8 +332,8 @@ load_release<-function(path,datasource){
 				country=as.character(data_xls[1,7])
 #    data_xls <- correct_me(data_xls)
 				# check for the file integrity
-				if (ncol(data_xls)!=ifelse(sheet=="new_data",11,11)) {
-					cat(str_c("number of column wrong should have been ",ifelse(sheet=="new_data",11,11)," in the file for ",country,"\n"))
+				if (ncol(data_xls)!=ifelse(sheet =="new_data",11,11)) {
+					cat(str_c("number of column wrong should have been ",ifelse(sheet=="new_data",10,11)," in the file for ",country,"\n"))
 					data_error <- rbind(data_error, data.frame("nline"=0,"error_message"=str_c("number of column wrong should have been ",
 											ifelse(sheet=="new_data",11,11)," in the file for ",country,"\n")))
 					stop(str_c("number of column wrong should have been ",
@@ -370,6 +370,7 @@ load_release<-function(path,datasource){
 												" file =",
 												file,"\n")))
 						
+			
 						
 					} else {
 						
@@ -656,10 +657,12 @@ load_release<-function(path,datasource){
 												"eel_comment","eel_datasource")
 								] 
 							} else {
-								release_tot=data_xls[,c("eel_id","eel_typ_name", "eel_year","eel_value","eel_missvaluequal","eel_emu_nameshort",
+								release_tot <- rbind(
+										release_tot,
+										data_xls[,c("eel_id","eel_typ_name", "eel_year","eel_value","eel_missvaluequal","eel_emu_nameshort",
 												"eel_cou_code", "eel_lfs_code", "eel_hty_code","eel_area_division",
 												"eel_comment","eel_datasource")
-								] 
+								] )
 							}
 							#    #Add "ND" in eel_missvaluequal if one value is still missing 
 							#    for (i in 1:nrow(release_tot)) { 
