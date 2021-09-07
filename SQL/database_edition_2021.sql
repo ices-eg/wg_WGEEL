@@ -467,5 +467,20 @@ FROM pg_stat_activity
 WHERE pg_stat_activity.datname = 'wgeel' -- ← change this to your DB
   AND pid <> pg_backend_pid()
  AND state='idle';
+ 
+ 
+-- modifications of Swedish data 
+begin;
+update datawg.t_eelstock_eel tee 
+	set eel_comment = 'assisted migration'
+	where eel_typ_id in (32,33) and eel_cou_code ='SE' and eel_qal_id = 1;
+
+
+update datawg.t_eelstock_eel tee set eel_qal_id = 21,
+	eel_qal_comment='all data were updated in 2021 by Rob Van Gemert'
+    where eel_typ_id in (10,8, 9) and eel_cou_code ='SE' and eel_qal_id = 1;
+
+
+commit;
 
 
