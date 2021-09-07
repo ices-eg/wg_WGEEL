@@ -1136,10 +1136,14 @@ write_new <- function(path) {
 	new <- new %>% mutate_if(is.logical,list(as.character)) 
 
 	new <- new %>% 
-			mutate_at(vars(ser_dts_datasource, ser_comment, ser_lfs_code, ser_hty_code, ser_locationdescription, ser_emu_nameshort, ser_sam_gear, ser_distanceseakm, 	ser_method,
+			mutate_at(vars(ser_dts_datasource, ser_comment, ser_lfs_code, ser_hty_code, ser_locationdescription, ser_emu_nameshort, 	ser_method,
 							ser_area_division,ser_cou_code),list(as.character)) 
 	new <- new %>% 
-			mutate_at(vars(ser_sam_id),list(as.integer)) 
+			mutate_at(vars(ser_sam_id,ser_sam_gear),list(as.integer)) 
+	new$ser_restocking <- convert2boolean(new$ser_restocking,
+	                                                       "new boolean")
+	new <- new %>%
+	  mutate_at(vars(ser_distanceseakm), list(as.numeric))
 	# check for new file -----------------------------------------------------------------------------
 	
 	validate(need(all(!is.na(new$ser_qal_id)), "There are still lines without ser_qal_id, please check your file"))
