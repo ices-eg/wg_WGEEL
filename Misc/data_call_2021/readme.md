@@ -71,11 +71,19 @@ updated = 24
 
 ## Annex 5 
 
+duplicate = 0  
+new = 125 [2765 lines with NP for rec_catch_kg should have been deleted]  
+updated = 3 
+
 ## Annex 6 
 
 NO DATA
 
 ## Annex 7 
+
+duplicate = 0  
+new = 22  
+updated = 4  
 
 ## Annex 8 
 
