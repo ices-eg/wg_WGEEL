@@ -1810,13 +1810,19 @@ check_missing_data <- function(complete, newdata, restricted=TRUE) {
 			eel_typ_id=typ)
 	missing_comb <- anti_join(all_comb, complete)
 	missing_comb$id <- 1:nrow(missing_comb)
-	found_matches <- dbGetQuery(pool,"select id from missing_comb m inner join complete c on c.eel_cou_code=m.eel_cou_code and
+	conn <- poolCheckout(pool)
+	dbWriteTable(conn,"missing_comb",missing_comb,temporary=TRUE,row.names=FALSE)
+	dbWriteTable(conn,"complete",complete,temporary=TRUE,row.names=FALSE)
+	found_matches <- dbGetQuery(conn,"select id from missing_comb m inner join complete c on c.eel_cou_code=m.eel_cou_code and
 					c.eel_year=m.eel_year and
 					c.eel_typ_id=m.eel_typ_id and
 					c.eel_lfs_code like '%'||m.eel_lfs_code||'%'
 					and c.eel_hty_code like '%'||m.eel_hty_code||'%' 
 					and (c.eel_emu_nameshort=m.eel_emu_nameshort or
 					c.eel_emu_nameshort=substr(m.eel_emu_nameshort,1,3)||'total')")
+	dbExecute(conn,str_c("drop table if exists complete") )
+	dbExecute(conn,str_c("drop table if exists missing_comb") )
+	poolReturn(conn)
 	#looks for missing combinations
 	missing_comb <- missing_comb %>%
 			filter(!missing_comb$id %in% found_matches$id)%>%
