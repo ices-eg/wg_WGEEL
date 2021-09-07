@@ -65,18 +65,29 @@ modified biometry = 3
 
 ## Annex 4 
 
+duplicate = 0  
+new = 157  
+updated = 24  
+
 ## Annex 5 
 
 ## Annex 6 
+
+NO DATA
 
 ## Annex 7 
 
 ## Annex 8 
 
+NO DATA
+
 ## Annex 9 
+
+NO DATA
 
 ## Annex 10 
 
+NO DATA
 
 # GR
 
