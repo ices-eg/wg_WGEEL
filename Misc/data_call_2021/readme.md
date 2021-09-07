@@ -206,8 +206,10 @@ Cédric : You cannot report other_landings there, it's fine if you put two lines
 ## Annex 5 
 
 ## Annex 6 
-
+add eel_comment = assisted migration for all existing_kept data (directly with an sql query)
+  
 ## Annex 7 
+  remove all preexisting data (put eel_qal_id = 21 and eel_qal_comment="all data were updated...") with an sql query
 
 ## Annex 8 
 
