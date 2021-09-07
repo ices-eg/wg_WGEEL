@@ -86,6 +86,16 @@ remove data per habitat for aquaculture (in existing kept there are values for F
 
 Changed name of the series from OatY to OatGY.
 
+1 new series was entered.
+
+22 series were modified.
+
+59 new data series were added. 
+
+39 data series were modified.
+
+102 new biometry entries, mainly blank entries as data were not collected. Only 4 series had biometry data. 
+
 ## Annex 2 
 
 ## Annex 3 
