@@ -47,6 +47,13 @@ modified biometry = 24
 
 ## Annex 2 
 
+new series = 6  
+modified series = 13  
+new dataseries = 62  
+modified dataseries = 100  
+new biometry =60  
+modified biometry = 99  
+
 ## Annex 3
 
 new series = 0  
