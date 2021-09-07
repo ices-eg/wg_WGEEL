@@ -457,3 +457,15 @@ WHERE pg_stat_activity.datname = 'wgeel' -- ← change this to your DB
 FROM pg_stat_activity
 WHERE datname = current_database()
   AND pid <> pg_backend_pid();
+
+ 
+ SELECT * FROM pg_stat_activity WHERE datname = 'wgeel' and state = 'active';
+  SELECT * FROM pg_stat_activity WHERE state='idle';
+ 
+ SELECT pg_terminate_backend(pg_stat_activity.pid)
+FROM pg_stat_activity
+WHERE pg_stat_activity.datname = 'wgeel' -- ← change this to your DB
+  AND pid <> pg_backend_pid()
+ AND state='idle';
+
+

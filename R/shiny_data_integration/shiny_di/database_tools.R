@@ -243,7 +243,7 @@ compare_with_database_series <- function(data_from_excel, data_from_base) {
 	data_from_excel <- data_from_excel %>% mutate_if(is.logical,list(as.numeric)) 
 	data_from_excel$ser_typ_id <- as.numeric(data_from_excel$ser_typ_id)
 	data_from_excel$ser_sam_gear <- as.numeric(data_from_excel$ser_sam_gear)
-	data_from_excel$ser_restocking <- as.logical(data_from_excel$ser_restocking)
+	data_from_excel$ser_restocking <- convert2boolean(data_from_excel$ser_restocking, "new series")
 	data_from_excel <- data_from_excel %>% 
 			mutate_at(vars(ser_dts_datasource, ser_comment, ser_lfs_code, ser_hty_code, ser_locationdescription, ser_emu_nameshort,
 							ser_area_division,ser_cou_code,ser_effort_uni_code, ser_uni_code, ser_method ),list(as.character)) 
@@ -1136,10 +1136,14 @@ write_new <- function(path) {
 	new <- new %>% mutate_if(is.logical,list(as.character)) 
 
 	new <- new %>% 
-			mutate_at(vars(ser_dts_datasource, ser_comment, ser_lfs_code, ser_hty_code, ser_locationdescription, ser_emu_nameshort, ser_sam_gear, ser_distanceseakm, 	ser_method,
+			mutate_at(vars(ser_dts_datasource, ser_comment, ser_lfs_code, ser_hty_code, ser_locationdescription, ser_emu_nameshort, 	ser_method,
 							ser_area_division,ser_cou_code),list(as.character)) 
 	new <- new %>% 
-			mutate_at(vars(ser_sam_id),list(as.integer)) 
+			mutate_at(vars(ser_sam_id,ser_sam_gear),list(as.integer)) 
+	new$ser_restocking <- convert2boolean(new$ser_restocking,
+	                                                       "new boolean")
+	new <- new %>%
+	  mutate_at(vars(ser_distanceseakm), list(as.numeric))
 	# check for new file -----------------------------------------------------------------------------
 	
 	validate(need(all(!is.na(new$ser_qal_id)), "There are still lines without ser_qal_id, please check your file"))
@@ -1172,7 +1176,7 @@ write_new <- function(path) {
 			ser_comment, ser_uni_code, ser_lfs_code, ser_hty_code, ser_locationdescription,
 			ser_emu_nameshort, ser_cou_code, ser_area_division, ser_tblcodeid::integer,
 			ser_x, ser_y, ser_sam_id, ser_dts_datasource, ser_qal_id::integer, ser_qal_comment,
-			ser_ccm_wso_id::integer[], ser_sam_gear, ser_distanceseakm, 	ser_method, ser_restocking from new_series_temp;"
+			ser_ccm_wso_id::integer[], ser_sam_gear::integer, ser_distanceseakm, 	ser_method, ser_restocking from new_series_temp;"
 	# if fails replaces the message with this trycatch !  I've tried many ways with
 	# sqldf but trycatch failed to catch the error Hence the use of DBI
 

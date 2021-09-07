@@ -36,7 +36,17 @@ https://community.ices.dk/ExpertGroups/wgeel/WGEEL%20accessions/Data%20call%2020
 
 
 ---------------------------
+## ALBANIA
 
+### Landings
+
+* Data integrated
+
+### Releases
+* Check file gives error: 'object 'release_tot' not found'
+* *NOTE* in the original file "NR" is written in the eel_value_number, needs to be in eel_missvaluequal? eel_value_kg is reported. This problem might occur for others, is the missvalue needed if one of the values is missing or both? 
+
+------------------------------------------------------------------
  
 ## BELGIUM 
 
@@ -117,7 +127,14 @@ line <1>, there should not be any area divsion in freshwater
  so I've added the 3 lines.
  
 -----------------------------
- 
+## EGYPT
+
+### Landings
+
+* Data integrated
+* *NOTE* there was a missing qualifier for non reported catches in 2011 which was added 
+
+-------------------------
 
  
 ## ESTONIA
