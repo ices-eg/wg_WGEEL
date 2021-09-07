@@ -130,7 +130,7 @@ compare_with_database <- function(data_from_excel, data_from_base, eel_typ_id_va
 compare_with_database_updated_values <- function(updated_from_excel, data_from_base) {
 	# tr_type_typ should have been loaded by global.R in the program in the shiny app
 	if (!exists("tr_type_typ")) {
-		tr_type_typ<-extract_ref("Type of series")
+		tr_type_typ<-extract_ref("Type of series", pool)
 	}
 	# data integrity checks
 	validate(need(nrow(updated_from_excel) != 0,"There are no data coming from the excel file")) 
