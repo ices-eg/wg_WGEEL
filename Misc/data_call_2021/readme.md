@@ -173,7 +173,7 @@ Cédric : You cannot report other_landings there, it's fine if you put two lines
 ## Annex 10 
 
 # TN
-Annex 4 (by GFCM)
+Annex 4 (by GFCM) 6 new values are added.
 
 # TR
 
