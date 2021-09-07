@@ -1076,7 +1076,7 @@ write_new <- function(path) {
 					  insert into datawg.t_eelstock_eel (eel_typ_id,eel_year,eel_value,eel_missvaluequal,eel_emu_nameshort,eel_cou_code,eel_lfs_code,eel_hty_code,eel_area_division,eel_qal_id, eel_qal_comment,eel_datasource,eel_comment)
 					  (select eel_typ_id,eel_year_xls,eel_value_xls,eel_missvaluequal_xls,eel_emu_nameshort_xls,eel_cou_code_xls,eel_lfs_code_xls,eel_hty_code_xls,eel_area_division_xls,eel_qal_id_xls,eel_qal_comment_xls,eel_datasource_xls,eel_comment_xls from updated_temp where eel_id=oldid ) returning eel_id into newid;
 					  update datawg.t_eelstock_eel set eel_qal_comment=coalesce(eel_qal_comment,'') || ' updated to eel_id ' || newid::text || ' in ",cyear,"' where eel_id=oldid;\n",
-	         ifelse(length(startsWith(names(updated_values_table), "perc_"))>0,
+	         ifelse(any(startsWith(names(updated_values_table), "perc_"))>0,
 	                "insert into datawg.t_eelstock_eel_percent values (newid,rec.perc_f,rec.perc_t,rec.perc_c,rec.perc_mo);\n",
 	                ""),
 					"else
@@ -1810,13 +1810,19 @@ check_missing_data <- function(complete, newdata, restricted=TRUE) {
 			eel_typ_id=typ)
 	missing_comb <- anti_join(all_comb, complete)
 	missing_comb$id <- 1:nrow(missing_comb)
-	found_matches <- dbGetQuery(pool,"select id from missing_comb m inner join complete c on c.eel_cou_code=m.eel_cou_code and
+	conn <- poolCheckout(pool)
+	dbWriteTable(conn,"missing_comb",missing_comb,temporary=TRUE,row.names=FALSE)
+	dbWriteTable(conn,"complete",complete,temporary=TRUE,row.names=FALSE)
+	found_matches <- dbGetQuery(conn,"select id from missing_comb m inner join complete c on c.eel_cou_code=m.eel_cou_code and
 					c.eel_year=m.eel_year and
 					c.eel_typ_id=m.eel_typ_id and
 					c.eel_lfs_code like '%'||m.eel_lfs_code||'%'
 					and c.eel_hty_code like '%'||m.eel_hty_code||'%' 
 					and (c.eel_emu_nameshort=m.eel_emu_nameshort or
 					c.eel_emu_nameshort=substr(m.eel_emu_nameshort,1,3)||'total')")
+	dbExecute(conn,str_c("drop table if exists complete") )
+	dbExecute(conn,str_c("drop table if exists missing_comb") )
+	poolReturn(conn)
 	#looks for missing combinations
 	missing_comb <- missing_comb %>%
 			filter(!missing_comb$id %in% found_matches$id)%>%
