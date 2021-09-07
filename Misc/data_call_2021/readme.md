@@ -123,6 +123,8 @@ Changed name of the series from OatY to OatGY.
 
 102 new biometry entries, mainly blank entries as data were not collected. Only 4 series had biometry data. 
 
+No biometry data were modified.
+
 ## Annex 2 
 
 No new series.
@@ -135,21 +137,55 @@ No new series.
 
 122 new biometry entries, mainly blank entries as data were not collected. Only 4 series had biometry data. 
 
+No biometry data were modified.
+
 ## Annex 3 
+
+No new series.
+
+6 series were modified.
+
+15 new data series were added. 
+
+No data series were modified.
+
+24 new biometry entries, mainly blank entries as data were not collected. Only 3 series had biometry data. 
+
+No biometry data were modified.
 
 ## Annex 4 
 
+No duplicates.
+
+168 new values were added.
+
+79 values were updated.
+
 ## Annex 5 
+
+No recreational landings.
 
 ## Annex 6 
 
 ## Annex 7 
 
+No duplicates.
+
+18 new values were added.
+
+14 values were updated.
+
 ## Annex 8 
+
+No aquaculture.
 
 ## Annex 9 
 
+588 new values were added.
+
 ## Annex 10 
+
+406 new values were added.
 
 # IE
 
