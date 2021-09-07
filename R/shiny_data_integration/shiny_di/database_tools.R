@@ -848,7 +848,7 @@ compare_with_database_biometry <- function(data_from_excel, data_from_base, shee
 					nrow(replaced)
 				}, error = function(e) {
 					message <<- e  
-					sqldf (query0_reverse)      # perform reverse operation
+					dbGetQuery(conn, query0_reverse)      # perform reverse operation
 					cat("step2 message :")
 					print(message)
 				}, finally = {
@@ -876,7 +876,7 @@ compare_with_database_biometry <- function(data_from_excel, data_from_base, shee
 					cat("step3 message :")
 					print(message)
 					dbExecute(conn, query1_reverse) # this is not surrounded by trycatch, pray it does not fail ....
-					sqldf (query0_reverse)      # perform reverse operation    
+					dbGetQuery(conn,query0_reverse)      # perform reverse operation    
 				}, finally = {
 					#poolReturn(conn)
 					dbExecute(conn, str_c( "drop table if exists not_replaced_temp_", cou_code))   
