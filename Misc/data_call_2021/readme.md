@@ -7,6 +7,7 @@ Annex 12 (by GFCM)
 
 # BE
 
+
 # DE
 Annex 3 - New data is not new (rather an update?)
 Annex 4 - Why is Schl updated, it did not change, did it?
