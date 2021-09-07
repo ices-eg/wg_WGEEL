@@ -39,7 +39,7 @@ load_package("shinyjs")
 load_package("shinydashboard")
 load_package("shinyWidgets")
 load_package("shinyBS")
-load_package("sqldf")
+#load_package("sqldf")
 load_package("leaflet")
 load_package("shinytoastr")
 
