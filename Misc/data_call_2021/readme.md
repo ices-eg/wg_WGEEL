@@ -28,6 +28,8 @@ You can use it. This is for the management units
 
 # DZ
 Annex 4 (by GFCM)
+changed com_catch_kg to com_landings_kg in new_data
+added a column eel_datasource in new_data
 42 new inserted values
 
 # EG
