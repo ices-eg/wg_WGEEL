@@ -105,6 +105,16 @@ Changed name of the series from OatY to OatGY.
 
 ## Annex 2 
 
+No new series.
+
+49 series were modified.
+
+107 new data series were added. 
+
+13 data series were modified.
+
+122 new biometry entries, mainly blank entries as data were not collected. Only 4 series had biometry data. 
+
 ## Annex 3 
 
 ## Annex 4 
