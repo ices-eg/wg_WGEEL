@@ -39,7 +39,7 @@
 compare_with_database <- function(data_from_excel, data_from_base, eel_typ_id_valid = NULL) {
 	# tr_type_typ should have been loaded by global.R in the program in the shiny app
 	if (!exists("tr_type_typ")) {
-		tr_type_typ<-extract_ref("Type of series")
+		tr_type_typ<-extract_ref("Type of series", pool)
 	}
 	# data integrity checks
 	if (nrow(data_from_excel) == 0) 
@@ -130,7 +130,7 @@ compare_with_database <- function(data_from_excel, data_from_base, eel_typ_id_va
 compare_with_database_updated_values <- function(updated_from_excel, data_from_base) {
 	# tr_type_typ should have been loaded by global.R in the program in the shiny app
 	if (!exists("tr_type_typ")) {
-		tr_type_typ<-extract_ref("Type of series")
+		tr_type_typ<-extract_ref("Type of series", pool)
 	}
 	# data integrity checks
 	validate(need(nrow(updated_from_excel) != 0,"There are no data coming from the excel file")) 
@@ -1136,10 +1136,14 @@ write_new <- function(path) {
 	new <- new %>% mutate_if(is.logical,list(as.character)) 
 
 	new <- new %>% 
-			mutate_at(vars(ser_dts_datasource, ser_comment, ser_lfs_code, ser_hty_code, ser_locationdescription, ser_emu_nameshort, ser_sam_gear, ser_distanceseakm, 	ser_method,
+			mutate_at(vars(ser_dts_datasource, ser_comment, ser_lfs_code, ser_hty_code, ser_locationdescription, ser_emu_nameshort, 	ser_method,
 							ser_area_division,ser_cou_code),list(as.character)) 
 	new <- new %>% 
-			mutate_at(vars(ser_sam_id),list(as.integer)) 
+			mutate_at(vars(ser_sam_id,ser_sam_gear),list(as.integer)) 
+	new$ser_restocking <- convert2boolean(new$ser_restocking,
+	                                                       "new boolean")
+	new <- new %>%
+	  mutate_at(vars(ser_distanceseakm), list(as.numeric))
 	# check for new file -----------------------------------------------------------------------------
 	
 	validate(need(all(!is.na(new$ser_qal_id)), "There are still lines without ser_qal_id, please check your file"))
