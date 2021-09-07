@@ -243,7 +243,7 @@ compare_with_database_series <- function(data_from_excel, data_from_base) {
 	data_from_excel <- data_from_excel %>% mutate_if(is.logical,list(as.numeric)) 
 	data_from_excel$ser_typ_id <- as.numeric(data_from_excel$ser_typ_id)
 	data_from_excel$ser_sam_gear <- as.numeric(data_from_excel$ser_sam_gear)
-	data_from_excel$ser_restocking <- as.logical(data_from_excel$ser_restocking)
+	data_from_excel$ser_restocking <- convert2boolean(data_from_excel$ser_restocking, "new series")
 	data_from_excel <- data_from_excel %>% 
 			mutate_at(vars(ser_dts_datasource, ser_comment, ser_lfs_code, ser_hty_code, ser_locationdescription, ser_emu_nameshort,
 							ser_area_division,ser_cou_code,ser_effort_uni_code, ser_uni_code, ser_method ),list(as.character)) 
