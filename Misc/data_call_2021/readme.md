@@ -67,6 +67,7 @@ modified biometry = 24
 # GR
 
 
+## Annex 6. Error: object 'release_tot' not found"
 ## Annex 8.
 
 remove data per habitat for aquaculture (in existing kept there are values for Freshwater, this is wrong.) These values are duplicated with values entered for 2017 without the Freshwater tag. Suggestion = remove all data for aquaculture and Freshwater and update the rest if wrong
