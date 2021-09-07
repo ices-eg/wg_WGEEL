@@ -28,6 +28,7 @@ You can use it. This is for the management units
 
 # DZ
 Annex 4 (by GFCM)
+42 new inserted values
 
 # EG
 
@@ -64,7 +65,29 @@ Annex 4 (by GFCM) - missing qualifyer for empty value cell
 remove data per habitat for aquaculture (in existing kept there are values for Freshwater, this is wrong.) These values are duplicated with values entered for 2017 without the Freshwater tag. Suggestion = remove all data for aquaculture and Freshwater and update the rest if wrong
 
 
+# GB
 
+## Annex 1
+
+Changed name of the series from OatY to OatGY.
+
+## Annex 2 
+
+## Annex 3 
+
+## Annex 4 
+
+## Annex 5 
+
+## Annex 6 
+
+## Annex 7 
+
+## Annex 8 
+
+## Annex 9 
+
+## Annex 10 
 
 # IE
 
@@ -122,6 +145,14 @@ Cédric : You cannot report other_landings there, it's fine if you put two lines
 # SE
 
 ## Annex 1
+  
+  11 modified series
+  
+  7 new data series
+  
+  275 new biometry
+  
+  
 
 ## Annex 2 
 
@@ -142,7 +173,7 @@ Cédric : You cannot report other_landings there, it's fine if you put two lines
 ## Annex 10 
 
 # TN
-Annex 4 (by GFCM)
+Annex 4 (by GFCM) 6 new values are added.
 
 # TR
 
