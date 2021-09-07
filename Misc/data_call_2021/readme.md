@@ -38,16 +38,23 @@ Annex 4 (by GFCM) - missing qualifyer for empty value cell
 
 ## Annex 1
 
-new series = 0
-modified series = 12
-new dataseries = 6
-modified dataseries = 28
-new biometry = 22
-modified biometry = 24
+new series = 0  
+modified series = 12  
+new dataseries = 6  
+modified dataseries = 28  
+new biometry = 22  
+modified biometry = 24  
 
 ## Annex 2 
 
-## Annex 3 
+## Annex 3
+
+new series = 0  
+modified series = 6  
+new dataseries = 6  
+modified dataseries = 2  
+new biometry = 5  
+modified biometry = 3   
 
 ## Annex 4 
 
@@ -78,6 +85,16 @@ remove data per habitat for aquaculture (in existing kept there are values for F
 ## Annex 1
 
 Changed name of the series from OatY to OatGY.
+
+1 new series was entered.
+
+22 series were modified.
+
+59 new data series were added. 
+
+39 data series were modified.
+
+102 new biometry entries, mainly blank entries as data were not collected. Only 4 series had biometry data. 
 
 ## Annex 2 
 
