@@ -76,11 +76,11 @@ shinyServer(function(input, output, session){
 						############################################
 						# FIRST STEP INITIATE THE CONNECTION WITH THE DATABASE
 						###############################################
-						options(sqldf.RPostgreSQL.user = userwgeel,  
-								sqldf.RPostgreSQL.password = passwordwgeel,
-								sqldf.RPostgreSQL.dbname = "wgeel",
-								sqldf.RPostgreSQL.host = host, #getInformation("PostgreSQL host: if local ==> localhost"), 
-								sqldf.RPostgreSQL.port = port)
+#						options(sqldf.RPostgreSQL.user = userwgeel,  
+#								sqldf.RPostgreSQL.password = passwordwgeel,
+#								sqldf.RPostgreSQL.dbname = "wgeel",
+#								sqldf.RPostgreSQL.host = host, #getInformation("PostgreSQL host: if local ==> localhost"), 
+#								sqldf.RPostgreSQL.port = port)
 						
 						# Define pool handler by pool on global level
 						pool <<- pool::dbPool(drv = RPostgres::Postgres(),

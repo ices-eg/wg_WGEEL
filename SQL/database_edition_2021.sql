@@ -419,5 +419,41 @@ SELECT count(*) FROM datawg.t_eelstock_eel WHERE eel_lfs_code='OG' ; --519
  AND eel_qal_id IN (0,1,2,3,4)
  GROUP BY eel_typ_id, typ_name, eel_emu_nameshort;
  
--- ISSUE 
+-- REMOVE "test" from database 
 
+SELECT count(*) FROM datawg.t_eelstock_eel WHERE eel_datasource ='test';--812
+SELECT count(*) FROM datawg.t_series_ser tss WHERE ser_dts_datasource ='test';--0
+SELECT count(*) FROM datawg.t_dataseries_das tss WHERE das_dts_datasource ='test';--7
+SELECT count(*) FROM datawg.t_biometry_series_bis WHERE bio_dts_datasource ='test'; --275
+
+DELETE FROM datawg.t_eelstock_eel WHERE eel_datasource ='test'; --812
+DELETE FROM datawg.t_series_ser tss WHERE ser_dts_datasource ='test';--0
+DELETE FROM datawg.t_dataseries_das tss WHERE das_dts_datasource ='test';--7
+DELETE FROM datawg.t_biometry_series_bis WHERE bio_dts_datasource ='test';--275
+
+
+SELECT * FROM datawg.t_dataseries_das ORDER BY das_year desc;
+SELECT * FROM datawg.t_dataseries_das ORDER BY das_last_update desc;
+
+psql -U postgres -d wgeel -h localhost -c "ALTER USER wgeel WITH PASSWORD 'XXXXXXX'"
+
+
+SELECT * FROM datawg.t_series_ser WHERE ser_cou_code ='GB';
+
+--ALTER TABLE datawg.t_dataseries_das DROP CONSTRAINT c_fk_ser_id;
+--ALTER TABLE datawg.t_biometry_series_bis  DROP CONSTRAINT c_fk_ser_id;
+
+
+UPDATE datawg.t_series_ser SET ser_nameshort= 'OatGY' WHERE ser_nameshort='OatY'; --1
+
+
+SELECT pg_terminate_backend(pg_stat_activity.pid)
+FROM pg_stat_activity
+WHERE pg_stat_activity.datname = 'wgeel' -- ← change this to your DB
+  AND pid <> pg_backend_pid();
+
+ 
+ SELECT pg_terminate_backend(pg_stat_activity.pid)
+FROM pg_stat_activity
+WHERE datname = current_database()
+  AND pid <> pg_backend_pid();
