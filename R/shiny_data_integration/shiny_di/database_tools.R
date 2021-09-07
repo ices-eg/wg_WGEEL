@@ -1456,7 +1456,8 @@ update_series <- function(path) {
 #path<-"C:\\Users\\cedric.briand\\Downloads\\modified_dataseries_2020-08-24_FR.xlsx"
 update_dataseries <- function(path) {
 	updated_values_table <- 	read_excel(path = path, sheet = 1, skip = 1)	
-	cou_code = sqldf(paste0("SELECT ser_cou_code FROM datawg.t_series_ser WHERE ser_nameshort='",
+	conn <- poolCheckout(pool)
+	cou_code = dbGetQuery(conn,paste0("SELECT ser_cou_code FROM datawg.t_series_ser WHERE ser_nameshort='",
 					updated_values_table$ser_nameshort[1],"';"))$ser_cou_code  
 	
 	# create dataset for insertion -------------------------------------------------------------------
@@ -1464,7 +1465,6 @@ update_dataseries <- function(path) {
 	updated_values_table$das_qal_id <- as.integer(updated_values_table$das_qal_id)
 	updated_values_table$das_effort <- as.numeric(updated_values_table$das_effort)
 	
-	conn <- poolCheckout(pool)
 	dbExecute(conn,"drop table if exists updated_dataseries_temp ")
 	dbWriteTable(conn,"updated_dataseries_temp",updated_values_table, row.names=FALSE,temporary=TRUE)
 	
@@ -1806,7 +1806,7 @@ check_missing_data <- function(complete, newdata, restricted=TRUE) {
 			eel_typ_id=typ)
 	missing_comb <- anti_join(all_comb, complete)
 	missing_comb$id <- 1:nrow(missing_comb)
-	found_matches <- sqldf("select id from missing_comb m inner join complete c on c.eel_cou_code=m.eel_cou_code and
+	found_matches <- dbGetQuery(pool,"select id from missing_comb m inner join complete c on c.eel_cou_code=m.eel_cou_code and
 					c.eel_year=m.eel_year and
 					c.eel_typ_id=m.eel_typ_id and
 					c.eel_lfs_code like '%'||m.eel_lfs_code||'%'
