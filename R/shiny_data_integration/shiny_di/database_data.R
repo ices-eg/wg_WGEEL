@@ -41,6 +41,6 @@ extract_data = function(table_dbname, quality = c(1,2,4), quality_check=TRUE)
   } else {
 	  sql_request = paste0("SELECT * FROM datawg.",table_dbname) 
   }
-		return(sqldf(sql_request))
+		return(dbGetQuery(pool,sql_request))
   
 }
