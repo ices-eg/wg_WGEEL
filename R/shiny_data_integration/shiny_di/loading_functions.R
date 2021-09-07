@@ -323,6 +323,7 @@ load_release<-function(path,datasource){
 	##Since dc2020, we have both new and updated_data to deal with
 	output <- lapply(c("new_data","updated_data"),function(sheet){
 				data_error <- data.frame(nline = NULL, error_message = NULL)
+				cat(sheet,"\n")
 				data_xls <- read_excel(
 						path=path,
 						sheet =sheet,
@@ -370,7 +371,7 @@ load_release<-function(path,datasource){
 												" file =",
 												file,"\n")))
 						
-			
+						
 						
 					} else {
 						
@@ -657,12 +658,12 @@ load_release<-function(path,datasource){
 												"eel_comment","eel_datasource")
 								] 
 							} else {
-								release_tot <- rbind(
-										release_tot,
+								release_tot <- 
+										
 										data_xls[,c("eel_id","eel_typ_name", "eel_year","eel_value","eel_missvaluequal","eel_emu_nameshort",
-												"eel_cou_code", "eel_lfs_code", "eel_hty_code","eel_area_division",
-												"eel_comment","eel_datasource")
-								] )
+														"eel_cou_code", "eel_lfs_code", "eel_hty_code","eel_area_division",
+														"eel_comment","eel_datasource")
+										] 
 							}
 							#    #Add "ND" in eel_missvaluequal if one value is still missing 
 							#    for (i in 1:nrow(release_tot)) { 
@@ -677,7 +678,13 @@ load_release<-function(path,datasource){
 											country=country) 
 							)
 							
-						} 
+						} else { #  if nrow 
+							data_xls$eel_datasource <- datasource
+							release_tot <- data_xls[,c("eel_id","eel_typ_name", "eel_year","eel_value","eel_missvaluequal","eel_emu_nameshort",
+											"eel_cou_code", "eel_lfs_code", "eel_hty_code","eel_area_division",
+											"eel_comment","eel_datasource")
+							]
+						}
 					} # end else
 				}# end else
 				return(list(data=release_tot,error=data_error))
@@ -2673,7 +2680,7 @@ load_series<-function(path,datasource,stage="glass_eel"){
 			
 		}
 	} else updated_biometry <- NULL
-
+	
 	
 	
 	return(invisible(list(

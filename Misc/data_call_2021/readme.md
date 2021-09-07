@@ -7,6 +7,7 @@ Annex 12 (by GFCM)
 
 # BE
 
+
 # DE
 Annex 3 - New data is not new (rather an update?)
 Annex 4 - Why is Schl updated, it did not change, did it?
@@ -65,18 +66,37 @@ modified biometry = 3
 
 ## Annex 4 
 
+duplicate = 0  
+new = 157  
+updated = 24  
+
 ## Annex 5 
+
+duplicate = 0  
+new = 125 [2765 lines with NP for rec_catch_kg should have been deleted]  
+updated = 3 
 
 ## Annex 6 
 
+NO DATA
+
 ## Annex 7 
+
+duplicate = 0  
+new = 22  
+updated = 4  
 
 ## Annex 8 
 
+NO DATA
+
 ## Annex 9 
+
+NO DATA
 
 ## Annex 10 
 
+NO DATA
 
 # GR
 
@@ -104,6 +124,16 @@ Changed name of the series from OatY to OatGY.
 102 new biometry entries, mainly blank entries as data were not collected. Only 4 series had biometry data. 
 
 ## Annex 2 
+
+No new series.
+
+49 series were modified.
+
+107 new data series were added. 
+
+13 data series were modified.
+
+122 new biometry entries, mainly blank entries as data were not collected. Only 4 series had biometry data. 
 
 ## Annex 3 
 
@@ -195,8 +225,10 @@ Cédric : You cannot report other_landings there, it's fine if you put two lines
 ## Annex 5 
 
 ## Annex 6 
-
+add eel_comment = assisted migration for all existing_kept data (directly with an sql query)
+  
 ## Annex 7 
+  remove all preexisting data (put eel_qal_id = 21 and eel_qal_comment="all data were updated...") with an sql query
 
 ## Annex 8 
 
