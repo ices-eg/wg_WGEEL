@@ -298,6 +298,35 @@ new values 174
 
 # NO 
  
+## Annex 1
+
+New dataseries=1
+
+Modified biometry=1
+
+New biometry=0
+
+## Annex 2
+
+Not integrated yet
+
+## Annex 3
+
+New dataseries=1
+
+New biometry=1
+
+## Annex 4
+
+New dataseries=12 (only 1 line of values, 11 lines of "NP")
+
+## Annex 9
+
+New dataseries= 42 (15 lines with values and 27 lines "NC")
+
+## Annex 10
+
+New dataseries=29 (10 lines with values and 19 lines with "NC")
  
  
  # SE
