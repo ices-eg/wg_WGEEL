@@ -288,7 +288,6 @@ No aquaculture.
 ## Annex 1
 update series 8 values; new data series 15 new values; modified dataseries 5 values; new biometry 3 new values; update biometry 7 new values
 ## Annex 2 
-modified series 5 values; new dataseries 3 new values; modified dataseries 20 values;new biometry 3 new values; update biometry 63 values
 
 ## Annex 3  
 update series 2 new values; new dataseries 2 new values, new biometry 2 new values; update biometry 43 new values
@@ -371,18 +370,52 @@ HINT:  There is a column named "eel_value" in table "t_eelstock_eel", but it can
 ## Annex 10   
   
 
-# NO 
+# NO  
  
- ## Annex 1: completed
- ## Annex 2: No data
- ## Annex 3: completed
- ## Annex 4: completed
- ## Annex 5: No data
- ## Annex 6: No data
-## Annex 7: No data
+## Annex 1
+ 
+New dataseries=1
+
+Modified biometry=1
+
+New biometry=0
+ 
+## Annex 2
+ 
+No data 
+ 
+## Annex 3
+ 
+New dataseries=1
+
+New biometry=1
+ 
+## Annex 4
+ 
+New dataseries=12 (only 1 line of values, 11 lines of "NP")
+
+## Annex 5 
+ 
+No data
+ 
+## Annex 6
+ 
+No data
+ 
+## Annex 7
+ 
+No data
+ 
 ## Annex 8 
+ 
 ## Annex 9 
-## Annex 10: Completed 
+
+ New dataseries= 42 (15 lines with values and 27 lines "NC")
+
+## Annex 10
+ 
+New dataseries=29 (10 lines with values and 19 lines with "NC") 
+ 
  
  # SE
 
