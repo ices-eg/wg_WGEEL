@@ -185,7 +185,7 @@ No recreational landings.
 
 No duplicates.
 
-1 new values was added.
+1 new value was added.
 
 No values were updated.
 
