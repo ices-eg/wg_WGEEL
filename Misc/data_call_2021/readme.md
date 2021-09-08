@@ -183,6 +183,12 @@ No recreational landings.
 
 ## Annex 6 
 
+No duplicates.
+
+1 new values was added.
+
+No values were updated.
+
 ## Annex 7 
 
 No duplicates.
