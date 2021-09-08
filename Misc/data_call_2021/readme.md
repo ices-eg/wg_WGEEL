@@ -34,6 +34,7 @@ We updated 1241 values. The updates that were marked with DELETE in the comment 
 Still needs to be integrated, there was a bug where updated values did not appear in the Shiny application. We wait until this bug is fixed.
 
 ## Annex 2 
+the Annex 2 was modified to delete empty lines and change was made for id_typ_serie. The new file is in the sharepoint
 
 new series = 0  
 modified series = 1  
@@ -43,6 +44,7 @@ new biometry =0
 modified biometry = 0  
 
 ## Annex 3
+the Annex 3 was modified to delete empty lines and add some informations on area division. The new file is in the sharepoint
 
 new series = 0  
 modified series = 1  
@@ -52,16 +54,22 @@ new biometry = 2
 modified biometry = 1   
 
 ## Annex 4 
+the Annex 4 was modified to add some informations on area division. The new file is in the sharepoint
 
 duplicate = 0  
 new = 150  
 updated = 497 
 
 ## Annex 5 
+the Annex 5 was modified rec_catch_kg have been deleted
 
 duplicate = 0  
 new = 158 [lines with NP for rec_catch_kg have been deleted]  
-updated = 490 
+updated = 490
+## Annex 9 
+new=378
+## Annex 10
+new=261
 # DK
 Question about DK_total
 
