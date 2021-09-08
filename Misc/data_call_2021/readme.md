@@ -11,11 +11,27 @@ Annex 12 (by GFCM)
 
 
 # DE
-Annex 3 - New data is not new (rather an update?)
-Annex 4 - Why is Schl updated, it did not change, did it?
-Annex 5 - e.g. 425800 updated but only quality changes... This is not for the provider to change, is it?
-Annex 7 - no kg provided, but is it needed? for what? only useful for Y / S and this is where it is probably not very accurate, is it?
+## annex 1
+13 modified series
+35 new dataseries
+5 modified dataseries
 
+## Annex 3 
+New data is not new (rather an update?)
+
+## Annex 4 
+Why is Schl updated, it did not change, did it?
+
+## Annex 5 
+e.g. 425800 updated but only quality changes... This is not for the provider to change, is it?
+
+## Annex 7
+No new values could be added yet, as weight data was missing. This still needs to be added in the original data, and then the new release data can be integrated
+
+We updated 1241 values. The updates that were marked with DELETE in the comment column need to be undone. They were deleted because Germany does not use weight data, but WGEEL needs the weight data, so these data should not be deleted. It needs to be seen if it is possible to remove these DELETE comments in the database, to preserve these data.
+
+## Annex 8:
+Still needs to be integrated, there was a bug where updated values did not appear in the Shiny application. We wait until this bug is fixed.
 
 ## Annex 2 
 
