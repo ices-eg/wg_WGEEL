@@ -368,3 +368,4 @@ Annex 12 (by GFCM)
 2 new biometry 
  
  ## Annex 3
+ 2 series info modified
