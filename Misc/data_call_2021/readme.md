@@ -230,7 +230,9 @@ No aquaculture.
 There is an empty first line on updated biometry
 
 ## Annex 4 
-
+commercial
+72 new values
+54 updated
 ## Annex 5 
 
 ## Annex 6 
@@ -245,7 +247,7 @@ Cédric : You cannot report other_landings there, it's fine if you put two lines
 ## Annex 8 
 
 ## Annex 9 
-
+252 new values
 ## Annex 10 
 
 
@@ -379,6 +381,3 @@ Annex 12 (by GFCM)
  
  ## Annex 4
  2 new values (2020)
- 
- ## ANNEX 6
- 24 new values (mainly NP in past data)
