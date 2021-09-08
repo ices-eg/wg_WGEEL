@@ -1,5 +1,7 @@
 # AL
-Annex 4 (by GFCM) - missing area divisions
+Annex 4 (by GFCM) catch_landings	‘ 32 new values inserted in the database’
+
+ 
 
 Annex 7 (by GFCM) - silver eel releases... T&T? Captured in catches? Someting else? There is no n_release, so it doesn't work. Error: object 'release_tot' not found
 
@@ -31,9 +33,23 @@ You can use it. This is for the management units
 Annex 4 (by GFCM)
 42 new inserted values
 
+# EE
+
+|log_cou_code|log_data       |log_message                             |
+|------------|---------------|----------------------------------------|
+|EE          |biomass        |‘ 6 new values inserted in the database’|
+|EE          |mortality_rates|‘ 6 new values inserted in the database’|
+|EE          |catch_landings |‘ 4 new values inserted in the database’|
+
+
 # EG
 
-Annex 4 (by GFCM) - missing qualifyer for empty value cell
+Annex 4 (by GFCM) 
+|log_cou_code|log_data      |log_message                              |
+|------------|--------------|-----------------------------------------|
+|EG          |catch_landings|‘ 42 new values inserted in the database’|
+
+
 
 # FR
 
@@ -189,6 +205,15 @@ No aquaculture.
 
 # IE
 
+|log_cou_code|log_data      |log_message                              |
+|------------|--------------|-----------------------------------------|
+|IE          |catch_landings|‘ 72 new values inserted in the database’|
+|IE          |catch_landings|‘6 values updated in the db’             |
+|IE          |catch_landings|‘54 values updated in the db’            |
+|IE          |catch_landings|‘ 6 new values inserted in the database’ |
+|IE          |aquaculture   |‘ 13 new values inserted in the database’|
+|IE          |catch_landings|‘ 72 new values inserted in the database’|
+
 
 ## Annex 1
 
@@ -218,9 +243,25 @@ Cédric : You cannot report other_landings there, it's fine if you put two lines
 ## Annex 10 
 
 
+# IT
+
+
+|log_cou_code|log_data      |log_message                               |
+|------------|--------------|------------------------------------------|
+|IT          |catch_landings|‘ 270 new values inserted in the database’|
+
+
 # NL 
 
 ## Annex 1
+
+|log_cou_code|log_data |log_message                              |
+|------------|---------|-----------------------------------------|
+|NL          |glass_eel|‘5 values updated in the db’             |
+|NL          |glass_eel|‘ 5 new values inserted in the database’ |
+|NL          |glass_eel|‘2 values updated in the db’             |
+|NL          |glass_eel|‘ 55 new values inserted in the database’|
+
 
 ## Annex 2 
 
@@ -253,10 +294,34 @@ Cédric : You cannot report other_landings there, it's fine if you put two lines
   
 
 ## Annex 2 
+  
+|log_cou_code|log_data  |log_message                             |
+|------------|----------|----------------------------------------|
+|SE          |yellow_eel|‘11 values updated in the db’           |
+|SE          |yellow_eel|‘6 values updated in the db’            |
+|SE          |yellow_eel|‘ 4 new values inserted in the database’|
+
 
 ## Annex 3 
+  
+|log_cou_code|log_data  |log_message                             |
+|------------|----------|----------------------------------------|
+|SE          |silver_eel|‘ 1 new values inserted in the database’|
+|SE          |silver_eel|‘6 values updated in the db’            |
+|SE          |silver_eel|‘ 2 new values inserted in the database’|
+|SE          |silver_eel|‘1 values updated in the db’            |
+|SE          |silver_eel|‘ 3 new values inserted in the database’|
+|SE          |silver_eel|‘2 values updated in the db’            |
+  
 
 ## Annex 4 
+  
+|log_cou_code|log_data      |log_message                              |
+|------------|--------------|-----------------------------------------|
+|SE          |catch_landings|‘19 values updated in the db’            |
+|SE          |catch_landings|‘ 36 new values inserted in the database’|
+|SE          |catch_landings|‘ 38 new values inserted in the database’|
+
 
 ## Annex 5 
 
@@ -277,7 +342,8 @@ Annex 4 (by GFCM) 6 new values are added.
 
 # TR
 
-Annex 4  (by GFCM): data integrated.
+Annex 4  (by GFCM): data inserted
+  
 
 Annex 5  (by GFCM): data integrated.
 
