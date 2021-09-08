@@ -88,7 +88,12 @@ new biometry = 0
 modified biometry = 0
 
 
-## Annex 4: 4 new values added.
+## Annex 4: 
+4 new values added.
+## Annex 5:
+5 new values added and 1 value is corrected
+## Annex 6
+No data
 
 # DZ
 Annex 4 (by GFCM)
@@ -370,7 +375,7 @@ HINT:  There is a column named "eel_value" in table "t_eelstock_eel", but it can
 ## Annex 10   
   
 
-# NO  
+# NO (Norway) 
  
 ## Annex 1
  
@@ -407,6 +412,7 @@ No data
 No data
  
 ## Annex 8 
+ No data
  
 ## Annex 9 
 
