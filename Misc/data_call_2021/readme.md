@@ -206,7 +206,7 @@ Changed name of the series from OatY to OatGY.
 
 39 data series were modified.
 
-93 new biometry entries, mainly blank entries as data were not collected. Only 4 series had biometry data. 
+102 new biometry entries, mainly blank entries as data were not collected. Only 4 series had biometry data. 
 
 No biometry data were modified.
 
