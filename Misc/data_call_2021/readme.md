@@ -433,3 +433,4 @@ Annex 12 (by GFCM)
  18 rows proceeded
  
  ## Annex 10
+ 58 rows inserted
