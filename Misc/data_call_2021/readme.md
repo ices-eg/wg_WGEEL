@@ -177,6 +177,9 @@ NO DATA
 
 # GR
 
+## Annex 5
+1033 new values
+1 value updated
 
 ## Annex 6. Error: object 'release_tot' not found"
 ## Annex 8.
