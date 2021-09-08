@@ -359,7 +359,6 @@ shinyServer(function(input, output, session){
 								"biomass"={
 									# bug in excel file - fixed in the template
 									#colnames(data_from_excel)[colnames(data_from_excel)=="typ_name"]<-"eel_typ_name"
-								  updated_from_excel<- step0load_data()$res$updated_data
 									data_from_excel$eel_lfs_code <- 'S' #always S
 									data_from_excel$eel_hty_code <- 'AL' #always AL
 									data_from_excel <- data_from_excel %>% 
@@ -384,7 +383,6 @@ shinyServer(function(input, output, session){
 									
 								},
 								"mortality_rates"={
-								  updated_from_excel<- step0load_data()$res$updated_data
 								  data_from_excel$eel_lfs_code <- 'S' #always S
 								  data_from_excel$eel_hty_code <- 'AL' #always AL
 								  data_from_excel <- data_from_excel %>% 
@@ -520,7 +518,7 @@ shinyServer(function(input, output, session){
 							
 							
 						} # closes if nrow(...  
-						if (input$file_type %in% c("catch_landings","release","aquaculture","biomass","mortality_rates")){
+						if (input$file_type %in% c("catch_landings","release","aquaculture")){
 							if (nrow(updated_from_excel)>0){
 							  output$"step1_message_updated"<-renderUI(
 							    HTML(
