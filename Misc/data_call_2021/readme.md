@@ -198,7 +198,7 @@ Changed name of the series from OatY to OatGY.
 
 39 data series were modified.
 
-102 new biometry entries, mainly blank entries as data were not collected. Only 4 series had biometry data. 
+93 new biometry entries, mainly blank entries as data were not collected. Only 4 series had biometry data. 
 
 No biometry data were modified.
 
@@ -240,7 +240,7 @@ No duplicates.
 
 ## Annex 5 
 
-No recreational landings.
+No recreational landings in the UK (180 new values inserted in the database for 2021 and some for 2020, all NP).
 
 ## Annex 6 
 
