@@ -614,7 +614,7 @@ shinyServer(function(input, output, session){
 							main_assessor <- input$main_assessor
 							secondary_assessor <- input$secondary_assessor
 							file_type <- input$file_type
-							log_datacall("check duplicates", cou_code = cou_code, message = sQuote(message), the_metadata = NULL, 
+							log_datacall("write duplicates", cou_code = cou_code, message = sQuote(message), the_metadata = NULL, 
 									file_type = file_type, main_assessor = main_assessor, secondary_assessor = secondary_assessor)
 							
 							return(message)

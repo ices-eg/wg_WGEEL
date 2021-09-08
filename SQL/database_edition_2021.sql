@@ -484,3 +484,11 @@ update datawg.t_eelstock_eel tee set eel_qal_id = 21,
 commit;
 
 
+SELECT log_cou_code, log_data,  log_message FROM datawg.log WHERE NOT log_evaluation_name ILIKE '%check%'
+AND NOT log_message ILIKE '%error%' 
+AND log_date>= '2021-09-07'
+ORDER BY log_cou_code, log_data;
+
+*-- The LABEL was wrong IN the program
+
+UPDATE datawg.log SET log_evaluation_name= 'write duplicates'  WHERE log_evaluation_name ILIKE '%check duplicates%'; --92
