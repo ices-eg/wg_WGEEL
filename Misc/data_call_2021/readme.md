@@ -17,6 +17,35 @@ Annex 5 - e.g. 425800 updated but only quality changes... This is not for the pr
 Annex 7 - no kg provided, but is it needed? for what? only useful for Y / S and this is where it is probably not very accurate, is it?
 
 
+## Annex 2 
+
+new series = 0  
+modified series = 1  
+new dataseries = 1  
+modified dataseries = 0  
+new biometry =0  
+modified biometry = 0  
+
+## Annex 3
+
+new series = 0  
+modified series = 1  
+new dataseries = 1  
+modified dataseries = 0  
+new biometry = 2  
+modified biometry = 1   
+
+## Annex 4 
+
+duplicate = 0  
+new = 150  
+updated = 497 
+
+## Annex 5 
+
+duplicate = 0  
+new = 158 [lines with NP for rec_catch_kg have been deleted]  
+updated = 490 
 # DK
 Question about DK_total
 
