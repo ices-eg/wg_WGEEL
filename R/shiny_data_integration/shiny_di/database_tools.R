@@ -725,7 +725,11 @@ compare_with_database_biometry <- function(data_from_excel, data_from_base, shee
 		
 		
 	} else {
-		
+		showNotification(				
+				"You don't have any lines in sheet duplicated marked with true in column 'keep new values?', have you forgotten to indicate which lines you want to add in the database ?",
+				duration = 20,	
+				type = "warning"
+		)
 		query0 <- ""
 		query0_reverse <- ""
 		query1 <- ""

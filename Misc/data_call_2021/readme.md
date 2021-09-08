@@ -11,13 +11,30 @@ Annex 12 (by GFCM)
 
 
 # DE
-Annex 3 - New data is not new (rather an update?)
-Annex 4 - Why is Schl updated, it did not change, did it?
-Annex 5 - e.g. 425800 updated but only quality changes... This is not for the provider to change, is it?
-Annex 7 - no kg provided, but is it needed? for what? only useful for Y / S and this is where it is probably not very accurate, is it?
+## annex 1
+13 modified series
+35 new dataseries
+5 modified dataseries
 
+## Annex 3 
+New data is not new (rather an update?)
+
+## Annex 4 
+Why is Schl updated, it did not change, did it?
+
+## Annex 5 
+e.g. 425800 updated but only quality changes... This is not for the provider to change, is it?
+
+## Annex 7
+No new values could be added yet, as weight data was missing. This still needs to be added in the original data, and then the new release data can be integrated
+
+We updated 1241 values. The updates that were marked with DELETE in the comment column need to be undone. They were deleted because Germany does not use weight data, but WGEEL needs the weight data, so these data should not be deleted. It needs to be seen if it is possible to remove these DELETE comments in the database, to preserve these data.
+
+## Annex 8:
+Still needs to be integrated, there was a bug where updated values did not appear in the Shiny application. We wait until this bug is fixed.
 
 ## Annex 2 
+the Annex 2 was modified to delete empty lines and change was made for id_typ_serie. The new file is in the sharepoint
 
 new series = 0  
 modified series = 1  
@@ -27,6 +44,7 @@ new biometry =0
 modified biometry = 0  
 
 ## Annex 3
+the Annex 3 was modified to delete empty lines and add some informations on area division. The new file is in the sharepoint
 
 new series = 0  
 modified series = 1  
@@ -36,16 +54,22 @@ new biometry = 2
 modified biometry = 1   
 
 ## Annex 4 
+the Annex 4 was modified to add some informations on area division. The new file is in the sharepoint
 
 duplicate = 0  
 new = 150  
 updated = 497 
 
 ## Annex 5 
+the Annex 5 was modified rec_catch_kg have been deleted
 
 duplicate = 0  
 new = 158 [lines with NP for rec_catch_kg have been deleted]  
-updated = 490 
+updated = 490
+## Annex 9 
+new=378
+## Annex 10
+new=261
 # DK
 Question about DK_total
 
@@ -57,8 +81,43 @@ There is isn't it ?
 ![image](https://user-images.githubusercontent.com/26055877/122236707-069d9c80-cebf-11eb-9b01-e331138c70e3.png)
 
 You can use it. This is for the management units
+## Annex 1
 
-Annex 4: 4 new values added.
+the Annex 1 was modified to delete empty lines. The new file is in the sharepoint
+new series = 0  
+modified series = 2  
+new dataseries = 3  
+modified dataseries = 0  
+new biometry = 70  
+modified biometry = 0  
+
+## Annex 2 
+the Annex 2 was modified to delete empty lines. The new file is in the sharepoint
+
+new series = 0  
+modified series = 0 
+new dataseries = 1  
+modified dataseries = 1  
+new biometry =10  
+modified biometry = 0  
+
+## Annex 3
+the Annex 3 was modified to delete empty lines and also problem of misundersting between das_effort and das_value. The new file is in the sharepoint
+
+new series = 0  
+modified series = 1  
+new dataseries = 2  
+modified dataseries = 3  
+new biometry = 0  
+modified biometry = 0
+
+
+## Annex 4: 
+4 new values added.
+## Annex 5:
+5 new values added and 1 value is corrected
+## Annex 6
+No data
 
 # DZ
 Annex 4 (by GFCM)
@@ -147,6 +206,9 @@ NO DATA
 
 # GR
 
+## Annex 5
+1033 new values
+1 value updated
 
 ## Annex 6. Error: object 'release_tot' not found"
 ## Annex 8.
@@ -210,7 +272,7 @@ No duplicates.
 
 ## Annex 5 
 
-No recreational landings.
+No recreational landings in the UK (180 new values inserted in the database for 2021 and some for 2020, all NP).
 
 ## Annex 6 
 
@@ -253,11 +315,11 @@ No aquaculture.
 
 
 ## Annex 1
-
+update series 8 values; new data series 15 new values; modified dataseries 5 values; new biometry 3 new values; update biometry 7 new values
 ## Annex 2 
 
 ## Annex 3  
-
+update series 2 new values; new dataseries 2 new values, new biometry 2 new values; update biometry 43 new values
 There is an empty first line on updated biometry
 
 ## Annex 4 
@@ -269,7 +331,7 @@ rec landings
 new values 72
 deleted rec_catch as value was np and throwing up errors
 ## Annex 6 
-
+landings other; 6 new values; 6 updated values
 ## Annex 7 release
 
 Cédric : You cannot report other_landings there, it's fine if you put two lines in other landings instead, one for numbers and one for kilograms.
@@ -277,6 +339,7 @@ Cédric : You cannot report other_landings there, it's fine if you put two lines
 33	other_landings_n	This is neither recreational fishery, nor commercial fishery, for example catching a number of eel at a trapping ladder below a dam can be qualitied as other_landings, the exact purpose should be provided  in the corresponding comment
 ![image](https://user-images.githubusercontent.com/26055877/131523004-b86ae0e4-9012-47ea-99b0-f6e5f7843354.png)
 
+6 new values and 6 updated values
 ## Annex 8 
 aquaculture
 13 new values
@@ -336,18 +399,53 @@ HINT:  There is a column named "eel_value" in table "t_eelstock_eel", but it can
 ## Annex 10   
   
 
-# NO 
+# NO (Norway) 
  
- ## Annex 1: completed
- ## Annex 2: No data
- ## Annex 3: completed
- ## Annex 4: completed
- ## Annex 5: No data
- ## Annex 6: No data
-## Annex 7: No data
+## Annex 1
+ 
+New dataseries=1
+
+Modified biometry=1
+
+New biometry=0
+ 
+## Annex 2
+ 
+No data 
+ 
+## Annex 3
+ 
+New dataseries=1
+
+New biometry=1
+ 
+## Annex 4
+ 
+New dataseries=12 (only 1 line of values, 11 lines of "NP")
+
+## Annex 5 
+ 
+No data
+ 
+## Annex 6
+ 
+No data
+ 
+## Annex 7
+ 
+No data
+ 
 ## Annex 8 
+ No data
+ 
 ## Annex 9 
-## Annex 10: Completed 
+
+ New dataseries= 42 (15 lines with values and 27 lines "NC")
+
+## Annex 10
+ 
+New dataseries=29 (10 lines with values and 19 lines with "NC") 
+ 
  
  # SE
 

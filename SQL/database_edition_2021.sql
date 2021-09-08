@@ -475,13 +475,19 @@ update datawg.t_eelstock_eel tee
 	set eel_comment = 'assisted migration'
 	where eel_typ_id in (32,33) and eel_cou_code ='SE' and eel_qal_id = 1;
 
+SELECT * FROM datawg.t_eelstock_eel tee where eel_typ_id in (32,33) and eel_cou_code ='SE' and eel_qal_id = 1;
 
 update datawg.t_eelstock_eel tee set eel_qal_id = 21,
 	eel_qal_comment='all data were updated in 2021 by Rob Van Gemert'
     where eel_typ_id in (10,8, 9) and eel_cou_code ='SE' and eel_qal_id = 1;
-
+   
+SELECT * FROM datawg.t_eelstock_eel tee WHERE
+	eel_qal_comment='all data were updated in 2021 by Rob Van Gemert'
+    AND eel_typ_id in (10,8,9) and eel_cou_code ='SE' ;
 
 commit;
+
+SELECT * FROM datawg.t_eelstock_eel WHERE eel_typ_id=8 AND eel_lfs_code='Y' AND 
 
 
 SELECT log_cou_code, log_data,  log_message FROM datawg.log WHERE NOT log_evaluation_name ILIKE '%check%'
@@ -506,3 +512,91 @@ GROUP BY eel_typ_id
 SELECT eel_typ_id, count(*) FROM datawg.t_eelstock_eel WHERE eel_cou_code='GB' 
 AND eel_datasource='dc_2021' 
 GROUP BY eel_typ_id
+
+
+SELECT * FROM datawg.t_eelstock_eel WHERE eel_typ_id=4 AND eel_cou_code='DK' AND eel_year='2020'
+SELECT * FROM datawg.t_eelstock_eel WHERE eel_typ_id=4 AND eel_cou_code='DK' ORDER BY eel_year desc
+
+
+SELECT ser_typ_id, count(*) FROM datawg.t_dataseries_das
+JOIN datawg.t_series_ser ON das_ser_id=ser_id
+WHERE ser_cou_code='GB' 
+AND das_dts_datasource='dc_2021' 
+GROUP BY ser_typ_id;
+
+SELECT ser_typ_id, count(*) FROM datawg.t_biometry_series_bis
+JOIN datawg.t_series_ser ON bis_ser_id=ser_id
+WHERE ser_cou_code='GB' 
+AND bio_dts_datasource='dc_2021' 
+GROUP BY ser_typ_id;
+
+
+SELECT log_cou_code, log_data,  log_message FROM datawg.log WHERE NOT log_evaluation_name ILIKE '%check%'
+AND NOT log_message ILIKE '%error%' 
+AND log_date>= '2021-09-07'
+AND log_cou_code='GB'
+ORDER BY log_date;
+
+SELECT ser_typ_id, count(*) FROM datawg.t_dataseries_das
+JOIN datawg.t_series_ser ON das_ser_id=ser_id
+WHERE ser_cou_code='GB' 
+AND das_dts_datasource='dc_2021' 
+GROUP BY ser_typ_id;
+
+SELECT log_cou_code, log_data,  log_message FROM datawg.log WHERE NOT log_evaluation_name ILIKE '%check%'
+AND NOT log_message ILIKE '%error%' 
+AND log_date>= '2021-09-07'
+AND log_cou_code='DK'
+ORDER BY log_date;
+
+-- delete some lines from Portugal
+
+SELECT * FROM datawg.t_eelstock_eel WHERE eel_cou_code= 'PT' AND eel_typ_id=11 
+AND eel_year>= 2013 AND eel_year<=2017 AND eel_qal_id=1;
+
+UPDATE  datawg.t_eelstock_eel SET eel_qal_id=21 WHERE eel_cou_code= 'PT' AND eel_typ_id=11 
+AND eel_year>= 2013 AND eel_year<=2017 AND eel_qal_id=1; --4
+
+SELECT * FROM datawg.t_eelstock_eel WHERE eel_cou_code= 'PT' AND eel_typ_id=11 AND eel_datasource='dc_2021' ORDER BY eel_year 
+DELETE FROM datawg.t_eelstock_eel WHERE eel_cou_code= 'PT' AND eel_typ_id=11 AND eel_datasource='dc_2021' AND eel_qal_id=21;--2
+
+
+
+
+SELECT DISTINCT ser_nameshort, ser_id FROM datawg.t_series_ser 
+WHERE ser_cou_code='GB' ORDER BY ser_nameshort
+
+
+-- DELETE LINES FOR SWEDEN
+
+SELECT * FROM datawg.t_eelstock_eel WHERE eel_cou_code= 'SE' AND eel_typ_id=11 
+  AND eel_qal_id IN (1,2) ORDER BY eel_year;
+
+
+UPDATE datawg.t_eelstock_eel SET eel_qal_id=21 WHERE eel_cou_code= 'SE' AND eel_typ_id=11 
+ AND eel_qal_id=2 AND eel_year>=2008; --11
+ 
+UPDATE datawg.t_eelstock_eel SET eel_qal_id=1 WHERE eel_cou_code= 'SE' AND eel_typ_id=11 
+  AND eel_qal_id IN (2); --4
+
+SELECT * FROM  datawg.t_eelstock_eel WHERE  eel_typ_id=11 AND eel_cou_code= 'SE' ORDER BY eel_lfs_code, eel_typ_id, eel_year
+
+-- checking italy
+
+SELECT log_cou_code, log_data,  log_message FROM datawg.log WHERE NOT log_evaluation_name ILIKE '%check%'
+AND NOT log_message ILIKE '%error%' 
+AND log_date>= '2021-09-07'
+AND log_cou_code='IT'
+ORDER BY log_date;
+
+SELECT eel_typ_id, count(*) FROM datawg.t_eelstock_eel WHERE eel_cou_code='IT' 
+AND eel_year> 2020
+GROUP BY eel_typ_id;
+
+SELECT eel_typ_id, count(*) FROM datawg.t_eelstock_eel WHERE eel_cou_code='IT' 
+AND eel_datasource ='dc_2021'
+GROUP BY eel_typ_id;
+
+
+
+
