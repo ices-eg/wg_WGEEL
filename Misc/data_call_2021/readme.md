@@ -247,7 +247,8 @@ Cédric : You cannot report other_landings there, it's fine if you put two lines
 ![image](https://user-images.githubusercontent.com/26055877/131523004-b86ae0e4-9012-47ea-99b0-f6e5f7843354.png)
 
 ## Annex 8 
-
+aquaculture
+13 new values
 ## Annex 9 
 252 new values
 ## Annex 10 
