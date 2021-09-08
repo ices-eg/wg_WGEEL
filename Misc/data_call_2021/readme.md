@@ -288,6 +288,7 @@ No aquaculture.
 ## Annex 1
 update series 8 values; new data series 15 new values; modified dataseries 5 values; new biometry 3 new values; update biometry 7 new values
 ## Annex 2 
+modified series 5 values; new dataseries 3 new values; modified dataseries 20 values;new biometry 3 new values; update biometry 63 values
 
 ## Annex 3  
 update series 2 new values; new dataseries 2 new values, new biometry 2 new values; update biometry 43 new values
