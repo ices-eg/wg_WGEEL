@@ -238,7 +238,9 @@ rec landings
 new values 72
 deleted rec_catch as value was np and throwing up errors
 ## Annex 6 
-
+landings other
+6 new values
+6 updated values
 ## Annex 7 release
 
 Cédric : You cannot report other_landings there, it's fine if you put two lines in other landings instead, one for numbers and one for kilograms.
