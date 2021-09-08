@@ -376,3 +376,6 @@ Annex 12 (by GFCM)
  2 series info modified
  2 new password
  2 new biometry inserted
+ 
+ ## Annex 4
+ 2 new values (2020)
