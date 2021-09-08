@@ -310,6 +310,7 @@ Cédric : You cannot report other_landings there, it's fine if you put two lines
 33	other_landings_n	This is neither recreational fishery, nor commercial fishery, for example catching a number of eel at a trapping ladder below a dam can be qualitied as other_landings, the exact purpose should be provided  in the corresponding comment
 ![image](https://user-images.githubusercontent.com/26055877/131523004-b86ae0e4-9012-47ea-99b0-f6e5f7843354.png)
 
+6 new values and 6 updated values
 ## Annex 8 
 aquaculture
 13 new values
