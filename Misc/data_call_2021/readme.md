@@ -18,6 +18,8 @@ Annex 7 - no kg provided, but is it needed? for what? only useful for Y / S and 
 
 
 # DK
+
+
 Question about DK_total
 
 Concerning the annex 15 of the data call. 
@@ -28,6 +30,36 @@ There is isn't it ?
 ![image](https://user-images.githubusercontent.com/26055877/122236707-069d9c80-cebf-11eb-9b01-e331138c70e3.png)
 
 You can use it. This is for the management units
+
+## Annex 1
+
+the Annex 1 was modified to delete empty lines. The new file is in the sharepoint
+new series = 0  
+modified series = 2  
+new dataseries = 3  
+modified dataseries = 0  
+new biometry = 70  
+modified biometry = 0  
+
+## Annex 2 
+the Annex 2 was modified to delete empty lines. The new file is in the sharepoint
+
+new series = 0  
+modified series = 0 
+new dataseries = 1  
+modified dataseries = 1  
+new biometry =10  
+modified biometry = 0  
+
+## Annex 3
+the Annex 3 was modified to delete empty lines and also problem of misundersting between das_effort and das_value. The new file is in the sharepoint
+
+new series = 0  
+modified series = 1  
+new dataseries = 2  
+modified dataseries = 3  
+new biometry = 0  
+modified biometry = 0
 
 # DZ
 Annex 4 (by GFCM)
@@ -348,4 +380,10 @@ Annex 4  (by GFCM): data inserted
 Annex 5  (by GFCM): data integrated.
 
 Annex 12 (by GFCM)
+ 
+ 
+# PT
+# Annex 1
+ 3 modified series info
+ 3 new dataseries values
 
