@@ -430,7 +430,7 @@ check_emu_country <- function(dataset, namedataset, column, country){
   conn <- poolCheckout(pool)
   emu_whole <- dbGetQuery(conn,paste("select emu_nameshort from ref.tr_emu_emu where emu_wholecountry=true and emu_cou_code='",country,"'",sep=""))[,1]
   poolReturn(conn)
-  if (sum(!dataset[,column] %in% emu_whole)>0)
+  if (sum(! unlist(dataset[,column]) %in% emu_whole)>0) #added unlist otherwise causes problem with tibble
     answer=data.frame(nline = which(!dataset[,column] %in% emu_whole),
                       error_message=paste("eel_emu_nameshort should be in {",paste(emu_whole,collapse=", "),"}",sep=""))
   return(answer)
