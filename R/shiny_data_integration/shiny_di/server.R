@@ -354,7 +354,8 @@ shinyServer(function(input, output, session){
 									updated_from_excel<- step0load_data()$res$updated_data
 								},
 								"aquaculture"={             
-									data_from_base<-extract_data("aquaculture", quality=c(0,1,2,3,4), quality_check=TRUE)},
+									data_from_base<-extract_data("aquaculture", quality=c(0,1,2,3,4), quality_check=TRUE)
+									updated_from_excel<- step0load_data()$res$updated_data},
 								"biomass"={
 									# bug in excel file - fixed in the template
 									#colnames(data_from_excel)[colnames(data_from_excel)=="typ_name"]<-"eel_typ_name"
@@ -517,7 +518,7 @@ shinyServer(function(input, output, session){
 							
 							
 						} # closes if nrow(...  
-						if (input$file_type %in% c("catch_landings","release")){
+						if (input$file_type %in% c("catch_landings","release","aquaculture")){
 							if (nrow(updated_from_excel)>0){
 							  output$"step1_message_updated"<-renderUI(
 							    HTML(

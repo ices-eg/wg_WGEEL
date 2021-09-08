@@ -17,9 +17,36 @@ Annex 5 - e.g. 425800 updated but only quality changes... This is not for the pr
 Annex 7 - no kg provided, but is it needed? for what? only useful for Y / S and this is where it is probably not very accurate, is it?
 
 
+## Annex 2 
+
+new series = 0  
+modified series = 1  
+new dataseries = 1  
+modified dataseries = 0  
+new biometry =0  
+modified biometry = 0  
+
+## Annex 3
+
+new series = 0  
+modified series = 1  
+new dataseries = 1  
+modified dataseries = 0  
+new biometry = 2  
+modified biometry = 1   
+
+## Annex 4 
+
+duplicate = 0  
+new = 150  
+updated = 497 
+
+## Annex 5 
+
+duplicate = 0  
+new = 158 [lines with NP for rec_catch_kg have been deleted]  
+updated = 490 
 # DK
-
-
 Question about DK_total
 
 Concerning the annex 15 of the data call. 
@@ -30,7 +57,6 @@ There is isn't it ?
 ![image](https://user-images.githubusercontent.com/26055877/122236707-069d9c80-cebf-11eb-9b01-e331138c70e3.png)
 
 You can use it. This is for the management units
-
 ## Annex 1
 
 the Annex 1 was modified to delete empty lines. The new file is in the sharepoint
@@ -60,6 +86,14 @@ new dataseries = 2
 modified dataseries = 3  
 new biometry = 0  
 modified biometry = 0
+
+
+## Annex 4: 
+4 new values added.
+## Annex 5:
+5 new values added and 1 value is corrected
+## Annex 6
+No data
 
 # DZ
 Annex 4 (by GFCM)
@@ -148,6 +182,9 @@ NO DATA
 
 # GR
 
+## Annex 5
+1033 new values
+1 value updated
 
 ## Annex 6. Error: object 'release_tot' not found"
 ## Annex 8.
@@ -169,7 +206,7 @@ Changed name of the series from OatY to OatGY.
 
 39 data series were modified.
 
-102 new biometry entries, mainly blank entries as data were not collected. Only 4 series had biometry data. 
+93 new biometry entries, mainly blank entries as data were not collected. Only 4 series had biometry data. 
 
 No biometry data were modified.
 
@@ -211,9 +248,15 @@ No duplicates.
 
 ## Annex 5 
 
-No recreational landings.
+No recreational landings in the UK (180 new values inserted in the database for 2021 and some for 2020, all NP).
 
 ## Annex 6 
+
+No duplicates.
+
+1 new value was added.
+
+No values were updated.
 
 ## Annex 7 
 
@@ -248,19 +291,23 @@ No aquaculture.
 
 
 ## Annex 1
-
+update series 8 values; new data series 15 new values; modified dataseries 5 values; new biometry 3 new values; update biometry 7 new values
 ## Annex 2 
 
 ## Annex 3  
-
+update series 2 new values; new dataseries 2 new values, new biometry 2 new values; update biometry 43 new values
 There is an empty first line on updated biometry
 
 ## Annex 4 
-
+commercial
+72 new values
+54 updated
 ## Annex 5 
-
+rec landings
+new values 72
+deleted rec_catch as value was np and throwing up errors
 ## Annex 6 
-
+landings other; 6 new values; 6 updated values
 ## Annex 7 release
 
 Cédric : You cannot report other_landings there, it's fine if you put two lines in other landings instead, one for numbers and one for kilograms.
@@ -268,19 +315,33 @@ Cédric : You cannot report other_landings there, it's fine if you put two lines
 33	other_landings_n	This is neither recreational fishery, nor commercial fishery, for example catching a number of eel at a trapping ladder below a dam can be qualitied as other_landings, the exact purpose should be provided  in the corresponding comment
 ![image](https://user-images.githubusercontent.com/26055877/131523004-b86ae0e4-9012-47ea-99b0-f6e5f7843354.png)
 
+6 new values and 6 updated values
 ## Annex 8 
-
+aquaculture
+13 new values
 ## Annex 9 
-
+252 new values
 ## Annex 10 
-
+biomass
+new values 174
 
 # IT
+
+
+## Annex 4
 
 
 |log_cou_code|log_data      |log_message                               |
 |------------|--------------|------------------------------------------|
 |IT          |catch_landings|‘ 270 new values inserted in the database’|
+
+
+## Annex 5
+Error in Step 2.1 Integrate /proceed duplicates rows: Failed to prepare query: ERROR:  column "eel_value" does not exist
+LINE 17:       eel_value,
+HINT:  There is a column named "eel_value" in table "t_eelstock_eel", but it cannot be referenced from this part of the query.
+
+
 
 
 # NL 
@@ -313,7 +374,56 @@ Cédric : You cannot report other_landings there, it's fine if you put two lines
 
 ## Annex 10   
   
-# SE
+
+# NO (Norway) 
+ 
+## Annex 1
+ 
+New dataseries=1
+
+Modified biometry=1
+
+New biometry=0
+ 
+## Annex 2
+ 
+No data 
+ 
+## Annex 3
+ 
+New dataseries=1
+
+New biometry=1
+ 
+## Annex 4
+ 
+New dataseries=12 (only 1 line of values, 11 lines of "NP")
+
+## Annex 5 
+ 
+No data
+ 
+## Annex 6
+ 
+No data
+ 
+## Annex 7
+ 
+No data
+ 
+## Annex 8 
+ No data
+ 
+## Annex 9 
+
+ New dataseries= 42 (15 lines with values and 27 lines "NC")
+
+## Annex 10
+ 
+New dataseries=29 (10 lines with values and 19 lines with "NC") 
+ 
+ 
+ # SE
 
 ## Annex 1
   
@@ -383,7 +493,33 @@ Annex 12 (by GFCM)
  
  
 # PT
-# Annex 1
+## Annex 1
  3 modified series info
  3 new dataseries values
-
+ 4 new biometry inserted
+ 
+ ## Annex 2
+ 2 series info updated
+2 new data series insered
+2 new biometry 
+ 
+ ## Annex 3
+ 2 series info modified
+ 2 new password
+ 2 new biometry inserted
+ 
+ ## Annex 4
+ 2 new values (2020)
+ 
+ ## Annex 5
+ 24 inserted (NP past data)
+ 
+ ## Annex 6
+ empty
+ 
+ ## Annex 7
+ 
+  ## Annex 8
+ 
+ removed 4 lines with delete in aquaculture
+ 
