@@ -251,7 +251,8 @@ Cédric : You cannot report other_landings there, it's fine if you put two lines
 ## Annex 9 
 252 new values
 ## Annex 10 
-
+biomass
+new values 174
 
 # IT
 
