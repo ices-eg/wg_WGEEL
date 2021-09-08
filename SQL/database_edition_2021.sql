@@ -492,3 +492,17 @@ ORDER BY log_cou_code, log_data;
 *-- The LABEL was wrong IN the program
 
 UPDATE datawg.log SET log_evaluation_name= 'write duplicates'  WHERE log_evaluation_name ILIKE '%check duplicates%'; --92
+
+
+SELECT eel_typ_id, count(*) FROM datawg.t_eelstock_eel WHERE eel_cou_code='IT' 
+AND eel_datasource='dc_2021' 
+GROUP BY eel_typ_id
+
+SELECT eel_typ_id, count(*) FROM datawg.t_eelstock_eel WHERE eel_cou_code='IT' 
+AND eel_year> 2020
+GROUP BY eel_typ_id
+
+
+SELECT eel_typ_id, count(*) FROM datawg.t_eelstock_eel WHERE eel_cou_code='GB' 
+AND eel_datasource='dc_2021' 
+GROUP BY eel_typ_id
