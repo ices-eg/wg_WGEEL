@@ -351,8 +351,11 @@ Annex 12 (by GFCM)
  
  
 # PT
-# Annex 1
+## Annex 1
  3 modified series info
  3 new dataseries values
- 4 new biometry inserte
+ 4 new biometry inserted
+ 
+ ## Annex 2
+ 2 series info updated
 
