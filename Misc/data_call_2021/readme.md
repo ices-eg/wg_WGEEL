@@ -381,3 +381,11 @@ Annex 12 (by GFCM)
  
  ## Annex 4
  2 new values (2020)
+ 
+ ## Annex 5
+ 24 inserted (NP past data)
+ 
+ ## Annex 6
+ empty
+ 
+ ## Annex 7
