@@ -348,4 +348,9 @@ Annex 4  (by GFCM): data inserted
 Annex 5  (by GFCM): data integrated.
 
 Annex 12 (by GFCM)
+ 
+ 
+# PT
+# Annex 1
+ 3 modified series info
 
