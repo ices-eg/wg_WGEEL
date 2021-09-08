@@ -18,8 +18,6 @@ Annex 7 - no kg provided, but is it needed? for what? only useful for Y / S and 
 
 
 # DK
-
-
 Question about DK_total
 
 Concerning the annex 15 of the data call. 
@@ -30,36 +28,6 @@ There is isn't it ?
 ![image](https://user-images.githubusercontent.com/26055877/122236707-069d9c80-cebf-11eb-9b01-e331138c70e3.png)
 
 You can use it. This is for the management units
-
-## Annex 1
-
-the Annex 1 was modified to delete empty lines. The new file is in the sharepoint
-new series = 0  
-modified series = 2  
-new dataseries = 3  
-modified dataseries = 0  
-new biometry = 70  
-modified biometry = 0  
-
-## Annex 2 
-the Annex 2 was modified to delete empty lines. The new file is in the sharepoint
-
-new series = 0  
-modified series = 0 
-new dataseries = 1  
-modified dataseries = 1  
-new biometry =10  
-modified biometry = 0  
-
-## Annex 3
-the Annex 3 was modified to delete empty lines and also problem of misundersting between das_effort and das_value. The new file is in the sharepoint
-
-new series = 0  
-modified series = 1  
-new dataseries = 2  
-modified dataseries = 3  
-new biometry = 0  
-modified biometry = 0
 
 # DZ
 Annex 4 (by GFCM)
@@ -215,6 +183,12 @@ No recreational landings.
 
 ## Annex 6 
 
+No duplicates.
+
+1 new value was added.
+
+No values were updated.
+
 ## Annex 7 
 
 No duplicates.
@@ -256,9 +230,13 @@ No aquaculture.
 There is an empty first line on updated biometry
 
 ## Annex 4 
-
+commercial
+72 new values
+54 updated
 ## Annex 5 
-
+rec landings
+new values 72
+deleted rec_catch as value was np and throwing up errors
 ## Annex 6 
 
 ## Annex 7 release
@@ -269,18 +247,31 @@ Cédric : You cannot report other_landings there, it's fine if you put two lines
 ![image](https://user-images.githubusercontent.com/26055877/131523004-b86ae0e4-9012-47ea-99b0-f6e5f7843354.png)
 
 ## Annex 8 
-
+aquaculture
+13 new values
 ## Annex 9 
-
+252 new values
 ## Annex 10 
-
+biomass
+new values 174
 
 # IT
+
+
+## Annex 4
 
 
 |log_cou_code|log_data      |log_message                               |
 |------------|--------------|------------------------------------------|
 |IT          |catch_landings|‘ 270 new values inserted in the database’|
+
+
+## Annex 5
+Error in Step 2.1 Integrate /proceed duplicates rows: Failed to prepare query: ERROR:  column "eel_value" does not exist
+LINE 17:       eel_value,
+HINT:  There is a column named "eel_value" in table "t_eelstock_eel", but it cannot be referenced from this part of the query.
+
+
 
 
 # NL 
@@ -313,7 +304,21 @@ Cédric : You cannot report other_landings there, it's fine if you put two lines
 
 ## Annex 10   
   
-# SE
+
+# NO 
+ 
+ ## Annex 1: completed
+ ## Annex 2: No data
+ ## Annex 3: completed
+ ## Annex 4: completed
+ ## Annex 5: No data
+ ## Annex 6: No data
+## Annex 7: No data
+## Annex 8 
+## Annex 9 
+## Annex 10: Completed 
+ 
+ # SE
 
 ## Annex 1
   
@@ -383,7 +388,28 @@ Annex 12 (by GFCM)
  
  
 # PT
-# Annex 1
+## Annex 1
  3 modified series info
  3 new dataseries values
-
+ 4 new biometry inserted
+ 
+ ## Annex 2
+ 2 series info updated
+2 new data series insered
+2 new biometry 
+ 
+ ## Annex 3
+ 2 series info modified
+ 2 new password
+ 2 new biometry inserted
+ 
+ ## Annex 4
+ 2 new values (2020)
+ 
+ ## Annex 5
+ 24 inserted (NP past data)
+ 
+ ## Annex 6
+ empty
+ 
+ ## Annex 7
