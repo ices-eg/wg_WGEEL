@@ -234,7 +234,9 @@ commercial
 72 new values
 54 updated
 ## Annex 5 
-
+rec landings
+new values 72
+deleted rec_catch as value was np and throwing up errors
 ## Annex 6 
 
 ## Annex 7 release
