@@ -1,5 +1,7 @@
 # AL
-Annex 4 (by GFCM) - missing area divisions
+Annex 4 (by GFCM) catch_landings	‘ 32 new values inserted in the database’
+
+ 
 
 Annex 7 (by GFCM) - silver eel releases... T&T? Captured in catches? Someting else? There is no n_release, so it doesn't work. Error: object 'release_tot' not found
 
@@ -15,6 +17,35 @@ Annex 5 - e.g. 425800 updated but only quality changes... This is not for the pr
 Annex 7 - no kg provided, but is it needed? for what? only useful for Y / S and this is where it is probably not very accurate, is it?
 
 
+## Annex 2 
+
+new series = 0  
+modified series = 1  
+new dataseries = 1  
+modified dataseries = 0  
+new biometry =0  
+modified biometry = 0  
+
+## Annex 3
+
+new series = 0  
+modified series = 1  
+new dataseries = 1  
+modified dataseries = 0  
+new biometry = 2  
+modified biometry = 1   
+
+## Annex 4 
+
+duplicate = 0  
+new = 150  
+updated = 497 
+
+## Annex 5 
+
+duplicate = 0  
+new = 158 [lines with NP for rec_catch_kg have been deleted]  
+updated = 490 
 # DK
 Question about DK_total
 
@@ -27,13 +58,29 @@ There is isn't it ?
 
 You can use it. This is for the management units
 
+Annex 4: 4 new values added.
+
 # DZ
 Annex 4 (by GFCM)
 42 new inserted values
 
+# EE
+
+|log_cou_code|log_data       |log_message                             |
+|------------|---------------|----------------------------------------|
+|EE          |biomass        |‘ 6 new values inserted in the database’|
+|EE          |mortality_rates|‘ 6 new values inserted in the database’|
+|EE          |catch_landings |‘ 4 new values inserted in the database’|
+
+
 # EG
 
-Annex 4 (by GFCM) - missing qualifyer for empty value cell
+Annex 4 (by GFCM) 
+|log_cou_code|log_data      |log_message                              |
+|------------|--------------|-----------------------------------------|
+|EG          |catch_landings|‘ 42 new values inserted in the database’|
+
+
 
 # FR
 
@@ -123,6 +170,8 @@ Changed name of the series from OatY to OatGY.
 
 102 new biometry entries, mainly blank entries as data were not collected. Only 4 series had biometry data. 
 
+No biometry data were modified.
+
 ## Annex 2 
 
 No new series.
@@ -135,23 +184,72 @@ No new series.
 
 122 new biometry entries, mainly blank entries as data were not collected. Only 4 series had biometry data. 
 
+No biometry data were modified.
+
 ## Annex 3 
+
+No new series.
+
+6 series were modified.
+
+15 new data series were added. 
+
+No data series were modified.
+
+24 new biometry entries, mainly blank entries as data were not collected. Only 3 series had biometry data. 
+
+No biometry data were modified.
 
 ## Annex 4 
 
+No duplicates.
+
+168 new values were added.
+
+79 values were updated.
+
 ## Annex 5 
+
+No recreational landings.
 
 ## Annex 6 
 
+No duplicates.
+
+1 new value was added.
+
+No values were updated.
+
 ## Annex 7 
+
+No duplicates.
+
+18 new values were added.
+
+14 values were updated.
 
 ## Annex 8 
 
+No aquaculture.
+
 ## Annex 9 
+
+588 new values were added.
 
 ## Annex 10 
 
+406 new values were added.
+
 # IE
+
+|log_cou_code|log_data      |log_message                              |
+|------------|--------------|-----------------------------------------|
+|IE          |catch_landings|‘ 72 new values inserted in the database’|
+|IE          |catch_landings|‘6 values updated in the db’             |
+|IE          |catch_landings|‘54 values updated in the db’            |
+|IE          |catch_landings|‘ 6 new values inserted in the database’ |
+|IE          |aquaculture   |‘ 13 new values inserted in the database’|
+|IE          |catch_landings|‘ 72 new values inserted in the database’|
 
 
 ## Annex 1
@@ -163,9 +261,13 @@ No new series.
 There is an empty first line on updated biometry
 
 ## Annex 4 
-
+commercial
+72 new values
+54 updated
 ## Annex 5 
-
+rec landings
+new values 72
+deleted rec_catch as value was np and throwing up errors
 ## Annex 6 
 
 ## Annex 7 release
@@ -176,15 +278,44 @@ Cédric : You cannot report other_landings there, it's fine if you put two lines
 ![image](https://user-images.githubusercontent.com/26055877/131523004-b86ae0e4-9012-47ea-99b0-f6e5f7843354.png)
 
 ## Annex 8 
-
+aquaculture
+13 new values
 ## Annex 9 
-
+252 new values
 ## Annex 10 
+biomass
+new values 174
+
+# IT
+
+
+## Annex 4
+
+
+|log_cou_code|log_data      |log_message                               |
+|------------|--------------|------------------------------------------|
+|IT          |catch_landings|‘ 270 new values inserted in the database’|
+
+
+## Annex 5
+Error in Step 2.1 Integrate /proceed duplicates rows: Failed to prepare query: ERROR:  column "eel_value" does not exist
+LINE 17:       eel_value,
+HINT:  There is a column named "eel_value" in table "t_eelstock_eel", but it cannot be referenced from this part of the query.
+
+
 
 
 # NL 
 
 ## Annex 1
+
+|log_cou_code|log_data |log_message                              |
+|------------|---------|-----------------------------------------|
+|NL          |glass_eel|‘5 values updated in the db’             |
+|NL          |glass_eel|‘ 5 new values inserted in the database’ |
+|NL          |glass_eel|‘2 values updated in the db’             |
+|NL          |glass_eel|‘ 55 new values inserted in the database’|
+
 
 ## Annex 2 
 
@@ -204,7 +335,21 @@ Cédric : You cannot report other_landings there, it's fine if you put two lines
 
 ## Annex 10   
   
-# SE
+
+# NO 
+ 
+ ## Annex 1: completed
+ ## Annex 2: No data
+ ## Annex 3: completed
+ ## Annex 4: completed
+ ## Annex 5: No data
+ ## Annex 6: No data
+## Annex 7: No data
+## Annex 8 
+## Annex 9 
+## Annex 10: Completed 
+ 
+ # SE
 
 ## Annex 1
   
@@ -217,10 +362,34 @@ Cédric : You cannot report other_landings there, it's fine if you put two lines
   
 
 ## Annex 2 
+  
+|log_cou_code|log_data  |log_message                             |
+|------------|----------|----------------------------------------|
+|SE          |yellow_eel|‘11 values updated in the db’           |
+|SE          |yellow_eel|‘6 values updated in the db’            |
+|SE          |yellow_eel|‘ 4 new values inserted in the database’|
+
 
 ## Annex 3 
+  
+|log_cou_code|log_data  |log_message                             |
+|------------|----------|----------------------------------------|
+|SE          |silver_eel|‘ 1 new values inserted in the database’|
+|SE          |silver_eel|‘6 values updated in the db’            |
+|SE          |silver_eel|‘ 2 new values inserted in the database’|
+|SE          |silver_eel|‘1 values updated in the db’            |
+|SE          |silver_eel|‘ 3 new values inserted in the database’|
+|SE          |silver_eel|‘2 values updated in the db’            |
+  
 
 ## Annex 4 
+  
+|log_cou_code|log_data      |log_message                              |
+|------------|--------------|-----------------------------------------|
+|SE          |catch_landings|‘19 values updated in the db’            |
+|SE          |catch_landings|‘ 36 new values inserted in the database’|
+|SE          |catch_landings|‘ 38 new values inserted in the database’|
+
 
 ## Annex 5 
 
@@ -241,9 +410,42 @@ Annex 4 (by GFCM) 6 new values are added.
 
 # TR
 
-Annex 4  (by GFCM): data integrated.
+Annex 4  (by GFCM): data inserted
+  
 
 Annex 5  (by GFCM): data integrated.
 
 Annex 12 (by GFCM)
-
+ 
+ 
+# PT
+## Annex 1
+ 3 modified series info
+ 3 new dataseries values
+ 4 new biometry inserted
+ 
+ ## Annex 2
+ 2 series info updated
+2 new data series insered
+2 new biometry 
+ 
+ ## Annex 3
+ 2 series info modified
+ 2 new password
+ 2 new biometry inserted
+ 
+ ## Annex 4
+ 2 new values (2020)
+ 
+ ## Annex 5
+ 24 inserted (NP past data)
+ 
+ ## Annex 6
+ empty
+ 
+ ## Annex 7
+ 
+  ## Annex 8
+ 
+ removed 4 lines with delete in aquaculture
+ 

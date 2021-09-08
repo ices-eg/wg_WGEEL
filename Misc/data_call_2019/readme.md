@@ -40,7 +40,7 @@ https://community.ices.dk/ExpertGroups/wgeel/WGEEL%20accessions/Data%20call%2020
 
 ### Landings
 
-* Data integrated
+* Done: 32 rows integrated (newdata only)
 
 ### Releases
 * Check file gives error: 'object 'release_tot' not found'
@@ -131,7 +131,7 @@ line <1>, there should not be any area divsion in freshwater
 
 ### Landings
 
-* Data integrated
+* Done: 42 rows integrated (newdata only)
 * *NOTE* there was a missing qualifier for non reported catches in 2011 which was added 
 
 -------------------------
@@ -257,6 +257,9 @@ https://community.ices.dk/ExpertGroups/wgeel/WGEEL%20accessions/Data%20call%2020
 -----------------------------
 
 ## IRELAND
+
+### Time series
+multiple errors for recruitment, yellow and silver eel time series but the files look fine. Some errors specifically given are not there. Has to be checked in detail.
 
 ### Landings
 

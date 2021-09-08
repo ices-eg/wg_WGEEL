@@ -2182,13 +2182,39 @@ load_series<-function(path,datasource,stage="glass_eel"){
 						column="ser_dts_datasource",
 						country=country))
 		
-		# data_error <- rbind(data_error, check_values(
-		# 				dataset=series,						
-		# 				namedataset= "series_info",
-		# 				column="ser_dts_datasource",
-		# 				country=country,
-		# 				values=c("dc_2017","wgeel_2016","wgeel_2017","dc_2018","dc_2019","dc_2020","dc_2020_missing")))
-		
+
+
+data_error <- rbind(data_error, check_missing(
+				dataset=series,						
+				namedataset= "series_info",
+				column="ser_sam_id",
+				country=country))
+
+data_error <- rbind(data_error, check_missing(
+				dataset=series,						
+				namedataset= "series_info",
+				column="ser_distanceseakm",
+				country=country))
+
+data_error <- rbind(data_error, check_missing(
+				dataset=series,						
+				namedataset= "series_info",
+				column="ser_method",
+				country=country))
+
+data_error <- rbind(data_error, check_missing(
+				dataset=series,						
+				namedataset= "series_info",
+				column="ser_restocking",
+				country=country))
+
+data_error <- rbind(data_error, check_values(
+				dataset=series,
+				namedataset= "series_info",
+				column="ser_sam_id",
+				country=country,
+				values=c(1,0,"true","false",'TRUE','FALSE')))
+
 	} 
 #---------------------- station ---------------------------------------------	
 # read the catch_landings sheet
@@ -2303,6 +2329,8 @@ load_series<-function(path,datasource,stage="glass_eel"){
 						namedataset= "new_data",
 						column="das_dts_datasource",
 						country=country))
+		
+
 		
 		# data_error <- rbind(data_error, check_values(
 		# 				dataset=new_data,					
