@@ -11,13 +11,30 @@ Annex 12 (by GFCM)
 
 
 # DE
-Annex 3 - New data is not new (rather an update?)
-Annex 4 - Why is Schl updated, it did not change, did it?
-Annex 5 - e.g. 425800 updated but only quality changes... This is not for the provider to change, is it?
-Annex 7 - no kg provided, but is it needed? for what? only useful for Y / S and this is where it is probably not very accurate, is it?
+## annex 1
+13 modified series
+35 new dataseries
+5 modified dataseries
 
+## Annex 3 
+New data is not new (rather an update?)
+
+## Annex 4 
+Why is Schl updated, it did not change, did it?
+
+## Annex 5 
+e.g. 425800 updated but only quality changes... This is not for the provider to change, is it?
+
+## Annex 7
+No new values could be added yet, as weight data was missing. This still needs to be added in the original data, and then the new release data can be integrated
+
+We updated 1241 values. The updates that were marked with DELETE in the comment column need to be undone. They were deleted because Germany does not use weight data, but WGEEL needs the weight data, so these data should not be deleted. It needs to be seen if it is possible to remove these DELETE comments in the database, to preserve these data.
+
+## Annex 8:
+Still needs to be integrated, there was a bug where updated values did not appear in the Shiny application. We wait until this bug is fixed.
 
 ## Annex 2 
+the Annex 2 was modified to delete empty lines and change was made for id_typ_serie. The new file is in the sharepoint
 
 new series = 0  
 modified series = 1  
@@ -27,6 +44,7 @@ new biometry =0
 modified biometry = 0  
 
 ## Annex 3
+the Annex 3 was modified to delete empty lines and add some informations on area division. The new file is in the sharepoint
 
 new series = 0  
 modified series = 1  
@@ -36,16 +54,22 @@ new biometry = 2
 modified biometry = 1   
 
 ## Annex 4 
+the Annex 4 was modified to add some informations on area division. The new file is in the sharepoint
 
 duplicate = 0  
 new = 150  
 updated = 497 
 
 ## Annex 5 
+the Annex 5 was modified rec_catch_kg have been deleted
 
 duplicate = 0  
 new = 158 [lines with NP for rec_catch_kg have been deleted]  
-updated = 490 
+updated = 490
+## Annex 9 
+new=378
+## Annex 10
+new=261
 # DK
 Question about DK_total
 
@@ -115,6 +139,15 @@ Annex 4 (by GFCM)
 |------------|--------------|-----------------------------------------|
 |EG          |catch_landings|‘ 42 new values inserted in the database’|
 
+# ES
+
+# FI
+
+## Annex 8 
+
+During the datacall, clarisse identified duplicates in issue #194.
+Pressing a bit further there was indeed a duplicate for FINLAND aquaculture in
+2014 and 2015. Two exact duplicates lines (500 t) has been removed.
 
 
 # FR
@@ -191,6 +224,9 @@ NO DATA
 
 remove data per habitat for aquaculture (in existing kept there are values for Freshwater, this is wrong.) These values are duplicated with values entered for 2017 without the Freshwater tag. Suggestion = remove all data for aquaculture and Freshwater and update the rest if wrong
 
+# HR
+
+Croatia do we have anything ? 
 
 # GB
 
@@ -206,7 +242,7 @@ Changed name of the series from OatY to OatGY.
 
 39 data series were modified.
 
-93 new biometry entries, mainly blank entries as data were not collected. Only 4 series had biometry data. 
+102 new biometry entries, mainly blank entries as data were not collected. Only 4 series had biometry data. 
 
 No biometry data were modified.
 
@@ -341,8 +377,11 @@ Error in Step 2.1 Integrate /proceed duplicates rows: Failed to prepare query: E
 LINE 17:       eel_value,
 HINT:  There is a column named "eel_value" in table "t_eelstock_eel", but it cannot be referenced from this part of the query.
 
+# LT
 
+# LV
 
+# MA
 
 # NL 
 
@@ -373,7 +412,7 @@ HINT:  There is a column named "eel_value" in table "t_eelstock_eel", but it can
 ## Annex 9 
 
 ## Annex 10   
-  
+
 
 # NO (Norway) 
  
@@ -421,7 +460,39 @@ No data
 ## Annex 10
  
 New dataseries=29 (10 lines with values and 19 lines with "NC") 
+
+# PL 
  
+# PT
+## Annex 1
+ 3 modified series info
+ 3 new dataseries values
+ 4 new biometry inserted
+ 
+ ## Annex 2
+ 2 series info updated
+2 new data series insered
+2 new biometry 
+ 
+ ## Annex 3
+ 2 series info modified
+ 2 new password
+ 2 new biometry inserted
+ 
+ ## Annex 4
+ 2 new values (2020)
+ 
+ ## Annex 5
+ 24 inserted (NP past data)
+ 
+ ## Annex 6
+ empty
+ 
+ ## Annex 7
+ 
+  ## Annex 8
+ 
+ removed 4 lines with delete in aquaculture
  
  # SE
 
@@ -479,6 +550,10 @@ add eel_comment = assisted migration for all existing_kept data (directly with a
 
 ## Annex 10 
 
+# Sl
+ 
+ I there any data for Solvenia ?
+ 
 # TN
 Annex 4 (by GFCM) 6 new values are added.
 
@@ -492,34 +567,5 @@ Annex 5  (by GFCM): data integrated.
 Annex 12 (by GFCM)
  
  
-# PT
-## Annex 1
- 3 modified series info
- 3 new dataseries values
- 4 new biometry inserted
- 
- ## Annex 2
- 2 series info updated
-2 new data series insered
-2 new biometry 
- 
- ## Annex 3
- 2 series info modified
- 2 new password
- 2 new biometry inserted
- 
- ## Annex 4
- 2 new values (2020)
- 
- ## Annex 5
- 24 inserted (NP past data)
- 
- ## Annex 6
- empty
- 
- ## Annex 7
- 
-  ## Annex 8
- 
- removed 4 lines with delete in aquaculture
+
  
