@@ -243,6 +243,13 @@ new biometry = 23
 modified biometry = 0   
 
 ## Annex 4 
+83 updated values
+262 new values (values for ES_Murc were both in new data and updated data)
+at some points, there was a mess so we needed using this query
+```sql
+delete from datawg.t_eelstock_eel where eel_typ_id = 4 and eel_datasource ='dc_2021' and eel_qal_id =1 and eel_cou_code ='ES';
+update datawg.t_eelstock_eel set eel_qal_id=1 where eel_typ_id =4 and eel_qal_id=21 and eel_cou_code='ES';
+```
 
 
 
