@@ -139,6 +139,15 @@ Annex 4 (by GFCM)
 |------------|--------------|-----------------------------------------|
 |EG          |catch_landings|‘ 42 new values inserted in the database’|
 
+# ES
+
+# FI
+
+## Annex 8 
+
+During the datacall, clarisse identified duplicates in issue #194.
+Pressing a bit further there was indeed a duplicate for FINLAND aquaculture in
+2014 and 2015. Two exact duplicates lines (500 t) has been removed.
 
 
 # FR
@@ -215,6 +224,9 @@ NO DATA
 
 remove data per habitat for aquaculture (in existing kept there are values for Freshwater, this is wrong.) These values are duplicated with values entered for 2017 without the Freshwater tag. Suggestion = remove all data for aquaculture and Freshwater and update the rest if wrong
 
+# HR
+
+Croatia do we have anything ? 
 
 # GB
 
@@ -365,8 +377,11 @@ Error in Step 2.1 Integrate /proceed duplicates rows: Failed to prepare query: E
 LINE 17:       eel_value,
 HINT:  There is a column named "eel_value" in table "t_eelstock_eel", but it cannot be referenced from this part of the query.
 
+# LT
 
+# LV
 
+# MA
 
 # NL 
 
@@ -397,7 +412,7 @@ HINT:  There is a column named "eel_value" in table "t_eelstock_eel", but it can
 ## Annex 9 
 
 ## Annex 10   
-  
+
 
 # NO (Norway) 
  
@@ -445,7 +460,39 @@ No data
 ## Annex 10
  
 New dataseries=29 (10 lines with values and 19 lines with "NC") 
+
+# PL 
  
+# PT
+## Annex 1
+ 3 modified series info
+ 3 new dataseries values
+ 4 new biometry inserted
+ 
+ ## Annex 2
+ 2 series info updated
+2 new data series insered
+2 new biometry 
+ 
+ ## Annex 3
+ 2 series info modified
+ 2 new password
+ 2 new biometry inserted
+ 
+ ## Annex 4
+ 2 new values (2020)
+ 
+ ## Annex 5
+ 24 inserted (NP past data)
+ 
+ ## Annex 6
+ empty
+ 
+ ## Annex 7
+ 
+  ## Annex 8
+ 
+ removed 4 lines with delete in aquaculture
  
  # SE
 
@@ -503,6 +550,10 @@ add eel_comment = assisted migration for all existing_kept data (directly with a
 
 ## Annex 10 
 
+# Sl
+ 
+ I there any data for Solvenia ?
+ 
 # TN
 Annex 4 (by GFCM) 6 new values are added.
 
@@ -516,34 +567,5 @@ Annex 5  (by GFCM): data integrated.
 Annex 12 (by GFCM)
  
  
-# PT
-## Annex 1
- 3 modified series info
- 3 new dataseries values
- 4 new biometry inserted
- 
- ## Annex 2
- 2 series info updated
-2 new data series insered
-2 new biometry 
- 
- ## Annex 3
- 2 series info modified
- 2 new password
- 2 new biometry inserted
- 
- ## Annex 4
- 2 new values (2020)
- 
- ## Annex 5
- 24 inserted (NP past data)
- 
- ## Annex 6
- empty
- 
- ## Annex 7
- 
-  ## Annex 8
- 
- removed 4 lines with delete in aquaculture
+
  
