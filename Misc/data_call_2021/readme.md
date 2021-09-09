@@ -498,33 +498,25 @@ No data
 
 ## Annex 2 
 
-new series = 6  
-modified series = 13  
-new dataseries = 62  
-modified dataseries = 100  
-new biometry =60  
-modified biometry = 99  
+
+modified series = 1  
+new dataseries = 1  
 
 ## Annex 3
 
-new series = 0  
-modified series = 6  
-new dataseries = 6  
-modified dataseries = 2  
-new biometry = 5  
-modified biometry = 3   
+No data  
 
 ## Annex 4 
 
 duplicate = 0  
-new = 157  
-updated = 24  
+new = 52  
+updated = 0  
 
 ## Annex 5 
 
 duplicate = 0  
-new = 125 [2765 lines with NP for rec_catch_kg should have been deleted]  
-updated = 3 
+new = 26 [lines with NP for rec_catch_kg should have been deleted]  
+updated = 0 
 
 ## Annex 6 
 
@@ -533,8 +525,8 @@ NO DATA
 ## Annex 7 
 
 duplicate = 0  
-new = 22  
-updated = 4  
+new = 4 
+updated = 0  
 
 ## Annex 8 
 
@@ -542,11 +534,11 @@ NO DATA
 
 ## Annex 9 
 
-NO DATA
+new data: 84
 
 ## Annex 10 
 
-NO DATA
+new data: 58
  
 # PT
 ## Annex 1
