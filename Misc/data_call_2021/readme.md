@@ -453,6 +453,36 @@ No data
  
 New dataseries=29 (10 lines with values and 19 lines with "NC") 
  
+# PT
+## Annex 1
+ 3 modified series info
+ 3 new dataseries values
+ 4 new biometry inserted
+ 
+ ## Annex 2
+ 2 series info updated
+2 new data series insered
+2 new biometry 
+ 
+ ## Annex 3
+ 2 series info modified
+ 2 new password
+ 2 new biometry inserted
+ 
+ ## Annex 4
+ 2 new values (2020)
+ 
+ ## Annex 5
+ 24 inserted (NP past data)
+ 
+ ## Annex 6
+ empty
+ 
+ ## Annex 7
+ 
+  ## Annex 8
+ 
+ removed 4 lines with delete in aquaculture
  
  # SE
 
@@ -523,34 +553,5 @@ Annex 5  (by GFCM): data integrated.
 Annex 12 (by GFCM)
  
  
-# PT
-## Annex 1
- 3 modified series info
- 3 new dataseries values
- 4 new biometry inserted
- 
- ## Annex 2
- 2 series info updated
-2 new data series insered
-2 new biometry 
- 
- ## Annex 3
- 2 series info modified
- 2 new password
- 2 new biometry inserted
- 
- ## Annex 4
- 2 new values (2020)
- 
- ## Annex 5
- 24 inserted (NP past data)
- 
- ## Annex 6
- empty
- 
- ## Annex 7
- 
-  ## Annex 8
- 
- removed 4 lines with delete in aquaculture
+
  
