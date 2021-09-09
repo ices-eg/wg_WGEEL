@@ -650,7 +650,39 @@ WHERE eel_id IN (423409,423410);--2
 
 
 
+SELECT * FROM 
+datawg.t_series_ser JOIN 
+datawg.t_dataseries_das 
+ON das_ser_id = ser_id
+WHERE das_id IN (4435,4436,4438,4465)
 
 
+-- there was no catch
+
+UPDATEdata_error_series$error_messaget_dataseries_das SET (das_value, das_comment, das_qal_id) = 
+(NULL,'there was no sampling, no data, corrected in 2021', 0)
+WHERE das_id IN (4435,4436,4438,4465); --4
+
+
+-- delete lines for NL
+
+UPDATE datawg.t_eelstock_eel SET (eel_qal_id,eel_qal_comment) = ('21', coalesce(eel_qal_comment,'')|| ' =>Marqued as DELETE for dc_2021')
+WHERE eel_id IN (380096,
+380097,
+380098,
+380099,
+380100,
+380101,
+380102,
+380116,
+380117,
+392278,
+392298,
+392306,
+422851,
+422852);--14
+
+
+SELECT coalesce(eel_qal_comment,'')|| ' =>Marqued as DELETE for dc_2021' FROM datawg.t_eelstock_eel LIMIT 100
 
 
