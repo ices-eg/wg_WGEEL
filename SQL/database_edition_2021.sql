@@ -896,7 +896,19 @@ AND eel_qal_id =1
 AND eel_missvaluequal  IS NULL;--420
 
 
+-- BE
 
+-- BEFORE inserting, remove  VeAmG as it has been split into two series 
+
+SELECT * FROM datawg.t_series_ser WHERE ser_nameshort='VeAmGY' ; --ser_id 209
+
+SELECT * FROM  datawg.t_dataseries_das WHERE das_ser_id =209; -- 4 lines
+
+DELETE FROM  datawg.t_dataseries_das WHERE das_ser_id =209;--4
+-- there is a crisscross of constraints, so I need to remove the ser_tblcodeid first
+UPDATE  datawg.t_series_ser  set   ser_tblcodeid =NULL WHERE ser_nameshort ='VeAmGY';--1
+DELETE FROM ref.tr_station WHERE "Station_Name"='VeAmGY' ;--1
+DELETE  FROM datawg.t_series_ser WHERE ser_nameshort='VeAmGY' ;--1
 
 
 
