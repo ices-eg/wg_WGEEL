@@ -148,6 +148,9 @@ corrections : missing type so addes q_aqua_kg and should DK uppercase
  
 ## Annex 10
 
+added miising series for biomass in DK_total (these correspond to marine waters, no calculations for either mortality or biomass
+ 50 new values inserted in the database
+
 # DZ
 Annex 4 (by GFCM)
 42 new inserted values
