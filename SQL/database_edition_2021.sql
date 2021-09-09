@@ -649,6 +649,99 @@ WHERE eel_id IN (423409,423410);--2
 
 
 
+SELECT * FROM 
+datawg.t_series_ser JOIN 
+datawg.t_dataseries_das 
+ON das_ser_id = ser_id
+WHERE das_id IN (4435,4436,4438,4465)
+
+
+-- there was no catch
+
+UPDATEdata_error_series$error_messaget_dataseries_das SET (das_value, das_comment, das_qal_id) = 
+(NULL,'there was no sampling, no data, corrected in 2021', 0)
+WHERE das_id IN (4435,4436,4438,4465); --4
+
+
+-- delete lines for NL
+
+UPDATE datawg.t_eelstock_eel SET (eel_qal_id,eel_qal_comment) = ('21', coalesce(eel_qal_comment,'')|| ' =>Marqued as DELETE for dc_2021')
+WHERE eel_id IN (380096,
+380097,
+380098,
+380099,
+380100,
+380101,
+380102,
+380116,
+380117,
+392278,
+392298,
+392306,
+422851,
+422852);--14
+
+
+SELECT coalesce(eel_qal_comment,'')|| ' =>Marqued as DELETE for dc_2021' FROM datawg.t_eelstock_eel LIMIT 100
+
+WITH remove_me AS (
+	SELECT * FROM datawg.t_eelstock_eel 
+	WHERE eel_typ_id IN (8,9,10) 
+	 AND eel_qal_id IN (1,2,4)
+	 AND eel_cou_code='DE'
+	 AND eel_id NOT IN (
+	SELECT eel_id FROM datawg.t_eelstock_eel  
+	 WHERE eel_typ_id IN (8,9,10) 
+	 AND eel_qal_id =21
+	 AND eel_cou_code='DE')
+	 )
+UPDATE datawg.t_eelstock_eel  
+SET (eel_qal_id, eel_qal_comment)= (21, coalesce(t_eelstock_eel.eel_qal_comment || ' =>Everything remove from the db in 2021')) 
+FROM remove_me WHERE remove_me.eel_id=t_eelstock_eel.eel_id; --101
+
+
+
+ 
+DELETE FROM datawg.t_eelstock_eel WHERE 
+eel_comment='DELETE'
+ AND eel_typ_id IN (8,9,10) 
+ AND eel_qal_id IN (1,2,4)
+AND eel_cou_code='DE'; --460
+
+SELECT *  FROM datawg.t_eelstock_eel WHERE 
+eel_datasource='dc_2021'
+ AND eel_typ_id IN (8,9,10) 
+ --AND eel_qal_id IN (21)
+AND eel_cou_code='DE';
+
+DELETE FROM datawg.t_eelstock_eel WHERE 
+eel_datasource='dc_2021'
+ AND eel_typ_id IN (8,9,10) 
+ AND eel_qal_id =1
+AND eel_cou_code='DE'; --425
+
+SELECT * FROM datawg.t_eelstock_eel  WHERE eel_year = 1985
+AND eel_lfs_code='Y'
+AND eel_emu_nameshort='DE_Oder'
+AND eel_typ_id =9
+AND eel_hty_code= 'F'
+ 
+ SELECT count(*), eel_qal_id, eel_year, eel_typ_id  FROM datawg.t_eelstock_eel 
+ WHERE eel_typ_id IN (8,9,10) 
+ AND eel_qal_id IN (1,2,4)
+ AND eel_cou_code='DE'
+ GROUP BY eel_qal_id, eel_year, eel_typ_id
+ ORDER BY eel_typ_id, eel_qal_id, eel_year;
+
+SELECT * FROM datawg.t_eelstock_eel WHERE eel_typ_id=6 AND  eel_cou_code='DE' AND eel_qal_id =1 AND eel_missvaluequal  IS NULL
+
+
+-- ALL GERMAN LANDINGS FOR RECREATIONAL ARE DUBIOUS ACCORDING TO LASSE
+UPDATE datawg.t_eelstock_eel SET eel_qal_id =4 WHERE eel_typ_id=6
+AND  eel_cou_code='DE' 
+AND eel_qal_id =1
+AND eel_missvaluequal  IS NULL;--420
+
 
 
 

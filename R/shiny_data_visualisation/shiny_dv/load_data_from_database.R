@@ -149,4 +149,4 @@ save( precodata_all,
     aquaculture, 
     landings,
 	ys_stations, wger_ys, wger_init_ys, statseries_ys,
-    file="data/ref_and_eel_data.Rdata", version=2)
+    file="data/ref_and_eel_data.Rdata")

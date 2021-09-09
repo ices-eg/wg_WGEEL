@@ -84,7 +84,7 @@ t_eelstock_eel<-sqldf("SELECT
 				eel_datasource,
 				eel_dta_code,
 				qal_kept,
-				typ_name eel_type_name,
+				typ_name,
 				perc_f,
 				perc_t,
 				perc_c,
@@ -165,7 +165,7 @@ create_datacall_file_biom_morta <- function(country, type = type_of_data[1], ...
 	data_missing <- detect_missing_biom_morta(cou=country,typ=type, eel_typ_id = eel_typ_id, maxyear = CY-1)
 	data_missing %<>% 
 			mutate(eel_missvaluequal = NA) %>%
-			select(eel_typ_name, 
+			select(typ_name, 
 					eel_year, 
 					eel_value,
 					eel_missvaluequal,
@@ -176,7 +176,7 @@ create_datacall_file_biom_morta <- function(country, type = type_of_data[1], ...
 					perc_C=0,
 					perc_MO=0) %>%
 			rename_with(function(x) paste(type, x, sep="_"),starts_with("perc")) %>%
-			arrange(eel_emu_nameshort, eel_typ_name, eel_year)
+			arrange(eel_emu_nameshort, typ_name, eel_year)
 	#openxlsx::writeData(wb,  sheet = "new_data", data_missing, startRow = 2, colNames = FALSE)
 	XLConnect::writeWorksheet(wb, data=data_missing, sheet = "new_data",  startRow = 2, header = FALSE)
 	

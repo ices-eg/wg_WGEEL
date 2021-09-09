@@ -84,14 +84,14 @@ check_values <- function(dataset,namedataset, column,country,values){
       value <- ddataset[,column][!ddataset[,column]%in%values]
       line <- ddataset$nline[!ddataset[,column]%in%values]
       if (length(line)>0){
-        cat(sprintf("dataset <%s>, column <%s>, line <%s>, value <%s> is wrong, possibly not entered yet \n", 
+        cat(sprintf("dataset <%s>, column <%s>, line <%s>, value <%s> is wrong \n", 
 								    namedataset,
                     column,
 										str_c(unique(line),collapse=";"),
 										str_c(value,collapse=";")))
         # same but split and no end of line
         answer  = data.frame(nline = line , 
-						error_message = sprintf("dataset <%s>, column <%s>, value <%s> is wrong, possibly not entered yet", 
+						error_message = sprintf("dataset <%s>, column <%s>, value <%s> is wrong", 
 								namedataset,
 								column,
 								value))

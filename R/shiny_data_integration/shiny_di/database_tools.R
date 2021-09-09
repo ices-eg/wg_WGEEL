@@ -922,11 +922,12 @@ compare_with_database_biometry <- function(data_from_excel, data_from_base, shee
 #' @rdname write_duplicate
 
 write_new <- function(path) {
-	
-	new <- read_excel(path = path, sheet = 1, skip = 1)
+ # bug 2021 when a lots of rows without values in eel_missvaluequal reads a logical and converts to NA
+	new <- read_excel(path = path, sheet = 1, skip = 1, 
+			col_types=c("numeric","text","numeric","numeric",rep("text",6),"numeric",rep("text",3)))
 	
 	####when there are no data, new values have incorrect type
-	new$eel_value <- as.numeric(new$eel_value)
+	#ew$eel_value <- as.numeric(new$eel_value)
 	
 	# check for new file -----------------------------------------------------------------------------
 	

@@ -19,6 +19,7 @@ Annex 12 (by GFCM)
 ## Annex 3 
 New data is not new (rather an update?)
 
+
 ## Annex 4 
 Why is Schl updated, it did not change, did it?
 
@@ -74,7 +75,59 @@ new=261
 # CZ
 
 Is there any report from accession ?
+>>>>>>> branch 'master' of https://github.com/ices-eg/wg_WGEEL.git
 
+## Annex 4 
+Why is Schl updated, it did not change, did it?
+
+## Annex 5 
+e.g. 425800 updated but only quality changes... This is not for the provider to change, is it?
+
+## Annex 7
+No new values could be added yet, as weight data was missing. This still needs to be added in the original data, and then the new release data can be integrated
+
+We updated 1241 values. The updates that were marked with DELETE in the comment column need to be undone. They were deleted because Germany does not use weight data, but WGEEL needs the weight data, so these data should not be deleted. It needs to be seen if it is possible to remove these DELETE comments in the database, to preserve these data.
+
+## Annex 8:
+Still needs to be integrated, there was a bug where updated values did not appear in the Shiny application. We wait until this bug is fixed.
+
+## Annex 2 
+the Annex 2 was modified to delete empty lines and change was made for id_typ_serie. The new file is in the sharepoint
+
+new series = 0  
+modified series = 1  
+new dataseries = 1  
+modified dataseries = 0  
+new biometry =0  
+modified biometry = 0  
+
+## Annex 3
+the Annex 3 was modified to delete empty lines and add some informations on area division. The new file is in the sharepoint
+
+new series = 0  
+modified series = 1  
+new dataseries = 1  
+modified dataseries = 0  
+new biometry = 2  
+modified biometry = 1   
+
+## Annex 4 
+the Annex 4 was modified to add some informations on area division. The new file is in the sharepoint
+
+duplicate = 0  
+new = 150  
+updated = 497 
+
+## Annex 5 
+the Annex 5 was modified rec_catch_kg have been deleted
+
+duplicate = 0  
+new = 158 [lines with NP for rec_catch_kg have been deleted]  
+updated = 490
+## Annex 9 
+new=378
+## Annex 10
+new=261
 # DK
 Question about DK_total
 
@@ -124,7 +177,6 @@ modified biometry = 0
 ## Annex 6
 No data
 
-
 ## Annex 8
 
 2 new values
@@ -136,6 +188,7 @@ corrections : missing type so addes q_aqua_kg and should DK uppercase
 ## Annex 9
 
  removed lines with nothing in 2007 2008
+
 
 # DZ
 Annex 4 (by GFCM)
@@ -160,6 +213,15 @@ Annex 4 (by GFCM)
 # ES
 
 # FI
+
+
+## Annex 8 
+
+During the datacall, clarisse identified duplicates in issue #194.
+Pressing a bit further there was indeed a duplicate for FINLAND aquaculture in
+2014 and 2015. Two exact duplicates lines (500 t) has been removed.
+
+
 ## Annex 2 
 the Annex 2 was modified as in the new_biometry sheet columns were missing and effort has changed. The new file is in the sharepoint
 
@@ -201,6 +263,7 @@ No data.
 ## Annex 10   
 
 No data.
+>>>>>>> branch 'master' of https://github.com/ices-eg/wg_WGEEL.git
 
 # FR
 
@@ -322,9 +385,13 @@ No recreational landings in the UK (180 new values inserted in the database for 
 
 ## Annex 6 
 
-No duplicates.  
-1 new value was added.  
-No values were updated.  
+
+No duplicates.
+
+1 new value was added.
+
+No values were updated.
+
 
 ## Annex 7 
 
@@ -409,6 +476,11 @@ LINE 17:       eel_value,
 HINT:  There is a column named "eel_value" in table "t_eelstock_eel", but it cannot be referenced from this part of the query.
 
 
+# LT
+
+# LV
+=======
+
 
 # LT (Lithuania)
 ## Annex 4 
@@ -441,6 +513,7 @@ NO DATA
 29 new values were added.
 ## Annex 10   
 42 new values were added.
+>>>>>>> branch 'master' of https://github.com/ices-eg/wg_WGEEL.git
 
 # MA
 
@@ -524,6 +597,7 @@ New dataseries=29 (10 lines with values and 19 lines with "NC")
 
 # PL 
  
+
 ## Annex 1
 
 NO DATA
@@ -574,6 +648,7 @@ new data: 84
 ## Annex 10 
 
 new data: 58 
+>>>>>>> branch 'master' of https://github.com/ices-eg/wg_WGEEL.git
 # PT
 ## Annex 1
  3 modified series info

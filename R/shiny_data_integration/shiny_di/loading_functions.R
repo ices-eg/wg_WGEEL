@@ -6,7 +6,6 @@
 
 
 ############# CATCH AND LANDINGS #############################################
-# path <- "\\\\community.ices.dk@SSL\\DavWWWRoot\\ExpertGroups\\wgeel\\2019 Meeting Documents\\06. Data\\03 Data Submission 2019\\EST\\Corrected_Eel_Data_Call_Annex4_LandingsEST.xlsx"
 # path<-file.choose()
 # datasource<-the_eel_datasource
 load_catch_landings<-function(path,datasource){
@@ -824,6 +823,7 @@ load_aquaculture<-function(path,datasource){
         namedataset= sheet, 
         country=country))
       
+
       ###### eel_emu_name ##############
       data_error = rbind(data_error,   check_missing(
         dataset=data_xls,
@@ -1835,10 +1835,9 @@ load_potential_available_habitat<-function(path,datasource){
 }
 
 ############# time series #############################################
-# path <- "C:\\Users\\cedric.briand\\OneDrive - EPTB Vilaine\\Projets\\GRISAM\\2020\\wgeel\\datacall\\FR\\Eel_Data_Call_2020_Annex1_time_series_FR_Recruitment.xlsx"
-# path<-file.choose()
+#  path<-file.choose()
 # datasource<-the_eel_datasource
-# load_series(path,datasource,"glass_eel")
+# load_series(path,datasource="toto","glass_eel")
 load_series<-function(path,datasource,stage="glass_eel"){
 	data_error <- data.frame(nline = NULL, error_message = NULL)
 	the_metadata <- list()
@@ -1904,14 +1903,19 @@ load_series<-function(path,datasource,stage="glass_eel"){
 						namedataset= "series_info", 
 						column="ser_nameshort",
 						country=country))
-		
-# 
-		data_error <- rbind(data_error, check_values(
-						dataset=series,
-						namedataset= "series_info",
-						column="ser_nameshort",
-						country=country,
-						values=t_series_ser$ser_nameshort))
+
+data_error_series  <- 	check_values(
+		dataset=series,
+		namedataset= "series_info",
+		column="ser_nameshort",
+		country=country,
+		values=t_series_ser$ser_nameshort)
+if (! is.null(data_error_series)) {
+data_error_series$error_message <-paste(data_error_series$error_message, 
+		"This probably means that you have not entered the series yet, please proceed for series integration, insert new series and proceed to step 0 again.")
+		data_error <- rbind(data_error, 
+				data_error_series)
+}			
 		
 		###### ser_namelong ##############
 		
@@ -2181,8 +2185,16 @@ load_series<-function(path,datasource,stage="glass_eel"){
 		
 		
 		###### ser_dts_datasource ############## 
+
 		
-		data_error <- rbind(data_error, check_missing(
+data_error <-		rbind(data_error, check_values(
+				dataset=series,						
+				namedataset= "series_info",
+				column="ser_sam_id",
+				country=country,
+				values=1:5))
+		
+data_error <- rbind(data_error, check_missing(
 						dataset=series,						
 						namedataset= "series_info",
 						column="ser_dts_datasource",
@@ -2217,7 +2229,7 @@ data_error <- rbind(data_error, check_missing(
 data_error <- rbind(data_error, check_values(
 				dataset=series,
 				namedataset= "series_info",
-				column="ser_sam_id",
+				column="ser_restocking",
 				country=country,
 				values=c(1,0,"true","false",'TRUE','FALSE')))
 
@@ -2762,4 +2774,4 @@ data_error <- rbind(data_error, check_values(
 #	}
 #	
 #---------------------------------------------------------------	
-
+
