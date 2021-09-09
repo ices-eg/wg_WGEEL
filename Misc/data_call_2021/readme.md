@@ -897,7 +897,53 @@ new data: 58
 |SE          |catch_landings|‘ 36 new values inserted in the database’|
 |SE          |catch_landings|‘ 38 new values inserted in the database’|
 
+> Note CEDRIC I have removed line with qal_id=0
+ 
+ |eel_typ_id|eel_qal_id|eel_year|eel_emu_nameshort|eel_lfs_code|eel_hty_code|eel_area_division|eel_value     |eel_missvaluequal|eel_datasource|eel_datelastupdate|n  |
+|----------|----------|--------|-----------------|------------|------------|-----------------|--------------|-----------------|--------------|------------------|---|
+|4         |0         |2019    |SE_East          |S           |C           |27.3.d           |              |NC               |dc_2020       |2020-09-03        |2  |
+|4         |1         |2019    |SE_East          |S           |C           |27.3.d           |99284.7       |                 |dc_2021       |2021-09-07        |2  |
+|4         |0         |2020    |SE_East          |S           |C           |27.3.d           |              |NC               |dc_2020       |2020-09-03        |2  |
+|4         |1         |2020    |SE_East          |S           |C           |27.3.d           |100814.5      |                 |dc_2021       |2021-09-07        |2  |
+|4         |0         |2019    |SE_Inla          |S           |F           |                 |              |NC               |dc_2020       |2020-09-03        |2  |
+|4         |1         |2019    |SE_Inla          |S           |F           |                 |88912.9889129 |                 |dc_2021       |2021-09-07        |2  |
+|4         |0         |2020    |SE_Inla          |S           |F           |                 |              |NC               |dc_2020       |2020-09-03        |2  |
+|4         |1         |2020    |SE_Inla          |S           |F           |                 |93616.74361665|                 |dc_2021       |2021-09-07        |2  |
 
+ 
+```sql
+ -- in Lithuania and turkey and tunisia and sweden and POLAND there is clearly a new row where before was NC and 0 I will use the new value
+WITH cc AS (
+select 
+eel_id,
+eel_typ_id,
+eel_qal_id,
+eel_year,
+eel_emu_nameshort, 
+eel_lfs_code,
+eel_hty_code, 
+eel_area_division,
+eel_value, 
+eel_missvaluequal, 
+eel_datasource,
+eel_datelastupdate, 
+eel_cou_code,
+count(*) OVER (PARTITION BY eel_typ_id,eel_year,eel_emu_nameshort, eel_lfs_code,eel_hty_code,eel_area_division)  AS n
+from datawg.t_eelstock_eel where eel_qal_id in (0,1)),
+
+remove_me AS (
+SELECT * FROM cc WHERE n>1 
+AND eel_cou_code IN ('DE','TN','TR','PL','LT')
+AND eel_qal_id =0
+ORDER BY eel_typ_id,  eel_emu_nameshort,eel_year, eel_lfs_code, eel_hty_code, eel_qal_id)
+
+--SELECT * FROM remove_me
+UPDATE datawg.t_eelstock_eel SET (eel_qal_id, eel_qal_comment) =(21,coalesce(eel_qal_comment,'This is a duplicate, there is one line more recent with qal_id=1 with a value, and a line with qal_id=0 that is older. I remove the old one')) 
+FROM remove_me 
+WHERE remove_me.eel_id=t_eelstock_eel.eel_id
+; --9 rows
+``` 
+ 
 ## Annex 5 
 
 ## Annex 6 
