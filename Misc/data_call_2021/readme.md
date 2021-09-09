@@ -85,7 +85,6 @@ new=261
 # CZ
 
 Is there any report from accession ?
->>>>>>> branch 'master' of https://github.com/ices-eg/wg_WGEEL.git
 
 ## Annex 4 
 Why is Schl updated, it did not change, did it?
@@ -261,6 +260,16 @@ delete from datawg.t_eelstock_eel where eel_typ_id = 4 and eel_datasource ='dc_2
 update datawg.t_eelstock_eel set eel_qal_id=1 where eel_typ_id =4 and eel_qal_id=21 and eel_cou_code='ES';
 ```
 
+PLEASE CHECK DUPLICATES
+|eel_typ_id|eel_qal_id|eel_year|eel_emu_nameshort|eel_lfs_code|eel_hty_code|eel_area_division|eel_value     |eel_missvaluequal|eel_datasource|eel_datelastupdate|n  |
+|----------|----------|--------|-----------------|------------|------------|-----------------|--------------|-----------------|--------------|------------------|---|
+|4         |0         |2014    |ES_Murc          |S           |C           |37.1.1           |              |NC               |dc_2021       |2021-09-08        |2  |
+|4         |1         |2014    |ES_Murc          |S           |C           |37.1.1           |20028         |                 |dc_2021       |2021-09-09        |2  |
+|4         |0         |2015    |ES_Murc          |S           |C           |37.1.1           |              |NC               |dc_2021       |2021-09-08        |2  |
+|4         |1         |2015    |ES_Murc          |S           |C           |37.1.1           |13580         |                 |dc_2021       |2021-09-09        |2  |
+|4         |0         |2016    |ES_Murc          |S           |C           |37.1.1           |              |NC               |dc_2021       |2021-09-08        |2  |
+|4         |1         |2016    |ES_Murc          |S           |C           |37.1.1           |24244         |                 |dc_2021       |2021-09-09        |2  |
+
 
 
 ## Annex 5 
@@ -337,9 +346,10 @@ No data.
 ## Annex 10   
 
 No data.
->>>>>>> branch 'master' of https://github.com/ices-eg/wg_WGEEL.git
+
 
 # FR
+-----------------------------------------------------------
 
 ## Annex 1
 
@@ -403,6 +413,7 @@ NO DATA
 NO DATA
 
 # GR
+-----------------------------------------------------------
 
 ## Annex 5
 1033 new values
@@ -414,10 +425,12 @@ NO DATA
 remove data per habitat for aquaculture (in existing kept there are values for Freshwater, this is wrong.) These values are duplicated with values entered for 2017 without the Freshwater tag. Suggestion = remove all data for aquaculture and Freshwater and update the rest if wrong
 
 # HR
+-----------------------------------------------------------
 
 Croatia do we have anything ? 
 
 # GB
+-----------------------------------------------------------
 
 ## Annex 1
 
@@ -487,6 +500,8 @@ No aquaculture.
 
 
 # IE
+-----------------------------------------------------------
+
 
 |log_cou_code|log_data      |log_message                              |
 |------------|--------------|-----------------------------------------|
@@ -500,6 +515,7 @@ No aquaculture.
 
 ## Annex 1
 update series 8 values; new data series 15 new values; modified dataseries 5 values; new biometry 3 new values; update biometry 7 new values
+
 ## Annex 2 
 
 ## Annex 3  
@@ -507,15 +523,23 @@ update series 2 new values; new dataseries 2 new values, new biometry 2 new valu
 There is an empty first line on updated biometry
 
 ## Annex 4 
+
 commercial
 72 new values
 54 updated
+
 ## Annex 5 
+
 rec landings
+
 new values 72
+
 deleted rec_catch as value was np and throwing up errors
+
 ## Annex 6 
+
 landings other; 6 new values; 6 updated values
+
 ## Annex 7 release
 
 Cédric : You cannot report other_landings there, it's fine if you put two lines in other landings instead, one for numbers and one for kilograms.
@@ -534,6 +558,7 @@ biomass
 new values 174
 
 # IT
+
 
 
 ## Annex 4
