@@ -119,6 +119,15 @@ modified biometry = 0
 ## Annex 6
 No data
 
+
+## Annex 8
+
+2 new values
+
+33 updated values
+
+corrections : missing type so addes q_aqua_kg and should DK uppercase
+
 # DZ
 Annex 4 (by GFCM)
 42 new inserted values
