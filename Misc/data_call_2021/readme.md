@@ -1,4 +1,7 @@
+-----------------------------------------------------------
 # AL
+-----------------------------------------------------------
+
 Annex 4 (by GFCM) catch_landings	‘ 32 new values inserted in the database’
 
  
@@ -7,20 +10,40 @@ Annex 7 (by GFCM) - silver eel releases... T&T? Captured in catches? Someting el
 
 Annex 12 (by GFCM)
 
+-----------------------------------------------------------
 # BE
-
-
+-----------------------------------------------------------
+-----------------------------------------------------------
 # DE
+-----------------------------------------------------------
 ## annex 1
 13 modified series
 35 new dataseries
 5 modified dataseries
 
-## Annex 3 
-New data is not new (rather an update?)
+## Annex 2 
+the Annex 2 was modified to delete empty lines and change was made for id_typ_serie. The new file is in the sharepoint
+
+new series = 0  
+modified series = 1  
+new dataseries = 1  
+modified dataseries = 0  
+new biometry =0  
+modified biometry = 0  
+
+## Annex 3
+the Annex 3 was modified to delete empty lines and add some informations on area division. The new file is in the sharepoint
+
+new series = 0  
+modified series = 1  
+new dataseries = 1  
+modified dataseries = 0  
+new biometry = 2  
+modified biometry = 1   
 
 
 ## Annex 4 
+the Annex 4 was modified to add some informations on area division. The new file is in the sharepointv
 Why is Schl updated, it did not change, did it?
 
 > NOTE CEDRIC REMOVED LINES WITH eel_qal_id=0 as they are duplicates
@@ -33,45 +56,12 @@ Why is Schl updated, it did not change, did it?
 |4         |0         |2019    |DE_Warn          |YS          |F           |                 |              |NC               |dc_2020       |2020-09-01        |2  |
 |4         |1         |2019    |DE_Warn          |YS          |F           |                 |206           |                 |dc_2021       |2021-09-08        |2  |
 
-## Annex 5 
-e.g. 425800 updated but only quality changes... This is not for the provider to change, is it?
-
-## Annex 7
-No new values could be added yet, as weight data was missing. This still needs to be added in the original data, and then the new release data can be integrated
-
-We updated 1241 values. The updates that were marked with DELETE in the comment column need to be undone. They were deleted because Germany does not use weight data, but WGEEL needs the weight data, so these data should not be deleted. It needs to be seen if it is possible to remove these DELETE comments in the database, to preserve these data.
-
-## Annex 8:
-Still needs to be integrated, there was a bug where updated values did not appear in the Shiny application. We wait until this bug is fixed.
-
-## Annex 2 
-the Annex 2 was modified to delete empty lines and change was made for id_typ_serie. The new file is in the sharepoint
-
-new series = 0  
-modified series = 1  
-new dataseries = 1  
-modified dataseries = 0  
-new biometry =0  
-modified biometry = 0  
-
-## Annex 3
-the Annex 3 was modified to delete empty lines and add some informations on area division. The new file is in the sharepoint
-
-new series = 0  
-modified series = 1  
-new dataseries = 1  
-modified dataseries = 0  
-new biometry = 2  
-modified biometry = 1   
-
-## Annex 4 
-the Annex 4 was modified to add some informations on area division. The new file is in the sharepoint
-
 duplicate = 0  
 new = 150  
 updated = 497 
 
 ## Annex 5 
+e.g. 425800 updated but only quality changes... This is not for the provider to change, is it?
 the Annex 5 was modified rec_catch_kg have been deleted
 
 duplicate = 0  
@@ -82,62 +72,24 @@ new=378
 ## Annex 10
 new=261
 
-# CZ
+## Annex 7
+No new values could be added yet, as weight data was missing. This still needs to be added in the original data, and then the new release data can be integrated
 
+We updated 1241 values. The updates that were marked with DELETE in the comment column need to be undone. They were deleted because Germany does not use weight data, but WGEEL needs the weight data, so these data should not be deleted. It needs to be seen if it is possible to remove these DELETE comments in the database, to preserve these data.
+
+## Annex 8:
+Still needs to be integrated, there was a bug where updated values did not appear in the Shiny application. We wait until this bug is fixed.
+
+
+-----------------------------------------------------------
+# CZ
+-----------------------------------------------------------
 Is there any report from accession ?
 
-## Annex 4 
-Why is Schl updated, it did not change, did it?
 
-## Annex 5 
-e.g. 425800 updated but only quality changes... This is not for the provider to change, is it?
-
-## Annex 7
-No new values could be added yet, as weight data was missing. This still needs to be added in the original data, and then the new release data can be integrated
-
-We updated 1241 values. The updates that were marked with DELETE in the comment column need to be undone. They were deleted because Germany does not use weight data, but WGEEL needs the weight data, so these data should not be deleted. It needs to be seen if it is possible to remove these DELETE comments in the database, to preserve these data.
-
-## Annex 8:
-Still needs to be integrated, there was a bug where updated values did not appear in the Shiny application. We wait until this bug is fixed.
-
-## Annex 2 
-the Annex 2 was modified to delete empty lines and change was made for id_typ_serie. The new file is in the sharepoint
-
-new series = 0  
-modified series = 1  
-new dataseries = 1  
-modified dataseries = 0  
-new biometry =0  
-modified biometry = 0  
-
-## Annex 3
-the Annex 3 was modified to delete empty lines and add some informations on area division. The new file is in the sharepoint
-
-new series = 0  
-modified series = 1  
-new dataseries = 1  
-modified dataseries = 0  
-new biometry = 2  
-modified biometry = 1   
-
-## Annex 4 
-the Annex 4 was modified to add some informations on area division. The new file is in the sharepoint
-
-duplicate = 0  
-new = 150  
-updated = 497 
-
-## Annex 5 
-the Annex 5 was modified rec_catch_kg have been deleted
-
-duplicate = 0  
-new = 158 [lines with NP for rec_catch_kg have been deleted]  
-updated = 490
-## Annex 9 
-new=378
-## Annex 10
-new=261
+-----------------------------------------------------------
 # DK
+-----------------------------------------------------------
 Question about DK_total
 
 Concerning the annex 15 of the data call. 
@@ -179,7 +131,7 @@ new biometry = 0
 modified biometry = 0
 
 
-## Annex 4: 
+## Annex 4 
 4 new values added.
 ## Annex 5:
 5 new values added and 1 value is corrected
@@ -198,12 +150,16 @@ corrections : missing type so addes q_aqua_kg and should DK uppercase
 
  removed lines with nothing in 2007 2008
 
-
+-----------------------------------------------------------
 # DZ
+-----------------------------------------------------------
+
 Annex 4 (by GFCM)
 42 new inserted values
 
+-----------------------------------------------------------
 # EE
+-----------------------------------------------------------
 
 |log_cou_code|log_data       |log_message                             |
 |------------|---------------|----------------------------------------|
@@ -212,14 +168,20 @@ Annex 4 (by GFCM)
 |EE          |catch_landings |‘ 4 new values inserted in the database’|
 
 
+
+
+-----------------------------------------------------------
 # EG
+-----------------------------------------------------------
 
 Annex 4 (by GFCM) 
 |log_cou_code|log_data      |log_message                              |
 |------------|--------------|-----------------------------------------|
 |EG          |catch_landings|‘ 42 new values inserted in the database’|
 
+-----------------------------------------------------------
 # ES
+-----------------------------------------------------------
 
 ## Annex 1
 the Annex 1 was modified as corrupted data was found and empty lines were deleted in new_data. The new file is in the sharepoint
@@ -295,8 +257,9 @@ duplicate = 0
 new = 5  
 updated = 0 
 
+-----------------------------------------------------------
 # FI
-
+-----------------------------------------------------------
 
 ## Annex 8 
 
@@ -348,7 +311,7 @@ No data.
 
 No data.
 
-
+-----------------------------------------------------------
 # FR
 -----------------------------------------------------------
 
@@ -413,6 +376,7 @@ NO DATA
 
 NO DATA
 
+-----------------------------------------------------------
 # GR
 -----------------------------------------------------------
 
@@ -425,6 +389,7 @@ NO DATA
 
 remove data per habitat for aquaculture (in existing kept there are values for Freshwater, this is wrong.) These values are duplicated with values entered for 2017 without the Freshwater tag. Suggestion = remove all data for aquaculture and Freshwater and update the rest if wrong
 
+-----------------------------------------------------------
 # HR
 -----------------------------------------------------------
 
@@ -564,7 +529,7 @@ No aquaculture.
 
 406 new values were added (173 of those had no data values entered as were classified as NP, NC or NR).
 
-
+-----------------------------------------------------------
 # IE
 -----------------------------------------------------------
 
@@ -623,8 +588,9 @@ aquaculture
 biomass
 new values 174
 
+-----------------------------------------------------------
 # IT
-
+-----------------------------------------------------------
 
 
 ## Annex 4
@@ -643,9 +609,9 @@ HINT:  There is a column named "eel_value" in table "t_eelstock_eel", but it can
 
 
 
-
+-----------------------------------------------------------
 # LT (Lithuania)
-=======
+-----------------------------------------------------------
 
 ## Annex 4 
 28 new values added.
@@ -667,9 +633,9 @@ NO DATA
 |4         |0         |2020    |LT_total         |Y           |F           |                 |              |ND               |dc_2020       |2020-09-04        |2  |
 |4         |1         |2020    |LT_total         |Y           |F           |                 |1649          |                 |dc_2021       |2021-09-09        |2  |
 
-
+-----------------------------------------------------------
 # LV (Latvia)
-=========
+-----------------------------------------------------------
 
 ## Annex 2
 2 series were modified.   
@@ -690,10 +656,14 @@ NO DATA
 ## Annex 10   
 42 new values were added.
 
-
+-----------------------------------------------------------
 # MA
+-----------------------------------------------------------
+No data
 
+-----------------------------------------------------------
 # NL 
+-----------------------------------------------------------
 
 ## Annex 1
 
@@ -723,8 +693,9 @@ NO DATA
 
 ## Annex 10   
 
-
+-----------------------------------------------------------
 # NO (Norway) 
+-----------------------------------------------------------
  
 ## Annex 1
  
@@ -761,6 +732,7 @@ No data
 No data
  
 ## Annex 8 
+ 
  No data
  
 ## Annex 9 
@@ -771,8 +743,9 @@ No data
  
 New dataseries=29 (10 lines with values and 19 lines with "NC") 
 
+----------------------------------------------------------- 
 # PL 
- 
+-----------------------------------------------------------
 
 ## Annex 1
 
@@ -833,7 +806,10 @@ new data: 84
 
 new data: 58 
 
+----------------------------------------------------------- 
 # PT
+-----------------------------------------------------------
+ 
 ## Annex 1
  3 modified series info
  3 new dataseries values
@@ -863,8 +839,10 @@ new data: 58
   ## Annex 8
  
  removed 4 lines with delete in aquaculture
- 
+
+ -----------------------------------------------------------
  # SE
+ -----------------------------------------------------------
 
 ## Annex 1
   
@@ -966,11 +944,16 @@ add eel_comment = assisted migration for all existing_kept data (directly with a
 
 ## Annex 10 
 
+----------------------------------------------------------- 
 # Sl
+----------------------------------------------------------- 
  
  I there any data for Solvenia ?
- 
+
+----------------------------------------------------------- 
 # TN
+-----------------------------------------------------------
+ 
 Annex 4 (by GFCM) 6 new values are added.
  
  > Note CEDRIC duplicate with qal_id=0 removed from the database
@@ -982,9 +965,10 @@ Annex 4 (by GFCM) 6 new values are added.
 |4         |0         |2019    |TN_Nor           |Y           |C           |37.1.3           |              |NC               |dc_2020       |2020-09-10        |2  |
 |4         |1         |2019    |TN_Nor           |Y           |C           |37.1.3           |              |NP               |dc_2020       |2020-09-10        |2  |
 
-
+-----------------------------------------------------------
 # TR
-
+-----------------------------------------------------------
+ 
 Annex 4  (by GFCM): data inserted
 
 > Note CEDRIC duplicate with qal_id=0 removed from the database
