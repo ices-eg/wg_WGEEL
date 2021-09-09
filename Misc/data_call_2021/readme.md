@@ -70,7 +70,13 @@ updated = 490
 new=378
 ## Annex 10
 new=261
+
+
+
 # DK
+
+
+
 Question about DK_total
 
 Concerning the annex 15 of the data call. 
@@ -81,6 +87,10 @@ There is isn't it ?
 ![image](https://user-images.githubusercontent.com/26055877/122236707-069d9c80-cebf-11eb-9b01-e331138c70e3.png)
 
 You can use it. This is for the management units
+see issue #187
+
+
+
 ## Annex 1
 
 the Annex 1 was modified to delete empty lines. The new file is in the sharepoint
@@ -118,6 +128,25 @@ modified biometry = 0
 5 new values added and 1 value is corrected
 ## Annex 6
 No data
+
+
+## Annex 8
+
+2 new values
+
+33 updated values
+
+corrections : missing type so addes q_aqua_kg and should DK uppercase
+
+## Annex 9
+
+ removed lines with nothing in 2007 2008
+ 
+ change values for % habitiat covered in marine water to 0 as it not assessed.
+
+ inserted 33 rows
+ 
+## Annex 10
 
 # DZ
 Annex 4 (by GFCM)
