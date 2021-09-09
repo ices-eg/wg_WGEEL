@@ -266,89 +266,61 @@ Croatia do we have anything ?
 
 ## Annex 1
 
-Changed name of the series from OatY to OatGY.
-
-1 new series was entered.
-
-22 series were modified.
-
-59 new data series were added (20 of those had no data values entered as were classified as NR, NC or NP).
-
-39 data series were modified.
-
-102 new biometry entries, mainly blank entries as data were not collected. Only 4 series had biometry data. 
-
-No biometry data were modified.
+Changed name of the series from OatY to OatGY.  
+1 new series was entered.  
+22 series were modified.  
+59 new data series were added (20 of those had no data values entered as were classified as NR, NC or NP).  
+39 data series were modified.  
+102 new biometry entries, mainly blank entries as data were not collected. Only 4 series had biometry data.   
+No biometry data were modified.  
 
 ## Annex 2 
 
-No new series.
-
-49 series were modified.
-
-107 new data series were added (96 of those had no data values entered as were classified as NR or NC). 
-
-13 data series were modified.
-
-122 new biometry entries, mainly blank entries as data were not collected. Only 4 series had biometry data. 
-
-No biometry data were modified.
+No new series.  
+49 series were modified.  
+107 new data series were added (96 of those had no data values entered as were classified as NR or NC).   
+13 data series were modified.  
+122 new biometry entries, mainly blank entries as data were not collected. Only 4 series had biometry data.   
+No biometry data were modified.  
 
 ## Annex 3 
 
-No new series.
-
-6 series were modified.
-
-15 new data series were added (11 of those had no data values entered as were classified as NR, NC or NP). 
-
-No data series were modified.
-
-24 new biometry entries, mainly blank entries as data were not collected. Only 3 series had biometry data. 
-
-No biometry data were modified.
+No new series.  
+6 series were modified.  
+15 new data series were added (11 of those had no data values entered as were classified as NR, NC or NP).   
+No data series were modified.  
+24 new biometry entries, mainly blank entries as data were not collected. Only 3 series had biometry data.   
+No biometry data were modified.  
 
 ## Annex 4 
 
-No duplicates.
-
-168 new values were added (145 of those had no data values entered as were classified as NP).
-
-79 values were updated.
-
+No duplicates.  
+168 new values were added (145 of those had no data values entered as were classified as NP).  
+79 values were updated.  
 
 ## Annex 5 
 
 No recreational landings in the UK (180 new values inserted in the database for 2021 and some for 2020, all NP).
 
-
 ## Annex 6 
 
-No duplicates.
-
-1 new value was added.
-
-No values were updated.
-
+No duplicates.  
+1 new value was added.  
+No values were updated.  
 
 ## Annex 7 
 
-No duplicates.
-
-18 new values were added (12 of those had no data values entered as were classified as NP).
-
-14 values were updated.
-
+No duplicates.  
+18 new values were added (12 of those had no data values entered as were classified as NP).  
+14 values were updated.  
 
 ## Annex 8 
 
 No aquaculture.
 
-
 ## Annex 9 
 
 588 new values were added (90 of those had no data values entered as were classified as NC or NR).
-
 
 ## Annex 10 
 
@@ -433,7 +405,14 @@ NO DATA
 84 new values were added.
 
 # LV (Latvia)
-
+## Annex 2
+2 series were modified.   
+2 new data series were added.  
+2 new biometry data were added.   
+## Annex 3
+2 series were modified.   
+2 new data series were added.   
+2 new biometry data were added.   
 ## Annex 4
 12 New values added
 ## Annex 5
@@ -441,11 +420,8 @@ NO DATA
 ## Annex 6
 NO DATA
 ## Annex 9 
-
 29 new values were added.
-
 ## Annex 10   
-
 42 new values were added.
 
 # MA
