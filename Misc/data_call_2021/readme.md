@@ -261,11 +261,6 @@ updated = 0
 # FI
 -----------------------------------------------------------
 
-## Annex 8 
-
-During the datacall, clarisse identified duplicates in issue #194.
-Pressing a bit further there was indeed a duplicate for FINLAND aquaculture in
-2014 and 2015. Two exact duplicates lines (500 t) has been removed.
 
 ## Annex 1
 NO DATA
