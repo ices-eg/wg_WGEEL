@@ -139,6 +139,13 @@ Annex 4 (by GFCM)
 |------------|--------------|-----------------------------------------|
 |EG          |catch_landings|‘ 42 new values inserted in the database’|
 
+# FI
+
+## Annex 8 
+
+During the datacall, clarisse identified duplicates in issue #194.
+Pressing a bit further there was indeed a duplicate for FINLAND aquaculture in
+2014 and 2015. Two exact duplicates lines (500 t) has been removed.
 
 
 # FR
