@@ -70,13 +70,7 @@ updated = 490
 new=378
 ## Annex 10
 new=261
-
-
-
 # DK
-
-
-
 Question about DK_total
 
 Concerning the annex 15 of the data call. 
@@ -87,10 +81,6 @@ There is isn't it ?
 ![image](https://user-images.githubusercontent.com/26055877/122236707-069d9c80-cebf-11eb-9b01-e331138c70e3.png)
 
 You can use it. This is for the management units
-see issue #187
-
-
-
 ## Annex 1
 
 the Annex 1 was modified to delete empty lines. The new file is in the sharepoint
@@ -141,15 +131,6 @@ corrections : missing type so addes q_aqua_kg and should DK uppercase
 ## Annex 9
 
  removed lines with nothing in 2007 2008
- 
- change values for % habitiat covered in marine water to 0 as it not assessed.
-
- inserted 33 rows
- 
-## Annex 10
-
-added miising series for biomass in DK_total (these correspond to marine waters, no calculations for either mortality or biomass
- 50 new values inserted in the database
 
 # DZ
 Annex 4 (by GFCM)
@@ -181,6 +162,13 @@ During the datacall, clarisse identified duplicates in issue #194.
 Pressing a bit further there was indeed a duplicate for FINLAND aquaculture in
 2014 and 2015. Two exact duplicates lines (500 t) has been removed.
 
+## Annex 9 
+
+No data.
+
+## Annex 10   
+
+No data.
 
 # FR
 
@@ -270,7 +258,7 @@ Changed name of the series from OatY to OatGY.
 
 22 series were modified.
 
-59 new data series were added. 
+59 new data series were added (20 of those had no data values entered as were classified as NR, NC or NP).
 
 39 data series were modified.
 
@@ -284,7 +272,7 @@ No new series.
 
 49 series were modified.
 
-107 new data series were added. 
+107 new data series were added (96 of those had no data values entered as were classified as NR or NC). 
 
 13 data series were modified.
 
@@ -298,7 +286,7 @@ No new series.
 
 6 series were modified.
 
-15 new data series were added. 
+15 new data series were added (11 of those had no data values entered as were classified as NR, NC or NP). 
 
 No data series were modified.
 
@@ -310,13 +298,15 @@ No biometry data were modified.
 
 No duplicates.
 
-168 new values were added.
+168 new values were added (145 of those had no data values entered as were classified as NP).
 
 79 values were updated.
+
 
 ## Annex 5 
 
 No recreational landings in the UK (180 new values inserted in the database for 2021 and some for 2020, all NP).
+
 
 ## Annex 6 
 
@@ -326,25 +316,30 @@ No duplicates.
 
 No values were updated.
 
+
 ## Annex 7 
 
 No duplicates.
 
-18 new values were added.
+18 new values were added (12 of those had no data values entered as were classified as NP).
 
 14 values were updated.
+
 
 ## Annex 8 
 
 No aquaculture.
 
+
 ## Annex 9 
 
-588 new values were added.
+588 new values were added (90 of those had no data values entered as were classified as NC or NR).
+
 
 ## Annex 10 
 
-406 new values were added.
+406 new values were added (173 of those had no data values entered as were classified as NP, NC or NR).
+
 
 # IE
 
@@ -410,8 +405,23 @@ LINE 17:       eel_value,
 HINT:  There is a column named "eel_value" in table "t_eelstock_eel", but it cannot be referenced from this part of the query.
 
 # LT
+## Annex 9 
+
+58 new values were added.
+
+## Annex 10  
+
+84 new values were added.
 
 # LV
+
+## Annex 9 
+
+29 new values were added.
+
+## Annex 10   
+
+42 new values were added.
 
 # MA
 
@@ -494,54 +504,6 @@ No data
 New dataseries=29 (10 lines with values and 19 lines with "NC") 
 
 # PL 
- 
- ## Annex 1
-
-No data
-
-## Annex 2 
-
-
-modified series = 1  
-new dataseries = 1  
-
-## Annex 3
-
-No data  
-
-## Annex 4 
-
-duplicate = 0  
-new = 52  
-updated = 0  
-
-## Annex 5 
-
-duplicate = 0  
-new = 26 [lines with NP for rec_catch_kg should have been deleted]  
-updated = 0 
-
-## Annex 6 
-
-NO DATA
-
-## Annex 7 
-
-duplicate = 0  
-new = 4 
-updated = 0  
-
-## Annex 8 
-
-NO DATA
-
-## Annex 9 
-
-new data: 84
-
-## Annex 10 
-
-new data: 58
  
 # PT
 ## Annex 1
