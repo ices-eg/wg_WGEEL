@@ -70,7 +70,13 @@ updated = 490
 new=378
 ## Annex 10
 new=261
+
+
+
 # DK
+
+
+
 Question about DK_total
 
 Concerning the annex 15 of the data call. 
@@ -81,6 +87,10 @@ There is isn't it ?
 ![image](https://user-images.githubusercontent.com/26055877/122236707-069d9c80-cebf-11eb-9b01-e331138c70e3.png)
 
 You can use it. This is for the management units
+see issue #187
+
+
+
 ## Annex 1
 
 the Annex 1 was modified to delete empty lines. The new file is in the sharepoint
