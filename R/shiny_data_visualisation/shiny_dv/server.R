@@ -926,7 +926,7 @@ server = function(input, output, session) {
 								# Yellow eel case --------------------------------------------------------------
 								
 								#       debug : see glass eel above set id to Dala
-								
+								#browser()
 								the_series <- dat_ye	%>%
 										dplyr::rename(p_std_1960_1979 = value_std_1960_1979,
 												p_std_1960_1979_min =yellow_eel_min,
@@ -968,7 +968,8 @@ server = function(input, output, session) {
 													dat_ye %>% 
 															dplyr::select(year,p,value_std_1960_1979,mean_1960_1979) %>%
 															dplyr::rename(p_std_1960_1979 = value_std_1960_1979,mean=mean_1960_1979),																	
-													by="year")  %>%		
+													by="year")  %>%	
+											arrange(year) %>%
 											# calculate log average when value is not missing to rescale only on the common period
 											mutate(		
 													mean_pred_when_existing = mean(p[!is.na(value)]), # geometric mean log scale
