@@ -796,6 +796,14 @@ NO DATA
 duplicate = 0  
 new = 52  
 updated = 0  
+ 
+> Note CEDRIC duplicate with qal_id=0 removed from the database
+ 
+|eel_typ_id|eel_qal_id|eel_year|eel_emu_nameshort|eel_lfs_code|eel_hty_code|eel_area_division|eel_value     |eel_missvaluequal|eel_datasource|eel_datelastupdate|n  |
+|----------|----------|--------|-----------------|------------|------------|-----------------|--------------|-----------------|--------------|------------------|---|
+|8         |0         |2017    |PL_total         |OG          |F           |                 |              |ND               |dc_2018       |2019-03-22        |2  |
+|8         |1         |2017    |PL_total         |OG          |F           |                 |19100         |                 |dc_2019       |2019-08-09        |2  |
+ 
 
 ## Annex 5 
 
@@ -964,11 +972,28 @@ add eel_comment = assisted migration for all existing_kept data (directly with a
  
 # TN
 Annex 4 (by GFCM) 6 new values are added.
+ 
+ > Note CEDRIC duplicate with qal_id=0 removed from the database
+ 
+|eel_typ_id|eel_qal_id|eel_year|eel_emu_nameshort|eel_lfs_code|eel_hty_code|eel_area_division|eel_value     |eel_missvaluequal|eel_datasource|eel_datelastupdate|n  |
+|----------|----------|--------|-----------------|------------|------------|-----------------|--------------|-----------------|--------------|------------------|---|
+|4         |0         |2019    |TN_Nor           |S           |C           |37.1.3           |              |NC               |dc_2020       |2020-09-10        |2  |
+|4         |1         |2019    |TN_Nor           |S           |C           |37.1.3           |              |NP               |dc_2020       |2020-09-10        |2  |
+|4         |0         |2019    |TN_Nor           |Y           |C           |37.1.3           |              |NC               |dc_2020       |2020-09-10        |2  |
+|4         |1         |2019    |TN_Nor           |Y           |C           |37.1.3           |              |NP               |dc_2020       |2020-09-10        |2  |
+
 
 # TR
 
 Annex 4  (by GFCM): data inserted
-  
+
+> Note CEDRIC duplicate with qal_id=0 removed from the database
+ 
+ |eel_typ_id|eel_qal_id|eel_year|eel_emu_nameshort|eel_lfs_code|eel_hty_code|eel_area_division|eel_value     |eel_missvaluequal|eel_datasource|eel_datelastupdate|n  |
+|----------|----------|--------|-----------------|------------|------------|-----------------|--------------|-----------------|--------------|------------------|---|
+|4         |0         |2020    |TR_total         |YS          |F           |                 |              |NC               |dc_2020       |2020-09-03        |2  |
+|4         |1         |2020    |TR_total         |YS          |F           |                 |125500        |                 |dc_2021       |2021-09-07        |2  |
+
 
 Annex 5  (by GFCM): data integrated.
 
