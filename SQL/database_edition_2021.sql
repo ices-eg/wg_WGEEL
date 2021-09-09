@@ -598,5 +598,59 @@ AND eel_datasource ='dc_2021'
 GROUP BY eel_typ_id;
 
 
+-- ticket 186 
+
+select eel_typ_id,eel_year,eel_emu_nameshort, eel_lfs_code,eel_hty_code, 
+count(*)  
+from datawg.t_eelstock_eel where eel_qal_id in (0,1) 
+group by eel_typ_id,eel_year,eel_emu_nameshort, eel_lfs_code,eel_hty_code 
+having count(*) >1
+
+
+-- 194 some of those correspond to coastal waters with area division 
+-- two separate columns for area division
+WITH cc AS (
+select 
+eel_typ_id,
+eel_qal_id,
+eel_year,
+eel_emu_nameshort, 
+eel_lfs_code,
+eel_hty_code, 
+eel_area_division,
+eel_value, 
+eel_missvaluequal, 
+count(*) OVER (PARTITION BY eel_typ_id,eel_year,eel_emu_nameshort, eel_lfs_code,eel_hty_code,eel_area_division)  AS n
+from datawg.t_eelstock_eel where eel_qal_id in (0,1))
+SELECT * FROM cc WHERE n>1
+
+WITH cc AS (
+select 
+eel_id,
+eel_typ_id,
+eel_qal_id,
+eel_year,
+eel_emu_nameshort, 
+eel_lfs_code,
+eel_hty_code, 
+eel_area_division,
+eel_value, 
+eel_missvaluequal,
+eel_qal_comment,
+count(*) OVER (PARTITION BY eel_typ_id,eel_year,eel_emu_nameshort, eel_lfs_code,eel_hty_code,eel_area_division)  AS n
+from datawg.t_eelstock_eel where eel_qal_id in (1,2,4)),
+dd AS (
+SELECT * FROM cc WHERE n>1)
+SELECT * FROM dd 
+
+UPDATE datawg.t_eelstock_eel SET 
+(eel_qal_id, eel_qal_comment) = (21, 'transfered from emu to total but entered again later on, duplicate removed by cedric during dc 2021') 
+WHERE eel_id IN (423409,423410);--2
+
+
+
+
+
+
 
 
