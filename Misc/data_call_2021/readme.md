@@ -141,6 +141,12 @@ corrections : missing type so addes q_aqua_kg and should DK uppercase
 ## Annex 9
 
  removed lines with nothing in 2007 2008
+ 
+ change values for % habitiat covered in marine water to 0 as it not assessed.
+
+ inserted 33 rows
+ 
+## Annex 10
 
 # DZ
 Annex 4 (by GFCM)
