@@ -23,6 +23,16 @@ New data is not new (rather an update?)
 ## Annex 4 
 Why is Schl updated, it did not change, did it?
 
+NOTE CEDRIC REMOVED LINES WITH eel_qal_id=0 as they are duplicates
+|eel_typ_id|eel_qal_id|eel_year|eel_emu_nameshort|eel_lfs_code|eel_hty_code|eel_area_division|eel_value     |eel_missvaluequal|eel_datasource|eel_datelastupdate|n  |
+|----------|----------|--------|-----------------|------------|------------|-----------------|--------------|-----------------|--------------|------------------|---|
+|4         |0         |2019    |DE_Warn          |S           |F           |                 |              |NC               |dc_2020       |2020-09-01        |2  |
+|4         |1         |2019    |DE_Warn          |S           |F           |                 |5461          |                 |dc_2021       |2021-09-08        |2  |
+|4         |0         |2019    |DE_Warn          |Y           |F           |                 |              |NC               |dc_2020       |2020-09-01        |2  |
+|4         |1         |2019    |DE_Warn          |Y           |F           |                 |6252          |                 |dc_2021       |2021-09-08        |2  |
+|4         |0         |2019    |DE_Warn          |YS          |F           |                 |              |NC               |dc_2020       |2020-09-01        |2  |
+|4         |1         |2019    |DE_Warn          |YS          |F           |                 |206           |                 |dc_2021       |2021-09-08        |2  |
+
 ## Annex 5 
 e.g. 425800 updated but only quality changes... This is not for the provider to change, is it?
 
