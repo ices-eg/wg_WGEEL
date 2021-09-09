@@ -156,6 +156,15 @@ Annex 4 (by GFCM)
 
 # FI
 
+## Annex 4 
+13 New values added, 1 value updated
+
+## Annex 5
+6 new values added
+
+## Annex 6
+1 new value added.
+
 ## Annex 8 
 
 During the datacall, clarisse identified duplicates in issue #194.
@@ -404,17 +413,28 @@ Error in Step 2.1 Integrate /proceed duplicates rows: Failed to prepare query: E
 LINE 17:       eel_value,
 HINT:  There is a column named "eel_value" in table "t_eelstock_eel", but it cannot be referenced from this part of the query.
 
-# LT
+
+
+# LT (Lithuania)
+## Annex 4 
+28 new values added.
+## Annex 5
+1 new value added.
+## Annex 6
+NO DATA
 ## Annex 9 
-
 58 new values were added.
-
 ## Annex 10  
-
 84 new values were added.
 
-# LV
+# LV (Latvia)
 
+## Annex 4
+12 New values added
+## Annex 5
+2 New values added
+## Annex 6
+NO DATA
 ## Annex 9 
 
 29 new values were added.
