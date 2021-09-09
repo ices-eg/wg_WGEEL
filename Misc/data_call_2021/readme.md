@@ -492,6 +492,62 @@ New dataseries=29 (10 lines with values and 19 lines with "NC")
 
 # PL 
  
+ ## Annex 1
+
+No data
+
+## Annex 2 
+
+new series = 6  
+modified series = 13  
+new dataseries = 62  
+modified dataseries = 100  
+new biometry =60  
+modified biometry = 99  
+
+## Annex 3
+
+new series = 0  
+modified series = 6  
+new dataseries = 6  
+modified dataseries = 2  
+new biometry = 5  
+modified biometry = 3   
+
+## Annex 4 
+
+duplicate = 0  
+new = 157  
+updated = 24  
+
+## Annex 5 
+
+duplicate = 0  
+new = 125 [2765 lines with NP for rec_catch_kg should have been deleted]  
+updated = 3 
+
+## Annex 6 
+
+NO DATA
+
+## Annex 7 
+
+duplicate = 0  
+new = 22  
+updated = 4  
+
+## Annex 8 
+
+NO DATA
+
+## Annex 9 
+
+NO DATA
+
+## Annex 10 
+
+NO DATA
+ 
 # PT
 ## Annex 1
  3 modified series info
