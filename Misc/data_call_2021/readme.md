@@ -70,6 +70,11 @@ updated = 490
 new=378
 ## Annex 10
 new=261
+
+# CZ
+
+Is there any report from accession ?
+
 # DK
 Question about DK_total
 
