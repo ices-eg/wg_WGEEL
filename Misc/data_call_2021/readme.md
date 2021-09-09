@@ -139,6 +139,8 @@ Annex 4 (by GFCM)
 |------------|--------------|-----------------------------------------|
 |EG          |catch_landings|‘ 42 new values inserted in the database’|
 
+# ES
+
 # FI
 
 ## Annex 8 
@@ -222,6 +224,9 @@ NO DATA
 
 remove data per habitat for aquaculture (in existing kept there are values for Freshwater, this is wrong.) These values are duplicated with values entered for 2017 without the Freshwater tag. Suggestion = remove all data for aquaculture and Freshwater and update the rest if wrong
 
+# HR
+
+Croatia do we have anything ? 
 
 # GB
 
@@ -372,8 +377,11 @@ Error in Step 2.1 Integrate /proceed duplicates rows: Failed to prepare query: E
 LINE 17:       eel_value,
 HINT:  There is a column named "eel_value" in table "t_eelstock_eel", but it cannot be referenced from this part of the query.
 
+# LT
 
+# LV
 
+# MA
 
 # NL 
 
@@ -404,7 +412,7 @@ HINT:  There is a column named "eel_value" in table "t_eelstock_eel", but it can
 ## Annex 9 
 
 ## Annex 10   
-  
+
 
 # NO (Norway) 
  
@@ -452,6 +460,8 @@ No data
 ## Annex 10
  
 New dataseries=29 (10 lines with values and 19 lines with "NC") 
+
+# PL 
  
 # PT
 ## Annex 1
@@ -540,6 +550,10 @@ add eel_comment = assisted migration for all existing_kept data (directly with a
 
 ## Annex 10 
 
+# Sl
+ 
+ I there any data for Solvenia ?
+ 
 # TN
 Annex 4 (by GFCM) 6 new values are added.
 
