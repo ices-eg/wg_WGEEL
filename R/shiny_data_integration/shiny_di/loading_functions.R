@@ -824,8 +824,6 @@ load_aquaculture<-function(path,datasource){
         namedataset= sheet, 
         country=country))
       
-      
-      
       ###### eel_emu_name ##############
       data_error = rbind(data_error,   check_missing(
         dataset=data_xls,
@@ -971,6 +969,10 @@ load_biomass<-function(path,datasource){
 	data_xls$eel_datasource <- datasource
 	# check column names
 #FIXME there is a problem with name in data_xls, here we have to use typ_name
+	if ("typ_name" %in% names(data_xls)){
+	  data_xls <- data_xls %>%
+	  rename(eel_typ_name = typ_name)
+	}
 	if (!all(colnames(data_xls)%in%
 					c("eel_typ_name", "eel_year", "eel_value", "eel_missvaluequal", "eel_emu_nameshort", 
 							"eel_cou_code", "biom_perc_F", "biom_perc_T", "biom_perc_C", "biom_perc_MO", 
@@ -1198,6 +1200,10 @@ load_mortality_rates<-function(path,datasource){
 	data_xls$eel_qal_id <- NA
 	data_xls$eel_qal_comment <- NA
 	data_xls$eel_datasource <- datasource
+	if ("typ_name" %in% names(data_xls)){
+	  data_xls <- data_xls %>%
+	    rename(eel_typ_name = typ_name)
+	}
 	if (!all(colnames(data_xls)%in%
 					c("eel_typ_name", "eel_year","eel_value", "eel_missvaluequal","eel_emu_nameshort",
 							"eel_cou_code", "mort_perc_F", "mort_perc_T","mort_perc_C", "mort_perc_MO",
@@ -2312,7 +2318,7 @@ data_error <- rbind(data_error, check_values(
 						country=country)) 
 		
 # should be a numeric
-		
+
 		data_error <- rbind(data_error, check_type(
 						dataset=new_data,					
 						namedataset= "new_data",
@@ -2734,7 +2740,6 @@ data_error <- rbind(data_error, check_values(
 			
 		}
 	} else updated_biometry <- NULL
-	
 	
 	
 	return(invisible(list(
