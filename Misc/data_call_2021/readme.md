@@ -212,6 +212,62 @@ Annex 4 (by GFCM)
 
 # ES
 
+## Annex 1
+the Annex 1 was modified as corrupted data was found and empty lines were deleted in new_data. The new file is in the sharepoint
+
+new series = 0  
+modified series = 8  
+new dataseries = 6  
+modified dataseries = 17 
+new biometry = 7  
+modified biometry = 0  
+
+## Annex 2 
+the Annex 2 was modified as some effort were changed to correspond to the reference table. The new file is in the sharepoint
+
+new series = 3  
+modified series = 3  
+new dataseries = 88  
+modified dataseries = 0  
+new biometry =23  
+modified biometry = 0  
+
+## Annex 3
+the Annex 3 was modified as some character in numeric cells has been found. The new file is in the sharepoint
+
+new series = 3  
+modified series = 3  
+new dataseries = 36  
+modified dataseries = 0  
+new biometry = 23  
+modified biometry = 0   
+
+## Annex 4 
+
+
+
+## Annex 5 
+
+duplicate = 0  
+new = 1578 [lines with NP for rec_catch_kg should have been deleted]  
+updated = 0 
+
+## Annex 6 
+
+NO DATA
+
+## Annex 7 
+
+duplicate = 0  
+new = 15  
+updated = 3  
+
+## Annex 8 
+
+duplicate = 0  
+new = 5  
+updated = 0 
+
 # FI
 
 
@@ -221,7 +277,8 @@ During the datacall, clarisse identified duplicates in issue #194.
 Pressing a bit further there was indeed a duplicate for FINLAND aquaculture in
 2014 and 2015. Two exact duplicates lines (500 t) has been removed.
 
-
+## Annex 1
+NO DATA
 ## Annex 2 
 the Annex 2 was modified as in the new_biometry sheet columns were missing and effort has changed. The new file is in the sharepoint
 
