@@ -160,7 +160,25 @@ Annex 4 (by GFCM)
 # ES
 
 # FI
+## Annex 2 
+the Annex 2 was modified as in the new_biometry sheet columns were missing and effort has changed. The new file is in the sharepoint
 
+new series = 2  
+modified series = 0  
+new dataseries = 7  
+modified dataseries = 0  
+new biometry =7  
+modified biometry = 0  
+
+## Annex 3
+the Annex 3 was modified as in the new_biometry sheet columns were missing. The new file is in the sharepoint
+
+new series = 2  
+modified series = 0  
+new dataseries = 11 
+modified dataseries = 0  
+new biometry = 11  
+modified biometry = 0   
 ## Annex 4 
 13 New values added, 1 value updated
 
