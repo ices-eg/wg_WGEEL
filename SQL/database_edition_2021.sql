@@ -685,4 +685,61 @@ WHERE eel_id IN (380096,
 
 SELECT coalesce(eel_qal_comment,'')|| ' =>Marqued as DELETE for dc_2021' FROM datawg.t_eelstock_eel LIMIT 100
 
+WITH remove_me AS (
+	SELECT * FROM datawg.t_eelstock_eel 
+	WHERE eel_typ_id IN (8,9,10) 
+	 AND eel_qal_id IN (1,2,4)
+	 AND eel_cou_code='DE'
+	 AND eel_id NOT IN (
+	SELECT eel_id FROM datawg.t_eelstock_eel  
+	 WHERE eel_typ_id IN (8,9,10) 
+	 AND eel_qal_id =21
+	 AND eel_cou_code='DE')
+	 )
+UPDATE datawg.t_eelstock_eel  
+SET (eel_qal_id, eel_qal_comment)= (21, coalesce(t_eelstock_eel.eel_qal_comment || ' =>Everything remove from the db in 2021')) 
+FROM remove_me WHERE remove_me.eel_id=t_eelstock_eel.eel_id; --101
+
+
+
+ 
+DELETE FROM datawg.t_eelstock_eel WHERE 
+eel_comment='DELETE'
+ AND eel_typ_id IN (8,9,10) 
+ AND eel_qal_id IN (1,2,4)
+AND eel_cou_code='DE'; --460
+
+SELECT *  FROM datawg.t_eelstock_eel WHERE 
+eel_datasource='dc_2021'
+ AND eel_typ_id IN (8,9,10) 
+ --AND eel_qal_id IN (21)
+AND eel_cou_code='DE';
+
+DELETE FROM datawg.t_eelstock_eel WHERE 
+eel_datasource='dc_2021'
+ AND eel_typ_id IN (8,9,10) 
+ AND eel_qal_id =1
+AND eel_cou_code='DE'; --425
+
+SELECT * FROM datawg.t_eelstock_eel  WHERE eel_year = 1985
+AND eel_lfs_code='Y'
+AND eel_emu_nameshort='DE_Oder'
+AND eel_typ_id =9
+AND eel_hty_code= 'F'
+ 
+ SELECT count(*), eel_qal_id, eel_year, eel_typ_id  FROM datawg.t_eelstock_eel 
+ WHERE eel_typ_id IN (8,9,10) 
+ AND eel_qal_id IN (1,2,4)
+ AND eel_cou_code='DE'
+ GROUP BY eel_qal_id, eel_year, eel_typ_id
+ ORDER BY eel_typ_id, eel_qal_id, eel_year;
+
+SELECT * FROM datawg.t_eelstock_eel WHERE eel_typ_id=6 AND  eel_cou_code='DE' AND eel_qal_id =1 AND eel_missvaluequal  IS NULL
+
+
+-- ALL GERMAN LANDINGS FOR RECREATIONAL ARE DUBIOUS ACCORDING TO LASSE
+UPDATE datawg.t_eelstock_eel SET eel_qal_id =4 WHERE eel_typ_id=6
+AND  eel_cou_code='DE' 
+AND eel_qal_id =1
+AND eel_missvaluequal  IS NULL;--420
 
