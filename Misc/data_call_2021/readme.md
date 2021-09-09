@@ -23,7 +23,7 @@ New data is not new (rather an update?)
 ## Annex 4 
 Why is Schl updated, it did not change, did it?
 
-NOTE CEDRIC REMOVED LINES WITH eel_qal_id=0 as they are duplicates
+> NOTE CEDRIC REMOVED LINES WITH eel_qal_id=0 as they are duplicates
 |eel_typ_id|eel_qal_id|eel_year|eel_emu_nameshort|eel_lfs_code|eel_hty_code|eel_area_division|eel_value     |eel_missvaluequal|eel_datasource|eel_datelastupdate|n  |
 |----------|----------|--------|-----------------|------------|------------|-----------------|--------------|-----------------|--------------|------------------|---|
 |4         |0         |2019    |DE_Warn          |S           |F           |                 |              |NC               |dc_2020       |2020-09-01        |2  |
@@ -260,7 +260,8 @@ delete from datawg.t_eelstock_eel where eel_typ_id = 4 and eel_datasource ='dc_2
 update datawg.t_eelstock_eel set eel_qal_id=1 where eel_typ_id =4 and eel_qal_id=21 and eel_cou_code='ES';
 ```
 
-PLEASE CHECK DUPLICATES
+> ESTI PLEASE CHECK DUPLICATES
+> 
 |eel_typ_id|eel_qal_id|eel_year|eel_emu_nameshort|eel_lfs_code|eel_hty_code|eel_area_division|eel_value     |eel_missvaluequal|eel_datasource|eel_datelastupdate|n  |
 |----------|----------|--------|-----------------|------------|------------|-----------------|--------------|-----------------|--------------|------------------|---|
 |4         |0         |2014    |ES_Murc          |S           |C           |37.1.1           |              |NC               |dc_2021       |2021-09-08        |2  |
@@ -466,7 +467,7 @@ No duplicates.
 168 new values were added (145 of those had no data values entered as were classified as NP).  
 79 values were updated.  
 
-CEDRIC  :
+> CEDRIC  => TEA
 > Note I have removed 55 duplicates with same values, one line with eel_qal_id 0 and one line with eel_qal_id 1, both NC
 > I removed the zero values from the database
 > I still have those to deal with, do I remove all zeros ?
@@ -640,13 +641,12 @@ LINE 17:       eel_value,
 HINT:  There is a column named "eel_value" in table "t_eelstock_eel", but it cannot be referenced from this part of the query.
 
 
-# LT
 
-# LV
-=======
 
 
 # LT (Lithuania)
+=======
+
 ## Annex 4 
 28 new values added.
 ## Annex 5
@@ -658,7 +658,19 @@ NO DATA
 ## Annex 10  
 84 new values were added.
 
+> NOTE CEDRIC I REMOVED TWO DUPLICATES with eel_qal_id = 0 see below
+> 
+|eel_typ_id|eel_qal_id|eel_year|eel_emu_nameshort|eel_lfs_code|eel_hty_code|eel_area_division|eel_value     |eel_missvaluequal|eel_datasource|eel_datelastupdate|n  |
+|----------|----------|--------|-----------------|------------|------------|-----------------|--------------|-----------------|--------------|------------------|---|
+|4         |0         |2020    |LT_total         |S           |F           |                 |              |ND               |dc_2020       |2020-09-04        |2  |
+|4         |1         |2020    |LT_total         |S           |F           |                 |1883          |                 |dc_2021       |2021-09-09        |2  |
+|4         |0         |2020    |LT_total         |Y           |F           |                 |              |ND               |dc_2020       |2020-09-04        |2  |
+|4         |1         |2020    |LT_total         |Y           |F           |                 |1649          |                 |dc_2021       |2021-09-09        |2  |
+
+
 # LV (Latvia)
+=========
+
 ## Annex 2
 2 series were modified.   
 2 new data series were added.  
@@ -677,7 +689,7 @@ NO DATA
 29 new values were added.
 ## Annex 10   
 42 new values were added.
->>>>>>> branch 'master' of https://github.com/ices-eg/wg_WGEEL.git
+
 
 # MA
 
