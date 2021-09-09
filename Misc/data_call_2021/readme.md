@@ -466,6 +466,43 @@ No duplicates.
 168 new values were added (145 of those had no data values entered as were classified as NP).  
 79 values were updated.  
 
+CEDRIC  :
+> Note I have removed 55 duplicates with same values, one line with eel_qal_id 0 and one line with eel_qal_id 1, both NC
+> I removed the zero values from the database
+> I still have those to deal with, do I remove all zeros ?
+
+|eel_id|eel_typ_id|eel_qal_id|eel_year|eel_emu_nameshort|eel_lfs_code|eel_hty_code|eel_value|eel_missvaluequal|eel_datasource|eel_datelastupdate|eel_cou_code|n  |
+|------|----------|----------|--------|-----------------|------------|------------|---------|-----------------|--------------|------------------|------------|---|
+|382126|4         |0         |2017    |GB_Angl          |S           |F           |         |ND               |dc_2017       |2019-08-29        |GB          |2  |
+|381982|4         |0         |2017    |GB_Angl          |Y           |F           |         |ND               |dc_2017       |2019-03-22        |GB          |2  |
+|382203|4         |0         |2017    |GB_Dee           |S           |F           |         |ND               |dc_2017       |2019-03-22        |GB          |2  |
+|382061|4         |0         |2017    |GB_Dee           |Y           |F           |         |ND               |dc_2017       |2019-03-22        |GB          |2  |
+|382113|4         |0         |2017    |GB_Humb          |S           |F           |         |ND               |dc_2017       |2019-03-22        |GB          |2  |
+|381969|4         |0         |2017    |GB_Humb          |Y           |F           |         |ND               |dc_2017       |2019-03-22        |GB          |2  |
+|382074|4         |0         |2017    |GB_NorW          |Y           |F           |         |ND               |dc_2017       |2019-03-22        |GB          |2  |
+|382100|4         |0         |2017    |GB_Nort          |S           |F           |         |ND               |dc_2017       |2019-03-22        |GB          |2  |
+|381956|4         |0         |2017    |GB_Nort          |Y           |F           |         |ND               |dc_2017       |2019-03-22        |GB          |2  |
+|382177|4         |0         |2017    |GB_Seve          |S           |F           |         |ND               |dc_2017       |2019-03-22        |GB          |2  |
+|382034|4         |0         |2017    |GB_Seve          |Y           |F           |         |ND               |dc_2017       |2019-03-22        |GB          |2  |
+|382228|4         |0         |2017    |GB_Solw          |S           |F           |         |ND               |dc_2017       |2019-03-22        |GB          |2  |
+|382087|4         |0         |2017    |GB_Solw          |Y           |F           |         |ND               |dc_2017       |2019-03-22        |GB          |2  |
+|382294|4         |0         |2005    |GB_SouE          |G           |T           |         |NP               |dc_2017       |2019-08-29        |GB          |2  |
+|382296|4         |0         |2007    |GB_SouE          |G           |T           |         |NP               |dc_2017       |2019-08-29        |GB          |2  |
+|382297|4         |0         |2008    |GB_SouE          |G           |T           |         |NP               |dc_2017       |2019-08-29        |GB          |2  |
+|382151|4         |0         |2017    |GB_SouE          |S           |F           |         |ND               |dc_2017       |2019-03-22        |GB          |2  |
+|382008|4         |0         |2017    |GB_SouE          |Y           |F           |         |ND               |dc_2017       |2019-03-22        |GB          |2  |
+|382164|4         |0         |2017    |GB_SouW          |S           |F           |         |ND               |dc_2017       |2019-03-22        |GB          |2  |
+|382021|4         |0         |2017    |GB_SouW          |Y           |F           |         |ND               |dc_2017       |2019-03-22        |GB          |2  |
+|382136|4         |0         |2015    |GB_Tham          |S           |F           |         |NP               |dc_2017       |2019-03-22        |GB          |2  |
+|382138|4         |0         |2017    |GB_Tham          |S           |F           |         |ND               |dc_2017       |2019-03-22        |GB          |2  |
+|381995|4         |0         |2017    |GB_Tham          |Y           |F           |         |ND               |dc_2017       |2019-03-22        |GB          |2  |
+|382187|4         |0         |2014    |GB_Wale          |S           |F           |         |NP               |dc_2017       |2019-03-22        |GB          |2  |
+|382044|4         |0         |2014    |GB_Wale          |Y           |F           |         |NP               |dc_2017       |2019-03-22        |GB          |2  |
+|382265|4         |0         |2015    |GB_Wale          |G           |T           |         |NP               |dc_2017       |2019-08-29        |GB          |2  |
+|382190|4         |0         |2017    |GB_Wale          |S           |F           |         |ND               |dc_2017       |2019-03-22        |GB          |2  |
+|382048|4         |0         |2017    |GB_Wale          |Y           |F           |         |ND               |dc_2017       |2019-03-22        |GB          |2  |
+
+
 ## Annex 5 
 
 No recreational landings in the UK (180 new values inserted in the database for 2021 and some for 2020, all NP).
@@ -747,7 +784,7 @@ new data: 84
 ## Annex 10 
 
 new data: 58 
->>>>>>> branch 'master' of https://github.com/ices-eg/wg_WGEEL.git
+
 # PT
 ## Annex 1
  3 modified series info
