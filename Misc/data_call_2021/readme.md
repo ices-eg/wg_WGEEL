@@ -128,6 +128,10 @@ No data
 
 corrections : missing type so addes q_aqua_kg and should DK uppercase
 
+## Annex 9
+
+ removed lines with nothing in 2007 2008
+
 # DZ
 Annex 4 (by GFCM)
 42 new inserted values
