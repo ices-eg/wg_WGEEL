@@ -54,6 +54,7 @@ the Annex 4 was modified to add some informations on area division. The new file
 Why is Schl updated, it did not change, did it?
 
 > NOTE CEDRIC REMOVED LINES WITH eel_qal_id=0 as they are duplicates
+> 
 |eel_typ_id|eel_qal_id|eel_year|eel_emu_nameshort|eel_lfs_code|eel_hty_code|eel_area_division|eel_value     |eel_missvaluequal|eel_datasource|eel_datelastupdate|n  |
 |----------|----------|--------|-----------------|------------|------------|-----------------|--------------|-----------------|--------------|------------------|---|
 |4         |0         |2019    |DE_Warn          |S           |F           |                 |              |NC               |dc_2020       |2020-09-01        |2  |
