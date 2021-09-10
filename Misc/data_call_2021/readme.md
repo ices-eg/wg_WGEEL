@@ -13,6 +13,13 @@ Annex 12 (by GFCM)
 -----------------------------------------------------------
 # BE
 -----------------------------------------------------------
+
+## Annex 1
+
+Removed series VeAmGY from the database. Set ser_qal_id for VEAMy to 0 to avoid repeated measure at each site. The series will not be used in the short term.
+Changed effort type to nr day nothing you could have done the referential table in the sheet is incomplete
+Split site description into ser_comments and site description to better fit the shiny visualisation app.
+
 -----------------------------------------------------------
 # DE
 -----------------------------------------------------------
