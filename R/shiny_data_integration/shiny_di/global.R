@@ -9,6 +9,7 @@
 ########################
 # the shiny is launched from shiny_data_integration/shiny
 # debug tool
+#setwd("C:\\workspace\\gitwgeel\\R\\shiny_data_integration\\shiny_di")
 source("load_library.R")
 source("utilities.R")
 load_package("shiny")
@@ -38,7 +39,7 @@ load_package("shinyjs")
 load_package("shinydashboard")
 load_package("shinyWidgets")
 load_package("shinyBS")
-load_package("sqldf")
+#load_package("sqldf")
 load_package("leaflet")
 load_package("shinytoastr")
 
@@ -85,16 +86,6 @@ load("common/data/ccm.rdata")
 source("database_tools.R")
 source("graphs.R")
 source("tableEdit.R")
-source("importstep0.R")
-source("importstep1.R")
-source("importstep2.R")
-source("newparticipants.R")
-source("plotduplicates.R")
-source("importtsstep0.R")
-source("importtsstep1.R")
-source("importtsstep2.R")
-
-
 options(shiny.maxRequestSize=20*1024^2) #20 MB for excel files
 #pool <- pool::dbPool(drv = dbDriver("PostgreSQL"),
 #		dbname="postgres",
@@ -112,7 +103,7 @@ onStop(function() {
 # BEFORE WGEEL sqldf('delete from datawg.t_eelstock_eel where eel_datasource='test')
 ########################
 qualify_code<-21 # change this code here and in tr_quality_qal for next wgeel
-the_eel_datasource <- "test"  # change this after tests
+the_eel_datasource <- "dc_2021"  # change this after tests
 current_year <- 2021
 
 

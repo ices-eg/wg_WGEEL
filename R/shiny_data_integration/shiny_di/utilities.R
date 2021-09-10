@@ -19,10 +19,10 @@
 
 convert2boolean <- function(myvec, name){
   myvec <- as.character(myvec)
-  if (!all(myvec %in% c("0","1","true","false","TRUE","FALSE")))
-    stop(paste("unrecognised boolean in",name))
-  myvec <- ifelse(myvec %in% c("0","false","FALSE"),
+  if (!all(myvec %in% c(NA,"0","1","true","false","TRUE","FALSE")))
+    stop(paste("unrecognised boolean in",name, myvec[!myvec %in% c(NA,"0","1","true","false","TRUE","FALSE")])," is not a boolean, use TRUE or FALSE or 0 or 1")
+  myvec[!is.na(myvec)] <- ifelse(myvec[!is.na(myvec)] %in% c("0","false","FALSE"),
                   FALSE,
                   TRUE)
-  myvec
+  as.logical(myvec)
 }

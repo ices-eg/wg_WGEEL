@@ -39,7 +39,7 @@
 compare_with_database <- function(data_from_excel, data_from_base, eel_typ_id_valid = NULL) {
 	# tr_type_typ should have been loaded by global.R in the program in the shiny app
 	if (!exists("tr_type_typ")) {
-		tr_type_typ<-extract_ref("Type of series")
+		tr_type_typ<-extract_ref("Type of series", pool)
 	}
 	# data integrity checks
 	if (nrow(data_from_excel) == 0) 
@@ -130,7 +130,7 @@ compare_with_database <- function(data_from_excel, data_from_base, eel_typ_id_va
 compare_with_database_updated_values <- function(updated_from_excel, data_from_base) {
 	# tr_type_typ should have been loaded by global.R in the program in the shiny app
 	if (!exists("tr_type_typ")) {
-		tr_type_typ<-extract_ref("Type of series")
+		tr_type_typ<-extract_ref("Type of series", pool)
 	}
 	# data integrity checks
 	validate(need(nrow(updated_from_excel) != 0,"There are no data coming from the excel file")) 
@@ -243,7 +243,7 @@ compare_with_database_series <- function(data_from_excel, data_from_base) {
 	data_from_excel <- data_from_excel %>% mutate_if(is.logical,list(as.numeric)) 
 	data_from_excel$ser_typ_id <- as.numeric(data_from_excel$ser_typ_id)
 	data_from_excel$ser_sam_gear <- as.numeric(data_from_excel$ser_sam_gear)
-	data_from_excel$ser_restocking <- as.logical(data_from_excel$ser_restocking)
+	data_from_excel$ser_restocking <- convert2boolean(data_from_excel$ser_restocking, "new series")
 	data_from_excel <- data_from_excel %>% 
 			mutate_at(vars(ser_dts_datasource, ser_comment, ser_lfs_code, ser_hty_code, ser_locationdescription, ser_emu_nameshort,
 							ser_area_division,ser_cou_code,ser_effort_uni_code, ser_uni_code, ser_method ),list(as.character)) 
@@ -725,7 +725,11 @@ compare_with_database_biometry <- function(data_from_excel, data_from_base, shee
 		
 		
 	} else {
-		
+		showNotification(				
+				"You don't have any lines in sheet duplicated marked with true in column 'keep new values?', have you forgotten to indicate which lines you want to add in the database ?",
+				duration = 20,	
+				type = "warning"
+		)
 		query0 <- ""
 		query0_reverse <- ""
 		query1 <- ""
@@ -848,7 +852,7 @@ compare_with_database_biometry <- function(data_from_excel, data_from_base, shee
 					nrow(replaced)
 				}, error = function(e) {
 					message <<- e  
-					sqldf (query0_reverse)      # perform reverse operation
+					dbGetQuery(conn, query0_reverse)      # perform reverse operation
 					cat("step2 message :")
 					print(message)
 				}, finally = {
@@ -876,7 +880,7 @@ compare_with_database_biometry <- function(data_from_excel, data_from_base, shee
 					cat("step3 message :")
 					print(message)
 					dbExecute(conn, query1_reverse) # this is not surrounded by trycatch, pray it does not fail ....
-					sqldf (query0_reverse)      # perform reverse operation    
+					dbGetQuery(conn,query0_reverse)      # perform reverse operation    
 				}, finally = {
 					#poolReturn(conn)
 					dbExecute(conn, str_c( "drop table if exists not_replaced_temp_", cou_code))   
@@ -918,11 +922,12 @@ compare_with_database_biometry <- function(data_from_excel, data_from_base, shee
 #' @rdname write_duplicate
 
 write_new <- function(path) {
-	
-	new <- read_excel(path = path, sheet = 1, skip = 1)
+ # bug 2021 when a lots of rows without values in eel_missvaluequal reads a logical and converts to NA
+	new <- read_excel(path = path, sheet = 1, skip = 1, 
+			col_types=c("numeric","text","numeric","numeric",rep("text",6),"numeric",rep("text",3)))
 	
 	####when there are no data, new values have incorrect type
-	new$eel_value <- as.numeric(new$eel_value)
+	#ew$eel_value <- as.numeric(new$eel_value)
 	
 	# check for new file -----------------------------------------------------------------------------
 	
@@ -1076,7 +1081,7 @@ write_new <- function(path) {
 					  insert into datawg.t_eelstock_eel (eel_typ_id,eel_year,eel_value,eel_missvaluequal,eel_emu_nameshort,eel_cou_code,eel_lfs_code,eel_hty_code,eel_area_division,eel_qal_id, eel_qal_comment,eel_datasource,eel_comment)
 					  (select eel_typ_id,eel_year_xls,eel_value_xls,eel_missvaluequal_xls,eel_emu_nameshort_xls,eel_cou_code_xls,eel_lfs_code_xls,eel_hty_code_xls,eel_area_division_xls,eel_qal_id_xls,eel_qal_comment_xls,eel_datasource_xls,eel_comment_xls from updated_temp where eel_id=oldid ) returning eel_id into newid;
 					  update datawg.t_eelstock_eel set eel_qal_comment=coalesce(eel_qal_comment,'') || ' updated to eel_id ' || newid::text || ' in ",cyear,"' where eel_id=oldid;\n",
-	         ifelse(length(startsWith(names(updated_values_table), "perc_"))>0,
+	         ifelse(any(startsWith(names(updated_values_table), "perc_"))>0,
 	                "insert into datawg.t_eelstock_eel_percent values (newid,rec.perc_f,rec.perc_t,rec.perc_c,rec.perc_mo);\n",
 	                ""),
 					"else
@@ -1136,10 +1141,14 @@ write_new <- function(path) {
 	new <- new %>% mutate_if(is.logical,list(as.character)) 
 
 	new <- new %>% 
-			mutate_at(vars(ser_dts_datasource, ser_comment, ser_lfs_code, ser_hty_code, ser_locationdescription, ser_emu_nameshort, ser_sam_gear, ser_distanceseakm, 	ser_method,
+			mutate_at(vars(ser_dts_datasource, ser_comment, ser_lfs_code, ser_hty_code, ser_locationdescription, ser_emu_nameshort, 	ser_method,
 							ser_area_division,ser_cou_code),list(as.character)) 
 	new <- new %>% 
-			mutate_at(vars(ser_sam_id),list(as.integer)) 
+			mutate_at(vars(ser_sam_id,ser_sam_gear),list(as.integer)) 
+	new$ser_restocking <- convert2boolean(new$ser_restocking,
+	                                                       "new boolean")
+	new <- new %>%
+	  mutate_at(vars(ser_distanceseakm), list(as.numeric))
 	# check for new file -----------------------------------------------------------------------------
 	
 	validate(need(all(!is.na(new$ser_qal_id)), "There are still lines without ser_qal_id, please check your file"))
@@ -1172,7 +1181,7 @@ write_new <- function(path) {
 			ser_comment, ser_uni_code, ser_lfs_code, ser_hty_code, ser_locationdescription,
 			ser_emu_nameshort, ser_cou_code, ser_area_division, ser_tblcodeid::integer,
 			ser_x, ser_y, ser_sam_id, ser_dts_datasource, ser_qal_id::integer, ser_qal_comment,
-			ser_ccm_wso_id::integer[], ser_sam_gear, ser_distanceseakm, 	ser_method, ser_restocking from new_series_temp;"
+			ser_ccm_wso_id::integer[], ser_sam_gear::integer, ser_distanceseakm, 	ser_method, ser_restocking from new_series_temp;"
 	# if fails replaces the message with this trycatch !  I've tried many ways with
 	# sqldf but trycatch failed to catch the error Hence the use of DBI
 
@@ -1456,7 +1465,8 @@ update_series <- function(path) {
 #path<-"C:\\Users\\cedric.briand\\Downloads\\modified_dataseries_2020-08-24_FR.xlsx"
 update_dataseries <- function(path) {
 	updated_values_table <- 	read_excel(path = path, sheet = 1, skip = 1)	
-	cou_code = sqldf(paste0("SELECT ser_cou_code FROM datawg.t_series_ser WHERE ser_nameshort='",
+	conn <- poolCheckout(pool)
+	cou_code = dbGetQuery(conn,paste0("SELECT ser_cou_code FROM datawg.t_series_ser WHERE ser_nameshort='",
 					updated_values_table$ser_nameshort[1],"';"))$ser_cou_code  
 	
 	# create dataset for insertion -------------------------------------------------------------------
@@ -1464,7 +1474,6 @@ update_dataseries <- function(path) {
 	updated_values_table$das_qal_id <- as.integer(updated_values_table$das_qal_id)
 	updated_values_table$das_effort <- as.numeric(updated_values_table$das_effort)
 	
-	conn <- poolCheckout(pool)
 	dbExecute(conn,"drop table if exists updated_dataseries_temp ")
 	dbWriteTable(conn,"updated_dataseries_temp",updated_values_table, row.names=FALSE,temporary=TRUE)
 	
@@ -1806,13 +1815,19 @@ check_missing_data <- function(complete, newdata, restricted=TRUE) {
 			eel_typ_id=typ)
 	missing_comb <- anti_join(all_comb, complete)
 	missing_comb$id <- 1:nrow(missing_comb)
-	found_matches <- sqldf("select id from missing_comb m inner join complete c on c.eel_cou_code=m.eel_cou_code and
+	conn <- poolCheckout(pool)
+	dbWriteTable(conn,"missing_comb",missing_comb,temporary=TRUE,row.names=FALSE)
+	dbWriteTable(conn,"complete",complete,temporary=TRUE,row.names=FALSE)
+	found_matches <- dbGetQuery(conn,"select id from missing_comb m inner join complete c on c.eel_cou_code=m.eel_cou_code and
 					c.eel_year=m.eel_year and
 					c.eel_typ_id=m.eel_typ_id and
 					c.eel_lfs_code like '%'||m.eel_lfs_code||'%'
 					and c.eel_hty_code like '%'||m.eel_hty_code||'%' 
 					and (c.eel_emu_nameshort=m.eel_emu_nameshort or
 					c.eel_emu_nameshort=substr(m.eel_emu_nameshort,1,3)||'total')")
+	dbExecute(conn,str_c("drop table if exists complete") )
+	dbExecute(conn,str_c("drop table if exists missing_comb") )
+	poolReturn(conn)
 	#looks for missing combinations
 	missing_comb <- missing_comb %>%
 			filter(!missing_comb$id %in% found_matches$id)%>%
