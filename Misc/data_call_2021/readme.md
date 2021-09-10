@@ -21,16 +21,27 @@ Changed effort type to nr day nothing you could have done the referential table 
 Split ser_method into ser_comments and site description to better fit the shiny visualisation app.
 
 New series 2 values inserted in the db. => ser_qal_id set to zero, ccm_wso_id added. 
+
 Modified series 2 values updated
-Now dataseries 11
+
+New dataseries 11
+
+Modified dataseries 26
+
+new biometry 26
+
+
 
 
 -----------------------------------------------------------
 # DE
 -----------------------------------------------------------
 ## annex 1
+
 13 modified series
+
 35 new dataseries
+
 5 modified dataseries
 
 ## Annex 2 
