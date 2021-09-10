@@ -13,12 +13,67 @@ Annex 12 (by GFCM)
 -----------------------------------------------------------
 # BE
 -----------------------------------------------------------
+
+## Annex 1
+
+Removed series VeAmGY from the database. Set ser_qal_id for VEAMy to 0 to avoid repeated measure at each site. The series will not be used in the short term.
+Changed effort type to nr day nothing you could have done the referential table in the sheet is incomplete
+Split ser_method into ser_comments and site description to better fit the shiny visualisation app.
+
+New series 2 values inserted in the db. => ser_qal_id set to zero, ccm_wso_id added. 
+
+Modified series 2 values updated
+
+New dataseries 11
+
+Modified dataseries 26
+
+new biometry 26
+
+## Annex 2
+No Data
+## Annex 3
+
+No Data
+
+## Annex 4
+
+Only NP data
+
+## Annex 5
+Put an NP when there was no value in eel_value, changed the name of the EMU from Be-Sche to Be_Sche (the one of the reference table), No area_division for Coastal
+Deleted all the rec_cactch_kg lines
+duplicate = 0  
+new = 807 [lines with NP for rec_catch_kg have been deleted]  
+updated = 0
+
+## Annex 6
+No data
+
+## Annex 7
+Deleted NP when value are inserted in eel_value
+duplicate = 0  
+new = 4  
+updated = 0
+
+## Annex 8
+No data
+
+## Annex9 
+168 new rows
+
+## Annex 10
+168 new rows
+
 -----------------------------------------------------------
 # DE
 -----------------------------------------------------------
 ## annex 1
+
 13 modified series
+
 35 new dataseries
+
 5 modified dataseries
 
 ## Annex 2 
@@ -47,6 +102,7 @@ the Annex 4 was modified to add some informations on area division. The new file
 Why is Schl updated, it did not change, did it?
 
 > NOTE CEDRIC REMOVED LINES WITH eel_qal_id=0 as they are duplicates
+> 
 |eel_typ_id|eel_qal_id|eel_year|eel_emu_nameshort|eel_lfs_code|eel_hty_code|eel_area_division|eel_value     |eel_missvaluequal|eel_datasource|eel_datelastupdate|n  |
 |----------|----------|--------|-----------------|------------|------------|-----------------|--------------|-----------------|--------------|------------------|---|
 |4         |0         |2019    |DE_Warn          |S           |F           |                 |              |NC               |dc_2020       |2020-09-01        |2  |
@@ -292,7 +348,14 @@ modified biometry = 0
 ## Annex 6
 1 new value added.
 
+## Annex 7
+2 new values 
+10 new values
+There were duplicates in the original Annex 7 where the same data was reported both for the FI_total EMU and for the FI_Finl EMU. We removed these duplicates before integrating, but have not removed them yet from the Annex 7 Excel file.
+
 ## Annex 8 
+3 new values
+1 updated value
 
 During the datacall, clarisse identified duplicates in issue #194.
 Pressing a bit further there was indeed a duplicate for FINLAND aquaculture in
@@ -607,7 +670,25 @@ HINT:  There is a column named "eel_value" in table "t_eelstock_eel", but it can
 -----------------------------------------------------------
 # LT (Lithuania)
 -----------------------------------------------------------
+## Annex 1:
+No new recruitment data
 
+## Annex 2:
+4 new series
+3 modified series
+7 new dataseries
+8 new biometry
+Ser_sam_id left empty, should be filled in next year
+ 
+## Annex 3:
+3 new series
+5 modified series
+8 new dataseries
+8 new biometry
+Coordinates of CIS series changed so that they are now in the middle of the Lithuanian zone of the Curonian lagoon
+Ser_sam_id left empty, should be filled in next year
+More detail should be given in the ser_method column next year
+ 
 ## Annex 4 
 28 new values added.
 ## Annex 5
@@ -646,6 +727,14 @@ NO DATA
 2 New values added
 ## Annex 6
 NO DATA
+
+## Annex 7
+4 new values
+For one release of OG, only number data was available. This release has been marked as NC, and the numbers released has been inserted in the comment column instead.
+
+## Annex 8:
+No new data, nothing to integrate
+ 
 ## Annex 9 
 29 new values were added.
 ## Annex 10   
@@ -926,19 +1015,29 @@ WHERE remove_me.eel_id=t_eelstock_eel.eel_id
 ``` 
  
 ## Annex 5 
-
+36 new values
+ 
 ## Annex 6 
 add eel_comment = assisted migration for all existing_kept data (directly with an sql query)
-  
+24 new values
+84 updated values
+ 
 ## Annex 7 
-  remove all preexisting data (put eel_qal_id = 21 and eel_qal_comment="all data were updated...") with an sql query
+892 new values
+Note 2: All years for glass eel equivalent data represent the year class year, not the year of the action.
+Note 3: As of yet we do not know when Sweden started quarantining glass eel. Therefore, for now all glass eel have been listed as "G", and this should later be updated to "QG" where relevant.
 
+ 
 ## Annex 8 
-
+1 new value
+1 updated value
+ 
 ## Annex 9 
-
+201 new values
+ 
 ## Annex 10 
-
+136 new values
+ 
 ----------------------------------------------------------- 
 # Sl
 ----------------------------------------------------------- 
