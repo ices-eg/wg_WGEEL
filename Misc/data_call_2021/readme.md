@@ -316,7 +316,14 @@ modified biometry = 0
 ## Annex 6
 1 new value added.
 
+## Annex 7
+2 new values 
+10 new values
+There were duplicates in the original Annex 7 where the same data was reported both for the FI_total EMU and for the FI_Finl EMU. We removed these duplicates before integrating, but have not removed them yet from the Annex 7 Excel file.
+
 ## Annex 8 
+3 new values
+1 updated value
 
 During the datacall, clarisse identified duplicates in issue #194.
 Pressing a bit further there was indeed a duplicate for FINLAND aquaculture in
@@ -688,6 +695,14 @@ NO DATA
 2 New values added
 ## Annex 6
 NO DATA
+
+## Annex 7
+4 new values
+For one release of OG, only number data was available. This release has been marked as NC, and the numbers released has been inserted in the comment column instead.
+
+## Annex 8:
+No new data, nothing to integrate
+ 
 ## Annex 9 
 29 new values were added.
 ## Annex 10   
