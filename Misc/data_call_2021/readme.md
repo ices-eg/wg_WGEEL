@@ -30,8 +30,28 @@ Modified dataseries 26
 
 new biometry 26
 
+## Annex 2
+No Data
+## Annex 3
 
-
+No Data
+## Annex 4
+Only NP data
+## Annex 5
+Put an NP when there was no value in eel_value, changed the name of the EMU from Be-Sche to Be_Sche (the one of the reference table), No area_division for Coastal
+Deleted all the rec_cactch_kg lines
+duplicate = 0  
+new = 807 [lines with NP for rec_catch_kg have been deleted]  
+updated = 0
+## Annex 6
+No data
+## Annex 7
+Deleted NP when value are inserted in eel_value
+duplicate = 0  
+new = 4  
+updated = 0
+## Annex 8
+No data
 
 -----------------------------------------------------------
 # DE
