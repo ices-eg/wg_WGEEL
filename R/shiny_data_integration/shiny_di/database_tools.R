@@ -66,19 +66,19 @@ compare_with_database <- function(data_from_excel, data_from_base, eel_typ_id_va
 		warning("No data in the file coming from the database")
 		current_typ_id<-0
 		if (is.null(eel_typ_id_valid)){ #for biom and mortalities, we have to add perc
-		  data_from_base <- cbind.data.frame(data_from_base, 
-		                                     data.frame(perc_f=numeric(0),
-		                                                perc_t=numeric(0),
-		                                                perc_c=numeric(0),
-		                                                perc_mo=numeric(0)))
+			data_from_base <- cbind.data.frame(data_from_base, 
+					data.frame(perc_f=numeric(0),
+							perc_t=numeric(0),
+							perc_c=numeric(0),
+							perc_mo=numeric(0)))
 		}
 	} else {   
 		current_typ_id <- unique(data_from_excel$eel_typ_id)
 		if (is.null(eel_typ_id_valid)) eel_typ_id_valid <- unique(data_from_base$eel_typ_id)
 		if (!all(current_typ_id %in% eel_typ_id_valid)) 
 			validate(need(FALSE,paste("There is a mismatch between selected typ_id", paste0(current_typ_id, 
-									collapse = ";"), "and the dataset loaded from base", paste0(unique(data_from_base$eel_typ_id), 
-									collapse = ";"), "did you select the right File type ?")))
+											collapse = ";"), "and the dataset loaded from base", paste0(unique(data_from_base$eel_typ_id), 
+											collapse = ";"), "did you select the right File type ?")))
 	}
 	# Can't join on 'eel_area_division' x 'eel_area_division' because of incompatible
 	# types (character / logical)
@@ -99,20 +99,20 @@ compare_with_database <- function(data_from_excel, data_from_base, eel_typ_id_va
 					suffix = c(".base", ".xls"))
 	duplicates$keep_new_value <- vector("logical", nrow(duplicates))
 	duplicates <- duplicates %>%
-	  select(any_of(c("eel_id", "eel_typ_id", "eel_typ_name", "eel_year", 
-					"eel_value.base", "eel_value.xls", "keep_new_value", "eel_qal_id.xls", "eel_qal_comment.xls", 
-					"eel_qal_id.base", "eel_qal_comment.base", "eel_missvaluequal.base", "eel_missvaluequal.xls", 
-					"eel_emu_nameshort", "eel_cou_code", "eel_lfs_code", "eel_hty_code", "eel_area_division", 
-					"perc_f.base","perc_f.xls","perc_t.base","perc_t.xls","perc_c.base","perc_c.xls", "perc_mo.base", "perc_mo.xls",
-					"eel_comment.base", "eel_comment.xls", "eel_datasource.base", "eel_datasource.xls")))
+			select(any_of(c("eel_id", "eel_typ_id", "eel_typ_name", "eel_year", 
+									"eel_value.base", "eel_value.xls", "keep_new_value", "eel_qal_id.xls", "eel_qal_comment.xls", 
+									"eel_qal_id.base", "eel_qal_comment.base", "eel_missvaluequal.base", "eel_missvaluequal.xls", 
+									"eel_emu_nameshort", "eel_cou_code", "eel_lfs_code", "eel_hty_code", "eel_area_division", 
+									"perc_f.base","perc_f.xls","perc_t.base","perc_t.xls","perc_c.base","perc_c.xls", "perc_mo.base", "perc_mo.xls",
+									"eel_comment.base", "eel_comment.xls", "eel_datasource.base", "eel_datasource.xls")))
 	new <- dplyr::anti_join(data_from_excel, data_from_base, by = c("eel_typ_id", 
 					"eel_year", "eel_lfs_code", "eel_emu_nameshort", "eel_hty_code", "eel_area_division", 
 					"eel_cou_code"), suffix = c(".base", ".xls"))
 	new <- new %>%
-	  select(any_of(c("eel_typ_id", "eel_typ_name", "eel_year", "eel_value", "eel_missvaluequal", 
-					"eel_emu_nameshort", "eel_cou_code", "eel_lfs_code", "eel_hty_code", "eel_area_division", 
-					"perc_f", "perc_c","perc_t","perc_c","perc_mo",
-					"eel_qal_id", "eel_qal_comment", "eel_datasource", "eel_comment")))
+			select(any_of(c("eel_typ_id", "eel_typ_name", "eel_year", "eel_value", "eel_missvaluequal", 
+									"eel_emu_nameshort", "eel_cou_code", "eel_lfs_code", "eel_hty_code", "eel_area_division", 
+									"perc_f", "perc_c","perc_t","perc_c","perc_mo",
+									"eel_qal_id", "eel_qal_comment", "eel_datasource", "eel_comment")))
 	complete <- rbind.data.frame(data_from_base[data_from_base$eel_cou_code %in% unique(new$eel_cou_code),
 					c("eel_typ_id", "eel_year", "eel_lfs_code", 
 							"eel_emu_nameshort", "eel_cou_code", "eel_hty_code")],
@@ -136,7 +136,7 @@ compare_with_database_updated_values <- function(updated_from_excel, data_from_b
 	validate(need(nrow(updated_from_excel) != 0,"There are no data coming from the excel file")) 
 	current_cou_code <- unique(updated_from_excel$eel_cou_code)
 	validate(need(length(current_cou_code) == 1, "There is more than one country code, this is wrong"))
-
+	
 	current_typ_name <- unique(updated_from_excel$eel_typ_name)
 	if (!all(current_typ_name %in% tr_type_typ$typ_name)) stop(str_c("Type ",current_typ_name[!current_typ_name %in% tr_type_typ$typ_name]," not in list of type name check excel file"))
 	# all data returned by loading functions have only a name just in case to avoid doubles
@@ -153,12 +153,12 @@ compare_with_database_updated_values <- function(updated_from_excel, data_from_b
 	} else {   
 		if (!all(updated_from_excel$eel_id %in% data_from_base$eel_id))
 			validate(need(FALSE,paste("eel_id",paste(updated_from_excel$eel_id[!updated_from_excel$eel_id %in% data_from_base$eel_id],collapse=","),
-							"not found in db",sep="")))
+									"not found in db",sep="")))
 		current_typ_id <- unique(updated_from_excel$eel_typ_id)
 		if (!all(current_typ_id %in% data_from_base$eel_typ_id)) 
 			validate(need(FALSE,paste("There is a mismatch between selected typ_id", paste0(current_typ_id, 
-									collapse = ";"), "and the dataset loaded from base", paste0(unique(data_from_base$eel_typ_id), 
-									collapse = ";"), "did you select the right File type ?")))
+											collapse = ";"), "and the dataset loaded from base", paste0(unique(data_from_base$eel_typ_id), 
+											collapse = ";"), "did you select the right File type ?")))
 	}
 	# Can't join on 'eel_area_division' x 'eel_area_division' because of incompatible
 	# types (character / logical)
@@ -175,14 +175,14 @@ compare_with_database_updated_values <- function(updated_from_excel, data_from_b
 	comparison_updated <- merge(updated_from_excel,data_from_base,by=c("eel_id","eel_typ_id"),
 			all.y=FALSE,all.x=TRUE,suffix = c(".xls",".base"))
 	comparison_updated <- comparison_updated %>%
-	  select(any_of(c("eel_id", "eel_typ_id", "eel_typ_name", "eel_year.base", "eel_year.xls",
-					"eel_value.base", "eel_value.xls", "eel_missvaluequal.base", "eel_missvaluequal.xls", 
-					"eel_emu_nameshort.base","eel_emu_nameshort.xls", "eel_cou_code.base","eel_cou_code.xls",
-					"perc_f.base","perc_f.xls","perc_t.base","perc_t.xls","perc_c.base","perc_c.xls", "perc_mo.base", "perc_mo.xls",
-					"eel_lfs_code.base","eel_lfs_code.xls", "eel_hty_code.base","eel_hty_code.xls",
-					"eel_area_division.base", "eel_area_division.xls","eel_comment.base", 
-					"eel_comment.xls", "eel_datasource.base", "eel_datasource.xls",
-					"eel_qal_id.xls", "eel_qal_comment.xls", "eel_qal_id.base", "eel_qal_comment.base")))
+			select(any_of(c("eel_id", "eel_typ_id", "eel_typ_name", "eel_year.base", "eel_year.xls",
+									"eel_value.base", "eel_value.xls", "eel_missvaluequal.base", "eel_missvaluequal.xls", 
+									"eel_emu_nameshort.base","eel_emu_nameshort.xls", "eel_cou_code.base","eel_cou_code.xls",
+									"perc_f.base","perc_f.xls","perc_t.base","perc_t.xls","perc_c.base","perc_c.xls", "perc_mo.base", "perc_mo.xls",
+									"eel_lfs_code.base","eel_lfs_code.xls", "eel_hty_code.base","eel_hty_code.xls",
+									"eel_area_division.base", "eel_area_division.xls","eel_comment.base", 
+									"eel_comment.xls", "eel_datasource.base", "eel_datasource.xls",
+									"eel_qal_id.xls", "eel_qal_comment.xls", "eel_qal_id.base", "eel_qal_comment.base")))
 	
 	return(comparison_updated)
 }
@@ -518,7 +518,7 @@ compare_with_database_biometry <- function(data_from_excel, data_from_base, shee
 					"bio_comment.base", "bio_comment.xls",
 					"bio_last_update.base", "bio_last_update.xls",
 					"bis_g_in_gy.base",  "bis_g_in_gy.xls", "bio_number"
-					)%in% colnames(duplicates)]
+			)%in% colnames(duplicates)]
 	
 	# Anti join only keeps columns from X
 	new <-  dplyr::anti_join(as.data.frame(data_from_excel), data_from_base, 
@@ -590,7 +590,7 @@ compare_with_database_biometry <- function(data_from_excel, data_from_base, shee
 #'  }
 #' }
 #' @rdname write_duplicate
-  write_duplicates <- function(path, qualify_code = 19) {
+write_duplicates <- function(path, qualify_code = 19) {
 	duplicates2 <- read_excel(path = path, sheet = 1, skip = 1)
 	
 	# Initial checks ----------------------------------------------------------------------------------
@@ -651,7 +651,7 @@ compare_with_database_biometry <- function(data_from_excel, data_from_base, shee
 		
 		query0 <- paste0("update datawg.t_eelstock_eel set (eel_qal_id,eel_comment)=(", qualify_code ,",r.eel_comment) from ", 
 				"replaced_temp_", cou_code, " r where t_eelstock_eel.eel_id=r.eel_id;")
-
+		
 		# this will perform the reverse operation if error in query 1 or 2
 		# sqldf will handle this one as it is a several liners
 		query0_reverse <- paste0("update datawg.t_eelstock_eel set (eel_qal_id,eel_comment)=(", 
@@ -662,11 +662,11 @@ compare_with_database_biometry <- function(data_from_excel, data_from_base, shee
 		# second insert the new lines into the database -------------------------------------------------
 		
 		replaced <- replaced %>%
-		  select(any_of(c("eel_id", "eel_typ_id", "eel_year", "eel_value.xls", "eel_missvaluequal.xls", 
-						"eel_emu_nameshort", "eel_cou_code", "eel_lfs_code", "eel_hty_code", 
-						"perc_f.xls","perc_t.xls","perc_c.xls", "perc_mo.xls",
-						"eel_area_division", "eel_qal_id.xls", "eel_qal_comment.xls", "eel_datasource.xls", 
-						"eel_comment.xls")))
+				select(any_of(c("eel_id", "eel_typ_id", "eel_year", "eel_value.xls", "eel_missvaluequal.xls", 
+										"eel_emu_nameshort", "eel_cou_code", "eel_lfs_code", "eel_hty_code", 
+										"perc_f.xls","perc_t.xls","perc_c.xls", "perc_mo.xls",
+										"eel_area_division", "eel_qal_id.xls", "eel_qal_comment.xls", "eel_datasource.xls", 
+										"eel_comment.xls")))
 		
 		replaced$eel_qal_comment.xls <- iconv(replaced$eel_qal_comment.xls,"UTF8")
 		replaced$eel_comment.xls <- iconv(replaced$eel_comment.xls,"UTF8")
@@ -749,12 +749,12 @@ compare_with_database_biometry <- function(data_from_excel, data_from_base, shee
 				" kept instead for datacall ", format(Sys.time(), "%Y"))
 		not_replaced$eel_qal_id <- qualify_code
 		not_replaced <- not_replaced %>%
-		  select(any_of(c("eel_typ_id", "eel_year", "eel_value.xls", 
-						"eel_missvaluequal.xls", "eel_emu_nameshort", "eel_cou_code", "eel_lfs_code", 
-						"eel_hty_code", 
-						"perc_f.base","perc_f.xls","perc_t.base","perc_t.xls","perc_c.base","perc_c.xls", "perc_mo.base", "perc_mo.xls",
-						"eel_area_division", "eel_qal_id", "eel_qal_comment.xls", 
-						"eel_datasource.xls", "eel_comment.xls")))
+				select(any_of(c("eel_typ_id", "eel_year", "eel_value.xls", 
+										"eel_missvaluequal.xls", "eel_emu_nameshort", "eel_cou_code", "eel_lfs_code", 
+										"eel_hty_code", 
+										"perc_f.base","perc_f.xls","perc_t.base","perc_t.xls","perc_c.base","perc_c.xls", "perc_mo.base", "perc_mo.xls",
+										"eel_area_division", "eel_qal_id", "eel_qal_comment.xls", 
+										"eel_datasource.xls", "eel_comment.xls")))
 		
 		not_replaced$eel_qal_comment.xls <- iconv(not_replaced$eel_qal_comment.xls,"UTF8")
 		not_replaced$eel_comment.xls <- iconv(not_replaced$eel_comment.xls,"UTF8")
@@ -841,14 +841,14 @@ compare_with_database_biometry <- function(data_from_excel, data_from_base, shee
 	if (is.null(message)) {
 		#conn <- poolCheckout(pool)
 		nr1 <- tryCatch({
-		  if (nrow(replaced)>0){
-					replaced$eel_id_new <- dbGetQuery(conn, query1)[,1]
-					if (sum(startsWith(names(replaced),"perc_"))>0) { #we have to update also t_eelsock_eel_perc
-					  dbExecute(conn,str_c("drop table if exists replaced_temp_",cou_code) )
-					  dbWriteTable(conn, str_c("replaced_temp_", tolower(cou_code)), replaced,temporary=TRUE,row.names=FALSE )
-					  dbExecute(conn,query1bis)
+					if (nrow(replaced)>0){
+						replaced$eel_id_new <- dbGetQuery(conn, query1)[,1]
+						if (sum(startsWith(names(replaced),"perc_"))>0) { #we have to update also t_eelsock_eel_perc
+							dbExecute(conn,str_c("drop table if exists replaced_temp_",cou_code) )
+							dbWriteTable(conn, str_c("replaced_temp_", tolower(cou_code)), replaced,temporary=TRUE,row.names=FALSE )
+							dbExecute(conn,query1bis)
+						}
 					}
-		  }
 					nrow(replaced)
 				}, error = function(e) {
 					message <<- e  
@@ -867,12 +867,12 @@ compare_with_database_biometry <- function(data_from_excel, data_from_base, shee
 		#conn <- poolCheckout(pool) 
 		nr2 <- tryCatch({     
 					if (nrow(not_replaced)>0){
-					  not_replaced$eel_id_new <- dbGetQuery(conn, query2)[,1]
-					  if (sum(startsWith(names(not_replaced),"perc_"))>0) { #we have to update also t_eelsock_eel_perc
-					    dbExecute(conn,str_c("drop table if exists not_replaced_temp_",cou_code) )
-					    dbWriteTable(conn,str_c("not_replaced_temp_", tolower(cou_code)),not_replaced,temporary=TRUE,row.names=FALSE )
-					    dbExecute(conn,query2bis)
-					  }
+						not_replaced$eel_id_new <- dbGetQuery(conn, query2)[,1]
+						if (sum(startsWith(names(not_replaced),"perc_"))>0) { #we have to update also t_eelsock_eel_perc
+							dbExecute(conn,str_c("drop table if exists not_replaced_temp_",cou_code) )
+							dbWriteTable(conn,str_c("not_replaced_temp_", tolower(cou_code)),not_replaced,temporary=TRUE,row.names=FALSE )
+							dbExecute(conn,query2bis)
+						}
 					}
 					nrow(not_replaced)
 				}, error = function(e) {
@@ -887,7 +887,7 @@ compare_with_database_biometry <- function(data_from_excel, data_from_base, shee
 				})
 		
 	} else {
-	  dbExecute(conn, str_c( "drop table if exists not_replaced_temp_", cou_code))
+		dbExecute(conn, str_c( "drop table if exists not_replaced_temp_", cou_code))
 	}
 	if (is.null(message)){  
 		message <- sprintf("For duplicates %s values replaced in the database (old values kept with code eel_qal_id=%s)\n,
@@ -921,10 +921,16 @@ compare_with_database_biometry <- function(data_from_excel, data_from_base, shee
 #' }
 #' @rdname write_duplicate
 
-write_new <- function(path) {
- # bug 2021 when a lots of rows without values in eel_missvaluequal reads a logical and converts to NA
-	new <- read_excel(path = path, sheet = 1, skip = 1, 
-			col_types=c("numeric","text","numeric","numeric",rep("text",6),"numeric",rep("text",3)))
+write_new <- function(path, type="all") {
+	# bug 2021 when a lots of rows without values in eel_missvaluequal reads a logical and converts to NA
+	#This functions does not apply to type mortality
+	
+	new <-	read_excel(path = path, sheet = 1, skip = 1)
+	# for the most common format
+	if (ncol(new)==14) {
+		new <- read_excel(path = path, sheet = 1, skip = 1, 
+				col_types=c("numeric","text","numeric","numeric",rep("text",6),"numeric",rep("text",3)))
+	}
 	
 	####when there are no data, new values have incorrect type
 	#ew$eel_value <- as.numeric(new$eel_value)
@@ -939,14 +945,14 @@ write_new <- function(path) {
 	
 	
 	new <- new %>%
-	  select(any_of(c("eel_typ_id", "eel_year", "eel_value", "eel_missvaluequal", "eel_emu_nameshort", 
-					"eel_cou_code", "eel_lfs_code", "eel_hty_code", "eel_area_division", "eel_qal_id", 
-					"perc_f","perc_t","perc_c","perc_mo",
-					"eel_qal_comment", "eel_datasource", "eel_comment")))
+			select(any_of(c("eel_typ_id", "eel_year", "eel_value", "eel_missvaluequal", "eel_emu_nameshort", 
+									"eel_cou_code", "eel_lfs_code", "eel_hty_code", "eel_area_division", "eel_qal_id", 
+									"perc_f","perc_t","perc_c","perc_mo",
+									"eel_qal_comment", "eel_datasource", "eel_comment")))
 	conn <- poolCheckout(pool)
 	dbExecute(conn,"drop table if exists new_temp ")
 	dbWriteTable(conn,"new_temp",new,row.names=FALSE,temporary=TRUE)
-
+	
 	
 	# Query uses temp table just created in the database by sqldf
 	query <- "insert into datawg.t_eelstock_eel (         
@@ -991,15 +997,15 @@ write_new <- function(path) {
 	# sqldf but trycatch failed to catch the error Hence the use of DBI
 	message <- NULL
 	nr <- tryCatch({
-	  if(nrow(new)>0){
-				new$eel_id_perc <- dbGetQuery(conn, query)[,1]
-				if (sum(startsWith("perc_",names(new)))>0){#we have to insert into t_eelstock_eel_percent
-				  dbExecute(conn,"drop table if exists new_temp ")
-				  dbWriteTable(conn,"new_temp",new,row.names=FALSE,temporary=TRUE)
-				  dbExecute(conn, querybis)
+				if(nrow(new)>0){
+					new$eel_id_perc <- dbGetQuery(conn, query)[,1]
+					if (sum(startsWith("perc_",names(new)))>0){#we have to insert into t_eelstock_eel_percent
+						dbExecute(conn,"drop table if exists new_temp ")
+						dbWriteTable(conn,"new_temp",new,row.names=FALSE,temporary=TRUE)
+						dbExecute(conn, querybis)
+					}
 				}
-	  }
-	  nrow(new)
+				nrow(new)
 			}, error = function(e) {
 				message <<- e
 			}, finally = {
@@ -1031,27 +1037,27 @@ write_new <- function(path) {
 #' @details This function uses sqldf to create temporary table then dbExecute as
 #' this version allows to catch exceptions and sqldf does not
 
-  write_updated_values <- function(path, qualify_code) {
-    updated_values_table <- read_excel(path = path, sheet = 1, skip = 1)
-    validate(need(ncol(updated_values_table) %in% c(27,35), "number column wrong (should be 27 or 35) \n"))
-    validate(need(all(colnames(updated_values_table) %in% c("eel_id", "eel_typ_id", "eel_typ_name", 
-                                                   "eel_year.base","eel_year.xls","eel_value.base", "eel_value.xls", 
-                                                   "eel_missvaluequal.base","eel_missvaluequal.xls",
-                                                   "eel_emu_nameshort.base","eel_emu_nameshort.xls",
-                                                   "eel_qal_id.xls", "eel_qal_id.base",
-                                                   "eel_qal_comment.xls","eel_qal_comment.base",
-                                                   "eel_qal_comment.xls", "eel_qal_id.base", "eel_qal_comment.base", "eel_missvaluequal.base", 
-                                                   "eel_missvaluequal.xls", "eel_emu_nameshort", "eel_cou_code.base","eel_cou_code.xls",
-                                                   "eel_lfs_code.base", "eel_lfs_code.xls",
-                                                   "eel_hty_code.base","eel_hty_code.xls", "eel_area_division.base", "eel_area_division.xls",
-                                                   "eel_comment.base", "eel_comment.xls",
-                                                   "perc_f.base","perc_f.xls","perc_t.base","perc_t.xls","perc_c.base","perc_c.xls", "perc_mo.base", "perc_mo.xls",
-                                                   "eel_datasource.base", "eel_datasource.xls")), 
-                  "Error in updated dataset : column name changed, have you removed the empty line on top of the dataset ?"))
-    validate(need(all(!is.na(updated_values_table$eel_qal_id.xls)), "There are still lines without eel_qal_id, please check your file"))
-    cou_code = unique(updated_values_table$eel_cou_code.base)
-    validate(need(length(cou_code) == 1, "There is more than one country code, please check your file"))
-    
+write_updated_values <- function(path, qualify_code) {
+	updated_values_table <- read_excel(path = path, sheet = 1, skip = 1)
+	validate(need(ncol(updated_values_table) %in% c(27,35), "number column wrong (should be 27 or 35) \n"))
+	validate(need(all(colnames(updated_values_table) %in% c("eel_id", "eel_typ_id", "eel_typ_name", 
+									"eel_year.base","eel_year.xls","eel_value.base", "eel_value.xls", 
+									"eel_missvaluequal.base","eel_missvaluequal.xls",
+									"eel_emu_nameshort.base","eel_emu_nameshort.xls",
+									"eel_qal_id.xls", "eel_qal_id.base",
+									"eel_qal_comment.xls","eel_qal_comment.base",
+									"eel_qal_comment.xls", "eel_qal_id.base", "eel_qal_comment.base", "eel_missvaluequal.base", 
+									"eel_missvaluequal.xls", "eel_emu_nameshort", "eel_cou_code.base","eel_cou_code.xls",
+									"eel_lfs_code.base", "eel_lfs_code.xls",
+									"eel_hty_code.base","eel_hty_code.xls", "eel_area_division.base", "eel_area_division.xls",
+									"eel_comment.base", "eel_comment.xls",
+									"perc_f.base","perc_f.xls","perc_t.base","perc_t.xls","perc_c.base","perc_c.xls", "perc_mo.base", "perc_mo.xls",
+									"eel_datasource.base", "eel_datasource.xls")), 
+					"Error in updated dataset : column name changed, have you removed the empty line on top of the dataset ?"))
+	validate(need(all(!is.na(updated_values_table$eel_qal_id.xls)), "There are still lines without eel_qal_id, please check your file"))
+	cou_code = unique(updated_values_table$eel_cou_code.base)
+	validate(need(length(cou_code) == 1, "There is more than one country code, please check your file"))
+	
 	cou_code = unique(updated_values_table$eel_cou_code.xls)  
 	validate(need(length(cou_code) == 1, "There is more than one country code, please check your file"))
 	
@@ -1078,14 +1084,14 @@ write_new <- function(path) {
 					update datawg.t_eelstock_eel set eel_qal_id=",qualify_code," where eel_id=oldid;
 					comment:=rec.eel_comment_xls;
 					if  comment != 'delete row' then 
-					  insert into datawg.t_eelstock_eel (eel_typ_id,eel_year,eel_value,eel_missvaluequal,eel_emu_nameshort,eel_cou_code,eel_lfs_code,eel_hty_code,eel_area_division,eel_qal_id, eel_qal_comment,eel_datasource,eel_comment)
-					  (select eel_typ_id,eel_year_xls,eel_value_xls,eel_missvaluequal_xls,eel_emu_nameshort_xls,eel_cou_code_xls,eel_lfs_code_xls,eel_hty_code_xls,eel_area_division_xls,eel_qal_id_xls,eel_qal_comment_xls,eel_datasource_xls,eel_comment_xls from updated_temp where eel_id=oldid ) returning eel_id into newid;
-					  update datawg.t_eelstock_eel set eel_qal_comment=coalesce(eel_qal_comment,'') || ' updated to eel_id ' || newid::text || ' in ",cyear,"' where eel_id=oldid;\n",
-	         ifelse(any(startsWith(names(updated_values_table), "perc_"))>0,
-	                "insert into datawg.t_eelstock_eel_percent values (newid,rec.perc_f,rec.perc_t,rec.perc_c,rec.perc_mo);\n",
-	                ""),
-					"else
-					  update datawg.t_eelstock_eel set eel_qal_comment='deleted in ",cyear,"' where eel_id=oldid;
+					insert into datawg.t_eelstock_eel (eel_typ_id,eel_year,eel_value,eel_missvaluequal,eel_emu_nameshort,eel_cou_code,eel_lfs_code,eel_hty_code,eel_area_division,eel_qal_id, eel_qal_comment,eel_datasource,eel_comment)
+					(select eel_typ_id,eel_year_xls,eel_value_xls,eel_missvaluequal_xls,eel_emu_nameshort_xls,eel_cou_code_xls,eel_lfs_code_xls,eel_hty_code_xls,eel_area_division_xls,eel_qal_id_xls,eel_qal_comment_xls,eel_datasource_xls,eel_comment_xls from updated_temp where eel_id=oldid ) returning eel_id into newid;
+					update datawg.t_eelstock_eel set eel_qal_comment=coalesce(eel_qal_comment,'') || ' updated to eel_id ' || newid::text || ' in ",cyear,"' where eel_id=oldid;\n",
+			ifelse(any(startsWith(names(updated_values_table), "perc_"))>0,
+					"insert into datawg.t_eelstock_eel_percent values (newid,rec.perc_f,rec.perc_t,rec.perc_c,rec.perc_mo);\n",
+					""),
+			"else
+					update datawg.t_eelstock_eel set eel_qal_comment='deleted in ",cyear,"' where eel_id=oldid;
 					end if;
 					END;
 					END LOOP;
@@ -1097,7 +1103,7 @@ write_new <- function(path) {
 			}, error = function(e) {
 				message <<- e
 			}, finally = {
-			  dbExecute(conn,"drop table if exists updated_temp;")
+				dbExecute(conn,"drop table if exists updated_temp;")
 				poolReturn(conn)
 			})
 	
@@ -1134,21 +1140,21 @@ write_new <- function(path) {
 #'  }
 #' }
 #' @rdname write_new series
-  write_new_series <- function(path) {
+write_new_series <- function(path) {
 	new <- read_excel(path = path, sheet = 1, skip = 1)
 	
 	####when there are no data, new values have incorrect type
 	new <- new %>% mutate_if(is.logical,list(as.character)) 
-
+	
 	new <- new %>% 
 			mutate_at(vars(ser_dts_datasource, ser_comment, ser_lfs_code, ser_hty_code, ser_locationdescription, ser_emu_nameshort, 	ser_method,
 							ser_area_division,ser_cou_code),list(as.character)) 
 	new <- new %>% 
 			mutate_at(vars(ser_sam_id,ser_sam_gear),list(as.integer)) 
 	new$ser_restocking <- convert2boolean(new$ser_restocking,
-	                                                       "new boolean")
+			"new boolean")
 	new <- new %>%
-	  mutate_at(vars(ser_distanceseakm), list(as.numeric))
+			mutate_at(vars(ser_distanceseakm), list(as.numeric))
 	# check for new file -----------------------------------------------------------------------------
 	
 	validate(need(all(!is.na(new$ser_qal_id)), "There are still lines without ser_qal_id, please check your file"))
@@ -1163,11 +1169,11 @@ write_new <- function(path) {
 					"ser_emu_nameshort", "ser_cou_code", "ser_area_division", "ser_tblcodeid",
 					"ser_x", "ser_y", "ser_sam_id", "ser_dts_datasource",
 					"ser_sam_gear", "ser_distanceseakm", 	"ser_method", "ser_restocking", "ser_qal_id", "ser_qal_comment",
-					 "ser_ccm_wso_id" )	]
+					"ser_ccm_wso_id" )	]
 	conn <- poolCheckout(pool)	
 	dbExecute(conn,"drop table if exists new_series_temp ")
 	dbWriteTable(conn, "new_series_temp",new,temporary=TRUE,row.names=FALSE)
-
+	
 	
 	# Query uses temp table just created in the database by sqldf
 	query <- "insert into datawg.t_series_ser (         
@@ -1184,14 +1190,14 @@ write_new <- function(path) {
 			ser_ccm_wso_id::integer[], ser_sam_gear::integer, ser_distanceseakm, 	ser_method, ser_restocking from new_series_temp;"
 	# if fails replaces the message with this trycatch !  I've tried many ways with
 	# sqldf but trycatch failed to catch the error Hence the use of DBI
-
+	
 	message <- NULL
 	(nr <- tryCatch({
 							dbExecute(conn, query)
 						}, error = function(e) {
 							message <<- e
 						}, finally = {
-						  dbExecute(conn,"drop table if exists new_series_temp;")
+							dbExecute(conn,"drop table if exists new_series_temp;")
 							poolReturn(conn)
 						}))
 	
@@ -1236,18 +1242,18 @@ write_new_dataseries <- function(path) {
 	####when there are no data, new values have incorrect type
 	new <- new %>% mutate_if(is.logical,list(as.numeric)) 
 	validate(need(all(!is.na(new$das_ser_id)),"You probably didn't integrate all series, 
-you need to re-run check duplicates after integrating new series, 
-otherwise you will have missing values in das_ser_id"))
+							you need to re-run check duplicates after integrating new series, 
+							otherwise you will have missing values in das_ser_id"))
 	# create dataset for insertion -------------------------------------------------------------------
 	new <- new[, c("das_year", "das_value", "das_comment",
 					"das_effort", "das_dts_datasource", "das_ser_id", "das_qal_id")	]
-
+	
 	# das_last_update : there is a trigger
 	conn <- poolCheckout(pool)
 	cou_code <- (dbGetQuery(conn, statement=paste0("SELECT ser_cou_code FROM datawg.t_series_ser WHERE ser_nameshort='",
-					ser_nameshort[1],"';")))$ser_cou_code  
-
-
+								ser_nameshort[1],"';")))$ser_cou_code  
+	
+	
 	dbExecute(conn,"drop table if exists new_dataseries_temp ")
 	dbWriteTable(conn,"new_dataseries_temp",new,temporary=TRUE,row.names=FALSE)
 	
@@ -1259,14 +1265,14 @@ otherwise you will have missing values in das_ser_id"))
 			from new_dataseries_temp"
 	# if fails replaces the message with this trycatch !  I've tried many ways with
 	# sqldf but trycatch failed to catch the error Hence the use of DBI
-
+	
 	message <- NULL
 	(nr <- tryCatch({
 							dbExecute(conn, query)
 						}, error = function(e) {
 							message <<- e
 						}, finally = {
-						  dbExecute(conn,"drop table if exists new_dataseries_temp ")
+							dbExecute(conn,"drop table if exists new_dataseries_temp ")
 							poolReturn(conn)
 						}))
 	
@@ -1340,15 +1346,15 @@ write_new_biometry <- function(path) {
 			JOIN datawg.t_series_ser on ser_id=bis_ser_id"
 	# if fails replaces the message with this trycatch !  I've tried many ways with
 	# sqldf but trycatch failed to catch the error Hence the use of DBI
-
+	
 	message <- NULL
 	(nr <- tryCatch({
 							dbExecute(conn, query)
 						}, error = function(e) {
 							message <<- e
 						}, finally = {
-						  dbExecute(conn,"drop table if exists new_biometry_temp")
-						  poolReturn(conn)
+							dbExecute(conn,"drop table if exists new_biometry_temp")
+							poolReturn(conn)
 						}))
 	
 	
@@ -1377,7 +1383,7 @@ write_new_biometry <- function(path) {
 #path<-"C:\\Users\\cedric.briand\\Downloads\\modified_series_2020-08-23_FR.xlsx"
 
 update_series <- function(path) {
-
+	
 	updated_values_table <- 	read_excel(path = path, sheet = 1, skip = 1)	
 	cou_code = unique(updated_values_table$ser_cou_code)  
 	validate(need(length(cou_code) == 1, "There is more than one country code, please check your file"))
@@ -1387,12 +1393,12 @@ update_series <- function(path) {
 			mutate_at(vars(ser_dts_datasource, ser_comment, ser_lfs_code, ser_hty_code, ser_locationdescription, ser_emu_nameshort,
 							ser_area_division,ser_cou_code, 	ser_method),list(as.character)) 
 	updated_values_table <- updated_values_table %>%
-	  mutate_at(vars(ser_distanceseakm), list(as.numeric))
-  updated_values_table$ser_restocking <- convert2boolean(updated_values_table$ser_restocking,
-                                                        "updated_values_table boolean")
+			mutate_at(vars(ser_distanceseakm), list(as.numeric))
+	updated_values_table$ser_restocking <- convert2boolean(updated_values_table$ser_restocking,
+			"updated_values_table boolean")
 	updated_values_table <- updated_values_table %>% 
 			mutate_at(vars(ser_sam_id, ser_tblcodeid, ser_sam_gear),list(as.integer)) 
-
+	
 	# create dataset for insertion -------------------------------------------------------------------
 	
 	conn <- poolCheckout(pool)
@@ -1418,7 +1424,7 @@ update_series <- function(path) {
 			ser_sam_id,
 			ser_dts_datasource,
 			ser_sam_gear,
-		 	ser_distanceseakm, 
+			ser_distanceseakm, 
 			ser_method,
 			ser_restocking) =
 			(
@@ -1440,10 +1446,10 @@ update_series <- function(path) {
 			t.ser_dts_datasource,
 			t.ser_sam_gear,
 			t.ser_distanceseakm,
-		 	t.ser_method,
+			t.ser_method,
 			t.ser_restocking)
 			FROM updated_series_temp t WHERE t.ser_nameshort = t_series_ser.ser_nameshort"
-
+	
 	message <- NULL
 	nr <- tryCatch({
 				dbExecute(conn, query)
@@ -1496,7 +1502,7 @@ update_dataseries <- function(path) {
 			t.das_qal_id)
 			FROM updated_dataseries_temp t WHERE t.das_id = t_dataseries_das.das_id"
 	
-
+	
 	message <- NULL
 	nr <- tryCatch({
 				dbExecute(conn, query)
@@ -1527,7 +1533,7 @@ update_dataseries <- function(path) {
 #		password= passwordwgeel) 
 update_biometry <- function(path) {
 	updated_values_table <- 	read_excel(path = path, sheet = 1, skip = 1)	
-
+	
 	updated_values_table <- updated_values_table %>% mutate_if(is.logical,list(as.numeric)) 
 	updated_values_table <- updated_values_table %>% mutate_at(vars(matches("comment")),list(as.character)) 
 	#data_from_excel <- data_from_excel %>% mutate_at(vars(matches("update")),list(as.Date)) 	
@@ -1537,11 +1543,11 @@ update_biometry <- function(path) {
 	updated_values_table$bio_last_update <- Sys.Date()
 	conn <- poolCheckout(pool)
 	query <- paste0("SELECT ser_cou_code FROM datawg.t_series_ser WHERE ser_nameshort='",
-					updated_values_table$ser_nameshort[1],"';")			
+			updated_values_table$ser_nameshort[1],"';")			
 	cou_code = dbGetQuery(conn,query)$ser_cou_code
 	dbExecute(conn,"drop table if exists updated_biometry_temp ")
 	dbWriteTable(conn,"updated_biometry_temp",updated_values_table, row.names=FALSE,temporary=TRUE)
-
+	
 	query="UPDATE datawg.t_biometry_series_bis set 
 			(
 			bio_lfs_code,
@@ -1583,7 +1589,7 @@ update_biometry <- function(path) {
 			t.bio_dts_datasource,
 			t.bio_number)
 			FROM updated_biometry_temp t JOIN datawg.t_series_ser on ser_id=bis_ser_id
-	WHERE t.bio_id = t_biometry_series_bis.bio_id"
+			WHERE t.bio_id = t_biometry_series_bis.bio_id"
 	
 	message <- NULL
 	nr <- tryCatch({
@@ -1593,7 +1599,7 @@ update_biometry <- function(path) {
 			}, finally = {
 				dbExecute(conn,"drop table updated_biometry_temp")
 				poolReturn(conn)
-
+				
 			})
 	
 	
@@ -1692,73 +1698,73 @@ update_t_eelstock_eel <- function(editedValue, pool, data) {
 #' @importFrom dplyr last
 #' @importFrom glue glue_sql
 update_data_generic <- function(editedValue, pool, data,edit_datatype) {
-  # Keep only the last modification for a cell. edited Value is a data frame with
-  # columns row, col, value this part ensures that only the last value changed in a
-  # cell is replaced.  Previous edits are ignored
-  new_rows <- which(is.na(data[,1]))
-  insertedValue <- editedValue %>% filter(row %in% new_rows)
-  insertedValue <- insertedValue %>% group_by(row,col) %>% 
-    filter(value == dplyr::last(value) | is.na(value)) %>% ungroup() %>%
-    pivot_wider(row,names_from=col,values_from=value)
-  editedValue <- editedValue %>% filter(!row %in% new_rows) %>%
-    group_by(row, col) %>% filter(value == dplyr::last(value) | is.na(value)) %>% ungroup()
-  # opens the connection, this must be followed by poolReturn
-  conn <- poolCheckout(pool)
-  idcolname <- names(data)[1]
-  # Apply to all rows of editedValue dataframe
-  data_ids <- data[,1]
-  data %>%
-    select(-ends_with("_ref"))
-  tablename=str_c("datawg.",edit_datatype)
-  error = list()
-  nupdate=0
-  dbExecute(conn,"begin;")
-  
-  lapply(seq_len(nrow(editedValue)), function(i) {
-    row = editedValue$row[i]
-    id = data_ids[row]
-    col = names(data)[editedValue$col[i]]
-    value = editedValue$value[i]
-    # glue sql will use arguments tbl, col, value and id
-    query <- glue::glue_sql(str_c("UPDATE ",tablename," SET
-								{`col`} = {value}
-								WHERE   {`idcolname`} = {id}
-								"), 
-                            .con = conn)
-    tryCatch({
-      dbExecute(conn, sqlInterpolate(ANSI(), query))
-      nupdate<<-nupdate+1
-    }, error = function(e) {
-      error[i] <<- paste("update:", e)
-    })
-  })
-  ninsert=0
-  lapply(seq_len(nrow(insertedValue)), function(i) {
-    row = insertedValue$row[i]
-    col = names(data)[as.integer(names(insertedValue)[-1])]
-    value = insertedValue[i,-1]
-    col=col[!is.na(value)]
-    value=as.character(value[1,])
-    value=value[!is.na(value)]
-    # glue sql will use arguments tbl, col, value and id
-    query <- glue::glue_sql(str_c("insert into ",tablename," ({`col`*})
-    values ({value*})"), .con = conn)
-    tryCatch({
-      dbExecute(conn, sqlInterpolate(ANSI(), query))
-      ninsert<<-ninsert+1
-    }, error = function(e) {
-      error[i] <<- paste("insert:", e)
-    })
-  })
-  if (length(error)>0){
-    dbExecute(conn,"rollback;")
-  } else{
-    dbExecute(conn,"commit;")
-  }
-  poolReturn(conn)
-  # print(editedValue)
-  return(list(error=error,message=paste(nupdate,"values updated -",
-                                        ninsert,"rows inserted")))
+	# Keep only the last modification for a cell. edited Value is a data frame with
+	# columns row, col, value this part ensures that only the last value changed in a
+	# cell is replaced.  Previous edits are ignored
+	new_rows <- which(is.na(data[,1]))
+	insertedValue <- editedValue %>% filter(row %in% new_rows)
+	insertedValue <- insertedValue %>% group_by(row,col) %>% 
+			filter(value == dplyr::last(value) | is.na(value)) %>% ungroup() %>%
+			pivot_wider(row,names_from=col,values_from=value)
+	editedValue <- editedValue %>% filter(!row %in% new_rows) %>%
+			group_by(row, col) %>% filter(value == dplyr::last(value) | is.na(value)) %>% ungroup()
+	# opens the connection, this must be followed by poolReturn
+	conn <- poolCheckout(pool)
+	idcolname <- names(data)[1]
+	# Apply to all rows of editedValue dataframe
+	data_ids <- data[,1]
+	data %>%
+			select(-ends_with("_ref"))
+	tablename=str_c("datawg.",edit_datatype)
+	error = list()
+	nupdate=0
+	dbExecute(conn,"begin;")
+	
+	lapply(seq_len(nrow(editedValue)), function(i) {
+				row = editedValue$row[i]
+				id = data_ids[row]
+				col = names(data)[editedValue$col[i]]
+				value = editedValue$value[i]
+				# glue sql will use arguments tbl, col, value and id
+				query <- glue::glue_sql(str_c("UPDATE ",tablename," SET
+										{`col`} = {value}
+										WHERE   {`idcolname`} = {id}
+										"), 
+						.con = conn)
+				tryCatch({
+							dbExecute(conn, sqlInterpolate(ANSI(), query))
+							nupdate<<-nupdate+1
+						}, error = function(e) {
+							error[i] <<- paste("update:", e)
+						})
+			})
+	ninsert=0
+	lapply(seq_len(nrow(insertedValue)), function(i) {
+				row = insertedValue$row[i]
+				col = names(data)[as.integer(names(insertedValue)[-1])]
+				value = insertedValue[i,-1]
+				col=col[!is.na(value)]
+				value=as.character(value[1,])
+				value=value[!is.na(value)]
+				# glue sql will use arguments tbl, col, value and id
+				query <- glue::glue_sql(str_c("insert into ",tablename," ({`col`*})
+										values ({value*})"), .con = conn)
+				tryCatch({
+							dbExecute(conn, sqlInterpolate(ANSI(), query))
+							ninsert<<-ninsert+1
+						}, error = function(e) {
+							error[i] <<- paste("insert:", e)
+						})
+			})
+	if (length(error)>0){
+		dbExecute(conn,"rollback;")
+	} else{
+		dbExecute(conn,"commit;")
+	}
+	poolReturn(conn)
+	# print(editedValue)
+	return(list(error=error,message=paste(nupdate,"values updated -",
+							ninsert,"rows inserted")))
 }
 
 
@@ -1806,7 +1812,7 @@ log_datacall <- function(step, cou_code, message, the_metadata, file_type, main_
 
 check_missing_data <- function(complete, newdata, restricted=TRUE) {
 	load_library("data.table")
-  typ <- unique(newdata$eel_typ_id)
+	typ <- unique(newdata$eel_typ_id)
 	all_comb <- expand.grid(eel_lfs_code=c("G","Y","S"),
 			eel_hty_code=c("F","T","C"),
 			eel_emu_nameshort=unique(complete$eel_emu_nameshort),
@@ -2046,34 +2052,34 @@ check_missing_data <- function(complete, newdata, restricted=TRUE) {
 
 
 write_new_participants <- function(p){
-
-  p <- str_to_title(p)
-  conn <- poolCheckout(pool)
-  message <- NULL
-  exists <- dbGetQuery(conn, str_c("select name from datawg.participants where 
-                                   name='",p,"'"))
-  if (nrow(exists) > 0)
-    message <- str_c("participant ",p," already exists")
-  
-  if (is.null(message)){
-    query <- str_c("INSERT INTO datawg.participants SELECT '",p,"'")
-    tryCatch({     
-      dbExecute(conn, query)
-      message <- str_c("participant ",p," insterted in the db")
-      query <- "SELECT name from datawg.participants order by name asc"
-      participants<<- dbGetQuery(conn, sqlInterpolate(ANSI(), query)) 
-      save(participants,list_country,typ_id,the_years,t_eelstock_eel_fields, file=str_c(getwd(),"/common/data/init_data.Rdata"))
-    }, error = function(e) {
-      message <- e  
-      cat("step1 message :")
-      print(message)   
-    }, finally = {
-      #poolReturn(conn)
-      
-    })
-  }
-  
-  poolReturn(conn)
-  
-  return (message)
+	
+	p <- str_to_title(p)
+	conn <- poolCheckout(pool)
+	message <- NULL
+	exists <- dbGetQuery(conn, str_c("select name from datawg.participants where 
+							name='",p,"'"))
+	if (nrow(exists) > 0)
+		message <- str_c("participant ",p," already exists")
+	
+	if (is.null(message)){
+		query <- str_c("INSERT INTO datawg.participants SELECT '",p,"'")
+		tryCatch({     
+					dbExecute(conn, query)
+					message <- str_c("participant ",p," insterted in the db")
+					query <- "SELECT name from datawg.participants order by name asc"
+					participants<<- dbGetQuery(conn, sqlInterpolate(ANSI(), query)) 
+					save(participants,list_country,typ_id,the_years,t_eelstock_eel_fields, file=str_c(getwd(),"/common/data/init_data.Rdata"))
+				}, error = function(e) {
+					message <- e  
+					cat("step1 message :")
+					print(message)   
+				}, finally = {
+					#poolReturn(conn)
+					
+				})
+	}
+	
+	poolReturn(conn)
+	
+	return (message)
 }
