@@ -47,7 +47,7 @@ newparticipantsServer <- function(id,globaldata){
                      # updatePickerInput(session=session,"secondary_assessor",choices=participants)
                      res$participants <- participants
                    },error = function(e) {
-                     showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+                     showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
                    })})
                  
                  return(res)

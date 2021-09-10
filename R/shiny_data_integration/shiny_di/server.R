@@ -65,7 +65,7 @@ shinyServer(function(input, output, session){
 			# 
 			# 			
 			# 		},error = function(e) {
-			# 		  showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+			# 		  showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
 			# 		}))
 			
 			load_database <- reactive(shinyCatch({
@@ -76,11 +76,11 @@ shinyServer(function(input, output, session){
 						############################################
 						# FIRST STEP INITIATE THE CONNECTION WITH THE DATABASE
 						###############################################
-						options(sqldf.RPostgreSQL.user = userwgeel,  
-								sqldf.RPostgreSQL.password = passwordwgeel,
-								sqldf.RPostgreSQL.dbname = "wgeel",
-								sqldf.RPostgreSQL.host = host, #getInformation("PostgreSQL host: if local ==> localhost"), 
-								sqldf.RPostgreSQL.port = port)
+#						options(sqldf.RPostgreSQL.user = userwgeel,  
+#								sqldf.RPostgreSQL.password = passwordwgeel,
+#								sqldf.RPostgreSQL.dbname = "wgeel",
+#								sqldf.RPostgreSQL.host = host, #getInformation("PostgreSQL host: if local ==> localhost"), 
+#								sqldf.RPostgreSQL.port = port)
 						
 						# Define pool handler by pool on global level
 						pool <<- pool::dbPool(drv = RPostgres::Postgres(),
@@ -89,7 +89,9 @@ shinyServer(function(input, output, session){
 								port=port,
 								user= userwgeel,
 								password= passwordwgeel,
-								bigint="integer")
+								bigint="integer",
+								minSize = 0,
+								maxSize = 2)
 						data$pool <-pool
 						data$connectOK <-dbGetInfo(data$pool)$valid
 						
@@ -145,9 +147,9 @@ shinyServer(function(input, output, session){
 						query <- "SELECT name from datawg.participants order by name asc"
 						participants<<- dbGetQuery(pool, sqlInterpolate(ANSI(), query))  
 						
-						ices_division <<- suppressWarnings(extract_ref("FAO area")$f_code)
+						ices_division <<- suppressWarnings(extract_ref("FAO area", pool)$f_code)
 # TODO CEDRIC 2021 remove geom from extract_ref function so as not to get a warning						
-						emus <<- suppressWarnings(extract_ref("EMU"))
+						emus <<- suppressWarnings(extract_ref("EMU", pool))
 # TODO CEDRIC 2021 remove geom from extract_ref function so as not to get a warning						
 						
 						updatePickerInput(
@@ -323,7 +325,7 @@ shinyServer(function(input, output, session){
 # 									)
 # 								})
 # 					},error = function(e) {
-# 					  showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+# 					  showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
 # 					}))
 # 			
 			
@@ -572,7 +574,7 @@ shinyServer(function(input, output, session){
 			# 					})
 			# 			#data$new <- new # new is stored in the reactive dataset to be inserted later.      
 			# 		},error = function(e) {
-			# 		  showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+			# 		  showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
 			# 		}))
 			# 
 			
@@ -631,7 +633,7 @@ shinyServer(function(input, output, session){
 			# 						}                  
 			# 					})              
 			# 		},error = function(e) {
-			# 		  showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+			# 		  showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
 			# 		})) 
 			# ##########################
 			# # STEP 2.2
@@ -686,7 +688,7 @@ shinyServer(function(input, output, session){
 			# 						}                  
 			# 					})  
 			# 		},error = function(e) {
-			# 		  showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+			# 		  showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
 			# 		}))
 			# 
 			# ##########################
@@ -740,7 +742,7 @@ shinyServer(function(input, output, session){
 			# 						paste(message,collapse="\n")
 			# 					})  
 			# 		},error = function(e) {
-			# 		  showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+			# 		  showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
 			# 		}))
 			
 			#######################################
@@ -991,7 +993,7 @@ shinyServer(function(input, output, session){
 			# 						)
 			# 					})
 			# 		},error = function(e) {
-			# 		  showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+			# 		  showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
 			# 		}))
 			# 
 			##################################################
@@ -1448,7 +1450,7 @@ shinyServer(function(input, output, session){
 			# 			
 			# 			
 			# 		},error = function(e) {
-			# 		  showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+			# 		  showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
 			# 		})) # end observe event
 			
 			##########################
@@ -1496,7 +1498,7 @@ shinyServer(function(input, output, session){
 			# 						}                  
 			# 					})  
 			# 		},error = function(e) {
-			# 		  showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+			# 		  showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
 			# 		}))			
 			# 
 			# # 2.2 update modified series  --------------------------------------------------------
@@ -1538,7 +1540,7 @@ shinyServer(function(input, output, session){
 			# 						}                  
 			# 					})  
 			# 		},error = function(e) {
-			# 		  showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+			# 		  showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
 			# 		}))	
 			# 
 			# # 2.3 new dataseries  --------------------------------------------------------							
@@ -1579,7 +1581,7 @@ shinyServer(function(input, output, session){
 			# 						}                  
 			# 					})  
 			# 		},error = function(e) {
-			# 		  showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+			# 		  showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
 			# 		}))	
 			# 
 			# # 2.4 update modified dataseries  --------------------------------------------------------							
@@ -1620,7 +1622,7 @@ shinyServer(function(input, output, session){
 			# 						}                  
 			# 					})  
 			# 		},error = function(e) {
-			# 		  showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+			# 		  showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
 			# 		}))	
 			# 
 			# # 2.5 Integrate new biometry  --------------------------------------------------------							
@@ -1661,7 +1663,7 @@ shinyServer(function(input, output, session){
 			# 						}                  
 			# 					})  
 			# 		},error = function(e) {
-			# 		  showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+			# 		  showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
 			# 		}))
 			# 
 			# # 2.6 update modified biometries  --------------------------------------------------------							
@@ -1702,7 +1704,7 @@ shinyServer(function(input, output, session){
 			# 						}                  
 			# 					})  
 			# 		},error = function(e) {
-			# 		  showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+			# 		  showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
 			# 		}))								
 			
 #			#######################################
@@ -1954,7 +1956,7 @@ shinyServer(function(input, output, session){
 			#   rvsAll$editedInfo = NA
 			#   disable("clear_tableAll")                
 			# },error = function(e) {
-			#   showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+			#   showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
 			# }))
 			# 
 			# #-----------------------------------------
@@ -2038,7 +2040,7 @@ shinyServer(function(input, output, session){
 			#   rvsAll$data <- bind_rows(rvsAll$data,emptyRow)
 			#   replaceData(proxy_table_corAll,rvsAll$data , resetPaging = FALSE, rownames = FALSE)
 			# },error = function(e) {
-			#   showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+			#   showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
 			# }))
 			# 
 			# 
@@ -2071,7 +2073,7 @@ shinyServer(function(input, output, session){
 			#   }
 			# 
 			# },error = function(e) {
-			#   showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+			#   showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
 			# }))
 			# 
 			# #-----------------------------------------
@@ -2105,7 +2107,7 @@ shinyServer(function(input, output, session){
 			#   }
 			#   
 			# },error = function(e) {
-			#   showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+			#   showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
 			# }))
 			# 
 			# 
@@ -2168,7 +2170,7 @@ shinyServer(function(input, output, session){
 			#     rvsAll$data <- data
 			#     rvsAll$dbdata <- data
 			#   }},error = function(e) {
-			#     showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+			#     showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
 			#   }))
 			# 
 			# #when we want to edit time series related data, if a life stage is selected,
@@ -2186,7 +2188,7 @@ shinyServer(function(input, output, session){
 			#   }
 			#   
 			# },error = function(e) {
-			#   showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+			#   showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
 			# }))
 			# 
 			# observeEvent(input$editpicker2,tryCatch({
@@ -2200,7 +2202,7 @@ shinyServer(function(input, output, session){
 			#   }
 			#   
 			# },error = function(e) {
-			#   showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+			#   showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
 			# }))
 			# 
 			# # Update edited values in db once save is clicked---------------------------------------------
@@ -2219,7 +2221,7 @@ shinyServer(function(input, output, session){
 			#   rvsAll$dataSame <- TRUE
 			#   rvsAll$editedInfo = NA
 			# },error = function(e) {
-			#   showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+			#   showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
 			# }))
 			# 
 			# # Observe clear_table button -> revert to database table---------------------------------------
@@ -2244,7 +2246,7 @@ shinyServer(function(input, output, session){
 			#                output$database_errorsAll<-renderText({""})
 			#                rvsAll$editedInfo = NA
 			#              },error = function(e) {
-			#                showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+			#                showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
 			#              }))
 			# 
 			# # Oberve cancel -> revert to last saved version -----------------------------------------------
@@ -2256,7 +2258,7 @@ shinyServer(function(input, output, session){
 			#   rvsAll$dataSame <- TRUE
 			#   rvsAll$editedInfo = NA
 			# },error = function(e) {
-			#   showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+			#   showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
 			# }))
 			# 
 			# # UI buttons ----------------------------------------------------------------------------------
@@ -2318,7 +2320,7 @@ shinyServer(function(input, output, session){
 # 						data <- mysource_graph() %>% arrange(eel_emu_nameshort,eel_year)
 # 						rvs$datagr <- data                           
 # 					},error = function(e) {
-# 					  showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+# 					  showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
 # 					}))
 # 			
 # # plot -------------------------------------------------------------------------------------------
@@ -2382,7 +2384,7 @@ shinyServer(function(input, output, session){
 # 								}) 
 # 						
 # 					},error = function(e) {
-# 					  showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+# 					  showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
 # 					}), ignoreNULL = TRUE) # additional arguments to observe ...
 # 			
 # 			
@@ -2395,7 +2397,7 @@ shinyServer(function(input, output, session){
 # 						updatePickerInput(session=session,"main_assessor",choices=participants)
 # 						updatePickerInput(session=session,"secondary_assessor",choices=participants)
 # 					},error = function(e) {
-# 					  showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+# 					  showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
 # 					}))
 # 			
 			

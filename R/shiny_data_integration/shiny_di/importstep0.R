@@ -77,7 +77,7 @@ importstep0Server <- function(id,globaldata){
                    output$dt_integrate<-renderDataTable(data.frame())
                    output$"step0_message_xls"<-renderText("")
                  },error = function(e) {
-                   showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+                   showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
                  }))
                  
                  
@@ -240,7 +240,7 @@ importstep0Server <- function(id,globaldata){
                      )
                    })
                  },error = function(e) {
-                   showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+                   showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
                  }))
                  
                  return(rls)

@@ -162,7 +162,7 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts){
                      
                    },
                    error = function(e) {
-                     showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+                     showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
                    })})
                  
                  observeEvent(input$integrate_new_series_button, tryCatch({
@@ -202,7 +202,7 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts){
                      }                  
                    })  
                  },error = function(e) {
-                   showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+                   showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
                  }))			
                  
                  # 2.2 update modified series  --------------------------------------------------------
@@ -244,7 +244,7 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts){
                      }                  
                    })  
                  },error = function(e) {
-                   showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+                   showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
                  }))	
                  
                  # 2.3 new dataseries  --------------------------------------------------------							
@@ -285,7 +285,7 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts){
                      }                  
                    })  
                  },error = function(e) {
-                   showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+                   showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
                  }))	
                  
                  # 2.4 update modified dataseries  --------------------------------------------------------							
@@ -326,7 +326,7 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts){
                      }                  
                    })  
                  },error = function(e) {
-                   showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+                   showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
                  }))	
                  
                  # 2.5 Integrate new biometry  --------------------------------------------------------							
@@ -367,7 +367,7 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts){
                      }                  
                    })  
                  },error = function(e) {
-                   showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+                   showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
                  }))
                  
                  # 2.6 update modified biometries  --------------------------------------------------------							
@@ -408,7 +408,7 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts){
                      }                  
                    })  
                  },error = function(e) {
-                   showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+                   showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
                  }))					  
                  
 

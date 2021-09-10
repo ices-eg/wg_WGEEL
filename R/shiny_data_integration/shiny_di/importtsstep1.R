@@ -117,7 +117,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
                    
                    },
                    error = function(e) {
-                     showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+                     showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
                    })})
                  
                  
@@ -577,7 +577,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 
 
                  },error = function(e) {
-                   showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+                   showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
                  })})
                }
                

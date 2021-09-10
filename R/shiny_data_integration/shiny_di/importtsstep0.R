@@ -76,7 +76,7 @@ importtsstep0Server <- function(id,globaldata){
                    output$dt_integrate_ts<-renderDataTable(data.frame())
                    output$"step0_message_xls_ts"<-renderText("")
                  },error = function(e) {
-                   showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+                   showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
                  }))
                  
                  ###########################
@@ -267,7 +267,7 @@ importtsstep0Server <- function(id,globaldata){
                      )
                    })
                  },error = function(e) {
-                   showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+                   showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
                  }))
                  
                  

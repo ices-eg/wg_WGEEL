@@ -100,7 +100,7 @@ plotduplicatesServer <- function(id,globaldata){
                    data <- mysource_graph() %>% arrange(eel_emu_nameshort,eel_year)
                    rvs$datagr <- data                           
                  },error = function(e) {
-                   showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+                   showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
                  }))
                  
                  # plot -------------------------------------------------------------------------------------------
@@ -164,7 +164,7 @@ plotduplicatesServer <- function(id,globaldata){
                    }) 
                    
                  },error = function(e) {
-                   showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+                   showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
                  }), ignoreNULL = TRUE) # additional arguments to observe ...
                }
                )

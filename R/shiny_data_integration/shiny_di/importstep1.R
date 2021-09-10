@@ -65,7 +65,7 @@ importstep1Server <- function(id,globaldata, loaded_data){
                      globaldata$updated_values_table<-data.frame()
                    }
                  },error = function(e) {
-                   showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+                   showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
                  })})
                  ##################################################
                  # Events triggerred by step1_button
@@ -92,10 +92,12 @@ importstep1Server <- function(id,globaldata, loaded_data){
                      updated_from_excel<- step0load_data()$res$updated_data
                    },
                    "aquaculture"={             
-                     data_from_base<-extract_data("aquaculture", quality=c(0,1,2,3,4), quality_check=TRUE)},
+                     data_from_base<-extract_data("aquaculture", quality=c(0,1,2,3,4), quality_check=TRUE)
+                     updated_from_excel<- step0load_data()$res$updated_data},
                    "biomass"={
                      # bug in excel file - fixed in the template
                      #colnames(data_from_excel)[colnames(data_from_excel)=="typ_name"]<-"eel_typ_name"
+                     updated_from_excel<- step0load_data()$res$updated_data
                      data_from_excel$eel_lfs_code <- 'S' #always S
                      data_from_excel$eel_hty_code <- 'AL' #always AL
                      data_from_excel <- data_from_excel %>% 
@@ -120,6 +122,7 @@ importstep1Server <- function(id,globaldata, loaded_data){
                      
                    },
                    "mortality_rates"={
+                     updated_from_excel<- step0load_data()$res$updated_data
                      data_from_excel$eel_lfs_code <- 'S' #always S
                      data_from_excel$eel_hty_code <- 'AL' #always AL
                      data_from_excel <- data_from_excel %>% 
@@ -255,7 +258,7 @@ importstep1Server <- function(id,globaldata, loaded_data){
                      
                      
                    } # closes if nrow(...  
-                   if (loaded_data$file_type %in% c("catch_landings","release")){
+                   if (loaded_data$file_type %in% c("catch_landings","release", "aquaculture")){
                      if (nrow(updated_from_excel)>0){
                        output$"step1_message_updated"<-renderUI(
                          HTML(
@@ -312,7 +315,7 @@ importstep1Server <- function(id,globaldata, loaded_data){
                    })
                    #data$new <- new # new is stored in the reactive dataset to be inserted later.      
                  },error = function(e) {
-                   showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+                   showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
                  }))
            
                })

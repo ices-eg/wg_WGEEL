@@ -85,7 +85,7 @@ importstep2Server <- function(id,globaldata, loaded_data){
                    
                    
                  },error = function(e) {
-                   showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+                   showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
                  })})
                  
                  
@@ -119,7 +119,7 @@ importstep2Server <- function(id,globaldata, loaded_data){
                      main_assessor <- input$main_assessor
                      secondary_assessor <- input$secondary_assessor
                      file_type <- input$file_type
-                     log_datacall("check duplicates", cou_code = cou_code, message = sQuote(message), the_metadata = NULL, 
+                     log_datacall("write duplicates", cou_code = cou_code, message = sQuote(message), the_metadata = NULL, 
                                   file_type = file_type, main_assessor = main_assessor, secondary_assessor = secondary_assessor)
                      
                      return(message)
@@ -138,7 +138,7 @@ importstep2Server <- function(id,globaldata, loaded_data){
                      }                  
                    })              
                  },error = function(e) {
-                   showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+                   showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
                  })) 
                  ##########################
                  # STEP 2.2
@@ -193,7 +193,7 @@ importstep2Server <- function(id,globaldata, loaded_data){
                      }                  
                    })  
                  },error = function(e) {
-                   showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+                   showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
                  }))
                  
                  ##########################
@@ -247,7 +247,7 @@ importstep2Server <- function(id,globaldata, loaded_data){
                      paste(message,collapse="\n")
                    })  
                  },error = function(e) {
-                   showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+                   showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
                  }))
                })
 }
