@@ -22,6 +22,7 @@ Split ser_method into ser_comments and site description to better fit the shiny 
 
 New series 2 values inserted in the db. => ser_qal_id set to zero, ccm_wso_id added. 
 Modified series 2 values updated
+Now dataseries 11
 
 
 -----------------------------------------------------------
