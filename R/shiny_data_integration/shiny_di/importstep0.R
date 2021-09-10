@@ -36,8 +36,8 @@ importstep0UI <- function(id){
             column(width=6,
                    htmlOutput(ns("step0_message_xls")),
                    DT::dataTableOutput(ns("dt_integrate")))
-          ),              
-          tags$hr())
+          )             
+          )
 }
 
 
