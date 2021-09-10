@@ -631,7 +631,25 @@ HINT:  There is a column named "eel_value" in table "t_eelstock_eel", but it can
 -----------------------------------------------------------
 # LT (Lithuania)
 -----------------------------------------------------------
+## Annex 1:
+No new recruitment data
 
+## Annex 2:
+4 new series
+3 modified series
+7 new dataseries
+8 new biometry
+Ser_sam_id left empty, should be filled in next year
+ 
+## Annex 3:
+3 new series
+5 modified series
+8 new dataseries
+8 new biometry
+Coordinates of CIS series changed so that they are now in the middle of the Lithuanian zone of the Curonian lagoon
+Ser_sam_id left empty, should be filled in next year
+More detail should be given in the ser_method column next year
+ 
 ## Annex 4 
 28 new values added.
 ## Annex 5
