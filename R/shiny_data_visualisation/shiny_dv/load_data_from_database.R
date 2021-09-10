@@ -3,7 +3,8 @@
 # Author: cedric.briand
 ###############################################################################
 
-
+# lauch(global.R)
+# set connexion to 5435 in database_connexion
 load_package <- function(x)
 {
 	if (!is.character(x)) stop("Package should be a string")
