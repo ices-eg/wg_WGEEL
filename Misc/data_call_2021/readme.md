@@ -983,19 +983,29 @@ WHERE remove_me.eel_id=t_eelstock_eel.eel_id
 ``` 
  
 ## Annex 5 
-
+36 new values
+ 
 ## Annex 6 
 add eel_comment = assisted migration for all existing_kept data (directly with an sql query)
-  
+24 new values
+84 updated values
+ 
 ## Annex 7 
-  remove all preexisting data (put eel_qal_id = 21 and eel_qal_comment="all data were updated...") with an sql query
+892 new values
+Note 2: All years for glass eel equivalent data represent the year class year, not the year of the action.
+Note 3: As of yet we do not know when Sweden started quarantining glass eel. Therefore, for now all glass eel have been listed as "G", and this should later be updated to "QG" where relevant.
 
+ 
 ## Annex 8 
-
+1 new value
+1 updated value
+ 
 ## Annex 9 
-
+201 new values
+ 
 ## Annex 10 
-
+136 new values
+ 
 ----------------------------------------------------------- 
 # Sl
 ----------------------------------------------------------- 
