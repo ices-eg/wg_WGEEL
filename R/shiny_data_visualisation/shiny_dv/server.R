@@ -904,6 +904,7 @@ server = function(input, output, session) {
 																	"p_std_1960_1979" # scaled prediction exp(p-mean)
 															)],
 													by="year")  %>%		
+											arrange(year) %>%
 											# calculate log average when value is not missing to rescale only on the common period
 											mutate(		
 													mean_pred_when_existing = mean(p[!is.na(value)]), # geometric mean log scale

@@ -3,9 +3,16 @@
 # Author: cedric.briand
 ###############################################################################
 
-#ATTENTION EN DATABASE CONNECTION CHANGE TO 5435 IF MANUAL BUILD
-#setwd("C:\\workspace\\gitwgeel\\R\\shiny_data_visualisation\\shiny_dv")
-source("../../utilities/load_library.R")
+
+load_package <- function(x)
+{
+	if (!is.character(x)) stop("Package should be a string")
+	if (!require(x,character.only = TRUE))
+	{
+		install.packages(x,dep=TRUE)
+		if(!require(x,character.only = TRUE)) stop("Package not found")
+	}
+}
 load_package("RPostgreSQL")
 load_package("sqldf")
 load_package("glue")
