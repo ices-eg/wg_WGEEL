@@ -774,6 +774,36 @@ FROM remove_me
 WHERE remove_me.eel_id=t_eelstock_eel.eel_id
 ; --9 ROWS + 4 ROWS SE
 
+-- ES and DE have confirmed that lines with 0 were to be deleted
+WITH cc AS (
+select 
+eel_id,
+eel_typ_id,
+eel_qal_id,
+eel_year,
+eel_emu_nameshort, 
+eel_lfs_code,
+eel_hty_code, 
+eel_area_division,
+eel_value, 
+eel_missvaluequal, 
+eel_datasource,
+eel_datelastupdate, 
+eel_cou_code,
+count(*) OVER (PARTITION BY eel_typ_id,eel_year,eel_emu_nameshort, eel_lfs_code,eel_hty_code,eel_area_division)  AS n
+from datawg.t_eelstock_eel where eel_qal_id in (0,1)),
+
+remove_me AS (
+SELECT * FROM cc WHERE n>1 
+AND eel_cou_code IN ('ES','DE')
+AND eel_qal_id =0
+ORDER BY eel_typ_id,  eel_emu_nameshort,eel_year, eel_lfs_code, eel_hty_code, eel_qal_id)
+
+--SELECT * FROM remove_me
+UPDATE datawg.t_eelstock_eel SET (eel_qal_id, eel_qal_comment) =(21,coalesce(eel_qal_comment,'=> This is a duplicate confirmed with data provider, we remove it')) 
+FROM remove_me 
+WHERE remove_me.eel_id=t_eelstock_eel.eel_id
+; --3
 
 -- remaining to be solved
 
