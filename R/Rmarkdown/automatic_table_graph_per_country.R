@@ -17,7 +17,7 @@ load("../shiny_data_visualisation/shiny_dv/data/ref_and_eel_data.Rdata")
 cou_code <- unique(landings$eel_cou_code[!is.na(landings$eel_cou_code)])
 dir.create("C:/workspace/gitwgeel/R/Rmarkdown/2020",showWarnings = FALSE)
 dir.create("C:/workspace/gitwgeel/R/Rmarkdown/files",showWarnings = FALSE)
-CY <- 2020
+CY <- 2021
 if (exists("params")) rm(params)
 # North Sea
 for (cou in c("DK","NL","DE")){
@@ -142,7 +142,7 @@ for (cou in c("IE","BE")){
 
  
 
-for (cou in c("TR","HR","TN","SI","GR")){
+for (cou in c("TR","HR","TN","SI","GR","AL","EG")){
 	rmarkdown::render("automatic_tables_graphs_per_country.Rmd", 	
 			output_file = cou,
 			output_dir =str_c("./",CY), 

@@ -27,8 +27,8 @@
 #' @examples 
 #' \dontrun{
 #' filter_data(dataset='landings',life_stage = NULL, country = NULL, habitat=NULL, year_range=2010:2018)
-#' filter_data(dataset='landings',typ= 6 ,life_stage = NULL, country = NULL, habitat=NULL, 
-#' year_range=2010:2018)
+#' filter_data(dataset='landings',typ= 4 ,life_stage = NULL, country = "AL", habitat=NULL, 
+#' year_range=2010:2021)
 #' filter_data(dataset = "precodata",life_stage = NULL, country = levels(country_ref$cou_code),
 #' year_range=2000:2018) 
 #' }
