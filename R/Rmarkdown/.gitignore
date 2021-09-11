@@ -29,18 +29,18 @@
 /releases_nb_Y.csv
 /vvv.Rdata
 /Releases_all.png
-<<<<<<< HEAD
 maps_for_shiny.Rdata
-=======
-/~$tomatic_tables_graphs.docx
->>>>>>> d71f51986853ecb066823b8221c58ee2a5a7912a
 /automatic_tables_graphs_per_country.html
 /automatic_tables_graphs_per_country.md
 /automatic_tables_graphs_per_country.Rmd.tex
+/automatic_tables_graphs_per_country.docx
+/automatic_tables_graphs_per_country.odt
 /ES.html
 /FR.html
 /automatic_tables_graphs_files/
 /automatic_tables_graphs_per_country_files/
 /files/
 /2020/
+/2021/
 /.Rhistory
+/figure/
