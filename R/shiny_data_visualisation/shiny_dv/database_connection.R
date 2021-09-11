@@ -23,7 +23,7 @@ load_library("getPass")
 #-------------------------------
 
 
-port <- 5432
+port <- 5435
 host <- "localhost"#"192.168.0.100"
 
 

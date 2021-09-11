@@ -978,4 +978,6 @@ DELETE FROM ref.tr_station WHERE "Station_Name"='VeAmGY' ;--1
 DELETE  FROM datawg.t_series_ser WHERE ser_nameshort='VeAmGY' ;--1
 
 
+SELECT * FROM datawg.t_eelstock_eel WHERE eel_cou_code ='AL'
 
+SELECT * FROM datawg.t_eelstock_eel WHERE eel_cou_code ='EG'
