@@ -24,7 +24,7 @@ Sys.setlocale("LC_ALL", "English_United States.932")
 options(save.defaults = list(version=2))
 # Password are stored in R/etc/Rprofile.site
 # For the moment the database is stored locally
-CY <- 2020 # current year ==> dont forget to update the graphics path below
+CY <- 2021 # current year ==> dont forget to update the graphics path below
 # ----------------------------------
 # wgeel2016 discussed that the correct way of 
 # calculating average of predictions was to use geomean
@@ -192,7 +192,7 @@ anguilla) stock, the fisheries on it and other anthropogenic impacts.}
 # he will send you the Rdata saved during this chunk.
 
 options(sqldf.RPostgreSQL.user = getPass(msg="username"), 
-		sqldf.RPostgreSQL.password = getPass(),
+		sqldf.RPostgreSQL.password = getPass(msg="password"),
 		sqldf.RPostgreSQL.dbname = "wgeel",
 		sqldf.RPostgreSQL.host = "localhost", # "localhost"
 		sqldf.RPostgreSQL.port = 5435) # 5435 launch the ssh tunnel
@@ -330,9 +330,9 @@ save(last_years_with_problem,file=str_c(datawd,"last_years_with_problem.Rdata"))
 
 
 
-save(wger_init,file=str_c(shinywd,"wger_init.Rdata"), version =2)
-save(statseries,file=str_c(shinywd,"statseries.Rdata"), version =2)
-save(R_stations,file=str_c(shinywd,"R_stations.Rdata"), version =2)
+save(wger_init,file=str_c(shinywd,"wger_init.Rdata"))
+save(statseries,file=str_c(shinywd,"statseries.Rdata"))
+save(R_stations,file=str_c(shinywd,"R_stations.Rdata"))
 
 @
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
