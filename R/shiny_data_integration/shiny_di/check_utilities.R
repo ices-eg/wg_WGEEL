@@ -451,17 +451,17 @@ check_rates_num <- function(dataset, namedataset, column, country){
 	newdataset <- dataset
 	newdataset$nline <- 1:nrow(newdataset)
 	# remove NA from data
-	ddataset <- as.data.frame(newdataset[!is.na(newdataset[,column]),])
+	#ddataset <- as.data.frame(newdataset[!is.na(newdataset[,column]),])
 	ddataset <- as.data.frame(newdataset[!is.na(newdataset[,"eel_value"]),])
 	
 	ddataset$num <- as.numeric(ddataset[,column])
 
 	if (nrow(ddataset)>0){ 
 		
-		if (any(ddataset[is.na(ddataset$num),column]!="NP")) { # are all values matching ?
+		if (any(ddataset[is.na(ddataset$num),column]!="NP"& !is.na(ddataset[is.na(ddataset$num),column]))) { 
 			value1 <- ddataset[ddataset[,column]!="NP" & is.na(ddataset$num), column]
 			line1 <- ddataset$nline[ddataset[,column]!="NP" & is.na(ddataset$num)]
-		}else {	value1 <- vector() 
+		} else {	value1 <- vector() 
 				line1 <- vector()
 			}
 		
