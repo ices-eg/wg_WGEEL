@@ -1042,6 +1042,7 @@ load_biomass<-function(path,datasource){
 		#check that there are data in missvaluequal only when there are missing value (NA) is eel_value
 		# and also that no missing values are provided without a comment is eel_missvaluequa
 		data_error= rbind(data_error, check_missvaluequal(dataset=data_xls,
+						namedataset= "new_data", 
 						country=country))
 		
 		###### eel_emu_name ##############
