@@ -981,3 +981,60 @@ DELETE  FROM datawg.t_series_ser WHERE ser_nameshort='VeAmGY' ;--1
 SELECT * FROM datawg.t_eelstock_eel WHERE eel_cou_code ='AL'
 
 SELECT * FROM datawg.t_eelstock_eel WHERE eel_cou_code ='EG'
+
+
+
+-------------------------------------
+-- modify views for preco diag
+--------------------------------------
+CREATE OR REPLACE VIEW datawg.precodata_emu
+AS WITH b0_unique AS (
+         SELECT bigtable_by_habitat_1.eel_emu_nameshort,
+            sum(bigtable_by_habitat_1.b0) AS unique_b0
+           FROM datawg.bigtable_by_habitat bigtable_by_habitat_1
+          WHERE bigtable_by_habitat_1.eel_year = 0 AND bigtable_by_habitat_1.eel_emu_nameshort::text <> 'ES_Murc'::text OR bigtable_by_habitat_1.eel_year = 0 AND bigtable_by_habitat_1.eel_emu_nameshort::text = 'ES_Murc'::text AND bigtable_by_habitat_1.eel_hty_code::text = 'C'::text
+          GROUP BY bigtable_by_habitat_1.eel_emu_nameshort
+        )
+ SELECT bigtable_by_habitat.eel_year,
+    bigtable_by_habitat.eel_cou_code,
+    bigtable_by_habitat.country,
+    bigtable_by_habitat.cou_order,
+    bigtable_by_habitat.eel_emu_nameshort,
+    bigtable_by_habitat.emu_wholecountry,
+        CASE
+            WHEN bigtable_by_habitat.eel_emu_nameshort::text = 'LT_total'::text THEN NULL::numeric
+            ELSE COALESCE(b0_unique.unique_b0, sum(bigtable_by_habitat.b0))
+        END AS b0,
+        CASE
+            WHEN bigtable_by_habitat.eel_emu_nameshort::text = 'LT_total'::text THEN NULL::numeric
+            ELSE sum(bigtable_by_habitat.bbest)
+        END AS bbest,
+        CASE
+            WHEN bigtable_by_habitat.eel_emu_nameshort::text = 'LT_total'::text THEN NULL::numeric
+            ELSE sum(bigtable_by_habitat.bcurrent)
+        END AS bcurrent,
+        CASE
+            WHEN bigtable_by_habitat.eel_emu_nameshort::text = ANY (ARRAY['ES_Cata'::character varying::text, 'LT_total'::character varying::text]) THEN NULL::numeric
+            WHEN bigtable_by_habitat.eel_emu_nameshort::text = ANY (ARRAY['IT_Camp'::character varying::text, 'IT_Emil'::character varying::text, 'IT_Frio'::character varying::text, 'IT_Lazi'::character varying::text, 'IT_Pugl'::character varying::text, 'IT_Sard'::character varying::text, 'IT_Sici'::character varying::text, 'IT_Tosc'::character varying::text, 'IT_Vene'::character varying::text, 'IT_Abru'::character varying::text, 'IT_Basi'::character varying::text, 'IT_Cala'::character varying::text, 'IT_Ligu'::character varying::text, 'IT_Lomb'::character varying::text, 'IT_Marc'::character varying::text, 'IT_Moli'::character varying::text, 'IT_Piem'::character varying::text, 'IT_Tren'::character varying::text, 'IT_Umbr'::character varying::text, 'IT_Vall'::character varying::text]) THEN round(sum(bigtable_by_habitat.suma * bigtable_by_habitat.bbest) / sum(bigtable_by_habitat.bbest), 3)
+            ELSE sum(bigtable_by_habitat.suma)
+        END AS suma,
+        CASE
+            WHEN bigtable_by_habitat.eel_emu_nameshort::text = ANY (ARRAY['ES_Cata'::character varying::text, 'LT_total'::character varying::text]) THEN NULL::numeric
+            WHEN bigtable_by_habitat.eel_emu_nameshort::text = ANY (ARRAY['IT_Camp'::character varying::text, 'IT_Emil'::character varying::text, 'IT_Frio'::character varying::text, 'IT_Lazi'::character varying::text, 'IT_Pugl'::character varying::text, 'IT_Sard'::character varying::text, 'IT_Sici'::character varying::text, 'IT_Tosc'::character varying::text, 'IT_Vene'::character varying::text, 'IT_Abru'::character varying::text, 'IT_Basi'::character varying::text, 'IT_Cala'::character varying::text, 'IT_Ligu'::character varying::text, 'IT_Lomb'::character varying::text, 'IT_Marc'::character varying::text, 'IT_Moli'::character varying::text, 'IT_Piem'::character varying::text, 'IT_Tren'::character varying::text, 'IT_Umbr'::character varying::text, 'IT_Vall'::character varying::text]) THEN round(sum(bigtable_by_habitat.sumf * bigtable_by_habitat.bbest) / sum(bigtable_by_habitat.bbest), 3)
+            ELSE sum(bigtable_by_habitat.sumf)
+        END AS sumf,
+        CASE
+            WHEN bigtable_by_habitat.eel_emu_nameshort::text = 'LT_total'::text THEN NULL::numeric
+            WHEN bigtable_by_habitat.eel_emu_nameshort::text = ANY (ARRAY['IT_Camp'::character varying::text, 'IT_Emil'::character varying::text, 'IT_Frio'::character varying::text, 'IT_Lazi'::character varying::text, 'IT_Pugl'::character varying::text, 'IT_Sard'::character varying::text, 'IT_Sici'::character varying::text, 'IT_Tosc'::character varying::text, 'IT_Vene'::character varying::text, 'IT_Abru'::character varying::text, 'IT_Basi'::character varying::text, 'IT_Cala'::character varying::text, 'IT_Ligu'::character varying::text, 'IT_Lomb'::character varying::text, 'IT_Marc'::character varying::text, 'IT_Moli'::character varying::text, 'IT_Piem'::character varying::text, 'IT_Tren'::character varying::text, 'IT_Umbr'::character varying::text, 'IT_Vall'::character varying::text]) THEN round(sum(bigtable_by_habitat.sumh * bigtable_by_habitat.bbest) / sum(bigtable_by_habitat.bbest), 3)
+            ELSE sum(bigtable_by_habitat.sumh)
+        END AS sumh,
+    'emu'::text AS aggreg_level,
+    bigtable_by_habitat.aggregated_lfs,
+    string_agg(bigtable_by_habitat.eel_hty_code::text, ', '::text) AS aggregated_hty
+   FROM datawg.bigtable_by_habitat
+     LEFT JOIN b0_unique USING (eel_emu_nameshort)
+  WHERE bigtable_by_habitat.eel_year > 1850 AND bigtable_by_habitat.eel_emu_nameshort::text <> 'ES_Murc'::text OR bigtable_by_habitat.eel_year > 1850 AND bigtable_by_habitat.eel_emu_nameshort::text = 'ES_Murc'::text AND bigtable_by_habitat.eel_hty_code::text = 'C'::text
+  GROUP BY bigtable_by_habitat.eel_year, bigtable_by_habitat.eel_cou_code, bigtable_by_habitat.country, bigtable_by_habitat.cou_order, bigtable_by_habitat.eel_emu_nameshort, bigtable_by_habitat.emu_wholecountry, bigtable_by_habitat.aggregated_lfs, b0_unique.unique_b0
+  ORDER BY bigtable_by_habitat.eel_year, bigtable_by_habitat.cou_order, bigtable_by_habitat.eel_emu_nameshort;
+
+ 
