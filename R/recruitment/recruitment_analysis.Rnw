@@ -21,7 +21,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 <<init, eval=TRUE,echo=FALSE,results=hide>>=
 Sys.setlocale("LC_ALL", "English_United States.932")
-options(save.defaults = list(version=2))
+#options(save.defaults = list(version=2))
 # Password are stored in R/etc/Rprofile.site
 # For the moment the database is stored locally
 CY <- 2021 # current year ==> dont forget to update the graphics path below
@@ -537,9 +537,9 @@ save(wger, file = paste0(datawd, "wger.Rdata"))
 save(older, file = paste0(datawd, "older.Rdata"))
 save(glass_eel_yoy, file = paste0(datawd, "glass_eel_yoy.Rdata"))
 
-save(wger, file = paste0(shinywd,"wger.Rdata"), version =2)
-save(older, file = paste0(shinywd,"older.Rdata"), version =2)
-save(glass_eel_yoy, file = paste0(shinywd, "glass_eel_yoy.Rdata"), version =2)
+save(wger, file = paste0(shinywd,"wger.Rdata"))
+save(older, file = paste0(shinywd,"older.Rdata"))
+save(glass_eel_yoy, file = paste0(shinywd, "glass_eel_yoy.Rdata"))
 
 
 #load(paste(datawd,"wger.Rdata",sep="/"))
@@ -1396,7 +1396,7 @@ points(rxg,xg,type="l")
 # Figure to put forward recent changes in the series
 # WITH REFERENCE 2000-2010 !
 ########################################
-figure_check_one_series <- function(site='Katw',limits=c(1900,CY)){
+figure_check_one_series <- function(site='KatwG',limits=c(1900,CY)){
 	g <- ggplot(scaldata_2000_2009)
 	g <- g+geom_point(aes(x=year, y=value_std_2000_2009),col="grey",size=1.5)+
 			geom_line(aes(x=year, y=value_std_2000_2009),col="grey",size=0.4)+
@@ -1411,7 +1411,8 @@ figure_check_one_series <- function(site='Katw',limits=c(1900,CY)){
 			annotate("rect",xmin=1900,ymin=0,xmax=1960,ymax=10,fill="grey",alpha=0.5)
 	return(g)
 }
-figure_check_one_series("Katw",limits=c(1960,2019))
+
+figure_check_one_series("KatwG",limits=c(1960,2019))
 @
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %************************************************************************************
@@ -1463,7 +1464,7 @@ o <- print(xt_a, file = str_c(tabwd,"/table_anova.tex"),
 		tabular.environment="tabularx",
 		width="0.8\\textwidth",
 		sanitize.colnames.function=function(x){x})	
-save(model_ge_area,model_older,file=paste0(shinywd,"recruitment_models.Rdata"), version =2)
+save(model_ge_area,model_older,file=paste0(shinywd,"recruitment_models.Rdata"))
 #plot(model_ge_area)
 @
 
@@ -1596,7 +1597,7 @@ figure5_without_logscale<- g+
 				legend.text = element_text(size = 10, colour = 'black'), 
 				legend.background = element_rect(colour = NA, fill = 'white'),
 				legend.position = c(.8, .8))
-X11(300,250)
+X11(width=300,height=250)
 figure5_without_logscale
 save_figure("figure5_without_logscale_ribbon",figure5_without_logscale,600,480)
 
@@ -1800,12 +1801,12 @@ trend$lNS <- log(trend$"North Sea")
 model_ge_area_b=glm(value_std~year:area+site+pmax(year,2011):area,
 		data=glass_eel_yoy[glass_eel_yoy$value>0 & glass_eel_yoy$year>=1980,],
 		family=Gamma(link=log), maxit=300)
-#summary(model_ge_area_b)
-# plot(model_ge_area_b)
-len<- length(coef(model_ge_area_b))
-gg <- visreg::visreg(model_ge_area_b,"year",by="area", plot=TRUE,gg=TRUE,band=FALSE)
-gg <- gg+facet_wrap(~area,scales="free_y")
-print(gg)
+##summary(model_ge_area_b)
+## plot(model_ge_area_b)
+#len<- length(coef(model_ge_area_b))
+#gg <- visreg::visreg(model_ge_area_b,"year",by="area", plot=TRUE,gg=TRUE,band=FALSE)
+#gg <- gg+facet_wrap(~area,scales="free_y")
+#print(gg)
 # last coeff are
 # year:areaElsewhere Europe 
 # year:areaNorth Sea 
@@ -1837,26 +1838,25 @@ trend_test_for_change_ns <- sprintf("Estimate = %.3f P-value %.4f",
 # back to long format, save for shiny
 
 save(dat_ge, file=str_c(datawd,"dat_ge.Rdata"))
-save(dat_ge, file=str_c(shinywd,"dat_ge.Rdata"), version =2)
+save(dat_ge, file=str_c(shinywd,"dat_ge.Rdata"))
 @
 
 << segmented_regression, echo=FALSE, eval=FALSE, results=hide >>=
 
 
-dat_ge1 <- expand.grid(year=1980:2060,area=as.factor(model_ge_area_b$xlevels$area),
+dat_ge1 <- expand.grid(year=1980:2025,area=as.factor(model_ge_area_b$xlevels$area),
 		site=model_ge_area_b$xlevels$site[1])
 
 dat_ge1$p <- predict(model_ge_area_b,newdata=dat_ge1)
 dat_ge1$se <- predict(model_ge_area_b,newdata=dat_ge1,se.fit=TRUE)[["se.fit"]]
 
-mean_1980 <- dat_ge1 %>% group_by(area) %>% dplyr::filter(year< 2011) %>%summarize(mean=max(p))
-original_graph <- dat_ge[dat_ge$year==1980,c("p_std_1960_1979","area")]
-dat_ge1 <- merge(dat_ge1, original_graph, by="area")
+#mean_1960_1979 # this is the average p for all series before 1980
+# it was generated in the previous chunk
+dat_ge1 <- merge(dat_ge1, mean_1960_1979, by="area")
 
-dat_ge1 <- merge(dat_ge1, mean_1980, by="area")
-dat_ge1$p_std_1980=exp((dat_ge1$p-dat_ge1$mean)/dat_ge1$p_std_1960_1979)
-dat_ge1$p_std_1980_min=exp(dat_ge1$p-dat_ge1$mean-1.96*dat_ge1$se)
-dat_ge1$p_std_1980_max=exp(dat_ge1$p-dat_ge1$mean+1.96*dat_ge1$se)
+dat_ge1$p_std_1960_1979=exp((dat_ge1$p-dat_ge1$mean))
+dat_ge1$p_std_1960_1979_min=exp(dat_ge1$p-dat_ge1$mean-1.96*dat_ge1$se)
+dat_ge1$p_std_1960_1979_max=exp(dat_ge1$p-dat_ge1$mean+1.96*dat_ge1$se)
 
 
 
@@ -1867,7 +1867,7 @@ figure51 <-
 		ggplot(dat_ge,aes(x=year,y=p_std_1960_1979))+
 		geom_line(aes(colour=area,lty=area),lwd=1.3)+
 		geom_point(aes(colour=area,fill=area,shape=area),size=3)+
-		geom_line(data=dat_ge1, aes(x=year,y=p_std_1980,colour=area))+
+		geom_line(data=dat_ge1, aes(x=year,y=p_std_1960_1979,colour=area))+
 		#ggtitle("Recruitment overview glass eel series")+
 		scale_colour_brewer(name="area",palette="Set1")  +
 		#annotate("text",x=dat$year[length(dat$year)-2],y=datEE$p_std_1960_1979[length(datEE$p_std_1960_1979)],size=5,label=labelEE)+
@@ -2162,7 +2162,7 @@ vv$dat_ye <-
 
 #colnames(dat_ye)  <- c("year","geomean_p_std_1960_1979") 
 save(dat_ye,file=paste0(datawd,"dat_ye.Rdata")) 
-save(dat_ye,file=paste0(shinywd,"dat_ye.Rdata"), version =2) 
+save(dat_ye,file=paste0(shinywd,"dat_ye.Rdata")) 
 
 if (file.exists(str_c(datawd,"glm_results_glass_and_yellow.xlsx"))) unlink(str_c(datawd,"glm_results_glass_and_yellow.xlsx"))
 openxlsx::write.xlsx(x=list("Glass eel"=data.frame(
@@ -2185,7 +2185,7 @@ openxlsx::write.xlsx(x=list("Glass eel"=data.frame(
 yellow_eel_pred <- dat_ye
 
 save(yellow_eel_pred,file=paste0(datawd,"yellow_eel_pred.Rdata"))
-save(yellow_eel_pred,file=paste0(shinywd,"yellow_eel_pred.Rdata"), version =2)
+save(yellow_eel_pred,file=paste0(shinywd,"yellow_eel_pred.Rdata"))
 @
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %************************************************************************************

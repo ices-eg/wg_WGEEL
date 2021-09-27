@@ -1,6 +1,8 @@
 # 
 # Produces the report using params specific to each country
 # Author: cedricbriandgithub
+# 1st launch load data from database in shiny_dv, be sure to be connected to the server or have a saved version of the database
+# 2 run recruitment
 ###############################################################################
 
 require(rmarkdown)
