@@ -333,7 +333,7 @@ save(last_years_with_problem,file=str_c(datawd,"last_years_with_problem.Rdata"))
 save(wger_init,file=str_c(shinywd,"wger_init.Rdata"))
 save(statseries,file=str_c(shinywd,"statseries.Rdata"))
 save(R_stations,file=str_c(shinywd,"R_stations.Rdata"))
-
+write.table(R_stations, sep=";",file=str_c(datawd,"R_stations.csv"))
 @
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %************************************************************************************
@@ -813,15 +813,14 @@ xseries_prob <- xtable(x = series_prob,
 		label = "table_series_prob",
 		caption = str_c("Data in " ,CY, " and ", CY-1, "having problems causing the data in the specific year to be excluded from the analysis. Codes for stages are G = glass eel, GY = glass eel + yellow eel, Y = yellow eel, Division = FAO marine division. Kept: 0 = missing, 1 = good quality,
 		2 = wgeel has modified the data, 3 = not used due to poor quality, 4 =	data is used, but there are warnings on its quality"),
-		align=c("p{0cm}","p{1cm}","p{1cm}","p{1cm}","p{1cm}","p{1cm}","p{1cm}","p{10cm}"))
+		align=c("p{0cm}","p{1cm}","p{1cm}","p{1cm}","p{1cm}","p{1cm}","p{1cm}","p{8cm}"))
 print(xseries_prob,
     file = str_c(	tabwd,"/table_series_prob.tex"),
 		table.placement = "htbp",
 		caption.placement = "top",
 		sanitize.colnames.function=function(x){x}, # otherwise \\ are escaped
 		NA.string = ".",
-		tabular.environment="tabularx",
-		width="\\textwidth",
+		tabular.environment="longtable",
 		include.rownames=FALSE
 )
 
