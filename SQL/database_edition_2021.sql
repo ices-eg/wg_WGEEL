@@ -1044,8 +1044,21 @@ AS WITH b0_unique AS (
   ORDER BY bigtable_by_habitat.eel_year, bigtable_by_habitat.cou_order, bigtable_by_habitat.eel_emu_nameshort;
 
  
--- check problem with 
+-- check problem with h
 SELECT eel_typ_id ,eel_cou_code, count(*) FROM datawg.t_eelstock_eel tee 
 WHERE  eel_qal_comment ILIKE '%deleted in%' AND eel_qal_id=21
 GROUP BY eel_cou_code, eel_typ_id
  
+
+SELECT * FROM datawg.t_eelstock_eel WHERE eel_cou_code ='VA';
+
+DROP TABLE IF EXISTS datawg.t_seriesglm_sgl;
+CREATE TABLE datawg.t_seriesglm_sgl (
+sgl_ser_id serial4 PRIMARY KEY,
+sgl_year integer,
+CONSTRAINT c_fk_sql_ser_id FOREIGN KEY (sgl_ser_id) REFERENCES datawg.t_series_ser(ser_id));
+
+INSERT INTO datawg.t_seriesglm_sgl SELECT ser_id FROM datawg.t_series_ser WHERE ser_typ_id=1 AND ser_qal_id=1 OR ser_qal_id=0;--93
+
+UPDATE datawg.t_seriesglm_sgl SET sgl_year=2021 WHERE sgl_ser_id IN (
+SELECT ser_id FROM datawg.t_series_ser WHERE ser_nameshort IN ('LiffGY','BrokGY','StraGY','BeeGY','BeeY','MillY','MertY'));--7

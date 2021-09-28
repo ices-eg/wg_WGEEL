@@ -808,22 +808,57 @@ print(xstatseriesY,
 series_prob <- last_years_with_problem[last_years_with_problem$ser_typ_id %in% 1,c("ser_nameshort","ser_lfs_code","ser_cou_code","ser_area_division","das_year","das_qal_id","das_comment" )]
 series_prob <- series_prob[order(series_prob$ser_lfs_code,series_prob$das_year, series_prob$ser_nameshort),]
 colnames(series_prob) <- str_c("\\scshape{",c("Name","Stage", "Country","Division","Year", "Kept", "Comment"),"}")
-
-xseries_prob <- xtable(x = series_prob,
+series_prob$`\\scshape{Comment}`<-iconv(series_prob$`\\scshape{Comment}`,'UTF-8')
+xseries_prob <- xtable(x = series_prob[1:15,],
 		label = "table_series_prob",
 		caption = str_c("Data in " ,CY, " and ", CY-1, "having problems causing the data in the specific year to be excluded from the analysis. Codes for stages are G = glass eel, GY = glass eel + yellow eel, Y = yellow eel, Division = FAO marine division. Kept: 0 = missing, 1 = good quality,
 		2 = wgeel has modified the data, 3 = not used due to poor quality, 4 =	data is used, but there are warnings on its quality"),
-		align=c("p{0cm}","p{1cm}","p{1cm}","p{1cm}","p{1cm}","p{1cm}","p{1cm}","p{8cm}"))
+		align=c("p{0cm}","p{1.5cm}","p{1.5cm}","p{1.5cm}","p{1cm}","p{1cm}","p{1cm}","p{8cm}")
+		)
 print(xseries_prob,
     file = str_c(	tabwd,"/table_series_prob.tex"),
 		table.placement = "htbp",
 		caption.placement = "top",
 		sanitize.colnames.function=function(x){x}, # otherwise \\ are escaped
 		NA.string = ".",
-		tabular.environment="longtable",
+		#tabular.environment="longtable",
 		include.rownames=FALSE
 )
+if (nrow(series_prob)>15){
+xseries_prob1 <- xtable(x = series_prob[15:30,],
+		label = "table_series_prob1",
+		caption = str_c("Table \\ref{table_series_prob} continued. Data in " ,CY, " and ", CY-1, "having problems causing the data in the specific year to be excluded from the analysis. Codes for stages are G = glass eel, GY = glass eel + yellow eel, Y = yellow eel, Division = FAO marine division. Kept: 0 = missing, 1 = good quality,
+						2 = wgeel has modified the data, 3 = not used due to poor quality, 4 =	data is used, but there are warnings on its quality"),
+		align=c("p{0cm}","p{1.5cm}","p{1.5cm}","p{1.5cm}","p{1cm}","p{1cm}","p{1cm}","p{8cm}")
+)
+print(xseries_prob1,
+		file = str_c(	tabwd,"/table_series_prob1.tex"),
+		table.placement = "htbp",
+		caption.placement = "top",
+		sanitize.colnames.function=function(x){x}, # otherwise \\ are escaped
+		NA.string = ".",
+		#tabular.environment="longtable",
+		include.rownames=FALSE
+)
+}
 
+if (nrow(series_prob)>30){
+	xseries_prob2 <- xtable(x = series_prob[30:nrow(series_prob),],
+			label = "table_series_prob2",
+			caption = str_c("Table \\ref{table_series_prob} continued. Data in " ,CY, " and ", CY-1, "having problems causing the data in the specific year to be excluded from the analysis. Codes for stages are G = glass eel, GY = glass eel + yellow eel, Y = yellow eel, Division = FAO marine division. Kept: 0 = missing, 1 = good quality,
+							2 = wgeel has modified the data, 3 = not used due to poor quality, 4 =	data is used, but there are warnings on its quality"),
+			align=c("p{0cm}","p{1.5cm}","p{1.5cm}","p{1.5cm}","p{1cm}","p{1cm}","p{1cm}","p{8cm}")
+	)
+	print(xseries_prob2,
+			file = str_c(	tabwd,"/table_series_prob2.tex"),
+			table.placement = "htbp",
+			caption.placement = "top",
+			sanitize.colnames.function=function(x){x}, # otherwise \\ are escaped
+			NA.string = ".",
+			#tabular.environment="longtable",
+			include.rownames=FALSE
+	)
+}
 
 ################################################################
 # some additional stats for the report
@@ -1076,13 +1111,14 @@ as provisional especially those for the yellow eel.}
 	\input{\Sexpr{str_c(tabwd,"/table_statseriesY.tex")}}
  %====================================
  
- 
+ % not the best I cannot find a way to write
+ %if(nrow(series_prob)>1) paste0("\\input{",tabwd,"/table_series_prob.tex","}")
   %====================================
 	\input{\Sexpr{str_c(tabwd,"/table_series_prob.tex")}}
+    \input{\Sexpr{str_c(tabwd,"/table_series_prob1.tex")}}
+    \input{\Sexpr{str_c(tabwd,"/table_series_prob2.tex")}}        
  %====================================
- 
- 
- 
+
 \subsection{Number of series available}
 
 
