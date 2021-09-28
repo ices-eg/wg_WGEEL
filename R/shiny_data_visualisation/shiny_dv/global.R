@@ -36,6 +36,7 @@ load_package("shinyjs")
 load_package("shinyBS")
 load_package("leaflet")
 load_package("DT")
+load_package("sf")
 load_package("plotly")
 load_package("leaflet.extras")
 #-----------------
