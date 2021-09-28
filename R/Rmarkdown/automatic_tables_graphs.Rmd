@@ -1,7 +1,7 @@
 ---
 title: "Trend in fisheries"
 author: "WGEEL"
-date: "08 September 2020"
+date: "27 September 2021"
 output: html_document
 keep_md: yes
 test: "`r paste('_metadata.yaml')`"
@@ -32,7 +32,7 @@ knitr::opts_chunk$set(echo = TRUE, warnings=FALSE)
 #data_directory <- wg_choose.dir(caption = "Where do you want to save the tables and the graphs")
 #data_directory <-"C:/temp"
 #knitr::opts_knit$set(root.dir = data_directory)
-CY=2020
+CY=2021
 render="docx"  # html 
 # temporary file to store the variables (this is necessary to print the text)
 

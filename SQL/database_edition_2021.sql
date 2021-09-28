@@ -981,3 +981,12 @@ DELETE  FROM datawg.t_series_ser WHERE ser_nameshort='VeAmGY' ;--1
 SELECT * FROM datawg.t_eelstock_eel WHERE eel_cou_code ='AL'
 
 SELECT * FROM datawg.t_eelstock_eel WHERE eel_cou_code ='EG'
+
+SELECT * FROM datawg.t_series_ser tss WHERE ser_cou_code='GB'
+
+
+SELECT eel_typ_id ,eel_cou_code, count(*) FROM datawg.t_eelstock_eel tee 
+WHERE  eel_qal_comment ILIKE '%deleted in%' AND eel_qal_id=21
+GROUP BY eel_cou_code, eel_typ_id
+
+

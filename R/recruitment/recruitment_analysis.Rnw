@@ -137,7 +137,7 @@ ruitme\documentclass[pdftex,11pt,a4paper]{report}
      pagebackref=true,%...les bibliographies
      hyperindex=true, %ajoute des liens dans les index.
      colorlinks=true, %colorise les liens
-     breaklinks=true, %permet le retour � la ligne dans les liens trop longs
+     breaklinks=true, %permet le retour a la ligne dans les liens trop longs
      urlcolor= blue,  %couleur des hyperliens
      linkcolor= blue, %couleur des liens internes
      bookmarks=true,  %cree des signets pour Acrobat
@@ -194,8 +194,8 @@ anguilla) stock, the fisheries on it and other anthropogenic impacts.}
 options(sqldf.RPostgreSQL.user = getPass(msg="username"), 
 		sqldf.RPostgreSQL.password = getPass(msg="password"),
 		sqldf.RPostgreSQL.dbname = "wgeel",
-		sqldf.RPostgreSQL.host = "localhost", # "localhost"
-		sqldf.RPostgreSQL.port = 5435) # 5435 launch the ssh tunnel
+		sqldf.RPostgreSQL.host = getPass(msg="host"), # "localhost"
+		sqldf.RPostgreSQL.port = 5432) # 5435 launch the ssh tunnel
 
 ##########################"
 # Description of the series -------------------------------
@@ -692,8 +692,8 @@ printstatseries$sampling_type[printstatseries$sampling_type=="commercial catch"]
 printstatseries$sampling_type[printstatseries$sampling_type=="commercial CPUE"] <- "com. cpue"
 column_to_import <- R_stations[,c("ser_nameshort","areashort")]
 printstatseries <- merge(printstatseries,column_to_import,by.x="site",by.y="ser_nameshort")
-printstatseriesG <- printstatseries%>% 
-		filter(life_stage=="G")%>%
+printstatseriesGNS <- printstatseries%>% 
+		filter(life_stage=="G", areashort=="NS")%>%
 		arrange(order)%>%
 		dplyr::select(1,12,2:9,11)%>%
 		dplyr::rename("code"="site",
@@ -705,19 +705,49 @@ printstatseriesG <- printstatseries%>%
 				"habitat"="habitat_type",
 				"kept"="series_kept")
 
-xstatseriesG <- xtable(x = printstatseriesG, 
+xstatseriesGNS <- xtable(x = printstatseriesGNS, 
 		label = str_c("statseriesG"),
-		caption = str_c("Short description of the sampling sites for European eel recruitment data. Area: NS = North Sea, EE = Elsewhere Europe. Min and max indicate the first year and last year in the records, and the values are given in the n+ and n- columns, indicate the number of years with values and the number of years when there are missing data within the series. Life stage: GY = glass eel and yellow eel, G = glass eel, Y = yellow eel. Unit for the data collected is given (nr = number; index = calculated value following a specified protocol, nr/m2 = number per square metre, nr/h = number per hour, kg/boat/d = kg per boat per day). Habitat: C = coastal water (according to the EU Water Framework Directive, WFD), F = freshwater, MO = marine water (open sea), T = transitional water with lower salinity (according to WFD). Kept = 1 means that the dataseries is used in recruitment analyses."),
+		caption = str_c("Short description of the sampling sites for European eel recruitment data in the North Sea. Min and max indicate the first year and last year in the records, and the values are given in the n+ and n- columns, indicate the number of years with values and the number of years when there are missing data within the series. Life stage: GY = glass eel and yellow eel, G = glass eel, Y = yellow eel. Unit for the data collected is given (nr = number; index = calculated value following a specified protocol, nr/m2 = number per square metre, nr/h = number per hour, kg/boat/d = kg per boat per day). Habitat: C = coastal water (according to the EU Water Framework Directive, WFD), F = freshwater, MO = marine water (open sea), T = transitional water with lower salinity (according to WFD). Kept = 1 means that the dataseries is used in recruitment analyses."),
 		align=c("p{0cm}","p{1cm}","p{1cm}","p{1cm}","p{1cm}","p{0.8cm}","p{0.8cm}","p{1cm}","p{2cm}","p{2cm}","p{1cm}","p{1cm}"),
 		digits=0)
-print(xstatseriesG , 
-		file = str_c(tabwd,"/table_statseriesG.tex"),
-		table.placement = "htbp",
+
+print(xstatseriesGNS , 
+		file = str_c(tabwd,"/table_statseriesGNS.tex"),
 		caption.placement = "top",
 		sanitize.colnames.function=function(x){x}, # otherwise \\ are escaped
 		NA.string = ".",
 		include.rownames=FALSE
 )
+
+printstatseriesGEE <- printstatseries%>% 
+		filter(life_stage=="G", areashort=="EE")%>%
+		arrange(order)%>%
+		dplyr::select(1,12,2:9,11)%>%
+		dplyr::rename("code"="site",
+				"area"="areashort",
+				"n+"="duration",
+				"n-"="missing", 
+				"life stage"="life_stage", 
+				"sampling type"="sampling_type",
+				"habitat"="habitat_type",
+				"kept"="series_kept")
+
+xstatseriesGEE <- xtable(x = printstatseriesGEE, 
+		label = str_c("statseriesG"),
+		caption = str_c("Short description of the sampling sites for European eel recruitment data for Elsewhere Europe. Min and max indicate the first year and last year in the records, and the values are given in the n+ and n- columns, indicate the number of years with values and the number of years when there are missing data within the series. Life stage: GY = glass eel and yellow eel, G = glass eel, Y = yellow eel. Unit for the data collected is given (nr = number; index = calculated value following a specified protocol, nr/m2 = number per square metre, nr/h = number per hour, kg/boat/d = kg per boat per day). Habitat: C = coastal water (according to the EU Water Framework Directive, WFD), F = freshwater, MO = marine water (open sea), T = transitional water with lower salinity (according to WFD). Kept = 1 means that the dataseries is used in recruitment analyses."),
+		align=c("p{0cm}","p{1cm}","p{1cm}","p{1cm}","p{1cm}","p{0.8cm}","p{0.8cm}","p{1cm}","p{2cm}","p{2cm}","p{1cm}","p{1cm}"),
+		digits=0)
+
+print(xstatseriesGEE , 
+		file = str_c(tabwd,"/table_statseriesGEE.tex"),
+		caption.placement = "top",
+		sanitize.colnames.function=function(x){x}, # otherwise \\ are escaped
+		NA.string = ".",
+		include.rownames=FALSE
+)
+
+
+
 printstatseriesGY <- printstatseries %>% 
 		filter(life_stage=="GY") %>%
 		arrange(order) %>%
@@ -1032,8 +1062,12 @@ as provisional especially those for the yellow eel.}
 
 
  %====================================
-	\input{\Sexpr{str_c(tabwd,"/table_statseriesG.tex")}}
+	\input{\Sexpr{str_c(tabwd,"/table_statseriesGEE.tex")}}
  %====================================
+ 
+  %====================================
+	\input{\Sexpr{str_c(tabwd,"/table_statseriesGNS.tex")}}
+ %==================================== 
 
  %====================================
 	\input{\Sexpr{str_c(tabwd,"/table_statseriesGY.tex")}}
@@ -1803,7 +1837,7 @@ model_ge_area_b=glm(value_std~year:area+site+pmax(year,2011):area,
 		family=Gamma(link=log), maxit=300)
 ##summary(model_ge_area_b)
 ## plot(model_ge_area_b)
-#len<- length(coef(model_ge_area_b))
+len <- length(coef(model_ge_area_b))
 #gg <- visreg::visreg(model_ge_area_b,"year",by="area", plot=TRUE,gg=TRUE,band=FALSE)
 #gg <- gg+facet_wrap(~area,scales="free_y")
 #print(gg)
