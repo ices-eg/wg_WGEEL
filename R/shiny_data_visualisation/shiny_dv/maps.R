@@ -627,7 +627,7 @@ load_maps = function(full_load = FALSE, to_save = FALSE)
 						password='",passwordwgeel,"'"), layer="ref.tr_emu_emu")
 		# This is the map of the emu
 		#emu_p <<- rmapshaper::ms_simplify(rgdal::readOGR(str_c(shpwd,"/","emu_polygons_4326.shp")), keep = 0.7) # a spatial object of class sp, symplified to be displayed easily
-		emu_p <<- rmapshaper::ms_simplify(emu$geom, keep = 0.7) # a spatial object of class sp, symplified to be displayed easily
+		emu_p <<- rmapshaper::ms_simplify(emu, keep = 0.7) # a spatial object of class sp, symplified to be displayed easily
 		## Is this emu$geom simplified, do we need it? 
 		
 		# To calculate the center of the polygone, empty geom is not possible
@@ -642,7 +642,7 @@ load_maps = function(full_load = FALSE, to_save = FALSE)
 
 		# This is the map of the emu
 		#country_p <<- rmapshaper::ms_simplify(rgdal::readOGR(str_c(shpwd,"/","country_polygons_4326.shp")), keep = 0.01)# a spatial object of class sp, symplified to be displayed easily
-		country_p <<- rmapshaper::ms_simplify(country$geom, keep = 0.01)  # a spatial object of class sp, symplified to be displayed easily. Be pacient!
+		country_p <<- rmapshaper::ms_simplify(country, keep = 0.01)  # a spatial object of class sp, symplified to be displayed easily. Be pacient!
 		## Is this country$geom simplified, do we need it? 
 
 		# To calculate the center of the polygone, empty geom is not possible
