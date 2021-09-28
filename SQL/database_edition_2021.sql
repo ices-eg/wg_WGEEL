@@ -982,6 +982,12 @@ SELECT * FROM datawg.t_eelstock_eel WHERE eel_cou_code ='AL'
 
 SELECT * FROM datawg.t_eelstock_eel WHERE eel_cou_code ='EG'
 
+SELECT * FROM datawg.t_series_ser tss WHERE ser_cou_code='GB'
+
+
+
+
+
 
 
 -------------------------------------
@@ -1037,4 +1043,7 @@ AS WITH b0_unique AS (
   GROUP BY bigtable_by_habitat.eel_year, bigtable_by_habitat.eel_cou_code, bigtable_by_habitat.country, bigtable_by_habitat.cou_order, bigtable_by_habitat.eel_emu_nameshort, bigtable_by_habitat.emu_wholecountry, bigtable_by_habitat.aggregated_lfs, b0_unique.unique_b0
   ORDER BY bigtable_by_habitat.eel_year, bigtable_by_habitat.cou_order, bigtable_by_habitat.eel_emu_nameshort;
 
+SELECT eel_typ_id ,eel_cou_code, count(*) FROM datawg.t_eelstock_eel tee 
+WHERE  eel_qal_comment ILIKE '%deleted in%' AND eel_qal_id=21
+GROUP BY eel_cou_code, eel_typ_id
  
