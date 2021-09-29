@@ -1087,5 +1087,91 @@ WHERE troubleyelloweel.das_id=t_dataseries_das.das_id;--2
 
 
 
-SELECT sgl.*, ser.ser_nameshort FROM datawg.t_seriesglm_sgl sgl JOIN datawg.t_series_ser ser ON
+SELECT sgl.*, ser.ser_nameshort, ser_cou_code FROM datawg.t_seriesglm_sgl sgl 
+JOIN datawg.t_series_ser ser ON
 ser_id = sgl_ser_id
+
+
+SELECT * FROM datawg.t_dataseries_das WHERE das_ser_id=318;
+
+
+SELECT * FROM datawg.t_series_ser WHERE ser_nameshort='BeeG';
+
+SELECT * FROM datawg.t_dataseries_das WHERE das_ser_id=184;
+
+SELECT * FROM datawg.t_series_ser WHERE ser_nameshort='SeEAG';
+
+SELECT * FROM datawg.t_dataseries_das  WHERE das_ser_id = 7
+
+UPDATE datawg.t_dataseries_das 
+SET (das_comment, das_qal_id)= 
+(das_comment || ', Because of Brexit we shouldn''t be using the 2021 series at all.', 3)
+WHERE das_ser_id = 7
+AND das_year=2021; --1
+
+
+
+SELECT geom FROM datawg.t_series_ser;
+SELECT ST_transform(ST_SETSRID(ST_MakePoint(6779552.138, 417768.557),3067),4326)
+
+-- the trigger is not working I drop it for the time of the integration
+
+
+DROP TRIGGER update_coordinates ON  datawg.t_series_ser ;--0
+
+UPDATE datawg.t_series_ser SET geom =
+ST_transform(ST_SETSRID(ST_MakePoint(417768.557,6779552.138 ),3067),4326)
+WHERE ser_nameshort='VesiY';--1
+
+UPDATE datawg.t_series_ser SET (ser_x,ser_y)=(st_x(geom),st_y(geom)) WHERE ser_nameshort = 'VesiY';
+
+SELECT * FROM datawg.t_series_ser WHERE ser_nameshort = 'VesiY';
+
+CREATE TRIGGER update_coordinates AFTER
+UPDATE
+    OF geom ON
+    datawg.t_series_ser FOR EACH ROW EXECUTE FUNCTION datawg.update_coordinates()
+    
+    
+SELECT * FROM datawg.t_eelstock_eel WHERE eel_emu_nameshort ='ES_Gali'
+AND eel_lfs_code= 'YS'
+AND eel_qal_id =1 
+AND eel_typ_id=4
+AND eel_hty_code='T'
+AND eel_year >= 2010
+ORDER BY eel_year;
+
+
+
+-- removing lines from spain with chiara.
+
+SELECT * FROM datawg.t_eelstock_eel WHERE eel_emu_nameshort ='ES_Gali'
+AND eel_lfs_code= 'Y'
+AND eel_typ_id=4
+AND eel_qal_id =1 
+AND eel_year >= 2010
+AND eel_hty_code='T'
+ORDER BY eel_year;
+
+
+SELECT * FROM datawg.t_eelstock_eel WHERE eel_emu_nameshort ='ES_Gali'
+AND eel_lfs_code= 'S'
+AND eel_typ_id=4
+AND eel_qal_id =1 
+AND eel_year >= 2010
+AND eel_hty_code='T'
+ORDER BY eel_year;
+
+
+WITH remove_eel_not_fished_as_silver AS(
+SELECT * FROM datawg.t_eelstock_eel WHERE eel_emu_nameshort ='ES_Gali'
+AND eel_lfs_code= 'YS'
+AND eel_qal_id =1 
+AND eel_typ_id=4
+AND eel_hty_code='T'
+AND eel_year >= 2010
+ORDER BY eel_year)
+UPDATE datawg.t_eelstock_eel SET (eel_qal_id, eel_qal_comment)= (t_eelstock_eel.eel_qal_id, 
+COALESCE(t_eelstock_eel.eel_qal_comment,'')||'There is no fishery authorised for silver, this has been replaced with yellow in the database.')
+FROM remove_eel_not_fished_as_silver
+WHERE t_eelstock_eel.eel_id= remove_eel_not_fished_as_silver.eel_id;--10

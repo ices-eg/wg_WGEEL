@@ -340,6 +340,7 @@ write.table(R_stations, sep=";",file=str_c(datawd,"R_stations.csv"))
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 << load_rdata, echo=FALSE, fig=FALSE, eval=TRUE, results=hide>>=
 # In this rchunk we load the data even if there is no connection to the database
+if (year_inclusion)
 load(file=str_c(datawd,"wger_init.Rdata"))
 load(file=str_c(datawd,"statseries.Rdata"))
 load(file=str_c(datawd,"R_stations.Rdata"))

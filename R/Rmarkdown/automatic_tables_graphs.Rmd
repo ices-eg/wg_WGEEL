@@ -2,12 +2,13 @@
 title: "Trend in fisheries"
 author: "WGEEL"
 date: "27 September 2021"
-output: html_document
+output: word_document
 keep_md: yes
 test: "`r paste('_metadata.yaml')`"
 ---
 \newline
 ```{r setup, include=TRUE, echo=FALSE}
+# replace word_document or html_document
 
 #--------------------------------
 # get your current name 
@@ -368,7 +369,8 @@ landings3<-grouped_data
 landings3$eel_value <- as.numeric(landings3$eel_value) / 1000
 landings3$eel_cou_code = as.factor(landings3$eel_cou_code)
 landings3$eel_cou_code<-factor(landings3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
-
+landings3$eel_cou_code <- droplevels(landings3$eel_cou_code)
+color_countries2 <- color_countries[names(color_countries)%in%levels(landings3$eel_cou_code)]
 GCY <-	landings3%>%filter(eel_year==CY)%>%
 		group_by(eel_year)%>%
 		summarize(s=sum(eel_value,na.rm=TRUE))%>%
@@ -387,7 +389,7 @@ g_raw_Clandings_G<- ggplot(landings3) +
 		xlab("year") + 
 		ylab("Landings (tonnes)")+
 		#ggtitle(title)+
-		scale_fill_manual("Country",values=color_countries)+
+		scale_fill_manual("Country",values=color_countries2)+
 		theme_bw()
 print(g_raw_Clandings_G)
 
@@ -441,6 +443,8 @@ table[is.na(table)]<-''
 tableCorLandYS<-table
 ka_cor_com_land_G <- kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 12: Raw+ corr commercial landings (tonnes) for yellow and silver eels  ","(",min(year),"-",max(year),")"," for ",paste(paste(country,collapse=","), ".", sep="")))
 landings3$eel_value <- landings3$eel_value/10^3
+landings3$eel_cou_code <- droplevels(landings3$eel_cou_code)
+color_countries2 <- color_countries[names(color_countries)%in%levels(landings3$eel_cou_code)]
 title <- paste("Corrected commercial landings for glass eel in all habitats")
 g_reconstructed_landings <- ggplot(landings3) + 
 		geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code),position='stack')+
@@ -530,6 +534,8 @@ landings3$eel_value <- as.numeric(landings3$eel_value) / 1000
 landings3$eel_cou_code = as.factor(landings3$eel_cou_code)
 landings3$eel_cou_code<-factor(landings3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
 YCYm1 <- landings3%>%filter(eel_year==CY-1)%>%group_by(eel_year)%>%summarize(s=sum(eel_value,na.rm=TRUE))%>%pull(s)
+landings3$eel_cou_code <- droplevels(landings3$eel_cou_code)
+color_countries2 <- color_countries[names(color_countries)%in%levels(landings3$eel_cou_code)]
 #vvv$YS_total_CYm1 <- sprintf("%0.1f tons", YCYm1)
 #vvv$total <- YCYm1+GCYm1
 
@@ -537,7 +543,7 @@ title <-  paste("Commercial landings for yellow and silver eels in all habitats"
 g_raw_Clandings_YS<- ggplot(landings3) + geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
 		#ggtitle(title) + 
     xlab("year") + ylab("Landings (tonnes)")+
-		scale_fill_manual("Country",values=color_countries)+
+		scale_fill_manual("Country",values=color_countries2)+
 		theme_bw()
 print(g_raw_Clandings_YS)
 
@@ -598,13 +604,15 @@ landings3<-grouped_data
 landings3$eel_cou_code<-factor(landings3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
 landings_year<-aggregate(eel_value~eel_year, landings3, function(X)sum(X)/1000)
 landings3$eel_value <- landings3$eel_value/1000
+landings3$eel_cou_code <- droplevels(landings3$eel_cou_code)
+color_countries2 <- color_countries[names(color_countries)%in%levels(landings3$eel_cou_code)]
 title <- "Reconstructed commercial landings for yellow and silver eel"
 g_reconstructed_landings <- ggplot(landings3) + 
 		geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code),position='stack')+
 		#ggtitle(title)+ 
 		xlab("Year") + ylab("Landings (tonnes)")+
 		coord_cartesian(expand = FALSE, ylim = c(0, max(landings_year$eel_value)*1.6)) +
-		scale_fill_manual("Country",values=color_countries)+
+		scale_fill_manual("Country",values=color_countries2)+
 		theme_bw()
 
 # percentage of original data
