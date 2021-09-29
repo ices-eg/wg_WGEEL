@@ -687,12 +687,14 @@ landings3<-grouped_data
 landings3$eel_value <- as.numeric(landings3$eel_value) / 1000
 landings3$eel_cou_code = as.factor(landings3$eel_cou_code)
 landings3$eel_cou_code<-factor(landings3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
+landings3$eel_cou_code <- droplevels(landings3$eel_cou_code)
+color_countries2 <- color_countries[names(color_countries)%in%levels(landings3$eel_cou_code)]
 title <- paste("Recreational landings per country,", "stage = yellow and silver ", "and habitat =", paste(hty,collapse="+"))
 
 g_raw_Rlandings_YS<- ggplot(filter(landings3,eel_value>0)) + 
 		geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
 		xlab("year") + ylab("Landings (tonnes)")+
-		scale_fill_manual("Country",values=color_countries)+
+		scale_fill_manual("Country",values=color_countries2)+
 		theme_bw()
 print(g_raw_Rlandings_YS)
 
@@ -745,14 +747,16 @@ landings3 <- grouped_data
 landings3$eel_value <- as.numeric(landings3$eel_value) / 1000
 landings3$eel_cou_code <- as.factor(landings3$eel_cou_code)
 landings3$eel_cou_code <- factor(landings3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
+landings3$eel_cou_code <- droplevels(landings3$eel_cou_code)
+color_countries2 <- color_countries[names(color_countries)%in%levels(landings3$eel_cou_code)]
 title <- paste("Recreational landings per country,", "stage = Glass eel", "and habitat =", paste(hty,collapse="+"))
 # Esti asks for contrasted colors there
 g_raw_Rlandings_G <- ggplot(filter(landings3,eel_value>0)) + 
 				geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
 		#ggtitle(title) + 
-    xlab("year") + 
+    	xlab("year") + 
 		ylab("Landings (tonnes)")+
-		scale_fill_brewer("Country",palette="Dark2")+
+		scale_fill_manual("Country",values=color_countries2)+
 		theme_bw()
 print(g_raw_Rlandings_G)
 
@@ -812,13 +816,15 @@ release3<-grouped_data
 release3$eel_value <- as.numeric(release3$eel_value)/10^6 
 release3$eel_cou_code = as.factor(release3$eel_cou_code)
 release3$eel_cou_code<-factor(release3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
+release3$eel_cou_code <- droplevels(release3$eel_cou_code) 
+color_countries2 <-	color_countries[names(color_countries)%in%levels(release3$eel_cou_code)]
 title <- paste("Releases per country,", "stage = G", "and habitat =", paste(hty,collapse="+"))
 
 g_release_G <-  ggplot(release3) + 
 		geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
 		#ggtitle(title) + 
-    xlab("year") + ylab("Release (n) in millions")+
-		scale_fill_manual("Country",values=color_countries)+
+    	xlab("year") + ylab("Release (n) in millions")+
+		scale_fill_manual("Country",values=color_countries2)+
 		theme_bw() 
 
 print(g_release_G)
@@ -841,15 +847,16 @@ grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na
 ##Graph
 release3<-grouped_data
 release3$eel_value <- as.numeric(release3$eel_value)/1000 
-release3$eel_cou_code = as.factor(release3$eel_cou_code)
 release3$eel_cou_code<-factor(release3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
+release3$eel_cou_code <- droplevels(release3$eel_cou_code) 
+color_countries2 <-	color_countries[names(color_countries)%in%levels(release3$eel_cou_code)]
 title <- paste("Releases per country,", "stage = G", "and habitat =", paste(hty,collapse="+"))
 
 g_releasekg_G <-  ggplot(release3) + 
 		geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
 		#ggtitle(title) + 
     xlab("year") + ylab("Releases in tonnes")+
-		scale_fill_manual("Country",values=color_countries)+
+		scale_fill_manual("Country",values=color_countries2)+
 		theme_bw() 
 
 print(g_releasekg_G)
@@ -899,13 +906,15 @@ release3<-grouped_data
 release3$eel_value <- as.numeric(release3$eel_value) / 10^6
 release3$eel_cou_code = as.factor(release3$eel_cou_code)
 release3$eel_cou_code<-factor(release3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
+release3$eel_cou_code <- droplevels(release3$eel_cou_code) 
+color_countries2 <-	color_countries[names(color_countries)%in%levels(release3$eel_cou_code)]
 title <- paste("Releases per country,", "stage = Y", "and habitat =", paste(hty,collapse="+"))
 
 g_release_Y <-  ggplot(release3) + 
 		geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
 		#ggtitle(title) + 
     xlab("year") + ylab("Release (n) in million")+
-		scale_fill_manual("Country",values=color_countries)+
+		scale_fill_manual("Country",values=color_countries2)+
 		theme_bw() 
 
 print(g_release_Y)
@@ -928,13 +937,15 @@ release3<-grouped_data
 release3$eel_value <- as.numeric(release3$eel_value) / 1000
 release3$eel_cou_code = as.factor(release3$eel_cou_code)
 release3$eel_cou_code<-factor(release3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
+release3$eel_cou_code <- droplevels(release3$eel_cou_code) 
+color_countries2 <-	color_countries[names(color_countries)%in%levels(release3$eel_cou_code)]
 title <- paste("Releases per country,", "stage = Y", "and habitat =", paste(hty,collapse="+"))
 
 g_releasekg_Y <-  ggplot(release3) + 
 		geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
 		#ggtitle(title) + 
-    xlab("year") + ylab("Release in tonnes")+
-		scale_fill_manual("Country",values=color_countries)+
+    	xlab("year") + ylab("Release in tonnes")+
+		scale_fill_manual("Country",values=color_countries2)+
 		theme_bw() 
 
 print(g_releasekg_Y)
@@ -984,13 +995,15 @@ release3<-grouped_data
 release3$eel_value <- as.numeric(release3$eel_value) / 1000
 release3$eel_cou_code = as.factor(release3$eel_cou_code)
 release3$eel_cou_code<-factor(release3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
+landings3$eel_cou_code <- droplevels(landings3$eel_cou_code) 
+color_countries2 <-	color_countries[names(color_countries)%in%levels(landings3$eel_cou_code)]
 title <- paste("Releases per country,", "stage = S", "and habitat =", paste(hty,collapse="+"))
 
 g_release_S <-  ggplot(release3) + 
 		geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
 		#ggtitle(title) + 
     xlab("year") + ylab("1000 * Release (n)")+
-		scale_fill_manual("Country",values=color_countries)+
+		scale_fill_manual("Country",values=color_countries2)+
 		theme_bw() 
 
 print(g_release_S)
@@ -1013,13 +1026,15 @@ release3<-grouped_data
 release3$eel_value <- as.numeric(release3$eel_value) / 1000
 release3$eel_cou_code = as.factor(release3$eel_cou_code)
 release3$eel_cou_code<-factor(release3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
+release3$eel_cou_code <- droplevels(release3$eel_cou_code) 
+color_countries2 <-	color_countries[names(color_countries)%in%levels(release3$eel_cou_code)]
 title <- paste("releases per country,", "stage = S", "and habitat =", paste(hty,collapse="+"))
 
 g_releasekg_S <-  ggplot(release3) + 
 		geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
 		#ggtitle(title) + 
     xlab("year") + ylab("Release in tonnes")+
-		scale_fill_manual("Country",values=color_countries)+
+		scale_fill_manual("Country",values=color_countries2)+
 		theme_bw() 
 
 print(g_releasekg_S)
@@ -1069,13 +1084,15 @@ release3<-grouped_data
 release3$eel_value <- as.numeric(release3$eel_value) / 1000
 release3$eel_cou_code = as.factor(release3$eel_cou_code)
 release3$eel_cou_code<-factor(release3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
+release3$eel_cou_code <- droplevels(release3$eel_cou_code) 
+color_countries2 <-	color_countries[names(color_countries)%in%levels(release3$eel_cou_code)]
 title <- paste("Releases per country,", "stage = QG", "and habitat =", paste(hty,collapse="+"))
 
 g_release_QG <-  ggplot(release3) + 
 		geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
 		#ggtitle(title) + 
     xlab("year") + ylab("1000 * Release (n)")+
-		scale_fill_manual("Country",values=color_countries)+
+		scale_fill_manual("Country",values=color_countries2)+
 		theme_bw() 
 
 print(g_release_QG)
@@ -1098,13 +1115,15 @@ release3<-grouped_data
 release3$eel_value <- as.numeric(release3$eel_value) / 1000
 release3$eel_cou_code = as.factor(release3$eel_cou_code)
 release3$eel_cou_code<-factor(release3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
+release3$eel_cou_code <- droplevels(release3$eel_cou_code) 
+color_countries2 <-	color_countries[names(color_countries)%in%levels(release3$eel_cou_code)]
 title <- paste("Releases per country,", "stage = QG", "and habitat =", paste(hty,collapse="+"))
 
 g_releasekg_QG <-  ggplot(release3) + 
 		geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
 		#ggtitle(title) + 
     xlab("year") + ylab("Release (tonnes)")+
-		scale_fill_manual("Country",values=color_countries)+
+		scale_fill_manual("Country",values=color_countries2)+
 		theme_bw() 
 
 print(g_releasekg_QG)
@@ -1153,13 +1172,15 @@ release3<-grouped_data
 release3$eel_value <- as.numeric(release3$eel_value) / 1000
 release3$eel_cou_code = as.factor(release3$eel_cou_code)
 release3$eel_cou_code<-factor(release3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
+release3$eel_cou_code <- droplevels(release3$eel_cou_code) 
+color_countries2 <-	color_countries[names(color_countries)%in%levels(release3$eel_cou_code)]
 title <- paste("Releases per country,", "stage = OG", "and habitat =", paste(hty,collapse="+"))
 
 g_release_OG <-  ggplot(release3) + 
 		geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
 		#ggtitle(title) + 
     xlab("year") + ylab("1000 * Release (n)")+
-		scale_fill_manual("Country",values=color_countries)+
+		scale_fill_manual("Country",values=color_countries2)+
 		theme_bw() 
 
 print(g_release_OG)
@@ -1183,13 +1204,15 @@ release3<-grouped_data
 release3$eel_value <- as.numeric(release3$eel_value) / 1000
 release3$eel_cou_code = as.factor(release3$eel_cou_code)
 release3$eel_cou_code<-factor(release3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
+release3$eel_cou_code <- droplevels(release3$eel_cou_code) 
+color_countries2 <-	color_countries[names(color_countries)%in%levels(release3$eel_cou_code)]
 title <- paste("releases per country,", "stage = OG", "and habitat =", paste(hty,collapse="+"))
 
 g_releasekg_OG <-  ggplot(release3) + 
 		geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
 		#ggtitle(title) + 
     xlab("year") + ylab("Release (tonnes)")+
-		scale_fill_manual("Country",values=color_countries)+
+		scale_fill_manual("Country",values=color_countries2)+
 		theme_bw() 
 
 print(g_releasekg_OG)
@@ -1224,13 +1247,15 @@ release3<-grouped_data
 release3$eel_value <- as.numeric(release3$eel_value) / 10^6
 release3$eel_cou_code = as.factor(release3$eel_cou_code)
 release3$eel_cou_code<-factor(release3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
+relaase3$eel_cou_code <- droplevels(release3$eel_cou_code) 
+color_countries2 <-	color_countries[names(color_countries)%in%levels(release3$eel_cou_code)]
 title <- paste("releases per country,", "habitat =", paste(hty,collapse="+"), "and", "stage =", paste(lfs,collapse="+"))
 
 g_release_all <-  ggplot(release3) + 
 		geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
 		#ggtitle(title) + 
     xlab("year") + ylab("Release (n) in millions")+
-		scale_fill_manual("Country",values=color_countries)+
+		scale_fill_manual("Country",values=color_countries2)+
 		theme_bw() 
 
 print(g_release_all)
@@ -1320,13 +1345,15 @@ aquaculture3<-grouped_data
 aquaculture3$eel_value <- as.numeric(aquaculture3$eel_value) / 1000
 aquaculture3$eel_cou_code = as.factor(aquaculture3$eel_cou_code)
 aquaculture3$eel_cou_code<-factor(aquaculture3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
+aquaculture3$eel_cou_code <- droplevels(aquaculture3$eel_cou_code) 
+color_countries2 <-	color_countries[names(color_countries)%in%levels(aquaculture3$eel_cou_code)]
 title <- paste("Aquaculture per country,","all stages and all habitats")
 
 g_aquaculture <-  ggplot(aquaculture3) + 
 		geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
 		#ggtitle(title) + 
     xlab("year") + ylab("Aquaculture (tonnes)")+
-		scale_fill_manual("Country",values=color_countries)+
+		scale_fill_manual("Country",values=color_countries2)+
 		theme_bw()  
 print(g_aquaculture)
 
