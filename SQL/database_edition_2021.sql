@@ -1060,5 +1060,32 @@ CONSTRAINT c_fk_sql_ser_id FOREIGN KEY (sgl_ser_id) REFERENCES datawg.t_series_s
 
 INSERT INTO datawg.t_seriesglm_sgl SELECT ser_id FROM datawg.t_series_ser WHERE ser_typ_id=1 AND ser_qal_id=1 OR ser_qal_id=0;--93
 
+
+SELECT * FROM datawg.t_seriesglm_sgl
+
+
 UPDATE datawg.t_seriesglm_sgl SET sgl_year=2021 WHERE sgl_ser_id IN (
 SELECT ser_id FROM datawg.t_series_ser WHERE ser_nameshort IN ('LiffGY','BrokGY','StraGY','BeeGY','BeeY','MillY','MertY'));--7
+
+
+SELECT ser_qal_id, ser_qal_comment FROM  datawg.t_series_ser WHERE  ser_nameshort IN ('LiffGY','BrokGY','StraGY','BeeGY','BeeY','MillY','MertY');
+UPDATE datawg.t_series_ser SET (ser_qal_id, ser_qal_comment)=(1, '>=10 years')  WHERE ser_nameshort IN ('LiffGY','BrokGY','StraGY','BeeGY','BeeY','MillY','MertY');--7
+
+WITH troubleyelloweel AS (
+SELECT * FROM datawg.t_dataseries_das
+JOIN datawg.t_series_ser ON das_ser_id = ser_id
+WHERE das_year= 2021 AND 
+ser_typ_id=1
+AND ser_lfs_code ='Y'
+AND ser_qal_id = 1
+AND das_qal_id IS NULL)
+
+UPDATE datawg.t_dataseries_das
+SET (das_qal_id,das_comment) = (4,t_dataseries_das.das_comment||'temporarily removed from the analmysis in 2021 (only two series for yellow eel) PUT BACK das_qal_id TO 1 next year !!!')
+FROM troubleyelloweel
+WHERE troubleyelloweel.das_id=t_dataseries_das.das_id;--2
+
+
+
+SELECT sgl.*, ser.ser_nameshort FROM datawg.t_seriesglm_sgl sgl JOIN datawg.t_series_ser ser ON
+ser_id = sgl_ser_id
