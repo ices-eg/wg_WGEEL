@@ -413,6 +413,8 @@ fun.agg<-function(X){if(length(X)>0){round(sum(X)/1000,ifelse(sum(X)>1000,0,3))}
 grouped_data$eel_cou_code = as.factor(grouped_data$eel_cou_code)                       
 landings3 <- predict_missing_values(grouped_data, verbose=FALSE, na.rm=FALSE) 
 landings3$eel_cou_code<-factor(landings3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
+landings3$eel_cou_code <- droplevels(landings3$eel_cou_code)
+color_countries2 <- color_countries[names(color_countries)%in%levels(landings3$eel_cou_code)]
 landings_year<-aggregate(eel_value~eel_year, landings3, sum)
 table = dcast(landings3, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
 table2=dcast(landings3, eel_year~eel_cou_code, value.var = "predicted",fun = prod)
@@ -451,7 +453,7 @@ g_reconstructed_landings <- ggplot(landings3) +
 		#ggtitle(title)+ 
 		xlab("Year") + ylab("Landings (tonnes)")+
 		coord_cartesian(expand = FALSE, ylim = c(0, max(landings_year$eel_value)*1.6/1000)) +
-		scale_fill_manual("Country",values=color_countries)+
+		scale_fill_manual("Country",values=color_countries2)+
 		theme_bw()
 
 # percentage of original data
@@ -1245,9 +1247,8 @@ grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na
 ##Graph
 release3<-grouped_data
 release3$eel_value <- as.numeric(release3$eel_value) / 10^6
-release3$eel_cou_code = as.factor(release3$eel_cou_code)
 release3$eel_cou_code<-factor(release3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
-relaase3$eel_cou_code <- droplevels(release3$eel_cou_code) 
+release3$eel_cou_code <- droplevels(release3$eel_cou_code) 
 color_countries2 <-	color_countries[names(color_countries)%in%levels(release3$eel_cou_code)]
 title <- paste("releases per country,", "habitat =", paste(hty,collapse="+"), "and", "stage =", paste(lfs,collapse="+"))
 
@@ -1282,13 +1283,15 @@ release3<-grouped_data
 release3$eel_value <- as.numeric(release3$eel_value) / 1000
 release3$eel_cou_code = as.factor(release3$eel_cou_code)
 release3$eel_cou_code<-factor(release3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
+release3$eel_cou_code <- droplevels(release3$eel_cou_code) 
+color_countries2 <-	color_countries[names(color_countries)%in%levels(release3$eel_cou_code)]
 title <- paste("releases per country,", "habitat =", paste(hty,collapse="+"), "and", "stage =", paste(lfs,collapse="+"))
 
 g_releasekg_all <-  ggplot(release3) + 
 		geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
 		#ggtitle(title) + 
     xlab("year") + ylab("Release in tonnes")+
-		scale_fill_manual("Country",values=color_countries)+
+		scale_fill_manual("Country",values=color_countries2)+
 		theme_bw() 
 
 print(g_releasekg_all)

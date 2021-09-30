@@ -31,8 +31,9 @@ CY <- 2021 # current year ==> dont forget to update the graphics path below
 # the option below can be changed from geomean to mean to change calculations
 # it will change the average in model of glass eel graph and prediction
 #----------------------------------------------------------
-opt_calculation="geomean" # "geomean" or "mean"
-opt_std="all" #"1979-1994" or "2000-2009" or "all"
+opt_calculation <- "geomean" # "geomean" or "mean"
+opt_std <- "all" #"1979-1994" or "2000-2009" or "all"
+
 options(width=90) # this sets the width of the output
 #--------------------------------
 # packages used by this script
@@ -276,6 +277,11 @@ query <- paste0("SELECT * FROM datawg.t_series_ser join  datawg.t_dataseries_das
  WHERE das_year in(", paste(CY,CY-1,sep=",",collapse=","),") AND das_qal_id IN (0,3,4) and ser_typ_id=1;")
 last_years_with_problem <- sqldf(query)
 
+##########################
+# When were the series included -------------------------------
+##########################
+query='SELECT * FROM datawg.t_seriesglm_sgl'
+inclusion <- sqldf(query)
 ############################################################################
 # Rebuilding areas used by wgeel (North Sea, Elswhere Europe) from area_divisions
 # See Ices (2008) for the reason why we need to do that
@@ -340,7 +346,6 @@ write.table(R_stations, sep=";",file=str_c(datawd,"R_stations.csv"))
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 << load_rdata, echo=FALSE, fig=FALSE, eval=TRUE, results=hide>>=
 # In this rchunk we load the data even if there is no connection to the database
-if (year_inclusion)
 load(file=str_c(datawd,"wger_init.Rdata"))
 load(file=str_c(datawd,"statseries.Rdata"))
 load(file=str_c(datawd,"R_stations.Rdata"))
@@ -861,6 +866,17 @@ if (nrow(series_prob)>30){
 	)
 }
 
+# when have the series been more than 10 years ?
+#res <- bind_rows(glass_eel_yoy,older) %>% arrange(site, year) %>% 
+#		mutate(count=1) %>% 
+#		group_by(site) %>% 
+#		mutate(n=cumsum(count)) %>%
+#		#filter(site=='BrokGY')
+#		filter(n==10)%>%
+#		dplyr::select(site, year)
+
+
+
 ################################################################
 # some additional stats for the report
 #################################################################
@@ -879,6 +895,9 @@ nbmaxyellow <- max(n_y_lfs$"yellow")
 vv$yearmaxyellow <- yearmaxyellow
 vv$nbmaxyellow <- nbmaxyellow
 vv$nbcurrentyellow <- n_y_lfs$"yellow"[n_y_lfs$year==CY]
+
+
+
 
 @
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1637,15 +1656,16 @@ dat_ge$p=predict(model_ge_area,newdata=dat_ge)
 dat_ge$se=predict(model_ge_area,newdata=dat_ge,se.fit=TRUE)[["se.fit"]]
 
 
-#in the logscale we removed the arithmetic mean to standardise prediction relatively to
-#1960-1980
-mean_1960_1979=aggregate(dat_ge[dat_ge$year<1980,"p"],list(dat_ge[dat_ge$year<1980,"area"]),mean)
-names(mean_1960_1979)=c("area","mean")
+ 
+mean_1960_1979 <- aggregate(dat_ge[dat_ge$year<1980,"p"],list(dat_ge[dat_ge$year<1980,"area"]),mean)
+names(mean_1960_1979) <- c("area","mean")	
 
-dat_ge=merge(dat_ge,mean_1960_1979,by="area")
-dat_ge$p_std_1960_1979=exp(dat_ge$p-dat_ge$mean)
-dat_ge$p_std_1960_1979_min=exp(dat_ge$p-dat_ge$mean-1.96*dat_ge$se)
-dat_ge$p_std_1960_1979_max=exp(dat_ge$p-dat_ge$mean+1.96*dat_ge$se)
+
+
+dat_ge <- merge(dat_ge,mean_1960_1979,by="area")
+dat_ge$p_std_1960_1979 <- exp(dat_ge$p-dat_ge$mean)
+dat_ge$p_std_1960_1979_min <- exp(dat_ge$p-dat_ge$mean-1.96*dat_ge$se)
+dat_ge$p_std_1960_1979_max <- exp(dat_ge$p-dat_ge$mean+1.96*dat_ge$se)
 
 
 upperlimit  <- 5
