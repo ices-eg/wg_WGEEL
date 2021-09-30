@@ -82,12 +82,23 @@ Table for percent habitat related to stock indicators
 drop table if exists datawg.t_eelstock_eel_percent;
 create table datawg.t_eelstock_eel_percent (
     percent_id integer primary key references datawg.t_eelstock_eel(eel_id) ON DELETE CASCADE;,
-    perc_f numeric check((perc_f >=0 and perc_f<=100) or perc_f is null or perc_f=-1) ,
-    perc_t numeric check((perc_t >=0 and perc_t<=100) or perc_t is null or perc_t=-1),
-    perc_c numeric check((perc_c >=0 and perc_c<=100) or perc_c is null or perc_c=-1),
-    perc_mo numeric check((perc_mo >=0 and perc_f<=100) or perc_mo is null or perc_mo=-1)
+    perc_f numeric check((perc_f >=-1 and perc_f<=100) or perc_f is null or perc_f=-1) ,
+    perc_t numeric check((perc_t >=-1 and perc_t<=100) or perc_t is null or perc_t=-1),
+    perc_c numeric check((perc_c >=-1 and perc_c<=100) or perc_c is null or perc_c=-1),
+    perc_mo numeric check((perc_mo >=-1 and perc_f<=100) or perc_mo is null or perc_mo=-1)
 );
 
+ALTER TABLE datawg.t_eelstock_eel_percent drop constraint t_eelstock_eel_percent_check;
+ALTER TABLE datawg.t_eelstock_eel_percent ADD CONSTRAINT t_eelstock_eel_percent_check CHECK ((((perc_mo >= (-1)::numeric) AND (perc_mo <= (100)::numeric)) OR (perc_mo IS NULL)));
+
+ALTER TABLE datawg.t_eelstock_eel_percent drop constraint t_eelstock_eel_percent_perc_c_check;
+ALTER TABLE datawg.t_eelstock_eel_percent ADD CONSTRAINT t_eelstock_eel_percent_perc_c_check CHECK ((((perc_c >= (-1)::numeric) AND (perc_c <= (-1)::numeric)) OR (perc_c IS NULL)));
+
+ALTER TABLE datawg.t_eelstock_eel_percent drop constraint t_eelstock_eel_percent_perc_f_check;
+ALTER TABLE datawg.t_eelstock_eel_percent ADD CONSTRAINT t_eelstock_eel_percent_perc_f_check CHECK ((((perc_f >= (-1)::numeric) AND (perc_f <= (100)::numeric)) OR (perc_f IS NULL)));
+
+ALTER TABLE datawg.t_eelstock_eel_percent drop constraint t_eelstock_eel_percent_perc_t_check;
+ALTER TABLE datawg.t_eelstock_eel_percent ADD CONSTRAINT t_eelstock_eel_percent_perc_t_check CHECK ((((perc_t >= (-1)::numeric) AND (perc_t <= (100)::numeric)) OR (perc_t IS NULL)));
 
 -- DONE apply server 30/08
 
@@ -1068,6 +1079,7 @@ UPDATE datawg.t_seriesglm_sgl SET sgl_year=2021 WHERE sgl_ser_id IN (
 SELECT ser_id FROM datawg.t_series_ser WHERE ser_nameshort IN ('LiffGY','BrokGY','StraGY','BeeGY','BeeY','MillY','MertY'));--7
 
 
+
 SELECT ser_qal_id, ser_qal_comment FROM  datawg.t_series_ser WHERE  ser_nameshort IN ('LiffGY','BrokGY','StraGY','BeeGY','BeeY','MillY','MertY');
 UPDATE datawg.t_series_ser SET (ser_qal_id, ser_qal_comment)=(1, '>=10 years')  WHERE ser_nameshort IN ('LiffGY','BrokGY','StraGY','BeeGY','BeeY','MillY','MertY');--7
 
@@ -1176,5 +1188,8 @@ COALESCE(t_eelstock_eel.eel_qal_comment,'')||'There is no fishery authorised for
 FROM remove_eel_not_fished_as_silver
 WHERE t_eelstock_eel.eel_id= remove_eel_not_fished_as_silver.eel_id;--10
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> branch 'master' of https://github.com/ices-eg/wg_WGEEL.git
