@@ -47,10 +47,10 @@ load_library("ggmap")
 con_wgeel=dbConnect(PostgreSQL(),
                     dbname="wgeel",
                     host="localhost",
-                    port=5435,
+                    port=5432,
 	                  user= getPass(msg="username"),
 	                  password= getPass())
-CY<-2020 # current year ==> dont forget to update the graphics path below (
+CY<-as.integer(format(Sys.Date(), "%Y")) # current year ==> dont forget to update the graphics path below (
 
 format_dfa =function(the.fit){
   H.inv=1
@@ -172,8 +172,12 @@ mydata$lfs_name=as.factor(mydata$lfs_name)
 mydata$ser_hty_code=as.factor(mydata$ser_hty_code)
 mydata$sam_samplingtype[mydata$ser_id %in% 292:295]="electrofishing"
 
+# total number including those with only NULL value
+nb_yellow = dbGetQuery(con_wgeel, "	SELECT count(*) FROM datawg.t_series_ser	WHERE  ser_typ_id in (2)") %>% pull()
+nb_silver = dbGetQuery(con_wgeel, "	SELECT count(*) FROM datawg.t_series_ser	WHERE  ser_typ_id in (3)") %>% pull()
 
-sampling=read.table("sampling.csv",header=TRUE,sep=";")
+#sampling=read.table("sampling.csv",header=TRUE,sep=";")
+sampling = dbGetQuery(con_wgeel, "SELECT ser_id,	ser_nameshort,	ser_comment,	sam_samplingtype,	ser_uni_code,	gea_name_en AS type FROM datawg.t_series_ser LEFT OUTER JOIN ref.tr_gear_gea ON (gea_id = ser_sam_gear)  LEFT OUTER JOIN ref.tr_samplingtype_sam ON (sam_id = ser_sam_id) WHERE ser_typ_id IN (2,3)")
 mydata = merge(mydata,sampling[,c("ser_id","type")])
 
 
@@ -218,10 +222,18 @@ contribute to the response to ToR b “Report on developments in the state of th
 
 # Yellow eel
 ## Available data
-`r length(unique(yellow_dataall$ser_id))` time series are available to the Data Call (Figure \@ref(fig:mapyellow)), originating from `r length(unique(yellow_dataall$ser_cou_code))` countries and `r length(unique(yellow_dataall$ser_emu_nameshort))` EMUs. Most of them are located in Great Britain or France. `r length(unique(yellow_dataall$ser_id[yellow_dataall$ser_hty_code=="C"]))` time series are collected in coastal waters, `r length(unique(yellow_dataall$ser_id[yellow_dataall$ser_hty_code=="T"]))` in transitional waters and `r length(unique(yellow_dataall$ser_id[yellow_dataall$ser_hty_code=="F"]))` in freshwater.
+`r length(unique(yellow_dataall$ser_id))` time series (out of `r nb_yellow`) provide data through the current or past Data Call (Figure
+\@ref(fig:mapyellow)), originating from `r length(unique(yellow_dataall$ser_cou_code))` countries and
+`r length(unique(yellow_dataall$ser_emu_nameshort))` EMUs. Most of them are located in Great Britain or France.
+`r length(unique(yellow_dataall$ser_id[yellow_dataall$ser_hty_code=="C"]))` time series are collected in coastal waters,
+`r length(unique(yellow_dataall$ser_id[yellow_dataall$ser_hty_code=="T"]))` in transitional waters and
+`r length(unique(yellow_dataall$ser_id[yellow_dataall$ser_hty_code=="F"]))` in freshwater.
 
+<!-- à voir pour faire les stat : yellow_dataall %>% select(ser_id, ser_cou_code) %>% distinct() %>% group_by(ser_cou_code) -->
+<!-- %>% count() -->
 
 ```{r mapyellow,echo=FALSE,message=FALSE,warning=FALSE,fig.cap="Map of available yellow time series. Updated time series correspond to time series for which at least one value was provided for years the three last years",fig.height=14/2.54}
+sf::sf_use_s2(FALSE)
  worldmap <- ne_countries(scale = 'medium', type = 'map_units',
                           returnclass = 'sf')
  europe_cropped <- st_crop(worldmap, xmin = -13, xmax = 27,
@@ -376,7 +388,7 @@ Before running the DFA, values were logtransformed (few 0 values were recorded a
 
 ### Common trends
 
-```{r dfa yellow, results='hide',eval=FALSE,echo=FALSE}
+```{r dfa-yellow, results='hide',eval=TRUE,echo=FALSE}
 if (params$rerunDFA){
   #replace 0 value
   list_zeros <- which(yellow_data$das_value == 0)
@@ -428,7 +440,8 @@ if (params$rerunDFA){
                AICc=x["AICc"]
                )})
   )
-  save.image(file="./dfa.rdata")
+#  save.image(file="./dfa.rdata")
+save(results_yellow, model_comparisonsYE, yellow_wide, file="./dfa.rdata")
 }
 ```
 
@@ -577,7 +590,9 @@ The fits of the DFA model to the different time series are presented in Figure \
 
 
 ```{r fitsyellow, echo=FALSE,warning=FALSE, fig.cap="Yellow DFA fits to time series", fig.width=16/2.54, fig.height=16/2.54}
-d <- broom::augment(best_fit_yellow,interval="confidence")
+d <- residuals(best_fit_yellow,interval="confidence") #augment is replace since MARSS 3.11, see https://github.com/nwfsc-timeseries/MARSS/releases
+d$.conf.low <- d$.fitted+qnorm(0.05/2)*d$.sigma
+d$.conf.up <- d$.fitted-qnorm(0.05/2)*d$.sigma
 ggplot(data = d) +
   geom_line(aes(t, .fitted)) +
   geom_point(aes(t, y)) +
@@ -632,7 +647,13 @@ ggplot(yellow_gam_plot,aes(x=year,y=pred))+
 
 # Silver eel
 ## Available data
-`r length(unique(silver_dataall$ser_id))` time series are available to the Data Call (Figure \@ref(fig:mapsilver)), originating from `r length(unique(silver_dataall$ser_cou_code))` countries and `r length(unique(silver_dataall$ser_emu_nameshort))` EMUs. Most of them are located in Northern Europe. `r length(unique(silver_dataall$ser_id[silver_dataall$ser_hty_code=="C"]))` time series are collected in coastal waters and `r length(unique(silver_dataall$ser_id[silver_dataall$ser_hty_code=="F"]))` in freshwater, while the habitat type was not reported for `r length(unique(silver_dataall$ser_id[is.na(silver_dataall$ser_hty_code)]))`.
+`r length(unique(silver_dataall$ser_id))` time series (out of `r nb_silver`)
+provide data through the current or past Data Call l (Figure
+\@ref(fig:mapsilver)), originating from `r length(unique(silver_dataall$ser_cou_code))` countries and
+`r length(unique(silver_dataall$ser_emu_nameshort))` EMUs. Most of them are located in Northern Europe.
+`r length(unique(silver_dataall$ser_id[silver_dataall$ser_hty_code=="C"]))` time series are collected in coastal waters
+and `r length(unique(silver_dataall$ser_id[silver_dataall$ser_hty_code=="F"]))` in freshwater, while the habitat type
+was not reported for `r length(unique(silver_dataall$ser_id[is.na(silver_dataall$ser_hty_code)]))`.
 
 ```{r mapsilver,echo=FALSE,message=FALSE,warning=FALSE,fig.cap="Map of available silver time series. Updated time series correspond to time series for which at least one value was provided for years the three last years",fig.height=14/2.54}
  worldmap <- ne_countries(scale = 'medium', type = 'map_units',
@@ -767,7 +788,7 @@ corresponding section for further details.
 
 ### Common trends
 
-```{r dfa silver, results='hide',eval=FALSE,echo=FALSE}
+```{r dfa silver, results='hide',eval=TRUE,echo=FALSE}
 if (params$rerunDFA){
   #put data in wide format and select from 1980
   silver_wide <-silver_data %>%
@@ -811,7 +832,8 @@ if (params$rerunDFA){
                AICc=x["AICc"],
                convergence=x["convergence"])})
   )
-  save.image(file="./dfa.rdata")
+#  save.image(file="./silver_dfa.rdata")
+  save(results_silver, model_comparisonsSE, silver_wide, file="./silver_dfa.rdata")
 }
 ```
   
@@ -820,7 +842,7 @@ The model selection leads to the estimation of a single trend (Table
 
 
 ```{r comparisonSE,echo=FALSE,tab.cap="Model comparisons for silver eel DFA"}
-load("./dfa.rdata")
+load("./silver_dfa.rdata")
 results_silver$convergence=as.character(results_silver$convergence)
 ft <- flextable(results_silver[,-c(4,5)])
 ft <- colformat_num(ft,j="AIC",digits=2)
@@ -928,7 +950,9 @@ there is no obvious spatial pattern in the trends
 DFA fits to data are presented in Figure \@ref(fig:fitsilver).
 
 ```{r fitsilver, echo=FALSE,warning=FALSE, fig.cap="Silver DFA fits to time series", fig.width=16/2.54, fig.height=16/2.54}
-d <- broom::augment(best_fit_silver,interval="confidence")
+d <- residuals(best_fit_silver,interval="confidence") #augment is replace since MARSS 3.11, see https://github.com/nwfsc-timeseries/MARSS/releases
+d$.conf.low <- d$.fitted+qnorm(0.05/2)*d$.sigma
+d$.conf.up <- d$.fitted-qnorm(0.05/2)*d$.sigma
 ggplot(data = d) +
   geom_line(aes(t, .fitted)) +
   geom_point(aes(t, y)) +
