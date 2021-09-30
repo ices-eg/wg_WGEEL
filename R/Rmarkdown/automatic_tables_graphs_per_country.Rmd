@@ -688,8 +688,8 @@ map_yellow_recruitment <- function(){
 			palette <- gdocs_pal()(10)
 		palette <- colorRampPalette(palette)(length(sites_cou))
 		
-		country_map <- as(country_p,"Spatial")
 		country_map	<- country_p[country_p$cou_code== params$country,]	
+		country_map <- as(country_map,"Spatial")
 		location=c(left=bbox(country_map)[1,1]-0.5,
 				bottom=bbox(country_map)[2,1]-0.5,
 				right=bbox(country_map)[1,2]+0.5,
@@ -761,8 +761,8 @@ map_recruitment <- function(){
 			palette <- gdocs_pal()(10)
 		palette <- colorRampPalette(palette)(length(sites_cou))
 		
-		country_map <- as(country_p,"Spatial")
 		country_map	<- country_p[country_p$cou_code== params$country,]	
+		country_map <- as(country_map,"Spatial")
 		location=c(left=bbox(country_map)[1,1]-0.5,
 				bottom=bbox(country_map)[2,1]-0.5,
 				right=bbox(country_map)[1,2]+0.5,
@@ -811,9 +811,10 @@ map_ys <- function(){
 		if (length(sites_cou) <11) palette <- gdocs_pal()(length(sites_cou)) else 
 			palette <- ggthemes::gdocs_pal()(10)
 		palette <- grDevices::colorRampPalette(palette)(length(sites_cou))
-		country_map <- as(country_p,"Spatial")
 		country_map	<- country_p[country_p$cou_code== params$country,]	
-		location=c(left=bbox(country_map)[1,1]-0.5,
+		country_map <- as(country_map,"Spatial")
+
+				location=c(left=bbox(country_map)[1,1]-0.5,
 				bottom=bbox(country_map)[2,1]-0.5,
 				right=bbox(country_map)[1,2]+0.5,
 				top=bbox(country_map)[2,2]+0.5)

@@ -82,12 +82,23 @@ Table for percent habitat related to stock indicators
 drop table if exists datawg.t_eelstock_eel_percent;
 create table datawg.t_eelstock_eel_percent (
     percent_id integer primary key references datawg.t_eelstock_eel(eel_id) ON DELETE CASCADE;,
-    perc_f numeric check((perc_f >=0 and perc_f<=100) or perc_f is null or perc_f=-1) ,
-    perc_t numeric check((perc_t >=0 and perc_t<=100) or perc_t is null or perc_t=-1),
-    perc_c numeric check((perc_c >=0 and perc_c<=100) or perc_c is null or perc_c=-1),
-    perc_mo numeric check((perc_mo >=0 and perc_f<=100) or perc_mo is null or perc_mo=-1)
+    perc_f numeric check((perc_f >=-1 and perc_f<=100) or perc_f is null or perc_f=-1) ,
+    perc_t numeric check((perc_t >=-1 and perc_t<=100) or perc_t is null or perc_t=-1),
+    perc_c numeric check((perc_c >=-1 and perc_c<=100) or perc_c is null or perc_c=-1),
+    perc_mo numeric check((perc_mo >=-1 and perc_f<=100) or perc_mo is null or perc_mo=-1)
 );
 
+ALTER TABLE datawg.t_eelstock_eel_percent drop constraint t_eelstock_eel_percent_check;
+ALTER TABLE datawg.t_eelstock_eel_percent ADD CONSTRAINT t_eelstock_eel_percent_check CHECK ((((perc_mo >= (-1)::numeric) AND (perc_mo <= (100)::numeric)) OR (perc_mo IS NULL)));
+
+ALTER TABLE datawg.t_eelstock_eel_percent drop constraint t_eelstock_eel_percent_perc_c_check;
+ALTER TABLE datawg.t_eelstock_eel_percent ADD CONSTRAINT t_eelstock_eel_percent_perc_c_check CHECK ((((perc_c >= (-1)::numeric) AND (perc_c <= (-1)::numeric)) OR (perc_c IS NULL)));
+
+ALTER TABLE datawg.t_eelstock_eel_percent drop constraint t_eelstock_eel_percent_perc_f_check;
+ALTER TABLE datawg.t_eelstock_eel_percent ADD CONSTRAINT t_eelstock_eel_percent_perc_f_check CHECK ((((perc_f >= (-1)::numeric) AND (perc_f <= (100)::numeric)) OR (perc_f IS NULL)));
+
+ALTER TABLE datawg.t_eelstock_eel_percent drop constraint t_eelstock_eel_percent_perc_t_check;
+ALTER TABLE datawg.t_eelstock_eel_percent ADD CONSTRAINT t_eelstock_eel_percent_perc_t_check CHECK ((((perc_t >= (-1)::numeric) AND (perc_t <= (100)::numeric)) OR (perc_t IS NULL)));
 
 -- DONE apply server 30/08
 
@@ -981,3 +992,199 @@ DELETE  FROM datawg.t_series_ser WHERE ser_nameshort='VeAmGY' ;--1
 SELECT * FROM datawg.t_eelstock_eel WHERE eel_cou_code ='AL'
 
 SELECT * FROM datawg.t_eelstock_eel WHERE eel_cou_code ='EG'
+
+SELECT * FROM datawg.t_series_ser tss WHERE ser_cou_code='GB'
+
+
+
+
+
+
+
+-------------------------------------
+-- modify views for preco diag
+--------------------------------------
+CREATE OR REPLACE VIEW datawg.precodata_emu
+AS WITH b0_unique AS (
+         SELECT bigtable_by_habitat_1.eel_emu_nameshort,
+            sum(bigtable_by_habitat_1.b0) AS unique_b0
+           FROM datawg.bigtable_by_habitat bigtable_by_habitat_1
+          WHERE bigtable_by_habitat_1.eel_year = 0 AND bigtable_by_habitat_1.eel_emu_nameshort::text <> 'ES_Murc'::text OR bigtable_by_habitat_1.eel_year = 0 AND bigtable_by_habitat_1.eel_emu_nameshort::text = 'ES_Murc'::text AND bigtable_by_habitat_1.eel_hty_code::text = 'C'::text
+          GROUP BY bigtable_by_habitat_1.eel_emu_nameshort
+        )
+ SELECT bigtable_by_habitat.eel_year,
+    bigtable_by_habitat.eel_cou_code,
+    bigtable_by_habitat.country,
+    bigtable_by_habitat.cou_order,
+    bigtable_by_habitat.eel_emu_nameshort,
+    bigtable_by_habitat.emu_wholecountry,
+        CASE
+            WHEN bigtable_by_habitat.eel_emu_nameshort::text = 'LT_total'::text THEN NULL::numeric
+            ELSE COALESCE(b0_unique.unique_b0, sum(bigtable_by_habitat.b0))
+        END AS b0,
+        CASE
+            WHEN bigtable_by_habitat.eel_emu_nameshort::text = 'LT_total'::text THEN NULL::numeric
+            ELSE sum(bigtable_by_habitat.bbest)
+        END AS bbest,
+        CASE
+            WHEN bigtable_by_habitat.eel_emu_nameshort::text = 'LT_total'::text THEN NULL::numeric
+            ELSE sum(bigtable_by_habitat.bcurrent)
+        END AS bcurrent,
+        CASE
+            WHEN bigtable_by_habitat.eel_emu_nameshort::text = ANY (ARRAY['ES_Cata'::character varying::text, 'LT_total'::character varying::text]) THEN NULL::numeric
+            WHEN bigtable_by_habitat.eel_emu_nameshort::text = ANY (ARRAY['IT_Camp'::character varying::text, 'IT_Emil'::character varying::text, 'IT_Frio'::character varying::text, 'IT_Lazi'::character varying::text, 'IT_Pugl'::character varying::text, 'IT_Sard'::character varying::text, 'IT_Sici'::character varying::text, 'IT_Tosc'::character varying::text, 'IT_Vene'::character varying::text, 'IT_Abru'::character varying::text, 'IT_Basi'::character varying::text, 'IT_Cala'::character varying::text, 'IT_Ligu'::character varying::text, 'IT_Lomb'::character varying::text, 'IT_Marc'::character varying::text, 'IT_Moli'::character varying::text, 'IT_Piem'::character varying::text, 'IT_Tren'::character varying::text, 'IT_Umbr'::character varying::text, 'IT_Vall'::character varying::text]) THEN round(sum(bigtable_by_habitat.suma * bigtable_by_habitat.bbest) / sum(bigtable_by_habitat.bbest), 3)
+            ELSE sum(bigtable_by_habitat.suma)
+        END AS suma,
+        CASE
+            WHEN bigtable_by_habitat.eel_emu_nameshort::text = ANY (ARRAY['ES_Cata'::character varying::text, 'LT_total'::character varying::text]) THEN NULL::numeric
+            WHEN bigtable_by_habitat.eel_emu_nameshort::text = ANY (ARRAY['IT_Camp'::character varying::text, 'IT_Emil'::character varying::text, 'IT_Frio'::character varying::text, 'IT_Lazi'::character varying::text, 'IT_Pugl'::character varying::text, 'IT_Sard'::character varying::text, 'IT_Sici'::character varying::text, 'IT_Tosc'::character varying::text, 'IT_Vene'::character varying::text, 'IT_Abru'::character varying::text, 'IT_Basi'::character varying::text, 'IT_Cala'::character varying::text, 'IT_Ligu'::character varying::text, 'IT_Lomb'::character varying::text, 'IT_Marc'::character varying::text, 'IT_Moli'::character varying::text, 'IT_Piem'::character varying::text, 'IT_Tren'::character varying::text, 'IT_Umbr'::character varying::text, 'IT_Vall'::character varying::text]) THEN round(sum(bigtable_by_habitat.sumf * bigtable_by_habitat.bbest) / sum(bigtable_by_habitat.bbest), 3)
+            ELSE sum(bigtable_by_habitat.sumf)
+        END AS sumf,
+        CASE
+            WHEN bigtable_by_habitat.eel_emu_nameshort::text = 'LT_total'::text THEN NULL::numeric
+            WHEN bigtable_by_habitat.eel_emu_nameshort::text = ANY (ARRAY['IT_Camp'::character varying::text, 'IT_Emil'::character varying::text, 'IT_Frio'::character varying::text, 'IT_Lazi'::character varying::text, 'IT_Pugl'::character varying::text, 'IT_Sard'::character varying::text, 'IT_Sici'::character varying::text, 'IT_Tosc'::character varying::text, 'IT_Vene'::character varying::text, 'IT_Abru'::character varying::text, 'IT_Basi'::character varying::text, 'IT_Cala'::character varying::text, 'IT_Ligu'::character varying::text, 'IT_Lomb'::character varying::text, 'IT_Marc'::character varying::text, 'IT_Moli'::character varying::text, 'IT_Piem'::character varying::text, 'IT_Tren'::character varying::text, 'IT_Umbr'::character varying::text, 'IT_Vall'::character varying::text]) THEN round(sum(bigtable_by_habitat.sumh * bigtable_by_habitat.bbest) / sum(bigtable_by_habitat.bbest), 3)
+            ELSE sum(bigtable_by_habitat.sumh)
+        END AS sumh,
+    'emu'::text AS aggreg_level,
+    bigtable_by_habitat.aggregated_lfs,
+    string_agg(bigtable_by_habitat.eel_hty_code::text, ', '::text) AS aggregated_hty
+   FROM datawg.bigtable_by_habitat
+     LEFT JOIN b0_unique USING (eel_emu_nameshort)
+  WHERE bigtable_by_habitat.eel_year > 1850 AND bigtable_by_habitat.eel_emu_nameshort::text <> 'ES_Murc'::text OR bigtable_by_habitat.eel_year > 1850 AND bigtable_by_habitat.eel_emu_nameshort::text = 'ES_Murc'::text AND bigtable_by_habitat.eel_hty_code::text = 'C'::text
+  GROUP BY bigtable_by_habitat.eel_year, bigtable_by_habitat.eel_cou_code, bigtable_by_habitat.country, bigtable_by_habitat.cou_order, bigtable_by_habitat.eel_emu_nameshort, bigtable_by_habitat.emu_wholecountry, bigtable_by_habitat.aggregated_lfs, b0_unique.unique_b0
+  ORDER BY bigtable_by_habitat.eel_year, bigtable_by_habitat.cou_order, bigtable_by_habitat.eel_emu_nameshort;
+
+ 
+-- check problem with h
+SELECT eel_typ_id ,eel_cou_code, count(*) FROM datawg.t_eelstock_eel tee 
+WHERE  eel_qal_comment ILIKE '%deleted in%' AND eel_qal_id=21
+GROUP BY eel_cou_code, eel_typ_id
+ 
+
+SELECT * FROM datawg.t_eelstock_eel WHERE eel_cou_code ='VA';
+
+DROP TABLE IF EXISTS datawg.t_seriesglm_sgl;
+CREATE TABLE datawg.t_seriesglm_sgl (
+sgl_ser_id serial4 PRIMARY KEY,
+sgl_year integer,
+CONSTRAINT c_fk_sql_ser_id FOREIGN KEY (sgl_ser_id) REFERENCES datawg.t_series_ser(ser_id));
+
+INSERT INTO datawg.t_seriesglm_sgl SELECT ser_id FROM datawg.t_series_ser WHERE ser_typ_id=1 AND ser_qal_id=1 OR ser_qal_id=0;--93
+
+
+SELECT * FROM datawg.t_seriesglm_sgl
+
+
+UPDATE datawg.t_seriesglm_sgl SET sgl_year=2021 WHERE sgl_ser_id IN (
+SELECT ser_id FROM datawg.t_series_ser WHERE ser_nameshort IN ('LiffGY','BrokGY','StraGY','BeeGY','BeeY','MillY','MertY'));--7
+
+
+
+SELECT ser_qal_id, ser_qal_comment FROM  datawg.t_series_ser WHERE  ser_nameshort IN ('LiffGY','BrokGY','StraGY','BeeGY','BeeY','MillY','MertY');
+UPDATE datawg.t_series_ser SET (ser_qal_id, ser_qal_comment)=(1, '>=10 years')  WHERE ser_nameshort IN ('LiffGY','BrokGY','StraGY','BeeGY','BeeY','MillY','MertY');--7
+
+WITH troubleyelloweel AS (
+SELECT * FROM datawg.t_dataseries_das
+JOIN datawg.t_series_ser ON das_ser_id = ser_id
+WHERE das_year= 2021 AND 
+ser_typ_id=1
+AND ser_lfs_code ='Y'
+AND ser_qal_id = 1
+AND das_qal_id IS NULL)
+
+UPDATE datawg.t_dataseries_das
+SET (das_qal_id,das_comment) = (4,t_dataseries_das.das_comment||'temporarily removed from the analmysis in 2021 (only two series for yellow eel) PUT BACK das_qal_id TO 1 next year !!!')
+FROM troubleyelloweel
+WHERE troubleyelloweel.das_id=t_dataseries_das.das_id;--2
+
+
+
+SELECT sgl.*, ser.ser_nameshort, ser_cou_code FROM datawg.t_seriesglm_sgl sgl 
+JOIN datawg.t_series_ser ser ON
+ser_id = sgl_ser_id
+
+
+SELECT * FROM datawg.t_dataseries_das WHERE das_ser_id=318;
+
+
+SELECT * FROM datawg.t_series_ser WHERE ser_nameshort='BeeG';
+
+SELECT * FROM datawg.t_dataseries_das WHERE das_ser_id=184;
+
+SELECT * FROM datawg.t_series_ser WHERE ser_nameshort='SeEAG';
+
+SELECT * FROM datawg.t_dataseries_das  WHERE das_ser_id = 7
+
+UPDATE datawg.t_dataseries_das 
+SET (das_comment, das_qal_id)= 
+(das_comment || ', Because of Brexit we shouldn''t be using the 2021 series at all.', 3)
+WHERE das_ser_id = 7
+AND das_year=2021; --1
+
+
+
+SELECT geom FROM datawg.t_series_ser;
+SELECT ST_transform(ST_SETSRID(ST_MakePoint(6779552.138, 417768.557),3067),4326)
+
+-- the trigger is not working I drop it for the time of the integration
+
+
+DROP TRIGGER update_coordinates ON  datawg.t_series_ser ;--0
+
+UPDATE datawg.t_series_ser SET geom =
+ST_transform(ST_SETSRID(ST_MakePoint(417768.557,6779552.138 ),3067),4326)
+WHERE ser_nameshort='VesiY';--1
+
+UPDATE datawg.t_series_ser SET (ser_x,ser_y)=(st_x(geom),st_y(geom)) WHERE ser_nameshort = 'VesiY';
+
+SELECT * FROM datawg.t_series_ser WHERE ser_nameshort = 'VesiY';
+
+CREATE TRIGGER update_coordinates AFTER
+UPDATE
+    OF geom ON
+    datawg.t_series_ser FOR EACH ROW EXECUTE FUNCTION datawg.update_coordinates()
+    
+    
+SELECT * FROM datawg.t_eelstock_eel WHERE eel_emu_nameshort ='ES_Gali'
+AND eel_lfs_code= 'YS'
+AND eel_qal_id =1 
+AND eel_typ_id=4
+AND eel_hty_code='T'
+AND eel_year >= 2010
+ORDER BY eel_year;
+
+
+
+-- removing lines from spain with chiara.
+
+SELECT * FROM datawg.t_eelstock_eel WHERE eel_emu_nameshort ='ES_Gali'
+AND eel_lfs_code= 'Y'
+AND eel_typ_id=4
+AND eel_qal_id =1 
+AND eel_year >= 2010
+AND eel_hty_code='T'
+ORDER BY eel_year;
+
+
+SELECT * FROM datawg.t_eelstock_eel WHERE eel_emu_nameshort ='ES_Gali'
+AND eel_lfs_code= 'S'
+AND eel_typ_id=4
+AND eel_qal_id =1 
+AND eel_year >= 2010
+AND eel_hty_code='T'
+ORDER BY eel_year;
+
+
+WITH remove_eel_not_fished_as_silver AS(
+SELECT * FROM datawg.t_eelstock_eel WHERE eel_emu_nameshort ='ES_Gali'
+AND eel_lfs_code= 'YS'
+AND eel_qal_id =1 
+AND eel_typ_id=4
+AND eel_hty_code='T'
+AND eel_year >= 2010
+ORDER BY eel_year)
+UPDATE datawg.t_eelstock_eel SET (eel_qal_id, eel_qal_comment)= (t_eelstock_eel.eel_qal_id, 
+COALESCE(t_eelstock_eel.eel_qal_comment,'')||'There is no fishery authorised for silver, this has been replaced with yellow in the database.')
+FROM remove_eel_not_fished_as_silver
+WHERE t_eelstock_eel.eel_id= remove_eel_not_fished_as_silver.eel_id;--10
+

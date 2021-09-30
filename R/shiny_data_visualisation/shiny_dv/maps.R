@@ -315,7 +315,7 @@ b_map <- function(dataset=precodata_all,
 	the_year=NULL,
 	maxscale_country=50,
 	maxscale_emu=30){
-  
+
   #################
   # I. country case --------------------------------------------------------------------------------
   #################
@@ -335,7 +335,8 @@ b_map <- function(dataset=precodata_all,
 	  validate(need(!is.null(the_year),"There should be an input to select one year"))
 	  precodata_here <- precodata_here %>%  filter(eel_year == the_year)
 	}
-	
+    country_c$coords.x1 = st_coordinates(country_c)[,1]
+    country_c$coords.x2 = st_coordinates(country_c)[,2]
 	selected_countries <- merge( as.data.frame(country_c), precodata_here, by.x="cou_code",by.y="eel_cou_code")
 	
 	# create an id as eg : GR_2016 ------------------------------------------------------------------
@@ -462,7 +463,8 @@ b_map <- function(dataset=precodata_all,
 	
   } else if (map=="emu"){
 	
-	
+    emu_c$coords.x1 = st_coordinates(emu_c)[,1]
+    emu_c$coords.x2 = st_coordinates(emu_c)[,2]
 	if (use_last_year)  {
 	  precodata_here <- 			
 		  precodata_here %>% 								
@@ -475,8 +477,8 @@ b_map <- function(dataset=precodata_all,
 	}
 	
 	
-	selected_emus <- dplyr::inner_join( as.data.frame(emu_c), precodata_here, by=c("emu_namesh"="eel_emu_nameshort"))
-	selected_emus <- dplyr::rename(selected_emus, eel_emu_nameshort = emu_namesh)
+	selected_emus <- dplyr::inner_join( as.data.frame(emu_c), precodata_here, by=c("emu_nameshort"="eel_emu_nameshort"))
+	selected_emus <- dplyr::rename(selected_emus, eel_emu_nameshort = emu_nameshort)
 	# create an id as eg : GR_2016 ------------------------------------------------------------------
 	
 	selected_emus$id <- paste(selected_emus$eel_emu_nameshort, selected_emus$year) 
@@ -621,33 +623,33 @@ load_maps = function(full_load = FALSE, to_save = FALSE)
 		#path to shapes on the sharepoint
 		#shpwd = wg_choose.dir(caption = "Shapefile directory")
 		
-		emu <- st_read(str_c(dsn= "PG:dbname='wgeel' host='localhost' port='5435' user='",userwgeel,"' 
+		emu <- st_read(str_c(dsn= "PG:dbname='wgeel' host='localhost' port='5432' user='",userwgeel,"' 
 						password='",passwordwgeel,"'"), layer="ref.tr_emu_emu")
 		# This is the map of the emu
 		#emu_p <<- rmapshaper::ms_simplify(rgdal::readOGR(str_c(shpwd,"/","emu_polygons_4326.shp")), keep = 0.7) # a spatial object of class sp, symplified to be displayed easily
-		emu_p <<- rmapshaper::ms_simplify(emu$geom, keep = 0.7) # a spatial object of class sp, symplified to be displayed easily
+		emu_p <<- rmapshaper::ms_simplify(emu, keep = 0.7) # a spatial object of class sp, symplified to be displayed easily
 		## Is this emu$geom simplified, do we need it? 
 		
 		# To calculate the center of the polygone, empty geom is not possible
 		emu_no_empty_geom <- emu[which(!st_is_empty(emu$geom)),]
 		# This corresponds to the center of each emu
 		#emu_c <- rgdal::readOGR(str_c(shpwd,"/","emu_centre_4326.shp")) # a spatial object of class spatialpointsdataframe
-		emu_c <- st_centroid(emu_no_empty_geom$geom)
+		emu_c <- st_centroid(emu_no_empty_geom)
 		#emu_c@data <- stacomirtools::chnames(emu_c@data,"emu_namesh","emu_nameshort") # names have been trucated
 		
-		country <- st_read(dsn= str("PG:dbname='wgeel' host='localhost' port='5435' user='",userwgeel,"' 
+		country <- st_read(dsn= str_c("PG:dbname='wgeel' host='localhost' port='5432' user='",userwgeel,"' 
 						password='",passwordwgeel,"'"), layer="ref.tr_country_cou")
 
 		# This is the map of the emu
 		#country_p <<- rmapshaper::ms_simplify(rgdal::readOGR(str_c(shpwd,"/","country_polygons_4326.shp")), keep = 0.01)# a spatial object of class sp, symplified to be displayed easily
-		country_p <<- rmapshaper::ms_simplify(country$geom, keep = 0.01)  # a spatial object of class sp, symplified to be displayed easily. Be pacient!
+		country_p <<- rmapshaper::ms_simplify(country, keep = 0.01)  # a spatial object of class sp, symplified to be displayed easily. Be pacient!
 		## Is this country$geom simplified, do we need it? 
 
 		# To calculate the center of the polygone, empty geom is not possible
 		country_no_empty_geom <- country[which(!st_is_empty(country$geom)),]
 		# This is the map of country centers, to overlay points for each country
 		#country_c <<- rgdal::readOGR(str_c(shpwd,"/","country_centre_4326.shp"))
-		country_c <- st_centroid(country_no_empty_geom$geom)
+		country_c <- st_centroid(country_no_empty_geom)
 		
 		# transform spatial point dataframe to 
 		if(to_save) save(emu_c,country_p,emu_p,country_c,file=str_c(data_directory,"/maps_for_shiny.Rdata"), version =2)
@@ -658,7 +660,7 @@ load_maps = function(full_load = FALSE, to_save = FALSE)
 		load(file=str_c(data_directory,"/maps_for_shiny.Rdata"), envir = .GlobalEnv)
 	}
 }
-data_directory <- "C:/workspace/gitwgeel/R/shiny_data_visualisation/shiny_dv/data/"
+data_directory <- "./data/"
 #load_maps(full_load=TRUE, to_save=TRUE)
 
 #plot(emu)

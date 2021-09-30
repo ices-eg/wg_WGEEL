@@ -23,10 +23,10 @@ load_library("getPass")
 #-------------------------------
 
 
-port <- 5435
+port <- 5432
 host <- "localhost"#"192.168.0.100"
 
-
+library(getPass)
 
 if (exists("userwgeel")) 
 { #Cedric's special configuration
@@ -41,6 +41,8 @@ if (exists("userwgeel"))
 } else {
 	user<-getPass("Enter the USER: ")
 	pwd<-getPass()
+	host<- getPass("host")
+	port <- 5432
 	options(sqldf.RPostgreSQL.user = user,  
 			sqldf.RPostgreSQL.password = pwd,
 			sqldf.RPostgreSQL.dbname = "wgeel",

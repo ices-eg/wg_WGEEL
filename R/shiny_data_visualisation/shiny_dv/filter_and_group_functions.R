@@ -40,6 +40,8 @@ filter_data = function(dataset, typ=NULL, life_stage = NULL, country = NULL, hab
     year_range = 1900:2100)
 {
   mydata <- get(dataset)
+  if ("eel_typ_id" %in% names(mydata))
+    mydata <- filter(mydata,! eel_typ_id %in% c(32, 33)) #we remove other_landings_n
   
   # this is the list of quosures
   expr <- list()
