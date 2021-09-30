@@ -295,11 +295,11 @@ wger_init[,"area"] <- NA
 # below these are area used in some of the scripts see wgeel 2008 and Willem's Analysis 
 # but currently wgeel only uses two areas so the following script is kept for memory
 # but mostly useless
-wger_init$area[wger_init$f_subarea%in%'27.4'] <- "North Sea"
-wger_init$area[wger_init$f_subarea%in%'27.3'] <- "Baltic"
-wger_init$area[wger_init$f_subarea%in%c('27.6','27.7','27.8','27.9')] <- "Atlantic"
-wger_init$area[wger_init$f_subarea%in%c('37.1','37.2','37.3')] <- "Mediterranean Sea"
-wger_init[wger_init$area%in%c("Atlantic","Mediterranean Sea"),"area"] <- "Elsewhere Europe"
+wger_init$area2[wger_init$f_subarea%in%'27.4'] <- "North Sea"
+wger_init$area2[wger_init$f_subarea%in%'27.3'] <- "Baltic"
+wger_init$area2[wger_init$f_subarea%in%c('27.6','27.7','27.8','27.9')] <- "Atlantic"
+wger_init$area2[wger_init$f_subarea%in%c('37.1','37.2','37.3')] <- "Mediterranean Sea"
+wger_init[wger_init$area2%in%c("Atlantic","Mediterranean Sea"),"area"] <- "Elsewhere Europe"
 # We consider that the series of glass eel recruitment in the Baltic are influenced
 # similarly in the Baltic and North Sea. This has no effect on Baltic data
 wger_init[wger_init$area%in%c("Baltic"),"area"] <- "North Sea"
