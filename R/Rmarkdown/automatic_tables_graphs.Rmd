@@ -24,6 +24,7 @@ if (getUsername() == "cedric.briand") setwd("C:/workspace/gitwgeel/R/Rmarkdown")
 if (getUsername() == "cboulenger") setwd("C:/Users/cboulenger/Documents/wg_WGEEL/R/Rmarkdown") 
 
 CY=2020
+library(stringr)
 imgwd <- str_c(getwd(),"/",CY,"/00international/image/")
 tabwd <- str_c(getwd(),"/",CY,"/00international/table/")
 dir.create(imgwd, showWarnings = FALSE)
