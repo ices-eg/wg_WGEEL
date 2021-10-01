@@ -908,7 +908,7 @@ dbGetQuery(con_wgeel,"SELECT * FROM datawg.t_series_ser WHERE ser_tblcodeid IS N
 
 
 
-#2021
+#2021------------------------
 require(getPass)
 library(readxl) # to read xls files
 library(stringr) # this contains utilities for strings
@@ -923,8 +923,9 @@ con_wgeel=dbConnect(PostgreSQL(),
 		port=5432,
 		user= getPass(msg="username"),
 		password= getPass(msg="pwd"))
+dbExecute(con_wgeel,"DROP table series_inclusion_temp")
 dbWriteTable(con_wgeel,'series_inclusion_temp',series_inclusion)
 dbExecute(con_wgeel,"UPDATE datawg.t_seriesglm_sgl s set sgl_year= st.sgl_year FROM
 series_inclusion_temp st
 where s.sgl_ser_id=st.sgl_ser_id
-")
+")#93
