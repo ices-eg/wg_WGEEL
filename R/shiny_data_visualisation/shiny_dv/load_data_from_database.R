@@ -2,7 +2,7 @@
 # Date : 21/03/2019
 # Author: cedric.briand
 ###############################################################################
-
+#setwd("C:/workspace\\gitwgeel\\R\\shiny_data_visualisation\\shiny_dv\\")
 # lauch(global.R)
 # set connexion to 5435 in database_connexion
 load_package <- function(x)
@@ -17,7 +17,7 @@ load_package <- function(x)
 load_package("RPostgreSQL")
 load_package("sqldf")
 load_package("glue")
-if(is.null(options()$sqldf.RPostgreSQL.user)) {
+if (is.null(options()$sqldf.RPostgreSQL.user)) {
   # extraction functions
 source("database_connection.R")
 }
