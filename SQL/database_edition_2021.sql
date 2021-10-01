@@ -1304,4 +1304,4 @@ FROM
    unused
 
    
-    
+GRANT CONNECT ON DATABASE ouvrage TO  ouvrage;   
