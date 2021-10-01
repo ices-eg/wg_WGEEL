@@ -1285,4 +1285,23 @@ SELECT
 		left join ref.tr_faoareas on ser_area_division=f_division
 		left join ref.tr_country_cou on  cou_code=ser_cou_code
 		where ser_typ_id=1
-		AND das_year= 2014
+		AND das_year= 2014;
+	
+
+SELECT * FROM 	pg_stat_activity 
+
+WITH unused as(
+SELECT 
+ pid
+FROM 
+    pg_stat_activity 
+WHERE 
+    datname = 'ouvrage')
+	
+	SELECT 
+    pg_terminate_backend(pid) 
+FROM 
+   unused
+
+   
+    

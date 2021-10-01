@@ -2163,7 +2163,7 @@ model_older=glm(value_std ~ year_f + as.factor(site),
 		data = older,
 		family = Gamma(link=log),
 		subset = older$value >0 &
-				older$year > 1949,
+				older$year > 1949 & older$year <CY-1,
 		maxit = 300)
 # parteen was removed but is no longer among the series
 summary(model_older)
