@@ -13,7 +13,7 @@
 #' @examples
 #' extract_data("landings")
 #' extract_data("t_series_ser")
-extract_data = function(table_dbname, quality = c(1,2,4), quality_check=TRUE)
+extract_data = function(table_dbname, quality = c(0,1,2,4), quality_check=TRUE)
 {
   	
 	
