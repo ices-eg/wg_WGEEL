@@ -1,8 +1,6 @@
 # 
 # Produces the report using params specific to each country
 # Author: cedricbriandgithub
-# 1st launch load data from database in shiny_dv, be sure to be connected to the server or have a saved version of the database
-# 2 run recruitment
 ###############################################################################
 
 require(rmarkdown)
@@ -19,7 +17,7 @@ load("../shiny_data_visualisation/shiny_dv/data/ref_and_eel_data.Rdata")
 cou_code <- unique(landings$eel_cou_code[!is.na(landings$eel_cou_code)])
 dir.create("C:/workspace/gitwgeel/R/Rmarkdown/2020",showWarnings = FALSE)
 dir.create("C:/workspace/gitwgeel/R/Rmarkdown/files",showWarnings = FALSE)
-CY <- 2021
+CY <- 2020
 if (exists("params")) rm(params)
 # North Sea
 for (cou in c("DK","NL","DE")){
@@ -144,7 +142,7 @@ for (cou in c("IE","BE")){
 
  
 
-for (cou in c("TR","HR","TN","SI","GR","AL","EG")){
+for (cou in c("TR","HR","TN","SI","GR")){
 	rmarkdown::render("automatic_tables_graphs_per_country.Rmd", 	
 			output_file = cou,
 			output_dir =str_c("./",CY), 
