@@ -1073,7 +1073,7 @@ INSERT INTO datawg.t_seriesglm_sgl SELECT ser_id FROM datawg.t_series_ser WHERE 
 
 
 SELECT * FROM datawg.t_seriesglm_sgl
-
+ALTER TABLE datawg.t_seriesglm_sgl OWNER TO wgeel;
 
 UPDATE datawg.t_seriesglm_sgl SET sgl_year=2021 WHERE sgl_ser_id IN (
 SELECT ser_id FROM datawg.t_series_ser WHERE ser_nameshort IN ('LiffGY','BrokGY','StraGY','BeeGY','BeeY','MillY','MertY'));--7
@@ -1188,3 +1188,120 @@ COALESCE(t_eelstock_eel.eel_qal_comment,'')||'There is no fishery authorised for
 FROM remove_eel_not_fished_as_silver
 WHERE t_eelstock_eel.eel_id= remove_eel_not_fished_as_silver.eel_id;--10
 
+-- Missing areas FOR UK
+
+UPDATE datawg.t_series_ser
+	SET ser_area_division='27.4.c'
+	WHERE ser_id=184;
+UPDATE datawg.t_series_ser
+	SET ser_area_division='27.4.c'
+	WHERE ser_id=317;
+UPDATE datawg.t_series_ser
+	SET ser_area_division='27.4.c'
+	WHERE ser_id=318;
+UPDATE datawg.t_series_ser
+	SET ser_area_division='27.4.c'
+	WHERE ser_id=185;
+UPDATE datawg.t_series_ser
+	SET ser_area_division='27.4.c'
+	WHERE ser_id=187;
+UPDATE datawg.t_series_ser
+	SET ser_area_division='27.4.c'
+	WHERE ser_id=186;
+UPDATE datawg.t_series_ser
+	SET ser_area_division='27.4.c'
+	WHERE ser_id=182;
+UPDATE datawg.t_series_ser
+	SET ser_area_division='27.4.c'
+	WHERE ser_id=183;
+UPDATE datawg.t_series_ser
+	SET ser_area_division='27.4.c'
+	WHERE ser_id=377;
+UPDATE datawg.t_series_ser
+	SET ser_area_division='27.7.g'
+	WHERE ser_id=188;
+UPDATE datawg.t_series_ser
+	SET ser_area_division='27.4.c'
+	WHERE ser_id=324;
+UPDATE datawg.t_series_ser
+	SET ser_area_division='27.4.c'
+	WHERE ser_id=321;
+UPDATE datawg.t_series_ser
+	SET ser_area_division='27.4.c'
+	WHERE ser_id=323;
+UPDATE datawg.t_series_ser
+	SET ser_area_division='27.4.c'
+	WHERE ser_id=319;
+UPDATE datawg.t_series_ser
+	SET ser_area_division='27.4.c'
+	WHERE ser_id=322;
+UPDATE datawg.t_series_ser
+	SET ser_area_division='27.7.f'
+	WHERE ser_id=7;
+UPDATE datawg.t_series_ser
+	SET ser_area_division='27.7.f'
+	WHERE ser_id=8;
+
+
+-- extract data from 2014
+
+SELECT 
+		das_id,
+		das_value,       
+		das_year,
+		das_comment,
+		/* 
+		-- below those are data on effort, not used yet
+		
+		das_effort, 
+		ser_effort_uni_code,       
+		das_last_update,
+		*/
+		/* 
+		-- this is the id on quality, used from 2018
+		-- to remove the data with problems on quality from the series
+		-- see WKEEKDATA (2018)
+		das_qal_id,
+		*/ 
+		ser_id,            
+		cou_order,
+		ser_nameshort,
+		ser_area_division,
+		ser_qal_id,
+		ser_y,
+		/* 
+		-- this is the id on quality at the level of individual lines of data
+		-- checks are done later to ensure provide a summary of the number of 0 (missing data),
+		-- 3 data discarded, 4 used but with doubts....
+		*/ 
+		das_qal_id,
+		das_last_update,
+		f_subarea,
+		lfs_code,          
+		lfs_name
+		from datawg.t_dataseries_das 
+		join datawg.t_series_ser on das_ser_id=ser_id
+		left join ref.tr_lifestage_lfs on ser_lfs_code=lfs_code
+		left join ref.tr_faoareas on ser_area_division=f_division
+		left join ref.tr_country_cou on  cou_code=ser_cou_code
+		where ser_typ_id=1
+		AND das_year= 2014;
+	
+
+SELECT * FROM 	pg_stat_activity 
+
+WITH unused as(
+SELECT 
+ pid
+FROM 
+    pg_stat_activity 
+WHERE 
+    datname = 'ouvrage')
+	
+	SELECT 
+    pg_terminate_backend(pid) 
+FROM 
+   unused
+
+   
+GRANT CONNECT ON DATABASE ouvrage TO  ouvrage;   

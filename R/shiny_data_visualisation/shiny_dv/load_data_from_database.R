@@ -2,7 +2,7 @@
 # Date : 21/03/2019
 # Author: cedric.briand
 ###############################################################################
-
+#setwd("C:/workspace\\gitwgeel\\R\\shiny_data_visualisation\\shiny_dv\\")
 # lauch(global.R)
 # set connexion to 5435 in database_connexion
 load_package <- function(x)
@@ -17,7 +17,7 @@ load_package <- function(x)
 load_package("RPostgreSQL")
 load_package("sqldf")
 load_package("glue")
-if(is.null(options()$sqldf.RPostgreSQL.user)) {
+if (is.null(options()$sqldf.RPostgreSQL.user)) {
   # extraction functions
 source("database_connection.R")
 }
@@ -45,7 +45,7 @@ landings = extract_data("landings",quality =c(1,2,4),quality_check=TRUE)
 # ONLY FOR AQUACULTURE WE HAVE A DATA PROTECTION LAW RESTRICTING THE ACCESS
 aquaculture = extract_data("aquaculture",quality=c(1,2,4),quality_check=TRUE)
 release = extract_data("release",quality=c(1,2,4),quality_check=TRUE)
-
+other_landings = extract_data("other_landings",quality=c(1,2,4),quality_check=TRUE)
 precodata = extract_precodata() # for tables
 # below by default in the view the quality 1,2,and 4 are used
 precodata_all = extract_data("precodata_all",quality_check=FALSE) # for precodiagram
@@ -154,7 +154,8 @@ save( precodata_all,
     lfs_code_base,
     habitat_ref,
     release, 
-    aquaculture, 
+    aquaculture,
+		other_landings,
     landings,
 	ys_stations, wger_ys, wger_init_ys, statseries_ys,
     file="data/ref_and_eel_data.Rdata")

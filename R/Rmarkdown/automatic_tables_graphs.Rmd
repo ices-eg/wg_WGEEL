@@ -24,11 +24,12 @@ if (getUsername() == "cedric.briand") setwd("C:/workspace/gitwgeel/R/Rmarkdown")
 if (getUsername() == "cboulenger") setwd("C:/Users/cboulenger/Documents/wg_WGEEL/R/Rmarkdown") 
 
 CY=2020
+library(stringr)
 imgwd <- str_c(getwd(),"/",CY,"/00international/image/")
 tabwd <- str_c(getwd(),"/",CY,"/00international/table/")
 dir.create(imgwd, showWarnings = FALSE)
 dir.create(tabwd, showWarnings = FALSE)
-knitr::opts_chunk$set(echo = TRUE, warnings=FALSE)
+knitr::opts_chunk$set(echo = TRUE, warnings=FALSE, error = TRUE)
 #source("R/utilities/set_directory.R")
 #data_directory <- wg_choose.dir(caption = "Where do you want to save the tables and the graphs")
 #data_directory <-"C:/temp"
@@ -204,7 +205,7 @@ year<-unique(landings_YS$eel_year)
 country<-unique(landings_YS$eel_cou_code)
 hty<-unique(landings_YS$eel_hty_code)
 grouped_data <-group_data(landings_YS,geo="country",habitat=FALSE,lfs=FALSE,na.rm=TRUE)
-fun.agg<-function(X){if(length(X)>0){round(sum(X)/1000,ifelse(sum(X)>1000,0,3))}else{sum(c(X,NA))}}
+fun.agg<-function(X){if(length(X)>0){round(sum(X)/1000,ifelse(sum(X)>1000,3,3))}else{sum(c(X,NA))}}
 grouped_data$eel_cou_code = as.factor(grouped_data$eel_cou_code)                       
 grouped_data <- predict_missing_values(grouped_data, verbose=FALSE, na.rm=FALSE)
 select_corr_land_YS<-aggregate(grouped_data$eel_value,by=list(grouped_data$eel_year),sum,na.rm=T)
@@ -336,7 +337,7 @@ year <- unique(filtered_data$eel_year)
 country <- unique(filtered_data$eel_cou_code)
 hty <- unique(filtered_data$eel_hty_code)
 grouped_data  <- group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=TRUE)
-fun.agg <- function(X){if(length(X)>0){round(sum(X)/1000,ifelse(sum(X)>1000,0,3))}else{sum(c(X,NA))}}
+fun.agg <- function(X){if(length(X)>0){round(sum(X)/1000,ifelse(sum(X)>1000,3,3))}else{sum(c(X,NA))}}
 
 ##table
 table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
@@ -409,10 +410,12 @@ year<-unique(filtered_data$eel_year)
 country<-unique(filtered_data$eel_cou_code)
 hty<-unique(filtered_data$eel_hty_code)
 grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=TRUE)
-fun.agg<-function(X){if(length(X)>0){round(sum(X)/1000,ifelse(sum(X)>1000,0,3))}else{sum(c(X,NA))}}
+fun.agg<-function(X){if(length(X)>0){round(sum(X)/1000,ifelse(sum(X)>1000,3,3))}else{sum(c(X,NA))}}
 grouped_data$eel_cou_code = as.factor(grouped_data$eel_cou_code)                       
 landings3 <- predict_missing_values(grouped_data, verbose=FALSE, na.rm=FALSE) 
 landings3$eel_cou_code<-factor(landings3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
+landings3$eel_cou_code <- droplevels(landings3$eel_cou_code)
+color_countries2 <- color_countries[names(color_countries)%in%levels(landings3$eel_cou_code)]
 landings_year<-aggregate(eel_value~eel_year, landings3, sum)
 table = dcast(landings3, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
 table2=dcast(landings3, eel_year~eel_cou_code, value.var = "predicted",fun = prod)
@@ -451,7 +454,7 @@ g_reconstructed_landings <- ggplot(landings3) +
 		#ggtitle(title)+ 
 		xlab("Year") + ylab("Landings (tonnes)")+
 		coord_cartesian(expand = FALSE, ylim = c(0, max(landings_year$eel_value)*1.6/1000)) +
-		scale_fill_manual("Country",values=color_countries)+
+		scale_fill_manual("Country",values=color_countries2)+
 		theme_bw()
 
 # percentage of original data
@@ -501,7 +504,7 @@ hty<-unique(filtered_data$eel_hty_code)
 grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=TRUE)
 
 ##table
-fun.agg<-function(X){if(length(X)>0){round(sum(X,na.rm=TRUE)/1000,ifelse(sum(X,na.rm=TRUE)>1000,0,3))}else{sum(c(X,NA))}}
+fun.agg<-function(X){if(length(X)>0){round(sum(X,na.rm=TRUE)/1000,ifelse(sum(X,na.rm=TRUE)>1000,3,3))}else{sum(c(X,NA))}}
 
 table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
 table<-data.frame(table,sum=rowSums(table[,-1],na.rm=T))              
@@ -566,7 +569,7 @@ year<-unique(filtered_data$eel_year)
 country<-unique(filtered_data$eel_cou_code)
 hty<-unique(filtered_data$eel_hty_code)
 grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=TRUE)
-fun.agg<-function(X){if(length(X)>0){round(sum(X)/1000,ifelse(sum(X)>1000,0,3))}else{sum(c(X,NA))}}
+fun.agg<-function(X){if(length(X)>0){round(sum(X)/1000,ifelse(sum(X)>1000,3,3))}else{sum(c(X,NA))}}
 grouped_data$eel_cou_code = as.factor(grouped_data$eel_cou_code)                       
 grouped_data <- predict_missing_values(grouped_data, verbose=FALSE, na.rm=FALSE) 
 table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
@@ -654,7 +657,7 @@ hty<-unique(filtered_data$eel_hty_code)
 grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=TRUE)
 
 ##Table
-fun.agg<-function(X){if(length(X)>0){round(sum(X)/1000,ifelse(sum(X)>1000,0,3))}else{sum(c(X,NA))}}
+fun.agg<-function(X){if(length(X)>0){round(sum(X)/1000,ifelse(sum(X)>1000,3,3))}else{sum(c(X,NA))}}
 
 table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
 table<-data.frame(table,sum=rowSums(table[,-1],na.rm=T))
@@ -716,7 +719,7 @@ hty<-unique(filtered_data$eel_hty_code)
 grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=TRUE)
 
 ##Table
-fun.agg<-function(X){if(length(X)>0){round(sum(X)/1000,ifelse(sum(X)>1000,0,3))}else{sum(c(X,NA))}}
+fun.agg<-function(X){if(length(X)>0){round(sum(X)/1000,ifelse(sum(X)>1000,3,3))}else{sum(c(X,NA))}}
 
 table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
 table<-data.frame(table,sum=rowSums(table[,-1],na.rm=T))
@@ -783,7 +786,7 @@ hty<-unique(filtered_data$eel_hty_code)
 grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=TRUE)
 
 ##Table
-fun.agg<-function(X){if(length(X)>0){round(sum(X)/10^6,ifelse(sum(X)>10^6,0,3))}else{sum(c(X,NA))}}
+fun.agg<-function(X){if(length(X)>0){round(sum(X)/10^6,ifelse(sum(X)>10^6,3,3))}else{sum(c(X,NA))}}
 table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
 table<-data.frame(table,sum=rowSums(table[,-1],na.rm=T))
 
@@ -870,14 +873,14 @@ print(g_releasekg_G)
 
 filtered_data<-filter_data("release",
 		typ = 9,
-		life_stage = c("OG","Y"))%>% dplyr::filter(is.na(eel_missvaluequal))
-#TODO REMOVE THIS NEXT YEAR
+		life_stage = c("Y"))%>% dplyr::filter(is.na(eel_missvaluequal))
+
 filtered_data <- filtered_data %>% dplyr::filter(!(eel_cou_code == 'SE'))
 year<-unique(filtered_data$eel_year)
 country<-unique(filtered_data$eel_cou_code)
 hty<-unique(filtered_data$eel_hty_code)
 grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=TRUE)
-fun.agg<-function(X){if(length(X)>0){round(sum(X)/10^6,ifelse(sum(X)>10^6,0,3))}else{sum(c(X,NA))}}
+fun.agg<-function(X){if(length(X)>0){round(sum(X)/10^6,ifelse(sum(X)>10^6,3,3))}else{sum(c(X,NA))}}
 table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
 table<-data.frame(table,sum=rowSums(table[,-1],na.rm=T))
 
@@ -964,7 +967,7 @@ year<-unique(filtered_data$eel_year)
 country<-unique(filtered_data$eel_cou_code)
 hty<-unique(filtered_data$eel_hty_code)
 grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=TRUE)
-fun.agg<-function(X){if(length(X)>0){round(sum(X)/10^6,ifelse(sum(X)>10^6,0,3))}else{sum(c(X,NA))}}
+fun.agg<-function(X){if(length(X)>0){round(sum(X)/10^6,ifelse(sum(X)>10^6,3,3))}else{sum(c(X,NA))}}
 table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
 table<-data.frame(table,sum=rowSums(table[,-1],na.rm=T))
 
@@ -995,8 +998,8 @@ release3<-grouped_data
 release3$eel_value <- as.numeric(release3$eel_value) / 1000
 release3$eel_cou_code = as.factor(release3$eel_cou_code)
 release3$eel_cou_code<-factor(release3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
-landings3$eel_cou_code <- droplevels(landings3$eel_cou_code) 
-color_countries2 <-	color_countries[names(color_countries)%in%levels(landings3$eel_cou_code)]
+release3$eel_cou_code <- droplevels(release3$eel_cou_code) 
+color_countries2 <-	color_countries[names(color_countries)%in%levels(release3$eel_cou_code)]
 title <- paste("Releases per country,", "stage = S", "and habitat =", paste(hty,collapse="+"))
 
 g_release_S <-  ggplot(release3) + 
@@ -1054,9 +1057,15 @@ year<-unique(filtered_data$eel_year)
 country<-unique(filtered_data$eel_cou_code)
 hty<-unique(filtered_data$eel_hty_code)
 grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=TRUE)
-fun.agg<-function(X){if(length(X)>0){round(sum(X)/10^6,ifelse(sum(X)>10^6,0,3))}else{sum(c(X,NA))}}
+fun.agg<-function(X){
+	if(length(X)>0){
+		round(sum(X)/10^6,2)
+	}else{
+		sum(c(X,NA)
+		)
+	}}
 table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
-table<-data.frame(table,sum=rowSums(table[,-1],na.rm=T))
+
 
 
 #ordering the column accordign to country order
@@ -1144,9 +1153,9 @@ year<-unique(filtered_data$eel_year)
 country<-unique(filtered_data$eel_cou_code)
 hty<-unique(filtered_data$eel_hty_code)
 grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=TRUE)
-fun.agg<-function(X){if(length(X)>0){round(sum(X)/10^6,ifelse(sum(X)>10^6,0,3))}else{sum(c(X,NA))}}
+fun.agg<-function(X){if(length(X)>0){round(sum(X)/10^6,ifelse(sum(X)>10^6,2,2))}else{sum(c(X,NA))}}
 table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
-table<-data.frame(table,sum=rowSums(table[,-1],na.rm=T))
+
 
 
 #ordering the column accordign to country order
@@ -1245,9 +1254,8 @@ grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na
 ##Graph
 release3<-grouped_data
 release3$eel_value <- as.numeric(release3$eel_value) / 10^6
-release3$eel_cou_code = as.factor(release3$eel_cou_code)
 release3$eel_cou_code<-factor(release3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
-relaase3$eel_cou_code <- droplevels(release3$eel_cou_code) 
+release3$eel_cou_code <- droplevels(release3$eel_cou_code) 
 color_countries2 <-	color_countries[names(color_countries)%in%levels(release3$eel_cou_code)]
 title <- paste("releases per country,", "habitat =", paste(hty,collapse="+"), "and", "stage =", paste(lfs,collapse="+"))
 
@@ -1282,18 +1290,372 @@ release3<-grouped_data
 release3$eel_value <- as.numeric(release3$eel_value) / 1000
 release3$eel_cou_code = as.factor(release3$eel_cou_code)
 release3$eel_cou_code<-factor(release3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
+release3$eel_cou_code <- droplevels(release3$eel_cou_code) 
+color_countries2 <-	color_countries[names(color_countries)%in%levels(release3$eel_cou_code)]
 title <- paste("releases per country,", "habitat =", paste(hty,collapse="+"), "and", "stage =", paste(lfs,collapse="+"))
 
 g_releasekg_all <-  ggplot(release3) + 
 		geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
 		#ggtitle(title) + 
     xlab("year") + ylab("Release in tonnes")+
-		scale_fill_manual("Country",values=color_countries)+
+		scale_fill_manual("Country",values=color_countries2)+
 		theme_bw() 
 
 print(g_releasekg_all)
 ```
+## Other landings
 
+\newline
+
+```{r other_landings_Gt,echo=FALSE, warning=FALSE}
+
+##Table other_landings (nb) for all the countries for G # 9 is q_other_landings_n
+
+filtered_data<-filter_data("other_landings",
+		typ = 32,
+		life_stage = c("G"),
+		year=1950:CY)%>% dplyr::filter(is.na(eel_missvaluequal))
+year<-unique(filtered_data$eel_year)
+country<-unique(filtered_data$eel_cou_code)
+hty<-unique(filtered_data$eel_hty_code)
+grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=TRUE)
+
+##Table
+fun.agg<-function(X){if(length(X)>0){round(sum(X)/10^6,ifelse(sum(X)>10^6,3,3))}else{sum(c(X,NA))}}
+table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
+table<-data.frame(table,sum=rowSums(table[,-1],na.rm=T))
+
+
+#ordering the column accordign to country order
+country_to_order = names(table)[-1]
+n_order = order(country_ref$cou_order[match(country_to_order, country_ref$cou_code)])
+n_order <- n_order+1
+n_order <- c(1,n_order)
+table = table[, n_order]
+# options(knitr.kable.NA="") this does not work
+names(table)[1]<-"Year"
+table[is.na(table)]<-''
+tableRelG<-table
+table1<-table[,c(1,2:8)]
+table2<-table[,c(1,9:ncol(table))]
+ka_other_landings_G <- kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =
+				paste("Table 5: other_landings (nb in millions) of glass eels (G and OG)","(",min(year),"-",max(year),")","for",paste(paste(country,collapse=","), ".", sep="")))
+ka_other_landings_G1 <- kable(format(table1,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 5a:  other_landings of glass eel in millions from ", min(year)," to ",max(year),")",",  reported by countries SE Sweden, EE Estonia, LV Latvia, PL Poland, DE Germany, NL Netherlands, BE Belgium(to be continued for other countries in next table).", sep=""))
+ka_other_landings_G2 <- kable(format(table2,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 5b:  other_landings of glass eel in millions from ", min(year)," to ",max(year),")",",  reported by countries: IE Ireland, GB United Kingdom, FR France, ES Spain, IT Italy, GR Greece.", sep=""))
+
+```
+
+\newline
+
+```{r other_landings_Gf,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure 7: Reported other_landingss of glass eel (in millions) per country, Sweden (SE), Estonia (EE), Latvia (LV), Poland (PL), Germany (DE), Netherlands (NL), Belgium (BE), Ireland (IE), United Kingdom (GB), France (FR), Spain (ES), Italy (IT) and Greece (GR).", fig.height=5, fig.width=10}
+
+##Graph
+other_landings3<-grouped_data
+other_landings3$eel_value <- as.numeric(other_landings3$eel_value)/10^6 
+other_landings3$eel_cou_code = as.factor(other_landings3$eel_cou_code)
+other_landings3$eel_cou_code<-factor(other_landings3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
+other_landings3$eel_cou_code <- droplevels(other_landings3$eel_cou_code) 
+color_countries2 <-	color_countries[names(color_countries)%in%levels(other_landings3$eel_cou_code)]
+title <- paste("other_landingss per country,", "stage = G", "and habitat =", paste(hty,collapse="+"))
+
+g_other_landings_G <-  ggplot(other_landings3) + 
+		geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
+		#ggtitle(title) + 
+    	xlab("year") + ylab("other_landings (n) in millions")+
+		scale_fill_manual("Country",values=color_countries2)+
+		theme_bw() 
+
+print(g_other_landings_G)
+
+```
+
+
+```{r other_landingskg_Gf,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure X: Reported other_landingss of glass eel (in tonnes) per country Estonia (EE), Latvia (LV), Poland (PL), Germany (DE), Netherlands (NL), Belgium (BE), Ireland (IE), United Kingdom (GB), France (FR), Spain (ES), Italy (IT) and Greece (GR).", fig.height=5, fig.width=10}
+
+##Table other_landings (nb) for all the countries for G # 9 is q_other_landings_kg
+
+filtered_data<-filter_data("other_landings",
+		typ = 33,
+		life_stage = c("G"),
+		year=1950:CY)%>% dplyr::filter(is.na(eel_missvaluequal))
+year<-unique(filtered_data$eel_year)
+country<-unique(filtered_data$eel_cou_code)
+hty<-unique(filtered_data$eel_hty_code)
+grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=TRUE)
+##Graph
+other_landings3<-grouped_data
+other_landings3$eel_value <- as.numeric(other_landings3$eel_value)/1000 
+other_landings3$eel_cou_code<-factor(other_landings3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
+other_landings3$eel_cou_code <- droplevels(other_landings3$eel_cou_code) 
+color_countries2 <-	color_countries[names(color_countries)%in%levels(other_landings3$eel_cou_code)]
+title <- paste("other_landingss per country,", "stage = G", "and habitat =", paste(hty,collapse="+"))
+
+g_other_landingskg_G <-  ggplot(other_landings3) + 
+		geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
+		#ggtitle(title) + 
+    xlab("year") + ylab("other_landingss in tonnes")+
+		scale_fill_manual("Country",values=color_countries2)+
+		theme_bw() 
+
+print(g_other_landingskg_G)
+```
+
+\newline
+
+```{r other_landings_Yt,echo=FALSE, warning=FALSE}
+
+##Table other_landings (nb) for all the countries for Y
+
+filtered_data<-filter_data("other_landings",
+		typ = 32,
+		life_stage = c("Y"))%>% dplyr::filter(is.na(eel_missvaluequal))
+#TODO REMOVE THIS NEXT YEAR
+filtered_data <- filtered_data %>% dplyr::filter(!(eel_cou_code == 'SE'))
+year<-unique(filtered_data$eel_year)
+country<-unique(filtered_data$eel_cou_code)
+hty<-unique(filtered_data$eel_hty_code)
+grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=TRUE)
+fun.agg<-function(X){if(length(X)>0){round(sum(X)/10^6,ifelse(sum(X)>10^6,3,3))}else{sum(c(X,NA))}}
+table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
+table<-data.frame(table,sum=rowSums(table[,-1],na.rm=T))
+
+
+#ordering the column accordign to country order
+country_to_order = names(table)[-1]
+n_order = order(country_ref$cou_order[match(country_to_order, country_ref$cou_code)])
+n_order <- n_order+1
+n_order <- c(1,n_order)
+table = table[, n_order]
+# options(knitr.kable.NA="") this does not work
+names(table)[1]<-"Year"
+table[is.na(table)]<-''
+tableRelY<-table
+ka_other_landings_Y <- kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 6:  other_landingss for yellow eel from ", min(year)," to ",max(year)," in millions, reported by countries DE Germany, NL Netherlands, IE Ireland, ES Spain, IT Italy.", sep=""))
+
+```
+
+\newline
+
+
+```{r other_landings_Yf,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure 8:Reported other_landingss of yellow eel (in millions; OG and Y) per country, Germany (DE), Netherlands (NL),  Ireland (IE), Spain (ES) and Italy (IT).", fig.height=5, fig.width=10}
+##Graph
+
+other_landings3<-grouped_data
+other_landings3$eel_value <- as.numeric(other_landings3$eel_value) / 10^6
+other_landings3$eel_cou_code = as.factor(other_landings3$eel_cou_code)
+other_landings3$eel_cou_code<-factor(other_landings3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
+other_landings3$eel_cou_code <- droplevels(other_landings3$eel_cou_code) 
+color_countries2 <-	color_countries[names(color_countries)%in%levels(other_landings3$eel_cou_code)]
+title <- paste("other_landingss per country,", "stage = Y", "and habitat =", paste(hty,collapse="+"))
+
+g_other_landings_Y <-  ggplot(other_landings3) + 
+		geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
+		#ggtitle(title) + 
+    xlab("year") + ylab("other_landings (n) in million")+
+		scale_fill_manual("Country",values=color_countries2)+
+		theme_bw() 
+
+print(g_other_landings_Y)
+```
+
+
+```{r other_landingskg_Yf,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure x:Reported other_landingss of yellow eel (OG +Y) (in tonnes) per country: Sweden (SE) Germany (DE), Netherlands (NL),  Ireland (IE), Spain (ES) and Italy (IT).", fig.height=5, fig.width=10}
+
+filtered_data<-filter_data("other_landings",
+		typ = 33,
+		life_stage = c("Y"))%>% dplyr::filter(is.na(eel_missvaluequal))
+year<-unique(filtered_data$eel_year)
+country<-unique(filtered_data$eel_cou_code)
+hty<-unique(filtered_data$eel_hty_code)
+grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=TRUE)
+
+##Graph
+
+other_landings3<-grouped_data
+other_landings3$eel_value <- as.numeric(other_landings3$eel_value) / 1000
+other_landings3$eel_cou_code = as.factor(other_landings3$eel_cou_code)
+other_landings3$eel_cou_code<-factor(other_landings3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
+other_landings3$eel_cou_code <- droplevels(other_landings3$eel_cou_code) 
+color_countries2 <-	color_countries[names(color_countries)%in%levels(other_landings3$eel_cou_code)]
+title <- paste("other_landingss per country,", "stage = Y", "and habitat =", paste(hty,collapse="+"))
+
+g_other_landingskg_Y <-  ggplot(other_landings3) + 
+		geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
+		#ggtitle(title) + 
+    	xlab("year") + ylab("other_landings in tonnes")+
+		scale_fill_manual("Country",values=color_countries2)+
+		theme_bw() 
+
+print(g_other_landingskg_Y)
+```
+
+\newline
+
+```{r other_landings_St,echo=FALSE, warning=FALSE}
+
+##Table other_landings (nb) for all the countries and S
+
+filtered_data<-filter_data("other_landings",
+		typ = 32,
+		life_stage = "S")%>% dplyr::filter(is.na(eel_missvaluequal))
+year<-unique(filtered_data$eel_year)
+country<-unique(filtered_data$eel_cou_code)
+hty<-unique(filtered_data$eel_hty_code)
+grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=TRUE)
+fun.agg<-function(X){if(length(X)>0){round(sum(X)/10^6,ifelse(sum(X)>10^6,3,3))}else{sum(c(X,NA))}}
+table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
+table<-data.frame(table,sum=rowSums(table[,-1],na.rm=T))
+
+
+#ordering the column accordign to country order
+country_to_order = names(table)[-1]
+n_order = order(country_ref$cou_order[match(country_to_order, country_ref$cou_code)])
+n_order <- n_order+1
+n_order <- c(1,n_order)
+table = table[, n_order]
+# options(knitr.kable.NA="") this does not work
+names(table)[1]<-"Year"
+table[is.na(table)]<-''
+tableRelS<-table
+ka_other_landings_S <- kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 7: other_landingss for silver eel from ", min(year)," to ",max(year)," in millions, reported by countries SE Sweden, FI Finland, IE Ireland, Fr France, ES Spain, GR Greece.", sep=""))
+
+```
+
+\newline
+
+
+
+
+```{r other_landings_Sf,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure 9: Reported other_landingss of silver eel (in thousands) per country, Sweden (SE), Finland (FI), Ireland (IE), France (FR), Spain (ES), and Greece (GR).", fig.height=5, fig.width=10}
+
+##Graph
+other_landings3<-grouped_data
+other_landings3$eel_value <- as.numeric(other_landings3$eel_value) / 1000
+other_landings3$eel_cou_code = as.factor(other_landings3$eel_cou_code)
+other_landings3$eel_cou_code<-factor(other_landings3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
+landings3$eel_cou_code <- droplevels(landings3$eel_cou_code) 
+color_countries2 <-	color_countries[names(color_countries)%in%levels(landings3$eel_cou_code)]
+title <- paste("other_landingss per country,", "stage = S", "and habitat =", paste(hty,collapse="+"))
+
+g_other_landings_S <-  ggplot(other_landings3) + 
+		geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
+		#ggtitle(title) + 
+    xlab("year") + ylab("1000 * other_landings (n)")+
+		scale_fill_manual("Country",values=color_countries2)+
+		theme_bw() 
+
+print(g_other_landings_S)
+```
+
+
+
+```{r other_landingskg_Sf,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure x: Reported other_landingss of silver eel (in tonnes) per country, Sweden (SE), Finland (FI), Ireland (IE), France (FR), Spain (ES), and Greece (GR).", fig.height=5, fig.width=10}
+
+filtered_data<-filter_data("other_landings",
+		typ = 33,
+		life_stage = "S")%>% dplyr::filter(is.na(eel_missvaluequal))
+year<-unique(filtered_data$eel_year)
+country<-unique(filtered_data$eel_cou_code)
+hty<-unique(filtered_data$eel_hty_code)
+grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=TRUE)
+
+##Graph
+other_landings3<-grouped_data
+other_landings3$eel_value <- as.numeric(other_landings3$eel_value) / 1000
+other_landings3$eel_cou_code = as.factor(other_landings3$eel_cou_code)
+other_landings3$eel_cou_code<-factor(other_landings3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
+other_landings3$eel_cou_code <- droplevels(other_landings3$eel_cou_code) 
+color_countries2 <-	color_countries[names(color_countries)%in%levels(other_landings3$eel_cou_code)]
+title <- paste("other_landingss per country,", "stage = S", "and habitat =", paste(hty,collapse="+"))
+
+g_other_landingskg_S <-  ggplot(other_landings3) + 
+		geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
+		#ggtitle(title) + 
+    xlab("year") + ylab("other_landings in tonnes")+
+		scale_fill_manual("Country",values=color_countries2)+
+		theme_bw() 
+
+print(g_other_landingskg_S)
+```
+
+\newline
+
+
+
+
+
+
+\newline
+
+
+```{r other_landings_all_stages,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure 12: Reported other_landingss of all stages (Y, YS,  S) (in millions) per country, Sweden (SE), Finland (FI), Estonia (EE), Latvia (LV), Lithuania (LT), Poland (PL), Germany (DE), Denmark (DK), Netherlands (NL), Belgium (BE), Ireland (IE), United Kingdom (GB), France (FR), Spain (ES), Italy (IT) and Greece (GR)..", fig.height=5, fig.width=10}
+
+##Table other_landings of all stages for all the countries
+
+filtered_data<-filter_data("other_landings",
+		typ = 33,
+		life_stage=c("G","Y","YS","S"),
+		year_range = 1950:max(year))%>% dplyr::filter(is.na(eel_missvaluequal))
+#TODO REMOVE THIS NEXT YEAR
+filtered_data <- filtered_data %>% dplyr::filter(!(eel_cou_code == 'SE' & eel_lfs_code=='Y'))
+year<-unique(filtered_data$eel_year)
+country<-unique(filtered_data$eel_cou_code)
+hty<-unique(filtered_data$eel_hty_code)
+lfs<-unique(filtered_data$eel_lfs_code)
+grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=TRUE)
+
+##Graph
+other_landings3<-grouped_data
+other_landings3$eel_value <- as.numeric(other_landings3$eel_value) / 10^6
+other_landings3$eel_cou_code<-factor(other_landings3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
+other_landings3$eel_cou_code <- droplevels(other_landings3$eel_cou_code) 
+color_countries2 <-	color_countries[names(color_countries)%in%levels(other_landings3$eel_cou_code)]
+title <- paste("other_landingss per country,", "habitat =", paste(hty,collapse="+"), "and", "stage =", paste(lfs,collapse="+"))
+
+g_other_landings_all <-  ggplot(other_landings3) + 
+		geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
+		#ggtitle(title) + 
+    xlab("year") + ylab("other_landings (n) in millions")+
+		scale_fill_manual("Country",values=color_countries2)+
+		theme_bw() 
+
+print(g_other_landings_all)
+```
+
+
+```{r other_landingskg_all_stages,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure 12: Reported other_landings of all stages (Y, YS, S) (in tonnes) per country, Sweden (SE), Finland (FI), Estonia (EE), Latvia (LV), Lithuania (LT), Poland (PL), Germany (DE), Denmark (DK), Netherlands (NL), Belgium (BE), Ireland (IE), United Kingdom (GB), France (FR), Spain (ES), Italy (IT) and Greece (GR)..", fig.height=5, fig.width=10}
+
+##Table other_landings of all stages for all the countries
+
+filtered_data<-filter_data("other_landings",
+		typ = 32,
+		life_stage=c("G","Y","QG","OG","YS","S"),
+		year_range = 1950:max(year))%>% dplyr::filter(is.na(eel_missvaluequal))
+#TODO REMOVE THIS NEXT YEAR
+year<-unique(filtered_data$eel_year)
+country<-unique(filtered_data$eel_cou_code)
+hty<-unique(filtered_data$eel_hty_code)
+lfs<-unique(filtered_data$eel_lfs_code)
+grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=TRUE)
+
+##Graph
+other_landings3<-grouped_data
+other_landings3$eel_value <- as.numeric(other_landings3$eel_value) / 1000
+other_landings3$eel_cou_code = as.factor(other_landings3$eel_cou_code)
+other_landings3$eel_cou_code<-factor(other_landings3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
+other_landings3$eel_cou_code <- droplevels(other_landings3$eel_cou_code) 
+color_countries2 <-	color_countries[names(color_countries)%in%levels(other_landings3$eel_cou_code)]
+title <- paste("other_landingss per country,", "habitat =", paste(hty,collapse="+"), "and", "stage =", paste(lfs,collapse="+"))
+
+g_other_landingskg_all <-  ggplot(other_landings3) + 
+		geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
+		#ggtitle(title) + 
+    xlab("year") + ylab("other_landings in tonnes")+
+		scale_fill_manual("Country",values=color_countries2)+
+		theme_bw() 
+
+print(g_other_landingskg_all)
+```
 ## Aquaculture
 
 
@@ -1312,7 +1674,7 @@ hty<-unique(filtered_data$eel_hty_code)
 grouped_data <-group_data(filtered_data, geo="country", habitat=FALSE, lfs=FALSE, na.rm=TRUE)
 
 ##Table
-fun.agg<-function(X){if(length(X)>0){round(sum(X)/1000,ifelse(sum(X)>1000,0,3))}else{sum(c(X,NA))}}
+fun.agg<-function(X){if(length(X)>0){round(sum(X)/1000,ifelse(sum(X)>1000,2,2))}else{sum(c(X,NA))}}
 
 table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
 table<-data.frame(table,sum=rowSums(table[,-1],na.rm=T))
@@ -1381,6 +1743,10 @@ print(ka_release_QG)
 print(ka_release_OG)
 print(ka_aqua1)
 print(ka_aqua2)
+print(ka_other_landings_G1)
+print(ka_other_landings_G2)
+print(ka_other_landings_Y)
+print(ka_other_landings_S)
 
 ```
 

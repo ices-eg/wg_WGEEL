@@ -10,5 +10,7 @@
 wgeel_project.Rproj
 wg_WGEEL.Rproj
 /database_dump/
+.RData
+workspace
+Git-2.33.0.2-64-bit.exe
 /connection
-/db_backup/

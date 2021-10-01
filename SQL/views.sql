@@ -161,6 +161,50 @@ WHERE eel_typ_id in (8,9,10)
 
 
 -------------------------------------
+-- View for other landings
+-- This view refer to other landing in kg or number 
+---------------------------------------
+
+DROP VIEW IF EXISTS datawg.other_landings CASCADE;
+CREATE OR REPLACE VIEW datawg.other_landings AS 
+select  
+         eel_id,         
+         eel_typ_id,
+	 tr_typeseries_typ.typ_name, 
+	 tr_typeseries_typ.typ_uni_code,
+         eel_year ,
+         eel_value  ,
+         eel_missvaluequal,
+         eel_emu_nameshort,
+         eel_cou_code,
+         tr_country_cou.cou_country, 
+	 tr_country_cou.cou_order, 
+	 tr_country_cou.cou_iso3code, 
+         eel_lfs_code,
+	 tr_lifestage_lfs.lfs_name, 
+         eel_hty_code,
+         tr_habitattype_hty.hty_description, 
+         eel_area_division,
+         eel_qal_id,
+         tr_quality_qal.qal_level, 
+	 tr_quality_qal.qal_text, 
+         eel_qal_comment,
+         eel_comment,
+         eel_datasource
+FROM 
+  datawg.t_eelstock_eel 
+LEFT JOIN ref.tr_lifestage_lfs ON t_eelstock_eel.eel_lfs_code = tr_lifestage_lfs.lfs_code 
+LEFT JOIN ref.tr_quality_qal ON t_eelstock_eel.eel_qal_id = tr_quality_qal.qal_id 
+LEFT JOIN ref.tr_country_cou ON t_eelstock_eel.eel_cou_code = tr_country_cou.cou_code 
+LEFT JOIN ref.tr_typeseries_typ ON t_eelstock_eel.eel_typ_id = tr_typeseries_typ.typ_id 
+LEFT JOIN ref.tr_habitattype_hty ON t_eelstock_eel.eel_hty_code = tr_habitattype_hty.hty_code
+LEFT JOIN ref.tr_emu_emu ON  (emu_nameshort,emu_cou_code) = (eel_emu_nameshort,eel_cou_code)
+WHERE eel_typ_id in (32,33)
+  --AND (t_eelstock_eel.eel_qal_id in (1,2,4))
+ ;
+GRANT ALL ON TABLE datawg.other_landings TO wgeel;
+
+-------------------------------------
 -- View for aquaculture
 ---------------------------------------
 
