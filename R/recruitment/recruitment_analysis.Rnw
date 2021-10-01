@@ -2338,13 +2338,22 @@ run_exclude_before <- function(the_year){
 }
 res <- mapply(run_exclude_before, the_year=c(2010:2020), SIMPLIFY=FALSE)
 require(tidyr)
+
 delta <- lapply(res,function(X)X[["delta"]])
 delta <- as.data.frame(delta)
 colnames(delta)<-2010:2020
 delta$year <- dat_ge$year
 delta$area <- dat_ge$area
 res_delta <-delta %>% pivot_longer(cols=contains("2"), names_to="year_included",values_to="delta")
-ggplot(res_delta)+geom_line(aes(x=year,y=delta,color="year_included"))
+ggplot(res_delta)+geom_line(aes(x=year,y=delta,color=year_included))
+
+pred <- lapply(res,function(X)X[["dat_ge"]][["p_std_1960_1979"]])
+pred <- as.data.frame(pred)
+colnames(pred)<-2010:2020
+pred$year <- dat_ge$year
+pred$area <- dat_ge$area
+res_pred <-pred %>% pivot_longer(cols=contains("2"), names_to="year_included",values_to="pred")
+ggplot(res_delta)+geom_line(aes(x=year,y=delta,color=year_included))
 @
 
 
