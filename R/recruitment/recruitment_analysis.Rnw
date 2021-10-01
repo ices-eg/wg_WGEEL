@@ -933,6 +933,22 @@ X11(400,250)
 print(figure2)
 save_figure(figname="figure2",figure2,800,600)
 
+ddd <- as.data.frame(table(year=wger$year,lifestage=wger$lifestage, area=wger$area2))
+
+figure2.1 <- ggplot(ddd, aes(x=as.numeric(as.character(year)), y=Freq, group=lifestage, col=lifestage)) + geom_point() + geom_line(lwd=2) + ylab('number of series') +xlab('year')+
+		facet_wrap(~factor(ddd$area), ncol=2) +
+		theme(text=element_text(size=10))+
+		scale_x_continuous(limits=c(1900,CY))+
+		theme_bw()+
+		theme(text = element_text(size=25),
+				axis.text.x = element_text(angle=0, hjust=1))+
+		# theme(legend.position = c(0.15,0.88), legend.text = element_text( size = 15),axis.text.x = element_text(angle = 45, size=16))
+		theme(legend.text = element_text( size = 15),axis.text.x = element_text(angle = 45, size=16))
+
+X11(width=1000,height=500)
+
+print(figure2.1)
+save_figure(figname="series_no_area",figure2.1,1000,500)
 
 
 @
@@ -2300,6 +2316,16 @@ glass_eel_yoy$site <- as.factor(glass_eel_yoy$site)
 # we select all series that are already included (removed -1)
 
 load(file=str_c(shinywd,"inclusion.Rdata"))
+# todo redo this too tired now
+inner_join(glass_eel_yoy, 
+				inclusion %>% filter(sgl_year!=-1), 
+				by=(c("ser_id"="sgl_ser_id"))) %>%
+		dplyr::select(sgl_year,area,site)%>%
+		distinct() %>%
+		mutate(number=1)%>%
+		dplyr::select(-site)%>% 
+		group_by(sgl_year,area)%>%
+		mutate(number=sum(number))
 #unique(glass_eel_yoy$ser_id)[!unique(glass_eel_yoy$ser_id)%in%inclusion$sgl_ser_id  ]
 run_exclude_before <- function(the_year){
 	load(file=str_c(datawd,"dat_ge.Rdata"))
@@ -2345,7 +2371,12 @@ colnames(delta)<-2010:2020
 delta$year <- dat_ge$year
 delta$area <- dat_ge$area
 res_delta <-delta %>% pivot_longer(cols=contains("2"), names_to="year_included",values_to="delta")
-ggplot(res_delta)+geom_line(aes(x=year,y=delta,color=year_included))
+
+
+g<- ggplot(res_delta)+geom_line(aes(x=year,y=delta,color=year_included))
+figure_inclusion_1<- g
+save_figure("figure_inclusion_1",figure_inclusion_1,600,480)
+
 
 pred <- lapply(res,function(X)X[["dat_ge"]]$"p_std_1960_1979")
 pred <- as.data.frame(pred)
@@ -2354,14 +2385,15 @@ pred$year <- dat_ge$year
 pred$area <- dat_ge$area
 res_pred <-pred %>% pivot_longer(cols=contains("2"), names_to="year_included",values_to="pred")
 matplot(pred,ylim=c(0,0.2))
-ggplot(res_pred)+geom_line(aes(x=year,y=pred,color=year_included))+ 
+g<-ggplot(res_pred)+geom_line(aes(x=year,y=pred,color=year_included))+ 
 		facet_wrap( ~area) +
 		scale_y_log10(name=expression(frac(p,bar(p)[1960-1979])~' log scale'),
 				#limits=c(0.005,10),
 				breaks=c(0.01,0.1,1,10),
 				labels=c("1%","10%","100%","1000%"))+
 		theme_bw()
-
+figure_inclusion_2 <- g
+save_figure("figure_inclusion_2",figure_inclusion_2,600,480)
 @
 
 
