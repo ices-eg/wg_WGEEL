@@ -1242,3 +1242,47 @@ UPDATE datawg.t_series_ser
 	SET ser_area_division='27.7.f'
 	WHERE ser_id=8;
 
+
+-- extract data from 2014
+
+SELECT 
+		das_id,
+		das_value,       
+		das_year,
+		das_comment,
+		/* 
+		-- below those are data on effort, not used yet
+		
+		das_effort, 
+		ser_effort_uni_code,       
+		das_last_update,
+		*/
+		/* 
+		-- this is the id on quality, used from 2018
+		-- to remove the data with problems on quality from the series
+		-- see WKEEKDATA (2018)
+		das_qal_id,
+		*/ 
+		ser_id,            
+		cou_order,
+		ser_nameshort,
+		ser_area_division,
+		ser_qal_id,
+		ser_y,
+		/* 
+		-- this is the id on quality at the level of individual lines of data
+		-- checks are done later to ensure provide a summary of the number of 0 (missing data),
+		-- 3 data discarded, 4 used but with doubts....
+		*/ 
+		das_qal_id,
+		das_last_update,
+		f_subarea,
+		lfs_code,          
+		lfs_name
+		from datawg.t_dataseries_das 
+		join datawg.t_series_ser on das_ser_id=ser_id
+		left join ref.tr_lifestage_lfs on ser_lfs_code=lfs_code
+		left join ref.tr_faoareas on ser_area_division=f_division
+		left join ref.tr_country_cou on  cou_code=ser_cou_code
+		where ser_typ_id=1
+		AND das_year= 2014
