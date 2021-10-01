@@ -1369,7 +1369,7 @@ print(g_other_landings_G)
 ##Table other_landings (nb) for all the countries for G # 9 is q_other_landings_kg
 
 filtered_data<-filter_data("other_landings",
-		typ = 8,
+		typ = 33,
 		life_stage = c("G"),
 		year=1950:CY)%>% dplyr::filter(is.na(eel_missvaluequal))
 year<-unique(filtered_data$eel_year)
