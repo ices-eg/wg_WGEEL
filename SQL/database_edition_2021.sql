@@ -1073,7 +1073,7 @@ INSERT INTO datawg.t_seriesglm_sgl SELECT ser_id FROM datawg.t_series_ser WHERE 
 
 
 SELECT * FROM datawg.t_seriesglm_sgl
-
+ALTER TABLE datawg.t_seriesglm_sgl OWNER TO wgeel;
 
 UPDATE datawg.t_seriesglm_sgl SET sgl_year=2021 WHERE sgl_ser_id IN (
 SELECT ser_id FROM datawg.t_series_ser WHERE ser_nameshort IN ('LiffGY','BrokGY','StraGY','BeeGY','BeeY','MillY','MertY'));--7
@@ -1187,4 +1187,58 @@ UPDATE datawg.t_eelstock_eel SET (eel_qal_id, eel_qal_comment)= (t_eelstock_eel.
 COALESCE(t_eelstock_eel.eel_qal_comment,'')||'There is no fishery authorised for silver, this has been replaced with yellow in the database.')
 FROM remove_eel_not_fished_as_silver
 WHERE t_eelstock_eel.eel_id= remove_eel_not_fished_as_silver.eel_id;--10
+
+-- Missing areas FOR UK
+
+UPDATE datawg.t_series_ser
+	SET ser_area_division='27.4.c'
+	WHERE ser_id=184;
+UPDATE datawg.t_series_ser
+	SET ser_area_division='27.4.c'
+	WHERE ser_id=317;
+UPDATE datawg.t_series_ser
+	SET ser_area_division='27.4.c'
+	WHERE ser_id=318;
+UPDATE datawg.t_series_ser
+	SET ser_area_division='27.4.c'
+	WHERE ser_id=185;
+UPDATE datawg.t_series_ser
+	SET ser_area_division='27.4.c'
+	WHERE ser_id=187;
+UPDATE datawg.t_series_ser
+	SET ser_area_division='27.4.c'
+	WHERE ser_id=186;
+UPDATE datawg.t_series_ser
+	SET ser_area_division='27.4.c'
+	WHERE ser_id=182;
+UPDATE datawg.t_series_ser
+	SET ser_area_division='27.4.c'
+	WHERE ser_id=183;
+UPDATE datawg.t_series_ser
+	SET ser_area_division='27.4.c'
+	WHERE ser_id=377;
+UPDATE datawg.t_series_ser
+	SET ser_area_division='27.7.g'
+	WHERE ser_id=188;
+UPDATE datawg.t_series_ser
+	SET ser_area_division='27.4.c'
+	WHERE ser_id=324;
+UPDATE datawg.t_series_ser
+	SET ser_area_division='27.4.c'
+	WHERE ser_id=321;
+UPDATE datawg.t_series_ser
+	SET ser_area_division='27.4.c'
+	WHERE ser_id=323;
+UPDATE datawg.t_series_ser
+	SET ser_area_division='27.4.c'
+	WHERE ser_id=319;
+UPDATE datawg.t_series_ser
+	SET ser_area_division='27.4.c'
+	WHERE ser_id=322;
+UPDATE datawg.t_series_ser
+	SET ser_area_division='27.7.f'
+	WHERE ser_id=7;
+UPDATE datawg.t_series_ser
+	SET ser_area_division='27.7.f'
+	WHERE ser_id=8;
 

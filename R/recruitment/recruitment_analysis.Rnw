@@ -31,8 +31,9 @@ CY <- 2021 # current year ==> dont forget to update the graphics path below
 # the option below can be changed from geomean to mean to change calculations
 # it will change the average in model of glass eel graph and prediction
 #----------------------------------------------------------
-opt_calculation="geomean" # "geomean" or "mean"
-opt_std="all" #"1979-1994" or "2000-2009" or "all"
+opt_calculation <- "geomean" # "geomean" or "mean"
+opt_std <- "all" #"1979-1994" or "2000-2009" or "all"
+
 options(width=90) # this sets the width of the output
 #--------------------------------
 # packages used by this script
@@ -105,7 +106,7 @@ dir.create(datawd, showWarnings = FALSE)
 dir.create(imgwd, showWarnings = FALSE)
 dir.create(tabwd, showWarnings = FALSE)
 
-	
+
 # some of the functions used later in that script :
 source('utility_functions.R')
 graphics.off() # close all graphics devices
@@ -273,9 +274,14 @@ wger_init <- chnames(wger_init,
 
 
 query <- paste0("SELECT * FROM datawg.t_series_ser join  datawg.t_dataseries_das ON das_ser_id = ser_id
- WHERE das_year in(", paste(CY,CY-1,sep=",",collapse=","),") AND das_qal_id IN (0,3,4) and ser_typ_id=1;")
+				WHERE das_year in(", paste(CY,CY-1,sep=",",collapse=","),") AND das_qal_id IN (0,3,4) and ser_typ_id=1;")
 last_years_with_problem <- sqldf(query)
 
+##########################
+# When were the series included -------------------------------
+##########################
+query='SELECT * FROM datawg.t_seriesglm_sgl'
+inclusion <- sqldf(query)
 ############################################################################
 # Rebuilding areas used by wgeel (North Sea, Elswhere Europe) from area_divisions
 # See Ices (2008) for the reason why we need to do that
@@ -289,26 +295,37 @@ wger_init[,"area"] <- NA
 # below these are area used in some of the scripts see wgeel 2008 and Willem's Analysis 
 # but currently wgeel only uses two areas so the following script is kept for memory
 # but mostly useless
-wger_init$area[wger_init$f_subarea%in%'27.4'] <- "North Sea"
-wger_init$area[wger_init$f_subarea%in%'27.3'] <- "Baltic"
-wger_init$area[wger_init$f_subarea%in%c('27.6','27.7','27.8','27.9')] <- "Atlantic"
-wger_init$area[wger_init$f_subarea%in%c('37.1','37.2','37.3')] <- "Mediterranean Sea"
-wger_init[wger_init$area%in%c("Atlantic","Mediterranean Sea"),"area"] <- "Elsewhere Europe"
+wger_init$area2[wger_init$f_subarea%in%'27.4'] <- "North Sea"
+wger_init$area2[wger_init$f_subarea%in%'27.3'] <- "Baltic"
+wger_init$area2[wger_init$f_subarea%in%c('27.6','27.7','27.8','27.9')] <- "Atlantic"
+wger_init$area2[wger_init$f_subarea%in%c('37.1','37.2','37.3')] <- "Mediterranean Sea"
+wger_init[wger_init$area2%in%c("Atlantic","Mediterranean Sea"),"area"] <- "Elsewhere Europe"
 # We consider that the series of glass eel recruitment in the Baltic are influenced
 # similarly in the Baltic and North Sea. This has no effect on Baltic data
-wger_init[wger_init$area%in%c("Baltic"),"area"] <- "North Sea"
+wger_init[wger_init$area2%in%c("Baltic","North Sea"),"area"] <- "North Sea"
 
 #check if all series have been assign to an area
-if(sum(is.na(wger_init$area))>0) stop("At least one series has not been affected to an area")
-
+if (sum(is.na(wger_init$area))>0) {
+	
+	cat("sites with qal_id 1 and no ref")
+	wger_init %>% dplyr::filter(is.na(area)&ser_qal_id==1) %>% dplyr::select(site) %>% distinct()
+	cat("sites with qal_id 0 and no ref")
+	wger_init %>% dplyr::filter(is.na(area)&ser_qal_id!=1) %>% dplyr::select(site) %>% distinct()
+	stop("At least one series has not been affected to an area, stop this script NOW and check !!!")
+}
 wger_init$area <- as.factor(wger_init$area)
 # We will also need this for summary tables per recruitment site, here we go straight to 
 # the result
 R_stations[,"area"] <- NA
 R_stations$area[R_stations$f_subarea%in%c('27.4','27.3')] <- "North Sea"
+R_stations$area[R_stations$f_subarea%in%c('27.6','27.7','27.8','27.9','37.1','37.2','37.3')] <- "Elsewhere Europe"
+#REMOVE THIS !!!!!!!!!!!
+#R_stations$area[is.na(R_stations$area)]<-"Elsewhere Europe"
+#wger_init$area[is.na(wger_init$area)]<-"Elsewhere Europe"
+
+
 stopifnot(all(!is.na(R_stations$f_subarea)))
-# the rest (currently NA) are Elwhere Europe
-R_stations$area[is.na(R_stations$area)] <- "Elsewhere Europe"
+
 # Check that there was no error in the query (while joining foreign table)
 stopifnot(all(!duplicated(wger_init$id)))
 # creates some variables
@@ -327,24 +344,26 @@ save(wger_init,file=str_c(datawd,"wger_init.Rdata"))
 save(statseries,file=str_c(datawd,"statseries.Rdata"))
 save(R_stations,file=str_c(datawd,"R_stations.Rdata"))
 save(last_years_with_problem,file=str_c(datawd,"last_years_with_problem.Rdata"))
-
+write.table(R_stations, sep=";",file=str_c(datawd,"R_stations.csv"))
 
 
 save(wger_init,file=str_c(shinywd,"wger_init.Rdata"))
 save(statseries,file=str_c(shinywd,"statseries.Rdata"))
 save(R_stations,file=str_c(shinywd,"R_stations.Rdata"))
-write.table(R_stations, sep=";",file=str_c(datawd,"R_stations.csv"))
+save(inclusion, file=str_c(shinywd,"inclusion.Rdata"))
+
 @
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %************************************************************************************
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 << load_rdata, echo=FALSE, fig=FALSE, eval=TRUE, results=hide>>=
 # In this rchunk we load the data even if there is no connection to the database
-if (year_inclusion)
 load(file=str_c(datawd,"wger_init.Rdata"))
 load(file=str_c(datawd,"statseries.Rdata"))
 load(file=str_c(datawd,"R_stations.Rdata"))
 load(file=str_c(datawd,"last_years_with_problem.Rdata"))
+stopifnot(all(!is.na(R_stations$area)))
+if(sum(is.na(wger_init$area))>0) stop("At least one series has not been affected to an area")
 @
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 				SERIES SELECTION AND STATISTICS ABOUT DATA ENTRY 
@@ -813,11 +832,11 @@ series_prob$`\\scshape{Comment}`<-iconv(series_prob$`\\scshape{Comment}`,'UTF-8'
 xseries_prob <- xtable(x = series_prob[1:15,],
 		label = "table_series_prob",
 		caption = str_c("Data in " ,CY, " and ", CY-1, "having problems causing the data in the specific year to be excluded from the analysis. Codes for stages are G = glass eel, GY = glass eel + yellow eel, Y = yellow eel, Division = FAO marine division. Kept: 0 = missing, 1 = good quality,
-		2 = wgeel has modified the data, 3 = not used due to poor quality, 4 =	data is used, but there are warnings on its quality"),
+						2 = wgeel has modified the data, 3 = not used due to poor quality, 4 =	data is used, but there are warnings on its quality"),
 		align=c("p{0cm}","p{1.5cm}","p{1.5cm}","p{1.5cm}","p{1cm}","p{1cm}","p{1cm}","p{8cm}")
-		)
+)
 print(xseries_prob,
-    file = str_c(	tabwd,"/table_series_prob.tex"),
+		file = str_c(	tabwd,"/table_series_prob.tex"),
 		table.placement = "htbp",
 		caption.placement = "top",
 		sanitize.colnames.function=function(x){x}, # otherwise \\ are escaped
@@ -826,21 +845,21 @@ print(xseries_prob,
 		include.rownames=FALSE
 )
 if (nrow(series_prob)>15){
-xseries_prob1 <- xtable(x = series_prob[15:30,],
-		label = "table_series_prob1",
-		caption = str_c("Table \\ref{table_series_prob} continued. Data in " ,CY, " and ", CY-1, "having problems causing the data in the specific year to be excluded from the analysis. Codes for stages are G = glass eel, GY = glass eel + yellow eel, Y = yellow eel, Division = FAO marine division. Kept: 0 = missing, 1 = good quality,
-						2 = wgeel has modified the data, 3 = not used due to poor quality, 4 =	data is used, but there are warnings on its quality"),
-		align=c("p{0cm}","p{1.5cm}","p{1.5cm}","p{1.5cm}","p{1cm}","p{1cm}","p{1cm}","p{8cm}")
-)
-print(xseries_prob1,
-		file = str_c(	tabwd,"/table_series_prob1.tex"),
-		table.placement = "htbp",
-		caption.placement = "top",
-		sanitize.colnames.function=function(x){x}, # otherwise \\ are escaped
-		NA.string = ".",
-		#tabular.environment="longtable",
-		include.rownames=FALSE
-)
+	xseries_prob1 <- xtable(x = series_prob[15:30,],
+			label = "table_series_prob1",
+			caption = str_c("Table \\ref{table_series_prob} continued. Data in " ,CY, " and ", CY-1, "having problems causing the data in the specific year to be excluded from the analysis. Codes for stages are G = glass eel, GY = glass eel + yellow eel, Y = yellow eel, Division = FAO marine division. Kept: 0 = missing, 1 = good quality,
+							2 = wgeel has modified the data, 3 = not used due to poor quality, 4 =	data is used, but there are warnings on its quality"),
+			align=c("p{0cm}","p{1.5cm}","p{1.5cm}","p{1.5cm}","p{1cm}","p{1cm}","p{1cm}","p{8cm}")
+	)
+	print(xseries_prob1,
+			file = str_c(	tabwd,"/table_series_prob1.tex"),
+			table.placement = "htbp",
+			caption.placement = "top",
+			sanitize.colnames.function=function(x){x}, # otherwise \\ are escaped
+			NA.string = ".",
+			#tabular.environment="longtable",
+			include.rownames=FALSE
+	)
 }
 
 if (nrow(series_prob)>30){
@@ -861,6 +880,17 @@ if (nrow(series_prob)>30){
 	)
 }
 
+# when have the series been more than 10 years ?
+#res <- bind_rows(glass_eel_yoy,older) %>% arrange(site, year) %>% 
+#		mutate(count=1) %>% 
+#		group_by(site) %>% 
+#		mutate(n=cumsum(count)) %>%
+#		#filter(site=='BrokGY')
+#		filter(n==10)%>%
+#		dplyr::select(site, year)
+
+
+
 ################################################################
 # some additional stats for the report
 #################################################################
@@ -880,6 +910,9 @@ vv$yearmaxyellow <- yearmaxyellow
 vv$nbmaxyellow <- nbmaxyellow
 vv$nbcurrentyellow <- n_y_lfs$"yellow"[n_y_lfs$year==CY]
 
+
+
+
 @
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %************************************************************************************
@@ -889,18 +922,18 @@ vv$nbcurrentyellow <- n_y_lfs$"yellow"[n_y_lfs$year==CY]
 dd <- as.data.frame(table(year=wger$year,lifestage=wger$lifestage))
 
 figure2 <- ggplot(dd, aes(x=as.numeric(as.character(year)), y=Freq, group=lifestage, col=lifestage)) + geom_point() + geom_line(lwd=2) + ylab('number of series') +xlab('year')+
-  theme(text=element_text(size=12))+
-  	scale_x_continuous(limits=c(1900,CY))+
+		theme(text=element_text(size=12))+
+		scale_x_continuous(limits=c(1900,CY))+
 		theme_bw()+
-  theme(text = element_text(size=30),
-        axis.text.x = element_text(angle=0, hjust=1))+
-   theme(legend.position = c(0.25,0.75), legend.text = element_text( size = 35))
+		theme(text = element_text(size=30),
+				axis.text.x = element_text(angle=0, hjust=1))+
+		theme(legend.position = c(0.25,0.75), legend.text = element_text( size = 35))
 X11(400,250)
 
 print(figure2)
 save_figure(figname="figure2",figure2,800,600)
 
-		
+
 
 @
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -965,7 +998,7 @@ figure1 <- ggmap(my_map)+
 				shape = 24,
 				stroke =1,
 				aes(x=X,y=Y)) +
-	
+		
 		scale_color_manual("Life stage",values=c("white","grey","yellow")) +
 		scale_shape_manual("Life stage", values=c(19,19,17)) + xlab("") + ylab("") +
 		scale_fill_manual(NULL,values=c("#30ff8a","#33b1c4","#1a81db")) +
@@ -985,7 +1018,7 @@ figure1 <- ggmap(my_map)+
 				legend.box.margin = margin(1, 1, 1, 1),
 				legend.margin = margin(1, 1, 1, 1),
 				legend.key = element_rect(colour = "transparent", fill = "transparent")
-				
+		
 		)
 print(figure1)
 
@@ -1018,10 +1051,10 @@ tab1 <- rbind(first_line,tab1)
 
 
 openxlsx::write.xlsx(x=list("recruitment_series"=tab1,
-					"series_description"=statseries),file=str_c(datawd,"table_rec", CY, ".xlsx"))
+				"series_description"=statseries),file=str_c(datawd,"table_rec", CY, ".xlsx"))
 
 openxlsx::write.xlsx(x=list("wger_init"=wger_init,
-					"older"=older, "wger"=wger),file=str_c(datawd,"table_long", CY, ".xlsx"))
+				"older"=older, "wger"=wger),file=str_c(datawd,"table_long", CY, ".xlsx"))
 
 @
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1637,15 +1670,16 @@ dat_ge$p=predict(model_ge_area,newdata=dat_ge)
 dat_ge$se=predict(model_ge_area,newdata=dat_ge,se.fit=TRUE)[["se.fit"]]
 
 
-#in the logscale we removed the arithmetic mean to standardise prediction relatively to
-#1960-1980
-mean_1960_1979=aggregate(dat_ge[dat_ge$year<1980,"p"],list(dat_ge[dat_ge$year<1980,"area"]),mean)
-names(mean_1960_1979)=c("area","mean")
 
-dat_ge=merge(dat_ge,mean_1960_1979,by="area")
-dat_ge$p_std_1960_1979=exp(dat_ge$p-dat_ge$mean)
-dat_ge$p_std_1960_1979_min=exp(dat_ge$p-dat_ge$mean-1.96*dat_ge$se)
-dat_ge$p_std_1960_1979_max=exp(dat_ge$p-dat_ge$mean+1.96*dat_ge$se)
+mean_1960_1979 <- aggregate(dat_ge[dat_ge$year<1980,"p"],list(dat_ge[dat_ge$year<1980,"area"]),mean)
+names(mean_1960_1979) <- c("area","mean")	
+
+
+
+dat_ge <- merge(dat_ge,mean_1960_1979,by="area")
+dat_ge$p_std_1960_1979 <- exp(dat_ge$p-dat_ge$mean)
+dat_ge$p_std_1960_1979_min <- exp(dat_ge$p-dat_ge$mean-1.96*dat_ge$se)
+dat_ge$p_std_1960_1979_max <- exp(dat_ge$p-dat_ge$mean+1.96*dat_ge$se)
 
 
 upperlimit  <- 5
@@ -2247,8 +2281,8 @@ openxlsx::write.xlsx(x=list("Glass eel"=data.frame(
 						"Y_minCI_percent"=100*dat_ye$yellow_eel_min,
 						"Y_percent"=100*dat_ye$value_std_1960_1979,
 						"Y_maxCI_percent"=100*dat_ye$yellow_eel_max)),
-				file=str_c(datawd,"glm_results_glass_and_yellow.xlsx"),
-				row.names=FALSE)
+		file=str_c(datawd,"glm_results_glass_and_yellow.xlsx"),
+		row.names=FALSE)
 
 
 # saving yellow_eel_pred for shiny ---------------------------------------------------------------------
@@ -2260,6 +2294,78 @@ save(yellow_eel_pred,file=paste0(shinywd,"yellow_eel_pred.Rdata"))
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %************************************************************************************
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+<< test_period, echo=FALSE, eval=FALSE, results=hide >>=
+
+glass_eel_yoy$site <- as.factor(glass_eel_yoy$site)
+# we select all series that are already included (removed -1)
+
+load(file=str_c(shinywd,"inclusion.Rdata"))
+#unique(glass_eel_yoy$ser_id)[!unique(glass_eel_yoy$ser_id)%in%inclusion$sgl_ser_id  ]
+run_exclude_before <- function(the_year){
+	load(file=str_c(datawd,"dat_ge.Rdata"))
+	dat_ge_reference <- dat_ge
+	glass_eel_yoy_included <- inner_join(glass_eel_yoy, 
+			inclusion %>% filter(sgl_year!=-1), 
+			by=(c("ser_id"="sgl_ser_id"))) 
+	if (!all(unique(glass_eel_yoy$ser_id)%in% unique(glass_eel_yoy_included$ser_id ))){
+		warning("ser_id ",unique(glass_eel_yoy$ser_id)[!unique(glass_eel_yoy$ser_id)%in% 
+								unique(glass_eel_yoy_included$ser_id )]," not in inclusion")
+	}
+	glass_eel_yoy_included <- glass_eel_yoy_included	%>% 
+			dplyr::filter(sgl_year <= the_year)
+	model_ge_area <- glm(value_std~year_f:area+site,
+			data=glass_eel_yoy_included[glass_eel_yoy_included$value>0 & glass_eel_yoy_included$year>1959,],
+			family=Gamma(link=log), maxit=300)
+	dat_ge <- expand.grid(year_f=model_ge_area$xlevels$year_f,area=model_ge_area$xlevels$area,
+			site=model_ge_area$xlevels$site[1])
+	dat_ge$year <- as.numeric(as.character(dat_ge$year_f))
+	dat_ge$p <- predict(model_ge_area, newdata=dat_ge)
+	dat_ge$se <- predict(model_ge_area,newdata=dat_ge,se.fit=TRUE)[["se.fit"]]
+	mean_1960_1979 <- aggregate(dat_ge[dat_ge$year<1980,"p"], 
+			list(dat_ge[dat_ge$year<1980,"area"]),
+			mean)
+	names(mean_1960_1979) <- c("area","mean")	
+	dat_ge <- merge(dat_ge,mean_1960_1979,by="area")
+	dat_ge$p_std_1960_1979 <- exp(dat_ge$p-dat_ge$mean)
+	dat_ge$p_std_1960_1979_min <- exp(dat_ge$p-dat_ge$mean-1.96*dat_ge$se)
+	dat_ge$p_std_1960_1979_max <- exp(dat_ge$p-dat_ge$mean+1.96*dat_ge$se)
+	result <- list()
+	result$year <- the_year
+	result$nbsite <- length(model_ge_area$xlevels$site)
+	result$dat_ge <- dat_ge
+	result$delta <- dat_ge_reference$p_std_1960_1979 - dat_ge$p_std_1960_1979
+	return(result)
+}
+res <- mapply(run_exclude_before, the_year=c(2010:2020), SIMPLIFY=FALSE)
+require(tidyr)
+
+delta <- lapply(res,function(X)X[["delta"]])
+delta <- as.data.frame(delta)
+colnames(delta)<-2010:2020
+delta$year <- dat_ge$year
+delta$area <- dat_ge$area
+res_delta <-delta %>% pivot_longer(cols=contains("2"), names_to="year_included",values_to="delta")
+ggplot(res_delta)+geom_line(aes(x=year,y=delta,color=year_included))
+
+pred <- lapply(res,function(X)X[["dat_ge"]]$"p_std_1960_1979")
+pred <- as.data.frame(pred)
+colnames(pred)<-2010:2020
+pred$year <- dat_ge$year
+pred$area <- dat_ge$area
+res_pred <-pred %>% pivot_longer(cols=contains("2"), names_to="year_included",values_to="pred")
+matplot(pred,ylim=c(0,0.2))
+ggplot(res_pred)+geom_line(aes(x=year,y=pred,color=year_included))+ 
+		facet_wrap( ~area) +
+		scale_y_log10(name=expression(frac(p,bar(p)[1960-1979])~' log scale'),
+				#limits=c(0.005,10),
+				breaks=c(0.01,0.1,1,10),
+				labels=c("1%","10%","100%","1000%"))+
+		theme_bw()
+
+@
+
+
+
 
 \subsection{Check on series updates for the 2019 analyses[remove this paragraph]}
 

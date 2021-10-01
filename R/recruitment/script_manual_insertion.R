@@ -906,3 +906,26 @@ WHERE tr_station."Station_Name"=ser_nameshort; ')
 dbGetQuery(con_wgeel,"SELECT * FROM datawg.t_series_ser WHERE ser_tblcodeid IS NULL;")
 
 
+
+
+#2021------------------------
+require(getPass)
+library(readxl) # to read xls files
+library(stringr) # this contains utilities for strings
+require(sqldf) # to run queries
+require(RPostgreSQL)# to run queries to the postgres database
+
+path <- "C:\\Users\\cedric.briand\\OneDrive - EPTB Vilaine\\Projets\\GRISAM\\2021\\WGEEL\\series_inclusion.xlsx"
+series_inclusion <- read_excel(path,sheet=1)
+con_wgeel=dbConnect(PostgreSQL(),
+		dbname="wgeel",
+		host=getPass(msg="host"),
+		port=5432,
+		user= getPass(msg="username"),
+		password= getPass(msg="pwd"))
+dbExecute(con_wgeel,"DROP table series_inclusion_temp")
+dbWriteTable(con_wgeel,'series_inclusion_temp',series_inclusion)
+dbExecute(con_wgeel,"UPDATE datawg.t_seriesglm_sgl s set sgl_year= st.sgl_year FROM
+series_inclusion_temp st
+where s.sgl_ser_id=st.sgl_ser_id
+")#93
