@@ -1,7 +1,7 @@
 ---
 title: "DFA yellow and silver eels"
 author: "ICES Data Group"
-date: "18/08/2020"
+date: "`r format(Sys.time(), '%Y %B %d')`"
 bibliography: references_dfa.bib
 documentclass: article
 output: 
@@ -117,7 +117,7 @@ generate_dataset_plot_gam = function(model){
     year_range= range(model$model$das_year[model$model$ser_cou_code==cou],
                       na.rm=TRUE)
     years=year_range[1]:year_range[2]
-    pred=predict(model,data.frame(das_year=years,ser_cou_code=cou),
+    pred=predict(model,data.frame(das_year=years,ser_cou_code=cou), type = "response",
             se.fit=TRUE)
     data.frame(year=years,
                cou_code=cou,
@@ -148,7 +148,7 @@ query='SELECT
     ser_cou_code,
     ser_comment,
     sam_samplingtype,
-    ser_sam_id,
+    ser_sam_id, ser_distanceseakm, ser_method, ser_sam_gear, ser_restocking,
 		das_qal_id,
 		das_last_update,
 		f_subarea,
@@ -160,7 +160,7 @@ query='SELECT
 		left join ref.tr_lifestage_lfs on ser_lfs_code=lfs_code
 		left join ref.tr_faoareas on ser_area_division=f_division
         left join ref.tr_country_cou on cou_code=ser_cou_code
-		where ser_typ_id in (2,3) and das_value is not null'
+		where ser_typ_id in (2,3) and das_value is not null and  (ser_qal_id IS NULL OR ser_qal_id IN (1,2))'
 mydata = dbGetQuery(con_wgeel,query)
 mydata$ser_nameshort=as.factor(mydata$ser_nameshort)
 mydata$ser_area_division=as.factor(mydata$ser_area_division)
@@ -170,7 +170,7 @@ mydata$ser_cou_code=as.factor(mydata$ser_cou_code)
 mydata$ser_emu_nameshort=as.factor(mydata$ser_emu_nameshort)
 mydata$lfs_name=as.factor(mydata$lfs_name)
 mydata$ser_hty_code=as.factor(mydata$ser_hty_code)
-mydata$sam_samplingtype[mydata$ser_id %in% 292:295]="electrofishing"
+#mydata$sam_samplingtype[mydata$ser_id %in% 292:295]="electrofishing"
 
 # total number including those with only NULL value
 nb_yellow = dbGetQuery(con_wgeel, "	SELECT count(*) FROM datawg.t_series_ser	WHERE  ser_typ_id in (2)") %>% pull()
@@ -193,6 +193,16 @@ silver_map=st_as_sf(st_read(con_wgeel,query=paste("select ser_id,ser_x,ser_y,geo
                                          paste(unique(silver_dataall$ser_id),collapse=","),")",sep="")))
 silver_map$Updated = silver_map$ser_id %in% unique((mydata %>% filter(das_year >=2018) %>% select(ser_id) %>% pull()))
 
+# colors for countries
+country_ref = dbGetQuery(con_wgeel, "SELECT cou_code, cou_country, cou_order FROM ref.tr_country_cou")
+
+values=c(RColorBrewer::brewer.pal(12,"Set3"),
+	RColorBrewer::brewer.pal(12, "Paired"), 
+	RColorBrewer::brewer.pal(8,"Accent"),
+	RColorBrewer::brewer.pal(8, "Dark2"))
+color_countries = setNames(values,country_ref$cou_code)
+
+
 dbDisconnect(con_wgeel)
 colorpalette=cbf_1 <- c("red","black")
 ```
@@ -213,7 +223,7 @@ stock. In this context, we carry out a Dynamic Factor Analysis, a multivariate
 method aiming at detecting common trends in a set of time series [@zuur2003a].
 Such an exercise is worthwhile only when the number of available time series is important, 
 therefore, we restricted this analysis to the recent period (post 2000) and focus
-on recent trends. To complete the overview, we carried out gam analyses on a longer period
+on recent trends. To complete the overview, we carried out GAM analyses on a longer period
 (since 1975) to analyse the long-term trends. The trends were analysed separately for yellow and 
 silver eels. The analysis is based on the time series of yellow and silver eel (standing stock) 
 time series of abundance collected during the successive WGEEL Data Calls and 
@@ -222,15 +232,17 @@ contribute to the response to ToR b “Report on developments in the state of th
 
 # Yellow eel
 ## Available data
-`r length(unique(yellow_dataall$ser_id))` time series (out of `r nb_yellow`) provide data through the current or past Data Call (Figure
-\@ref(fig:mapyellow)), originating from `r length(unique(yellow_dataall$ser_cou_code))` countries and
-`r length(unique(yellow_dataall$ser_emu_nameshort))` EMUs. Most of them are located in Great Britain or France.
-`r length(unique(yellow_dataall$ser_id[yellow_dataall$ser_hty_code=="C"]))` time series are collected in coastal waters,
-`r length(unique(yellow_dataall$ser_id[yellow_dataall$ser_hty_code=="T"]))` in transitional waters and
-`r length(unique(yellow_dataall$ser_id[yellow_dataall$ser_hty_code=="F"]))` in freshwater.
+`r length(unique(yellow_dataall$ser_id))` time series (out of `r nb_yellow`) provide data of quality 1, 2 or are
+not rated through the current or past Data Call (Figure \@ref(fig:mapyellow)), originating from
+`r length(unique(yellow_dataall$ser_cou_code))` countries and `r length(unique(yellow_dataall$ser_emu_nameshort))` EMUs.
+See chapter **XXX** for a more comprehensive description of dataseries available.
+<!--  Most of them are located in Great Britain or France. -->
+<!-- `r length(unique(yellow_dataall$ser_id[yellow_dataall$ser_hty_code=="C"])) +  length(unique(yellow_dataall$ser_id[yellow_dataall$ser_hty_code=="MO"]))` -->
+<!-- time series are collected in open sea or in coastal waters, -->
+<!-- `r length(unique(yellow_dataall$ser_id[yellow_dataall$ser_hty_code=="T"]))` in transitional waters and -->
+<!-- `r length(unique(yellow_dataall$ser_id[yellow_dataall$ser_hty_code=="F"]))` in freshwater. -->
 
-<!-- à voir pour faire les stat : yellow_dataall %>% select(ser_id, ser_cou_code) %>% distinct() %>% group_by(ser_cou_code) -->
-<!-- %>% count() -->
+<!-- à voir pour faire les stat : yellow_dataall %>% select(ser_id, ser_hty_code) %>% distinct() %>% group_by(ser_hty_code) %>% count() -->
 
 ```{r mapyellow,echo=FALSE,message=FALSE,warning=FALSE,fig.cap="Map of available yellow time series. Updated time series correspond to time series for which at least one value was provided for years the three last years",fig.height=14/2.54}
 sf::sf_use_s2(FALSE)
@@ -253,8 +265,6 @@ sf::sf_use_s2(FALSE)
 ```
 
 ## Trends after 2000
-Currently, few pre-2000 data are recorded in the database (Figure \@ref(fig:pointperyearYE)), 
-an effort should be made in the future to collect historical data. Many data values for 2020 were still missing when carrying out the analysis. 
 
 ```{r pointperyearYE,echo=FALSE, fig.cap="number of yellow eel time series available per year",fig.height=8/2.54}
 point_per_year_YE<- yellow_dataall %>%
@@ -262,7 +272,7 @@ point_per_year_YE<- yellow_dataall %>%
   summarize(n=n_distinct(ser_id))
 
 ggplot(point_per_year_YE,aes(y=n,x=das_year))+
-  geom_line()+
+  geom_line() + geom_point() +
   xlab("")+ylab("number of available data")+
   theme_bw()
 
@@ -274,7 +284,7 @@ nbpointsgam = yellow_dataall %>%
   summarise(nbyear=n_distinct(das_year))%>%
   filter(nbyear>=10)
 yellow_data_gam <-yellow_dataall %>%
-  filter(ser_id %in% nbpointsgam$ser_id & das_year>=1975 & das_year <= 2019)
+  filter(ser_id %in% nbpointsgam$ser_id & das_year>=1975 & das_year <= (CY-1))
 
 #we also removed ser_id for which 0 represents more than 10% of data
 yellow_data_gam <- yellow_data_gam %>%
@@ -290,7 +300,7 @@ nbpoints = yellow_dataall %>%
   summarise(nbyear=n_distinct(das_year))%>%
   filter(nbyear>=10)
 yellow_data <-yellow_dataall %>%
-  filter(ser_id %in% nbpoints$ser_id & das_year>=2000 & das_year <= 2019)
+  filter(ser_id %in% nbpoints$ser_id & das_year>=2000 & das_year <= (CY-1))
 
 #we also removed ser_id for which 0 represents more than 10% of data
 yellow_data <- yellow_data %>%
@@ -298,39 +308,37 @@ yellow_data <- yellow_data %>%
   mutate(nb_values=n(),nb_zeros=sum(das_value==0)) %>%
   mutate(freq_zero=nb_zeros/nb_values)%>%
   filter(freq_zero < .1)
-
-
-
 ```
 
+Currently, few pre-2000 data are recorded in the database (Figure \@ref(fig:pointperyearYE)), 
+an effort should be made in the future to collect historical data. Many data values for `r CY` were still missing when
+carrying out the analysis (only `r point_per_year_YE %>% filter(das_year == CY) %>% pull()` series have data for
+`r CY`). 
+
+
+
 In view of this, the analysis was restricted to the period ranging from 2000 to 
-2019, with data series that have at least 10 observations on the period.
+`r CY -1` with data series that have at least 10 observations on the period.
 
-This leaves `r length(unique(yellow_data$ser_id))` time series. 
-If we plot all the series, a gam smoother indicates an overall decreasing trend (Figure \@ref(fig:plotTSYE)).
+This leaves `r length(unique(yellow_data$ser_id))` time series (and restricted to series having less than 10% of 0). 
+If we plot all the series, a GAM smoother indicates an overall decreasing trend (Figure \@ref(fig:plotTSYE)).
 
-```{r plotTSYE,echo=FALSE,warning=FALSE, fig.cap="Yellow eel time series and gam smoother"}
+```{r plotTSYE,echo=FALSE,warning=FALSE, fig.cap="Yellow eel time series and GAM smoother"}
 yellow_data_std=yellow_data%>%
-  mutate(das_value=log(das_value))%>%
+#  mutate(das_value=log(das_value))%>%  # log scale remove because some series (10 in 2021) with 0)
   group_by(ser_id)%>%
   mutate(das_value=(das_value-mean(das_value,na.rm=TRUE))/sd(das_value,na.rm=TRUE))
 
 ggplot(yellow_data_std,aes(x=das_year,y=das_value))+
   geom_line(aes(col=as.factor(ser_nameshort)))+
   geom_smooth(method="gam")+theme_bw()+xlab("year")+
-  ylab("Standardised abundance index (log scale)")+
-  guides(col=FALSE)
+  ylab("Standardised abundance index")+
+  guides(col="none")
 ```
 
-When plotted per country, a simple gam smoother shows decreasing and
-stabilising curves in  FR, NL. The same with a more pronounced increase after
-2012 is estimated for ES (DK seems to display a similar trend but the time series is shorter).
-On the other hand, a linear decrease is estimated in IE, GB and DE, and an increase for
-SE (Figure \@ref(fig:gamYellow)). 
-
-```{r gamYellow, echo=FALSE,warning=FALSE, fig.cap="Trends per country in yellow eel abundance estimated by a gam (log scale)"}
-g0 <- gam(das_value~s(das_year), data=yellow_data_std)
-g1 <- gam(das_value~s(das_year, by=ser_cou_code), data=yellow_data_std)
+```{r gamYellow, echo=FALSE,warning=FALSE, fig.cap="Trends per country in yellow eel abundance estimated by a GAM"}
+#g0 <- gam(das_value~s(das_year), data=yellow_data_std)
+g1 <- gam(das_value~s(das_year, by=ser_cou_code), data=yellow_data_std, family = gaussian())
 #g2 <- gam(das_value~s(das_year, by=ser_nameshort), data=yellow_data_std)
 cou_code <- levels(droplevels (yellow_data_std$ser_cou_code))
 #AIC(g0, g1, g2)
@@ -344,19 +352,173 @@ ggplot(yellow_gam_plot_recent,aes(x=year,y=pred))+
   facet_wrap(.~cou_code,scales="free_y")+
   scale_colour_manual(values=cols)+
   scale_fill_manual(values=cols)+
-  theme_bw()+ ylab("relative abundance (log scale)")
+  theme_bw()+ ylab("relative abundance")
 
 ```
 
+When plotted per country, a simple GAM smoother (explained deviance = `r round(summary(g1)$dev.expl * 100, 1)` %) shows
+decreasing and stabilising curves in FR, NL. The same with a more pronounced increase after 2012 is estimated for ES (DK
+seems to display a similar trend but the time series is shorter). On the other hand, a linear decrease is estimated in
+IE, GB and DE, and an increase for SE (Figure \@ref(fig:gamYellow)). 
 
-```{r,include=FALSE}
-kable(nb_per_country <- yellow_data %>%
+```{r table-yellow-gam, echo=FALSE, tab.cap = "Series included in the GAM analysis"}
+flextable(nb_per_country <- yellow_data %>%
 				group_by(ser_cou_code) %>%
 				summarize(N=n(),Nseries=n_distinct(ser_id)) %>%
 				dplyr::rename(Country=ser_cou_code))
 ```
 
+```{r exploratory-analysis, echo = FALSE}
+# change logical to factor
+yellow_data_std$ser_restocking<-as.factor(yellow_data_std$ser_restocking)
 
+# function to create the data for the graph (to put after l131)
+generate_dataset_plot_gam_res = function(model){
+	res_code=levels(droplevels (model$model$ser_restocking))
+	
+	do.call('rbind.data.frame',lapply(res_code, function(res){
+				year_range= range(model$model$das_year[model$model$ser_restocking==res],
+					na.rm=TRUE)
+				years=year_range[1]:year_range[2]
+				pred=predict(model,data.frame(das_year=years,ser_restocking=res),
+					se.fit=TRUE)
+				data.frame(year=years,
+					res_code=res,
+					pred=pred$fit,
+					lower=pred$fit-1.96*pred$se.fit,
+					upper=pred$fit+1.96*pred$se.fit)
+				
+			}))
+	
+}
+
+# gam (to put r gamYellow)
+g6 <- gam(das_value~s(das_year, by=ser_restocking), data=yellow_data_std)
+
+# Graph of the results (to put r gamYellow)
+yellow_gam_plot_recent=generate_dataset_plot_gam_res(g6)
+ggplot(yellow_gam_plot_recent,aes(x=year,y=pred))+
+	geom_line()+
+	geom_ribbon(aes(ymin=lower,ymax=upper),alpha=.3)+
+	facet_wrap(.~res_code,scales="free_y")+
+	scale_colour_manual(values=cols)+
+	scale_fill_manual(values=cols)+
+	theme_bw()+ ylab("relative abundance (log scale)")
+
+######
+### habitat: HTY
+######
+
+#select only the data where we have hty code
+
+yellow_data_std_hty<-yellow_data_std%>%filter(!is.na(ser_hty_code))
+
+# function to create the data for the graph (to put after l131)
+
+generate_dataset_plot_gam_hty = function(model){
+	hty_code=levels(droplevels (model$model$ser_hty_code))
+	
+	do.call('rbind.data.frame',lapply(hty_code, function(hty){
+				year_range= range(model$model$das_year[model$model$ser_hty_code==hty],
+					na.rm=TRUE)
+				years=year_range[1]:year_range[2]
+				pred=predict(model,data.frame(das_year=years,ser_hty_code=hty),
+					se.fit=TRUE)
+				data.frame(year=years,
+					hty_code=hty,
+					pred=pred$fit,
+					lower=pred$fit-1.96*pred$se.fit,
+					upper=pred$fit+1.96*pred$se.fit)
+				
+			}))
+	
+}
+
+# GAM (to put r gamYellow)
+g2 <- gam(das_value~s(das_year, by=ser_hty_code), data=yellow_data_std_hty)
+
+# Graph (to put r gamYellow)
+
+hty_code <- levels(droplevels (yellow_data_std_hty$ser_hty_code))
+
+yellow_gam_plot_recent=generate_dataset_plot_gam_hty(g2)
+ggplot(yellow_gam_plot_recent,aes(x=year,y=pred))+
+	geom_line()+
+	geom_ribbon(aes(ymin=lower,ymax=upper),alpha=.3)+
+	facet_wrap(.~hty_code,scales="free_y")+
+	scale_colour_manual(values=cols)+
+	scale_fill_manual(values=cols)+
+	theme_bw()+ ylab("relative abundance (log scale)")
+
+table(yellow_data_std_hty$ser_cou_code,yellow_data_std_hty$ser_hty_code)
+
+
+######
+### Gear
+#####
+
+#select only the data where we have hty code and change character into factor
+
+yellow_data_std_gear<-yellow_data_std%>%filter(!is.na(ser_sam_gear))
+
+yellow_data_std_gear$ser_sam_gear<-as.factor(yellow_data_std_gear$ser_sam_gear)
+
+# function to create the data for the graph (to put after l131)
+
+generate_dataset_plot_gam_type = function(model){
+	gear_code=levels(droplevels (model$model$ser_sam_gear))
+	
+	do.call('rbind.data.frame',lapply(gear_code, function(gear){
+				year_range= range(model$model$das_year[model$model$ser_sam_gear==gear],
+					na.rm=TRUE)
+				years=year_range[1]:year_range[2]
+				pred=predict(model,data.frame(das_year=years,ser_sam_gear=gear),
+					se.fit=TRUE)
+				data.frame(year=years,
+					gear_code=gear,
+					pred=pred$fit,
+					lower=pred$fit-1.96*pred$se.fit,
+					upper=pred$fit+1.96*pred$se.fit)
+				
+			}))
+	
+}
+
+# GAM (to put r gamYellow)
+g4 <- gam(das_value~s(das_year, by=ser_sam_gear), data=yellow_data_std_gear)
+
+
+# Graph (to put r gamYellow)
+gear_code <- levels(droplevels (yellow_data_std_gear$ser_sam_gear))
+
+yellow_gam_plot_recent=generate_dataset_plot_gam_type(g4)
+ggplot(yellow_gam_plot_recent,aes(x=year,y=pred))+
+	geom_line()+
+	geom_ribbon(aes(ymin=lower,ymax=upper),alpha=.3)+
+	facet_wrap(.~gear_code,scales="free_y")+
+	scale_colour_manual(values=cols)+
+	scale_fill_manual(values=cols)+
+	theme_bw()+ ylab("relative abundance (log scale)")
+
+table(yellow_data_std_hty$ser_cou_code,yellow_data_std_hty$ser_sam_gear)
+
+######
+### Distance to the sea
+#####
+
+yellow_data_std_dis<-yellow_data_std%>%filter(!is.na(ser_distanceseakm))
+
+#select only the data where we have hty code
+
+g0 <- gam(das_value~s(das_year)+s(ser_distanceseakm), data=yellow_data_std)
+plot(g0)
+
+ggplot(yellow_data_std_dis,aes(x=ser_distanceseakm,y=das_value))+
+	geom_smooth(method="gam")+theme_bw()+xlab("distance to the sea (km)")+
+	ylab("Standardised abundance index (log scale)")+
+	guides(col=FALSE)
+
+```
 
 ### Running the DFA
 The DFA method is fully detailed in [@zuur2003]. The basic idea is to decompose each time series into a weighted sum of a few common trends and a noise factor:
@@ -394,11 +556,11 @@ if (params$rerunDFA){
   list_zeros <- which(yellow_data$das_value == 0)
   for (i in list_zeros){
     ser_id=yellow_data$ser_id[i]
-    yellow_data$das_value[i] <- 0.1 *
+    yellow_data$das_value[i] <- 0.2 *
       min(yellow_data$das_value[yellow_data$das_value>0 & 
                                   yellow_data$ser_id == ser_id],na.rm=TRUE)
   }
-  
+
   #put data in wide format and select from 1980
   yellow_wide <-yellow_data %>%
     ungroup %>% #removed the ser_id grouping
@@ -449,8 +611,8 @@ Two common trends were estimated after selection by AIC criteria (Table \@ref(ta
 
 ```{r comparisonYE,echo=FALSE,tab.cap='Model comparisons for yellow eel DFA'}
 load("./dfa.rdata")
-ft <- flextable(results_yellow[,c("Trends","Sigma","AIC")])
-ft <- colformat_num(ft,j="AIC",digits=2)
+ft <- flextable(results_yellow[,c("Trends","Sigma","AIC")] %>% mutate(AIC = round(AIC))) #digits no more supported in colformat_num
+ft <- colformat_num(ft, j="AIC", big.mark = "")
 autofit(ft)
 best_fit_yellow=model_comparisonsYE[[which(results_yellow$AIC==min(results_yellow$AIC))]]$dfa
 ```
@@ -469,7 +631,7 @@ namesseries=yellow_wide$ser_nameshort
 trends=formatted_matrices_yellow$trends
 Z=formatted_matrices_yellow$Z
 #plot the factor loadings
-minZ = 0.1
+minZ = 0.2
 m=dim(trends)[1]
 
 trends_long <- as.data.frame(t(trends))
@@ -484,12 +646,33 @@ ggplot(trends_long,aes(x=year,y=value))+
 
 ```
 
+```{r tab-loadingsYE,echo=FALSE,tab.cap="Factor loadings of the yellow eel DFA (red names stand for loadings absolute values greater than 0.2)"}
+Z_tab = as_tibble(data.frame(namesseries,  Z))
+country = distinct(yellow_data[, c("ser_nameshort", "cou_order", "ser_cou_code")])
+colnames(Z_tab) = c("Series", paste0("Trend ", 1:m))
+Z_tab = Z_tab %>% inner_join(country, by = c("Series" = "ser_nameshort"))
+Z_tab = Z_tab %>% arrange(cou_order, Series) %>% mutate(Country = as.character(ser_cou_code)) %>% select(Country, Series, 2:(1+m))
+ft <- flextable(Z_tab  %>% mutate(across(3:(2+m), round, 2))) #digits no more supported in colformat_num
+for(i in 1:m)
+	ft = ft %>% color(abs(Z_tab %>% select(paste0("Trend ", i))) > 0.2, paste0("Trend ", i), color = "red")
+ft = merge_v(ft, ~ Country)
+ft = border_inner_h(ft)
+autofit(ft)
+
+#ggplot(as.data.frame(Z_tab), aes(x = `Trend 1`, y = `Trend 2`, label = Series, col = Country))+
+#	geom_text() + scale_color_manual(values = color_countries) +
+#	geom_hline(yintercept = 0) + geom_vline(xintercept = 0) +
+#	theme_bw()
+```
+
 Trend 1 shows a monotonous trend over the period while trend 2 indicates a shift after 2007.
 
-The factor loadings $w$ are displayed in the following plots (Figure \@ref(fig:seriesloadingsYE)). Following @zuur2003, we only focused on loading with absolute values greater than 0.1 to focus on the most important trends and presented on a Venn diagram (Figure \@ref(fig:vennyellow))
+The factor loadings $w$ are displayed in the following plots (Figure \@ref(fig:seriesloadingsYE)). Following @zuur2003,
+we only focused on loading with absolute values greater than 0.2 to focus on the most important trends and presented on
+a Venn diagram (Figure \@ref(fig:vennyellow))
 
 
-```{r seriesloadingsYE, echo=FALSE,fig.cap="Factor loadings of the yellow eel DFA (red names stand for loadings absolute values greater than 0.1)",fig.height=16/2.54}
+```{r seriesloadingsYE, echo=FALSE,fig.cap="Factor loadings of the yellow eel DFA (red names stand for loadings absolute values greater than 0.2)",fig.height=16/2.54}
 ylims = c(-1.1*max(abs(Z)), 1.1*max(abs(Z)))
 par(mfrow=c(2,1), mar=c(0.5,2.5,1.5,0.5), oma=c(0.4,1,1,1))
 for(i in 1:m) {
@@ -515,6 +698,26 @@ for(i in 1:m) {
 #   theme_bw()
 ```
 
+
+```{r facotr-glm-yellow, echo = FALSE}
+
+#r trendsyellow
+load_library("car")
+
+yellow_z_dfa<-data.frame(namesseries=namesseries, z1=Z[,1], z2=Z[,2])
+sel_param<-unique(data.frame(nameshort=mydata$ser_nameshort, res=mydata$ser_restocking, hty=mydata$ser_hty_code, cou_code=mydata$ser_cou_code, samplingtype=mydata$sam_samplingtype, sam_id=mydata$ser_sam_id,distanceseakm=mydata$ser_distanceseakm, sam_gear=mydata$ser_sam_gear))
+
+yellow_dfa<-merge(yellow_z_dfa, sel_param, by.x="namesseries", by.y="nameshort")
+modelz1<-glm(z1~ res+hty+as.factor(sam_gear)+distanceseakm, family = gaussian, data = yellow_dfa)
+modelz2<-glm(z2~ res+hty+as.factor(sam_gear)+distanceseakm, family = gaussian, data = yellow_dfa)
+
+Anova(modelz1)
+summary(modelz1)
+
+Anova(modelz2)
+summary(modelz2)
+```
+
 ```{r vennyellow, echo=FALSE, fig.cap="Venn diagram of the yellow eel DFA"}
 venn(namesseries,Z,minZ)
 ```
@@ -537,8 +740,8 @@ yellow_belonging=merge(yellow_map,
 ggplot(yellow_belonging)+
   geom_sf(data=europe_cropped)+
   geom_sf(data=yellow_belonging,aes(fill=Trend,col=Trend))+
-  scale_fill_brewer(type="qual")+
-  scale_color_brewer(type="qual")+
+  scale_fill_brewer(type="qual", palette = "Set3")+
+  scale_color_brewer(type="qual", palette = "Set3")+
   theme_bw()
 ```
 
@@ -589,13 +792,18 @@ The fits of the DFA model to the different time series are presented in Figure \
 
 
 
-```{r fitsyellow, echo=FALSE,warning=FALSE, fig.cap="Yellow DFA fits to time series", fig.width=16/2.54, fig.height=16/2.54}
+```{r fitsyellow, echo=FALSE,warning=FALSE, fig.cap="Yellow DFA fits to time series", fig.width=16/2.54, fig.height=25/2.54}
 d <- residuals(best_fit_yellow,interval="confidence") #augment is replace since MARSS 3.11, see https://github.com/nwfsc-timeseries/MARSS/releases
 d$.conf.low <- d$.fitted+qnorm(0.05/2)*d$.sigma
 d$.conf.up <- d$.fitted-qnorm(0.05/2)*d$.sigma
+
+# some tests
+#cor.test(d$value, d$.fitted)
+#ggplot(data = d) + geom_point(aes(x=value, y =.fitted, color = .rownames)) + geom_abline(intercept = 0, slope = 1)
+
 ggplot(data = d) +
   geom_line(aes(t, .fitted)) +
-  geom_point(aes(t, y)) +
+  geom_point(aes(t, value)) +
   geom_ribbon(aes(x=t, ymin=.conf.low, ymax=.conf.up), linetype=2, alpha=0.2) +
   facet_wrap(vars(.rownames)) +
   xlab("") + ylab("standarized abundance index")+
@@ -605,16 +813,16 @@ ggplot(data = d) +
 
 
 ## Historical trends
-We also fitted gam over a period starting in 1975 to put the post-2000
+We also fitted GAM over a period starting in 1975 to put the post-2000
 trends in an historical perspective. For many countries, data do not start before the 2000s, so the reader should refer
 to the previous section (DE, DK, ES, FR). A decreasing trend is observed in most other countries
 (NL, NO, IE, GB) except in Sweden where an increasing trend is observed  (Figure \@ref(fig:gamYellowHist)) though
 the early trend is only based on two time series.
 
-```{r gamYellowHist, echo=FALSE,warning=FALSE, fig.cap="Trends per country in yellow eel abundance estimated by a gam "}
+```{r gamYellowHist, echo=FALSE,warning=FALSE, fig.cap="Trends per country in yellow eel abundance estimated by a GAM "}
 yellow_data_std_gam=yellow_data_gam%>%
-  filter(das_value>0) %>%
-  mutate(das_value=log(das_value))%>%
+#  filter(das_value>0) %>%
+  mutate(das_value=das_value)%>%
   group_by(ser_nameshort)%>%
   mutate(das_value=(das_value-mean(ifelse(das_year>=2000,
                                           das_value,
@@ -623,8 +831,8 @@ yellow_data_std_gam=yellow_data_gam%>%
                                           NA),na.rm=TRUE))
 
 
-g0 <- gam(das_value~s(das_year), data=yellow_data_std_gam)
-g1 <- gam(das_value~s(das_year, by=ser_cou_code), data=yellow_data_std_gam)
+#g0 <- gam(das_value~s(das_year), data=yellow_data_std_gam)
+g1 <- gam(das_value~s(das_year, by=ser_cou_code), data=yellow_data_std_gam, family = gaussian())
 #g2 <- gam(das_value~s(das_year, by=ser_nameshort), data=yellow_data_std_gam)
 #AIC(g0, g1, g2)
 cou_code <- levels(droplevels (yellow_data_std_gam$ser_cou_code))
@@ -638,8 +846,7 @@ ggplot(yellow_gam_plot,aes(x=year,y=pred))+
   facet_wrap(.~cou_code,scales="free_y")+
   scale_colour_manual(values=cols)+
   scale_fill_manual(values=cols)+
-  theme_bw()+ ylab("relative abundance (log scale)")
-
+  theme_bw()+ ylab("relative abundance")
 
 ```
 
@@ -650,10 +857,8 @@ ggplot(yellow_gam_plot,aes(x=year,y=pred))+
 `r length(unique(silver_dataall$ser_id))` time series (out of `r nb_silver`)
 provide data through the current or past Data Call l (Figure
 \@ref(fig:mapsilver)), originating from `r length(unique(silver_dataall$ser_cou_code))` countries and
-`r length(unique(silver_dataall$ser_emu_nameshort))` EMUs. Most of them are located in Northern Europe.
-`r length(unique(silver_dataall$ser_id[silver_dataall$ser_hty_code=="C"]))` time series are collected in coastal waters
-and `r length(unique(silver_dataall$ser_id[silver_dataall$ser_hty_code=="F"]))` in freshwater, while the habitat type
-was not reported for `r length(unique(silver_dataall$ser_id[is.na(silver_dataall$ser_hty_code)]))`.
+`r length(unique(silver_dataall$ser_emu_nameshort))` EMUs. Most of them are located in Northern Europe. See chapter
+**XXX** for a more comprehensive description of dataseries available.
 
 ```{r mapsilver,echo=FALSE,message=FALSE,warning=FALSE,fig.cap="Map of available silver time series. Updated time series correspond to time series for which at least one value was provided for years the three last years",fig.height=14/2.54}
  worldmap <- ne_countries(scale = 'medium', type = 'map_units',
@@ -675,9 +880,6 @@ was not reported for `r length(unique(silver_dataall$ser_id[is.na(silver_dataall
 ```
 
 ## Trends since 2000
-Similarly to yellow eels, few pre-2000 data series are available in the database (Figure 
-\@ref(fig:pointperyearSE)). In view of this, we restricted the analysis to the period 2000 to 2019,
-with time series having at least 10 observations over the period. 
 
 ```{r pointperyearSE,echo=FALSE, fig.cap="number of yellow eel time series available per year",fig.height=8/2.54}
 point_per_year_SE<- silver_dataall %>%
@@ -685,7 +887,7 @@ point_per_year_SE<- silver_dataall %>%
   summarize(n=n_distinct(ser_id))
 
 ggplot(point_per_year_SE,aes(y=n,x=das_year))+
-  geom_line()+
+  geom_line()+ geom_point() +
   xlab("")+ylab("number of available data")+
   theme_bw()
 
@@ -698,7 +900,7 @@ nbpointsgam = silver_dataall %>%
   summarise(nbyear=n_distinct(das_year))%>%
   filter(nbyear>=10)
 silver_data_gam <-silver_dataall %>%
-  filter(ser_id %in% nbpointsgam$ser_id & das_year>=1975 & das_year <= 2019)
+  filter(ser_id %in% nbpointsgam$ser_id & das_year>=1975 & das_year <= (CY-1))
 
 #we also removed ser_id for which 0 represents more than 10% of data
 silver_data_gam <- silver_data_gam %>%
@@ -715,7 +917,7 @@ nbpoints = silver_dataall %>%
   summarise(nbyear=n_distinct(das_year))%>%
   filter(nbyear>=10)
 silver_data <-silver_dataall %>%
-  filter(ser_id %in% nbpoints$ser_id & das_year>=2000 & das_year<=2019)
+  filter(ser_id %in% nbpoints$ser_id & das_year>=2000 & das_year<=(CY-1))
 
 
 
@@ -727,37 +929,44 @@ silver_data <- silver_data %>%
   filter(freq_zero < .1)
 
 ```
+Similarly to yellow eels, few pre-2000 data series are available in the database (Figure \@ref(fig:pointperyearSE)).
+Many data values for `r CY` were still missing when carrying out the analysis (only
+`r point_per_year_SE %>% filter(das_year == CY) %>% pull()` series have data for `r CY`). 
+
+In
+view of this, we restricted the analysis to the period 2000 to `r CY - 1`, with time series having at least 10 observations
+over the period. 
 
 This leaves `r length(unique(silver_data$ser_id))` time series. If we plot all
-the series, a gam smoother indicates an overall slightly decreasing trend (Figure
+the series, a GAM smoother indicates an overall slightly decreasing trend (Figure
 \@ref(fig:plotTSSE)).
 
 
-```{r plotTSSE,echo=FALSE,warning=FALSE, fig.cap="Silver eel time series and gam smoother"}
+```{r plotTSSE,echo=FALSE,warning=FALSE, fig.cap="Silver eel time series and GAM smoother"}
 silver_data_std=silver_data%>%
-  mutate(das_value=log(das_value))%>%
+#  mutate(das_value=log(das_value))%>%
   group_by(ser_id)%>%
   mutate(das_value=(das_value-mean(das_value,na.rm=TRUE))/sd(das_value,na.rm=TRUE))
 
 ggplot(silver_data_std,aes(x=das_year,y=das_value))+
   geom_line(aes(col=as.factor(ser_nameshort)))+
   geom_smooth(method="gam")+theme_bw()+xlab("year")+
-  ylab("Standardised abundance index (log scale)")+
+  ylab("Standardised abundance index")+
   guides(col=FALSE)
 ```
 
 
 
-When plotted per country, a simple gam smoother shows decreasing trend in DK,
+When plotted per country, a simple GAM smoother shows decreasing trend in DK,
 FR, NO, the same but with a stabilization in GB (Figure \@ref(fig:gamSilver)).
 SE and ES display rather increasing trend, while IE is more stable. DE is
 erratic, especially because there are no data at the beginning of the period.
 The trend correspdond to log transformed and scaled values.
 
-```{r gamSilver, echo=FALSE,warning=FALSE, fig.cap="Trends per country in silver eel abundance estimated by a gam"}
+```{r gamSilver, echo=FALSE,warning=FALSE, fig.cap="Trends per country in silver eel abundance estimated by a GAM"}
 
-g0 <- gam(das_value~s(das_year), data=silver_data_std)
-g1 <- gam(das_value~s(das_year, by=ser_cou_code), data=silver_data_std)
+#g0 <- gam(das_value~s(das_year), data=silver_data_std)
+g1 <- gam(das_value~s(das_year, by=ser_cou_code), data=silver_data_std, family = gaussian())
 #g2 <- gam(das_value~s(das_year, by=ser_nameshort), data=silver_data_std)
 #AIC(g0, g1, g2)
 cou_code <- levels(droplevels (silver_data_std$ser_cou_code))
@@ -770,16 +979,16 @@ ggplot(silver_gam_plot_recent,aes(x=year,y=pred))+
   facet_wrap(.~cou_code,scales="free_y")+
   scale_colour_manual(values=cols)+
   scale_fill_manual(values=cols)+
-  theme_bw()+ ylab("relative abundance (log scale)")
+  theme_bw()+ ylab("relative abundance")
 
 ```
 
 
-```{r,include=FALSE}
-kable(nb_per_country <- silver_data %>%
+```{r table-silver-gam, echo=FALSE, tab.cap = "Series included in the GAM analysis"}
+flextable(nb_per_country <- silver_data %>% mutate(ser_cou_code =  tidyr::replace_na(as.character(ser_cou_code),  "Internat.")) %>%
 				group_by(ser_cou_code) %>%
 				summarize(N=n(),Nseries=n_distinct(ser_id)) %>%
-				dplyr::rename(Country=ser_cou_code))
+				dplyr::rename(Country=ser_cou_code) )
 ```
 
 ### Running the DFA
@@ -844,8 +1053,8 @@ The model selection leads to the estimation of a single trend (Table
 ```{r comparisonSE,echo=FALSE,tab.cap="Model comparisons for silver eel DFA"}
 load("./silver_dfa.rdata")
 results_silver$convergence=as.character(results_silver$convergence)
-ft <- flextable(results_silver[,-c(4,5)])
-ft <- colformat_num(ft,j="AIC",digits=2)
+ft <- flextable(results_silver[,-c(4,5)] %>% mutate(AIC = round(AIC)))
+ft <- colformat_num(ft,j="AIC", big.mark = "")
 autofit(ft)
 best_fit_silver=model_comparisonsSE[[which(results_silver$AIC==min(results_silver$AIC))]]$dfa
 ```
@@ -863,8 +1072,9 @@ namesseries=silver_wide$ser_nameshort
 
 trends=formatted_matrices_silver$trends
 Z=formatted_matrices_silver$Z
+save(Z, file = "./Zsilver.Rdata")
 #plot the factor loadings
-minZ = 0.1
+minZ = 0.2
 m=dim(trends)[1]
 
 trends_long <- as.data.frame(t(trends))
@@ -879,12 +1089,21 @@ trends_long<-trends_long %>%
   
 ```
   
-  
+ 
+```{r tab-loadingsSE,echo=FALSE,tab.cap="Factor loadings of the silver eel DFA (red names stand for loadings absolute values greater than 0.2)"}
+Z_tab = as_tibble(data.frame(namesseries,  Z))
+colnames(Z_tab) = c("Series", paste0("Trend ", 1:m))
+Z_tab = Z_tab %>% arrange(Series)
+ft <- flextable(Z_tab  %>% mutate(across(2:(1+m), round, 2))) #digits no more supported in colformat_num
+for(i in 1:m)
+	 ft = ft %>% color(abs(Z_tab %>% select(paste0("Trend ", i))) > 0.2, paste0("Trend ", i), color = "red")
+autofit(ft)
+``` 
   
 The factor loadings are displayed in the Figure \@ref(fig:seriesloadingssilver) 
 (importance of each trend in each time series) and corresponding Venn diagram in Figure \@ref(fig:vennsilver).
   
-```{r seriesloadingssilver, echo=FALSE,fig.cap="Factor loadings of the silver eel DFA (red names stand for loadings absolute values greater than 0.1)"}
+```{r seriesloadingssilver, echo=FALSE,fig.cap="Factor loadings of the silver eel DFA (red names stand for loadings absolute values greater than 0.2)"}
 ylims = c(-1.1*max(abs(Z)), 1.1*max(abs(Z)))
 par(mfrow=c(ceiling(m/2),2), mar=c(0.5,2.5,1.5,0.5), oma=c(0.4,1,1,1))
 for(i in 1:m) {
@@ -953,9 +1172,10 @@ DFA fits to data are presented in Figure \@ref(fig:fitsilver).
 d <- residuals(best_fit_silver,interval="confidence") #augment is replace since MARSS 3.11, see https://github.com/nwfsc-timeseries/MARSS/releases
 d$.conf.low <- d$.fitted+qnorm(0.05/2)*d$.sigma
 d$.conf.up <- d$.fitted-qnorm(0.05/2)*d$.sigma
+
 ggplot(data = d) +
   geom_line(aes(t, .fitted)) +
-  geom_point(aes(t, y)) +
+  geom_point(aes(t, value)) +
   geom_ribbon(aes(x=t, ymin=.conf.low, ymax=.conf.up), linetype=2, alpha=0.2) +
   facet_wrap(vars(.rownames)) +
   xlab("") + ylab("standarized abundance index")+
@@ -965,7 +1185,7 @@ ggplot(data = d) +
 
 ## Historical trends
 
-We also fitted gam over a period starting in 1975 to put the post-2000
+We also fitted GAM over a period starting in 1975 to put the post-2000
 trends in an historical perspective. For Germany and Danemark, time series are short and the
 reader should refer to the previous section. For Spain, Great Britain, Norway and Ireland, the abundances
 are very low with respect to the late 1970s levels (Figure \@ref(fig:gamSilverHist)).
@@ -979,10 +1199,10 @@ In France, an increase is observed in the 1980s and then decreased.
 Finally, and similarly to yellow eels, Sweden is the only country displaying an increase
 of abundance, especially after the 1980s. 
 
-```{r gamSilverHist, echo=FALSE,warning=FALSE, fig.cap="Trends per country in silver eel abundance estimated by a gam"}
+```{r gamSilverHist, echo=FALSE,warning=FALSE, fig.cap="Trends per country in silver eel abundance estimated by a GAM"}
 silver_data_std_gam=silver_data_gam%>%
-  filter(das_value>0) %>%
-  mutate(das_value=log(das_value))%>%
+#  filter(das_value>0) %>%
+  mutate(das_value=das_value)%>%
   group_by(ser_id)%>%
   mutate(das_value=(das_value-mean(ifelse(das_year>=2000,
                                           das_value,
@@ -991,8 +1211,8 @@ silver_data_std_gam=silver_data_gam%>%
                                           NA),na.rm=TRUE))
 
 
-g0 <- gam(das_value~s(das_year), data=silver_data_std_gam)
-g1 <- gam(das_value~s(das_year, by=ser_cou_code), data=silver_data_std_gam)
+#g0 <- gam(das_value~s(das_year), data=silver_data_std_gam)
+g1 <- gam(das_value~s(das_year, by=ser_cou_code), data=silver_data_std_gam, family = gaussian())
 #g2 <- gam(das_value~s(das_year, by=ser_nameshort), data=silver_data_std_gam)
 
 cou_code <- levels(droplevels (yellow_data_std_gam$ser_cou_code))
@@ -1005,7 +1225,7 @@ ggplot(silver_gam_plot,aes(x=year,y=pred))+
   facet_wrap(.~cou_code,scales="free_y")+
   scale_colour_manual(values=cols)+
   scale_fill_manual(values=cols)+
-  theme_bw()+ ylab("relative abundance (log scale)")
+  theme_bw()+ ylab("relative abundance")
 
 ```
 
