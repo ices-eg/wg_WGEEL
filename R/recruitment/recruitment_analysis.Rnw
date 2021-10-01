@@ -2294,15 +2294,16 @@ save(yellow_eel_pred,file=paste0(shinywd,"yellow_eel_pred.Rdata"))
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %************************************************************************************
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-<< test_period, echo=FALSE, eval=TRUE, results=hide >>=
+<< test_period, echo=FALSE, eval=FALSE, results=hide >>=
 
 glass_eel_yoy$site <- as.factor(glass_eel_yoy$site)
 # we select all series that are already included (removed -1)
 
 load(file=str_c(shinywd,"inclusion.Rdata"))
 #unique(glass_eel_yoy$ser_id)[!unique(glass_eel_yoy$ser_id)%in%inclusion$sgl_ser_id  ]
-run_exclude_before <- function(the_year, dat_ge_reference=dat_ge){
-	
+run_exclude_before <- function(the_year){
+	load(file=str_c(datawd,"dat_ge.Rdata"))
+	dat_ge_reference <- dat_ge
 	glass_eel_yoy_included <- inner_join(glass_eel_yoy, 
 			inclusion %>% filter(sgl_year!=-1), 
 			by=(c("ser_id"="sgl_ser_id"))) 
@@ -2335,7 +2336,15 @@ run_exclude_before <- function(the_year, dat_ge_reference=dat_ge){
 	result$delta <- dat_ge_reference$p_std_1960_1979 - dat_ge$p_std_1960_1979
 	return(result)
 }
-res <- mapply(run_exclude_before, the_year=c(2010:2021))
+res <- mapply(run_exclude_before, the_year=c(2010:2020), SIMPLIFY=FALSE)
+require(tidyr)
+delta <- lapply(res,function(X)X[["delta"]])
+delta <- as.data.frame(delta)
+colnames(delta)<-2010:2020
+delta$year <- dat_ge$year
+delta$area <- dat_ge$area
+res_delta <-delta %>% pivot_longer(cols=contains("2"), names_to="year_included",values_to="delta")
+ggplot(res_delta)+geom_line(aes(x=year,y=delta,color="year_included"))
 @
 
 
