@@ -902,7 +902,7 @@ ka_release_Y <- kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",ca
 \newline
 
 
-```{r release_Yf,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure 8:Reported releases of yellow eel (in millions; OG and Y) per country, Germany (DE), Netherlands (NL),  Ireland (IE), Spain (ES) and Italy (IT).", fig.height=5, fig.width=10}
+```{r release_Yf,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure 8:Reported releases of yellow eel (in millions) per country, Germany (DE), Netherlands (NL),  Ireland (IE), Spain (ES) and Italy (IT).", fig.height=5, fig.width=10}
 ##Graph
 
 release3<-grouped_data
@@ -924,7 +924,7 @@ print(g_release_Y)
 ```
 
 
-```{r releasekg_Yf,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure x:Reported releases of yellow eel (OG +Y) (in tonnes) per country: Sweden (SE) Germany (DE), Netherlands (NL),  Ireland (IE), Spain (ES) and Italy (IT).", fig.height=5, fig.width=10}
+```{r releasekg_Yf,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure x:Reported releases of yellow eel (in tonnes) per country: Sweden (SE) Germany (DE), Netherlands (NL),  Ireland (IE), Spain (ES) and Italy (IT).", fig.height=5, fig.width=10}
 
 filtered_data<-filter_data("release",
 		typ = 8,
