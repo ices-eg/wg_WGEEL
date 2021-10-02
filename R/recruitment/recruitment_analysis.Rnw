@@ -1715,7 +1715,7 @@ figure5_without_logscale<- g+
 		scale_colour_brewer(name="area",palette="Set1")+
 		geom_ribbon(aes(ymin=p_std_1960_1979_min,ymax=p_std_1960_1979_maxgraph,fill=area),alpha=.3)+
 		coord_cartesian(ylim=c(0,5))+
-		scale_y_continuous(expression(frac(p,bar(p)[opt_start_hist-opt_end_hist])))+
+		scale_y_continuous(as.expression(bquote(frac(p,bar(p)[.(opt_start_hist)-.(opt_end_hist)]))))+
 		theme_bw()+
 		geom_hline(yintercept=1,linetype=2)+
 		geom_hline(yintercept=0,linetype=1,color = "grey30",size = 0.6)+
@@ -1732,7 +1732,7 @@ save_figure("figure5_without_logscale_ribbon",figure5_without_logscale,600,480)
 # black and white plot ====
 figure5_without_logscale_black <- g+geom_line(aes(colour=area,lty=area),lwd=1)+
 		scale_colour_manual(name="area",values=c("yellow","lawngreen"))+
-		scale_y_continuous(expression(frac(p,bar(p)[opt_start_hist-opt_end_hist])))+
+		scale_y_continuous(as.expression(bquote(frac(p,bar(p)[.(opt_start_hist)-.(opt_end_hist)]))))+
 		theme_black()+
 		geom_ribbon(aes(ymin=p_std_1960_1979_min,ymax=p_std_1960_1979_max,fill=area),alpha=.3)+
 		scale_fill_manual(name="area",values=c("yellow","lawngreen"))
@@ -1749,7 +1749,7 @@ figure5 <- g+geom_line(aes(colour=area,lty=area),lwd=1.3)+geom_point(aes(colour=
 		scale_colour_brewer(name="area",palette="Set1")  +
 		#annotate("text",x=dat$year[length(dat$year)-2],y=datEE$p_std_1960_1979[length(datEE$p_std_1960_1979)],size=5,label=labelEE)+
 		#annotate("text",x=dat$year[length(dat$year)-2],y=datNS$p_std_1960_1979[length(datNS$p_std_1960_1979)],size=5,label=labelNS)+		
-		scale_y_log10(name=expression(frac(p,bar(p)[1960-1979])~' log scale'),
+		scale_y_log10(name=as.expression(bquote(frac(p,bar(p)[.(opt_start_hist)-.(opt_end_hist)])~' log scale')),
 				#limits=c(0.005,10),
 				breaks=c(0.01,0.1,1,10),
 				labels=c("1%","10%","100%","1000%"))+
@@ -2238,7 +2238,7 @@ nothing <- latex(yy,
 dat_ye$time =as.Date(strptime(paste(dat_ye$year,"-01-01",sep=""),format="%Y-%m-%d"))
 g <- ggplot(dat_ye,aes(x=time,y=value_std_1960_1979)) 
 figure6_without_log_scale <- g+ geom_line(lwd=1, color="darkolivegreen")+ geom_point(color="khaki3")+
-		scale_y_continuous(expression(frac(p,bar(p)[1960-1979])))+	
+		scale_y_continuous(as.expression(bquote(frac(p,bar(p)[.(opt_start_hist)-.(opt_end_hist)]))))+	
 		theme_bw()+
 		geom_hline(yintercept=1,linetype=2)+
 		geom_ribbon(aes(ymin=yellow_eel_min,ymax=yellow_eel_max),alpha=.6,fill="darkolivegreen2")+
@@ -2252,14 +2252,14 @@ save_figure("figure6_without_log_scale",figure6_without_log_scale,600,480)
 figure6_without_log_scale
 figure6_without_log_scale_black <- g+geom_line(lwd=1,color="white")+ 
 		geom_point(color="white")+
-		scale_y_continuous(expression(frac(p,bar(p)[1960-1979])))+
+		scale_y_continuous(as.expression(bquote(frac(p,bar(p)[.(opt_start_hist)-.(opt_end_hist)]))))+
 		geom_ribbon(aes(ymin=yellow_eel_min,ymax=yellow_eel_max),alpha=.3,fill="darkolivegreen2")+
 		#stat_smooth(method="lm",formula=y ~ ns(x,4),lty=2, size=0.8,alpha=0.3,col="turquoise1") +
 		theme_black()
 figure6_without_log_scale_black
 save_figure("figure6_without_log_scale_black",figure6_without_log_scale_black,600,480)
 figure6 <- g+geom_line(lwd=1,color="darkolivegreen")+geom_point(color="khaki3")+
-		scale_y_log10(name=expression(frac(p,bar(p)[1960-1979])~' (log scale)'),
+		scale_y_log10(name=as.expression(bquote(frac(p,bar(p)[.(opt_start_hist)-.(opt_end_hist)]))),
 				#limits=c(0.005,10),
 				breaks=c(0.01,0.1,1,10),
 				labels=c("1%","10%","100%","1000%")) +
