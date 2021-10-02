@@ -33,7 +33,11 @@ CY <- 2021 # current year ==> dont forget to update the graphics path below
 #----------------------------------------------------------
 opt_calculation <- "geomean" # "geomean" or "mean"
 opt_std <- "all" #"1979-1994" or "2000-2009" or "all"
-
+opt_start_ge <- 1960 #>= 1960
+opt_start_hist <- 1960 #>= 1960
+opt_end_hist <- 1979 #<=1979
+opt_start_older <- 1950 #>=1950
+opt_end_older <- CY-1 #<= CY-1
 options(width=90) # this sets the width of the output
 #--------------------------------
 # packages used by this script
@@ -1541,7 +1545,7 @@ figure_check_one_series("KatwG",limits=c(1960,2019))
 glass_eel_yoy$site <- as.factor(glass_eel_yoy$site)
 
 model_ge_area=glm(value_std~year_f:area+site,
-		data=glass_eel_yoy[glass_eel_yoy$value>0 & glass_eel_yoy$year>1959,],
+		data=glass_eel_yoy[glass_eel_yoy$value>0 & glass_eel_yoy$year>=opt_start_ge,],
 		family=Gamma(link=log), maxit=300)
 
 # lesser fit :
@@ -1561,7 +1565,7 @@ vv$modelge$value_excluded_zero <- glass_eel_yoy[glass_eel_yoy$value==0&!is.na(gl
 		c("value_std","site","year","lifestage","das_comment","area")]
 
 model_older=glm(value_std~year_f+as.factor(site),data=older,family=Gamma(link=log),
-		subset=older$value>0 & older$year>1949  ,maxit=300)
+		subset=older$value>0 & older$year>opt_start_yellow  ,maxit=300)
 vv$modelolder <- list()
 vv$modelolder$site <- as.numeric(as.character(model_older$xlevels$`as.factor(site)`))
 vv$modelolder$nbsite <- length(vv$modelolder$site)
@@ -1687,7 +1691,10 @@ dat_ge$se=predict(model_ge_area,newdata=dat_ge,se.fit=TRUE)[["se.fit"]]
 
 
 
-mean_1960_1979 <- aggregate(dat_ge[dat_ge$year<1980,"p"],list(dat_ge[dat_ge$year<1980,"area"]),mean)
+mean_1960_1979 <- 
+		aggregate(dat_ge[dat_ge$year>=opt_start_hist & dat_ge$year<=opt_end_hist,"p"],
+				list(dat_ge[dat_ge$year>=opt_start_hist & dat_ge$year<=opt_end_hist,"area"]),
+				mean)
 names(mean_1960_1979) <- c("area","mean")	
 
 
@@ -1708,7 +1715,7 @@ figure5_without_logscale<- g+
 		scale_colour_brewer(name="area",palette="Set1")+
 		geom_ribbon(aes(ymin=p_std_1960_1979_min,ymax=p_std_1960_1979_maxgraph,fill=area),alpha=.3)+
 		coord_cartesian(ylim=c(0,5))+
-		scale_y_continuous(expression(frac(p,bar(p)[1960-1979])))+
+		scale_y_continuous(expression(frac(p,bar(p)[opt_start_hist-opt_end_hist])))+
 		theme_bw()+
 		geom_hline(yintercept=1,linetype=2)+
 		geom_hline(yintercept=0,linetype=1,color = "grey30",size = 0.6)+
@@ -1725,7 +1732,7 @@ save_figure("figure5_without_logscale_ribbon",figure5_without_logscale,600,480)
 # black and white plot ====
 figure5_without_logscale_black <- g+geom_line(aes(colour=area,lty=area),lwd=1)+
 		scale_colour_manual(name="area",values=c("yellow","lawngreen"))+
-		scale_y_continuous(expression(frac(p,bar(p)[1960-1979])))+
+		scale_y_continuous(expression(frac(p,bar(p)[opt_start_hist-opt_end_hist])))+
 		theme_black()+
 		geom_ribbon(aes(ymin=p_std_1960_1979_min,ymax=p_std_1960_1979_max,fill=area),alpha=.3)+
 		scale_fill_manual(name="area",values=c("yellow","lawngreen"))
@@ -1919,7 +1926,7 @@ trend$lNS <- log(trend$"North Sea")
 # test glm with a breakpoint ----------------------------------------------------
 # this models takes numeric, not factors we assume a log trend
 model_ge_area_b=glm(value_std~year:area+site+pmax(year,2011):area,
-		data=glass_eel_yoy[glass_eel_yoy$value>0 & glass_eel_yoy$year>=1980,],
+		data=glass_eel_yoy[glass_eel_yoy$value>0 & glass_eel_yoy$year>=opt_start_ge,],
 		family=Gamma(link=log), maxit=300)
 ##summary(model_ge_area_b)
 ## plot(model_ge_area_b)
@@ -1964,7 +1971,7 @@ save(dat_ge, file=str_c(shinywd,"dat_ge.Rdata"))
 << segmented_regression, echo=FALSE, eval=FALSE, results=hide >>=
 
 
-dat_ge1 <- expand.grid(year=1980:2025,area=as.factor(model_ge_area_b$xlevels$area),
+dat_ge1 <- expand.grid(year=opt_start_ge:2025,area=as.factor(model_ge_area_b$xlevels$area),
 		site=model_ge_area_b$xlevels$site[1])
 
 dat_ge1$p <- predict(model_ge_area_b,newdata=dat_ge1)
@@ -2162,7 +2169,7 @@ M.gls1  <- glmmPQL(value_std~year_f:area+site,
 
 @
 
-<< model_for_yellow_eel, echo=FALSE, eval=TRUE, results=hide >>=
+<< model_for_yellow_eel_graph_and_pred, echo=FALSE, eval=TRUE, results=hide >>=
 # 2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~
 ######################################"
 #~yellow eel migrant analysis
@@ -2179,7 +2186,7 @@ model_older=glm(value_std ~ year_f + as.factor(site),
 		data = older,
 		family = Gamma(link=log),
 		subset = older$value >0 &
-				older$year > 1949 & older$year <CY-1,
+				older$year >= opt_start_older & older$year <=opt_end_older,
 		maxit = 300)
 # parteen was removed but is no longer among the series
 summary(model_older)
@@ -2203,7 +2210,7 @@ dat_ye$se=predict(model_older,newdata=dat_ye,se.fit = TRUE)$se.fit
 
 #in the logscale we remove the arithmetic mean to standardise prediction relatively to
 #1960-1980 
-dat_ye$mean_1960_1979=mean(dat_ye[dat_ye$year>=1960&dat_ye$year<1980,"p"])
+dat_ye$mean_1960_1979=mean(dat_ye[dat_ye$year>=op_start_hist&dat_ye$year<=opt_end_hist,"p"])
 dat_ye$value_std_1960_1979=exp(dat_ye$p-dat_ye$mean_1960_1979)
 dat_ye$yellow_eel_min=exp(dat_ye$p-dat_ye$mean-1.96*dat_ye$se)
 dat_ye$yellow_eel_max=exp(dat_ye$p-dat_ye$mean+1.96*dat_ye$se)
