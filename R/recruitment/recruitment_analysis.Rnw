@@ -33,10 +33,10 @@ CY <- 2021 # current year ==> dont forget to update the graphics path below
 #----------------------------------------------------------
 opt_calculation <- "geomean" # "geomean" or "mean"
 opt_std <- "all" #"1979-1994" or "2000-2009" or "all"
-opt_start_ge <- 1960 #>= 1960
-opt_start_hist <- 1960 #>= 1960
+opt_start_ge <- 1950 #>= 1960
+opt_start_hist <- 1950 #>= 1960
 opt_end_hist <- 1979 #<=1979
-opt_start_older <- 1950 #>=1950
+opt_start_older <- 1920 #>=1950
 opt_end_older <- CY-1 #<= CY-1
 options(width=90) # this sets the width of the output
 #--------------------------------
@@ -528,8 +528,8 @@ wger$value_std <- wger$value/wger$mean
 ##########################################################################
 
 
-glass_eel_yoy <- wger[wger$lifestage!="yellow eel" & wger$year>1959,] #glass eel and yoy
-older <- wger[wger$lifestage=="yellow eel" & wger$year>1949,] # Advice Drafting 2017 asks to 
+glass_eel_yoy <- wger[wger$lifestage!="yellow eel" & wger$year>=opt_start_ge,] #glass eel and yoy
+older <- wger[wger$lifestage=="yellow eel" & wger$year>=opt_start_older,] # Advice Drafting 2017 asks to 
 # give from 1949 to be consistent with previous years
 
 ##########################################################################
@@ -1200,7 +1200,7 @@ report in  any specific year.}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %************************************************************************************
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-<< generation_of_plot_data, echo=FALSE, eval=TRUE, results=hide >>=
+<< generation_of_plot_data, echo=FALSE, eval=FALSE, results=hide >>=
 ###################################################
 # Generation of the dataframes used to plot the data
 # two similar dataframe are created
@@ -1565,7 +1565,7 @@ vv$modelge$value_excluded_zero <- glass_eel_yoy[glass_eel_yoy$value==0&!is.na(gl
 		c("value_std","site","year","lifestage","das_comment","area")]
 
 model_older=glm(value_std~year_f+as.factor(site),data=older,family=Gamma(link=log),
-		subset=older$value>0 & older$year>opt_start_yellow  ,maxit=300)
+		subset=older$value>0 & older$year>opt_start_older  ,maxit=300)
 vv$modelolder <- list()
 vv$modelolder$site <- as.numeric(as.character(model_older$xlevels$`as.factor(site)`))
 vv$modelolder$nbsite <- length(vv$modelolder$site)
@@ -1859,8 +1859,8 @@ nothing <- latex(gg,
 		where="hptb",
 		cgroup=cgroupdecade,
 		n.cgroup=rep(ncol(gg0),length(cgroupdecade)),
-		collabel.just=strsplit("c c c c c c c c c c c c c c c", " ")[[1]],	
-		col.just     =strsplit("c c c c c c c c c c c c c c c", " ")[[1]],
+		collabel.just=strsplit("c c c c c c c c c c c c c c c c", " ")[[1]],	
+		col.just     =strsplit("c c c c c c c c c c c c c c c c", " ")[[1]],
 		#landscape=TRUE,
 		label="table_glm_glass_eel",
 		caption=str_c("GLM $glass~eel \\sim year:area + site $ geometric means of predicted values for ",vv$nb_series_glass_eel," glass eel series, values given in percentage of the 1960-1979 period."),	
@@ -2210,7 +2210,7 @@ dat_ye$se=predict(model_older,newdata=dat_ye,se.fit = TRUE)$se.fit
 
 #in the logscale we remove the arithmetic mean to standardise prediction relatively to
 #1960-1980 
-dat_ye$mean_1960_1979=mean(dat_ye[dat_ye$year>=op_start_hist&dat_ye$year<=opt_end_hist,"p"])
+dat_ye$mean_1960_1979=mean(dat_ye[dat_ye$year>=opt_start_hist&dat_ye$year<=opt_end_hist,"p"])
 dat_ye$value_std_1960_1979=exp(dat_ye$p-dat_ye$mean_1960_1979)
 dat_ye$yellow_eel_min=exp(dat_ye$p-dat_ye$mean-1.96*dat_ye$se)
 dat_ye$yellow_eel_max=exp(dat_ye$p-dat_ye$mean+1.96*dat_ye$se)

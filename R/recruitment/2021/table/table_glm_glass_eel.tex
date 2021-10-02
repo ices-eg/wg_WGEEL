@@ -1,23 +1,23 @@
-%latex.default(gg, rowlabel = "", rowlabel.just = "c", where = "hptb",     cgroup = cgroupdecade, n.cgroup = rep(ncol(gg0), length(cgroupdecade)),     collabel.just = strsplit("c c c c c c c c c c c c c c c",         " ")[[1]], col.just = strsplit("c c c c c c c c c c c c c c c",         " ")[[1]], label = "table_glm_glass_eel", caption = str_c("GLM $glass~eel \\sim year:area + site $ geometric means of predicted values for ",         vv$nb_series_glass_eel, " glass eel series, values given in percentage of the 1960-1979 period."),     file = str_c(tabwd, "/table_glm_glass_eel.tex"))%
+%latex.default(gg, rowlabel = "", rowlabel.just = "c", where = "hptb",     cgroup = cgroupdecade, n.cgroup = rep(ncol(gg0), length(cgroupdecade)),     collabel.just = strsplit("c c c c c c c c c c c c c c c c",         " ")[[1]], col.just = strsplit("c c c c c c c c c c c c c c c c",         " ")[[1]], label = "table_glm_glass_eel", caption = str_c("GLM $glass~eel \\sim year:area + site $ geometric means of predicted values for ",         vv$nb_series_glass_eel, " glass eel series, values given in percentage of the 1960-1979 period."),     file = str_c(tabwd, "/table_glm_glass_eel.tex"))%
 \begin{table}[hptb]
 \caption{GLM $glass~eel \sim year:area + site $ geometric means of predicted values for 56 glass eel series, values given in percentage of the 1960-1979 period.\label{table_glm_glass_eel}} 
 \begin{center}
-\begin{tabular}{ccccccccccccccccccccc}
+\begin{tabular}{cccccccccccccccccccccccc}
 \hline\hline
-\multicolumn{1}{c}{\bfseries }&\multicolumn{2}{c}{\bfseries  1960}&\multicolumn{1}{c}{\bfseries }&\multicolumn{2}{c}{\bfseries  1970}&\multicolumn{1}{c}{\bfseries }&\multicolumn{2}{c}{\bfseries  1980}&\multicolumn{1}{c}{\bfseries }&\multicolumn{2}{c}{\bfseries  1990}&\multicolumn{1}{c}{\bfseries }&\multicolumn{2}{c}{\bfseries  2000}&\multicolumn{1}{c}{\bfseries }&\multicolumn{2}{c}{\bfseries  2010}&\multicolumn{1}{c}{\bfseries }&\multicolumn{2}{c}{\bfseries  2020}\tabularnewline
-\cline{2-3} \cline{5-6} \cline{8-9} \cline{11-12} \cline{14-15} \cline{17-18} \cline{20-21}
-\multicolumn{1}{c}{}&\multicolumn{1}{c}{EE}&\multicolumn{1}{c}{NS}&\multicolumn{1}{c}{}&\multicolumn{1}{c}{EE}&\multicolumn{1}{c}{NS}&\multicolumn{1}{c}{}&\multicolumn{1}{c}{EE}&\multicolumn{1}{c}{NS}&\multicolumn{1}{c}{}&\multicolumn{1}{c}{EE}&\multicolumn{1}{c}{NS}&\multicolumn{1}{c}{}&\multicolumn{1}{c}{EE}&\multicolumn{1}{c}{NS}&\multicolumn{1}{c}{}&\multicolumn{1}{c}{EE}&\multicolumn{1}{c}{NS}&\multicolumn{1}{c}{}&\multicolumn{1}{c}{EE}&\multicolumn{1}{c}{NS}\tabularnewline
+\multicolumn{1}{c}{\bfseries }&\multicolumn{2}{c}{\bfseries  1950}&\multicolumn{1}{c}{\bfseries }&\multicolumn{2}{c}{\bfseries  1960}&\multicolumn{1}{c}{\bfseries }&\multicolumn{2}{c}{\bfseries  1970}&\multicolumn{1}{c}{\bfseries }&\multicolumn{2}{c}{\bfseries  1980}&\multicolumn{1}{c}{\bfseries }&\multicolumn{2}{c}{\bfseries  1990}&\multicolumn{1}{c}{\bfseries }&\multicolumn{2}{c}{\bfseries  2000}&\multicolumn{1}{c}{\bfseries }&\multicolumn{2}{c}{\bfseries  2010}&\multicolumn{1}{c}{\bfseries }&\multicolumn{2}{c}{\bfseries  2020}\tabularnewline
+\cline{2-3} \cline{5-6} \cline{8-9} \cline{11-12} \cline{14-15} \cline{17-18} \cline{20-21} \cline{23-24}
+\multicolumn{1}{c}{}&\multicolumn{1}{c}{EE}&\multicolumn{1}{c}{NS}&\multicolumn{1}{c}{}&\multicolumn{1}{c}{EE}&\multicolumn{1}{c}{NS}&\multicolumn{1}{c}{}&\multicolumn{1}{c}{EE}&\multicolumn{1}{c}{NS}&\multicolumn{1}{c}{}&\multicolumn{1}{c}{EE}&\multicolumn{1}{c}{NS}&\multicolumn{1}{c}{}&\multicolumn{1}{c}{EE}&\multicolumn{1}{c}{NS}&\multicolumn{1}{c}{}&\multicolumn{1}{c}{EE}&\multicolumn{1}{c}{NS}&\multicolumn{1}{c}{}&\multicolumn{1}{c}{EE}&\multicolumn{1}{c}{NS}&\multicolumn{1}{c}{}&\multicolumn{1}{c}{EE}&\multicolumn{1}{c}{NS}\tabularnewline
 \hline
-0&$152$&$208$&&$101$&$~99$&&$115$&$81$&&$35$&$15$&&$19.4$&$4.7$&&$~4.8$&$0.7$&&$7.1$&$0.9$\tabularnewline
-1&$130$&$117$&&$~55$&$~85$&&$~89$&$58$&&$17$&$~3$&&$~8.8$&$1.0$&&$~3.7$&$0.5$&&$5.4$&$0.6$\tabularnewline
-2&$151$&$180$&&$~50$&$109$&&$~92$&$29$&&$22$&$~8$&&$12.3$&$2.6$&&$~4.9$&$0.5$&&$$&$$\tabularnewline
-3&$195$&$225$&&$~56$&$~47$&&$~49$&$23$&&$24$&$~7$&&$13.1$&$1.9$&&$~7.1$&$1.7$&&$$&$$\tabularnewline
-4&$120$&$116$&&$~83$&$131$&&$~54$&$10$&&$24$&$~7$&&$~7.3$&$0.6$&&$12.0$&$2.5$&&$$&$$\tabularnewline
-5&$135$&$~79$&&$~71$&$~54$&&$~52$&$~8$&&$31$&$~5$&&$~7.4$&$1.1$&&$~7.6$&$0.9$&&$$&$$\tabularnewline
-6&$~76$&$~88$&&$116$&$~98$&&$~34$&$~8$&&$25$&$~5$&&$~6.0$&$0.5$&&$11.5$&$1.7$&&$$&$$\tabularnewline
-7&$~81$&$~98$&&$115$&$~74$&&$~59$&$~9$&&$41$&$~4$&&$~6.4$&$1.3$&&$10.6$&$1.1$&&$$&$$\tabularnewline
-8&$129$&$124$&&$110$&$~55$&&$~70$&$~9$&&$16$&$~3$&&$~5.7$&$1.2$&&$10.4$&$1.8$&&$$&$$\tabularnewline
-9&$~67$&$~90$&&$147$&$~95$&&$~45$&$~4$&&$19$&$~7$&&$~4.3$&$0.8$&&$~6.2$&$1.4$&&$$&$$\tabularnewline
+0&$~78$&$~25$&&$185$&$201$&&$124$&$107$&&$141$&$87$&&$43.3$&$16.0$&&$23.7$&$5.3$&&$~5.8$&$0.8$&&$8.7$&$1.0$\tabularnewline
+1&$~63$&$~32$&&$157$&$117$&&$~68$&$~89$&&$109$&$63$&&$21.1$&$~3.6$&&$10.8$&$1.1$&&$~4.5$&$0.5$&&$6.6$&$0.7$\tabularnewline
+2&$~42$&$111$&&$183$&$181$&&$~62$&$113$&&$113$&$32$&&$26.9$&$~8.7$&&$15.0$&$2.9$&&$~6.0$&$0.6$&&$$&$$\tabularnewline
+3&$~64$&$101$&&$237$&$225$&&$~68$&$~51$&&$~60$&$26$&&$29.5$&$~7.7$&&$16.1$&$2.2$&&$~8.7$&$2.0$&&$$&$$\tabularnewline
+4&$~89$&$167$&&$144$&$113$&&$102$&$136$&&$~66$&$11$&&$28.9$&$~7.5$&&$~8.9$&$0.7$&&$14.7$&$2.9$&&$$&$$\tabularnewline
+5&$~55$&$166$&&$165$&$~86$&&$~88$&$~59$&&$~64$&$~9$&&$38.1$&$~5.5$&&$~9.0$&$1.2$&&$~9.3$&$1.0$&&$$&$$\tabularnewline
+6&$~60$&$123$&&$~92$&$~91$&&$142$&$103$&&$~42$&$~9$&&$30.6$&$~5.5$&&$~7.3$&$0.5$&&$14.0$&$1.9$&&$$&$$\tabularnewline
+7&$~76$&$~67$&&$~99$&$104$&&$140$&$~80$&&$~72$&$10$&&$50.3$&$~4.8$&&$~7.9$&$1.5$&&$12.9$&$1.3$&&$$&$$\tabularnewline
+8&$~54$&$130$&&$158$&$128$&&$135$&$~59$&&$~85$&$10$&&$20.0$&$~3.5$&&$~7.0$&$1.3$&&$12.7$&$2.0$&&$$&$$\tabularnewline
+9&$116$&$164$&&$~82$&$~94$&&$181$&$102$&&$~55$&$~4$&&$23.4$&$~7.4$&&$~5.3$&$0.9$&&$~7.6$&$1.5$&&$$&$$\tabularnewline
 \hline
 \end{tabular}\end{center}
 \end{table}
