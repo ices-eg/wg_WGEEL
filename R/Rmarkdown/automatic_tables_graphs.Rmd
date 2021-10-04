@@ -875,7 +875,7 @@ filtered_data<-filter_data("release",
 		typ = 9,
 		life_stage = c("Y"))%>% dplyr::filter(is.na(eel_missvaluequal))
 
-filtered_data <- filtered_data %>% dplyr::filter(!(eel_cou_code == 'SE'))
+#filtered_data <- filtered_data %>% #dplyr::filter(!(eel_cou_code == 'SE'))
 year<-unique(filtered_data$eel_year)
 country<-unique(filtered_data$eel_cou_code)
 hty<-unique(filtered_data$eel_hty_code)
