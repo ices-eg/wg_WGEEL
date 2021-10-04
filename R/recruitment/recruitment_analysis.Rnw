@@ -2373,7 +2373,10 @@ delta$area <- dat_ge$area
 res_delta <-delta %>% pivot_longer(cols=contains("2"), names_to="year_included",values_to="delta")
 
 
-g<- ggplot(res_delta)+geom_line(aes(x=year,y=delta,color=year_included))
+g<- ggplot(res_delta)+
+		geom_line(aes(x=year,y=delta,color=year_included))+
+		facet_wrap( ~area) +
+		theme_bw()
 figure_inclusion_1<- g
 save_figure("figure_inclusion_1",figure_inclusion_1,600,480)
 
