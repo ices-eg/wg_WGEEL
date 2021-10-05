@@ -1314,5 +1314,5 @@ from datawg.t_dataseries_das
 		GROUP BY ser_nameshort, ser_lfs_code
 		ORDER BY stage,site;
 	
-
+UPDATE M datawg.t_series_ser set_ser_qal_id=WHERE ser_nameshort='BeeG';
 	
