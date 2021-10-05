@@ -44,6 +44,8 @@ load_library("parallel")
 load_library("kableExtra")
 load_library("mgcv")
 load_library("ggmap")
+load_library("ggrepel")
+load_library("grid")
 con_wgeel=dbConnect(PostgreSQL(),
                     dbname="wgeel",
                     host="localhost",
@@ -254,13 +256,27 @@ sf::sf_use_s2(FALSE)
    #theme_bw()
   my_map=get_stamenmap(bbox = c(left = -13, bottom = 35, right =
                                   27, top = 65), zoom = 6, maptype = c("watercolor"))
-  ggmap(my_map) + 
-    geom_point(data=yellow_map,
-               aes(x=ser_x,y=ser_y),cex=.5,pch=".")+
-    geom_text(data=yellow_map,
-               aes(x=ser_x,y=ser_y,label=ser_nameshort,col=Updated),cex=1.5)+
-    scale_color_manual("Upated",values=colorpalette)+
-    ylab("")+xlab("")
+
+	
+	draw_key_text=
+		function (data, params, size) 
+	{
+		if (is.null(data$label)) 
+			data$label <- "series"
+		grid::textGrob(data$label, 0.5, 0.5, rot = data$angle %||% 0, gp = gpar(cex = 2, col = alpha(data$colour %||% 
+						data$fill %||% "black", data$alpha), fontfamily = data$family %||% 
+					"", fontface = data$fontface %||% 1, fontsize = (data$size %||% 
+						3.88) * .pt))
+	}
+	
+	ggmap(my_map) + 
+		geom_point(data=yellow_map,
+			aes(x=ser_x,y=ser_y),cex=.5,pch=".")+
+		geom_label_repel(data=yellow_map,
+			aes(x=ser_x,y=ser_y,label=ser_nameshort,col=Updated),cex=1.5, key_glyph=draw_key_text) +
+		scale_color_manual("Upated",values=colorpalette)+
+		ylab("")+xlab("")
+					  
 #knitr::include_graphics("images/yellow.png")
 ```
 
@@ -328,6 +344,8 @@ yellow_data_std=yellow_data%>%
 #  mutate(das_value=log(das_value))%>%  # log scale remove because some series (10 in 2021) with 0)
   group_by(ser_id)%>%
   mutate(das_value=(das_value-mean(das_value,na.rm=TRUE))/sd(das_value,na.rm=TRUE))
+
+#summary(gam(das_value ~ das_year, data = yellow_data_std))
 
 ggplot(yellow_data_std,aes(x=das_year,y=das_value))+
   geom_line(aes(col=as.factor(ser_nameshort)))+
@@ -869,13 +887,25 @@ provide data through the current or past Data Call l (Figure
    #theme_bw()
   my_map=get_stamenmap(bbox = c(left = -13, bottom = 35, right =
                                   27, top = 65), zoom = 6, maptype = c("watercolor"))
-  ggmap(my_map) + 
-    geom_point(data=silver_map,
-               aes(x=ser_x,y=ser_y),cex=.5,pch=".")+
-    geom_text(data=silver_map,
-               aes(x=ser_x,y=ser_y,label=ser_nameshort,col=Updated),cex=1.5)+
-    scale_color_manual("Upated",values=colorpalette)+
-    ylab("")+xlab("")
+
+draw_key_text=
+	function (data, params, size) 
+{
+	if (is.null(data$label)) 
+		data$label <- "series"
+	grid::textGrob(data$label, 0.5, 0.5, rot = data$angle %||% 0, gp = gpar(cex = 2, col = alpha(data$colour %||% 
+					data$fill %||% "black", data$alpha), fontfamily = data$family %||% 
+				"", fontface = data$fontface %||% 1, fontsize = (data$size %||% 
+					3.88) * .pt))
+}
+
+ggmap(my_map) + 
+	geom_point(data=silver_map,
+		aes(x=ser_x,y=ser_y),cex=.5,pch=".")+
+	geom_label_repel(data=silver_map,
+		aes(x=ser_x,y=ser_y,label=ser_nameshort,col=Updated),cex=1.5, key_glyph=draw_key_text) +
+	scale_color_manual("Upated",values=colorpalette)+
+	ylab("")+xlab("")
 #knitr::include_graphics("images/silver.png")
 ```
 

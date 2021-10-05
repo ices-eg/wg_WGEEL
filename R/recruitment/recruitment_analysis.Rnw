@@ -307,8 +307,8 @@ wger_init[wger_init$area2%in%c("Baltic","North Sea"),"area"] <- "North Sea"
 #check if all series have been assign to an area
 if (sum(is.na(wger_init$area))>0) {
 	
-	cat("sites with qal_id 1 and no ref")
-	wger_init %>% dplyr::filter(is.na(area)&ser_qal_id==1) %>% dplyr::select(site) %>% distinct()
+	cat("sites with qal_id 1 or 4 and no ref")
+	wger_init %>% dplyr::filter(is.na(area)&(ser_qal_id==1|ser_qal_id==4)) %>% dplyr::select(site) %>% distinct()
 	cat("sites with qal_id 0 and no ref")
 	wger_init %>% dplyr::filter(is.na(area)&ser_qal_id!=1) %>% dplyr::select(site) %>% distinct()
 	stop("At least one series has not been affected to an area, stop this script NOW and check !!!")
@@ -407,8 +407,8 @@ left_join(
 
 # Here I'm using the interface with series to edit / modify series.
 
-wger_init %>% group_by(ser_qal_id) %>% summarize(len=n()) 
-wger <- wger[wger$ser_qal_id==1,]
+(vv$ser_qal_id_count <- wger_init %>% group_by(ser_qal_id) %>% distinct(ser_id) %>%summarize(len=n()))
+wger <- wger[wger$ser_qal_id==1|wger$ser_qal_id==4,]
 
 
 vv$nb_series_init_qual1 <- length(unique(wger$site))
@@ -420,6 +420,7 @@ vv$nb_series_init_qual1 <- length(unique(wger$site))
 # discared for other reasons and this is stated in column eel_qal_comment of the t_series_ser table
 
 wgerdiscarded <- wger_init[wger_init$ser_qal_id!=1,]
+
 # series marked as "0" might have a very low value but not included in the analysis, here replaced by NA
 wgerdiscarded$value[wgerdiscarded$das_qal_id==0] <- NA
 # storing this information in a list for eventual later display and check
@@ -460,6 +461,10 @@ vv$qual_id_3_removed <- list()
 vv$qual_id_3_removed$length <- length(removed_id)
 vv$qual_id_3_removed$year <- removed_year
 vv$qual_id_3_removed$site <- removed_site
+
+
+
+
 # For those series, values are replaced with NA -----------------------------------------------------
 
 wger[!is.na(wger$das_qal_id) & wger$das_qal_id==3,c("value")] <- NA
@@ -2373,7 +2378,10 @@ delta$area <- dat_ge$area
 res_delta <-delta %>% pivot_longer(cols=contains("2"), names_to="year_included",values_to="delta")
 
 
-g<- ggplot(res_delta)+geom_line(aes(x=year,y=delta,color=year_included))
+g<- ggplot(res_delta)+
+		geom_line(aes(x=year,y=delta,color=year_included))+
+		facet_wrap( ~area) +
+		theme_bw()
 figure_inclusion_1<- g
 save_figure("figure_inclusion_1",figure_inclusion_1,600,480)
 
@@ -2605,7 +2613,69 @@ since then.
 \clearpage
 
 \section*{Annex}
+<<diagramme,echo=FALSE,eval=FALSE,results=hide>>=
+library(DiagrammeR)
+library(magrittr)
+require(DiagrammeRsvg)
 
+node_list <- create_node_df(n=16,		
+		type=rep(c("box",
+						"value"), 16
+		),
+		label=c(
+				str_c("Series available in ", CY),
+				vv$nb_series_init,
+				"used in analysis",
+				vv$nb_series_final,
+				"G + GY",
+				vv$nb_series_glass_eel,
+				"Y",
+				vv$nb_series_older,
+				"NS",
+				as.numeric(vv$nb_series_glass_eel_per_area[vv$nb_series_glass_eel_per_area$area=="Elsewhere Europe",2]),
+				"EE",
+				as.numeric(vv$nb_series_glass_eel_per_area[vv$nb_series_glass_eel_per_area$area=="North Sea",2]),
+				"< 10 years",
+				as.numeric(vv$ser_qal_id_count[vv$ser_qal_id_count$ser_qal_id==0,"len"]),
+				"Discarded",
+				as.numeric(vv$ser_qal_id_count[vv$ser_qal_id_count$ser_qal_id==3,"len"])
+		),
+		color=c(rep("green",12),"orange","orange","red","red"),
+		style="filled",
+		shape=rep(c("plaintext","circle"),8),
+		value=1:16,
+		fixedsize =FALSE
+)
+
+edge_list<-create_edge_df(
+		from=c(1,2,3,4,5,4,7,2 ,2 ,13,15,6,6,11,9),
+		to=  c(2,3,4,5,6,7,8,13,15,14,16,9,11,12,10),
+		rel="a",
+		label=rep(" ",15),
+		color=rep("grey",15),
+		length=100)
+
+
+
+igraph1 <- create_graph( attr_theme = NULL)
+
+igraph2 <- igraph1%>%
+		add_nodes_from_table(table = node_list, 
+				type_col=type,
+				label_col=label) 
+#igraph2 %>% get_node_df()
+# Add the edges to the graph
+igraph3 <-igraph2 %>%
+		add_edges_from_table(
+				table = edge_list,
+				from_col = from,
+				to_col = to,
+				from_to_map = id_external
+		)
+
+render_graph(igraph3, layout="tree")
+
+@
 \subsection{Additional figures}
 
 We provide the same figures as in the main text but Figure \ref{figure3withoutlogscale} 

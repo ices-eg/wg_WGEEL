@@ -1304,4 +1304,15 @@ FROM
    unused
 
    
-GRANT CONNECT ON DATABASE ouvrage TO  ouvrage;   
+GRANT CONNECT ON DATABASE ouvrage TO  ouvrage; 
+
+SELECT count(*), ser_nameshort AS site, ser_lfs_code AS stage 
+from datawg.t_dataseries_das 
+		join datawg.t_series_ser on das_ser_id=ser_id
+		WHERE das_year <=1959 AND das_year>=1950
+		AND ser_typ_id =1
+		GROUP BY ser_nameshort, ser_lfs_code
+		ORDER BY stage,site;
+	
+UPDATE M datawg.t_series_ser set_ser_qal_id=WHERE ser_nameshort='BeeG';
+	
