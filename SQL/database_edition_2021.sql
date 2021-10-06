@@ -1316,3 +1316,11 @@ from datawg.t_dataseries_das
 	
 UPDATE M datawg.t_series_ser set_ser_qal_id=WHERE ser_nameshort='BeeG';
 	
+SELECT DISTINCT eel_cou_code FROM datawg.t_eelstock_eel WHERE eel_typ_id IN (8,9) AND eel_lfs_code='S'
+
+
+SELECT * FROM datawg.t_eelstock_eel WHERE eel_emu_nameshort ='GB_Humb' AND eel_typ_id=4 AND eel_year=2014
+
+
+SELECT st_srid(geom) FROM ref.tr_faoareas
+SELECT st_srid(geom) FROM datawg.t_series_ser

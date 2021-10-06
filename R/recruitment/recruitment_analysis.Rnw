@@ -960,7 +960,9 @@ save_figure(figname="series_no_area",figure2.1,1000,500)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %************************************************************************************
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-<<mapseries,echo=FALSE, eval=FALSE,results=hide>>=
+<<mapseries,echo=FALSE, eval=TRUE,results=hide>>=
+# if problems see https://github.com/dkahle/ggmap/issues/160
+
 if(!require(ggmap)) install.packages("ggmap") ; require(ggmap)
 if(!require(sf)) install.packages("sf") ; require(sf)
 if(!require(RPostgres)) install.packages("RPostgres") ; require(RPostgres)
@@ -973,24 +975,40 @@ source("../shiny_data_visualisation/shiny_dv/database_connection.R")
 
 
 my_map <- get_stamenmap( c(left = -13, bottom = 35, right =
-						27, top = 65),zoom=5, maptype = c("watercolor"))
+						27, top = 65),zoom=4, maptype = c("watercolor"))
 
 con <- dbConnect(Postgres(),host=host,password=pwd,dbname="wgeel",user=user)
 fao <- st_read(con,query="select * from ref.tr_faoareas")
 fao <- st_crop(fao, xmin = -13, xmax = 27,
 		ymin = 35, ymax = 65)
-fao <- (st_transform(fao,3857))
+fao <- st_transform(fao,3857)
 fao$zone <- ifelse(fao$f_code %in% c("27.3.d",'27.3.b, c'),"Baltic",
 		ifelse(startsWith(fao$f_code,"27.4.") | startsWith(fao$f_code,"27.3."),
 				"North Sea",
 				"Elsewhere Europe"))
 
-attr(my_map, "bb")$ll.lat <- st_bbox(fao)["ymin"]
-attr(my_map, "bb")$ll.lon <- st_bbox(fao)["xmin"]
-attr(my_map, "bb")$ur.lat <- st_bbox(fao)["ymax"]
-attr(my_map, "bb")$ur.lon <- st_bbox(fao)["xmax"]
 
+ggmap_bbox <- function(map) {
+	if (!inherits(map, "ggmap")) stop("map must be a ggmap object")
+	# Extract the bounding box (in lat/lon) from the ggmap to a numeric vector, 
+	# and set the names to what sf::st_bbox expects:
+	map_bbox <- setNames(unlist(attr(map, "bb")), 
+			c("ymin", "xmin", "ymax", "xmax"))
+	
+	# Coonvert the bbox to an sf polygon, transform it to 3857, 
+	# and convert back to a bbox (convoluted, but it works)
+	bbox_3857 <- st_bbox(st_transform(st_as_sfc(st_bbox(map_bbox, crs = 4326)), 3857))
+	
+	# Overwrite the bbox of the ggmap object with the transformed coordinates 
+	attr(map, "bb")$ll.lat <- bbox_3857["ymin"]
+	attr(map, "bb")$ll.lon <- bbox_3857["xmin"]
+	attr(map, "bb")$ur.lat <- bbox_3857["ymax"]
+	attr(map, "bb")$ur.lon <- bbox_3857["xmax"]
+	map
+}
+my_map<- ggmap_bbox(my_map)
 stations <- st_transform(st_as_sf(R_stations,coords=c("ser_x","ser_y"),crs=4326),3857)
+#stations <- st_as_sf(R_stations,coords=c("ser_x","ser_y"),crs=4326)
 
 stations$X = st_coordinates(stations)[,"X"]
 stations$Y = st_coordinates(stations)[,"Y"]
@@ -1013,7 +1031,7 @@ figure1 <- ggmap(my_map)+
 				shape = 21,
 				stroke=1,
 				aes(x=X,y=Y)) +
-		geom_point(data=subset(stations,ser_lfs_code=="Y"& ser_qal_id==1),
+		geom_point(data=subset(stations,ser_lfs_code=="Y"& (ser_qal_id==1 |ser_qal_id==4)),
 				color = 'black',		
 				size= 3, 
 				shape = 24,
@@ -1196,7 +1214,16 @@ report in  any specific year.}
 \end{figure}
  %========================================== 
  
- 
+  %========================================== 
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.5\textwidth]{series_selection.png}
+\caption{Series selection and analysis. Series less than 10 years are not used
+in the analysis. Y yellow eel series, G + GY glass and young yellow eel series.
+NS North Sea, EE Elsewhere Europe}
+\label{figure2}
+\end{figure}
+ %========================================== 
  
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %************************************************************************************
@@ -2616,8 +2643,8 @@ since then.
 <<diagramme,echo=FALSE,eval=FALSE,results=hide>>=
 library(DiagrammeR)
 library(magrittr)
-require(DiagrammeRsvg)
-
+library(DiagrammeRsvg)
+library(rsvg)
 node_list <- create_node_df(n=16,		
 		type=rep(c("box",
 						"value"), 16
@@ -2625,7 +2652,7 @@ node_list <- create_node_df(n=16,
 		label=c(
 				str_c("Series available in ", CY),
 				vv$nb_series_init,
-				"used in analysis",
+				"used",
 				vv$nb_series_final,
 				"G + GY",
 				vv$nb_series_glass_eel,
@@ -2635,9 +2662,9 @@ node_list <- create_node_df(n=16,
 				as.numeric(vv$nb_series_glass_eel_per_area[vv$nb_series_glass_eel_per_area$area=="Elsewhere Europe",2]),
 				"EE",
 				as.numeric(vv$nb_series_glass_eel_per_area[vv$nb_series_glass_eel_per_area$area=="North Sea",2]),
-				"< 10 years",
+				"< 10 Y",
 				as.numeric(vv$ser_qal_id_count[vv$ser_qal_id_count$ser_qal_id==0,"len"]),
-				"Discarded",
+				"discarded",
 				as.numeric(vv$ser_qal_id_count[vv$ser_qal_id_count$ser_qal_id==3,"len"])
 		),
 		color=c(rep("green",12),"orange","orange","red","red"),
@@ -2673,7 +2700,12 @@ igraph3 <-igraph2 %>%
 				from_to_map = id_external
 		)
 
-render_graph(igraph3, layout="tree")
+render_graph(igraph3, layout="tree")%>%
+render_graph(igraph3, layout="tree") %>% 
+export_svg %>% read_xml %>% write_xml(str_c(imgwd,"series_selection.png"))
+
+render_graph(igraph3, layout="tree") %>% 
+		export_svg %>%  charToRaw %>% rsvg_png(str_c(imgwd,"series_selection.png"))
 
 @
 \subsection{Additional figures}
