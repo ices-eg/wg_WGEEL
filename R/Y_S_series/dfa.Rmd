@@ -255,8 +255,8 @@ sf::sf_use_s2(FALSE)
 # ggplot(yellow_map)+geom_sf(data=europe_cropped)+geom_sf(data=yellow_map,col="red")+
    #theme_bw()
   my_map=get_stamenmap(bbox = c(left = -13, bottom = 35, right =
-                                  27, top = 65), zoom = 6, maptype = c("watercolor"))
-
+                                  27, top = 65), zoom = 6, maptype = c("terrain-background"))
+#watercolor
 	
 	draw_key_text=
 		function (data, params, size) 
@@ -271,9 +271,9 @@ sf::sf_use_s2(FALSE)
 	
 	ggmap(my_map) + 
 		geom_point(data=yellow_map,
-			aes(x=ser_x,y=ser_y),cex=.5,pch=".")+
+			aes(x=ser_x,y=ser_y),cex=2,pch=20, col  = "red")+
 		geom_label_repel(data=yellow_map,
-			aes(x=ser_x,y=ser_y,label=ser_nameshort,col=Updated),cex=1.5, key_glyph=draw_key_text) +
+			aes(x=ser_x,y=ser_y,label=ser_nameshort,col=Updated),cex=1.5, key_glyph=draw_key_text, max.overlaps = Inf, label.padding = 0.1) +
 		scale_color_manual("Upated",values=colorpalette)+
 		ylab("")+xlab("")
 					  
@@ -886,8 +886,8 @@ provide data through the current or past Data Call l (Figure
 # ggplot(silver_map)+geom_sf(data=europe_cropped)+geom_sf(data=silver_map,col="red")+
    #theme_bw()
   my_map=get_stamenmap(bbox = c(left = -13, bottom = 35, right =
-                                  27, top = 65), zoom = 6, maptype = c("watercolor"))
-
+                                  27, top = 65), zoom = 6, maptype = c("terrain-background"))
+#watercolor
 draw_key_text=
 	function (data, params, size) 
 {
@@ -901,9 +901,9 @@ draw_key_text=
 
 ggmap(my_map) + 
 	geom_point(data=silver_map,
-		aes(x=ser_x,y=ser_y),cex=.5,pch=".")+
+		aes(x=ser_x,y=ser_y),cex=2,pch=20, col  = "red")+
 	geom_label_repel(data=silver_map,
-		aes(x=ser_x,y=ser_y,label=ser_nameshort,col=Updated),cex=1.5, key_glyph=draw_key_text) +
+		aes(x=ser_x,y=ser_y,label=ser_nameshort,col=Updated),cex=1.5, key_glyph=draw_key_text, max.overlaps = Inf, label.padding = 0.1) +
 	scale_color_manual("Upated",values=colorpalette)+
 	ylab("")+xlab("")
 #knitr::include_graphics("images/silver.png")
