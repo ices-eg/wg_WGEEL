@@ -1315,6 +1315,7 @@ from datawg.t_dataseries_das
 		ORDER BY stage,site;
 	
 UPDATE M datawg.t_series_ser set_ser_qal_id=WHERE ser_nameshort='BeeG';
+<<<<<<< HEAD
 	
 SELECT DISTINCT eel_cou_code FROM datawg.t_eelstock_eel WHERE eel_typ_id IN (8,9) AND eel_lfs_code='S'
 
@@ -1322,5 +1323,14 @@ SELECT DISTINCT eel_cou_code FROM datawg.t_eelstock_eel WHERE eel_typ_id IN (8,9
 SELECT * FROM datawg.t_eelstock_eel WHERE eel_emu_nameshort ='GB_Humb' AND eel_typ_id=4 AND eel_year=2014
 
 
-SELECT st_srid(geom) FROM ref.tr_faoareas
-SELECT st_srid(geom) FROM datawg.t_series_ser
+
+
+
+
+--removing wrong values detected by Tea
+update datawg.t_eelstock_eel tee set eel_qal_id = 21,
+eel_qal_comment='Tea detected an error in these values, originating from dc2018, but then modified without knowing why. Will be updated in 2022'
+where eel_id in( 405315, 405318,405326,405341);
+
+	
+

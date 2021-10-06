@@ -56,7 +56,7 @@ trace_precodiag = function(precodata,
   ############################
   mylimits=c(0,1000)
   precodata$pSpR=exp(-precodata$suma)
-  precodata$pbiom=precodata$bcurrent/precodata$b0
+  precodata$pbiom=precodata$ratio_bcurrent_b0
   if (any(precodata$bcurrent>precodata$b0,na.rm=TRUE)){
 	cat("You  have Bbest larger than B0, you should check \n")
 	Bmaximum<-max(precodata$pbiom,na.rm=TRUE)
