@@ -81,6 +81,15 @@ source("database_data.R") #function extract_data
 source("database_reference.R") # function extract_ref
 load("common/data/ccm.rdata")
 
+source("importstep0.R")
+source("importstep1.R")
+source("importstep2.R")
+source("newparticipants.R")
+source("plotduplicates.R")
+source("importtsstep0.R")
+source("importtsstep1.R")
+source("importtsstep2.R")
+
 # Local shiny files ---------------------------------------------------------------------------------
 
 source("database_tools.R")

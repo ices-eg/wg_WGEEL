@@ -159,7 +159,7 @@ tableEditServer <- function(id,globaldata){
                    rvsAll$editedInfo = NA
                    disable("clear_tableAll")                
                  },error = function(e) {
-                   showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+                   showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
                  }))
                  
                  #-----------------------------------------
@@ -243,7 +243,7 @@ tableEditServer <- function(id,globaldata){
                    rvsAll$data <- bind_rows(rvsAll$data,emptyRow)
                    replaceData(proxy_table_corAll,rvsAll$data , resetPaging = FALSE, rownames = FALSE)
                  },error = function(e) {
-                   showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+                   showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
                  }))
                  
                  
@@ -276,7 +276,7 @@ tableEditServer <- function(id,globaldata){
                    }
                    
                  },error = function(e) {
-                   showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+                   showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
                  }))
                  
                  #-----------------------------------------
@@ -309,7 +309,7 @@ tableEditServer <- function(id,globaldata){
                      rvsAll$editedInfo <- dplyr::bind_rows(rvsAll$editedInfo, data.frame(info))
                    }
                  },error = function(e) {
-                   showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+                   showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
                  }))
                  
                  
@@ -373,7 +373,7 @@ tableEditServer <- function(id,globaldata){
                      rvsAll$data <- data
                      rvsAll$dbdata <- data
                    }},error = function(e) {
-                     showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+                     showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
                    })})
                  
                  #when we want to edit time series related data, if a life stage is selected,
@@ -391,7 +391,7 @@ tableEditServer <- function(id,globaldata){
                    }
                    
                  },error = function(e) {
-                   showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+                   showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
                  }))
                  
                  observeEvent(input$editpicker2,tryCatch({
@@ -405,7 +405,7 @@ tableEditServer <- function(id,globaldata){
                    }
                    
                  },error = function(e) {
-                   showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+                   showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
                  }))
                  
                  # Update edited values in db once save is clicked---------------------------------------------
@@ -424,7 +424,7 @@ tableEditServer <- function(id,globaldata){
                    rvsAll$dataSame <- TRUE
                    rvsAll$editedInfo = NA
                  },error = function(e) {
-                   showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+                   showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
                  }))
                  
                  # Observe clear_table button -> revert to database table---------------------------------------
@@ -449,7 +449,7 @@ tableEditServer <- function(id,globaldata){
                                 output$database_errorsAll<-renderText({""})
                                 rvsAll$editedInfo = NA
                               },error = function(e) {
-                                showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+                                showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
                               }))
                  
                  # Oberve cancel -> revert to last saved version -----------------------------------------------
@@ -461,7 +461,7 @@ tableEditServer <- function(id,globaldata){
                    rvsAll$dataSame <- TRUE
                    rvsAll$editedInfo = NA
                  },error = function(e) {
-                   showNotification(paste("Error: ", e$message), type = "error",duration=NULL)
+                   showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
                  }))
                  
                  # UI buttons ----------------------------------------------------------------------------------
