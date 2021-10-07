@@ -1,0 +1,602 @@
+---
+title: "Untitled"
+author: "none"
+date: "27/09/2021"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning=FALSE,message=FALSE)
+library(RPostgres)
+library(sf)
+library(getPass)
+library(ggforce)
+library(ggplot2)
+library(flextable)
+library(tidyverse)
+host="localhost"
+port=5435
+user="wgeel"
+password=getPass()
+con = dbConnect(Postgres(), dbname="wgeel",host=host,port=port,user=user, password=password)
+load("../../R/shiny_data_visualisation/shiny_dv/data/maps_for_shiny.Rdata")
+load("../..//R/shiny_data_visualisation/shiny_dv/data/ref_and_eel_data.Rdata")
+
+emu_c <- filter(emu_c,!endsWith(emu_nameshort,"_o"))
+
+values=c(RColorBrewer::brewer.pal(12,"Set3"),
+    RColorBrewer::brewer.pal(12, "Paired"), 
+    RColorBrewer::brewer.pal(8,"Accent"),
+    RColorBrewer::brewer.pal(8, "Dark2"))
+country_ref=dbGetQuery(con,"select cou_code from ref.tr_country_cou")
+color_countries = setNames(values,country_ref$cou_code)
+
+```
+
+# Downloading data
+
+```{r download}
+biomass <- dbGetQuery(con,"select e.* from datawg.t_eelstock_eel e  where eel_qal_id in (0,1,2,3,4) and eel_typ_id in (13,14,15)")
+
+mortality <- dbGetQuery(con,"select e.* from datawg.t_eelstock_eel e where eel_qal_id in (0,1,2,3,4) and eel_typ_id in (17,18,19)")
+
+
+nb_country_emu <- dbGetQuery(con,"select count(distinct eel_cou_code),count(distinct(eel_emu_nameshort)) from datawg.t_eelstock_eel 
+                             where eel_typ_id in (13, 14, 15, 17, 18, 19) and eel_datasource='dc_2021'")
+```
+
+# Data availability
+## General overview
+Tables showing the numbers of the range and numbers of years provided for each indicator by each country
+```{r data2020}
+flextable(biomass %>% 
+            mutate(eel_value=ifelse(is.na(eel_value & eel_missvaluequal == "NP"), 0,eel_value)) %>% 
+            select(eel_typ_id,
+                   eel_year,
+                   eel_emu_nameshort,
+                   eel_value) %>%
+            mutate(eel_typ_id=case_when(eel_typ_id==13~"B0",eel_typ_id==14~"Bbest",eel_typ_id==15~"Bcurrent")) %>%
+            na.omit() %>%
+            group_by(eel_typ_id,
+                     eel_emu_nameshort) %>%
+            summarize(minyear=min(eel_year), maxyear=max(eel_year), nb_value=n()) %>%
+            mutate(range=paste(minyear, maxyear, sep = "-")) %>%
+            select(eel_typ_id, eel_emu_nameshort, nb_value, range) %>%
+            arrange(eel_emu_nameshort) %>%
+            pivot_wider(names_from=eel_typ_id, values_from=c(range, nb_value),
+                        names_glue="{eel_typ_id}_{.value}",
+                        names_sort=TRUE))
+```
+
+
+for mortality
+
+```{r mortadata}
+  
+
+flextable(mortality %>% 
+            mutate(eel_value=ifelse(is.na(eel_value & eel_missvaluequal == "NP"), 0,eel_value)) %>% 
+            select(eel_typ_id,
+                   eel_year,
+                   eel_emu_nameshort,
+                   eel_value) %>%
+            mutate(eel_typ_id=case_when(eel_typ_id==17~"sumA",eel_typ_id==18~"sumF",eel_typ_id==19~"sumH")) %>%
+            na.omit() %>%
+            group_by(eel_typ_id,
+                     eel_emu_nameshort) %>%
+            summarize(minyear=min(eel_year), maxyear=max(eel_year), nb_value=n()) %>%
+            mutate(range=paste(minyear, maxyear, sep = "-")) %>%
+            select(eel_typ_id, eel_emu_nameshort, nb_value, range) %>%
+            arrange(eel_emu_nameshort) %>%
+            pivot_wider(names_from=eel_typ_id, values_from=c(range, nb_value),
+                        names_glue="{eel_typ_id}_{.value}",
+                        names_sort=TRUE))
+  
+        
+          
+          
+```
+
+## Spatial coverage
+Maps showings data avaibility. The symbol indicates wether the country have provided estimates for at least one (whatever year), two , three distinct indicators.
+```{r indicatorsmaps}
+data_avail = rbind.data.frame(mortality,biomass) %>%
+  filter(!(is.na(eel_value) & eel_missvaluequal!="NP")) %>%
+  group_by(eel_emu_nameshort) %>%
+  summarize(b0=sum(eel_typ_id==13)>0,
+         bbest=sum(eel_typ_id==14)>0,
+         bcurrent=sum(eel_typ_id==15)>0,
+         suma=sum(eel_typ_id==17)>0,
+         sumf=sum(eel_typ_id==18)>0,
+         sumh=sum(eel_typ_id==19)>0)
+data_avail <- merge(emu_c, data_avail, by.x="emu_nameshort",by.y="eel_emu_nameshort",all.x=TRUE)
+data_avail<- st_transform(data_avail, crs=3035)
+data_avail$x <-st_coordinates(data_avail)[,1]
+data_avail$y <-st_coordinates(data_avail)[,2]
+data_avail$x[data_avail$emu_cou_code=="NO"] = 4172612.3
+data_avail$y[data_avail$emu_cou_code=="NO"] = 4111023.3
+data_avail<- data_avail %>%
+  mutate(bsummary=coalesce(b0+bbest+bcurrent, 0),
+         mortsummary=coalesce(suma+sumf+sumh,0),
+         responded=ifelse(is.na(bsummary) & is.na(mortsummary), FALSE, TRUE))
+
+
+ggplot(st_transform(country_p,crs=3035)) + geom_sf(fill=NA)+theme_bw()+
+  geom_point(data=data_avail,aes(x=x,y=y,fill=as.factor(bsummary)),shape=21)+
+  scale_fill_viridis_d("Biomass indicators",labels=c("none","one","two","three"))+
+  xlab("")+ylab("")
+
+ggplot(st_transform(country_p,crs=3035)) + geom_sf(fill=NA)+theme_bw()+
+  geom_point(data=data_avail,aes(x=x,y=y,fill=as.factor(mortsummary)),shape=21)+
+  scale_fill_viridis_d("Mortality indicators",labels=c("none","one","two","three"))+
+  xlab("")+ylab("")
+
+data_avail =data_avail %>% select(emu_nameshort,x,y,bsummary,responded,mortsummary,geometry) %>%
+  pivot_longer(cols=ends_with("summary"),names_to="indicator",values_to="nb")
+
+ggplot(st_transform(country_p,crs=3035)) + geom_sf(fill=NA)+theme_bw()+
+  geom_point(data=data_avail,aes(x=x,y=y,fill=as.factor(nb)),shape=21)+
+  scale_fill_viridis_d("Number of indicators",labels=c("none","one","two","three"))+
+  xlab("")+ylab("")+facet_wrap(~indicator)
+
+#ggsave(filename="/tmp/maps.png",width=16/2.54,height=10/2.54)
+```
+
+## Habitat coverage
+This year for the first time, we asked aggregated data at the EMU scale, but asked for habitat coverage within indicator.
+
+```{r habitatcoverage}
+biomass <- dbGetQuery(con,"select * from datawg.t_eelstock_eel e  left join datawg.t_eelstock_eel_percent on eel_id=percent_id where eel_qal_id=1 and eel_typ_id in (13,14,15)")
+
+mortality <- dbGetQuery(con,"select * from datawg.t_eelstock_eel e left join datawg.t_eelstock_eel_percent on eel_id=percent_id where eel_qal_id=1 and eel_typ_id in (17,18,19)")
+
+
+
+biomass_long <- biomass%>%
+  filter(!is.na(eel_value)) %>%
+  select(eel_year,eel_typ_id,eel_emu_nameshort,perc_mo,perc_f,perc_c,perc_t) %>%
+  pivot_longer(cols=c(perc_mo,perc_f,perc_t,perc_c), 
+               names_to="habitat", values_to="perc") %>%
+  mutate(habitat=toupper(gsub("perc_","",habitat)))%>%
+  mutate(type="biomass",
+         eel_typ_id=case_when(eel_typ_id==13~"B0",eel_typ_id==14~"Bbest",eel_typ_id==15~"Bcurrent"))
+
+mortality_long <-mortality%>%
+  filter(!is.na(eel_value)) %>%
+  select(eel_year,eel_typ_id,eel_emu_nameshort,perc_mo,perc_f,perc_c,perc_t) %>%
+  pivot_longer(cols=c(perc_mo,perc_f,perc_t,perc_c), 
+               names_to="habitat", values_to="perc") %>%
+  mutate(habitat=toupper(gsub("perc_","",habitat))) %>%
+  mutate(type="mortality",
+         eel_typ_id=case_when(eel_typ_id==17~"sumA",eel_typ_id==18~"sumF",eel_typ_id==19~"sumH"))
+
+indicator <- biomass_long %>%
+  bind_rows(mortality_long) %>%
+  filter(perc >= 0)
+
+flextable(indicator %>%
+  group_by(type,habitat) %>%
+  summarize(freq100=round(sum(perc==100)/n()*100),
+            freq0=round(sum(perc==0)/n()*100)) %>%
+  pivot_wider(names_from=habitat,values_from=c(freq0,freq100)))
+```
+Marine open and coastal never accounted for. Significant part of transitional waters not accounted for.
+
+# Maps of indicators
+Values averages from 2018 to 2020 (3 years)
+
+## per emu
+
+
+```{r rasta}
+# indicator <- dbGetQuery(con,"select eel_cou_code,eel_emu_nameshort, avg(b0)b0,avg(bbest)bbest,avg(bcurrent)bcurrent, avg(suma)suma,avg(sumf)sumf,avg(sumh) sumh from datawg.precodata_emu where eel_year>=2018 group by eel_cou_code,eel_emu_nameshort")
+# indicator <- merge(emu_c, indicator, by.x="emu_nameshort",by.y="eel_emu_nameshort")
+# indicator = st_transform(indicator,crs=3035)
+# indicator$x <-st_coordinates(indicator)[,1]
+# indicator$y <-st_coordinates(indicator)[,2]
+# indicator$btarget <- .4*indicator$b0
+# indicator$bscaled <- indicator$bcurrent/indicator$b0
+# prettyscale <- pretty(range(indicator$bcurrent,na.rm=TRUE),n=2)
+# prettyscale_scaled <- scales::rescale(prettyscale,to=c(40190.79,200000.00),from=c(661,max(indicator$bcurrent,na.rm=TRUE)))
+# scalesb <-data.frame(b=prettyscale,bscale=prettyscale_scaled)
+# # indicator$btarget <- scales::rescale(indicator$btarget,to=c(40190.79,200000.00),from=c(661,10400000))
+#  indicator$bcurrent <- scales::rescale(indicator$bcurrent,to=c(40190.79,200000.00),from=c(661,max(indicator$bcurrent,na.rm=TRUE)))
+# # indicator$bbest <- scales::rescale(indicator$bbest,to=c(40190.79,200000.00),from=c(661,10400000))
+# # indicator$b0 <- scales::rescale(indicator$b0,to=c(40190.79,200000.00),from=c(661,10400000))
+# 
+# # indicator$bcurrent <- log(indicator$bcurrent)/log(max(indicator$b0,na.rm=TRUE))*100000
+# # indicator$bbest <- log(indicator$bbest)/log(max(indicator$b0,na.rm=TRUE))*100000
+# # indicator$b0 <- log(indicator$b0)/log(max(indicator$b0,na.rm=TRUE))*100000
+# indicator$suma <- indicator$suma /.92*20000
+# indicator$sumf <- indicator$sumf /.92*20000
+# indicator$sumh <- indicator$sumh /.92*20000
+# 
+# 
+# legend <- data.frame(indicator=c("sumA","sumF"))
+# 
+# # indicator <- indicator %>%
+# #   select(-sumh) %>%
+# #   pivot_longer(cols=c(suma,sumf,b0,btarget,bcurrent,bbest),names_to="indicator",values_to="r") %>%
+# #   mutate(start=ifelse(startsWith(indicator,"b"),pi,0),
+# #          end=ifelse(startsWith(indicator,"b"),2*pi,pi),
+# #          fill=case_when(indicator=="b0" ~ "grey",
+# #                         indicator=="bcurrent" ~ "green",
+# #                         indicator=="bbest" ~ "orange",
+# #                         indicator=="btarget" ~ "red",
+# #                         indicator=="sumf" ~ "yellow",
+# #                         indicator=="suma" ~ "blue"),
+# #          alpha=ifelse(indicator %in% c("b0","suma"),
+# #                       1,
+# #                       0)) %>%
+# #   arrange(desc(r))
+# #   
+# # 
+# # 
+# # indicator <- merge(emu_c, indicator, by.x="emu_nameshort",by.y="eel_emu_nameshort")
+# # indicator = st_transform(indicator,crs=3035)
+# # indicator$x <-st_coordinates(indicator)[,1]
+# # indicator$y <-st_coordinates(indicator)[,2]
+# 
+# ggplot(st_transform(country_p,3035)) + geom_sf(fill=NA)+theme_bw()+
+#   xlim(2618000,5286000)+ylim(1700000,4560000)+
+# #  geom_arc_bar(data=indicator,aes(x0 = x, y0 = y, r0 = 0, r = b0, start =pi,
+# #                   end = 2*pi), fill = "grey",col=NA,alpha=1)+
+# #  geom_arc_bar(data=indicator,aes(x0 = x, y0 = y, r0 = 0, r = btarget, start =pi,
+# #                   end = 2*pi), fill = "red",col=NA,alpha=.6)+
+# #  geom_arc_bar(data=indicator,aes(x0 = x, y0 = y, r0 = 0, r = bbest, start = pi,
+# #                   end = 2*pi ), fill = "orange",col=NA,alpha=.6)+
+# #  geom_arc_bar(data=indicator,aes(x0 = x, y0 = y, r0 = 0, r = bcurrent, start = pi,
+# #                   end = 2*pi), fill = "green",col=NA,alpha=.6)+
+#    geom_arc_bar(data=indicator,aes(x0 = x, y0 = y, r0 = 0, r = bcurrent, start = pi,
+#                    end = 2*pi, fill = bscaled),col=NA,alpha=1)+
+#   geom_arc_bar(data=indicator,aes(x0 = x, y0 = y, r0 = 0, r = suma, start =0,
+#                    end = pi),fill=NA,col="blue")+
+#   geom_arc_bar(data=indicator,aes(x0 = x, y0 = y, r0 = 0, r = sumf, start = 0,
+#                    end = pi ),fill=NA,alpha=1,col="yellow")+
+#   
+#   xlab("")+ylab("") + 
+#   geom_arc_bar(data=scalesb,aes(x0 = 3008000, y0 =4200000, r0 = 0, r = bscale, start =pi,
+#                    end = 2*pi), fill = NA,col="black")+
+#   geom_text(data=scalesb,aes(x=3050000, y=4200000+bscale,label=paste0(b/1e3,"t")),
+#             size=1,hjust="left")+
+#   geom_arc_bar(data=scalesb,aes(x0 = 3008000, y0 =3800000, r0 = 0, r = 20000, start =0,
+#                    end = pi), fill = NA,col="black")+
+#   geom_text(data=scalesb,aes(x=3000000, y=3800000+20000,label="0.92~year^{-1}" ),
+#             size=1,hjust="right", parse=TRUE)+
+#   geom_rect(data=legend,aes(col=indicator,xmin=0,ymin=0,xmax=0,ymax=0),fill=NA)+
+#    scale_color_manual("",values=c("sumF" = "yellow",
+#                           "sumA" = "blue"))+
+#   scale_fill_viridis_c("Bcurrent/B0")
+#   # scale_alpha_manual("",values=c("B0" = 1,
+#   #                        "Bcurrent" = .6,
+#   #                        "Bbest"= .6,
+#   #                        "Btarget" = .6,
+#   #                        "sumF" = 1,
+#   #                        "sumA" = 1))
+# 
+# ggsave(filename="/tmp/maps.png",width=16/2.54,height=10/2.54)
+
+
+```
+
+### biomass
+```{r biomassmap}
+indicator <- dbGetQuery(con,"select eel_cou_code,eel_emu_nameshort, avg(b0)b0,avg(bbest)bbest,avg(bcurrent)bcurrent, avg(suma)suma,avg(sumf)sumf,avg(sumh) sumh from datawg.precodata_emu where eel_year>=2018 group by eel_cou_code,eel_emu_nameshort")
+indicator <- merge(emu_c, indicator, by.x="emu_nameshort",by.y="eel_emu_nameshort",all.x=TRUE)
+indicator = st_transform(indicator,crs=3035)
+indicator$x <-st_coordinates(indicator)[,1]
+indicator$y <-st_coordinates(indicator)[,2]
+indicator$btarget <- .4*indicator$b0
+indicator$bscaled <- indicator$bcurrent/indicator$b0
+prettyscale <- pretty(range(indicator$bcurrent,na.rm=TRUE),n=2)
+prettyscale_scaled <- scales::rescale(prettyscale,to=c(40190.79,200000.00),from=c(661,max(indicator$bcurrent,na.rm=TRUE)))
+scalesb <-data.frame(b=prettyscale,bscale=prettyscale_scaled)
+# indicator$btarget <- scales::rescale(indicator$btarget,to=c(40190.79,200000.00),from=c(661,10400000))
+ indicator$bcurrent <- scales::rescale(indicator$bcurrent,to=c(40190.79,200000.00),from=c(661,max(indicator$bcurrent,na.rm=TRUE)))
+# indicator$bbest <- scales::rescale(indicator$bbest,to=c(40190.79,200000.00),from=c(661,10400000))
+# indicator$b0 <- scales::rescale(indicator$b0,to=c(40190.79,200000.00),from=c(661,10400000))
+
+# indicator$bcurrent <- log(indicator$bcurrent)/log(max(indicator$b0,na.rm=TRUE))*100000
+# indicator$bbest <- log(indicator$bbest)/log(max(indicator$b0,na.rm=TRUE))*100000
+# indicator$b0 <- log(indicator$b0)/log(max(indicator$b0,na.rm=TRUE))*100000
+indicator$suma <- indicator$suma /.92*20000
+indicator$sumf <- indicator$sumf /.92*20000
+indicator$sumh <- indicator$sumh /.92*20000
+
+indicator$x[indicator$eel_cou_code=="NO"] = 4172612.3
+indicator$y[indicator$eel_cou_code=="NO"] = 4111023.3
+
+# indicator <- indicator %>%
+#   select(-sumh) %>%
+#   pivot_longer(cols=c(suma,sumf,b0,btarget,bcurrent,bbest),names_to="indicator",values_to="r") %>%
+#   mutate(start=ifelse(startsWith(indicator,"b"),pi,0),
+#          end=ifelse(startsWith(indicator,"b"),2*pi,pi),
+#          fill=case_when(indicator=="b0" ~ "grey",
+#                         indicator=="bcurrent" ~ "green",
+#                         indicator=="bbest" ~ "orange",
+#                         indicator=="btarget" ~ "red",
+#                         indicator=="sumf" ~ "yellow",
+#                         indicator=="suma" ~ "blue"),
+#          alpha=ifelse(indicator %in% c("b0","suma"),
+#                       1,
+#                       0)) %>%
+#   arrange(desc(r))
+#   
+# 
+# 
+# indicator <- merge(emu_c, indicator, by.x="emu_nameshort",by.y="eel_emu_nameshort")
+# indicator = st_transform(indicator,crs=3035)
+# indicator$x <-st_coordinates(indicator)[,1]
+# indicator$y <-st_coordinates(indicator)[,2]
+
+ggplot(st_transform(country_p,3035)) + geom_sf(fill=NA,size=.1)+theme_bw()+
+#  geom_arc_bar(data=indicator,aes(x0 = x, y0 = y, r0 = 0, r = b0, start =pi,
+#                   end = 2*pi), fill = "grey",col=NA,alpha=1)+
+#  geom_arc_bar(data=indicator,aes(x0 = x, y0 = y, r0 = 0, r = btarget, start =pi,
+#                   end = 2*pi), fill = "red",col=NA,alpha=.6)+
+#  geom_arc_bar(data=indicator,aes(x0 = x, y0 = y, r0 = 0, r = bbest, start = pi,
+#                   end = 2*pi ), fill = "orange",col=NA,alpha=.6)+
+#  geom_arc_bar(data=indicator,aes(x0 = x, y0 = y, r0 = 0, r = bcurrent, start = pi,
+#                   end = 2*pi), fill = "green",col=NA,alpha=.6)+
+   geom_arc_bar(data=indicator,aes(x0 = x, y0 = y, r0 = 0, r = bcurrent, start = 0,
+                   end = 2*pi, fill = bscaled),col=NA,alpha=1)+
+  
+  xlab("")+ylab("") + 
+  geom_arc_bar(data=scalesb,aes(x0 = 3008000, y0 =4200000, r0 = 0, r = bscale, start =pi,
+                   end = 2*pi), fill = NA,col="black")+
+  geom_text(data=scalesb,aes(x=3050000, y=4200000+bscale,label=paste0(b/1e3,"t")),
+            size=2,hjust="left")+
+  geom_point(data=indicator %>%
+               filter(is.na(bcurrent)),
+             aes(x=x,y=y),pch="x")+
+  scale_fill_viridis_c(expression(B[current]/B[0]))
+  # scale_alpha_manual("",values=c("B0" = 1,
+  #                        "Bcurrent" = .6,
+  #                        "Bbest"= .6,
+  #                        "Btarget" = .6,
+  #                        "sumF" = 1,
+  #                        "sumA" = 1))
+
+ggsave(filename="/tmp/maps_biomass.png",width=16/2.54,height=10/2.54)
+```
+
+### mortality
+
+
+```{r mortalitymap}
+indicator <- dbGetQuery(con,"select eel_cou_code,eel_emu_nameshort, avg(b0)b0,avg(bbest)bbest,avg(bcurrent)bcurrent, avg(suma)suma,avg(sumf)sumf,avg(sumh) sumh from datawg.precodata_emu where eel_year>=2018 group by eel_cou_code,eel_emu_nameshort")
+indicator <- merge(emu_c, indicator, by.x="emu_nameshort",by.y="eel_emu_nameshort",all.x=TRUE)
+indicator = st_transform(indicator,crs=3035)
+indicator$x <-st_coordinates(indicator)[,1]
+indicator$y <-st_coordinates(indicator)[,2]
+indicator$btarget <- .4*indicator$b0
+indicator$bscaled <- indicator$bcurrent/indicator$b0
+indicator$x[indicator$eel_cou_code=="NO"] = 4172612.3
+indicator$y[indicator$eel_cou_code=="NO"] = 4111023.3
+# indicator$bcurrent <- log(indicator$bcurrent)/log(max(indicator$b0,na.rm=TRUE))*100000
+# indicator$bbest <- log(indicator$bbest)/log(max(indicator$b0,na.rm=TRUE))*100000
+# indicator$b0 <- log(indicator$b0)/log(max(indicator$b0,na.rm=TRUE))*100000
+# indicator$suma <- indicator$suma /.92*40000
+# indicator$sumf <- indicator$sumf /.92*40000
+# indicator$sumh <- indicator$sumh /.92*40000
+prettyscale <- c(0,.92)
+prettyscale_scaled <- scales::rescale(prettyscale,to=c(40000,200000),from=c(0,max(indicator$suma,na.rm=TRUE)))
+
+
+indicator$sumfsuma <- indicator$sumf/indicator$suma
+
+indicator$suma <- scales::rescale(indicator$suma,to=c(40000,200000), from=c(0,max(indicator$suma,na.rm=TRUE)))
+
+scalesm <-data.frame(m=prettyscale,mscale=prettyscale_scaled,y0=c(4200000,4400000))
+
+legend <- data.frame(indicator=c("sumA","sumF"))
+
+ggplot(st_transform(country_p,3035)) + geom_sf(fill=NA,size=.1)+theme_bw()+
+  geom_arc_bar(data=indicator,aes(x0 = x, y0 = y, r0 = 0, r = suma, start =0,
+                   end = 2*pi,fill=sumfsuma),size=.2,col=NA)+
+  # geom_arc_bar(data=indicator,aes(x0 = x, y0 = y, r0 = 0, r = sumf, start = 0,
+  #                  end = 2*pi ),size=.2,fill=NA,col="yellow")+
+  xlab("")+ylab("") + 
+  geom_point(data=indicator %>%
+               filter(is.na(suma) & is.na(sumf)),
+             aes(x=x,y=y),pch="x")+
+    geom_arc_bar(data=scalesb,aes(x0 = 3008000, y0 =3800000, r0 = 0, r = 40000, start =0,
+                   end = pi),size=.2, fill = NA,col="black")+
+    geom_arc_bar(data=scalesm,aes(x0 = 3008000, y0 =y0, r0 = 0, r = mscale, start =0,
+                   end = pi), fill = NA,col="black")+
+  geom_text(data=scalesm,aes(x=3000000, y=y0+mscale,label=paste0(m,"~year^{-1}")),
+            size=1,hjust="right", parse=TRUE)+
+#    geom_rect(data=legend,aes(col=indicator,xmin=0,ymin=0,xmax=0,ymax=0),fill=NA)+
+
+     # scale_color_manual("",values=c("sumF" = "yellow",
+     #                      "sumA" = "blue"))
+  scale_fill_viridis_c(expression(paste(Sigma,"F")/paste(Sigma,"A")))
+
+
+ggsave(filename="/tmp/maps_mortality.png",width=16/2.54,height=10/2.54)
+```
+
+
+
+## per country
+Here, biomasses are summed over available EMUs and mortality are average (weighted averages based on bbest)
+
+### biomass
+```{r biomassmapcountry}
+# indicator <- dbGetQuery(con,"select eel_cou_code,eel_emu_nameshort, avg(b0)b0,avg(bbest)bbest,avg(bcurrent)bcurrent, avg(suma)suma,avg(sumf)sumf,avg(sumh) sumh from datawg.precodata_country where eel_year>=2018 group by eel_cou_code,eel_emu_nameshort")
+indicator <- precodata_country %>%
+  filter(eel_year >=2018) %>%
+  group_by(eel_cou_code) %>%
+  summarize(b0=mean(b0,na.rm=TRUE),
+            bcurrent=mean(bcurrent,na.rm=TRUE),
+            bcurrent_b0_emu=mean(ratio_bcurrent_b0,na.rm=TRUE))
+indicator <- merge(country_c, indicator, by.x="cou_code",by.y="eel_cou_code",all.x=TRUE)
+indicator = st_transform(indicator,crs=3035)
+indicator$x <-st_coordinates(indicator)[,1]
+indicator$y <-st_coordinates(indicator)[,2]
+indicator$x[indicator$cou_code=="NO"] = 4172612.3
+indicator$y[indicator$cou_code=="NO"] = 4111023.3
+
+indicator$btarget <- .4*indicator$b0
+indicator$bscaled <- indicator$bcurrent/indicator$b0
+prettyscale <- pretty(range(indicator$bcurrent,na.rm=TRUE),n=2)
+prettyscale_scaled <- scales::rescale(prettyscale,to=c(40190.79,200000.00),from=c(661,max(indicator$bcurrent,na.rm=TRUE)))
+scalesb <-data.frame(b=prettyscale,bscale=prettyscale_scaled)
+# indicator$btarget <- scales::rescale(indicator$btarget,to=c(40190.79,200000.00),from=c(661,10400000))
+ indicator$bcurrent <- scales::rescale(indicator$bcurrent,to=c(40190.79,200000.00),from=c(661,max(indicator$bcurrent,na.rm=TRUE)))
+
+ 
+
+ 
+ 
+ggplot(st_transform(country_p,3035)) + geom_sf(fill=NA,size=.1)+theme_bw()+
+#  geom_arc_bar(data=indicator,aes(x0 = x, y0 = y, r0 = 0, r = b0, start =pi,
+#                   end = 2*pi), fill = "grey",col=NA,alpha=1)+
+#  geom_arc_bar(data=indicator,aes(x0 = x, y0 = y, r0 = 0, r = btarget, start =pi,
+#                   end = 2*pi), fill = "red",col=NA,alpha=.6)+
+#  geom_arc_bar(data=indicator,aes(x0 = x, y0 = y, r0 = 0, r = bbest, start = pi,
+#                   end = 2*pi ), fill = "orange",col=NA,alpha=.6)+
+#  geom_arc_bar(data=indicator,aes(x0 = x, y0 = y, r0 = 0, r = bcurrent, start = pi,
+#                   end = 2*pi), fill = "green",col=NA,alpha=.6)+
+   geom_arc_bar(data=indicator,aes(x0 = x, y0 = y, r0 = 0, r = bcurrent, start = 0,
+                   end = 2*pi, fill = bcurrent_b0_emu),col=NA,alpha=1)+
+  
+  xlab("")+ylab("") + 
+  geom_arc_bar(data=scalesb,aes(x0 = 3008000, y0 =4200000, r0 = 0, r = bscale, start =pi,
+                   end = 2*pi), fill = NA,col="black")+
+  geom_text(data=scalesb,aes(x=3050000, y=4200000+bscale,label=paste0(b/1e3,"t")),
+            size=1,hjust="left")+
+  geom_point(data=indicator %>%
+               filter(is.na(bcurrent)),
+             aes(x=x,y=y),pch="x")+
+  scale_fill_viridis_c(expression(B[current]/B[0]))
+  # scale_alpha_manual("",values=c("B0" = 1,
+  #                        "Bcurrent" = .6,
+  #                        "Bbest"= .6,
+  #                        "Btarget" = .6,
+  #                        "sumF" = 1,
+  #                        "sumA" = 1))
+
+ggsave(filename="/tmp/maps_biomass_country.png",width=16/2.54,height=10/2.54)
+```
+
+### mortality
+
+
+```{r mortalitymapcountry}
+# indicator <- dbGetQuery(con,"select eel_cou_code,eel_emu_nameshort, avg(b0)b0,avg(bbest)bbest,avg(bcurrent)bcurrent, avg(suma)suma,avg(sumf)sumf,avg(sumh) sumh from datawg.precodata_country where eel_year>=2018 group by eel_cou_code,eel_emu_nameshort")
+indicator <- precodata_country %>%
+  filter(eel_year >=2018) %>%
+  group_by(eel_cou_code) %>%
+  summarize(suma=mean(suma,na.rm=TRUE),
+            sumf=mean(sumf,na.rm=TRUE),
+            sumfsuma_emu=mean(ratio_sumfsuma,na.rm=TRUE))
+indicator <- merge(country_c, indicator, by.x="cou_code",by.y="eel_cou_code",all.x=TRUE)
+indicator = st_transform(indicator,crs=3035)
+indicator$x <-st_coordinates(indicator)[,1]
+indicator$y <-st_coordinates(indicator)[,2]
+indicator$x[indicator$cou_code=="NO"] = 4172612.3
+indicator$y[indicator$cou_code=="NO"] = 4111023.3
+
+prettyscale <- c(0,.92)
+prettyscale_scaled <- scales::rescale(prettyscale,to=c(40000,200000),from=c(0,max(indicator$suma,na.rm=TRUE)))
+
+indicator$sumf <- scales::rescale(indicator$sumf,to=c(40000,200000), from=c(0,max(indicator$suma,na.rm=TRUE)))
+
+indicator$suma <- scales::rescale(indicator$suma,to=c(40000,200000), from=c(0,max(indicator$suma,na.rm=TRUE)))
+
+scalesm <-data.frame(m=prettyscale,mscale=prettyscale_scaled,y0=c(4200000,4500000))
+
+
+
+legend <- data.frame(indicator=c("sumA","sumF"))
+
+ggplot(st_transform(country_p,3035)) + geom_sf(fill=NA,size=.1)+theme_bw()+
+  geom_arc_bar(data=indicator,aes(x0 = x, y0 = y, r0 = 0, r = suma, start =0,
+                   end = 2*pi,fill=sumfsuma_emu),size=.2,col=NA)+
+  # geom_arc_bar(data=indicator,aes(x0 = x, y0 = y, r0 = 0, r = sumf, start = 0,
+  #                  end = 2*pi ),size=.2,fill=NA,col="yellow")+
+  xlab("")+ylab("") + 
+  geom_point(data=indicator %>%
+               filter(is.na(suma) & is.na(sumf)),
+             aes(x=x,y=y),pch="x")+
+    geom_arc_bar(data=scalesm,aes(x0 = 3008000, y0 =y0, r0 = 0, r = mscale, start =0,
+                   end = pi), fill = NA,col="black")+
+  geom_text(data=scalesm,aes(x=3000000, y=y0+mscale,label=paste0(m,"~year^{-1}")),
+            size=1,hjust="right", parse=TRUE)+
+#    geom_rect(data=legend,aes(col=indicator,xmin=0,ymin=0,xmax=0,ymax=0),fill=NA)+
+
+     # scale_color_manual("",values=c("sumF" = "yellow",
+     #                      "sumA" = "blue"))
+  scale_fill_viridis_c(expression(paste(Sigma,"F")/paste(Sigma,"A")))
+
+
+ggsave(filename="/tmp/maps_mortality_country.png",width=16/2.54,height=10/2.54)
+```
+
+
+
+# Time trends
+## Biomass
+Each line represents an EMU.
+
+```{r trendbiomass}
+indicator <- dbGetQuery(con,"select eel_year,eel_cou_code,eel_emu_nameshort, b0,bbest,bcurrent, suma,sumf, sumh from datawg.precodata_emu")
+indicator<- indicator %>%
+  mutate(eel_cou_code=ifelse(eel_cou_code == substr(eel_emu_nameshort,1,2),
+                             eel_cou_code,
+                             "INT")) %>%
+  filter(eel_cou_code!="IE" | eel_year !=2008)
+
+
+ggplot(indicator %>% filter(!is.na(bcurrent/b0)),aes(x=eel_year,y=bcurrent/b0)) +
+  geom_hline(yintercept=.4,col="red")+
+  geom_line(aes(col=eel_cou_code,group=eel_emu_nameshort))+
+#  scale_y_log10()+
+  scale_color_manual("country",values=color_countries[names(color_countries) %in% unique(indicator$eel_cou_code)],)+
+  guides(lty=FALSE,col=FALSE)+ #geom_hline(yintercept=1)+
+#  scale_y_sqrt()+
+
+  theme_bw() + ylab(expression(B[current]/B[0]))+xlab("") + xlim(2007,2020)+facet_wrap(~eel_cou_code,drop=TRUE,scales="free_y")
+
+```
+
+```{r trendmorta}
+indicator <- dbGetQuery(con,"select eel_year,eel_cou_code,eel_emu_nameshort, b0,bbest,bcurrent, suma,sumf, sumh from datawg.precodata_emu")
+indicator<- indicator %>%
+  mutate(eel_cou_code=ifelse(eel_cou_code == substr(eel_emu_nameshort,1,2),
+                             eel_cou_code,
+                             "INT")) %>%
+  filter(eel_cou_code!="IE" | eel_year !=2008)
+
+
+
+ggplot(indicator %>% filter(!is.na(suma)),aes(x=eel_year,y=suma))+
+  geom_hline(yintercept=0.92,col="red")+
+  geom_line(aes(group=eel_emu_nameshort,col=eel_cou_code))+
+  scale_color_manual(values=color_countries[names(color_countries) %in% unique(indicator$eel_cou_code)])+
+  guides(lty=FALSE, col=FALSE)+
+#  scale_y_sqrt()+
+  theme_bw() + ylab(expression(paste(Sigma,"A")))+xlab("") + xlim(2007,2020)+facet_wrap(~eel_cou_code,drop=TRUE,scales="free_y")
+
+
+ggplot(indicator %>% filter(!is.na(sumf)),aes(x=eel_year,y=sumf))+
+  geom_hline(yintercept=0.92,col="red")+
+  geom_line(aes(group=eel_emu_nameshort,col=eel_cou_code))+
+  scale_color_manual(values=color_countries[names(color_countries) %in% unique(indicator$eel_cou_code)])+
+  guides(lty=FALSE, col=FALSE)+
+#  scale_y_sqrt()+
+  theme_bw() + ylab(expression(paste(Sigma,"F")))+xlab("") + xlim(2007,2020)+facet_wrap(~eel_cou_code, drop=TRUE,scales="free_y")
+
+
+
+ggplot(indicator %>% filter(!is.na(sumh)),aes(x=eel_year,y=sumh))+
+  geom_hline(yintercept=0.92,col="red")+
+  geom_line(aes(group=eel_emu_nameshort,col=eel_cou_code))+
+  scale_color_manual(values=color_countries[names(color_countries) %in% unique(indicator$eel_cou_code)])+
+  guides(lty=FALSE, col=FALSE)+
+#  scale_y_sqrt()+
+  theme_bw() + ylab(expression(paste(Sigma,"H")))+xlab("") + xlim(2007,2020)+facet_wrap(~eel_cou_code, drop=TRUE,scales="free_y") 
+
+
+```
