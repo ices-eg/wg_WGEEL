@@ -1305,6 +1305,7 @@ server = function(input, output, session) {
 	# update rdata
 	###########################################################################################
 	observeEvent(input$refresh,{
+	  show_modal_spinner(text="this may take a few minutes") # show the modal window
 	  req(input$password)
 	  assign("userwgeel" , "wgeel", .GlobalEnv)
 	  assign("passwordwgeel", isolate(input$password),.GlobalEnv)
@@ -1316,6 +1317,7 @@ server = function(input, output, session) {
   	  showNotification(paste0("data saved in ",getwd(),"/data"), type = "message",duration=NULL)
 	  },error=function(e) showNotification(print(e)),
 	  finally=rm(list=c("passwordwgeel","userwgeel"),envir=.GlobalEnv))
+	  remove_modal_spinner() # remove it when done
 	})
 	
 	

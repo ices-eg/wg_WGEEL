@@ -43,6 +43,7 @@ load_package("leaflet.extras")
 # other libraries
 #-----------------
 load_package("readxl")
+load_package("shinybusy")
 load_package("stringr")
 load_package("reshape2")
 load_package("tidyr") # unite cols in maps
