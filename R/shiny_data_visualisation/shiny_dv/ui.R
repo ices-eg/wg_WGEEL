@@ -84,7 +84,10 @@ ui = dashboardPage(title="ICES Data Visualisation",
             label = "Preferred image format", 
             choices = c("png", "svg")[1:(1+require(svglite))], 
             selected = "png"      
-        )),	
+        ),
+			passwordInput("password","password",value=""),
+			actionButton("refresh","update data",icon=icon("sync",lib= "font-awesome" ))
+			),	
     
     # Content of tabs -------------------------------------------------------------------------------
     
