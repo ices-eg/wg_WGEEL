@@ -1333,6 +1333,7 @@ server = function(input, output, session) {
   	  load("data/recruitment/dat_ge.Rdata") ; # named dat_ge
   	  load("data/recruitment/dat_ye.Rdata") ; # named dat_ye
   	  load("data/recruitment/recruitment_models.Rdata") # named model_ge_area and model_older
+  	  showNotification(paste0("data saved in ",getwd(),"/data"))
 	  },error=function(e) showNotification(print(e)),
 	  finally=rm(list=c("passwordwgeel","userwgeel"),envir=.GlobalEnv))
 	})
