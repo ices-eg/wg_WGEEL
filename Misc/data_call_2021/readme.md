@@ -712,8 +712,12 @@ More detail should be given in the ser_method column next year
 NO DATA
 ## Annex 9 
 58 new values were added.
+values corrected by Russel before WKEMP because of an error
+
 ## Annex 10  
 84 new values were added.
+values corrected by Russel before WKEMP because of an error
+
 
 > NOTE CEDRIC I REMOVED TWO DUPLICATES with eel_qal_id = 0 see below
 > 
