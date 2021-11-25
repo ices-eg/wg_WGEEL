@@ -316,8 +316,11 @@ duplicate = 0
 new = 5  
 updated = 0 
 
+## Annex 9 (november)
+ 532 new values inserted in the database
 
-## Annex 10
+
+## Annex 10 
 381 new values inserted in the database
 corrections of values for bbest_kg ES_Cant after 2014 (use of column D for eel_value and remove values in column E)
 put 0 in perc_* when eel_missvalue was NC, and NP when eel_missvalue was NP
