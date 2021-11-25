@@ -147,12 +147,6 @@ Still needs to be integrated, there was a bug where updated values did not appea
 
 
 -----------------------------------------------------------
-# CZ
------------------------------------------------------------
-Is there any report from accession ?
-
-
------------------------------------------------------------
 # DK
 -----------------------------------------------------------
 Question about DK_total
