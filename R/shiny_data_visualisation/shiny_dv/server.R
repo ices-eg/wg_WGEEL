@@ -235,7 +235,7 @@ server = function(input, output, session) {
 	                    "release_kg"="kg",
 	                    "release_n"="number",
 	                    "gee"="glass eel equivalent",
-	                    "precodata"="biomasses in tons, mortality rates for the eel lifespan")
+	                    "precodata"="biomasses in kg, mortality rates for the eel lifespan")
 	      caption_table <- paste(input$dataset," (",unit,")",sep="")
 				DT::datatable(table, 
 						rownames = FALSE,

@@ -52,7 +52,6 @@ importstep1UI <- function(id){
 importstep1Server <- function(id,globaldata, loaded_data){
   moduleServer(id,
                function(input, output, session) {
-                 
                  observe({
                    loaded_data$res
                    tryCatch({
@@ -89,15 +88,15 @@ importstep1Server <- function(id,globaldata, loaded_data){
                    },
                    "release"={
                      data_from_base<-extract_data("release", quality=c(0,1,2,3,4), quality_check=TRUE)
-                     updated_from_excel<- step0load_data()$res$updated_data
+                     updated_from_excel<- loaded_data$res$updated_data
                    },
                    "aquaculture"={             
                      data_from_base<-extract_data("aquaculture", quality=c(0,1,2,3,4), quality_check=TRUE)
-                     updated_from_excel<- step0load_data()$res$updated_data},
+                     updated_from_excel<- loaded_data$res$updated_data},
                    "biomass"={
                      # bug in excel file - fixed in the template
                      #colnames(data_from_excel)[colnames(data_from_excel)=="typ_name"]<-"eel_typ_name"
-                     updated_from_excel<- step0load_data()$res$updated_data
+                     updated_from_excel<- loaded_data$res$updated_data
                      data_from_excel$eel_lfs_code <- 'S' #always S
                      data_from_excel$eel_hty_code <- 'AL' #always AL
                      data_from_excel <- data_from_excel %>% 
@@ -122,7 +121,7 @@ importstep1Server <- function(id,globaldata, loaded_data){
                      
                    },
                    "mortality_rates"={
-                     updated_from_excel<- step0load_data()$res$updated_data
+                     updated_from_excel<- loaded_data$res$updated_data
                      data_from_excel$eel_lfs_code <- 'S' #always S
                      data_from_excel$eel_hty_code <- 'AL' #always AL
                      data_from_excel <- data_from_excel %>% 
