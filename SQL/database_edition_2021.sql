@@ -1290,6 +1290,9 @@ SELECT
 
 SELECT * FROM 	pg_stat_activity 
 
+	SELECT 
+    pg_terminate_backend(1508353);
+
 WITH unused as(
 SELECT 
  pid
@@ -1315,12 +1318,13 @@ from datawg.t_dataseries_das
 		ORDER BY stage,site;
 	
 UPDATE M datawg.t_series_ser set_ser_qal_id=WHERE ser_nameshort='BeeG';
-<<<<<<< HEAD
+
 	
 SELECT DISTINCT eel_cou_code FROM datawg.t_eelstock_eel WHERE eel_typ_id IN (8,9) AND eel_lfs_code='S'
 
 
 SELECT * FROM datawg.t_eelstock_eel WHERE eel_emu_nameshort ='GB_Humb' AND eel_typ_id=4 AND eel_year=2014
+
 
 
 
@@ -1333,4 +1337,17 @@ eel_qal_comment='Tea detected an error in these values, originating from dc2018,
 where eel_id in( 405315, 405318,405326,405341);
 
 	
+-- removing values introduced from Spain but corrected by Esti
+
+CREATE TABLE public.temp_removed_mort_biom_spain_2021 AS (
+SELECT * FROM datawg.t_eelstock_eel WHERE eel_typ_id >=13 AND eel_typ_id <=31
+AND eel_cou_code ='ES' AND eel_datasource='dc_2021'); --941
+
+SELECT * FROM   pg_stat_activity 
+SELECT pg_terminate_backend(9584958)
+
+-- dump avant sur le serveur
+DELETE FROM datawg.t_eelstock_eel WHERE eel_typ_id >=13 AND eel_typ_id <=31
+AND eel_cou_code ='ES' AND eel_datasource='dc_2021'; --941
+
 
