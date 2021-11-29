@@ -1,0 +1,93 @@
+---
+title: "Untitled"
+author: "none"
+date: "07/10/2021"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+library(flextable)
+library(RPostgres)
+library(dplyr)
+library(tidyr)
+library(getPass)
+knitr::opts_chunk$set(echo = FALSE, warnings=FALSE, error = FALSE)
+
+con=dbConnect(Postgres(),host="localhost",port=5435,dbname="wgeel",password=getPass(),user="wgeel")
+```
+
+# glass eel
+
+
+```{r ge}
+landings=dbGetQuery(con,"select * from datawg.t_eelstock_eel where eel_qal_id=1 and eel_typ_id=4 and eel_cou_code in ('GB','ES','PT','FR','IT') and eel_lfs_code='G'")
+flextable(landings %>%
+  filter(eel_year >= 1945) %>%
+  select(eel_year,eel_cou_code,eel_value) %>%
+  group_by(eel_year,eel_cou_code) %>%
+  summarize(eel_value = sum(eel_value,na.rm=TRUE)/1000) %>%
+  mutate(eel_value=ifelse(eel_value<1,
+                          eel_value,
+                          round(eel_value,digits=0))) %>%
+  pivot_wider(id_cols=eel_year,names_from=eel_cou_code,values_from=eel_value) %>%
+  arrange(eel_year) %>%
+  select(eel_year,GB,FR,ES,PT,IT) %>%
+  rename(Year=eel_year,
+         'United Kingdom'=GB,
+         France=FR,
+         Spain=ES,
+         Portugal='PT',
+         Italy='IT')) %>%
+  colformat_num(big.mark="") %>%
+  autofit()
+
+```
+# yellow silver
+
+first table
+
+
+```{r yse1}
+landings=dbGetQuery(con,"select * from datawg.t_eelstock_eel where eel_qal_id=1 and eel_typ_id=4 and eel_cou_code in ('NO','SE','FI','EE','LV','LT','PL','DE','DK','NL', 'BE') and eel_lfs_code in ('Y','S','YS')")
+flextable(landings %>%
+  filter(eel_year >= 1908) %>%
+  select(eel_year,eel_cou_code,eel_value) %>%
+  group_by(eel_year,eel_cou_code) %>%
+  summarize(eel_value = sum(eel_value,na.rm=TRUE)/1000) %>%
+  mutate(eel_value=ifelse(eel_value<1,
+                          eel_value,
+                          round(eel_value))) %>%
+  pivot_wider(id_cols=eel_year,names_from=eel_cou_code,values_from=eel_value) %>%
+  arrange(eel_year) %>%
+  select(eel_year,NO ,SE ,FI ,EE, LV ,LT, PL ,DE , DK ,NL ,BE) %>%
+    rename(Year=eel_year)) %>%
+  colformat_num(big.mark="") %>%
+  autofit()
+
+```
+
+
+second table
+
+```{r yse2}
+landings=dbGetQuery(con,"select * from datawg.t_eelstock_eel where eel_qal_id=1 and eel_typ_id=4 and eel_cou_code in ('IE', 'GB', 'FR', 'ES', 'PT', 'IT', 'SI', 'HR', 'GR', 'TR', 'TN', 'MA') and eel_lfs_code in ('Y','S','YS')")
+flextable(landings %>%
+  filter(eel_year >= 1951) %>%
+  select(eel_year,eel_cou_code,eel_value) %>%
+  group_by(eel_year,eel_cou_code) %>%
+  summarize(eel_value = sum(eel_value,na.rm=TRUE)/1000) %>%
+  mutate(eel_value=ifelse(eel_value<1,
+                          eel_value,
+                          round(eel_value))) %>%
+  pivot_wider(id_cols=eel_year,names_from=eel_cou_code,values_from=eel_value) %>%
+  arrange(eel_year) %>%
+  select(eel_year,IE, GB, FR, ES, PT, IT, SI, HR, GR, TR ,TN) %>%
+    rename(Year=eel_year,
+           UK=GB,
+           SL=SI)) %>%
+  colformat_num(big.mark="") %>%
+  autofit()
+on.exit(dbDisconnect(con))
+
+
+```
