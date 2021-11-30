@@ -26,7 +26,7 @@ read_annex15 <- function(filenames){
 	sheet <- getSheets(wb)
 	sheet0 <- sheet[grep("INPUT_measures",sheet)]
 	dat <- readWorksheet(wb, sheet0,header=TRUE)
-	countries <- readWorksheet(wb, "tr_emu_country", header=TRUE)
+	# TODO remove
 	fulldat <- dat
 	for (i in 2: length(filenames)){
 		filename= filenames[i]
