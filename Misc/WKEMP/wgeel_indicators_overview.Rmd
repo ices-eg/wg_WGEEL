@@ -2,11 +2,19 @@
 title: "Untitled"
 author: "none"
 date: "27/09/2021"
-output: word_document
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+  word_document: default
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE, warning=FALSE,message=FALSE)
+knitr::opts_chunk$set(
+	echo = FALSE,
+	message = FALSE,
+	warning = FALSE
+)
 library(RPostgres)
 library(sf)
 library(getPass)
@@ -14,13 +22,13 @@ library(ggforce)
 library(ggplot2)
 library(flextable)
 library(tidyverse)
-host="localhost"
-port=5435
+host="185.135.126.250"
+port=5432
 user="wgeel"
 password=getPass()
 con = dbConnect(Postgres(), dbname="wgeel",host=host,port=port,user=user, password=password)
-load("../../R/shiny_data_visualisation/shiny_dv/data/maps_for_shiny.Rdata")
-load("../..//R/shiny_data_visualisation/shiny_dv/data/ref_and_eel_data.Rdata")
+load("./data_dependencies/maps_for_shiny.Rdata")
+load("./data_dependencies//ref_and_eel_data.Rdata")
 
 emu_c <- filter(emu_c,!endsWith(emu_nameshort,"_o"))
 
@@ -65,7 +73,7 @@ flextable(biomass %>%
             arrange(eel_emu_nameshort) %>%
             pivot_wider(names_from=eel_typ_id, values_from=c(range, nb_value),
                         names_glue="{eel_typ_id}_{.value}",
-                        names_sort=TRUE))
+                        names_sort=TRUE)) %>% autofit()
 ```
 
 
@@ -90,7 +98,7 @@ flextable(mortality %>%
             arrange(eel_emu_nameshort) %>%
             pivot_wider(names_from=eel_typ_id, values_from=c(range, nb_value),
                         names_glue="{eel_typ_id}_{.value}",
-                        names_sort=TRUE))
+                        names_sort=TRUE)) %>% autofit()
   
         
           
@@ -178,7 +186,7 @@ flextable(indicator %>%
   group_by(type,habitat) %>%
   summarize(freq100=round(sum(perc==100)/n()*100),
             freq0=round(sum(perc==0)/n()*100)) %>%
-  pivot_wider(names_from=habitat,values_from=c(freq0,freq100)))
+  pivot_wider(names_from=habitat,values_from=c(freq0,freq100))) %>% autofit()
 ```
 Marine open and coastal never accounted for. Significant part of transitional waters not accounted for.
 
@@ -357,7 +365,7 @@ ggplot(st_transform(country_p,3035)) + geom_sf(fill=NA,size=.1)+theme_bw()+
   #                        "sumF" = 1,
   #                        "sumA" = 1))
 
-ggsave(filename="/tmp/maps_biomass.png",width=16/2.54,height=10/2.54)
+#ggsave(filename="C:/Users/pohlmann/Desktop/Home_Office/ICES/WKEPEMP3/Graphs/maps_biomass.png",width=16/2.54,height=10/2.54)
 ```
 
 ### mortality
@@ -413,7 +421,7 @@ ggplot(st_transform(country_p,3035)) + geom_sf(fill=NA,size=.1)+theme_bw()+
   scale_fill_viridis_c(expression(paste(Sigma,"F")/paste(Sigma,"A")))
 
 
-ggsave(filename="/tmp/maps_mortality.png",width=16/2.54,height=10/2.54)
+#ggsave(filename="/tmp/maps_mortality.png",width=16/2.54,height=10/2.54)
 ```
 
 
@@ -477,7 +485,7 @@ ggplot(st_transform(country_p,3035)) + geom_sf(fill=NA,size=.1)+theme_bw()+
   #                        "sumF" = 1,
   #                        "sumA" = 1))
 
-ggsave(filename="/tmp/maps_biomass_country.png",width=16/2.54,height=10/2.54)
+#ggsave(filename="/tmp/maps_biomass_country.png",width=16/2.54,height=10/2.54)
 ```
 
 ### mortality
@@ -531,7 +539,7 @@ ggplot(st_transform(country_p,3035)) + geom_sf(fill=NA,size=.1)+theme_bw()+
   scale_fill_viridis_c(expression(paste(Sigma,"F")/paste(Sigma,"A")))
 
 
-ggsave(filename="/tmp/maps_mortality_country.png",width=16/2.54,height=10/2.54)
+#ggsave(filename="/tmp/maps_mortality_country.png",width=16/2.54,height=10/2.54)
 ```
 
 
@@ -579,6 +587,7 @@ ggplot(indicator %>% filter(!is.na(suma)),aes(x=eel_year,y=suma))+
 #  scale_y_sqrt()+
   theme_bw() + ylab(expression(paste(Sigma,"A")))+xlab("") + xlim(2007,2020)+facet_wrap(~eel_cou_code,drop=TRUE,scales="free_y")
 
+color_countries = c(color_countries,"INT"="#ff5733")            
 
 ggplot(indicator %>% filter(!is.na(sumf)),aes(x=eel_year,y=sumf))+
   geom_hline(yintercept=0.92,col="red")+
@@ -600,3 +609,255 @@ ggplot(indicator %>% filter(!is.na(sumh)),aes(x=eel_year,y=sumh))+
 
 
 ```
+
+
+
+# Time trend analyses
+## Biomass
+Time trend analyses are carried out on the ratio of Bcurrent/B0 and Bcurrent/B0_adjusted - as indicated by suffixes.\
+B0_adjusted accounts for the fact that while B0, by definition, is a fixed value, Bcurrent partly depends on natural recruitment. The ratio Bcurrent/B0 will thus not accurately reflect the influence of continental factors on escapement biomass (most importantly effects of management measures) but also changes in natural recruitment. B0_adjusted incorporates changes in natural recruitment, therefore canceling out effects of natural recruitment on Bcurrent and removing the bias. Since a multitude of different methods and models is used by countries to calculate biomass indicators a general approximation for the adjustment of B0 was derived from WGEEL recruitment index by... _SENTENCE OR TWO FROM HILAIRE_   
+
+The following restraints were defined for trend analyses:   
+1. Only values after 2010 (Implementation of Eel regulation) were considered\
+2. Time Series need to have at least 5 observations
+
+Delta gives the difference between the initial (2010) and current (latest year reported) ratio of either Bcurrent/Bo or Bcurrent/B0_adjusted - as indicated by suffixes. The value thus indicates a quantitative measure of the change in biomass whereas Tau gives a qualitative estimate on whether the trend is positive/negative and significant (also see table footnote).
+
+```{r trendbiomasstable}
+
+library(Kendall)
+
+load("./data_dependencies/annexes13_method.Rdata")
+load("./data_dependencies/emu_sea.Rdata")
+mor_wise = annexes13_method %>% select(emu_nameshort,mortality_wise)
+mor_wise = merge(emu_sea %>% st_drop_geometry(),mor_wise)
+mor_wise <- mor_wise %>% mutate(cohort_wise=grepl("ohort",mortality_wise))
+load("./data_dependencies/dat_ge.Rdata")
+load("./data_dependencies/dat_ye.Rdata")
+
+
+
+estimate_b0 = function(emu, year, mor_wise,precodata){
+  mod = switch(unique(mor_wise$rec_zone[mor_wise$emu_nameshort == emu]),
+               "EE" = dat_ge %>% filter (area == "Elsewhere Europe"),
+               "NS" = dat_ge %>% filter (area == "North Sea"),
+               "BA" = dat_ye)
+  if ("value_std_1960_1979" %in% names(mod)){
+    Rcurrent <- mean(mod$value_std_1960_1979[mod$year %in% ((year-4):year)])
+  } else {
+    Rcurrent <- mean(mod$p_std_1960_1979[mod$year %in% ((year-4):year)])
+  }
+  if (unique(mor_wise$cohort_wise[mor_wise$emu_nameshort==emu]))
+    Rcurrent <- switch(mor_wise$rec_zone[mor_wise$emu_nameshort == emu],,
+                       "EE" = mean(mod$p_std_1960_1979[mod$year %in% ((year-12):(year-7))]),
+                       "NS" = mean(mod$p_std_1960_1979[mod$year %in% ((year-17):(year-12))]),
+                       "BA" = mean(mod$value_std_1960_1979[mod$year %in% ((year-22):(year-17))]))
+  precodata$bbest[precodata$eel_emu_nameshort==emu & precodata$eel_year==year] / Rcurrent
+}
+
+indicator_sub <- indicator %>%
+  filter(eel_emu_nameshort %in% unique(mor_wise$emu_nameshort))
+indicator_sub$b0_adj = mapply(estimate_b0,indicator_sub$eel_emu_nameshort, indicator_sub$eel_year,
+                                MoreArgs=list(mor_wise=mor_wise,precodata=indicator_sub))
+
+options(scipen = 999)
+indicator <- indicator %>% left_join(indicator_sub %>% select(eel_year, eel_emu_nameshort, b0_adj), by = c("eel_year", "eel_emu_nameshort"))
+
+invisible(capture.output(Kendall_bio_b0 <- rownames_to_column(as.data.frame(t(as.data.frame(lapply(indicator %>%
+                  mutate(ratio = bcurrent/b0) %>%
+                  filter(eel_year >= 2010) %>%
+                  select(eel_emu_nameshort, eel_year, ratio) %>%
+                  drop_na(ratio)%>%
+                  group_by(eel_emu_nameshort) %>% filter(n()>= 5) %>% ungroup() %>%
+                  pivot_wider(names_from = eel_emu_nameshort, values_from = ratio) %>%
+                  arrange(eel_year) %>%
+                  select(-eel_year), 
+                  function(y) unlist (MannKendall(y)))))), "eel_emu_nameshort")))
+
+invisible(capture.output(Kendall_bio_b0_adj <- rownames_to_column(as.data.frame(t(as.data.frame(lapply(indicator %>%
+                      mutate(ratio = bcurrent/b0_adj) %>%
+                      filter(eel_year >= 2010) %>%
+                      select(eel_emu_nameshort, eel_year, ratio) %>%
+                      drop_na(ratio)%>%
+                      group_by(eel_emu_nameshort) %>% filter(n()>= 5) %>% ungroup() %>%
+                      pivot_wider(names_from = eel_emu_nameshort, values_from = ratio) %>%
+                      arrange(eel_year) %>%
+                      select(-eel_year), 
+                      function(y) unlist (MannKendall(y)))))), "eel_emu_nameshort")))
+
+
+
+Kendall_bio_tab <-  indicator %>%
+                    group_by(eel_emu_nameshort) %>%
+                    filter(eel_year >= 2010) %>%
+                    mutate(ratio_b0 = bcurrent/b0,
+                      ratio_b0_adj = bcurrent/b0_adj) %>%
+                    mutate(Period = paste(min(eel_year), max(eel_year), sep = "-"),
+                      n_b0 = length(ratio_b0[!is.na(ratio_b0)]),
+                      n_b0_adj = length(ratio_b0_adj[!is.na(ratio_b0_adj)]),
+                      Esc_perc_b0_2010 = round(ratio_b0[which.min(eel_year)], 3),
+                      Esc_perc_b0_current = round(ratio_b0[which.max(eel_year)], 3),
+                      Delta_b0 = ratio_b0[which.max(eel_year)] - ratio_b0[which.min(eel_year)],
+                      Delta_b0_adj = ratio_b0_adj[which.max(eel_year)] - ratio_b0_adj[which.min(eel_year)]) %>%
+                    filter(eel_year == max(eel_year) | eel_year == min(eel_year)) %>%
+                    select(eel_emu_nameshort, Period, n_b0, n_b0_adj, Esc_perc_b0_2010, Esc_perc_b0_current, Delta_b0, Delta_b0_adj) %>%
+                    unique() %>%
+                    ungroup() %>%
+                    arrange(eel_emu_nameshort) %>%
+                    left_join(Kendall_bio_b0, by = "eel_emu_nameshort") %>%
+                    rename(p_b0 = sl,
+                      Tau_b0 = tau,
+                      Denominator_b0 = D,
+                      Score_b0 = S,
+                      VarScore_b0 = varS) %>%
+                    mutate(Delta_b0 = round(Delta_b0, 3),
+                      p_b0 = round(p_b0, 3),
+                      Tau_b0 = round(Tau_b0, 3),
+                      Denominator_b0 = round(Denominator_b0, 0),
+                      VarScore_b0 = round(VarScore_b0, 3)) %>%
+                  left_join(Kendall_bio_b0_adj, by = "eel_emu_nameshort") %>%
+                  rename(p_b0_adj = sl,
+                    Tau_b0_adj = tau,
+                    Denominator_b0_adj = D,
+                    Score_b0_adj = S,
+                    VarScore_b0_adj = varS) %>%
+                  mutate(Delta_b0_adj = round(Delta_b0_adj, 3),
+                    p_b0_adj = round(p_b0_adj, 3),
+                    Tau_b0_adj = round(Tau_b0_adj, 3),
+                    Denominator_b0_adj = round(Denominator_b0_adj, 0),
+                    VarScore_b0_adj = round(VarScore_b0_adj, 3)) %>% 
+                    filter_at(vars(Esc_perc_b0_2010, Esc_perc_b0_current, Delta_b0, Delta_b0_adj, Tau_b0, Tau_b0_adj), any_vars(!is.na(.))) 
+
+
+flextable(Kendall_bio_tab %>%
+            rename(EMU = eel_emu_nameshort) %>%
+            mutate(Tau_b0 = ifelse(p_b0 <= 0.1, 
+                            ifelse(p_b0 <= 0.05, paste(Tau_b0, "**"), paste(Tau_b0, "*")), as.character(Tau_b0)))  %>%
+            mutate(Tau_b0_adj = ifelse(p_b0_adj <= 0.1,
+                               ifelse(p_b0_adj <= 0.05, paste(Tau_b0_adj, "**"), paste(Tau_b0_adj, "*")), as.character(Tau_b0_adj)))  %>%
+            select(EMU, Period, n_b0, n_b0_adj, Esc_perc_b0_2010, Esc_perc_b0_current, Delta_b0, Delta_b0_adj, Tau_b0, Tau_b0_adj) %>%
+            mutate_all(~ifelse(is.nan(.), NA, .))) %>%
+            autofit()
+
+```
+
+
+[*] indicates p > 0.1\
+[**] indicates p > 0.05
+
+
+
+## Mortality
+
+Time trend analyses are carried out on the mortalites suma, sumf and sumh - as indicated by suffixes.\ 
+The following restraints were defined for trend analyses:   
+1. Only values after 2010 (Implementation of Eel regulation) were considered\
+2. Time Series need to have at least 5 observations
+
+Delta gives the difference between the initial (2010) and current (latest year reported) suma, sumf or sumh - as indicated by suffixes. The value thus indicates a quantitative measure of the change in mortality, whereas Tau gives a qualitative estimate on whether the trend is positive/negative and significant (also see table footnote).
+
+
+```{r trendmortalitytable}
+
+invisible(capture.output(Kendall_suma <- rownames_to_column(as.data.frame(t(as.data.frame(lapply(indicator %>%
+                  filter(eel_year >= 2010) %>%
+                  select(eel_emu_nameshort, eel_year, suma) %>%
+                  drop_na(suma)%>%
+                  group_by(eel_emu_nameshort) %>% filter(n()>= 5) %>% ungroup() %>%
+                  pivot_wider(names_from = eel_emu_nameshort, values_from = suma) %>%
+                  arrange(eel_year) %>%
+                  select(-eel_year), 
+                  function(y) unlist (MannKendall(y)))))), "eel_emu_nameshort")))
+
+invisible(capture.output(Kendall_sumf <- rownames_to_column(as.data.frame(t(as.data.frame(lapply(indicator %>%
+                  filter(eel_year >= 2010) %>%
+                  select(eel_emu_nameshort, eel_year, sumf) %>%
+                  drop_na(sumf)%>%
+                  group_by(eel_emu_nameshort) %>% filter(n()>= 5) %>% ungroup() %>%
+                  pivot_wider(names_from = eel_emu_nameshort, values_from = sumf) %>%
+                  arrange(eel_year) %>%
+                  select(-eel_year), 
+                  function(y) unlist (MannKendall(y)))))), "eel_emu_nameshort")))
+
+invisible(capture.output(Kendall_sumh <- rownames_to_column(as.data.frame(t(as.data.frame(lapply(indicator %>%
+                  filter(eel_year >= 2010) %>%
+                  select(eel_emu_nameshort, eel_year, sumh) %>%
+                  drop_na(sumh)%>%
+                  group_by(eel_emu_nameshort) %>% filter(n()>= 5) %>% ungroup() %>%
+                  pivot_wider(names_from = eel_emu_nameshort, values_from = sumh) %>%
+                  arrange(eel_year) %>%
+                  select(-eel_year), 
+                  function(y) unlist (MannKendall(y)))))), "eel_emu_nameshort")))
+
+Kendall_mort_tab <- indicator %>%
+                    group_by(eel_emu_nameshort) %>%
+                    filter(eel_year >= 2010) %>%
+                    mutate(Period = paste(min(eel_year), max(eel_year), sep = "-"),
+                      n_suma = length(suma[!is.na(suma)]),
+                      n_sumf = length(sumf[!is.na(sumf)]),
+                      n_sumh = length(sumh[!is.na(sumh)]),
+                      suma_initial = round(suma[which.min(eel_year)], 3),
+                      suma_current = round(suma[which.max(eel_year)], 3),
+                      Delta_suma = suma[which.max(eel_year)] - suma[which.min(eel_year)],
+                      Delta_sumf = sumf[which.max(eel_year)] - sumf[which.min(eel_year)],
+                      Delta_sumh = sumh[which.max(eel_year)] - sumh[which.min(eel_year)]) %>%
+                    filter(eel_year == max(eel_year) | eel_year == min(eel_year)) %>%
+                    select(eel_emu_nameshort, Period, suma_initial, suma_current,  n_suma, n_sumf, n_sumh, Delta_suma, Delta_sumf, Delta_sumh) %>%
+                    unique() %>%
+                    ungroup() %>%
+                    arrange(eel_emu_nameshort) %>%
+                    left_join(Kendall_suma, by = "eel_emu_nameshort") %>%
+                    rename(p_suma = sl,
+                      Tau_suma = tau,
+                      Denominator_suma = D,
+                      Score_suma = S,
+                      VarScore_suma = varS) %>%
+                    mutate(Delta_suma = round(Delta_suma, 3),
+                      p_suma = round(p_suma, 3),
+                      Tau_suma = round(Tau_suma, 3),
+                      Denominator_suma = round(Denominator_suma, 0),
+                      VarScore_suma = round(VarScore_suma, 3)) %>%
+                  left_join(Kendall_sumf, by = "eel_emu_nameshort") %>%
+                    rename(p_sumf = sl,
+                      Tau_sumf = tau,
+                      Denominator_sumf = D,
+                      Score_sumf = S,
+                      VarScore_sumf = varS) %>%
+                    mutate(Delta_sumf = round(Delta_sumf, 3),
+                      p_sumf = round(p_sumf, 3),
+                      Tau_sumf = round(Tau_sumf, 3),
+                      Denominator_sumf = round(Denominator_sumf, 0),
+                      VarScore_sumf = round(VarScore_sumf, 3)) %>% 
+                  left_join(Kendall_sumh, by = "eel_emu_nameshort") %>%
+                    rename(p_sumh = sl,
+                      Tau_sumh = tau,
+                      Denominator_sumh = D,
+                      Score_sumh = S,
+                      VarScore_sumh = varS) %>%
+                    mutate(Delta_sumh = round(Delta_sumh, 3),
+                      p_sumh = round(p_sumh, 3),
+                      Tau_sumh = round(Tau_sumh, 3),
+                      Denominator_sumh = round(Denominator_sumh, 0),
+                      VarScore_sumh = round(VarScore_sumh, 3)) %>% 
+                      filter_at(vars(Delta_suma, Delta_sumf, Delta_sumh, Tau_suma, Tau_sumf, Tau_sumh), any_vars(!is.na(.))) 
+
+
+flextable(Kendall_mort_tab %>%
+            rename(EMU = eel_emu_nameshort) %>%
+            mutate(Tau_suma = ifelse(p_suma <= 0.1, 
+                            ifelse(p_suma <= 0.05, paste(Tau_suma, "**"), paste(Tau_suma, "*")), as.character(Tau_suma)))  %>%
+            mutate(Tau_sumf = ifelse(p_sumf <= 0.1,
+                               ifelse(p_sumf <= 0.05, paste(Tau_sumf, "**"), paste(Tau_sumf, "*")), as.character(Tau_sumf)))  %>%
+            mutate(Tau_sumh = ifelse(p_sumh <= 0.1,
+                               ifelse(p_sumh <= 0.05, paste(Tau_sumh, "**"), paste(Tau_sumh, "*")), as.character(Tau_sumh)))  %>%
+            select(EMU, Period, suma_initial, suma_current, n_suma, n_sumf, n_sumh, 
+                   Delta_suma, Delta_sumf, Delta_sumh, Tau_suma, Tau_sumf, Tau_sumh) %>%
+            mutate_all(~ifelse(is.nan(.), NA, .))) %>%
+            autofit()
+
+```
+
+
+[*] indicates p > 0.1\
+[**] indicates p > 0.05
+

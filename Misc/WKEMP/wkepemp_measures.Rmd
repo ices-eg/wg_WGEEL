@@ -1,0 +1,23 @@
+---
+title: "Untitled"
+author: "none"
+date: "03/12/2021"
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+  word_document: default
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+	echo = FALSE,
+	message = FALSE,
+	warning = FALSE
+)
+library(ggplot2)
+library(flextable)
+library(tidyverse)
+
+
+
+```
