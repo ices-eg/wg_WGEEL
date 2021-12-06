@@ -25,6 +25,7 @@ readWorksheetWithNull=function(wb, s, startRow, startCol, endRow, endCol,header=
 
 datawd <- "C:\\Users\\cedric.briand\\OneDrive - EPTB Vilaine\\Projets\\GRISAM\\2021\\WKEPEMP\\data_call\\Annex13\\"
 
+if(Sys.info()["user"] =="hilaire.drouineau") datawd = "~/Bureau/data_call/Annex13/"
 #filename <- filenames[1]
 read_annex13 <- function(filename){
 	wb = loadWorkbook(str_c(datawd,filename))

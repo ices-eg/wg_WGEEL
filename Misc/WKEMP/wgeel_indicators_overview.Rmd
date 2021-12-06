@@ -97,6 +97,11 @@ flextable(mortality %>%
           
 ```
 
+
+```{r notans}
+sort(country_p$cou_country[! country_p$cou_code %in% c(biomass$eel_cou_code , mortality$eel_cou_code)]) 
+```
+
 ## Spatial coverage
 Maps showings data avaibility. The symbol indicates wether the country have provided estimates for at least one (whatever year), two , three distinct indicators.
 ```{r indicatorsmaps}
