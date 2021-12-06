@@ -21,6 +21,7 @@ password=getPass()
 con = dbConnect(Postgres(), dbname="wgeel",host=host,port=port,user=user, password=password)
 load("../../R/shiny_data_visualisation/shiny_dv/data/maps_for_shiny.Rdata")
 load("../..//R/shiny_data_visualisation/shiny_dv/data/ref_and_eel_data.Rdata")
+eu_cou_codes=c("AT",	"BE",	"BG",	"HR",	"CY",	"CZ",	"DK",	"EE",	"FI",	"FR",	"DE",	"GR",	"HU",	"IE",	"IT",	"LV",	"LT",	"LU",	"MT",	"NL",	"PL",	"PT",	"RO",	"SK",	"SI",	"ES",	"SE",	"GB")
 ```
 
 # Downloading data
@@ -496,14 +497,16 @@ ggsave(filename="/tmp/maps_mortality.png",width=16/2.54,height=10/2.54)
 Since mortality in Italy and France are fishery dominated, we can have a look to the trends in landings in early years.
 
 ```{r landingsfranceita}
-landings = dbGetQuery(con,"select sum(eel_value) eel_value,eel_cou_code,eel_lfs_code,eel_year,eel_emu_nameshort from datawg.t_eelstock_eel 
-                      where eel_cou_code in ('IT','FR')
+landings = dbGetQuery(con,paste0("select sum(eel_value) eel_value,eel_cou_code,eel_lfs_code,eel_year,eel_emu_nameshort from datawg.t_eelstock_eel 
+                      where eel_cou_code in ('",
+                               paste(not_reported[not_reported%in%eu_cou_codes], collapse="','"),
+                               "')
                       and eel_typ_id in (4,6) and eel_qal_id in (0,1,4) and eel_year >=2010
-                      group by eel_cou_code,eel_lfs_code,eel_year,eel_emu_nameshort") 
+                      group by eel_cou_code,eel_lfs_code,eel_year,eel_emu_nameshort")) 
 
-ggplot(landings,aes(x=eel_year,y=eel_value))+geom_line(aes(col=eel_emu_nameshort))+
+ggplot(landings,aes(x=eel_year,y=eel_value/1e3))+geom_line(aes(col=eel_emu_nameshort))+
   scale_y_log10()+
-  facet_grid(eel_lfs_code~eel_cou_code)
+  facet_grid(eel_lfs_code~eel_cou_code)+ylab("landings (t)")+xlab("")
 
 
 ```
@@ -523,7 +526,7 @@ indicator<- indicator %>%
 Normally, Bbest (that does not include restocking) stands for the best escapment that can occur in the absence of anthropogenic influence give the current recruitment. Since recruitment has collapsed, Bbest is supposed to be smaller than B0 which is the escapment that would occur in the absence of any anthropogenic influence, including a pristine recruitment, and is generally estimated using pre-1980s data.
 
 ```{r plotBbestB0}
-ggplot(indicator,aes(x=bbest/b0))+geom_histogram()+geom_vline(xintercept=1,slope=1,lty=2)+xlab("Bbest/B0") + scale_x_log10() + ylab("frequency")
+ggplot(indicator,aes(x=bbest/b0))+geom_histogram()+geom_vline(xintercept=1,slope=1,lty=2)+xlab(expression(B[best]/B[0])) + scale_x_log10() + ylab("frequency")
 ```
 
 In a few situations, Bbest is greather than B0.
@@ -547,7 +550,7 @@ In countries without (or with limited) restocking, Bcurrent should be less than 
 
 
 ```{r plotBcurrentBbest}
-ggplot(indicator,aes(x=bcurrent/bbest))+geom_histogram()+geom_vline(xintercept=1,slope=1,lty=2)+xlab("Bcurrent/Bbest") + scale_x_log10() + ylab("frequency")
+ggplot(indicator,aes(x=bcurrent/bbest))+geom_histogram()+geom_vline(xintercept=1,slope=1,lty=2)+xlab(expression(B[current]/B[best])) + scale_x_log10() + ylab("frequency")
 ```
 
 ```{r tabbcurrentbbest}
@@ -570,7 +573,7 @@ In countries without (or with limited) restocking, Bcurrent should be less than 
 
 
 ```{r plotBcurrentB0}
-ggplot(indicator,aes(x=bcurrent/b0))+geom_histogram()+geom_vline(xintercept=1,slope=1,lty=2)+xlab("Bcurrent/B0") + scale_x_log10() + ylab("frequency")
+ggplot(indicator,aes(x=bcurrent/b0))+geom_histogram()+geom_vline(xintercept=1,slope=1,lty=2)+xlab(expression(B[current]/B[0])) + scale_x_log10() + ylab("frequency")
 ```
 
 ```{r tabbcurrentb0}
@@ -650,8 +653,11 @@ ggplot(emu_sea)+geom_sf(aes(fill=rec_zone))+geom_sf(data=emu_p,inherit.aes=FALSE
 ```
 ```{r plotb0alternative}
 ggplot(indicator_sub,aes(x=b0,y=b0_estimated))+geom_point(aes(col=eel_cou_code))+xlab(expression("reported B"[0]))+ ylab(expression("estimated B"[0])) + geom_abline(intercept=0, slope= 1, lty=2)
-ggplot(indicator_sub,aes(x=b0/b0_estimated))+geom_histogram()+facet_wrap(~eel_cou_code)+scale_x_log10()+geom_vline(xintercept=1,lty=2)+xlab(expression("reported B"[0]/"estimated B"[0]))
+ggplot(indicator_sub,aes(x=b0/b0_estimated))+geom_histogram()+facet_wrap(~eel_cou_code)+scale_x_log10()+geom_vline(xintercept=1,lty=2)+xlab(expression("reported B"[0]/"estimated B"[0]))+ylab("frequency")
 ```
+Results show that the discrepancy between the two indicators is very heterogeneous among countries / EMUs. Unsurprisingly, the reported $B[0]$ are generally less than the estimated ones, but this is not always the case (e.g. SE, ES). More surprisingly, estimated $B[0]$ are highly variable, indicating that reported $B[best]$ are much more variable than variations in recruitment. Finally, the ratio between reported and estimated $B[0]$ are very contrasted among countries, either because of inappropriate accounting of restocking in $B[best]$ or because of inconsistencies in $B[0]$ estimations. Anyway, this questions the comparisons of $B[0]$ among EMUs.
+
+
 ## effect of restocking
 Theoretically, $B_{best}$ should not include restocking while B0 should include restocking. In the absence of restocking $\Sigma A \sim -log(B_{best}/B_{current})$, but this equation should not be valid in the presence of restocking since $B_{best}$ and $\Sigma A$ should not include restocking while $B_current$ should include restocking.
 
@@ -659,7 +665,7 @@ Here, we see that many countries (except DE, SE and PL) seem to have accounted f
 
 ```{r plotsumA}
 ggplot(indicator,aes(x=suma,y= (-log(bcurrent/bbest)))) +geom_point(aes(col=eel_cou_code)) + facet_wrap(~eel_cou_code,scales="free") + 
-  geom_abline(intercept=0,slope=1,lty=2)
+  geom_abline(intercept=0,slope=1,lty=2) + xlab(expression(paste(Sigma,"A")))+scale_color_discrete("")+ylab(expression(-log(B[current]/B[best])))
 ```
 
 
