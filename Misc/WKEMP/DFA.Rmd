@@ -1,0 +1,882 @@
+---
+title: "WKEMP3 DFA analysis SG1"
+author: "Rob van Gemert"
+date: "03/12/2021"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,warning=FALSE,message=FALSE,fig.width=14.9/2.54,dpi=300,
+                      fig.height=10/2.54)
+library(RPostgres)
+library(yaml)
+library(sf)
+library(getPass)
+library(ggforce)
+library(ggplot2)
+library(flextable)
+library(tidyverse)
+library(parallel)
+library(MARSS)
+library(eulerr)
+
+cred=read_yaml("../../credentials.yml")
+con = dbConnect(Postgres(), dbname=cred$dbname,host=cred$host,port=cred$port,user=cred$user, password=getPass())
+
+#Download data
+biomassall <- dbGetQuery(con,"select e.* from datawg.t_eelstock_eel e  where eel_qal_id in (0,1,2,3,4) and eel_typ_id in (13,14,15)")
+
+mortalityall <- dbGetQuery(con,"select e.* from datawg.t_eelstock_eel e where eel_qal_id in (0,1,2,3,4) and eel_typ_id in (17,18,19)")
+
+nb_country_emu <- dbGetQuery(con,"select count(distinct eel_cou_code),count(distinct(eel_emu_nameshort)) from datawg.t_eelstock_eel 
+                             where eel_typ_id in (13, 14, 15, 17, 18, 19) and eel_datasource='dc_2021'")
+
+#Recode indicator levels
+biomassall = biomassall %>%
+  mutate(indicator = as.character(eel_typ_id),
+         indicator = dplyr::recode(indicator,
+    "13" = "B0",
+    "14" = "Bbest",
+    "15" = "Bcurrent"
+  ))
+
+mortalityall = mortalityall %>%
+  mutate(indicator = as.character(eel_typ_id),
+         indicator = dplyr::recode(indicator,
+                                   "17" = "sumA",
+                                   "18" = "sumF",
+                                   "19" = "sumH"
+         ))
+
+
+
+CY<-as.integer(format(Sys.Date(), "%Y")) # current year
+
+
+
+###specify functions for later use
+#################################
+f.datawide = function(data, logtransform = FALSE){
+    
+#put data in wide format
+data_wide <- data %>%
+  ungroup() #removed the previous grouping
+
+if(logtransform){ #optional log transform
+  data_wide = data_wide %>%
+    mutate(eel_value=log(eel_value))
+}
+
+data_wide <- data_wide %>%
+  select(eel_emu_nameshort,eel_value,eel_year) %>%
+  arrange(eel_year)%>%
+  pivot_wider(id_cols=c(eel_emu_nameshort,eel_year),names_from=eel_year,values_from=eel_value)
+
+#then we scaled time series (substract the mean and divide by standard deviation)
+data_wide[,-1] <- sweep(data_wide[,-1],1,rowMeans(data_wide[,-1],na.rm=TRUE),"-")
+data_wide[,-1] <- sweep(data_wide[,-1],1,apply(data_wide[,-1],1,sd,na.rm=TRUE),"/") 
+return(data_wide)
+}
+
+
+
+#Obtain test statistics from DFA fit
+format_dfa =function(the.fit){
+  H.inv=1
+  Z.est = coef(the.fit, type="matrix")$Z
+  if(ncol(Z.est)>1) H.inv = varimax(Z.est)$rotmat
+  #rotate factor loadings
+  Z<-coef(the.fit,type="matrix")$Z%*%H.inv
+  #rotate trends
+  trends<-solve(H.inv)%*%the.fit$states
+  scale_val=coef(the.fit)$A
+  list(Z=Z,trends=trends,scale_val=scale_alpha)
+}
+
+#a function to display nice Venn diagram
+venn <- function(nameseries,Z,minZ){
+  nameseries=as.character(nameseries)
+  list_venn=do.call(c,lapply(1:(dim(Z)[2]),function(j){
+    res=list(nameseries[which(Z[,j]>minZ)],nameseries[which(Z[,j]< -minZ)])
+    names(res)=paste("Trend",j,c("+","-"),sep="")
+    res
+  }))
+  list_venn$Any =nameseries[!nameseries %in%unlist(list_venn)]
+  euler_fit<-euler(list_venn)
+  lab=sapply(names(euler_fit$original.values),function(n){
+    groups=strsplit(n,"&")[[1]]
+    group_not=names(list_venn)[!names(list_venn) %in%groups]
+    okgroup = apply(sapply(groups,function(g) nameseries %in% list_venn[[g]]),
+                    1,
+                    prod) 
+    oknotgroup=1
+    if(length(group_not)>0){
+      oknotgroup=apply(sapply(group_not,
+                              function(g) !nameseries %in% list_venn[[g]]),
+                       1,
+                       prod)
+    }
+    paste(nameseries[as.logical(
+      okgroup*oknotgroup)],
+      collapse="\n")
+  })
+  eulerr_options(quantities=list(cex=.6))
+  plot(euler_fit,quantities=lab)
+}
+
+
+venn_belonging <- function(nameseries,Z,minZ){
+  nameseries=as.character(nameseries)
+  list_venn=do.call(c,lapply(1:(dim(Z)[2]),function(j){
+    res=list(nameseries[which(Z[,j]>minZ)],nameseries[which(Z[,j]< -minZ)])
+    names(res)=paste("Trend",j,c("+","-"),sep="")
+    res
+  }))
+  list_venn$Any =nameseries[!nameseries %in%unlist(list_venn)]
+  sapply(nameseries,function(ser) 
+    paste(names(list_venn)[sapply(names(list_venn),
+                                  function(g) ifelse(ser %in% list_venn[[g]], TRUE,FALSE))],
+          collapse="; "))
+}
+
+#Plot the found trends
+p.trends = function(data_wide, best_fit_data, plot_title){
+N_ts=nrow(data_wide) #number of time series
+TT=ncol(data_wide)-1 #number of time steps
+y=as.matrix(data_wide[,-1]) #matrix of obseravation
+rownames(y)=data_wide$eel_emu_nameshort
+
+formatted_matrices=format_dfa(best_fit_data)
+
+namesseries=data_wide$eel_emu_nameshort
+
+trends=formatted_matrices$trends
+Z=formatted_matrices$Z
+#plot the factor loadings
+m=dim(trends)[1]
+
+trends_long <- as.data.frame(t(trends))
+names(trends_long)=paste("Trend",1:ncol(trends_long))
+trends_long$year=as.numeric(names(data_wide)[-1])
+trends_long<-trends_long %>%
+  pivot_longer(starts_with("Trend"),names_to="Trend")
+plot = ggplot(trends_long,aes(x=year,y=value))+
+  geom_line()+
+  facet_wrap(.~Trend)+
+  theme_bw() +
+  ggtitle(plot_title)
+
+return(list(plot = plot, namesseries = namesseries, Z = Z, m = m, N_ts = N_ts))
+}
+
+
+#Table of factor loadings
+t.factorloadings = function(namesseries, Z, m, minZ, data){
+Z_tab = as_tibble(data.frame(namesseries,  Z))
+country = distinct(data[, c("eel_emu_nameshort", "eel_cou_code")])
+colnames(Z_tab) = c("Series", paste0("Trend ", 1:m))
+Z_tab = Z_tab %>% inner_join(country, by = c("Series" = "eel_emu_nameshort"))
+Z_tab = Z_tab %>% arrange(eel_cou_code, Series) %>% mutate(Country = as.character(eel_cou_code)) %>% select(Country, Series, 2:(1+m))
+ft <- flextable(Z_tab  %>% mutate(across(3:(2+m), round, 2))) #digits no more supported in colformat_num
+for(i in 1:m){
+  ft = ft %>% color(abs(Z_tab %>% select(paste0("Trend ", i))) > minZ, paste0("Trend ", i), color = "red")
+}
+ft = merge_v(ft, ~ Country)
+ft = border_inner_h(ft)
+autofit(ft)
+}
+
+
+#Plot of the factor loadings
+p.factorloadings = function(Z,m,N_ts,namesseries, minZ){
+  ylims = c(-1.1*max(abs(Z)), 1.1*max(abs(Z)))
+  par(mfrow=c(2,1), mar=c(0.5,2.5,1.5,0.5), oma=c(0.4,1,1,1))
+  for(i in 1:m) {
+    #plot(c(1:N_ts)[abs(Z[,i])>minZ], as.vector(Z[abs(Z[,i])>minZ,i]),
+    #     type="h", lwd=2, xlab="", ylab="", xaxt="n", ylim=ylims, xlim=c(0,N_ts+1))
+    plot(c(1:N_ts), as.vector(Z[,i]),
+         type="h", lwd=2, xlab="", ylab="", xaxt="n", ylim=ylims, xlim=c(0,N_ts+1))
+    for(j in 1:N_ts) {
+      # if(Z[j,i] > minZ) {text(j, -0.05, namesseries[j], srt=90, adj=1, cex=0.5)}
+      # if(Z[j,i] < -minZ) {text(j, 0.05, namesseries[j], srt=90, adj=0, cex=0.5)}
+      if(Z[j,i] > 0) {text(j, -0.05, namesseries[j], srt=90, adj=1, cex=0.5,col=ifelse(Z[j,i]>minZ,2,1))}
+      if(Z[j,i] < 0) {text(j, 0.05, namesseries[j], srt=90, adj=0, cex=0.5,col=ifelse(Z[j,i]< -minZ,2,1))}
+      abline(h=0, lwd=1, col="gray")
+    } # end j loop
+    mtext(bquote(~italic(w[list(i,.(i))])),side=3,line=.5)
+  } # end i loop
+}
+
+p.fit = function(best_fit_data, data_wide){
+  d <- residuals(best_fit_data,interval="confidence") #augment is replace since MARSS 3.11, see https://github.com/nwfsc-timeseries/MARSS/releases
+d$.conf.low <- d$.fitted+qnorm(0.05/2)*d$.sigma
+d$.conf.up <- d$.fitted-qnorm(0.05/2)*d$.sigma
+
+TT=ncol(data_wide)-1
+y=as.matrix(data_wide[,-1])
+
+# some tests
+#cor.test(d$value, d$.fitted)
+#ggplot(data = d) + geom_point(aes(x=value, y =.fitted, color = .rownames)) + geom_abline(intercept = 0, slope = 1)
+
+ggplot(data = d) +
+  geom_line(aes(t, .fitted)) +
+  geom_point(aes(t, value)) +
+  geom_ribbon(aes(x=t, ymin=.conf.low, ymax=.conf.up), linetype=2, alpha=0.2) +
+  facet_wrap(vars(.rownames)) +
+  xlab("") + ylab("standarized abundance index")+
+  scale_x_continuous(breaks=seq(1,TT,10),labels=colnames(y)[seq(1,TT,10)])+
+  theme_bw()
+}
+
+```
+
+
+
+```{r dataloading, include=FALSE}
+
+startyear = 2007 #Start year for all dataseries
+
+
+#  Biomass indicators 
+#########################################################
+
+
+#keep only data with at least 10 years
+nbpoints = biomassall %>%
+  filter(eel_year>=startyear,
+         !is.na(eel_value))%>%
+  group_by(eel_emu_nameshort, indicator) %>%
+  summarise(nbyear=n_distinct(eel_year))%>%
+  filter(nbyear>=10) %>%
+  ungroup() 
+
+biomass <-biomassall %>%
+  filter(!is.na(eel_value),
+         paste(eel_emu_nameshort,indicator) %in% paste(nbpoints$eel_emu_nameshort, nbpoints$indicator) & eel_year>=startyear & eel_year <= (CY-1)) #quick and dirty way of filtering for combinations of EMU and indicator that are present in the nbpoints dataframe
+
+#Removed all EMUs for which 0 represents more than 10% of data
+biomass <- biomass %>%
+  group_by(eel_emu_nameshort, indicator) %>%
+  mutate(nb_values=n(),nb_zeros=sum(eel_value==0)) %>%
+  mutate(freq_zero=nb_zeros/nb_values)%>%
+  filter(freq_zero < .1) %>%
+  ungroup()
+
+bbest = biomass %>% 
+  filter(indicator == "Bbest")
+
+bcurrent = biomass %>% 
+  filter(indicator == "Bcurrent")
+
+
+
+
+#  Mortality indicators 
+#########################################################
+
+# keep only data with at least 10 years
+nbpoints = mortalityall %>%
+  filter(eel_year>=startyear,
+         !is.na(eel_value))%>%
+  group_by(eel_emu_nameshort, indicator) %>%
+  summarise(nbyear=n_distinct(eel_year))%>%
+  filter(nbyear>=10) %>%
+  ungroup()
+
+mortality <-mortalityall %>%
+  filter(!is.na(eel_value),
+         paste(eel_emu_nameshort,indicator) %in% paste(nbpoints$eel_emu_nameshort, nbpoints$indicator) & eel_year>=startyear & eel_year <= (CY-1)) #quick and dirty way of filtering for combinations of EMU and indicator that are present in the nbpoints dataframe
+
+
+suma = mortality %>% 
+  filter(indicator == "sumA")
+
+sumf = mortality %>% 
+  filter(indicator == "sumF")
+
+sumh = mortality %>% 
+  filter(indicator == "sumH")
+
+#Remove EMUs for which 0 represents more than 10% of data
+suma <- suma %>%
+  group_by(eel_emu_nameshort) %>%
+  mutate(nb_values=n(),nb_zeros=sum(eel_value==0)) %>%
+  mutate(freq_zero=nb_zeros/nb_values)%>%
+  filter(freq_zero < .1) %>%
+  ungroup()
+
+sumf <- sumf %>%
+  group_by(eel_emu_nameshort) %>%
+  mutate(nb_values=n(),nb_zeros=sum(eel_value==0)) %>%
+  mutate(freq_zero=nb_zeros/nb_values)%>%
+  filter(freq_zero < .1) %>%
+  ungroup()
+
+sumh <- sumh %>%
+  group_by(eel_emu_nameshort) %>%
+  mutate(nb_values=n(),nb_zeros=sum(eel_value==0)) %>%
+  mutate(freq_zero=nb_zeros/nb_values)%>%
+  filter(freq_zero < .1) %>%
+  ungroup()
+
+
+
+```
+
+
+
+```{r DFA, echo=FALSE}
+
+run_dfa = FALSE #Set to TRUE if you want to run DFA, set to FALSE if you want to load data from a previous run instead
+
+if(run_dfa == TRUE){
+
+n_clusters = 4 #Number of clusters for parallel processing  
+logtransform = FALSE #Optional logtransform of data
+
+bbest_wide = f.datawide(data = bbest, logtransform)
+bcurrent_wide = f.datawide(data = bcurrent, logtransform)
+suma_wide = f.datawide(data = suma, logtransform)
+sumf_wide = f.datawide(data = sumf, logtransform)
+sumh_wide = f.datawide(data = sumh, logtransform)
+
+# Bbest
+###################3
+
+#Define some constants
+N_ts=nrow(bbest_wide) #number of time series
+TT=ncol(bbest_wide)-1 #number of time steps
+y=as.matrix(bbest_wide[,-1]) #matrix of obseravation
+rownames(y)=bbest_wide$eel_emu_nameshort
+
+#Design of experiments
+#S=c("diagonal and equal","diagonal and unequal","unconstrained")
+# S=c("diagonal and equal","diagonal and unequal")
+S=c("diagonal and equal")
+nbtrend=1:3
+expe=expand.grid(S=S,nbtrend=nbtrend)
+
+#Set up cores to use in parallel processing
+cl = makeCluster(n_clusters)
+clusterExport(cl,list("expe","y"))
+clusterEvalQ(cl,{library(MARSS)})
+
+
+#Now we make a loop of DFA to find the best model
+model_comparisons_bbest= parLapply(cl,seq_len(nrow(expe)),function(i){
+  s=as.character(expe$S[i])
+  m=expe$nbtrend[i]
+  dfa.model=list(R=s, m=m)
+  kemz=MARSS(y, model=dfa.model, form="dfa",z.score=TRUE,control=list(maxit=2000))
+  aicc=MARSSaic(kemz, output="AICc")$AICc
+  aic=MARSSaic(kemz, output="AIC")$AIC
+  list(Trends=m,AICc=aicc,AIC=aic,Sigma=s,dfa=kemz)
+})
+
+results_bbest=do.call(rbind.data.frame,lapply(model_comparisons_bbest,function(x) {
+  data.frame(Trends=x["Trends"],
+             Sigma=x["Sigma"],
+             AIC=x["AIC"],
+             AICc=x["AICc"]
+  )})
+)
+#  save.image(file="./dfa.rdata")
+save(results_bbest, model_comparisons_bbest, bbest_wide, file="./dfa_bbest.rdata")
+
+stopCluster(cl)
+
+
+# Bcurrent
+###################3
+
+#Define some constants
+N_ts=nrow(bcurrent_wide) #number of time series
+TT=ncol(bcurrent_wide)-1 #number of time steps
+y=as.matrix(bcurrent_wide[,-1]) #matrix of obseravation
+rownames(y)=bcurrent_wide$eel_emu_nameshort
+
+#Design of experiments
+#S=c("diagonal and equal","diagonal and unequal","unconstrained")
+# S=c("diagonal and equal","diagonal and unequal")
+S=c("diagonal and equal")
+nbtrend=1:3
+expe=expand.grid(S=S,nbtrend=nbtrend)
+
+#Set up cores to use in parallel processing
+cl = makeCluster(n_clusters)
+clusterExport(cl,list("expe","y"))
+clusterEvalQ(cl,{library(MARSS)})
+
+
+#Now we make a loop of DFA to find the best model
+model_comparisons_bcurrent= parLapply(cl,seq_len(nrow(expe)),function(i){
+  s=as.character(expe$S[i])
+  m=expe$nbtrend[i]
+  dfa.model=list(R=s, m=m)
+  kemz=MARSS(y, model=dfa.model, form="dfa",z.score=TRUE,control=list(maxit=2000))
+  aicc=MARSSaic(kemz, output="AICc")$AICc
+  aic=MARSSaic(kemz, output="AIC")$AIC
+  list(Trends=m,AICc=aicc,AIC=aic,Sigma=s,dfa=kemz)
+})
+
+results_bcurrent=do.call(rbind.data.frame,lapply(model_comparisons_bcurrent,function(x) {
+  data.frame(Trends=x["Trends"],
+             Sigma=x["Sigma"],
+             AIC=x["AIC"],
+             AICc=x["AICc"]
+  )})
+)
+#  save.image(file="./dfa.rdata")
+save(results_bcurrent, model_comparisons_bcurrent, bcurrent_wide, file="./dfa_bcurrent.rdata")
+stopCluster(cl)
+
+# sumA
+###################3
+
+#Define some constants
+N_ts=nrow(suma_wide) #number of time series
+TT=ncol(suma_wide)-1 #number of time steps
+y=as.matrix(suma_wide[,-1]) #matrix of obseravation
+rownames(y)=suma_wide$eel_emu_nameshort
+
+#Design of experiments
+#S=c("diagonal and equal","diagonal and unequal","unconstrained")
+# S=c("diagonal and equal","diagonal and unequal")
+S=c("diagonal and equal")
+nbtrend=1:3
+expe=expand.grid(S=S,nbtrend=nbtrend)
+
+#Set up cores to use in parallel processing
+cl = makeCluster(n_clusters)
+clusterExport(cl,list("expe","y"))
+clusterEvalQ(cl,{library(MARSS)})
+
+#Now we make a loop of DFA to find the best model
+model_comparisons_suma= parLapply(cl,seq_len(nrow(expe)),function(i){
+  s=as.character(expe$S[i])
+  m=expe$nbtrend[i]
+  dfa.model=list(R=s, m=m)
+  kemz=MARSS(y, model=dfa.model, form="dfa",z.score=TRUE,control=list(maxit=2000))
+  aicc=MARSSaic(kemz, output="AICc")$AICc
+  aic=MARSSaic(kemz, output="AIC")$AIC
+  list(Trends=m,AICc=aicc,AIC=aic,Sigma=s,dfa=kemz)
+})
+
+results_suma=do.call(rbind.data.frame,lapply(model_comparisons_suma,function(x) {
+  data.frame(Trends=x["Trends"],
+             Sigma=x["Sigma"],
+             AIC=x["AIC"],
+             AICc=x["AICc"]
+  )})
+)
+#  save.image(file="./dfa.rdata")
+save(results_suma, model_comparisons_suma, suma_wide, file="./dfa_suma.rdata")
+
+stopCluster(cl)
+
+# sumF
+###################3
+
+#Define some constants
+N_ts=nrow(sumf_wide) #number of time series
+TT=ncol(sumf_wide)-1 #number of time steps
+y=as.matrix(sumf_wide[,-1]) #matrix of obseravation
+rownames(y)=sumf_wide$eel_emu_nameshort
+
+#Design of experiments
+#S=c("diagonal and equal","diagonal and unequal","unconstrained")
+# S=c("diagonal and equal","diagonal and unequal")
+S=c("diagonal and equal")
+nbtrend=1:3
+expe=expand.grid(S=S,nbtrend=nbtrend)
+
+#Set up cores to use in parallel processing
+cl = makeCluster(n_clusters)
+clusterExport(cl,list("expe","y"))
+clusterEvalQ(cl,{library(MARSS)})
+
+#Now we make a loop of DFA to find the best model
+model_comparisons_sumf= parLapply(cl,seq_len(nrow(expe)),function(i){
+  s=as.character(expe$S[i])
+  m=expe$nbtrend[i]
+  dfa.model=list(R=s, m=m)
+  kemz=MARSS(y, model=dfa.model, form="dfa",z.score=TRUE,control=list(maxit=2000))
+  aicc=MARSSaic(kemz, output="AICc")$AICc
+  aic=MARSSaic(kemz, output="AIC")$AIC
+  list(Trends=m,AICc=aicc,AIC=aic,Sigma=s,dfa=kemz)
+})
+
+results_sumf=do.call(rbind.data.frame,lapply(model_comparisons_sumf,function(x) {
+  data.frame(Trends=x["Trends"],
+             Sigma=x["Sigma"],
+             AIC=x["AIC"],
+             AICc=x["AICc"]
+  )})
+)
+#  save.image(file="./dfa.rdata")
+save(results_sumf, model_comparisons_sumf, sumf_wide, file="./dfa_sumf.rdata")
+
+
+stopCluster(cl)
+
+# sumH
+###################3
+
+#Define some constants
+N_ts=nrow(sumh_wide) #number of time series
+TT=ncol(sumh_wide)-1 #number of time steps
+y=as.matrix(sumh_wide[,-1]) #matrix of obseravation
+rownames(y)=sumh_wide$eel_emu_nameshort
+
+#Design of experiments
+#S=c("diagonal and equal","diagonal and unequal","unconstrained")
+# S=c("diagonal and equal","diagonal and unequal")
+S=c("diagonal and equal")
+nbtrend=1:3
+expe=expand.grid(S=S,nbtrend=nbtrend)
+
+#Set up cores to use in parallel processing
+cl = makeCluster(n_clusters)
+clusterExport(cl,list("expe","y"))
+clusterEvalQ(cl,{library(MARSS)})
+
+#Now we make a loop of DFA to find the best model
+model_comparisons_sumh= parLapply(cl,seq_len(nrow(expe)),function(i){
+  s=as.character(expe$S[i])
+  m=expe$nbtrend[i]
+  dfa.model=list(R=s, m=m)
+  kemz=MARSS(y, model=dfa.model, form="dfa",z.score=TRUE,control=list(maxit=2000))
+  aicc=MARSSaic(kemz, output="AICc")$AICc
+  aic=MARSSaic(kemz, output="AIC")$AIC
+  list(Trends=m,AICc=aicc,AIC=aic,Sigma=s,dfa=kemz)
+})
+
+results_sumh=do.call(rbind.data.frame,lapply(model_comparisons_sumh,function(x) {
+  data.frame(Trends=x["Trends"],
+             Sigma=x["Sigma"],
+             AIC=x["AIC"],
+             AICc=x["AICc"]
+  )})
+)
+#  save.image(file="./dfa.rdata")
+save(results_sumh, model_comparisons_sumh, sumh_wide, file="./dfa_sumh.rdata")
+stopCluster(cl)
+}
+
+
+
+
+
+```
+
+# Introduction
+For each of the different biomass (Bbest and Bcurrent) and mortality (sumA, sumF, and sumH) indicators, their time series were analysed with a dynamic factor analysis (DFA) to identify common trends among EMUs. These common trends could then be studied to see if they show similarities to the common trends found among the yellow and silver eel time series as analysed in WGEEL 2021, or if they show distint turning points around the implimention of national EMPs.
+
+# Methods
+First, for each time series, the data was standardized by subtracting the time series' mean and deviding by the time series' standard deviation.
+
+The DFA method is fully detailed in [@zuur2003]. The basic idea is to decompose each time series into a weighted sum of a few common trends and a noise factor:
+  $$
+  \begin{aligned}
+Y_{j,t}=\mu_j + \sum_{i=1}^{n} w_{i,j} \cdot X_{i,t} +\epsilon_{j,t} \qquad \mbox{ with } \left \{ \epsilon_{j,t} \right \}  \sim N(0,\Sigma)
+\end{aligned}
+$$
+  with $Y_{j, t}$ the value of the series $j$ at time $t$, $\mu_j$ an intercept, $n$ the number of common trends, $w_{i, j}$ the weight of trend $i$ in the series $j$, $X_{i,t}$ the value of trend $i$ at time $t$ and $\epsilon_{j,t}$ a normal noise, potentially correlated between series through the variance-covariance matrix $\Sigma$ . Therefore, $X_{i,t}$ represent the trends common to the series and are modelled as random walks:
+  
+  $$
+  \begin{aligned}
+X_{i,t}=X_{i,t-1}+f_{i,t} \qquad \mbox{ with } f_{i,t} \sim N(0,Q)
+\end{aligned}
+$$
+  
+  with $f_{i,t}$ the noise on the trend $i$ at time $t$ which follows a normal law, possibly correlated between trends with the variance-covariance matrix $Q$ which can be set to the identity matrix [@zuur2003a].
+The method thus allows both to extract the common trends through the estimates of $X$, but also to see the importance of each trend in each series through $w$.
+
+To fit the DFA, the user has to put some additional constraints. We will make the following assumption on $\Sigma$:
+  
+  * $\Sigma$ is a diagonal matrix with equal elements in the diagonal (e.g. time series are independent with similar values of noise)
+
+We have also analysed the option of $\Sigma$ being a diagonal matrix with unequal elements in the diagonal (e.g. time series are independent with different values of noise), but this resulted in the estimation of too many common trends with many EMUs positively correlating to all trends.
+
+One to 4 common trends are tested. The best combination of $\Sigma$ and number of trends is chosen by comparing the corrected AIC criteria. All years before 2007 were dropped (most EMUs only reported indicators from the year 2007 onwards). Before running the DFA, EMU timeseries which estimated 0 for an indicator for all years were removed.
+
+
+## Bbest
+Table \@ref(tab:tab-bbest-series) gives an overview of the number of datapoints and time series used in the DFA for Bbest.
+
+Three common trends were estimated after selection by AICc criteria (Table \@ref(tab:tab-bbest-comparison) and Figure \@ref(fig:fig-bbest-trends)). Trend 1 oscillates, Trend 2 continuously decreases, and Trend 3 first decreases and then increases.
+
+```{r tab-bbest-series, echo=FALSE, tab.cap = "Series included in the Bbest DFA analysis"}
+#Overview of data availability
+flextable(nb_per_country <- bbest %>%
+            group_by(eel_cou_code) %>%
+            summarize(N=n(),Nseries=n_distinct(eel_emu_nameshort)) %>%
+            dplyr::rename(Country=eel_cou_code))
+```
+
+```{r tab-bbest-comparison, echo=FALSE, tab.cap = "Model comparisons for Bbest eel DFA"}
+#Table of model results, select model with lowest AICc
+load("./dfa_bbest.rdata")
+model_comparisons_bbest = model_comparisons_bbest[which(results_bbest$Sigma == "diagonal and equal")]
+results_bbest = results_bbest %>% filter(Sigma == "diagonal and equal")
+ft <- flextable(results_bbest[,c("Trends","Sigma","AICc")] %>% mutate(AICc = round(AICc))) #digits no more supported in colformat_num
+ft <- colformat_num(ft, j="AICc", big.mark = "")
+autofit(ft)
+best_fit_bbest=model_comparisons_bbest[[which(results_bbest$AICc==min(results_bbest$AICc))]]$dfa
+```
+
+```{r fig-bbest-trends, echo=FALSE, fig.cap="Estimated common trends in Bbest time series"}
+trends.bbest = p.trends(bbest_wide, best_fit_bbest, "Bbest")
+trends.bbest$plot
+```
+
+The factor loadings $w$ are displayed in Table \@ref(fig:tab-loadings-bbest) and Figure  \@ref(fig:fig_seriesloadings-bbest). Following @zuur2003,
+we only focused on loading with absolute values greater than 0.2 to focus on the most important trends and presented on
+a Venn diagram (Figure \@ref(fig:fig-venn-bbest))
+
+The Venn diagram shows that most EMUs correlate positively with at least one of three estimated trends, suggesting that overall, Bbest has been decreasing, with an increase again for some EMUs in recent years. This matches what would be expected based on glass eel recruitment trends.
+
+```{r tab-loadings-bbest,echo=FALSE,tab.cap="Factor loadings of the Bbest DFA (red names stand for loadings absolute values greater than 0.2)"}
+minZ = 0.2
+t.factorloadings(trends.bbest$namesseries, trends.bbest$Z, trends.bbest$m, minZ, bbest)
+```
+
+
+
+```{r fig_seriesloadings-bbest, echo=FALSE, fig.cap="Factor loadings of the Bbest DFA (red names stand for loadings absolute values greater than 0.2)",fig.height=16/2.54}
+p.factorloadings(trends.bbest$Z,trends.bbest$m,trends.bbest$N_ts,trends.bbest$namesseries, minZ)
+```
+
+```{r fig-venn-bbest, echo=FALSE, fig.cap="Venn diagram of the Bbest DFA"}
+venn(trends.bbest$namesseries,trends.bbest$Z,minZ)
+```
+The fits of the DFA model to the different time series are presented in Figure \@ref(fig:fig-fits-bbest). The fit for Poland is absent because Bbest is reported constant over all years, meaning that the standard deviation is zero, meaning that when standardizing the Bbest values there is a division by zero.
+
+```{r fig-fits-bbest, echo=FALSE, warning=FALSE, fig.cap="Bbest DFA fits to time series", fig.width=16/2.54, fig.height=25/2.54}
+p.fit(best_fit_bbest, bbest_wide)
+```
+
+
+## Bcurrent
+
+Table \@ref(tab:tab-bcurrent-series) gives an overview of the number of datapoints and time series used in the DFA for Bcurrent
+
+Two common trends were estimated after selection by AICc criteria (Table \@ref(tab:tab-bcurrent-comparison) and Figure \@ref(fig:fig-bcurrent-trends)). Trend 1 first increases and then decreases, whilst Trend 2 constantly decreases.
+
+```{r tab-bcurrent-series, echo=FALSE, tab.cap = "Series included in the Bcurrent DFA analysis"}
+#Overview of data availability
+flextable(nb_per_country <- bcurrent %>%
+            group_by(eel_cou_code) %>%
+            summarize(N=n(),Nseries=n_distinct(eel_emu_nameshort)) %>%
+            dplyr::rename(Country=eel_cou_code))
+```
+
+```{r tab-bcurrent-comparison, echo=FALSE, tab.cap = "Model comparisons for Bcurrent eel DFA"}
+#Table of model results, select model with lowest AICc
+load("./dfa_bcurrent.rdata")
+model_comparisons_bcurrent = model_comparisons_bcurrent[which(results_bcurrent$Sigma == "diagonal and equal")]
+results_bcurrent = results_bcurrent %>% filter(Sigma == "diagonal and equal")
+ft <- flextable(results_bcurrent[,c("Trends","Sigma","AICc")] %>% mutate(AICc = round(AICc))) #digits no more supported in colformat_num
+ft <- colformat_num(ft, j="AICc", big.mark = "")
+autofit(ft)
+best_fit_bcurrent=model_comparisons_bcurrent[[which(results_bcurrent$AICc==min(results_bcurrent$AICc))]]$dfa
+```
+
+```{r fig-bcurrent-trends, echo=FALSE, fig.cap="Estimated common trends in Bcurrent time series"}
+trends.bcurrent = p.trends(bcurrent_wide, best_fit_bcurrent, "Bcurrent")
+trends.bcurrent$plot
+```
+The factor loadings $w$ are displayed in Table \@ref(fig:tab-loadings-bcurrent) and Figure  \@ref(fig:fig_seriesloadings-bcurrent). Following @zuur2003,
+we only focused on loading with absolute values greater than 0.2 to focus on the most important trends and presented on
+a Venn diagram (Figure \@ref(fig:fig-venn-bcurrent))
+
+The Venn diagram shows that most EMUs correlate positively with Trend 2 or negatively with Trend 1, suggesting that for many EMUs Bcurrent has been continuously decreasing, while for some others it has seen an increasing trend again in recent years.
+
+
+```{r tab-loadings-bcurrent,echo=FALSE,tab.cap="Factor loadings of the Bcurrent DFA (red names stand for loadings absolute values greater than 0.2)"}
+minZ = 0.2
+t.factorloadings(trends.bcurrent$namesseries, trends.bcurrent$Z, trends.bcurrent$m, minZ, bcurrent)
+```
+
+```{r fig_seriesloadings-bcurrent, echo=FALSE, fig.cap="Factor loadings of the Bcurrent DFA (red names stand for loadings absolute values greater than 0.2)",fig.height=16/2.54}
+p.factorloadings(trends.bcurrent$Z,trends.bcurrent$m,trends.bcurrent$N_ts,trends.bcurrent$namesseries, minZ)
+```
+
+```{r fig-venn-bcurrent, echo=FALSE, fig.cap="Venn diagram of the Bcurrent DFA"}
+venn(trends.bcurrent$namesseries,trends.bcurrent$Z,minZ)
+```
+The fits of the DFA model to the different time series are presented in Figure \@ref(fig:fig-fits-bcurrent). 
+
+```{r fig-fits-bcurrent, echo=FALSE, warning=FALSE, fig.cap="Bcurrent DFA fits to time series", fig.width=16/2.54, fig.height=25/2.54}
+p.fit(best_fit_bcurrent, bcurrent_wide)
+```
+
+
+# sumA
+
+Table \@ref(tab:tab-suma-series) gives an overview of the number of datapoints and time series used in the DFA for sumA.
+
+Three common trends were estimated after selection by AICc criteria (Table \@ref(tab:tab-suma-comparison) and Figure \@ref(fig:fig-suma-trends)). Trend 1 decreases early-on and then remains roughly constant, Trend 2 shows a consistent increase, and Trend 3 shows an initial increase follower by a subsequent decrease.
+
+```{r tab-suma-series, echo=FALSE, tab.cap = "Series included in the sumA DFA analysis"}
+#Overview of data availability
+flextable(nb_per_country <- suma %>%
+            group_by(eel_cou_code) %>%
+            summarize(N=n(),Nseries=n_distinct(eel_emu_nameshort)) %>%
+            dplyr::rename(Country=eel_cou_code))
+```
+
+```{r tab-suma-comparison, echo=FALSE, tab.cap = "Model comparisons for sumA eel DFA"}
+#Table of model results, select model with lowest AICc
+load("./dfa_suma.rdata")
+model_comparisons_suma = model_comparisons_suma[which(results_suma$Sigma == "diagonal and equal")]
+results_suma = results_suma %>% filter(Sigma == "diagonal and equal")
+ft <- flextable(results_suma[,c("Trends","Sigma","AICc")] %>% mutate(AICc = round(AICc))) #digits no more supported in colformat_num
+ft <- colformat_num(ft, j="AICc", big.mark = "")
+autofit(ft)
+best_fit_suma=model_comparisons_suma[[which(results_suma$AICc==min(results_suma$AICc))]]$dfa
+```
+
+```{r fig-suma-trends, echo=FALSE, fig.cap="Estimated common trends in sumA time series"}
+trends.suma = p.trends(suma_wide, best_fit_suma, "sumA")
+trends.suma$plot
+```
+
+The factor loadings $w$ are displayed in Table \@ref(fig:tab-loadings-suma) and Figure  \@ref(fig:fig_seriesloadings-suma). Following @zuur2003,
+we only focused on loading with absolute values greater than 0.2 to focus on the most important trends and presented on
+a Venn diagram (Figure \@ref(fig:fig-venn-suma))
+
+The Venn diagram shows a complicated set of correlations, with many EMUs correlating posivitely or negatively with at least two of the trends, with no clear pattern visible. 
+
+
+```{r tab-loadings-suma,echo=FALSE,tab.cap="Factor loadings of the sumA DFA (red names stand for loadings absolute values greater than 0.2)"}
+minZ = 0.2
+t.factorloadings(trends.suma$namesseries, trends.suma$Z, trends.suma$m, minZ, suma)
+```
+
+```{r fig_seriesloadings-suma, echo=FALSE, fig.cap="Factor loadings of the sumA DFA (red names stand for loadings absolute values greater than 0.2)",fig.height=16/2.54}
+p.factorloadings(trends.suma$Z,trends.suma$m,trends.suma$N_ts,trends.suma$namesseries, minZ)
+```
+
+```{r fig-venn-suma, echo=FALSE, fig.cap="Venn diagram of the sumA DFA"}
+venn(trends.suma$namesseries,trends.suma$Z,minZ)
+```
+
+```{r fig-fits-suma, echo=FALSE, warning=FALSE, fig.cap="sumA DFA fits to time series", fig.width=16/2.54, fig.height=25/2.54}
+p.fit(best_fit_suma, suma_wide)
+```
+The fits of the DFA model to the different time series are presented in Figure \@ref(fig:fig-fits-suma). 
+
+
+# sumF
+
+Table \@ref(tab:tab-sumf-series) gives an overview of the number of datapoints and time series used in the DFA for sumF.
+
+Two common trends were estimated after selection by AICc criteria (Table \@ref(tab:tab-sumf-comparison) and Figure \@ref(fig:fig-sumf-trends)). Trend 1 first decreases and then increases, whilst Trend 2 consistently increases.
+
+```{r tab-sumf-series, echo=FALSE, tab.cap = "Series included in the sumF DFA analysis"}
+#Overview of data availability
+flextable(nb_per_country <- sumf %>%
+            group_by(eel_cou_code) %>%
+            summarize(N=n(),Nseries=n_distinct(eel_emu_nameshort)) %>%
+            dplyr::rename(Country=eel_cou_code))
+```
+
+```{r tab-sumf-comparison, echo=FALSE, tab.cap = "Model comparisons for sumF eel DFA"}
+#Table of model results, select model with lowest AICc
+load("./dfa_sumf.rdata")
+model_comparisons_sumf = model_comparisons_sumf[which(results_sumf$Sigma == "diagonal and equal")]
+results_sumf = results_sumf %>% filter(Sigma == "diagonal and equal")
+ft <- flextable(results_sumf[,c("Trends","Sigma","AICc")] %>% mutate(AICc = round(AICc))) #digits no more supported in colformat_num
+ft <- colformat_num(ft, j="AICc", big.mark = "")
+autofit(ft)
+best_fit_sumf=model_comparisons_sumf[[which(results_sumf$AICc==min(results_sumf$AICc))]]$dfa
+```
+
+```{r fig-sumf-trends, echo=FALSE, fig.cap="Estimated common trends in sumF time series"}
+trends.sumf = p.trends(sumf_wide, best_fit_sumf, "sumF")
+trends.sumf$plot
+```
+
+The factor loadings $w$ are displayed in Table \@ref(fig:tab-loadings-sumf) and Figure  \@ref(fig:fig_seriesloadings-sumf). Following @zuur2003,
+we only focused on loading with absolute values greater than 0.2 to focus on the most important trends and presented on
+a Venn diagram (Figure \@ref(fig:fig-venn-sumf))
+
+The Venn diagram shows a clear grouping of EMUs, where the first group of EMUs correlates positively with both Trend 1 and 2, and the second group of EMUs correlates negatively with both trends. Thus, one group of EMUs appears to show an increasing trend of sumF in recent years (possibly preceded by a decrease), whereas the other group of EMUs shows a decrease in sumF in recent years (possibly preceded by an increase). It would be interesting to see if this grouping can be linked to the presence or absence of certain management actions.
+
+
+```{r tab-loadings-sumf,echo=FALSE,tab.cap="Factor loadings of the sumF DFA (red names stand for loadings absolute values greater than 0.2)"}
+minZ = 0.2
+t.factorloadings(trends.sumf$namesseries, trends.sumf$Z, trends.sumf$m, minZ, sumf)
+```
+
+```{r fig_seriesloadings-sumf, echo=FALSE, fig.cap="Factor loadings of the sumF DFA (red names stand for loadings absolute values greater than 0.2)",fig.height=16/2.54}
+p.factorloadings(trends.sumf$Z,trends.sumf$m,trends.sumf$N_ts,trends.sumf$namesseries, minZ)
+```
+
+```{r fig-venn-sumf, echo=FALSE, fig.cap="Venn diagram of the sumF DFA"}
+venn(trends.sumf$namesseries,trends.sumf$Z,minZ)
+```
+The fits of the DFA model to the different time series are presented in Figure \@ref(fig:fig-fits-sumf). 
+
+
+```{r fig-fits-sumf, echo=FALSE, warning=FALSE, fig.cap="sumF DFA fits to time series", fig.width=16/2.54, fig.height=25/2.54}
+p.fit(best_fit_sumf, sumf_wide)
+```
+
+
+# sumH
+
+Table \@ref(tab:tab-sumh-series) gives an overview of the number of datapoints and time series used in the DFA for sumH.
+
+Two common trends were estimated after selection by AICc criteria (Table \@ref(tab:tab-sumh-comparison) and Figure \@ref(fig:fig-sumh-trends)). Trend 1 consistently decreases, and Trend 2 first decreases and then increases.
+
+```{r tab-sumh-series, echo=FALSE, tab.cap = "Series included in the sumH DFA analysis"}
+#Overview of data availability
+flextable(nb_per_country <- sumh %>%
+            group_by(eel_cou_code) %>%
+            summarize(N=n(),Nseries=n_distinct(eel_emu_nameshort)) %>%
+            dplyr::rename(Country=eel_cou_code))
+```
+
+```{r tab-sumh-comparison, echo=FALSE, tab.cap = "Model comparisons for sumH eel DFA"}
+#Table of model results, select model with lowest AICc
+load("./dfa_sumh.rdata")
+model_comparisons_sumh = model_comparisons_sumh[which(results_sumh$Sigma == "diagonal and equal")]
+results_sumh = results_sumh %>% filter(Sigma == "diagonal and equal")
+ft <- flextable(results_sumh[,c("Trends","Sigma","AICc")] %>% mutate(AICc = round(AICc))) #digits no more supported in colformat_num
+ft <- colformat_num(ft, j="AICc", big.mark = "")
+autofit(ft)
+best_fit_sumh=model_comparisons_sumh[[which(results_sumh$AICc==min(results_sumh$AICc))]]$dfa
+```
+
+```{r fig-sumh-trends, echo=FALSE, fig.cap="Estimated common trends in sumH time series"}
+trends.sumh = p.trends(sumh_wide, best_fit_sumh, "sumH")
+trends.sumh$plot
+```
+
+The factor loadings $w$ are displayed in Table \@ref(fig:tab-loadings-sumh) and Figure  \@ref(fig:fig_seriesloadings-sumh). Following @zuur2003,
+we only focused on loading with absolute values greater than 0.2 to focus on the most important trends and presented on
+a Venn diagram (Figure \@ref(fig:fig-venn-sumh)).
+
+Similirly to sumH, the Venn diagram shows a clear grouping of EMUs, where the first group of EMUs correlates positively with both Trend 1 and 2, and the second group of EMUs correlates negatively with both trends. Thus, one group of EMUs appears to show a decreasing trend in sumH in early years, possibly followed by a subsequent increase. The other group of EMUs appears to show an increasing trend in sumH in early years, possibly followed by a subsequent decrease. 
+
+
+```{r tab-loadings-sumh,echo=FALSE,tab.cap="Factor loadings of the sumH DFA (red names stand for loadings absolute values greater than 0.2)"}
+minZ = 0.2
+t.factorloadings(trends.sumh$namesseries, trends.sumh$Z, trends.sumh$m, minZ, sumh)
+```
+
+```{r fig_seriesloadings-sumh, echo=FALSE, fig.cap="Factor loadings of the sumH DFA (red names stand for loadings absolute values greater than 0.2)",fig.height=16/2.54}
+p.factorloadings(trends.sumh$Z,trends.sumh$m,trends.sumh$N_ts,trends.sumh$namesseries, minZ)
+```
+
+```{r fig-venn-sumh, echo=FALSE, fig.cap="Venn diagram of the sumH DFA"}
+venn(trends.sumh$namesseries,trends.sumh$Z,minZ)
+```
+
+```{r fig-fits-sumh, echo=FALSE, warning=FALSE, fig.cap="sumH DFA fits to time series", fig.width=16/2.54, fig.height=25/2.54}
+p.fit(best_fit_sumh, sumh_wide)
+```
+The fits of the DFA model to the different time series are presented in Figure \@ref(fig:fig-fits-sumh). The fit for Poland is absent because sumH is reported as constant over all years, meaning that the standard deviation is zero, meaning that when standardizing the sumH values there is a division by zero.
