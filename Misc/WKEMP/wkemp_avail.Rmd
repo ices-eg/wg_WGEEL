@@ -16,11 +16,9 @@ library(ggplot2)
 library(readxl)
 library(flextable)
 library(tidyverse)
-host="185.135.126.250"
-port=5432
-user="wgeel"
-password=getPass()
-con = dbConnect(Postgres(), dbname="wgeel",host=host,port=port,user=user, password=password)
+library(yaml)
+cred=read_yaml("../../credentials.yml")
+con = dbConnect(Postgres(), dbname=cred$dbname,host=cred$host,port=cred$port,user=cred$user, password=getPass())
 load("../../R/shiny_data_visualisation/shiny_dv/data/maps_for_shiny.Rdata")
 load("../..//R/shiny_data_visualisation/shiny_dv/data/ref_and_eel_data.Rdata")
 eu_cou_codes=c("AT",	"BE",	"BG",	"HR",	"CY",	"CZ",	"DK",	"EE",	"FI",	"FR",	"DE",	"GR",	"HU",	"IE",	"IT",	"LV",	"LT",	"LU",	"MT",	"NL",	"PL",	"PT",	"RO",	"SK",	"SI",	"ES",	"SE",	"GB")

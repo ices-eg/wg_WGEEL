@@ -1351,3 +1351,8 @@ DELETE FROM datawg.t_eelstock_eel WHERE eel_typ_id >=13 AND eel_typ_id <=31
 AND eel_cou_code ='ES' AND eel_datasource='dc_2021'; --941
 
 
+
+-- data for NL where either put to NL_total (landings) and NL_Neth (biomass, mortality), put all to NL_total
+begin;
+update datawg.t_eelstock_eel set eel_emu_nameshort='NL_total' where eel_qal_id <=4  and eel_emu_nameshort like ('NL_Neth%');
+commit;
