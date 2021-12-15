@@ -2,7 +2,7 @@
 title: "sg1"
 author: "none"
 date: "30/11/2021"
-output: html_document
+output: word_document
 ---
 
 ```{r setup, include=FALSE}
@@ -43,7 +43,8 @@ sort(country_p$cou_country[! country_p$cou_code %in% c(biomass$eel_cou_code , mo
 ```
 
 ## Importance of landings in these countries
-values of landings, average over 5 last years
+Values of reported landings, averaged over 5 last years:
+
 ```{r fisheries}
 landings=dbGetQuery(con,paste0("select eel_value,eel_cou_code,eel_lfs_code,eel_year from datawg.t_eelstock_eel where eel_cou_code in ('",
                                paste(not_reported, collapse="','"),
@@ -71,52 +72,6 @@ flextable(landings %>%
 
 France main part of G landings, important for other stages. 
 
-## Estimates in the past
-
-```{r pastestimates}
-biomass_nr <- dbGetQuery(con,paste0("select e.* from datawg.t_eelstock_eel e  where eel_cou_code in ('",
-                               paste(not_reported, collapse="','"),
-                               "') and eel_qal_id=-21 and eel_typ_id in (13,14,15) ")) %>%
-  filter(eel_lfs_code=="S" & (eel_year == 1800 | eel_typ_id != 13)) %>%
-  group_by(eel_year,eel_typ_id,eel_emu_nameshort,eel_cou_code) %>%
-  summarize(eel_value=sum(eel_value, na.rm=TRUE)) %>%
-  mutate(eel_year = ifelse(eel_typ_id==13,0,eel_year))
-  
-
-mortality_nr <- dbGetQuery(con,paste0("select e.* from datawg.t_eelstock_eel e where eel_cou_code in ('",
-                               paste(not_reported, collapse="','"), 
-                        "') and eel_qal_id=-21 and eel_typ_id in (14,17,18,19)")) %>%
-  select(eel_year,eel_emu_nameshort,eel_typ_id,eel_value,eel_hty_code,eel_cou_code) %>%
-  pivot_wider(names_from=eel_typ_id,values_from=eel_value) %>%
-  group_by(eel_year,eel_emu_nameshort,eel_cou_code) %>%
-  summarise(`19`=-log(sum(`14`*exp(-`19`))/sum(`14`)),
-            `17`=-log(sum(`14`*exp(-`17`))/sum(`14`)),
-            `18`=-log(sum(`14`*exp(-`18`))/sum(`14`))) 
-
-indicator_nr <- mortality_nr %>%
-  merge(biomass_nr %>% 
-          filter(eel_typ_id!=13) %>%
-          pivot_wider(names_from=eel_typ_id,values_from=eel_value) %>%
-          merge(biomass_nr %>%
-                  ungroup() %>%
-                  filter(eel_typ_id==13) %>%
-                  select(eel_emu_nameshort,eel_value) %>%
-                  rename(`13`=eel_value))) %>%
-  rename(b0=`13`,
-         bbest=`14`,
-         bcurrent=`15`,
-         suma=`17`,
-         sumf=`18`,
-         sumh=`19`) %>%
-  group_by(eel_cou_code,eel_emu_nameshort) %>%
-  summarize(sumh=mean(sumh),
-            suma=mean(suma),
-            sumf=mean(sumf),
-            bcurrent=mean(bcurrent),
-            bbest=mean(bbest),
-            b0=mean(b0)) %>%
-  mutate(old=TRUE)
-```
 
 # Data availability
 ## Spatial coverage
@@ -349,6 +304,52 @@ ggsave(filename="/tmp/maps_mortality.png",width=16/2.54,height=10/2.54)
 
 ## with old data for not reported countries
 
+Some of the countries that did not reply to the data call, had replied to the datacall in 2018, it is interesting to look to the values they had reported. The following plots show the 2018 values for these countries alongside lattest values for countries that have reported. 
+
+```{r pastestimates}
+biomass_nr <- dbGetQuery(con,paste0("select e.* from datawg.t_eelstock_eel e  where eel_cou_code in ('",
+                               paste(not_reported, collapse="','"),
+                               "') and eel_qal_id=-21 and eel_typ_id in (13,14,15) ")) %>%
+  filter(eel_lfs_code=="S" & (eel_year == 1800 | eel_typ_id != 13)) %>%
+  group_by(eel_year,eel_typ_id,eel_emu_nameshort,eel_cou_code) %>%
+  summarize(eel_value=sum(eel_value, na.rm=TRUE)) %>%
+  mutate(eel_year = ifelse(eel_typ_id==13,0,eel_year))
+  
+
+mortality_nr <- dbGetQuery(con,paste0("select e.* from datawg.t_eelstock_eel e where eel_cou_code in ('",
+                               paste(not_reported, collapse="','"), 
+                        "') and eel_qal_id=-21 and eel_typ_id in (14,17,18,19)")) %>%
+  select(eel_year,eel_emu_nameshort,eel_typ_id,eel_value,eel_hty_code,eel_cou_code) %>%
+  pivot_wider(names_from=eel_typ_id,values_from=eel_value) %>%
+  group_by(eel_year,eel_emu_nameshort,eel_cou_code) %>%
+  summarise(`19`=-log(sum(`14`*exp(-`19`))/sum(`14`)),
+            `17`=-log(sum(`14`*exp(-`17`))/sum(`14`)),
+            `18`=-log(sum(`14`*exp(-`18`))/sum(`14`))) 
+
+indicator_nr <- mortality_nr %>%
+  merge(biomass_nr %>% 
+          filter(eel_typ_id!=13) %>%
+          pivot_wider(names_from=eel_typ_id,values_from=eel_value) %>%
+          merge(biomass_nr %>%
+                  ungroup() %>%
+                  filter(eel_typ_id==13) %>%
+                  select(eel_emu_nameshort,eel_value) %>%
+                  rename(`13`=eel_value))) %>%
+  rename(b0=`13`,
+         bbest=`14`,
+         bcurrent=`15`,
+         suma=`17`,
+         sumf=`18`,
+         sumh=`19`) %>%
+  group_by(eel_cou_code,eel_emu_nameshort) %>%
+  summarize(sumh=mean(sumh),
+            suma=mean(suma),
+            sumf=mean(sumf),
+            bcurrent=mean(bcurrent),
+            bbest=mean(bbest),
+            b0=mean(b0)) %>%
+  mutate(old=TRUE)
+```
 ### biomass
 ```{r biomassmapold}
 indicator <- dbGetQuery(con,"select eel_cou_code,eel_emu_nameshort, avg(b0)b0,avg(bbest)bbest,avg(bcurrent)bcurrent, avg(suma)suma,avg(sumf)sumf,avg(sumh) sumh from datawg.precodata_emu where eel_year>=2018 group by eel_cou_code,eel_emu_nameshort") %>% bind_rows(indicator_nr) %>%
@@ -431,6 +432,8 @@ ggplot(st_transform(country_p,3035)) + geom_sf(fill=NA,size=.1)+theme_bw()+
 ggsave(filename="/tmp/maps_biomass.png",width=16/2.54,height=10/2.54)
 ```
 
+This highlights the likely importance of some EMUs for which no data have been reported. For example, FR_Rhon would be one of the EMU with the largest $B_{current}$.
+
 ### mortality
 
 
@@ -502,14 +505,14 @@ landings = dbGetQuery(con,paste0("select sum(eel_value) eel_value,eel_cou_code,e
                       and eel_typ_id in (4,6) and eel_qal_id in (0,1,4) and eel_year >=2010
                       group by eel_cou_code,eel_lfs_code,eel_year,eel_emu_nameshort")) 
 
-ggplot(landings,aes(x=eel_year,y=eel_value/1e3))+geom_line(aes(col=eel_emu_nameshort))+
+ggplot(landings,aes(x=eel_year,y=eel_value/1e3))+geom_line(aes(col=eel_emu_nameshort), show.legend=FALSE)+
   scale_y_log10()+
   facet_grid(eel_lfs_code~eel_cou_code)+ylab("landings (t)")+xlab("")
 
 
 ```
 
-Landings are not decreasing, this suggests that situation has likely not improved in these countries.
+Landings are not decreasing, this suggests that situation has likely not improved in these countries, especially in France and Italy in which fishery is thought to be predominant in anthropogenic mortality.
 
 # Data quality check
 ```{r indicator}
@@ -601,7 +604,8 @@ emu_sea= emu_p %>%
                                   "EE")))
 
 mor_wise = merge(emu_sea %>% st_drop_geometry(),mor_wise)
-mor_wise <- mor_wise %>% mutate(cohort_wise=grepl("ohort",mortality_wise))
+mor_wise <- mor_wise %>% mutate(cohort_wise=grepl("ohort",mortality_wise)) %>% 
+  mutate(emu_nameshort=="NL_Neth","NL_total",emu_nameshort)
 load("../../R/shiny_data_visualisation/shiny_dv/data/recruitment/dat_ge.Rdata")
 load("../../R/shiny_data_visualisation/shiny_dv/data/recruitment/dat_ye.Rdata")
 

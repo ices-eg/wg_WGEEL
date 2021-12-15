@@ -271,7 +271,7 @@ meas = unique(do.call(rbind.data.frame, lapply(list_files,function(f) {
 ## General overview
 Tables showing the numbers of the range and numbers of years provided for each indicator by each country
 
-```{r usedata}
+```{r measdata}
 flextable(meas %>% 
             mutate(id_bis=seq_len(nrow(meas))) %>%
             group_by(emu_name_short) %>%
@@ -286,7 +286,7 @@ flextable(meas %>%
 ```
 
 # EU: not reported country
-```{r notansmeth}
+```{r notansmeas}
 not_reported=country_p$cou_code[sapply(country_p$cou_code,function(cou) length(grep(cou,list_files))==0)]
 sort(not_reported) 
 ```

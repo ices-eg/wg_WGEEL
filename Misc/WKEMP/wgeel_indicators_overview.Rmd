@@ -22,13 +22,11 @@ library(ggforce)
 library(ggplot2)
 library(flextable)
 library(tidyverse)
-host="185.135.126.250"
-port=5432
-user="wgeel"
-password=getPass()
-con = dbConnect(Postgres(), dbname="wgeel",host=host,port=port,user=user, password=password)
-load("./data_dependencies/maps_for_shiny.Rdata")
-load("./data_dependencies//ref_and_eel_data.Rdata")
+library(yaml)
+cred=read_yaml("../../credentials.yml")
+con = dbConnect(Postgres(), dbname=cred$dbname,host=cred$host,port=cred$port,user=cred$user, password=getPass())
+load("../../R/shiny_data_visualisation/shiny_dv/data/maps_for_shiny.Rdata")
+load("../../R/shiny_data_visualisation/shiny_dv/data/ref_and_eel_data.Rdata")
 
 emu_c <- filter(emu_c,!endsWith(emu_nameshort,"_o"))
 
@@ -631,14 +629,28 @@ Delta gives the difference between the initial (2010) and current (latest year r
 ```{r trendbiomasstable}
 
 library(Kendall)
+source("readingAnnex13.R")
 
-load("./data_dependencies/annexes13_method.Rdata")
-load("./data_dependencies/emu_sea.Rdata")
+
+eu_cou_codes=c("AT",	"BE",	"BG",	"HR",	"CY",	"CZ",	"DK",	"EE",	"FI",	"FR",	"DE",	"GR",	"HU",	"IE",	"IT",	"LV",	"LT",	"LU",	"MT",	"NL",	"PL",	"PT",	"RO",	"SK",	"SI",	"ES",	"SE",	"GB")
+
+emu_sea= emu_p %>%
+  filter(emu_cou_code %in% eu_cou_codes) %>%
+  mutate(rec_zone = ifelse(emu_cou_code %in% c("NL","DK","NO","BE","LU", "CZ","SK") |
+                             emu_nameshort %in% c("FR_Rhin","FR_Meus","GB_Tham","GB_Angl","GB_Humb","GB_Nort","GB_Solw",
+                                                  "DE_Ems","DE_Wese","DE_Elbe","DE_Rhei","DE_Eide","DE_Maas") ,
+                           "NS", 
+                           ifelse(emu_cou_code %in% c("EE","FI","SE","LV","LT","AX", "PL","DE"),
+                                  "BA",
+                                  "EE")))
+
+
 mor_wise = annexes13_method %>% select(emu_nameshort,mortality_wise)
 mor_wise = merge(emu_sea %>% st_drop_geometry(),mor_wise)
-mor_wise <- mor_wise %>% mutate(cohort_wise=grepl("ohort",mortality_wise))
-load("./data_dependencies/dat_ge.Rdata")
-load("./data_dependencies/dat_ye.Rdata")
+mor_wise <- mor_wise %>% mutate(cohort_wise=grepl("ohort",mortality_wise)) %>%
+  mutate(emu_nameshort = ifelse(emu_nameshort == "NL_Neth","NL_total",emu_nameshort))
+load("../../R/shiny_data_visualisation/shiny_dv/data/recruitment/dat_ge.Rdata")
+load("../../R/shiny_data_visualisation/shiny_dv/data/recruitment/dat_ye.Rdata")
 
 
 
