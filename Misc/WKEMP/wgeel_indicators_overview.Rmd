@@ -665,7 +665,7 @@ estimate_b0 = function(emu, year, mor_wise,precodata){
     Rcurrent <- mean(mod$p_std_1960_1979[mod$year %in% ((year-4):year)])
   }
   if (unique(mor_wise$cohort_wise[mor_wise$emu_nameshort==emu]))
-    Rcurrent <- switch(mor_wise$rec_zone[mor_wise$emu_nameshort == emu],,
+    Rcurrent <- switch(mor_wise$rec_zone[mor_wise$emu_nameshort == emu],
                        "EE" = mean(mod$p_std_1960_1979[mod$year %in% ((year-12):(year-7))]),
                        "NS" = mean(mod$p_std_1960_1979[mod$year %in% ((year-17):(year-12))]),
                        "BA" = mean(mod$value_std_1960_1979[mod$year %in% ((year-22):(year-17))]))
