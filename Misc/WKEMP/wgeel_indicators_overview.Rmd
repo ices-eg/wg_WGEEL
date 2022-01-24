@@ -629,8 +629,8 @@ Delta gives the difference between the initial (2010) and current (latest year r
 ```{r trendbiomasstable}
 
 library(Kendall)
-source("readingAnnex13.R")
-
+#source("readingAnnex13.R") run this if you don't have Rdata below
+load( file=file.path(getwd(),"data_dependencies","annex13.Rdata")) # annexes13_method,annexes13_traceability,annexes13_management,
 
 eu_cou_codes=c("AT",	"BE",	"BG",	"HR",	"CY",	"CZ",	"DK",	"EE",	"FI",	"FR",	"DE",	"GR",	"HU",	"IE",	"IT",	"LV",	"LT",	"LU",	"MT",	"NL",	"PL",	"PT",	"RO",	"SK",	"SI",	"ES",	"SE",	"GB")
 
