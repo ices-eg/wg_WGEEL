@@ -626,6 +626,7 @@ The following restraints were defined for trend analyses:
 
 Delta gives the difference between the initial (2010) and current (latest year reported) ratio of either Bcurrent/Bo or Bcurrent/B0_adjusted - as indicated by suffixes. The value thus indicates a quantitative measure of the change in biomass whereas Tau gives a qualitative estimate on whether the trend is positive/negative and significant (also see table footnote).
 
+
 ```{r trendbiomasstable}
 
 library(Kendall)
@@ -758,7 +759,6 @@ flextable(Kendall_bio_tab %>%
 
 ```
 
-
 [*] indicates p > 0.1\
 [**] indicates p > 0.05
 
@@ -875,6 +875,50 @@ flextable(Kendall_mort_tab %>%
 ```
 
 
-[*] indicates p > 0.1\
-[**] indicates p > 0.05
+[*] indicates 0.05 < p < 0.1\
+[**] indicates p < 0.05
+
+
+
+# Test for effect of measures
+## Fisher's exact test
+
+```{r "Fisher's exact test to compare measures"}
+
+load("./data_dependencies/Annex15.Rdata")
+
+counts <- res %>% 
+  group_by(emu_name_short) %>%
+  count(measure_type)
+
+measures <- expand.grid(EMU = unique(res$emu_name_short),
+            measure_type = unique(res$measure_type)) %>%
+            left_join(counts, by=c("EMU" = "emu_name_short", "measure_type" = "measure_type")) %>%
+            replace(is.na(.), 0) %>%
+            mutate(binary_measure = ifelse(n == 0 , 0 , 1),
+                   n = NULL) %>%
+            left_join(Kendall_mort_tab %>% select(eel_emu_nameshort, p_suma, p_sumf, p_sumh, Tau_suma, Tau_sumf, Tau_sumh), by = c("EMU" = "eel_emu_nameshort")) %>%
+            left_join(Kendall_bio_tab %>% select(eel_emu_nameshort, p_b0, p_b0_adj, Tau_b0, Tau_b0_adj), by = c("EMU" = "eel_emu_nameshort")) %>%
+            mutate(sumA = ifelse(p_suma < 0.1 & Tau_suma < 0, 1, 0),
+                   sumF = ifelse(p_sumf < 0.1 & Tau_sumf < 0, 1, 0),
+                   sumH = ifelse(p_sumh < 0.1 & Tau_sumh < 0, 1, 0),
+                   b0 = ifelse(p_b0 < 0.1 & Tau_b0 > 0, 1, 0),
+                   b0_adj = ifelse(p_b0_adj < 0.1 & Tau_b0_adj > 0, 1, 0))
+
+
+#measures_present <- measures[measures$binary_measure != 0,]
+
+test <- measures %>%
+  group_by(measure_type, binary_measure) %>%
+  summarise(effect = n())
+  
+            
+
+#spread(measure_type, binary_measure)
+            
+
+
+
+test <- Kendall_mort_tab %>% select(eel_emu_nameshort, p_suma, p_sumf, p_sumh)
+```
 
