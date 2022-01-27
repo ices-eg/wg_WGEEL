@@ -3,9 +3,9 @@ title: "wgeel_indicators_overwiew"
 author: "none"
 date: "27/09/2021"
 output:
+  pdf_document: default
   html_document:
     df_print: paged
-  pdf_document: default
   word_document: default
 ---
 
@@ -874,16 +874,21 @@ flextable(Kendall_mort_tab %>%
 
 ```
 
-
 [*] indicates 0.05 < p < 0.1\
 [**] indicates p < 0.05
 
 
 
 # Test for effect of measures
-## Fisher's exact test
+## Fisher's exact test for all measures
 
-```{r "Fisher's exact test to compare measures"}
+Fisher's exact test for all EMUs where respective measures were implemented. The test is performed on measure type (10 types, but no data for 2 of them) x count of EMUs with an effect / no effect on either SumA, SumF, SumH or bcurr/b0 adjusted (=b0_adj). The result indicates whether an effect on either parameter was independent (=null hypothesis) of the measure type.\
+
+_-_Result for b0 is interesting, eel governance seems to have an effect (tested specifically for this measure it is significant, see below), but overall b0 does not seem to dependend on measure type. Is that because "stochastically this is expected" (at 0.05 one in 20 would show dependence coincidentally, right?) / is the power not good. Not sure it makes sense or I make sense;) ..._
+
+_Need to check if this makes sense, since the EMUs for the different measures are not the same but those where the respective measure was implemented_
+
+```{r Fisher_all}
 
 load("./data_dependencies/Annex15.Rdata")
 
@@ -905,20 +910,154 @@ measures <- expand.grid(EMU = unique(res$emu_name_short),
                    b0 = ifelse(p_b0 < 0.1 & Tau_b0 > 0, 1, 0),
                    b0_adj = ifelse(p_b0_adj < 0.1 & Tau_b0_adj > 0, 1, 0))
 
+Fisher_sumA <- measures %>%
+  mutate(measure_type = str_replace(measure_type, "Recreational fishery", "Recreational_fishery")) %>%
+  filter(binary_measure == 1) %>%
+  group_by(measure_type, sumA) %>%
+  summarise(effect = n(), .groups = "keep") %>%
+  spread(sumA, effect) %>%
+  rename(effect = "1",
+         no_effect = "0") %>%
+  mutate("<NA>" = NULL) %>%
+  drop_na() %>%
+  mutate(total = sum(effect, no_effect),
+         percentage = effect/total*100) %>%
+  relocate(effect, .after = measure_type)
 
-#measures_present <- measures[measures$binary_measure != 0,]
+Fisher_sumF <- measures %>%
+  mutate(measure_type = str_replace(measure_type, "Recreational fishery", "Recreational_fishery")) %>%
+  filter(binary_measure == 1) %>%
+  group_by(measure_type, sumF) %>%
+  summarise(effect = n(), .groups = "keep") %>%
+  spread(sumF, effect) %>%
+  rename(effect = "1",
+         no_effect = "0") %>%
+  mutate("<NA>" = NULL) %>%
+  drop_na() %>%
+  mutate(total = sum(effect, no_effect),
+         percentage = effect/total*100) %>%
+  relocate(effect, .after = measure_type)
 
-test <- measures %>%
-  group_by(measure_type, binary_measure) %>%
-  summarise(effect = n())
-  
-            
+Fisher_sumH <- measures %>%
+  mutate(measure_type = str_replace(measure_type, "Recreational fishery", "Recreational_fishery")) %>%
+  filter(binary_measure == 1) %>%
+  group_by(measure_type, sumH) %>%
+  summarise(effect = n(), .groups = "keep") %>%
+  spread(sumH, effect) %>%
+  rename(effect = "1",
+         no_effect = "0") %>%
+  mutate("<NA>" = NULL) %>%
+  drop_na() %>%
+  mutate(total = sum(effect, no_effect),
+         percentage = effect/total*100) %>%
+  relocate(effect, .after = measure_type)
 
-#spread(measure_type, binary_measure)
-            
+Fisher_b0_adj <- measures %>%
+  mutate(measure_type = str_replace(measure_type, "Recreational fishery", "Recreational_fishery")) %>%
+  filter(binary_measure == 1) %>%
+  group_by(measure_type, b0_adj) %>%
+  summarise(effect = n(), .groups = "keep") %>%
+  spread(b0_adj, effect) %>%
+  rename(effect = "1",
+         no_effect = "0") %>%
+  mutate("<NA>" = NULL) %>%
+  drop_na() %>%
+  mutate(total = sum(effect, no_effect),
+         percentage = effect/total*100) %>%
+  relocate(effect, .after = measure_type)
+
+flextable(Fisher_sumA) %>% autofit() %>% set_caption(caption = paste("sumA, p =", round((fisher.test(Fisher_sumA[,c(2,3)])$p.value), 3)))
+flextable(Fisher_sumF) %>% autofit() %>% set_caption(caption = paste("sumF, p =", round((fisher.test(Fisher_sumF[,c(2,3)])$p.value), 3)))
+flextable(Fisher_sumH) %>% autofit() %>% set_caption(caption = paste("sumH, p =", round((fisher.test(Fisher_sumH[,c(2,3)])$p.value), 3)))
+flextable(Fisher_b0_adj) %>% autofit() %>% set_caption(caption = paste("b0 adjusted, p =", round((fisher.test(Fisher_b0_adj[,c(2,3)])$p.value), 3)))
+
+```
 
 
 
-test <- Kendall_mort_tab %>% select(eel_emu_nameshort, p_suma, p_sumf, p_sumh)
+## Fisher's exact test per measure
+
+Fishers exact test is performed on a 2x2 matrix per measure, i.e. count of EMUs wher measure is implemented / not implemented x count of EMus with an effect / no effect on either SumA, SumF, SumH or bcurr/b0 adjusted (=b0_adj). The test indicates whether an effect on either parameter was independent (= null hypothesis) of the implementation of the respective measure type. 
+
+```{r Fisher_by_measure}
+
+fisher_sumA <- measures %>% 
+                     group_by(measure_type, binary_measure, sumA) %>%
+                     summarise(value = n()) %>%
+                     mutate(binary_measure = str_replace(binary_measure, "0", "not_implemented"),
+                            binary_measure = str_replace(binary_measure, "1", "implemented")) %>%
+                     drop_na() %>%
+                     mutate(indicator = paste(binary_measure, sumA, sep = "_")) %>%
+                     ungroup() %>%
+                     select(-binary_measure, - sumA) %>%
+                     spread(indicator, value) %>%
+                     drop_na()
+ 
+fisher_sumA$p_value <- apply(fisher_sumA, 1 ,function(x) {
+                                        tbl <- matrix(as.numeric(x[2:5]), ncol=2, byrow=T)
+                                        fisher.test(tbl)$p.value
+                                        })
+
+######################################
+
+fisher_sumF <- measures %>% 
+                     group_by(measure_type, binary_measure, sumF) %>%
+                     summarise(value = n()) %>%
+                     mutate(binary_measure = str_replace(binary_measure, "0", "not_implemented"),
+                            binary_measure = str_replace(binary_measure, "1", "implemented")) %>%
+                     drop_na() %>%
+                     mutate(indicator = paste(binary_measure, sumF, sep = "_")) %>%
+                     ungroup() %>%
+                     select(-binary_measure, - sumF) %>%
+                     spread(indicator, value) %>%
+                     drop_na()
+ 
+fisher_sumF$p_value <- apply(fisher_sumF, 1 ,function(x) {
+                                        tbl <- matrix(as.numeric(x[2:5]), ncol=2, byrow=T)
+                                        fisher.test(tbl)$p.value
+                                        })
+
+######################################
+                                        
+fisher_sumH <- measures %>% 
+                     group_by(measure_type, binary_measure, sumH) %>%
+                     summarise(value = n()) %>%
+                     mutate(binary_measure = str_replace(binary_measure, "0", "not_implemented"),
+                            binary_measure = str_replace(binary_measure, "1", "implemented")) %>%
+                     drop_na() %>%
+                     mutate(indicator = paste(binary_measure, sumH, sep = "_")) %>%
+                     ungroup() %>%
+                     select(-binary_measure, - sumH) %>%
+                     spread(indicator, value) %>%
+                     drop_na()
+ 
+fisher_sumH$p_value <- apply(fisher_sumH, 1 ,function(x) {
+                                        tbl <- matrix(as.numeric(x[2:5]), ncol=2, byrow=T)
+                                        fisher.test(tbl)$p.value
+                                        })
+
+######################################  
+
+fisher_b0_adj <- measures %>% 
+                     group_by(measure_type, binary_measure, b0_adj) %>%
+                     summarise(value = n()) %>%
+                     mutate(binary_measure = str_replace(binary_measure, "0", "not_implemented"),
+                            binary_measure = str_replace(binary_measure, "1", "implemented")) %>%
+                     drop_na() %>%
+                     mutate(indicator = paste(binary_measure, b0_adj, sep = "_")) %>%
+                     ungroup() %>%
+                     select(-binary_measure, - b0_adj) %>%
+                     spread(indicator, value) %>%
+                     drop_na()
+ 
+fisher_b0_adj$p_value <- apply(fisher_b0_adj, 1 ,function(x) {
+                                        tbl <- matrix(as.numeric(x[2:5]), ncol=2, byrow=T)
+                                        fisher.test(tbl)$p.value
+                                        })
+
+flextable(fisher_sumA) %>% autofit() %>% set_caption(caption = "sumA")
+flextable(fisher_sumF) %>% autofit() %>% set_caption(caption = "sumF")
+flextable(fisher_sumH) %>% autofit() %>% set_caption(caption = "sumH")
+flextable(fisher_b0_adj) %>% autofit() %>% set_caption(caption = "b0 adj")
 ```
 
