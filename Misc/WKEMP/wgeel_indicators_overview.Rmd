@@ -3,9 +3,9 @@ title: "wgeel_indicators_overwiew"
 author: "none"
 date: "27/09/2021"
 output:
-  pdf_document: default
   html_document:
     df_print: paged
+  pdf_document: default
   word_document: default
 ---
 
@@ -880,7 +880,8 @@ flextable(Kendall_mort_tab %>%
 
 
 # Test for effect of measures
-## Fisher's exact test for all measures
+## Fisher's exact Test
+### Comparing effect between measures
 
 Fisher's exact test for all EMUs where respective measures were implemented. The test is performed on measure type (10 types, but no data for 2 of them) x count of EMUs with an effect / no effect on either SumA, SumF, SumH or bcurr/b0 adjusted (=b0_adj). The result indicates whether an effect on either parameter was independent (=null hypothesis) of the measure type.\
 
@@ -975,7 +976,7 @@ flextable(Fisher_b0_adj) %>% autofit() %>% set_caption(caption = paste("b0 adjus
 
 
 
-## Fisher's exact test per measure
+### Comparing effect per measure (implemented vs not implemented)
 
 Fishers exact test is performed on a 2x2 matrix per measure, i.e. count of EMUs wher measure is implemented / not implemented x count of EMus with an effect / no effect on either SumA, SumF, SumH or bcurr/b0 adjusted (=b0_adj). The test indicates whether an effect on either parameter was independent (= null hypothesis) of the implementation of the respective measure type. 
 
@@ -1060,4 +1061,205 @@ flextable(fisher_sumF) %>% autofit() %>% set_caption(caption = "sumF")
 flextable(fisher_sumH) %>% autofit() %>% set_caption(caption = "sumH")
 flextable(fisher_b0_adj) %>% autofit() %>% set_caption(caption = "b0 adj")
 ```
+
+
+
+## Logistic regression
+### Do changes in SigA effect Bcurr?
+
+```{r delta_Bcurr_vs_sigA}
+
+require(lme4)
+
+delta <- Kendall_mort_tab %>%
+                select(eel_emu_nameshort, Period, suma_initial, suma_current, Delta_suma) %>%
+                left_join(Kendall_bio_tab %>% select(eel_emu_nameshort, Tau_b0_adj, p_b0_adj, Period), by = "eel_emu_nameshort") %>%
+                mutate(binary_b0_adj = ifelse(Tau_b0_adj > 0 & p_b0_adj < 0.1, 1, 0),
+                       test_period = ifelse(Period.x != Period.y, "WARNING", "same period"),
+                       Tau_b0_adj = NULL,
+                       p_b0_adj = NULL) %>%
+                rename(Period = Period.x) %>%
+                mutate(Period.y = NULL) %>%
+                drop_na()
+logit_delta <- glm(binary_b0_adj ~ Delta_suma, family=binomial(link="logit"), data = delta)
+
+test <- as.data.frame(summary(logit_delta)$coefficients) %>%
+        mutate(Coefficient = ifelse(row_number() == 1, "Intercept", "Delta_sumA")) %>%
+        relocate(Coefficient, .before = Estimate)
+              
+new_delta <- expand.grid(Delta_suma = seq(-2, 2, by =0.1))
+                         
+
+ggplot(delta, aes(x=Delta_suma, y=binary_b0_adj)) +
+  geom_point(size=0.9)+
+  theme_bw()+
+  geom_line(data= new_delta, aes(x=Delta_suma, y=predict(logit_delta, type = "response", newdata = new_delta)), size = 0.3)+
+  labs(x = "Delta_sumA", y = "Effect on Bcurrent (1 = present, 0 = absent)")
+
+flextable(test) %>% autofit()
+
+        
+                
+
+```
+
+Logistic regression of change in Bcurren/Bo_adjusted over Delta sumA (Time period see Kendall table). Effect of Delta sumA is not significant (see table) 
+
+### Effect of measures on Stock indicators
+
+```{r logitnumber}
+
+
+
+measures_n <- expand.grid(EMU = unique(res$emu_name_short),
+            measure_type = unique(res$measure_type)) %>%
+            left_join(counts, by=c("EMU" = "emu_name_short", "measure_type" = "measure_type")) %>%
+            replace(is.na(.), 0) %>%
+            left_join(Kendall_mort_tab %>% select(eel_emu_nameshort, p_suma, p_sumf, p_sumh, Tau_suma, Tau_sumf, Tau_sumh), by = c("EMU" = "eel_emu_nameshort")) %>%
+            left_join(Kendall_bio_tab %>% select(eel_emu_nameshort, p_b0, p_b0_adj, Tau_b0, Tau_b0_adj), by = c("EMU" = "eel_emu_nameshort")) %>%
+            mutate(sumA = ifelse(p_suma < 0.1 & Tau_suma < 0, 1, 0),
+                   sumF = ifelse(p_sumf < 0.1 & Tau_sumf < 0, 1, 0),
+                   sumH = ifelse(p_sumh < 0.1 & Tau_sumh < 0, 1, 0),
+                   b0 = ifelse(p_b0 < 0.1 & Tau_b0 > 0, 1, 0),
+                   b0_adj = ifelse(p_b0_adj < 0.1 & Tau_b0_adj > 0, 1, 0)) %>%
+                   select(EMU, measure_type, n, sumA, sumF, sumH, b0_adj)
+
+#list_measures_n <- unique(measures_n$measure_type)
+
+logit_measures_n_sumA <- glm(sumA ~ n + measure_type + n:measure_type-1, family=binomial(link="logit"), data = measures_n)
+logit_measures_n_sumF <- glm(sumF ~ n + measure_type + n:measure_type-1, family=binomial(link="logit"), data = measures_n)
+logit_measures_n_sumH <- glm(sumH ~ n + measure_type + n:measure_type-1, family=binomial(link="logit"), data = measures_n)
+logit_measures_n_b0_adj <- glm(b0_adj ~ n + measure_type + n:measure_type-1, family=binomial(link="logit"), data = measures_n)
+
+new_measures_n <- expand.grid(n = seq(0, max(measures_n$n), by =0.5),
+                         measure_type = unique(measures_n$measure_type))
+
+ggplot(measures_n, aes(x=n, y=sumA)) +
+  geom_point(aes(col=measure_type), size=0.9)+
+  theme_bw()+
+  geom_line(data = new_measures_n, aes(x=n, y=predict(logit_measures_n_sumA, type = "response", newdata = new_measures_n), col = measure_type), size = 0.3)+
+  labs(x = "number of measures", y = "Effect on SumA (1 = present, 0 = absent)")+
+  facet_wrap(~measure_type)
+
+summary_n_sumA <- as.data.frame(summary(logit_measures_n_sumA)$coefficients) 
+summary_n_sumA$coefficients <- rownames(summary_n_sumA)
+flextable(summary_n_sumA %>% relocate(coefficients, .before = Estimate)) %>% autofit()
+
+ggplot(measures_n, aes(x=n, y=sumF)) +
+  geom_point(aes(col=measure_type), size=0.9)+
+  theme_bw()+
+  geom_line(data = new_measures_n, aes(x=n, y=predict(logit_measures_n_sumF, type = "response", newdata = new_measures_n), col = measure_type), size = 0.3)+
+  labs(x = "number of measures", y = "Effect on SumF (1 = present, 0 = absent)")+
+  facet_wrap(~measure_type)
+
+summary_n_sumF <- as.data.frame(summary(logit_measures_n_sumF)$coefficients) 
+summary_n_sumF$coefficients <- rownames(summary_n_sumF)
+flextable(summary_n_sumF %>% relocate(coefficients, .before = Estimate)) %>% autofit()
+
+ggplot(measures_n, aes(x=n, y=sumH)) +
+  geom_point(aes(col=measure_type), size=0.9)+
+  theme_bw()+
+  geom_line(data = new_measures_n, aes(x=n, y=predict(logit_measures_n_sumH, type = "response", newdata = new_measures_n), col = measure_type), size = 0.3)+
+  labs(x = "number of measures", y = "Effect on SumH (1 = present, 0 = absent)")+
+  facet_wrap(~measure_type)
+
+summary_n_sumH <- as.data.frame(summary(logit_measures_n_sumH)$coefficients) 
+summary_n_sumH$coefficients <- rownames(summary_n_sumH)
+flextable(summary_n_sumH %>% relocate(coefficients, .before = Estimate)) %>% autofit()
+
+ggplot(measures_n, aes(x=n, y=b0_adj)) +
+  geom_point(aes(col=measure_type), size=0.9)+
+  theme_bw()+
+  geom_line(data = new_measures_n, aes(x=n, y=predict(logit_measures_n_b0_adj, type = "response", newdata = new_measures_n), col = measure_type), size = 0.3)+
+  labs(x = "number of measures", y = "Effect on b0_adj (1 = present, 0 = absent)")+facet_wrap(~measure_type)
+
+summary_n_b0_adj <- as.data.frame(summary(logit_measures_n_b0_adj)$coefficients) 
+summary_n_b0_adj$coefficients <- rownames(summary_n_b0_adj)
+flextable(summary_n_b0_adj %>% relocate(coefficients, .before = Estimate)) %>% autofit()
+
+```
+
+Lorem ipsum dolor sit amet
+
+
+```{r logitscores}
+scores <- res %>%
+  mutate(impact = ifelse(impact == "High", 3, 
+                    ifelse(impact == "Intermediate", 2, 
+                      ifelse(impact == "Low", 1, NA)))) %>%
+  group_by(emu_name_short, measure_type) %>%
+  summarise(score = sum(impact)) %>%
+  drop_na()
+
+measures_scores <- expand.grid(EMU = unique(res$emu_name_short),
+            measure_type = unique(res$measure_type)) %>%
+            left_join(scores, by=c("EMU" = "emu_name_short", "measure_type" = "measure_type")) %>%
+            drop_na() %>%
+            left_join(Kendall_mort_tab %>% select(eel_emu_nameshort, p_suma, p_sumf, p_sumh, Tau_suma, Tau_sumf, Tau_sumh), by = c("EMU" = "eel_emu_nameshort")) %>%
+            left_join(Kendall_bio_tab %>% select(eel_emu_nameshort, p_b0, p_b0_adj, Tau_b0, Tau_b0_adj), by = c("EMU" = "eel_emu_nameshort")) %>%
+            mutate(sumA = ifelse(p_suma < 0.1 & Tau_suma < 0, 1, 0),
+                   sumF = ifelse(p_sumf < 0.1 & Tau_sumf < 0, 1, 0),
+                   sumH = ifelse(p_sumh < 0.1 & Tau_sumh < 0, 1, 0),
+                   b0 = ifelse(p_b0 < 0.1 & Tau_b0 > 0, 1, 0),
+                   b0_adj = ifelse(p_b0_adj < 0.1 & Tau_b0_adj > 0, 1, 0)) %>%
+                   select(EMU, measure_type, score, sumA, sumF, sumH, b0_adj)
+
+measures_scores <- measures_scores[!with(measures_scores, is.na(sumA) & is.na (sumF) & is.na(sumA) & is.na(b0_adj)),]
+
+logit_measures_scores_sumA <- glm(sumA ~ score + measure_type + score:measure_type-1, family=binomial(link="logit"), data = measures_scores)
+logit_measures_scores_sumF <- glm(sumF ~ score + measure_type + score:measure_type-1, family=binomial(link="logit"), data = measures_scores)
+logit_measures_scores_sumH <- glm(sumH ~ score + measure_type + score:measure_type-1, family=binomial(link="logit"), data = measures_scores)
+logit_measures_scores_b0_adj <- glm(b0_adj ~ score + measure_type + score:measure_type-1, family=binomial(link="logit"), data = measures_scores)
+
+new_measures_scores <- expand.grid(score = seq(0, max(measures_scores$score), by =0.5),
+                         measure_type = unique(measures_scores$measure_type)) 
+
+ggplot(measures_scores, aes(x=score, y=sumA)) +
+  geom_point(aes(col=measure_type), size=0.9)+
+  theme_bw()+
+  geom_line(data = new_measures_scores, aes(x=score, y=predict(logit_measures_scores_sumA, type = "response", newdata = new_measures_scores), col = measure_type), size = 0.3)+
+  labs(x = "number of measures", y = "Effect on SumA (1 = present, 0 = absent)")+
+  facet_wrap(~measure_type)
+
+summary_scores_sumA <- as.data.frame(summary(logit_measures_scores_sumA)$coefficients) 
+summary_scores_sumA$coefficients <- rownames(summary_scores_sumA)
+flextable(summary_scores_sumA %>% relocate(coefficients, .before = Estimate)) %>% autofit()
+
+#flextable(summary())
+
+ggplot(measures_scores, aes(x=score, y=sumF)) +
+  geom_point(aes(col=measure_type), size=0.9)+
+  theme_bw()+
+  geom_line(data = new_measures_scores, aes(x=score, y=predict(logit_measures_scores_sumF, type = "response", newdata = new_measures_scores), col = measure_type), size = 0.3)+
+  labs(x = "number of measures", y = "Effect on SumF (1 = present, 0 = absent)")+
+  facet_wrap(~measure_type)
+
+summary_scores_sumF <- as.data.frame(summary(logit_measures_scores_sumF)$coefficients) 
+summary_scores_sumF$coefficients <- rownames(summary_scores_sumF)
+flextable(summary_scores_sumF %>% relocate(coefficients, .before = Estimate)) %>% autofit()
+
+ggplot(measures_scores, aes(x=score, y=sumH)) +
+  geom_point(aes(col=measure_type), size=0.9)+
+  theme_bw()+
+  geom_line(data = new_measures_scores, aes(x=score, y=predict(logit_measures_scores_sumH, type = "response", newdata = new_measures_scores), col = measure_type), size = 0.3)+
+  labs(x = "number of measures", y = "Effect on SumH (1 = present, 0 = absent)")+
+  facet_wrap(~measure_type)
+
+summary_scores_sumH <- as.data.frame(summary(logit_measures_scores_sumH)$coefficients) 
+summary_scores_sumH$coefficients <- rownames(summary_scores_sumH)
+flextable(summary_scores_sumH %>% relocate(coefficients, .before = Estimate)) %>% autofit()
+
+#ggplot(measures_scores, aes(x=score, y=b0_adj)) +
+  #geom_point(aes(col=measure_type), size=0.9)+
+  #theme_bw()+
+  #geom_line(data = new_measures_scores, aes(x=score, y=predict(logit_measures_scores_b0_adj, type = "response", newdata = new_measures_scores), col = measure_type), size = 0.3)+
+  #labs(x = "number of measures", y = "Effect on b0_adj (1 = present, 0 = absent)")+facet_wrap(~measure_type)
+
+#count_measures_scores <- measures_scores %>% 
+                    #group_by(measure_type) %>%
+                    #summarise(no_of_EMUs = n(), .groups = "keep")
+
+
+```
+
 
