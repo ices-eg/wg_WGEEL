@@ -1065,12 +1065,11 @@ flextable(fisher_b0_adj) %>% autofit() %>% set_caption(caption = "b0 adj")
 
 
 ## Logistic regression
-### Do changes in SigA effect Bcurr?
+### Relation SigA and Bcurr
 
-```{r delta_Bcurr_vs_sigA}
+```{r delta_Bcurr_vs_sigA_graph}
 
 require(lme4)
-
 delta <- Kendall_mort_tab %>%
                 select(eel_emu_nameshort, Period, suma_initial, suma_current, Delta_suma) %>%
                 left_join(Kendall_bio_tab %>% select(eel_emu_nameshort, Tau_b0_adj, p_b0_adj, Period), by = "eel_emu_nameshort") %>%
@@ -1082,10 +1081,6 @@ delta <- Kendall_mort_tab %>%
                 mutate(Period.y = NULL) %>%
                 drop_na()
 logit_delta <- glm(binary_b0_adj ~ Delta_suma, family=binomial(link="logit"), data = delta)
-
-test <- as.data.frame(summary(logit_delta)$coefficients) %>%
-        mutate(Coefficient = ifelse(row_number() == 1, "Intercept", "Delta_sumA")) %>%
-        relocate(Coefficient, .before = Estimate)
               
 new_delta <- expand.grid(Delta_suma = seq(-2, 2, by =0.1))
                          
@@ -1095,22 +1090,25 @@ ggplot(delta, aes(x=Delta_suma, y=binary_b0_adj)) +
   theme_bw()+
   geom_line(data= new_delta, aes(x=Delta_suma, y=predict(logit_delta, type = "response", newdata = new_delta)), size = 0.3)+
   labs(x = "Delta_sumA", y = "Effect on Bcurrent (1 = present, 0 = absent)")
+```
 
-flextable(test) %>% autofit()
+*Fig* Logistic regression of change in Bcurren/B0_adjusted over Delta sumA
 
-        
-                
+*Tab* Model statistics for Logistic regression of change in Bcurrent/B0_adjusted over Delta sumA. (For the time period see Kendall table)
+
+```{r delta_Bcurr_vs_sigA_table}
+logit_delta_table <- as.data.frame(summary(logit_delta)$coefficients) %>%
+        mutate(Coefficient = ifelse(row_number() == 1, "Intercept", "Delta_sumA")) %>%
+        relocate(Coefficient, .before = Estimate)
+
+flextable(logit_delta_table) %>% autofit()
 
 ```
 
-Logistic regression of change in Bcurren/Bo_adjusted over Delta sumA (Time period see Kendall table). Effect of Delta sumA is not significant (see table) 
 
-### Effect of measures on Stock indicators
+### Effect of number of measures on Stock indicators
 
-```{r logitnumber}
-
-
-
+```{r logit_numbers_prep}
 measures_n <- expand.grid(EMU = unique(res$emu_name_short),
             measure_type = unique(res$measure_type)) %>%
             left_join(counts, by=c("EMU" = "emu_name_short", "measure_type" = "measure_type")) %>%
@@ -1133,56 +1131,111 @@ logit_measures_n_b0_adj <- glm(b0_adj ~ n + measure_type + n:measure_type-1, fam
 
 new_measures_n <- expand.grid(n = seq(0, max(measures_n$n), by =0.5),
                          measure_type = unique(measures_n$measure_type))
+```
 
+```{r logit_scores_sumA_graph}
 ggplot(measures_n, aes(x=n, y=sumA)) +
   geom_point(aes(col=measure_type), size=0.9)+
   theme_bw()+
   geom_line(data = new_measures_n, aes(x=n, y=predict(logit_measures_n_sumA, type = "response", newdata = new_measures_n), col = measure_type), size = 0.3)+
   labs(x = "number of measures", y = "Effect on SumA (1 = present, 0 = absent)")+
+  theme(legend.position = "none")+
   facet_wrap(~measure_type)
+```
 
+*Fig* Logistic regression for SumA vs number of measures
+
+*Tab* Table with model statistics for SumA vs number of measures
+
+```{r logit_scores_sumA_table}
 summary_n_sumA <- as.data.frame(summary(logit_measures_n_sumA)$coefficients) 
 summary_n_sumA$coefficients <- rownames(summary_n_sumA)
 flextable(summary_n_sumA %>% relocate(coefficients, .before = Estimate)) %>% autofit()
+```
+\
+\
+\
+\
+\
 
+
+```{r logit_scores_sumF_graph}
 ggplot(measures_n, aes(x=n, y=sumF)) +
   geom_point(aes(col=measure_type), size=0.9)+
   theme_bw()+
   geom_line(data = new_measures_n, aes(x=n, y=predict(logit_measures_n_sumF, type = "response", newdata = new_measures_n), col = measure_type), size = 0.3)+
   labs(x = "number of measures", y = "Effect on SumF (1 = present, 0 = absent)")+
+  theme(legend.position = "none")+
   facet_wrap(~measure_type)
+```
 
+*Fig* Logistic regression for SumF vs number of measures
+
+*Tab* Table with model statistics for SumF vs number of measures
+
+```{r logit_scores_sumF_table}
 summary_n_sumF <- as.data.frame(summary(logit_measures_n_sumF)$coefficients) 
 summary_n_sumF$coefficients <- rownames(summary_n_sumF)
 flextable(summary_n_sumF %>% relocate(coefficients, .before = Estimate)) %>% autofit()
+```
+\
+\
+\
+\
+\
 
+
+```{r logit_scores_sumH_graph}
 ggplot(measures_n, aes(x=n, y=sumH)) +
   geom_point(aes(col=measure_type), size=0.9)+
   theme_bw()+
   geom_line(data = new_measures_n, aes(x=n, y=predict(logit_measures_n_sumH, type = "response", newdata = new_measures_n), col = measure_type), size = 0.3)+
   labs(x = "number of measures", y = "Effect on SumH (1 = present, 0 = absent)")+
+  theme(legend.position = "none")+
   facet_wrap(~measure_type)
+```
 
+*Fig* Logistic regression for SumH vs number of measures
+
+*Tab* Table with model statistics for SumH vs number of measures
+
+```{r logit_scores_sumH_table}
 summary_n_sumH <- as.data.frame(summary(logit_measures_n_sumH)$coefficients) 
 summary_n_sumH$coefficients <- rownames(summary_n_sumH)
 flextable(summary_n_sumH %>% relocate(coefficients, .before = Estimate)) %>% autofit()
+```
+\
+\
+\
+\
+\
 
+
+```{r logit_scores_Bcurr_graph}
 ggplot(measures_n, aes(x=n, y=b0_adj)) +
   geom_point(aes(col=measure_type), size=0.9)+
   theme_bw()+
   geom_line(data = new_measures_n, aes(x=n, y=predict(logit_measures_n_b0_adj, type = "response", newdata = new_measures_n), col = measure_type), size = 0.3)+
-  labs(x = "number of measures", y = "Effect on b0_adj (1 = present, 0 = absent)")+facet_wrap(~measure_type)
+  labs(x = "number of measures", y = "Effect on Bcurr (1 = present, 0 = absent)")+
+  theme(legend.position = "none")+
+  facet_wrap(~measure_type)
+```
 
+*Fig* Logistic regression for Bcurr vs number of measures
+
+*Tab* Table with model statistics for Bcurr vs number of measures
+
+```{r logit_scores_Bcurr_table}
 summary_n_b0_adj <- as.data.frame(summary(logit_measures_n_b0_adj)$coefficients) 
 summary_n_b0_adj$coefficients <- rownames(summary_n_b0_adj)
 flextable(summary_n_b0_adj %>% relocate(coefficients, .before = Estimate)) %>% autofit()
-
 ```
 
-Lorem ipsum dolor sit amet
 
 
-```{r logitscores}
+### Effect of measure scores on stock indicators
+
+```{r logit_scores_prep}
 scores <- res %>%
   mutate(impact = ifelse(impact == "High", 3, 
                     ifelse(impact == "Intermediate", 2, 
@@ -1214,52 +1267,106 @@ logit_measures_scores_b0_adj <- glm(b0_adj ~ score + measure_type + score:measur
 new_measures_scores <- expand.grid(score = seq(0, max(measures_scores$score), by =0.5),
                          measure_type = unique(measures_scores$measure_type)) 
 
+```
+
+```{r logit_sumA_graph}
 ggplot(measures_scores, aes(x=score, y=sumA)) +
   geom_point(aes(col=measure_type), size=0.9)+
   theme_bw()+
   geom_line(data = new_measures_scores, aes(x=score, y=predict(logit_measures_scores_sumA, type = "response", newdata = new_measures_scores), col = measure_type), size = 0.3)+
   labs(x = "number of measures", y = "Effect on SumA (1 = present, 0 = absent)")+
+  theme(legend.position = "none")+
   facet_wrap(~measure_type)
+```
 
+*Fig* Logistic regression for SumA vs score of measures
+
+*Tab* Table with model statistics for SumA vs score of measures
+
+```{r logit_sumA_table}
 summary_scores_sumA <- as.data.frame(summary(logit_measures_scores_sumA)$coefficients) 
 summary_scores_sumA$coefficients <- rownames(summary_scores_sumA)
 flextable(summary_scores_sumA %>% relocate(coefficients, .before = Estimate)) %>% autofit()
+```
+\
+\
+\
+\
+\
 
-#flextable(summary())
 
+```{r logit_sumF_graph}
 ggplot(measures_scores, aes(x=score, y=sumF)) +
   geom_point(aes(col=measure_type), size=0.9)+
   theme_bw()+
   geom_line(data = new_measures_scores, aes(x=score, y=predict(logit_measures_scores_sumF, type = "response", newdata = new_measures_scores), col = measure_type), size = 0.3)+
   labs(x = "number of measures", y = "Effect on SumF (1 = present, 0 = absent)")+
+  theme(legend.position = "none")+
   facet_wrap(~measure_type)
+```
 
+*Fig* Logistic regression for SumF vs score of measures
+
+*Tab* Table with model statistics for SumF vs score of measures
+
+```{r loogit_sumF_table}
 summary_scores_sumF <- as.data.frame(summary(logit_measures_scores_sumF)$coefficients) 
 summary_scores_sumF$coefficients <- rownames(summary_scores_sumF)
 flextable(summary_scores_sumF %>% relocate(coefficients, .before = Estimate)) %>% autofit()
+```
+\
+\
+\
+\
+\
 
+
+```{r logit_sumH_graph}
 ggplot(measures_scores, aes(x=score, y=sumH)) +
   geom_point(aes(col=measure_type), size=0.9)+
   theme_bw()+
   geom_line(data = new_measures_scores, aes(x=score, y=predict(logit_measures_scores_sumH, type = "response", newdata = new_measures_scores), col = measure_type), size = 0.3)+
   labs(x = "number of measures", y = "Effect on SumH (1 = present, 0 = absent)")+
+  theme(legend.position = "none")+
   facet_wrap(~measure_type)
+```
 
+*Fig* Logistic regression for SumH vs score of measures
+
+*Tab* Table with model statistics for SumH vs score of measures
+
+```{r logit_sumH_table}
 summary_scores_sumH <- as.data.frame(summary(logit_measures_scores_sumH)$coefficients) 
 summary_scores_sumH$coefficients <- rownames(summary_scores_sumH)
 flextable(summary_scores_sumH %>% relocate(coefficients, .before = Estimate)) %>% autofit()
-
-#ggplot(measures_scores, aes(x=score, y=b0_adj)) +
-  #geom_point(aes(col=measure_type), size=0.9)+
-  #theme_bw()+
-  #geom_line(data = new_measures_scores, aes(x=score, y=predict(logit_measures_scores_b0_adj, type = "response", newdata = new_measures_scores), col = measure_type), size = 0.3)+
-  #labs(x = "number of measures", y = "Effect on b0_adj (1 = present, 0 = absent)")+facet_wrap(~measure_type)
-
-#count_measures_scores <- measures_scores %>% 
-                    #group_by(measure_type) %>%
-                    #summarise(no_of_EMUs = n(), .groups = "keep")
+```
+\
+\
+\
+\
+\
 
 
+```{r logit_bcurr_by_b0adj_graph}
+test <- measures_scores %>% filter(measure_type != "Eel_governance")
+
+ggplot(measures_scores %>% filter(measure_type != "Eel_governance"), aes(x=score, y=b0_adj)) +
+  geom_point(aes(col=measure_type), size=0.9)+
+  theme_bw()+
+  geom_line(data = new_measures_scores %>% filter(measure_type != "Eel_governance"), aes(x=score, y=predict(logit_measures_scores_b0_adj, type = "response", newdata = new_measures_scores %>% filter(measure_type != "Eel_governance")), col = measure_type), size = 0.3)+
+  labs(x = "number of measures", y = "Effect on Bcurr (1 = present, 0 = absent)")+
+  theme(legend.position = "none")+
+ facet_wrap(~measure_type)
 ```
 
+*Fig* Logistic regression for Bcurr vs score of measures
+
+*Tab* Table with model statistics for Bcurr vs score of measures\
+_careful here, I am not sure about the interpretation of "Eel_governance", since twe have EMUs with governance but no Bcurr effect measured anywhere_
+
+```{r}
+summary_scores_b0_adj <- as.data.frame(summary(logit_measures_scores_b0_adj)$coefficients) 
+summary_scores_b0_adj$coefficients <- rownames(summary_scores_sumH)
+flextable(summary_scores_b0_adj %>% relocate(coefficients, .before = Estimate)) %>% autofit()
+```
 
