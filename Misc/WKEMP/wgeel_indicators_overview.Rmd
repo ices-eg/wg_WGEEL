@@ -3,10 +3,10 @@ title: "wgeel_indicators_overwiew"
 author: "none"
 date: "27/09/2021"
 output:
+  word_document: default
+  pdf_document: default
   html_document:
     df_print: paged
-  pdf_document: default
-  word_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -548,7 +548,7 @@ ggplot(st_transform(country_p,3035)) + geom_sf(fill=NA,size=.1)+theme_bw()+
 
 
 # Time trends
-## Biomass
+## Biomass visualisation
 Each line represents an EMU.
 
 ```{r trendbiomass}
@@ -571,6 +571,8 @@ ggplot(indicator %>% filter(!is.na(bcurrent/b0)),aes(x=eel_year,y=bcurrent/b0)) 
   theme_bw() + ylab(expression(B[current]/B[0]))+xlab("") + xlim(2007,2020)+facet_wrap(~eel_cou_code,drop=TRUE,scales="free_y")
 
 ```
+
+## Mortalities visualization
 
 ```{r trendmorta}
 indicator <- dbGetQuery(con,"select eel_year,eel_cou_code,eel_emu_nameshort, b0,bbest,bcurrent, suma,sumf, sumh from datawg.precodata_emu")
@@ -613,12 +615,7 @@ ggplot(indicator %>% filter(!is.na(sumh)),aes(x=eel_year,y=sumh))+
 
 ```
 
-
-
-# Time trend analyses
-
-```{r produce_Kendall_table}
-
+```{r calculate_b0_adj}
 library(Kendall)
 #source("readingAnnex13.R") run this if you don't have Rdata below
 load( file=file.path(getwd(),"data_dependencies","annex13.Rdata")) # annexes13_method,annexes13_traceability,annexes13_management,
@@ -670,6 +667,87 @@ indicator_sub$b0_adj = mapply(estimate_b0,indicator_sub$eel_emu_nameshort, indic
 
 options(scipen = 999)
 indicator <- indicator %>% left_join(indicator_sub %>% select(eel_year, eel_emu_nameshort, b0_adj), by = c("eel_year", "eel_emu_nameshort"))
+```
+
+
+## Data availability
+
+```{r vi}
+
+require(naniar)
+indicator_vis <- expand.grid(eel_emu_nameshort = unique(indicator$eel_emu_nameshort),
+                             eel_year = seq(2006, 2021, by = 1)) %>%
+                                        left_join(indicator %>% select(eel_emu_nameshort, sumh, sumf, suma, bcurrent, bbest, b0, eel_year), by = c("eel_emu_nameshort" = "eel_emu_nameshort", "eel_year" = "eel_year"))
+
+gg_miss_fct(x = indicator_vis %>% select(-eel_emu_nameshort), fct = eel_year)
+
+ggplot(indicator_vis %>% select(eel_emu_nameshort, eel_year, b0) %>%
+  mutate(b0 = ifelse(is.na(b0), "abscent", "present")), aes(eel_emu_nameshort, eel_year, fill = b0)) +
+  geom_tile() +
+  scale_fill_manual(values=c("yellow2", "dark blue"))+
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  theme(panel.border = element_blank(), panel.grid.major = element_blank(),
+  panel.grid.minor = element_blank(), axis.line = element_blank(), legend.position = "bottom")+
+  theme(legend.title = element_blank())+
+  labs(x = "EMU", y = "year") +
+  ggtitle(expression("B"["0"]))
+
+ggplot(indicator_vis %>% select(eel_emu_nameshort, eel_year, bcurrent) %>%
+  mutate(bcurrent = ifelse(is.na(bcurrent), "abscent", "present")), aes(eel_emu_nameshort, eel_year, fill = bcurrent)) +
+  geom_tile() +
+  scale_fill_manual(values=c("yellow2", "dark blue"))+
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  theme(panel.border = element_blank(), panel.grid.major = element_blank(),
+  panel.grid.minor = element_blank(), axis.line = element_blank(), legend.position = "bottom")+
+  theme(legend.title = element_blank())+
+  labs(x = "EMU", y = "year") +
+  ggtitle(expression("B"["current"]))
+
+ggplot(indicator_vis %>% select(eel_emu_nameshort, eel_year, suma) %>%
+  mutate(suma = ifelse(is.na(suma), "abscent", "present")), aes(eel_emu_nameshort, eel_year, fill = suma)) +
+  geom_tile() +
+  scale_fill_manual(values=c("yellow2", "dark blue"))+
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  theme(panel.border = element_blank(), panel.grid.major = element_blank(),
+  panel.grid.minor = element_blank(), axis.line = element_blank(), legend.position = "bottom")+
+  theme(legend.title = element_blank())+
+  labs(x = "EMU", y = "year") +
+  ggtitle("\u03A3A")
+
+ggplot(indicator_vis %>% select(eel_emu_nameshort, eel_year, sumf) %>%
+  mutate(sumf = ifelse(is.na(sumf), "abscent", "present")), aes(eel_emu_nameshort, eel_year, fill = sumf)) +
+  geom_tile() +
+  scale_fill_manual(values=c("yellow2", "dark blue"))+
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  theme(panel.border = element_blank(), panel.grid.major = element_blank(),
+  panel.grid.minor = element_blank(), axis.line = element_blank(), legend.position = "bottom")+
+  theme(legend.title = element_blank())+
+  labs(x = "EMU", y = "year") +
+  ggtitle("\u03A3F")
+
+ggplot(indicator_vis %>% select(eel_emu_nameshort, eel_year, suma) %>%
+  mutate(suma = ifelse(is.na(suma), "abscent", "present")), aes(eel_emu_nameshort, eel_year, fill = suma)) +
+  geom_tile() +
+  scale_fill_manual(values=c("yellow2", "dark blue"))+
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  theme(panel.border = element_blank(), panel.grid.major = element_blank(),
+  panel.grid.minor = element_blank(), axis.line = element_blank(), legend.position = "bottom")+
+  theme(legend.title = element_blank())+
+  labs(x = "EMU", y = "year") +
+  ggtitle("\u03A3H")
+
+
+
+```
+
+
+
+```{r produce_Kendall_table}
 
 
 ### Kendall_test biomass & Formatting of biomass tables
@@ -725,7 +803,7 @@ Kendall_b0_tab <-  indicator %>%
 
 Kendall_b0_adj_tab <-  indicator %>%
                     group_by(eel_emu_nameshort) %>%
-                    filter(eel_year >= 2007 & !is.na(b0_adj) & !is.na(bcurrent)) %>% 
+                    filter(b0_adj > 0 & eel_year >= 2007 & !is.na(b0_adj) & !is.na(bcurrent)) %>% 
                     mutate(ratio_b0_adj = bcurrent/b0_adj) %>%
                     mutate(Period_b0_adj = paste(min(eel_year), max(eel_year), sep = "-"),
                       n_b0_adj = length(ratio_b0_adj[!is.na(ratio_b0_adj)]),
@@ -875,7 +953,8 @@ Kendall_table <- as.data.frame(unique(indicator$eel_emu_nameshort)) %>%
 \
 \
 
-## Biomass
+## Biomass statistics
+
 Time trend analyses are carried out on the ratio of Bcurrent/B0 and Bcurrent/B0_adjusted - as indicated by suffixes.\
 B0_adjusted accounts for the fact that while B0, by definition, is a fixed value, Bcurrent partly depends on natural recruitment. The ratio Bcurrent/B0 will thus not accurately reflect the influence of continental factors on escapement biomass (most importantly effects of management measures) but also changes in natural recruitment. B0_adjusted incorporates changes in natural recruitment, therefore canceling out effects of natural recruitment on Bcurrent and removing the bias. Since a multitude of different methods and models is used by countries to calculate biomass indicators a general approximation for the adjustment of B0 was derived from WGEEL recruitment index by... _SENTENCE OR TWO FROM HILAIRE_   
 
@@ -885,16 +964,43 @@ The following restraints were defined for trend analyses:
 
 Delta gives the difference between the initial (2007) and current (last year reported) ratio of either Bcurrent/Bo or Bcurrent/B0_adjusted - as indicated by suffixes. The value thus indicates a quantitative measure of the change in biomass whereas Tau gives a qualitative estimate on whether the trend is positive/negative and significant (also see table footnote).
 
-```{r Ktablebiomass}
+```{r KtableB0}
+
 flextable(Kendall_table %>%
             rename(EMU = eel_emu_nameshort) %>%
             mutate(Tau_b0 = ifelse(p_b0 <= 0.1, 
                             ifelse(p_b0 <= 0.05, paste(Tau_b0, "**"), paste(Tau_b0, "*")), as.character(Tau_b0)))  %>%
+            select(EMU, Period_b0, n_b0, Esc_perc_b0_initial, Esc_perc_b0_current, Delta_b0, Tau_b0) %>%
+            mutate_all(~ifelse(is.nan(.), NA, .)) %>%
+            filter_at(vars(n_b0,  Esc_perc_b0_initial, Esc_perc_b0_current, Delta_b0, Tau_b0), any_vars(!is.na(.)))) %>%
+  set_header_labels(Period_b0 = "Period",
+                    n_b0 = "n",
+                    Esc_perc_b0_initial = "Bcurrent/B0",
+                    Esc_perc_b0_current = "Bcurrent/B0",
+                    Delta_b0 = "\u0394 Bcurrent/B0",
+                    Tau_b0 = "\u03C4 B0") %>%
+            autofit()
+```
+
+[*] indicates p > 0.1\
+[**] indicates p > 0.05
+
+
+```{r KtableBB0_adj}
+
+flextable(Kendall_table %>%
+            rename(EMU = eel_emu_nameshort) %>%
             mutate(Tau_b0_adj = ifelse(p_b0_adj <= 0.1,
                                ifelse(p_b0_adj <= 0.05, paste(Tau_b0_adj, "**"), paste(Tau_b0_adj, "*")), as.character(Tau_b0_adj)))  %>%
-            select(EMU, Period_b0, Period_b0_adj, n_b0, n_b0_adj, Esc_perc_b0_initial, Esc_perc_b0_current, Esc_perc_b0_adj_initial, Esc_perc_b0_adj_current, Delta_b0, Delta_b0_adj, Tau_b0, Tau_b0_adj) %>%
+            select(EMU, Period_b0_adj, n_b0_adj, Esc_perc_b0_adj_initial, Esc_perc_b0_adj_current, Delta_b0_adj, Tau_b0_adj) %>%
             mutate_all(~ifelse(is.nan(.), NA, .)) %>%
-            filter_at(vars(n_b0, n_b0_adj, Esc_perc_b0_initial, Esc_perc_b0_current, Esc_perc_b0_adj_initial, Esc_perc_b0_adj_current, Delta_b0, Delta_b0_adj, Tau_b0, Tau_b0_adj), any_vars(!is.na(.)))) %>%
+            filter_at(vars(n_b0_adj, Esc_perc_b0_adj_initial, Esc_perc_b0_adj_current, Delta_b0_adj, Tau_b0_adj), any_vars(!is.na(.)))) %>%
+  set_header_labels(Period_b0_adj = "Period",
+                    n_b0_adj = "n",
+                    Esc_perc_b0_adj_initial = "Bcurrent/B0-adj (initial)",
+                    Esc_perc_b0_adj_current = "Bcurrent/B0-adj (current)",
+                    Delta_b0_adj = "\u0394 Bcurrent/B0-adj",
+                    Tau_b0_adj = "\u03C4 B0-adj") %>%
             autofit()
 ```
 
@@ -904,7 +1010,7 @@ flextable(Kendall_table %>%
 \
 \
 
-## Mortality
+## Mortality statistics
 
 Time trend analyses are carried out on the mortalites suma, sumf and sumh - as indicated by suffixes.\ 
 The following restraints were defined for trend analyses:   
@@ -924,12 +1030,13 @@ flextable(Kendall_table %>%
                             ifelse(p_suma <= 0.05, paste(Tau_suma, "**"), paste(Tau_suma, "*")), as.character(Tau_suma)))  %>%
             select(eel_emu_nameshort, Period_suma, suma_initial, suma_current, n_suma, Delta_suma, Tau_suma) %>%
             mutate_all(~ifelse(is.nan(.), NA, .)) %>%
+            relocate(n_suma, .after = Period_suma) %>%
             filter_at(vars(suma_initial, suma_current, n_suma, Delta_suma, Tau_suma), any_vars(!is.na(.)))) %>%
             set_header_labels(eel_emu_nameshort = "EMU",
                               Period_suma = "Period",
                               suma_initial = "\u03A3A (initial)",
                               suma_current = "\u03A3A (current)",
-                              n_suma = "n \u03A3A",
+                              n_suma = "n",
                               Delta_suma = "\u0394 \u03A3A",
                               Tau_suma = "\u03C4 \u03A3A") %>%
             autofit()
@@ -945,12 +1052,13 @@ flextable(Kendall_table %>%
                             ifelse(p_sumf <= 0.05, paste(Tau_sumf, "**"), paste(Tau_sumf, "*")), as.character(Tau_sumf)))  %>%
             select(eel_emu_nameshort, Period_sumf, sumf_initial, sumf_current, n_sumf, Delta_sumf, Tau_sumf) %>%
             mutate_all(~ifelse(is.nan(.), NA, .)) %>%
+            relocate(n_sumf, .after = Period_sumf) %>%
             filter_at(vars(sumf_initial, sumf_current, n_sumf, Delta_sumf, Tau_sumf), any_vars(!is.na(.)))) %>%
             set_header_labels(eel_emu_nameshort = "EMU",
                               Period_sumf = "Period",
                               sumf_initial = "\u03A3F (initial)",
                               sumf_current = "\u03A3F (current)",
-                              n_sumf = "n \u03A3F",
+                              n_sumf = "n",
                               Delta_sumf = "\u0394 \u03A3F",
                               Tau_sumf = "\u03C4 \u03A3F") %>%
             autofit()
@@ -965,13 +1073,14 @@ flextable(Kendall_table %>%
             mutate(Tau_sumh = ifelse(p_sumh <= 0.1, 
                             ifelse(p_sumh <= 0.05, paste(Tau_sumh, "**"), paste(Tau_sumh, "*")), as.character(Tau_sumh)))  %>%
             select(eel_emu_nameshort, Period_sumh, sumh_initial, sumh_current, n_sumh, Delta_sumh, Tau_sumh) %>%
+            relocate(n_sumh, .after = Period_sumh) %>%
             mutate_all(~ifelse(is.nan(.), NA, .)) %>%
             filter_at(vars(sumh_initial, sumh_current, n_sumh, Delta_sumh, Tau_sumh), any_vars(!is.na(.)))) %>%
             set_header_labels(eel_emu_nameshort = "EMU",
                               Period_sumh = "Period",
                               sumh_initial = "\u03A3H (initial)",
                               sumh_current = "\u03A3H (current)",
-                              n_sumh = "n \u03A3H",
+                              n_sumh = "n",
                               Delta_sumh = "\u0394 \u03A3H",
                               Tau_sumh = "\u03C4 \u03A3H") %>%
             autofit()
@@ -1160,10 +1269,30 @@ fisher_b0_adj$p_value <- apply(fisher_b0_adj, 1 ,function(x) {
                                         fisher.test(tbl)$p.value
                                         })
 
-flextable(fisher_sumA) %>% autofit() %>% set_caption(caption = "sumA")
-flextable(fisher_sumF) %>% autofit() %>% set_caption(caption = "sumF")
-flextable(fisher_sumH) %>% autofit() %>% set_caption(caption = "sumH")
-flextable(fisher_b0_adj) %>% autofit() %>% set_caption(caption = "b0 adj")
+flextable(fisher_sumA) %>% autofit() %>% set_caption(caption = "\u03A3A") %>%
+  set_header_labels(implemented_0 = "implemented/no effect",
+                    implemented_1 = "implemented/effect",
+                    not_implemented_0 = "not implemented/no effect",
+                    not_implemented_1 = "not implemented/effect")
+
+flextable(fisher_sumF) %>% autofit() %>% set_caption(caption = "\u03A3F") %>%
+  set_header_labels(implemented_0 = "implemented/no effect",
+                    implemented_1 = "implemented/effect",
+                    not_implemented_0 = "not implemented/no effect",
+                    not_implemented_1 = "not implemented/effect")
+
+flextable(fisher_sumH) %>% autofit() %>% set_caption(caption = "\u03A3H") %>%
+  set_header_labels(implemented_0 = "implemented/no effect",
+                    implemented_1 = "implemented/effect",
+                    not_implemented_0 = "not implemented/no effect",
+                    not_implemented_1 = "not implemented/effect")
+
+flextable(fisher_b0_adj) %>% autofit() %>% set_caption(caption = "b0 adj") %>%
+  set_header_labels(implemented_0 = "implemented/no effect",
+                    implemented_1 = "implemented/effect",
+                    not_implemented_0 = "not implemented/no effect",
+                    not_implemented_1 = "not implemented/effect")
+
 ```
 
 
@@ -1215,11 +1344,11 @@ ggplot(delta, aes(x=Delta_suma, y=binary_b0)) +
 
 
 logit_delta_table <- as.data.frame(summary(logit_delta_b0_adj)$coefficients) %>%
-        mutate(Coefficient = ifelse(row_number() == 1, "Intercept", "Delta_sumA")) %>%
+        mutate(Coefficient = ifelse(row_number() == 1, "Intercept", "\u0394 \u03A3A")) %>%
         relocate(Coefficient, .before = Estimate) %>%
         rename_with(.col = 5, ~ "p-value (all)") %>%
         left_join(as.data.frame(summary(logit_delta_b0_adj_1)$coefficients) %>%
-        mutate(Coefficient = ifelse(row_number() == 1, "Intercept", "Delta_sumA")) %>%
+        mutate(Coefficient = ifelse(row_number() == 1, "Intercept", "\u0394 \u03A3A")) %>%
         relocate(Coefficient, .before = Estimate) %>%
         rename_with(.col = 5, ~ "p-value (truncated)"), by = "Coefficient") %>%
         rename("Estimate (all)" = "Estimate.x",
