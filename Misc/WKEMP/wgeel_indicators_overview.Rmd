@@ -960,7 +960,7 @@ Kendall_summary <- Kendall_table %>%
                      ifelse(p_b0>.1,"no_trend",
                      ifelse(Tau_b0<0, "negative","positive"))),
          b0_adj=ifelse(n_b0_adj < 5, "less_than_5", 
-                     ifelse(there was a distinct shift in the p_b0_adj>.1,"no_trend",
+                     ifelse(p_b0_adj>.1,"no_trend",
                      ifelse(Tau_b0_adj<0, "negative","positive"))),
          b0_today=ifelse(Esc_perc_b0_current >= 0.4, "positive", "negative"),
          b0_initial=ifelse(Esc_perc_b0_initial >= 0.4, "positive", "negative")) %>%
