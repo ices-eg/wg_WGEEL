@@ -1,12 +1,12 @@
 ---
-title: "Untitled"
+title: "wgeel_indicators_overwiew"
 author: "none"
 date: "27/09/2021"
 output:
+  word_document: default
+  pdf_document: default
   html_document:
     df_print: paged
-  pdf_document: default
-  word_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -27,8 +27,8 @@ cred=read_yaml("../../credentials.yml")
 con = dbConnect(Postgres(), dbname=cred$dbname,host=cred$host,port=cred$port,user=cred$user, password=getPass())
 load("../../R/shiny_data_visualisation/shiny_dv/data/maps_for_shiny.Rdata")
 load("../../R/shiny_data_visualisation/shiny_dv/data/ref_and_eel_data.Rdata")
-
-emu_c <- filter(emu_c,!endsWith(emu_nameshort,"_o"))
+#emu_c <- st_as_sf(emu_c)
+emu_c <- dplyr::filter(emu_c,!endsWith(emu_nameshort,"_o")) 
 
 values=c(RColorBrewer::brewer.pal(12,"Set3"),
     RColorBrewer::brewer.pal(12, "Paired"), 
@@ -548,7 +548,7 @@ ggplot(st_transform(country_p,3035)) + geom_sf(fill=NA,size=.1)+theme_bw()+
 
 
 # Time trends
-## Biomass
+## Biomass visualisation
 Each line represents an EMU.
 
 ```{r trendbiomass}
@@ -571,6 +571,8 @@ ggplot(indicator %>% filter(!is.na(bcurrent/b0)),aes(x=eel_year,y=bcurrent/b0)) 
   theme_bw() + ylab(expression(B[current]/B[0]))+xlab("") + xlim(2007,2020)+facet_wrap(~eel_cou_code,drop=TRUE,scales="free_y")
 
 ```
+
+## Mortalities visualization
 
 ```{r trendmorta}
 indicator <- dbGetQuery(con,"select eel_year,eel_cou_code,eel_emu_nameshort, b0,bbest,bcurrent, suma,sumf, sumh from datawg.precodata_emu")
@@ -613,24 +615,10 @@ ggplot(indicator %>% filter(!is.na(sumh)),aes(x=eel_year,y=sumh))+
 
 ```
 
-
-
-# Time trend analyses
-## Biomass
-Time trend analyses are carried out on the ratio of Bcurrent/B0 and Bcurrent/B0_adjusted - as indicated by suffixes.\
-B0_adjusted accounts for the fact that while B0, by definition, is a fixed value, Bcurrent partly depends on natural recruitment. The ratio Bcurrent/B0 will thus not accurately reflect the influence of continental factors on escapement biomass (most importantly effects of management measures) but also changes in natural recruitment. B0_adjusted incorporates changes in natural recruitment, therefore canceling out effects of natural recruitment on Bcurrent and removing the bias. Since a multitude of different methods and models is used by countries to calculate biomass indicators a general approximation for the adjustment of B0 was derived from WGEEL recruitment index by... _SENTENCE OR TWO FROM HILAIRE_   
-
-The following restraints were defined for trend analyses:   
-1. Only values after 2010 (Implementation of Eel regulation) were considered\
-2. Time Series need to have at least 5 observations
-
-Delta gives the difference between the initial (2010) and current (latest year reported) ratio of either Bcurrent/Bo or Bcurrent/B0_adjusted - as indicated by suffixes. The value thus indicates a quantitative measure of the change in biomass whereas Tau gives a qualitative estimate on whether the trend is positive/negative and significant (also see table footnote).
-
-```{r trendbiomasstable}
-
+```{r calculate_b0_adj}
 library(Kendall)
-source("readingAnnex13.R")
-
+#source("readingAnnex13.R") run this if you don't have Rdata below
+load( file=file.path(getwd(),"data_dependencies","annex13.Rdata")) # annexes13_method,annexes13_traceability,annexes13_management,
 
 eu_cou_codes=c("AT",	"BE",	"BG",	"HR",	"CY",	"CZ",	"DK",	"EE",	"FI",	"FR",	"DE",	"GR",	"HU",	"IE",	"IT",	"LV",	"LT",	"LU",	"MT",	"NL",	"PL",	"PT",	"RO",	"SK",	"SI",	"ES",	"SE",	"GB")
 
@@ -679,10 +667,94 @@ indicator_sub$b0_adj = mapply(estimate_b0,indicator_sub$eel_emu_nameshort, indic
 
 options(scipen = 999)
 indicator <- indicator %>% left_join(indicator_sub %>% select(eel_year, eel_emu_nameshort, b0_adj), by = c("eel_year", "eel_emu_nameshort"))
+```
+
+
+## Data availability
+
+```{r vi}
+
+require(naniar)
+indicator_vis <- expand.grid(eel_emu_nameshort = unique(indicator$eel_emu_nameshort),
+                             eel_year = seq(2006, 2021, by = 1)) %>%
+                                        left_join(indicator %>% select(eel_emu_nameshort, sumh, sumf, suma, bcurrent, bbest, b0, eel_year), by = c("eel_emu_nameshort" = "eel_emu_nameshort", "eel_year" = "eel_year"))
+
+gg_miss_fct(x = indicator_vis %>% select(-eel_emu_nameshort), fct = eel_year)
+
+ggplot(indicator_vis %>% select(eel_emu_nameshort, eel_year, b0) %>%
+  mutate(b0 = ifelse(is.na(b0), "abscent", "present")), aes(eel_emu_nameshort, eel_year, fill = b0)) +
+  geom_tile() +
+  scale_fill_manual(values=c("yellow2", "dark blue"))+
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  theme(panel.border = element_blank(), panel.grid.major = element_blank(),
+  panel.grid.minor = element_blank(), axis.line = element_blank(), legend.position = "bottom")+
+  theme(legend.title = element_blank())+
+  labs(x = "EMU", y = "year") +
+  ggtitle(expression("B"["0"]))
+
+ggplot(indicator_vis %>% select(eel_emu_nameshort, eel_year, bcurrent) %>%
+  mutate(bcurrent = ifelse(is.na(bcurrent), "abscent", "present")), aes(eel_emu_nameshort, eel_year, fill = bcurrent)) +
+  geom_tile() +
+  scale_fill_manual(values=c("yellow2", "dark blue"))+
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  theme(panel.border = element_blank(), panel.grid.major = element_blank(),
+  panel.grid.minor = element_blank(), axis.line = element_blank(), legend.position = "bottom")+
+  theme(legend.title = element_blank())+
+  labs(x = "EMU", y = "year") +
+  ggtitle(expression("B"["current"]))
+
+ggplot(indicator_vis %>% select(eel_emu_nameshort, eel_year, suma) %>%
+  mutate(suma = ifelse(is.na(suma), "abscent", "present")), aes(eel_emu_nameshort, eel_year, fill = suma)) +
+  geom_tile() +
+  scale_fill_manual(values=c("yellow2", "dark blue"))+
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  theme(panel.border = element_blank(), panel.grid.major = element_blank(),
+  panel.grid.minor = element_blank(), axis.line = element_blank(), legend.position = "bottom")+
+  theme(legend.title = element_blank())+
+  labs(x = "EMU", y = "year") +
+  ggtitle("\u03A3A")
+
+ggplot(indicator_vis %>% select(eel_emu_nameshort, eel_year, sumf) %>%
+  mutate(sumf = ifelse(is.na(sumf), "abscent", "present")), aes(eel_emu_nameshort, eel_year, fill = sumf)) +
+  geom_tile() +
+  scale_fill_manual(values=c("yellow2", "dark blue"))+
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  theme(panel.border = element_blank(), panel.grid.major = element_blank(),
+  panel.grid.minor = element_blank(), axis.line = element_blank(), legend.position = "bottom")+
+  theme(legend.title = element_blank())+
+  labs(x = "EMU", y = "year") +
+  ggtitle("\u03A3F")
+
+ggplot(indicator_vis %>% select(eel_emu_nameshort, eel_year, suma) %>%
+  mutate(suma = ifelse(is.na(suma), "abscent", "present")), aes(eel_emu_nameshort, eel_year, fill = suma)) +
+  geom_tile() +
+  scale_fill_manual(values=c("yellow2", "dark blue"))+
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  theme(panel.border = element_blank(), panel.grid.major = element_blank(),
+  panel.grid.minor = element_blank(), axis.line = element_blank(), legend.position = "bottom")+
+  theme(legend.title = element_blank())+
+  labs(x = "EMU", y = "year") +
+  ggtitle("\u03A3H")
+
+
+
+```
+
+
+
+```{r produce_Kendall_table}
+
+
+### Kendall_test biomass & Formatting of biomass tables
 
 invisible(capture.output(Kendall_bio_b0 <- rownames_to_column(as.data.frame(t(as.data.frame(lapply(indicator %>%
                   mutate(ratio = bcurrent/b0) %>%
-                  filter(eel_year >= 2010) %>%
+                  filter(eel_year >= 2007) %>%
                   select(eel_emu_nameshort, eel_year, ratio) %>%
                   drop_na(ratio)%>%
                   group_by(eel_emu_nameshort) %>% filter(n()>= 5) %>% ungroup() %>%
@@ -693,7 +765,7 @@ invisible(capture.output(Kendall_bio_b0 <- rownames_to_column(as.data.frame(t(as
 
 invisible(capture.output(Kendall_bio_b0_adj <- rownames_to_column(as.data.frame(t(as.data.frame(lapply(indicator %>%
                       mutate(ratio = bcurrent/b0_adj) %>%
-                      filter(eel_year >= 2010) %>%
+                      filter(eel_year >= 2007) %>%
                       select(eel_emu_nameshort, eel_year, ratio) %>%
                       drop_na(ratio)%>%
                       group_by(eel_emu_nameshort) %>% filter(n()>= 5) %>% ungroup() %>%
@@ -702,22 +774,17 @@ invisible(capture.output(Kendall_bio_b0_adj <- rownames_to_column(as.data.frame(
                       select(-eel_year), 
                       function(y) unlist (MannKendall(y)))))), "eel_emu_nameshort")))
 
-
-
-Kendall_bio_tab <-  indicator %>%
+Kendall_b0_tab <-  indicator %>%
                     group_by(eel_emu_nameshort) %>%
-                    filter(eel_year >= 2010) %>%
-                    mutate(ratio_b0 = bcurrent/b0,
-                      ratio_b0_adj = bcurrent/b0_adj) %>%
-                    mutate(Period = paste(min(eel_year), max(eel_year), sep = "-"),
+                    filter(eel_year >= 2007 & !is.na(b0) & !is.na(bcurrent)) %>% 
+                    mutate(ratio_b0 = bcurrent/b0) %>%
+                    mutate(Period_b0 = paste(min(eel_year), max(eel_year), sep = "-"),
                       n_b0 = length(ratio_b0[!is.na(ratio_b0)]),
-                      n_b0_adj = length(ratio_b0_adj[!is.na(ratio_b0_adj)]),
-                      Esc_perc_b0_2010 = round(ratio_b0[which.min(eel_year)], 3),
+                      Esc_perc_b0_initial = round(ratio_b0[which.min(eel_year)], 3),
                       Esc_perc_b0_current = round(ratio_b0[which.max(eel_year)], 3),
-                      Delta_b0 = ratio_b0[which.max(eel_year)] - ratio_b0[which.min(eel_year)],
-                      Delta_b0_adj = ratio_b0_adj[which.max(eel_year)] - ratio_b0_adj[which.min(eel_year)]) %>%
+                      Delta_b0 = ratio_b0[which.max(eel_year)] - ratio_b0[which.min(eel_year)]) %>%
                     filter(eel_year == max(eel_year) | eel_year == min(eel_year)) %>%
-                    select(eel_emu_nameshort, Period, n_b0, n_b0_adj, Esc_perc_b0_2010, Esc_perc_b0_current, Delta_b0, Delta_b0_adj) %>%
+                    select(eel_emu_nameshort, Period_b0, n_b0, Esc_perc_b0_initial, Esc_perc_b0_current, Delta_b0) %>%
                     unique() %>%
                     ungroup() %>%
                     arrange(eel_emu_nameshort) %>%
@@ -731,53 +798,40 @@ Kendall_bio_tab <-  indicator %>%
                       p_b0 = round(p_b0, 3),
                       Tau_b0 = round(Tau_b0, 3),
                       Denominator_b0 = round(Denominator_b0, 0),
-                      VarScore_b0 = round(VarScore_b0, 3)) %>%
-                  left_join(Kendall_bio_b0_adj, by = "eel_emu_nameshort") %>%
-                  rename(p_b0_adj = sl,
-                    Tau_b0_adj = tau,
-                    Denominator_b0_adj = D,
-                    Score_b0_adj = S,
-                    VarScore_b0_adj = varS) %>%
-                  mutate(Delta_b0_adj = round(Delta_b0_adj, 3),
-                    p_b0_adj = round(p_b0_adj, 3),
-                    Tau_b0_adj = round(Tau_b0_adj, 3),
-                    Denominator_b0_adj = round(Denominator_b0_adj, 0),
-                    VarScore_b0_adj = round(VarScore_b0_adj, 3)) %>% 
-                    filter_at(vars(Esc_perc_b0_2010, Esc_perc_b0_current, Delta_b0, Delta_b0_adj, Tau_b0, Tau_b0_adj), any_vars(!is.na(.))) 
+                      VarScore_b0 = round(VarScore_b0, 3)) #%>%
+                     
+
+Kendall_b0_adj_tab <-  indicator %>%
+                    group_by(eel_emu_nameshort) %>%
+                    filter(b0_adj > 0 & eel_year >= 2007 & !is.na(b0_adj) & !is.na(bcurrent)) %>% 
+                    mutate(ratio_b0_adj = bcurrent/b0_adj) %>%
+                    mutate(Period_b0_adj = paste(min(eel_year), max(eel_year), sep = "-"),
+                      n_b0_adj = length(ratio_b0_adj[!is.na(ratio_b0_adj)]),
+                      Esc_perc_b0_adj_initial = round(ratio_b0_adj[which.min(eel_year)], 3),
+                      Esc_perc_b0_adj_current = round(ratio_b0_adj[which.max(eel_year)], 3),
+                      Delta_b0_adj = ratio_b0_adj[which.max(eel_year)] - ratio_b0_adj[which.min(eel_year)]) %>%
+                    filter(eel_year == max(eel_year) | eel_year == min(eel_year)) %>%
+                    select(eel_emu_nameshort, Period_b0_adj, n_b0_adj, Esc_perc_b0_adj_initial, Esc_perc_b0_adj_current, Delta_b0_adj) %>%
+                    unique() %>%
+                    ungroup() %>%
+                    arrange(eel_emu_nameshort) %>%
+                    left_join(Kendall_bio_b0_adj, by = "eel_emu_nameshort") %>%
+                    rename(p_b0_adj = sl,
+                      Tau_b0_adj = tau,
+                      Denominator_b0_adj = D,
+                      Score_b0_adj = S,
+                      VarScore_b0_adj = varS) %>%
+                    mutate(Delta_b0_adj = round(Delta_b0_adj, 3),
+                      p_b0_adj = round(p_b0_adj, 3),
+                      Tau_b0_adj = round(Tau_b0_adj, 3),
+                      Denominator_b0_adj = round(Denominator_b0_adj, 0),
+                      VarScore_b0_adj = round(VarScore_b0_adj, 3))
 
 
-flextable(Kendall_bio_tab %>%
-            rename(EMU = eel_emu_nameshort) %>%
-            mutate(Tau_b0 = ifelse(p_b0 <= 0.1, 
-                            ifelse(p_b0 <= 0.05, paste(Tau_b0, "**"), paste(Tau_b0, "*")), as.character(Tau_b0)))  %>%
-            mutate(Tau_b0_adj = ifelse(p_b0_adj <= 0.1,
-                               ifelse(p_b0_adj <= 0.05, paste(Tau_b0_adj, "**"), paste(Tau_b0_adj, "*")), as.character(Tau_b0_adj)))  %>%
-            select(EMU, Period, n_b0, n_b0_adj, Esc_perc_b0_2010, Esc_perc_b0_current, Delta_b0, Delta_b0_adj, Tau_b0, Tau_b0_adj) %>%
-            mutate_all(~ifelse(is.nan(.), NA, .))) %>%
-            autofit()
-
-```
-
-
-[*] indicates p > 0.1\
-[**] indicates p > 0.05
-
-
-
-## Mortality
-
-Time trend analyses are carried out on the mortalites suma, sumf and sumh - as indicated by suffixes.\ 
-The following restraints were defined for trend analyses:   
-1. Only values after 2010 (Implementation of Eel regulation) were considered\
-2. Time Series need to have at least 5 observations
-
-Delta gives the difference between the initial (2010) and current (latest year reported) suma, sumf or sumh - as indicated by suffixes. The value thus indicates a quantitative measure of the change in mortality, whereas Tau gives a qualitative estimate on whether the trend is positive/negative and significant (also see table footnote).
-
-
-```{r trendmortalitytable}
+###Kendall Test for mortalities and formatting of tables
 
 invisible(capture.output(Kendall_suma <- rownames_to_column(as.data.frame(t(as.data.frame(lapply(indicator %>%
-                  filter(eel_year >= 2010) %>%
+                  filter(eel_year >= 2007) %>%
                   select(eel_emu_nameshort, eel_year, suma) %>%
                   drop_na(suma)%>%
                   group_by(eel_emu_nameshort) %>% filter(n()>= 5) %>% ungroup() %>%
@@ -787,7 +841,7 @@ invisible(capture.output(Kendall_suma <- rownames_to_column(as.data.frame(t(as.d
                   function(y) unlist (MannKendall(y)))))), "eel_emu_nameshort")))
 
 invisible(capture.output(Kendall_sumf <- rownames_to_column(as.data.frame(t(as.data.frame(lapply(indicator %>%
-                  filter(eel_year >= 2010) %>%
+                  filter(eel_year >= 2007) %>%
                   select(eel_emu_nameshort, eel_year, sumf) %>%
                   drop_na(sumf)%>%
                   group_by(eel_emu_nameshort) %>% filter(n()>= 5) %>% ungroup() %>%
@@ -797,7 +851,7 @@ invisible(capture.output(Kendall_sumf <- rownames_to_column(as.data.frame(t(as.d
                   function(y) unlist (MannKendall(y)))))), "eel_emu_nameshort")))
 
 invisible(capture.output(Kendall_sumh <- rownames_to_column(as.data.frame(t(as.data.frame(lapply(indicator %>%
-                  filter(eel_year >= 2010) %>%
+                  filter(eel_year >= 2007) %>%
                   select(eel_emu_nameshort, eel_year, sumh) %>%
                   drop_na(sumh)%>%
                   group_by(eel_emu_nameshort) %>% filter(n()>= 5) %>% ungroup() %>%
@@ -806,20 +860,16 @@ invisible(capture.output(Kendall_sumh <- rownames_to_column(as.data.frame(t(as.d
                   select(-eel_year), 
                   function(y) unlist (MannKendall(y)))))), "eel_emu_nameshort")))
 
-Kendall_mort_tab <- indicator %>%
+Kendall_mort_tab_a <- indicator %>%
                     group_by(eel_emu_nameshort) %>%
-                    filter(eel_year >= 2010) %>%
-                    mutate(Period = paste(min(eel_year), max(eel_year), sep = "-"),
-                      n_suma = length(suma[!is.na(suma)]),
-                      n_sumf = length(sumf[!is.na(sumf)]),
-                      n_sumh = length(sumh[!is.na(sumh)]),
+                    filter(eel_year >= 2007 & !is.na(suma)) %>%
+                    mutate(Period_suma = paste(min(eel_year), max(eel_year), sep = "-"),
+                      n_suma = length(suma),
                       suma_initial = round(suma[which.min(eel_year)], 3),
                       suma_current = round(suma[which.max(eel_year)], 3),
-                      Delta_suma = suma[which.max(eel_year)] - suma[which.min(eel_year)],
-                      Delta_sumf = sumf[which.max(eel_year)] - sumf[which.min(eel_year)],
-                      Delta_sumh = sumh[which.max(eel_year)] - sumh[which.min(eel_year)]) %>%
+                      Delta_suma = suma[which.max(eel_year)] - suma[which.min(eel_year)]) %>%
                     filter(eel_year == max(eel_year) | eel_year == min(eel_year)) %>%
-                    select(eel_emu_nameshort, Period, suma_initial, suma_current,  n_suma, n_sumf, n_sumh, Delta_suma, Delta_sumf, Delta_sumh) %>%
+                    select(eel_emu_nameshort, Period_suma, suma_initial, suma_current,  n_suma, Delta_suma) %>%
                     unique() %>%
                     ungroup() %>%
                     arrange(eel_emu_nameshort) %>%
@@ -833,8 +883,22 @@ Kendall_mort_tab <- indicator %>%
                       p_suma = round(p_suma, 3),
                       Tau_suma = round(Tau_suma, 3),
                       Denominator_suma = round(Denominator_suma, 0),
-                      VarScore_suma = round(VarScore_suma, 3)) %>%
-                  left_join(Kendall_sumf, by = "eel_emu_nameshort") %>%
+                      VarScore_suma = round(VarScore_suma, 3)) 
+
+Kendall_mort_tab_f <- indicator %>%
+                    group_by(eel_emu_nameshort) %>%
+                    filter(eel_year >= 2007 & !is.na(sumf)) %>%
+                    mutate(Period_sumf = paste(min(eel_year), max(eel_year), sep = "-"),
+                      n_sumf = length(sumf),
+                      sumf_initial = round(sumf[which.min(eel_year)], 3),
+                      sumf_current = round(sumf[which.max(eel_year)], 3),
+                      Delta_sumf = sumf[which.max(eel_year)] - sumf[which.min(eel_year)]) %>%
+                    filter(eel_year == max(eel_year) | eel_year == min(eel_year)) %>%
+                    select(eel_emu_nameshort, Period_sumf, sumf_initial, sumf_current,  n_sumf, Delta_sumf) %>%
+                    unique() %>%
+                    ungroup() %>%
+                    arrange(eel_emu_nameshort) %>%
+                    left_join(Kendall_sumf, by = "eel_emu_nameshort") %>%
                     rename(p_sumf = sl,
                       Tau_sumf = tau,
                       Denominator_sumf = D,
@@ -844,8 +908,22 @@ Kendall_mort_tab <- indicator %>%
                       p_sumf = round(p_sumf, 3),
                       Tau_sumf = round(Tau_sumf, 3),
                       Denominator_sumf = round(Denominator_sumf, 0),
-                      VarScore_sumf = round(VarScore_sumf, 3)) %>% 
-                  left_join(Kendall_sumh, by = "eel_emu_nameshort") %>%
+                      VarScore_sumf = round(VarScore_sumf, 3))
+
+Kendall_mort_tab_h <- indicator %>%
+                    group_by(eel_emu_nameshort) %>%
+                    filter(eel_year >= 2007 & !is.na(sumh)) %>%
+                    mutate(Period_sumh = paste(min(eel_year), max(eel_year), sep = "-"),
+                      n_sumh = length(sumh),
+                      sumh_initial = round(sumh[which.min(eel_year)], 3),
+                      sumh_current = round(sumh[which.max(eel_year)], 3),
+                      Delta_sumh = sumh[which.max(eel_year)] - sumh[which.min(eel_year)]) %>%
+                    filter(eel_year == max(eel_year) | eel_year == min(eel_year)) %>%
+                    select(eel_emu_nameshort, Period_sumh, sumh_initial, sumh_current,  n_sumh, Delta_sumh) %>%
+                    unique() %>%
+                    ungroup() %>%
+                    arrange(eel_emu_nameshort) %>%
+                    left_join(Kendall_sumh, by = "eel_emu_nameshort") %>%
                     rename(p_sumh = sl,
                       Tau_sumh = tau,
                       Denominator_sumh = D,
@@ -855,26 +933,857 @@ Kendall_mort_tab <- indicator %>%
                       p_sumh = round(p_sumh, 3),
                       Tau_sumh = round(Tau_sumh, 3),
                       Denominator_sumh = round(Denominator_sumh, 0),
-                      VarScore_sumh = round(VarScore_sumh, 3)) %>% 
-                      filter_at(vars(Delta_suma, Delta_sumf, Delta_sumh, Tau_suma, Tau_sumf, Tau_sumh), any_vars(!is.na(.))) 
+                      VarScore_sumh = round(VarScore_sumh, 3))
 
 
-flextable(Kendall_mort_tab %>%
-            rename(EMU = eel_emu_nameshort) %>%
-            mutate(Tau_suma = ifelse(p_suma <= 0.1, 
-                            ifelse(p_suma <= 0.05, paste(Tau_suma, "**"), paste(Tau_suma, "*")), as.character(Tau_suma)))  %>%
-            mutate(Tau_sumf = ifelse(p_sumf <= 0.1,
-                               ifelse(p_sumf <= 0.05, paste(Tau_sumf, "**"), paste(Tau_sumf, "*")), as.character(Tau_sumf)))  %>%
-            mutate(Tau_sumh = ifelse(p_sumh <= 0.1,
-                               ifelse(p_sumh <= 0.05, paste(Tau_sumh, "**"), paste(Tau_sumh, "*")), as.character(Tau_sumh)))  %>%
-            select(EMU, Period, suma_initial, suma_current, n_suma, n_sumf, n_sumh, 
-                   Delta_suma, Delta_sumf, Delta_sumh, Tau_suma, Tau_sumf, Tau_sumh) %>%
-            mutate_all(~ifelse(is.nan(.), NA, .))) %>%
-            autofit()
+Kendall_table <- as.data.frame(unique(indicator$eel_emu_nameshort)) %>%
+  rename(eel_emu_nameshort = "unique(indicator$eel_emu_nameshort)") %>%
+  left_join(Kendall_b0_tab %>% select(eel_emu_nameshort, Period_b0, n_b0, Esc_perc_b0_initial, Esc_perc_b0_current, Delta_b0, Tau_b0, p_b0), by = "eel_emu_nameshort") %>%
+  left_join(Kendall_b0_adj_tab %>% select(eel_emu_nameshort, Period_b0_adj, n_b0_adj, Esc_perc_b0_adj_initial, Esc_perc_b0_adj_current, Delta_b0_adj, Tau_b0_adj, p_b0_adj), by = "eel_emu_nameshort") %>%
+  left_join(Kendall_mort_tab_a %>% select(eel_emu_nameshort, Period_suma, suma_initial, suma_current, n_suma, Delta_suma, Tau_suma, p_suma), by = "eel_emu_nameshort") %>%
+  left_join(Kendall_mort_tab_f %>% select(eel_emu_nameshort, Period_sumf, sumf_initial, sumf_current, n_sumf, Delta_sumf, Tau_sumf, p_sumf), by = "eel_emu_nameshort") %>%         
+  left_join(Kendall_mort_tab_h %>% select(eel_emu_nameshort, Period_sumh, sumh_initial, sumh_current, n_sumh, Delta_sumh, Tau_sumh, p_sumh), by = "eel_emu_nameshort") %>%
+  arrange(eel_emu_nameshort)
+  #filter_at(vars(Delta_suma, Delta_sumf, Delta_sumh, Tau_suma, Tau_sumf, Tau_sumh), any_vars(!is.na(.)))
+
+
 
 ```
 
+\
+\
+
+## Biomass statistics
+
+Time trend analyses are carried out on the ratio of Bcurrent/B0 and Bcurrent/B0_adjusted - as indicated by suffixes.\
+B0_adjusted accounts for the fact that while B0, by definition, is a fixed value, Bcurrent partly depends on natural recruitment. The ratio Bcurrent/B0 will thus not accurately reflect the influence of continental factors on escapement biomass (most importantly effects of management measures) but also changes in natural recruitment. B0_adjusted incorporates changes in natural recruitment, therefore canceling out effects of natural recruitment on Bcurrent and removing the bias. Since a multitude of different methods and models is used by countries to calculate biomass indicators a general approximation for the adjustment of B0 was derived from WGEEL recruitment index by... _SENTENCE OR TWO FROM HILAIRE_   
+
+The following restraints were defined for trend analyses:   
+1. Only values after 2010 (Implementation of Eel regulation) were considered\
+2. Time Series need to have at least 5 observations
+
+Delta gives the difference between the initial (2007) and current (last year reported) ratio of either Bcurrent/Bo or Bcurrent/B0_adjusted - as indicated by suffixes. The value thus indicates a quantitative measure of the change in biomass whereas Tau gives a qualitative estimate on whether the trend is positive/negative and significant (also see table footnote).
+
+```{r KtableB0}
+
+flextable(Kendall_table %>%
+            rename(EMU = eel_emu_nameshort) %>%
+            mutate(Tau_b0 = ifelse(p_b0 <= 0.1, 
+                            ifelse(p_b0 <= 0.05, paste(Tau_b0, "**"), paste(Tau_b0, "*")), as.character(Tau_b0)))  %>%
+            select(EMU, Period_b0, n_b0, Esc_perc_b0_initial, Esc_perc_b0_current, Delta_b0, Tau_b0) %>%
+            mutate_all(~ifelse(is.nan(.), NA, .)) %>%
+            filter_at(vars(n_b0,  Esc_perc_b0_initial, Esc_perc_b0_current, Delta_b0, Tau_b0), any_vars(!is.na(.)))) %>%
+  set_header_labels(Period_b0 = "Period",
+                    n_b0 = "n",
+                    Esc_perc_b0_initial = "Bcurrent/B0",
+                    Esc_perc_b0_current = "Bcurrent/B0",
+                    Delta_b0 = "\u0394 Bcurrent/B0",
+                    Tau_b0 = "\u03C4 B0") %>%
+            autofit()
+```
 
 [*] indicates p > 0.1\
 [**] indicates p > 0.05
 
+
+```{r KtableBB0_adj}
+
+flextable(Kendall_table %>%
+            rename(EMU = eel_emu_nameshort) %>%
+            mutate(Tau_b0_adj = ifelse(p_b0_adj <= 0.1,
+                               ifelse(p_b0_adj <= 0.05, paste(Tau_b0_adj, "**"), paste(Tau_b0_adj, "*")), as.character(Tau_b0_adj)))  %>%
+            select(EMU, Period_b0_adj, n_b0_adj, Esc_perc_b0_adj_initial, Esc_perc_b0_adj_current, Delta_b0_adj, Tau_b0_adj) %>%
+            mutate_all(~ifelse(is.nan(.), NA, .)) %>%
+            filter_at(vars(n_b0_adj, Esc_perc_b0_adj_initial, Esc_perc_b0_adj_current, Delta_b0_adj, Tau_b0_adj), any_vars(!is.na(.)))) %>%
+  set_header_labels(Period_b0_adj = "Period",
+                    n_b0_adj = "n",
+                    Esc_perc_b0_adj_initial = "Bcurrent/B0-adj (initial)",
+                    Esc_perc_b0_adj_current = "Bcurrent/B0-adj (current)",
+                    Delta_b0_adj = "\u0394 Bcurrent/B0-adj",
+                    Tau_b0_adj = "\u03C4 B0-adj") %>%
+            autofit()
+```
+
+[*] indicates p > 0.1\
+[**] indicates p > 0.05
+
+\
+\
+
+## Mortality statistics
+
+Time trend analyses are carried out on the mortalites suma, sumf and sumh - as indicated by suffixes.\ 
+The following restraints were defined for trend analyses:   
+1. Only values after 2010 (Implementation of Eel regulation) were considered\
+2. Time Series need to have at least 5 observations
+
+Delta gives the difference between the initial (2010) and current (latest year reported) suma, sumf or sumh - as indicated by suffixes. The value thus indicates a quantitative measure of the change in mortality, whereas Tau gives a qualitative estimate on whether the trend is positive/negative and significant (also see table footnote).
+
+
+
+*Tab* Results of the Kendall-Test for SumA
+
+```{r Ktablesuma}
+
+flextable(Kendall_table %>%
+            mutate(Tau_suma = ifelse(p_suma <= 0.1, 
+                            ifelse(p_suma <= 0.05, paste(Tau_suma, "**"), paste(Tau_suma, "*")), as.character(Tau_suma)))  %>%
+            select(eel_emu_nameshort, Period_suma, suma_initial, suma_current, n_suma, Delta_suma, Tau_suma) %>%
+            mutate_all(~ifelse(is.nan(.), NA, .)) %>%
+            relocate(n_suma, .after = Period_suma) %>%
+            filter_at(vars(suma_initial, suma_current, n_suma, Delta_suma, Tau_suma), any_vars(!is.na(.)))) %>%
+            set_header_labels(eel_emu_nameshort = "EMU",
+                              Period_suma = "Period",
+                              suma_initial = "\u03A3A (initial)",
+                              suma_current = "\u03A3A (current)",
+                              n_suma = "n",
+                              Delta_suma = "\u0394 \u03A3A",
+                              Tau_suma = "\u03C4 \u03A3A") %>%
+            autofit()
+```
+
+\
+\
+*Tab* Results of the Kendall-Test for SumF
+
+```{r Ktablesumf}
+flextable(Kendall_table %>%
+            mutate(Tau_sumf = ifelse(p_sumf <= 0.1, 
+                            ifelse(p_sumf <= 0.05, paste(Tau_sumf, "**"), paste(Tau_sumf, "*")), as.character(Tau_sumf)))  %>%
+            select(eel_emu_nameshort, Period_sumf, sumf_initial, sumf_current, n_sumf, Delta_sumf, Tau_sumf) %>%
+            mutate_all(~ifelse(is.nan(.), NA, .)) %>%
+            relocate(n_sumf, .after = Period_sumf) %>%
+            filter_at(vars(sumf_initial, sumf_current, n_sumf, Delta_sumf, Tau_sumf), any_vars(!is.na(.)))) %>%
+            set_header_labels(eel_emu_nameshort = "EMU",
+                              Period_sumf = "Period",
+                              sumf_initial = "\u03A3F (initial)",
+                              sumf_current = "\u03A3F (current)",
+                              n_sumf = "n",
+                              Delta_sumf = "\u0394 \u03A3F",
+                              Tau_sumf = "\u03C4 \u03A3F") %>%
+            autofit()
+```
+
+\
+\
+*Tab* Results of the Kendall-Test for SumH
+
+```{r Ktablesumh}
+flextable(Kendall_table %>%
+            mutate(Tau_sumh = ifelse(p_sumh <= 0.1, 
+                            ifelse(p_sumh <= 0.05, paste(Tau_sumh, "**"), paste(Tau_sumh, "*")), as.character(Tau_sumh)))  %>%
+            select(eel_emu_nameshort, Period_sumh, sumh_initial, sumh_current, n_sumh, Delta_sumh, Tau_sumh) %>%
+            relocate(n_sumh, .after = Period_sumh) %>%
+            mutate_all(~ifelse(is.nan(.), NA, .)) %>%
+            filter_at(vars(sumh_initial, sumh_current, n_sumh, Delta_sumh, Tau_sumh), any_vars(!is.na(.)))) %>%
+            set_header_labels(eel_emu_nameshort = "EMU",
+                              Period_sumh = "Period",
+                              sumh_initial = "\u03A3H (initial)",
+                              sumh_current = "\u03A3H (current)",
+                              n_sumh = "n",
+                              Delta_sumh = "\u0394 \u03A3H",
+                              Tau_sumh = "\u03C4 \u03A3H") %>%
+            autofit()
+```
+
+
+[*] indicates 0.05 < p < 0.1\
+[**] indicates p < 0.05
+
+
+
+# Test for effect of measures
+## Fisher's exact Test
+### Comparing effect between measures
+
+Fisher's exact test for all EMUs where respective measures were implemented. The test is performed on measure type (10 types, but no data for 2 of them) x count of EMUs with an effect / no effect on either SumA, SumF, SumH or bcurr/b0 adjusted (=b0_adj). The result indicates whether an effect on either parameter was independent (=null hypothesis) of the measure type.\
+
+_-_Result for b0 is interesting, eel governance seems to have an effect (tested specifically for this measure it is significant, see below), but overall b0 does not seem to dependend on measure type. Is that because "stochastically this is expected" (at 0.05 one in 20 would show dependence coincidentally, right?) / is the power not good. Not sure it makes sense or I make sense;) ..._
+
+_Need to check if this makes sense, since the EMUs for the different measures are not the same but those where the respective measure was implemented_
+
+```{r Fisher_all}
+
+load("./data_dependencies/Annex15.Rdata")
+
+counts <- res %>% 
+  group_by(emu_name_short) %>%
+  count(measure_type)
+
+measures <- expand.grid(EMU = unique(res$emu_name_short),
+            measure_type = unique(res$measure_type)) %>%
+            left_join(counts, by=c("EMU" = "emu_name_short", "measure_type" = "measure_type")) %>%
+            replace(is.na(.), 0) %>%
+            mutate(binary_measure = ifelse(n == 0 , 0 , 1),
+                   n = NULL) %>%
+            left_join(Kendall_table %>% select(eel_emu_nameshort, p_suma, p_sumf, p_sumh, Tau_suma, Tau_sumf, Tau_sumh), by = c("EMU" = "eel_emu_nameshort")) %>%
+            left_join(Kendall_table %>% select(eel_emu_nameshort, p_b0, p_b0_adj, Tau_b0, Tau_b0_adj), by = c("EMU" = "eel_emu_nameshort")) %>%
+            mutate(sumA = ifelse(p_suma < 0.1 & Tau_suma < 0, 1, 0),
+                   sumF = ifelse(p_sumf < 0.1 & Tau_sumf < 0, 1, 0),
+                   sumH = ifelse(p_sumh < 0.1 & Tau_sumh < 0, 1, 0),
+                   b0 = ifelse(p_b0 < 0.1 & Tau_b0 > 0, 1, 0),
+                   b0_adj = ifelse(p_b0_adj < 0.1 & Tau_b0_adj > 0, 1, 0))
+
+Fisher_sumA <- measures %>%
+  mutate(measure_type = str_replace(measure_type, "Recreational fishery", "Recreational_fishery")) %>%
+  filter(binary_measure == 1) %>%
+  group_by(measure_type, sumA) %>%
+  summarise(effect = n(), .groups = "keep") %>%
+  spread(sumA, effect) %>%
+  rename(effect = "1",
+         no_effect = "0") %>%
+  mutate("<NA>" = NULL) %>%
+  drop_na() %>%
+  mutate(total = sum(effect, no_effect),
+         percentage = effect/total*100) %>%
+  relocate(effect, .after = measure_type)
+
+Fisher_sumF <- measures %>%
+  mutate(measure_type = str_replace(measure_type, "Recreational fishery", "Recreational_fishery")) %>%
+  filter(binary_measure == 1) %>%
+  group_by(measure_type, sumF) %>%
+  summarise(effect = n(), .groups = "keep") %>%
+  spread(sumF, effect) %>%
+  rename(effect = "1",
+         no_effect = "0") %>%
+  mutate("<NA>" = NULL) %>%
+  drop_na() %>%
+  mutate(total = sum(effect, no_effect),
+         percentage = effect/total*100) %>%
+  relocate(effect, .after = measure_type)
+
+Fisher_sumH <- measures %>%
+  mutate(measure_type = str_replace(measure_type, "Recreational fishery", "Recreational_fishery")) %>%
+  filter(binary_measure == 1) %>%
+  group_by(measure_type, sumH) %>%
+  summarise(effect = n(), .groups = "keep") %>%
+  spread(sumH, effect) %>%
+  rename(effect = "1",
+         no_effect = "0") %>%
+  mutate("<NA>" = NULL) %>%
+  drop_na() %>%
+  mutate(total = sum(effect, no_effect),
+         percentage = effect/total*100) %>%
+  relocate(effect, .after = measure_type)
+
+Fisher_b0_adj <- measures %>%
+  mutate(measure_type = str_replace(measure_type, "Recreational fishery", "Recreational_fishery")) %>%
+  filter(binary_measure == 1) %>%
+  group_by(measure_type, b0_adj) %>%
+  summarise(effect = n(), .groups = "keep") %>%
+  spread(b0_adj, effect) %>%
+  rename(effect = "1",
+         no_effect = "0") %>%
+  mutate("<NA>" = NULL) %>%
+  drop_na() %>%
+  mutate(total = sum(effect, no_effect),
+         percentage = effect/total*100) %>%
+  relocate(effect, .after = measure_type)
+
+flextable(Fisher_sumA) %>% autofit() %>% set_caption(caption = paste("sumA, p =", round((fisher.test(Fisher_sumA[,c(2,3)])$p.value), 3)))
+flextable(Fisher_sumF) %>% autofit() %>% set_caption(caption = paste("sumF, p =", round((fisher.test(Fisher_sumF[,c(2,3)])$p.value), 3)))
+flextable(Fisher_sumH) %>% autofit() %>% set_caption(caption = paste("sumH, p =", round((fisher.test(Fisher_sumH[,c(2,3)])$p.value), 3)))
+flextable(Fisher_b0_adj) %>% autofit() %>% set_caption(caption = paste("b0 adjusted, p =", round((fisher.test(Fisher_b0_adj[,c(2,3)])$p.value), 3)))
+
+```
+
+
+
+### Comparing effect per measure (implemented vs not implemented)
+
+Fishers exact test is performed on a 2x2 matrix per measure, i.e. count of EMUs wher measure is implemented / not implemented x count of EMus with an effect / no effect on either SumA, SumF, SumH or bcurr/b0 adjusted (=b0_adj). The test indicates whether an effect on either parameter was independent (= null hypothesis) of the implementation of the respective measure type. 
+
+```{r Fisher_by_measure}
+
+fisher_sumA <- measures %>% 
+                     group_by(measure_type, binary_measure, sumA) %>%
+                     summarise(value = n()) %>%
+                     mutate(binary_measure = str_replace(binary_measure, "0", "not_implemented"),
+                            binary_measure = str_replace(binary_measure, "1", "implemented")) %>%
+                     drop_na() %>%
+                     mutate(indicator = paste(binary_measure, sumA, sep = "_")) %>%
+                     ungroup() %>%
+                     select(-binary_measure, - sumA) %>%
+                     spread(indicator, value) %>%
+                     drop_na()
+ 
+fisher_sumA$p_value <- apply(fisher_sumA, 1 ,function(x) {
+                                        tbl <- matrix(as.numeric(x[2:5]), ncol=2, byrow=T)
+                                        fisher.test(tbl)$p.value
+                                        })
+
+######################################
+
+fisher_sumF <- measures %>% 
+                     group_by(measure_type, binary_measure, sumF) %>%
+                     summarise(value = n()) %>%
+                     mutate(binary_measure = str_replace(binary_measure, "0", "not_implemented"),
+                            binary_measure = str_replace(binary_measure, "1", "implemented")) %>%
+                     drop_na() %>%
+                     mutate(indicator = paste(binary_measure, sumF, sep = "_")) %>%
+                     ungroup() %>%
+                     select(-binary_measure, - sumF) %>%
+                     spread(indicator, value) %>%
+                     drop_na()
+ 
+fisher_sumF$p_value <- apply(fisher_sumF, 1 ,function(x) {
+                                        tbl <- matrix(as.numeric(x[2:5]), ncol=2, byrow=T)
+                                        fisher.test(tbl)$p.value
+                                        })
+
+######################################
+                                        
+fisher_sumH <- measures %>% 
+                     group_by(measure_type, binary_measure, sumH) %>%
+                     summarise(value = n()) %>%
+                     mutate(binary_measure = str_replace(binary_measure, "0", "not_implemented"),
+                            binary_measure = str_replace(binary_measure, "1", "implemented")) %>%
+                     drop_na() %>%
+                     mutate(indicator = paste(binary_measure, sumH, sep = "_")) %>%
+                     ungroup() %>%
+                     select(-binary_measure, - sumH) %>%
+                     spread(indicator, value) %>%
+                     drop_na()
+ 
+fisher_sumH$p_value <- apply(fisher_sumH, 1 ,function(x) {
+                                        tbl <- matrix(as.numeric(x[2:5]), ncol=2, byrow=T)
+                                        fisher.test(tbl)$p.value
+                                        })
+
+######################################  
+
+fisher_b0_adj <- measures %>% 
+                     group_by(measure_type, binary_measure, b0_adj) %>%
+                     summarise(value = n()) %>%
+                     mutate(binary_measure = str_replace(binary_measure, "0", "not_implemented"),
+                            binary_measure = str_replace(binary_measure, "1", "implemented")) %>%
+                     drop_na() %>%
+                     mutate(indicator = paste(binary_measure, b0_adj, sep = "_")) %>%
+                     ungroup() %>%
+                     select(-binary_measure, - b0_adj) %>%
+                     spread(indicator, value) %>%
+                     drop_na()
+ 
+fisher_b0_adj$p_value <- apply(fisher_b0_adj, 1 ,function(x) {
+                                        tbl <- matrix(as.numeric(x[2:5]), ncol=2, byrow=T)
+                                        fisher.test(tbl)$p.value
+                                        })
+
+flextable(fisher_sumA) %>% autofit() %>% set_caption(caption = "\u03A3A") %>%
+  set_header_labels(implemented_0 = "implemented/no effect",
+                    implemented_1 = "implemented/effect",
+                    not_implemented_0 = "not implemented/no effect",
+                    not_implemented_1 = "not implemented/effect")
+
+flextable(fisher_sumF) %>% autofit() %>% set_caption(caption = "\u03A3F") %>%
+  set_header_labels(implemented_0 = "implemented/no effect",
+                    implemented_1 = "implemented/effect",
+                    not_implemented_0 = "not implemented/no effect",
+                    not_implemented_1 = "not implemented/effect")
+
+flextable(fisher_sumH) %>% autofit() %>% set_caption(caption = "\u03A3H") %>%
+  set_header_labels(implemented_0 = "implemented/no effect",
+                    implemented_1 = "implemented/effect",
+                    not_implemented_0 = "not implemented/no effect",
+                    not_implemented_1 = "not implemented/effect")
+
+flextable(fisher_b0_adj) %>% autofit() %>% set_caption(caption = "b0 adj") %>%
+  set_header_labels(implemented_0 = "implemented/no effect",
+                    implemented_1 = "implemented/effect",
+                    not_implemented_0 = "not implemented/no effect",
+                    not_implemented_1 = "not implemented/effect")
+
+```
+
+
+
+## Logistic regression
+### Relation SigA and Bcurr
+
+```{r delta_Bcurr_vs_sigA_graph}
+
+require(lme4)
+<<<<<<< HEAD
+delta <- Kendall_table %>%
+                select(eel_emu_nameshort, Period_suma, suma_initial, suma_current, Delta_suma, Tau_b0_adj, p_b0_adj, Period_b0, Period_b0_adj, Tau_b0, p_b0) %>%
+=======
+delta <- Kendall_mort_tab %>%
+                select(eel_emu_nameshort, Period, suma_initial, suma_current, Delta_suma) %>%
+                left_join(Kendall_bio_tab %>% select(eel_emu_nameshort, Tau_b0_adj, p_b0_adj, Period), by = "eel_emu_nameshort") %>%
+>>>>>>> 9a678a502a25a946cec8b2c06e9f74113514182e
+                mutate(binary_b0_adj = ifelse(Tau_b0_adj > 0 & p_b0_adj < 0.1, 1, 0),
+                       binary_b0 = ifelse(Tau_b0 > 0 & p_b0 < 0.1, 1, 0),
+                       test_period_b0 = ifelse(Period_suma != Period_b0, "Period_b0_diff", "OK"),
+                       test_period_b0_adj = ifelse(Period_suma != Period_b0_adj, "Period_b0_adj_diff", "OK"),
+                       Tau_b0_adj = NULL,
+<<<<<<< HEAD
+                       p_b0_adj = NULL,
+                       Tau_b0 = NULL,
+                       p_b0 = NULL) 
+
+#MAYBE ADD WARNING HERE THAT IS DISPLAYD IN THE PRODUCED TABLE/GRAPH IF TIME PERIODS DO NOT MATCH (FOR NON-NA CASES) - IT IS FINE THOUGH FOR THIS ANALYSIS
+
+logit_delta_b0 <- glm(binary_b0 ~ Delta_suma, family=binomial(link="logit"), data = delta)               
+logit_delta_b0_adj <- glm(binary_b0_adj ~ Delta_suma, family=binomial(link="logit"), data = delta)
+logit_delta_b0_adj_1 <- glm(binary_b0_adj ~ Delta_suma, family=binomial(link="logit"), data = delta %>% filter(Delta_suma < 1 & Delta_suma > -1))
+
+new_delta <- expand.grid(Delta_suma = seq(min(delta$Delta_suma[!is.na(delta$Delta_suma)]), max(delta$Delta_suma[!is.na(delta$Delta_suma)]), by =0.1))
+=======
+                       p_b0_adj = NULL) %>%
+                rename(Period = Period.x) %>%
+                mutate(Period.y = NULL) %>%
+                drop_na()
+logit_delta <- glm(binary_b0_adj ~ Delta_suma, family=binomial(link="logit"), data = delta)
+              
+new_delta <- expand.grid(Delta_suma = seq(-2, 2, by =0.1))
+>>>>>>> 9a678a502a25a946cec8b2c06e9f74113514182e
+                         
+
+ggplot(delta, aes(x=Delta_suma, y=binary_b0_adj)) +
+  geom_point(size=0.9)+
+  theme_bw()+
+<<<<<<< HEAD
+  geom_line(data= new_delta, aes(x=Delta_suma, y=predict(logit_delta_b0_adj, type = "response", newdata = new_delta)), size = 0.3)+
+  labs(x = "\u0394 \u03A3A", y = expression("Change in B"["current"]*"/"*"B"["0_adj"]~"(0=no increase, 1=increase)"))
+
+ggplot(delta, aes(x=Delta_suma, y=binary_b0)) +
+  geom_point(size=0.9)+
+  theme_bw()+
+  geom_line(data= new_delta, aes(x=Delta_suma, y=predict(logit_delta_b0, type = "response", newdata = new_delta)), size = 0.3)+
+  labs(x = "\u0394 \u03A3A", y = expression("Change in B"["current"]*"/"*"B"["0"]~"(0=no increase, 1=increase)"))
+```
+
+*Fig* Relation between change in anthropogenic mortalities and whether or not there is a positive trend in the escapement biomass.      
+
+*Tab* Model statistics for Logistic regression of change in Biomass expressed as Bcurrent/B0_adjusted over change in mortalities expressed as Delta sumA (for time period see Kendall table). Values marked with (all) use all available data where estimates of biomass and change in mrtality are available, values marked with (truncated) only use data where Delta SumA was between 1 and -1. 
+
+```{r delta_Bcurr_vs_sigA_table}
+
+
+logit_delta_table <- as.data.frame(summary(logit_delta_b0_adj)$coefficients) %>%
+        mutate(Coefficient = ifelse(row_number() == 1, "Intercept", "\u0394 \u03A3A")) %>%
+        relocate(Coefficient, .before = Estimate) %>%
+        rename_with(.col = 5, ~ "p-value (all)") %>%
+        left_join(as.data.frame(summary(logit_delta_b0_adj_1)$coefficients) %>%
+        mutate(Coefficient = ifelse(row_number() == 1, "Intercept", "\u0394 \u03A3A")) %>%
+        relocate(Coefficient, .before = Estimate) %>%
+        rename_with(.col = 5, ~ "p-value (truncated)"), by = "Coefficient") %>%
+        rename("Estimate (all)" = "Estimate.x",
+               "SE (all)" = "Std. Error.x",
+                "z (all)" = "z value.x",
+               "Estimate (truncated)" = "Estimate.y",
+               "SE (truncated)" = "Std. Error.y",
+                "z (truncated)" = "z value.y",)
+=======
+  geom_line(data= new_delta, aes(x=Delta_suma, y=predict(logit_delta, type = "response", newdata = new_delta)), size = 0.3)+
+  labs(x = "Delta_sumA", y = "Effect on Bcurrent (1 = present, 0 = absent)")
+```
+
+*Fig* Logistic regression of change in Bcurren/B0_adjusted over Delta sumA
+
+*Tab* Model statistics for Logistic regression of change in Bcurrent/B0_adjusted over Delta sumA. (For the time period see Kendall table)
+
+```{r delta_Bcurr_vs_sigA_table}
+logit_delta_table <- as.data.frame(summary(logit_delta)$coefficients) %>%
+        mutate(Coefficient = ifelse(row_number() == 1, "Intercept", "Delta_sumA")) %>%
+        relocate(Coefficient, .before = Estimate)
+>>>>>>> 9a678a502a25a946cec8b2c06e9f74113514182e
+
+flextable(logit_delta_table) %>% autofit()
+
+```
+
+
+### Effect of number of measures on Stock indicators
+
+```{r logit_numbers_prep}
+measures_n <- expand.grid(EMU = unique(res$emu_name_short),
+            measure_type = unique(res$measure_type)) %>%
+            left_join(counts, by=c("EMU" = "emu_name_short", "measure_type" = "measure_type")) %>%
+            replace(is.na(.), 0) %>%
+            left_join(Kendall_table %>% select(eel_emu_nameshort, p_suma, p_sumf, p_sumh, Tau_suma, Tau_sumf, Tau_sumh, p_b0, p_b0_adj, Tau_b0, Tau_b0_adj), by = c("EMU" = "eel_emu_nameshort")) %>%
+            mutate(sumA = ifelse(p_suma < 0.1 & Tau_suma < 0, 1, 0),
+                   sumF = ifelse(p_sumf < 0.1 & Tau_sumf < 0, 1, 0),
+                   sumH = ifelse(p_sumh < 0.1 & Tau_sumh < 0, 1, 0),
+                   b0 = ifelse(p_b0 < 0.1 & Tau_b0 > 0, 1, 0),
+                   b0_adj = ifelse(p_b0_adj < 0.1 & Tau_b0_adj > 0, 1, 0)) %>%
+                   select(EMU, measure_type, n, sumA, sumF, sumH, b0_adj)
+
+logit_measures_n_sumA <- glm(sumA ~ n + measure_type + n:measure_type-1, family=binomial(link="logit"), data = measures_n)
+logit_measures_n_sumF <- glm(sumF ~ n + measure_type + n:measure_type-1, family=binomial(link="logit"), data = measures_n)
+logit_measures_n_sumH <- glm(sumH ~ n + measure_type + n:measure_type-1, family=binomial(link="logit"), data = measures_n)
+logit_measures_n_b0_adj <- glm(b0_adj ~ n + measure_type + n:measure_type-1, family=binomial(link="logit"), data = measures_n)
+
+new_measures_n <- expand.grid(n = seq(0, max(measures_n$n), by =0.5),
+                         measure_type = unique(measures_n$measure_type))
+```
+
+<<<<<<< HEAD
+```{r logit_n_sumA_graph}
+=======
+```{r logit_scores_sumA_graph}
+>>>>>>> 9a678a502a25a946cec8b2c06e9f74113514182e
+ggplot(measures_n, aes(x=n, y=sumA)) +
+  geom_point(aes(col=measure_type), size=0.9)+
+  theme_bw()+
+  geom_line(data = new_measures_n, aes(x=n, y=predict(logit_measures_n_sumA, type = "response", newdata = new_measures_n), col = measure_type), size = 0.3)+
+  labs(x = "number of measures", y = "Effect on SumA (1 = present, 0 = absent)")+
+  theme(legend.position = "none")+
+  facet_wrap(~measure_type)
+```
+
+*Fig* Logistic regression for SumA vs number of measures
+
+*Tab* Table with model statistics for SumA vs number of measures
+
+<<<<<<< HEAD
+```{r logit_n_sumA_table}
+=======
+```{r logit_scores_sumA_table}
+>>>>>>> 9a678a502a25a946cec8b2c06e9f74113514182e
+summary_n_sumA <- as.data.frame(summary(logit_measures_n_sumA)$coefficients) 
+summary_n_sumA$coefficients <- rownames(summary_n_sumA)
+flextable(summary_n_sumA %>% relocate(coefficients, .before = Estimate)) %>% autofit()
+```
+\
+\
+\
+\
+\
+
+
+<<<<<<< HEAD
+```{r logit_n_sumF_graph}
+=======
+```{r logit_scores_sumF_graph}
+>>>>>>> 9a678a502a25a946cec8b2c06e9f74113514182e
+ggplot(measures_n, aes(x=n, y=sumF)) +
+  geom_point(aes(col=measure_type), size=0.9)+
+  theme_bw()+
+  geom_line(data = new_measures_n, aes(x=n, y=predict(logit_measures_n_sumF, type = "response", newdata = new_measures_n), col = measure_type), size = 0.3)+
+  labs(x = "number of measures", y = "Effect on SumF (1 = present, 0 = absent)")+
+  theme(legend.position = "none")+
+  facet_wrap(~measure_type)
+```
+
+*Fig* Logistic regression for SumF vs number of measures
+
+*Tab* Table with model statistics for SumF vs number of measures
+
+<<<<<<< HEAD
+```{r logit_n_sumF_table}
+=======
+```{r logit_scores_sumF_table}
+>>>>>>> 9a678a502a25a946cec8b2c06e9f74113514182e
+summary_n_sumF <- as.data.frame(summary(logit_measures_n_sumF)$coefficients) 
+summary_n_sumF$coefficients <- rownames(summary_n_sumF)
+flextable(summary_n_sumF %>% relocate(coefficients, .before = Estimate)) %>% autofit()
+```
+\
+\
+\
+\
+\
+
+
+<<<<<<< HEAD
+```{r logit_n_sumH_graph}
+=======
+```{r logit_scores_sumH_graph}
+>>>>>>> 9a678a502a25a946cec8b2c06e9f74113514182e
+ggplot(measures_n, aes(x=n, y=sumH)) +
+  geom_point(aes(col=measure_type), size=0.9)+
+  theme_bw()+
+  geom_line(data = new_measures_n, aes(x=n, y=predict(logit_measures_n_sumH, type = "response", newdata = new_measures_n), col = measure_type), size = 0.3)+
+  labs(x = "number of measures", y = "Effect on SumH (1 = present, 0 = absent)")+
+  theme(legend.position = "none")+
+  facet_wrap(~measure_type)
+```
+
+*Fig* Logistic regression for SumH vs number of measures
+
+*Tab* Table with model statistics for SumH vs number of measures
+
+<<<<<<< HEAD
+```{r logit_n_sumH_table}
+=======
+```{r logit_scores_sumH_table}
+>>>>>>> 9a678a502a25a946cec8b2c06e9f74113514182e
+summary_n_sumH <- as.data.frame(summary(logit_measures_n_sumH)$coefficients) 
+summary_n_sumH$coefficients <- rownames(summary_n_sumH)
+flextable(summary_n_sumH %>% relocate(coefficients, .before = Estimate)) %>% autofit()
+```
+\
+\
+\
+\
+\
+
+
+<<<<<<< HEAD
+```{r logit_n_Bcurr_graph}
+=======
+```{r logit_scores_Bcurr_graph}
+>>>>>>> 9a678a502a25a946cec8b2c06e9f74113514182e
+ggplot(measures_n, aes(x=n, y=b0_adj)) +
+  geom_point(aes(col=measure_type), size=0.9)+
+  theme_bw()+
+  geom_line(data = new_measures_n, aes(x=n, y=predict(logit_measures_n_b0_adj, type = "response", newdata = new_measures_n), col = measure_type), size = 0.3)+
+  labs(x = "number of measures", y = "Effect on Bcurr (1 = present, 0 = absent)")+
+  theme(legend.position = "none")+
+  facet_wrap(~measure_type)
+```
+
+*Fig* Logistic regression for Bcurr vs number of measures
+
+*Tab* Table with model statistics for Bcurr vs number of measures
+
+<<<<<<< HEAD
+```{r logit_n_Bcurr_table}
+=======
+```{r logit_scores_Bcurr_table}
+>>>>>>> 9a678a502a25a946cec8b2c06e9f74113514182e
+summary_n_b0_adj <- as.data.frame(summary(logit_measures_n_b0_adj)$coefficients) 
+summary_n_b0_adj$coefficients <- rownames(summary_n_b0_adj)
+flextable(summary_n_b0_adj %>% relocate(coefficients, .before = Estimate)) %>% autofit()
+```
+
+
+
+### Effect of measure scores on stock indicators
+
+```{r logit_scores_prep}
+scores <- res %>%
+  mutate(impact = ifelse(impact == "High", 3, 
+                    ifelse(impact == "Intermediate", 2, 
+                      ifelse(impact == "Low", 1, NA)))) %>%
+  group_by(emu_name_short, measure_type) %>%
+  summarise(score = sum(impact)) %>%
+  drop_na()
+
+measures_scores <- expand.grid(EMU = unique(res$emu_name_short),
+            measure_type = unique(res$measure_type)) %>%
+            left_join(scores, by=c("EMU" = "emu_name_short", "measure_type" = "measure_type")) %>%
+            drop_na() %>%
+            left_join(Kendall_table %>% select(eel_emu_nameshort, p_suma, p_sumf, p_sumh, Tau_suma, Tau_sumf, Tau_sumh, eel_emu_nameshort, p_b0, p_b0_adj, Tau_b0, Tau_b0_adj), by = c("EMU" = "eel_emu_nameshort")) %>%
+            mutate(sumA = ifelse(p_suma < 0.1 & Tau_suma < 0, 1, 0),
+                   sumF = ifelse(p_sumf < 0.1 & Tau_sumf < 0, 1, 0),
+                   sumH = ifelse(p_sumh < 0.1 & Tau_sumh < 0, 1, 0),
+                   b0 = ifelse(p_b0 < 0.1 & Tau_b0 > 0, 1, 0),
+                   b0_adj = ifelse(p_b0_adj < 0.1 & Tau_b0_adj > 0, 1, 0)) %>%
+                   select(EMU, measure_type, score, sumA, sumF, sumH, b0_adj)
+
+measures_scores <- measures_scores[!with(measures_scores, is.na(sumA) & is.na (sumF) & is.na(sumA) & is.na(b0_adj)),]
+
+logit_measures_scores_sumA <- glm(sumA ~ score + measure_type + score:measure_type-1, family=binomial(link="logit"), data = measures_scores)
+logit_measures_scores_sumF <- glm(sumF ~ score + measure_type + score:measure_type-1, family=binomial(link="logit"), data = measures_scores)
+logit_measures_scores_sumH <- glm(sumH ~ score + measure_type + score:measure_type-1, family=binomial(link="logit"), data = measures_scores)
+logit_measures_scores_b0_adj <- glm(b0_adj ~ score + measure_type + score:measure_type-1, family=binomial(link="logit"), data = measures_scores)
+
+new_measures_scores <- expand.grid(score = seq(0, max(measures_scores$score), by =0.5),
+                         measure_type = unique(measures_scores$measure_type)) 
+
+```
+
+<<<<<<< HEAD
+```{r logit_scores_sumA_graph}
+=======
+```{r logit_sumA_graph}
+>>>>>>> 9a678a502a25a946cec8b2c06e9f74113514182e
+ggplot(measures_scores, aes(x=score, y=sumA)) +
+  geom_point(aes(col=measure_type), size=0.9)+
+  theme_bw()+
+  geom_line(data = new_measures_scores, aes(x=score, y=predict(logit_measures_scores_sumA, type = "response", newdata = new_measures_scores), col = measure_type), size = 0.3)+
+  labs(x = "number of measures", y = "Effect on SumA (1 = present, 0 = absent)")+
+  theme(legend.position = "none")+
+  facet_wrap(~measure_type)
+```
+
+*Fig* Logistic regression for SumA vs score of measures
+
+*Tab* Table with model statistics for SumA vs score of measures
+
+<<<<<<< HEAD
+```{r logit_scores_sumA_table}
+=======
+```{r logit_sumA_table}
+>>>>>>> 9a678a502a25a946cec8b2c06e9f74113514182e
+summary_scores_sumA <- as.data.frame(summary(logit_measures_scores_sumA)$coefficients) 
+summary_scores_sumA$coefficients <- rownames(summary_scores_sumA)
+flextable(summary_scores_sumA %>% relocate(coefficients, .before = Estimate)) %>% autofit()
+```
+\
+\
+\
+\
+\
+
+
+<<<<<<< HEAD
+```{r logit_scores_sumF_graph}
+=======
+```{r logit_sumF_graph}
+>>>>>>> 9a678a502a25a946cec8b2c06e9f74113514182e
+ggplot(measures_scores, aes(x=score, y=sumF)) +
+  geom_point(aes(col=measure_type), size=0.9)+
+  theme_bw()+
+  geom_line(data = new_measures_scores, aes(x=score, y=predict(logit_measures_scores_sumF, type = "response", newdata = new_measures_scores), col = measure_type), size = 0.3)+
+  labs(x = "number of measures", y = "Effect on SumF (1 = present, 0 = absent)")+
+  theme(legend.position = "none")+
+  facet_wrap(~measure_type)
+```
+
+*Fig* Logistic regression for SumF vs score of measures
+
+*Tab* Table with model statistics for SumF vs score of measures
+
+<<<<<<< HEAD
+```{r loogit_scores_sumF_table}
+=======
+```{r loogit_sumF_table}
+>>>>>>> 9a678a502a25a946cec8b2c06e9f74113514182e
+summary_scores_sumF <- as.data.frame(summary(logit_measures_scores_sumF)$coefficients) 
+summary_scores_sumF$coefficients <- rownames(summary_scores_sumF)
+flextable(summary_scores_sumF %>% relocate(coefficients, .before = Estimate)) %>% autofit()
+```
+\
+\
+\
+\
+\
+
+
+<<<<<<< HEAD
+```{r logit_scores_sumH_graph}
+=======
+```{r logit_sumH_graph}
+>>>>>>> 9a678a502a25a946cec8b2c06e9f74113514182e
+ggplot(measures_scores, aes(x=score, y=sumH)) +
+  geom_point(aes(col=measure_type), size=0.9)+
+  theme_bw()+
+  geom_line(data = new_measures_scores, aes(x=score, y=predict(logit_measures_scores_sumH, type = "response", newdata = new_measures_scores), col = measure_type), size = 0.3)+
+  labs(x = "number of measures", y = "Effect on SumH (1 = present, 0 = absent)")+
+  theme(legend.position = "none")+
+  facet_wrap(~measure_type)
+```
+
+*Fig* Logistic regression for SumH vs score of measures
+
+*Tab* Table with model statistics for SumH vs score of measures
+
+<<<<<<< HEAD
+```{r logit_scores_sumH_table}
+=======
+```{r logit_sumH_table}
+>>>>>>> 9a678a502a25a946cec8b2c06e9f74113514182e
+summary_scores_sumH <- as.data.frame(summary(logit_measures_scores_sumH)$coefficients) 
+summary_scores_sumH$coefficients <- rownames(summary_scores_sumH)
+flextable(summary_scores_sumH %>% relocate(coefficients, .before = Estimate)) %>% autofit()
+```
+\
+\
+\
+\
+\
+<<<<<<< HEAD
+
+
+```{r logit__scores_bcurr_by_b0adj_graph}
+test <- measures_scores %>% filter(measure_type != "Eel_governance")
+
+ggplot(measures_scores %>% filter(measure_type != "Eel_governance"), aes(x=score, y=b0_adj)) +
+  geom_point(aes(col=measure_type), size=0.9)+
+  theme_bw()+
+  geom_line(data = new_measures_scores %>% filter(measure_type != "Eel_governance"), aes(x=score, y=predict(logit_measures_scores_b0_adj, type = "response", newdata = new_measures_scores %>% filter(measure_type != "Eel_governance")), col = measure_type), size = 0.3)+
+  labs(x = "number of measures", y = "Effect on Bcurr (1 = present, 0 = absent)")+
+  theme(legend.position = "none")+
+ facet_wrap(~measure_type)
+```
+
+*Fig* Logistic regression for Bcurr vs score of measures
+
+*Tab* Table with model statistics for Bcurr vs score of measures\
+_careful here, I am not sure about the interpretation of "Eel_governance", since twe have EMUs with governance but no Bcurr effect measured anywhere_
+
+```{r logit__scores_bcurr_by_b0adj_table}
+summary_scores_b0_adj <- as.data.frame(summary(logit_measures_scores_b0_adj)$coefficients) 
+summary_scores_b0_adj$coefficients <- rownames(summary_scores_sumH)
+flextable(summary_scores_b0_adj %>% relocate(coefficients, .before = Estimate)) %>% autofit()
+```
+
+## Effect of measures vs sources of mortality
+
+
+
+```{r measures_vs_mortalities}
+
+meas_mort <- indicator %>% filter(eel_year >= 2007) %>%
+                group_by(eel_emu_nameshort) %>%
+                filter(eel_year == min(eel_year) | eel_year == max(eel_year)) %>%
+                mutate(start_year = min(eel_year),
+                       eel_year = ifelse(eel_year == start_year, "initial", "final"),
+                       start_year = start_year) %>%
+                ungroup() %>%
+                filter(start_year <= 2011) %>%
+                select(start_year, eel_year, suma, sumf, sumh, eel_emu_nameshort, eel_cou_code) %>%
+                gather(key = "mortality_indicator", value = "value", c(suma, sumh, sumf)) %>%
+                mutate(mortality_indicator = paste(mortality_indicator, eel_year, sep = "_"),
+                       eel_year = NULL, 
+                       start_year = as.factor(start_year)) %>%
+                spread(mortality_indicator, value) %>%
+                mutate(delta_sumf = sumf_final - sumf_initial,
+                       delta_sumh = sumh_final - sumh_initial, 
+                       delta_suma = suma_final - suma_initial)
+
+require(ggrepel)
+
+ggplot(meas_mort, aes(x=suma_initial, y=delta_suma)) +
+  geom_point(size = 1) + 
+   geom_text_repel(aes(label = eel_emu_nameshort, col = start_year), size = 3.2)+ 
+  theme_bw()+
+  labs(x = "Initial \u03A3A", y = "\u0394 \u03A3A")
+
+ggplot(meas_mort, aes(x=sumf_initial, y=delta_sumf)) + 
+  geom_point(size = 1.5) + 
+  geom_text_repel(aes(label = eel_emu_nameshort, col = start_year), size = 3.2)+
+  theme_bw()+
+  labs(x = "Initial \u03A3F", y = "\u0394 \u03A3F")
+  
+ggplot(meas_mort, aes(x=sumh_initial, y=delta_sumh)) + 
+  geom_point(size = 1) +
+  geom_text_repel(aes(label = eel_emu_nameshort, col = start_year), size = 3.2)+
+  theme_bw()+
+  labs(x = "Initial \u03A3H", y = "\u0394 \u03A3H")
+
+=======
+>>>>>>> 9a678a502a25a946cec8b2c06e9f74113514182e
+
+
+```{r logit_bcurr_by_b0adj_graph}
+test <- measures_scores %>% filter(measure_type != "Eel_governance")
+
+ggplot(measures_scores %>% filter(measure_type != "Eel_governance"), aes(x=score, y=b0_adj)) +
+  geom_point(aes(col=measure_type), size=0.9)+
+  theme_bw()+
+  geom_line(data = new_measures_scores %>% filter(measure_type != "Eel_governance"), aes(x=score, y=predict(logit_measures_scores_b0_adj, type = "response", newdata = new_measures_scores %>% filter(measure_type != "Eel_governance")), col = measure_type), size = 0.3)+
+  labs(x = "number of measures", y = "Effect on Bcurr (1 = present, 0 = absent)")+
+  theme(legend.position = "none")+
+ facet_wrap(~measure_type)
+```
+
+<<<<<<< HEAD
+*Fig* Relation of the change in mortality to the initial mortality levels. The initial mortality is defined as the earliest estimate that was reported after the year 2007 (but no later than 2011, initial year indicated by colour) to best representat pre-EMP levels. However, for some EMUs no pre-EMP estimates were reported and thus rather reflect mortality levels shortly after implementation of EMPs. The latest most recent value for mortality was used to calculate delta, see Tab xx.  
+EMUs where only values after 2011 were reported are not shown.  
+=======
+*Fig* Logistic regression for Bcurr vs score of measures
+
+*Tab* Table with model statistics for Bcurr vs score of measures\
+_careful here, I am not sure about the interpretation of "Eel_governance", since twe have EMUs with governance but no Bcurr effect measured anywhere_
+
+```{r}
+summary_scores_b0_adj <- as.data.frame(summary(logit_measures_scores_b0_adj)$coefficients) 
+summary_scores_b0_adj$coefficients <- rownames(summary_scores_sumH)
+flextable(summary_scores_b0_adj %>% relocate(coefficients, .before = Estimate)) %>% autofit()
+```
+
+>>>>>>> 9a678a502a25a946cec8b2c06e9f74113514182e

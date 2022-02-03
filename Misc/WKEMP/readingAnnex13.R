@@ -328,6 +328,7 @@ read_annex13 <- function(filename){
 #setwd("/tmp/Annex13/")
 filenames=list.files(str_c(datawd))
 filenames <- filenames[grep("xlsx", filenames)] # only extract xlsx
+filenames <- filenames[!grepl("~", filenames)] 
 annexes13_table = do.call(rbind.data.frame,lapply(filenames, function(f) read_annex13(f)))
 annexes13_method <- annexes13_table[,1:95]
 annexes13_traceability <- annexes13_table[,c(1,2,96:107)]

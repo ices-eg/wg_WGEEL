@@ -72,7 +72,7 @@ data_wide <- data_wide %>%
   arrange(eel_year)%>%
   pivot_wider(id_cols=c(eel_emu_nameshort,eel_year),names_from=eel_year,values_from=eel_value)
 
-#then we scaled time series (substract the mean and divide by standard deviation)
+#then we scale time series (substract the mean and divide by standard deviation)
 data_wide[,-1] <- sweep(data_wide[,-1],1,rowMeans(data_wide[,-1],na.rm=TRUE),"-")
 data_wide[,-1] <- sweep(data_wide[,-1],1,apply(data_wide[,-1],1,sd,na.rm=TRUE),"/") 
 return(data_wide)
@@ -326,11 +326,11 @@ sumh <- sumh %>%
 
 
 
-```{r DFA, echo=FALSE}
+```{r DFA, echo=FALSE, eval=FALSE}
 
-run_dfa = FALSE #Set to TRUE if you want to run DFA, set to FALSE if you want to load data from a previous run instead
+#set eval=TRUE if you want to run  to run DFA, set to FALSE if you want to load data from a previous run instead
 
-if(run_dfa == TRUE){
+
 
 n_clusters = 4 #Number of clusters for parallel processing  
 logtransform = FALSE #Optional logtransform of data
@@ -561,9 +561,6 @@ results_sumh=do.call(rbind.data.frame,lapply(model_comparisons_sumh,function(x) 
 )
 #  save.image(file="./dfa.rdata")
 save(results_sumh, model_comparisons_sumh, sumh_wide, file="./dfa_sumh.rdata")
-stopCluster(cl)
-}
-
 
 
 
@@ -571,20 +568,26 @@ stopCluster(cl)
 ```
 
 # Introduction
-For each of the different biomass (Bbest and Bcurrent) and mortality (sumA, sumF, and sumH) indicators, their time series were analysed with a dynamic factor analysis (DFA) to identify common trends among EMUs. These common trends could then be studied to see if they show similarities to the common trends found among the yellow and silver eel time series as analysed in WGEEL 2021, or if they show distint turning points around the implimention of national EMPs.
+For each of the different biomass (Bbest and Bcurrent) and mortality (sumA,
+sumF, and sumH) indicators, their time series were analysed with a dynamic
+factor analysis (DFA) to identify common trends among EMUs. These common trends
+could then be studied to see if they show similarities to the common trends
+found among the yellow and silver eel time series as analysed in WGEEL 2021, or
+if they show distinct turning points around the implimention of national EMPs.
 
 # Methods
-First, for each time series, the data was standardized by subtracting the time series' mean and deviding by the time series' standard deviation.
+First, for each time series, the data was standardized by subtracting the time
+series' mean and dividing by the time series' standard deviation.
 
 The DFA method is fully detailed in [@zuur2003]. The basic idea is to decompose each time series into a weighted sum of a few common trends and a noise factor:
-  $$
+$$
   \begin{aligned}
 Y_{j,t}=\mu_j + \sum_{i=1}^{n} w_{i,j} \cdot X_{i,t} +\epsilon_{j,t} \qquad \mbox{ with } \left \{ \epsilon_{j,t} \right \}  \sim N(0,\Sigma)
 \end{aligned}
 $$
   with $Y_{j, t}$ the value of the series $j$ at time $t$, $\mu_j$ an intercept, $n$ the number of common trends, $w_{i, j}$ the weight of trend $i$ in the series $j$, $X_{i,t}$ the value of trend $i$ at time $t$ and $\epsilon_{j,t}$ a normal noise, potentially correlated between series through the variance-covariance matrix $\Sigma$ . Therefore, $X_{i,t}$ represent the trends common to the series and are modelled as random walks:
   
-  $$
+$$
   \begin{aligned}
 X_{i,t}=X_{i,t-1}+f_{i,t} \qquad \mbox{ with } f_{i,t} \sim N(0,Q)
 \end{aligned}
@@ -632,8 +635,9 @@ trends.bbest$plot
 ```
 
 The factor loadings $w$ are displayed in Table \@ref(fig:tab-loadings-bbest) and Figure  \@ref(fig:fig_seriesloadings-bbest). Following @zuur2003,
-we only focused on loading with absolute values greater than 0.2 to focus on the most important trends and presented on
-a Venn diagram (Figure \@ref(fig:fig-venn-bbest))
+we only focused on loading with absolute values greater than 0.2 get the most
+important trends summarized a Venn diagram (Figure
+\@ref(fig:fig-venn-bbest))
 
 The Venn diagram shows that most EMUs correlate positively with at least one of three estimated trends, suggesting that overall, Bbest has been decreasing, with an increase again for some EMUs in recent years. This matches what would be expected based on glass eel recruitment trends.
 
