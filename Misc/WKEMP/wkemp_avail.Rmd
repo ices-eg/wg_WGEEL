@@ -2,8 +2,16 @@
 title: "Data ailability"
 author: "none"
 date: "02/12/2021"
-output: html_document
+output: 
+  bookdown::word_document2:
+    fig_caption: yes
+    number_sections: yes
+    reference_docx: "../../R/Rmarkdown/ICES_template.docx" 
 ---
+
+
+
+
 
 
 ```{r setup, include=FALSE}
@@ -171,15 +179,11 @@ flextable(effort %>%
                    eel_emu_nameshort,
                    eel_value) %>%
             na.omit() %>%
-            group_by(eel_gear,
-                     eel_emu_nameshort) %>%
-            summarize(minyear=min(eel_year), maxyear=max(eel_year), nb_value=n()) %>%
+            group_by(eel_emu_nameshort) %>%
+            summarize(minyear=min(eel_year), maxyear=max(eel_year), nb_years=n_distinct(eel_year),nb_gears=n_distinct(eel_gear)) %>%
             mutate(range=paste(minyear, maxyear, sep = "-")) %>%
-            select(eel_gear, eel_emu_nameshort, nb_value, range) %>%
-            arrange(eel_emu_nameshort) %>%
-            pivot_wider(names_from=eel_gear, values_from=c(range, nb_value),
-                        names_glue="{eel_gear}_{.value}",
-                        names_sort=TRUE))
+            select(eel_emu_nameshort, range,nb_years,nb_gears) %>%
+            arrange(eel_emu_nameshort))
   
 ```
 

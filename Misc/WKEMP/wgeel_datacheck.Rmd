@@ -64,6 +64,7 @@ tot_landings=dbGetQuery(con,paste0("select eel_value,eel_lfs_code,eel_year from 
   pivot_wider(names_from=eel_lfs_code, values_from=landings)
 
 flextable(landings %>%
+            filter(eel_cou_code %in%eu_cou_codes) %>%
             bind_rows(tot_landings) %>%
             select(eel_cou_code,G,Y,YS,S,AL)) %>%
   colformat_double(digits=1)
@@ -102,11 +103,13 @@ ggplot(st_transform(country_p,crs=3035)) + geom_sf(fill=NA)+theme_bw()+
   geom_point(data=data_avail,aes(x=x,y=y,fill=as.factor(bsummary)),shape=21)+
   scale_fill_viridis_d("Biomass indicators",labels=c("none","one","two","three"))+
   xlab("")+ylab("")
+#ggsave(filename="/tmp/biom.png",width=16/2.54,height=10/2.54,dpi=300)
 
 ggplot(st_transform(country_p,crs=3035)) + geom_sf(fill=NA)+theme_bw()+
   geom_point(data=data_avail,aes(x=x,y=y,fill=as.factor(mortsummary)),shape=21)+
   scale_fill_viridis_d("Mortality indicators",labels=c("none","one","two","three"))+
   xlab("")+ylab("")
+#ggsave(filename="/tmp/mort.png",width=16/2.54,height=10/2.54,dpi=300)
 
 data_avail =data_avail %>% select(emu_nameshort,x,y,bsummary,responded,mortsummary,geometry) %>%
   pivot_longer(cols=ends_with("summary"),names_to="indicator",values_to="nb")
@@ -165,7 +168,8 @@ Values averages from 2018 to 2020 (3 years)
 ## Data 2021
 ### biomass
 ```{r biomassmap}
-indicator <- dbGetQuery(con,"select eel_cou_code,eel_emu_nameshort, avg(b0)b0,avg(bbest)bbest,avg(bcurrent)bcurrent, avg(suma)suma,avg(sumf)sumf,avg(sumh) sumh from datawg.precodata_emu where eel_year>=2018 group by eel_cou_code,eel_emu_nameshort")
+indicator <- dbGetQuery(con,"select eel_cou_code,eel_emu_nameshort, avg(b0)b0,avg(bbest)bbest,avg(bcurrent)bcurrent, avg(suma)suma,avg(sumf)sumf,avg(sumh) sumh from datawg.precodata_emu where eel_year>=2018 group by eel_cou_code,eel_emu_nameshort") %>%
+  mutate(eel_emu_nameshort= ifelse(eel_cou_code=="NL","NL_Neth",eel_emu_nameshort))
 indicator <- merge(emu_c, indicator, by.x="emu_nameshort",by.y="eel_emu_nameshort",all.x=TRUE)
 indicator = st_transform(indicator,crs=3035)
 indicator$x <-st_coordinates(indicator)[,1]
@@ -248,7 +252,8 @@ ggsave(filename="/tmp/maps_biomass.png",width=16/2.54,height=10/2.54)
 
 
 ```{r mortalitymap}
-indicator <- dbGetQuery(con,"select eel_cou_code,eel_emu_nameshort, avg(b0)b0,avg(bbest)bbest,avg(bcurrent)bcurrent, avg(suma)suma,avg(sumf)sumf,avg(sumh) sumh from datawg.precodata_emu where eel_year>=2018 group by eel_cou_code,eel_emu_nameshort")
+indicator <- dbGetQuery(con,"select eel_cou_code,eel_emu_nameshort, avg(b0)b0,avg(bbest)bbest,avg(bcurrent)bcurrent, avg(suma)suma,avg(sumf)sumf,avg(sumh) sumh from datawg.precodata_emu where eel_year>=2018 group by eel_cou_code,eel_emu_nameshort") %>%
+  mutate(eel_emu_nameshort= ifelse(eel_cou_code=="NL","NL_Neth",eel_emu_nameshort))
 indicator <- merge(emu_c, indicator, by.x="emu_nameshort",by.y="eel_emu_nameshort",all.x=TRUE)
 indicator = st_transform(indicator,crs=3035)
 indicator$x <-st_coordinates(indicator)[,1]
@@ -353,7 +358,8 @@ indicator_nr <- mortality_nr %>%
 ### biomass
 ```{r biomassmapold}
 indicator <- dbGetQuery(con,"select eel_cou_code,eel_emu_nameshort, avg(b0)b0,avg(bbest)bbest,avg(bcurrent)bcurrent, avg(suma)suma,avg(sumf)sumf,avg(sumh) sumh from datawg.precodata_emu where eel_year>=2018 group by eel_cou_code,eel_emu_nameshort") %>% bind_rows(indicator_nr) %>%
-  mutate(old=ifelse(is.na(old), FALSE, TRUE))
+  mutate(old=ifelse(is.na(old), FALSE, TRUE)) %>%
+  mutate(eel_emu_nameshort= ifelse(eel_cou_code=="NL","NL_Neth",eel_emu_nameshort))
 indicator <- merge(emu_c, indicator, by.x="emu_nameshort",by.y="eel_emu_nameshort",all.x=TRUE)
 indicator = st_transform(indicator,crs=3035)
 indicator$x <-st_coordinates(indicator)[,1]
@@ -440,7 +446,8 @@ This highlights the likely importance of some EMUs for which no data have been r
 ```{r mortalitymapold}
 indicator <- dbGetQuery(con,"select eel_cou_code,eel_emu_nameshort, avg(b0)b0,avg(bbest)bbest,avg(bcurrent)bcurrent, avg(suma)suma,avg(sumf)sumf,avg(sumh) sumh from datawg.precodata_emu where eel_year>=2018 group by eel_cou_code,eel_emu_nameshort") %>%
   bind_rows(indicator_nr) %>%
-  mutate(old=ifelse(is.na(old), TRUE, FALSE))
+  mutate(old=ifelse(is.na(old), TRUE, FALSE)) %>%
+  mutate(eel_emu_nameshort= ifelse(eel_cou_code=="NL","NL_Neth",eel_emu_nameshort))
 indicator <- merge(emu_c, indicator, by.x="emu_nameshort",by.y="eel_emu_nameshort",all.x=TRUE)
 indicator = st_transform(indicator,crs=3035)
 indicator$x <-st_coordinates(indicator)[,1]
@@ -505,11 +512,11 @@ landings = dbGetQuery(con,paste0("select sum(eel_value) eel_value,eel_cou_code,e
                       and eel_typ_id in (4,6) and eel_qal_id in (0,1,4) and eel_year >=2010
                       group by eel_cou_code,eel_lfs_code,eel_year,eel_emu_nameshort")) 
 
-ggplot(landings,aes(x=eel_year,y=eel_value/1e3))+geom_line(aes(col=eel_emu_nameshort), show.legend=FALSE)+
+ggplot(landings,aes(x=eel_year,y=eel_value))+geom_line(aes(col=eel_emu_nameshort), show.legend=FALSE)+
   scale_y_log10()+
   facet_grid(eel_lfs_code~eel_cou_code)+ylab("landings (t)")+xlab("")
 
-
+ggsave("/tmp/landings.png",height=12/2.54,width=16/2.54,dpi=300)
 ```
 
 Landings are not decreasing, this suggests that situation has likely not improved in these countries, especially in France and Italy in which fishery is thought to be predominant in anthropogenic mortality.
@@ -542,7 +549,7 @@ indicator %>%
             mean_bbest_b0=mean(bbest/b0))
 ```
 
-For some SE_Inla, this is likely related to using a B0 that is coming from the late 80s situation. For EE, it seems rather due to the inclusing of restocking in Bbest (i.e. overestimation of Bbest). For others, B0 is likely underestimated.
+For some SE_Inla, this is likely related to using a B0 that is coming from the late 80s situation. For EE, it seems rather due to the inclusion of restocking in Bbest (i.e. overestimation of Bbest). For others, B0 is likely underestimated.
 
 
 
@@ -605,7 +612,7 @@ emu_sea= emu_p %>%
 
 mor_wise = merge(emu_sea %>% st_drop_geometry(),mor_wise)
 mor_wise <- mor_wise %>% mutate(cohort_wise=grepl("ohort",mortality_wise)) %>% 
-  mutate(emu_nameshort=="NL_Neth","NL_total",emu_nameshort)
+  mutate(emu_nameshort=ifelse(emu_nameshort=="NL_Neth","NL_total",emu_nameshort))
 load("../../R/shiny_data_visualisation/shiny_dv/data/recruitment/dat_ge.Rdata")
 load("../../R/shiny_data_visualisation/shiny_dv/data/recruitment/dat_ye.Rdata")
 
@@ -622,7 +629,7 @@ estimate_b0 = function(emu, year, mor_wise,precodata){
     Rcurrent <- mean(mod$p_std_1960_1979[mod$year %in% ((year-4):year)])
   }
   if (unique(mor_wise$cohort_wise[mor_wise$emu_nameshort==emu]))
-    Rcurrent <- switch(mor_wise$rec_zone[mor_wise$emu_nameshort == emu],,
+    Rcurrent <- switch(mor_wise$rec_zone[mor_wise$emu_nameshort == emu],
                        "EE" = mean(mod$p_std_1960_1979[mod$year %in% ((year-12):(year-7))]),
                        "NS" = mean(mod$p_std_1960_1979[mod$year %in% ((year-17):(year-12))]),
                        "BA" = mean(mod$value_std_1960_1979[mod$year %in% ((year-22):(year-17))]))
@@ -650,15 +657,33 @@ Since recruitment was assumed to be closed to a pristine situation in the 1980s,
 Some preliminary steps are required. First, it is be required to choose the appropriate recruitment indices (elsewhere Europe, North Sea, yellow eel). Here we associated each EMU with a recruitment index according to Figure 3.1 from latest WGEEL report (ICES, 2021). Then, for countries using a cohort wise estimation of escapment, it is required to account for a lag between recruitment and escapement, corresponding to the lifespan. Since lifespan is not available, we used an ad-hoc rule: for EMUs with a year-wise process, we used the average value of the recruitment indices from latest 5 years as $R_current$. For EMUs associated with the Elsewhere index, we took the average value of the index from 7 to 12 years ago. We took 12 to 17 for North Sea and 17 to 22 for yellow eel indices.
 
 ```{r map_emu}
-ggplot(emu_sea)+geom_sf(aes(fill=rec_zone))+geom_sf(data=emu_p,inherit.aes=FALSE,fill=NA)
+ggplot(emu_sea)+geom_sf(data=emu_p,inherit.aes=FALSE,fill="grey")+geom_sf(aes(fill=rec_zone)) + scale_fill_discrete("recruitment index")+
+  theme_bw()
+#ggsave("/tmp/emu_rec.png",width=16/2.54,height=10/2.54,dpi=300)
 
 ```
 ```{r plotb0alternative}
-ggplot(indicator_sub,aes(x=b0,y=b0_estimated))+geom_point(aes(col=eel_cou_code))+xlab(expression("reported B"[0]))+ ylab(expression("estimated B"[0])) + geom_abline(intercept=0, slope= 1, lty=2)
+ggplot(indicator_sub,aes(x=b0,y=b0_estimated))+geom_point(aes(col=eel_cou_code))+xlab(expression("reported B"[0]))+ ylab(expression("estimated B"[0])) + geom_abline(intercept=0, slope= 1, lty=2) + scale_color_discrete("country code")
+#ggsave("/tmp/reest.png",width=16/2.54,height=10/2.54,dpi=300)
+
 ggplot(indicator_sub,aes(x=b0/b0_estimated))+geom_histogram()+facet_wrap(~eel_cou_code)+scale_x_log10()+geom_vline(xintercept=1,lty=2)+xlab(expression("reported B"[0]/"estimated B"[0]))+ylab("frequency")
 ```
 Results show that the discrepancy between the two indicators is very heterogeneous among countries / EMUs. Unsurprisingly, the reported $B[0]$ are generally less than the estimated ones, but this is not always the case (e.g. SE, ES). More surprisingly, estimated $B[0]$ are highly variable, indicating that reported $B[best]$ are much more variable than variations in recruitment. Finally, the ratio between reported and estimated $B[0]$ are very contrasted among countries, either because of inappropriate accounting of restocking in $B[best]$ or because of inconsistencies in $B[0]$ estimations. Anyway, this questions the comparisons of $B[0]$ among EMUs.
 
+
+As such, it is worthwhile checking whether is has consequences on the ratio $B_{current}/B_0$. The plot clearly shows the effect of the estimation of $B_0$ on estimated ratio. For some countries, effects are limited (e.g. SE, LT). But for most countries, estimated $B_0$ lead to much more lower estimated ratio (e.g. IE, GB, PT).
+
+
+```{r comparisonsratio}
+indicator_sub <- indicator_sub %>%
+  mutate(old=bcurrent/b0,
+         updated=bcurrent/b0_estimated)
+ggplot(indicator_sub %>% filter(eel_year>=2018),aes(x=old,y=updated)) + geom_point(aes(col=eel_cou_code,
+                                                                                      pch=as.factor(eel_year))) +
+  geom_abline(slope=1,intercept=0,lty=2) + facet_wrap(~eel_cou_code) + guides(colour=FALSE) + scale_shape("year")+
+  xlab("reported ratio")+ylab("estimated ratio")
+ggsave("/tmp/ratiob0.png",width=16/2.54,height=10/2.54,dpi=300)
+```
 
 ## effect of restocking
 Theoretically, $B_{best}$ should not include restocking while B0 should include restocking. In the absence of restocking $\Sigma A \sim -log(B_{best}/B_{current})$, but this equation should not be valid in the presence of restocking since $B_{best}$ and $\Sigma A$ should not include restocking while $B_current$ should include restocking.
@@ -666,8 +691,9 @@ Theoretically, $B_{best}$ should not include restocking while B0 should include 
 Here, we see that many countries (except DE, SE and PL) seem to have accounted for restocking both in $B_{best}$ and $B_{current}$, with a possible double banking of restocking (i.e. both increasing escapment and decreasing mortality).
 
 ```{r plotsumA}
-ggplot(indicator,aes(x=suma,y= (-log(bcurrent/bbest)))) +geom_point(aes(col=eel_cou_code)) + facet_wrap(~eel_cou_code,scales="free") + 
+ggplot(indicator,aes(x=suma,y= (-log(bcurrent/bbest)))) +geom_point(aes(col=eel_cou_code),show.legend=FALSE) + facet_wrap(~eel_cou_code,scales="free") + 
   geom_abline(intercept=0,slope=1,lty=2) + xlab(expression(paste(Sigma,"A")))+scale_color_discrete("")+ylab(expression(-log(B[current]/B[best])))
+ggsave("/tmp/sumAlog.png",width=16/2.54,height=12/2.54,dpi=300)
 ```
 
 
