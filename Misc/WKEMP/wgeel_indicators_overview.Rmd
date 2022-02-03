@@ -1303,13 +1303,20 @@ flextable(fisher_b0_adj) %>% autofit() %>% set_caption(caption = "b0 adj") %>%
 ```{r delta_Bcurr_vs_sigA_graph}
 
 require(lme4)
+<<<<<<< HEAD
 delta <- Kendall_table %>%
                 select(eel_emu_nameshort, Period_suma, suma_initial, suma_current, Delta_suma, Tau_b0_adj, p_b0_adj, Period_b0, Period_b0_adj, Tau_b0, p_b0) %>%
+=======
+delta <- Kendall_mort_tab %>%
+                select(eel_emu_nameshort, Period, suma_initial, suma_current, Delta_suma) %>%
+                left_join(Kendall_bio_tab %>% select(eel_emu_nameshort, Tau_b0_adj, p_b0_adj, Period), by = "eel_emu_nameshort") %>%
+>>>>>>> 9a678a502a25a946cec8b2c06e9f74113514182e
                 mutate(binary_b0_adj = ifelse(Tau_b0_adj > 0 & p_b0_adj < 0.1, 1, 0),
                        binary_b0 = ifelse(Tau_b0 > 0 & p_b0 < 0.1, 1, 0),
                        test_period_b0 = ifelse(Period_suma != Period_b0, "Period_b0_diff", "OK"),
                        test_period_b0_adj = ifelse(Period_suma != Period_b0_adj, "Period_b0_adj_diff", "OK"),
                        Tau_b0_adj = NULL,
+<<<<<<< HEAD
                        p_b0_adj = NULL,
                        Tau_b0 = NULL,
                        p_b0 = NULL) 
@@ -1321,11 +1328,21 @@ logit_delta_b0_adj <- glm(binary_b0_adj ~ Delta_suma, family=binomial(link="logi
 logit_delta_b0_adj_1 <- glm(binary_b0_adj ~ Delta_suma, family=binomial(link="logit"), data = delta %>% filter(Delta_suma < 1 & Delta_suma > -1))
 
 new_delta <- expand.grid(Delta_suma = seq(min(delta$Delta_suma[!is.na(delta$Delta_suma)]), max(delta$Delta_suma[!is.na(delta$Delta_suma)]), by =0.1))
+=======
+                       p_b0_adj = NULL) %>%
+                rename(Period = Period.x) %>%
+                mutate(Period.y = NULL) %>%
+                drop_na()
+logit_delta <- glm(binary_b0_adj ~ Delta_suma, family=binomial(link="logit"), data = delta)
+              
+new_delta <- expand.grid(Delta_suma = seq(-2, 2, by =0.1))
+>>>>>>> 9a678a502a25a946cec8b2c06e9f74113514182e
                          
 
 ggplot(delta, aes(x=Delta_suma, y=binary_b0_adj)) +
   geom_point(size=0.9)+
   theme_bw()+
+<<<<<<< HEAD
   geom_line(data= new_delta, aes(x=Delta_suma, y=predict(logit_delta_b0_adj, type = "response", newdata = new_delta)), size = 0.3)+
   labs(x = "\u0394 \u03A3A", y = expression("Change in B"["current"]*"/"*"B"["0_adj"]~"(0=no increase, 1=increase)"))
 
@@ -1357,6 +1374,20 @@ logit_delta_table <- as.data.frame(summary(logit_delta_b0_adj)$coefficients) %>%
                "Estimate (truncated)" = "Estimate.y",
                "SE (truncated)" = "Std. Error.y",
                 "z (truncated)" = "z value.y",)
+=======
+  geom_line(data= new_delta, aes(x=Delta_suma, y=predict(logit_delta, type = "response", newdata = new_delta)), size = 0.3)+
+  labs(x = "Delta_sumA", y = "Effect on Bcurrent (1 = present, 0 = absent)")
+```
+
+*Fig* Logistic regression of change in Bcurren/B0_adjusted over Delta sumA
+
+*Tab* Model statistics for Logistic regression of change in Bcurrent/B0_adjusted over Delta sumA. (For the time period see Kendall table)
+
+```{r delta_Bcurr_vs_sigA_table}
+logit_delta_table <- as.data.frame(summary(logit_delta)$coefficients) %>%
+        mutate(Coefficient = ifelse(row_number() == 1, "Intercept", "Delta_sumA")) %>%
+        relocate(Coefficient, .before = Estimate)
+>>>>>>> 9a678a502a25a946cec8b2c06e9f74113514182e
 
 flextable(logit_delta_table) %>% autofit()
 
@@ -1387,7 +1418,11 @@ new_measures_n <- expand.grid(n = seq(0, max(measures_n$n), by =0.5),
                          measure_type = unique(measures_n$measure_type))
 ```
 
+<<<<<<< HEAD
 ```{r logit_n_sumA_graph}
+=======
+```{r logit_scores_sumA_graph}
+>>>>>>> 9a678a502a25a946cec8b2c06e9f74113514182e
 ggplot(measures_n, aes(x=n, y=sumA)) +
   geom_point(aes(col=measure_type), size=0.9)+
   theme_bw()+
@@ -1401,7 +1436,11 @@ ggplot(measures_n, aes(x=n, y=sumA)) +
 
 *Tab* Table with model statistics for SumA vs number of measures
 
+<<<<<<< HEAD
 ```{r logit_n_sumA_table}
+=======
+```{r logit_scores_sumA_table}
+>>>>>>> 9a678a502a25a946cec8b2c06e9f74113514182e
 summary_n_sumA <- as.data.frame(summary(logit_measures_n_sumA)$coefficients) 
 summary_n_sumA$coefficients <- rownames(summary_n_sumA)
 flextable(summary_n_sumA %>% relocate(coefficients, .before = Estimate)) %>% autofit()
@@ -1413,7 +1452,11 @@ flextable(summary_n_sumA %>% relocate(coefficients, .before = Estimate)) %>% aut
 \
 
 
+<<<<<<< HEAD
 ```{r logit_n_sumF_graph}
+=======
+```{r logit_scores_sumF_graph}
+>>>>>>> 9a678a502a25a946cec8b2c06e9f74113514182e
 ggplot(measures_n, aes(x=n, y=sumF)) +
   geom_point(aes(col=measure_type), size=0.9)+
   theme_bw()+
@@ -1427,7 +1470,11 @@ ggplot(measures_n, aes(x=n, y=sumF)) +
 
 *Tab* Table with model statistics for SumF vs number of measures
 
+<<<<<<< HEAD
 ```{r logit_n_sumF_table}
+=======
+```{r logit_scores_sumF_table}
+>>>>>>> 9a678a502a25a946cec8b2c06e9f74113514182e
 summary_n_sumF <- as.data.frame(summary(logit_measures_n_sumF)$coefficients) 
 summary_n_sumF$coefficients <- rownames(summary_n_sumF)
 flextable(summary_n_sumF %>% relocate(coefficients, .before = Estimate)) %>% autofit()
@@ -1439,7 +1486,11 @@ flextable(summary_n_sumF %>% relocate(coefficients, .before = Estimate)) %>% aut
 \
 
 
+<<<<<<< HEAD
 ```{r logit_n_sumH_graph}
+=======
+```{r logit_scores_sumH_graph}
+>>>>>>> 9a678a502a25a946cec8b2c06e9f74113514182e
 ggplot(measures_n, aes(x=n, y=sumH)) +
   geom_point(aes(col=measure_type), size=0.9)+
   theme_bw()+
@@ -1453,7 +1504,11 @@ ggplot(measures_n, aes(x=n, y=sumH)) +
 
 *Tab* Table with model statistics for SumH vs number of measures
 
+<<<<<<< HEAD
 ```{r logit_n_sumH_table}
+=======
+```{r logit_scores_sumH_table}
+>>>>>>> 9a678a502a25a946cec8b2c06e9f74113514182e
 summary_n_sumH <- as.data.frame(summary(logit_measures_n_sumH)$coefficients) 
 summary_n_sumH$coefficients <- rownames(summary_n_sumH)
 flextable(summary_n_sumH %>% relocate(coefficients, .before = Estimate)) %>% autofit()
@@ -1465,7 +1520,11 @@ flextable(summary_n_sumH %>% relocate(coefficients, .before = Estimate)) %>% aut
 \
 
 
+<<<<<<< HEAD
 ```{r logit_n_Bcurr_graph}
+=======
+```{r logit_scores_Bcurr_graph}
+>>>>>>> 9a678a502a25a946cec8b2c06e9f74113514182e
 ggplot(measures_n, aes(x=n, y=b0_adj)) +
   geom_point(aes(col=measure_type), size=0.9)+
   theme_bw()+
@@ -1479,7 +1538,11 @@ ggplot(measures_n, aes(x=n, y=b0_adj)) +
 
 *Tab* Table with model statistics for Bcurr vs number of measures
 
+<<<<<<< HEAD
 ```{r logit_n_Bcurr_table}
+=======
+```{r logit_scores_Bcurr_table}
+>>>>>>> 9a678a502a25a946cec8b2c06e9f74113514182e
 summary_n_b0_adj <- as.data.frame(summary(logit_measures_n_b0_adj)$coefficients) 
 summary_n_b0_adj$coefficients <- rownames(summary_n_b0_adj)
 flextable(summary_n_b0_adj %>% relocate(coefficients, .before = Estimate)) %>% autofit()
@@ -1522,7 +1585,11 @@ new_measures_scores <- expand.grid(score = seq(0, max(measures_scores$score), by
 
 ```
 
+<<<<<<< HEAD
 ```{r logit_scores_sumA_graph}
+=======
+```{r logit_sumA_graph}
+>>>>>>> 9a678a502a25a946cec8b2c06e9f74113514182e
 ggplot(measures_scores, aes(x=score, y=sumA)) +
   geom_point(aes(col=measure_type), size=0.9)+
   theme_bw()+
@@ -1536,7 +1603,11 @@ ggplot(measures_scores, aes(x=score, y=sumA)) +
 
 *Tab* Table with model statistics for SumA vs score of measures
 
+<<<<<<< HEAD
 ```{r logit_scores_sumA_table}
+=======
+```{r logit_sumA_table}
+>>>>>>> 9a678a502a25a946cec8b2c06e9f74113514182e
 summary_scores_sumA <- as.data.frame(summary(logit_measures_scores_sumA)$coefficients) 
 summary_scores_sumA$coefficients <- rownames(summary_scores_sumA)
 flextable(summary_scores_sumA %>% relocate(coefficients, .before = Estimate)) %>% autofit()
@@ -1548,7 +1619,11 @@ flextable(summary_scores_sumA %>% relocate(coefficients, .before = Estimate)) %>
 \
 
 
+<<<<<<< HEAD
 ```{r logit_scores_sumF_graph}
+=======
+```{r logit_sumF_graph}
+>>>>>>> 9a678a502a25a946cec8b2c06e9f74113514182e
 ggplot(measures_scores, aes(x=score, y=sumF)) +
   geom_point(aes(col=measure_type), size=0.9)+
   theme_bw()+
@@ -1562,7 +1637,11 @@ ggplot(measures_scores, aes(x=score, y=sumF)) +
 
 *Tab* Table with model statistics for SumF vs score of measures
 
+<<<<<<< HEAD
 ```{r loogit_scores_sumF_table}
+=======
+```{r loogit_sumF_table}
+>>>>>>> 9a678a502a25a946cec8b2c06e9f74113514182e
 summary_scores_sumF <- as.data.frame(summary(logit_measures_scores_sumF)$coefficients) 
 summary_scores_sumF$coefficients <- rownames(summary_scores_sumF)
 flextable(summary_scores_sumF %>% relocate(coefficients, .before = Estimate)) %>% autofit()
@@ -1574,7 +1653,11 @@ flextable(summary_scores_sumF %>% relocate(coefficients, .before = Estimate)) %>
 \
 
 
+<<<<<<< HEAD
 ```{r logit_scores_sumH_graph}
+=======
+```{r logit_sumH_graph}
+>>>>>>> 9a678a502a25a946cec8b2c06e9f74113514182e
 ggplot(measures_scores, aes(x=score, y=sumH)) +
   geom_point(aes(col=measure_type), size=0.9)+
   theme_bw()+
@@ -1588,7 +1671,11 @@ ggplot(measures_scores, aes(x=score, y=sumH)) +
 
 *Tab* Table with model statistics for SumH vs score of measures
 
+<<<<<<< HEAD
 ```{r logit_scores_sumH_table}
+=======
+```{r logit_sumH_table}
+>>>>>>> 9a678a502a25a946cec8b2c06e9f74113514182e
 summary_scores_sumH <- as.data.frame(summary(logit_measures_scores_sumH)$coefficients) 
 summary_scores_sumH$coefficients <- rownames(summary_scores_sumH)
 flextable(summary_scores_sumH %>% relocate(coefficients, .before = Estimate)) %>% autofit()
@@ -1598,6 +1685,7 @@ flextable(summary_scores_sumH %>% relocate(coefficients, .before = Estimate)) %>
 \
 \
 \
+<<<<<<< HEAD
 
 
 ```{r logit__scores_bcurr_by_b0adj_graph}
@@ -1667,9 +1755,35 @@ ggplot(meas_mort, aes(x=sumh_initial, y=delta_sumh)) +
   theme_bw()+
   labs(x = "Initial \u03A3H", y = "\u0394 \u03A3H")
 
+=======
+>>>>>>> 9a678a502a25a946cec8b2c06e9f74113514182e
 
 
+```{r logit_bcurr_by_b0adj_graph}
+test <- measures_scores %>% filter(measure_type != "Eel_governance")
+
+ggplot(measures_scores %>% filter(measure_type != "Eel_governance"), aes(x=score, y=b0_adj)) +
+  geom_point(aes(col=measure_type), size=0.9)+
+  theme_bw()+
+  geom_line(data = new_measures_scores %>% filter(measure_type != "Eel_governance"), aes(x=score, y=predict(logit_measures_scores_b0_adj, type = "response", newdata = new_measures_scores %>% filter(measure_type != "Eel_governance")), col = measure_type), size = 0.3)+
+  labs(x = "number of measures", y = "Effect on Bcurr (1 = present, 0 = absent)")+
+  theme(legend.position = "none")+
+ facet_wrap(~measure_type)
 ```
 
+<<<<<<< HEAD
 *Fig* Relation of the change in mortality to the initial mortality levels. The initial mortality is defined as the earliest estimate that was reported after the year 2007 (but no later than 2011, initial year indicated by colour) to best representat pre-EMP levels. However, for some EMUs no pre-EMP estimates were reported and thus rather reflect mortality levels shortly after implementation of EMPs. The latest most recent value for mortality was used to calculate delta, see Tab xx.  
 EMUs where only values after 2011 were reported are not shown.  
+=======
+*Fig* Logistic regression for Bcurr vs score of measures
+
+*Tab* Table with model statistics for Bcurr vs score of measures\
+_careful here, I am not sure about the interpretation of "Eel_governance", since twe have EMUs with governance but no Bcurr effect measured anywhere_
+
+```{r}
+summary_scores_b0_adj <- as.data.frame(summary(logit_measures_scores_b0_adj)$coefficients) 
+summary_scores_b0_adj$coefficients <- rownames(summary_scores_sumH)
+flextable(summary_scores_b0_adj %>% relocate(coefficients, .before = Estimate)) %>% autofit()
+```
+
+>>>>>>> 9a678a502a25a946cec8b2c06e9f74113514182e
