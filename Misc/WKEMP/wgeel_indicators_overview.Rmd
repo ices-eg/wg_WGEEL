@@ -672,7 +672,7 @@ indicator <- indicator %>% left_join(indicator_sub %>% select(eel_year, eel_emu_
 
 ## Data availability
 
-```{r vi}
+```{r visualize_datagaps}
 
 require(naniar)
 indicator_vis <- expand.grid(eel_emu_nameshort = unique(indicator$eel_emu_nameshort),
