@@ -3,10 +3,10 @@ title: "wgeel_indicators_overwiew"
 author: "none"
 date: "27/09/2021"
 output:
-  word_document: default
-  pdf_document: default
   html_document:
     df_print: paged
+  pdf_document: default
+  word_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -745,7 +745,7 @@ ggplot(indicator_vis %>% select(eel_emu_nameshort, eel_year, suma) %>%
 
 ```
 
-
+Tab XX Summary of implementation progress and related effects in all reporting EMUs.
 
 ```{r produce_Kendall_table}
 
@@ -972,6 +972,46 @@ Kendall_summary <- Kendall_table %>%
   mutate(total = sum(negative, positive, no_trend, less_than_5),
          total_above_5 = sum(negative, positive, no_trend))
 
+library(officer)
+thick <- officer::fp_border(color="black", width = 3)
+
+Progress_visualisation <- Kendall_table %>%
+              mutate(esc_tar = ifelse(Esc_perc_b0_current < 0.4, 0, 1),
+                     esc_trend = ifelse(p_b0>.1,0,
+                                 ifelse(Tau_b0>0, 1, 0)),
+                     mort_tar = ifelse(suma_current > 0.92, 0, 1),
+                     mort_trend = ifelse(p_suma>.1,0,
+                                  ifelse(Tau_suma<0, 0, 1)),
+                     d_suma = ifelse(Delta_suma < 0, 1, 0),
+                     d_bcurr = ifelse(Delta_b0 > 0, 1, 0),
+                     esc_tar_initial = ifelse(Esc_perc_b0_current < 0.4, 0, 1),
+                     mort_tar_initial = ifelse(suma_initial > 0.92, 0, 1)) %>%
+  select(eel_emu_nameshort, esc_tar, d_bcurr, esc_trend, mort_tar, d_suma, mort_trend, esc_tar_initial, mort_tar_initial) %>%
+  replace(is.na(.), 2)
+                     
+columns <- c("esc_tar", "esc_tar_initial", "mort_tar", "mort_tar_initial", "d_suma", "d_bcurr", "esc_trend" , "mort_trend")
+
+col_format <- scales::col_bin(
+    palette = c("coral1", "palegreen3", "grey76"),
+    domain = c(0, 1, 2)) # can ad bins by , bins = c(1,2,3)
+
+flextable(Progress_visualisation) %>% set_header_labels(eel_emu_nameshort = "EMU",
+                    esc_tar = "Escapement target",
+                    esc_tar_initial = "Escapement target (initial)",
+                    mort_tar = "Mortality target",
+                    mort_tar_initial = "Mortality target (initial)",
+                    d_suma = "\u03A3A lowered since implementation",
+                    d_bcurr = "Bcurr increased since implementation",
+                    esc_trend = "constant increase in escapement",
+                    mort_trend = "constant decrease in mortality") %>%
+            bg(j = columns, bg = col_format) %>%
+             vline() %>%
+             hline() %>%
+             vline(j = 7, border = thick) %>% 
+             void(j = columns) %>%
+             autofit()
+
+detach("package:officer", unload=TRUE)
 
 ```
 
@@ -1000,8 +1040,8 @@ flextable(Kendall_table %>%
             filter_at(vars(n_b0,  Esc_perc_b0_initial, Esc_perc_b0_current, Delta_b0, Tau_b0), any_vars(!is.na(.)))) %>%
   set_header_labels(Period_b0 = "Period",
                     n_b0 = "n",
-                    Esc_perc_b0_initial = "Bcurrent/B0",
-                    Esc_perc_b0_current = "Bcurrent/B0",
+                    Esc_perc_b0_initial = "Bcurrent/B0 (initial)",
+                    Esc_perc_b0_current = "Bcurrent/B0 (current)",
                     Delta_b0 = "\u0394 Bcurrent/B0",
                     Tau_b0 = "\u03C4 B0") %>%
             autofit()

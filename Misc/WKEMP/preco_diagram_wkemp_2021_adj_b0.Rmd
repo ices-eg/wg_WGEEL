@@ -433,8 +433,8 @@ trace_precodiag3 = function(precodata,
     ggtitle(str_c(title))
   if(pretty(max(precodata$suma,na.rm=TRUE))[2] > 4.6)   g = g +annotate("text",x =  Bminimum, y = 4.6, label = "1%",  parse = F, hjust=1, size=3) 
   if (choose_color == "eel_year")
-    g+scale_colour_viridis(discrete=TRUE) else
-      g+scale_colour_brewer(palette = "Set3",direction=-1)
+    g<- g+scale_colour_viridis(discrete=TRUE) else
+    g<-g+scale_colour_brewer(palette = "Set3",direction=-1)
   
   
   
@@ -449,7 +449,7 @@ trace_precodiag3 = function(precodata,
 
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
-trace_precodiag3(precodata_all %>% filter(eel_emu_nameshort %in% mor_wise$emu_nameshort),"emu",last_year=2020,years=2020)
+trace_precodiag3(precodata_all %>% filter(eel_emu_nameshort %in% mor_wise$emu_nameshort),"emu",last_year=FALSE,years=2020)
 ```
 
 
@@ -466,7 +466,7 @@ trace_precodiag3(precodata_all %>% filter(eel_emu_nameshort %in% mor_wise$emu_na
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 
-trace_precodiag3(precodata_all %>% filter(eel_emu_nameshort %in% mor_wise$emu_nameshort),"emu",last_year=FALSE,years=2018)
+trace_precodiag3(precodata_all %>% filter(eel_emu_nameshort %in% mor_wise$emu_nameshort),"emu",last_year=TRUE,years=2018)
 
 ```
 

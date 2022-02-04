@@ -86,7 +86,8 @@ data_avail = rbind.data.frame(mortality,biomass) %>%
          bcurrent=sum(eel_typ_id==15)>0,
          suma=sum(eel_typ_id==17)>0,
          sumf=sum(eel_typ_id==18)>0,
-         sumh=sum(eel_typ_id==19)>0)
+         sumh=sum(eel_typ_id==19)>0) %>%
+   mutate(eel_emu_nameshort= ifelse(eel_emu_nameshort=="NL_total","NL_Neth",eel_emu_nameshort))
 data_avail <- merge(emu_c, data_avail, by.x="emu_nameshort",by.y="eel_emu_nameshort",all.x=TRUE)
 data_avail<- st_transform(data_avail, crs=3035)
 data_avail$x <-st_coordinates(data_avail)[,1]
@@ -663,10 +664,11 @@ ggplot(emu_sea)+geom_sf(data=emu_p,inherit.aes=FALSE,fill="grey")+geom_sf(aes(fi
 
 ```
 ```{r plotb0alternative}
-ggplot(indicator_sub,aes(x=b0,y=b0_estimated))+geom_point(aes(col=eel_cou_code))+xlab(expression("reported B"[0]))+ ylab(expression("estimated B"[0])) + geom_abline(intercept=0, slope= 1, lty=2) + scale_color_discrete("country code")
-#ggsave("/tmp/reest.png",width=16/2.54,height=10/2.54,dpi=300)
+ggplot(indicator_sub,aes(x=b0,y=b0_estimated))+geom_point(aes(col=eel_cou_code))+xlab(expression("reported B"[0]))+ ylab(expression("adjusted B"[0])) + geom_abline(intercept=0, slope= 1, lty=2) + scale_color_discrete("country")
+ggsave("/tmp/reest.png",width=16/2.54,height=10/2.54,dpi=300)
 
-ggplot(indicator_sub,aes(x=b0/b0_estimated))+geom_histogram()+facet_wrap(~eel_cou_code)+scale_x_log10()+geom_vline(xintercept=1,lty=2)+xlab(expression("reported B"[0]/"estimated B"[0]))+ylab("frequency")
+ggplot(indicator_sub,aes(x=b0/b0_estimated))+geom_histogram()+facet_wrap(~eel_cou_code)+scale_x_log10()+geom_vline(xintercept=1,lty=2)+xlab(expression("reported B"[0]/"adjusted B"[0]))+ylab("frequency")
+ggsave("/tmp/reest.png",width=16/2.54,height=10/2.54,dpi=300)
 ```
 Results show that the discrepancy between the two indicators is very heterogeneous among countries / EMUs. Unsurprisingly, the reported $B[0]$ are generally less than the estimated ones, but this is not always the case (e.g. SE, ES). More surprisingly, estimated $B[0]$ are highly variable, indicating that reported $B[best]$ are much more variable than variations in recruitment. Finally, the ratio between reported and estimated $B[0]$ are very contrasted among countries, either because of inappropriate accounting of restocking in $B[best]$ or because of inconsistencies in $B[0]$ estimations. Anyway, this questions the comparisons of $B[0]$ among EMUs.
 
