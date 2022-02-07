@@ -3,10 +3,10 @@ title: "wgeel_indicators_overwiew"
 author: "none"
 date: "27/09/2021"
 output:
+  word_document: default
+  pdf_document: default
   html_document:
     df_print: paged
-  pdf_document: default
-  word_document: default
 ---
 
 ```{r setup, include=FALSE}
