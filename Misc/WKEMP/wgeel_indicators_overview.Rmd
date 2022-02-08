@@ -976,39 +976,44 @@ library(officer)
 thick <- officer::fp_border(color="black", width = 3)
 
 Progress_visualisation <- Kendall_table %>%
-              mutate(esc_tar = ifelse(Esc_perc_b0_current < 0.4, 0, 1),
-                     esc_trend = ifelse(p_b0>.1,0,
-                                 ifelse(Tau_b0>0, 1, 0)),
-                     mort_tar = ifelse(suma_current > 0.92, 0, 1),
-                     mort_trend = ifelse(p_suma>.1,0,
-                                  ifelse(Tau_suma<0, 0, 1)),
-                     d_suma = ifelse(Delta_suma < 0, 1, 0),
-                     d_bcurr = ifelse(Delta_b0 > 0, 1, 0),
-                     esc_tar_initial = ifelse(Esc_perc_b0_current < 0.4, 0, 1),
-                     mort_tar_initial = ifelse(suma_initial > 0.92, 0, 1)) %>%
-  select(eel_emu_nameshort, esc_tar, d_bcurr, esc_trend, mort_tar, d_suma, mort_trend, esc_tar_initial, mort_tar_initial) %>%
-  replace(is.na(.), 2)
+  select(eel_emu_nameshort, Esc_perc_b0_current, Delta_b0, suma_current, Delta_suma, Esc_perc_b0_initial, suma_initial) %>% 
+  filter_at(vars(Esc_perc_b0_current, Delta_b0, suma_current, Delta_suma, Esc_perc_b0_initial, suma_initial), any_vars(!is.na(.))) %>% 
+  mutate(Delta_suma = ifelse(suma_current == suma_initial & suma_initial == 0, NA, Delta_suma))
                      
-columns <- c("esc_tar", "esc_tar_initial", "mort_tar", "mort_tar_initial", "d_suma", "d_bcurr", "esc_trend" , "mort_trend")
+columns <- c("Esc_perc_b0_current", "Delta_b0", "suma_current", "Delta_suma", "Esc_perc_b0_initial", "suma_initial")
 
-col_format <- scales::col_bin(
-    palette = c("coral1", "palegreen3", "grey76"),
-    domain = c(0, 1, 2)) # can ad bins by , bins = c(1,2,3)
+bg_b0 <- scales::col_bin(
+  palette = c("coral1", "palegreen3"),
+  bins = c(0, 0.4, 100))
+
+bg_Delta_b0 <- scales::col_bin(
+  palette = c("coral1", "palegreen3"),
+  bins = c(-100, 0.000000001, 100))
+
+bg_suma <- scales::col_bin(
+  palette = c("palegreen3", "coral1"),
+  bins = c(-100, 0.92, 100))
+
+bg_Delta_suma <- scales::col_bin(
+  palette = c("palegreen3", "coral1"),
+  bins = c(-100, -0.000000001, 100))
 
 flextable(Progress_visualisation) %>% set_header_labels(eel_emu_nameshort = "EMU",
-                    esc_tar = "Escapement target",
-                    esc_tar_initial = "Escapement target (initial)",
-                    mort_tar = "Mortality target",
-                    mort_tar_initial = "Mortality target (initial)",
-                    d_suma = "\u03A3A lowered since implementation",
-                    d_bcurr = "Bcurr increased since implementation",
-                    esc_trend = "constant increase in escapement",
-                    mort_trend = "constant decrease in mortality") %>%
-            bg(j = columns, bg = col_format) %>%
+                    Esc_perc_b0_current = "Current escapement (in % pristine)",
+                    Esc_perc_b0_initial = "Escapement > 40% pristine (initial)",
+                    suma_current = "\u03A3A",
+                    suma_initial = "\u03A3A (initial)",
+                    Delta_suma = "Change in \u03A3A since implementation",
+                    Delta_b0 = "Change in escapement since implementation (in % pristine)") %>% 
+             bg(j = c("Esc_perc_b0_current", "Esc_perc_b0_initial"), bg = bg_b0) %>%
+             bg(j = c("suma_current", "suma_initial"), bg = bg_suma) %>%
+             bg(j = "Delta_b0", bg = bg_Delta_b0) %>%
+             bg(j = "Delta_suma", bg = bg_Delta_suma) %>%
              vline() %>%
              hline() %>%
-             vline(j = 7, border = thick) %>% 
-             void(j = columns) %>%
+             vline(j = 5, border = thick) %>% 
+             vline_left() %>% 
+             #void(j = columns) %>%
              autofit()
 
 detach("package:officer", unload=TRUE)
