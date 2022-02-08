@@ -976,11 +976,11 @@ library(officer)
 thick <- officer::fp_border(color="black", width = 3)
 
 Progress_visualisation <- Kendall_table %>%
-  select(eel_emu_nameshort, Esc_perc_b0_current, Delta_b0, suma_current, Delta_suma, Esc_perc_b0_initial, suma_initial) %>% 
+  select(eel_emu_nameshort, Esc_perc_b0_current, suma_current, Delta_b0, Delta_suma, Esc_perc_b0_initial, suma_initial) %>% 
   filter_at(vars(Esc_perc_b0_current, Delta_b0, suma_current, Delta_suma, Esc_perc_b0_initial, suma_initial), any_vars(!is.na(.))) %>% 
   mutate(Delta_suma = ifelse(suma_current == suma_initial & suma_initial == 0, NA, Delta_suma))
                      
-columns <- c("Esc_perc_b0_current", "Delta_b0", "suma_current", "Delta_suma", "Esc_perc_b0_initial", "suma_initial")
+columns <- c("Esc_perc_b0_current", "suma_current", "Delta_b0", "Delta_suma", "Esc_perc_b0_initial", "suma_initial")
 
 bg_b0 <- scales::col_bin(
   palette = c("coral1", "palegreen3"),
@@ -999,19 +999,20 @@ bg_Delta_suma <- scales::col_bin(
   bins = c(-100, -0.000000001, 100))
 
 flextable(Progress_visualisation) %>% set_header_labels(eel_emu_nameshort = "EMU",
-                    Esc_perc_b0_current = "Current escapement (in % pristine)",
-                    Esc_perc_b0_initial = "Escapement > 40% pristine (initial)",
-                    suma_current = "\u03A3A",
+                    Esc_perc_b0_current = "Bcurrent/B0 (current)",
+                    Esc_perc_b0_initial = "Bcurrent/B0 (initial)",
+                    suma_current = "\u03A3A (current)",
                     suma_initial = "\u03A3A (initial)",
                     Delta_suma = "Change in \u03A3A since implementation",
-                    Delta_b0 = "Change in escapement since implementation (in % pristine)") %>% 
+                    Delta_b0 = "Change in Bcurrent/B0 since implementation") %>% 
              bg(j = c("Esc_perc_b0_current", "Esc_perc_b0_initial"), bg = bg_b0) %>%
              bg(j = c("suma_current", "suma_initial"), bg = bg_suma) %>%
              bg(j = "Delta_b0", bg = bg_Delta_b0) %>%
              bg(j = "Delta_suma", bg = bg_Delta_suma) %>%
              vline() %>%
              hline() %>%
-             vline(j = 5, border = thick) %>% 
+             vline(j = 5, border = thick) %>%
+             vline(j = 3, border = thick) %>% 
              vline_left() %>% 
              #void(j = columns) %>%
              autofit()
