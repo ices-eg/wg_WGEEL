@@ -3,10 +3,10 @@ title: "wgeel_indicators_overwiew"
 author: "none"
 date: "27/09/2021"
 output:
-  word_document: default
-  pdf_document: default
   html_document:
     df_print: paged
+  pdf_document: default
+  word_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -1722,19 +1722,23 @@ require(ggrepel)
 
 ggplot(meas_mort, aes(x=suma_initial, y=delta_suma)) +
   geom_point(size = 1) + 
-   geom_text_repel(aes(label = eel_emu_nameshort, col = start_year), size = 3.2)+ 
+   geom_text_repel(aes(label = eel_emu_nameshort, col = start_year), size = 3.2, max.overlaps = 50)+ 
   theme_bw()+
+  geom_hline(yintercept = 0, col = "black", size = 0.5)+
+  geom_vline(xintercept = 0.92, col = "red", linetype = "dashed", size = 0.5)+
   labs(x = "Initial \u03A3A", y = "\u0394 \u03A3A")
 
 ggplot(meas_mort, aes(x=sumf_initial, y=delta_sumf)) + 
   geom_point(size = 1.5) + 
-  geom_text_repel(aes(label = eel_emu_nameshort, col = start_year), size = 3.2)+
+  geom_text_repel(aes(label = eel_emu_nameshort, col = start_year), size = 3.2, max.overlaps = 50)+
+  geom_hline(yintercept = 0, col = "black", size = 0.5)+
   theme_bw()+
   labs(x = "Initial \u03A3F", y = "\u0394 \u03A3F")
   
 ggplot(meas_mort, aes(x=sumh_initial, y=delta_sumh)) + 
   geom_point(size = 1) +
-  geom_text_repel(aes(label = eel_emu_nameshort, col = start_year), size = 3.2)+
+  geom_text_repel(aes(label = eel_emu_nameshort, col = start_year), size = 3.2, max.overlaps = 50)+
+  geom_hline(yintercept = 0, col = "black", size = 0.5)+
   theme_bw()+
   labs(x = "Initial \u03A3H", y = "\u0394 \u03A3H")
 
