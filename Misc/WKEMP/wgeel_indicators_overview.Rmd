@@ -3,10 +3,10 @@ title: "wgeel_indicators_overwiew"
 author: "none"
 date: "27/09/2021"
 output:
+  word_document: default
+  pdf_document: default
   html_document:
     df_print: paged
-  pdf_document: default
-  word_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -1271,14 +1271,16 @@ fisher_sumA <- measures %>%
                      summarise(value = n()) %>%
                      mutate(binary_measure = str_replace(binary_measure, "0", "not_implemented"),
                             binary_measure = str_replace(binary_measure, "1", "implemented")) %>%
-                     drop_na() %>%
                      mutate(indicator = paste(binary_measure, sumA, sep = "_")) %>%
                      ungroup() %>%
                      select(-binary_measure, - sumA) %>%
                      spread(indicator, value) %>%
-                     drop_na()
+                     replace(is.na(.), 0) %>%
+                     mutate_all(funs(str_replace(., "_", " ")))
+
+
  
-fisher_sumA$p_value <- apply(fisher_sumA, 1 ,function(x) {
+fisher_sumA$p_value <- apply(fisher_sumA %>% select(-implemented_NA, - not_implemented_NA), 1 ,function(x) {
                                         tbl <- matrix(as.numeric(x[2:5]), ncol=2, byrow=T)
                                         fisher.test(tbl)$p.value
                                         })
@@ -1290,14 +1292,13 @@ fisher_sumF <- measures %>%
                      summarise(value = n()) %>%
                      mutate(binary_measure = str_replace(binary_measure, "0", "not_implemented"),
                             binary_measure = str_replace(binary_measure, "1", "implemented")) %>%
-                     drop_na() %>%
                      mutate(indicator = paste(binary_measure, sumF, sep = "_")) %>%
                      ungroup() %>%
                      select(-binary_measure, - sumF) %>%
                      spread(indicator, value) %>%
-                     drop_na()
+                     replace(is.na(.), 0)
  
-fisher_sumF$p_value <- apply(fisher_sumF, 1 ,function(x) {
+fisher_sumF$p_value <- apply(fisher_sumF %>% select(-implemented_NA, - not_implemented_NA), 1 ,function(x) {
                                         tbl <- matrix(as.numeric(x[2:5]), ncol=2, byrow=T)
                                         fisher.test(tbl)$p.value
                                         })
@@ -1309,14 +1310,13 @@ fisher_sumH <- measures %>%
                      summarise(value = n()) %>%
                      mutate(binary_measure = str_replace(binary_measure, "0", "not_implemented"),
                             binary_measure = str_replace(binary_measure, "1", "implemented")) %>%
-                     drop_na() %>%
                      mutate(indicator = paste(binary_measure, sumH, sep = "_")) %>%
                      ungroup() %>%
                      select(-binary_measure, - sumH) %>%
                      spread(indicator, value) %>%
-                     drop_na()
+                     replace(is.na(.), 0)
  
-fisher_sumH$p_value <- apply(fisher_sumH, 1 ,function(x) {
+fisher_sumH$p_value <- apply(fisher_sumH %>% select(-implemented_NA, - not_implemented_NA), 1 ,function(x) {
                                         tbl <- matrix(as.numeric(x[2:5]), ncol=2, byrow=T)
                                         fisher.test(tbl)$p.value
                                         })
@@ -1328,41 +1328,56 @@ fisher_b0_adj <- measures %>%
                      summarise(value = n()) %>%
                      mutate(binary_measure = str_replace(binary_measure, "0", "not_implemented"),
                             binary_measure = str_replace(binary_measure, "1", "implemented")) %>%
-                     drop_na() %>%
                      mutate(indicator = paste(binary_measure, b0_adj, sep = "_")) %>%
                      ungroup() %>%
                      select(-binary_measure, - b0_adj) %>%
                      spread(indicator, value) %>%
-                     drop_na()
+                     replace(is.na(.), 0)
  
-fisher_b0_adj$p_value <- apply(fisher_b0_adj, 1 ,function(x) {
+fisher_b0_adj$p_value <- apply(fisher_b0_adj %>% select(-implemented_NA, - not_implemented_NA), 1 ,function(x) {
                                         tbl <- matrix(as.numeric(x[2:5]), ncol=2, byrow=T)
                                         fisher.test(tbl)$p.value
                                         })
 
-flextable(fisher_sumA) %>% autofit() %>% set_caption(caption = "\u03A3A") %>%
+flextable(fisher_sumA) %>% set_caption(caption = "\u03A3A") %>%
   set_header_labels(implemented_0 = "implemented/no effect",
                     implemented_1 = "implemented/effect",
                     not_implemented_0 = "not implemented/no effect",
-                    not_implemented_1 = "not implemented/effect")
+                    not_implemented_1 = "not implemented/effect",
+                    implemented_NA = "implemented/not tested",
+                    not_implemented_NA = "not implemented/not tested",
+                    measure_type = "Measure type") %>% 
+  autofit() 
 
-flextable(fisher_sumF) %>% autofit() %>% set_caption(caption = "\u03A3F") %>%
+flextable(fisher_sumF) %>% set_caption(caption = "\u03A3F") %>%
   set_header_labels(implemented_0 = "implemented/no effect",
                     implemented_1 = "implemented/effect",
                     not_implemented_0 = "not implemented/no effect",
-                    not_implemented_1 = "not implemented/effect")
+                    not_implemented_1 = "not implemented/effect",
+                    implemented_NA = "implemented/not tested",
+                    not_implemented_NA = "not implemented/not tested",
+                    measure_type = "Measure type") %>% 
+  autofit()
 
-flextable(fisher_sumH) %>% autofit() %>% set_caption(caption = "\u03A3H") %>%
+flextable(fisher_sumH) %>% set_caption(caption = "\u03A3H") %>%
   set_header_labels(implemented_0 = "implemented/no effect",
                     implemented_1 = "implemented/effect",
                     not_implemented_0 = "not implemented/no effect",
-                    not_implemented_1 = "not implemented/effect")
+                    not_implemented_1 = "not implemented/effect",
+                    implemented_NA = "implemented/not tested",
+                    not_implemented_NA = "not implemented/not tested",
+                    measure_type = "Measure type") %>% 
+  autofit()
 
-flextable(fisher_b0_adj) %>% autofit() %>% set_caption(caption = "b0 adj") %>%
+flextable(fisher_b0_adj) %>% set_caption(caption = "b0 adj") %>%
   set_header_labels(implemented_0 = "implemented/no effect",
                     implemented_1 = "implemented/effect",
                     not_implemented_0 = "not implemented/no effect",
-                    not_implemented_1 = "not implemented/effect")
+                    not_implemented_1 = "not implemented/effect",
+                    implemented_NA = "implemented/not tested",
+                    not_implemented_NA = "not implemented/not tested",
+                    measure_type = "Measure type") %>% 
+  autofit()
 
 ```
 
