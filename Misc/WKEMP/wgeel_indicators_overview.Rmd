@@ -1276,14 +1276,19 @@ fisher_sumA <- measures %>%
                      select(-binary_measure, - sumA) %>%
                      spread(indicator, value) %>%
                      replace(is.na(.), 0) %>%
-                     mutate_all(funs(str_replace(., "_", " ")))
+                     mutate(NAs = paste(implemented_NA, not_implemented_NA, sep ="/")) %>% 
+                     select(-implemented_NA, not_implemented_NA)
 
 
  
-fisher_sumA$p_value <- apply(fisher_sumA %>% select(-implemented_NA, - not_implemented_NA), 1 ,function(x) {
+fisher_sumA$p <- apply(fisher_sumA %>% select(-NAs), 1 ,function(x) {
                                         tbl <- matrix(as.numeric(x[2:5]), ncol=2, byrow=T)
                                         fisher.test(tbl)$p.value
                                         })
+
+fisher_sumA <- fisher_sumA %>%  
+  select(measure_type, implemented_0, implemented_1, not_implemented_0, not_implemented_1, p, NAs) %>% 
+  mutate(p = round(p, 3))
 
 ######################################
 
@@ -1296,12 +1301,18 @@ fisher_sumF <- measures %>%
                      ungroup() %>%
                      select(-binary_measure, - sumF) %>%
                      spread(indicator, value) %>%
-                     replace(is.na(.), 0)
+                     replace(is.na(.), 0) %>%
+                     mutate(NAs = paste(implemented_NA, not_implemented_NA, sep ="/")) %>% 
+                     select(-implemented_NA, not_implemented_NA)
  
-fisher_sumF$p_value <- apply(fisher_sumF %>% select(-implemented_NA, - not_implemented_NA), 1 ,function(x) {
+fisher_sumF$p <- apply(fisher_sumF %>% select(-NAs), 1 ,function(x) {
                                         tbl <- matrix(as.numeric(x[2:5]), ncol=2, byrow=T)
                                         fisher.test(tbl)$p.value
                                         })
+
+fisher_sumF <- fisher_sumF %>%  
+  select(measure_type, implemented_0, implemented_1, not_implemented_0, not_implemented_1, p, NAs) %>% 
+  mutate(p = round(p, 3))
 
 ######################################
                                         
@@ -1314,12 +1325,18 @@ fisher_sumH <- measures %>%
                      ungroup() %>%
                      select(-binary_measure, - sumH) %>%
                      spread(indicator, value) %>%
-                     replace(is.na(.), 0)
+                     replace(is.na(.), 0) %>%
+                     mutate(NAs = paste(implemented_NA, not_implemented_NA, sep ="/")) %>% 
+                     select(-implemented_NA, not_implemented_NA)
  
-fisher_sumH$p_value <- apply(fisher_sumH %>% select(-implemented_NA, - not_implemented_NA), 1 ,function(x) {
+fisher_sumH$p <- apply(fisher_sumH %>% select(-NAs), 1 ,function(x) {
                                         tbl <- matrix(as.numeric(x[2:5]), ncol=2, byrow=T)
                                         fisher.test(tbl)$p.value
                                         })
+
+fisher_sumH <- fisher_sumH %>%  
+  select(measure_type, implemented_0, implemented_1, not_implemented_0, not_implemented_1, p, NAs) %>% 
+  mutate(p = round(p, 3))
 
 ######################################  
 
@@ -1332,21 +1349,35 @@ fisher_b0_adj <- measures %>%
                      ungroup() %>%
                      select(-binary_measure, - b0_adj) %>%
                      spread(indicator, value) %>%
-                     replace(is.na(.), 0)
+                     replace(is.na(.), 0) %>%
+                     mutate(NAs = paste(implemented_NA, not_implemented_NA, sep ="/")) %>% 
+                     select(-implemented_NA, not_implemented_NA)
  
-fisher_b0_adj$p_value <- apply(fisher_b0_adj %>% select(-implemented_NA, - not_implemented_NA), 1 ,function(x) {
+fisher_b0_adj$p <- apply(fisher_b0_adj %>% select(-NAs), 1 ,function(x) {
                                         tbl <- matrix(as.numeric(x[2:5]), ncol=2, byrow=T)
                                         fisher.test(tbl)$p.value
                                         })
+
+fisher_b0_adj <- fisher_b0_adj %>%  
+  select(measure_type, implemented_0, implemented_1, not_implemented_0, not_implemented_1, p, NAs) %>% 
+  mutate(p = round(p, 3))
+  
+
+############## OUTPUT TABLES###################
+library(officer)
+thick <- officer::fp_border(color="black", width = 2.5)
+thin <- officer::fp_border(color="black", width = 1)
+detach("package:officer", unload=TRUE)
 
 flextable(fisher_sumA) %>% set_caption(caption = "\u03A3A") %>%
   set_header_labels(implemented_0 = "implemented/no effect",
                     implemented_1 = "implemented/effect",
                     not_implemented_0 = "not implemented/no effect",
                     not_implemented_1 = "not implemented/effect",
-                    implemented_NA = "implemented/not tested",
-                    not_implemented_NA = "not implemented/not tested",
+                    NAs = "Not tested (implemented/not implemented)",
                     measure_type = "Measure type") %>% 
+  vline(j = 5, border = thin) %>%
+  vline(j = 6, border = thick) %>%
   autofit() 
 
 flextable(fisher_sumF) %>% set_caption(caption = "\u03A3F") %>%
@@ -1354,9 +1385,10 @@ flextable(fisher_sumF) %>% set_caption(caption = "\u03A3F") %>%
                     implemented_1 = "implemented/effect",
                     not_implemented_0 = "not implemented/no effect",
                     not_implemented_1 = "not implemented/effect",
-                    implemented_NA = "implemented/not tested",
-                    not_implemented_NA = "not implemented/not tested",
-                    measure_type = "Measure type") %>% 
+                    NAs = "Not tested (implemented/not implemented)",
+                    measure_type = "Measure type") %>%
+  vline(j = 5, border = thin) %>%
+  vline(j = 6, border = thick) %>%
   autofit()
 
 flextable(fisher_sumH) %>% set_caption(caption = "\u03A3H") %>%
@@ -1364,9 +1396,10 @@ flextable(fisher_sumH) %>% set_caption(caption = "\u03A3H") %>%
                     implemented_1 = "implemented/effect",
                     not_implemented_0 = "not implemented/no effect",
                     not_implemented_1 = "not implemented/effect",
-                    implemented_NA = "implemented/not tested",
-                    not_implemented_NA = "not implemented/not tested",
-                    measure_type = "Measure type") %>% 
+                    NAs = "Not tested (implemented/not implemented)",
+                    measure_type = "Measure type") %>%
+  vline(j = 5, border = thin) %>%
+  vline(j = 6, border = thick) %>%
   autofit()
 
 flextable(fisher_b0_adj) %>% set_caption(caption = "b0 adj") %>%
@@ -1374,9 +1407,10 @@ flextable(fisher_b0_adj) %>% set_caption(caption = "b0 adj") %>%
                     implemented_1 = "implemented/effect",
                     not_implemented_0 = "not implemented/no effect",
                     not_implemented_1 = "not implemented/effect",
-                    implemented_NA = "implemented/not tested",
-                    not_implemented_NA = "not implemented/not tested",
-                    measure_type = "Measure type") %>% 
+                    NAs = "Not tested (implemented/not implemented)",
+                    measure_type = "Measure type") %>%
+  vline(j = 5, border = thin) %>%
+  vline(j = 6, border = thick) %>%
   autofit()
 
 ```
