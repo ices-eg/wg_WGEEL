@@ -47,6 +47,7 @@ Tables showing the numbers of the range and numbers of years provided for each i
 ```{r mortadata}
 flextable(mortality %>% 
             mutate(eel_value=ifelse(is.na(eel_value & eel_missvaluequal == "NP"), 0,eel_value)) %>% 
+            filter(eel_cou_code %in% eu_cou_codes) %>%
             select(eel_typ_id,
                    eel_year,
                    eel_emu_nameshort,
@@ -59,12 +60,9 @@ flextable(mortality %>%
             mutate(range=paste(minyear, maxyear, sep = "-")) %>%
             select(eel_typ_id, eel_emu_nameshort, nb_value, range) %>%
             arrange(eel_emu_nameshort) %>%
-            merge(emu_c %>% select(emu_nameshort) %>%
-                    st_drop_geometry(), data_avail, by.y="emu_nameshort",by.x="eel_emu_nameshort",all.y=TRUE) %>%
             pivot_wider(names_from=eel_typ_id, values_from=c(range, nb_value),
                         names_glue="{eel_typ_id}_{.value}",
-                        names_sort=TRUE)%>%
-            select(-NA_range))
+                        names_sort=TRUE))
   
 ```
 
@@ -86,6 +84,7 @@ biomass <- dbGetQuery(con,"select e.* from datawg.t_eelstock_eel e  where eel_qa
 Tables showing the numbers of the range and numbers of years provided for each indicator by each country
 ```{r data2020biom}
 flextable(biomass %>%
+            filter(eel_cou_code %in% eu_cou_codes) %>%
             mutate(eel_value=ifelse(is.na(eel_value & eel_missvaluequal == "NP"), 0,eel_value)) %>% 
             select(eel_typ_id,
                    eel_year,
@@ -99,12 +98,9 @@ flextable(biomass %>%
             mutate(range=paste(minyear, maxyear, sep = "-")) %>%
             select(eel_typ_id, eel_emu_nameshort, nb_value, range) %>%
             arrange(eel_emu_nameshort) %>%
-            merge(emu_c %>% select(emu_nameshort) %>%
-                    st_drop_geometry(), by.y="emu_nameshort",by.x="eel_emu_nameshort",all.y=TRUE) %>%
             pivot_wider(names_from=eel_typ_id, values_from=c(range, nb_value),
                         names_glue="{eel_typ_id}_{.value}",
-                        names_sort=TRUE) %>%
-            select(-NA_range))
+                        names_sort=TRUE))
 ```
 
 
@@ -178,9 +174,9 @@ flextable(effort %>%
                    eel_year,
                    eel_emu_nameshort,
                    eel_value) %>%
-            na.omit() %>%
+            filter(!(is.na(eel_year) | is.na(eel_emu_nameshort) | is.na(eel_value))) %>%
             group_by(eel_emu_nameshort) %>%
-            summarize(minyear=min(eel_year), maxyear=max(eel_year), nb_years=n_distinct(eel_year),nb_gears=n_distinct(eel_gear)) %>%
+            summarize(minyear=min(eel_year), maxyear=max(eel_year), nb_years=n_distinct(eel_year),nb_gears=n_distinct(eel_gear, na.rm=TRUE)) %>%
             mutate(range=paste(minyear, maxyear, sep = "-")) %>%
             select(eel_emu_nameshort, range,nb_years,nb_gears) %>%
             arrange(eel_emu_nameshort))
@@ -298,3 +294,62 @@ sort(not_reported)
 Here are listed countries that have not sent data. 
 
 
+
+# maps of EMUs
+```{r maps}
+library(ggplot2)
+library(sf)
+library(ggrepel)
+load("../../R/shiny_data_visualisation/shiny_dv/data/maps_for_shiny.Rdata")
+load("../..//R/shiny_data_visualisation/shiny_dv/data/ref_and_eel_data.Rdata")
+library(rnaturalearth)
+# devtools::install_github("ropensci/rnaturalearthhires")
+library(rnaturalearthhires)
+countries=ne_countries("large",continent=c("africa","europe","asia"),returnclass="sf")
+
+
+emu_split=dbGetQuery(con, "select emu_nameshort, emu_name from ref.tr_emusplit_ems")
+values=c(RColorBrewer::brewer.pal(12,"Set3"),
+    RColorBrewer::brewer.pal(12, "Paired"), 
+    RColorBrewer::brewer.pal(8,"Accent"),
+    RColorBrewer::brewer.pal(8, "Dark2"))
+country_ref=dbGetQuery(con,"select cou_code from ref.tr_country_cou")
+color_countries = setNames(values,country_ref$cou_code)
+ggplot(emu_p %>% filter(emu_cou_code %in%eu_cou_codes &
+                          grepl("^[[:alpha:]]{2}_[[:alpha:]]{4}$",emu_p$emu_nameshort) &
+                          ! emu_cou_code %in% c("CY","MT"))) +
+  geom_sf(data = countries, fill = "grey", inherit.aes = FALSE) +
+  geom_sf(aes(fill=emu_cou_code),
+          show.legend=FALSE) +
+  scale_fill_manual(values=color_countries) +
+  geom_label_repel(aes(label=emu_nameshort, 
+                       geometry=geom),
+                   key_glyph=draw_key_text,
+                   max.overlaps = Inf,
+                   label.padding = 0.1,
+                   cex = 2.5,
+                   stat = "sf_coordinates",
+                   show.legend=FALSE) +
+  scale_color_manual(values=color_countries)+
+  xlim(-11,31) + ylim(34,70) +
+  xlab("")+
+  ylab("")
+ggsave("map_emu.png",width=18/2.54,height=16/2.54,dpi=300)
+
+library(dplyr)
+flextable(emu_p %>% 
+            st_drop_geometry() %>%
+            select(emu_cou_code,emu_nameshort) %>%
+            filter(emu_cou_code %in%eu_cou_codes &
+                     grepl("^[[:alpha:]]{2}_[[:alpha:]]{4}$",emu_p$emu_nameshort) &
+                     ! emu_cou_code %in% c("CY","MT")) %>%
+            inner_join(country_p,by=c("emu_cou_code"="cou_code")) %>%
+            inner_join(emu_split) %>%
+            select(cou_country, emu_nameshort, emu_name) %>%
+            arrange(cou_country,emu_nameshort) %>%
+            rename("country" = cou_country,
+                   "EMU short name"=emu_nameshort,
+                   "EMU name"=emu_name)) %>%
+  merge_v(j="country") %>%
+  autofit()
+```

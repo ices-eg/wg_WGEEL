@@ -29,7 +29,7 @@ load_library("gridExtra")
 load_library("MARSS")
 load_library("xtable")
 load_library("getPass")
-load_library("RPostgreSQL")
+load_library("RPostgres")
 load_library("sf")
 load_library("flextable")
 load_library("broom")
@@ -46,12 +46,10 @@ load_library("mgcv")
 load_library("ggmap")
 load_library("ggrepel")
 load_library("grid")
-con_wgeel=dbConnect(PostgreSQL(),
-                    dbname="wgeel",
-                    host="localhost",
-                    port=5432,
-	                  user= getPass(msg="username"),
-	                  password= getPass())
+library(yaml)
+cred=read_yaml("../../credentials.yml")
+con_wgeel = dbConnect(Postgres(), dbname=cred$dbname,host=cred$host,port=cred$port,user=cred$user, password=getPass())
+
 CY<-as.integer(format(Sys.Date(), "%Y")) # current year ==> dont forget to update the graphics path below (
 
 format_dfa =function(the.fit){
