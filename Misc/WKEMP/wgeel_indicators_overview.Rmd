@@ -745,7 +745,7 @@ ggplot(indicator_vis %>% select(eel_emu_nameshort, eel_year, suma) %>%
 
 ```
 
-
+Tab XX Summary of implementation progress and related effects in all reporting EMUs.
 
 ```{r produce_Kendall_table}
 
@@ -972,6 +972,52 @@ Kendall_summary <- Kendall_table %>%
   mutate(total = sum(negative, positive, no_trend, less_than_5),
          total_above_5 = sum(negative, positive, no_trend))
 
+library(officer)
+thick <- officer::fp_border(color="black", width = 3)
+
+Progress_visualisation <- Kendall_table %>%
+  select(eel_emu_nameshort, Esc_perc_b0_current, suma_current, Delta_b0, Delta_suma, Esc_perc_b0_initial, suma_initial) %>% 
+  filter_at(vars(Esc_perc_b0_current, Delta_b0, suma_current, Delta_suma, Esc_perc_b0_initial, suma_initial), any_vars(!is.na(.))) %>% 
+  mutate(Delta_suma = ifelse(suma_current == suma_initial & suma_initial == 0, NA, Delta_suma))
+                     
+columns <- c("Esc_perc_b0_current", "suma_current", "Delta_b0", "Delta_suma", "Esc_perc_b0_initial", "suma_initial")
+
+bg_b0 <- scales::col_bin(
+  palette = c("coral1", "palegreen3"),
+  bins = c(0, 0.4, 100))
+
+bg_Delta_b0 <- scales::col_bin(
+  palette = c("coral1", "palegreen3"),
+  bins = c(-100, 0.000000001, 100))
+
+bg_suma <- scales::col_bin(
+  palette = c("palegreen3", "coral1"),
+  bins = c(-100, 0.92, 100))
+
+bg_Delta_suma <- scales::col_bin(
+  palette = c("palegreen3", "coral1"),
+  bins = c(-100, -0.000000001, 100))
+
+flextable(Progress_visualisation) %>% set_header_labels(eel_emu_nameshort = "EMU",
+                    Esc_perc_b0_current = "Bcurrent/B0 (current)",
+                    Esc_perc_b0_initial = "Bcurrent/B0 (initial)",
+                    suma_current = "\u03A3A (current)",
+                    suma_initial = "\u03A3A (initial)",
+                    Delta_suma = "Change in \u03A3A since implementation",
+                    Delta_b0 = "Change in Bcurrent/B0 since implementation") %>% 
+             bg(j = c("Esc_perc_b0_current", "Esc_perc_b0_initial"), bg = bg_b0) %>%
+             bg(j = c("suma_current", "suma_initial"), bg = bg_suma) %>%
+             bg(j = "Delta_b0", bg = bg_Delta_b0) %>%
+             bg(j = "Delta_suma", bg = bg_Delta_suma) %>%
+             vline() %>%
+             hline() %>%
+             vline(j = 5, border = thick) %>%
+             vline(j = 3, border = thick) %>% 
+             vline_left() %>% 
+             #void(j = columns) %>%
+             autofit()
+
+detach("package:officer", unload=TRUE)
 
 ```
 
@@ -1000,8 +1046,8 @@ flextable(Kendall_table %>%
             filter_at(vars(n_b0,  Esc_perc_b0_initial, Esc_perc_b0_current, Delta_b0, Tau_b0), any_vars(!is.na(.)))) %>%
   set_header_labels(Period_b0 = "Period",
                     n_b0 = "n",
-                    Esc_perc_b0_initial = "Bcurrent/B0",
-                    Esc_perc_b0_current = "Bcurrent/B0",
+                    Esc_perc_b0_initial = "Bcurrent/B0 (initial)",
+                    Esc_perc_b0_current = "Bcurrent/B0 (current)",
                     Delta_b0 = "\u0394 Bcurrent/B0",
                     Tau_b0 = "\u03C4 B0") %>%
             autofit()
@@ -1225,14 +1271,16 @@ fisher_sumA <- measures %>%
                      summarise(value = n()) %>%
                      mutate(binary_measure = str_replace(binary_measure, "0", "not_implemented"),
                             binary_measure = str_replace(binary_measure, "1", "implemented")) %>%
-                     drop_na() %>%
                      mutate(indicator = paste(binary_measure, sumA, sep = "_")) %>%
                      ungroup() %>%
                      select(-binary_measure, - sumA) %>%
                      spread(indicator, value) %>%
-                     drop_na()
+                     replace(is.na(.), 0) %>%
+                     mutate_all(funs(str_replace(., "_", " ")))
+
+
  
-fisher_sumA$p_value <- apply(fisher_sumA, 1 ,function(x) {
+fisher_sumA$p_value <- apply(fisher_sumA %>% select(-implemented_NA, - not_implemented_NA), 1 ,function(x) {
                                         tbl <- matrix(as.numeric(x[2:5]), ncol=2, byrow=T)
                                         fisher.test(tbl)$p.value
                                         })
@@ -1244,14 +1292,13 @@ fisher_sumF <- measures %>%
                      summarise(value = n()) %>%
                      mutate(binary_measure = str_replace(binary_measure, "0", "not_implemented"),
                             binary_measure = str_replace(binary_measure, "1", "implemented")) %>%
-                     drop_na() %>%
                      mutate(indicator = paste(binary_measure, sumF, sep = "_")) %>%
                      ungroup() %>%
                      select(-binary_measure, - sumF) %>%
                      spread(indicator, value) %>%
-                     drop_na()
+                     replace(is.na(.), 0)
  
-fisher_sumF$p_value <- apply(fisher_sumF, 1 ,function(x) {
+fisher_sumF$p_value <- apply(fisher_sumF %>% select(-implemented_NA, - not_implemented_NA), 1 ,function(x) {
                                         tbl <- matrix(as.numeric(x[2:5]), ncol=2, byrow=T)
                                         fisher.test(tbl)$p.value
                                         })
@@ -1263,14 +1310,13 @@ fisher_sumH <- measures %>%
                      summarise(value = n()) %>%
                      mutate(binary_measure = str_replace(binary_measure, "0", "not_implemented"),
                             binary_measure = str_replace(binary_measure, "1", "implemented")) %>%
-                     drop_na() %>%
                      mutate(indicator = paste(binary_measure, sumH, sep = "_")) %>%
                      ungroup() %>%
                      select(-binary_measure, - sumH) %>%
                      spread(indicator, value) %>%
-                     drop_na()
+                     replace(is.na(.), 0)
  
-fisher_sumH$p_value <- apply(fisher_sumH, 1 ,function(x) {
+fisher_sumH$p_value <- apply(fisher_sumH %>% select(-implemented_NA, - not_implemented_NA), 1 ,function(x) {
                                         tbl <- matrix(as.numeric(x[2:5]), ncol=2, byrow=T)
                                         fisher.test(tbl)$p.value
                                         })
@@ -1282,41 +1328,56 @@ fisher_b0_adj <- measures %>%
                      summarise(value = n()) %>%
                      mutate(binary_measure = str_replace(binary_measure, "0", "not_implemented"),
                             binary_measure = str_replace(binary_measure, "1", "implemented")) %>%
-                     drop_na() %>%
                      mutate(indicator = paste(binary_measure, b0_adj, sep = "_")) %>%
                      ungroup() %>%
                      select(-binary_measure, - b0_adj) %>%
                      spread(indicator, value) %>%
-                     drop_na()
+                     replace(is.na(.), 0)
  
-fisher_b0_adj$p_value <- apply(fisher_b0_adj, 1 ,function(x) {
+fisher_b0_adj$p_value <- apply(fisher_b0_adj %>% select(-implemented_NA, - not_implemented_NA), 1 ,function(x) {
                                         tbl <- matrix(as.numeric(x[2:5]), ncol=2, byrow=T)
                                         fisher.test(tbl)$p.value
                                         })
 
-flextable(fisher_sumA) %>% autofit() %>% set_caption(caption = "\u03A3A") %>%
+flextable(fisher_sumA) %>% set_caption(caption = "\u03A3A") %>%
   set_header_labels(implemented_0 = "implemented/no effect",
                     implemented_1 = "implemented/effect",
                     not_implemented_0 = "not implemented/no effect",
-                    not_implemented_1 = "not implemented/effect")
+                    not_implemented_1 = "not implemented/effect",
+                    implemented_NA = "implemented/not tested",
+                    not_implemented_NA = "not implemented/not tested",
+                    measure_type = "Measure type") %>% 
+  autofit() 
 
-flextable(fisher_sumF) %>% autofit() %>% set_caption(caption = "\u03A3F") %>%
+flextable(fisher_sumF) %>% set_caption(caption = "\u03A3F") %>%
   set_header_labels(implemented_0 = "implemented/no effect",
                     implemented_1 = "implemented/effect",
                     not_implemented_0 = "not implemented/no effect",
-                    not_implemented_1 = "not implemented/effect")
+                    not_implemented_1 = "not implemented/effect",
+                    implemented_NA = "implemented/not tested",
+                    not_implemented_NA = "not implemented/not tested",
+                    measure_type = "Measure type") %>% 
+  autofit()
 
-flextable(fisher_sumH) %>% autofit() %>% set_caption(caption = "\u03A3H") %>%
+flextable(fisher_sumH) %>% set_caption(caption = "\u03A3H") %>%
   set_header_labels(implemented_0 = "implemented/no effect",
                     implemented_1 = "implemented/effect",
                     not_implemented_0 = "not implemented/no effect",
-                    not_implemented_1 = "not implemented/effect")
+                    not_implemented_1 = "not implemented/effect",
+                    implemented_NA = "implemented/not tested",
+                    not_implemented_NA = "not implemented/not tested",
+                    measure_type = "Measure type") %>% 
+  autofit()
 
-flextable(fisher_b0_adj) %>% autofit() %>% set_caption(caption = "b0 adj") %>%
+flextable(fisher_b0_adj) %>% set_caption(caption = "b0 adj") %>%
   set_header_labels(implemented_0 = "implemented/no effect",
                     implemented_1 = "implemented/effect",
                     not_implemented_0 = "not implemented/no effect",
-                    not_implemented_1 = "not implemented/effect")
+                    not_implemented_1 = "not implemented/effect",
+                    implemented_NA = "implemented/not tested",
+                    not_implemented_NA = "not implemented/not tested",
+                    measure_type = "Measure type") %>% 
+  autofit()
 
 ```
 
@@ -1676,19 +1737,23 @@ require(ggrepel)
 
 ggplot(meas_mort, aes(x=suma_initial, y=delta_suma)) +
   geom_point(size = 1) + 
-   geom_text_repel(aes(label = eel_emu_nameshort, col = start_year), size = 3.2)+ 
+   geom_text_repel(aes(label = eel_emu_nameshort, col = start_year), size = 3.2, max.overlaps = 50)+ 
   theme_bw()+
+  geom_hline(yintercept = 0, col = "black", size = 0.5)+
+  geom_vline(xintercept = 0.92, col = "red", linetype = "dashed", size = 0.5)+
   labs(x = "Initial \u03A3A", y = "\u0394 \u03A3A")
 
 ggplot(meas_mort, aes(x=sumf_initial, y=delta_sumf)) + 
   geom_point(size = 1.5) + 
-  geom_text_repel(aes(label = eel_emu_nameshort, col = start_year), size = 3.2)+
+  geom_text_repel(aes(label = eel_emu_nameshort, col = start_year), size = 3.2, max.overlaps = 50)+
+  geom_hline(yintercept = 0, col = "black", size = 0.5)+
   theme_bw()+
   labs(x = "Initial \u03A3F", y = "\u0394 \u03A3F")
   
 ggplot(meas_mort, aes(x=sumh_initial, y=delta_sumh)) + 
   geom_point(size = 1) +
-  geom_text_repel(aes(label = eel_emu_nameshort, col = start_year), size = 3.2)+
+  geom_text_repel(aes(label = eel_emu_nameshort, col = start_year), size = 3.2, max.overlaps = 50)+
+  geom_hline(yintercept = 0, col = "black", size = 0.5)+
   theme_bw()+
   labs(x = "Initial \u03A3H", y = "\u0394 \u03A3H")
 
