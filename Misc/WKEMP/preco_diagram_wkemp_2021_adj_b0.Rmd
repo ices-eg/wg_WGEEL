@@ -395,6 +395,9 @@ trace_precodiag3 = function(precodata,
   } else {
     labels <- precodata$eel_cou_code
   }
+  
+  precodata <- precodata %>%
+    mutate(pbiom = pmax(pbiom, Bminimum))
   g<- ggplot(df)+
     theme_bw()+
     theme(legend.key = element_rect(colour = "white"))+

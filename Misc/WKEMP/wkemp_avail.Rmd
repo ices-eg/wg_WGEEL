@@ -316,7 +316,7 @@ values=c(RColorBrewer::brewer.pal(12,"Set3"),
 country_ref=dbGetQuery(con,"select cou_code from ref.tr_country_cou")
 color_countries = setNames(values,country_ref$cou_code)
 ggplot(emu_p %>% filter(emu_cou_code %in%eu_cou_codes &
-                          grepl("^[[:alpha:]]{2}_[[:alpha:]]{4}$",emu_p$emu_nameshort) &
+                          grepl("^[[:alpha:]]{2}_[[:alpha:]]{1,4}$",emu_p$emu_nameshort) &
                           ! emu_cou_code %in% c("CY","MT"))) +
   geom_sf(data = countries, fill = "grey", inherit.aes = FALSE) +
   geom_sf(aes(fill=emu_cou_code),
@@ -341,7 +341,7 @@ flextable(emu_p %>%
             st_drop_geometry() %>%
             select(emu_cou_code,emu_nameshort) %>%
             filter(emu_cou_code %in%eu_cou_codes &
-                     grepl("^[[:alpha:]]{2}_[[:alpha:]]{4}$",emu_p$emu_nameshort) &
+                     grepl("^[[:alpha:]]{2}_[[:alpha:]]{1,4}$",emu_p$emu_nameshort) &
                      ! emu_cou_code %in% c("CY","MT")) %>%
             inner_join(country_p,by=c("emu_cou_code"="cou_code")) %>%
             inner_join(emu_split) %>%
