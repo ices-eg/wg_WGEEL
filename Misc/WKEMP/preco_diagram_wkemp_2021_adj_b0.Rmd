@@ -237,8 +237,8 @@ trace_precodiag3(precodata_all, "emu", last_year = FALSE, years = 2018)
 
 ```{r message=FALSE, warning=FALSE, include=FALSE}
 
-#source("readingAnnex13.R") # run above and save the annex13.Rdata in data_dependencies if this fails
-load( file=file.path(getwd(),"data_dependencies","annex13.Rdata")) 
+source("readingAnnex13.R") # run above and save the annex13.Rdata in data_dependencies if this fails
+#load( file=file.path(getwd(),"data_dependencies","annex13.Rdata")) 
 load("../../R/shiny_data_visualisation/shiny_dv/data/maps_for_shiny.Rdata")
 load("../../R/shiny_data_visualisation/shiny_dv/data/recruitment/dat_ge.Rdata")
 load("../../R/shiny_data_visualisation/shiny_dv/data/recruitment/dat_ye.Rdata")
@@ -469,7 +469,7 @@ trace_precodiag3(precodata_all %>% filter(eel_emu_nameshort %in% mor_wise$emu_na
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 
-trace_precodiag3(precodata_all %>% filter(eel_emu_nameshort %in% mor_wise$emu_nameshort),"emu",last_year=TRUE,years=2018)
+trace_precodiag3(precodata_all %>% filter(eel_emu_nameshort %in% mor_wise$emu_nameshort),"emu",last_year=FALSE,years=2018)
 
 ```
 
