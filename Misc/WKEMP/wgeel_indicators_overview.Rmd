@@ -1174,7 +1174,7 @@ _-_Result for b0 is interesting, eel governance seems to have an effect (tested 
 _Need to check if this makes sense, since the EMUs for the different measures are not the same but those where the respective measure was implemented_
 
 ```{r Fisher_all}
-
+#### CAREFUL, THIS SECTION MIGHT NEED REVISION SINCE POSSIBLY NAs ARE DROPPED THAT SHOULD BE INCLUDED AS ZEROES####
 load("./data_dependencies/Annex15.Rdata")
 
 counts <- res %>% 
