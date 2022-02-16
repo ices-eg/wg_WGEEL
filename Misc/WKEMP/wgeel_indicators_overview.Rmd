@@ -567,8 +567,10 @@ ggplot(indicator %>% filter(!is.na(bcurrent/b0)),aes(x=eel_year,y=bcurrent/b0)) 
   scale_color_manual("country",values=color_countries[names(color_countries) %in% unique(indicator$eel_cou_code)],)+
   guides(lty=FALSE,col=FALSE)+ #geom_hline(yintercept=1)+
 #  scale_y_sqrt()+
+theme_bw() + ylab(expression(B[current]/B[0]))+xlab("") + xlim(2007,2020)+facet_wrap(~eel_cou_code,drop=TRUE,scales="free_y")
+  
 
-  theme_bw() + ylab(expression(B[current]/B[0]))+xlab("") + xlim(2007,2020)+facet_wrap(~eel_cou_code,drop=TRUE,scales="free_y")
+
 
 ```
 
@@ -667,6 +669,30 @@ indicator_sub$b0_adj = mapply(estimate_b0,indicator_sub$eel_emu_nameshort, indic
 
 options(scipen = 999)
 indicator <- indicator %>% left_join(indicator_sub %>% select(eel_year, eel_emu_nameshort, b0_adj), by = c("eel_year", "eel_emu_nameshort"))
+
+
+
+```
+
+```{r plot B0_adj_and_ratio}
+
+ggplot(indicator %>% filter(!is.na(b0_adj)),aes(x=eel_year,y=b0_adj/1000000)) +
+  geom_hline(yintercept=.4,col="red")+
+  geom_line(aes(col=eel_cou_code,group=eel_emu_nameshort))+
+#  scale_y_log10()+
+  scale_color_manual("country",values=color_countries[names(color_countries) %in% unique(indicator$eel_cou_code)],)+
+  guides(lty=FALSE,col=FALSE)+ #geom_hline(yintercept=1)+
+#  scale_y_sqrt()+
+theme_bw() + ylab(expression(B[0-adj]~"in mio"))+xlab("") + xlim(2007,2020)+facet_wrap(~eel_cou_code,drop=TRUE,scales="free_y")
+
+ggplot(indicator %>% filter(!is.na(bcurrent/b0_adj)),aes(x=eel_year,y=bcurrent/b0_adj)) +
+  geom_hline(yintercept=.4,col="red")+
+  geom_line(aes(col=eel_cou_code,group=eel_emu_nameshort))+
+#  scale_y_log10()+
+  scale_color_manual("country",values=color_countries[names(color_countries) %in% unique(indicator$eel_cou_code)],)+
+  guides(lty=FALSE,col=FALSE)+ #geom_hline(yintercept=1)+
+#  scale_y_sqrt()+
+theme_bw() + ylab(expression(B[current]/B[0-adj]))+xlab("") + xlim(2007,2020)+facet_wrap(~eel_cou_code,drop=TRUE,scales="free_y")
 ```
 
 
@@ -686,7 +712,7 @@ ggplot(indicator_vis %>% select(eel_emu_nameshort, eel_year, b0) %>%
   geom_tile() +
   scale_fill_manual(values=c("yellow2", "dark blue"))+
   theme_minimal() +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = -0.001)) +
   theme(panel.border = element_blank(), panel.grid.major = element_blank(),
   panel.grid.minor = element_blank(), axis.line = element_blank(), legend.position = "bottom")+
   theme(legend.title = element_blank())+
@@ -698,7 +724,7 @@ ggplot(indicator_vis %>% select(eel_emu_nameshort, eel_year, bcurrent) %>%
   geom_tile() +
   scale_fill_manual(values=c("yellow2", "dark blue"))+
   theme_minimal() +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = -0.001)) +
   theme(panel.border = element_blank(), panel.grid.major = element_blank(),
   panel.grid.minor = element_blank(), axis.line = element_blank(), legend.position = "bottom")+
   theme(legend.title = element_blank())+
@@ -710,7 +736,7 @@ ggplot(indicator_vis %>% select(eel_emu_nameshort, eel_year, suma) %>%
   geom_tile() +
   scale_fill_manual(values=c("yellow2", "dark blue"))+
   theme_minimal() +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = -0.001)) +
   theme(panel.border = element_blank(), panel.grid.major = element_blank(),
   panel.grid.minor = element_blank(), axis.line = element_blank(), legend.position = "bottom")+
   theme(legend.title = element_blank())+
@@ -722,7 +748,7 @@ ggplot(indicator_vis %>% select(eel_emu_nameshort, eel_year, sumf) %>%
   geom_tile() +
   scale_fill_manual(values=c("yellow2", "dark blue"))+
   theme_minimal() +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = -0.001)) +
   theme(panel.border = element_blank(), panel.grid.major = element_blank(),
   panel.grid.minor = element_blank(), axis.line = element_blank(), legend.position = "bottom")+
   theme(legend.title = element_blank())+
@@ -734,7 +760,7 @@ ggplot(indicator_vis %>% select(eel_emu_nameshort, eel_year, suma) %>%
   geom_tile() +
   scale_fill_manual(values=c("yellow2", "dark blue"))+
   theme_minimal() +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = -0.001)) +
   theme(panel.border = element_blank(), panel.grid.major = element_blank(),
   panel.grid.minor = element_blank(), axis.line = element_blank(), legend.position = "bottom")+
   theme(legend.title = element_blank())+
