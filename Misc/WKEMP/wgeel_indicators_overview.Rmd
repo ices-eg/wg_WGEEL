@@ -3,10 +3,10 @@ title: "wgeel_indicators_overwiew"
 author: "none"
 date: "27/09/2021"
 output:
+  word_document: default
+  pdf_document: default
   html_document:
     df_print: paged
-  pdf_document: default
-  word_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -1206,12 +1206,14 @@ _Need to check if this makes sense, since the EMUs for the different measures ar
 #### CAREFUL, THIS SECTION MIGHT NEED REVISION SINCE POSSIBLY NAs ARE DROPPED THAT SHOULD BE INCLUDED AS ZEROES####
 load("./data_dependencies/Annex15.Rdata")
 
-counts <- res %>% 
+counts <- res %>%
+  mutate(emu_name_short = str_replace(emu_name_short, "NL_Neth", "NL_total")) %>%
   group_by(emu_name_short) %>%
   count(measure_type)
 
 measures <- expand.grid(EMU = unique(res$emu_name_short),
             measure_type = unique(res$measure_type)) %>%
+            mutate(EMU = str_replace(EMU, "NL_Neth", "NL_total")) %>% 
             left_join(counts, by=c("EMU" = "emu_name_short", "measure_type" = "measure_type")) %>%
             replace(is.na(.), 0) %>%
             mutate(binary_measure = ifelse(n == 0 , 0 , 1),
@@ -1369,34 +1371,35 @@ fisher_sumH <- fisher_sumH %>%
 
 ######################################  
 
-fisher_b0_adj <- measures %>% 
-                     group_by(measure_type, binary_measure, b0_adj) %>%
+fisher_b0 <- measures %>% 
+                     group_by(measure_type, binary_measure, b0) %>%
                      summarise(value = n()) %>%
                      mutate(binary_measure = str_replace(binary_measure, "0", "not_implemented"),
                             binary_measure = str_replace(binary_measure, "1", "implemented")) %>%
-                     mutate(indicator = paste(binary_measure, b0_adj, sep = "_")) %>%
+                     mutate(indicator = paste(binary_measure, b0, sep = "_")) %>%
                      ungroup() %>%
-                     select(-binary_measure, - b0_adj) %>%
+                     select(-binary_measure, -b0) %>%
                      spread(indicator, value) %>%
                      replace(is.na(.), 0) %>%
                      mutate(NAs = paste(implemented_NA, not_implemented_NA, sep ="/")) %>% 
                      select(-implemented_NA, not_implemented_NA)
  
-fisher_b0_adj$p <- apply(fisher_b0_adj %>% select(-NAs), 1 ,function(x) {
+fisher_b0$p <- apply(fisher_b0 %>% select(-NAs), 1 ,function(x) {
                                         tbl <- matrix(as.numeric(x[2:5]), ncol=2, byrow=T)
                                         fisher.test(tbl)$p.value
                                         })
 
-fisher_b0_adj <- fisher_b0_adj %>%  
+fisher_b0 <- fisher_b0 %>%  
   select(measure_type, implemented_0, implemented_1, not_implemented_0, not_implemented_1, p, NAs) %>% 
   mutate(p = round(p, 3))
   
 
 ############## OUTPUT TABLES###################
+
 library(officer)
 thick <- officer::fp_border(color="black", width = 2.5)
 thin <- officer::fp_border(color="black", width = 1)
-detach("package:officer", unload=TRUE)
+
 
 flextable(fisher_sumA) %>% set_caption(caption = "\u03A3A") %>%
   set_header_labels(implemented_0 = "implemented/no effect",
@@ -1431,7 +1434,7 @@ flextable(fisher_sumH) %>% set_caption(caption = "\u03A3H") %>%
   vline(j = 6, border = thick) %>%
   autofit()
 
-flextable(fisher_b0_adj) %>% set_caption(caption = "b0 adj") %>%
+flextable(fisher_b0) %>% set_caption(caption = "b0") %>%
   set_header_labels(implemented_0 = "implemented/no effect",
                     implemented_1 = "implemented/effect",
                     not_implemented_0 = "not implemented/no effect",
@@ -1441,6 +1444,8 @@ flextable(fisher_b0_adj) %>% set_caption(caption = "b0 adj") %>%
   vline(j = 5, border = thin) %>%
   vline(j = 6, border = thick) %>%
   autofit()
+
+detach("package:officer", unload=TRUE)
 
 ```
 
