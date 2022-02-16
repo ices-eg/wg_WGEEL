@@ -567,6 +567,7 @@ ggplot(indicator %>% filter(!is.na(bcurrent/b0)),aes(x=eel_year,y=bcurrent/b0)) 
   scale_color_manual("country",values=color_countries[names(color_countries) %in% unique(indicator$eel_cou_code)],)+
   guides(lty=FALSE,col=FALSE)+ #geom_hline(yintercept=1)+
 #  scale_y_sqrt()+
+  
 theme_bw() + ylab(expression(B[current]/B[0]))+xlab("") + xlim(2007,2020)+facet_wrap(~eel_cou_code,drop=TRUE,scales="free_y")
   
 
