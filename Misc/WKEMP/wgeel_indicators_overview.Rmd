@@ -567,8 +567,11 @@ ggplot(indicator %>% filter(!is.na(bcurrent/b0)),aes(x=eel_year,y=bcurrent/b0)) 
   scale_color_manual("country",values=color_countries[names(color_countries) %in% unique(indicator$eel_cou_code)],)+
   guides(lty=FALSE,col=FALSE)+ #geom_hline(yintercept=1)+
 #  scale_y_sqrt()+
+  
+theme_bw() + ylab(expression(B[current]/B[0]))+xlab("") + xlim(2007,2020)+facet_wrap(~eel_cou_code,drop=TRUE,scales="free_y")
+  
 
-  theme_bw() + ylab(expression(B[current]/B[0]))+xlab("") + xlim(2007,2020)+facet_wrap(~eel_cou_code,drop=TRUE,scales="free_y")
+
 
 ```
 
@@ -667,6 +670,32 @@ indicator_sub$b0_adj = mapply(estimate_b0,indicator_sub$eel_emu_nameshort, indic
 
 options(scipen = 999)
 indicator <- indicator %>% left_join(indicator_sub %>% select(eel_year, eel_emu_nameshort, b0_adj), by = c("eel_year", "eel_emu_nameshort"))
+
+
+
+```
+
+## B0_adjusted visualisation
+
+```{r plot B0_adj_and_ratio}
+
+ggplot(indicator %>% filter(!is.na(b0_adj)),aes(x=eel_year,y=b0_adj/1000000)) +
+  geom_hline(yintercept=.4,col="red")+
+  geom_line(aes(col=eel_cou_code,group=eel_emu_nameshort))+
+#  scale_y_log10()+
+  scale_color_manual("country",values=color_countries[names(color_countries) %in% unique(indicator$eel_cou_code)],)+
+  guides(lty=FALSE,col=FALSE)+ #geom_hline(yintercept=1)+
+#  scale_y_sqrt()+
+theme_bw() + ylab(expression(B[0-adj]~"in mio"))+xlab("") + xlim(2007,2020)+facet_wrap(~eel_cou_code,drop=TRUE,scales="free_y")
+
+ggplot(indicator %>% filter(!is.na(bcurrent/b0_adj)),aes(x=eel_year,y=bcurrent/b0_adj)) +
+  geom_hline(yintercept=.4,col="red")+
+  geom_line(aes(col=eel_cou_code,group=eel_emu_nameshort))+
+#  scale_y_log10()+
+  scale_color_manual("country",values=color_countries[names(color_countries) %in% unique(indicator$eel_cou_code)],)+
+  guides(lty=FALSE,col=FALSE)+ #geom_hline(yintercept=1)+
+#  scale_y_sqrt()+
+theme_bw() + ylab(expression(B[current]/B[0-adj]))+xlab("") + xlim(2007,2020)+facet_wrap(~eel_cou_code,drop=TRUE,scales="free_y")
 ```
 
 
@@ -686,7 +715,7 @@ ggplot(indicator_vis %>% select(eel_emu_nameshort, eel_year, b0) %>%
   geom_tile() +
   scale_fill_manual(values=c("yellow2", "dark blue"))+
   theme_minimal() +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = -0.001)) +
   theme(panel.border = element_blank(), panel.grid.major = element_blank(),
   panel.grid.minor = element_blank(), axis.line = element_blank(), legend.position = "bottom")+
   theme(legend.title = element_blank())+
@@ -698,7 +727,7 @@ ggplot(indicator_vis %>% select(eel_emu_nameshort, eel_year, bcurrent) %>%
   geom_tile() +
   scale_fill_manual(values=c("yellow2", "dark blue"))+
   theme_minimal() +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = -0.001)) +
   theme(panel.border = element_blank(), panel.grid.major = element_blank(),
   panel.grid.minor = element_blank(), axis.line = element_blank(), legend.position = "bottom")+
   theme(legend.title = element_blank())+
@@ -710,7 +739,7 @@ ggplot(indicator_vis %>% select(eel_emu_nameshort, eel_year, suma) %>%
   geom_tile() +
   scale_fill_manual(values=c("yellow2", "dark blue"))+
   theme_minimal() +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = -0.001)) +
   theme(panel.border = element_blank(), panel.grid.major = element_blank(),
   panel.grid.minor = element_blank(), axis.line = element_blank(), legend.position = "bottom")+
   theme(legend.title = element_blank())+
@@ -722,7 +751,7 @@ ggplot(indicator_vis %>% select(eel_emu_nameshort, eel_year, sumf) %>%
   geom_tile() +
   scale_fill_manual(values=c("yellow2", "dark blue"))+
   theme_minimal() +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = -0.001)) +
   theme(panel.border = element_blank(), panel.grid.major = element_blank(),
   panel.grid.minor = element_blank(), axis.line = element_blank(), legend.position = "bottom")+
   theme(legend.title = element_blank())+
@@ -734,7 +763,7 @@ ggplot(indicator_vis %>% select(eel_emu_nameshort, eel_year, suma) %>%
   geom_tile() +
   scale_fill_manual(values=c("yellow2", "dark blue"))+
   theme_minimal() +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = -0.001)) +
   theme(panel.border = element_blank(), panel.grid.major = element_blank(),
   panel.grid.minor = element_blank(), axis.line = element_blank(), legend.position = "bottom")+
   theme(legend.title = element_blank())+
@@ -1174,15 +1203,17 @@ _-_Result for b0 is interesting, eel governance seems to have an effect (tested 
 _Need to check if this makes sense, since the EMUs for the different measures are not the same but those where the respective measure was implemented_
 
 ```{r Fisher_all}
-
+#### CAREFUL, THIS SECTION MIGHT NEED REVISION SINCE POSSIBLY NAs ARE DROPPED THAT SHOULD BE INCLUDED AS ZEROES####
 load("./data_dependencies/Annex15.Rdata")
 
-counts <- res %>% 
+counts <- res %>%
+  mutate(emu_name_short = str_replace(emu_name_short, "NL_Neth", "NL_total")) %>%
   group_by(emu_name_short) %>%
   count(measure_type)
 
 measures <- expand.grid(EMU = unique(res$emu_name_short),
             measure_type = unique(res$measure_type)) %>%
+            mutate(EMU = str_replace(EMU, "NL_Neth", "NL_total")) %>% 
             left_join(counts, by=c("EMU" = "emu_name_short", "measure_type" = "measure_type")) %>%
             replace(is.na(.), 0) %>%
             mutate(binary_measure = ifelse(n == 0 , 0 , 1),
@@ -1276,14 +1307,19 @@ fisher_sumA <- measures %>%
                      select(-binary_measure, - sumA) %>%
                      spread(indicator, value) %>%
                      replace(is.na(.), 0) %>%
-                     mutate_all(funs(str_replace(., "_", " ")))
+                     mutate(NAs = paste(implemented_NA, not_implemented_NA, sep ="/")) %>% 
+                     select(-implemented_NA, not_implemented_NA)
 
 
  
-fisher_sumA$p_value <- apply(fisher_sumA %>% select(-implemented_NA, - not_implemented_NA), 1 ,function(x) {
+fisher_sumA$p <- apply(fisher_sumA %>% select(-NAs), 1 ,function(x) {
                                         tbl <- matrix(as.numeric(x[2:5]), ncol=2, byrow=T)
                                         fisher.test(tbl)$p.value
                                         })
+
+fisher_sumA <- fisher_sumA %>%  
+  select(measure_type, implemented_0, implemented_1, not_implemented_0, not_implemented_1, p, NAs) %>% 
+  mutate(p = round(p, 3))
 
 ######################################
 
@@ -1296,12 +1332,18 @@ fisher_sumF <- measures %>%
                      ungroup() %>%
                      select(-binary_measure, - sumF) %>%
                      spread(indicator, value) %>%
-                     replace(is.na(.), 0)
+                     replace(is.na(.), 0) %>%
+                     mutate(NAs = paste(implemented_NA, not_implemented_NA, sep ="/")) %>% 
+                     select(-implemented_NA, not_implemented_NA)
  
-fisher_sumF$p_value <- apply(fisher_sumF %>% select(-implemented_NA, - not_implemented_NA), 1 ,function(x) {
+fisher_sumF$p <- apply(fisher_sumF %>% select(-NAs), 1 ,function(x) {
                                         tbl <- matrix(as.numeric(x[2:5]), ncol=2, byrow=T)
                                         fisher.test(tbl)$p.value
                                         })
+
+fisher_sumF <- fisher_sumF %>%  
+  select(measure_type, implemented_0, implemented_1, not_implemented_0, not_implemented_1, p, NAs) %>% 
+  mutate(p = round(p, 3))
 
 ######################################
                                         
@@ -1314,39 +1356,60 @@ fisher_sumH <- measures %>%
                      ungroup() %>%
                      select(-binary_measure, - sumH) %>%
                      spread(indicator, value) %>%
-                     replace(is.na(.), 0)
+                     replace(is.na(.), 0) %>%
+                     mutate(NAs = paste(implemented_NA, not_implemented_NA, sep ="/")) %>% 
+                     select(-implemented_NA, not_implemented_NA)
  
-fisher_sumH$p_value <- apply(fisher_sumH %>% select(-implemented_NA, - not_implemented_NA), 1 ,function(x) {
+fisher_sumH$p <- apply(fisher_sumH %>% select(-NAs), 1 ,function(x) {
                                         tbl <- matrix(as.numeric(x[2:5]), ncol=2, byrow=T)
                                         fisher.test(tbl)$p.value
                                         })
+
+fisher_sumH <- fisher_sumH %>%  
+  select(measure_type, implemented_0, implemented_1, not_implemented_0, not_implemented_1, p, NAs) %>% 
+  mutate(p = round(p, 3))
 
 ######################################  
 
-fisher_b0_adj <- measures %>% 
-                     group_by(measure_type, binary_measure, b0_adj) %>%
+fisher_b0 <- measures %>% 
+                     group_by(measure_type, binary_measure, b0) %>%
                      summarise(value = n()) %>%
                      mutate(binary_measure = str_replace(binary_measure, "0", "not_implemented"),
                             binary_measure = str_replace(binary_measure, "1", "implemented")) %>%
-                     mutate(indicator = paste(binary_measure, b0_adj, sep = "_")) %>%
+                     mutate(indicator = paste(binary_measure, b0, sep = "_")) %>%
                      ungroup() %>%
-                     select(-binary_measure, - b0_adj) %>%
+                     select(-binary_measure, -b0) %>%
                      spread(indicator, value) %>%
-                     replace(is.na(.), 0)
+                     replace(is.na(.), 0) %>%
+                     mutate(NAs = paste(implemented_NA, not_implemented_NA, sep ="/")) %>% 
+                     select(-implemented_NA, not_implemented_NA)
  
-fisher_b0_adj$p_value <- apply(fisher_b0_adj %>% select(-implemented_NA, - not_implemented_NA), 1 ,function(x) {
+fisher_b0$p <- apply(fisher_b0 %>% select(-NAs), 1 ,function(x) {
                                         tbl <- matrix(as.numeric(x[2:5]), ncol=2, byrow=T)
                                         fisher.test(tbl)$p.value
                                         })
+
+fisher_b0 <- fisher_b0 %>%  
+  select(measure_type, implemented_0, implemented_1, not_implemented_0, not_implemented_1, p, NAs) %>% 
+  mutate(p = round(p, 3))
+  
+
+############## OUTPUT TABLES###################
+
+library(officer)
+thick <- officer::fp_border(color="black", width = 2.5)
+thin <- officer::fp_border(color="black", width = 1)
+
 
 flextable(fisher_sumA) %>% set_caption(caption = "\u03A3A") %>%
   set_header_labels(implemented_0 = "implemented/no effect",
                     implemented_1 = "implemented/effect",
                     not_implemented_0 = "not implemented/no effect",
                     not_implemented_1 = "not implemented/effect",
-                    implemented_NA = "implemented/not tested",
-                    not_implemented_NA = "not implemented/not tested",
+                    NAs = "Not tested (implemented/not implemented)",
                     measure_type = "Measure type") %>% 
+  vline(j = 5, border = thin) %>%
+  vline(j = 6, border = thick) %>%
   autofit() 
 
 flextable(fisher_sumF) %>% set_caption(caption = "\u03A3F") %>%
@@ -1354,9 +1417,10 @@ flextable(fisher_sumF) %>% set_caption(caption = "\u03A3F") %>%
                     implemented_1 = "implemented/effect",
                     not_implemented_0 = "not implemented/no effect",
                     not_implemented_1 = "not implemented/effect",
-                    implemented_NA = "implemented/not tested",
-                    not_implemented_NA = "not implemented/not tested",
-                    measure_type = "Measure type") %>% 
+                    NAs = "Not tested (implemented/not implemented)",
+                    measure_type = "Measure type") %>%
+  vline(j = 5, border = thin) %>%
+  vline(j = 6, border = thick) %>%
   autofit()
 
 flextable(fisher_sumH) %>% set_caption(caption = "\u03A3H") %>%
@@ -1364,20 +1428,24 @@ flextable(fisher_sumH) %>% set_caption(caption = "\u03A3H") %>%
                     implemented_1 = "implemented/effect",
                     not_implemented_0 = "not implemented/no effect",
                     not_implemented_1 = "not implemented/effect",
-                    implemented_NA = "implemented/not tested",
-                    not_implemented_NA = "not implemented/not tested",
-                    measure_type = "Measure type") %>% 
+                    NAs = "Not tested (implemented/not implemented)",
+                    measure_type = "Measure type") %>%
+  vline(j = 5, border = thin) %>%
+  vline(j = 6, border = thick) %>%
   autofit()
 
-flextable(fisher_b0_adj) %>% set_caption(caption = "b0 adj") %>%
+flextable(fisher_b0) %>% set_caption(caption = "b0") %>%
   set_header_labels(implemented_0 = "implemented/no effect",
                     implemented_1 = "implemented/effect",
                     not_implemented_0 = "not implemented/no effect",
                     not_implemented_1 = "not implemented/effect",
-                    implemented_NA = "implemented/not tested",
-                    not_implemented_NA = "not implemented/not tested",
-                    measure_type = "Measure type") %>% 
+                    NAs = "Not tested (implemented/not implemented)",
+                    measure_type = "Measure type") %>%
+  vline(j = 5, border = thin) %>%
+  vline(j = 6, border = thick) %>%
   autofit()
+
+detach("package:officer", unload=TRUE)
 
 ```
 
