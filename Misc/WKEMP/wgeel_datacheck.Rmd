@@ -104,13 +104,13 @@ ggplot(st_transform(country_p,crs=3035)) + geom_sf(fill=NA)+theme_bw()+
   geom_point(data=data_avail,aes(x=x,y=y,fill=as.factor(bsummary)),shape=21)+
   scale_fill_viridis_d("Biomass indicators",labels=c("none","one","two","three"))+
   xlab("")+ylab("")
-#ggsave(filename="/tmp/biom.png",width=16/2.54,height=10/2.54,dpi=300)
+ggsave(filename="/tmp/biom.png",width=16/2.54,height=10/2.54,dpi=300)
 
 ggplot(st_transform(country_p,crs=3035)) + geom_sf(fill=NA)+theme_bw()+
   geom_point(data=data_avail,aes(x=x,y=y,fill=as.factor(mortsummary)),shape=21)+
   scale_fill_viridis_d("Mortality indicators",labels=c("none","one","two","three"))+
   xlab("")+ylab("")
-#ggsave(filename="/tmp/mort.png",width=16/2.54,height=10/2.54,dpi=300)
+ggsave(filename="/tmp/mort.png",width=16/2.54,height=10/2.54,dpi=300)
 
 data_avail =data_avail %>% select(emu_nameshort,x,y,bsummary,responded,mortsummary,geometry) %>%
   pivot_longer(cols=ends_with("summary"),names_to="indicator",values_to="nb")
