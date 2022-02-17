@@ -2,7 +2,7 @@
 title: "WKEMP_2021"
 author: "Partal N."
 date: "01 12 2021"
-output: html_document
+output: word_document
 ---
 
 ```{r setup, include=FALSE}
@@ -178,7 +178,7 @@ trace_precodiag3 = function(precodata,
 
 ## Precautionary diagrams for countries in 2020.
 
-```{r message=FALSE, warning=FALSE}
+```{r message=FALSE, warning=FALSE, fig.width=25/2.54}
 
 trace_precodiag3(precodata_all,"country",last_year=2020,years=2020)
 
@@ -187,7 +187,7 @@ trace_precodiag3(precodata_all,"country",last_year=2020,years=2020)
 
 ## Precautionary diagrams for countries in 2019.
 
-```{r message=TRUE, warning=TRUE}
+```{r message=TRUE, warning=TRUE, fig.width=25/2.54}
 
 trace_precodiag3(precodata_all,"country",last_year=FALSE,years=2019)
 
@@ -196,7 +196,7 @@ trace_precodiag3(precodata_all,"country",last_year=FALSE,years=2019)
 
 ## Precautionary diagrams for countries in 2018.
 
-```{r message=TRUE, warning=TRUE}
+```{r message=TRUE, warning=TRUE, fig.width=25/2.54}
 
 trace_precodiag3(precodata_all, "country", last_year = FALSE, years = 2018)
 
@@ -205,7 +205,7 @@ trace_precodiag3(precodata_all, "country", last_year = FALSE, years = 2018)
 
 ## Precautionary diagrams for emu's in 2020.
 
-```{r message=FALSE, warning=FALSE}
+```{r message=FALSE, warning=FALSE, fig.width=25/2.54}
 
 trace_precodiag3(precodata_all,"emu",last_year=2020,years=2020)
 
@@ -214,7 +214,7 @@ trace_precodiag3(precodata_all,"emu",last_year=2020,years=2020)
 
 ## Precautionary diagrams for emu's in 2019.
 
-```{r message=FALSE, warning=FALSE}
+```{r message=FALSE, warning=FALSE, fig.width=25/2.54}
 
 trace_precodiag3(precodata_all,"emu",last_year=FALSE,years=2019)
 
@@ -223,7 +223,7 @@ trace_precodiag3(precodata_all,"emu",last_year=FALSE,years=2019)
 
 ## Precautionary diagrams for emu's in 2018.
 
-```{r message=FALSE, warning=FALSE}
+```{r message=FALSE, warning=FALSE, fig.width=25/2.54}
 
 trace_precodiag3(precodata_all, "emu", last_year = FALSE, years = 2018)
 
@@ -236,9 +236,9 @@ trace_precodiag3(precodata_all, "emu", last_year = FALSE, years = 2018)
 
 
 ```{r message=FALSE, warning=FALSE, include=FALSE}
-
 source("readingAnnex13.R") # run above and save the annex13.Rdata in data_dependencies if this fails
 #load( file=file.path(getwd(),"data_dependencies","annex13.Rdata")) 
+#load("~/Bureau/data_call/Annex13/res/annex13.Rdata")
 load("../../R/shiny_data_visualisation/shiny_dv/data/maps_for_shiny.Rdata")
 load("../../R/shiny_data_visualisation/shiny_dv/data/recruitment/dat_ge.Rdata")
 load("../../R/shiny_data_visualisation/shiny_dv/data/recruitment/dat_ye.Rdata")
@@ -296,7 +296,7 @@ estimate_b0 = function(emu, year, mor_wise,precodata){
                        "EE" = mean(mod$p_std_1960_1979[mod$year %in% ((year-12):(year-7))]),
                        "NS" = mean(mod$p_std_1960_1979[mod$year %in% ((year-17):(year-12))]),
                        "BA" = mean(mod$value_std_1960_1979[mod$year %in% ((year-22):(year-17))]))
-  precodata$bbest[precodata$eel_emu_nameshort==emu & precodata$eel_year==year] / Rcurrent
+  unique(precodata$bbest[precodata$eel_emu_nameshort==emu & precodata$eel_year==year] / Rcurrent)
 }
   
   
@@ -436,8 +436,8 @@ trace_precodiag3 = function(precodata,
     ggtitle(str_c(title))
   if(pretty(max(precodata$suma,na.rm=TRUE))[2] > 4.6)   g = g +annotate("text",x =  Bminimum, y = 4.6, label = "1%",  parse = F, hjust=1, size=3) 
   if (choose_color == "eel_year")
-    g<- g+scale_colour_viridis(discrete=TRUE) else
-    g<-g+scale_colour_brewer(palette = "Set3",direction=-1)
+    g+scale_colour_viridis(discrete=TRUE) else
+    g+scale_colour_brewer(palette = "Set3",direction=-1)
   
   
   
@@ -451,25 +451,87 @@ trace_precodiag3 = function(precodata,
 
 
 
-```{r echo=FALSE, message=FALSE, warning=FALSE}
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=16/2.54}
 trace_precodiag3(precodata_all %>% filter(eel_emu_nameshort %in% mor_wise$emu_nameshort),"emu",last_year=FALSE,years=2020)
+ggsave("2020.png",width=30/2.54,height=18/2.54 )
+
 ```
 
 
 
 
-```{r echo=FALSE, message=FALSE, warning=FALSE}
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=16/2.54}
 
 trace_precodiag3(precodata_all %>% filter(eel_emu_nameshort %in% mor_wise$emu_nameshort),"emu",last_year=FALSE,years=2019)
+ggsave("2019.png",width=30/2.54,height=18/2.54 )
 
 ```
 
 
 
 
-```{r echo=FALSE, message=FALSE, warning=FALSE}
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=16/2.54, fig.height=12/2.54}
 
 trace_precodiag3(precodata_all %>% filter(eel_emu_nameshort %in% mor_wise$emu_nameshort),"emu",last_year=FALSE,years=2018)
+ggsave("2018.png",width=30/2.54,height=18/2.54 )
 
 ```
 
+```{r}
+library(flextable)
+library(flextable)
+con = dbConnect(Postgres(), dbname=cred$dbname,host=cred$host,port=cred$port,user=cred$user, password=getPass())
+
+precodata_all=dbGetQuery(con,"select * from datawg.precodata_all")
+dbDisconnect(con)
+
+table_precodata <- precodata_all %>%
+  filter(aggreg_level=="emu") %>%
+  filter(eel_cou_code %in% eu_cou_codes)
+#table_precodata <- 
+  
+flextable(table_precodata %>%
+    select(eel_year,eel_emu_nameshort,b0,suma,bcurrent)%>%
+    distinct() %>%
+  mutate(zonereported=ifelse(bcurrent/b0>.4 & suma<0.92, "green",
+                             ifelse(bcurrent/b0>.4, "orange1",
+                                    ifelse(suma< .92 *((bcurrent/b0)/.4), "orange2",
+                                           "red")))) %>%
+  filter(eel_year>=2018) %>%
+  select(eel_year,eel_emu_nameshort,zonereported) %>%
+  pivot_longer(cols=c(zonereported),names_to="type") %>%
+  pivot_wider(id_cols=eel_emu_nameshort,names_from=c(type,eel_year),values_from=value) %>%
+    arrange(eel_emu_nameshort))
+
+
+
+
+
+table_precodata <- precodata_all %>%
+  filter(aggreg_level=="emu") %>%
+  filter(eel_cou_code %in% eu_cou_codes) %>%
+  filter(eel_emu_nameshort %in% mor_wise$emu_nameshort)
+table_precodata$adj_b0=mapply(estimate_b0,table_precodata$eel_emu_nameshort, table_precodata$eel_year,
+                                MoreArgs=list(mor_wise=mor_wise,precodata=table_precodata))
+#table_precodata <- 
+  
+flextable(table_precodata %>%
+    select(eel_year,eel_emu_nameshort,b0,suma,adj_b0,bcurrent)%>%
+    distinct() %>%
+  mutate(zonereported=ifelse(bcurrent/b0>.4 & suma<0.92, "green",
+                             ifelse(bcurrent/b0>.4, "orange1",
+                                    ifelse(suma< .92 *((bcurrent/b0)/.4), "orange2",
+                                           "red"))),
+         zoneadj=ifelse(bcurrent/adj_b0>.4 & suma<0.92, "green",
+                             ifelse(bcurrent/adj_b0>.4, "orange1",
+                                    ifelse(suma< .92 *((bcurrent/adj_b0)/.4), "orange2",
+                                           "red")))) %>%
+  filter(eel_year>=2018) %>%
+  select(eel_year,eel_emu_nameshort,zonereported,zoneadj) %>%
+  pivot_longer(cols=c(zonereported,zoneadj),names_to="type") %>%
+    filter(type=="zonereported") %>%
+  pivot_wider(id_cols=eel_emu_nameshort,names_from=c(type,eel_year),values_from=value) %>%
+    arrange(eel_emu_nameshort))
+
+                 
+```
