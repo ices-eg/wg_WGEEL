@@ -1020,8 +1020,8 @@ bg_Delta_b0 <- scales::col_bin(
   bins = c(-100, 0.000000001, 100))
 
 bg_suma <- scales::col_bin(
-  palette = c("palegreen3", "coral1"),
-  bins = c(-100, 0.92, 100))
+  palette = c("grey90"),
+  domain = c(0, 100))
 
 bg_Delta_suma <- scales::col_bin(
   palette = c("palegreen3", "coral1"),
