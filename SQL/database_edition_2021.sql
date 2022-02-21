@@ -1356,3 +1356,10 @@ AND eel_cou_code ='ES' AND eel_datasource='dc_2021'; --941
 begin;
 update datawg.t_eelstock_eel set eel_emu_nameshort='NL_total' where eel_qal_id <=4  and eel_emu_nameshort like ('NL_Neth%');
 commit;
+
+
+-- remove old point for GiScG collected with old boat
+begin;
+update datawg.t_dataseries_das set das_qal_id = 21, das_comment='boat change / updated 2020 2,2033348 changed to 5,59199109836876 effort changed from 287 to 286 new method was used to estimate the index since 2020', das_dts_datasource ='dc_2021' where das_id=1741 and das_year=1994 and das_ser_id=42;  
+select * from datawg.t_dataseries_das tdd where das_ser_id= 42 order by das_year;
+commit;
