@@ -1,4 +1,9 @@
+-------------------
+-- WKEELDATA4 09/05/2022
+-------------------
+
 -- dump on server 09/05
+
 
 -- CURRENT CODE
 
@@ -91,3 +96,52 @@ UPDATE datawg.t_biometry_bio SET bio_number=alldat.bit_n FROM alldat WHERE
 alldat.bio_id=t_biometry_bio.bio_id; --180
 
 ALTER TABLE datawg.t_biometry_other_bit DROP COLUMN bit_n;
+
+
+/*
+ * CREATE A TABLE TO STORE BIOMETRY ON INDIVIDUAL DATA
+ * HERE set as wgs84 do we set this in 3035 ?
+ * NOT TESTED YET
+ */
+
+CREATE TABLE datawg.t_biometry_indiv_bii (
+  bii_id serial PRIMARY KEY,
+  bii_cou_code varchar(2),
+  bii_emu_nameshort varchar(20),
+  bii_area_division varchar(254),
+  bii_hty_code varchar(2),
+  bii_latitude_4326 numeric,
+  bii_longitude_4326 numeric,
+  --bii_lfs_code varchar(2), -- this might be a problem FOR individual DATA (maybe correct later)
+  bii_date date ,
+  bii_lengthmm numeric,
+  bii_weightg numeric,
+  bii_age numeric,
+  bii_eye_diam_horizontal  numeric, --in mm
+  bii_eye_diam_vertical numeric, --in mm
+  bii_pectoral_fin_length NUMERIC, --in mm
+  bii_comment TEXT,
+  bii_last_update date,
+  --bii_qal_id int4, -- Do we want that AT ALL ?
+  bii_dts_datasource varchar(100),
+  bii_geom geometry(point, 4326),
+  CONSTRAINT c_fk_bii_dts_datasource FOREIGN KEY (bii_dts_datasource) REFERENCES "ref".tr_datasource_dts(dts_datasource),
+  --CONSTRAINT c_fk_bii_lfs_code FOREIGN KEY (bio_lfs_code) REFERENCES "ref".tr_lifestage_lfs(lfs_code) ON UPDATE CASCADE,
+  --CONSTRAINT c_fk_bii_qal_id FOREIGN KEY (bii_qal_id) REFERENCES "ref".tr_quality_qal(qal_id)
+  CONSTRAINT c_fk_bii_area_code FOREIGN KEY (bii_area_division) REFERENCES "ref".tr_faoareas(f_division) ON UPDATE CASCADE,
+  CONSTRAINT c_fk_bii_cou_code FOREIGN KEY (bii_cou_code) REFERENCES "ref".tr_country_cou(cou_code),
+  CONSTRAINT c_fk_bii_emu FOREIGN KEY (bii_emu_nameshort,bii_cou_code) REFERENCES "ref".tr_emu_emu(emu_nameshort,emu_cou_code),
+  CONSTRAINT c_fk_bii_hty_code FOREIGN KEY (bii_hty_code) REFERENCES "ref".tr_habitattype_hty(hty_code) ON UPDATE CASCADE,
+  CONSTRAINT c_nn_bii_date CHECK (bii_date) NOT NULL,
+  CONSTRAINT c_ck_bii_lengthmm CHECK (bii_lengthmm>0 OR bii_lengthmm IS NULL),
+  CONSTRAINT c_ck_bii_lengthmm CHECK (bii_weightg>0 OR bii_weightg IS NULL),
+  CONSTRAINT c_ck_bii_bii_age CHECK (bii_age>0 OR bii_age IS NULL),
+  CONSTRAINT c_ck_bii_eye_diam_horizontal CHECK (bii_eye_diam_horizontal>0 OR bii_eye_diam_horizontal IS NULL),
+  CONSTRAINT c_ck_bii_eye_diam_vertical CHECK (bii_eye_diam_vertical>0 OR bii_eye_diam_vertical IS NULL),
+  CONSTRAINT c_ck_bii_pectoral_fin_length CHECK (bii_pectoral_fin_length>0 OR bii_pectoral_fin_length IS NULL)
+)
+;
+
+--TODO add trigger on bii_last_update
+
+
