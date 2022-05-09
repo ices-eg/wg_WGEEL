@@ -1,0 +1,287 @@
+---
+title: "DATRAS"
+author: "none"
+date: "10/03/2022"
+output: html_document
+---
+```{r, include =FALSE}
+knitr::opts_chunk$set(warning = FALSE, message=FALSE)
+```
+# collecting data
+We collect data with for each survey (separated by country), the number of eels, their weights (divided by haul duration), mean length, min length and max length of eels caught per year and quarterey, plus the location of hauls in which eels were caught.
+
+```{r setup, include=FALSE}
+library("icesDatras")
+surveys = getSurveyList() #list of existing survey
+
+library(icesVocab)
+aphia <- findAphia("Anguilla anguilla", latin = TRUE) # eel id
+
+library(dplyr)
+
+
+getCatchWgt = function (survey, years, quarters, aphia) {
+  hl <- getDATRAS("HL", survey, years, quarters)
+  if (is.null(hl)) return(NULL)
+  
+  hl$HaulID <- with(hl, factor(paste(Year, Quarter, Country, 
+                                     Ship, Gear, StNo, HaulNo, sep = ":")))
+  key <- c("Year", "Quarter", "Country", "Ship", "Gear", "StNo", 
+           "HaulNo", "HaulID")
+  sp_codes <- unique(hl$Valid_Aphia)
+  sp_codes <- intersect(sp_codes, aphia)
+  message("Extracting total catch weight by species and haul for ", 
+          length(sp_codes), " species")
+  if (length(sp_codes) == 0)
+    return(list(summary=hl %>%
+             group_by(Quarter, Year, Survey) %>%
+             summarize(Country = "",
+                       nhaul = length(unique(HaulID)),
+                       nnonNA = 0,
+                       CatchWgt = 0,
+                       CatchWgtHour = 0,
+                       number = 0,
+                       meanL=NA,
+                       minL=NA,
+                       maxL=NA
+             ),
+             pos=NULL))
+  hh <- getDATRAS("HH", survey, years, quarters) %>%
+    distinct()
+  hh$HaulID <- with(hh, factor(paste(Year, Quarter, Country, 
+                                     Ship, Gear, StNo, HaulNo, sep = ":")))
+  
+  hl <- hl[hl$Valid_Aphia %in% sp_codes, ]
+  
+  hl2 <- hl %>%
+    mutate(LngtClass = ifelse(LngtCode %in% c(".","0"),LngtClass/10,LngtClass ) )
+  df <- left_join(hl2%>% select(-(RecordType)) %>% select(-(DateofCalculation)) ,
+                  hh%>% select(-(RecordType)) %>% select(-(DateofCalculation)) ) %>%
+    filter(HaulVal == "V")
+  
+  df[df == -9] <- NA
+  #Substitute NA in SubFactor with 1, for next multiplications
+  df$SubFactor[is.na(df$SubFactor)] <- 1
+  #For DataType R or S, Transform HLNoAtLngt as follows:
+  df1 <- df%>% filter(DataType %in% c("S", "R"))%>% mutate(NoPerHaul=HLNoAtLngt*60/HaulDur)
+  #For DataType C, HLNoAtLngt remains the same
+  df2 <- df%>% filter(DataType == "C")%>% mutate(NoPerHaul=HLNoAtLngt)
+  #Merge these two dataframes
+  df <- rbind(df1,df2)
+  #CPUE_numbers_per_hour
+  df <- transform(df, CPUE_number_per_hour = ifelse(!is.na(NoPerHaul), NoPerHaul * SubFactor, 0))
+  
+  outL <- df %>%
+    group_by(Survey, Quarter, Year, Country ) %>%
+    summarize(number=sum(NoPerHaul),
+              meanL=sum(LngtClass*CPUE_number_per_hour)/sum(CPUE_number_per_hour),
+              minL=min(LngtClass),
+              maxL=max(LngtClass))
+  
+  catchwgt <- hh %>% filter(HaulVal == "V")
+  catchwgt$CatchWgt <- 0
+  catchwgt$CatchWgtHour <- 0
+  row.names(catchwgt) <- catchwgt$HaulID
+  catchwgt <- catchwgt[names(catchwgt) != "HaulID"]
+  out <- do.call(rbind, lapply(sp_codes, function(x) {
+    wk <- unique(hl[hl$Valid_Aphia == x, c(key, "CatIdentifier", 
+                                           "CatCatchWgt")]) 
+    wk$HaulID <- droplevels(wk$HaulID)
+    tbl <- tapply(wk$CatCatchWgt, wk$HaulID, sum)
+    tbl <- tbl[names(tbl) %in% row.names(catchwgt)]
+    out <- catchwgt
+    out[names(tbl), "CatchWgt"] <- c(tbl)
+    out[names(tbl), "CatchWgtHour"] <- out[names(tbl), "CatchWgt"]/(out[names(tbl), "HaulDur"]/60)
+    out$Valid_Aphia <- x
+    out
+  }))
+  rownames(out) <- NULL
+
+  pos <- out %>%
+    filter (!is.na(CatchWgt)) %>% 
+    select(Quarter,Year,Survey, CatchWgt, HaulLat, HaulLong, Country)  
+  out <- out %>%
+      group_by(Quarter,Year,Survey,Country) %>%
+      summarize(nhaul = n(),
+                nnonNA=sum(!is.na(CatchWgt) & CatchWgt>0),
+                CatchWgt=sum(CatchWgt, na.rm = TRUE),
+                CatchWgtHour=mean(CatchWgtHour, na.rm=TRUE))
+  return(list(summary=out %>% left_join(outL),
+              pos=pos))
+}
+```
+
+```{r summarysurvey, eval=FALSE}
+yearssurvey = lapply(surveys, getSurveyYearList)
+
+
+summarycatch=lapply(seq_len(length(surveys)), function(isurv){
+  print(surveys[isurv])
+  years=yearssurvey[[isurv]]
+  lapply(years, function(y, isurv) {
+    print(y)
+    done = FALSE
+    try = 0
+    while (done==FALSE && try <3){
+      tryCatch({
+        quart=getSurveyYearQuarterList(surveys[isurv],y)
+        catch=getCatchWgt(surveys[isurv], y, quart, aphia)
+        done=TRUE
+        if (is.null(catch)) return(NULL)
+        return(catch)
+      }, error=function(e) { try <<- try + 1 })
+    }
+  }, isurv = isurv)
+})
+save.image("datras.rdata")
+
+```
+
+# Summary of what is in
+In the following table, we see a few summary statistics of what is caught.
+```{r tablesumm}
+library(flextable)
+load("datras.rdata")
+
+pos = do.call(bind_rows,lapply(summarycatch, function(surv){
+  do.call(bind_rows,lapply(surv, function(quart) quart$pos))
+}))
+
+statcatch = do.call(bind_rows,lapply(summarycatch, function(surv){
+  do.call(bind_rows,lapply(surv, function(quart) {
+    if (! "CatchWgtHour" %in% names(quart$summary))
+      quart$summary$CatchWgtHour=0
+    if ("CatCatchWgt" %in% names(quart$summary)){
+      return(quart$summary %>%
+               select(-LngtClass,-CatCatchWgt))
+    } else{
+      return(quart$summary)
+    }}
+    ))
+}))
+
+
+
+
+mytable <- statcatch %>%
+  group_by(Survey,Quarter, Country) %>%
+  summarise(averageCatchWgt=round(mean(CatchWgt, na.rm=TRUE)),
+            averageCatchWgtHour=round(mean(CatchWgtHour, na.rm=TRUE)),
+            averageCatchN=round(mean(number, na.rm=TRUE)),
+            freqOc=round(mean(nnonNA/nhaul*100, na.rm = TRUE)),
+            meanL=round(weighted.mean(meanL,number,na.rm=TRUE)),
+            minL=ifelse(is.infinite(round(min(minL, na.rm=TRUE))), NA,round(min(minL, na.rm=TRUE))), 
+            maxL=ifelse(is.infinite(round(max(maxL,na.rm=TRUE))), NA,round(max(maxL,na.rm=TRUE))))  %>%
+  arrange(Survey, Quarter)
+surveym10 <- mytable %>%
+  filter(averageCatchN >= 6) %>%
+  select(Survey,Quarter, Country)
+library(ggplot2)
+flextable(mytable %>% filter (averageCatchN > 0))
+```
+
+We see in the table that in most of the case, eels are caught in less than 1% of hauls and there are very few surveys in which we collect more than 10 eels in average: `r paste(paste(surveym10$Survey, surveym10$Quarter, sep=" Quart "),collapse =" - ")`. Except in SP-North where we have smal eels (13cm in average, but very limited number), it is mostly large yellow or silver eels. Some lengths are strange: e.g. FR-CGFS, so checks are needed here.
+
+
+
+```{r summaryplot}
+statcatch <- statcatch %>%
+  ungroup() %>%
+  mutate(number = ifelse(CatchWgt==0, 0, number))
+
+nevercaught <- statcatch %>%
+  group_by(Survey,Quarter) %>%
+  summarise(CatchWgt=mean(CatchWgt, na.rm=TRUE),
+            freqOc=mean(nnonNA/nhaul, na.rm = TRUE)) %>%
+  arrange(Survey, Quarter) %>%
+  filter(freqOc == 0) %>%
+  select(Survey, Quarter)
+
+statcatch_nonnull <- statcatch %>% 
+  anti_join(nevercaught) %>%
+  group_by(Quarter,Year,Survey) %>%
+  summarize(nnonNA=sum(nnonNA),
+            CatchWgtHour=weighted.mean(CatchWgtHour,nhaul,na.rm=TRUE),
+            nhaul=sum(nhaul),
+            number=sum(number))
+  
+  
+  
+statcatch_nonnull %>%
+  ggplot(aes(x = Year, y = nnonNA / nhaul)) + 
+  geom_line(aes(col = as.factor(Quarter))) + 
+  facet_wrap(~Survey, scales="free") + 
+  ylab("frequence non null haul")
+
+
+statcatch_nonnull %>%
+  ggplot(aes(x = Year, y = CatchWgtHour)) + 
+  geom_line(aes(col = as.factor(Quarter))) + 
+  facet_wrap(~Survey, scales="free") +
+  ylab("CPUE")
+
+statcatch_nonnull %>%
+  ggplot(aes(x = Year, y = number)) + 
+  geom_line(aes(col = as.factor(Quarter))) + 
+  facet_wrap(~Survey, scales="free") +
+  ylab("number caught")
+
+```
+The temporal trends are very noisy, except for BTS quarter 3 on which an exponential decrease is visible (except few weird zero at the begining of the time trends). Interestingly, BITS quarter 4 is variable but stable till 2007 and then declineng very fast. It seems consistent with NS-IBTS quarter 3 so perhaps something is happening there. FR-CGFS is very noisy and the begining of the time series is weird (till 1995).
+
+# Spatial distibution of catches
+Here are the maps of catches for survey/quarter that catch at least 10 eels in average
+```{r maps}
+library(leaflet)
+library(crosstalk)
+
+subpos = pos %>%
+  right_join(surveym10) %>%
+  mutate(SurveyQuart=paste(Survey,Quarter)) %>%
+  mutate(CatchWgt=CatchWgt/1000)
+shared_data <- SharedData$new(subpos %>%
+                                  filter(!(HaulLat==-9 & HaulLong==-9)))
+
+filter_select('survquart', label = 'Survey Quarter',
+              shared_data, group=~SurveyQuart)
+
+
+
+  pal <- colorNumeric("viridis",
+                    c(0,
+                      max(max(shared_data$data(withSelection=TRUE) %>%
+                            filter(selected_) %>%
+                            select(CatchWgt) %>%
+                            pull(), na.rm=TRUE),1)))
+  leaflet(shared_data) %>%
+    addTiles() %>%
+    addCircleMarkers(lng=~HaulLong,
+              lat=~HaulLat,
+              color=~pal(CatchWgt)) 
+
+```
+
+# comparison of trends
+We focus on 4 surveys on which something is perhaps visible and we standardize catch weight by the average catch weight between 2000 and 2010 to have a common scale. Weirdly, "BITS", "FR-CGFS" and "NS-IBTS" provide the same collapse around 2010.
+
+
+```{r trends}
+surveys=c("BITS", "BTS", "FR-CGFS", "NS-IBTS")
+quarters=c(4, 3, 4, 3)
+selected=data.frame(Survey=surveys, Quarter=quarters)
+
+std_catch = statcatch_nonnull %>%
+  filter(Year>=2000 & Year<=2010) %>%
+  group_by(Survey,Quarter) %>%
+  summarize(meanCatchWgt = mean(CatchWgtHour, na.rm=TRUE)) %>%
+  right_join(statcatch_nonnull) %>%
+  right_join(selected) %>%
+  filter(Year >=1997 | Survey != "FR-CGFS") %>% #change in sampling design after 1995
+  mutate(stdCatchWgt=CatchWgtHour/meanCatchWgt)
+
+ggplot(std_catch,aes(x=Year, y=stdCatchWgt)) +
+  geom_line(aes(col=Survey))
+
+ggplot(std_catch %>% filter(Survey!="BTS"),aes(x=Year, y=stdCatchWgt)) +
+  geom_line(aes(col=Survey))
+```
