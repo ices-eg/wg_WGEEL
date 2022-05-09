@@ -60,6 +60,8 @@ if(!require(lme4)) install.packages("lme4") ; require(lme4)
 if(!require(multcomp)) install.packages("multcomp") ; require(multcomp)
 if(!require(openxlsx)) install.packages("openxlsx") ; require(openxlsx)
 if(!require(getPass)) install.packages("getPass") ; require(getPass)
+if(!require(yaml)) install.packages("yaml") ; require(yaml)
+
 
 #--------------------------------
 # get your current name 
@@ -71,7 +73,6 @@ getUsername <- function(){
 #--------------------------------
 # the code below is adapted to the three persons who currently 
 # load this script
-#�TODO: be more generic
 # It is necessary to create a folder, your code is currently stored in
 #--------------------------------------------------
 # FOLDER>WGEELgit>R>recruitment>recruitment_analysis.Rnw
@@ -88,9 +89,13 @@ getUsername <- function(){
 # the reason for this is that we don't want to put data or figures in the git.
 #--------------------------------
 
-if (getUsername() == "cedric.briand") setwd("C:/workspace/gitwgeel/R/recruitment") 
+if (getUsername() == "cedric.briand") setwd("C:/workspace/wg_WGEEL/R/recruitment") 
 if (getUsername() == "hamme005") setwd("C:/Tessa/wg_WGEEL/R/recruitment") 
 #baseODBC=c("wgeel","wgeel",passwordwgeel) #"w3.eptb-vilaine.fr" "localhost" "wgeel" "wgeel_distant" 
+cred=read_yaml("../../credentials.yml")
+# TODO 2022 use this to connect, not sqldf !!!!!!!!!!!!!!
+# currently still using sqldf and RpostgreSQL() change for compatibility with linux
+con = dbConnect(RPostgres::Postgres(), dbname=cred$dbname,host=cred$host,port=cred$port,user=cred$user, password=getPass())
 
 wddata <- getwd()
 wd <- wddata
@@ -145,7 +150,7 @@ ruitme\documentclass[pdftex,11pt,a4paper]{report}
      bookmarksopen=true,            %si les signets Acrobat sont crees,
                                     %les afficher completement.
      pdftitle={WGEEL recruitment analysis output}, %informations apparaissant dans
-     pdfauthor={C�dric Briand},     %dans les informations du document
+     pdfauthor={Cedric Briand},     %dans les informations du document
      pdfsubject={Glass eel recruitment}          %sous Acrobat
      pdfkeywords={Glass eel, WGEEL, recruitment, time-series, ICES}
 }

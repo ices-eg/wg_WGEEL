@@ -42,12 +42,12 @@ read_annex12 <- function(filenames){
 filenames <- list.files(datawd)
 filenames <- filenames[grep("xlsx", filenames)] # only extract xlsx
 res <- read_annex12(filenames)
-#####to build the table: put all the filenames below and then run the line starting with annexes13_table
 
 res$eel_gear[res$eel_gear=="Fyke net"] <- "Fyke nets"
 res$eel_gear[res$eel_gear=="Fyke Nets"] <- "Fyke nets"
 table(res$eel_gear,res$eel_cou_code)
 res$effort_value_number <- as.numeric(res$effort_value_number)
+
 
 ggplot(res)+ geom_point(aes(x=eel_year,y=effort_value_number, col=eel_cou_code))+ 
 		facet_wrap(~eel_effort_type, scale="free_y")

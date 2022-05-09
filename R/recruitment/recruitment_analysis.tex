@@ -1,0 +1,108 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Sweave script for wgeel recruitment analysis
+% Author Cedric Briand / Estibaliz Diaz
+% you can run this script with command sweave() or appropriate tools
+% such as Eclipse or Rstudio
+% this script is intended to run with sweave not knitr
+% It produces a nice pdf which has to be turned into a less nice word document
+% The problem is that the encoding of my files is Cp1252
+% The only way out is a full shift to utf8, in init pass locale for R to Sys.setlocale("LC_ALL", "English_United States.932")
+% In the preamble replace \usepackage[latin1]{inputenc} by \usepackage[utf8]{inputenc}
+% Note the following does not work :
+% iconv -f CP1252 -t UTF-8 recruitment_analysis.tex > recruitment_analysis_utf8.tex
+% finally the command to run is : 
+% cd C:\workspace\gitwgeel\R\recruitment
+% pandoc -s -o recruitment.docx --from=latex --to=docx  recruitment_analysis.tex
+% All this for producing a ugly word report :-( 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%************************************************************************************
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% this is the preamble of the latex file
+% it is used to load the packages necessary to the analysis
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ruitme\documentclass[pdftex,11pt,a4paper]{report}
+\usepackage[pdftex]{graphicx}
+\usepackage[utf8]{inputenc} %encodage du fichier source
+%\usepackage[T1]{fontenc}  %gestion des accents (pour les pdf) 
+\usepackage[english]{babel}
+\usepackage[swedish]{babel}
+\usepackage{Sweave}
+\usepackage{float}
+\usepackage[left=3cm, right=3cm, top=2cm, bottom=2cm]{geometry}
+\usepackage{pdflscape}% to rotate the table
+\geometry{dvips,a4paper,hmargin=2.5cm,vmargin=2.5cm}
+\setcounter{secnumdepth}{10}
+\usepackage{hyperref} %managing hyperlinks
+\hypersetup{
+     backref=true,    %permet d'ajouter des liens dans...
+     pagebackref=true,%...les bibliographies
+     hyperindex=true, %ajoute des liens dans les index.
+     colorlinks=true, %colorise les liens
+     breaklinks=true, %permet le retour a la ligne dans les liens trop longs
+     urlcolor= blue,  %couleur des hyperliens
+     linkcolor= blue, %couleur des liens internes
+     bookmarks=true,  %cree des signets pour Acrobat
+     bookmarksopen=true,            %si les signets Acrobat sont crees,
+                                    %les afficher completement.
+     pdftitle={WGEEL recruitment analysis output}, %informations apparaissant dans
+     pdfauthor={C<U+FFFD>dric Briand},     %dans les informations du document
+     pdfsubject={Glass eel recruitment}          %sous Acrobat
+     pdfkeywords={Glass eel, WGEEL, recruitment, time-series, ICES}
+}
+\usepackage{wrapfig}
+\usepackage{tabularx}
+\usepackage{longtable}
+\usepackage[table,usenames,dvipsnames]{xcolor}
+\newcolumntype{R}{>{\raggedleft\arraybackslash}X}
+\newcolumntype{L}{>{\raggedright\arraybackslash}X}
+% this is where I'm storing files locally
+\graphicspath{{C:/workspace/gitwgeel/R/recruitment/2021/image//}} 
+% TO UPDATE TO THE NEW YEAR
+% DO REPLACE FOR INSTANCE F:/workspace/wgeeldata/sweave/2016/table by F:/workspace/wgeeldata/sweave/2019/table
+%%%%%%%%%%%%%%%%%%%%%%%%%% END OF THE PREAMBLE  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+\input{recruitment_analysis-concordance}
+\bibliographystyle{plain}
+\title{ Analysis of recruitment trend}
+\author{EIFAAC/ICES/GFCM Working Group on Eel}
+\date\today
+\maketitle
+\newpage
+\tableofcontents
+\subsection*{}
+% use this if the chair wants a different chapter heading
+%\addtocounter{chapter}{3} % this will set initial chapter counter to  4
+%======================================================================
+\addtocounter{chapter}{1}
+\chapter{Report on developments on the state of the European eel (Anguilla
+anguilla) stock, the fisheries on it and other anthropogenic impacts.}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%*******Here put eval=FALSE if you plan to use Rdata *********************************
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%************************************************************************************
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 				SERIES SELECTION AND STATISTICS ABOUT DATA ENTRY 
+% the statistics about the series are usefull while filling in new data, to check
+% which series have been already entered and which still need to be
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%				THIS CHUNK CREATES THE TABLES	
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%************************************************************************************
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%************************************************************************************
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
