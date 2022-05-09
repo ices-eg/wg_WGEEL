@@ -188,6 +188,83 @@ compare_with_database_updated_values <- function(updated_from_excel, data_from_b
 }
 
 
+#' @title compare with database for deleted values
+#' @description This function retrieves older values in the database and compares it with data
+#' loaded from excel. Check that data haven't been modified
+#' @param deleted_from_excel Dataset loaded from excel
+#' @param data_from_base dataset loaded from the database with previous values to be replaced
+#' @return A table with data to be deleted
+#' @importFrom dplyr filter select inner_join right_join
+compare_with_database_deleted_values <- function(updated_from_excel, data_from_base) {
+  # tr_type_typ should have been loaded by global.R in the program in the shiny app
+  if (!exists("tr_type_typ")) {
+    tr_type_typ<-extract_ref("Type of series", pool)
+  }
+  # data integrity checks
+  validate(need(nrow(updated_from_excel) != 0,"There are no data coming from the excel file")) 
+  current_cou_code <- unique(updated_from_excel$eel_cou_code)
+  validate(need(length(current_cou_code) == 1, "There is more than one country code, this is wrong"))
+  
+  current_typ_name <- unique(updated_from_excel$eel_typ_name)
+  if (!all(current_typ_name %in% tr_type_typ$typ_name)) stop(str_c("Type ",current_typ_name[!current_typ_name %in% tr_type_typ$typ_name]," not in list of type name check excel file"))
+  # all data returned by loading functions have only a name just in case to avoid doubles
+  
+  if (!"eel_typ_id"%in%colnames(deleted_from_excel)) {
+    # extract subset suitable for merge
+    tr_type_typ_for_merge <- tr_type_typ[, c("typ_id", "typ_name")]
+    colnames(tr_type_typ_for_merge) <- c("eel_typ_id", "eel_typ_name")
+    deleted_from_excel <- merge(deleted_from_excel, tr_type_typ_for_merge, by = "eel_typ_name") 
+  }
+  if (nrow(data_from_base) == 0) {
+    validate(need(FALSE, "No data in the db"))
+    current_typ_id<-0
+  } else {   
+    if (!all(deleted_from_excel$eel_id %in% data_from_base$eel_id))
+      validate(need(FALSE,paste("eel_id",paste(deleted_from_excel$eel_id[!deleted_from_excel$eel_id %in% data_from_base$eel_id],collapse=","),
+                                "not found in db",sep="")))
+    current_typ_id <- unique(deleted_from_excel$eel_typ_id)
+    if (!all(current_typ_id %in% data_from_base$eel_typ_id)) 
+      validate(need(FALSE,paste("There is a mismatch between selected typ_id", paste0(current_typ_id, 
+                                                                                      collapse = ";"), "and the dataset loaded from base", paste0(unique(data_from_base$eel_typ_id), 
+                                                                                                                                                  collapse = ";"), "did you select the right File type ?")))
+  }
+  # Can't join on 'eel_area_division' x 'eel_area_division' because of incompatible
+  # types (character / logical)
+  deleted_from_excel$eel_area_division <- as.character(deleted_from_excel$eel_area_division)
+  deleted_from_excel$eel_hty_code <- as.character(deleted_from_excel$eel_hty_code)
+  eel_colnames <- colnames(data_from_base)[grepl("eel", colnames(data_from_base))]
+  
+  
+  deleted_from_excel <- deleted_from_excel %>%
+    select(-eel_typ_name)
+  
+  comparison_deleted <- identical(deleted_from_excel,
+                              data_from_base %>%
+                                filter(eel_id %in% deleted_from_excel$eel_id) %>%
+                                select(any_of(names(deleted_from_excel))))
+  validate(need(comparison_deleted), "the data in deleted_data have been modified compared with the content of the db")
+
+  #since dc2020, qal_id are automatically created during the import
+  deleted_from_excel$eel_qal_id <- qualify_code
+  deleted_from_excel$eel_qal_comment <- paste("deleted during", the_eel_datasource)
+  
+  deleted_from_excel <- deleted_from_excel %>%
+    select(any_of(c("eel_id", "eel_typ_id", "eel_typ_name", "eel_year",
+                    "eel_value", "eel_missvaluequal", 
+                    "eel_emu_nameshort", "eel_cou_code",
+                    "perc_f","perc_t","perc_c", "perc_mo",
+                    "eel_lfs_code", "eel_hty_code",
+                    "eel_area_division","eel_comment", 
+                     "eel_datasource",
+                    "eel_qal_id", "eel_qal_comment")))
+  
+  return(deleted_from_excel)
+}
+
+
+
+
+
 
 #' @title compare with database series
 #' @description This function loads the data from the database and compare it with data

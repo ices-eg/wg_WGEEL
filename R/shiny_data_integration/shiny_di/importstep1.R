@@ -22,7 +22,10 @@ importstep1UI <- function(id){
                      DT::dataTableOutput(ns("dt_duplicates")),
                      h3("Updated data"),
                      htmlOutput(ns("step1_message_updated")),
-                     DT::dataTableOutput(ns("dt_updated_values"))),
+                     DT::dataTableOutput(ns("dt_updated_values")),
+                     h3("Deleted data"),
+                     htmlOutput(ns("step1_message_deleted")),
+                     DT::dataTableOutput(ns("dt_deleted_values"))),
               column(width=5,
                      h3("New values"),
                      htmlOutput(ns("step1_message_new")),
@@ -63,6 +66,9 @@ importstep1Server <- function(id,globaldata, loaded_data){
                    if ("updated_values_table" %in% names(globaldata)) {
                      globaldata$updated_values_table<-data.frame()
                    }
+                   if ("deleted_values_table" %in% names(globaldata)) {
+                     globaldata$deleted_values_table<-data.frame()
+                   }
                  },error = function(e) {
                    showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
                  })})
@@ -85,17 +91,22 @@ importstep1Server <- function(id,globaldata, loaded_data){
                    switch (loaded_data$file_type, "catch_landings"={                                     
                      data_from_base<-extract_data("landings", quality=c(0,1,2,3,4), quality_check=TRUE)
                      updated_from_excel<- loaded_data$res$updated_data
+                     deleted_from_excel<- loaded_data$res$deleted_data
                    },
                    "release"={
                      data_from_base<-extract_data("release", quality=c(0,1,2,3,4), quality_check=TRUE)
                      updated_from_excel<- loaded_data$res$updated_data
+                     deleted_from_excel<- loaded_data$res$deleted_data
                    },
                    "aquaculture"={             
                      data_from_base<-extract_data("aquaculture", quality=c(0,1,2,3,4), quality_check=TRUE)
-                     updated_from_excel<- loaded_data$res$updated_data},
+                     updated_from_excel<- loaded_data$res$updated_data
+                     deleted_from_excel<- loaded_data$res$deleted_data
+                   },
                    "biomass"={
                      # bug in excel file - fixed in the template
                      #colnames(data_from_excel)[colnames(data_from_excel)=="typ_name"]<-"eel_typ_name"
+                     deleted_from_excel<- loaded_data$res$deleted_data
                      updated_from_excel<- loaded_data$res$updated_data
                      data_from_excel$eel_lfs_code <- 'S' #always S
                      data_from_excel$eel_hty_code <- 'AL' #always AL
@@ -121,6 +132,7 @@ importstep1Server <- function(id,globaldata, loaded_data){
                      
                    },
                    "mortality_rates"={
+                     deleted_from_excel<- loaded_data$res$deleted_data
                      updated_from_excel<- loaded_data$res$updated_data
                      data_from_excel$eel_lfs_code <- 'S' #always S
                      data_from_excel$eel_hty_code <- 'AL' #always AL
@@ -257,7 +269,7 @@ importstep1Server <- function(id,globaldata, loaded_data){
                      
                      
                    } # closes if nrow(...  
-                   if (loaded_data$file_type %in% c("catch_landings","release", "aquaculture")){
+                   if (loaded_data$file_type %in% c("catch_landings","release", "aquaculture", "biomass","mortality_rates" )){
                      if (nrow(updated_from_excel)>0){
                        output$"step1_message_updated"<-renderUI(
                          HTML(
@@ -287,20 +299,44 @@ importstep1Server <- function(id,globaldata, loaded_data){
                      }else{
                        output$"step1_message_updated"<-renderUI("")
                      } 
+                     
+                     if (nrow(deleted_from_excel)>0){
+                       output$"step1_message_deleted"<-renderUI(
+                         HTML(
+                           paste(
+                             h4("Table of deleted values (xls)"),
+                             "<p align='left'>Please click on excel",
+                             "to download this file. <p>"                         
+                           ))) 
+                       globaldata$deleted_values_table <- compare_with_database_deleted_values(deleted_from_excel,data_from_base) 
+                       output$dt_deleted_values <- DT::renderDataTable(
+                         globaldata$deleted_values_table,
+                         rownames=FALSE,
+                         extensions = "Buttons",
+                         option=list(
+                           scroller = TRUE,
+                           scrollX = TRUE,
+                           scrollY = "500px",
+                           order=list(3,"asc"),
+                           lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
+                           "pagelength"=-1,
+                           dom= "Blfrtip",
+                           scrollX = T, 
+                           buttons=list(
+                             list(extend="excel",
+                                  filename = paste0("deleted_",loaded_data$file_type,"_",Sys.Date(),current_cou_code))) 
+                         ))
+                     }else{
+                       output$"step1_message_deleted"<-renderUI("")
+                     }
                    }
-                   if (loaded_data$file_type %in% c("catch_landings","release")){
                      summary_check_duplicates=data.frame(years=years,
                                                          nb_new=sapply(years, function(y) length(which(new$eel_year==y))),
                                                          nb_duplicates_updated=sapply(years,function(y) length(which(duplicates$eel_year==y & (duplicates$eel_value.base!=duplicates$eel_value.xls)))),
                                                          nb_duplicates_no_changes=sapply(years,function(y) length(which(duplicates$eel_year==y & (duplicates$eel_value.base==duplicates$eel_value.xls)))),
-                                                         nb_updated_values=sapply(years, function(y) length(which(updated_from_excel$eel_year==y))))
-                   } else {
-                     summary_check_duplicates=data.frame(years=years,
-                                                         nb_new=sapply(years, function(y) length(which(new$eel_year==y))),
-                                                         nb_duplicates_updated=sapply(years,function(y) length(which(duplicates$eel_year==y & (duplicates$eel_value.base!=duplicates$eel_value.xls)))),
-                                                         nb_duplicates_no_changes=sapply(years,function(y) length(which(duplicates$eel_year==y & (duplicates$eel_value.base==duplicates$eel_value.xls)))))
-                   }
-                   
+                                                         nb_updated_values=sapply(years, function(y) length(which(updated_from_excel$eel_year==y))),
+                                                         nb_deleted_values=sapply(years,function(y) length(which(deleted_from_excel$eel_year==y))))
+
                    output$dt_check_duplicates <-DT::renderDataTable({ 
                      validate(need(globaldata$connectOK,"No connection"))
                      datatable(summary_check_duplicates,
