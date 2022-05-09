@@ -246,7 +246,10 @@ compare_with_database_deleted_values <- function(updated_from_excel, data_from_b
 
   #since dc2020, qal_id are automatically created during the import
   deleted_from_excel$eel_qal_id <- qualify_code
-  deleted_from_excel$eel_qal_comment <- paste("deleted during", the_eel_datasource)
+  deleted_from_excel$eel_qal_comment <- paste(ifelse(is.na(deleted_from_excel$eel_qal_comment),
+                                                     "",
+                                                     deleted_from_excel$eel_qal_comment),
+                                                     "deleted during", the_eel_datasource)
   
   deleted_from_excel <- deleted_from_excel %>%
     select(any_of(c("eel_id", "eel_typ_id", "eel_typ_name", "eel_year",
@@ -1197,6 +1200,82 @@ write_updated_values <- function(path, qualify_code) {
 	
 	return(list(message = message, cou_code = cou_code))
 }
+
+
+
+#' @title deleted value into the database
+#' @description values will be change with a qal_id and qal_comment
+#' @param path path to file (collected from shiny button)
+#' @param qualify_code new qal_id 19
+#' @return message indicating success or failure 
+#' @details This function uses sqldf to create temporary table then dbExecute as
+#' this version allows to catch exceptions and sqldf does not
+
+write_deleted_values <- function(path, qualify_code) {
+  updated_values_table <- read_excel(path = path, sheet = 1, skip = 1)
+  validate(need(ncol(deleted_values_table) %in% c(27,35), "number column wrong (should be 27 or 35) \n"))
+  validate(need(all(colnames(deleted_values_table) %in% c("eel_id", "eel_typ_id", 
+                                                          "eel_year","eel_value",
+                                                          "eel_missvaluequal",
+                                                          "eel_emu_nameshort",
+                                                         "eel_qal_id",
+                                                          "eel_qal_comment",
+                                                           "eel_qal_id", "eel_qal_comment", "eel_missvaluequal", 
+                                                          "eel_emu_nameshort", "eel_cou_code",
+                                                          "eel_lfs_code",
+                                                          "eel_hty_code", "eel_area_division",
+                                                          "eel_comment",
+                                                          "perc_f","perc_t","perc_c", "perc_mo",
+                                                          "eel_datasource")), 
+                "Error in updated dataset : column name changed, have you removed the empty line on top of the dataset ?"))
+  validate(need(all(!is.na(deleted_values_table$eel_qal_id)), "There are still lines without eel_qal_id, please check your file"))
+  cou_code = unique(deleted_values_table$eel_cou_code)
+  validate(need(length(cou_code) == 1, "There is more than one country code, please check your file"))
+  
+  # create dataset for insertion -------------------------------------------------------------------
+  deleted_values_table$eel_value<- as.numeric(deleted_values_table$eel_value)
+  
+  conn <- poolCheckout(pool)
+  dbExecute(conn,"drop table if exists deleted_temp ")
+  dbWriteTable(conn,"deleted_temp",deleted_values_table,row.names=FALSE,temporary=TRUE)
+  cyear=format(Sys.Date(), "%Y")
+  query=paste("
+					DO $$
+					DECLARE
+					rec RECORD;
+					oldid integer;
+					newid integer;
+					comment text;
+					BEGIN
+					FOR rec in SELECT * from deleted_temp
+					LOOP
+					BEGIN
+					oldid:=rec.eel_id;
+					update datawg.t_eelstock_eel set eel_qal_id=",qualify_code," where eel_id=oldid;
+					comment:=rec.eel_comment_xls;
+					END;
+					END LOOP;
+					END;
+					$$ LANGUAGE 'plpgsql';",sep="")
+  message <- NULL
+  nr <- tryCatch({
+    dbExecute(conn, query)
+  }, error = function(e) {
+    message <<- e
+  }, finally = {
+    dbExecute(conn,"drop table if exists deleted_temp;")
+    poolReturn(conn)
+  })
+  
+  
+  if (is.null(message))   
+    message <- paste(nrow(deleted_values_table),"values deleted in the db")
+  
+  return(list(message = message, cou_code = cou_code))
+}
+
+
+
 
 
 #' @title write new series into the database
