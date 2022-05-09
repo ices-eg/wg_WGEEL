@@ -85,9 +85,13 @@ SELECT * FROM datawg.t_biometry_bio;
 SELECT count(*) FROM datawg.t_biometry_bio; --2841
 SELECT count(*) FROM datawg.t_biometry_other_bit tbob; --180
 -- silvering data from wgeel 2010(?) they have a location, correspond to 'average data'
-SELECT count(*) FROM datawg.t_biometry_series_bis; -2661 = 2841-180 --OK
+SELECT coun
 */
+
+--------------------------------------------------------------------------------------
+-- the column bio_number is now a duplicate with the column in t_biometryother_bit
 -- pass column bit_n to bio_number
+--------------------------------------------------------------------------------------
 
 With alldat as(
 SELECT * FROM datawg.t_biometry_other_bit)
