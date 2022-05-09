@@ -38,7 +38,7 @@ load_catch_landings<-function(path,datasource){
 # here we have already seached for catch and landings above.
 	
 	##Since dc2020, we have both new and updated_data to deal with
-	output <- lapply(c("new_data","updated_data"),function(sheet){
+	output <- lapply(c("new_data","updated_data","deleted_data"),function(sheet){
 				data_xls<-read_excel(
 						path=path,
 						sheet=sheet,
@@ -50,18 +50,19 @@ load_catch_landings<-function(path,datasource){
 				
 				if (ncol(data_xls)!=11 & sheet=="new_data") cat(str_c("newdata : number column wrong, should have been 11 in file from ",country,"\n"))
 				if (ncol(data_xls)!=12 & sheet=="updated_data") cat(str_c("updated_data : number column wrong, should have been 12 in file from ",country,"\n"))
+				if (ncol(data_xls)!=12 & sheet=="deleted_data") cat(str_c("deleted_data : number column wrong, should have been 12 in file from ",country,"\n"))
 				
 				# check column names
 				
 				###TEMPORARY FIX 2020 due to incorrect typ_name
 				data_xls$eel_typ_name[data_xls$eel_typ_name %in% c("rec_landings","com_landings")] <- paste(data_xls$eel_typ_name[data_xls$eel_typ_name %in% c("rec_landings","com_landings")],"_kg",sep="")
 				if (!all(colnames(data_xls)%in%
-								c(ifelse(sheet=="updated_data","eel_id","eel_typ_name"),"eel_typ_name","eel_year","eel_value","eel_missvaluequal",
+								c(ifelse(sheet %in% c("updated_data","deleted_data"),"eel_id","eel_typ_name"),"eel_typ_name","eel_year","eel_value","eel_missvaluequal",
 										"eel_emu_nameshort","eel_cou_code", "eel_lfs_code", "eel_hty_code","eel_area_division",
 										"eel_qal_id", "eel_qal_comment","eel_comment","eel_datasource"))) 
 					cat(str_c("problem in column names",            
 									paste(colnames(data_xls)[!colnames(data_xls)%in%
-															c(ifelse(sheet=="updated_data","eel_id",""),
+															c(ifelse(sheet %in% c("updated_data","deleted_data"),"eel_id",""),
 																	"eel_typ_name", "eel_year","eel_value","eel_missvaluequal","eel_emu_nameshort",
 																	"eel_cou_code", "eel_lfs_code", "eel_hty_code","eel_area_division",
 																	"eel_qal_id", "eel_qal_comment","eel_comment","eel_datasource")],collapse= "&"),
@@ -72,8 +73,8 @@ load_catch_landings<-function(path,datasource){
 					data_xls$eel_datasource <- datasource
 					
 					
-					######eel_id for updated_data
-					if (sheet=="updated_data"){
+					######eel_id for updated_data or deleted_data
+					if (sheet %in% c("updated_data","deleted_data")){
 						data_error= rbind(data_error, check_missing(dataset=data_xls,
 										namedataset= sheet, 
 										column="eel_id",
@@ -282,7 +283,8 @@ load_catch_landings<-function(path,datasource){
 				return(list(data=data_xls,error=data_error))
 			})
 	data_error=rbind.data.frame(output[[1]]$error,output[[2]]$error)
-	return(invisible(list(data=output[[1]]$data,updated_data=output[[2]]$data,error=data_error,the_metadata=the_metadata))) 
+	return(invisible(list(data=output[[1]]$data,updated_data=output[[2]]$data,deleted_data=output[[3]]$data,
+	                      error=data_error,the_metadata=the_metadata))) 
 }
 
 
@@ -320,7 +322,7 @@ load_release<-function(path,datasource){
 	# here we have already seached for catch and landings above.
 	
 	##Since dc2020, we have both new and updated_data to deal with
-	output <- lapply(c("new_data","updated_data"),function(sheet){
+	output <- lapply(c("new_data","updated_data", "deleted_data"),function(sheet){
 				data_error <- data.frame(nline = NULL, error_message = NULL)
 				cat(sheet,"\n")
 				data_xls <- read_excel(
@@ -347,15 +349,15 @@ load_release<-function(path,datasource){
 					
 					# check column names
 					if (!all(colnames(data_xls)%in%
-									c(ifelse(sheet=="updated_data","eel_id","eel_typ_name"),"eel_typ_name","eel_year",
-											ifelse(sheet=="updated_data","eel_value","eel_value_number"), ifelse(sheet=="updated_data","eel_value","eel_value_kg"),
+									c(ifelse(sheet %in% c("updated_data","deleted_data"),"eel_id","eel_typ_name"),"eel_typ_name","eel_year",
+											ifelse(sheet %in% c("updated_data","deleted_data"),"eel_value","eel_value_number"), ifelse(sheet %in% c("updated_data","deleted_data"),"eel_value","eel_value_kg"),
 											"eel_missvaluequal","eel_emu_nameshort","eel_cou_code", "eel_lfs_code", "eel_hty_code","eel_area_division",
 											"eel_qal_id", "eel_qal_comment","eel_comment","eel_datasource"))) {
 						
 						cat(str_c("problem in column names :",            
 										paste(colnames(data_xls)[!colnames(data_xls)%in%
-																c(ifelse(sheet=="updated_data","eel_id",""),"eel_typ_name", "eel_year",
-																		ifelse(sheet=="updated_data","eel_value","eel_value_number"), ifelse(sheet=="updated_data","","eel_value_kg"),
+																c(ifelse(sheet %in% c("updated_data","deleted_data"),"eel_id",""),"eel_typ_name", "eel_year",
+																		ifelse(sheet %in% c("updated_data","deleted_data"),"eel_value","eel_value_number"), ifelse(sheet %in% c("updated_data","deleted_data"),"","eel_value_kg"),
 																		"eel_missvaluequal","eel_emu_nameshort","eel_cou_code", "eel_lfs_code", "eel_hty_code","eel_area_division",
 																		"eel_qal_id", "eel_qal_comment","eel_comment","eel_datasource")],collapse= " & "),
 										" file =",
@@ -363,8 +365,8 @@ load_release<-function(path,datasource){
 						
 						data_error <- rbind(data_error, data.frame("nline"=0,"error_message"=str_c("problem in column names :",            
 												paste(colnames(data_xls)[!colnames(data_xls)%in%
-																		c(ifelse(sheet=="updated_data","eel_id",""),"eel_typ_name", "eel_year",
-																				ifelse(sheet=="updated_data","eel_value","eel_value_number"), ifelse(sheet=="updated_data","","eel_value_kg"),
+																		c(ifelse(sheet %in% c("updated_data","deleted_data"),"eel_id",""),"eel_typ_name", "eel_year",
+																				ifelse(sheet %in% c("updated_data","deleted_data"),"eel_value","eel_value_number"), ifelse(sheet %in% c("updated_data","deleted_data"),"","eel_value_kg"),
 																				"eel_missvaluequal","eel_emu_nameshort","eel_cou_code", "eel_lfs_code", "eel_hty_code","eel_area_division",
 																				"eel_qal_id", "eel_qal_comment","eel_comment","eel_datasource")],collapse= " & "),
 												" file =",
@@ -377,8 +379,8 @@ load_release<-function(path,datasource){
 						if (nrow(data_xls)>0) {
 							
 							data_xls$eel_datasource <- datasource
-							######eel_id for updated_data
-							if (sheet=="updated_data"){
+							######eel_id for updated_data or deleted_data
+							if (sheet %in% c("updated_data","deleted_data")){
 								data_error= rbind(data_error, check_missing(
 												dataset=data_xls,
 												namedataset= sheet, 
@@ -689,7 +691,9 @@ load_release<-function(path,datasource){
 				return(list(data=release_tot,error=data_error))
 			})
 	data_error=rbind.data.frame(output[[1]]$error,output[[2]]$error)
-	return(invisible(list(data=output[[1]]$data,updated_data=output[[2]]$data,error=data_error,the_metadata=the_metadata))) 
+	return(invisible(list(data=output[[1]]$data,updated_data=output[[2]]$data,
+	                      deleted_data=output[[3]]$data,
+	                      error=data_error,the_metadata=the_metadata))) 
 }
 
 
@@ -722,7 +726,7 @@ load_aquaculture<-function(path,datasource){
   # end loop for directories
   
   #---------------------- aquaculture sheet ---------------------------------------------
-  output <- lapply(c("new_data","updated_data"),function(sheet){
+  output <- lapply(c("new_data","updated_data",'deleted_data'),function(sheet){
     # read the aquaculture sheet
     cat("aquaculture \n")
     
@@ -742,7 +746,7 @@ load_aquaculture<-function(path,datasource){
                          "eel_cou_code", "eel_lfs_code", "eel_hty_code","eel_area_division",
                          "eel_qal_id", "eel_qal_comment","eel_comment","eel_datasource")
     
-    if (sheet == "updated_data") correct_names <- c(correct_names, "eel_id")
+    if (sheet %in% c("updated_data","deleted_data")) correct_names <- c(correct_names, "eel_id")
     if (!all(colnames(data_xls)%in%
              correct_names)) 
       cat(str_c("problem in column names :",            
@@ -752,8 +756,8 @@ load_aquaculture<-function(path,datasource){
                 file,"\n"))   
     if (nrow(data_xls)>0){
       
-      ######eel_id for updated_data
-      if (sheet=="updated_data"){
+      ######eel_id for updated_data or deleted_data
+      if (sheet %in% c("updated_data","deleted_data")){
         data_error= rbind(data_error, check_missing(
           dataset=data_xls,
           namedataset= sheet, 
@@ -918,7 +922,9 @@ load_aquaculture<-function(path,datasource){
     return(list(data=data_xls,error=data_error))
   })
   data_error=rbind.data.frame(output[[1]]$error,output[[2]]$error)
-  return(invisible(list(data=output[[1]]$data,updated_data=output[[2]]$data,error=data_error,the_metadata=the_metadata))) 
+  return(invisible(list(data=output[[1]]$data,updated_data=output[[2]]$data,
+                        deleted_data=output[[3]]$data,
+                        error=data_error,the_metadata=the_metadata))) 
 }
 
 
@@ -2775,4 +2781,4 @@ data_error <- rbind(data_error, check_values(
 #	}
 #	
 #---------------------------------------------------------------	
-
+
