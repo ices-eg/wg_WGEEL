@@ -529,6 +529,7 @@ DROP TABLE IF EXISTS datawg.t_biometrygroup_big CASCADE;
 CREATE TABLE datawg.t_biometrygroup_big (
   big_id serial PRIMARY KEY,
   big_gr_id INTEGER,
+  big_year int4,
   big_mty_id INTEGER,
   big_value NUMERIC,
   big_comment TEXT,
