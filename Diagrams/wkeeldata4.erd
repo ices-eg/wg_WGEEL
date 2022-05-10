@@ -58,6 +58,10 @@
 				<path name="datawg"/>
 				<path name="wgeel"/>
 			</entity>
+			<entity id="15" name="t_qualitygroup_qug" fq-name="datawg.t_qualitygroup_qug" order="14" x="582" y="1050">
+				<path name="datawg"/>
+				<path name="wgeel"/>
+			</entity>
 		</data-source>
 	</entities>
 	<relations>
@@ -73,6 +77,8 @@
 		<relation name="c_fk_big_gr_id" fq-name="datawg.t_biometrygroup_big.c_fk_big_gr_id" type="fk" pk-ref="9" fk-ref="10"/>
 		<relation name="datawg.t_groupseries_grser-&gt;datawg.t_group_gr" fq-name="datawg.t_groupseries_grser.&quot;datawg.t_groupseries_grser-&gt;datawg.t_group_gr&quot;" type="inheritance" pk-ref="9" fk-ref="13"/>
 		<relation name="datawg.t_groupsamp_grsa-&gt;datawg.t_group_gr" fq-name="datawg.t_groupsamp_grsa.&quot;datawg.t_groupsamp_grsa-&gt;datawg.t_group_gr&quot;" type="inheritance" pk-ref="9" fk-ref="14"/>
+		<relation name="c_fk_qug_gr_id" fq-name="datawg.t_qualitygroup_qug.c_fk_qug_gr_id" type="fk" pk-ref="9" fk-ref="15"/>
 		<relation name="c_fk_fisa_sai_id" fq-name="datawg.t_fishsamp_fisa.c_fk_fisa_sai_id" type="fk" pk-ref="11" fk-ref="12"/>
+		<relation name="c_fk_qug_sai_id" fq-name="datawg.t_qualitygroup_qug.c_fk_qug_sai_id" type="fk" pk-ref="11" fk-ref="15"/>
 	</relations>
 </diagram>
