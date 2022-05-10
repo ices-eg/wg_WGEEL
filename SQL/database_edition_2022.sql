@@ -128,30 +128,18 @@ DROP TABLE IF EXISTS ref.tr_mesuretype_mty;
  mty_id INTEGER PRIMARY KEY,
  mty_name TEXT,
  mty_description TEXT,
- mty_group TEXT CHECK (mty_group='quality' OR mty_group='biometry'), -- this will be used in triggers later
+ mty_type TEXT CHECK (mty_type='quality' OR mty_type='biometry'), -- this will be used in triggers later
+ mty_group TEXT CHECK (mty_group='individual' OR mty_type='group'), -- this will be used in triggers later
  mty_uni_code varchar(20),
  CONSTRAINT c_fk_uni_code FOREIGN KEY (mty_uni_code) REFERENCES "ref".tr_units_uni(uni_code) ON UPDATE CASCADE
  );
  
-  /* REMOVE THIS COMMENT LATER JUST FOR KEEPING INFO
-  bii_lengthmm numeric,
-  bii_weightg numeric,
-  bii_age numeric,
-  bii_eye_diam_horizontal  numeric, --in mm
-  bii_eye_diam_vertical numeric, --in mm
-  bii_pectoral_fin_length NUMERIC, --in mm
-  qui_percentagelipidcontent NUMERIC,
-  qui_contaminant,
-  bii_anguillicolaprevalence numeric,
-  bii_anguillicolameanintensity numeric,
-  */
- 
+
   
  
 /*
  * CREATE A TABLE TO STORE BIOMETRY ON INDIVIDUAL DATA
- * HERE set as wgs84 do we set this in 3035 ?
- * NOT TESTED YET
+
  */
 DROP TABLE IF EXISTS datawg.t_sampinginfo_sai;
 CREATE TABLE datawg.t_sampinginfo_sai(
@@ -159,12 +147,11 @@ CREATE TABLE datawg.t_sampinginfo_sai(
   sai_cou_code VARCHAR(2),
   sai_emu_nameshort VARCHAR(20),
   sai_area_division VARCHAR(254),
-  --SOME DISCUSSION NEEDED THERE --------------------
-  sai_comment TEXT, 
+  sai_comment TEXT, -- this could be DCF ... other CHECK IF we need a referential TABLE....
   sai_year INTEGER,
   sai_samplingobjective TEXT,
-  sai_metadata TEXT,
-  sai_qal_id INTEGER,
+  sai_metadata TEXT, -- this must contain information TO rebuild the stratification scheme rename ?
+  sai_qal_id INTEGER, 
   sai_lastupdate DATE NOT NULL DEFAULT CURRENT_DATE,
   sai_dts_datasource VARCHAR(100),
   CONSTRAINT c_fk_sai_qal_id FOREIGN KEY (sai_qal_id) REFERENCES "ref".tr_quality_qal(qal_id) ON UPDATE CASCADE,
@@ -173,6 +160,22 @@ CREATE TABLE datawg.t_sampinginfo_sai(
   CONSTRAINT c_fk_sai_area_division FOREIGN KEY (sai_area_division) REFERENCES "ref".tr_faoareas(f_division) ON UPDATE CASCADE,
   CONSTRAINT c_fk_sai_dts_datasource FOREIGN KEY (sai_dts_datasource) REFERENCES "ref".tr_datasource_dts(dts_datasource) ON UPDATE CASCADE
 );
+
+-- Table Triggers
+
+CREATE OR REPLACE FUNCTION datawg.sai_lastupdate()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$
+BEGIN
+    NEW.sai_lastupdate = now()::date;
+    RETURN NEW; 
+END;
+$function$
+;
+
+CREATE TRIGGER update_sai_lastupdate  BEFORE INSERT OR UPDATE ON
+   datawg.t_sampinginfo_sai FOR EACH ROW EXECUTE FUNCTION datawg.sai_lastupdate();
 
 /*
  * 
@@ -190,18 +193,62 @@ CREATE TABLE datawg.t_fish_fi(
   CONSTRAINT c_fk_fi_lfs_code FOREIGN KEY (fi_lfs_code) REFERENCES "ref".tr_lifestage_lfs(lfs_code) ON UPDATE CASCADE,
   CONSTRAINT c_fk_fi_dts_datasource FOREIGN KEY (fi_dts_datasource) REFERENCES "ref".tr_datasource_dts(dts_datasource) ON UPDATE CASCADE
   );
---TODO add trigger on last_update
 
- 
+-- Table Triggers
+
+CREATE OR REPLACE FUNCTION datawg.fi_lastupdate()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$
+BEGIN
+    NEW.fi_lastupdate = now()::date;
+    RETURN NEW; 
+END;
+$function$
+;
+
+CREATE TRIGGER update_fi_lastupdate BEFORE INSERT OR UPDATE ON
+   datawg.t_fish_fi FOR EACH ROW EXECUTE FUNCTION datawg.fi_lastupdate();
+
+/*
+ * 
+ * Table fish for series
+ *
+ */ 
+DROP TABLE IF EXISTS  t_fishseries_fiser;
 CREATE TABLE  datawg.t_fishseries_fiser(
-fiser_ser_id INTEGER NOT NULL, --CHECK WITH HILAIRE NOT REALLY SURE WE NEED THIS 
+fiser_ser_id INTEGER NOT NULL,  
 fiser_year INTEGER NOT NULL,
 CONSTRAINT c_fk_fiser_ser_id FOREIGN KEY (fiser_ser_id) REFERENCES datawg.t_series_ser(ser_id) ON UPDATE CASCADE ON DELETE CASCADE
 )
 INHERITS (datawg.t_fish_fi);
--- TODO ADD TRIGGER TO SEE IF DATA ARE PRESENT IN datawg.t_dataseries_das IN THAT YEAR 
--- TODO add trigger extract(year FROM fi_date)=fiser_yera
 
+
+CREATE OR REPLACE FUNCTION datawg.fiser_year()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$   
+ 
+  BEGIN
+   
+    IF NEW.fiser_year <> EXTRACT(YEAR FROM NEW.fi_date) THEN
+      RAISE EXCEPTION 'table t_fisheries_fiser, column fiser_year does not match the date of fish collection (table t_fish_fi)' ;
+    END IF  ;
+
+    RETURN NEW ;
+  END  ;
+$function$
+;
+
+DROP TRIGGER IF EXISTS check_year_and_date ON datawg.t_fishseries_fiser ;
+CREATE TRIGGER check_year_and_date AFTER INSERT OR UPDATE ON
+   datawg.t_fishseries_fiser FOR EACH ROW EXECUTE FUNCTION datawg.fiser_year();
+
+
+
+/*
+* HERE set as wgs84 do we set this in 3035 ?
+*/
 DROP TABLE IF EXISTS  datawg.t_fishsamp_fisa;
 CREATE TABLE  datawg.t_fishsamp_fisa(
 fisa_sai_id INTEGER,
@@ -215,9 +262,6 @@ CONSTRAINT c_fk_fisa_hty_code FOREIGN KEY (fisa_hty_code) REFERENCES "ref".tr_ha
 )
 INHERITS (datawg.t_fish_fi);
 
-
-
- 
 
 
   
@@ -243,16 +287,90 @@ CREATE TABLE datawg.t_biometryind_bii (
   CONSTRAINT c_fk_bii_dts_datasource FOREIGN KEY (bii_dts_datasource) REFERENCES "ref".tr_datasource_dts(dts_datasource) ON UPDATE CASCADE
 )
 ;
+-- Add trigger on last_update
+CREATE OR REPLACE FUNCTION datawg.bii_last_update()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$
+BEGIN
+    NEW.bii_last_update = now()::date;
+    RETURN NEW; 
+END;
+$function$
+;
+DROP TRIGGER IF EXISTS update_bii_last_update ON datawg.t_biometryind_bii ;
+CREATE TRIGGER update_bii_last_update BEFORE INSERT OR UPDATE ON
+  datawg.t_biometryind_bii FOR EACH ROW EXECUTE FUNCTION  datawg.bii_last_update();
 
 -- TODO trigger  length, weight, age, eyediameter,pectoral_fin with bounds
--- TODO ADD TRIGGER TO CHECK THAT QUALITY IS NOT INTEGRATED IN THIS TABLE
---TODO add trigger on last_update
+
+-- trigger check that only invividual measures are used
+CREATE OR REPLACE FUNCTION datawg.bii_mty_is_individual()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$   
+  DECLARE the_mty_type TEXT;
+          the_mty_name TEXT;
+ 
+  BEGIN
+   
+  SELECT INTO
+  the_mty_type , the_mty_name   
+  mty_type, mty_name FROM NEW 
+  JOIN REF.tr_mesuretype_mty ON mty_id=NEW.bii_mty_id;
+
+    IF (the_mty_type <> 'Individual') THEN
+    RAISE EXCEPTION 'table t_biometryind_bii, Measure --> % is not an individual measure', the_mty_name ;
+    END IF  ;
+
+    RETURN NEW ;
+  END  ;
+$function$
+;
+
+DROP TRIGGER IF EXISTS check_bii_mty_is_individual ON datawg.t_biometryind_bii;
+CREATE TRIGGER check_bii_mty_is_individual AFTER INSERT OR UPDATE ON
+   datawg.t_biometryind_bii FOR EACH ROW EXECUTE FUNCTION datawg.bii_mty_is_individual();
+ 
+-- trigger check that only biometry measures are used
+--TODO TEST THIS TRIGGER
+CREATE OR REPLACE FUNCTION datawg.bii_mty_is_biometry()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$   
+  DECLARE the_mty_group TEXT;
+          the_mty_name TEXT;
+ 
+  BEGIN
+   
+  SELECT INTO
+  the_mty_group , the_mty_name   
+  mty_group, mty_name FROM NEW 
+  JOIN REF.tr_mesuretype_mty ON mty_id=NEW.bii_mty_id;
+
+    IF (the_mty_type <> 'Biometry') THEN
+    RAISE EXCEPTION 'table t_qualityind_bii, Measure --> % is not a measure of biometry', the_mty_name ;
+    END IF  ;
+
+    RETURN NEW ;
+  END  ;
+$function$
+;
+
+DROP TRIGGER IF EXISTS check_bii_mty_is_biometry ON datawg.t_biometryind_bii;
+CREATE TRIGGER check_bii_mty_is_quality AFTER INSERT OR UPDATE ON
+   datawg.t_biometryind_bii FOR EACH ROW EXECUTE FUNCTION datawg.bii_mty_is_biometry();
+
+ 
+
+
+
 /*
  * TABLE OF QUALITY MEASUREMENTS this table has exactly the same structure as t_biometry_bii 
  * FOR THE SAKE OF SIMPLICIY WE DON't SET INHERITANCE
  * 
  */
-DROP TABLE IF EXISTS  datawg.t_qualityind_qui;
+DROP TABLE IF EXISTS  datawg.t_qualityind_big;
 CREATE TABLE datawg.t_qualityind_qui(
   qui_id SERIAL PRIMARY KEY, 
   qui_fi_id INTEGER,  
@@ -270,9 +388,84 @@ CREATE TABLE datawg.t_qualityind_qui(
 ) 
 ;
 
--- TODO trigger check that prevalence is not collected at the individual level
--- TODO ADD TRIGGER TO CHECK THAT BIOMETRY IS NOT INTEGRATED IN THIS TABLE ()
---TODO add trigger on last_update
+--  trigger on last_update
+CREATE OR REPLACE FUNCTION datawg.qui_last_update()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$
+BEGIN
+    NEW.qui_last_update = now()::date;
+    RETURN NEW; 
+END;
+$function$
+;
+DROP TRIGGER IF EXISTS update_qui_last_update ON datawg.t_qualityind_qui ;
+CREATE TRIGGER update_qui_last_update BEFORE INSERT OR UPDATE ON
+  datawg.t_qualityind_qui FOR EACH ROW EXECUTE FUNCTION  datawg.qui_last_update();
+
+
+-- trigger check that only invividual measures are used
+--TODO TEST THIS TRIGGER
+CREATE OR REPLACE FUNCTION datawg.qui_mty_is_individual()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$   
+  DECLARE the_mty_type TEXT;
+          the_mty_name TEXT;
+ 
+  BEGIN
+   
+  SELECT INTO
+  the_mty_type , the_mty_name   
+  mty_type, mty_name FROM NEW 
+  JOIN REF.tr_mesuretype_mty ON mty_id=NEW.qui_mty_id;
+
+    IF (the_mty_type <> 'Individual') THEN
+    RAISE EXCEPTION 'table t_qualityind_qui, Measure --> % is not an individual measure', the_mty_name ;
+    END IF  ;
+
+    RETURN NEW ;
+  END  ;
+$function$
+;
+
+DROP TRIGGER IF EXISTS check_qui_mty_is_individual ON datawg.t_qualityind_qui;
+CREATE TRIGGER check_qui_mty_is_individual AFTER INSERT OR UPDATE ON
+   datawg.t_qualityind_qui FOR EACH ROW EXECUTE FUNCTION datawg.qui_mty_is_individual();
+ 
+-- trigger check that only quality measures are used
+--TODO TEST THIS TRIGGER
+CREATE OR REPLACE FUNCTION datawg.qui_mty_is_quality()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$   
+  DECLARE the_mty_group TEXT;
+          the_mty_name TEXT;
+ 
+  BEGIN
+   
+  SELECT INTO
+  the_mty_group , the_mty_name   
+  mty_group, mty_name FROM NEW 
+  JOIN REF.tr_mesuretype_mty ON mty_id=NEW.qui_mty_id;
+
+    IF (the_mty_type <> 'Quality') THEN
+    RAISE EXCEPTION 'table t_qualityind_qui, Measure --> % is not a measure of quality', the_mty_name ;
+    END IF  ;
+
+    RETURN NEW ;
+  END  ;
+$function$
+;
+
+DROP TRIGGER IF EXISTS check_qui_mty_is_quality ON datawg.t_qualityind_qui;
+CREATE TRIGGER check_qui_mty_is_quality AFTER INSERT OR UPDATE ON
+   datawg.t_qualityind_qui FOR EACH ROW EXECUTE FUNCTION datawg.qui_mty_is_quality();
+
+ 
+ 
+
+
 DROP TABLE IF EXISTS datawg.t_biometrygroup_big CASCADE;
 CREATE TABLE datawg.t_biometrygroup_big (
   big_id serial PRIMARY KEY,
@@ -292,9 +485,86 @@ CREATE TABLE datawg.t_biometrygroup_big (
 )
 ;
 
---TODO add trigger on last_update
+-- Add trigger on last_update
+CREATE OR REPLACE FUNCTION datawg.big_last_update()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$
+BEGIN
+    NEW.big_last_update = now()::date;
+    RETURN NEW; 
+END;
+$function$
+;
+DROP TRIGGER IF EXISTS update_big_last_update ON datawg.t_biometrygroup_big ;
+CREATE TRIGGER update_big_last_update BEFORE INSERT OR UPDATE ON
+  datawg.t_biometrygroup_big FOR EACH ROW EXECUTE FUNCTION  datawg.big_last_update();
 
--- Group information for samples, should contain information for both yellow and silver eel
+-- trigger check that only group measures are used
+
+CREATE OR REPLACE FUNCTION datawg.big_mty_is_group()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$   
+  DECLARE the_mty_type TEXT;
+          the_mty_name TEXT;
+ 
+  BEGIN
+   
+  SELECT INTO
+  the_mty_type , the_mty_name   
+  mty_type, mty_name FROM NEW 
+  JOIN REF.tr_mesuretype_mty ON mty_id=NEW.big_mty_id;
+
+    IF (the_mty_type <> 'Group') THEN
+    RAISE EXCEPTION 'table t_biometrygroup_big, Measure --> % is not a group measure', the_mty_name ;
+    END IF  ;
+
+    RETURN NEW ;
+  END  ;
+$function$
+;
+
+DROP TRIGGER IF EXISTS check_big_mty_is_group ON datawg.t_biometrygroup_big;
+CREATE TRIGGER check_big_mty_is_group AFTER INSERT OR UPDATE ON
+   datawg.t_biometrygroup_big FOR EACH ROW EXECUTE FUNCTION datawg.big_mty_is_group();
+
+-- trigger check that only biometry measures are used
+
+CREATE OR REPLACE FUNCTION datawg.big_mty_is_biometry()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$   
+  DECLARE the_mty_group TEXT;
+          the_mty_name TEXT;
+ 
+  BEGIN
+   
+  SELECT INTO
+  the_mty_group , the_mty_name   
+  mty_group, mty_name FROM NEW 
+  JOIN REF.tr_mesuretype_mty ON mty_id=NEW.big_mty_id;
+
+    IF (the_mty_type <> 'Biometry') THEN
+    RAISE EXCEPTION 'table t_biometrygroup_big, Measure --> % is not a measure of biometry', the_mty_name ;
+    END IF  ;
+
+    RETURN NEW ;
+  END  ;
+$function$
+;
+
+DROP TRIGGER IF EXISTS check_big_mty_is_biometry ON datawg.t_biometrygroup_big;
+CREATE TRIGGER check_big_mty_is_quality AFTER INSERT OR UPDATE ON
+   datawg.t_biometrygroup_big FOR EACH ROW EXECUTE FUNCTION datawg.big_mty_is_biometry();
+
+ 
+/*
+ * 
+ * Table for quality of grouped data
+ * 
+ */
+
 DROP TABLE IF EXISTS datawg.t_qualitygroup_qug;
 CREATE TABLE datawg.t_qualitygroup_qug (  
   qug_id SERIAL PRIMARY KEY,
@@ -314,6 +584,77 @@ CREATE TABLE datawg.t_qualitygroup_qug (
 ) 
 ;
 
---TODO add trigger on last_update
--- TODO ADD TRIGGER TO CHECK THAT BIOMETRY IS NOT INTEGRATED IN THIS TABLE
+-- Add trigger on last_update
+CREATE OR REPLACE FUNCTION datawg.qug_last_update()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$
+BEGIN
+    NEW.qug_last_update = now()::date;
+    RETURN NEW; 
+END;
+$function$
+;
+DROP TRIGGER IF EXISTS update_qug_last_update ON datawg.t_qualitygroup_qug;
+CREATE TRIGGER update_qug_last_update BEFORE INSERT OR UPDATE ON
+  datawg.t_qualitygroup_qug FOR EACH ROW EXECUTE FUNCTION  datawg.qug_last_update();
+
+
+-- trigger check that only group measures are used
+
+CREATE OR REPLACE FUNCTION datawg.qug_mty_is_group()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$   
+  DECLARE the_mty_type TEXT;
+          the_mty_name TEXT;
+ 
+  BEGIN
+   
+  SELECT INTO
+  the_mty_type , the_mty_name   
+  mty_type, mty_name FROM NEW 
+  JOIN REF.tr_mesuretype_mty ON mty_id=NEW.qug_mty_id;
+
+    IF (the_mty_type <> 'Group') THEN
+    RAISE EXCEPTION 'table t_qualitygroup_qug, Measure --> % is not a group measure', the_mty_name ;
+    END IF  ;
+
+    RETURN NEW ;
+  END  ;
+$function$
+;
+
+DROP TRIGGER IF EXISTS check_qug_mty_is_group ON datawg.t_qualitygroup_qug;
+CREATE TRIGGER check_qug_mty_is_group AFTER INSERT OR UPDATE ON
+   datawg.t_qualitygroup_qug FOR EACH ROW EXECUTE FUNCTION datawg.qug_mty_is_group();
+
+-- trigger check that only quality measures are used
+
+CREATE OR REPLACE FUNCTION datawg.qug_mty_is_quality()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$   
+  DECLARE the_mty_group TEXT;
+          the_mty_name TEXT;
+ 
+  BEGIN
+   
+  SELECT INTO
+  the_mty_group , the_mty_name   
+  mty_group, mty_name FROM NEW 
+  JOIN REF.tr_mesuretype_mty ON mty_id=NEW.qug_mty_id;
+
+    IF (the_mty_type <> 'Quality') THEN
+    RAISE EXCEPTION 'table t_qualitygroup_qug, Measure --> % is not a measure of quality', the_mty_name ;
+    END IF  ;
+
+    RETURN NEW ;
+  END  ;
+$function$
+;
+
+DROP TRIGGER IF EXISTS check_qug_mty_is_biometry ON datawg.t_qualitygroup_qug;
+CREATE TRIGGER check_qug_mty_is_quality AFTER INSERT OR UPDATE ON
+   datawg.t_qualitygroup_qug FOR EACH ROW EXECUTE FUNCTION datawg.qug_mty_is_biometry();
 

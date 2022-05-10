@@ -2,51 +2,51 @@
 <diagram version="1" name="wkeeldata4.erd">
 	<entities>
 		<data-source id="postgres-jdbc-180a9103c44-2c2c093378634dab">
-			<entity id="1" name="t_qualityind_qui" fq-name="datawg.t_qualityind_qui" order="0" x="446" y="295">
+			<entity id="1" name="t_qualityind_qui" fq-name="datawg.t_qualityind_qui" order="0" x="396" y="646">
 				<path name="datawg"/>
 				<path name="wgeel"/>
 			</entity>
-			<entity id="2" name="t_biometryind_bii" fq-name="datawg.t_biometryind_bii" order="1" x="446" y="457">
+			<entity id="2" name="t_biometryind_bii" fq-name="datawg.t_biometryind_bii" order="1" x="399" y="432">
 				<path name="datawg"/>
 				<path name="wgeel"/>
 			</entity>
-			<entity id="3" name="t_fish_fi" fq-name="datawg.t_fish_fi" order="2" x="177" y="361">
+			<entity id="3" name="t_fish_fi" fq-name="datawg.t_fish_fi" order="2" x="186" y="580">
 				<path name="datawg"/>
 				<path name="wgeel"/>
 			</entity>
-			<entity id="4" name="t_fishsamp_fisa" fq-name="datawg.t_fishsamp_fisa" order="3" x="192" y="564">
+			<entity id="4" name="t_fishsamp_fisa" fq-name="datawg.t_fishsamp_fisa" order="3" x="181" y="793">
 				<path name="datawg"/>
 				<path name="wgeel"/>
 			</entity>
-			<entity id="5" name="t_sampinginfo_sai" fq-name="datawg.t_sampinginfo_sai" order="4" x="6" y="581">
+			<entity id="5" name="t_sampinginfo_sai" fq-name="datawg.t_sampinginfo_sai" order="4" x="13" y="803">
 				<path name="datawg"/>
 				<path name="wgeel"/>
 			</entity>
-			<entity id="6" name="t_biometry_other_bit" fq-name="datawg.t_biometry_other_bit" order="5" x="531" y="17">
+			<entity id="6" name="t_biometry_other_bit" fq-name="datawg.t_biometry_other_bit" order="5" x="565" y="198">
 				<path name="datawg"/>
 				<path name="wgeel"/>
 			</entity>
-			<entity id="7" name="t_biometry_series_bis" fq-name="datawg.t_biometry_series_bis" order="6" x="169" y="10">
+			<entity id="7" name="t_biometry_series_bis" fq-name="datawg.t_biometry_series_bis" order="6" x="169" y="-1">
 				<path name="datawg"/>
 				<path name="wgeel"/>
 			</entity>
-			<entity id="8" name="t_biometrygroupseries_bio" fq-name="datawg.t_biometrygroupseries_bio" order="7" x="324" y="13">
+			<entity id="8" name="t_series_ser" fq-name="datawg.t_series_ser" order="7" x="0" y="3">
 				<path name="datawg"/>
 				<path name="wgeel"/>
 			</entity>
-			<entity id="9" name="t_series_ser" fq-name="datawg.t_series_ser" order="8" x="6" y="12">
+			<entity id="9" name="t_fishseries_fiser" fq-name="datawg.t_fishseries_fiser" order="8" x="178" y="170">
 				<path name="datawg"/>
 				<path name="wgeel"/>
 			</entity>
-			<entity id="10" name="t_fishseries_fiser" fq-name="datawg.t_fishseries_fiser" order="9" x="192" y="190">
+			<entity id="10" name="t_qualitygroup_qug" fq-name="datawg.t_qualitygroup_qug" order="9" x="400" y="863">
 				<path name="datawg"/>
 				<path name="wgeel"/>
 			</entity>
-			<entity id="11" name="t_qualitygroup_qug" fq-name="datawg.t_qualitygroup_qug" order="10" x="438" y="660">
+			<entity id="11" name="t_biometrygroup_big" fq-name="datawg.t_biometrygroup_big" order="10" border-width="3" x="402" y="1076">
 				<path name="datawg"/>
 				<path name="wgeel"/>
 			</entity>
-			<entity id="12" name="t_biometrygroup_big" fq-name="datawg.t_biometrygroup_big" order="11" x="438" y="833">
+			<entity id="12" name="t_biometrygroupseries_bio" fq-name="datawg.t_biometrygroupseries_bio" order="11" x="363" y="1">
 				<path name="datawg"/>
 				<path name="wgeel"/>
 			</entity>
@@ -56,13 +56,13 @@
 		<relation name="c_fk_qui_fi_id" fq-name="datawg.t_qualityind_qui.c_fk_qui_fi_id" type="fk" pk-ref="3" fk-ref="1"/>
 		<relation name="c_fk_bii_fi_id" fq-name="datawg.t_biometryind_bii.c_fk_bii_fi_id" type="fk" pk-ref="3" fk-ref="2"/>
 		<relation name="datawg.t_fishsamp_fisa-&gt;datawg.t_fish_fi" fq-name="datawg.t_fishsamp_fisa.&quot;datawg.t_fishsamp_fisa-&gt;datawg.t_fish_fi&quot;" type="inheritance" pk-ref="3" fk-ref="4"/>
-		<relation name="datawg.t_fishseries_fiser-&gt;datawg.t_fish_fi" fq-name="datawg.t_fishseries_fiser.&quot;datawg.t_fishseries_fiser-&gt;datawg.t_fish_fi&quot;" type="inheritance" pk-ref="3" fk-ref="10"/>
+		<relation name="datawg.t_fishseries_fiser-&gt;datawg.t_fish_fi" fq-name="datawg.t_fishseries_fiser.&quot;datawg.t_fishseries_fiser-&gt;datawg.t_fish_fi&quot;" type="inheritance" pk-ref="3" fk-ref="9"/>
 		<relation name="c_fk_fisa_sai_id" fq-name="datawg.t_fishsamp_fisa.c_fk_fisa_sai_id" type="fk" pk-ref="5" fk-ref="4"/>
-		<relation name="c_fk_qug_sai_id" fq-name="datawg.t_qualitygroup_qug.c_fk_qug_sai_id" type="fk" pk-ref="5" fk-ref="11"/>
-		<relation name="c_fk_big_sai_id" fq-name="datawg.t_biometrygroup_big.c_fk_big_sai_id" type="fk" pk-ref="5" fk-ref="12"/>
-		<relation name="datawg.t_biometry_other_bit-&gt;datawg.t_biometrygroupseries_bio" fq-name="datawg.t_biometry_other_bit.&quot;datawg.t_biometry_other_bit-&gt;datawg.t_biometrygroupseries_bio&quot;" type="inheritance" pk-ref="8" fk-ref="6"/>
-		<relation name="datawg.t_biometry_series_bis-&gt;datawg.t_biometrygroupseries_bio" fq-name="datawg.t_biometry_series_bis.&quot;datawg.t_biometry_series_bis-&gt;datawg.t_biometrygroupseries_bio&quot;" type="inheritance" pk-ref="8" fk-ref="7"/>
-		<relation name="c_fk_ser_id" fq-name="datawg.t_biometry_series_bis.c_fk_ser_id" type="fk" pk-ref="9" fk-ref="7"/>
-		<relation name="c_fk_fiser_ser_id" fq-name="datawg.t_fishseries_fiser.c_fk_fiser_ser_id" type="fk" pk-ref="9" fk-ref="10"/>
+		<relation name="c_fk_qug_sai_id" fq-name="datawg.t_qualitygroup_qug.c_fk_qug_sai_id" type="fk" pk-ref="5" fk-ref="10"/>
+		<relation name="c_fk_big_sai_id" fq-name="datawg.t_biometrygroup_big.c_fk_big_sai_id" type="fk" pk-ref="5" fk-ref="11"/>
+		<relation name="c_fk_ser_id" fq-name="datawg.t_biometry_series_bis.c_fk_ser_id" type="fk" pk-ref="8" fk-ref="7"/>
+		<relation name="c_fk_fiser_ser_id" fq-name="datawg.t_fishseries_fiser.c_fk_fiser_ser_id" type="fk" pk-ref="8" fk-ref="9"/>
+		<relation name="datawg.t_biometry_other_bit-&gt;datawg.t_biometrygroupseries_bio" fq-name="datawg.t_biometry_other_bit.&quot;datawg.t_biometry_other_bit-&gt;datawg.t_biometrygroupseries_bio&quot;" type="inheritance" pk-ref="12" fk-ref="6"/>
+		<relation name="datawg.t_biometry_series_bis-&gt;datawg.t_biometrygroupseries_bio" fq-name="datawg.t_biometry_series_bis.&quot;datawg.t_biometry_series_bis-&gt;datawg.t_biometrygroupseries_bio&quot;" type="inheritance" pk-ref="12" fk-ref="7"/>
 	</relations>
 </diagram>
