@@ -675,4 +675,4 @@ update datawg.t_eelstock_eel set eel_qal_id =1 where eel_qal_id =0 and (eel_miss
 --add a constraint to avoid having new duplicates
 ALTER TABLE datawg.t_eelstock_eel ADD CONSTRAINT ck_qal_id_and_missvalue CHECK ((eel_missvaluequal IS NULL) or (eel_qal_id != 0));
 commit;
-
+ALTER ROLE wgeel WITH PASSWORD 'wgeel_2021'

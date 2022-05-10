@@ -24,7 +24,8 @@ ui <- fluidPage(spsDepend("toastr"),
 								# menuItem("Plot duplicates", tabName='plot_duplicates',icon= icon("area-chart")),
 								# menuItem("New Participants", tabName='integrate_new_participants',icon= icon("user-friends")),
 								menuItem("Import Data module", tabName="Importmodule", icon=icon("align-left")),
-								menuItem("Import Time Series module",tabName= "Importtsmodule", icon= icon("align-left")),					
+								menuItem("Import Time Series module",tabName= "Importtsmodule", icon= icon("align-left")),	
+								menuItem("Import DCF module",tabName= "Importdcfmodule", icon= icon("align-left")),		
 								menuItem("Edit Data module", tabName="editAllmodule", icon=icon("table")),
 								menuItem("Plot duplicates module", tabName='plot_duplicates_module',icon= icon("area-chart")),
 								menuItem("New Participants module", tabName="newparticipantstabmodule", icon=icon("user-friends"))
@@ -442,8 +443,11 @@ ui <- fluidPage(spsDepend("toastr"),
                     importtsstep1UI("importtsstep1module"),
                     importtsstep2UI("importtsstep2module")
                   ),
-								tabItem("editAllmodule",
-										tableEditUI("tableEditmodule")),
+								tabItem("Importdcfmodule",
+								importdcfstep0UI("importdcfstep0module")
+								#importdcfstep1UI("importdcfstep1module"),
+								#importdcfstep2UI("importdcfstep2module")
+								),
                 tabItem("newparticipantstabmodule",
                     newparticipantsUI("newparticipantsmodule")),
                 tabItem("plot_duplicates_module",

@@ -1835,7 +1835,8 @@ load_potential_available_habitat<-function(path,datasource){
 	return(invisible(list(data=data_xls,error=data_error,the_metadata=the_metadata)))
 }
 
-############# time series #############################################
+############# dcf #############################################
+# #205-shiny-integration-for-dcf-data
 #  path<-file.choose()
 # datasource<-the_eel_datasource
 # load_series(path,datasource="toto","glass_eel")
@@ -1853,10 +1854,9 @@ load_series<-function(path,datasource,stage="glass_eel"){
 	)
 	# these are used in the function but not loaded as arguments so I check it there
 	stopifnot(exists("tr_units_uni"))
-	stopifnot(exists("tr_typeseries_typt"))
+	stopifnot(exists("tr_measuretype_mty"))
 	stopifnot(exists("list_country"))
-	stopifnot(exists("ices_division"))
-	suppressWarnings(t_series_ser <- extract_data("t_series_ser",quality_check=FALSE))
+	stopifnot(exists("ices_division"))	
 	
 #---------------------- METADATA sheet ---------------------------------------------
 # read the metadata sheet
@@ -1867,10 +1867,10 @@ load_series<-function(path,datasource,stage="glass_eel"){
 #---------------------- series info ---------------------------------------------
 	
 	cat("loading series \n")
-# here we have already searched for catch and landings above.
+
 	series <- read_excel(
 			path=path,
-			sheet ="series_info",
+			sheet ="sampling_info",
 			skip=0)
 	
 	
@@ -2775,3 +2775,41 @@ data_error <- rbind(data_error, check_values(
 #	}
 #	
 #---------------------------------------------------------------	
+
+
+# TODO develp load_dcf
+load_dcf<-function(path,datasource){
+	data_error <- data.frame(nline = NULL, error_message = NULL)
+	the_metadata <- list()
+	dir <- dirname(path)
+	file <- basename(path)
+	mylocalfilename <- gsub(".xlsx","",file)
+	# these are used in the function but not loaded as arguments so I check it there
+	stopifnot(exists("tr_units_uni"))
+	stopifnot(exists("tr_mesuretype_mty"))
+	stopifnot(exists("list_country"))
+	stopifnot(exists("ices_division"))
+	suppressWarnings(t_series_ser <- extract_data("t_series_ser",quality_check=FALSE))
+	
+#---------------------- METADATA sheet ---------------------------------------------
+# read the metadata sheet
+	#TODO metadata <- read_excel(path=path,"metadata" , skip=1)
+# check if no rows have been added
+	#TODO if (names(metadata)[1]!="sai_id") cat(str_c("The structure of metadata has been changed ",file,"\n"))
+	
+	# TODO develop here
+	
+	
+	new_samplinginfo <- NULL
+	updated_smaplinginfo <- NULL
+	return(invisible(list(
+							samplinginfo=samplinginfo,
+							new_grouped_data=new_grouped_data,
+							updated_grouped_data=updated_grouped_data,
+							deleted_grouped_data=deleted_grouped_data,
+							new_invidual_data = new_individual_data,
+							updated_invidual_data = updated_individual_data,
+							deleted_invidual_data = deleted_individual_data,
+							error=data_error,
+							the_metadata=the_metadata))) 
+}
