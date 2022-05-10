@@ -123,7 +123,7 @@ ALTER TABLE datawg.t_biometry_bio RENAME TO t_biometrygroupseries_bio;
   * 
   * 
   */ 
-DROP TABLE IF EXISTS ref.tr_mesuretype_mty;
+DROP TABLE IF EXISTS ref.tr_mesuretype_mty CASCADE;
  CREATE TABLE ref.tr_mesuretype_mty(
  mty_id INTEGER PRIMARY KEY,
  mty_name TEXT,
@@ -131,6 +131,8 @@ DROP TABLE IF EXISTS ref.tr_mesuretype_mty;
  mty_type TEXT CHECK (mty_type='quality' OR mty_type='biometry'), -- this will be used in triggers later
  mty_group TEXT CHECK (mty_group='individual' OR mty_type='group'), -- this will be used in triggers later
  mty_uni_code varchar(20),
+ mty_min NUMERIC,
+ mty_max NUMERIC,
  CONSTRAINT c_fk_uni_code FOREIGN KEY (mty_uni_code) REFERENCES "ref".tr_units_uni(uni_code) ON UPDATE CASCADE
  );
  
@@ -141,7 +143,7 @@ DROP TABLE IF EXISTS ref.tr_mesuretype_mty;
  * CREATE A TABLE TO STORE BIOMETRY ON INDIVIDUAL DATA
 
  */
-DROP TABLE IF EXISTS datawg.t_sampinginfo_sai;
+DROP TABLE IF EXISTS datawg.t_sampinginfo_sai CASCADE;
 CREATE TABLE datawg.t_sampinginfo_sai(
   sai_id serial PRIMARY KEY,
   sai_cou_code VARCHAR(2),
@@ -183,7 +185,7 @@ CREATE TRIGGER update_sai_lastupdate  BEFORE INSERT OR UPDATE ON
  * the table for fish is created and two tables with additional information relate to it
  * the first 
  */
-DROP TABLE  datawg.t_fish_fi CASCADE;
+DROP TABLE  if exists datawg.t_fish_fi CASCADE;
 CREATE TABLE datawg.t_fish_fi(
   fi_id SERIAL PRIMARY KEY,
   fi_lfs_code varchar(2) NOT NULL, 
@@ -370,7 +372,7 @@ CREATE TRIGGER check_bii_mty_is_quality AFTER INSERT OR UPDATE ON
  * FOR THE SAKE OF SIMPLICIY WE DON't SET INHERITANCE
  * 
  */
-DROP TABLE IF EXISTS  datawg.t_qualityind_big;
+DROP TABLE IF EXISTS  datawg.t_qualityind_qui;
 CREATE TABLE datawg.t_qualityind_qui(
   qui_id SERIAL PRIMARY KEY, 
   qui_fi_id INTEGER,  
@@ -463,25 +465,84 @@ CREATE TRIGGER check_qui_mty_is_quality AFTER INSERT OR UPDATE ON
    datawg.t_qualityind_qui FOR EACH ROW EXECUTE FUNCTION datawg.qui_mty_is_quality();
 
  
+-- datawg.t_group_gr definition
+
+DROP TABLE if exists datawg.t_group_gr CASCADE;
+
+CREATE TABLE datawg.t_group_gr (
+	gr_id serial4 NOT NULL,
+	gr_lfs_code varchar(2) NOT NULL,
+	gr_year int4,
+	gr_number integer,
+	gr_lastupdate date NOT NULL DEFAULT CURRENT_DATE,
+	gr_dts_datasource varchar(100) NULL,
+	CONSTRAINT t_group_go_pkey PRIMARY KEY (gr_id),
+	CONSTRAINT c_fk_gr_dts_datasource FOREIGN KEY (gr_dts_datasource) REFERENCES "ref".tr_datasource_dts(dts_datasource) ON UPDATE CASCADE,
+	CONSTRAINT c_fk_gr_lfs_code FOREIGN KEY (gr_lfs_code) REFERENCES "ref".tr_lifestage_lfs(lfs_code) ON UPDATE CASCADE
+);
+
+
+DROP TABLE if exists datawg.t_groupsamp_grsa;
+
+CREATE TABLE datawg.t_groupsamp_grsa (
+	grsa_sai_id int4 NULL,
+        CONSTRAINT c_ck_uk_grsa_gr UNIQUE (grsa_sai_id, gr_year)
+)
+INHERITS (datawg.t_group_gr);
+
+
+DROP TABLE if exists datawg.t_groupseries_grser;
+CREATE TABLE datawg.t_groupseries_grser (
+	grser_ser_id int4 NOT NULL,
+	CONSTRAINT c_fk_grser_ser_id FOREIGN KEY (grser_ser_id) REFERENCES datawg.t_series_ser(ser_id) ON DELETE CASCADE ON UPDATE CASCADE,
+        CONSTRAINT c_ck_uk_grser_gr UNIQUE (grser_ser_id, gr_year)
+)
+INHERITS (datawg.t_group_gr);
+
+
+
+
+CREATE OR REPLACE FUNCTION datawg.gr_lastupdate()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$
+BEGIN
+    NEW.gr_lastupdate = now()::date;
+    RETURN NEW; 
+END;
+$function$
+;
+
+
+-- Table Triggers
+
+create trigger update_gr_lastupdate before
+insert
+    or
+update
+    on
+    datawg.t_group_gr for each row execute function datawg.gr_lastupdate();
+    
+    
  
 
 
 DROP TABLE IF EXISTS datawg.t_biometrygroup_big CASCADE;
 CREATE TABLE datawg.t_biometrygroup_big (
   big_id serial PRIMARY KEY,
-  big_sai_id INTEGER,
-  big_year INTEGER,
+  big_gr_id INTEGER,
+  big_year int4,
   big_mty_id INTEGER,
   big_value NUMERIC,
   big_comment TEXT,
   big_last_update DATE NOT NULL DEFAULT CURRENT_DATE,
   big_qal_id int4, 
   big_dts_datasource varchar(100),
-  CONSTRAINT c_ck_uk_big_sai UNIQUE (big_sai_id, big_year, big_mty_id),
-  CONSTRAINT c_fk_big_sai_id FOREIGN KEY (big_sai_id) REFERENCES datawg.t_sampinginfo_sai(sai_id) ON UPDATE CASCADE ON DELETE CASCADE,
+  CONSTRAINT c_ck_uk_big_gr UNIQUE (big_gr_id, big_year, big_mty_id),
   CONSTRAINT c_fk_big_mty_id FOREIGN KEY (big_mty_id) REFERENCES "ref".tr_mesuretype_mty(mty_id) ON UPDATE CASCADE,
   CONSTRAINT c_fk_big_qal_id FOREIGN KEY (big_qal_id) REFERENCES "ref".tr_quality_qal(qal_id) ON UPDATE CASCADE,
-  CONSTRAINT c_fk_big_dts_datasource FOREIGN KEY (big_dts_datasource) REFERENCES "ref".tr_datasource_dts(dts_datasource) ON UPDATE CASCADE
+  CONSTRAINT c_fk_big_dts_datasource FOREIGN KEY (big_dts_datasource) REFERENCES "ref".tr_datasource_dts(dts_datasource) ON UPDATE CASCADE,
+  CONSTRAINT c_fk_big_gr_id FOREIGN KEY (big_gr_id) REFERENCES datawg.t_group_gr(gr_id) ON UPDATE CASCADE ON DELETE CASCADE
 )
 ;
 
@@ -569,6 +630,7 @@ DROP TABLE IF EXISTS datawg.t_qualitygroup_qug;
 CREATE TABLE datawg.t_qualitygroup_qug (  
   qug_id SERIAL PRIMARY KEY,
   qug_sai_id INTEGER,
+  qug_gr_id INTEGER,
   qug_year INTEGER,
   qug_mty_id INTEGER,
   qug_value NUMERIC,
@@ -580,7 +642,8 @@ CREATE TABLE datawg.t_qualitygroup_qug (
   CONSTRAINT c_fk_qug_sai_id FOREIGN KEY (qug_sai_id) REFERENCES datawg.t_sampinginfo_sai(sai_id) ON UPDATE CASCADE ON DELETE CASCADE,
   CONSTRAINT c_fk_qug_mty_id FOREIGN KEY (qug_mty_id) REFERENCES "ref".tr_mesuretype_mty(mty_id) ON UPDATE CASCADE,
   CONSTRAINT c_fk_qug_qal_id FOREIGN KEY (qug_qal_id) REFERENCES "ref".tr_quality_qal(qal_id) ON UPDATE CASCADE,
-  CONSTRAINT c_fk_qug_dts_datasource FOREIGN KEY (qug_dts_datasource) REFERENCES "ref".tr_datasource_dts(dts_datasource) ON UPDATE CASCADE
+  CONSTRAINT c_fk_qug_dts_datasource FOREIGN KEY (qug_dts_datasource) REFERENCES "ref".tr_datasource_dts(dts_datasource) ON UPDATE CASCADE,
+ CONSTRAINT c_fk_qug_gr_id FOREIGN KEY (qug_gr_id) REFERENCES datawg.t_group_gr(gr_id) ON UPDATE CASCADE ON DELETE CASCADE
 ) 
 ;
 
@@ -654,9 +717,9 @@ AS $function$
 $function$
 ;
 
-DROP TRIGGER IF EXISTS check_qug_mty_is_biometry ON datawg.t_qualitygroup_qug;
+DROP TRIGGER IF EXISTS check_qug_mty_is_quality ON datawg.t_qualitygroup_qug;
 CREATE TRIGGER check_qug_mty_is_quality AFTER INSERT OR UPDATE ON
-   datawg.t_qualitygroup_qug FOR EACH ROW EXECUTE FUNCTION datawg.qug_mty_is_biometry();
+   datawg.t_qualitygroup_qug FOR EACH ROW EXECUTE FUNCTION datawg.qug_mty_is_quality();
    
    
    
@@ -676,3 +739,91 @@ update datawg.t_eelstock_eel set eel_qal_id =1 where eel_qal_id =0 and (eel_miss
 ALTER TABLE datawg.t_eelstock_eel ADD CONSTRAINT ck_qal_id_and_missvalue CHECK ((eel_missvaluequal IS NULL) or (eel_qal_id != 0));
 commit;
 ALTER ROLE wgeel WITH PASSWORD 'wgeel_2021'
+
+------------
+-- fix issue 201 (emu for NL)
+-- TO BE RUN
+--		TODO: add a comment in eel_qal_comment? (NOT overwritten, coalesce)
+------------
+
+--		Correcting Netherland: NL_Neth, NL_total (without geom)
+--		Correct the EMU in t_eelstock_eel table because always the EMU appears as NL_total
+-- select count(*) from datawg.t_eelstock_eel where eel_cou_code = 'NL';					-- 1354
+begin; 		
+update datawg.t_eelstock_eel SET eel_emu_nameshort = REPLACE (eel_emu_nameshort, 'NL_total', 'NL_Neth');
+--		Droping 'NL_total' (without geom)
+delete from ref.tr_emu_emu where emu_nameshort = 'NL_total';								-- It works!
+commit;
+
+
+------------
+-- fix issue 126 (EMU_total and EMU_country)
+-- TO BE RUN
+--		TODO: add a comment in eel_qal_comment? (NOT overwritten, coalesce)
+------------
+
+--		Correcting Finland: 'FI_Finl', 'FI_total' (without geom)
+-- select count(*) from datawg.t_eelstock_eel where eel_cou_code = 'FI'; 									-- 631 rows
+BEGIN;
+update datawg.t_eelstock_eel SET eel_emu_nameshort = REPLACE (eel_emu_nameshort, 'FI_total', 'FI_Finl');
+--		Droping 'FI_total' (without geom)
+delete from ref.tr_emu_emu where emu_nameshort = 'FI_total';
+COMMIT;
+
+-- 		When the whole country corresponds to one single EMU, '%_total' is replaced by the first three letters of the country
+select emu_nameshort from ref.tr_emu_emu where emu_nameshort like '%_total' and geom is not null; 		-- 20 rows
+select distinct eel_emu_nameshort from datawg.t_eelstock_eel where eel_emu_nameshort in 
+	(select emu_nameshort from ref.tr_emu_emu where emu_nameshort like '%_total' and geom is not null) 	-- AL, DZ, EG, HR, MA, NO, SI, TN, TR
+
+--		(in the main table of EMUs and t_eelstock_eel table)
+--			AL_total	Albania (Alb)
+BEGIN;
+UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'AL_total', 'AL_Alb');
+UPDATE datawg.t_eelstock_eel SET eel_emu_nameshort = REPLACE (eel_emu_nameshort, 'AL_total', 'AL_Alb');
+--			AX_total	Aland (Ala)
+UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'AX_total', 'AX_Ala');
+--			BA_total	Bosnia-Herzegovina (Bih)
+UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'BA_total', 'BA_Bos');
+--			CY_total	Cyprus (Cyp)
+UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'CY_total', 'CY_Cyp');
+-- 			DZ_total 	Algeria (Dza)
+UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'DZ_total', 'DZ_Alg');
+UPDATE datawg.t_eelstock_eel SET eel_emu_nameshort = REPLACE (eel_emu_nameshort, 'DZ_total', 'DZ_Alg');
+-- 			EG_total	Egypt (Egy)
+UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'EG_total', 'EG_Egy');
+UPDATE datawg.t_eelstock_eel SET eel_emu_nameshort = REPLACE (eel_emu_nameshort, 'EG_total', 'EG_Egy');
+-- 			HR_total	Croatia (Hrv)
+UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'HR_total', 'HR_Cro');
+UPDATE datawg.t_eelstock_eel SET eel_emu_nameshort = REPLACE (eel_emu_nameshort, 'HR_total', 'HR_Cro');
+--			IL_total	Israel (Isr)
+UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'IL_total', 'IL_Isr');
+--			IS_total	Iceland (Isl)
+UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'IS_total', 'IS_Isl');
+--			LB_total	Lebanon (Lbn)
+UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'LB_total', 'LB_Leb');
+--			LY_total	Libya (Lby)
+UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'LY_total', 'LY_Lib');
+-- 			MA_total	Morocco (Mar)
+UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'MA_total', 'MA_Mor');
+UPDATE datawg.t_eelstock_eel SET eel_emu_nameshort = REPLACE (eel_emu_nameshort, 'MA_total', 'MA_Mor');
+--			ME_total	Montenegro (Mne)
+UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'ME_total', 'ME_Mon');
+--			MT_total	Malta (Mlt)
+UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'MT_total', 'MT_Mal');
+-- 			NO_total	Norway (Nor)
+UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'NO_total', 'NO_Nor');
+UPDATE datawg.t_eelstock_eel SET eel_emu_nameshort = REPLACE (eel_emu_nameshort, 'NO_total', 'NO_Nor');
+--			RU_total	Russia (Rus)
+UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'RU_total', 'RU_Rus');
+--			SI_total	Slovenia (Svn)
+UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'SI_total', 'SI_Slo');
+UPDATE datawg.t_eelstock_eel SET eel_emu_nameshort = REPLACE (eel_emu_nameshort, 'SI_total', 'SI_Slo');
+--			SY_total	Syria (Syr)
+UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'SY_total', 'SY_Syr');
+--			TN_total	Tunisia (Tun)
+UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'TN_total', 'TN_Tun');
+UPDATE datawg.t_eelstock_eel SET eel_emu_nameshort = REPLACE (eel_emu_nameshort, 'TN_total', 'TN_Tun');
+-- 			TR_total	Turkey (Tur)
+UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'TR_total', 'TR_Tur');
+UPDATE datawg.t_eelstock_eel SET eel_emu_nameshort = REPLACE (eel_emu_nameshort, 'TR_total', 'TR_Tur');
+COMMIT;
