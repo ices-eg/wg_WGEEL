@@ -123,7 +123,7 @@ ALTER TABLE datawg.t_biometry_bio RENAME TO t_biometrygroupseries_bio;
   * 
   * 
   */ 
-DROP TABLE IF EXISTS ref.tr_mesuretype_mty;
+DROP TABLE IF EXISTS ref.tr_mesuretype_mty CASCADE;
  CREATE TABLE ref.tr_mesuretype_mty(
  mty_id INTEGER PRIMARY KEY,
  mty_name TEXT,
@@ -141,7 +141,7 @@ DROP TABLE IF EXISTS ref.tr_mesuretype_mty;
  * CREATE A TABLE TO STORE BIOMETRY ON INDIVIDUAL DATA
 
  */
-DROP TABLE IF EXISTS datawg.t_sampinginfo_sai;
+DROP TABLE IF EXISTS datawg.t_sampinginfo_sai CASCADE;
 CREATE TABLE datawg.t_sampinginfo_sai(
   sai_id serial PRIMARY KEY,
   sai_cou_code VARCHAR(2),
@@ -183,7 +183,7 @@ CREATE TRIGGER update_sai_lastupdate  BEFORE INSERT OR UPDATE ON
  * the table for fish is created and two tables with additional information relate to it
  * the first 
  */
-DROP TABLE  datawg.t_fish_fi CASCADE;
+DROP TABLE  if exists datawg.t_fish_fi CASCADE;
 CREATE TABLE datawg.t_fish_fi(
   fi_id SERIAL PRIMARY KEY,
   fi_lfs_code varchar(2) NOT NULL, 
@@ -370,7 +370,7 @@ CREATE TRIGGER check_bii_mty_is_quality AFTER INSERT OR UPDATE ON
  * FOR THE SAKE OF SIMPLICIY WE DON't SET INHERITANCE
  * 
  */
-DROP TABLE IF EXISTS  datawg.t_qualityind_big;
+DROP TABLE IF EXISTS  datawg.t_qualityind_qui;
 CREATE TABLE datawg.t_qualityind_qui(
   qui_id SERIAL PRIMARY KEY, 
   qui_fi_id INTEGER,  
@@ -463,13 +463,73 @@ CREATE TRIGGER check_qui_mty_is_quality AFTER INSERT OR UPDATE ON
    datawg.t_qualityind_qui FOR EACH ROW EXECUTE FUNCTION datawg.qui_mty_is_quality();
 
  
+-- datawg.t_group_gr definition
+
+DROP TABLE if exists datawg.t_group_gr CASCADE;
+
+CREATE TABLE datawg.t_group_gr (
+	gr_id serial4 NOT NULL,
+	gr_lfs_code varchar(2) NOT NULL,
+	gr_year int4,
+	gr_number integer,
+	gr_lastupdate date NOT NULL DEFAULT CURRENT_DATE,
+	gr_dts_datasource varchar(100) NULL,
+	CONSTRAINT t_group_go_pkey PRIMARY KEY (gr_id),
+	CONSTRAINT c_fk_gr_dts_datasource FOREIGN KEY (gr_dts_datasource) REFERENCES "ref".tr_datasource_dts(dts_datasource) ON UPDATE CASCADE,
+	CONSTRAINT c_fk_gr_lfs_code FOREIGN KEY (gr_lfs_code) REFERENCES "ref".tr_lifestage_lfs(lfs_code) ON UPDATE CASCADE
+);
+
+
+DROP TABLE if exists datawg.t_groupsamp_grsa;
+
+CREATE TABLE datawg.t_groupsamp_grsa (
+	grsa_sai_id int4 NULL,
+        CONSTRAINT c_ck_uk_grsa_gr UNIQUE (grsa_sai_id, gr_year)
+)
+INHERITS (datawg.t_group_gr);
+
+
+DROP TABLE if exists datawg.t_groupseries_grser;
+CREATE TABLE datawg.t_groupseries_grser (
+	grser_ser_id int4 NOT NULL,
+	grser_year int4 NOT NULL,
+	CONSTRAINT c_fk_grser_ser_id FOREIGN KEY (grser_ser_id) REFERENCES datawg.t_series_ser(ser_id) ON DELETE CASCADE ON UPDATE CASCADE,
+        CONSTRAINT c_ck_uk_grser_gr UNIQUE (grser_ser_id, gr_year)
+)
+INHERITS (datawg.t_group_gr);
+
+
+
+
+CREATE OR REPLACE FUNCTION datawg.gr_lastupdate()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$
+BEGIN
+    NEW.gr_lastupdate = now()::date;
+    RETURN NEW; 
+END;
+$function$
+;
+
+
+-- Table Triggers
+
+create trigger update_gr_lastupdate before
+insert
+    or
+update
+    on
+    datawg.t_group_gr for each row execute function datawg.gr_lastupdate();
+    
+    
  
 
 
 DROP TABLE IF EXISTS datawg.t_biometrygroup_big CASCADE;
 CREATE TABLE datawg.t_biometrygroup_big (
   big_id serial PRIMARY KEY,
-  big_sai_id INTEGER,
+  big_gr_id INTEGER,
   big_year INTEGER,
   big_mty_id INTEGER,
   big_value NUMERIC,
@@ -477,11 +537,11 @@ CREATE TABLE datawg.t_biometrygroup_big (
   big_last_update DATE NOT NULL DEFAULT CURRENT_DATE,
   big_qal_id int4, 
   big_dts_datasource varchar(100),
-  CONSTRAINT c_ck_uk_big_sai UNIQUE (big_sai_id, big_year, big_mty_id),
-  CONSTRAINT c_fk_big_sai_id FOREIGN KEY (big_sai_id) REFERENCES datawg.t_sampinginfo_sai(sai_id) ON UPDATE CASCADE ON DELETE CASCADE,
+  CONSTRAINT c_ck_uk_big_gr UNIQUE (big_gr_id, big_year, big_mty_id),
   CONSTRAINT c_fk_big_mty_id FOREIGN KEY (big_mty_id) REFERENCES "ref".tr_mesuretype_mty(mty_id) ON UPDATE CASCADE,
   CONSTRAINT c_fk_big_qal_id FOREIGN KEY (big_qal_id) REFERENCES "ref".tr_quality_qal(qal_id) ON UPDATE CASCADE,
-  CONSTRAINT c_fk_big_dts_datasource FOREIGN KEY (big_dts_datasource) REFERENCES "ref".tr_datasource_dts(dts_datasource) ON UPDATE CASCADE
+  CONSTRAINT c_fk_big_dts_datasource FOREIGN KEY (big_dts_datasource) REFERENCES "ref".tr_datasource_dts(dts_datasource) ON UPDATE CASCADE,
+  CONSTRAINT c_fk_big_gr_id FOREIGN KEY (big_gr_id) REFERENCES datawg.t_group_gr(gr_id) ON UPDATE CASCADE ON DELETE CASCADE
 )
 ;
 
@@ -654,9 +714,9 @@ AS $function$
 $function$
 ;
 
-DROP TRIGGER IF EXISTS check_qug_mty_is_biometry ON datawg.t_qualitygroup_qug;
+DROP TRIGGER IF EXISTS check_qug_mty_is_quality ON datawg.t_qualitygroup_qug;
 CREATE TRIGGER check_qug_mty_is_quality AFTER INSERT OR UPDATE ON
-   datawg.t_qualitygroup_qug FOR EACH ROW EXECUTE FUNCTION datawg.qug_mty_is_biometry();
+   datawg.t_qualitygroup_qug FOR EACH ROW EXECUTE FUNCTION datawg.qug_mty_is_quality();
    
    
    
