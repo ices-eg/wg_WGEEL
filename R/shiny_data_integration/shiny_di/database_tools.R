@@ -188,6 +188,89 @@ compare_with_database_updated_values <- function(updated_from_excel, data_from_b
 }
 
 
+#' @title compare with database for deleted values
+#' @description This function retrieves older values in the database and compares it with data
+#' loaded from excel. Check that data haven't been modified
+#' @param deleted_from_excel Dataset loaded from excel
+#' @param data_from_base dataset loaded from the database with previous values to be replaced
+#' @return A table with data to be deleted
+#' @importFrom dplyr filter select inner_join right_join
+compare_with_database_deleted_values <- function(deleted_from_excel, data_from_base) {
+  # tr_type_typ should have been loaded by global.R in the program in the shiny app
+  if (!exists("tr_type_typ")) {
+    tr_type_typ<-extract_ref("Type of series", pool)
+  }
+  # data integrity checks
+  validate(need(nrow(deleted_from_excel) != 0,"There are no data coming from the excel file")) 
+  current_cou_code <- unique(deleted_from_excel$eel_cou_code)
+  validate(need(length(current_cou_code) == 1, "There is more than one country code, this is wrong"))
+  
+  current_typ_name <- unique(deleted_from_excel$eel_typ_name)
+  if (!all(current_typ_name %in% tr_type_typ$typ_name)) stop(str_c("Type ",current_typ_name[!current_typ_name %in% tr_type_typ$typ_name]," not in list of type name check excel file"))
+  # all data returned by loading functions have only a name just in case to avoid doubles
+  
+  if (!"eel_typ_id"%in%colnames(deleted_from_excel)) {
+    # extract subset suitable for merge
+    tr_type_typ_for_merge <- tr_type_typ[, c("typ_id", "typ_name")]
+    colnames(tr_type_typ_for_merge) <- c("eel_typ_id", "eel_typ_name")
+    deleted_from_excel <- merge(deleted_from_excel, tr_type_typ_for_merge, by = "eel_typ_name") 
+  }
+  if (nrow(data_from_base) == 0) {
+    validate(need(FALSE, "No data in the db"))
+    current_typ_id<-0
+  } else {   
+    if (!all(deleted_from_excel$eel_id %in% data_from_base$eel_id))
+      validate(need(FALSE,paste("eel_id",paste(deleted_from_excel$eel_id[!deleted_from_excel$eel_id %in% data_from_base$eel_id],collapse=","),
+                                "not found in db",sep="")))
+    current_typ_id <- unique(deleted_from_excel$eel_typ_id)
+    if (!all(current_typ_id %in% data_from_base$eel_typ_id)) 
+      validate(need(FALSE,paste("There is a mismatch between selected typ_id", paste0(current_typ_id, 
+                                                                                      collapse = ";"), "and the dataset loaded from base", paste0(unique(data_from_base$eel_typ_id), 
+                                                                                                                                                  collapse = ";"), "did you select the right File type ?")))
+  }
+  # Can't join on 'eel_area_division' x 'eel_area_division' because of incompatible
+  # types (character / logical)
+  deleted_from_excel$eel_area_division <- as.character(deleted_from_excel$eel_area_division)
+  deleted_from_excel$eel_hty_code <- as.character(deleted_from_excel$eel_hty_code)
+  eel_colnames <- colnames(data_from_base)[grepl("eel", colnames(data_from_base))]
+  
+  
+  deleted_from_excel <- deleted_from_excel %>%
+    select(-eel_typ_name)
+  
+  comparison_deleted <- anti_join(deleted_from_excel %>%
+                                    select(eel_emu_nameshort,eel_value,eel_typ_id,eel_id,eel_cou_code,
+                                           eel_lfs_code,eel_hty_code,eel_year),
+                              data_from_base %>%
+                                filter(eel_id %in% deleted_from_excel$eel_id) %>%
+                                select(eel_emu_nameshort,eel_value,eel_typ_id,eel_id,eel_cou_code,
+                                       eel_lfs_code,eel_hty_code,eel_year))
+  validate(need(nrow(comparison_deleted) == 0, "the data in deleted_data have been modified compared with the content of the db"))
+
+  #since dc2020, qal_id are automatically created during the import
+  deleted_from_excel$eel_qal_id <- qualify_code
+  deleted_from_excel$eel_qal_comment <- paste(ifelse(is.na(deleted_from_excel$eel_qal_comment),
+                                                     "",
+                                                     deleted_from_excel$eel_qal_comment),
+                                                     "deleted during", the_eel_datasource)
+  
+  deleted_from_excel <- deleted_from_excel %>%
+    select(any_of(c("eel_id", "eel_typ_id", "eel_typ_name", "eel_year",
+                    "eel_value", "eel_missvaluequal", 
+                    "eel_emu_nameshort", "eel_cou_code",
+                    "perc_f","perc_t","perc_c", "perc_mo",
+                    "eel_lfs_code", "eel_hty_code",
+                    "eel_area_division","eel_comment", 
+                     "eel_datasource",
+                    "eel_qal_id", "eel_qal_comment")))
+  
+  return(deleted_from_excel)
+}
+
+
+
+
+
 
 #' @title compare with database series
 #' @description This function loads the data from the database and compare it with data
@@ -1120,6 +1203,84 @@ write_updated_values <- function(path, qualify_code) {
 	
 	return(list(message = message, cou_code = cou_code))
 }
+
+
+
+#' @title deleted value into the database
+#' @description values will be change with a qal_id and qal_comment
+#' @param path path to file (collected from shiny button)
+#' @param qualify_code new qal_id 19
+#' @return message indicating success or failure 
+#' @details This function uses sqldf to create temporary table then dbExecute as
+#' this version allows to catch exceptions and sqldf does not
+
+write_deleted_values <- function(path, qualify_code) {
+  deleted_values_table <- read_excel(path = path, sheet = 1, skip = 1)
+  validate(need(ncol(deleted_values_table) %in% c(14,18), "number column wrong (should be 14 or 18) \n"))
+  validate(need(all(colnames(deleted_values_table) %in% c("eel_id", "eel_typ_id", 
+                                                          "eel_year","eel_value",
+                                                          "eel_missvaluequal",
+                                                          "eel_emu_nameshort",
+                                                         "eel_qal_id",
+                                                          "eel_qal_comment",
+                                                           "eel_qal_id", "eel_qal_comment", "eel_missvaluequal", 
+                                                          "eel_emu_nameshort", "eel_cou_code",
+                                                          "eel_lfs_code",
+                                                          "eel_hty_code", "eel_area_division",
+                                                          "eel_comment",
+                                                          "perc_f","perc_t","perc_c", "perc_mo",
+                                                          "eel_datasource")), 
+                "Error in updated dataset : column name changed, have you removed the empty line on top of the dataset ?"))
+  validate(need(all(!is.na(deleted_values_table$eel_qal_id)), "There are still lines without eel_qal_id, please check your file"))
+  cou_code = unique(deleted_values_table$eel_cou_code)
+  validate(need(length(cou_code) == 1, "There is more than one country code, please check your file"))
+  
+  # create dataset for insertion -------------------------------------------------------------------
+  deleted_values_table$eel_value<- as.numeric(deleted_values_table$eel_value)
+  names(deleted_values_table) = gsub(".","_",names(deleted_values_table),fixed=TRUE)
+  
+  conn <- poolCheckout(pool)
+  dbExecute(conn,"drop table if exists deleted_temp ")
+  dbWriteTable(conn,"deleted_temp",deleted_values_table,row.names=FALSE,temporary=TRUE)
+  cyear=format(Sys.Date(), "%Y")
+  query=paste("
+					DO $$
+					DECLARE
+					rec RECORD;
+					oldid integer;
+					newid integer;
+					comment text;
+					BEGIN
+					FOR rec in SELECT * from deleted_temp
+					LOOP
+					BEGIN
+					oldid:=rec.eel_id;
+					update datawg.t_eelstock_eel set eel_qal_id=",qualify_code," where eel_id=oldid;
+					comment:=rec.eel_qal_comment;
+					update datawg.t_eelstock_eel set eel_qal_comment=comment where eel_id=oldid;
+					END;
+					END LOOP;
+					END;
+					$$ LANGUAGE 'plpgsql';",sep="")
+  message <- NULL
+  nr <- tryCatch({
+    dbExecute(conn, query)
+  }, error = function(e) {
+    message <<- e
+  }, finally = {
+    dbExecute(conn,"drop table if exists deleted_temp;")
+    poolReturn(conn)
+  })
+  
+  
+  if (is.null(message))   
+    message <- paste(nrow(deleted_values_table),"values deleted in the db")
+  
+  return(list(message = message, cou_code = cou_code))
+}
+
+
+
 
 
 #' @title write new series into the database

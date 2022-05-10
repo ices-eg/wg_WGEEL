@@ -41,6 +41,17 @@ importstep2UI <- function(id){
                    actionButton(ns("database_updated_value_button"), "Proceed"),
                    verbatimTextOutput(ns("textoutput_step2.3"))
             )										
+          ),
+          h2("step 2.4 Delete values"),
+          fluidRow(
+            column(width=4,fileInput(ns("xl_deleted_file"), "xls deleted",
+                                     multiple=FALSE,
+                                     accept = c(".xls",".xlsx")
+            )),
+            column(width=6,
+                   actionButton(ns("database_deleted_value_button"), "Proceed"),
+                   verbatimTextOutput(ns("textoutput_step2.4"))
+            )										
           )
           
           
@@ -244,6 +255,62 @@ importstep2Server <- function(id,globaldata, loaded_data){
                      # call to  function that loads data
                      # this function does not need to be reactive
                      message<-step23load_updated_value_data()
+                     paste(message,collapse="\n")
+                   })  
+                 },error = function(e) {
+                   showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
+                 }))
+                 
+                 
+                 
+                 ##########################
+                 # STEP 2.4
+                 # Integration of deleted_values when proceed is clicked
+                 # 
+                 #############################
+                 observeEvent(input$database_deleted_value_button, tryCatch({
+                   ###########################
+                   # step2_filepath
+                   # reactive function, when clicked return value in reactive data 
+                   ###########################
+                   step24_filepath <- reactive({
+                     inFile <- isolate(input$xl_deleted_file)     
+                     if (is.null(inFile)){        return(NULL)
+                     } else {
+                       data$path_step24<-inFile$datapath #path to a temp file             
+                     }
+                   })
+                   
+                   ###########################
+                   # step24load_deleted_value_data
+                   #  function, returns a message
+                   #  indicating that data integration was a success
+                   #  or an error message
+                   ###########################
+                   step24load_deleted_value_data <- function() {
+                     path <- isolate(step24_filepath())
+                     if (is.null(data$path_step24)) 
+                       return(NULL)
+                     rls <- write_deleted_values(path,qualify_code=qualify_code)
+                     message <- rls$message
+                     cou_code <- rls$cou_code
+                     main_assessor <- input$main_assessor
+                     secondary_assessor <- input$secondary_assessor
+                     file_type <- input$file_type
+                     log_datacall("deleted values data integration", cou_code = cou_code, message = sQuote(message), 
+                                  the_metadata = NULL, file_type = file_type, main_assessor = main_assessor, 
+                                  secondary_assessor = secondary_assessor)
+                     return(message)
+                   }
+                   ###########################
+                   # deleted_values_integration
+                   # this will add a path value to reactive data in step0
+                   ###########################            
+                   output$textoutput_step2.4<-renderText({
+                     validate(need(globaldata$connectOK,"No connection"))
+                     # call to  function that loads data
+                     # this function does not need to be reactive
+                     message<-step24load_deleted_value_data()
                      paste(message,collapse="\n")
                    })  
                  },error = function(e) {
