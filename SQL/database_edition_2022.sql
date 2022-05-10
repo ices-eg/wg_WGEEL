@@ -657,4 +657,22 @@ $function$
 DROP TRIGGER IF EXISTS check_qug_mty_is_biometry ON datawg.t_qualitygroup_qug;
 CREATE TRIGGER check_qug_mty_is_quality AFTER INSERT OR UPDATE ON
    datawg.t_qualitygroup_qug FOR EACH ROW EXECUTE FUNCTION datawg.qug_mty_is_biometry();
+   
+   
+   
+   
+------------
+-- fix issue 189
+-- TO BE RUN
+------------
+begin;
+-- deprecate wrong missing values that create duplicates
+update datawg.t_eelstock_eel set eel_qal_id =21 where eel_id in(521655,436466,436467,486606,486607,486608,486609,486610,486611);
+
+--set qal_id = 1 for NP, NC, NR...
+update datawg.t_eelstock_eel set eel_qal_id =1 where eel_qal_id =0 and (eel_missvaluequal is not null);
+
+--add a constraint to avoid having new duplicates
+ALTER TABLE datawg.t_eelstock_eel ADD CONSTRAINT ck_qal_id_and_missvalue CHECK ((eel_missvaluequal IS NULL) or (eel_qal_id != 0));
+commit;
 
