@@ -195,17 +195,17 @@ compare_with_database_updated_values <- function(updated_from_excel, data_from_b
 #' @param data_from_base dataset loaded from the database with previous values to be replaced
 #' @return A table with data to be deleted
 #' @importFrom dplyr filter select inner_join right_join
-compare_with_database_deleted_values <- function(updated_from_excel, data_from_base) {
+compare_with_database_deleted_values <- function(deleted_from_excel, data_from_base) {
   # tr_type_typ should have been loaded by global.R in the program in the shiny app
   if (!exists("tr_type_typ")) {
     tr_type_typ<-extract_ref("Type of series", pool)
   }
   # data integrity checks
-  validate(need(nrow(updated_from_excel) != 0,"There are no data coming from the excel file")) 
-  current_cou_code <- unique(updated_from_excel$eel_cou_code)
+  validate(need(nrow(deleted_from_excel) != 0,"There are no data coming from the excel file")) 
+  current_cou_code <- unique(deleted_from_excel$eel_cou_code)
   validate(need(length(current_cou_code) == 1, "There is more than one country code, this is wrong"))
   
-  current_typ_name <- unique(updated_from_excel$eel_typ_name)
+  current_typ_name <- unique(deleted_from_excel$eel_typ_name)
   if (!all(current_typ_name %in% tr_type_typ$typ_name)) stop(str_c("Type ",current_typ_name[!current_typ_name %in% tr_type_typ$typ_name]," not in list of type name check excel file"))
   # all data returned by loading functions have only a name just in case to avoid doubles
   
@@ -238,11 +238,14 @@ compare_with_database_deleted_values <- function(updated_from_excel, data_from_b
   deleted_from_excel <- deleted_from_excel %>%
     select(-eel_typ_name)
   
-  comparison_deleted <- identical(deleted_from_excel,
+  comparison_deleted <- anti_join(deleted_from_excel %>%
+                                    select(eel_emu_nameshort,eel_value,eel_typ_id,eel_id,eel_cou_code,
+                                           eel_lfs_code,eel_hty_code,eel_year),
                               data_from_base %>%
                                 filter(eel_id %in% deleted_from_excel$eel_id) %>%
-                                select(any_of(names(deleted_from_excel))))
-  validate(need(comparison_deleted), "the data in deleted_data have been modified compared with the content of the db")
+                                select(eel_emu_nameshort,eel_value,eel_typ_id,eel_id,eel_cou_code,
+                                       eel_lfs_code,eel_hty_code,eel_year))
+  validate(need(nrow(comparison_deleted) == 0, "the data in deleted_data have been modified compared with the content of the db"))
 
   #since dc2020, qal_id are automatically created during the import
   deleted_from_excel$eel_qal_id <- qualify_code
@@ -1212,8 +1215,8 @@ write_updated_values <- function(path, qualify_code) {
 #' this version allows to catch exceptions and sqldf does not
 
 write_deleted_values <- function(path, qualify_code) {
-  updated_values_table <- read_excel(path = path, sheet = 1, skip = 1)
-  validate(need(ncol(deleted_values_table) %in% c(27,35), "number column wrong (should be 27 or 35) \n"))
+  deleted_values_table <- read_excel(path = path, sheet = 1, skip = 1)
+  validate(need(ncol(deleted_values_table) %in% c(14,18), "number column wrong (should be 14 or 18) \n"))
   validate(need(all(colnames(deleted_values_table) %in% c("eel_id", "eel_typ_id", 
                                                           "eel_year","eel_value",
                                                           "eel_missvaluequal",
@@ -1234,6 +1237,7 @@ write_deleted_values <- function(path, qualify_code) {
   
   # create dataset for insertion -------------------------------------------------------------------
   deleted_values_table$eel_value<- as.numeric(deleted_values_table$eel_value)
+  names(deleted_values_table) = gsub(".","_",names(deleted_values_table),fixed=TRUE)
   
   conn <- poolCheckout(pool)
   dbExecute(conn,"drop table if exists deleted_temp ")
@@ -1252,7 +1256,8 @@ write_deleted_values <- function(path, qualify_code) {
 					BEGIN
 					oldid:=rec.eel_id;
 					update datawg.t_eelstock_eel set eel_qal_id=",qualify_code," where eel_id=oldid;
-					comment:=rec.eel_comment_xls;
+					comment:=rec.eel_qal_comment;
+					update datawg.t_eelstock_eel set eel_qal_comment=comment where eel_id=oldid;
 					END;
 					END LOOP;
 					END;

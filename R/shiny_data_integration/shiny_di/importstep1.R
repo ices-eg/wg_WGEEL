@@ -63,6 +63,7 @@ importstep1Server <- function(id,globaldata, loaded_data){
                    output$dt_new<-renderDataTable(data.frame())
                    output$dt_missing<-renderDataTable(data.frame())
                    output$dt_updated_values <- renderDataTable(data.frame())
+                   output$dt_deleted_values <- renderDataTable(data.frame())
                    if ("updated_values_table" %in% names(globaldata)) {
                      globaldata$updated_values_table<-data.frame()
                    }
@@ -81,7 +82,6 @@ importstep1Server <- function(id,globaldata, loaded_data){
                  # with duplicates values
                  #############################
                  observeEvent(input$check_duplicate_button, tryCatch({ 
-
                    # see step0load_data returns a list with res and messages
                    # and within res data and a dataframe of errors
                    validate(
@@ -330,24 +330,25 @@ importstep1Server <- function(id,globaldata, loaded_data){
                        output$"step1_message_deleted"<-renderUI("")
                      }
                    }
+                   if (exists("years")){
                      summary_check_duplicates=data.frame(years=years,
                                                          nb_new=sapply(years, function(y) length(which(new$eel_year==y))),
                                                          nb_duplicates_updated=sapply(years,function(y) length(which(duplicates$eel_year==y & (duplicates$eel_value.base!=duplicates$eel_value.xls)))),
                                                          nb_duplicates_no_changes=sapply(years,function(y) length(which(duplicates$eel_year==y & (duplicates$eel_value.base==duplicates$eel_value.xls)))),
                                                          nb_updated_values=sapply(years, function(y) length(which(updated_from_excel$eel_year==y))),
                                                          nb_deleted_values=sapply(years,function(y) length(which(deleted_from_excel$eel_year==y))))
-
-                   output$dt_check_duplicates <-DT::renderDataTable({ 
-                     validate(need(globaldata$connectOK,"No connection"))
-                     datatable(summary_check_duplicates,
-                               rownames=FALSE,                                                    
-                               options=list(dom="t",
-                                            rownames = FALSE,
-                                            scroller = TRUE,
-                                            scrollX = TRUE,
-                                            scrollY = "500px"
-                               ))
-                   })
+                     output$dt_check_duplicates <-DT::renderDataTable({
+                       validate(need(globaldata$connectOK,"No connection"))
+                       datatable(summary_check_duplicates,
+                                 rownames=FALSE,                                                    
+                                 options=list(dom="t",
+                                              rownames = FALSE,
+                                              scroller = TRUE,
+                                              scrollX = TRUE,
+                                              scrollY = "500px"
+                                              ))
+                    })
+                   }
                    #data$new <- new # new is stored in the reactive dataset to be inserted later.      
                  },error = function(e) {
                    showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
