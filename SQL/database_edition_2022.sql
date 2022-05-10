@@ -676,3 +676,91 @@ update datawg.t_eelstock_eel set eel_qal_id =1 where eel_qal_id =0 and (eel_miss
 ALTER TABLE datawg.t_eelstock_eel ADD CONSTRAINT ck_qal_id_and_missvalue CHECK ((eel_missvaluequal IS NULL) or (eel_qal_id != 0));
 commit;
 
+
+------------
+-- fix issue 201 (emu for NL)
+-- TO BE RUN
+--		TODO: add a comment in eel_qal_comment? (NOT overwritten, coalesce)
+------------
+
+--		Correcting Netherland: NL_Neth, NL_total (without geom)
+--		Correct the EMU in t_eelstock_eel table because always the EMU appears as NL_total
+-- select count(*) from datawg.t_eelstock_eel where eel_cou_code = 'NL';					-- 1354
+begin; 		
+update datawg.t_eelstock_eel SET eel_emu_nameshort = REPLACE (eel_emu_nameshort, 'NL_total', 'NL_Neth');
+--		Droping 'NL_total' (without geom)
+delete from ref.tr_emu_emu where emu_nameshort = 'NL_total';								-- It works!
+commit;
+
+
+------------
+-- fix issue 126 (EMU_total and EMU_country)
+-- TO BE RUN
+--		TODO: add a comment in eel_qal_comment? (NOT overwritten, coalesce)
+------------
+
+--		Correcting Finland: 'FI_Finl', 'FI_total' (without geom)
+-- select count(*) from datawg.t_eelstock_eel where eel_cou_code = 'FI'; 									-- 631 rows
+BEGIN;
+update datawg.t_eelstock_eel SET eel_emu_nameshort = REPLACE (eel_emu_nameshort, 'FI_total', 'FI_Finl');
+--		Droping 'FI_total' (without geom)
+delete from ref.tr_emu_emu where emu_nameshort = 'FI_total';
+COMMIT;
+
+-- 		When the whole country corresponds to one single EMU, '%_total' is replaced by the first three letters of the country
+select emu_nameshort from ref.tr_emu_emu where emu_nameshort like '%_total' and geom is not null; 		-- 20 rows
+select distinct eel_emu_nameshort from datawg.t_eelstock_eel where eel_emu_nameshort in 
+	(select emu_nameshort from ref.tr_emu_emu where emu_nameshort like '%_total' and geom is not null) 	-- AL, DZ, EG, HR, MA, NO, SI, TN, TR
+
+--		(in the main table of EMUs and t_eelstock_eel table)
+--			AL_total	Albania (Alb)
+BEGIN;
+UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'AL_total', 'AL_Alb');
+UPDATE datawg.t_eelstock_eel SET eel_emu_nameshort = REPLACE (eel_emu_nameshort, 'AL_total', 'AL_Alb');
+--			AX_total	Aland (Ala)
+UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'AX_total', 'AX_Ala');
+--			BA_total	Bosnia-Herzegovina (Bih)
+UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'BA_total', 'BA_Bos');
+--			CY_total	Cyprus (Cyp)
+UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'CY_total', 'CY_Cyp');
+-- 			DZ_total 	Algeria (Dza)
+UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'DZ_total', 'DZ_Alg');
+UPDATE datawg.t_eelstock_eel SET eel_emu_nameshort = REPLACE (eel_emu_nameshort, 'DZ_total', 'DZ_Alg');
+-- 			EG_total	Egypt (Egy)
+UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'EG_total', 'EG_Egy');
+UPDATE datawg.t_eelstock_eel SET eel_emu_nameshort = REPLACE (eel_emu_nameshort, 'EG_total', 'EG_Egy');
+-- 			HR_total	Croatia (Hrv)
+UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'HR_total', 'HR_Cro');
+UPDATE datawg.t_eelstock_eel SET eel_emu_nameshort = REPLACE (eel_emu_nameshort, 'HR_total', 'HR_Cro');
+--			IL_total	Israel (Isr)
+UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'IL_total', 'IL_Isr');
+--			IS_total	Iceland (Isl)
+UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'IS_total', 'IS_Isl');
+--			LB_total	Lebanon (Lbn)
+UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'LB_total', 'LB_Leb');
+--			LY_total	Libya (Lby)
+UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'LY_total', 'LY_Lib');
+-- 			MA_total	Morocco (Mar)
+UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'MA_total', 'MA_Mor');
+UPDATE datawg.t_eelstock_eel SET eel_emu_nameshort = REPLACE (eel_emu_nameshort, 'MA_total', 'MA_Mor');
+--			ME_total	Montenegro (Mne)
+UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'ME_total', 'ME_Mon');
+--			MT_total	Malta (Mlt)
+UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'MT_total', 'MT_Mal');
+-- 			NO_total	Norway (Nor)
+UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'NO_total', 'NO_Nor');
+UPDATE datawg.t_eelstock_eel SET eel_emu_nameshort = REPLACE (eel_emu_nameshort, 'NO_total', 'NO_Nor');
+--			RU_total	Russia (Rus)
+UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'RU_total', 'RU_Rus');
+--			SI_total	Slovenia (Svn)
+UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'SI_total', 'SI_Slo');
+UPDATE datawg.t_eelstock_eel SET eel_emu_nameshort = REPLACE (eel_emu_nameshort, 'SI_total', 'SI_Slo');
+--			SY_total	Syria (Syr)
+UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'SY_total', 'SY_Syr');
+--			TN_total	Tunisia (Tun)
+UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'TN_total', 'TN_Tun');
+UPDATE datawg.t_eelstock_eel SET eel_emu_nameshort = REPLACE (eel_emu_nameshort, 'TN_total', 'TN_Tun');
+-- 			TR_total	Turkey (Tur)
+UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'TR_total', 'TR_Tur');
+UPDATE datawg.t_eelstock_eel SET eel_emu_nameshort = REPLACE (eel_emu_nameshort, 'TR_total', 'TR_Tur');
+COMMIT;
