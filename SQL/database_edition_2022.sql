@@ -131,6 +131,8 @@ DROP TABLE IF EXISTS ref.tr_mesuretype_mty CASCADE;
  mty_type TEXT CHECK (mty_type='quality' OR mty_type='biometry'), -- this will be used in triggers later
  mty_group TEXT CHECK (mty_group='individual' OR mty_type='group'), -- this will be used in triggers later
  mty_uni_code varchar(20),
+ mty_min NUMERIC,
+ mty_max NUMERIC,
  CONSTRAINT c_fk_uni_code FOREIGN KEY (mty_uni_code) REFERENCES "ref".tr_units_uni(uni_code) ON UPDATE CASCADE
  );
  
@@ -640,8 +642,8 @@ CREATE TABLE datawg.t_qualitygroup_qug (
   CONSTRAINT c_fk_qug_sai_id FOREIGN KEY (qug_sai_id) REFERENCES datawg.t_sampinginfo_sai(sai_id) ON UPDATE CASCADE ON DELETE CASCADE,
   CONSTRAINT c_fk_qug_mty_id FOREIGN KEY (qug_mty_id) REFERENCES "ref".tr_mesuretype_mty(mty_id) ON UPDATE CASCADE,
   CONSTRAINT c_fk_qug_qal_id FOREIGN KEY (qug_qal_id) REFERENCES "ref".tr_quality_qal(qal_id) ON UPDATE CASCADE,
-  CONSTRAINT c_fk_qug_dts_datasource FOREIGN KEY (qug_dts_datasource) REFERENCES "ref".tr_datasource_dts(dts_datasource) ON UPDATE CASCADE
-² CONSTRAINT c_fk_qug_gr_id FOREIGN KEY (qug_gr_id) REFERENCES datawg.t_group_gr(gr_id) ON UPDATE CASCADE ON DELETE CASCADE
+  CONSTRAINT c_fk_qug_dts_datasource FOREIGN KEY (qug_dts_datasource) REFERENCES "ref".tr_datasource_dts(dts_datasource) ON UPDATE CASCADE,
+ CONSTRAINT c_fk_qug_gr_id FOREIGN KEY (qug_gr_id) REFERENCES datawg.t_group_gr(gr_id) ON UPDATE CASCADE ON DELETE CASCADE
 ) 
 ;
 

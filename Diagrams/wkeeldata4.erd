@@ -30,15 +30,15 @@
 				<path name="datawg"/>
 				<path name="wgeel"/>
 			</entity>
-			<entity id="8" name="t_biometrygroupseries_bio" fq-name="datawg.t_biometrygroupseries_bio" order="12" x="363" y="1">
+			<entity id="8" name="t_biometrygroupseries_bio" fq-name="datawg.t_biometrygroupseries_bio" order="11" x="363" y="1">
 				<path name="datawg"/>
 				<path name="wgeel"/>
 			</entity>
-			<entity id="9" name="t_group_gr" fq-name="datawg.t_group_gr" order="13" x="161" y="472">
+			<entity id="9" name="t_group_gr" fq-name="datawg.t_group_gr" order="12" x="161" y="472">
 				<path name="datawg"/>
 				<path name="wgeel"/>
 			</entity>
-			<entity id="10" name="t_biometrygroup_big" fq-name="datawg.t_biometrygroup_big" order="14" x="349" y="1106">
+			<entity id="10" name="t_biometrygroup_big" fq-name="datawg.t_biometrygroup_big" order="13" x="349" y="1106">
 				<path name="datawg"/>
 				<path name="wgeel"/>
 			</entity>
@@ -58,10 +58,6 @@
 				<path name="datawg"/>
 				<path name="wgeel"/>
 			</entity>
-			<entity id="15" name="t_qualitygroup_qug" fq-name="datawg.t_qualitygroup_qug" order="11" border-width="3" x="569" y="1065">
-				<path name="datawg"/>
-				<path name="wgeel"/>
-			</entity>
 		</data-source>
 	</entities>
 	<relations>
@@ -78,6 +74,5 @@
 		<relation name="datawg.t_groupseries_grser-&gt;datawg.t_group_gr" fq-name="datawg.t_groupseries_grser.&quot;datawg.t_groupseries_grser-&gt;datawg.t_group_gr&quot;" type="inheritance" pk-ref="9" fk-ref="13"/>
 		<relation name="datawg.t_groupsamp_grsa-&gt;datawg.t_group_gr" fq-name="datawg.t_groupsamp_grsa.&quot;datawg.t_groupsamp_grsa-&gt;datawg.t_group_gr&quot;" type="inheritance" pk-ref="9" fk-ref="14"/>
 		<relation name="c_fk_fisa_sai_id" fq-name="datawg.t_fishsamp_fisa.c_fk_fisa_sai_id" type="fk" pk-ref="11" fk-ref="12"/>
-		<relation name="c_fk_qug_sai_id" fq-name="datawg.t_qualitygroup_qug.c_fk_qug_sai_id" type="fk" pk-ref="11" fk-ref="15"/>
 	</relations>
 </diagram>
