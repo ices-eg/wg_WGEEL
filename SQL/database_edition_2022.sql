@@ -628,6 +628,7 @@ DROP TABLE IF EXISTS datawg.t_qualitygroup_qug;
 CREATE TABLE datawg.t_qualitygroup_qug (  
   qug_id SERIAL PRIMARY KEY,
   qug_sai_id INTEGER,
+  qug_gr_id INTEGER,
   qug_year INTEGER,
   qug_mty_id INTEGER,
   qug_value NUMERIC,
@@ -640,6 +641,7 @@ CREATE TABLE datawg.t_qualitygroup_qug (
   CONSTRAINT c_fk_qug_mty_id FOREIGN KEY (qug_mty_id) REFERENCES "ref".tr_mesuretype_mty(mty_id) ON UPDATE CASCADE,
   CONSTRAINT c_fk_qug_qal_id FOREIGN KEY (qug_qal_id) REFERENCES "ref".tr_quality_qal(qal_id) ON UPDATE CASCADE,
   CONSTRAINT c_fk_qug_dts_datasource FOREIGN KEY (qug_dts_datasource) REFERENCES "ref".tr_datasource_dts(dts_datasource) ON UPDATE CASCADE
+² CONSTRAINT c_fk_qug_gr_id FOREIGN KEY (qug_gr_id) REFERENCES datawg.t_group_gr(gr_id) ON UPDATE CASCADE ON DELETE CASCADE
 ) 
 ;
 
