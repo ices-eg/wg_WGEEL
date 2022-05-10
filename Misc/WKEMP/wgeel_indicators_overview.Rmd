@@ -1053,6 +1053,31 @@ detach("package:officer", unload=TRUE)
 \
 \
 
+```{r reporting summary}
+getwd()
+all_emus <- read.csv("./data_dependencies/all_emus.csv", header = T, sep  = ";")
+
+all_emus_EU <- all_emus %>% filter(EU == "Y",
+                                EMU == "Y")
+
+all_emus_non_EU <- all_emus %>% filter(EMU == "Y")
+
+length(unique(all_emus_EU$emu))
+length(unique(all_emus_non_EU$emu))
+
+ADG_full <- all_emus_non_EU %>% 
+  select(emu, EU) %>% 
+  left_join(Progress_visualisation, by = c("emu" = "eel_emu_nameshort"))
+
+test <- ADG_full %>% 
+  summarize(count_suma = sum(!is.na(suma_current)),
+            count_b0 = sum(!is.na(Esc_perc_b0_current))) %>% 
+  mutate(total_no = length(unique(all_emus_non_EU$emu)))
+
+
+```
+
+
 ## Biomass statistics
 
 Time trend analyses are carried out on the ratio of Bcurrent/B0 and Bcurrent/B0_adjusted - as indicated by suffixes.\

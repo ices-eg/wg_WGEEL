@@ -1,0 +1,145 @@
+emu;country_short;country;whole_country;EU;EMP;report_obligation;EMU
+AL_total;AL;Albania;t;N;N;N;N
+AX_total;AX;Aland;t;N;N;N;N
+BA_total;BA;Bosnia;t;N;N;N;N
+BE_Meus;BE;Belgium;f;Y;Y;Y;Y
+BE_Rhin;BE;Belgium;f;Y;Y;Y;Y
+BE_Sche;BE;Belgium;f;Y;Y;Y;Y
+BE_Sein;BE;Belgium;f;Y;Y;Y;Y
+BE_total;BE;Belgium;t;Y;Y;Y;N
+CY_total;CY;Cyprus;t;Y;N;N;N
+CZ_Elbe;CZ;Czechia;f;Y;Y;Y;Y
+CZ_Oder;CZ;Czechia;f;Y;Y;Y;Y
+CZ_total;CZ;Czechia;t;Y;Y;Y;N
+DE_Eide;DE;Germanny;f;Y;Y;Y;Y
+DE_Elbe;DE;Germanny;f;Y;Y;Y;Y
+DE_Ems;DE;Germanny;f;Y;Y;Y;Y
+DE_Maas;DE;Germanny;f;Y;Y;Y;Y
+DE_Oder;DE;Germanny;f;Y;Y;Y;Y
+DE_Rhei;DE;Germanny;f;Y;Y;Y;Y
+DE_Schl;DE;Germanny;f;Y;Y;Y;Y
+DE_total;DE;Germanny;t;Y;Y;Y;N
+DE_Warn;DE;Germanny;f;Y;Y;Y;Y
+DE_Wese;DE;Germanny;f;Y;Y;Y;Y
+DK_Inla;DK;Denmark;f;Y;Y;Y;Y
+DK_total;DK;Denmark;t;Y;Y;Y;N
+DZ_total;DZ;Algeria;t;N;N;N;N
+EE_Narv;EE;Estonia;f;Y;Y;Y;Y
+EE_total;EE;Estonia;t;Y;Y;Y;N
+EE_West;EE;Estonia;f;Y;Y;Y;Y
+EG_total;EG;Egypt;t;N;N;N;N
+ES_Anda;ES;Spain;f;Y;Y;Y;Y
+ES_Astu;ES;Spain;f;Y;Y;Y;Y
+ES_Bale;ES;Spain;f;Y;Y;Y;Y
+ES_Basq;ES;Spain;f;Y;Y;Y;Y
+ES_Cant;ES;Spain;f;Y;Y;Y;Y
+ES_Cast;ES;Spain;f;Y;Y;Y;Y
+ES_Cata;ES;Spain;f;Y;Y;Y;Y
+ES_Gali;ES;Spain;f;Y;Y;Y;Y
+ES_Inne;ES;Spain;f;Y;Y;Y;Y
+ES_Minh;PT;Portugal;f;Y;Y;Y;Y
+ES_Mino;ES;Spain;f;Y;Y;Y;N
+ES_Murc;ES;Spain;f;Y;Y;Y;Y
+ES_Nava;ES;Spain;f;Y;Y;Y;Y
+ES_Spai;ES;Spain;f;Y;Y;Y;Y
+ES_total;ES;Spain;t;Y;Y;Y;N
+ES_Vale;ES;Spain;f;Y;Y;Y;Y
+FI_Finl;FI;Finland;f;Y;Y;Y;Y
+FI_total;FI;Finland;t;Y;Y;Y;N
+FR_Adou;FR;France;f;Y;Y;Y;Y
+FR_Arto;FR;France;f;Y;Y;Y;Y
+FR_Bret;FR;France;f;Y;Y;Y;Y
+FR_Cors;FR;France;f;Y;Y;Y;Y
+FR_Garo;FR;France;f;Y;Y;Y;Y
+FR_Loir;FR;France;f;Y;Y;Y;Y
+FR_Meus;FR;France;f;Y;Y;Y;Y
+FR_Rhin;FR;France;f;Y;Y;Y;Y
+FR_Rhon;FR;France;f;Y;Y;Y;Y
+FR_Sein;FR;France;f;Y;Y;Y;Y
+FR_total;FR;France;t;Y;Y;Y;N
+GB_Angl;GB;Great Britain;f;N;Y;N;Y
+GB_Dee;GB;Great Britain;f;N;Y;N;Y
+GB_Humb;GB;Great Britain;f;N;Y;N;Y
+GB_Neag;GB;Great Britain;f;N;Y;N;Y
+GB_NorE;GB;Great Britain;f;N;Y;N;Y
+GB_Nort;GB;Great Britain;f;N;Y;N;Y
+GB_NorW;GB;Great Britain;f;N;Y;N;Y
+GB_Scot;GB;Great Britain;f;N;Y;N;Y
+GB_Seve;GB;Great Britain;f;N;Y;N;Y
+GB_Solw;GB;Great Britain;f;N;Y;N;Y
+GB_SouE;GB;Great Britain;f;N;Y;N;Y
+GB_SouW;GB;Great Britain;f;N;Y;N;Y
+GB_Tham;GB;Great Britain;f;N;Y;N;Y
+GB_total;GB;Great Britain;t;N;Y;N;N
+GB_Wale;GB;Great Britain;f;N;Y;N;Y
+GR_CeAe;GR;Greece;f;Y;Y;Y;Y
+GR_EaMT;GR;Greece;f;Y;Y;Y;Y
+GR_NorW;GR;Greece;f;Y;Y;Y;Y
+GR_total;GR;Greece;t;Y;Y;Y;Y
+GR_WePe;GR;Greece;f;Y;Y;Y;Y
+HR_total;HR;Hungary;t;Y;N;N;N
+IE_East;IE;Ireland;f;Y;Y;Y;Y
+IE_NorW;IE;Ireland;f;Y;Y;Y;Y
+IE_Shan;IE;Ireland;f;Y;Y;Y;Y
+IE_SouE;IE;Ireland;f;Y;Y;Y;Y
+IE_SouW;IE;Ireland;f;Y;Y;Y;Y
+IE_total;IE;Ireland;t;Y;Y;Y;N
+IE_West;IE;Ireland;f;Y;Y;Y;Y
+IL_total;IL;Israel;t;N;N;N;N
+IS_total;IS;Iceland;t;N;N;N;N
+IT_Abru;IT;Italy;f;Y;Y;Y;Y
+IT_Basi;IT;Italy;f;Y;Y;Y;Y
+IT_Cala;IT;Italy;f;Y;Y;Y;Y
+IT_Camp;IT;Italy;f;Y;Y;Y;Y
+IT_Emil;IT;Italy;f;Y;Y;Y;Y
+IT_Frio;IT;Italy;f;Y;Y;Y;Y
+IT_Lazi;IT;Italy;f;Y;Y;Y;Y
+IT_Ligu;IT;Italy;f;Y;Y;Y;Y
+IT_Lomb;IT;Italy;f;Y;Y;Y;Y
+IT_Marc;IT;Italy;f;Y;Y;Y;Y
+IT_Moli;IT;Italy;f;Y;Y;Y;Y
+IT_Piem;IT;Italy;f;Y;Y;Y;Y
+IT_Pugl;IT;Italy;f;Y;Y;Y;Y
+IT_Sard;IT;Italy;f;Y;Y;Y;Y
+IT_Sici;IT;Italy;f;Y;Y;Y;Y
+IT_Tosc;IT;Italy;f;Y;Y;Y;Y
+IT_total;IT;Italy;t;Y;Y;Y;N
+IT_Tren;IT;Italy;f;Y;Y;Y;Y
+IT_Umbr;IT;Italy;f;Y;Y;Y;Y
+IT_Vall;IT;Italy;f;Y;Y;Y;Y
+IT_Vene;IT;Italy;f;Y;Y;Y;Y
+LB_total;LB;Lebanon;t;N;N;N;N
+LT_Lith;LT;Lithuania;f;Y;Y;Y;Y
+LT_total;LT;Lithuania;t;Y;Y;Y;N
+LU_Luxe;LU;Luxembourg;f;Y;Y;Y;Y
+LU_total;LU;Luxembourg;t;Y;Y;Y;N
+LV_Latv;LV;Latvia;f;Y;Y;Y;Y
+LV_total;LV;Latvia;t;Y;Y;Y;N
+LY_total;LY;Lybia;t;N;N;N;N
+MA_total;MA;Morocco;t;N;N;N;N
+ME_total;ME;Montenegro;t;N;N;N;N
+MT_total;MT;Malta;t;N;N;N;N
+NL_Neth;NL;Netherlands;f;Y;Y;Y;N
+NL_total;NL;Netherlands;t;Y;Y;Y;Y
+NO_total;NO;Norway;t;N;N;N;Y
+PL_Oder;PL;Poland;f;Y;Y;Y;Y
+PL_total;PL;Poland;t;Y;Y;Y;N
+PL_Vist;PL;Poland;f;Y;Y;Y;Y
+PT_Port;PT;Portugal;f;Y;Y;Y;Y
+PT_total;PT;Portugal;t;Y;Y;Y;N
+RU_total;RU;Russia;t;N;N;N;N
+SE_Ea_o;SE;Sweden;;Y;Y;Y;Y
+SE_East;SE;Sweden;f;Y;Y;Y;Y
+SE_Inla;SE;Sweden;f;Y;Y;Y;Y
+SE_So_o;SE;Sweden;;Y;Y;Y;Y
+SE_total;SE;Sweden;t;Y;Y;Y;N
+SE_We_o;SE;Sweden;;Y;Y;Y;Y
+SE_West;SE;Sweden;f;Y;Y;Y;Y
+SI_total;SI;Slovenia;t;Y;N;Y;N
+SY_total;SY;Syria;t;N;N;N;N
+TN_EC;TN;Tunesia;f;N;N;N;N
+TN_NE;TN;Tunesia;f;N;N;N;N
+TN_Nor;TN;Tunesia;f;N;N;N;N
+TN_SO;TN;Tunesia;f;N;N;N;N
+TN_total;TN;Tunesia;t;N;N;N;N
+TR_total;TR;Turkey;t;N;N;N;N
