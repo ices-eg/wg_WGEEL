@@ -492,7 +492,6 @@ INHERITS (datawg.t_group_gr);
 DROP TABLE if exists datawg.t_groupseries_grser;
 CREATE TABLE datawg.t_groupseries_grser (
 	grser_ser_id int4 NOT NULL,
-	grser_year int4 NOT NULL,
 	CONSTRAINT c_fk_grser_ser_id FOREIGN KEY (grser_ser_id) REFERENCES datawg.t_series_ser(ser_id) ON DELETE CASCADE ON UPDATE CASCADE,
         CONSTRAINT c_ck_uk_grser_gr UNIQUE (grser_ser_id, gr_year)
 )
@@ -530,7 +529,6 @@ DROP TABLE IF EXISTS datawg.t_biometrygroup_big CASCADE;
 CREATE TABLE datawg.t_biometrygroup_big (
   big_id serial PRIMARY KEY,
   big_gr_id INTEGER,
-  big_year INTEGER,
   big_mty_id INTEGER,
   big_value NUMERIC,
   big_comment TEXT,
