@@ -16,8 +16,10 @@ load_library=function(necessary) {
 ###########################
 # Loading necessary packages
 ############################
+
+load_library("RPostgres")
+load_library("DBI")
 load_library("sqldf")
-load_library("RPostgreSQL")
 load_library("stacomirtools")
 load_library("stringr")
 # Issue still open https://github.com/awalker89/openxlsx/issues/348
@@ -25,9 +27,11 @@ load_library("stringr")
 load_library("XLConnect")
 load_library("sf")
 load_library("ggmap")
+load_library("getPass")
 
 #############################
 # here is where the script is working change it accordingly
+# one must be at the head of wgeel git 
 ##################################
 wd<-getwd()
 #############################
@@ -43,11 +47,15 @@ load(str_c(getwd(),"/data/ccm_seaoutlets.rdata")) #polygons off ccm seaoutlets W
 # this set up the connextion to the postgres database
 # change parameters accordingly
 ###################################"
+if( !exists("pois")) pois <- getPass(msg="main password")
+host <- decrypt_string(hostdistant,pois)
+userwgeel <- decrypt_string(userdistant,pois)
+passwordwgeel <- decrypt_string(passworddistant,pois)
 options(sqldf.RPostgreSQL.user = userwgeel, 
 		sqldf.RPostgreSQL.password = passwordwgeel,
 		sqldf.RPostgreSQL.dbname = "wgeel",
-		sqldf.RPostgreSQL.host = "localhost",
-		sqldf.RPostgreSQL.port = 5435)
+		sqldf.RPostgreSQL.host = host,
+		sqldf.RPostgreSQL.port = "5432")
 
 
 
@@ -213,7 +221,7 @@ create_datacall_file_series <- function(country, name, ser_typ_id){
 # new data ----------------------------------------------------
 # extract missing data from CY-10
 	if (nrow(dat)> 0){
-		new_data <- dat %>% dplyr::filter(das_year>=(CY-10)) %>%
+		new_data <- dat %>% dplyr::filter(das_year>=(CY-10) & das_qal_id=1) %>%
 				dplyr::select(ser_nameshort,das_year,das_value, das_comment, das_effort) %>%
 				tidyr::complete(ser_nameshort,das_year=(CY-10):CY) %>%
 				dplyr::filter(is.na(das_value) & is.na(das_comment)) %>%
