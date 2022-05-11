@@ -1053,29 +1053,7 @@ detach("package:officer", unload=TRUE)
 \
 \
 
-```{r reporting summary}
-getwd()
-all_emus <- read.csv("./data_dependencies/all_emus.csv", header = T, sep  = ";")
 
-all_emus_EU <- all_emus %>% filter(EU == "Y",
-                                EMU == "Y")
-
-all_emus_non_EU <- all_emus %>% filter(EMU == "Y")
-
-length(unique(all_emus_EU$emu))
-length(unique(all_emus_non_EU$emu))
-
-ADG_full <- all_emus_non_EU %>% 
-  select(emu, EU) %>% 
-  left_join(Progress_visualisation, by = c("emu" = "eel_emu_nameshort"))
-
-test <- ADG_full %>% 
-  summarize(count_suma = sum(!is.na(suma_current)),
-            count_b0 = sum(!is.na(Esc_perc_b0_current))) %>% 
-  mutate(total_no = length(unique(all_emus_non_EU$emu)))
-
-
-```
 
 
 ## Biomass statistics
@@ -1134,6 +1112,132 @@ flextable(Kendall_table %>%
 
 \
 \
+
+```{r reporting summary}
+
+### SORRY THIS LOOKS SHITTY, HAD TO BE FAST DURING ADG
+
+all_emus <- read.csv("./data_dependencies/all_emus.csv", header = T, sep  = ";")
+
+ADG_preco <- Kendall_table %>%
+  select(eel_emu_nameshort, Esc_perc_b0_current, suma_current, Delta_b0, Delta_suma, Esc_perc_b0_initial, suma_initial) %>% 
+  filter_at(vars(Esc_perc_b0_current, Delta_b0, suma_current, Delta_suma, Esc_perc_b0_initial, suma_initial), any_vars(!is.na(.))) 
+
+ADG_non_EU <- all_emus %>%
+  filter(official_EMU == "Y") %>% 
+  select(emu, EU, official_EMU) %>% 
+  left_join(ADG_preco, by = c("emu" = "eel_emu_nameshort")) %>% 
+  left_join((Kendall_table %>% select(eel_emu_nameshort, Tau_b0, p_b0, Tau_suma, p_suma)), by =c("emu" = "eel_emu_nameshort")) %>% 
+  mutate(suma_trend = ifelse(p_suma > 0.1, 0,
+                       ifelse(Tau_suma <0, -1, 1)),
+         b0_trend = ifelse(p_b0 > 0.1, 0,
+                       ifelse(Tau_b0 <0, -1, 1)),
+         b0_and_suma_current_there = ifelse(!is.na(Esc_perc_b0_current) & !is.na(suma_current), 1, 0),
+         b0_and_suma_initial_there = ifelse(!is.na(Esc_perc_b0_current) & !is.na(suma_current), 1, 0),
+         b0_and_sumA_current = ifelse(Esc_perc_b0_current >= 0.4 & suma_current <= 0.92, 1, 0),
+         b0_and_sumA_initial = ifelse(Esc_perc_b0_initial >= 0.4 & suma_initial <= 0.92, 1, 0),
+         suma_ok_b0_not_current = ifelse(Esc_perc_b0_current < 0.4 & suma_current <= 0.92, 1, 0),
+         suma_not_b0_not_current = ifelse(Esc_perc_b0_current < 0.4 & suma_current > 0.92, 1, 0),
+         suma_ok_b0_not_initial = ifelse(Esc_perc_b0_initial < 0.4 & suma_initial <= 0.92, 1, 0),
+         suma_not_b0_not_initial = ifelse(Esc_perc_b0_initial < 0.4 & suma_initial > 0.92, 1, 0)) 
+
+ADG_EU <- ADG_non_EU %>% filter(EU == "Y")
+
+ADG_summary <- rbind(
+  ADG_non_EU %>% 
+    summarize(total_current = sum(!is.na(suma_current)),
+            total_initial = sum(!is.na(suma_initial)),
+            current_achieved = sum(suma_current < 0.92, na.rm = T),
+            initial_achieved = sum(suma_initial < 0.92, na.rm = T),
+            increase = sum(Delta_suma > 0, na.rm = T),
+            decrease = sum(Delta_suma < 0, na.rm = T),
+            nochange = sum(Delta_suma == 0, na.rm = T),
+            b0_and_suma_current = sum(b0_and_suma_current_there == 1, na.rm = T),
+            b0_and_suma_initial = sum(b0_and_suma_current_there == 1, na.rm = T),
+            b0_suma_ok_current = sum(b0_and_sumA_current == 1, na.rm = T),
+            b0_suma_ok_initial = sum(b0_and_sumA_initial == 1, na.rm = T),
+            suma_ok_b0_not_current = sum(suma_ok_b0_not_current == 1, na.rm = T),
+            suma_not_b0_not_current = sum(suma_not_b0_not_current == 1, na.rm = T),
+            suma_ok_b0_not_initial = sum(suma_ok_b0_not_initial == 1, na.rm = T),
+            suma_not_b0_not_initial = sum(suma_not_b0_not_initial == 1, na.rm = T),
+            trend_increase = sum(suma_trend == 1, na.rm = T),
+            trend_decrease = sum(suma_trend == -1, na.rm = T),
+            trend_nochange = sum(suma_trend == 0, na.rm = T)) %>% 
+    mutate(total_no = length(unique(ADG_non_EU$emu)),
+           indicator = "suma_incl_non_EU"),
+   ADG_non_EU %>%
+    summarize(total_current = sum(!is.na(Esc_perc_b0_current)),
+            total_initial = sum(!is.na(Esc_perc_b0_initial)),
+            current_achieved = sum(Esc_perc_b0_current > 0.4, na.rm = T),
+            initial_achieved = sum(Esc_perc_b0_initial > 0.4, na.rm = T),
+            increase = sum(Delta_b0 > 0, na.rm = T),
+            decrease = sum(Delta_b0 < 0, na.rm = T),
+            nochange = sum(Delta_b0 == 0, na.rm = T),
+            b0_and_suma_current = sum(b0_and_suma_current_there == 1, na.rm = T),
+            b0_and_suma_initial = sum(b0_and_suma_current_there == 1, na.rm = T),
+            b0_suma_ok_current = sum(b0_and_sumA_current == 1, na.rm = T),
+            b0_suma_ok_initial = sum(b0_and_sumA_initial == 1, na.rm = T),
+            suma_ok_b0_not_current = sum(suma_ok_b0_not_current == 1, na.rm = T),
+            suma_not_b0_not_current = sum(suma_not_b0_not_current == 1, na.rm = T),
+            suma_ok_b0_not_initial = sum(suma_ok_b0_not_initial == 1, na.rm = T),
+            suma_not_b0_not_initial = sum(suma_not_b0_not_initial == 1, na.rm = T),
+            trend_increase = sum(b0_trend == 1, na.rm = T),
+            trend_decrease = sum(b0_trend == -1, na.rm = T),
+            trend_nochange = sum(b0_trend == 0, na.rm = T)) %>% 
+    mutate(total_no = length(unique(ADG_non_EU$emu)),
+           indicator = "Esc_perc_incl_non_EU"),
+    ADG_EU %>% 
+    summarize(total_current = sum(!is.na(suma_current)),
+            total_initial = sum(!is.na(suma_initial)),
+            current_achieved = sum(suma_current < 0.92, na.rm = T),
+            initial_achieved = sum(suma_initial < 0.92, na.rm = T),
+            increase = sum(Delta_suma > 0, na.rm = T),
+            decrease = sum(Delta_suma < 0, na.rm = T),
+            nochange = sum(Delta_suma == 0, na.rm = T),
+            b0_and_suma_current = sum(b0_and_suma_current_there == 1, na.rm = T),
+            b0_and_suma_initial = sum(b0_and_suma_current_there == 1, na.rm = T),
+            b0_suma_ok_current = sum(b0_and_sumA_current == 1, na.rm = T),
+            b0_suma_ok_initial = sum(b0_and_sumA_initial == 1, na.rm = T),
+            suma_ok_b0_not_current = sum(suma_ok_b0_not_current == 1, na.rm = T),
+            suma_not_b0_not_current = sum(suma_not_b0_not_current == 1, na.rm = T),
+            suma_ok_b0_not_initial = sum(suma_ok_b0_not_initial == 1, na.rm = T),
+            suma_not_b0_not_initial = sum(suma_not_b0_not_initial == 1, na.rm = T),
+            trend_increase = sum(suma_trend == 1, na.rm = T),
+            trend_decrease = sum(suma_trend == -1, na.rm = T),
+            trend_nochange = sum(suma_trend == 0, na.rm = T)) %>% 
+    mutate(total_no = length(unique(ADG_EU$emu)),
+           indicator = "suma_EU"),
+   ADG_EU %>%
+    summarize(total_current = sum(!is.na(Esc_perc_b0_current)),
+            total_initial = sum(!is.na(Esc_perc_b0_initial)),
+            current_achieved = sum(Esc_perc_b0_current > 0.4, na.rm = T),
+            initial_achieved = sum(Esc_perc_b0_initial > 0.4, na.rm = T),
+            increase = sum(Delta_b0 > 0, na.rm = T),
+            decrease = sum(Delta_b0 < 0, na.rm = T),
+            nochange = sum(Delta_b0 == 0, na.rm = T),
+            b0_and_suma_current = sum(b0_and_suma_current_there == 1, na.rm = T),
+            b0_and_suma_initial = sum(b0_and_suma_current_there == 1, na.rm = T),
+            b0_suma_ok_current = sum(b0_and_sumA_current == 1, na.rm = T),
+            b0_suma_ok_initial = sum(b0_and_sumA_initial == 1, na.rm = T),
+            suma_ok_b0_not_current = sum(suma_ok_b0_not_current == 1, na.rm = T),
+            suma_not_b0_not_current = sum(suma_not_b0_not_current == 1, na.rm = T),
+            suma_ok_b0_not_initial = sum(suma_ok_b0_not_initial == 1, na.rm = T),
+            suma_not_b0_not_initial = sum(suma_not_b0_not_initial == 1, na.rm = T),
+            trend_increase = sum(suma_trend == 1, na.rm = T),
+            trend_decrease = sum(b0_trend == -1, na.rm = T),
+            trend_nochange = sum(b0_trend == 0, na.rm = T)) %>% 
+    mutate(total_no = length(unique(ADG_EU$emu)),
+           indicator = "Esc_perc_EU")) %>% 
+  select(indicator, total_no, total_current, total_initial, current_achieved, initial_achieved, increase, decrease, nochange, trend_increase, trend_decrease, trend_nochange, b0_suma_ok_current, b0_suma_ok_initial, b0_and_suma_current, b0_and_suma_initial, suma_ok_b0_not_current, suma_not_b0_not_current, suma_ok_b0_not_initial, suma_not_b0_not_initial) %>% 
+  column_to_rownames(var = "indicator")
+    
+ADG_summary <- as.data.frame(t(head(ADG_summary)))
+
+#write.csv2(ADG_summary, file = "ADG_summary.csv", row.names = T, sep = ";")
+
+flextable(ADG_summary %>% rownames_to_column("indicator")) %>% autofit()
+
+```
 
 ## Mortality statistics
 
