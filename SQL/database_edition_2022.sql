@@ -827,3 +827,31 @@ UPDATE datawg.t_eelstock_eel SET eel_emu_nameshort = REPLACE (eel_emu_nameshort,
 UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'TR_total', 'TR_Tur');
 UPDATE datawg.t_eelstock_eel SET eel_emu_nameshort = REPLACE (eel_emu_nameshort, 'TR_total', 'TR_Tur');
 COMMIT;
+
+
+
+
+
+--------
+--fix issue #178
+---------
+begin;
+UPDATE ref.tr_emusplit_ems SET geom = sub.geom FROM
+(SELECT st_collect(geom) AS geom FROM ref.tr_emusplit_ems WHERE emu_nameshort IN ('ES_Inne', 'ES_Spai')) sub
+WHERE emu_nameshort = 'ES_Inne';
+DELETE FROM ref.tr_emusplit_ems WHERE emu_nameshort = 'ES_Spai';
+
+--merge ES_Spai and ES_Inne polygons
+UPDATE ref.tr_emu_emu SET geom = sub.geom FROM
+(SELECT st_union(geom) AS geom FROM ref.tr_emu_emu WHERE emu_nameshort IN ('ES_Inne', 'ES_Spai')) sub
+WHERE emu_nameshort = 'ES_Inne';
+-- deprecate all ES_Spai data
+update datawg.t_eelstock_eel set eel_qal_id  = 21,
+eel_qal_comment = 'deprecated' where eel_emu_nameshort ='ES_Spai';
+-- assign ES_Spai to ES_Inne
+update datawg.t_eelstock_eel set eel_emu_nameshort ='ES_Inne' where eel_emu_nameshort ='ES_Spai';
+--remove ES_Spai
+DELETE FROM ref.tr_emu_emu WHERE emu_nameshort = 'ES_Spai';
+commit;
+
+
