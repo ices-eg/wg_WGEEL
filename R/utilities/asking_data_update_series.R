@@ -19,7 +19,9 @@ load_library=function(necessary) {
 
 load_library("RPostgres")
 load_library("DBI")
-load_library("sqldf")
+
+library("DBI")
+
 load_library("stacomirtools")
 load_library("stringr")
 # Issue still open https://github.com/awalker89/openxlsx/issues/348
@@ -48,14 +50,16 @@ load(str_c(getwd(),"/data/ccm_seaoutlets.rdata")) #polygons off ccm seaoutlets W
 # change parameters accordingly
 ###################################"
 if( !exists("pois")) pois <- getPass(msg="main password")
-host <- decrypt_string(hostdistant,pois)
+# host <- decrypt_string(hostdistant,pois)
+host <- "localhost"
 userwgeel <- decrypt_string(userdistant,pois)
-passwordwgeel <- decrypt_string(passworddistant,pois)
-options(sqldf.RPostgreSQL.user = userwgeel, 
-		sqldf.RPostgreSQL.password = passwordwgeel,
-		sqldf.RPostgreSQL.dbname = "wgeel",
-		sqldf.RPostgreSQL.host = host,
-		sqldf.RPostgreSQL.port = "5432")
+passwordwgeel <- passwordlocal
+con=dbConnect(RPostgres::Postgres(), 		
+		dbname="wgeel", 		
+		host="localhost",
+		port=5432, 		
+		user= userwgeel, 		
+		password= passwordwgeel)
 
 
 
@@ -91,7 +95,7 @@ create_datacall_file_series <- function(country, name, ser_typ_id){
 	
 	# series description -------------------------------------------------------
 	
-	t_series_ser<-sqldf(str_c("SELECT  
+	t_series_ser<- dbGetQuery(con, str_c("SELECT  
 							t_series_ser.ser_id, 
 							t_series_ser.ser_nameshort, 
 							t_series_ser.ser_namelong, 
@@ -151,7 +155,7 @@ create_datacall_file_series <- function(country, name, ser_typ_id){
 #								"ser_distanceseakm",
 #								"ser_method")		
 #				] )
-	writeWorksheet(wb, sheet = "series_info", data=t_series_ser[,
+		writeWorksheet(wb, sheet = "series_info", data=t_series_ser[,
 						c("ser_nameshort",
 								"ser_namelong",
 								"ser_typ_id",
@@ -172,14 +176,14 @@ create_datacall_file_series <- function(country, name, ser_typ_id){
 								"ser_distanceseakm",
 								"ser_method",
 								"ser_restocking"
-								)		
+						)		
 				] )
 	}
 	
 	
 # station data ----------------------------------------------
 	
-	station <- sqldf("select * from ref.tr_station")
+	station <- dbGetQuery(con,"select * from ref.tr_station")
 	station$Organisation <-iconv(station$Organisation,from="UTF8",to="latin1")
 	# drop  tblCodeID Station_Code
 	
@@ -191,13 +195,13 @@ create_datacall_file_series <- function(country, name, ser_typ_id){
 		if (nrow(station)>0){
 			
 			#openxlsx::writeData(wb, sheet = "station", station, startRow = 1)
-		   writeWorksheet(wb, sheet = "station", data=station, startRow = 1)
+			writeWorksheet(wb, sheet = "station", data=station, startRow = 1)
 		}
 	}
 	
 # existing series data ----------------------------------------	
 	
-	dat <- sqldf(str_c("select 
+	dat <- dbGetQuery(con,str_c("select 
 							ser_nameshort, 
 							das_id,
 							das_ser_id,
@@ -211,7 +215,8 @@ create_datacall_file_series <- function(country, name, ser_typ_id){
 					" WHERE ser_typ_id=",ser_typ_id,
 					" AND ser_cou_code='",country,"' ",
 					" ORDER BY das_ser_id, das_year ASC"))
-
+	
+	
 	if (nrow(dat)> 0){
 		dat[,"das_comment"]<-iconv(dat[,"das_comment"],from="UTF-8",to="latin1")
 		#openxlsx::writeData(wb, sheet = "existing_data", dat, startRow = 1)
@@ -220,11 +225,17 @@ create_datacall_file_series <- function(country, name, ser_typ_id){
 	
 # new data ----------------------------------------------------
 # extract missing data from CY-10
+	
 	if (nrow(dat)> 0){
-		new_data <- dat %>% dplyr::filter(das_year>=(CY-10) & das_qal_id=1) %>%
-				dplyr::select(ser_nameshort,das_year,das_value, das_comment, das_effort) %>%
-				tidyr::complete(ser_nameshort,das_year=(CY-10):CY) %>%
-				dplyr::filter(is.na(das_value) & is.na(das_comment)) %>%
+		new_data <- 
+				dplyr::bind_rows(
+						dat %>% dplyr::filter(das_year>=(CY-10))  %>%
+								dplyr::select(ser_nameshort,das_year,das_value, das_comment, das_effort,das_qal_id) %>%
+								tidyr::complete(ser_nameshort,das_year=(CY-10):CY) %>%
+								dplyr::filter(is.na(das_value) & is.na(das_comment)), 
+						dat %>% dplyr::filter(das_year>=(CY-10)& das_qal_id !=1)  %>%
+								dplyr::select(ser_nameshort,das_year,das_value, das_comment, das_effort,das_qal_id) 
+				)%>%
 				dplyr::arrange(ser_nameshort, das_year)
 		
 		if (nrow(new_data)> 0){
@@ -235,7 +246,7 @@ create_datacall_file_series <- function(country, name, ser_typ_id){
 # biometry data existing ------------------------------------------
 	
 	
-	biom0 <- sqldf(str_c("select 
+	biom0 <- dbGetQuery(con,str_c("select 
 							bio_id,
 							ser_nameshort, 
 							bio_year,
@@ -333,7 +344,7 @@ create_datacall_file_series <- function(country, name, ser_typ_id){
 			addImage(wb,paste(tempdir(),"/",t_series_ser$ser_nameshort[i],".png",sep=""),name=paste("station_map_",i,sep=""),originalSize=TRUE)
 		}
 	}
-
+	
 	#saveWorkbook(wb, file = destinationfile, overwrite = TRUE)
 	saveWorkbook(wb, file = destinationfile)
 	cat("work finished\n")
