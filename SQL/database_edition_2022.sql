@@ -827,3 +827,43 @@ UPDATE datawg.t_eelstock_eel SET eel_emu_nameshort = REPLACE (eel_emu_nameshort,
 UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'TR_total', 'TR_Tur');
 UPDATE datawg.t_eelstock_eel SET eel_emu_nameshort = REPLACE (eel_emu_nameshort, 'TR_total', 'TR_Tur');
 COMMIT;
+
+
+
+
+
+--------
+--fix issue #178
+---------
+begin;
+UPDATE ref.tr_emusplit_ems SET geom = sub.geom FROM
+(SELECT st_collect(geom) AS geom FROM ref.tr_emusplit_ems WHERE emu_nameshort IN ('ES_Inne', 'ES_Spai')) sub
+WHERE emu_nameshort = 'ES_Inne';
+DELETE FROM ref.tr_emusplit_ems WHERE emu_nameshort = 'ES_Spai';
+
+--merge ES_Spai and ES_Inne polygons
+UPDATE ref.tr_emu_emu SET geom = sub.geom FROM
+(SELECT st_union(geom) AS geom FROM ref.tr_emu_emu WHERE emu_nameshort IN ('ES_Inne', 'ES_Spai')) sub
+WHERE emu_nameshort = 'ES_Inne';
+-- deprecate all ES_Spai data
+update datawg.t_eelstock_eel set eel_qal_id  = 21,
+eel_qal_comment = 'deprecated' where eel_emu_nameshort ='ES_Spai';
+-- assign ES_Spai to ES_Inne
+update datawg.t_eelstock_eel set eel_emu_nameshort ='ES_Inne' where eel_emu_nameshort ='ES_Spai';
+--remove ES_Spai
+DELETE FROM ref.tr_emu_emu WHERE emu_nameshort = 'ES_Spai';
+commit;
+
+----
+--fix issue 187
+-------
+begin;
+insert into ref.tr_emu_emu (emu_nameshort,emu_name,emu_cou_code,emu_wholecountry) values('DK_Mari','Danish coastal and marine waters','DK',FALSE);
+SELECT setval(pg_get_serial_sequence('ref.tr_emusplit_ems', 'gid'), COALESCE((SELECT MAX(gid) + 1 FROM ref.tr_emusplit_ems), 1), false);
+insert into ref.tr_emusplit_ems (emu_nameshort,emu_name,emu_cou_code,emu_hyd_syst_s,emu_sea,emu_cty_id ,meu_dist_sargasso_km)
+(select 'DK_Mari' emu_nameshort,'Danish coastal and marine waters' emu_name,e.emu_cou_code,e.emu_hyd_syst_s,e.emu_sea,e.emu_cty_id,e.meu_dist_sargasso_km from ref.tr_emusplit_ems e where e.emu_nameshort ='DK_Inla')
+
+commit; 
+
+
+
