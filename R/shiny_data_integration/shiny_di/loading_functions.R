@@ -2188,11 +2188,7 @@ load_series<-function(path,datasource,stage="glass_eel"){
 						values=list_country))	
 		
 		
-		
-		
-		
-		
-		###### ser_area_div ##############
+			###### ser_area_div ##############
 		
 		data_error <- rbind(data_error, check_type(
 						dataset=series,						
@@ -2548,10 +2544,10 @@ load_series<-function(path,datasource,stage="glass_eel"){
 			path=path,
 			sheet ="new_biometry",
 			skip=0)
-	if (ncol(new_biometry)!=19) cat(str_c("number column wrong for new_biometry, should have been 19 in file from ",country,"\n"))
+	if (ncol(new_biometry)!=24) cat(str_c("number column wrong for new_biometry, should have been 19 in file from ",country,"\n"))
 	
 	if (nrow(new_biometry)>0) {
-		
+		# create two tables, one for quality one for biometry
 		new_biometry$bio_dts_datasource <- datasource
 		
 		###### ser_nameshort ##############
