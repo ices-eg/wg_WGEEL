@@ -125,11 +125,11 @@ ALTER TABLE datawg.t_biometry_bio RENAME TO t_biometrygroupseries_bio;
   */ 
 DROP TABLE IF EXISTS ref.tr_metrictype_mty CASCADE;
  CREATE TABLE ref.tr_metrictype_mty(
- mty_id INTEGER PRIMARY KEY,
+ mty_id serial PRIMARY KEY,
  mty_name TEXT,
  mty_description TEXT,
- mty_type TEXT CHECK (mty_type='quality' OR mty_type='biometry'), -- this will be used in triggers later
- mty_group TEXT CHECK (mty_group='individual' OR mty_type='group'), -- this will be used in triggers later
+ mty_type TEXT CHECK (mty_type='quality' OR mty_type='biometry' OR mty_type='Migration'), -- this will be used in triggers later
+ mty_group TEXT CHECK (mty_group='individual' OR mty_type='group' OR mty_type='both'), -- this will be used in triggers later
  mty_uni_code varchar(20),
  mty_min NUMERIC,
  mty_max NUMERIC,
