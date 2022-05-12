@@ -190,6 +190,7 @@ DROP TABLE  if exists datawg.t_fish_fi CASCADE;
 CREATE TABLE datawg.t_fish_fi(
   fi_id SERIAL PRIMARY KEY,
   fi_date DATE NOT NULL,
+  fi_year INTEGER NOT NULL,
   fi_comment TEXT,
   fi_lastupdate DATE NOT NULL DEFAULT CURRENT_DATE,
   fi_dts_datasource varchar(100),
@@ -219,10 +220,9 @@ CREATE TRIGGER update_fi_lastupdate BEFORE INSERT OR UPDATE ON
  */ 
 DROP TABLE IF EXISTS  t_fishseries_fiser;
 CREATE TABLE  datawg.t_fishseries_fiser(
-fiser_ser_id INTEGER NOT NULL,  
-fiser_year INTEGER NOT NULL,
-CONSTRAINT t_fishseries_fiser_pkey PRIMARY KEY (fi_id),
-CONSTRAINT c_fk_fiser_ser_id FOREIGN KEY (fiser_ser_id) REFERENCES datawg.t_series_ser(ser_id) ON UPDATE CASCADE ON DELETE CASCADE
+  fiser_ser_id INTEGER NOT NULL,  
+  CONSTRAINT t_fishseries_fiser_pkey PRIMARY KEY (fi_id),
+  CONSTRAINT c_fk_fiser_ser_id FOREIGN KEY (fiser_ser_id) REFERENCES datawg.t_series_ser(ser_id) ON UPDATE CASCADE ON DELETE CASCADE
 )
 INHERITS (datawg.t_fish_fi);
 
