@@ -41,7 +41,7 @@ biometry_ser$gid=res[,1] #gids of the newly created groups
 dbSendQuery(con,"drop table if exists group_tmp")
 
 #now we have to enter the group biometry data
-corresp_measure=data.frame(
+corresp_metric=data.frame(
 mty=c("lengthmm", "weightg", "ageyear", "female_proportion",  "m_mean_lengthmm",  "m_mean_weightg", "m_mean_ageyear", "f_mean_lengthmm", "f_mean_weightg", "f_mean_age", "g_in_gy_proportion"),
 oldmeas=c("bio_length","bio_weight","bio_age","bio_perc_female","bio_length_m","bio_weight_m","bio_age_m","bio_length_f","bio_weight_f","bio_age_f", "bis_g_in_gy")
 )
@@ -54,14 +54,14 @@ biometry_ser_long <- biometry_ser %>%
          bio_length_f,bio_weight_f,bio_age_f,
          bio_length_m, bio_weight_m,bio_age_m,
          bis_g_in_gy,bio_qal_id,bio_dts_datasource) %>%
-  pivot_longer(-c(gid,bio_qal_id,bio_dts_datasource),gid,values_to="measure_val",names_to="oldmeas") %>%
-  left_join(corresp_measure) %>%
-  filter(!is.na(measure_val))
+  pivot_longer(-c(gid,bio_qal_id,bio_dts_datasource),gid,values_to="metric_val",names_to="oldmeas") %>%
+  left_join(corresp_metric) %>%
+  filter(!is.na(metric_val))
 
 
 dbWriteTable(con,"bioval_tmp",biometry_ser_long,temporary=TRUE)
-dbSendQuery(con, "insert into datawg.t_measuregroupseries_megser (meg_gr_id,meg_mty_id,meg_value,meg_qal_id,meg_dts_datasource)
-           select gid::integer,mty_id,measure_val,bio_qal_id,bio_dts_datasource from bioval_tmp left join ref.tr_mesuretype_mty on mty=mty_name")
+dbSendQuery(con, "insert into datawg.t_metricgroupseries_megser (meg_gr_id,meg_mty_id,meg_value,meg_qal_id,meg_dts_datasource)
+           select gid::integer,mty_id,metric_val,bio_qal_id,bio_dts_datasource from bioval_tmp left join ref.tr_metrictype_mty on mty=mty_name")
 dbSendQuery(con,"drop table if exists bioval_tmp")
 
 
@@ -151,7 +151,7 @@ groups$gid=res[,1] #gids of the newly created groups
 dbSendQuery(con,"drop table if exists group_tmp")
 
 #now we have to enter the group biometry data
-corresp_measure=data.frame(
+corresp_metric=data.frame(
   mty=c("lengthmm", "weightg", "ageyear", "female_proportion",  "m_mean_lengthmm",  "m_mean_weightg", "m_mean_ageyear", "f_mean_lengthmm", "f_mean_weightg", "f_mean_age", "g_in_gy_proportion"),
   oldmeas=c("bio_length","bio_weight","bio_age","bio_perc_female","bio_length_m","bio_weight_m","bio_age_m","bio_length_f","bio_weight_f","bio_age_f", "bis_g_in_gy")
 )
@@ -166,15 +166,15 @@ biometry_sa_long <- biometry_sa_sf %>%
          bio_length_f,bio_weight_f,bio_age_f,
          bio_length_m, bio_weight_m,bio_age_m,
          bio_qal_id,bio_dts_datasource,sai_id) %>%
-  pivot_longer(-c(sai_id,bio_qal_id,bio_dts_datasource,gid),values_to="measure_val",names_to="oldmeas") %>%
-  left_join(corresp_measure) %>%
-  filter(!is.na(measure_val))
+  pivot_longer(-c(sai_id,bio_qal_id,bio_dts_datasource,gid),values_to="metric_val",names_to="oldmeas") %>%
+  left_join(corresp_metric) %>%
+  filter(!is.na(metric_val))
 
 
 
 dbWriteTable(con,"bioval_tmp",biometry_sa_long,temporary=TRUE)
-dbSendQuery(con, "insert into datawg.t_measuregroupsamp_megsa (meg_gr_id,meg_mty_id,meg_value,meg_qal_id,meg_dts_datasource)
-           select gid::integer,mty_id,measure_val,bio_qal_id,bio_dts_datasource from bioval_tmp left join ref.tr_mesuretype_mty on mty=mty_name")
+dbSendQuery(con, "insert into datawg.t_metricgroupsamp_megsa (meg_gr_id,meg_mty_id,meg_value,meg_qal_id,meg_dts_datasource)
+           select gid::integer,mty_id,metric_val,bio_qal_id,bio_dts_datasource from bioval_tmp left join ref.tr_metrictype_mty on mty=mty_name")
 dbSendQuery(con,"drop table if exists bioval_tmp")
 
 
