@@ -9,7 +9,7 @@
 ########################
 # the shiny is launched from shiny_data_integration/shiny
 # debug tool
-#setwd("C:\\workspace\\gitwgeel\\R\\shiny_data_integration\\shiny_di")
+#setwd("C:\\workspace\\wg_WGEEL\\R\\shiny_data_integration\\shiny_di")
 source("load_library.R")
 source("utilities.R")
 load_package("shiny")
@@ -42,6 +42,7 @@ load_package("shinyBS")
 #load_package("sqldf")
 load_package("leaflet")
 load_package("shinytoastr")
+load_package("tibble")
 
 options(shiny.sanitize.errors = FALSE)
 
