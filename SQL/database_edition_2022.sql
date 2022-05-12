@@ -363,8 +363,7 @@ AS $function$
    
   SELECT INTO
   the_mty_type , the_mty_name   
-  mty_type, mty_name FROM NEW 
-  JOIN REF.tr_metrictype_mty ON mty_id=NEW.mei_mty_id;
+  mty_type, mty_name FROM REF.tr_metrictype_mty where mty_id=NEW.mei_mty_id;
 
     IF (the_mty_type == 'group') THEN
     RAISE EXCEPTION 'table t_metricind_mei, metric --> % is not an individual metric', the_mty_name ;
@@ -631,8 +630,7 @@ AS $function$
    
   SELECT INTO
   the_mty_type , the_mty_name   
-  mty_type, mty_name FROM NEW 
-  JOIN REF.tr_metrictype_mty ON mty_id=NEW.meg_mty_id;
+  mty_type, mty_name FROM REF.tr_metrictype_mty where mty_id=NEW.meg_mty_id;
 
     IF (the_mty_type == 'individual') THEN
     RAISE EXCEPTION 'table t_metricgroup_meg, metric --> % is not a group metric', the_mty_name ;
