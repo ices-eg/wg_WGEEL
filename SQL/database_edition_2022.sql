@@ -379,7 +379,33 @@ DROP TRIGGER IF EXISTS check_mei_mty_is_individual ON datawg.t_metricind_mei;
 CREATE TRIGGER check_mei_mty_is_individual AFTER INSERT OR UPDATE ON
    datawg.t_metricind_mei FOR EACH ROW EXECUTE FUNCTION datawg.mei_mty_is_individual();
 
- 
+
+CREATE OR REPLACE FUNCTION datawg.fish_in_emu()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$   
+  DECLARE inpolygon bool;
+  DECLARE fish integer;
+  BEGIN
+  
+  SELECT INTO
+  inpolygon coalesce(st_contains(geom,st_point(new.fisa_x_4326, new.fisa_y_4326, 4326)), true) FROM  
+  datawg.t_samplinginfo_sai
+  JOIN REF.tr_emu_emu ON emu_nameshort=sai_emu_nameshort where new.fisa_sai_id = sai_id;
+  IF (inpolygon = false) THEN
+    RAISE EXCEPTION 'the fish % coordinates do not fall into the corresponding emu', new.fi_id ;
+    END IF  ;
+
+    RETURN NEW ;
+  END  ;
+$function$
+;
+
+DROP TRIGGER IF EXISTS check_fish_in_emu ON datawg.t_fishsamp_fisa;
+CREATE TRIGGER check_fish_in_emu AFTER INSERT OR UPDATE ON
+   datawg.t_fishsamp_fisa FOR EACH ROW EXECUTE FUNCTION datawg.fish_in_emu();
+
+
 -- datawg.t_group_gr definition
 
 DROP TABLE if exists datawg.t_group_gr CASCADE;
