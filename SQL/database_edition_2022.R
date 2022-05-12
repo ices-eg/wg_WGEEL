@@ -103,7 +103,7 @@ sampling_sites <- biometry_sa_sf %>%
   unique()
 
 dbWriteTable(con,"sampling_tmp",sampling_sites,temporary=TRUE)
-sai_id=dbGetQuery(con,"insert into datawg.t_sampinginfo_sai (sai_cou_code,sai_emu_nameshort,sai_metadata) 
+sai_id=dbGetQuery(con,"insert into datawg.t_samplinginfo_sai (sai_cou_code,sai_emu_nameshort,sai_metadata) 
             (select emu_cou_code,emu_nameshort, 'historical data ' || coalesce(bit_loc_name,'') from sampling_tmp) returning sai_id")
 dbSendQuery(con,"drop table if exists sampling_tmp")
 sampling_sites$sai_id = sai_id[,1]

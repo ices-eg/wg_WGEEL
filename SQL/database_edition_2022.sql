@@ -143,12 +143,13 @@ DROP TABLE IF EXISTS ref.tr_metrictype_mty CASCADE;
  * CREATE A TABLE TO STORE BIOMETRY ON INDIVIDUAL DATA
 
  */
-DROP TABLE IF EXISTS datawg.t_sampinginfo_sai CASCADE;
-CREATE TABLE datawg.t_sampinginfo_sai(
+DROP TABLE IF EXISTS datawg.t_samplinginfo_sai CASCADE;
+CREATE TABLE datawg.t_samplinginfo_sai(
   sai_id serial PRIMARY KEY,
   sai_cou_code VARCHAR(2),
   sai_emu_nameshort VARCHAR(20),
   sai_area_division VARCHAR(254),
+  sai_hty_code varchar(2),
   sai_comment TEXT, -- this could be DCF ... other CHECK IF we need a referential TABLE....
   sai_samplingobjective TEXT,
   sai_metadata TEXT, -- this must contain information TO rebuild the stratification scheme rename ?
@@ -159,7 +160,8 @@ CREATE TABLE datawg.t_sampinginfo_sai(
   CONSTRAINT c_fk_sai_cou_code FOREIGN KEY (sai_cou_code) REFERENCES "ref".tr_country_cou(cou_code) ON UPDATE CASCADE,
   CONSTRAINT c_fk_sai_emu FOREIGN KEY (sai_emu_nameshort,sai_cou_code) REFERENCES "ref".tr_emu_emu(emu_nameshort,emu_cou_code) ON UPDATE CASCADE,
   CONSTRAINT c_fk_sai_area_division FOREIGN KEY (sai_area_division) REFERENCES "ref".tr_faoareas(f_division) ON UPDATE CASCADE,
-  CONSTRAINT c_fk_sai_dts_datasource FOREIGN KEY (sai_dts_datasource) REFERENCES "ref".tr_datasource_dts(dts_datasource) ON UPDATE CASCADE
+  CONSTRAINT c_fk_sai_dts_datasource FOREIGN KEY (sai_dts_datasource) REFERENCES "ref".tr_datasource_dts(dts_datasource) ON UPDATE CASCADE,
+  CONSTRAINT c_fk_sai_hty_code FOREIGN KEY (sai_hty_code) REFERENCES "ref".tr_habitattype_hty(hty_code) ON UPDATE CASCADE
 );
 
 -- Table Triggers
@@ -176,7 +178,7 @@ $function$
 ;
 
 CREATE TRIGGER update_sai_lastupdate  BEFORE INSERT OR UPDATE ON
-   datawg.t_sampinginfo_sai FOR EACH ROW EXECUTE FUNCTION datawg.sai_lastupdate();
+   datawg.t_samplinginfo_sai FOR EACH ROW EXECUTE FUNCTION datawg.sai_lastupdate();
 
 /*
  * 
@@ -187,12 +189,10 @@ CREATE TRIGGER update_sai_lastupdate  BEFORE INSERT OR UPDATE ON
 DROP TABLE  if exists datawg.t_fish_fi CASCADE;
 CREATE TABLE datawg.t_fish_fi(
   fi_id SERIAL PRIMARY KEY,
-  fi_lfs_code varchar(2) NOT NULL, 
   fi_date DATE NOT NULL,
   fi_comment TEXT,
   fi_lastupdate DATE NOT NULL DEFAULT CURRENT_DATE,
   fi_dts_datasource varchar(100),
-  CONSTRAINT c_fk_fi_lfs_code FOREIGN KEY (fi_lfs_code) REFERENCES "ref".tr_lifestage_lfs(lfs_code) ON UPDATE CASCADE,
   CONSTRAINT c_fk_fi_dts_datasource FOREIGN KEY (fi_dts_datasource) REFERENCES "ref".tr_datasource_dts(dts_datasource) ON UPDATE CASCADE
   );
 
@@ -255,14 +255,13 @@ CREATE TRIGGER check_year_and_date AFTER INSERT OR UPDATE ON
 DROP TABLE IF EXISTS  datawg.t_fishsamp_fisa;
 CREATE TABLE  datawg.t_fishsamp_fisa(
 fisa_sai_id INTEGER,
+fisa_lfs_code varchar(2) NOT NULL, 
 fisa_x_4326 NUMERIC NOT NULL,
 fisa_y_4326 NUMERIC NOT NULL,
 fisa_geom geometry(point, 4326),
-fisa_area_division varchar(254),
-fisa_hty_code varchar(2),
+CONSTRAINT c_fk_fisa_lfs_code FOREIGN KEY (fisa_lfs_code) REFERENCES "ref".tr_lifestage_lfs(lfs_code) ON UPDATE CASCADE,
 CONSTRAINT t_fishseries_fisa_pkey PRIMARY KEY (fi_id),
-CONSTRAINT c_fk_fisa_sai_id FOREIGN KEY (fisa_sai_id) REFERENCES datawg.t_sampinginfo_sai(sai_id) ON UPDATE CASCADE ON DELETE RESTRICT,
-CONSTRAINT c_fk_fisa_hty_code FOREIGN KEY (fisa_hty_code) REFERENCES "ref".tr_habitattype_hty(hty_code) ON UPDATE CASCADE
+CONSTRAINT c_fk_fisa_sai_id FOREIGN KEY (fisa_sai_id) REFERENCES datawg.t_samplinginfo_sai(sai_id) ON UPDATE CASCADE ON DELETE RESTRICT
 )
 INHERITS (datawg.t_fish_fi);
 
@@ -387,15 +386,13 @@ DROP TABLE if exists datawg.t_group_gr CASCADE;
 
 CREATE TABLE datawg.t_group_gr (
 	gr_id serial4 NOT NULL,
-	gr_lfs_code varchar(2) NOT NULL,
 	gr_year int4,
 	gr_number integer,
 	gr_comment TEXT,
 	gr_lastupdate date NOT NULL DEFAULT CURRENT_DATE,
 	gr_dts_datasource varchar(100) NULL,
 	CONSTRAINT t_group_go_pkey PRIMARY KEY (gr_id),
-	CONSTRAINT c_fk_gr_dts_datasource FOREIGN KEY (gr_dts_datasource) REFERENCES "ref".tr_datasource_dts(dts_datasource) ON UPDATE CASCADE,
-	CONSTRAINT c_fk_gr_lfs_code FOREIGN KEY (gr_lfs_code) REFERENCES "ref".tr_lifestage_lfs(lfs_code) ON UPDATE CASCADE
+	CONSTRAINT c_fk_gr_dts_datasource FOREIGN KEY (gr_dts_datasource) REFERENCES "ref".tr_datasource_dts(dts_datasource) ON UPDATE CASCADE
 );
 
 
@@ -403,9 +400,11 @@ DROP TABLE if exists datawg.t_groupsamp_grsa;
 
 CREATE TABLE datawg.t_groupsamp_grsa (
 	grsa_sai_id int4 NULL,
+	grsa_lfs_code varchar(2) NOT NULL,
 	CONSTRAINT t_group_gsa_pkey PRIMARY KEY (gr_id),
         CONSTRAINT c_ck_uk_grsa_gr UNIQUE (grsa_sai_id, gr_year),
-        CONSTRAINT c_fk_grsa_sai_id FOREIGN KEY (grsa_sai_id) REFERENCES datawg.t_sampinginfo_sai(sai_id)
+        CONSTRAINT c_fk_grsa_sai_id FOREIGN KEY (grsa_sai_id) REFERENCES datawg.t_samplinginfo_sai(sai_id),
+        CONSTRAINT c_fk_grsa_lfs_code FOREIGN KEY (grsa_lfs_code) REFERENCES "ref".tr_lifestage_lfs(lfs_code) ON UPDATE CASCADE
 )
 INHERITS (datawg.t_group_gr);
 
