@@ -119,12 +119,12 @@ ALTER TABLE datawg.t_biometry_bio RENAME TO t_biometrygroupseries_bio;
  
  /*
   * 
-  * TABLE OF MEASURES TYPE, CORRESPONDS TO BOTH individual and quality measures
+  * TABLE OF METRICS TYPE, CORRESPONDS TO BOTH individual and quality metrics
   * 
   * 
   */ 
-DROP TABLE IF EXISTS ref.tr_mesuretype_mty CASCADE;
- CREATE TABLE ref.tr_mesuretype_mty(
+DROP TABLE IF EXISTS ref.tr_metrictype_mty CASCADE;
+ CREATE TABLE ref.tr_metrictype_mty(
  mty_id INTEGER PRIMARY KEY,
  mty_name TEXT,
  mty_description TEXT,
@@ -221,6 +221,7 @@ DROP TABLE IF EXISTS  t_fishseries_fiser;
 CREATE TABLE  datawg.t_fishseries_fiser(
 fiser_ser_id INTEGER NOT NULL,  
 fiser_year INTEGER NOT NULL,
+CONSTRAINT t_fishseries_fiser_pkey PRIMARY KEY (fi_id),
 CONSTRAINT c_fk_fiser_ser_id FOREIGN KEY (fiser_ser_id) REFERENCES datawg.t_series_ser(ser_id) ON UPDATE CASCADE ON DELETE CASCADE
 )
 INHERITS (datawg.t_fish_fi);
@@ -259,6 +260,7 @@ fisa_y_4326 NUMERIC NOT NULL,
 fisa_geom geometry(point, 4326),
 fisa_area_division varchar(254),
 fisa_hty_code varchar(2),
+CONSTRAINT t_fishseries_fisa_pkey PRIMARY KEY (fi_id),
 CONSTRAINT c_fk_fisa_sai_id FOREIGN KEY (fisa_sai_id) REFERENCES datawg.t_sampinginfo_sai(sai_id) ON UPDATE CASCADE ON DELETE RESTRICT,
 CONSTRAINT c_fk_fisa_hty_code FOREIGN KEY (fisa_hty_code) REFERENCES "ref".tr_habitattype_hty(hty_code) ON UPDATE CASCADE
 )
@@ -268,13 +270,13 @@ INHERITS (datawg.t_fish_fi);
 
   
 /*
- * TABLE OF INDIVIDUAL MEASUREMENTS
+ * TABLE OF INDIVIDUAL METRICS
  * I put a DELETE cascade on the table so if a fish is removed all biometries and qualities attached are dropped
  * 
  */  
   
-DROP TABLE IF EXISTS datawg.t_measureind_mei CASCADE;
-CREATE TABLE datawg.t_measureind_mei (
+DROP TABLE IF EXISTS datawg.t_metricind_mei CASCADE;
+CREATE TABLE datawg.t_metricind_mei (
   mei_id serial PRIMARY KEY,
   mei_fi_id INTEGER not null,  
   mei_mty_id INTEGER not null,
@@ -283,31 +285,51 @@ CREATE TABLE datawg.t_measureind_mei (
   mei_qal_id INTEGER, 
   mei_dts_datasource varchar(100),
   CONSTRAINT c_fk_mei_fi_id FOREIGN KEY (mei_fi_id) REFERENCES datawg.t_fish_fi(fi_id) ON UPDATE CASCADE ON DELETE CASCADE,
-  CONSTRAINT c_fk_mei_mty_id FOREIGN KEY (mei_mty_id) REFERENCES "ref".tr_mesuretype_mty(mty_id) ON UPDATE CASCADE,
+  CONSTRAINT c_fk_mei_mty_id FOREIGN KEY (mei_mty_id) REFERENCES "ref".tr_metrictype_mty(mty_id) ON UPDATE CASCADE,
   CONSTRAINT c_fk_mei_qal_id FOREIGN KEY (mei_qal_id) REFERENCES "ref".tr_quality_qal(qal_id) ON UPDATE CASCADE,
   CONSTRAINT c_fk_mei_dts_datasource FOREIGN KEY (mei_dts_datasource) REFERENCES "ref".tr_datasource_dts(dts_datasource) ON UPDATE CASCADE
 )
 ;
 
 
-DROP TABLE IF EXISTS datawg.t_measureindsamp_meisa CASCADE;
-CREATE TABLE datawg.t_measureind_mei (
+DROP TABLE IF EXISTS datawg.t_metricindsamp_meisa CASCADE;
+CREATE TABLE datawg.t_metricindsamp_meisa (
   CONSTRAINT c_fk_meisa_fi_id FOREIGN KEY (mei_fi_id) REFERENCES datawg.t_fishsamp_fisa(fi_id) ON UPDATE CASCADE ON DELETE CASCADE,
-  CONSTRAINT c_fk_meisa_mty_id FOREIGN KEY (mei_mty_id) REFERENCES "ref".tr_mesuretype_mty(mty_id) ON UPDATE CASCADE,
+  CONSTRAINT c_fk_meisa_mty_id FOREIGN KEY (mei_mty_id) REFERENCES "ref".tr_metrictype_mty(mty_id) ON UPDATE CASCADE,
   CONSTRAINT c_fk_meisa_qal_id FOREIGN KEY (mei_qal_id) REFERENCES "ref".tr_quality_qal(qal_id) ON UPDATE CASCADE,
   CONSTRAINT c_fk_meisa_dts_datasource FOREIGN KEY (mei_dts_datasource) REFERENCES "ref".tr_datasource_dts(dts_datasource) ON UPDATE CASCADE
-) inherits (datawg.t_measureind_mei)
+) inherits  (datawg.t_metricind_mei)
+;
+
+DROP TABLE IF EXISTS datawg.t_metricindseries_meiser CASCADE;
+CREATE TABLE datawg.t_metricindseries_meiser (
+  CONSTRAINT c_fk_meiser_fi_id FOREIGN KEY (mei_fi_id) REFERENCES datawg.t_fishseries_fiser(fi_id) ON UPDATE CASCADE ON DELETE CASCADE,
+  CONSTRAINT c_fk_meiser_mty_id FOREIGN KEY (mei_mty_id) REFERENCES "ref".tr_metrictype_mty(mty_id) ON UPDATE CASCADE,
+  CONSTRAINT c_fk_meiser_qal_id FOREIGN KEY (mei_qal_id) REFERENCES "ref".tr_quality_qal(qal_id) ON UPDATE CASCADE,
+  CONSTRAINT c_fk_meiser_dts_datasource FOREIGN KEY (mei_dts_datasource) REFERENCES "ref".tr_datasource_dts(dts_datasource) ON UPDATE CASCADE
+) inherits  (datawg.t_metricind_mei)
 ;
 
 
 
-DROP TABLE IF EXISTS datawg.t_measureindseries_meiser CASCADE;
-CREATE TABLE datawg.t_measureind_mei (
+DROP TABLE IF EXISTS datawg.t_metricindsamp_meisa CASCADE;
+CREATE TABLE datawg.t_metricind_mei (
+  CONSTRAINT c_fk_meisa_fi_id FOREIGN KEY (mei_fi_id) REFERENCES datawg.t_fishsamp_fisa(fi_id) ON UPDATE CASCADE ON DELETE CASCADE,
+  CONSTRAINT c_fk_meisa_mty_id FOREIGN KEY (mei_mty_id) REFERENCES "ref".tr_metrictype_mty(mty_id) ON UPDATE CASCADE,
+  CONSTRAINT c_fk_meisa_qal_id FOREIGN KEY (mei_qal_id) REFERENCES "ref".tr_quality_qal(qal_id) ON UPDATE CASCADE,
+  CONSTRAINT c_fk_meisa_dts_datasource FOREIGN KEY (mei_dts_datasource) REFERENCES "ref".tr_datasource_dts(dts_datasource) ON UPDATE CASCADE
+) inherits (datawg.t_metricind_mei)
+;
+
+
+
+DROP TABLE IF EXISTS datawg.t_metricindseries_meiser CASCADE;
+CREATE TABLE datawg.t_metricind_mei (
   CONSTRAINT c_fk_meiser_fi_id FOREIGN KEY (mei_fi_id) REFERENCES datawg.t_fishseries_fiser(fi_id) ON UPDATE CASCADE ON DELETE CASCADE,
-  CONSTRAINT c_fk_meiser_mty_id FOREIGN KEY (mei_mty_id) REFERENCES "ref".tr_mesuretype_mty(mty_id) ON UPDATE CASCADE,
+  CONSTRAINT c_fk_meiser_mty_id FOREIGN KEY (mei_mty_id) REFERENCES "ref".tr_metrictype_mty(mty_id) ON UPDATE CASCADE,
   CONSTRAINT c_fk_meiser_qal_id FOREIGN KEY (mei_qal_id) REFERENCES "ref".tr_quality_qal(qal_id) ON UPDATE CASCADE,
   CONSTRAINT c_fk_meiser_dts_datasource FOREIGN KEY (mei_dts_datasource) REFERENCES "ref".tr_datasource_dts(dts_datasource) ON UPDATE CASCADE
-) inherits (datawg.t_measureind_mei)
+) inherits (datawg.t_metricind_mei)
 ;
 
 
@@ -324,13 +346,13 @@ BEGIN
 END;
 $function$
 ;
-DROP TRIGGER IF EXISTS update_mei_last_update ON datawg.t_measureind_mei ;
+DROP TRIGGER IF EXISTS update_mei_last_update ON datawg.t_metricind_mei ;
 CREATE TRIGGER update_mei_last_update BEFORE INSERT OR UPDATE ON
-  datawg.t_measureind_mei FOR EACH ROW EXECUTE FUNCTION  datawg.mei_last_update();
+  datawg.t_metricind_mei FOR EACH ROW EXECUTE FUNCTION  datawg.mei_last_update();
 
 -- TODO trigger  length, weight, age, eyediameter,pectoral_fin with bounds
 
--- trigger check that only invividual measures are used
+-- trigger check that only invividual metrics are used
 CREATE OR REPLACE FUNCTION datawg.mei_mty_is_individual()
  RETURNS trigger
  LANGUAGE plpgsql
@@ -343,10 +365,10 @@ AS $function$
   SELECT INTO
   the_mty_type , the_mty_name   
   mty_type, mty_name FROM NEW 
-  JOIN REF.tr_mesuretype_mty ON mty_id=NEW.mei_mty_id;
+  JOIN REF.tr_metrictype_mty ON mty_id=NEW.mei_mty_id;
 
     IF (the_mty_type == 'group') THEN
-    RAISE EXCEPTION 'table t_measureind_mei, Measure --> % is not an individual measure', the_mty_name ;
+    RAISE EXCEPTION 'table t_metricind_mei, metric --> % is not an individual metric', the_mty_name ;
     END IF  ;
 
     RETURN NEW ;
@@ -354,9 +376,9 @@ AS $function$
 $function$
 ;
 
-DROP TRIGGER IF EXISTS check_mei_mty_is_individual ON datawg.t_measureind_mei;
+DROP TRIGGER IF EXISTS check_mei_mty_is_individual ON datawg.t_metricind_mei;
 CREATE TRIGGER check_mei_mty_is_individual AFTER INSERT OR UPDATE ON
-   datawg.t_measureind_mei FOR EACH ROW EXECUTE FUNCTION datawg.mei_mty_is_individual();
+   datawg.t_metricind_mei FOR EACH ROW EXECUTE FUNCTION datawg.mei_mty_is_individual();
 
  
 -- datawg.t_group_gr definition
@@ -418,7 +440,7 @@ create trigger update_gr_lastupdate BEFORE insert  OR update on
     
  
 
-
+/*
 DROP TABLE IF EXISTS datawg.t_biometrygroup_big CASCADE;
 CREATE TABLE datawg.t_biometrygroup_big (
   big_id serial PRIMARY KEY,
@@ -431,7 +453,7 @@ CREATE TABLE datawg.t_biometrygroup_big (
   big_qal_id int4, 
   big_dts_datasource varchar(100),
   CONSTRAINT c_ck_uk_big_gr UNIQUE (big_gr_id, big_year, big_mty_id),
-  CONSTRAINT c_fk_big_mty_id FOREIGN KEY (big_mty_id) REFERENCES "ref".tr_mesuretype_mty(mty_id) ON UPDATE CASCADE,
+  CONSTRAINT c_fk_big_mty_id FOREIGN KEY (big_mty_id) REFERENCES "ref".tr_metrictype_mty(mty_id) ON UPDATE CASCADE,
   CONSTRAINT c_fk_big_qal_id FOREIGN KEY (big_qal_id) REFERENCES "ref".tr_quality_qal(qal_id) ON UPDATE CASCADE,
   CONSTRAINT c_fk_big_dts_datasource FOREIGN KEY (big_dts_datasource) REFERENCES "ref".tr_datasource_dts(dts_datasource) ON UPDATE CASCADE,
   CONSTRAINT c_fk_big_gr_id FOREIGN KEY (big_gr_id) REFERENCES datawg.t_group_gr(gr_id) ON UPDATE CASCADE ON DELETE CASCADE
@@ -449,11 +471,12 @@ BEGIN
 END;
 $function$
 ;
+
 DROP TRIGGER IF EXISTS update_big_last_update ON datawg.t_biometrygroup_big ;
 CREATE TRIGGER update_big_last_update BEFORE INSERT OR UPDATE ON
   datawg.t_biometrygroup_big FOR EACH ROW EXECUTE FUNCTION  datawg.big_last_update();
 
--- trigger check that only group measures are used
+-- trigger check that only group metrics are used
 
 CREATE OR REPLACE FUNCTION datawg.big_mty_is_group()
  RETURNS trigger
@@ -470,7 +493,7 @@ AS $function$
   JOIN REF.tr_mesuretype_mty ON mty_id=NEW.big_mty_id;
 
     IF (the_mty_type <> 'Group') THEN
-    RAISE EXCEPTION 'table t_biometrygroup_big, Measure --> % is not a group measure', the_mty_name ;
+    RAISE EXCEPTION 'table t_biometrygroup_big, metric --> % is not a group metric', the_mty_name ;
     END IF  ;
 
     RETURN NEW ;
@@ -482,7 +505,7 @@ DROP TRIGGER IF EXISTS check_big_mty_is_group ON datawg.t_biometrygroup_big;
 CREATE TRIGGER check_big_mty_is_group AFTER INSERT OR UPDATE ON
    datawg.t_biometrygroup_big FOR EACH ROW EXECUTE FUNCTION datawg.big_mty_is_group();
 
--- trigger check that only biometry measures are used
+-- trigger check that only biometry metrics are used
 
 CREATE OR REPLACE FUNCTION datawg.big_mty_is_biometry()
  RETURNS trigger
@@ -499,7 +522,7 @@ AS $function$
   JOIN REF.tr_mesuretype_mty ON mty_id=NEW.big_mty_id;
 
     IF (the_mty_type <> 'Biometry') THEN
-    RAISE EXCEPTION 'table t_biometrygroup_big, Measure --> % is not a measure of biometry', the_mty_name ;
+    RAISE EXCEPTION 'table t_biometrygroup_big, metric --> % is not a metric of biometry', the_mty_name ;
     END IF  ;
 
     RETURN NEW ;
@@ -511,13 +534,13 @@ DROP TRIGGER IF EXISTS check_big_mty_is_biometry ON datawg.t_biometrygroup_big;
 CREATE TRIGGER check_big_mty_is_quality AFTER INSERT OR UPDATE ON
    datawg.t_biometrygroup_big FOR EACH ROW EXECUTE FUNCTION datawg.big_mty_is_biometry();
 
- 
+*/ 
 /*
- * table of individual measures
+ * table of individual metrics
  */
 
-DROP TABLE IF EXISTS datawg.t_measuregroup_meg CASCADE;
-CREATE TABLE datawg.t_measuregroup_meg (
+DROP TABLE IF EXISTS datawg.t_metricgroup_meg CASCADE;
+CREATE TABLE datawg.t_metricgroup_meg (
   meg_id serial PRIMARY KEY,
   meg_gr_id INTEGER not null,
   meg_mty_id INTEGER not null,
@@ -526,32 +549,32 @@ CREATE TABLE datawg.t_measuregroup_meg (
   meg_qal_id int4, 
   meg_dts_datasource varchar(100),
   CONSTRAINT c_ck_uk_meg_gr UNIQUE (meg_gr_id, meg_mty_id),
-  CONSTRAINT c_fk_meg_mty_id FOREIGN KEY (meg_mty_id) REFERENCES "ref".tr_mesuretype_mty(mty_id) ON UPDATE CASCADE,
+  CONSTRAINT c_fk_meg_mty_id FOREIGN KEY (meg_mty_id) REFERENCES "ref".tr_metrictype_mty(mty_id) ON UPDATE CASCADE,
   CONSTRAINT c_fk_meg_qal_id FOREIGN KEY (meg_qal_id) REFERENCES "ref".tr_quality_qal(qal_id) ON UPDATE CASCADE,
   CONSTRAINT c_fk_meg_dts_datasource FOREIGN KEY (meg_dts_datasource) REFERENCES "ref".tr_datasource_dts(dts_datasource) ON UPDATE CASCADE,
   CONSTRAINT c_fk_meg_gr_id FOREIGN KEY (meg_gr_id) REFERENCES datawg.t_group_gr(gr_id) ON UPDATE CASCADE ON DELETE CASCADE
 ) 
 ;
 
-DROP TABLE IF EXISTS datawg.t_measuregroupseries_megser CASCADE;
-CREATE TABLE datawg.t_measuregroupseries_megser (
+DROP TABLE IF EXISTS datawg.t_metricgroupseries_megser CASCADE;
+CREATE TABLE datawg.t_metricgroupseries_megser (
   CONSTRAINT c_ck_uk_megser_gr UNIQUE (meg_gr_id, meg_mty_id),
-  CONSTRAINT c_fk_megser_mty_id FOREIGN KEY (meg_mty_id) REFERENCES "ref".tr_mesuretype_mty(mty_id) ON UPDATE CASCADE,
+  CONSTRAINT c_fk_megser_mty_id FOREIGN KEY (meg_mty_id) REFERENCES "ref".tr_metrictype_mty(mty_id) ON UPDATE CASCADE,
   CONSTRAINT c_fk_megser_qal_id FOREIGN KEY (meg_qal_id) REFERENCES "ref".tr_quality_qal(qal_id) ON UPDATE CASCADE,
   CONSTRAINT c_fk_megser_dts_datasource FOREIGN KEY (meg_dts_datasource) REFERENCES "ref".tr_datasource_dts(dts_datasource) ON UPDATE CASCADE,
   CONSTRAINT c_fk_megser_gr_id FOREIGN KEY (meg_gr_id) REFERENCES datawg.t_groupseries_grser(gr_id) ON UPDATE CASCADE ON DELETE CASCADE
-) inherits (datawg.t_measuregroup_meg)
+) inherits (datawg.t_metricgroup_meg)
 ;
 
 
-DROP TABLE IF EXISTS datawg.t_measuregroupsamp_megsa CASCADE;
-CREATE TABLE datawg.t_measuregroupsamp_megsa (
+DROP TABLE IF EXISTS datawg.t_metricgroupsamp_megsa CASCADE;
+CREATE TABLE datawg.t_metricgroupsamp_megsa (
   CONSTRAINT c_ck_uk_megsa_gr UNIQUE (meg_gr_id, meg_mty_id),
-  CONSTRAINT c_fk_megsa_mty_id FOREIGN KEY (meg_mty_id) REFERENCES "ref".tr_mesuretype_mty(mty_id) ON UPDATE CASCADE,
+  CONSTRAINT c_fk_megsa_mty_id FOREIGN KEY (meg_mty_id) REFERENCES "ref".tr_metrictype_mty(mty_id) ON UPDATE CASCADE,
   CONSTRAINT c_fk_megsa_qal_id FOREIGN KEY (meg_qal_id) REFERENCES "ref".tr_quality_qal(qal_id) ON UPDATE CASCADE,
   CONSTRAINT c_fk_megsa_dts_datasource FOREIGN KEY (meg_dts_datasource) REFERENCES "ref".tr_datasource_dts(dts_datasource) ON UPDATE CASCADE,
   CONSTRAINT c_fk_megsa_gr_id FOREIGN KEY (meg_gr_id) REFERENCES datawg.t_groupsamp_grsa(gr_id) ON UPDATE CASCADE ON DELETE CASCADE
-) inherits (datawg.t_measuregroup_meg)
+) inherits (datawg.t_metricgroup_meg)
 ;
 
 
@@ -566,11 +589,11 @@ BEGIN
 END;
 $function$
 ;
-DROP TRIGGER IF EXISTS update_meg_last_update ON datawg.t_measuregroup_meg ;
+DROP TRIGGER IF EXISTS update_meg_last_update ON datawg.t_metricgroup_meg ;
 CREATE TRIGGER update_meg_last_update BEFORE INSERT OR UPDATE ON
-  datawg.t_measuregroup_meg FOR EACH ROW EXECUTE FUNCTION  datawg.meg_last_update();
+  datawg.t_metricgroup_meg FOR EACH ROW EXECUTE FUNCTION  datawg.meg_last_update();
 
--- trigger check that only group measures are used
+-- trigger check that only group metrics are used
 
 CREATE OR REPLACE FUNCTION datawg.meg_mty_is_group()
  RETURNS trigger
@@ -584,10 +607,10 @@ AS $function$
   SELECT INTO
   the_mty_type , the_mty_name   
   mty_type, mty_name FROM NEW 
-  JOIN REF.tr_mesuretype_mty ON mty_id=NEW.meg_mty_id;
+  JOIN REF.tr_metrictype_mty ON mty_id=NEW.meg_mty_id;
 
     IF (the_mty_type == 'individual') THEN
-    RAISE EXCEPTION 'table t_measuregroup_meg, Measure --> % is not a group measure', the_mty_name ;
+    RAISE EXCEPTION 'table t_metricgroup_meg, metric --> % is not a group metric', the_mty_name ;
     END IF  ;
 
     RETURN NEW ;
@@ -595,9 +618,9 @@ AS $function$
 $function$
 ;
 
-DROP TRIGGER IF EXISTS check_meg_mty_is_group ON datawg.t_measuregroup_meg;
+DROP TRIGGER IF EXISTS check_meg_mty_is_group ON datawg.t_metricgroup_meg;
 CREATE TRIGGER check_meg_mty_is_group AFTER INSERT OR UPDATE ON
-   datawg.t_measuregroup_meg FOR EACH ROW EXECUTE FUNCTION datawg.meg_mty_is_group();
+   datawg.t_metricgroup_meg FOR EACH ROW EXECUTE FUNCTION datawg.meg_mty_is_group();
 
 
 -----
