@@ -4,6 +4,8 @@
 # Author Cedric Briand
 # This script will create an excel sheet per country that currently have recruitment series
 #######################################################################################
+
+# TODO USE bind_rows
 # put the current year there
 CY<-2021
 # function to load packages if not available

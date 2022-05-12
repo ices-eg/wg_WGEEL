@@ -113,8 +113,8 @@ shinyServer(function(input, output, session){
 						isolate({data$sai_list <- tr_sai_list$ser_id})
 						
 						#205-shiny-integration-for-dcf-data
-						query <- "SELECT * from ref.tr_measuretype_mty"
-						tr_measuretype_mty <<- dbGetQuery(pool, sqlInterpolate(ANSI(), query))
+						query <- "SELECT * from ref.tr_metricstype_mty"
+						tr_metricstype_mty <<- dbGetQuery(pool, sqlInterpolate(ANSI(), query))
 						
 						#205-shiny-integration-for-dcf-data
 						query <- "SELECT * from ref.tr_units_uni"
