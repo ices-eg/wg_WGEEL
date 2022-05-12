@@ -7,6 +7,8 @@
 ############# CATCH AND LANDINGS #############################################
 # path<-file.choose()
 # datasource<-the_eel_datasource
+
+
 load_catch_landings<-function(path,datasource){
 	the_metadata<-list()
 	dir<-dirname(path)
@@ -2937,7 +2939,7 @@ load_series<-function(path,datasource,stage="glass_eel"){
 						values=list_country))	
 		
 		
-			###### ser_area_div ##############
+		###### ser_area_div ##############
 		
 		data_error <- rbind(data_error, check_type(
 						dataset=series,						
@@ -3060,45 +3062,51 @@ load_series<-function(path,datasource,stage="glass_eel"){
 												c("ser_nameshort", "Organisation")],collapse= "&"),
 						"file =",
 						file,"\n")) 
-#---------------------- new data ---------------------------------------------
 	
-	cat("loading newdata \n")
-# here we have already searched for catch and landings above.
-	new_data <- read_excel(
-			path=path,
-			sheet ="new_data",
-			skip=0)
-	
-	
-	if (ncol(new_data)!=5) cat(str_c("number column wrong for newdata, should have been 5 in file from ",country,"\n"))
-	#validate(need(class(new_data$das_value)=="numeric",message="You don't have numeric values in new_data check your file, maybe convert pasted value to numeric in excel, or maybe you don't have any data."))
-	
-	
-# check for NULL ser_id in newdata, and try to replace them with series added in the previous step
-	
-# check column names
-	if (!all(colnames(new_data)%in%
-					c(c(c("ser_nameshort", "das_year", "das_value", "das_comment", "das_effort", "das_dts_datasource" )
-							)
-					))) 
-		cat(str_c("problem in column names",            
-						paste(colnames(new_data)[!colnames(new_data)%in%
-												c(c("ser_nameshort", "das_year", "das_value", "das_comment", "das_effort", "das_dts_datasource"))],collapse= "&"),
-						"file =",
-						file,"\n")) 
-	
-	if (nrow(new_data)>0) {
-		new_data$das_dts_datasource <- datasource
-		###### ser_nameshort ##############
+	#---------------------- all_other_sheets ---------------------------------------------
+	fn_check_series <- function(sheet, columns, nbcol, country, file){
+		data_xls <- read_excel(
+				path=path,
+				sheet=sheet,
+				skip=0, guess_max=10000)
 		
-# should not have any missing value
+		data_error <- data.frame(nline = NULL, error_message = NULL)
+		# country is extracted 
+#    data_xls <- correct_me(data_xls)
+		
+		# check for the file integrity		
+		if (ncol(data_xls)!=nbcol) cat(sprintf("%s : number column wrong currently %s should have been %s in file  %s,\n",sheet,ncol(data_xls),ncol,file))
+		# check column names for each sheet
+		fn_check_columns <- function(sheet,columns,file){				
+			if (!all(colnames(sheet)%in%columns))
+				cat(str_c("problem in column names",            
+								paste(colnames(sheet)[!colnames(new_data)%in%columns],collapse= "&"),
+								"file =",
+								file,"\n")) 
+		}
+		fn_check_columns(sheet=data_xls, columns=columns,	file = file)
+		
+		# check datasource according to sheet name, for individual and group data two columns must be filled in
+		if (grepl("data", sheet)) {
+			new_data$das_dts_datasource <- datasource
+		}		
+		if (grepl("group", sheet)) {
+			new_data$gr_dts_datasource <- datasource
+			new_data$meg_dts_datasource <- datasource
+		}
+		if (grepl("individual", sheet)) {
+			new_data$gr_dts_datasource <- datasource
+			new_data$mei_dts_datasource <- datasource
+		}
+		###### ser_nameshort ##############
+    # should not have any missing value
 		data_error <- rbind(data_error, check_missing(
-						dataset=new_data,						
-						namedataset= "new_data",						
+						dataset = data_xls,						
+						namedataset = sheet,						
 						column="ser_nameshort",
 						country=country))
 		
-# check if exists
+    # check if exists
 		data_error <- rbind(data_error, check_values(
 						dataset=new_data,
 						namedataset= "new_data",		
@@ -3112,7 +3120,7 @@ load_series<-function(path,datasource,stage="glass_eel"){
 # should not have any missing value
 		
 		data_error <- rbind(data_error, check_missing(
-						dataset=new_data,
+						dataset=data_xls,
 						namedataset= "new_data",		
 						column="das_year",
 						country=country))
@@ -3154,164 +3162,290 @@ load_series<-function(path,datasource,stage="glass_eel"){
 						namedataset= "new_data",
 						column="das_dts_datasource",
 						country=country))
-		
-		
-		
-		# data_error <- rbind(data_error, check_values(
-		# 				dataset=new_data,					
-		# 				namedataset= "new_data",
-		# 				column="das_dts_datasource",
-		# 				country=country,
-		# 				values=c("dc_2017","wgeel_2016","wgeel_2017","dc_2018","dc_2019","dc_2020","dc_2020_missing")))
-		
-	} 
+	}
+	
+	output <- mapply(
+			fn_check_series,c("new_data","updated_data","deleted_data",
+					"new_group_measures",	"updated_group_measures",	"deleted_group_measures",
+					"new_individual_measures","updated_individual_measures","deleted_individual_measures"),
+			columnlist=list(
+					c("ser_nameshort", "das_year", "das_value", "das_comment", "das_effort"),
+					#TODO check that das_lastupdate and das_dts_datasource are not used
+					c("ser_nameshort",	"das_id",	"das_ser_id",	"das_value",	"das_year",	"das_comment",	"das_effort",	"das_qal_id"),
+					c("ser_nameshort",	"das_id",	"das_ser_id",	"das_value",	"das_year",	"das_comment",	"das_effort",	"das_qal_id"),
+					#TODO check this will change
+					c("ser_nameshort",	"gr_year",	"gr_number",	"g_in_gy_proportion", "s_in_ys_proportion",
+							"lengthmm",	"weightg",	"ageyear",	"female_proportion",	"f_lengthmm",	"f_weightg",	"f_ageyear",
+							"m_lengthmm",	"m_weightg",	"m_ageyear",	"anguillicola_proportion",	"anguillicola_intensity",
+							"muscle_lipid_cont",	"sum_6_pcb",	"evex_proportion",	"hva_proportion",	"pb",	"hg",	"cd",	"comment"),
+					NULL,
+					NULL,
+					NULL,
+					NULL,
+					NULL)
+	
+	)
+)
+
+
+
+
+
+
+# data_error <- rbind(data_error, check_values(
+# 				dataset=new_data,					
+# 				namedataset= "new_data",
+# 				column="das_dts_datasource",
+# 				country=country,
+# 				values=c("dc_2017","wgeel_2016","wgeel_2017","dc_2018","dc_2019","dc_2020","dc_2020_missing")))
+
+} 
 #---------------------- updated data ---------------------------------------------
-	cat("loading updated_data \n")
-	updated_data <- read_excel(
-			path=path,
-			sheet ="updated_data",
-			skip=0)
-	if (ncol(updated_data)!=8) cat(str_c("number column wrong for updated_data, should have been 8 in file from ",country,"\n"))
+
+
+
+
+if (nrow(updated_data)>0) {
 	
+	updated_data$das_dts_datasource <- datasource	
 	
-	if (nrow(updated_data)>0) {
-		
-		updated_data$das_dts_datasource <- datasource	
-		
-		###### ser_nameshort ##############
-		
+	###### ser_nameshort ##############
+	
 # should not have any missing value
-		data_error <- rbind(data_error, check_missing(
-						dataset=updated_data,					
-						namedataset= "updated_data",
-						column="ser_nameshort",
-						country=country))
-		
+	data_error <- rbind(data_error, check_missing(
+					dataset=updated_data,					
+					namedataset= "updated_data",
+					column="ser_nameshort",
+					country=country))
+	
 # check if exists
-		data_error <- rbind(data_error, check_values(
-						dataset=updated_data,					
-						namedataset= "updated_data",
-						column="ser_nameshort",
-						country=country,
-						values=t_series_ser$ser_nameshort))
-		
-		###### das_id ##############
-		
+	data_error <- rbind(data_error, check_values(
+					dataset=updated_data,					
+					namedataset= "updated_data",
+					column="ser_nameshort",
+					country=country,
+					values=t_series_ser$ser_nameshort))
+	
+	###### das_id ##############
+	
 # should not have any missing value
-		
-		data_error <- rbind(data_error, check_missing(
-						dataset=updated_data,					
-						namedataset= "updated_data",
-						column="das_id",
-						country=country))
+	
+	data_error <- rbind(data_error, check_missing(
+					dataset=updated_data,					
+					namedataset= "updated_data",
+					column="das_id",
+					country=country))
 # should be a numeric
-		
-		data_error <- rbind(data_error, check_type(
-						dataset=updated_data,					
-						namedataset= "updated_data",
-						column="das_id",
-						country=country,
-						type="numeric"))	
-		
-		###### das_ser_id ##############
-		
+	
+	data_error <- rbind(data_error, check_type(
+					dataset=updated_data,					
+					namedataset= "updated_data",
+					column="das_id",
+					country=country,
+					type="numeric"))	
+	
+	###### das_ser_id ##############
+	
 # should not have any missing value
-		
-		data_error <- rbind(data_error, check_missing(
-						dataset=updated_data,					
-						namedataset= "updated_data",
-						column="das_ser_id",
-						country=country))
+	
+	data_error <- rbind(data_error, check_missing(
+					dataset=updated_data,					
+					namedataset= "updated_data",
+					column="das_ser_id",
+					country=country))
 # should be a numeric
-		
-		data_error <- rbind(data_error, check_type(
-						dataset=updated_data,					
-						namedataset= "updated_data",
-						column="das_ser_id",
-						country=country,
-						type="numeric"))	
-		
-		###### das_year ##############
-		
+	
+	data_error <- rbind(data_error, check_type(
+					dataset=updated_data,					
+					namedataset= "updated_data",
+					column="das_ser_id",
+					country=country,
+					type="numeric"))	
+	
+	###### das_year ##############
+	
 # should not have any missing value
-		
-		data_error <- rbind(data_error, check_missing(
-						dataset=updated_data,					
-						namedataset= "updated_data",
-						column="das_year",
-						country=country))
+	
+	data_error <- rbind(data_error, check_missing(
+					dataset=updated_data,					
+					namedataset= "updated_data",
+					column="das_year",
+					country=country))
 # should be a numeric
+	
+	data_error <- rbind(data_error, check_type(
+					dataset=updated_data,					
+					namedataset= "updated_data",
+					column="das_year",
+					country=country,
+					type="numeric"))
+	
+	
+	###### das_value ##############
+	
+# should not have any missing value
+	
+	data_error <- rbind(data_error, check_missing(
+					dataset=updated_data,					
+					namedataset= "updated_data",
+					column="das_value",
+					country=country)) 
+	
+# should be a numeric
+	
+	data_error <- rbind(data_error, check_type(
+					dataset=updated_data,					
+					namedataset= "updated_data",
+					column="das_value",
+					country=country,
+					type="numeric"))
+	
+	
+	
+	###### das_dts_datasource ############## 
+	
+	data_error <- rbind(data_error, check_missing(
+					dataset=updated_data,					
+					namedataset= "updated_data",
+					column="das_dts_datasource",
+					country=country))
+	
+	# data_error <- rbind(data_error, check_values(
+	# 				dataset=updated_data,					
+	# 				namedataset= "updated_data",
+	# 				column="das_dts_datasource",
+	# 				country=country,
+	# 				values=c("dc_2017","wgeel_2016","wgeel_2017","dc_2018","dc_2019","dc_2020","dc_2020_missing")))
+	
+} 
+#---------------------- new group_measure ---------------------------------------------
+cat("loading new_group_measure \n")
+new_group_measure <- read_excel(
+		path=path,
+		sheet ="new_group_measure",
+		skip=0)
+if (ncol(new_group_measure)!=24) cat(str_c("number column wrong for new_group_measure, should have been 19 in file from ",country,"\n"))
+
+if (nrow(new_group_measure)>0) {
+	# create two tables, one for quality one for group_measure
+	new_group_measure$meg_dts_datasource <- datasource
+	
+	###### ser_nameshort ##############
+	
+# should not have any missing value
+	data_error <- rbind(data_error, check_missing(
+					dataset=new_group_measure,					
+					namedataset= "new_group_measure",
+					column="ser_nameshort",
+					country=country))
+	
+# check if exists
+	data_error <- rbind(data_error, check_values(
+					dataset=new_group_measure,					
+					namedataset= "new_group_measure",
+					column="ser_nameshort",
+					country=country,
+					values=t_series_ser$ser_nameshort))
+	
+	
+	###### bio_year ##############
+	
+# should not have any missing value
+	
+	data_error <- rbind(data_error, check_missing(
+					dataset=new_group_measure,				
+					namedataset= "new_group_measure",
+					column="bio_year",
+					country=country))
+# should be a numeric
+	
+	data_error <- rbind(data_error, check_type(
+					dataset=new_group_measure,				
+					namedataset= "new_group_measure",
+					column="bio_year",
+					country=country,
+					type="numeric"))
+	
+	
+	data_error <- rbind(data_error, check_all_missing(
+					dataset=new_group_measure,				
+					namedataset= "new_group_measure",
+					column=c('bio_length',
+							'bio_weight',
+							'bio_age',
+							'bio_perc_female',
+							'bio_length_f',
+							'bio_weight_f',
+							'bio_age_f',
+							'bio_length_m',
+							'bio_weight_m',
+							'bio_age_m'),
+					country=country))
+	
+	
+	###### bio_dts_datasource ############## 
+	
+	data_error <- rbind(data_error, check_missing(
+					dataset=new_group_measure,				
+					namedataset= "new_group_measure",
+					column="bio_dts_datasource",
+					country=country))
+	
+	# data_error <- rbind(data_error, check_values(
+	# 				dataset=new_group_measure,				
+	# 				namedataset= "new_group_measure",
+	# 				column="bio_dts_datasource",
+	# 				country=country,
+	# 				values=c("dc_2017","wgeel_2016","wgeel_2017","dc_2018","dc_2019","dc_2020","dc_2020_missing")))
+	
+} 
+
+#---------------------- updated group_measure ---------------------------------------------
+# NOTE 2020 this should be for 2021 datacall, in 2020 no updated_group_measure sheet
+
+if ("updated_group_measure" %in% excel_sheets(path)) {
+	
+	cat("loading updated_group_measure \n")
+	updated_group_measure <- read_excel(
+			path = path,
+			sheet = "updated_group_measure",
+			skip = 0)
+	if (ncol(updated_group_measure)!=19) cat(str_c("number column wrong for updated_group_measure, should have been 19 in file from ",country,"\n"))
+	
+	
+	if (nrow(updated_group_measure)>0){
+		updated_group_measure$bio_dts_datasource <- datasource
 		
+		###### bio_id ##############
+		
+		# should not have any missing value
+		data_error <- rbind(data_error, check_missing(
+						dataset=updated_group_measure,					
+						namedataset= "updated_group_measure",
+						column="bio_id",
+						country=country))
+		
+		# check if numeric
 		data_error <- rbind(data_error, check_type(
-						dataset=updated_data,					
-						namedataset= "updated_data",
-						column="das_year",
+						dataset=updated_group_measure,					
+						namedataset= "updated_group_measure",
+						column="bio_id",
 						country=country,
 						type="numeric"))
 		
-		
-		###### das_value ##############
-		
-# should not have any missing value
-		
-		data_error <- rbind(data_error, check_missing(
-						dataset=updated_data,					
-						namedataset= "updated_data",
-						column="das_value",
-						country=country)) 
-		
-# should be a numeric
-		
-		data_error <- rbind(data_error, check_type(
-						dataset=updated_data,					
-						namedataset= "updated_data",
-						column="das_value",
-						country=country,
-						type="numeric"))
-		
-		
-		
-		###### das_dts_datasource ############## 
-		
-		data_error <- rbind(data_error, check_missing(
-						dataset=updated_data,					
-						namedataset= "updated_data",
-						column="das_dts_datasource",
-						country=country))
-		
-		# data_error <- rbind(data_error, check_values(
-		# 				dataset=updated_data,					
-		# 				namedataset= "updated_data",
-		# 				column="das_dts_datasource",
-		# 				country=country,
-		# 				values=c("dc_2017","wgeel_2016","wgeel_2017","dc_2018","dc_2019","dc_2020","dc_2020_missing")))
-		
-	} 
-#---------------------- new biometry ---------------------------------------------
-	cat("loading new_biometry \n")
-	new_biometry <- read_excel(
-			path=path,
-			sheet ="new_biometry",
-			skip=0)
-	if (ncol(new_biometry)!=24) cat(str_c("number column wrong for new_biometry, should have been 19 in file from ",country,"\n"))
-	
-	if (nrow(new_biometry)>0) {
-		# create two tables, one for quality one for biometry
-		new_biometry$bio_dts_datasource <- datasource
-		
 		###### ser_nameshort ##############
 		
-# should not have any missing value
+		# should not have any missing value
 		data_error <- rbind(data_error, check_missing(
-						dataset=new_biometry,					
-						namedataset= "new_biometry",
+						dataset=updated_group_measure,					
+						namedataset= "updated_group_measure",
 						column="ser_nameshort",
 						country=country))
 		
-# check if exists
+		# check if exists
 		data_error <- rbind(data_error, check_values(
-						dataset=new_biometry,					
-						namedataset= "new_biometry",
+						dataset=updated_group_measure,					
+						namedataset= "updated_group_measure",
 						column="ser_nameshort",
 						country=country,
 						values=t_series_ser$ser_nameshort))
@@ -3319,26 +3453,26 @@ load_series<-function(path,datasource,stage="glass_eel"){
 		
 		###### bio_year ##############
 		
-# should not have any missing value
+		# should not have any missing value
 		
 		data_error <- rbind(data_error, check_missing(
-						dataset=new_biometry,				
-						namedataset= "new_biometry",
+						dataset=updated_group_measure,				
+						namedataset= "updated_group_measure",
 						column="bio_year",
 						country=country))
-# should be a numeric
+		# should be a numeric
 		
 		data_error <- rbind(data_error, check_type(
-						dataset=new_biometry,				
-						namedataset= "new_biometry",
+						dataset=new_group_measure,				
+						namedataset= "updated_group_measure",
 						column="bio_year",
 						country=country,
 						type="numeric"))
 		
 		
 		data_error <- rbind(data_error, check_all_missing(
-						dataset=new_biometry,				
-						namedataset= "new_biometry",
+						dataset=updated_group_measure,				
+						namedataset= "updated_group_measure",
 						column=c('bio_length',
 								'bio_weight',
 								'bio_age',
@@ -3355,222 +3489,124 @@ load_series<-function(path,datasource,stage="glass_eel"){
 		###### bio_dts_datasource ############## 
 		
 		data_error <- rbind(data_error, check_missing(
-						dataset=new_biometry,				
-						namedataset= "new_biometry",
+						dataset=updated_group_measure,				
+						namedataset= "updated_group_measure",
 						column="bio_dts_datasource",
 						country=country))
 		
 		# data_error <- rbind(data_error, check_values(
-		# 				dataset=new_biometry,				
-		# 				namedataset= "new_biometry",
+		# 				dataset=updated_group_measure,				
+		# 				namedataset= "updated_group_measure",
 		# 				column="bio_dts_datasource",
 		# 				country=country,
 		# 				values=c("dc_2017","wgeel_2016","wgeel_2017","dc_2018","dc_2019","dc_2020","dc_2020_missing")))
 		
-	} 
-	
-#---------------------- updated biometry ---------------------------------------------
-# NOTE 2020 this should be for 2021 datacall, in 2020 no updated_biometry sheet
-	
-	if ("updated_biometry" %in% excel_sheets(path)) {
+		updated_group_measure$bio_dts_datasource <- datasource
 		
-		cat("loading updated_biometry \n")
-		updated_biometry <- read_excel(
-				path = path,
-				sheet = "updated_biometry",
-				skip = 0)
-		if (ncol(updated_biometry)!=19) cat(str_c("number column wrong for updated_biometry, should have been 19 in file from ",country,"\n"))
+		###### bio_id ##############
+		
+		# should not have any missing value
+		data_error <- rbind(data_error, check_missing(
+						dataset=updated_group_measure,					
+						namedataset= "updated_group_measure",
+						column="bio_id",
+						country=country))
+		
+		# check if numeric
+		data_error <- rbind(data_error, check_type(
+						dataset=updated_group_measure,					
+						namedataset= "updated_group_measure",
+						column="bio_id",
+						country=country,
+						type="numeric"))
+		
+		###### ser_nameshort ##############
+		
+		# should not have any missing value
+		data_error <- rbind(data_error, check_missing(
+						dataset=updated_group_measure,					
+						namedataset= "updated_group_measure",
+						column="ser_nameshort",
+						country=country))
+		
+		# check if exists
+		data_error <- rbind(data_error, check_values(
+						dataset=updated_group_measure,					
+						namedataset= "updated_group_measure",
+						column="ser_nameshort",
+						country=country,
+						values=t_series_ser$ser_nameshort))
 		
 		
-		if (nrow(updated_biometry)>0){
-			updated_biometry$bio_dts_datasource <- datasource
-			
-			###### bio_id ##############
-			
-			# should not have any missing value
-			data_error <- rbind(data_error, check_missing(
-							dataset=updated_biometry,					
-							namedataset= "updated_biometry",
-							column="bio_id",
-							country=country))
-			
-			# check if numeric
-			data_error <- rbind(data_error, check_type(
-							dataset=updated_biometry,					
-							namedataset= "updated_biometry",
-							column="bio_id",
-							country=country,
-							type="numeric"))
-			
-			###### ser_nameshort ##############
-			
-			# should not have any missing value
-			data_error <- rbind(data_error, check_missing(
-							dataset=updated_biometry,					
-							namedataset= "updated_biometry",
-							column="ser_nameshort",
-							country=country))
-			
-			# check if exists
-			data_error <- rbind(data_error, check_values(
-							dataset=updated_biometry,					
-							namedataset= "updated_biometry",
-							column="ser_nameshort",
-							country=country,
-							values=t_series_ser$ser_nameshort))
-			
-			
-			###### bio_year ##############
-			
-			# should not have any missing value
-			
-			data_error <- rbind(data_error, check_missing(
-							dataset=updated_biometry,				
-							namedataset= "updated_biometry",
-							column="bio_year",
-							country=country))
-			# should be a numeric
-			
-			data_error <- rbind(data_error, check_type(
-							dataset=new_biometry,				
-							namedataset= "updated_biometry",
-							column="bio_year",
-							country=country,
-							type="numeric"))
-			
-			
-			data_error <- rbind(data_error, check_all_missing(
-							dataset=updated_biometry,				
-							namedataset= "updated_biometry",
-							column=c('bio_length',
-									'bio_weight',
-									'bio_age',
-									'bio_perc_female',
-									'bio_length_f',
-									'bio_weight_f',
-									'bio_age_f',
-									'bio_length_m',
-									'bio_weight_m',
-									'bio_age_m'),
-							country=country))
-			
-			
-			###### bio_dts_datasource ############## 
-			
-			data_error <- rbind(data_error, check_missing(
-							dataset=updated_biometry,				
-							namedataset= "updated_biometry",
-							column="bio_dts_datasource",
-							country=country))
-			
-			# data_error <- rbind(data_error, check_values(
-			# 				dataset=updated_biometry,				
-			# 				namedataset= "updated_biometry",
-			# 				column="bio_dts_datasource",
-			# 				country=country,
-			# 				values=c("dc_2017","wgeel_2016","wgeel_2017","dc_2018","dc_2019","dc_2020","dc_2020_missing")))
-			
-			updated_biometry$bio_dts_datasource <- datasource
-			
-			###### bio_id ##############
-			
-			# should not have any missing value
-			data_error <- rbind(data_error, check_missing(
-							dataset=updated_biometry,					
-							namedataset= "updated_biometry",
-							column="bio_id",
-							country=country))
-			
-			# check if numeric
-			data_error <- rbind(data_error, check_type(
-							dataset=updated_biometry,					
-							namedataset= "updated_biometry",
-							column="bio_id",
-							country=country,
-							type="numeric"))
-			
-			###### ser_nameshort ##############
-			
-			# should not have any missing value
-			data_error <- rbind(data_error, check_missing(
-							dataset=updated_biometry,					
-							namedataset= "updated_biometry",
-							column="ser_nameshort",
-							country=country))
-			
-			# check if exists
-			data_error <- rbind(data_error, check_values(
-							dataset=updated_biometry,					
-							namedataset= "updated_biometry",
-							column="ser_nameshort",
-							country=country,
-							values=t_series_ser$ser_nameshort))
-			
-			
-			###### bio_year ##############
-			
-			# should not have any missing value
-			
-			data_error <- rbind(data_error, check_missing(
-							dataset=updated_biometry,				
-							namedataset= "updated_biometry",
-							column="bio_year",
-							country=country))
-			# should be a numeric
-			
-			data_error <- rbind(data_error, check_type(
-							dataset=updated_biometry,				
-							namedataset= "updated_biometry",
-							column="bio_year",
-							country=country,
-							type="numeric"))
-			
-			
-			data_error <- rbind(data_error, check_all_missing(
-							dataset=updated_biometry,				
-							namedataset= "updated_biometry",
-							column=c('bio_length',
-									'bio_weight',
-									'bio_age',
-									'bio_perc_female',
-									'bio_length_f',
-									'bio_weight_f',
-									'bio_age_f',
-									'bio_length_m',
-									'bio_weight_m',
-									'bio_age_m'),
-							country=country))
-			
-			
-			###### bio_dts_datasource ############## 
-			
-			data_error <- rbind(data_error, check_missing(
-							dataset=updated_biometry,				
-							namedataset= "updated_biometry",
-							column="bio_dts_datasource",
-							country=country))
-			
-			# data_error <- rbind(data_error, check_values(
-			# 				dataset=updated_biometry,				
-			# 				namedataset= "updated_biometry",
-			# 				column="bio_dts_datasource",
-			# 				country=country,
-			# 				values=c("dc_2017","wgeel_2016","wgeel_2017","dc_2018","dc_2019","dc_2020","dc_2020_missing")))
-			
-		}
-	} else updated_biometry <- NULL
-	
-	
-	return(invisible(list(
-							series=series,
-							station = station,
-							new_data=new_data,
-							updated_data=updated_data,
-							new_biometry=new_biometry,
-							updated_biometry=updated_biometry,
-							t_series_ser=t_series_ser,
-							error=data_error,
-							the_metadata=the_metadata))) 
+		###### bio_year ##############
+		
+		# should not have any missing value
+		
+		data_error <- rbind(data_error, check_missing(
+						dataset=updated_group_measure,				
+						namedataset= "updated_group_measure",
+						column="bio_year",
+						country=country))
+		# should be a numeric
+		
+		data_error <- rbind(data_error, check_type(
+						dataset=updated_group_measure,				
+						namedataset= "updated_group_measure",
+						column="bio_year",
+						country=country,
+						type="numeric"))
+		
+		
+		data_error <- rbind(data_error, check_all_missing(
+						dataset=updated_group_measure,				
+						namedataset= "updated_group_measure",
+						column=c('bio_length',
+								'bio_weight',
+								'bio_age',
+								'bio_perc_female',
+								'bio_length_f',
+								'bio_weight_f',
+								'bio_age_f',
+								'bio_length_m',
+								'bio_weight_m',
+								'bio_age_m'),
+						country=country))
+		
+		
+		###### bio_dts_datasource ############## 
+		
+		data_error <- rbind(data_error, check_missing(
+						dataset=updated_group_measure,				
+						namedataset= "updated_group_measure",
+						column="bio_dts_datasource",
+						country=country))
+		
+		# data_error <- rbind(data_error, check_values(
+		# 				dataset=updated_group_measure,				
+		# 				namedataset= "updated_group_measure",
+		# 				column="bio_dts_datasource",
+		# 				country=country,
+		# 				values=c("dc_2017","wgeel_2016","wgeel_2017","dc_2018","dc_2019","dc_2020","dc_2020_missing")))
+		
+	}
+} else updated_group_measure <- NULL
+
+
+return(invisible(list(
+						series=series,
+						station = station,
+						new_data=new_data,
+						updated_data=updated_data,
+						deleted_data=deleted_data, # TODO
+						new_group_measures=new_group_measures,
+						updated_group_measures=updated_group_measures,
+						deleted_group_measures=deleted_group_measures,
+						new_individual_measures=new_individual_measures,
+						updated_individual_measures=updated_individual_measures,
+						deleted_individual_measures=deleted_individual_measures,
+						t_series_ser=t_series_ser,
+						error=data_error,
+						the_metadata=the_metadata))) 
 }
 
 # -------------------------------------------------------------				
@@ -3830,6 +3866,6 @@ load_dcf<-function(path,datasource){
 			})
 	data_error=rbind.data.frame(output[[1]]$error,output[[2]]$error,output[[3]]$error)
 	return(invisible(list(data=output[[1]]$data,updated_data=output[[2]]$data,deleted_data=output[[3]]$data,
-	                      error=data_error,the_metadata=the_metadata))) 
+							error=data_error,the_metadata=the_metadata))) 
 }
 
