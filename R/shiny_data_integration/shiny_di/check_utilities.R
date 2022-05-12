@@ -75,7 +75,7 @@ check_values <- function(dataset,namedataset, column,country,values){
   answer = NULL
 	namedataset <-  deparse(substitute(dataset))
   newdataset <- dataset
-  newdataset$nline <- 1:nrow(newdataset)
+	tibble::rowid_to_column(newdataset, "nline" )
   # remove NA from data
   ddataset <- as.data.frame(newdataset[!is.na(newdataset[,column]),])
   if (nrow(ddataset)>0){ 
