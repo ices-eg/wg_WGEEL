@@ -312,7 +312,7 @@ CREATE TABLE datawg.t_metricindseries_meiser (
 
 
 DROP TABLE IF EXISTS datawg.t_metricindsamp_meisa CASCADE;
-CREATE TABLE datawg.t_metricind_mei (
+CREATE TABLE datawg.t_metricindsamp_meisa (
   CONSTRAINT c_fk_meisa_fi_id FOREIGN KEY (mei_fi_id) REFERENCES datawg.t_fishsamp_fisa(fi_id) ON UPDATE CASCADE ON DELETE CASCADE,
   CONSTRAINT c_fk_meisa_mty_id FOREIGN KEY (mei_mty_id) REFERENCES "ref".tr_metrictype_mty(mty_id) ON UPDATE CASCADE,
   CONSTRAINT c_fk_meisa_qal_id FOREIGN KEY (mei_qal_id) REFERENCES "ref".tr_quality_qal(qal_id) ON UPDATE CASCADE,
@@ -323,7 +323,7 @@ CREATE TABLE datawg.t_metricind_mei (
 
 
 DROP TABLE IF EXISTS datawg.t_metricindseries_meiser CASCADE;
-CREATE TABLE datawg.t_metricind_mei (
+CREATE TABLE datawg.t_metricindseries_meiser (
   CONSTRAINT c_fk_meiser_fi_id FOREIGN KEY (mei_fi_id) REFERENCES datawg.t_fishseries_fiser(fi_id) ON UPDATE CASCADE ON DELETE CASCADE,
   CONSTRAINT c_fk_meiser_mty_id FOREIGN KEY (mei_mty_id) REFERENCES "ref".tr_metrictype_mty(mty_id) ON UPDATE CASCADE,
   CONSTRAINT c_fk_meiser_qal_id FOREIGN KEY (mei_qal_id) REFERENCES "ref".tr_quality_qal(qal_id) ON UPDATE CASCADE,
