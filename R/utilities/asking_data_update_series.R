@@ -4,6 +4,7 @@
 # Author Cedric Briand
 # This script will create an excel sheet per country that currently have recruitment series
 #######################################################################################
+library(readxl)
 # put the current year there
 CY<-2021
 # function to load packages if not available
@@ -220,8 +221,16 @@ create_datacall_file_series <- function(country, name, ser_typ_id){
 	if (nrow(dat)> 0){
 		dat[,"das_comment"]<-iconv(dat[,"das_comment"],from="UTF-8",to="latin1")
 		#openxlsx::writeData(wb, sheet = "existing_data", dat, startRow = 1)
-		writeWorksheet(wb, dat,  sheet = "existing_data")
+		writeWorksheet(wb %>% filter(!is.na(das_gal_id)), dat,  sheet = "existing_data")
 	}
+	
+	#put data where das_qal_id is missing into updated_data
+	if (nrow(dat)> 0){
+	  dat[,"das_comment"]<-iconv(dat[,"das_comment"],from="UTF-8",to="latin1")
+	  #openxlsx::writeData(wb, sheet = "existing_data", dat, startRow = 1)
+	  writeWorksheet(wb %>% filter(!s.na(das_gal_id)), dat,  sheet = "updated_data")
+	}
+	
 	
 # new data ----------------------------------------------------
 # extract missing data from CY-10
@@ -243,58 +252,130 @@ create_datacall_file_series <- function(country, name, ser_typ_id){
 			writeWorksheet(wb, new_data,  sheet = "new_data")
 		}
 	}
-# biometry data existing ------------------------------------------
 	
 	
-	biom0 <- dbGetQuery(con,str_c("select 
-							bio_id,
-							ser_nameshort, 
-							bio_year,
-							bio_length,
-							bio_weight,
-							bio_age,
-							bio_perc_female,
-							bio_length_f,
-							bio_weight_f,
-							bio_age_f,
-							bio_length_m,
-							bio_weight_m,
-							bio_age_m,
-							bio_comment,
-							bio_last_update,
-							bio_qal_id,
-							bio_number,
-							bis_g_in_gy,
-							bis_ser_id
-							FROM datawg.t_series_ser  
-							LEFT JOIN datawg.t_biometry_series_bis ON ser_id = bis_ser_id",					
-					" WHERE ser_typ_id=",ser_typ_id,
-					" AND ser_cou_code='",country,"'",
-					" ORDER BY bis_ser_id, bio_year  ASC"))
+# group biometry data existing  ------------------------------------------
 	
-	biom <- biom0[!is.na(biom0$bio_year),]
-	if (nrow(biom)> 0){	
+	
+	groups <- dbGetQuery(con,str_c("select 
+	gr_id,
+	ser_nameshort,
+	gr_year,
+	gr_number,
+	gr_dts_datasource,
+	grser_ser_id ",
+  "FROM datawg.t_groupseries_grser LEFT JOIN datawg.t_series_ser ON ser_id = grser_ser_id",					
+  " WHERE ser_typ_id=",ser_typ_id,
+  " AND ser_cou_code='",country,"'",
+  " ORDER BY ser_id, gr_year, gr_id  ASC"))
+	
+	metrics <- dbGetQuery(con, str_c("select gr_id, 
+  mty_name,
+  meg_value
+	FROM datawg.t_metricgroupseries_megser LEFT JOIN datawg.t_groupseries_grser on gr_id=meg_gr_id
+	LEFT JOIN ref.tr_metrictype_mty on mty_id=meg_mty_id ",
+	" LEFT JOIN datawg.t_series_ser ON ser_id = grser_ser_id ",
+	" WHERE ser_typ_id=",ser_typ_id,
+  " AND ser_cou_code='",country,"'",
+  " ORDER BY ser_id, gr_year, gr_id  ASC"))
+
+	#read the existing data template to have the correct format
+	formatted_table <- read_xls(templatefile,"existing_group_measures")
+	
+	existing_metric <- bind_rows(formatted_table,
+	                             groups %>%
+	                               left_join(metrics) %>%
+	                               tidyr::pivot_wider(names_from=mty_name,
+	                                                  values_from=meg_value) %>%
+	                               arrange(ser_nameshort,gr_year,gr_id))
+	  
+	
+
+	existing_metric <- existing_metric[!is.na(existing_metric$gr_year),]
+	if (nrow(existing_metric)> 0){	
 		#openxlsx::writeData(wb, sheet = "existing_biometry", biom, startRow = 1)
-		writeWorksheet(wb, biom,  sheet = "existing_biometry")
+		writeWorksheet(wb, biom,  sheet = "existing_group_measures")
 	} 
 	
 	
-# biometry data new data ------------------------------------------
+	# group biometry data new data ------------------------------------------
 	
 	
-	if (nrow(biom0) >0 ){
-		newbiom <- biom0 %>% 
-				dplyr::mutate_at(.vars="bio_year",tidyr::replace_na,replace=CY-1) %>%
-				dplyr::filter(bio_year>=(CY-10)) %>%
-				tidyr::complete(ser_nameshort,bio_year=(CY-10):CY) %>%
-				dplyr::filter(is.na(bio_length) & is.na(bio_weight) & is.na(bio_age) & is.na(bis_g_in_gy)) %>%
-				dplyr::arrange(ser_nameshort, bio_year)
-		
-		if (nrow(newbiom)>0) {
-			#openxlsx::writeData(wb, sheet = "new_biometry", newbiom, startRow = 1)
-			writeWorksheet(wb, newbiom,  sheet = "new_biometry")	
-		}
+	if (nrow(existing_metric) >0 ){
+	  newbiom <- existing_metric %>% 
+	    dplyr::mutate_at(.vars="gr_year",tidyr::replace_na,replace=CY-1) %>%
+	    dplyr::filter(gr_year>=(CY-10)) %>%
+	    tidyr::complete(ser_nameshort,gr_year=(CY-10):CY) %>%
+	    dplyr::filter(0==rowSums(!is.na(. %>% select(-gr_id,-ser_nameshort,-gr_year,-gr_number,-gr_dts_datasource,-grser_ser_id)))) %>%
+	    dplyr::arrange(ser_nameshort, gr_year)
+	  
+	  if (nrow(newbiom)>0) {
+	    #openxlsx::writeData(wb, sheet = "new_biometry", newbiom, startRow = 1)
+	    writeWorksheet(wb, newbiom,  sheet = "new_group_measures")	
+	  }
 	}
+	
+	
+	# individual biometry data existing  ------------------------------------------
+	
+	
+	fishes <- dbGetQuery(con,str_c("select 
+	fi_id,
+	ser_nameshort,
+	fi_year,
+	fi_dts_datasource,
+	fiser_ser_id ",
+	                               "FROM datawg.t_fishseries_fiser LEFT JOIN datawg.t_series_ser ON ser_id = fiser_ser_id",					
+	                               " WHERE ser_typ_id=",ser_typ_id,
+	                               " AND ser_cou_code='",country,"'",
+	                               " ORDER BY ser_id, gr_year, gr_id  ASC"))
+	
+	metrics <- dbGetQuery(con, str_c("select fi_id, 
+  mty_name,
+  meg_value
+	FROM datawg t_metricindseries_meiser LEFT JOIN datawg.t_fishseries_grser on fi_id=mei_gr_id
+	LEFT JOIN ref.tr_metrictype_mty on mty_id=mei_mty_id",
+  " LEFT JOIN datawg.t_series_ser ON ser_id = fiser_ser_id ",
+  " WHERE ser_typ_id=",ser_typ_id,
+  " AND ser_cou_code='",country,"'",
+  " ORDER BY ser_id, fi_year, fi_id  ASC"))
+	
+	#read the existing data template to have the correct format
+	formatted_table <- read_xls(templatefile,"existing_individual_measures")
+	
+	existing_metric <- bind_rows(formatted_table,
+	                             fishes %>%
+	                               left_join(metrics) %>%
+	                               tidyr::pivot_wider(names_from=mty_name,
+	                                                  values_from=mei_val) %>%
+	                               arrange(ser_nameshort,fi_year,fi_id))
+	
+	
+	
+	existing_metric <- existing_metric[!is.na(existing_metric$fi_year),]
+	if (nrow(existing_metric)> 0){	
+	  #openxlsx::writeData(wb, sheet = "existing_biometry", biom, startRow = 1)
+	  writeWorksheet(wb, biom,  sheet = "existing_individual_measures")
+	} 
+	
+	
+	# individual biometry data new data ------------------------------------------
+	
+	
+	if (nrow(existing_metric) >0 ){
+	  newbiom <- existing_metric %>% 
+	    dplyr::mutate_at(.vars="fi_year",tidyr::replace_na,replace=CY-1) %>%
+	    dplyr::filter(fi_year>=(CY-10)) %>%
+	    tidyr::complete(ser_nameshort,fi_year=(CY-10):CY) %>%
+	    dplyr::filter(0==rowSums(!is.na(. %>% select(-fi_id,-ser_nameshort,-fi_year,-fi_dts_datasource,-fiser_ser_id)))) %>%
+	    dplyr::arrange(ser_nameshort, fi_year)
+	  
+	  if (nrow(newbiom)>0) {
+	    #openxlsx::writeData(wb, sheet = "new_biometry", newbiom, startRow = 1)
+	    writeWorksheet(wb, newbiom,  sheet = "new_individual_measures")	
+	  }
+	}
+	
 	
 # maps ---------------------------------------------------------------
 #st_crs(ccm) 
