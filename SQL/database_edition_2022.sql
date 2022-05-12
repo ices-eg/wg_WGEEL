@@ -150,7 +150,6 @@ CREATE TABLE datawg.t_sampinginfo_sai(
   sai_emu_nameshort VARCHAR(20),
   sai_area_division VARCHAR(254),
   sai_comment TEXT, -- this could be DCF ... other CHECK IF we need a referential TABLE....
-  sai_year INTEGER,
   sai_samplingobjective TEXT,
   sai_metadata TEXT, -- this must contain information TO rebuild the stratification scheme rename ?
   sai_qal_id INTEGER, 
@@ -822,6 +821,13 @@ insert into ref.tr_emusplit_ems (emu_nameshort,emu_name,emu_cou_code,emu_hyd_sys
 (select 'DK_Mari' emu_nameshort,'Danish coastal and marine waters' emu_name,e.emu_cou_code,e.emu_hyd_syst_s,e.emu_sea,e.emu_cty_id,e.meu_dist_sargasso_km from ref.tr_emusplit_ems e where e.emu_nameshort ='DK_Inla')
 
 commit; 
+
+
+----
+--preparation for data integration
+----
+insert into ref.tr_quality_qal values (22, 'discarded_wgeel_2022', 'This data has either been removed from the database in favour of new data, or corresponds to new data not kept in the database during datacall 2022', false);
+insert into ref.tr_datasource_dts values ('dc_2022', 'Joint EIFAAC/GFCM/ICES Eel Data Call 2022');
 
 
 
