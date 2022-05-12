@@ -43,7 +43,7 @@ load_package("shinyBS")
 load_package("leaflet")
 load_package("shinytoastr")
 load_package("tibble")
-
+load_package("purrr") 
 options(shiny.sanitize.errors = FALSE)
 
 #----------------------
