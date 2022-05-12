@@ -4,7 +4,12 @@
 # Author Cedric Briand
 # This script will create an excel sheet per country that currently have recruitment series
 #######################################################################################
+<<<<<<< Upstream, based on origin/master
 library(readxl)
+=======
+
+# TODO USE bind_rows
+>>>>>>> 4bde137 fix: changed names measure to metrics
 # put the current year there
 CY<-2022
 # function to load packages if not available

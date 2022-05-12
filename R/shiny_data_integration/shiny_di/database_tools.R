@@ -530,7 +530,7 @@ compare_with_database_dataseries <- function(data_from_excel, data_from_base, sh
 	return(list(new = new, modified=modified, highlight_change=highlight_change, error_id_message=error_id_message))
 }
 
-#' @title compare with database measuregroup
+#' @title compare with database metricsgroup
 #' @description This function loads the data from the database and compare it with data
 #' loaded from excel
 #' @param data_from_excel Dataset loaded from excel
@@ -548,10 +548,10 @@ compare_with_database_dataseries <- function(data_from_excel, data_from_base, sh
 #' data_from_excel <- read_excel(path=path,	sheet ="new_biometry",	skip=0) 
 #' data_from_base <- extract_data('t_biometry_series_bis',quality_check=FALSE)
 #' series <- extract_data('t_series_ser',quality_check=FALSE)
-#' list_comp <- compare_with_database_measure_group(data_from_excel,data_from_base)
+#' list_comp <- compare_with_database_metrics_group(data_from_excel,data_from_base)
 #'  }
 #' }
-compare_with_database_measure_group <- function(data_from_excel, data_from_base, sheetorigin="new_data") {
+compare_with_database_metrics_group <- function(data_from_excel, data_from_base, sheetorigin="new_data") {
 	# data integrity checks
 	if (nrow(data_from_excel) == 0) 
 		validate(need(FALSE,"There are no data coming from the excel file"))
@@ -652,7 +652,7 @@ compare_with_database_measure_group <- function(data_from_excel, data_from_base,
 	return(list(new = new, modified=modified, highlight_change=highlight_change))
 }
 
-compare_with_database_measure_ind <- function(data_from_excel, data_from_base, sheetorigin="new_data") {}
+compare_with_database_metrics_ind <- function(data_from_excel, data_from_base, sheetorigin="new_data") {}
 
 #' @title write duplicated results into the database
 #' @description Values kept from the datacall will be inserted, old values from the database
