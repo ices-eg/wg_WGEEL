@@ -296,6 +296,7 @@ create_datacall_file_series <- function(country, name, ser_typ_id, type="series"
 	metrics <- dbGetQuery(con, str_c(
 	"select fi_id, 
   mty_name,
+  mty_individual_name,
   meg_value
 	FROM ",
 	ifelse(type=="series",
@@ -308,7 +309,9 @@ create_datacall_file_series <- function(country, name, ser_typ_id, type="series"
 	ifelse(type=="series",str_c("ser_cou_code='",country,"'"),str_c("sai_cou_code='",country,"'")),
 	" ORDER BY ",
 	ifelse(type=="series","ser_id", "sai_id"),
-	" fi_year, fi_id  ASC"))
+	" fi_year, fi_id  ASC")) %>%
+	  mutate(mty_name=ifelse(is.na(mty_individual_name),mty_name,mty_individual_name)) %>%
+	  select(-mty_individual_name)
 	
 	#read the existing data template to have the correct format
 	formatted_table <- read_xls(templatefile,"existing_individual_metrics")
