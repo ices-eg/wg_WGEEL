@@ -2329,6 +2329,7 @@ load_series<-function(path,datasource, stage="glass_eel"){
 #    data_xls <- correct_me(data_xls)
 		
 		# check for the file integrity		
+
 		# check column names for each sheet
 		fn_check_columns <- function(data,columns,file,nbcol){	
 			if (ncol(data_xls)!=nbcol) cat(sprintf("%s : number column wrong currently %s should have been %s in file  %s,\n",sheet,ncol(data_xls),nbcol,file))
@@ -2392,12 +2393,22 @@ load_series<-function(path,datasource, stage="glass_eel"){
 								})))
 		
 		# id columns in updated and deleted data should be present
+<<<<<<< HEAD
 		# the deletion is done at the group level or fish level, for update we will check for changes in the table
+=======
+    # the deletion is done at the group level or fish level, for update we will check for changes in the table
+>>>>>>> branch '205-shiny-integration-for-dcf-data' of https://github.com/ices-eg/wg_WGEEL
 		
 		data_error <- rbind(data_error, 
+<<<<<<< HEAD
 				purrr::flatten(lapply(c("das_id",
 										"fi_id",
 										"big_id"
+=======
+				lapply(c("das_id",
+								"fi_id",
+								"big_id",
+>>>>>>> branch '205-shiny-integration-for-dcf-data' of https://github.com/ices-eg/wg_WGEEL
 								),			
 								function(name_column){
 									if  (name_column %in% colnames(data_xls) & (grepl("deleted", sheet) | grepl("updated", sheet))){	
@@ -2431,9 +2442,15 @@ load_series<-function(path,datasource, stage="glass_eel"){
 				"new_group_metrics"="gr_year",
 				"updated_group_metrics"="gr_year",
 				"deleted_group_metrics"="gr_year",
+<<<<<<< HEAD
 				"new_individual_metrics"=NULL,
 				"updated_individual_metrics"=NULL,
 				"deleted_individual_metrics"=NULL
+=======
+				"new_individual_metrics"="fiser_year",
+				"updated_individual_metrics"="fiser_year",
+				"deleted_individual_metrics"="fiser_year"
+>>>>>>> branch '205-shiny-integration-for-dcf-data' of https://github.com/ices-eg/wg_WGEEL
 		)
 		if (!is.null(column_year)){
 			data_error <- rbind(data_error, check_missing(
@@ -2560,6 +2577,7 @@ load_series<-function(path,datasource, stage="glass_eel"){
 		return(list(data=data_xls,error=data_error))
 	}			
 	new_data <- fn_check_series("new_data", 
+<<<<<<< HEAD
 			columns=c("ser_nameshort", "das_year", "das_value", "das_comment", "das_effort"), 
 			nbcol=5)	
 	
@@ -2621,6 +2639,55 @@ load_series<-function(path,datasource, stage="glass_eel"){
 							t_series_ser = t_series_ser, 
 							error =data_error,
 							the_metadata =the_metadata))) 
+=======
+	columns=c("ser_nameshort", "das_year", "das_value", "das_comment", "das_effort"), 
+	nbcol=5, 
+	country=country, 
+	file=file)	
+  
+#		sheet <- list("updated_data","deleted_data",
+#			"new_group_metrics",	"updated_group_metrics",	"deleted_group_metrics",
+#			"new_individual_metrics","updated_individual_metrics","deleted_individual_metrics")
+#		columns <- list(
+#					c("ser_nameshort", "das_year", "das_value", "das_comment", "das_effort"),
+#					#TODO check that das_lastupdate and das_dts_datasource are not used
+#					c("ser_nameshort",	"das_id",	"das_ser_id",	"das_value",	"das_year",	"das_comment",	"das_effort",	"das_qal_id"),
+#					c("ser_nameshort",	"das_id",	"das_ser_id",	"das_value",	"das_year",	"das_comment",	"das_effort",	"das_qal_id"),
+#					#TODO check this will change
+#					c("ser_nameshort",	"gr_year",	"gr_number",	"g_in_gy_proportion", "s_in_ys_proportion",
+#							"lengthmm",	"weightg",	"ageyear",	"female_proportion",	"f_lengthmm",	"f_weightg",	"f_ageyear",
+#							"m_lengthmm",	"m_weightg",	"m_ageyear",	"anguillicola_proportion",	"anguillicola_intensity",
+#							"muscle_lipid_cont",	"sum_6_pcb",	"evex_proportion",	"hva_proportion",	"pb",	"hg",	"cd",	"comment"),
+#					NULL,
+#					NULL,
+#					NULL,
+#					NULL,
+#					NULL)
+			purrr::pmap(list(sheet,columns), fn_check_series)
+	# todo
+
+
+
+
+
+
+
+return(invisible(list(
+						series=series,
+						station = station,
+						new_data=new_data,
+						updated_data=updated_data,
+						deleted_data=deleted_data, # TODO
+						new_group_metrics=new_group_metrics,
+						updated_group_metrics=updated_group_metrics,
+						deleted_group_metrics=deleted_group_metrics,
+						new_individual_metrics=new_individual_metrics,
+						updated_individual_metrics=updated_individual_metrics,
+						deleted_individual_metrics=deleted_individual_metrics,
+						t_series_ser=t_series_ser,
+						error=data_error,
+						the_metadata=the_metadata))) 
+>>>>>>> branch '205-shiny-integration-for-dcf-data' of https://github.com/ices-eg/wg_WGEEL
 }
 
 # -------------------------------------------------------------				
