@@ -280,7 +280,7 @@ create_datacall_file_series <- function(country, name, ser_typ_id){
   " ORDER BY ser_id, gr_year, gr_id  ASC"))
 
 	#read the existing data template to have the correct format
-	formatted_table <- read_xls(templatefile,"existing_group_measures")
+	formatted_table <- read_xls(templatefile,"existing_group_metrics")
 	
 	existing_metric <- bind_rows(formatted_table,
 	                             groups %>%
@@ -294,7 +294,7 @@ create_datacall_file_series <- function(country, name, ser_typ_id){
 	existing_metric <- existing_metric[!is.na(existing_metric$gr_year),]
 	if (nrow(existing_metric)> 0){	
 		#openxlsx::writeData(wb, sheet = "existing_biometry", biom, startRow = 1)
-		writeWorksheet(wb, biom,  sheet = "existing_group_measures")
+		writeWorksheet(wb, biom,  sheet = "existing_group_metrics")
 	} 
 	
 	
@@ -311,7 +311,7 @@ create_datacall_file_series <- function(country, name, ser_typ_id){
 	  
 	  if (nrow(newbiom)>0) {
 	    #openxlsx::writeData(wb, sheet = "new_biometry", newbiom, startRow = 1)
-	    writeWorksheet(wb, newbiom,  sheet = "new_group_measures")	
+	    writeWorksheet(wb, newbiom,  sheet = "new_group_metrics")	
 	  }
 	}
 	
@@ -341,7 +341,7 @@ create_datacall_file_series <- function(country, name, ser_typ_id){
   " ORDER BY ser_id, fi_year, fi_id  ASC"))
 	
 	#read the existing data template to have the correct format
-	formatted_table <- read_xls(templatefile,"existing_individual_measures")
+	formatted_table <- read_xls(templatefile,"existing_individual_metrics")
 	
 	existing_metric <- bind_rows(formatted_table,
 	                             fishes %>%
@@ -355,7 +355,7 @@ create_datacall_file_series <- function(country, name, ser_typ_id){
 	existing_metric <- existing_metric[!is.na(existing_metric$fi_year),]
 	if (nrow(existing_metric)> 0){	
 	  #openxlsx::writeData(wb, sheet = "existing_biometry", biom, startRow = 1)
-	  writeWorksheet(wb, biom,  sheet = "existing_individual_measures")
+	  writeWorksheet(wb, biom,  sheet = "existing_individual_metrics")
 	} 
 	
 	
@@ -372,7 +372,7 @@ create_datacall_file_series <- function(country, name, ser_typ_id){
 	  
 	  if (nrow(newbiom)>0) {
 	    #openxlsx::writeData(wb, sheet = "new_biometry", newbiom, startRow = 1)
-	    writeWorksheet(wb, newbiom,  sheet = "new_individual_measures")	
+	    writeWorksheet(wb, newbiom,  sheet = "new_individual_metrics")	
 	  }
 	}
 	
