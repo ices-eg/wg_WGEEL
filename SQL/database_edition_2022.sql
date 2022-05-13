@@ -148,15 +148,20 @@ CREATE TABLE datawg.t_samplinginfo_sai(
   sai_id serial PRIMARY KEY,
   sai_cou_code VARCHAR(2),
   sai_emu_nameshort VARCHAR(20),
+  sai_locationdescription VARCHAR(254),
   sai_area_division VARCHAR(254),
   sai_hty_code varchar(2),
+  sai_sam_gear,
   sai_comment TEXT, -- this could be DCF ... other CHECK IF we need a referential TABLE....
   sai_samplingobjective TEXT,
-  sai_metadata TEXT, -- this must contain information TO rebuild the stratification scheme rename ?
+  sai_samplingstrategy TEXT,
+  sai_protocol TEXT,sai_samplingstrategy
+  sai_samplingstrategy
   sai_qal_id INTEGER, 
   sai_lastupdate DATE NOT NULL DEFAULT CURRENT_DATE,
   sai_dts_datasource VARCHAR(100),
   CONSTRAINT c_fk_sai_qal_id FOREIGN KEY (sai_qal_id) REFERENCES "ref".tr_quality_qal(qal_id) ON UPDATE CASCADE,
+  CONSTRAINT c_fk_sai_sam_gear FOREIGN KEY (sai_sam_gear) REFERENCES "ref".tr_gear_gea(gear_id) ON UPDATE CASCADE,
   CONSTRAINT c_fk_sai_cou_code FOREIGN KEY (sai_cou_code) REFERENCES "ref".tr_country_cou(cou_code) ON UPDATE CASCADE,
   CONSTRAINT c_fk_sai_emu FOREIGN KEY (sai_emu_nameshort,sai_cou_code) REFERENCES "ref".tr_emu_emu(emu_nameshort,emu_cou_code) ON UPDATE CASCADE,
   CONSTRAINT c_fk_sai_area_division FOREIGN KEY (sai_area_division) REFERENCES "ref".tr_faoareas(f_division) ON UPDATE CASCADE,
