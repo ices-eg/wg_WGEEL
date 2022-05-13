@@ -240,6 +240,15 @@ create_datacall_file_series <- function(country, name, ser_typ_id, type="series"
 
 	#read the existing data template to have the correct format
 	formatted_table <- read_xls(templatefile,"existing_group_metrics")
+	if(type=="series"){
+	  if(ser_typ_id==1){
+	    formatted_table$g_in_gy_proportion = numeric()
+
+	  } else{
+	    formatted_table$s_in_ys_proportion = numeric()
+	    
+	  }
+	}
 	
 	existing_metric <- bind_rows(formatted_table,
 	                             groups %>%
