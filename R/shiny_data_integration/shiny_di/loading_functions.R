@@ -1900,7 +1900,8 @@ load_potential_available_habitat<-function(path,datasource){
 
 ############# time series #############################################
 #  path<-file.choose()
-# datasource<-the_eel_datasource
+# datasource<-the_eel_datasource;stage="glass_eel"
+# 
 # load_series(path,datasource="toto","glass_eel")
 load_series<-function(path,datasource, stage="glass_eel"){
 	data_error <- data.frame(nline = NULL, error_message = NULL)
@@ -1947,7 +1948,7 @@ load_series<-function(path,datasource, stage="glass_eel"){
 									"ser_emu_nameshort", "ser_cou_code", "ser_area_division", "ser_tblcodeid", 
 									"ser_x", "ser_y", "ser_sam_id", "ser_dts_datasource","ser_sam_gear", "ser_distanceseakm", "ser_method", "ser_restocking")
 					))) 
-		cat(str_c("problem in column names",            
+		cat(str_c("problem in column names :",            
 						paste(colnames(series)[!colnames(series)%in%
 												c("ser_nameshort", "ser_namelong", "ser_typ_id", "ser_effort_uni_code", "ser_comment", 
 														"ser_uni_code", "ser_lfs_code", "ser_hty_code", "ser_locationdescription", 
@@ -1974,6 +1975,7 @@ load_series<-function(path,datasource, stage="glass_eel"){
 				column="ser_nameshort",
 				country=country,
 				values=t_series_ser$ser_nameshort)
+		
 		if (! is.null(data_error_series)) {
 			data_error_series$error_message <-paste(data_error_series$error_message, 
 					"This probably means that you have not entered the series yet, please proceed for series integration, insert new series and proceed to step 0 again.")
@@ -2308,7 +2310,7 @@ load_series<-function(path,datasource, stage="glass_eel"){
 	
 # check column names
 	if (!all(colnames(station)%in%c("ser_nameshort", "Organisation"))) 
-		cat(str_c("problem in column names",            
+		cat(str_c("problem in column names :",            
 						paste(colnames(station)[!colnames(station)%in%
 												c("ser_nameshort", "Organisation")],collapse= "&"),
 						"file =",
@@ -2320,18 +2322,19 @@ load_series<-function(path,datasource, stage="glass_eel"){
 				path=path,
 				sheet=sheet,
 				skip=0, guess_max=10000)
-		
+		cat(sheet,"\n")
+		#browser()
 		data_error <- data.frame(nline = NULL, error_message = NULL)
 		# country is extracted 
 #    data_xls <- correct_me(data_xls)
 		
 		# check for the file integrity		
-			# check column names for each sheet
+		# check column names for each sheet
 		fn_check_columns <- function(data,columns,file,nbcol){	
-			if (ncol(data_xls)!=nbcol) cat(sprintf("%s : number column wrong currently %s should have been %s in file  %s,\n",sheet,ncol(data_xls),ncol,file))
+			if (ncol(data_xls)!=nbcol) cat(sprintf("%s : number column wrong currently %s should have been %s in file  %s,\n",sheet,ncol(data_xls),nbcol,file))
 			if (!all(colnames(data)%in%columns))
-				cat(str_c("problem in column names",            
-								paste(colnames(data)[!colnames(data)%in%columns],collapse= "&"),
+				cat(str_c("problem in column names : ",            
+								paste(colnames(data)[!colnames(data)%in%columns],collapse= " & "),
 								"file =",
 								file,"\n")) 
 		}
@@ -2366,43 +2369,60 @@ load_series<-function(path,datasource, stage="glass_eel"){
 						values = t_series_ser$ser_nameshort))
 		
 		#ser_id should not have any missing values for updated data and deleted data
-		
+		# flatten used to reduce list with NULL elements
 		data_error <- rbind(data_error, 
-				lapply(c("das_ser_id",
-								"fiser_ser_id",
-								"grser_ser_id"),			
-						function(name_column){
-							if (name_column %in% colnames(data_xls) & (grepl("deleted", sheet) | grepl("updated", sheet))){	
-								data_error <- rbind(data_error, check_missing(
-												dataset = data_xls,					
-												namedataset = sheet,
-												column=name_column,
-												country=country,
-												type="numeric"))
-								return(data_error)}
-						}))
+				purrr::flatten(lapply(
+								c("das_ser_id",
+										"fiser_ser_id",
+										"grser_ser_id"),			
+								function(name_column){
+									if (name_column %in% colnames(data_xls) & (grepl("deleted", sheet) | grepl("updated", sheet))){	
+										data_error <- rbind(data_error, check_missing(
+														dataset = data_xls,					
+														namedataset = sheet,
+														column=name_column,
+														country=country))
+										data_error <- rbind(data_error, check_missing(
+														dataset = data_xls,					
+														namedataset = sheet,
+														column=name_column,
+														country=country))
+										
+										return(data_error)}
+								})))
 		
 		# id columns in updated and deleted data should be present
-    # the deletion is done at the group level or fish level, for update we will check for changes in the table
+		# the deletion is done at the group level or fish level, for update we will check for changes in the table
 		
 		data_error <- rbind(data_error, 
-				lapply(c("das_id",
-								"fi_id",
-								"big_id",
+				purrr::flatten(lapply(c("das_id",
+										"fi_id",
+										"big_id"
 								),			
-						function(name_column){
-							if  (name_column %in% colnames(data_xls) & (grepl("deleted", sheet) | grepl("updated", sheet))){	
-								data_error <- rbind(data_error, check_missing(
-												dataset = data_xls,					
-												namedataset = sheet,
-												column=name_column,
-												country=country,
-												type="numeric"))
-								return(data_error)}
-						}))
+								function(name_column){
+									if  (name_column %in% colnames(data_xls) & (grepl("deleted", sheet) | grepl("updated", sheet))){	
+										data_error <- rbind(data_error, check_unique(
+														dataset = data_xls,					
+														namedataset = sheet,
+														column=name_column,
+														country=country))
+										data_error <- rbind(data_error, check_type(
+														dataset = data_xls,					
+														namedataset = sheet,
+														column=name_column,
+														country=country,
+														type="numeric"))
+										data_error <- rbind(data_error, check_missing(
+														dataset = data_xls,					
+														namedataset = sheet,
+														column=name_column,
+														country=country))
+										return(data_error)}
+								})))
 		
 		
-# should not have any missing value for year 
+# should not have any missing value for year and be numeric
+		
 		
 		column_year <- switch(sheet,
 				"new_data"="das_year",
@@ -2411,24 +2431,51 @@ load_series<-function(path,datasource, stage="glass_eel"){
 				"new_group_metrics"="gr_year",
 				"updated_group_metrics"="gr_year",
 				"deleted_group_metrics"="gr_year",
-				"new_individual_metrics"="fiser_year",
-				"updated_individual_metrics"="fiser_year",
-				"deleted_individual_metrics"="fiser_year"
+				"new_individual_metrics"=NULL,
+				"updated_individual_metrics"=NULL,
+				"deleted_individual_metrics"=NULL
 		)
-		data_error <- rbind(data_error, check_missing(
-						dataset = data_xls,
-						namedataset = sheet,		
-						column = column_year,
-						country = country))
-# should be a numeric
+		if (!is.null(column_year)){
+			data_error <- rbind(data_error, check_missing(
+							dataset = data_xls,
+							namedataset = sheet,		
+							column = column_year,
+							country = country))
+			
+			data_error <- rbind(data_error, check_type(
+							dataset = data_xls,					
+							namedataset= sheet,		
+							column=column_year,
+							country=country,
+							type="numeric"))
+		}
 		
-		data_error <- rbind(data_error, check_type(
-						dataset = data_xls,					
-						namedataset= sheet,		
-						column=column_year,
-						country=country,
-						type="numeric"))
 		
+		column_date <- switch(sheet,
+				"new_data"=NULL,
+				"updated_data"=NULL,
+				"deleted_data"=NULL,
+				"new_group_metrics"=NULL,
+				"updated_group_metrics"=NULL,
+				"deleted_group_metrics"=NULL,
+				"new_individual_metrics"="fi_date",
+				"updated_individual_metrics"="fi_date",
+				"deleted_individual_metrics"="fi_date"
+		)
+		if (!is.null(column_year)){
+			data_error <- rbind(data_error, check_missing(
+							dataset = data_xls,
+							namedataset = sheet,		
+							column = column_year,
+							country = country))
+			
+			data_error <- rbind(data_error, check_type(
+							dataset = data_xls,					
+							namedataset= sheet,		
+							column=column_year,
+							country=country,
+							type="numeric"))
+		}
 		
 # this is only for data
 		
@@ -2449,54 +2496,50 @@ load_series<-function(path,datasource, stage="glass_eel"){
 							namedataset = sheet,
 							column="das_value",
 							country=country,
-							type="numeric"))
-			return(data_error)
+							type="numeric"))			
+			
 		}	
 		
 		
 		if (grepl("metrics", sheet)) {
 			
-			###### das_value ##############
-			
-			
-			
-# should be a numeric
+# all mty related columns should be numeric
 			
 			data_error <- rbind(data_error, 
-					lapply(c("lengthmm",
-									"weightg",
-									"ageyear",
-									"eye_diam_mean_mm",
-									"pectoral_lengthmm",
-									"female_proportion",
-									"anguillicola_proportion",
-									"anguillicola_intensity",
-									"muscle_lipidfatmeter_perc",
-									"muscle_grav_perc",
-									"sum_6_pcb",
-									"evex_proportion",
-									"hva_proportion",
-									"pb",
-									"hg",
-									"cd",
-									"m_mean_lengthmm",
-									"m_mean_weightg",
-									"m_mean_ageyear",
-									"f_mean_lengthmm",
-									"f_mean_weightg",
-									"f_mean_age",
-									"g_in_gy_proportion",
-									"s_in_ys_proportion"),			
-							function(name_column){
-								if (name_column %in% colnames(data_xls)){	
-									data_error <- rbind(data_error,check_type(
-													dataset = data_xls,					
-													namedataset = sheet,
-													column=name_column,
-													country=country,
-													type="numeric"))
-									return(data_error)}
-							}))
+					purrr::flatten(lapply(c("lengthmm",
+											"weightg",
+											"ageyear",
+											"eye_diam_mean_mm",
+											"pectoral_lengthmm",
+											"female_proportion",
+											"anguillicola_proportion",
+											"anguillicola_intensity",
+											"muscle_lipidfatmeter_perc",
+											"muscle_grav_perc",
+											"sum_6_pcb",
+											"evex_proportion",
+											"hva_proportion",
+											"pb",
+											"hg",
+											"cd",
+											"m_mean_lengthmm",
+											"m_mean_weightg",
+											"m_mean_ageyear",
+											"f_mean_lengthmm",
+											"f_mean_weightg",
+											"f_mean_age",
+											"g_in_gy_proportion",
+											"s_in_ys_proportion"),			
+									function(name_column){
+										if (name_column %in% colnames(data_xls)){	
+											data_error <- rbind(data_error,check_type(
+															dataset = data_xls,					
+															namedataset = sheet,
+															column=name_column,
+															country=country,
+															type="numeric"))
+											return(data_error)}
+									})))
 # TODO check if we need to adapt this kind of function where all data are missing, this is for pre-filled values			
 #			data_error <- rbind(data_error, check_all_missing(
 #							dataset=new_group_metrics,				
@@ -2517,53 +2560,67 @@ load_series<-function(path,datasource, stage="glass_eel"){
 		return(list(data=data_xls,error=data_error))
 	}			
 	new_data <- fn_check_series("new_data", 
-	columns=c("ser_nameshort", "das_year", "das_value", "das_comment", "das_effort"), 
-	nbcol=5, 
-	country=country, 
-	file=file)	
-  
-#		sheet <- list("updated_data","deleted_data",
-#			"new_group_metrics",	"updated_group_metrics",	"deleted_group_metrics",
-#			"new_individual_metrics","updated_individual_metrics","deleted_individual_metrics")
-#		columns <- list(
-#					c("ser_nameshort", "das_year", "das_value", "das_comment", "das_effort"),
-#					#TODO check that das_lastupdate and das_dts_datasource are not used
-#					c("ser_nameshort",	"das_id",	"das_ser_id",	"das_value",	"das_year",	"das_comment",	"das_effort",	"das_qal_id"),
-#					c("ser_nameshort",	"das_id",	"das_ser_id",	"das_value",	"das_year",	"das_comment",	"das_effort",	"das_qal_id"),
-#					#TODO check this will change
-#					c("ser_nameshort",	"gr_year",	"gr_number",	"g_in_gy_proportion", "s_in_ys_proportion",
-#							"lengthmm",	"weightg",	"ageyear",	"female_proportion",	"f_lengthmm",	"f_weightg",	"f_ageyear",
-#							"m_lengthmm",	"m_weightg",	"m_ageyear",	"anguillicola_proportion",	"anguillicola_intensity",
-#							"muscle_lipid_cont",	"sum_6_pcb",	"evex_proportion",	"hva_proportion",	"pb",	"hg",	"cd",	"comment"),
-#					NULL,
-#					NULL,
-#					NULL,
-#					NULL,
-#					NULL)
-			purrr::pmap(list(sheet,columns), fn_check_series)
-	# todo
-
-
-
-
-
-
-
-return(invisible(list(
-						series=series,
-						station = station,
-						new_data=new_data,
-						updated_data=updated_data,
-						deleted_data=deleted_data, # TODO
-						new_group_metrics=new_group_metrics,
-						updated_group_metrics=updated_group_metrics,
-						deleted_group_metrics=deleted_group_metrics,
-						new_individual_metrics=new_individual_metrics,
-						updated_individual_metrics=updated_individual_metrics,
-						deleted_individual_metrics=deleted_individual_metrics,
-						t_series_ser=t_series_ser,
-						error=data_error,
-						the_metadata=the_metadata))) 
+			columns=c("ser_nameshort", "das_year", "das_value", "das_comment", "das_effort"), 
+			nbcol=5)	
+	
+	updated_data <- fn_check_series("updated_data", 
+			columns=c("ser_nameshort",	"das_id",	"das_ser_id",	"das_value",	"das_year",	"das_comment",	"das_effort",	"das_qal_id"), 
+			nbcol=8)	
+	
+	new_group_metrics <- fn_check_series("new_group_metrics", 
+			columns=c("ser_nameshort",	"gr_year",	"gr_number", "gr_comment","lengthmm",	"weightg",	"ageyear",	"female_proportion",
+					"m_mean_lengthmm","m_mean_weightg","m_mean_ageyear","f_mean_lengthmm","f_mean_weightg","f_mean_age","g_in_gy_proportion",	"s_in_ys_proportion",	
+					"anguillicola_proportion",	"anguillicola_intensity",	"muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb",	"evex_proportion",	
+					"hva_proportion",	"pb",	"hg",	"cd"), 
+			nbcol=26)	
+	
+	sheet <- list(
+			"new_data",
+			"updated_data",
+			"deleted_data",
+			"new_group_metrics",
+			"updated_group_metrics",
+			"deleted_group_metrics",
+			"new_individual_metrics",
+			"updated_individual_metrics",
+			"deleted_individual_metrics")
+	columns <- list(
+			c("ser_nameshort", "das_year", "das_value", "das_comment", "das_effort"),
+			#TODO check that das_lastupdate and das_dts_datasource 
+			c("ser_nameshort",	"das_id",	"das_ser_id",	"das_value",	"das_year",	"das_comment",	"das_effort",	"das_qal_id"),
+			c("ser_nameshort",	"das_id",	"das_ser_id",	"das_value",	"das_year",	"das_comment",	"das_effort",	"das_qal_id"),
+			c("ser_nameshort",	"gr_year",	"gr_number", "gr_comment","lengthmm",	"weightg",	"ageyear",	"female_proportion",
+					"m_mean_lengthmm","m_mean_weightg","m_mean_ageyear","f_mean_lengthmm","f_mean_weightg","f_mean_age",
+					"anguillicola_proportion",	"anguillicola_intensity",	"muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb",
+					"evex_proportion","hva_proportion",	"pb",	"hg",	"cd"),
+			
+			
+			NULL,
+			NULL,
+			NULL,
+			NULL,
+			NULL)
+	nbcol <- list(5,8,8,26,30,30,26,26,26) # TODO change this
+	
+	res <- purrr::pmap(list(sheet,columns,nbcol), fn_check_series)
+	data_error <- 	lapply(res,function(X)X$error) %>% bind_rows()
+	
+	
+	return(invisible(list(
+							series=series,
+							station = station,
+							new_data = res[[1]]$data,
+							updated_data = res[[2]]$data,
+							deleted_data = res[[3]]$data, 
+							new_group_metrics =  res[[4]]$data, 
+							updated_group_metrics = res[[5]]$data, 
+							deleted_group_metrics = res[[6]]$data, 
+							new_individual_metrics = res[[7]]$data, 
+							updated_individual_metrics = res[[8]]$data, 
+							deleted_individual_metrics = res[[9]]$data, 
+							t_series_ser = t_series_ser, 
+							error =data_error,
+							the_metadata =the_metadata))) 
 }
 
 # -------------------------------------------------------------				
@@ -2599,7 +2656,7 @@ load_dcf<-function(path,datasource){
 								c(ifelse(sheet %in% c("updated_data","deleted_data"),"eel_id","eel_typ_name"),"eel_typ_name","eel_year","eel_value","eel_missvaluequal",
 										"eel_emu_nameshort","eel_cou_code", "eel_lfs_code", "eel_hty_code","eel_area_division",
 										"eel_qal_id", "eel_qal_comment","eel_comment","eel_datasource"))) 
-					cat(str_c("problem in column names",            
+					cat(str_c("problem in column names : ",            
 									paste(colnames(data_xls)[!colnames(data_xls)%in%
 															c(ifelse(sheet %in% c("updated_data","deleted_data"),"eel_id",""),
 																	"eel_typ_name", "eel_year","eel_value","eel_missvaluequal","eel_emu_nameshort",
