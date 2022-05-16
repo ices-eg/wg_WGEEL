@@ -152,7 +152,8 @@ create_datacall_file <- function(country, eel_typ_id, name, ...){
 		data_typ_id=ifelse(startsWith(data_missing$eel_typ_name,"com"),4,6)
 		# here filter if there is only 4 or 6, detect missing returns all combinations for 4 and 6
 		data_missing <- data_missing[data_typ_id%in%eel_typ_id,]
-		data_missing <- data_missing[,-match(c("eel_qal_id","eel_qal_comment"),colnames(data_missing))]
+		#we know ask for eel_qal_id and eel_qal_comment
+		#data_missing <- data_missing[,-match(c("eel_qal_id","eel_qal_comment"),colnames(data_missing))]
 		#print(data_missing)
 		writeWorksheet(wb, data_missing,  sheet = "new_data")
 	} 
