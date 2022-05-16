@@ -905,6 +905,11 @@ insert into ref.tr_emusplit_ems (emu_nameshort,emu_name,emu_cou_code,emu_hyd_sys
 commit; 
 
 
+
+-- fix problem with table sampling_gear
+GRANT ALL ON TABLE REF.tr_gear_gea TO wgeel;
+
+
 ----
 --preparation for data integration
 ----
