@@ -67,6 +67,10 @@ load_database <- function(){
 					tr_units_uni <<- dbGetQuery(pool, sqlInterpolate(ANSI(), query))   
 					
 					
+					query <- "SELECT * from ref.tr_gear_gea"
+					tr_gear_gea <<- dbGetQuery(pool, sqlInterpolate(ANSI(), query))   
+					
+					
 					query <- "SELECT min(eel_year) as min_year, max(eel_year) as max_year from datawg.t_eelstock_eel"
 					the_years <<- dbGetQuery(pool, sqlInterpolate(ANSI(), query))   
 				

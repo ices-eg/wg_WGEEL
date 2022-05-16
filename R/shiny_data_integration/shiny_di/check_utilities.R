@@ -4,7 +4,14 @@
 ###############################################################################
 
 
-
+fn_check_columns <- function(data,columns,file,nbcol){	
+	if (ncol(data)!=nbcol) cat(sprintf("%s : number column wrong currently %s should have been %s in file  %s,\n",sheet,ncol(data_xls),nbcol,file))
+	if (!all(colnames(data)%in%columns))
+		cat(str_c("problem in column names : ",            
+						paste(colnames(data)[!colnames(data)%in%columns], collapse= " & "),
+						" are wrong in file : ",
+						file,"\n")) 
+}
 
 #' check for missing values
 #' 
