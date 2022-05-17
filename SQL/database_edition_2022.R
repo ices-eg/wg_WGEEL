@@ -101,7 +101,7 @@ sampling_sites <- biometry_sa_sf %>%
               st_drop_geometry()%>%
               select(emu_nameshort,emu_cou_code)) %>%
   unique() %>%
-  mutate(sai_name=paste(emu_nameshort,bit_loc_name,"HIST",sep="-"))
+  mutate(sai_name=paste(emu_nameshort,bit_loc_name,"HIST",sep="_"))
 
 dbWriteTable(con,"sampling_tmp",sampling_sites,temporary=TRUE)
 sai_id=dbGetQuery(con,"insert into datawg.t_samplinginfo_sai (sai_cou_code,sai_emu_nameshort,sai_metadata) 
