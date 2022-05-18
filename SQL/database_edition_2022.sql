@@ -123,6 +123,16 @@ ALTER TABLE datawg.t_biometry_bio RENAME TO t_biometrygroupseries_bio;
   * 
   * 
   */ 
+
+----
+-- first integrate new units
+----
+--SELECT * FROM ref.tr_units_uni
+INSERT INTO ref.tr_units_uni (uni_code, uni_name) VALUES ('mm','milimeter');
+INSERT INTO ref.tr_units_uni (uni_code, uni_name) VALUES ('percent','percentage');
+INSERT INTO ref.tr_units_uni (uni_code, uni_name) VALUES ('ng/g','nanogram per gram');
+INSERT INTO ref.tr_units_uni (uni_code, uni_name) VALUES ('nr year','number of years');
+
 DROP TABLE IF EXISTS ref.tr_metrictype_mty CASCADE;
  CREATE TABLE ref.tr_metrictype_mty(
  mty_id serial PRIMARY KEY,
@@ -876,13 +886,6 @@ insert into ref.tr_quality_qal values (22, 'discarded_wgeel_2022', 'This data ha
 insert into ref.tr_datasource_dts values ('dc_2022', 'Joint EIFAAC/GFCM/ICES Eel Data Call 2022');
 
 
-----
--- integrate new units
-----
-SELECT * FROM ref.tr_units_uni
-INSERT INTO ref.tr_units_uni (uni_code, uni_name) VALUES ('mm','milimeter');
-INSERT INTO ref.tr_units_uni (uni_code, uni_name) VALUES ('percent','percentage');
-INSERT INTO ref.tr_units_uni (uni_code, uni_name) VALUES ('ng/g','nanogram per gram');
-INSERT INTO ref.tr_units_uni (uni_code, uni_name) VALUES ('nr year','number of years');
+
 
 )
