@@ -90,7 +90,9 @@ source("plotduplicates.R")
 source("importtsstep0.R")
 source("importtsstep1.R")
 source("importtsstep2.R")
-
+source("importdcfstep0.R")
+source("importdcfstep1.R")
+source("importdcfstep2.R")
 # Local shiny files ---------------------------------------------------------------------------------
 
 source("database_tools.R")
