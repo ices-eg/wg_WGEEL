@@ -100,7 +100,8 @@ sampling_sites <- biometry_sa_sf %>%
   bind_cols(biometry_sa_sf%>%
               st_drop_geometry()%>%
               select(emu_nameshort,emu_cou_code)) %>%
-  unique()
+  unique() %>%
+  mutate(sai_name=paste(emu_nameshort,bit_loc_name,"HIST",sep="_"))
 
 dbWriteTable(con,"sampling_tmp",sampling_sites,temporary=TRUE)
 sai_id=dbGetQuery(con,"insert into datawg.t_samplinginfo_sai (sai_cou_code,sai_emu_nameshort,sai_metadata) 
@@ -177,5 +178,13 @@ dbSendQuery(con, "insert into datawg.t_metricgroupsamp_megsa (meg_gr_id,meg_mty_
            select gid::integer,mty_id,metric_val,bio_qal_id,bio_dts_datasource from bioval_tmp left join ref.tr_metrictype_mty on mty=mty_name")
 dbSendQuery(con,"drop table if exists bioval_tmp")
 
+metric=readxl::read_excel("/tmp/tr_metrictype_mty.xlsx")
+dbSendQuery(con,"drop table if exists ref.tr_metrictype_mty")
+dbWriteTable(con,Id(schema="ref",table="tr_metrictype_mty"),metric)
+
+
+unit=readxl::read_excel("/tmp/tr_units_uni.xlsx")
+dbSendQuery(con,"drop table if exists ref.tr_units_uni.xlsx")
+dbWriteTable(con,Id(schema="ref",table="tr_units_uni"),metric)
 
 

@@ -73,7 +73,7 @@ con=dbConnect(RPostgres::Postgres(),
 #' @param country the country code, for instance "SW"
 #' @param name, the name of the file (without .xlsx) used as template and in the destination folders
 #' country='IE'; name="Eel_Data_Call_2021_Annex_time_series"; ser_typ_id=1
-create_datacall_file_series <- function(country, name, ser_typ_id){
+create_datacall_file_series <- function(country, name, ser_typ_id, type="series"){
 	if (!is.numeric(ser_typ_id)) stop("ser_typ_id must be numeric")
 	
 	
@@ -86,104 +86,51 @@ create_datacall_file_series <- function(country, name, ser_typ_id){
 	key <- c("1" = "Recruitment","2" = "Yellow_standing_stock","3" = "Silver")
 	suffix <- key[ser_typ_id]
 	namedestinationfile <- str_c(name,"_",country, "_",suffix, ".xlsx")	
-	if (ser_typ_id==1) namedestinationfile <-gsub("Annex","Annex1", namedestinationfile)
-	if (ser_typ_id==2) namedestinationfile <-gsub("Annex","Annex2", namedestinationfile)
-	if (ser_typ_id==3) namedestinationfile <-gsub("Annex","Annex3", namedestinationfile)
+	if (ser_typ_id==1 & type=="series") namedestinationfile <-gsub("Annex","Annex1", namedestinationfile)
+	if (ser_typ_id==2 & type=="series") namedestinationfile <-gsub("Annex","Annex2", namedestinationfile)
+	if (ser_typ_id==3 & type=="series") namedestinationfile <-gsub("Annex","Annex3", namedestinationfile)
 	destinationfile <- file.path(wddata, country, namedestinationfile)		
 	
 	#wb = openxlsx::loadWorkbook(templatefile)
 	wb = loadWorkbook(templatefile)
 	
-	# series description -------------------------------------------------------
+	# series or sampling infodescription -------------------------------------------------------
 	
-	t_series_ser<- dbGetQuery(con, str_c("SELECT  
-							t_series_ser.ser_id, 
-							t_series_ser.ser_nameshort, 
-							t_series_ser.ser_namelong, 
-							t_series_ser.ser_typ_id, 
-							t_series_ser.ser_effort_uni_code, 
-							t_series_ser.ser_comment, 
-							t_series_ser.ser_uni_code, 
-							t_series_ser.ser_lfs_code, 
-							t_series_ser.ser_hty_code, 
-							t_series_ser.ser_locationdescription, 
-							t_series_ser.ser_emu_nameshort, 
-							t_series_ser.ser_cou_code, 
-							t_series_ser.ser_area_division, 
-							t_series_ser.ser_tblcodeid, 
-							t_series_ser.ser_x, 
-							t_series_ser.ser_y, 
-							t_series_ser.ser_sam_id,
-							t_series_ser.ser_qal_id,
-							t_series_ser.ser_qal_comment,
-							t_series_ser.ser_ccm_wso_id,
-							t_series_ser.ser_sam_gear,
-							t_series_ser.ser_distanceseakm,
-							t_series_ser.ser_method,
-							t_series_ser.ser_restocking					
-							FROM 
-							datawg.t_series_ser
-							WHERE ser_cou_code='",country,"' ",
-					"AND ser_typ_id ='", ser_typ_id, "';"))
-# converting some information to latin1, necessary for latin1 final user
+	t_series_ser<- dbGetQuery(con, str_c("SELECT *			FROM ",
+	           ifelse(type=="series",
+	                  "datawg.t_series_ser ",
+	                  "datawg.t_samplinginfo_sai "),
+	           "WHERE ",
+	           ifelse(type=="series","ser_cou_code='","sai_cou_code='"),
+	           country,"' ",
+	           ifelse(type=="series"," AND ser_typ_id ='", ser_typ_id, "';", ""))) %>%		# maybe this is only needed on windows 
+	  select(-any_of("geom","ser_dts_datasource","sai_dts_datasource")) %>%		# maybe this is only needed on windows 
+	  mutate_at(ends_with("nameshort"), ~iconv(.,from="UTF-8",to="latin1")) %>%		# maybe this is only needed on windows 
+	  mutate_at(ends_with("comment"), ~iconv(.,from="UTF-8",to="latin1")) %>% 		# maybe this is only needed on windows 
+	  mutate_at(ends_with("locationdescription"), ~iconv(.,from="UTF-8",to="latin1")) %>% 		# maybe this is only needed on windows 
+	  mutate_at(ends_with("method"), ~iconv(.,from="UTF-8",to="latin1")) 		# maybe this is only needed on windows 
+
+	  
 	
+
 	
 	if (nrow(t_series_ser)>0){
-		# maybe this is only needed on windows 
-		t_series_ser[,"ser_nameshort"]<-iconv(t_series_ser[,"ser_nameshort"],from="UTF-8",to="latin1")
-		t_series_ser[,"ser_comment"]<-iconv(t_series_ser[,"ser_comment"],from="UTF-8",to="latin1")
-		t_series_ser[,"ser_locationdescription"]<-iconv(t_series_ser[,"ser_locationdescription"],from="UTF-8",to="latin1")
-		t_series_ser[,"ser_method"]<-iconv(t_series_ser[,"ser_method"],from="UTF-8",to="latin1")
-		
-		#		openxlsx::writeData(wb, sheet = "series_info", x=t_series_ser[,
-#						c("ser_nameshort",
-#								"ser_namelong",
-#								"ser_typ_id",
-#								"ser_effort_uni_code",
-#								"ser_comment",
-#								"ser_uni_code",
-#								"ser_lfs_code",
-#								"ser_hty_code",
-#								"ser_locationdescription",
-#								"ser_emu_nameshort",
-#								"ser_cou_code",
-#								"ser_area_division",
-#								"ser_tblcodeid",
-#								"ser_x",
-#								"ser_y",
-#								"ser_sam_id",
-#								"ser_sam_gear",
-#								"ser_distanceseakm",
-#								"ser_method")		
-#				] )
-		writeWorksheet(wb, sheet = "series_info", data=t_series_ser[,
-						c("ser_nameshort",
-								"ser_namelong",
-								"ser_typ_id",
-								"ser_effort_uni_code",
-								"ser_comment",
-								"ser_uni_code",
-								"ser_lfs_code",
-								"ser_hty_code",
-								"ser_locationdescription",
-								"ser_emu_nameshort",
-								"ser_cou_code",
-								"ser_area_division",
-								"ser_tblcodeid",
-								"ser_x",
-								"ser_y",
-								"ser_sam_id",
-								"ser_sam_gear",
-								"ser_distanceseakm",
-								"ser_method",
-								"ser_restocking"
-						)		
-				] )
+
+	  formatted = readxl(templatefile, ifelse(type=="series",
+	                                          "series_info",
+	                                          "sampling_info"))
+	  t_series_ser <- bind_rows(formatted,
+	                            t_series_ser %>%
+	                              select(any_of(names(formatted))))
+		writeWorksheet(wb, sheet =  ifelse(type=="series",
+		                                   "series_info",
+		                                   "sampling_info"), 
+		               t_series_ser)
 	}
 	
 	
 # station data ----------------------------------------------
-	
+	if (type == "series") {
 	station <- dbGetQuery(con,"select * from ref.tr_station")
 	station$Organisation <-iconv(station$Organisation,from="UTF8",to="latin1")
 	# drop  tblCodeID Station_Code
@@ -199,9 +146,9 @@ create_datacall_file_series <- function(country, name, ser_typ_id){
 			writeWorksheet(wb, sheet = "station", data=station, startRow = 1)
 		}
 	}
-	
+	}
 # existing series data ----------------------------------------	
-	
+	if (type == "series"){
 	dat <- dbGetQuery(con,str_c("select 
 							ser_nameshort, 
 							das_id,
@@ -231,10 +178,10 @@ create_datacall_file_series <- function(country, name, ser_typ_id){
 	  writeWorksheet(wb %>% filter(!s.na(das_gal_id)), dat,  sheet = "updated_data")
 	}
 	
-	
+	}
 # new data ----------------------------------------------------
 # extract missing data from CY-10
-	
+	if (type == "series"){
 	if (nrow(dat)> 0){
 		new_data <- 
 				dplyr::bind_rows(
@@ -253,48 +200,71 @@ create_datacall_file_series <- function(country, name, ser_typ_id){
 		}
 	}
 	
-	
+	}
 # group biometry data existing  ------------------------------------------
 	
 	
-	groups <- dbGetQuery(con,str_c("select 
-	gr_id,
-	ser_nameshort,
-	gr_year,
-	gr_number,
-	gr_dts_datasource,
-	grser_ser_id ",
-  "FROM datawg.t_groupseries_grser LEFT JOIN datawg.t_series_ser ON ser_id = grser_ser_id",					
-  " WHERE ser_typ_id=",ser_typ_id,
-  " AND ser_cou_code='",country,"'",
-  " ORDER BY ser_id, gr_year, gr_id  ASC"))
+	groups <- dbGetQuery(con,str_c(
+	  "select gr.* ",
+	  ifelse(type=="series",", ser_nameshort",""),
+	  "from ",
+	  ifelse(type=="series", "datawg.t_groupseries_grser gr ",
+                          "datawg.t_groupsamp_grssa gr "),
+	  "LEFT JOIN ",
+	  ifelse(type=="series","datawg.t_series_ser ON ser_id = grser_ser_id ",	
+         "datawg.t_samplinginfo_sa ON sai_id = grsa_sai_id "),
+	  "WHERE ",
+	  ifelse(type== series, str_c(" ser_typ_id=",ser_typ_id, " AND "),""),
+     ifelse(type==series," ser_cou_code='", " sai_cou_code='"),
+	  country,"'",
+  " ORDER BY ",
+  ifelse(type=="series", "ser_id","sai_id"),
+  ", gr_year, gr_id  ASC"))
 	
-	metrics <- dbGetQuery(con, str_c("select gr_id, 
+	metrics <- dbGetQuery(con, str_c(
+	"select gr_id, 
   mty_name,
   meg_value
-	FROM datawg.t_metricgroupseries_megser LEFT JOIN datawg.t_groupseries_grser on gr_id=meg_gr_id
-	LEFT JOIN ref.tr_metrictype_mty on mty_id=meg_mty_id ",
-	" LEFT JOIN datawg.t_series_ser ON ser_id = grser_ser_id ",
-	" WHERE ser_typ_id=",ser_typ_id,
+	FROM ",
+	ifelse(type=="series",
+	       "datawg.t_metricgroupseries_megser LEFT JOIN datawg.t_groupseries_grser on gr_id=meg_gr_id ",
+	       "datawg.t_metricgroupsamp_megsai LEFT JOIN datawg.t_groupsamp_grsa on gr_id=meg_gr_id "),
+	" LEFT JOIN ref.tr_metrictype_mty on mty_id=meg_mty_id ",
+	ifelse(type=="series","datawg.t_series_ser ON ser_id = grser_ser_id ",	
+	       "datawg.t_samplinginfo_sa ON sai_id = grsa_sai_id "),
+	" WHERE ",
+	ifelse(type=="series",str_c("ser_typ_id=",ser_typ_id),""),
   " AND ser_cou_code='",country,"'",
-  " ORDER BY ser_id, gr_year, gr_id  ASC"))
+  " ORDER BY ",
+  ifelse(type=="series","ser_id","sai_id"),
+  ", gr_year, gr_id  ASC"))
 
 	#read the existing data template to have the correct format
-	formatted_table <- read_xls(templatefile,"existing_group_measures")
+	formatted_table <- read_xls(templatefile,"existing_group_metrics")
+	if(type=="series"){
+	  if(ser_typ_id==1){
+	    formatted_table$g_in_gy_proportion = numeric()
+
+	  } else{
+	    formatted_table$s_in_ys_proportion = numeric()
+	    
+	  }
+	}
 	
 	existing_metric <- bind_rows(formatted_table,
 	                             groups %>%
 	                               left_join(metrics) %>%
 	                               tidyr::pivot_wider(names_from=mty_name,
 	                                                  values_from=meg_value) %>%
-	                               arrange(ser_nameshort,gr_year,gr_id))
+	                               arrange(!!sym(ifelse(type=="series","ser_nameshort","grsa_sai_id")),gr_year,gr_id) %>%
+	                               select(any_of(names(formtatted_table))))
 	  
 	
 
 	existing_metric <- existing_metric[!is.na(existing_metric$gr_year),]
 	if (nrow(existing_metric)> 0){	
 		#openxlsx::writeData(wb, sheet = "existing_biometry", biom, startRow = 1)
-		writeWorksheet(wb, biom,  sheet = "existing_group_measures")
+		writeWorksheet(wb, biom,  sheet = "existing_group_metrics")
 	} 
 	
 	
@@ -305,13 +275,13 @@ create_datacall_file_series <- function(country, name, ser_typ_id){
 	  newbiom <- existing_metric %>% 
 	    dplyr::mutate_at(.vars="gr_year",tidyr::replace_na,replace=CY-1) %>%
 	    dplyr::filter(gr_year>=(CY-10)) %>%
-	    tidyr::complete(ser_nameshort,gr_year=(CY-10):CY) %>%
-	    dplyr::filter(0==rowSums(!is.na(. %>% select(-gr_id,-ser_nameshort,-gr_year,-gr_number,-gr_dts_datasource,-grser_ser_id)))) %>%
-	    dplyr::arrange(ser_nameshort, gr_year)
+	    tidyr::complete(!!sym(ifelse(type=="series","ser_nameshort","grsa_sai_id")),gr_year=(CY-10):CY) %>%
+	    dplyr::filter(0==rowSums(!is.na(. %>% select(-gr_id,-!!sym(ifelse(type=="series","ser_nameshort","grsa_sai_id")),-gr_year,-gr_number,-gr_dts_datasource,-grser_ser_id)))) %>%
+	    dplyr::arrange(!!sym(ifelse(type=="series","ser_nameshort","grsa_sai_id")), gr_year)
 	  
 	  if (nrow(newbiom)>0) {
 	    #openxlsx::writeData(wb, sheet = "new_biometry", newbiom, startRow = 1)
-	    writeWorksheet(wb, newbiom,  sheet = "new_group_measures")	
+	    writeWorksheet(wb, newbiom,  sheet = "new_group_metrics")	
 	  }
 	}
 	
@@ -319,43 +289,58 @@ create_datacall_file_series <- function(country, name, ser_typ_id){
 	# individual biometry data existing  ------------------------------------------
 	
 	
-	fishes <- dbGetQuery(con,str_c("select 
-	fi_id,
-	ser_nameshort,
-	fi_year,
-	fi_dts_datasource,
-	fiser_ser_id ",
-	                               "FROM datawg.t_fishseries_fiser LEFT JOIN datawg.t_series_ser ON ser_id = fiser_ser_id",					
-	                               " WHERE ser_typ_id=",ser_typ_id,
-	                               " AND ser_cou_code='",country,"'",
-	                               " ORDER BY ser_id, gr_year, gr_id  ASC"))
+	fishes <- dbGetQuery(con,str_c(
+	"select 
+	fi.* ",
+	ifelse(type=="series",", ser_nameshort",""),
+	"FROM ",
+	ifelse(type=="series", "datawg.t_fishseries_fiser fi ", "datawg.t_fishsamp_fisa fi "),
+	ifelse(type=="series"," LEFT JOIN datawg.t_series_ser ON ser_id = fiser_ser_id ",
+	       " LEFT JOIN datawg.t_samplinginfo_sa ON sai_id = fiser_sai_id "),
+	" WHERE ",
+	ifelse(type=="series",str_c("ser_typ_id=",ser_typ_id, "AND "), ""),
+	ifelse(type=="series",str_c("ser_cou_code='",country,"'"),str_c("sai_cou_code='",country,"'")),
+	" ORDER BY ",
+	ifelse(type=="series","ser_id", "sai_id"),
+	",gr_year, gr_id  ASC"))
 	
-	metrics <- dbGetQuery(con, str_c("select fi_id, 
+	metrics <- dbGetQuery(con, str_c(
+	"select fi_id, 
   mty_name,
+  mty_individual_name,
   meg_value
-	FROM datawg t_metricindseries_meiser LEFT JOIN datawg.t_fishseries_grser on fi_id=mei_gr_id
-	LEFT JOIN ref.tr_metrictype_mty on mty_id=mei_mty_id",
-  " LEFT JOIN datawg.t_series_ser ON ser_id = fiser_ser_id ",
-  " WHERE ser_typ_id=",ser_typ_id,
-  " AND ser_cou_code='",country,"'",
-  " ORDER BY ser_id, fi_year, fi_id  ASC"))
+	FROM ",
+	ifelse(type=="series",
+	       "datawg t_metricindseries_meiser LEFT JOIN datawg.t_fishseries_grser on fi_id=mei_fi_id ",
+	       "datawg t_metricindsamp_meisa LEFT JOIN datawg.t_fishsamp_grsa on fi_id=mei_fi_id "),
+	" LEFT JOIN ref.tr_metrictype_mty on mty_id=mei_mty_id",
+	ifelse(type=="series"," LEFT JOIN datawg.t_series_ser ON ser_id = fiser_ser_id ",
+	       " LEFT JOIN datawg.t_samplinginfo_sa ON sai_id = fiser_sai_id "),	" WHERE ",
+	ifelse(type=="series",str_c("ser_typ_id=",ser_typ_id, "AND "), ""),
+	ifelse(type=="series",str_c("ser_cou_code='",country,"'"),str_c("sai_cou_code='",country,"'")),
+	" ORDER BY ",
+	ifelse(type=="series","ser_id", "sai_id"),
+	" fi_year, fi_id  ASC")) %>%
+	  mutate(mty_name=ifelse(is.na(mty_individual_name),mty_name,mty_individual_name)) %>%
+	  select(-mty_individual_name)
 	
 	#read the existing data template to have the correct format
-	formatted_table <- read_xls(templatefile,"existing_individual_measures")
+	formatted_table <- read_xls(templatefile,"existing_individual_metrics")
 	
 	existing_metric <- bind_rows(formatted_table,
 	                             fishes %>%
 	                               left_join(metrics) %>%
 	                               tidyr::pivot_wider(names_from=mty_name,
 	                                                  values_from=mei_val) %>%
-	                               arrange(ser_nameshort,fi_year,fi_id))
+	                               arrange(!!sym(ifelse(type=="series","ser_nameshort","fisa_sai_id")),fi_year,fi_id) %>%
+	                               select(any_of(names(formatted_table))))
 	
 	
 	
 	existing_metric <- existing_metric[!is.na(existing_metric$fi_year),]
 	if (nrow(existing_metric)> 0){	
 	  #openxlsx::writeData(wb, sheet = "existing_biometry", biom, startRow = 1)
-	  writeWorksheet(wb, biom,  sheet = "existing_individual_measures")
+	  writeWorksheet(wb, biom,  sheet = "existing_individual_metrics")
 	} 
 	
 	
@@ -366,19 +351,20 @@ create_datacall_file_series <- function(country, name, ser_typ_id){
 	  newbiom <- existing_metric %>% 
 	    dplyr::mutate_at(.vars="fi_year",tidyr::replace_na,replace=CY-1) %>%
 	    dplyr::filter(fi_year>=(CY-10)) %>%
-	    tidyr::complete(ser_nameshort,fi_year=(CY-10):CY) %>%
-	    dplyr::filter(0==rowSums(!is.na(. %>% select(-fi_id,-ser_nameshort,-fi_year,-fi_dts_datasource,-fiser_ser_id)))) %>%
-	    dplyr::arrange(ser_nameshort, fi_year)
+	    tidyr::complete(!!sym(ifelse(type=="series","ser_nameshort","fisa_sai_id")),fi_year=(CY-10):CY) %>%
+	    dplyr::filter(0==rowSums(!is.na(. %>% select(-fi_id,-!!sym(ifelse(type=="series","ser_nameshort","fi_sai_id")),-fi_year,-fi_dts_datasource,-!!sym(ifelse(type=="series","fiser_ser_id","fisa_sai_id")))))) %>%
+	    dplyr::arrange(!!sym(ifelse(type=="series","ser_nameshort","fisa_sai_id")), fi_year)
 	  
 	  if (nrow(newbiom)>0) {
 	    #openxlsx::writeData(wb, sheet = "new_biometry", newbiom, startRow = 1)
-	    writeWorksheet(wb, newbiom,  sheet = "new_individual_measures")	
+	    writeWorksheet(wb, newbiom,  sheet = "new_individual_metrics")	
 	  }
 	}
 	
 	
 # maps ---------------------------------------------------------------
 #st_crs(ccm) 
+	if (type=="series") {
 	if (nrow(t_series_ser)>0){
 		for (i in 1:nrow(t_series_ser)){
 			#turn a pgsql array into an R vector for ccm_wso_id
@@ -425,7 +411,7 @@ create_datacall_file_series <- function(country, name, ser_typ_id){
 			addImage(wb,paste(tempdir(),"/",t_series_ser$ser_nameshort[i],".png",sep=""),name=paste("station_map_",i,sep=""),originalSize=TRUE)
 		}
 	}
-	
+	}
 	#saveWorkbook(wb, file = destinationfile, overwrite = TRUE)
 	saveWorkbook(wb, file = destinationfile)
 	cat("work finished\n")

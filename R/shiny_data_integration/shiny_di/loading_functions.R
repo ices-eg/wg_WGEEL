@@ -738,8 +738,8 @@ load_aquaculture<-function(path,datasource){
     country =as.character(data_xls[1,6])
     # check for the file integrity
     if (ncol(data_xls)!=10) cat(str_c("number column wrong ",file,"\n"))
-    data_xls$eel_qal_id <- NA
-    data_xls$eel_qal_comment <- NA
+    # data_xls$eel_qal_id <- NA
+    # data_xls$eel_qal_comment <- NA
     data_xls$eel_datasource <- datasource
     # check column names
     correct_names <- c(		"eel_typ_name","eel_year","eel_value","eel_missvaluequal","eel_emu_nameshort",
@@ -973,8 +973,8 @@ load_biomass<-function(path,datasource){
     # check for the file integrity, only 12 column in this file
     if (ncol(data_xls)!=11 & sheet=="new data") cat(str_c("new_data: number column wrong should have been 11 in template for country",country,"\n"))
     if (ncol(data_xls)!=12 & sheet %in% c("deleted_data","updated_data")) cat(str_c("updated or deleted_data: number column wrong should have been 12 in template for country",country,"\n"))
-    data_xls$eel_qal_id <- NA
-    data_xls$eel_qal_comment <- NA
+    # data_xls$eel_qal_id <- NA
+    # data_xls$eel_qal_comment <- NA
     data_xls$eel_datasource <- datasource
     # check column names
     #FIXME there is a problem with name in data_xls, here we have to use typ_name
@@ -1235,8 +1235,8 @@ load_mortality_rates<-function(path,datasource){
     # check for the file integrity, only 12 column in this file
     if (ncol(data_xls)!=11 & sheet=="new data") cat(str_c("new_data: number column wrong should have been 11 in template for country",country,"\n"))
     if (ncol(data_xls)!=12 & sheet %in% c("deleted_data","updated_data")) cat(str_c("updated or deleted_data: number column wrong should have been 12 in template for country",country,"\n"))
-    data_xls$eel_qal_id <- NA
-    data_xls$eel_qal_comment <- NA
+    # data_xls$eel_qal_id <- NA
+    # data_xls$eel_qal_comment <- NA
     data_xls$eel_datasource <- datasource
     if ("typ_name" %in% names(data_xls)){
       data_xls <- data_xls %>%
@@ -1500,8 +1500,8 @@ load_mortality_silver<-function(path,datasource){
 	# check for the file integrity, only 10 column in this file
 	if (ncol(data_xls)!=10) cat(str_c("number column wrong, should have been 10 in file for country ",country,"\n"))
 	# check column names
-	data_xls$eel_qal_id <- NA
-	data_xls$eel_qal_comment <- NA
+	# data_xls$eel_qal_id <- NA
+	# data_xls$eel_qal_comment <- NA
 	data_xls$eel_datasource <- datasource
 	if (!all(colnames(data_xls)%in%
 					c("eel_typ_name", "eel_year","eel_value", "eel_missvaluequal","eel_emu_nameshort",
@@ -1737,8 +1737,8 @@ load_potential_available_habitat<-function(path,datasource){
 	# check for the file integrity, only 10 column in this file
 	if (ncol(data_xls)!=10) cat(str_c("number column wrong ",file,"\n"))
 	# check column names
-	data_xls$eel_qal_id <- NA
-	data_xls$eel_qal_comment <- NA
+	# data_xls$eel_qal_id <- NA
+	# data_xls$eel_qal_comment <- NA
 	data_xls$eel_datasource <- datasource
 	
 	if (!all(colnames(data_xls)%in%
