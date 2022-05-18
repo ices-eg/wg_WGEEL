@@ -2177,14 +2177,14 @@ load_series<-function(path,datasource, stage="glass_eel"){
 						country=country))
 		
 # must only have one value
-data_error <- rbind(data_error, check_unique(
+		data_error <- rbind(data_error, check_unique(
 						dataset=series,						
 						namedataset= "series_info",
 						column="ser_cou_code",
 						country=country))
 # check country code
 		
-data_error <- rbind(data_error, check_values(
+		data_error <- rbind(data_error, check_values(
 						dataset=series,						
 						namedataset= "series_info",
 						column="ser_cou_code",
@@ -2295,7 +2295,7 @@ data_error <- rbind(data_error, check_values(
 						country=country,
 						values=c(1,0,"true","false",'TRUE','FALSE')))
 		
-	} 
+	} # end if
 #---------------------- station ---------------------------------------------	
 # read the catch_landings sheet
 	cat("loading station \n")
@@ -2454,17 +2454,17 @@ data_error <- rbind(data_error, check_values(
 				"updated_individual_metrics"="fi_date",
 				"deleted_individual_metrics"="fi_date"
 		)
-		if (!is.null(column_year)){
+		if (!is.null(column_date)){
 			data_error <- rbind(data_error, check_missing(
 							dataset = data_xls,
 							namedataset = sheet,		
-							column = column_year,
+							column = column_date,
 							country = country))
 			
 			data_error <- rbind(data_error, check_type(
 							dataset = data_xls,					
 							namedataset= sheet,		
-							column=column_year,
+							column=column_date,
 							country=country,
 							type="numeric"))
 		}
@@ -2504,15 +2504,20 @@ data_error <- rbind(data_error, check_values(
 											"eye_diam_mean_mm",
 											"pectoral_lengthmm",
 											"female_proportion",
+											'is_female_(1=female,0=male)',
+											"is_differentiated_(1=differentiated,0_undifferentiated)",	
 											"differentiated_proportion",
 											"anguillicola_proportion",
+											"anguillicola_presence(1=present,0=absent)",			
 											"anguillicola_intensity",
 											"muscle_lipidfatmeter_perc",
 											"muscle_grav_perc",
 											"sum_6_pcb",
 											"teq",
 											"evex_proportion",
+											"evex_presence_(1=present,0=absent)",			
 											"hva_proportion",
+											"hva_presence_(1=present,0=absent)",			
 											"pb",
 											"hg",
 											"cd",
@@ -2535,23 +2540,8 @@ data_error <- rbind(data_error, check_values(
 											return(data_error)}
 										
 									})))
-# TODO check if we need to adapt this kind of function where all data are missing, this is for pre-filled values			
-#			data_error <- rbind(data_error, check_all_missing(
-#							dataset=new_group_metrics,				
-#							namedataset= "new_group_metrics",
-#							column=c('bio_length',
-#									'bio_weight',
-#									'bio_age',
-#									'bio_perc_female',
-#									'bio_length_f',
-#									'bio_weight_f',
-#									'bio_age_f',
-#									'bio_length_m',
-#									'bio_weight_m',
-#									'bio_age_m'),
-#							country=country))
-		} # end if grepl metrics
-		
+			
+		} # end if grepl
 		return(list(data=data_xls,error=data_error))
 	}			
 #	new_data <- fn_check_series("new_data", 
@@ -2598,7 +2588,7 @@ data_error <- rbind(data_error, check_values(
 					"evex_proportion","hva_proportion",	"pb",	"hg",	"cd","g_in_gy_proportion","s_in_ys_proportion"),
 			c("ser_nameshort",	"fi_date",	"fi_comment",  "lengthmm",	"weightg",	"ageyear",	"eye_diam_meanmm", "pectoral_lengthmm",
 					"is_female_(1=female,0=male)","is_differentiated_(1=differentiated,0_undifferentiated)",
-						"anguillicola_presence_(1=present,0=absent)",	"anguillicola_intensity",	"muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb", "teq",
+					"anguillicola_presence_(1=present,0=absent)",	"anguillicola_intensity",	"muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb", "teq",
 					"evex_presence_(1=present,0=absent)","hva_presence_(1=present,0=absent)",	"pb",	"hg",	"cd"),
 			c("fi_id","ser_nameshort","fiser_ser_id",	"fi_date",	"fi_comment", "fi_last_update",	"fi_dts_datasource",
 					"lengthmm",	"weightg",	"ageyear",	"eye_diam_meanmm", "pectoral_lengthmm",
@@ -2647,9 +2637,9 @@ data_error <- rbind(data_error, check_values(
 # launch helper_dev_connect
 #  path<-file.choose()
 # datasource <- the_eel_datasource
-# load_series(path,datasource="toto")
+# load_dcf(path,datasource="toto")
 load_dcf<-function(path,datasource){
-		
+	
 	data_error <- data.frame(nline = NULL, error_message = NULL)
 	the_metadata <- list()
 	dir <- dirname(path)
@@ -2677,15 +2667,16 @@ load_dcf<-function(path,datasource){
 			sheet ="sampling_info",
 			skip=0)
 	
-
+	
 	fn_check_columns(sampling_info, 
-			columns=c("sai_id","sai_name","sai_emu_nameshort","sai_cou_code","sai_year","sai_locationdescription","sai_area_division"	,
-					"sai_hty_code",	"sai_sam_gear","sai_samplingobjective","sai_samplingstrategy","sai_protocol","sai_qal_id","sai_comment",
-						"sai_lastupdate","sai_dts_datasource"),
-				file= file, 
-				nbcol=15)
-
-		country <- "unknown"
+			columns=c("sai_name","sai_emu_nameshort","sai_cou_code","sai_year","sai_locationdescription","sai_area_division"	,
+					"sai_hty_code",	"sai_samplingobjective","sai_samplingstrategy","sai_protocol","sai_qal_id","sai_comment",
+					"sai_lastupdate","sai_dts_datasource"),
+			file= file,
+			sheet="sampling_info",
+			nbcol=12)
+	
+	country <- "unknown"
 	if (nrow(sampling_info)>0) {
 		country <- as.character(sampling_info[1,"sai_cou_code"])
 		sampling_info$ser_dts_datasource <- datasource
@@ -2713,112 +2704,112 @@ load_dcf<-function(path,datasource){
 #					data_error_sampling_info)
 #		}			
 		
-	####### sai_name #######################################
-	
-	data_error <- rbind(data_error, check_missing(
-					dataset=sampling_info,
-					namedataset= "sampling_info",
-					column="sai_name",
-					country=country))
-	
-	data_error <- rbind(data_error, check_type(
-					dataset=sampling_info,
-					namedataset= "sampling_info",
-					column="sai_name",
-					country=country,
-					type="character"))
-	
-	data_error <- rbind(data_error, check_values(
-					dataset=sampling_info,
-					namedataset= "sampling_info",
-					column="sai_name",
-					country=country,
-					values=emus$emu_nameshort))
-	
-	
-
-	###### sai_emu_nameshort ##############
-	
-	data_error <- rbind(data_error, check_missing(
-					dataset=sampling_info,
-					namedataset= "sampling_info",
-					column="sai_emu_nameshort",
-					country=country))
-	
-	data_error <- rbind(data_error, check_type(
-					dataset=sampling_info,
-					namedataset= "sampling_info",
-					column="sai_emu_nameshort",
-					country=country,
-					type="character"))
-	
-	data_error <- rbind(data_error, check_values(
-					dataset=sampling_info,
-					namedataset= "sampling_info",
-					column="sai_emu_nameshort",
-					country=country,
-					values=emus$emu_nameshort))
-	
-	###### sai_cou_code ##############
-	
-# must be a character
-	data_error <- rbind(data_error, check_type(
-					dataset=sampling_info,
-					namedataset= "sampling_info",
-					column="sai_cou_code",
-					country=country,
-					type="character"))
-	
-# should not have any missing value
-	data_error <- rbind(data_error, check_missing(
-					dataset=sampling_info,						
-					namedataset= "sampling_info",
-					column="sai_cou_code",
-					country=country))
-	
-# must only have one value
-	data_error <- rbind(data_error, check_unique(
-					dataset=sampling_info,						
-					namedataset= "sampling_info",
-					column="sai_cou_code",
-					country=country))
-	
-# check values list
-	
-data_error <- rbind(data_error, check_values(
-					dataset=sampling_info,						
-					namedataset= "sampling_info",
-					column="sai_cou_code",
-					country=country,
-					values=list_country))	
-	
-## sai_year		
-
-data_error <- rbind(data_error, check_missing(
-				dataset = sampling_info,						
-				namedataset= "sampling_info",
-				column = "sai_year",
-				country = country))
-
-data_error <- rbind(data_error, check_type(
-				dataset = sampling_info,						
-				namedataset= "sampling_info",
-				column = "sai_year",
-				country = country,
-				type="numeric"))
-
-## sai_area_division
-
-# check country code
-	
-data_error <- rbind(data_error, check_values(
-					dataset=sampling_info,						
-					namedataset= "sampling_info",
-					column="sai_cou_code",
-					country=country,
-					values=list_country))			
+		####### sai_name #######################################
 		
-	
+		data_error <- rbind(data_error, check_missing(
+						dataset=sampling_info,
+						namedataset= "sampling_info",
+						column="sai_name",
+						country=country))
+		
+		data_error <- rbind(data_error, check_type(
+						dataset=sampling_info,
+						namedataset= "sampling_info",
+						column="sai_name",
+						country=country,
+						type="character"))
+		
+		data_error <- rbind(data_error, check_values(
+						dataset=sampling_info,
+						namedataset= "sampling_info",
+						column="sai_name",
+						country=country,
+						values=emus$emu_nameshort))
+		
+		
+		
+		###### sai_emu_nameshort ##############
+		
+		data_error <- rbind(data_error, check_missing(
+						dataset=sampling_info,
+						namedataset= "sampling_info",
+						column="sai_emu_nameshort",
+						country=country))
+		
+		data_error <- rbind(data_error, check_type(
+						dataset=sampling_info,
+						namedataset= "sampling_info",
+						column="sai_emu_nameshort",
+						country=country,
+						type="character"))
+		
+		data_error <- rbind(data_error, check_values(
+						dataset=sampling_info,
+						namedataset= "sampling_info",
+						column="sai_emu_nameshort",
+						country=country,
+						values=emus$emu_nameshort))
+		
+		###### sai_cou_code ##############
+		
+# must be a character
+		data_error <- rbind(data_error, check_type(
+						dataset=sampling_info,
+						namedataset= "sampling_info",
+						column="sai_cou_code",
+						country=country,
+						type="character"))
+		
+# should not have any missing value
+		data_error <- rbind(data_error, check_missing(
+						dataset=sampling_info,						
+						namedataset= "sampling_info",
+						column="sai_cou_code",
+						country=country))
+		
+# must only have one value
+		data_error <- rbind(data_error, check_unique(
+						dataset=sampling_info,						
+						namedataset= "sampling_info",
+						column="sai_cou_code",
+						country=country))
+		
+# check values list
+		
+		data_error <- rbind(data_error, check_values(
+						dataset=sampling_info,						
+						namedataset= "sampling_info",
+						column="sai_cou_code",
+						country=country,
+						values=list_country))	
+		
+		## sai_year		
+		
+		data_error <- rbind(data_error, check_missing(
+						dataset = sampling_info,						
+						namedataset= "sampling_info",
+						column = "sai_year",
+						country = country))
+		
+		data_error <- rbind(data_error, check_type(
+						dataset = sampling_info,						
+						namedataset= "sampling_info",
+						column = "sai_year",
+						country = country,
+						type="numeric"))
+		
+		## sai_area_division
+		
+# check country code
+		
+		data_error <- rbind(data_error, check_values(
+						dataset=sampling_info,						
+						namedataset= "sampling_info",
+						column="sai_cou_code",
+						country=country,
+						values=list_country))			
+		
+		
 		
 		###### sai_hty_code ##############
 		
@@ -2844,7 +2835,7 @@ data_error <- rbind(data_error, check_values(
 						country=country,
 						values=c("F","T","C","MO","AL")))
 		
-			
+		
 		
 		###### sai_area_div ##############
 		
@@ -2855,7 +2846,7 @@ data_error <- rbind(data_error, check_values(
 						country=country,
 						type="character"))
 		
-	# the dataset ices_division should have been loaded there
+		# the dataset ices_division should have been loaded there
 		data_error <- rbind(data_error, check_values(
 						dataset=sampling_info,						
 						namedataset= "sampling_info",
@@ -2887,7 +2878,7 @@ data_error <- rbind(data_error, check_values(
 						values = c("F","T","C","MO","AL")))	
 		
 		# sai_samplingobjective	
-
+		
 		
 		data_error <- rbind(data_error, check_missing(
 						dataset = sampling_info,						
@@ -2912,12 +2903,12 @@ data_error <- rbind(data_error, check_values(
 						country=country))
 		
 		# sai_qal_id	sai_comment	sai_lastupdate	sai_dts_datasource
-	
+		
 		
 	} # end if nrow
-
+	
 	#---------------------- all_other_sheets ---------------------------------------------
-	fn_check_series <- function(sheet, columns, nbcol){
+	fn_check_gr_ind <- function(sheet, columns, nbcol){
 		data_xls <- read_excel(
 				path=path,
 				sheet=sheet,
@@ -2931,10 +2922,10 @@ data_error <- rbind(data_error, check_values(
 		# check for the file integrity		
 		
 		# check column names for each sheet
-
+		
 		fn_check_columns(data=data_xls, columns=columns,	file = file, sheet=sheet, nbcol=nbcol)
 		
-
+		
 		if (grepl("group", sheet)) {
 			data_xls$gr_dts_datasource <- datasource
 			data_xls$meg_dts_datasource <- datasource
@@ -3050,22 +3041,22 @@ data_error <- rbind(data_error, check_values(
 				"updated_individual_metrics"="fi_date",
 				"deleted_individual_metrics"="fi_date"
 		)
-		if (!is.null(column_year)){
+		if (!is.null(column_date)){
 			data_error <- rbind(data_error, check_missing(
 							dataset = data_xls,
 							namedataset = sheet,		
-							column = column_year,
+							column = column_date,
 							country = country))
 			
 			data_error <- rbind(data_error, check_type(
 							dataset = data_xls,					
 							namedataset= sheet,		
-							column=column_year,
+							column=column_date,
 							country=country,
 							type="numeric"))
 		}
 		
-
+		
 		if (grepl("metrics", sheet)) {
 			
 # all mty related columns should be numeric
@@ -3077,15 +3068,20 @@ data_error <- rbind(data_error, check_values(
 											"eye_diam_mean_mm",
 											"pectoral_lengthmm",
 											"female_proportion",
+											'is_female_(1=female,0=male)',
+											"is_differentiated_(1=differentiated,0_undifferentiated)",	
 											"differentiated_proportion",
 											"anguillicola_proportion",
+											"anguillicola_presence(1=present,0=absent)",			
 											"anguillicola_intensity",
 											"muscle_lipidfatmeter_perc",
 											"muscle_grav_perc",
 											"sum_6_pcb",
 											"teq",
 											"evex_proportion",
+											"evex_presence_(1=present,0=absent)",			
 											"hva_proportion",
+											"hva_presence_(1=present,0=absent)",			
 											"pb",
 											"hg",
 											"cd",
@@ -3108,21 +3104,22 @@ data_error <- rbind(data_error, check_values(
 											return(data_error)}
 										
 									})))
-
+			
+		} # end if metrics
 		
 		return(list(data=data_xls,error=data_error))
-	}			
-
+	}	# 	fn_check_gr_ind		
 	
-
 	
-	new_group_metrics <- fn_check_series("new_group_metrics", 
-			columns=c("sai_name", "sai_emu_nameshort",	"gr_year",	"grsa_lfs_code", "gr_number", "gr_comment","lengthmm",	"weightg",	"ageyear",	"female_proportion", "differentiated_proportion",
-					"m_mean_lengthmm","m_mean_weightg","m_mean_ageyear","f_mean_lengthmm","f_mean_weightg","f_mean_age","g_in_gy_proportion",	"s_in_ys_proportion",	
-					"anguillicola_proportion",	"anguillicola_intensity",	"muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb", "teq",	"evex_proportion",	
-					"hva_proportion",	"pb",	"hg",	"cd"), 
-			nbcol=30)	
 	
+	
+#	new_group_metrics <- fn_check_series("new_group_metrics", 
+#			columns=c("sai_name", "sai_emu_nameshort",	"gr_year",	"grsa_lfs_code", "gr_number", "gr_comment","lengthmm",	"weightg",	"ageyear",	"female_proportion", "differentiated_proportion",
+#					"m_mean_lengthmm","m_mean_weightg","m_mean_ageyear","f_mean_lengthmm","f_mean_weightg","f_mean_age","g_in_gy_proportion",	"s_in_ys_proportion",	
+#					"anguillicola_proportion",	"anguillicola_intensity",	"muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb", "teq",	"evex_proportion",	
+#					"hva_proportion",	"pb",	"hg",	"cd"), 
+#			nbcol=30)	
+#	
 	sheet <- list(
 			"new_group_metrics",
 			"updated_group_metrics",
@@ -3135,47 +3132,45 @@ data_error <- rbind(data_error, check_values(
 					"m_mean_lengthmm","m_mean_weightg","m_mean_ageyear","f_mean_lengthmm","f_mean_weightg","f_mean_age","g_in_gy_proportion",	"s_in_ys_proportion",	
 					"anguillicola_proportion",	"anguillicola_intensity",	"muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb", "teq",	"evex_proportion",	
 					"hva_proportion",	"pb",	"hg",	"cd"),
-			c("sai_id", "sai_name", "sai_emu_nameshort",	"gr_year",	"grsa_lfs_code", "gr_number", "gr_comment","lengthmm",	"weightg",	"ageyear",	"female_proportion", "differentiated_proportion",
+			c("gr_id", "sai_name", "sai_emu_nameshort",	"gr_year",	"grsa_lfs_code", "gr_number", "gr_comment",  "gr_last_update", "gr_dts_datasource", "lengthmm",	"weightg",	"ageyear",	"female_proportion", "differentiated_proportion",
 					"m_mean_lengthmm","m_mean_weightg","m_mean_ageyear","f_mean_lengthmm","f_mean_weightg","f_mean_age","g_in_gy_proportion",	"s_in_ys_proportion",	
 					"anguillicola_proportion",	"anguillicola_intensity",	"muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb", "teq",	"evex_proportion",	
 					"hva_proportion",	"pb",	"hg",	"cd"),
-			c("sai_id", "sai_name", "sai_emu_nameshort",	"gr_year",	"grsa_lfs_code", "gr_number", "gr_comment","lengthmm",	"weightg",	"ageyear",	"female_proportion", "differentiated_proportion",
+			c("gr_id", "sai_name", "sai_emu_nameshort",	"gr_year",	"grsa_lfs_code", "gr_number", "gr_comment", "gr_last_update", "gr_dts_datasource","lengthmm",	"weightg",	"ageyear",	"female_proportion", "differentiated_proportion",
 					"m_mean_lengthmm","m_mean_weightg","m_mean_ageyear","f_mean_lengthmm","f_mean_weightg","f_mean_age","g_in_gy_proportion",	"s_in_ys_proportion",	
 					"anguillicola_proportion",	"anguillicola_intensity",	"muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb", "teq",	"evex_proportion",	
 					"hva_proportion",	"pb",	"hg",	"cd"),
-			c("ser_nameshort",	"das_id",	"das_ser_id",	"das_value",	"das_year",	"das_comment",	"das_effort",	"das_qal_id"),
-			c("ser_nameshort",	"gr_year",	"gr_number", "gr_comment","lengthmm",	"weightg",	"ageyear",	"female_proportion",
-					"m_mean_lengthmm","m_mean_weightg","m_mean_ageyear","f_mean_lengthmm","f_mean_weightg","f_mean_age",
-					"anguillicola_proportion",	"anguillicola_intensity",	"muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb",
-					"evex_proportion","hva_proportion",	"pb",	"hg",	"cd"),
-			
-			
-			NULL,
-			NULL,
-			NULL,
-			NULL,
-			NULL)
-	nbcol <- list(5,8,8,26,30,30,26,26,26) # TODO change this
-	
+			c("sai_name",	"sai_emu_nameshort",	"fi_date",	"fi_lfs_code",	"fisa_x_4326",	"fisa_y_4326",
+					"fi_comment",  "lengthmm",	"weightg",	"ageyear",	"eye_diam_meanmm", "pectoral_lengthmm",
+					"is_female_(1=female,0=male)","is_differentiated_(1=differentiated,0_undifferentiated)",
+					"anguillicola_presence_(1=present,0=absent)",	"anguillicola_intensity",	"muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb", "teq",
+					"evex_presence_(1=present,0=absent)","hva_presence_(1=present,0=absent)",	"pb",	"hg",	"cd"),
+			c("fi_id","sai_name",	"sai_emu_nameshort", "fi_date",	"fi_lfs_code", "fisa_x_4326",	"fisa_y_4326", "fi_comment",  "fi_last_update",	"fi_dts_datasource", 
+					"lengthmm",	"weightg",	"ageyear",	"eye_diam_meanmm", "pectoral_lengthmm",
+					"is_female_(1=female,0=male)","is_differentiated_(1=differentiated,0_undifferentiated)",
+					"anguillicola_presence_(1=present,0=absent)",	"anguillicola_intensity",	"muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb", "teq",
+					"evex_presence_(1=present,0=absent)","hva_presence_(1=present,0=absent)",	"pb",	"hg",	"cd"),
+			c("fi_id","sai_name",	"sai_emu_nameshort", "fi_date", "fi_lfs_code",	"fisa_x_4326",	"fisa_y_4326", "fi_comment",  "fi_last_update",	"fi_dts_datasource", 
+					"lengthmm",	"weightg",	"ageyear",	"eye_diam_meanmm", "pectoral_lengthmm",
+					"is_female_(1=female,0=male)","is_differentiated_(1=differentiated,0_undifferentiated)",
+					"anguillicola_presence_(1=present,0=absent)",	"anguillicola_intensity",	"muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb", "teq",
+					"evex_presence_(1=present,0=absent)","hva_presence_(1=present,0=absent)",	"pb",	"hg",	"cd"))
+	nbcol <- list(30,33,33,25,28,28) 
 	res <- purrr::pmap(list(sheet,columns,nbcol), fn_check_series)
 	data_error <- 	lapply(res,function(X)X$error) %>% bind_rows()
 	
 	
 	return(invisible(list(
-							series=series,
-							station = station,
-							new_data = res[[1]]$data,
-							updated_data = res[[2]]$data,
-							deleted_data = res[[3]]$data, 
-							new_group_metrics =  res[[4]]$data, 
-							updated_group_metrics = res[[5]]$data, 
-							deleted_group_metrics = res[[6]]$data, 
-							new_individual_metrics = res[[7]]$data, 
-							updated_individual_metrics = res[[8]]$data, 
-							deleted_individual_metrics = res[[9]]$data, 
-							t_series_ser = t_series_ser, 
-							error =data_error,
-							the_metadata =the_metadata))) 
+							sampling_info = sampling_info,
+							new_group_metrics =  res[[1]]$data, 
+							updated_group_metrics = res[[2]]$data, 
+							deleted_group_metrics = res[[3]]$data, 
+							new_individual_metrics = res[[4]]$data, 
+							updated_individual_metrics = res[[5]]$data, 
+							deleted_individual_metrics = res[[6]]$data,
+							error = data_error,
+							the_metadata = the_metadata))) 
 	
 }
+
 
