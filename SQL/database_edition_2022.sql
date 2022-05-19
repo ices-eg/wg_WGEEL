@@ -124,23 +124,17 @@ ALTER TABLE datawg.t_biometry_bio RENAME TO t_biometrygroupseries_bio;
   * 
   */ 
 
-----
--- first integrate new units
-----
---SELECT * FROM ref.tr_units_uni
-INSERT INTO ref.tr_units_uni (uni_code, uni_name) VALUES ('mm','milimeter');
-INSERT INTO ref.tr_units_uni (uni_code, uni_name) VALUES ('percent','percentage');
-INSERT INTO ref.tr_units_uni (uni_code, uni_name) VALUES ('ng/g','nanogram per gram');
-INSERT INTO ref.tr_units_uni (uni_code, uni_name) VALUES ('nr year','number of years');
 
 DROP TABLE IF EXISTS ref.tr_metrictype_mty CASCADE;
  CREATE TABLE ref.tr_metrictype_mty(
  mty_id serial PRIMARY KEY,
  mty_name TEXT,
+ mty_individual_name TEXT,
  mty_description TEXT,
- mty_type TEXT CHECK (mty_type='quality' OR mty_type='biometry' OR mty_type='Migration'), -- this will be used in triggers later
- mty_group TEXT CHECK (mty_group='individual' OR mty_type='group' OR mty_type='both'), -- this will be used in triggers later
+ mty_type TEXT CHECK (mty_type='quality' OR mty_type='biometry' OR mty_type='migration'), -- this will be used in triggers later,
+ mty_method TEXT,
  mty_uni_code varchar(20),
+ mty_group TEXT CHECK (mty_group='individual' OR mty_group='group' OR mty_group='both'), -- this will be used in triggers later
  mty_min NUMERIC,
  mty_max NUMERIC,
  CONSTRAINT c_fk_uni_code FOREIGN KEY (mty_uni_code) REFERENCES "ref".tr_units_uni(uni_code) ON UPDATE CASCADE
@@ -155,7 +149,7 @@ grant all on table ref.tr_metrictype_mty to wgeel;
 DROP TABLE IF EXISTS datawg.t_samplinginfo_sai CASCADE;
 CREATE TABLE datawg.t_samplinginfo_sai(
   sai_id serial PRIMARY KEY,
-  sai_name VARCHAR(20),
+  sai_name VARCHAR(40),
   sai_cou_code VARCHAR(2),
   sai_emu_nameshort VARCHAR(20),
   sai_locationdescription VARCHAR(254),
@@ -673,6 +667,7 @@ $function$
 DROP TRIGGER IF EXISTS check_meg_mty_is_group ON datawg.t_metricgroup_meg;
 CREATE TRIGGER check_meg_mty_is_group AFTER INSERT OR UPDATE ON
    datawg.t_metricgroup_meg FOR EACH ROW EXECUTE FUNCTION datawg.meg_mty_is_group();
+grant all on all sequences in schema datawg to wgeel;
 
 
 -----
@@ -934,14 +929,16 @@ insert into ref.tr_quality_qal values (22, 'discarded_wgeel_2022', 'This data ha
 insert into ref.tr_datasource_dts values ('dc_2022', 'Joint EIFAAC/GFCM/ICES Eel Data Call 2022');
 
 
-/* this is done in the r script
+
 ----
 -- integrate new units
 ----
-SELECT * FROM ref.tr_units_uni
-INSERT INTO ref.tr_units_uni (uni_code, uni_name) VALUES ('mm','milimeter');
+SELECT * FROM ref.tr_units_uni;
+INSERT INTO ref.tr_units_uni (uni_code, uni_name) VALUES ('mm','milimeters');
 INSERT INTO ref.tr_units_uni (uni_code, uni_name) VALUES ('percent','percentage');
 INSERT INTO ref.tr_units_uni (uni_code, uni_name) VALUES ('ng/g','nanogram per gram');
-INSERT INTO ref.tr_units_uni (uni_code, uni_name) VALUES ('nr year','number of years');
+INSERT INTO ref.tr_units_uni (uni_code, uni_name) VALUES ('nr year','years as in age');
+INSERT INTO ref.tr_units_uni (uni_code, uni_name) VALUES ('g','weight in grams');
+INSERT INTO ref.tr_units_uni (uni_code, uni_name) VALUES ('proportion','proportion between 0 and 1'); 
 
 

@@ -1,6 +1,20 @@
 library(RPostgres)
 library(dplyr)
-con=dbConnect(Postgres(),host="localhost",user="wgeel",dbname="wgeel",password="wgeel", port=5432)
+library(yaml)
+cred=read_yaml("../../../credentials.yml")
+con = dbConnect(Postgres(), dbname=cred$dbname,host=cred$host,port=cred$port,user=cred$user)
+
+#insert new tables
+metric=readxl::read_excel("/tmp/tr_metrictype_mty.xlsx")
+dbSendQuery(con,"drop table if exists tr_metrictype_mty")
+dbWriteTable(con,"tr_metrictype_mty",metric,temporaty=TRUE)
+dbSendQuery(con,"insert into ref.tr_metrictype_mty select * from tr_metrictype_mty")
+dbSendQuery(con,"drop table if exists tr_metrictype_mty")
+
+
+
+
+
 
 ####collect all biometry data associated with time series
 biometry_ser=dbGetQuery(con,"select * from datawg.t_biometry_series_bis")
@@ -35,8 +49,8 @@ groups <- biometry_ser %>%
 
 
 dbWriteTable(con,"group_tmp",groups,temporary=TRUE)
-res=dbGetQuery(con,"insert into datawg.t_groupseries_grser(gr_year,grser_ser_id,gr_lfs_code,gr_number,gr_comment,gr_dts_datasource)
-           (select g.gr_year,g.grser_ser_id,g.gr_lfs_code,g.gr_number,g.gr_comment,g.gr_dts_datasource from group_tmp g) returning gr_id")
+res=dbGetQuery(con,"insert into datawg.t_groupseries_grser(gr_year,grser_ser_id,gr_number,gr_comment,gr_dts_datasource)
+           (select g.gr_year,g.grser_ser_id,g.gr_number,g.gr_comment,g.gr_dts_datasource from group_tmp g) returning gr_id")
 biometry_ser$gid=res[,1] #gids of the newly created groups
 dbSendQuery(con,"drop table if exists group_tmp")
 
@@ -54,7 +68,7 @@ biometry_ser_long <- biometry_ser %>%
          bio_length_f,bio_weight_f,bio_age_f,
          bio_length_m, bio_weight_m,bio_age_m,
          bis_g_in_gy,bio_qal_id,bio_dts_datasource) %>%
-  pivot_longer(-c(gid,bio_qal_id,bio_dts_datasource),gid,values_to="metric_val",names_to="oldmeas") %>%
+  pivot_longer(-c(gid,bio_qal_id,bio_dts_datasource),values_to="metric_val",names_to="oldmeas") %>%
   left_join(corresp_metric) %>%
   filter(!is.na(metric_val))
 
@@ -104,8 +118,8 @@ sampling_sites <- biometry_sa_sf %>%
   mutate(sai_name=paste(emu_nameshort,bit_loc_name,"HIST",sep="_"))
 
 dbWriteTable(con,"sampling_tmp",sampling_sites,temporary=TRUE)
-sai_id=dbGetQuery(con,"insert into datawg.t_samplinginfo_sai (sai_cou_code,sai_emu_nameshort,sai_metadata) 
-            (select emu_cou_code,emu_nameshort, 'historical data ' || coalesce(bit_loc_name,'') from sampling_tmp) returning sai_id")
+sai_id=dbGetQuery(con,"insert into datawg.t_samplinginfo_sai (sai_cou_code,sai_emu_nameshort,sai_comment,sai_name) 
+            (select emu_cou_code,emu_nameshort, 'historical data ' || coalesce(bit_loc_name,''), sai_name from sampling_tmp) returning sai_id")
 dbSendQuery(con,"drop table if exists sampling_tmp")
 sampling_sites$sai_id = sai_id[,1]
 
@@ -133,21 +147,21 @@ groups <- groups %>%
   select(bio_lfs_code,bio_year,bio_number,
          bio_comment,
          bio_dts_datasource, sai_id) 
-# 
-# groups_renames <- groups %>%
-#   rename(gr_lfs_code=bio_lfs_code,
-#          gr_year=bio_year,
-#          gr_number=bio_number,
-#          gr_comment=bio_comment,
-#          gr_dts_datasource=bio_dts_datasource,
-#          grsa_sai_id=sai_id) %>%
-#   bind_cols(groups)
-# 
-# 
+
+groups_renames <- groups %>%
+  rename(gr_lfs_code=bio_lfs_code,
+         gr_year=bio_year,
+         gr_number=bio_number,
+         gr_comment=bio_comment,
+         gr_dts_datasource=bio_dts_datasource,
+         grsa_sai_id=sai_id) %>%
+  bind_cols(groups)
+
+
 
 dbWriteTable(con,"group_tmp",groups,temporary=TRUE)
-res=dbGetQuery(con,"insert into datawg.t_groupsamp_grsa(gr_year,gr_lfs_code,gr_number,gr_comment,gr_dts_datasource,grsa_sai_id)
-           (select g.gr_year,g.gr_lfs_code,g.gr_number,g.gr_comment,g.gr_dts_datasource,g.grsa_sai_id from group_tmp g) returning gr_id")
+res=dbGetQuery(con,"insert into datawg.t_groupsamp_grsa(gr_year,grsa_lfs_code,gr_number,gr_comment,gr_dts_datasource,grsa_sai_id)
+           (select g.bio_year,g.bio_lfs_code,g.bio_number,g.bio_comment,g.bio_dts_datasource,g.sai_id from group_tmp g) returning gr_id")
 groups$gid=res[,1] #gids of the newly created groups
 dbSendQuery(con,"drop table if exists group_tmp")
 
@@ -161,7 +175,7 @@ library(tidyr)
 
 biometry_sa_long <- biometry_sa_sf %>%
   st_drop_geometry() %>%
-  left_join(merge(groups_renames,groups)) %>%
+  right_join(merge(groups_renames,groups)) %>%
   mutate(bio_perc_female=bio_perc_female / 100) %>%
   dplyr::select(gid,bio_length,bio_weight,bio_age,bio_perc_female,
          bio_length_f,bio_weight_f,bio_age_f,
@@ -177,14 +191,3 @@ dbWriteTable(con,"bioval_tmp",biometry_sa_long,temporary=TRUE)
 dbSendQuery(con, "insert into datawg.t_metricgroupsamp_megsa (meg_gr_id,meg_mty_id,meg_value,meg_qal_id,meg_dts_datasource)
            select gid::integer,mty_id,metric_val,bio_qal_id,bio_dts_datasource from bioval_tmp left join ref.tr_metrictype_mty on mty=mty_name")
 dbSendQuery(con,"drop table if exists bioval_tmp")
-
-metric=readxl::read_excel("/tmp/tr_metrictype_mty.xlsx")
-dbSendQuery(con,"drop table if exists ref.tr_metrictype_mty")
-dbWriteTable(con,Id(schema="ref",table="tr_metrictype_mty"),metric)
-
-
-unit=readxl::read_excel("/tmp/tr_units_uni.xlsx")
-dbSendQuery(con,"drop table if exists ref.tr_units_uni.xlsx")
-dbWriteTable(con,Id(schema="ref",table="tr_units_uni"),metric)
-
-
