@@ -132,22 +132,43 @@ INSERT INTO ref.tr_units_uni (uni_code, uni_name) VALUES ('mm','milimeter');
 INSERT INTO ref.tr_units_uni (uni_code, uni_name) VALUES ('percent','percentage');
 INSERT INTO ref.tr_units_uni (uni_code, uni_name) VALUES ('ng/g','nanogram per gram');
 INSERT INTO ref.tr_units_uni (uni_code, uni_name) VALUES ('nr year','number of years');
+INSERT INTO ref.tr_units_uni (uni_code, uni_name) VALUES ('g','gram');
+INSERT INTO ref.tr_units_uni (uni_code, uni_name) VALUES ('wo','without unit');
+
 
 DROP TABLE IF EXISTS ref.tr_metrictype_mty CASCADE;
  CREATE TABLE ref.tr_metrictype_mty(
  mty_id serial PRIMARY KEY,
  mty_name TEXT,
+ mty_individual_name TEXT UNIQUE,
  mty_description TEXT,
- mty_type TEXT CHECK (mty_type='quality' OR mty_type='biometry' OR mty_type='Migration'), -- this will be used in triggers later
- mty_group TEXT CHECK (mty_group='individual' OR mty_type='group' OR mty_type='both'), -- this will be used in triggers later
- mty_uni_code varchar(20),
+ mty_type TEXT , -- this will be used in triggers later
+ mty_method TEXT,
+mty_uni_code varchar(20), 
+ mty_group TEXT, -- this will be used in triggers later
  mty_min NUMERIC,
  mty_max NUMERIC,
- CONSTRAINT c_fk_uni_code FOREIGN KEY (mty_uni_code) REFERENCES "ref".tr_units_uni(uni_code) ON UPDATE CASCADE
+ CONSTRAINT c_fk_uni_code FOREIGN KEY (mty_uni_code) REFERENCES "ref".tr_units_uni(uni_code) ON UPDATE CASCADE,
+ CONSTRAINT c_ck_mty_type CHECK (mty_type='quality' OR mty_type='biometry' OR mty_type='migration'),
+ CONSTRAINT c_ck_mty_group CHECK (mty_group='individual' OR mty_group='group' OR mty_group='both')
  );
  
+COMMENT ON COLUMN ref.tr_metrictype_mty.mty_individual_name IS 'In datacall spreadsheets, names replaced by those for better reading';
+COMMENT ON COLUMN ref.tr_metrictype_mty.mty_group IS 'Indicate whether the variable can be use for individual, group, or both';
+GRANT ALL ON TABLE ref.tr_metrictype_mty TO wgeel;
 
-  
+--see database_edition_2022.R
+-- the TABLE CONTENT IS CREATED BY LLINES
+/*
+
+tr_metrictype_mty_temp <- readxl::read_excel("C:/Users/cedric.briand/OneDrive - EPTB Vilaine/Projets/GRISAM/2022/WKEELDATA4/tr_metrictype_mty.xlsx")
+dbExecute(con, "DROP TABLE IF EXISTS tr_metrictype_mty_temp")
+dbWriteTable(con,"tr_metrictype_mty_temp",tr_metrictype_mty_temp, overwrite=TRUE)
+
+dbSendQuery(con, "INSERT INTO ref.tr_metrictype_mty SELECT * FROM tr_metrictype_mty_temp")
+dbExecute(con, "DROP TABLE tr_metrictype_mty_temp")
+ 
+ */
  
 /*
  * CREATE A TABLE TO STORE BIOMETRY ON INDIVIDUAL DATA
@@ -165,14 +186,12 @@ CREATE TABLE datawg.t_samplinginfo_sai(
   sai_comment TEXT, -- this could be DCF ... other CHECK IF we need a referential TABLE....
   sai_samplingobjective TEXT,
   sai_samplingstrategy TEXT,
-  sai_protocol TEXT,sai_samplingstrategy
-  sai_samplingstrategy
+  sai_protocol TEXT,
   sai_qal_id INTEGER, 
   sai_lastupdate DATE NOT NULL DEFAULT CURRENT_DATE,
   sai_dts_datasource VARCHAR(100),
   CONSTRAINT c_fk_sai_qal_id FOREIGN KEY (sai_qal_id) REFERENCES "ref".tr_quality_qal(qal_id) ON UPDATE CASCADE,
-  CONSTRAINT c_fk_sai_sam_gear FOREIGN KEY (sai_sam_gear) REFERENCES "ref".tr_gear_gea(gear_id) ON UPDATE CASCADE,
-  CONSTRAINT c_fk_sai_cou_code FOREIGN KEY (sai_cou_code) REFERENCES "ref".tr_country_cou(cou_code) ON UPDATE CASCADE,
+   CONSTRAINT c_fk_sai_cou_code FOREIGN KEY (sai_cou_code) REFERENCES "ref".tr_country_cou(cou_code) ON UPDATE CASCADE,
   CONSTRAINT c_fk_sai_emu FOREIGN KEY (sai_emu_nameshort,sai_cou_code) REFERENCES "ref".tr_emu_emu(emu_nameshort,emu_cou_code) ON UPDATE CASCADE,
   CONSTRAINT c_fk_sai_area_division FOREIGN KEY (sai_area_division) REFERENCES "ref".tr_faoareas(f_division) ON UPDATE CASCADE,
   CONSTRAINT c_fk_sai_dts_datasource FOREIGN KEY (sai_dts_datasource) REFERENCES "ref".tr_datasource_dts(dts_datasource) ON UPDATE CASCADE,
