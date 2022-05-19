@@ -197,7 +197,7 @@ CREATE TABLE datawg.t_samplinginfo_sai(
   CONSTRAINT c_fk_sai_dts_datasource FOREIGN KEY (sai_dts_datasource) REFERENCES "ref".tr_datasource_dts(dts_datasource) ON UPDATE CASCADE,
   CONSTRAINT c_fk_sai_hty_code FOREIGN KEY (sai_hty_code) REFERENCES "ref".tr_habitattype_hty(hty_code) ON UPDATE CASCADE
 );
-
+GRANT ALL ON TABLE datawg.t_samplinginfo_sai TO wgeel;
 -- Table Triggers
 
 CREATE OR REPLACE FUNCTION datawg.sai_lastupdate()
@@ -433,6 +433,8 @@ AS $function$
   END  ;
 $function$
 ;
+
+GRANT ALL ON FUNCTION  datawg.fish_in_emu TO wgeel;
 
 DROP TRIGGER IF EXISTS check_fish_in_emu ON datawg.t_fishsamp_fisa;
 CREATE TRIGGER check_fish_in_emu AFTER INSERT OR UPDATE ON
