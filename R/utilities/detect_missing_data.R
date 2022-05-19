@@ -8,7 +8,7 @@ detect_missing_data <- function(cou="FR",
 		host="localhost",
 		dbname="wgeel",
 		user="wgeel",
-		port=5432,
+		port=5435,
 		datasource="dc_2020") {
   #browser()
 
@@ -95,7 +95,7 @@ detect_missing_data <- function(cou="FR",
     if (startsWith(c,"landings ended")) return ("NP")
     if (startsWith(c, "landings recorded")) return("NC")
   })
-  missing_comb$eel_qal_id <- ifelse(missing_comb$eel_missvaluequal=="NC",0,2)
+  missing_comb$eel_qal_id <- ifelse(!is.na(missing_comb$eel_missvaluequal=="NC"),1,NA)
   missing_comb$eel_qal_comment <- "autofilled by missing data detection procedure"
   missing_comb$eel_datasource <- str_c(datasource,"_missing")
   
