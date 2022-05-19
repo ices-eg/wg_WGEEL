@@ -4,8 +4,12 @@
 # This script will create an excel sheet per country that currently have recruitment series
 #######################################################################################
 # put the current year there
-setwd("C:/workspace\\gitwgeel\\")
-CY<-2021
+if(Sys.info()["user"]=="hilaire.drouineau"){
+  setwd("~/Documents/Bordeaux/migrateurs/WGEEL/github/wg_WGEEL/")
+} else{
+  setwd("C:/workspace\\gitwgeel\\")
+}
+CY<-2022
 # function to load packages if not available
 load_library=function(necessary) {
 	if(!all(necessary %in% installed.packages()[, 'Package']))
@@ -51,7 +55,7 @@ options(sqldf.RPostgreSQL.user = userwgeel,
 		sqldf.RPostgreSQL.password = passwordwgeel,
 		sqldf.RPostgreSQL.dbname = "wgeel",
 		sqldf.RPostgreSQL.host = "localhost",
-		sqldf.RPostgreSQL.port = 5435)
+		sqldf.RPostgreSQL.port = port)
 
 #############################
 # Table storing information from the database
@@ -166,20 +170,20 @@ create_datacall_file <- function(country, eel_typ_id, name, ...){
 # TESTS -------------------------------------------
 # note passwordwgeel must be set and exist
 # passwordwgeel <- XXXXXXXX
-country <- "NO";eel_typ_id <- 4; name <- "Eel_Data_Call_2020_Annex4_Landings_Commercial";minyear=2000;
-maxyear=2020;host="localhost";dbname="wgeel";user="wgeel";port=5432;datasource="dc_2020";
+country <- "NO";eel_typ_id <- 4; name <- "Eel_Data_Call_2022_Annex4_Landings_Commercial";minyear=2000;
+maxyear=2020;host="localhost";dbname="wgeel";user="wgeel";port=5432;datasource="dc_2022";
 #test
 create_datacall_file ( 
 		country <- "FR",
 		eel_typ_id <- 4, 
-		name <- "Eel_Data_Call_2020_Annex4_Landings_Commercial",
+		name <- "Eel_Data_Call_2022_Annex4_Landings_Commercial",
 		minyear=2000,
-		maxyear=2020, #maxyear corresponds to the current year where we have to fill data
+		maxyear=2022, #maxyear corresponds to the current year where we have to fill data
 		host="localhost",
 		dbname="wgeel",
 		user="wgeel",
 		port=5432,
-		datasource="dc_2021")
+		datasource="dc_2022")
 
 
 create_datacall_file ( 
@@ -202,65 +206,68 @@ cou_code<-unique(t_eelstock_eel$eel_cou_code[!is.na(t_eelstock_eel$eel_cou_code)
 # create an excel file for each of the countries and each typ_id
 # LANDINGS COMMERCIAL AND RECREATIONAL
 # problems with "NO", "TR", "HR" 
-
+options(java.parameters = "-Xmx8000m")
 for (cou in cou_code){	
 	country <- cou
 	cat("country: ",country,"\n")
+	gc()
 	create_datacall_file ( 
 			country <- cou,
 			eel_typ_id <- 4, 
-			name <- "Eel_Data_Call_2021_Annex4_Landings_Commercial",
+			name <- "Eel_Data_Call_2022_Annex4_Landings_Commercial",
 			minyear=2000,
-			maxyear=2021, #maxyear corresponds to the current year where we have to fill data
+			maxyear=2022, #maxyear corresponds to the current year where we have to fill data
 			host="localhost",
 			dbname="wgeel",
 			user="wgeel",
-			port=5435,
-			datasource="dc_2021")
+			port=5432,
+			datasource="dc_2022")
 	cat("work finished\n")
 }
 
-for (cou in cou_code){		
+for (cou in cou_code){
+  gc()
 	country <- cou
 	cat("country: ",country,"\n")
 	create_datacall_file ( 
 			country <- cou,
 			eel_typ_id <- c(6), 
-			name <- "Eel_Data_Call_2021_Annex5_Landings_Recreational",
+			name <- "Eel_Data_Call_2022_Annex5_Landings_Recreational",
 			minyear=2000,
-			maxyear=2021, #maxyear corresponds to the current year where we have to fill data
+			maxyear=2022, #maxyear corresponds to the current year where we have to fill data
 			host="localhost",
 			dbname="wgeel",
 			user="wgeel",
-			port=5435,
-			datasource="dc_2021")
+			port=5432,
+			datasource="dc_2022")
 	cat("work finished",country,"\n")
 }
 
 # OTHER LANDINGS
 
-for (cou in cou_code){				
+for (cou in cou_code){	
+  gc()
 	create_datacall_file ( 
 			country <- cou,
 			eel_typ_id <- c(32,33), 
-			name <- "Eel_Data_Call_2021_Annex6_Landings_Other",
+			name <- "Eel_Data_Call_2022_Annex6_Landings_Other",
 			minyear=2000,
-			maxyear=2021, #maxyear corresponds to the current year where we have to fill data
-			datasource="dc_2021")
+			maxyear=2022, #maxyear corresponds to the current year where we have to fill data
+			datasource="dc_2022")
 	cat("work finished",country,"\n")
 }
 
 
 
 for (cou in cou_code){
-	
+	gc()
 	create_datacall_file ( 
 			country <- cou,
 			eel_typ_id <- c(8,9,10), 
-			name <- "Eel_Data_Call_2021_Annex7_Releases",
+			name <- "Eel_Data_Call_2022_Annex7_Releases",
 			minyear=2000,
-			maxyear=2021, #maxyear corresponds to the current year where we have to fill data
-			datasource="dc_2021")
+			maxyear=2022, #maxyear corresponds to the current year where we have to fill data
+			datasource="dc_2022")
 	cat("work finished",country,"\n")
 	
 }
@@ -273,14 +280,14 @@ cou_code_aqua<-unique(t_eelstock_eel$eel_cou_code[t_eelstock_eel$eel_typ_id%in%c
 #cou <-"MA"
 
 for (cou in cou_code_aqua){
-	
+	gc()
 	create_datacall_file ( 
 			country <- cou,
 			eel_typ_id <- c(11), 
-			name <- "Eel_Data_Call_2021_Annex8_Aquaculture",
+			name <- "Eel_Data_Call_2022_Annex8_Aquaculture",
 			minyear=2000,
-			maxyear=2021, #maxyear corresponds to the current year where we have to fill data
-			datasource="dc_2021")
+			maxyear=2022, #maxyear corresponds to the current year where we have to fill data
+			datasource="dc_2022")
 	cat("work finished",country,"\n")
 	
 }
