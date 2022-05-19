@@ -119,6 +119,7 @@ shinyServer(function(input, output, session){
 						#205-shiny-integration-for-dcf-data
 						query <- "SELECT * from ref.tr_units_uni"
 						tr_units_uni <<- dbGetQuery(pool, sqlInterpolate(ANSI(), query))   
+						browser()
 						
 						query <- "SELECT * from ref.tr_gear_gea"
 						tr_gear_gea <<- dbGetQuery(pool, sqlInterpolate(ANSI(), query))   
