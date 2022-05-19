@@ -136,8 +136,7 @@ DROP TABLE IF EXISTS ref.tr_metrictype_mty CASCADE;
  CONSTRAINT c_fk_uni_code FOREIGN KEY (mty_uni_code) REFERENCES "ref".tr_units_uni(uni_code) ON UPDATE CASCADE
  );
  
-
-  
+grant all on table ref.tr_metrictype_mty to wgeel;  
  
 /*
  * CREATE A TABLE TO STORE BIOMETRY ON INDIVIDUAL DATA
@@ -154,20 +153,19 @@ CREATE TABLE datawg.t_samplinginfo_sai(
   sai_hty_code varchar(2),
   sai_comment TEXT, -- this could be DCF ... other CHECK IF we need a referential TABLE....
   sai_samplingobjective TEXT,
+  sai_protocol TEXT,
   sai_samplingstrategy TEXT,
-  sai_protocol TEXT,sai_samplingstrategy
-  sai_samplingstrategy
   sai_qal_id INTEGER, 
   sai_lastupdate DATE NOT NULL DEFAULT CURRENT_DATE,
   sai_dts_datasource VARCHAR(100),
   CONSTRAINT c_fk_sai_qal_id FOREIGN KEY (sai_qal_id) REFERENCES "ref".tr_quality_qal(qal_id) ON UPDATE CASCADE,
-  CONSTRAINT c_fk_sai_sam_gear FOREIGN KEY (sai_sam_gear) REFERENCES "ref".tr_gear_gea(gear_id) ON UPDATE CASCADE,
   CONSTRAINT c_fk_sai_cou_code FOREIGN KEY (sai_cou_code) REFERENCES "ref".tr_country_cou(cou_code) ON UPDATE CASCADE,
   CONSTRAINT c_fk_sai_emu FOREIGN KEY (sai_emu_nameshort,sai_cou_code) REFERENCES "ref".tr_emu_emu(emu_nameshort,emu_cou_code) ON UPDATE CASCADE,
   CONSTRAINT c_fk_sai_area_division FOREIGN KEY (sai_area_division) REFERENCES "ref".tr_faoareas(f_division) ON UPDATE CASCADE,
   CONSTRAINT c_fk_sai_dts_datasource FOREIGN KEY (sai_dts_datasource) REFERENCES "ref".tr_datasource_dts(dts_datasource) ON UPDATE CASCADE,
   CONSTRAINT c_fk_sai_hty_code FOREIGN KEY (sai_hty_code) REFERENCES "ref".tr_habitattype_hty(hty_code) ON UPDATE CASCADE
 );
+grant all on table datawg.t_samplinginfo_sai to wgeel;  
 
 -- Table Triggers
 
@@ -201,6 +199,7 @@ CREATE TABLE datawg.t_fish_fi(
   fi_dts_datasource varchar(100),
   CONSTRAINT c_fk_fi_dts_datasource FOREIGN KEY (fi_dts_datasource) REFERENCES "ref".tr_datasource_dts(dts_datasource) ON UPDATE CASCADE
   );
+grant all on table datawg.t_fish_fi to wgeel;  
 
 -- Table Triggers
 
@@ -230,6 +229,7 @@ CREATE TABLE  datawg.t_fishseries_fiser(
   CONSTRAINT c_fk_fiser_ser_id FOREIGN KEY (fiser_ser_id) REFERENCES datawg.t_series_ser(ser_id) ON UPDATE CASCADE ON DELETE CASCADE
 )
 INHERITS (datawg.t_fish_fi);
+grant all on table datawg.t_fishseries_fiser  to wgeel;  
 
 
 CREATE OR REPLACE FUNCTION datawg.fiser_year()
@@ -270,6 +270,7 @@ CONSTRAINT c_fk_fisa_sai_id FOREIGN KEY (fisa_sai_id) REFERENCES datawg.t_sampli
 )
 INHERITS (datawg.t_fish_fi);
 
+grant all on table datawg.t_fishsamp_fisa to wgeel;  
 
 
   
@@ -294,6 +295,7 @@ CREATE TABLE datawg.t_metricind_mei (
   CONSTRAINT c_fk_mei_dts_datasource FOREIGN KEY (mei_dts_datasource) REFERENCES "ref".tr_datasource_dts(dts_datasource) ON UPDATE CASCADE
 )
 ;
+grant all on table datawg.t_metricind_mei to wgeel;  
 
 
 DROP TABLE IF EXISTS datawg.t_metricindsamp_meisa CASCADE;
@@ -304,6 +306,7 @@ CREATE TABLE datawg.t_metricindsamp_meisa (
   CONSTRAINT c_fk_meisa_dts_datasource FOREIGN KEY (mei_dts_datasource) REFERENCES "ref".tr_datasource_dts(dts_datasource) ON UPDATE CASCADE
 ) inherits  (datawg.t_metricind_mei)
 ;
+grant all on table datawg.t_metricindsamp_meisa to wgeel;  
 
 DROP TABLE IF EXISTS datawg.t_metricindseries_meiser CASCADE;
 CREATE TABLE datawg.t_metricindseries_meiser (
@@ -313,6 +316,7 @@ CREATE TABLE datawg.t_metricindseries_meiser (
   CONSTRAINT c_fk_meiser_dts_datasource FOREIGN KEY (mei_dts_datasource) REFERENCES "ref".tr_datasource_dts(dts_datasource) ON UPDATE CASCADE
 ) inherits  (datawg.t_metricind_mei)
 ;
+grant all on table datawg.t_metricindseries_meiser to wgeel;  
 
 
 
@@ -325,6 +329,7 @@ CREATE TABLE datawg.t_metricindsamp_meisa (
 ) inherits (datawg.t_metricind_mei)
 ;
 
+grant all on table datawg.t_metricindsamp_meisa to wgeel;  
 
 
 DROP TABLE IF EXISTS datawg.t_metricindseries_meiser CASCADE;
@@ -336,6 +341,7 @@ CREATE TABLE datawg.t_metricindseries_meiser (
 ) inherits (datawg.t_metricind_mei)
 ;
 
+grant all on table datawg.t_metricindseries_meiser to wgeel;  
 
 
 
@@ -424,6 +430,7 @@ CREATE TABLE datawg.t_group_gr (
 	CONSTRAINT t_group_go_pkey PRIMARY KEY (gr_id),
 	CONSTRAINT c_fk_gr_dts_datasource FOREIGN KEY (gr_dts_datasource) REFERENCES "ref".tr_datasource_dts(dts_datasource) ON UPDATE CASCADE
 );
+grant all on table datawg.t_group_gr to wgeel;  
 
 
 DROP TABLE if exists datawg.t_groupsamp_grsa;
@@ -438,6 +445,7 @@ CREATE TABLE datawg.t_groupsamp_grsa (
 )
 INHERITS (datawg.t_group_gr);
 
+grant all on table datawg.t_groupsamp_grsa to wgeel;  
 
 DROP TABLE if exists datawg.t_groupseries_grser;
 CREATE TABLE datawg.t_groupseries_grser (
@@ -448,6 +456,7 @@ CREATE TABLE datawg.t_groupseries_grser (
 )
 INHERITS (datawg.t_group_gr);
 
+grant all on table datawg.t_groupseries_grser to wgeel;  
 
 
 
@@ -585,6 +594,9 @@ CREATE TABLE datawg.t_metricgroup_meg (
 ) 
 ;
 
+grant all on table datawg.t_metricgroup_meg to wgeel;  
+
+
 DROP TABLE IF EXISTS datawg.t_metricgroupseries_megser CASCADE;
 CREATE TABLE datawg.t_metricgroupseries_megser (
   CONSTRAINT c_ck_uk_megser_gr UNIQUE (meg_gr_id, meg_mty_id),
@@ -594,6 +606,7 @@ CREATE TABLE datawg.t_metricgroupseries_megser (
   CONSTRAINT c_fk_megser_gr_id FOREIGN KEY (meg_gr_id) REFERENCES datawg.t_groupseries_grser(gr_id) ON UPDATE CASCADE ON DELETE CASCADE
 ) inherits (datawg.t_metricgroup_meg)
 ;
+grant all on table datawg.t_metricgroupseries_megser to wgeel;  
 
 
 DROP TABLE IF EXISTS datawg.t_metricgroupsamp_megsa CASCADE;
@@ -605,6 +618,7 @@ CREATE TABLE datawg.t_metricgroupsamp_megsa (
   CONSTRAINT c_fk_megsa_gr_id FOREIGN KEY (meg_gr_id) REFERENCES datawg.t_groupsamp_grsa(gr_id) ON UPDATE CASCADE ON DELETE CASCADE
 ) inherits (datawg.t_metricgroup_meg)
 ;
+grant all on table datawg.t_metricgroupsamp_megsa to wgeel;  
 
 
 -- Add trigger on last_update
@@ -746,7 +760,6 @@ update datawg.t_eelstock_eel set eel_qal_id =1 where eel_qal_id =0 and (eel_miss
 --add a constraint to avoid having new duplicates
 ALTER TABLE datawg.t_eelstock_eel ADD CONSTRAINT ck_qal_id_and_missvalue CHECK ((eel_missvaluequal IS NULL) or (eel_qal_id != 0));
 commit;
-ALTER ROLE wgeel WITH PASSWORD 'wgeel_2021'
 
 ------------
 -- fix issue 201 (emu for NL)
@@ -757,13 +770,37 @@ ALTER ROLE wgeel WITH PASSWORD 'wgeel_2021'
 --		Correcting Netherland: NL_Neth, NL_total (without geom)
 --		Correct the EMU in t_eelstock_eel table because always the EMU appears as NL_total
 -- select count(*) from datawg.t_eelstock_eel where eel_cou_code = 'NL';					-- 1354
-begin; 		
-update datawg.t_eelstock_eel SET eel_emu_nameshort = REPLACE (eel_emu_nameshort, 'NL_total', 'NL_Neth');
+begin; 	
+alter table datawg.t_eelstock_eel drop constraint ck_emu_whole_aquaculture ;
+update ref.tr_emu_emu set emu_wholecountry =true where emu_nameshort in ('NL_Neth','NL_total');
+CREATE OR REPLACE FUNCTION datawg.emu_whole_aquaculture()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$   
+  DECLARE emu_whole bool;
+ 
+  BEGIN
+    IF (new.eel_typ_id=11 and new.eel_qal_id<5) then 
+	select into emu_whole emu_wholecountry from ref.tr_emu_emu tee where emu_nameshort=new.eel_emu_nameshort;
+    IF (emu_whole=false) THEN
+    RAISE EXCEPTION 'aquaculture should be to whole country, % is not', new.eel_emu_nameshort ;
+    END IF  ;
+   end if;
+
+    RETURN NEW ;
+  END  ;
+$function$
+;
+
+DROP TRIGGER IF EXISTS ck_emu_whole_aquaculture ON datawg.t_eelstock_eel ;
+CREATE TRIGGER ck_emu_whole_aquaculture AFTER INSERT OR UPDATE ON
+   datawg.t_eelstock_eel FOR EACH ROW EXECUTE FUNCTION datawg.emu_whole_aquaculture();
+
+
+update datawg.t_eelstock_eel SET eel_emu_nameshort = REPLACE (eel_emu_nameshort, 'NL_total', 'NL_Neth') where eel_emu_nameshort='NL_total';
 --		Droping 'NL_total' (without geom)
 delete from ref.tr_emu_emu where emu_nameshort = 'NL_total';								-- It works!
 commit;
-
-
 ------------
 -- fix issue 126 (EMU_total and EMU_country)
 -- TO BE RUN
@@ -773,7 +810,13 @@ commit;
 --		Correcting Finland: 'FI_Finl', 'FI_total' (without geom)
 -- select count(*) from datawg.t_eelstock_eel where eel_cou_code = 'FI'; 									-- 631 rows
 BEGIN;
-update datawg.t_eelstock_eel SET eel_emu_nameshort = REPLACE (eel_emu_nameshort, 'FI_total', 'FI_Finl');
+update ref.tr_emu_emu set emu_wholecountry =true where emu_nameshort in ('FI_Finl');
+
+update  datawg.t_eelstock_eel set eel_qal_id = 21,
+									eel_qal_comment='duplicated with FI_Finl'
+		where eel_year <2020 and eel_lfs_code ='QG' and eel_emu_nameshort like 'FI_total';
+
+update datawg.t_eelstock_eel SET eel_emu_nameshort = REPLACE (eel_emu_nameshort, 'FI_total', 'FI_Finl') where eel_emu_nameshort = 'FI_total' ;
 --		Droping 'FI_total' (without geom)
 delete from ref.tr_emu_emu where emu_nameshort = 'FI_total';
 COMMIT;
@@ -786,54 +829,54 @@ select distinct eel_emu_nameshort from datawg.t_eelstock_eel where eel_emu_names
 --		(in the main table of EMUs and t_eelstock_eel table)
 --			AL_total	Albania (Alb)
 BEGIN;
-UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'AL_total', 'AL_Alb');
-UPDATE datawg.t_eelstock_eel SET eel_emu_nameshort = REPLACE (eel_emu_nameshort, 'AL_total', 'AL_Alb');
+UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'AL_total', 'AL_Alba');
+UPDATE datawg.t_eelstock_eel SET eel_emu_nameshort = REPLACE (eel_emu_nameshort, 'AL_total', 'AL_Alba');
 --			AX_total	Aland (Ala)
-UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'AX_total', 'AX_Ala');
+UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'AX_total', 'AX_Alan');
 --			BA_total	Bosnia-Herzegovina (Bih)
-UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'BA_total', 'BA_Bos');
+UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'BA_total', 'BA_Bosn');
 --			CY_total	Cyprus (Cyp)
-UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'CY_total', 'CY_Cyp');
+UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'CY_total', 'CY_Cypr');
 -- 			DZ_total 	Algeria (Dza)
-UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'DZ_total', 'DZ_Alg');
-UPDATE datawg.t_eelstock_eel SET eel_emu_nameshort = REPLACE (eel_emu_nameshort, 'DZ_total', 'DZ_Alg');
+UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'DZ_total', 'DZ_Alge');
+UPDATE datawg.t_eelstock_eel SET eel_emu_nameshort = REPLACE (eel_emu_nameshort, 'DZ_total', 'DZ_Alge');
 -- 			EG_total	Egypt (Egy)
-UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'EG_total', 'EG_Egy');
-UPDATE datawg.t_eelstock_eel SET eel_emu_nameshort = REPLACE (eel_emu_nameshort, 'EG_total', 'EG_Egy');
+UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'EG_total', 'EG_Egyp');
+UPDATE datawg.t_eelstock_eel SET eel_emu_nameshort = REPLACE (eel_emu_nameshort, 'EG_total', 'EG_Egyp');
 -- 			HR_total	Croatia (Hrv)
-UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'HR_total', 'HR_Cro');
-UPDATE datawg.t_eelstock_eel SET eel_emu_nameshort = REPLACE (eel_emu_nameshort, 'HR_total', 'HR_Cro');
+UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'HR_total', 'HR_Croa');
+UPDATE datawg.t_eelstock_eel SET eel_emu_nameshort = REPLACE (eel_emu_nameshort, 'HR_total', 'HR_Croa');
 --			IL_total	Israel (Isr)
-UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'IL_total', 'IL_Isr');
+UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'IL_total', 'IL_Isra');
 --			IS_total	Iceland (Isl)
-UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'IS_total', 'IS_Isl');
+UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'IS_total', 'IS_Icel');
 --			LB_total	Lebanon (Lbn)
-UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'LB_total', 'LB_Leb');
+UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'LB_total', 'LB_Leba');
 --			LY_total	Libya (Lby)
-UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'LY_total', 'LY_Lib');
+UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'LY_total', 'LY_Liby');
 -- 			MA_total	Morocco (Mar)
-UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'MA_total', 'MA_Mor');
-UPDATE datawg.t_eelstock_eel SET eel_emu_nameshort = REPLACE (eel_emu_nameshort, 'MA_total', 'MA_Mor');
+UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'MA_total', 'MA_Moro');
+UPDATE datawg.t_eelstock_eel SET eel_emu_nameshort = REPLACE (eel_emu_nameshort, 'MA_total', 'MA_Moro');
 --			ME_total	Montenegro (Mne)
-UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'ME_total', 'ME_Mon');
+UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'ME_total', 'ME_Mont');
 --			MT_total	Malta (Mlt)
-UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'MT_total', 'MT_Mal');
+UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'MT_total', 'MT_Malt');
 -- 			NO_total	Norway (Nor)
-UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'NO_total', 'NO_Nor');
-UPDATE datawg.t_eelstock_eel SET eel_emu_nameshort = REPLACE (eel_emu_nameshort, 'NO_total', 'NO_Nor');
+UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'NO_total', 'NO_Norw');
+UPDATE datawg.t_eelstock_eel SET eel_emu_nameshort = REPLACE (eel_emu_nameshort, 'NO_total', 'NO_Norw');
 --			RU_total	Russia (Rus)
-UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'RU_total', 'RU_Rus');
+UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'RU_total', 'RU_Russ');
 --			SI_total	Slovenia (Svn)
-UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'SI_total', 'SI_Slo');
-UPDATE datawg.t_eelstock_eel SET eel_emu_nameshort = REPLACE (eel_emu_nameshort, 'SI_total', 'SI_Slo');
+UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'SI_total', 'SI_Slov');
+UPDATE datawg.t_eelstock_eel SET eel_emu_nameshort = REPLACE (eel_emu_nameshort, 'SI_total', 'SI_Slov');
 --			SY_total	Syria (Syr)
-UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'SY_total', 'SY_Syr');
+UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'SY_total', 'SY_Syri');
 --			TN_total	Tunisia (Tun)
-UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'TN_total', 'TN_Tun');
-UPDATE datawg.t_eelstock_eel SET eel_emu_nameshort = REPLACE (eel_emu_nameshort, 'TN_total', 'TN_Tun');
+UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'TN_total', 'TN_Tuni');
+UPDATE datawg.t_eelstock_eel SET eel_emu_nameshort = REPLACE (eel_emu_nameshort, 'TN_total', 'TN_Tuni');
 -- 			TR_total	Turkey (Tur)
-UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'TR_total', 'TR_Tur');
-UPDATE datawg.t_eelstock_eel SET eel_emu_nameshort = REPLACE (eel_emu_nameshort, 'TR_total', 'TR_Tur');
+UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'TR_total', 'TR_Turk');
+UPDATE datawg.t_eelstock_eel SET eel_emu_nameshort = REPLACE (eel_emu_nameshort, 'TR_total', 'TR_Turk');
 COMMIT;
 
 
@@ -869,7 +912,7 @@ begin;
 insert into ref.tr_emu_emu (emu_nameshort,emu_name,emu_cou_code,emu_wholecountry) values('DK_Mari','Danish coastal and marine waters','DK',FALSE);
 SELECT setval(pg_get_serial_sequence('ref.tr_emusplit_ems', 'gid'), COALESCE((SELECT MAX(gid) + 1 FROM ref.tr_emusplit_ems), 1), false);
 insert into ref.tr_emusplit_ems (emu_nameshort,emu_name,emu_cou_code,emu_hyd_syst_s,emu_sea,emu_cty_id ,meu_dist_sargasso_km)
-(select 'DK_Mari' emu_nameshort,'Danish coastal and marine waters' emu_name,e.emu_cou_code,e.emu_hyd_syst_s,e.emu_sea,e.emu_cty_id,e.meu_dist_sargasso_km from ref.tr_emusplit_ems e where e.emu_nameshort ='DK_Inla')
+(select 'DK_Mari' emu_nameshort,'Danish coastal and marine waters' emu_name,e.emu_cou_code,e.emu_hyd_syst_s,e.emu_sea,e.emu_cty_id,e.meu_dist_sargasso_km from ref.tr_emusplit_ems e where e.emu_nameshort ='DK_Inla');
 
 commit; 
 
@@ -880,7 +923,7 @@ commit;
 insert into ref.tr_quality_qal values (22, 'discarded_wgeel_2022', 'This data has either been removed from the database in favour of new data, or corresponds to new data not kept in the database during datacall 2022', false);
 insert into ref.tr_datasource_dts values ('dc_2022', 'Joint EIFAAC/GFCM/ICES Eel Data Call 2022');
 
-
+/* this is done in the r script
 ----
 -- integrate new units
 ----
@@ -890,4 +933,4 @@ INSERT INTO ref.tr_units_uni (uni_code, uni_name) VALUES ('percent','percentage'
 INSERT INTO ref.tr_units_uni (uni_code, uni_name) VALUES ('ng/g','nanogram per gram');
 INSERT INTO ref.tr_units_uni (uni_code, uni_name) VALUES ('nr year','number of years');
 
-)
+)*/
