@@ -1482,9 +1482,38 @@ write_new_group_metrics <- function(path) {
 	
 	new <- read_excel(path = path, sheet = 1, skip = 1)
 	
-	# this file is in longer format. Use a function to generate the t_groupeseries_ser table
+	# this file is in wide format. Use a function to generate the t_groupeseries_ser table
 	# this will in practise fill in t_group_gr table and t_groupseries_grser table
 	
+	# Hilaire's code to adapt :
+#	groups = groups %>%
+#			filter(bio_id!=double_man$bio_id[1]) %>%
+#			mutate(bio_number=ifelse(bio_id==double_man$bio_id[2],
+#							sum(double_man$bio_number),
+#							bio_number),
+#					bio_length_f=ifelse(bio_id==double_man$bio_id[2],
+#							weighted.mean(double_man$bio_length_f, double_man$bio_number),
+#							bio_length_f))
+## these are the final groups that need to be created
+#	groups <- groups %>%
+#			select(bio_lfs_code,bio_year,bio_number,
+#					bio_comment,
+#					bio_dts_datasource, sai_id) 
+#	
+#	groups_renames <- groups %>%
+#			rename(gr_lfs_code=bio_lfs_code,
+#					gr_year=bio_year,
+#					gr_number=bio_number,
+#					gr_comment=bio_comment,
+#					gr_dts_datasource=bio_dts_datasource,
+#					grsa_sai_id=sai_id) %>%
+#			bind_cols(groups)
+	
+	
+	
+	dbWriteTable(con,"group_tmp",groups,temporary=TRUE)
+	res=dbGetQuery(con,"insert into datawg.t_groupsamp_grsa(gr_year,grsa_lfs_code,gr_number,gr_comment,gr_dts_datasource,grsa_sai_id)
+					(select g.bio_year,g.bio_lfs_code,g.bio_number,g.bio_comment,g.bio_dts_datasource,g.sai_id from group_tmp g) returning gr_id")
 	
 	
 	####when there are no data, new values have incorrect type
