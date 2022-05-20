@@ -191,3 +191,20 @@ dbWriteTable(con,"bioval_tmp",biometry_sa_long,temporary=TRUE)
 dbSendQuery(con, "insert into datawg.t_metricgroupsamp_megsa (meg_gr_id,meg_mty_id,meg_value,meg_qal_id,meg_dts_datasource)
            select gid::integer,mty_id,metric_val,bio_qal_id,bio_dts_datasource from bioval_tmp left join ref.tr_metrictype_mty on mty=mty_name")
 dbSendQuery(con,"drop table if exists bioval_tmp")
+
+#
+#metric=readxl::read_excel("/tmp/tr_metrictype_mty.xlsx")
+#dbSendQuery(con,"drop table if exists ref.tr_metrictype_mty")
+#dbWriteTable(con,Id(schema="ref",table="tr_metrictype_mty"),metric)
+
+
+unit=readxl::read_excel("/tmp/tr_units_uni.xlsx")
+dbSendQuery(con,"drop table if exists ref.tr_units_uni.xlsx")
+dbWriteTable(con,Id(schema="ref",table="tr_units_uni"),metric)
+
+tr_metrictype_mty_temp <- readxl::read_excel("C:/Users/cedric.briand/OneDrive - EPTB Vilaine/Projets/GRISAM/2022/WKEELDATA4/tr_metrictype_mty.xlsx")
+dbExecute(con, "DROP TABLE IF EXISTS tr_metrictype_mty_temp")
+dbWriteTable(con,"tr_metrictype_mty_temp",tr_metrictype_mty_temp, overwrite=TRUE)
+dbSendQuery(con, "INSERT INTO ref.tr_metrictype_mty SELECT * FROM tr_metrictype_mty_temp")
+dbExecute(con, "DROP TABLE tr_metrictype_mty_temp")
+
