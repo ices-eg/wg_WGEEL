@@ -81,39 +81,73 @@ importtsstep2UI <- function(id){
               verbatimTextOutput(ns("textoutput_step2.4_ts"))
             )
           ),
-          h2("step 2.5 Integrate new biometry"),
+          h2("step 2.5 Integrate new group metrics"),
           fluidRow(
             column(
               width=4,
-              fileInput(ns("xl_new_biometry"), "xls update",
+              fileInput(ns("xl_new_group_metrics"), "xls update",
                         multiple=FALSE,
                         accept = c(".xls",".xlsx"))
             ),
             column(
               width=2,
-              actionButton(ns("integrate_new_biometry_button"), "Proceed")
+              actionButton(ns("integrate_new_group_metrics_button"), "Proceed")
             ),
             column(width=6,
                    verbatimTextOutput(ns("textoutput_step2.5_ts"))
             )
           ),
-          h2("step 2.6 Update modified biometry"),
+          h2("step 2.6 Update group metrics"),
           fluidRow(
             column(
               width=4,
-              fileInput(ns("xl_modified_biometry"), "xls update",
+              fileInput(ns("xl_update_group_metrics"), "xls update",
                         multiple=FALSE,
                         accept = c(".xls",".xlsx"))
             ),
             column(
               width=2,
-              actionButton(ns("update_biometry_button"), "Proceed")
+              actionButton(ns("update_group_metrics_button"), "Proceed")
             ),
             column(
               width=6,
               verbatimTextOutput(ns("textoutput_step2.6_ts"))
             )
-          )
+          ),
+					h2("step 2.7 Integrate new individual metrics"),
+					fluidRow(
+							column(
+									width=4,
+									fileInput(ns("xl_new_individual_metrics"), "xls update",
+											multiple=FALSE,
+											accept = c(".xls",".xlsx"))
+							),
+							column(
+									width=2,
+									actionButton(ns("integrate_new_individual_metrics_button"), "Proceed")
+							),
+							column(width=6,
+									verbatimTextOutput(ns("textoutput_step2.7_ts"))
+							)
+					),
+					h2("step 2.8 Update group metrics"),
+					fluidRow(
+							column(
+									width=4,
+									fileInput(ns("xl_update_individual_metrics"), "xls update",
+											multiple=FALSE,
+											accept = c(".xls",".xlsx"))
+							),
+							column(
+									width=2,
+									actionButton(ns("update_individual_metrics_button"), "Proceed")
+							),
+							column(
+									width=6,
+									verbatimTextOutput(ns("textoutput_step2.8_ts"))
+							)
+					)
+					
 
   )
 }
@@ -143,8 +177,8 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts){
                    tryCatch({
                      output$textoutput_step2.1_ts <- renderText("")
                
-                     reset("xl_modified_biometry")
-                     reset("xl_new_biometry")
+                     reset("xl_update_group_metrics")
+                     reset("xl_new_group_metrics")
                      reset("xl_updated_dataseries")
                      reset("xl_new_dataseries")
                      reset("xl_updated_series")
@@ -329,29 +363,29 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts){
                    showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
                  }))	
                  
-                 # 2.5 Integrate new biometry  --------------------------------------------------------							
+                 # 2.5 Integrate new group metrics series  --------------------------------------------------------							
                  
-                 observeEvent(input$integrate_new_biometry_button, tryCatch({
+                 observeEvent(input$integrate_new_group_metrics_button, tryCatch({
                    
-                   step25_filepath_new_biometry <- reactive({
-                     inFile <- isolate(input$xl_new_biometry)     
+                   step25_filepath_new_group_metrics <- reactive({
+                     inFile <- isolate(input$xl_new_group_metrics)     
                      if (is.null(inFile)){        return(NULL)
                      } else {
-                       data$path_step_25_new_biometry <- inFile$datapath #path to a temp file             
+                       data$path_step_25_new_group_metrics <- inFile$datapath #path to a temp file             
                      }
                    })
                    
                    step25load_data <- function() {
-                     path <- isolate(step25_filepath_new_biometry())
-                     if (is.null(data$path_step_25_new_biometry)) 
+                     path <- isolate(step25_filepath_new_group_metrics())
+                     if (is.null(data$path_step_25_new_group_metrics)) 
                        return(NULL)
-                     rls <- write_new_biometry(path)
+                     rls <- write_new_group_metrics(path)
                      message <- rls$message
                      cou_code <- rls$cou_code
                      main_assessor <- input$main_assessor
                      secondary_assessor <- input$secondary_assessor
                      file_type <- loaded_data_ts$file_type
-                     log_datacall("write new biometry", cou_code = cou_code, message = sQuote(message), 
+                     log_datacall("write new group_metrics", cou_code = cou_code, message = sQuote(message), 
                                   the_metadata = NULL, file_type = file_type, main_assessor = main_assessor, 
                                   secondary_assessor = secondary_assessor)
                      return(message)
@@ -362,7 +396,7 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts){
                      # call to  function that loads data
                      # this function does not need to be reactive
                      message <- step25load_data()
-                     if (is.null(data$path_step_25_new_biometry)) "please select a dataset" else {                                      
+                     if (is.null(data$path_step_25_new_group_metrics)) "please select a dataset" else {                                      
                        paste(message,collapse="\n")
                      }                  
                    })  
@@ -370,29 +404,29 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts){
                    showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
                  }))
                  
-                 # 2.6 update modified biometries  --------------------------------------------------------							
+                 # 2.6 update modified group metrics  --------------------------------------------------------							
                  
-                 observeEvent(input$update_biometry_button, tryCatch({
+                 observeEvent(input$update_group_metrics_button, tryCatch({
                    
-                   step26_filepath_update_biometry <- reactive({
-                     inFile <- isolate(input$xl_modified_biometry)     
+                   step26_filepath_update_group_metrics <- reactive({
+                     inFile <- isolate(input$xl_update_group_metrics)     
                      if (is.null(inFile)){        return(NULL)
                      } else {
-                       data$path_step_26_update_biometry <- inFile$datapath #path to a temp file             
+                       data$path_step_26_update_group_metrics <- inFile$datapath #path to a temp file             
                      }
                    })
                    
                    step26load_data <- function() {
-                     path <- isolate(step26_filepath_update_biometry())
-                     if (is.null(data$path_step_26_update_biometry)) 
+                     path <- isolate(step26_filepath_update_group_metrics())
+                     if (is.null(data$path_step_26_update_group_metrics)) 
                        return(NULL)
-                     rls <- update_biometry(path)
+                     rls <- update_group_metrics(path)
                      message <- rls$message
                      cou_code <- rls$cou_code
                      main_assessor <- input$main_assessor
                      secondary_assessor <- input$secondary_assessor
                      file_type <- loaded_data_ts$file_type
-                     log_datacall("update biometry", cou_code = cou_code, message = sQuote(message), 
+                     log_datacall("update group_metrics", cou_code = cou_code, message = sQuote(message), 
                                   the_metadata = NULL, file_type = file_type, main_assessor = main_assessor, 
                                   secondary_assessor = secondary_assessor)
                      return(message)
@@ -403,13 +437,95 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts){
                      # call to  function that loads data
                      # this function does not need to be reactive
                      message <- step26load_data()
-                     if (is.null(data$path_step_26_update_biometry)) "please select a dataset" else {                                      
+                     if (is.null(data$path_step_26_update_group_metrics)) "please select a dataset" else {                                      
                        paste(message,collapse="\n")
                      }                  
                    })  
                  },error = function(e) {
                    showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
-                 }))					  
+                 }))	
+				 
+				 # 2.7 Integrate new individual group metrics --------------------------------------------------------							
+				 
+				 observeEvent(input$integrate_new_individual_metrics_button, tryCatch({
+									 
+									 step25_filepath_new_individual_metrics <- reactive({
+												 inFile <- isolate(input$xl_new_individual_metrics)     
+												 if (is.null(inFile)){        return(NULL)
+												 } else {
+													 data$path_step_25_new_individual_metrics <- inFile$datapath #path to a temp file             
+												 }
+											 })
+									 
+									 step25load_data <- function() {
+										 path <- isolate(step25_filepath_new_individual_metrics())
+										 if (is.null(data$path_step_25_new_individual_metrics)) 
+											 return(NULL)
+										 rls <- write_new_individual_metrics(path)
+										 message <- rls$message
+										 cou_code <- rls$cou_code
+										 main_assessor <- input$main_assessor
+										 secondary_assessor <- input$secondary_assessor
+										 file_type <- loaded_data_ts$file_type
+										 log_datacall("write new individual_metrics", cou_code = cou_code, message = sQuote(message), 
+												 the_metadata = NULL, file_type = file_type, main_assessor = main_assessor, 
+												 secondary_assessor = secondary_assessor)
+										 return(message)
+									 }
+									 
+									 output$textoutput_step2.5_ts <- renderText({
+												 validate(need(globaldata$connectOK,"No connection"))
+												 # call to  function that loads data
+												 # this function does not need to be reactive
+												 message <- step25load_data()
+												 if (is.null(data$path_step_25_new_individual_metrics)) "please select a dataset" else {                                      
+													 paste(message,collapse="\n")
+												 }                  
+											 })  
+								 },error = function(e) {
+									 showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
+								 }))
+				 
+				 # 2.8 update modified individual metrics  --------------------------------------------------------							
+				 
+				 observeEvent(input$update_individual_metrics_button, tryCatch({
+									 
+									 step26_filepath_update_individual_metrics <- reactive({
+												 inFile <- isolate(input$xl_update_individual_metrics)     
+												 if (is.null(inFile)){        return(NULL)
+												 } else {
+													 data$path_step_26_update_individual_metrics <- inFile$datapath #path to a temp file             
+												 }
+											 })
+									 
+									 step26load_data <- function() {
+										 path <- isolate(step26_filepath_update_individual_metrics())
+										 if (is.null(data$path_step_26_update_individual_metrics)) 
+											 return(NULL)
+										 rls <- update_individual_metrics(path)
+										 message <- rls$message
+										 cou_code <- rls$cou_code
+										 main_assessor <- input$main_assessor
+										 secondary_assessor <- input$secondary_assessor
+										 file_type <- loaded_data_ts$file_type
+										 log_datacall("update individual_metrics", cou_code = cou_code, message = sQuote(message), 
+												 the_metadata = NULL, file_type = file_type, main_assessor = main_assessor, 
+												 secondary_assessor = secondary_assessor)
+										 return(message)
+									 }
+									 
+									 output$textoutput_step2.6_ts <- renderText({
+												 validate(need(globaldata$connectOK,"No connection"))
+												 # call to  function that loads data
+												 # this function does not need to be reactive
+												 message <- step26load_data()
+												 if (is.null(data$path_step_26_update_individual_metrics)) "please select a dataset" else {                                      
+													 paste(message,collapse="\n")
+												 }                  
+											 })  
+								 },error = function(e) {
+									 showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
+								 }))		
                  
 
                }

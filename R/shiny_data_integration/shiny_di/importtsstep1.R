@@ -133,7 +133,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
                  observeEvent(input$check_duplicate_button_ts, {
                               tryCatch({
 
-
+								
                    # see step0load_data returns a list with res and messages
                    # and within res data and a dataframe of errors
 
@@ -217,11 +217,11 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
                      list_comp_updateddataseries$error_id_message <- "" # this message would have been displayed if pb of id
                    }
                    if (nrow(new_biometry)>0){
-                     list_comp_biometry <- compare_with_database_metrics_group(data_from_excel=new_biometry, data_from_base=t_biometry_series_bis, sheetorigin="new_data")
+                     list_comp_biometry <- compare_with_database_metric_group(data_from_excel=new_biometry, data_from_base=t_biometry_series_bis, sheetorigin="new_data")
                    }
 
                    if (nrow(updated_biometry)>0){
-                     list_comp_updated_biometry <- compare_with_database_metrics_group(data_from_excel=updated_biometry, data_from_base=t_biometry_series_bis, sheetorigin="updated_biometry")
+                     list_comp_updated_biometry <- compare_with_database_metric_group(data_from_excel=updated_biometry, data_from_base=t_biometry_series_bis, sheetorigin="updated_biometry")
                      if (nrow(new_biometry)>0){
                        list_comp_biometry$new <- rbind(list_comp_biometry$new,list_comp_updated_biometry$new)
                        list_comp_biometry$modified <- rbind(list_comp_biometry$modified,list_comp_updated_biometry$modified)
