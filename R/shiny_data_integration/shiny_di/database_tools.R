@@ -530,7 +530,7 @@ compare_with_database_dataseries <- function(data_from_excel, data_from_base, sh
 	return(list(new = new, modified=modified, highlight_change=highlight_change, error_id_message=error_id_message))
 }
 
-#' @title compare with database metricsgroup
+#' @title compare with database metricgroup
 #' @description This function loads the data from the database and compare it with data
 #' loaded from excel
 #' @param data_from_excel Dataset loaded from excel
@@ -548,10 +548,10 @@ compare_with_database_dataseries <- function(data_from_excel, data_from_base, sh
 #' data_from_excel <- read_excel(path=path,	sheet ="new_biometry",	skip=0) 
 #' data_from_base <- extract_data('t_biometry_series_bis',quality_check=FALSE)
 #' series <- extract_data('t_series_ser',quality_check=FALSE)
-#' list_comp <- compare_with_database_metrics_group(data_from_excel,data_from_base)
+#' list_comp <- compare_with_database_metric_group(data_from_excel,data_from_base)
 #'  }
 #' }
-compare_with_database_metrics_group <- function(data_from_excel, data_from_base, sheetorigin="new_data") {
+compare_with_database_metric_group <- function(data_from_excel, data_from_base, sheetorigin="new_data") {
 	# data integrity checks
 	if (nrow(data_from_excel) == 0) 
 		validate(need(FALSE,"There are no data coming from the excel file"))
@@ -652,7 +652,7 @@ compare_with_database_metrics_group <- function(data_from_excel, data_from_base,
 	return(list(new = new, modified=modified, highlight_change=highlight_change))
 }
 
-compare_with_database_metrics_ind <- function(data_from_excel, data_from_base, sheetorigin="new_data") {}
+compare_with_database_metric_ind <- function(data_from_excel, data_from_base, sheetorigin="new_data") {}
 
 #' @title write duplicated results into the database
 #' @description Values kept from the datacall will be inserted, old values from the database
@@ -1453,7 +1453,7 @@ write_new_dataseries <- function(path) {
 }
 
 
-#' @title write new biometry into the database
+#' @title write new group metrics into the database
 #' @description New lines will be inserted in the database
 #' @param path path to file (collected from shiny button)
 #' @return message indicating success or failure at data insertion
@@ -1464,7 +1464,7 @@ write_new_dataseries <- function(path) {
 #' if(interactive()){
 #'  path<-wg_file.choose()
 #'port <- 5432
-#'host <- "localhost"#"192.168.0.100"
+#'host <- "localhost"
 #'userwgeel <-"wgeel"
 #'pool <<- pool::dbPool(drv = dbDriver("PostgreSQL"),
 #'		dbname="wgeel",
@@ -1477,10 +1477,14 @@ write_new_dataseries <- function(path) {
 #' 
 #'  }
 #' }
-#' @rdname write_new biometry
-write_new_biometry <- function(path) {
+#' @rdname write_new group_metrics
+write_new_group_metrics <- function(path) {
 	
 	new <- read_excel(path = path, sheet = 1, skip = 1)
+	
+	# this file is in longer format. Use a function to generate the t_groupeseries_ser table
+	# this will in practise fill in t_group_gr table and t_groupseries_grser table
+	
 	
 	
 	####when there are no data, new values have incorrect type
@@ -1489,20 +1493,20 @@ write_new_biometry <- function(path) {
 	# create dataset for insertion -------------------------------------------------------------------
 	
 	
-	new <- new[, c(c( "bio_year", "bio_length", "bio_weight", "bio_age", 
+	new <- new[, c( "bio_year", "bio_length", "bio_weight", "bio_age", 
 							"bio_perc_female", "bio_length_f", "bio_weight_f", "bio_age_f", "bio_length_m", 
 							"bio_weight_m", "bio_age_m", "bio_comment", "bio_last_update", "bio_number" ,"bis_g_in_gy", 
 							"bio_dts_datasource", "bis_ser_id" )
-			)	]
+				]
 	new$bio_last_update <- Sys.Date()
 	conn <- poolCheckout(pool)
 	cou_code <- (dbGetQuery(conn, statement=paste0("SELECT ser_cou_code FROM datawg.t_series_ser WHERE ser_id=",
 								new$bis_ser_id[1],";")))$ser_cou_code  
-	dbExecute(conn,"drop table if exists new_biometry_temp ")
-	dbWriteTable(conn,"new_biometry_temp",new,row.names=FALSE,temporary=TRUE)
+	dbExecute(conn,"drop table if exists new_group_metrics_temp ")
+	dbWriteTable(conn,"new_group_metrics_temp",new,row.names=FALSE,temporary=TRUE)
 	
 	# Query uses temp table just created in the database 
-	query <- "insert into datawg.t_biometry_series_bis (
+	query <- "insert into datawg.t_group_metrics_series_bis (
 			bio_year, bio_lfs_code, bio_length, bio_weight, bio_age, bio_perc_female,
 			bio_length_f, bio_weight_f, bio_age_f, bio_length_m, bio_weight_m, bio_age_m,
 			bio_comment, bio_last_update, bis_g_in_gy, bio_dts_datasource, bis_ser_id, bio_number 
@@ -1511,7 +1515,7 @@ write_new_biometry <- function(path) {
 			bio_year, ser_lfs_code as bio_lsf_code, bio_length, bio_weight, bio_age, bio_perc_female,
 			bio_length_f, bio_weight_f, bio_age_f, bio_length_m, bio_weight_m, bio_age_m,
 			bio_comment, bio_last_update::date, bis_g_in_gy, bio_dts_datasource, bis_ser_id, bio_number
-			from  new_biometry_temp
+			from  new_group_metrics_temp
 			JOIN datawg.t_series_ser on ser_id=bis_ser_id"
 	# if fails replaces the message with this trycatch !  I've tried many ways with
 	# sqldf but trycatch failed to catch the error Hence the use of DBI
@@ -1522,7 +1526,7 @@ write_new_biometry <- function(path) {
 						}, error = function(e) {
 							message <<- e
 						}, finally = {
-							dbExecute(conn,"drop table if exists new_biometry_temp")
+							dbExecute(conn,"drop table if exists new_group_metrics_temp")
 							poolReturn(conn)
 						}))
 	
@@ -1690,7 +1694,7 @@ update_dataseries <- function(path) {
 	return(list(message = message, cou_code = cou_code))
 }
 
-#path<-"C:\\Users\\cedric.briand\\Downloads\\updated_biometry_test.xlsx"
+#path<-"C:\\Users\\cedric.briand\\Downloads\\updated_group_metrics_test.xlsx"
 #port <- 5432
 #host <- "localhost"#"192.168.0.100"
 #userwgeel <-"wgeel"
@@ -1700,7 +1704,7 @@ update_dataseries <- function(path) {
 #		port=port,
 #		user= userwgeel,
 #		password= passwordwgeel) 
-update_biometry <- function(path) {
+update_group_metrics <- function(path) {
 	updated_values_table <- 	read_excel(path = path, sheet = 1, skip = 1)	
 	
 	updated_values_table <- updated_values_table %>% mutate_if(is.logical,list(as.numeric)) 
@@ -1714,8 +1718,8 @@ update_biometry <- function(path) {
 	query <- paste0("SELECT ser_cou_code FROM datawg.t_series_ser WHERE ser_nameshort='",
 			updated_values_table$ser_nameshort[1],"';")			
 	cou_code = dbGetQuery(conn,query)$ser_cou_code
-	dbExecute(conn,"drop table if exists updated_biometry_temp ")
-	dbWriteTable(conn,"updated_biometry_temp",updated_values_table, row.names=FALSE,temporary=TRUE)
+	dbExecute(conn,"drop table if exists updated_group_metrics_temp ")
+	dbWriteTable(conn,"updated_group_metrics_temp",updated_values_table, row.names=FALSE,temporary=TRUE)
 	
 	query="UPDATE datawg.t_biometry_series_bis set 
 			(
