@@ -100,7 +100,7 @@ create_datacall_file_series <- function(country, name, ser_typ_id, type="series"
   
   # series or sampling infodescription -------------------------------------------------------
   
-  t_series_ser<- dbGetQuery(con, str_c("SELECT *			FROM ",
+  t_series_ser<- t_series <- dbGetQuery(con, str_c("SELECT *			FROM ",
                                        ifelse(type=="series",
                                               "datawg.t_series_ser ",
                                               "datawg.t_samplinginfo_sai "),
@@ -118,19 +118,19 @@ create_datacall_file_series <- function(country, name, ser_typ_id, type="series"
   
   
   
-  if (nrow(t_series_ser)>0){
+  if (nrow(t_series)>0){
     
     formatted = read_excel(templatefile, ifelse(type=="series",
                                                 "series_info",
                                                 "sampling_info"))
-    if(length(setdiff(names(formatted), names(t_series_ser)))>0) #on ajoute les colonnes manquantes
-      t_series_ser[,setdiff(names(formatted), names(t_series_ser))] = NA
-    t_series_ser <-  t_series_ser %>%
+    if(length(setdiff(names(formatted), names(t_series)))>0) #on ajoute les colonnes manquantes
+      t_series[,setdiff(names(formatted), names(t_series))] = NA
+    t_series <-  t_series %>%
       select(any_of(names(formatted)))
     writeWorksheet(wb, sheet =  ifelse(type=="series",
                                        "series_info",
                                        "sampling_info"), 
-                   t_series_ser)
+                   t_series)
   }
   
   
@@ -421,8 +421,8 @@ create_datacall_file_series <- function(country, name, ser_typ_id, type="series"
             geom_point(data=t_series_ser[i,],aes(x=ser_x,y=ser_y),col="red")+
             ggtitle(t_series_ser$ser_nameshort[i])+
             xlab("")+
-            ylab("")+
-            geom_sf(data=pol, inherit.aes = FALSE,fill=NA,color="black")
+            ylab("")#+
+            #geom_sf(data=pol, inherit.aes = FALSE,fill=NA,color="black")
         } else {
           g=ggplot()+ggtitle(t_series_ser$ser_nameshort[i])
         }
@@ -466,7 +466,7 @@ for (country in country_code ){
   gc()
   cat("country: ",country,"\n")
   create_datacall_file_series(country, 
-                              name="Eel_Data_Call_2021_Annex_time_series", 
+                              name="Eel_Data_Call_2022_Annex_time_series", 
                               ser_typ_id=2)
 }
 
@@ -478,7 +478,7 @@ for (country in country_code ){
   gc()
   cat("country: ",country,"\n")
   create_datacall_file_series(country, 
-                              name="Eel_Data_Call_2021_Annex_time_series", 
+                              name="Eel_Data_Call_2022_Annex_time_series", 
                               ser_typ_id=3)
 }
 
