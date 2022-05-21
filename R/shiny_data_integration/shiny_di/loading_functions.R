@@ -2574,10 +2574,10 @@ load_series<-function(path,datasource, stage="glass_eel"){
 			#TODO check that das_lastupdate and das_dts_datasource 
 			c("ser_nameshort",	"das_id",	"das_ser_id",	"das_value",	"das_year",	"das_comment",	"das_effort",	"das_qal_id", "das_qal_comment"),
 			c("ser_nameshort",	"das_id",	"das_ser_id",	"das_value",	"das_year",	"das_comment",	"das_effort",	"das_qal_id", "das_qal_comment"),
-			c("ser_nameshort",	"gr_year",	"gr_number", "gr_comment","lengthmm",	"weightg",	"ageyear",	"female_proportion","differentiated_proportion",
+			c("gr_id","ser_nameshort",	"gr_ser_id", "gr_year",	"gr_number", "gr_comment", "gr_last_update", "gr_dts_datasource", "lengthmm",	"weightg",	"ageyear",	"female_proportion","differentiated_proportion",
 					"m_mean_lengthmm","m_mean_weightg","m_mean_ageyear","f_mean_lengthmm","f_mean_weightg","f_mean_age",
 					"anguillicola_proportion",	"anguillicola_intensity",	"muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb", "teq",
-					"evex_proportion","hva_proportion",	"pb",	"hg",	"cd", "g_in_gy_proportion","s_in_ys_proportion"),		
+					"evex_proportion","hva_proportion",	"pb",	"hg",	"cd","g_in_gy_proportion","s_in_ys_proportion"),		
 			c("gr_id","ser_nameshort",	"gr_ser_id", "gr_year",	"gr_number", "gr_comment", "gr_last_update", "gr_dts_datasource", "lengthmm",	"weightg",	"ageyear",	"female_proportion","differentiated_proportion",
 					"m_mean_lengthmm","m_mean_weightg","m_mean_ageyear","f_mean_lengthmm","f_mean_weightg","f_mean_age",
 					"anguillicola_proportion",	"anguillicola_intensity",	"muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb", "teq",
@@ -2600,7 +2600,7 @@ load_series<-function(path,datasource, stage="glass_eel"){
 					"is_female_(1=female,0=male)","is_differentiated_(1=differentiated,0_undifferentiated)",
 					"anguillicola_presence_(1=present,0=absent)",	"anguillicola_intensity",	"muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb", "teq",
 					"evex_presence_(1=present,0=absent)","hva_presence_(1=present,0=absent)",	"pb",	"hg",	"cd"))
-	nbcol <- list(7,9,9,28,32,32,21,25,25)
+	nbcol <- list(7,9,9,32,32,32,21,25,25)
 	
 	
 	res <- purrr::pmap(list(sheet,columns,nbcol), fn_check_series)
