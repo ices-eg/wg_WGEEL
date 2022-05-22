@@ -425,6 +425,7 @@ compare_with_database_series <- function(data_from_excel, data_from_base) {
 #'  }
 #' }
 compare_with_database_dataseries <- function(data_from_excel, data_from_base, sheetorigin="new_data") {
+	browser()
 	# data integrity checks
 	error_id_message <- ""
 	if (nrow(data_from_excel) == 0) 
@@ -559,17 +560,17 @@ compare_with_database_metric_group <- function(data_from_excel, data_from_base, 
 		# the data_from_base has 0 lines and 0 columns
 		# this poses computation problems
 		# I'm changing it here by loading a correct empty dataset
-		#data_from_base_biometry0L <- data_from_base[FALSE,]		
-		#save(data_from_base_biometry0L, file = "C:\\workspace\\gitwgeel\\R\\shiny_data_integration\\shiny_di\\common\\data\\data_from_base_biometry_0L.Rdata")
-		load("common/data/data_from_base_biometry_0L.Rdata")
-		data_from_base <- data_from_base_biometry0L
+		#data_from_base_group_metrics0L <- data_from_base[FALSE,]		
+		#save(data_from_base_group_metrics0L, file = "C:\\workspace\\gitwgeel\\R\\shiny_data_integration\\shiny_di\\common\\data\\data_from_base_group_metrics_0L.Rdata")
+		load("common/data/data_from_base_group_metrics_0L.Rdata")
+		data_from_base <- data_from_base_group_metrics0L
 		warning("No data in the file coming from the database")
 	}
 	# convert columns with missing data to numeric	  
 	data_from_excel <- data_from_excel %>% mutate_if(is.logical,list(as.numeric)) 
 	data_from_excel <- data_from_excel %>% mutate_at(vars(matches("comment")),list(as.character)) 
 	#data_from_excel <- data_from_excel %>% mutate_at(vars(matches("update")),list(as.Date)) 	
-	data_from_excel <- data_from_excel %>% select(-"bio_qal_id")
+	data_from_excel <- data_from_excel %>% select(-"meg_qal_id")
 	data_from_excel$sheetorigin <- sheetorigin
 	
 	# removed pre-filled data not modified by user.

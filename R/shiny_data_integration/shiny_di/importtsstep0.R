@@ -106,7 +106,6 @@ importtsstep0Server <- function(id,globaldata){
 					validate(need(globaldata$connectOK,"No connection"))
 					isolate(step0_filepath_ts())  #NOT USED
 					isolate(if (is.null(data$path_step0_ts)) return(NULL))
-					
 					#file_type_ts is generated on the ui side
 					#load series returns a list with several sheets
 					#return(invisible(list(series=series,
