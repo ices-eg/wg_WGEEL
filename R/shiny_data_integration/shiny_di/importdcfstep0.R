@@ -108,17 +108,7 @@ importdcfstep0Server <- function(id,globaldata){
 					isolate(step0_filepath_dcf())  #NOT USED
 					isolate(if (is.null(data$path_step0_dcf)) return(NULL))
 					
-					#file_type_dcf is generated on the ui side
-					#load series returns a list with several sheets
-					#return(invisible(list(series=series,
-					#						station = station,
-					#						new_data=new_data,
-					#						updated_data=updated_data,
-					#						new_biometry=new_biometry,
-					#						updated_biometry=updated_biometry,
-					#						error=data_error,
-					#						the_metadata=the_metadata))) 
-					# it also prints error or comments captured by capture.output
+
 					
 					# TODO modify load_series to load_dcf, change the arguments
 					message<-capture.output(res <- load_series(data$path_step0_dcf, 
