@@ -425,7 +425,7 @@ compare_with_database_series <- function(data_from_excel, data_from_base) {
 #'  }
 #' }
 compare_with_database_dataseries <- function(data_from_excel, data_from_base, sheetorigin="new_data") {
-	browser()
+browser()
 	# data integrity checks
 	error_id_message <- ""
 	if (nrow(data_from_excel) == 0) 
@@ -471,8 +471,13 @@ compare_with_database_dataseries <- function(data_from_excel, data_from_base, sh
 	} else {
 		duplicates <- duplicates[, 
 				# not in the datacall or used as pivot :
-				c("das_id", "das_ser_id","das_year", "ser_nameshort", "das_qal_id","das_last_update",
+				c("das_id", 
+						"das_ser_id",
+						"das_year", 
+						"ser_nameshort",						
+						"das_last_update",
 						# duplicates columns
+					"das_qal_id.base", "das_qal_id.xls",
 						"das_dts_datasource.base", "das_dts_datasource.xls",
 						"das_value.base", "das_value.xls",					
 						"das_comment.base", "das_comment.xls",
@@ -554,6 +559,7 @@ compare_with_database_dataseries <- function(data_from_excel, data_from_base, sh
 #' }
 compare_with_database_metric_group <- function(data_from_excel, data_from_base, sheetorigin="new_data") {
 	# data integrity checks
+	browser()
 	if (nrow(data_from_excel) == 0) 
 		validate(need(FALSE,"There are no data coming from the excel file"))
 	if (nrow(data_from_base) == 0) {
