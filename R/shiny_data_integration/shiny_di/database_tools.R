@@ -196,75 +196,75 @@ compare_with_database_updated_values <- function(updated_from_excel, data_from_b
 #' @return A table with data to be deleted
 #' @importFrom dplyr filter select inner_join right_join
 compare_with_database_deleted_values <- function(deleted_from_excel, data_from_base) {
-  # tr_type_typ should have been loaded by global.R in the program in the shiny app
-  if (!exists("tr_type_typ")) {
-    tr_type_typ<-extract_ref("Type of series", pool)
-  }
-  # data integrity checks
-  validate(need(nrow(deleted_from_excel) != 0,"There are no data coming from the excel file")) 
-  current_cou_code <- unique(deleted_from_excel$eel_cou_code)
-  validate(need(length(current_cou_code) == 1, "There is more than one country code, this is wrong"))
-  
-  current_typ_name <- unique(deleted_from_excel$eel_typ_name)
-  if (!all(current_typ_name %in% tr_type_typ$typ_name)) stop(str_c("Type ",current_typ_name[!current_typ_name %in% tr_type_typ$typ_name]," not in list of type name check excel file"))
-  # all data returned by loading functions have only a name just in case to avoid doubles
-  
-  if (!"eel_typ_id"%in%colnames(deleted_from_excel)) {
-    # extract subset suitable for merge
-    tr_type_typ_for_merge <- tr_type_typ[, c("typ_id", "typ_name")]
-    colnames(tr_type_typ_for_merge) <- c("eel_typ_id", "eel_typ_name")
-    deleted_from_excel <- merge(deleted_from_excel, tr_type_typ_for_merge, by = "eel_typ_name") 
-  }
-  if (nrow(data_from_base) == 0) {
-    validate(need(FALSE, "No data in the db"))
-    current_typ_id<-0
-  } else {   
-    if (!all(deleted_from_excel$eel_id %in% data_from_base$eel_id))
-      validate(need(FALSE,paste("eel_id",paste(deleted_from_excel$eel_id[!deleted_from_excel$eel_id %in% data_from_base$eel_id],collapse=","),
-                                "not found in db",sep="")))
-    current_typ_id <- unique(deleted_from_excel$eel_typ_id)
-    if (!all(current_typ_id %in% data_from_base$eel_typ_id)) 
-      validate(need(FALSE,paste("There is a mismatch between selected typ_id", paste0(current_typ_id, 
-                                                                                      collapse = ";"), "and the dataset loaded from base", paste0(unique(data_from_base$eel_typ_id), 
-                                                                                                                                                  collapse = ";"), "did you select the right File type ?")))
-  }
-  # Can't join on 'eel_area_division' x 'eel_area_division' because of incompatible
-  # types (character / logical)
-  deleted_from_excel$eel_area_division <- as.character(deleted_from_excel$eel_area_division)
-  deleted_from_excel$eel_hty_code <- as.character(deleted_from_excel$eel_hty_code)
-  eel_colnames <- colnames(data_from_base)[grepl("eel", colnames(data_from_base))]
-  
-  
-  deleted_from_excel <- deleted_from_excel %>%
-    select(-eel_typ_name)
-  
-  comparison_deleted <- anti_join(deleted_from_excel %>%
-                                    select(eel_emu_nameshort,eel_value,eel_typ_id,eel_id,eel_cou_code,
-                                           eel_lfs_code,eel_hty_code,eel_year),
-                              data_from_base %>%
-                                filter(eel_id %in% deleted_from_excel$eel_id) %>%
-                                select(eel_emu_nameshort,eel_value,eel_typ_id,eel_id,eel_cou_code,
-                                       eel_lfs_code,eel_hty_code,eel_year))
-  validate(need(nrow(comparison_deleted) == 0, "the data in deleted_data have been modified compared with the content of the db"))
-
-  #since dc2020, qal_id are automatically created during the import
-  deleted_from_excel$eel_qal_id <- qualify_code
-  deleted_from_excel$eel_qal_comment <- paste(ifelse(is.na(deleted_from_excel$eel_qal_comment),
-                                                     "",
-                                                     deleted_from_excel$eel_qal_comment),
-                                                     "deleted during", the_eel_datasource)
-  
-  deleted_from_excel <- deleted_from_excel %>%
-    select(any_of(c("eel_id", "eel_typ_id", "eel_typ_name", "eel_year",
-                    "eel_value", "eel_missvaluequal", 
-                    "eel_emu_nameshort", "eel_cou_code",
-                    "perc_f","perc_t","perc_c", "perc_mo",
-                    "eel_lfs_code", "eel_hty_code",
-                    "eel_area_division","eel_comment", 
-                     "eel_datasource",
-                    "eel_qal_id", "eel_qal_comment")))
-  
-  return(deleted_from_excel)
+	# tr_type_typ should have been loaded by global.R in the program in the shiny app
+	if (!exists("tr_type_typ")) {
+		tr_type_typ<-extract_ref("Type of series", pool)
+	}
+	# data integrity checks
+	validate(need(nrow(deleted_from_excel) != 0,"There are no data coming from the excel file")) 
+	current_cou_code <- unique(deleted_from_excel$eel_cou_code)
+	validate(need(length(current_cou_code) == 1, "There is more than one country code, this is wrong"))
+	
+	current_typ_name <- unique(deleted_from_excel$eel_typ_name)
+	if (!all(current_typ_name %in% tr_type_typ$typ_name)) stop(str_c("Type ",current_typ_name[!current_typ_name %in% tr_type_typ$typ_name]," not in list of type name check excel file"))
+	# all data returned by loading functions have only a name just in case to avoid doubles
+	
+	if (!"eel_typ_id"%in%colnames(deleted_from_excel)) {
+		# extract subset suitable for merge
+		tr_type_typ_for_merge <- tr_type_typ[, c("typ_id", "typ_name")]
+		colnames(tr_type_typ_for_merge) <- c("eel_typ_id", "eel_typ_name")
+		deleted_from_excel <- merge(deleted_from_excel, tr_type_typ_for_merge, by = "eel_typ_name") 
+	}
+	if (nrow(data_from_base) == 0) {
+		validate(need(FALSE, "No data in the db"))
+		current_typ_id<-0
+	} else {   
+		if (!all(deleted_from_excel$eel_id %in% data_from_base$eel_id))
+			validate(need(FALSE,paste("eel_id",paste(deleted_from_excel$eel_id[!deleted_from_excel$eel_id %in% data_from_base$eel_id],collapse=","),
+									"not found in db",sep="")))
+		current_typ_id <- unique(deleted_from_excel$eel_typ_id)
+		if (!all(current_typ_id %in% data_from_base$eel_typ_id)) 
+			validate(need(FALSE,paste("There is a mismatch between selected typ_id", paste0(current_typ_id, 
+											collapse = ";"), "and the dataset loaded from base", paste0(unique(data_from_base$eel_typ_id), 
+											collapse = ";"), "did you select the right File type ?")))
+	}
+	# Can't join on 'eel_area_division' x 'eel_area_division' because of incompatible
+	# types (character / logical)
+	deleted_from_excel$eel_area_division <- as.character(deleted_from_excel$eel_area_division)
+	deleted_from_excel$eel_hty_code <- as.character(deleted_from_excel$eel_hty_code)
+	eel_colnames <- colnames(data_from_base)[grepl("eel", colnames(data_from_base))]
+	
+	
+	deleted_from_excel <- deleted_from_excel %>%
+			select(-eel_typ_name)
+	
+	comparison_deleted <- anti_join(deleted_from_excel %>%
+					select(eel_emu_nameshort,eel_value,eel_typ_id,eel_id,eel_cou_code,
+							eel_lfs_code,eel_hty_code,eel_year),
+			data_from_base %>%
+					filter(eel_id %in% deleted_from_excel$eel_id) %>%
+					select(eel_emu_nameshort,eel_value,eel_typ_id,eel_id,eel_cou_code,
+							eel_lfs_code,eel_hty_code,eel_year))
+	validate(need(nrow(comparison_deleted) == 0, "the data in deleted_data have been modified compared with the content of the db"))
+	
+	#since dc2020, qal_id are automatically created during the import
+	deleted_from_excel$eel_qal_id <- qualify_code
+	deleted_from_excel$eel_qal_comment <- paste(ifelse(is.na(deleted_from_excel$eel_qal_comment),
+					"",
+					deleted_from_excel$eel_qal_comment),
+			"deleted during", the_eel_datasource)
+	
+	deleted_from_excel <- deleted_from_excel %>%
+			select(any_of(c("eel_id", "eel_typ_id", "eel_typ_name", "eel_year",
+									"eel_value", "eel_missvaluequal", 
+									"eel_emu_nameshort", "eel_cou_code",
+									"perc_f","perc_t","perc_c", "perc_mo",
+									"eel_lfs_code", "eel_hty_code",
+									"eel_area_division","eel_comment", 
+									"eel_datasource",
+									"eel_qal_id", "eel_qal_comment")))
+	
+	return(deleted_from_excel)
 }
 
 
@@ -376,7 +376,6 @@ compare_with_database_series <- function(data_from_excel, data_from_base) {
 	# after anti join there are still values that are not really changed.
 	# this is further investigated below
 	highlight_change <- duplicates[duplicates$ser_nameshort %in% modified$ser_nameshort,]
-	
 	if (nrow(highlight_change)>0){
 		num_common_col <- grep(".xls|.base",colnames(highlight_change))
 		possibly_changed <- colnames(highlight_change)[num_common_col]
@@ -414,18 +413,27 @@ compare_with_database_series <- function(data_from_excel, data_from_base) {
 #' @examples 
 #' \dontrun{
 #' if(interactive()){
-#' wg_file.choose<-file.choose
-#' path <- "C:\\Users\\cedric.briand\\OneDrive - EPTB Vilaine\\Projets\\GRISAM\\2020\\wgeel\\datacall\\FR\\Eel_Data_Call_2020_Annex1_time_series_FR_Recruitment.xlsx"
+#' path<-file.choose()
+#' path<-"C:\\Users\\cedric.briand\\OneDrive - EPTB Vilaine\\Projets\\GRISAM\\2022\\WKEELDATA4\\Eel_Data_Call_2022_Annex1_time_series_FR_Recruitment.xlsx"
+
+#' data_from_excel <- read_excel(path=path,	sheet ="updated_data",	skip=0) 
+
+#' data_from_base <- extract_data('t_dataseries_das',quality_check=FALSE)
+#' series <- extract_data('t_series_ser',quality_check=FALSE)
+#' list_comp <- compare_with_database_dataseries(data_from_excel,data_from_base, sheetorigin="updated_data")
+
 #' data_from_excel <- read_excel(path=path,	sheet ="new_data",	skip=0) 
 #' data_from_base <- extract_data('t_dataseries_das',quality_check=FALSE)
 #' series <- extract_data('t_series_ser',quality_check=FALSE)
+#' data_from_excel$das_dts_datasource <- the_eel_datasource # this is generated in load_data
 #' data_from_excel <- left_join(data_from_excel, series[,c("ser_id","ser_nameshort")], by="ser_nameshort")
 #' data_from_excel <- rename(data_from_excel,"das_ser_id"="ser_id")
-#' list_comp <- compare_with_database_dataseries(data_from_excel,data_from_base)
-#'  }
-#' }
+#' list_comp <- compare_with_database_dataseries(data_from_excel,data_from_base, sheetorigin="new_data")
+#' }}
+
+
+
 compare_with_database_dataseries <- function(data_from_excel, data_from_base, sheetorigin="new_data") {
-browser()
 	# data integrity checks
 	error_id_message <- ""
 	if (nrow(data_from_excel) == 0) 
@@ -442,87 +450,105 @@ browser()
 	}
 	# convert columns with missing data to numeric	  
 	data_from_excel <- data_from_excel %>% mutate_if(is.logical,list(as.numeric)) 
-	data_from_excel <- data_from_excel %>% mutate_at(vars(das_dts_datasource,das_comment),list(as.character)) 
+	data_from_excel <- data_from_excel %>% mutate_at(vars(gr_dts_datasource,gr_comment),list(as.character)) 
+	
+	# add temporary id for join
+	data_from_excel <-  	mutate(data_from_excel,id = row_number())
+	
 	#data_from_excel <- data_from_excel %>% mutate_at(vars(matches("update")),list(as.Date)) 	
 	
 	data_from_excel$sheetorigin <- sheetorigin
 	
+	# duplicates are created to create the columns (right table structure later used in highlight changes. 
+	# but the rows from duplicated (real duplicates) will be selected later by comparing changes in 
+	# c("das_year", "das_value", "das_comment", "das_effort", "das_ser_id")
+	# any other change will not be detected
 	
 	duplicates <- data_from_base %>% 	dplyr::inner_join(data_from_excel, by = c("das_ser_id","das_year"), 
 			suffix = c(".base", ".xls"))
+	
+	
+# the followin just checks and reorders the columns
+	
+	columns_updated <- c("id", "das_ser_id","das_year", "ser_nameshort", "das_last_update",
+			# duplicates columns
+			"das_id.base", "das_id.xls",
+			"das_qal_id.base", "das_qal_id.xls",
+      "das_dts_datasource.base", "das_dts_datasource.xls", 
+			"das_value.base", "das_value.xls",					
+			"das_comment.base", "das_comment.xls",
+			"das_effort.base", "das_effort.xls",
+			"sheetorigin")
+	
+	columns_new <- c("id","das_id",
+			"das_ser_id",
+			"das_year", 
+			"ser_nameshort",						
+			"das_last_update",
+			"das_dts_datasource.base", "das_dts_datasource.xls", 
+			# duplicates columns
+			"das_qal_id.base", "das_qal_id.xls",						
+			"das_value.base", "das_value.xls",					
+			"das_comment.base", "das_comment.xls",
+			"das_effort.base", "das_effort.xls",
+			"sheetorigin")
+	
 	# If the data_from_excel corresponds to the updated_data tab, then there is a das_id
-	if ("das_id" %in% colnames(data_from_excel)){
-		
-		duplicates <- duplicates[, 
-				# not in the datacall or used as pivot :
-				c("das_ser_id","das_year", "ser_nameshort", "das_last_update",
-						# duplicates columns
-						"das_id.base", "das_id.xls",
-						"das_qal_id.base", "das_qal_id.xls",
-						"das_dts_datasource.base", "das_dts_datasource.xls",
-						"das_value.base", "das_value.xls",					
-						"das_comment.base", "das_comment.xls",
-						"das_effort.base", "das_effort.xls",
-						"sheetorigin")]
+	if (sheetorigin =="updated_data" ){
+		if (!all( columns_updated  %in% colnames (duplicates)))
+			stop(paste("column",paste(columns_updated[!columns_updated  %in% colnames (duplicates)], collapse=";"), "not present in updated data"))
+		duplicates <- duplicates[, columns_updated]
 		if (any(duplicates$das_id.base!=duplicates$das_id.excel)) error_id_message <- "<p style='color:red;'>There is a problem with id, 
 					they have changed this indicates that year or series has changed, check carefully </p>"
 		
 		
-	} else {
-		duplicates <- duplicates[, 
-				# not in the datacall or used as pivot :
-				c("das_id", 
-						"das_ser_id",
-						"das_year", 
-						"ser_nameshort",						
-						"das_last_update",
-						# duplicates columns
-					"das_qal_id.base", "das_qal_id.xls",
-						"das_dts_datasource.base", "das_dts_datasource.xls",
-						"das_value.base", "das_value.xls",					
-						"das_comment.base", "das_comment.xls",
-						"das_effort.base", "das_effort.xls",
-						"sheetorigin")]
+	} else { # sheet = new_data
+		if (!all( columns_new  %in% colnames (duplicates)))
+			stop(paste("column",paste(columns_new[!columns_new  %in% colnames (duplicates)], collapse=";"), "not present in new data"))
+		duplicates <- duplicates[, columns_new]
 	}
-	# Anti join only keeps columns from X
+	
+	# Anti join only keeps columns from X, any new data is a data with ser_id and year not present in the db
 	new <-  dplyr::anti_join(as.data.frame(data_from_excel), data_from_base, 
 			by = c("das_ser_id","das_year"))
 	if (nrow(new)>0){
-		new$das_qal_id <- NA
-		new$das_dts_datasource <- the_eel_datasource
-		# das_id might come from updated, identified as new, then we have a pb and remove it
-		if ("das_id" %in% colnames(new)) {
+		#new$das_qal_id <- NA
+		new$das_dts_datasource <- the_eel_datasource		
+		if (sheetorigin =="updated_data" ){ 
 			new <- new %>% select(-das_id)
 		}
 	}
 	
-	# normally there should not be any modified in new but let's check
+	
 	modified <- dplyr::anti_join(data_from_excel, data_from_base, 
 			by = c("das_year", "das_value", "das_comment", "das_effort", "das_ser_id")
 	)
-	modified <- modified[!modified$ser_nameshort %in% new$ser_nameshort,]
-	highlight_change <- duplicates[duplicates$ser_nameshort %in% modified$ser_nameshort,]
-	if (nrow(modified) >0 ) {
-		
-		
-		
+	# new is also modified (less columns in the anti join) I need to remove the lines 
+  # from new in modified
+	 modified <- modified[!modified$id %in% new$id,]
+	# after anti join there are still values that are not really changed.
+	# this is further investigated below
+  # I'm using the id created in the script to identify the lines ot check
+  # I need to work with the "full" anti join even if the real anti join is above
+	highlight_change <- duplicates[duplicates$id %in% modified$id,]
+	if (nrow(highlight_change)>0){
 		num_common_col <- grep(".xls|.base",colnames(highlight_change))
 		possibly_changed <- colnames(highlight_change)[num_common_col]
 		
+		# mat returns identical values
 		mat <-	matrix(FALSE,nrow(highlight_change),length(num_common_col))
 		for(v in 0:(length(num_common_col)/2-1))
 		{
 			v=v*2+1
-			test <- highlight_change %>% select(num_common_col)%>%select(v,v+1) %>%
+			test <- highlight_change %>% select(num_common_col)%>% select(v,v+1) %>%
 					mutate_all(as.character) %>%	mutate_all(type.convert, as.is = TRUE) %>%	
-					mutate(test=identical(.[[1]], .[[2]]))%>%pull(test)
+					mutate(test=identical(.[[1]], .[[2]])) %>% pull(test)
 			mat[,c(v,v+1)]<-test
 			
 		}
-		# select only rows where there are true modified 
-		modified <- modified[!apply(mat,1,all),]	 
-		# show only modifications to the user (any colname modified)	
-		highlight_change <- highlight_change[!apply(mat,1,all),num_common_col[!apply(mat,2,all)]]
+		# select only the rows (any change) and columns modified		
+	highlight_change <- highlight_change[!apply(mat,1,all),num_common_col[!apply(mat,2,all)]]
+
 		
 		# when modified come from new data, I need the id
 		if (!"das_id" %in% colnames(modified)){
@@ -549,17 +575,32 @@ browser()
 #' @examples 
 #' \dontrun{
 #' if(interactive()){
-#' wg_file.choose<-file.choose
-#' path <- "C:\\Users\\cedric.briand\\OneDrive - EPTB Vilaine\\Projets\\GRISAM\\2020\\wgeel\\datacall_files\\FR\\Eel_Data_Call_2020_Annex1_time_series_FR_Recruitment.xlsx"
-#' data_from_excel <- read_excel(path=path,	sheet ="new_biometry",	skip=0) 
-#' data_from_base <- extract_data('t_biometry_series_bis',quality_check=FALSE)
+#' path<-file.choose()
+#' path<-"C:\\Users\\cedric.briand\\OneDrive - EPTB Vilaine\\Projets\\GRISAM\\2022\\WKEELDATA4\\Eel_Data_Call_2022_Annex1_time_series_FR_Recruitment.xlsx"
+#' data_from_excel <- read_excel(path=path,	sheet ="new_group_metrics",	skip=0) 
+#' data_from_base <- extract_data('t_groupseries_grser',quality_check=FALSE)
+t_series_ser <- extract_data('t_series_ser',quality_check=FALSE)
+t_groupseries_grser <- extract_data("t_groupseries_grser", quality_check=FALSE)
+t_metricgroupseries_megser <- extract_data("t_metricgroupseries_megser", quality_check=FALSE)
+t_metricgroupseries_megser <- t_metricgroupseries_megser%>% 
+															inner_join(t_groupseries_grser, by = c("meg_gr_id" = "gr_id") ) %>%
+															filter (grser_ser_id %in% t_series_ser$ser_id)
+data_from_base <- t_metricgroupseries_megser													
 #' series <- extract_data('t_series_ser',quality_check=FALSE)
-#' list_comp <- compare_with_database_metric_group(data_from_excel,data_from_base)
-#'  }
-#' }
-compare_with_database_metric_group <- function(data_from_excel, data_from_base, sheetorigin="new_data") {
+#' list_comp <- compare_with_database_metric_group(data_from_excel,data_from_base, sheetorigin="new_group_metrics")
+#' data_from_excel <- read_excel(path=path,	sheet ="updated_group_metrics",	skip=0) 
+#' data_from_base <- extract_data('t_groupseries_grser',quality_check=FALSE)
+#' series <- extract_data('t_series_ser',quality_check=FALSE)
+#' data_from_excel$das_dts_datasource <- the_eel_datasource # this is generated in load_data
+#' data_from_excel <- left_join(data_from_excel, series[,c("ser_id","ser_nameshort")], by="ser_nameshort")
+#' data_from_excel <- rename(data_from_excel,"das_ser_id"="ser_id")
+#' list_comp <- compare_with_database_metric_group(data_from_excel,data_from_base, sheetorigin="updated_group_metric")
+#' }}
+compare_with_database_metric_group <- function(data_from_excel, data_from_base, sheetorigin=c("new_group_metrics","updated_group_metrics","deleted_group_metrics")) {
 	# data integrity checks
-	browser()
+	
+	if (!sheetorigin %in% c("new_group_metrics","updated_group_metrics","deleted_group_metrics")) stop ("sheetorigin should be one of
+						new_group_metrics,updated_group_metrics,deleted_group_metrics")
 	if (nrow(data_from_excel) == 0) 
 		validate(need(FALSE,"There are no data coming from the excel file"))
 	if (nrow(data_from_base) == 0) {
@@ -567,7 +608,7 @@ compare_with_database_metric_group <- function(data_from_excel, data_from_base, 
 		# this poses computation problems
 		# I'm changing it here by loading a correct empty dataset
 		#data_from_base_group_metrics0L <- data_from_base[FALSE,]		
-		#save(data_from_base_group_metrics0L, file = "C:\\workspace\\gitwgeel\\R\\shiny_data_integration\\shiny_di\\common\\data\\data_from_base_group_metrics_0L.Rdata")
+		#save(data_from_base_group_metrics0L, file = "C:\\workspace\\wg_WGEEL\\R\\shiny_data_integration\\shiny_di\\common\\data\\data_from_base_group_metrics_0L.Rdata")
 		load("common/data/data_from_base_group_metrics_0L.Rdata")
 		data_from_base <- data_from_base_group_metrics0L
 		warning("No data in the file coming from the database")
@@ -576,10 +617,10 @@ compare_with_database_metric_group <- function(data_from_excel, data_from_base, 
 	data_from_excel <- data_from_excel %>% mutate_if(is.logical,list(as.numeric)) 
 	data_from_excel <- data_from_excel %>% mutate_at(vars(matches("comment")),list(as.character)) 
 	#data_from_excel <- data_from_excel %>% mutate_at(vars(matches("update")),list(as.Date)) 	
-	data_from_excel <- data_from_excel %>% select(-"meg_qal_id")
 	data_from_excel$sheetorigin <- sheetorigin
-	
-	# removed pre-filled data not modified by user.
+	data_from_excel %>%
+
+
 	
 	remove_all_na <- data_from_excel %>% 
 			select(-bis_ser_id,-ser_nameshort,-bio_year, -sheetorigin) %>%
@@ -1091,7 +1132,7 @@ write_new <- function(path, type="all") {
 				if(nrow(new)>0){
 					new$eel_id_perc <- dbGetQuery(conn, query)[,1]
 					if (sum(startsWith(names(new),"perc_"))>0){#we have to insert into t_eelstock_eel_percent
-					  dbExecute(conn,"drop table if exists new_temp ")
+						dbExecute(conn,"drop table if exists new_temp ")
 						dbWriteTable(conn,"new_temp",new,row.names=FALSE,temporary=TRUE)
 						dbExecute(conn, querybis)
 					}
@@ -1176,19 +1217,19 @@ write_updated_values <- function(path, qualify_code) {
 					comment:=rec.eel_comment_xls;
 					if  comment != 'delete row' and comment is not null then 
 					insert into datawg.t_eelstock_eel (eel_typ_id,eel_year,eel_value,eel_missvaluequal,
-						eel_emu_nameshort,eel_cou_code,eel_lfs_code,eel_hty_code,eel_area_division,eel_qal_id, eel_qal_comment,
-						eel_datasource,eel_comment)
+					eel_emu_nameshort,eel_cou_code,eel_lfs_code,eel_hty_code,eel_area_division,eel_qal_id, eel_qal_comment,
+					eel_datasource,eel_comment)
 					(select eel_typ_id,eel_year_xls,eel_value_xls,eel_missvaluequal_xls,eel_emu_nameshort_xls,
-				eel_cou_code_xls,eel_lfs_code_xls,eel_hty_code_xls,eel_area_division_xls,eel_qal_id_xls,
-				eel_qal_comment_xls,eel_datasource_xls,eel_comment_xls from updated_temp where eel_id=oldid ) 
-				returning eel_id into newid;
+					eel_cou_code_xls,eel_lfs_code_xls,eel_hty_code_xls,eel_area_division_xls,eel_qal_id_xls,
+					eel_qal_comment_xls,eel_datasource_xls,eel_comment_xls from updated_temp where eel_id=oldid ) 
+					returning eel_id into newid;
 					update datawg.t_eelstock_eel set eel_qal_comment=
 					coalesce(eel_qal_comment,'') || ' updated to eel_id ' || newid::text || ' in ",cyear,"' 
 					where eel_id=oldid;\n",
 			ifelse(any(startsWith(names(updated_values_table), "perc_"))>0,
 					"insert into datawg.t_eelstock_eel_percent values (newid,rec.perc_f,rec.perc_t,rec.perc_c,rec.perc_mo);\n",
 					""),
-					"else
+			"else
 					update datawg.t_eelstock_eel set eel_qal_comment='deleted in ",cyear,"' where eel_id=oldid;
 					end if;
 					END;
@@ -1223,35 +1264,35 @@ write_updated_values <- function(path, qualify_code) {
 #' this version allows to catch exceptions and sqldf does not
 
 write_deleted_values <- function(path, qualify_code) {
-  deleted_values_table <- read_excel(path = path, sheet = 1, skip = 1)
-  validate(need(ncol(deleted_values_table) %in% c(14,18), "number column wrong (should be 14 or 18) \n"))
-  validate(need(all(colnames(deleted_values_table) %in% c("eel_id", "eel_typ_id", 
-                                                          "eel_year","eel_value",
-                                                          "eel_missvaluequal",
-                                                          "eel_emu_nameshort",
-                                                         "eel_qal_id",
-                                                          "eel_qal_comment",
-                                                           "eel_qal_id", "eel_qal_comment", "eel_missvaluequal", 
-                                                          "eel_emu_nameshort", "eel_cou_code",
-                                                          "eel_lfs_code",
-                                                          "eel_hty_code", "eel_area_division",
-                                                          "eel_comment",
-                                                          "perc_f","perc_t","perc_c", "perc_mo",
-                                                          "eel_datasource")), 
-                "Error in updated dataset : column name changed, have you removed the empty line on top of the dataset ?"))
-  validate(need(all(!is.na(deleted_values_table$eel_qal_id)), "There are still lines without eel_qal_id, please check your file"))
-  cou_code = unique(deleted_values_table$eel_cou_code)
-  validate(need(length(cou_code) == 1, "There is more than one country code, please check your file"))
-  
-  # create dataset for insertion -------------------------------------------------------------------
-  deleted_values_table$eel_value<- as.numeric(deleted_values_table$eel_value)
-  names(deleted_values_table) = gsub(".","_",names(deleted_values_table),fixed=TRUE)
-  
-  conn <- poolCheckout(pool)
-  dbExecute(conn,"drop table if exists deleted_temp ")
-  dbWriteTable(conn,"deleted_temp",deleted_values_table,row.names=FALSE,temporary=TRUE)
-  cyear=format(Sys.Date(), "%Y")
-  query=paste("
+	deleted_values_table <- read_excel(path = path, sheet = 1, skip = 1)
+	validate(need(ncol(deleted_values_table) %in% c(14,18), "number column wrong (should be 14 or 18) \n"))
+	validate(need(all(colnames(deleted_values_table) %in% c("eel_id", "eel_typ_id", 
+									"eel_year","eel_value",
+									"eel_missvaluequal",
+									"eel_emu_nameshort",
+									"eel_qal_id",
+									"eel_qal_comment",
+									"eel_qal_id", "eel_qal_comment", "eel_missvaluequal", 
+									"eel_emu_nameshort", "eel_cou_code",
+									"eel_lfs_code",
+									"eel_hty_code", "eel_area_division",
+									"eel_comment",
+									"perc_f","perc_t","perc_c", "perc_mo",
+									"eel_datasource")), 
+					"Error in updated dataset : column name changed, have you removed the empty line on top of the dataset ?"))
+	validate(need(all(!is.na(deleted_values_table$eel_qal_id)), "There are still lines without eel_qal_id, please check your file"))
+	cou_code = unique(deleted_values_table$eel_cou_code)
+	validate(need(length(cou_code) == 1, "There is more than one country code, please check your file"))
+	
+	# create dataset for insertion -------------------------------------------------------------------
+	deleted_values_table$eel_value<- as.numeric(deleted_values_table$eel_value)
+	names(deleted_values_table) = gsub(".","_",names(deleted_values_table),fixed=TRUE)
+	
+	conn <- poolCheckout(pool)
+	dbExecute(conn,"drop table if exists deleted_temp ")
+	dbWriteTable(conn,"deleted_temp",deleted_values_table,row.names=FALSE,temporary=TRUE)
+	cyear=format(Sys.Date(), "%Y")
+	query=paste("
 					DO $$
 					DECLARE
 					rec RECORD;
@@ -1270,21 +1311,21 @@ write_deleted_values <- function(path, qualify_code) {
 					END LOOP;
 					END;
 					$$ LANGUAGE 'plpgsql';",sep="")
-  message <- NULL
-  nr <- tryCatch({
-    dbExecute(conn, query)
-  }, error = function(e) {
-    message <<- e
-  }, finally = {
-    dbExecute(conn,"drop table if exists deleted_temp;")
-    poolReturn(conn)
-  })
-  
-  
-  if (is.null(message))   
-    message <- paste(nrow(deleted_values_table),"values deleted in the db")
-  
-  return(list(message = message, cou_code = cou_code))
+	message <- NULL
+	nr <- tryCatch({
+				dbExecute(conn, query)
+			}, error = function(e) {
+				message <<- e
+			}, finally = {
+				dbExecute(conn,"drop table if exists deleted_temp;")
+				poolReturn(conn)
+			})
+	
+	
+	if (is.null(message))   
+		message <- paste(nrow(deleted_values_table),"values deleted in the db")
+	
+	return(list(message = message, cou_code = cou_code))
 }
 
 
@@ -1501,7 +1542,7 @@ write_new_group_metrics <- function(path) {
 #					bio_length_f=ifelse(bio_id==double_man$bio_id[2],
 #							weighted.mean(double_man$bio_length_f, double_man$bio_number),
 #							bio_length_f))
-## these are the final groups that need to be created
+	## these are the final groups that need to be created
 #	groups <- groups %>%
 #			select(bio_lfs_code,bio_year,bio_number,
 #					bio_comment,
@@ -1530,10 +1571,10 @@ write_new_group_metrics <- function(path) {
 	
 	
 	new <- new[, c( "bio_year", "bio_length", "bio_weight", "bio_age", 
-							"bio_perc_female", "bio_length_f", "bio_weight_f", "bio_age_f", "bio_length_m", 
-							"bio_weight_m", "bio_age_m", "bio_comment", "bio_last_update", "bio_number" ,"bis_g_in_gy", 
-							"bio_dts_datasource", "bis_ser_id" )
-				]
+					"bio_perc_female", "bio_length_f", "bio_weight_f", "bio_age_f", "bio_length_m", 
+					"bio_weight_m", "bio_age_m", "bio_comment", "bio_last_update", "bio_number" ,"bis_g_in_gy", 
+					"bio_dts_datasource", "bis_ser_id" )
+	]
 	new$bio_last_update <- Sys.Date()
 	conn <- poolCheckout(pool)
 	cou_code <- (dbGetQuery(conn, statement=paste0("SELECT ser_cou_code FROM datawg.t_series_ser WHERE ser_id=",

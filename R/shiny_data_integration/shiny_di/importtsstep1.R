@@ -209,26 +209,51 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 											new_individual_metrics <- rename(new_individual_metrics,"fiser_ser_id"="ser_id")
 										}										
 										
-										browser()
+								
 										t_dataseries_das <- extract_data("t_dataseries_das", quality_check=FALSE)
 										t_groupseries_grser <- extract_data("t_groupseries_grser", quality_check=FALSE)
 										t_fishseries_fiser <- extract_data("t_fishseries_fiser", quality_check=FALSE)
 										t_metricgroupseries_megser <- extract_data("t_metricgroupseries_megser", quality_check=FALSE)
-										t_metricindseries_megser <- extract_data("t_metricindseries_meiser", quality_check=FALSE)
+										t_metricindseries_meiser <- extract_data("t_metricindseries_meiser", quality_check=FALSE)
 										
 										switch (loaded_data_ts$file_type,
 												"glass_eel"={
 													t_series_ser <- t_series_ser %>%  filter(ser_typ_id==1)
 													t_dataseries_das <- t_dataseries_das %>% filter (das_ser_id %in% t_series_ser$ser_id)
-													t_groupseries_grser <-  t_groupseries_grser %>% filter (das_ser_id %in% t_series_ser$ser_id)
+													t_groupseries_grser <-  t_groupseries_grser %>% filter (grser_ser_id %in% t_series_ser$ser_id)
+													t_fishseries_fiser <-  t_fishseries_fiser %>% filter (fiser_ser_id %in% t_series_ser$ser_id)
+													t_metricgroupseries_megser <- t_metricgroupseries_megser%>% 
+															inner_join(t_groupseries_grser, by = c("meg_gr_id" = "gr_id") ) %>%
+															filter (grser_ser_id %in% t_series_ser$ser_id)
+													t_metricindseries_meiser <- t_metricindseries_meiser%>%
+															inner_join(t_fishseries_fiser, by = c("mei_fi_id" = "fi_id") ) %>%
+															filter (fiser_ser_id %in% t_series_ser$ser_id)
 												},
 												"yellow_eel"={
 													t_series_ser <- t_series_ser %>%  filter(ser_typ_id==2)
 													t_dataseries_das <- t_dataseries_das %>% filter (das_ser_id %in% t_series_ser$ser_id)
+													t_groupseries_grser <-  t_groupseries_grser %>% filter (gr_ser_id %in% t_series_ser$ser_id)
+													t_fishseries_fiser <-  t_fishseries_fiser %>% filter (fi_ser_id %in% t_series_ser$ser_id)
+													t_metricgroupseries_megser <- t_metricgroupseries_megser%>% 
+															inner_join(t_groupseries_grser, by = c("meg_gr_id" = "gr_id") ) %>%
+															filter (grser_ser_id %in% t_series_ser$ser_id)
+													t_metricindseries_meiser <- t_metricindseries_meiser%>%
+															inner_join(t_fishseries_fiser, by = c("mei_fi_id" = "fi_id") ) %>%
+															filter (fiser_ser_id %in% t_series_ser$ser_id)
+													
 												},
 												"silver_eel"={
 													t_series_ser <- t_series_ser %>%  filter(ser_typ_id==3)
 													t_dataseries_das <- t_dataseries_das %>% filter (das_ser_id %in% t_series_ser$ser_id)
+													t_groupseries_grser <-  t_groupseries_grser %>% filter (gr_ser_id %in% t_series_ser$ser_id)
+													t_fishseries_fiser <-  t_fishseries_fiser %>% filter (fi_ser_id %in% t_series_ser$ser_id)
+													t_metricgroupseries_megser <- t_metricgroupseries_megser%>% 
+															inner_join(t_groupseries_grser, by = c("meg_gr_id" = "gr_id") ) %>%
+															filter (grser_ser_id %in% t_series_ser$ser_id)
+													t_metricindseries_meiser <- t_metricindseries_meiser%>%
+															inner_join(t_fishseries_fiser, by = c("mei_fi_id" = "fi_id") ) %>%
+															filter (fiser_ser_id %in% t_series_ser$ser_id)
+													
 												}
 										)
 										# the compare_with_database function will compare
@@ -238,6 +263,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 										# the second new contains a dataframe to be inserted straight into
 										# the database
 										#cat("step0")
+browser()
 										if (nrow(series)>0){
 											list_comp_series <- compare_with_database_series(data_from_excel=series, data_from_base=t_series_ser)
 										}
@@ -267,6 +293,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 											list_comp_updateddataseries <- list()
 											list_comp_updateddataseries$error_id_message <- "" # this message would have been displayed if pb of id
 										}
+									
 										if (nrow(new_group_metrics)>0){
 											list_comp_group_metrics <- compare_with_database_metric_group(data_from_excel=new_group_metrics, data_from_base=t_group_metrics_series_bis, sheetorigin="new_data")
 										}
@@ -287,6 +314,29 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 												list_comp_group_metrics$new <- list_comp_updated_group_metrics$new
 												list_comp_group_metrics$modified <- list_comp_updated_group_metrics$modified
 												list_comp_group_metrics$highlight_change <- list_comp_updated_group_metrics$highlight_change
+											}
+										}
+										
+										if (nrow(new_individual_metrics)>0){
+											list_comp_individual_metrics <- compare_with_database_metric_individual(data_from_excel=new_group_metrics, data_from_base=t_group_metrics_series_bis, sheetorigin="new_data")
+										}
+										
+										if (nrow(updated_individual_metrics)>0){
+											list_comp_updated_individual_metrics <- compare_with_database_metric_individual(data_from_excel=updated_individual_metrics, data_from_base=t_individual_metrics_series_bis, sheetorigin="updated_individual_metrics")
+											if (nrow(new_individual_metrics)>0){
+												list_comp_individual_metrics$new <- rbind(list_comp_individual_metrics$new,list_comp_updated_individual_metrics$new)
+												list_comp_individual_metrics$modified <- rbind(list_comp_individual_metrics$modified,list_comp_updated_individual_metrics$modified)
+												if (nrow(list_comp_individual_metrics$highlight_change)>0){
+													list_comp_individual_metrics$highlight_change <- bind_rows(list_comp_individual_metrics$highlight_change,
+															list_comp_updated_individual_metrics$highlight_change)
+												} else {
+													list_comp_individual_metrics$highlight_change <- list_comp_updated_individual_metrics$highlight_change
+												}
+												# note highlight change is not passed from one list to the other, both will be shown
+											} else {
+												list_comp_individual_metrics$new <- list_comp_updated_individual_metrics$new
+												list_comp_individual_metrics$modified <- list_comp_updated_individual_metrics$modified
+												list_comp_individual_metrics$highlight_change <- list_comp_updated_individual_metrics$highlight_change
 											}
 										}
 										current_cou_code <- list_comp_series$current_cou_code
@@ -400,7 +450,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 											
 											
 										} else {
-											output$"step1_message_new_biometry"<-renderUI(
+											output$"step1_message_new_group_metrics"<-renderUI(
 													HTML(
 															paste(
 																	paste(
@@ -408,9 +458,52 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 																			"<p align='left'>Please click on excel <p>"
 																	)))
 											)
-											output$dt_new_biometry <-DT::renderDataTable({
+											output$dt_new_group_metrics <-DT::renderDataTable({
 														validate(need(globaldata$connectOK,"No connection"))
-														datatable(list_comp_biometry$new,
+														datatable(list_comp_group_metrics$new,
+																rownames=FALSE,
+																extensions = "Buttons",
+																option=list(
+																		scroller = TRUE,
+																		scrollX = TRUE,
+																		scrollY = "500px",
+																		order=list(3,"asc"),
+																		lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
+																		"pagelength"=-1,
+																		dom= "Blfrtip",
+																		scrollX = T,
+																		buttons=list(
+																				list(extend="excel",
+																						filename = paste0("new_biometry_",loaded_data_ts$file_type,"_",Sys.Date(),"_",current_cou_code)))
+																))
+													})
+										}
+										
+										# step1 new individual_metrics -------------------------------------------------------------
+										
+										if (!exists("list_comp_individual_metrics") || nrow(list_comp_individual_metrics$new)==0) {
+											output$step1_message_new_biometry <- renderUI(
+													HTML(
+															paste(
+																	h4("No new individual metrics")
+															)))
+											output$dt_new_biometry <-  renderDataTable(data.frame(),
+													options = list(searching = FALSE,paging = FALSE,
+															language = list(zeroRecords = "No biometry")))
+											
+											
+										} else {
+											output$"step1_message_new_individual_metrics"<-renderUI(
+													HTML(
+															paste(
+																	paste(
+																			h4("Table of new values (data) (xls)"),
+																			"<p align='left'>Please click on excel <p>"
+																	)))
+											)
+											output$dt_new_individual_metrics <-DT::renderDataTable({
+														validate(need(globaldata$connectOK,"No connection"))
+														datatable(list_comp_individual_metrics$new,
 																rownames=FALSE,
 																extensions = "Buttons",
 																option=list(
@@ -561,27 +654,27 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 											
 										}
 										
-										# step1 modified biometry -------------------------------------------------------------
+										# step1 modified individual_metrics -------------------------------------------------------------
 										
-										if ((!exists("list_comp_biometry")) || nrow(list_comp_biometry$modified)==0) {
+										if ((!exists("list_comp_individual_metrics")) || nrow(list_comp_individual_metrics$modified)==0) {
 											
-											output$"step1_message_modified_biometry"<-renderUI(
+											output$"step1_message_modified_individual_metrics"<-renderUI(
 													HTML(
 															paste(
-																	h4("No modified biometry")
+																	h4("No modified individual_metrics")
 															)))
 											
-											output$dt_modified_biometry <- renderDataTable(
+											output$dt_modified_individual_metrics <- renderDataTable(
 													data.frame(),
 													options = list(searching = FALSE,paging = FALSE,
-															language = list(zeroRecords = "No modified biometry")))
+															language = list(zeroRecords = "No modified individual metrics")))
 											
 										} else {
-											output$"step1_message_modified_biometry"<-renderUI(
+											output$"step1_message_modified_individual_metrics"<-renderUI(
 													HTML(
 															paste(
 																	paste(
-																			h4("Table of modified biometry (data) (xls)"),
+																			h4("Table of modified individual metrics (data) (xls)"),
 																			"<p align='left'> This is the file to import ",
 																			"Please click on excel<p>"
 																	)))
@@ -591,9 +684,9 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 											
 											# NO renderUI
 											
-											output$dt_modified_biometry <-DT::renderDataTable({
+											output$dt_modified_group_metrics <-DT::renderDataTable({
 														validate(need(globaldata$connectOK,"No connection"))
-														datatable(list_comp_biometry$modified,
+														datatable(list_comp_group_metrics$modified,
 																rownames=FALSE,
 																extensions = "Buttons",
 																option=list(
@@ -607,14 +700,50 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 																		scrollX = T,
 																		buttons=list(
 																				list(extend="excel",
-																						filename = paste0("modified_biometry_",loaded_data_ts$file_type,"_",Sys.Date(),"_",current_cou_code)))
+																						filename = paste0("modified_group_metrics_",loaded_data_ts$file_type,"_",Sys.Date(),"_",current_cou_code)))
+																))
+													})
+											
+											# NO renderUI
+											
+											output$dt_modified_individual_metrics <-DT::renderDataTable({
+														validate(need(globaldata$connectOK,"No connection"))
+														datatable(list_comp_individual_metrics$modified,
+																rownames=FALSE,
+																extensions = "Buttons",
+																option=list(
+																		scroller = TRUE,
+																		scrollX = TRUE,
+																		scrollY = "500px",
+																		order=list(3,"asc"),
+																		lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
+																		"pagelength"=-1,
+																		dom= "Blfrtip",
+																		scrollX = T,
+																		buttons=list(
+																				list(extend="excel",
+																						filename = paste0("modified_individual_metrics_",loaded_data_ts$file_type,"_",Sys.Date(),"_",current_cou_code)))
 																))
 													})
 											
 											
-											output$dt_highlight_change_biometry <-DT::renderDataTable({
+											
+											output$dt_highlight_change_group_metrics <-DT::renderDataTable({
 														validate(need(globaldata$connectOK,"No connection"))
-														datatable(list_comp_biometry$highlight_change,
+														datatable(list_comp_group_metrics$highlight_change,
+																rownames=FALSE,
+																option=list(
+																		scroller = TRUE,
+																		scrollX = TRUE,
+																		scrollY = "500px",
+																		lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
+																		"pagelength"=-1
+																))
+													})
+											
+											output$dt_highlight_change_individual_metrics <-DT::renderDataTable({
+														validate(need(globaldata$connectOK,"No connection"))
+														datatable(list_comp_individual_metrics$highlight_change,
 																rownames=FALSE,
 																option=list(
 																		scroller = TRUE,
