@@ -2332,15 +2332,16 @@ load_series<-function(path,datasource, stage="glass_eel"){
 		# check column names for each sheet
 		fn_check_columns(data=data_xls, columns=columns,	file = file, sheet=sheet, nbcol=nbcol)
 		
-		# check datasource according to sheet name, for individual and group data two columns must be filled in
-		if (grepl("data", sheet)) {
+		# check datasource according to sheet name, for individual and group data two columns are already filled in
+	  # for updated data and deleted data 
+		if (grepl("data", sheet) & grepl("new", sheet)) {
 			data_xls$das_dts_datasource <- datasource
 		}		
-		if (grepl("group", sheet)) {
+		if (grepl("group", sheet)  & grepl("new", sheet)) {
 			data_xls$gr_dts_datasource <- datasource
 			data_xls$meg_dts_datasource <- datasource
 		}
-		if (grepl("individual", sheet)) {
+		if (grepl("individual", sheet)  & grepl("new", sheet)) {
 			data_xls$gr_dts_datasource <- datasource
 			data_xls$mei_dts_datasource <- datasource
 		}
