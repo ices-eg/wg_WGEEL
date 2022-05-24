@@ -474,7 +474,7 @@ compare_with_database_dataseries <- function(data_from_excel, data_from_base, sh
 			# duplicates columns
 			"das_id.base", "das_id.xls",
 			"das_qal_id.base", "das_qal_id.xls",
-      "das_dts_datasource.base", "das_dts_datasource.xls", 
+			"das_dts_datasource.base", "das_dts_datasource.xls", 
 			"das_value.base", "das_value.xls",					
 			"das_comment.base", "das_comment.xls",
 			"das_effort.base", "das_effort.xls",
@@ -524,12 +524,12 @@ compare_with_database_dataseries <- function(data_from_excel, data_from_base, sh
 			by = c("das_year", "das_value", "das_comment", "das_effort", "das_ser_id")
 	)
 	# new is also modified (less columns in the anti join) I need to remove the lines 
-  # from new in modified
-	 modified <- modified[!modified$id %in% new$id,]
+	# from new in modified
+	modified <- modified[!modified$id %in% new$id,]
 	# after anti join there are still values that are not really changed.
 	# this is further investigated below
-  # I'm using the id created in the script to identify the lines ot check
-  # I need to work with the "full" anti join even if the real anti join is above
+	# I'm using the id created in the script to identify the lines ot check
+	# I need to work with the "full" anti join even if the real anti join is above
 	highlight_change <- duplicates[duplicates$id %in% modified$id,]
 	if (nrow(highlight_change)>0){
 		num_common_col <- grep(".xls|.base",colnames(highlight_change))
@@ -547,8 +547,8 @@ compare_with_database_dataseries <- function(data_from_excel, data_from_base, sh
 			
 		}
 		# select only the rows (any change) and columns modified		
-	highlight_change <- highlight_change[!apply(mat,1,all),num_common_col[!apply(mat,2,all)]]
-
+		highlight_change <- highlight_change[!apply(mat,1,all),num_common_col[!apply(mat,2,all)]]
+		
 		
 		# when modified come from new data, I need the id
 		if (!"das_id" %in% colnames(modified)){
@@ -577,15 +577,14 @@ compare_with_database_dataseries <- function(data_from_excel, data_from_base, sh
 #' if(interactive()){
 #' path<-file.choose()
 #' path<-"C:\\Users\\cedric.briand\\OneDrive - EPTB Vilaine\\Projets\\GRISAM\\2022\\WKEELDATA4\\Eel_Data_Call_2022_Annex1_time_series_FR_Recruitment.xlsx"
-#' data_from_excel <- read_excel(path=path,	sheet ="new_group_metrics",	skip=0) 
-#' data_from_base <- extract_data('t_groupseries_grser',quality_check=FALSE)
+data_from_excel <- read_excel(path=path,	sheet ="new_group_metrics",	skip=0) 
 t_series_ser <- extract_data('t_series_ser',quality_check=FALSE)
 t_groupseries_grser <- extract_data("t_groupseries_grser", quality_check=FALSE)
 t_metricgroupseries_megser <- extract_data("t_metricgroupseries_megser", quality_check=FALSE)
 t_metricgroupseries_megser <- t_metricgroupseries_megser%>% 
-															inner_join(t_groupseries_grser, by = c("meg_gr_id" = "gr_id") ) %>%
-															filter (grser_ser_id %in% t_series_ser$ser_id)
-data_from_base <- t_metricgroupseries_megser													
+		inner_join(t_groupseries_grser, by = c("meg_gr_id" = "gr_id") ) %>%
+		filter (grser_ser_id %in% t_series_ser$ser_id)
+data_from_base <- t_metricgroupseries_megser %>% rename("gr_id"="meg_gr_id")												
 #' series <- extract_data('t_series_ser',quality_check=FALSE)
 #' list_comp <- compare_with_database_metric_group(data_from_excel,data_from_base, sheetorigin="new_group_metrics")
 #' data_from_excel <- read_excel(path=path,	sheet ="updated_group_metrics",	skip=0) 
@@ -615,60 +614,55 @@ compare_with_database_metric_group <- function(data_from_excel, data_from_base, 
 	}
 	# convert columns with missing data to numeric	  
 	data_from_excel <- data_from_excel %>% mutate_if(is.logical,list(as.numeric)) 
-	data_from_excel <- data_from_excel %>% mutate_at(vars(matches("comment")),list(as.character)) 
-	#data_from_excel <- data_from_excel %>% mutate_at(vars(matches("update")),list(as.Date)) 	
+	data_from_excel <- data_from_excel %>% mutate_at(vars(matches("comment")),list(as.character)) 	
 	data_from_excel$sheetorigin <- sheetorigin
-	data_from_excel %>%
-
-
+	data_from_excel <- mutate(data_from_excel,"id" = row_number()) # this one serves as joining later
 	
-	remove_all_na <- data_from_excel %>% 
-			select(-bis_ser_id,-ser_nameshort,-bio_year, -sheetorigin) %>%
-			filter_all(all_vars(is.na(.))) %>%
-			tibble::rowid_to_column("id") %>%
-			pull(id)
-	if (length(remove_all_na) > 0){	data_from_excel <- data_from_excel[-remove_all_na,]}
+	metrics_group <- tr_metrictype_mty %>% 
+			filter(mty_group!="individual")%>% select(mty_name,mty_id)
 	
-	duplicates <- data_from_base %>% 	dplyr::inner_join(data_from_excel, by = c("bis_ser_id", "bio_year"), 
-			suffix = c(".base", ".xls"))
-	duplicates <- duplicates[, 
-			# not in the datacall or used as pivot :
-			c("bio_id", "bio_lfs_code", "bio_qal_id", "bis_ser_id", "ser_nameshort",
-					"bio_dts_datasource.base", "bio_dts_datasource.xls",
-					"bio_year.base","bio_year.xls",
-					"bio_length.base", "bio_length.xls",
-					"bio_weight.base","bio_weight.xls",
-					"bio_age.base", "bio_age.xls",
-					"bio_perc_female.base","bio_perc_female.xls",
-					"bio_length_f.base", "bio_length_f.xls",
-					"bio_weight_f.base", "bio_weight_f.xls",
-					"bio_age_f.base", "bio_age_f.xls",
-					"bio_length_m.base", "bio_length_m.xls",
-					"bio_weight_m.base","bio_weight_m.xls",
-					"bio_age_m.base", "bio_age_m.xls",
-					"bio_comment.base", "bio_comment.xls",
-					"bio_last_update.base", "bio_last_update.xls",
-					"bis_g_in_gy.base",  "bis_g_in_gy.xls", "bio_number"
-			)%in% colnames(duplicates)]
+	data_from_base_wide <- data_from_base %>% right_join( metrics_group, by=c("meg_mty_id"="mty_id")) %>%
+			tidyr::pivot_wider(names_from=mty_name,
+					values_from=meg_value) 
+	
+	data_from_excel_long <- data_from_excel %>% 
+			tidyr::pivot_longer(cols=metrics_group$mty_name,
+					values_to="meg_value",
+					names_to="mty_name"
+			) %>%
+			drop_na(meg_value) %>% 
+			left_join(tr_metrictype_mty %>% select(mty_name,mty_id), by="mty_name") %>%
+			rename(meg_mty_id=mty_id)
+	
+	duplicates <- data_from_base_wide %>% 	
+			dplyr::inner_join(
+					data_from_excel, 
+					by = c("grser_ser_id", "gr_id","gr_year"), 
+					suffix = c(".base", ".xls"))
+	
 	
 	# Anti join only keeps columns from X
-	new <-  dplyr::anti_join(as.data.frame(data_from_excel), data_from_base, 
-			by = c("bis_ser_id","bio_year"))
+	new <-  dplyr::anti_join(data_from_excel_long, data_from_base, 
+			by = c("grser_ser_id", "gr_year","meg_mty_id"))
 	
+	if (nrow(new)>0)	new$gr_dts_datasource <- the_eel_datasource
 	
+	# Numeric columns with interesting values in
+	cln <- c("gr_id", "gr_year", "gr_number", metrics_group$mty_name)
+
+
 	
-	if (nrow(new)>0)	new$bio_dts_datasource <- the_eel_datasource
+	modified <- dplyr::anti_join(data_from_excel, data_from_base_wide, 
+			by =cln)
+	modified <- modified[!modified$id %in% new$id,]
+	modified_long <- modified %>% tidyr::pivot_longer(cols=metrics_group$mty_name,
+			values_to="meg_value",
+			names_to="mty_name"
+	) %>% select(-id, -mty_name)
 	
-	# normally there should not be any modified in new but let's check
-	modified <- dplyr::anti_join(as.data.frame(data_from_excel), data_from_base, 
-			by =c( "bio_year", "bio_length", "bio_weight", "bio_age", "bio_perc_female", "bio_length_f", "bio_weight_f", "bio_age_f", "bio_length_m", "bio_weight_m", "bio_age_m", "bio_comment", "bio_number", "bis_g_in_gy", "bis_ser_id" )
-	)
-	modified <- modified[!modified$ser_nameshort %in% new$ser_nameshort,]
-	highlight_change <- duplicates[duplicates$ser_nameshort %in% modified$ser_nameshort,]
+	highlight_change <- duplicates[duplicates$id %in% modified$id,]
 	
-	if (nrow(modified) >0 ) {
-		
-		
+	if (nrow(modified) >0 ) {	
 		
 		num_common_col <- grep(".xls|.base",colnames(highlight_change))
 		possibly_changed <- colnames(highlight_change)[num_common_col]
@@ -687,12 +681,6 @@ compare_with_database_metric_group <- function(data_from_excel, data_from_base, 
 		modified <- modified[!apply(mat,1,all),]	 
 		# show only modifications to the user (any colname modified)	
 		highlight_change <- highlight_change[!apply(mat,1,all),num_common_col[!apply(mat,2,all)]]
-		
-		if (!"bio_id" %in% colnames(modified)){
-			modified <- inner_join(
-					data_from_base[,c("bio_year","bis_ser_id","bio_id", "bio_qal_id")], 
-					modified, by= c("bio_year","bis_ser_id"))
-		}
 	}
 	
 	
