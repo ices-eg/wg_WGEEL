@@ -5,7 +5,11 @@
 # This script will create an excel sheet per country that currently have recruitment series
 #######################################################################################
 
+<<<<<<< HEAD
 
+=======
+# TODO USE bind_rows
+>>>>>>> branch '205-shiny-integration-for-dcf-data' of https://github.com/ices-eg/wg_WGEEL
 # put the current year there
 CY<-2022
 # function to load packages if not available
