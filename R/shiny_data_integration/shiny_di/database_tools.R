@@ -304,13 +304,6 @@ compare_with_database_series <- function(data_from_excel, data_from_base) {
 	if (length(current_cou_code) != 1) 
 		validate(need(FALSE,"There is more than one country code, this is wrong"))
 	if (nrow(data_from_base) == 0) {
-		# the data_from_base has 0 lines and 0 columns
-		# this poses computation problems
-		# I'm changing it here by loading a correct empty dataset
-		#data_from_base_series <- data_from_base[FALSE,]		
-		#save(data_from_base_series, file = "C:\\workspace\\gitwgeel\\R\\shiny_data_integration\\shiny_di\\common\\data\\data_from_base_series_0L.Rdata")
-		load("common/data/data_from_base_series_0L.Rdata")
-		data_from_base <- data_from_base_series
 		warning("No data in the file coming from the database")
 		current_typ_id <- 0
 	} else {   
@@ -401,56 +394,48 @@ compare_with_database_series <- function(data_from_excel, data_from_base) {
 
 #' @title compare with database dataseries
 #' @description This function loads the data from the database and compare it with data
-#' loaded from excel
+#' loaded from excel 
 #' @param data_from_excel Dataset loaded from excel
 #' @param data_from_base dataset loaded from the database with previous values to be replaced
-#' @param sheetorigin = c("new","updated"), to indicate that this comes from the "new_data" or "updated_data" sheet in the datacall as these will be treated together
-#' @return A list with three dataset, one is duplicate the other new, 
-#' in the case of series the duplicates are ignored
-#' THe second dataset (new) contains new value, these also will need to be qualified by wgeel
-#' the last data set contains all records that will be in the db for the country after
-#' inclusion of the new records
-#' @examples 
-#' \dontrun{
-#' if(interactive()){
-#' path<-file.choose()
-#' path<-"C:\\Users\\cedric.briand\\OneDrive - EPTB Vilaine\\Projets\\GRISAM\\2022\\WKEELDATA4\\Eel_Data_Call_2022_Annex1_time_series_FR_Recruitment.xlsx"
-
-#' data_from_excel <- read_excel(path=path,	sheet ="updated_data",	skip=0) 
-
-#' data_from_base <- extract_data('t_dataseries_das',quality_check=FALSE)
-#' series <- extract_data('t_series_ser',quality_check=FALSE)
-#' list_comp <- compare_with_database_dataseries(data_from_excel,data_from_base, sheetorigin="updated_data")
-
-#' data_from_excel <- read_excel(path=path,	sheet ="new_data",	skip=0) 
-#' data_from_base <- extract_data('t_dataseries_das',quality_check=FALSE)
-#' series <- extract_data('t_series_ser',quality_check=FALSE)
-#' data_from_excel$das_dts_datasource <- the_eel_datasource # this is generated in load_data
-#' data_from_excel <- left_join(data_from_excel, series[,c("ser_id","ser_nameshort")], by="ser_nameshort")
-#' data_from_excel <- rename(data_from_excel,"das_ser_id"="ser_id")
-#' list_comp <- compare_with_database_dataseries(data_from_excel,data_from_base, sheetorigin="new_data")
-#' }}
-
-
-
-compare_with_database_dataseries <- function(data_from_excel, data_from_base, sheetorigin="new_data") {
+#' @param sheetorigin = c("new","updated", "deleted"), to indicate that this comes from the "new_data", "updated_data" or "deleted_data" sheet in the datacall as these will be treated together
+#' @return If new or updated, a list with 4 dataset,  new, duplicated data,  a table highlighting the changes during datacall and data errors.
+#' if deleted or updated are chosen then the files are tested for consistency in das_id (the user should not have changed it)
+#' if sheet_origin is deleted data then only 2 datasets are returned,  deleted and error.
+# path<-file.choose()
+# path<-"C:\\Users\\cedric.briand\\OneDrive - EPTB Vilaine\\Projets\\GRISAM\\2022\\WKEELDATA4\\Eel_Data_Call_2022_Annex1_time_series_FR_Recruitment.xlsx"
+# new_data -------------------------------------
+# test running OK 25/05/2022, uncomment for development
+#data_from_excel <- read_excel(path=path,	sheet ="new_data",	skip=0) 
+#data_from_base <- extract_data('t_dataseries_das',quality_check=FALSE)
+#data_from_excel$das_dts_datasource <- the_eel_datasource # this is generated in import_ts_step1
+#data_from_excel <- left_join(data_from_excel, t_series_ser[,c("ser_id","ser_nameshort")], by="ser_nameshort")
+#data_from_excel <- rename(data_from_excel,"das_ser_id"="ser_id")
+#sheetorigin <- "new_data"
+#list_comp <- compare_with_database_dataseries(data_from_excel,data_from_base, sheetorigin="new_data")
+#
+## updated_data --------------------------------
+#sheetorigin="updated_data"
+#data_from_excel <- read_excel(path=path,	sheet ="updated_data",	skip=0) 
+#list_comp <- compare_with_database_dataseries(data_from_excel,data_from_base, sheetorigin="updated_data")
+#
+## deleted_data ---------------------------------
+#sheetorigin="deleted_data"
+#data_from_excel <- read_excel(path=path,	sheet ="deleted_data",	skip=0) 
+## this one should fail (I have modified the id):
+# list_comp <- compare_with_database_dataseries(data_from_excel,data_from_base, sheetorigin="deleted_data")
+compare_with_database_dataseries <- function(data_from_excel, data_from_base, sheetorigin=c("new_data","updated_data","deleted_data")) {
 	# data integrity checks
+	if (!sheetorigin %in% c("new_data","updated_data","deleted_data")) stop("sheet origin should be one of new_data, updated_data or deleted_data")
+	if (length(sheetorigin)!=1) stop("sheetorigin should be of length one")
 	error_id_message <- ""
 	if (nrow(data_from_excel) == 0) 
 		validate(need(FALSE,"There are no data coming from the excel file"))
 	if (nrow(data_from_base) == 0) {
-		# the data_from_base has 0 lines and 0 columns
-		# this poses computation problems
-		# I'm changing it here by loading a correct empty dataset
-		#data_from_base_dataseries <- data_from_base[FALSE,]		
-		#save(data_from_base_dataseries, file = "C:\\workspace\\gitwgeel\\R\\shiny_data_integration\\shiny_di\\common\\data\\data_from_base_dataseries_0L.Rdata")
-		load("common/data/data_from_base_dataseries_0L.Rdata")
-		data_from_base <- data_from_base_dataseries
 		warning("No data in the file coming from the database")
 	}
 	# convert columns with missing data to numeric	  
 	data_from_excel <- data_from_excel %>% mutate_if(is.logical,list(as.numeric)) 
-	data_from_excel <- data_from_excel %>% mutate_at(vars(gr_dts_datasource,gr_comment),list(as.character)) 
+	data_from_excel <- data_from_excel %>% mutate_at(vars(das_dts_datasource,das_comment),list(as.character)) 
 	
 	# add temporary id for join
 	data_from_excel <-  	mutate(data_from_excel,id = row_number())
@@ -466,6 +451,7 @@ compare_with_database_dataseries <- function(data_from_excel, data_from_base, sh
 	
 	duplicates <- data_from_base %>% 	dplyr::inner_join(data_from_excel, by = c("das_ser_id","das_year"), 
 			suffix = c(".base", ".xls"))
+	
 	
 	
 # the followin just checks and reorders the columns
@@ -494,21 +480,34 @@ compare_with_database_dataseries <- function(data_from_excel, data_from_base, sh
 			"sheetorigin")
 	
 	# If the data_from_excel corresponds to the updated_data tab, then there is a das_id
-	if (sheetorigin =="updated_data" ){
-		if (!all( columns_updated  %in% colnames (duplicates)))
-			stop(paste("column",paste(columns_updated[!columns_updated  %in% colnames (duplicates)], collapse=";"), "not present in updated data"))
-		duplicates <- duplicates[, columns_updated]
-		if (any(duplicates$das_id.base!=duplicates$das_id.excel)) error_id_message <- "<p style='color:red;'>There is a problem with id, 
-					they have changed this indicates that year or series has changed, check carefully </p>"
+# check that das_id has not been modified by the user
+	
+	
+	if (sheetorigin %in% c("updated_data", "deleted_data")){
+		if (!all( columns_updated  %in% colnames (duplicates)))	{
+			error_id_message <- sprintf("<p style='color:red;'> column %s not present in updated data",
+					paste(columns_updated[!columns_updated  %in% colnames (duplicates)], collapse=";")
+			) 
+		} else {
+			duplicates <- duplicates[, columns_updated]
+		}
+		if (any(duplicates$das_id.base!=duplicates$das_id.excel)) {
+			error_id_message <- sprintf("<p style='color:red;'> you have changed das_id for series %s and year %s please use the das_id provided in existing data </p>", 
+					paste(duplicates[duplicates$das_id.base!=duplicates$das_id.xls,"ser_nameshort"],collapse=" , "), 
+					paste(duplicates[duplicates$das_id.base!=duplicates$das_id.xls,"das_year"],collapse=" , ")
+			)
+		}
 		
 		
 	} else { # sheet = new_data
-		if (!all( columns_new  %in% colnames (duplicates)))
-			stop(paste("column",paste(columns_new[!columns_new  %in% colnames (duplicates)], collapse=";"), "not present in new data"))
-		duplicates <- duplicates[, columns_new]
+		if (!all( columns_new  %in% colnames (duplicates))) {
+			error_id_message <-paste("column",paste(columns_new[!columns_new  %in% colnames (duplicates)], collapse=";"), "not present in new data")
+		} else {
+			duplicates <- duplicates[, columns_new]
+		}
 	}
 	
-	# Anti join only keeps columns from X, any new data is a data with ser_id and year not present in the db
+# Anti join only keeps columns from X, any new data is a data with ser_id and year not present in the db
 	new <-  dplyr::anti_join(as.data.frame(data_from_excel), data_from_base, 
 			by = c("das_ser_id","das_year"))
 	if (nrow(new)>0){
@@ -523,13 +522,13 @@ compare_with_database_dataseries <- function(data_from_excel, data_from_base, sh
 	modified <- dplyr::anti_join(data_from_excel, data_from_base, 
 			by = c("das_year", "das_value", "das_comment", "das_effort", "das_ser_id")
 	)
-	# new is also modified (less columns in the anti join) I need to remove the lines 
-	# from new in modified
+# new is also modified (less columns in the anti join) I need to remove the lines 
+# from new in modified
 	modified <- modified[!modified$id %in% new$id,]
-	# after anti join there are still values that are not really changed.
-	# this is further investigated below
-	# I'm using the id created in the script to identify the lines ot check
-	# I need to work with the "full" anti join even if the real anti join is above
+# after anti join there are still values that are not really changed.
+# this is further investigated below
+# I'm using the id created in the script to identify the lines ot check
+# I need to work with the "full" anti join even if the real anti join is above
 	highlight_change <- duplicates[duplicates$id %in% modified$id,]
 	if (nrow(highlight_change)>0){
 		num_common_col <- grep(".xls|.base",colnames(highlight_change))
@@ -550,76 +549,80 @@ compare_with_database_dataseries <- function(data_from_excel, data_from_base, sh
 		highlight_change <- highlight_change[!apply(mat,1,all),num_common_col[!apply(mat,2,all)]]
 		
 		
-		# when modified come from new data, I need the id
+		# when modified come from sheet new data later identified as a duplicate, I need the id which I get from existing database data
 		if (!"das_id" %in% colnames(modified)){
 			modified <- inner_join(
 					data_from_base[,c("das_year","das_ser_id","das_id", "das_qal_id")], 
 					modified, by= c("das_ser_id","das_year"))
 		}
 	}
-	
-	
-	return(list(new = new, modified=modified, highlight_change=highlight_change, error_id_message=error_id_message))
+	if (sheetorigin == "deleted_data") {
+		return(list(deleted=data_from_excel, error_id_message=error_id_message))
+	} else {
+		return(list(new = new, modified=modified, highlight_change=highlight_change, error_id_message=error_id_message))
+	}
 }
 
-#' @title compare with database metricgroup
+#' @title compare with database metric group
 #' @description This function loads the data from the database and compare it with data
 #' loaded from excel
 #' @param data_from_excel Dataset loaded from excel
 #' @param data_from_base dataset loaded from the database with previous values to be replaced
-#' @return A list with three dataset, one is duplicate the other new, 
-#' in the case of series the duplicates are ignored
-#' THe second dataset (new) contains new value, these also will need to be qualified by wgeel
-#' the last data set contains all records that will be in the db for the country after
-#' inclusion of the new records
-#' @examples 
-#' \dontrun{
-#' if(interactive()){
-#' path<-file.choose()
-#' path<-"C:\\Users\\cedric.briand\\OneDrive - EPTB Vilaine\\Projets\\GRISAM\\2022\\WKEELDATA4\\Eel_Data_Call_2022_Annex1_time_series_FR_Recruitment.xlsx"
-data_from_excel <- read_excel(path=path,	sheet ="new_group_metrics",	skip=0) 
-t_series_ser <- extract_data('t_series_ser',quality_check=FALSE)
-t_groupseries_grser <- extract_data("t_groupseries_grser", quality_check=FALSE)
-t_metricgroupseries_megser <- extract_data("t_metricgroupseries_megser", quality_check=FALSE)
-t_metricgroupseries_megser <- t_metricgroupseries_megser%>% 
-		inner_join(t_groupseries_grser, by = c("meg_gr_id" = "gr_id") ) %>%
-		filter (grser_ser_id %in% t_series_ser$ser_id)
-data_from_base <- t_metricgroupseries_megser %>% rename("gr_id"="meg_gr_id")												
-#' series <- extract_data('t_series_ser',quality_check=FALSE)
-#' list_comp <- compare_with_database_metric_group(data_from_excel,data_from_base, sheetorigin="new_group_metrics")
-#' data_from_excel <- read_excel(path=path,	sheet ="updated_group_metrics",	skip=0) 
-#' data_from_base <- extract_data('t_groupseries_grser',quality_check=FALSE)
-#' series <- extract_data('t_series_ser',quality_check=FALSE)
-#' data_from_excel$das_dts_datasource <- the_eel_datasource # this is generated in load_data
-#' data_from_excel <- left_join(data_from_excel, series[,c("ser_id","ser_nameshort")], by="ser_nameshort")
-#' data_from_excel <- rename(data_from_excel,"das_ser_id"="ser_id")
-#' list_comp <- compare_with_database_metric_group(data_from_excel,data_from_base, sheetorigin="updated_group_metric")
-#' }}
+#' @param sheetorigin c("new_group_metrics","updated_group_metrics","deleted_group_metrics")
+#' @note no error message yet, see if needed to add some
+#' @return A list with three dataset, new, modified, highlight change
+#' If deleted returns only deleted
+
+## test 25/05/2022 OK
+#path<-file.choose()
+#path<-"C:\\Users\\cedric.briand\\OneDrive - EPTB Vilaine\\Projets\\GRISAM\\2022\\WKEELDATA4\\Eel_Data_Call_2022_Annex1_time_series_FR_Recruitment.xlsx"
+#t_series_ser <- extract_data('t_series_ser',quality_check=FALSE)
+#t_groupseries_grser <- extract_data("t_groupseries_grser", quality_check=FALSE)
+#t_metricgroupseries_megser <- extract_data("t_metricgroupseries_megser", quality_check=FALSE)
+#t_metricgroupseries_megser <- t_metricgroupseries_megser%>% 
+#		inner_join(t_groupseries_grser, by = c("meg_gr_id" = "gr_id") ) %>%
+#		filter (grser_ser_id %in% t_series_ser$ser_id)
+#data_from_base <- t_metricgroupseries_megser %>% rename("gr_id"="meg_gr_id")	
+## new group metrics -----------------------------------------------
+#data_from_excel <- read_excel(path=path,	sheet ="new_group_metrics",	skip=0) %>% 
+#		mutate_at(vars("gr_comment", "gr_dts_datasource", "ser_nameshort"),list(as.character)) %>% 
+#		left_join( t_series_ser[,c("ser_id","ser_nameshort")], by="ser_nameshort") %>%
+#		rename("grser_ser_id"="ser_id")
+#list_comp <- compare_with_database_metric_group(data_from_excel,data_from_base, sheetorigin="new_group_metrics")
+## updated group metrics -----------------------------------------------
+#data_from_excel <- read_excel(path=path,	sheet ="updated_group_metrics",	skip=0) %>% select(-"grser_ser_id") %>% 
+#		mutate_at(vars("gr_comment", "gr_dts_datasource", "ser_nameshort"),list(as.character)) %>% 
+#		left_join( t_series_ser[,c("ser_id","ser_nameshort")], by="ser_nameshort") %>%
+#		rename("grser_ser_id"="ser_id")
+#list_comp <- compare_with_database_metric_group(data_from_excel,data_from_base, sheetorigin="updated_group_metrics")
+## deleted group metrics -----------------------------------------------
+#data_from_excel <- read_excel(path=path,	sheet ="deleted_group_metrics",	skip=0) %>% select(-"grser_ser_id") %>% 
+#		mutate_at(vars("gr_comment", "gr_dts_datasource", "ser_nameshort"),list(as.character)) %>% 
+#		left_join( t_series_ser[,c("ser_id","ser_nameshort")], by="ser_nameshort") %>%
+#		rename("grser_ser_id"="ser_id")
+#list_comp <- compare_with_database_metric_group(data_from_excel,data_from_base, sheetorigin="deleted_group_metrics")
+# note :not possible to check if there are errors as in compare_with_database_dataseries
+# there might be different gr_id , for one series and date while it was necessarily unique for das_id
+
 compare_with_database_metric_group <- function(data_from_excel, data_from_base, sheetorigin=c("new_group_metrics","updated_group_metrics","deleted_group_metrics")) {
 	# data integrity checks
 	
-	if (!sheetorigin %in% c("new_group_metrics","updated_group_metrics","deleted_group_metrics")) stop ("sheetorigin should be one of
-						new_group_metrics,updated_group_metrics,deleted_group_metrics")
+	if (!sheetorigin %in% c("new_group_metrics", "updated_group_metrics", "deleted_group_metrics")) stop ("sheetorigin should be one of
+						new_group_metrics, updated_group_metrics, deleted_group_metrics")
 	if (nrow(data_from_excel) == 0) 
 		validate(need(FALSE,"There are no data coming from the excel file"))
 	if (nrow(data_from_base) == 0) {
-		# the data_from_base has 0 lines and 0 columns
-		# this poses computation problems
-		# I'm changing it here by loading a correct empty dataset
-		#data_from_base_group_metrics0L <- data_from_base[FALSE,]		
-		#save(data_from_base_group_metrics0L, file = "C:\\workspace\\wg_WGEEL\\R\\shiny_data_integration\\shiny_di\\common\\data\\data_from_base_group_metrics_0L.Rdata")
-		load("common/data/data_from_base_group_metrics_0L.Rdata")
-		data_from_base <- data_from_base_group_metrics0L
 		warning("No data in the file coming from the database")
 	}
 	# convert columns with missing data to numeric	  
 	data_from_excel <- data_from_excel %>% mutate_if(is.logical,list(as.numeric)) 
-	data_from_excel <- data_from_excel %>% mutate_at(vars(matches("comment")),list(as.character)) 	
+	data_from_excel <- data_from_excel %>% mutate_at(vars("gr_comment", "gr_dts_datasource", "ser_nameshort"), list(as.character)) 
 	data_from_excel$sheetorigin <- sheetorigin
 	data_from_excel <- mutate(data_from_excel,"id" = row_number()) # this one serves as joining later
+	if (sheetorigin == "new_group_metrics") data_from_excel <- data_from_excel %>% mutate("gr_id" = NA)
 	
 	metrics_group <- tr_metrictype_mty %>% 
-			filter(mty_group!="individual")%>% select(mty_name,mty_id)
+			filter(mty_group!="individual") %>% select(mty_name,mty_id)
 	
 	data_from_base_wide <- data_from_base %>% right_join( metrics_group, by=c("meg_mty_id"="mty_id")) %>%
 			tidyr::pivot_wider(names_from=mty_name,
@@ -647,18 +650,11 @@ compare_with_database_metric_group <- function(data_from_excel, data_from_base, 
 	
 	if (nrow(new)>0)	new$gr_dts_datasource <- the_eel_datasource
 	
-	# Numeric columns with interesting values in
-	cln <- c("gr_id", "gr_year", "gr_number", metrics_group$mty_name)
-
-
 	
 	modified <- dplyr::anti_join(data_from_excel, data_from_base_wide, 
-			by =cln)
+			by =c("gr_id", "gr_year", "gr_number", metrics_group$mty_name))
 	modified <- modified[!modified$id %in% new$id,]
-	modified_long <- modified %>% tidyr::pivot_longer(cols=metrics_group$mty_name,
-			values_to="meg_value",
-			names_to="mty_name"
-	) %>% select(-id, -mty_name)
+	
 	
 	highlight_change <- duplicates[duplicates$id %in% modified$id,]
 	
@@ -679,16 +675,158 @@ compare_with_database_metric_group <- function(data_from_excel, data_from_base, 
 		}
 		# select only rows where there are true modified 
 		modified <- modified[!apply(mat,1,all),]	 
+		modified_long <- modified %>% tidyr::pivot_longer(cols=metrics_group$mty_name,
+				values_to="meg_value",
+				names_to="mty_name"
+		) %>% select(-id, -mty_name)
 		# show only modifications to the user (any colname modified)	
 		highlight_change <- highlight_change[!apply(mat,1,all),num_common_col[!apply(mat,2,all)]]
 	}
 	
-	
-	
-	return(list(new = new, modified=modified, highlight_change=highlight_change))
+	if (sheetorigin == "deleted_group_metrics") {
+		return(list(deleted=data_from_excel))
+	} else {		
+		return(list(new = new, modified=modified_long, highlight_change=highlight_change))
+	}
 }
 
-compare_with_database_metric_ind <- function(data_from_excel, data_from_base, sheetorigin="new_data") {}
+
+#' @title compare with database metric individual
+#' @description This function loads the data from the database and compare it with data
+#' loaded from excel
+#' @param data_from_excel Dataset loaded from excel
+#' @param data_from_base dataset loaded from the database with previous values to be replaced
+#' @param sheetorigin c("new_individual_metrics","updated_individual_metrics","deleted_individual_metrics")
+#' @return A list with three dataset, new, modified, highlight change
+#' If deleted returns only deleted
+
+
+#path<-file.choose()
+#path<-"C:\\Users\\cedric.briand\\OneDrive - EPTB Vilaine\\Projets\\GRISAM\\2022\\WKEELDATA4\\Eel_Data_Call_2022_Annex1_time_series_FR_Recruitment.xlsx"
+#
+#t_series_ser <- extract_data('t_series_ser',quality_check=FALSE)
+#t_fishseries_fiser <- extract_data("t_fishseries_fiser", quality_check=FALSE)
+#t_metricindseries_meiser <- extract_data("t_metricindseries_meiser", quality_check=FALSE)
+#t_metricindseries_meiser <- t_metricindseries_meiser %>% 
+#		inner_join(t_fishseries_fiser, by = c("mei_fi_id" = "fi_id") ) %>%
+#		inner_join(t_series_ser %>% select(ser_nameshort, ser_id), by=c("fiser_ser_id"="ser_id"))
+#data_from_base <- t_metricindseries_meiser %>% rename("fi_id"="mei_fi_id")
+#
+## new_individual_metrics ------------------------------------------------------------
+#data_from_excel <- read_excel(path=path,	sheet = "new_individual_metrics",	skip=0) %>%  
+#		mutate_at(vars("fi_comment", "ser_nameshort"),list(as.character)) %>% 
+#		left_join( t_series_ser[,c("ser_id","ser_nameshort")], by="ser_nameshort") %>%
+#		rename("fiser_ser_id"="ser_id")
+#list_comp <- compare_with_database_metric_ind(data_from_excel,data_from_base, sheetorigin = "new_individual_metrics")
+#
+## updated_individual_metrics ----------------------------------------------------------
+#data_from_excel <- read_excel(path=path,	sheet ="updated_individual_metrics",	skip=0)  %>%  
+#		mutate_at(vars("fi_comment", "fi_dts_datasource", "ser_nameshort"),list(as.character)) %>% select(-fiser_ser_id) %>%
+#		left_join( t_series_ser[,c("ser_id","ser_nameshort")], by="ser_nameshort") %>%
+#		rename("fiser_ser_id"="ser_id")
+#list_comp <- compare_with_database_metric_ind(data_from_excel,data_from_base, sheetorigin = "updated_individual_metrics") # updated_individual_metrics ----------------------------------------------------------
+## deleted_individual_metrics ----------------------------------------------------------
+#data_from_excel <- read_excel(path=path,	sheet ="deleted_individual_metrics",	skip=0)  %>%  
+#		mutate_at(vars("fi_comment", "fi_dts_datasource", "ser_nameshort"),list(as.character)) %>% select(-fiser_ser_id) %>%
+#		left_join( t_series_ser[,c("ser_id","ser_nameshort")], by="ser_nameshort") %>%
+#		rename("fiser_ser_id"="ser_id")
+#list_comp <- compare_with_database_metric_ind(data_from_excel,data_from_base, sheetorigin = "deleted_individual_metrics")
+
+
+compare_with_database_metric_ind <- function(
+		data_from_excel, 
+		data_from_base, 
+		sheetorigin = c("new_individual_metrics","updated_individual_metrics","deleted_individual_metrics")) {
+	if (!sheetorigin %in% c("new_individual_metrics","updated_individual_metrics","deleted_individual_metrics")) stop ("sheetorigin should be one of
+						new_individual_metrics,updated_individual_metrics,deleted_individual_metrics")
+	if (nrow(data_from_excel) == 0) 
+		validate(need(FALSE,"There are no data coming from the excel file"))
+	if (nrow(data_from_base) == 0) {
+		warning("No data in the file coming from the database")
+		
+	}
+	# convert columns with missing data to numeric	  
+	data_from_excel <- data_from_excel %>% mutate_if(is.logical,list(as.numeric)) 
+	data_from_excel <- data_from_excel %>% mutate_at(vars("fi_comment", "ser_nameshort"),list(as.character)) 	
+	data_from_excel <- data_from_excel %>% mutate_at(vars("fi_date"),list(as.Date)) 
+	data_from_excel$sheetorigin <- sheetorigin
+	data_from_excel <- mutate(data_from_excel,"id" = row_number()) # this one serves as joining later
+	if (sheetorigin == "new_individual_metrics") data_from_excel <- data_from_excel %>% mutate(fi_id = NA)
+	# only select metrics names in individual metrics :
+	metrics_ind <- tr_metrictype_mty %>% 
+			filter(mty_group!="group") %>% 
+			mutate(mty_name =
+							case_when(
+									is.na(mty_individual_name) ~ mty_name,
+									!is.na(mty_individual_name) ~ mty_individual_name
+							)) %>%
+			select(mty_name,mty_id)
+	
+	data_from_base_wide <- data_from_base %>% right_join( metrics_ind, by=c("mei_mty_id"="mty_id")) %>%
+			tidyr::pivot_wider(names_from=mty_name,
+					values_from=mei_value) 
+	
+	data_from_excel_long <- data_from_excel %>% 
+			tidyr::pivot_longer(cols=metrics_ind$mty_name,
+					values_to="mei_value",
+					names_to="mty_name"
+			) %>%
+			drop_na(mei_value) %>% 
+			left_join(tr_metrictype_mty %>% select(mty_name,mty_id), by="mty_name") %>%
+			rename(mei_mty_id=mty_id)
+	
+	duplicates <- data_from_base_wide %>% 	
+			dplyr::inner_join(
+					data_from_excel, 
+					by = c("ser_nameshort", "fi_id","fi_date"), 
+					suffix = c(".base", ".xls"))
+	
+	
+	
+	# Anti join only keeps columns from X
+	new <-  dplyr::anti_join(data_from_excel_long, data_from_base, 
+			by = c("ser_nameshort", "fi_date","mei_mty_id"))
+	
+	if (nrow(new)>0)	new$gr_dts_datasource <- the_eel_datasource
+	
+	
+	modified <- dplyr::anti_join(data_from_excel, data_from_base_wide, 
+			by =c("fi_id", "fi_date", "fi_comment", metrics_ind$mty_name))
+	modified <- modified[!modified$id %in% new$id,]
+	
+	
+	highlight_change <- duplicates[duplicates$id %in% modified$id,]
+	
+	if (nrow(modified) >0 ) {	
+		
+		num_common_col <- grep(".xls|.base",colnames(highlight_change))
+		possibly_changed <- colnames(highlight_change)[num_common_col]
+		
+		mat <-	matrix(FALSE,nrow(highlight_change),length(num_common_col))
+		for(v in 0:(length(num_common_col)/2-1))
+		{
+			v=v*2+1
+			test <- highlight_change %>% select(num_common_col)%>%select(v,v+1) %>%
+					mutate_all(as.character) %>%	mutate_all(type.convert, as.is = TRUE) %>%	
+					mutate(test=identical(.[[1]], .[[2]]))%>%pull(test)
+			mat[,c(v,v+1)]<-test
+			
+		}
+		# select only rows where there are true modified 
+		modified <- modified[!apply(mat,1,all),]	 
+		modified_long <- modified %>% tidyr::pivot_longer(cols=metrics_ind$mty_name,
+				values_to="mei_value",
+				names_to="mty_name"
+		) %>% select(-id, -mty_name)
+		# show only modifications to the user (any colname modified)	
+		highlight_change <- highlight_change[!apply(mat,1,all),num_common_col[!apply(mat,2,all)]]
+	}
+	if (sheetorigin == "deleted_individual_metrics") {
+		return(list(deleted=data_from_excel))
+	} else {
+		return(list(new = new, modified=modified_long, highlight_change=highlight_change))
+	}
+}
 
 #' @title write duplicated results into the database
 #' @description Values kept from the datacall will be inserted, old values from the database
