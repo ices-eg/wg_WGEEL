@@ -167,7 +167,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 				# with duplicates values
 				#############################
 				observeEvent(input$check_duplicate_button_ts, {
-							
+							browser()
 							tryCatch({
 										
 										
@@ -209,7 +209,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 											new_individual_metrics <- rename(new_individual_metrics,"fiser_ser_id"="ser_id")
 										}										
 										
-								
+										
 										t_dataseries_das <- extract_data("t_dataseries_das", quality_check=FALSE)
 										t_groupseries_grser <- extract_data("t_groupseries_grser", quality_check=FALSE)
 										t_fishseries_fiser <- extract_data("t_fishseries_fiser", quality_check=FALSE)
@@ -263,19 +263,28 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 										# the second new contains a dataframe to be inserted straight into
 										# the database
 										#cat("step0")
-browser()
+										browser()
 										if (nrow(series)>0){
 											list_comp_series <- compare_with_database_series(data_from_excel=series, data_from_base=t_series_ser)
 										}
 										if (nrow(new_data)>0){
-											list_comp_dataseries <- compare_with_database_dataseries(data_from_excel=new_data, data_from_base=t_dataseries_das, sheetorigin="new_data")
+											list_comp_dataseries <- compare_with_database_dataseries(data_from_excel=new_data, 
+													data_from_base=t_dataseries_das, 
+													sheetorigin="new_data")
+										}
+										if (nrow(deleted_data)>0){
+											list_comp_deleteddataseries <- compare_with_database_dataseries(data_from_excel=deleted_data, 
+													data_from_base=t_dataseries_das, 
+													sheetorigin="deleted_data")
 										}
 										
 										if (nrow(updated_data)>0){
-											list_comp_updateddataseries <- compare_with_database_dataseries(data_from_excel=updated_data, data_from_base=t_dataseries_das, sheetorigin="updated_data")
+											list_comp_updateddataseries <- compare_with_database_dataseries(data_from_excel=updated_data, 
+													data_from_base=t_dataseries_das, 
+													sheetorigin="updated_data")
 											
 											if (nrow(new_data)>0){
-												list_comp_dataseries$new <- rbind(list_comp_dataseries$new,list_comp_updateddataseries$new)
+												list_comp_dataseries$new <- rbind(list_comp_dataseries$new,	list_comp_updateddataseries$new)
 												list_comp_dataseries$modified <- rbind(list_comp_dataseries$modified,list_comp_updateddataseries$modified)
 												if (nrow(list_comp_dataseries$highlight_change)>0){
 													list_comp_dataseries$highlight_change <- bind_rows(list_comp_dataseries$highlight_change,
@@ -293,13 +302,19 @@ browser()
 											list_comp_updateddataseries <- list()
 											list_comp_updateddataseries$error_id_message <- "" # this message would have been displayed if pb of id
 										}
-									
+										
 										if (nrow(new_group_metrics)>0){
-											list_comp_group_metrics <- compare_with_database_metric_group(data_from_excel=new_group_metrics, data_from_base=t_group_metrics_series_bis, sheetorigin="new_data")
+											list_comp_group_metrics <- compare_with_database_metric_group(
+													data_from_excel=new_group_metrics,
+													data_from_base=t_metricgroupseries_megser, 
+													sheetorigin="new_group_metrics")
 										}
 										
 										if (nrow(updated_group_metrics)>0){
-											list_comp_updated_group_metrics <- compare_with_database_metric_group(data_from_excel=updated_group_metrics, data_from_base=t_group_metrics_series_bis, sheetorigin="updated_group_metrics")
+											list_comp_updated_group_metrics <- compare_with_database_metric_group(
+													data_from_excel=updated_group_metrics,
+													data_from_base=t_metricgroupseries_megser,
+													sheetorigin="updated_group_metrics")
 											if (nrow(new_group_metrics)>0){
 												list_comp_group_metrics$new <- rbind(list_comp_group_metrics$new,list_comp_updated_group_metrics$new)
 												list_comp_group_metrics$modified <- rbind(list_comp_group_metrics$modified,list_comp_updated_group_metrics$modified)
@@ -317,12 +332,27 @@ browser()
 											}
 										}
 										
+										if (nrow(deleted_group_metrics)>0){
+											list_comp_group_metrics <- compare_with_database_metric_group(
+													data_from_excel=deleted_group_metrics,
+													data_from_base=t_metricgroupseries_megser,
+													sheetorigin="deleted_group_metrics")
+										}
+										
 										if (nrow(new_individual_metrics)>0){
-											list_comp_individual_metrics <- compare_with_database_metric_individual(data_from_excel=new_group_metrics, data_from_base=t_group_metrics_series_bis, sheetorigin="new_data")
+											list_comp_individual_metrics <- 
+													compare_with_database_metric_individual(
+															data_from_excel=new_individual_metrics, 
+															data_from_base=t_metricindseries_meisers, 
+															sheetorigin="new_individual_metrics")
 										}
 										
 										if (nrow(updated_individual_metrics)>0){
-											list_comp_updated_individual_metrics <- compare_with_database_metric_individual(data_from_excel=updated_individual_metrics, data_from_base=t_individual_metrics_series_bis, sheetorigin="updated_individual_metrics")
+											list_comp_updated_individual_metrics <- 
+													compare_with_database_metric_individual(
+															data_from_excel=updated_individual_metrics, 
+															data_from_base=t_metricindseries_meiser, 
+															sheetorigin="updated_individual_metrics")
 											if (nrow(new_individual_metrics)>0){
 												list_comp_individual_metrics$new <- rbind(list_comp_individual_metrics$new,list_comp_updated_individual_metrics$new)
 												list_comp_individual_metrics$modified <- rbind(list_comp_individual_metrics$modified,list_comp_updated_individual_metrics$modified)
@@ -338,6 +368,12 @@ browser()
 												list_comp_individual_metrics$modified <- list_comp_updated_individual_metrics$modified
 												list_comp_individual_metrics$highlight_change <- list_comp_updated_individual_metrics$highlight_change
 											}
+										}
+										if (nrow(deleted_individual_metrics)>0){
+											list_comp_individual_metrics <- compare_with_database_metric_ind(
+													data_from_excel=deleted_individual_metrics,
+													data_from_base=t_metricindseries_meiser,
+													sheetorigin="deleted_individual_metrics")
 										}
 										current_cou_code <- list_comp_series$current_cou_code
 										
@@ -654,35 +690,31 @@ browser()
 											
 										}
 										
-										# step1 modified individual_metrics -------------------------------------------------------------
+										# step1 modified group metrics -------------------------------------------------------------
 										
-										if ((!exists("list_comp_individual_metrics")) || nrow(list_comp_individual_metrics$modified)==0) {
+										if ((!exists("list_comp_group_metrics")) || nrow(list_comp_group_metrics$modified)==0) {
 											
-											output$"step1_message_modified_individual_metrics"<-renderUI(
+											output$"step1_message_modified_group_metrics"<-renderUI(
 													HTML(
 															paste(
-																	h4("No modified individual_metrics")
+																	h4("No modified  group metrics")
 															)))
 											
-											output$dt_modified_individual_metrics <- renderDataTable(
+											output$dt_modified_group_metrics <- renderDataTable(
 													data.frame(),
 													options = list(searching = FALSE,paging = FALSE,
 															language = list(zeroRecords = "No modified individual metrics")))
 											
 										} else {
-											output$"step1_message_modified_individual_metrics"<-renderUI(
+											output$"step1_message_modified_group_metrics"<-renderUI(
 													HTML(
 															paste(
 																	paste(
-																			h4("Table of modified individual metrics (data) (xls)"),
+																			h4("Table of modified group metrics (data) (xls)"),
 																			"<p align='left'> This is the file to import ",
 																			"Please click on excel<p>"
 																	)))
 											)
-											
-											
-											
-											# NO renderUI
 											
 											output$dt_modified_group_metrics <-DT::renderDataTable({
 														validate(need(globaldata$connectOK,"No connection"))
@@ -704,8 +736,47 @@ browser()
 																))
 													})
 											
-											# NO renderUI
+															
+											output$dt_highlight_change_group_metrics <-DT::renderDataTable({
+														validate(need(globaldata$connectOK,"No connection"))
+														datatable(list_comp_group_metrics$highlight_change,
+																rownames=FALSE,
+																option=list(
+																		scroller = TRUE,
+																		scrollX = TRUE,
+																		scrollY = "500px",
+																		lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
+																		"pagelength"=-1
+																))
+													})										
+										}
+										
+										
+										if ((!exists("list_comp_individual_metrics")) || nrow(list_comp_individual_metrics$modified)==0) {
 											
+											output$"step1_message_modified_individual_metrics"<-renderUI(
+													HTML(
+															paste(
+																	h4("No modified individual metrics")
+															)))
+											
+											output$dt_modified_individual_metrics <- renderDataTable(
+													data.frame(),
+													options = list(searching = FALSE,paging = FALSE,
+															language = list(zeroRecords = "No modified individual metrics")))
+											
+										} else {
+											output$"step1_message_modified_individual_metrics"<-renderUI(
+													HTML(
+															paste(
+																	paste(
+																			h4("Table of modified individual metrics (data) (xls)"),
+																			"<p align='left'> This is the file to import ",
+																			"Please click on excel<p>"
+																	)))
+											)
+											
+														
 											output$dt_modified_individual_metrics <-DT::renderDataTable({
 														validate(need(globaldata$connectOK,"No connection"))
 														datatable(list_comp_individual_metrics$modified,
@@ -726,21 +797,7 @@ browser()
 																))
 													})
 											
-											
-											
-											output$dt_highlight_change_group_metrics <-DT::renderDataTable({
-														validate(need(globaldata$connectOK,"No connection"))
-														datatable(list_comp_group_metrics$highlight_change,
-																rownames=FALSE,
-																option=list(
-																		scroller = TRUE,
-																		scrollX = TRUE,
-																		scrollY = "500px",
-																		lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
-																		"pagelength"=-1
-																))
-													})
-											
+															
 											output$dt_highlight_change_individual_metrics <-DT::renderDataTable({
 														validate(need(globaldata$connectOK,"No connection"))
 														datatable(list_comp_individual_metrics$highlight_change,
@@ -751,6 +808,135 @@ browser()
 																		scrollY = "500px",
 																		lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
 																		"pagelength"=-1
+																))
+													})
+										}
+										# step1 deleted dataseries -------------------------------------------------------------
+										if (nrow(list_comp_dataseries$deleted)==0) {
+											output$"step1_message_deleted_dataseries"<-renderUI(
+													HTML(
+															paste(
+																	h4("No deleted data")
+															)))
+											
+											output$dt_deleted_dataseries <-  renderDataTable(data.frame(),
+													options = list(searching = FALSE,paging = FALSE,
+															language = list(zeroRecords = "No data")))
+											
+										} else {
+											output$"step1_message_deleted_dataseries"<-renderUI(
+													HTML(
+															paste(
+																	paste(
+																			h4("Table of deleted values (data) (xls)"),
+																			list_comp_updateddataseries$error_id_message,
+																			"<p align='left'>Please click on excel <p>"
+																	)))
+											)
+											output$dt__dataseries <-DT::renderDataTable({
+														validate(need(globaldata$connectOK,"No connection"))
+														datatable(list_comp_dataseries$deleted,
+																rownames=FALSE,
+																extensions = "Buttons",
+																option=list(
+																		scroller = TRUE,
+																		scrollX = TRUE,
+																		scrollY = "500px",
+																		order=list(3,"asc"),
+																		lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
+																		"pagelength"=-1,
+																		dom= "Blfrtip",
+																		scrollX = T,
+																		autoWidth = TRUE,
+																		columnDefs = list(list(width = '200px', targets = c(4, 8))),
+																		buttons=list(
+																				list(extend="excel",
+																						filename = paste0("_dataseries_",loaded_data_ts$file_type,"_",Sys.Date(),"_",current_cou_code)))
+																))
+													})
+										}
+										# step1 deleted group_metrics -------------------------------------------------------------
+										
+										if (!exists("list_comp_group_metrics") || nrow(list_comp_group_metrics$deleted)==0) {
+											output$step1_message_deleted_biometry <- renderUI(
+													HTML(
+															paste(
+																	h4("No deleted group metrics")
+															)))
+											output$dt_deleted_biometry <-  renderDataTable(data.frame(),
+													options = list(searching = FALSE,paging = FALSE,
+															language = list(zeroRecords = "No biometry")))
+											
+											
+										} else {
+											output$"step1_message_deleted_group_metrics"<-renderUI(
+													HTML(
+															paste(
+																	paste(
+																			h4("Table of deleted values (data) (xls)"),
+																			"<p align='left'>Please click on excel <p>"
+																	)))
+											)
+											output$dt_deleted_group_metrics <-DT::renderDataTable({
+														validate(need(globaldata$connectOK,"No connection"))
+														datatable(list_comp_group_metrics$deleted,
+																rownames=FALSE,
+																extensions = "Buttons",
+																option=list(
+																		scroller = TRUE,
+																		scrollX = TRUE,
+																		scrollY = "500px",
+																		order=list(3,"asc"),
+																		lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
+																		"pagelength"=-1,
+																		dom= "Blfrtip",
+																		scrollX = T,
+																		buttons=list(
+																				list(extend="excel",
+																						filename = paste0("deleted_biometry_",loaded_data_ts$file_type,"_",Sys.Date(),"_",current_cou_code)))
+																))
+													})
+										}
+				
+										# step1 deleted individual_metrics -------------------------------------------------------------
+										
+										if (!exists("list_comp_individual_metrics") || nrow(list_comp_individual_metrics$deleted)==0) {
+											output$step1_message_deleted_biometry <- renderUI(
+													HTML(
+															paste(
+																	h4("No deleted individual metrics")
+															)))
+											output$dt_deleted_biometry <-  renderDataTable(data.frame(),
+													options = list(searching = FALSE,paging = FALSE,
+															language = list(zeroRecords = "No biometry")))
+											
+											
+										} else {
+											output$"step1_message_deleted_individual_metrics"<-renderUI(
+													HTML(
+															paste(
+																	paste(
+																			h4("Table of deleted values (data) (xls)"),
+																			"<p align='left'>Please click on excel <p>"
+																	)))
+											)
+											output$dt_deleted_individual_metrics <-DT::renderDataTable({
+														validate(need(globaldata$connectOK,"No connection"))
+														datatable(list_comp_individual_metrics$deleted,
+																rownames=FALSE,
+																extensions = "Buttons",
+																option=list(
+																		scroller = TRUE,
+																		scrollX = TRUE,
+																		scrollY = "500px",
+																		order=list(3,"asc"),
+																		lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
+																		"pagelength"=-1,
+																		dom= "Blfrtip",
+																		scrollX = T,
+																		buttons=list(
+																				list(extend="excel",
+																						filename = paste0("deleted_biometry_",loaded_data_ts$file_type,"_",Sys.Date(),"_",current_cou_code)))
 																))
 													})
 										}
