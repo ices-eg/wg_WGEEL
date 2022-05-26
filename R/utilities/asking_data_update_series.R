@@ -5,11 +5,10 @@
 # This script will create an excel sheet per country that currently have recruitment series
 #######################################################################################
 
-<<<<<<< HEAD
 
 =======
 # TODO USE bind_rows
->>>>>>> branch '205-shiny-integration-for-dcf-data' of https://github.com/ices-eg/wg_WGEEL
+
 # put the current year there
 CY<-2022
 # function to load packages if not available
@@ -18,6 +17,17 @@ load_library=function(necessary) {
     install.packages(necessary[!necessary %in% installed.packages()[, 'Package']], dep = T)
   for(i in 1:length(necessary))
     library(necessary[i], character.only = TRUE)
+}
+
+
+#this function is used to format the data as specified in the root template file
+applyTemplateFormat <- function(templateformat, mydata){
+  if(length(setdiff(names(templateformat), names(mydata)))>0) #on ajoute les colonnes manquantes
+    mydata[,setdiff(names(templateformat), names(mydata))] = NA
+  mydata <-  mydata %>%
+    select(any_of(names(templateformat)))
+  mydata
+  
 }
 ###########################
 # Loading necessary packages
@@ -106,7 +116,7 @@ create_datacall_file_series <- function(country, name, ser_typ_id, type="series"
   
   # series or sampling infodescription -------------------------------------------------------
   
-  t_series_ser<- dbGetQuery(con, str_c("SELECT *			FROM ",
+  t_series_ser<- t_series <- dbGetQuery(con, str_c("SELECT *			FROM ",
                                        ifelse(type=="series",
                                               "datawg.t_series_ser ",
                                               "datawg.t_samplinginfo_sai "),
@@ -124,19 +134,19 @@ create_datacall_file_series <- function(country, name, ser_typ_id, type="series"
   
   
   
-  if (nrow(t_series_ser)>0){
+  if (nrow(t_series)>0){
     
     formatted = read_excel(templatefile, ifelse(type=="series",
                                                 "series_info",
                                                 "sampling_info"))
-    if(length(setdiff(names(formatted), names(t_series_ser)))>0) #on ajoute les colonnes manquantes
-      t_series_ser[,setdiff(names(formatted), names(t_series_ser))] = NA
-    t_series_ser <-  t_series_ser %>%
+    if(length(setdiff(names(formatted), names(t_series)))>0) #on ajoute les colonnes manquantes
+      t_series[,setdiff(names(formatted), names(t_series))] = NA
+    t_series <-  t_series %>%
       select(any_of(names(formatted)))
     writeWorksheet(wb, sheet =  ifelse(type=="series",
                                        "series_info",
                                        "sampling_info"), 
-                   t_series_ser)
+                   t_series)
   }
   
   
@@ -168,7 +178,8 @@ create_datacall_file_series <- function(country, name, ser_typ_id, type="series"
 							das_year,
 							das_comment,
 							das_effort,
-							das_qal_id
+							das_qal_id,
+							das_dts_datasource
 							from datawg.t_dataseries_das",
                                 " JOIN datawg.t_series_ser ON ser_id = das_ser_id",
                                 " WHERE ser_typ_id=",ser_typ_id,
@@ -179,6 +190,8 @@ create_datacall_file_series <- function(country, name, ser_typ_id, type="series"
     if (nrow(dat)> 0){
       dat[,"das_comment"]<-iconv(dat[,"das_comment"],from="UTF-8",to="latin1")
       #openxlsx::writeData(wb, sheet = "existing_data", dat, startRow = 1)
+      formatted <- read_excel(templatefile,"existing_data")
+      dat <- applyTemplateFormat(formatted, dat)
       writeWorksheet(wb , dat %>% filter(!is.na(das_qal_id)),  sheet = "existing_data")
     }
     
@@ -186,6 +199,8 @@ create_datacall_file_series <- function(country, name, ser_typ_id, type="series"
     if (nrow(dat)> 0){
       dat[,"das_comment"]<-iconv(dat[,"das_comment"],from="UTF-8",to="latin1")
       #openxlsx::writeData(wb, sheet = "existing_data", dat, startRow = 1)
+      formatted <- read_excel(templatefile,"updated_data")
+      dat <- applyTemplateFormat(formatted, dat)
       writeWorksheet(wb , dat%>% filter(is.na(das_qal_id)),  sheet = "updated_data")
     }
     
@@ -207,6 +222,8 @@ create_datacall_file_series <- function(country, name, ser_typ_id, type="series"
       
       if (nrow(new_data)> 0){
         #openxlsx::writeData(wb, sheet = "new_data", new_data, startRow = 1)
+        formatted <- read_excel(templatefile,"new_data")
+        dat <- applyTemplateFormat(formatted, dat)
         writeWorksheet(wb, new_data,  sheet = "new_data")
       }
     }
@@ -269,12 +286,9 @@ create_datacall_file_series <- function(country, name, ser_typ_id, type="series"
     left_join(metrics) %>%
     tidyr::pivot_wider(names_from=mty_name,
                        values_from=meg_value) 
-  if (nrow(existing_metric)> 0){	
-    if(length(setdiff(names(formatted), names(existing_metric)))>0) #on ajoute les colonnes manquantes
-      existing_metric[,setdiff(names(formatted), names(existing_metric))] = NA
-    existing_metric <- existing_metric %>%
-      arrange(!!sym(ifelse(type=="series","ser_nameshort","sai_name")),gr_year,gr_id) %>%
-      select(any_of(names(formatted)))
+  if (nrow(existing_metric)> 0){
+    existing_metric <- applyTemplateFormat(formatted, existing_metric) %>%
+      arrange(!!sym(ifelse(type=="series","ser_nameshort","sai_name")),gr_year,gr_id)
     
     
     
@@ -289,6 +303,17 @@ create_datacall_file_series <- function(country, name, ser_typ_id, type="series"
   
   
   if (nrow(existing_metric) >0 ){
+    formatted <-  read_excel(templatefile,"new_group_metrics")
+    if(type=="series"){
+      if(ser_typ_id==1){
+        formatted$g_in_gy_proportion = numeric()
+        
+      } else{
+        formatted$s_in_ys_proportion = numeric()
+        
+      }
+    }
+    
     newbiom <- existing_metric %>% 
       dplyr::mutate_at(.vars="gr_year",tidyr::replace_na,replace=CY-1) %>%
       dplyr::filter(gr_year>=(CY-10)) %>%
@@ -305,6 +330,7 @@ create_datacall_file_series <- function(country, name, ser_typ_id, type="series"
       dplyr::arrange(!!sym(ifelse(type=="series","ser_nameshort","sai_name")), gr_year)
     
     if (nrow(newbiom)>0) {
+      newbiom <- applyTemplateFormat(formatted, newbiom)
       #openxlsx::writeData(wb, sheet = "new_biometry", newbiom, startRow = 1)
       writeWorksheet(wb, newbiom,  sheet = "new_group_metrics")	
     }
@@ -363,11 +389,8 @@ create_datacall_file_series <- function(country, name, ser_typ_id, type="series"
   if (nrow(existing_metric)> 0){	
     existing_metric <- existing_metric[!is.na(existing_metric$fi_year),]
     
-    if(length(setdiff(names(formatted), names(existing_metric)))>0) #on ajoute les colonnes manquantes
-      existing_metric[,setdiff(names(formatted), names(existing_metric))] = NA
-    existing_metric <- existing_metric %>%
-      arrange(!!sym(ifelse(type=="series","ser_nameshort","fisa_sai_id")),fi_year,fi_id) %>%
-      select(any_of(names(formatted)))
+    existing_metric <- applyTemplateFormat(formatted, existing_metric) %>%
+      arrange(!!sym(ifelse(type=="series","ser_nameshort","fisa_sai_id")),fi_year,fi_id)
     
     
     #openxlsx::writeData(wb, sheet = "existing_biometry", biom, startRow = 1)
@@ -379,6 +402,9 @@ create_datacall_file_series <- function(country, name, ser_typ_id, type="series"
   
   
   if (nrow(existing_metric) >0 ){
+    #read the existing data template to have the correct format
+    formatted <- read_excel(templatefile,"new_individual_metrics")
+    
     newbiom <- existing_metric %>% 
       dplyr::mutate_at(.vars="fi_year",tidyr::replace_na,replace=CY-1) %>%
       dplyr::filter(fi_year>=(CY-10)) %>%
@@ -386,6 +412,7 @@ create_datacall_file_series <- function(country, name, ser_typ_id, type="series"
     newbiom <- newbiom %>%
       dplyr::filter(0==rowSums(!is.na(. %>% select(-fi_id,-!!sym(ifelse(type=="series","ser_nameshort","fi_sai_id")),-fi_year,-fi_dts_datasource,-!!sym(ifelse(type=="series","fiser_ser_id","fisa_sai_id")))))) %>%
       dplyr::arrange(!!sym(ifelse(type=="series","ser_nameshort","fisa_sai_id")), fi_year)
+    newbiom <- applyTemplateFormat(formatted, newbiom)
     
     if (nrow(newbiom)>0) {
       #openxlsx::writeData(wb, sheet = "new_biometry", newbiom, startRow = 1)
@@ -427,8 +454,8 @@ create_datacall_file_series <- function(country, name, ser_typ_id, type="series"
             geom_point(data=t_series_ser[i,],aes(x=ser_x,y=ser_y),col="red")+
             ggtitle(t_series_ser$ser_nameshort[i])+
             xlab("")+
-            ylab("")+
-            geom_sf(data=pol, inherit.aes = FALSE,fill=NA,color="black")
+            ylab("")#+
+            #geom_sf(data=pol, inherit.aes = FALSE,fill=NA,color="black")
         } else {
           g=ggplot()+ggtitle(t_series_ser$ser_nameshort[i])
         }
@@ -472,7 +499,7 @@ for (country in country_code ){
   gc()
   cat("country: ",country,"\n")
   create_datacall_file_series(country, 
-                              name="Eel_Data_Call_2021_Annex_time_series", 
+                              name="Eel_Data_Call_2022_Annex_time_series", 
                               ser_typ_id=2)
 }
 
@@ -484,7 +511,7 @@ for (country in country_code ){
   gc()
   cat("country: ",country,"\n")
   create_datacall_file_series(country, 
-                              name="Eel_Data_Call_2021_Annex_time_series", 
+                              name="Eel_Data_Call_2022_Annex_time_series", 
                               ser_typ_id=3)
 }
 
