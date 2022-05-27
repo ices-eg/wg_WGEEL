@@ -2498,8 +2498,8 @@ load_series<-function(path,datasource, stage="glass_eel"){
 			
 # all mty related columns should be numeric
 			
-			data_error <- rbind(data_error, 
-					purrr::flatten(lapply(c("lengthmm",
+			
+			resmetrics <-		purrr::flatten(lapply(c("lengthmm",
 											"weightg",
 											"ageyear",
 											"eye_diam_mean_mm",
@@ -2532,16 +2532,16 @@ load_series<-function(path,datasource, stage="glass_eel"){
 											"s_in_ys_proportion"),			
 									function(name_column){
 										if (name_column %in% colnames(data_xls)){	
-											data_error <- rbind(data_error,check_type(
+											data_error <- check_type(
 															dataset = data_xls,					
 															namedataset = sheet,
 															column=name_column,
 															country=country,
-															type="numeric"))
+															type="numeric")
 											return(data_error)}
 										
-									})))
-			
+									}))
+		data_error <- bind_rows(data_error,	purrr::flatten(resmetrics)	)
 		} # end if grepl
 		return(list(data=data_xls,error=data_error))
 	}			
@@ -2573,8 +2573,8 @@ load_series<-function(path,datasource, stage="glass_eel"){
 	columns <- list(
 			c("ser_nameshort", "das_year", "das_value", "das_comment", "das_effort","das_qal_id", "das_qal_comment"),
 			#TODO check that das_lastupdate and das_dts_datasource 
-			c("ser_nameshort",	"das_id",	"das_ser_id",	"das_value",	"das_year",	"das_comment",	"das_effort",	"das_qal_id", "das_qal_comment"),
-			c("ser_nameshort",	"das_id",	"das_ser_id",	"das_value",	"das_year",	"das_comment",	"das_effort",	"das_qal_id", "das_qal_comment"),
+			c("ser_nameshort",	"das_id",	"das_ser_id",	"das_value",	"das_year",	"das_comment",	"das_effort",	"das_qal_id", "das_qal_comment", "das_dts_datasource"),
+			c("ser_nameshort",	"das_id",	"das_ser_id",	"das_value",	"das_year",	"das_comment",	"das_effort",	"das_qal_id", "das_qal_comment", "das_dts_datasource"),
 			c("gr_id","ser_nameshort",	"gr_ser_id", "gr_year",	"gr_number", "gr_comment", "gr_last_update", "gr_dts_datasource", "lengthmm",	"weightg",	"ageyear",	"female_proportion","differentiated_proportion",
 					"m_mean_lengthmm","m_mean_weightg","m_mean_ageyear","f_mean_lengthmm","f_mean_weightg","f_mean_age",
 					"anguillicola_proportion",	"anguillicola_intensity",	"muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb", "teq",
@@ -2583,7 +2583,7 @@ load_series<-function(path,datasource, stage="glass_eel"){
 					"m_mean_lengthmm","m_mean_weightg","m_mean_ageyear","f_mean_lengthmm","f_mean_weightg","f_mean_age",
 					"anguillicola_proportion",	"anguillicola_intensity",	"muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb", "teq",
 					"evex_proportion","hva_proportion",	"pb",	"hg",	"cd","g_in_gy_proportion","s_in_ys_proportion"),	
-			c("gr_id","ser_nameshort",	"gr_year",	"gr_number", "gr_comment", "gr_last_update", "gr_dts_datasource", "lengthmm",	"weightg",	"ageyear",	"female_proportion","differentiated_proportion",
+			c("gr_id","ser_nameshort",	"grser_ser_id", "gr_year",	"gr_number", "gr_comment", "gr_last_update", "gr_dts_datasource", "lengthmm",	"weightg",	"ageyear",	"female_proportion","differentiated_proportion",
 					"m_mean_lengthmm","m_mean_weightg","m_mean_ageyear","f_mean_lengthmm","f_mean_weightg","f_mean_age",
 					"anguillicola_proportion",	"anguillicola_intensity",	"muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb", "teq",
 					"evex_proportion","hva_proportion",	"pb",	"hg",	"cd","g_in_gy_proportion","s_in_ys_proportion"),
@@ -2601,7 +2601,7 @@ load_series<-function(path,datasource, stage="glass_eel"){
 					"is_female_(1=female,0=male)","is_differentiated_(1=differentiated,0_undifferentiated)",
 					"anguillicola_presence_(1=present,0=absent)",	"anguillicola_intensity",	"muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb", "teq",
 					"evex_presence_(1=present,0=absent)","hva_presence_(1=present,0=absent)",	"pb",	"hg",	"cd"))
-	nbcol <- list(7,9,9,32,32,32,21,25,25)
+	nbcol <- list(7,10,10,30,32,32,21,25,25)
 	
 	
 	res <- purrr::pmap(list(sheet,columns,nbcol), fn_check_series)

@@ -16,8 +16,12 @@ ui <- fluidPage(spsDepend("toastr"),
 						# A button that stops the application
 						extendShinyjs(text = jscode, functions = c("closeWindow")),
 						actionButton("close", "Close window"),  
+						passwordInput("password", "Password:"),
+						actionButton("passwordbutton", "Go"),
+						verbatimTextOutput("passwordtest"),
 						h3("Data"),      
-						sidebarMenu(          
+						sidebarMenu(   
+						
 								# menuItem("Import",tabName= "import", icon= icon("align-left")),
 								# menuItem("Import Time Series",tabName= "import_ts", icon= icon("align-left")),					
 								# menuItem("Edit Data", tabName="editAll", icon=icon("table")),
@@ -45,10 +49,8 @@ ui <- fluidPage(spsDepend("toastr"),
 								choices = participants,
 								selected="Cedric Briand"
 						
-						),
-						passwordInput("password", "Password:"),
-						actionButton("passwordbutton", "Go"),
-						verbatimTextOutput("passwordtest")
+						)
+
 				
 				), 
 				
@@ -323,7 +325,7 @@ ui <- fluidPage(spsDepend("toastr"),
 								# 		)
 								# ),
 								
-	
+								
 								
 								# Data correction table  ----------------------------------------------------------------
 								
@@ -433,25 +435,25 @@ ui <- fluidPage(spsDepend("toastr"),
 								# 						htmlOutput("new_participants_txt")
 								# 				))
 								# ),
-                tabItem("Importmodule",
-                       importstep0UI("importstep0module"),
-                       importstep1UI("importstep1module"),
-                       importstep2UI("importstep2module")
-                        ),
-                tabItem("Importtsmodule",
-                    importtsstep0UI("importtsstep0module"),
-                    importtsstep1UI("importtsstep1module"),
-                    importtsstep2UI("importtsstep2module")
-                  ),
+								tabItem("Importmodule",
+										importstep0UI("importstep0module"),
+										importstep1UI("importstep1module"),
+										importstep2UI("importstep2module")
+								),
+								tabItem("Importtsmodule",
+										importtsstep0UI("importtsstep0module"),
+										importtsstep1UI("importtsstep1module"),
+										importtsstep2UI("importtsstep2module")
+								),
 								tabItem("Importdcfmodule",
-								importdcfstep0UI("importdcfstep0module")
+										importdcfstep0UI("importdcfstep0module")
 								#importdcfstep1UI("importdcfstep1module"),
 								#importdcfstep2UI("importdcfstep2module")
 								),
-                tabItem("newparticipantstabmodule",
-                    newparticipantsUI("newparticipantsmodule")),
-                tabItem("plot_duplicates_module",
-                        plotduplicatesUI("plotduplicatesmodule"))
+								tabItem("newparticipantstabmodule",
+										newparticipantsUI("newparticipantsmodule")),
+								tabItem("plot_duplicates_module",
+										plotduplicatesUI("plotduplicatesmodule"))
 						
 						)
 				)

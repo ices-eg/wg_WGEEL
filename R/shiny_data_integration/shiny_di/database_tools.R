@@ -388,7 +388,6 @@ compare_with_database_series <- function(data_from_excel, data_from_base) {
 		# show only modifications to the user (any colname modified)		
 		highlight_change <- highlight_change[!apply(mat,1,all),num_common_col[!apply(mat,2,all)]]
 	}
-	
 	return(list(new = new, modified=modified, highlight_change=highlight_change, current_cou_code= current_cou_code))
 }
 
@@ -556,6 +555,9 @@ compare_with_database_dataseries <- function(data_from_excel, data_from_base, sh
 					modified, by= c("das_ser_id","das_year"))
 		}
 	}
+	data_from_excel <- data_from_excel %>% select(-id)
+	new <- new %>% select(-id)
+	modified <- modified %>% select(-id)
 	if (sheetorigin == "deleted_data") {
 		return(list(deleted=data_from_excel, error_id_message=error_id_message))
 	} else {
@@ -601,8 +603,8 @@ compare_with_database_dataseries <- function(data_from_excel, data_from_base, sh
 #		left_join( t_series_ser[,c("ser_id","ser_nameshort")], by="ser_nameshort") %>%
 #		rename("grser_ser_id"="ser_id")
 #list_comp <- compare_with_database_metric_group(data_from_excel,data_from_base, sheetorigin="deleted_group_metrics")
-# note :not possible to check if there are errors as in compare_with_database_dataseries
-# there might be different gr_id , for one series and date while it was necessarily unique for das_id
+## note :not possible to check if there are errors as in compare_with_database_dataseries
+## there might be different gr_id , for one series and date while it was necessarily unique for das_id
 
 compare_with_database_metric_group <- function(data_from_excel, data_from_base, sheetorigin=c("new_group_metrics","updated_group_metrics","deleted_group_metrics")) {
 	# data integrity checks
@@ -675,13 +677,16 @@ compare_with_database_metric_group <- function(data_from_excel, data_from_base, 
 		}
 		# select only rows where there are true modified 
 		modified <- modified[!apply(mat,1,all),]	 
-		modified_long <- modified %>% tidyr::pivot_longer(cols=metrics_group$mty_name,
-				values_to="meg_value",
-				names_to="mty_name"
-		) %>% select(-id, -mty_name)
 		# show only modifications to the user (any colname modified)	
 		highlight_change <- highlight_change[!apply(mat,1,all),num_common_col[!apply(mat,2,all)]]
 	}
+	modified_long <- modified %>% tidyr::pivot_longer(cols=metrics_group$mty_name,
+			values_to="meg_value",
+			names_to="mty_name"
+	) %>% select(-id, -mty_name)
+	# clean up
+	new <- new %>% select(-id)
+	data_from_excel <- data_from_excel %>% select(-id)
 	
 	if (sheetorigin == "deleted_group_metrics") {
 		return(list(deleted=data_from_excel))
@@ -709,9 +714,9 @@ compare_with_database_metric_group <- function(data_from_excel, data_from_base, 
 #t_metricindseries_meiser <- extract_data("t_metricindseries_meiser", quality_check=FALSE)
 #t_metricindseries_meiser <- t_metricindseries_meiser %>% 
 #		inner_join(t_fishseries_fiser, by = c("mei_fi_id" = "fi_id") ) %>%
-#		inner_join(t_series_ser %>% select(ser_nameshort, ser_id), by=c("fiser_ser_id"="ser_id"))
-#data_from_base <- t_metricindseries_meiser %>% rename("fi_id"="mei_fi_id")
-#
+#		inner_join(t_series_ser %>% select(ser_nameshort, ser_id), by=c("fiser_ser_id"="ser_id")) %>% 
+# rename("fi_id"="mei_fi_id")
+# data_from_base <- t_metricindseries_meiser
 ## new_individual_metrics ------------------------------------------------------------
 #data_from_excel <- read_excel(path=path,	sheet = "new_individual_metrics",	skip=0) %>%  
 #		mutate_at(vars("fi_comment", "ser_nameshort"),list(as.character)) %>% 
@@ -731,7 +736,7 @@ compare_with_database_metric_group <- function(data_from_excel, data_from_base, 
 #		left_join( t_series_ser[,c("ser_id","ser_nameshort")], by="ser_nameshort") %>%
 #		rename("fiser_ser_id"="ser_id")
 #list_comp <- compare_with_database_metric_ind(data_from_excel,data_from_base, sheetorigin = "deleted_individual_metrics")
-
+#
 
 compare_with_database_metric_ind <- function(
 		data_from_excel, 
@@ -814,13 +819,17 @@ compare_with_database_metric_ind <- function(
 		}
 		# select only rows where there are true modified 
 		modified <- modified[!apply(mat,1,all),]	 
-		modified_long <- modified %>% tidyr::pivot_longer(cols=metrics_ind$mty_name,
-				values_to="mei_value",
-				names_to="mty_name"
-		) %>% select(-id, -mty_name)
+		
 		# show only modifications to the user (any colname modified)	
 		highlight_change <- highlight_change[!apply(mat,1,all),num_common_col[!apply(mat,2,all)]]
-	}
+	} 
+	modified_long <- modified %>% tidyr::pivot_longer(cols=metrics_ind$mty_name,
+			values_to="mei_value",
+			names_to="mty_name"
+	) %>% select(-id, -mty_name)
+	# clean up
+	new <- new %>% select(-id)
+	data_from_excel <- data_from_excel %>% select(-id)
 	if (sheetorigin == "deleted_individual_metrics") {
 		return(list(deleted=data_from_excel))
 	} else {
