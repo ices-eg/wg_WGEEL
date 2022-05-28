@@ -260,6 +260,9 @@ CREATE TABLE  datawg.t_fishseries_fiser(
 )
 INHERITS (datawg.t_fish_fi);
 
+ALTER TABLE datawg.t_fishseries_fiser ADD CONSTRAINT  c_fk_fiser_dts_datasource 
+FOREIGN KEY (fi_dts_datasource) REFERENCES "ref".tr_datasource_dts(dts_datasource) ON UPDATE CASCADE;
+
 
 CREATE OR REPLACE FUNCTION datawg.fiser_year()
  RETURNS trigger
@@ -281,7 +284,8 @@ DROP TRIGGER IF EXISTS check_year_and_date ON datawg.t_fishseries_fiser ;
 CREATE TRIGGER check_year_and_date AFTER INSERT OR UPDATE ON
    datawg.t_fishseries_fiser FOR EACH ROW EXECUTE FUNCTION datawg.fiser_year();
 
-
+CREATE TRIGGER update_fi_lastupdate BEFORE INSERT OR UPDATE ON
+   datawg.t_fishseries_fiser FOR EACH ROW EXECUTE FUNCTION datawg.fi_lastupdate();
 
 /*
 * HERE set as wgs84 do we set this in 3035 ?
@@ -300,7 +304,11 @@ CONSTRAINT c_fk_fisa_sai_id FOREIGN KEY (fisa_sai_id) REFERENCES datawg.t_sampli
 INHERITS (datawg.t_fish_fi);
 
 
+ALTER TABLE datawg.t_fishsamp_fisa ADD CONSTRAINT  c_fk_fisa_dts_datasource 
+FOREIGN KEY (fi_dts_datasource) REFERENCES "ref".tr_datasource_dts(dts_datasource) ON UPDATE CASCADE;
 
+CREATE TRIGGER update_fi_lastupdate BEFORE INSERT OR UPDATE ON
+   datawg.t_fishsamp_fisa FOR EACH ROW EXECUTE FUNCTION datawg.fi_lastupdate();
   
 /*
  * TABLE OF INDIVIDUAL METRICS
@@ -498,7 +506,12 @@ create trigger update_gr_lastupdate BEFORE insert  OR update on
     datawg.t_group_gr for each row execute function datawg.gr_lastupdate();
     
     
- 
+create trigger update_gr_lastupdate BEFORE insert  OR update on
+    datawg.t_groupseries_grser for each row execute function datawg.gr_lastupdate(); 
+  
+      
+create trigger update_gr_lastupdate BEFORE insert  OR update on
+    datawg.t_groupsamp_grsa for each row execute function datawg.gr_lastupdate(); 
 
 /*
 DROP TABLE IF EXISTS datawg.t_biometrygroup_big CASCADE;
@@ -653,6 +666,15 @@ DROP TRIGGER IF EXISTS update_meg_last_update ON datawg.t_metricgroup_meg ;
 CREATE TRIGGER update_meg_last_update BEFORE INSERT OR UPDATE ON
   datawg.t_metricgroup_meg FOR EACH ROW EXECUTE FUNCTION  datawg.meg_last_update();
 
+DROP TRIGGER IF EXISTS update_meg_last_update ON datawg.datawg.t_metricgroupseries_megser ;
+CREATE TRIGGER update_meg_last_update BEFORE INSERT OR UPDATE ON
+  datawg.datawg.t_metricgroupseries_megser FOR EACH ROW EXECUTE FUNCTION  datawg.meg_last_update();
+
+DROP TRIGGER IF EXISTS update_meg_last_update ON datawg.t_metricgroupsamp_megsa ;
+CREATE TRIGGER update_meg_last_update BEFORE INSERT OR UPDATE ON
+  datawg.t_metricgroupsamp_megsa FOR EACH ROW EXECUTE FUNCTION  datawg.meg_last_update();
+
+
 -- trigger check that only group metrics are used
 
 CREATE OR REPLACE FUNCTION datawg.meg_mty_is_group()
@@ -680,6 +702,14 @@ $function$
 DROP TRIGGER IF EXISTS check_meg_mty_is_group ON datawg.t_metricgroup_meg;
 CREATE TRIGGER check_meg_mty_is_group AFTER INSERT OR UPDATE ON
    datawg.t_metricgroup_meg FOR EACH ROW EXECUTE FUNCTION datawg.meg_mty_is_group();
+
+ DROP TRIGGER IF EXISTS check_meg_mty_is_group ON datawg.t_metricgroupseries_megser;
+CREATE TRIGGER check_meg_mty_is_group AFTER INSERT OR UPDATE ON
+   datawg.t_metricgroupseries_megser FOR EACH ROW EXECUTE FUNCTION datawg.meg_mty_is_group();
+ 
+ DROP TRIGGER IF EXISTS check_meg_mty_is_group ON datawg.t_metricgroupsamp_megsa;
+CREATE TRIGGER check_meg_mty_is_group AFTER INSERT OR UPDATE ON
+   datawg.t_metricgroupsamp_megsa FOR EACH ROW EXECUTE FUNCTION datawg.meg_mty_is_group();
 
 
 -----
