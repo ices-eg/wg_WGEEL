@@ -690,7 +690,7 @@ AS $function$
   the_mty_type , the_mty_name   
   mty_type, mty_name FROM REF.tr_metrictype_mty where mty_id=NEW.meg_mty_id;
 
-    IF (the_mty_type == 'individual') THEN
+    IF (the_mty_type = 'individual') THEN
     RAISE EXCEPTION 'table t_metricgroup_meg, metric --> % is not a group metric', the_mty_name ;
     END IF  ;
 
@@ -935,11 +935,17 @@ insert into ref.tr_emusplit_ems (emu_nameshort,emu_name,emu_cou_code,emu_hyd_sys
 commit; 
 
 
+
+-- fix problem with table sampling_gear
+GRANT ALL ON TABLE REF.tr_gear_gea TO wgeel;
+
+
 ----
 --preparation for data integration
 ----
 insert into ref.tr_quality_qal values (22, 'discarded_wgeel_2022', 'This data has either been removed from the database in favour of new data, or corresponds to new data not kept in the database during datacall 2022', false);
 insert into ref.tr_datasource_dts values ('dc_2022', 'Joint EIFAAC/GFCM/ICES Eel Data Call 2022');
+
 
 
 
