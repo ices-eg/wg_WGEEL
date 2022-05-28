@@ -321,6 +321,13 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 													data_from_base=t_metricgroupseries_megser,
 													sheetorigin="updated_group_metrics")
 											if (nrow(new_group_metrics)>0){
+												# when integrating the id must be different so I'm adding the max of id in news, 
+		                    # later they will be used to differentiate groups when writing, and we don't want to mix up 
+		                    # groups from new and from updated sheets
+												mxn <- max(list_comp_group_metrics$new$id, na.rm=TRUE)
+												mxm <- max(list_comp_group_metrics$modified, na.rm=TRUE)
+												list_comp_updated_group_metrics$new$id <- list_comp_updated_group_metrics$new$id + mxn
+												list_comp_updated_group_metrics$modified$id <- list_comp_updated_group_metrics$modified$id + mxm
 												list_comp_group_metrics$new <- bind_rows(list_comp_group_metrics$new,list_comp_updated_group_metrics$new)
 												list_comp_group_metrics$modified <- bind_rows(list_comp_group_metrics$modified,list_comp_updated_group_metrics$modified)
 												if (nrow(list_comp_group_metrics$highlight_change)>0){
@@ -359,6 +366,12 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 															data_from_base=t_metricindseries_meiser, 
 															sheetorigin="updated_individual_metrics")
 											if (nrow(new_individual_metrics)>0){
+												mxn <- max(list_comp_individual_metrics$new$id, na.rm=TRUE)
+												mxm <- max(list_comp_individual_metrics$modified, na.rm=TRUE)
+												list_comp_updated_individual_metrics$new$id <- list_comp_updated_individual_metrics$new$id + mxn
+												list_comp_updated_individual_metrics$modified$id <- list_comp_updated_individual_metrics$modified$id + mxm
+												list_comp_individual_metrics$new <- bind_rows(list_comp_individual_metrics$new,list_comp_updated_individual_metrics$new)
+												
 												list_comp_individual_metrics$new <- bind_rows(list_comp_individual_metrics$new,list_comp_updated_individual_metrics$new)
 												list_comp_individual_metrics$modified <- bind_rows(list_comp_individual_metrics$modified,list_comp_updated_individual_metrics$modified)
 												if (nrow(list_comp_individual_metrics$highlight_change)>0){
