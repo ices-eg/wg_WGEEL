@@ -1748,7 +1748,7 @@ delete_dataseries <- function(path) {
 	
 	dbExecute(conn,"drop table if exists deleted_dataseries_temp ")
 	dbWriteTable(conn,"deleted_dataseries_temp",deleted_values_table, row.names=FALSE,temporary=TRUE)
-
+	
 	query=paste("DELETE FROM datawg.t_dataseries_das WHERE das_id IN 
 					(SELECT das_id FROM deleted_dataseries_temp) RETURNING das_id ")
 	message <- NULL
@@ -1766,8 +1766,8 @@ delete_dataseries <- function(path) {
 			message <- paste("das_id not deleted :", 
 					paste(deleted_values_table$das_id[!deleted_values_table$das_id %in% res$das_id], collapse=","))
 		} else {		
-		message <- paste(nrow(deleted_values_table),"values deleted from the db")
-	}
+			message <- paste(nrow(deleted_values_table),"values deleted from the db")
+		}
 	return(list(message = message, cou_code = cou_code))
 }
 
@@ -1833,30 +1833,30 @@ write_new_group_metrics <- function(path) {
 	conn <- poolCheckout(pool)
 	on.exit(poolReturn(conn))
 	new <- read_excel(path = path, sheet = 1, skip = 1)
-
+	
 	dbWriteTable(conn,"group_tmp",new,temporary=TRUE)
 	message <- NULL
 	#dbGetQuery(conn, "DELETE FROM datawg.t_groupseries_grser")
 	(nr <- tryCatch({
-	res0 <- dbGetQuery(conn,"insert into datawg.t_groupseries_grser(gr_year,gr_number,gr_comment,gr_dts_datasource,grser_ser_id)
-					(select distinct on (id) g.gr_year,g.gr_number,g.gr_comment,g.gr_dts_datasource,g.grser_ser_id from group_tmp g) returning gr_id, gr_year, grser_ser_id")
-	new1 <- new %>% select(-id, -gr_id) %>% inner_join(res0, by=c("gr_year","grser_ser_id"))
-
-	dbWriteTable(conn,"group_tmp1",new1,temporary=TRUE)
-	nr0 <- nrow(res0)
-	nr1 <- dbExecute(conn, "INSERT INTO datawg.t_metricgroupseries_megser(meg_gr_id, meg_mty_id, meg_value, meg_dts_datasource)
-								SELECT gr_id, meg_mty_id, meg_value, meg_dts_datasource FROM group_tmp1 ")
-	}, error = function(e) {
+							res0 <- dbGetQuery(conn,"insert into datawg.t_groupseries_grser(gr_year,gr_number,gr_comment,gr_dts_datasource,grser_ser_id)
+											(select distinct on (id) g.gr_year,g.gr_number,g.gr_comment,g.gr_dts_datasource,g.grser_ser_id from group_tmp g) returning gr_id, gr_year, grser_ser_id")
+							new1 <- new %>% select(-id, -gr_id) %>% inner_join(res0, by=c("gr_year","grser_ser_id"))
+							
+							dbWriteTable(conn,"group_tmp1",new1,temporary=TRUE)
+							nr0 <- nrow(res0)
+							nr1 <- dbExecute(conn, "INSERT INTO datawg.t_metricgroupseries_megser(meg_gr_id, meg_mty_id, meg_value, meg_dts_datasource, meg_qal_id)
+											SELECT gr_id, meg_mty_id, meg_value, meg_dts_datasource, 1 as meg_qal_id FROM group_tmp1 ")
+						}, error = function(e) {
 							message <<- e
 						}, finally = {
 							dbExecute(conn,"drop table if exists group_tmp")
 							dbExecute(conn,"drop table if exists group_tmp1")
 						}))
-
+	
 	
 	
 	if (is.null(message))   
-		message <- sprintf(" %s and %s new values inserted in the group and metric tables ", nr0, nr1)
+		message <- sprintf(" %s and %s new values inserted in the group and metric tables", nr0, nr1)
 	
 	return(list(message = message, cou_code = cou_code))
 }
@@ -1870,7 +1870,47 @@ delete_group_metrics <- function(){
 }
 
 write_new_individual_metrics <- function(){
-	#TODO
+	conn <- poolCheckout(pool)
+	on.exit(poolReturn(conn))
+	new <- read_excel(path = path, sheet = 1, skip = 1)
+	
+	dbWriteTable(conn,"ind_tmp",new,temporary=TRUE)
+	message <- NULL
+	#dbGetQuery(conn, "DELETE FROM datawg.t_groupseries_grser")
+	query <- "DO $$
+			DECLARE
+			rec record;
+			id_ integer;
+			fi_id_ integer;
+			nr0_ integer;
+			nr_ integer;
+			BEGIN	
+			FOR rec in SELECT DISTINCT(id) FROM ind_tmp
+			LOOP
+			-- insert fish
+			BEGIN
+			id_:=rec.id;
+			INSERT INTO datawg.t_fishseries_fiser(fi_date,fi_year,fi_comment,fi_dts_datasource,fiser_ser_id)
+			(select i.fi_date,i.fi_year,i.fi_comment,i.fi_dts_datasource,i.fiser_ser_id 
+			FROM ind_tmp i
+			WHERE i.id=id_)
+			RETURNING fi_id INTO fi_id_;
+			--insert metrics, qal_id is not handled there (will be validated by queries later)
+			-- the fi_id is determined from id (the row number in wide format)
+			INSERT INTO datawg.t_metricindseries_fiser(mei_fi_id, mei_mty_id, mei_value, mei_dts_datasource, mei_qal_id)
+			SELECT fi_id_, i.mei_mty_id, i.mei_value, i.meg_dts_datasource, 1 as mei_qal_id FROM ind_tmp i
+			WHERE i.id= id_;
+			END;
+			END LOOP;
+			END;								
+			$$ LANGUAGE 'plpgsql';"
+	(nr <- tryCatch({														
+							dbExecute(conn, query)
+						}, error = function(e) {
+							message <<- e
+						}, finally = {
+							dbExecute(conn,"drop table if exists ind_tmp")
+						}))
 }
 
 write_updated_individual_metrics <- function(){
