@@ -25,8 +25,10 @@ extract_data = function(table_dbname, quality = c(0,1,2,4), quality_check=TRUE)
          table_dbname = c("landings", "aquaculture", "release", "b0", "bbest", "bcurrent", "sigmaa", 
              "sigmaf", "sigmah", "potential_available_habitat","silver_eel_equivalents", "sigmafallcat", 
              "sigmahallcat", "precodata_country", "precodata_emu","precodata_all",
-						 "t_dataseries_das", "t_series_ser","t_biometry_series_bis","t_biometry_other_bit"),
-				 qal_column=c(rep("eel_qal_id",16), "das_qal_id", "ser_qal_id", "bio_qal_id", "bio_qal_id")
+						 "t_dataseries_das", "t_series_ser","t_metricgroupseries_megser", "t_metricgroupsamp_megsa",
+						 "t_metricindseries_meiser", "t_metricindsamp_meisa","t_samplinginfo_sai","t_groupseries_grser", "t_groupsamp_grsa",
+						 "t_fishseries_fiser","t_fisamp_fisa"),
+				 qal_column=c(rep("eel_qal_id",16), "das_qal_id", "ser_qal_id", rep("meg_qal_id",2) , rep("mei_qal_id",2), "sai_qal_id",rep("",4))
 						 )
 
 	
@@ -35,7 +37,9 @@ extract_data = function(table_dbname, quality = c(0,1,2,4), quality_check=TRUE)
 		stop(paste("table_caption should be one of:", paste(df_table$table_dbname, collapse = ", ")))
 	
 	if (quality_check)	{
+		
 		qal_column <- df_table[df_table$table_dbname == table_dbname, "qal_column"]
+		if (qal_column=="") stop(sprintf("You cannot perform quality check on table %s please use quality_check=FALSE",table_dbname))
 	sql_request = glue_sql(paste("SELECT * FROM datawg.", table_dbname,
 					" WHERE ",qal_column," IN ({quality*})", sep = ""))
   } else {
@@ -44,3 +48,7 @@ extract_data = function(table_dbname, quality = c(0,1,2,4), quality_check=TRUE)
 		return(dbGetQuery(pool,sql_request))
   
 }
+
+
+
+

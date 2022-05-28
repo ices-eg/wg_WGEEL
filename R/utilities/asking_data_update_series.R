@@ -4,8 +4,11 @@
 # Author Cedric Briand
 # This script will create an excel sheet per country that currently have recruitment series
 #######################################################################################
-library(readxl)
-library(dplyr)
+
+
+=======
+# TODO USE bind_rows
+
 # put the current year there
 CY<-2022
 # function to load packages if not available
@@ -40,6 +43,7 @@ load_library("stringr")
 # Issue still open https://github.com/awalker89/openxlsx/issues/348
 #load_library("openxlsx")
 load_library("XLConnect")
+load_library("readxl")
 load_library("sf")
 load_library("ggmap")
 load_library("getPass")

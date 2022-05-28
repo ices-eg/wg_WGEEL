@@ -9,7 +9,7 @@
 ########################
 # the shiny is launched from shiny_data_integration/shiny
 # debug tool
-#setwd("C:\\workspace\\gitwgeel\\R\\shiny_data_integration\\shiny_di")
+#setwd("C:\\workspace\\wg_WGEEL\\R\\shiny_data_integration\\shiny_di")
 source("load_library.R")
 source("utilities.R")
 load_package("shiny")
@@ -42,7 +42,8 @@ load_package("shinyBS")
 #load_package("sqldf")
 load_package("leaflet")
 load_package("shinytoastr")
-
+load_package("tibble")
+load_package("purrr") 
 options(shiny.sanitize.errors = FALSE)
 
 #----------------------
@@ -89,7 +90,9 @@ source("plotduplicates.R")
 source("importtsstep0.R")
 source("importtsstep1.R")
 source("importtsstep2.R")
-
+source("importdcfstep0.R")
+source("importdcfstep1.R")
+source("importdcfstep2.R")
 # Local shiny files ---------------------------------------------------------------------------------
 
 source("database_tools.R")
@@ -111,9 +114,9 @@ onStop(function() {
 # BEFORE WGEEL sqldf('delete from datawg.t_eelstock_eel where eel_datasource='test')
 # BEFORE WGEEL sqldf('delete from datawg.t_eelstock_eel where eel_datasource='test')
 ########################
-qualify_code<-21 # change this code here and in tr_quality_qal for next wgeel
-the_eel_datasource <- "dc_2021"  # change this after tests
-current_year <- 2021
+qualify_code<-22 # change this code here and in tr_quality_qal for next wgeel
+the_eel_datasource <- "dc_2022"  # change this after tests
+current_year <- 2022
 
 
 
