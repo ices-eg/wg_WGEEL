@@ -174,7 +174,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 				# with duplicates values
 				#############################
 				observeEvent(input$check_duplicate_button_ts, {
-							#tryCatch({
+							tryCatch({
 										
 										
 										# see step0load_data returns a list with res and messages
@@ -946,9 +946,9 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 										}
 										
 										
-	#								},error = function(e) {
-	#									showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
-	#								})
+									},error = function(e) {
+										showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
+									})
 									})
 			}
 	

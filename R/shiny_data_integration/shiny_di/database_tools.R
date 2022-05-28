@@ -683,10 +683,7 @@ compare_with_database_metric_group <- function(data_from_excel, data_from_base, 
 	modified_long <- modified %>% tidyr::pivot_longer(cols=metrics_group$mty_name,
 			values_to="meg_value",
 			names_to="mty_name"
-	) %>% select(-id, -mty_name)
-	# clean up
-	new <- new %>% select(-id)
-	data_from_excel <- data_from_excel %>% select(-id)
+	) %>% select(-mty_name)
 	
 	if (sheetorigin == "deleted_group_metrics") {
 		return(list(deleted=data_from_excel))
@@ -826,10 +823,8 @@ compare_with_database_metric_ind <- function(
 	modified_long <- modified %>% tidyr::pivot_longer(cols=metrics_ind$mty_name,
 			values_to="mei_value",
 			names_to="mty_name"
-	) %>% select(-id, -mty_name)
+	) %>% select(-mty_name)
 	# clean up
-	new <- new %>% select(-id)
-	data_from_excel <- data_from_excel %>% select(-id)
 	if (sheetorigin == "deleted_individual_metrics") {
 		return(list(deleted=data_from_excel))
 	} else {
@@ -1636,118 +1631,9 @@ write_new_dataseries <- function(path) {
 }
 
 
-#' @title write new group metrics into the database
-#' @description New lines will be inserted in the database
-#' @param path path to file (collected from shiny button)
-#' @return message indicating success or failure at data insertion
-#' @details This function uses sqldf to create temporary table then dbExecute as
-#' this version allows to catch exceptions and sqldf does not
-#' @examples 
-#' \dontrun{
-#' if(interactive()){
-#'  path<-wg_file.choose()
-#'port <- 5432
-#'host <- "localhost"
-#'userwgeel <-"wgeel"
-#'pool <<- pool::dbPool(drv = dbDriver("PostgreSQL"),
-#'		dbname="wgeel",
-#'		host=host,
-#'		port=port,
-#'		user= userwgeel,
-#'		password= passwordwgeel) 
-#'  # path<-"C:\\Users\\cedric.briand\\Downloads\\new_biometry_2020-08-24_FR.xlsx"
-#'  write_new(path)
-#' 
-#'  }
-#' }
-#' @rdname write_new group_metrics
-write_new_group_metrics <- function(path) {
-	
-	new <- read_excel(path = path, sheet = 1, skip = 1)
-	
-	# this file is in wide format. Use a function to generate the t_groupeseries_ser table
-	# this will in practise fill in t_group_gr table and t_groupseries_grser table
-	
-	# Hilaire's code to adapt :
-#	groups = groups %>%
-#			filter(bio_id!=double_man$bio_id[1]) %>%
-#			mutate(bio_number=ifelse(bio_id==double_man$bio_id[2],
-#							sum(double_man$bio_number),
-#							bio_number),
-#					bio_length_f=ifelse(bio_id==double_man$bio_id[2],
-#							weighted.mean(double_man$bio_length_f, double_man$bio_number),
-#							bio_length_f))
-	## these are the final groups that need to be created
-#	groups <- groups %>%
-#			select(bio_lfs_code,bio_year,bio_number,
-#					bio_comment,
-#					bio_dts_datasource, sai_id) 
-#	
-#	groups_renames <- groups %>%
-#			rename(gr_lfs_code=bio_lfs_code,
-#					gr_year=bio_year,
-#					gr_number=bio_number,
-#					gr_comment=bio_comment,
-#					gr_dts_datasource=bio_dts_datasource,
-#					grsa_sai_id=sai_id) %>%
-#			bind_cols(groups)
-	
-	
-	
-	dbWriteTable(con,"group_tmp",groups,temporary=TRUE)
-	res=dbGetQuery(con,"insert into datawg.t_groupsamp_grsa(gr_year,grsa_lfs_code,gr_number,gr_comment,gr_dts_datasource,grsa_sai_id)
-					(select g.bio_year,g.bio_lfs_code,g.bio_number,g.bio_comment,g.bio_dts_datasource,g.sai_id from group_tmp g) returning gr_id")
-	
-	
-	####when there are no data, new values have incorrect type
-	new <- new %>% mutate_if(is.logical,list(as.numeric)) 
-	new <- new %>% mutate_at(vars(bio_last_update, bio_comment, bio_dts_datasource), list(as.character)) 
-	# create dataset for insertion -------------------------------------------------------------------
-	
-	
-	new <- new[, c( "bio_year", "bio_length", "bio_weight", "bio_age", 
-					"bio_perc_female", "bio_length_f", "bio_weight_f", "bio_age_f", "bio_length_m", 
-					"bio_weight_m", "bio_age_m", "bio_comment", "bio_last_update", "bio_number" ,"bis_g_in_gy", 
-					"bio_dts_datasource", "bis_ser_id" )
-	]
-	new$bio_last_update <- Sys.Date()
-	conn <- poolCheckout(pool)
-	cou_code <- (dbGetQuery(conn, statement=paste0("SELECT ser_cou_code FROM datawg.t_series_ser WHERE ser_id=",
-								new$bis_ser_id[1],";")))$ser_cou_code  
-	dbExecute(conn,"drop table if exists new_group_metrics_temp ")
-	dbWriteTable(conn,"new_group_metrics_temp",new,row.names=FALSE,temporary=TRUE)
-	
-	# Query uses temp table just created in the database 
-	query <- "insert into datawg.t_group_metrics_series_bis (
-			bio_year, bio_lfs_code, bio_length, bio_weight, bio_age, bio_perc_female,
-			bio_length_f, bio_weight_f, bio_age_f, bio_length_m, bio_weight_m, bio_age_m,
-			bio_comment, bio_last_update, bis_g_in_gy, bio_dts_datasource, bis_ser_id, bio_number 
-			)
-			select 
-			bio_year, ser_lfs_code as bio_lsf_code, bio_length, bio_weight, bio_age, bio_perc_female,
-			bio_length_f, bio_weight_f, bio_age_f, bio_length_m, bio_weight_m, bio_age_m,
-			bio_comment, bio_last_update::date, bis_g_in_gy, bio_dts_datasource, bis_ser_id, bio_number
-			from  new_group_metrics_temp
-			JOIN datawg.t_series_ser on ser_id=bis_ser_id"
-	# if fails replaces the message with this trycatch !  I've tried many ways with
-	# sqldf but trycatch failed to catch the error Hence the use of DBI
-	
-	message <- NULL
-	(nr <- tryCatch({
-							dbExecute(conn, query)
-						}, error = function(e) {
-							message <<- e
-						}, finally = {
-							dbExecute(conn,"drop table if exists new_group_metrics_temp")
-							poolReturn(conn)
-						}))
-	
-	
-	if (is.null(message))   
-		message <- sprintf(" %s new values inserted in the database", nr)
-	
-	return(list(message = message, cou_code = cou_code))
-}
+
+
+
 
 
 
@@ -1852,6 +1738,38 @@ update_series <- function(path) {
 	
 	return(list(message = message, cou_code = cou_code))
 }
+#path <-file.choose()
+#delete_dataseries(path)
+delete_dataseries <- function(path) {
+	deleted_values_table <- 	read_excel(path = path, sheet = 1, skip = 1)	
+	conn <- poolCheckout(pool)
+	cou_code = dbGetQuery(conn,paste0("SELECT ser_cou_code FROM datawg.t_series_ser WHERE ser_nameshort='",
+					deleted_values_table$ser_nameshort[1],"';"))$ser_cou_code  
+	
+	dbExecute(conn,"drop table if exists deleted_dataseries_temp ")
+	dbWriteTable(conn,"deleted_dataseries_temp",deleted_values_table, row.names=FALSE,temporary=TRUE)
+
+	query=paste("DELETE FROM datawg.t_dataseries_das WHERE das_id IN 
+					(SELECT das_id FROM deleted_dataseries_temp) RETURNING das_id ")
+	message <- NULL
+	nr <- tryCatch({
+				res <- dbGetQuery(conn, query)
+			}, error = function(e) {
+				message <<- e
+			}, finally = {
+				dbExecute(conn,"drop table if exists deleted_temp;")
+				poolReturn(conn)
+			})
+	
+	if (is.null(message))   
+		if (! all(deleted_values_table$das_id %in% res$das_id)) {
+			message <- paste("das_id not deleted :", 
+					paste(deleted_values_table$das_id[!deleted_values_table$das_id %in% res$das_id], collapse=","))
+		} else {		
+		message <- paste(nrow(deleted_values_table),"values deleted from the db")
+	}
+	return(list(message = message, cou_code = cou_code))
+}
 
 #path<-"C:\\Users\\cedric.briand\\Downloads\\modified_dataseries_2020-08-24_FR.xlsx"
 update_dataseries <- function(path) {
@@ -1905,6 +1823,64 @@ update_dataseries <- function(path) {
 	
 	return(list(message = message, cou_code = cou_code))
 }
+#' @title write new group metrics into the database
+#' @description New lines will be inserted in the database
+#' @param path path to file (collected from shiny button)
+#' @return message indicating success or failure at data insertion
+#'  path <- file.choose()
+#' TODO handle meg_qal_id somewhere (default if missing)
+write_new_group_metrics <- function(path) {
+	conn <- poolCheckout(pool)
+	on.exit(poolReturn(conn))
+	new <- read_excel(path = path, sheet = 1, skip = 1)
+
+	dbWriteTable(conn,"group_tmp",new,temporary=TRUE)
+	message <- NULL
+	#dbGetQuery(conn, "DELETE FROM datawg.t_groupseries_grser")
+	(nr <- tryCatch({
+	res0 <- dbGetQuery(conn,"insert into datawg.t_groupseries_grser(gr_year,gr_number,gr_comment,gr_dts_datasource,grser_ser_id)
+					(select distinct on (id) g.gr_year,g.gr_number,g.gr_comment,g.gr_dts_datasource,g.grser_ser_id from group_tmp g) returning gr_id, gr_year, grser_ser_id")
+	new1 <- new %>% select(-id, -gr_id) %>% inner_join(res0, by=c("gr_year","grser_ser_id"))
+
+	dbWriteTable(conn,"group_tmp1",new1,temporary=TRUE)
+	nr0 <- nrow(res0)
+	nr1 <- dbExecute(conn, "INSERT INTO datawg.t_metricgroupseries_megser(meg_gr_id, meg_mty_id, meg_value, meg_dts_datasource)
+								SELECT gr_id, meg_mty_id, meg_value, meg_dts_datasource FROM group_tmp1 ")
+	}, error = function(e) {
+							message <<- e
+						}, finally = {
+							dbExecute(conn,"drop table if exists group_tmp")
+							dbExecute(conn,"drop table if exists group_tmp1")
+						}))
+
+	
+	
+	if (is.null(message))   
+		message <- sprintf(" %s and %s new values inserted in the group and metric tables ", nr0, nr1)
+	
+	return(list(message = message, cou_code = cou_code))
+}
+
+write_updated_group_metrics <-function(){
+	#TODO
+}
+
+delete_group_metrics <- function(){
+	#TODO
+}
+
+write_new_individual_metrics <- function(){
+	#TODO
+}
+
+write_updated_individual_metrics <- function(){
+	#TODO
+}
+
+delete_individual_metrics <- function(){
+	#TODO
+}
+
 
 #path<-"C:\\Users\\cedric.briand\\Downloads\\updated_group_metrics_test.xlsx"
 #port <- 5432
