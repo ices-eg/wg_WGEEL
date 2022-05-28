@@ -690,7 +690,7 @@ AS $function$
   the_mty_type , the_mty_name   
   mty_type, mty_name FROM REF.tr_metrictype_mty where mty_id=NEW.meg_mty_id;
 
-    IF (the_mty_type == 'individual') THEN
+    IF (the_mty_type = 'individual') THEN
     RAISE EXCEPTION 'table t_metricgroup_meg, metric --> % is not a group metric', the_mty_name ;
     END IF  ;
 
