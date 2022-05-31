@@ -27,7 +27,7 @@ extract_data = function(table_dbname, quality = c(0,1,2,4), quality_check=TRUE)
              "sigmahallcat", "precodata_country", "precodata_emu","precodata_all",
 						 "t_dataseries_das", "t_series_ser","t_metricgroupseries_megser", "t_metricgroupsamp_megsa",
 						 "t_metricindseries_meiser", "t_metricindsamp_meisa","t_samplinginfo_sai","t_groupseries_grser", "t_groupsamp_grsa",
-						 "t_fishseries_fiser","t_fisamp_fisa"),
+						 "t_fishseries_fiser","t_fishsamp_fisa"),
 				 qal_column=c(rep("eel_qal_id",16), "das_qal_id", "ser_qal_id", rep("meg_qal_id",2) , rep("mei_qal_id",2), "sai_qal_id",rep("",4))
 						 )
 

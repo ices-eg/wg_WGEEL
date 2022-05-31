@@ -2333,7 +2333,7 @@ load_series<-function(path,datasource, stage="glass_eel"){
 		fn_check_columns(data=data_xls, columns=columns,	file = file, sheet=sheet, nbcol=nbcol)
 		
 		# check datasource according to sheet name, for individual and group data two columns are already filled in
-	  # for updated data and deleted data 
+		# for updated data and deleted data 
 		if (grepl("data", sheet) & grepl("new", sheet)) {
 			data_xls$das_dts_datasource <- datasource
 		}		
@@ -2341,7 +2341,7 @@ load_series<-function(path,datasource, stage="glass_eel"){
 			data_xls$gr_dts_datasource <- datasource
 			data_xls$meg_dts_datasource <- datasource
 		}
-
+		
 		if (grepl("individual", sheet)  & (grepl("new", sheet)| grepl("updated", sheet))) {
 			data_xls$gr_dts_datasource <- datasource
 			data_xls$mei_dts_datasource <- datasource
@@ -2501,48 +2501,48 @@ load_series<-function(path,datasource, stage="glass_eel"){
 			
 			
 			resmetrics <-		purrr::flatten(lapply(c("lengthmm",
-											"weightg",
-											"ageyear",
-											"eye_diam_mean_mm",
-											"pectoral_lengthmm",
-											"female_proportion",
-											'is_female_(1=female,0=male)',
-											"is_differentiated_(1=differentiated,0_undifferentiated)",	
-											"differentiated_proportion",
-											"anguillicola_proportion",
-											"anguillicola_presence(1=present,0=absent)",			
-											"anguillicola_intensity",
-											"muscle_lipidfatmeter_perc",
-											"muscle_grav_perc",
-											"sum_6_pcb",
-											"teq",
-											"evex_proportion",
-											"evex_presence_(1=present,0=absent)",			
-											"hva_proportion",
-											"hva_presence_(1=present,0=absent)",			
-											"pb",
-											"hg",
-											"cd",
-											"m_mean_lengthmm",
-											"m_mean_weightg",
-											"m_mean_ageyear",
-											"f_mean_lengthmm",
-											"f_mean_weightg",
-											"f_mean_age",
-											"g_in_gy_proportion",
-											"s_in_ys_proportion"),			
-									function(name_column){
-										if (name_column %in% colnames(data_xls)){	
-											data_error <- check_type(
-															dataset = data_xls,					
-															namedataset = sheet,
-															column=name_column,
-															country=country,
-															type="numeric")
-											return(data_error)}
-										
-									}))
-		data_error <- bind_rows(data_error,	purrr::flatten(resmetrics)	)
+									"weightg",
+									"ageyear",
+									"eye_diam_mean_mm",
+									"pectoral_lengthmm",
+									"female_proportion",
+									'is_female_(1=female,0=male)',
+									"is_differentiated_(1=differentiated,0_undifferentiated)",	
+									"differentiated_proportion",
+									"anguillicola_proportion",
+									"anguillicola_presence(1=present,0=absent)",			
+									"anguillicola_intensity",
+									"muscle_lipidfatmeter_perc",
+									"muscle_grav_perc",
+									"sum_6_pcb",
+									"teq",
+									"evex_proportion",
+									"evex_presence_(1=present,0=absent)",			
+									"hva_proportion",
+									"hva_presence_(1=present,0=absent)",			
+									"pb",
+									"hg",
+									"cd",
+									"m_mean_lengthmm",
+									"m_mean_weightg",
+									"m_mean_ageyear",
+									"f_mean_lengthmm",
+									"f_mean_weightg",
+									"f_mean_age",
+									"g_in_gy_proportion",
+									"s_in_ys_proportion"),			
+							function(name_column){
+								if (name_column %in% colnames(data_xls)){	
+									data_error <- check_type(
+											dataset = data_xls,					
+											namedataset = sheet,
+											column=name_column,
+											country=country,
+											type="numeric")
+									return(data_error)}
+								
+							}))
+			data_error <- bind_rows(data_error,	purrr::flatten(resmetrics)	)
 		} # end if grepl
 		return(list(data=data_xls,error=data_error))
 	}			
@@ -2858,7 +2858,8 @@ load_dcf<-function(path,datasource){
 		
 		###### sai_hty_code ##############
 		
-		data_error= rbind(data_error, check_type(dataset=data_xls,
+		data_error= rbind(data_error, check_type(
+						dataset=sampling_info,
 						namedataset= sheet, 
 						column="sai_hty_code",
 						country=country,
@@ -2866,14 +2867,14 @@ load_dcf<-function(path,datasource){
 		
 		# should not have any missing value
 		data_error= rbind(data_error, check_missing(
-						dataset = data_xls,
+						dataset = sampling_info,
 						namedataset = sheet, 
 						column = "sai_hty_code",
 						country = country))
 		
 		# should only correspond to the following list
 		data_error= rbind(data_error, check_values(
-						dataset=data_xls,
+						dataset=sampling_info,
 						namedataset = sheet, 
 						column = "sai_hty_code",
 						country = country,
@@ -2938,23 +2939,23 @@ load_dcf<-function(path,datasource){
 		}
 		
 		# ser_nameshort should not have any missing value
-		data_error <- rbind(data_error, check_missing(
+		data_error <- bind_rows(data_error, check_missing(
 						dataset = data_xls,						
 						namedataset = sheet,						
 						column="sai_name",
 						country=country))
 		
 		# ser_nameshort should exists
-		data_error <- rbind(data_error, check_values(
+		data_error <- bind_rows(data_error, check_values(
 						dataset = data_xls,
 						namedataset = sheet,	
 						column = "sai_name",
 						country = country,
-						values = t_series_ser$ser_nameshort))
+						values = tr_sai_list))
 		
 		#ser_id should not have any missing values for updated data and deleted data
 		# flatten used to reduce list with NULL elements
-		data_error <- rbind(data_error, 
+		data_error <- bind_rows(data_error, 
 				purrr::flatten(lapply(
 								c("fiser_ser_id",
 										"grser_ser_id"),			
@@ -2979,7 +2980,7 @@ load_dcf<-function(path,datasource){
 		# the deletion is done at the group level or fish level, for update we will check for changes in the table
 		
 		
-		data_error <- rbind(data_error, 
+		data_error <- bind_rows(data_error, 
 				
 				purrr::flatten(lapply(c(
 										"fi_id",
@@ -3021,13 +3022,13 @@ load_dcf<-function(path,datasource){
 		
 		)
 		if (!is.null(column_year)){
-			data_error <- rbind(data_error, check_missing(
+			data_error <- bind_rows(data_error, check_missing(
 							dataset = data_xls,
 							namedataset = sheet,		
 							column = column_year,
 							country = country))
 			
-			data_error <- rbind(data_error, check_type(
+			data_error <- bind_rows(data_error, check_type(
 							dataset = data_xls,					
 							namedataset= sheet,		
 							column=column_year,
@@ -3045,13 +3046,13 @@ load_dcf<-function(path,datasource){
 				"deleted_individual_metrics"="fi_date"
 		)
 		if (!is.null(column_date)){
-			data_error <- rbind(data_error, check_missing(
+			data_error <- bind_rows(data_error, check_missing(
 							dataset = data_xls,
 							namedataset = sheet,		
 							column = column_date,
 							country = country))
 			
-			data_error <- rbind(data_error, check_type(
+			data_error <- bind_rows(data_error, check_type(
 							dataset = data_xls,					
 							namedataset= sheet,		
 							column=column_date,
@@ -3064,7 +3065,7 @@ load_dcf<-function(path,datasource){
 			
 # all mty related columns should be numeric
 			
-			data_error <- rbind(data_error, 
+			resmetrics <- 
 					purrr::flatten(lapply(c("lengthmm",
 											"weightg",
 											"ageyear",
@@ -3098,16 +3099,16 @@ load_dcf<-function(path,datasource){
 											"s_in_ys_proportion"),			
 									function(name_column){
 										if (name_column %in% colnames(data_xls)){	
-											data_error <- rbind(data_error,check_type(
-															dataset = data_xls,					
-															namedataset = sheet,
-															column=name_column,
-															country=country,
-															type="numeric"))
+											data_error <- check_type(
+													dataset = data_xls,					
+													namedataset = sheet,
+													column=name_column,
+													country=country,
+													type="numeric")
 											return(data_error)}
 										
-									})))
-			
+									}))
+			data_error <- bind_rows(data_error,	purrr::flatten(resmetrics)	)
 		} # end if metrics
 		
 		return(list(data=data_xls,error=data_error))
@@ -3158,7 +3159,7 @@ load_dcf<-function(path,datasource){
 					"is_female_(1=female,0=male)","is_differentiated_(1=differentiated,0_undifferentiated)",
 					"anguillicola_presence_(1=present,0=absent)",	"anguillicola_intensity",	"muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb", "teq",
 					"evex_presence_(1=present,0=absent)","hva_presence_(1=present,0=absent)",	"pb",	"hg",	"cd"))
-	nbcol <- list(30,33,33,25,28,28) 
+	nbcol <- list(30,33,33,26,29,29) 
 	res <- purrr::pmap(list(sheet,columns,nbcol), fn_check_gr_ind)
 	data_error <- 	lapply(res,function(X)X$error) %>% bind_rows()
 	

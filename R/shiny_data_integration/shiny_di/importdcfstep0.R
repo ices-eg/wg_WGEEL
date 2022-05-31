@@ -95,7 +95,7 @@ importdcfstep0Server <- function(id,globaldata){
 				
 				
 				###########################
-				# step0load_data_dcf (same for time series)
+				# step0load_data_dcf (same for sampling info)
 				###########################
 				step0load_data_dcf<-function(){
 					validate(need(globaldata$connectOK,"No connection"))
@@ -109,11 +109,11 @@ importdcfstep0Server <- function(id,globaldata){
 					)
 					return(list(res=res,message=message))
 				}
-				# TODO adapt plotseries to plotDCF
-				plotseries <- function(series){
+				# TODO adapt plotsampling_info to plotDCF
+				plotsampling_info <- function(sampling_info){
 					output$maps_dcf<- renderLeaflet({
 								leaflet() %>% addTiles() %>%
-										addMarkers(data=series,lat=~ser_y,lng=~ser_x,label=~ser_nameshort) %>%
+										addMarkers(data=sampling_info,lat=~sai_y,lng=~sai_x,label=~sai_name) %>%
 										addPolygons(data=data$ccm_light, 
 												popup=~as.character(wso_id),
 												fill=TRUE, 
@@ -122,16 +122,16 @@ importdcfstep0Server <- function(id,globaldata){
 														bringToFront = TRUE,
 														fillColor="red",opacity=.2,
 														fill=TRUE))%>%
-										fitBounds(min(series$ser_x,na.rm=TRUE)-.1,
-												min(series$ser_y,na.rm=TRUE)-.1,
-												max(series$ser_x,na.rm=TRUE)+.1,
-												max(series$ser_y,na.rm=TRUE)+.1)
+										fitBounds(min(sampling_info$sai_x,na.rm=TRUE)-.1,
+												min(sampling_info$sai_y,na.rm=TRUE)-.1,
+												max(sampling_info$sai_x,na.rm=TRUE)+.1,
+												max(sampling_info$sai_y,na.rm=TRUE)+.1)
 								
 							})
 				}
 				
 				##################################################
-				# Events triggerred by step0_button (time series page)
+				# Events triggerred by step0_button 
 				###################################################
 				observeEvent(input$dcf_check_file_button, tryCatch({
 									
@@ -157,10 +157,10 @@ importdcfstep0Server <- function(id,globaldata){
 													rls$message <- tmp$message
 													rls$res <- tmp$res
 													# this will fill the log_datacall file (database_tools.R)
-													if(length(unique(rls$res$series$ser_cou_code[!is.na(rls$res$series$ser_cou_code)]))>1) stop(paste("More than one country there :",
-																		paste(unique(rls$res$series$ser_cou_code[!is.na(rls$res$series$ser_cou_code)]),collapse=";"), ": while there should be only one country code"))
-													cou_code <- rls$res$series$ser_cou_code[1]
-													if (nrow(rls$res$series)>0) plotseries(rls$res$series)
+													if(length(unique(rls$res$sampling_info$sai_cou_code[!is.na(rls$res$sampling_info$sai_cou_code)]))>1) stop(paste("More than one country there :",
+																		paste(unique(rls$res$sampling_info$sai_cou_code[!is.na(rls$res$sampling_info$sai_cou_code)]),collapse=";"), ": while there should be only one country code"))
+													cou_code <- rls$res$sampling_info$sai_cou_code[1]
+													if (nrow(rls$res$sampling_info)>0) plotsampling_info(rls$res$sampling_info)
 													# the following three lines might look silly but passing input$something to the log_datacall function results
 													# in an error (input not found), I guess input$something has to be evaluated within the frame of the shiny app
 													main_assessor <- input$main_assessor
@@ -168,7 +168,7 @@ importdcfstep0Server <- function(id,globaldata){
 													file_type <- "DCF data"
 													rls$file_type <- file_type
 													# this will fill the log_datacall file (database_tools.R)
-													log_datacall( "check data time series",cou_code = cou_code, message = paste(rls$message,collapse="\n"), the_metadata = rls$res$the_metadata, file_type = file_type, main_assessor = main_assessor, secondary_assessor = secondary_assessor )
+													log_datacall( "check data sampling info",cou_code = cou_code, message = paste(rls$message,collapse="\n"), the_metadata = rls$res$the_metadata, file_type = file_type, main_assessor = main_assessor, secondary_assessor = secondary_assessor )
 													paste(rls$message, collapse="\n")						
 												}
 												
@@ -181,7 +181,7 @@ importdcfstep0Server <- function(id,globaldata){
 									output$"step0_message_xls_dcf"<-renderUI(
 											HTML(
 													paste(
-															h4("Time series file checking messages (xls)"),
+															h4("sampling info file checking messages (xls)"),
 															"<p align='left'>Please click on excel",'<br/>',
 															"to download this file and correct the errors",'<br/>',
 															"and submit again in <strong>step0</strong> the file once it's corrected<p>"
@@ -195,7 +195,7 @@ importdcfstep0Server <- function(id,globaldata){
 									output$"step0_message_txt_dcf"<-renderUI(
 											HTML(
 													paste(
-															h4("Time series file checking messages (txt)"),
+															h4("Sampling info file checking messages (txt)"),
 															"<p align='left'>Please read carefully and ensure that you have",
 															"checked all possible errors. This output is the same as the table",
 															" output<p>"
@@ -203,15 +203,15 @@ importdcfstep0Server <- function(id,globaldata){
 									
 									
 									#####################
-									# DataTable integration error (TIME SERIES)
+									# DataTable integration error (sampling info)
 									########################
 									
 									output$dt_integrate_dcf <- DT::renderDataTable({
 												validate(need(input$xlfile_dcf$name != "", "Please select a data set"))
 												ls <- step0load_data_dcf()
-												if(length(unique(ls$res$series$ser_cou_code[!is.na(ls$res$series$ser_cou_code)]))>1) stop(paste("More than one country there ",
-																	paste(unique(ls$res$series$ser_cou_code[!is.na(ls$res$series$ser_cou_code)]),collapse=";"), ": while there should be only one country code"))
-												cou_code <- ls$res$series$ser_cou_code[1]
+												if(length(unique(ls$res$sampling_info$sai_cou_code[!is.na(ls$res$sampling_info$sai_cou_code)]))>1) stop(paste("More than one country there ",
+																	paste(unique(ls$res$sampling_info$sai_cou_code[!is.na(ls$res$sampling_info$sai_cou_code)]),collapse=";"), ": while there should be only one country code"))
+												cou_code <- ls$res$sampling_info$sai_cou_code[1]
 												datatable(ls$res$error,
 														rownames=FALSE,
 														filter = 'top',

@@ -7,7 +7,7 @@
 #' 
 
 
-importtsstep2UI <- function(id){
+importdcfstep2UI <- function(id){
   ns <- NS(id)
   tagList(useShinyjs(),
           tags$hr(),
@@ -26,7 +26,7 @@ importtsstep2UI <- function(id){
             ),
             column(
               width=6,
-              verbatimTextOutput(ns("textoutput_step2.1_ts"))
+              verbatimTextOutput(ns("textoutput_step2.1_dcf"))
             )
           ),
           h2("step 2.2 Update modified series"),
@@ -43,7 +43,7 @@ importtsstep2UI <- function(id){
             ),
             column(
               width=6,
-              verbatimTextOutput(ns("textoutput_step2.2_ts"))
+              verbatimTextOutput(ns("textoutput_step2.2_dcf"))
             )
           ),
           h2("step 2.3 Integrate new dataseries"),
@@ -60,7 +60,7 @@ importtsstep2UI <- function(id){
             ),
             column(
               width=6,
-              verbatimTextOutput(ns("textoutput_step2.3_ts"))
+              verbatimTextOutput(ns("textoutput_step2.3_dcf"))
             )
           ),
           h2("step 2.4 Update modified dataseries"),
@@ -78,7 +78,7 @@ importtsstep2UI <- function(id){
             ),
             column(
               width=6,
-              verbatimTextOutput(ns("textoutput_step2.4_ts"))
+              verbatimTextOutput(ns("textoutput_step2.4_dcf"))
             )
           ),
           h2("step 2.5 Integrate new biometry"),
@@ -94,7 +94,7 @@ importtsstep2UI <- function(id){
               actionButton(ns("integrate_new_biometry_button"), "Proceed")
             ),
             column(width=6,
-                   verbatimTextOutput(ns("textoutput_step2.5_ts"))
+                   verbatimTextOutput(ns("textoutput_step2.5_dcf"))
             )
           ),
           h2("step 2.6 Update modified biometry"),
@@ -111,7 +111,7 @@ importtsstep2UI <- function(id){
             ),
             column(
               width=6,
-              verbatimTextOutput(ns("textoutput_step2.6_ts"))
+              verbatimTextOutput(ns("textoutput_step2.6_dcf"))
             )
           )
 
@@ -125,12 +125,12 @@ importtsstep2UI <- function(id){
 #'
 #' @param id, character used to specify namespace, see \code{shiny::\link[shiny]{NS}}
 #' @param globaldata a reactive value with global variable
-#' @param loaded_data_ts data from step0
+#' @param loaded_data_dcf data from step0
 #'
 #' @return loaded data and file type
 
 
-importtsstep2Server <- function(id,globaldata,loaded_data_ts){
+importdcfstep2Server <- function(id,globaldata,loaded_data_dcf){
   moduleServer(id,
                function(input, output, session) {
                  data <- reactiveValues()
@@ -139,9 +139,9 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts){
                      ##################################################
                      # clean up
                      #################################################
-                   loaded_data_ts$res
+                   loaded_data_dcf$res
                    tryCatch({
-                     output$textoutput_step2.1_ts <- renderText("")
+                     output$textoutput_step2.1_dcf <- renderText("")
                
                      reset("xl_modified_biometry")
                      reset("xl_new_biometry")
@@ -151,12 +151,12 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts){
                      reset("xl_new_series")
                      
                      
-                     output$"textoutput_step2.1_ts" <- renderText("")
-                     output$"textoutput_step2.2_ts" <- renderText("")
-                     output$"textoutput_step2.3_ts" <- renderText("")
-                     output$"textoutput_step2.4_ts" <- renderText("")
-                     output$"textoutput_step2.5_ts" <- renderText("")
-                     output$"textoutput_step2.6_ts" <- renderText("")
+                     output$"textoutput_step2.1_dcf" <- renderText("")
+                     output$"textoutput_step2.2_dcf" <- renderText("")
+                     output$"textoutput_step2.3_dcf" <- renderText("")
+                     output$"textoutput_step2.4_dcf" <- renderText("")
+                     output$"textoutput_step2.5_dcf" <- renderText("")
+                     output$"textoutput_step2.6_dcf" <- renderText("")
                     
 
                      
@@ -185,14 +185,14 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts){
                      cou_code <- rls$cou_code
                      main_assessor <- input$main_assessor
                      secondary_assessor <- input$secondary_assessor
-                     file_type <- loaded_data_ts$file_type
+                     file_type <- loaded_data_dcf$file_type
                      log_datacall("new series integration", cou_code = cou_code, message = sQuote(message), 
                                   the_metadata = NULL, file_type = file_type, main_assessor = main_assessor, 
                                   secondary_assessor = secondary_assessor)
                      return(message)
                    }
                    
-                   output$textoutput_step2.1_ts<-renderText({
+                   output$textoutput_step2.1_dcf<-renderText({
                      validate(need(globaldata$connectOK,"No connection"))
                      # call to  function that loads data
                      # this function does not need to be reactive
@@ -227,14 +227,14 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts){
                      cou_code <- rls$cou_code
                      main_assessor <- input$main_assessor
                      secondary_assessor <- input$secondary_assessor
-                     file_type <- loaded_data_ts$file_type
+                     file_type <- loaded_data_dcf$file_type
                      log_datacall("update series", cou_code = cou_code, message = sQuote(message), 
                                   the_metadata = NULL, file_type = file_type, main_assessor = main_assessor, 
                                   secondary_assessor = secondary_assessor)
                      return(message)
                    }
                    
-                   output$textoutput_step2.2_ts<-renderText({
+                   output$textoutput_step2.2_dcf<-renderText({
                      validate(need(globaldata$connectOK,"No connection"))
                      # call to  function that loads data
                      # this function does not need to be reactive
@@ -268,14 +268,14 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts){
                      cou_code <- rls$cou_code
                      main_assessor <- input$main_assessor
                      secondary_assessor <- input$secondary_assessor
-                     file_type <- loaded_data_ts$file_type
+                     file_type <- loaded_data_dcf$file_type
                      log_datacall("new dataseries integration", cou_code = cou_code, message = sQuote(message), 
                                   the_metadata = NULL, file_type = file_type, main_assessor = main_assessor, 
                                   secondary_assessor = secondary_assessor)
                      return(message)
                    }
                    
-                   output$textoutput_step2.3_ts <- renderText({
+                   output$textoutput_step2.3_dcf <- renderText({
                      validate(need(globaldata$connectOK,"No connection"))
                      # call to  function that loads data
                      # this function does not need to be reactive
@@ -309,14 +309,14 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts){
                      cou_code <- rls$cou_code
                      main_assessor <- input$main_assessor
                      secondary_assessor <- input$secondary_assessor
-                     file_type <- loaded_data_ts$file_type
+                     file_type <- loaded_data_dcf$file_type
                      log_datacall("update dataseries", cou_code = cou_code, message = sQuote(message), 
                                   the_metadata = NULL, file_type = file_type, main_assessor = main_assessor, 
                                   secondary_assessor = secondary_assessor)
                      return(message)
                    }
                    
-                   output$textoutput_step2.4_ts <- renderText({
+                   output$textoutput_step2.4_dcf <- renderText({
                      validate(need(globaldata$connectOK,"No connection"))
                      # call to  function that loads data
                      # this function does not need to be reactive
@@ -350,14 +350,14 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts){
                      cou_code <- rls$cou_code
                      main_assessor <- input$main_assessor
                      secondary_assessor <- input$secondary_assessor
-                     file_type <- loaded_data_ts$file_type
+                     file_type <- loaded_data_dcf$file_type
                      log_datacall("write new biometry", cou_code = cou_code, message = sQuote(message), 
                                   the_metadata = NULL, file_type = file_type, main_assessor = main_assessor, 
                                   secondary_assessor = secondary_assessor)
                      return(message)
                    }
                    
-                   output$textoutput_step2.5_ts <- renderText({
+                   output$textoutput_step2.5_dcf <- renderText({
                      validate(need(globaldata$connectOK,"No connection"))
                      # call to  function that loads data
                      # this function does not need to be reactive
@@ -391,14 +391,14 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts){
                      cou_code <- rls$cou_code
                      main_assessor <- input$main_assessor
                      secondary_assessor <- input$secondary_assessor
-                     file_type <- loaded_data_ts$file_type
+                     file_type <- loaded_data_dcf$file_type
                      log_datacall("update biometry", cou_code = cou_code, message = sQuote(message), 
                                   the_metadata = NULL, file_type = file_type, main_assessor = main_assessor, 
                                   secondary_assessor = secondary_assessor)
                      return(message)
                    }
                    
-                   output$textoutput_step2.6_ts <- renderText({
+                   output$textoutput_step2.6_dcf <- renderText({
                      validate(need(globaldata$connectOK,"No connection"))
                      # call to  function that loads data
                      # this function does not need to be reactive

@@ -75,8 +75,8 @@ ui <- fluidPage(spsDepend("toastr"),
 								),
 								tabItem("Importdcfmodule",
 										importdcfstep0UI("importdcfstep0module"),
-										importdcfstep1UI("importdcfstep1module")#,
-									#	importdcfstep2UI("importdcfstep2module")
+										importdcfstep1UI("importdcfstep1module"),
+										importdcfstep2UI("importdcfstep2module")
 								),
 								tabItem("newparticipantstabmodule",
 										newparticipantsUI("newparticipantsmodule")),

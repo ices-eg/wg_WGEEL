@@ -32,7 +32,7 @@ importdcfstep1UI <- function(id){
 							DT::dataTableOutput(ns("dt_modified_sampling")),	
 							h3("modified sampling : what changed ?"),
 							DT::dataTableOutput(ns("dt_highlight_change_sampling")),
-								h3("modified grouped metrics"),	
+							h3("modified grouped metrics"),	
 							DT::dataTableOutput(ns("dt_modified_grouped_metrics")),
 							htmlOutput(ns("step1_message_modified_grouped_metrics")),
 							h3("modified grouped metrics : what changed ?"),
@@ -55,17 +55,17 @@ importdcfstep1UI <- function(id){
 #'
 #' @param id, character used to specify namespace, see \code{shiny::\link[shiny]{NS}}
 #' @param globaldata a reactive value with global variable
-#' @param loaded_data_ts data from step0
+#' @param loaded_data_cdf data from step0
 #'
 #' @return loaded data and file type
 
 
-importdcfstep1Server <- function(id,globaldata,loaded_data_ts){
+importdcfstep1Server <- function(id,globaldata,loaded_data_dcf){
 	moduleServer(id,
 			function(input, output, session) {
 				
 				observe({
-							loaded_data_ts$res
+							loaded_data_dcf$res
 							tryCatch({
 										
 										##################################################
@@ -77,7 +77,7 @@ importdcfstep1Server <- function(id,globaldata,loaded_data_ts){
 										output$dt_new_sampling <- renderDataTable(data.frame(),
 												options = list(searching = FALSE,paging = FALSE,
 														language = list(zeroRecords = "Not run yet")))  
-																		
+										
 										output$step1_message_new_group_metrics <- renderText("")
 										output$dt_new_group_metrics <- renderDataTable(data.frame(),
 												options = list(searching = FALSE,paging = FALSE,
@@ -98,8 +98,8 @@ importdcfstep1Server <- function(id,globaldata,loaded_data_ts){
 												data.frame(),
 												options = list(searching = FALSE,paging = FALSE,
 														language = list(zeroRecords = "Not run yet")))   
-																				
-													
+										
+										
 										output$step1_message_modified_group_metrics  <- renderText("") 
 										output$dt_modified_group_metrics <- renderDataTable(
 												data.frame(),
@@ -124,7 +124,7 @@ importdcfstep1Server <- function(id,globaldata,loaded_data_ts){
 														language = list(zeroRecords = "Not run yet")))   
 										
 										
-											output$step1_message_deleted_group_metrics  <- renderText("")
+										output$step1_message_deleted_group_metrics  <- renderText("")
 										output$dt_deleted_group_metrics <- renderDataTable(
 												data.frame(),
 												options = list(searching = FALSE,paging = FALSE,
@@ -152,17 +152,16 @@ importdcfstep1Server <- function(id,globaldata,loaded_data_ts){
 				# with duplicates values
 				#############################
 				observeEvent(input$check_duplicate_button_dcf, {
-							browser()
 							tryCatch({
 										
 										
 										# see step0load_data returns a list with res and messages
 										# and within res data and a dataframe of errors
 										validate(
-												need(length(loaded_data_ts$res) > 0, "Please select a data set")
+												need(length(loaded_data_dcf$res) > 0, "Please select a data set")
 										)
 										validate(need(globaldata$connectOK,"No connection"))
-										res <- isolate(loaded_data_ts$res)
+										res <- isolate(loaded_data_dcf$res)
 										sampling <- res$sampling_info
 										new_group_metrics <- res$new_group_metrics
 										updated_group_metrics <- res$updated_group_metrics
@@ -170,14 +169,14 @@ importdcfstep1Server <- function(id,globaldata,loaded_data_ts){
 										new_individual_metrics <- res$new_individual_metrics
 										updated_individual_metrics <- res$updated_individual_metrics
 										deleted_individual_metrics <- res$deleted_individual_metrics
-														
-													
+										
+										
 										# bis_sai_id is missing from excel so I'm reloading it
 										if (nrow(new_group_metrics)>0){
 											new_group_metrics <-  left_join(new_group_metrics, t_samplinginfo_sai[,c("sai_id","sai_name")], by="sai_name")
 											new_group_metrics <- rename(new_group_metrics,"grsai_sai_id"="sai_id") # use the true name in the table
 										}
-		
+										
 										if (nrow(new_individual_metrics)>0){
 											new_individual_metrics <- left_join(new_individual_metrics, t_samplinginfo_sai[,c("sai_id","sai_name")], by="sai_name")
 											new_individual_metrics <- rename(new_individual_metrics,"fisa_sai_id"="sai_id")
@@ -188,11 +187,12 @@ importdcfstep1Server <- function(id,globaldata,loaded_data_ts){
 										t_fishsamp_fisa <- extract_data("t_fishsamp_fisa", quality_check=FALSE)
 										t_metricgroupsamp_megsa <- extract_data("t_metricgroupsamp_megsa", quality_check=FALSE)
 										t_metricindsamp_meisa <- extract_data("t_metricindsamp_meisa", quality_check=FALSE)
-			
-									if (nrow(sampling)>0){
-											list_comp_sampling <- compare_with_database_sampling(data_from_excel=sampling, data_from_base=t_samplinginfo_sai)
-										}
-																					
+										
+										validate(need(nrow(sampling)>0), "No sampling info, cannot continue")
+										list_comp_sampling <- compare_with_database_sampling(data_from_excel=sampling, data_from_base=t_samplinginfo_sai)
+										current_cou_code <- list_comp_sampling$current_cou_code
+										
+										
 										
 										if (nrow(new_group_metrics)>0){
 											list_comp_new_group_metrics <- compare_with_database_metric_group(data_from_excel=new_group_metrics, data_from_base=t_metricgroupsamp_megsa, sheetorigin="new_group_metrics")
@@ -275,7 +275,7 @@ importdcfstep1Server <- function(id,globaldata,loaded_data_ts){
 													data_from_base=t_metricindsamp_meisa,
 													sheetorigin="deleted_individual_metrics")
 										}
-										current_cou_code <- list_comp_sampling$current_cou_code
+										
 										
 										#cat("step1")
 										# step1 new sampling -------------------------------------------------------------
@@ -322,7 +322,7 @@ importdcfstep1Server <- function(id,globaldata,loaded_data_ts){
 																		columnDefs = list(list(width = '200px', targets = c(4, 8))),
 																		buttons=list(
 																				list(extend="excel",
-																						filename = paste0("new_sampling_",loaded_data_ts$file_type, "_",Sys.Date(),"_",current_cou_code)))
+																						filename = paste0("new_sampling_",loaded_data_dcf$file_type, "_",Sys.Date(),"_",current_cou_code)))
 																))
 													})
 										}
@@ -364,7 +364,7 @@ importdcfstep1Server <- function(id,globaldata,loaded_data_ts){
 																		scrollX = T,
 																		buttons=list(
 																				list(extend="excel",
-																						filename = paste0("new_group_metrics_",loaded_data_ts$file_type,"_",Sys.Date(),"_",current_cou_code)))
+																						filename = paste0("new_group_metrics_",loaded_data_dcf$file_type,"_",Sys.Date(),"_",current_cou_code)))
 																))
 													})
 										}
@@ -406,7 +406,7 @@ importdcfstep1Server <- function(id,globaldata,loaded_data_ts){
 																		scrollX = T,
 																		buttons=list(
 																				list(extend="excel",
-																						filename = paste0("new_individual_metrics_",loaded_data_ts$file_type,"_",Sys.Date(),"_",current_cou_code)))
+																						filename = paste0("new_individual_metrics_",loaded_data_dcf$file_type,"_",Sys.Date(),"_",current_cou_code)))
 																))
 													})
 										}
@@ -454,7 +454,7 @@ importdcfstep1Server <- function(id,globaldata,loaded_data_ts){
 																		scrollX = T,
 																		buttons=list(
 																				list(extend="excel",
-																						filename = paste0("modified_sampling_",loaded_data_ts$file_type,"_",Sys.Date(),"_",current_cou_code)))
+																						filename = paste0("modified_sampling_",loaded_data_dcf$file_type,"_",Sys.Date(),"_",current_cou_code)))
 																))
 													})
 											output$dt_highlight_change_sampling <-DT::renderDataTable({
@@ -519,7 +519,7 @@ importdcfstep1Server <- function(id,globaldata,loaded_data_ts){
 																		scrollX = T,
 																		buttons=list(
 																				list(extend="excel",
-																						filename = paste0("modified_group_metrics_",loaded_data_ts$file_type,"_",Sys.Date(),"_",current_cou_code)))
+																						filename = paste0("modified_group_metrics_",loaded_data_cdf$file_type,"_",Sys.Date(),"_",current_cou_code)))
 																))
 													})
 											
@@ -578,7 +578,7 @@ importdcfstep1Server <- function(id,globaldata,loaded_data_ts){
 																		scrollX = T,
 																		buttons=list(
 																				list(extend="excel",
-																						filename = paste0("modified_individual_metrics_",loaded_data_ts$file_type,"_",Sys.Date(),"_",current_cou_code)))
+																						filename = paste0("modified_individual_metrics_",loaded_data_cdf$file_type,"_",Sys.Date(),"_",current_cou_code)))
 																))
 													})
 											
@@ -634,7 +634,7 @@ importdcfstep1Server <- function(id,globaldata,loaded_data_ts){
 																		scrollX = T,
 																		buttons=list(
 																				list(extend="excel",
-																						filename = paste0("deleted_group_metrics_",loaded_data_ts$file_type,"_",Sys.Date(),"_",current_cou_code)))
+																						filename = paste0("deleted_group_metrics_",loaded_data_cdf$file_type,"_",Sys.Date(),"_",current_cou_code)))
 																))
 													})
 										}
@@ -677,7 +677,7 @@ importdcfstep1Server <- function(id,globaldata,loaded_data_ts){
 																		scrollX = T,
 																		buttons=list(
 																				list(extend="excel",
-																						filename = paste0("deleted_individual_metrics_",loaded_data_ts$file_type,"_",Sys.Date(),"_",current_cou_code)))
+																						filename = paste0("deleted_individual_metrics_",loaded_data_cdf$file_type,"_",Sys.Date(),"_",current_cou_code)))
 																))
 													})
 										}

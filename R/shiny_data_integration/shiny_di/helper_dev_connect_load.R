@@ -54,7 +54,7 @@ load_database <- function(){
 					
 #					#205-shiny-integration-for-dcf-data 
 					query <- "SELECT distinct sai_id FROM datawg.t_samplinginfo_sai"
-					tr_sai_list <- dbGetQuery(pool, sqlInterpolate(ANSI(), query)) 
+					tr_sai_list <<- dbGetQuery(pool, sqlInterpolate(ANSI(), query)) 
 
 				
 #					#205-shiny-integration-for-dcf-data

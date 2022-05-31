@@ -107,7 +107,7 @@ shinyServer(function(input, output, session){
 						
 						#205-shiny-integration-for-dcf-data 
 						query <- "SELECT distinct sai_id FROM datawg.t_samplinginfo_sai"
-						tr_sai_list <- dbGetQuery(pool, sqlInterpolate(ANSI(), query)) 
+						tr_sai_list <<- dbGetQuery(pool, sqlInterpolate(ANSI(), query)) 
 						#isolate({data$sai_list <- tr_sai_list$ser_id})
 						
 						#205-shiny-integration-for-dcf-data
@@ -162,8 +162,8 @@ shinyServer(function(input, output, session){
 			importtsstep2Server("importtsstep2module", data, loaded_data_ts) # globaldata <- data in the module 
 			
 			loaded_data_dcf <- importdcfstep0Server("importdcfstep0module", globaldata=data)
-			importtsstep1Server("importdcfstep1module", data, loaded_data_dcf) # globaldata <- data in the module 
-			importtsstep2Server("importdcfstep2module", data, loaded_data_dcf) # globaldata <- data in the module
+			importdcfstep1Server("importdcfstep1module", data, loaded_data_dcf) # globaldata <- data in the module 
+			importdcfstep2Server("importdcfstep2module", data, loaded_data_dcf) # globaldata <- data in the module
 			
 			newparticipants <- newparticipantsServer("newparticipantsmodule",data)
 			plotduplicatesServer("plotduplicatesmodule",data)
