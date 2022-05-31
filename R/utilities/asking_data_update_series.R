@@ -6,7 +6,6 @@
 #######################################################################################
 
 
-=======
 # TODO USE bind_rows
 
 # put the current year there
@@ -524,7 +523,7 @@ for (country in country_code ){
   gc()
   cat("country: ",country,"\n")
   create_datacall_file_series(country, 
-                              name="Eel_data_Call_2022_Annex 9_Other_Sampling_Data", 
+                              name="Eel_data_Call_2022_Annex9_Other_Sampling_Data", 
                               ser_typ_id=0,
                               type="other")
 }
