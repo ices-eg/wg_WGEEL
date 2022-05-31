@@ -129,19 +129,31 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 										
 										
 										output$step1_message_modified_group_metrics  <- renderText("") 
+										
 										output$dt_modified_group_metrics <- renderDataTable(
+												data.frame(),
+												options = list(searching = FALSE,paging = FALSE,
+														language = list(zeroRecords = "Not run yet"))) 
+										
+										output$dt_highlight_change_group_metrics <- renderDataTable(
 												data.frame(),
 												options = list(searching = FALSE,paging = FALSE,
 														language = list(zeroRecords = "Not run yet")))   
 										
 										output$step1_message_modified_individual_metrics  <- renderText("") 
+										
 										output$dt_modified_individual_metrics <- renderDataTable(
 												data.frame(),
 												options = list(searching = FALSE,paging = FALSE,
 														language = list(zeroRecords = "Not run yet"))) 
 										
+										output$dt_highlight_change_individual_metrics <- renderDataTable(
+												data.frame(),
+												options = list(searching = FALSE,paging = FALSE,
+														language = list(zeroRecords = "Not run yet")))   
 										
 										output$step1_message_deleted_dataseries <- renderText("")
+										
 										output$dt_deleted_dataseries <- renderDataTable(data.frame(),
 												options = list(searching = FALSE,paging = FALSE,
 														language = list(zeroRecords = "Not run yet"))) 
@@ -153,6 +165,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 														language = list(zeroRecords = "Not run yet")))   
 										
 										output$step1_message_deleted_individual_metrics  <- renderText("") 
+										
 										output$dt_deleted_individual_metrics <- renderDataTable(
 												data.frame(),
 												options = list(searching = FALSE,paging = FALSE,
