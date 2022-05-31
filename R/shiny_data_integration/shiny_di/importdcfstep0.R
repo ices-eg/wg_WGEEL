@@ -78,7 +78,7 @@ importdcfstep0Server <- function(id,globaldata){
 									output$"step0_message_xls_dcf"<-renderText("")
 								},error = function(e) {
 									showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
-								}))
+								}), ignoreInit = TRUE)
 				
 				###########################
 				# step0_filepath_dcf 
@@ -235,7 +235,7 @@ importdcfstep0Server <- function(id,globaldata){
 											})
 								},error = function(e) {
 									showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
-								}))
+								}), ignoreInit = TRUE)
 				
 				
 				

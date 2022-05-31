@@ -352,7 +352,7 @@ importstep1Server <- function(id,globaldata, loaded_data){
                    #data$new <- new # new is stored in the reactive dataset to be inserted later.      
                  },error = function(e) {
                    showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
-                 }))
+                 }), ignoreInit = TRUE)
            
                })
 }

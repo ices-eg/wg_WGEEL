@@ -78,7 +78,7 @@ importstep0Server <- function(id,globaldata){
                    output$"step0_message_xls"<-renderText("")
                  },error = function(e) {
                    showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
-                 }))
+                 }), ignoreInit = TRUE)
                  
                  
                  
@@ -180,7 +180,7 @@ importstep0Server <- function(id,globaldata){
                        
                      }
                      
-                   }) 			
+                   }, ignoreInit = TRUE) 			
                    
                    ##################################
                    # Actively generates UI component on the ui side 

@@ -296,7 +296,7 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts){
 											})  
 								},error = function(e) {
 									showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
-								}))			
+								}), ignoreInit = TRUE)			
 				
 				# 2.1.2 updated series  --------------------------------------------------------
 				
@@ -338,7 +338,7 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts){
 											})  
 								},error = function(e) {
 									showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
-								}))	
+								}), ignoreInit = TRUE)	
 				
          # 2.2.1 deleted dataseries  --------------------------------------------------------							
 				
@@ -379,7 +379,7 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts){
 											})  
 								},error = function(e) {
 									showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
-								}))	
+								}), ignoreInit = TRUE)	
 				
 				# 2.2.2 new dataseries  --------------------------------------------------------							
 				
@@ -420,7 +420,7 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts){
 											})  
 								},error = function(e) {
 									showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
-								}))	
+								}), ignoreInit = TRUE)	
 				
 				# 2.2.3 update modified dataseries  --------------------------------------------------------							
 				
@@ -461,7 +461,7 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts){
 											})  
 								},error = function(e) {
 									showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
-								}))	
+								}), ignoreInit = TRUE)	
 				
 				# 2.3.1 deleted group metrics series  --------------------------------------------------------							
 				
@@ -502,7 +502,7 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts){
 											})  
 								},error = function(e) {
 									showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
-								}))
+								}), ignoreInit = TRUE)
 				
 				# 2.3.2 Integrate new group metrics series  --------------------------------------------------------							
 				
@@ -543,7 +543,7 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts){
 											})  
 								},error = function(e) {
 									showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
-								}))
+								}), ignoreInit = TRUE)
 				
 				# 2.3.3 update modified group metrics  --------------------------------------------------------							
 				
@@ -584,7 +584,7 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts){
 											})  
 								},error = function(e) {
 									showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
-								}))	
+								}), ignoreInit = TRUE)	
 				
 				# 2.4.1 Deleted individual metrics --------------------------------------------------------							
 				
@@ -625,7 +625,7 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts){
 											})  
 								},error = function(e) {
 									showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
-								}))
+								}), ignoreInit = TRUE)
 				
 				# 2.4.2 Integrate new individual metrics --------------------------------------------------------							
 				
@@ -666,7 +666,7 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts){
 											})  
 								},error = function(e) {
 									showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
-								}))
+								}), ignoreInit = TRUE)
 				
 				# 2.4.3 updated individual metrics  --------------------------------------------------------							
 				
@@ -707,7 +707,7 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts){
 											})  
 								},error = function(e) {
 									showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
-								}))		
+								}), ignoreInit = TRUE)		
 				
 				
 			}

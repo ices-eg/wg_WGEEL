@@ -95,9 +95,7 @@ shinyServer(function(input, output, session){
 						query <- "SELECT * from ref.tr_typeseries_typ order by typ_name"
 						tr_typeseries_typt <- dbGetQuery(pool, sqlInterpolate(ANSI(), query))  
 						typ_id <- tr_typeseries_typt$typ_id
-						
-		
-						
+												
 						query <- "SELECT distinct ser_nameshort from datawg.t_series_ser"
 						tr_series_list <- dbGetQuery(pool, sqlInterpolate(ANSI(), query))   
 						isolate({data$ser_list <- tr_series_list$ser_nameshort})
@@ -163,7 +161,9 @@ shinyServer(function(input, output, session){
 			importtsstep1Server("importtsstep1module", data, loaded_data_ts) # globaldata <- data in the module 
 			importtsstep2Server("importtsstep2module", data, loaded_data_ts) # globaldata <- data in the module 
 			
-			loaded_data_dcf <- importdcfstep0Server("importstep0dcf", globaldata=data)
+			loaded_data_dcf <- importdcfstep0Server("importdcfstep0module", globaldata=data)
+			importtsstep1Server("importdcfstep1module", data, loaded_data_dcf) # globaldata <- data in the module 
+			importtsstep2Server("importdcfstep2module", data, loaded_data_dcf) # globaldata <- data in the module
 			
 			newparticipants <- newparticipantsServer("newparticipantsmodule",data)
 			plotduplicatesServer("plotduplicatesmodule",data)

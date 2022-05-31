@@ -203,7 +203,7 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts){
                    })  
                  },error = function(e) {
                    showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
-                 }))			
+                 }), ignoreInit = TRUE)			
                  
                  # 2.2 update modified series  --------------------------------------------------------
                  
@@ -245,7 +245,7 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts){
                    })  
                  },error = function(e) {
                    showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
-                 }))	
+                 }), ignoreInit = TRUE)	
                  
                  # 2.3 new dataseries  --------------------------------------------------------							
                  
@@ -286,7 +286,7 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts){
                    })  
                  },error = function(e) {
                    showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
-                 }))	
+                 }), ignoreInit = TRUE)	
                  
                  # 2.4 update modified dataseries  --------------------------------------------------------							
                  
@@ -327,7 +327,7 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts){
                    })  
                  },error = function(e) {
                    showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
-                 }))	
+                 }), ignoreInit = TRUE)	
                  
                  # 2.5 Integrate new biometry  --------------------------------------------------------							
                  
@@ -368,7 +368,7 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts){
                    })  
                  },error = function(e) {
                    showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
-                 }))
+                 }), ignoreInit = TRUE)
                  
                  # 2.6 update modified biometries  --------------------------------------------------------							
                  
@@ -409,7 +409,7 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts){
                    })  
                  },error = function(e) {
                    showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
-                 }))					  
+                 }), ignoreInit = TRUE)					  
                  
 
                }
