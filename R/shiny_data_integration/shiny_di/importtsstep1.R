@@ -215,7 +215,6 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 										new_data <- left_join(new_data, t_series_ser[,c("ser_id","ser_nameshort")], by="ser_nameshort")
 										new_data <- rename(new_data,"das_ser_id"="ser_id")
 										
-										# bis_ser_id is missing from excel so I'm reloading it
 										if (nrow(new_group_metrics)>0){
 											new_group_metrics <-  left_join(new_group_metrics, t_series_ser[,c("ser_id","ser_nameshort")], by="ser_nameshort")
 											new_group_metrics <- rename(new_group_metrics,"grser_ser_id"="ser_id") # use the true name in the table
@@ -506,14 +505,14 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 										# step1 new group_metrics -------------------------------------------------------------
 										
 										if (nrow(list_comp_group_metrics$new)==0) {
-											output$step1_message_new_biometry <- renderUI(
+											output$step1_message_new_group_metrics <- renderUI(
 													HTML(
 															paste(
 																	h4("No new group metrics")
 															)))
-											output$dt_new_biometry <-  renderDataTable(data.frame(),
+											output$dt_new_group_metrics <-  renderDataTable(data.frame(),
 													options = list(searching = FALSE,paging = FALSE,
-															language = list(zeroRecords = "No biometry")))
+															language = list(zeroRecords = "No group metrics")))
 											
 											
 										} else {
@@ -549,14 +548,14 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 										# step1 new individual_metrics -------------------------------------------------------------
 										
 										if (nrow(list_comp_individual_metrics$new)==0) {
-											output$step1_message_new_biometry <- renderUI(
+											output$step1_message_new_individual_metrics <- renderUI(
 													HTML(
 															paste(
 																	h4("No new individual metrics")
 															)))
-											output$dt_new_biometry <-  renderDataTable(data.frame(),
+											output$dt_new_individual_metrics <-  renderDataTable(data.frame(),
 													options = list(searching = FALSE,paging = FALSE,
-															language = list(zeroRecords = "No biometry")))
+															language = list(zeroRecords = "No individual metrics")))
 											
 											
 										} else {
@@ -931,7 +930,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 										# step1 deleted individual_metrics -------------------------------------------------------------
 										
 										if (nrow(list_comp_deleted_individual_metrics$deleted)==0) {
-											output$step1_message_deleted_biometry <- renderUI(
+											output$step1_message_deleted_metrics <- renderUI(
 													HTML(
 															paste(
 																	h4("No deleted individual metrics")

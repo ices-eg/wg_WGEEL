@@ -52,14 +52,14 @@ load_database <- function(){
 					# tr_type_typ<-extract_ref('Type of series') this works also !
 					tr_typeseries_typt<<-tr_typeseries_typt
 					
-#					#205-shiny-integration-for-dcf-data TODO CHECK IF USED
-#					query <- "SELECT distinct sai_id FROM datawg.t_samplinginfo_sai"
-#					tr_sai_list <- dbGetQuery(pool, sqlInterpolate(ANSI(), query)) 
-#					isolate({data$sai_list <- tr_sai_list$ser_id})
-#					
+#					#205-shiny-integration-for-dcf-data 
+					query <- "SELECT distinct sai_id FROM datawg.t_samplinginfo_sai"
+					tr_sai_list <- dbGetQuery(pool, sqlInterpolate(ANSI(), query)) 
+
+				
 #					#205-shiny-integration-for-dcf-data
-#					query <- "SELECT * from ref.tr_metrictype_mty"
-#					tr_metrictype_mty <<- dbGetQuery(pool, sqlInterpolate(ANSI(), query))
+					query <- "SELECT * from ref.tr_metrictype_mty"
+					tr_metrictype_mty <<- dbGetQuery(pool, sqlInterpolate(ANSI(), query))
 #					
 					#205-shiny-integration-for-dcf-data
 

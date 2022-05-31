@@ -88,13 +88,7 @@ importdcfstep0Server <- function(id,globaldata){
 							inFile_dcf <- input$xlfile_dcf      
 							if (is.null(inFile_dcf)){        return(NULL)
 							} else {
-								data$path_step0_dcf <- inFile_dcf$datapath #path to a temp file
-#                     if (grepl(c("glass"),tolower(inFile_dcf$name))) 
-#                       updateRadioButtons(session, "file_type_dcf", selected = "glass_eel")
-#                     if (grepl(c("yellow"),tolower(inFile_dcf$name)))
-#                       updateRadioButtons(session, "file_type_dcf", selected = "yellow_eel")
-#                     if (grepl(c("silver"),tolower(inFile_dcf$name)))
-#                       updateRadioButtons(session, "file_type_dcf", selected = "silver_eel")						
+								data$path_step0_dcf <- inFile_dcf$datapath #path to a temp file				
 							}
 						}) 			
 				
@@ -109,19 +103,9 @@ importdcfstep0Server <- function(id,globaldata){
 					isolate(if (is.null(data$path_step0_dcf)) return(NULL))
 					
 
+					message<-capture.output(res <- load_dcf(data$path_step0_dcf, 
+									datasource = the_eel_datasource)
 					
-					# TODO modify load_series to load_dcf, change the arguments
-					message<-capture.output(res <- load_series(data$path_step0_dcf, 
-									datasource = the_eel_datasource,
-									stage="glass_eel")
-					
-					# -------------------------------------------------------------				
-					# see  #130			https://github.com/ices-eg/wg_WGEEL/issues/130			
-					#						"biometry"={
-					#							message<-capture.output(res<-load_biometry(data$path_step0, 
-					#											datasource = the_eel_datasource ))},
-					#						}
-					#---------------------------------------------------------------	
 					)
 					return(list(res=res,message=message))
 				}
