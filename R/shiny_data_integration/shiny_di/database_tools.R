@@ -751,6 +751,7 @@ compare_with_database_metric_ind <- function(
 	data_from_excel <- data_from_excel %>% mutate_if(is.logical,list(as.numeric)) 
 	data_from_excel <- data_from_excel %>% mutate_at(vars("fi_comment", "ser_nameshort"),list(as.character)) 	
 	data_from_excel <- data_from_excel %>% mutate_at(vars("fi_date"),list(as.Date)) 
+	data_from_excel <- data_from_excel %>% mutate_at(vars("fiser_year"),list(as.numeric)) 
 	data_from_excel$sheetorigin <- sheetorigin
 	data_from_excel <- mutate(data_from_excel,"id" = row_number()) # this one serves as joining later
 	if (sheetorigin == "new_individual_metrics") data_from_excel <- data_from_excel %>% mutate(fi_id = NA)
@@ -774,7 +775,7 @@ compare_with_database_metric_ind <- function(
 					names_to="mty_name"
 			) %>%
 			drop_na(mei_value) %>% 
-			left_join(tr_metrictype_mty %>% select(mty_name,mty_id), by="mty_name") %>%
+			left_join(metrics_ind %>% select(mty_name,mty_id), by="mty_name") %>%
 			rename(mei_mty_id=mty_id)
 	
 	duplicates <- data_from_base_wide %>% 	
@@ -824,7 +825,6 @@ compare_with_database_metric_ind <- function(
 			values_to="mei_value",
 			names_to="mty_name"
 	) %>% select(-mty_name)
-	# clean up
 	if (sheetorigin == "deleted_individual_metrics") {
 		return(list(deleted=data_from_excel))
 	} else {
@@ -1828,7 +1828,7 @@ update_dataseries <- function(path) {
 #' @param path path to file (collected from shiny button)
 #' @return message indicating success or failure at data insertion
 #'  path <- file.choose()
-#' TODO handle meg_qal_id somewhere (default if missing)
+
 write_new_group_metrics <- function(path) {
 	conn <- poolCheckout(pool)
 	on.exit(poolReturn(conn))
@@ -1839,13 +1839,13 @@ write_new_group_metrics <- function(path) {
 	#dbGetQuery(conn, "DELETE FROM datawg.t_groupseries_grser")
 	(nr <- tryCatch({
 							res0 <- dbGetQuery(conn,"insert into datawg.t_groupseries_grser(gr_year,gr_number,gr_comment,gr_dts_datasource,grser_ser_id)
-											(select distinct on (id) g.gr_year,g.gr_number,g.gr_comment,g.gr_dts_datasource,g.grser_ser_id from group_tmp g) returning gr_id, gr_year, grser_ser_id")
+											select distinct on (id) g.gr_year,g.gr_number,g.gr_comment,g.gr_dts_datasource,g.grser_ser_id from group_tmp g returning gr_id, gr_year, grser_ser_id;")
 							new1 <- new %>% select(-id, -gr_id) %>% inner_join(res0, by=c("gr_year","grser_ser_id"))
 							
 							dbWriteTable(conn,"group_tmp1",new1,temporary=TRUE)
 							nr0 <- nrow(res0)
-							nr1 <- dbExecute(conn, "INSERT INTO datawg.t_metricgroupseries_megser(meg_gr_id, meg_mty_id, meg_value, meg_dts_datasource, meg_qal_id)
-											SELECT gr_id, meg_mty_id, meg_value, meg_dts_datasource, 1 as meg_qal_id FROM group_tmp1 ")
+							nr1 <- dbGetQuery(conn, "INSERT INTO datawg.t_metricgroupseries_megser(meg_gr_id, meg_mty_id, meg_value, meg_dts_datasource, meg_qal_id)
+											SELECT gr_id, meg_mty_id, meg_value, meg_dts_datasource, 1 as meg_qal_id FROM group_tmp1;")
 						}, error = function(e) {
 							message <<- e
 						}, finally = {
@@ -1860,21 +1860,74 @@ write_new_group_metrics <- function(path) {
 	
 	return(list(message = message, cou_code = cou_code))
 }
-
-write_updated_group_metrics <-function(){
-	#TODO
+# TODO test
+write_updated_group_metrics <-function(path){
+	conn <- poolCheckout(pool)
+	on.exit(poolReturn(conn))
+	updated <- read_excel(path = path, sheet = 1, skip = 1)
+	
+	dbWriteTable(conn,"group_tmp",updated,temporary=TRUE, overwrite=TRUE)
+	message <- NULL
+	#dbGetQuery(conn, "DELETE FROM datawg.t_groupseries_grser")
+	
+	(nr <- tryCatch({														
+							dbExecute(conn,"UPDATE datawg.t_groupseries_grser SET 
+											(gr_year,gr_number,gr_comment,gr_dts_datasource,grser_ser_id) =
+											(g.gr_year,g.gr_number,g.gr_comment,g.gr_dts_datasource,g.grser_ser_id) FROM
+											group_tmp g
+											WHERE g.gr_id=t_groupseries_grser.gr_id")
+							
+							dbExecute(conn, "UPDATE datawg.t_metricgroupseries_megser SET (meg_gr_id, meg_mty_id, meg_value, meg_dts_datasource, meg_qal_id)
+											=( g.gr_id, g.meg_mty_id, g.meg_value, g.meg_dts_datasource, 1 as meg_qal_id ) 
+											FROM group_tmp g
+											WHERE g.gr_id= t_metricgroupseries_megser.gr_id")
+							
+						}, error = function(e) {
+							message <<- e
+						}, finally = {
+							dbExecute(conn,"drop table if exists group_tmp")
+						}))
+	if (is.null(message)) message <- sprintf(" %s and %s new values inserted in the group and metric tables", nr0, nr1)
+	cou_code = dbGetQuery(conn,paste0("SELECT ser_cou_code FROM datawg.t_series_ser WHERE ser_id='",
+					new$grser_ser_id[1],"';"))$ser_cou_code  
+	return(list(message = message, cou_code = cou_code))
 }
 
-delete_group_metrics <- function(){
-	#TODO
+# TODO test
+delete_group_metrics <- function(path){
+	conn <- poolCheckout(pool)
+	on.exit(poolReturn(conn))
+	deleted <- read_excel(path = path, sheet = 1, skip = 1)
+	
+	dbWriteTable(conn,"group_tmp",deleted,temporary=TRUE, overwrite=TRUE)
+	message <- NULL
+	#dbGetQuery(conn, "DELETE FROM datawg.t_groupseries_grser")
+	
+	(nr <- tryCatch({														
+							nr0 <- dbExecute(conn,"DELETE FROM datawg.t_groupseries_grser 
+											WHERE gr_id IN (SELECT distinct gr_id FROM group_tmp")							
+						}, error = function(e) {
+							message <<- e
+						}, finally = {
+							dbExecute(conn,"drop table if exists group_tmp")
+						}))
+	if (is.null(message)) message <- sprintf(" %s values deleted from group table, cascade delete on metrics", nr0)
+	cou_code = dbGetQuery(conn,paste0("SELECT ser_cou_code FROM datawg.t_series_ser WHERE ser_id='",
+					new$fiser_ser_id[1],"';"))$ser_cou_code  
+	
+	return(list(message = message, cou_code = cou_code))
 }
 
-write_new_individual_metrics <- function(){
+# note require to get the fi_id before inserting unlike group there might be different fi_id, and date.
+# so a loop based on id generated before inserts first the line per id (one fi_id) and then all the 
+# corresponding metrics for that fish
+# path <-file.choose()
+write_new_individual_metrics <- function(path){
 	conn <- poolCheckout(pool)
 	on.exit(poolReturn(conn))
 	new <- read_excel(path = path, sheet = 1, skip = 1)
 	
-	dbWriteTable(conn,"ind_tmp",new,temporary=TRUE)
+	dbWriteTable(conn,"ind_tmp",new,temporary=TRUE, overwrite=TRUE)
 	message <- NULL
 	#dbGetQuery(conn, "DELETE FROM datawg.t_groupseries_grser")
 	query <- "DO $$
@@ -1890,35 +1943,91 @@ write_new_individual_metrics <- function(){
 			-- insert fish
 			BEGIN
 			id_:=rec.id;
-			INSERT INTO datawg.t_fishseries_fiser(fi_date,fi_year,fi_comment,fi_dts_datasource,fiser_ser_id)
-			(select i.fi_date,i.fi_year,i.fi_comment,i.fi_dts_datasource,i.fiser_ser_id 
+			INSERT INTO datawg.t_fishseries_fiser(fi_date,fiser_year,fi_comment,fi_dts_datasource,fiser_ser_id)
+			(select distinct on (id) i.fi_date::date,i.fiser_year,i.fi_comment,i.fi_dts_datasource,i.fiser_ser_id 
 			FROM ind_tmp i
 			WHERE i.id=id_)
 			RETURNING fi_id INTO fi_id_;
 			--insert metrics, qal_id is not handled there (will be validated by queries later)
 			-- the fi_id is determined from id (the row number in wide format)
-			INSERT INTO datawg.t_metricindseries_fiser(mei_fi_id, mei_mty_id, mei_value, mei_dts_datasource, mei_qal_id)
-			SELECT fi_id_, i.mei_mty_id, i.mei_value, i.meg_dts_datasource, 1 as mei_qal_id FROM ind_tmp i
+			INSERT INTO datawg.t_metricindseries_meiser(mei_fi_id, mei_mty_id, mei_value, mei_dts_datasource, mei_qal_id)
+			SELECT fi_id_, i.mei_mty_id, i.mei_value, i.mei_dts_datasource, 1 as mei_qal_id FROM ind_tmp i
 			WHERE i.id= id_;
 			END;
 			END LOOP;
 			END;								
 			$$ LANGUAGE 'plpgsql';"
+	tryCatch(	dbExecute(conn, query)
+			, error = function(e) {
+				message <<- e
+			}, finally = {
+				dbExecute(conn,"drop table if exists ind_tmp")
+			})
+	
+	if (is.null(message))  		message <-
+				sprintf(" %s and %s new values inserted in the group and metric tables", 
+						new %>% distinct(id) %>% nrow(), 
+						nrow(new))
+	cou_code = dbGetQuery(conn,paste0("SELECT ser_cou_code FROM datawg.t_series_ser WHERE ser_id='",
+					new$fiser_ser_id[1],"';"))$ser_cou_code  
+	return(list(message = message, cou_code = cou_code))
+}
+# no way to know if fish is updated, I'm updating it anyways...
+write_updated_individual_metrics <- function(path){
+	conn <- poolCheckout(pool)
+	on.exit(poolReturn(conn))
+	updated <- read_excel(path = path, sheet = 1, skip = 1)
+	
+	dbWriteTable(conn,"ind_tmp",updated,temporary=TRUE, overwrite=TRUE)
+	message <- NULL
+	#dbGetQuery(conn, "DELETE FROM datawg.t_groupseries_grser")
+	
 	(nr <- tryCatch({														
-							dbExecute(conn, query)
+							nr0 <- dbExecute(conn,"UPDATE datawg.t_fishseries_fiser SET 
+											(fi_date,fiser_year,fi_comment,fi_dts_datasource,fiser_ser_id) =
+											(i.fi_date::date,i.fiser_year,i.fi_comment,i.fi_dts_datasource,i.fiser_ser_id) FROM
+											ind_tmp i
+											WHERE i.fi_id=t_fisheries_fiser.fi_id")
+							
+							nr1 <- dbExecute(conn, "UPDATE datawg.t_metricindseries_meiser SET (mei_mty_id, mei_value, mei_dts_datasource, mei_qal_id)
+											=( i.fi_id, i.mei_mty_id, i.mei_value, i.mei_dts_datasource, 1 as mei_qal_id) 
+											FROM ind_tmp i
+											WHERE i.fi_id= t_metricindseries.fi_id")
+							
 						}, error = function(e) {
 							message <<- e
 						}, finally = {
 							dbExecute(conn,"drop table if exists ind_tmp")
 						}))
+	if (is.null(message)) message <- sprintf(" %s and %s new values inserted in the group and metric tables", nr0, nr1)
+	cou_code = dbGetQuery(conn,paste0("SELECT ser_cou_code FROM datawg.t_series_ser WHERE ser_id='",
+					new$fiser_ser_id[1],"';"))$ser_cou_code  
+	
+	return(list(message = message, cou_code = cou_code))
 }
 
-write_updated_individual_metrics <- function(){
-	#TODO
-}
-
-delete_individual_metrics <- function(){
-	#TODO
+delete_individual_metrics <- function(path){
+	conn <- poolCheckout(pool)
+	on.exit(poolReturn(conn))
+	deleted <- read_excel(path = path, sheet = 1, skip = 1)
+	
+	dbWriteTable(conn,"ind_tmp",deleted,temporary=TRUE, overwrite=TRUE)
+	message <- NULL
+	#dbGetQuery(conn, "DELETE FROM datawg.t_groupseries_grser")
+	
+	(nr <- tryCatch({														
+							nr0 <- dbExecute(conn,"DELETE FROM datawg.t_fishseries_fiser 
+											WHERE fi_id IN (SELECT distinct fi_id FROM ind_tmp")							
+						}, error = function(e) {
+							message <<- e
+						}, finally = {
+							dbExecute(conn,"drop table if exists ind_tmp")
+						}))
+	if (is.null(message)) message <- sprintf(" %s values deleted from fish table, cascade delete on metrics", nr0)
+	cou_code = dbGetQuery(conn,paste0("SELECT ser_cou_code FROM datawg.t_series_ser WHERE ser_id='",
+					new$fiser_ser_id[1],"';"))$ser_cou_code  
+	
+	return(list(message = message, cou_code = cou_code))
 }
 
 

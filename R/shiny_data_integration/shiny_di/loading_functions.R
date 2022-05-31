@@ -2337,11 +2337,12 @@ load_series<-function(path,datasource, stage="glass_eel"){
 		if (grepl("data", sheet) & grepl("new", sheet)) {
 			data_xls$das_dts_datasource <- datasource
 		}		
-		if (grepl("group", sheet)  & grepl("new", sheet)) {
+		if (grepl("group", sheet)  & (grepl("new", sheet) | grepl("updated", sheet))) {
 			data_xls$gr_dts_datasource <- datasource
 			data_xls$meg_dts_datasource <- datasource
 		}
-		if (grepl("individual", sheet)  & grepl("new", sheet)) {
+
+		if (grepl("individual", sheet)  & (grepl("new", sheet)| grepl("updated", sheet))) {
 			data_xls$gr_dts_datasource <- datasource
 			data_xls$mei_dts_datasource <- datasource
 		}
@@ -2601,7 +2602,7 @@ load_series<-function(path,datasource, stage="glass_eel"){
 					"is_female_(1=female,0=male)","is_differentiated_(1=differentiated,0_undifferentiated)",
 					"anguillicola_presence_(1=present,0=absent)",	"anguillicola_intensity",	"muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb", "teq",
 					"evex_presence_(1=present,0=absent)","hva_presence_(1=present,0=absent)",	"pb",	"hg",	"cd"))
-	nbcol <- list(7,10,10,30,32,32,21,25,25)
+	nbcol <- list(7,10,10,30,32,32,22,26,26)
 	
 	
 	res <- purrr::pmap(list(sheet,columns,nbcol), fn_check_series)
