@@ -180,7 +180,6 @@ CREATE TABLE datawg.t_samplinginfo_sai(
   sai_name VARCHAR(20),
   sai_cou_code VARCHAR(2),
   sai_emu_nameshort VARCHAR(20),
-  sai_locationdescription VARCHAR(254),
   sai_area_division VARCHAR(254),
   sai_hty_code varchar(2),
   sai_comment TEXT, -- this could be DCF ... other CHECK IF we need a referential TABLE....
