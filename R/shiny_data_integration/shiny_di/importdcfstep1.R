@@ -188,7 +188,7 @@ importdcfstep1Server <- function(id,globaldata,loaded_data_dcf){
 										t_metricgroupsamp_megsa <- extract_data("t_metricgroupsamp_megsa", quality_check=FALSE)
 										t_metricindsamp_meisa <- extract_data("t_metricindsamp_meisa", quality_check=FALSE)
 										
-										validate(need(nrow(sampling)>0), "No sampling info, cannot continue")
+										validate(need(nrow(sampling)>0, "No sampling info, cannot continue"))
 										list_comp_sampling <- compare_with_database_sampling(data_from_excel=sampling, data_from_base=t_samplinginfo_sai)
 										current_cou_code <- list_comp_sampling$current_cou_code
 										
