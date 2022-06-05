@@ -107,7 +107,10 @@ shinyServer(function(input, output, session){
 						
 						#205-shiny-integration-for-dcf-data 
 						query <- "SELECT distinct sai_id FROM datawg.t_samplinginfo_sai"
-						tr_sai_list <<- dbGetQuery(pool, sqlInterpolate(ANSI(), query)) 
+						tr_sai_list <<- dbGetQuery(pool, sqlInterpolate(ANSI(), query))
+						
+						query <- "SELECT * FROM datawg.t_samplinginfo_sai"
+						t_samplinginfo_sai <<- dbGetQuery(pool, sqlInterpolate(ANSI(), query))
 						#isolate({data$sai_list <- tr_sai_list$ser_id})
 						
 						#205-shiny-integration-for-dcf-data
