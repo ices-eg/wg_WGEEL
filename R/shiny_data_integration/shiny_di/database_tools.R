@@ -285,14 +285,11 @@ compare_with_database_deleted_values <- function(deleted_from_excel, data_from_b
 #' @examples 
 #' \dontrun{
 #' if(interactive()){
-#' wg_file.choose<-file.choose
-#' path <- file.choose()
 #' data_from_excel <- read_excel(path=path,	sheet ="series_info",	skip=0) #'  
 #'  res <- load_series(path, 
 #' 											datasource = the_eel_datasource,
 #' 											stage="glass_eel")
 #' data_from_base <- extract_data('t_series_ser')
-#' 
 #' list_comp <- compare_with_database_series(data_from_excel=res$series,data_from_base=res$t_series_ser%>%  filter(ser_typ_id==1)  )
 #'  }
 #' }
@@ -388,7 +385,7 @@ compare_with_database_series <- function(data_from_excel, data_from_base) {
 		# show only modifications to the user (any colname modified)		
 		highlight_change <- highlight_change[!apply(mat,1,all),num_common_col[!apply(mat,2,all)]]
 	}
-	return(list(new = new, modified=modified, highlight_change=highlight_change, current_cou_code= current_cou_code))
+	return(list(new = new, modified=modified, highlight_change=highlight_change, current_cou_code= current_cou_code))	
 }
 
 #' @title compare with database dataseries
@@ -563,6 +560,113 @@ compare_with_database_dataseries <- function(data_from_excel, data_from_base, sh
 	} else {
 		return(list(new = new, modified=modified, highlight_change=highlight_change, error_id_message=error_id_message))
 	}
+}
+
+#' @title compare with database sampling
+#' @description This function loads the data from the database and compare it with data
+#' loaded from excel
+#' @param data_from_excel Dataset loaded from excel
+#' @param data_from_base dataset loaded from the database with previous values to be replaced
+#' @return A list with three dataset, one is duplicate the other new, 
+#' in the case of series the duplicates are ignored
+#' THe second dataset (new) contains new value, these also will need to be qualified by wgeel
+#' the last data set contains all records that will be in the db for the country after
+#' inclusion of the new records
+#' @examples 
+#' \dontrun{
+#' if(interactive()){
+#' 
+#' data_from_excel <- read_excel(path=path,	sheet ="sampling_info",	skip=0) #'  
+#' data_from_base <- t_samplinginfo_sai
+
+#' data_from_base <- extract_data('t_series_ser')
+#' 
+#' list_comp <- compare_with_database_sampling(data_from_excel,data_from_base  )
+#'  }
+#' }
+compare_with_database_sampling <- function(data_from_excel, data_from_base) {
+	if (nrow(data_from_excel) == 0) 
+		validate(need(FALSE,"There are no data coming from the excel file"))
+	current_cou_code <- unique(data_from_excel$sai_cou_code)
+	if (length(current_cou_code) != 1) 
+		validate(need(FALSE,"There is more than one country code, this is wrong"))
+	if (nrow(data_from_base) == 0) {
+		warning("No data in the file coming from the database")		
+	} 
+	
+	sai_colnames <- colnames(data_from_base)[grepl("sai", colnames(data_from_base))]
+	# avoid importing problems when line is null
+	data_from_excel <- data_from_excel %>% mutate_if(is.logical,list(as.numeric))
+	data_from_excel <- data_from_excel %>% mutate_at(vars(sai_lastupdate), list(as.Date))
+	data_from_excel <- data_from_excel %>% 
+			mutate_at(vars(sai_name, sai_cou_code, sai_emu_nameshort,
+							sai_area_division,sai_hty_code, sai_comment,
+							sai_samplingobjective, sai_samplingstrategy, sai_protocol, sai_dts_datasource),list(as.character)) 
+	duplicates <- data_from_base %>% dplyr::filter(
+					sai_cou_code == current_cou_code) %>% dplyr::select(all_of(sai_colnames)) %>%
+			dplyr::inner_join(data_from_excel, by = c("sai_name"), 
+					suffix = c(".base", ".xls"))
+	duplicates <- duplicates[, 
+			# not in the datacall or used as pivot :
+			c("sai_id",  "sai_name",  				
+					# other columns
+					"sai_cou_code.base", "sai_cou_code.xls",
+					"sai_emu_nameshort.base", "sai_emu_nameshort.xls",	
+					"sai_area_division.base", "sai_area_division.xls",
+					"sai_hty_code.base", "sai_hty_code.xls",
+					"sai_comment.base", "sai_comment.xls", 
+					"sai_samplingobjective.base","sai_samplingobjective.xls",
+					"sai_samplingstrategy.base", "sai_samplingstrategy.xls",
+					"sai_protocol.base","sai_protocol.xls",
+					"sai_qal_id.base", "sai_qal_id.xls",
+					"sai_lastupdate.base" ,"sai_lastupdate.xls",
+					"sai_dts_datasource.base","sai_dts_datasource.xls")]	
+	
+	# Anti join only keeps columns from X
+	new <-  dplyr::anti_join(data_from_excel, data_from_base, 
+			by = c("sai_name"))
+	if (nrow(new) >0 ){
+		new$sai_qal_id <- 1
+		new$sai_qal_comment <- NA
+		new$sai_dts_datasource <- the_eel_datasource
+	}
+	modified <- dplyr::anti_join(data_from_excel, data_from_base, 
+			by = c("sai_cou_code",
+					"sai_emu_nameshort",	
+					"sai_area_division",
+					"sai_hty_code",
+					"sai_comment", 
+					"sai_samplingobjective",
+					"sai_samplingstrategy",
+					"sai_protocol",
+					"sai_qal_id",
+					"sai_lastupdate",
+					"sai_dts_datasource"))
+	modified <- modified[!modified$sai_name %in% new$sai_name,]
+	# after anti join there are still values that are not really changed.
+	# this is further investigated below
+	highlight_change <- duplicates[duplicates$sai_name %in% modified$sai_name,]
+	if (nrow(highlight_change)>0){
+		num_common_col <- grep(".xls|.base",colnames(highlight_change))
+		possibly_changed <- colnames(highlight_change)[num_common_col]
+		
+		mat <-	matrix(FALSE,nrow(highlight_change),length(num_common_col))
+		for(v in 0:(length(num_common_col)/2-1))
+		{
+			v=v*2+1
+			test <- highlight_change %>% select(num_common_col)%>%select(v,v+1) %>%
+					mutate_all(as.character) %>%	mutate_all(type.convert, as.is = TRUE) %>%	
+					mutate(test=identical(.[[1]], .[[2]])) %>% pull(test)
+			mat[,c(v,v+1)]<-test
+			
+		}
+		# select only rows where there are true modified 
+		modified <- modified[!apply(mat,1,all),]	 
+		# show only modifications to the user (any colname modified)		
+		highlight_change <- highlight_change[!apply(mat,1,all),num_common_col[!apply(mat,2,all)]]
+	}
+	return(list(new = new, modified=modified, highlight_change=highlight_change, current_cou_code= current_cou_code))
+	
 }
 
 #' @title compare with database metric group
