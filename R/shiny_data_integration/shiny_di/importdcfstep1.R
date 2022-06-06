@@ -152,7 +152,7 @@ importdcfstep1Server <- function(id,globaldata,loaded_data_dcf){
 				# with duplicates values
 				#############################
 				observeEvent(input$check_duplicate_button_dcf, {
-							#		tryCatch({
+									tryCatch({
 							
 							
 							# see step0load_data returns a list with res and messages
@@ -707,9 +707,9 @@ importdcfstep1Server <- function(id,globaldata,loaded_data_dcf){
 													))
 										})
 							}
-							#},error = function(e) {
-							#	showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
-							#})
+							},error = function(e) {
+								showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
+							})
 						}, ignoreInit = TRUE)
 			}
 	
