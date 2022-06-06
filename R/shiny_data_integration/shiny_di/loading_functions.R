@@ -2953,12 +2953,12 @@ load_dcf<-function(path,datasource){
 						country = country,
 						values = tr_sai_list))
 		
-		#ser_id should not have any missing values for updated data and deleted data
+		#sai_id should not have any missing values for updated data and deleted data
 		# flatten used to reduce list with NULL elements
 		data_error <- bind_rows(data_error, 
 				purrr::flatten(lapply(
-								c("fiser_ser_id",
-										"grser_ser_id"),			
+								c("fisa_sai_id",
+										"grsa_sai_id"),			
 								function(name_column){
 									if (name_column %in% colnames(data_xls) & (grepl("deleted", sheet) | grepl("updated", sheet))){	
 										data_error <- rbind(data_error, check_missing(
