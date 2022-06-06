@@ -136,7 +136,7 @@ importdcfstep2UI <- function(id){
 
 
 
-#' Step 2 of annex 1-3 integration
+#' Step 2 of annex 9 integration
 #'
 #' @param id, character used to specify namespace, see \code{shiny::\link[shiny]{NS}}
 #' @param globaldata a reactive value with global variable
