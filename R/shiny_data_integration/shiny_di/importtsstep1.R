@@ -361,6 +361,8 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 													data_from_excel=deleted_group_metrics,
 													data_from_base=t_metricgroupseries_megser,
 													sheetorigin="deleted_group_metrics")
+										} else {
+											list_comp_deleted_group_metrics <- list("deleted"=data.frame())
 										}
 										
 										if (nrow(new_individual_metrics)>0){
@@ -404,6 +406,8 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 													data_from_excel=deleted_individual_metrics,
 													data_from_base=t_metricindseries_meiser,
 													sheetorigin="deleted_individual_metrics")
+										} else {
+											list_comp_deleted_individual_metrics <- list("deleted"=data.frame())
 										}
 										current_cou_code <- list_comp_series$current_cou_code
 										
