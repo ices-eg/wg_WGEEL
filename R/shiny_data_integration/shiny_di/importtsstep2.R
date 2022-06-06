@@ -578,7 +578,7 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts){
 												# call to  function that loads data
 												# this function does not need to be reactive
 												message <- step2.3.3_load_data()
-												if (is.null(data$path_step_26_update_group_metrics)) "please select a dataset" else {                                      
+												if (is.null(data$path_step_2.3.3_update_group_metrics)) "please select a dataset" else {                                      
 													paste(message,collapse="\n")
 												}                  
 											})  
