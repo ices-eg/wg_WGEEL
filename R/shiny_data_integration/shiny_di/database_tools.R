@@ -1591,8 +1591,7 @@ write_deleted_values <- function(path, qualify_code) {
 #' @description New lines will be inserted in the database
 #' @param path path to file (collected from shiny button)
 #' @return message indicating success or failure at data insertion
-#' @details This function uses sqldf to create temporary table then dbExecute as
-#' this version allows to catch exceptions and sqldf does not
+#' @details This function creates a temporary table then dbExecute 
 #' @examples 
 #' \dontrun{
 #' if(interactive()){
@@ -1647,7 +1646,6 @@ write_new_series <- function(path) {
 	dbWriteTable(conn, "new_series_temp",new,temporary=TRUE,row.names=FALSE)
 	
 	
-	# Query uses temp table just created in the database by sqldf
 	query <- "insert into datawg.t_series_ser (         
 			ser_nameshort,
 			ser_namelong, ser_typ_id, ser_effort_uni_code, 
@@ -1660,8 +1658,7 @@ write_new_series <- function(path) {
 			ser_emu_nameshort, ser_cou_code, ser_area_division, ser_tblcodeid::integer,
 			ser_x, ser_y, ser_sam_id, ser_dts_datasource, ser_qal_id::integer, ser_qal_comment,
 			ser_ccm_wso_id::integer[], ser_sam_gear::integer, ser_distanceseakm, 	ser_method, ser_restocking from new_series_temp;"
-	# if fails replaces the message with this trycatch !  I've tried many ways with
-	# sqldf but trycatch failed to catch the error Hence the use of DBI
+
 	
 	message <- NULL
 	(nr <- tryCatch({
@@ -1680,6 +1677,102 @@ write_new_series <- function(path) {
 	return(list(message = message, cou_code = cou_code))
 }
 
+#' @title write new sampling into the database
+#' @description New lines will be inserted in the database
+#' @param path path to file (collected from shiny button)
+#' @return message indicating success or failure at data insertion
+
+# path <- file.choose()
+#write_new_sampling(path)
+
+write_new_sampling <- function(path) {
+	new <- read_excel(path = path, sheet = 1, skip = 1)
+	
+	####when there are no data, new values have incorrect type
+	new <- new %>% mutate_if(is.logical,list(as.character)) 
+	
+	new <- new %>% 
+			mutate_at(vars(sai_name, sai_cou_code, sai_emu_nameshort, sai_area_division, sai_hty_code,  sai_samplingobjective, 	 sai_samplingobjective,
+							sai_protocol,sai_comment,sai_qal_comment),list(as.character)) 
+	new <- new %>% 
+			mutate_at(vars(sai_year, sai_qal_id),list(as.integer)) 
+	
+	new <- new %>% 
+			mutate_at(vars(sai_lastupdate),list(as.Date)) 
+	
+	# check for new file -----------------------------------------------------------------------------
+	
+	validate(need(all(!is.na(new$sai_qal_id)), "There are still lines without sai_qal_id, please check your file"))
+	cou_code = unique(new$sai_cou_code)  
+	validate(need(length(cou_code) == 1, "There is more than one country code, please check your file"))
+	
+	# create dataset for insertion -------------------------------------------------------------------
+	
+	
+	new <- new[, c(
+					"sai_name",
+					"sai_cou_code",
+					"sai_emu_nameshort",
+					"sai_area_division",
+					"sai_hty_code",
+					"sai_comment",
+					"sai_samplingobjective",
+					"sai_samplingstrategy",
+					"sai_protocol",
+					"sai_qal_idv",
+					"sai_lastupdate",
+					"sai_dts_datasource")	]
+	conn <- poolCheckout(pool)	
+	dbExecute(conn,"drop table if exists new_sampling_temp ")
+	dbWriteTable(conn, "new_sampling_temp",new,temporary=TRUE,row.names=FALSE)
+	
+	
+	# Query uses temp table just created in the database
+	query <- "insert into datawg.t_samplinginfo_sai (         
+			sai_name,
+			sai_cou_code,
+			sai_emu_nameshort,
+			sai_area_division,
+			sai_hty_code,
+			sai_comment,
+			sai_samplingobjective,
+			sai_samplingstrategy,
+			sai_protocol,
+			sai_qal_id,
+			sai_lastupdate,
+			sai_dts_datasource,
+			ser_nameshort) 
+			SELECT 
+			sai_name,
+			sai_cou_code,
+			sai_emu_nameshort,
+			sai_area_division,
+			sai_hty_code,
+			sai_comment,
+			sai_samplingobjective,
+			sai_samplingstrategy,
+			sai_protocol,
+			sai_qal_id,
+			sai_lastupdate,
+			sai_dts_datasource
+			FROM new_sampling_temp;"
+	
+	message <- NULL
+	(nr <- tryCatch({
+							dbExecute(conn, query)
+						}, error = function(e) {
+							message <<- e
+						}, finally = {
+							dbExecute(conn,"drop table if exists new_sampling_temp;")
+							poolReturn(conn)
+						}))
+	
+	
+	if (is.null(message))   
+		message <- sprintf(" %s new values inserted in the database", nr)
+	
+	return(list(message = message, cou_code = cou_code))
+}
 
 #' @title write new dataseries into the database
 #' @description New lines will be inserted in the database
