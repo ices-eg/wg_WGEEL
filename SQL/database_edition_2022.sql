@@ -194,7 +194,8 @@ CREATE TABLE datawg.t_samplinginfo_sai(
   CONSTRAINT c_fk_sai_emu FOREIGN KEY (sai_emu_nameshort,sai_cou_code) REFERENCES "ref".tr_emu_emu(emu_nameshort,emu_cou_code) ON UPDATE CASCADE,
   CONSTRAINT c_fk_sai_area_division FOREIGN KEY (sai_area_division) REFERENCES "ref".tr_faoareas(f_division) ON UPDATE CASCADE,
   CONSTRAINT c_fk_sai_dts_datasource FOREIGN KEY (sai_dts_datasource) REFERENCES "ref".tr_datasource_dts(dts_datasource) ON UPDATE CASCADE,
-  CONSTRAINT c_fk_sai_hty_code FOREIGN KEY (sai_hty_code) REFERENCES "ref".tr_habitattype_hty(hty_code) ON UPDATE CASCADE
+  CONSTRAINT c_fk_sai_hty_code FOREIGN KEY (sai_hty_code) REFERENCES "ref".tr_habitattype_hty(hty_code) ON UPDATE CASCADE,
+  CONSTRAINT c_uk_sai_name UNIQUE (sai_name)
 );
 GRANT ALL ON TABLE datawg.t_samplinginfo_sai TO wgeel;
 -- Table Triggers
