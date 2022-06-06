@@ -2681,7 +2681,7 @@ load_dcf<-function(path,datasource){
 	country <- "unknown"
 	if (nrow(sampling_info)>0) {
 		country <- as.character(sampling_info[1,"sai_cou_code"])
-		sampling_info$ser_dts_datasource <- datasource
+		sampling_info$sai_dts_datasource <- datasource
 		###### ser_nameshort ##############
 		
 # should not have any missing value
