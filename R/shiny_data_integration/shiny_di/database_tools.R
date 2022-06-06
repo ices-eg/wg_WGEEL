@@ -675,6 +675,7 @@ compare_with_database_sampling <- function(data_from_excel, data_from_base) {
 #' @param data_from_excel Dataset loaded from excel
 #' @param data_from_base dataset loaded from the database with previous values to be replaced
 #' @param sheetorigin c("new_group_metrics","updated_group_metrics","deleted_group_metrics")
+#' @param type use "series" for series and anything else for other samplings
 #' @note no error message yet, see if needed to add some
 #' @return A list with three dataset, new, modified, highlight change
 #' If deleted returns only deleted
@@ -710,7 +711,10 @@ compare_with_database_sampling <- function(data_from_excel, data_from_base) {
 ## note :not possible to check if there are errors as in compare_with_database_dataseries
 ## there might be different gr_id , for one series and date while it was necessarily unique for das_id
 
-compare_with_database_metric_group <- function(data_from_excel, data_from_base, sheetorigin=c("new_group_metrics","updated_group_metrics","deleted_group_metrics")) {
+compare_with_database_metric_group <- function(data_from_excel, 
+		data_from_base, 
+		sheetorigin=c("new_group_metrics","updated_group_metrics","deleted_group_metrics"),
+		type="series") {
 	# data integrity checks
 	
 	if (!sheetorigin %in% c("new_group_metrics", "updated_group_metrics", "deleted_group_metrics")) stop ("sheetorigin should be one of
@@ -722,7 +726,9 @@ compare_with_database_metric_group <- function(data_from_excel, data_from_base, 
 	}
 	# convert columns with missing data to numeric	  
 	data_from_excel <- data_from_excel %>% mutate_if(is.logical,list(as.numeric)) 
-	data_from_excel <- data_from_excel %>% mutate_at(vars("gr_comment", "gr_dts_datasource", "ser_nameshort"), list(as.character)) 
+	data_from_excel <- data_from_excel %>% mutate_at(vars("gr_comment", "gr_dts_datasource", 
+					ifelse(type=="series","ser_nameshort","sai_name")), list(as.character)) 
+	
 	data_from_excel$sheetorigin <- sheetorigin
 	data_from_excel <- mutate(data_from_excel,"id" = row_number()) # this one serves as joining later
 	if (sheetorigin == "new_group_metrics") data_from_excel <- data_from_excel %>% mutate("gr_id" = NA)
@@ -746,13 +752,13 @@ compare_with_database_metric_group <- function(data_from_excel, data_from_base, 
 	duplicates <- data_from_base_wide %>% 	
 			dplyr::inner_join(
 					data_from_excel, 
-					by = c("grser_ser_id", "gr_id","gr_year"), 
+					by = c(ifelse(type=="series","grser_ser_id","grsa_sai_id"), "gr_id","gr_year"), 
 					suffix = c(".base", ".xls"))
 	
 	
 	# Anti join only keeps columns from X
 	new <-  dplyr::anti_join(data_from_excel_long, data_from_base, 
-			by = c("grser_ser_id", "gr_year","meg_mty_id"))
+			by = c(ifelse(type=="series","grser_ser_id","grsa_sai_id"), "gr_year","meg_mty_id"))
 	
 	if (nrow(new)>0)	new$gr_dts_datasource <- the_eel_datasource
 	
@@ -803,6 +809,7 @@ compare_with_database_metric_group <- function(data_from_excel, data_from_base, 
 #' @param data_from_excel Dataset loaded from excel
 #' @param data_from_base dataset loaded from the database with previous values to be replaced
 #' @param sheetorigin c("new_individual_metrics","updated_individual_metrics","deleted_individual_metrics")
+#' @param type use "series" for series and anything else for other samplings
 #' @return A list with three dataset, new, modified, highlight change
 #' If deleted returns only deleted
 
@@ -842,7 +849,8 @@ compare_with_database_metric_group <- function(data_from_excel, data_from_base, 
 compare_with_database_metric_ind <- function(
 		data_from_excel, 
 		data_from_base, 
-		sheetorigin = c("new_individual_metrics","updated_individual_metrics","deleted_individual_metrics")) {
+		sheetorigin = c("new_individual_metrics","updated_individual_metrics","deleted_individual_metrics"),
+		type="series") {
 	if (!sheetorigin %in% c("new_individual_metrics","updated_individual_metrics","deleted_individual_metrics")) stop ("sheetorigin should be one of
 						new_individual_metrics,updated_individual_metrics,deleted_individual_metrics")
 	if (nrow(data_from_excel) == 0) 
@@ -853,7 +861,7 @@ compare_with_database_metric_ind <- function(
 	}
 	# convert columns with missing data to numeric	  
 	data_from_excel <- data_from_excel %>% mutate_if(is.logical,list(as.numeric)) 
-	data_from_excel <- data_from_excel %>% mutate_at(vars("fi_comment", "ser_nameshort"),list(as.character)) 	
+	data_from_excel <- data_from_excel %>% mutate_at(vars("fi_comment", ifelse(type=="series","ser_nameshort","sai_name")),list(as.character)) 	
 	data_from_excel <- data_from_excel %>% mutate_at(vars("fi_date"),list(as.Date)) 
 	data_from_excel <- data_from_excel %>% mutate_at(vars("fiser_year"),list(as.numeric)) 
 	data_from_excel$sheetorigin <- sheetorigin
@@ -885,14 +893,14 @@ compare_with_database_metric_ind <- function(
 	duplicates <- data_from_base_wide %>% 	
 			dplyr::inner_join(
 					data_from_excel, 
-					by = c("ser_nameshort", "fi_id","fi_date"), 
+					by = c(ifelse(type=="series","ser_nameshort","sai_name"), "fi_id","fi_date"), 
 					suffix = c(".base", ".xls"))
 	
 	
 	
 	# Anti join only keeps columns from X
 	new <-  dplyr::anti_join(data_from_excel_long, data_from_base, 
-			by = c("ser_nameshort", "fi_date","mei_mty_id"))
+			by = c(ifelse(type=="series","ser_nameshort","sai_name"), "fi_date","mei_mty_id"))
 	
 	if (nrow(new)>0)	new$gr_dts_datasource <- the_eel_datasource
 	
