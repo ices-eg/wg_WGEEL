@@ -1692,7 +1692,7 @@ write_new_sampling <- function(path) {
 	new <- new %>% mutate_if(is.logical,list(as.character)) 
 	
 	new <- new %>% 
-			mutate_at(vars(sai_name, sai_cou_code, sai_emu_nameshort, sai_area_division, sai_hty_code,  sai_samplingobjective, 	 sai_samplingobjective,
+			mutate_at(vars(sai_name, sai_cou_code, sai_emu_nameshort, sai_area_division, sai_hty_code,  sai_samplingobjective,
 							sai_protocol,sai_comment,sai_qal_comment),list(as.character)) 
 	new <- new %>% 
 			mutate_at(vars(sai_year, sai_qal_id),list(as.integer)) 
@@ -1708,23 +1708,10 @@ write_new_sampling <- function(path) {
 	
 	# create dataset for insertion -------------------------------------------------------------------
 	
-	
-	new <- new[, c(
-					"sai_name",
-					"sai_cou_code",
-					"sai_emu_nameshort",
-					"sai_area_division",
-					"sai_hty_code",
-					"sai_comment",
-					"sai_samplingobjective",
-					"sai_samplingstrategy",
-					"sai_protocol",
-					"sai_qal_idv",
-					"sai_lastupdate",
-					"sai_dts_datasource")	]
+		
 	conn <- poolCheckout(pool)	
 	dbExecute(conn,"drop table if exists new_sampling_temp ")
-	dbWriteTable(conn, "new_sampling_temp",new,temporary=TRUE,row.names=FALSE)
+	dbWriteTable(conn, "new_sampling_temp", new ,temporary=TRUE,row.names=FALSE)
 	
 	
 	# Query uses temp table just created in the database
@@ -1956,6 +1943,82 @@ update_series <- function(path) {
 	
 	return(list(message = message, cou_code = cou_code))
 }
+
+#' @title update sampling value into the database
+#' @description Performs update queries
+#' @param path path to file (collected from shiny button)
+#' @return message indicating success or failure at data insertion
+update_sampling <- function(path) {
+	
+	updated_values_table <- 	read_excel(path = path, sheet = 1, skip = 1)	
+	cou_code = unique(updated_values_table$ser_cou_code)  
+	validate(need(length(cou_code) == 1, "There is more than one country code, please check your file"))
+	updated_values_table <- updated_values_table %>% mutate_if(is.logical,list(as.character)) 
+	
+	updated_values_table <- updated_values_table %>% 
+			mutate_at(vars(sai_name, sai_cou_code, sai_emu_nameshort, sai_area_division, sai_hty_code,  sai_samplingobjective, 	 
+							sai_protocol,sai_comment,sai_qal_comment),list(as.character)) 
+
+	updated_values_table <- updated_values_table %>% 
+			mutate_at(vars(sai_year, sai_qal_id),list(as.integer)) 
+	
+	updated_values_table <- updated_values_table %>% 
+			mutate_at(vars(sai_lastupdate),list(as.Date)) 
+	
+	# create dataset for insertion -------------------------------------------------------------------
+	
+	conn <- poolCheckout(pool)
+	dbExecute(conn,"drop table if exists updated_sampling_temp ")
+	dbWriteTable(conn,"updated_sampling_temp",updated_values_table, row.names=FALSE,temporary=TRUE)
+	
+	query="UPDATE datawg.t_samplinginfo_sai set 
+			(
+			sai_name,
+			sai_cou_code,
+			sai_emu_nameshort,
+			sai_area_division,
+			sai_hty_code,
+			sai_comment,
+			sai_samplingobjective,
+			sai_samplingstrategy,
+			sai_protocol,
+			sai_qal_id,
+			sai_lastupdate,
+			sai_dts_datasource) =
+			(
+			t.sai_name,
+			t.sai_cou_code,
+			t.sai_emu_nameshort,
+			t.sai_area_division,
+			t.sai_hty_code,
+			t.sai_comment,
+			t.sai_samplingobjective,
+			t.sai_samplingstrategy,
+			t.sai_protocol,
+			t.sai_qal_id,
+			t.sai_lastupdate,
+			t.sai_dts_datasource)
+			FROM updated_sampling_temp t WHERE t.sai_id = t_samplinginfo_sai.sai_id"
+	
+	message <- NULL
+	nr <- tryCatch({
+				dbExecute(conn, query)
+			}, error = function(e) {
+				message <<- e
+			}, finally = {
+				dbExecute(conn, "DROP TABLE updated_sampling_temp")
+				poolReturn(conn)
+				
+			})
+	
+	
+	if (is.null(message))   
+		message <- paste(nrow(updated_values_table),"values updated in the db")
+	
+	return(list(message = message, cou_code = cou_code))
+}
+
+
 #path <-file.choose()
 #delete_dataseries(path)
 delete_dataseries <- function(path) {
