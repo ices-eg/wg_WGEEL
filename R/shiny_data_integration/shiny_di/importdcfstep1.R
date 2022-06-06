@@ -19,9 +19,9 @@ importdcfstep1UI <- function(id){
 							h3("new sampling"),
 							htmlOutput(ns("step1_message_new_sampling")),
 							DT::dataTableOutput(ns("dt_new_sampling")),
-							h3("new grouped metrics"),
-							htmlOutput(ns("step1_message_new_grouped_metrics")),
-							DT::dataTableOutput(ns("dt_new_grouped_metrics")),
+							h3("new group metrics"),
+							htmlOutput(ns("step1_message_new_group_metrics")),
+							DT::dataTableOutput(ns("dt_new_group_metrics")),
 							h3("new individual metrics"),
 							htmlOutput(ns("step1_message_new_individual_metrics")),
 							DT::dataTableOutput(ns("dt_new_individual_metrics"))
@@ -32,11 +32,11 @@ importdcfstep1UI <- function(id){
 							DT::dataTableOutput(ns("dt_modified_sampling")),	
 							h3("modified sampling : what changed ?"),
 							DT::dataTableOutput(ns("dt_highlight_change_sampling")),
-							h3("modified grouped metrics"),	
-							DT::dataTableOutput(ns("dt_modified_grouped_metrics")),
-							htmlOutput(ns("step1_message_modified_grouped_metrics")),
-							h3("modified grouped metrics : what changed ?"),
-							DT::dataTableOutput(ns("dt_highlight_change_grouped_metric")),	
+							h3("modified group metrics"),	
+							DT::dataTableOutput(ns("dt_modified_group_metrics")),
+							htmlOutput(ns("step1_message_modified_group_metrics")),
+							h3("modified group metrics : what changed ?"),
+							DT::dataTableOutput(ns("dt_highlight_change_group_metric")),	
 							h3("modified individual metrics"),	
 							DT::dataTableOutput(ns("dt_modified_individual_metrics")),
 							htmlOutput(ns("step1_message_modified_individual_metrics")),
@@ -192,13 +192,13 @@ importdcfstep1Server <- function(id,globaldata,loaded_data_dcf){
 									rename("gr_id"="meg_gr_id")	%>%
 									inner_join(t_samplinginfo_sai %>% select(sai_name, sai_id), by= c("grsa_sai_id" = "sai_id")) %>%
 									rename("sai_id"="grsa_sai_id")
-									 		
-							 t_metricindsamp_meisa <- t_metricindsamp_meisa %>%
+							
+							t_metricindsamp_meisa <- t_metricindsamp_meisa %>%
 									inner_join(t_fishsamp_fisa, by = c("mei_fi_id" = "fi_id") ) %>%
 									rename("fi_id"="mei_fi_id")	%>%
 									inner_join(t_samplinginfo_sai %>% select(sai_name, sai_id), by= c("fisa_sai_id" = "sai_id")) %>%
 									rename("sai_id"="fisa_sai_id")
-									
+							
 							
 							validate(need(nrow(sampling)>0, "No sampling info, cannot continue"))
 							list_comp_sampling <- compare_with_database_sampling(data_from_excel=sampling, data_from_base=t_samplinginfo_sai)
@@ -207,11 +207,13 @@ importdcfstep1Server <- function(id,globaldata,loaded_data_dcf){
 							
 							
 							if (nrow(new_group_metrics)>0){
-								list_comp_new_group_metrics <- compare_with_database_metric_group(
+								list_comp_group_metrics <- compare_with_database_metric_group(
 										data_from_excel=new_group_metrics, 
 										data_from_base=t_metricgroupsamp_megsa, 
 										sheetorigin="new_group_metrics",
 										type="other")
+							} else {
+								list_comp_group_metrics <- list(new=data.frame())
 							}
 							
 							if (nrow(updated_group_metrics)>0){
@@ -247,6 +249,8 @@ importdcfstep1Server <- function(id,globaldata,loaded_data_dcf){
 										data_from_excel=deleted_group_metrics,
 										data_from_base=t_metricgroupsamp_megsa,
 										sheetorigin="deleted_group_metrics")
+							} else {
+								list_comp_deleted_group_metrics <- list("deleted"=data.frame())
 							}
 							
 							if (nrow(new_individual_metrics)>0){
@@ -254,7 +258,10 @@ importdcfstep1Server <- function(id,globaldata,loaded_data_dcf){
 										compare_with_database_metric_ind(
 												data_from_excel=new_individual_metrics, 
 												data_from_base=t_metricindsamp_meisa, 
-												sheetorigin="new_individual_metrics")
+												sheetorigin="new_individual_metrics",
+												type="other")
+							} else {
+								list_comp_individual_metrics <- list(new=data.frame())
 							}
 							
 							if (nrow(updated_individual_metrics)>0){
@@ -262,7 +269,8 @@ importdcfstep1Server <- function(id,globaldata,loaded_data_dcf){
 										compare_with_database_metric_ind(
 												data_from_excel=updated_individual_metrics, 
 												data_from_base=t_metricindsamp_meisa, 
-												sheetorigin="updated_individual_metrics")
+												sheetorigin="updated_individual_metrics",
+												type="other")
 								if (nrow(new_individual_metrics)>0){
 									mxn <- max(list_comp_individual_metrics$new$id, na.rm=TRUE)
 									mxm <- max(list_comp_individual_metrics$modified, na.rm=TRUE)
@@ -290,6 +298,8 @@ importdcfstep1Server <- function(id,globaldata,loaded_data_dcf){
 										data_from_excel=deleted_individual_metrics,
 										data_from_base=t_metricindsamp_meisa,
 										sheetorigin="deleted_individual_metrics")
+							} else {
+								list_comp_deleted_individual_metrics <- list("deleted"=data.frame())
 							}
 							
 							
@@ -344,7 +354,7 @@ importdcfstep1Server <- function(id,globaldata,loaded_data_dcf){
 							}
 							# step1 new group_metrics -------------------------------------------------------------
 							
-							if (!exists("list_comp_group_metrics") || nrow(list_comp_group_metrics$new)==0) {
+							if (nrow(list_comp_group_metrics$new)==0) {
 								output$step1_message_new_group_metrics <- renderUI(
 										HTML(
 												paste(

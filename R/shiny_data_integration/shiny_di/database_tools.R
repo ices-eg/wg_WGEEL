@@ -752,13 +752,13 @@ compare_with_database_metric_group <- function(data_from_excel,
 	duplicates <- data_from_base_wide %>% 	
 			dplyr::inner_join(
 					data_from_excel, 
-					by = c(ifelse(type=="series","grser_ser_id","grsa_sai_id"), "gr_id","gr_year"), 
+					by = c(ifelse(type=="series","grser_ser_id","sai_name"), "gr_id","gr_year"), 
 					suffix = c(".base", ".xls"))
 	
 	
 	# Anti join only keeps columns from X
 	new <-  dplyr::anti_join(data_from_excel_long, data_from_base, 
-			by = c(ifelse(type=="series","grser_ser_id","grsa_sai_id"), "gr_year","meg_mty_id"))
+			by = c(ifelse(type=="series","grser_ser_id","sai_name"), "gr_year","meg_mty_id"))
 	
 	if (nrow(new)>0)	new$gr_dts_datasource <- the_eel_datasource
 	
@@ -863,7 +863,7 @@ compare_with_database_metric_ind <- function(
 	data_from_excel <- data_from_excel %>% mutate_if(is.logical,list(as.numeric)) 
 	data_from_excel <- data_from_excel %>% mutate_at(vars("fi_comment", ifelse(type=="series","ser_nameshort","sai_name")),list(as.character)) 	
 	data_from_excel <- data_from_excel %>% mutate_at(vars("fi_date"),list(as.Date)) 
-	data_from_excel <- data_from_excel %>% mutate_at(vars("fiser_year"),list(as.numeric)) 
+	data_from_excel <- data_from_excel %>% mutate_at(vars(ifelse(type=="series","fiser_year","fi_year")),list(as.numeric)) 
 	data_from_excel$sheetorigin <- sheetorigin
 	data_from_excel <- mutate(data_from_excel,"id" = row_number()) # this one serves as joining later
 	if (sheetorigin == "new_individual_metrics") data_from_excel <- data_from_excel %>% mutate(fi_id = NA)
@@ -877,9 +877,10 @@ compare_with_database_metric_ind <- function(
 							)) %>%
 			select(mty_name,mty_id)
 	
+	# after pivot wider generates lines with NA so remove with is.na(fi_id)
 	data_from_base_wide <- data_from_base %>% right_join( metrics_ind, by=c("mei_mty_id"="mty_id")) %>%
 			tidyr::pivot_wider(names_from=mty_name,
-					values_from=mei_value) 
+					values_from=mei_value) %>% filter(!is.na(fi_id))
 	
 	data_from_excel_long <- data_from_excel %>% 
 			tidyr::pivot_longer(cols=metrics_ind$mty_name,
@@ -890,12 +891,24 @@ compare_with_database_metric_ind <- function(
 			left_join(metrics_ind %>% select(mty_name,mty_id), by="mty_name") %>%
 			rename(mei_mty_id=mty_id)
 	
-	duplicates <- data_from_base_wide %>% 	
-			dplyr::inner_join(
-					data_from_excel, 
-					by = c(ifelse(type=="series","ser_nameshort","sai_name"), "fi_id","fi_date"), 
-					suffix = c(".base", ".xls"))
-	
+	# use fi_id if updated but length and weight and date if new
+	if ("fi_di" %in% colnames(data_from_excel) ){
+		
+		duplicates <- data_from_base_wide %>% 	
+				dplyr::inner_join(
+						data_from_excel, 
+						by = c(ifelse(type=="series","ser_nameshort","sai_name"), "fi_id"), 
+						suffix = c(".base", ".xls"))
+		
+	} else {
+		
+		
+		duplicates <- data_from_base_wide %>% 	
+				dplyr::inner_join(
+						data_from_excel, 
+						by = c(ifelse(type=="series","ser_nameshort","sai_name"), "lengthmm", "weightg","fi_date"), 
+						suffix = c(".base", ".xls"))
+	}
 	
 	
 	# Anti join only keeps columns from X
