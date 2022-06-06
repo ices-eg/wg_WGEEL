@@ -27,9 +27,30 @@ ui <- fluidPage(spsDepend("toastr"),
 								# menuItem("Edit Data", tabName="editAll", icon=icon("table")),
 								# menuItem("Plot duplicates", tabName='plot_duplicates',icon= icon("area-chart")),
 								# menuItem("New Participants", tabName='integrate_new_participants',icon= icon("user-friends")),
-								menuItem("Import Data module", tabName="Importmodule", icon=icon("upload")),
-								menuItem("Import Time Series module",tabName= "Importtsmodule", icon= icon("upload")),	
-								menuItem("Import DCF module",tabName= "Importdcfmodule", icon= icon("upload")),		
+								menuItem("Import data", tabName="Importmodule", icon=icon("upload"))%>%
+										spsComps::bsPopover(
+												title= "Data import", 
+												content = "Annex 4 to 8",
+												placement = "right", 
+												bgcolor = "blue",
+												titlecolor = "white", 
+												contentcolor = "blue"),
+								menuItem("Import time series",tabName= "Importtsmodule", icon= icon("upload"))%>%
+										spsComps::bsPopover(
+												title= "Time series G Y S import", 
+												content = "Annex 1 to 3",
+												placement = "right", 
+												bgcolor = "blue",
+												titlecolor = "white", 
+												contentcolor = "blue"),
+								menuItem("Import dcf",tabName= "Importdcfmodule", icon= icon("upload"))%>%
+										spsComps::bsPopover(
+												title= "DCF data", 
+												content = "Annex 9",
+												placement = "right", 
+												bgcolor = "blue",
+												titlecolor = "white", 
+												contentcolor = "blue"),		
 								menuItem("Edit Data module", tabName="editAllmodule", icon=icon("edit")),
 								menuItem("Plot duplicates module", tabName='plot_duplicates_module',icon= icon("fas fa-chart-area")),
 								menuItem("New Participants module", tabName="newparticipantstabmodule", icon=icon("user-friends"))
