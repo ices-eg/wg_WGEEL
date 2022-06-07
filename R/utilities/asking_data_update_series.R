@@ -101,7 +101,11 @@ create_datacall_file_series <- function(country, name, ser_typ_id, type="series"
   
   key <- c("1" = "Recruitment","2" = "Yellow_standing_stock","3" = "Silver")
   suffix <- key[ser_typ_id]
-  namedestinationfile <- str_c(name,"_",country, "_",suffix, ".xlsx")	
+  if (type == "series"){
+    namedestinationfile <- str_c(name,"_",country, "_",suffix, ".xlsx")	
+  } else {
+    namedestinationfile <- str_c(name,"_",country, ".xlsx")	
+  }
   if (ser_typ_id==1 & type=="series") namedestinationfile <-gsub("Annex","Annex1", namedestinationfile)
   if (ser_typ_id==2 & type=="series") namedestinationfile <-gsub("Annex","Annex2", namedestinationfile)
   if (ser_typ_id==3 & type=="series") namedestinationfile <-gsub("Annex","Annex3", namedestinationfile)
@@ -482,7 +486,7 @@ for (country in country_code){
   gc()
   cat("country: ",country,"\n")
   create_datacall_file_series(country, 
-                              name="Eel_Data_Call_2022_Annex_time_series", 
+                              name="Eel_Data_Call_2022_Annex_Time_Series", 
                               ser_typ_id=1)
 }
 
@@ -495,7 +499,7 @@ for (country in country_code ){
   gc()
   cat("country: ",country,"\n")
   create_datacall_file_series(country, 
-                              name="Eel_Data_Call_2022_Annex_time_series", 
+                              name="Eel_Data_Call_2022_Annex_Time_Series", 
                               ser_typ_id=2)
 }
 
@@ -507,7 +511,7 @@ for (country in country_code ){
   gc()
   cat("country: ",country,"\n")
   create_datacall_file_series(country, 
-                              name="Eel_Data_Call_2022_Annex_time_series", 
+                              name="Eel_Data_Call_2022_Annex_Time_Series", 
                               ser_typ_id=3)
 }
 
@@ -515,8 +519,9 @@ for (country in country_code ){
 
 # DCF ---------------------------------------------------
 
-
-for (country in country_code ){
+dirs = list.dirs("data/datacall_template/",full.names=FALSE)
+dirs = dirs[-(1:2)] # remove "" et 00_template
+for (country in dirs ){
   gc()
   cat("country: ",country,"\n")
   create_datacall_file_series(country, 
