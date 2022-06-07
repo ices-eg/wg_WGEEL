@@ -887,7 +887,7 @@ compare_with_database_metric_ind <- function(
 	new <-  dplyr::anti_join(data_from_excel_long, data_from_base, 
 			by = c(ifelse(type=="series","ser_nameshort","sai_name"), "fi_date","mei_mty_id"))
 	
-	if (nrow(new)>0)	new$gr_dts_datasource <- the_eel_datasource
+	if (nrow(new)>0)	new$fi_dts_datasource <- the_eel_datasource
 	
 	
 	modified <- dplyr::anti_join(data_from_excel, data_from_base_wide, 
@@ -2087,22 +2087,33 @@ write_new_group_metrics <- function(path, type="series") {
 	new <- read_excel(path = path, sheet = 1, skip = 1)
 	gr_table <- ifelse(type=="series","t_groupseries_grser","t_groupsamp_grsa")
 	gr_key <- ifelse(type=="series","grser_ser_id","grsa_sai_id")
+	gr_add <- ifelse(type=="series","",",grsa_lfs_code")
+	gr_add1 <- ifelse(type=="series","",",g.grsa_lfs_code")
 	metric_table <- ifelse(type=="series","t_metricgroupseries_megser","t_metricgroupsamp_megsa")	
 	dbWriteTable(conn,"group_tmp",new,temporary=TRUE)
 	message <- NULL
+	if (any(is.na(new[,gr_key]))) {
+		message0 <- paste("you have missing values in",gr_key,"(1) integrate new sampling, (2) re-run steps 0 and 1 and (3) integrate new group metrics")
+	} else {
+		message0 <-NULL
+	}
 	#dbGetQuery(conn, "DELETE FROM datawg.t_groupseries_grser")
 	(nr <- tryCatch({
-							
-							sqlgr<- glue::glue_sql("INSERT INTO datawg.{`gr_table`}(gr_year,gr_number,gr_comment,gr_dts_datasource,{`gr_key`})
-											select DISTINCT ON (id) g.gr_year,g.gr_number,g.gr_comment,g.gr_dts_datasource,g.{`gr_key`} from group_tmp g returning gr_id, gr_year, {`gr_key`};")
-							res0 <- dbGetQuery(conn,sqlgr)
+							# glue_sql does not handle removing strings use glue instead
+							sqlgr <- glue(
+											"INSERT INTO datawg.{gr_table}(gr_year,gr_number,gr_comment,gr_dts_datasource,{gr_key}{gr_add})
+											 SELECT DISTINCT ON (id) g.gr_year,g.gr_number,g.gr_comment,g.gr_dts_datasource,g.{gr_key}{gr_add1}
+											 FROM group_tmp g returning gr_id, gr_year, {gr_key};")
+									
+							res0 <- dbExecute(conn,sqlgr)
 							new1 <- new %>% select(-id, -gr_id) %>% inner_join(res0, by=c("gr_year",gr_key))
 							dbWriteTable(conn,"group_tmp1",new1,temporary=TRUE)
 							sqlmetrics <- glue::glue_sql("INSERT INTO datawg.{`metric_table`}(meg_gr_id, meg_mty_id, meg_value, meg_dts_datasource, meg_qal_id)
-									SELECT gr_id, meg_mty_id, meg_value, meg_dts_datasource, 1 as meg_qal_id FROM group_tmp1;")
+									SELECT gr_id, meg_mty_id, meg_value, meg_dts_datasource, 1 as meg_qal_id FROM group_tmp1;",
+							.con=conn)
 							
 							nr0 <- nrow(res0)
-							nr1 <- dbGetQuery(conn, sqlmetrics)
+							nr1 <- dbExecute(conn, sqlmetrics)
 						}, error = function(e) {
 							message <<- e
 						}, finally = {
@@ -2111,10 +2122,16 @@ write_new_group_metrics <- function(path, type="series") {
 						}))
 	
 	
-	
+	if (type=="series"){
+		cou_code = dbGetQuery(conn,paste0("SELECT ser_cou_code FROM datawg.t_series_ser WHERE ser_id='",
+						new$grser_ser_id[1],"';"))$ser_cou_code  
+	} else {
+		cou_code = dbGetQuery(conn,paste0("SELECT sai_cou_code FROM datawg.t_samplinginfo_sai WHERE sai_name='",
+						new$sai_name[1],"';"))$sai_cou_code  	
+	}
 	if (is.null(message))   
 		message <- sprintf(" %s and %s new values inserted in the group and metric tables", nr0, nr1)
-	
+	if (!is.null(message0)) message <- paste(message, message0)
 	return(list(message = message, cou_code = cou_code))
 }
 
@@ -2135,12 +2152,14 @@ write_updated_group_metrics <-function(path, type="series"){
 									(gr_year,gr_number,gr_comment,gr_dts_datasource,) =
 									(g.gr_year,g.gr_number,g.gr_comment,g.gr_dts_datasource,g.{`gr_key`}) FROM
 									group_tmp g
-									WHERE g.gr_id={`gr_table`}.gr_id")
+									WHERE g.gr_id={`gr_table`}.gr_id",
+							.con=conn)
 							dbExecute(conn, sqlgr)
 							sqlmetrics <- glue::glue_sql("UPDATE datawg.{`metric_table`} SET (meg_gr_id, meg_mty_id, meg_value, meg_dts_datasource, meg_qal_id)
 									=( g.gr_id, g.meg_mty_id, g.meg_value, g.meg_dts_datasource, 1 as meg_qal_id ) 
 									FROM group_tmp g
-									WHERE g.gr_id= {`metric_table`}.gr_id")
+									WHERE g.gr_id= {`metric_table`}.gr_id",
+							.con=conn)
 							dbExecute(conn, sqlmetrics)
 							
 						}, error = function(e) {
@@ -2149,8 +2168,13 @@ write_updated_group_metrics <-function(path, type="series"){
 							dbExecute(conn,"drop table if exists group_tmp")
 						}))
 	if (is.null(message)) message <- sprintf(" %s and %s new values inserted in the group and metric tables", nr0, nr1)
-	cou_code = dbGetQuery(conn,paste0("SELECT ser_cou_code FROM datawg.t_series_ser WHERE ser_id='",
-					new$grser_ser_id[1],"';"))$ser_cou_code  
+	if (type=="series"){
+		cou_code = dbGetQuery(conn,paste0("SELECT ser_cou_code FROM datawg.t_series_ser WHERE ser_id='",
+						updated$grser_ser_id[1],"';"))$ser_cou_code  
+	} else {
+		cou_code = dbGetQuery(conn,paste0("SELECT sai_cou_code FROM datawg.t_samplinginfo_sai WHERE sai_name='",
+						updated$sai_name[1],"';"))$sai_cou_code  	
+	}
 	return(list(message = message, cou_code = cou_code))
 }
 
@@ -2165,7 +2189,8 @@ delete_group_metrics <- function(path, type="series"){
 	
 	(nr <- tryCatch({	
 							sql_group <- glue::glue_sql("DELETE FROM datawg.{`gr_table`} 
-									WHERE gr_id IN (SELECT distinct gr_id FROM group_tmp")
+									WHERE gr_id IN (SELECT distinct gr_id FROM group_tmp",
+							.con=conn)
 							nr0 <- dbExecute(conn, sql_group)							
 						}, error = function(e) {
 							message <<- e
@@ -2173,12 +2198,12 @@ delete_group_metrics <- function(path, type="series"){
 							dbExecute(conn,"drop table if exists group_tmp")
 						}))
 	if (is.null(message)) message <- sprintf(" %s values deleted from group table, cascade delete on metrics", nr0)
-	if (type==series){
+	if (type=="series"){
 	cou_code = dbGetQuery(conn,paste0("SELECT ser_cou_code FROM datawg.t_series_ser WHERE ser_id='",
 					deleted$grser_ser_id[1],"';"))$ser_cou_code  
 	} else {
-		cou_code = dbGetQuery(conn,paste0("SELECT sai_cou_code FROM datawg.t_samplinginfo_sai WHERE sai_id='",
-						deleted$grsa_sai_id[1],"';"))$sai_cou_code  	
+		cou_code = dbGetQuery(conn,paste0("SELECT sai_cou_code FROM datawg.t_samplinginfo_sai WHERE sai_name='",
+						deleted$sai_name[1],"';"))$sai_cou_code  	
 	}
 	
 	return(list(message = message, cou_code = cou_code))
@@ -2195,17 +2220,30 @@ write_new_individual_metrics <- function(path, type="series"){
 	ind_table <- ifelse(type=="series","t_fishseries_fiser","t_fishsamp_fisa")
 	ind_key <- ifelse(type=="series","fiser_ser_id","fisa_sai_id")
 	metric_table <- ifelse(type=="series","t_metricindseries_meiser","t_metricindsamp_meisa")	
-	if (type==series){
+	addcol0 <- ifelse(type=="series",
+			"",
+			",fisa_lfs_code,fisa_x_4326,fisa_y_4326")
+	addcol1 <- ifelse(type=="series",
+			"",
+			",i.fisa_lfs_code,i.fisa_x_4326,i.fisa_y_4326")
+	if (type=="series"){
 		cou_code = dbGetQuery(conn,paste0("SELECT ser_cou_code FROM datawg.t_series_ser WHERE ser_id='",
-						deleted$grser_ser_id[1],"';"))$ser_cou_code  
+						new$grser_ser_id[1],"';"))$ser_cou_code  
 	} else {
-		cou_code = dbGetQuery(conn,paste0("SELECT sai_cou_code FROM datawg.t_samplinginfo_sai WHERE sai_id='",
-						deleted$grsa_sai_id[1],"';"))$sai_cou_code  	
+		cou_code = dbGetQuery(conn,paste0("SELECT sai_cou_code FROM datawg.t_samplinginfo_sai WHERE sai_name='",
+						new$sai_name[1],"';"))$sai_cou_code  	
 	} 
 	dbWriteTable(conn,"ind_tmp",new,temporary=TRUE, overwrite=TRUE)
 	message <- NULL
+	message <- NULL
+	if (any(is.na(new[,ind_key]))) {
+		message0 <- paste("you have missing values in",ind_key,"(1) integrate new sampling, (2) re-run steps 0 and 1 and (3) integrate new group metrics")
+	} else {
+		message0 <-NULL
+	}
 	#dbGetQuery(conn, "DELETE FROM datawg.t_groupseries_grser")
-	query <- glue::glue_sql("DO $$
+
+     query <- glue::glue("DO $$
 			DECLARE
 			rec record;
 			id_ integer;
@@ -2218,20 +2256,20 @@ write_new_individual_metrics <- function(path, type="series"){
 			-- insert fish
 			BEGIN
 			id_:=rec.id;
-			INSERT INTO datawg.{`ind_table`}(fi_date,fi_year,fi_comment,fi_dts_datasource,{`ind_key`})
-			(select distinct on (id) i.fi_date::date,i.fi_year,i.fi_comment,i.fi_dts_datasource,i.{`ind_key`} 
-			FROM ind_tmp i
-			WHERE i.id=id_)
-			RETURNING fi_id INTO fi_id_;
+			INSERT INTO datawg.{ind_table}(fi_date,fi_year,fi_comment,fi_dts_datasource,{ind_key}{addcol0})
+			 SELECT distinct on (id) i.fi_date::date,i.fi_year,i.fi_comment,i.fi_dts_datasource,i.{ind_key}{addcol1} 
+			 FROM ind_tmp i
+			 WHERE i.id=id_
+			 RETURNING fi_id INTO fi_id_;
 			--insert metrics, qal_id is 1
 			-- the fi_id is determined from id (the row number in wide format)
-			INSERT INTO datawg.{`metric_table`}(mei_fi_id, mei_mty_id, mei_value, mei_dts_datasource, mei_qal_id)
+			INSERT INTO datawg.{metric_table}(mei_fi_id, mei_mty_id, mei_value, mei_dts_datasource, mei_qal_id)
 			SELECT fi_id_, i.mei_mty_id, i.mei_value, i.mei_dts_datasource, 1 as mei_qal_id FROM ind_tmp i
 			WHERE i.id= id_;
 			END;
 			END LOOP;
 			END;								
-			$$ LANGUAGE 'plpgsql';")
+			$$ LANGUAGE 'plpgsql';"	)
 	
 	tryCatch(	dbExecute(conn, query)
 			, error = function(e) {
@@ -2243,6 +2281,7 @@ write_new_individual_metrics <- function(path, type="series"){
 				sprintf(" %s and %s new values inserted in the group and metric tables", 
 						new %>% distinct(id) %>% nrow(), 
 						nrow(new)) 
+	if (!is.null(message0)) message <- paste(message, message0)
 	return(list(message = message, cou_code = cou_code))
 }
 # no way to know if fish is updated, I'm updating it anyways...
@@ -2262,12 +2301,14 @@ write_updated_individual_metrics <- function(path, type="series"){
 									(fi_date,fi_year,fi_comment,fi_dts_datasource,fiser_ser_id) =
 									(i.fi_date::date,i.fi_year,i.fi_comment,i.fi_dts_datasource,i.{`ind_key`}) FROM
 									ind_tmp i
-									WHERE i.fi_id={`ind_table`}.fi_id")
+									WHERE i.fi_id={`ind_table`}.fi_id",
+							.con=conn)
 							nr0 <- dbExecute(conn, sql0)
 							sql1 <- glue::glue_sql("UPDATE datawg.{`metric_table`} SET (mei_mty_id, mei_value, mei_dts_datasource, mei_qal_id)
 									=( i.fi_id, i.mei_mty_id, i.mei_value, i.mei_dts_datasource, 1 as mei_qal_id) 
 									FROM ind_tmp i
-									WHERE i.fi_id= {`metric_table`}.fi_id")
+									WHERE i.fi_id= {`metric_table`}.fi_id",
+							.con=conn)
 							nr1 <- dbExecute(conn, sql1)
 							
 						}, error = function(e) {
@@ -2276,12 +2317,12 @@ write_updated_individual_metrics <- function(path, type="series"){
 							dbExecute(conn,"drop table if exists ind_tmp")
 						}))
 	if (is.null(message)) message <- sprintf(" %s and %s new values inserted in the group and metric tables", nr0, nr1)
-	if (type==series){
+	if (type=="series"){
 		cou_code = dbGetQuery(conn,paste0("SELECT ser_cou_code FROM datawg.t_series_ser WHERE ser_id='",
-						deleted$grser_ser_id[1],"';"))$ser_cou_code  
+						updated$grser_ser_id[1],"';"))$ser_cou_code  
 	} else {
-		cou_code = dbGetQuery(conn,paste0("SELECT sai_cou_code FROM datawg.t_samplinginfo_sai WHERE sai_id='",
-						deleted$grsa_sai_id[1],"';"))$sai_cou_code  	
+		cou_code = dbGetQuery(conn,paste0("SELECT sai_cou_code FROM datawg.t_samplinginfo_sai WHERE sai_name='",
+						updated$sai_name[1],"';"))$sai_cou_code  	
 	} 
 	
 	return(list(message = message, cou_code = cou_code))
@@ -2298,7 +2339,8 @@ delete_individual_metrics <- function(path, type="series"){
 	
 	(nr <- tryCatch({
 							sql <- glue::glue_sql("DELETE FROM datawg.{`ind_table`} 
-									WHERE fi_id IN (SELECT distinct fi_id FROM ind_tmp")
+									WHERE fi_id IN (SELECT distinct fi_id FROM ind_tmp",
+							.con=conn)
 							nr0 <- dbExecute(conn, sql)							
 						}, error = function(e) {
 							message <<- e
@@ -2306,12 +2348,12 @@ delete_individual_metrics <- function(path, type="series"){
 							dbExecute(conn,"drop table if exists ind_tmp")
 						}))
 	if (is.null(message)) message <- sprintf(" %s values deleted from fish table, cascade delete on metrics", nr0)
-	if (type==series){
+	if (type=="series"){
 		cou_code = dbGetQuery(conn,paste0("SELECT ser_cou_code FROM datawg.t_series_ser WHERE ser_id='",
 						deleted$grser_ser_id[1],"';"))$ser_cou_code  
 	} else {
-		cou_code = dbGetQuery(conn,paste0("SELECT sai_cou_code FROM datawg.t_samplinginfo_sai WHERE sai_id='",
-						deleted$grsa_sai_id[1],"';"))$sai_cou_code  	
+		cou_code = dbGetQuery(conn,paste0("SELECT sai_cou_code FROM datawg.t_samplinginfo_sai WHERE sai_name='",
+						deleted$sai_name[1],"';"))$sai_cou_code  	
 	} 
 	return(list(message = message, cou_code = cou_code))
 }

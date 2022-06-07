@@ -283,7 +283,7 @@ importdcfstep2Server <- function(id,globaldata,loaded_data_dcf){
 										path <- isolate(step2.2.1_filepath_deleted_group_metrics())
 										if (is.null(data$path_step_2.2.1_deleted_group_metrics)) 
 											return(NULL)
-										rls <- delete_group_metrics(path)
+										rls <- delete_group_metrics(path, type="other")
 										message <- rls$message
 										cou_code <- rls$cou_code
 										main_assessor <- input$main_assessor
@@ -324,7 +324,7 @@ importdcfstep2Server <- function(id,globaldata,loaded_data_dcf){
 										path <- isolate(step2.2.2_filepath_new_group_metrics())
 										if (is.null(data$path_step_2.2.2_new_group_metrics)) 
 											return(NULL)
-										rls <- write_new_group_metrics(path)
+										rls <- write_new_group_metrics(path, type="other")
 										message <- rls$message
 										cou_code <- rls$cou_code
 										main_assessor <- input$main_assessor
@@ -354,7 +354,7 @@ importdcfstep2Server <- function(id,globaldata,loaded_data_dcf){
 				observeEvent(input$update_group_metrics_button, tryCatch({
 									
 									step2.2.3_filepath_update_group_metrics <- reactive({
-												inFile <- isolate(input$xl_update_group_metrics)     
+												inFile <- isolate(input$xl_update_group_metrics, type="other")     
 												if (is.null(inFile)){        return(NULL)
 												} else {
 													data$path_step_2.2.3_update_group_metrics <- inFile$datapath #path to a temp file             
@@ -395,7 +395,7 @@ importdcfstep2Server <- function(id,globaldata,loaded_data_dcf){
 				observeEvent(input$delete_individual_metrics_button, tryCatch({
 									
 									step2.3.1_filepath_deleted_individual_metrics <- reactive({
-												inFile <- isolate(input$xl_deleted_individual_metrics)     
+												inFile <- isolate(input$xl_deleted_individual_metrics, type="other")     
 												if (is.null(inFile)){        return(NULL)
 												} else {
 													data$path_step_2.3.1_deleted_individual_metrics <- inFile$datapath #path to a temp file             
@@ -447,7 +447,7 @@ importdcfstep2Server <- function(id,globaldata,loaded_data_dcf){
 										path <- isolate(step2.3.2_filepath_new_individual_metrics())
 										if (is.null(data$path_step_2.3.2_new_individual_metrics)) 
 											return(NULL)
-										rls <- write_new_individual_metrics(path)
+										rls <- write_new_individual_metrics(path, type="other")
 										message <- rls$message
 										cou_code <- rls$cou_code
 										main_assessor <- input$main_assessor
@@ -488,7 +488,7 @@ importdcfstep2Server <- function(id,globaldata,loaded_data_dcf){
 										path <- isolate(step2.3.3_filepath_update_individual_metrics())
 										if (is.null(data$path_step_2.3.3_update_individual_metrics)) 
 											return(NULL)
-										rls <- update_individual_metrics(path)
+										rls <- update_individual_metrics(path, type="other")
 										message <- rls$message
 										cou_code <- rls$cou_code
 										main_assessor <- input$main_assessor
