@@ -431,17 +431,20 @@ AS $function$
   BEGIN
   
   SELECT INTO
-  inpolygon coalesce(st_contains(geom,st_point(new.fisa_x_4326, new.fisa_y_4326, 4326)), true) FROM  
+  inpolygon coalesce(st_contains(geom,st_setsrid(st_point(new.fisa_x_4326, new.fisa_y_4326), 4326)), true) FROM  
   datawg.t_samplinginfo_sai
   JOIN REF.tr_emu_emu ON emu_nameshort=sai_emu_nameshort where new.fisa_sai_id = sai_id;
   IF (inpolygon = false) THEN
-    RAISE EXCEPTION 'the fish % coordinates do not fall into the corresponding emu', new.fi_id ;
+    RAISE EXCEPTION 'the fish % coordinates X % Y % do not fall into the corresponding emu', new.fi_id, new.fisa_x_4326,new.fisa_y_4326 ;
     END IF  ;
 
     RETURN NEW ;
   END  ;
 $function$
 ;
+
+--SELECT PostGIS_Version()
+-- note st_point(x,y, int) is only available in postgis 3.2 we have 3.1
 
 GRANT ALL ON FUNCTION  datawg.fish_in_emu TO wgeel;
 
