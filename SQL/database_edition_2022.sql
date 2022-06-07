@@ -180,7 +180,6 @@ CREATE TABLE datawg.t_samplinginfo_sai(
   sai_name VARCHAR(20),
   sai_cou_code VARCHAR(2),
   sai_emu_nameshort VARCHAR(20),
-  sai_locationdescription VARCHAR(254),
   sai_area_division VARCHAR(254),
   sai_hty_code varchar(2),
   sai_comment TEXT, -- this could be DCF ... other CHECK IF we need a referential TABLE....
@@ -195,7 +194,8 @@ CREATE TABLE datawg.t_samplinginfo_sai(
   CONSTRAINT c_fk_sai_emu FOREIGN KEY (sai_emu_nameshort,sai_cou_code) REFERENCES "ref".tr_emu_emu(emu_nameshort,emu_cou_code) ON UPDATE CASCADE,
   CONSTRAINT c_fk_sai_area_division FOREIGN KEY (sai_area_division) REFERENCES "ref".tr_faoareas(f_division) ON UPDATE CASCADE,
   CONSTRAINT c_fk_sai_dts_datasource FOREIGN KEY (sai_dts_datasource) REFERENCES "ref".tr_datasource_dts(dts_datasource) ON UPDATE CASCADE,
-  CONSTRAINT c_fk_sai_hty_code FOREIGN KEY (sai_hty_code) REFERENCES "ref".tr_habitattype_hty(hty_code) ON UPDATE CASCADE
+  CONSTRAINT c_fk_sai_hty_code FOREIGN KEY (sai_hty_code) REFERENCES "ref".tr_habitattype_hty(hty_code) ON UPDATE CASCADE,
+  CONSTRAINT c_uk_sai_name UNIQUE (sai_name)
 );
 GRANT ALL ON TABLE datawg.t_samplinginfo_sai TO wgeel;
 -- Table Triggers
@@ -224,7 +224,7 @@ DROP TABLE  if exists datawg.t_fish_fi CASCADE;
 CREATE TABLE datawg.t_fish_fi(
   fi_id SERIAL PRIMARY KEY,
   fi_date DATE NOT NULL,
-  fi_year INTEGER NOT NULL,
+  fi_year INTEGER,
   fi_comment TEXT,
   fi_lastupdate DATE NOT NULL DEFAULT CURRENT_DATE,
   fi_dts_datasource varchar(100),
@@ -252,7 +252,7 @@ CREATE TRIGGER update_fi_lastupdate BEFORE INSERT OR UPDATE ON
  * Table fish for series
  *
  */ 
-DROP TABLE IF EXISTS  t_fishseries_fiser;
+DROP TABLE IF EXISTS  datawg.t_fishseries_fiser CASCADE;
 CREATE TABLE  datawg.t_fishseries_fiser(
   fiser_ser_id INTEGER NOT NULL,  
   CONSTRAINT t_fishseries_fiser_pkey PRIMARY KEY (fi_id),
@@ -260,7 +260,11 @@ CREATE TABLE  datawg.t_fishseries_fiser(
 )
 INHERITS (datawg.t_fish_fi);
 
+ALTER TABLE datawg.t_fishseries_fiser ADD CONSTRAINT  c_fk_fiser_dts_datasource 
+FOREIGN KEY (fi_dts_datasource) REFERENCES "ref".tr_datasource_dts(dts_datasource) ON UPDATE CASCADE;
 
+-- because of seasons (glass eel and silver), years can match the date of collection
+-- or the previous year
 CREATE OR REPLACE FUNCTION datawg.fiser_year()
  RETURNS trigger
  LANGUAGE plpgsql
@@ -268,8 +272,8 @@ AS $function$
  
   BEGIN
    
-    IF NEW.fiser_year <> EXTRACT(YEAR FROM NEW.fi_date) THEN
-      RAISE EXCEPTION 'table t_fisheries_fiser, column fiser_year does not match the date of fish collection (table t_fish_fi)' ;
+    IF NOT (NEW.fis_year in (EXTRACT(YEAR FROM NEW.fi_date), EXTRACT(YEAR FROM NEW.fi_date)-1)) THEN
+      RAISE EXCEPTION 'table t_fisheries_fiser, column fi_year does not match the date of fish collection (table t_fish_fi)' ;
     END IF  ;
 
     RETURN NEW ;
@@ -281,12 +285,13 @@ DROP TRIGGER IF EXISTS check_year_and_date ON datawg.t_fishseries_fiser ;
 CREATE TRIGGER check_year_and_date AFTER INSERT OR UPDATE ON
    datawg.t_fishseries_fiser FOR EACH ROW EXECUTE FUNCTION datawg.fiser_year();
 
-
+CREATE TRIGGER update_fi_lastupdate BEFORE INSERT OR UPDATE ON
+   datawg.t_fishseries_fiser FOR EACH ROW EXECUTE FUNCTION datawg.fi_lastupdate();
 
 /*
-* HERE set as wgs84 do we set this in 3035 ?
+* HERE set as wgs84 
 */
-DROP TABLE IF EXISTS  datawg.t_fishsamp_fisa;
+DROP TABLE IF EXISTS  datawg.t_fishsamp_fisa CASCADE;
 CREATE TABLE  datawg.t_fishsamp_fisa(
 fisa_sai_id INTEGER,
 fisa_lfs_code varchar(2) NOT NULL, 
@@ -300,7 +305,11 @@ CONSTRAINT c_fk_fisa_sai_id FOREIGN KEY (fisa_sai_id) REFERENCES datawg.t_sampli
 INHERITS (datawg.t_fish_fi);
 
 
+ALTER TABLE datawg.t_fishsamp_fisa ADD CONSTRAINT  c_fk_fisa_dts_datasource 
+FOREIGN KEY (fi_dts_datasource) REFERENCES "ref".tr_datasource_dts(dts_datasource) ON UPDATE CASCADE;
 
+CREATE TRIGGER update_fi_lastupdate BEFORE INSERT OR UPDATE ON
+   datawg.t_fishsamp_fisa FOR EACH ROW EXECUTE FUNCTION datawg.fi_lastupdate();
   
 /*
  * TABLE OF INDIVIDUAL METRICS
@@ -422,17 +431,20 @@ AS $function$
   BEGIN
   
   SELECT INTO
-  inpolygon coalesce(st_contains(geom,st_point(new.fisa_x_4326, new.fisa_y_4326, 4326)), true) FROM  
+  inpolygon coalesce(st_contains(geom,st_setsrid(st_point(new.fisa_x_4326, new.fisa_y_4326), 4326)), true) FROM  
   datawg.t_samplinginfo_sai
   JOIN REF.tr_emu_emu ON emu_nameshort=sai_emu_nameshort where new.fisa_sai_id = sai_id;
   IF (inpolygon = false) THEN
-    RAISE EXCEPTION 'the fish % coordinates do not fall into the corresponding emu', new.fi_id ;
+    RAISE EXCEPTION 'the fish % coordinates X % Y % do not fall into the corresponding emu', new.fi_id, new.fisa_x_4326,new.fisa_y_4326 ;
     END IF  ;
 
     RETURN NEW ;
   END  ;
 $function$
 ;
+
+--SELECT PostGIS_Version()
+-- note st_point(x,y, int) is only available in postgis 3.2 we have 3.1
 
 GRANT ALL ON FUNCTION  datawg.fish_in_emu TO wgeel;
 
@@ -498,103 +510,14 @@ create trigger update_gr_lastupdate BEFORE insert  OR update on
     datawg.t_group_gr for each row execute function datawg.gr_lastupdate();
     
     
+create trigger update_gr_lastupdate BEFORE insert  OR update on
+    datawg.t_groupseries_grser for each row execute function datawg.gr_lastupdate(); 
+  
+      
+create trigger update_gr_lastupdate BEFORE insert  OR update on
+    datawg.t_groupsamp_grsa for each row execute function datawg.gr_lastupdate(); 
+
  
-
-/*
-DROP TABLE IF EXISTS datawg.t_biometrygroup_big CASCADE;
-CREATE TABLE datawg.t_biometrygroup_big (
-  big_id serial PRIMARY KEY,
-  big_gr_id INTEGER,
-  big_year int4,
-  big_mty_id INTEGER,
-  big_value NUMERIC,
-  big_comment TEXT,
-  big_last_update DATE NOT NULL DEFAULT CURRENT_DATE,
-  big_qal_id int4, 
-  big_dts_datasource varchar(100),
-  CONSTRAINT c_ck_uk_big_gr UNIQUE (big_gr_id, big_year, big_mty_id),
-  CONSTRAINT c_fk_big_mty_id FOREIGN KEY (big_mty_id) REFERENCES "ref".tr_metrictype_mty(mty_id) ON UPDATE CASCADE,
-  CONSTRAINT c_fk_big_qal_id FOREIGN KEY (big_qal_id) REFERENCES "ref".tr_quality_qal(qal_id) ON UPDATE CASCADE,
-  CONSTRAINT c_fk_big_dts_datasource FOREIGN KEY (big_dts_datasource) REFERENCES "ref".tr_datasource_dts(dts_datasource) ON UPDATE CASCADE,
-  CONSTRAINT c_fk_big_gr_id FOREIGN KEY (big_gr_id) REFERENCES datawg.t_group_gr(gr_id) ON UPDATE CASCADE ON DELETE CASCADE
-)
-;
-
--- Add trigger on last_update
-CREATE OR REPLACE FUNCTION datawg.big_last_update()
- RETURNS trigger
- LANGUAGE plpgsql
-AS $function$
-BEGIN
-    NEW.big_last_update = now()::date;
-    RETURN NEW; 
-END;
-$function$
-;
-
-DROP TRIGGER IF EXISTS update_big_last_update ON datawg.t_biometrygroup_big ;
-CREATE TRIGGER update_big_last_update BEFORE INSERT OR UPDATE ON
-  datawg.t_biometrygroup_big FOR EACH ROW EXECUTE FUNCTION  datawg.big_last_update();
-
--- trigger check that only group metrics are used
-
-CREATE OR REPLACE FUNCTION datawg.big_mty_is_group()
- RETURNS trigger
- LANGUAGE plpgsql
-AS $function$   
-  DECLARE the_mty_type TEXT;
-          the_mty_name TEXT;
- 
-  BEGIN
-   
-  SELECT INTO
-  the_mty_type , the_mty_name   
-  mty_type, mty_name FROM NEW 
-  JOIN REF.tr_mesuretype_mty ON mty_id=NEW.big_mty_id;
-
-    IF (the_mty_type <> 'Group') THEN
-    RAISE EXCEPTION 'table t_biometrygroup_big, metric --> % is not a group metric', the_mty_name ;
-    END IF  ;
-
-    RETURN NEW ;
-  END  ;
-$function$
-;
-
-DROP TRIGGER IF EXISTS check_big_mty_is_group ON datawg.t_biometrygroup_big;
-CREATE TRIGGER check_big_mty_is_group AFTER INSERT OR UPDATE ON
-   datawg.t_biometrygroup_big FOR EACH ROW EXECUTE FUNCTION datawg.big_mty_is_group();
-
--- trigger check that only biometry metrics are used
-
-CREATE OR REPLACE FUNCTION datawg.big_mty_is_biometry()
- RETURNS trigger
- LANGUAGE plpgsql
-AS $function$   
-  DECLARE the_mty_group TEXT;
-          the_mty_name TEXT;
- 
-  BEGIN
-   
-  SELECT INTO
-  the_mty_group , the_mty_name   
-  mty_group, mty_name FROM NEW 
-  JOIN REF.tr_mesuretype_mty ON mty_id=NEW.big_mty_id;
-
-    IF (the_mty_type <> 'Biometry') THEN
-    RAISE EXCEPTION 'table t_biometrygroup_big, metric --> % is not a metric of biometry', the_mty_name ;
-    END IF  ;
-
-    RETURN NEW ;
-  END  ;
-$function$
-;
-
-DROP TRIGGER IF EXISTS check_big_mty_is_biometry ON datawg.t_biometrygroup_big;
-CREATE TRIGGER check_big_mty_is_quality AFTER INSERT OR UPDATE ON
-   datawg.t_biometrygroup_big FOR EACH ROW EXECUTE FUNCTION datawg.big_mty_is_biometry();
-
-*/ 
 /*
  * table of individual metrics
  */
@@ -653,6 +576,15 @@ DROP TRIGGER IF EXISTS update_meg_last_update ON datawg.t_metricgroup_meg ;
 CREATE TRIGGER update_meg_last_update BEFORE INSERT OR UPDATE ON
   datawg.t_metricgroup_meg FOR EACH ROW EXECUTE FUNCTION  datawg.meg_last_update();
 
+DROP TRIGGER IF EXISTS update_meg_last_update ON datawg.t_metricgroupseries_megser ;
+CREATE TRIGGER update_meg_last_update BEFORE INSERT OR UPDATE ON
+  datawg.t_metricgroupseries_megser FOR EACH ROW EXECUTE FUNCTION  datawg.meg_last_update();
+
+DROP TRIGGER IF EXISTS update_meg_last_update ON datawg.t_metricgroupsamp_megsa ;
+CREATE TRIGGER update_meg_last_update BEFORE INSERT OR UPDATE ON
+  datawg.t_metricgroupsamp_megsa FOR EACH ROW EXECUTE FUNCTION  datawg.meg_last_update();
+
+
 -- trigger check that only group metrics are used
 
 CREATE OR REPLACE FUNCTION datawg.meg_mty_is_group()
@@ -668,7 +600,7 @@ AS $function$
   the_mty_type , the_mty_name   
   mty_type, mty_name FROM REF.tr_metrictype_mty where mty_id=NEW.meg_mty_id;
 
-    IF (the_mty_type == 'individual') THEN
+    IF (the_mty_type = 'individual') THEN
     RAISE EXCEPTION 'table t_metricgroup_meg, metric --> % is not a group metric', the_mty_name ;
     END IF  ;
 
@@ -680,6 +612,14 @@ $function$
 DROP TRIGGER IF EXISTS check_meg_mty_is_group ON datawg.t_metricgroup_meg;
 CREATE TRIGGER check_meg_mty_is_group AFTER INSERT OR UPDATE ON
    datawg.t_metricgroup_meg FOR EACH ROW EXECUTE FUNCTION datawg.meg_mty_is_group();
+
+ DROP TRIGGER IF EXISTS check_meg_mty_is_group ON datawg.t_metricgroupseries_megser;
+CREATE TRIGGER check_meg_mty_is_group AFTER INSERT OR UPDATE ON
+   datawg.t_metricgroupseries_megser FOR EACH ROW EXECUTE FUNCTION datawg.meg_mty_is_group();
+ 
+ DROP TRIGGER IF EXISTS check_meg_mty_is_group ON datawg.t_metricgroupsamp_megsa;
+CREATE TRIGGER check_meg_mty_is_group AFTER INSERT OR UPDATE ON
+   datawg.t_metricgroupsamp_megsa FOR EACH ROW EXECUTE FUNCTION datawg.meg_mty_is_group();
 
 
 -----
@@ -905,11 +845,17 @@ insert into ref.tr_emusplit_ems (emu_nameshort,emu_name,emu_cou_code,emu_hyd_sys
 commit; 
 
 
+
+-- fix problem with table sampling_gear
+GRANT ALL ON TABLE REF.tr_gear_gea TO wgeel;
+
+
 ----
 --preparation for data integration
 ----
 insert into ref.tr_quality_qal values (22, 'discarded_wgeel_2022', 'This data has either been removed from the database in favour of new data, or corresponds to new data not kept in the database during datacall 2022', false);
 insert into ref.tr_datasource_dts values ('dc_2022', 'Joint EIFAAC/GFCM/ICES Eel Data Call 2022');
+
 
 
 
