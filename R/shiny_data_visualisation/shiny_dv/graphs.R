@@ -42,7 +42,7 @@ combined_landings_graph<-function (dataset, title=NULL , col , country_ref)
       ggtitle(title)+ 
       xlab("Year") + ylab("Landings (tons)")+
       coord_cartesian(expand = FALSE, ylim = c(0, max(landings_year$eel_value)*1.6)) +
-      scale_fill_manual(values=col)+
+      scale_fill_manual(values=col, drop = TRUE)+
       theme_bw()
   
   # percentage of original data
@@ -152,27 +152,27 @@ raw_landings_graph<-function (dataset, title=NULL, col=color_countries,emu_col=c
   if (!habitat & !lfs){
     g_raw_Rlandings <- ggplot(dataset) + geom_col(aes(x=eel_year,y=eel_value,fill=Country), position='stack')+
         ggtitle(title) + xlab("year") + ylab("Landings (tons)")+
-        scale_fill_manual(legend_title, values=col_d)+
+        scale_fill_manual(legend_title, values=col_d[names(col_d) %in% unique(dataset$Country)], drop = TRUE)+
         theme_bw()  
     return(g_raw_Rlandings)  
   } else if (!habitat){
     g_raw_Rlandings <- ggplot(dataset) + geom_col(aes(x=eel_year,y=eel_value,fill=Country),  position='stack')+
         ggtitle(title) + xlab("year") + ylab("Landings (tons)")+
-        scale_fill_manual(legend_title,values=col_d)+
+        scale_fill_manual(legend_title,values=col_d[names(col_d) %in% unique(dataset$Country)], drop = TRUE)+
         facet_wrap(~eel_lfs_code)+
         theme_bw()  
     return(g_raw_Rlandings)   
   } else if (!lfs){
     g_raw_Rlandings <- ggplot(dataset) + geom_col(aes(x=eel_year,y=eel_value,fill=Country), position='stack')+
         ggtitle(title) + xlab("year") + ylab("Landings (tons)")+
-        scale_fill_manual(legend_title,values=col_d)+
+        scale_fill_manual(legend_title,values=col_d[names(col_d) %in% unique(dataset$Country)], drop = TRUE)+
         facet_wrap(~eel_hty_code)+
         theme_bw()  
     return(g_raw_Rlandings)   
   } else {
     g_raw_Rlandings <- ggplot(dataset) + geom_col(aes(x=eel_year,y=eel_value,fill=Country), position='stack')+
         ggtitle(title) + xlab("year") + ylab("Landings (tons)")+
-        scale_fill_manual(legend_title,values=col_d)+
+        scale_fill_manual(legend_title,values=col_d[names(col_d) %in% unique(dataset$Country)], drop = TRUE)+
         facet_grid(eel_lfs_code~eel_hty_code)+
         theme_bw()  
     return(g_raw_Rlandings)     
@@ -204,13 +204,13 @@ aquaculture_graph<-function(dataset, title=NULL, col=color_countries,
     g_aquaculture <-  ggplot(dataset) + 
         geom_col(aes(x=eel_year,y=eel_value,fill=Country), position='stack')+
         ggtitle(title) + xlab("year") + ylab(the_ylab)+
-        scale_fill_manual(values=col)+
+        scale_fill_manual(values=col[names(col) %in% unique(dataset$Country)], drop = TRUE)+
         theme_bw()  
   } else {
     g_aquaculture <-  ggplot(dataset) + 
         geom_col(aes(x=eel_year,y=eel_value,fill=Country), position='stack')+
         ggtitle(title) + xlab("year") + ylab(the_ylab)+
-        scale_fill_manual(values=col)+
+        scale_fill_manual(values=col[names(col) %in% unique(dataset$Country)], drop = TRUE)+
         facet_wrap(~eel_lfs_code)+
         theme_bw()  
   }
@@ -245,13 +245,13 @@ release_graph <- function(dataset,
     g_release <-  ggplot(dataset) + 
         geom_col(aes(x=eel_year,y=eel_value,fill=Country), position='stack')+
         ggtitle(title) + xlab("year") + ylab(the_ylab)+
-        scale_fill_manual(values=col)+
+        scale_fill_manual(values=col[names(col) %in% unique(dataset$Country)], drop = TRUE)+
         theme_bw()  
   } else {
     g_release<-  ggplot(dataset) + 
         geom_col(aes(x=eel_year,y=eel_value,fill=Country), position='stack')+
         ggtitle(title) + xlab("year") + ylab(the_ylab)+
-        scale_fill_manual(values=col)+
+        scale_fill_manual(values=col[names(col) %in% unique(dataset$Country)], drop = TRUE)+
         facet_wrap(~eel_lfs_code)+
         theme_bw()  
   }
