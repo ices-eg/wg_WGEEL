@@ -10,7 +10,7 @@
 importstep0UI <- function(id){
   ns <- NS(id)
   tagList(useShinyjs(),
-          h2("Datacall Integration and checks"),
+          h2("Datacall Annex 4 to 8 integration and checks"),
           h2("step 0 : Data check"),
           fluidRow(
             column(width=4,fileInput(ns("xlfile"), "Choose xls File",
@@ -78,7 +78,7 @@ importstep0Server <- function(id,globaldata){
                    output$"step0_message_xls"<-renderText("")
                  },error = function(e) {
                    showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
-                 }))
+                 }), ignoreInit = TRUE)
                  
                  
                  
@@ -180,7 +180,7 @@ importstep0Server <- function(id,globaldata){
                        
                      }
                      
-                   }) 			
+                   }, ignoreInit = TRUE) 			
                    
                    ##################################
                    # Actively generates UI component on the ui side 

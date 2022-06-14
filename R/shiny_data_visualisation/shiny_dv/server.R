@@ -248,7 +248,7 @@ server = function(input, output, session) {
 								scrollY = "500px",
 								keys = TRUE,
 								pageLength = 10,
-								columnDefs = list(list(className = 'dt-center')),
+								columnDefs = list(list(className = 'dt-center', targets = '_all')),
 								searching = FALSE, # no filtering options
 								lengthMenu=list(c(5,10,30,-1),c("5","10","30","All")),                
 								dom= "Bltip", # from left to right button left f, t tableau, i informaiton (showing..), p pagination
@@ -1158,7 +1158,7 @@ server = function(input, output, session) {
 								order=list(0,"asc"),
 								keys = TRUE,
 								pageLength = 10,
-								columnDefs = list(list(className = 'dt-center')),
+								columnDefs = list(list(className = 'dt-center', targets = '_all')),
 								searching = FALSE, # no filtering options
 								dom= "Bti", # from left to right button left f, t tableau, i informaiton (showing..), p pagination
 								buttons=list(

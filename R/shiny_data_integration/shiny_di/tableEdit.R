@@ -160,7 +160,7 @@ tableEditServer <- function(id,globaldata){
                    disable("clear_tableAll")                
                  },error = function(e) {
                    showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
-                 }))
+                 }), ignoreInit = TRUE)
                  
                  #-----------------------------------------
                  # Render DT table 
@@ -277,7 +277,7 @@ tableEditServer <- function(id,globaldata){
                    
                  },error = function(e) {
                    showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
-                 }))
+                 }), ignoreInit = TRUE)
                  
                  #-----------------------------------------
                  # Create a DT proxy to manipulate data
@@ -310,7 +310,7 @@ tableEditServer <- function(id,globaldata){
                    }
                  },error = function(e) {
                    showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
-                 }))
+                 }), ignoreInit = TRUE)
                  
                  
                  #depending on the data type we want to edit, the picker change
@@ -392,7 +392,7 @@ tableEditServer <- function(id,globaldata){
                    
                  },error = function(e) {
                    showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
-                 }))
+                 }), ignoreInit = TRUE)
                  
                  observeEvent(input$editpicker2,tryCatch({
                    if ((!startsWith(input$edit_datatype,"t_eelstock_eel")) & is.null(input$editpicker1)){
@@ -406,7 +406,7 @@ tableEditServer <- function(id,globaldata){
                    
                  },error = function(e) {
                    showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
-                 }))
+                 }), ignoreInit = TRUE)
                  
                  # Update edited values in db once save is clicked---------------------------------------------
                  
@@ -450,7 +450,7 @@ tableEditServer <- function(id,globaldata){
                                 rvsAll$editedInfo = NA
                               },error = function(e) {
                                 showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
-                              }))
+                              }), ignoreInit = TRUE)
                  
                  # Oberve cancel -> revert to last saved version -----------------------------------------------
                  
@@ -462,7 +462,7 @@ tableEditServer <- function(id,globaldata){
                    rvsAll$editedInfo = NA
                  },error = function(e) {
                    showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
-                 }))
+                 }), ignoreInit = TRUE)
                  
                  # UI buttons ----------------------------------------------------------------------------------
                  # Appear only when data changed

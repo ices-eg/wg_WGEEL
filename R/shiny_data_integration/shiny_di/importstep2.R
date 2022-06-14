@@ -150,7 +150,7 @@ importstep2Server <- function(id,globaldata, loaded_data){
                    })              
                  },error = function(e) {
                    showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
-                 })) 
+                 }), ignoreInit = TRUE) 
                  ##########################
                  # STEP 2.2
                  # When database_new_button is clicked
@@ -205,7 +205,7 @@ importstep2Server <- function(id,globaldata, loaded_data){
                    })  
                  },error = function(e) {
                    showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
-                 }))
+                 }), ignoreInit = TRUE)
                  
                  ##########################
                  # STEP 2.3
@@ -259,7 +259,7 @@ importstep2Server <- function(id,globaldata, loaded_data){
                    })  
                  },error = function(e) {
                    showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
-                 }))
+                 }), ignoreInit = TRUE)
                  
                  
                  
@@ -315,7 +315,7 @@ importstep2Server <- function(id,globaldata, loaded_data){
                    })  
                  },error = function(e) {
                    showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
-                 }))
+                 }), ignoreInit = TRUE)
                })
 }
   
