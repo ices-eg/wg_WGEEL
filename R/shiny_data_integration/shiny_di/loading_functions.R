@@ -2669,7 +2669,7 @@ load_dcf<-function(path,datasource){
 			sheet ="sampling_info",
 			skip=0)
 	
-	#WGEEL 2022 we made a mystake adding a sai_year in the db that should not exist
+	#WGEEL 2022 we made a mistake adding a sai_year in the db that should not exist
 	#those lines address the issue
 	if ("sai_year" %in% names(sampling_info)){
 	  sampling_info <- sampling_info %>%
