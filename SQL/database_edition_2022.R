@@ -1,11 +1,11 @@
 library(RPostgres)
 library(dplyr)
 library(yaml)
-cred=read_yaml("../../../credentials.yml")
-con = dbConnect(Postgres(), dbname=cred$dbname,host=cred$host,port=cred$port,user=cred$user)
+cred <- read_yaml("../credentials.yml")
+con = dbConnect(Postgres(), dbname=cred$dbname,host=cred$host,port=cred$port,user=cred$user, password=cred$password)
 
 #insert new tables
-metric=readxl::read_excel("/tmp/tr_metrictype_mty.xlsx")
+metric=readxl::read_excel("C:/temp/tr_metrictype_mty.xlsx")
 dbSendQuery(con,"drop table if exists tr_metrictype_mty")
 dbWriteTable(con,"tr_metrictype_mty",metric,temporaty=TRUE)
 dbSendQuery(con,"insert into ref.tr_metrictype_mty select * from tr_metrictype_mty")
@@ -75,7 +75,7 @@ biometry_ser_long <- biometry_ser %>%
 
 dbWriteTable(con,"bioval_tmp",biometry_ser_long,temporary=TRUE)
 dbSendQuery(con, "insert into datawg.t_metricgroupseries_megser (meg_gr_id,meg_mty_id,meg_value,meg_qal_id,meg_dts_datasource)
-           select gid::integer,mty_id,metric_val,bio_qal_id,bio_dts_datasource from bioval_tmp left join ref.tr_metrictype_mty on mty=mty_name")
+           select gid::integer,mty_id,metric_val,bio_qal_id,bio_dts_datasource from bioval_tmp left join ref.tr_metrictype_mty on mty=mty_name") # 4662
 dbSendQuery(con,"drop table if exists bioval_tmp")
 
 
@@ -116,8 +116,9 @@ sampling_sites <- biometry_sa_sf %>%
               select(emu_nameshort,emu_cou_code)) %>%
   unique() %>%
   mutate(sai_name=paste(emu_nameshort,bit_loc_name,"HIST",sep="_"))
+sampling_sites[sampling_sites$sai_name=='IT_Pugl_Lesina_HIST',"sai_name"]<-c("IT_Pugl_Lesina1_HIST","IT_Pugl_Lesina2_HIST")
 
-dbWriteTable(con,"sampling_tmp",sampling_sites,temporary=TRUE)
+dbWriteTable(con,"sampling_tmp",sampling_sites,temporary=TRUE, overwrite=TRUE)
 sai_id=dbGetQuery(con,"insert into datawg.t_samplinginfo_sai (sai_cou_code,sai_emu_nameshort,sai_comment,sai_name) 
             (select emu_cou_code,emu_nameshort, 'historical data ' || coalesce(bit_loc_name,''), sai_name from sampling_tmp) returning sai_id")
 dbSendQuery(con,"drop table if exists sampling_tmp")
@@ -189,7 +190,7 @@ biometry_sa_long <- biometry_sa_sf %>%
 
 dbWriteTable(con,"bioval_tmp",biometry_sa_long,temporary=TRUE)
 dbSendQuery(con, "insert into datawg.t_metricgroupsamp_megsa (meg_gr_id,meg_mty_id,meg_value,meg_qal_id,meg_dts_datasource)
-           select gid::integer,mty_id,metric_val,bio_qal_id,bio_dts_datasource from bioval_tmp left join ref.tr_metrictype_mty on mty=mty_name")
+           select gid::integer,mty_id,metric_val,bio_qal_id,bio_dts_datasource from bioval_tmp left join ref.tr_metrictype_mty on mty=mty_name") # 450
 dbSendQuery(con,"drop table if exists bioval_tmp")
 
 #

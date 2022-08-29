@@ -174,10 +174,12 @@ dbExecute(con, "DROP TABLE tr_metrictype_mty_temp")
  * CREATE A TABLE TO STORE BIOMETRY ON INDIVIDUAL DATA
 
  */
+
+--ALTER TABLE datawg.t_samplinginfo_sai ALTER COLUMN sai_name TYPE VARCHAR(40);
 DROP TABLE IF EXISTS datawg.t_samplinginfo_sai CASCADE;
 CREATE TABLE datawg.t_samplinginfo_sai(
   sai_id serial PRIMARY KEY,
-  sai_name VARCHAR(20),
+  sai_name VARCHAR(40),
   sai_cou_code VARCHAR(2),
   sai_emu_nameshort VARCHAR(20),
   sai_area_division VARCHAR(254),
@@ -621,6 +623,28 @@ CREATE TRIGGER check_meg_mty_is_group AFTER INSERT OR UPDATE ON
 CREATE TRIGGER check_meg_mty_is_group AFTER INSERT OR UPDATE ON
    datawg.t_metricgroupsamp_megsa FOR EACH ROW EXECUTE FUNCTION datawg.meg_mty_is_group();
 
+ 
+alter table  datawg.t_fish_fi owner to wgeel ;
+alter table  datawg.t_fishsamp_fisa owner to wgeel ;
+alter table  datawg.t_fishseries_fiser owner to wgeel ;
+alter table  datawg.t_group_gr owner to wgeel ;
+alter table  datawg.t_groupsamp_grsa owner to wgeel ;
+alter table  datawg.t_groupseries_grser owner to wgeel ;
+alter table  datawg.t_metricgroup_meg owner to wgeel ;
+alter table  datawg.t_metricgroupsamp_megsa owner to wgeel ;
+alter table  datawg.t_metricgroupseries_megser owner to wgeel ;
+alter table  datawg.t_metricind_mei owner to wgeel ;
+alter table  datawg.t_metricindsamp_meisa owner to wgeel ;
+alter table  datawg.t_metricindseries_meiser owner to wgeel ;
+alter table  datawg.t_samplinginfo_sai owner to wgeel ;
+
+
+
+
+
+
+  
+ 
 
 -----
 -- proportion g_in_gy, it's a mess, currently info with Burr, Liff, info with Y => no use, info with G => no use
@@ -628,6 +652,9 @@ CREATE TRIGGER check_meg_mty_is_group AFTER INSERT OR UPDATE ON
 
  SELECT DISTINCT bis_g_in_gy FROM datawg.t_series_ser tss  JOIN 
             datawg.t_mei_series_bis tbsb ON tbsb.bis_ser_id = ser_id;
+          
+          
+    
 /*
  * |bis_g_in_gy|
 |-----------|
@@ -716,8 +743,8 @@ update datawg.t_eelstock_eel set eel_qal_id =1 where eel_qal_id =0 and (eel_miss
 
 --add a constraint to avoid having new duplicates
 ALTER TABLE datawg.t_eelstock_eel ADD CONSTRAINT ck_qal_id_and_missvalue CHECK ((eel_missvaluequal IS NULL) or (eel_qal_id != 0));
-commit;
-ALTER ROLE wgeel WITH PASSWORD 'wgeel_2021'
+commit;--3710 29/08
+ALTER ROLE wgeel WITH PASSWORD 'wgeel_2022'; --2021
 
 ------------
 -- fix issue 201 (emu for NL)
@@ -728,12 +755,34 @@ ALTER ROLE wgeel WITH PASSWORD 'wgeel_2021'
 --		Correcting Netherland: NL_Neth, NL_total (without geom)
 --		Correct the EMU in t_eelstock_eel table because always the EMU appears as NL_total
 -- select count(*) from datawg.t_eelstock_eel where eel_cou_code = 'NL';					-- 1354
-begin; 		
-update datawg.t_eelstock_eel SET eel_emu_nameshort = REPLACE (eel_emu_nameshort, 'NL_total', 'NL_Neth');
---		Droping 'NL_total' (without geom)
-delete from ref.tr_emu_emu where emu_nameshort = 'NL_total';								-- It works!
-commit;
 
+-- NL_NEth, FI_Fin MA_Mor 
+
+
+begin; 		
+
+UPDATE ref.tr_emu_emu  SET
+emu_wholecountry = TRUE
+ WHERE  emu_nameshort IN ('FI_Finl','NL_Neth'); --2
+ ALTER TABLE datawg.t_eelstock_eel DROP CONSTRAINT ck_emu_whole_aquaculture;
+ CREATE OR REPLACE FUNCTION checkemu_whole_country(emu text) RETURNS boolean AS $$
+declare
+exist boolean;
+begin
+ exist:=false;
+ perform * from ref.tr_emu_emu where emu_nameshort=emu and emu_wholecountry=true;
+ exist:=FOUND;
+ RETURN exist;
+end
+$$ LANGUAGE plpgsql IMMUTABLE STRICT; 
+
+ALTER TABLE datawg.t_eelstock_eel ADD CONSTRAINT ck_emu_whole_aquaculture CHECK (eel_qal_id!=1 or eel_typ_id != 11 or checkemu_whole_country(eel_emu_nameshort));
+
+update datawg.t_eelstock_eel SET eel_emu_nameshort = REPLACE (eel_emu_nameshort, 'NL_total', 'NL_Neth'); --78418
+--		Droping 'NL_total' (without geom)
+delete from ref.tr_emu_emu where emu_nameshort = 'NL_total';	--1							-- It works!
+commit;
+rollback
 
 ------------
 -- fix issue 126 (EMU_total and EMU_country)
@@ -743,10 +792,22 @@ commit;
 
 --		Correcting Finland: 'FI_Finl', 'FI_total' (without geom)
 -- select count(*) from datawg.t_eelstock_eel where eel_cou_code = 'FI'; 									-- 631 rows
+
+
+
+--SELECT * FROM datawg.t_eelstock_eel WHERE eel_cou_code='FI' AND  eel_lfs_code='QG' AND eel_typ_id =8 ORDER BY eel_year, eel_hty_code
+--SELECT * FROM datawg.t_eelstock_eel WHERE eel_emu_nameshort='FI_Finl' AND  eel_lfs_code='QG' AND eel_typ_id =8 ORDER BY eel_year, eel_hty_code
+--SELECT * FROM datawg.t_eelstock_eel WHERE eel_cou_code='FI' AND eel_typ_id =9 ORDER BY eel_year, eel_hty_code
+-
 BEGIN;
-update datawg.t_eelstock_eel SET eel_emu_nameshort = REPLACE (eel_emu_nameshort, 'FI_total', 'FI_Finl');
+-- remove duplicates
+UPDATE datawg.t_eelstock_eel SET (eel_qal_id, eel_qal_comment)=(21, 'remove duplicates') WHERE eel_emu_nameshort='FI_Finl' AND  eel_lfs_code='QG' AND eel_typ_id =8; --20
+UPDATE datawg.t_eelstock_eel SET (eel_qal_id, eel_qal_comment)=(21, 'remove duplicates') WHERE eel_emu_nameshort='FI_Finl' AND  eel_lfs_code='QG' AND eel_typ_id =9; --20
+
+UPDATE datawg.t_eelstock_eel SET eel_emu_nameshort = REPLACE (eel_emu_nameshort, 'FI_total', 'FI_Finl'); --78418
+
 --		Droping 'FI_total' (without geom)
-delete from ref.tr_emu_emu where emu_nameshort = 'FI_total';
+delete from ref.tr_emu_emu where emu_nameshort = 'FI_total'; --78418
 COMMIT;
 
 -- 		When the whole country corresponds to one single EMU, '%_total' is replaced by the first three letters of the country
@@ -754,9 +815,13 @@ select emu_nameshort from ref.tr_emu_emu where emu_nameshort like '%_total' and 
 select distinct eel_emu_nameshort from datawg.t_eelstock_eel where eel_emu_nameshort in 
 	(select emu_nameshort from ref.tr_emu_emu where emu_nameshort like '%_total' and geom is not null) 	-- AL, DZ, EG, HR, MA, NO, SI, TN, TR
 
+	
+/*
+ *  NOT RUN : this is not the emu names in templates
 --		(in the main table of EMUs and t_eelstock_eel table)
 --			AL_total	Albania (Alb)
 BEGIN;
+
 UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'AL_total', 'AL_Alb');
 UPDATE datawg.t_eelstock_eel SET eel_emu_nameshort = REPLACE (eel_emu_nameshort, 'AL_total', 'AL_Alb');
 --			AX_total	Aland (Ala)
@@ -806,7 +871,7 @@ UPDATE datawg.t_eelstock_eel SET eel_emu_nameshort = REPLACE (eel_emu_nameshort,
 UPDATE ref.tr_emu_emu SET emu_nameshort = REPLACE (emu_nameshort, 'TR_total', 'TR_Tur');
 UPDATE datawg.t_eelstock_eel SET eel_emu_nameshort = REPLACE (eel_emu_nameshort, 'TR_total', 'TR_Tur');
 COMMIT;
-
+*/
 
 
 
@@ -820,13 +885,14 @@ UPDATE ref.tr_emusplit_ems SET geom = sub.geom FROM
 WHERE emu_nameshort = 'ES_Inne';
 DELETE FROM ref.tr_emusplit_ems WHERE emu_nameshort = 'ES_Spai';
 
+
 --merge ES_Spai and ES_Inne polygons
 UPDATE ref.tr_emu_emu SET geom = sub.geom FROM
 (SELECT st_union(geom) AS geom FROM ref.tr_emu_emu WHERE emu_nameshort IN ('ES_Inne', 'ES_Spai')) sub
 WHERE emu_nameshort = 'ES_Inne';
 -- deprecate all ES_Spai data
 update datawg.t_eelstock_eel set eel_qal_id  = 21,
-eel_qal_comment = 'deprecated' where eel_emu_nameshort ='ES_Spai';
+eel_qal_comment = 'Was ES_Spai so deprecated' where eel_emu_nameshort ='ES_Spai';
 -- assign ES_Spai to ES_Inne
 update datawg.t_eelstock_eel set eel_emu_nameshort ='ES_Inne' where eel_emu_nameshort ='ES_Spai';
 --remove ES_Spai
@@ -840,7 +906,9 @@ begin;
 insert into ref.tr_emu_emu (emu_nameshort,emu_name,emu_cou_code,emu_wholecountry) values('DK_Mari','Danish coastal and marine waters','DK',FALSE);
 SELECT setval(pg_get_serial_sequence('ref.tr_emusplit_ems', 'gid'), COALESCE((SELECT MAX(gid) + 1 FROM ref.tr_emusplit_ems), 1), false);
 insert into ref.tr_emusplit_ems (emu_nameshort,emu_name,emu_cou_code,emu_hyd_syst_s,emu_sea,emu_cty_id ,meu_dist_sargasso_km)
-(select 'DK_Mari' emu_nameshort,'Danish coastal and marine waters' emu_name,e.emu_cou_code,e.emu_hyd_syst_s,e.emu_sea,e.emu_cty_id,e.meu_dist_sargasso_km from ref.tr_emusplit_ems e where e.emu_nameshort ='DK_Inla')
+(select 'DK_Mari' emu_nameshort,'Danish coastal and marine waters' emu_name,e.emu_cou_code,e.emu_hyd_syst_s,e.emu_sea,e.emu_cty_id,e.meu_dist_sargasso_km 
+from ref.tr_emusplit_ems e 
+where e.emu_nameshort ='DK_Inla')
 
 commit; 
 
@@ -856,8 +924,11 @@ GRANT ALL ON TABLE REF.tr_gear_gea TO wgeel;
 insert into ref.tr_quality_qal values (22, 'discarded_wgeel_2022', 'This data has either been removed from the database in favour of new data, or corresponds to new data not kept in the database during datacall 2022', false);
 insert into ref.tr_datasource_dts values ('dc_2022', 'Joint EIFAAC/GFCM/ICES Eel Data Call 2022');
 
+SELECT tdd.* FROM datawg.t_dataseries_das tdd JOIN
+datawg.t_series_ser tss ON tdd.das_ser_id= tss.ser_id WHERE 
+ser_nameshort='EmsBGY' ORDER BY das_year
 
 
+-- 29/08/2022 Execution of script till there on wgeel distant database
 
 
-)
