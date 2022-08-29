@@ -1931,7 +1931,7 @@ update_sampling <- function(path) {
 							sai_protocol,sai_comment,sai_qal_comment),list(as.character)) 
 	
 	updated_values_table <- updated_values_table %>% 
-			mutate_at(vars(sai_year, sai_qal_id),list(as.integer)) 
+			mutate_at(vars(sai_qal_id),list(as.integer)) 
 	
 	updated_values_table <- updated_values_table %>% 
 			mutate_at(vars(sai_lastupdate),list(as.Date)) 
