@@ -716,7 +716,6 @@ compare_with_database_metric_group <- function(data_from_excel,
                                                sheetorigin=c("new_group_metrics","updated_group_metrics","deleted_group_metrics"),
                                                type="series") {
   # data integrity checks
-  
   if (!sheetorigin %in% c("new_group_metrics", "updated_group_metrics", "deleted_group_metrics")) stop ("sheetorigin should be one of
 						new_group_metrics, updated_group_metrics, deleted_group_metrics")
   if (nrow(data_from_excel) == 0) 
@@ -2087,7 +2086,7 @@ write_new_group_metrics <- function(path, type="series") {
   if (type == "series"){
     fk <- "grser_ser_id"
   } else{
-    fk <- "grsa_sa_id"
+    fk <- "grsa_sai_id"
   }
   new <- read_excel(path = path, sheet = 1, skip = 1)
   if (nrow(new) == 0){
