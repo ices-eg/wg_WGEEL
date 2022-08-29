@@ -180,7 +180,7 @@ importstep0Server <- function(id,globaldata){
                        
                      }
                      
-                   }, ignoreInit = TRUE) 			
+                   }) 			
                    
                    ##################################
                    # Actively generates UI component on the ui side 
@@ -239,9 +239,12 @@ importstep0Server <- function(id,globaldata){
                                )            
                      )
                    })
+							 
                  },error = function(e) {
                    showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
-                 }))
+                 }
+								 )
+								 , ignoreInit = TRUE) # end observeEvent
                  
                  return(rls)
                  
