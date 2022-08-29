@@ -426,8 +426,8 @@ importdcfstep1Server <- function(id,globaldata,loaded_data_dcf){
 															scrollX = TRUE,
 															scrollY = TRUE,
 															order=list(3,"asc"),
-															lengthMenu=list(c(50,-1),c("50","All")),
-															"pagelength"=50,
+															lengthMenu=list(c(20,50,-1),c("20","50","All")),
+															"pagelength"=20,
 															dom= "Blfrtip",
 															scrollX = T,
 															buttons=list(
