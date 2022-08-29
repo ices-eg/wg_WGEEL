@@ -2098,10 +2098,13 @@ write_new_group_metrics <- function(path, type="series") {
   } else {
     gr_table <- ifelse(type=="series","t_groupseries_grser","t_groupsamp_grsa")
     gr_key <- ifelse(type=="series","grser_ser_id","grsa_sai_id")
-    gr_add <- ifelse(type=="series","",",grsa_lfs_code")
-    gr_add1 <- ifelse(type=="series","",",g.grsa_lfs_code")
+    gr_add <- ifelse(type=="series","","grsa_lfs_code")
+    gr_add1 <- ifelse(type=="series","","g.grsa_lfs_code")
     metric_table <- ifelse(type=="series","t_metricgroupseries_megser","t_metricgroupsamp_megsa")	
-    dbWriteTable(conn,"group_tmp",new,temporary=TRUE)
+    groups <- new %>%
+      select(any_of(c("gr_year",gr_add,
+             "gr_number","gr_comment","gr_dts_datasource",gr_key,"id"))) %>%
+      distinct()
     message <- NULL
     if (any(is.na(new[,gr_key]))) {
       message0 <- paste("you have missing values in",gr_key,"(1) integrate new sampling, (2) re-run steps 0 and 1 and (3) integrate new group metrics")
@@ -2109,28 +2112,43 @@ write_new_group_metrics <- function(path, type="series") {
       message0 <-NULL
     }
     #dbGetQuery(conn, "DELETE FROM datawg.t_groupseries_grser")
-    (nr <- tryCatch({
-      # glue_sql does not handle removing strings use glue instead
-      sqlgr <- glue(
-        "INSERT INTO datawg.{gr_table}(gr_year,gr_number,gr_comment,gr_dts_datasource,{gr_key}{gr_add})
-											 SELECT DISTINCT ON (id) g.gr_year,g.gr_number,g.gr_comment,g.gr_dts_datasource,g.{gr_key}{gr_add1}
-											 FROM group_tmp g returning gr_id, gr_year, {gr_key};")
+
+    
+    nr <- tryCatch({
+      dbBegin(conn)
+      dbWriteTable(conn,"group_tmp",groups,row.names=FALSE,temporary=TRUE)
       
-      res0 <- dbExecute(conn,sqlgr)
-      new1 <- new %>% select(-id, -gr_id) %>% inner_join(res0, by=c("gr_year",gr_key))
-      dbWriteTable(conn,"group_tmp1",new1,temporary=TRUE)
+      # glue_sql does not handle removing strings use glue instead
+      
+      sqlgr <- glue("INSERT INTO datawg.{gr_table}(gr_year,gr_number,gr_comment,gr_dts_datasource,{gr_key},{gr_add})
+											 (SELECT g.gr_year,g.gr_number,g.gr_comment,g.gr_dts_datasource,g.{gr_key},{gr_add1}
+											 FROM group_tmp g) returning gr_id;")
+      
+      rs <- dbSendQuery(conn,sqlgr)
+      res0 <- dbFetch(rs)
+      dbClearResult(rs)
+      groups$gr_id <- res0$gr_id
+      new2 <- new %>% 
+        select(-gr_id) %>%
+        left_join(groups)
+      dbWriteTable(conn,"metrics_tmp",new2)
       sqlmetrics <- glue::glue_sql("INSERT INTO datawg.{`metric_table`}(meg_gr_id, meg_mty_id, meg_value, meg_dts_datasource, meg_qal_id)
-									SELECT gr_id, meg_mty_id, meg_value, meg_dts_datasource, 1 as meg_qal_id FROM group_tmp1;",
+ 									SELECT gr_id, meg_mty_id, meg_value, meg_dts_datasource, 1 as meg_qal_id FROM metrics_tmp;",
                                    .con=conn)
       
       nr0 <- nrow(res0)
       nr1 <- dbExecute(conn, sqlmetrics)
+      dbCommit(conn)
+      
     }, error = function(e) {
       message <<- e
+      dbExecute(conn,"drop table if exists group_tmp")
+      dbExecute(conn,"drop table if exists metrics_tmp")
+      dbRollback(conn)
     }, finally = {
       dbExecute(conn,"drop table if exists group_tmp")
-      dbExecute(conn,"drop table if exists group_tmp1")
-    }))
+      dbExecute(conn,"drop table if exists metrics_tmp")
+    })
     
     
     if (type=="series"){
