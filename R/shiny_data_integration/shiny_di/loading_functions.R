@@ -19,7 +19,7 @@ load_catch_landings<-function(path,datasource){
 # read the metadata sheet
 	metadata<-read_excel(path=path,"metadata" , skip=4)
 # check if no rows have been added
-	if (names(metadata)[1]!="For each data series") cat(str_c("The structure of metadata has been changed ",datacallfiles[1]," in ",country,"\n"))
+	if (names(metadata)[1]!="For each data series") cat(str_c("The structure of metadata has been changed  in ",country,"\n"))
 # store the content of metadata in a list
 	if (ncol(metadata)>1){   
 		the_metadata[["contact"]] <- as.character(metadata[1,2])
@@ -304,7 +304,7 @@ load_release<-function(path,datasource){
 	# read the metadata sheet
 	metadata<-read_excel(path=path,"metadata" , skip=4)
 	# check if no rows have been added
-	if (names(metadata)[1]!="For each data series") cat(str_c("The structure of metadata has been changed ",datacallfiles[1]," in ",country,"\n"))
+	if (names(metadata)[1]!="For each data series") cat(str_c("The structure of metadata has been changed in ",country,"\n"))
 	# store the content of metadata in a list
 	if (ncol(metadata)>1){   
 		the_metadata[["contact"]] <- as.character(metadata[1,2])
