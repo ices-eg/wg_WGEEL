@@ -454,7 +454,7 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts){
 												validate(need(globaldata$connectOK,"No connection"))
 												# call to  function that loads data
 												# this function does not need to be reactive
-												message <- step24load_data()
+												message <- step2.2.3_load_data()
 												if (is.null(data$path_step_2.2.3_modified_dataseries)) "please select a dataset" else {                                      
 													paste(message,collapse="\n")
 												}                  
