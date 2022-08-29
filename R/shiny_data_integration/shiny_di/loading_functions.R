@@ -2641,7 +2641,6 @@ load_series<-function(path,datasource, stage="glass_eel"){
 # datasource <- the_eel_datasource
 # load_dcf(path,datasource="toto")
 load_dcf<-function(path,datasource){
-	
 	data_error <- data.frame(nline = NULL, error_message = NULL)
 	the_metadata <- list()
 	dir <- dirname(path)
@@ -2680,7 +2679,7 @@ load_dcf<-function(path,datasource){
 	
 	
 	fn_check_columns(sampling_info, 
-			columns=c("sai_name","sai_emu_nameshort","sai_cou_code","sai_locationdescription","sai_area_division"	,
+			columns=c("sai_name","sai_emu_nameshort","sai_locationdescription","sai_area_division"	,
 					"sai_hty_code",	"sai_samplingobjective","sai_samplingstrategy","sai_protocol","sai_qal_id","sai_comment",
 					"sai_lastupdate","sai_dts_datasource"),
 			file= file,
@@ -2689,6 +2688,9 @@ load_dcf<-function(path,datasource){
 	
 	country <- "unknown"
 	if (nrow(sampling_info)>0) {
+	  sampling_info$sai_cou_code <- substr(sampling_info$sai_emu_nameshort,
+	                                       1,
+	                                       2)
 		country <- as.character(sampling_info[1,"sai_cou_code"])
 		sampling_info$sai_dts_datasource <- datasource
 		###### ser_nameshort ##############
