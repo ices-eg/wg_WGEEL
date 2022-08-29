@@ -1,14 +1,13 @@
-setwd("./example-stock-assessment-start")
+setwd("../example-stock-assessment-start")
 
 
 #install.packages("remotes")
-library(remotes)
+#library(remotes)
 
 # remotes::install_github("fishfollower/sam/stockassessment")
 # remotes::install_github("fishfollower/SAM/stockassessment", INSTALL_opts=c("--no-multiarch"))
 
-# because this is a special package we need to add it to
-# the taf analysis
+# because this is a special package we need to add it to the taf analysis
 
 library(icesTAF)
 
@@ -27,8 +26,6 @@ taf.bootstrap(software = FALSE) #software = FALSE skips the software install (si
 
 library(stockassessment)
 library(rmarkdown)
-
-taf.bootstrap()
 
 sourceTAF("data")
 sourceTAF("model")

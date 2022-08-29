@@ -1667,7 +1667,7 @@ write_new_sampling <- function(path) {
 			mutate_at(vars(sai_name, sai_cou_code, sai_emu_nameshort, sai_area_division, sai_hty_code,  sai_samplingobjective,
 							sai_protocol,sai_comment,sai_qal_comment), list(as.character)) 
 	new <- new %>% 
-			mutate_at(vars(sai_year, sai_qal_id), list(as.integer)) 
+			mutate_at(vars(sai_qal_id), list(as.integer)) 
 	
 	new <- new %>% 
 			mutate_at(vars(sai_lastupdate), list(as.Date)) 
@@ -1931,7 +1931,7 @@ update_sampling <- function(path) {
 							sai_protocol,sai_comment,sai_qal_comment),list(as.character)) 
 	
 	updated_values_table <- updated_values_table %>% 
-			mutate_at(vars(sai_year, sai_qal_id),list(as.integer)) 
+			mutate_at(vars(sai_qal_id),list(as.integer)) 
 	
 	updated_values_table <- updated_values_table %>% 
 			mutate_at(vars(sai_lastupdate),list(as.Date)) 
