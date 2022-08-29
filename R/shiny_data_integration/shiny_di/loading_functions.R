@@ -2669,9 +2669,18 @@ load_dcf<-function(path,datasource){
 			sheet ="sampling_info",
 			skip=0)
 	
+	#WGEEL 2022 we made a mystake adding a sai_year in the db that should not exist
+	#those lines address the issue
+	if ("sai_year" %in% names(sampling_info)){
+	  sampling_info <- sampling_info %>%
+	    select(-sai_year) %>%
+	    unique()
+	}
+	
+	
 	
 	fn_check_columns(sampling_info, 
-			columns=c("sai_name","sai_emu_nameshort","sai_cou_code","sai_year","sai_locationdescription","sai_area_division"	,
+			columns=c("sai_name","sai_emu_nameshort","sai_cou_code","sai_locationdescription","sai_area_division"	,
 					"sai_hty_code",	"sai_samplingobjective","sai_samplingstrategy","sai_protocol","sai_qal_id","sai_comment",
 					"sai_lastupdate","sai_dts_datasource"),
 			file= file,
@@ -2784,21 +2793,6 @@ load_dcf<-function(path,datasource){
 						column="sai_cou_code",
 						country=country,
 						values=list_country))	
-		
-		## sai_year		
-		
-		data_error <- rbind(data_error, check_missing(
-						dataset = sampling_info,						
-						namedataset= "sampling_info",
-						column = "sai_year",
-						country = country))
-		
-		data_error <- rbind(data_error, check_type(
-						dataset = sampling_info,						
-						namedataset= "sampling_info",
-						column = "sai_year",
-						country = country,
-						type="numeric"))
 		
 		## sai_area_division
 		
