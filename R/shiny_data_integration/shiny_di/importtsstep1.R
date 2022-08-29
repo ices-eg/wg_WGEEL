@@ -325,6 +325,8 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 													data_from_excel=new_group_metrics,
 													data_from_base=t_metricgroupseries_megser, 
 													sheetorigin="new_group_metrics")
+										}  else {
+											list_comp_group_metrics <- list(new=data.frame())
 										}
 										
 										if (nrow(updated_group_metrics)>0){
@@ -354,8 +356,10 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 												list_comp_group_metrics$modified <- list_comp_updated_group_metrics$modified
 												list_comp_group_metrics$highlight_change <- list_comp_updated_group_metrics$highlight_change
 											}
+										} else {
+											if (!"modified" %in% names(list_comp_group_metrics))  list_comp_group_metrics$modified <- data.frame()
+											if (!"highlight_change" %in% names(list_comp_group_metrics))  list_comp_group_metrics$highlight_change <- data.frame()
 										}
-										
 										if (nrow(deleted_group_metrics)>0){
 											list_comp_deleted_group_metrics <- compare_with_database_metric_group(
 													data_from_excel=deleted_group_metrics,
@@ -371,6 +375,8 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 															data_from_excel=new_individual_metrics, 
 															data_from_base=t_metricindseries_meiser, 
 															sheetorigin="new_individual_metrics")
+										} 		 else {
+											list_comp_individual_metrics <- list(new=data.frame())
 										}
 										
 										if (nrow(updated_individual_metrics)>0){
@@ -400,6 +406,10 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 												list_comp_individual_metrics$modified <- list_comp_updated_individual_metrics$modified
 												list_comp_individual_metrics$highlight_change <- list_comp_updated_individual_metrics$highlight_change
 											}
+										}else {
+											list_comp_individual_metrics$new <- list_comp_updated_individual_metrics$new
+											list_comp_individual_metrics$modified <- list_comp_updated_individual_metrics$modified
+											list_comp_individual_metrics$highlight_change <- list_comp_updated_individual_metrics$highlight_change
 										}
 										if (nrow(deleted_individual_metrics)>0){
 											list_comp_deleted_individual_metrics <- compare_with_database_metric_ind(

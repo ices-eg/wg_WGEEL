@@ -195,7 +195,7 @@ create_datacall_file_series <- function(country, name, ser_typ_id, type="series"
       #openxlsx::writeData(wb, sheet = "existing_data", dat, startRow = 1)
       formatted <- read_excel(templatefile,"existing_data")
       dat <- applyTemplateFormat(formatted, dat)
-      writeWorksheet(wb , dat %>% filter(!is.na(das_qal_id)),  sheet = "existing_data")
+      writeWorksheet(wb , dat ,  sheet = "existing_data") # NOTE 17/07 Cédric removed this for next year %>% filter(!is.na(das_qal_id))
     }
     
     #put data where das_qal_id is missing into updated_data
