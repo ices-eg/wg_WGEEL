@@ -15,11 +15,18 @@ load_catch_landings<-function(path,datasource){
 	file<-basename(path)
 	mylocalfilename<-gsub(".xlsx","",file)
 	
+	sheets <- excel_sheets(path=path)
+	if ("series_info" %in% sheets) stop("There is a series_info tab in your data, you want to use import time series tab")
+	if ("sampling_info" %in% sheets) stop("There is a sampling_info tab in your data, you want to use import time series tab")
+	
 #---------------------- METADATA sheet ---------------------------------------------
+
+
+	
 # read the metadata sheet
 	metadata<-read_excel(path=path,"metadata" , skip=4)
 # check if no rows have been added
-	if (names(metadata)[1]!="For each data series") cat(str_c("The structure of metadata has been changed  in ",country,"\n"))
+	if (names(metadata)[1]!="For each data series") cat(str_c("The structure of metadata has been changed  \n"))
 # store the content of metadata in a list
 	if (ncol(metadata)>1){   
 		the_metadata[["contact"]] <- as.character(metadata[1,2])
@@ -298,13 +305,15 @@ load_release<-function(path,datasource){
 	file<-basename(path)
 	mylocalfilename<-gsub(".xlsx","",file)
 	
-	
+	sheets <- excel_sheets(path=path)
+	if ("series_info" %in% sheets) stop("There is a series_info tab in your data, you want to use import time series tab")
+	if ("sampling_info" %in% sheets) stop("There is a sampling_info tab in your data, you want to use import time series tab")
 	#---------------------- METADATA sheet ---------------------------------------------
 	## It is no necessary for database
 	# read the metadata sheet
 	metadata<-read_excel(path=path,"metadata" , skip=4)
 	# check if no rows have been added
-	if (names(metadata)[1]!="For each data series") cat(str_c("The structure of metadata has been changed in ",country,"\n"))
+	if (names(metadata)[1]!="For each data series") cat(str_c("The structure of metadata has been changed in \n"))
 	# store the content of metadata in a list
 	if (ncol(metadata)>1){   
 		the_metadata[["contact"]] <- as.character(metadata[1,2])
@@ -708,6 +717,9 @@ load_aquaculture<-function(path,datasource){
 	file<-basename(path)
 	mylocalfilename<-gsub(".xlsx","",file)
 	
+	sheets <- excel_sheets(path=path)
+	if ("series_info" %in% sheets) stop("There is a series_info tab in your data, you want to use import time series tab")
+	if ("sampling_info" %in% sheets) stop("There is a sampling_info tab in your data, you want to use import time series tab")
 	#---------------------- METADATA sheet ---------------------------------------------
 	# read the metadata sheet
 	metadata<-read_excel(path=path,"metadata" , skip=4) 
@@ -938,6 +950,9 @@ load_biomass<-function(path,datasource){
 	file<-basename(path)
 	mylocalfilename<-gsub(".xlsx","",file)
 	
+	sheets <- excel_sheets(path=path)
+	if ("series_info" %in% sheets) stop("There is a series_info tab in your data, you want to use import time series tab")
+	if ("sampling_info" %in% sheets) stop("There is a sampling_info tab in your data, you want to use import time series tab")
 	#---------------------- METADATA sheet ---------------------------------------------
 	# read the metadata sheet
 	metadata<-read_excel(path=path,"metadata" , skip=4) 
@@ -1202,6 +1217,9 @@ load_mortality_rates<-function(path,datasource){
 	file<-basename(path)
 	mylocalfilename<-gsub(".xlsx","",file)
 	
+	sheets <- excel_sheets(path=path)
+	if ("series_info" %in% sheets) stop("There is a series_info tab in your data, you want to use import time series tab")
+	if ("sampling_info" %in% sheets) stop("There is a sampling_info tab in your data, you want to use import time series tab")
 	#---------------------- METADATA sheet ---------------------------------------------
 	# read the metadata sheet
 	metadata<-read_excel(path=path,"metadata" , skip=4) 
@@ -1469,6 +1487,9 @@ load_mortality_silver<-function(path,datasource){
 	file<-basename(path)
 	mylocalfilename<-gsub(".xlsx","",file)
 	
+	sheets <- excel_sheets(path=path)
+	if ("series_info" %in% sheets) stop("There is a series_info tab in your data, you want to use import time series tab")
+	if ("sampling_info" %in% sheets) stop("There is a sampling_info tab in your data, you want to use import time series tab")
 	#---------------------- METADATA sheet ---------------------------------------------
 	# read the metadata sheet
 	metadata<-read_excel(path=path,"metadata" , skip=4) 
@@ -1706,6 +1727,9 @@ load_potential_available_habitat<-function(path,datasource){
 	file<-basename(path)
 	mylocalfilename<-gsub(".xlsx","",file)
 	
+	sheets <- excel_sheets(path=path)
+	if ("series_info" %in% sheets) stop("There is a series_info tab in your data, you want to use import time series tab")
+	if ("sampling_info" %in% sheets) stop("There is a sampling_info tab in your data, you want to use import time series tab")
 	#---------------------- METADATA sheet ---------------------------------------------
 	# read the metadata sheet
 	metadata<-read_excel(path=path,"metadata" , skip=4) 
@@ -1904,6 +1928,10 @@ load_potential_available_habitat<-function(path,datasource){
 # 
 # load_series(path,datasource="toto","glass_eel")
 load_series<-function(path,datasource, stage="glass_eel"){
+	
+	sheets <- excel_sheets(path=path)
+	if ("sampling_info" %in% sheets) stop("There is a sampling_info tab in your data, you want to use import time series tab")
+	
 	data_error <- data.frame(nline = NULL, error_message = NULL)
 	the_metadata <- list()
 	dir <- dirname(path)
@@ -2642,6 +2670,9 @@ load_series<-function(path,datasource, stage="glass_eel"){
 # datasource <- the_eel_datasource
 # load_dcf(path,datasource="toto")
 load_dcf<-function(path,datasource){
+	
+	sheets <- excel_sheets(path=path)
+	if ("series_info" %in% sheets) stop("There is a series_info tab in your data, you want to use import time series tab")
 	
 	data_error <- data.frame(nline = NULL, error_message = NULL)
 	the_metadata <- list()

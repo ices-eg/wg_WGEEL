@@ -116,7 +116,7 @@ importstep0Server <- function(id,globaldata){
                    validate(need(globaldata$connectOK,"No connection"))
                    path<- step0_filepath()   
                    if (is.null(data$path_step0)) return(NULL)
-                   switch (input$file_type, "catch_landings"={                  
+	                   switch (input$file_type, "catch_landings"={                  
                      message<-capture.output(res<-load_catch_landings(data$path_step0, 
                                                                       datasource = the_eel_datasource
                      ))},
