@@ -225,7 +225,7 @@ importdcfstep0Server <- function(id,globaldata){
 																"pagelength"=5,
 																searching = FALSE, # no filtering options
 																lengthMenu=list(c(5,20,50,-1),c("5","20","50","All")),
-																order=list(1,"asc"),
+																#order=list(1,"asc"),
 																dom= "Blfrtip",
 																buttons=list(
 																		list(extend="excel",

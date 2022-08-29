@@ -2540,8 +2540,8 @@ load_series<-function(path,datasource, stage="glass_eel"){
 									"anguillicola_proportion",
 									"anguillicola_presence(1=present,0=absent)",			
 									"anguillicola_intensity",
-									"muscle_lipidfatmeter_perc",
-									"muscle_grav_perc",
+									"muscle_lipid_fatmeter_perc",
+									"muscle_lipid_gravimeter_perc",
 									"sum_6_pcb",
 									"teq",
 									"evex_proportion",
@@ -2670,7 +2670,6 @@ load_series<-function(path,datasource, stage="glass_eel"){
 # datasource <- the_eel_datasource
 # load_dcf(path,datasource="toto")
 load_dcf<-function(path,datasource){
-	
 	sheets <- excel_sheets(path=path)
 	if ("series_info" %in% sheets) stop("There is a series_info tab in your data, you want to use import time series tab")
 	
@@ -2712,7 +2711,7 @@ load_dcf<-function(path,datasource){
 	
 	
 	fn_check_columns(sampling_info, 
-			columns=c("sai_name","sai_emu_nameshort","sai_cou_code","sai_locationdescription","sai_area_division"	,
+			columns=c("sai_name","sai_emu_nameshort","sai_locationdescription","sai_area_division"	,
 					"sai_hty_code",	"sai_samplingobjective","sai_samplingstrategy","sai_protocol","sai_qal_id","sai_comment",
 					"sai_lastupdate","sai_dts_datasource"),
 			file= file,
@@ -2721,6 +2720,9 @@ load_dcf<-function(path,datasource){
 	
 	country <- "unknown"
 	if (nrow(sampling_info)>0) {
+	  sampling_info$sai_cou_code <- substr(sampling_info$sai_emu_nameshort,
+	                                       1,
+	                                       2)
 		country <- as.character(sampling_info[1,"sai_cou_code"])
 		sampling_info$sai_dts_datasource <- datasource
 		###### ser_nameshort ##############
@@ -3088,11 +3090,9 @@ load_dcf<-function(path,datasource){
 		
 		
 		if (grepl("metrics", sheet)) {
-			
 # all mty related columns should be numeric
-			
 			resmetrics <- 
-					purrr::flatten(lapply(c("lengthmm",
+					purrr::transpose(purrr::compact(lapply(c("lengthmm",
 											"weightg",
 											"ageyear",
 											"eye_diam_mean_mm",
@@ -3104,8 +3104,8 @@ load_dcf<-function(path,datasource){
 											"anguillicola_proportion",
 											"anguillicola_presence(1=present,0=absent)",			
 											"anguillicola_intensity",
-											"muscle_lipidfatmeter_perc",
-											"muscle_grav_perc",
+											"muscle_lipid_fatmeter_perc",
+											"muscle_lipid_gravimeter_perc",
 											"sum_6_pcb",
 											"teq",
 											"evex_proportion",
@@ -3133,10 +3133,62 @@ load_dcf<-function(path,datasource){
 													type="numeric")
 											return(data_error)}
 										
-									}))
-			data_error <- bind_rows(data_error,	purrr::flatten(resmetrics)	)
+									})))
+			data_error <- bind_rows(data_error,	resmetrics)
+			
+			
+			#check that proportions are indeed between 0 and 1
+			resmetrics <- 
+			  purrr::transpose(purrr::compact(
+			                         lapply(c("female_proportion",
+			                          'is_female_(1=female,0=male)',
+			                          "is_differentiated_(1=differentiated,0_undifferentiated)",	
+			                          "differentiated_proportion",
+			                          "anguillicola_proportion",
+			                          "anguillicola_presence(1=present,0=absent)",			
+			                          "evex_proportion",
+			                          "evex_presence_(1=present,0=absent)",			
+			                          "hva_proportion",
+			                          "hva_presence_(1=present,0=absent)",			
+			                          "g_in_gy_proportion",
+			                          "s_in_ys_proportion"),			
+			                        function(name_column){
+			                          if (name_column %in% colnames(data_xls)){	
+			                            data_error <- check_between(
+			                              dataset = data_xls,					
+			                              namedataset = sheet,
+			                              column=name_column,
+			                              country=country,
+			                              minvalue=0,
+			                              maxvalue=1)
+			                            return(data_error)}
+			                          
+			                        })))
+			data_error <- bind_rows(data_error,	resmetrics	)
+			
+			
+			#check that percentages are indeed between 0 and 100
+			resmetrics <- 
+			  purrr::transpose(purrr::compact(
+			                         lapply(c("muscle_lipid_fatmeter_perc",
+			                          "muscle_lipid_gravimeter_perc"),			
+			                        function(name_column){
+			                          if (name_column %in% colnames(data_xls)){	
+			                            data_error <- check_between(
+			                              dataset = data_xls,					
+			                              namedataset = sheet,
+			                              column=name_column,
+			                              country=country,
+			                              minvalue=0,
+			                              maxvalue=100)
+			                            return(data_error)}
+			                          
+			                        })))
+			data_error <- bind_rows(data_error,	resmetrics	)
+			
+			
 		} # end if metrics
-		
+
 		return(list(data=data_xls,error=data_error))
 	}	# 	fn_check_gr_ind		
 	

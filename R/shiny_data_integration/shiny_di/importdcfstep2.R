@@ -330,9 +330,11 @@ importdcfstep2Server <- function(id,globaldata,loaded_data_dcf){
 										main_assessor <- input$main_assessor
 										secondary_assessor <- input$secondary_assessor
 										file_type <- loaded_data_dcf$file_type
+										if (cou_code == ""){#otherwise something was incorrect
 										log_datacall("write new group_metrics", cou_code = cou_code, message = sQuote(message), 
 												the_metadata = NULL, file_type = file_type, main_assessor = main_assessor, 
 												secondary_assessor = secondary_assessor)
+										}
 										return(message)
 									}
 									
@@ -453,9 +455,11 @@ importdcfstep2Server <- function(id,globaldata,loaded_data_dcf){
 										main_assessor <- input$main_assessor
 										secondary_assessor <- input$secondary_assessor
 										file_type <- loaded_data_dcf$file_type
+										if (rls$cou_code != ""){ #otherwise, nothing integrated
 										log_datacall("write new individual_metrics", cou_code = cou_code, message = sQuote(message), 
 												the_metadata = NULL, file_type = file_type, main_assessor = main_assessor, 
 												secondary_assessor = secondary_assessor)
+										}
 										return(message)
 									}
 									

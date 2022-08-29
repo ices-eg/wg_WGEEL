@@ -390,9 +390,11 @@ check_freshwater_without_area <- function(dataset,namedataset, country){
 #' check that the data in ee_value is positive
 #' 
 #' @param dataset the name of the dataset
+#' @param namedataset the name of the dataset
 #' @param column the name of the column
 #' @param country the current country being evaluated
-#' @param type, a class described as a character e.g. "numeric"
+#' @param minvalue, the min value
+#' @param maxvalue, the max value
 #' 
 check_between <- function(dataset, namedataset, column, country, minvalue, maxvalue){
 	answer = NULL
@@ -419,7 +421,7 @@ check_between <- function(dataset, namedataset, column, country, minvalue, maxva
 								column,
 								line,
 								maxvalue))
-			answer  = data.frame(nline = line, error_message = paste("values out of bound: ", column, sep = ""))
+			answer  = data.frame(nline = line, error_message = paste("values out of bound: ", column, " ", namedataset, sep = ""))
 		}
 	}
 	return(answer)  
