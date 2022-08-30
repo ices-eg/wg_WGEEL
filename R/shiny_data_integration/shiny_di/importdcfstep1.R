@@ -175,7 +175,7 @@ importdcfstep1Server <- function(id,globaldata,loaded_data_dcf){
 							if (nrow(new_group_metrics)>0){
 								new_group_metrics <-  left_join(new_group_metrics, t_samplinginfo_sai[,c("sai_id","sai_name")], by="sai_name")
 								new_group_metrics <- rename(new_group_metrics,"grsa_sai_id"="sai_id") # use the true name in the table
-							}
+							} 
 							
 							if (nrow(new_individual_metrics)>0){
 								new_individual_metrics <- left_join(new_individual_metrics, t_samplinginfo_sai[,c("sai_id","sai_name")], by="sai_name")
@@ -243,7 +243,11 @@ importdcfstep1Server <- function(id,globaldata,loaded_data_dcf){
 									list_comp_group_metrics$modified <- list_comp_updated_group_metrics$modified
 									list_comp_group_metrics$highlight_change <- list_comp_updated_group_metrics$highlight_change
 								}
-							}
+							} else if (!"modified" %in% names(list_comp_group_metrics)) {
+								list_comp_group_metrics$modified <- data.frame()
+								list_comp_group_metrics$highlight_change <- data.frame()
+							}								
+					
 							if (nrow(deleted_group_metrics)>0){
 								list_comp_deleted_group_metrics <- compare_with_database_metric_group(
 										data_from_excel=deleted_group_metrics,
@@ -292,14 +296,21 @@ importdcfstep1Server <- function(id,globaldata,loaded_data_dcf){
 									list_comp_individual_metrics$modified <- list_comp_updated_individual_metrics$modified
 									list_comp_individual_metrics$highlight_change <- list_comp_updated_individual_metrics$highlight_change
 								}
+							}  else {
+								if (!"modified" %in% names(list_comp_individual_metrics)) {
+									list_comp_individual_metrics$modified <- data.frame()
+									list_comp_individual_metrics$highlight_change <- data.frame()
+								}
 							}
+							
+							
 							if (nrow(deleted_individual_metrics)>0){
 								list_comp_deleted_individual_metrics <- compare_with_database_metric_ind(
 										data_from_excel=deleted_individual_metrics,
 										data_from_base=t_metricindsamp_meisa,
 										sheetorigin="deleted_individual_metrics")
 							} else {
-								list_comp_deleted_individual_metrics <- list("deleted"=data.frame())
+								list_comp_deleted_individual_metrics <- list("deleted" = data.frame())
 							}
 							
 							
