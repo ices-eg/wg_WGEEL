@@ -187,9 +187,10 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 				# with duplicates values
 				#############################
 				observeEvent(input$check_duplicate_button_ts, {
+							
 							tryCatch({
 										
-										
+
 										# see step0load_data returns a list with res and messages
 										# and within res data and a dataframe of errors
 										
@@ -253,10 +254,11 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 													t_fishseries_fiser <-  t_fishseries_fiser %>% filter (fiser_ser_id %in% t_series_ser$ser_id)
 													t_metricgroupseries_megser <- t_metricgroupseries_megser%>% 
 															inner_join(t_groupseries_grser, by = c("meg_gr_id" = "gr_id") ) %>%
-															filter (grser_ser_id %in% t_series_ser$ser_id)
+															filter (grser_ser_id %in% t_series_ser$ser_id) %>% rename("gr_id"="meg_gr_id")			
 													t_metricindseries_meiser <- t_metricindseries_meiser%>%
 															inner_join(t_fishseries_fiser, by = c("mei_fi_id" = "fi_id") ) %>%
-															filter (fiser_ser_id %in% t_series_ser$ser_id)
+															filter (fiser_ser_id %in% t_series_ser$ser_id) %>% 
+															rename("fi_id"="mei_fi_id")		
 													
 												},
 												"silver_eel"={
@@ -266,10 +268,11 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 													t_fishseries_fiser <-  t_fishseries_fiser %>% filter (fiser_ser_id %in% t_series_ser$ser_id)
 													t_metricgroupseries_megser <- t_metricgroupseries_megser%>% 
 															inner_join(t_groupseries_grser, by = c("meg_gr_id" = "gr_id") ) %>%
-															filter (grser_ser_id %in% t_series_ser$ser_id)
+															filter (grser_ser_id %in% t_series_ser$ser_id) %>% rename("gr_id"="meg_gr_id")			
 													t_metricindseries_meiser <- t_metricindseries_meiser%>%
 															inner_join(t_fishseries_fiser, by = c("mei_fi_id" = "fi_id") ) %>%
-															filter (fiser_ser_id %in% t_series_ser$ser_id)
+															filter (fiser_ser_id %in% t_series_ser$ser_id) %>% 
+															rename("fi_id"="mei_fi_id")		
 													
 												}
 										)

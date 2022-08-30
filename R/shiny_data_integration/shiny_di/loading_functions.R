@@ -2351,7 +2351,7 @@ load_series<-function(path,datasource, stage="glass_eel"){
 				sheet=sheet,
 				skip=0, guess_max=10000)
 		cat(sheet,"\n")
-		#browser()
+
 		data_error <- data.frame(nline = NULL, error_message = NULL)
 		# country is extracted 
 #    data_xls <- correct_me(data_xls)
@@ -2945,7 +2945,7 @@ load_dcf<-function(path,datasource){
 				sheet=sheet,
 				skip=0, guess_max=10000)
 		cat(sheet,"\n")
-		#browser()
+
 		data_error <- data.frame(nline = NULL, error_message = NULL)
 		# country is extracted 
 #    data_xls <- correct_me(data_xls)
