@@ -152,7 +152,7 @@ importstep0Server <- function(id,globaldata){
                  # Events triggerred by step0_button
                  ###################################################
                  
-                 observeEvent(input$check_file_button, tryCatch({
+                 observeEvent(input$check_file_button, tryCatch({												
                    cat(data$path_step0)
                    ##################################################
                    # integrate verbatimtextoutput
