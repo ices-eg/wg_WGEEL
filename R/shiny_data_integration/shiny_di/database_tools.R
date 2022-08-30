@@ -736,8 +736,8 @@ compare_with_database_metric_group <- function(data_from_excel,
   
   metrics_group <- tr_metrictype_mty %>% 
     filter(mty_group!="individual") %>% select(mty_name,mty_id)
-  
   data_from_base_wide <- data_from_base %>% right_join( metrics_group, by=c("meg_mty_id"="mty_id")) %>%
+    select(-meg_id, -meg_qal_id, -meg_last_update, -meg_mty_id, -meg_dts_datasource) %>%
     tidyr::pivot_wider(names_from=mty_name,
                        values_from=meg_value) 
   
@@ -838,7 +838,13 @@ compare_with_database_metric_ind <- function(
   data_from_excel <- data_from_excel %>% mutate_if(is.logical,list(as.numeric)) 
   data_from_excel <- data_from_excel %>% mutate_at(vars(c("fi_comment", ifelse(type=="series","ser_nameshort","sai_name"))) ,list(as.character)) 	
   data_from_excel <- data_from_excel %>% mutate_at(vars("fi_date"), list(as.Date)) 
+  
+  #we add this column since fish needs a year but we don't ask it for other sampling (only for series)
+  if (!"fi_year" %in% names(data_from_excel)) {
+    data_from_excel$fi_year <- NA
+  } 
   data_from_excel <- data_from_excel %>% mutate_at(vars("fi_year"), list(as.numeric)) 
+  
   data_from_excel$sheetorigin <- sheetorigin
   data_from_excel <- mutate(data_from_excel,"id" = row_number()) # this one serves as joining later
   if (sheetorigin == "new_individual_metrics") data_from_excel <- data_from_excel %>% mutate(fi_id = NA)

@@ -170,7 +170,6 @@ importdcfstep1Server <- function(id,globaldata,loaded_data_dcf){
 							updated_individual_metrics <- res$updated_individual_metrics
 							deleted_individual_metrics <- res$deleted_individual_metrics
 							
-							
 							# bis_sai_id is missing from excel so I'm reloading it
 							if (nrow(new_group_metrics)>0){
 								new_group_metrics <-  left_join(new_group_metrics, t_samplinginfo_sai[,c("sai_id","sai_name")], by="sai_name")
@@ -220,7 +219,8 @@ importdcfstep1Server <- function(id,globaldata,loaded_data_dcf){
 								list_comp_updated_group_metrics <- compare_with_database_metric_group(
 										data_from_excel=updated_group_metrics, 
 										data_from_base=t_metricgroupsamp_megsa, 
-										sheetorigin="updated_group_metrics")
+										sheetorigin="updated_group_metrics",
+										type="other")
 								if (nrow(new_group_metrics)>0){
 									# when integrating the id must be different so I'm adding the max of id in news, 
 									# later they will be used to differentiate groups when writing, and we don't want to mix up 
@@ -252,7 +252,8 @@ importdcfstep1Server <- function(id,globaldata,loaded_data_dcf){
 								list_comp_deleted_group_metrics <- compare_with_database_metric_group(
 										data_from_excel=deleted_group_metrics,
 										data_from_base=t_metricgroupsamp_megsa,
-										sheetorigin="deleted_group_metrics")
+										sheetorigin="deleted_group_metrics",
+										type="other")
 							} else {
 								list_comp_deleted_group_metrics <- list("deleted"=data.frame())
 							}
@@ -308,7 +309,8 @@ importdcfstep1Server <- function(id,globaldata,loaded_data_dcf){
 								list_comp_deleted_individual_metrics <- compare_with_database_metric_ind(
 										data_from_excel=deleted_individual_metrics,
 										data_from_base=t_metricindsamp_meisa,
-										sheetorigin="deleted_individual_metrics")
+										sheetorigin="deleted_individual_metrics",
+										type="other")
 							} else {
 								list_comp_deleted_individual_metrics <- list("deleted" = data.frame())
 							}
