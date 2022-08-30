@@ -745,7 +745,7 @@ load_aquaculture<-function(path,datasource){
 	#---------------------- aquaculture sheet ---------------------------------------------
 	output <- lapply(c("new_data","updated_data",'deleted_data'),function(sheet){
 				# read the aquaculture sheet
-				cat("aquaculture \n")
+				cat("aquaculture", sheet, "\n")
 				
 				data_xls<-read_excel(
 						path=path,
@@ -754,7 +754,11 @@ load_aquaculture<-function(path,datasource){
 				#data_xls <- correct_me(data_xls)
 				country =as.character(data_xls[1,6])
 				# check for the file integrity
-				if (ncol(data_xls)!=10) cat(str_c("number column wrong ",file,"\n"))
+				if (ncol(data_xls)!=switch(sheet, 
+						"new_data" = 12,
+						"updated_data"= 13,
+						"deleted_data"= 13
+						)) cat(str_c("number column wrong ",file,"\n"))
 				data_xls$eel_qal_id <- NA
 				data_xls$eel_qal_comment <- NA
 				data_xls$eel_datasource <- datasource

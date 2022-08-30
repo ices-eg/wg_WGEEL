@@ -14,7 +14,9 @@ importstep1UI <- function(id){
           h2("step 1 : Compare with database"),
           fluidRow(
             fluidRow(column(width=2,                        
-                            actionButton(ns("check_duplicate_button"), "Check duplicate")) ),
+                            actionButton(ns("check_duplicate_button"), "Check duplicate")),
+										 column(width=2,                        
+														actionButton(ns("clean_output"), "Clean Output"))),
             fluidRow(
               column(width=5,
                      h3("Duplicated data"),
@@ -56,9 +58,10 @@ importstep1Server <- function(id,globaldata, loaded_data){
   moduleServer(id,
                function(input, output, session) {
 								
-                 observe({
-                   loaded_data$res
-                   tryCatch({
+								 observeEvent(input$clean_output,
+									{
+                   
+									 shinyCatch({ 
                    output$dt_duplicates<-renderDataTable(data.frame())
                    output$dt_check_duplicates<-renderDataTable(data.frame())
                    output$dt_new<-renderDataTable(data.frame())
@@ -71,9 +74,8 @@ importstep1Server <- function(id,globaldata, loaded_data){
                    if ("deleted_values_table" %in% names(globaldata)) {
                      globaldata$deleted_values_table<-data.frame()
                    }
-                 },error = function(e) {
-                   showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
-                 })})
+                 }) #shinyCatch
+                 })
                  ##################################################
                  # Events triggerred by step1_button
                  ###################################################      
@@ -84,7 +86,7 @@ importstep1Server <- function(id,globaldata, loaded_data){
                  #############################
 								 
                  observeEvent(input$check_duplicate_button,
-										 { #browser()
+										 { #browser()# you can put browseR here
 										 shinyCatch({ 
                    # see step0load_data returns a list with res and messages
                    # and within res data and a dataframe of errors
@@ -98,14 +100,14 @@ importstep1Server <- function(id,globaldata, loaded_data){
                      deleted_from_excel <- loaded_data$res$deleted_data
                    },
                    "release"={
-                     data_from_base<-extract_data("release", quality=c(0,1,2,3,4), quality_check=TRUE)
-                     updated_from_excel<- loaded_data$res$updated_data
-                     deleted_from_excel<- loaded_data$res$deleted_data
+                     data_from_base <-extract_data("release", quality=c(0,1,2,3,4), quality_check=TRUE)
+                     updated_from_excel <- loaded_data$res$updated_data
+                     deleted_from_excel <- loaded_data$res$deleted_data
                    },
                    "aquaculture"={             
-                     data_from_base<-extract_data("aquaculture", quality=c(0,1,2,3,4), quality_check=TRUE)
-                     updated_from_excel<- loaded_data$res$updated_data
-                     deleted_from_excel<- loaded_data$res$deleted_data
+                     data_from_base <- extract_data("aquaculture", quality=c(0,1,2,3,4), quality_check=TRUE)
+                     updated_from_excel <- loaded_data$res$updated_data
+                     deleted_from_excel <- loaded_data$res$deleted_data
                    },
                    "biomass"={
                      # bug in excel file - fixed in the template
@@ -162,7 +164,7 @@ importstep1Server <- function(id,globaldata, loaded_data){
                    # the database
                    #cat("step0")
                    if (nrow(data_from_excel)>0){
-                     ###TEMPORARY FIX 2020 due to incorrect typ_name
+                    # this select eel type names 4 6 
                      data_from_excel$eel_typ_name[data_from_excel$eel_typ_name %in% c("rec_landings","com_landings")] <- paste(data_from_excel$eel_typ_name[data_from_excel$eel_typ_name %in% c("rec_landings","com_landings")],"_kg",sep="")
                      
                      eel_typ_valid <- switch(loaded_data$file_type,
@@ -275,10 +277,11 @@ importstep1Server <- function(id,globaldata, loaded_data){
                    } else {
 										 output$dt_new <- DT::renderDataTable({validate(need(FALSE,"No data"))})
 										 output$dt_duplicates <- DT::renderDataTable({validate(need(FALSE,"No data"))})
-										 
+										 current_cou_code <- ""
 									 }# closes if nrow(...  
 									 
                    if (loaded_data$file_type %in% c("catch_landings","release", "aquaculture", "biomass","mortality_rates" )){
+										 
                      if (nrow(updated_from_excel)>0){
                        output$"step1_message_updated"<-renderUI(
                          HTML(
@@ -288,6 +291,7 @@ importstep1Server <- function(id,globaldata, loaded_data){
                              "to download this file. <p>"                         
                            ))) 
                        globaldata$updated_values_table <- compare_with_database_updated_values(updated_from_excel,data_from_base) 
+											 if (nrow(globaldata$updated_values_table)==0) stop("step1 compare_wih_database_updated_values did not return any values")
                        output$dt_updated_values <- DT::renderDataTable(
                          globaldata$updated_values_table,
                          rownames=FALSE,
@@ -306,7 +310,7 @@ importstep1Server <- function(id,globaldata, loaded_data){
                                   filename = paste0("updated_",loaded_data$file_type,"_",Sys.Date(),current_cou_code))) 
                          ))
                      }else{
-                       output$"step1_message_updated"<-renderUI("No data")
+                       output$"step1_message_updated" <- renderUI("No data")
                      } 
                      
                      if (nrow(deleted_from_excel)>0){
