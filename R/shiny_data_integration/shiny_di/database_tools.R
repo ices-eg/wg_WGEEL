@@ -2140,6 +2140,11 @@ write_new_group_metrics <- function(path, type="series") {
       nr1 <- dbExecute(conn, sqlmetrics)
       dbCommit(conn)
       
+    }, warning = function(e) {
+      message <<- e
+      dbExecute(conn,"drop table if exists group_tmp")
+      dbExecute(conn,"drop table if exists metrics_tmp")
+      dbRollback(conn)
     }, error = function(e) {
       message <<- e
       dbExecute(conn,"drop table if exists group_tmp")
@@ -2252,6 +2257,9 @@ write_new_individual_metrics <- function(path, type="series"){
     fk <- "fisa_sai_id"
   }
   new <- read_excel(path = path, sheet = 1, skip = 1)
+  new <- new %>%
+    mutate(across(any_of(c("fisa_x_4326", "fisa_y_4326")),
+                  ~as.numeric(.x)))
   if (nrow(new) == 0){
     cou_code <- ""
     message <- "nothing to import"
@@ -2314,7 +2322,9 @@ write_new_individual_metrics <- function(path, type="series"){
 			$$ LANGUAGE 'plpgsql';"	)
     
     tryCatch(	dbExecute(conn, query)
-              , error = function(e) {
+              , warning = function(e) {
+                message <<- e
+              }, error = function(e) {
                 message <<- e
               }, finally = {
                 dbExecute(conn,"drop table if exists ind_tmp")
