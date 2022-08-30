@@ -250,7 +250,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 													t_series_ser <- t_series_ser %>%  filter(ser_typ_id==2)
 													t_dataseries_das <- t_dataseries_das %>% filter (das_ser_id %in% t_series_ser$ser_id)
 													t_groupseries_grser <-  t_groupseries_grser %>% filter (grser_ser_id %in% t_series_ser$ser_id)
-													t_fishseries_fiser <-  t_fishseries_fiser %>% filter (fi_ser_id %in% t_series_ser$ser_id)
+													t_fishseries_fiser <-  t_fishseries_fiser %>% filter (fiser_ser_id %in% t_series_ser$ser_id)
 													t_metricgroupseries_megser <- t_metricgroupseries_megser%>% 
 															inner_join(t_groupseries_grser, by = c("meg_gr_id" = "gr_id") ) %>%
 															filter (grser_ser_id %in% t_series_ser$ser_id)
@@ -263,7 +263,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 													t_series_ser <- t_series_ser %>%  filter(ser_typ_id==3)
 													t_dataseries_das <- t_dataseries_das %>% filter (das_ser_id %in% t_series_ser$ser_id)
 													t_groupseries_grser <-  t_groupseries_grser %>% filter (grser_ser_id %in% t_series_ser$ser_id)
-													t_fishseries_fiser <-  t_fishseries_fiser %>% filter (fi_ser_id %in% t_series_ser$ser_id)
+													t_fishseries_fiser <-  t_fishseries_fiser %>% filter (fiser_ser_id %in% t_series_ser$ser_id)
 													t_metricgroupseries_megser <- t_metricgroupseries_megser%>% 
 															inner_join(t_groupseries_grser, by = c("meg_gr_id" = "gr_id") ) %>%
 															filter (grser_ser_id %in% t_series_ser$ser_id)
