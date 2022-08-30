@@ -30,7 +30,7 @@ load_package("spsComps")
 
 load_package("pool")
 load_package("DBI")
-load_package("RPostgreSQL") # this one works with sqldf
+# load_package("RPostgreSQL") # this one works with sqldf
 load_package("RPostgres")
 load_package("dplyr")
 load_package("tidyr")

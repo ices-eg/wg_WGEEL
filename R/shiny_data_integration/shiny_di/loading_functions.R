@@ -2620,11 +2620,11 @@ load_series<-function(path,datasource, stage="glass_eel"){
 					"m_mean_lengthmm","m_mean_weightg","m_mean_ageyear","f_mean_lengthmm","f_mean_weightg","f_mean_age",
 					"anguillicola_proportion",	"anguillicola_intensity",	"muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb", "teq",
 					"evex_proportion","hva_proportion",	"pb",	"hg",	"cd","g_in_gy_proportion","s_in_ys_proportion"),
-			c("ser_nameshort",	"fi_date",	"fi_year","fi_comment",  "lengthmm",	"weightg",	"ageyear",	"eye_diam_meanmm", "pectoral_lengthmm",
+			c("ser_nameshort",	"fi_date","fi_comment",  "lengthmm",	"weightg",	"ageyear",	"eye_diam_meanmm", "pectoral_lengthmm",
 					"is_female_(1=female,0=male)","is_differentiated_(1=differentiated,0_undifferentiated)",
 					"anguillicola_presence_(1=present,0=absent)",	"anguillicola_intensity",	"muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb", "teq",
 					"evex_presence_(1=present,0=absent)","hva_presence_(1=present,0=absent)",	"pb",	"hg",	"cd"),
-			c("fi_id","ser_nameshort","fiser_ser_id",	"fi_date", "fi_year",	"fi_comment", "fi_last_update",	"fi_dts_datasource",
+			c("fi_id","ser_nameshort","fiser_ser_id",	"fi_date", "fi_comment", "fi_last_update",	"fi_dts_datasource",
 					"lengthmm",	"weightg",	"ageyear",	"eye_diam_meanmm", "pectoral_lengthmm",
 					"is_female_(1=female,0=male)","is_differentiated_(1=differentiated,0_undifferentiated)",
 					"anguillicola_presence_(1=present,0=absent)",	"anguillicola_intensity",	"muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb", "teq",
@@ -2892,7 +2892,7 @@ load_dcf<-function(path,datasource){
 		
 		data_error= rbind(data_error, check_type(
 						dataset=sampling_info,
-						namedataset= sheet, 
+						namedataset= "sampling_info", 
 						column="sai_hty_code",
 						country=country,
 						type="character"))
@@ -2900,14 +2900,14 @@ load_dcf<-function(path,datasource){
 		# should not have any missing value
 		data_error= rbind(data_error, check_missing(
 						dataset = sampling_info,
-						namedataset = sheet, 
+						namedataset = "sampling_info", 
 						column = "sai_hty_code",
 						country = country))
 		
 		# should only correspond to the following list
 		data_error= rbind(data_error, check_values(
 						dataset=sampling_info,
-						namedataset = sheet, 
+						namedataset = "sampling_info", 
 						column = "sai_hty_code",
 						country = country,
 						values = c("F","T","C","MO","AL")))	
@@ -3039,11 +3039,7 @@ load_dcf<-function(path,datasource){
 										return(data_error)}
 								})))
 		
-		
-# should not have any missing value for year and be numeric
-# but fi_year exists and can be NULL
-		
-		
+
 		column_year <- switch(sheet,
 				"new_group_metrics"="gr_year",
 				"updated_group_metrics"="gr_year",
@@ -3226,22 +3222,22 @@ load_dcf<-function(path,datasource){
 					"m_mean_lengthmm","m_mean_weightg","m_mean_ageyear","f_mean_lengthmm","f_mean_weightg","f_mean_age","g_in_gy_proportion",	"s_in_ys_proportion",	
 					"anguillicola_proportion",	"anguillicola_intensity",	"muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb", "teq",	"evex_proportion",	
 					"hva_proportion",	"pb",	"hg",	"cd"),
-			c("sai_name",	"sai_emu_nameshort",	"fi_date",	"fi_year","fisa_lfs_code",	"fisa_x_4326",	"fisa_y_4326",
+			c("sai_name",	"sai_emu_nameshort",	"fi_date",	"fisa_lfs_code",	"fisa_x_4326",	"fisa_y_4326",
 					"fi_comment",  "lengthmm",	"weightg",	"ageyear",	"eye_diam_meanmm", "pectoral_lengthmm",
 					"is_female_(1=female,0=male)","is_differentiated_(1=differentiated,0_undifferentiated)",
 					"anguillicola_presence_(1=present,0=absent)",	"anguillicola_intensity",	"muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb", "teq",
 					"evex_presence_(1=present,0=absent)","hva_presence_(1=present,0=absent)",	"pb",	"hg",	"cd"),
-			c("fi_id","sai_name",	"sai_emu_nameshort", "fi_date",	"fi_year", "fisa_lfs_code", "fisa_x_4326",	"fisa_y_4326", "fi_comment",  "fi_last_update",	"fi_dts_datasource", 
+			c("fi_id","sai_name",	"sai_emu_nameshort", "fi_date",	 "fisa_lfs_code", "fisa_x_4326",	"fisa_y_4326", "fi_comment",  "fi_last_update",	"fi_dts_datasource", 
 					"lengthmm",	"weightg",	"ageyear",	"eye_diam_meanmm", "pectoral_lengthmm",
 					"is_female_(1=female,0=male)","is_differentiated_(1=differentiated,0_undifferentiated)",
 					"anguillicola_presence_(1=present,0=absent)",	"anguillicola_intensity",	"muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb", "teq",
 					"evex_presence_(1=present,0=absent)","hva_presence_(1=present,0=absent)",	"pb",	"hg",	"cd"),
-			c("fi_id","sai_name",	"sai_emu_nameshort", "fi_date", "fi_year","fisa_lfs_code",	"fisa_x_4326",	"fisa_y_4326", "fi_comment",  "fi_last_update",	"fi_dts_datasource", 
+			c("fi_id","sai_name",	"sai_emu_nameshort", "fi_date", "fisa_lfs_code",	"fisa_x_4326",	"fisa_y_4326", "fi_comment",  "fi_last_update",	"fi_dts_datasource", 
 					"lengthmm",	"weightg",	"ageyear",	"eye_diam_meanmm", "pectoral_lengthmm",
 					"is_female_(1=female,0=male)","is_differentiated_(1=differentiated,0_undifferentiated)",
 					"anguillicola_presence_(1=present,0=absent)",	"anguillicola_intensity",	"muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb", "teq",
 					"evex_presence_(1=present,0=absent)","hva_presence_(1=present,0=absent)",	"pb",	"hg",	"cd"))
-	nbcol <- list(30,33,33,26,29,29) 
+	nbcol <- sapply(columns,length)
 	res <- purrr::pmap(list(sheet,columns,nbcol), fn_check_gr_ind)
 	data_error <- 	lapply(res,function(X)X$error) %>% bind_rows()
 	
