@@ -187,9 +187,10 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 				# with duplicates values
 				#############################
 				observeEvent(input$check_duplicate_button_ts, {
+							
 							tryCatch({
 										
-										
+
 										# see step0load_data returns a list with res and messages
 										# and within res data and a dataframe of errors
 										
@@ -249,27 +250,29 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 												"yellow_eel"={
 													t_series_ser <- t_series_ser %>%  filter(ser_typ_id==2)
 													t_dataseries_das <- t_dataseries_das %>% filter (das_ser_id %in% t_series_ser$ser_id)
-													t_groupseries_grser <-  t_groupseries_grser %>% filter (gr_ser_id %in% t_series_ser$ser_id)
-													t_fishseries_fiser <-  t_fishseries_fiser %>% filter (fi_ser_id %in% t_series_ser$ser_id)
+													t_groupseries_grser <-  t_groupseries_grser %>% filter (grser_ser_id %in% t_series_ser$ser_id)
+													t_fishseries_fiser <-  t_fishseries_fiser %>% filter (fiser_ser_id %in% t_series_ser$ser_id)
 													t_metricgroupseries_megser <- t_metricgroupseries_megser%>% 
 															inner_join(t_groupseries_grser, by = c("meg_gr_id" = "gr_id") ) %>%
-															filter (grser_ser_id %in% t_series_ser$ser_id)
+															filter (grser_ser_id %in% t_series_ser$ser_id) %>% rename("gr_id"="meg_gr_id")			
 													t_metricindseries_meiser <- t_metricindseries_meiser%>%
 															inner_join(t_fishseries_fiser, by = c("mei_fi_id" = "fi_id") ) %>%
-															filter (fiser_ser_id %in% t_series_ser$ser_id)
+															filter (fiser_ser_id %in% t_series_ser$ser_id) %>% 
+															rename("fi_id"="mei_fi_id")		
 													
 												},
 												"silver_eel"={
 													t_series_ser <- t_series_ser %>%  filter(ser_typ_id==3)
 													t_dataseries_das <- t_dataseries_das %>% filter (das_ser_id %in% t_series_ser$ser_id)
-													t_groupseries_grser <-  t_groupseries_grser %>% filter (gr_ser_id %in% t_series_ser$ser_id)
-													t_fishseries_fiser <-  t_fishseries_fiser %>% filter (fi_ser_id %in% t_series_ser$ser_id)
+													t_groupseries_grser <-  t_groupseries_grser %>% filter (grser_ser_id %in% t_series_ser$ser_id)
+													t_fishseries_fiser <-  t_fishseries_fiser %>% filter (fiser_ser_id %in% t_series_ser$ser_id)
 													t_metricgroupseries_megser <- t_metricgroupseries_megser%>% 
 															inner_join(t_groupseries_grser, by = c("meg_gr_id" = "gr_id") ) %>%
-															filter (grser_ser_id %in% t_series_ser$ser_id)
+															filter (grser_ser_id %in% t_series_ser$ser_id) %>% rename("gr_id"="meg_gr_id")			
 													t_metricindseries_meiser <- t_metricindseries_meiser%>%
 															inner_join(t_fishseries_fiser, by = c("mei_fi_id" = "fi_id") ) %>%
-															filter (fiser_ser_id %in% t_series_ser$ser_id)
+															filter (fiser_ser_id %in% t_series_ser$ser_id) %>% 
+															rename("fi_id"="mei_fi_id")		
 													
 												}
 										)
@@ -280,7 +283,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 										# the second new contains a dataframe to be inserted straight into
 										# the database
 										#cat("step0")
-							
+										
 										if (nrow(series)>0){
 											list_comp_series <- compare_with_database_series(data_from_excel=series, data_from_base=t_series_ser)
 										}
@@ -288,11 +291,15 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 											list_comp_dataseries <- compare_with_database_dataseries(data_from_excel=new_data, 
 													data_from_base=t_dataseries_das, 
 													sheetorigin="new_data")
-										}
+										} 
+										
+										
 										if (nrow(deleted_data)>0){
 											list_comp_deleted_dataseries <- compare_with_database_dataseries(data_from_excel=deleted_data, 
 													data_from_base=t_dataseries_das, 
 													sheetorigin="deleted_data")
+										} else {
+											list_comp_deleted_dataseries <- list("deleted"= data.frame())
 										}
 										
 										if (nrow(updated_data)>0){
@@ -336,8 +343,8 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 													sheetorigin="updated_group_metrics")
 											if (nrow(new_group_metrics)>0){
 												# when integrating the id must be different so I'm adding the max of id in news, 
-		                    # later they will be used to differentiate groups when writing, and we don't want to mix up 
-		                    # groups from new and from updated sheets
+												# later they will be used to differentiate groups when writing, and we don't want to mix up 
+												# groups from new and from updated sheets
 												mxn <- max(list_comp_group_metrics$new$id, na.rm=TRUE)
 												mxm <- max(list_comp_group_metrics$modified, na.rm=TRUE)
 												list_comp_updated_group_metrics$new$id <- list_comp_updated_group_metrics$new$id + mxn
@@ -357,9 +364,12 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 												list_comp_group_metrics$highlight_change <- list_comp_updated_group_metrics$highlight_change
 											}
 										} else {
-											if (!"modified" %in% names(list_comp_group_metrics))  list_comp_group_metrics$modified <- data.frame()
-											if (!"highlight_change" %in% names(list_comp_group_metrics))  list_comp_group_metrics$highlight_change <- data.frame()
+											if (!"modified" %in% names(list_comp_group_metrics)) {
+												list_comp_group_metrics$modified <- data.frame()
+												list_comp_group_metrics$highlight_change <- data.frame()
+											}
 										}
+										
 										if (nrow(deleted_group_metrics)>0){
 											list_comp_deleted_group_metrics <- compare_with_database_metric_group(
 													data_from_excel=deleted_group_metrics,
@@ -375,9 +385,9 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 															data_from_excel=new_individual_metrics, 
 															data_from_base=t_metricindseries_meiser, 
 															sheetorigin="new_individual_metrics")
-										} 		 else {
-											list_comp_individual_metrics <- list(new=data.frame())
-										}
+										} 	else {
+											list_comp_individual_metrics <- list("new"=data.frame())
+										}	 
 										
 										if (nrow(updated_individual_metrics)>0){
 											list_comp_updated_individual_metrics <- 
@@ -406,25 +416,28 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 												list_comp_individual_metrics$modified <- list_comp_updated_individual_metrics$modified
 												list_comp_individual_metrics$highlight_change <- list_comp_updated_individual_metrics$highlight_change
 											}
-										}else {
-											list_comp_individual_metrics$new <- list_comp_updated_individual_metrics$new
-											list_comp_individual_metrics$modified <- list_comp_updated_individual_metrics$modified
-											list_comp_individual_metrics$highlight_change <- list_comp_updated_individual_metrics$highlight_change
+										}		 else {
+											if (!"modified" %in% names(list_comp_individual_metrics)) {
+												list_comp_individual_metrics$modified <- data.frame()
+												list_comp_individual_metrics$highlight_change <- data.frame()
+											}
 										}
+										
 										if (nrow(deleted_individual_metrics)>0){
 											list_comp_deleted_individual_metrics <- compare_with_database_metric_ind(
 													data_from_excel=deleted_individual_metrics,
 													data_from_base=t_metricindseries_meiser,
 													sheetorigin="deleted_individual_metrics")
-										} else {
-											list_comp_deleted_individual_metrics <- list("deleted"=data.frame())
+										} 	else {
+											list_comp_deleted_individual_metrics <- list("deleted" = data.frame())
 										}
+										
 										current_cou_code <- list_comp_series$current_cou_code
 										
 										#cat("step1")
 										# step1 new series -------------------------------------------------------------
 										
-										if (nrow(list_comp_series$new)==0) {
+										if ( nrow(list_comp_series$new)==0) {
 											output$step1_message_new_series <- renderUI(
 													HTML(
 															paste(
@@ -665,7 +678,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 										
 										# step1 modified dataseries -------------------------------------------------------------
 										
-										if (nrow(list_comp_dataseries$modified)==0) {
+										if ( nrow(list_comp_dataseries$modified)==0) {
 											output$"step1_message_modified_dataseries"<-renderUI(
 													HTML(
 															paste(
@@ -736,7 +749,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 										
 										# step1 modified group metrics -------------------------------------------------------------
 										
-										if ( nrow(list_comp_group_metrics$modified)==0) {
+										if (nrow(list_comp_group_metrics$modified)==0) {
 											
 											output$"step1_message_modified_group_metrics"<-renderUI(
 													HTML(
@@ -780,7 +793,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 																))
 													})
 											
-															
+											
 											output$dt_highlight_change_group_metrics <-DT::renderDataTable({
 														validate(need(globaldata$connectOK,"No connection"))
 														datatable(list_comp_group_metrics$highlight_change,
@@ -796,7 +809,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 										}
 										
 										
-										if ((!exists("list_comp_individual_metrics")) || nrow(list_comp_individual_metrics$modified)==0) {
+										if (nrow(list_comp_individual_metrics$modified)==0) {
 											
 											output$"step1_message_modified_individual_metrics"<-renderUI(
 													HTML(
@@ -820,7 +833,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 																	)))
 											)
 											
-														
+											
 											output$dt_modified_individual_metrics <-DT::renderDataTable({
 														validate(need(globaldata$connectOK,"No connection"))
 														datatable(list_comp_individual_metrics$modified,
@@ -841,7 +854,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 																))
 													})
 											
-															
+											
 											output$dt_highlight_change_individual_metrics <-DT::renderDataTable({
 														validate(need(globaldata$connectOK,"No connection"))
 														datatable(list_comp_individual_metrics$highlight_change,
@@ -940,7 +953,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 																))
 													})
 										}
-				
+										
 										# step1 deleted individual_metrics -------------------------------------------------------------
 										
 										if (nrow(list_comp_deleted_individual_metrics$deleted)==0) {
@@ -988,7 +1001,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 									},error = function(e) {
 										showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
 									})
-									}, ignoreInit = TRUE)
+						}, ignoreInit = TRUE)
 			}
 	
 	)

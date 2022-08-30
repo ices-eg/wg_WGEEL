@@ -20,7 +20,7 @@ importtsstep0UI <- function(id){
 											)),
 									column(width=4,  radioButtons(inputId=ns("file_type_ts"), label="File type:",
 													c(	"Glass eel (recruitment)"="glass_eel",
-															"Yellow eel (standing stock)"="yellow_eel ",
+															"Yellow eel (standing stock)"="yellow_eel",
 															"Silver eel"="silver_eel"
 													))),
 									column(width=4, actionButton(ns("ts_check_file_button"), "Check file") )                     

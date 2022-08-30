@@ -38,39 +38,43 @@ load_catch_landings<-function(path,datasource){
 		the_metadata[["method"]] <- NA
 	}
 # end loop for directories
-	
+
 #---------------------- catch_landings sheet ---------------------------------------------
 	
 # read the catch_landings sheet
 	cat("catch and landings \n")
+	
 # here we have already seached for catch and landings above.
 	
-	##Since dc2020, we have both new and updated_data to deal with
-	output <- lapply(c("new_data","updated_data","deleted_data"),function(sheet){
+	##fix bug 2022
+	if ("deleted_data " %in% sheets) deleted <- "deleted_data " else deleted <- "deleted_data"
+	# restore this in 2023 by replacing deleted with "deleted_data"
+	output <- lapply(c("new_data","updated_data",deleted),function(sheet){
 				data_xls<-read_excel(
 						path=path,
 						sheet=sheet,
 						skip=0, guess_max=10000)
 				data_error <- data.frame(nline = NULL, error_message = NULL)
-				country=as.character(data_xls[1,6])
+				country = as.character(data_xls[1,6])
+				if (is.na(country)) country <- "your country"
 #    data_xls <- correct_me(data_xls)
 				# check for the file integrity
 				
-				if (ncol(data_xls)!=11 & sheet=="new_data") cat(str_c("newdata : number column wrong, should have been 11 in file from ",country,"\n"))
-				if (ncol(data_xls)!=12 & sheet=="updated_data") cat(str_c("updated_data : number column wrong, should have been 12 in file from ",country,"\n"))
-				if (ncol(data_xls)!=12 & sheet=="deleted_data") cat(str_c("deleted_data : number column wrong, should have been 12 in file from ",country,"\n"))
+				if (ncol(data_xls)!=13 & sheet=="new_data") cat(str_c("newdata : number column wrong, should have been 13 in file from ",country,"\n"))
+				if (ncol(data_xls)!=13 & sheet=="updated_data") cat(str_c("updated_data : number column wrong, should have been 13 in file from ",country,"\n"))
+				if (ncol(data_xls)!=13 & sheet==deleted) cat(str_c("deleted_data : number column wrong, should have been 13 in file from ",country,"\n"))
 				
 				# check column names
 				
 				###TEMPORARY FIX 2020 due to incorrect typ_name
 				data_xls$eel_typ_name[data_xls$eel_typ_name %in% c("rec_landings","com_landings")] <- paste(data_xls$eel_typ_name[data_xls$eel_typ_name %in% c("rec_landings","com_landings")],"_kg",sep="")
 				if (!all(colnames(data_xls)%in%
-								c(ifelse(sheet %in% c("updated_data","deleted_data"),"eel_id","eel_typ_name"),"eel_typ_name","eel_year","eel_value","eel_missvaluequal",
+								c(ifelse(sheet %in% c("updated_data",deleted),"eel_id","eel_typ_name"),"eel_typ_name","eel_year","eel_value","eel_missvaluequal",
 										"eel_emu_nameshort","eel_cou_code", "eel_lfs_code", "eel_hty_code","eel_area_division",
 										"eel_qal_id", "eel_qal_comment","eel_comment","eel_datasource"))) 
-					cat(str_c("problem in column names",            
+					cat(str_c("problem in column names :",            
 									paste(colnames(data_xls)[!colnames(data_xls)%in%
-															c(ifelse(sheet %in% c("updated_data","deleted_data"),"eel_id",""),
+															c(ifelse(sheet %in% c("updated_data", deleted),"eel_id",""),
 																	"eel_typ_name", "eel_year","eel_value","eel_missvaluequal","eel_emu_nameshort",
 																	"eel_cou_code", "eel_lfs_code", "eel_hty_code","eel_area_division",
 																	"eel_qal_id", "eel_qal_comment","eel_comment","eel_datasource")],collapse= "&"),
@@ -82,7 +86,7 @@ load_catch_landings<-function(path,datasource){
 					
 					
 					######eel_id for updated_data or deleted_data
-					if (sheet %in% c("updated_data","deleted_data")){
+					if (sheet %in% c("updated_data",deleted)){
 						data_error= rbind(data_error, check_missing(dataset=data_xls,
 										namedataset= sheet, 
 										column="eel_id",
@@ -2351,7 +2355,7 @@ load_series<-function(path,datasource, stage="glass_eel"){
 				sheet=sheet,
 				skip=0, guess_max=10000)
 		cat(sheet,"\n")
-		#browser()
+
 		data_error <- data.frame(nline = NULL, error_message = NULL)
 		# country is extracted 
 #    data_xls <- correct_me(data_xls)
@@ -2604,7 +2608,7 @@ load_series<-function(path,datasource, stage="glass_eel"){
 			#TODO check that das_lastupdate and das_dts_datasource 
 			c("ser_nameshort",	"das_id",	"das_ser_id",	"das_value",	"das_year",	"das_comment",	"das_effort",	"das_qal_id", "das_qal_comment", "das_dts_datasource"),
 			c("ser_nameshort",	"das_id",	"das_ser_id",	"das_value",	"das_year",	"das_comment",	"das_effort",	"das_qal_id", "das_qal_comment", "das_dts_datasource"),
-			c("gr_id","ser_nameshort",	"gr_ser_id", "gr_year",	"gr_number", "gr_comment", "gr_last_update", "gr_dts_datasource", "lengthmm",	"weightg",	"ageyear",	"female_proportion","differentiated_proportion",
+			c("gr_id","ser_nameshort",	"grser_ser_id", "gr_year",	"gr_number", "gr_comment", "gr_last_update", "gr_dts_datasource", "lengthmm",	"weightg",	"ageyear",	"female_proportion","differentiated_proportion",
 					"m_mean_lengthmm","m_mean_weightg","m_mean_ageyear","f_mean_lengthmm","f_mean_weightg","f_mean_age",
 					"anguillicola_proportion",	"anguillicola_intensity",	"muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb", "teq",
 					"evex_proportion","hva_proportion",	"pb",	"hg",	"cd","g_in_gy_proportion","s_in_ys_proportion"),		
@@ -2945,7 +2949,7 @@ load_dcf<-function(path,datasource){
 				sheet=sheet,
 				skip=0, guess_max=10000)
 		cat(sheet,"\n")
-		#browser()
+
 		data_error <- data.frame(nline = NULL, error_message = NULL)
 		# country is extracted 
 #    data_xls <- correct_me(data_xls)

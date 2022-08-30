@@ -55,6 +55,7 @@ importstep1UI <- function(id){
 importstep1Server <- function(id,globaldata, loaded_data){
   moduleServer(id,
                function(input, output, session) {
+								
                  observe({
                    loaded_data$res
                    tryCatch({
@@ -81,7 +82,10 @@ importstep1Server <- function(id,globaldata, loaded_data){
                  # this will render a datatable containing rows
                  # with duplicates values
                  #############################
-                 observeEvent(input$check_duplicate_button, tryCatch({ 
+								 
+                 observeEvent(input$check_duplicate_button,
+										 { #browser()
+										 shinyCatch({ 
                    # see step0load_data returns a list with res and messages
                    # and within res data and a dataframe of errors
                    validate(
@@ -89,9 +93,9 @@ importstep1Server <- function(id,globaldata, loaded_data){
                    ) 
                    data_from_excel<- loaded_data$res$data
                    switch (loaded_data$file_type, "catch_landings"={                                     
-                     data_from_base<-extract_data("landings", quality=c(0,1,2,3,4), quality_check=TRUE)
-                     updated_from_excel<- loaded_data$res$updated_data
-                     deleted_from_excel<- loaded_data$res$deleted_data
+                     data_from_base <- extract_data("landings", quality=c(0,1,2,3,4), quality_check=TRUE)
+                     updated_from_excel <- loaded_data$res$updated_data
+                     deleted_from_excel <- loaded_data$res$deleted_data
                    },
                    "release"={
                      data_from_base<-extract_data("release", quality=c(0,1,2,3,4), quality_check=TRUE)
@@ -153,7 +157,7 @@ importstep1Server <- function(id,globaldata, loaded_data){
                    # the compare_with_database function will compare
                    # what is in the database and the content of the excel file
                    # previously loaded. It will return a list with two components
-                   # the first duplicates contains elements to be returned to the use
+                   # the first duplicates contains elements to be returned to the user
                    # the second new contains a dataframe to be inserted straight into
                    # the database
                    #cat("step0")
@@ -268,7 +272,12 @@ importstep1Server <- function(id,globaldata, loaded_data){
                      }
                      
                      
-                   } # closes if nrow(...  
+                   } else {
+										 output$dt_new <- DT::renderDataTable({validate(need(FALSE,"No data"))})
+										 output$dt_duplicates <- DT::renderDataTable({validate(need(FALSE,"No data"))})
+										 
+									 }# closes if nrow(...  
+									 
                    if (loaded_data$file_type %in% c("catch_landings","release", "aquaculture", "biomass","mortality_rates" )){
                      if (nrow(updated_from_excel)>0){
                        output$"step1_message_updated"<-renderUI(
@@ -297,7 +306,7 @@ importstep1Server <- function(id,globaldata, loaded_data){
                                   filename = paste0("updated_",loaded_data$file_type,"_",Sys.Date(),current_cou_code))) 
                          ))
                      }else{
-                       output$"step1_message_updated"<-renderUI("")
+                       output$"step1_message_updated"<-renderUI("No data")
                      } 
                      
                      if (nrow(deleted_from_excel)>0){
@@ -327,7 +336,7 @@ importstep1Server <- function(id,globaldata, loaded_data){
                                   filename = paste0("deleted_",loaded_data$file_type,"_",Sys.Date(),current_cou_code))) 
                          ))
                      }else{
-                       output$"step1_message_deleted"<-renderUI("")
+                       output$"step1_message_deleted"<-renderUI("No data")
                      }
                    }
                    if (exists("years")){
@@ -350,9 +359,9 @@ importstep1Server <- function(id,globaldata, loaded_data){
                     })
                    }
                    #data$new <- new # new is stored in the reactive dataset to be inserted later.      
-                 },error = function(e) {
-                   showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
-                 }), ignoreInit = TRUE)
+                 }) # shiny catch
+								 } ,# expr for browser
+								 ignoreInit = TRUE)
            
                })
 }

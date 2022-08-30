@@ -250,7 +250,7 @@ check_missvalue_release <- function(dataset, namedataset, country,updated=FALSE)
   answer2 = NULL
   #answer3 = NULL
   name_value = c("eel_value_number","eel_value_kg")
-	#browser()
+
   if (updated) name_value = "eel_value"
   # tibbles are weird, change to dataframe
   ddataset <- as.data.frame(dataset)
@@ -361,7 +361,7 @@ check_positive <- function(dataset, namedataset, column,country){
 #' @param namedataset the name of the sheet 
 #' @param country the current country being evaluated
 check_freshwater_without_area <- function(dataset,namedataset, country){
-  #browser()
+
   answer = NULL
   newdataset <- dataset
 	tibble::rowid_to_column(newdataset, "nline" )

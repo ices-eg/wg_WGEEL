@@ -683,6 +683,7 @@ compare_with_database_sampling <- function(data_from_excel, data_from_base) {
 ## test 25/05/2022 OK
 #path<-file.choose()
 #path<-"C:\\Users\\cedric.briand\\OneDrive - EPTB Vilaine\\Projets\\GRISAM\\2022\\WKEELDATA4\\Eel_Data_Call_2022_Annex1_time_series_FR_Recruitment.xlsx"
+#path <- "C:\\Users\\cedric.briand\\OneDrive - EPTB Vilaine\\Projets\\GRISAM\\2022\\WKEELDATA4\\DE\\Eel_Data_Call_2022_Annex3_Time_Series_DE_Silver.xlsx"
 #t_series_ser <- extract_data('t_series_ser',quality_check=FALSE)
 #t_groupseries_grser <- extract_data("t_groupseries_grser", quality_check=FALSE)
 #t_metricgroupseries_megser <- extract_data("t_metricgroupseries_megser", quality_check=FALSE)
@@ -715,6 +716,7 @@ compare_with_database_metric_group <- function(data_from_excel,
                                                data_from_base, 
                                                sheetorigin=c("new_group_metrics","updated_group_metrics","deleted_group_metrics"),
                                                type="series") {
+
   # data integrity checks
   if (!sheetorigin %in% c("new_group_metrics", "updated_group_metrics", "deleted_group_metrics")) stop ("sheetorigin should be one of
 						new_group_metrics, updated_group_metrics, deleted_group_metrics")
@@ -769,7 +771,7 @@ compare_with_database_metric_group <- function(data_from_excel,
   
   highlight_change <- duplicates[duplicates$id %in% modified$id,]
   
-  if (nrow(modified) >0 ) {	
+  if (nrow(modified) >0) {	
     
     num_common_col <- grep(".xls|.base",colnames(highlight_change))
     possibly_changed <- colnames(highlight_change)[num_common_col]
@@ -784,10 +786,12 @@ compare_with_database_metric_group <- function(data_from_excel,
       mat[,c(v,v+1)]<-test
       
     }
+		if (nrow(mat)>0){ # fix bug when all lines are returned without new values
     # select only rows where there are true modified 
     modified <- modified[!apply(mat,1,all),]	 
     # show only modifications to the user (any colname modified)	
     highlight_change <- highlight_change[!apply(mat,1,all),num_common_col[!apply(mat,2,all)]]
+		}
   }
   modified_long <- modified %>% tidyr::pivot_longer(cols=metrics_group$mty_name,
                                                     values_to="meg_value",
