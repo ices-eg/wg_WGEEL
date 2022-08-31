@@ -187,10 +187,10 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 				# with duplicates values
 				#############################
 				observeEvent(input$check_duplicate_button_ts, {
-							
-							tryCatch({
+							#browser()
+							shinyCatch({
 										
-
+										
 										# see step0load_data returns a list with res and messages
 										# and within res data and a dataframe of errors
 										
@@ -306,10 +306,14 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 											list_comp_updateddataseries <- compare_with_database_dataseries(data_from_excel=updated_data, 
 													data_from_base=t_dataseries_das, 
 													sheetorigin="updated_data")
-											
+											# to avoid binding column type error
 											if (nrow(new_data)>0){
-												list_comp_dataseries$new <- bind_rows(list_comp_dataseries$new,	list_comp_updateddataseries$new)
-												list_comp_dataseries$modified <- bind_rows(list_comp_dataseries$modified,list_comp_updateddataseries$modified)
+												if (nrow(list_comp_updateddataseries$new)>0) {
+													list_comp_dataseries$new <- bind_rows(list_comp_dataseries$new,	list_comp_updateddataseries$new)
+												}
+												if (nrow(list_comp_dataseries$modified)>0) {
+													list_comp_dataseries$modified <- bind_rows(list_comp_dataseries$modified,list_comp_updateddataseries$modified)
+												}
 												if (nrow(list_comp_dataseries$highlight_change)>0){
 													list_comp_dataseries$highlight_change <- bind_rows(list_comp_dataseries$highlight_change,
 															list_comp_updateddataseries$highlight_change)
@@ -998,8 +1002,6 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 										}
 										
 										
-									},error = function(e) {
-										showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
 									})
 						}, ignoreInit = TRUE)
 			}
