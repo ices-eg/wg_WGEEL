@@ -2268,7 +2268,7 @@ write_new_individual_metrics <- function(path, type="series"){
   }
   new <- read_excel(path = path, sheet = 1, skip = 1)
   new <- new %>%
-    mutate(across(any_of(c("fisa_x_4326", "fisa_y_4326")),
+    mutate(across(any_of(c("fisa_x_4326", "fisa_y_4326", "fi_year")),
                   ~as.numeric(.x)))
   if (nrow(new) == 0){
     cou_code <- ""
