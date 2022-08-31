@@ -79,7 +79,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 				
 				observe({
 							loaded_data_ts$res
-							tryCatch({
+							shinyCatch({
 										
 										##################################################
 										# clean up
@@ -171,10 +171,8 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 												options = list(searching = FALSE,paging = FALSE,
 														language = list(zeroRecords = "Not run yet"))) 
 										
-									},
-									error = function(e) {
-										showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
-									})})
+									})
+									})
 				
 				
 				
@@ -187,8 +185,8 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 				# with duplicates values
 				#############################
 				observeEvent(input$check_duplicate_button_ts, {
-							#browser()
-							shinyCatch({
+							
+							#shinyCatch({
 										
 										
 										# see step0load_data returns a list with res and messages
@@ -232,7 +230,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 										t_fishseries_fiser <- extract_data("t_fishseries_fiser", quality_check=FALSE)
 										t_metricgroupseries_megser <- extract_data("t_metricgroupseries_megser", quality_check=FALSE)
 										t_metricindseries_meiser <- extract_data("t_metricindseries_meiser", quality_check=FALSE)
-										
+								
 										switch (loaded_data_ts$file_type,
 												"glass_eel"={
 													t_series_ser <- t_series_ser %>%  filter(ser_typ_id==1)
@@ -245,6 +243,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 													t_metricindseries_meiser <- t_metricindseries_meiser%>%
 															inner_join(t_fishseries_fiser, by = c("mei_fi_id" = "fi_id") ) %>%
 															inner_join(t_series_ser %>% select(ser_nameshort, ser_id), by=c("fiser_ser_id"="ser_id")) %>% 
+															filter (fiser_ser_id %in% t_series_ser$ser_id) %>% 
 															rename("fi_id"="mei_fi_id")		
 												},
 												"yellow_eel"={
@@ -257,6 +256,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 															filter (grser_ser_id %in% t_series_ser$ser_id) %>% rename("gr_id"="meg_gr_id")			
 													t_metricindseries_meiser <- t_metricindseries_meiser%>%
 															inner_join(t_fishseries_fiser, by = c("mei_fi_id" = "fi_id") ) %>%
+															inner_join(t_series_ser %>% select(ser_nameshort, ser_id), by=c("fiser_ser_id"="ser_id")) %>% 
 															filter (fiser_ser_id %in% t_series_ser$ser_id) %>% 
 															rename("fi_id"="mei_fi_id")		
 													
@@ -271,6 +271,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 															filter (grser_ser_id %in% t_series_ser$ser_id) %>% rename("gr_id"="meg_gr_id")			
 													t_metricindseries_meiser <- t_metricindseries_meiser%>%
 															inner_join(t_fishseries_fiser, by = c("mei_fi_id" = "fi_id") ) %>%
+															inner_join(t_series_ser %>% select(ser_nameshort, ser_id), by=c("fiser_ser_id"="ser_id")) %>% 
 															filter (fiser_ser_id %in% t_series_ser$ser_id) %>% 
 															rename("fi_id"="mei_fi_id")		
 													
@@ -602,16 +603,12 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 														validate(need(globaldata$connectOK,"No connection"))
 														datatable(list_comp_individual_metrics$new,
 																rownames=FALSE,
-																extensions = "Buttons",
+																extensions = c("Buttons", "scroller"),
+																deferRender = TRUE,
 																option=list(
 																		scroller = TRUE,
 																		scrollX = TRUE,
-																		scrollY = TRUE,
-																		order=list(3,"asc"),
-																		lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
-																		"pagelength"=-1,
-																		dom= "Blfrtip",
-																		scrollX = T,
+																		scrollY = TRUE,																	
 																		buttons=list(
 																				list(extend="excel",
 																						filename = paste0("new_individual_metrics_",loaded_data_ts$file_type,"_",Sys.Date(),"_",current_cou_code)))
@@ -1002,7 +999,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 										}
 										
 										
-									})
+									#}) # shinycatch
 						}, ignoreInit = TRUE)
 			}
 	
