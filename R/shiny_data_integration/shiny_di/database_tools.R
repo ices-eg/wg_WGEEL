@@ -903,7 +903,6 @@ compare_with_database_metric_ind <- function(
                                by =c("fi_id", "fi_date", "fi_comment", metrics_ind$mty_name))
   modified <- modified[!modified$id %in% new$id,]
   
-  
   highlight_change <- duplicates[duplicates$id %in% modified$id,]
   
   if (nrow(modified) >0 ) {	
@@ -921,11 +920,13 @@ compare_with_database_metric_ind <- function(
       mat[,c(v,v+1)]<-test
       
     }
+		if (nrow(mat)>0){ # fix bug when all lines are returned without new values
     # select only rows where there are true modified 
     modified <- modified[!apply(mat,1,all),]	 
     
     # show only modifications to the user (any colname modified)	
     highlight_change <- highlight_change[!apply(mat,1,all),num_common_col[!apply(mat,2,all)]]
+	}
   } 
   modified_long <- modified %>% tidyr::pivot_longer(cols=metrics_ind$mty_name,
                                                     values_to="mei_value",
