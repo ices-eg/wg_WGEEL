@@ -966,3 +966,8 @@ alter table datawg.t_fishsamp_fisa  alter column fisa_y_4326 drop not null;
 
 -- 30/08/2022 Execution of script till there on wgeel distant database
 
+
+
+ALTER TABLE datawg.t_samplinginfo_sai  ADD CONSTRAINT ch_unique_sai_name UNIQUE (sai_name)
+-- 31/08/2022 Execution of script till there on wgeel distant database
+
