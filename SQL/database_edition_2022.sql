@@ -969,5 +969,14 @@ alter table datawg.t_fishsamp_fisa  alter column fisa_y_4326 drop not null;
 
 
 ALTER TABLE datawg.t_samplinginfo_sai  ADD CONSTRAINT ch_unique_sai_name UNIQUE (sai_name)
+
+ALTER TABLE datawg.t_fish_fi  ADD column fi_lfs_code varchar(2);
+alter table datawg.t_fish_fi add constraint c_fk_fi_lfs_code FOREIGN KEY (fi_lfs_code) REFERENCES "ref".tr_lifestage_lfs(lfs_code) ON UPDATE cascade
+alter table datawg.t_fishsamp_fisa drop column fisa_lfs_code;
+alter table datawg.t_fish_fi  alter column fi_year drop not null;
+
 -- 31/08/2022 Execution of script till there on wgeel distant database
+
+
+
 
