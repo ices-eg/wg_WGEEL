@@ -2522,7 +2522,7 @@ load_series<-function(path,datasource, stage="glass_eel"){
 		if (grepl("data", sheet)) {
 			
 # das_value should not have any missing value
-			
+			data_xls$das_qal_comment <- as.character(data_xls$das_qal_comment)
 			data_error <- rbind(data_error, check_missing(
 							dataset = data_xls,					
 							namedataset = sheet,
@@ -2649,7 +2649,7 @@ load_series<-function(path,datasource, stage="glass_eel"){
 					"is_female_(1=female,0=male)","is_differentiated_(1=differentiated,0_undifferentiated)",
 					"anguillicola_presence_(1=present,0=absent)",	"anguillicola_intensity",	"muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb", "teq",
 					"evex_presence_(1=present,0=absent)","hva_presence_(1=present,0=absent)",	"pb",	"hg",	"cd"))
-	nbcol <- list(7,10,10,28,31,31,22,25,25)
+	nbcol <- list(7,10,10,28,31,31,23,26,26)
 	
 	
 	res <- purrr::pmap(list(sheet,columns,nbcol), fn_check_series)
