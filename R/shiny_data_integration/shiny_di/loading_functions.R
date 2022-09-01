@@ -2956,7 +2956,7 @@ load_dcf<-function(path,datasource){
 		
 		
 		#some countries have added a fi_year column so we deal with it
-		if ("fi_year" %in% colums && (!fi_year %in% names(sheet)))
+		if ("fi_year" %in% columns && (!fi_year %in% names(sheet)))
 		  data_xls$fi_year <- NA  
 		data_xls <- data_xls %>%
 		  mutate(fi_year=as.integer(fi_year))
