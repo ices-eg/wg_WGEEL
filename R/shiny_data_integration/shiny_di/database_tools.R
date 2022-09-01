@@ -2097,6 +2097,7 @@ update_dataseries <- function(path) {
 #'  path <- file.choose()
 
 write_new_group_metrics <- function(path, type="series") {
+
   conn <- poolCheckout(pool)
   on.exit(poolReturn(conn))
   if (type == "series"){
@@ -2269,6 +2270,7 @@ delete_group_metrics <- function(path, type="series"){
 # corresponding metrics for that fish
 # path <-file.choose()
 write_new_individual_metrics <- function(path, type="series"){
+
   conn <- poolCheckout(pool)
   on.exit(poolReturn(conn))
   if (type=="series"){
@@ -2276,7 +2278,10 @@ write_new_individual_metrics <- function(path, type="series"){
   } else{
     fk <- "fisa_sai_id"
   }
-  new <- read_excel(path = path, sheet = 1, skip = 1)
+	# if we write from DT there is an extra line to be removed test it there
+	test <- read_excel(path = path, sheet=1, range="A1:A1")	
+	if (names(test)=="ser_nameshort") skip=0 else skip=1
+	new <- read_excel(path = path, sheet=1, skip=skip)
   new <- new %>%
     mutate(across(any_of(c("fisa_x_4326", "fisa_y_4326", "fi_year")),
                   ~as.numeric(.x)))
@@ -2288,6 +2293,7 @@ write_new_individual_metrics <- function(path, type="series"){
     message <- paste("missing",fk,"have you forgotten to rerun database comparison")
   } else{
     ind_table <- ifelse(type=="series","t_fishseries_fiser","t_fishsamp_fisa")
+
     ind_key <- ifelse(type=="series","fiser_ser_id","fisa_sai_id")
     metric_table <- ifelse(type=="series","t_metricindseries_meiser","t_metricindsamp_meisa")	
     addcol0 <- ifelse(type=="series",
@@ -2298,7 +2304,7 @@ write_new_individual_metrics <- function(path, type="series"){
                       ",i.fi_lfs_code,i.fisa_x_4326,i.fisa_y_4326")
     if (type=="series"){
       cou_code = dbGetQuery(conn,paste0("SELECT ser_cou_code FROM datawg.t_series_ser WHERE ser_id='",
-                                        new$grser_ser_id[1],"';"))$ser_cou_code  
+                                        new$fiser_ser_id[1],"';"))$ser_cou_code  
     } else {
       cou_code = dbGetQuery(conn,paste0("SELECT sai_cou_code FROM datawg.t_samplinginfo_sai WHERE sai_name='",
                                         new$sai_name[1],"';"))$sai_cou_code  	
@@ -2392,7 +2398,7 @@ write_updated_individual_metrics <- function(path, type="series"){
   if (is.null(message)) message <- sprintf(" %s and %s new values inserted in the group and metric tables", nr0, nr1)
   if (type=="series"){
     cou_code = dbGetQuery(conn,paste0("SELECT ser_cou_code FROM datawg.t_series_ser WHERE ser_id='",
-                                      updated$grser_ser_id[1],"';"))$ser_cou_code  
+                                      updated$fiser_ser_id[1],"';"))$ser_cou_code  
   } else {
     cou_code = dbGetQuery(conn,paste0("SELECT sai_cou_code FROM datawg.t_samplinginfo_sai WHERE sai_name='",
                                       updated$sai_name[1],"';"))$sai_cou_code  	
@@ -2423,7 +2429,7 @@ delete_individual_metrics <- function(path, type="series"){
   if (is.null(message)) message <- sprintf(" %s values deleted from fish table, cascade delete on metrics", nr0)
   if (type=="series"){
     cou_code = dbGetQuery(conn,paste0("SELECT ser_cou_code FROM datawg.t_series_ser WHERE ser_id='",
-                                      deleted$grser_ser_id[1],"';"))$ser_cou_code  
+                                      deleted$fiser_ser_id[1],"';"))$ser_cou_code  
   } else {
     cou_code = dbGetQuery(conn,paste0("SELECT sai_cou_code FROM datawg.t_samplinginfo_sai WHERE sai_name='",
                                       deleted$sai_name[1],"';"))$sai_cou_code  	
