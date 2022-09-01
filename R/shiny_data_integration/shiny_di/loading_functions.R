@@ -3105,7 +3105,7 @@ load_dcf<-function(path,datasource){
 		if (grepl("metrics", sheet)) {
 # all mty related columns should be numeric
 			resmetrics <- 
-					purrr::transpose(purrr::compact(lapply(c("lengthmm",
+					do.call(bind_rows,lapply(c("lengthmm",
 											"weightg",
 											"ageyear",
 											"eye_diam_mean_mm",
@@ -3144,15 +3144,15 @@ load_dcf<-function(path,datasource){
 													column=name_column,
 													country=country,
 													type="numeric")
-											return(data_error)}
+											return(as.data.frame(data_error))}
 										
-									})))
+									}))
 			data_error <- bind_rows(data_error,	resmetrics)
 			
 			
 			#check that proportions are indeed between 0 and 1
 			resmetrics <- 
-			  purrr::transpose(purrr::compact(
+			  do.call(bind_rows,
 			                         lapply(c("female_proportion",
 			                          'is_female_(1=female,0=male)',
 			                          "is_differentiated_(1=differentiated,0_undifferentiated)",	
@@ -3174,15 +3174,15 @@ load_dcf<-function(path,datasource){
 			                              country=country,
 			                              minvalue=0,
 			                              maxvalue=1)
-			                            return(data_error)}
+			                            return(as.data.frame(data_error))}
 			                          
-			                        })))
+			                        }))
 			data_error <- bind_rows(data_error,	resmetrics	)
 			
 			
 			#check that percentages are indeed between 0 and 100
 			resmetrics <- 
-			  purrr::transpose(purrr::compact(
+			  do.call(bind_rows,
 			                         lapply(c("muscle_lipid_fatmeter_perc",
 			                          "muscle_lipid_gravimeter_perc"),			
 			                        function(name_column){
@@ -3194,9 +3194,9 @@ load_dcf<-function(path,datasource){
 			                              country=country,
 			                              minvalue=0,
 			                              maxvalue=100)
-			                            return(data_error)}
+			                            return(as.data.frame(data_error))}
 			                          
-			                        })))
+			                        }))
 			data_error <- bind_rows(data_error,	resmetrics	)
 			
 			

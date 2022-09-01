@@ -97,7 +97,7 @@ check_values <- function(dataset,namedataset, column,country,values){
 										str_c(unique(line),collapse=";"),
 										str_c(value,collapse=";")))
         # same but split and no end of line
-        answer  = data.frame(nline = line , 
+        answer  = data.frame(nline = str_c(line) , 
 						error_message = sprintf("dataset <%s>, column <%s>, value <%s> is wrong", 
 								namedataset,
 								column,
@@ -131,6 +131,8 @@ check_type <- function(dataset,namedataset, column,country,values,type){
       ddataset[,column]<-as.numeric(ddataset[,column]) # creates a warning message because of NAs introduced by coercion
       options("warn"=0)
       line <- ddataset$nline[is.na(ddataset[,column])]
+      if (length(line)>10) line <-str_c(str_c(line[1:10],collapse=";"),"...") else
+        line <- str_c(line)
       if (length(line)>0){
         cat(sprintf("column <%s>, line <%s>, dataset <%s>,  should be of type %s \n",
                     column,
@@ -138,7 +140,7 @@ check_type <- function(dataset,namedataset, column,country,values,type){
 										namedataset,
                     type))
         
-        answer  = data.frame(nline = line, error_message = sprintf("column <%s>, should be of type %s \n",
+        answer  = data.frame(nline = str_c(line), error_message = sprintf("column <%s>, should be of type %s \n",
 								column,								
 								type))
       }
@@ -166,13 +168,15 @@ check_unique <- function(dataset, namedataset, column,country){
   
   if (length(unique(ddataset[,column])) != 1) {   
     line <- ddataset$nline[which(ddataset[,column] != country)]
+    if (length(line)>10) line <-str_c(str_c(line[1:10],collapse=";"),"...") else
+      line <- str_c(line)
     if (length(line)>0){
     cat(sprintf("column <%s>, line <%s> , dataset <%s>, should only have one value \n",
             column,
             line,
 						namedataset))
     
-    answer  = data.frame(nline = line, error_message = paste("different names in column : ", column, sep = ""))
+    answer  = data.frame(nline = str_c(line), error_message = paste("different names in column : ", column, sep = ""))
   return(answer)  
     }
   }
@@ -201,13 +205,15 @@ check_missvaluequal <- function(dataset, namedataset, country){
     eel_values_for_missing <-ddataset[lines,"eel_value"]
     if (! all(is.na(eel_values_for_missing))) {
       line1 <- lines[!is.na(eel_values_for_missing)]
+      if (length(line1)>10) line1 <-str_c(str_c(line1[1:10],collapse=";"),"...") else
+        line1 <- str_c(line1)
       if (length(line1)>0){
         cat(sprintf("column <%s>, lines <%s>, dataset <%s>, there is a code, but the eel_value field should be empty \n",
                     "eel_missvaluequal",
                     line1,
 										namedataset))
         
-        answer1  = data.frame(nline = line1, error_message = paste("there is a code in eel_missvaluequal, but the eel_value field should be empty", sep = ""))
+        answer1  = data.frame(nline = str_c(line1), error_message = paste("there is a code in eel_missvaluequal, but the eel_value field should be empty", sep = ""))
       }
     }
   }
@@ -220,12 +226,14 @@ check_missvaluequal <- function(dataset, namedataset, country){
     # if in those lines, one missing value has not been commented upon
     if (any(is.na(eel_missingforvalues))) {
       line2 <- lines[is.na(eel_missingforvalues)]
+      if (length(line2)>10) line2 <-str_c(str_c(line2[1:10],collapse=";"),"...") else
+        line2 <- str_c(line2)
       if (length(line2)>0){
         cat(sprintf("column <%s>, lines <%s>, there should be a code, as the eel_value field is missing \n",
                     "eel_missvaluequal",
                     line2))
         
-        answer2  = data.frame(nline = line2, error_message = paste("there should be a code in eel_missvaluequal, as the eel_value field is missing", sep = ""))
+        answer2  = data.frame(nline = str_c(line2), error_message = paste("there should be a code in eel_missvaluequal, as the eel_value field is missing", sep = ""))
       }
     }
   }
@@ -262,11 +270,13 @@ check_missvalue_release <- function(dataset, namedataset, country,updated=FALSE)
     eel_values_for_missing <- ddataset[lines,name_value]
     if (! all(is.na(eel_values_for_missing))) {
       line1 <- lines[!is.na(eel_values_for_missing)]
+      if (length(line1)>10) line1 <-str_c(str_c(line1[1:10],collapse=";"),"...") else
+        line1 <- str_c(line1)
       if (length(line1)>0){
       cat(sprintf("column <%s>, lines <%s>, there is a code, but the eel_value_number and eel_value_kg field should be empty \n",
                   "eel_missvaluequal",
                   line1 ))
-      answer1 <- data.frame(nline = line1, error_message = paste(" there is a code in eel_missvaluequal but the eel_value_number and eel_value_kg field should be empty" ))
+      answer1 <- data.frame(nline = str_c(line1), error_message = paste(" there is a code in eel_missvaluequal but the eel_value_number and eel_value_kg field should be empty" ))
       }
     }
   }
@@ -281,11 +291,13 @@ check_missvalue_release <- function(dataset, namedataset, country,updated=FALSE)
     # if in those lines, one missing value has not been commented upon
     if (any(is.na(eel_missingforvalues))) {
       line2 <- lines[is.na(eel_missingforvalues)]
+      if (length(line2)>10) line2 <-str_c(str_c(line2[1:10],collapse=";"),"...") else
+        line2 <- str_c(line2)
       if (length(line2)>0){
       cat(sprintf("column <%s>, lines <%s>, there should be a code, as the eel_values are both missing \n",
                   "eel_missvaluequal",
                   line2 ))
-        answer2 <- data.frame(nline = line2, error_message = paste("there should be a code in eel_missvaluequal as eel_values fields are both missing"))
+        answer2 <- data.frame(nline = str_c(line2), error_message = paste("there should be a code in eel_missvaluequal as eel_values fields are both missing"))
       }
     }
   }
@@ -311,13 +323,15 @@ check_na <- function(dataset, namedataset, column,country){
 	ddataset <- as.data.frame(newdataset)
 	if (nrow(ddataset)>0){
 		line <- which(!is.na(ddataset[,column]))
+		if (length(line)>10) line <-str_c(str_c(line[1:10],collapse=";"),"...") else
+		  line <- str_c(line)
 		if (length(line)>0){
 			cat(sprintf("Country <%s>,  dataset <%s>, column <%s>, line <%s>,  should be empty \n",
 							country,
 							namedataset,
 							column,
 							line))
-			answer  = data.frame(nline = line, error_message = paste("values found in: ", column, " while should be empty", sep = ""))
+			answer  = data.frame(nline = str_c(line), error_message = paste("values found in: ", column, " while should be empty", sep = ""))
 		}
 	}
 	return(answer)  
@@ -342,13 +356,15 @@ check_positive <- function(dataset, namedataset, column,country){
   ddataset <- as.data.frame(newdataset[!is.na(newdataset[,column]),])
   if (nrow(ddataset)>0){
     line<-which(ddataset[,column]<0)
+    if (length(line)>10) line <-str_c(str_c(line[1:10],collapse=";"),"...") else
+      line <- str_c(line)
     if (length(line)>0){
       cat(sprintf("Country <%s>,  dataset <%s>, column <%s>, line <%s>,  should be a positive value \n",
                   country,
 									namedataset,
                   column,
                   line))
-      answer  = data.frame(nline = line, error_message = paste("negative value in: ", column, sep = ""))
+      answer  = data.frame(nline = str_c(line), error_message = paste("negative value in: ", column, sep = ""))
     }
   }
   return(answer)  
@@ -373,11 +389,13 @@ check_freshwater_without_area <- function(dataset,namedataset, country){
   )   
   if (nrow(ddataset)>0){ 
     line <- ddataset$nline
+    if (length(line)>10) line <-str_c(str_c(line[1:10],collapse=";"),"...") else
+      line <- str_c(line)
     if (length(line)>0){
       cat(sprintf("line <%s>, there should not be any area divsion in freshwater \n",                   
                   line))
       
-      answer  = data.frame(nline = line , error_message = paste0("there should not be any area divsion in freshwater"))
+      answer  = data.frame(nline = str_c(line) , error_message = paste0("there should not be any area divsion in freshwater"))
     }
     
   }
@@ -403,25 +421,17 @@ check_between <- function(dataset, namedataset, column, country, minvalue, maxva
 	#remove NA from data
 	ddataset <- as.data.frame(newdataset[!is.na(newdataset[,column]),])
 	if (nrow(ddataset)>0){
-		line<-which(ddataset[,column]<minvalue)
+		line<-which(ddataset[,column]<minvalue | ddataset[,column]>maxvalue)
+		if (length(line)>10) line <-str_c(str_c(line[1:10],collapse=";"),"...") else
+		  line <- str_c(line)
 		if (length(line)>0){
-			cat(sprintf("Country <%s>,  dataset <%s>, column <%s>, line <%s>,  should be larger than <%s> \n",
+			cat(sprintf("Country <%s>,  dataset <%s>, column <%s>, line <%s>,  should be larger than <%s> and lower that <%s>\n",
 							country,
 							namedataset,
 							column,
 							line,
-							minvalue))
-		}
-			line<-which(ddataset[,column]>maxvalue)
-			
-			if (length(line)>0){
-				cat(sprintf("Country <%s>,  dataset <%s>, column <%s>, line <%s>,  should be lower than <%s> \n",
-								country,
-								namedataset,
-								column,
-								line,
-								maxvalue))
-			answer  = data.frame(nline = line, error_message = paste("values out of bound: ", column, " ", namedataset, sep = ""))
+							minvalue, maxvalue))
+				answer  = data.frame(nline = str_c(line), error_message = paste("values out of bound: ", column, " ", namedataset, sep = ""))
 		}
 	}
 	return(answer)  
@@ -439,8 +449,11 @@ check_emu_country <- function(dataset, namedataset, column, country){
   conn <- poolCheckout(pool)
   emu_whole <- dbGetQuery(conn,paste("select emu_nameshort from ref.tr_emu_emu where emu_wholecountry=true and emu_cou_code='",country,"'",sep=""))[,1]
   poolReturn(conn)
+  line <- str_c(which(!dataset[,column] %in% emu_whole))
+  if (length(line)>10) line <-str_c(str_c(line[1:10],collapse=";"),"...") else
+    line <- str_c(line)
   if (sum(! unlist(dataset[,column]) %in% emu_whole)>0) #added unlist otherwise causes problem with tibble
-    answer=data.frame(nline = which(!dataset[,column] %in% emu_whole),
+    answer=data.frame(nline = line,
                       error_message=paste("eel_emu_nameshort should be in {",paste(emu_whole,collapse=", "),"}",sep=""))
   return(answer)
 }
@@ -485,6 +498,8 @@ check_rates_num <- function(dataset, namedataset, column, country){
 			
 		value <- c(value1, value2)
 		line <- c(line1, line2)
+		if (length(line)>10) line <-str_c(str_c(line[1:10],collapse=";"),"...") else
+		  line <- str_c(line)
 			
 			if (length(line)>0){
 				cat(sprintf("dataset <%s>, column <%s>, line <%s>, value <%s> is wrong, only numeric between 0 and 100 or NP is possible \n", 
@@ -493,7 +508,7 @@ check_rates_num <- function(dataset, namedataset, column, country){
 								str_c(unique(line),collapse=";"),
 								str_c(value,collapse=";")))
 				# same but split and no end of line
-				answer  = data.frame(nline = line , 
+				answer  = data.frame(nline = str_c(line) , 
 						error_message = sprintf("dataset <%s>, column <%s>, value <%s> is wrong, only numeric between 0 and 100 or NP is possible", 
 								namedataset,
 								column,
@@ -519,7 +534,10 @@ check_duplicate_rates <- function(dataset, namedataset){
 						str_c(as.numeric(rownames(value)),collapse=";"),
 						str_c(paste(value$eel_typ_name, value$eel_year, value$eel_emu_nameshort, sep=","),collapse="|")))
 		# same but split and no end of line
-		answer  = data.frame(nline = as.numeric(rownames(value)), 
+	  line = as.numeric(rownames(value))
+	  if (length(line)>10) line <-str_c(str_c(line[1:10],collapse=";"),"...") else
+	    line <- str_c(line)
+		answer  = data.frame(nline = line, 
 				error_message = sprintf("dataset <%s>, value <%s> is duplicated, only one value per type, year and EMU is possible", 
 						namedataset,
 						paste(value$eel_typ_name, value$eel_year, value$eel_emu_nameshort, sep=",")))
@@ -547,9 +565,12 @@ check_consistency_missvalue_rates <- function(dataset, namedataset, rates){
 						  str_c(newdataset2$nline[is.na(newdataset$eel_value) & (!newdataset$perc_F %in% c("NP","0") | !newdataset$perc_T %in% c("NP","0") | 
 													  !newdataset$perc_C %in% c("NP","0") | !newdataset$perc_MO %in% c("NP","0"))], collapse=";")))
 		
+    line = newdataset2$nline[is.na(newdataset$eel_value) & (!newdataset$perc_F %in% c("NP","0") | !newdataset$perc_T %in% c("NP","0") | 
+									  !newdataset$perc_C %in% c("NP","0") | !newdataset$perc_MO %in% c("NP","0"))]
+    if (length(line)>10) line <-str_c(str_c(line[1:10],collapse=";"),"...") else
+      line <- str_c(line)
 		  # same but split and no end of line
-		  answer  = data.frame(nline = newdataset2$nline[is.na(newdataset$eel_value) & (!newdataset$perc_F %in% c("NP","0") | !newdataset$perc_T %in% c("NP","0") | 
-									  !newdataset$perc_C %in% c("NP","0") | !newdataset$perc_MO %in% c("NP","0"))], 
+		  answer  = data.frame(nline = line, 
 				  error_message = sprintf("dataset <%s> is wrong, if eel_value is empty only 0 or NP is possible in percentages columns", 
 						  namedataset))	  
 	  } 
