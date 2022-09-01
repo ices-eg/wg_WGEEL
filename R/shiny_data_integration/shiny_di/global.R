@@ -22,6 +22,7 @@ load_package("readxl")
 load_package("stringr")
 load_package("htmltools")
 load_package("spsComps")
+load_package("writexl")
 
 
 #-----------------

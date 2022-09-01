@@ -672,12 +672,12 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 #												
 #											})
 									#download_data <- reactive(list_comp_individual_metrics$new)
-									output$button_new_individual_metrics <- downloadHandler(
+									output$btn_down_indiv_metrics <- downloadHandler(
 											filename = function(){
-												paste0("new_individual_metrics_",loaded_data_ts$file_type,"_",Sys.Date(),"_",current_cou_code,".csv")
+												paste0("new_individual_metrics_",loaded_data_ts$file_type,"_",Sys.Date(),"_",current_cou_code,".xlsx")
 											},											
 											content = function(file) {
-												write.csv(list_comp_individual_metrics$new, file, row.names = FALSE)
+											  write_xlsx(as.data.frame(list_comp_individual_metrics$new), file)
 											}
 									)
 									
