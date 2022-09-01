@@ -267,14 +267,22 @@ FOREIGN KEY (fi_dts_datasource) REFERENCES "ref".tr_datasource_dts(dts_datasourc
 
 -- because of seasons (glass eel and silver), years can match the date of collection
 -- or the previous year
-CREATE OR REPLACE FUNCTION datawg.fiser_year()
+
+/*
+ * DROP function if exists datawg.fiser_year CASCADE
+ * 
+ * 
+ */
+
+
+CREATE OR REPLACE FUNCTION datawg.fi_year()
  RETURNS trigger
  LANGUAGE plpgsql
 AS $function$   
  
   BEGIN
    
-    IF NOT (NEW.fis_year in (EXTRACT(YEAR FROM NEW.fi_date), EXTRACT(YEAR FROM NEW.fi_date)-1)) THEN
+    IF NOT (NEW.fi_year in (EXTRACT(YEAR FROM NEW.fi_date), EXTRACT(YEAR FROM NEW.fi_date)-1)) THEN
       RAISE EXCEPTION 'table t_fisheries_fiser, column fi_year does not match the date of fish collection (table t_fish_fi)' ;
     END IF  ;
 
@@ -285,7 +293,7 @@ $function$
 
 DROP TRIGGER IF EXISTS check_year_and_date ON datawg.t_fishseries_fiser ;
 CREATE TRIGGER check_year_and_date AFTER INSERT OR UPDATE ON
-   datawg.t_fishseries_fiser FOR EACH ROW EXECUTE FUNCTION datawg.fiser_year();
+   datawg.t_fishseries_fiser FOR EACH ROW EXECUTE FUNCTION datawg.fi_year();
 
 CREATE TRIGGER update_fi_lastupdate BEFORE INSERT OR UPDATE ON
    datawg.t_fishseries_fiser FOR EACH ROW EXECUTE FUNCTION datawg.fi_lastupdate();
