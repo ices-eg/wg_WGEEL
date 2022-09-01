@@ -831,7 +831,6 @@ compare_with_database_metric_ind <- function(
     data_from_base, 
     sheetorigin = c("new_individual_metrics","updated_individual_metrics","deleted_individual_metrics"),
     type="series") {
-  browser()
   if (!sheetorigin %in% c("new_individual_metrics","updated_individual_metrics","deleted_individual_metrics")) stop ("sheetorigin should be one of
 						new_individual_metrics,updated_individual_metrics,deleted_individual_metrics")
   if (nrow(data_from_excel) == 0) 
@@ -909,7 +908,10 @@ compare_with_database_metric_ind <- function(
   
   highlight_change <- duplicates[duplicates$id %in% modified$id,]
   
-  if (nrow(modified) >0 ) {	
+  if (nrow(highlight_change) == 0){
+    modified <- modified %>%
+      slice(0)
+  } else if (nrow(modified) >0 ) {	
     
     num_common_col <- grep(".xls|.base",colnames(highlight_change))
     possibly_changed <- colnames(highlight_change)[num_common_col]
