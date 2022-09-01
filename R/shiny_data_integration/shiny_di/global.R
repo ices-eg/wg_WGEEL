@@ -23,6 +23,7 @@ load_package("stringr")
 load_package("htmltools")
 load_package("spsComps")
 load_package("writexl")
+load_package("shinybusy")
 
 
 #-----------------

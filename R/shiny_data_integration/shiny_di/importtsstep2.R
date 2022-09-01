@@ -629,7 +629,9 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts){
 										path <- isolate(step2.4.2_filepath_new_individual_metrics())
 										if (is.null(data$path_step_2.4.2_new_individual_metrics)) 
 											return(NULL)
+										#shinybusy::show_modal_spinner(text = "please wait")
 										rls <- write_new_individual_metrics(path)
+										#shinybusy::remove_modal_spinner() # remove it when done
 										message <- rls$message
 										cou_code <- rls$cou_code
 										main_assessor <- input$main_assessor

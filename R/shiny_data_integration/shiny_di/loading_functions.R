@@ -2359,13 +2359,23 @@ load_series<-function(path,datasource, stage="glass_eel"){
 				sheet=sheet,
 				skip=0, guess_max=10000)
 		cat(sheet,"\n")
-
+		
 		data_error <- data.frame(nline = NULL, error_message = NULL)
 		# country is extracted 
 #    data_xls <- correct_me(data_xls)
+	
+	# 2022 08 we have added fi_lsf_code, it is not yet in the sheets so we add an empty if not there
+	if ("fi_lfs_code" %in% columns & (!"fi_lfs_code" %in% names(data_xls)))
+		data_xls$fi_lfs_code <- as.character(NA)  
+
 		
 		# check for the file integrity		
 		# check column names for each sheet
+	  
+
+	
+	
+	
 		fn_check_columns(data=data_xls, columns=columns,	file = file, sheet=sheet, nbcol=nbcol)
 		
 		# check datasource according to sheet name, for individual and group data two columns are already filled in
@@ -2624,17 +2634,17 @@ load_series<-function(path,datasource, stage="glass_eel"){
 					"m_mean_lengthmm","m_mean_weightg","m_mean_ageyear","f_mean_lengthmm","f_mean_weightg","f_mean_age",
 					"anguillicola_proportion",	"anguillicola_intensity",	"muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb", "teq",
 					"evex_proportion","hva_proportion",	"pb",	"hg",	"cd","g_in_gy_proportion","s_in_ys_proportion"),
-			c("ser_nameshort",	"fi_date", "fi_year", "fi_comment",  "lengthmm",	"weightg",	"ageyear",	"eye_diam_meanmm", "pectoral_lengthmm",
+			c("ser_nameshort",	"fi_date", "fi_year", "fi_lfs_code","fi_comment",  "lengthmm",	"weightg",	"ageyear",	"eye_diam_meanmm", "pectoral_lengthmm",
 					"is_female_(1=female,0=male)","is_differentiated_(1=differentiated,0_undifferentiated)",
 					"anguillicola_presence_(1=present,0=absent)",	"anguillicola_intensity",	"muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb", "teq",
 					"evex_presence_(1=present,0=absent)","hva_presence_(1=present,0=absent)",	"pb",	"hg",	"cd"),
-			c("fi_id","ser_nameshort","fiser_ser_id",	"fi_date", "fi_year", "fi_comment", "fi_last_update",	"fi_dts_datasource",
+			c("fi_id","ser_nameshort","fiser_ser_id",	"fi_date", "fi_year","fi_lfs_code", "fi_comment", "fi_last_update",	"fi_dts_datasource",
 					"lengthmm",	"weightg",	"ageyear",	"eye_diam_meanmm", "pectoral_lengthmm",
 					"is_female_(1=female,0=male)","is_differentiated_(1=differentiated,0_undifferentiated)",
 					"anguillicola_presence_(1=present,0=absent)",	"anguillicola_intensity",	"muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb", "teq",
 					"evex_presence_(1=present,0=absent)","hva_presence_(1=present,0=absent)",	"pb",	"hg",	"cd"),
 			# TODO 2023 change name fiser_year to fi_year the template has been updated
-			c("fi_id","ser_nameshort",	"fiser_ser_id", "fi_date",	"fiser_year", "fi_comment",  "fi_last_update",	"fi_dts_datasource", 
+			c("fi_id","ser_nameshort",	"fiser_ser_id", "fi_date",	"fiser_year", "fi_lfs_code", "fi_comment",  "fi_last_update",	"fi_dts_datasource", 
 					"lengthmm",	"weightg",	"ageyear",	"eye_diam_meanmm", "pectoral_lengthmm",
 					"is_female_(1=female,0=male)","is_differentiated_(1=differentiated,0_undifferentiated)",
 					"anguillicola_presence_(1=present,0=absent)",	"anguillicola_intensity",	"muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb", "teq",
@@ -2956,7 +2966,7 @@ load_dcf<-function(path,datasource){
 		
 		
 		#some countries have added a fi_year column so we deal with it
-		if ("fi_year" %in% columns && (!"fi_year" %in% names(data_xls)))
+		if ("fi_year" %in% columns & (!"fi_year" %in% names(data_xls)))
 		  data_xls$fi_year <- NA  
 		if ("fi_year" %in% columns){
 		  data_xls <- data_xls %>%

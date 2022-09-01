@@ -282,8 +282,8 @@ AS $function$
  
   BEGIN
    
-    IF NOT (NEW.fi_year in (EXTRACT(YEAR FROM NEW.fi_date), EXTRACT(YEAR FROM NEW.fi_date)-1)) THEN
-      RAISE EXCEPTION 'table t_fisheries_fiser, column fi_year does not match the date of fish collection (table t_fish_fi)' ;
+    IF NOT (NEW.fi_year in (EXTRACT(YEAR FROM NEW.fi_date), EXTRACT(YEAR FROM NEW.fi_date)-1, EXTRACT(YEAR FROM NEW.fi_date)+1)) THEN
+      RAISE EXCEPTION 'table t_fisheries_fiser, column fi_year % does not match the date of fish collection % (table t_fish_fi)', NEW.fi_year,NEW.fi_date ;
     END IF  ;
 
     RETURN NEW ;
@@ -976,17 +976,36 @@ alter table datawg.t_fishsamp_fisa  alter column fisa_y_4326 drop not null;
 
 
 
-ALTER TABLE datawg.t_samplinginfo_sai  ADD CONSTRAINT ch_unique_sai_name UNIQUE (sai_name)
+ALTER TABLE datawg.t_samplinginfo_sai  ADD CONSTRAINT ch_unique_sai_name UNIQUE (sai_name);
 
 ALTER TABLE datawg.t_fish_fi  ADD column fi_lfs_code varchar(2);
 alter table datawg.t_fish_fi add constraint c_fk_fi_lfs_code FOREIGN KEY (fi_lfs_code) REFERENCES "ref".tr_lifestage_lfs(lfs_code) ON UPDATE cascade
 alter table datawg.t_fishsamp_fisa drop column fisa_lfs_code;
 alter table datawg.t_fish_fi  alter column fi_year drop not null;
 
--- 31/08/2022 Execution of script till there on wgeel distant database
+-- 31/08/2022 Execution of script till here on wgeel distant database
 update datawg.t_samplinginfo_sai set sai_name='DE_Eide_Eider_HIST' where sai_name='DE_Elbe_Eider_HIST'; --fix incorrect name for an old sampling in DE
 
-'-- 01/09/2022 Execution of script till there on wgeel distant database
+-- 01/09/2022 Execution of script till here on wgeel distant database
 
+CREATE OR REPLACE FUNCTION datawg.fi_year()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$   
+ 
+  BEGIN
+   
+    IF NOT (NEW.fi_year in (EXTRACT(YEAR FROM NEW.fi_date), EXTRACT(YEAR FROM NEW.fi_date)-1)) THEN
+      RAISE EXCEPTION 'table t_fisheries_fiser, column fi_year does not match the date of fish collection (table t_fish_fi)' ;
+    END IF  ;
+
+    RETURN NEW ;
+  END  ;
+$function$
+;
+
+DROP TRIGGER IF EXISTS check_year_and_date ON datawg.t_fishseries_fiser ;
+CREATE TRIGGER check_year_and_date AFTER INSERT OR UPDATE ON
+   datawg.t_fishseries_fiser FOR EACH ROW EXECUTE FUNCTION datawg.fi_year();
 
 
