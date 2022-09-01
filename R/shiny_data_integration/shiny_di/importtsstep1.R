@@ -28,8 +28,8 @@ importtsstep1UI <- function(id){
 							h3("new individual metrics"),
 							htmlOutput(ns("step1_message_new_individual_metrics")),
 							DT::dataTableOutput(ns("dt_new_individual_metrics")),
-							#uiOutput(ns("button_new_individual_metrics")),
-							downloadButton(ns("btn_down_indiv_metrics"), label = "Download Indiv metrics", icon = icon("table")),
+							uiOutput(ns("button_new_individual_metrics")),
+							#downloadButton(ns("btn_down_indiv_metrics"), label = "Download Indiv metrics", icon = icon("table")),
 							h3("deleted dataseries"),
 							DT::dataTableOutput(ns("dt_deleted_dataseries")),
 							h3("deleted group metrics"),
@@ -667,11 +667,12 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 														))
 											}) # end renderDataTable
 									# generate a button dynamically on the server side
-#									output$"button_new_individual_metrics" <- renderUI({
-#												downloadButton("btn_down_indiv_metrics", label = "Download Indiv metrics", icon = icon("table"))
-#												
-#											})
-									#download_data <- reactive(list_comp_individual_metrics$new)
+									output$"button_new_individual_metrics" <- renderUI({
+												ns <- NS(id)
+												downloadButton(ns("btn_down_indiv_metrics"), label = "Download Indiv metrics", icon = icon("table"))
+												
+											})
+								
 									output$btn_down_indiv_metrics <- downloadHandler(
 											filename = function(){
 												paste0("new_individual_metrics_",loaded_data_ts$file_type,"_",Sys.Date(),"_",current_cou_code,".xlsx")
