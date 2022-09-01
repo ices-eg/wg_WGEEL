@@ -976,7 +976,9 @@ alter table datawg.t_fishsamp_fisa drop column fisa_lfs_code;
 alter table datawg.t_fish_fi  alter column fi_year drop not null;
 
 -- 31/08/2022 Execution of script till there on wgeel distant database
+update datawg.t_samplinginfo_sai set sai_name='DE_Eide_Eider_HIST' where sai_name='DE_Elbe_Eider_HIST'; --fix incorrect name for an old sampling in DE
 
+'-- 01/09/2022 Execution of script till there on wgeel distant database
 
 
 
