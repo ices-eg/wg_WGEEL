@@ -2097,7 +2097,7 @@ update_dataseries <- function(path) {
 #'  path <- file.choose()
 
 write_new_group_metrics <- function(path, type="series") {
-	
+
 	conn <- poolCheckout(pool)
 	on.exit(poolReturn(conn))
 	if (type == "series"){
@@ -2115,8 +2115,8 @@ write_new_group_metrics <- function(path, type="series") {
 	} else {
 		gr_table <- ifelse(type=="series","t_groupseries_grser","t_groupsamp_grsa")
 		gr_key <- ifelse(type=="series","grser_ser_id","grsa_sai_id")
-		gr_add <- ifelse(type=="series","","grsa_lfs_code")
-		gr_add1 <- ifelse(type=="series","","g.grsa_lfs_code")
+		gr_add <- ifelse(type=="series","",",grsa_lfs_code")
+		gr_add1 <- ifelse(type=="series","",",g.grsa_lfs_code")
 		metric_table <- ifelse(type=="series","t_metricgroupseries_megser","t_metricgroupsamp_megsa")	
 		newgroups <- new %>%
 				filter(is.na(gr_id)) %>% #nor group nor metrics already  exist 
@@ -2141,8 +2141,8 @@ write_new_group_metrics <- function(path, type="series") {
 					
 					# glue_sql does not handle removing strings use glue instead
 					
-					sqlgr <- glue("INSERT INTO datawg.{gr_table}(gr_year,gr_number,gr_comment,gr_dts_datasource,{gr_key},{gr_add})
-									(SELECT g.gr_year,g.gr_number,g.gr_comment,g.gr_dts_datasource,g.{gr_key},{gr_add1}
+					sqlgr <- glue("INSERT INTO datawg.{gr_table}(gr_year,gr_number,gr_comment,gr_dts_datasource,{gr_key}{gr_add})
+									(SELECT g.gr_year,g.gr_number,g.gr_comment,g.gr_dts_datasource,g.{gr_key}{gr_add1}
 									FROM group_tmp g) returning gr_id;")
 					
 					rs <- dbSendQuery(conn,sqlgr)
@@ -2159,21 +2159,20 @@ write_new_group_metrics <- function(path, type="series") {
 					
 					nr0 <- nrow(res0)
 					nr1 <- dbExecute(conn, sqlmetrics)
+					# this has to be launched why the transaction is still going
+					dbExecute(conn,"drop table if exists group_tmp")
+					dbExecute(conn,"drop table if exists metrics_tmp")
 					dbCommit(conn)
 					
 				}, warning = function(e) {
 					message <<- e
-					dbExecute(conn,"drop table if exists group_tmp")
-					dbExecute(conn,"drop table if exists metrics_tmp")
 					dbRollback(conn)
+					# not possible to continue the transation on error, the transaction is cancelled and tables group_tmp and  metrics_tmp are removed
 				}, error = function(e) {
 					message <<- e
-					dbExecute(conn,"drop table if exists group_tmp")
-					dbExecute(conn,"drop table if exists metrics_tmp")
 					dbRollback(conn)
 				}, finally = {
-					dbExecute(conn,"drop table if exists group_tmp")
-					dbExecute(conn,"drop table if exists metrics_tmp")
+					#nothing
 				})
 		
 		
@@ -2245,7 +2244,7 @@ delete_group_metrics <- function(path, type="series"){
 	
 	(nr <- tryCatch({	
 							sql_group <- glue::glue_sql("DELETE FROM datawg.{`gr_table`} 
-											WHERE gr_id IN (SELECT distinct gr_id FROM group_tmp",
+											WHERE gr_id IN (SELECT distinct gr_id FROM group_tmp)",
 									.con=conn)
 							nr0 <- dbExecute(conn, sql_group)							
 						}, error = function(e) {
