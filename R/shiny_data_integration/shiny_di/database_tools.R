@@ -758,8 +758,13 @@ compare_with_database_metric_group <- function(data_from_excel,
   
   
   # Anti join only keeps columns from X
-  new <-  dplyr::anti_join(data_from_excel_long, data_from_base, 
-                           by = c(ifelse(type=="series","grser_ser_id","sai_name"), "gr_year","meg_mty_id"))
+  if (sheetorigin == "new_group_metrics"){
+    new <-  dplyr::anti_join(data_from_excel_long, data_from_base, 
+                             by = c(ifelse(type=="series","grser_ser_id","sai_name"), "gr_year","meg_mty_id"))
+  } else {
+    new <-  dplyr::anti_join(data_from_excel_long, data_from_base, 
+                             by = "gr_id")
+  }
   
   if (nrow(new)>0)	new$gr_dts_datasource <- the_eel_datasource
   
@@ -2112,9 +2117,14 @@ write_new_group_metrics <- function(path, type="series") {
     gr_add <- ifelse(type=="series","","grsa_lfs_code")
     gr_add1 <- ifelse(type=="series","","g.grsa_lfs_code")
     metric_table <- ifelse(type=="series","t_metricgroupseries_megser","t_metricgroupsamp_megsa")	
-    groups <- new %>%
+    newgroups <- new %>%
+      filter(is.na(gr_id)) %>% #nor group nor metrics already  exist 
       select(any_of(c("gr_year",gr_add,
              "gr_number","gr_comment","gr_dts_datasource",gr_key,"id"))) %>%
+      distinct()
+    oldgroups <- new %>%
+      filter(!is.na(gr_id)) %>% #the group already exists, only a metric is new
+      select(id, gr_id) %>%
       distinct()
     message <- NULL
     if (any(is.na(new[,gr_key]))) {
@@ -2124,10 +2134,9 @@ write_new_group_metrics <- function(path, type="series") {
     }
     #dbGetQuery(conn, "DELETE FROM datawg.t_groupseries_grser")
 
-    
     nr <- tryCatch({
       dbBegin(conn)
-      dbWriteTable(conn,"group_tmp",groups,row.names=FALSE,temporary=TRUE)
+      dbWriteTable(conn,"group_tmp",newgroups,row.names=FALSE,temporary=TRUE)
       
       # glue_sql does not handle removing strings use glue instead
       
@@ -2138,10 +2147,10 @@ write_new_group_metrics <- function(path, type="series") {
       rs <- dbSendQuery(conn,sqlgr)
       res0 <- dbFetch(rs)
       dbClearResult(rs)
-      groups$gr_id <- res0$gr_id
-      new2 <- new %>% 
+      newgroups$gr_id <- res0$gr_id
+      new2 <- new %>%  #now we merge the metric table with groups table to recover gr_id
         select(-gr_id) %>%
-        left_join(groups)
+        left_join(bind_rows(newgroups,oldgroups))
       dbWriteTable(conn,"metrics_tmp",new2)
       sqlmetrics <- glue::glue_sql("INSERT INTO datawg.{`metric_table`}(meg_gr_id, meg_mty_id, meg_value, meg_dts_datasource, meg_qal_id)
  									SELECT gr_id, meg_mty_id, meg_value, meg_dts_datasource, 1 as meg_qal_id FROM metrics_tmp;",
@@ -2269,7 +2278,7 @@ write_new_individual_metrics <- function(path, type="series"){
   }
   new <- read_excel(path = path, sheet = 1, skip = 1)
   new <- new %>%
-    mutate(across(any_of(c("fisa_x_4326", "fisa_y_4326")),
+    mutate(across(any_of(c("fisa_x_4326", "fisa_y_4326", "fi_year")),
                   ~as.numeric(.x)))
   if (nrow(new) == 0){
     cou_code <- ""
@@ -2283,10 +2292,10 @@ write_new_individual_metrics <- function(path, type="series"){
     metric_table <- ifelse(type=="series","t_metricindseries_meiser","t_metricindsamp_meisa")	
     addcol0 <- ifelse(type=="series",
                       "",
-                      ",fisa_lfs_code,fisa_x_4326,fisa_y_4326")
+                      ",fi_lfs_code,fisa_x_4326,fisa_y_4326")
     addcol1 <- ifelse(type=="series",
                       "",
-                      ",i.fisa_lfs_code,i.fisa_x_4326,i.fisa_y_4326")
+                      ",i.fi_lfs_code,i.fisa_x_4326,i.fisa_y_4326")
     if (type=="series"){
       cou_code = dbGetQuery(conn,paste0("SELECT ser_cou_code FROM datawg.t_series_ser WHERE ser_id='",
                                         new$grser_ser_id[1],"';"))$ser_cou_code  
