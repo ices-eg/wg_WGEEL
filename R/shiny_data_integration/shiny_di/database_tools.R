@@ -2359,20 +2359,16 @@ write_new_individual_metrics <- function(path, type="series"){
 					nr0 <- nrow(res0)
 					nr1 <- dbExecute(conn, sqlmetrics)
 					shinybusy::remove_modal_spinner() 
-					dbCommit(conn)
-				}           , warning = function(e) {
-					message <<- e		
 					dbExecute(conn,"drop table if exists ind_tmp")
 					dbExecute(conn,"drop table if exists indiv_metrics_tmp")
+					dbCommit(conn)
+				}           , warning = function(e) {	
+					message <<- e		
 					dbRollback(conn)
 				}, error = function(e) {
 					message <<- e
-					dbExecute(conn,"drop table if exists ind_tmp")
-					dbExecute(conn,"drop table if exists indiv_metrics_tmp")
 					dbRollback(conn)
-				}, finally = {
-					dbExecute(conn,"drop table if exists ind_tmp")
-					dbExecute(conn,"drop table if exists indiv_metrics_tmp")				
+				}, finally = {				
 				})	
 		if (is.null(message))  		message <-
 					sprintf(" %s and %s new values inserted in the group and metric tables", 
