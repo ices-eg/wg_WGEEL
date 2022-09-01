@@ -1298,14 +1298,14 @@ write_duplicates <- function(path, qualify_code = 19) {
 write_new <- function(path, type="all") {
 	# bug 2021 when a lots of rows without values in eel_missvaluequal reads a logical and converts to NA
 	#This functions does not apply to type mortality
-	
+	shinybusy::show_modal_spinner(text = "load data")
 	new <-	read_excel(path = path, sheet = 1, skip = 1)
 	# for the most common format
 	if (ncol(new)==14) {
 		new <- read_excel(path = path, sheet = 1, skip = 1, 
 				col_types=c("numeric","text","numeric","numeric",rep("text",6),"numeric",rep("text",3)))
 	}
-	
+	shinybusy::remove_modal_spinner()
 	####when there are no data, new values have incorrect type
 	#ew$eel_value <- as.numeric(new$eel_value)
 	
@@ -1323,6 +1323,7 @@ write_new <- function(path, type="all") {
 									"eel_cou_code", "eel_lfs_code", "eel_hty_code", "eel_area_division", "eel_qal_id", 
 									"perc_f","perc_t","perc_c","perc_mo",
 									"eel_qal_comment", "eel_datasource", "eel_comment")))
+	shinybusy::show_modal_spinner(text = "writing t_eelstock_eel", color="orange", spin="folding-cube")	
 	conn <- poolCheckout(pool)
 	dbExecute(conn,"drop table if exists new_temp ")
 	dbWriteTable(conn,"new_temp",new,row.names=FALSE,temporary=TRUE)
@@ -1388,7 +1389,7 @@ write_new <- function(path, type="all") {
 				poolReturn(conn)
 			})
 	
-	
+	shinybusy::remove_modal_spinner()
 	if (is.null(message))   
 		message <- sprintf(" %s new values inserted in the database", nr)
 	

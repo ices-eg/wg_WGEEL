@@ -10,6 +10,7 @@
 
 
 load_catch_landings<-function(path,datasource){
+	shinybusy::show_modal_spinner(text = "load data")
 	the_metadata<-list()
 	dir<-dirname(path)
 	file<-basename(path)
@@ -294,6 +295,7 @@ load_catch_landings<-function(path,datasource){
 				}
 				return(list(data=data_xls,error=data_error))
 			})
+			shinybusy::remove_modal_spinner()
 	data_error=rbind.data.frame(output[[1]]$error,output[[2]]$error,output[[3]]$error)
 	return(invisible(list(data=output[[1]]$data,updated_data=output[[2]]$data,deleted_data=output[[3]]$data,
 							error=data_error,the_metadata=the_metadata))) 
@@ -1936,7 +1938,7 @@ load_potential_available_habitat<-function(path,datasource){
 # 
 # load_series(path,datasource="toto","glass_eel")
 load_series<-function(path,datasource, stage="glass_eel"){
-	
+	shinybusy::show_modal_spinner(text = "load data")
 	sheets <- excel_sheets(path=path)
 	if ("sampling_info" %in% sheets) stop("There is a sampling_info tab in your data, you want to use import time series tab")
 	
@@ -2654,7 +2656,7 @@ load_series<-function(path,datasource, stage="glass_eel"){
 	
 	res <- purrr::pmap(list(sheet,columns,nbcol), fn_check_series)
 	data_error <- 	lapply(res,function(X)X$error) %>% bind_rows()
-	
+	shinybusy::remove_modal_spinner()
 	
 	return(invisible(list(
 							series=series,
@@ -2688,6 +2690,7 @@ load_series<-function(path,datasource, stage="glass_eel"){
 # datasource <- the_eel_datasource
 # load_dcf(path,datasource="toto")
 load_dcf<-function(path,datasource){
+	shinybusy::show_modal_spinner(text = "load data")
 	sheets <- excel_sheets(path=path)
 	if ("series_info" %in% sheets) stop("There is a series_info tab in your data, you want to use import time series tab")
 	
@@ -3264,7 +3267,7 @@ load_dcf<-function(path,datasource){
 	res <- purrr::pmap(list(sheet,columns,nbcol), fn_check_gr_ind)
 	data_error <- 	lapply(res,function(X)X$error) %>% bind_rows()
 	
-	
+	shinybusy::remove_modal_spinner()
 	return(invisible(list(
 							sampling_info = sampling_info,
 							new_group_metrics =  res[[1]]$data, 
