@@ -188,7 +188,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 				#############################
 				observeEvent(input$check_duplicate_button_ts, {
 							
-							#shinyCatch({
+							shinyCatch({
 							
 							
 							# see step0load_data returns a list with res and messages
@@ -1071,7 +1071,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 							}
 							
 							
-#}) # shinycatch
+}) # shinycatch
 						}, ignoreInit = TRUE)
 			}
 	

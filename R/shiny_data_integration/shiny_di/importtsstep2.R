@@ -223,7 +223,7 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts){
 							# clean up
 							#################################################
 							loaded_data_ts$res
-							tryCatch({
+							shinyCatch({
 										output$textoutput_step2.1_ts <- renderText("")
 										
 										reset("xl_new_series")
@@ -252,12 +252,11 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts){
 										
 										
 										
-									},
-									error = function(e) {
-										showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
-									})})
+									})
+						})
 				
-				observeEvent(input$integrate_new_series_button, tryCatch({
+				observeEvent(input$integrate_new_series_button, 
+						shinyCatch({
 									
 									# 2.1.1 new series  --------------------------------------------------------
 									
@@ -294,14 +293,12 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts){
 													paste(message,collapse="\n")
 												}                  
 											})  
-								},error = function(e) {
-									showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
 								}), ignoreInit = TRUE)			
 				
 				# 2.1.2 updated series  --------------------------------------------------------
 				
 				
-				observeEvent(input$update_series_button, tryCatch({
+				observeEvent(input$update_series_button, ShinyCatch({
 									
 									step2.1.2_filepath_modified_series <- reactive({
 												inFile <- isolate(input$xl_updated_series)     
@@ -336,13 +333,11 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts){
 													paste(message,collapse="\n")
 												}                  
 											})  
-								},error = function(e) {
-									showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
 								}), ignoreInit = TRUE)	
 				
-         # 2.2.1 deleted dataseries  --------------------------------------------------------							
+				# 2.2.1 deleted dataseries  --------------------------------------------------------							
 				
-				observeEvent(input$delete_dataseries_button, tryCatch({
+				observeEvent(input$delete_dataseries_button, shinyCatch({
 									
 									step2.2.1_filepath_deleted_dataseries <- reactive({
 												inFile <- isolate(input$xl_new_dataseries)     
@@ -377,13 +372,11 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts){
 													paste(message,collapse="\n")
 												}                  
 											})  
-								},error = function(e) {
-									showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
 								}), ignoreInit = TRUE)	
 				
 				# 2.2.2 new dataseries  --------------------------------------------------------							
 				
-				observeEvent(input$integrate_new_dataseries_button, tryCatch({
+				observeEvent(input$integrate_new_dataseries_button, shinyCatch({
 									
 									step2.2.2_filepath_new_dataseries <- reactive({
 												inFile <- isolate(input$xl_new_dataseries)     
@@ -418,13 +411,11 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts){
 													paste(message,collapse="\n")
 												}                  
 											})  
-								},error = function(e) {
-									showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
 								}), ignoreInit = TRUE)	
 				
 				# 2.2.3 update modified dataseries  --------------------------------------------------------							
 				
-				observeEvent(input$update_dataseries_button, tryCatch({
+				observeEvent(input$update_dataseries_button, shinyCatch({
 									
 									step2.2.3_filepath_modified_dataseries <- reactive({
 												inFile <- isolate(input$xl_updated_dataseries)     
@@ -459,13 +450,11 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts){
 													paste(message,collapse="\n")
 												}                  
 											})  
-								},error = function(e) {
-									showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
 								}), ignoreInit = TRUE)	
 				
 				# 2.3.1 deleted group metrics series  --------------------------------------------------------							
 				
-				observeEvent(input$delete_group_metrics_button, tryCatch({
+				observeEvent(input$delete_group_metrics_button, shinyCatch({
 									
 									step2.3.1_filepath_deleted_group_metrics <- reactive({
 												inFile <- isolate(input$xl_deleted_group_metrics)     
@@ -500,54 +489,54 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts){
 													paste(message,collapse="\n")
 												}                  
 											})  
-								},error = function(e) {
-									showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
 								}), ignoreInit = TRUE)
 				
 				# 2.3.2 Integrate new group metrics series  --------------------------------------------------------							
 				
-				observeEvent(input$integrate_new_group_metrics_button, tryCatch({
-									
-									step2.3.2_filepath_new_group_metrics <- reactive({
-												inFile <- isolate(input$xl_new_group_metrics)     
-												if (is.null(inFile)){        return(NULL)
-												} else {
-													data$path_step_2.3.2_new_group_metrics <- inFile$datapath #path to a temp file             
-												}
-											})
-									
-									step2.3.2_load_data <- function() {
-										path <- isolate(step2.3.2_filepath_new_group_metrics())
-										if (is.null(data$path_step_2.3.2_new_group_metrics)) 
-											return(NULL)
-										rls <- write_new_group_metrics(path)
-										message <- rls$message
-										cou_code <- rls$cou_code
-										main_assessor <- input$main_assessor
-										secondary_assessor <- input$secondary_assessor
-										file_type <- loaded_data_ts$file_type
-										log_datacall("write new group_metrics", cou_code = cou_code, message = sQuote(message), 
-												the_metadata = NULL, file_type = file_type, main_assessor = main_assessor, 
-												secondary_assessor = secondary_assessor)
-										return(message)
-									}
-									
-									output$textoutput_step2.3.2_ts <- renderText({
-												validate(need(globaldata$connectOK,"No connection"))
-												# call to  function that loads data
-												# this function does not need to be reactive
-												message <- step2.3.2_load_data()
-												if (is.null(data$path_step_2.3.2_new_group_metrics)) "please select a dataset" else {                                      
-													paste(message,collapse="\n")
-												}                  
-											})  
-								},error = function(e) {
-									showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
-								}), ignoreInit = TRUE)
+				observeEvent(input$integrate_new_group_metrics_button, 
+						shinyCatch(
+						{
+							
+							step2.3.2_filepath_new_group_metrics <- reactive({
+										inFile <- isolate(input$xl_new_group_metrics)     
+										if (is.null(inFile)){        return(NULL)
+										} else {
+											data$path_step_2.3.2_new_group_metrics <- inFile$datapath #path to a temp file             
+										}
+									})
+							
+							step2.3.2_load_data <- function() {
+								path <- isolate(step2.3.2_filepath_new_group_metrics())
+								if (is.null(data$path_step_2.3.2_new_group_metrics)) 
+									return(NULL)
+								rls <- write_new_group_metrics(path)
+								message <- rls$message
+								cou_code <- rls$cou_code
+								main_assessor <- input$main_assessor
+								secondary_assessor <- input$secondary_assessor
+								file_type <- loaded_data_ts$file_type
+								log_datacall("write new group_metrics", cou_code = cou_code, message = sQuote(message), 
+										the_metadata = NULL, file_type = file_type, main_assessor = main_assessor, 
+										secondary_assessor = secondary_assessor)
+								return(message)
+							}
+							
+							output$textoutput_step2.3.2_ts <- renderText({
+										validate(need(globaldata$connectOK,"No connection"))
+										# call to  function that loads data
+										# this function does not need to be reactive
+										message <- step2.3.2_load_data()
+										if (is.null(data$path_step_2.3.2_new_group_metrics)) "please select a dataset" else {                                      
+											paste(message,collapse="\n")
+										}                  
+									})  
+						}
+						)
+						, ignoreInit = TRUE)
 				
 				# 2.3.3 update modified group metrics  --------------------------------------------------------							
 				
-				observeEvent(input$update_group_metrics_button, tryCatch({
+				observeEvent(input$update_group_metrics_button, shinyCatch({
 									
 									step2.3.3_filepath_update_group_metrics <- reactive({
 												inFile <- isolate(input$xl_update_group_metrics)     
@@ -582,13 +571,11 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts){
 													paste(message,collapse="\n")
 												}                  
 											})  
-								},error = function(e) {
-									showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
 								}), ignoreInit = TRUE)	
 				
 				# 2.4.1 Deleted individual metrics --------------------------------------------------------							
 				
-				observeEvent(input$delete_individual_metrics_button, tryCatch({
+				observeEvent(input$delete_individual_metrics_button, shinyCatch({
 									
 									step2.4.1_filepath_deleted_individual_metrics <- reactive({
 												inFile <- isolate(input$xl_deleted_individual_metrics)     
@@ -623,13 +610,12 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts){
 													paste(message,collapse="\n")
 												}                  
 											})  
-								},error = function(e) {
-									showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
 								}), ignoreInit = TRUE)
 				
 				# 2.4.2 Integrate new individual metrics --------------------------------------------------------							
-				
-				observeEvent(input$integrate_new_individual_metrics_button, tryCatch({
+				observeEvent(input$integrate_new_individual_metrics_button, 
+						shinyCatch(
+							{
 									
 									step2.4.2_filepath_new_individual_metrics <- reactive({
 												inFile <- isolate(input$xl_new_individual_metrics)     
@@ -664,13 +650,13 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts){
 													paste(message,collapse="\n")
 												}                  
 											})  
-								},error = function(e) {
-									showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
-								}), ignoreInit = TRUE)
+								}
+						  )# end shinyCatch
+								, ignoreInit = TRUE)
 				
 				# 2.4.3 updated individual metrics  --------------------------------------------------------							
 				
-				observeEvent(input$update_individual_metrics_button, tryCatch({
+				observeEvent(input$update_individual_metrics_button, shinyCatch({
 									
 									step2.4.3_filepath_update_individual_metrics <- reactive({
 												inFile <- isolate(input$xl_update_individual_metrics)     
@@ -705,9 +691,7 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts){
 													paste(message,collapse="\n")
 												}                  
 											})  
-								},error = function(e) {
-									showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
-								}), ignoreInit = TRUE)		
+								}), 				 ignoreInit = TRUE)		
 				
 				
 			}
