@@ -831,6 +831,7 @@ compare_with_database_metric_ind <- function(
     data_from_base, 
     sheetorigin = c("new_individual_metrics","updated_individual_metrics","deleted_individual_metrics"),
     type="series") {
+  browser()
   if (!sheetorigin %in% c("new_individual_metrics","updated_individual_metrics","deleted_individual_metrics")) stop ("sheetorigin should be one of
 						new_individual_metrics,updated_individual_metrics,deleted_individual_metrics")
   if (nrow(data_from_excel) == 0) 
@@ -845,9 +846,6 @@ compare_with_database_metric_ind <- function(
   data_from_excel <- data_from_excel %>% mutate_at(vars("fi_date"), list(as.Date)) 
   
   #we add this column since fish needs a year but we don't ask it for other sampling (only for series)
-  if (!"fi_year" %in% names(data_from_excel)) {
-    data_from_excel$fi_year <- NA
-  } 
   data_from_excel <- data_from_excel %>% mutate_at(vars("fi_year"), list(as.numeric)) 
   
   data_from_excel$sheetorigin <- sheetorigin
@@ -878,7 +876,7 @@ compare_with_database_metric_ind <- function(
     rename(mei_mty_id=mty_id)
   
   # use fi_id if updated but length and weight and date if new
-  if ("fi_di" %in% colnames(data_from_excel) ){
+  if ("fi_id" %in% colnames(data_from_excel) ){
     
     duplicates <- data_from_base_wide %>% 	
       dplyr::inner_join(

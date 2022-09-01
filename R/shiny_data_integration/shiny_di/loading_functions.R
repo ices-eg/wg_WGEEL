@@ -2953,6 +2953,13 @@ load_dcf<-function(path,datasource){
 				sheet=sheet,
 				skip=0, guess_max=10000)
 		cat(sheet,"\n")
+		
+		
+		#some countries have added a fi_year column so we deal with it
+		if ("fi_year" %in% colums && (!fi_year %in% names(sheet)))
+		  data_xls$fi_year <- NA  
+		data_xls <- data_xls %>%
+		  mutate(fi_year=as.integer(fi_year))
 
 		data_error <- data.frame(nline = NULL, error_message = NULL)
 		# country is extracted 
@@ -3048,9 +3055,9 @@ load_dcf<-function(path,datasource){
 				"new_group_metrics"="gr_year",
 				"updated_group_metrics"="gr_year",
 				"deleted_group_metrics"="gr_year",
-				"new_individual_metrics"=NULL,
-				"updated_individual_metrics"=NULL,
-				"deleted_individual_metrics"=NULL
+				"new_individual_metrics"="fi_year",
+				"updated_individual_metrics"="fi_year",
+				"deleted_individual_metrics"="fi_year"
 		
 		)
 		if (!is.null(column_year)){
@@ -3226,17 +3233,17 @@ load_dcf<-function(path,datasource){
 					"m_mean_lengthmm","m_mean_weightg","m_mean_ageyear","f_mean_lengthmm","f_mean_weightg","f_mean_age","g_in_gy_proportion",	"s_in_ys_proportion",	
 					"anguillicola_proportion",	"anguillicola_intensity",	"muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb", "teq",	"evex_proportion",	
 					"hva_proportion",	"pb",	"hg",	"cd"),
-			c("sai_name",	"sai_emu_nameshort",	"fi_date",	"fi_lfs_code",	"fisa_x_4326",	"fisa_y_4326",
+			c("sai_name",	"sai_emu_nameshort",	"fi_date",	"fi_year", "fi_lfs_code",	"fisa_x_4326",	"fisa_y_4326",
 					"fi_comment",  "lengthmm",	"weightg",	"ageyear",	"eye_diam_meanmm", "pectoral_lengthmm",
 					"is_female_(1=female,0=male)","is_differentiated_(1=differentiated,0_undifferentiated)",
 					"anguillicola_presence_(1=present,0=absent)",	"anguillicola_intensity",	"muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb", "teq",
 					"evex_presence_(1=present,0=absent)","hva_presence_(1=present,0=absent)",	"pb",	"hg",	"cd"),
-			c("fi_id","sai_name",	"sai_emu_nameshort", "fi_date",	 "fi_lfs_code", "fisa_x_4326",	"fisa_y_4326", "fi_comment",  "fi_last_update",	"fi_dts_datasource", 
+			c("fi_id","sai_name",	"sai_emu_nameshort", "fi_date",	"fi_year",	 "fi_lfs_code", "fisa_x_4326",	"fisa_y_4326", "fi_comment",  "fi_last_update",	"fi_dts_datasource", 
 					"lengthmm",	"weightg",	"ageyear",	"eye_diam_meanmm", "pectoral_lengthmm",
 					"is_female_(1=female,0=male)","is_differentiated_(1=differentiated,0_undifferentiated)",
 					"anguillicola_presence_(1=present,0=absent)",	"anguillicola_intensity",	"muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb", "teq",
 					"evex_presence_(1=present,0=absent)","hva_presence_(1=present,0=absent)",	"pb",	"hg",	"cd"),
-			c("fi_id","sai_name",	"sai_emu_nameshort", "fi_date", "fi_lfs_code",	"fisa_x_4326",	"fisa_y_4326", "fi_comment",  "fi_last_update",	"fi_dts_datasource", 
+			c("fi_id","sai_name",	"sai_emu_nameshort", "fi_date",	"fi_year", "fi_lfs_code",	"fisa_x_4326",	"fisa_y_4326", "fi_comment",  "fi_last_update",	"fi_dts_datasource", 
 					"lengthmm",	"weightg",	"ageyear",	"eye_diam_meanmm", "pectoral_lengthmm",
 					"is_female_(1=female,0=male)","is_differentiated_(1=differentiated,0_undifferentiated)",
 					"anguillicola_presence_(1=present,0=absent)",	"anguillicola_intensity",	"muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb", "teq",
