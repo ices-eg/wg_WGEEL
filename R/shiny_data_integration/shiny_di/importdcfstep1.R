@@ -221,7 +221,7 @@ importdcfstep1Server <- function(id,globaldata,loaded_data_dcf){
 										data_from_base=t_metricgroupsamp_megsa, 
 										sheetorigin="updated_group_metrics",
 										type="other")
-								if (nrow(new_group_metrics)>0){
+								if (nrow(list_comp_group_metrics$new)>0){
 									# when integrating the id must be different so I'm adding the max of id in news, 
 									# later they will be used to differentiate groups when writing, and we don't want to mix up 
 									# groups from new and from updated sheets
@@ -276,7 +276,7 @@ importdcfstep1Server <- function(id,globaldata,loaded_data_dcf){
 												data_from_base=t_metricindsamp_meisa, 
 												sheetorigin="updated_individual_metrics",
 												type="other")
-								if (nrow(new_individual_metrics)>0){
+								if (nrow(list_comp_individual_metrics$new)>0){
 									mxn <- max(list_comp_individual_metrics$new$id, na.rm=TRUE)
 									mxm <- max(list_comp_individual_metrics$modified, na.rm=TRUE)
 									list_comp_updated_individual_metrics$new$id <- list_comp_updated_individual_metrics$new$id + mxn
