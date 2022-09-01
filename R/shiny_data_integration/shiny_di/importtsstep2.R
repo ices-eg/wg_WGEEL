@@ -298,7 +298,7 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts){
 				# 2.1.2 updated series  --------------------------------------------------------
 				
 				
-				observeEvent(input$update_series_button, ShinyCatch({
+				observeEvent(input$update_series_button, shinyCatch({
 									
 									step2.1.2_filepath_modified_series <- reactive({
 												inFile <- isolate(input$xl_updated_series)     
