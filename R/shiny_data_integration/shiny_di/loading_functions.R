@@ -10,7 +10,7 @@
 
 
 load_catch_landings<-function(path,datasource){
-	shinybusy::show_modal_spinner(text = "load data")
+	shinybusy::show_modal_spinner(text = "load catch and landings")
 	the_metadata<-list()
 	dir<-dirname(path)
 	file<-basename(path)
@@ -306,6 +306,7 @@ load_catch_landings<-function(path,datasource){
 
 # path<-file.choose()
 load_release<-function(path,datasource){
+	shinybusy::show_modal_spinner(text = "load release")
 	the_metadata<-list()
 	dir<-dirname(path)
 	file<-basename(path)
@@ -706,6 +707,7 @@ load_release<-function(path,datasource){
 				}# end else
 				return(list(data=release_tot,error=data_error))
 			})
+			shinybusy::remove_modal_spinner()
 	data_error=rbind.data.frame(output[[1]]$error,output[[2]]$error,output[[3]]$error)
 	return(invisible(list(data=output[[1]]$data,updated_data=output[[2]]$data,
 							deleted_data=output[[3]]$data,
@@ -717,6 +719,7 @@ load_release<-function(path,datasource){
 
 # path <- file.choose()
 load_aquaculture<-function(path,datasource){
+	shinybusy::show_modal_spinner(text = "load biomass")
 	data_error <- data.frame(nline = NULL, error_message = NULL)
 	the_metadata<-list()
 	dir<-dirname(path)
@@ -1211,6 +1214,7 @@ load_biomass<-function(path,datasource){
 				}
 				return(list(data=data_xls,error=data_error))
 			})
+			shinybusy::remove_modal_spinner()
 	data_error=rbind.data.frame(output[[1]]$error,output[[2]]$error,output[[3]]$error)
 	return(invisible(list(data=output[[1]]$data,updated_data=output[[2]]$data,deleted_data=output[[3]]$data,
 							error=data_error,the_metadata=the_metadata)))
@@ -1938,7 +1942,7 @@ load_potential_available_habitat<-function(path,datasource){
 # 
 # load_series(path,datasource="toto","glass_eel")
 load_series<-function(path,datasource, stage="glass_eel"){
-	shinybusy::show_modal_spinner(text = "load data")
+	shinybusy::show_modal_spinner(text = "load series", color="darkgreen")
 	sheets <- excel_sheets(path=path)
 	if ("sampling_info" %in% sheets) stop("There is a sampling_info tab in your data, you want to use import time series tab")
 	
@@ -2690,7 +2694,7 @@ load_series<-function(path,datasource, stage="glass_eel"){
 # datasource <- the_eel_datasource
 # load_dcf(path,datasource="toto")
 load_dcf<-function(path,datasource){
-	shinybusy::show_modal_spinner(text = "load data")
+	shinybusy::show_modal_spinner(text = "load dcf")
 	sheets <- excel_sheets(path=path)
 	if ("series_info" %in% sheets) stop("There is a series_info tab in your data, you want to use import time series tab")
 	

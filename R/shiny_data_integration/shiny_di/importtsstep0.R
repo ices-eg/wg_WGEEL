@@ -51,7 +51,7 @@ importtsstep0UI <- function(id){
 #' @return loaded data and file type
 
 
-importtsstep0Server <- function(id,globaldata){
+importtsstep0Server <- function(id, globaldata){
 	moduleServer(id,
 			function(input, output, session) {
 				
@@ -141,12 +141,13 @@ importtsstep0Server <- function(id,globaldata){
 					)
 					return(list(res=res,message=message))
 				}
-				
+
 				plotseries <- function(series){
+					#browser()
 					output$maps_timeseries<- renderLeaflet({
 								leaflet() %>% addTiles() %>%
 										addMarkers(data=series,lat=~ser_y,lng=~ser_x,label=~ser_nameshort) %>%
-										addPolygons(data=data$ccm_light, 
+										addPolygons(data=globaldata$ccm_light, 
 												popup=~as.character(wso_id),
 												fill=TRUE, 
 												highlight = highlightOptions(color='white',
@@ -165,34 +166,26 @@ importtsstep0Server <- function(id,globaldata){
 				##################################################
 				# Events triggerred by step0_button (time series page)
 				###################################################
-				observeEvent(input$ts_check_file_button, tryCatch({
+				observeEvent(input$ts_check_file_button, shinyCatch({
 									
 									##################################################
 									# clean up
 									#################################################						
-									
-									rls$file_type <- NULL
-									rls$res <- NULL
-									rls$message <- NULL
-									
+									validate(need(globaldata$connectOK,"No connection"))
+									ls <- step0load_data_ts() # result list
+									rls$message <- ls$message
+									rls$res <- ls$res
+									validate(need(!is.null(data$path_step0_ts),label= "Please select a data set"))
+									if(length(unique(rls$res$series$ser_cou_code[!is.na(rls$res$series$ser_cou_code)]))>1) stop(paste("More than one country there",
+														paste(unique(rls$res$series$ser_cou_code[!is.na(rls$res$series$ser_cou_code)]),collapse=";"), ": while there should be only one country code"))
+									cou_code <- rls$res$series$ser_cou_code[1]
+									if (nrow(rls$res$series)>0) plotseries(rls$res$series)
 									
 									##################################################
 									# integrate verbatimtextoutput
 									# this will print the error messages to the console
 									#################################################
 									output$integrate_ts<-renderText({
-												validate(need(globaldata$connectOK,"No connection"))
-												# call to  function that loads data
-												# this function does not need to be reactive
-												if (is.null(data$path_step0_ts)) "please select a dataset" else { 
-													tmp <- step0load_data_ts() # result list
-													rls$message <- tmp$message
-													rls$res <- tmp$res
-													# this will fill the log_datacall file (database_tools.R)
-													if(length(unique(rls$res$series$ser_cou_code[!is.na(rls$res$series$ser_cou_code)]))>1) stop(paste("More than one country there",
-																		paste(unique(rls$res$series$ser_cou_code[!is.na(rls$res$series$ser_cou_code)]),collapse=";"), ": while there should be only one country code"))
-													cou_code <- rls$res$series$ser_cou_code[1]
-													if (nrow(rls$res$series)>0) plotseries(rls$res$series)
 													# the following three lines might look silly but passing input$something to the log_datacall function results
 													# in an error (input not found), I guess input$something has to be evaluated within the frame of the shiny app
 													main_assessor <- input$main_assessor
@@ -204,7 +197,7 @@ importtsstep0Server <- function(id,globaldata){
 													paste(rls$message, collapse="\n")						
 												}
 												
-											}) 
+											) 
 									##################################
 									# Actively generates UI component on the ui side 
 									# which displays text for xls download
@@ -239,12 +232,10 @@ importtsstep0Server <- function(id,globaldata){
 									########################
 									
 									output$dt_integrate_ts <- DT::renderDataTable({
-												validate(need(input$xlfile_ts$name != "", "Please select a data set"))
-												ls <- step0load_data_ts()
-												if(length(unique(ls$res$series$ser_cou_code[!is.na(ls$res$series$ser_cou_code)]))>1) stop(paste("More than one country there ",
-																	paste(unique(ls$res$series$ser_cou_code[!is.na(ls$res$series$ser_cou_code)]),collapse=";"), ": while there should be only one country code"))
-												cou_code <- ls$res$series$ser_cou_code[1]
-												datatable(ls$res$error,
+												if(length(unique(rls$res$series$ser_cou_code[!is.na(rls$res$series$ser_cou_code)]))>1) stop(paste("More than one country there ",
+																	paste(unique(rls$res$series$ser_cou_code[!is.na(rls$res$series$ser_cou_code)]),collapse=";"), ": while there should be only one country code"))
+												cou_code <- rls$res$series$ser_cou_code[1]
+												datatable(rls$res$error,
 														rownames=FALSE,
 														filter = 'top',
 														#                      !!removed caption otherwise included in the file content
@@ -265,8 +256,6 @@ importtsstep0Server <- function(id,globaldata){
 														)
 												)
 											})
-								},error = function(e) {
-									showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
 								}), ignoreInit = TRUE)
 				
 				

@@ -159,7 +159,7 @@ shinyServer(function(input, output, session){
 			importstep1Server("importstep1module", data, loaded_data) # globaldata <- data in the module
 			importstep2Server("importstep2module", data, loaded_data)
 
-			loaded_data_ts <- importtsstep0Server("importtsstep0module", data) # globaldata <- data in the module 
+			loaded_data_ts <- importtsstep0Server("importtsstep0module", globaldata=data) # globaldata <- data in the module 
 			importtsstep1Server("importtsstep1module", data, loaded_data_ts) # globaldata <- data in the module 
 			importtsstep2Server("importtsstep2module", data, loaded_data_ts) # globaldata <- data in the module 
 			

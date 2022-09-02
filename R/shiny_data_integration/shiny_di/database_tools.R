@@ -1298,7 +1298,7 @@ write_duplicates <- function(path, qualify_code = 19) {
 write_new <- function(path, type="all") {
 	# bug 2021 when a lots of rows without values in eel_missvaluequal reads a logical and converts to NA
 	#This functions does not apply to type mortality
-	shinybusy::show_modal_spinner(text = "load data to write")
+	shinybusy::show_modal_spinner(text = "load new data")
 	new <-	read_excel(path = path, sheet = 1, skip = 1)
 	# for the most common format
 	if (ncol(new)==14) {
