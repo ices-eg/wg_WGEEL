@@ -141,9 +141,9 @@ importdcfstep0Server <- function(id,globaldata){
                        #################################################						
                        validate(need(globaldata$connectOK,"No connection"))
                        validate(need(input$xlfile_dcf$name != "", "Please select a data set"))
-                       validate(need(!is.null(data$path_step0_dcf, "Please select a data set")))
-                       
+                   
                        ls <- step0load_data_dcf()
+                       validate(need(!is.null(data$path_step0_dcf), "Please select a data set2"))
                        rls$message <- ls$message
                        file_type <- "DCF data"
                        rls$file_type <- file_type
