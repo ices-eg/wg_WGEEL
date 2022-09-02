@@ -138,12 +138,13 @@ importdcfstep0Server <- function(id,globaldata){
 									##################################################
 									# clean up
 									#################################################						
-									
+									ls <- step0load_data_dcf()
+									rls$message <- ls$message
+									file_type <- "DCF data"
+									rls$file_type <- file_type
 									rls$file_type <- NULL
-									rls$res <- NULL
-									rls$message <- NULL
-									
-									
+									rls$res <- ls$res
+
 									##################################################
 									# integrate verbatimtextoutput
 									# this will print the error messages to the console
@@ -153,9 +154,9 @@ importdcfstep0Server <- function(id,globaldata){
 												# call to  function that loads data
 												# this function does not need to be reactive
 												if (is.null(data$path_step0_dcf)) "please select a dataset" else { 
-													tmp <- step0load_data_dcf() # result list
-													rls$message <- tmp$message
-													rls$res <- tmp$res
+													# tmp <- step0load_data_dcf() # result list
+													# rls$message <- tmp$message
+													# rls$res <- tmp$res
 													# this will fill the log_datacall file (database_tools.R)
 													if(length(unique(rls$res$sampling_info$sai_cou_code[!is.na(rls$res$sampling_info$sai_cou_code)]))>1) stop(paste("More than one country there :",
 																		paste(unique(rls$res$sampling_info$sai_cou_code[!is.na(rls$res$sampling_info$sai_cou_code)]),collapse=";"), ": while there should be only one country code"))
@@ -165,8 +166,7 @@ importdcfstep0Server <- function(id,globaldata){
 													# in an error (input not found), I guess input$something has to be evaluated within the frame of the shiny app
 													main_assessor <- input$main_assessor
 													secondary_assessor <- input$secondary_assessor
-													file_type <- "DCF data"
-													rls$file_type <- file_type
+
 													# this will fill the log_datacall file (database_tools.R)
 													log_datacall( "check data sampling info",cou_code = cou_code, message = paste(rls$message,collapse="\n"), the_metadata = rls$res$the_metadata, file_type = file_type, main_assessor = main_assessor, secondary_assessor = secondary_assessor )
 													paste(rls$message, collapse="\n")						
@@ -208,11 +208,10 @@ importdcfstep0Server <- function(id,globaldata){
 									
 									output$dt_integrate_dcf <- DT::renderDataTable({
 												validate(need(input$xlfile_dcf$name != "", "Please select a data set"))
-												ls <- step0load_data_dcf()
-												if(length(unique(ls$res$sampling_info$sai_cou_code[!is.na(ls$res$sampling_info$sai_cou_code)]))>1) stop(paste("More than one country there ",
-																	paste(unique(ls$res$sampling_info$sai_cou_code[!is.na(ls$res$sampling_info$sai_cou_code)]),collapse=";"), ": while there should be only one country code"))
-												cou_code <- ls$res$sampling_info$sai_cou_code[1]
-												datatable(ls$res$error,
+												if(length(unique(rls$res$sampling_info$sai_cou_code[!is.na(rls$res$sampling_info$sai_cou_code)]))>1) stop(paste("More than one country there ",
+																	paste(unique(rls$res$sampling_info$sai_cou_code[!is.na(rls$res$sampling_info$sai_cou_code)]),collapse=";"), ": while there should be only one country code"))
+												cou_code <- rls$res$sampling_info$sai_cou_code[1]
+												datatable(rls$res$error,
 														rownames=FALSE,
 														filter = 'top',
 														#                      !!removed caption otherwise included in the file content
