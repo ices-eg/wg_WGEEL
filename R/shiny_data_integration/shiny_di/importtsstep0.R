@@ -51,7 +51,7 @@ importtsstep0UI <- function(id){
 #' @return loaded data and file type
 
 
-importtsstep0Server <- function(id,globaldata){
+importtsstep0Server <- function(id, globaldata){
 	moduleServer(id,
 			function(input, output, session) {
 				
@@ -143,10 +143,11 @@ importtsstep0Server <- function(id,globaldata){
 				}
 
 				plotseries <- function(series){
+					#browser()
 					output$maps_timeseries<- renderLeaflet({
 								leaflet() %>% addTiles() %>%
 										addMarkers(data=series,lat=~ser_y,lng=~ser_x,label=~ser_nameshort) %>%
-										addPolygons(data=ccm_light, 
+										addPolygons(data=globaldata$ccm_light, 
 												popup=~as.character(wso_id),
 												fill=TRUE, 
 												highlight = highlightOptions(color='white',
