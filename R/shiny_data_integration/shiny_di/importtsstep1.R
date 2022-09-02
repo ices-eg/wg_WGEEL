@@ -193,7 +193,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 				observeEvent(input$check_duplicate_button_ts, {
 							
 							shinyCatch({
-										shinybusy::show_modal_spinner(text = "Checking File", color="#337ab7",spin="fading-circle")
+										shinybusy::show_modal_spinner(text = "Checking File", color="darkgreen",spin="fading-circle")
 										
 										# see step0load_data returns a list with res and messages
 										# and within res data and a dataframe of errors
