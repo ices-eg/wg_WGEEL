@@ -112,7 +112,7 @@ importdcfstep0Server <- function(id,globaldata){
                    output$maps_dcf<- renderLeaflet({
                      leaflet() %>% addTiles() %>%
                        addMarkers(data=sampling_info,lat=~sai_y,lng=~sai_x,label=~sai_name) %>%
-                       addPolygons(data=data$ccm_light, 
+                       addPolygons(data=ccm_light, 
                                    popup=~as.character(wso_id),
                                    fill=TRUE, 
                                    highlight = highlightOptions(color='white',

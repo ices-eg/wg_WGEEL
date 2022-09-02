@@ -143,7 +143,6 @@ importtsstep0Server <- function(id,globaldata){
 				}
 
 				plotseries <- function(series){
-					browser()
 					output$maps_timeseries<- renderLeaflet({
 								leaflet() %>% addTiles() %>%
 										addMarkers(data=series,lat=~ser_y,lng=~ser_x,label=~ser_nameshort) %>%
