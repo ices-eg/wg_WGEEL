@@ -1298,7 +1298,7 @@ write_duplicates <- function(path, qualify_code = 19) {
 write_new <- function(path, type="all") {
 	# bug 2021 when a lots of rows without values in eel_missvaluequal reads a logical and converts to NA
 	#This functions does not apply to type mortality
-	shinybusy::show_modal_spinner(text = "load data")
+	shinybusy::show_modal_spinner(text = "load data to write")
 	new <-	read_excel(path = path, sheet = 1, skip = 1)
 	# for the most common format
 	if (ncol(new)==14) {
@@ -2278,7 +2278,7 @@ write_new_individual_metrics <- function(path, type="series"){
 	} else{
 		fk <- "fisa_sai_id"
 	}
-	shinybusy::show_modal_spinner(text = "load data")
+	shinybusy::show_modal_spinner(text = "load data indiv metrics")
 	# if we write from DT there is an extra line to be removed test it there
 	test <- read_excel(path = path, sheet=1, range="A1:A1")	
 	if (names(test)=="ser_nameshort") skip=0 else skip=1
