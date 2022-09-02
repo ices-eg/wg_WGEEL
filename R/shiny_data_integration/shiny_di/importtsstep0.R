@@ -141,12 +141,13 @@ importtsstep0Server <- function(id,globaldata){
 					)
 					return(list(res=res,message=message))
 				}
-				
+
 				plotseries <- function(series){
+					browser()
 					output$maps_timeseries<- renderLeaflet({
 								leaflet() %>% addTiles() %>%
 										addMarkers(data=series,lat=~ser_y,lng=~ser_x,label=~ser_nameshort) %>%
-										addPolygons(data=data$ccm_light, 
+										addPolygons(data=ccm_light, 
 												popup=~as.character(wso_id),
 												fill=TRUE, 
 												highlight = highlightOptions(color='white',
