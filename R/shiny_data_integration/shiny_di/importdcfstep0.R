@@ -65,7 +65,7 @@ importdcfstep0Server <- function(id,globaldata){
 				
 				# TODO check if need to replace trycatch with smth else
 				observeEvent(input$xlfile_dcf,
-						tryCatch({
+						shinyCatch({
 									rls$file_type=""
 									rls$res = list()
 									rls$message = ""
@@ -76,8 +76,6 @@ importdcfstep0Server <- function(id,globaldata){
 									}
 									output$dt_integrate_dcf <- renderDataTable(data.frame())
 									output$"step0_message_xls_dcf"<-renderText("")
-								},error = function(e) {
-									showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
 								}), ignoreInit = TRUE)
 				
 				###########################
@@ -133,7 +131,10 @@ importdcfstep0Server <- function(id,globaldata){
 				##################################################
 				# Events triggerred by step0_button 
 				###################################################
-				observeEvent(input$dcf_check_file_button, tryCatch({
+				observeEvent(input$dcf_check_file_button,{ 
+						#browser()
+						shinyCatch(
+								{
 									
 									##################################################
 									# clean up
@@ -233,9 +234,8 @@ importdcfstep0Server <- function(id,globaldata){
 														)
 												)
 											})
-								},error = function(e) {
-									showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
-								}), ignoreInit = TRUE)
+								}								
+								)}, ignoreInit = TRUE)
 				
 				
 				
