@@ -115,12 +115,15 @@
 
 
 ## Annex 5
-
+### to do
+* not integrated (no data) but there is an update to metadata since one of the data providers has changed. Not sure how to do approach this...
 
 ## Annex 6
-
+* not provided by DE / empty sheet. Nothing to report from Germany, so this should be fine.
 
 ## Annex 7
+### to do
+* not integrated (no data) but there is an update to metadata since one of the data providers has changed. Not sure how to do approach this...
 
 ## Annex 8
 
