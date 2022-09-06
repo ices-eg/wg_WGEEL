@@ -351,12 +351,12 @@ load_release<-function(path,datasource){
 				country=as.character(data_xls[1,7])
 #    data_xls <- correct_me(data_xls)
 				# check for the file integrity
-				if (ncol(data_xls)!=ifelse(sheet =="new_data",11,11)) {
-					cat(str_c("number of column wrong should have been ",ifelse(sheet=="new_data",10,11)," in the file for ",country,"\n"))
+				if (ncol(data_xls)!=ifelse(sheet =="new_data",13,13)) {
+					cat(str_c("number of column wrong should have been ",ifelse(sheet=="new_data",13,13)," in the file for ",country,"\n"))
 					data_error <- rbind(data_error, data.frame("nline"=0,"error_message"=str_c("number of column wrong should have been ",
-											ifelse(sheet=="new_data",11,11)," in the file for ",country,"\n")))
+											ifelse(sheet=="new_data",13,13)," in the file for ",country,"\n")))
 					stop(str_c("number of column wrong should have been ",
-									ifelse(sheet=="new_data",11,11)," in the file for ",country, " ", sheet,"\n"))
+									ifelse(sheet=="new_data",13,13)," in the file for ",country, " ", sheet,"\n"))
 					
 				} else {
 					
@@ -388,6 +388,10 @@ load_release<-function(path,datasource){
 																				"eel_qal_id", "eel_qal_comment","eel_comment","eel_datasource")],collapse= " & "),
 												" file =",
 												file,"\n")))
+						release_tot <- data_xls[,c("eel_id","eel_typ_name", "eel_year","eel_value","eel_missvaluequal","eel_emu_nameshort",
+						                           "eel_cou_code", "eel_lfs_code", "eel_hty_code","eel_area_division",
+						                           "eel_comment","eel_datasource")
+						]
 						
 						
 						
@@ -719,7 +723,7 @@ load_release<-function(path,datasource){
 
 # path <- file.choose()
 load_aquaculture<-function(path,datasource){
-	shinybusy::show_modal_spinner(text = "load biomass")
+	#shinybusy::show_modal_spinner(text = "load aquaculture")
 	data_error <- data.frame(nline = NULL, error_message = NULL)
 	the_metadata<-list()
 	dir<-dirname(path)
@@ -2996,7 +3000,7 @@ load_dcf<-function(path,datasource){
 			data_xls$meg_dts_datasource <- datasource
 		}
 		if (grepl("individual", sheet)) {
-			data_xls$gr_dts_datasource <- datasource
+			data_xls$fi_dts_datasource <- datasource
 			data_xls$mei_dts_datasource <- datasource
 		}
 		

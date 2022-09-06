@@ -514,9 +514,9 @@ compare_with_database_dataseries <- function(data_from_excel, data_from_base, sh
 		}
 	}
 	
-	
+
 	modified <- dplyr::anti_join(data_from_excel, data_from_base, 
-			by = c("das_year", "das_value", "das_comment", "das_effort", "das_ser_id")
+			by = c("das_year", "das_value", "das_comment", "das_effort", "das_ser_id", "das_qal_id")
 	)
 	# new is also modified (less columns in the anti join) I need to remove the lines 
 	# from new in modified
@@ -716,7 +716,6 @@ compare_with_database_metric_group <- function(data_from_excel,
 		data_from_base, 
 		sheetorigin=c("new_group_metrics","updated_group_metrics","deleted_group_metrics"),
 		type="series") {
-	
 	# data integrity checks
 	if (!sheetorigin %in% c("new_group_metrics", "updated_group_metrics", "deleted_group_metrics")) stop ("sheetorigin should be one of
 						new_group_metrics, updated_group_metrics, deleted_group_metrics")
@@ -749,18 +748,18 @@ compare_with_database_metric_group <- function(data_from_excel,
 			drop_na(meg_value) %>% 
 			left_join(tr_metrictype_mty %>% select(mty_name,mty_id), by="mty_name") %>%
 			rename(meg_mty_id=mty_id)
-	
+	#browser()
 	duplicates <- data_from_base_wide %>% 	
 			dplyr::inner_join(
 					data_from_excel, 
-					by = c(ifelse(type=="series","grser_ser_id","sai_name"), "gr_id","gr_year"), 
+					by = c(ifelse(type=="series","ser_nameshort","sai_name"), "gr_id","gr_year"), 
 					suffix = c(".base", ".xls"))
 	
 	
 	# Anti join only keeps columns from X
 	if (sheetorigin == "new_group_metrics"){
 		new <-  dplyr::anti_join(data_from_excel_long, data_from_base, 
-				by = c(ifelse(type=="series","grser_ser_id","sai_name"), "gr_year","meg_mty_id"))
+				by = c(ifelse(type=="series","ser_nameshort","sai_name"), "gr_year","meg_mty_id"))
 	} else {
 		new <-  dplyr::anti_join(data_from_excel_long, data_from_base, 
 				by = "gr_id")
@@ -1734,6 +1733,8 @@ write_new_sampling <- function(path) {
 	message <- NULL
 	(nr <- tryCatch({
 							dbExecute(conn, query)
+	  query <- "SELECT * FROM datawg.t_samplinginfo_sai"
+	  t_samplinginfo_sai <<- dbGetQuery(conn, sqlInterpolate(ANSI(), query))
 						}, error = function(e) {
 							message <<- e
 						}, finally = {
@@ -2121,7 +2122,7 @@ write_new_group_metrics <- function(path, type="series") {
 		metric_table <- ifelse(type=="series","t_metricgroupseries_megser","t_metricgroupsamp_megsa")	
 		newgroups <- new %>%
 				filter(is.na(gr_id)) %>% #nor group nor metrics already  exist 
-				select(any_of(c("gr_year",gr_add,
+				select(any_of(c("gr_year","grsa_lfs_code",
 										"gr_number","gr_comment","gr_dts_datasource",gr_key,"id"))) %>%
 				distinct()
 		oldgroups <- new %>%
@@ -2135,7 +2136,6 @@ write_new_group_metrics <- function(path, type="series") {
 			message0 <-NULL
 		}
 		#dbGetQuery(conn, "DELETE FROM datawg.t_groupseries_grser")
-		
 		nr <- tryCatch({
 					dbBegin(conn)
 					dbWriteTable(conn,"group_tmp",newgroups,row.names=FALSE,temporary=TRUE)

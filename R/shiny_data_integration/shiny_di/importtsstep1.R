@@ -245,7 +245,8 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 													t_fishseries_fiser <-  t_fishseries_fiser %>% filter (fiser_ser_id %in% t_series_ser$ser_id)
 													t_metricgroupseries_megser <- t_metricgroupseries_megser%>% 
 															inner_join(t_groupseries_grser, by = c("meg_gr_id" = "gr_id") ) %>%
-															filter (grser_ser_id %in% t_series_ser$ser_id) %>% rename("gr_id"="meg_gr_id")			
+															filter (grser_ser_id %in% t_series_ser$ser_id) %>% rename("gr_id"="meg_gr_id")	%>%
+															inner_join(t_series_ser %>% select(ser_nameshort, ser_id), by=c("grser_ser_id"="ser_id")) 
 													t_metricindseries_meiser <- t_metricindseries_meiser%>%
 															inner_join(t_fishseries_fiser, by = c("mei_fi_id" = "fi_id") ) %>%
 															inner_join(t_series_ser %>% select(ser_nameshort, ser_id), by=c("fiser_ser_id"="ser_id")) %>% 
@@ -259,7 +260,8 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 													t_fishseries_fiser <-  t_fishseries_fiser %>% filter (fiser_ser_id %in% t_series_ser$ser_id)
 													t_metricgroupseries_megser <- t_metricgroupseries_megser%>% 
 															inner_join(t_groupseries_grser, by = c("meg_gr_id" = "gr_id") ) %>%
-															filter (grser_ser_id %in% t_series_ser$ser_id) %>% rename("gr_id"="meg_gr_id")			
+															filter (grser_ser_id %in% t_series_ser$ser_id) %>% rename("gr_id"="meg_gr_id") %>%
+															inner_join(t_series_ser %>% select(ser_nameshort, ser_id), by=c("grser_ser_id"="ser_id")) 			
 													t_metricindseries_meiser <- t_metricindseries_meiser%>%
 															inner_join(t_fishseries_fiser, by = c("mei_fi_id" = "fi_id") ) %>%
 															inner_join(t_series_ser %>% select(ser_nameshort, ser_id), by=c("fiser_ser_id"="ser_id")) %>% 
@@ -274,7 +276,8 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 													t_fishseries_fiser <-  t_fishseries_fiser %>% filter (fiser_ser_id %in% t_series_ser$ser_id)
 													t_metricgroupseries_megser <- t_metricgroupseries_megser%>% 
 															inner_join(t_groupseries_grser, by = c("meg_gr_id" = "gr_id") ) %>%
-															filter (grser_ser_id %in% t_series_ser$ser_id) %>% rename("gr_id"="meg_gr_id")			
+															filter (grser_ser_id %in% t_series_ser$ser_id) %>% rename("gr_id"="meg_gr_id")	 %>%
+															inner_join(t_series_ser %>% select(ser_nameshort, ser_id), by=c("grser_ser_id"="ser_id")) 		
 													t_metricindseries_meiser <- t_metricindseries_meiser%>%
 															inner_join(t_fishseries_fiser, by = c("mei_fi_id" = "fi_id") ) %>%
 															inner_join(t_series_ser %>% select(ser_nameshort, ser_id), by=c("fiser_ser_id"="ser_id")) %>% 
@@ -290,7 +293,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 										# the second new contains a dataframe to be inserted straight into
 										# the database
 										#cat("step0")
-										
+								
 										if (nrow(series)>0){
 											list_comp_series <- compare_with_database_series(data_from_excel=series, data_from_base=t_series_ser)
 										}
@@ -315,17 +318,21 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 													sheetorigin="updated_data")
 											# to avoid binding column type error
 											if (nrow(new_data)>0){
-												if (nrow(list_comp_updateddataseries$new)>0) {
+												if (nrow(list_comp_updateddataseries$new)>0 & nrow(list_comp_dataseries$new)>0) {
 													list_comp_dataseries$new <- bind_rows(list_comp_dataseries$new,	list_comp_updateddataseries$new)
+												} else  if (nrow(list_comp_dataseries$new)==0)  {
+												  list_comp_dataseries$new <- list_comp_updateddataseries$new
 												}
-												if (nrow(list_comp_dataseries$modified)>0) {
+												if (nrow(list_comp_updateddataseries$modified)>0 & nrow(list_comp_dataseries$modified)>0) {
 													list_comp_dataseries$modified <- bind_rows(list_comp_dataseries$modified,list_comp_updateddataseries$modified)
+												}  else  if (nrow(list_comp_dataseries$modified)==0)  {
+												  list_comp_dataseries$modified <- list_comp_updateddataseries$modified
 												}
-												if (nrow(list_comp_dataseries$highlight_change)>0){
+												if (nrow(list_comp_dataseries$highlight_change)>0 & nrow(list_comp_updateddataseries$highlight_change)>0){
 													list_comp_dataseries$highlight_change <- bind_rows(list_comp_dataseries$highlight_change,
 															list_comp_updateddataseries$highlight_change)
-												} else{
-													list_comp_dataseries$highlight_change <- list_comp_updateddataseries$highlight_change
+												} else if (nrow(list_comp_dataseries$highlight_change) == 0){
+													  list_comp_dataseries$highlight_change <- list_comp_updateddataseries$highlight_change
 												}
 												# note highlight change is not passed from one list to the other, both will be shown
 											} else {
@@ -346,7 +353,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 										}  else {
 											list_comp_group_metrics <- list(new=data.frame())
 										}
-										
+										#browser()
 										if (nrow(updated_group_metrics)>0){
 											list_comp_updated_group_metrics <- compare_with_database_metric_group(
 													data_from_excel=updated_group_metrics,
@@ -786,21 +793,23 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 											output$dt_modified_dataseries <-DT::renderDataTable({
 														validate(need(globaldata$connectOK,"No connection"))
 														datatable(list_comp_updateddataseries$modified,
-																rownames=FALSE,
-																extensions = "Buttons",
-																option=list(
-																		scroller = TRUE,
-																		scrollX = TRUE,
-																		scrollY = TRUE,
-																		order=list(3,"asc"),
-																		lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
-																		"pagelength"=-1,
-																		dom= "Blfrtip",
-																		scrollX = T,
-																		buttons=list(
-																				list(extend="excel",
+														           rownames=FALSE,
+														           extensions = "Buttons",
+														           option=list(
+														             # scroller = TRUE,
+														             scrollX = TRUE,
+														             scrollY = TRUE,
+														            order=list(3,"asc"),
+														            lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
+														            "pagelength"=-1,
+														            dom= "Blfrtip",
+														            autoWidth = TRUE,
+														            columnDefs = list(list(width = '200px', targets = c(4, 8))),
+														            buttons=list(
+														              list(extend="excel",
 																						filename = paste0("modified_dataseries_",loaded_data_ts$file_type,"_",Sys.Date(),"_",current_cou_code)))
-																))
+														 		)
+																)
 													})
 											
 											# Data are coming for either updated or new series, they are checked and
