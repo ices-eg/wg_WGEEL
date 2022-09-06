@@ -461,8 +461,11 @@ Not relevant to GB.
 
 
 ## Annex 10
-3 new rows added under sampling info. 
+3 new rows added under sampling info
+
 23 and 283 new values inserted in the group and metric tables
+
+Issue with integrating individual data
 
 -----------------------------------------------------------
 # IE
@@ -497,7 +500,7 @@ Not relevant to GB.
 ## Annex 10
 2 new rows added sampling info
 6 and 31 new group metrics
-Issue with integrating individual data.
+
 
 -----------------------------------------------------------
 # IT
