@@ -716,7 +716,6 @@ compare_with_database_metric_group <- function(data_from_excel,
 		data_from_base, 
 		sheetorigin=c("new_group_metrics","updated_group_metrics","deleted_group_metrics"),
 		type="series") {
-	
 	# data integrity checks
 	if (!sheetorigin %in% c("new_group_metrics", "updated_group_metrics", "deleted_group_metrics")) stop ("sheetorigin should be one of
 						new_group_metrics, updated_group_metrics, deleted_group_metrics")
@@ -1734,6 +1733,8 @@ write_new_sampling <- function(path) {
 	message <- NULL
 	(nr <- tryCatch({
 							dbExecute(conn, query)
+	  query <- "SELECT * FROM datawg.t_samplinginfo_sai"
+	  t_samplinginfo_sai <<- dbGetQuery(conn, sqlInterpolate(ANSI(), query))
 						}, error = function(e) {
 							message <<- e
 						}, finally = {
@@ -2121,7 +2122,7 @@ write_new_group_metrics <- function(path, type="series") {
 		metric_table <- ifelse(type=="series","t_metricgroupseries_megser","t_metricgroupsamp_megsa")	
 		newgroups <- new %>%
 				filter(is.na(gr_id)) %>% #nor group nor metrics already  exist 
-				select(any_of(c("gr_year",gr_add,
+				select(any_of(c("gr_year","grsa_lfs_code",
 										"gr_number","gr_comment","gr_dts_datasource",gr_key,"id"))) %>%
 				distinct()
 		oldgroups <- new %>%
@@ -2135,7 +2136,6 @@ write_new_group_metrics <- function(path, type="series") {
 			message0 <-NULL
 		}
 		#dbGetQuery(conn, "DELETE FROM datawg.t_groupseries_grser")
-		
 		nr <- tryCatch({
 					dbBegin(conn)
 					dbWriteTable(conn,"group_tmp",newgroups,row.names=FALSE,temporary=TRUE)

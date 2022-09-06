@@ -131,6 +131,11 @@
 
 
 ## Annex 10
+### notes
+* In the database there was a wron name for a series in sai_info (DE_Elbe_Eider should have been DE_Eide_Eider). This was changed in the database and also for the related group metrics the series was changed to DE_Eide_Eider. Accordingly, the spreadsheet, as provided by DE, was edited (i.e. the existing series info was changed accordingly and the existing group metrics was changed accordingly).
+
+### to do
+* pre-filled series ending with "HIST" and related group metrics should be deleted. It's not clear to the data provider how these are generated and if they are reliable.
 
 -----------------------------------------------------------
 # DK
@@ -315,29 +320,77 @@
 -----------------------------------------------------------
 ## Annex 1
 
+### series
+
+1 new
+4 values updated in the db
+
+### dataseries
+
+18 new values inserted in the database
+296 values updated in the db
+
+### group metrics
+
+0
+
+### individuals metrics
+
+ 234355 and 486270 new values inserted in the group and metric tables
 
 ## Annex 2
 
+### series
+
+0 new, 0 modified
+
+### dataseries
+
+17 new ; 140 values updated in the db
+
+### group metrics
+
+0
+
+### individual metrics
+
+ 78542 and 141559 new values inserted in the group and metric tables
+
 ## Annex 3
 
+### series
+
+0 new, 0 modified
+
+### dataseries
+
+to be checked by LB (issue with season)
 
 ## Annex 4
 
-
+ 121 new values inserted in the database
+28 values updated in the db
 
 ## Annex 5
 
+ 115 new values inserted in the database
+9 values updated in the db
 
 ## Annex 6
 
+No data
 
 ## Annex 7
 
+error 'there is an error'
+
 ## Annex 8
 
-
+No data
 
 ## Annex 10
+
+on error
 
 -----------------------------------------------------------
 # GR
@@ -408,6 +461,11 @@ Not relevant to GB.
 
 
 ## Annex 10
+3 new rows added under sampling info
+
+23 and 283 new values inserted in the group and metric tables
+
+Issue with integrating individual data
 
 -----------------------------------------------------------
 # IE
@@ -433,12 +491,16 @@ Not relevant to GB.
 3 rows updated
 
 ## Annex 7
-
+14 new rows
+2 updated rows
 ## Annex 8
 
 
 
 ## Annex 10
+2 new rows added sampling info
+6 and 31 new group metrics
+
 
 -----------------------------------------------------------
 # IT
