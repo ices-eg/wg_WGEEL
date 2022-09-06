@@ -438,13 +438,15 @@ Not relevant to GB.
 3 rows updated
 
 ## Annex 7
-
+14 new rows
+2 updated rows
 ## Annex 8
 
 
 
 ## Annex 10
 2 new rows added sampling info
+6 and 31 new group metrics
 -----------------------------------------------------------
 # IT
 -----------------------------------------------------------
