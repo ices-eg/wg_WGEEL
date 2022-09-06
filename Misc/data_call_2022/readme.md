@@ -445,6 +445,7 @@ Not relevant to GB.
 
 ## Annex 10
 2 new rows added sampling info
+6 and 31 new group metrics
 -----------------------------------------------------------
 # IT
 -----------------------------------------------------------
