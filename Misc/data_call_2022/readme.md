@@ -131,6 +131,8 @@
 
 
 ## Annex 10
+### notes
+* In the database there was a wron name for a series in sai_info (DE_Elbe_Eider should have been DE_Eide_Eider). This was changed in the database and also for the related group metrics the series was changed to DE_Eide_Eider. Accordingly, the spreadsheet, as provided by DE, was edited (i.e. the existing series info was changed accordingly and the existing group metrics was changed accordingly).
 
 -----------------------------------------------------------
 # DK
