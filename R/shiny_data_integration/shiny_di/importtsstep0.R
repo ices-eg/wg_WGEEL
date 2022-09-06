@@ -166,7 +166,9 @@ importtsstep0Server <- function(id, globaldata){
 				##################################################
 				# Events triggerred by step0_button (time series page)
 				###################################################
-				observeEvent(input$ts_check_file_button, shinyCatch({
+				observeEvent(input$ts_check_file_button, 
+						{
+						shinyCatch({
 									
 									##################################################
 									# clean up
@@ -256,7 +258,9 @@ importtsstep0Server <- function(id, globaldata){
 														)
 												)
 											})
-								}), ignoreInit = TRUE)
+								}) #shinyCatch								
+								remove_modal_spinner()	
+								}, ignoreInit = TRUE)
 				
 				
 				

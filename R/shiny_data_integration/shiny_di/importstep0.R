@@ -235,10 +235,11 @@ importstep0Server <- function(id,globaldata){
 																				filename = paste0("data_",Sys.Date()))) 
 														)            
 												)
-											})
-									
-								}
-						)}
+											})									
+								}						
+						)
+						remove_modal_spinner()	
+						}
 						, ignoreInit = TRUE) # end observeEvent
 				
 				return(rls)
