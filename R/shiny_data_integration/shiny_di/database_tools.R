@@ -2377,11 +2377,14 @@ write_new_individual_metrics <- function(path, type="series"){
 					dbExecute(conn,"drop table if exists indiv_metrics_tmp")
 					dbCommit(conn)
 				}           , warning = function(e) {	
+				  shinybusy::remove_modal_spinner() 
 					message <<- e		
 					dbRollback(conn)
 				}, error = function(e) {
 					message <<- e
 					dbRollback(conn)
+					shinybusy::remove_modal_spinner() 
+					
 				}, finally = {				
 				})	
 		if (is.null(message))  		message <-
