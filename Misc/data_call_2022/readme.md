@@ -96,17 +96,18 @@
 ### to do
 * need to provide ser_restocking etc. in series info
 
-### was done
+### done
 * modified 2 series (ser_methods)
 * integrated 11 values in dataseries (removed empty rows in templates)
 
 ## Annex 2
 
-###
+### done
 * integrated 1 new value (new dataseries)
 
 ## Annex 3
-
+### done
+* integrated 1 new value (new dataseries)
 
 ## Annex 4
 
