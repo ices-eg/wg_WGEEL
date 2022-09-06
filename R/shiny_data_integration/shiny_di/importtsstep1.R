@@ -793,7 +793,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 														           rownames=FALSE,
 														           extensions = "Buttons",
 														           option=list(
-														             scroller = TRUE,
+														             # scroller = TRUE,
 														             scrollX = TRUE,
 														             scrollY = TRUE,
 														            order=list(3,"asc"),
