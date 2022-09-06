@@ -93,12 +93,21 @@
 # DE
 -----------------------------------------------------------
 ## Annex 1
+### to do
+* need to provide ser_restocking etc. in series info
 
+### done
+* modified 2 series (ser_methods)
+* integrated 11 values in dataseries (removed empty rows in templates)
 
 ## Annex 2
 
-## Annex 3
+### done
+* integrated 1 new value (new dataseries)
 
+## Annex 3
+### done
+* integrated 1 new value (new dataseries)
 
 ## Annex 4
 
@@ -401,14 +410,15 @@ Croatia do we have anything ?
 
 
 ## Annex 4
-
-
+72 new rows added
 
 ## Annex 5
-
+72 new rows added
+540 rows updated
 
 ## Annex 6
-
+14 new rows added
+3 rows updated
 
 ## Annex 7
 
@@ -748,30 +758,23 @@ Croatia do we have anything ?
 -----------------------------------------------------------
  
 ## Annex 1
-
-
+No data
 ## Annex 2
-
+No data
 ## Annex 3
-
-
+No data
 ## Annex 4
-
-
-
+Two new data integrated for commercial landings
+One new data integrated for recreational landings
 ## Annex 5
-
-
+No data
 ## Annex 6
-
-
+No data
 ## Annex 7
-
+No data
 ## Annex 8
-
-
-
+No data
 ## Annex 10
-
+No data
  
 
