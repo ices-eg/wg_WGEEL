@@ -723,7 +723,7 @@ load_release<-function(path,datasource){
 
 # path <- file.choose()
 load_aquaculture<-function(path,datasource){
-	shinybusy::show_modal_spinner(text = "load biomass")
+	#shinybusy::show_modal_spinner(text = "load aquaculture")
 	data_error <- data.frame(nline = NULL, error_message = NULL)
 	the_metadata<-list()
 	dir<-dirname(path)
