@@ -790,21 +790,23 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 											output$dt_modified_dataseries <-DT::renderDataTable({
 														validate(need(globaldata$connectOK,"No connection"))
 														datatable(list_comp_updateddataseries$modified,
-																rownames=FALSE,
-																extensions = "Buttons",
-																option=list(
-																		scroller = TRUE,
-																		scrollX = TRUE,
-																		scrollY = TRUE,
-																		order=list(3,"asc"),
-																		lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
-																		"pagelength"=-1,
-																		dom= "Blfrtip",
-																		scrollX = T,
-																		buttons=list(
-																				list(extend="excel",
+														           rownames=FALSE,
+														           extensions = "Buttons",
+														           option=list(
+														             scroller = TRUE,
+														             scrollX = TRUE,
+														             scrollY = TRUE,
+														            order=list(3,"asc"),
+														            lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
+														            "pagelength"=-1,
+														            dom= "Blfrtip",
+														            autoWidth = TRUE,
+														            columnDefs = list(list(width = '200px', targets = c(4, 8))),
+														            buttons=list(
+														              list(extend="excel",
 																						filename = paste0("modified_dataseries_",loaded_data_ts$file_type,"_",Sys.Date(),"_",current_cou_code)))
-																))
+														 		)
+																)
 													})
 											
 											# Data are coming for either updated or new series, they are checked and
