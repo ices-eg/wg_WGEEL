@@ -315,17 +315,21 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 													sheetorigin="updated_data")
 											# to avoid binding column type error
 											if (nrow(new_data)>0){
-												if (nrow(list_comp_updateddataseries$new)>0) {
+												if (nrow(list_comp_updateddataseries$new)>0 & nrow(list_comp_dataseries$new)>0) {
 													list_comp_dataseries$new <- bind_rows(list_comp_dataseries$new,	list_comp_updateddataseries$new)
+												} else  if (nrow(list_comp_dataseries$new)==0)  {
+												  list_comp_dataseries$new <- list_comp_updateddataseries$new
 												}
-												if (nrow(list_comp_dataseries$modified)>0) {
+												if (nrow(list_comp_updateddataseries$modified)>0 & nrow(list_comp_dataseries$modified)>0) {
 													list_comp_dataseries$modified <- bind_rows(list_comp_dataseries$modified,list_comp_updateddataseries$modified)
+												}  else  if (nrow(list_comp_dataseries$modified)==0)  {
+												  list_comp_dataseries$modified <- list_comp_updateddataseries$modified
 												}
-												if (nrow(list_comp_dataseries$highlight_change)>0){
+												if (nrow(list_comp_dataseries$highlight_change)>0 & nrow(list_comp_updateddataseries$highlight_change)>0){
 													list_comp_dataseries$highlight_change <- bind_rows(list_comp_dataseries$highlight_change,
 															list_comp_updateddataseries$highlight_change)
-												} else{
-													list_comp_dataseries$highlight_change <- list_comp_updateddataseries$highlight_change
+												} else if (nrow(list_comp_dataseries$highlight_change) == 0){
+													  list_comp_dataseries$highlight_change <- list_comp_updateddataseries$highlight_change
 												}
 												# note highlight change is not passed from one list to the other, both will be shown
 											} else {
