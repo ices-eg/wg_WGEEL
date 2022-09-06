@@ -93,7 +93,12 @@
 # DE
 -----------------------------------------------------------
 ## Annex 1
+### to do
+* need to provide ser_restocking etc. in series info
 
+### was done
+* modified 2 series (ser_methods)
+* integrated 11 values in dataseries (removed empty rows in templates)
 
 ## Annex 2
 
