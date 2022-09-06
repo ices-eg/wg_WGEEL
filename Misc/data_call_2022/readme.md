@@ -401,6 +401,7 @@ Croatia do we have anything ?
 
 
 ## Annex 7
+72 new values inserted in the database
 
 ## Annex 8
 Not relevant to GB.
