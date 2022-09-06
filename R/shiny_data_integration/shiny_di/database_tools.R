@@ -2385,7 +2385,7 @@ write_new_individual_metrics <- function(path, type="series"){
 				}, finally = {				
 				})	
 		if (is.null(message))  		message <-
-					sprintf(" %s and %s new values inserted in the group and metric tables", 
+					sprintf(" %s and %s new values inserted in the fish and metric tables", 
 							nr0, 
 							nr1) 
 		if (!is.null(message0)) message <- paste(message, message0)
