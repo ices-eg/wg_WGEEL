@@ -416,7 +416,8 @@ Croatia do we have anything ?
 540 rows updated
 
 ## Annex 6
-
+14 new rows added
+3 rows updated
 
 ## Annex 7
 
