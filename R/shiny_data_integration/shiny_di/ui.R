@@ -43,7 +43,7 @@ ui <- fluidPage(spsDepend("toastr"),
 												bgcolor = "#122c3c",
 												titlecolor = "white", 
 												contentcolor = "#3c8dbc"),
-								menuItem("Import dcf",tabName= "Importdcfmodule", icon= icon("upload"))%>%
+								menuItem("Import sampling",tabName= "Importdcfmodule", icon= icon("upload"))%>%
 										spsComps::bsPopover(
 												title= "DCF data", 
 												content = "Annex 10",
