@@ -988,6 +988,32 @@ update datawg.t_samplinginfo_sai set sai_name='DE_Eide_Eider_HIST' where sai_nam
 
 -- 01/09/2022 Execution of script till here on wgeel distant database
 
+begin;
+
+--Ireland
+
+
+--72 rows deleted
+update datawg.t_metricgroupsamp_megsa set meg_qal_id =22 where meg_gr_id in (2195,2196,2197,2198,2199,2201,2202,2203,2204,2205,2206,2207,2208,2209,2210,2212,2213,2214,2215,2216,2217,2218,2219,2220,2221,2260,2261);
+--27 rows updated
+update datawg.t_groupsamp_grsa set gr_comment ='all related metrics have qal_id=22 following data call 2022' where gr_id in (2195,2196,2197,2198,2199,2201,2202,2203,2204,2205,2206,2207,2208,2209,2210,2212,2213,2214,2215,2216,2217,2218,2219,2220,2221,2260,2261);
+
+--GB
+--48 rows deleted
+update datawg.t_metricgroupsamp_megsa set meg_qal_id =22 where meg_gr_id in (2176,2177,2179,2180,2181,2182,2183,2169,2170,2171,2172,2173,2174,2175,2184,2185,2186,2187,2188,2190,2191,2192,2193,2194);
+--24 rows updated
+update datawg.t_groupsamp_grsa set gr_comment ='all related metrics have qal_id=22 following data call 2022' where gr_id in (2176,2177,2179,2180,2181,2182,2183,2169,2170,2171,2172,2173,2174,2175,2184,2185,2186,2187,2188,2190,2191,2192,2193,2194);
+
+
+--DE
+--34 rows deleted
+update datawg.t_metricgroupsamp_megsa set meg_qal_id =22 where meg_gr_id in (2323,2334,2167,2222,2189,2200,2211,2178,2233,2244);
+--10 rows updated
+update datawg.t_groupsamp_grsa set gr_comment ='all related metrics have qal_id=22 following data call 2022' where gr_id in (2323,2334,2167,2222,2189,2200,2211,2178,2233,2244);
+
+commit;
+-- 06/09/2022 Execution of script till here on wgeel distant database
+
 CREATE OR REPLACE FUNCTION datawg.fi_year()
  RETURNS trigger
  LANGUAGE plpgsql
