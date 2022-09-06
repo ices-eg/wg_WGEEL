@@ -382,14 +382,17 @@ Croatia do we have anything ?
 
 ## Annex 4
 305 new values inserted in the database
+
 103 values updated in the db
 
 ## Annex 5
 168 new values inserted in the database
+
 108 values updated in the db
 
 ## Annex 6
 5 new values inserted in the database
+
 1 values updated in the db
 
 
