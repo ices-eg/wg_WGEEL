@@ -110,16 +110,20 @@
 * integrated 1 new value (new dataseries)
 
 ## Annex 4
-
+### to do
+* not integrated (no data) but there is an update to metadata since one of the data providers has changed. Not sure how to do approach this...
 
 
 ## Annex 5
-
+### to do
+* not integrated (no data) but there is an update to metadata since one of the data providers has changed. Not sure how to do approach this...
 
 ## Annex 6
-
+* not provided by DE / empty sheet. Nothing to report from Germany, so this should be fine.
 
 ## Annex 7
+### to do
+* not integrated (no data) but there is an update to metadata since one of the data providers has changed. Not sure how to do approach this...
 
 ## Annex 8
 
@@ -380,19 +384,25 @@ Croatia do we have anything ?
 
 
 ## Annex 4
+305 new values inserted in the database
 
-
+103 values updated in the db
 
 ## Annex 5
+168 new values inserted in the database
 
+108 values updated in the db
 
 ## Annex 6
+5 new values inserted in the database
+
+1 values updated in the db
 
 
 ## Annex 7
 
 ## Annex 8
-
+Not relevant to GB.
 
 
 ## Annex 10
@@ -671,6 +681,15 @@ Croatia do we have anything ?
 
 
 ## Annex 2
+New dataseries: 2 new values inserted in the database (new years)
+
+Modified dataseries: 75 values updated in the db (effort data added and corrected CPUE data)
+
+New group metrics NOT INTEGRATED YET. Got the following error message:
+Error: Failed to fetch row: ERROR:  duplicate key value violates unique constraint "c_ck_uk_grser_gr"
+DETAIL:  Key (grser_ser_id, gr_year)=(367, 2012) already exists.
+
+New individual metrics: 1253 and 7416 new values inserted in the group and metric tables
 
 ## Annex 3
 
