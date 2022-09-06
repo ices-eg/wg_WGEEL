@@ -2741,7 +2741,7 @@ load_dcf<-function(path,datasource){
 					"sai_lastupdate","sai_dts_datasource"),
 			file= file,
 			sheet="sampling_info",
-			nbcol=13)
+			nbcol=12)
 	
 	country <- "unknown"
 	if (nrow(sampling_info)>0) {
