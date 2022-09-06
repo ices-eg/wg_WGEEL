@@ -749,18 +749,18 @@ compare_with_database_metric_group <- function(data_from_excel,
 			drop_na(meg_value) %>% 
 			left_join(tr_metrictype_mty %>% select(mty_name,mty_id), by="mty_name") %>%
 			rename(meg_mty_id=mty_id)
-	
+	#browser()
 	duplicates <- data_from_base_wide %>% 	
 			dplyr::inner_join(
 					data_from_excel, 
-					by = c(ifelse(type=="series","grser_ser_id","sai_name"), "gr_id","gr_year"), 
+					by = c(ifelse(type=="series","ser_nameshort","sai_name"), "gr_id","gr_year"), 
 					suffix = c(".base", ".xls"))
 	
 	
 	# Anti join only keeps columns from X
 	if (sheetorigin == "new_group_metrics"){
 		new <-  dplyr::anti_join(data_from_excel_long, data_from_base, 
-				by = c(ifelse(type=="series","grser_ser_id","sai_name"), "gr_year","meg_mty_id"))
+				by = c(ifelse(type=="series","ser_nameshort","sai_name"), "gr_year","meg_mty_id"))
 	} else {
 		new <-  dplyr::anti_join(data_from_excel_long, data_from_base, 
 				by = "gr_id")

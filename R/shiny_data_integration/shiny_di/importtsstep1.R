@@ -245,7 +245,8 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 													t_fishseries_fiser <-  t_fishseries_fiser %>% filter (fiser_ser_id %in% t_series_ser$ser_id)
 													t_metricgroupseries_megser <- t_metricgroupseries_megser%>% 
 															inner_join(t_groupseries_grser, by = c("meg_gr_id" = "gr_id") ) %>%
-															filter (grser_ser_id %in% t_series_ser$ser_id) %>% rename("gr_id"="meg_gr_id")			
+															filter (grser_ser_id %in% t_series_ser$ser_id) %>% rename("gr_id"="meg_gr_id")	%>%
+															inner_join(t_series_ser %>% select(ser_nameshort, ser_id), by=c("grser_ser_id"="ser_id")) 
 													t_metricindseries_meiser <- t_metricindseries_meiser%>%
 															inner_join(t_fishseries_fiser, by = c("mei_fi_id" = "fi_id") ) %>%
 															inner_join(t_series_ser %>% select(ser_nameshort, ser_id), by=c("fiser_ser_id"="ser_id")) %>% 
@@ -259,7 +260,8 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 													t_fishseries_fiser <-  t_fishseries_fiser %>% filter (fiser_ser_id %in% t_series_ser$ser_id)
 													t_metricgroupseries_megser <- t_metricgroupseries_megser%>% 
 															inner_join(t_groupseries_grser, by = c("meg_gr_id" = "gr_id") ) %>%
-															filter (grser_ser_id %in% t_series_ser$ser_id) %>% rename("gr_id"="meg_gr_id")			
+															filter (grser_ser_id %in% t_series_ser$ser_id) %>% rename("gr_id"="meg_gr_id") %>%
+															inner_join(t_series_ser %>% select(ser_nameshort, ser_id), by=c("grser_ser_id"="ser_id")) 			
 													t_metricindseries_meiser <- t_metricindseries_meiser%>%
 															inner_join(t_fishseries_fiser, by = c("mei_fi_id" = "fi_id") ) %>%
 															inner_join(t_series_ser %>% select(ser_nameshort, ser_id), by=c("fiser_ser_id"="ser_id")) %>% 
@@ -274,7 +276,8 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 													t_fishseries_fiser <-  t_fishseries_fiser %>% filter (fiser_ser_id %in% t_series_ser$ser_id)
 													t_metricgroupseries_megser <- t_metricgroupseries_megser%>% 
 															inner_join(t_groupseries_grser, by = c("meg_gr_id" = "gr_id") ) %>%
-															filter (grser_ser_id %in% t_series_ser$ser_id) %>% rename("gr_id"="meg_gr_id")			
+															filter (grser_ser_id %in% t_series_ser$ser_id) %>% rename("gr_id"="meg_gr_id")	 %>%
+															inner_join(t_series_ser %>% select(ser_nameshort, ser_id), by=c("grser_ser_id"="ser_id")) 		
 													t_metricindseries_meiser <- t_metricindseries_meiser%>%
 															inner_join(t_fishseries_fiser, by = c("mei_fi_id" = "fi_id") ) %>%
 															inner_join(t_series_ser %>% select(ser_nameshort, ser_id), by=c("fiser_ser_id"="ser_id")) %>% 
@@ -290,7 +293,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 										# the second new contains a dataframe to be inserted straight into
 										# the database
 										#cat("step0")
-										
+								
 										if (nrow(series)>0){
 											list_comp_series <- compare_with_database_series(data_from_excel=series, data_from_base=t_series_ser)
 										}
@@ -346,7 +349,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 										}  else {
 											list_comp_group_metrics <- list(new=data.frame())
 										}
-										
+										#browser()
 										if (nrow(updated_group_metrics)>0){
 											list_comp_updated_group_metrics <- compare_with_database_metric_group(
 													data_from_excel=updated_group_metrics,
