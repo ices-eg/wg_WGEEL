@@ -716,7 +716,6 @@ compare_with_database_metric_group <- function(data_from_excel,
 		data_from_base, 
 		sheetorigin=c("new_group_metrics","updated_group_metrics","deleted_group_metrics"),
 		type="series") {
-	
 	# data integrity checks
 	if (!sheetorigin %in% c("new_group_metrics", "updated_group_metrics", "deleted_group_metrics")) stop ("sheetorigin should be one of
 						new_group_metrics, updated_group_metrics, deleted_group_metrics")
@@ -1734,6 +1733,8 @@ write_new_sampling <- function(path) {
 	message <- NULL
 	(nr <- tryCatch({
 							dbExecute(conn, query)
+	  query <- "SELECT * FROM datawg.t_samplinginfo_sai"
+	  t_samplinginfo_sai <<- dbGetQuery(conn, sqlInterpolate(ANSI(), query))
 						}, error = function(e) {
 							message <<- e
 						}, finally = {
