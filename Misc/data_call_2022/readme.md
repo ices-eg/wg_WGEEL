@@ -438,7 +438,8 @@ Not relevant to GB.
 3 rows updated
 
 ## Annex 7
-
+14 new rows
+2 updated rows
 ## Annex 8
 
 
