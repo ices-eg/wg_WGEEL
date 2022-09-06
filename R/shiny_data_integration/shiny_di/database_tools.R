@@ -2122,7 +2122,7 @@ write_new_group_metrics <- function(path, type="series") {
 		metric_table <- ifelse(type=="series","t_metricgroupseries_megser","t_metricgroupsamp_megsa")	
 		newgroups <- new %>%
 				filter(is.na(gr_id)) %>% #nor group nor metrics already  exist 
-				select(any_of(c("gr_year",gr_add,
+				select(any_of(c("gr_year","grsa_lfs_code",
 										"gr_number","gr_comment","gr_dts_datasource",gr_key,"id"))) %>%
 				distinct()
 		oldgroups <- new %>%
@@ -2136,7 +2136,6 @@ write_new_group_metrics <- function(path, type="series") {
 			message0 <-NULL
 		}
 		#dbGetQuery(conn, "DELETE FROM datawg.t_groupseries_grser")
-		
 		nr <- tryCatch({
 					dbBegin(conn)
 					dbWriteTable(conn,"group_tmp",newgroups,row.names=FALSE,temporary=TRUE)
