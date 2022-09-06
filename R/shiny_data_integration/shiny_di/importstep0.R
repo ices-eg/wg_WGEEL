@@ -238,7 +238,9 @@ importstep0Server <- function(id,globaldata){
 											})
 									
 								}
-						)}
+						)
+				  shinybusy::remove_modal_spinner()
+				  }
 						, ignoreInit = TRUE) # end observeEvent
 				
 				return(rls)
