@@ -681,6 +681,15 @@ Not relevant to GB.
 
 
 ## Annex 2
+New dataseries: 2 new values inserted in the database (new years)
+
+Modified dataseries: 75 values updated in the db (effort data added and corrected CPUE data)
+
+New group metrics NOT INTEGRATED YET. Got the following error message:
+Error: Failed to fetch row: ERROR:  duplicate key value violates unique constraint "c_ck_uk_grser_gr"
+DETAIL:  Key (grser_ser_id, gr_year)=(367, 2012) already exists.
+
+New individual metrics: 1253 and 7416 new values inserted in the group and metric tables
 
 ## Annex 3
 
