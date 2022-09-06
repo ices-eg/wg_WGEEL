@@ -3000,7 +3000,7 @@ load_dcf<-function(path,datasource){
 			data_xls$meg_dts_datasource <- datasource
 		}
 		if (grepl("individual", sheet)) {
-			data_xls$gr_dts_datasource <- datasource
+			data_xls$fi_dts_datasource <- datasource
 			data_xls$mei_dts_datasource <- datasource
 		}
 		
