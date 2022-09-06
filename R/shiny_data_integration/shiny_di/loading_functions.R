@@ -354,9 +354,9 @@ load_release<-function(path,datasource){
 				if (ncol(data_xls)!=ifelse(sheet =="new_data",11,11)) {
 					cat(str_c("number of column wrong should have been ",ifelse(sheet=="new_data",10,11)," in the file for ",country,"\n"))
 					data_error <- rbind(data_error, data.frame("nline"=0,"error_message"=str_c("number of column wrong should have been ",
-											ifelse(sheet=="new_data",11,11)," in the file for ",country,"\n")))
+											ifelse(sheet=="new_data",13,11)," in the file for ",country,"\n")))
 					stop(str_c("number of column wrong should have been ",
-									ifelse(sheet=="new_data",11,11)," in the file for ",country, " ", sheet,"\n"))
+									ifelse(sheet=="new_data",13,11)," in the file for ",country, " ", sheet,"\n"))
 					
 				} else {
 					
