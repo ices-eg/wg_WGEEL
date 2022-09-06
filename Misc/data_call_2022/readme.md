@@ -126,7 +126,8 @@
 * not integrated (no data) but there is an update to metadata since one of the data providers has changed. Not sure how to do approach this...
 
 ## Annex 8
-
+### to do
+* not integrated due to a bug being stuck in the loading screen (added to issues); but needs to be integrated, DE provided an update to data!
 
 
 ## Annex 10
@@ -400,6 +401,7 @@ Croatia do we have anything ?
 
 
 ## Annex 7
+72 new values inserted in the database
 
 ## Annex 8
 Not relevant to GB.
@@ -767,8 +769,6 @@ New individual metrics: 1253 and 7416 new values inserted in the group and metri
 ## Annex 7
 
 ## Annex 8
-
-
 
 ## Annex 10
 
