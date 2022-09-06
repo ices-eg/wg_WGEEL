@@ -93,27 +93,41 @@
 # DE
 -----------------------------------------------------------
 ## Annex 1
+### to do
+* need to provide ser_restocking etc. in series info
 
+### done
+* modified 2 series (ser_methods)
+* integrated 11 values in dataseries (removed empty rows in templates)
 
 ## Annex 2
 
-## Annex 3
+### done
+* integrated 1 new value (new dataseries)
 
+## Annex 3
+### done
+* integrated 1 new value (new dataseries)
 
 ## Annex 4
-
+### to do
+* not integrated (no data) but there is an update to metadata since one of the data providers has changed. Not sure how to do approach this...
 
 
 ## Annex 5
-
+### to do
+* not integrated (no data) but there is an update to metadata since one of the data providers has changed. Not sure how to do approach this...
 
 ## Annex 6
-
+* not provided by DE / empty sheet. Nothing to report from Germany, so this should be fine.
 
 ## Annex 7
+### to do
+* not integrated (no data) but there is an update to metadata since one of the data providers has changed. Not sure how to do approach this...
 
 ## Annex 8
-
+### to do
+* not integrated due to a bug being stuck in the loading screen (added to issues); but needs to be integrated, DE provided an update to data!
 
 
 ## Annex 10
@@ -371,19 +385,26 @@ Croatia do we have anything ?
 
 
 ## Annex 4
+305 new values inserted in the database
 
-
+103 values updated in the db
 
 ## Annex 5
+168 new values inserted in the database
 
+108 values updated in the db
 
 ## Annex 6
+5 new values inserted in the database
+
+1 values updated in the db
 
 
 ## Annex 7
+72 new values inserted in the database
 
 ## Annex 8
-
+Not relevant to GB.
 
 
 ## Annex 10
@@ -401,14 +422,15 @@ Croatia do we have anything ?
 
 
 ## Annex 4
-
-
+72 new rows added
 
 ## Annex 5
-
+72 new rows added
+540 rows updated
 
 ## Annex 6
-
+14 new rows added
+3 rows updated
 
 ## Annex 7
 
@@ -661,6 +683,15 @@ Croatia do we have anything ?
 
 
 ## Annex 2
+New dataseries: 2 new values inserted in the database (new years)
+
+Modified dataseries: 75 values updated in the db (effort data added and corrected CPUE data)
+
+New group metrics NOT INTEGRATED YET. Got the following error message:
+Error: Failed to fetch row: ERROR:  duplicate key value violates unique constraint "c_ck_uk_grser_gr"
+DETAIL:  Key (grser_ser_id, gr_year)=(367, 2012) already exists.
+
+New individual metrics: 1253 and 7416 new values inserted in the group and metric tables
 
 ## Annex 3
 
@@ -746,30 +777,23 @@ Croatia do we have anything ?
 -----------------------------------------------------------
  
 ## Annex 1
-
-
+No data
 ## Annex 2
-
+No data
 ## Annex 3
-
-
+No data
 ## Annex 4
-
-
-
+Two new data integrated for commercial landings
+One new data integrated for recreational landings
 ## Annex 5
-
-
+No data
 ## Annex 6
-
-
+No data
 ## Annex 7
-
+No data
 ## Annex 8
-
-
-
+No data
 ## Annex 10
-
+No data
  
 
