@@ -720,7 +720,7 @@ Issue with integrating individual data
 # PT
 -----------------------------------------------------------
  ## Annex 1
-### Portugal
+### done
 * 1 updated series (modified series)
 * 3 new values inserted in the database (new dataseries)
 * updated two values (new dataseries)
