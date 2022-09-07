@@ -33,31 +33,41 @@
 -----------------------------------------------------------
 
 ## Annex 1
-
+### done
+* 4 values updated (modified series)
+* 81 values integrated (new dataseries)
+* 1 and 2 new values integrated (new group metrics)
 
 ## Annex 2
+no data
 
 ## Annex 3
-
+no data
 
 ## Annex 4
-
-
+no data
 
 ## Annex 5
-
+ ### done
+ * replaced two values (duplicates)
+ * 1 new value integrated (new rows)
 
 ## Annex 6
-
+no data
 
 ## Annex 7
+### notes
+* there was a window with duplicates but there were none and the created excel file was empty (in the shiny in eel_missvalueequal.base it says "No data available in table")
+
+### done
+* 4 new values inserted (new rows)
 
 ## Annex 8
-
+no data
 
 
 ## Annex 10
-
+no data
 -----------------------------------------------------------
 # CZ
 -----------------------------------------------------------
@@ -145,7 +155,9 @@
 # DK
 -----------------------------------------------------------
 ## Annex 1
-
+7 series modified
+In new dataseries: Error: Failed to fetch row: ERROR:  duplicate key value violates unique constraint "c_uk_year_ser_id"
+DETAIL:  Key (das_year, das_ser_id)=(2016, 39) already exists.
 
 ## Annex 2
 
@@ -400,31 +412,35 @@ on error
 # GR
 -----------------------------------------------------------
 ## Annex 1
-
-
+--
 ## Annex 2
-
+1 update modified series (Step 2.1.2) and 11 new dataseries (Step 2.2.2)
 ## Annex 3
-
-
+31 new values in new data series
+3 values in uptaded modified series
+1 and 10 values integrate new group metrics
 ## Annex 4
 
+32 new values was added.
 
+Error: Failed to prepare query: ERROR:  column "eel_value" does not exist
+LINE 17:       eel_value,
+               ^
+HINT:  There is a column named "eel_value" in table "t_eelstock_eel", but it cannot be referenced from this part of the query.
 
 ## Annex 5
-
+--
 
 ## Annex 6
-
+--
 
 ## Annex 7
-
+8 new values was added
 ## Annex 8
-
-
+1new value was added
 
 ## Annex 10
-
+--
 -----------------------------------------------------------
 # HR
 -----------------------------------------------------------
@@ -514,31 +530,37 @@ Issue with integrating individual data
 -----------------------------------------------------------
 
 ## Annex 1
-
+No new data
 
 ## Annex 2
+No new data
 
 ## Annex 3
-
+No new data
 
 ## Annex 4
-
-
+### done
+* new data inserted 28 rows
+### TODO
+* duplicates error, needs to be reprogrammed
 
 ## Annex 5
-
-
+### done
+* new data inserted 2 rows
+* * some of the new rows are recognized as duplicates (probably NR yet)
+### TODO
+* duplicates error, needs to be reprogrammed
 ## Annex 6
-
-
+No data
 ## Annex 7
-
+### TODO
+2 rows
 ## Annex 8
-
-
-
+### Done
+2 rows
 ## Annex 10
-
+### TODO
+Shiny delete the old data
 
 
 -----------------------------------------------------------
@@ -662,31 +684,31 @@ Issue with integrating individual data
 # NO (Norway) 
 -----------------------------------------------------------
 ## Annex 1
-
+It is done
 
 ## Annex 2
-
+It is done
 ## Annex 3
 
-
+It is done
 ## Annex 4
 
-
+It is done
 
 ## Annex 5
 
-
+No data
 ## Annex 6
 
-
+No data
 ## Annex 7
-
+No data
 ## Annex 8
-
+No data
 
 
 ## Annex 10
-
+No data
 ----------------------------------------------------------- 
 # PL 
 -----------------------------------------------------------
@@ -720,20 +742,43 @@ Issue with integrating individual data
 # PT
 -----------------------------------------------------------
  ## Annex 1
-### Portugal
+### done
 * 1 updated series (modified series)
 * 3 new values inserted in the database (new dataseries)
 * updated two values (new dataseries)
 * 5826 and 11652 new values inserted in the fish and metric tables (new individual metrics)
-
-### to do
-* integrate new grouped metrics (there was an error that is to be fixed)
+* 2 and 6 values inserted (new group metrics)
 
 
 ## Annex 2
 
-## Annex 3
+### done
+* 2 values integrated (new dataseries)
+* 2 and 4 new values integrated (new group metrics)
+* 437 and 2413 values integrated (new individual metrics)
 
+### to do
+* integrate modified group metrics (update group metrics): Error: Anenex 2could not find function "update_group_metrics"
+* integrate deleted group metrics. It caused an error: Anex 2 -Failed to prepare query: ERROR:  invalid input syntax for type integer: ""
+LINE 1: ...ELECT ser_cou_code FROM datawg.t_series_ser WHERE ser_id='';
+
+
+## Annex 3
+### notes
+pressed proceed for "delete dataseries" but no file was browsed, still said 2 values deleted...
+
+### done
+* 2 values updated (modified series)
+* 2 new values (new dataseries)
+* 2 and 10 new values (new group metrics) - pressed proceed twice, second caused error
+* 147 and 902 new values integrated (new individual metrics)
+
+### to do
+* integrate "delete group metrics": delete group metrics caused an error when proceeding: Failed to prepare query: ERROR:  invalid input syntax for type integer: ""
+LINE 1: ...ELECT ser_cou_code FROM datawg.t_series_ser WHERE ser_id='';
+
+* integrate modified group metrics: integration caused an errror: Failed to prepare query: ERROR:  invalid input syntax for type integer: ""
+LINE 1: ...ELECT ser_cou_code FROM datawg.t_series_ser WHERE ser_id='';
 
 ## Annex 4
 
@@ -757,7 +802,13 @@ Issue with integrating individual data
 # SE
 -----------------------------------------------------------
 ## Annex 1
+Modified series: 1 value updated in the db
 
+New dataseries: 9 values inserted in the db
+
+Modified dataseries: 620 values updated in the db (added a quality id)
+
+New group metrics: 4 and 4 new values inserted in the group and metric tables
 
 ## Annex 2
 New dataseries: 2 new values inserted in the database (new years)
@@ -778,12 +829,13 @@ Integrate new rows: Uploaded 36 new rows
 
 
 ## Annex 6
-
+New rows: 4 new values inserted in the database
 
 ## Annex 7
+New rows: 8 new values in the database
 
 ## Annex 8
-
+New rows: 1 new values inserted in the database
 
 
 ## Annex 10
