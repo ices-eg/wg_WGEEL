@@ -725,16 +725,28 @@ Issue with integrating individual data
 * 3 new values inserted in the database (new dataseries)
 * updated two values (new dataseries)
 * 5826 and 11652 new values inserted in the fish and metric tables (new individual metrics)
-
-### to do
-* integrate new grouped metrics (there was an error that is to be fixed)
+* 2 and 6 values inserted (new group metrics)
 
 
 ## Annex 2
-* 
+
 
 ## Annex 3
+### notes
+pressed proceed for "delete dataseries" but no file was browsed, still said 2 values deleted...
 
+### done
+* 2 values updated (modified series)
+* 2 new values (new dataseries)
+* 2 and 10 new values (new group metrics) - pressed proceed twice, second caused error
+* 147 and 902 new values integrated (new individual metrics)
+
+### to do
+* integrate "delete group metrics": delete group metrics caused an error when proceeding: Failed to prepare query: ERROR:  invalid input syntax for type integer: ""
+LINE 1: ...ELECT ser_cou_code FROM datawg.t_series_ser WHERE ser_id='';
+
+* integrate modified group metrics: integration caused an errror: Failed to prepare query: ERROR:  invalid input syntax for type integer: ""
+LINE 1: ...ELECT ser_cou_code FROM datawg.t_series_ser WHERE ser_id='';
 
 ## Annex 4
 
@@ -784,7 +796,7 @@ Integrate new rows: Uploaded 36 new rows
 ## Annex 7
 
 ## Annex 8
-New rows: 1 new values inserted in the database
+
 
 
 ## Annex 10
