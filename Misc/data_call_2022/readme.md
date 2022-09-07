@@ -719,6 +719,14 @@ Issue with integrating individual data
 # PT
 -----------------------------------------------------------
  ## Annex 1
+### Portugal
+* 1 updated series (modified series)
+* 3 new values inserted in the database (new dataseries)
+* updated two values (new dataseries)
+* 5826 and 11652 new values inserted in the fish and metric tables (new individual metrics)
+
+### to do
+* integrate new grouped metrics (there was an error that is to be fixed)
 
 
 ## Annex 2
