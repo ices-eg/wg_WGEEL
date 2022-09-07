@@ -2099,7 +2099,6 @@ update_dataseries <- function(path) {
 #'  path <- file.choose()
 
 write_new_group_metrics <- function(path, type="series") {
-	
 	conn <- poolCheckout(pool)
 	on.exit(poolReturn(conn))
 	if (type == "series"){
@@ -2107,7 +2106,8 @@ write_new_group_metrics <- function(path, type="series") {
 	} else{
 		fk <- "grsa_sai_id"
 	}
-	new <- read_excel(path = path, sheet = 1, skip = 1)
+	new <- read_excel(path = path, sheet = 1, skip = 1) %>%
+	  mutate(gr_number=as.numeric(gr_number))
 	if (nrow(new) == 0){
 		message <- "nothing to import"
 		cou_code <- ""
