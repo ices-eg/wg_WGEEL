@@ -313,7 +313,8 @@ compare_with_database_series <- function(data_from_excel, data_from_base) {
 	
 	ser_colnames <- colnames(data_from_base)[grepl("ser", colnames(data_from_base))]
 	# avoid importing problems when line is null
-	data_from_excel <- data_from_excel %>% mutate_if(is.logical,list(as.numeric)) 
+	data_from_excel <- data_from_excel %>% mutate_if(is.logical,list(as.numeric))
+
 	data_from_excel$ser_typ_id <- as.numeric(data_from_excel$ser_typ_id)
 	data_from_excel$ser_sam_gear <- as.numeric(data_from_excel$ser_sam_gear)
 	data_from_excel$ser_restocking <- convert2boolean(data_from_excel$ser_restocking, "new series")
@@ -2270,7 +2271,6 @@ delete_group_metrics <- function(path, type="series"){
 # corresponding metrics for that fish
 # path <-file.choose()
 write_new_individual_metrics <- function(path, type="series"){
-	#browser()
 	conn <- poolCheckout(pool)
 	on.exit(poolReturn(conn))
 	if (type=="series"){
@@ -2281,9 +2281,11 @@ write_new_individual_metrics <- function(path, type="series"){
 	shinybusy::show_modal_spinner(text = "load data indiv metrics")
 	# if we write from DT there is an extra line to be removed test it there
 	test <- read_excel(path = path, sheet=1, range="A1:A1")	
-	if (names(test)=="ser_nameshort") skip=0 else skip=1
+	if (names(test) %in% c("ser_nameshort","sai_name")) skip=0 else skip=1
 	new <- read_excel(path = path, sheet=1, skip=skip)
 	shinybusy::remove_modal_spinner() 
+	if (all(is.na(new$fi_date)))
+	  new$fi_date <- as.Date(rep(NA,nrow(new)))
 	new <- new %>%
 			mutate(across(any_of(c("fisa_x_4326", "fisa_y_4326", "fi_year")),
 							~as.numeric(.x)))
@@ -2308,7 +2310,6 @@ write_new_individual_metrics <- function(path, type="series"){
 		}
 	} else{
 		ind_table <- ifelse(type=="series","t_fishseries_fiser","t_fishsamp_fisa")
-		if (type=="series") 
 			ind_key <- ifelse(type=="series","fiser_ser_id","fisa_sai_id")
 		metric_table <- ifelse(type=="series","t_metricindseries_meiser","t_metricindsamp_meisa")	
 		addcol0 <- ifelse(type=="series",
