@@ -780,7 +780,13 @@ LINE 1: ...ELECT ser_cou_code FROM datawg.t_series_ser WHERE ser_id='';
 # SE
 -----------------------------------------------------------
 ## Annex 1
+Modified series: 1 value updated in the db
 
+New dataseries: 9 values inserted in the db
+
+Modified dataseries: 620 values updated in the db (added a quality id)
+
+New group metrics: 4 and 4 new values inserted in the group and metric tables
 
 ## Annex 2
 New dataseries: 2 new values inserted in the database (new years)
