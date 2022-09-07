@@ -136,6 +136,7 @@
 
 ### to do
 * pre-filled series ending with "HIST" and related group metrics should be deleted. It's not clear to the data provider how these are generated and if they are reliable.
+* integrate individual metrics, there was a bug...
 
 ### done
 * group metrics: 137 and 1509 new values inserted in the group and metric tables
