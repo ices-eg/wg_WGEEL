@@ -33,7 +33,10 @@
 -----------------------------------------------------------
 
 ## Annex 1
-
+### done
+* 4 values updated (modified series)
+* 81 values integrated (new dataseries)
+* 1 and 2 new values integrated (new group metrics)
 
 ## Annex 2
 
@@ -154,11 +157,11 @@
 
 ## Annex 4
 
-552 new rows entered
+
 
 ## Annex 5
 
-682 new rows entered
+
 ## Annex 6
 
 
