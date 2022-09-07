@@ -417,7 +417,9 @@ on error
 
 ## Annex 3
 
-
+31 new values in new data series
+3 values in uptaded modified series
+1 and 10 values integrate new group metrics
 ## Annex 4
 
 
