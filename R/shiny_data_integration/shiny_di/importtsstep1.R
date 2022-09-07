@@ -1083,8 +1083,9 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 													})
 										}
 										
-										shinybusy::remove_modal_spinner()	
+										
 									}) # shinycatch
+									shinybusy::remove_modal_spinner()	
 						}, ignoreInit = TRUE)
 			}
 	

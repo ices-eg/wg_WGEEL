@@ -100,7 +100,9 @@ importstep2Server <- function(id,globaldata, loaded_data){
                  })})
                  
                  
-                 observeEvent(input$database_duplicates_button, tryCatch({ 
+                 observeEvent(input$database_duplicates_button, 
+										 
+										 tryCatch({ 
                    
                    ###########################
                    # step2_filepath

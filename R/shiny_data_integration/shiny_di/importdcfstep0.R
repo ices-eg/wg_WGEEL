@@ -229,8 +229,10 @@ importdcfstep0Server <- function(id,globaldata){
                                    )
                          )
                        })
-                     }								
-                   )}, ignoreInit = TRUE)
+                     } 										 
+                   )# shinycatch
+									 remove_modal_spinner()	
+									 }, ignoreInit = TRUE)
                  
                  
                  

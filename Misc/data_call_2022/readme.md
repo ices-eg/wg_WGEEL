@@ -136,6 +136,7 @@
 
 ### to do
 * pre-filled series ending with "HIST" and related group metrics should be deleted. It's not clear to the data provider how these are generated and if they are reliable.
+* integrate individual metrics, there was a bug...
 
 ### done
 * group metrics: 137 and 1509 new values inserted in the group and metric tables
@@ -719,6 +720,14 @@ Issue with integrating individual data
 # PT
 -----------------------------------------------------------
  ## Annex 1
+### Portugal
+* 1 updated series (modified series)
+* 3 new values inserted in the database (new dataseries)
+* updated two values (new dataseries)
+* 5826 and 11652 new values inserted in the fish and metric tables (new individual metrics)
+
+### to do
+* integrate new grouped metrics (there was an error that is to be fixed)
 
 
 ## Annex 2
@@ -755,9 +764,7 @@ New dataseries: 2 new values inserted in the database (new years)
 
 Modified dataseries: 75 values updated in the db (effort data added and corrected CPUE data)
 
-New group metrics NOT INTEGRATED YET. Got the following error message:
-Error: Failed to fetch row: ERROR:  duplicate key value violates unique constraint "c_ck_uk_grser_gr"
-DETAIL:  Key (grser_ser_id, gr_year)=(367, 2012) already exists.
+New group metrics: 83 and 83 new values inserted in the group and metric tables.
 
 New individual metrics: 1253 and 7416 new values inserted in the group and metric tables
 
@@ -765,8 +772,7 @@ New individual metrics: 1253 and 7416 new values inserted in the group and metri
 
 
 ## Annex 4
-
-
+Integrate new rows: Uploaded 36 new rows
 
 ## Annex 5
 

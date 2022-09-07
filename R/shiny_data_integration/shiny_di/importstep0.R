@@ -235,12 +235,11 @@ importstep0Server <- function(id,globaldata){
 																				filename = paste0("data_",Sys.Date()))) 
 														)            
 												)
-											})
-									
-								}
+											})									
+								}						
 						)
-				  shinybusy::remove_modal_spinner()
-				  }
+						remove_modal_spinner()	
+						}
 						, ignoreInit = TRUE) # end observeEvent
 				
 				return(rls)

@@ -128,5 +128,5 @@ current_year <- 2022
 #DATABASE CONNECTION INFO
 ##################################"
 port <- 5432
-host <- "localhost"#"192.168.0.100"
+host <- "localhost" #"185.135.126.250" #"localhost"#"192.168.0.100"
 userwgeel <-"wgeel"
