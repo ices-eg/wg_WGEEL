@@ -160,13 +160,13 @@
 
 
 ## Annex 5
-
+552 rows entered
 
 ## Annex 6
-
+682 rows entered
 
 ## Annex 7
-
+8 rows updated
 ## Annex 8
 
 
