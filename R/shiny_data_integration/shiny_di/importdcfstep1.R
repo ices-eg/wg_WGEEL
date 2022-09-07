@@ -614,7 +614,7 @@ importdcfstep1Server <- function(id,globaldata,loaded_data_dcf){
 																		scrollX = T,
 																		buttons=list(
 																				list(extend="excel",
-																						filename = paste0("modified_group_metrics_",loaded_data_cdf$file_type,"_",Sys.Date(),"_",current_cou_code)))
+																						filename = paste0("modified_group_metrics_",loaded_data_dcf$file_type,"_",Sys.Date(),"_",current_cou_code)))
 																))
 													})
 											
@@ -673,7 +673,7 @@ importdcfstep1Server <- function(id,globaldata,loaded_data_dcf){
 																		scrollX = T,
 																		buttons=list(
 																				list(extend="excel",
-																						filename = paste0("modified_individual_metrics_",loaded_data_cdf$file_type,"_",Sys.Date(),"_",current_cou_code)))
+																						filename = paste0("modified_individual_metrics_",loaded_data_dcf$file_type,"_",Sys.Date(),"_",current_cou_code)))
 																))
 													})
 											
@@ -729,7 +729,7 @@ importdcfstep1Server <- function(id,globaldata,loaded_data_dcf){
 																		scrollX = T,
 																		buttons=list(
 																				list(extend="excel",
-																						filename = paste0("deleted_group_metrics_",loaded_data_cdf$file_type,"_",Sys.Date(),"_",current_cou_code)))
+																						filename = paste0("deleted_group_metrics_",loaded_data_dcf$file_type,"_",Sys.Date(),"_",current_cou_code)))
 																))
 													})
 										}
@@ -772,7 +772,7 @@ importdcfstep1Server <- function(id,globaldata,loaded_data_dcf){
 																		scrollX = T,
 																		buttons=list(
 																				list(extend="excel",
-																						filename = paste0("deleted_individual_metrics_",loaded_data_cdf$file_type,"_",Sys.Date(),"_",current_cou_code)))
+																						filename = paste0("deleted_individual_metrics_",loaded_data_dcf$file_type,"_",Sys.Date(),"_",current_cou_code)))
 																))
 													})
 										}

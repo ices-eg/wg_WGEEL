@@ -136,6 +136,7 @@
 
 ### to do
 * pre-filled series ending with "HIST" and related group metrics should be deleted. It's not clear to the data provider how these are generated and if they are reliable.
+* integrate individual metrics, there was a bug...
 
 ### done
 * group metrics: 137 and 1509 new values inserted in the group and metric tables
@@ -153,7 +154,7 @@
 
 ## Annex 4
 
-
+552 new rows entered
 
 ## Annex 5
 
@@ -661,31 +662,31 @@ Issue with integrating individual data
 # NO (Norway) 
 -----------------------------------------------------------
 ## Annex 1
-
+It is done
 
 ## Annex 2
-
+It is done
 ## Annex 3
 
-
+It is done
 ## Annex 4
 
-
+It is done
 
 ## Annex 5
 
-
+No data
 ## Annex 6
 
-
+No data
 ## Annex 7
-
+No data
 ## Annex 8
-
+No data
 
 
 ## Annex 10
-
+No data
 ----------------------------------------------------------- 
 # PL 
 -----------------------------------------------------------
@@ -719,12 +720,43 @@ Issue with integrating individual data
 # PT
 -----------------------------------------------------------
  ## Annex 1
+### done
+* 1 updated series (modified series)
+* 3 new values inserted in the database (new dataseries)
+* updated two values (new dataseries)
+* 5826 and 11652 new values inserted in the fish and metric tables (new individual metrics)
+* 2 and 6 values inserted (new group metrics)
 
 
 ## Annex 2
 
-## Annex 3
+### done
+* 2 values integrated (new dataseries)
+* 2 and 4 new values integrated (new group metrics)
+* 437 and 2413 values integrated (new individual metrics)
 
+### to do
+* integrate modified group metrics (update group metrics): Error: Anenex 2could not find function "update_group_metrics"
+* integrate deleted group metrics. It caused an error: Anex 2 -Failed to prepare query: ERROR:  invalid input syntax for type integer: ""
+LINE 1: ...ELECT ser_cou_code FROM datawg.t_series_ser WHERE ser_id='';
+
+
+## Annex 3
+### notes
+pressed proceed for "delete dataseries" but no file was browsed, still said 2 values deleted...
+
+### done
+* 2 values updated (modified series)
+* 2 new values (new dataseries)
+* 2 and 10 new values (new group metrics) - pressed proceed twice, second caused error
+* 147 and 902 new values integrated (new individual metrics)
+
+### to do
+* integrate "delete group metrics": delete group metrics caused an error when proceeding: Failed to prepare query: ERROR:  invalid input syntax for type integer: ""
+LINE 1: ...ELECT ser_cou_code FROM datawg.t_series_ser WHERE ser_id='';
+
+* integrate modified group metrics: integration caused an errror: Failed to prepare query: ERROR:  invalid input syntax for type integer: ""
+LINE 1: ...ELECT ser_cou_code FROM datawg.t_series_ser WHERE ser_id='';
 
 ## Annex 4
 
@@ -748,7 +780,13 @@ Issue with integrating individual data
 # SE
 -----------------------------------------------------------
 ## Annex 1
+Modified series: 1 value updated in the db
 
+New dataseries: 9 values inserted in the db
+
+Modified dataseries: 620 values updated in the db (added a quality id)
+
+New group metrics: 4 and 4 new values inserted in the group and metric tables
 
 ## Annex 2
 New dataseries: 2 new values inserted in the database (new years)
@@ -769,12 +807,13 @@ Integrate new rows: Uploaded 36 new rows
 
 
 ## Annex 6
-
+New rows: 4 new values inserted in the database
 
 ## Annex 7
+New rows: 8 new values in the database
 
 ## Annex 8
-
+New rows: 1 new values inserted in the database
 
 
 ## Annex 10
