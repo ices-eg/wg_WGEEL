@@ -807,7 +807,7 @@ Integrate new rows: Uploaded 36 new rows
 
 
 ## Annex 6
-
+New rows: 4 new values inserted in the database
 
 ## Annex 7
 New rows: 8 new values in the database
