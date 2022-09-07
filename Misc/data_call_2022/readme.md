@@ -527,16 +527,19 @@ Issue with integrating individual data
 -----------------------------------------------------------
 
 ## Annex 1
-
+No new data
 
 ## Annex 2
+No new data
 
 ## Annex 3
-
+No new data
 
 ## Annex 4
-
-
+### done
+* new data inserted 28 rows
+### TODO
+* duplicates error, needs to be reprogrammed
 
 ## Annex 5
 
