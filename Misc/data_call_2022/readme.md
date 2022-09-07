@@ -731,6 +731,7 @@ Issue with integrating individual data
 
 
 ## Annex 2
+* 
 
 ## Annex 3
 
@@ -757,13 +758,7 @@ Issue with integrating individual data
 # SE
 -----------------------------------------------------------
 ## Annex 1
-Modified series: 1 value updated in the db
 
-New dataseries: 9 values inserted in the db
-
-Modified dataseries: 620 values updated in the db (added a quality id)
-
-New group metrics: 4 and 4 new values inserted in the group and metric tables
 
 ## Annex 2
 New dataseries: 2 new values inserted in the database (new years)
@@ -787,8 +782,6 @@ Integrate new rows: Uploaded 36 new rows
 
 
 ## Annex 7
-
-Integrate new rows: 8 new values in the database
 
 ## Annex 8
 
