@@ -730,6 +730,16 @@ Issue with integrating individual data
 
 ## Annex 2
 
+### done
+* 2 values integrated (new dataseries)
+* 2 and 4 new values integrated (new group metrics)
+* 437 and 2413 values integrated (new individual metrics)
+
+### to do
+* integrate modified group metrics (update group metrics): Error: Anenex 2could not find function "update_group_metrics"
+* integrate deleted group metrics. It caused an error: Anex 2 -Failed to prepare query: ERROR:  invalid input syntax for type integer: ""
+LINE 1: ...ELECT ser_cou_code FROM datawg.t_series_ser WHERE ser_id='';
+
 
 ## Annex 3
 ### notes
