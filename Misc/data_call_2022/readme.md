@@ -542,19 +542,22 @@ No new data
 * duplicates error, needs to be reprogrammed
 
 ## Annex 5
-
-
+### done
+* new data inserted 2 rows
+* * some of the new rows are recognized as duplicates (probably NR yet)
+### TODO
+* duplicates error, needs to be reprogrammed
 ## Annex 6
-
-
+No data
 ## Annex 7
-
+### TODO
+2 rows
 ## Annex 8
-
-
-
+### Done
+2 rows
 ## Annex 10
-
+### TODO
+Shiny delete the old data
 
 
 -----------------------------------------------------------
