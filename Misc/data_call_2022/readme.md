@@ -145,7 +145,7 @@ no data
 * In the database there was a wron name for a series in sai_info (DE_Elbe_Eider should have been DE_Eide_Eider). This was changed in the database and also for the related group metrics the series was changed to DE_Eide_Eider. Accordingly, the spreadsheet, as provided by DE, was edited (i.e. the existing series info was changed accordingly and the existing group metrics was changed accordingly).
 
 ### to do
-* pre-filled series ending with "HIST" and related group metrics should be deleted. It's not clear to the data provider how these are generated and if they are reliable.
+* DONE - pre-filled series ending with "HIST" and related group metrics should be deleted. It's not clear to the data provider how these are generated and if they are reliable.
 * integrate individual metrics, there was a bug...
 
 ### done
