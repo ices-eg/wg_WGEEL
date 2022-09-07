@@ -156,7 +156,8 @@ no data
 -----------------------------------------------------------
 ## Annex 1
 7 series modified
-
+In new dataseries: Error: Failed to fetch row: ERROR:  duplicate key value violates unique constraint "c_uk_year_ser_id"
+DETAIL:  Key (das_year, das_ser_id)=(2016, 39) already exists.
 
 ## Annex 2
 
