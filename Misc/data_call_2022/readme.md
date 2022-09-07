@@ -763,8 +763,7 @@ New individual metrics: 1253 and 7416 new values inserted in the group and metri
 
 
 ## Annex 4
-
-
+Integrate new rows: Uploaded 36 new rows
 
 ## Annex 5
 
