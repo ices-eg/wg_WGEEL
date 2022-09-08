@@ -1991,7 +1991,7 @@ delete_dataseries <- function(path) {
 
 	dbExecute(conn,"drop table if exists deleted_dataseries_temp ")
 	dbWriteTable(conn,"deleted_dataseries_temp",deleted_values_table, row.names=FALSE,temporary=TRUE)
-	if (which(!is.na(deleted_dataseries_temp$das_id)) == 0)
+	if (sum(!is.na(deleted_dataseries_temp$das_id)) == 0)
 	  stop("no values to be deleted")
 	query=paste("update datawg.t_dataseries_das set das_qal_id=",qualify_code ,"WHERE das_id IN 
 					(SELECT das_id FROM deleted_dataseries_temp) RETURNING das_id ")
@@ -2418,11 +2418,14 @@ delete_individual_metrics <- function(path, type="series"){
 	conn <- poolCheckout(pool)
 	on.exit(poolReturn(conn))
 	deleted <- read_excel(path = path, sheet = 1, skip = 1)
+	if (nrow(deleted) == 0)
+	  stop("nothing to be deleted")
 	ind_table <- ifelse(type=="series","t_fishseries_fiser","t_fishsamp_fisa")
 	dbWriteTable(conn,"ind_tmp",deleted,temporary=TRUE, overwrite=TRUE)
 	message <- NULL
 	#dbGetQuery(conn, "DELETE FROM datawg.t_groupseries_grser")
-	
+	if (sum(!is.na(deleted$fr_id)) == 0)
+	  stop("nothing to be deleted")
 	(nr <- tryCatch({
 							sql <- glue::glue_sql("DELETE FROM datawg.{`ind_table`} 
 											WHERE fi_id IN (SELECT distinct fi_id FROM ind_tmp",
