@@ -1165,7 +1165,7 @@ write_duplicates <- function(path, qualify_code = 22) {
 		
 	} 
 	
-	browser()
+	#browser()
 	
 	conn <- poolCheckout(pool)
 	on.exit(poolReturn(conn))
