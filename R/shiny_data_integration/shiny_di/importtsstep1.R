@@ -224,11 +224,27 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 											new_group_metrics <-  left_join(new_group_metrics, t_series_ser[,c("ser_id","ser_nameshort")], by="ser_nameshort")
 											new_group_metrics <- rename(new_group_metrics,"grser_ser_id"="ser_id") # use the true name in the table
 										}
+										if (nrow(updated_group_metrics)>0){
+										  updated_group_metrics <-  left_join(updated_group_metrics, t_series_ser[,c("ser_id","ser_nameshort")], by="ser_nameshort")
+										  updated_group_metrics <- rename(updated_group_metrics,"grser_ser_id"="ser_id") # use the true name in the table
+										}
+										if (nrow(deleted_group_metrics)>0){
+										  deleted_group_metrics <-  left_join(deleted_group_metrics, t_series_ser[,c("ser_id","ser_nameshort")], by="ser_nameshort")
+										  deleted_group_metrics <- rename(deleted_group_metrics,"grser_ser_id"="ser_id") # use the true name in the table
+										}
 										
 										if (nrow(new_individual_metrics)>0){
 											new_individual_metrics <- left_join(new_individual_metrics, t_series_ser[,c("ser_id","ser_nameshort")], by="ser_nameshort")
 											new_individual_metrics <- rename(new_individual_metrics,"fiser_ser_id"="ser_id")
-										}										
+										}	
+										if (nrow(updated_individual_metrics)>0){
+										  updated_individual_metrics <- left_join(updated_individual_metrics, t_series_ser[,c("ser_id","ser_nameshort")], by="ser_nameshort")
+										  updated_individual_metrics <- rename(updated_individual_metrics,"fiser_ser_id"="ser_id")
+										}			
+										if (nrow(deleted_individual_metrics)>0){
+										  deleted_individual_metrics <- left_join(deleted_individual_metrics, t_series_ser[,c("ser_id","ser_nameshort")], by="ser_nameshort")
+										  deleted_individual_metrics <- rename(deleted_individual_metrics,"fiser_ser_id"="ser_id")
+										}			
 										
 										
 										t_dataseries_das <- extract_data("t_dataseries_das", quality_check=FALSE)
