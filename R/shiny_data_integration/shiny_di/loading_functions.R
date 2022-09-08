@@ -2805,12 +2805,12 @@ load_dcf<-function(path,datasource){
 						country=country,
 						type="character"))
 		
-		data_error <- rbind(data_error, check_values(
-						dataset=sampling_info,
-						namedataset= "sampling_info",
-						column="sai_name",
-						country=country,
-						values=emus$emu_nameshort))
+		# data_error <- rbind(data_error, check_values(
+		# 				dataset=sampling_info,
+		# 				namedataset= "sampling_info",
+		# 				column="sai_name",
+		# 				country=country,
+		# 				values=emus$emu_nameshort))
 		
 		
 		
