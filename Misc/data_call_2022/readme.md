@@ -32,63 +32,9 @@
 
 
 
------------------------------------------------------------
-# LT (Lithuania)
------------------------------------------------------------
-## Annex 1
-
-
-## Annex 2
-
-## Annex 3
-
-
-## Annex 4
 
 
 
-## Annex 5
-
-
-## Annex 6
-
-
-## Annex 7
-
-## Annex 8
-
-
-
-## Annex 10
-
------------------------------------------------------------
-# LV (Latvia)
------------------------------------------------------------
-## Annex 1
-
-
-## Annex 2
-
-## Annex 3
-
-
-## Annex 4
-
-
-
-## Annex 5
-
-
-## Annex 6
-
-
-## Annex 7
-
-## Annex 8
-
-
-
-## Annex 10
 
 -----------------------------------------------------------
 # MA
@@ -120,34 +66,7 @@
 ## Annex 10
 
 
------------------------------------------------------------
-# NL 
------------------------------------------------------------
-## Annex 1
 
-
-## Annex 2
-
-## Annex 3
-
-
-## Annex 4
-
-
-
-## Annex 5
-
-
-## Annex 6
-
-
-## Annex 7
-
-## Annex 8
-
-
-
-## Annex 10
 
 -----------------------------------------------------------
 # NO (Norway) 
@@ -207,16 +126,6 @@ No data
 
 ## Annex 10
 
------------------------------------------------------------ 
-# PT
------------------------------------------------------------
- ## Annex 1
-### done
-* 1 updated series (modified series)
-* 3 new values inserted in the database (new dataseries)
-* updated two values (new dataseries)
-* 5826 and 11652 new values inserted in the fish and metric tables (new individual metrics)
-* 2 and 6 values inserted (new group metrics)
 
 
 ## Annex 2
