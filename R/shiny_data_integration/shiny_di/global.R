@@ -130,3 +130,76 @@ current_year <- 2022
 port <- 5432
 host <- "localhost" #"185.135.126.250" #"localhost"#"192.168.0.100"
 userwgeel <-"wgeel"
+
+
+
+
+
+
+########### create a dictionnary of columns with types
+dictionary=c(
+  ###########columns in group_metrics sampling	
+  "gr_id"="numeric",
+  "sai_name"="text",
+  "sai_emu_nameshort"="text",
+  "gr_year"="numeric",
+  "grsa_lfs_code"="text",
+  "gr_number"="numeric",
+  "lengthmm"="numeric",
+  "weightg"="numeric",
+  "ageyear" = "numeric",
+  "female_proportion"="numeric", 
+  "differentiated_proportion" = "numeric",
+  "m_mean_lengthmm"= "numeric",
+  "m_mean_weightg"= "numeric",
+  "m_mean_ageyear"= "numeric",
+  "f_mean_lengthmm"= "numeric",
+  "f_mean_weightg"= "numeric",
+  "f_mean_age"= "numeric",
+  "g_in_gy_proportion"= "numeric",
+  "s_in_ys_proportion"= "numeric",
+  "anguillicola_proportion"= "numeric",
+  "anguillicola_intensity"= "numeric",
+  "muscle_lipid_fatmeter_perc"= "numeric",
+  "muscle_lipid_gravimeter_perc"= "numeric",
+  "sum_6_pcb"= "numeric",
+  "teq"= "numeric",
+  "evex_proportion"= "numeric",
+  "hva_proportion"= "numeric",
+  "pb"= "numeric",
+  "hg"= "numeric",
+  "cd"= "numeric",
+  "gr_comment"="text",
+  "gr_last_update" = "date",
+  "gr_dts_datasource"="text",
+  ####columns in fish individual metrics samplings	
+  "fi_id"="numeric",
+  "sai_name"="text",
+  "sai_emu_nameshort"="text",
+  "fi_date"="date",
+  "fi_year"="numeric",
+  "fi_lfs_code"="text",
+  "fisa_x_4326"="numeric",
+  "fisa_y_4326"="numeric",
+  "fi_comment"="text",
+  "lengthmm"="numeric",
+  "weightg"="numeric",
+  "ageyear"="numeric",
+  "eye_diam_meanmm"="numeric",
+  "pectoral_lengthmm"="numeric",
+  "is_female_(1=female,0=male)"="numeric",
+  "is_differentiated_(1=differentiated,0_undifferentiated)"="numeric",
+  "anguillicola_presence_(1=present,0=absent)"="numeric",
+  "anguillicola_intensity"="numeric",
+  "muscle_lipid_fatmeter_perc"="numeric",
+  "muscle_lipid_gravimeter_perc"="numeric",
+  "sum_6_pcb"="numeric",
+  "teq"="numeric",
+  "evex_presence_(1=present,0=absent)"="numeric",
+  "hva_presence_(1=present,0=absent)"="numeric",
+  "pb"="numeric",
+  "hg"="numeric",
+  "cd"="numeric",
+  "fi_last_update"="date",
+  "fi_dts_datasource"="text"
+)

@@ -2752,12 +2752,12 @@ load_dcf<-function(path,datasource){
 	
 	
 	fn_check_columns(sampling_info, 
-			columns=c("sai_name","sai_emu_nameshort","sai_locationdescription","sai_area_division"	,
+			columns=c("sai_name","sai_emu_nameshort","sai_area_division"	,
 					"sai_hty_code",	"sai_samplingobjective","sai_samplingstrategy","sai_protocol","sai_qal_id","sai_comment",
 					"sai_lastupdate","sai_dts_datasource"),
 			file= file,
 			sheet="sampling_info",
-			nbcol=13)
+			nbcol=11)
 	
 	country <- "unknown"
 	if (nrow(sampling_info)>0) {
@@ -2980,7 +2980,7 @@ load_dcf<-function(path,datasource){
 	} # end if nrow
 	
 	#---------------------- all_other_sheets ---------------------------------------------
-	fn_check_gr_ind <- function(sheet, columns,col_types){
+	fn_check_gr_ind <- function(sheet, columns){
 	  browser()
 	  headers <- read_excel(
 	    path=path,
@@ -2989,14 +2989,16 @@ load_dcf<-function(path,datasource){
 	  cat(sheet,"\n")
 	  
 	  if ((!"fi_year" %in% names(headers)) & "fi_year" %in%columns){
-	    col_types=col_types[-which(columns=="fi_year")]
 	    columns=columns[-which(columns=="fi_year")]
 	  }
 	  nbcol <- length(columns)	
 	  
 	  fn_check_columns(data=headers, columns=columns,	file = file, sheet=sheet, nbcol=nbcol)
-	  col_types=col_types[match(columns, names(headers))]
-	  columns=headers	  
+	  col_types=dictionary[columns] #returns a single value per columns
+	  
+	  if (any(!columns %in% names(dictionary))) 
+	    stop(paste("a column of the template is not in the dictionary, please contact a shiny admin:",
+	               columns[!columns %in% names(dictionary)]))
 
 	  data_error <- data.frame(nline = NULL, error_message = NULL)
 	  # country is extracted 
@@ -3011,9 +3013,14 @@ load_dcf<-function(path,datasource){
 		data_xls <- read_excel(
 				path=path,
 				sheet=sheet,
-				col_types=col_types,
 				skip=0, guess_max=10000)
 		cat(sheet,"\n")
+		
+		#here we force conversion to match dictionary
+		data_xls <- data_xls %>%
+		  mutate(across(any_of(columns[col_types == "date"]) , ~as.Date(.x)),
+		         across(any_of(columns[col_types=="text"]), ~as.character(.x)),
+		         across(any_of(columns[col_types=="numeric"]), ~as.numeric(.x)))
 		
 		
 		#some countries have added a fi_year column so we deal with it
@@ -3278,18 +3285,18 @@ load_dcf<-function(path,datasource){
 			"updated_individual_metrics",
 			"deleted_individual_metrics")
 	columns <- list(
-			c("sai_name", "sai_emu_nameshort",	"gr_year",	"grsa_lfs_code", "gr_number", "gr_comment","lengthmm",	"weightg",	"ageyear",	"female_proportion", "differentiated_proportion",
+			c("sai_name", "sai_emu_nameshort",	"gr_year",	"grsa_lfs_code", "gr_number","lengthmm",	"weightg",	"ageyear",	"female_proportion", "differentiated_proportion",
 					"m_mean_lengthmm","m_mean_weightg","m_mean_ageyear","f_mean_lengthmm","f_mean_weightg","f_mean_age","g_in_gy_proportion",	"s_in_ys_proportion",	
 					"anguillicola_proportion",	"anguillicola_intensity",	"muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb", "teq",	"evex_proportion",	
-					"hva_proportion",	"pb",	"hg",	"cd"),
-			c("gr_id", "sai_name", "sai_emu_nameshort",	"gr_year",	"grsa_lfs_code", "gr_number", "gr_comment",  "gr_last_update", "gr_dts_datasource", "lengthmm",	"weightg",	"ageyear",	"female_proportion", "differentiated_proportion",
+					"hva_proportion",	"pb",	"hg",	"cd", "gr_comment"),
+			c("gr_id", "sai_name", "sai_emu_nameshort",	"gr_year",	"grsa_lfs_code", "gr_number",  "gr_last_update", "gr_dts_datasource", "lengthmm",	"weightg",	"ageyear",	"female_proportion", "differentiated_proportion",
 					"m_mean_lengthmm","m_mean_weightg","m_mean_ageyear","f_mean_lengthmm","f_mean_weightg","f_mean_age","g_in_gy_proportion",	"s_in_ys_proportion",	
 					"anguillicola_proportion",	"anguillicola_intensity",	"muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb", "teq",	"evex_proportion",	
-					"hva_proportion",	"pb",	"hg",	"cd"),
-			c("gr_id", "sai_name", "sai_emu_nameshort",	"gr_year",	"grsa_lfs_code", "gr_number", "gr_comment", "gr_last_update", "gr_dts_datasource","lengthmm",	"weightg",	"ageyear",	"female_proportion", "differentiated_proportion",
+					"hva_proportion",	"pb",	"hg",	"cd", "gr_comment"),
+			c("gr_id", "sai_name", "sai_emu_nameshort",	"gr_year",	"grsa_lfs_code", "gr_number", "gr_last_update", "gr_dts_datasource","lengthmm",	"weightg",	"ageyear",	"female_proportion", "differentiated_proportion",
 					"m_mean_lengthmm","m_mean_weightg","m_mean_ageyear","f_mean_lengthmm","f_mean_weightg","f_mean_age","g_in_gy_proportion",	"s_in_ys_proportion",	
 					"anguillicola_proportion",	"anguillicola_intensity",	"muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb", "teq",	"evex_proportion",	
-					"hva_proportion",	"pb",	"hg",	"cd"),
+					"hva_proportion",	"pb",	"hg",	"cd", "gr_comment"),
 			c("sai_name",	"sai_emu_nameshort",	"fi_date",	"fi_year", "fi_lfs_code",	"fisa_x_4326",	"fisa_y_4326",
 					"fi_comment",  "lengthmm",	"weightg",	"ageyear",	"eye_diam_meanmm", "pectoral_lengthmm",
 					"is_female_(1=female,0=male)","is_differentiated_(1=differentiated,0_undifferentiated)",
@@ -3305,22 +3312,11 @@ load_dcf<-function(path,datasource){
 					"is_female_(1=female,0=male)","is_differentiated_(1=differentiated,0_undifferentiated)",
 					"anguillicola_presence_(1=present,0=absent)",	"anguillicola_intensity",	"muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb", "teq",
 					"evex_presence_(1=present,0=absent)","hva_presence_(1=present,0=absent)",	"pb",	"hg",	"cd"))
-	col_types=list(
-			c("text", "text",	"numeric",	"text", "numeric", rep("numeric", 24),"text"),
-			c("numeric", "text", "text",	"numeric",	"text", "numeric", "text",  "date", "text",rep("numeric", 24)),
-			c("numeric", "text", "text",	"numeric",	"text", "numeric", "text",  "date", "text",rep("numeric", 24)),
-			c("text",	"text",	"date",	"numeric","text",	"numeric",	"numeric", rep("numeric", 18),"text"), # fi_comment is at the end :-(
-			c("numeric","text",	"text", "numeric","date",	 "text", "numeric",	"numeric", "text",  "date",	"text", rep("numeric", 18)),
-			c("numeric","text",	"text", "numeric","date",		 "text", "numeric",	"numeric", "text",  "date",	"text", rep("numeric", 18))
-			# if fi_year is there :
-			#c("text",	"text",	"date",	"numeric", "text",	"numeric",	"numeric", "text",rep("numeric", 18)),
-			#c("numeric","text",	"text", "date",	"numeric",	 "text", "numeric",	"numeric", "text",  "date",	"text", rep("numeric", 18)),
-			#c("numeric","text",	"text", "date",	"numeric",	 "text", "numeric",	"numeric", "text",  "date",	"text", rep("numeric", 18))
-	)
+
 	
 	
 	#stopifnot(all.equal(unlist(nbcol), sapply(col_types,length)))
-	res <- purrr::pmap(list(sheet,columns,col_types), fn_check_gr_ind)
+	res <- purrr::pmap(list(sheet,columns), fn_check_gr_ind)
 	data_error <- 	lapply(res,function(X)X$error) %>% bind_rows()
 	
 	shinybusy::remove_modal_spinner()
