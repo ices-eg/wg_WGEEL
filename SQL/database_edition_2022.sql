@@ -1037,4 +1037,9 @@ DROP TRIGGER IF EXISTS check_year_and_date ON datawg.t_fishseries_fiser ;
 CREATE TRIGGER check_year_and_date AFTER INSERT OR UPDATE ON
    datawg.t_fishseries_fiser FOR EACH ROW EXECUTE FUNCTION datawg.fi_year();
 
+--IT
+--26 rows deleted
+update datawg.t_metricgroupsamp_megsa set meg_qal_id =22 where meg_gr_id in (2262,2266,2272,2273,2274,2267,2268,2270,2271); 
+--9 rows updated
+update datawg.t_groupsamp_grsa set gr_comment ='all related metrics have qal_id=22 following data call 2022' where gr_id in (2262,2266,2272,2273,2274,2267,2268,2270,2271);
 
