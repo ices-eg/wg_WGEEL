@@ -3,10 +3,10 @@
 -----------------------------------------------------------
 
 ## Annex 1
-2 new series added
-2 series data updated
-9 new dataseries added
-new group metrics 5 and 9 added
+2 new series added;
+2 series data updated;
+9 new dataseries added;
+new group metrics 5 and 9 added;
 new individual metrics 481 and 947 added
 
 ## Annex 2
@@ -18,15 +18,15 @@ new individual metrics 481 and 947 added
 72 new rows added
 
 ## Annex 5
-72 new rows added
+72 new rows added;
 540 rows updated
 
 ## Annex 6
-14 new rows added
+14 new rows added;
 3 rows updated
 
 ## Annex 7
-14 new rows
+14 new rows;
 2 updated rows
 ## Annex 8
 
