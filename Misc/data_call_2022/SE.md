@@ -40,3 +40,4 @@ New rows: 1 new values inserted in the database
 
 
 ## Annex 10
+* 172 and 1844 new values inserted in the group and metric tables

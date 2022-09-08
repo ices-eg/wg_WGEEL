@@ -82,7 +82,7 @@ check_values <- function(dataset,namedataset, column,country,values){
   answer = NULL
 	namedataset <-  deparse(substitute(dataset))
   newdataset <- dataset
-	tibble::rowid_to_column(newdataset, "nline" )
+  newdataset <- tibble::rowid_to_column(newdataset, "nline" )
   # remove NA from data
   ddataset <- as.data.frame(newdataset[!is.na(newdataset[,column]),])
   if (nrow(ddataset)>0){ 
@@ -121,7 +121,7 @@ check_values <- function(dataset,namedataset, column,country,values){
 check_type <- function(dataset,namedataset, column,country,values,type){
   answer = NULL
   newdataset <- dataset
-	tibble::rowid_to_column(newdataset, "nline" )
+  newdataset <- tibble::rowid_to_column(newdataset, "nline" )
   #remove NA from data
   ddataset <- as.data.frame(newdataset[!is.na(newdataset[,column]),])
   if (nrow(ddataset)>0){ 
@@ -162,7 +162,7 @@ check_type <- function(dataset,namedataset, column,country,values,type){
 check_unique <- function(dataset, namedataset, column,country){
   answer = NULL
   newdataset <- dataset
-	tibble::rowid_to_column(newdataset, "nline" )
+  newdataset <- tibble::rowid_to_column(newdataset, "nline" )
   # remove the NA
   ddataset <- as.data.frame(newdataset[!is.na(newdataset[,column]),])
   
@@ -318,7 +318,7 @@ check_missvalue_release <- function(dataset, namedataset, country,updated=FALSE)
 check_na <- function(dataset, namedataset, column,country){
 	answer = NULL
 	newdataset <- dataset
-	tibble::rowid_to_column(newdataset, "nline" )
+	newdataset <- tibble::rowid_to_column(newdataset, "nline" )
 	#remove NA from data
 	ddataset <- as.data.frame(newdataset)
 	if (nrow(ddataset)>0){
@@ -351,7 +351,7 @@ check_na <- function(dataset, namedataset, column,country){
 check_positive <- function(dataset, namedataset, column,country){
   answer = NULL
   newdataset <- dataset
-	tibble::rowid_to_column(newdataset, "nline" )
+  newdataset <- tibble::rowid_to_column(newdataset, "nline" )
   #remove NA from data
   ddataset <- as.data.frame(newdataset[!is.na(newdataset[,column]),])
   if (nrow(ddataset)>0){
@@ -380,7 +380,7 @@ check_freshwater_without_area <- function(dataset,namedataset, country){
 
   answer = NULL
   newdataset <- dataset
-	tibble::rowid_to_column(newdataset, "nline" )
+  newdataset <- tibble::rowid_to_column(newdataset, "nline" )
   # remove NA from data
   ddataset <- as.data.frame(newdataset[
     !is.na(newdataset[,"eel_area_division"]) &
@@ -417,7 +417,7 @@ check_freshwater_without_area <- function(dataset,namedataset, country){
 check_between <- function(dataset, namedataset, column, country, minvalue, maxvalue){
 	answer = NULL
 	newdataset <- dataset
-	tibble::rowid_to_column(newdataset, "nline" )
+	newdataset <- tibble::rowid_to_column(newdataset, "nline" )
 	#remove NA from data
 	ddataset <- as.data.frame(newdataset[!is.na(newdataset[,column]),])
 	if (nrow(ddataset)>0){
@@ -471,7 +471,7 @@ check_rates_num <- function(dataset, namedataset, column, country){
 	answer = NULL
 	#namedataset <-  deparse(substitute(dataset))
 	newdataset <- dataset
-	tibble::rowid_to_column(newdataset, "nline" )
+	newdataset <- tibble::rowid_to_column(newdataset, "nline" )
 	# remove NA from data
 	#ddataset <- as.data.frame(newdataset[!is.na(newdataset[,column]),])
 	ddataset <- as.data.frame(newdataset[!is.na(newdataset[,"eel_value"]),])
@@ -553,7 +553,7 @@ check_consistency_missvalue_rates <- function(dataset, namedataset, rates){
   answer = NULL
   #namedataset <-  deparse(substitute(dataset))
   newdataset <- dataset
-	tibble::rowid_to_column(newdataset, "nline" )
+  newdataset <- tibble::rowid_to_column(newdataset, "nline" )
   newdataset2 <- newdataset
   newdataset <- newdataset %>% rename_at(vars(contains(rates)), funs(str_remove(.,paste(rates,"_",sep=""))))
     
