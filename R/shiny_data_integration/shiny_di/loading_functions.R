@@ -2981,7 +2981,6 @@ load_dcf<-function(path,datasource){
 	
 	#---------------------- all_other_sheets ---------------------------------------------
 	fn_check_gr_ind <- function(sheet, columns){
-	  browser()
 	  headers <- read_excel(
 	    path=path,
 	    sheet=sheet,
@@ -3084,7 +3083,6 @@ load_dcf<-function(path,datasource){
 		
 		
 		data_error <- bind_rows(data_error, 
-				
 				purrr::flatten(lapply(c(
 										"fi_id",
 										"gr_id"
