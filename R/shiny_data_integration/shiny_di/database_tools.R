@@ -1168,7 +1168,7 @@ write_duplicates <- function(path, qualify_code = 22) {
 	#browser()
 	
 	conn <- poolCheckout(pool)
-	
+	on.exit(poolreturn(conn))
 	message <- NULL
 	
 	tryCatch({
@@ -1231,15 +1231,10 @@ write_duplicates <- function(path, qualify_code = 22) {
 				cat(" message :")
 				print(message) 
 				dbRollback(conn)
-			}, warning = function(e) {
-				message <<- e  
-				cat(" message :")
-				print(message) 
-				dbRollback(conn)				
 			},
 			finally = {
 			})	
-	
+
 	return(list(message = message, cou_code = cou_code))
 }
 
