@@ -3,9 +3,9 @@
 -----------------------------------------------------------
  ## Annex 1
 ### done
-* 1 updated series (modified series)
-* 3 new values inserted in the database (new dataseries)
-* 2 updated values (new dataseries)
+* 1 updated series (modified series) - RE-INTEGRATED after data loss
+* 3 new values inserted in the database (new dataseries) - RE-INTEGRATED after data loss
+* 2 updated values (new dataseries) - RE-INTEGRATED after data loss
 * 5826 and 11652 new values inserted in the fish and metric tables (new individual metrics)
 * 2 and 6 values inserted (new group metrics)
 
@@ -14,6 +14,10 @@
 LINE 2: (SELECT g.gr_year,g.gr_number,g.gr_comment,g.gr_dts_datasour...
                           ^
 HINT:  You will need to rewrite or cast the expression.
+
+* update group metrics: during RE-INTEGRATION the error message changed to: could not find function "update_group_metrics"
+
+* CHECK if new group metrics / new individual metrics are integrated
 
  ## Annex 2
  ### to do
