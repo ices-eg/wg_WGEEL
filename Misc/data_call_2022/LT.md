@@ -33,7 +33,8 @@ Message when "check file"
 * integrate modified group metrics (there was a bug: could not find function "update_group_metrics")
 
 ## Annex 4
-
+ ## to do
+ * need to integrate. skipped due to an error with updating data (hilaire on it)
 
 
 
