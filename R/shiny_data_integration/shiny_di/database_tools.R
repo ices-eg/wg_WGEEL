@@ -2400,6 +2400,10 @@ write_updated_individual_metrics <- function(path, type="series"){
 	conn <- poolCheckout(pool)
 	on.exit(poolReturn(conn))
 	updated <- read_excel(path = path, sheet = 1, skip = 1)
+	if (nrow(updated) == 0)
+	  stop("empty file")
+	if (sum(!is.na(updated$fi_id)) == 0)
+	  stop("no fi_id, stops")
 	ind_table <- ifelse(type=="series","t_fishseries_fiser","t_fishsamp_fisa")
 	ind_key <- ifelse(type=="series","fiser_ser_id","fisa_sai_id")
 	metric_table <- ifelse(type=="series","t_metricindseries_meiser","t_metricindsamp_meisa")	
@@ -2408,26 +2412,34 @@ write_updated_individual_metrics <- function(path, type="series"){
 	#dbGetQuery(conn, "DELETE FROM datawg.t_groupseries_grser")
 	
 	(nr <- tryCatch({	
+	  dbBegin(conn)
 							sql0 <- glue::glue_sql("UPDATE datawg.{`ind_table`} SET 
 											(fi_date,fi_year,fi_comment,fi_dts_datasource,fiser_ser_id) =
 											(i.fi_date::date,i.fi_year,i.fi_comment,i.fi_dts_datasource,i.{`ind_key`}) FROM
 											ind_tmp i
-											WHERE i.fi_id={`ind_table`}.fi_id",
+											WHERE i.fi_id={`ind_table`}.fi_id returning datawg.{`ind_table`}.fi_id",
 									.con=conn)
-							nr0 <- dbExecute(conn, sql0)
-							sql1 <- glue::glue_sql("UPDATE datawg.{`metric_table`} SET (mei_mty_id, mei_value, mei_dts_datasource, mei_qal_id)
-											=( i.fi_id, i.mei_mty_id, i.mei_value, i.mei_dts_datasource, 1 as mei_qal_id) 
-											FROM ind_tmp i
-											WHERE i.fi_id= {`metric_table`}.fi_id",
-									.con=conn)
-							nr1 <- dbExecute(conn, sql1)
+							rs <- dbSendQuery(conn, sql0)
+							nr1 <- length(unique(dbFetch(rs[,1])))
+							dbClearResult(rs)
+							sql1 <- glue::glue_sql("delete from datawg.{`metric_table`} 
+							                       where {`ind_key`} in (select fi_id from ind_tmp)",
+							                       .con=conn)
+							dbExecute(sql1)
+							
+							sql2 <- glue::glue_sql("INSERT INTO datawg.{`metric_table`}(mei_fi_id, mei_mty_id, mei_value, mei_dts_datasource, mei_qal_id)
+									SELECT fi_id, mei_mty_id, mei_value, mei_dts_datasource, 1 as mei_qal_id FROM ind_tmp",
+							                       .con=conn)
+							nr2 <- dbExecute(conn, sql2)
+							dbCommit(conn)
 							
 						}, error = function(e) {
 							message <<- e
+							dbRollback(conn)
 						}, finally = {
 							dbExecute(conn,"drop table if exists ind_tmp")
 						}))
-	if (is.null(message)) message <- sprintf(" %s and %s new values inserted in the group and metric tables", nr0, nr1)
+	if (is.null(message)) message <- sprintf(" %s and %s new values updated in the group and metric tables", nr1, nr2)
 	if (type=="series"){
 		cou_code = dbGetQuery(conn,paste0("SELECT ser_cou_code FROM datawg.t_series_ser WHERE ser_id='",
 						updated$fiser_ser_id[1],"';"))$ser_cou_code  
