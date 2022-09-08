@@ -47,7 +47,7 @@ Message when "check file"
 DETAIL:  Failing row contains (549699, 6, 2020, null, LT_total, LT, Y, F, null, 0, null, landings recorded in 2019, 2022-09-08, NC, dc_2022, Public).
 
 ## Annex 6
-
+* no data
 
 ## Annex 7
 ## done
@@ -61,3 +61,4 @@ DETAIL:  Failing row contains (549730, 11, 2021, null, LT_total, LT, Y, null, nu
 
 
 ## Annex 10
+* no data
