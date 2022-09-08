@@ -2,7 +2,7 @@
 # LT (Lithuania)
 -----------------------------------------------------------
 ## Annex 1
-
+* no data
 
 ## Annex 2
 ### Notes
@@ -22,7 +22,6 @@ Message when "check file"
 ## done
 
 ## Annex 3
-
 ## done
 * 1 new value integrated (series)
 * 8 values updated (modified series)
@@ -33,20 +32,33 @@ Message when "check file"
 * integrate modified group metrics (there was a bug: could not find function "update_group_metrics")
 
 ## Annex 4
+## notes
+4 rows of duplicates were detedcted but when integrating the new lines it said "0 updated, 0 kept". So when we tried to circumvent this by using "update data", shiny said these id's were not in the db. Turned out in fact the duplicates were indeed updated. What we did is we recreated the original version of the Annex, where the duplicates were in new data and not in update, so the integration shows duplicates again - but these were ignored (since they were already replaced).
 
+## done
+ * 4 new values integrated
+ * 4 duplicates replaced (message said 0 updated, 0 kept but it was done in the db, issue was creatd)
 
 
 
 ## Annex 5
-
+## to do
+* Integrate. Couldn't integrate due to an error (Error: Failed to fetch row: ERROR:  new row for relation "t_eelstock_eel" violates check constraint "ck_qal_id_and_missvalue"
+DETAIL:  Failing row contains (549699, 6, 2020, null, LT_total, LT, Y, F, null, 0, null, landings recorded in 2019, 2022-09-08, NC, dc_2022, Public).
 
 ## Annex 6
-
+* no data
 
 ## Annex 7
+## done
+* 2 new values integrated (new data)
 
 ## Annex 8
+## to do
+* Integrate. Could not integrate due to an error: Error: Failed to fetch row: ERROR:  new row for relation "t_eelstock_eel" violates check constraint "ck_qal_id_and_missvalue"
+DETAIL:  Failing row contains (549730, 11, 2021, null, LT_total, LT, Y, null, null, 0, null, not reported due to commercial confidentiality reasons, 2022-09-08, NR, dc_2022, Public).
 
 
 
 ## Annex 10
+* no data
