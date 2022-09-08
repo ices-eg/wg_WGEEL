@@ -768,7 +768,7 @@ compare_with_database_metric_group <- function(data_from_excel,
 	
 	if (nrow(new)>0)	new$gr_dts_datasource <- the_eel_datasource
 	
-	
+	#browser()
 	modified <- dplyr::anti_join(data_from_excel, data_from_base_wide, 
 			by =c("gr_id", "gr_year", "gr_number", metrics_group$mty_name))
 	modified <- modified[!modified$id %in% new$id,]
@@ -1150,7 +1150,7 @@ write_duplicates <- function(path, qualify_code = 22) {
 						eel_qal_id,
 						eel_qal_comment,            
 						eel_datasource,
-						eel_comment from not_replaced_temp_",cou_code)
+						eel_comment from not_replaced_temp_",cou_code, "returning eel_id")
 		query2bis <- str_c( "insert into datawg.t_eelstock_eel_percent (         
 						percent_id,       
 						perc_f,
@@ -1181,7 +1181,9 @@ write_duplicates <- function(path, qualify_code = 22) {
 			   nr0 <-dbExecute(conn, query0) # this will be the same count as inserted nr1 
 				# Second step insert replaced ------------------------------------------------------------------
 				if (nrow(replaced)>0){
-					nr1 <- dbExecute(conn, query1)
+					eel_id <-dbGetQuery(conn, query1)
+					nr1 <- nrow(eel_id)
+					#nr1 <- dbGetQuery(conn, "GET DIAGNOSTICS nbLignes = ROW_COUNT;")
 					if (sum(startsWith(names(replaced),"perc_"))>0) { #we have to update also t_eelsock_eel_perc						
 								nr1bis <- dbExecute(conn,query1bis)
 					} else {
@@ -1198,7 +1200,9 @@ write_duplicates <- function(path, qualify_code = 22) {
 				}
 				# Third step insert not replaced values into the database with qal id 22-----------------------------------------
 				if (nrow(not_replaced)>0){
-					nr2 <- dbExecute(conn, query2)
+					eel_id2 <- dbGetQuery(conn, query2)
+					nr2 <- nrow(eel_id2)
+					#nr2 <- dbGetQuery(conn, "get diagnostics nbLignes = ROW_COUNT")
 					if (sum(startsWith(names(not_replaced),"perc_"))>0) { #we have to update also t_eelsock_eel_perc
 						nr2bis <- dbExecute(conn,query2bis) # nrow not replaced
 					} else {
@@ -1218,10 +1222,9 @@ write_duplicates <- function(path, qualify_code = 22) {
 				dbCommit(conn) # if goes to there commit
 				message <- sprintf(
 						"For duplicates %s values replaced in the t_eelstock_ eel table (values from current datacall stored with code eel_qal_id %s)\n,								
-								%s values not replaced (values from current datacall stored with code eel_qal_id %s),
-								", nr1,  qualify_code,  nr2, nr2bis, qualify_code)
+								%s values not replaced (values from current datacall stored with code eel_qal_id %s),", nr1,  qualify_code,  nr2, nr2bis, qualify_code)
 						if (nr1bis+nr2bis>0) {
-							message <- c(message,  sprintf("\n In addition, %s values replaced in the t_eelstock_eel_percent (old values kept with code eel_qal_id=%s)\n,
+							message <- str_c(message,  sprintf("\n In addition, %s values replaced in the t_eelstock_eel_percent (old values kept with code eel_qal_id=%s)\n,
 													%s values not replaced for table t_eelstock_eel_percent  (values from current datacall stored with code eel_qal_id %s)",
 											nr1bis,  qualify_code,  nr2bis, nr2bis, qualify_code))
 						}
@@ -1904,15 +1907,14 @@ update_series <- function(path) {
 #' @param path path to file (collected from shiny button)
 #' @return message indicating success or failure at data insertion
 update_sampling <- function(path) {
-	
+
 	updated_values_table <- 	read_excel(path = path, sheet = 1, skip = 1)	
-	cou_code = unique(updated_values_table$ser_cou_code)  
+	cou_code = unique(updated_values_table$sai_cou_code)  
 	validate(need(length(cou_code) == 1, "There is more than one country code, please check your file"))
-	updated_values_table <- updated_values_table %>% mutate_if(is.logical,list(as.character)) 
-	
+	updated_values_table <- updated_values_table %>% mutate_if(is.logical, list(as.character)) 
 	updated_values_table <- updated_values_table %>% 
-			mutate_at(vars(sai_name, sai_cou_code, sai_emu_nameshort, sai_area_division, sai_hty_code,  sai_samplingobjective, 	 
-							sai_protocol,sai_comment,sai_qal_comment),list(as.character)) 
+			mutate(across(any_of(c("sai_name", "sai_cou_code", "sai_emu_nameshort", "sai_area_division", "sai_hty_code", "sai_samplingobjective", 	 
+							"sai_protocol","sai_comment")),~as.character(.x))) 
 	
 	updated_values_table <- updated_values_table %>% 
 			mutate_at(vars(sai_qal_id),list(as.integer)) 
@@ -1953,7 +1955,7 @@ update_sampling <- function(path) {
 			t.sai_qal_id,
 			t.sai_lastupdate,
 			t.sai_dts_datasource)
-			FROM updated_sampling_temp t WHERE t.sai_id = t_samplinginfo_sai.sai_id"
+			FROM updated_sampling_temp t WHERE t.sai_name = t_samplinginfo_sai.sai_name"
 	
 	message <- NULL
 	nr <- tryCatch({

@@ -30,6 +30,25 @@ importdcfstep2UI <- function(id){
 					)
 			),
 			
+			h2("step 2.1.2 Update sampling"),
+			fluidRow(
+					column(
+							width=4,
+							fileInput(ns("xl_updated_sampling"), "xls update sampling, do this first and re-run compare",
+									multiple=FALSE,
+									accept = c(".xls",".xlsx")
+							)
+					),
+					column(
+							width=2,
+							actionButton(ns("update_sampling_button"), "Proceed")
+					),
+					column(
+							width=6,
+							verbatimTextOutput(ns("textoutput_step2.1.2_dcf"))
+					)
+			),
+			
 			h2("step 2.2.1 Delete from group metrics"),
 			fluidRow(
 					column(
