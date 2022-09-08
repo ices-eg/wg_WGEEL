@@ -2280,10 +2280,10 @@ write_new_individual_metrics <- function(path, type="series"){
 		metric_table <- ifelse(type=="series","t_metricindseries_meiser","t_metricindsamp_meisa")	
 		addcol0 <- ifelse(type=="series",
 				"",
-				",fisa_x_4326,fisa_y_4326")
+				",fisa_x_4326,fisa_y_4326,fi_lfs_code")
 		addcol1 <- ifelse(type=="series",
 				"",
-				",i.fisa_x_4326,i.fisa_y_4326")
+				",i.fisa_x_4326,i.fisa_y_4326,i.fi_lfs_code")
 		
 		if (type=="series"){
 			cou_code = dbGetQuery(conn,paste0("SELECT ser_cou_code FROM datawg.t_series_ser WHERE ser_id='",

@@ -1015,6 +1015,16 @@ update datawg.t_metricgroupsamp_megsa set meg_qal_id =22 where meg_gr_id in (232
 update datawg.t_groupsamp_grsa set gr_comment ='all related metrics have qal_id=22 following data call 2022' where gr_id in (2323,2334,2167,2222,2189,2200,2211,2178,2233,2244);
 
 commit;
+
+
+
+
+alter table datawg.t_fish_fi add column fi_lfs_code varchar(2);
+ALTER TABLE datawg.t_fish_fi ADD CONSTRAINT c_fk_fi_lfs_code FOREIGN KEY (fi_lfs_code) REFERENCES ref.tr_lifestage_lfs(lfs_code) ON UPDATE cascade;
+alter table datawg.t_fishsamp_fisa ADD CONSTRAINT ck_fi_lfs_code CHECK (fi_lfs_code IS NOT NULL);
+update datawg.t_fishsamp_fisa set fi_lfs_code=fisa_lfs_code;
+alter table datawg.t_fishsamp_fisa drop column fisa_lfs_code;
+
 -- 06/09/2022 Execution of script till here on wgeel distant database
 
 CREATE OR REPLACE FUNCTION datawg.fi_year()
