@@ -46,7 +46,7 @@ info lost when converting/saving readme, DOUBLE CHECK IF EVERYTHING IS INTEGRATE
 
 ## Annex 7
 ### to do
-* nothing integrated, an error occured when uploading file: error with col_number. fix table (eel_value_number etc.)
+* DONE: turns out there was no data - nothing integrated, an error occured when uploading file: error with col_number. fix table (eel_value_number etc.)
 
 ## Annex 8
 ### done
