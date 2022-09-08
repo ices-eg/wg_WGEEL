@@ -2081,6 +2081,7 @@ update_dataseries <- function(path) {
 #'  path <- file.choose()
 
 write_new_group_metrics <- function(path, type="series") {
+	#browser()
 	conn <- poolCheckout(pool)
 	on.exit(poolReturn(conn))
 	if (type == "series"){
@@ -2095,7 +2096,13 @@ write_new_group_metrics <- function(path, type="series") {
 		cou_code <- ""
 	} else if (any(is.na(new[,fk]))){
 		message <- paste("some",fk,"are missing, don't you have forgotten to rerun database comparison?")
-		cou_code <- ""
+		if (type=="series"){
+			cou_code = dbGetQuery(conn,paste0("SELECT ser_cou_code FROM datawg.t_series_ser WHERE ser_id='",
+							new$grser_ser_id[1],"';"))$ser_cou_code  
+		} else {
+			cou_code = dbGetQuery(conn,paste0("SELECT sai_cou_code FROM datawg.t_samplinginfo_sai WHERE sai_name='",
+							new$sai_name[1],"';"))$sai_cou_code  	
+		}
 	} else {
 		gr_table <- ifelse(type=="series","t_groupseries_grser","t_groupsamp_grsa")
 		gr_key <- ifelse(type=="series","grser_ser_id","grsa_sai_id")

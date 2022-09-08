@@ -12,11 +12,11 @@
 ## Annex 2
 
 ### done
-* integrated 1 new value (new dataseries)
+* integrated 1 new value (new dataseries) - REINTEGRATED succesfully after data loss
 
 ## Annex 3
 ### done
-* integrated 1 new value (new dataseries)
+* integrated 1 new value (new dataseries) - REINTEGRATED succesfully after data loss 
 
 ## Annex 4
 ### to do

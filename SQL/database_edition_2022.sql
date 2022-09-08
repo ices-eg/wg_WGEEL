@@ -1053,3 +1053,136 @@ update datawg.t_metricgroupsamp_megsa set meg_qal_id =22 where meg_gr_id in (226
 --9 rows updated
 update datawg.t_groupsamp_grsa set gr_comment ='all related metrics have qal_id=22 following data call 2022' where gr_id in (2262,2266,2272,2273,2274,2267,2268,2270,2271);
 
+
+
+--- problem with the db t_dataseries_das deleted
+
+SELECT count(*), ser_cou_code FROM datawg.t_dataseries_das JOIN datawg.t_series_ser ON das_ser_id=ser_id 
+GROUP by ser_cou_code
+/*
+|count|ser_cou_code|
+|-----|------------|
+|1    |PL          |
+|10   |DK          |
+|10   |LT          |
+|4    |PT          |
+|153  |NO          |
+|16   |LV          |
+|42   |GR          |
+|3    |FI          |
+|81   |BE          |
+|9    |IE          |
+*/
+SELECT count(*) FROM datawg.t_dataseries_das; --329
+
+-- old database 0609
+
+CREATE TABLE temp_dataseries AS SELECT * FROM datawg.t_dataseries_das; --5621
+SELECT count(*), ser_cou_code FROM datawg.t_dataseries_das JOIN datawg.t_series_ser ON das_ser_id=ser_id 
+GROUP by ser_cou_code
+/*
+|count|ser_cou_code|
+|-----|------------|
+|380  |IE          |
+|74   |            |
+|4    |PL          |
+|200  |DK          |
+|24   |LT          |
+|505  |ES          |
+|71   |PT          |
+|188  |NO          |
+|752  |FR          |
+|32   |IT          |
+|1 628|GB          |
+|20   |LV          |
+|498  |NL          |
+|16   |GR          |
+|870  |SE          |
+|18   |FI          |
+|93   |BE          |
+|248  |DE          |
+*/
+
+-- pg_dump -U postgres -f "dataseries.sql" --table public.temp_dataseries wgeel0609
+-- pg_dump -U postgres -f "dataserieslast.sql" --table datawg.t_dataseries_das -h 185.135.126.250 wgeel
+
+CREATE TABLE temp_dataserieslast AS SELECT * FROM datawg.t_dataseries_das; --329
+
+
+SELECT count(*) FROM temp_dataseries
+SELECT * FROM temp_dataseries t0 JOIN datawg.t_dataseries_das tt ON
+(tt.das_id=t0.das_id); -- NO rows 
+
+SELECT count(*) FROM temp_dataseries t0 JOIN datawg.t_dataseries_das tt ON
+(tt.das_ser_id,tt.das_year)=(t0.das_ser_id, t0.das_year) --279
+
+
+
+SELECT * FROM temp_dataseries t0 JOIN datawg.t_dataseries_das tt ON
+(tt.das_ser_id,tt.das_year)=(t0.das_ser_id, t0.das_year)
+WHERE (tt.das_value != t0.das_value) ; --34 rows
+
+
+-- not working too many rows :
+SELECT * FROM temp_dataseries t0 JOIN datawg.t_dataseries_das tt ON
+(tt.das_ser_id,tt.das_year)=(t0.das_ser_id, t0.das_year)
+WHERE (tt.das_value != t0.das_value) OR (tt.das_comment != t0.das_comment); --50
+
+SELECT * FROM temp_dataseries t0 JOIN datawg.t_dataseries_das tt ON
+(tt.das_ser_id,tt.das_year)=(t0.das_ser_id, t0.das_year)
+WHERE (tt.das_effort != t0.das_effort); -- 0
+
+SELECT * FROM temp_dataseries t0 JOIN datawg.t_dataseries_das tt ON
+(tt.das_ser_id,tt.das_year)=(t0.das_ser_id, t0.das_year)
+WHERE (tt.das_qal_id != t0.das_qal_id); --1 ROW
+
+
+-- tempdataseries = database saved before wgeel
+-- temp_dataserieslast = last state of t_dataseries_das
+
+DELETE FROM datawg.t_dataseries_das;
+
+WITH changed_values_old_id AS (
+SELECT t0.das_id FROM temp_dataseries t0 JOIN temp_dataserieslast tt ON
+(tt.das_ser_id,tt.das_year)=(t0.das_ser_id, t0.das_year)
+WHERE (tt.das_value != t0.das_value) OR (tt.das_comment != t0.das_comment)
+UNION
+SELECT t0.das_id FROM temp_dataseries t0 JOIN temp_dataserieslast tt ON
+(tt.das_ser_id,tt.das_year)=(t0.das_ser_id, t0.das_year)
+WHERE (tt.das_qal_id != t0.das_qal_id) 
+),
+
+changed_values_to_keep AS (
+SELECT tt.* FROM temp_dataseries t0 JOIN temp_dataserieslast tt ON
+(tt.das_ser_id,tt.das_year)=(t0.das_ser_id, t0.das_year)
+WHERE (tt.das_value != t0.das_value) OR (tt.das_comment != t0.das_comment)
+UNION
+SELECT tt.* FROM temp_dataseries t0 JOIN temp_dataserieslast tt ON
+(tt.das_ser_id,tt.das_year)=(t0.das_ser_id, t0.das_year)
+WHERE (tt.das_qal_id != t0.das_qal_id) 
+)
+
+INSERT INTO datawg.t_dataseries_das
+SELECT * FROM  temp_dataseries WHERE das_id IN (
+SELECT das_id FROM temp_dataseries 
+EXCEPT 
+SELECT das_id FROM changed_values_old_id) --5571
+UNION 
+SELECT * FROM changed_values_to_keep   --5621
+
+COMMENT ON TABLE temp_dataseries IS 'dataseries before integration';
+COMMENT ON TABLE temp_dataserieslast IS 'dataseries inserted during wgeel 2022 after the table was deleted';
+
+
+-- Country that have not entered data yet
+SELECT * FROM (
+SELECT DISTINCT ser_cou_code, ser_typ_id FROM datawg.t_dataseries_das JOIN datawg.t_series_ser ON das_ser_id=ser_id WHERE ser_cou_code IS NOT NULL
+EXCEPT
+SELECT DISTINCT ser_cou_code, ser_typ_id FROM datawg.t_dataseries_das JOIN datawg.t_series_ser ON das_ser_id=ser_id 
+WHERE das_dts_datasource = 'dc_2022'
+GROUP by ser_cou_code, ser_typ_id) sub
+ORDER BY ser_cou_code, ser_typ_id;
+
+
+
+
