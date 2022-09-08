@@ -2452,11 +2452,11 @@ load_series<-function(path,datasource, stage="glass_eel"){
 								),			
 								function(name_column){
 									if  (name_column %in% colnames(data_xls) & (grepl("deleted", sheet) | grepl("updated", sheet))){	
-										data_error <- rbind(data_error, check_unique(
-														dataset = data_xls,					
-														namedataset = sheet,
-														column=name_column,
-														country=country))
+										# data_error <- rbind(data_error, check_unique(
+										# 				dataset = data_xls,					
+										# 				namedataset = sheet,
+										# 				column=name_column,
+										# 				country=country))
 										data_error <- rbind(data_error, check_type(
 														dataset = data_xls,					
 														namedataset = sheet,
@@ -3089,11 +3089,11 @@ load_dcf<-function(path,datasource){
 								),			
 								function(name_column){
 									if  (name_column %in% colnames(data_xls) & (grepl("deleted", sheet) | grepl("updated", sheet))){	
-										data_error <- rbind(data_error, check_unique(
-														dataset = data_xls,					
-														namedataset = sheet,
-														column=name_column,
-														country=country))
+										# data_error <- rbind(data_error, check_unique(
+										# 				dataset = data_xls,					
+										# 				namedataset = sheet,
+										# 				column=name_column,
+										# 				country=country))
 										data_error <- rbind(data_error, check_type(
 														dataset = data_xls,					
 														namedataset = sheet,
