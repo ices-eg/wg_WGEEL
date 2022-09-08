@@ -1907,15 +1907,14 @@ update_series <- function(path) {
 #' @param path path to file (collected from shiny button)
 #' @return message indicating success or failure at data insertion
 update_sampling <- function(path) {
-	
+
 	updated_values_table <- 	read_excel(path = path, sheet = 1, skip = 1)	
-	cou_code = unique(updated_values_table$ser_cou_code)  
+	cou_code = unique(updated_values_table$sai_cou_code)  
 	validate(need(length(cou_code) == 1, "There is more than one country code, please check your file"))
-	updated_values_table <- updated_values_table %>% mutate_if(is.logical,list(as.character)) 
-	
+	updated_values_table <- updated_values_table %>% mutate_if(is.logical, list(as.character)) 
 	updated_values_table <- updated_values_table %>% 
-			mutate_at(vars(sai_name, sai_cou_code, sai_emu_nameshort, sai_area_division, sai_hty_code,  sai_samplingobjective, 	 
-							sai_protocol,sai_comment,sai_qal_comment),list(as.character)) 
+			mutate(across(any_of(c("sai_name", "sai_cou_code", "sai_emu_nameshort", "sai_area_division", "sai_hty_code", "sai_samplingobjective", 	 
+							"sai_protocol","sai_comment")),~as.character(.x))) 
 	
 	updated_values_table <- updated_values_table %>% 
 			mutate_at(vars(sai_qal_id),list(as.integer)) 
@@ -1956,7 +1955,7 @@ update_sampling <- function(path) {
 			t.sai_qal_id,
 			t.sai_lastupdate,
 			t.sai_dts_datasource)
-			FROM updated_sampling_temp t WHERE t.sai_id = t_samplinginfo_sai.sai_id"
+			FROM updated_sampling_temp t WHERE t.sai_name = t_samplinginfo_sai.sai_name"
 	
 	message <- NULL
 	nr <- tryCatch({
