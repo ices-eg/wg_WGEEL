@@ -10,7 +10,7 @@
 importdcfstep0UI <- function(id){
   ns <- NS(id)
   tagList(useShinyjs(),
-          h2("Datacall DCF data - quality - biometry integration"),								
+          h2("Datacall DCF and other sampling data - quality - biometry integration"),								
           h2("step 0 : Data check"),
           tabsetPanel(tabPanel("MAIN",
                                fluidRow(

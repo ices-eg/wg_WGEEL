@@ -515,7 +515,7 @@ compare_with_database_dataseries <- function(data_from_excel, data_from_base, sh
 		}
 	}
 	
-
+	
 	modified <- dplyr::anti_join(data_from_excel, data_from_base, 
 			by = c("das_year", "das_value", "das_comment", "das_effort", "das_ser_id", "das_qal_id")
 	)
@@ -964,7 +964,8 @@ compare_with_database_metric_ind <- function(
 #'  }
 #' }
 #' @rdname write_duplicate
-write_duplicates <- function(path, qualify_code = 19) {
+write_duplicates <- function(path, qualify_code = 22) {
+	
 	duplicates2 <- read_excel(path = path, sheet = 1, skip = 1)
 	
 	# Initial checks ----------------------------------------------------------------------------------
@@ -1028,8 +1029,8 @@ write_duplicates <- function(path, qualify_code = 19) {
 		
 		# this will perform the reverse operation if error in query 1 or 2
 		# sqldf will handle this one as it is a several liners
-		query0_reverse <- paste0("update datawg.t_eelstock_eel set (eel_qal_id,eel_comment)=(", 
-				replaced$eel_qal_id.base , ",'", replaced$eel_comment.base, "') where eel_id=", replaced$eel_id,";")
+#		query0_reverse <- paste0("update datawg.t_eelstock_eel set (eel_qal_id,eel_comment)=(", 
+#				replaced$eel_qal_id.base , ",'", replaced$eel_comment.base, "') where eel_id=", replaced$eel_id,";")
 		
 		# this query will be run later cause we don't want it to run if the other fail
 		
@@ -1091,25 +1092,14 @@ write_duplicates <- function(path, qualify_code = 19) {
 		# this query will be run to rollback when query2 crashes
 		#records in t_eel_stockeel_percent are deleted automatically by cascade
 		
-		query1_reverse <- str_c("delete from datawg.t_eelstock_eel", 
-				" where eel_datelastupdate = current_date",
-				" and eel_cou_code='",cou_code,"'", 
-				" and eel_datasource='",the_eel_datasource ,"';")
+#		query1_reverse <- str_c("delete from datawg.t_eelstock_eel", 
+#				" where eel_datelastupdate = current_date",
+#				" and eel_cou_code='",cou_code,"'", 
+#				" and eel_datasource='",the_eel_datasource ,"';")
 		
 		
 		
-	} else {
-		showNotification(				
-				"You don't have any lines in sheet duplicated marked with true in column 'keep new values?', have you forgotten to indicate which lines you want to add in the database ?",
-				duration = 20,	
-				type = "warning"
-		)
-		query0 <- ""
-		query0_reverse <- ""
-		query1 <- ""
-		query1_reverse <- ""
-		
-	}
+	} 
 	
 	# Values not chosen, but we store them in the database --------------------------------------------
 	
@@ -1132,7 +1122,8 @@ write_duplicates <- function(path, qualify_code = 19) {
 		
 		not_replaced$eel_qal_comment.xls <- iconv(not_replaced$eel_qal_comment.xls,"UTF8")
 		not_replaced$eel_comment.xls <- iconv(not_replaced$eel_comment.xls,"UTF8")
-		
+		#browser()
+		colnames(not_replaced) <- gsub(".xls","",colnames(not_replaced))
 		query2 <- str_c( "insert into datawg.t_eelstock_eel (         
 						eel_typ_id,       
 						eel_year,
@@ -1159,7 +1150,7 @@ write_duplicates <- function(path, qualify_code = 19) {
 						eel_qal_id,
 						eel_qal_comment,            
 						eel_datasource,
-						eel_comment from not_replaced_temp_",cou_code," returning eel_id;")
+						eel_comment from not_replaced_temp_",cou_code)
 		query2bis <- str_c( "insert into datawg.t_eelstock_eel_percent (         
 						percent_id,       
 						perc_f,
@@ -1172,103 +1163,83 @@ write_duplicates <- function(path, qualify_code = 19) {
 						perc_c,
 						perc_mo from not_replaced_temp_",cou_code,";") 
 		
-	} else {
-		
-		query2 <- ""
-	}
+	} 
 	
+	#browser()
 	
-	# Inserting temporary tables
-	# running this with more than one sesssion might lead to crash
 	conn <- poolCheckout(pool)
-	dbExecute(conn,str_c("drop table if exists not_replaced_temp_",cou_code) )
-	dbWriteTable(conn,str_c("not_replaced_temp_", tolower(cou_code)),not_replaced,temporary=TRUE,row.names=FALSE )
-	dbExecute(conn,str_c("drop table if exists replaced_temp_",cou_code) )
-	dbWriteTable(conn, str_c("replaced_temp_", tolower(cou_code)), replaced,temporary=TRUE,row.names=FALSE )
-	
-	
-	# Insertion of the three queries ----------------------------------------------------------------
-	
-	# if fails replaces the message with this trycatch !  I've tried many ways with
-	# sqldf but trycatch failed to catch the error Hence the use of DBI 
-	# 
-	
-	
 	
 	message <- NULL
 	
-	# First step, replace values in the database --------------------------------------------------
-	
-	#sqldf(query0)
-	nr0 <- tryCatch({     
-				dbExecute(conn, query0)
+	tryCatch({
+				dbBegin(conn)
+			 dbExecute(conn,str_c("drop table if exists not_replaced_temp_",cou_code) )
+				dbWriteTable(conn,str_c("not_replaced_temp_", tolower(cou_code)),not_replaced, temporary=TRUE, row.names=FALSE )
+				dbExecute(conn,str_c("drop table if exists replaced_temp_",cou_code) )
+				dbWriteTable(conn, str_c("replaced_temp_", tolower(cou_code)), replaced, temporary=TRUE, row.names=FALSE )
+				# First step, replace values in the database --------------------------------------------------
+			   nr0 <-dbExecute(conn, query0) # this will be the same count as inserted nr1 
+				# Second step insert replaced ------------------------------------------------------------------
+				if (nrow(replaced)>0){
+					nr1 <- dbExecute(conn, query1)
+					if (sum(startsWith(names(replaced),"perc_"))>0) { #we have to update also t_eelsock_eel_perc						
+								nr1bis <- dbExecute(conn,query1bis)
+					} else {
+						nr1bis <- 0
+					}
+				} else {
+					showNotification(				
+							"You don't have any lines in sheet duplicated marked with true in column 'keep new values?', have you forgotten to indicate which lines you want to add in the database ?",
+							duration = 20,	
+							type = "warning"
+					)
+					nr1 <- 0
+					nr1bis <- 0
+				}
+				# Third step insert not replaced values into the database with qal id 22-----------------------------------------
+				if (nrow(not_replaced)>0){
+					nr2 <- dbExecute(conn, query2)
+					if (sum(startsWith(names(not_replaced),"perc_"))>0) { #we have to update also t_eelsock_eel_perc
+						nr2bis <- dbExecute(conn,query2bis) # nrow not replaced
+					} else {
+						nr2bis <- 0
+					}
+				}  else {
+					showNotification(				
+							"All values had FALSE in 'keep new values', no new value inserted in the database",
+							duration = 20,	
+							type = "warning"
+					)
+					nr2 <-0
+					nr2bis <- 0
+				}
+				dbExecute(conn,str_c("drop table if exists not_replaced_temp_",cou_code) )
+				dbExecute(conn,str_c("drop table if exists replaced_temp_",cou_code) )
+				dbCommit(conn) # if goes to there commit
+				message <- sprintf(
+						"For duplicates %s values replaced in the t_eelstock_ eel table (values from current datacall stored with code eel_qal_id %s)\n,								
+								%s values not replaced (values from current datacall stored with code eel_qal_id %s),
+								", nr1,  qualify_code,  nr2, nr2bis, qualify_code)
+						if (nr1bis+nr2bis>0) {
+							message <- c(message,  sprintf("\n In addition, %s values replaced in the t_eelstock_eel_percent (old values kept with code eel_qal_id=%s)\n,
+													%s values not replaced for table t_eelstock_eel_percent  (values from current datacall stored with code eel_qal_id %s)",
+											nr1bis,  qualify_code,  nr2bis, nr2bis, qualify_code))
+						}
+				
 			}, error = function(e) {
 				message <<- e  
-				cat("step1 message :")
-				print(message)   
-			}, finally = {
-				#poolReturn(conn)
-				
-			})
+				cat(" message :")
+				print(message) 
+				dbRollback(conn)
+			}, warning = function(e) {
+				message <<- e  
+				cat(" message :")
+				print(message) 
+				dbRollback(conn)				
+			},
+			finally = {
+			})	
 	
-	# Second step insert replaced ------------------------------------------------------------------
-	if (is.null(message)) {
-		#conn <- poolCheckout(pool)
-		nr1 <- tryCatch({
-					if (nrow(replaced)>0){
-						replaced$eel_id_new <- dbGetQuery(conn, query1)[,1]
-						if (sum(startsWith(names(replaced),"perc_"))>0) { #we have to update also t_eelsock_eel_perc
-							dbExecute(conn,str_c("drop table if exists replaced_temp_",cou_code) )
-							dbWriteTable(conn, str_c("replaced_temp_", tolower(cou_code)), replaced,temporary=TRUE,row.names=FALSE )
-							dbExecute(conn,query1bis)
-						}
-					}
-					nrow(replaced)
-				}, error = function(e) {
-					message <<- e  
-					dbGetQuery(conn, query0_reverse)      # perform reverse operation
-					cat("step2 message :")
-					print(message)
-				}, finally = {
-					#poolReturn(conn)
-					dbExecute(conn, str_c( "drop table if exists replaced_temp_", cou_code))        
-				})
-	}
-	# Third step insert not replaced values into the database -----------------------------------------
-	
-	
-	if (is.null(message)){ # the previous operation had no error
-		#conn <- poolCheckout(pool) 
-		nr2 <- tryCatch({     
-					if (nrow(not_replaced)>0){
-						not_replaced$eel_id_new <- dbGetQuery(conn, query2)[,1]
-						if (sum(startsWith(names(not_replaced),"perc_"))>0) { #we have to update also t_eelsock_eel_perc
-							dbExecute(conn,str_c("drop table if exists not_replaced_temp_",cou_code) )
-							dbWriteTable(conn,str_c("not_replaced_temp_", tolower(cou_code)),not_replaced,temporary=TRUE,row.names=FALSE )
-							dbExecute(conn,query2bis)
-						}
-					}
-					nrow(not_replaced)
-				}, error = function(e) {
-					message <<- e 
-					cat("step3 message :")
-					print(message)
-					dbExecute(conn, query1_reverse) # this is not surrounded by trycatch, pray it does not fail ....
-					dbGetQuery(conn,query0_reverse)      # perform reverse operation    
-				}, finally = {
-					#poolReturn(conn)
-					dbExecute(conn, str_c( "drop table if exists not_replaced_temp_", cou_code))   
-				})
-		
-	} else {
-		dbExecute(conn, str_c( "drop table if exists not_replaced_temp_", cou_code))
-	}
-	if (is.null(message)){  
-		message <- sprintf("For duplicates %s values replaced in the database (old values kept with code eel_qal_id=%s)\n,
-						%s values not replaced (values from current datacall stored with code eel_qal_id %s)", 
-				nr1, qualify_code, nr2, qualify_code)  
-	}
-	poolReturn(conn)
 	return(list(message = message, cou_code = cou_code))
 }
 
@@ -1734,8 +1705,8 @@ write_new_sampling <- function(path) {
 	message <- NULL
 	(nr <- tryCatch({
 							dbExecute(conn, query)
-	  query <- "SELECT * FROM datawg.t_samplinginfo_sai"
-	  t_samplinginfo_sai <<- dbGetQuery(conn, sqlInterpolate(ANSI(), query))
+							query <- "SELECT * FROM datawg.t_samplinginfo_sai"
+							t_samplinginfo_sai <<- dbGetQuery(conn, sqlInterpolate(ANSI(), query))
 						}, error = function(e) {
 							message <<- e
 						}, finally = {
@@ -2108,7 +2079,7 @@ write_new_group_metrics <- function(path, type="series") {
 		fk <- "grsa_sai_id"
 	}
 	new <- read_excel(path = path, sheet = 1, skip = 1) %>%
-	  mutate(gr_number=as.numeric(gr_number))
+			mutate(gr_number=as.numeric(gr_number))
 	if (nrow(new) == 0){
 		message <- "nothing to import"
 		cou_code <- ""
@@ -2295,10 +2266,10 @@ write_new_individual_metrics <- function(path, type="series"){
 	} else if (any(is.na(new[,fk]))){
 		wrong <- as.character(unique(new[is.na(new[,fk]),"ser_nameshort"]))
 		if (all(is.na(new[,fk]))){
-				cou_code <- ""
-				# here stop otherwise when sending wrong country name "" crashes when writing log
-				stop(paste("All missing",fk,"have you forgotten to rerun step 1 after integrating new series or sampling_info ? Series",wrong))
-			} else {
+			cou_code <- ""
+			# here stop otherwise when sending wrong country name "" crashes when writing log
+			stop(paste("All missing",fk,"have you forgotten to rerun step 1 after integrating new series or sampling_info ? Series",wrong))
+		} else {
 			if (type=="series"){
 				cou_code = dbGetQuery(conn,paste0("SELECT ser_cou_code FROM datawg.t_series_ser WHERE ser_id='",
 								new$fiser_ser_id[!is.na(new$fiser_ser_id)][1],"';"))$ser_cou_code  
@@ -2378,7 +2349,7 @@ write_new_individual_metrics <- function(path, type="series"){
 					dbExecute(conn,"drop table if exists indiv_metrics_tmp")
 					dbCommit(conn)
 				}           , warning = function(e) {	
-				  shinybusy::remove_modal_spinner() 
+					shinybusy::remove_modal_spinner() 
 					message <<- e		
 					dbRollback(conn)
 				}, error = function(e) {
