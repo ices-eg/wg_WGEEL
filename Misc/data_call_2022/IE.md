@@ -3,7 +3,11 @@
 -----------------------------------------------------------
 
 ## Annex 1
-
+2 new series added
+2 series data updated
+9 new dataseries added
+new group metrics 5 and 9 added
+new individual metrics 481 and 947 added
 
 ## Annex 2
 
