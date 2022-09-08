@@ -845,7 +845,8 @@ compare_with_database_metric_ind <- function(
 	data_from_excel <- data_from_excel %>% mutate_at(vars("fi_date"), list(as.Date)) 
 	
 	#we add this column since fish needs a year but we don't ask it for other sampling (only for series)
-	data_from_excel <- data_from_excel %>% mutate_at(vars("fi_year"), list(as.numeric)) 
+	if ("fi_year" %in% names(data_from_excel))
+	  data_from_excel <- data_from_excel %>% mutate_at(vars("fi_year"), list(as.numeric)) 
 	
 	data_from_excel$sheetorigin <- sheetorigin
 	data_from_excel <- mutate(data_from_excel,"id" = row_number()) # this one serves as joining later
@@ -1711,7 +1712,8 @@ write_new_sampling <- function(path) {
 							dbExecute(conn,"drop table if exists new_sampling_temp;")
 							poolReturn(conn)
 						}))
-	
+	query <- "SELECT distinct sai_name FROM datawg.t_samplinginfo_sai"
+	tr_sai_list <<- dbGetQuery(pool, sqlInterpolate(ANSI(), query))
 	
 	if (is.null(message))   
 		message <- sprintf(" %s new values inserted in the database", nr)
