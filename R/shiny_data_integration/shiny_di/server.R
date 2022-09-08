@@ -106,7 +106,7 @@ shinyServer(function(input, output, session){
 						tr_typeseries_typt<<-tr_typeseries_typt
 						
 						#205-shiny-integration-for-dcf-data 
-						query <- "SELECT distinct sai_id FROM datawg.t_samplinginfo_sai"
+						query <- "SELECT distinct sai_name FROM datawg.t_samplinginfo_sai"
 						tr_sai_list <<- dbGetQuery(pool, sqlInterpolate(ANSI(), query))
 						
 						query <- "SELECT * FROM datawg.t_samplinginfo_sai"
