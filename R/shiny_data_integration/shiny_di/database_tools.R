@@ -1982,14 +1982,18 @@ update_sampling <- function(path) {
 #delete_dataseries(path)
 delete_dataseries <- function(path) {
 	deleted_values_table <- 	read_excel(path = path, sheet = 1, skip = 1)	
+	if (nrow(deleted_values_table) == 0)
+	  stop("no values to be deleted")
 	conn <- poolCheckout(pool)
 	cou_code = dbGetQuery(conn,paste0("SELECT ser_cou_code FROM datawg.t_series_ser WHERE ser_nameshort='",
 					deleted_values_table$ser_nameshort[1],"';"))$ser_cou_code  
 	
+
 	dbExecute(conn,"drop table if exists deleted_dataseries_temp ")
 	dbWriteTable(conn,"deleted_dataseries_temp",deleted_values_table, row.names=FALSE,temporary=TRUE)
-	
-	query=paste("DELETE FROM datawg.t_dataseries_das WHERE das_id IN 
+	if (which(!is.na(deleted_dataseries_temp$das_id)) == 0)
+	  stop("no values to be deleted")
+	query=paste("update datawg.t_dataseries_das set das_qal_id=",qualify_code ,"WHERE das_id IN 
 					(SELECT das_id FROM deleted_dataseries_temp) RETURNING das_id ")
 	message <- NULL
 	nr <- tryCatch({
@@ -1997,7 +2001,7 @@ delete_dataseries <- function(path) {
 			}, error = function(e) {
 				message <<- e
 			}, finally = {
-				dbExecute(conn,"drop table if exists deleted_temp;")
+				dbExecute(conn,"drop table if exists deleted_dataseries_temp;")
 				poolReturn(conn)
 			})
 	
