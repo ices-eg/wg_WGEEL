@@ -1218,10 +1218,9 @@ write_duplicates <- function(path, qualify_code = 22) {
 				dbCommit(conn) # if goes to there commit
 				message <- sprintf(
 						"For duplicates %s values replaced in the t_eelstock_ eel table (values from current datacall stored with code eel_qal_id %s)\n,								
-								%s values not replaced (values from current datacall stored with code eel_qal_id %s),
-								", nr1,  qualify_code,  nr2, nr2bis, qualify_code)
+								%s values not replaced (values from current datacall stored with code eel_qal_id %s),", nr1,  qualify_code,  nr2, nr2bis, qualify_code)
 						if (nr1bis+nr2bis>0) {
-							message <- c(message,  sprintf("\n In addition, %s values replaced in the t_eelstock_eel_percent (old values kept with code eel_qal_id=%s)\n,
+							message <- str_c(message,  sprintf("\n In addition, %s values replaced in the t_eelstock_eel_percent (old values kept with code eel_qal_id=%s)\n,
 													%s values not replaced for table t_eelstock_eel_percent  (values from current datacall stored with code eel_qal_id %s)",
 											nr1bis,  qualify_code,  nr2bis, nr2bis, qualify_code))
 						}
