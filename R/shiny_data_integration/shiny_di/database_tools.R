@@ -2068,6 +2068,7 @@ update_dataseries <- function(path) {
 #'  path <- file.choose()
 
 write_new_group_metrics <- function(path, type="series") {
+	browser()
 	conn <- poolCheckout(pool)
 	on.exit(poolReturn(conn))
 	if (type == "series"){
