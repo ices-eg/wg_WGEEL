@@ -1,23 +1,33 @@
------------------------------------------------------------
-# DZ
------------------------------------------------------------
-## Annex 1
-No data
-## Annex 2
-No data
-## Annex 3
-No data
-## Annex 4
 
-2 new data series integrated
+-----------------------------------------------------------
+# TN
+-----------------------------------------------------------
+
+## Annex 1
+no data
+
+## Annex 2
+no data
+
+## Annex 3
+no data
+
+## Annex 4
+## done
+* 32 new values inserted (new data)
+* 241 values updated in the db (updated values)
 
 ## Annex 5
-No data
+no data
+
 ## Annex 6
-No data
+no data
+
 ## Annex 7
-No data
+no data
+
 ## Annex 8
-No data
+no data
+
 ## Annex 10
-No data
+no data

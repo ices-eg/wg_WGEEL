@@ -845,7 +845,8 @@ compare_with_database_metric_ind <- function(
 	data_from_excel <- data_from_excel %>% mutate_at(vars("fi_date"), list(as.Date)) 
 	
 	#we add this column since fish needs a year but we don't ask it for other sampling (only for series)
-	data_from_excel <- data_from_excel %>% mutate_at(vars("fi_year"), list(as.numeric)) 
+	if ("fi_year" %in% names(data_from_excel))
+	  data_from_excel <- data_from_excel %>% mutate_at(vars("fi_year"), list(as.numeric)) 
 	
 	data_from_excel$sheetorigin <- sheetorigin
 	data_from_excel <- mutate(data_from_excel,"id" = row_number()) # this one serves as joining later
@@ -1711,7 +1712,8 @@ write_new_sampling <- function(path) {
 							dbExecute(conn,"drop table if exists new_sampling_temp;")
 							poolReturn(conn)
 						}))
-	
+	query <- "SELECT distinct sai_name FROM datawg.t_samplinginfo_sai"
+	tr_sai_list <<- dbGetQuery(pool, sqlInterpolate(ANSI(), query))
 	
 	if (is.null(message))   
 		message <- sprintf(" %s new values inserted in the database", nr)
@@ -1980,14 +1982,18 @@ update_sampling <- function(path) {
 #delete_dataseries(path)
 delete_dataseries <- function(path) {
 	deleted_values_table <- 	read_excel(path = path, sheet = 1, skip = 1)	
+	if (nrow(deleted_values_table) == 0)
+	  stop("no values to be deleted")
 	conn <- poolCheckout(pool)
 	cou_code = dbGetQuery(conn,paste0("SELECT ser_cou_code FROM datawg.t_series_ser WHERE ser_nameshort='",
 					deleted_values_table$ser_nameshort[1],"';"))$ser_cou_code  
 	
+
 	dbExecute(conn,"drop table if exists deleted_dataseries_temp ")
 	dbWriteTable(conn,"deleted_dataseries_temp",deleted_values_table, row.names=FALSE,temporary=TRUE)
-	
-	query=paste("DELETE FROM datawg.t_dataseries_das WHERE das_id IN 
+	if (which(!is.na(deleted_dataseries_temp$das_id)) == 0)
+	  stop("no values to be deleted")
+	query=paste("update datawg.t_dataseries_das set das_qal_id=",qualify_code ,"WHERE das_id IN 
 					(SELECT das_id FROM deleted_dataseries_temp) RETURNING das_id ")
 	message <- NULL
 	nr <- tryCatch({
@@ -1995,7 +2001,7 @@ delete_dataseries <- function(path) {
 			}, error = function(e) {
 				message <<- e
 			}, finally = {
-				dbExecute(conn,"drop table if exists deleted_temp;")
+				dbExecute(conn,"drop table if exists deleted_dataseries_temp;")
 				poolReturn(conn)
 			})
 	
