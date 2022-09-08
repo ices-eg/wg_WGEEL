@@ -33,7 +33,7 @@ importtsstep2UI <- function(id){
 			fluidRow(
 					column(
 							width=4,
-							fileInput(ns("xl_updated_series"), "xls modified series, do this first and re-run compare",
+							fileInput(ns("xl_updated_series"), "xls updated series, do this first and re-run compare",
 									multiple=FALSE,
 									accept = c(".xls",".xlsx"))
 					),

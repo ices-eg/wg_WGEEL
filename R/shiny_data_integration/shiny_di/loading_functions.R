@@ -2363,13 +2363,34 @@ load_series<-function(path,datasource, stage="glass_eel"){
 						file,"\n")) 
 	
 	#---------------------- all_other_sheets ---------------------------------------------
-	fn_check_series <- function(sheet, columns,col_types, nbcol){
+	fn_check_series <- function(
+			sheet, 
+			columns 
+	    #,nbcol
+			){
+		
 		data_xls <- read_excel(
 				path=path,
 				sheet=sheet,
-				col_types=col_types,
-				skip=0, guess_max=10000)
+				skip=0, 
+				guess_max=10000)
 		cat(sheet,"\n")
+		
+		col_types=dictionary[columns] #returns a single value per columns
+		# we no longer want to check column length
+		#fn_check_columns(data=data_xls, columns=columns,	file = file, sheet=sheet, nbcol=nbcol)
+		
+		if (any(!columns %in% names(dictionary))) 
+			stop(paste("a column of the template is not in the dictionary, please contact a shiny admin:",
+							columns[!columns %in% names(dictionary)]))
+		
+		cat(sheet,"\n")
+		
+		#here we force conversion to match dictionary
+		data_xls <- data_xls %>%
+				mutate(across(any_of(columns[col_types == "date"]) , ~as.Date(.x)),
+						across(any_of(columns[col_types=="text"]), ~as.character(.x)),
+						across(any_of(columns[col_types=="numeric"]), ~as.numeric(.x)))
 		
 		data_error <- data.frame(nline = NULL, error_message = NULL)
 		# country is extracted 
@@ -2383,13 +2404,7 @@ load_series<-function(path,datasource, stage="glass_eel"){
 		# check for the file integrity		
 		# check column names for each sheet
 		
-		
-		
-		
-		
-		fn_check_columns(data=data_xls, columns=columns,	file = file, sheet=sheet, nbcol=nbcol)
-		
-		# check datasource according to sheet name, for individual and group data two columns are already filled in
+				# check datasource according to sheet name, for individual and group data two columns are already filled in
 		# for updated data and deleted data 
 		if (grepl("data", sheet) & grepl("new", sheet)) {
 			data_xls$das_dts_datasource <- datasource
@@ -2452,12 +2467,7 @@ load_series<-function(path,datasource, stage="glass_eel"){
 								),			
 								function(name_column){
 									if  (name_column %in% colnames(data_xls) & (grepl("deleted", sheet) | grepl("updated", sheet))){	
-										data_error <- rbind(data_error, check_unique(
-														dataset = data_xls,					
-														namedataset = sheet,
-														column=name_column,
-														country=country))
-										data_error <- rbind(data_error, check_type(
+									  data_error <- rbind(data_error, check_type(
 														dataset = data_xls,					
 														namedataset = sheet,
 														column=name_column,
@@ -2660,21 +2670,21 @@ load_series<-function(path,datasource, stage="glass_eel"){
 					"is_female_(1=female,0=male)","is_differentiated_(1=differentiated,0_undifferentiated)",
 					"anguillicola_presence_(1=present,0=absent)",	"anguillicola_intensity",	"muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb", "teq",
 					"evex_presence_(1=present,0=absent)","hva_presence_(1=present,0=absent)",	"pb",	"hg",	"cd"))
-	col_types=list(
-			c("text", "numeric", "numeric", "text", "numeric","numeric", "text"),
-			c("text","numeric", "numeric", "numeric","numeric",	"text",	"numeric",	"numeric", "text", "text"),
-			c("text","numeric", "numeric", "numeric","numeric",	"text",	"numeric",	"numeric", "text", "text"),
-			c("text",	"numeric", "numeric", "text", rep("numeric",24)),		
-			c("numeric","text",	"numeric", "numeric",	"numeric", "text", "date", rep("numeric",24)),	
-			c("numeric","text",	"numeric", "numeric",	"numeric", "text", "date", rep("numeric",24)),
-			c("text",	"date", "numeric", "text", rep("numeric",18)),
-			c("numeric","text",	"date","numeric", "text", "date",	"text", rep("numeric",18)),
-			c("numeric","text",	"date", "numeric","text", "date","text", rep("numeric",18)))
-	nbcol <- list(7,10,10,28,31,31,22,25,25)
+#	col_types=list(
+#			c("text", "numeric", "numeric", "text", "numeric","numeric", "text"),
+#			c("text","numeric", "numeric", "numeric","numeric",	"text",	"numeric",	"numeric", "text", "text"),
+#			c("text","numeric", "numeric", "numeric","numeric",	"text",	"numeric",	"numeric", "text", "text"),
+#			c("text",	"numeric", "numeric", "text", rep("numeric",24)),		
+#			c("numeric","text",	"numeric", "numeric",	"numeric", "text", "date", rep("numeric",24)),	
+#			c("numeric","text",	"numeric", "numeric",	"numeric", "text", "date", rep("numeric",24)),
+#			c("text",	"date", "numeric", "text", rep("numeric",18)),
+#			c("numeric","text",	"date","numeric", "text", "date",	"text", rep("numeric",18)),
+#			c("numeric","text",	"date", "numeric","text", "date","text", rep("numeric",18)))
+#	nbcol <- list(7,10,10,28,31,31,22,25,25)
 	# just a check
 	#stopifnot(all.equal(unlist(nbcol), sapply(col_types,length)))
 	
-	res <- purrr::pmap(list(sheet,columns,col_types,nbcol), fn_check_series)
+	res <- purrr::pmap(list(sheet,columns), fn_check_series) # col_types,nbcol
 	data_error <- 	lapply(res,function(X)X$error) %>% bind_rows()
 	shinybusy::remove_modal_spinner()
 	
@@ -2981,18 +2991,20 @@ load_dcf<-function(path,datasource){
 	
 	#---------------------- all_other_sheets ---------------------------------------------
 	fn_check_gr_ind <- function(sheet, columns){
-	  headers <- read_excel(
-	    path=path,
-	    sheet=sheet,
-	    skip=0, guess_max=10000)
-	  cat(sheet,"\n")
+		
+		data_xls <- read_excel(
+				path=path,
+				sheet=sheet,
+				skip=0, guess_max=10000)
+		cat(sheet,"\n")
+
 	  
-	  if ((!"fi_year" %in% names(headers)) & "fi_year" %in%columns){
+	  if ((!"fi_year" %in% names(data_xls)) & "fi_year" %in%columns){
 	    columns=columns[-which(columns=="fi_year")]
 	  }
 	  nbcol <- length(columns)	
 	  
-	  fn_check_columns(data=headers, columns=columns,	file = file, sheet=sheet, nbcol=nbcol)
+	  fn_check_columns(data=data_xls, columns=columns,	file = file, sheet=sheet, nbcol=nbcol)
 	  col_types=dictionary[columns] #returns a single value per columns
 	  
 	  if (any(!columns %in% names(dictionary))) 
@@ -3007,15 +3019,7 @@ load_dcf<-function(path,datasource){
 	  
 	  # check column names for each sheet
 	  
-	  
-	  
-		data_xls <- read_excel(
-				path=path,
-				sheet=sheet,
-				skip=0, guess_max=10000)
-		cat(sheet,"\n")
-		
-		#here we force conversion to match dictionary
+  	#here we force conversion to match dictionary
 		data_xls <- data_xls %>%
 		  mutate(across(any_of(columns[col_types == "date"]) , ~as.Date(.x)),
 		         across(any_of(columns[col_types=="text"]), ~as.character(.x)),

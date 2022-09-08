@@ -143,7 +143,7 @@ dictionary=c(
   "sai_name"="text",
   "sai_emu_nameshort"="text",
   "gr_year"="numeric",
-  "grsa_lfs_code"="text",
+  "grsa_lfs_code"="text",	
   "gr_number"="numeric",
   "lengthmm"="numeric",
   "weightg"="numeric",
@@ -201,5 +201,21 @@ dictionary=c(
   "hg"="numeric",
   "cd"="numeric",
   "fi_last_update"="date",
-  "fi_dts_datasource"="text"
+  "fi_dts_datasource"="text",
+	# series group and indiv
+"grser_ser_id"="numeric",
+"fiser_ser_id"="numeric",
+"fiser_year"="numeric", # TODO remove 2023
+ "ser_nameshort"="numeric",
+ # dataseries
+ 	"das_id"="numeric",
+	"das_ser_id"="numeric",
+	"das_value"="numeric",
+	"das_year"="numeric",
+	"das_comment"="text",
+	"das_effort"="numeric",
+	"das_qal_id"="numeric",
+	"das_qal_comment"="text",
+	"das_dts_datasource"="text"
+
 )
