@@ -68,35 +68,7 @@
 
 
 
------------------------------------------------------------
-# NO (Norway) 
------------------------------------------------------------
-## Annex 1
-It is done
 
-## Annex 2
-It is done
-## Annex 3
-
-It is done
-## Annex 4
-
-It is done
-
-## Annex 5
-
-No data
-## Annex 6
-
-No data
-## Annex 7
-No data
-## Annex 8
-No data
-
-
-## Annex 10
-No data
 ----------------------------------------------------------- 
 # PL 
 -----------------------------------------------------------
@@ -176,47 +148,6 @@ LINE 1: ...ELECT ser_cou_code FROM datawg.t_series_ser WHERE ser_id='';
 
 ## Annex 10
 
------------------------------------------------------------
-# SE
------------------------------------------------------------
-## Annex 1
-Modified series: 1 value updated in the db
-
-New dataseries: 9 values inserted in the db
-
-Modified dataseries: 620 values updated in the db (added a quality id)
-
-New group metrics: 4 and 4 new values inserted in the group and metric tables
-
-## Annex 2
-New dataseries: 2 new values inserted in the database (new years)
-
-Modified dataseries: 75 values updated in the db (effort data added and corrected CPUE data)
-
-New group metrics: 83 and 83 new values inserted in the group and metric tables.
-
-New individual metrics: 1253 and 7416 new values inserted in the group and metric tables
-
-## Annex 3
-
-
-## Annex 4
-Integrate new rows: Uploaded 36 new rows
-
-## Annex 5
-
-
-## Annex 6
-New rows: 4 new values inserted in the database
-
-## Annex 7
-New rows: 8 new values in the database
-
-## Annex 8
-New rows: 1 new values inserted in the database
-
-
-## Annex 10
 
 ----------------------------------------------------------- 
 # Sl
@@ -276,28 +207,6 @@ New rows: 1 new values inserted in the database
 
 ## Annex 10
 
------------------------------------------------------------
-# TR
------------------------------------------------------------
- 
-## Annex 1
-No data
-## Annex 2
-No data
-## Annex 3
-No data
-## Annex 4
-Two new data integrated for commercial landings
-One new data integrated for recreational landings
-## Annex 5
-No data
-## Annex 6
-No data
-## Annex 7
-No data
-## Annex 8
-No data
-## Annex 10
-No data
+
  
 
