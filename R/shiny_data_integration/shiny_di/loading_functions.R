@@ -2363,6 +2363,7 @@ load_series<-function(path,datasource, stage="glass_eel"){
 						file,"\n")) 
 	
 	#---------------------- all_other_sheets ---------------------------------------------
+
 	fn_check_series <- function(
 			sheet, 
 			columns 
@@ -2375,6 +2376,7 @@ load_series<-function(path,datasource, stage="glass_eel"){
 				skip=0, 
 				guess_max=10000)
 		cat(sheet,"\n")
+		#browser()
     # ignore this
 		#nbcol <- length(columns)	
 		#fn_check_columns(data=data_xls, columns=columns,	file = file, sheet=sheet, nbcol=nbcol)
@@ -2387,12 +2389,16 @@ load_series<-function(path,datasource, stage="glass_eel"){
 							columns[!columns %in% names(dictionary)]))
 		
 		cat(sheet,"\n")
-		
+
 		#here we force conversion to match dictionary
+	  tryCatch({
 		data_xls <- data_xls %>%
 				mutate(across(any_of(columns[col_types == "date"]) , ~as.Date(.x)),
 						across(any_of(columns[col_types=="text"]), ~as.character(.x)),
 						across(any_of(columns[col_types=="numeric"]), ~as.numeric(.x)))
+  	}, error = function(e) {
+	showNotification(paste(sheet,"Error when casting data", e), type="warning",duration=NULL) 		
+		})
 		
 		data_error <- data.frame(nline = NULL, error_message = NULL)
 		# country is extracted 
@@ -2685,7 +2691,6 @@ load_series<-function(path,datasource, stage="glass_eel"){
 #	nbcol <- list(7,10,10,28,31,31,22,25,25)
 	# just a check
 	#stopifnot(all.equal(unlist(nbcol), sapply(col_types,length)))
-	
 	res <- purrr::pmap(list(sheet,columns), fn_check_series) # col_types,nbcol
 	data_error <- 	lapply(res,function(X)X$error) %>% bind_rows()
 	shinybusy::remove_modal_spinner()

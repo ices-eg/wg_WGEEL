@@ -119,16 +119,17 @@ importtsstep0Server <- function(id, globaldata){
 					# it also prints error or comments captured by capture.output
 					switch (input$file_type_ts, 
 							"glass_eel"={                  
-								message<-capture.output(res <- load_series(data$path_step0_ts, 
+								message<-capture.output(res <- load_series(path = data$path_step0_ts, 
 												datasource = the_eel_datasource,
 												stage="glass_eel"
 										))},
 							"yellow_eel"={
-								message<-capture.output(res <- load_series(data$path_step0_ts, 
+								#browser()
+								message<-capture.output(res <- load_series(path = data$path_step0_ts, 
 												datasource = the_eel_datasource,
 												stage="yellow_eel"))},
 							"silver_eel"={
-								message<-capture.output(res <- load_series(data$path_step0_ts, 
+								message<-capture.output(res <- load_series(path = data$path_step0_ts, 
 												datasource = the_eel_datasource,
 												stage="silver_eel"))}
 					# -------------------------------------------------------------				
@@ -168,7 +169,7 @@ importtsstep0Server <- function(id, globaldata){
 				###################################################
 				observeEvent(input$ts_check_file_button, 
 						{
-						shinyCatch({
+						#shinyCatch({
 									
 									##################################################
 									# clean up
@@ -258,7 +259,7 @@ importtsstep0Server <- function(id, globaldata){
 														)
 												)
 											})
-								}) #shinyCatch								
+								#}) #shinyCatch								
 								remove_modal_spinner()	
 								}, ignoreInit = TRUE)
 				
