@@ -27,7 +27,7 @@ New individual metrics: 1253 and 7416 new values inserted in the group and metri
 Integrate new rows: Uploaded 36 new rows
 
 ## Annex 5
-
+No new data to integrage
 
 ## Annex 6
 New rows: 4 new values inserted in the database
@@ -40,4 +40,11 @@ New rows: 1 new values inserted in the database
 
 
 ## Annex 10
-* 172 and 1844 new values inserted in the group and metric tables
+New sampling: 18 new values entered into the db
+
+Modified sampling: 36 values updated in the db
+
+New group metrics: 172 and 1844 new values inserted in the group and metric tables
+
+New individual metrics: STILL TO DO
+
