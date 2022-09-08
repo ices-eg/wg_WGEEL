@@ -2375,7 +2375,9 @@ load_series<-function(path,datasource, stage="glass_eel"){
 				skip=0, 
 				guess_max=10000)
 		cat(sheet,"\n")
-		
+    # ignore this
+		#nbcol <- length(columns)	
+		#fn_check_columns(data=data_xls, columns=columns,	file = file, sheet=sheet, nbcol=nbcol)
 		col_types=dictionary[columns] #returns a single value per columns
 		# we no longer want to check column length
 		#fn_check_columns(data=data_xls, columns=columns,	file = file, sheet=sheet, nbcol=nbcol)
@@ -2647,11 +2649,11 @@ load_series<-function(path,datasource, stage="glass_eel"){
 					"m_mean_lengthmm","m_mean_weightg","m_mean_ageyear","f_mean_lengthmm","f_mean_weightg","f_mean_age",
 					"anguillicola_proportion",	"anguillicola_intensity",	"muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb", "teq",
 					"evex_proportion","hva_proportion",	"pb",	"hg",	"cd","g_in_gy_proportion","s_in_ys_proportion"),		
-			c("gr_id","ser_nameshort",	"grser_ser_id", "gr_year",	"gr_number", "gr_comment", "gr_last_update", "gr_dts_datasource", "lengthmm",	"weightg",	"ageyear",	"female_proportion","differentiated_proportion",
+			c("gr_id","ser_nameshort", "gr_year",	"gr_number", "gr_comment", "gr_last_update", "gr_dts_datasource", "lengthmm",	"weightg",	"ageyear",	"female_proportion","differentiated_proportion",
 					"m_mean_lengthmm","m_mean_weightg","m_mean_ageyear","f_mean_lengthmm","f_mean_weightg","f_mean_age",
 					"anguillicola_proportion",	"anguillicola_intensity",	"muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb", "teq",
 					"evex_proportion","hva_proportion",	"pb",	"hg",	"cd","g_in_gy_proportion","s_in_ys_proportion"),	
-			c("gr_id","ser_nameshort",	"grser_ser_id", "gr_year",	"gr_number", "gr_comment", "gr_last_update", "gr_dts_datasource", "lengthmm",	"weightg",	"ageyear",	"female_proportion","differentiated_proportion",
+			c("gr_id","ser_nameshort", "gr_year",	"gr_number", "gr_comment", "gr_last_update", "gr_dts_datasource", "lengthmm",	"weightg",	"ageyear",	"female_proportion","differentiated_proportion",
 					"m_mean_lengthmm","m_mean_weightg","m_mean_ageyear","f_mean_lengthmm","f_mean_weightg","f_mean_age",
 					"anguillicola_proportion",	"anguillicola_intensity",	"muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb", "teq",
 					"evex_proportion","hva_proportion",	"pb",	"hg",	"cd","g_in_gy_proportion","s_in_ys_proportion"),
@@ -2659,13 +2661,13 @@ load_series<-function(path,datasource, stage="glass_eel"){
 					"is_female_(1=female,0=male)","is_differentiated_(1=differentiated,0_undifferentiated)",
 					"anguillicola_presence_(1=present,0=absent)",	"anguillicola_intensity",	"muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb", "teq",
 					"evex_presence_(1=present,0=absent)","hva_presence_(1=present,0=absent)",	"pb",	"hg",	"cd"),
-			c("fi_id","ser_nameshort","fiser_ser_id",	"fi_date", "fi_year","fi_lfs_code", "fi_comment", "fi_last_update",	"fi_dts_datasource",
+			c("fi_id","ser_nameshort",	"fi_date", "fi_year","fi_lfs_code", "fi_comment", "fi_last_update",	"fi_dts_datasource",
 					"lengthmm",	"weightg",	"ageyear",	"eye_diam_meanmm", "pectoral_lengthmm",
 					"is_female_(1=female,0=male)","is_differentiated_(1=differentiated,0_undifferentiated)",
 					"anguillicola_presence_(1=present,0=absent)",	"anguillicola_intensity",	"muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb", "teq",
 					"evex_presence_(1=present,0=absent)","hva_presence_(1=present,0=absent)",	"pb",	"hg",	"cd"),
 			# TODO 2023 change name fiser_year to fi_year the template has been updated
-			c("fi_id","ser_nameshort",	"fiser_ser_id", "fi_date",	"fiser_year", "fi_lfs_code", "fi_comment",  "fi_last_update",	"fi_dts_datasource", 
+			c("fi_id","ser_nameshort", "fi_date",	"fiser_year", "fi_lfs_code", "fi_comment",  "fi_last_update",	"fi_dts_datasource", 
 					"lengthmm",	"weightg",	"ageyear",	"eye_diam_meanmm", "pectoral_lengthmm",
 					"is_female_(1=female,0=male)","is_differentiated_(1=differentiated,0_undifferentiated)",
 					"anguillicola_presence_(1=present,0=absent)",	"anguillicola_intensity",	"muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb", "teq",

@@ -206,7 +206,7 @@ dictionary=c(
 "grser_ser_id"="numeric",
 "fiser_ser_id"="numeric",
 "fiser_year"="numeric", # TODO remove 2023
- "ser_nameshort"="numeric",
+ "ser_nameshort"="text",
  # dataseries
  	"das_id"="numeric",
 	"das_ser_id"="numeric",
