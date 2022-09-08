@@ -8,6 +8,9 @@
 * 81 values integrated (new dataseries)
 * 1 and 2 new values integrated (new group metrics)
 
+## to do
+* we had to change ser_uni_effort_code from "weight day" to "kg/d" in one line - Claude to confirm that this is the correct unit
+
 ## Annex 2
 no data
 
