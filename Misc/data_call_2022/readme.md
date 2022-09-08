@@ -33,31 +33,41 @@
 -----------------------------------------------------------
 
 ## Annex 1
-
+### done
+* 4 values updated (modified series)
+* 81 values integrated (new dataseries)
+* 1 and 2 new values integrated (new group metrics)
 
 ## Annex 2
+no data
 
 ## Annex 3
-
+no data
 
 ## Annex 4
-
-
+no data
 
 ## Annex 5
-
+ ### done
+ * replaced two values (duplicates)
+ * 1 new value integrated (new rows)
 
 ## Annex 6
-
+no data
 
 ## Annex 7
+### notes
+* there was a window with duplicates but there were none and the created excel file was empty (in the shiny in eel_missvalueequal.base it says "No data available in table")
+
+### done
+* 4 new values inserted (new rows)
 
 ## Annex 8
-
+no data
 
 
 ## Annex 10
-
+no data
 -----------------------------------------------------------
 # CZ
 -----------------------------------------------------------
@@ -145,7 +155,9 @@
 # DK
 -----------------------------------------------------------
 ## Annex 1
-
+7 series modified
+In new dataseries: Error: Failed to fetch row: ERROR:  duplicate key value violates unique constraint "c_uk_year_ser_id"
+DETAIL:  Key (das_year, das_ser_id)=(2016, 39) already exists.
 
 ## Annex 2
 
@@ -154,7 +166,7 @@
 
 ## Annex 4
 
-552 new rows entered
+
 
 ## Annex 5
 
@@ -400,31 +412,35 @@ on error
 # GR
 -----------------------------------------------------------
 ## Annex 1
-
-
+--
 ## Annex 2
-
+1 update modified series (Step 2.1.2) and 11 new dataseries (Step 2.2.2)
 ## Annex 3
-
-
+31 new values in new data series
+3 values in uptaded modified series
+1 and 10 values integrate new group metrics
 ## Annex 4
 
+32 new values was added.
 
+Error: Failed to prepare query: ERROR:  column "eel_value" does not exist
+LINE 17:       eel_value,
+               ^
+HINT:  There is a column named "eel_value" in table "t_eelstock_eel", but it cannot be referenced from this part of the query.
 
 ## Annex 5
-
+--
 
 ## Annex 6
-
+--
 
 ## Annex 7
-
+8 new values was added
 ## Annex 8
-
-
+1new value was added
 
 ## Annex 10
-
+--
 -----------------------------------------------------------
 # HR
 -----------------------------------------------------------
@@ -514,31 +530,37 @@ Issue with integrating individual data
 -----------------------------------------------------------
 
 ## Annex 1
-
+No new data
 
 ## Annex 2
+No new data
 
 ## Annex 3
-
+No new data
 
 ## Annex 4
-
-
+### done
+* new data inserted 28 rows
+### TODO
+* duplicates error, needs to be reprogrammed
 
 ## Annex 5
-
-
+### done
+* new data inserted 2 rows
+* * some of the new rows are recognized as duplicates (probably NR yet)
+### TODO
+* duplicates error, needs to be reprogrammed
 ## Annex 6
-
-
+No data
 ## Annex 7
-
+### TODO
+2 rows
 ## Annex 8
-
-
-
+### Done
+2 rows
 ## Annex 10
-
+### TODO
+Shiny delete the old data
 
 
 -----------------------------------------------------------

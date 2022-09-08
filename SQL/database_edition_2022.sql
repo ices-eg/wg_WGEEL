@@ -982,6 +982,9 @@ ALTER TABLE datawg.t_fish_fi  ADD column fi_lfs_code varchar(2);
 alter table datawg.t_fish_fi add constraint c_fk_fi_lfs_code FOREIGN KEY (fi_lfs_code) REFERENCES "ref".tr_lifestage_lfs(lfs_code) ON UPDATE cascade
 alter table datawg.t_fishsamp_fisa drop column fisa_lfs_code;
 alter table datawg.t_fish_fi  alter column fi_year drop not null;
+alter table datawg.t_fish_fi  alter column fi_date drop not null;
+alter table datawg.t_fish_fi  add constraint ck_fi_date_fi_year check (fi_date is not null or fi_year is not null);
+
 
 -- 31/08/2022 Execution of script till here on wgeel distant database
 update datawg.t_samplinginfo_sai set sai_name='DE_Eide_Eider_HIST' where sai_name='DE_Elbe_Eider_HIST'; --fix incorrect name for an old sampling in DE
