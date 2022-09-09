@@ -753,7 +753,8 @@ compare_with_database_metric_group <- function(data_from_excel,
 	duplicates <- data_from_base_wide %>% 	
 			dplyr::inner_join(
 					data_from_excel, 
-					by = c(ifelse(type=="series","ser_nameshort","sai_name"), "gr_id","gr_year"), 
+					#by = c(ifelse(type=="series","ser_nameshort","sai_name"), "gr_id","gr_year"),
+					by = "gr_id",#we only need a junction based on gr_id
 					suffix = c(".base", ".xls"))
 	
 	
