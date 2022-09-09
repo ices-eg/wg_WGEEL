@@ -891,7 +891,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 														validate(need(globaldata$connectOK,"No connection"))
 														datatable(list_comp_group_metrics$modified,
 																rownames=FALSE,
-																extensions = "Buttons",
+																extensions = c("Buttons","Scroller"),
 																option=list(
 																		scrollX = TRUE,
 																		scrollY = TRUE,
@@ -899,7 +899,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 																		deferRender = TRUE, # defer render helps with large datasets
 																		dom = 'lBfrtip',
 																		lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
-																		"pagelength"=5,
+																		"pagelength"=10,
 																		fixedColumns = TRUE,
 																		searching= FALSE,																		
 																		buttons=list(
