@@ -765,8 +765,13 @@ compare_with_database_metric_group <- function(data_from_excel,
 	
 	# Anti join only keeps columns from X
 	if (sheetorigin == "new_group_metrics"){
+	  if (type=="series"){
 		new <-  dplyr::anti_join(data_from_excel_long, data_from_base, 
 				by = c(ifelse(type=="series","ser_nameshort","sai_name"), "gr_year","meg_mty_id"))
+	  } else{
+	    new <-  dplyr::anti_join(data_from_excel_long, data_from_base, 
+	                             by = c("sai_name", "gr_year","meg_mty_id","grsa_lfs_code"))
+	  }
 	} else {
 		new <-  dplyr::anti_join(data_from_excel_long, data_from_base, 
 				by = "gr_id")
