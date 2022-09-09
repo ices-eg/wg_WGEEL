@@ -2321,7 +2321,7 @@ write_new_individual_metrics <- function(path, type="series"){
 			}  
 			if (length(cou_code)==0) {
 				cou_code <-"VA"
-			warning(str_f("Could not find a country for %s so used VA instead",new$sai_name[!is.na(new$sai_name)][1]))
+			warning(sprintf("Could not find a country for %s so used VA instead",new$sai_name[!is.na(new$sai_name)][1]))
 			message <- paste("Some missing",fk,"have you forgotten to rerun database comparison after integrating new series or sampling_info?  Series,",wrong)
 		}
 		}
