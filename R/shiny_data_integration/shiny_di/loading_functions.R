@@ -73,7 +73,7 @@ load_catch_landings<-function(path,datasource){
 								c(ifelse(sheet %in% c("updated_data",deleted),"eel_id","eel_typ_name"),"eel_typ_name","eel_year","eel_value","eel_missvaluequal",
 										"eel_emu_nameshort","eel_cou_code", "eel_lfs_code", "eel_hty_code","eel_area_division",
 										"eel_qal_id", "eel_qal_comment","eel_comment","eel_datasource"))) 
-					cat(str_c("problem in column names :",            
+					stop(str_c("problem in column names :",            
 									paste(colnames(data_xls)[!colnames(data_xls)%in%
 															c(ifelse(sheet %in% c("updated_data", deleted),"eel_id",""),
 																	"eel_typ_name", "eel_year","eel_value","eel_missvaluequal","eel_emu_nameshort",
