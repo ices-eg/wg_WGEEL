@@ -6,7 +6,7 @@
 * 1 updated series (modified series) - RE-INTEGRATED after data loss
 * 3 new values inserted in the database (new dataseries) - RE-INTEGRATED after data loss
 * 2 updated values (new dataseries) - RE-INTEGRATED after data loss
-* 5826 and 11652 new values inserted in the fish and metric tables (new individual metrics) - nothing shows in integration tool; already inegrated? YES
+* 5826 and 11652 new values inserted in the fish and metric tables (new individual metrics) - nothing shows in integration tool during re-integration; already inegrated? YES
 * 2 and 6 values inserted (new group metrics) - (was already integrated when trying to re-integrate... Maybe I did that and forgot)
 
 ### to do
