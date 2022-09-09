@@ -577,29 +577,27 @@ check_consistency_missvalue_rates <- function(dataset, namedataset, rates){
 }
 
 
-checknotqalid0andmissvalue <- function(dataset, namedataset, rates){
+checknotqalid0andmissvalue <- function(dataset, namedataset, country){
+	#browser()
 	answer = NULL
 	#namedataset <-  deparse(substitute(dataset))
 	newdataset <- dataset
 	newdataset <- tibble::rowid_to_column(newdataset, "nline" )
-	newdataset2 <- newdataset
-	newdataset <- newdataset %>% rename_at(vars(contains(rates)), funs(str_remove(.,paste(rates,"_",sep=""))))
+  
+	newdataset <- newdataset %>% filter(!is.na(eel_missvaluequal) & eel_qal_id==0 & !is.na(eel_qal_id))
 	
-	if (any(is.na(newdataset$eel_value) & (!newdataset$perc_F %in% c("NP","0") | !newdataset$perc_T %in% c("NP","0") | 
-						!newdataset$perc_C %in% c("NP","0") | !newdataset$perc_MO %in% c("NP","0")))) {
+	if (nrow(newdataset>0)) {
 		
-		cat(sprintf("dataset <%s>, line <%s> is wrong, if eel_value is empty only 0 or NP is possible in percentages columns \n", 
+		cat(sprintf("dataset <%s>, line <%s> is wrong, if you have entered a missvaluequal (NR or NP) you cannot use 0 as qal_id, use 1 instead \n", 
 						namedataset,
-						str_c(newdataset2$nline[is.na(newdataset$eel_value) & (!newdataset$perc_F %in% c("NP","0") | !newdataset$perc_T %in% c("NP","0") | 
-													!newdataset$perc_C %in% c("NP","0") | !newdataset$perc_MO %in% c("NP","0"))], collapse=";")))
+						paste(newdataset$nline, collapse=',')))
 		
-		line = newdataset2$nline[is.na(newdataset$eel_value) & (!newdataset$perc_F %in% c("NP","0") | !newdataset$perc_T %in% c("NP","0") | 
-							!newdataset$perc_C %in% c("NP","0") | !newdataset$perc_MO %in% c("NP","0"))]
+		line = newdataset$nline
 		if (length(line)>10) line <-str_c(str_c(line[1:10],collapse=";"),"...") else
 			line <- str_c(line)
 		# same but split and no end of line
 		answer  = data.frame(nline = line, 
-				error_message = sprintf("dataset <%s> is wrong, if eel_value is empty only 0 or NP is possible in percentages columns", 
-						namedataset))	  
+				error_message = "If you have entered a missvaluequal (NR or NP) you cannot use 0 as qal_id, use 1 instead", 
+						namedataset, collapse=',')	  
 	} 
 }

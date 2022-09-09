@@ -287,7 +287,7 @@ load_catch_landings<-function(path,datasource){
 					)
 					
 					### no missvalue and qual id0 at the same time
-					browser()
+
 					data_error= rbind(data_error, checknotqalid0andmissvalue(
 									dataset=data_xls,
 									namedataset= sheet, 
@@ -1738,6 +1738,14 @@ load_mortality_silver<-function(path,datasource){
 		
 		data_error= rbind(data_error, check_freshwater_without_area(
 						dataset=data_xls,
+						country=country) 
+		)
+		
+		### no missvalue and qual id0 at the same time
+		
+		data_error= rbind(data_error, checknotqalid0andmissvalue(
+						dataset=data_xls,
+						namedataset= "new_data", 
 						country=country) 
 		)
 		
