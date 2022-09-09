@@ -1188,17 +1188,18 @@ ORDER BY ser_cou_code, ser_typ_id;
 
 
 
--- send data to esti
-WITH ser AS (
-SELECT * FROM datawg.t_series_ser JOIN datawg.t_dataseries_das das 
-ON ser_id=das_ser_id)
+SELECT * FROM datawg.t_eelstock_eel WHERE eel_id =408546
 
-SELECT * FROM ser WHERE ser_cou_code ='ES'
+SELECT e.* FROM datawg.t_eelstock_eel e JOIN
+ref.tr_emu_emu ON eel_emu_nameshort = emu_nameshort 
+WHERE emu_wholecountry!=TRUE
+AND eel_typ_id=11 AND eel_qal_id=1;
 
-SET search_path TO public, datawg, ref;
+SELECT emu_wholecountry FROM ref.tr_emu_emu WHERE emu_nameshort= 'IT_total'
 
 
-SELECT count(*) , ser_nameshort, ser_typ_id FROM datawg.t_series_ser  
-JOIN datawg.t_fishseries_fiser ON fiser_ser_id= ser_id
-WHERE ser_cou_code='PT' GROUP BY ser_nameshort, ser_typ_id;  -- 5827 db 6410
+-- correction constraint
+ALTER TABLE datawg.t_eelstock_eel DROP CONSTRAINT ck_emu_whole_aquaculture
+ALTER TABLE datawg.t_eelstock_eel ADD CONSTRAINT ck_emu_whole_aquaculture CHECK (NOT(eel_qal_id=1 AND eel_typ_id = 11 AND NOT checkemu_whole_country(eel_emu_nameshort)));
+
 
