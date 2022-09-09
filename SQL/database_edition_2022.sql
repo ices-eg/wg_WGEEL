@@ -1185,4 +1185,17 @@ ORDER BY ser_cou_code, ser_typ_id;
 
 
 
+-- send data to esti
+WITH ser AS (
+SELECT * FROM datawg.t_series_ser JOIN datawg.t_dataseries_das das 
+ON ser_id=das_ser_id)
+
+SELECT * FROM ser WHERE ser_cou_code ='ES'
+
+SET search_path TO public, datawg, ref;
+
+
+SELECT count(*) , ser_nameshort, ser_typ_id FROM datawg.t_series_ser  
+JOIN datawg.t_fishseries_fiser ON fiser_ser_id= ser_id
+WHERE ser_cou_code='PT' GROUP BY ser_nameshort, ser_typ_id;  -- 5827 db 6410
 

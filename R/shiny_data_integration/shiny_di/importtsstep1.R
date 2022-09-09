@@ -85,100 +85,100 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 			function(input, output, session) {
 				
 				observeEvent(input$clean_output,
-							shinyCatch({
-										
-										##################################################
-										# clean up
-										#################################################						
-										
-										
-										output$step1_message_new_series <- renderText("")
-										output$dt_new_series <- renderDataTable(data.frame(),
-												options = list(searching = FALSE,paging = FALSE,
-														language = list(zeroRecords = "Not run yet")))  
-										
-										output$step1_message_new_dataseries <- renderText("")
-										output$dt_new_dataseries <- renderDataTable(data.frame(),
-												options = list(searching = FALSE,paging = FALSE,
-														language = list(zeroRecords = "Not run yet")))  
-										
-										output$step1_message_new_group_metrics <- renderText("")
-										output$dt_new_group_metrics <- renderDataTable(data.frame(),
-												options = list(searching = FALSE,paging = FALSE,
-														language = list(zeroRecords = "Not run yet")))  
-										
-										output$step1_message_new_individual_metrics <- renderText("")
-										output$dt_new_individual_metrics <- renderDataTable(data.frame(),
-												options = list(searching = FALSE,paging = FALSE,
-														language = list(zeroRecords = "Not run yet"))) 
-										
-										output$step1_message_modified_series  <- renderText("")
-										output$dt_modified_series <- renderDataTable(
-												data.frame(),
-												options = list(searching = FALSE,paging = FALSE,
-														language = list(zeroRecords = "Not run yet")))  
-										output$dt_highlight_change_series <- renderDataTable(
-												data.frame(),
-												options = list(searching = FALSE,paging = FALSE,
-														language = list(zeroRecords = "Not run yet")))   
-										
-										
-										output$step1_message_modified_dataseries <- renderText("")
-										output$dt_modified_dataseries <- renderDataTable(
-												data.frame(),
-												options = list(searching = FALSE,paging = FALSE,
-														language = list(zeroRecords = "Not run yet")))    
-										output$dt_highlight_change_dataseries <- renderDataTable(
-												data.frame(),
-												options = list(searching = FALSE,paging = FALSE,
-														language = list(zeroRecords = "Not run yet")))   
-										
-										
-										output$step1_message_modified_group_metrics  <- renderText("") 
-										
-										output$dt_modified_group_metrics <- renderDataTable(
-												data.frame(),
-												options = list(searching = FALSE,paging = FALSE,
-														language = list(zeroRecords = "Not run yet"))) 
-										
-										output$dt_highlight_change_group_metrics <- renderDataTable(
-												data.frame(),
-												options = list(searching = FALSE,paging = FALSE,
-														language = list(zeroRecords = "Not run yet")))   
-										
-										output$step1_message_modified_individual_metrics  <- renderText("") 
-										
-										output$dt_modified_individual_metrics <- renderDataTable(
-												data.frame(),
-												options = list(searching = FALSE,paging = FALSE,
-														language = list(zeroRecords = "Not run yet"))) 
-										
-										output$dt_highlight_change_individual_metrics <- renderDataTable(
-												data.frame(),
-												options = list(searching = FALSE,paging = FALSE,
-														language = list(zeroRecords = "Not run yet")))   
-										
-										output$step1_message_deleted_dataseries <- renderText("")
-										
-										output$dt_deleted_dataseries <- renderDataTable(data.frame(),
-												options = list(searching = FALSE,paging = FALSE,
-														language = list(zeroRecords = "Not run yet"))) 
-										
-										output$step1_message_deleted_group_metrics  <- renderText("") 
-										output$dt_deleted_group_metrics <- renderDataTable(
-												data.frame(),
-												options = list(searching = FALSE,paging = FALSE,
-														language = list(zeroRecords = "Not run yet")))   
-										
-										output$step1_message_deleted_individual_metrics  <- renderText("") 
-										
-										output$dt_deleted_individual_metrics <- renderDataTable(
-												data.frame(),
-												options = list(searching = FALSE,paging = FALSE,
-														language = list(zeroRecords = "Not run yet"))) 
-										
-									})
-						)
+						shinyCatch({
+									
+									##################################################
+									# clean up
+									#################################################						
+									
+									
+									output$step1_message_new_series <- renderText("")
+									output$dt_new_series <- renderDataTable(data.frame(),
+											options = list(searching = FALSE,paging = FALSE,
+													language = list(zeroRecords = "Not run yet")))  
+									
+									output$step1_message_new_dataseries <- renderText("")
+									output$dt_new_dataseries <- renderDataTable(data.frame(),
+											options = list(searching = FALSE,paging = FALSE,
+													language = list(zeroRecords = "Not run yet")))  
+									
+									output$step1_message_new_group_metrics <- renderText("")
+									output$dt_new_group_metrics <- renderDataTable(data.frame(),
+											options = list(searching = FALSE,paging = FALSE,
+													language = list(zeroRecords = "Not run yet")))  
+									
+									output$step1_message_new_individual_metrics <- renderText("")
+									output$dt_new_individual_metrics <- renderDataTable(data.frame(),
+											options = list(searching = FALSE,paging = FALSE,
+													language = list(zeroRecords = "Not run yet"))) 
+									
+									output$step1_message_modified_series  <- renderText("")
+									output$dt_modified_series <- renderDataTable(
+											data.frame(),
+											options = list(searching = FALSE,paging = FALSE,
+													language = list(zeroRecords = "Not run yet")))  
+									output$dt_highlight_change_series <- renderDataTable(
+											data.frame(),
+											options = list(searching = FALSE,paging = FALSE,
+													language = list(zeroRecords = "Not run yet")))   
+									
+									
+									output$step1_message_modified_dataseries <- renderText("")
+									output$dt_modified_dataseries <- renderDataTable(
+											data.frame(),
+											options = list(searching = FALSE,paging = FALSE,
+													language = list(zeroRecords = "Not run yet")))    
+									output$dt_highlight_change_dataseries <- renderDataTable(
+											data.frame(),
+											options = list(searching = FALSE,paging = FALSE,
+													language = list(zeroRecords = "Not run yet")))   
+									
+									
+									output$step1_message_modified_group_metrics  <- renderText("") 
+									
+									output$dt_modified_group_metrics <- renderDataTable(
+											data.frame(),
+											options = list(searching = FALSE,paging = FALSE,
+													language = list(zeroRecords = "Not run yet"))) 
+									
+									output$dt_highlight_change_group_metrics <- renderDataTable(
+											data.frame(),
+											options = list(searching = FALSE,paging = FALSE,
+													language = list(zeroRecords = "Not run yet")))   
+									
+									output$step1_message_modified_individual_metrics  <- renderText("") 
+									
+									output$dt_modified_individual_metrics <- renderDataTable(
+											data.frame(),
+											options = list(searching = FALSE,paging = FALSE,
+													language = list(zeroRecords = "Not run yet"))) 
+									
+									output$dt_highlight_change_individual_metrics <- renderDataTable(
+											data.frame(),
+											options = list(searching = FALSE,paging = FALSE,
+													language = list(zeroRecords = "Not run yet")))   
+									
+									output$step1_message_deleted_dataseries <- renderText("")
+									
+									output$dt_deleted_dataseries <- renderDataTable(data.frame(),
+											options = list(searching = FALSE,paging = FALSE,
+													language = list(zeroRecords = "Not run yet"))) 
+									
+									output$step1_message_deleted_group_metrics  <- renderText("") 
+									output$dt_deleted_group_metrics <- renderDataTable(
+											data.frame(),
+											options = list(searching = FALSE,paging = FALSE,
+													language = list(zeroRecords = "Not run yet")))   
+									
+									output$step1_message_deleted_individual_metrics  <- renderText("") 
+									
+									output$dt_deleted_individual_metrics <- renderDataTable(
+											data.frame(),
+											options = list(searching = FALSE,paging = FALSE,
+													language = list(zeroRecords = "Not run yet"))) 
+									
+								})
+				)
 				
 				
 				
@@ -225,12 +225,12 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 											new_group_metrics <- rename(new_group_metrics,"grser_ser_id"="ser_id") # use the true name in the table
 										}
 										if (nrow(updated_group_metrics)>0){
-										  updated_group_metrics <-  left_join(updated_group_metrics, t_series_ser[,c("ser_id","ser_nameshort")], by="ser_nameshort")
-										  updated_group_metrics <- rename(updated_group_metrics,"grser_ser_id"="ser_id") # use the true name in the table
+											updated_group_metrics <-  left_join(updated_group_metrics, t_series_ser[,c("ser_id","ser_nameshort")], by="ser_nameshort")
+											updated_group_metrics <- rename(updated_group_metrics,"grser_ser_id"="ser_id") # use the true name in the table
 										}
 										if (nrow(deleted_group_metrics)>0){
-										  deleted_group_metrics <-  left_join(deleted_group_metrics, t_series_ser[,c("ser_id","ser_nameshort")], by="ser_nameshort")
-										  deleted_group_metrics <- rename(deleted_group_metrics,"grser_ser_id"="ser_id") # use the true name in the table
+											deleted_group_metrics <-  left_join(deleted_group_metrics, t_series_ser[,c("ser_id","ser_nameshort")], by="ser_nameshort")
+											deleted_group_metrics <- rename(deleted_group_metrics,"grser_ser_id"="ser_id") # use the true name in the table
 										}
 										
 										if (nrow(new_individual_metrics)>0){
@@ -238,12 +238,12 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 											new_individual_metrics <- rename(new_individual_metrics,"fiser_ser_id"="ser_id")
 										}	
 										if (nrow(updated_individual_metrics)>0){
-										  updated_individual_metrics <- left_join(updated_individual_metrics, t_series_ser[,c("ser_id","ser_nameshort")], by="ser_nameshort")
-										  updated_individual_metrics <- rename(updated_individual_metrics,"fiser_ser_id"="ser_id")
+											updated_individual_metrics <- left_join(updated_individual_metrics, t_series_ser[,c("ser_id","ser_nameshort")], by="ser_nameshort")
+											updated_individual_metrics <- rename(updated_individual_metrics,"fiser_ser_id"="ser_id")
 										}			
 										if (nrow(deleted_individual_metrics)>0){
-										  deleted_individual_metrics <- left_join(deleted_individual_metrics, t_series_ser[,c("ser_id","ser_nameshort")], by="ser_nameshort")
-										  deleted_individual_metrics <- rename(deleted_individual_metrics,"fiser_ser_id"="ser_id")
+											deleted_individual_metrics <- left_join(deleted_individual_metrics, t_series_ser[,c("ser_id","ser_nameshort")], by="ser_nameshort")
+											deleted_individual_metrics <- rename(deleted_individual_metrics,"fiser_ser_id"="ser_id")
 										}			
 										
 										
@@ -309,7 +309,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 										# the second new contains a dataframe to be inserted straight into
 										# the database
 										#cat("step0")
-								
+										
 										if (nrow(series)>0){
 											list_comp_series <- compare_with_database_series(data_from_excel=series, data_from_base=t_series_ser)
 										}
@@ -337,18 +337,18 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 												if (nrow(list_comp_updateddataseries$new)>0 & nrow(list_comp_dataseries$new)>0) {
 													list_comp_dataseries$new <- bind_rows(list_comp_dataseries$new,	list_comp_updateddataseries$new)
 												} else  if (nrow(list_comp_dataseries$new)==0)  {
-												  list_comp_dataseries$new <- list_comp_updateddataseries$new
+													list_comp_dataseries$new <- list_comp_updateddataseries$new
 												}
 												if (nrow(list_comp_updateddataseries$modified)>0 & nrow(list_comp_dataseries$modified)>0) {
 													list_comp_dataseries$modified <- bind_rows(list_comp_dataseries$modified,list_comp_updateddataseries$modified)
 												}  else  if (nrow(list_comp_dataseries$modified)==0)  {
-												  list_comp_dataseries$modified <- list_comp_updateddataseries$modified
+													list_comp_dataseries$modified <- list_comp_updateddataseries$modified
 												}
 												if (nrow(list_comp_dataseries$highlight_change)>0 & nrow(list_comp_updateddataseries$highlight_change)>0){
 													list_comp_dataseries$highlight_change <- bind_rows(list_comp_dataseries$highlight_change,
 															list_comp_updateddataseries$highlight_change)
 												} else if (nrow(list_comp_dataseries$highlight_change) == 0){
-													  list_comp_dataseries$highlight_change <- list_comp_updateddataseries$highlight_change
+													list_comp_dataseries$highlight_change <- list_comp_updateddataseries$highlight_change
 												}
 												# note highlight change is not passed from one list to the other, both will be shown
 											} else {
@@ -593,15 +593,25 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 																option=list(
 																		scrollX = TRUE,
 																		scrollY = TRUE,
-																		"pagelength"=-1,
-																		dom= "Blfrtip",																		
+																		paging = TRUE, # necessary for scroller
+																		deferRender = TRUE, # defer render helps with large datasets
+																		dom = 'lBfrtip',
+																		lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
+																		"pagelength"=5,
+																		fixedColumns = TRUE,
+																		searching= FALSE,																		
 																		buttons=list(
+																				# will allow column choice button
 																				list(extend="colvis",
 																						targets = 0, 
 																						visible = FALSE),
 																				list(extend="excel",
-																						filename = paste0("new_group_metrics_",loaded_data_ts$file_type,"_",Sys.Date(),"_",current_cou_code)))
-																))
+																						# modifier = list(page = "all"), I don't think that this is necessary
+																						filename = paste0("new_group_metrics_",loaded_data_ts$file_type,"_",Sys.Date(),"_",current_cou_code)
+																				)
+																		)
+																)
+														)
 													})
 										}
 										
@@ -647,7 +657,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 																			deferRender = TRUE, # defer render helps with large datasets
 																			dom = 'lBfrtip',
 																			lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
-																			"pagelength"=-1,
+																			"pagelength"=5,
 																			fixedColumns = TRUE,
 																			searching= FALSE,																		
 																			buttons=list(
@@ -811,23 +821,23 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 											output$dt_modified_dataseries <-DT::renderDataTable({
 														validate(need(globaldata$connectOK,"No connection"))
 														datatable(list_comp_updateddataseries$modified,
-														           rownames=FALSE,
-														           extensions = "Buttons",
-														           option=list(
-														             # scroller = TRUE,
-														             scrollX = TRUE,
-														             scrollY = TRUE,
-														            order=list(3,"asc"),
-														            lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
-														            "pagelength"=-1,
-														            dom= "Blfrtip",
-														            autoWidth = TRUE,
-														            columnDefs = list(list(width = '200px', targets = c(4, 8))),
-														            buttons=list(
-														              list(extend="excel",
+																rownames=FALSE,
+																extensions = "Buttons",
+																option=list(
+																		# scroller = TRUE,
+																		scrollX = TRUE,
+																		scrollY = TRUE,
+																		order=list(3,"asc"),
+																		lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
+																		"pagelength"=-1,
+																		dom= "Blfrtip",
+																		autoWidth = TRUE,
+																		columnDefs = list(list(width = '200px', targets = c(4, 8))),
+																		buttons=list(
+																				list(extend="excel",
 																						filename = paste0("modified_dataseries_",loaded_data_ts$file_type,"_",Sys.Date(),"_",current_cou_code)))
-														 		)
 																)
+														)
 													})
 											
 											# Data are coming for either updated or new series, they are checked and
@@ -883,18 +893,27 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 																rownames=FALSE,
 																extensions = "Buttons",
 																option=list(
-																		scroller = TRUE,
 																		scrollX = TRUE,
 																		scrollY = TRUE,
-																		order=list(3,"asc"),
+																		paging = TRUE, # necessary for scroller
+																		deferRender = TRUE, # defer render helps with large datasets
+																		dom = 'lBfrtip',
 																		lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
-																		"pagelength"=-1,
-																		dom= "Blfrtip",
-																		scrollX = T,
+																		"pagelength"=5,
+																		fixedColumns = TRUE,
+																		searching= FALSE,																		
 																		buttons=list(
+																				# will allow column choice button
+																				list(extend="colvis",
+																						targets = 0, 
+																						visible = FALSE),
 																				list(extend="excel",
-																						filename = paste0("modified_group_metrics_",loaded_data_ts$file_type,"_",Sys.Date(),"_",current_cou_code)))
-																))
+																						# modifier = list(page = "all"), I don't think that this is necessary
+																						filename = paste0("modified_group_metrics_",loaded_data_ts$file_type,"_",Sys.Date(),"_",current_cou_code)
+																				)
+																		)
+																)
+														)
 													})
 											
 											
@@ -1041,20 +1060,29 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 														validate(need(globaldata$connectOK,"No connection"))
 														datatable(list_comp_deleted_group_metrics$deleted,
 																rownames=FALSE,
-																extensions = "Buttons",
+																extensions = c("Buttons","Scroller"),
 																option=list(
-																		scroller = TRUE,
 																		scrollX = TRUE,
 																		scrollY = TRUE,
-																		order=list(3,"asc"),
+																		paging = TRUE, # necessary for scroller
+																		deferRender = TRUE, # defer render helps with large datasets
+																		dom = 'lBfrtip',
 																		lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
-																		"pagelength"=-1,
-																		dom= "Blfrtip",
-																		scrollX = T,
+																		"pagelength"=5,
+																		fixedColumns = TRUE,
+																		searching= FALSE,																		
 																		buttons=list(
+																				# will allow column choice button
+																				list(extend="colvis",
+																						targets = 0, 
+																						visible = FALSE),
 																				list(extend="excel",
-																						filename = paste0("deleted_group_metrics_",loaded_data_ts$file_type,"_",Sys.Date(),"_",current_cou_code)))
-																))
+																						# modifier = list(page = "all"), I don't think that this is necessary
+												filename = paste0("deleted_group_metrics_",loaded_data_ts$file_type,"_",Sys.Date(),"_",current_cou_code)
+																				)
+																		)
+																)
+														)
 													})
 										}
 										
@@ -1103,7 +1131,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 										
 										
 									}) # shinycatch
-									shinybusy::remove_modal_spinner()	
+							shinybusy::remove_modal_spinner()	
 						}, ignoreInit = TRUE)
 			}
 	
