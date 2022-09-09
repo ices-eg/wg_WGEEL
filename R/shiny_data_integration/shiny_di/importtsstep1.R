@@ -380,7 +380,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 												# later they will be used to differentiate groups when writing, and we don't want to mix up 
 												# groups from new and from updated sheets
 												mxn <- max(list_comp_group_metrics$new$id, na.rm=TRUE)
-												mxm <- max(list_comp_group_metrics$modified, na.rm=TRUE)
+												mxm <- max(list_comp_group_metrics$modified$id, na.rm=TRUE)
 												list_comp_updated_group_metrics$new$id <- list_comp_updated_group_metrics$new$id + mxn
 												list_comp_updated_group_metrics$modified$id <- list_comp_updated_group_metrics$modified$id + mxm
 												list_comp_group_metrics$new <- bind_rows(list_comp_group_metrics$new,list_comp_updated_group_metrics$new)
