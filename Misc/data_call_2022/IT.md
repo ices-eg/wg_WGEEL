@@ -3,7 +3,7 @@
 -----------------------------------------------------------
 
 ## Annex 1
-No new data
+* 26 values updated (updated dataseries)
 
 ## Annex 2
 No new data
