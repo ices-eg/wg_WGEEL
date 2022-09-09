@@ -2188,6 +2188,8 @@ write_updated_group_metrics <-function(path, type="series"){
 	  stop("empty file")
 	if (sum(!is.na(updated$gr_id)) ==0 )
 	  stop("no gr_id, stops")
+	if (any(is.na(updated$gr_id)) ==0 )
+	  stop("there is an empty gr_id stops")
 	gr_table <- ifelse(type=="series","t_groupseries_grser","t_groupsamp_grsa")
 	gr_key <- ifelse(type=="series","grser_ser_id","grsa_sai_id")
 	metric_table <- ifelse(type=="series","t_metricgroupseries_megser","t_metricgroupsamp_megsa")	
@@ -2238,6 +2240,13 @@ delete_group_metrics <- function(path, type="series"){
 	conn <- poolCheckout(pool)
 	on.exit(poolReturn(conn))
 	deleted <- read_excel(path = path, sheet = 1, skip = 1)
+	if (nrow(deleted) == 0)
+	  stop("empty file")
+	if (sum(!is.na(deleted$gr_id)) ==0 )
+	  stop("no gr_id, stops")
+	if (any(is.na(deleted$gr_id)) ==0 )
+	  stop("there is an empty gr_id stops")
+	
 	gr_table <- ifelse(type=="series","t_groupseries_grser","t_groupsamp_grsa")
 	dbWriteTable(conn,"group_tmp",deleted,temporary=TRUE, overwrite=TRUE)
 	message <- NULL
@@ -2404,6 +2413,10 @@ write_updated_individual_metrics <- function(path, type="series"){
 	  stop("empty file")
 	if (sum(!is.na(updated$fi_id)) == 0)
 	  stop("no fi_id, stops")
+	
+	if (any(is.na(updated$fi_id)) == 0)
+	  stop("some fi_id missing, stops")
+	
 	ind_table <- ifelse(type=="series","t_fishseries_fiser","t_fishsamp_fisa")
 	ind_key <- ifelse(type=="series","fiser_ser_id","fisa_sai_id")
 	metric_table <- ifelse(type=="series","t_metricindseries_meiser","t_metricindsamp_meisa")	
@@ -2457,6 +2470,11 @@ delete_individual_metrics <- function(path, type="series"){
 	deleted <- read_excel(path = path, sheet = 1, skip = 1)
 	if (nrow(deleted) == 0)
 	  stop("nothing to be deleted")
+	if (sum(!is.na(deleted$fi_id)) == 0)
+	  stop("no fi_id, stops")
+	
+	if (any(is.na(deleted$fi_id)) == 0)
+	  stop("some fi_id missing, stops")
 	ind_table <- ifelse(type=="series","t_fishseries_fiser","t_fishsamp_fisa")
 	dbWriteTable(conn,"ind_tmp",deleted,temporary=TRUE, overwrite=TRUE)
 	message <- NULL
