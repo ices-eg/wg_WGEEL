@@ -16,6 +16,7 @@
 5860 and 13784 new values inserted in the fish and metric tables
 
 STILL TO DO:
+
 upload deleted series values
 
 upoload deleted group metrics 
