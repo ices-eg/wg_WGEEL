@@ -6,8 +6,10 @@
 Modified series: 1 value updated in the db
 
 New dataseries: 9 values inserted in the db
+TAKE 2 New dataseries after database delete: 15 new values inserted in the database
 
 Modified dataseries: 620 values updated in the db (added a quality id)
+TAKE 2 modified dataseries after database delete: 620 values updated in the db
 
 New group metrics: 4 and 4 new values inserted in the group and metric tables
 
