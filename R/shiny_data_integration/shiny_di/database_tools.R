@@ -450,7 +450,7 @@ compare_with_database_dataseries <- function(data_from_excel, data_from_base, sh
 			suffix = c(".base", ".xls"))
 	
 	
-	
+
 	# the followin just checks and reorders the columns
 	
 	columns_updated <- c("id", "das_ser_id","das_year", "ser_nameshort", "das_last_update",
@@ -729,7 +729,12 @@ compare_with_database_metric_group <- function(data_from_excel,
 	data_from_excel <- data_from_excel %>% mutate_if(is.logical,list(as.numeric)) 
 	data_from_excel <- data_from_excel %>% mutate_at(vars("gr_comment", "gr_dts_datasource", 
 					ifelse(type=="series","ser_nameshort","sai_name")), list(as.character)) 
-	
+	if (sheetorigin != "new_data"){
+	  if (any(! data_from_excel$gr_id %in% data_from_base$gr_id))
+	    stop(paste0(sheetorigin,
+	                ": some gr_id are not in the db:",
+	                paste(data_from_excel$gr_id[! data_from_excel$gr_id %in% data_from_base$gr_id],collapse=",")))
+	}
 	data_from_excel$sheetorigin <- sheetorigin
 	data_from_excel <- mutate(data_from_excel,"id" = row_number()) # this one serves as joining later
 	if (sheetorigin == "new_group_metrics") data_from_excel <- data_from_excel %>% mutate("gr_id" = NA)
@@ -760,8 +765,13 @@ compare_with_database_metric_group <- function(data_from_excel,
 	
 	# Anti join only keeps columns from X
 	if (sheetorigin == "new_group_metrics"){
+	  if (type=="series"){
 		new <-  dplyr::anti_join(data_from_excel_long, data_from_base, 
 				by = c(ifelse(type=="series","ser_nameshort","sai_name"), "gr_year","meg_mty_id"))
+	  } else{
+	    new <-  dplyr::anti_join(data_from_excel_long, data_from_base, 
+	                             by = c("sai_name", "gr_year","meg_mty_id","grsa_lfs_code"))
+	  }
 	} else {
 		new <-  dplyr::anti_join(data_from_excel_long, data_from_base, 
 				by = "gr_id")
@@ -769,11 +779,17 @@ compare_with_database_metric_group <- function(data_from_excel,
 	
 	if (nrow(new)>0)	new$gr_dts_datasource <- the_eel_datasource
 	
-	#browser()
 	modified <- dplyr::anti_join(data_from_excel, data_from_base_wide, 
 			by =c("gr_id", "gr_year", "gr_number", metrics_group$mty_name))
 	modified <- modified[!modified$id %in% new$id,]
 	
+	# if (sheetorigin == "new_group_metrics"){
+	#   modified <- dplyr::anti_join(data_from_excel, data_from_base_wide, 
+	#                                by =c("gr_year", "ser_nameshort","grsa_lfs_code")[c("gr_year","ser_nameshort","grsa_lfs_code")%in%names(data_from_excel)])
+	# } else {
+	#   modified <- dplyr::anti_join(data_from_excel, data_from_base_wide, 
+	#                                by =names(data_from_excel))
+	# }
 	
 	highlight_change <- duplicates[duplicates$id %in% modified$id,]
 	
@@ -847,6 +863,14 @@ compare_with_database_metric_ind <- function(
 		warning("No data in the file coming from the database")
 		
 	}
+  
+  if (sheetorigin != "new_data"){
+    if (any(! data_from_excel$fi_id %in% data_from_base$fi_id))
+      stop(paste0(sheetorigin,
+                  ": some gr_id are not in the db:",
+                  paste(data_from_excel$fi_id[! data_from_excel$fi_id %in% data_from_base$fi_id],collapse=",")))
+  }
+  
 	# convert columns with missing data to numeric	  
 	data_from_excel <- data_from_excel %>% mutate_if(is.logical,list(as.numeric)) 
 	data_from_excel <- data_from_excel %>% mutate_at(vars(c("fi_comment", ifelse(type=="series","ser_nameshort","sai_name"))) ,list(as.character)) 	
