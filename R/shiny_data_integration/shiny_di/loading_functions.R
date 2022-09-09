@@ -286,6 +286,14 @@ load_catch_landings<-function(path,datasource){
 									country=country) 
 					)
 					
+					### no missvalue and qual id0 at the same time
+					browser()
+					data_error= rbind(data_error, checknotqalid0andmissvalue(
+									dataset=data_xls,
+									namedataset= sheet, 
+									country=country) 
+					)
+					
 					if (nrow(data_error)>0) {
 						data_error$sheet <- sheet
 					} else {
