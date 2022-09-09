@@ -44,8 +44,23 @@ upoload deleted group metrics
 
 
 ## Annex 3
+1 series updated in the db
 
+8 new values inserted in the database
 
+74 values updated in the db
+
+3 and 23 new values inserted in the group and metric tables
+
+7922 and 21142 new values inserted in the fish and metric tables
+
+STILL TO DO:
+
+upload deleted series values
+
+upload modified group metrics 
+
+upoload deleted group metrics 
 
 
 ## Annex 4
