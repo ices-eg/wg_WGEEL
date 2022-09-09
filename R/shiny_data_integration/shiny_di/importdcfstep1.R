@@ -177,11 +177,28 @@ importdcfstep1Server <- function(id,globaldata,loaded_data_dcf){
 											new_group_metrics <- rename(new_group_metrics,"grsa_sai_id"="sai_id") # use the true name in the table
 										} 
 										
+										if (nrow(updated_group_metrics)>0){
+										  updated_group_metrics <-  left_join(updated_group_metrics, t_samplinginfo_sai[,c("sai_id","sai_name")], by="sai_name")
+										  updated_group_metrics <- rename(updated_group_metrics,"grsa_sai_id"="sai_id") # use the true name in the table
+										} 
+										if (nrow(deleted_individual_metrics)>0){
+										  deleted_individual_metrics <-  left_join(deleted_individual_metrics, t_samplinginfo_sai[,c("sai_id","sai_name")], by="sai_name")
+										  deleted_individual_metrics <- rename(deleted_individual_metrics,"grsa_sai_id"="sai_id") # use the true name in the table
+										} 
+										
+										
 										if (nrow(new_individual_metrics)>0){
 											new_individual_metrics <- left_join(new_individual_metrics, t_samplinginfo_sai[,c("sai_id","sai_name")], by="sai_name")
 											new_individual_metrics <- rename(new_individual_metrics,"fisa_sai_id"="sai_id")
 										}						
-										
+										if (nrow(updated_individual_metrics)>0){
+										  updated_individual_metrics <- left_join(updated_individual_metrics, t_samplinginfo_sai[,c("sai_id","sai_name")], by="sai_name")
+										  updated_individual_metrics <- rename(updated_individual_metrics,"fisa_sai_id"="sai_id")
+										}	
+										if (nrow(deleted_individual_metrics)>0){
+										  deleted_individual_metrics <- left_join(deleted_individual_metrics, t_samplinginfo_sai[,c("sai_id","sai_name")], by="sai_name")
+										  deleted_individual_metrics <- rename(deleted_individual_metrics,"fisa_sai_id"="sai_id")
+										}	
 										
 										t_groupsamp_grsa <- extract_data("t_groupsamp_grsa", quality_check=FALSE)
 										t_fishsamp_fisa <- extract_data("t_fishsamp_fisa", quality_check=FALSE)

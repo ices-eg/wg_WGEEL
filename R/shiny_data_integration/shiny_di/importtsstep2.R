@@ -550,7 +550,7 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts){
 										path <- isolate(step2.3.3_filepath_update_group_metrics())
 										if (is.null(data$path_step_2.3.3_update_group_metrics)) 
 											return(NULL)
-										rls <- update_group_metrics(path)
+										rls <- write_updated_group_metrics(path)
 										message <- rls$message
 										cou_code <- rls$cou_code
 										main_assessor <- input$main_assessor
