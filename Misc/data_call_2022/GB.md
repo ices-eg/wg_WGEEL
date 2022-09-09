@@ -26,6 +26,8 @@ upload modified group metrics
 ## Annex 2
 47 series updated in the db
 
+50 new values inserted in the database
+
 967 values updated in the db
 
 43 and 93 new values inserted in the group and metric tables
@@ -35,8 +37,6 @@ upload modified group metrics
 STILL TO DO:
 
 upload deleted series values
-
-upload new values
 
 upload modified group metrics 
 
