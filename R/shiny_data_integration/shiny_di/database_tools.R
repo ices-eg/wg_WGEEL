@@ -753,7 +753,8 @@ compare_with_database_metric_group <- function(data_from_excel,
 	duplicates <- data_from_base_wide %>% 	
 			dplyr::inner_join(
 					data_from_excel, 
-					by = c(ifelse(type=="series","ser_nameshort","sai_name"), "gr_id","gr_year"), 
+					#by = c(ifelse(type=="series","ser_nameshort","sai_name"), "gr_id","gr_year"),
+					by = "gr_id",#we only need a junction based on gr_id
 					suffix = c(".base", ".xls"))
 	
 	
@@ -2188,6 +2189,8 @@ write_updated_group_metrics <-function(path, type="series"){
 	  stop("empty file")
 	if (sum(!is.na(updated$gr_id)) ==0 )
 	  stop("no gr_id, stops")
+	if (any(is.na(updated$gr_id)) ==0 )
+	  stop("there is an empty gr_id stops")
 	gr_table <- ifelse(type=="series","t_groupseries_grser","t_groupsamp_grsa")
 	gr_key <- ifelse(type=="series","grser_ser_id","grsa_sai_id")
 	metric_table <- ifelse(type=="series","t_metricgroupseries_megser","t_metricgroupsamp_megsa")	
@@ -2238,6 +2241,13 @@ delete_group_metrics <- function(path, type="series"){
 	conn <- poolCheckout(pool)
 	on.exit(poolReturn(conn))
 	deleted <- read_excel(path = path, sheet = 1, skip = 1)
+	if (nrow(deleted) == 0)
+	  stop("empty file")
+	if (sum(!is.na(deleted$gr_id)) ==0 )
+	  stop("no gr_id, stops")
+	if (any(is.na(deleted$gr_id)) ==0 )
+	  stop("there is an empty gr_id stops")
+	
 	gr_table <- ifelse(type=="series","t_groupseries_grser","t_groupsamp_grsa")
 	dbWriteTable(conn,"group_tmp",deleted,temporary=TRUE, overwrite=TRUE)
 	message <- NULL
@@ -2277,6 +2287,12 @@ write_new_individual_metrics <- function(path, type="series"){
 	} else{
 		fk <- "fisa_sai_id"
 	}
+	if (type=="series"){
+		name <- "ser_nameshort"
+	} else{
+		name <- "sai_name"
+	}
+	message <- NULL
 	shinybusy::show_modal_spinner(text = "load data indiv metrics")
 	# if we write from DT there is an extra line to be removed test it there
 	test <- read_excel(path = path, sheet=1, range="A1:A1")	
@@ -2292,7 +2308,8 @@ write_new_individual_metrics <- function(path, type="series"){
 		cou_code <- ""
 		message <- "nothing to import"
 	} else if (any(is.na(new[,fk]))){
-		wrong <- as.character(unique(new[is.na(new[,fk]),"ser_nameshort"]))
+	  stop("some fisa_sai_id are missing, havent you forgotten adding your sampling first?")
+		wrong <- as.character(unique(new[is.na(new[,fk]),name]))
 		if (all(is.na(new[,fk]))){
 			cou_code <- ""
 			# here stop otherwise when sending wrong country name "" crashes when writing log
@@ -2304,8 +2321,12 @@ write_new_individual_metrics <- function(path, type="series"){
 			} else {
 				cou_code = dbGetQuery(conn,paste0("SELECT sai_cou_code FROM datawg.t_samplinginfo_sai WHERE sai_name='",
 								new$sai_name[!is.na(new$sai_name)][1],"';"))$sai_cou_code  	
-			}   
-			message <- paste("Some missing",fk,"have you forgotten to rerun database comparison after integrating new series or sampling_info?  Series",wrong)
+			}  
+			if (length(cou_code)==0) {
+				cou_code <-"VA"
+			warning(sprintf("Could not find a country for %s so used VA instead",new$sai_name[!is.na(new$sai_name)][1]))
+			message <- paste("Some missing",fk,"have you forgotten to rerun database comparison after integrating new series or sampling_info?  Series,",wrong)
+		}
 		}
 	} else{
 		ind_table <- ifelse(type=="series","t_fishseries_fiser","t_fishsamp_fisa")
@@ -2404,6 +2425,10 @@ write_updated_individual_metrics <- function(path, type="series"){
 	  stop("empty file")
 	if (sum(!is.na(updated$fi_id)) == 0)
 	  stop("no fi_id, stops")
+	
+	if (any(is.na(updated$fi_id)) == 0)
+	  stop("some fi_id missing, stops")
+	
 	ind_table <- ifelse(type=="series","t_fishseries_fiser","t_fishsamp_fisa")
 	ind_key <- ifelse(type=="series","fiser_ser_id","fisa_sai_id")
 	metric_table <- ifelse(type=="series","t_metricindseries_meiser","t_metricindsamp_meisa")	
@@ -2457,6 +2482,11 @@ delete_individual_metrics <- function(path, type="series"){
 	deleted <- read_excel(path = path, sheet = 1, skip = 1)
 	if (nrow(deleted) == 0)
 	  stop("nothing to be deleted")
+	if (sum(!is.na(deleted$fi_id)) == 0)
+	  stop("no fi_id, stops")
+	
+	if (any(is.na(deleted$fi_id)) == 0)
+	  stop("some fi_id missing, stops")
 	ind_table <- ifelse(type=="series","t_fishseries_fiser","t_fishsamp_fisa")
 	dbWriteTable(conn,"ind_tmp",deleted,temporary=TRUE, overwrite=TRUE)
 	message <- NULL
