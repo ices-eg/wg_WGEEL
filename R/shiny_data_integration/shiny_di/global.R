@@ -249,7 +249,7 @@ shinyCatch=
       else "-")
     shiny <- all(!is.null(getDefaultReactiveDomain()), shiny)
     if (shiny) 
-      dependServer("toastr")
+      spsComps:::dependServer("toastr")
     toastr_actions <- list(message = function(m) {
       spsUtil::msg(m$message, paste0(prefix, "INFO"), "blue")
       if (shiny) shinytoastr::toastr_info(message = remove_ANSI(m$message), 
