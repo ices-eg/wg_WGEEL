@@ -88,9 +88,8 @@ No data
 13 series
  
 group: 
-Error: Failed to fetch row: ERROR:  duplicate key value violates unique constraint "c_ck_uk_grsa_gr"
-DETAIL:  Key (grsa_sai_id, gr_year)=(306, 2014) already exists. ==> problem is we have two different life stage for the same year & sampling
-https://github.com/ices-eg/wg_WGEEL/issues/253
+
+ 55 and 210 new values inserted in the group and metric tables
 
 individual
 https://github.com/ices-eg/wg_WGEEL/issues/254
