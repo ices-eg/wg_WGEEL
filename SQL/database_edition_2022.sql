@@ -1054,6 +1054,9 @@ update datawg.t_metricgroupsamp_megsa set meg_qal_id =22 where meg_gr_id in (226
 update datawg.t_groupsamp_grsa set gr_comment ='all related metrics have qal_id=22 following data call 2022' where gr_id in (2262,2266,2272,2273,2274,2267,2268,2270,2271);
 
 
+alter table datawg.t_groupsamp_grsa drop constraint c_ck_uk_grsa_gr;
+ALTER TABLE datawg.t_groupsamp_grsa ADD CONSTRAINT c_ck_uk_grsa_gr UNIQUE (grsa_sai_id, gr_year, grsa_lfs_code);
+--run during wgeel
 
 --- problem with the db t_dataseries_das deleted
 

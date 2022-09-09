@@ -753,7 +753,8 @@ compare_with_database_metric_group <- function(data_from_excel,
 	duplicates <- data_from_base_wide %>% 	
 			dplyr::inner_join(
 					data_from_excel, 
-					by = c(ifelse(type=="series","ser_nameshort","sai_name"), "gr_id","gr_year"), 
+					#by = c(ifelse(type=="series","ser_nameshort","sai_name"), "gr_id","gr_year"),
+					by = "gr_id",#we only need a junction based on gr_id
 					suffix = c(".base", ".xls"))
 	
 	
@@ -2291,6 +2292,7 @@ write_new_individual_metrics <- function(path, type="series"){
 	} else{
 		name <- "sai_name"
 	}
+	message <- NULL
 	shinybusy::show_modal_spinner(text = "load data indiv metrics")
 	# if we write from DT there is an extra line to be removed test it there
 	test <- read_excel(path = path, sheet=1, range="A1:A1")	
@@ -2306,6 +2308,7 @@ write_new_individual_metrics <- function(path, type="series"){
 		cou_code <- ""
 		message <- "nothing to import"
 	} else if (any(is.na(new[,fk]))){
+	  stop("some fisa_sai_id are missing, havent you forgotten adding your sampling first?")
 		wrong <- as.character(unique(new[is.na(new[,fk]),name]))
 		if (all(is.na(new[,fk]))){
 			cou_code <- ""

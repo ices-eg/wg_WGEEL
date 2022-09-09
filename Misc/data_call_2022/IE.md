@@ -13,9 +13,14 @@ new individual metrics 481 and 947 added
 
 
 ## Annex 2
+1 series updated; 13 new data series added; 4 and 10 new values to group metrics;
+update grp metrics error need to come back;
+9,380, 23631 values entered into new individual metrics
 
 ## Annex 3
-
+2 new data series row, 55 dataseries updated; new group metrics 1 and 10
+update grp metrics error  'empty gr_id stops'
+new individual metrics; 31796 and 104553
 
 ## Annex 4
 72 new rows added
@@ -32,7 +37,7 @@ new individual metrics 481 and 947 added
 14 new rows;
 2 updated rows
 ## Annex 8
-
+1 new line added
 
 
 ## Annex 10

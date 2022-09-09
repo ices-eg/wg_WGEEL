@@ -47,7 +47,19 @@
 
 ### dataseries
 
-to be checked by LB (issue with season)
+ 7 new values inserted in the database
+ 
+ fail to update --> Error: Failed to fetch row: ERROR:  duplicate key value violates unique constraint "c_uk_year_ser_id"
+DETAIL:  Key (das_year, das_ser_id)=(1982, 220) already exists.
+https://github.com/ices-eg/wg_WGEEL/issues/255
+ 
+ ### group metrics
+ 
+ 9 and 9 new values inserted in the group and metric tables
+ 
+ ### individual metrics
+ 
+ 53188 and 194914 new values inserted in the fish and metric tables
 
 ## Annex 4
 
@@ -65,12 +77,19 @@ No data
 
 ## Annex 7
 
-error 'there is an error'
+error 'there is an error' https://github.com/ices-eg/wg_WGEEL/issues/256
 
 ## Annex 8
 
 No data
 
 ## Annex 10
+ 
+13 series
+ 
+group: 
 
-on error
+ 55 and 210 new values inserted in the group and metric tables
+
+individual
+https://github.com/ices-eg/wg_WGEEL/issues/254

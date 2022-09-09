@@ -6,7 +6,7 @@
 
 ## Annex 2
 ### Notes
-Message when "check file"
+Message when "check file" (did not occur when re-integrating)
 * [SPS-WARNING] 2022-09-08 10:25:07 Coercing boolean to numeric in T2 / R2C20
 * [SPS-WARNING] 2022-09-08 10:25:07 Coercing boolean to numeric in T3 / R3C20
 * [SPS-WARNING] 2022-09-08 10:25:07 Coercing boolean to numeric in T4 / R4C20
@@ -16,20 +16,34 @@ Message when "check file"
 * [SPS-WARNING] 2022-09-08 10:25:07 Coercing boolean to numeric in T8 / R8C20
 * [SPS-WARNING] 2022-09-08 10:25:07 Coercing boolean to numeric in T9 / R9C20
 
-## to do
+### to do
 * not integrated, file needs work
+
+### RE-INTEGRATION:
+* was never integrated before
+* changed DriY to sam_typ_id = 2 (it was three before, which is Silver eel)
+* it said NAs introduced by coercion. Dind't find it but didn't look in detail (no time) - maybe check
+* 2 new values integrated (new series) - qual_id was set to 1 (Tomas to confirm)
+* 5 values updated (modified series)
+* 7 new values integrated (new dataseries)
+* 2 and 10 new values integrated (new group metrics)
 
 ## done
 
 ## Annex 3
-## done
+### done
 * 1 new value integrated (series)
 * 8 values updated (modified series)
 * 10 values integrated (new dataseries)
 * 1 and 10 new values integrated (new group metrics)
 
+### RE_INTEGRATION:
+* 4 new values integrated (new dataseries)
+* 
+
 ## to do
-* integrate modified group metrics (there was a bug: could not find function "update_group_metrics")
+* integrate modified group metrics (there was a bug: could not find function "update_group_metrics" - at re-integration: Error: Failed to fetch row: ERROR: duplicate key value violates unique constraint "c_ck_uk_grser_gr"
+DETAIL: Key (grser_ser_id, gr_year)=(350, 2021) already exists)
 
 ## Annex 4
 ## notes
