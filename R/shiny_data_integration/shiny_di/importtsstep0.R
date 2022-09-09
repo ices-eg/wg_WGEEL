@@ -169,7 +169,7 @@ importtsstep0Server <- function(id, globaldata){
 				###################################################
 				observeEvent(input$ts_check_file_button, 
 						{
-						#shinyCatch({
+						shinyCatch({
 									
 									##################################################
 									# clean up
@@ -259,7 +259,7 @@ importtsstep0Server <- function(id, globaldata){
 														)
 												)
 											})
-								#}) #shinyCatch								
+								}) #shinyCatch								
 								remove_modal_spinner()	
 								}, ignoreInit = TRUE)
 				

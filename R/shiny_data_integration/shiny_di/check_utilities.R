@@ -575,3 +575,29 @@ check_consistency_missvalue_rates <- function(dataset, namedataset, rates){
 						  namedataset))	  
 	  } 
 }
+
+
+checknotqalid0andmissvalue <- function(dataset, namedataset, country){
+	#browser()
+	answer = NULL
+	#namedataset <-  deparse(substitute(dataset))
+	newdataset <- dataset
+	newdataset <- tibble::rowid_to_column(newdataset, "nline" )
+  
+	newdataset <- newdataset %>% filter(!is.na(eel_missvaluequal) & eel_qal_id==0 & !is.na(eel_qal_id))
+	
+	if (nrow(newdataset>0)) {
+		
+		cat(sprintf("dataset <%s>, line <%s> is wrong, if you have entered a missvaluequal (NR or NP) you cannot use 0 as qal_id, use 1 instead \n", 
+						namedataset,
+						paste(newdataset$nline, collapse=',')))
+		
+		line = newdataset$nline
+		if (length(line)>10) line <-str_c(str_c(line[1:10],collapse=";"),"...") else
+			line <- str_c(line)
+		# same but split and no end of line
+		answer  = data.frame(nline = line, 
+				error_message = "If you have entered a missvaluequal (NR or NP) you cannot use 0 as qal_id, use 1 instead", 
+						namedataset, collapse=',')	  
+	} 
+}
