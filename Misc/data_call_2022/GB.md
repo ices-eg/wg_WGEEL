@@ -5,11 +5,47 @@
 # GB
 -----------------------------------------------------------
 ## Annex 1
+5 series updated in the db
 
+28 new values inserted in the database
+
+239 values updated in the database
+
+5 and 17 new values inserted in the group and metric tables
+
+5860 and 13784 new values inserted in the fish and metric tables
+
+STILL TO DO:
+
+upload deleted series values
+
+upoload deleted group metrics 
+
+upload modified group metrics 
 
 ## Annex 2
+47 series updated in the db
+
+967 values updated in the db
+
+43 and 93 new values inserted in the group and metric tables
+
+96866 and 182744 new values inserted in the fish and metric tables
+
+STILL TO DO:
+
+upload deleted series values
+
+upload new values
+
+upload modified group metrics 
+
+upoload deleted group metrics 
+
 
 ## Annex 3
+
+
 
 
 ## Annex 4

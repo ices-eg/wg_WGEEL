@@ -4,7 +4,8 @@
 ## Annex 1
 --
 ## Annex 2
-1 update modified series (Step 2.1.2) and 11 new dataseries (Step 2.2.2)
+* 1 update modified series (Step 2.1.2) and 11 new dataseries (Step 2.2.2)
+* RE-INTEGRATION: 9 new values added (new dataseries) - BEWARE: was 11 before and in the file it is 10... AND There was no modified series (already up to date?) 
 ## Annex 3
 31 new values in new data series
 3 values in uptaded modified series
