@@ -5,6 +5,10 @@
 ## Annex 1
 * 1 value updated (modified series)
 * 1 new value integrated (new dataseries)
+
+### to do
+* integrate group metrics
+
 ## Annex 2
 
 ## Annex 3
