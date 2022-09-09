@@ -340,7 +340,7 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts){
 				observeEvent(input$delete_dataseries_button, shinyCatch({
 									
 									step2.2.1_filepath_deleted_dataseries <- reactive({
-												inFile <- isolate(input$xl_new_dataseries)     
+												inFile <- isolate(input$xl_deleted_dataseries)     
 												if (is.null(inFile)){        return(NULL)
 												} else {
 													data$path_step_2.2.1_deleted_dataseries <- inFile$datapath #path to a temp file             
