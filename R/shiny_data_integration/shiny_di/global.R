@@ -219,3 +219,19 @@ dictionary=c(
 	"das_dts_datasource"="text"
 
 )
+
+
+
+dataTypeConvert=function(mydata, columns, col_types){
+  tryCatch({
+    mydata <- mydata %>%
+      mutate(across(any_of(columns[col_types == "date"]) , ~as.Date(.x)),
+             across(any_of(columns[col_types=="text"]), ~as.character(.x)),
+             across(any_of(columns[col_types=="numeric"]), ~as.numeric(.x)),
+             across(any_of(columns[col_types=="logical"]), ~as.logical(.x)))
+  }, error = function(e) {
+    showNotification(paste(sheet,"Error when casting data", e), type="warning",duration=NULL) 		
+  })
+  mydata
+}
+
