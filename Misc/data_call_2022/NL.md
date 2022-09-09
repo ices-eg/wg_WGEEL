@@ -2,8 +2,8 @@
 # NL 
 -----------------------------------------------------------
 ## Annex 1
-(2 values updated in the db; 5 new values inserted in the database; 231 values updated in the db; 10 and 10 new values inserted in the group and metric tables)
-
+*(2 values updated in the db; 5 new values inserted in the database; 231 values updated in the db; 10 and 10 new values inserted in the group and metric tables)
+* was this re-integrated? (checked and new dataseries were already in db...)  
 ## Annex 2
 (5 new values inserted in the database; 2 values updated in the db )
 
