@@ -10,14 +10,12 @@
 * 2 and 6 values inserted (new group metrics) - (was already integrated when trying to re-integrate... Maybe I did that and forgot)
 
 ### to do
-* update group meterics (caused an error: Error: Failed to prepare query: ERROR:  column "gr_number" is of type integer but expression is of type boolean
+* DONE/REDUNDANT (no update required in the first place - it was a falty detection of new as update): update group meterics (caused an error: Error: Failed to prepare query: ERROR:  column "gr_number" is of type integer but expression is of type boolean
 LINE 2: (SELECT g.gr_year,g.gr_number,g.gr_comment,g.gr_dts_datasour...
-                          ^
-HINT:  You will need to rewrite or cast the expression.
+                        HINT:  You will need to rewrite or cast the expression.
+* DONE/REDUNDANT (see above): update group metrics: during RE-INTEGRATION the error message changed to: could not find function "update_group_metrics"
 
-* update group metrics: during RE-INTEGRATION the error message changed to: could not find function "update_group_metrics"
-
-* CHECK if new group metrics / new individual metrics are integrated
+* DONE: CHECK if new group metrics / new individual metrics are integrated YES
 
  ## Annex 2
  ### to do
