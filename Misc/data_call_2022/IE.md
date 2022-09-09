@@ -20,6 +20,7 @@ update grp metrics error need to come back;
 ## Annex 3
 2 new data series row, 55 dataseries updated; new group metrics 1 and 10
 update grp metrics error  'empty gr_id stops'
+new individual metrics; 31796 and 104553
 
 ## Annex 4
 72 new rows added
@@ -36,7 +37,7 @@ update grp metrics error  'empty gr_id stops'
 14 new rows;
 2 updated rows
 ## Annex 8
-
+1 new line added
 
 
 ## Annex 10
