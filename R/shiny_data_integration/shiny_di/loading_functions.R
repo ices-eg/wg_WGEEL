@@ -66,7 +66,7 @@ load_catch_landings<-function(path,datasource){
 				if (ncol(data_xls)!=13 & sheet==deleted) cat(str_c("deleted_data : number column wrong, should have been 13 in file from ",country,"\n"))
 				
 				# check column names
-				
+				if (any(is.na(data_xls$eel_typ_name))) warning("there are missing data in eel_typ_name")
 				###TEMPORARY FIX 2020 due to incorrect typ_name
 				data_xls$eel_typ_name[data_xls$eel_typ_name %in% c("rec_landings","com_landings")] <- paste(data_xls$eel_typ_name[data_xls$eel_typ_name %in% c("rec_landings","com_landings")],"_kg",sep="")
 				if (!all(colnames(data_xls)%in%
