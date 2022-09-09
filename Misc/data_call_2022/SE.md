@@ -6,15 +6,19 @@
 Modified series: 1 value updated in the db
 
 New dataseries: 9 values inserted in the db
+TAKE 2 New dataseries after database delete: 15 new values inserted in the database
 
 Modified dataseries: 620 values updated in the db (added a quality id)
+TAKE 2 modified dataseries after database delete: 620 values updated in the db
 
 New group metrics: 4 and 4 new values inserted in the group and metric tables
 
 ## Annex 2
 New dataseries: 2 new values inserted in the database (new years)
+TAKE 2 new dataseries after database delete: 2 new values inserted in the database
 
 Modified dataseries: 75 values updated in the db (effort data added and corrected CPUE data)
+TAKE 2 modified dataseries after database delete: 75 values updated in the db
 
 New group metrics: 83 and 83 new values inserted in the group and metric tables.
 
