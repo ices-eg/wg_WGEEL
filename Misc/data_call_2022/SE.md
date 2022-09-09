@@ -25,7 +25,13 @@ New group metrics: 83 and 83 new values inserted in the group and metric tables.
 New individual metrics: 1253 and 7416 new values inserted in the group and metric tables
 
 ## Annex 3
+New dataseries: 1 new values inserted in the database
 
+Modified dataseries: 84 values updated in the db (assigned a quality id)
+
+New group metrics: 1 and 8 new values inserted in the group and metric tables
+
+New individual metrics: 53 and 456 new values inserted in the fish and metric tables
 
 ## Annex 4
 Integrate new rows: Uploaded 36 new rows

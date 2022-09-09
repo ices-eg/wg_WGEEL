@@ -646,6 +646,8 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 																			paging = TRUE, # necessary for scroller
 																			deferRender = TRUE, # defer render helps with large datasets
 																			dom = 'lBfrtip',
+																			lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
+																			"pagelength"=-1,
 																			fixedColumns = TRUE,
 																			searching= FALSE,																		
 																			buttons=list(

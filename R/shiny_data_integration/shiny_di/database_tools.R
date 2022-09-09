@@ -2287,6 +2287,11 @@ write_new_individual_metrics <- function(path, type="series"){
 	} else{
 		fk <- "fisa_sai_id"
 	}
+	if (type=="series"){
+		name <- "ser_nameshort"
+	} else{
+		name <- "sai_name"
+	}
 	shinybusy::show_modal_spinner(text = "load data indiv metrics")
 	# if we write from DT there is an extra line to be removed test it there
 	test <- read_excel(path = path, sheet=1, range="A1:A1")	
@@ -2302,7 +2307,7 @@ write_new_individual_metrics <- function(path, type="series"){
 		cou_code <- ""
 		message <- "nothing to import"
 	} else if (any(is.na(new[,fk]))){
-		wrong <- as.character(unique(new[is.na(new[,fk]),"ser_nameshort"]))
+		wrong <- as.character(unique(new[is.na(new[,fk]),name]))
 		if (all(is.na(new[,fk]))){
 			cou_code <- ""
 			# here stop otherwise when sending wrong country name "" crashes when writing log
@@ -2314,8 +2319,12 @@ write_new_individual_metrics <- function(path, type="series"){
 			} else {
 				cou_code = dbGetQuery(conn,paste0("SELECT sai_cou_code FROM datawg.t_samplinginfo_sai WHERE sai_name='",
 								new$sai_name[!is.na(new$sai_name)][1],"';"))$sai_cou_code  	
-			}   
-			message <- paste("Some missing",fk,"have you forgotten to rerun database comparison after integrating new series or sampling_info?  Series",wrong)
+			}  
+			if (length(cou_code)==0) {
+				cou_code <-"VA"
+			warning(sprintf("Could not find a country for %s so used VA instead",new$sai_name[!is.na(new$sai_name)][1]))
+			message <- paste("Some missing",fk,"have you forgotten to rerun database comparison after integrating new series or sampling_info?  Series,",wrong)
+		}
 		}
 	} else{
 		ind_table <- ifelse(type=="series","t_fishseries_fiser","t_fishsamp_fisa")
