@@ -134,7 +134,7 @@ host <- "localhost" #"185.135.126.250" #"localhost"#"192.168.0.100"
 userwgeel <-"wgeel"
 
 
-
+scrollY= "300px" #size of DT table per default
 
 
 

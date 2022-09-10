@@ -503,7 +503,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 																option=list(
 																		scroller = TRUE,
 																		scrollX = TRUE,
-																		scrollY = TRUE,
+																		scrollY = scrollY,
 																		order=list(3,"asc"),
 																		lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
 																		"pagelength"=-1,
@@ -549,7 +549,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 																option=list(
 																		scroller = TRUE,
 																		scrollX = TRUE,
-																		scrollY = TRUE,
+																		scrollY = scrollY,
 																		order=list(3,"asc"),
 																		lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
 																		"pagelength"=-1,
@@ -592,7 +592,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 																extensions = "Buttons",
 																option=list(
 																		scrollX = TRUE,
-																		scrollY = TRUE,
+																		scrollY = scrollY,
 																		paging = TRUE, # necessary for scroller
 																		deferRender = TRUE, # defer render helps with large datasets
 																		dom = 'lBfrtip',
@@ -652,7 +652,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 																	extensions = c("Buttons", "Scroller"),																
 																	option=list(
 																			scrollX = TRUE,
-																			scrollY = TRUE,
+																			scrollY = scrollY,
 																			paging = TRUE, # necessary for scroller
 																			deferRender = TRUE, # defer render helps with large datasets
 																			dom = 'lBfrtip',
@@ -691,7 +691,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 																	extensions = c("Buttons", "Scroller"),																
 																	option=list(
 																			scrollX = TRUE,
-																			scrollY = TRUE,
+																			scrollY = scrollY,
 																			paging = TRUE, # necessary for scroller
 																			deferRender = TRUE, # defer render helps with large datasets
 																			dom = 'lBfrtip',
@@ -759,7 +759,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 																extensions = c("Buttons", "Scroller"),																
 																option=list(
 																		scrollX = TRUE,
-																		scrollY = TRUE,
+																		scrollY = scrollY,
 																		paging = TRUE, # necessary for scroller
 																		deferRender = TRUE,
 																		dom = 'lBfrtip',
@@ -780,7 +780,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 																option=list(
 																		scroller = TRUE,
 																		scrollX = TRUE,
-																		scrollY = TRUE,
+																		scrollY = scrollY,
 																		lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
 																		"pagelength"=-1,
 																		scrollX = T
@@ -826,7 +826,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 																option=list(
 																		# scroller = TRUE,
 																		scrollX = TRUE,
-																		scrollY = TRUE,
+																		scrollY = scrollY,
 																		order=list(3,"asc"),
 																		lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
 																		"pagelength"=-1,
@@ -851,7 +851,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 																option=list(
 																		scroller = TRUE,
 																		scrollX = TRUE,
-																		scrollY = TRUE,
+																		scrollY = scrollY,
 																		lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
 																		"pagelength"=-1,
 																		scrollX = T
@@ -894,7 +894,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 																extensions = c("Buttons","Scroller"),
 																option=list(
 																		scrollX = TRUE,
-																		scrollY = TRUE,
+																		scrollY = scrollY,
 																		paging = TRUE, # necessary for scroller
 																		deferRender = TRUE, # defer render helps with large datasets
 																		dom = 'lBfrtip',
@@ -924,7 +924,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 																option=list(
 																		scroller = TRUE,
 																		scrollX = TRUE,
-																		scrollY = TRUE,
+																		scrollY = scrollY,
 																		lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
 																		"pagelength"=-1
 																))
@@ -965,7 +965,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 																option=list(
 																		scroller = TRUE,
 																		scrollX = TRUE,
-																		scrollY = TRUE,
+																		scrollY = scrollY,
 																		order=list(3,"asc"),
 																		lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
 																		"pagelength"=-1,
@@ -985,7 +985,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 																option=list(
 																		scroller = TRUE,
 																		scrollX = TRUE,
-																		scrollY = TRUE,
+																		scrollY = scrollY,
 																		lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
 																		"pagelength"=-1
 																))
@@ -1016,16 +1016,15 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 														validate(need(globaldata$connectOK,"No connection"))
 														datatable(list_comp_deleted_dataseries$deleted,
 																rownames=FALSE,
-																extensions = "Buttons",
+																extensions = c("Buttons","Scroller"),
 																option=list(
-																		scroller = TRUE,
 																		scrollX = TRUE,
-																		scrollY = TRUE,
+																		scrollY = scrollY,
 																		order=list(3,"asc"),
 																		lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
 																		"pagelength"=-1,
-																		dom= "Blfrtip",
-																		scrollX = T,
+																		dom= "Bfrtip",
+#																		scrollX = T,
 																		autoWidth = TRUE,
 																		columnDefs = list(list(width = '200px', targets = c(4, 8))),
 																		buttons=list(
@@ -1063,7 +1062,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 																extensions = c("Buttons","Scroller"),
 																option=list(
 																		scrollX = TRUE,
-																		scrollY = TRUE,
+																		scrollY = scrollY,
 																		paging = TRUE, # necessary for scroller
 																		deferRender = TRUE, # defer render helps with large datasets
 																		dom = 'lBfrtip',
@@ -1116,7 +1115,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 																option=list(
 																		scroller = TRUE,
 																		scrollX = TRUE,
-																		scrollY = TRUE,
+																		scrollY = scrollY,
 																		order=list(3,"asc"),
 																		lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
 																		"pagelength"=-1,
