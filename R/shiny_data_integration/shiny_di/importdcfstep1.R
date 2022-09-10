@@ -682,7 +682,7 @@ importdcfstep1Server <- function(id,globaldata,loaded_data_dcf){
 																option=list(
 																		scroller = TRUE,
 																		scrollX = TRUE,
-																		scrollY = TRUE,
+																		scrollY = scrollY,
 																		order=list(3,"asc"),
 																		lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
 																		"pagelength"=-1,
@@ -702,7 +702,7 @@ importdcfstep1Server <- function(id,globaldata,loaded_data_dcf){
 																option=list(
 																		scroller = TRUE,
 																		scrollX = TRUE,
-																		scrollY = TRUE,
+																		scrollY = scrollY,
 																		lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
 																		"pagelength"=-1
 																))
@@ -738,7 +738,7 @@ importdcfstep1Server <- function(id,globaldata,loaded_data_dcf){
 																option=list(
 																		scroller = TRUE,
 																		scrollX = TRUE,
-																		scrollY = TRUE,
+																		scrollY = scrollY,
 																		order=list(3,"asc"),
 																		lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
 																		"pagelength"=-1,
@@ -781,7 +781,7 @@ importdcfstep1Server <- function(id,globaldata,loaded_data_dcf){
 																option=list(
 																		scroller = TRUE,
 																		scrollX = TRUE,
-																		scrollY = TRUE,
+																		scrollY = scrollY,
 																		order=list(3,"asc"),
 																		lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
 																		"pagelength"=-1,
