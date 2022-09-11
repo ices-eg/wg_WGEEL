@@ -268,7 +268,7 @@ shinyCatch=
     }, error = function(m) {
       if (inherits(m,"rlang_error")){
         spsUtil::msg(rlang::cnd_message(m), paste0(prefix, "ERROR"), "red")
-        if (shiny) shinytoastr::toastr_error(message = spsUtil::remove_ANSI(crlang::nd_message(m)),
+        if (shiny) shinytoastr::toastr_error(message = spsUtil::remove_ANSI(rlang::nd_message(m)),
                                              position = position, closeButton = TRUE, timeOut = 0,
                                              preventDuplicates = TRUE, title = "There is an error",
                                              hideDuration = 300)
