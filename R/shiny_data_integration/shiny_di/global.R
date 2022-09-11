@@ -13,6 +13,9 @@
 source("load_library.R")
 source("utilities.R")
 load_package("shiny")
+load_package("crosstalk")
+load_package("assertthat")
+
 load_package("leaflet.extras")
 load_package("sf")
 load_package("crosstalk")
