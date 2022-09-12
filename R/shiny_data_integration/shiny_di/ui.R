@@ -53,6 +53,7 @@ ui <- fluidPage(spsDepend("toastr"),
 												contentcolor = "#3c8dbc"),		
 								menuItem("Edit Data module", tabName="editAllmodule", icon=icon("edit")),
 								menuItem("Plot duplicates module", tabName='plot_duplicates_module',icon= icon("fas fa-chart-area")),
+								menuItem("Plot available series", tabName='plotseriesmodule',icon= icon("fas fa-chart-area")),
 								menuItem("New Participants module", tabName="newparticipantstabmodule", icon=icon("user-friends"))
 								#menuSubItem("Plot duplicates",  tabName="plot_duplicates"),
 								#menuSubItem("plot2", tabName="plot2")
@@ -102,7 +103,9 @@ ui <- fluidPage(spsDepend("toastr"),
 								tabItem("newparticipantstabmodule",
 										newparticipantsUI("newparticipantsmodule")),
 								tabItem("plot_duplicates_module",
-										plotduplicatesUI("plotduplicatesmodule"))
+										plotduplicatesUI("plotduplicatesmodule")),
+									tabItem("plotseriesmodule",
+								plotseriesUI("plotduplicatesmodule"))
 						
 						)
 				)
