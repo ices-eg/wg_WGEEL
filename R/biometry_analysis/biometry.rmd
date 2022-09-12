@@ -41,9 +41,13 @@ cred=read_yaml("../../credentials.yml")
 con_wgeel = dbConnect(Postgres(), dbname=cred$dbname,host=cred$host,port=cred$port,user=cred$user, password=getPass())
 
 
-biometry_group_data=dbGetQuery(con_wgeel,"with sel as(SELECT d.*, t_group.*, mty_name FROM datawg.t_metricgroupseries_megser d, datawg.t_groupseries_grser t_group, ref.tr_metrictype_mty WHERE mty_id=meg_mty_id AND meg_gr_id = gr_id) select sel.*, ser_nameshort, ser_x,ser_y,ser_emu_nameshort, ser_hty_code,ser_lfs_code from sel, datawg.t_series_ser where ser_id=grser_ser_id")
+biometry_group_data_series=dbGetQuery(con_wgeel,"with sel as(SELECT d.*, t_group.*, mty_name FROM datawg.t_metricgroupseries_megser d, datawg.t_groupseries_grser t_group, ref.tr_metrictype_mty WHERE mty_id=meg_mty_id AND meg_gr_id = gr_id) select sel.*, ser_nameshort, ser_x,ser_y,ser_emu_nameshort, ser_hty_code,ser_lfs_code from sel, datawg.t_series_ser where ser_id=grser_ser_id")
 
-data = biometry_group_data %>% 
+biometry_group_data_sampling=dbGetQuery(con_wgeel,"with sel as(SELECT d.*, t_group.*, mty_name FROM datawg.t_metricgroupsamp_megsa d, datawg.t_groupsamp_grsa t_group, ref.tr_metrictype_mty WHERE mty_id=meg_mty_id AND meg_gr_id = gr_id) 
+select * from sel, datawg.t_samplinginfo_sai where sai_id=grsa_sai_id")
+
+
+data = biometry_group_data_series %>% 
 	select(ser_id = grser_ser_id, year = gr_year,  gr_id, number = gr_number, comment = gr_comment, quality = meg_qal_id, mty_name, meg_value,ser_nameshort, ser_x,ser_y,ser_emu_nameshort, ser_hty_code,ser_lfs_code) %>%
 	pivot_wider(names_from = mty_name, values_from = meg_value)
 
