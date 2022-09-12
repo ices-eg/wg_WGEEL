@@ -29,7 +29,8 @@ Message when "check file" (did not occur when re-integrating)
 * 2 and 10 new values integrated (new group metrics)
 
 ## done
-
+## RE-InTEGRATION
+ New group metrics: 4 and 30 new values inserted in the group and metric tables
 ## Annex 3
 ### done
 * 1 new value integrated (series)
