@@ -84,8 +84,9 @@ DETAIL:  Failing row contains (549699, 6, 2020, null, LT_total, LT, Y, F, null, 
 ## to do
 * Integrate. Could not integrate due to an error: Error: Failed to fetch row: ERROR:  new row for relation "t_eelstock_eel" violates check constraint "ck_qal_id_and_missvalue"
 DETAIL:  Failing row contains (549730, 11, 2021, null, LT_total, LT, Y, null, null, 0, null, not reported due to commercial confidentiality reasons, 2022-09-08, NR, dc_2022, Public).
-
-
+## fixed
+in eel_missvaluequal: NR changed as NP
+ 1 new values inserted in the database
 
 ## Annex 10
 * no data
