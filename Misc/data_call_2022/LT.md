@@ -29,6 +29,13 @@ Message when "check file" (did not occur when re-integrating)
 * 2 and 10 new values integrated (new group metrics)
 
 ## done
+## RE-InTEGRATION
+ New group metrics: 4 and 30 new values inserted in the group and metric tables
+ 
+ In update group metrics: Error: Failed to prepare query: ERROR:  column "gr_number" is of type integer but expression is of type boolean
+LINE 3: (g.gr_year,g.gr_number,g.gr_comment,g.gr_dts_datasource,g."g...
+                   ^
+HINT:  You will need to rewrite or cast the expression.
 
 ## Annex 3
 ### done
