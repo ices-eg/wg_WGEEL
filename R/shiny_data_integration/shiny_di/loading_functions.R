@@ -3023,7 +3023,8 @@ load_dcf<-function(path,datasource){
 
 	  
 	  if ((!"fi_year" %in% names(data_xls)) & "fi_year" %in%columns){
-	    columns=columns[-which(columns=="fi_year")]
+	    #columns=columns[-which(columns=="fi_year")]
+			data_xls$fi_year <- as.numeric(NA)
 	  }
 	  nbcol <- length(columns)	
 	  
