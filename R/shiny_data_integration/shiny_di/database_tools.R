@@ -2023,7 +2023,7 @@ delete_dataseries <- function(path) {
 
 	dbExecute(conn,"drop table if exists deleted_dataseries_temp ")
 	dbWriteTable(conn,"deleted_dataseries_temp",deleted_values_table, row.names=FALSE,temporary=TRUE)
-	if (sum(!is.na(deleted_dataseries_temp$das_id)) == 0)
+	if (sum(!is.na(deleted_values_table$das_id)) == 0)
 	  return(list(message="no values to be deleted"), cou_code=NULL)
 	query=paste("update datawg.t_dataseries_das set das_qal_id=",qualify_code ,"WHERE das_id IN 
 					(SELECT das_id FROM deleted_dataseries_temp) RETURNING das_id ")
