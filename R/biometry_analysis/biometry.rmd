@@ -15,18 +15,19 @@ output:
 source("../utilities/load_library.R")
 
 knitr::opts_chunk$set(echo = TRUE,warning=FALSE,message=FALSE,error=FALSE,fig.width=14.9/2.54,dpi=150)
-load_library(readxl)
-load_library(sf)
-load_library(rnaturalearth)
-load_library(getPass)
-load_library(dplyr)
-load_library(ggplot2)
-load_library(Kendall)
-load_library(RPostgres)
-load_library(ggmap)
-load_library(hues)
-load_library(RPostgres)
-load_library(flextable)
+load_library("readxl")
+load_library("sf")
+load_library("rnaturalearth")
+load_library("getPass")
+load_library("dplyr")
+load_library("ggplot2")
+load_library("Kendall")
+load_library("RPostgres")
+load_library("ggmap")
+load_library("hues")
+load_library("RPostgres")
+load_library("flextable")
+load_library("yaml")
 
 if(Sys.info()["user"]=="hilaire.drouineau"){
   allometry=read_excel("~/Bureau/slopesintercepts.xlsx")
@@ -37,6 +38,7 @@ colorpalette=cbf_1 <- c("#999999", "#E69F00", "#56B4E9", "#009E73",
 
 cred=read_yaml("../../credentials.yml")
 con_wgeel = dbConnect(Postgres(), dbname=cred$dbname,host=cred$host,port=cred$port,user=cred$user, password=getPass())
+
 
 data=dbGetQuery(con_wgeel,"select d.*,ser_nameshort,ser_x,ser_y,ser_emu_nameshort,ser_hty_code,ser_lfs_code from datawg.t_biometry_series_bis d join datawg.t_series_ser on ser_id=bis_ser_id")
 
