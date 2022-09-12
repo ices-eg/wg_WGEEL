@@ -60,6 +60,9 @@ DETAIL: Key (grser_ser_id, gr_year)=(350, 2021) already exists)
 * Integrate. Couldn't integrate due to an error (Error: Failed to fetch row: ERROR:  new row for relation "t_eelstock_eel" violates check constraint "ck_qal_id_and_missvalue"
 DETAIL:  Failing row contains (549699, 6, 2020, null, LT_total, LT, Y, F, null, 0, null, landings recorded in 2019, 2022-09-08, NC, dc_2022, Public).
 
+## fixed  
+24 new values inserted in the database
+
 ## Annex 6
 * no data
 
