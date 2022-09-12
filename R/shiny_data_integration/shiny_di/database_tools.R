@@ -2213,7 +2213,7 @@ write_updated_group_metrics <-function(path, type="series"){
 	  return(list(message="empty file"), cou_code=NULL)
 	if (sum(!is.na(updated$gr_id)) ==0 )
 	  return(list(message="no gr_id"), cou_code=NULL)
-	if (any(is.na(updated$gr_id)) ==0 )
+	if (any(is.na(updated$gr_id)) )
 	  return(list(message="some gr_id are missing"), cou_code=NULL)
 	gr_table <- ifelse(type=="series","t_groupseries_grser","t_groupsamp_grsa")
 	gr_key <- ifelse(type=="series","grser_ser_id","grsa_sai_id")
@@ -2269,7 +2269,7 @@ delete_group_metrics <- function(path, type="series"){
 	  return(list(message="empty file"), cou_code=NULL)
 	if (sum(!is.na(deleted$gr_id)) ==0 )
 	  return(list(message="no gr_id"), cou_code=NULL)
-	if (any(is.na(deleted$gr_id)) ==0 )
+	if (any(is.na(deleted$gr_id)))
 	  return(list(message="some gr_id are missing"), cou_code=NULL)
 	
 	gr_table <- ifelse(type=="series","t_groupseries_grser","t_groupsamp_grsa")
@@ -2450,7 +2450,7 @@ write_updated_individual_metrics <- function(path, type="series"){
 	if (sum(!is.na(updated$fi_id)) == 0)
 	  return(list(message="no fi_id"), cou_code=NULL)
 	
-	if (any(is.na(updated$fi_id)) == 0)
+	if (any(is.na(updated$fi_id)))
 	  return(list(message="some fi_id are missing"), cou_code=NULL)
 	
 	ind_table <- ifelse(type=="series","t_fishseries_fiser","t_fishsamp_fisa")
@@ -2509,7 +2509,7 @@ delete_individual_metrics <- function(path, type="series"){
 	if (sum(!is.na(deleted$fi_id)) == 0)
 	  return(list(message="no fi_id"), cou_code=NULL)
 	
-	if (any(is.na(deleted$fi_id)) == 0)
+	if (any(is.na(deleted$fi_id)))
 	  return(list(message="some missing fi_id"), cou_code=NULL)
 	ind_table <- ifelse(type=="series","t_fishseries_fiser","t_fishsamp_fisa")
 	dbWriteTable(conn,"ind_tmp",deleted,temporary=TRUE, overwrite=TRUE)
