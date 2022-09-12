@@ -506,7 +506,7 @@ compare_with_database_dataseries <- function(data_from_excel, data_from_base, sh
 	
 	# Anti join only keeps columns from X, any new data is a data with ser_id and year not present in the db
 	new <-  dplyr::anti_join(as.data.frame(data_from_excel), data_from_base, 
-			by = c("das_ser_id","das_year"))
+			by = c("das_ser_id","das_year","das_qal_id"))
 	if (nrow(new)>0){
 		#new$das_qal_id <- NA
 		new$das_dts_datasource <- the_eel_datasource		
