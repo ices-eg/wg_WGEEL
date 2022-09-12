@@ -28,6 +28,7 @@ load_library("hues")
 load_library("RPostgres")
 load_library("flextable")
 load_library("yaml")
+load_library("tidyr")
 
 if(Sys.info()["user"]=="hilaire.drouineau"){
   allometry=read_excel("~/Bureau/slopesintercepts.xlsx")
@@ -40,7 +41,11 @@ cred=read_yaml("../../credentials.yml")
 con_wgeel = dbConnect(Postgres(), dbname=cred$dbname,host=cred$host,port=cred$port,user=cred$user, password=getPass())
 
 
-data=dbGetQuery(con_wgeel,"select d.*, mty_name from datawg.t_metricgroupseries_megser d, ref.tr_metrictype_mty where mty_id=meg_mty_id")
+biometry_group_data=dbGetQuery(con_wgeel,"SELECT d.*, t_group.*, mty_name FROM datawg.t_metricgroupseries_megser d, datawg.t_groupseries_grser t_group, ref.tr_metrictype_mty WHERE mty_id=meg_mty_id AND meg_gr_id = gr_id")
+
+test = biometry_group_data %>% 
+	select(ser_id = grser_ser_id, year = gr_year,  gr_id, number = gr_number, comment = gr_comment, quality = meg_qal_id, mty_name, meg_value) %>%
+	pivot_wider(names_from = mty_name, values_from = meg_value)
 
 data$ser_lfs_code=factor(as.character(data$ser_lfs_code),levels=c("G","GY","Y","S"))
 
