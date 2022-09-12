@@ -19,8 +19,8 @@ update grp metrics error need to come back (fri)-(on monday) 3 and 9 group metri
 
 ## Annex 3
 2 new data series row, 55 dataseries updated; new group metrics 1 and 10
-update grp metrics error  'empty gr_id stops'; 2 and 9 new group metrics updated
-new individual metrics; 31796 and 104553
+update grp metrics error  'empty gr_id stops'; monday 2 and 9 new group metrics updated part 2 11 and 61 modified grp metrics 
+new individual metrics; 31796 and 104553; part 2 gave more indiv measurements
 
 ## Annex 4
 72 new rows added
