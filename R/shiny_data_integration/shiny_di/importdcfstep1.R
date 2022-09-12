@@ -490,7 +490,7 @@ importdcfstep1Server <- function(id,globaldata,loaded_data_dcf){
 																	extensions = c("Buttons", "Scroller"),				
 																	option=list(
 																			scrollX = TRUE,
-																			scrollY = TRUE,
+																			scrollY = scrollY,
 																			paging = TRUE, # necessary for scroller																		
 																			dom = 'lBfrtip',
 																			deferRender = TRUE, # defer render helps with large datasets
