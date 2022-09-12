@@ -10,6 +10,9 @@
 * Integrate new individual metrics: 562 and 2930 new values inserted in the fish and metric tables
 * Integrate new group metrics: 2 and 4 new values inserted in the group and metric tables
 
+Integrate new data series: 2 new values inserted in the database
+Modified group metrix: empty file
+
 ## Annex 3
 * Integrate new dataseries: 12 new values inserted in the database
 * Update modified series: 2 values updated in the db
