@@ -518,7 +518,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 													})
 										}
 										# step1 new dataseries -------------------------------------------------------------
-										if (nrow(list_comp_dataseries$new)==0) {
+										if (ifelse(!exists("list_comp_dataseries"), TRUE,nrow(list_comp_dataseries$new)==0)) {
 											output$"step1_message_new_dataseries"<-renderUI(
 													HTML(
 															paste(
@@ -790,7 +790,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
 										
 # step1 modified dataseries -------------------------------------------------------------
 										
-										if ( nrow(list_comp_dataseries$modified)==0) {
+										if ( ifelse(!exists("list_comp_dataseries"), TRUE,nrow(list_comp_dataseries$modified)==0)) {
 											output$"step1_message_modified_dataseries"<-renderUI(
 													HTML(
 															paste(

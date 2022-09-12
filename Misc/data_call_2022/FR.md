@@ -77,7 +77,7 @@ No data
 
 ## Annex 7
 
-error 'there is an error' https://github.com/ices-eg/wg_WGEEL/issues/256
+22 new
 
 ## Annex 8
 
