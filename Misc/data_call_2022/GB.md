@@ -34,13 +34,13 @@ upload modified group metrics
 
 96866 and 182744 new values inserted in the fish and metric tables
 
+12 values deleted from the db
+
+37 values deleted from group table, cascade delete on metrics
+
 STILL TO DO:
 
-upload deleted series values
-
 upload modified group metrics 
-
-upoload deleted group metrics 
 
 
 ## Annex 3
