@@ -441,7 +441,7 @@ AS $function$
   BEGIN
   
   SELECT INTO
-  inpolygon coalesce(st_contains(geom,st_setsrid(st_point(new.fisa_x_4326, new.fisa_y_4326), 4326)), true) FROM  
+  inpolygon coalesce(st_dwithin(geom::geography, st_setsrid(st_point(new.fisa_x_4326, new.fisa_y_4326),4326)::geography,10000), true) FROM  
   datawg.t_samplinginfo_sai
   JOIN REF.tr_emu_emu ON emu_nameshort=sai_emu_nameshort where new.fisa_sai_id = sai_id;
   IF (inpolygon = false) THEN
@@ -954,7 +954,7 @@ AS $function$
   end if;
 
   SELECT INTO
-  inpolygon coalesce(st_contains(geom,st_setsrid(st_point(new.fisa_x_4326, new.fisa_y_4326), 4326)), true) FROM  
+  inpolygon coalesce(st_dwithin(geom::geography, st_setsrid(st_point(new.fisa_x_4326,new.fisa_y_4326),4326)::geography,10000), true) FROM
   datawg.t_samplinginfo_sai
   JOIN REF.tr_emu_emu ON emu_nameshort=sai_emu_nameshort where new.fisa_sai_id = sai_id;
   IF (inpolygon = false) THEN
