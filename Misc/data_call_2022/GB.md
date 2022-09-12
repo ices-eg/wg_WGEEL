@@ -15,11 +15,11 @@
 
 5860 and 13784 new values inserted in the fish and metric tables
 
+9 values deleted from the db
+
+5 values deleted from group table, cascade delete on metrics
+
 STILL TO DO:
-
-upload deleted series values
-
-upoload deleted group metrics 
 
 upload modified group metrics 
 
@@ -54,13 +54,13 @@ upoload deleted group metrics
 
 7922 and 21142 new values inserted in the fish and metric tables
 
+73 values deleted from group table, cascade delete on metrics
+
+5 values deleted from the db
+
 STILL TO DO:
 
-upload deleted series values
-
 upload modified group metrics 
-
-upoload deleted group metrics 
 
 
 ## Annex 4
