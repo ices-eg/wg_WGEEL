@@ -52,6 +52,9 @@ HINT:  You will need to rewrite or cast the expression.
 * integrate modified group metrics (there was a bug: could not find function "update_group_metrics" - at re-integration: Error: Failed to fetch row: ERROR: duplicate key value violates unique constraint "c_ck_uk_grser_gr"
 DETAIL: Key (grser_ser_id, gr_year)=(350, 2021) already exists)
 
+## deleted already exists lines (350, 2021) 
+3 and 36 new values inserted in the group and metric tables
+
 ## Annex 4
 ## notes
 4 rows of duplicates were detedcted but when integrating the new lines it said "0 updated, 0 kept". So when we tried to circumvent this by using "update data", shiny said these id's were not in the db. Turned out in fact the duplicates were indeed updated. What we did is we recreated the original version of the Annex, where the duplicates were in new data and not in update, so the integration shows duplicates again - but these were ignored (since they were already replaced).
