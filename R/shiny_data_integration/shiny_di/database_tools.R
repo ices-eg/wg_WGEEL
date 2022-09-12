@@ -1989,11 +1989,15 @@ update_sampling <- function(path) {
 			t.sai_qal_id,
 			t.sai_lastupdate,
 			t.sai_dts_datasource)
-			FROM updated_sampling_temp t WHERE t.sai_name = t_samplinginfo_sai.sai_name"
+			FROM updated_sampling_temp t WHERE t.sai_name = t_samplinginfo_sai.sai_name
+	returning sai_name"
 	
 	message <- NULL
-	nr <- tryCatch({
-				dbExecute(conn, query)
+	tryCatch({
+	  rs <- dbSendQuery(conn,query)
+	  res0 <- dbFetch(rs)
+	  dbClearResult(rs)
+	  nr <- nrow(res0)
 			}, error = function(e) {
 				message <<- e
 			}, finally = {
@@ -2015,7 +2019,7 @@ update_sampling <- function(path) {
 delete_dataseries <- function(path) {
 	deleted_values_table <- 	read_excel(path = path, sheet = 1, skip = 1)	
 	if (nrow(deleted_values_table) == 0)
-	  stop("no values to be deleted")
+	  return(list(message="no values to be deleted"), cou_code=NULL)
 	conn <- poolCheckout(pool)
 	cou_code = dbGetQuery(conn,paste0("SELECT ser_cou_code FROM datawg.t_series_ser WHERE ser_nameshort='",
 					deleted_values_table$ser_nameshort[1],"';"))$ser_cou_code  
@@ -2023,8 +2027,8 @@ delete_dataseries <- function(path) {
 
 	dbExecute(conn,"drop table if exists deleted_dataseries_temp ")
 	dbWriteTable(conn,"deleted_dataseries_temp",deleted_values_table, row.names=FALSE,temporary=TRUE)
-	if (sum(!is.na(deleted_dataseries_temp$das_id)) == 0)
-	  stop("no values to be deleted")
+	if (sum(!is.na(deleted_values_table$das_id)) == 0)
+	  return(list(message="no values to be deleted"), cou_code=NULL)
 	query=paste("update datawg.t_dataseries_das set das_qal_id=",qualify_code ,"WHERE das_id IN 
 					(SELECT das_id FROM deleted_dataseries_temp) RETURNING das_id ")
 	message <- NULL
@@ -2210,11 +2214,11 @@ write_updated_group_metrics <-function(path, type="series"){
 	on.exit(poolReturn(conn))
 	updated <- read_excel(path = path, sheet = 1, skip = 1)
 	if (nrow(updated) == 0)
-	  stop("empty file")
+	  return(list(message="empty file"), cou_code=NULL)
 	if (sum(!is.na(updated$gr_id)) ==0 )
-	  stop("no gr_id, stops")
-	if (any(is.na(updated$gr_id)) ==0 )
-	  stop("there is an empty gr_id stops")
+	  return(list(message="no gr_id"), cou_code=NULL)
+	if (any(is.na(updated$gr_id)) )
+	  return(list(message="some gr_id are missing"), cou_code=NULL)
 	gr_table <- ifelse(type=="series","t_groupseries_grser","t_groupsamp_grsa")
 	gr_key <- ifelse(type=="series","grser_ser_id","grsa_sai_id")
 	metric_table <- ifelse(type=="series","t_metricgroupseries_megser","t_metricgroupsamp_megsa")	
@@ -2266,11 +2270,11 @@ delete_group_metrics <- function(path, type="series"){
 	on.exit(poolReturn(conn))
 	deleted <- read_excel(path = path, sheet = 1, skip = 1)
 	if (nrow(deleted) == 0)
-	  stop("empty file")
+	  return(list(message="empty file"), cou_code=NULL)
 	if (sum(!is.na(deleted$gr_id)) ==0 )
-	  stop("no gr_id, stops")
-	if (any(is.na(deleted$gr_id)) ==0 )
-	  stop("there is an empty gr_id stops")
+	  return(list(message="no gr_id"), cou_code=NULL)
+	if (any(is.na(deleted$gr_id)))
+	  return(list(message="some gr_id are missing"), cou_code=NULL)
 	
 	gr_table <- ifelse(type=="series","t_groupseries_grser","t_groupsamp_grsa")
 	dbWriteTable(conn,"group_tmp",deleted,temporary=TRUE, overwrite=TRUE)
@@ -2446,12 +2450,12 @@ write_updated_individual_metrics <- function(path, type="series"){
 	on.exit(poolReturn(conn))
 	updated <- read_excel(path = path, sheet = 1, skip = 1)
 	if (nrow(updated) == 0)
-	  stop("empty file")
+	  return(list(message="empty file"), cou_code=NULL)
 	if (sum(!is.na(updated$fi_id)) == 0)
-	  stop("no fi_id, stops")
+	  return(list(message="no fi_id"), cou_code=NULL)
 	
-	if (any(is.na(updated$fi_id)) == 0)
-	  stop("some fi_id missing, stops")
+	if (any(is.na(updated$fi_id)))
+	  return(list(message="some fi_id are missing"), cou_code=NULL)
 	
 	ind_table <- ifelse(type=="series","t_fishseries_fiser","t_fishsamp_fisa")
 	ind_key <- ifelse(type=="series","fiser_ser_id","fisa_sai_id")
@@ -2505,18 +2509,16 @@ delete_individual_metrics <- function(path, type="series"){
 	on.exit(poolReturn(conn))
 	deleted <- read_excel(path = path, sheet = 1, skip = 1)
 	if (nrow(deleted) == 0)
-	  stop("nothing to be deleted")
+	  return(list(message="empty file"), cou_code=NULL)
 	if (sum(!is.na(deleted$fi_id)) == 0)
-	  stop("no fi_id, stops")
+	  return(list(message="no fi_id"), cou_code=NULL)
 	
-	if (any(is.na(deleted$fi_id)) == 0)
-	  stop("some fi_id missing, stops")
+	if (any(is.na(deleted$fi_id)))
+	  return(list(message="some missing fi_id"), cou_code=NULL)
 	ind_table <- ifelse(type=="series","t_fishseries_fiser","t_fishsamp_fisa")
 	dbWriteTable(conn,"ind_tmp",deleted,temporary=TRUE, overwrite=TRUE)
 	message <- NULL
 	#dbGetQuery(conn, "DELETE FROM datawg.t_groupseries_grser")
-	if (sum(!is.na(deleted$fr_id)) == 0)
-	  stop("nothing to be deleted")
 	(nr <- tryCatch({
 							sql <- glue::glue_sql("DELETE FROM datawg.{`ind_table`} 
 											WHERE fi_id IN (SELECT distinct fi_id FROM ind_tmp",

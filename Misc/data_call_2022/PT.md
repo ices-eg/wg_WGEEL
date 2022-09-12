@@ -19,7 +19,7 @@ LINE 2: (SELECT g.gr_year,g.gr_number,g.gr_comment,g.gr_dts_datasour...
 
  ## Annex 2
  ### to do
- * integrate, we had an issue
+ * DONE/REDUNDANT (there is no documentation but testing suggests all was integrated - new dataseries, new group metrics and an update to group metrics): integrate, we had an issue (not sure, could be integrated already)
 
 ## Annex 3
 ### done
