@@ -10,6 +10,8 @@
 * integrate group metrics
 
 ## Annex 2
+modified series 1 row updated; 
+tried to update rest but db said alreay uploaded
 
 ## Annex 3
 
