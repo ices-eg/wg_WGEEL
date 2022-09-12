@@ -58,5 +58,5 @@ Modified sampling: 36 values updated in the db
 
 New group metrics: 172 and 1844 new values inserted in the group and metric tables
 
-New individual metrics: STILL TO DO
+New individual metrics:  31996 and 202512 new values inserted in the fish and metric tables
 
