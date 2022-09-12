@@ -462,7 +462,7 @@ importdcfstep1Server <- function(id,globaldata,loaded_data_dcf){
 																	option=list(
 																			scroller = TRUE,
 																			scrollX = TRUE,
-																			scrollY = TRUE,
+																			scrollY = scrollY,
 																			order=list(3,"asc"),
 																			lengthMenu=list(c(20,50,-1),c("20","50","All")),
 																			"pagelength"=20,
