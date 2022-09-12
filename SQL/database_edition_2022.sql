@@ -432,27 +432,6 @@ CREATE TRIGGER check_mei_mty_is_individual AFTER INSERT OR UPDATE ON
    datawg.t_metricind_mei FOR EACH ROW EXECUTE FUNCTION datawg.mei_mty_is_individual();
 
 
-CREATE OR REPLACE FUNCTION datawg.fish_in_emu()
- RETURNS trigger
- LANGUAGE plpgsql
-AS $function$   
-  DECLARE inpolygon bool;
-  DECLARE fish integer;
-  BEGIN
-  
-  SELECT INTO
-  inpolygon coalesce(st_dwithin(geom::geography, st_setsrid(st_point(new.fisa_x_4326, new.fisa_y_4326),4326)::geography,10000), true) FROM  
-  datawg.t_samplinginfo_sai
-  JOIN REF.tr_emu_emu ON emu_nameshort=sai_emu_nameshort where new.fisa_sai_id = sai_id;
-  IF (inpolygon = false) THEN
-    RAISE EXCEPTION 'the fish % coordinates X % Y % do not fall into the corresponding emu', new.fi_id, new.fisa_x_4326,new.fisa_y_4326 ;
-    END IF  ;
-
-    RETURN NEW ;
-  END  ;
-$function$
-;
-
 --SELECT PostGIS_Version()
 -- note st_point(x,y, int) is only available in postgis 3.2 we have 3.1
 
@@ -941,31 +920,6 @@ ser_nameshort='EmsBGY' ORDER BY das_year
 
 
 
---change the trigger to allow missing coordinates
-CREATE OR REPLACE FUNCTION datawg.fish_in_emu()
- RETURNS trigger
- LANGUAGE plpgsql
-AS $function$   
-  DECLARE inpolygon bool;
-  DECLARE fish integer;
-  BEGIN
-  if (new.fisa_y_4326 is null and new.fisa_x_4326 is null) then
-  	return new;
-  end if;
-
-  SELECT INTO
-  inpolygon coalesce(st_dwithin(geom::geography, st_setsrid(st_point(new.fisa_x_4326,new.fisa_y_4326),4326)::geography,10000), true) FROM
-  datawg.t_samplinginfo_sai
-  JOIN REF.tr_emu_emu ON emu_nameshort=sai_emu_nameshort where new.fisa_sai_id = sai_id;
-  IF (inpolygon = false) THEN
-    RAISE EXCEPTION 'the fish % coordinates do not fall into the corresponding emu', new.fi_id ;
-    END IF  ;
-
-    RETURN NEW ;
-  END  ;
-$function$
-;
-
 
 alter table datawg.t_fishsamp_fisa  alter column fisa_x_4326 drop not null;
 alter table datawg.t_fishsamp_fisa  alter column fisa_y_4326 drop not null;
@@ -1202,4 +1156,65 @@ SELECT emu_wholecountry FROM ref.tr_emu_emu WHERE emu_nameshort= 'IT_total'
 ALTER TABLE datawg.t_eelstock_eel DROP CONSTRAINT ck_emu_whole_aquaculture
 ALTER TABLE datawg.t_eelstock_eel ADD CONSTRAINT ck_emu_whole_aquaculture CHECK (NOT(eel_qal_id=1 AND eel_typ_id = 11 AND NOT checkemu_whole_country(eel_emu_nameshort)));
 
+
+--convert unique constraint to 
+CREATE UNIQUE INDEX idx_dataseries_1 ON datawg.t_dataseries_das USING btree (das_year, das_ser_id) WHERE (das_qal_id IS NULL or das_qal_id<5);
+alter table datawg.t_dataseries_das drop constraint c_uk_year_ser_id;
+
+
+----to be run and improved after wgeel
+
+
+CREATE OR REPLACE FUNCTION datawg.fish_in_emu()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$   
+  DECLARE inpolygon bool;
+  DECLARE fish integer;
+  BEGIN
+  
+  SELECT INTO
+  inpolygon coalesce(st_dwithin(geom::geography, st_setsrid(st_point(new.fisa_x_4326, new.fisa_y_4326),4326)::geography,10000), true) FROM  
+  datawg.t_samplinginfo_sai
+  JOIN REF.tr_emu_emu ON emu_nameshort=sai_emu_nameshort where new.fisa_sai_id = sai_id;
+  IF (inpolygon = false) THEN
+    RAISE EXCEPTION 'the fish % coordinates X % Y % do not fall into the corresponding emu', new.fi_id, new.fisa_x_4326,new.fisa_y_4326 ;
+    END IF  ;
+
+    RETURN NEW ;
+  END  ;
+$function$
+;
+
+
+
+--change the trigger to allow missing coordinates
+CREATE OR REPLACE FUNCTION datawg.fish_in_emu()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$   
+  DECLARE inpolygon bool;
+  DECLARE fish integer;
+  BEGIN
+  if (new.fisa_y_4326 is null and new.fisa_x_4326 is null) then
+  	return new;
+  end if;
+
+  SELECT INTO
+  inpolygon coalesce(st_dwithin(geom::geography, st_setsrid(st_point(new.fisa_x_4326,new.fisa_y_4326),4326)::geography,10000), true) FROM
+  datawg.t_samplinginfo_sai
+  JOIN REF.tr_emu_emu ON emu_nameshort=sai_emu_nameshort where new.fisa_sai_id = sai_id;
+  IF (inpolygon = false) THEN
+    RAISE EXCEPTION 'the fish % coordinates do not fall into the corresponding emu', new.fi_id ;
+    END IF  ;
+
+    RETURN NEW ;
+  END  ;
+$function$
+;
+
+
+DROP TRIGGER IF EXISTS check_fish_in_emu ON datawg.t_fishsamp_fisa;
+CREATE TRIGGER check_fish_in_emu AFTER INSERT OR UPDATE ON
+   datawg.t_fishsamp_fisa FOR EACH ROW EXECUTE FUNCTION datawg.fish_in_emu();
 
