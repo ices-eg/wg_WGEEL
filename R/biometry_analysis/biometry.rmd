@@ -40,7 +40,7 @@ cred=read_yaml("../../credentials.yml")
 con_wgeel = dbConnect(Postgres(), dbname=cred$dbname,host=cred$host,port=cred$port,user=cred$user, password=getPass())
 
 
-data=dbGetQuery(con_wgeel,"select d.*,ser_nameshort,ser_x,ser_y,ser_emu_nameshort,ser_hty_code,ser_lfs_code from datawg.t_biometry_series_bis d join datawg.t_series_ser on ser_id=bis_ser_id")
+data=dbGetQuery(con_wgeel,"select d.*, mty_name from datawg.t_metricgroupseries_megser d, ref.tr_metrictype_mty where mty_id=meg_mty_id")
 
 data$ser_lfs_code=factor(as.character(data$ser_lfs_code),levels=c("G","GY","Y","S"))
 
