@@ -782,6 +782,8 @@ compare_with_database_metric_group <- function(data_from_excel,
 	modified <- dplyr::anti_join(data_from_excel, data_from_base_wide, 
 			by =c("gr_id", "gr_year", "gr_number", metrics_group$mty_name))
 	modified <- modified[!modified$id %in% new$id,]
+	if (sheetorigin=="new_group_metrics" & nrow(modified)>0)
+		modified$gr_comment <- "THIS ONE WAS ALREADY INTEGRATED :: PLEASE DELETE LINE"
 	
 	# if (sheetorigin == "new_group_metrics"){
 	#   modified <- dplyr::anti_join(data_from_excel, data_from_base_wide, 

@@ -31,8 +31,7 @@ Modified dataseries: 84 values updated in the db (assigned a quality id)
 
 New group metrics: 1 and 8 new values inserted in the group and metric tables
 
-Modified group metrics: STILL NEEDS TO BE DONE, WAITING FOR BUG FIX
-
+Modified group metrics: 2 and 20 new values modified in the group and metric tables
 New individual metrics: 53 and 456 new values inserted in the fish and metric tables
 
 ## Annex 4
@@ -58,5 +57,5 @@ Modified sampling: 36 values updated in the db
 
 New group metrics: 172 and 1844 new values inserted in the group and metric tables
 
-New individual metrics: STILL TO DO
+New individual metrics:  31996 and 202512 new values inserted in the fish and metric tables
 
