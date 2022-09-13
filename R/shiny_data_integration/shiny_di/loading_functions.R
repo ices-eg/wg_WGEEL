@@ -2385,12 +2385,19 @@ load_series<-function(path,datasource, stage="glass_eel"){
 			columns 
 	    #,nbcol
 			){
-		
+
+	  headers <- read_excel(
+	    path=path,
+	    sheet=sheet,
+	    skip=0, 
+	    n_max=0)
+	  readed_coltypes = dictionary[names(headers)]
+	  
 		data_xls <- read_excel(
 				path=path,
 				sheet=sheet,
 				skip=0, 
-				guess_max=10000)
+				col_types=readed_coltypes)
 		cat(sheet,"\n")
 		#browser()
     # ignore this
@@ -3014,11 +3021,19 @@ load_dcf<-function(path,datasource){
 	
 	#---------------------- all_other_sheets ---------------------------------------------
 	fn_check_gr_ind <- function(sheet, columns){
+	  headers <- read_excel(
+	    path=path,
+	    sheet=sheet,
+	    skip=0, 
+	    n_max=0)
+	  readed_coltypes = dictionary[names(headers)]
+	  
 		
 		data_xls <- read_excel(
 				path=path,
 				sheet=sheet,
-				skip=0, guess_max=10000)
+				skip=0, guess_max=10000,
+				col_types=readed_coltypes)
 		cat(sheet,"\n")
 
 	  
