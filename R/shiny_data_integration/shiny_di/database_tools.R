@@ -729,7 +729,7 @@ compare_with_database_metric_group <- function(data_from_excel,
 	data_from_excel <- data_from_excel %>% mutate_if(is.logical,list(as.numeric)) 
 	data_from_excel <- data_from_excel %>% mutate_at(vars("gr_comment", "gr_dts_datasource", 
 					ifelse(type=="series","ser_nameshort","sai_name")), list(as.character)) 
-	if (sheetorigin != "new_data"){
+	if (sheetorigin != "new_group_metrics"){
 	  if (any(! data_from_excel$gr_id %in% data_from_base$gr_id))
 	    stop(paste0(sheetorigin,
 	                ": some gr_id are not in the db:",

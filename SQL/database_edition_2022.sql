@@ -1218,3 +1218,6 @@ DROP TRIGGER IF EXISTS check_fish_in_emu ON datawg.t_fishsamp_fisa;
 CREATE TRIGGER check_fish_in_emu AFTER INSERT OR UPDATE ON
    datawg.t_fishsamp_fisa FOR EACH ROW EXECUTE FUNCTION datawg.fish_in_emu();
 
+
+UPDATE datawg.t_dataseries_das SET das_qal_id =1 WHERE das_ser_id= 196 AND das_qal_id IS NULL;
+--25
