@@ -31,7 +31,7 @@
 duplicated_values_graph<-function (dataset)
 { 
   if (nrow(dataset)==0) return(NULL)
-  dataset$kept <- "Not kept, eel_qal_id = 3 or 18 "
+  dataset$kept <- "Not kept, eel_qal_id = 3 or 18...22 "
   dataset$kept[ dataset$eel_qal_id %in% c(1,2,4) ] <- "Kept, eel_qal_id = 1 (good), 2 (corrected) or 4 (dubious)"
   grouped_dataset <- dataset %>% group_by(kept, eel_year) %>% summarize(eel_value=sum(eel_value,na.rm=TRUE),nobs=n())
   g <-ggplot(grouped_dataset)+geom_col(aes(x=eel_year,y=eel_value,fill=nobs), position='stack')+
@@ -40,5 +40,26 @@ duplicated_values_graph<-function (dataset)
           ggtitle("Clik a bar for details ...", subtitle='Color according to number of observations')
           theme_bw() 
   return(g)         
+}
+
+
+s_graph<-function (dataset,level, year_column)
+{ 
+	if (nrow(dataset)==0) return(NULL)
+	dataset$kept <- "Not kept, eel_qal_id = 0 or 18 ... 22 "
+	qal_column <- swith(level, "dataseries"="das_qal_id",
+			"group metrics"="meg_qal_id",
+			"individual metrics"="fi_qal_id")
+	dataset <-dataset %>% mutate(kept= 
+			case_when(!!!sym(qal_column) %in% c(1,2,4)~"Kept, eel_qal_id = 1 (good), 2 (corrected) or 4 (dubious)",
+					TRUE ~ "Not kept" ))
+					
+
+	grouped_dataset <- dataset %>% group_by(kept, !!sym(year_column), ser_nameshort) %>% summarize(nobs=n())
+	g <-ggplot(grouped_dataset)+geom_col(aes(x=eel_year,y=nobs,fill=ser_nameshort), position='stack')+
+			facet_grid(kept ~ . )+
+			ggtitle("Clik a bar for details ...")
+	theme_bw() 
+	return(g)         
 }
 

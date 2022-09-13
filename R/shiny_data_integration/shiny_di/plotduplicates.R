@@ -23,7 +23,7 @@ plotduplicatesUI <- function(id){
                 column(width=4, 
                        pickerInput(inputId = ns("typ_g"), 
                                    label = "Select a type :", 
-                                   choices = typ_id,
+                                   choices = typ_id[!typ_id%in%c(1,2,3)],
                                    selected= 4,
                                    multiple = FALSE,
                                    options = list(

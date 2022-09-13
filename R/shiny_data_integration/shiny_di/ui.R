@@ -104,8 +104,8 @@ ui <- fluidPage(spsDepend("toastr"),
 										newparticipantsUI("newparticipantsmodule")),
 								tabItem("plot_duplicates_module",
 										plotduplicatesUI("plotduplicatesmodule")),
-									tabItem("plotseriesmodule",
-								plotseriesUI("plotduplicatesmodule"))
+								tabItem("plot_series_module",
+								plotseriesUI("plotseriesmodule"))
 						
 						)
 				)
