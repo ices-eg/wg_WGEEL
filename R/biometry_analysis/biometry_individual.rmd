@@ -42,29 +42,18 @@ con_wgeel = dbConnect(Postgres(), dbname=cred$dbname,host=cred$host,port=cred$po
 
 
 biometry_individual_series=dbGetQuery(con_wgeel,"with sel as(SELECT d.*, t_series.*, mty_name FROM datawg.t_metricindseries_meiser d, datawg.t_fishseries_fiser t_series, ref.tr_metrictype_mty WHERE mty_id=mei_mty_id AND mei_fi_id = fi_id) 
-select sel.*, ser_nameshort, ser_x,ser_y,ser_emu_nameshort, ser_hty_code,ser_lfs_code from sel, datawg.t_series_ser where ser_id=fiser_ser_id")
+select sel.*, ser_nameshort, ser_cou_code, ser_x,ser_y,ser_emu_nameshort, ser_hty_code,ser_lfs_code from sel, datawg.t_series_ser where ser_id=fiser_ser_id")
 
 biometry_individual_sampling=dbGetQuery(con_wgeel,"with sel as(SELECT d.*, t_samp.*, mty_name FROM datawg.t_metricindsamp_meisa d, datawg.t_fishsamp_fisa t_samp, ref.tr_metrictype_mty WHERE mty_id=mei_mty_id AND mei_fi_id = fi_id) 
 select * from sel, datawg.t_samplinginfo_sai where sai_id=fisa_sai_id")
 
 
-data = biometry_group_data_series %>% 
-	select(ser_id = grser_ser_id, year = gr_year,  gr_id, number = gr_number, comment = gr_comment, quality = meg_qal_id, mty_name, meg_value,ser_nameshort, ser_x,ser_y,ser_emu_nameshort, ser_hty_code,ser_lfs_code) %>%
-	pivot_wider(names_from = mty_name, values_from = meg_value)
+data = biometry_individual_series %>% 
+	select(ser_id = fiser_ser_id, year = fi_year,date=fi_date,  fi_id, country=ser_cou_code, comment = fi_comment, quality = mei_qal_id, mty_name, mei_value,ser_nameshort, ser_x,ser_y,ser_emu_nameshort, ser_hty_code,ser_lfs_code) %>%
+	pivot_wider(names_from = mty_name, values_from = mei_value)
 
 data$ser_lfs_code=factor(as.character(data$ser_lfs_code),levels=c("G","GY","Y","S"))
 
-gibraltar=st_transform(st_sfc(st_point(c(-5.605465,36.008260)),crs=4326),3035)
-data2=st_transform(st_as_sf(data,coords=c("ser_x","ser_y"),crs=4326),3035)
-data$distance=st_distance(data2,gibraltar,by_element=TRUE)/1000
-
-
- worldmap <- ne_countries(scale = 'medium', type = 'map_units',
-                          returnclass = 'sf')
- europe_cropped <- st_crop(worldmap, xmin = -13, xmax = 27,
-                                     ymin = 35, ymax = 65)
- my_map=get_stamenmap(bbox = c(left = -13, bottom = 35, right =
-  27, top = 65), zoom = 6, maptype = c("watercolor"))
 
  dbDisconnect(con_wgeel)
 
@@ -72,12 +61,20 @@ data$distance=st_distance(data2,gibraltar,by_element=TRUE)/1000
 
 # Raw data 
 ```{r rawdata, include=TRUE}
-data$ser_lfs_code=factor(as.character(data$ser_lfs_code),levels=c("G","GY","Y","S"))
 
-ggplot(data,aes(x=bio_length,y=bio_weight))+geom_point()+
+data<-data[data$fi_id!=421454,]
+
+ggplot(data,aes(x=lengthmm,y=weightg))+geom_point()+
   facet_wrap(.~ser_lfs_code,scale="free")+
   theme_bw()+ggtitle("mixed")+xlab("Length (mm)")+ylab("Weight (g)")
-ggplot(data,aes(x=bio_length_m,y=bio_weight_m))+geom_point()+
+
+data_gy<-data[data$ser_lfs_code=='Y',]
+
+ggplot(data_gy,aes(x=lengthmm,y=weightg))+geom_point()+
+  facet_grid(vars(country))+
+  theme_bw()+ggtitle("male")+xlab("Length (mm)")+ylab("Weight (g)")+ ylim(0,5)
+
+ggplot(data,aes(x=lengthmm,y=weightg))+geom_point()+
   facet_wrap(.~ser_lfs_code,scale="free")+
   theme_bw()+ggtitle("male")+xlab("Length (mm)")+ylab("Weight (g)")
 ggplot(data,aes(x=bio_length_f,y=bio_weight_f))+geom_point()+
