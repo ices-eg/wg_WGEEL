@@ -1,7 +1,7 @@
 ---
-title: "Untitled"
+title: "biometry_individual"
 author: "ICES Data Group"
-date: "14/09/2020"
+date: "12/09/2022"
 bibliography: biometry.bib
 csl: "../Rmarkdown/ices-journal-of-marine-science.csl"
 output: 
@@ -41,10 +41,15 @@ cred=read_yaml("../../credentials.yml")
 con_wgeel = dbConnect(Postgres(), dbname=cred$dbname,host=cred$host,port=cred$port,user=cred$user, password=getPass())
 
 
-biometry_group_data=dbGetQuery(con_wgeel,"SELECT d.*, t_group.*, mty_name FROM datawg.t_metricgroupseries_megser d, datawg.t_groupseries_grser t_group, ref.tr_metrictype_mty WHERE mty_id=meg_mty_id AND meg_gr_id = gr_id")
+biometry_individual_series=dbGetQuery(con_wgeel,"with sel as(SELECT d.*, t_series.*, mty_name FROM datawg.t_metricindseries_meiser d, datawg.t_fishseries_fiser t_series, ref.tr_metrictype_mty WHERE mty_id=mei_mty_id AND mei_fi_id = fi_id) 
+select sel.*, ser_nameshort, ser_x,ser_y,ser_emu_nameshort, ser_hty_code,ser_lfs_code from sel, datawg.t_series_ser where ser_id=fiser_ser_id")
 
-test = biometry_group_data %>% 
-	select(ser_id = grser_ser_id, year = gr_year,  gr_id, number = gr_number, comment = gr_comment, quality = meg_qal_id, mty_name, meg_value) %>%
+biometry_individual_sampling=dbGetQuery(con_wgeel,"with sel as(SELECT d.*, t_samp.*, mty_name FROM datawg.t_metricindsamp_meisa d, datawg.t_fishsamp_fisa t_samp, ref.tr_metrictype_mty WHERE mty_id=mei_mty_id AND mei_fi_id = fi_id) 
+select * from sel, datawg.t_samplinginfo_sai where sai_id=fisa_sai_id")
+
+
+data = biometry_group_data_series %>% 
+	select(ser_id = grser_ser_id, year = gr_year,  gr_id, number = gr_number, comment = gr_comment, quality = meg_qal_id, mty_name, meg_value,ser_nameshort, ser_x,ser_y,ser_emu_nameshort, ser_hty_code,ser_lfs_code) %>%
 	pivot_wider(names_from = mty_name, values_from = meg_value)
 
 data$ser_lfs_code=factor(as.character(data$ser_lfs_code),levels=c("G","GY","Y","S"))
