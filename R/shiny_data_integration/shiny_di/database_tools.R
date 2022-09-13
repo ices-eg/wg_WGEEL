@@ -1213,9 +1213,9 @@ write_duplicates <- function(path, qualify_code = 22) {
 				dbExecute(conn,str_c("drop table if exists replaced_temp_",cou_code) )
 				dbWriteTable(conn, str_c("replaced_temp_", tolower(cou_code)), replaced, temporary=TRUE, row.names=FALSE )
 				# First step, replace values in the database --------------------------------------------------
-			   nr0 <-dbExecute(conn, query0) # this will be the same count as inserted nr1 
 				# Second step insert replaced ------------------------------------------------------------------
 				if (nrow(replaced)>0){
+					nr0 <-dbExecute(conn, query0) # this will be the same count as inserted nr1 
 					eel_id <-dbGetQuery(conn, query1)
 					nr1 <- nrow(eel_id)
 					#nr1 <- dbGetQuery(conn, "GET DIAGNOSTICS nbLignes = ROW_COUNT;")
