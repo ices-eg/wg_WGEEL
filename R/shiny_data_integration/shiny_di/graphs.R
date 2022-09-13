@@ -47,16 +47,14 @@ series_graph<-function (dataset,level, year_column)
 { 
 	if (nrow(dataset)==0) return(NULL)
 	dataset$kept <- "Not kept, eel_qal_id = 0 or 18 ... 22 "
-	qal_column <- switch(level, "dataseries"="das_qal_id",
-			"group metrics"="meg_qal_id",
-			"individual metrics"="fi_qal_id")
-	dataset <-dataset %>% mutate(kept= 
-			case_when(!!!sym(qal_column) %in% c(1,2,4)~"Kept, eel_qal_id = 1 (good), 2 (corrected) or 4 (dubious)",
+	dataset[,qal_column][is.na(dataset[,qal_column])] <-""
+	dataset <- dataset %>% mutate(kept= 
+			case_when(!!!qal_column %in% c(1,2,4)~"Kept, eel_qal_id = 1 (good), 2 (corrected) or 4 (dubious)",
 					TRUE ~ "Not kept" ))
 					
 
 	grouped_dataset <- dataset %>% group_by(kept, !!sym(year_column), ser_nameshort) %>% summarize(nobs=n())
-	g <-ggplot(grouped_dataset)+geom_col(aes(x=eel_year,y=nobs,fill=ser_nameshort), position='stack')+
+	g <-ggplot(grouped_dataset)+geom_col(aes_string(x=year_column,y="nobs",fill="ser_nameshort"), position='stack')+
 			facet_grid(kept ~ . )+
 			ggtitle("Clik a bar for details ...")
 	theme_bw() 

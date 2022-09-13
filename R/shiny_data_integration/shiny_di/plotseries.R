@@ -42,12 +42,10 @@ plotseriesUI <- function(id){
 			),               
 			
 			fluidRow(
-					column(width=6,
-							plotOutput(ns("series_ggplot"),
-									click = clickOpts(id = ns("series_ggplot_click"))
-							)),
-					column(width=6,
-							plotlyOutput(ns("plotly_series_selected_year")))
+					
+					plotOutput(ns("series_ggplot"),
+							click = clickOpts(id = ns("series_ggplot_click"))
+					)
 			),
 			DT::dataTableOutput(ns("datatable_series_nearpoints"),width='100%') 
 	)}
@@ -89,7 +87,11 @@ plotseriesServer <- function(id,globaldata){
 							year_column <<- switch(input$level, "dataseries"="das_year",
 									"group metrics"="gr_year",
 									"individual metrics"="fi_year")
-							if (is.null(year_column)) year_column <- "das_year"
+							qal_column <<- switch(level, "dataseries"="das_qal_id",
+									"group metrics"="",
+									"individual metrics"="")
+							datasource_column <-
+									if (is.null(year_column)) year_column <- "das_year"
 							
 							# glue_sql to protect against injection, used with a vector with *
 							query <- 
@@ -98,12 +100,12 @@ plotseriesServer <- function(id,globaldata){
 													glue_sql("SELECT * FROM datawg.t_series_ser JOIN datawg.t_dataseries_das ON das_ser_id=ser_id WHERE ser_cou_code in ({cou*}) and ser_typ_id in ({types*})", cou = cou, types = types, 
 															.con = globaldata$pool),
 											"group metrics" =
-													glue_sql("SELECT * FROM SELECT * FROM datawg.t_series_ser JOIN 
-																	datawg.t_groupseries_grser ON grser_ser_id=ser_id WHERE WHERE ser_cou_code in ({cou*}) and ser_typ_id in ({types*})", vals = vals, types = types, 
+													glue_sql("SELECT *  FROM datawg.t_series_ser JOIN 
+																	datawg.t_groupseries_grser ON grser_ser_id=ser_id WHERE ser_cou_code in ({cou*}) and ser_typ_id in ({types*})", vals = vals, types = types, 
 															.con = globaldata$pool),
 											"individual metrics" = 
-													glue_sql("SELECT * FROM SELECT * FROM datawg.t_series_ser JOIN 
-																	datawg.t_fishseries_fiser ON fiser_ser_id=ser_id WHERE WHERE ser_cou_code in ({cou*}) and ser_typ_id in ({types*})", vals = vals, types = types, 
+													glue_sql("SELECT * FROM datawg.t_series_ser JOIN 
+																	datawg.t_fishseries_fiser ON fiser_ser_id=ser_id WHERE  ser_cou_code in ({cou*}) and ser_typ_id in ({types*})", vals = vals, types = types, 
 															.con = globaldata$pool))
 							out_data <- dbGetQuery(globaldata$pool, query)
 							return(out_data)
@@ -134,11 +136,12 @@ plotseriesServer <- function(id,globaldata){
 				
 				observeEvent(input$series_ggplot_click,  tryCatch({
 									# the nearpoint function does not work straight with bar plots
-									# we have to retreive the x data and check the year it corresponds to ... 
+									# we have to retreive the x data and check the year it corresponds to ...
+									#browser()
 									year_selected = round(input$series_ggplot_click$x)  
 									datagr <- rvs$datagr
 									
-									datagr <- datagr%>% filter(!!sym(year_column)==year_selected) 
+									datagr <- datagr%>% filter(! !!!year_column == year_selected) 
 									
 									# Data table for individual data corresponding to the year bar on the graph -------------
 									
@@ -147,36 +150,32 @@ plotseriesServer <- function(id,globaldata){
 														rownames = FALSE,
 														extensions = 'Buttons',
 														filter = 'top',
-														options=list(
-																order=list(3,"asc"),    
-																lengthMenu=list(c(-1,5,10,30),c("All","5","10","30")),                           
-																searching = FALSE,                          
+														options=list(    
+																lengthMenu=list(c(-1,5,10,30),c("All","5","10","30")),
+																"pagelength"=10,
 																scroller = TRUE,
-																scrollX = TRUE,                         
+																scrollX = TRUE,
+																scrollY= "200px",
 																dom= "Blfrtip", # l length changing,  
-																buttons=list('copy',I('colvis')) 
-														)
+																buttons=list(
+																		list(extend="copy"),																	
+																		# will allow column choice button
+																		list(extend="colvis",
+																				targets = 0, 
+																				visible = FALSE),
+																		list(extend="excel",
+																				# modifier = list(page = "all"), I don't think that this is necessary
+																				filename = paste0("plotseries_data")
+																		)
+																)
+														) 												
 												)
+
 											})        
 									
-									# Plotly output allowing to brush out individual values per EMU
-									x <- sample(c(1:5, NA, NA, NA))
-									coalesce(x, 0L)
-									output$plotly_series_selected_year <-renderPlotly({  
-												coalesce 
-												datagr$hl <- as.factor(str_c(datagr$eel_lfs_code, coalesce(datagr$eel_hty_code,"no"),collapse= "&"))   
-												p <-plot_ly(datagr, x = ~eel_emu_nameshort, y = ~eel_value,
-														# Hover text:
-														text = ~paste("Lifestage: ", eel_lfs_code, 
-																'$<br> Hty_code:', eel_hty_code,
-																'$<br> Area_division:', eel_area_division,
-																'$<br> Source:', eel_datasource,
-																'$<br> Value:', eel_value),
-														color = ~ eel_lfs_code,
-														split = ~eel_hty_code)  
-												p$elementId <- NULL # a hack to remove warning : ignoring explicitly provided widget
-												p           
-											}) 
+									
+									
+									
 									
 								},error = function(e) {
 									showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
