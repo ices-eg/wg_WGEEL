@@ -1185,7 +1185,7 @@ write_duplicates <- function(path, qualify_code = 22) {
 						eel_qal_id,
 						eel_qal_comment,            
 						eel_datasource,
-						eel_comment from not_replaced_temp_",cou_code, "returning eel_id")
+						eel_comment from not_replaced_temp_",cou_code, " returning eel_id")
 		query2bis <- str_c( "insert into datawg.t_eelstock_eel_percent (         
 						percent_id,       
 						perc_f,
