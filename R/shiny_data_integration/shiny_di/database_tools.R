@@ -729,7 +729,7 @@ compare_with_database_metric_group <- function(data_from_excel,
 	data_from_excel <- data_from_excel %>% mutate_if(is.logical,list(as.numeric)) 
 	data_from_excel <- data_from_excel %>% mutate_at(vars("gr_comment", "gr_dts_datasource", 
 					ifelse(type=="series","ser_nameshort","sai_name")), list(as.character)) 
-	if (sheetorigin != "new_data"){
+	if (sheetorigin != "new_group_metrics"){
 	  if (any(! data_from_excel$gr_id %in% data_from_base$gr_id))
 	    stop(paste0(sheetorigin,
 	                ": some gr_id are not in the db:",
@@ -1747,7 +1747,7 @@ write_new_sampling <- function(path) {
 							poolReturn(conn)
 						}))
 	query <- "SELECT distinct sai_name FROM datawg.t_samplinginfo_sai"
-	tr_sai_list <<- dbGetQuery(pool, sqlInterpolate(ANSI(), query))
+	tr_sai_list <<- dbGetQuery(pool, sqlInterpolate(ANSI(), query))$sai_name
 	
 	if (is.null(message))   
 		message <- sprintf(" %s new values inserted in the database", nr)
@@ -1992,7 +1992,7 @@ update_sampling <- function(path) {
 			t.sai_lastupdate,
 			t.sai_dts_datasource)
 			FROM updated_sampling_temp t WHERE t.sai_name = t_samplinginfo_sai.sai_name
-	returning sai_name"
+	returning datawg.t_samplinginfo_sai.sai_name"
 	
 	message <- NULL
 	tryCatch({
