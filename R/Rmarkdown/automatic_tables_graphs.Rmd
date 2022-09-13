@@ -1,8 +1,8 @@
 ---
 title: "Trend in fisheries"
 author: "WGEEL"
-date: "27 September 2021"
-output: word_document
+date: "13 September 2022"
+output: html_document
 keep_md: yes
 test: "`r paste('_metadata.yaml')`"
 ---
@@ -20,10 +20,10 @@ getUsername <- function(){
 #--------------------------------
 
 if (getUsername() == "hilaire.drouineau") setwd("~/Documents/Bordeaux/migrateurs/WGEEL/github/wg_WGEEL/R/Rmarkdown/")
-if (getUsername() == "cedric.briand") setwd("C:/workspace/gitwgeel/R/Rmarkdown") 
+if (getUsername() == "cedric.briand") setwd("C:/workspace/wg_WGEEL/R/Rmarkdown") 
 if (getUsername() == "cboulenger") setwd("C:/Users/cboulenger/Documents/wg_WGEEL/R/Rmarkdown") 
 
-CY=2020
+CY=2022
 library(stringr)
 imgwd <- str_c(getwd(),"/",CY,"/00international/image/")
 tabwd <- str_c(getwd(),"/",CY,"/00international/table/")
@@ -34,8 +34,8 @@ knitr::opts_chunk$set(echo = TRUE, warnings=FALSE, error = TRUE)
 #data_directory <- wg_choose.dir(caption = "Where do you want to save the tables and the graphs")
 #data_directory <-"C:/temp"
 #knitr::opts_knit$set(root.dir = data_directory)
-CY=2021
-render="docx"  # html 
+
+render="html"  # html 
 # temporary file to store the variables (this is necessary to print the text)
 
 # to test the output and adapt the type of table
