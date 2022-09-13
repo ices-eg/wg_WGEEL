@@ -1747,7 +1747,7 @@ write_new_sampling <- function(path) {
 							poolReturn(conn)
 						}))
 	query <- "SELECT distinct sai_name FROM datawg.t_samplinginfo_sai"
-	tr_sai_list <<- dbGetQuery(pool, sqlInterpolate(ANSI(), query))
+	tr_sai_list <<- dbGetQuery(pool, sqlInterpolate(ANSI(), query))$sai_name
 	
 	if (is.null(message))   
 		message <- sprintf(" %s new values inserted in the database", nr)
