@@ -23,21 +23,21 @@ plotseriesUI <- function(id){
 							column(width=4, 
 									pickerInput(inputId = ns("typ_id"), 
 											label = "Select an annex :", 
-											choices = typ_id,
+											choices = c(1,2,3),
 											selected= 1,
 											multiple = FALSE,
 											options = list(
-													style = "btn-primary", size = 5))),
-					),
-					column(width=4, 
-							pickerInput(inputId = ns("level"), 
-									label = "Select an annex :", 
-									choices = c("dataseries","group metrics","individual metrics",
+													style = "btn-primary", size = 5))),							
+							column(width=4, 
+									pickerInput(inputId = ns("level"), 
+											label = "Select a type :", 
+											choices = c("dataseries","group metrics","individual metrics"),
 											selected= 1,
 											multiple = FALSE,
 											options = list(
 													style = "btn-primary", size = 5)))
-					)			 
+					
+					)		 
 			
 			),               
 			
@@ -47,8 +47,9 @@ plotseriesUI <- function(id){
 									click = clickOpts(id = ns("series_ggplot_click"))
 							)),
 					column(width=6,
-							plotlyOutput(ns("plotly_selected_year")))
-			)                                       
+							plotlyOutput(ns("plotly_series_selected_year")))
+			),
+			DT::dataTableOutput(ns("datatable_series_nearpoints"),width='100%') 
 	)}
 
 
@@ -89,7 +90,7 @@ plotseriesServer <- function(id,globaldata){
 									"group metrics"="gr_year",
 									"individual metrics"="fi_year")
 							if (is.null(year_column)) year_column <- "das_year"
-				
+							
 							# glue_sql to protect against injection, used with a vector with *
 							query <- 
 									switch(level,
@@ -98,16 +99,16 @@ plotseriesServer <- function(id,globaldata){
 															.con = globaldata$pool),
 											"group metrics" =
 													glue_sql("SELECT * FROM SELECT * FROM datawg.t_series_ser JOIN 
-													datawg.t_groupseries_grser ON grser_ser_id=ser_id WHERE WHERE ser_cou_code in ({cou*}) and ser_typ_id in ({types*})", vals = vals, types = types, 
+																	datawg.t_groupseries_grser ON grser_ser_id=ser_id WHERE WHERE ser_cou_code in ({cou*}) and ser_typ_id in ({types*})", vals = vals, types = types, 
 															.con = globaldata$pool),
 											"individual metrics" = 
 													glue_sql("SELECT * FROM SELECT * FROM datawg.t_series_ser JOIN 
-													datawg.t_fishseries_fiser ON fiser_ser_id=ser_id WHERE WHERE ser_cou_code in ({cou*}) and ser_typ_id in ({types*})", vals = vals, types = types, 
+																	datawg.t_fishseries_fiser ON fiser_ser_id=ser_id WHERE WHERE ser_cou_code in ({cou*}) and ser_typ_id in ({types*})", vals = vals, types = types, 
 															.con = globaldata$pool))
 							out_data <- dbGetQuery(globaldata$pool, query)
 							return(out_data)
 							
-						})
+						}, )
 				
 				# store data in reactive values ---------------------------------------------------------------
 				
@@ -141,10 +142,11 @@ plotseriesServer <- function(id,globaldata){
 									
 									# Data table for individual data corresponding to the year bar on the graph -------------
 									
-									output$datatablenearpoints <- DT::renderDataTable({            
+									output$datatable_series_nearpoints <- DT::renderDataTable({            
 												datatable(datagr,
 														rownames = FALSE,
 														extensions = 'Buttons',
+														filter = 'top',
 														options=list(
 																order=list(3,"asc"),    
 																lengthMenu=list(c(-1,5,10,30),c("All","5","10","30")),                           
@@ -160,7 +162,7 @@ plotseriesServer <- function(id,globaldata){
 									# Plotly output allowing to brush out individual values per EMU
 									x <- sample(c(1:5, NA, NA, NA))
 									coalesce(x, 0L)
-									output$plotly_selected_year <-renderPlotly({  
+									output$plotly_series_selected_year <-renderPlotly({  
 												coalesce 
 												datagr$hl <- as.factor(str_c(datagr$eel_lfs_code, coalesce(datagr$eel_hty_code,"no"),collapse= "&"))   
 												p <-plot_ly(datagr, x = ~eel_emu_nameshort, y = ~eel_value,

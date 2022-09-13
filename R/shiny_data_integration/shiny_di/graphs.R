@@ -43,11 +43,11 @@ duplicated_values_graph<-function (dataset)
 }
 
 
-s_graph<-function (dataset,level, year_column)
+series_graph<-function (dataset,level, year_column)
 { 
 	if (nrow(dataset)==0) return(NULL)
 	dataset$kept <- "Not kept, eel_qal_id = 0 or 18 ... 22 "
-	qal_column <- swith(level, "dataseries"="das_qal_id",
+	qal_column <- switch(level, "dataseries"="das_qal_id",
 			"group metrics"="meg_qal_id",
 			"individual metrics"="fi_qal_id")
 	dataset <-dataset %>% mutate(kept= 
