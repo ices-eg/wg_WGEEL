@@ -1992,7 +1992,7 @@ update_sampling <- function(path) {
 			t.sai_lastupdate,
 			t.sai_dts_datasource)
 			FROM updated_sampling_temp t WHERE t.sai_name = t_samplinginfo_sai.sai_name
-	returning sai_name"
+	returning datawg.t_samplinginfo_sai.sai_name"
 	
 	message <- NULL
 	tryCatch({
