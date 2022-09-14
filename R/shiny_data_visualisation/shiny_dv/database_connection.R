@@ -39,6 +39,7 @@ options(sqldf.RPostgreSQL.user = user,
 			sqldf.RPostgreSQL.host = host, #getInformation("PostgreSQL host: if local ==> localhost"), 
 			sqldf.RPostgreSQL.port = port)
 
+
 # options for PostgresSQL
 
 
