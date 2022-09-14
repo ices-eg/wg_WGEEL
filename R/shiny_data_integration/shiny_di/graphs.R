@@ -30,34 +30,46 @@
 #' @rdname duplicated_values_graph
 duplicated_values_graph<-function (dataset)
 { 
-  if (nrow(dataset)==0) return(NULL)
-  dataset$kept <- "Not kept, eel_qal_id = 3 or 18...22 "
-  dataset$kept[ dataset$eel_qal_id %in% c(1,2,4) ] <- "Kept, eel_qal_id = 1 (good), 2 (corrected) or 4 (dubious)"
-  grouped_dataset <- dataset %>% group_by(kept, eel_year) %>% summarize(eel_value=sum(eel_value,na.rm=TRUE),nobs=n())
-  g <-ggplot(grouped_dataset)+geom_col(aes(x=eel_year,y=eel_value,fill=nobs), position='stack')+
-          facet_grid(kept ~ . )+
-          scale_fill_viridis()+
-          ggtitle("Clik a bar for details ...", subtitle='Color according to number of observations')
-          theme_bw() 
-  return(g)         
+	if (nrow(dataset)==0) return(NULL)
+	dataset$kept <- "Not kept, eel_qal_id = 3 or 18...22 "
+	dataset$kept[ dataset$eel_qal_id %in% c(1,2,4) ] <- "Kept, eel_qal_id = 1 (good), 2 (corrected) or 4 (dubious)"
+	grouped_dataset <- dataset %>% group_by(kept, eel_year) %>% summarize(eel_value=sum(eel_value,na.rm=TRUE),nobs=n())
+	g <-ggplot(grouped_dataset)+geom_col(aes(x=eel_year,y=eel_value,fill=nobs), position='stack')+
+			facet_grid(kept ~ . )+
+			scale_fill_viridis()+
+			ggtitle("Clik a bar for details ...", subtitle='Color according to number of observations')
+	theme_bw() 
+	return(g)         
 }
 
 
-series_graph<-function (dataset,level, year_column)
+series_graph<-function (dataset,level, year_column, kept_or_datacall="kept")
 { 
 	if (nrow(dataset)==0) return(NULL)
 	dataset$kept <- "Not kept, eel_qal_id = 0 or 18 ... 22 "
 	dataset[,qal_column][is.na(dataset[,qal_column])] <-""
 	dataset <- dataset %>% mutate(kept= 
-			case_when(!!!qal_column %in% c(1,2,4)~"Kept, eel_qal_id = 1 (good), 2 (corrected) or 4 (dubious)",
-					TRUE ~ "Not kept" ))
-					
+					case_when((!!!qal_column %in% c(1,2,4))~"Kept, eel_qal_id = 1 (good), 2 (corrected) or 4 (dubious)",
+							TRUE ~ "Not kept" ))
+	
+	#save(grouped_dataset, file="c:/temp/grouped_dataset.Rdata")
 
-	grouped_dataset <- dataset %>% group_by(kept, !!sym(year_column), ser_nameshort) %>% summarize(nobs=n())
-	g <-ggplot(grouped_dataset)+geom_col(aes_string(x=year_column,y="nobs",fill="ser_nameshort"), position='stack')+
-			facet_grid(kept ~ . )+
-			ggtitle("Clik a bar for details ...")
-	theme_bw() 
-	return(g)         
+	if (kept){
+		grouped_dataset <- dataset %>% group_by(kept, !!sym(year_column), ser_nameshort) %>% summarize(nobs=n())
+		
+		g <-ggplot(grouped_dataset)+geom_tile(aes_string(x=year_column,y="ser_nameshort",fill="kept"))+
+				facet_grid(kept ~ . )+
+				ggtitle("Clik a bar for details ...")+
+				theme_bw() 
+		return(g)  
+	} else {
+		grouped_dataset <- dataset %>% group_by(kept, !!sym(year_column), ser_nameshort) %>% summarize(nobs=n())
+		
+		g <-ggplot(grouped_dataset)+geom_tile(aes_string(x=year_column,y="ser_nameshort",fill="kept"))+
+				facet_grid(kept ~ . )+
+				ggtitle("Clik a bar for details ...")+
+				theme_bw() 
+		return(g)
+	}
 }
 
