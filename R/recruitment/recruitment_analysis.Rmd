@@ -75,7 +75,7 @@ if (getUsername() == "hamme005") setwd("C:/Tessa/wg_WGEEL/R/recruitment")
 cred=read_yaml("../../credentials.yml")
 # TODO 2022 use this to connect, not sqldf !!!!!!!!!!!!!!
 # currently still using sqldf and RpostgreSQL() change for compatibility with linux
-pwd = passwordwgeel = getPass(msg="password for db")
+pwd = passwordwgeel = password=getPass(msg="password for db")
 con = dbConnect(RPostgres::Postgres(), dbname=cred$dbname,host=cred$host,port=cred$port,user=cred$user, password=passwordwgeel)
 
 wddata <- getwd()
@@ -2444,7 +2444,7 @@ Elsewhere Europe area, but some of the series are not yet complete
 Tables \@ref(tab:tableglmglasseel)).
 
 
-```{r figure5, fig.width=16/2.54, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE, fig.cap=paste("WGEEL recruitment index: estimated (GLM) glass eel recruitment for the continental North Sea and Elsewhere Europe series with 95% confidence intervals updated to", CY,". The GLM ($glass eel \\sim area:year+site$)  was  fitted  on", vv$modelge$nbsite,"time-series comprising either pure glass eel or a mixture of glass eels and yellow eels. The predictions $p$ have been scaled to the 1960-1979 average $\bar{p}_{1960-1979}$. Number of series",pull(vv$nb_series_glass_eel_per_area[1,1]), "=\\n", pull(vv$nb_series_glass_eel_per_area[1,2]), "\\n", pull(vv$nb_series_glass_eel_per_area[2,1]),"\\n", pull(vv$nb_series_glass_eel_per_area[2,2]))}
+```{r figure5, fig.width=16/2.54, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE, fig.cap=paste("WGEEL recruitment index: estimated (GLM) glass eel recruitment for the continental North Sea and Elsewhere Europe series with 95% confidence intervals updated to", CY,". The GLM ($glass eel \\sim area:year+site$)  was  fitted  on", vv$modelge$nbsite,"time-series comprising either pure glass eel or a mixture of glass eels and yellow eels. The predictions $p$ have been scaled to the 1960-1979 average $\\bar{p}_{1960-1979}$. Number of series",pull(vv$nb_series_glass_eel_per_area[1,1]), "=\\n", pull(vv$nb_series_glass_eel_per_area[1,2]), "\\n", pull(vv$nb_series_glass_eel_per_area[2,1]),"\\n", pull(vv$nb_series_glass_eel_per_area[2,2]))}
 #fig.cap=paste("WGEEL recruitment index: estimated (GLM) glass eel recruitment for the continental North Sea and Elsewhere Europe series with 95% confidence intervals updated to", CY,". The GLM ($glass eel \sim area:year+site$)  was  fitted  on", vv$modelge$nbsite,"time-series comprising either pure glass eel or a mixture of glass eels and yellow eels. The predictions $p$ have been scaled to the 1960-1979 average $\bar{p}_{1960-1979}$. Number of series",pull(vv$nb_series_glass_eel_per_area[1,1]), "=\n", pull(vv$nb_series_glass_eel_per_area[1,2]),"\n",pull(vv$nb_series_glass_eel_per_area[2,1]),"\n",pull(vv$nb_series_glass_eel_per_area[2,2]))
 knitr::include_graphics(paste0(imgwd,"figure5_without_logscale_ribbon.png"))
 ```
@@ -2455,7 +2455,7 @@ index is at `r round(100*dat_ye[dat_ye$year==CY-1,"value_std_1960_1979"], digits
 the 1960-1979 baseline. 
 
 
-```{r figure6, fig.width=16/2.54, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE,fig.cap=paste("Geometric mean of estimated (GLM) yellow eel recruitment for Europe updated to",CY,". The GLM (yellow eel ~ year+site) was fitted to",vv[["nb_for_yellow_eel_glm"]],"yellow eel time-series $p$ and scaled to the 1960-1979 average $\bar{p}_{1960-1979}$.")}
+```{r figure6, fig.width=16/2.54, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE,fig.cap=paste("Geometric mean of estimated (GLM) yellow eel recruitment for Europe updated to",CY,". The GLM (yellow eel ~ year+site) was fitted to",vv[["nb_for_yellow_eel_glm"]],"yellow eel time-series $p$ and scaled to the 1960-1979 average $\\bar{p}_{1960-1979}$.")}
 #fig.cap=paste("Geometric mean of estimated (GLM) yellow eel recruitment for Europe updated to",CY,". The GLM ($yellow eel \sim year+site$) was fitted to",vv[["nb_for_yellow_eel_glm"]],"yellow eel time-series $p$ and scaled to the 1960-1979 average $\bar{p}_{1960-1979}$.")
 knitr::include_graphics(paste0(imgwd,"figure6_without_log_scale.png"))
 ```
