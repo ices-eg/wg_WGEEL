@@ -1,47 +1,47 @@
 -----------------------------------------------------------
 # DE
 -----------------------------------------------------------
-## Annex 1
+## Annex 1 (DONE)
 ### to do
-* need to provide ser_restocking etc. in series info
+* DONE: NOT THIS YEAR, WILL HAVE TO CLARIFY AFTER WGEEL. need to provide ser_restocking etc. in series info
 
 ### done
 * modified 2 series (ser_methods)
 * integrated 11 values in dataseries (removed empty rows in templates)
 
-## Annex 2
+## Annex 2 (DONE)
 
 ### done
 * integrated 1 new value (new dataseries) - REINTEGRATED succesfully after data loss
 
-## Annex 3
+## Annex 3 (DONE)
 ### done
 * integrated 1 new value (new dataseries) - REINTEGRATED succesfully after data loss 
 
-## Annex 4
+## Annex 4 (DONE)
 ### to do
 * not integrated (no data) but there is an update to metadata since one of the data providers has changed. Not sure how to do approach this...
 
 
-## Annex 5
+## Annex 5 (DONE)
 ### to do
 * not integrated (no data) but there is an update to metadata since one of the data providers has changed. Not sure how to do approach this...
 
-## Annex 6
+## Annex 6 (DONE)
 * not provided by DE / empty sheet. Nothing to report from Germany, so this should be fine.
 
-## Annex 7
+## Annex 7 (DONE)
 ### to do
 * not integrated (no data) but there is an update to metadata since one of the data providers has changed. Not sure how to do approach this...
 
-## Annex 8
+## Annex 8 (DONE)
 ### to do
-* not integrated due to a bug being stuck in the loading screen (added to issues); but needs to be integrated, DE provided an update to data!
+* DONE: INTEGRATED. not integrated due to a bug being stuck in the loading screen (added to issues); but needs to be integrated, DE provided an update to data!
 
 
-## Annex 10
+## Annex 10 (DONE)
 ### notes
-* In the database there was a wron name for a series in sai_info (DE_Elbe_Eider should have been DE_Eide_Eider). This was changed in the database and also for the related group metrics the series was changed to DE_Eide_Eider. Accordingly, the spreadsheet, as provided by DE, was edited (i.e. the existing series info was changed accordingly and the existing group metrics was changed accordingly).
+* DONE In the database there was a wron name for a series in sai_info (DE_Elbe_Eider should have been DE_Eide_Eider). This was changed in the database and also for the related group metrics the series was changed to DE_Eide_Eider. Accordingly, the spreadsheet, as provided by DE, was edited (i.e. the existing series info was changed accordingly and the existing group metrics was changed accordingly).
 
 ### to do
 * pre-filled series ending with "HIST" and related group metrics should be deleted. It's not clear to the data provider how these are generated and if they are reliable.

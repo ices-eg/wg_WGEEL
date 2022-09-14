@@ -29,7 +29,16 @@ no file provided
 ## Annex 7
 4 new rows uploaded - check visualisation to confirm
 ## Annex 8
-
+no file
 
 
 ## Annex 10
+### modified samplings 
+2 values updated in the db
+
+new group metrics
+ 24 and 156 new values inserted in the group and metric tables
+
+
+new individual metrics
+ 3364 and 23548 new values inserted in the fish and metric tables
