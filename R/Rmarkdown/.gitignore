@@ -48,3 +48,5 @@ maps_for_shiny.Rdata
 shiny_data_visualisation
 recruitment
 ref_and_eel_data.Rdata
+/quality_report.html
+/quality_report.md
