@@ -94,7 +94,7 @@ vv <- list()
 
 
 
-```{r load_database, echo=FALSE, fig=FALSE, eval=FALSE, results="hide"}
+```{r load_database, echo=FALSE, fig=FALSE, eval=FALSE, results="hide", warning = FALSE, message = FALSE, error=FALSE}
 # In this chunk everything will be loaded. 
 # The data selection is made tranparently later in the chunk "select_series"
 # This chunks uses the RequeteODBC connection object from stacomirtools and sqldf
@@ -266,7 +266,7 @@ save(inclusion, file=str_c(shinywd,"inclusion.Rdata"))
 
 
 
-```{r load_rdata, echo=FALSE, fig=FALSE, eval=TRUE, results="hide"}
+```{r load_rdata, echo=FALSE, fig=FALSE, eval=TRUE, results="hide", warning = FALSE, message = FALSE, error=FALSE}
 # In this rchunk we load the data even if there is no connection to the database
 load(file=str_c(datawd,"wger_init.Rdata"))
 load(file=str_c(datawd,"statseries.Rdata"))
@@ -277,7 +277,7 @@ if(sum(is.na(wger_init$area))>0) stop("At least one series has not been affected
 ```
 
 
-```{r select_series, echo=FALSE, fig=FALSE, eval=TRUE, results="hide", warning = FALSE, error = FALSE}
+```{r select_series, echo=FALSE, fig=FALSE, eval=TRUE, results="hide", warning = FALSE, message = FALSE, error=FALSE}
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 #% 				SERIES SELECTION AND STATISTICS ABOUT DATA ENTRY 
@@ -488,7 +488,7 @@ write.table(older,file=str_c(datawd,"older.csv"), sep=";")
 ```
 
 
-```{r table_series,echo=FALSE, eval=TRUE,fig=FALSE, results="hide"}
+```{r table_series,echo=FALSE, eval=TRUE,fig=FALSE, results="hide", warning = FALSE, message = FALSE, error=FALSE}
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 #%				THIS CHUNK CREATES THE TABLES	
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -834,7 +834,7 @@ vv$nbcurrentyellow <- n_y_lfs$"yellow"[n_y_lfs$year==CY]
 ```
 
 
-```{r figure_series, echo=FALSE,  eval=TRUE, results="hide" }
+```{r figure_series, echo=FALSE,  eval=TRUE, results="hide", warning = FALSE, message = FALSE, error=FALSE, fig=FALSE }
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 #%************************************************************************************
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -871,7 +871,7 @@ save_figure(figname="series_no_area",figure2.1,1000,500)
 ```
 
 
-```{r mapseries,echo=FALSE, eval=TRUE,results="hide"}
+```{r mapseries,echo=FALSE, eval=TRUE,results="hide", warning = FALSE, message = FALSE, error=FALSE}
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 #%************************************************************************************
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -983,7 +983,7 @@ save_figure("figure1",figure1,550,600)
 
 
 
-```{r tableswgeel,echo=FALSE, eval=FALSE,results="hide"}
+```{r tableswgeel,echo=FALSE, eval=FALSE,results="hide", warning = FALSE, message = FALSE, error=FALSE}
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 #%************************************************************************************
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1050,7 +1050,7 @@ selection and processing below. Depending on the standardization period, the num
 each analysis. 
 
 
-```{r figure1, fig.cap="Zone definition and available data", fig.width=16/2.54}
+```{r figure1, fig.cap="Zone definition and available data", fig.width=16/2.54, warning = FALSE, message = FALSE, error=FALSE}
 knitr::include_graphics(paste0(imgwd,"figure1.png"))
 
 ```
@@ -1077,36 +1077,36 @@ as provisional especially those for the yellow eel.*
 
 
 
-```{r xstatseriesGEE, echo=FALSE}
+```{r xstatseriesGEE, echo=FALSE, warning = FALSE, message = FALSE, error=FALSE}
  xstatseriesGEE
 ```
 
 
-```{r xstatseriesGNS, echo=FALSE}
+```{r xstatseriesGNS, echo=FALSE, warning = FALSE, message = FALSE, error=FALSE}
 	xstatseriesGNS
 ```
 
-```{r xstatseriesGY, echo=FALSE}
+```{r xstatseriesGY, echo=FALSE, warning = FALSE, message = FALSE, error=FALSE}
 xstatseriesGY
 ```
 
 
-```{r xstatseriesY, echo=FALSE}
+```{r xstatseriesY, echo=FALSE, warning = FALSE, message = FALSE, error=FALSE}
 xstatseriesY
 ```
 
 
-```{r xseries_prob, echo=FALSE}
+```{r xseries_prob, echo=FALSE, warning = FALSE, message = FALSE, error=FALSE}
 xseries_prob
 ```
 
 
-```{r xseries_prob1, echo=FALSE}
+```{r xseries_prob1, echo=FALSE, warning = FALSE, message = FALSE, error=FALSE}
 xseries_prob1
 ```
 
 
-```{r xseries_prob2, echo=FALSE}
+```{r xseries_prob2, echo=FALSE, warning = FALSE, message = FALSE, error=FALSE}
 xseries_prob2
 ```
 
@@ -1123,17 +1123,17 @@ yellow eel time-series has increased to `r vv[["nbmaxyellow"]]` in
 `r max(as.numeric(vv[["yearmaxyellow"]]))` but dropped to
 `r vv[["nbcurrentyellow"]]` (Figure \@ref(fig:figure2)).
 
-```{r figure2, fig.cap="Trends in number of glass eel (black circle), glass+young yellow eel (grey triangle) and older yellow eel (black triangle) time-series giving a report in  any specific year.", fig.width=16/2.54}
+```{r figure2, fig.cap="Trends in number of glass eel (black circle), glass+young yellow eel (grey triangle) and older yellow eel (black triangle) time-series giving a report in  any specific year.", fig.width=16/2.54, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
 knitr::include_graphics(paste0(imgwd,"figure2.png"))
 ```
 
-```{r figure2b, fig.cap="Series selection and analysis. Series less than 10 years are not used in the analysis. Y yellow eel series, G + GY glass and young yellow eel series. NS North Sea, EE Elsewhere Europe", fig.width=16/254}
+```{r figure2b, fig.cap="Series selection and analysis. Series less than 10 years are not used in the analysis. Y yellow eel series, G + GY glass and young yellow eel series. NS North Sea, EE Elsewhere Europe", fig.width=16/254, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
 if (file.exists(paste0(imgwd,"series_selection.png")))
   knitr::include_graphics(paste0(imgwd,"series_selection.png"))
 ```
 
 
-```{r generation_of_plot_data, echo=FALSE, eval=TRUE, results="hide"}
+```{r generation_of_plot_data, echo=FALSE, eval=TRUE, results="hide", warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
 ###################################################
 # Generation of the dataframes used to plot the data
 # two similar dataframe are created
@@ -1473,7 +1473,7 @@ figure_check_one_series("KatwG",limits=c(1960,2019))
 
 
 
-```{r model_for_glass_eel_and_yellow_eel_datasets, echo=FALSE, eval=TRUE, results="hide"}
+```{r model_for_glass_eel_and_yellow_eel_datasets, echo=FALSE, eval=TRUE, results="hide", warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
 
 glass_eel_yoy$site <- as.factor(glass_eel_yoy$site)
 
@@ -1524,7 +1524,7 @@ save(model_ge_area,model_older,file=paste0(shinywd,"recruitment_models.Rdata"))
 #plot(model_ge_area)
 ```
 
-```{r mixed_models, echo=FALSE, eval=FALSE}
+```{r mixed_models, echo=FALSE, eval=FALSE, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
 
 
 library(lme4)
@@ -1601,8 +1601,8 @@ save(glmer1, glmer2, glmer3, file=paste0(datawd,glmer.Rdata))
 
 
 
-```{r model_for_glass_eel_graph_and_predictions, echo=FALSE, eval=TRUE, results="hide"}
-# 1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~
+```{r model_for_glass_eel_graph_and_predictions, echo=FALSE, eval=TRUE, results="hide", warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
+d# 1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~
 ######################################"
 #~glass eel (and elver = glass eel + yellow eel) migrant analysis
 ######################################"~
@@ -1894,7 +1894,7 @@ save(dat_ge, file=str_c(datawd,"dat_ge.Rdata"))
 save(dat_ge, file=str_c(shinywd,"dat_ge.Rdata"))
 ```
 
-```{r segmented_regression, echo=FALSE, eval=FALSE, results="hide"}
+```{r segmented_regression, echo=FALSE, eval=FALSE, results="hide", warning = FALSE, message = FALSE, error=FALSE}
 if(!require(segmented)) install.packages("segmented") ; require(segmented)
 
 
@@ -1964,7 +1964,7 @@ plot(o21)
 AIC(o1, o11, o2, o21)
 ```
 
-```{r model_diagnostics, echo=FALSE, eval=FALSE, results="hide"}
+```{r model_diagnostics, echo=FALSE, eval=FALSE, results="hide", warning = FALSE, message = FALSE, error=FALSE}
 #####deprecated
 # summary(model_ge_area)
 # influence_plot
@@ -2097,7 +2097,7 @@ M.gls1  <- glmmPQL(value_std~year_f:area+site,
 #write.table(newdata,file=str_c(datawd,"Bann_predictions.csv"),sep=";")
 ```
 
-```{r model_for_yellow_eel, echo=FALSE, eval=TRUE, results="hide"}
+```{r model_for_yellow_eel, echo=FALSE, eval=TRUE, results="hide", warning = FALSE, message = FALSE, error=FALSE}
 # 2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~
 ######################################"
 #~yellow eel migrant analysis
@@ -2245,7 +2245,7 @@ save(yellow_eel_pred,file=paste0(shinywd,"yellow_eel_pred.Rdata"))
 
 
 
-```{r test_period, echo=FALSE, eval=FALSE, results="hide"}
+```{r test_period, echo=FALSE, eval=FALSE, results="hide", warning = FALSE, message = FALSE, error=FALSE}
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 #%************************************************************************************
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -2389,12 +2389,12 @@ Calculation of the geometric mean of all time-series [^1] is given in (Figures
   period are excluded from the analysis. The time-series left out are : 
   `r paste(vv[["sc_1979_1994_unused_series"]],collapse=", ")`
 
-```{r figure3, fig.cap=paste("Time-series of glass eel and yellow eel recruitment in European rivers with time-series having data for the 1979-1994 period (", vv[["sc_1979_1994_nb"]], "sites). Each time-series has been scaled to its 1979-1994 average. Note the logarithmic scale on the y-axis. The mean values and their bootstrap confidence interval (95%) are represented as black dots and bars. Geometric means are presented in red."), fig.width=16/2.54}
+```{r figure3, fig.cap=paste("Time-series of glass eel and yellow eel recruitment in European rivers with time-series having data for the 1979-1994 period (", vv[["sc_1979_1994_nb"]], "sites). Each time-series has been scaled to its 1979-1994 average. Note the logarithmic scale on the y-axis. The mean values and their bootstrap confidence interval (95%) are represented as black dots and bars. Geometric means are presented in red."), fig.width=16/2.54, warning = FALSE, message = FALSE, error=FALSE}
 knitr::include_graphics(paste0(imgwd,'figure3.png'))
 ```
 
 
-```{r figure4, fig.cap=paste("Time-series of glass eel and yellow eel recruitment in Europe with",vv[["sc_1979_1994_nb"]],"time-series out of the", vv[["nb_series_init"]],"available to the working group. Each time-series has been scaled to its 1979-1994 average. The mean values of combined yellow and glass eel time-series and their bootstrap confidence interval (95%) are represented as black dots and bars. The brown line represents the mean value for yellow eel, the blue line represents the mean value for glass eel time-series. The range of  these  time-series  is  indicated  by  a  grey  shade.  Note that individual time-series  from  Figure \\@ref(fig:figure3)  were  removed to make the mean value more clear.  Note also the logarithmic scale on the y-axis."), fig.width=16/2.54}
+```{r figure4, fig.cap=paste("Time-series of glass eel and yellow eel recruitment in Europe with",vv[["sc_1979_1994_nb"]],"time-series out of the", vv[["nb_series_init"]],"available to the working group. Each time-series has been scaled to its 1979-1994 average. The mean values of combined yellow and glass eel time-series and their bootstrap confidence interval (95%) are represented as black dots and bars. The brown line represents the mean value for yellow eel, the blue line represents the mean value for glass eel time-series. The range of  these  time-series  is  indicated  by  a  grey  shade.  Note that individual time-series  from  Figure \\@ref(fig:figure3)  were  removed to make the mean value more clear.  Note also the logarithmic scale on the y-axis."), fig.width=16/2.54, warning = FALSE, message = FALSE, error=FALSE}
 knitr::include_graphics(paste0(imgwd,'figure4.png'))
 ```
 
@@ -2438,7 +2438,7 @@ Elsewhere Europe area, but some of the series are not yet complete (Figure
 \@ref(fig:figure5) \@ref(fig:figure5withlogscale) (log.scale), Tables \@ref(tab:table_glm_glass_eel)).
 
 
-```{r figure5, fig.width=16/2.54}
+```{r figure5, fig.width=16/2.54, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
 #fig.cap=paste("WGEEL recruitment index: estimated (GLM) glass eel recruitment for the continental North Sea and Elsewhere Europe series with 95% confidence intervals updated to", CY,". The GLM ($glass eel \sim area:year+site$)  was  fitted  on", vv$modelge$nbsite,"time-series comprising either pure glass eel or a mixture of glass eels and yellow eels. The predictions $p$ have been scaled to the 1960-1979 average $\bar{p}_{1960-1979}$. Number of series",pull(vv$nb_series_glass_eel_per_area[1,1]), "=\n", pull(vv$nb_series_glass_eel_per_area[1,2]),"\n",pull(vv$nb_series_glass_eel_per_area[2,1]),"\n",pull(vv$nb_series_glass_eel_per_area[2,2]))
 knitr::include_graphics(paste0(imgwd,"figure5_without_logscale_ribbon.png"))
 ```
@@ -2449,7 +2449,7 @@ index is at `r round(100*dat_ye[dat_ye$year==CY-1,"value_std_1960_1979"], digits
 the 1960-1979 baseline. 
 
 
-```{r figure6, fig.width=16/2.54}
+```{r figure6, fig.width=16/2.54, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
 #fig.cap=paste("Geometric mean of estimated (GLM) yellow eel recruitment for Europe updated to",CY,". The GLM ($yellow eel \sim year+site$) was fitted to",vv[["nb_for_yellow_eel_glm"]],"yellow eel time-series $p$ and scaled to the 1960-1979 average $\bar{p}_{1960-1979}$.")
 knitr::include_graphics(paste0(imgwd,"figure6_without_log_scale.png"))
 ```
@@ -2506,7 +2506,7 @@ since then.
 # \clearpage
 --->
 # Annex
-```{r diagramme,echo=FALSE,eval=FALSE,results="hide"}
+```{r diagramme,echo=FALSE,eval=FALSE,results="hide", warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
 if(!require(DiagrammeR)) install.packages("DiagrammeR") ; require(DiagrammeR)
 if(!require(magrittr)) install.packages("magrittr") ; require(magrittr)
 if(!require(DiagrammeRsvg)) install.packages("DiagrammeRsvg") ; require(DiagrammeRsvg)
@@ -2583,16 +2583,16 @@ without log scale for Figure \@ref(fig:figure3). For the prediction, figures wit
 scales are provided (Figures \@ref(fig:figure5withlogscale) and
 \@ref(fig:figure6withlogscale)).
 
-```{r figure3withoutlogscale, fig.cap="Same as figure \\@ref(fig:figure3) but without log scale", fig.width=14/2.54}
+```{r figure3withoutlogscale, fig.cap="Same as figure \\@ref(fig:figure3) but without log scale", fig.width=14/2.54, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
 knitr::include_graphics(paste0(imgwd,"figure3withoutlogscale.png"))
 ```
 
 
-```{r figure5withlogscale, fig.cap="Same as figure \\@ref(fig:figure5) but with a log scale.", fig.width=14/2.54}
+```{r figure5withlogscale, fig.cap="Same as figure \\@ref(fig:figure5) but with a log scale.", fig.width=14/2.54, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
 knitr::include_graphics(paste0(imgwd,"figure5_ribbon.png"))
 ```
 
-```{r figure6withlogscale, fig.cap="Same graph as figure \\@ref(fig:figure6) but with a log scale.", fig.width=14/2.54}
+```{r figure6withlogscale, fig.cap="Same graph as figure \\@ref(fig:figure6) but with a log scale.", fig.width=14/2.54, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
 knitr::include_graphics(paste0(imgwd,"figure6.png"))
 ```
 
