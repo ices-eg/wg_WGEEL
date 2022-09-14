@@ -70,6 +70,7 @@ load_package("svglite")
 load_package("leaflet.minicharts")
 load_package("glue")
 load_package("kableExtra")
+load_package("yaml")
 
 # load functions ------------------------------------------------------------------------------------
 # retrieve reference tables needed
