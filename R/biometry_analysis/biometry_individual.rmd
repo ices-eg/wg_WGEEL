@@ -13,6 +13,8 @@ output:
 
 ```{r setup, include=FALSE}
 source("../utilities/load_library.R")
+source("../database_interaction/database_reference.R")
+
 
 knitr::opts_chunk$set(echo = TRUE,warning=FALSE,message=FALSE,error=FALSE,fig.width=14.9/2.54,dpi=150)
 load_library("readxl")
@@ -29,6 +31,9 @@ load_library("RPostgres")
 load_library("flextable")
 load_library("yaml")
 load_library("tidyr")
+load_library("lubridate")
+load_library("stringr")
+
 
 if(Sys.info()["user"]=="hilaire.drouineau"){
   allometry=read_excel("~/Bureau/slopesintercepts.xlsx")
@@ -40,13 +45,20 @@ colorpalette=cbf_1 <- c("#999999", "#E69F00", "#56B4E9", "#009E73",
 cred=read_yaml("../../credentials.yml")
 con_wgeel = dbConnect(Postgres(), dbname=cred$dbname,host=cred$host,port=cred$port,user=cred$user, password=getPass())
 
-
+## download data from the database
 biometry_individual_series=dbGetQuery(con_wgeel,"with sel as(SELECT d.*, t_series.*, mty_name FROM datawg.t_metricindseries_meiser d, datawg.t_fishseries_fiser t_series, ref.tr_metrictype_mty WHERE mty_id=mei_mty_id AND mei_fi_id = fi_id) 
 select sel.*, ser_nameshort, ser_cou_code, ser_x,ser_y,ser_emu_nameshort, ser_hty_code,ser_lfs_code,gea_name_en, sam_samplingtype,t_series_ser.ser_qal_id from sel, datawg.t_series_ser, ref.tr_gear_gea, ref.tr_samplingtype_sam where ser_id=fiser_ser_id and ser_sam_gear=gea_id and ser_sam_id=sam_id")
+
+	biometry_individual_series %>% filter(fi_id!=421454)
 
 biometry_individual_sampling=dbGetQuery(con_wgeel,"with sel as(SELECT d.*, t_samp.*, mty_name FROM datawg.t_metricindsamp_meisa d, datawg.t_fishsamp_fisa t_samp, ref.tr_metrictype_mty WHERE mty_id=mei_mty_id AND mei_fi_id = fi_id) 
 select * from sel, datawg.t_samplinginfo_sai where sai_id=fisa_sai_id")
 
+cou_ref=dbGetQuery(con_wgeel,"select cou_code, cou_order from ref.tr_country_cou")
+
+## preparing the data to be exploited
+
+  ## individual series
 
 data_ind_series = biometry_individual_series %>% 
 	select(ser_id = fiser_ser_id, year = fi_year,date=fi_date,  fi_id, country=ser_cou_code, comment = fi_comment, quality = mei_qal_id, mty_name, mei_value,ser_nameshort, ser_x,ser_y,ser_emu_nameshort, ser_hty_code,ser_lfs_code, gea_name_en, sam_samplingtype,ser_qal_id) %>%
@@ -54,6 +66,29 @@ data_ind_series = biometry_individual_series %>%
 
 data_ind_series$ser_lfs_code=factor(as.character(data_ind_series$ser_lfs_code),levels=c("G","GY","Y","S"))
 data_ind_series$month<-format(data_ind_series$date,"%m")
+data_ind_series$country<-factor(data_ind_series$country,levels=cou_ref$cou_code,ordered=TRUE)
+
+  ## individual sampling data
+
+data_ind_samp = biometry_individual_sampling %>% 
+	select(ser_id = fisa_sai_id, year = fi_year, date=fi_date,  fi_id=mei_fi_id, fi_x=fisa_x_4326, fi_y=fisa_y_4326, fi_lfs_code, country=sai_cou_code, comment = fi_comment, quality = mei_qal_id, mty_name, mei_value,ser_nameshort=sai_name,ser_emu_nameshort=sai_emu_nameshort, ser_hty_code=sai_hty_code,sai_samplingstrategy) %>%
+	pivot_wider(names_from = mty_name, values_from = mei_value)
+
+data_ind_samp$fi_lfs_code=factor(as.character(data_ind_samp$fi_lfs_code),levels=c("G","GY","Y","YS","S"))
+data_ind_samp$month<-format(data_ind_samp$date,"%m")
+data_ind_samp$country<-factor(data_ind_samp$country,levels=cou_ref$cou_code,ordered=TRUE)
+
+    ## total data
+
+total_individual= bind_rows(
+	data_ind_series %>% as_tibble() %>%
+		select(country, EMU = ser_emu_nameshort, year,month, lengthmm, weightg,eye_diam_meanmm, pectoral_lengthmm, ageyear,differentiated_proportion, female_proportion, habitat = ser_hty_code, life_stage = ser_lfs_code, gear = gea_name_en) %>%
+		mutate(source = "series"),
+
+	data_ind_samp %>% as_tibble() %>%
+		mutate(commercial = str_detect(sai_samplingstrategy, "ommercial") | str_detect(sai_samplingstrategy, "CF")) %>%
+		select(country, EMU = ser_emu_nameshort, year,month, lengthmm, weightg,eye_diam_meanmm, pectoral_lengthmm, ageyear,differentiated_proportion, female_proportion, habitat = ser_hty_code, life_stage = fi_lfs_code, commercial) %>% mutate(gear = "unkonwn", source = "sampling") 
+)
 
 
  dbDisconnect(con_wgeel)
@@ -61,10 +96,39 @@ data_ind_series$month<-format(data_ind_series$date,"%m")
 ```
 
 # Raw data 
+
+The table describes the available individual biometric data from Appendix 1,2,3 (series) and 10 (sampling) 
+
+
+```{r available_data, include }
+stats_data= total_individual %>% group_by(source,country,EMU,habitat,life_stage) %>%
+  summarize(series=paste(unique(EMU),collapse=", "),
+            n_lengthmm=(sum(!is.na(lengthmm))),
+            n_bio_weight=(sum(!is.na(weightg))),
+            n_female_proportion=(sum(!is.na(female_proportion))),
+            n_pectoral_length=(sum(!is.na(pectoral_lengthmm))),
+            n_eye_diam_meanmm=(sum(!is.na(eye_diam_meanmm))),
+            n_ageyear=(sum(!is.na(ageyear))),
+            n_differentiated_proportion=(sum(!is.na(differentiated_proportion)))) %>%
+  filter((n_lengthmm+n_bio_weight+n_female_proportion+n_pectoral_length+n_eye_diam_meanmm+n_ageyear+n_differentiated_proportion)>0) %>%
+  arrange(source,life_stage,country,habitat,EMU)
+autofit(flextable(stats_data))
+
+```
+```{r lengthweightlfs, include=TRUE}
+
+## lfs effect on size-weight
+
+ggplot(total_individual,aes(x=lengthmm,y=weightg))+geom_point()+
+  facet_grid(vars(life_stage), vars(source),scale="free")+
+  theme_bw()+ggtitle("mixed")+xlab("Length (mm)")+ylab("Weight (g)")
+
+
+```
+
+
+
 ```{r rawdata, include=TRUE}
-
-data_ind_series<-data_ind_series[data_ind_series$fi_id!=421454,]
-
 
 
 data_ind_seriesG<-data_ind_series[data_ind_series$ser_lfs_code=="G",]
@@ -100,7 +164,7 @@ ggplot(data_ind_series,aes(x=lengthmm,y=weightg))+geom_point()+
 
 stat_length_g<-data_ind_seriesG %>%
     group_by(year,gea_name_en,country) %>%
-    dplyr::summarize(Mean = mean(lengthmm, na.rm=TRUE), sd=sd(lengthmm,na.rm=TRUE))
+    dplyr::summarize(Mean = mean(weightg, na.rm=TRUE), sd=sd(weightg,na.rm=TRUE))
 
 stat_length_y<-data_ind_seriesY %>%
     group_by(year,gea_name_en,country) %>%
@@ -144,18 +208,7 @@ ggplot(stat_length_g, aes(year, Mean, colour=ser_emu_nameshort))+ geom_pointrang
 The point for silver eel greater than 1250 mm appear as an outlier and is excluded from the analysis. Weights should be checked.
 
 ```{r rawdatatable, include=TRUE}
-stats_data= data %>% group_by(ser_emu_nameshort,ser_hty_code,ser_lfs_code) %>%
-  summarize(series=paste(unique(ser_nameshort),collapse=", "),
-            n_lengthmm=(sum(!is.na(lengthmm))),
-            n_bio_weight=(sum(!is.na(bio_weight))),
-            n_female_proportion=(sum(!is.na(female_proportion))),
-            n_pectoral_length=(sum(!is.na(lengthmm_m))),
-            n_eye_diam_meanmm=(sum(!is.na(eye_diam_meanmm))),
-            n_ageyear=(sum(!is.na(ageyear))),
-            n_differentiated_proportion=(sum(!is.na(differentiated_proportion)))) %>%
-  filter((n_lengthmm+n_bio_weight+n_female_proportion+n_pectoral_length+n_eye_diam_meanmm+n_ageyear+n_differentiated_proportion)>0) %>%
-  arrange(ser_lfs_code,ser_emu_nameshort,ser_hty_code)
-autofit(flextable(stats_data))
+
 
 
 
