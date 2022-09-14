@@ -26,7 +26,7 @@ if (username=="hilaire.drouineau")
 
 source("../../utilities/load_library.R")
 
-CY<-2020 # current year ==> dont forget to update the graphics path below (
+CY<-2022 # current year ==> dont forget to update the graphics path below (
 
 load_library("RPostgres")
 load_library("hues")
@@ -48,7 +48,7 @@ updatedData = FALSE
 if ((!file.exists(paste("datagerem",CY,".rdata",sep=""))) | params$updateData){
   if (username=="hilaire.drouineau"){
     con_ccm=dbConnect(Postgres(),host="citerne.bordeaux.irstea.priv",dbname="referentiel",
-                      user="hilaire.drouineau",
+                      user="hdrouineau",
                       password=getPass("Password for ccm database"))
     table_seaoutlets="hydrographie.ccm_v2_1_riverbasin_seaoutlets"
   }

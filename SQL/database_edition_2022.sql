@@ -1230,3 +1230,46 @@ CREATE TRIGGER check_fish_in_emu AFTER INSERT OR UPDATE ON
 
 UPDATE datawg.t_dataseries_das SET das_qal_id =1 WHERE das_ser_id= 196 AND das_qal_id IS NULL;
 --25
+
+UPDATE datawg.t_series_ser SET ser_nameshort='BurrGY' WHERE ser_nameshort='BurrG';
+
+
+SELECT * FROM datawg.t_dataseries_das WHERE das_ser_id= 38 AND das_year= 2012
+
+
+
+--- correct for missing das_qal_id in BE preventing integration
+WITH das as(
+SELECT das_id FROM datawg.t_series_ser JOIN
+datawg.t_dataseries_das ON das_ser_id = ser_id 
+WHERE ser_cou_code= 'BE'
+AND das_qal_id IS NULL
+)
+UPDATE datawg.t_dataseries_das SET das_qal_id=1 FROM das WHERE das.das_id = t_dataseries_das.das_id; --62
+
+WITH das as(
+SELECT das_id FROM datawg.t_series_ser JOIN
+datawg.t_dataseries_das ON das_ser_id = ser_id 
+WHERE ser_cou_code= 'BE'
+AND das_qal_id =0
+)
+UPDATE datawg.t_dataseries_das SET das_qal_id=1 FROM das WHERE das.das_id = t_dataseries_das.das_id; --1
+
+
+WITH das as(
+SELECT das_id FROM datawg.t_series_ser JOIN
+datawg.t_dataseries_das ON das_ser_id = ser_id 
+WHERE ser_cou_code= 'DK'
+AND das_qal_id =0
+)
+UPDATE datawg.t_dataseries_das SET das_qal_id=1 FROM das WHERE das.das_id = t_dataseries_das.das_id; --4
+
+
+--- correct for missing das_qal_id in DK preventing integration
+WITH das as(
+SELECT das_id FROM datawg.t_series_ser JOIN
+datawg.t_dataseries_das ON das_ser_id = ser_id 
+WHERE ser_cou_code= 'DK'
+AND das_qal_id IS NULL
+)
+UPDATE datawg.t_dataseries_das SET das_qal_id=1 FROM das WHERE das.das_id = t_dataseries_das.das_id; --150

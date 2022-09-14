@@ -88,13 +88,13 @@ opts_knit$set(eval.after = 'fig.cap' ) # to be used in chunks used only to plot 
 options(knitr.table.format = 'pandoc') # options pour kable
 options(knitr.kable.NA = '.')
 my_pandoc_to <- knitr::opts_knit$get('rmarkdown.pandoc.to') # this variable will tell the kind of compilation used
-CY=2020
+CY=2022
 getUsername <- function(){
 	name <- Sys.info()[["user"]]
 	return(name)
 }
 if (getUsername() == "hilaire.drouineau") setwd("~/Documents/Bordeaux/migrateurs/WGEEL/github/wg_WGEEL/R/Rmarkdown/") 
-if (getUsername() == "cedric.briand") setwd("C:/workspace/gitwgeel/R/Rmarkdown")
+if (getUsername() == "cedric.briand") setwd("C:/workspace/wg_WGEEL/R/Rmarkdown")
 if (getUsername() == "cboulenger") setwd("C:/Users/cboulenger/Documents/wg_WGEEL/R/Rmarkdown") 
 if (!exists("params")){
 	warnings("You are not using Rstudio or rmarkdown::render, params have been set by default setup")
@@ -133,22 +133,26 @@ load_package("kableExtra")
 load_package("pander")
 load_package("ggmap")
 load_package("sp")
+load_package("yaml")
 
 
 # load functions ------------------------------------------------------------------------------------
 # retrieve reference tables needed
 # the shiny is launched from shiny_data_integration/shiny thus we need the ../
-if(is.null(options()$sqldf.RPostgreSQL.user)) 
-	source("../shiny_data_visualisation/shiny_dv/database_connection.R")
-source("../shiny_data_visualisation/shiny_dv/database_reference.R")
-source("../shiny_data_visualisation/shiny_dv/database_data.R")
-source("../shiny_data_visualisation/shiny_dv/database_precodata.R")
-source("../shiny_data_visualisation/shiny_dv/preco_diagram.R")
-source("../shiny_data_visualisation/shiny_dv/graphs.R")
-source("../shiny_data_visualisation/shiny_dv/maps.R")
-source("../shiny_data_visualisation/shiny_dv/filter_and_group_functions.R")
-source("../shiny_data_visualisation/shiny_dv/predict_missing.R")
-
+if(is.null(options()$sqldf.RPostgreSQL.user)) {
+	wd <- getwd()
+	setwd("../shiny_data_visualisation/shiny_dv")
+	source("database_connection.R")
+	source("database_reference.R")
+	source("database_data.R")
+	source("database_precodata.R")
+	source("preco_diagram.R")
+	source("graphs.R")
+	source("maps.R")
+	source("filter_and_group_functions.R")
+	source("predict_missing.R")
+	setwd(wd)
+}
 
 
 load("../shiny_data_visualisation/shiny_dv/data/maps_for_shiny.Rdata") 
@@ -312,8 +316,8 @@ table_pc_lfs <- function(country, dataset, typ = 9,
 				Sum=rowSums(table[,-1,drop=FALSE],na.rm=T)
 		)
 		colnames(table)<-gsub(paste("^",country,"_",sep=""),
-		                                         "",
-		                                         colnames(table))
+				"",
+				colnames(table))
 		caption=ifelse(typ %in% c(8,9),
 				paste("Release in", ifelse(typ==8,"kg","number")),
 				"Aquaculture in tons")
