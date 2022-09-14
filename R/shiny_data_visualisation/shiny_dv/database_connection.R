@@ -27,7 +27,7 @@ dbname=cred$dbname
 host=cred$host
 port=cred$port
 user=cred$user
-password=getPass("pass for wgeel")
+if (!exists("password")) password=getPass("pass for wgeel")
 
 
 library(getPass)

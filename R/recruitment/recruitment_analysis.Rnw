@@ -95,7 +95,13 @@ if (getUsername() == "hamme005") setwd("C:/Tessa/wg_WGEEL/R/recruitment")
 cred=read_yaml("../../credentials.yml")
 # TODO 2022 use this to connect, not sqldf !!!!!!!!!!!!!!
 # currently still using sqldf and RpostgreSQL() change for compatibility with linux
-con = dbConnect(RPostgres::Postgres(), dbname=cred$dbname,host=cred$host,port=cred$port,user=cred$user, password=getPass("pass for wgeel"))
+con = dbConnect(RPostgres::Postgres(),
+		dbname=cred$dbname,
+		host=cred$host,
+		port=cred$port,
+		user=cred$user, 
+		password=ifelse(exists("password"),
+				password,getPass("pass for wgeel")))
 
 wddata <- getwd()
 wd <- wddata
@@ -197,11 +203,7 @@ anguilla) stock, the fisheries on it and other anthropogenic impacts.}
 # If you don't and still want to run this script, ask C�dric cedric.briand@eptb-vilaine.fr
 # he will send you the Rdata saved during this chunk.
 
-options(sqldf.RPostgreSQL.user = getPass(msg="username"), 
-		sqldf.RPostgreSQL.password = getPass(msg="password"),
-		sqldf.RPostgreSQL.dbname = "wgeel",
-		sqldf.RPostgreSQL.host = getPass(msg="host"), # "localhost"
-		sqldf.RPostgreSQL.port = 5432) # 5435 launch the ssh tunnel
+
 
 ##########################"
 # Description of the series -------------------------------
@@ -223,7 +225,7 @@ query ='select
 		left join ref.tr_faoareas on ser_area_division=f_division
 		where ser_typ_id=1'
 
-R_stations= sqldf(query)
+R_stations= dbGetQuery(con, query)
 
 
 
@@ -231,7 +233,7 @@ R_stations= sqldf(query)
 # Main data from the series -------------------------------
 ##########################
 
-query='SELECT 
+query <- 'SELECT 
 		das_id,
 		das_value,       
 		das_year,
@@ -272,7 +274,7 @@ query='SELECT
 		left join ref.tr_country_cou on  cou_code=ser_cou_code
 		where ser_typ_id=1'
 
-wger_init=sqldf(query) # (wge)el (r)ecruitment data
+wger_init <- dbGetQuery(con, query) # (wge)el (r)ecruitment data
 wger_init <- chnames(wger_init,
 		c("das_id","das_value","das_year","ser_nameshort","ser_area_division","lfs_name"),
 		c("id","value","year","site","area_division","lifestage"))
@@ -280,13 +282,13 @@ wger_init <- chnames(wger_init,
 
 query <- paste0("SELECT * FROM datawg.t_series_ser join  datawg.t_dataseries_das ON das_ser_id = ser_id
 				WHERE das_year in(", paste(CY,CY-1,sep=",",collapse=","),") AND das_qal_id IN (0,3,4) and ser_typ_id=1;")
-last_years_with_problem <- sqldf(query)
+last_years_with_problem <- dbGetQuery(con, query)
 
 ##########################
 # When were the series included -------------------------------
 ##########################
 query='SELECT * FROM datawg.t_seriesglm_sgl'
-inclusion <- sqldf(query)
+inclusion <- dbGetQuery(con, query)
 ############################################################################
 # Rebuilding areas used by wgeel (North Sea, Elswhere Europe) from area_divisions
 # See Ices (2008) for the reason why we need to do that
@@ -975,14 +977,17 @@ if(!require(RPostgres)) install.packages("RPostgres") ; require(RPostgres)
 
 load("../shiny_data_visualisation/shiny_dv/data/ref_and_eel_data.Rdata")
 source("../utilities/load_library.R")
-source("../shiny_data_visualisation/shiny_dv/database_connection.R")
+wd <-getwd()
+setwd("../shiny_data_visualisation/shiny_dv")
+source("database_connection.R")
+setwd(wd)
 
 
 
 my_map <- get_stamenmap( c(left = -13, bottom = 35, right =
 						27, top = 65),zoom=4, maptype = c("watercolor"))
 
-con <- dbConnect(Postgres(),host=host,password=pwd,dbname="wgeel",user=user)
+con <- dbConnect(Postgres(),host=host,password=password,dbname="wgeel",user=user)
 fao <- st_read(con,query="select * from ref.tr_faoareas")
 fao <- st_crop(fao, xmin = -13, xmax = 27,
 		ymin = 35, ymax = 65)
