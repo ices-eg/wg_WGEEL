@@ -28,7 +28,17 @@ host <- "localhost"#"192.168.0.100"
 
 library(getPass)
 
-if (exists("userwgeel")) 
+if(exists("cred")){
+  user = cred$user
+  host=cred$host
+  port=cred$port
+  dbname=cred$dbbame
+  options(sqldf.RPostgreSQL.user = user,  
+          sqldf.RPostgreSQL.password = pwd,
+          sqldf.RPostgreSQL.dbname = "wgeel",
+          sqldf.RPostgreSQL.host = host, #getInformation("PostgreSQL host: if local ==> localhost"), 
+          sqldf.RPostgreSQL.port = port)
+} else if (exists("userwgeel")) 
 { #Cedric's special configuration
 	user <-userwgeel
 	if (!exists("passwordwgeel")) stop("There should be a passwordwgeel")
