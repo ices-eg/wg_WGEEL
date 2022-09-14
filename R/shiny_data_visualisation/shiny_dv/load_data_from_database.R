@@ -2,7 +2,7 @@
 # Date : 21/03/2019
 # Author: cedric.briand
 ###############################################################################
-#setwd("C:/workspace\\gitwgeel\\R\\shiny_data_visualisation\\shiny_dv\\")
+#setwd("C:/workspace\\wg_WGEEL\\R\\shiny_data_visualisation\\shiny_dv\\")
 # lauch(global.R)
 # set connexion to 5435 in database_connexion
 

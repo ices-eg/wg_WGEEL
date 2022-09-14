@@ -24,7 +24,7 @@ params:
     sep: ""
   country:   
     label: "Country"
-    value: FR
+    value: ES
     input: select
     choices: ["BE","DE","DK","EE","ES","FI","FR","GB","GR","HR","IE","IT","LT","LV","NL","NO","PL","PT","SE","SI","TN","TR"]
   area:
@@ -133,22 +133,26 @@ load_package("kableExtra")
 load_package("pander")
 load_package("ggmap")
 load_package("sp")
+load_package("yaml")
 
 
 # load functions ------------------------------------------------------------------------------------
 # retrieve reference tables needed
 # the shiny is launched from shiny_data_integration/shiny thus we need the ../
-if(is.null(options()$sqldf.RPostgreSQL.user)) 
-	source("../shiny_data_visualisation/shiny_dv/database_connection.R")
-source("../shiny_data_visualisation/shiny_dv/database_reference.R")
-source("../shiny_data_visualisation/shiny_dv/database_data.R")
-source("../shiny_data_visualisation/shiny_dv/database_precodata.R")
-source("../shiny_data_visualisation/shiny_dv/preco_diagram.R")
-source("../shiny_data_visualisation/shiny_dv/graphs.R")
-source("../shiny_data_visualisation/shiny_dv/maps.R")
-source("../shiny_data_visualisation/shiny_dv/filter_and_group_functions.R")
-source("../shiny_data_visualisation/shiny_dv/predict_missing.R")
-
+if(is.null(options()$sqldf.RPostgreSQL.user)) {
+	wd <- getwd()
+	setwd("../shiny_data_visualisation/shiny_dv")
+	source("database_connection.R")
+	source("database_reference.R")
+	source("database_data.R")
+	source("database_precodata.R")
+	source("preco_diagram.R")
+	source("graphs.R")
+	source("maps.R")
+	source("filter_and_group_functions.R")
+	source("predict_missing.R")
+	setwd(wd)
+}
 
 
 load("../shiny_data_visualisation/shiny_dv/data/maps_for_shiny.Rdata") 
@@ -312,8 +316,8 @@ table_pc_lfs <- function(country, dataset, typ = 9,
 				Sum=rowSums(table[,-1,drop=FALSE],na.rm=T)
 		)
 		colnames(table)<-gsub(paste("^",country,"_",sep=""),
-		                                         "",
-		                                         colnames(table))
+				"",
+				colnames(table))
 		caption=ifelse(typ %in% c(8,9),
 				paste("Release in", ifelse(typ==8,"kg","number")),
 				"Aquaculture in tons")
