@@ -25,10 +25,6 @@ getUsername <- function(){
 
 CY=2022
 library(stringr)
-imgwd <- str_c(getwd(),"/",CY,"/00international/image/")
-tabwd <- str_c(getwd(),"/",CY,"/00international/table/")
-dir.create(imgwd, showWarnings = FALSE)
-dir.create(tabwd, showWarnings = FALSE)
 knitr::opts_chunk$set(echo = TRUE, warnings=FALSE, error = TRUE)
 #source("R/utilities/set_directory.R")
 #data_directory <- wg_choose.dir(caption = "Where do you want to save the tables and the graphs")
