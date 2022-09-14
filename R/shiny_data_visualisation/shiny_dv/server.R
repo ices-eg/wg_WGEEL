@@ -181,8 +181,8 @@ server = function(input, output, session) {
 									n_order = order(country_ref$cou_order[match(country_to_order, country_ref$cou_code)])
 									n_order <- n_order+1
 									n_order <- c(1,n_order)
-									table = table[, n_order]
-									table2 = table2[, n_order]
+									table = table[, n_order, drop =FALSE]
+									table2 = table2[, n_order, drop =FALSE]
 									
 									#add a column with the sum of all the values and prod of predicted
 									
@@ -197,9 +197,8 @@ server = function(input, output, session) {
 									
 									
 								}else{
-									
 									table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
-									table<-data.frame(table,sum=rowSums(table[,-1],na.rm=T))
+									table<-data.frame(table,sum=rowSums(table[,-1, drop=FALSE],na.rm=T))
 									
 									
 									#ordering the column accordign to country order
@@ -207,21 +206,21 @@ server = function(input, output, session) {
 									n_order = order(country_ref$cou_order[match(country_to_order, country_ref$cou_code)])
 									n_order <- n_order+1
 									n_order <- c(1,n_order)
-									table = table[, n_order]
+									table = table[, n_order, drop=FALSE]
 								}
 							},
 							"emu"={
 								table = dcast(grouped_data, eel_year~eel_emu_nameshort, value.var = "eel_value",fun.aggregate = fun.agg)  
 								
 								#add a column with the sum of all the values
-								table<-data.frame(table,sum=rowSums(table[,-1],na.rm=T))
+								table<-data.frame(table,sum=rowSums(table[,-1, drop =FALSE],na.rm=T))
 								
 								#ordering the column accordign to country order
 								country_to_order = names(table)[-1]
 								n_order = order(country_ref$cou_order[match(country_to_order, country_ref$cou_code)])
 								n_order <- n_order+1
 								n_order <- c(1,n_order)
-								table = table[, n_order]
+								table = table[, n_order, drop=FALSE]
 							})
 				}
 	      unit <-switch(input$dataset,
