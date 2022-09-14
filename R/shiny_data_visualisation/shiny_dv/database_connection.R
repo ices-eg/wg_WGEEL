@@ -22,12 +22,14 @@ load_library("getPass")
 #}
 #-------------------------------
 
-
+if (!exists("cred")){
 cred=read_yaml("../../../credentials.yml")
-dbname=cred$dbname
+}
 host=cred$host
 port=cred$port
 user=cred$user
+dbname=cred$dbname
+
 if (!exists("password")) password=getPass("pass for wgeel")
 
   options(sqldf.RPostgreSQL.user = user,  
