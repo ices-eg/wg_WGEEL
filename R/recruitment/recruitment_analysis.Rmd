@@ -6,7 +6,7 @@ documentclass: article
 output: 
   bookdown::word_document2:
     fig_caption: yes
-    number_sections: yes
+    number_sections: no
     reference_docx: "../Rmarkdown/ICES_template.docx"
 
 ---
@@ -1068,8 +1068,8 @@ knitr::include_graphics(paste0(imgwd,"figure1.png"))
 
 ## Details on data selection and processing
 
-Out of `r `vv[["nb_series_init"]]`, 
-`r `vv[["nb_series_final"]]` series were used in the analysis. Three
+Out of `r vv[["nb_series_init"]]`, 
+`r vv[["nb_series_final"]]` series were used in the analysis. Three
 rules have been used for this selection procedure.
 1. First, if there are two or more series from the same location, i.e. they are not independent,only one series is kept. For instance, the longer series has been kept for the Severn (Severn EA) while the other series (Severn HMRC) has been dropped from the list, as it was considered a duplicate being based on the same fishery.Noting that the 'Severn' here actually represents all the glass eel fisheries for England and Wales but the naming convention has been used for many
 years so is retained for consistency.
@@ -1140,7 +1140,7 @@ if (file.exists(paste0(imgwd,"series_selection.png")))
 ```
 
 
-```{r generation_of_plot_data, echo=FALSE, eval=TRUE, results="hide", warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
+```{r generation_of_plot_data, echo=FALSE, eval=TRUE, results="hide", warning = FALSE, message = FALSE, error=FALSE, echo=FALSE, fig.show='hide'}
 ###################################################
 # Generation of the dataframes used to plot the data
 # two similar dataframe are created
@@ -1608,7 +1608,7 @@ save(glmer1, glmer2, glmer3, file=paste0(datawd,glmer.Rdata))
 
 
 
-```{r model_for_glass_eel_graph_and_predictions, echo=FALSE, eval=TRUE, results="hide", warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
+```{r model_for_glass_eel_graph_and_predictions, fig.show='hide',echo=FALSE, eval=TRUE, results="hide", warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
 # 1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~
 ######################################"
 #~glass eel (and elver = glass eel + yellow eel) migrant analysis
@@ -1901,7 +1901,7 @@ save(dat_ge, file=str_c(datawd,"dat_ge.Rdata"))
 save(dat_ge, file=str_c(shinywd,"dat_ge.Rdata"))
 ```
 
-```{r segmented_regression, echo=FALSE, eval=FALSE, results="hide", warning = FALSE, message = FALSE, error=FALSE}
+```{r segmented_regression, echo=FALSE, eval=FALSE, results="hide", warning = FALSE, message = FALSE, error=FALSE, fig.show='hide'}
 if(!require(segmented)) install.packages("segmented") ; require(segmented)
 
 
@@ -1971,7 +1971,7 @@ plot(o21)
 AIC(o1, o11, o2, o21)
 ```
 
-```{r model_diagnostics, echo=FALSE, eval=FALSE, results="hide", warning = FALSE, message = FALSE, error=FALSE, show.fig='hide'}
+```{r model_diagnostics, echo=FALSE, eval=FALSE, results="hide", warning = FALSE, message = FALSE, error=FALSE, fig.show='hide'}
 #####deprecated
 # summary(model_ge_area)
 # influence_plot
@@ -2104,7 +2104,7 @@ M.gls1  <- glmmPQL(value_std~year_f:area+site,
 #write.table(newdata,file=str_c(datawd,"Bann_predictions.csv"),sep=";")
 ```
 
-```{r model_for_yellow_eel, echo=FALSE, eval=TRUE, results="hide", warning = FALSE, message = FALSE, error=FALSE, show.fig='hide'}
+```{r model_for_yellow_eel, echo=FALSE, eval=TRUE, results="hide", warning = FALSE, message = FALSE, error=FALSE, fig.show='hide'}
 # 2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~
 ######################################"
 #~yellow eel migrant analysis
@@ -2252,7 +2252,7 @@ save(yellow_eel_pred,file=paste0(shinywd,"yellow_eel_pred.Rdata"))
 
 
 
-```{r test_period, echo=FALSE, eval=FALSE, results="hide", warning = FALSE, message = FALSE, error=FALSE, show.fig='hide'}
+```{r test_period, echo=FALSE, eval=FALSE, results="hide", warning = FALSE, message = FALSE, error=FALSE, fig.show='hide'}
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 #%************************************************************************************
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -2350,9 +2350,7 @@ save_figure("figure_inclusion_2",figure_inclusion_2,600,480)
 
 ## Check on series updates for the 2019 analyses[remove this paragraph]
 
- `r format(vv[["nCY"]], scientific = TRUE)` time-series  updated to `r CY` `r format(vv[["nCYG"]], scientific = TRUE)` for glass eel 
- `r format(vv[["nCYGY"]], scientific = TRUE)` for glass + yellow eel 
-and `r format(vv[["nCYY"]], scientific=TRUE)` for yellow eel `r format(vv[["nCYm1"]], scientific = TRUE)` 
+ `r format(vv[["nCY"]], scientific = TRUE)` time-series  updated to `r CY` `r format(vv[["nCYG"]], scientific = TRUE)` for glass eel `r format(vv[["nCYGY"]], scientific = TRUE)` for glass + yellow eel and `r format(vv[["nCYY"]], scientific=TRUE)` for yellow eel `r format(vv[["nCYm1"]], scientific = TRUE)` 
 time-series (`r format(vv[["nCYm1G"]], scientific=TRUE)`} for 
 glass eel, ` r format(vv[["nCYm1GY"]], scientific=TRUE)` for glass + yellow eel and
 ` r format(vv[["nCYm1Y"]], scientific = TRUE)` for yellow eel) were updated to `r CY-1`
