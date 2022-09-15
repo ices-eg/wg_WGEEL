@@ -171,7 +171,7 @@ biometry_group_data_series_long <- biometry_group_data_series %>%
 		pivot_wider(names_from = mty_name, values_from = meg_value)
 
 biometry_group_data_sampling_long <- biometry_group_data_sampling %>% 
-		select( -mty_id, -mty_min, -mty_max)  %>% 
+		dplyr::select( -mty_id, -mty_min, -mty_max)  %>% 
 		pivot_wider(names_from = mty_name, values_from = meg_value)
 
 
