@@ -194,7 +194,7 @@ anguilla) stock, the fisheries on it and other anthropogenic impacts.}
 %*******Here put eval=FALSE if you plan to use Rdata *********************************
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-<<load_database, echo=FALSE, fig=FALSE, eval=FALSE, results=hide>>=
+<<load_database, echo=FALSE, fig=FALSE, eval=TRUE, results=hide>>=
 # In this chunk everything will be loaded. 
 # The data selection is made tranparently later in the chunk "select_series"
 # This chunks uses the RequeteODBC connection object from stacomirtools and sqldf
@@ -344,7 +344,7 @@ wger_init$lifestage=as.factor(wger_init$lifestage)
 
 # This is a view (like the result of a query) showing a summary of each series, including first year, last year,
 # and duration
-statseries <- sqldf('select site,namelong,min,max,duration,missing,life_stage,sampling_type,unit,habitat_type,"order",series_kept
+statseries <- dbGetQuery(con, 'select site,namelong,min,max,duration,missing,life_stage,sampling_type,unit,habitat_type,"order",series_kept
 				from datawg.series_summary where ser_typ_id=1')
 # these data will 
 save(wger_init,file=str_c(datawd,"wger_init.Rdata"))

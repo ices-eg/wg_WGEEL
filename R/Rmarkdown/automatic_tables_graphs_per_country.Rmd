@@ -24,7 +24,7 @@ params:
     sep: ""
   country:   
     label: "Country"
-    value: FR
+    value: ES
     input: select
     choices: ["BE","DE","DK","EE","ES","FI","FR","GB","GR","HR","IE","IT","LT","LV","NL","NO","PL","PT","SE","SI","TN","TR"]
   area:
@@ -98,7 +98,7 @@ if (getUsername() == "cedric.briand") setwd("C:/workspace/wg_WGEEL/R/Rmarkdown")
 if (getUsername() == "cboulenger") setwd("C:/Users/cboulenger/Documents/wg_WGEEL/R/Rmarkdown") 
 if (!exists("params")){
 	warnings("You are not using Rstudio or rmarkdown::render, params have been set by default setup")
-	params <- list("country"='FR',G=TRUE,Y=TRUE,YS=TRUE,S=TRUE,Gr=TRUE,Yr=TRUE,YSr=TRUE,Sr=TRUE,
+	params <- list("country"='ES',G=TRUE,Y=TRUE,YS=TRUE,S=TRUE,Gr=TRUE,Yr=TRUE,YSr=TRUE,Sr=TRUE,
 			releaseG=TRUE, releaseY=TRUE,releaseQG=TRUE,releaseOG=TRUE,releaseYS=TRUE,releaseS=TRUE,
 			year=1960, area="Elsewhere Europe", map=TRUE)
 }
@@ -177,6 +177,8 @@ color_countries = setNames(values,country_ref$cou_code)
 nrtable <-  0
 nrfigure <- 0
 
+# fix pb with duplicates
+wger_ys <- wger_ys %>% filter(das_qal_id<5&!is.na(das_qal_id))
 
 
 ```
@@ -618,10 +620,10 @@ figure_ys <- function(stage_selected="Y"){
 	wger_ys1 <- wger_ys %>% 
 			filter(lfs_code==stage_selected) %>%	
 			dplyr::select(-idcol) %>%
-			pivot_wider(names_from=c(ser_nameshort),values_from=das_value) %>% 
+			pivot_wider(names_from=ser_nameshort,values_from=das_value) %>% 
 			arrange(das_year)   
 	
-	
+	wger_ys1
 	wger_ys2 <- wger_ys1 %>% mutate_at(vars(-das_year),scale)
 	
 	
@@ -767,8 +769,8 @@ map_recruitment <- function(){
 			palette <- gdocs_pal()(10)
 		palette <- colorRampPalette(palette)(length(sites_cou))
 		
-		country_map <- as(country_p,"Spatial")
-		country_map	<- country_p[country_p$cou_code== params$country,]	
+		#country_map <- as(country_p,"Spatial")
+		country_map	<- sf::as_Spatial(sf::st_geometry(country_p[country_p$cou_code== params$country,]))	
 		location=c(left=bbox(country_map)[1,1]-0.5,
 				bottom=bbox(country_map)[2,1]-0.5,
 				right=bbox(country_map)[1,2]+0.5,
