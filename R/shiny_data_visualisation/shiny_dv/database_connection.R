@@ -33,7 +33,7 @@ dbname=cred$dbname
 if (!exists("password")) password=getPass("pass for wgeel")
 
   options(sqldf.RPostgreSQL.user = user,  
-          sqldf.RPostgreSQL.password = pwd,
+          sqldf.RPostgreSQL.password = password,
           sqldf.RPostgreSQL.dbname = dbname,
           sqldf.RPostgreSQL.host = host, #getInformation("PostgreSQL host: if local ==> localhost"), 
           sqldf.RPostgreSQL.port = port)

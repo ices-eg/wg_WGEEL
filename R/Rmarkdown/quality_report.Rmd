@@ -81,6 +81,9 @@ if(is.null(options()$sqldf.RPostgreSQL.user)){
 	source("database_connection.R")
 	setwd(wd)
 }
+con_wgeel = dbConnect(RPostgres::Postgres(), dbname=dbname,host=host,port=port,user=user, password=password)
+#
+#
 biometry_group_data_series <- dbGetQuery(
 		con_wgeel,
 		"SELECT * FROM datawg.t_series_ser

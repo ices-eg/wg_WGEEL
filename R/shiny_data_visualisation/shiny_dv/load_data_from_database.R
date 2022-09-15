@@ -72,20 +72,11 @@ wger_ys = sqldf('
 				das_id,
 				das_value,       
 				das_year,
-				das_comment,
-				/* 
-				-- below those are data on effort, not used yet
-				
+				das_comment,				
 				das_effort, 
 				ser_effort_uni_code,       
 				das_last_update,
-				*/
-				/* 
-				-- this is the id on quality, not used yet but plans to use later
-				-- to remove the data with problems on quality from the series
-				-- see WKEELDATA (2017)
 				das_qal_id,
-				*/ 
 				ser_id,            
 				ser_nameshort,
 				ser_area_division,
@@ -104,20 +95,11 @@ wger_init_ys = sqldf('
 				das_id AS id,
 				das_value AS value,       
 				das_year AS year,
-				das_comment,
-				/* 
-				-- below those are data on effort, not used yet
-				
+				das_comment,				
 				das_effort, 
 				ser_effort_uni_code,       
-				das_last_update,
-				*/
-				/* 
-				-- this is the id on quality, used from 2018
-				-- to remove the data with problems on quality from the series
-				-- see WKEEKDATA (2018)
+				das_last_update,				
 				das_qal_id,
-				*/ 
 				ser_id,            
 				ser_nameshort AS site,
 				ser_area_division AS area_division,
