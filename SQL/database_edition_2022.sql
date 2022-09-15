@@ -1167,8 +1167,21 @@ ALTER TABLE datawg.t_eelstock_eel ADD CONSTRAINT ck_emu_whole_aquaculture CHECK 
 CREATE UNIQUE INDEX idx_dataseries_1 ON datawg.t_dataseries_das USING btree (das_year, das_ser_id) WHERE (das_qal_id IS NULL or das_qal_id<5);
 alter table datawg.t_dataseries_das drop constraint c_uk_year_ser_id;
 
+update datawg.t_series_ser set ser_ccm_wso_id=array [442593] where ser_id in (25,44,343,398);
 
-----to be run and improved after wgeel
+update datawg.t_series_ser set ser_ccm_wso_id=array [85522] where ser_id in (184);
+update datawg.t_series_ser set ser_ccm_wso_id=array [83751] where ser_id in (185,187);
+update datawg.t_series_ser set ser_ccm_wso_id=array [85504] where ser_id in (182);
+update datawg.t_series_ser set ser_ccm_wso_id=array [84124] where ser_id in (188);
+update datawg.t_series_ser set ser_ccm_wso_id=array [82460] where ser_id in (204);
+update datawg.t_series_ser set ser_ccm_wso_id=array [81920] where ser_id in (65);
+update datawg.t_series_ser set ser_ccm_wso_id=array [83787] where ser_id in (70);
+update datawg.t_series_ser set ser_ccm_wso_id=array [81920] where ser_id in (66);
+update datawg.t_series_ser set ser_ccm_wso_id=array [291110] where ser_id in (13);
+update datawg.t_series_ser set ser_ccm_wso_id=array [18809]where ser_id in (64);
+update datawg.t_series_ser set ser_ccm_wso_id=array [127774] where ser_id in (189);
+
+
 alter table ref.tr_emu_emu add column geom_buffered geometry;
 update ref.tr_emu_emu set geom_buffered = st_transform(st_simplify(st_buffer(st_transform(geom,3035),10000),	1000),4326) ;
 create index idx_emu_geom_buffered on ref.tr_emu_emu using gist(geom_buffered);

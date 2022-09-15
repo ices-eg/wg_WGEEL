@@ -25,6 +25,9 @@ if (username=="hilaire.drouineau")
     setwd("~/Documents/Bordeaux/migrateurs/WGEEL/github/wg_WGEEL/R/recruitment/auto_gerem/")
 
 source("../../utilities/load_library.R")
+load("../../../R/shiny_data_visualisation/shiny_dv/data/recruitment/glass_eel_yoy.Rdata")
+series=unique(glass_eel_yoy$site)
+
 
 CY<-2022 # current year ==> dont forget to update the graphics path below (
 
@@ -38,6 +41,7 @@ load_library("RPostgres")
 load_library("sf")
 load_library("dplyr")
 load_library("ggplot2")
+load_library("yaml")
 load_library("parallel")
 load_library("tidyr")
 load_library("flextable")
@@ -62,13 +66,15 @@ if ((!file.exists(paste("datagerem",CY,".rdata",sep=""))) | params$updateData){
                          table_seaoutlets,
                          "where wso_id in ",w))[1,1]
   }
+  cred=read_yaml("../../../credentials.yml")
+
   
   con_wgeel=dbConnect(Postgres(),
-                      dbname="wgeel",
-                      host="localhost",
-                      port=5435,
-  	                  user= getPass(msg="username"),
-  	                  password= getPass())
+                      dbname=cred$dbname,
+                      host=cred$host,
+                      port=cred$port,
+  	                  user= cred$user,
+  	                  password= getPass("wgeel db password"))
   updatedData = TRUE
 
 } else {
@@ -77,7 +83,7 @@ if ((!file.exists(paste("datagerem",CY,".rdata",sep=""))) | params$updateData){
 ```
 
 # Introduction
-GEREM is a Bayesian model aiming at estimating glass eel recruitment at different nested spatial scales (overall recruitment, sub-regions/zone, river basins) through the analysis of available recruitment time series [@drouineau2016]. The model has already been applied in France [@drouineau2016], to a large part of Europe [@bornarel2018a] and is currently used in the Sudoang Interreg project. The model assumes that each year, the overall recruitment $R(y)$ is distributed among various zones (i.e. subregions) which receive recruitment $R_z(y)$. Then, zone recruitment is distributed among river catchments as a function of their surface, leading to recruitment $R_{c,z}(y)$. Basically, GEREM is a mixing of a Dynamic Factor Analysis (DFA) [@zuur2003a] and a “rule of three”. Similarly to a DFA model, GEREM is state-space model based on a random walk structure, which estimates common trends in a set of time series. The rule of three is used to extrapolate absolute recruitment estimates in a river basin to recruitment in other basins in the same zone, stating that the recruitment in each basin is a simple function of its surface. After having inventoried available time series and listed their characteristics, it is necessary to define zones. In each zone: 
+GEREM is a Bayesian model aiming at estimating glass eel recruitment at different nested spatial scales (overall recruitment, sub-regions/zone, river basins) through the analysis of available recruitment time series [@drouineau2016]. The model has already been applied in France [@drouineau2016], to a large part of Europe [@bornarel2018a] and a specific application was carried out in the context of the Sudoang Interreg project [@drouineau2021]. It had been used by WGEEL few years ago [@ICES2020a] but had not been updated since then. It was decided to renew the exercice since GEREM is a candidate to feed the spatial assessment model promoted in the WKFEA roadmap [@ICES2021] and is a good example of the hierarchy of spatial scales on which would be based such as spatial model. The model assumes that each year, the overall recruitment $R(y)$ is distributed among various zones (i.e. subregions) which receive recruitment $R_z(y)$. Then, zone recruitment is distributed among river catchments as a function of their surface, leading to recruitment $R_{c,z}(y)$. Basically, GEREM is a mixing of a Dynamic Factor Analysis (DFA) [@zuur2003a] and a “rule of three”. Similarly to a DFA model, GEREM is state-space model based on a random walk structure, which estimates common trends in a set of time series. The rule of three is used to extrapolate absolute recruitment estimates in a river basin to recruitment in other basins in the same zone, stating that the recruitment in each basin is a simple function of its surface. After having inventoried available time series and listed their characteristics, it is necessary to define zones. In each zone: 
 
 * river catchments should have similar trends in recruitment 
 * the rule of three must apply, i.e. it should be possible to extrapolate recruitment in a basin to another basin of the same zone as a simple function of their relative surfaces 
@@ -176,6 +182,7 @@ if ((!file.exists(paste("datagerem",CY,".rdata",sep=""))) | params$updateData){
 ```{r buildingZone, echo=FALSE, warning=FALSE, message=FALSE}
 ######building zones
 if ((!file.exists(paste("datagerem",CY,".rdata",sep=""))) | params$updateData){
+  sf::sf_use_s2(FALSE)
   
   allcatchments=st_read(con_ccm,query=paste('select wso_id ser_ccm_wso_id,area_km2,"window",sea_cd,geom from',table_seaoutlets,' where strahler>0 and ("window"<=2004 or "window"=2008)'))
   outlets=st_read(con_ccm,query='select "window",gid, wso_id ser_ccm_wso_id, geom from hydrographie.ccm_v2_1_w2000_rivernodes where num_seg=0 union
@@ -186,7 +193,7 @@ if ((!file.exists(paste("datagerem",CY,".rdata",sep=""))) | params$updateData){
                   select "window",gid, wso_id ser_ccm_wso_id, geom from hydrographie.ccm_v2_1_w2008_rivernodes where num_seg=0')
   outlets=subset(outlets,outlets$ser_ccm_wso_id %in% allcatchments$ser_ccm_wso_id)
   
-  emu=st_read(con_wgeel,query='select * from ref.tr_emu_emu')
+  emu=st_read(con_wgeel,query='select emu_nameshort, emu_cou_code,geom from ref.tr_emu_emu')
   asso=st_nearest_feature(st_transform(outlets,4326),emu)
   outlets$emu=emu$emu_nameshort[asso]
   allcatchments$emu=outlets$emu[match(allcatchments$ser_ccm_wso_id,outlets$ser_ccm_wso_id)]
