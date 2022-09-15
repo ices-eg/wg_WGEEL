@@ -26,4 +26,4 @@ uploaded
 (1 new values inserted in the database)
 
 ## Annex 10
-Still having problems with this one. Cedric and Hilaire are debugging database?
+9898 and 59266 new values inserted in the fish and metric tables (individual data)

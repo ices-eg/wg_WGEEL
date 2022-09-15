@@ -95,6 +95,9 @@ ui <- fluidPage(spsDepend("toastr"),
 										importtsstep1UI("importtsstep1module"),
 										importtsstep2UI("importtsstep2module")
 								),
+								tabItem("editAllmodule",
+								        tableEditUI("tableEditmodule")
+								),
 								tabItem("Importdcfmodule",
 										importdcfstep0UI("importdcfstep0module"),
 										importdcfstep1UI("importdcfstep1module"),

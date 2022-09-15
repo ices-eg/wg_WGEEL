@@ -506,7 +506,7 @@ compare_with_database_dataseries <- function(data_from_excel, data_from_base, sh
 	
 	# Anti join only keeps columns from X, any new data is a data with ser_id and year not present in the db
 	new <-  dplyr::anti_join(as.data.frame(data_from_excel), data_from_base, 
-			by = c("das_ser_id","das_year"))
+			by = c("das_ser_id","das_year","das_qal_id"))
 	if (nrow(new)>0){
 		#new$das_qal_id <- NA
 		new$das_dts_datasource <- the_eel_datasource		
@@ -729,7 +729,7 @@ compare_with_database_metric_group <- function(data_from_excel,
 	data_from_excel <- data_from_excel %>% mutate_if(is.logical,list(as.numeric)) 
 	data_from_excel <- data_from_excel %>% mutate_at(vars("gr_comment", "gr_dts_datasource", 
 					ifelse(type=="series","ser_nameshort","sai_name")), list(as.character)) 
-	if (sheetorigin != "new_data"){
+	if (sheetorigin != "new_group_metrics"){
 	  if (any(! data_from_excel$gr_id %in% data_from_base$gr_id))
 	    stop(paste0(sheetorigin,
 	                ": some gr_id are not in the db:",
@@ -782,6 +782,8 @@ compare_with_database_metric_group <- function(data_from_excel,
 	modified <- dplyr::anti_join(data_from_excel, data_from_base_wide, 
 			by =c("gr_id", "gr_year", "gr_number", metrics_group$mty_name))
 	modified <- modified[!modified$id %in% new$id,]
+	if (sheetorigin=="new_group_metrics" & nrow(modified)>0)
+		modified$gr_comment <- "THIS ONE WAS ALREADY INTEGRATED :: PLEASE DELETE LINE"
 	
 	# if (sheetorigin == "new_group_metrics"){
 	#   modified <- dplyr::anti_join(data_from_excel, data_from_base_wide, 
@@ -1183,7 +1185,7 @@ write_duplicates <- function(path, qualify_code = 22) {
 						eel_qal_id,
 						eel_qal_comment,            
 						eel_datasource,
-						eel_comment from not_replaced_temp_",cou_code, "returning eel_id")
+						eel_comment from not_replaced_temp_",cou_code, " returning eel_id")
 		query2bis <- str_c( "insert into datawg.t_eelstock_eel_percent (         
 						percent_id,       
 						perc_f,
@@ -1211,9 +1213,9 @@ write_duplicates <- function(path, qualify_code = 22) {
 				dbExecute(conn,str_c("drop table if exists replaced_temp_",cou_code) )
 				dbWriteTable(conn, str_c("replaced_temp_", tolower(cou_code)), replaced, temporary=TRUE, row.names=FALSE )
 				# First step, replace values in the database --------------------------------------------------
-			   nr0 <-dbExecute(conn, query0) # this will be the same count as inserted nr1 
 				# Second step insert replaced ------------------------------------------------------------------
 				if (nrow(replaced)>0){
+					nr0 <-dbExecute(conn, query0) # this will be the same count as inserted nr1 
 					eel_id <-dbGetQuery(conn, query1)
 					nr1 <- nrow(eel_id)
 					#nr1 <- dbGetQuery(conn, "GET DIAGNOSTICS nbLignes = ROW_COUNT;")
@@ -1745,7 +1747,7 @@ write_new_sampling <- function(path) {
 							poolReturn(conn)
 						}))
 	query <- "SELECT distinct sai_name FROM datawg.t_samplinginfo_sai"
-	tr_sai_list <<- dbGetQuery(pool, sqlInterpolate(ANSI(), query))
+	tr_sai_list <<- dbGetQuery(pool, sqlInterpolate(ANSI(), query))$sai_name
 	
 	if (is.null(message))   
 		message <- sprintf(" %s new values inserted in the database", nr)
@@ -1990,7 +1992,7 @@ update_sampling <- function(path) {
 			t.sai_lastupdate,
 			t.sai_dts_datasource)
 			FROM updated_sampling_temp t WHERE t.sai_name = t_samplinginfo_sai.sai_name
-	returning sai_name"
+	returning datawg.t_samplinginfo_sai.sai_name"
 	
 	message <- NULL
 	tryCatch({
@@ -2019,7 +2021,7 @@ update_sampling <- function(path) {
 delete_dataseries <- function(path) {
 	deleted_values_table <- 	read_excel(path = path, sheet = 1, skip = 1)	
 	if (nrow(deleted_values_table) == 0)
-	  return(list(message="no values to be deleted"), cou_code=NULL)
+	  return(list(message="no values to be deleted", cou_code=NULL))
 	conn <- poolCheckout(pool)
 	cou_code = dbGetQuery(conn,paste0("SELECT ser_cou_code FROM datawg.t_series_ser WHERE ser_nameshort='",
 					deleted_values_table$ser_nameshort[1],"';"))$ser_cou_code  
@@ -2028,7 +2030,7 @@ delete_dataseries <- function(path) {
 	dbExecute(conn,"drop table if exists deleted_dataseries_temp ")
 	dbWriteTable(conn,"deleted_dataseries_temp",deleted_values_table, row.names=FALSE,temporary=TRUE)
 	if (sum(!is.na(deleted_values_table$das_id)) == 0)
-	  return(list(message="no values to be deleted"), cou_code=NULL)
+	  return(list(message="no values to be deleted", cou_code=NULL))
 	query=paste("update datawg.t_dataseries_das set das_qal_id=",qualify_code ,"WHERE das_id IN 
 					(SELECT das_id FROM deleted_dataseries_temp) RETURNING das_id ")
 	message <- NULL
@@ -2214,11 +2216,11 @@ write_updated_group_metrics <-function(path, type="series"){
 	on.exit(poolReturn(conn))
 	updated <- read_excel(path = path, sheet = 1, skip = 1)
 	if (nrow(updated) == 0)
-	  return(list(message="empty file"), cou_code=NULL)
+	  return(list(message="empty file", cou_code=NULL))
 	if (sum(!is.na(updated$gr_id)) ==0 )
-	  return(list(message="no gr_id"), cou_code=NULL)
+	  return(list(message="no gr_id", cou_code=NULL))
 	if (any(is.na(updated$gr_id)) )
-	  return(list(message="some gr_id are missing"), cou_code=NULL)
+	  return(list(message="some gr_id are missing", cou_code=NULL))
 	gr_table <- ifelse(type=="series","t_groupseries_grser","t_groupsamp_grsa")
 	gr_key <- ifelse(type=="series","grser_ser_id","grsa_sai_id")
 	metric_table <- ifelse(type=="series","t_metricgroupseries_megser","t_metricgroupsamp_megsa")	
@@ -2270,11 +2272,11 @@ delete_group_metrics <- function(path, type="series"){
 	on.exit(poolReturn(conn))
 	deleted <- read_excel(path = path, sheet = 1, skip = 1)
 	if (nrow(deleted) == 0)
-	  return(list(message="empty file"), cou_code=NULL)
+	  return(list(message="empty file", cou_code=NULL))
 	if (sum(!is.na(deleted$gr_id)) ==0 )
-	  return(list(message="no gr_id"), cou_code=NULL)
+	  return(list(message="no gr_id", cou_code=NULL))
 	if (any(is.na(deleted$gr_id)))
-	  return(list(message="some gr_id are missing"), cou_code=NULL)
+	  return(list(message="some gr_id are missing", cou_code=NULL))
 	
 	gr_table <- ifelse(type=="series","t_groupseries_grser","t_groupsamp_grsa")
 	dbWriteTable(conn,"group_tmp",deleted,temporary=TRUE, overwrite=TRUE)
@@ -2450,12 +2452,12 @@ write_updated_individual_metrics <- function(path, type="series"){
 	on.exit(poolReturn(conn))
 	updated <- read_excel(path = path, sheet = 1, skip = 1)
 	if (nrow(updated) == 0)
-	  return(list(message="empty file"), cou_code=NULL)
+	  return(list(message="empty file", cou_code=NULL))
 	if (sum(!is.na(updated$fi_id)) == 0)
-	  return(list(message="no fi_id"), cou_code=NULL)
+	  return(list(message="no fi_id", cou_code=NULL))
 	
 	if (any(is.na(updated$fi_id)))
-	  return(list(message="some fi_id are missing"), cou_code=NULL)
+	  return(list(message="some fi_id are missing", cou_code=NULL))
 	
 	ind_table <- ifelse(type=="series","t_fishseries_fiser","t_fishsamp_fisa")
 	ind_key <- ifelse(type=="series","fiser_ser_id","fisa_sai_id")
@@ -2509,12 +2511,12 @@ delete_individual_metrics <- function(path, type="series"){
 	on.exit(poolReturn(conn))
 	deleted <- read_excel(path = path, sheet = 1, skip = 1)
 	if (nrow(deleted) == 0)
-	  return(list(message="empty file"), cou_code=NULL)
+	  return(list(message="empty file", cou_code=NULL))
 	if (sum(!is.na(deleted$fi_id)) == 0)
-	  return(list(message="no fi_id"), cou_code=NULL)
+	  return(list(message="no fi_id", cou_code=NULL))
 	
 	if (any(is.na(deleted$fi_id)))
-	  return(list(message="some missing fi_id"), cou_code=NULL)
+	  return(list(message="some missing fi_id", cou_code=NULL))
 	ind_table <- ifelse(type=="series","t_fishseries_fiser","t_fishsamp_fisa")
 	dbWriteTable(conn,"ind_tmp",deleted,temporary=TRUE, overwrite=TRUE)
 	message <- NULL

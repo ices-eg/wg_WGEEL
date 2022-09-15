@@ -11,36 +11,33 @@
 
 239 values updated in the database
 
+9 values deleted from the db
+
 5 and 17 new values inserted in the group and metric tables
+
+6 and 12 values modified in the group and metric tables
+
+9 values deleted from group table, cascade delete on metrics
 
 5860 and 13784 new values inserted in the fish and metric tables
 
-9 values deleted from the db
-
-5 values deleted from group table, cascade delete on metrics
-
-STILL TO DO:
-
-upload modified group metrics 
-
 ## Annex 2
+
 47 series updated in the db
 
 50 new values inserted in the database
 
 967 values updated in the db
 
+12 values deleted from the db
+
 43 and 93 new values inserted in the group and metric tables
 
+712 and 1426 values modified in the group and metric tables
+
+37 values deleted from group table, cascade delete on metrics
+
 96866 and 182744 new values inserted in the fish and metric tables
-
-STILL TO DO:
-
-upload deleted series values
-
-upload modified group metrics 
-
-upoload deleted group metrics 
 
 
 ## Annex 3
@@ -48,19 +45,17 @@ upoload deleted group metrics
 
 8 new values inserted in the database
 
+5 values deleted from the db
+
 74 values updated in the db
 
 3 and 23 new values inserted in the group and metric tables
 
-7922 and 21142 new values inserted in the fish and metric tables
+4 and 44 values modified in the group and metric tables
 
 73 values deleted from group table, cascade delete on metrics
 
-5 values deleted from the db
-
-STILL TO DO:
-
-upload modified group metrics 
+7922 and 21142 new values inserted in the fish and metric tables
 
 
 ## Annex 4
