@@ -13,7 +13,6 @@ output:
 
 ```{r setup, include=FALSE}
 source("../utilities/load_library.R")
-source("../database_interaction/database_reference.R")
 
 
 knitr::opts_chunk$set(echo = TRUE,warning=FALSE,message=FALSE,error=FALSE,fig.width=14.9/2.54,dpi=150)
@@ -33,6 +32,7 @@ load_library("yaml")
 load_library("tidyr")
 load_library("lubridate")
 load_library("stringr")
+load_library("quantreg")
 
 
 if(Sys.info()["user"]=="hilaire.drouineau"){
@@ -42,6 +42,8 @@ if(Sys.info()["user"]=="hilaire.drouineau"){
 colorpalette=cbf_1 <- c("#999999", "#E69F00", "#56B4E9", "#009E73", 
            "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 
+
+
 cred=read_yaml("../../credentials.yml")
 con_wgeel = dbConnect(Postgres(), dbname=cred$dbname,host=cred$host,port=cred$port,user=cred$user, password=getPass())
 
@@ -49,12 +51,19 @@ con_wgeel = dbConnect(Postgres(), dbname=cred$dbname,host=cred$host,port=cred$po
 biometry_individual_series=dbGetQuery(con_wgeel,"with sel as(SELECT d.*, t_series.*, mty_name FROM datawg.t_metricindseries_meiser d, datawg.t_fishseries_fiser t_series, ref.tr_metrictype_mty WHERE mty_id=mei_mty_id AND mei_fi_id = fi_id) 
 select sel.*, ser_nameshort, ser_cou_code, ser_x,ser_y,ser_emu_nameshort, ser_hty_code,ser_lfs_code,gea_name_en, sam_samplingtype,t_series_ser.ser_qal_id from sel, datawg.t_series_ser, ref.tr_gear_gea, ref.tr_samplingtype_sam where ser_id=fiser_ser_id and ser_sam_gear=gea_id and ser_sam_id=sam_id")
 
-	biometry_individual_series %>% filter(fi_id!=421454)
+biometry_individual_series<-biometry_individual_series %>% filter(fi_id!=421454)
 
 biometry_individual_sampling=dbGetQuery(con_wgeel,"with sel as(SELECT d.*, t_samp.*, mty_name FROM datawg.t_metricindsamp_meisa d, datawg.t_fishsamp_fisa t_samp, ref.tr_metrictype_mty WHERE mty_id=mei_mty_id AND mei_fi_id = fi_id) 
 select * from sel, datawg.t_samplinginfo_sai where sai_id=fisa_sai_id")
 
 cou_ref=dbGetQuery(con_wgeel,"select cou_code, cou_order from ref.tr_country_cou")
+cou_ref= cou_ref[order(cou_ref$cou_order), ]
+
+values=c(RColorBrewer::brewer.pal(12,"Set3"),
+    RColorBrewer::brewer.pal(12, "Paired"), 
+    RColorBrewer::brewer.pal(8,"Accent"),
+    RColorBrewer::brewer.pal(8, "Dark2"))
+color_countries = setNames(values,cou_ref$cou_code)
 
 ## preparing the data to be exploited
 
@@ -90,6 +99,7 @@ total_individual= bind_rows(
 		select(country, EMU = ser_emu_nameshort, year,month, lengthmm, weightg,eye_diam_meanmm, pectoral_lengthmm, ageyear,differentiated_proportion, female_proportion, habitat = ser_hty_code, life_stage = fi_lfs_code, commercial) %>% mutate(gear = "unkonwn", source = "sampling") 
 )
 
+total_individual$country<-factor(total_individual$country,levels=cou_ref$cou_code,ordered=TRUE)
 
  dbDisconnect(con_wgeel)
 
@@ -121,7 +131,61 @@ autofit(flextable(stats_data))
 
 ggplot(total_individual,aes(x=lengthmm,y=weightg))+geom_point()+
   facet_grid(vars(life_stage), vars(source),scale="free")+
-  theme_bw()+ggtitle("mixed")+xlab("Length (mm)")+ylab("Weight (g)")
+  theme_bw()+xlab("Length (mm)")+ylab("Weight (g)")
+
+
+```
+```{r lengthweightrelationship, include=TRUE}
+
+# series
+
+## prepare the data
+reg_series_data<-total_individual[!is.na(total_individual$weightg) & !is.na(total_individual$lengthmm),]
+reg_series_data<-total_individual[total_individual$weightg>0 & total_individual$lengthmm>100,]
+reg_series_data<-reg_series_data[reg_series_data$life_stage %in% c("Y","S") & !is.na(reg_series_data$life_stage),]
+
+reg_series_data$country<-factor(reg_series_data$country,levels=cou_ref$cou_code,ordered=TRUE)
+
+
+reg_w_series = rq(log(reg_series_data$weightg)~log(reg_series_data$lengthmm), tau= 0.75)
+
+summary(reg_w_series)
+
+#calcul de Ws
+reg_series_data$ws = exp(predict(reg_w_series, newdata = reg_series_data))
+
+#calcul de Wr
+reg_series_data$wr = reg_series_data$weightg / reg_series_data$ws *100
+
+
+## regression with all data
+
+p <- ggplot(reg_series_data, aes(lengthmm, ws))
+p + geom_point(aes(lengthmm,weightg, colour=life_stage))+ geom_line()
+
+## representation of the results with all data
+
+p <- ggplot(reg_series_data, aes(lengthmm, wr, colour=life_stage))
+p + geom_point()+ geom_hline(yintercept = c(25,200))
+
+n_total<-nrow(reg_series_data)
+
+n_inconsistent<-nrow(reg_series_data[reg_series_data$wr<25 | reg_series_data$wr>200,])
+
+## boxplot of the resultat with only consistant data
+
+reg_data_cons<-reg_series_data[reg_series_data$wr>25 & reg_series_data$wr<200,]
+
+p <- ggplot(reg_data_cons, aes(country, wr, fill=country))
+p + geom_boxplot()+ scale_fill_manual(values=color_countries[names(color_countries) %in% unique(reg_series_data$country)], drop = TRUE)+geom_hline(yintercept =100) + facet_grid(vars(life_stage))
+
+
+
+head(reg_series_dataY[is.na(reg_series_dataY$wr),])
+
+# sampling info
+
+
 
 
 ```
