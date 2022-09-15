@@ -42,7 +42,13 @@ plotseriesUI <- function(id){
 			),               
 			
 			fluidRow(
-					
+					pickerInput(inputId = ns("kept_or_datacall"), 
+							label = "Choose kept or datacall :", 
+							choices = c("kept","datacall"),
+							selected= 1,
+							multiple = FALSE,
+							options = list(
+									style = "btn-primary", size = 5)),
 					plotOutput(ns("series_ggplot"),
 							click = clickOpts(id = ns("series_ggplot_click"))
 					)
@@ -127,7 +133,7 @@ plotseriesServer <- function(id,globaldata){
 							if (is.null(rvs$datagr)) return(NULL)
 							# duplicated_values_graph performs a group by, see graph.R inside the shiny data integration
 							# tab
-							series_graph(rvs$datagr, level= input$level, year_column=year_column) 
+							series_graph(rvs$datagr, level= input$level, year_column=year_column,kept_or_datacall=input$kept_or_datacall) 
 						}
 				)
 				
