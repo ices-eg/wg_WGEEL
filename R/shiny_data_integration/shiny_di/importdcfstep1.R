@@ -11,10 +11,13 @@ importdcfstep1UI <- function(id){
 	ns <- NS(id)
 	tagList(useShinyjs(),
 			tags$hr(),
-			h2("step 1 : Compare with database"),								
+			h2("step 1 : Compare with database"),		
+			fluidRow(
+			  fluidRow(                                       
+			    column(width=2,                        
+			           actionButton(ns("check_duplicate_button_dcf"), "Check duplicate"))),
+			box(
 			fluidRow(                                       
-					column(width=2,                        
-							actionButton(ns("check_duplicate_button_dcf"), "Check duplicate")), 
 					column(width=5,
 							h3("new sampling"),
 							htmlOutput(ns("step1_message_new_sampling")),
@@ -45,7 +48,7 @@ importdcfstep1UI <- function(id){
 							DT::dataTableOutput(ns("dt_highlight_change_individual_metric"))	
 					
 					)
-			)
+			), collapsible=TRUE, width=12))
 	)
 }
 

@@ -17,7 +17,7 @@ importstep1UI <- function(id){
 									actionButton(ns("check_duplicate_button"), "Check duplicate")),
 							column(width=2,                        
 									actionButton(ns("clean_output"), "Clean Output"))),
-					fluidRow(
+					box(fluidRow(
 							column(width=5,
 									h3("Duplicated data"),
 									htmlOutput(ns("step1_message_duplicates")),
@@ -38,7 +38,7 @@ importstep1UI <- function(id){
 									DT::dataTableOutput(ns("dt_check_duplicates"))),
 							column(width=5,
 									h3("summary still missing"),
-									DT::dataTableOutput(ns("dt_missing"))))
+									DT::dataTableOutput(ns("dt_missing")))), collapsible=TRUE, width=12)
 			
 			))
 }

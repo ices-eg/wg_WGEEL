@@ -18,7 +18,7 @@ importtsstep1UI <- function(id){
 									actionButton(ns("check_duplicate_button_ts"), "Check duplicate")),
 							column(width=2,                        
 									actionButton(ns("clean_output"), "Clean Output"))),
-					fluidRow(
+					box(fluidRow(
 							column(width=6,
 									h3("new series"),
 									htmlOutput(ns("step1_message_new_series")),
@@ -63,7 +63,7 @@ importtsstep1UI <- function(id){
 									h3("modified individual metrics : what changed ?"),
 									DT::dataTableOutput(ns("dt_highlight_change_individual_metrics"))
 							)
-					)
+					), collapsible=TRUE, width=12)
 			)
 	)
 }
