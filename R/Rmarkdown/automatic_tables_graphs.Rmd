@@ -2,8 +2,10 @@
 title: "Trend in fisheries"
 author: "WGEEL"
 date: "13 September 2022"
-output: html_document
-keep_md: yes
+output: 
+  rmarkdown::html_document:
+     keep_md: yes
+     toc: yes
 test: "`r paste('_metadata.yaml')`"
 ---
 \newline
