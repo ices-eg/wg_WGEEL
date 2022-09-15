@@ -1286,3 +1286,8 @@ WHERE ser_cou_code= 'DK'
 AND das_qal_id IS NULL
 )
 UPDATE datawg.t_dataseries_das SET das_qal_id=1 FROM das WHERE das.das_id = t_dataseries_das.das_id; --150
+
+
+-- ADD index on t_metricindseries 
+CREATE INDEX ON datawg.t_metricindsamp_meisa (mei_fi_id);
+CREATE INDEX ON datawg.t_metricindseries_meiser (mei_fi_id);

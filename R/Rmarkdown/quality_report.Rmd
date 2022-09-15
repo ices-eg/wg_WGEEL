@@ -98,6 +98,69 @@ biometry_group_data_sampling <- dbGetQuery(
 				JOIN datawg.t_metricgroupsamp_megsa ON meg_gr_id = gr_id 
 				LEFT JOIN ref.tr_metrictype_mty ON mty_id=meg_mty_id 
 				")
+## download data from the database
+biometry_individual_series <- dbGetQuery(con_wgeel,
+		"SELECT  ser_nameshort, 
+				ser_cou_code, 
+				ser_x,ser_y,
+				ser_emu_nameshort,
+				ser_hty_code,
+				ser_lfs_code,
+				gea_name_en, 
+				sam_samplingtype,
+				ser_qal_id,
+				t_fishseries_fiser.*					
+				FROM datawg.t_series_ser 
+				JOIN datawg.t_fishseries_fiser  ON ser_id=fiser_ser_id
+				JOIN datawg.t_metricindseries_meiser ON mei_fi_id = fi_id
+				LEFT JOIN ref.tr_metrictype_mty ON mty_id=mei_mty_id
+				LEFT JOIN ref.tr_samplingtype_sam ON ser_sam_id=sam_id
+				LEFT JOIN ref.tr_gear_gea	ON ser_sam_gear=gea_id")	
+				
+#biometry_individual_series %>% filter(fi_id!=421454)
+
+biometry_individual_sampling=dbGetQuery(con_wgeel,
+		"SELECT 
+t_samplinginfo_sai.*,
+cou_code, cou_order,
+t_fishsamp_fisa.*,
+mty_name,
+t_metricindsamp_meisa.*
+FROM
+datawg.t_samplinginfo_sai
+JOIN datawg.t_fishsamp_fisa ON sai_id=fisa_sai_id
+JOIN datawg.t_metricindsamp_meisa ON mei_fi_id = fi_id
+LEFT JOIN ref.tr_metrictype_mty ON mty_id=mei_mty_id
+LEFT JOIN ref.tr_country_cou on sai_cou_code= cou_code
+")
+
+
+
+data_ind_series = biometry_individual_series %>% 
+		pivot_wider(names_from = mty_name, values_from = mei_value)
+
+data_ind_series$month<-format(data_ind_series$fi_date,"%m")
+
+## individual sampling data
+
+data_ind_samp = biometry_individual_sampling %>% 
+		pivot_wider(names_from = mty_name, values_from = mei_value)
+
+## total data
+
+#total_individual= bind_rows(
+#		data_ind_series %>% as_tibble() %>%
+#				select(country, EMU = ser_emu_nameshort, year,month, lengthmm, weightg,eye_diam_meanmm, pectoral_lengthmm, ageyear,differentiated_proportion, female_proportion, habitat = ser_hty_code, life_stage = ser_lfs_code, gear = gea_name_en) %>%
+#				mutate(source = "series"),
+#		
+#		data_ind_samp %>% as_tibble() %>%
+#				mutate(commercial = str_detect(sai_samplingstrategy, "ommercial") | str_detect(sai_samplingstrategy, "CF")) %>%
+#				select(country, EMU = ser_emu_nameshort, year,month, lengthmm, weightg,eye_diam_meanmm, pectoral_lengthmm, ageyear,differentiated_proportion, female_proportion, habitat = ser_hty_code, life_stage = fi_lfs_code, commercial) %>% mutate(gear = "unkonwn", source = "sampling") 
+#)
+
+
+
+
 dbDisconnect(con_wgeel)
 
 biometry_group_data_series_long <- biometry_group_data_series %>% 
