@@ -83,7 +83,7 @@ params:
 
 ```{r setup, include=FALSE}
 require(knitr)
-knitr::opts_chunk$set(echo = FALSE, warnings=FALSE, fig.width=12, fig.height=8, message=FALSE)
+knitr::opts_chunk$set(echo = FALSE, warnings=FALSE, fig.width=12, fig.height=8, message=FALSE,error = TRUE) # error TRUE don't stop on error
 opts_knit$set(eval.after = 'fig.cap' ) # to be used in chunks used only to plot pictures
 options(knitr.table.format = 'pandoc') # options pour kable
 options(knitr.kable.NA = '.')
@@ -889,7 +889,7 @@ gg <-plot_pc(dataset="landings",
 		country= params$country, 
 		typ=4 , 
 		life_stage="G",
-		year_range=1960:2020,
+		year_range=1960:CY,
 		scalef=1000
 )
 print(gg)
@@ -907,7 +907,7 @@ res <- table_pc(dataset="landings",
 		country=  params$country, 
 		typ=4 , 
 		life_stage="Y",
-		year_range=1960:2020, 
+		year_range=1960:CY, 
 		scalef=1000
 )
 print(res %>% kable_styling())
@@ -922,7 +922,7 @@ gg <-plot_pc(dataset="landings",
 		country= params$country, 
 		typ=4 , 
 		life_stage="Y",
-		year_range=1960:2020, 		
+		year_range=1960:CY, 		
 		scalef=1000)
 print(gg)
 cat("\n")
@@ -938,7 +938,7 @@ res <- table_pc(dataset="landings",
 		country=  params$country, 
 		typ=4 , 
 		life_stage=c("YS"),
-		year_range=1960:2020, 
+		year_range=1960:CY, 
 		scalef=1000)
 print(res %>% kable_styling())
 cat("\n")
@@ -950,7 +950,7 @@ gg <-plot_pc(dataset="landings",
 		country= params$country, 
 		typ=4 , 
 		life_stage=c("YS"),
-		year_range=1960:2020, 		
+		year_range=1960:CY, 		
 		scalef=1000)
 print(gg)
 cat("\n")
@@ -965,7 +965,7 @@ res <- table_pc(dataset="landings",
 		country=  params$country, 
 		typ=4 , 
 		life_stage=c("S"),
-		year_range=1960:2020, 			
+		year_range=1960:CY, 			
 		scalef=1000)
 print(res %>% kable_styling())
 cat("\n")
@@ -978,7 +978,7 @@ gg <-plot_pc(dataset="landings",
 		country= params$country, 
 		typ=4 , 
 		life_stage=c("S"),
-		year_range=1960:2020, 			
+		year_range=1960:CY, 			
 		scalef=1000)
 print(gg)
 cat("\n")
@@ -994,7 +994,7 @@ res <- table_pc(dataset="landings",
 		country=  params$country, 
 		typ=6 , 
 		life_stage="G",
-		year_range=1960:2020, 
+		year_range=1960:CY, 
 		scalef=1000
 )
 print(res %>% kable_styling())
@@ -1008,7 +1008,7 @@ gg <-plot_pc(dataset="landings",
 		country= params$country, 
 		typ=6 , 
 		life_stage="G",
-		year_range=1960:2020, 
+		year_range=1960:CY, 
 		scalef=1000
 )
 print(gg)
@@ -1025,7 +1025,7 @@ res <- table_pc(dataset="landings",
 		country=  params$country, 
 		typ=6 , 
 		life_stage="Y",
-		year_range=1960:2020,
+		year_range=1960:CY,
 		scalef=1000
 )
 print(res %>% kable_styling())
@@ -1040,7 +1040,7 @@ gg <-plot_pc(dataset="landings",
 		country= params$country, 
 		typ=6 , 
 		life_stage="Y",
-		year_range=1960:2020, 
+		year_range=1960:CY, 
 		scalef=1000
 )
 print(gg)
@@ -1054,7 +1054,7 @@ res <- table_pc(dataset="landings",
 		country=  params$country, 
 		typ=6 , 
 		life_stage=c("YS"),
-		year_range=1960:2020, 
+		year_range=1960:CY, 
 		scalef=1000)
 print(res %>% kable_styling())
 cat("\n")
@@ -1068,7 +1068,7 @@ gg <-plot_pc(dataset="landings",
 		country= params$country, 
 		typ=6 , 
 		life_stage=c("YS"),
-		year_range=1960:2020,
+		year_range=1960:CY,
 		scalef=1000)
 print(gg)
 cat("\n")
@@ -1082,7 +1082,7 @@ res <- table_pc(dataset="landings",
 		country=  params$country, 
 		typ=6 , 
 		life_stage=c("S"),
-		year_range=1960:2020, 
+		year_range=1960:CY, 
 		scalef=1000)
 print(res %>% kable_styling())
 cat("\n")
@@ -1093,7 +1093,7 @@ gg <-plot_pc(dataset="landings",
 		country= params$country, 
 		typ=6 , 
 		life_stage=c("S"),
-		year_range=1960:2020, 
+		year_range=1960:CY, 
 		scalef=1000)
 print(gg)
 cat("\n")
@@ -1108,7 +1108,7 @@ res_number <- table_pc_lfs(dataset="release",
 				c(params$releaseG, params$releaseY, params$releaseQG,
 						params$releaseOG, params$releaseYS, params$releaseS)],
 		
-		year_range=1960:2020, 
+		year_range=1960:CY, 
 		scalef=10^6
 )
 release_n <- nrow(res_number)>0
@@ -1198,7 +1198,7 @@ res <- table_pc_lfs(dataset="aquaculture",
 		country=  params$country, 
 		typ=11 , 
 		life_stage=c("G","Y","YS","S","QG","OG"),		
-		year_range=1960:2020, 
+		year_range=1960:CY, 
 		scalef=1000	    
 )
 aqua_n <- nrow(res>0)
