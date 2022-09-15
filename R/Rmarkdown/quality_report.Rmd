@@ -47,6 +47,7 @@ source("../utilities/load_library.R")
 # other libraries
 #-----------------
 load_package("readxl")
+load_package("getPass")
 load_package("stringr")
 load_package("reshape2")
 load_package("tidyr") # unite cols in maps
@@ -71,6 +72,8 @@ load_package("leaflet.minicharts")
 load_package("glue")
 load_package("kableExtra")
 load_package("yaml")
+load_package("RPostgres")
+cred=read_yaml("../../credentials.yml")
 
 # load functions ------------------------------------------------------------------------------------
 # retrieve reference tables needed
@@ -81,7 +84,7 @@ if(is.null(options()$sqldf.RPostgreSQL.user)){
 	source("database_connection.R")
 	setwd(wd)
 }
-con_wgeel = dbConnect(RPostgres::Postgres(), dbname=dbname,host=host,port=port,user=user, password=password)
+con_wgeel = dbConnect(RPostgres::Postgres(), dbname=cred$dbname,host=cred$host,port=cred$port,user=cred$user, password=getPass())
 #
 #
 biometry_group_data_series <- dbGetQuery(
