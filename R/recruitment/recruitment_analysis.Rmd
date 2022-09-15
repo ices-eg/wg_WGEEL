@@ -12,6 +12,14 @@ output:
 ---
 
 ```{r setup, include=FALSE, warning = FALSE, message = FALSE, error=FALSE}
+set_flextable_defaults(
+  font.size = 8.5, font.family = "Calibri",
+  font.color = "black",
+  table.layout = "autofit",
+  border.color = "black",
+  padding.top = 3, padding.bottom = 3,
+  padding.left = 4, padding.right = 4)
+
 library(knitr)
 opts_knit$set(eval.after = "fig.cap", echo=FALSE, warning = FALSE, message = FALSE, error=FALSE)
 Sys.setlocale("LC_ALL", "English_United States.932")
@@ -1085,36 +1093,43 @@ finished. *As usual, the indices given for `r CY` must be considered as provisio
 
 
 ```{r xstatseriesGEE, echo=FALSE, warning = FALSE, message = FALSE, error=FALSE, tab.cap=str_c("Short description of the sampling sites for European eel recruitment data for Elsewhere Europe. Min and max indicate the first year and last year in the records, and the values are given in the n+ and n- columns, indicate the number of years with values and the number of years when there are missing data within the series. Life stage: GY = glass eel and yellow eel, G = glass eel, Y = yellow eel. Unit for the data collected is given (nr = number; index = calculated value following a specified protocol, nr/m2 = number per square metre, nr/h = number per hour, kg/boat/d = kg per boat per day). Habitat: C = coastal water (according to the EU Water Framework Directive, WFD), F = freshwater, MO = marine water (open sea), T = transitional water with lower salinity (according to WFD). Kept = 1 means that the dataseries is used in recruitment analyses.")}
-autofit(flextable(data = printstatseriesGEE))
+autofit(flextable(data = printstatseriesGEE)%>%
+          bold(bold = TRUE, part = "header"))
 ```
 
 
 ```{r xstatseriesGNS, echo=FALSE, warning = FALSE, message = FALSE, error=FALSE,tab.cap=str_c("Short description of the sampling sites for European eel recruitment data in the North Sea. Min and max indicate the first year and last year in the records, and the values are given in the n+ and n- columns, indicate the number of years with values and the number of years when there are missing data within the series. Life stage: GY = glass eel and yellow eel, G = glass eel, Y = yellow eel. Unit for the data collected is given (nr = number; index = calculated value following a specified protocol, nr/m2 = number per square metre, nr/h = number per hour, kg/boat/d = kg per boat per day). Habitat: C = coastal water (according to the EU Water Framework Directive, WFD), F = freshwater, MO = marine water (open sea), T = transitional water with lower salinity (according to WFD). Kept = 1 means that the dataseries is used in recruitment analyses.")}
-	autofit(flextable(data = printstatseriesGNS))
+	autofit(flextable(data = printstatseriesGNS)%>%
+          bold(bold = TRUE, part = "header"))
 ```
 
 ```{r xstatseriesGY, echo=FALSE, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE, tab.cap=str_c("Short description of the recruitment sites (continued : stage glass eel and yellow eel)")}
-autofit(flextable(data = printstatseriesGY))
+autofit(flextable(data = printstatseriesGY) %>%
+          bold(bold = TRUE, part = "header"))
 ```
 
 
 ```{r xstatseriesY, echo=FALSE, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE, tab.cap= str_c("Short description of the recruitment sites (continued : yellow eel series) ")}
-autofit(flextable(data = printstatseriesY))
+autofit(flextable(data = printstatseriesY)%>%
+          bold(bold = TRUE, part = "header"))
 ```
 
 
 ```{r xseriesprob, echo=FALSE, warning = FALSE, message = FALSE, error=FALSE,echo=FALSE, tab.cap=str_c("Table \\@ref(tab:xseriesprob) continued. Data in " ,CY, " and ", CY-1, "having problems causing the data in the specific year to be excluded from the analysis. Codes for stages are G = glass eel, GY = glass eel + yellow eel, Y = yellow eel, Division = FAO marine division. Kept: 0 = missing, 1 = good quality, 							2 = wgeel has modified the data, 3 = not used due to poor quality, 4 =	data is used, but there are warnings on its quality")}
-autofit(flextable(data = series_prob[30:nrow(series_prob),]))
+autofit(flextable(data = series_prob[30:nrow(series_prob),])%>%
+          bold(bold = TRUE, part = "header"))
 ```
 
 
 ```{r xseriesprob1, echo=FALSE, warning = FALSE, message = FALSE, error=FALSE, tab.cap=str_c("Table \\@ref(tab:xseriesprob) continued. Data in " ,CY, " and ", CY-1, "having problems causing the data in the specific year to be excluded from the analysis. Codes for stages are G = glass eel, GY = glass eel + yellow eel, Y = yellow eel, Division = FAO marine division. Kept: 0 = missing, 1 = good quality, 2 = wgeel has modified the data, 3 = not used due to poor quality, 4 =	data is used, but there are warnings on its quality")}
-autofit(flextable(data = series_prob[15:30,]))
+autofit(flextable(data = series_prob[15:30,])%>%
+          bold(bold = TRUE, part = "header"))
 ```
 
 
 ```{r xseriesprob2, echo=FALSE, warning = FALSE, message = FALSE, error=FALSE, tab.cap=str_c("Table \\@ref(tab:xseriesprob) continued. Data in " ,CY, " and ", CY-1, "having problems causing the data in the specific year to be excluded from the analysis. Codes for stages are G = glass eel, GY = glass eel + yellow eel, Y = yellow eel, Division = FAO marine division. Kept: 0 = missing, 1 = good quality, 2 = wgeel has modified the data, 3 = not used due to poor quality, 4 =	data is used, but there are warnings on its quality")}
-autofit(flextable(data = series_prob[30:nrow(series_prob),]))
+autofit(flextable(data = series_prob[30:nrow(series_prob),])%>%
+          bold(bold = TRUE, part = "header"))
 ```
 
 
@@ -2370,16 +2385,19 @@ data have not been updated since 2016.
 
 
 ```{r tableseriesCY,echo=FALSE,warning=FALSE,error=FALSE,message=FALSE, tab.cap=str_c("Series updated to ",CY, ". Codes for stages are G = glass eel, GY = glass eel + yellow eel, Y = yellow eel, Area NS = North Sea, EE = Elsewhere Europe, Division = FAO marine division. Series ordered by stage and from North to South")}
-autofit(flextable(data = series_CY))
+autofit(flextable(data = series_CY)%>%
+          bold(bold = TRUE, part = "header"))
 ```
 
 ```{r xseriesCYm1, echo=FALSE,warning=FALSE,error=FALSE,message=FALSE,echo=FALSE,warning=FALSE,error=FALSE,message=FALSE,tab.cap=str_c("Series updated to ",CY-1, " see table \\@ref(tab:tableseriesCY) for codes. Series ordered from North to South")}
-autofit(flextable(data = series_CYm1))
+autofit(flextable(data = series_CYm1)%>%
+          bold(bold = TRUE, part = "header"))
 
 ```
 
 ```{r xserieslost,echo=FALSE,warning=FALSE,error=FALSE,message=FALSE,tab.cap=str_c("table_serieslost")}
-autofit(flextable(data = series_lost))
+autofit(flextable(data = series_lost)%>%
+          bold(bold = TRUE, part = "header"))
 ```
 
 
@@ -2505,11 +2523,13 @@ since then.
 
 
 ```{r tableglmglasseel,echo=FALSE,eval=FALSE,results="hide", warning = FALSE, message = FALSE, error=FALSE, echo=FALSE,tab.cap=str_c("GLM $glass~eel \\sim year:area + site $ geometric means of predicted values for ",vv$nb_series_glass_eel," glass eel series, values given in percentage of the 1960-1979 period.")}
-flextable(gg)
+flextable(gg%>%
+          bold(bold = TRUE, part = "header"))
 ```
 
 ```{r tableglmyellow,echo=FALSE,eval=FALSE,results="hide", warning = FALSE, message = FALSE, error=FALSE, echo=FALSE,tab.cap=str_c("GLM $glass~eel \\sim year:area + site $ geometric means of predicted values for ",vv$nb_series_glass_eel," glass eel series, values given in percentage of the 1960-1979 period.")}
-flextable(yy)
+flextable(yy%>%
+          bold(bold = TRUE, part = "header"))
 ```
 
 

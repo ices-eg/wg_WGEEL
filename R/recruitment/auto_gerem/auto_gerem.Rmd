@@ -193,7 +193,7 @@ if ((!file.exists(paste("datagerem",CY,".rdata",sep=""))) | params$updateData){
                   select "window",gid, wso_id ser_ccm_wso_id, geom from hydrographie.ccm_v2_1_w2008_rivernodes where num_seg=0')
   outlets=subset(outlets,outlets$ser_ccm_wso_id %in% allcatchments$ser_ccm_wso_id)
   
-  emu=st_read(con_wgeel,query='select * from ref.tr_emu_emu')
+  emu=st_read(con_wgeel,query='select emu_nameshort, emu_cou_code,geom from ref.tr_emu_emu')
   asso=st_nearest_feature(st_transform(outlets,4326),emu)
   outlets$emu=emu$emu_nameshort[asso]
   allcatchments$emu=outlets$emu[match(allcatchments$ser_ccm_wso_id,outlets$ser_ccm_wso_id)]
