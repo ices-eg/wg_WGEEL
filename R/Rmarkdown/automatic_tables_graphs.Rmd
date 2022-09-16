@@ -809,8 +809,8 @@ table[is.na(table)]<-''
 tableRelG<-table
 table1<-table[,c(1,2:8)]
 table2<-table[,c(1,9:ncol(table))]
-ka_release_G <- kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =
-				paste("Table 5: Release (nb in millions) of glass eels (G and OG)","(",min(year),"-",max(year),")","for",paste(paste(country,collapse=","), ".", sep="")))
+#ka_release_G <- kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =
+#				paste("Table 5: Release (nb in millions) of glass eels (G and OG)","(",min(year),"-",max(year),")","for",paste(paste(country,collapse=","), ".", sep="")))
 ka_release_G1 <- kable(format(table1,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 5a:  Release of glass eel in millions from ", min(year)," to ",max(year),")",",  reported by countries SE Sweden, EE Estonia, LV Latvia, PL Poland, DE Germany, NL Netherlands, BE Belgium(to be continued for other countries in next table).", sep=""))
 ka_release_G2 <- kable(format(table2,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 5b:  Release of glass eel in millions from ", min(year)," to ",max(year),")",",  reported by countries: IE Ireland, GB United Kingdom, FR France, ES Spain, IT Italy, GR Greece.", sep=""))
 
@@ -1342,12 +1342,12 @@ table = table[, n_order]
 names(table)[1]<-"Year"
 table[is.na(table)]<-''
 tableRelG<-table
-table1<-table[,c(1,2:8)]
-table2<-table[,c(1,9:ncol(table))]
+
+
 ka_other_landings_G <- kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =
 				paste("Table 5: other_landings (nb in millions) of glass eels (G and OG)","(",min(year),"-",max(year),")","for",paste(paste(country,collapse=","), ".", sep="")))
-ka_other_landings_G1 <- kable(format(table1,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 5a:  other_landings of glass eel in millions from ", min(year)," to ",max(year),")",",  reported by countries SE Sweden, EE Estonia, LV Latvia, PL Poland, DE Germany, NL Netherlands, BE Belgium(to be continued for other countries in next table).", sep=""))
-ka_other_landings_G2 <- kable(format(table2,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 5b:  other_landings of glass eel in millions from ", min(year)," to ",max(year),")",",  reported by countries: IE Ireland, GB United Kingdom, FR France, ES Spain, IT Italy, GR Greece.", sep=""))
+#ka_other_landings_G1 <- kable(format(table1,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 5a:  other_landings of glass eel in millions from ", min(year)," to ",max(year),")",",  reported by countries SE Sweden, EE Estonia, LV Latvia, PL Poland, DE Germany, NL Netherlands, BE Belgium(to be continued for other countries in next table).", sep=""))
+#ka_other_landings_G2 <- kable(format(table2,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 5b:  other_landings of glass eel in millions from ", min(year)," to ",max(year),")",",  reported by countries: IE Ireland, GB United Kingdom, FR France, ES Spain, IT Italy, GR Greece.", sep=""))
 
 ```
 
@@ -1742,6 +1742,7 @@ print(ka_com_land_YS3)
 print(ka_rec_land_Y1)
 print(ka_rec_land_Y2)
 print(ka_rec_land_G)
+#print(ka_release_G)
 print(ka_release_G1)
 print(ka_release_G2)
 print(ka_release_Y)

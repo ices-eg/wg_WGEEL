@@ -8,13 +8,15 @@ output:
     fig_caption: yes
     number_sections: no
     reference_docx: "../Rmarkdown/ICES_template.docx"
-
 ---
 
 ```{r setup, include=FALSE, warning = FALSE, message = FALSE, error=FALSE}
-
 library(knitr)
-opts_knit$set(eval.after = "fig.cap", echo=FALSE, warning = FALSE, message = FALSE, error=FALSE)
+opts_knit$set(eval.after = "fig.cap",
+		echo=FALSE,
+		warning = FALSE,
+		message = FALSE,
+		error=FALSE)
 Sys.setlocale("LC_ALL", "English_United States.932")
 #options(save.defaults = list(version=2))
 # Password are stored in R/etc/Rprofile.site

@@ -220,7 +220,7 @@ group_data <- function(dataset, geo="country", habitat=FALSE, lfs=FALSE, na.rm =
       # by emu
       dataset <- dataset %>%
           dplyr::group_by(eel_emu_nameshort,eel_year,eel_hty_code) %>%
-	      summarize(eel_value=sum(eel_value,na.rm=na.rm))
+	      dplyr::summarize(eel_value=sum(eel_value,na.rm=na.rm))
     }
     
   } else if (lfs) {
