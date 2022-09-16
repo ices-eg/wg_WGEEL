@@ -2,55 +2,55 @@
 <diagram version="1" name="wkeeldata4.erd">
 	<entities>
 		<data-source id="postgres-jdbc-180a9103c44-2c2c093378634dab">
-			<entity id="1" name="t_fish_fi" fq-name="datawg.t_fish_fi" order="1" x="254" y="760">
+			<entity id="1" name="t_fish_fi" fq-name="datawg.t_fish_fi" order="1" x="715" y="1122">
 				<path name="datawg"/>
 				<path name="wgeel"/>
 			</entity>
-			<entity id="2" name="t_series_ser" fq-name="datawg.t_series_ser" order="3" x="254" y="200">
+			<entity id="2" name="t_series_ser" fq-name="datawg.t_series_ser" order="3" x="715" y="319">
 				<path name="datawg"/>
 				<path name="wgeel"/>
 			</entity>
-			<entity id="3" name="t_fishseries_fiser" fq-name="datawg.t_fishseries_fiser" order="4" border-width="3" x="20" y="623">
+			<entity id="3" name="t_fishseries_fiser" fq-name="datawg.t_fishseries_fiser" order="4" x="373" y="919">
 				<path name="datawg"/>
 				<path name="wgeel"/>
 			</entity>
-			<entity id="4" name="t_group_gr" fq-name="datawg.t_group_gr" order="5" x="254" y="20">
+			<entity id="4" name="t_group_gr" fq-name="datawg.t_group_gr" order="5" x="715" y="76">
 				<path name="datawg"/>
 				<path name="wgeel"/>
 			</entity>
-			<entity id="5" name="t_fishsamp_fisa" fq-name="datawg.t_fishsamp_fisa" order="2" x="20" y="770">
+			<entity id="5" name="t_fishsamp_fisa" fq-name="datawg.t_fishsamp_fisa" order="2" x="373" y="1293">
 				<path name="datawg"/>
 				<path name="wgeel"/>
 			</entity>
-			<entity id="6" name="t_groupseries_grser" fq-name="datawg.t_groupseries_grser" order="0" x="20" y="253">
+			<entity id="6" name="t_groupseries_grser" fq-name="datawg.t_groupseries_grser" order="0" x="373" y="422">
 				<path name="datawg"/>
 				<path name="wgeel"/>
 			</entity>
-			<entity id="7" name="t_groupsamp_grsa" fq-name="datawg.t_groupsamp_grsa" order="6" x="20" y="58">
+			<entity id="7" name="t_groupsamp_grsa" fq-name="datawg.t_groupsamp_grsa" order="6" x="373" y="20">
 				<path name="datawg"/>
 				<path name="wgeel"/>
 			</entity>
-			<entity id="8" name="t_metricgroup_meg" fq-name="datawg.t_metricgroup_meg" order="7" x="633" y="291">
+			<entity id="8" name="t_metricgroup_meg" fq-name="datawg.t_metricgroup_meg" order="7" x="373" y="151">
 				<path name="datawg"/>
 				<path name="wgeel"/>
 			</entity>
-			<entity id="9" name="t_metricgroupsamp_megsa" fq-name="datawg.t_metricgroupsamp_megsa" order="8" x="626" y="519">
+			<entity id="9" name="t_metricgroupsamp_megsa" fq-name="datawg.t_metricgroupsamp_megsa" order="8" x="20" y="149">
 				<path name="datawg"/>
 				<path name="wgeel"/>
 			</entity>
-			<entity id="10" name="t_metricgroupseries_megser" fq-name="datawg.t_metricgroupseries_megser" order="9" x="725" y="196">
+			<entity id="10" name="t_metricgroupseries_megser" fq-name="datawg.t_metricgroupseries_megser" order="9" x="20" y="343">
 				<path name="datawg"/>
 				<path name="wgeel"/>
 			</entity>
-			<entity id="11" name="t_metricind_mei" fq-name="datawg.t_metricind_mei" order="10" x="781" y="687">
+			<entity id="11" name="t_metricind_mei" fq-name="datawg.t_metricind_mei" order="10" x="373" y="1022">
 				<path name="datawg"/>
 				<path name="wgeel"/>
 			</entity>
-			<entity id="12" name="t_metricindsamp_meisa" fq-name="datawg.t_metricindsamp_meisa" order="11" x="650" y="627">
+			<entity id="12" name="t_metricindsamp_meisa" fq-name="datawg.t_metricindsamp_meisa" order="11" x="20" y="1234">
 				<path name="datawg"/>
 				<path name="wgeel"/>
 			</entity>
-			<entity id="13" name="t_metricindseries_meiser" fq-name="datawg.t_metricindseries_meiser" order="12" x="723" y="870">
+			<entity id="13" name="t_metricindseries_meiser" fq-name="datawg.t_metricindseries_meiser" order="12" x="20" y="1026">
 				<path name="datawg"/>
 				<path name="wgeel"/>
 			</entity>

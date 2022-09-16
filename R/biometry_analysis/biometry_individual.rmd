@@ -32,6 +32,7 @@ load_library("yaml")
 load_library("tidyr")
 load_library("lubridate")
 load_library("stringr")
+load_library("quantreg")
 
 
 if(Sys.info()["user"]=="hilaire.drouineau"){
@@ -41,6 +42,8 @@ if(Sys.info()["user"]=="hilaire.drouineau"){
 colorpalette=cbf_1 <- c("#999999", "#E69F00", "#56B4E9", "#009E73", 
            "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 
+load("ind_biom.RData")
+
 cred=read_yaml("../../credentials.yml")
 con_wgeel = dbConnect(Postgres(), dbname=cred$dbname,host=cred$host,port=cred$port,user=cred$user, password=getPass())
 
@@ -48,12 +51,19 @@ con_wgeel = dbConnect(Postgres(), dbname=cred$dbname,host=cred$host,port=cred$po
 biometry_individual_series=dbGetQuery(con_wgeel,"with sel as(SELECT d.*, t_series.*, mty_name FROM datawg.t_metricindseries_meiser d, datawg.t_fishseries_fiser t_series, ref.tr_metrictype_mty WHERE mty_id=mei_mty_id AND mei_fi_id = fi_id) 
 select sel.*, ser_nameshort, ser_cou_code, ser_x,ser_y,ser_emu_nameshort, ser_hty_code,ser_lfs_code,gea_name_en, sam_samplingtype,t_series_ser.ser_qal_id from sel, datawg.t_series_ser, ref.tr_gear_gea, ref.tr_samplingtype_sam where ser_id=fiser_ser_id and ser_sam_gear=gea_id and ser_sam_id=sam_id")
 
-	biometry_individual_series %>% filter(fi_id!=421454)
+biometry_individual_series<-biometry_individual_series %>% filter(fi_id!=421454)
 
 biometry_individual_sampling=dbGetQuery(con_wgeel,"with sel as(SELECT d.*, t_samp.*, mty_name FROM datawg.t_metricindsamp_meisa d, datawg.t_fishsamp_fisa t_samp, ref.tr_metrictype_mty WHERE mty_id=mei_mty_id AND mei_fi_id = fi_id) 
 select * from sel, datawg.t_samplinginfo_sai where sai_id=fisa_sai_id")
 
 cou_ref=dbGetQuery(con_wgeel,"select cou_code, cou_order from ref.tr_country_cou")
+cou_ref= cou_ref[order(cou_ref$cou_order), ]
+
+values=c(RColorBrewer::brewer.pal(12,"Set3"),
+    RColorBrewer::brewer.pal(12, "Paired"), 
+    RColorBrewer::brewer.pal(8,"Accent"),
+    RColorBrewer::brewer.pal(8, "Dark2"))
+color_countries = setNames(values,cou_ref$cou_code)
 
 ## preparing the data to be exploited
 
@@ -70,7 +80,12 @@ data_ind_series$country<-factor(data_ind_series$country,levels=cou_ref$cou_code,
   ## individual sampling data
 
 data_ind_samp = biometry_individual_sampling %>% 
+<<<<<<< HEAD
 	select(ser_id = fisa_sai_id, year = fi_year, date=fi_date,  fi_id=mei_fi_id, coord_x = fisa_x_4326, coord_y = fisa_y_4326, fi_lfs_code, country=sai_cou_code, comment = fi_comment, quality = mei_qal_id, mty_name, mei_value,ser_nameshort=sai_name,ser_emu_nameshort=sai_emu_nameshort, ser_hty_code=sai_hty_code,sai_samplingstrategy) %>%
+=======
+  mutate(year = ifelse(is.na(fi_year),year(fi_date), fi_year)) %>% 
+	select(ser_id = fisa_sai_id, year, date=fi_date,  fi_id=mei_fi_id, fi_x=fisa_x_4326, fi_y=fisa_y_4326, fi_lfs_code, country=sai_cou_code, comment = fi_comment, quality = mei_qal_id, mty_name, mei_value,ser_nameshort=sai_name,ser_emu_nameshort=sai_emu_nameshort, ser_hty_code=sai_hty_code,sai_samplingstrategy) %>%
+>>>>>>> branch 'master' of git@github.com:ices-eg/wg_WGEEL.git
 	pivot_wider(names_from = mty_name, values_from = mei_value)
 
 data_ind_samp$fi_lfs_code=factor(as.character(data_ind_samp$fi_lfs_code),levels=c("G","GY","Y","YS","S"))
@@ -86,11 +101,19 @@ total_individual= bind_rows(
 
 	data_ind_samp %>% as_tibble() %>%
 		mutate(commercial = str_detect(sai_samplingstrategy, "ommercial") | str_detect(sai_samplingstrategy, "CF")) %>%
+<<<<<<< HEAD
 		select(country, EMU = ser_emu_nameshort, coord_x, coord_y, year,month, lengthmm, weightg,eye_diam_meanmm, pectoral_lengthmm, ageyear,differentiated_proportion, female_proportion, habitat = ser_hty_code, life_stage = fi_lfs_code, commercial) %>% mutate(gear = "unkonwn", source = "sampling") 
 )
+=======
+		select(country, EMU = ser_emu_nameshort, year,month, lengthmm, weightg,eye_diam_meanmm, pectoral_lengthmm, ageyear,differentiated_proportion, female_proportion, habitat = ser_hty_code, life_stage = fi_lfs_code, commercial) %>% mutate(gear = "unkonwn", source = "sampling") 
+)%>% 
+	mutate(length_class_cm = as.integer(as.character(cut(lengthmm, breaks = seq(0, 1350, 10), labels = seq(0, 1340, 10) + 5)))/10)
+>>>>>>> branch 'master' of git@github.com:ices-eg/wg_WGEEL.git
 
 #save(total_individual, biometry_individual_sampling, biometry_individual_series, file = "ind_biom.RData")
 #load("ind_biom.RData")
+
+total_individual$country<-factor(total_individual$country,levels=cou_ref$cou_code,ordered=TRUE)
 
  dbDisconnect(con_wgeel)
 
@@ -102,8 +125,13 @@ The table describes the available individual biometric data from Appendix 1,2,3 
 
 
 ```{r available_data, include }
+<<<<<<< HEAD
 stats_data= total_individual %>% group_by(source,country,EMU, coord_x, coord_y,habitat,life_stage) %>%
   summarize(series=paste(unique(EMU),collapse=", "),
+=======
+stats_data= total_individual %>% group_by(source,country,EMU,habitat,life_stage) %>%
+  summarize(
+>>>>>>> branch 'master' of git@github.com:ices-eg/wg_WGEEL.git
             n_lengthmm=(sum(!is.na(lengthmm))),
             n_bio_weight=(sum(!is.na(weightg))),
             n_female_proportion=(sum(!is.na(female_proportion))),
@@ -117,13 +145,122 @@ stats_data= total_individual %>% group_by(source,country,EMU, coord_x, coord_y,h
 autofit(flextable(stats_data))
 
 ```
+```{r lengthdecriptivegraphs, include=TRUE}
+
+## length frequency
+
+	ggplot(total_individual) + aes(x = length_class_cm, color = life_stage) +
+	geom_density() + facet_grid(life_stage ~commercial, scales = "free_y")
+
+## length by month
+
+total_lengthmmg<-total_individual %>% filter(!is.na(month),life_stage=="G",!is.na(lengthmm))%>%group_by(month)%>%summarise(q50=quantile(lengthmm,0.5),q5=quantile(lengthmm,0.05),q95=quantile(lengthmm,0.95))
+
+total_lengthmmy<-total_individual %>% filter(!is.na(month),life_stage=="Y", !is.na(lengthmm))%>%group_by(month)%>%summarise(q50=quantile(lengthmm,0.5),q5=quantile(lengthmm,0.05),q95=quantile(lengthmm,0.95))
+
+
+total_lengthmms<-total_individual %>% filter(!is.na(month), year>1,life_stage=="S",!is.na(lengthmm))%>%group_by(month)%>%summarise(q50=quantile(lengthmm,0.5),q5=quantile(lengthmm,0.05),q95=quantile(lengthmm,0.95))
+
+
+
+
+gridExtra::grid.arrange(
+ggplot(total_lengthmmg, aes(x=as.factor(month),y=q50)) + geom_pointrange(aes(ymin = q5, ymax = q95)) +ggtitle("Glass eel")+ theme(axis.text.x = element_text(size = 12, angle = 45))+ xlab("month")+ylab("length in mm"),
+ggplot(total_lengthmmy, aes(x=as.factor(month),y=q50)) + geom_pointrange(aes(ymin = q5, ymax = q95)) +ggtitle("Yellow eel")+ theme(axis.text.x = element_text(size = 12, angle = 90))+ xlab("month")+ylab("length in mm"),
+ggplot(total_lengthmmy, aes(x=as.factor(month),y=q50)) + geom_pointrange(aes(ymin = q5, ymax = q95)) +ggtitle("Silver eel")+ theme(axis.text.x = element_text(size = 12, angle = 90))+ xlab("month")+ylab("length in mm"),
+nrow = 3
+)
+
+
+```
+
+
+```{r weightdecriptivegraphs, include=TRUE}
+
+## weight /year
+total_weightg<-total_individual %>% filter(!is.na(year), year>1, weightg<2,life_stage=="G")%>%group_by(year)%>%summarise(q50=quantile(weightg,0.5),q5=quantile(weightg,0.05),q95=quantile(weightg,0.95))
+
+total_weighty<-total_individual %>% filter(!is.na(year), year>1,life_stage=="Y", !is.na(weightg))%>%group_by(year)%>%summarise(q50=quantile(weightg,0.5),q5=quantile(weightg,0.05),q95=quantile(weightg,0.95))
+
+
+total_weights<-total_individual %>% filter(!is.na(year), year>1,life_stage=="S",!is.na(weightg))%>%group_by(year)%>%summarise(q50=quantile(weightg,0.5),q5=quantile(weightg,0.05),q95=quantile(weightg,0.95))
+
+
+
+
+gridExtra::grid.arrange(
+ggplot(total_weightg, aes(x=as.factor(year),y=q50)) + geom_pointrange(aes(ymin = q5, ymax = q95)) +ggtitle("Glass eel")+ theme(axis.text.x = element_text(size = 12, angle = 45))+ xlab("year")+ylab("weight in g"),
+ggplot(total_weighty, aes(x=as.factor(year),y=q50)) + geom_pointrange(aes(ymin = q5, ymax = q95)) +ggtitle("Yellow eel")+ theme(axis.text.x = element_text(size = 12, angle = 90))+ xlab("year")+ylab("weight in g"),
+ggplot(total_weights, aes(x=as.factor(year),y=q50)) + geom_pointrange(aes(ymin = q5, ymax = q95)) +ggtitle("Silver eel")+ theme(axis.text.x = element_text(size = 12, angle = 90))+ xlab("year")+ylab("weight in g"),
+nrow = 3
+)
+unique(total_individual$year)
+
+```
+
+
+
+
+
 ```{r lengthweightlfs, include=TRUE}
 
 ## lfs effect on size-weight
 
 ggplot(total_individual,aes(x=lengthmm,y=weightg))+geom_point()+
   facet_grid(vars(life_stage), vars(source),scale="free")+
-  theme_bw()+ggtitle("mixed")+xlab("Length (mm)")+ylab("Weight (g)")
+  theme_bw()+xlab("Length (mm)")+ylab("Weight (g)")
+
+
+```
+```{r lengthweightrelationship, include=TRUE}
+
+# all data
+
+## prepare the data
+reg_series_data<-total_individual[!is.na(total_individual$weightg) & !is.na(total_individual$lengthmm),]
+reg_series_data<-total_individual[total_individual$weightg>0 & total_individual$lengthmm>100,]
+reg_series_data<-reg_series_data[reg_series_data$life_stage %in% c("Y","S") & !is.na(reg_series_data$life_stage),]
+
+reg_series_data$country<-factor(reg_series_data$country,levels=cou_ref$cou_code,ordered=TRUE)
+
+
+reg_w_series = rq(log(reg_series_data$weightg)~log(reg_series_data$lengthmm), tau= 0.75)
+
+summary(reg_w_series)
+
+#calcul de Ws
+reg_series_data$ws = exp(predict(reg_w_series, newdata = reg_series_data))
+
+#calcul de Wr
+reg_series_data$wr = reg_series_data$weightg / reg_series_data$ws *100
+
+
+## regression with all data
+
+p <- ggplot(reg_series_data, aes(lengthmm, ws))
+p + geom_point(aes(lengthmm,weightg, colour=life_stage))+ geom_line()
+
+## representation of the results with all data
+
+p <- ggplot(reg_series_data, aes(lengthmm, wr, colour=life_stage))
+p + geom_point()+ geom_hline(yintercept = c(25,200))+ ylab="Weight (g)"
+
+n_total<-nrow(reg_series_data)
+
+n_inconsistent<-nrow(reg_series_data[reg_series_data$wr<25 | reg_series_data$wr>200,])
+
+## boxplot of the resultat with only consistant data
+
+reg_data_cons<-reg_series_data[reg_series_data$wr>25 & reg_series_data$wr<200,]
+
+p <- ggplot(reg_data_cons, aes(country, wr, fill=country))
+p + geom_boxplot()+ scale_fill_manual(values=color_countries[names(color_countries) %in% unique(reg_series_data$country)], drop = TRUE)+geom_hline(yintercept =100) + facet_grid(vars(source),vars(life_stage))
+
+
+
+head(reg_series_dataY[is.na(reg_series_dataY$wr),])
+
+
 
 
 ```
@@ -207,6 +344,7 @@ ggplot(stat_length_g, aes(year, Mean, colour=ser_emu_nameshort))+ geom_pointrang
 
 
 ```
+<<<<<<< HEAD
 The point for silver eel greater than 1250 mm appear as an outlier and is excluded from the analysis. Weights should be checked.
 
 ```{r rawdatatable, include=TRUE}
@@ -268,7 +406,7 @@ mean_biom_hty_emuY=mean_biom_hty_emu %>%
 ```
 
 For the spatial analysis, we only considered ser_hty_code x EMU x lfs_code where at leat 5 data points were available (they may come from different time series or years).
-
+, coord_x, coord_y,
 # Maps
 As an exploratory analysis, we computed average biometry (length, weight, sex-ratio) per stage, habitat type and sex (when available). All years and time series are pooled together. To explore the existance of spatial pattern, we carried out Mann Kendall tests to detect correlations between the considered traits and spatial positions of the biometry measurements. Here, spatial positions are characterised by 
 distances as the crow flies from Gibraltar: this distance is used as a proxy of lattitudes patterns which is known to be correlated to life history traits [@kettle2011; @vollestad1992], but allows the consideration of the Mediterranean basin.
@@ -798,5 +936,6 @@ plot_ge_trend("weight",kept)
 
 
 ```
+=======
+>>>>>>> branch 'master' of git@github.com:ices-eg/wg_WGEEL.git
 
-# References

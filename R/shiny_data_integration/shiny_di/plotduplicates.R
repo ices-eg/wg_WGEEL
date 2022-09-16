@@ -23,8 +23,8 @@ plotduplicatesUI <- function(id){
                 column(width=4, 
                        pickerInput(inputId = ns("typ_g"), 
                                    label = "Select a type :", 
-                                   choices = typ_id,
-                                   selected= 4,
+                                   choices = typ_id[!typ_id%in%c(1,2,3)],
+                                   selected= 1,
                                    multiple = FALSE,
                                    options = list(
                                      style = "btn-primary", size = 5))),
@@ -144,11 +144,10 @@ plotduplicatesServer <- function(id,globaldata){
                      )
                    })        
                    
-                   # Plotly output allowing to brush out individual values per EMU
+                   # Plotly
                    x <- sample(c(1:5, NA, NA, NA))
                    coalesce(x, 0L)
-                   output$plotly_selected_year <-renderPlotly({  
-                     coalesce 
+                   output$plotly_selected_year <-renderPlotly({ 
                      datagr$hl <- as.factor(str_c(datagr$eel_lfs_code, coalesce(datagr$eel_hty_code,"no"),collapse= "&"))   
                      p <-plot_ly(datagr, x = ~eel_emu_nameshort, y = ~eel_value,
                                  # Hover text:

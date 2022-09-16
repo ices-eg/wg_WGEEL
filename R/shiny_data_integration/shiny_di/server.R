@@ -163,12 +163,18 @@ shinyServer(function(input, output, session){
 			importtsstep1Server("importtsstep1module", data, loaded_data_ts) # globaldata <- data in the module 
 			importtsstep2Server("importtsstep2module", data, loaded_data_ts) # globaldata <- data in the module 
 			
+			loaded_data_ts <- importtsstep0Server("importtsstep0module", globaldata=data) # globaldata <- data in the module 
+			importtsstep1Server("importtsstep1module", data, loaded_data_ts) # globaldata <- data in the module 
+			importtsstep2Server("importtsstep2module", data, loaded_data_ts) # globaldata <- data in the module 
+			
+			
 			loaded_data_dcf <- importdcfstep0Server("importdcfstep0module", globaldata=data)
 			importdcfstep1Server("importdcfstep1module", data, loaded_data_dcf) # globaldata <- data in the module 
 			importdcfstep2Server("importdcfstep2module", data, loaded_data_dcf) # globaldata <- data in the module
 			
 			newparticipants <- newparticipantsServer("newparticipantsmodule",data)
 			plotduplicatesServer("plotduplicatesmodule",data)
+			plotseriesServer("plotseriesmodule",data)
 			observe({
 			  if (!is.null(newparticipants$participants)){
 			    updatePickerInput(session=session,"main_assessor",choices=newparticipants$participants)
