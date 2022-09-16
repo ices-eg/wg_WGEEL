@@ -211,14 +211,35 @@ ggplot(total_age) + aes(x = ageyear, y=country, fill = country, alpha=0.5)  +
 
 
 ```
-```{r agelength, include=TRUE}
+```{r agelengthy, fig.height=20/2.54, include=TRUE}
 
-age_length<-total_individual %>% filter(!is.na(ageyear), !is.na(lengthmm), life_stage %in% c("Y","S"))
-age_length<-total_individual %>% filter(!is.na(ageyear), !is.na(lengthmm), ageyear %in% c(0,1), life_stage %in% c("Y","S"))%>% group_by(country, ser_nameshort)%>% summarise(n=n())
+age_lengthy<-total_individual %>% filter(!is.na(ageyear), !is.na(lengthmm), life_stage=="Y") %>% 
+		mutate(age_class = factor(ifelse(ageyear>19, "20+", ageyear), levels=c(0:19,"20+"), ordered=TRUE))
 
 
-ggplot(age_length, aes(y=lengthmm, x=ageyear, colour=country))+geom_point()+ facet_grid(vars(life_stage))
+ggplot(age_lengthy) + aes(x = lengthmm, y=age_class, fill=country, alpha=0.5)  + 
+  geom_density_ridges( scale = 3, rel_min_height = 0.005, bandwidth = 4)+ 
+  scale_alpha(guide="none")+
+  scale_fill_manual("Country",values=color_countries[names(color_countries) %in% unique(age_lengthy$country)], drop = TRUE)+
+  ylab("Age in year")+
+  xlab("length in mm")
 
+
+```
+
+
+```{r agelengths, fig.height=20/2.54, include=TRUE}
+
+age_lengths<-total_individual %>% filter(!is.na(ageyear), !is.na(lengthmm), life_stage=="S") %>% 
+		mutate(age_class = factor(ifelse(ageyear>19, "20+", ageyear), levels=c(0:19,"20+"), ordered=TRUE))
+
+
+ggplot(age_lengths) + aes(x = lengthmm, y=age_class, fill=country, alpha=0.5)  + 
+  geom_density_ridges( scale = 3, rel_min_height = 0.005, bandwidth = 4)+ 
+  scale_alpha(guide="none")+
+  scale_fill_manual("Country",values=color_countries[names(color_countries) %in% unique(age_lengths$country)], drop = TRUE)+
+  ylab("Age in year")+
+  xlab("length in mm")
 
 ```
 
