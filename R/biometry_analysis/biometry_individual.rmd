@@ -14,8 +14,8 @@ output:
 ```{r setup, include=FALSE}
 source("../utilities/load_library.R")
 
-
 knitr::opts_chunk$set(echo = TRUE,warning=FALSE,message=FALSE,error=FALSE,fig.width=14.9/2.54,dpi=150)
+
 load_library("readxl")
 load_library("sf")
 load_library("rnaturalearth")
@@ -39,11 +39,11 @@ if(Sys.info()["user"]=="hilaire.drouineau"){
   allometry=read_excel("~/Bureau/slopesintercepts.xlsx")
   setwd("~/Documents/Bordeaux/migrateurs/WGEEL/github/wg_WGEEL/R/biometry_analysis/")
 }
+
 colorpalette=cbf_1 <- c("#999999", "#E69F00", "#56B4E9", "#009E73", 
            "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 
-load("ind_biom.RData")
-
+# db connection
 cred=read_yaml("../../credentials.yml")
 con_wgeel = dbConnect(Postgres(), dbname=cred$dbname,host=cred$host,port=cred$port,user=cred$user, password=getPass())
 
@@ -80,9 +80,8 @@ data_ind_series$country<-factor(data_ind_series$country,levels=cou_ref$cou_code,
   ## individual sampling data
 
 data_ind_samp = biometry_individual_sampling %>% 
-	select(ser_id = fisa_sai_id, year = fi_year, date=fi_date,  fi_id=mei_fi_id, coord_x = fisa_x_4326, coord_y = fisa_y_4326, fi_lfs_code, country=sai_cou_code, comment = fi_comment, quality = mei_qal_id, mty_name, mei_value,ser_nameshort=sai_name,ser_emu_nameshort=sai_emu_nameshort, ser_hty_code=sai_hty_code,sai_samplingstrategy) %>%
   mutate(year = ifelse(is.na(fi_year),year(fi_date), fi_year)) %>% 
-	select(ser_id = fisa_sai_id, year, date=fi_date,  fi_id=mei_fi_id, fi_x=fisa_x_4326, fi_y=fisa_y_4326, fi_lfs_code, country=sai_cou_code, comment = fi_comment, quality = mei_qal_id, mty_name, mei_value,ser_nameshort=sai_name,ser_emu_nameshort=sai_emu_nameshort, ser_hty_code=sai_hty_code,sai_samplingstrategy) %>%
+	select(ser_id = fisa_sai_id, year, date=fi_date,  fi_id=mei_fi_id, coord_x=fisa_x_4326, coord_y=fisa_y_4326, fi_lfs_code, country=sai_cou_code, comment = fi_comment, quality = mei_qal_id, mty_name, mei_value,ser_nameshort=sai_name,ser_emu_nameshort=sai_emu_nameshort, ser_hty_code=sai_hty_code,sai_samplingstrategy) %>%
 	pivot_wider(names_from = mty_name, values_from = mei_value)
 
 data_ind_samp$fi_lfs_code=factor(as.character(data_ind_samp$fi_lfs_code),levels=c("G","GY","Y","YS","S"))
@@ -99,15 +98,13 @@ total_individual= bind_rows(
 	data_ind_samp %>% as_tibble() %>%
 		mutate(commercial = str_detect(sai_samplingstrategy, "ommercial") | str_detect(sai_samplingstrategy, "CF")) %>%
 		select(country, EMU = ser_emu_nameshort, coord_x, coord_y, year,month, lengthmm, weightg,eye_diam_meanmm, pectoral_lengthmm, ageyear,differentiated_proportion, female_proportion, habitat = ser_hty_code, life_stage = fi_lfs_code, commercial) %>% mutate(gear = "unkonwn", source = "sampling") 
-)
-
-		select(country, EMU = ser_emu_nameshort, year,month, lengthmm, weightg,eye_diam_meanmm, pectoral_lengthmm, ageyear,differentiated_proportion, female_proportion, habitat = ser_hty_code, life_stage = fi_lfs_code, commercial) %>% mutate(gear = "unkonwn", source = "sampling")%>% 
+)	%>% 
 	mutate(length_class_cm = as.integer(as.character(cut(lengthmm, breaks = seq(0, 1350, 10), labels = seq(0, 1340, 10) + 5)))/10)
+
+total_individual$country<-factor(total_individual$country,levels=cou_ref$cou_code,ordered=TRUE)
 
 #save(total_individual, biometry_individual_sampling, biometry_individual_series, file = "ind_biom.RData")
 #load("ind_biom.RData")
-
-total_individual$country<-factor(total_individual$country,levels=cou_ref$cou_code,ordered=TRUE)
 
  dbDisconnect(con_wgeel)
 
