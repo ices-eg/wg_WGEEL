@@ -188,6 +188,14 @@ unique(total_individual$year)
 ```
 
 
+```{r agedescriptivegraphs, include=TRUE}
+
+total_age<-total_individual %>% filter(!is.na(ageyear), life_stage %in% c("Y","S"))
+
+ggplot(total_age) + aes(x = ageyear, color = life_stage) +
+	geom_density() + facet_grid(vars(country), vars(life_stage))
+
+```
 
 
 
