@@ -9,10 +9,13 @@ output:
     fig_caption: yes
     number_sections: yes
     reference_docx: "../Rmarkdown/ICES_template.docx"
+params:
+  load_data: FALSE
 ---
 
 ```{r setup, include=FALSE}
 source("../utilities/load_library.R")
+source("biometry_individual_functions.R")
 
 knitr::opts_chunk$set(echo = TRUE,warning=FALSE,message=FALSE,error=FALSE,fig.width=14.9/2.54,dpi=150)
 
@@ -43,70 +46,74 @@ if(Sys.info()["user"]=="hilaire.drouineau"){
 colorpalette=cbf_1 <- c("#999999", "#E69F00", "#56B4E9", "#009E73", 
            "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 
-# db connection
-cred=read_yaml("../../credentials.yml")
-con_wgeel = dbConnect(Postgres(), dbname=cred$dbname,host=cred$host,port=cred$port,user=cred$user, password=getPass())
-
-## download data from the database
-biometry_individual_series=dbGetQuery(con_wgeel,"with sel as(SELECT d.*, t_series.*, mty_name FROM datawg.t_metricindseries_meiser d, datawg.t_fishseries_fiser t_series, ref.tr_metrictype_mty WHERE mty_id=mei_mty_id AND mei_fi_id = fi_id) 
-select sel.*, ser_nameshort, ser_cou_code, ser_x,ser_y,ser_emu_nameshort, ser_hty_code,ser_lfs_code,gea_name_en, sam_samplingtype,t_series_ser.ser_qal_id from sel, datawg.t_series_ser, ref.tr_gear_gea, ref.tr_samplingtype_sam where ser_id=fiser_ser_id and ser_sam_gear=gea_id and ser_sam_id=sam_id")
-
-biometry_individual_series<-biometry_individual_series %>% filter(fi_id!=421454)
-
-biometry_individual_sampling=dbGetQuery(con_wgeel,"with sel as(SELECT d.*, t_samp.*, mty_name FROM datawg.t_metricindsamp_meisa d, datawg.t_fishsamp_fisa t_samp, ref.tr_metrictype_mty WHERE mty_id=mei_mty_id AND mei_fi_id = fi_id) 
-select * from sel, datawg.t_samplinginfo_sai where sai_id=fisa_sai_id")
-
-cou_ref=dbGetQuery(con_wgeel,"select cou_code, cou_order from ref.tr_country_cou")
-cou_ref= cou_ref[order(cou_ref$cou_order), ]
-
-values=c(RColorBrewer::brewer.pal(12,"Set3"),
-    RColorBrewer::brewer.pal(12, "Paired"), 
-    RColorBrewer::brewer.pal(8,"Accent"),
-    RColorBrewer::brewer.pal(8, "Dark2"))
-color_countries = setNames(values,cou_ref$cou_code)
-
-## preparing the data to be exploited
-
-  ## individual series
-
-data_ind_series = biometry_individual_series %>% 
-	select(ser_id = fiser_ser_id, year = fi_year,date=fi_date,  fi_id, country=ser_cou_code, comment = fi_comment, quality = mei_qal_id, mty_name, mei_value,ser_nameshort, coord_x = ser_x, coord_y = ser_y,ser_emu_nameshort, ser_hty_code,ser_lfs_code, gea_name_en, sam_samplingtype,ser_qal_id) %>%
-	pivot_wider(names_from = mty_name, values_from = mei_value)
-
-data_ind_series$ser_lfs_code=factor(as.character(data_ind_series$ser_lfs_code),levels=c("G","GY","Y","S"))
-data_ind_series$month<-format(data_ind_series$date,"%m")
-data_ind_series$country<-factor(data_ind_series$country,levels=cou_ref$cou_code,ordered=TRUE)
-
-  ## individual sampling data
-
-data_ind_samp = biometry_individual_sampling %>% 
-  mutate(year = ifelse(is.na(fi_year),year(fi_date), fi_year)) %>% 
-	select(ser_id = fisa_sai_id, year, date=fi_date,  fi_id=mei_fi_id, coord_x=fisa_x_4326, coord_y=fisa_y_4326, fi_lfs_code, country=sai_cou_code, comment = fi_comment, quality = mei_qal_id, mty_name, mei_value,ser_nameshort=sai_name,ser_emu_nameshort=sai_emu_nameshort, ser_hty_code=sai_hty_code,sai_samplingstrategy) %>%
-	pivot_wider(names_from = mty_name, values_from = mei_value)
-
-data_ind_samp$fi_lfs_code=factor(as.character(data_ind_samp$fi_lfs_code),levels=c("G","GY","Y","YS","S"))
-data_ind_samp$month<-format(data_ind_samp$date,"%m")
-data_ind_samp$country<-factor(data_ind_samp$country,levels=cou_ref$cou_code,ordered=TRUE)
-
-    ## total data
-
-total_individual= bind_rows(
-	data_ind_series %>% as_tibble() %>%
-		select(country, EMU = ser_emu_nameshort, coord_x, coord_y, year,month, lengthmm, weightg,eye_diam_meanmm, pectoral_lengthmm, ageyear,differentiated_proportion, female_proportion, habitat = ser_hty_code, life_stage = ser_lfs_code, gear = gea_name_en) %>%
-		mutate(source = "series"),
-
-	data_ind_samp %>% as_tibble() %>%
-		mutate(commercial = str_detect(sai_samplingstrategy, "ommercial") | str_detect(sai_samplingstrategy, "CF")) %>%
-		select(country, EMU = ser_emu_nameshort, coord_x, coord_y, year,month, lengthmm, weightg,eye_diam_meanmm, pectoral_lengthmm, ageyear,differentiated_proportion, female_proportion, habitat = ser_hty_code, life_stage = fi_lfs_code, commercial) %>% mutate(gear = "unkonwn", source = "sampling") 
-)	%>% 
-	mutate(length_class_cm = as.integer(as.character(cut(lengthmm, breaks = seq(0, 1350, 10), labels = seq(0, 1340, 10) + 5)))/10)
-
-total_individual$country<-factor(total_individual$country,levels=cou_ref$cou_code,ordered=TRUE)
-
-#save(total_individual, biometry_individual_sampling, biometry_individual_series, file = "ind_biom.RData")
-#load("ind_biom.RData")
-
- dbDisconnect(con_wgeel)
+if(params$load_data)
+{
+	# db connection
+	cred=read_yaml("../../credentials.yml")
+	con_wgeel = dbConnect(Postgres(), dbname=cred$dbname,host=cred$host,port=cred$port,user=cred$user, password=getPass())
+	
+	## download data from the database
+	biometry_individual_series=dbGetQuery(con_wgeel,"with sel as(SELECT d.*, t_series.*, mty_name FROM datawg.t_metricindseries_meiser d, datawg.t_fishseries_fiser t_series, ref.tr_metrictype_mty WHERE mty_id=mei_mty_id AND mei_fi_id = fi_id) 
+	select sel.*, ser_nameshort, ser_cou_code, ser_x,ser_y,ser_emu_nameshort, ser_hty_code,ser_lfs_code,gea_name_en, sam_samplingtype,t_series_ser.ser_qal_id from sel, datawg.t_series_ser, ref.tr_gear_gea, ref.tr_samplingtype_sam where ser_id=fiser_ser_id and ser_sam_gear=gea_id and ser_sam_id=sam_id")
+	
+	biometry_individual_series<-biometry_individual_series %>% filter(fi_id!=421454)
+	
+	biometry_individual_sampling=dbGetQuery(con_wgeel,"with sel as(SELECT d.*, t_samp.*, mty_name FROM datawg.t_metricindsamp_meisa d, datawg.t_fishsamp_fisa t_samp, ref.tr_metrictype_mty WHERE mty_id=mei_mty_id AND mei_fi_id = fi_id) 
+	select * from sel, datawg.t_samplinginfo_sai where sai_id=fisa_sai_id")
+	
+	cou_ref=dbGetQuery(con_wgeel,"select cou_code, cou_order from ref.tr_country_cou")
+	cou_ref= cou_ref[order(cou_ref$cou_order), ]
+	
+	values=c(RColorBrewer::brewer.pal(12,"Set3"),
+	    RColorBrewer::brewer.pal(12, "Paired"), 
+	    RColorBrewer::brewer.pal(8,"Accent"),
+	    RColorBrewer::brewer.pal(8, "Dark2"))
+	color_countries = setNames(values,cou_ref$cou_code)
+	
+	## preparing the data to be exploited
+	
+	  ## individual series
+	
+	data_ind_series = biometry_individual_series %>% 
+		select(ser_id = fiser_ser_id, year = fi_year,date=fi_date,  fi_id, country=ser_cou_code, comment = fi_comment, quality = mei_qal_id, mty_name, mei_value,ser_nameshort, coord_x = ser_x, coord_y = ser_y,ser_emu_nameshort, ser_hty_code,ser_lfs_code, gea_name_en, sam_samplingtype,ser_qal_id) %>%
+		pivot_wider(names_from = mty_name, values_from = mei_value)
+	
+	data_ind_series$ser_lfs_code=factor(as.character(data_ind_series$ser_lfs_code),levels=c("G","GY","Y","S"))
+	data_ind_series$month<-format(data_ind_series$date,"%m")
+	data_ind_series$country<-factor(data_ind_series$country,levels=cou_ref$cou_code,ordered=TRUE)
+	
+	  ## individual sampling data
+	
+	data_ind_samp = biometry_individual_sampling %>% 
+	  mutate(year = ifelse(is.na(fi_year),year(fi_date), fi_year)) %>% 
+		select(ser_id = fisa_sai_id, year, date=fi_date,  fi_id=mei_fi_id, coord_x=fisa_x_4326, coord_y=fisa_y_4326, fi_lfs_code, country=sai_cou_code, comment = fi_comment, quality = mei_qal_id, mty_name, mei_value,ser_nameshort=sai_name,ser_emu_nameshort=sai_emu_nameshort, ser_hty_code=sai_hty_code,sai_samplingstrategy) %>%
+		pivot_wider(names_from = mty_name, values_from = mei_value)
+	
+	data_ind_samp$fi_lfs_code=factor(as.character(data_ind_samp$fi_lfs_code),levels=c("G","GY","Y","YS","S"))
+	data_ind_samp$month<-format(data_ind_samp$date,"%m")
+	data_ind_samp$country<-factor(data_ind_samp$country,levels=cou_ref$cou_code,ordered=TRUE)
+	
+	    ## total data
+	
+	total_individual= bind_rows(
+		data_ind_series %>% as_tibble() %>%
+			select(country, EMU = ser_emu_nameshort, coord_x, coord_y, year,month, lengthmm, weightg,eye_diam_meanmm, pectoral_lengthmm, ageyear,differentiated_proportion, female_proportion, habitat = ser_hty_code, life_stage = ser_lfs_code, gear = gea_name_en) %>%
+			mutate(source = "series"),
+	
+		data_ind_samp %>% as_tibble() %>%
+			mutate(commercial = str_detect(sai_samplingstrategy, "ommercial") | str_detect(sai_samplingstrategy, "CF")) %>%
+			select(country, EMU = ser_emu_nameshort, coord_x, coord_y, year,month, lengthmm, weightg,eye_diam_meanmm, pectoral_lengthmm, ageyear,differentiated_proportion, female_proportion, habitat = ser_hty_code, life_stage = fi_lfs_code, commercial) %>% mutate(gear = "unkonwn", source = "sampling") 
+	)	%>% 
+		mutate(length_class_cm = as.integer(as.character(cut(lengthmm, breaks = seq(0, 1350, 10), labels = seq(0, 1340, 10) + 5)))/10)
+	
+	total_individual$country<-factor(total_individual$country,levels=cou_ref$cou_code,ordered=TRUE)
+	
+	#save(cou_ref, data_ind_series, data_ind_samp, color_countries, total_individual, biometry_individual_sampling, biometry_individual_series, file = "ind_biom.RData")
+	dbDisconnect(con_wgeel)
+} else {
+	load("ind_biom.RData")
+	warnings("The data was loaded with a RData file, please turn params `load_data` to TRUE if you want uptodate data")
+}
 
 ```
 
@@ -378,7 +385,10 @@ plot_map_bio_emu("weight","G")
 ## Yellow Eel
 ### Length
 
-The length of monitored standing stock yeelow eel appear to increase with the distance to Gibraltar. This is confirmed by the Kendall correlation test (tau=`r round(Kendall(mean_biom_hty_emuY$lengthmm,mean_biom_hty_emuY$distance)$tau[1],digits=2)`, p.value=`r Kendall(mean_biom_hty_emuY$lengthmm,mean_biom_hty_emuY$distance)$sl[1]`. There are not enougth time sex disaggregated data to detect sex-specific length-pattern.
+The length of monitored standing stock yeelow eel appear to increase with the distance to Gibraltar. This is confirmed by the Kendall correlation test (tau=
+<!-- `r round(Kendall(mean_biom_hty_emuY$lengthmm,mean_biom_hty_emuY$distance)$tau[1],digits=2)`,  -->
+<!-- p.value=`r Kendall(mean_biom_hty_emuY$lengthmm,mean_biom_hty_emuY$distance)$sl[1]` -->
+. There are not enougth time sex disaggregated data to detect sex-specific length-pattern.
 
 ```{r yellowmaplength,echo=TRUE}
 
@@ -388,7 +398,9 @@ plot_map_bio_emu("length","Y")
 
 ### Weight
 
-Similarly to length, a pattern is visible for weight of monitored standing stock yeelow eel. This is confirmed by the Kendall correlation test (tau=`r round(Kendall(mean_biom_hty_emuY$bio_weight,mean_biom_hty_emuY$distance)$tau[1],digits=2)`, p.value=`r Kendall(mean_biom_hty_emuY$bio_weight,mean_biom_hty_emuY$distance)$sl[1]`. There are not enougth time sex disaggregated data to detect sex-specific length-pattern.
+Similarly to length, a pattern is visible for weight of monitored standing stock yeelow eel. This is confirmed by the Kendall correlation test (tau=
+<!-- `r round(Kendall(mean_biom_hty_emuY$bio_weight,mean_biom_hty_emuY$distance)$tau[1],digits=2)`, p.value=`r Kendall(mean_biom_hty_emuY$bio_weight,mean_biom_hty_emuY$distance)$sl[1]` -->
+. There are not enougth time sex disaggregated data to detect sex-specific length-pattern.
 
 ```{r yellowweighthmap,echo=TRUE}
 
