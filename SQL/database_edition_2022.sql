@@ -1291,3 +1291,14 @@ UPDATE datawg.t_dataseries_das SET das_qal_id=1 FROM das WHERE das.das_id = t_da
 -- ADD index on t_metricindseries 
 CREATE INDEX ON datawg.t_metricindsamp_meisa (mei_fi_id);
 CREATE INDEX ON datawg.t_metricindseries_meiser (mei_fi_id);
+
+
+-- Jason recruitment
+
+UPDATE 
+
+INSERT INTO  datawg.t_dataseries_das(
+das_ser_id, das_year, das_value, das_qal_id, das_comment, das_dts_datasource) 
+SELECT 172, 2022, 414, 1, 'preliminary values','dc_2022';
+
+
