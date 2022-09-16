@@ -13,7 +13,6 @@ output:
 
 ```{r setup, include=FALSE}
 source("../utilities/load_library.R")
-source("../database_interaction/database_reference.R")
 
 
 knitr::opts_chunk$set(echo = TRUE,warning=FALSE,message=FALSE,error=FALSE,fig.width=14.9/2.54,dpi=150)
@@ -61,7 +60,7 @@ cou_ref=dbGetQuery(con_wgeel,"select cou_code, cou_order from ref.tr_country_cou
   ## individual series
 
 data_ind_series = biometry_individual_series %>% 
-	select(ser_id = fiser_ser_id, year = fi_year,date=fi_date,  fi_id, country=ser_cou_code, comment = fi_comment, quality = mei_qal_id, mty_name, mei_value,ser_nameshort, ser_x,ser_y,ser_emu_nameshort, ser_hty_code,ser_lfs_code, gea_name_en, sam_samplingtype,ser_qal_id) %>%
+	select(ser_id = fiser_ser_id, year = fi_year,date=fi_date,  fi_id, country=ser_cou_code, comment = fi_comment, quality = mei_qal_id, mty_name, mei_value,ser_nameshort, coord_x = ser_x, coord_y = ser_y,ser_emu_nameshort, ser_hty_code,ser_lfs_code, gea_name_en, sam_samplingtype,ser_qal_id) %>%
 	pivot_wider(names_from = mty_name, values_from = mei_value)
 
 data_ind_series$ser_lfs_code=factor(as.character(data_ind_series$ser_lfs_code),levels=c("G","GY","Y","S"))
@@ -71,7 +70,7 @@ data_ind_series$country<-factor(data_ind_series$country,levels=cou_ref$cou_code,
   ## individual sampling data
 
 data_ind_samp = biometry_individual_sampling %>% 
-	select(ser_id = fisa_sai_id, year = fi_year, date=fi_date,  fi_id=mei_fi_id, fi_x=fisa_x_4326, fi_y=fisa_y_4326, fi_lfs_code, country=sai_cou_code, comment = fi_comment, quality = mei_qal_id, mty_name, mei_value,ser_nameshort=sai_name,ser_emu_nameshort=sai_emu_nameshort, ser_hty_code=sai_hty_code,sai_samplingstrategy) %>%
+	select(ser_id = fisa_sai_id, year = fi_year, date=fi_date,  fi_id=mei_fi_id, coord_x = fisa_x_4326, coord_y = fisa_y_4326, fi_lfs_code, country=sai_cou_code, comment = fi_comment, quality = mei_qal_id, mty_name, mei_value,ser_nameshort=sai_name,ser_emu_nameshort=sai_emu_nameshort, ser_hty_code=sai_hty_code,sai_samplingstrategy) %>%
 	pivot_wider(names_from = mty_name, values_from = mei_value)
 
 data_ind_samp$fi_lfs_code=factor(as.character(data_ind_samp$fi_lfs_code),levels=c("G","GY","Y","YS","S"))
@@ -82,14 +81,16 @@ data_ind_samp$country<-factor(data_ind_samp$country,levels=cou_ref$cou_code,orde
 
 total_individual= bind_rows(
 	data_ind_series %>% as_tibble() %>%
-		select(country, EMU = ser_emu_nameshort, year,month, lengthmm, weightg,eye_diam_meanmm, pectoral_lengthmm, ageyear,differentiated_proportion, female_proportion, habitat = ser_hty_code, life_stage = ser_lfs_code, gear = gea_name_en) %>%
+		select(country, EMU = ser_emu_nameshort, coord_x, coord_y, year,month, lengthmm, weightg,eye_diam_meanmm, pectoral_lengthmm, ageyear,differentiated_proportion, female_proportion, habitat = ser_hty_code, life_stage = ser_lfs_code, gear = gea_name_en) %>%
 		mutate(source = "series"),
 
 	data_ind_samp %>% as_tibble() %>%
 		mutate(commercial = str_detect(sai_samplingstrategy, "ommercial") | str_detect(sai_samplingstrategy, "CF")) %>%
-		select(country, EMU = ser_emu_nameshort, year,month, lengthmm, weightg,eye_diam_meanmm, pectoral_lengthmm, ageyear,differentiated_proportion, female_proportion, habitat = ser_hty_code, life_stage = fi_lfs_code, commercial) %>% mutate(gear = "unkonwn", source = "sampling") 
+		select(country, EMU = ser_emu_nameshort, coord_x, coord_y, year,month, lengthmm, weightg,eye_diam_meanmm, pectoral_lengthmm, ageyear,differentiated_proportion, female_proportion, habitat = ser_hty_code, life_stage = fi_lfs_code, commercial) %>% mutate(gear = "unkonwn", source = "sampling") 
 )
 
+#save(total_individual, biometry_individual_sampling, biometry_individual_series, file = "ind_biom.RData")
+#load("ind_biom.RData")
 
  dbDisconnect(con_wgeel)
 
@@ -101,7 +102,7 @@ The table describes the available individual biometric data from Appendix 1,2,3 
 
 
 ```{r available_data, include }
-stats_data= total_individual %>% group_by(source,country,EMU,habitat,life_stage) %>%
+stats_data= total_individual %>% group_by(source,country,EMU, coord_x, coord_y,habitat,life_stage) %>%
   summarize(series=paste(unique(EMU),collapse=", "),
             n_lengthmm=(sum(!is.na(lengthmm))),
             n_bio_weight=(sum(!is.na(weightg))),
@@ -110,8 +111,9 @@ stats_data= total_individual %>% group_by(source,country,EMU,habitat,life_stage)
             n_eye_diam_meanmm=(sum(!is.na(eye_diam_meanmm))),
             n_ageyear=(sum(!is.na(ageyear))),
             n_differentiated_proportion=(sum(!is.na(differentiated_proportion)))) %>%
-  filter((n_lengthmm+n_bio_weight+n_female_proportion+n_pectoral_length+n_eye_diam_meanmm+n_ageyear+n_differentiated_proportion)>0) %>%
+  filter((n_lengthmm + n_bio_weight + n_female_proportion + n_pectoral_length + n_eye_diam_meanmm + n_ageyear + n_differentiated_proportion)>0) %>%
   arrange(source,life_stage,country,habitat,EMU)
+
 autofit(flextable(stats_data))
 
 ```
@@ -285,52 +287,53 @@ autofit(flextable(stats_data %>%
 
 The length of monitored standing stock yeelow eel appear to increase with the distance to Gibraltar. This is confirmed by the Kendall correlation test (tau=`r round(Kendall(mean_biom_hty_emuY$lengthmm,mean_biom_hty_emuY$distance)$tau[1],digits=2)`, p.value=`r Kendall(mean_biom_hty_emuY$lengthmm,mean_biom_hty_emuY$distance)$sl[1]`. There are not enougth time sex disaggregated data to detect sex-specific length-pattern.
 
-```{r functions,echo=FALSE}
-plot_map_bio_emu = function(var,stage,sex=NULL){
-  data=mean_biom_hty_emu %>%
-    filter(ser_lfs_code==stage)
+```{r mapfunctions,echo=FALSE}
+mapbox = c(left = -13, bottom = 25, right = 40, top = 68)
+background_map=get_stamenmap(bbox = mapbox, zoom = 4, maptype = c("watercolor"), crop = TRUE)
+attr = attributes(background_map)
+background_map_transparent = matrix(adjustcolor(background_map, 
+		alpha.f = 0.2), 
+	nrow = nrow(background_map))
+attributes(background_map_transparent) <- attr
+rm(attr, mapbox)
+
+plot_map_bio_emu = function(var, stage, mydata = stats_data){
+  data=mydata %>%
+    filter(life_stage==stage)
 
   var_name=switch (var,
     "length" = "lengthmm",
     "weight" = "bio_weight",
-    "sexratio" = "female_proportion"
+    "sexratio" = "female_proportion",
+	"age" = "ageyear"
   )
   
-  ylab=switch (var,
-    "length" = "Length (mm)",
-    "weight" = "Weight (g)",
-    "sexratio" = "Sex ratio (% female)"
+  title=switch (var,
+	  "length" = "Length",
+	  "weight" = "Weight",
+	  "sexratio" = "Sex ratio",
+	  "age" = "Age"
   )
-  
-  if (!is.null(sex)){
-    var_name=paste(var_name,sex,sep="_")
-    ylab=paste(ifelse(sex=="m",
-                      "Male",
-                      "Female"),
-               ylab,
-               sep=" ")
-  }
+
   data <- data %>%
-    filter(!(is.na(!!as.symbol(var_name)))) %>%
     filter(!!as.symbol(paste("n_",var_name,sep=""))>=5)
   
-  ggmap(my_map) + 
-    geom_point(data=data,
-               aes_string(x="ser_x",y="ser_y",fill=var_name,
-                          shape="ser_hty_code"),col="black")+
-    scale_fill_viridis_c(ylab)+
-    scale_shape_manual("Habitat type",values = c(21, 22,24))+
-    theme_bw()+xlab("")+ylab("")
+  ggmap(background_map_transparent) + 
+	  geom_point(data=data,
+               aes(x = coord_x, y = coord_y, fill = source,   shape= habitat), size = 3, alpha = 0.6)+
+    scale_shape_manual("Habitat type",values = 21:24)+
+	scale_fill_viridis_d("Source")+scale_color_discrete("Source")+
+	guides(fill = guide_legend(override.aes = list(shape = 21) ) )+
+	theme_bw()+xlab("")+ylab("") + ggtitle(title)
 }
 ```
 
-```{r yellowlengthmap,echo=TRUE}
+```{r yellowmap,echo=TRUE}
 
-plot_map_bio_emu("length","Y",sex=NULL)
-
-plot_map_bio_emu("length","Y",sex="m")
-
-plot_map_bio_emu("length","Y",sex="f")
+plot_map_bio_emu("length","Y")
+plot_map_bio_emu("weight","Y")
+plot_map_bio_emu("age","Y")
+plot_map_bio_emu("sexratio","Y")
 
 ```
 
