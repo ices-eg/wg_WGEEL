@@ -14,8 +14,8 @@ output:
 ```{r setup, include=FALSE}
 source("../utilities/load_library.R")
 
-
 knitr::opts_chunk$set(echo = TRUE,warning=FALSE,message=FALSE,error=FALSE,fig.width=14.9/2.54,dpi=150)
+
 load_library("readxl")
 load_library("sf")
 load_library("rnaturalearth")
@@ -39,11 +39,11 @@ if(Sys.info()["user"]=="hilaire.drouineau"){
   allometry=read_excel("~/Bureau/slopesintercepts.xlsx")
   setwd("~/Documents/Bordeaux/migrateurs/WGEEL/github/wg_WGEEL/R/biometry_analysis/")
 }
+
 colorpalette=cbf_1 <- c("#999999", "#E69F00", "#56B4E9", "#009E73", 
            "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 
-load("ind_biom.RData")
-
+# db connection
 cred=read_yaml("../../credentials.yml")
 con_wgeel = dbConnect(Postgres(), dbname=cred$dbname,host=cred$host,port=cred$port,user=cred$user, password=getPass())
 
@@ -80,9 +80,8 @@ data_ind_series$country<-factor(data_ind_series$country,levels=cou_ref$cou_code,
   ## individual sampling data
 
 data_ind_samp = biometry_individual_sampling %>% 
-	select(ser_id = fisa_sai_id, year = fi_year, date=fi_date,  fi_id=mei_fi_id, coord_x = fisa_x_4326, coord_y = fisa_y_4326, fi_lfs_code, country=sai_cou_code, comment = fi_comment, quality = mei_qal_id, mty_name, mei_value,ser_nameshort=sai_name,ser_emu_nameshort=sai_emu_nameshort, ser_hty_code=sai_hty_code,sai_samplingstrategy) %>%
   mutate(year = ifelse(is.na(fi_year),year(fi_date), fi_year)) %>% 
-	select(ser_id = fisa_sai_id, year, date=fi_date,  fi_id=mei_fi_id, fi_x=fisa_x_4326, fi_y=fisa_y_4326, fi_lfs_code, country=sai_cou_code, comment = fi_comment, quality = mei_qal_id, mty_name, mei_value,ser_nameshort=sai_name,ser_emu_nameshort=sai_emu_nameshort, ser_hty_code=sai_hty_code,sai_samplingstrategy) %>%
+	select(ser_id = fisa_sai_id, year, date=fi_date,  fi_id=mei_fi_id, coord_x=fisa_x_4326, coord_y=fisa_y_4326, fi_lfs_code, country=sai_cou_code, comment = fi_comment, quality = mei_qal_id, mty_name, mei_value,ser_nameshort=sai_name,ser_emu_nameshort=sai_emu_nameshort, ser_hty_code=sai_hty_code,sai_samplingstrategy) %>%
 	pivot_wider(names_from = mty_name, values_from = mei_value)
 
 data_ind_samp$fi_lfs_code=factor(as.character(data_ind_samp$fi_lfs_code),levels=c("G","GY","Y","YS","S"))
@@ -99,15 +98,13 @@ total_individual= bind_rows(
 	data_ind_samp %>% as_tibble() %>%
 		mutate(commercial = str_detect(sai_samplingstrategy, "ommercial") | str_detect(sai_samplingstrategy, "CF")) %>%
 		select(country, EMU = ser_emu_nameshort, coord_x, coord_y, year,month, lengthmm, weightg,eye_diam_meanmm, pectoral_lengthmm, ageyear,differentiated_proportion, female_proportion, habitat = ser_hty_code, life_stage = fi_lfs_code, commercial) %>% mutate(gear = "unkonwn", source = "sampling") 
-)
-
-		select(country, EMU = ser_emu_nameshort, year,month, lengthmm, weightg,eye_diam_meanmm, pectoral_lengthmm, ageyear,differentiated_proportion, female_proportion, habitat = ser_hty_code, life_stage = fi_lfs_code, commercial) %>% mutate(gear = "unkonwn", source = "sampling")%>% 
+)	%>% 
 	mutate(length_class_cm = as.integer(as.character(cut(lengthmm, breaks = seq(0, 1350, 10), labels = seq(0, 1340, 10) + 5)))/10)
+
+total_individual$country<-factor(total_individual$country,levels=cou_ref$cou_code,ordered=TRUE)
 
 #save(total_individual, biometry_individual_sampling, biometry_individual_series, file = "ind_biom.RData")
 #load("ind_biom.RData")
-
-total_individual$country<-factor(total_individual$country,levels=cou_ref$cou_code,ordered=TRUE)
 
  dbDisconnect(con_wgeel)
 
@@ -119,7 +116,7 @@ The table describes the available individual biometric data from Appendix 1,2,3 
 
 
 ```{r available_data, include }
-stats_data= total_individual %>% group_by(source,country,EMU, coord_x, coord_y,habitat,life_stage) %>%
+stats_data= total_individual %>% group_by(source, country, EMU, habitat, life_stage) %>%
   summarize(series=paste(unique(EMU),collapse=", "),
             n_lengthmm=(sum(!is.na(lengthmm))),
             n_bio_weight=(sum(!is.na(weightg))),
@@ -134,6 +131,7 @@ stats_data= total_individual %>% group_by(source,country,EMU, coord_x, coord_y,h
 autofit(flextable(stats_data))
 
 ```
+
 ```{r lengthdecriptivegraphs, include=TRUE}
 
 ## length frequency
@@ -183,7 +181,6 @@ ggplot(total_weighty, aes(x=as.factor(year),y=q50)) + geom_pointrange(aes(ymin =
 ggplot(total_weights, aes(x=as.factor(year),y=q50)) + geom_pointrange(aes(ymin = q5, ymax = q95)) +ggtitle("Silver eel")+ theme(axis.text.x = element_text(size = 12, angle = 90))+ xlab("year")+ylab("weight in g"),
 nrow = 3
 )
-unique(total_individual$year)
 
 ```
 
@@ -235,12 +232,14 @@ reg_series_data$wr = reg_series_data$weightg / reg_series_data$ws *100
 ## regression with all data
 
 p <- ggplot(reg_series_data, aes(lengthmm, ws))
-p + geom_point(aes(lengthmm,weightg, colour=life_stage))+ geom_line()
+p + geom_point(aes(lengthmm,weightg, colour=life_stage))+ geom_line() +
+	scale_color_discrete("Life stage")
 
 ## representation of the results with all data
 
 p <- ggplot(reg_series_data, aes(lengthmm, wr, colour=life_stage))
-p + geom_point()+ geom_hline(yintercept = c(25,200))+ ylab="Weight (g)"
+p + geom_point()+ geom_hline(yintercept = c(25,200))+ ylab("Weight (g)") +
+scale_color_discrete("Life stage")
 
 n_total<-nrow(reg_series_data)
 
@@ -251,14 +250,8 @@ n_inconsistent<-nrow(reg_series_data[reg_series_data$wr<25 | reg_series_data$wr>
 reg_data_cons<-reg_series_data[reg_series_data$wr>25 & reg_series_data$wr<200,]
 
 p <- ggplot(reg_data_cons, aes(country, wr, fill=country))
-p + geom_boxplot()+ scale_fill_manual(values=color_countries[names(color_countries) %in% unique(reg_series_data$country)], drop = TRUE)+geom_hline(yintercept =100) + facet_grid(vars(source),vars(life_stage))
-
-
-
-head(reg_series_dataY[is.na(reg_series_dataY$wr),])
-
-
-
+p + geom_boxplot()+ scale_fill_manual(values=color_countries[names(color_countries) %in% unique(reg_series_data$country)], drop = TRUE)+geom_hline(yintercept =100) + facet_grid(vars(source),vars(life_stage))+
+	scale_color_discrete("Life stage") + xlab("Country") + ylab("Wr")
 
 ```
 
@@ -266,12 +259,10 @@ head(reg_series_dataY[is.na(reg_series_dataY$wr),])
 
 ```{r rawdata, include=TRUE}
 
-
 data_ind_seriesG<-data_ind_series[data_ind_series$ser_lfs_code=="G",]
 data_ind_seriesGY<-data_ind_series[data_ind_series$ser_lfs_code=="GY",]
 data_ind_seriesY<-data_ind_series[data_ind_series$ser_lfs_code=="Y",]
 data_ind_seriesS<-data_ind_series[data_ind_series$ser_lfs_code=="S",]
-
 
 ## Gear effect on size-weight
 
@@ -289,14 +280,11 @@ ggplot(data_ind_seriesS,aes(x=lengthmm,y=weightg))+geom_point()+
 
 ## lfs effect on size-weight
 
-
 ggplot(data_ind_series,aes(x=lengthmm,y=weightg))+geom_point()+
   facet_wrap(.~ser_lfs_code,scale="free")+
-  theme_bw()+ggtitle("mixed")+xlab("Length (mm)")+ylab("Weight (g)")
-
+  theme_bw()+ggtitle("All gears")+xlab("Length (mm)")+ylab("Weight (g)")
 
 ## length by gear and year
-
 
 stat_length_g<-data_ind_seriesG %>%
     group_by(year,gea_name_en,country) %>%
@@ -312,117 +300,31 @@ ggplot(stat_length_g, aes(year, Mean))+ geom_pointrange(aes(ymin = Mean-sd, ymax
 ggplot(stat_length_y, aes(year, Mean))+ geom_pointrange(aes(ymin = Mean-sd, ymax = Mean+sd))+ 
   facet_grid(vars(country),vars(gea_name_en)) + theme_bw()+xlab("Year")+ylab("Mean length (mm)") +ggtitle("Yellow eel")
 
-
-
-
-
-
-
-ggplot(data,aes(x=lengthmm,y=lengthmm))+geom_point()+
-  facet_wrap(.~ser_lfs_code,scale="free")+
-  theme_bw()+ggtitle("male")+xlab("Length (mm)")+ylab("Weight (g)")
-ggplot(data,aes(x=lengthmm_f,y=bio_weight_f))+geom_point()+
-  facet_wrap(.~ser_lfs_code,scale="free")+
-  theme_bw()+ggtitle("female")+xlab("Length (mm)")+ylab("Weight (g)")
-
-
-
-stat_length_g<-data_y %>%
-    group_by(year,gea_name_en,ser_emu_nameshort) %>%
-    dplyr::summarize(Mean = mean(lengthmm, na.rm=TRUE), sd=sd(lengthmm,na.rm=TRUE))
-
-ggplot(stat_length_g, aes(year, Mean))+ geom_pointrange(aes(ymin = Mean-sd, ymax = Mean+sd))+ 
-  facet_grid(vars(gea_name_en),vars(ser_emu_nameshort)) + theme_bw()+xlab("Year")+ylab("Mean length (mm)") +ggtitle("Glass eel")
-
-ggplot(stat_length_g, aes(year, Mean, colour=ser_emu_nameshort))+ geom_pointrange(aes(ymin = Mean-sd, ymax = Mean+sd))+ 
-  facet_grid(vars(gea_name_en)) + theme_bw()+xlab("Year")+ylab("Mean length (mm)") +ggtitle("Glass eel")
-
-
-
-
 ```
-<<<<<<< HEAD
+
 The point for silver eel greater than 1250 mm appear as an outlier and is excluded from the analysis. Weights should be checked.
 
-```{r rawdatatable, include=TRUE}
-
-
-
-
-
-mean_biom_hty_emu <- data %>%
-  group_by(ser_emu_nameshort,ser_hty_code,ser_lfs_code) %>%
-  summarize(lengthmm=mean(lengthmm,na.rm=TRUE),
-            ser_x=mean(ser_x),
-            ser_y=mean(ser_y),
-            bio_weight=mean(bio_weight,na.rm=TRUE),
-            female_proportion=mean(female_proportion,na.rm=TRUE),
-            lengthmm_f=mean(lengthmm_f,na.rm=TRUE),
-            lengthmm_m=mean(lengthmm_m,na.rm=TRUE),
-            bio_weight_f=mean(bio_weight_f,na.rm=TRUE),
-            bio_weight_m=mean(bio_weight_m,na.rm=TRUE),
-            bio_age=mean(bio_age,na.rm=TRUE),
-            bio_age_f=mean(bio_age_f,na.rm=TRUE),
-            bio_age_m=mean(bio_age_m,na.rm=TRUE),
-            distance=mean(distance))
-mean_biom_hty_emuyear <- data %>%
-  group_by(ser_emu_nameshort,ser_hty_code,ser_lfs_code, bio_year) %>%
-  summarize(lengthmm=mean(lengthmm,na.rm=TRUE),
-            ser_x=mean(ser_x),
-            ser_y=mean(ser_y),
-            bio_weight=mean(bio_weight,na.rm=TRUE),
-            female_proportion=mean(female_proportion,na.rm=TRUE),
-            lengthmm_f=mean(lengthmm_f,na.rm=TRUE),
-            lengthmm_m=mean(lengthmm_m,na.rm=TRUE),
-            bio_weight_f=mean(bio_weight_f,na.rm=TRUE),
-            bio_weight_m=mean(bio_weight_m,na.rm=TRUE),
-            bio_age=mean(bio_age,na.rm=TRUE),
-            bio_age_f=mean(bio_age_f,na.rm=TRUE),
-            bio_age_m=mean(bio_age_m,na.rm=TRUE),
-            distance=mean(distance))
-
-
-mean_biom_hty_emu <- mean_biom_hty_emu %>%
-  full_join(stats_data) %>%
-  mutate(lengthmm=ifelse(n_lengthmm>=5,lengthmm,NA),
-         lengthmm_f=ifelse(n_lengthmm_f>=5,lengthmm_f,NA),
-         lengthmm_m=ifelse(n_lengthmm_m>=5,lengthmm_m,NA),
-         bio_weight=ifelse(n_bio_weight>=5,lengthmm,NA),
-         bio_weight_f=ifelse(n_bio_weight_f>=5,lengthmm_f,NA),
-         bio_weight_m=ifelse(n_bio_weight_m>=5,lengthmm_m,NA),
-         female_proportion=ifelse(n_female_proportion>=5,female_proportion,NA))
-
-
-mean_biom_hty_emuS=mean_biom_hty_emu %>%
-  filter(ser_lfs_code=="S")
-  
-
-mean_biom_hty_emuY=mean_biom_hty_emu %>%
-  filter(ser_lfs_code=="Y")
-
-```
-
 For the spatial analysis, we only considered ser_hty_code x EMU x lfs_code where at leat 5 data points were available (they may come from different time series or years).
-, coord_x, coord_y,
+
 # Maps
 As an exploratory analysis, we computed average biometry (length, weight, sex-ratio) per stage, habitat type and sex (when available). All years and time series are pooled together. To explore the existance of spatial pattern, we carried out Mann Kendall tests to detect correlations between the considered traits and spatial positions of the biometry measurements. Here, spatial positions are characterised by 
 distances as the crow flies from Gibraltar: this distance is used as a proxy of lattitudes patterns which is known to be correlated to life history traits [@kettle2011; @vollestad1992], but allows the consideration of the Mediterranean basin.
 
-## Yellow Eel
-### Length
-
-```{r rawdatatablelengthY, include=TRUE}
-autofit(flextable(stats_data %>%
-                    filter(ser_lfs_code=="Y")%>%
-                    select(ser_emu_nameshort,ser_hty_code,starts_with("n_lengthmm"))%>%
-                    arrange(ser_emu_nameshort,ser_hty_code)%>%
-                    ungroup() %>%
-          filter(rowSums(select(.,starts_with("n_")))>0)))
-```
-
-The length of monitored standing stock yeelow eel appear to increase with the distance to Gibraltar. This is confirmed by the Kendall correlation test (tau=`r round(Kendall(mean_biom_hty_emuY$lengthmm,mean_biom_hty_emuY$distance)$tau[1],digits=2)`, p.value=`r Kendall(mean_biom_hty_emuY$lengthmm,mean_biom_hty_emuY$distance)$sl[1]`. There are not enougth time sex disaggregated data to detect sex-specific length-pattern.
 
 ```{r mapfunctions,echo=FALSE}
+
+stats_data_coord= total_individual %>% group_by(source,country,EMU, coord_x, coord_y,habitat,life_stage) %>%
+	summarize(series=paste(unique(EMU),collapse=", "),
+		n_lengthmm=(sum(!is.na(lengthmm))),
+		n_bio_weight=(sum(!is.na(weightg))),
+		n_female_proportion=(sum(!is.na(female_proportion))),
+		n_pectoral_length=(sum(!is.na(pectoral_lengthmm))),
+		n_eye_diam_meanmm=(sum(!is.na(eye_diam_meanmm))),
+		n_ageyear=(sum(!is.na(ageyear))),
+		n_differentiated_proportion=(sum(!is.na(differentiated_proportion)))) %>%
+	filter((n_lengthmm + n_bio_weight + n_female_proportion + n_pectoral_length + n_eye_diam_meanmm + n_ageyear + n_differentiated_proportion)>0) %>%
+	arrange(source,life_stage,country,habitat,EMU)
+
 mapbox = c(left = -13, bottom = 25, right = 40, top = 68)
 background_map=get_stamenmap(bbox = mapbox, zoom = 4, maptype = c("watercolor"), crop = TRUE)
 attr = attributes(background_map)
@@ -432,7 +334,7 @@ background_map_transparent = matrix(adjustcolor(background_map,
 attributes(background_map_transparent) <- attr
 rm(attr, mapbox)
 
-plot_map_bio_emu = function(var, stage, mydata = stats_data){
+plot_map_bio_emu = function(var, stage, mydata = stats_data_coord){
   data=mydata %>%
     filter(life_stage==stage)
 
@@ -456,82 +358,78 @@ plot_map_bio_emu = function(var, stage, mydata = stats_data){
   ggmap(background_map_transparent) + 
 	  geom_point(data=data,
                aes(x = coord_x, y = coord_y, fill = source,   shape= habitat), size = 3, alpha = 0.6)+
-    scale_shape_manual("Habitat type",values = 21:24)+
-	scale_fill_viridis_d("Source")+scale_color_discrete("Source")+
-	guides(fill = guide_legend(override.aes = list(shape = 21) ) )+
+    scale_shape_manual("Habitat type", breaks = c("MO", "C", "T", "F"), values = 21:24)+
+	scale_fill_viridis_d("Source") + scale_color_discrete("Source")+
+	guides(fill = guide_legend(override.aes = list(shape = 21) ) ) +
 	theme_bw()+xlab("")+ylab("") + ggtitle(title)
 }
 ```
 
-```{r yellowmap,echo=TRUE}
+## Glass eel
 
-plot_map_bio_emu("length","Y")
-plot_map_bio_emu("weight","Y")
-plot_map_bio_emu("age","Y")
-plot_map_bio_emu("sexratio","Y")
+### Length
+
+```{r glassmaplength,echo=TRUE}
+
+plot_map_bio_emu("length","G")
 
 ```
-
 
 ### Weight
-```{r rawdatatablelengthweightY, include=TRUE}
-autofit(flextable(stats_data %>%
-                    filter(ser_lfs_code=="Y")%>%
-                    select(ser_emu_nameshort,ser_hty_code,starts_with("n_bio_weight"))%>%
-                    arrange(ser_emu_nameshort,ser_hty_code)%>%
-                    ungroup() %>%
-          filter(rowSums(select(.,starts_with("n_")))>0)))
+
+```{r glassmapweight,echo=TRUE}
+
+plot_map_bio_emu("weight","G")
+
 ```
 
+## Yellow Eel
+### Length
+
+The length of monitored standing stock yeelow eel appear to increase with the distance to Gibraltar. This is confirmed by the Kendall correlation test (tau=`r round(Kendall(mean_biom_hty_emuY$lengthmm,mean_biom_hty_emuY$distance)$tau[1],digits=2)`, p.value=`r Kendall(mean_biom_hty_emuY$lengthmm,mean_biom_hty_emuY$distance)$sl[1]`. There are not enougth time sex disaggregated data to detect sex-specific length-pattern.
+
+```{r yellowmaplength,echo=TRUE}
+
+plot_map_bio_emu("length","Y")
+
+```
+
+### Weight
 
 Similarly to length, a pattern is visible for weight of monitored standing stock yeelow eel. This is confirmed by the Kendall correlation test (tau=`r round(Kendall(mean_biom_hty_emuY$bio_weight,mean_biom_hty_emuY$distance)$tau[1],digits=2)`, p.value=`r Kendall(mean_biom_hty_emuY$bio_weight,mean_biom_hty_emuY$distance)$sl[1]`. There are not enougth time sex disaggregated data to detect sex-specific length-pattern.
 
 ```{r yellowweighthmap,echo=TRUE}
 
-plot_map_bio_emu("weight","Y",sex=NULL)
-
-plot_map_bio_emu("weight","Y",sex="m")
-
-plot_map_bio_emu("weight","Y",sex="f")
+plot_map_bio_emu("weight","Y")
 
 ```
 
 ### Sex Ratio
-```{r rawdatatablelengthsex, include=TRUE}
-autofit(flextable(stats_data %>%
-                    filter(ser_lfs_code=="Y")%>%
-                    select(ser_emu_nameshort,ser_hty_code,starts_with("n_bio_sex"))%>%
-                    arrange(ser_emu_nameshort,ser_hty_code)%>%
-                    ungroup() %>%
-          filter(rowSums(select(.,starts_with("n_")))>0)))
-```
+
 Too few data were correlected regarding sex to draw any conclusions regarding differences in sex-ratios among locations.
 
 ```{r yellowsexratiomap,echo=TRUE}
-plot_map_bio_emu("sexratio","Y",sex=NULL)
+plot_map_bio_emu("sexratio","Y")
+```
+
+### Age
+
+Too few data were correlected regarding sex to draw any conclusions regarding differences in sex-ratios among locations.
+
+```{r yellowsagemap,echo=TRUE}
+plot_map_bio_emu("age","Y")
 ```
 
 
 ## Silver Eel
-```{r rawdatatablelengthS, include=TRUE}
-autofit(flextable(stats_data %>%
-                    filter(ser_lfs_code=="S")%>%
-                    select(ser_emu_nameshort,ser_hty_code,starts_with("n_lengthmm"))%>%
-                    arrange(ser_emu_nameshort,ser_hty_code)%>%
-                    ungroup() %>%
-          filter(rowSums(select(.,starts_with("n_")))>0)))
-```
+
 For silver eels, there is few available biometry data, therefore, so it is difficult to detect any spatial patterns.
 
 ### Length
 
 ```{r silverlengthmap,echo=TRUE}
-plot_map_bio_emu("length","S",sex=NULL)
 
-plot_map_bio_emu("length","S",sex="m")
-
-plot_map_bio_emu("length","S",sex="f")
-
+plot_map_bio_emu("length","S")
 
 ```
 
@@ -540,74 +438,66 @@ The length of monitored silver eel appear to increase with the distance to Gibra
 
 
 ### Weight
-```{r rawdatatableweightS, include=TRUE}
-autofit(flextable(stats_data %>%
-                    filter(ser_lfs_code=="S")%>%
-                    select(ser_emu_nameshort,ser_hty_code,starts_with("n_bio_weight"))%>%
-                    arrange(ser_emu_nameshort,ser_hty_code)%>%
-                    ungroup() %>%
-          filter(rowSums(select(.,starts_with("n_")))>0)))
-```
 
 The Kendall correlation test does not detect any spatial pattern (tau=`r round(Kendall(mean_biom_hty_emuS$bio_weight,mean_biom_hty_emuS$distance)$tau[1],digits=2)`, p.value=`r Kendall(mean_biom_hty_emuS$bio_weight,mean_biom_hty_emuS$distance)$sl[1]`.
 
 ```{r silverweightmap,echo=TRUE}
-plot_map_bio_emu("weight","S",sex=NULL)
 
-plot_map_bio_emu("weight","S",sex="m")
+plot_map_bio_emu("weight","S")
 
-plot_map_bio_emu("weight","S",sex="f")
 ```
 
 ### Sex Ratio
-```{r rawdatatablesexS, include=TRUE}
-autofit(flextable(stats_data %>%
-                    filter(ser_lfs_code=="S")%>%
-                    select(ser_emu_nameshort,ser_hty_code,starts_with("n_bio_sex"))%>%
-                    arrange(ser_emu_nameshort,ser_hty_code)%>%
-                    ungroup() %>%
-          filter(rowSums(select(.,starts_with("n_")))>0)))
-```
 
 The number of points is again very limited and no significant spatial pattern is detected (tau=`r round(Kendall(mean_biom_hty_emuS$female_proportion,mean_biom_hty_emuS$distance)$tau[1],digits=2)`, p.value=`r Kendall(mean_biom_hty_emuS$female_proportion,mean_biom_hty_emuS$distance)$sl[1]`.
 
 ```{r silversexratiomap,echo=TRUE}
-plot_map_bio_emu("sexratio","S",sex=NULL)
+
+plot_map_bio_emu("sexratio","S")
+
+```
+
+### Age
+
+```{r silveragemap,echo=TRUE}
+
+plot_map_bio_emu("age","S")
 
 ```
 
 ## Distribution of slopes of length-weight regression
+
 Linear regression between logtransformed length and weights were carried out to compare allometric relationships among time series. The slope informs on the allometric growth: higher slope means that the fish becomes heavier and suggests good growth condition. The following maps display the results for all stages. No clear spatial pattern is detected. The Bann river displays very pronounced slopes: while references as a mixed of glass-eel and yellow-eel, reported length were always smaller than 70mm but heavy compared to other sites (max: 0.41g, mean: 0.34g). 
 
 
 ```{r lengthweightmap,echo=TRUE}
-ggmap(my_map)+
-  geom_point(data=allometry,
-             aes(shape=Stage,fill=slopes,x=Ser_x,y=Ser_y),col="black")+
-  scale_fill_viridis_c("Slope")+
-  scale_shape_manual("Stage",values=c(21,22,24))+
-  theme_bw()
+#ggmap(background_map_transparent)+
+#  geom_point(data=allometry,
+#             aes(shape=Stage,fill=slopes,x=Ser_x,y=Ser_y),col="black")+
+#  scale_fill_viridis_c("Slope")+
+#  scale_shape_manual("Stage",values=c(21,22,24))+
+#  theme_bw()
 
 ```
 
 ```{r lengthweightmapperstage,echo=TRUE}
-allometry$Stage=factor(as.character(allometry$Stage),levels=c("GY","Y","S"))
-ggmap(my_map)+
-  geom_point(data=allometry,
-             aes(col=slopes,x=Ser_x,y=Ser_y))+
-  scale_color_viridis_c("Slope")+
-  facet_wrap(.~Stage,nrow=2)+
-  theme_bw()
-
-for (s in c("GY","Y","S")){
-  print(ggmap(my_map)+
-          geom_point(data=subset(allometry,Stage==s),
-             aes(col=slopes,x=Ser_x,y=Ser_y))+
-          geom_point(data=subset(allometry,Stage==s),
-             aes(x=Ser_x,y=Ser_y),pch=1)+
-  scale_color_viridis_c("Slope")+
-  theme_bw() + ggtitle(s))
-  }
+#allometry$Stage=factor(as.character(allometry$Stage),levels=c("GY","Y","S"))
+#ggmap(my_map)+
+#  geom_point(data=allometry,
+#             aes(col=slopes,x=Ser_x,y=Ser_y))+
+#  scale_color_viridis_c("Slope")+
+#  facet_wrap(.~Stage,nrow=2)+
+#  theme_bw()
+#
+#for (s in c("GY","Y","S")){
+#  print(ggmap(my_map)+
+#          geom_point(data=subset(allometry,Stage==s),
+#             aes(col=slopes,x=Ser_x,y=Ser_y))+
+#          geom_point(data=subset(allometry,Stage==s),
+#             aes(x=Ser_x,y=Ser_y),pch=1)+
+#  scale_color_viridis_c("Slope")+
+#  theme_bw() + ggtitle(s))
+#  }
 
 
 ```
@@ -618,119 +508,119 @@ In this section, we explore the existence of temporal trends in biometry. For th
 
 ## Yellow Eel
 ```{r}
-mean_biom_hty_emuyearY=mean_biom_hty_emuyear %>%
-  filter(ser_lfs_code=="Y")
+#mean_biom_hty_emuyearY=mean_biom_hty_emuyear %>%
+#  filter(ser_lfs_code=="Y")
 ```
 
 
 ```{r functionstemporal,echo=FALSE}
-table_temporal_trend = function(var,stage,sex=NULL){
-  data=mean_biom_hty_emuyear %>%
-    filter(ser_lfs_code==stage)
-
-  var_name=switch (var,
-    "length" = "lengthmm",
-    "weight" = "bio_weight",
-    "sexratio" = "female_proportion"
-  )
-  
-  ylab=switch (var,
-    "length" = "Length (mm)",
-    "weight" = "Weight (g)",
-    "sexratio" = "Sex ratio (% female)"
-  )
-  
-  if (!is.null(sex)){
-    var_name=paste(var_name,sex,sep="_")
-    ylab=paste(ifelse(sex=="m",
-                      "Male",
-                      "Female"),
-               ylab,
-               sep=" ")
-  }
-  data <- data %>%
-    filter(!(is.na(!!as.symbol(var_name))))
-  
-  kept = data %>%
-    group_by(ser_emu_nameshort,ser_hty_code) %>%
-    filter(!is.na(!!as.symbol(var_name))) %>%
-    summarise(count=n()) %>%
-    filter(count>=5)
-  tmp=NA
-  if(nrow(kept)>0){
-    tmp=inner_join(kept,data) %>%
-    group_by(ser_emu_nameshort,ser_hty_code) %>%
-    summarize(`first year`=min(bio_year),
-              `last year`=max(bio_year),
-              tau=round(Kendall(bio_year,lengthmm)$tau,digits=2),
-              p.value=round(Kendall(bio_year,lengthmm)$sl,digits=2)) %>%
-    mutate(signif=ifelse(p.value<=0.001,"***",
-                         ifelse(p.value<=0.01,"**",
-                                ifelse(p.value<=0.05,"*","ns"))))
-  }
-  tmp
-}
-
-plot_temporal_trend = function(var,stage,trends,sex=NULL){
-  data=mean_biom_hty_emuyear %>%
-    filter(ser_lfs_code==stage) %>%
-    inner_join(trends)
-    
-
-  var_name=switch (var,
-    "length" = "lengthmm",
-    "weight" = "bio_weight",
-    "sexratio" = "female_proportion"
-  )
-  
-  ylab=switch (var,
-    "length" = "Length (mm)",
-    "weight" = "Weight (g)",
-    "sexratio" = "Sex ratio (% female)"
-  )
-  if (!is.null(sex)){
-    var_name=paste(var_name,sex,sep="_")
-    ylab=paste(ifelse(sex=="m",
-                      "Male",
-                      "Female"),
-               ylab,
-               sep=" ")
-  }
-
-  data <- data %>%
-    filter(!is.na(!!as.symbol(var_name)))
-  col_pal=rep(colorpalette,length.out=nrow(trends))
-  ltypes=rep(c("solid","twodash","longdash","dotted","dashed"),length.out=(nrow(trends)))
-  ggplot(data,aes_string(x="bio_year",y=var_name))+
-    geom_line(aes(col=ser_emu_nameshort,lty=ser_emu_nameshort))+
-    theme_bw()+xlab("")+ylab(ylab)+
-    scale_color_manual("series",values=col_pal,guide=guide_legend(ncol=2))+
-    scale_linetype_manual("series",values=ltypes,guide=guide_legend(ncol=2))
-}
+#table_temporal_trend = function(var,stage,sex=NULL){
+#  data=mean_biom_hty_emuyear %>%
+#    filter(ser_lfs_code==stage)
+#
+#  var_name=switch (var,
+#    "length" = "lengthmm",
+#    "weight" = "bio_weight",
+#    "sexratio" = "female_proportion"
+#  )
+#  
+#  ylab=switch (var,
+#    "length" = "Length (mm)",
+#    "weight" = "Weight (g)",
+#    "sexratio" = "Sex ratio (% female)"
+#  )
+#  
+#  if (!is.null(sex)){
+#    var_name=paste(var_name,sex,sep="_")
+#    ylab=paste(ifelse(sex=="m",
+#                      "Male",
+#                      "Female"),
+#               ylab,
+#               sep=" ")
+#  }
+#  data <- data %>%
+#    filter(!(is.na(!!as.symbol(var_name))))
+#  
+#  kept = data %>%
+#    group_by(ser_emu_nameshort,ser_hty_code) %>%
+#    filter(!is.na(!!as.symbol(var_name))) %>%
+#    summarise(count=n()) %>%
+#    filter(count>=5)
+#  tmp=NA
+#  if(nrow(kept)>0){
+#    tmp=inner_join(kept,data) %>%
+#    group_by(ser_emu_nameshort,ser_hty_code) %>%
+#    summarize(`first year`=min(bio_year),
+#              `last year`=max(bio_year),
+#              tau=round(Kendall(bio_year,lengthmm)$tau,digits=2),
+#              p.value=round(Kendall(bio_year,lengthmm)$sl,digits=2)) %>%
+#    mutate(signif=ifelse(p.value<=0.001,"***",
+#                         ifelse(p.value<=0.01,"**",
+#                                ifelse(p.value<=0.05,"*","ns"))))
+#  }
+#  tmp
+#}
+#
+#plot_temporal_trend = function(var,stage,trends,sex=NULL){
+#  data=mean_biom_hty_emuyear %>%
+#    filter(ser_lfs_code==stage) %>%
+#    inner_join(trends)
+#    
+#
+#  var_name=switch (var,
+#    "length" = "lengthmm",
+#    "weight" = "bio_weight",
+#    "sexratio" = "female_proportion"
+#  )
+#  
+#  ylab=switch (var,
+#    "length" = "Length (mm)",
+#    "weight" = "Weight (g)",
+#    "sexratio" = "Sex ratio (% female)"
+#  )
+#  if (!is.null(sex)){
+#    var_name=paste(var_name,sex,sep="_")
+#    ylab=paste(ifelse(sex=="m",
+#                      "Male",
+#                      "Female"),
+#               ylab,
+#               sep=" ")
+#  }
+#
+#  data <- data %>%
+#    filter(!is.na(!!as.symbol(var_name)))
+#  col_pal=rep(colorpalette,length.out=nrow(trends))
+#  ltypes=rep(c("solid","twodash","longdash","dotted","dashed"),length.out=(nrow(trends)))
+#  ggplot(data,aes_string(x="bio_year",y=var_name))+
+#    geom_line(aes(col=ser_emu_nameshort,lty=ser_emu_nameshort))+
+#    theme_bw()+xlab("")+ylab(ylab)+
+#    scale_color_manual("series",values=col_pal,guide=guide_legend(ncol=2))+
+#    scale_linetype_manual("series",values=ltypes,guide=guide_legend(ncol=2))
+#}
 ```
 
 
 
 ### Length
 ```{r yellowlengthtrend,echo=TRUE}
-#Mixed
-trends=table_temporal_trend("length","Y",NULL)
-if (!is.na(trends)>0) autofit(flextable(trends))
-
-if (!is.na(trends)>0) plot_temporal_trend("length","Y",trends)
-
-
-#female
-trends_f=table_temporal_trend("length","Y","f")
-if (!is.na(trends_f)) autofit(flextable(trends_f))
-
-if (!is.na(trends_f)) plot_temporal_trend("length","Y",trends_f,"f")
-
-#male
-trends_m=table_temporal_trend("length","Y","m")
-if (!is.na(trends_f)) autofit(flextable(trends_m))
-
-if (!is.na(trends_f)) plot_temporal_trend("length","Y",trends_m,"m")
+##Mixed
+#trends=table_temporal_trend("length","Y",NULL)
+#if (!is.na(trends)>0) autofit(flextable(trends))
+#
+#if (!is.na(trends)>0) plot_temporal_trend("length","Y",trends)
+#
+#
+##female
+#trends_f=table_temporal_trend("length","Y","f")
+#if (!is.na(trends_f)) autofit(flextable(trends_f))
+#
+#if (!is.na(trends_f)) plot_temporal_trend("length","Y",trends_f,"f")
+#
+##male
+#trends_m=table_temporal_trend("length","Y","m")
+#if (!is.na(trends_f)) autofit(flextable(trends_m))
+#
+#if (!is.na(trends_f)) plot_temporal_trend("length","Y",trends_m,"m")
 
 ```
 
@@ -741,24 +631,24 @@ except in 2 EMUs (`r paste(subset(trends$ser_emu_nameshort,trends$tau>=0 & trend
 
 ### Weight
 ```{r yellowweighttrend,echo=TRUE}
-#Mixed
-trends=table_temporal_trend("weight","Y",NULL)
-autofit(flextable(trends))
-
-if (!is.na(trends)>0) plot_temporal_trend("weight","Y",trends)
-
-
-#female
-trends_f=table_temporal_trend("weight","Y","f")
-if (!is.na(trends_f)) autofit(flextable(trends_f))
-
-if (!is.na(trends_f)) plot_temporal_trend("weight","Y",trends_f,"f")
-
-#male
-trends_m=table_temporal_trend("weight","Y","m")
-if (!is.na(trends_m)) autofit(flextable(trends_m))
-
-if (!is.na(trends_m)) plot_temporal_trend("length","Y",trends_m,"m")
+##Mixed
+#trends=table_temporal_trend("weight","Y",NULL)
+#autofit(flextable(trends))
+#
+#if (!is.na(trends)>0) plot_temporal_trend("weight","Y",trends)
+#
+#
+##female
+#trends_f=table_temporal_trend("weight","Y","f")
+#if (!is.na(trends_f)) autofit(flextable(trends_f))
+#
+#if (!is.na(trends_f)) plot_temporal_trend("weight","Y",trends_f,"f")
+#
+##male
+#trends_m=table_temporal_trend("weight","Y","m")
+#if (!is.na(trends_m)) autofit(flextable(trends_m))
+#
+#if (!is.na(trends_m)) plot_temporal_trend("length","Y",trends_m,"m")
 
 ```
 
@@ -767,11 +657,11 @@ Results are rather similar to length with several significant trends in GB and a
 ### Sex Ratio
 It was not possible to carry out any sex ratio analysis for yellow eels.
 ```{r yellowsexratiotrend,echo=TRUE}
-#Mixed
-trends=table_temporal_trend("sexratio","Y",NULL)
-if (!is.na(trends)>0) autofit(flextable(trends))
-
-if (!is.na(trends)>0) plot_temporal_trend("sexratio","Y",trends)
+##Mixed
+#trends=table_temporal_trend("sexratio","Y",NULL)
+#if (!is.na(trends)>0) autofit(flextable(trends))
+#
+#if (!is.na(trends)>0) plot_temporal_trend("sexratio","Y",trends)
 
 ```
 
@@ -779,70 +669,68 @@ if (!is.na(trends)>0) plot_temporal_trend("sexratio","Y",trends)
 
 ## Silver Eel
 ```{r}
-mean_biom_hty_emuyearS=mean_biom_hty_emuyear %>%
-  filter(ser_lfs_code=="S")
+#mean_biom_hty_emuyearS=mean_biom_hty_emuyear %>%
+#  filter(ser_lfs_code=="S")
 ```
 
 
 ### Length
 ```{r silverlengthtrend,echo=TRUE}
-#Mixed
-trends=table_temporal_trend("length","S",NULL)
-autofit(flextable(trends))
-
-if (!is.na(trends)>0) plot_temporal_trend("length","S",trends)
-
-
-#female
-trends_f=table_temporal_trend("length","S","f")
-if (!is.na(trends_f)) autofit(flextable(trends_f))
-
-if (!is.na(trends_f)) plot_temporal_trend("length","S",trends_f,"f")
-
-#male
-trends_m=table_temporal_trend("length","S","m")
-if (!is.na(trends_m)) autofit(flextable(trends_m))
-
-if (!is.na(trends_m)) plot_temporal_trend("length","S",trends_m,"m")
+##Mixed
+#trends=table_temporal_trend("length","S",NULL)
+#autofit(flextable(trends))
+#
+#if (!is.na(trends)>0) plot_temporal_trend("length","S",trends)
+#
+#
+##female
+#trends_f=table_temporal_trend("length","S","f")
+#if (!is.na(trends_f)) autofit(flextable(trends_f))
+#
+#if (!is.na(trends_f)) plot_temporal_trend("length","S",trends_f,"f")
+#
+##male
+#trends_m=table_temporal_trend("length","S","m")
+#if (!is.na(trends_m)) autofit(flextable(trends_m))
+#
+#if (!is.na(trends_m)) plot_temporal_trend("length","S",trends_m,"m")
 ```
 
 Many significant trends were detected in length of silver eels. It appears to be related mainly to changes in female length. Both negative and positive trends were detected.
 
 ### Weight
 ```{r silverweightlengthtrend,echo=TRUE}
-#Mixed
-trends=table_temporal_trend("weight","S",NULL)
-if (!is.na(trends)>0) autofit(flextable(trends))
-
-if (!is.na(trends)>0) plot_temporal_trend("weight","S",trends)
-
-
-#female
-trends_f=table_temporal_trend("weight","S","f")
-if (!is.na(trends_f)) autofit(flextable(trends_f))
-
-if (!is.na(trends_f)) plot_temporal_trend("weight","S",trends_f,"f")
-
-#male
-trends_m=table_temporal_trend("weight","S","m")
-if (!is.na(trends_m)) autofit(flextable(trends_m))
-
-if (!is.na(trends_m)) plot_temporal_trend("weight","S",trends_m,"m")
-
+##Mixed
+#trends=table_temporal_trend("weight","S",NULL)
+#if (!is.na(trends)>0) autofit(flextable(trends))
+#
+#if (!is.na(trends)>0) plot_temporal_trend("weight","S",trends)
+#
+#
+##female
+#trends_f=table_temporal_trend("weight","S","f")
+#if (!is.na(trends_f)) autofit(flextable(trends_f))
+#
+#if (!is.na(trends_f)) plot_temporal_trend("weight","S",trends_f,"f")
+#
+##male
+#trends_m=table_temporal_trend("weight","S","m")
+#if (!is.na(trends_m)) autofit(flextable(trends_m))
+#
+#if (!is.na(trends_m)) plot_temporal_trend("weight","S",trends_m,"m")
+#
 
 ```
 Results are very similar than for length, except than an additional increasing significant trend was detected for male weight in FR_Bret.
 
 ### Sex Ratio
 ```{r silversexratiotrend,echo=TRUE}
-#Mixed
-trends=table_temporal_trend("sexratio","S",NULL)
-if (!is.na(trends)>0) autofit(flextable(trends))
-
-if (!is.na(trends)>0) plot_temporal_trend("sexratio","S",trends)
-
-
-
+##Mixed
+#trends=table_temporal_trend("sexratio","S",NULL)
+#if (!is.na(trends)>0) autofit(flextable(trends))
+#
+#if (!is.na(trends)>0) plot_temporal_trend("sexratio","S",trends)
+#
 ```
 The sex ratio displays increasing trend in two EMUs.
 
@@ -850,62 +738,62 @@ The sex ratio displays increasing trend in two EMUs.
 For glass eel, of mixed G and GY, we remain at the time series scale (i.e. we do not average per EMU) since biometry is too sensitive to the timing of the sampling.
 
 ```{r functionglasseel,echo=FALSE}
-table_ge_trend = function(var){
-  data=data %>%
-    filter(ser_lfs_code %in% c("G","GY"))
-
-  var_name=switch (var,
-    "length" = "lengthmm",
-    "weight" = "bio_weight",
-    "sexratio" = "female_proportion"
-  )
-  
-  ylab=switch (var,
-    "length" = "Length (mm)",
-    "weight" = "Weight (g)",
-    "sexratio" = "Sex ratio (% female)"
-  )
-  
-
-  data <- data %>%
-    filter(!(is.na(!!as.symbol(var_name))))
-  
-  kept = data %>%
-    group_by(ser_nameshort,ser_hty_code,ser_lfs_code) %>%
-    filter(!is.na(lengthmm)) %>%
-    summarize(count=n()) %>%
-    filter(count>=5)
-  
-  inner_join(kept,data) %>%
-    group_by(ser_nameshort,ser_hty_code,ser_lfs_code) %>%
-      summarize(`first year`=min(bio_year),
-                `last year`=max(bio_year),
-                tau=round(Kendall(bio_year,lengthmm)$tau,digits=2),
-                p.value=round(Kendall(bio_year,lengthmm)$sl,digits=2)) %>%
-      mutate(signif=ifelse(p.value<=0.001,"***",
-                           ifelse(p.value<=0.01,"**",
-                                  ifelse(p.value<=0.05,"*","ns"))))
-}
-
-plot_ge_trend = function(var,trends){
-  data=inner_join(data,kept)
-
-  var_name=switch (var,
-    "length" = "lengthmm",
-    "weight" = "bio_weight",
-    "sexratio" = "female_proportion"
-  )
-  
-  ylab=switch (var,
-    "length" = "Length (mm)",
-    "weight" = "Weight (g)",
-  )
-  
-  ggplot(data,aes_string(x="bio_year",y=var_name))+
-    geom_line(aes(col=ser_nameshort))+
-    theme_bw()+xlab("")+ylab(ylab)+
-    scale_color_manual("series",values=colorpalette)
-}
+#table_ge_trend = function(var){
+#  data=data %>%
+#    filter(ser_lfs_code %in% c("G","GY"))
+#
+#  var_name=switch (var,
+#    "length" = "lengthmm",
+#    "weight" = "bio_weight",
+#    "sexratio" = "female_proportion"
+#  )
+#  
+#  ylab=switch (var,
+#    "length" = "Length (mm)",
+#    "weight" = "Weight (g)",
+#    "sexratio" = "Sex ratio (% female)"
+#  )
+#  
+#
+#  data <- data %>%
+#    filter(!(is.na(!!as.symbol(var_name))))
+#  
+#  kept = data %>%
+#    group_by(ser_nameshort,ser_hty_code,ser_lfs_code) %>%
+#    filter(!is.na(lengthmm)) %>%
+#    summarize(count=n()) %>%
+#    filter(count>=5)
+#  
+#  inner_join(kept,data) %>%
+#    group_by(ser_nameshort,ser_hty_code,ser_lfs_code) %>%
+#      summarize(`first year`=min(bio_year),
+#                `last year`=max(bio_year),
+#                tau=round(Kendall(bio_year,lengthmm)$tau,digits=2),
+#                p.value=round(Kendall(bio_year,lengthmm)$sl,digits=2)) %>%
+#      mutate(signif=ifelse(p.value<=0.001,"***",
+#                           ifelse(p.value<=0.01,"**",
+#                                  ifelse(p.value<=0.05,"*","ns"))))
+#}
+#
+#plot_ge_trend = function(var,trends){
+#  data=inner_join(data,kept)
+#
+#  var_name=switch (var,
+#    "length" = "lengthmm",
+#    "weight" = "bio_weight",
+#    "sexratio" = "female_proportion"
+#  )
+#  
+#  ylab=switch (var,
+#    "length" = "Length (mm)",
+#    "weight" = "Weight (g)",
+#  )
+#  
+#  ggplot(data,aes_string(x="bio_year",y=var_name))+
+#    geom_line(aes(col=ser_nameshort))+
+#    theme_bw()+xlab("")+ylab(ylab)+
+#    scale_color_manual("series",values=colorpalette)
+#}
 ```
 
 
@@ -913,11 +801,11 @@ plot_ge_trend = function(var,trends){
 Mean length of monitored eels has significantly increased over time in ImsaGY and SousGY.
 
 ```{r gelengthtrend,echo=TRUE}
-kept=table_ge_trend("length")
-  
-autofit(flextable(kept))
-
-plot_ge_trend("length",kept)
+#kept=table_ge_trend("length")
+#  
+#autofit(flextable(kept))
+#
+#plot_ge_trend("length",kept)
 ```
 
 
@@ -925,12 +813,11 @@ plot_ge_trend("length",kept)
 Significant trends are also detected for weights.
 
 ```{r geweightlengthtrend,echo=TRUE}
-kept=table_ge_trend("weight")
-  
-autofit(flextable(kept))
-
-plot_ge_trend("weight",kept)
-
+#kept=table_ge_trend("weight")
+#  
+#autofit(flextable(kept))
+#
+#plot_ge_trend("weight",kept)
 
 ```
 
