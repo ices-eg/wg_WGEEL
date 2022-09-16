@@ -123,7 +123,9 @@ if(params$load_data)
 The table describes the available individual biometric data from Appendix 1,2,3 (series) and 10 (sampling) 
 
 
-```{r available_data, include }
+```{r available_data, tab.cap = "Number of avaible data for each biometry metrics",include }
+#TODO: make the column's title more explicit (true title instead of variable names)
+
 stats_data= total_individual %>% group_by(source, country, EMU, habitat, life_stage) %>%
   summarize(series=paste(unique(EMU),collapse=", "),
             n_lengthmm=(sum(!is.na(lengthmm))),
@@ -140,52 +142,60 @@ autofit(flextable(stats_data))
 
 ```
 
-```{r lengthdecriptivegraphs, include=TRUE}
-
+```{r lengthdecriptivegraphs, include=TRUE, fig.cap = "Length distribution par life stage and source of data"}
+#TODO: explain (or better change) TRUE/FALSE/NA
 ## length frequency
 
-	ggplot(total_individual) + aes(x = length_class_cm, color = life_stage) +
-	geom_density() + facet_grid(life_stage ~commercial, scales = "free_y")
+	ggplot(total_individual %>% mutate(type_sampling = ifelse(is.na(commercial), "Series", ifelse(commercial, "Fisheries sampling", "Scientific sampling")))) + aes(x = length_class_cm, color = life_stage) +
+	geom_density() + facet_grid(life_stage ~type_sampling, scales = "free_y") +
+	scale_color_discrete(guide = "none") +
+	xlab("Length (cm)") + ylab("") + theme_classic() + theme(
+		axis.text.y = element_blank(),
+		axis.ticks = element_blank()
+	)
+```
 
+```{r lengthdecriptivegraphs-month, include=TRUE, fig.cap = "Length distribution by month and by life stage. Point is the median, bar gives 5% and 95% quantile."}
 ## length by month
 
 total_lengthmmg<-total_individual %>% filter(!is.na(month),life_stage=="G",!is.na(lengthmm))%>%group_by(month)%>%summarise(q50=quantile(lengthmm,0.5),q5=quantile(lengthmm,0.05),q95=quantile(lengthmm,0.95))
 
 total_lengthmmy<-total_individual %>% filter(!is.na(month),life_stage=="Y", !is.na(lengthmm))%>%group_by(month)%>%summarise(q50=quantile(lengthmm,0.5),q5=quantile(lengthmm,0.05),q95=quantile(lengthmm,0.95))
 
-
 total_lengthmms<-total_individual %>% filter(!is.na(month), year>1,life_stage=="S",!is.na(lengthmm))%>%group_by(month)%>%summarise(q50=quantile(lengthmm,0.5),q5=quantile(lengthmm,0.05),q95=quantile(lengthmm,0.95))
 
-
-
-
 gridExtra::grid.arrange(
+
 ggplot(total_lengthmmg, aes(x=as.factor(month),y=q50)) + 
   geom_pointrange(aes(ymin = q5, ymax = q95)) +
   ggtitle("Glass eel")+ 
-  theme(axis.text.x = element_text(size = 12, angle = 45))+ 
-  xlab("month")+
-  ylab("length in mm"),
+  theme(axis.text.x = element_text(size = 12, angle = 90))+ 
+  xlab("Month")+
+  ylab("Length (mm)"),
 
 ggplot(total_lengthmmy, aes(x=as.factor(month),y=q50)) + 
   geom_pointrange(aes(ymin = q5, ymax = q95)) +ggtitle("Yellow eel")+ 
   theme(axis.text.x = element_text(size = 12, angle = 90))+ 
-  xlab("month")+
-  ylab("length in mm"),
+  xlab("Month")+
+  ylab("Length (mm)"),
 
 ggplot(total_lengthmmy, aes(x=as.factor(month),y=q50)) + 
   geom_pointrange(aes(ymin = q5, ymax = q95)) +
   ggtitle("Silver eel")+ 
   theme(axis.text.x = element_text(size = 12, angle = 90))+ 
-  xlab("month")+
-  ylab("length in mm"),
+  xlab("Month")+
+  ylab("Length (mm)"),
 
 nrow = 3
 )
 
-
 ```
-
+gridExtra::grid.arrange(
+ggplot(total_lengthmmg, aes(x=as.factor(month),y=q50)) + geom_pointrange(aes(ymin = q5, ymax = q95)) +ggtitle("Glass eel")+ theme(axis.text.x = element_text(size = 12, angle = 45))+  xlab("Month")+ylab("Length (mm)")  + theme_classic() ,
+ggplot(total_lengthmmy, aes(x=as.factor(month),y=q50)) + geom_pointrange(aes(ymin = q5, ymax = q95)) +ggtitle("Yellow eel")+ theme(axis.text.x = element_text(size = 12, angle = 90))+  xlab("Month")+ylab("Length (mm)")  + theme_classic() ,
+ggplot(total_lengthmmy, aes(x=as.factor(month),y=q50)) + geom_pointrange(aes(ymin = q5, ymax = q95)) +ggtitle("Silver eel")+ theme(axis.text.x = element_text(size = 12, angle = 90))+ xlab("Month")+ylab("Length (mm)") + theme_classic() ,
+nrow = 3
+)
 
 ```{r weightdecriptivegraphs, include=TRUE}
 
