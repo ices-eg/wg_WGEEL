@@ -56,12 +56,12 @@ series_graph<-function (dataset,level, year_column, kept_or_datacall="kept")
 	if (kept_or_datacall=="kept"){
 		dataset$das_dts_datasource[is.na(dataset$das_dts_datasource)]<- "Unknown"
 		grouped_dataset <- dataset %>% 
-				group_by(das_dts_datasource, !!sym(year_column), kept) %>%
+				group_by(das_dts_datasource, !!sym(year_column), kept, ser_nameshort) %>%
 				summarize(nobs=n())
 		
 		g <- ggplot(grouped_dataset) + 
-				geom_tile(aes_string(x=year_column,y="nobs",fill="kept")) +
-				scale_fill_manual("series used ?", values = c("Not kept, eel_qal_id = 0 or 18 ... 22"="red","Kept"="red" ))
+				geom_tile(aes_string(x=year_column,y="ser_nameshort",fill="kept")) +
+				scale_fill_manual("series used ?", values = c("Not kept, eel_qal_id = 0 or 18 ... 22"="red","Kept"="green" ))
 				ggtitle("Clik a bar for details ...") +
 				theme_bw() 
 		return(g)  
