@@ -12,13 +12,6 @@ output:
 ---
 
 ```{r setup, include=FALSE, warning = FALSE, message = FALSE, error=FALSE}
-set_flextable_defaults(
-  font.size = 8.5, font.family = "Calibri",
-  font.color = "black",
-  table.layout = "autofit",
-  border.color = "black",
-  padding.top = 3, padding.bottom = 3,
-  padding.left = 4, padding.right = 4)
 
 library(knitr)
 opts_knit$set(eval.after = "fig.cap", echo=FALSE, warning = FALSE, message = FALSE, error=FALSE)
@@ -61,6 +54,13 @@ if(!require(multcomp)) install.packages("multcomp") ; require(multcomp)
 if(!require(openxlsx)) install.packages("openxlsx") ; require(openxlsx)
 if(!require(getPass)) install.packages("getPass") ; require(getPass)
 if(!require(yaml)) install.packages("yaml") ; require(yaml)
+set_flextable_defaults(
+  font.size = 8.5, font.family = "Calibri",
+  font.color = "black",
+  table.layout = "autofit",
+  border.color = "black",
+  padding.top = 3, padding.bottom = 3,
+  padding.left = 4, padding.right = 4)
 
 
 redtext <- fp_text(color = 'red', bold = TRUE)

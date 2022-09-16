@@ -2084,6 +2084,8 @@ plot(coefficients(model_ge_area)[grep("North Sea",names(coefficients(model_ge_ar
 points(log(datNS$p_std_1960_1979)+4,type="l",col="red")
 plot(gey$E~gey$P)
 
+
+ggplot(gey)+geom_point(aes(x=year,y=E))
 # Three ways of getting the diagnostic graph of residuals
 glm.diag.plots(model_ge_area)
 plot(model_ge_area,which=1)
