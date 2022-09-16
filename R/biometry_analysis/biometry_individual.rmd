@@ -37,7 +37,7 @@ load_library("tidyr")
 load_library("lubridate")
 load_library("stringr")
 load_library("quantreg")
-
+load_library("ggridges")
 
 if(Sys.info()["user"]=="hilaire.drouineau"){
   allometry=read_excel("~/Bureau/slopesintercepts.xlsx")
@@ -206,8 +206,49 @@ nrow = 3
 
 total_age<-total_individual %>% filter(!is.na(ageyear), life_stage %in% c("Y","S"))
 
-ggplot(total_age) + aes(x = ageyear, color = life_stage) +
-	geom_density() + facet_grid(vars(country), vars(life_stage))
+  total_age$country<-factor(total_age$country,levels=cou_ref$cou_code,ordered=TRUE)
+
+ggplot(total_age) + aes(x = ageyear, y=country, fill = country, alpha=0.5)  + 
+  geom_density_ridges( scale = 3, rel_min_height = 0.005, bandwidth = 1)+ 
+  facet_grid(vars(life_stage)) +
+  scale_fill_manual("Country",values=color_countries[names(color_countries) %in% unique(total_age$country)], drop = TRUE)+
+  scale_alpha(guide="none")+
+  xlab("Age in year")+
+  ylab("Country")+
+    scale_y_discrete(limits=rev)
+
+
+
+```
+```{r agelengthy, fig.height=20/2.54, include=TRUE}
+
+age_lengthy<-total_individual %>% filter(!is.na(ageyear), !is.na(lengthmm), life_stage=="Y") %>% 
+		mutate(age_class = factor(ifelse(ageyear>19, "20+", ageyear), levels=c(0:19,"20+"), ordered=TRUE))
+
+
+ggplot(age_lengthy) + aes(x = lengthmm, y=age_class, fill=country, alpha=0.5)  + 
+  geom_density_ridges( scale = 3, rel_min_height = 0.005, bandwidth = 4)+ 
+  scale_alpha(guide="none")+
+  scale_fill_manual("Country",values=color_countries[names(color_countries) %in% unique(age_lengthy$country)], drop = TRUE)+
+  ylab("Age in year")+
+  xlab("length in mm")
+
+
+```
+
+
+```{r agelengths, fig.height=20/2.54, include=TRUE}
+
+age_lengths<-total_individual %>% filter(!is.na(ageyear), !is.na(lengthmm), life_stage=="S") %>% 
+		mutate(age_class = factor(ifelse(ageyear>19, "20+", ageyear), levels=c(0:19,"20+"), ordered=TRUE))
+
+
+ggplot(age_lengths) + aes(x = lengthmm, y=age_class, fill=country, alpha=0.5)  + 
+  geom_density_ridges( scale = 3, rel_min_height = 0.005, bandwidth = 4)+ 
+  scale_alpha(guide="none")+
+  scale_fill_manual("Country",values=color_countries[names(color_countries) %in% unique(age_lengths$country)], drop = TRUE)+
+  ylab("Age in year")+
+  xlab("length in mm")
 
 ```
 
