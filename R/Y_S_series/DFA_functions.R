@@ -1,16 +1,15 @@
-load_library(MARSS)
-load_library(parallel)
-load_library(flextable)
-load_library(tidyverse)
-load_library(eulerr)
+load_library("MARSS")
+load_library("parallel")
+load_library("flextable")
+load_library("tidyverse")
+load_library("eulerr")
 
 #' @title standard graph for raw data
 #' @param data data (format tibble) the first row being the year and then all series
 #' @return a graph in ggplot format
 graph_serie = function(data)
 {
-	data_right_format = as.tibble(data) %>% pivot_longer(!das_year, names_to = ser_nameshort, values_to = "value")
-	graph = 	ggplot(data_right_format,  aes(x = das_year, y = value))  + geom_line()  + geom_point(color = "blue") + facet_wrap(~ ser_nameshort, scales = "free_y") +  xlab("Year") + ylab("Abundance")
+	graph = 	ggplot(data,  aes(x = das_year, y = das_value))  + geom_line()  + geom_point(color = "blue") + facet_wrap(~ ser_nameshort, scales = "free_y") +  xlab("Year") + ylab("Abundance")
 	return(graph)
 }
 
@@ -85,7 +84,7 @@ summary_models = function(models)
 #' @title produce a formatted (ready for a report) of the summary of the models (cf function 'summary_models')
 #' @param results_dfalp output of the 'summary_models' function
 #' @return a html table
-tableau_summary_models = function(results_dfalp)
+table_summary_models = function(results_dfalp)
 {
 	ft <- flextable(results_dfalp[,c("Trends","Sigma", "AIC", "AICc")] %>% mutate(AIC = round(AIC), AICc = round(AICc))) #digits no more supported in colformat_num
 	ft <- colformat_num(ft, j=c("AIC", "AICc"), big.mark = "")

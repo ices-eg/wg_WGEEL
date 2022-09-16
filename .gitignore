@@ -4,6 +4,7 @@
 /.dbeaver
 .Rproj.user
 wg_WGEEL.Rproj
-.Rdata
 /.dbeaver-data-sources.xml
 /connection
+.Rhistory
+.RData
