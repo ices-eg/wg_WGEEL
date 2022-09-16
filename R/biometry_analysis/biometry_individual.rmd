@@ -42,7 +42,7 @@ if(Sys.info()["user"]=="hilaire.drouineau"){
 colorpalette=cbf_1 <- c("#999999", "#E69F00", "#56B4E9", "#009E73", 
            "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 
-
+load("ind_biom.RData")
 
 cred=read_yaml("../../credentials.yml")
 con_wgeel = dbConnect(Postgres(), dbname=cred$dbname,host=cred$host,port=cred$port,user=cred$user, password=getPass())
@@ -80,7 +80,8 @@ data_ind_series$country<-factor(data_ind_series$country,levels=cou_ref$cou_code,
   ## individual sampling data
 
 data_ind_samp = biometry_individual_sampling %>% 
-	select(ser_id = fisa_sai_id, year = fi_year, date=fi_date,  fi_id=mei_fi_id, fi_x=fisa_x_4326, fi_y=fisa_y_4326, fi_lfs_code, country=sai_cou_code, comment = fi_comment, quality = mei_qal_id, mty_name, mei_value,ser_nameshort=sai_name,ser_emu_nameshort=sai_emu_nameshort, ser_hty_code=sai_hty_code,sai_samplingstrategy) %>%
+  mutate(year = ifelse(is.na(fi_year),year(fi_date), fi_year)) %>% 
+	select(ser_id = fisa_sai_id, year, date=fi_date,  fi_id=mei_fi_id, fi_x=fisa_x_4326, fi_y=fisa_y_4326, fi_lfs_code, country=sai_cou_code, comment = fi_comment, quality = mei_qal_id, mty_name, mei_value,ser_nameshort=sai_name,ser_emu_nameshort=sai_emu_nameshort, ser_hty_code=sai_hty_code,sai_samplingstrategy) %>%
 	pivot_wider(names_from = mty_name, values_from = mei_value)
 
 data_ind_samp$fi_lfs_code=factor(as.character(data_ind_samp$fi_lfs_code),levels=c("G","GY","Y","YS","S"))
@@ -127,7 +128,7 @@ stats_data= total_individual %>% group_by(source,country,EMU,habitat,life_stage)
 autofit(flextable(stats_data))
 
 ```
-```{r decriptivegraphs, include=TRUE}
+```{r lengthdecriptivegraphs, include=TRUE}
 
 ## length frequency
 
@@ -136,13 +137,53 @@ autofit(flextable(stats_data))
 
 ## length by month
 
-p <- ggplot(total_individual, aes(month,lengthmm))
-p + geom_boxplot()+ facet_grid(vars(source),vars(life_stage), scales = "free_y")
+total_lengthmmg<-total_individual %>% filter(!is.na(month),life_stage=="G",!is.na(lengthmm))%>%group_by(month)%>%summarise(q50=quantile(lengthmm,0.5),q5=quantile(lengthmm,0.05),q95=quantile(lengthmm,0.95))
+
+total_lengthmmy<-total_individual %>% filter(!is.na(month),life_stage=="Y", !is.na(lengthmm))%>%group_by(month)%>%summarise(q50=quantile(lengthmm,0.5),q5=quantile(lengthmm,0.05),q95=quantile(lengthmm,0.95))
 
 
+total_lengthmms<-total_individual %>% filter(!is.na(month), year>1,life_stage=="S",!is.na(lengthmm))%>%group_by(month)%>%summarise(q50=quantile(lengthmm,0.5),q5=quantile(lengthmm,0.05),q95=quantile(lengthmm,0.95))
+
+
+
+
+gridExtra::grid.arrange(
+ggplot(total_lengthmmg, aes(x=as.factor(month),y=q50)) + geom_pointrange(aes(ymin = q5, ymax = q95)) +ggtitle("Glass eel")+ theme(axis.text.x = element_text(size = 12, angle = 45))+ xlab("month")+ylab("length in mm"),
+ggplot(total_lengthmmy, aes(x=as.factor(month),y=q50)) + geom_pointrange(aes(ymin = q5, ymax = q95)) +ggtitle("Yellow eel")+ theme(axis.text.x = element_text(size = 12, angle = 90))+ xlab("month")+ylab("length in mm"),
+ggplot(total_lengthmmy, aes(x=as.factor(month),y=q50)) + geom_pointrange(aes(ymin = q5, ymax = q95)) +ggtitle("Silver eel")+ theme(axis.text.x = element_text(size = 12, angle = 90))+ xlab("month")+ylab("length in mm"),
+nrow = 3
+)
 
 
 ```
+
+
+```{r weightdecriptivegraphs, include=TRUE}
+
+## weight /year
+total_weightg<-total_individual %>% filter(!is.na(year), year>1, weightg<2,life_stage=="G")%>%group_by(year)%>%summarise(q50=quantile(weightg,0.5),q5=quantile(weightg,0.05),q95=quantile(weightg,0.95))
+
+total_weighty<-total_individual %>% filter(!is.na(year), year>1,life_stage=="Y", !is.na(weightg))%>%group_by(year)%>%summarise(q50=quantile(weightg,0.5),q5=quantile(weightg,0.05),q95=quantile(weightg,0.95))
+
+
+total_weights<-total_individual %>% filter(!is.na(year), year>1,life_stage=="S",!is.na(weightg))%>%group_by(year)%>%summarise(q50=quantile(weightg,0.5),q5=quantile(weightg,0.05),q95=quantile(weightg,0.95))
+
+
+
+
+gridExtra::grid.arrange(
+ggplot(total_weightg, aes(x=as.factor(year),y=q50)) + geom_pointrange(aes(ymin = q5, ymax = q95)) +ggtitle("Glass eel")+ theme(axis.text.x = element_text(size = 12, angle = 45))+ xlab("year")+ylab("weight in g"),
+ggplot(total_weighty, aes(x=as.factor(year),y=q50)) + geom_pointrange(aes(ymin = q5, ymax = q95)) +ggtitle("Yellow eel")+ theme(axis.text.x = element_text(size = 12, angle = 90))+ xlab("year")+ylab("weight in g"),
+ggplot(total_weights, aes(x=as.factor(year),y=q50)) + geom_pointrange(aes(ymin = q5, ymax = q95)) +ggtitle("Silver eel")+ theme(axis.text.x = element_text(size = 12, angle = 90))+ xlab("year")+ylab("weight in g"),
+nrow = 3
+)
+unique(total_individual$year)
+
+```
+
+
+
+
 
 ```{r lengthweightlfs, include=TRUE}
 
@@ -185,7 +226,7 @@ p + geom_point(aes(lengthmm,weightg, colour=life_stage))+ geom_line()
 ## representation of the results with all data
 
 p <- ggplot(reg_series_data, aes(lengthmm, wr, colour=life_stage))
-p + geom_point()+ geom_hline(yintercept = c(25,200))
+p + geom_point()+ geom_hline(yintercept = c(25,200))+ ylab="Weight (g)"
 
 n_total<-nrow(reg_series_data)
 
