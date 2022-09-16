@@ -17,7 +17,7 @@ plotseriesUI <- function(id){
 											label = "Select a country :", 
 											choices = list_country,
 											selected = "FR",
-											multiple = FALSE, 
+											multiple = TRUE, 
 											options = list(
 													style = "btn-primary", size = 5))),
 							column(width=4, 
@@ -25,7 +25,7 @@ plotseriesUI <- function(id){
 											label = "Select an annex :", 
 											choices = c(1,2,3),
 											selected= 1,
-											multiple = FALSE,
+											multiple = TRUE,
 											options = list(
 													style = "btn-primary", size = 5))),							
 							column(width=4, 
@@ -40,7 +40,7 @@ plotseriesUI <- function(id){
 					)		 
 			
 			),               
-			
+			box(
 			fluidRow(
 					pickerInput(inputId = ns("kept_or_datacall"), 
 							label = "Choose kept or datacall :", 
@@ -54,7 +54,7 @@ plotseriesUI <- function(id){
 					)
 			),
 			DT::dataTableOutput(ns("datatable_series_nearpoints"),width='100%') 
-	)}
+	), width=12)}
 
 
 
@@ -96,8 +96,10 @@ plotseriesServer <- function(id,globaldata){
 							qal_column <<- switch(level, "dataseries"="das_qal_id",
 									"group metrics"="",
 									"individual metrics"="")
-							datasource_column <-
-									if (is.null(year_column)) year_column <- "das_year"
+							datasource_column <<- switch(level, "dataseries"="das_dts_datasource",
+									"group metrics"="meg_dts_datasource",
+									"individual metrics"="mei_dts_datasource")
+							#if (is.null(year_column)) year_column <- "das_year"
 							
 							# glue_sql to protect against injection, used with a vector with *
 							query <- 
@@ -106,12 +108,16 @@ plotseriesServer <- function(id,globaldata){
 													glue_sql("SELECT * FROM datawg.t_series_ser JOIN datawg.t_dataseries_das ON das_ser_id=ser_id WHERE ser_cou_code in ({cou*}) and ser_typ_id in ({types*})", cou = cou, types = types, 
 															.con = globaldata$pool),
 											"group metrics" =
-													glue_sql("SELECT *  FROM datawg.t_series_ser JOIN 
-																	datawg.t_groupseries_grser ON grser_ser_id=ser_id WHERE ser_cou_code in ({cou*}) and ser_typ_id in ({types*})", vals = vals, types = types, 
+													glue_sql("SELECT distinct on (ser_id) *  FROM datawg.t_series_ser JOIN 
+																	datawg.t_groupseries_grser ON grser_ser_id=ser_id 
+																	JOIN datawg.t_metricgroupsamp_megsa on meg_gr_id=gr_id 
+																	WHERE ser_cou_code in ({cou*}) and ser_typ_id in ({types*})", vals = vals, types = types, 
 															.con = globaldata$pool),
 											"individual metrics" = 
-													glue_sql("SELECT * FROM datawg.t_series_ser JOIN 
-																	datawg.t_fishseries_fiser ON fiser_ser_id=ser_id WHERE  ser_cou_code in ({cou*}) and ser_typ_id in ({types*})", vals = vals, types = types, 
+													glue_sql("SELECT distinct on (ser_id) * FROM datawg.t_series_ser JOIN 
+																	datawg.t_fishseries_fiser ON fiser_ser_id=ser_id
+																	JOIN datawg.t_metricindseries_meiser ON mei_fi_id=fi_id
+																	 WHERE  ser_cou_code in ({cou*}) and ser_typ_id in ({types*})", vals = vals, types = types, 
 															.con = globaldata$pool))
 							out_data <- dbGetQuery(globaldata$pool, query)
 							return(out_data)
@@ -131,9 +137,10 @@ plotseriesServer <- function(id,globaldata){
 				output$series_ggplot <- renderPlot({
 							validate(need(globaldata$connectOK,"No connection"))
 							if (is.null(rvs$datagr)) return(NULL)
+							validate(need(nrow(rvs$datagr)>0, "no data"))
 							# duplicated_values_graph performs a group by, see graph.R inside the shiny data integration
 							# tab
-							series_graph(rvs$datagr, level= input$level, year_column=year_column,kept_or_datacall=input$kept_or_datacall) 
+							series_graph(rvs$datagr, level= input$level, year_column=year_column, qal_column=qal_column, datasource_column=datasource_column,  kept_or_datacall=input$kept_or_datacall) 
 						}
 				)
 				
