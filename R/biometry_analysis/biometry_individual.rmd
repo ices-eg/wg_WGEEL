@@ -239,7 +239,14 @@ ggplot(total_age) + aes(x = ageyear, y=country, fill = country, alpha=0.5)  +
   scale_alpha(guide="none")+
   xlab("Age (year)")+
   ylab("Country")+
+<<<<<<< HEAD
   scale_y_discrete(limits=rev)  + theme_classic() 
+=======
+    scale_y_discrete(limits=rev)+
+  theme_bw()
+
+
+>>>>>>> branch 'master' of git@github.com:ices-eg/wg_WGEEL.git
 
 ```
 
@@ -254,7 +261,12 @@ ggplot(age_lengthy) + aes(x = lengthmm, y=age_class, fill=country, alpha=0.5)  +
   scale_fill_manual("Country",values=color_countries[names(color_countries) %in% unique(age_lengthy$country)], drop = TRUE)+
   ylab("Age in year")+
   xlab("length in mm")+
+<<<<<<< HEAD
   theme_classic()
+=======
+  theme_bw()
+
+>>>>>>> branch 'master' of git@github.com:ices-eg/wg_WGEEL.git
 
 ```
 
@@ -269,8 +281,13 @@ ggplot(age_lengths) + aes(x = lengthmm, y=age_class, fill=country, alpha=0.5)  +
   scale_alpha(guide="none")+
   scale_fill_manual("Country",values=color_countries[names(color_countries) %in% unique(age_lengths$country)], drop = TRUE)+
   ylab("Age in year")+
+<<<<<<< HEAD
     xlab("Length in mm") + 
     theme_classic() + xlim(c(0, NA))
+=======
+  xlab("length in mm")+
+  theme_bw()
+>>>>>>> branch 'master' of git@github.com:ices-eg/wg_WGEEL.git
 
 ```
 
