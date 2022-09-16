@@ -243,12 +243,12 @@ recruitment_map <- function(R_stations, statseries, wger, CY, colors= c("#FEE301
   mrd$label<-sprintf('<strong>%s %s</strong> </br>
 		  years : <font color="blue">%i-%i</font> </br>
 		  name : %s </br>
-		  duration (missing): %i (%i) </br>
+		  duration (missing): %s (%s) </br>
 		  sampling type: %s </br>
 		  used: %s </br>',
 	  mrd$site,
 	  mrd$lfs_code,
-	  mrd$min, mrd$max,
+	  round(mrd$min), round(mrd$max),
 	  iconv(mrd$namelong,"UTF8"),
 	  mrd$duration, round(mrd$missing),
 	  mrd$sampling_type,
