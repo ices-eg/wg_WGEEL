@@ -80,12 +80,9 @@ data_ind_series$country<-factor(data_ind_series$country,levels=cou_ref$cou_code,
   ## individual sampling data
 
 data_ind_samp = biometry_individual_sampling %>% 
-<<<<<<< HEAD
 	select(ser_id = fisa_sai_id, year = fi_year, date=fi_date,  fi_id=mei_fi_id, coord_x = fisa_x_4326, coord_y = fisa_y_4326, fi_lfs_code, country=sai_cou_code, comment = fi_comment, quality = mei_qal_id, mty_name, mei_value,ser_nameshort=sai_name,ser_emu_nameshort=sai_emu_nameshort, ser_hty_code=sai_hty_code,sai_samplingstrategy) %>%
-=======
   mutate(year = ifelse(is.na(fi_year),year(fi_date), fi_year)) %>% 
 	select(ser_id = fisa_sai_id, year, date=fi_date,  fi_id=mei_fi_id, fi_x=fisa_x_4326, fi_y=fisa_y_4326, fi_lfs_code, country=sai_cou_code, comment = fi_comment, quality = mei_qal_id, mty_name, mei_value,ser_nameshort=sai_name,ser_emu_nameshort=sai_emu_nameshort, ser_hty_code=sai_hty_code,sai_samplingstrategy) %>%
->>>>>>> branch 'master' of git@github.com:ices-eg/wg_WGEEL.git
 	pivot_wider(names_from = mty_name, values_from = mei_value)
 
 data_ind_samp$fi_lfs_code=factor(as.character(data_ind_samp$fi_lfs_code),levels=c("G","GY","Y","YS","S"))
@@ -101,14 +98,11 @@ total_individual= bind_rows(
 
 	data_ind_samp %>% as_tibble() %>%
 		mutate(commercial = str_detect(sai_samplingstrategy, "ommercial") | str_detect(sai_samplingstrategy, "CF")) %>%
-<<<<<<< HEAD
 		select(country, EMU = ser_emu_nameshort, coord_x, coord_y, year,month, lengthmm, weightg,eye_diam_meanmm, pectoral_lengthmm, ageyear,differentiated_proportion, female_proportion, habitat = ser_hty_code, life_stage = fi_lfs_code, commercial) %>% mutate(gear = "unkonwn", source = "sampling") 
 )
-=======
-		select(country, EMU = ser_emu_nameshort, year,month, lengthmm, weightg,eye_diam_meanmm, pectoral_lengthmm, ageyear,differentiated_proportion, female_proportion, habitat = ser_hty_code, life_stage = fi_lfs_code, commercial) %>% mutate(gear = "unkonwn", source = "sampling") 
-)%>% 
+
+		select(country, EMU = ser_emu_nameshort, year,month, lengthmm, weightg,eye_diam_meanmm, pectoral_lengthmm, ageyear,differentiated_proportion, female_proportion, habitat = ser_hty_code, life_stage = fi_lfs_code, commercial) %>% mutate(gear = "unkonwn", source = "sampling")%>% 
 	mutate(length_class_cm = as.integer(as.character(cut(lengthmm, breaks = seq(0, 1350, 10), labels = seq(0, 1340, 10) + 5)))/10)
->>>>>>> branch 'master' of git@github.com:ices-eg/wg_WGEEL.git
 
 #save(total_individual, biometry_individual_sampling, biometry_individual_series, file = "ind_biom.RData")
 #load("ind_biom.RData")
@@ -125,13 +119,8 @@ The table describes the available individual biometric data from Appendix 1,2,3 
 
 
 ```{r available_data, include }
-<<<<<<< HEAD
 stats_data= total_individual %>% group_by(source,country,EMU, coord_x, coord_y,habitat,life_stage) %>%
   summarize(series=paste(unique(EMU),collapse=", "),
-=======
-stats_data= total_individual %>% group_by(source,country,EMU,habitat,life_stage) %>%
-  summarize(
->>>>>>> branch 'master' of git@github.com:ices-eg/wg_WGEEL.git
             n_lengthmm=(sum(!is.na(lengthmm))),
             n_bio_weight=(sum(!is.na(weightg))),
             n_female_proportion=(sum(!is.na(female_proportion))),
@@ -936,6 +925,4 @@ plot_ge_trend("weight",kept)
 
 
 ```
-=======
->>>>>>> branch 'master' of git@github.com:ices-eg/wg_WGEEL.git
 
