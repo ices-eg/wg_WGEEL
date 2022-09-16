@@ -160,9 +160,26 @@ total_lengthmms<-total_individual %>% filter(!is.na(month), year>1,life_stage=="
 
 
 gridExtra::grid.arrange(
-ggplot(total_lengthmmg, aes(x=as.factor(month),y=q50)) + geom_pointrange(aes(ymin = q5, ymax = q95)) +ggtitle("Glass eel")+ theme(axis.text.x = element_text(size = 12, angle = 45))+ xlab("month")+ylab("length in mm"),
-ggplot(total_lengthmmy, aes(x=as.factor(month),y=q50)) + geom_pointrange(aes(ymin = q5, ymax = q95)) +ggtitle("Yellow eel")+ theme(axis.text.x = element_text(size = 12, angle = 90))+ xlab("month")+ylab("length in mm"),
-ggplot(total_lengthmmy, aes(x=as.factor(month),y=q50)) + geom_pointrange(aes(ymin = q5, ymax = q95)) +ggtitle("Silver eel")+ theme(axis.text.x = element_text(size = 12, angle = 90))+ xlab("month")+ylab("length in mm"),
+ggplot(total_lengthmmg, aes(x=as.factor(month),y=q50)) + 
+  geom_pointrange(aes(ymin = q5, ymax = q95)) +
+  ggtitle("Glass eel")+ 
+  theme(axis.text.x = element_text(size = 12, angle = 45))+ 
+  xlab("month")+
+  ylab("length in mm"),
+
+ggplot(total_lengthmmy, aes(x=as.factor(month),y=q50)) + 
+  geom_pointrange(aes(ymin = q5, ymax = q95)) +ggtitle("Yellow eel")+ 
+  theme(axis.text.x = element_text(size = 12, angle = 90))+ 
+  xlab("month")+
+  ylab("length in mm"),
+
+ggplot(total_lengthmmy, aes(x=as.factor(month),y=q50)) + 
+  geom_pointrange(aes(ymin = q5, ymax = q95)) +
+  ggtitle("Silver eel")+ 
+  theme(axis.text.x = element_text(size = 12, angle = 90))+ 
+  xlab("month")+
+  ylab("length in mm"),
+
 nrow = 3
 )
 
@@ -184,9 +201,20 @@ total_weights<-total_individual %>% filter(!is.na(year), year>1,life_stage=="S",
 
 
 gridExtra::grid.arrange(
-ggplot(total_weightg, aes(x=as.factor(year),y=q50)) + geom_pointrange(aes(ymin = q5, ymax = q95)) +ggtitle("Glass eel")+ theme(axis.text.x = element_text(size = 12, angle = 45))+ xlab("year")+ylab("weight in g"),
-ggplot(total_weighty, aes(x=as.factor(year),y=q50)) + geom_pointrange(aes(ymin = q5, ymax = q95)) +ggtitle("Yellow eel")+ theme(axis.text.x = element_text(size = 12, angle = 90))+ xlab("year")+ylab("weight in g"),
-ggplot(total_weights, aes(x=as.factor(year),y=q50)) + geom_pointrange(aes(ymin = q5, ymax = q95)) +ggtitle("Silver eel")+ theme(axis.text.x = element_text(size = 12, angle = 90))+ xlab("year")+ylab("weight in g"),
+ggplot(total_weightg, aes(x=as.factor(year),y=q50)) + 
+  geom_pointrange(aes(ymin = q5, ymax = q95)) +ggtitle("Glass eel")+ 
+  theme(axis.text.x = element_text(size = 12, angle = 45))+ 
+  xlab("year")+ylab("weight in g"),
+
+ggplot(total_weighty, aes(x=as.factor(year),y=q50)) + 
+  geom_pointrange(aes(ymin = q5, ymax = q95)) +
+  ggtitle("Yellow eel") + 
+  theme(axis.text.x = element_text(size = 12, angle = 90))+ xlab("year")+ylab("weight in g"),
+
+ggplot(total_weights, aes(x=as.factor(year),y=q50)) + 
+  geom_pointrange(aes(ymin = q5, ymax = q95)) +
+  ggtitle("Silver eel")+ theme(axis.text.x = element_text(size = 12, angle = 90))+ xlab("year")+ylab("weight in g"),
+
 nrow = 3
 )
 
@@ -206,7 +234,8 @@ ggplot(total_age) + aes(x = ageyear, y=country, fill = country, alpha=0.5)  +
   scale_alpha(guide="none")+
   xlab("Age in year")+
   ylab("Country")+
-    scale_y_discrete(limits=rev)
+    scale_y_discrete(limits=rev)+
+  theme_bw()
 
 
 
@@ -222,7 +251,8 @@ ggplot(age_lengthy) + aes(x = lengthmm, y=age_class, fill=country, alpha=0.5)  +
   scale_alpha(guide="none")+
   scale_fill_manual("Country",values=color_countries[names(color_countries) %in% unique(age_lengthy$country)], drop = TRUE)+
   ylab("Age in year")+
-  xlab("length in mm")
+  xlab("length in mm")+
+  theme_bw()
 
 
 ```
@@ -239,7 +269,24 @@ ggplot(age_lengths) + aes(x = lengthmm, y=age_class, fill=country, alpha=0.5)  +
   scale_alpha(guide="none")+
   scale_fill_manual("Country",values=color_countries[names(color_countries) %in% unique(age_lengths$country)], drop = TRUE)+
   ylab("Age in year")+
-  xlab("length in mm")
+  xlab("length in mm")+
+  theme_bw()
+
+```
+
+
+```{r sexratio, include=TRUE}
+
+sexratio<-total_individual %>%
+  mutate(sex=ifelse(is.na(female_proportion), "unknown", ifelse(female_proportion==1, "F", "M")))%>% 
+  filter(life_stage %in% c("Y","YS","S"), sex %in% c("F","M"))
+
+	ggplot(sexratio) + aes(country) +
+	geom_bar(aes(fill = sex)) + 
+	  facet_grid(vars(life_stage), scales = "free_y")+
+	  theme_bw()
+
+
 
 ```
 
