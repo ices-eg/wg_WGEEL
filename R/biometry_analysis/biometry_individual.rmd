@@ -18,7 +18,7 @@ params:
 source("../utilities/load_library.R")
 source("biometry_individual_functions.R")
 
-knitr::opts_chunk$set(echo = TRUE,warning=FALSE,message=FALSE,error=FALSE,fig.width=14.9/2.54,dpi=150)
+knitr::opts_chunk$set(echo = FALSE, warning=TRUE, message=FALSE, error=FALSE, fig.width=14.9/2.54, dpi=150)
 
 load_library("readxl")
 load_library("sf")
@@ -123,7 +123,7 @@ if(params$load_data)
 The table describes the available individual biometric data from Appendix 1,2,3 (series) and 10 (sampling) 
 
 
-```{r available_data, tab.cap = "Number of avaible data for each biometry metrics",include }
+```{r available_data, tab.cap = "Number of avaible data for each biometry metrics", include = TRUE }
 #TODO: make the column's title more explicit (true title instead of variable names)
 
 stats_data= total_individual %>% group_by(source, country, EMU, habitat, life_stage) %>%
@@ -165,21 +165,33 @@ total_lengthmmy<-total_individual %>% filter(!is.na(month),life_stage=="Y", !is.
 total_lengthmms<-total_individual %>% filter(!is.na(month), year>1,life_stage=="S",!is.na(lengthmm))%>%group_by(month)%>%summarise(q50=quantile(lengthmm,0.5),q5=quantile(lengthmm,0.05),q95=quantile(lengthmm,0.95))
 
 gridExtra::grid.arrange(
-ggplot(total_lengthmmg, aes(x=as.factor(month),y=q50)) + geom_pointrange(aes(ymin = q5, ymax = q95)) +ggtitle("Glass eel")+ theme(axis.text.x = element_text(size = 12, angle = 45))+  xlab("Month")+ylab("Length (mm)")  + theme_classic() ,
-ggplot(total_lengthmmy, aes(x=as.factor(month),y=q50)) + geom_pointrange(aes(ymin = q5, ymax = q95)) +ggtitle("Yellow eel")+ theme(axis.text.x = element_text(size = 12, angle = 90))+  xlab("Month")+ylab("Length (mm)")  + theme_classic() ,
-ggplot(total_lengthmmy, aes(x=as.factor(month),y=q50)) + geom_pointrange(aes(ymin = q5, ymax = q95)) +ggtitle("Silver eel")+ theme(axis.text.x = element_text(size = 12, angle = 90))+ xlab("Month")+ylab("Length (mm)") + theme_classic() ,
+
+ggplot(total_lengthmmg, aes(x=as.factor(month),y=q50)) + 
+  geom_pointrange(aes(ymin = q5, ymax = q95)) +
+  ggtitle("Glass eel")+ 
+  theme(axis.text.x = element_text(size = 12, angle = 90))+ 
+  xlab("Month")+
+  ylab("Length (mm)"),
+
+ggplot(total_lengthmmy, aes(x=as.factor(month),y=q50)) + 
+  geom_pointrange(aes(ymin = q5, ymax = q95)) +ggtitle("Yellow eel")+ 
+  theme(axis.text.x = element_text(size = 12, angle = 90))+ 
+  xlab("Month")+
+  ylab("Length (mm)"),
+
+ggplot(total_lengthmmy, aes(x=as.factor(month),y=q50)) + 
+  geom_pointrange(aes(ymin = q5, ymax = q95)) +
+  ggtitle("Silver eel")+ 
+  theme(axis.text.x = element_text(size = 12, angle = 90))+ 
+  xlab("Month")+
+  ylab("Length (mm)"),
+
 nrow = 3
 )
 
 ```
-gridExtra::grid.arrange(
-ggplot(total_lengthmmg, aes(x=as.factor(month),y=q50)) + geom_pointrange(aes(ymin = q5, ymax = q95)) +ggtitle("Glass eel")+ theme(axis.text.x = element_text(size = 12, angle = 45))+  xlab("Month")+ylab("Length (mm)")  + theme_classic() ,
-ggplot(total_lengthmmy, aes(x=as.factor(month),y=q50)) + geom_pointrange(aes(ymin = q5, ymax = q95)) +ggtitle("Yellow eel")+ theme(axis.text.x = element_text(size = 12, angle = 90))+  xlab("Month")+ylab("Length (mm)")  + theme_classic() ,
-ggplot(total_lengthmmy, aes(x=as.factor(month),y=q50)) + geom_pointrange(aes(ymin = q5, ymax = q95)) +ggtitle("Silver eel")+ theme(axis.text.x = element_text(size = 12, angle = 90))+ xlab("Month")+ylab("Length (mm)") + theme_classic() ,
-nrow = 3
-)
 
-```{r weightdecriptivegraphs, include=TRUE}
+```{r weightdecriptivegraphs, include=TRUE, fig.cap = "Weight distribution by month and by life stage. Point is the median, bar gives 5% and 95% quantile."}
 
 ## weight /year
 total_weightg<-total_individual %>% filter(!is.na(year), year>1, weightg<2,life_stage=="G")%>%group_by(year)%>%summarise(q50=quantile(weightg,0.5),q5=quantile(weightg,0.05),q95=quantile(weightg,0.95))
@@ -193,16 +205,28 @@ total_weights<-total_individual %>% filter(!is.na(year), year>1,life_stage=="S",
 
 
 gridExtra::grid.arrange(
-ggplot(total_weightg, aes(x=as.factor(year),y=q50)) + geom_pointrange(aes(ymin = q5, ymax = q95)) +ggtitle("Glass eel")+ theme(axis.text.x = element_text(size = 12, angle = 45))+ xlab("year")+ylab("weight in g"),
-ggplot(total_weighty, aes(x=as.factor(year),y=q50)) + geom_pointrange(aes(ymin = q5, ymax = q95)) +ggtitle("Yellow eel")+ theme(axis.text.x = element_text(size = 12, angle = 90))+ xlab("year")+ylab("weight in g"),
-ggplot(total_weights, aes(x=as.factor(year),y=q50)) + geom_pointrange(aes(ymin = q5, ymax = q95)) +ggtitle("Silver eel")+ theme(axis.text.x = element_text(size = 12, angle = 90))+ xlab("year")+ylab("weight in g"),
+ggplot(total_weightg, aes(x=as.factor(year),y=q50)) + 
+  geom_pointrange(aes(ymin = q5, ymax = q95)) +ggtitle("Glass eel")+ 
+  theme(axis.text.x = element_text(size = 12, angle = 45))+ 
+  xlab("year")+ylab("weight in g"),
+
+ggplot(total_weighty, aes(x=as.factor(year),y=q50)) + 
+  geom_pointrange(aes(ymin = q5, ymax = q95)) +
+  ggtitle("Yellow eel") + 
+  theme(axis.text.x = element_text(size = 12, angle = 90))+ xlab("year")+ylab("weight in g"),
+
+ggplot(total_weights, aes(x=as.factor(year),y=q50)) + 
+  geom_pointrange(aes(ymin = q5, ymax = q95)) +
+  ggtitle("Silver eel")+ theme(axis.text.x = element_text(size = 12, angle = 90))+ xlab("year")+ylab("weight in g"),
+
 nrow = 3
 )
 
 ```
 
 
-```{r agedescriptivegraphs, include=TRUE}
+```{r agedescriptivegraphs, include=TRUE, fig.cap = "Age distribtion by country and by life stage"}
+#TODO: add the number of samples for each line
 
 total_age<-total_individual %>% filter(!is.na(ageyear), life_stage %in% c("Y","S"))
 
@@ -211,44 +235,58 @@ total_age<-total_individual %>% filter(!is.na(ageyear), life_stage %in% c("Y","S
 ggplot(total_age) + aes(x = ageyear, y=country, fill = country, alpha=0.5)  + 
   geom_density_ridges( scale = 3, rel_min_height = 0.005, bandwidth = 1)+ 
   facet_grid(vars(life_stage)) +
-  scale_fill_manual("Country",values=color_countries[names(color_countries) %in% unique(total_age$country)], drop = TRUE)+
+  scale_fill_manual("Country",values=color_countries[names(color_countries) %in% unique(total_age$country)], drop = TRUE, guide = "none")+
   scale_alpha(guide="none")+
-  xlab("Age in year")+
+  xlab("Age (year)")+
   ylab("Country")+
-    scale_y_discrete(limits=rev)
-
-
+  scale_y_discrete(limits=rev)  + theme_classic() 
 
 ```
-```{r agelengthy, fig.height=20/2.54, include=TRUE}
+
+```{r agelengthy, fig.height=20/2.54, include=TRUE, fig.cap = "Length distribution by age and country for yellow eels"}
 
 age_lengthy<-total_individual %>% filter(!is.na(ageyear), !is.na(lengthmm), life_stage=="Y") %>% 
 		mutate(age_class = factor(ifelse(ageyear>19, "20+", ageyear), levels=c(0:19,"20+"), ordered=TRUE))
-
 
 ggplot(age_lengthy) + aes(x = lengthmm, y=age_class, fill=country, alpha=0.5)  + 
   geom_density_ridges( scale = 3, rel_min_height = 0.005, bandwidth = 4)+ 
   scale_alpha(guide="none")+
   scale_fill_manual("Country",values=color_countries[names(color_countries) %in% unique(age_lengthy$country)], drop = TRUE)+
   ylab("Age in year")+
-  xlab("length in mm")
-
+  xlab("length in mm")+
+  theme_classic()
 
 ```
 
 
-```{r agelengths, fig.height=20/2.54, include=TRUE}
+```{r agelengths, fig.height=20/2.54, include=TRUE, fig.cap = "Length distribution by age and country for silver eels"}
 
 age_lengths<-total_individual %>% filter(!is.na(ageyear), !is.na(lengthmm), life_stage=="S") %>% 
 		mutate(age_class = factor(ifelse(ageyear>19, "20+", ageyear), levels=c(0:19,"20+"), ordered=TRUE))
-
 
 ggplot(age_lengths) + aes(x = lengthmm, y=age_class, fill=country, alpha=0.5)  + 
   geom_density_ridges( scale = 3, rel_min_height = 0.005, bandwidth = 4)+ 
   scale_alpha(guide="none")+
   scale_fill_manual("Country",values=color_countries[names(color_countries) %in% unique(age_lengths$country)], drop = TRUE)+
   ylab("Age in year")+
-  xlab("length in mm")
+    xlab("Length in mm") + 
+    theme_classic() + xlim(c(0, NA))
+
+```
+
+
+```{r sexratio, include=TRUE}
+
+sexratio<-total_individual %>%
+  mutate(sex=ifelse(is.na(female_proportion), "unknown", ifelse(female_proportion==1, "F", "M")))%>% 
+  filter(life_stage %in% c("Y","YS","S"), sex %in% c("F","M"))
+
+	ggplot(sexratio) + aes(country) +
+	geom_bar(aes(fill = sex)) + 
+	  facet_grid(vars(life_stage), scales = "free_y")+
+	  theme_bw()
+
+
 
 ```
 
