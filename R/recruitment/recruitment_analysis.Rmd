@@ -276,7 +276,8 @@ wger_init$lifestage=as.factor(wger_init$lifestage)
 # and duration
 statseries <- sqldf('select site,namelong,min,max,duration,missing,life_stage,sampling_type,unit,habitat_type,"order",series_kept, ser_cou_code country
 				from datawg.series_summary s left join datawg.t_series_ser on site=ser_nameshort where s.ser_typ_id=1')
-# these data will 
+# bug created by integer64 type when reading from the db
+statseries$missing <- as.integer(statseries$missing)
 save(wger_init,file=str_c(datawd,"wger_init.Rdata"))
 save(statseries,file=str_c(datawd,"statseries.Rdata"))
 save(R_stations,file=str_c(datawd,"R_stations.Rdata"))
