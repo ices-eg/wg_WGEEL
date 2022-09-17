@@ -43,7 +43,7 @@ plot_map_bio_emu = function(var, stage, mydata = stats_data_coord, transparent =
 	
 	if (only_legend=="yes"){
 	  
-	  map<-get_legend2(p)
+	  map<-get_legend(p)
 	  
 	} else if (only_legend=="no"){
 	  
