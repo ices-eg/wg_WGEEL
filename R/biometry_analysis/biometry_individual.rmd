@@ -44,6 +44,7 @@ load_library("stringr")
 load_library("quantreg")
 load_library("ggridges")
 load_library("scales")
+load_library(("ggpubr"))
 
 if(Sys.info()["user"]=="hilaire.drouineau"){
   allometry=read_excel("~/Bureau/slopesintercepts.xlsx")
@@ -238,34 +239,30 @@ plot_distribution(total_individual %>% filter(lengthmm < 100), lifeStage = c("G"
 
 ```
 
-### Glass eel map
+### Map of available length data by stage
 
-```{r glassmaplength,echo=TRUE}
+Only the data series with more than 5 individual size measurements have been taken into account to make these maps
 
-plot_map_bio_emu("length","G")
+```{r maplength,echo=TRUE}
 
-```
+gridExtra::grid.arrange(
+  plot_map_bio_emu("length","G",only_legend="no"),
+  plot_map_bio_emu("length","Y",only_legend="no"),
+  plot_map_bio_emu("length","S",only_legend="no"),
+  plot_map_bio_emu("length","S",only_legend="yes"),
 
-### Yellow eel map
-
-The length of monitored standing stock yeelow eel appear to increase with the distance to Gibraltar. This is confirmed
-by the Kendall correlation test (tau=
-
-. There are not enougth time sex disaggregated data to detect sex-specific length-pattern.
-
-```{r yellowmaplength,echo=TRUE}
-
-plot_map_bio_emu("length","Y")
+  nrow=2,
+  ncol=2
+)
 
 ```
 
-### Silver eel map
 
-```{r silverlengthmap,echo=TRUE}
 
-plot_map_bio_emu("length","S")
 
-```
+
+
+
 
 ## Weight data
 
@@ -321,7 +318,7 @@ plot_distribution(total_individual  %>% filter(weightg < 1), lifeStage =  c("G")
 
 ```{r glassmapweight,echo=TRUE}
 
-plot_map_bio_emu("weight","G")
+plot_map_bio_emu("weight","G", only_legend="both")
 
 ```
 
@@ -334,7 +331,7 @@ Kendall correlation test (tau=
 
 ```{r yellowweighthmap,echo=TRUE}
 
-plot_map_bio_emu("weight","Y")
+plot_map_bio_emu("weight","Y", only_legend="both")
 
 ```
 
@@ -344,7 +341,7 @@ The Kendall correlation test does not detect any spatial pattern (tau= .
 
 ```{r silverweightmap,echo=TRUE}
 
-plot_map_bio_emu("weight","S")
+plot_map_bio_emu("weight","S", only_legend="both")
 
 ```
 
@@ -509,6 +506,7 @@ For the spatial analysis, we only considered ser_hty_code x EMU x lfs_code where
 ## Age
 
 ```{r agedescriptivegraphs, include=TRUE, fig.cap = "Age distribtion by country and by life stage"}
+#TODO: add the number of samples for each line
 
 plot_distribution(total_individual, lifeStage =  c("Y", "S"), var = "age", scale_value = 3, bandwidth_value = 0.5)
 
@@ -519,14 +517,14 @@ plot_distribution(total_individual, lifeStage =  c("Y", "S"), var = "age", scale
 Too few data were correlected regarding sex to draw any conclusions regarding differences in sex-ratios among locations.
 
 ```{r yellowsagemap,echo=TRUE}
-plot_map_bio_emu("age","Y")
+plot_map_bio_emu("age","Y", only_legend="both")
 ```
 
 ### Silver eel map
 
 ```{r silveragemap, echo=TRUE}
 
-plot_map_bio_emu("age","S")
+plot_map_bio_emu("age","S", only_legend="both")
 
 ```
 
@@ -587,7 +585,7 @@ sexratio<-total_individual %>%
 Too few data were correlected regarding sex to draw any conclusions regarding differences in sex-ratios among locations.
 
 ```{r yellowsexratiomap,echo=TRUE}
-plot_map_bio_emu("sexratio","Y")
+plot_map_bio_emu("sexratio","Y", only_legend="both")
 ```
 
 ### Silver eel map
@@ -596,7 +594,7 @@ The number of points is again very limited and no significant spatial pattern is
 
 ```{r silversexratiomap,echo=TRUE}
 
-plot_map_bio_emu("sexratio","S")
+plot_map_bio_emu("sexratio","S", only_legend="both")
 
 ```
 
