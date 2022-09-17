@@ -46,23 +46,22 @@ output <- rmarkdown::metadata$output
 
 
 
-\newline
-This section presents and describes data from commercial, recreational and
-non-commercial fisheries, aquaculture production and restocking of eel. Data can
-be reported by eel life stage (glass, yellow, silver), habitat type (freshwater,
-tidal, marine) and by eel management unit (EMU) where possible. Historical
-series for which these details are not available are reported by country. The
-current database structure will allow aggregation by country or region if
-necessary. The landings data presented are those reported to the WGEEL, either
-through responses to the `r CY` Data call, in Country Reports, or integrated
-by the WGEEL during data calls. 
+\newline This section presents and describes data from commercial, recreational
+and non-commercial fisheries, aquaculture production and restocking of eel. Data
+can be reported by eel life stage (glass, yellow, silver), habitat type
+(freshwater, tidal, marine) and by eel management unit (EMU) where possible.
+Historical series for which these details are not available are reported by
+country. The current database structure will allow aggregation by country or
+region if necessary. The landings data presented are those reported to the
+WGEEL, either through responses to the `r CY` Data call, in Country Reports, or
+integrated by the WGEEL during data calls. 
 
 Care should also be taken with the interpretation of the landings as indicators
 of the stock, since the catch statistics now reflect the status of reduced
 activity as well as of stock levels. In summary, reported commercial landings
 are declining, a long-term continuing trend, from a level of around 10,000 t in
-the 1960s, reported commercial landings have now dropped to xxx tonnes
-(glass eel + yellow eel + silver eel) in `r CY-1`. 
+the 1960s, reported commercial landings have now dropped to xxx tonnes (glass
+eel + yellow eel + silver eel) in `r CY-1`. 
 
 
 
@@ -327,7 +326,10 @@ knitr::asis_output(paste("Number of silver eels (S) released in ",CY-1," = ",rel
 # Figures
 ## Commercial fisheries landings 
 #### Glass eel
-Glass eel landings show a sharp decline since 1980 from 2 000 tonnes to around 40–60 tonnes since 2009 onwards. In 2019, the raw (uncorrected) landings data for glass eels is XXX (Annex XXX Table XXX for raw data and Table XXX for raw and corrected data). 
+Glass eel landings show a sharp decline since 1980 from 2 000 tonnes to around
+40–60 tonnes since 2009 onwards. In 2019, the raw (uncorrected) landings data
+for glass eels is XXX (Annex XXX Table XXX for raw data and Table XXX for raw
+and corrected data). 
 
 
 ```{r comLandGt,echo=FALSE, warning=FALSE}
@@ -487,15 +489,15 @@ print(g_combined_landings_G)
 
 #### Yellow and silver eel 
 
-Figure 3 presents data but for yellow and silver eels aggregated coming from
-20 countries, and Figure 4 presents the time-series including reconstructed
-data to fill the gaps. The proportion of “corrected” landing was as high as 50%
-in the 1950s, but rather low since the mid-1980s. Annex 8 Table 3 presents the
-raw data for yellow and silver eel combined, Annex 8 Table 4 presents the raw
-and corrected data for yellow and silver eel landings data. The total landings
-of yellow and silver eels decrease from 18,000–20,000 tonnes in the 1950s to
-2,000–3,000 tonnes since 2009. In XXCY-1XX, the amount was XXX
-for yellow and silver landings, combined. 
+Figure 3 presents data but for yellow and silver eels aggregated coming from 20
+countries, and Figure 4 presents the time-series including reconstructed data to
+fill the gaps. The proportion of “corrected” landing was as high as 50% in the
+1950s, but rather low since the mid-1980s. Annex 8 Table 3 presents the raw data
+for yellow and silver eel combined, Annex 8 Table 4 presents the raw and
+corrected data for yellow and silver eel landings data. The total landings of
+yellow and silver eels decrease from 18,000–20,000 tonnes in the 1950s to
+2,000–3,000 tonnes since 2009. In XXCY-1XX, the amount was XXX for yellow and
+silver landings, combined. 
 ```{r rawComLandYS, echo=FALSE, warning=FALSE}
 
 ##raw  com landings for Y S and YS for all the countries
@@ -1806,5 +1808,6 @@ ggsave(paste0(imgwd,"Raw_Corr_com_landings_YS.png"), g_combined_landings_YS, dev
 		units = "cm")
 ggsave(paste0(imgwd,"Raw_Corr_com_landings_G.png"), g_combined_landings_G, device = "png", width = 30, height = 20, 
 		units = "cm")
+
 
 ```
