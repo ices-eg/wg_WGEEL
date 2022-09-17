@@ -6,12 +6,9 @@ documentclass: article
 output: 
   bookdown::word_document2:
     fig_caption: yes
-    number_sections: yes
+    number_sections: no
     reference_docx: "../../Rmarkdown/ICES_template.docx"
 bibliography: gerem.bib
-params:
-  updateData: FALSE
-  runModel:   FALSE
 csl: "../../Rmarkdown/ices-journal-of-marine-science.csl"
 ---
 
@@ -47,9 +44,19 @@ load_library("tidyr")
 load_library("flextable")
 load_library("reshape2")
 load_library("rnaturalearth")
+
+
+set_flextable_defaults(
+  font.size = 8.5, font.family = "Calibri",
+  font.color = "black",
+  table.layout = "autofit",
+  border.color = "black",
+  theme_fun=theme_booktabs)
+
+
 knitr::opts_chunk$set(echo = TRUE)
 updatedData = FALSE
-if ((!file.exists(paste("datagerem",CY,".rdata",sep=""))) | params$updateData){
+if ((!file.exists(paste("datagerem",CY,".rdata",sep="")))){
   if (username=="hilaire.drouineau"){
     con_ccm=dbConnect(Postgres(),host="citerne.bordeaux.irstea.priv",dbname="referentiel",
                       user="hdrouineau",
@@ -83,7 +90,7 @@ if ((!file.exists(paste("datagerem",CY,".rdata",sep=""))) | params$updateData){
 ```
 
 # Introduction
-GEREM is a Bayesian model aiming at estimating glass eel recruitment at different nested spatial scales (overall recruitment, sub-regions/zone, river basins) through the analysis of available recruitment time series [@drouineau2016]. The model has already been applied in France [@drouineau2016], to a large part of Europe [@bornarel2018a] and a specific application was carried out in the context of the Sudoang Interreg project [@drouineau2021]. It had been used by WGEEL few years ago [@ICES2020a] but had not been updated since then. It was decided to renew the exercice since GEREM is a candidate to feed the spatial assessment model promoted in the WKFEA roadmap [@ICES2021] and is a good example of the hierarchy of spatial scales on which would be based such as spatial model. The model assumes that each year, the overall recruitment $R(y)$ is distributed among various zones (i.e. subregions) which receive recruitment $R_z(y)$. Then, zone recruitment is distributed among river catchments as a function of their surface, leading to recruitment $R_{c,z}(y)$. Basically, GEREM is a mixing of a Dynamic Factor Analysis (DFA) [@zuur2003a] and a “rule of three”. Similarly to a DFA model, GEREM is state-space model based on a random walk structure, which estimates common trends in a set of time series. The rule of three is used to extrapolate absolute recruitment estimates in a river basin to recruitment in other basins in the same zone, stating that the recruitment in each basin is a simple function of its surface. After having inventoried available time series and listed their characteristics, it is necessary to define zones. In each zone: 
+GEREM is a Bayesian model aiming at estimating glass eel recruitment at different nested spatial scales (overall recruitment, sub-regions/zone, river basins) through the analysis of available recruitment time series [@drouineau2016]. The model has already been applied in France [@drouineau2016], to a large part of Europe [@bornarel2018a] and a specific application was carried out in the context of the Sudoang Interreg project [@drouineau2021]. It had been used by WGEEL few years ago [@ices2020a] but had not been updated since then. It was decided to renew the exercice since GEREM is a candidate to feed the spatial assessment model promoted in the WKFEA roadmap [@ices2021] and is a good example of the hierarchy of spatial scales on which would be based such as spatial model. The model assumes that each year, the overall recruitment $R(y)$ is distributed among various zones (i.e. subregions) which receive recruitment $R_z(y)$. Then, zone recruitment is distributed among river catchments as a function of their surface, leading to recruitment $R_{c,z}(y)$. Basically, GEREM is a mixing of a Dynamic Factor Analysis (DFA) [@zuur2003a] and a “rule of three”. Similarly to a DFA model, GEREM is state-space model based on a random walk structure, which estimates common trends in a set of time series. The rule of three is used to extrapolate absolute recruitment estimates in a river basin to recruitment in other basins in the same zone, stating that the recruitment in each basin is a simple function of its surface. After having inventoried available time series and listed their characteristics, it is necessary to define zones. In each zone: 
 
 * river catchments should have similar trends in recruitment 
 * the rule of three must apply, i.e. it should be possible to extrapolate recruitment in a basin to another basin of the same zone as a simple function of their relative surfaces 
@@ -96,7 +103,7 @@ The model is detailed in [@drouineau2016] and [@bornarel2018a]. The current exer
 
 ```{r dataLoadingFormatting, echo=FALSE, warning=FALSE, message=FALSE}
 ####loading time series from WGEEL
-if ((!file.exists(paste("datagerem",CY,".rdata",sep=""))) | params$updateData){
+if ((!file.exists(paste("datagerem",CY,".rdata",sep=""))) ){
   
   series_wgeel=read.table("catchment_wgeel.csv",header=TRUE,sep=";")
   wgeel=dbGetQuery(con_wgeel,paste("select das_year,ser_nameshort,ser_uni_code,das_value,ser_ccm_wso_id,ser_x,ser_y from datawg.t_dataseries_das left join datawg.t_series_ser on das_ser_id =ser_id where das_year>=1960 and das_year <=",CY," and ser_nameshort in ('",paste(series_wgeel$ser_nameshort[series_wgeel$from_wgeel],collapse="','"),"')",sep="") )
@@ -119,13 +126,13 @@ if ((!file.exists(paste("datagerem",CY,".rdata",sep=""))) | params$updateData){
   
   ###reshaping and merging Minho Spain and Portugal
   wgeel_wide=wgeel %>%
-    select(das_year,das_value,ser_nameshort) %>%
+    dplyr::select(das_year,das_value,ser_nameshort) %>%
     pivot_wider(names_from=ser_nameshort,values_from=das_value,id_cols=das_year)
   wgeel_wide$MinG=wgeel_wide$MiPoG+wgeel_wide$MiSpG
   series_wgeel[series_wgeel$ser_nameshort=="MinG",c("ser_x","ser_y")]=
     series_wgeel[series_wgeel$ser_nameshort=="MiSpG",c("ser_x","ser_y")]
   wgeel_wide <- wgeel_wide %>%
-    select(-MiPoG,-MiSpG)
+    dplyr::select(-MiPoG,-MiSpG)
   series_wgeel <- series_wgeel %>%
     filter(!ser_nameshort %in% c("MiSpG","MiPoG"))
   
@@ -165,7 +172,7 @@ if ((!file.exists(paste("datagerem",CY,".rdata",sep=""))) | params$updateData){
                  values_to="das_value")
 
   series_stat <- merge(series, values_long) %>%
-    select(-wso_id,-ser_ccm_wso_id,-scale_bound_shape2,-scale_bound_shape1, -min_bound,-max_bound) %>%
+    dplyr::select(-wso_id,-ser_ccm_wso_id,-scale_bound_shape2,-scale_bound_shape1, -min_bound,-max_bound) %>%
     filter(!is.na(das_value)) %>%
     group_by(ser_nameshort, type, zone, surface) %>%
     summarise(first_year=min(das_year),
@@ -181,7 +188,7 @@ if ((!file.exists(paste("datagerem",CY,".rdata",sep=""))) | params$updateData){
 
 ```{r buildingZone, echo=FALSE, warning=FALSE, message=FALSE}
 ######building zones
-if ((!file.exists(paste("datagerem",CY,".rdata",sep=""))) | params$updateData){
+if ((!file.exists(paste("datagerem",CY,".rdata",sep=""))) ){
   sf::sf_use_s2(FALSE)
   
   allcatchments=st_read(con_ccm,query=paste('select wso_id ser_ccm_wso_id,area_km2,"window",sea_cd,geom from',table_seaoutlets,' where strahler>0 and ("window"<=2004 or "window"=2008)'))
@@ -227,7 +234,8 @@ We used the same zones as @bornarel2018a \@ref(fig:mapsZones):
 * A zone that covers Ireland and the Northwestern part of Great Britain (INWGB)
 
 
-```{r mapsZones, fig.cap="Zone definition and available data", echo=FALSE,warning=FALSE,message=FALSE, fig.height=16/2.54}
+```{r mapsZones, echo=FALSE,warning=FALSE,message=FALSE, fig.height=16/2.54, fig.cap="Zone definition and available data"}
+sf::sf_use_s2(FALSE)
 worldmap <- ne_countries(scale = 'medium', type = 'map_units',
                          returnclass = 'sf')
 europe_cropped <- st_crop(worldmap, xmin = -13, xmax = 27,
@@ -252,6 +260,9 @@ ggplot(europe_cropped)+geom_sf(data=europe_cropped,
   theme_bw()
 ```
 
+
+
+<!--
 ## Modification in the model
 In first versions of GEREM, river recruitment in a river basin was assumed to be a deterministic proportion of the corresponding zone recruitment, with the proportions equal to a simple function of the river basin area $S_{c,z}$ to mimic a multinomial distribution (equation \@ref(eq:oldweight)):
 
@@ -275,9 +286,10 @@ $$
 (\#eq:newweight)
 \end{equation} 
 $$
+-->
 
 ## Available Data
-Table \@ref(tab:availableData) summarises the data used to fit the model. While time series are available in all zones, most absolute estimates come from ATL_F. In other zones, trap monitoring and commercial catches can inform on absolute estimates given but this requires making assumption on trapping efficiency or on exploitation rates. We also note that the number of time series is limited in the Channel area. Conversely, there are many time series in ATL_F, but most of them ended after the implementation of the French Eel Management Plan [@ministeredelecologiedelenergiedudeveloppementdurableetdelamenagementduterritoire2010] and presently, there is only one still updated time series. We also note that the Mediterranean zone is large with only four available time series.
+Table \@ref(tab:availableData) summarises the data used to fit the model. Basically, we used the exact same dataset as for the GLM analysis and added some absolutes estimates of recruitment following @ices2020a. While time series are available in all zones, most absolute estimates come from ATL_F. In other zones, trap monitoring and commercial catches can inform on absolute estimates given but this requires making assumption on trapping efficiency or on exploitation rates. We also note that the number of time series is limited in the Channel area. Conversely, there are many time series in ATL_F, but most of them ended after the implementation of the French Eel Management Plan [@ministeredelecologiedelenergiedudeveloppementdurableetdelamenagementduterritoire2010] and presently, there is only one still updated time series. We also note that the Mediterranean zone is large with only four available time series.
 
 ```{r availableData, echo=FALSE,tab.cap="Available time series of recruitment"}
 ft <- flextable(series_stat[order(series_stat$zone,series_stat$ser_nameshort),]) %>%
@@ -288,7 +300,8 @@ ft <- flextable(series_stat[order(series_stat$zone,series_stat$ser_nameshort),])
                     surface="Surface (km²)",
                     first_year="First Year",
                     last_year="Last Year",
-                    nbyear="Nb data")
+                    nbyear="Nb data")%>%
+          bold(bold = TRUE, part = "header")
 autofit(ft)
 ```
 
@@ -317,7 +330,7 @@ ggplot(priors,aes(x=x, y=prior))+
 
 ## Running the model
 ```{r runningConfig, echo=FALSE, include=FALSE}
-if ((!file.exists(paste("datagerem",CY,".rdata",sep=""))) | params$updateData){
+if ((!file.exists(paste("datagerem",CY,".rdata",sep=""))) ){
   
   burnin=100000
   sample=1000
@@ -509,7 +522,7 @@ if ((!file.exists(paste("datagerem",CY,".rdata",sep=""))) | params$updateData){
 Three independent MCMC chains are run in parallel using JAGS [@plummer2003] through R package runjags [@denwood2016]. Chains were run `r format(sample*thin, scientific=FALSE)` iterations, with a thinning of `r format(thin,scientif=FALSE)` iterations, after an initial burnin period of `r format(burnin, scientific=FALSE)` iterations. Gelman and Rubin diagnostics were used to check model convergence [@gelman1992].
 
 ```{r modelRun,echo=FALSE,message=FALSE,warning=FALSE}
-if  ((!file.exists(paste("gerem",CY,".rdata",sep=""))) | params$runModel){
+if  ((!file.exists(paste("gerem",CY,".rdata",sep=""))) ){
   jags_res=run.jags("versionBugs2_1.txt",
                     monitor=c("beta","logq","loga","tauLocal",
                               "logRglobal","Rzone","propR","logp",
@@ -542,7 +555,7 @@ gelman=gelman.diag(jags_res,multivariate=FALSE)
 propconv=sum(gelman$psrf[,1]<=1.05)/nrow(gelman$psrf)
 beta=quantile(jags_mat[,"beta"],probs=c(0.025,.5,.975))
 ```
-Gelman R hat statistics was below 1.05 for `r round(propconv*100,digits=1)`% of the parameters, demonstrating a good convergence of the model though not perfect for all parameters \@ref(fig:gelmanbeta).
+Gelman R hat statistics was below 1.05 for `r round(propconv*100,digits=1)`% of the parameters, demonstrating a good convergence of the model though not perfect for all parameters \@ref(fig:gelmanbeta). In the future, it might be necessary to run the model for a longer number of iterations to achieve a perfect convergence.
 
 ```{r gelmanbeta,include=TRUE,echo=FALSE,fig.cap="Distribution of Gelman R statistics"}
 hist(gelman$psrf[,1],xlab="R",main="")
@@ -552,10 +565,12 @@ hist(gelman$psrf[,1],xlab="R",main="")
 ## Overall recruitment and zone recruitment
 ```{r statsRglobal,echo=FALSE}
 rCy=jags_mat[,paste("logRglobal[",mydata$nbyear,"]",sep="")] #last year estimate
+rCylast=jags_mat[,paste("logRglobal[",mydata$nbyear-1,"]",sep="")] #last year estimate
 rRef=rowMeans(jags_mat[,paste("logRglobal[",1:match("1979",rownames(values_wide)),"]",sep="")])
 rstdCY=round(quantile(exp(rCy)/exp(rRef),probs=c(0.025,0.5,0.975))*100,digits=2)
+rstdCYlast=round(quantile(exp(rCylast)/exp(rRef),probs=c(0.025,0.5,0.975))*100,digits=2)
 ```
-Unsurprisingly, overall recruitment (Figure \@ref(fig:rglobal)) shows a steep decline since the early 1980s, despite some oscillations. More recently, we observe a period of increase in the early 2010s but it seems to stabilise or slightly decrease after this. Credibility intervals are rather large at the end of the period partly because many time series (especially French fishery based time series) ended after the implementation of the Eel Regulation. The 2020 recruitment is estimated to be `r rstdCY[2]`% (credibility interval [`r paste(rstdCY[c(1,3)],collapse="%-")`%]). 
+Unsurprisingly, overall recruitment (Figure \@ref(fig:rglobal)) shows a steep decline since the early 1980s, despite some oscillations. More recently, we observe a period of increase in the early 2010s but it seems to stabilise or slightly decrease after this. Credibility intervals are rather large at the end of the period partly because many time series (especially French fishery based time series) ended after the implementation of the Eel Regulation. The `r CY` recruitment is estimated to be `r rstdCY[2]`% (credibility interval [`r paste(rstdCY[c(1,3)],collapse="%-")`%]). In the last year, the recruitment shows a small increase than in the GLM analysis.
 
 ```{r rglobal, fig.cap="Overall trend in recruitment: median of the posterior distribution (solid line) and corresponding 95% credibility interval (shaded area)",echo=FALSE}
 col=grep("logRglobal",colname)
@@ -581,7 +596,8 @@ ggplot(logrglobal,aes(x=year,y=q50))+
 
 ```
 
-At the zone level (Figure \@ref(fig:rzone)), all zones display a decrease of recruitment. As already observed by WGEEL, which provides separated estimates for the North Sea and Elswhere Europe series, the decline in North Sea started earlier than ATL_F and ATL_IB. The Mediterranean area also displays a decline in the 1960s, however, estimates in this period are based on few fishery-based time series and the assumption about constant exploitation rate and reporting rate is questionable. Moreover, it is worthwhile mentioning that there are currently only 4 available time series while the zone is large and includes both lagoons and river basins. For the Channel, the lack of data in the beginning of the time series explains the large credibility interval, therefore estimates should be taken with great care. ATL_F does not display any increase at the end of the time series, however, results are based on a single time series (GiscG) and, consequently, confidence intervals are rather large.
+At the zone level (Figure \@ref(fig:rzone)), all zones display a decrease of recruitment. As already observed by WGEEL, which provides separated estimates for the North Sea and Elswhere Europe series, the decline in North Sea started earlier than ATL_F and ATL_IB. <!--The Mediterranean area also displays a decline in the 1960s, however, estimates in this period are based on few fishery-based time series and the assumption about constant exploitation rate and reporting rate is questionable. Moreover, it is worthwhile mentioning that there are currently only 4 available time series while the zone is large and includes both lagoons and river basins. For the Channel, the lack of data in the beginning of the time series explains the large credibility interval, therefore estimates should be taken with great care. ATL_F does not display any increase at the end of the time series, however, results are based on a single time series (GiscG) and, consequently, confidence intervals are rather large.-->
+In 2022, the recruitment seems to have increased mostly in the Mediterranean and in the INWGB regions. Since these two zones do not represent the largest part of the recruitment, those increase did not have a major effet on the overall effect. On the other hand, since time series from INWGB are overrepresented, it has had a huge effect on the GLM analysis.
 
 ```{r rzone,echo=FALSE, fig.cap="Trend in recruitment in each zone of the model: median of the posterior distribution (solid line) and corresponding 95% credibility interval (shaded area). The colour of the points on the x-axis indicates the number of available data series for the corresponding zone and year"}
 col=grep("Rzone",colname)
@@ -627,6 +643,8 @@ ggplot(propR,aes(x=year,y=q50))+
   guides(pch=FALSE)+
   theme_bw()
 ```
+
+<!--
 
 ## Model fits to observations
 Figures \@ref(fig:rbasintrap), \@ref(fig:rbasinabsolute), \@ref(fig:rbasinsurvey) and \@ref(fig:rbasincatch) shows how the model fits observations. In most situations, the model appropriately mimics the trends and the visual inspections is satisfactory. A pattern in residuals is visible for EmsG and TibeG, that both display more pronounced decreasing trends in recent years compared to other time series. EmsG and TibeG are two fishery-based time series based on total catch; their trends can be interpreted as the effect of declining effort and to partly reflect the collapse of a fishery. The inclusion of a random effect has improved the results by allowing to account for a potential variability at the local scale. Similarly, a pattern is visible for ErneGY with an overestimation before 1980. This is likely to correspond to a modification on the trap which has greatly improved its efficiency afterwards. A discussion of potential source of variation can be found in the supporting information of @bornarel2018a. This leads to two conclusions regarding the results:
@@ -773,17 +791,20 @@ ggplot(survey_obs_pred,aes(x=year))+
 
 ```
 
+-->
 
 # Discussion
-The use of GEREM does not change the overall image of the recruitment as provided by the GLM analysis. It confirms the decline of recruitment since the 1980s and the currently very low level of recruitment. However, it raises additional questions regarding some potential differences in trends among zones, such as the recent decline in the recruitment received in ATL_F. While definitive conclusions cannot be drawn, this result shows the importance of establishing new monitoring time series in areas where data are missing. As such, the monitoring network implemented in Sudoang appears to be an interesting opportunity. Regarding absolute recruitment, as already mentioned, results should be taken with great care since the number of time series is limited, the estimates are sensitive to some parameters and biases are observed in the model fits. 
-  
+The use of GEREM does not change the overall image of the recruitment as provided by the GLM analysis. It confirms the decline of recruitment since the 1980s and the currently very low level of recruitment. However, it raises additional questions regarding some potential differences in trends among zones, such as the recent decline in the recruitment received in ATL_F. While definitive conclusions cannot be drawn, this result shows the importance of establishing new monitoring time series in areas where data are missing. As such, the monitoring network implemented in Sudoang appears to be an interesting opportunity. Regarding absolute recruitment, as already mentioned, results should be taken with great care since the number of time series is limited, the estimates are sensitive to some parameters and biases are observed in the model fits.
+
+More importantly, the use of GEREM illustrates the potential benefit of a spatial assessment model for the European eel stock: combining data series from different regions without accounting for their relative importance in terms of biomass can bias the assessment, especially in the current situation in which data are not evenly distributed all other the distribution area.
+<!--  
 Despite the effort in data collection, two regions are still not considered in the model. The Baltic Sea is currently not included in the model given that recruitment time-series are composed of young yellow eels with unknown age distributions. This is addressed in the GLM approach by fitting a specific GLM for yellow eel recruits. In the future, it may be possible to use time series and studies in this zone such as the estimate from @westerberg2014. The situation is more complex in the Eastern and Southern Mediterranean basin where no data are available. This problem also affects the GLM approach. Implementing or collecting new time-series in this region urge to provide a representative estimate at the population scale. 
 
 Since the estimation of escapments was requested by the Eel Regulation, the parallel estimation of absolute recruitment would allow comparison of survival rates during the continental stage among zones. As such a better understanding on how local recruitment in river basins depends on local characteristics (basin surface and potentially other factors) would be a valuable information for management of standing stocks and would subsequently allow improvements in the model. This calls for achieving more absolute recruitment estimates.
-
+-->
 
 # Conclusion
-The idea of presenting this modelling exercise was not to replace the GLM exercise nor to conduct a benchmark exercise of models but to provide an additional tool that provides complementary information. The two modelling approaches have two different levels of complexity and provide similar general picture of the trend of recruitment. While GEREM does not provide any definitive conclusions, it raises interesting complementary questions and highlights the need for new data in some regions and of new types.
+The idea of presenting this modelling exercise was not to replace the GLM exercise nor to conduct a benchmark exercise of models but to provide an additional tool that provides complementary information. The two modelling approaches have two different levels of complexity and provide similar general picture of the trend of recruitment. While GEREM does not provide any definitive conclusions, it raises interesting complementary questions and highlights the need for new data in some regions and of new types. More importantly, it shows that combining time-series without weighting them according to the local level of abundance can potentially bias the results.
 
 
 # References
