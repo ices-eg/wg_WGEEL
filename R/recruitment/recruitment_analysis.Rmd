@@ -274,8 +274,8 @@ wger_init$lifestage=as.factor(wger_init$lifestage)
 
 # This is a view (like the result of a query) showing a summary of each series, including first year, last year,
 # and duration
-statseries <- sqldf('select site,namelong,min,max,duration,missing,life_stage,sampling_type,unit,habitat_type,"order",series_kept
-				from datawg.series_summary where ser_typ_id=1')
+statseries <- sqldf('select site,namelong,min,max,duration,missing,life_stage,sampling_type,unit,habitat_type,"order",series_kept, ser_cou_code country
+				from datawg.series_summary s left join datawg.t_series_ser on site=ser_nameshort where s.ser_typ_id=1')
 # these data will 
 save(wger_init,file=str_c(datawd,"wger_init.Rdata"))
 save(statseries,file=str_c(datawd,"statseries.Rdata"))
@@ -651,7 +651,7 @@ rownames(n_y_lfs) <- n_y_lfs$"year"
 ##		caption.placement = "top",
 ##		NA.string = ".")
 
-printstatseries <- statseries[,c(1,3,4,5,6,7,8,9,10,11,12)]
+printstatseries <- statseries[,c(1,13,3,4,5,6,7,8,9,10,11,12)]
 printstatseries$sampling_type[printstatseries$sampling_type=="scientific estimate"] <- "sci. surv."
 printstatseries$sampling_type[grep("trap",printstatseries$sampling_type)] <- "trap"
 printstatseries$sampling_type[printstatseries$sampling_type=="commercial catch"] <- "com. catch"
@@ -660,8 +660,8 @@ column_to_import <- R_stations[,c("ser_nameshort","areashort")]
 printstatseries <- merge(printstatseries,column_to_import,by.x="site",by.y="ser_nameshort")
 printstatseriesGNS <- printstatseries%>% 
 		filter(life_stage=="G", areashort=="NS")%>%
-		arrange(order)%>%
-		dplyr::select(1,12,2:9,11)%>%
+		arrange(order,site)%>%
+		dplyr::select("life_stage","areashort","country","site","min","max","missing","duration","missing","sampling_type","unit","habitat_type","series_kept")%>%
 		dplyr::rename("code"="site",
 				"area"="areashort",
 				"n+"="duration",
@@ -674,7 +674,7 @@ printstatseriesGNS <- printstatseries%>%
 xstatseriesGNS <- xtable(x = printstatseriesGNS, 
 		label = str_c("statseriesG"),
 		caption = str_c("Short description of the sampling sites for European eel recruitment data in the North Sea. Min and max indicate the first year and last year in the records, and the values are given in the n+ and n- columns, indicate the number of years with values and the number of years when there are missing data within the series. Life stage: GY = glass eel and yellow eel, G = glass eel, Y = yellow eel. Unit for the data collected is given (nr = number; index = calculated value following a specified protocol, nr/m2 = number per square metre, nr/h = number per hour, kg/boat/d = kg per boat per day). Habitat: C = coastal water (according to the EU Water Framework Directive, WFD), F = freshwater, MO = marine water (open sea), T = transitional water with lower salinity (according to WFD). Kept = 1 means that the dataseries is used in recruitment analyses."),
-		align=c("p{0cm}","p{1cm}","p{1cm}","p{1cm}","p{1cm}","p{0.8cm}","p{0.8cm}","p{1cm}","p{2cm}","p{2cm}","p{1cm}","p{1cm}"),
+		align=c("p{0cm}","p{1cm}","p{1cm}","p{1cm}","p{1cm}","p{1cm}","p{0.8cm}","p{0.8cm}","p{1cm}","p{2cm}","p{2cm}","p{1cm}","p{1cm}"),
 		digits=0)
 
 print(xstatseriesGNS , 
@@ -687,8 +687,8 @@ print(xstatseriesGNS ,
 
 printstatseriesGEE <- printstatseries%>% 
 		filter(life_stage=="G", areashort=="EE")%>%
-		arrange(order)%>%
-		dplyr::select(1,12,2:9,11)%>%
+		arrange(order,site)%>%
+		dplyr::select("life_stage","areashort","country","site","min","max","missing","duration","missing","sampling_type","unit","habitat_type","series_kept")%>%
 		dplyr::rename("code"="site",
 				"area"="areashort",
 				"n+"="duration",
@@ -701,7 +701,7 @@ printstatseriesGEE <- printstatseries%>%
 xstatseriesGEE <- xtable(x = printstatseriesGEE, 
 		label = str_c("statseriesG"),
 		caption = str_c("Short description of the sampling sites for European eel recruitment data for Elsewhere Europe. Min and max indicate the first year and last year in the records, and the values are given in the n+ and n- columns, indicate the number of years with values and the number of years when there are missing data within the series. Life stage: GY = glass eel and yellow eel, G = glass eel, Y = yellow eel. Unit for the data collected is given (nr = number; index = calculated value following a specified protocol, nr/m2 = number per square metre, nr/h = number per hour, kg/boat/d = kg per boat per day). Habitat: C = coastal water (according to the EU Water Framework Directive, WFD), F = freshwater, MO = marine water (open sea), T = transitional water with lower salinity (according to WFD). Kept = 1 means that the dataseries is used in recruitment analyses."),
-		align=c("p{0cm}","p{1cm}","p{1cm}","p{1cm}","p{1cm}","p{0.8cm}","p{0.8cm}","p{1cm}","p{2cm}","p{2cm}","p{1cm}","p{1cm}"),
+		align=c("p{0cm}","p{1cm}","p{1cm}","p{1cm}","p{1cm}","p{1cm}","p{0.8cm}","p{0.8cm}","p{1cm}","p{2cm}","p{2cm}","p{1cm}","p{1cm}"),
 		digits=0)
 
 print(xstatseriesGEE , 
@@ -716,8 +716,8 @@ print(xstatseriesGEE ,
 
 printstatseriesGY <- printstatseries %>% 
 		filter(life_stage=="GY") %>%
-		arrange(order) %>%
-		dplyr::select(1,12,2:9,11) %>%
+		arrange(order, site) %>%
+		dplyr::select("life_stage","areashort","country","site","min","max","missing","duration","missing","sampling_type","unit","habitat_type","series_kept") %>%
 		dplyr::rename("code"="site",
 				"area"="areashort",
 				"n+"="duration",
@@ -729,7 +729,7 @@ printstatseriesGY <- printstatseries %>%
 xstatseriesGY <- xtable(x = printstatseriesGY, 
 		label = str_c("statseriesGY"),
 		caption = str_c("Short description of the recruitment sites (continued : stage glass eel and yellow eel)"),
-		align=c("p{0cm}","p{1cm}","p{1cm}","p{1cm}","p{1cm}","p{0.8cm}","p{0.8cm}","p{1cm}","p{2cm}","p{2cm}","p{1cm}","p{1cm}"),
+		align=c("p{0cm}","p{1cm}","p{1cm}","p{1cm}","p{1cm}","p{1cm}","p{0.8cm}","p{0.8cm}","p{1cm}","p{2cm}","p{2cm}","p{1cm}","p{1cm}"),
 		digits=0)
 print(xstatseriesGY , 
 		file = str_c(tabwd,"/table_statseriesGY.tex"),
@@ -742,8 +742,8 @@ print(xstatseriesGY ,
 
 printstatseriesY <- printstatseries%>% 
 		filter(life_stage=="Y")%>%
-		arrange(order)%>%
-		dplyr::select(1,12,2:9,11)%>%
+		arrange(order,site)%>%
+		dplyr::select(site,country,areashort,duration,missing,life_stage,sampling_type,habitat_type,series_kept)%>%
 		dplyr::rename("code"="site",
 				"area"="areashort",
 				"n+"="duration",
@@ -756,7 +756,7 @@ printstatseriesY <- printstatseries%>%
 xstatseriesY <- xtable(x = printstatseriesY, 
 		label = str_c("statseriesY"),
 		caption = str_c("Short description of the recruitment sites (continued : yellow eel series) "),
-		align=c("p{0cm}","p{1cm}","p{1cm}","p{1cm}","p{1cm}","p{0.8cm}","p{0.8cm}","p{1cm}","p{2cm}","p{2cm}","p{1cm}","p{1cm}"),
+		align=c("p{0cm}","p{1cm}","p{1cm}","p{0.8cm}","p{0.8cm}","p{1cm}","p{2cm}","p{2cm}","p{1cm}","p{1cm}"),
 		digits=0)
 print(xstatseriesY, 
 		file = str_c(tabwd,"/table_statseriesY.tex"),
@@ -1510,7 +1510,7 @@ glass_eel_yoy$site <- as.factor(glass_eel_yoy$site)
 model_ge_area=glm(value_std~year_f:area+site,
 		data=glass_eel_yoy[glass_eel_yoy$value>0 & glass_eel_yoy$year>1959,],
 		family=Gamma(link=log), maxit=300)
-
+glass_eel_yoy
 # lesser fit :
 #model_ge_area1=glm(value_std~year_f:area + as.factor(lfs_code),
 #		data=glass_eel_yoy[glass_eel_yoy$value>0 & glass_eel_yoy$year>1959,],
