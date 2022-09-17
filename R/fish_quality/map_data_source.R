@@ -2,15 +2,13 @@ source("../utilities/load_library.R")
 load_library("sf")
 load_library("rnaturalearth")
 load_library("yaml")
-load_library("getPass")
 load_library("dplyr")
 
 
 cred=read_yaml("../../credentials.yml")
 # TODO 2022 use this to connect, not sqldf !!!!!!!!!!!!!!
 # currently still using sqldf and RpostgreSQL() change for compatibility with linux
-pwd = passwordwgeel = password=getPass(msg="password for db")
-con = dbConnect(RPostgres::Postgres(), dbname=cred$dbname,host=cred$host,port=cred$port,user=cred$user, password=passwordwgeel)
+con = dbConnect(RPostgres::Postgres(), dbname=cred$dbname,host=cred$host,port=cred$port,user=cred$user, password=cred$password)
 
 worldmap <- ne_countries(scale = 'medium', type = 'map_units',
                          returnclass = 'sf')
