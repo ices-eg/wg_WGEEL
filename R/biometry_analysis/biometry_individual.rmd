@@ -314,36 +314,23 @@ plot_distribution(total_individual  %>% filter(weightg < 1), lifeStage =  c("G")
 
 ```
 
-### Glass eel map
+### Map of available weight data by stage
 
-```{r glassmapweight,echo=TRUE}
 
-plot_map_bio_emu("weight","G", only_legend="both")
 
+```{r mapweight,echo=TRUE}
+
+gridExtra::grid.arrange(
+  plot_map_bio_emu("weight","G",only_legend="no"),
+  plot_map_bio_emu("weight","Y",only_legend="no"),
+  plot_map_bio_emu("weight","S",only_legend="no"),
+  plot_map_bio_emu("weight","S",only_legend="yes"),
+
+  nrow=2,
+  ncol=2
+)
 ```
 
-### Yellow eel map
-
-Similarly to length, a pattern is visible for weight of monitored standing stock yeelow eel. This is confirmed by the
-Kendall correlation test (tau=
-
-. There are not enougth time sex disaggregated data to detect sex-specific length-pattern.
-
-```{r yellowweighthmap,echo=TRUE}
-
-plot_map_bio_emu("weight","Y", only_legend="both")
-
-```
-
-### Silver eel map
-
-The Kendall correlation test does not detect any spatial pattern (tau= .
-
-```{r silverweightmap,echo=TRUE}
-
-plot_map_bio_emu("weight","S", only_legend="both")
-
-```
 
 ## Length-Weight relationship
 
@@ -512,21 +499,22 @@ plot_distribution(total_individual, lifeStage =  c("Y", "S"), var = "age", scale
 
 ```
 
-### Yellow eel map
+### Map of available age data by stage
 
 Too few data were correlected regarding sex to draw any conclusions regarding differences in sex-ratios among locations.
 
-```{r yellowsagemap,echo=TRUE}
-plot_map_bio_emu("age","Y", only_legend="both")
+```{r agemap,echo=TRUE}
+
+gridExtra::grid.arrange(
+  plot_map_bio_emu("age","Y",only_legend="no"),
+  plot_map_bio_emu("age","S",only_legend="no"),
+  plot_map_bio_emu("age","S",only_legend="yes"),
+
+  nrow=2,
+  ncol=2
+)
 ```
 
-### Silver eel map
-
-```{r silveragemap, echo=TRUE}
-
-plot_map_bio_emu("age","S", only_legend="both")
-
-```
 
 
 ## Growth
@@ -580,23 +568,22 @@ sexratio<-total_individual %>%
 
 ```
 
-### Yellow eel map
+### Map of available sex data by stage
 
 Too few data were correlected regarding sex to draw any conclusions regarding differences in sex-ratios among locations.
 
-```{r yellowsexratiomap,echo=TRUE}
-plot_map_bio_emu("sexratio","Y", only_legend="both")
+```{r sexratiomap,echo=TRUE}
+
+gridExtra::grid.arrange(
+  plot_map_bio_emu("sexratio","Y",only_legend="no"),
+  plot_map_bio_emu("sexratio","S",only_legend="no"),
+  plot_map_bio_emu("sexratio","S",only_legend="yes"),
+
+  nrow=2,
+  ncol=2
+)
 ```
 
-### Silver eel map
-
-The number of points is again very limited and no significant spatial pattern is detected (tau= .
-
-```{r silversexratiomap,echo=TRUE}
-
-plot_map_bio_emu("sexratio","S", only_legend="both")
-
-```
 
 ## To be changed in next data call
 
