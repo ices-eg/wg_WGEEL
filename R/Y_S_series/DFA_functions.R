@@ -170,7 +170,7 @@ graph_Z = function(Z.conf, graph_2_trends = FALSE, sign_trends = NULL, minZ = 0.
 		graph = ggplot(Z.conf, aes(x = Z.1, y = Z.2, color = ser_nameshort, label = ser_nameshort))  + geom_rect(xmin = -minZ, xmax = minZ, ymin = -minZ, ymax = minZ, fill = gray(0.9), color = gray(0.9), alpha = 0.05) + geom_pointrange(aes(xmin= Z.low.1, xmax = Z.up.1), show.legend = FALSE)  + geom_pointrange(aes(ymin=Z.low.2, ymax=Z.up.2), show.legend = FALSE) + geom_vline(xintercept = 0, color = "black") + geom_hline(yintercept = 0, color = "black")  + geom_vline(xintercept = c(-minZ, minZ), color = "gray", linetype="dashed") + geom_hline(yintercept = c(-minZ, minZ), color = "gray", linetype="dashed") + ggrepel::geom_label_repel(show.legend = FALSE) + theme_classic() + xlab("Loading factor (Z) for trend 1") + ylab("Loading factor (Z) for trend 2")
 	} else {	
 		Z.conf = pivot_wider(Z.conf, names_from = Z, values_from = value)
-		graph = ggplot(Z.conf, aes(y = ser_nameshort, x = Z, xmin= Z.low, xmax = Z.up, color = trend)) + geom_pointrange(position = position_dodge(width = 0.5)) + geom_vline(xintercept = 0, color = "black") + ylab("Série") + xlab("Poids (Z)") + scale_colour_discrete(name = "Trend")
+		graph = ggplot(Z.conf, aes(y = ser_nameshort, x = Z, xmin= Z.low, xmax = Z.up, color = trend)) + geom_pointrange(position = position_dodge(width = 0.5)) + geom_vline(xintercept = 0, color = "black") + ylab("Serie") + xlab("Factor loading (Z)") + scale_colour_discrete(name = "Trend")
 	}
 
 	return(graph)
@@ -199,7 +199,7 @@ graph_trends = function(trends, year, sign_trends = NULL)
 	
 	graph = ggplot(trends_long,aes(x=year, y=value, color = Trend))+
 		geom_line()+
-		xlab("Year") + ylab("Relative abondance") + scale_colour_discrete(name = "Trend")
+		xlab("Year") + ylab("Relative abundance") + scale_colour_discrete(name = "Trend")
 	return(graph)
 }
 
@@ -218,12 +218,12 @@ Venn_diagram = function(Z, minZ = 0.2, sign_trends = NULL){
 	if(length(sign_trends) != nb_trends) stop(paste0("sign_trends should be of length ", nb_trends))
 	for(m in 1:nb_trends)
 		Z[,m] = Z[,m] * sign_trends[m]
-	
 	list_venn=do.call(c,lapply(1:(dim(Z)[2]),function(j){
 				res=list(nameseries[which(Z[,j]>minZ)],nameseries[which(Z[,j] < -minZ)])
 				names(res)=paste("Trend",j,c("+","-"),sep="")
 				res
 			}))
+
 	list_venn$Any =nameseries[!nameseries %in% unlist(list_venn)]
 	euler_fit<-euler(list_venn)
 	lab=sapply(names(euler_fit$original.values),function(n){
@@ -254,7 +254,7 @@ Venn_diagram = function(Z, minZ = 0.2, sign_trends = NULL){
 series_trends_graph = function(model, year)
 {
 	TT = length(year)
-	d <- residuals(model ,interval="confidence")
+	d <- residuals(model,interval="confidence")
 	d$.conf.low <- d$.fitted + qnorm(0.05/2)*d$.sigma
 	d$.conf.up <- d$.fitted - qnorm(0.05/2)*d$.sigma
 	

@@ -46,6 +46,8 @@ load_library("mgcv")
 load_library("ggmap")
 load_library("ggrepel")
 load_library("grid")
+load_library("data.table")
+load_library("car")
 library(yaml)
 cred=read_yaml("../../credentials.yml")
 con_wgeel = dbConnect(Postgres(), dbname=cred$dbname,host=cred$host,port=cred$port,user=cred$user, password=getPass())
@@ -56,8 +58,10 @@ format_dfa =function(the.fit){
   H.inv=1
   Z.est = coef(the.fit, type="matrix")$Z
   if(ncol(Z.est)>1) H.inv = varimax(Z.est)$rotmat
+  
   #rotate factor loadings
   Z<-coef(the.fit,type="matrix")$Z%*%H.inv
+  
   #rotate trends
   trends<-solve(H.inv)%*%the.fit$states
   scale_val=coef(the.fit)$A
@@ -134,7 +138,8 @@ generate_dataset_plot_gam = function(model){
 ```{r dataloading, include=FALSE}
 query='SELECT 
 		das_id,
-		das_value,       
+		das_value,
+		das_effort,
 		das_year,
 		das_comment,
 		ser_id,            
@@ -160,7 +165,7 @@ query='SELECT
 		left join ref.tr_lifestage_lfs on ser_lfs_code=lfs_code
 		left join ref.tr_faoareas on ser_area_division=f_division
         left join ref.tr_country_cou on cou_code=ser_cou_code
-		where ser_typ_id in (2,3) and das_value is not null and  (ser_qal_id IS NULL OR ser_qal_id IN (1,2))'
+		where ser_typ_id in (2,3) and das_value is not null and  (ser_qal_id IS NULL OR ser_qal_id IN (0,1,2,4)) and (das_qal_id IS NULL OR das_qal_id IN (1,2,4))'
 mydata = dbGetQuery(con_wgeel,query)
 mydata$ser_nameshort=as.factor(mydata$ser_nameshort)
 mydata$ser_area_division=as.factor(mydata$ser_area_division)
@@ -170,7 +175,6 @@ mydata$ser_cou_code=as.factor(mydata$ser_cou_code)
 mydata$ser_emu_nameshort=as.factor(mydata$ser_emu_nameshort)
 mydata$lfs_name=as.factor(mydata$lfs_name)
 mydata$ser_hty_code=as.factor(mydata$ser_hty_code)
-#mydata$sam_samplingtype[mydata$ser_id %in% 292:295]="electrofishing"
 
 # total number including those with only NULL value
 nb_yellow = dbGetQuery(con_wgeel, "	SELECT count(*) FROM datawg.t_series_ser	WHERE  ser_typ_id in (2)") %>% pull()
@@ -250,8 +254,7 @@ sf::sf_use_s2(FALSE)
                           returnclass = 'sf')
  europe_cropped <- st_crop(worldmap, xmin = -13, xmax = 27,
                                      ymin = 35, ymax = 65)
-# ggplot(yellow_map)+geom_sf(data=europe_cropped)+geom_sf(data=yellow_map,col="red")+
-   #theme_bw()
+
   my_map=get_stamenmap(bbox = c(left = -13, bottom = 35, right =
                                   27, top = 65), zoom = 6, maptype = c("terrain-background"))
 #watercolor
@@ -267,14 +270,14 @@ sf::sf_use_s2(FALSE)
 						3.88) * .pt))
 	}
 	
-	ggmap(my_map) + 
+  ggmap(my_map) + 
 		geom_point(data=yellow_map,
 			aes(x=ser_x,y=ser_y),cex=2,pch=20, col  = "red")+
 		geom_label_repel(data=yellow_map,
 			aes(x=ser_x,y=ser_y,label=ser_nameshort,col=Updated),cex=1.5, key_glyph=draw_key_text, max.overlaps = Inf, label.padding = 0.1) +
-		scale_color_manual("Upated",values=colorpalette)+
+		scale_color_manual("Updated",values=colorpalette)+
 		ylab("")+xlab("")
-					  
+
 #knitr::include_graphics("images/yellow.png")
 ```
 
@@ -339,11 +342,8 @@ If we plot all the series, a GAM smoother indicates an overall decreasing trend 
 
 ```{r plotTSYE,echo=FALSE,warning=FALSE, fig.cap="Yellow eel time series and GAM smoother"}
 yellow_data_std=yellow_data%>%
-#  mutate(das_value=log(das_value))%>%  # log scale remove because some series (10 in 2021) with 0)
   group_by(ser_id)%>%
   mutate(das_value=(das_value-mean(das_value,na.rm=TRUE))/sd(das_value,na.rm=TRUE))
-
-#summary(gam(das_value ~ das_year, data = yellow_data_std))
 
 ggplot(yellow_data_std,aes(x=das_year,y=das_value))+
   geom_line(aes(col=as.factor(ser_nameshort)))+
@@ -353,19 +353,26 @@ ggplot(yellow_data_std,aes(x=das_year,y=das_value))+
 ```
 
 ```{r gamYellow, echo=FALSE,warning=FALSE, fig.cap="Trends per country in yellow eel abundance estimated by a GAM"}
-#g0 <- gam(das_value~s(das_year), data=yellow_data_std)
+# test for an overall trend in the data
+g0 <- gam(das_value~s(das_year), data=yellow_data_std, family = gaussian())
+
+# test for trends per country
 g1 <- gam(das_value~s(das_year, by=ser_cou_code), data=yellow_data_std, family = gaussian())
-#g2 <- gam(das_value~s(das_year, by=ser_nameshort), data=yellow_data_std)
 cou_code <- levels(droplevels (yellow_data_std$ser_cou_code))
-#AIC(g0, g1, g2)
+
+# compute mean of the standardized values to be included in figure
+yellow_data_std_mean <- yellow_data_std %>% group_by(ser_cou_code, das_year) %>% 
+                    summarize(mean_das_value=mean(das_value),
+                              N=n()) %>% ungroup() %>% rename(cou_code=ser_cou_code)
 
 cols<-colorRampPalette(c("chartreuse", "grey",  "navy"),space = "rgb")(length(cou_code))
 
 yellow_gam_plot_recent=generate_dataset_plot_gam(g1)
 ggplot(yellow_gam_plot_recent,aes(x=year,y=pred))+
   geom_line()+
+  geom_point(aes(x=das_year,y=mean_das_value),data=yellow_data_std_mean) +
   geom_ribbon(aes(ymin=lower,ymax=upper),alpha=.3)+
-  facet_wrap(.~cou_code,scales="free_y")+
+  facet_wrap(vars(cou_code),scales="free_y")+
   scale_colour_manual(values=cols)+
   scale_fill_manual(values=cols)+
   theme_bw()+ ylab("relative abundance")
@@ -385,6 +392,7 @@ flextable(nb_per_country <- yellow_data %>%
 ```
 
 ```{r exploratory-analysis, echo = FALSE}
+
 # change logical to factor
 yellow_data_std$ser_restocking<-as.factor(yellow_data_std$ser_restocking)
 
@@ -409,10 +417,10 @@ generate_dataset_plot_gam_res = function(model){
 }
 
 # gam (to put r gamYellow)
-g6 <- gam(das_value~s(das_year, by=ser_restocking), data=yellow_data_std)
+g3 <- gam(das_value~s(das_year, by=ser_restocking), data=yellow_data_std)
 
 # Graph of the results (to put r gamYellow)
-yellow_gam_plot_recent=generate_dataset_plot_gam_res(g6)
+yellow_gam_plot_recent=generate_dataset_plot_gam_res(g3)
 ggplot(yellow_gam_plot_recent,aes(x=year,y=pred))+
 	geom_line()+
 	geom_ribbon(aes(ymin=lower,ymax=upper),alpha=.3)+
@@ -426,11 +434,9 @@ ggplot(yellow_gam_plot_recent,aes(x=year,y=pred))+
 ######
 
 #select only the data where we have hty code
-
 yellow_data_std_hty<-yellow_data_std%>%filter(!is.na(ser_hty_code))
 
-# function to create the data for the graph (to put after l131)
-
+# function to create the data for the graph
 generate_dataset_plot_gam_hty = function(model){
 	hty_code=levels(droplevels (model$model$ser_hty_code))
 	
@@ -451,13 +457,16 @@ generate_dataset_plot_gam_hty = function(model){
 }
 
 # GAM (to put r gamYellow)
-g2 <- gam(das_value~s(das_year, by=ser_hty_code), data=yellow_data_std_hty)
+g4 <- gam(das_value~s(das_year, by=ser_hty_code), data=yellow_data_std_hty)
 
 # Graph (to put r gamYellow)
-
 hty_code <- levels(droplevels (yellow_data_std_hty$ser_hty_code))
 
-yellow_gam_plot_recent=generate_dataset_plot_gam_hty(g2)
+# compute mean values per year and habitat type
+yellow_data_std_hty_mean <- yellow_data_std_hty %>% group_by(ser_hty_code,das_year) %>% summarize(average=mean(das_value)) %>% ungroup() %>% rename(hty_code=ser_hty_code)
+
+# plot gam model and mean values for hty
+yellow_gam_plot_recent=generate_dataset_plot_gam_hty(g4)
 ggplot(yellow_gam_plot_recent,aes(x=year,y=pred))+
 	geom_line()+
 	geom_ribbon(aes(ymin=lower,ymax=upper),alpha=.3)+
@@ -576,112 +585,58 @@ if (params$rerunDFA){
       min(yellow_data$das_value[yellow_data$das_value>0 & 
                                   yellow_data$ser_id == ser_id],na.rm=TRUE)
   }
-
-  #put data in wide format and select from 1980
-  yellow_wide <-yellow_data %>%
-    ungroup %>% #removed the ser_id grouping
-    mutate(das_value=log(das_value))%>%
-    select(ser_nameshort,das_value,das_year) %>%
-    arrange(das_year)%>%
-    pivot_wider(id_cols=c(ser_nameshort,das_year),names_from=das_year,values_from=das_value)
+	
+  # put data in wide format
+	data_dfa_yellow = yellow_data %>% as_tibble() %>%
+	  select(ser_nameshort,das_value,das_year) %>%
+	  arrange(das_year)%>%
+	  pivot_wider(names_from= ser_nameshort, values_from=das_value)
   
-  #then we scaled time series (substract the mean and divide by standard deviation)
-  yellow_wide[,-1] <- sweep(yellow_wide[,-1],1,rowMeans(yellow_wide[,-1],na.rm=TRUE),"-")
-  yellow_wide[,-1] <- sweep(yellow_wide[,-1],1,apply(yellow_wide[,-1],1,sd,na.rm=TRUE),"/")
+	# plot yellow data series
+  graph_serie(yellow_data)
   
   
-  #Define some constants
-  N_ts=nrow(yellow_wide) #number of time series
-  TT=ncol(yellow_wide)-1 #number of time steps
-  y=as.matrix(yellow_wide[,-1]) #matrix of obseravation
-  rownames(y)=yellow_wide$ser_nameshort
   
   #Design of experiments
-  #S=c("diagonal and equal","diagonal and unequal","unconstrained")
   S=c("diagonal and equal","diagonal and unequal")
   nbtrend=1:4
   expe=expand.grid(S=S,nbtrend=nbtrend)
-  
+
   #Now we make a loop of DFA to find the best model
-  model_comparisonsYE= mcmapply(function(s,m){
-    dfa.model=list(R=s, m=m)
-    kemz=MARSS(y, model=dfa.model, form="dfa",z.score=TRUE,control=list(maxit=2000))
-    aicc=MARSSaic(kemz, output="AICc")$AICc
-    aic=MARSSaic(kemz, output="AIC")$AIC
-    list(Trends=m,AICc=aicc,AIC=aic,Sigma=s,dfa=kemz)
-  },as.character(expe$S),expe$nbtrend, mc.cores=4,SIMPLIFY=FALSE)
-  
-    results_yellow=do.call(rbind.data.frame,lapply(model_comparisonsYE,function(x) {
-    data.frame(Trends=x["Trends"],
-               Sigma=x["Sigma"],
-               AIC=x["AIC"],
-               AICc=x["AICc"]
-               )})
-  )
-#  save.image(file="./dfa.rdata")
-save(results_yellow, model_comparisonsYE, yellow_wide, file="./dfa.rdata")
+	DFA_yellow = run_DFA(data_dfa_yellow, expe, log = TRUE)
+
+	# save results
+	save(DFA_yellow, file="./dfa.rdata")
+
 }
 ```
 
-Two common trends were estimated after selection by AIC criteria (Table \@ref(tab:comparisonYE) and Figure \@ref(fig:trendsyellow)).
+One trends was estimated after selection by AICc criteria (Table \@ref(tab:comparisonYE) and Figure \@ref(fig:trendsyellow)).
 
 ```{r comparisonYE,echo=FALSE,tab.cap='Model comparisons for yellow eel DFA'}
+source("DFA_functions.R")
 load("./dfa.rdata")
-ft <- flextable(results_yellow[,c("Trends","Sigma","AIC")] %>% mutate(AIC = round(AIC))) #digits no more supported in colformat_num
-ft <- colformat_num(ft, j="AIC", big.mark = "")
-autofit(ft)
-best_fit_yellow=model_comparisonsYE[[which(results_yellow$AIC==min(results_yellow$AIC))]]$dfa
+table_summary_models(summary_models(DFA_yellow)) # Model comparison
 ```
 
 
 ```{r trendsyellow, echo=FALSE, fig.cap="Estimated common trends in yellow eel time series"}
-N_ts=nrow(yellow_wide) #number of time series
-TT=ncol(yellow_wide)-1 #number of time steps
-y=as.matrix(yellow_wide[,-1]) #matrix of obseravation
-rownames(y)=yellow_wide$ser_nameshort
 
-formatted_matrices_yellow=format_dfa(best_fit_yellow)
-
-namesseries=yellow_wide$ser_nameshort
-
-trends=formatted_matrices_yellow$trends
-Z=formatted_matrices_yellow$Z
-#plot the factor loadings
-minZ = 0.2
-m=dim(trends)[1]
-
-trends_long <- as.data.frame(t(trends))
-names(trends_long)=paste("Trend",1:ncol(trends_long))
-trends_long$year=as.numeric(names(yellow_wide)[-1])
-trends_long<-trends_long %>%
-  pivot_longer(starts_with("Trend"),names_to="Trend")
-ggplot(trends_long,aes(x=year,y=value))+
-  geom_line()+
-  facet_wrap(.~Trend)+
-  theme_bw()
+source("DFA_functions.R")
+load("./dfa.rdata")
+DFA = best_DFA(DFA_yellow) # results for best
+DFA_results = results_DFA(DFA) # can be long
+graph_trends(DFA_results$trends,year=sort(unique(yellow_data$das_year)),sign_trends=-1)
 
 ```
 
 ```{r tab-loadingsYE,echo=FALSE,tab.cap="Factor loadings of the yellow eel DFA (red names stand for loadings absolute values greater than 0.2)"}
-Z_tab = as_tibble(data.frame(namesseries,  Z))
-country = distinct(yellow_data[, c("ser_nameshort", "cou_order", "ser_cou_code")])
-colnames(Z_tab) = c("Series", paste0("Trend ", 1:m))
-Z_tab = Z_tab %>% inner_join(country, by = c("Series" = "ser_nameshort"))
-Z_tab = Z_tab %>% arrange(cou_order, Series) %>% mutate(Country = as.character(ser_cou_code)) %>% select(Country, Series, 2:(1+m))
-ft <- flextable(Z_tab  %>% mutate(across(3:(2+m), round, 2))) #digits no more supported in colformat_num
-for(i in 1:m)
-	ft = ft %>% color(abs(Z_tab %>% select(paste0("Trend ", i))) > 0.2, paste0("Trend ", i), color = "red")
-ft = merge_v(ft, ~ Country)
-ft = border_inner_h(ft)
-autofit(ft)
 
-#ggplot(as.data.frame(Z_tab), aes(x = `Trend 1`, y = `Trend 2`, label = Series, col = Country))+
-#	geom_text() + scale_color_manual(values = color_countries) +
-#	geom_hline(yintercept = 0) + geom_vline(xintercept = 0) +
-#	theme_bw()
+graph_Z(DFA_results$Z.conf,sign_trends=-1)
+
 ```
 
-Trend 1 shows a monotonous trend over the period while trend 2 indicates a shift after 2007.
+Trend 1 shows a monotonous decreasing trend over the period.
 
 The factor loadings $w$ are displayed in the following plots (Figure \@ref(fig:seriesloadingsYE)). Following @zuur2003,
 we only focused on loading with absolute values greater than 0.2 to focus on the most important trends and presented on
@@ -689,66 +644,43 @@ a Venn diagram (Figure \@ref(fig:vennyellow))
 
 
 ```{r seriesloadingsYE, echo=FALSE,fig.cap="Factor loadings of the yellow eel DFA (red names stand for loadings absolute values greater than 0.2)",fig.height=16/2.54}
-ylims = c(-1.1*max(abs(Z)), 1.1*max(abs(Z)))
-par(mfrow=c(2,1), mar=c(0.5,2.5,1.5,0.5), oma=c(0.4,1,1,1))
-for(i in 1:m) {
-    #plot(c(1:N_ts)[abs(Z[,i])>minZ], as.vector(Z[abs(Z[,i])>minZ,i]),
-  #     type="h", lwd=2, xlab="", ylab="", xaxt="n", ylim=ylims, xlim=c(0,N_ts+1))
-  plot(c(1:N_ts), as.vector(Z[,i]),
-       type="h", lwd=2, xlab="", ylab="", xaxt="n", ylim=ylims, xlim=c(0,N_ts+1))
-  for(j in 1:N_ts) {
-    # if(Z[j,i] > minZ) {text(j, -0.05, namesseries[j], srt=90, adj=1, cex=0.5)}
-    # if(Z[j,i] < -minZ) {text(j, 0.05, namesseries[j], srt=90, adj=0, cex=0.5)}
-    if(Z[j,i] > 0) {text(j, -0.05, namesseries[j], srt=90, adj=1, cex=0.5,col=ifelse(Z[j,i]>minZ,2,1))}
-    if(Z[j,i] < 0) {text(j, 0.05, namesseries[j], srt=90, adj=0, cex=0.5,col=ifelse(Z[j,i]< -minZ,2,1))}
-    abline(h=0, lwd=1, col="gray")
-  } # end j loop
-  mtext(bquote(~italic(w[list(i,.(i))])),side=3,line=.5)
-} # end i loop
 
-# ##kept if two trends
-# loadings_y = as.data.frame(Z[,1:2])
-# names(loadings_y)=c("loading_trend_1","loading_trend_2")
-# ggplot(loadings_y,aes(x=loading_trend_1,y=loading_trend_2))+
-#   geom_point()+
-#   theme_bw()
+Venn_diagram(DFA_results$Z,sign_trends=-1) 
+
 ```
 
 
 ```{r facotr-glm-yellow, echo = FALSE}
 
 #r trendsyellow
-load_library("car")
 
-yellow_z_dfa<-data.frame(namesseries=namesseries, z1=Z[,1], z2=Z[,2])
+yellow_z_dfa <- data.frame(namesseries=rownames(DFA_results$Z),z1=DFA_results$Z[,1])
 sel_param<-unique(data.frame(nameshort=mydata$ser_nameshort, res=mydata$ser_restocking, hty=mydata$ser_hty_code, cou_code=mydata$ser_cou_code, samplingtype=mydata$sam_samplingtype, sam_id=mydata$ser_sam_id,distanceseakm=mydata$ser_distanceseakm, sam_gear=mydata$ser_sam_gear))
 
 yellow_dfa<-merge(yellow_z_dfa, sel_param, by.x="namesseries", by.y="nameshort")
 modelz1<-glm(z1~ res+hty+as.factor(sam_gear)+distanceseakm, family = gaussian, data = yellow_dfa)
-modelz2<-glm(z2~ res+hty+as.factor(sam_gear)+distanceseakm, family = gaussian, data = yellow_dfa)
 
 Anova(modelz1)
 summary(modelz1)
 
-Anova(modelz2)
-summary(modelz2)
 ```
 
 ```{r vennyellow, echo=FALSE, fig.cap="Venn diagram of the yellow eel DFA"}
-venn(namesseries,Z,minZ)
+Venn_diagram(DFA_results$Z,sign_trends=-1)
 ```
 
 
 ```{r spatialpatternAllYE,echo=FALSE,fig.cap="Spatial maps of yellow DFA loadings", warning=FALSE, message=FALSE, fig.height=16/2.54}
-yellow_belonging=data.frame(ser_nameshort=namesseries,
-                            Trend=venn_belonging(namesseries,
+
+Z=DFA_results$Z # factor loadings
+minZ=0.2 # minum value accepted for factor loading
+yellow_belonging=data.frame(ser_nameshort=rownames(Z),
+                            Trend=venn_belonging(rownames(Z),
                                                  Z,
                                                  minZ))
 yellow_belonging <- yellow_belonging %>%
   mutate(Trend1=ifelse(Z[,1]>minZ,"+",
-                       ifelse(Z[,1]< -minZ, "-",0)),
-         Trend2=ifelse(Z[,2]>minZ,"+",
-                       ifelse(Z[,2]< -minZ, "-",0)))
+                       ifelse(Z[,1]< -minZ, "-",0)))
 yellow_belonging = merge(yellow_belonging,
                          unique(yellow_data[,c("ser_id","ser_nameshort")]))
 yellow_belonging=merge(yellow_map,
@@ -763,33 +695,36 @@ ggplot(yellow_belonging)+
 
 
 ```{r spatialpatternTrendsYE,echo=FALSE,fig.cap="Spatial maps of yellow DFA loadings, detailed by trend", warning=FALSE, message=FALSE, fig.height=16/2.54}
-yellow_belonging=data.frame(ser_nameshort=namesseries,
-                            Trend=venn_belonging(namesseries,
+
+yellow_belonging=data.frame(ser_nameshort=rownames(Z),
+                            Trend=venn_belonging(rownames(Z),
                                                  Z,
                                                  minZ))
+# yellow_belonging=data.frame(ser_nameshort=namesseries,
+#                             Trend=venn_belonging(namesseries,
+#                                                  Z,
+#                                                  minZ))
 yellow_belonging <- yellow_belonging %>%
   mutate(Trend1=ifelse(Z[,1]>minZ,"+",
-                       ifelse(Z[,1]< -minZ, "-",0)),
-         Trend2=ifelse(Z[,2]>minZ,"+",
-                       ifelse(Z[,2]< -minZ, "-",0)))
+                       ifelse(Z[,1]< -minZ, "-",0)))
 yellow_belonging = merge(yellow_belonging,
                          unique(yellow_data[,c("ser_id","ser_nameshort")]))
 yellow_belonging=merge(yellow_map,
                        yellow_belonging)
-t2<-ggplot(yellow_belonging)+
-  geom_sf(data=europe_cropped)+
-  geom_sf(data=yellow_belonging,aes(fill=Trend2,col=Trend2))+
-  scale_fill_brewer(type="qual")+
-  scale_color_brewer(type="qual")+
-  theme_bw()
+#t2<-ggplot(yellow_belonging)+
+#  geom_sf(data=europe_cropped)+
+#  geom_sf(data=yellow_belonging,aes(fill=Trend2,col=Trend2))+
+#  scale_fill_brewer(type="qual")+
+#  scale_color_brewer(type="qual")+
+#  theme_bw()
 
-t1 <- ggplot(yellow_belonging)+
+ggplot(yellow_belonging)+
   geom_sf(data=europe_cropped)+
   geom_sf(data=yellow_belonging,aes(fill=Trend1,col=Trend1))+
   scale_fill_brewer(type="qual")+
   scale_color_brewer(type="qual")+
   theme_bw()
-grid.arrange(t1,t2,ncol=1)
+# grid.arrange(t1,t2,ncol=1)
 ```
 
 
@@ -809,10 +744,16 @@ The fits of the DFA model to the different time series are presented in Figure \
 
 
 ```{r fitsyellow, echo=FALSE,warning=FALSE, fig.cap="Yellow DFA fits to time series", fig.width=16/2.54, fig.height=25/2.54}
-d <- residuals(best_fit_yellow,interval="confidence") #augment is replace since MARSS 3.11, see https://github.com/nwfsc-timeseries/MARSS/releases
+d <- residuals(DFA,interval="confidence") #augment is replace since MARSS 3.11, see https://github.com/nwfsc-timeseries/MARSS/releases
 d$.conf.low <- d$.fitted+qnorm(0.05/2)*d$.sigma
 d$.conf.up <- d$.fitted-qnorm(0.05/2)*d$.sigma
 
+	data_dfa_yellow = yellow_data %>% as_tibble() %>%
+	  select(ser_nameshort,das_value,das_year) %>%
+	  arrange(das_year)%>%
+	  pivot_wider(names_from= ser_nameshort, values_from=das_value)
+	
+TT <- nrow(data_dfa_yellow) - 1
 # some tests
 #cor.test(d$value, d$.fitted)
 #ggplot(data = d) + geom_point(aes(x=value, y =.fitted, color = .rownames)) + geom_abline(intercept = 0, slope = 1)
@@ -822,9 +763,9 @@ ggplot(data = d) +
   geom_point(aes(t, value)) +
   geom_ribbon(aes(x=t, ymin=.conf.low, ymax=.conf.up), linetype=2, alpha=0.2) +
   facet_wrap(vars(.rownames)) +
-  xlab("") + ylab("standarized abundance index")+
-  scale_x_continuous(breaks=seq(1,TT,10),labels=colnames(y)[seq(1,TT,10)])+
+  xlab("") + ylab("standarized abundance index")+ 
   theme_bw()
+ 
 ```
 
 
@@ -837,7 +778,6 @@ the early trend is only based on two time series.
 
 ```{r gamYellowHist, echo=FALSE,warning=FALSE, fig.cap="Trends per country in yellow eel abundance estimated by a GAM "}
 yellow_data_std_gam=yellow_data_gam%>%
-#  filter(das_value>0) %>%
   mutate(das_value=das_value)%>%
   group_by(ser_nameshort)%>%
   mutate(das_value=(das_value-mean(ifelse(das_year>=2000,
@@ -881,9 +821,8 @@ provide data through the current or past Data Call l (Figure
                           returnclass = 'sf')
  europe_cropped <- st_crop(worldmap, xmin = -13, xmax = 27,
                                      ymin = 35, ymax = 65)
-# ggplot(silver_map)+geom_sf(data=europe_cropped)+geom_sf(data=silver_map,col="red")+
-   #theme_bw()
-  my_map=get_stamenmap(bbox = c(left = -13, bottom = 35, right =
+
+ my_map=get_stamenmap(bbox = c(left = -13, bottom = 35, right =
                                   27, top = 65), zoom = 6, maptype = c("terrain-background"))
 #watercolor
 draw_key_text=
@@ -902,7 +841,7 @@ ggmap(my_map) +
 		aes(x=ser_x,y=ser_y),cex=2,pch=20, col  = "red")+
 	geom_label_repel(data=silver_map,
 		aes(x=ser_x,y=ser_y,label=ser_nameshort,col=Updated),cex=1.5, key_glyph=draw_key_text, max.overlaps = Inf, label.padding = 0.1) +
-	scale_color_manual("Upated",values=colorpalette)+
+	scale_color_manual("Updated",values=colorpalette)+
 	ylab("")+xlab("")
 #knitr::include_graphics("images/silver.png")
 ```
@@ -972,7 +911,6 @@ the series, a GAM smoother indicates an overall slightly decreasing trend (Figur
 
 ```{r plotTSSE,echo=FALSE,warning=FALSE, fig.cap="Silver eel time series and GAM smoother"}
 silver_data_std=silver_data%>%
-#  mutate(das_value=log(das_value))%>%
   group_by(ser_id)%>%
   mutate(das_value=(das_value-mean(das_value,na.rm=TRUE))/sd(das_value,na.rm=TRUE))
 
@@ -992,13 +930,11 @@ erratic, especially because there are no data at the beginning of the period.
 The trend correspdond to log transformed and scaled values.
 
 ```{r gamSilver, echo=FALSE,warning=FALSE, fig.cap="Trends per country in silver eel abundance estimated by a GAM"}
-
 #g0 <- gam(das_value~s(das_year), data=silver_data_std)
 g1 <- gam(das_value~s(das_year, by=ser_cou_code), data=silver_data_std, family = gaussian())
 #g2 <- gam(das_value~s(das_year, by=ser_nameshort), data=silver_data_std)
 #AIC(g0, g1, g2)
 cou_code <- levels(droplevels (silver_data_std$ser_cou_code))
-
 cols<-colorRampPalette(c("chartreuse", "grey",  "navy"),space = "rgb")(length(cou_code))
 silver_gam_plot_recent=generate_dataset_plot_gam(g1)
 ggplot(silver_gam_plot_recent,aes(x=year,y=pred))+
@@ -1008,7 +944,6 @@ ggplot(silver_gam_plot_recent,aes(x=year,y=pred))+
   scale_colour_manual(values=cols)+
   scale_fill_manual(values=cols)+
   theme_bw()+ ylab("relative abundance")
-
 ```
 
 
@@ -1027,50 +962,29 @@ corresponding section for further details.
 
 ```{r dfa silver, results='hide',eval=TRUE,echo=FALSE}
 if (params$rerunDFA){
-  #put data in wide format and select from 1980
-  silver_wide <-silver_data %>%
-    ungroup(ser_id)%>%
-    mutate(das_value=log(das_value))%>%
-    select(ser_nameshort,das_value,das_year) %>%
-    arrange(das_year)%>%
-    pivot_wider(id_cols=c(ser_nameshort,das_year),names_from=das_year,values_from=das_value)
+
+  # put data in wide format
+  	data_dfa_silver = silver_data %>% as_tibble() %>%
+	  select(ser_nameshort,das_value,das_year) %>%
+	  arrange(das_year)%>%
+	  pivot_wider(names_from= ser_nameshort, values_from=das_value)
   
-  #then we scaled time series (substract the mean and divide by standard deviation)
-  silver_wide[,-1] <- sweep(silver_wide[,-1],1,rowMeans(silver_wide[,-1],na.rm=TRUE),"-")
-  silver_wide[,-1] <- sweep(silver_wide[,-1],1,apply(silver_wide[,-1],1,sd,na.rm=TRUE),"/")
+  	# plot raw data series
+  	graph_serie(silver_data)
   
   
-  #Define some constants
-  N_ts=nrow(silver_wide) #number of time series
-  TT=ncol(silver_wide)-1 #number of time steps
-  y=as.matrix(silver_wide[,-1]) #matrix of obseravation
-  rownames(y)=silver_wide$ser_nameshort
   
   #Design of experiments
-  S=c("diagonal and equal","diagonal and unequal","unconstrained")
-  #S=c("diagonal and equal","diagonal and unequal")
+  S=c("diagonal and equal","diagonal and unequal")
   nbtrend=1:4
   expe=expand.grid(S=S,nbtrend=nbtrend)
-  
+
   #Now we make a loop of DFA to find the best model
-  model_comparisonsSE= mcmapply(function(s,m){
-    dfa.model=list(R=s, m=m)
-    kemz=MARSS(y, model=dfa.model, form="dfa",z.score=TRUE,control=list(maxit=2000))
-    if (kemz$convergence>0) kemz=MARSS(y, model=dfa.model, form="dfa",z.score=TRUE,control=list(maxit=2000),method="BFGS")
-    aicc=MARSSaic(kemz, output="AICc")$AICc
-    aic=MARSSaic(kemz, output="AIC")$AIC
-    list(Trends=m,AICc=aicc,AIC=aic,Sigma=s,dfa=kemz,convergence=kemz$convergence==0)
-  },as.character(expe$S),expe$nbtrend, mc.cores=4,SIMPLIFY=FALSE)
-  
-    results_silver=do.call(rbind.data.frame,lapply(model_comparisonsSE,function(x) {
-    data.frame(Trends=x["Trends"],
-               Sigma=x["Sigma"],
-               AIC=x["AIC"],
-               AICc=x["AICc"],
-               convergence=x["convergence"])})
-  )
-#  save.image(file="./silver_dfa.rdata")
-  save(results_silver, model_comparisonsSE, silver_wide, file="./silver_dfa.rdata")
+	DFA_silver = run_DFA(data_dfa_silver, expe, log = TRUE)
+	
+	# save results
+	save(DFA_silver, file="./dfasilver.rdata")
+
 }
 ```
   
@@ -1079,47 +993,58 @@ The model selection leads to the estimation of a single trend (Table
 
 
 ```{r comparisonSE,echo=FALSE,tab.cap="Model comparisons for silver eel DFA"}
-load("./silver_dfa.rdata")
-results_silver$convergence=as.character(results_silver$convergence)
-ft <- flextable(results_silver[,-c(4,5)] %>% mutate(AIC = round(AIC)))
-ft <- colformat_num(ft,j="AIC", big.mark = "")
-autofit(ft)
-best_fit_silver=model_comparisonsSE[[which(results_silver$AIC==min(results_silver$AIC))]]$dfa
+load("./dfasilver.rdata")
+summary_models(DFA_silver)
+table_summary_models(summary_models(DFA_silver))
+
 ```
   
   
 ```{r trendssilver, echo=FALSE, fig.cap="Estimated common trend in silver eel time series"}
-N_ts=nrow(silver_wide) #number of time series
-TT=ncol(silver_wide)-1 #number of time steps
-y=as.matrix(silver_wide[,-1]) #matrix of obseravation
-rownames(y)=silver_wide$ser_nameshort
+# N_ts=nrow(silver_wide) #number of time series
+# TT=ncol(silver_wide)-1 #number of time steps
+# y=as.matrix(silver_wide[,-1]) #matrix of obseravation
+# rownames(y)=silver_wide$ser_nameshort
+# 
+# formatted_matrices_silver=format_dfa(best_fit_silver)
+# 
+# namesseries=silver_wide$ser_nameshort
+# 
+# trends=formatted_matrices_silver$trends
+# Z=formatted_matrices_silver$Z
+# save(Z, file = "./Zsilver.Rdata")
+# #plot the factor loadings
+# minZ = 0.2
+# m=dim(trends)[1]
+# 
+# trends_long <- as.data.frame(t(trends))
+# names(trends_long)=paste("Trend",1:ncol(trends_long))
+# trends_long$year=as.numeric(names(silver_wide)[-1])
+# trends_long<-trends_long %>%
+#   pivot_longer(starts_with("Trend"),names_to="Trend")
+#   ggplot(trends_long,aes(x=year,y=value))+
+#     geom_line()+
+#     facet_wrap(.~Trend)+
+#     theme_bw()
+table_summary_models(summary_models(DFA_silver))
+graph_summary_models(summary_models(DFA_silver))
+DFA = best_DFA(DFA_silver)
+DFA_results = results_DFA(DFA) # can be long
 
-formatted_matrices_silver=format_dfa(best_fit_silver)
 
-namesseries=silver_wide$ser_nameshort
+  	data_dfa_silver = silver_data %>% as_tibble() %>%
+	  select(ser_nameshort,das_value,das_year) %>%
+	  arrange(das_year)%>%
+	  pivot_wider(names_from= ser_nameshort, values_from=das_value)
 
-trends=formatted_matrices_silver$trends
-Z=formatted_matrices_silver$Z
-save(Z, file = "./Zsilver.Rdata")
-#plot the factor loadings
-minZ = 0.2
-m=dim(trends)[1]
+graph_trends(DFA_results$trends,year=sort(unique(data_dfa_silver$das_year)),sign_trends=-1)
 
-trends_long <- as.data.frame(t(trends))
-names(trends_long)=paste("Trend",1:ncol(trends_long))
-trends_long$year=as.numeric(names(silver_wide)[-1])
-trends_long<-trends_long %>%
-  pivot_longer(starts_with("Trend"),names_to="Trend")
-  ggplot(trends_long,aes(x=year,y=value))+
-    geom_line()+
-    facet_wrap(.~Trend)+
-    theme_bw()
-  
 ```
   
  
 ```{r tab-loadingsSE,echo=FALSE,tab.cap="Factor loadings of the silver eel DFA (red names stand for loadings absolute values greater than 0.2)"}
-Z_tab = as_tibble(data.frame(namesseries,  Z))
+m <- 1 #number of trends
+Z_tab = as_tibble(data.frame(rownames(Z),  Z))
 colnames(Z_tab) = c("Series", paste0("Trend ", 1:m))
 Z_tab = Z_tab %>% arrange(Series)
 ft <- flextable(Z_tab  %>% mutate(across(2:(1+m), round, 2))) #digits no more supported in colformat_num
@@ -1131,50 +1056,34 @@ autofit(ft)
 The factor loadings are displayed in the Figure \@ref(fig:seriesloadingssilver) 
 (importance of each trend in each time series) and corresponding Venn diagram in Figure \@ref(fig:vennsilver).
   
-```{r seriesloadingssilver, echo=FALSE,fig.cap="Factor loadings of the silver eel DFA (red names stand for loadings absolute values greater than 0.2)"}
-ylims = c(-1.1*max(abs(Z)), 1.1*max(abs(Z)))
-par(mfrow=c(ceiling(m/2),2), mar=c(0.5,2.5,1.5,0.5), oma=c(0.4,1,1,1))
-for(i in 1:m) {
-    #plot(c(1:N_ts)[abs(Z[,i])>minZ], as.vector(Z[abs(Z[,i])>minZ,i]),
-  #     type="h", lwd=2, xlab="", ylab="", xaxt="n", ylim=ylims, xlim=c(0,N_ts+1))
-  plot(c(1:N_ts), as.vector(Z[,i]),
-       type="h", lwd=2, xlab="", ylab="", xaxt="n", ylim=ylims, xlim=c(0,N_ts+1))
-  for(j in 1:N_ts) {
-    # if(Z[j,i] > minZ) {text(j, -0.05, namesseries[j], srt=90, adj=1, cex=0.5)}
-    # if(Z[j,i] < -minZ) {text(j, 0.05, namesseries[j], srt=90, adj=0, cex=0.5)}
-    if(Z[j,i] > 0) {text(j, -0.05, namesseries[j], srt=90, adj=1, cex=0.5,col=ifelse(Z[j,i]>minZ,2,1))}
-    if(Z[j,i] < 0) {text(j, 0.05, namesseries[j], srt=90, adj=0, cex=0.5,col=ifelse(Z[j,i]< -minZ,2,1))}
-    abline(h=0, lwd=1, col="gray")
-  } # end j loop
-  mtext(bquote(~italic(w[list(i,.(i))])),side=3,line=.5)
-} # end i loop
-  
-##kept if two trends
-# loadings_y = as.data.frame(Z[,1:2])
-# names(loadings_y)=c("loading_trend_1","loading_trend_2")
-# ggplot(loadings_y,aes(x=loading_trend_1,y=loading_trend_2))+
-#   geom_point()+
-#   theme_bw()
+```{r seriesloadingssilver, echo=FALSE,fig.cap="Factor loadings of the silver eel DFA"}
+graph_Z(DFA_results$Z.conf,sign_trends=-1)
+
 ```
 
 
 ```{r vennsilver, echo=FALSE, fig.cap="Venn diagram of the silver eel DFA"}
-venn(namesseries,Z,minZ)
+Venn_diagram(DFA_results$Z,sign_trends=-1)
 ```
 
 
 ```{r spatialpatternAllSE,echo=FALSE,fig.cap="Spatial maps of silver DFA loadings (+ stands for a positive correlaction to trend 1)", warning=FALSE, message=FALSE, fig.heigth=16/2.54}
-silver_belonging=data.frame(ser_nameshort=namesseries,
-                            Trend=venn_belonging(namesseries,
+Z=DFA_results$Z # factor loadings
+minZ=0.2 # minum value accepted for factor loading
+
+silver_belonging=data.frame(ser_nameshort=rownames(Z),
+                            Trend=venn_belonging(rownames(Z),
                                                  Z,
                                                  minZ))
 silver_belonging <- silver_belonging %>%
   mutate(Trend1=ifelse(Z[,1]>minZ,"+",
                        ifelse(Z[,1]< -minZ, "-",0)))
 silver_belonging = merge(silver_belonging,
-                         unique(silver_data[,c("ser_id","ser_nameshort")]))
+                         unique(silver_data[,c("ser_id","ser_nameshort")]),
+                         by="ser_nameshort")
 silver_belonging=merge(silver_map,
                        silver_belonging)
+
 ggplot(silver_belonging)+
   geom_sf(data=europe_cropped)+
   geom_sf(data=silver_belonging,aes(fill=Trend1,col=Trend1))+
@@ -1197,7 +1106,7 @@ there is no obvious spatial pattern in the trends
 DFA fits to data are presented in Figure \@ref(fig:fitsilver).
 
 ```{r fitsilver, echo=FALSE,warning=FALSE, fig.cap="Silver DFA fits to time series", fig.width=16/2.54, fig.height=16/2.54}
-d <- residuals(best_fit_silver,interval="confidence") #augment is replace since MARSS 3.11, see https://github.com/nwfsc-timeseries/MARSS/releases
+d <- residuals(DFA,interval="confidence") #augment is replace since MARSS 3.11, see https://github.com/nwfsc-timeseries/MARSS/releases
 d$.conf.low <- d$.fitted+qnorm(0.05/2)*d$.sigma
 d$.conf.up <- d$.fitted-qnorm(0.05/2)*d$.sigma
 
@@ -1206,9 +1115,9 @@ ggplot(data = d) +
   geom_point(aes(t, value)) +
   geom_ribbon(aes(x=t, ymin=.conf.low, ymax=.conf.up), linetype=2, alpha=0.2) +
   facet_wrap(vars(.rownames)) +
-  xlab("") + ylab("standarized abundance index")+
-  scale_x_continuous(breaks=seq(1,TT,10),labels=colnames(y)[seq(1,TT,10)])+
-  theme_bw()
+  xlab("") + ylab("standarized abundance index")+   theme_bw()
+  #scale_x_continuous(breaks=seq(1,TT,10),labels=colnames(y)[seq(1,TT,10)])+
+
 ```
 
 ## Historical trends
