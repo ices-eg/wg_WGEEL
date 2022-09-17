@@ -40,3 +40,37 @@ plot_map_bio_emu = function(var, stage, mydata = stats_data_coord, transparent =
 		guides(fill = guide_legend(override.aes = list(shape = 21) ) ) +
 		theme_bw()+xlab("")+ylab("") + ggtitle(title)
 }
+
+#' @title Plot a distribution by country and lifestage for a given variable
+#' @param var character. Which variable you want to map? One of 'length', 'weight', 'sexratio', 'age'
+#' @return a map
+plot_distribution = function(mydata = total_individual, lifeStage, var = "length", scale_value = 3, bandwidth_value = 5)
+{
+	#TODO: add the number of samples for each line
+	
+	var_name=switch (var,
+		"length" = "lengthmm",
+		"weight" = "weightg",
+		"age" = "ageyear"
+	)
+	
+	xlabel=switch (var,
+		"length" = "Length (mm)",
+		"weight" = "Weight (g)",
+		"age" = "Age"
+	)
+	
+	total_length <- mydata %>% filter(!is.na(!!as.symbol(var_name)), life_stage %in% lifeStage) %>%
+		mutate(life_stage  = case_when(life_stage =="G" ~"Glass eel", life_stage =="Y" ~"Yellow eel", life_stage =="S" ~ "Silver eel")) %>%
+		mutate(country = factor(country, levels = cou_ref$cou_code, ordered=TRUE))
+	
+	ggplot(total_length) + aes(x = !!as.symbol(var_name), y=country, fill = country, alpha=0.5)  + 
+		geom_density_ridges( scale = scale_value, rel_min_height = 0.003, bandwidth = bandwidth_value)+ 
+		facet_grid(vars(life_stage)) +
+		scale_fill_manual("Country",values=color_countries[names(color_countries) %in% unique(total_length$country)], drop = TRUE, guide = "none")+
+		scale_alpha(guide="none") +
+		xlab(xlabel) +
+		ylab("Country") +
+		scale_y_discrete(limits=rev)  + theme_classic() +
+		coord_cartesian(expand = FALSE) + xlim(c(0, NA)) 
+}

@@ -223,25 +223,20 @@ nrow = 3
 
 ** NO yellow eel to be checked **
 
-```{r lengthdescriptivegraphs, include=TRUE, fig.cap = "Length distribtion by country and by life stage"}
-#TODO: add the number of samples for each line
+```{r lengthdescriptivegraphsYS, include=TRUE, fig.cap = "Length distribtion by country and by life stage (yellow and silver)"}
 
-total_length<-total_individual %>% filter(!is.na(lengthmm), life_stage %in% c("Y","S")) %>%
-	mutate(life_stage  = case_when(life_stage =="Y" ~"Yellow eel", life_stage =="S" ~ "Silver eel")) %>%
-	mutate(country = factor(country, levels = cou_ref$cou_code, ordered=TRUE))
-
-ggplot(total_length) + aes(x = lengthmm, y=country, fill = country, alpha=0.5)  + 
-  geom_density_ridges( scale = 3, rel_min_height = 0.005, bandwidth = 5)+ 
-  facet_grid(vars(life_stage)) +
-  scale_fill_manual("Country",values=color_countries[names(color_countries) %in% unique(total_age$country)], drop = TRUE, guide = "none")+
-  scale_alpha(guide="none") +
-  xlab("Length (mm)") +
-  ylab("Country") +
-  scale_y_discrete(limits=rev)  + theme_classic() +
-  coord_cartesian(expand = FALSE) + xlim(c(0, NA)) 
+plot_distribution(total_individual, lifeStage = c("Y", "S"), var = "length")
 
 ```
 
+Glass eel larger than 100 mm (so excluded)  =
+`r nrow(total_individual %>% filter(!is.na(lengthmm), lengthmm > 100, life_stage %in% c("G")))`.
+
+```{r lengthdescriptivegraphsG, include=TRUE, fig.cap = "Length distribtion of glass eel by country"}
+
+plot_distribution(total_individual %>% filter(lengthmm < 100), lifeStage = c("G"), var = "length", scale_value = 2, bandwidth_value = 2)
+
+```
 
 ### Glass eel map
 
@@ -274,7 +269,7 @@ plot_map_bio_emu("length","S")
 
 ## Weight data
 
-```{r weightdecriptivegraphs, include=TRUE, fig.cap = "Weight distribution by year and by life stage. Point is the median, bar gives 5% and 95% quantile.", fig.height=20/2.54}
+```{r weightdecriptivegraphs, include=TRUE, fig.cap = "** not for the report ** Weight distribution by year and by life stage. Point is the median, bar gives 5% and 95% quantile.", fig.height=20/2.54}
 
 graph_weight = function(lifeStage = "G")
 {
@@ -304,6 +299,21 @@ gridExtra::grid.arrange(
 	graph_weight("S"),
 	nrow = 3
 )
+
+```
+
+
+```{r weightdescriptivegraphsYS, include=TRUE, fig.cap = "Weight distribtion by country and by life stage (yellow and silver)"}
+
+plot_distribution(total_individual, lifeStage =  c("Y","S"), var = "weight", bandwidth_value = 1)
+
+```
+
+Glass eel larger than 1g = `r nrow(total_individual %>% filter(weightg > 1, life_stage %in% c("G")))`.
+
+```{r weightdescriptivegraphsG, include=TRUE, fig.cap = "Weight distribtion of glass eel by country"}
+
+plot_distribution(total_individual  %>% filter(weightg < 1), lifeStage =  c("G"), var = "weight", scale_value = 1, bandwidth_value = 0.005)
 
 ```
 
@@ -499,22 +509,8 @@ For the spatial analysis, we only considered ser_hty_code x EMU x lfs_code where
 ## Age
 
 ```{r agedescriptivegraphs, include=TRUE, fig.cap = "Age distribtion by country and by life stage"}
-#TODO: add the number of samples for each line
 
-total_age<-total_individual %>% filter(!is.na(ageyear), life_stage %in% c("Y","S")) %>%
-	mutate(life_stage  = case_when(life_stage =="Y" ~"Yellow eel", life_stage =="S" ~ "Silver eel"))
-
-total_age$country<-factor(total_age$country,levels=cou_ref$cou_code,ordered=TRUE)
-
-ggplot(total_age) + aes(x = ageyear, y=country, fill = country, alpha=0.5)  + 
-  geom_density_ridges( scale = 3, rel_min_height = 0.005, bandwidth = 1)+ 
-  facet_grid(vars(life_stage)) +
-  scale_fill_manual("Country",values=color_countries[names(color_countries) %in% unique(total_age$country)], drop = TRUE, guide = "none")+
-  scale_alpha(guide="none") +
-  xlab("Age (year)") +
-  ylab("Country") +
-  scale_y_discrete(limits=rev)  + theme_classic() +
-  coord_cartesian(expand = FALSE) + xlim(c(0, NA)) 
+plot_distribution(total_individual, lifeStage =  c("Y", "S"), var = "age", scale_value = 3, bandwidth_value = 0.5)
 
 ```
 
