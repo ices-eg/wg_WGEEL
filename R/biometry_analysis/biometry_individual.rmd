@@ -239,6 +239,14 @@ plot_distribution(total_individual %>% filter(lengthmm < 100), lifeStage = c("G"
 
 ```
 
+
+```{r lenghtgear, include=TRUE, fig.cap="Length distribution by gear and by life stage (yellow and silver eel"}
+
+plot_distribution(total_individual%>% filter(life_stage %in% c("Y","S")), var = "length",lifeStage=c("Y","S"),scale_value = 2,group="gear", bandwidth_value = 2)
+
+
+```
+
 ### Map of available length data by stage
 
 Only the data series with more than 5 individual size measurements have been taken into account to make these maps
