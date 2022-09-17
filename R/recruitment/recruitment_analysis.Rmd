@@ -2376,7 +2376,7 @@ figure6_without_log_scale_BalticEffect <- g+ geom_line(aes(color=isBaltic),lwd=1
 				legend.text = element_text(size = 8, colour = 'black'), 
 				legend.background = element_rect(colour = NA, fill = 'white'))#+
 #stat_smooth(method="lm",formula=y ~ ns(x,4),lty=2, size=0.8,alpha=0.3,col="grey20")
-save_figure("figure6_without_log_scale_BalticEffect",figure6_without_log_scale,600,480)
+save_figure("figure6_without_log_scale_BalticEffect",figure6_without_log_scale_BalticEffect,600,480)
 figure6_without_log_scale_BalticEffect
 figure6_without_log_scale_black_BalticEffect <- g+geom_line(lwd=1,color="white")+ 
 		geom_point(color="white")+
@@ -2845,6 +2845,9 @@ knitr::include_graphics(paste0(imgwd,"figure5_ribbon.png"))
 knitr::include_graphics(paste0(imgwd,"figure6.png"))
 ```
 
+```{r figure6withlogscale_BalticEffect, fig.cap="Same graph as figure \\@ref(fig:figure6) but with a log scale.", fig.width=14/2.54, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
+knitr::include_graphics(paste0(imgwd,"figure6_BalticEffect.png"))
+```
 
 
 
