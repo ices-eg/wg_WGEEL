@@ -38,6 +38,7 @@ load_library("lubridate")
 load_library("stringr")
 load_library("quantreg")
 load_library("ggridges")
+load_library("scales")
 
 if(Sys.info()["user"]=="hilaire.drouineau"){
   allometry=read_excel("~/Bureau/slopesintercepts.xlsx")
@@ -138,24 +139,28 @@ stats_data= total_individual %>% group_by(source, country, EMU, habitat, life_st
   filter((n_lengthmm + n_bio_weight + n_female_proportion + n_pectoral_length + n_eye_diam_meanmm + n_ageyear + n_differentiated_proportion)>0) %>%
   arrange(source,life_stage,country,habitat,EMU)
 
-autofit(flextable(stats_data))
+ft = flextable(stats_data)
+ft = set_caption(ft, "Number of avaible data for each biometry metrics")
+
+autofit(ft)
 
 ```
 
 ```{r lengthdecriptivegraphs, include=TRUE, fig.cap = "Length distribution par life stage and source of data"}
-#TODO: explain (or better change) TRUE/FALSE/NA
 ## length frequency
 
 	ggplot(total_individual %>% mutate(type_sampling = ifelse(is.na(commercial), "Series", ifelse(commercial, "Fisheries sampling", "Scientific sampling")))) + aes(x = length_class_cm, color = life_stage) +
-	geom_density() + facet_grid(life_stage ~type_sampling, scales = "free_y") +
-	scale_color_discrete(guide = "none") +
-	xlab("Length (cm)") + ylab("") + theme_classic() + theme(
-		axis.text.y = element_blank(),
-		axis.ticks = element_blank()
-	)
+		geom_density() + facet_grid(life_stage ~type_sampling, scales = "free_y") +
+		scale_color_discrete(guide = "none") +
+		xlab("Length (cm)") + ylab("") + theme_classic() + theme(
+			axis.text.y = element_blank(),
+			axis.ticks = element_blank(),
+			axis.text.x = element_text(angle = 90),
+			axis.ticks.x = element_line()
+		) + coord_cartesian(expand = FALSE) + xlim(c(0, NA)) 
 ```
 
-```{r lengthdecriptivegraphs-month, include=TRUE, fig.cap = "Length distribution by month and by life stage. Point is the median, bar gives 5% and 95% quantile."}
+```{r lengthdecriptivegraphs-month, include=TRUE, fig.cap = "Length distribution by month and by life stage. Point is the median, bar gives 5% and 95% quantile.", fig.height=20/2.54}
 ## length by month
 
 total_lengthmmg<-total_individual %>% filter(!is.na(month),life_stage=="G",!is.na(lengthmm))%>%group_by(month)%>%summarise(q50=quantile(lengthmm,0.5),q5=quantile(lengthmm,0.05),q95=quantile(lengthmm,0.95))
@@ -171,55 +176,55 @@ ggplot(total_lengthmmg, aes(x=as.factor(month),y=q50)) +
   ggtitle("Glass eel")+ 
   theme(axis.text.x = element_text(size = 12, angle = 90))+ 
   xlab("Month")+
-  ylab("Length (mm)"),
+  ylab("Length (mm)") + theme_classic(),
 
 ggplot(total_lengthmmy, aes(x=as.factor(month),y=q50)) + 
   geom_pointrange(aes(ymin = q5, ymax = q95)) +ggtitle("Yellow eel")+ 
   theme(axis.text.x = element_text(size = 12, angle = 90))+ 
   xlab("Month")+
-  ylab("Length (mm)"),
+  ylab("Length (mm)") + theme_classic(),
 
 ggplot(total_lengthmmy, aes(x=as.factor(month),y=q50)) + 
   geom_pointrange(aes(ymin = q5, ymax = q95)) +
   ggtitle("Silver eel")+ 
   theme(axis.text.x = element_text(size = 12, angle = 90))+ 
   xlab("Month")+
-  ylab("Length (mm)"),
+  ylab("Length (mm)") + theme_classic(),
 
 nrow = 3
 )
 
 ```
 
-```{r weightdecriptivegraphs, include=TRUE, fig.cap = "Weight distribution by month and by life stage. Point is the median, bar gives 5% and 95% quantile."}
+```{r weightdecriptivegraphs, include=TRUE, fig.cap = "Weight distribution by year and by life stage. Point is the median, bar gives 5% and 95% quantile.", fig.height=20/2.54}
 
-## weight /year
-total_weightg<-total_individual %>% filter(!is.na(year), year>1, weightg<2,life_stage=="G")%>%group_by(year)%>%summarise(q50=quantile(weightg,0.5),q5=quantile(weightg,0.05),q95=quantile(weightg,0.95))
-
-total_weighty<-total_individual %>% filter(!is.na(year), year>1,life_stage=="Y", !is.na(weightg))%>%group_by(year)%>%summarise(q50=quantile(weightg,0.5),q5=quantile(weightg,0.05),q95=quantile(weightg,0.95))
-
-
-total_weights<-total_individual %>% filter(!is.na(year), year>1,life_stage=="S",!is.na(weightg))%>%group_by(year)%>%summarise(q50=quantile(weightg,0.5),q5=quantile(weightg,0.05),q95=quantile(weightg,0.95))
-
-
+graph_weight = function(lifeStage = "G")
+{
+	lfs = switch(lifeStage,
+		"G" = "Glass eel" ,
+		"Y" = "Yellow eel",
+		"S" = "Silver eel"
+		)
+		
+		total_weightg<-total_individual %>% 
+			filter(!is.na(weightg), !is.na(year), year>1, life_stage== lifeStage) %>%
+			group_by(year) %>%
+			summarise(q50=quantile(weightg, 0.5), q5=quantile(weightg,0.05), q95=quantile(weightg, 0.95))
+		
+		myplot = ggplot(total_weightg, aes(x=as.factor(year), y=q50)) + 
+			geom_pointrange(aes(ymin = q5, ymax = q95)) + ggtitle(lfs)  + theme_classic()+ 
+			theme(axis.text.x = element_text(angle = 90))+ 
+			xlab("Year")+ylab("Weight (g)")
+		
+		return(myplot)
+}
 
 
 gridExtra::grid.arrange(
-ggplot(total_weightg, aes(x=as.factor(year),y=q50)) + 
-  geom_pointrange(aes(ymin = q5, ymax = q95)) +ggtitle("Glass eel")+ 
-  theme(axis.text.x = element_text(size = 12, angle = 45))+ 
-  xlab("year")+ylab("weight in g"),
-
-ggplot(total_weighty, aes(x=as.factor(year),y=q50)) + 
-  geom_pointrange(aes(ymin = q5, ymax = q95)) +
-  ggtitle("Yellow eel") + 
-  theme(axis.text.x = element_text(size = 12, angle = 90))+ xlab("year")+ylab("weight in g"),
-
-ggplot(total_weights, aes(x=as.factor(year),y=q50)) + 
-  geom_pointrange(aes(ymin = q5, ymax = q95)) +
-  ggtitle("Silver eel")+ theme(axis.text.x = element_text(size = 12, angle = 90))+ xlab("year")+ylab("weight in g"),
-
-nrow = 3
+	graph_weight("G"),
+	graph_weight("Y"),
+	graph_weight("S"),
+	nrow = 3
 )
 
 ```
@@ -228,9 +233,10 @@ nrow = 3
 ```{r agedescriptivegraphs, include=TRUE, fig.cap = "Age distribtion by country and by life stage"}
 #TODO: add the number of samples for each line
 
-total_age<-total_individual %>% filter(!is.na(ageyear), life_stage %in% c("Y","S"))
+total_age<-total_individual %>% filter(!is.na(ageyear), life_stage %in% c("Y","S")) %>%
+	mutate(life_stage  = case_when(life_stage =="Y" ~"Yellow eel", life_stage =="S" ~ "Silver eel"))
 
-  total_age$country<-factor(total_age$country,levels=cou_ref$cou_code,ordered=TRUE)
+total_age$country<-factor(total_age$country,levels=cou_ref$cou_code,ordered=TRUE)
 
 ggplot(total_age) + aes(x = ageyear, y=country, fill = country, alpha=0.5)  + 
   geom_density_ridges( scale = 3, rel_min_height = 0.005, bandwidth = 1)+ 
@@ -238,15 +244,9 @@ ggplot(total_age) + aes(x = ageyear, y=country, fill = country, alpha=0.5)  +
   scale_fill_manual("Country",values=color_countries[names(color_countries) %in% unique(total_age$country)], drop = TRUE, guide = "none")+
   scale_alpha(guide="none")+
   xlab("Age (year)")+
-  ylab("Country")+
-<<<<<<< HEAD
-  scale_y_discrete(limits=rev)  + theme_classic() 
-=======
-    scale_y_discrete(limits=rev)+
-  theme_bw()
-
-
->>>>>>> branch 'master' of git@github.com:ices-eg/wg_WGEEL.git
+  ylab("Country") +
+  scale_y_discrete(limits=rev)  + theme_classic() +
+  coord_cartesian(expand = FALSE) + xlim(c(0, NA)) 
 
 ```
 
@@ -259,14 +259,10 @@ ggplot(age_lengthy) + aes(x = lengthmm, y=age_class, fill=country, alpha=0.5)  +
   geom_density_ridges( scale = 3, rel_min_height = 0.005, bandwidth = 4)+ 
   scale_alpha(guide="none")+
   scale_fill_manual("Country",values=color_countries[names(color_countries) %in% unique(age_lengthy$country)], drop = TRUE)+
-  ylab("Age in year")+
-  xlab("length in mm")+
-<<<<<<< HEAD
-  theme_classic()
-=======
-  theme_bw()
-
->>>>>>> branch 'master' of git@github.com:ices-eg/wg_WGEEL.git
+  ylab("Age (year)") +
+  xlab("Length (mm)") +
+  theme_classic() +
+  coord_cartesian(expand = FALSE) + xlim(c(0, NA)) 
 
 ```
 
@@ -280,59 +276,55 @@ ggplot(age_lengths) + aes(x = lengthmm, y=age_class, fill=country, alpha=0.5)  +
   geom_density_ridges( scale = 3, rel_min_height = 0.005, bandwidth = 4)+ 
   scale_alpha(guide="none")+
   scale_fill_manual("Country",values=color_countries[names(color_countries) %in% unique(age_lengths$country)], drop = TRUE)+
-  ylab("Age in year")+
-<<<<<<< HEAD
-    xlab("Length in mm") + 
-    theme_classic() + xlim(c(0, NA))
-=======
-  xlab("length in mm")+
-  theme_bw()
->>>>>>> branch 'master' of git@github.com:ices-eg/wg_WGEEL.git
+  ylab("Age (year)") +
+    xlab("Length (mm)") + 
+    theme_classic() +
+	coord_cartesian(expand = FALSE) + xlim(c(0, NA)) 
 
 ```
 
 
-```{r sexratio, include=TRUE}
+```{r sexratio, include=TRUE, fig.cap = "Sex distribution by life stage and country"}
 
 sexratio<-total_individual %>%
-  mutate(sex=ifelse(is.na(female_proportion), "unknown", ifelse(female_proportion==1, "F", "M")))%>% 
-  filter(life_stage %in% c("Y","YS","S"), sex %in% c("F","M"))
+  mutate(sex=ifelse(is.na(female_proportion), "unknown", ifelse(female_proportion==1, "Female", "Male")))%>% 
+  filter(life_stage %in% c("Y","YS","S"), sex != "unknown") %>%
+  mutate(life_stage = case_when(life_stage =="Y" ~"Yellow eel", life_stage =="S" ~ "Silver eel", life_stage == "YS" ~ "Yellow or Silver eel"))
 
 	ggplot(sexratio) + aes(country) +
 	geom_bar(aes(fill = sex)) + 
-	  facet_grid(vars(life_stage), scales = "free_y")+
-	  theme_bw()
+	  facet_grid(vars(life_stage), scales = "free_y") +
+	  scale_fill_discrete("Sex") +
+	  theme_classic() + xlab("Country") + ylab("Count") + coord_cartesian(expand = FALSE) 
 
+```
 
+```{r lengthweightlfs, include=TRUE, fig.cap = "Length-Weight relationship by life stage and source"}
+
+ggplot(total_individual %>% mutate(source = case_when(source == "sampling" ~ "Sampling", source == "series" ~ "Series"))) +
+	aes(x=lengthmm, y=weightg) + 
+	geom_point() +
+  	facet_grid(vars(life_stage), vars(source),scale="free")+
+  	theme_classic()+xlab("Length (mm)") + ylab("Weight (g)") +
+  	xlim(c(0, NA)) + ylim(c(0, NA))
 
 ```
 
-
-
-```{r lengthweightlfs, include=TRUE}
-
-## lfs effect on size-weight
-
-ggplot(total_individual,aes(x=lengthmm,y=weightg))+geom_point()+
-  facet_grid(vars(life_stage), vars(source),scale="free")+
-  theme_bw()+xlab("Length (mm)")+ylab("Weight (g)")
-
-
-```
-```{r lengthweightrelationship, include=TRUE}
+```{r lengthweightrelationship, include=TRUE, fig.cap = "Lenght-Weight relationship by life stage (point) and 75% quantile regression (line)"}
 
 # all data
 
 ## prepare the data
-reg_series_data<-total_individual[!is.na(total_individual$weightg) & !is.na(total_individual$lengthmm),]
-reg_series_data<-total_individual[total_individual$weightg>0 & total_individual$lengthmm>100,]
-reg_series_data<-reg_series_data[reg_series_data$life_stage %in% c("Y","S") & !is.na(reg_series_data$life_stage),]
-
-reg_series_data$country<-factor(reg_series_data$country,levels=cou_ref$cou_code,ordered=TRUE)
+reg_series_data <- 	total_individual %>%
+	filter(!is.na(weightg), !is.na(lengthmm), 
+		weightg>0, lengthmm>100,
+		life_stage %in% c("Y","S"), !is.na(life_stage)
+		) %>%
+	mutate(country = factor(country, levels=cou_ref$cou_code, ordered=TRUE))
 
 if(params$run_rq)
 {
-	reg_w_series = rq(log(reg_series_data$weightg)~log(reg_series_data$lengthmm), tau= 0.75)
+	reg_w_series = rq(log(reg_series_data$weightg) ~ log(reg_series_data$lengthmm), tau= 0.75)
 	save(reg_w_series, file = "reg_w_series.RData")
 } else {
 	load("reg_w_series.RData")
@@ -344,30 +336,59 @@ reg_series_data$ws = exp(predict(reg_w_series, newdata = reg_series_data))
 #calcul de Wr
 reg_series_data$wr = reg_series_data$weightg / reg_series_data$ws *100
 
+reg_series_data = reg_series_data %>% mutate(life_stage = case_when(life_stage =="Y" ~"Yellow eel", life_stage =="S" ~ "Silver eel"))
 
 ## regression with all data
 
-p <- ggplot(reg_series_data, aes(lengthmm, ws))
-p + geom_point(aes(lengthmm,weightg, colour=life_stage))+ geom_line() +
-	scale_color_discrete("Life stage")
+ggplot(reg_series_data) +
+	aes(lengthmm, ws) +
+	geom_point(aes(lengthmm, weightg, colour=life_stage), size = 1, alpha = 0.3) + 
+	geom_line() +
+	scale_color_discrete("Life stage") +
+	theme_classic() + xlab("Length (mm)") + ylab("Weight (g)") +
+	coord_cartesian(expand = FALSE, xlim = c(0, NA), ylim = c(0, NA)) +
+	guides(color = guide_legend(override.aes = list(size = 5) ) ) 
 
+```
+
+[@blackwellRelativeWeightWr2000]
+
+```{r lengthweightrelationship2, include=TRUE, fig.cap = "Relative Weight relationship by life stage"}
 ## representation of the results with all data
 
-p <- ggplot(reg_series_data, aes(lengthmm, wr, colour=life_stage))
-p + geom_point()+ geom_hline(yintercept = c(25,200))+ ylab("Weight (g)") +
-scale_color_discrete("Life stage")
+ggplot(reg_series_data) +
+	aes(lengthmm, wr, colour=life_stage) +
+	geom_point(alpha = 0.3, size = 1) +
+	geom_hline(yintercept = c(25,200)) + 
+	scale_y_continuous(trans = "log10", labels = scales::label_number(), breaks = c(0.1, 1, 10, 25, 100, 200, 1000, 10000)) +
+	scale_color_discrete("Life stage") +
+	theme_classic() + xlab("Length (mm)") + ylab("Relative weight (Wr)") +
+	coord_cartesian(expand = FALSE, xlim = c(0, NA), ylim = c(0.1, NA)) +
+	guides(color = guide_legend(override.aes = list(size = 5) ) ) 
 
-n_total<-nrow(reg_series_data)
+```
 
-n_inconsistent<-nrow(reg_series_data[reg_series_data$wr<25 | reg_series_data$wr>200,])
+restricted to 25 -200
+
+```{r lengthweightrelationship3, include=TRUE, fig.cap = "Relative Weight relationship by life stage, country and source"}
+
+#n_total<-nrow(reg_series_data)
+#
+#n_inconsistent<-nrow(reg_series_data[reg_series_data$wr<25 | reg_series_data$wr>200,])
 
 ## boxplot of the resultat with only consistant data
 
-reg_data_cons<-reg_series_data[reg_series_data$wr>25 & reg_series_data$wr<200,]
+reg_data_cons<-reg_series_data %>%
+	filter(wr>25 & wr<200) %>% 
+	mutate(source = case_when(source == "sampling" ~ "Sampling", source == "series" ~ "Series"))
 
-p <- ggplot(reg_data_cons, aes(country, wr, fill=country))
-p + geom_boxplot()+ scale_fill_manual(values=color_countries[names(color_countries) %in% unique(reg_series_data$country)], drop = TRUE)+geom_hline(yintercept =100) + facet_grid(vars(source),vars(life_stage))+
-	scale_color_discrete("Life stage") + xlab("Country") + ylab("Wr")
+ggplot(reg_data_cons) +aes(country, wr, fill=country) +
+	geom_boxplot() + 
+	scale_fill_manual(name = "Country", values=color_countries[names(color_countries) %in% unique(reg_series_data$country)], drop = TRUE)+
+	geom_hline(yintercept =100) + facet_grid(vars(source),vars(life_stage))+
+	theme_classic() + xlab("Country") + ylab("Relative weight (Wr)") +
+	coord_cartesian(expand = FALSE, xlim = c(0, NA), ylim = c(0.1, NA)) +
+	guides(color = guide_legend(override.aes = list(size = 5) ) ) 
 
 ```
 
@@ -375,38 +396,48 @@ p + geom_boxplot()+ scale_fill_manual(values=color_countries[names(color_countri
 
 ```{r rawdata, include=TRUE}
 
-data_ind_seriesG<-data_ind_series[data_ind_series$ser_lfs_code=="G",]
-data_ind_seriesGY<-data_ind_series[data_ind_series$ser_lfs_code=="GY",]
-data_ind_seriesY<-data_ind_series[data_ind_series$ser_lfs_code=="Y",]
-data_ind_seriesS<-data_ind_series[data_ind_series$ser_lfs_code=="S",]
-
 ## Gear effect on size-weight
+graph_LW = function(lifeStage = "G")
+{
+	mydata = data_ind_series %>% filter(ser_lfs_code == lifeStage)
+	
+	lfs = switch(lifeStage,
+		"G" = "Glass eel" ,
+		"GY" = "Glass & Yellow eel",
+		"Y" = "Yellow eel",
+		"S" = "Silver eel"
+	)
+	
+	ggplot(mydata) +
+		aes(x = lengthmm, y = weightg, color = country) + 
+		geom_point(alpha = 0.3) +
+		facet_grid(vars(gea_name_en))+
+		scale_color_manual(name = "Country", values=color_countries[names(color_countries) %in% unique(mydata$country)], drop = TRUE) +
+		theme_bw()+
+		ggtitle(lfs)+xlab("Length (mm)")+ylab("Weight (g)") +
+		theme_classic()  +
+		coord_cartesian(expand = FALSE, xlim = c(0, NA), ylim = c(0.1, NA)) +
+		guides(color = guide_legend(override.aes = list(size = 5) ) ) 
+}
 
-ggplot(data_ind_seriesG,aes(x=lengthmm,y=weightg))+geom_point()+
-  facet_grid(vars(gea_name_en))+
-  theme_bw()+ggtitle("Glass eel")+xlab("Length (mm)")+ylab("Weight (g)")
-
-ggplot(data_ind_seriesY,aes(x=lengthmm,y=weightg))+geom_point()+
-  facet_grid(vars(gea_name_en))+
-  theme_bw()+ggtitle("Yellow")+xlab("Length (mm)")+ylab("Weight (g)")
-
-ggplot(data_ind_seriesS,aes(x=lengthmm,y=weightg))+geom_point()+
-  facet_grid(vars(gea_name_en))+
-  theme_bw()+ggtitle("Silver")+xlab("Length (mm)")+ylab("Weight (g)")
+graph_LW("G")
+graph_LW("GY")
+graph_LW("Y")
+graph_LW("S")
 
 ## lfs effect on size-weight
 
-ggplot(data_ind_series,aes(x=lengthmm,y=weightg))+geom_point()+
+ggplot(data_ind_series, aes(x=lengthmm,y=weightg))+geom_point()+
   facet_wrap(.~ser_lfs_code,scale="free")+
   theme_bw()+ggtitle("All gears")+xlab("Length (mm)")+ylab("Weight (g)")
 
 ## length by gear and year
 
-stat_length_g<-data_ind_seriesG %>%
+stat_length_g<- data_ind_series %>% filter(ser_lfs_code == "G") %>%
     group_by(year,gea_name_en,country) %>%
     dplyr::summarize(Mean = mean(weightg, na.rm=TRUE), sd=sd(weightg,na.rm=TRUE))
 
-stat_length_y<-data_ind_seriesY %>%
+stat_length_y<- data_ind_series %>% filter(ser_lfs_code == "Y") %>%
     group_by(year,gea_name_en,country) %>%
     dplyr::summarize(Mean = mean(lengthmm, na.rm=TRUE), sd=sd(lengthmm,na.rm=TRUE))
 
