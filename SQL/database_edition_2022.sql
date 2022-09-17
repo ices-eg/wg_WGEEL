@@ -1293,6 +1293,10 @@ CREATE INDEX ON datawg.t_metricindsamp_meisa (mei_fi_id);
 CREATE INDEX ON datawg.t_metricindseries_meiser (mei_fi_id);
 
 
+--correction about Irish time series
+update datawg.t_series_ser set ser_qal_id=0 where ser_nameshort='CorG'; --CorG had a ser_qal_id 1 while too short
+update datawg.t_dataseries_das  set das_qal_id=3, das_comment ='replaced by InagG' where das_year=2017 and das_ser_id=47; --for 2017 we have both InagG and InagGY
+
 -- Jason recruitment
 
 UPDATE 
@@ -1300,5 +1304,6 @@ UPDATE
 INSERT INTO  datawg.t_dataseries_das(
 das_ser_id, das_year, das_value, das_qal_id, das_comment, das_dts_datasource) 
 SELECT 172, 2022, 414, 1, 'preliminary values','dc_2022';
+
 
 
