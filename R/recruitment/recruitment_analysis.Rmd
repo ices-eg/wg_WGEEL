@@ -13,6 +13,7 @@ output:
 
 ```{r setup, include=FALSE, warning = FALSE, message = FALSE, error=FALSE}
 
+
 library(knitr)
 opts_knit$set(eval.after = "fig.cap", echo=FALSE, warning = FALSE, message = FALSE, error=FALSE)
 Sys.setlocale("LC_ALL", "English_United States.932")
@@ -31,6 +32,8 @@ options(width=90) # this sets the width of the output
 library(flextable)
 if(!require(officedown)) install.packages("officedown") ; require(officedown)
 if(!require(officer)) install.packages("officer") ; require(officer)
+if(!require(tibble)) install.packages("tibble") ; require(tibble)
+if(!require(stringr)) install.packages("stringr") ; require(tibble)
 
 if(!require(mgcv)) install.packages("mgcv") ; require(mgcv)
 if(!require(car)) install.packages("car") ; require(car)
@@ -54,14 +57,14 @@ if(!require(multcomp)) install.packages("multcomp") ; require(multcomp)
 if(!require(openxlsx)) install.packages("openxlsx") ; require(openxlsx)
 if(!require(getPass)) install.packages("getPass") ; require(getPass)
 if(!require(yaml)) install.packages("yaml") ; require(yaml)
+
+
 set_flextable_defaults(
   font.size = 8.5, font.family = "Calibri",
   font.color = "black",
   table.layout = "autofit",
   border.color = "black",
-  padding.top = 3, padding.bottom = 3,
-  padding.left = 4, padding.right = 4)
-
+  theme_fun=theme_booktabs)
 
 redtext <- fp_text(color = 'red', bold = TRUE)
 purpletext <- fp_text(color = 'purple', bold = TRUE)
@@ -112,7 +115,7 @@ vv <- list()
 
 
 
-```{r load_database, echo=FALSE, fig.show='hide', eval=FALSE, results="hide", warning = FALSE, message = FALSE, error=FALSE}
+```{r load_database, echo=FALSE, fig.show='hide', eval=TRUE, results="hide", warning = FALSE, message = FALSE, error=FALSE}
 # In this chunk everything will be loaded. 
 # The data selection is made tranparently later in the chunk "select_series"
 # This chunks uses the RequeteODBC connection object from stacomirtools and sqldf
@@ -187,6 +190,7 @@ query='SELECT
 		das_qal_id,
 		das_last_update,
 		f_subarea,
+		f_division,
 		lfs_code,          
 		lfs_name
 		from datawg.t_dataseries_das 
@@ -233,6 +237,10 @@ wger_init[wger_init$area2%in%c("Atlantic","Mediterranean Sea"),"area"] <- "Elsew
 # similarly in the Baltic and North Sea. This has no effect on Baltic data
 wger_init[wger_init$area2%in%c("Baltic","North Sea"),"area"] <- "North Sea"
 
+wger_init$isBaltic <- wger_init$f_division %in% c("27.3.d", "27.3.b, c")
+
+
+
 #check if all series have been assign to an area
 if (sum(is.na(wger_init$area))>0) {
 	
@@ -266,8 +274,8 @@ wger_init$lifestage=as.factor(wger_init$lifestage)
 
 # This is a view (like the result of a query) showing a summary of each series, including first year, last year,
 # and duration
-statseries <- sqldf('select site,namelong,min,max,duration,missing,life_stage,sampling_type,unit,habitat_type,"order",series_kept, ser_cou_code country
-				from datawg.series_summary s left join datawg.t_series_ser on site=ser_nameshort where s.ser_typ_id=1')
+statseries <- sqldf('select site,namelong,min,max,duration,missing,life_stage,sampling_type,unit,habitat_type,"order",series_kept
+				from datawg.series_summary where ser_typ_id=1')
 # these data will 
 save(wger_init,file=str_c(datawd,"wger_init.Rdata"))
 save(statseries,file=str_c(datawd,"statseries.Rdata"))
@@ -643,7 +651,7 @@ rownames(n_y_lfs) <- n_y_lfs$"year"
 ##		caption.placement = "top",
 ##		NA.string = ".")
 
-printstatseries <- statseries[,c(1,13,3,4,5,6,7,8,9,10,11,12)]
+printstatseries <- statseries[,c(1,3,4,5,6,7,8,9,10,11,12)]
 printstatseries$sampling_type[printstatseries$sampling_type=="scientific estimate"] <- "sci. surv."
 printstatseries$sampling_type[grep("trap",printstatseries$sampling_type)] <- "trap"
 printstatseries$sampling_type[printstatseries$sampling_type=="commercial catch"] <- "com. catch"
@@ -652,8 +660,8 @@ column_to_import <- R_stations[,c("ser_nameshort","areashort")]
 printstatseries <- merge(printstatseries,column_to_import,by.x="site",by.y="ser_nameshort")
 printstatseriesGNS <- printstatseries%>% 
 		filter(life_stage=="G", areashort=="NS")%>%
-		arrange(order,site)%>%
-		dplyr::select("life_stage","areashort","country","site","min","max","missing","duration","missing","sampling_type","unit","habitat_type","series_kept")%>%
+		arrange(order)%>%
+		dplyr::select(1,12,2:9,11)%>%
 		dplyr::rename("code"="site",
 				"area"="areashort",
 				"n+"="duration",
@@ -666,7 +674,7 @@ printstatseriesGNS <- printstatseries%>%
 xstatseriesGNS <- xtable(x = printstatseriesGNS, 
 		label = str_c("statseriesG"),
 		caption = str_c("Short description of the sampling sites for European eel recruitment data in the North Sea. Min and max indicate the first year and last year in the records, and the values are given in the n+ and n- columns, indicate the number of years with values and the number of years when there are missing data within the series. Life stage: GY = glass eel and yellow eel, G = glass eel, Y = yellow eel. Unit for the data collected is given (nr = number; index = calculated value following a specified protocol, nr/m2 = number per square metre, nr/h = number per hour, kg/boat/d = kg per boat per day). Habitat: C = coastal water (according to the EU Water Framework Directive, WFD), F = freshwater, MO = marine water (open sea), T = transitional water with lower salinity (according to WFD). Kept = 1 means that the dataseries is used in recruitment analyses."),
-		align=c("p{0cm}","p{1cm}","p{1cm}","p{1cm}","p{1cm}","p{1cm}","p{0.8cm}","p{0.8cm}","p{1cm}","p{2cm}","p{2cm}","p{1cm}","p{1cm}"),
+		align=c("p{0cm}","p{1cm}","p{1cm}","p{1cm}","p{1cm}","p{0.8cm}","p{0.8cm}","p{1cm}","p{2cm}","p{2cm}","p{1cm}","p{1cm}"),
 		digits=0)
 
 print(xstatseriesGNS , 
@@ -679,8 +687,8 @@ print(xstatseriesGNS ,
 
 printstatseriesGEE <- printstatseries%>% 
 		filter(life_stage=="G", areashort=="EE")%>%
-		arrange(order,site)%>%
-		dplyr::select("life_stage","areashort","country","site","min","max","missing","duration","missing","sampling_type","unit","habitat_type","series_kept")%>%
+		arrange(order)%>%
+		dplyr::select(1,12,2:9,11)%>%
 		dplyr::rename("code"="site",
 				"area"="areashort",
 				"n+"="duration",
@@ -693,7 +701,7 @@ printstatseriesGEE <- printstatseries%>%
 xstatseriesGEE <- xtable(x = printstatseriesGEE, 
 		label = str_c("statseriesG"),
 		caption = str_c("Short description of the sampling sites for European eel recruitment data for Elsewhere Europe. Min and max indicate the first year and last year in the records, and the values are given in the n+ and n- columns, indicate the number of years with values and the number of years when there are missing data within the series. Life stage: GY = glass eel and yellow eel, G = glass eel, Y = yellow eel. Unit for the data collected is given (nr = number; index = calculated value following a specified protocol, nr/m2 = number per square metre, nr/h = number per hour, kg/boat/d = kg per boat per day). Habitat: C = coastal water (according to the EU Water Framework Directive, WFD), F = freshwater, MO = marine water (open sea), T = transitional water with lower salinity (according to WFD). Kept = 1 means that the dataseries is used in recruitment analyses."),
-		align=c("p{0cm}","p{1cm}","p{1cm}","p{1cm}","p{1cm}","p{1cm}","p{0.8cm}","p{0.8cm}","p{1cm}","p{2cm}","p{2cm}","p{1cm}","p{1cm}"),
+		align=c("p{0cm}","p{1cm}","p{1cm}","p{1cm}","p{1cm}","p{0.8cm}","p{0.8cm}","p{1cm}","p{2cm}","p{2cm}","p{1cm}","p{1cm}"),
 		digits=0)
 
 print(xstatseriesGEE , 
@@ -708,8 +716,8 @@ print(xstatseriesGEE ,
 
 printstatseriesGY <- printstatseries %>% 
 		filter(life_stage=="GY") %>%
-		arrange(order, site) %>%
-		dplyr::select("life_stage","areashort","country","site","min","max","missing","duration","missing","sampling_type","unit","habitat_type","series_kept") %>%
+		arrange(order) %>%
+		dplyr::select(1,12,2:9,11) %>%
 		dplyr::rename("code"="site",
 				"area"="areashort",
 				"n+"="duration",
@@ -721,7 +729,7 @@ printstatseriesGY <- printstatseries %>%
 xstatseriesGY <- xtable(x = printstatseriesGY, 
 		label = str_c("statseriesGY"),
 		caption = str_c("Short description of the recruitment sites (continued : stage glass eel and yellow eel)"),
-		align=c("p{0cm}","p{1cm}","p{1cm}","p{1cm}","p{1cm}","p{1cm}","p{0.8cm}","p{0.8cm}","p{1cm}","p{2cm}","p{2cm}","p{1cm}","p{1cm}"),
+		align=c("p{0cm}","p{1cm}","p{1cm}","p{1cm}","p{1cm}","p{0.8cm}","p{0.8cm}","p{1cm}","p{2cm}","p{2cm}","p{1cm}","p{1cm}"),
 		digits=0)
 print(xstatseriesGY , 
 		file = str_c(tabwd,"/table_statseriesGY.tex"),
@@ -734,8 +742,8 @@ print(xstatseriesGY ,
 
 printstatseriesY <- printstatseries%>% 
 		filter(life_stage=="Y")%>%
-		arrange(order,site)%>%
-		dplyr::select(site,country,areashort,duration,missing,life_stage,sampling_type,habitat_type,series_kept)%>%
+		arrange(order)%>%
+		dplyr::select(1,12,2:9,11)%>%
 		dplyr::rename("code"="site",
 				"area"="areashort",
 				"n+"="duration",
@@ -748,7 +756,7 @@ printstatseriesY <- printstatseries%>%
 xstatseriesY <- xtable(x = printstatseriesY, 
 		label = str_c("statseriesY"),
 		caption = str_c("Short description of the recruitment sites (continued : yellow eel series) "),
-		align=c("p{0cm}","p{1cm}","p{1cm}","p{0.8cm}","p{0.8cm}","p{1cm}","p{2cm}","p{2cm}","p{1cm}","p{1cm}"),
+		align=c("p{0cm}","p{1cm}","p{1cm}","p{1cm}","p{1cm}","p{0.8cm}","p{0.8cm}","p{1cm}","p{2cm}","p{2cm}","p{1cm}","p{1cm}"),
 		digits=0)
 print(xstatseriesY, 
 		file = str_c(tabwd,"/table_statseriesY.tex"),
@@ -1116,7 +1124,7 @@ autofit(flextable(data = printstatseriesY)%>%
 
 
 ```{r xseriesprob, echo=FALSE, warning = FALSE, message = FALSE, error=FALSE,echo=FALSE, tab.cap=str_c("Table \\@ref(tab:xseriesprob) continued. Data in " ,CY, " and ", CY-1, "having problems causing the data in the specific year to be excluded from the analysis. Codes for stages are G = glass eel, GY = glass eel + yellow eel, Y = yellow eel, Division = FAO marine division. Kept: 0 = missing, 1 = good quality, 							2 = wgeel has modified the data, 3 = not used due to poor quality, 4 =	data is used, but there are warnings on its quality")}
-autofit(flextable(data = series_prob[30:nrow(series_prob),])%>%
+autofit(flextable(data = series_prob[1:14,])%>%
           bold(bold = TRUE, part = "header"))
 ```
 
@@ -1150,8 +1158,8 @@ knitr::include_graphics(paste0(imgwd,"figure2.png"))
 ```
 
 ```{r figure2b, fig.cap="Series selection and analysis. Series less than 10 years are not used in the analysis. Y yellow eel series, G + GY glass and young yellow eel series. NS North Sea, EE Elsewhere Europe", fig.width=16/254, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
-if (file.exists(paste0(imgwd,"series_selection.png")))
-  knitr::include_graphics(paste0(imgwd,"series_selection.png"))
+if (file.exists(paste0(imgwd,"series_no_area.png")))
+  knitr::include_graphics(paste0(imgwd,"series_no_area.png"))
 ```
 
 
@@ -1502,7 +1510,7 @@ glass_eel_yoy$site <- as.factor(glass_eel_yoy$site)
 model_ge_area=glm(value_std~year_f:area+site,
 		data=glass_eel_yoy[glass_eel_yoy$value>0 & glass_eel_yoy$year>1959,],
 		family=Gamma(link=log), maxit=300)
-glass_eel_yoy
+
 # lesser fit :
 #model_ge_area1=glm(value_std~year_f:area + as.factor(lfs_code),
 #		data=glass_eel_yoy[glass_eel_yoy$value>0 & glass_eel_yoy$year>1959,],
@@ -1519,15 +1527,30 @@ vv$modelge$excluded <- unique(glass_eel_yoy$site)[!unique(glass_eel_yoy$site)%in
 vv$modelge$value_excluded_zero <- glass_eel_yoy[glass_eel_yoy$value==0&!is.na(glass_eel_yoy$value),
 		c("value_std","site","year","lifestage","das_comment","area")]
 
+
 model_older=glm(value_std~year_f+as.factor(site),data=older,family=Gamma(link=log),
 		subset=older$value>0 & older$year>1949  ,maxit=300)
-vv$modelolder <- list()
-vv$modelolder$site <- as.numeric(as.character(model_older$xlevels$`as.factor(site)`))
-vv$modelolder$nbsite <- length(vv$modelolder$site)
-vv$modelolder$excluded <- unique(older$site)[!unique(older$site)%in%vv$modelolder$site]
-vv$modelolder$excludedsite <- unique(older[older$site%in%vv$modelolder$excluded,"site"])
-vv$modelolder$excludedsite <- unique(older[older$site%in%vv$modelolder$excluded,"site"])
-vv$modelolder$value_excluded_zero <- older[older$value==0,
+vv$model_older <- list()
+vv$model_older$site <- as.numeric(as.character(model_older$xlevels$`as.factor(site)`))
+vv$model_older$nbsite <- length(vv$model_older$site)
+vv$model_older$excluded <- unique(older$site)[!unique(older$site)%in%vv$model_older$site]
+vv$model_older$excludedsite <- unique(older[older$site%in%vv$model_older$excluded,"site"])
+vv$model_older$excludedsite <- unique(older[older$site%in%vv$model_older$excluded,"site"])
+vv$model_older$value_excluded_zero <- older[older$value==0,
+		c("value_std","site","year","lifestage","das_comment","area")]
+
+
+
+
+model_older_BalticEffet=glm(value_std~year_f:isBaltic+as.factor(site),data=older,family=Gamma(link=log),
+		subset=older$value>0 & older$year>1949  ,maxit=300)
+vv$modelolder_BalticEffet <- list()
+vv$modelolder_BalticEffet$site <- as.numeric(as.character(model_older_BalticEffet$xlevels$`as.factor(site)`))
+vv$modelolder_BalticEffet$nbsite <- length(vv$modelolder_BalticEffet$site)
+vv$modelolder_BalticEffet$excluded <- unique(older$site)[!unique(older$site)%in%vv$modelolder_BalticEffet$site]
+vv$modelolder_BalticEffet$excludedsite <- unique(older[older$site%in%vv$modelolder_BalticEffet$excluded,"site"])
+vv$modelolder_BalticEffet$excludedsite <- unique(older[older$site%in%vv$modelolder_BalticEffet$excluded,"site"])
+vv$modelolder_BalticEffet$value_excluded_zero <- older[older$value==0,
 		c("value_std","site","year","lifestage","das_comment","area")]
 
 xt_a <- xtable(Anova(model_ge_area,test="F"),
@@ -1542,7 +1565,7 @@ o <- print(xt_a, file = str_c(tabwd,"/table_anova.tex"),
 		tabular.environment="tabularx",
 		width="0.8\\textwidth",
 		sanitize.colnames.function=function(x){x})	
-save(model_ge_area,model_older,file=paste0(shinywd,"recruitment_models.Rdata"))
+save(model_ge_area,model_older,model_older_BalticEffet,file=paste0(shinywd,"recruitment_models.Rdata"))
 #plot(model_ge_area)
 ```
 
@@ -2265,6 +2288,174 @@ save(yellow_eel_pred,file=paste0(datawd,"yellow_eel_pred.Rdata"))
 save(yellow_eel_pred,file=paste0(shinywd,"yellow_eel_pred.Rdata"))
 ```
 
+```{r model_for_yellow_eel_baltic_effect, echo=FALSE, eval=TRUE, results="hide", warning = FALSE, message = FALSE, error=FALSE, fig.show='hide'}
+# 2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~
+######################################"
+#~yellow eel migrant analysis
+######################################"~
+# 2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~~
+
+print("Analysis for yellow eel")
+area_year_older=table(older$year,older$area)
+vv$nb_for_yellow_eel_glm <- length(unique(older$site))
+table(older$geo)
+print("stations selected for analysis")
+unique(older$site)
+model_older_BalticEffect=glm(value_std ~ year_f:isBaltic + as.factor(site),
+		data = older,
+		family = Gamma(link=log),
+		subset = older$value >0 &
+				older$year > 1949 & older$year <=CY-1,
+		maxit = 300)
+# parteen was removed but is no longer among the series
+summary(model_older_BalticEffect)
+#plot(model_older)
+anova(model_older_BalticEffect,test="F")
+
+
+dat_ye_BalticEffect=expand.grid(year_f=unique(model_older$xlevels$year_f),isBaltic=c(TRUE,FALSE),
+		site=model_older_BalticEffect$xlevels$`as.factor(site`[1])
+dat_ye_BalticEffect$year=as.numeric(as.character(dat_ye_BalticEffect$year))
+
+#predicting --------------------------------------------------------------------------------------------
+
+# in the log scale
+dat_ye_BalticEffect$p=predict(model_older_BalticEffect,newdata=dat_ye_BalticEffect)
+dat_ye_BalticEffect$se=predict(model_older_BalticEffect,newdata=dat_ye_BalticEffect,se.fit = TRUE)$se.fit
+
+#standardising prediction to 1960-1979 level -----------------------------------------------------------
+# 2 options mean or geomean
+
+
+#in the logscale we remove the arithmetic mean to standardise prediction relatively to
+#1960-1980 
+means_per_area <- dat_ye_BalticEffect %>%
+  filter(year>=1960 & year<1980)%>%
+  group_by(isBaltic) %>%
+  summarise(ref=mean(p))
+  
+
+dat_ye_BalticEffect <- merge(dat_ye_BalticEffect, means_per_area) 
+dat_ye_BalticEffect$value_std_1960_1979=exp(dat_ye_BalticEffect$p-dat_ye_BalticEffect$ref)
+dat_ye_BalticEffect$yellow_eel_min=exp(dat_ye_BalticEffect$p-dat_ye_BalticEffect$ref-1.96*dat_ye_BalticEffect$se)
+dat_ye_BalticEffect$yellow_eel_max=exp(dat_ye_BalticEffect$p-dat_ye_BalticEffect$ref+1.96*dat_ye_BalticEffect$se)
+
+# Table --------------------------------------------------------------------------------------------
+
+yy0_BalticEffect <- dat_ye_BalticEffect %>%
+  dplyr::select(isBaltic,"value_std_1960_1979",year) %>%
+  tidyr::pivot_wider(id_cols=year,names_from=isBaltic,values_from=value_std_1960_1979) %>%
+  tibble::column_to_rownames("year") %>%
+  rename(Baltic=`TRUE`, Outside = `FALSE`)
+
+yy_BalticEffect <- split_per_decade_ge(data=yy0_BalticEffect)
+yy_BalticEffect <- 100*round(yy_BalticEffect,2)
+nothing <- latex(yy,
+		rowlabel="",
+		rowlabel.just="c",
+		where="hptb",
+		col.just     =strsplit("c c c c c c c c c c c c c c c", " ")[[1]],
+		landscape=FALSE,
+		label="table_glm_yellow",
+		caption=str_c("GLM $yellow~eel \\sim year + site $ geometric means of predicted values for ",vv$nb_series_older, " yellow eel series, values given in percentage of the 1960-1979 period."),	
+		file= str_c(tabwd,"/table_glm_yellow.tex"))
+
+# Figures -------------------------------------------------------------------------------------------
+
+
+dat_ye_BalticEffect$time =as.Date(strptime(paste(dat_ye$year,"-01-01",sep=""),format="%Y-%m-%d"))
+g <- ggplot(dat_ye_BalticEffect,aes(x=time,y=value_std_1960_1979, fill=isBaltic)) 
+figure6_without_log_scale_BalticEffect <- g+ geom_line(aes(color=isBaltic),lwd=1)+ geom_point(aes(color=isBaltic))+
+		scale_y_continuous(expression(frac(p,bar(p)[1960-1979])))+	
+		theme_bw()+
+		geom_hline(yintercept=1,linetype=2)+
+		geom_ribbon(aes(ymin=yellow_eel_min,ymax=yellow_eel_max,fill=isBaltic),alpha=.6)+
+		xlab("year")+
+		theme(legend.box =NULL,
+				legend.key = element_rect(colour = NA, fill = 'white'),
+				legend.text = element_text(size = 8, colour = 'black'), 
+				legend.background = element_rect(colour = NA, fill = 'white'))#+
+#stat_smooth(method="lm",formula=y ~ ns(x,4),lty=2, size=0.8,alpha=0.3,col="grey20")
+save_figure("figure6_without_log_scale_BalticEffect",figure6_without_log_scale,600,480)
+figure6_without_log_scale_BalticEffect
+figure6_without_log_scale_black_BalticEffect <- g+geom_line(lwd=1,color="white")+ 
+		geom_point(color="white")+
+		scale_y_continuous(expression(frac(p,bar(p)[1960-1979])))+
+		geom_ribbon(aes(ymin=yellow_eel_min,ymax=yellow_eel_max,fill=isBaltic),alpha=.3)+
+		#stat_smooth(method="lm",formula=y ~ ns(x,4),lty=2, size=0.8,alpha=0.3,col="turquoise1") +
+		theme_black()
+figure6_without_log_scale_black
+save_figure("figure6_without_log_scale_black_BalticEffect",figure6_without_log_scale_black_BalticEffect,600,480)
+figure6_BalticEffect <- g+geom_line(aes(color=isBaltic),lwd=1)+geom_point(aes(color=isBaltic))+
+		scale_y_log10(name=expression(frac(p,bar(p)[1960-1979])~' (log scale)'),
+				#limits=c(0.005,10),
+				breaks=c(0.01,0.1,1,10),
+				labels=c("1%","10%","100%","1000%")) +
+		geom_ribbon(aes(ymin=yellow_eel_min,ymax=yellow_eel_max,fill=isBaltic),alpha=.3)+
+		xlab("year")+
+		theme_bw()+
+		theme(legend.box =NULL,
+				legend.key = element_rect(colour = NA, fill = 'white'),
+				legend.text = element_text(size = 8, colour = 'black'), 
+				legend.background = element_rect(colour = NA, fill = 'white'))
+#stat_smooth(method="lm",formula=y ~ ns(x,4), lty=2, size=0.8,alpha=0.3,col="grey20")
+figure6_BalticEffect
+save_figure("figure6_BalticEffect",figure6_BalticEffect,600,480)
+
+# Final save ----------------------------------------------------------------------------------------
+
+write.table(synthesis,file=str_c(datawd,"glm_results_yellow.csv"),sep=";")
+dat_ye_BalticEffect <- dat_ye_BalticEffect[,c("isBaltic","year","p","se","ref","yellow_eel_min","yellow_eel_max","value_std_1960_1979")]
+vv$five_year_averagey_BalticEffect <- dat_ye_BalticEffect %>% filter(year>CY-5) %>% dplyr::select(c(year,value_std_1960_1979)) %>% colMeans() %>% round(digits=3)
+vv$dat_ye_BalticEffect <- 
+		dat_ye_BalticEffect %>% 
+		filter(year<=CY-2,year>CY-7) %>% 
+		dplyr::select(c(year,value_std_1960_1979)) %>% 
+		colMeans() %>% 
+		round(digits=3)
+
+
+#colnames(dat_ye)  <- c("year","geomean_p_std_1960_1979") 
+save(dat_ye_BalticEffect,file=paste0(datawd,"dat_ye_BalticEffect.Rdata")) 
+save(dat_ye_BalticEffect,file=paste0(shinywd,"dat_ye_BalticEffect.Rdata")) 
+
+synthesis_Baltic <- dat_ye_BalticEffect %>%
+  dplyr::select(year,isBaltic,value_std_1960_1979,yellow_eel_min,yellow_eel_max) %>%
+  tidyr::pivot_wider(id_cols=year,names_from=isBaltic, values_from=c(value_std_1960_1979,yellow_eel_min,yellow_eel_max))
+
+if (file.exists(str_c(datawd,"glm_results_glass_and_yellow.xlsx"))) unlink(str_c(datawd,"glm_results_glass_and_yellow.xlsx"))
+openxlsx::write.xlsx(x=list("Glass eel"=data.frame(
+						"year"=synthesis$year,
+						"EE_minCI_percent"=100*synthesis$EEminCI,
+						"EE_percent"=100*synthesis$"Elsewhere Europe",
+						"EE_maxCI_percent"=100*synthesis$EEmaxCI,
+						"NS_minCI_percent"=100*synthesis$NSminCI,
+						"NS_percent"=100*synthesis$"North Sea",
+						"NS_maxCI_percent"=100*synthesis$NSmaxCI
+				), "Yellow eel"= data.frame("year"=dat_ye$year,
+						"Y_minCI_percent"=100*dat_ye$yellow_eel_min,
+						"Y_percent"=100*dat_ye$value_std_1960_1979,
+						"Y_maxCI_percent"=100*dat_ye$yellow_eel_max),
+				"Yellow eel Baltic Effect"=data.frame(
+						"year"=synthesis_Baltic$year,
+						"Baltic_minCI_percent"=100*synthesis_Baltic$yellow_eel_min_FALSE,
+						"Baltic_percent"=100*synthesis_Baltic$value_std_1960_1979_FALSE,
+						"Baltic_minCI_percent"=100*synthesis_Baltic$yellow_eel_max_FALSE,
+						"Outside_minCI_percent"=100*synthesis_Baltic$yellow_eel_min_FALSE,
+						"Outside_percent"=100*synthesis_Baltic$value_std_1960_1979_FALSE,
+						"Outside_minCI_percent"=100*synthesis_Baltic$yellow_eel_max_FALSE
+				)),
+		file=str_c(datawd,"glm_results_glass_and_yellow.xlsx"),
+		row.names=FALSE)
+
+
+# saving yellow_eel_pred for shiny ---------------------------------------------------------------------
+yellow_eel_pred <- dat_ye
+yellow_eel_pred_BalticEffect <- dat_ye_BalticEffect
+
+save(yellow_eel_pred,yellow_eel_pred_BalticEffect,file=paste0(datawd,"yellow_eel_pred.Rdata"))
+save(yellow_eel_pred,yellow_eel_pred_BalticEffect,file=paste0(shinywd,"yellow_eel_pred.Rdata"))
+```
 
 
 ```{r test_period, echo=FALSE, eval=FALSE, results="hide", warning = FALSE, message = FALSE, error=FALSE, fig.show='hide'}
@@ -2417,7 +2608,7 @@ knitr::include_graphics(paste0(imgwd,'figure3.png'))
 ```
 
 
-```{r figure4, fig.cap=paste("Time-series of glass eel and yellow eel recruitment in Europe with",vv[["sc_1979_1994_nb"]],"time-series out of the", vv[["nb_series_init"]],"available to the working group. Each time-series has been scaled to its 1979-1994 average. The mean values of combined yellow and glass eel time-series and their bootstrap confidence interval (95%) are represented as black dots and bars. The brown line represents the mean value for yellow eel, the blue line represents the mean value for glass eel time-series. The range of  these  time-series  is  indicated  by  a  grey  shade.  Note that individual time-series  from  Figure \\@ref(fig:figure3)  were  removed to make the mean value more clear.  Note also the logarithmic scale on the y-axis."), fig.width=16/2.54, warning = FALSE, message = FALSE, error=FALSE}
+```{r figure4, fig.cap=paste("Time-series of glass eel and yellow eel recruitment in Europe with",vv[["sc_1979_1994_nb"]],"time-series out of the", vv[["nb_series_init"]],"available to the working group. Each time-series has been scaled to its 1979-1994 average. The mean values of combined yellow and glass eel time-series and their bootstrap confidence interval (95%) are represented as black dots and bars. The brown line represents the mean value for yellow eel, the blue line represents the mean value for glass eel time-series. The range of  these  time-series  is  indicated  by  a  grey  shade.  Note that individual time-series  from  Figure \\@ref(fig:figure3)  were  removed to make the mean value more clear.  Note also the logarithmic scale on the y-axis."), fig.width=16/2.54, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
 knitr::include_graphics(paste0(imgwd,'figure4.png'))
 ```
 
@@ -2478,6 +2669,12 @@ the 1960-1979 baseline.
 knitr::include_graphics(paste0(imgwd,"figure6_without_log_scale.png"))
 ```
 
+
+```{r figure6Baltic, fig.width=16/2.54, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE,fig.cap=paste("Geometric mean of estimated (GLM) yellow eel recruitment for Europe updated to",CY,". The GLM (yellow eel ~ year:area+site) was fitted to",vv[["nb_for_yellow_eel_glm"]],"yellow eel time-series $p$ and scaled to the 1960-1979 average $\\bar{p}_{1960-1979}$.")}
+#fig.cap=paste("Geometric mean of estimated (GLM) yellow eel recruitment for Europe updated to",CY,". The GLM ($yellow eel \sim year+site$) was fitted to",vv[["nb_for_yellow_eel_glm"]],"yellow eel time-series $p$ and scaled to the 1960-1979 average $\bar{p}_{1960-1979}$.")
+knitr::include_graphics(paste0(imgwd,"figure6_without_log_scale_BalticEffect.png"))
+```
+
 ## Is there a positive trend in recruitment ?
 After high levels in the late 1970s, the recruitment declined and has been very
 low for all years after 2000. From ICES (2014) onward a change in the
@@ -2522,15 +2719,39 @@ the maximum values were reached in 2014; but recruitment has been decreasing
 since then.
 
 
-```{r tableglmglasseel,echo=FALSE,eval=FALSE,results="hide", warning = FALSE, message = FALSE, error=FALSE, echo=FALSE,tab.cap=str_c("GLM $glass~eel \\sim year:area + site $ geometric means of predicted values for ",vv$nb_series_glass_eel," glass eel series, values given in percentage of the 1960-1979 period.")}
-flextable(gg%>%
-          bold(bold = TRUE, part = "header"))
+```{r tableglmglasseel,echo=FALSE, warning = FALSE, message = FALSE, error=FALSE,tab.cap=str_c("GLM $glass~eel \\sim year:area + site $ geometric means of predicted values for ",vv$nb_series_glass_eel," glass eel series, values given in percentage of the 1960-1979 period.")}
+columns = names(gg)
+years = rep(196:202,each=2)*10
+flextable(gg%>% rownames_to_column(" ") %>%
+            setNames(0:ncol(gg))) %>%
+  delete_part(part = "header") %>%
+  add_header_row(values=c("",years),top=FALSE) %>%
+  merge_h(part="header") %>%
+  add_header_row(values=c("",columns),top=FALSE) %>%
+  bold(bold = TRUE, part = "header") %>%
+  theme_booktabs(x, bold_header = FALSE)
 ```
 
-```{r tableglmyellow,echo=FALSE,eval=FALSE,results="hide", warning = FALSE, message = FALSE, error=FALSE, echo=FALSE,tab.cap=str_c("GLM $glass~eel \\sim year:area + site $ geometric means of predicted values for ",vv$nb_series_glass_eel," glass eel series, values given in percentage of the 1960-1979 period.")}
-flextable(yy%>%
-          bold(bold = TRUE, part = "header"))
+```{r tableglmyellow,echo=FALSE, warning = FALSE, message = FALSE, error=FALSE,tab.cap=str_c("GLM $glass~eel \\sim year + site $ geometric means of predicted values for ",vv$nb_series_glass_eel," glass eel series, values given in percentage of the 1960-1979 period.")}
+flextable(yy %>% rownames_to_column(" "))%>%
+  bold(bold = TRUE, part = "header")
 ```
+
+
+
+```{r tableglmyellowBaltic,echo=FALSE, warning = FALSE, message = FALSE, error=FALSE,tab.cap=str_c("GLM $glass~eel \\sim year:area + site $ geometric means of predicted values for ",vv$nb_series_glass_eel," glass eel series, values given in percentage of the 1960-1979 period.")}
+columns = names(yy_BalticEffect)
+years = rep(195:202,each=2)*10
+flextable(yy_BalticEffect%>% rownames_to_column(" ") %>%
+            setNames(0:ncol(yy_BalticEffect))) %>%
+  delete_part(part = "header") %>%
+  add_header_row(values=c("",years),top=FALSE) %>%
+  merge_h(part="header") %>%
+  add_header_row(values=c("",columns),top=FALSE) %>%
+  bold(bold = TRUE, part = "header") %>%
+  theme_booktabs(x, bold_header = FALSE)
+```
+
 
 
 # Annex
