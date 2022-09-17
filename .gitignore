@@ -1,5 +1,5 @@
 /.project
-/credentials.yml
+/*.yml
 /data/
 /.dbeaver
 .Rproj.user
