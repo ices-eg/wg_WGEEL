@@ -8,6 +8,7 @@
 #' @param library name of the library/ries to be loaded
 load_library = function(library)
 {
+	#browser()
 	if(!all(library %in% installed.packages()[, 'Package']))
 		install.packages(library[!library %in% installed.packages()[, 'Package']], dep = T)
 	for(i in 1:length(library))
