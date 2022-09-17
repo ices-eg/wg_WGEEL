@@ -9,12 +9,21 @@ output:
     fig_caption: yes
     number_sections: yes
     reference_docx: "../Rmarkdown/ICES_template.docx"
+params:
+  load_data: FALSE
+  run_rq: FALSE
 ---
+
+# Individual biometrics data
+
+** All graph and table are given to illustrate the data provided to th WGEEL through the data. They should not be taken
+as a real analysis of trends, biological phenomenon ... **
 
 ```{r setup, include=FALSE}
 source("../utilities/load_library.R")
+source("biometry_individual_functions.R")
 
-knitr::opts_chunk$set(echo = TRUE,warning=FALSE,message=FALSE,error=FALSE,fig.width=14.9/2.54,dpi=150)
+knitr::opts_chunk$set(echo = FALSE, warning=TRUE, message=FALSE, error=FALSE, fig.width=14.9/2.54, dpi=150)
 
 load_library("readxl")
 load_library("sf")
@@ -33,7 +42,9 @@ load_library("tidyr")
 load_library("lubridate")
 load_library("stringr")
 load_library("quantreg")
-
+load_library("ggridges")
+load_library("scales")
+load_library(("ggpubr"))
 
 if(Sys.info()["user"]=="hilaire.drouineau"){
   allometry=read_excel("~/Bureau/slopesintercepts.xlsx")
@@ -43,277 +54,83 @@ if(Sys.info()["user"]=="hilaire.drouineau"){
 colorpalette=cbf_1 <- c("#999999", "#E69F00", "#56B4E9", "#009E73", 
            "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 
-# db connection
-cred=read_yaml("../../credentials.yml")
-con_wgeel = dbConnect(Postgres(), dbname=cred$dbname,host=cred$host,port=cred$port,user=cred$user, password=getPass())
-
-## download data from the database
-biometry_individual_series=dbGetQuery(con_wgeel,"with sel as(SELECT d.*, t_series.*, mty_name FROM datawg.t_metricindseries_meiser d, datawg.t_fishseries_fiser t_series, ref.tr_metrictype_mty WHERE mty_id=mei_mty_id AND mei_fi_id = fi_id) 
-select sel.*, ser_nameshort, ser_cou_code, ser_x,ser_y,ser_emu_nameshort, ser_hty_code,ser_lfs_code,gea_name_en, sam_samplingtype,t_series_ser.ser_qal_id from sel, datawg.t_series_ser, ref.tr_gear_gea, ref.tr_samplingtype_sam where ser_id=fiser_ser_id and ser_sam_gear=gea_id and ser_sam_id=sam_id")
-
-biometry_individual_series<-biometry_individual_series %>% filter(fi_id!=421454)
-
-biometry_individual_sampling=dbGetQuery(con_wgeel,"with sel as(SELECT d.*, t_samp.*, mty_name FROM datawg.t_metricindsamp_meisa d, datawg.t_fishsamp_fisa t_samp, ref.tr_metrictype_mty WHERE mty_id=mei_mty_id AND mei_fi_id = fi_id) 
-select * from sel, datawg.t_samplinginfo_sai where sai_id=fisa_sai_id")
-
-cou_ref=dbGetQuery(con_wgeel,"select cou_code, cou_order from ref.tr_country_cou")
-cou_ref= cou_ref[order(cou_ref$cou_order), ]
-
-values=c(RColorBrewer::brewer.pal(12,"Set3"),
-    RColorBrewer::brewer.pal(12, "Paired"), 
-    RColorBrewer::brewer.pal(8,"Accent"),
-    RColorBrewer::brewer.pal(8, "Dark2"))
-color_countries = setNames(values,cou_ref$cou_code)
-
-## preparing the data to be exploited
-
-  ## individual series
-
-data_ind_series = biometry_individual_series %>% 
-	select(ser_id = fiser_ser_id, year = fi_year,date=fi_date,  fi_id, country=ser_cou_code, comment = fi_comment, quality = mei_qal_id, mty_name, mei_value,ser_nameshort, coord_x = ser_x, coord_y = ser_y,ser_emu_nameshort, ser_hty_code,ser_lfs_code, gea_name_en, sam_samplingtype,ser_qal_id) %>%
-	pivot_wider(names_from = mty_name, values_from = mei_value)
-
-data_ind_series$ser_lfs_code=factor(as.character(data_ind_series$ser_lfs_code),levels=c("G","GY","Y","S"))
-data_ind_series$month<-format(data_ind_series$date,"%m")
-data_ind_series$country<-factor(data_ind_series$country,levels=cou_ref$cou_code,ordered=TRUE)
-
-  ## individual sampling data
-
-data_ind_samp = biometry_individual_sampling %>% 
-  mutate(year = ifelse(is.na(fi_year),year(fi_date), fi_year)) %>% 
-	select(ser_id = fisa_sai_id, year, date=fi_date,  fi_id=mei_fi_id, coord_x=fisa_x_4326, coord_y=fisa_y_4326, fi_lfs_code, country=sai_cou_code, comment = fi_comment, quality = mei_qal_id, mty_name, mei_value,ser_nameshort=sai_name,ser_emu_nameshort=sai_emu_nameshort, ser_hty_code=sai_hty_code,sai_samplingstrategy) %>%
-	pivot_wider(names_from = mty_name, values_from = mei_value)
-
-data_ind_samp$fi_lfs_code=factor(as.character(data_ind_samp$fi_lfs_code),levels=c("G","GY","Y","YS","S"))
-data_ind_samp$month<-format(data_ind_samp$date,"%m")
-data_ind_samp$country<-factor(data_ind_samp$country,levels=cou_ref$cou_code,ordered=TRUE)
-
-    ## total data
-
-total_individual= bind_rows(
-	data_ind_series %>% as_tibble() %>%
-		select(country, EMU = ser_emu_nameshort, coord_x, coord_y, year,month, lengthmm, weightg,eye_diam_meanmm, pectoral_lengthmm, ageyear,differentiated_proportion, female_proportion, habitat = ser_hty_code, life_stage = ser_lfs_code, gear = gea_name_en) %>%
-		mutate(source = "series"),
-
-	data_ind_samp %>% as_tibble() %>%
-		mutate(commercial = str_detect(sai_samplingstrategy, "ommercial") | str_detect(sai_samplingstrategy, "CF")) %>%
-		select(country, EMU = ser_emu_nameshort, coord_x, coord_y, year,month, lengthmm, weightg,eye_diam_meanmm, pectoral_lengthmm, ageyear,differentiated_proportion, female_proportion, habitat = ser_hty_code, life_stage = fi_lfs_code, commercial) %>% mutate(gear = "unkonwn", source = "sampling") 
-)	%>% 
-	mutate(length_class_cm = as.integer(as.character(cut(lengthmm, breaks = seq(0, 1350, 10), labels = seq(0, 1340, 10) + 5)))/10)
-
-total_individual$country<-factor(total_individual$country,levels=cou_ref$cou_code,ordered=TRUE)
-
-#save(total_individual, biometry_individual_sampling, biometry_individual_series, file = "ind_biom.RData")
-#load("ind_biom.RData")
-
- dbDisconnect(con_wgeel)
-
-```
-
-# Raw data 
-
-The table describes the available individual biometric data from Appendix 1,2,3 (series) and 10 (sampling) 
-
-
-```{r available_data, include }
-stats_data= total_individual %>% group_by(source, country, EMU, habitat, life_stage) %>%
-  summarize(series=paste(unique(EMU),collapse=", "),
-            n_lengthmm=(sum(!is.na(lengthmm))),
-            n_bio_weight=(sum(!is.na(weightg))),
-            n_female_proportion=(sum(!is.na(female_proportion))),
-            n_pectoral_length=(sum(!is.na(pectoral_lengthmm))),
-            n_eye_diam_meanmm=(sum(!is.na(eye_diam_meanmm))),
-            n_ageyear=(sum(!is.na(ageyear))),
-            n_differentiated_proportion=(sum(!is.na(differentiated_proportion)))) %>%
-  filter((n_lengthmm + n_bio_weight + n_female_proportion + n_pectoral_length + n_eye_diam_meanmm + n_ageyear + n_differentiated_proportion)>0) %>%
-  arrange(source,life_stage,country,habitat,EMU)
-
-autofit(flextable(stats_data))
+if(params$load_data)
+{
+	# db connection
+	cred=read_yaml("../../credentials.yml")
+	con_wgeel = dbConnect(Postgres(), dbname=cred$dbname,host=cred$host,port=cred$port,user=cred$user, password=getPass())
+	
+	## download data from the database
+	biometry_individual_series=dbGetQuery(con_wgeel,"with sel as(SELECT d.*, t_series.*, mty_name FROM datawg.t_metricindseries_meiser d, datawg.t_fishseries_fiser t_series, ref.tr_metrictype_mty WHERE mty_id=mei_mty_id AND mei_fi_id = fi_id) 
+	select sel.*, ser_nameshort, ser_cou_code, ser_x,ser_y,ser_emu_nameshort, ser_hty_code,ser_lfs_code,gea_name_en, sam_samplingtype,t_series_ser.ser_qal_id from sel, datawg.t_series_ser, ref.tr_gear_gea, ref.tr_samplingtype_sam where ser_id=fiser_ser_id and ser_sam_gear=gea_id and ser_sam_id=sam_id")
+	
+	biometry_individual_series<-biometry_individual_series %>% filter(fi_id!=421454)
+	
+	biometry_individual_sampling=dbGetQuery(con_wgeel,"with sel as(SELECT d.*, t_samp.*, mty_name FROM datawg.t_metricindsamp_meisa d, datawg.t_fishsamp_fisa t_samp, ref.tr_metrictype_mty WHERE mty_id=mei_mty_id AND mei_fi_id = fi_id) 
+	select * from sel, datawg.t_samplinginfo_sai where sai_id=fisa_sai_id")
+	
+	cou_ref=dbGetQuery(con_wgeel,"select cou_code, cou_order from ref.tr_country_cou")
+	cou_ref= cou_ref[order(cou_ref$cou_order), ]
+	
+	values=c(RColorBrewer::brewer.pal(12,"Set3"),
+	    RColorBrewer::brewer.pal(12, "Paired"), 
+	    RColorBrewer::brewer.pal(8,"Accent"),
+	    RColorBrewer::brewer.pal(8, "Dark2"))
+	color_countries = setNames(values,cou_ref$cou_code)
+	
+	## preparing the data to be exploited
+	
+	  ## individual series
+	
+	data_ind_series = biometry_individual_series %>% 
+		select(ser_id = fiser_ser_id, year = fi_year,date=fi_date,  fi_id, country=ser_cou_code, comment = fi_comment, quality = mei_qal_id, mty_name, mei_value,ser_nameshort, coord_x = ser_x, coord_y = ser_y,ser_emu_nameshort, ser_hty_code,ser_lfs_code, gea_name_en, sam_samplingtype,ser_qal_id) %>%
+		pivot_wider(names_from = mty_name, values_from = mei_value)
+	
+	data_ind_series$ser_lfs_code=factor(as.character(data_ind_series$ser_lfs_code),levels=c("G","GY","Y","S"))
+	data_ind_series$month<-format(data_ind_series$date,"%m")
+	data_ind_series$country<-factor(data_ind_series$country,levels=cou_ref$cou_code,ordered=TRUE)
+	
+	  ## individual sampling data
+	
+	data_ind_samp = biometry_individual_sampling %>% 
+	  mutate(year = ifelse(is.na(fi_year),year(fi_date), fi_year)) %>% 
+		select(ser_id = fisa_sai_id, year, date=fi_date,  fi_id=mei_fi_id, coord_x=fisa_x_4326, coord_y=fisa_y_4326, fi_lfs_code, country=sai_cou_code, comment = fi_comment, quality = mei_qal_id, mty_name, mei_value,ser_nameshort=sai_name,ser_emu_nameshort=sai_emu_nameshort, ser_hty_code=sai_hty_code,sai_samplingstrategy) %>%
+		pivot_wider(names_from = mty_name, values_from = mei_value)
+	
+	data_ind_samp$fi_lfs_code=factor(as.character(data_ind_samp$fi_lfs_code),levels=c("G","GY","Y","YS","S"))
+	data_ind_samp$month<-format(data_ind_samp$date,"%m")
+	data_ind_samp$country<-factor(data_ind_samp$country,levels=cou_ref$cou_code,ordered=TRUE)
+	
+	    ## total data
+	
+	total_individual= bind_rows(
+		data_ind_series %>% as_tibble() %>%
+			select(country, EMU = ser_emu_nameshort, ser_nameshort, coord_x, coord_y, year,month, lengthmm, weightg,eye_diam_meanmm, pectoral_lengthmm, ageyear,differentiated_proportion, female_proportion, habitat = ser_hty_code, life_stage = ser_lfs_code, gear = gea_name_en) %>%
+			mutate(source = "series"),
+	
+		data_ind_samp %>% as_tibble() %>%
+			mutate(commercial = str_detect(sai_samplingstrategy, "ommercial") | str_detect(sai_samplingstrategy, "CF")) %>%
+			select(country, EMU = ser_emu_nameshort, ser_nameshort, coord_x, coord_y, year,month, lengthmm, weightg,eye_diam_meanmm, pectoral_lengthmm, ageyear,differentiated_proportion, female_proportion, habitat = ser_hty_code, life_stage = fi_lfs_code, commercial) %>% mutate(gear = "unkonwn", source = "sampling") 
+	)	%>% 
+		mutate(length_class_cm = as.integer(as.character(cut(lengthmm, breaks = seq(0, 1350, 10), labels = seq(0, 1340, 10) + 5)))/10)
+	
+	total_individual$country<-factor(total_individual$country,levels=cou_ref$cou_code,ordered=TRUE)
+	
+	#save(cou_ref, data_ind_series, data_ind_samp, color_countries, total_individual, biometry_individual_sampling, biometry_individual_series, file = "ind_biom.RData")
+	dbDisconnect(con_wgeel)
+} else {
+	load("ind_biom.RData")
+	warnings("The data was loaded with a RData file, please turn params `load_data` to TRUE if you want uptodate data")
+}
 
 ```
-
-```{r lengthdecriptivegraphs, include=TRUE}
-
-## length frequency
-
-	ggplot(total_individual) + aes(x = length_class_cm, color = life_stage) +
-	geom_density() + facet_grid(life_stage ~commercial, scales = "free_y")
-
-## length by month
-
-total_lengthmmg<-total_individual %>% filter(!is.na(month),life_stage=="G",!is.na(lengthmm))%>%group_by(month)%>%summarise(q50=quantile(lengthmm,0.5),q5=quantile(lengthmm,0.05),q95=quantile(lengthmm,0.95))
-
-total_lengthmmy<-total_individual %>% filter(!is.na(month),life_stage=="Y", !is.na(lengthmm))%>%group_by(month)%>%summarise(q50=quantile(lengthmm,0.5),q5=quantile(lengthmm,0.05),q95=quantile(lengthmm,0.95))
-
-
-total_lengthmms<-total_individual %>% filter(!is.na(month), year>1,life_stage=="S",!is.na(lengthmm))%>%group_by(month)%>%summarise(q50=quantile(lengthmm,0.5),q5=quantile(lengthmm,0.05),q95=quantile(lengthmm,0.95))
-
-
-
-
-gridExtra::grid.arrange(
-ggplot(total_lengthmmg, aes(x=as.factor(month),y=q50)) + geom_pointrange(aes(ymin = q5, ymax = q95)) +ggtitle("Glass eel")+ theme(axis.text.x = element_text(size = 12, angle = 45))+ xlab("month")+ylab("length in mm"),
-ggplot(total_lengthmmy, aes(x=as.factor(month),y=q50)) + geom_pointrange(aes(ymin = q5, ymax = q95)) +ggtitle("Yellow eel")+ theme(axis.text.x = element_text(size = 12, angle = 90))+ xlab("month")+ylab("length in mm"),
-ggplot(total_lengthmmy, aes(x=as.factor(month),y=q50)) + geom_pointrange(aes(ymin = q5, ymax = q95)) +ggtitle("Silver eel")+ theme(axis.text.x = element_text(size = 12, angle = 90))+ xlab("month")+ylab("length in mm"),
-nrow = 3
-)
-
-
-```
-
-
-```{r weightdecriptivegraphs, include=TRUE}
-
-## weight /year
-total_weightg<-total_individual %>% filter(!is.na(year), year>1, weightg<2,life_stage=="G")%>%group_by(year)%>%summarise(q50=quantile(weightg,0.5),q5=quantile(weightg,0.05),q95=quantile(weightg,0.95))
-
-total_weighty<-total_individual %>% filter(!is.na(year), year>1,life_stage=="Y", !is.na(weightg))%>%group_by(year)%>%summarise(q50=quantile(weightg,0.5),q5=quantile(weightg,0.05),q95=quantile(weightg,0.95))
-
-
-total_weights<-total_individual %>% filter(!is.na(year), year>1,life_stage=="S",!is.na(weightg))%>%group_by(year)%>%summarise(q50=quantile(weightg,0.5),q5=quantile(weightg,0.05),q95=quantile(weightg,0.95))
-
-
-
-
-gridExtra::grid.arrange(
-ggplot(total_weightg, aes(x=as.factor(year),y=q50)) + geom_pointrange(aes(ymin = q5, ymax = q95)) +ggtitle("Glass eel")+ theme(axis.text.x = element_text(size = 12, angle = 45))+ xlab("year")+ylab("weight in g"),
-ggplot(total_weighty, aes(x=as.factor(year),y=q50)) + geom_pointrange(aes(ymin = q5, ymax = q95)) +ggtitle("Yellow eel")+ theme(axis.text.x = element_text(size = 12, angle = 90))+ xlab("year")+ylab("weight in g"),
-ggplot(total_weights, aes(x=as.factor(year),y=q50)) + geom_pointrange(aes(ymin = q5, ymax = q95)) +ggtitle("Silver eel")+ theme(axis.text.x = element_text(size = 12, angle = 90))+ xlab("year")+ylab("weight in g"),
-nrow = 3
-)
-
-```
-
-
-```{r agedescriptivegraphs, include=TRUE}
-
-total_age<-total_individual %>% filter(!is.na(ageyear), life_stage %in% c("Y","S"))
-
-ggplot(total_age) + aes(x = ageyear, color = life_stage) +
-	geom_density() + facet_grid(vars(country), vars(life_stage))
-
-```
-
-
-
-```{r lengthweightlfs, include=TRUE}
-
-## lfs effect on size-weight
-
-ggplot(total_individual,aes(x=lengthmm,y=weightg))+geom_point()+
-  facet_grid(vars(life_stage), vars(source),scale="free")+
-  theme_bw()+xlab("Length (mm)")+ylab("Weight (g)")
-
-
-```
-```{r lengthweightrelationship, include=TRUE}
-
-# all data
-
-## prepare the data
-reg_series_data<-total_individual[!is.na(total_individual$weightg) & !is.na(total_individual$lengthmm),]
-reg_series_data<-total_individual[total_individual$weightg>0 & total_individual$lengthmm>100,]
-reg_series_data<-reg_series_data[reg_series_data$life_stage %in% c("Y","S") & !is.na(reg_series_data$life_stage),]
-
-reg_series_data$country<-factor(reg_series_data$country,levels=cou_ref$cou_code,ordered=TRUE)
-
-
-reg_w_series = rq(log(reg_series_data$weightg)~log(reg_series_data$lengthmm), tau= 0.75)
-
-summary(reg_w_series)
-
-#calcul de Ws
-reg_series_data$ws = exp(predict(reg_w_series, newdata = reg_series_data))
-
-#calcul de Wr
-reg_series_data$wr = reg_series_data$weightg / reg_series_data$ws *100
-
-
-## regression with all data
-
-p <- ggplot(reg_series_data, aes(lengthmm, ws))
-p + geom_point(aes(lengthmm,weightg, colour=life_stage))+ geom_line() +
-	scale_color_discrete("Life stage")
-
-## representation of the results with all data
-
-p <- ggplot(reg_series_data, aes(lengthmm, wr, colour=life_stage))
-p + geom_point()+ geom_hline(yintercept = c(25,200))+ ylab("Weight (g)") +
-scale_color_discrete("Life stage")
-
-n_total<-nrow(reg_series_data)
-
-n_inconsistent<-nrow(reg_series_data[reg_series_data$wr<25 | reg_series_data$wr>200,])
-
-## boxplot of the resultat with only consistant data
-
-reg_data_cons<-reg_series_data[reg_series_data$wr>25 & reg_series_data$wr<200,]
-
-p <- ggplot(reg_data_cons, aes(country, wr, fill=country))
-p + geom_boxplot()+ scale_fill_manual(values=color_countries[names(color_countries) %in% unique(reg_series_data$country)], drop = TRUE)+geom_hline(yintercept =100) + facet_grid(vars(source),vars(life_stage))+
-	scale_color_discrete("Life stage") + xlab("Country") + ylab("Wr")
-
-```
-
-
-
-```{r rawdata, include=TRUE}
-
-data_ind_seriesG<-data_ind_series[data_ind_series$ser_lfs_code=="G",]
-data_ind_seriesGY<-data_ind_series[data_ind_series$ser_lfs_code=="GY",]
-data_ind_seriesY<-data_ind_series[data_ind_series$ser_lfs_code=="Y",]
-data_ind_seriesS<-data_ind_series[data_ind_series$ser_lfs_code=="S",]
-
-## Gear effect on size-weight
-
-ggplot(data_ind_seriesG,aes(x=lengthmm,y=weightg))+geom_point()+
-  facet_grid(vars(gea_name_en))+
-  theme_bw()+ggtitle("Glass eel")+xlab("Length (mm)")+ylab("Weight (g)")
-
-ggplot(data_ind_seriesY,aes(x=lengthmm,y=weightg))+geom_point()+
-  facet_grid(vars(gea_name_en))+
-  theme_bw()+ggtitle("Yellow")+xlab("Length (mm)")+ylab("Weight (g)")
-
-ggplot(data_ind_seriesS,aes(x=lengthmm,y=weightg))+geom_point()+
-  facet_grid(vars(gea_name_en))+
-  theme_bw()+ggtitle("Silver")+xlab("Length (mm)")+ylab("Weight (g)")
-
-## lfs effect on size-weight
-
-ggplot(data_ind_series,aes(x=lengthmm,y=weightg))+geom_point()+
-  facet_wrap(.~ser_lfs_code,scale="free")+
-  theme_bw()+ggtitle("All gears")+xlab("Length (mm)")+ylab("Weight (g)")
-
-## length by gear and year
-
-stat_length_g<-data_ind_seriesG %>%
-    group_by(year,gea_name_en,country) %>%
-    dplyr::summarize(Mean = mean(weightg, na.rm=TRUE), sd=sd(weightg,na.rm=TRUE))
-
-stat_length_y<-data_ind_seriesY %>%
-    group_by(year,gea_name_en,country) %>%
-    dplyr::summarize(Mean = mean(lengthmm, na.rm=TRUE), sd=sd(lengthmm,na.rm=TRUE))
-
-ggplot(stat_length_g, aes(year, Mean))+ geom_pointrange(aes(ymin = Mean-sd, ymax = Mean+sd))+ 
-  facet_grid(vars(gea_name_en),vars(country)) + theme_bw()+xlab("Year")+ylab("Mean length (mm)") +ggtitle("Glass eel")
-
-ggplot(stat_length_y, aes(year, Mean))+ geom_pointrange(aes(ymin = Mean-sd, ymax = Mean+sd))+ 
-  facet_grid(vars(country),vars(gea_name_en)) + theme_bw()+xlab("Year")+ylab("Mean length (mm)") +ggtitle("Yellow eel")
-
-```
-
-The point for silver eel greater than 1250 mm appear as an outlier and is excluded from the analysis. Weights should be checked.
-
-For the spatial analysis, we only considered ser_hty_code x EMU x lfs_code where at leat 5 data points were available (they may come from different time series or years).
-
-# Maps
-As an exploratory analysis, we computed average biometry (length, weight, sex-ratio) per stage, habitat type and sex (when available). All years and time series are pooled together. To explore the existance of spatial pattern, we carried out Mann Kendall tests to detect correlations between the considered traits and spatial positions of the biometry measurements. Here, spatial positions are characterised by 
-distances as the crow flies from Gibraltar: this distance is used as a proxy of lattitudes patterns which is known to be correlated to life history traits [@kettle2011; @vollestad1992], but allows the consideration of the Mediterranean basin.
 
 
 ```{r mapfunctions,echo=FALSE}
 
-stats_data_coord= total_individual %>% group_by(source,country,EMU, coord_x, coord_y,habitat,life_stage) %>%
+# compute the summary of data
+
+stats_data_coord = total_individual %>% group_by(source,country,EMU, coord_x, coord_y,habitat,life_stage) %>%
 	summarize(series=paste(unique(EMU),collapse=", "),
 		n_lengthmm=(sum(!is.na(lengthmm))),
 		n_bio_weight=(sum(!is.na(weightg))),
@@ -325,145 +142,485 @@ stats_data_coord= total_individual %>% group_by(source,country,EMU, coord_x, coo
 	filter((n_lengthmm + n_bio_weight + n_female_proportion + n_pectoral_length + n_eye_diam_meanmm + n_ageyear + n_differentiated_proportion)>0) %>%
 	arrange(source,life_stage,country,habitat,EMU)
 
-mapbox = c(left = -13, bottom = 25, right = 40, top = 68)
-background_map=get_stamenmap(bbox = mapbox, zoom = 4, maptype = c("watercolor"), crop = TRUE)
-attr = attributes(background_map)
-background_map_transparent = matrix(adjustcolor(background_map, 
-		alpha.f = 0.2), 
-	nrow = nrow(background_map))
-attributes(background_map_transparent) <- attr
-rm(attr, mapbox)
+```
 
-plot_map_bio_emu = function(var, stage, mydata = stats_data_coord){
-  data=mydata %>%
-    filter(life_stage==stage)
+## Available data 
 
-  var_name=switch (var,
-    "length" = "lengthmm",
-    "weight" = "bio_weight",
-    "sexratio" = "female_proportion",
-	"age" = "ageyear"
-  )
-  
-  title=switch (var,
-	  "length" = "Length",
-	  "weight" = "Weight",
-	  "sexratio" = "Sex ratio",
-	  "age" = "Age"
-  )
+The table (**Annex**) describes the available individual biometric data from Appendix 1,2,3 (series) and 10 (sampling).
 
-  data <- data %>%
-    filter(!!as.symbol(paste("n_",var_name,sep=""))>=5)
-  
-  ggmap(background_map_transparent) + 
-	  geom_point(data=data,
-               aes(x = coord_x, y = coord_y, fill = source,   shape= habitat), size = 3, alpha = 0.6)+
-    scale_shape_manual("Habitat type", breaks = c("MO", "C", "T", "F"), values = 21:24)+
-	scale_fill_viridis_d("Source") + scale_color_discrete("Source")+
-	guides(fill = guide_legend(override.aes = list(shape = 21) ) ) +
-	theme_bw()+xlab("")+ylab("") + ggtitle(title)
+```{r available_data, include = TRUE }
+#TODO: make the column's title more explicit (true title instead of variable names)
+
+stats_data= total_individual %>% group_by(source, country, EMU, ser_nameshort, habitat, life_stage) %>%
+  summarize(
+            n_lengthmm=(sum(!is.na(lengthmm))),
+            n_bio_weight=(sum(!is.na(weightg))),
+            n_female_proportion=(sum(!is.na(female_proportion))),
+            n_pectoral_length=(sum(!is.na(pectoral_lengthmm))),
+            n_eye_diam_meanmm=(sum(!is.na(eye_diam_meanmm))),
+            n_ageyear=(sum(!is.na(ageyear))),
+            n_differentiated_proportion=(sum(!is.na(differentiated_proportion)))) %>%
+  filter((n_lengthmm + n_bio_weight + n_female_proportion + n_pectoral_length + n_eye_diam_meanmm + n_ageyear + n_differentiated_proportion)>0) %>%
+  arrange(source,life_stage,country,habitat,EMU)
+
+ft = flextable(stats_data)
+ft = set_caption(ft, "Number of avaible data for each biometry metrics")
+
+autofit(ft)
+
+```
+
+## Length data
+
+```{r lengthdecriptivegraphs, include=TRUE, fig.cap = "Length distribution par life stage and source of data"}
+## length frequency
+
+	ggplot(total_individual %>% mutate(type_sampling = ifelse(is.na(commercial), "Series", ifelse(commercial, "Fisheries sampling", "Scientific sampling")))) + aes(x = length_class_cm, color = life_stage) +
+		geom_density() + facet_grid(life_stage ~type_sampling, scales = "free_y") +
+		scale_color_discrete(guide = "none") +
+		xlab("Length (cm)") + ylab("") + theme_classic() + theme(
+			axis.text.y = element_blank(),
+			axis.ticks = element_blank(),
+			axis.text.x = element_text(angle = 90),
+			axis.ticks.x = element_line()
+		) + coord_cartesian(expand = FALSE) + xlim(c(0, NA)) 
+```
+
+```{r lengthdecriptivegraphs-month, include=TRUE, fig.cap = "** not for the report ** Length distribution by month and by life stage. Point is the median, bar gives 5% and 95% quantile.", fig.height=20/2.54}
+## length by month
+
+total_lengthmmg<-total_individual %>% filter(!is.na(month),life_stage=="G",!is.na(lengthmm))%>%group_by(month)%>%summarise(q50=quantile(lengthmm,0.5),q5=quantile(lengthmm,0.05),q95=quantile(lengthmm,0.95))
+
+total_lengthmmy<-total_individual %>% filter(!is.na(month),life_stage=="Y", !is.na(lengthmm))%>%group_by(month)%>%summarise(q50=quantile(lengthmm,0.5),q5=quantile(lengthmm,0.05),q95=quantile(lengthmm,0.95))
+
+total_lengthmms<-total_individual %>% filter(!is.na(month), year>1,life_stage=="S",!is.na(lengthmm))%>%group_by(month)%>%summarise(q50=quantile(lengthmm,0.5),q5=quantile(lengthmm,0.05),q95=quantile(lengthmm,0.95))
+
+gridExtra::grid.arrange(
+
+ggplot(total_lengthmmg, aes(x=as.factor(month),y=q50)) + 
+  geom_pointrange(aes(ymin = q5, ymax = q95)) +
+  ggtitle("Glass eel")+ 
+  theme(axis.text.x = element_text(size = 12, angle = 90))+ 
+  xlab("Month")+
+  ylab("Length (mm)") + theme_classic(),
+
+ggplot(total_lengthmmy, aes(x=as.factor(month),y=q50)) + 
+  geom_pointrange(aes(ymin = q5, ymax = q95)) +ggtitle("Yellow eel")+ 
+  theme(axis.text.x = element_text(size = 12, angle = 90))+ 
+  xlab("Month")+
+  ylab("Length (mm)") + theme_classic(),
+
+ggplot(total_lengthmmy, aes(x=as.factor(month),y=q50)) + 
+  geom_pointrange(aes(ymin = q5, ymax = q95)) +
+  ggtitle("Silver eel")+ 
+  theme(axis.text.x = element_text(size = 12, angle = 90))+ 
+  xlab("Month")+
+  ylab("Length (mm)") + theme_classic(),
+
+nrow = 3
+)
+
+```
+
+** NO yellow eel to be checked **
+
+```{r lengthdescriptivegraphsYS, include=TRUE, fig.cap = "Length distribtion by country and by life stage (yellow and silver)"}
+
+plot_distribution(total_individual, lifeStage = c("Y", "S"), var = "length")
+
+```
+
+Glass eel larger than 100 mm (so excluded)  =
+`r nrow(total_individual %>% filter(!is.na(lengthmm), lengthmm > 100, life_stage %in% c("G")))`.
+
+```{r lengthdescriptivegraphsG, include=TRUE, fig.cap = "Length distribtion of glass eel by country"}
+
+plot_distribution(total_individual %>% filter(lengthmm < 100), lifeStage = c("G"), var = "length", scale_value = 2, bandwidth_value = 2)
+
+```
+
+
+```{r lenghtgear, include=TRUE, fig.cap="Length distribution by gear and by life stage (yellow and silver eel"}
+
+plot_distribution(total_individual%>% filter(life_stage %in% c("Y","S")), var = "length",lifeStage=c("Y","S"),scale_value = 2,group="gear", bandwidth_value = 2)
+
+
+```
+
+### Map of available length data by stage
+
+Only the data series with more than 5 individual size measurements have been taken into account to make these maps
+
+```{r maplength,echo=TRUE}
+
+gridExtra::grid.arrange(
+  plot_map_bio_emu("length","G",only_legend="no"),
+  plot_map_bio_emu("length","Y",only_legend="no"),
+  plot_map_bio_emu("length","S",only_legend="no"),
+  plot_map_bio_emu("length","S",only_legend="yes"),
+
+  nrow=2,
+  ncol=2
+)
+
+```
+
+
+
+
+
+
+
+
+## Weight data
+
+```{r weightdecriptivegraphs, include=TRUE, fig.cap = "** not for the report ** Weight distribution by year and by life stage. Point is the median, bar gives 5% and 95% quantile.", fig.height=20/2.54}
+
+graph_weight = function(lifeStage = "G")
+{
+	lfs = switch(lifeStage,
+		"G" = "Glass eel" ,
+		"Y" = "Yellow eel",
+		"S" = "Silver eel"
+		)
+		
+		total_weightg<-total_individual %>% 
+			filter(!is.na(weightg), !is.na(year), year>1, life_stage== lifeStage) %>%
+			group_by(year) %>%
+			summarise(q50=quantile(weightg, 0.5), q5=quantile(weightg,0.05), q95=quantile(weightg, 0.95))
+		
+		myplot = ggplot(total_weightg, aes(x=as.factor(year), y=q50)) + 
+			geom_pointrange(aes(ymin = q5, ymax = q95)) + ggtitle(lfs)  + theme_classic()+ 
+			theme(axis.text.x = element_text(angle = 90))+ 
+			xlab("Year")+ylab("Weight (g)")
+		
+		return(myplot)
 }
-```
 
-## Glass eel
 
-### Length
-
-```{r glassmaplength,echo=TRUE}
-
-plot_map_bio_emu("length","G")
-
-```
-
-### Weight
-
-```{r glassmapweight,echo=TRUE}
-
-plot_map_bio_emu("weight","G")
+gridExtra::grid.arrange(
+	graph_weight("G"),
+	graph_weight("Y"),
+	graph_weight("S"),
+	nrow = 3
+)
 
 ```
 
-## Yellow Eel
-### Length
 
-The length of monitored standing stock yeelow eel appear to increase with the distance to Gibraltar. This is confirmed by the Kendall correlation test (tau=`r round(Kendall(mean_biom_hty_emuY$lengthmm,mean_biom_hty_emuY$distance)$tau[1],digits=2)`, p.value=`r Kendall(mean_biom_hty_emuY$lengthmm,mean_biom_hty_emuY$distance)$sl[1]`. There are not enougth time sex disaggregated data to detect sex-specific length-pattern.
+```{r weightdescriptivegraphsYS, include=TRUE, fig.cap = "Weight distribtion by country and by life stage (yellow and silver)"}
 
-```{r yellowmaplength,echo=TRUE}
-
-plot_map_bio_emu("length","Y")
+plot_distribution(total_individual, lifeStage =  c("Y","S"), var = "weight", bandwidth_value = 1)
 
 ```
 
-### Weight
+Glass eel larger than 1g = `r nrow(total_individual %>% filter(weightg > 1, life_stage %in% c("G")))`.
 
-Similarly to length, a pattern is visible for weight of monitored standing stock yeelow eel. This is confirmed by the Kendall correlation test (tau=`r round(Kendall(mean_biom_hty_emuY$bio_weight,mean_biom_hty_emuY$distance)$tau[1],digits=2)`, p.value=`r Kendall(mean_biom_hty_emuY$bio_weight,mean_biom_hty_emuY$distance)$sl[1]`. There are not enougth time sex disaggregated data to detect sex-specific length-pattern.
+```{r weightdescriptivegraphsG, include=TRUE, fig.cap = "Weight distribtion of glass eel by country"}
 
-```{r yellowweighthmap,echo=TRUE}
-
-plot_map_bio_emu("weight","Y")
+plot_distribution(total_individual  %>% filter(weightg < 1), lifeStage =  c("G"), var = "weight", scale_value = 1, bandwidth_value = 0.005)
 
 ```
 
-### Sex Ratio
+### Map of available weight data by stage
+
+
+
+```{r mapweight,echo=TRUE}
+
+gridExtra::grid.arrange(
+  plot_map_bio_emu("weight","G",only_legend="no"),
+  plot_map_bio_emu("weight","Y",only_legend="no"),
+  plot_map_bio_emu("weight","S",only_legend="no"),
+  plot_map_bio_emu("weight","S",only_legend="yes"),
+
+  nrow=2,
+  ncol=2
+)
+```
+
+
+## Length-Weight relationship
+
+
+```{r lengthweightlfs, include=TRUE, fig.cap = "Length-Weight relationship by life stage and source"}
+
+ggplot(total_individual %>% mutate(source = case_when(source == "sampling" ~ "Sampling", source == "series" ~ "Series"))) +
+	aes(x=lengthmm, y=weightg) + 
+	geom_point() +
+  	facet_grid(vars(life_stage), vars(source),scale="free")+
+  	theme_classic()+xlab("Length (mm)") + ylab("Weight (g)") +
+  	xlim(c(0, NA)) + ylim(c(0, NA))
+
+```
+
+```{r lengthweightrelationship, include=TRUE, fig.cap = "Lenght-Weight relationship by life stage (point) and 75% quantile regression (line)"}
+
+# all data
+
+## prepare the data
+reg_series_data <- 	total_individual %>%
+	filter(!is.na(weightg), !is.na(lengthmm), 
+		weightg>0, lengthmm>100,
+		life_stage %in% c("Y","S"), !is.na(life_stage)
+		) %>%
+	mutate(country = factor(country, levels=cou_ref$cou_code, ordered=TRUE))
+
+if(params$run_rq)
+{
+	reg_w_series = rq(log(reg_series_data$weightg) ~ log(reg_series_data$lengthmm), tau= 0.75)
+#	save(reg_w_series, file = "reg_w_series.RData")
+} else {
+	load("reg_w_series.RData")
+}
+
+#calcul de Ws
+reg_series_data$ws = exp(predict(reg_w_series, newdata = reg_series_data))
+
+#calcul de Wr
+reg_series_data$wr = reg_series_data$weightg / reg_series_data$ws *100
+
+reg_series_data = reg_series_data %>% mutate(life_stage = case_when(life_stage =="Y" ~"Yellow eel", life_stage =="S" ~ "Silver eel"))
+
+## regression with all data
+
+ggplot(reg_series_data) +
+	aes(lengthmm, ws) +
+	geom_point(aes(lengthmm, weightg, colour=life_stage), size = 1, alpha = 0.3) + 
+	geom_line() +
+	scale_color_discrete("Life stage") +
+	theme_classic() + xlab("Length (mm)") + ylab("Weight (g)") +
+	coord_cartesian(expand = FALSE, xlim = c(0, NA), ylim = c(0, NA)) +
+	guides(color = guide_legend(override.aes = list(size = 5) ) ) 
+
+```
+
+[@blackwellRelativeWeightWr2000]
+
+```{r lengthweightrelationship2, include=TRUE, fig.cap = "Relative Weight relationship by life stage"}
+## representation of the results with all data
+
+ggplot(reg_series_data) +
+	aes(lengthmm, wr, colour=life_stage) +
+	geom_point(alpha = 0.3, size = 1) +
+	geom_hline(yintercept = c(25,200)) + 
+	scale_y_continuous(trans = "log10", labels = scales::label_number(), breaks = c(0.1, 1, 10, 25, 100, 200, 1000, 10000)) +
+	scale_color_discrete("Life stage") +
+	theme_classic() + xlab("Length (mm)") + ylab("Relative weight (Wr)") +
+	coord_cartesian(expand = FALSE, xlim = c(0, NA), ylim = c(0.1, NA)) +
+	guides(color = guide_legend(override.aes = list(size = 5) ) ) 
+
+```
+
+restricted to 25 -200
+
+```{r lengthweightrelationship3, include=TRUE, fig.cap = "Relative Weight relationship by life stage, country and source"}
+
+#n_total<-nrow(reg_series_data)
+#
+#n_inconsistent<-nrow(reg_series_data[reg_series_data$wr<25 | reg_series_data$wr>200,])
+
+## boxplot of the resultat with only consistant data
+
+reg_data_cons<-reg_series_data %>%
+	filter(wr>25 & wr<200) %>% 
+	mutate(source = case_when(source == "sampling" ~ "Sampling", source == "series" ~ "Series"))
+
+ggplot(reg_data_cons) +aes(country, wr, fill=country) +
+	geom_boxplot() + 
+	scale_fill_manual(name = "Country", values=color_countries[names(color_countries) %in% unique(reg_series_data$country)], drop = TRUE)+
+	geom_hline(yintercept =100) + facet_grid(vars(source),vars(life_stage))+
+	theme_classic() + xlab("Country") + ylab("Relative weight (Wr)") +
+	coord_cartesian(expand = FALSE, xlim = c(0, NA), ylim = c(0.1, NA)) +
+	guides(color = guide_legend(override.aes = list(size = 5) ) ) 
+
+```
+
+```{r rawdata, include=TRUE}
+
+## Gear effect on size-weight
+graph_LW = function(lifeStage = "G")
+{
+	mydata = data_ind_series %>% filter(ser_lfs_code == lifeStage)
+	
+	lfs = switch(lifeStage,
+		"G" = "Glass eel" ,
+		"GY" = "Glass & Yellow eel",
+		"Y" = "Yellow eel",
+		"S" = "Silver eel"
+	)
+	
+	ggplot(mydata) +
+		aes(x = lengthmm, y = weightg, color = country) + 
+		geom_point(alpha = 0.3) +
+		facet_grid(vars(gea_name_en))+
+		scale_color_manual(name = "Country", values=color_countries[names(color_countries) %in% unique(mydata$country)], drop = TRUE) +
+		theme_bw()+
+		ggtitle(lfs)+xlab("Length (mm)")+ylab("Weight (g)") +
+		theme_classic()  +
+		coord_cartesian(expand = FALSE, xlim = c(0, NA), ylim = c(0.1, NA)) +
+		guides(color = guide_legend(override.aes = list(size = 5) ) ) 
+}
+
+graph_LW("G")
+graph_LW("GY")
+graph_LW("Y")
+graph_LW("S")
+
+## lfs effect on size-weight
+
+ggplot(data_ind_series, aes(x=lengthmm,y=weightg))+geom_point()+
+  facet_wrap(.~ser_lfs_code,scale="free")+
+  theme_bw()+ggtitle("All gears")+xlab("Length (mm)")+ylab("Weight (g)")
+
+## length by gear and year
+
+stat_length_g<- data_ind_series %>% filter(ser_lfs_code == "G") %>%
+    group_by(year,gea_name_en,country) %>%
+    dplyr::summarize(Mean = mean(weightg, na.rm=TRUE), sd=sd(weightg,na.rm=TRUE))
+
+stat_length_y<- data_ind_series %>% filter(ser_lfs_code == "Y") %>%
+    group_by(year,gea_name_en,country) %>%
+    dplyr::summarize(Mean = mean(lengthmm, na.rm=TRUE), sd=sd(lengthmm,na.rm=TRUE))
+
+ggplot(stat_length_g, aes(year, Mean))+ geom_pointrange(aes(ymin = Mean-sd, ymax = Mean+sd))+ 
+  facet_grid(vars(gea_name_en),vars(country)) + theme_bw()+xlab("Year")+ylab("Mean length (mm)") +ggtitle("Glass eel")
+
+ggplot(stat_length_y, aes(year, Mean))+ geom_pointrange(aes(ymin = Mean-sd, ymax = Mean+sd))+ 
+  facet_grid(vars(country),vars(gea_name_en)) + theme_bw()+xlab("Year")+ylab("Mean length (mm)") +ggtitle("Yellow eel")
+
+```
+
+The point for silver eel greater than 1250 mm appear as an outlier and is excluded from the analysis. Weights should be
+checked.
+
+For the spatial analysis, we only considered ser_hty_code x EMU x lfs_code where at leat 5 data points were available
+(they may come from different time series or years).
+
+
+## Age
+
+```{r agedescriptivegraphs, include=TRUE, fig.cap = "Age distribtion by country and by life stage"}
+#TODO: add the number of samples for each line
+
+plot_distribution(total_individual, lifeStage =  c("Y", "S"), var = "age", scale_value = 3, bandwidth_value = 0.5)
+
+```
+
+### Map of available age data by stage
 
 Too few data were correlected regarding sex to draw any conclusions regarding differences in sex-ratios among locations.
 
-```{r yellowsexratiomap,echo=TRUE}
-plot_map_bio_emu("sexratio","Y")
+```{r agemap,echo=TRUE}
+
+gridExtra::grid.arrange(
+  plot_map_bio_emu("age","Y",only_legend="no"),
+  plot_map_bio_emu("age","S",only_legend="no"),
+  plot_map_bio_emu("age","S",only_legend="yes"),
+
+  nrow=2,
+  ncol=2
+)
 ```
 
-### Age
+
+
+## Growth
+
+```{r agelengthy, fig.height=20/2.54, include=TRUE, fig.cap = "Length distribution by age and country for yellow eels"}
+
+age_lengthy<-total_individual %>% filter(!is.na(ageyear), !is.na(lengthmm), life_stage=="Y") %>% 
+		mutate(age_class = factor(ifelse(ageyear>19, "20+", ageyear), levels=c(0:19,"20+"), ordered=TRUE))
+
+ggplot(age_lengthy) + aes(x = lengthmm, y=age_class, fill=country, alpha=0.5)  + 
+  geom_density_ridges( scale = 3, rel_min_height = 0.005, bandwidth = 4)+ 
+  scale_alpha(guide="none")+
+  scale_fill_manual("Country",values=color_countries[names(color_countries) %in% unique(age_lengthy$country)], drop = TRUE)+
+  ylab("Age (year)") +
+  xlab("Length (mm)") +
+  theme_classic() +
+  coord_cartesian(expand = FALSE) + xlim(c(0, NA)) 
+
+```
+
+```{r agelengths, fig.height=20/2.54, include=TRUE, fig.cap = "Length distribution by age and country for silver eels"}
+
+age_lengths<-total_individual %>% filter(!is.na(ageyear), !is.na(lengthmm), life_stage=="S") %>% 
+		mutate(age_class = factor(ifelse(ageyear>19, "20+", ageyear), levels=c(0:19,"20+"), ordered=TRUE))
+
+ggplot(age_lengths) + aes(x = lengthmm, y=age_class, fill=country, alpha=0.5)  + 
+  geom_density_ridges( scale = 3, rel_min_height = 0.005, bandwidth = 4)+ 
+  scale_alpha(guide="none")+
+  scale_fill_manual("Country",values=color_countries[names(color_countries) %in% unique(age_lengths$country)], drop = TRUE)+
+  ylab("Age (year)") +
+    xlab("Length (mm)") + 
+    theme_classic() +
+	coord_cartesian(expand = FALSE) + xlim(c(0, NA)) 
+
+```
+
+## Sex
+
+```{r sexratio, include=TRUE, fig.cap = "Sex distribution by life stage and country"}
+
+sexratio<-total_individual %>%
+  mutate(sex=ifelse(is.na(female_proportion), "unknown", ifelse(female_proportion==1, "Female", "Male")))%>% 
+  filter(life_stage %in% c("Y","YS","S"), sex != "unknown") %>%
+  mutate(life_stage = case_when(life_stage =="Y" ~"Yellow eel", life_stage =="S" ~ "Silver eel", life_stage == "YS" ~ "Yellow or Silver eel"))
+
+	ggplot(sexratio) + aes(country) +
+	geom_bar(aes(fill = sex)) + 
+	  facet_grid(vars(life_stage), scales = "free_y") +
+	  scale_fill_discrete("Sex") +
+	  theme_classic() + xlab("Country") + ylab("Count") + coord_cartesian(expand = FALSE) 
+
+```
+
+### Map of available sex data by stage
 
 Too few data were correlected regarding sex to draw any conclusions regarding differences in sex-ratios among locations.
 
-```{r yellowsagemap,echo=TRUE}
-plot_map_bio_emu("age","Y")
+```{r sexratiomap,echo=TRUE}
+
+gridExtra::grid.arrange(
+  plot_map_bio_emu("sexratio","Y",only_legend="no"),
+  plot_map_bio_emu("sexratio","S",only_legend="no"),
+  plot_map_bio_emu("sexratio","S",only_legend="yes"),
+
+  nrow=2,
+  ncol=2
+)
 ```
+
+
+## To be changed in next data call
+
+- add a life stage column in Annex 1-3 in individual biometrics (** same for group?**)
+
+# Maps
+As an exploratory analysis, we computed average biometry (length, weight, sex-ratio) per stage, habitat type and sex (when available). All years and time series are pooled together. To explore the existance of spatial pattern, we carried out Mann Kendall tests to detect correlations between the considered traits and spatial positions of the biometry measurements. Here, spatial positions are characterised by 
+distances as the crow flies from Gibraltar: this distance is used as a proxy of lattitudes patterns which is known to be correlated to life history traits [@kettle2011; @vollestad1992], but allows the consideration of the Mediterranean basin.
+
+
+
+
+
+
 
 
 ## Silver Eel
 
-For silver eels, there is few available biometry data, therefore, so it is difficult to detect any spatial patterns.
-
-### Length
-
-```{r silverlengthmap,echo=TRUE}
-
-plot_map_bio_emu("length","S")
-
-```
 
 
-The length of monitored silver eel appear to increase with the distance to Gibraltar. This is confirmed by the Kendall correlation test (tau=`r round(Kendall(mean_biom_hty_emuS$lengthmm,mean_biom_hty_emuS$distance)$tau[1],digits=2)`, p.value=`r Kendall(mean_biom_hty_emuS$lengthmm,mean_biom_hty_emuS$distance)$sl[1]`. There are not enougth time sex disaggregated data to detect sex-specific length-pattern.
+
+The length of monitored silver eel appear to increase with the distance to Gibraltar. This is confirmed by the Kendall correlation test (tau=
+. There are not enougth time sex disaggregated data to detect sex-specific length-pattern.
 
 
-### Weight
 
-The Kendall correlation test does not detect any spatial pattern (tau=`r round(Kendall(mean_biom_hty_emuS$bio_weight,mean_biom_hty_emuS$distance)$tau[1],digits=2)`, p.value=`r Kendall(mean_biom_hty_emuS$bio_weight,mean_biom_hty_emuS$distance)$sl[1]`.
 
-```{r silverweightmap,echo=TRUE}
 
-plot_map_bio_emu("weight","S")
 
-```
-
-### Sex Ratio
-
-The number of points is again very limited and no significant spatial pattern is detected (tau=`r round(Kendall(mean_biom_hty_emuS$female_proportion,mean_biom_hty_emuS$distance)$tau[1],digits=2)`, p.value=`r Kendall(mean_biom_hty_emuS$female_proportion,mean_biom_hty_emuS$distance)$sl[1]`.
-
-```{r silversexratiomap,echo=TRUE}
-
-plot_map_bio_emu("sexratio","S")
-
-```
-
-### Age
-
-```{r silveragemap,echo=TRUE}
-
-plot_map_bio_emu("age","S")
-
-```
 
 ## Distribution of slopes of length-weight regression
 
@@ -507,6 +664,7 @@ Linear regression between logtransformed length and weights were carried out to 
 In this section, we explore the existence of temporal trends in biometry. For that purpose, we computed average biometry per EMU, habitat and year. Then we carry out Mann Kendall trend tests to detect time series with significant monotonic trend. We only keep EMUxHTY that have data for at least 5 years.
 
 ## Yellow Eel
+
 ```{r}
 #mean_biom_hty_emuyearY=mean_biom_hty_emuyear %>%
 #  filter(ser_lfs_code=="Y")
@@ -625,8 +783,10 @@ In this section, we explore the existence of temporal trends in biometry. For th
 ```
 
 Significant trends are detected in several GB EMUs and in a few other locations. Tt generally
-correspond to a decrease (`r paste(subset(trends$ser_emu_nameshort,trends$tau<=0 & trends$p.value<=0.05),collapse=", ")`)
-except in 2 EMUs (`r paste(subset(trends$ser_emu_nameshort,trends$tau>=0 & trends$p.value<=0.05),collapse=", ")`).
+correspond to a decrease (
+)
+except in 2 EMUs 
+).
 
 
 ### Weight
@@ -652,7 +812,9 @@ except in 2 EMUs (`r paste(subset(trends$ser_emu_nameshort,trends$tau>=0 & trend
 
 ```
 
-Results are rather similar to length with several significant trends in GB and a few in other locations. Among significant trend, most of them correspond to a decrease (`r paste(subset(trends$ser_emu_nameshort,trends$tau<=0 & trends$p.value<=0.05),collapse=", ")`) and a few to an increase (`r paste(subset(trends$ser_emu_nameshort,trends$tau>=0 & trends$p.value<=0.05),collapse=", ")`). 
+Results are rather similar to length with several significant trends in GB and a few in other locations. Among significant trend, most of them correspond to a decrease (
+) and a few to an increase (
+). 
 
 ### Sex Ratio
 It was not possible to carry out any sex ratio analysis for yellow eels.
@@ -681,7 +843,8 @@ It was not possible to carry out any sex ratio analysis for yellow eels.
 #autofit(flextable(trends))
 #
 #if (!is.na(trends)>0) plot_temporal_trend("length","S",trends)
-#
+#### Silver eel map
+
 #
 ##female
 #trends_f=table_temporal_trend("length","S","f")
