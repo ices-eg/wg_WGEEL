@@ -2365,7 +2365,7 @@ save_figure("figure_inclusion_2",figure_inclusion_2,600,480)
 
 
 
-## Check on series updates for the 2019 analyses[remove this paragraph]
+## Check on series updates for analyses[remove this paragraph]
 
  `r format(vv[["nCY"]], scientific = TRUE)` time-series  updated to `r CY` `r format(vv[["nCYG"]], scientific = TRUE)` for glass eel `r format(vv[["nCYGY"]], scientific = TRUE)` for glass + yellow eel and `r format(vv[["nCYY"]], scientific=TRUE)` for yellow eel `r format(vv[["nCYm1"]], scientific = TRUE)` 
 time-series (`r format(vv[["nCYm1G"]], scientific=TRUE)`} for 

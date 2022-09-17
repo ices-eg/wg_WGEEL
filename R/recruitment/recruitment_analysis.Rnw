@@ -2652,7 +2652,7 @@ since then.
 \clearpage
 
 \section*{Annex}
-<<diagramme,echo=FALSE,eval=FALSE,results=hide>>=
+<<diagramme,echo=FALSE,eval=TRUE,results=hide>>=
 library(DiagrammeR)
 library(magrittr)
 library(DiagrammeRsvg)
@@ -2712,7 +2712,7 @@ igraph3 <-igraph2 %>%
 				from_to_map = id_external
 		)
 
-render_graph(igraph3, layout="tree")%>%
+library(xml2)
 render_graph(igraph3, layout="tree") %>% 
 export_svg %>% read_xml %>% write_xml(str_c(imgwd,"series_selection.png"))
 
