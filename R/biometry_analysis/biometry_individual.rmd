@@ -44,6 +44,7 @@ load_library("stringr")
 load_library("quantreg")
 load_library("ggridges")
 load_library("scales")
+load_library(("ggpubr"))
 
 if(Sys.info()["user"]=="hilaire.drouineau"){
   allometry=read_excel("~/Bureau/slopesintercepts.xlsx")
@@ -242,35 +243,33 @@ ggplot(total_length) + aes(x = lengthmm, y=country, fill = country, alpha=0.5)  
 
 ```
 
+### Map of available length data by stage
 
-### Glass eel map
+Only the data series with more than 5 individual size measurements have been taken into account to make these maps
 
-```{r glassmaplength,echo=TRUE}
+```{r maplength,echo=TRUE}
 
-plot_map_bio_emu("length","G")
+gridExtra::grid.arrange(
+  plot_map_bio_emu("length","G",only_legend="no"),
+  plot_map_bio_emu("length","Y",only_legend="no"),
+  plot_map_bio_emu("length","S",only_legend="no"),
+  plot_map_bio_emu("length","S",only_legend="yes"),
 
-```
+  nrow=2,
+  ncol=2
+)
 
-### Yellow eel map
 
-The length of monitored standing stock yeelow eel appear to increase with the distance to Gibraltar. This is confirmed
-by the Kendall correlation test (tau=
 
-. There are not enougth time sex disaggregated data to detect sex-specific length-pattern.
-
-```{r yellowmaplength,echo=TRUE}
-
-plot_map_bio_emu("length","Y")
-
-```
-
-### Silver eel map
-
-```{r silverlengthmap,echo=TRUE}
-
-plot_map_bio_emu("length","S")
 
 ```
+
+
+
+
+
+
+
 
 ## Weight data
 
