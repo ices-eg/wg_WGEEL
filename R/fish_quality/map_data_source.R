@@ -4,7 +4,7 @@ load_library("rnaturalearth")
 load_library("yaml")
 load_library("dplyr")
 
-
+sf_use_s2(FALSE)
 cred=read_yaml("../../credentials.yml")
 # TODO 2022 use this to connect, not sqldf !!!!!!!!!!!!!!
 # currently still using sqldf and RpostgreSQL() change for compatibility with linux
@@ -35,7 +35,8 @@ ggplot(europe_cropped)+geom_sf(data=europe_cropped,
                                fill="white",
                                col="grey",cex=.2)+
   geom_sf(data=countries,aes(fill=as.character(data_code)),col="grey",alpha=1,cex=.2)+
-  scale_fill_manual("",values=pal,labels=colours$comment)+
+#  scale_fill_manual("",values=pal,labels=colours$comment)+
+  scale_fill_viridis_d("",labels=colours$comment)+
   xlim(-18, lim[3])+ylim(18,lim[4]) +
   theme_bw()
 ggsave("maps_countries.png",height=16/2.54,width=16/2.54,dpi=300)
