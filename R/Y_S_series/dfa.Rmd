@@ -199,6 +199,7 @@ silver_map$Updated = silver_map$ser_id %in% unique((mydata %>% filter(das_year >
 
 # colors for countries
 country_ref = dbGetQuery(con_wgeel, "SELECT cou_code, cou_country, cou_order FROM ref.tr_country_cou")
+country_ref= country_ref[order(country_ref$cou_order), ]
 
 values=c(RColorBrewer::brewer.pal(12,"Set3"),
 	RColorBrewer::brewer.pal(12, "Paired"), 
@@ -358,16 +359,18 @@ g0 <- gam(das_value~s(das_year), data=yellow_data_std, family = gaussian())
 
 # test for trends per country
 g1 <- gam(das_value~s(das_year, by=ser_cou_code), data=yellow_data_std, family = gaussian())
-cou_code <- levels(droplevels (yellow_data_std$ser_cou_code))
 
 # compute mean of the standardized values to be included in figure
 yellow_data_std_mean <- yellow_data_std %>% group_by(ser_cou_code, das_year) %>% 
                     summarize(mean_das_value=mean(das_value),
                               N=n()) %>% ungroup() %>% rename(cou_code=ser_cou_code)
 
+
 cols<-colorRampPalette(c("chartreuse", "grey",  "navy"),space = "rgb")(length(cou_code))
 
 yellow_gam_plot_recent=generate_dataset_plot_gam(g1)
+yellow_gam_plot_recent$cou_code<-factor(yellow_gam_plot_recent$cou_code,levels=cou_ref$cou_code,ordered=TRUE)
+
 ggplot(yellow_gam_plot_recent,aes(x=year,y=pred))+
   geom_line()+
   geom_point(aes(x=das_year,y=mean_das_value),data=yellow_data_std_mean) +
