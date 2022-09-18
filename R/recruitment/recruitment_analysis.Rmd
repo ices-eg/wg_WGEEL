@@ -83,10 +83,10 @@ if (getUsername() == "cedric.briand") setwd("C:/workspace/wg_WGEEL/R/recruitment
 if (getUsername() == "hilaire.drouineau") setwd("/home/hilaire.drouineau/Documents/Bordeaux/migrateurs/WGEEL/github/wg_WGEEL/R/recruitment") 
 if (getUsername() == "hamme005") setwd("C:/Tessa/wg_WGEEL/R/recruitment") 
 #baseODBC=c("wgeel","wgeel",passwordwgeel) #"w3.eptb-vilaine.fr" "localhost" "wgeel" "wgeel_distant" 
-cred=read_yaml("../../credentials_write.yml")
+cred=read_yaml("../../credentials.yml")
 # TODO 2022 use this to connect, not sqldf !!!!!!!!!!!!!!
 # currently still using sqldf and RpostgreSQL() change for compatibility with linux
-pwd = passwordwgeel = password=getPass()
+pwd = passwordwgeel = password=cred$password
 con = dbConnect(RPostgres::Postgres(), dbname=cred$dbname,host=cred$host,port=cred$port,user=cred$user, password=pwd)
 
 wddata <- getwd()
@@ -920,7 +920,7 @@ source("../shiny_data_visualisation/shiny_dv/database_connection.R")
 my_map <- get_stamenmap( c(left = -13, bottom = 35, right =
 						27, top = 65),zoom=4, maptype = c("watercolor"))
 
-con <- dbConnect(Postgres(),host=cred$host,password=passwordwgeel,dbname=cred$user,user=cred$user)
+con <- dbConnect(Postgres(),host=cred$host,password=passwordwgeel,dbname=cred$dbname,user=cred$user)
 fao <- st_read(con,query="select * from ref.tr_faoareas")
 fao <- st_crop(fao, xmin = -13, xmax = 27,
 		ymin = 35, ymax = 65)
@@ -2890,7 +2890,7 @@ rates <- left_join(dat_ge%>% mutate(year_f=as.numeric(as.character(year_f))),lan
   filter(year_f >= 2000) %>%
   filter(area=="Elsewhere Europe")
 
-
+dbDisconnect(con)
 ```
 
 
