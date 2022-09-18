@@ -33,7 +33,7 @@ library(flextable)
 if(!require(officedown)) install.packages("officedown") ; require(officedown)
 if(!require(officer)) install.packages("officer") ; require(officer)
 if(!require(tibble)) install.packages("tibble") ; require(tibble)
-if(!require(stringr)) install.packages("stringr") ; require(tibble)
+if(!require(stringr)) install.packages("stringr") ; require(stringr)
 
 if(!require(mgcv)) install.packages("mgcv") ; require(mgcv)
 if(!require(car)) install.packages("car") ; require(car)
@@ -83,11 +83,11 @@ if (getUsername() == "cedric.briand") setwd("C:/workspace/wg_WGEEL/R/recruitment
 if (getUsername() == "hilaire.drouineau") setwd("/home/hilaire.drouineau/Documents/Bordeaux/migrateurs/WGEEL/github/wg_WGEEL/R/recruitment") 
 if (getUsername() == "hamme005") setwd("C:/Tessa/wg_WGEEL/R/recruitment") 
 #baseODBC=c("wgeel","wgeel",passwordwgeel) #"w3.eptb-vilaine.fr" "localhost" "wgeel" "wgeel_distant" 
-cred=read_yaml("../../credentials.yml")
+cred=read_yaml("../../credentials_write.yml")
 # TODO 2022 use this to connect, not sqldf !!!!!!!!!!!!!!
 # currently still using sqldf and RpostgreSQL() change for compatibility with linux
-pwd = passwordwgeel = password=getPass(msg="password for db")
-con = dbConnect(RPostgres::Postgres(), dbname=cred$dbname,host=cred$host,port=cred$port,user=cred$user, password=passwordwgeel)
+pwd = passwordwgeel = password=getPass()
+con = dbConnect(RPostgres::Postgres(), dbname=cred$dbname,host=cred$host,port=cred$port,user=cred$user, password=pwd)
 
 wddata <- getwd()
 wd <- wddata
@@ -2347,7 +2347,7 @@ yy0_BalticEffect <- dat_ye_BalticEffect %>%
   dplyr::select(isBaltic,"value_std_1960_1979",year) %>%
   tidyr::pivot_wider(id_cols=year,names_from=isBaltic,values_from=value_std_1960_1979) %>%
   tibble::column_to_rownames("year") %>%
-  rename(Baltic=`TRUE`, Outside = `FALSE`)
+  dplyr::rename(Baltic=`TRUE`, Outside = `FALSE`)
 
 yy_BalticEffect <- split_per_decade_ge(data=yy0_BalticEffect)
 yy_BalticEffect <- 100*round(yy_BalticEffect,2)
@@ -2852,7 +2852,66 @@ knitr::include_graphics(paste0(imgwd,"figure6_BalticEffect.png"))
 
 
 
- 
+
+## Exploitation Rates
+By dividing glass eel declared landing by the time series of abundance, we an derive a relative indicator of glass eel mortality exploitation rate that can inform on trends in glass eel fishing mortality. The analysis is restricted to Elsewhere Europe since no commercial fisheries took place in the North Sea area in the last years. Moreover, we restricted the analysis to the post 2010 period (i.e. just after the implementation of the Eel Regulation) since data are supposed to be of better quality since then. While landings data are still missing, the diagram suggests that the exploitation rates for glass has decreased in the early 2010s but has then increased close to its initial level. This type of analysis reinforce the need of a landing workshop in order to reconstruct time series of landings and to explore how landings can be used can be used in the advice on fishing opportunities.
+
+
+
+```{r fishingmortalitydata,  warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
+query="select sum(eel_value),eel_year,eel_emu_nameshort,eel_cou_code from datawg.t_eelstock_eel where eel_typ_id=4 and eel_qal_id=1 and eel_lfs_code in ('G','GY') and eel_year >= 2010 group by eel_year, eel_emu_nameshort,eel_cou_code "
+landings=dbGetQuery(con,query) %>%
+  na.omit() %>%
+  mutate(area=ifelse(eel_cou_code %in% c("DK","NO","NL","DE") | eel_emu_nameshort %in% c("GB_Scot","GB_Nort","GB_Humb","GB_Angl","GB_Tham"),
+                     "North Sea","Elsewhere Europe"))
+emusNS <-landings %>%
+  filter(area=="North Sea") %>%
+  arrange(eel_emu_nameshort) %>%
+  unique() %>%
+  dplyr::select(eel_emu_nameshort) %>%
+  dplyr::pull() 
+emusEE <-landings %>%
+  filter(area!="North Sea") %>%
+  arrange(eel_emu_nameshort) %>%
+  unique() %>%
+  dplyr::select(eel_emu_nameshort) %>%
+  dplyr::pull() 
+                
+
+landings <- landings %>%
+  dplyr::group_by(eel_year,area) %>%
+  dplyr::summarize(landings=sum(sum, na.rm=TRUE)) %>%
+  dplyr::rename(year_f=eel_year) %>%
+  ungroup()
+
+rates <- left_join(dat_ge%>% mutate(year_f=as.numeric(as.character(year_f))),landings ) %>%
+  filter(year_f >= 2010) %>%
+  filter(area=="Elsewhere Europe")
+
+
+```
+
+
+
+
+
+```{r fishingmortality, fig.cap="Reported G and GY commerical landings divided by recruitment index for EE (including landings reported in EMUs `r paste(emusEE, collapse=', ')). The resulting ratio is a relative proxy of the exploitation rate that inform on trends in fishing mortality. The graph is restricted to the post Eel Regulation period since landings data are thought to be of better quality since then", fig.width=14/2.54, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
+
+ggplot(rates,aes(x=year_f)) +geom_ribbon(aes(ymin=landings/p_std_1960_1979_max, 
+                                             ymax=landings/p_std_1960_1979_min),
+                                         alpha=.3) +
+  geom_line(aes(y=landings/p_std_1960_1979))+
+  geom_point(aes(y=landings/p_std_1960_1979))+
+  xlab("") + 
+  scale_x_continuous(breaks=seq(2010,2022,3), labels=seq(2010,2022,3))+
+  ylab("Reported landings divided by glass eel recruitment index") +
+  theme_bw()
+
+ggsave(paste0(imgwd,"rates.png"),width=16/2.54,height=12/2.54,dpi=300)
+
+
+```
+
 
 ## Notes to ACOM
  
