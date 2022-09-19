@@ -56,10 +56,13 @@ plot_map_bio_emu = function(var, stage, mydata = stats_data_coord, transparent =
 	return(map)
 }
 
-#' @title Plot a distribution by country and lifestage for a given variable
+#' @title Plot a distribution by lifestage and an other variable for a given variable
+#' @param mydata individual data you want to plot
+#' @param lifeStage character or vector. One of or any combinaison of 'G', 'Y', 'S'
 #' @param var character. Which variable you want to map? One of 'length', 'weight', 'sexratio', 'age'
+#' @param group character. which variable you want to use for the y axis ('country' or 'gear')
 #' @return a map
-plot_distribution = function(mydata = total_individual, lifeStage, var = "length", group= "country", scale_value = 3, bandwidth_value = 5)
+plot_distribution = function(mydata = total_individual, lifeStage, var = "length", group = "country", scale_value = 3, bandwidth_value = 5)
 {
 	#TODO: add the number of samples for each line
 	
@@ -75,27 +78,34 @@ plot_distribution = function(mydata = total_individual, lifeStage, var = "length
 		"age" = "Age"
 	)
 	
-	group=switch(group,
+	group = switch(group,
 	  "country"="country",
 	  "gear"="gear"
 	  )
 	
-	total_length <- mydata %>% filter(!is.na(!!as.symbol(var_name)), life_stage %in% lifeStage) %>%
+	mydata_prepared <- mydata %>% filter(!is.na(!!as.symbol(var_name)), life_stage %in% lifeStage) %>%
 		mutate(life_stage  = case_when(life_stage =="G" ~"Glass eel", life_stage =="Y" ~"Yellow eel", life_stage =="S" ~ "Silver eel")) %>%
 		mutate(country = factor(country, levels = cou_ref$cou_code, ordered=TRUE))
 	
-p<-	ggplot(total_length) + aes(x = !!as.symbol(var_name), y=!!as.symbol(group), fill = !!as.symbol(group), alpha=0.5)  + 
-		geom_density_ridges( scale = scale_value, rel_min_height = 0.003, bandwidth = bandwidth_value)+ 
+	mydata_summarised = mydata_prepared %>% 
+		group_by(life_stage, !!as.symbol(group)) %>%
+		summarise(min = min(!!as.symbol(var_name)), max = max(!!as.symbol(var_name)), mean = mean(!!as.symbol(var_name)))
+	
+p<-	ggplot(mydata_prepared) + aes(x = !!as.symbol(var_name), y=!!as.symbol(group), fill = !!as.symbol(group), alpha=0.5)  + 
+		geom_density_ridges( scale = scale_value, rel_min_height = 0.003, bandwidth = bandwidth_value) + 
+		geom_point(data = mydata_summarised, aes(x = min), pch = 19, color = "red", size = 2, alpha = 1, show.legend = FALSE) +
+		geom_point(data = mydata_summarised, aes(x = max), pch = 19, color = "red", size = 2, alpha = 1, show.legend = FALSE) +
+		geom_segment(data = mydata_summarised, aes(x = min, xend = max, yend = !!as.symbol(group)), alpha = 1, show.legend = FALSE) +
 		scale_alpha(guide="none") +
 		xlab(xlabel) +
-		ylab(group) +
+		ylab(str_to_title(group)) +
 		coord_cartesian(expand = FALSE) + xlim(c(0, NA)) + 
-    theme_classic()
+  		theme_classic() 
 
 if(group=="country"){
   
-  graph<-p +	scale_fill_manual("Country",values=color_countries[names(color_countries) %in% unique(total_length$country)], drop = TRUE, guide = "none")+
-          scale_y_discrete(limits=rev) + facet_grid(vars(life_stage))  
+  graph<- p + scale_fill_manual("Country", values = color_countries[names(color_countries) %in% unique(mydata_prepared$country)], drop = TRUE, guide = "none")+
+          scale_y_discrete(limits = rev) + facet_grid(vars(life_stage))  
     
 }else{
   

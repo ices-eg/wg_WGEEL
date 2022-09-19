@@ -224,7 +224,7 @@ nrow = 3
 
 ** NO yellow eel to be checked **
 
-```{r lengthdescriptivegraphsYS, include=TRUE, fig.cap = "Length distribtion by country and by life stage (yellow and silver)"}
+```{r lengthdescriptivegraphsYS, include=TRUE, fig.cap = "Length distribtion by country and by life stage (yellow and silver)", fig.height=20/2.54}
 
 plot_distribution(total_individual, lifeStage = c("Y", "S"), var = "length")
 
@@ -242,7 +242,7 @@ plot_distribution(total_individual %>% filter(lengthmm < 100), lifeStage = c("G"
 
 ```{r lenghtgear, include=TRUE, fig.cap="Length distribution by gear and by life stage (yellow and silver eel"}
 
-plot_distribution(total_individual%>% filter(life_stage %in% c("Y","S")), var = "length",lifeStage=c("Y","S"),scale_value = 2,group="gear", bandwidth_value = 2)
+plot_distribution(total_individual%>% filter(life_stage %in% c("Y","S")), var = "length", lifeStage=c("Y","S"), scale_value = 2, group="gear", bandwidth_value = 2)
 
 
 ```
@@ -262,6 +262,8 @@ gridExtra::grid.arrange(
   nrow=2,
   ncol=2
 )
+
+#ggsave("map_length.png", map)
 
 ```
 
