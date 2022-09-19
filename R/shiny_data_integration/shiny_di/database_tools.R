@@ -2334,13 +2334,13 @@ write_new_individual_metrics <- function(path, type="series"){
 	if (nrow(new) == 0){
 		cou_code <- ""
 		message <- "nothing to import"
-	} else if (any(is.na(new[,fk]))){
-	  stop("some fisa_sai_id are missing, havent you forgotten adding your sampling first?")
-		wrong <- as.character(unique(new[is.na(new[,fk]),name]))
-		if (all(is.na(new[,fk]))){
+	} else if (any(is.na(new[,name]))){
+	  stop("some fisa_sai_id/fiser_ser_id are missing, havent you forgotten adding your sampling first?")
+		wrong <- as.character(unique(new[is.na(new[,name]),name]))
+		if (all(is.na(new[,name]))){
 			cou_code <- ""
 			# here stop otherwise when sending wrong country name "" crashes when writing log
-			stop(paste("All missing",fk,"have you forgotten to rerun step 1 after integrating new series or sampling_info ? Series",wrong))
+			stop(paste("All missing",name,"have you forgotten to rerun step 1 after integrating new series or sampling_info ? Series",wrong))
 		} else {
 			if (type=="series"){
 				cou_code = dbGetQuery(conn,paste0("SELECT ser_cou_code FROM datawg.t_series_ser WHERE ser_id='",
