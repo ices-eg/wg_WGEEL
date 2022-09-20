@@ -4,7 +4,7 @@ author: "ICES Data Group"
 date: "`r format(Sys.time(), '%Y %B %d')`"
 bibliography: references_dfa.bib
 documentclass: article
-output: 
+output: source("../utilities/get_background_map.R")
   bookdown::word_document2:
     fig_caption: yes
     number_sections: yes
@@ -18,6 +18,7 @@ csl: "../Rmarkdown/ices-journal-of-marine-science.csl"
 
 ```{r setup, include=FALSE}
 source("../utilities/load_library.R")
+source("../utilities/get_background_map.R")
 
 knitr::opts_chunk$set(echo = TRUE,warning=FALSE,message=FALSE,fig.width=14.9/2.54,dpi=300,
                       fig.height=10/2.54)
@@ -25,6 +26,7 @@ username = Sys.info()[["user"]]
 if (username=="hilaire.drouineau"){
   setwd("/home/hilaire.drouineau/Documents/Bordeaux/migrateurs/WGEEL/github/wg_WGEEL/R/Y_S_series/")
 }
+
 load_library("gridExtra")
 load_library("MARSS")
 load_library("xtable")
@@ -43,14 +45,14 @@ load_library("rnaturalearth")
 load_library("parallel")
 load_library("kableExtra")
 load_library("mgcv")
-load_library("ggmap")
 load_library("ggrepel")
 load_library("grid")
 load_library("data.table")
 load_library("car")
 library(yaml)
+
 cred=read_yaml("../../credentials.yml")
-con_wgeel = dbConnect(Postgres(), dbname=cred$dbname,host=cred$host,port=cred$port,user=cred$user, password=getPass())
+con_wgeel = dbConnect(Postgres(), dbname=cred$dbname,host=cred$host,port=cred$port,user=cred$user, password=cred$password)
 
 CY<-as.integer(format(Sys.Date(), "%Y")) # current year ==> dont forget to update the graphics path below (
 
@@ -210,6 +212,7 @@ color_countries = setNames(values,country_ref$cou_code)
 
 dbDisconnect(con_wgeel)
 colorpalette=cbf_1 <- c("red","black")
+#save.image("daf_total.RData")
 ```
 
 
@@ -255,10 +258,7 @@ sf::sf_use_s2(FALSE)
                           returnclass = 'sf')
  europe_cropped <- st_crop(worldmap, xmin = -13, xmax = 27,
                                      ymin = 35, ymax = 65)
-
-  my_map=get_stamenmap(bbox = c(left = -13, bottom = 35, right =
-                                  27, top = 65), zoom = 6, maptype = c("terrain-background"))
-#watercolor
+ my_map = get_background_map(transparent = FALSE, mapType = c("terrain-background"), mapbox = c(left = -13, bottom = 35, right = 27, top = 65))
 	
 	draw_key_text=
 		function (data, params, size) 
@@ -273,12 +273,13 @@ sf::sf_use_s2(FALSE)
 	
   ggmap(my_map) + 
 		geom_point(data=yellow_map,
-			aes(x=ser_x,y=ser_y),cex=2,pch=20, col  = "red")+
+			aes(x=ser_x,y=ser_y, col  =Updated),cex=2,pch=20)+
 		geom_label_repel(data=yellow_map,
-			aes(x=ser_x,y=ser_y,label=ser_nameshort,col=Updated),cex=1.5, key_glyph=draw_key_text, max.overlaps = Inf, label.padding = 0.1) +
-		scale_color_manual("Updated",values=colorpalette)+
-		ylab("")+xlab("")
-
+			aes(x=ser_x,y=ser_y,label=ser_nameshort,col=Updated), cex=1.5, key_glyph=draw_key_text, max.overlaps = Inf, label.padding = 0.1, show.legend = FALSE) +
+		scale_color_manual("Updated?", values = colorpalette, guide = "none")+
+		guides(color = guide_legend(override.aes = list(size = 5) ) ) +
+		ylab("")+xlab("") + theme(legend.key = element_rect(fill = "white"))
+#ggsave("images/yellow.png", height=14/2.54)
 #knitr::include_graphics("images/yellow.png")
 ```
 
@@ -825,9 +826,8 @@ provide data through the current or past Data Call l (Figure
  europe_cropped <- st_crop(worldmap, xmin = -13, xmax = 27,
                                      ymin = 35, ymax = 65)
 
- my_map=get_stamenmap(bbox = c(left = -13, bottom = 35, right =
-                                  27, top = 65), zoom = 6, maptype = c("terrain-background"))
-#watercolor
+my_map = get_background_map(transparent = FALSE, mapType = c("terrain-background"), mapbox = c(left = -13, bottom = 35, right = 27, top = 65))
+
 draw_key_text=
 	function (data, params, size) 
 {
@@ -841,11 +841,13 @@ draw_key_text=
 
 ggmap(my_map) + 
 	geom_point(data=silver_map,
-		aes(x=ser_x,y=ser_y),cex=2,pch=20, col  = "red")+
+		aes(x=ser_x,y=ser_y, col  =Updated),cex=2,pch=20)+
 	geom_label_repel(data=silver_map,
-		aes(x=ser_x,y=ser_y,label=ser_nameshort,col=Updated),cex=1.5, key_glyph=draw_key_text, max.overlaps = Inf, label.padding = 0.1) +
-	scale_color_manual("Updated",values=colorpalette)+
-	ylab("")+xlab("")
+		aes(x=ser_x,y=ser_y,label=ser_nameshort,col=Updated), cex=1.5, key_glyph=draw_key_text, max.overlaps = Inf, label.padding = 0.1, show.legend = FALSE) +
+	scale_color_manual("Updated?", values = colorpalette, guide = "none")+
+	guides(color = guide_legend(override.aes = list(size = 5) ) ) +
+	ylab("")+xlab("") + theme(legend.key = element_rect(fill = "white"))
+ggsave("images/silver.png", height=14/2.54)
 #knitr::include_graphics("images/silver.png")
 ```
 
