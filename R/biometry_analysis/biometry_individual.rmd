@@ -10,8 +10,8 @@ output:
     number_sections: yes
     reference_docx: "../Rmarkdown/ICES_template.docx"
 params:
-  load_data: FALSE
-  run_rq: FALSE
+  load_data: TRUE
+  run_rq: TRUE
 ---
 
 # Individual biometrics data
@@ -58,7 +58,7 @@ if(params$load_data)
 {
 	# db connection
 	cred=read_yaml("../../credentials.yml")
-	con_wgeel = dbConnect(Postgres(), dbname=cred$dbname,host=cred$host,port=cred$port,user=cred$user, password=getPass())
+	con_wgeel = dbConnect(Postgres(), dbname=cred$dbname,host=cred$host,port=cred$port,user=cred$user, password=cred$password)
 	
 	## download data from the database
 	biometry_individual_series=dbGetQuery(con_wgeel,"with sel as(SELECT d.*, t_series.*, mty_name FROM datawg.t_metricindseries_meiser d, datawg.t_fishseries_fiser t_series, ref.tr_metrictype_mty WHERE mty_id=mei_mty_id AND mei_fi_id = fi_id AND mei_qal_id IN (1,2,4)) 
