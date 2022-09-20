@@ -1306,4 +1306,17 @@ das_ser_id, das_year, das_value, das_qal_id, das_comment, das_dts_datasource)
 SELECT 172, 2022, 414, 1, 'preliminary values','dc_2022';
 
 
+-- Correct data from GB which were in ng/mg while should have been in ng/g
+
+WITH the_mei_id AS (
+SELECT mei_id FROM datawg.t_samplinginfo_sai AS tss
+JOIN datawg.t_fishsamp_fisa ON fisa_sai_id=sai_id
+JOIN datawg.t_metricindsamp_meisa ON mei_fi_id=fi_id
+JOIN "ref".tr_metrictype_mty ON mty_id=mei_mty_id
+WHERE mty_name in ('pb','hg','cd')
+AND sai_cou_code ='GB')
+UPDATE datawg.t_metricindsamp_meisa SET mei_value = mei_value * 1000 WHERE mei_id IN (SELECT mei_id FROM the_mei_id) ; --15
+
+; --15 rows
+
 
