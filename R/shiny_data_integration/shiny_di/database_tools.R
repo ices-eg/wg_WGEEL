@@ -2332,7 +2332,18 @@ write_new_individual_metrics_show <- function(path, type="series"){
 	return(list(data_read=new,summary=summary_data))
 }
 	
-write_new_individual_metrics_proceed <- function(test, type="series"){
+write_new_individual_metrics_proceed <- function(new, type="series"){
+  if (type=="series"){
+    fk <- "fiser_ser_id"
+  } else{
+    fk <- "fisa_sai_id"
+  }
+  if (type=="series"){
+    name <- "ser_nameshort"
+  } else{
+    name <- "sai_name"
+  }
+  conn <- poolCheckout(pool)
   on.exit(poolReturn(conn))
 	if (all(is.na(new$fi_date)))
 	  new$fi_date <- as.Date(rep(NA,nrow(new)))

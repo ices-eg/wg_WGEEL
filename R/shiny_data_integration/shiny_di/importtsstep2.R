@@ -661,7 +661,6 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts){
 				
 				
 				observeEvent(input$validate_integrate_new_individual_metrics_button, tryCatch({
-				  browser()
 				  validate(need(!is.null(isolate(data$data_to_be_integrated)), "nothing to integrate"))
 				  validate(need(globaldata$connectOK,"No connection"))
 				  rls <- write_new_individual_metrics_proceed(isolate(data$data_to_be_integrated))
