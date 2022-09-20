@@ -479,7 +479,7 @@ importdcfstep2Server <- function(id,globaldata,loaded_data_dcf){
 										return(readed$summary)
 									}
 									
-									output$textoutput_step2.3.2_dcf <- renderText({
+									output$textoutput_step2.3.2_dcf <- renderPrint({
 												validate(need(globaldata$connectOK,"No connection"))
 												# call to  function that loads data
 												# this function does not need to be reactive
@@ -514,7 +514,7 @@ importdcfstep2Server <- function(id,globaldata,loaded_data_dcf){
 				                 secondary_assessor = secondary_assessor)
 				  }
 
-				output$renderText({
+				output$textoutput_step2.3.2_dcf<- renderText({
 				    paste(message,collapse="\n")
 				})  
 			},error = function(e) {

@@ -634,7 +634,7 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts){
 									  readed <- write_new_individual_metrics_show(path)
 									  shinyjs::show("validate_integrate_new_individual_metrics_button")
 									  shinyjs::show("cancel_integrate_new_individual_metrics_button")
-									  data$data_to_be_integrated <<- readed$data_read
+									  data$data_to_be_integrated <- readed$data_read
 									  return(readed$summary)
 									}
 									output$textoutput_step2.4.2_ts <- renderPrint({
@@ -668,14 +668,14 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts){
 				  cou_code <- rls$cou_code
 				  main_assessor <- input$main_assessor
 				  secondary_assessor <- input$secondary_assessor
-				  file_type <- loaded_data_dcf$file_type
+				  file_type <- loaded_data_ts$file_type
 				  if (rls$cou_code != ""){ #otherwise, nothing integrated
 				    log_datacall("write new individual_metrics", cou_code = cou_code, message = sQuote(message), 
 				                 the_metadata = NULL, file_type = file_type, main_assessor = main_assessor, 
 				                 secondary_assessor = secondary_assessor)
 				  }
 				  
-				  output$renderText({
+				  output$textoutput_step2.4.2_ts <- renderText({
 				    paste(message,collapse="\n")
 				  })  
 				},error = function(e) {
