@@ -61,12 +61,12 @@ if(params$load_data)
 	con_wgeel = dbConnect(Postgres(), dbname=cred$dbname,host=cred$host,port=cred$port,user=cred$user, password=getPass())
 	
 	## download data from the database
-	biometry_individual_series=dbGetQuery(con_wgeel,"with sel as(SELECT d.*, t_series.*, mty_name FROM datawg.t_metricindseries_meiser d, datawg.t_fishseries_fiser t_series, ref.tr_metrictype_mty WHERE mty_id=mei_mty_id AND mei_fi_id = fi_id) 
+	biometry_individual_series=dbGetQuery(con_wgeel,"with sel as(SELECT d.*, t_series.*, mty_name FROM datawg.t_metricindseries_meiser d, datawg.t_fishseries_fiser t_series, ref.tr_metrictype_mty WHERE mty_id=mei_mty_id AND mei_fi_id = fi_id AND mei_qal_id IN (1,2,4)) 
 	select sel.*, ser_nameshort, ser_cou_code, ser_x,ser_y,ser_emu_nameshort, ser_hty_code,ser_lfs_code,gea_name_en, sam_samplingtype,t_series_ser.ser_qal_id from sel, datawg.t_series_ser, ref.tr_gear_gea, ref.tr_samplingtype_sam where ser_id=fiser_ser_id and ser_sam_gear=gea_id and ser_sam_id=sam_id")
 	
 	biometry_individual_series<-biometry_individual_series %>% filter(fi_id!=421454)
 	
-	biometry_individual_sampling=dbGetQuery(con_wgeel,"with sel as(SELECT d.*, t_samp.*, mty_name FROM datawg.t_metricindsamp_meisa d, datawg.t_fishsamp_fisa t_samp, ref.tr_metrictype_mty WHERE mty_id=mei_mty_id AND mei_fi_id = fi_id) 
+	biometry_individual_sampling=dbGetQuery(con_wgeel,"with sel as(SELECT d.*, t_samp.*, mty_name FROM datawg.t_metricindsamp_meisa d, datawg.t_fishsamp_fisa t_samp, ref.tr_metrictype_mty WHERE mty_id=mei_mty_id AND mei_fi_id = fi_id AND mei_qal_id IN (1,2,4)) 
 	select * from sel, datawg.t_samplinginfo_sai where sai_id=fisa_sai_id")
 	
 	cou_ref=dbGetQuery(con_wgeel,"select cou_code, cou_order from ref.tr_country_cou")
@@ -224,7 +224,7 @@ nrow = 3
 
 ** NO yellow eel to be checked **
 
-```{r lengthdescriptivegraphsYS, include=TRUE, fig.cap = "Length distribtion by country and by life stage (yellow and silver)", fig.height=20/2.54}
+```{r lengthdescriptivegraphsYS, include=TRUE, fig.cap = "Length distribution by country and by life stage (yellow and silver)", fig.height=20/2.54}
 
 plot_distribution(total_individual, lifeStage = c("Y", "S"), var = "length")
 
@@ -233,7 +233,7 @@ plot_distribution(total_individual, lifeStage = c("Y", "S"), var = "length")
 Glass eel larger than 100 mm (so excluded)  =
 `r nrow(total_individual %>% filter(!is.na(lengthmm), lengthmm > 100, life_stage %in% c("G")))`.
 
-```{r lengthdescriptivegraphsG, include=TRUE, fig.cap = "Length distribtion of glass eel by country"}
+```{r lengthdescriptivegraphsG, include=TRUE, fig.cap = "Length distribution of glass eel by country"}
 
 plot_distribution(total_individual %>% filter(lengthmm < 100), lifeStage = c("G"), var = "length", scale_value = 2, bandwidth_value = 2)
 
@@ -310,7 +310,7 @@ gridExtra::grid.arrange(
 ```
 
 
-```{r weightdescriptivegraphsYS, include=TRUE, fig.cap = "Weight distribtion by country and by life stage (yellow and silver)"}
+```{r weightdescriptivegraphsYS, include=TRUE, fig.cap = "Weight distribution by country and by life stage (yellow and silver)"}
 
 plot_distribution(total_individual, lifeStage =  c("Y","S"), var = "weight", bandwidth_value = 1)
 
@@ -318,7 +318,7 @@ plot_distribution(total_individual, lifeStage =  c("Y","S"), var = "weight", ban
 
 Glass eel larger than 1g = `r nrow(total_individual %>% filter(weightg > 1, life_stage %in% c("G")))`.
 
-```{r weightdescriptivegraphsG, include=TRUE, fig.cap = "Weight distribtion of glass eel by country"}
+```{r weightdescriptivegraphsG, include=TRUE, fig.cap = "Weight distribution of glass eel by country"}
 
 plot_distribution(total_individual  %>% filter(weightg < 1), lifeStage =  c("G"), var = "weight", scale_value = 1, bandwidth_value = 0.005)
 
@@ -405,7 +405,8 @@ ggplot(reg_series_data) +
 ggplot(reg_series_data) +
 	aes(lengthmm, wr, colour=life_stage) +
 	geom_point(alpha = 0.3, size = 1) +
-	geom_hline(yintercept = c(25,200)) + 
+	geom_hline(yintercept = c(25,200), linetype = 2) + 
+	geom_hline(yintercept = 100, linetype = 1) + 
 	scale_y_continuous(trans = "log10", labels = scales::label_number(), breaks = c(0.1, 1, 10, 25, 100, 200, 1000, 10000)) +
 	scale_color_discrete("Life stage") +
 	theme_classic() + xlab("Length (mm)") + ylab("Relative weight (Wr)") +
@@ -502,7 +503,7 @@ For the spatial analysis, we only considered ser_hty_code x EMU x lfs_code where
 
 ## Age
 
-```{r agedescriptivegraphs, include=TRUE, fig.cap = "Age distribtion by country and by life stage"}
+```{r agedescriptivegraphs, include=TRUE, fig.cap = "Age distribution by country and by life stage"}
 #TODO: add the number of samples for each line
 
 plot_distribution(total_individual, lifeStage =  c("Y", "S"), var = "age", scale_value = 3, bandwidth_value = 0.5)
