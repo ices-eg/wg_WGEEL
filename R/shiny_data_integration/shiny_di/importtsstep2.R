@@ -174,11 +174,14 @@ importtsstep2UI <- function(id){
 					column(
 							width=2,
 							actionButton(ns("integrate_new_individual_metrics_button"), "Proceed")
-					),
-					column(width=6,
-							verbatimTextOutput(ns("textoutput_step2.4.2_ts"))
 					)
 			),
+			fluidRow(hidden(actionButton(ns("validate_integrate_new_individual_metrics_button"), "Sure?")),
+			         hidden(actionButton(ns("cancel_integrate_new_individual_metrics_button"), "Cancel")) ),
+			fluidRow(column(width=12,
+			                verbatimTextOutput(ns("textoutput_step2.4.2_ts"))
+			)),
+			
 			h2("step 2.4.3 Update individual metrics"),
 			fluidRow(
 					column(
@@ -616,7 +619,6 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts){
 				observeEvent(input$integrate_new_individual_metrics_button, 
 						shinyCatch(
 							{
-									
 									step2.4.2_filepath_new_individual_metrics <- reactive({
 												inFile <- isolate(input$xl_new_individual_metrics)     
 												if (is.null(inFile)){        return(NULL)
@@ -626,35 +628,66 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts){
 											})
 									
 									step2.4.2_load_data <- function() {
-										path <- isolate(step2.4.2_filepath_new_individual_metrics())
-										if (is.null(data$path_step_2.4.2_new_individual_metrics)) 
-											return(NULL)
-										rls <- write_new_individual_metrics(path)
-									
-										message <- rls$message
-										cou_code <- rls$cou_code
-										main_assessor <- input$main_assessor
-										secondary_assessor <- input$secondary_assessor
-										file_type <- loaded_data_ts$file_type
-										log_datacall("write new individual_metrics", cou_code = cou_code, message = sQuote(message), 
-												the_metadata = NULL, file_type = file_type, main_assessor = main_assessor, 
-												secondary_assessor = secondary_assessor)
-										return(message)
+									  path <- isolate(step2.4.2_filepath_new_individual_metrics())
+									  if (is.null(data$path_step_2.4.2_new_individual_metrics)) 
+									    return(NULL)
+									  readed <- write_new_individual_metrics_show(path)
+									  shinyjs::show("validate_integrate_new_individual_metrics_button")
+									  shinyjs::show("cancel_integrate_new_individual_metrics_button")
+									  data$data_to_be_integrated <<- readed$data_read
+									  return(readed$summary)
 									}
-									
-									output$textoutput_step2.4.2_ts <- renderText({
-												validate(need(globaldata$connectOK,"No connection"))
-												# call to  function that loads data
-												# this function does not need to be reactive
-												message <- step2.4.2_load_data()
-												if (is.null(data$path_step_2.4.2_new_individual_metrics)) "please select a dataset" else {                                      
-													paste(message,collapse="\n")
-												}                  
-											})  
-								}
+									output$textoutput_step2.4.2_ts <- renderPrint({
+									  validate(need(globaldata$connectOK,"No connection"))
+									  # call to  function that loads data
+									  # this function does not need to be reactive
+									  message <- step2.4.2_load_data()
+									  if (is.null(data$path_step_2.4.2_new_individual_metrics)) "please select a dataset" else {                                      
+									    message
+									  }
+									}) 
+							}
 						  )# end shinyCatch
 								, ignoreInit = TRUE)
 				
+				
+				observeEvent(input$cancel_integrate_new_individual_metrics_button, {
+				  data$data_to_be_integrated <- NULL
+				  output$textoutput_step2.4.2_ts <- renderText("cancelled")  
+				  hide("cancel_integrate_new_individual_metrics_button")
+				  hide("validate_integrate_new_individual_metrics_button")
+				})
+				
+				
+				
+				observeEvent(input$validate_integrate_new_individual_metrics_button, tryCatch({
+				  browser()
+				  validate(need(!is.null(isolate(data$data_to_be_integrated)), "nothing to integrate"))
+				  validate(need(globaldata$connectOK,"No connection"))
+				  rls <- write_new_individual_metrics_proceed(isolate(data$data_to_be_integrated))
+				  message <- rls$message
+				  cou_code <- rls$cou_code
+				  main_assessor <- input$main_assessor
+				  secondary_assessor <- input$secondary_assessor
+				  file_type <- loaded_data_dcf$file_type
+				  if (rls$cou_code != ""){ #otherwise, nothing integrated
+				    log_datacall("write new individual_metrics", cou_code = cou_code, message = sQuote(message), 
+				                 the_metadata = NULL, file_type = file_type, main_assessor = main_assessor, 
+				                 secondary_assessor = secondary_assessor)
+				  }
+				  
+				  output$renderText({
+				    paste(message,collapse="\n")
+				  })  
+				},error = function(e) {
+				  showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
+				},finally={
+				  hide("cancel_integrate_new_individual_metrics_button")
+				  hide("validate_integrate_new_individual_metrics_button")
+				  data$data_to_be_integrated <- NULL
+				}), ignoreInit=TRUE)
+				
+
 				# 2.4.3 updated individual metrics  --------------------------------------------------------							
 				
 				observeEvent(input$update_individual_metrics_button, shinyCatch({
