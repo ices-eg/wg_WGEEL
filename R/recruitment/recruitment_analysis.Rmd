@@ -493,6 +493,7 @@ vv$nb_series_older <- nb_series_older
 nb_series_final <- nb_series_glass_eel+nb_series_older
 vv$nb_series_final <- nb_series_final
 
+vv$nb_series_baltic <-older %>%  distinct(site, isBaltic) %>% group_by(isBaltic)%>%dplyr::summarize(n())
 
 ###############################################################
 # Finally saving the data
@@ -2299,7 +2300,7 @@ save(yellow_eel_pred,file=paste0(shinywd,"yellow_eel_pred.Rdata"))
 print("Analysis for yellow eel")
 area_year_older=table(older$year,older$area)
 vv$nb_for_yellow_eel_glm <- length(unique(older$site))
-table(older$geo)
+
 print("stations selected for analysis")
 unique(older$site)
 model_older_BalticEffect=glm(value_std ~ year_f:isBaltic + as.factor(site),
