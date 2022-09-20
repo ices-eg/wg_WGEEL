@@ -248,6 +248,22 @@ Venn_diagram = function(Z, minZ = 0.2, sign_trends = NULL){
 	return(plot(euler_fit,quantities=lab))
 }
 
+
+#TODO: check if still used if yes describe
+venn_belonging <- function(nameseries,Z,minZ){
+	nameseries=as.character(nameseries)
+	list_venn=do.call(c,lapply(1:(dim(Z)[2]),function(j){
+				res=list(nameseries[which(Z[,j]>minZ)],nameseries[which(Z[,j]< -minZ)])
+				names(res)=paste("Trend",j,c("+","-"),sep="")
+				res
+			}))
+	list_venn$Any =nameseries[!nameseries %in%unlist(list_venn)]
+	sapply(nameseries,function(ser) 
+			paste(names(list_venn)[sapply(names(list_venn),
+						function(g) ifelse(ser %in% list_venn[[g]], TRUE,FALSE))],
+				collapse="; "))
+}
+
 #' @title graph of raw series and trends
 #' @param model DFA model
 #' @return a ggplot

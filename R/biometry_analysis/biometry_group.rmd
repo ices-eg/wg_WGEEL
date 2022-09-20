@@ -1,7 +1,7 @@
 ---
 title: "Untitled"
 author: "ICES Data Group"
-date: "14/09/2020"
+date: "`r format(Sys.time(), '%Y %B %d')`"
 bibliography: biometry.bib
 csl: "../Rmarkdown/ices-journal-of-marine-science.csl"
 output: 
