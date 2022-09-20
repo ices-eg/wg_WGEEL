@@ -2,6 +2,7 @@
 ###############################################################################
 
 # TODO: packages needed not reference here. There is a risk of error if not already loaded. Should be added if we want to package this 
+source("../utilities/get_background_map.R")
 
 #' @title plot the series name in a map according to their 'updated' status
 #' @param series_data sf. With 'ser_nameshort' for the name of the series and 'Updated' a logical
