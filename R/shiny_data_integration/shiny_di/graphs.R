@@ -47,39 +47,55 @@ series_graph<-function (dataset,level, year_column, qal_column, datasource_colum
 { 
 	if (nrow(dataset)==0) return(NULL)
 	dataset$kept <- "Not kept, eel_qal_id = 0 or 18 ... 22"
-	dataset[,qal_column][is.na(dataset[,qal_column])] <-""
-	dataset[dataset[,qal_column]%in% c("1","2","4"),"kept"] <- "Kept"
-				
+	dataset[dataset[,qal_column]%in% c("1","2","4") & !is.na(dataset[,qal_column]),"kept"] <- "Kept"
+	dataset[is.na(dataset[,qal_column]),"kept"] <- "No value"
 	
 	#save(grouped_dataset, file="c:/temp/grouped_dataset.Rdata")
-
-	if (kept_or_datacall=="kept"){
-		if (datasource_column == "das_dts_datasource") {
-		dataset$das_dts_datasource[is.na(dataset$das_dts_datasource)]<- "Unknown"
-		} else {
 	
-		}
-		grouped_dataset <- dataset %>% 
-				group_by(!!sym(datasource_column), !!sym(year_column), kept, ser_nameshort) %>%
-				summarize(nobs=n())
+	if (kept_or_datacall=="kept"){
+		dataset[is.na(dataset[,datasource_column]),datasource_column]<- "Unknown"
 		
-		g <- ggplot(grouped_dataset) + 
-				geom_tile(aes_string(x=year_column,y="ser_nameshort",fill="kept")) +
-				scale_fill_manual("series used ?", values = c("Not kept, eel_qal_id = 0 or 18 ... 22"="red","Kept"="green" ))
-				ggtitle("Clik a bar for details ...") +
-				theme_bw() 
+		if (level=="dataseries") {
+			grouped_dataset <- dataset %>% 
+					group_by(!!sym(datasource_column), !!sym(year_column), kept, ser_nameshort) %>%
+					summarize(nobs=n())
+			
+			g <- ggplot(grouped_dataset) + 
+					geom_tile(aes_string(x=year_column,y="ser_nameshort",fill="kept")) +
+					scale_fill_manual("series used ?", values = c("Not kept, eel_qal_id = 0 or 18 ... 22"="red","Kept"="green" ,"Unknown"="grey"))
+			ggtitle("Click a value for details, values for year - 5 > year +5") +
+					theme_bw() 
+		} else {
+			
+			g <- ggplot(dataset) + 
+					geom_tile(aes_string(x=year_column,y="ser_nameshort",fill="n")) +
+					facet_wrap( ~kept) +
+					scale_fill_viridis() +
+					ggtitle("Click a bar for details, values for year - 5 > year +5") +
+					theme_bw() 
+		}
 		return(g)  
 	} else {
-		grouped_dataset <- dataset %>% 
-				group_by(!!sym(datasource_column), !!sym(year_column), ser_nameshort) %>%
-				summarize(nobs=n())
-		
-		g <-ggplot(grouped_dataset)+geom_tile(aes_string(
-								x=year_column,
-								y="ser_nameshort",
-								fill="das_dts_datasource"))+
-				ggtitle("Clik a bar for details ...")+
-				theme_bw() 
+		if (level == "dataseries"){
+			grouped_dataset <- dataset %>% 
+					group_by(!!sym(datasource_column), !!sym(year_column), ser_nameshort) %>%
+					summarize(nobs=n())
+			
+			g <-ggplot(grouped_dataset)+geom_tile(aes_string(
+									x=year_column,
+									y="ser_nameshort",
+									fill=datasource_column))+
+					ggtitle("Clik a bar for details , values for year - 5 > year +5")+
+					theme_bw() 
+		} else {
+			
+			g <-ggplot(dataset)+geom_tile(aes_string(
+									x=year_column,
+									y="ser_nameshort",
+									fill=datasource_column))+
+					ggtitle("Clik a bar for details , values for year - 5 > year +5")+
+					theme_bw() 
+		}
 		return(g)
 	}
 }
