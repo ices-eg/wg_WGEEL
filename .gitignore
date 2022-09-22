@@ -8,3 +8,4 @@ wg_WGEEL.Rproj
 /connection
 .Rhistory
 .RData
+/credentials_write.yml

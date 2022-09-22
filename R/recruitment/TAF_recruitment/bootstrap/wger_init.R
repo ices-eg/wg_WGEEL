@@ -168,15 +168,12 @@ wger_init$lifestage=as.factor(wger_init$lifestage)
 statseries <- sqldf('select site,namelong,min,max,duration,missing,life_stage,sampling_type,unit,habitat_type,"order",series_kept
 				from datawg.series_summary where ser_typ_id=1')
 # these data will 
-save(wger_init,file=str_c(datawd,"wger_init.Rdata"))
-save(statseries,file=str_c(datawd,"statseries.Rdata"))
-save(R_stations,file=str_c(datawd,"R_stations.Rdata"))
-save(last_years_with_problem,file=str_c(datawd,"last_years_with_problem.Rdata"))
-write.table(R_stations, sep=";",file=str_c(datawd,"R_stations.csv"))
+save.(wger_init,file=file.path(data,"wger_init.Rdata"))
+save(statseries,file=str_c(file.path,"statseries.Rdata"))
+save(R_stations,file=str_c(file.path,"R_stations.Rdata"))
+save(last_years_with_problem,file=str_c(file.path,"last_years_with_problem.Rdata"))
+save(inclusion, file=str_c(file.path,"inclusion.Rdata"))
+write.table(R_stations, sep=";",file=str_c(file.path,"R_stations.csv"))
 
 
-save(wger_init,file=str_c(shinywd,"wger_init.Rdata"))
-save(statseries,file=str_c(shinywd,"statseries.Rdata"))
-save(R_stations,file=str_c(shinywd,"R_stations.Rdata"))
-save(inclusion, file=str_c(shinywd,"inclusion.Rdata"))
-save(wger_init, file="wger_init.Rdata")
+
