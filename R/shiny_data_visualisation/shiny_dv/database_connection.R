@@ -29,8 +29,8 @@ host=cred$host
 port=cred$port
 user=cred$user
 dbname=cred$dbname
-
-if (!exists("password")) password=getPass("pass for wgeel")
+password=cred$password
+if (is.null(password)) password=getPass("pass for wgeel")
 
   options(sqldf.RPostgreSQL.user = user,  
           sqldf.RPostgreSQL.password = password,
