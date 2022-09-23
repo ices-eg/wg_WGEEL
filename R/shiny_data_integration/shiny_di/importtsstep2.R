@@ -114,22 +114,7 @@ importtsstep2UI <- function(id){
 							verbatimTextOutput(ns("textoutput_step2.3.1_ts"))
 					)
 			),
-			h2("step 2.3.2 Integrate new group metrics"),
-			fluidRow(
-					column(
-							width=4,
-							fileInput(ns("xl_new_group_metrics"), "xls update",
-									multiple=FALSE,
-									accept = c(".xls",".xlsx"))
-					),
-					column(
-							width=2,
-							actionButton(ns("integrate_new_group_metrics_button"), "Proceed")
-					),
-					column(width=6,
-							verbatimTextOutput(ns("textoutput_step2.3.2_ts"))
-					)
-			),
+			writenewgroupmetricUI(ns("newgroupmetricseries"), "step 2.3.2 Integrate new group metrics"),
 			h2("step 2.3.3 Update group metrics"),
 			fluidRow(
 					column(
@@ -163,25 +148,7 @@ importtsstep2UI <- function(id){
 							verbatimTextOutput(ns("textoutput_step2.4.1_ts"))
 					)
 			),
-			h2("step 2.4.2 Integrate new individual metrics"),
-			fluidRow(
-					column(
-							width=4,
-							fileInput(ns("xl_new_individual_metrics"), "xls update",
-									multiple=FALSE,
-									accept = c(".xls",".xlsx"))
-					),
-					column(
-							width=2,
-							actionButton(ns("integrate_new_individual_metrics_button"), "Proceed")
-					)
-			),
-			fluidRow(hidden(actionButton(ns("validate_integrate_new_individual_metrics_button"), "Sure?")),
-			         hidden(actionButton(ns("cancel_integrate_new_individual_metrics_button"), "Cancel")) ),
-			fluidRow(column(width=12,
-			                verbatimTextOutput(ns("textoutput_step2.4.2_ts"))
-			)),
-			
+			writenewindmetricUI(ns("newindmetricseries"), "step 2.4.2 Integrate new individual metrics"),
 			h2("step 2.4.3 Update individual metrics"),
 			fluidRow(
 					column(
@@ -495,47 +462,7 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts){
 								}), ignoreInit = TRUE)
 				
 				# 2.3.2 Integrate new group metrics series  --------------------------------------------------------							
-				
-				observeEvent(input$integrate_new_group_metrics_button, 
-						shinyCatch(
-						{
-							
-							step2.3.2_filepath_new_group_metrics <- reactive({
-										inFile <- isolate(input$xl_new_group_metrics)     
-										if (is.null(inFile)){        return(NULL)
-										} else {
-											data$path_step_2.3.2_new_group_metrics <- inFile$datapath #path to a temp file             
-										}
-									})
-							
-							step2.3.2_load_data <- function() {
-								path <- isolate(step2.3.2_filepath_new_group_metrics())
-								if (is.null(data$path_step_2.3.2_new_group_metrics)) 
-									return(NULL)
-								rls <- write_new_group_metrics(path)
-								message <- rls$message
-								cou_code <- rls$cou_code
-								main_assessor <- input$main_assessor
-								secondary_assessor <- input$secondary_assessor
-								file_type <- loaded_data_ts$file_type
-								log_datacall("write new group_metrics", cou_code = cou_code, message = sQuote(message), 
-										the_metadata = NULL, file_type = file_type, main_assessor = main_assessor, 
-										secondary_assessor = secondary_assessor)
-								return(message)
-							}
-							
-							output$textoutput_step2.3.2_ts <- renderText({
-										validate(need(globaldata$connectOK,"No connection"))
-										# call to  function that loads data
-										# this function does not need to be reactive
-										message <- step2.3.2_load_data()
-										if (is.null(data$path_step_2.3.2_new_group_metrics)) "please select a dataset" else {                                      
-											paste(message,collapse="\n")
-										}                  
-									})  
-						}
-						)
-						, ignoreInit = TRUE)
+				writenewgroupmetricServer("newindgroupletricseries", globaldata=globaldata,loaded_data=loaded_data_ts,type="series")
 				
 				# 2.3.3 update modified group metrics  --------------------------------------------------------							
 				
@@ -616,75 +543,7 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts){
 								}), ignoreInit = TRUE)
 				
 				# 2.4.2 Integrate new individual metrics --------------------------------------------------------							
-				observeEvent(input$integrate_new_individual_metrics_button, 
-						shinyCatch(
-							{
-									step2.4.2_filepath_new_individual_metrics <- reactive({
-												inFile <- isolate(input$xl_new_individual_metrics)     
-												if (is.null(inFile)){        return(NULL)
-												} else {
-													data$path_step_2.4.2_new_individual_metrics <- inFile$datapath #path to a temp file             
-												}
-											})
-									
-									step2.4.2_load_data <- function() {
-									  path <- isolate(step2.4.2_filepath_new_individual_metrics())
-									  if (is.null(data$path_step_2.4.2_new_individual_metrics)) 
-									    return(NULL)
-									  readed <- write_new_individual_metrics_show(path)
-									  shinyjs::show("validate_integrate_new_individual_metrics_button")
-									  shinyjs::show("cancel_integrate_new_individual_metrics_button")
-									  data$data_to_be_integrated <- readed$data_read
-									  return(readed$summary)
-									}
-									output$textoutput_step2.4.2_ts <- renderPrint({
-									  validate(need(globaldata$connectOK,"No connection"))
-									  # call to  function that loads data
-									  # this function does not need to be reactive
-									  message <- step2.4.2_load_data()
-									  if (is.null(data$path_step_2.4.2_new_individual_metrics)) "please select a dataset" else {                                      
-									    message
-									  }
-									}) 
-							}
-						  )# end shinyCatch
-								, ignoreInit = TRUE)
-				
-				
-				observeEvent(input$cancel_integrate_new_individual_metrics_button, {
-				  data$data_to_be_integrated <- NULL
-				  output$textoutput_step2.4.2_ts <- renderText("cancelled")  
-				  hide("cancel_integrate_new_individual_metrics_button")
-				  hide("validate_integrate_new_individual_metrics_button")
-				})
-				
-				
-				
-				observeEvent(input$validate_integrate_new_individual_metrics_button, tryCatch({
-				  validate(need(!is.null(isolate(data$data_to_be_integrated)), "nothing to integrate"))
-				  validate(need(globaldata$connectOK,"No connection"))
-				  rls <- write_new_individual_metrics_proceed(isolate(data$data_to_be_integrated))
-				  message <- rls$message
-				  cou_code <- rls$cou_code
-				  main_assessor <- input$main_assessor
-				  secondary_assessor <- input$secondary_assessor
-				  file_type <- loaded_data_ts$file_type
-				  if (rls$cou_code != ""){ #otherwise, nothing integrated
-				    log_datacall("write new individual_metrics", cou_code = cou_code, message = sQuote(message), 
-				                 the_metadata = NULL, file_type = file_type, main_assessor = main_assessor, 
-				                 secondary_assessor = secondary_assessor)
-				  }
-				  
-				  output$textoutput_step2.4.2_ts <- renderText({
-				    paste(message,collapse="\n")
-				  })  
-				},error = function(e) {
-				  showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
-				},finally={
-				  hide("cancel_integrate_new_individual_metrics_button")
-				  hide("validate_integrate_new_individual_metrics_button")
-				  data$data_to_be_integrated <- NULL
-				}), ignoreInit=TRUE)
+	 			writenewindmetricServer("newindmetricseries", globaldata=globaldata,loaded_data=loaded_data_ts,type="series")
 				
 
 				# 2.4.3 updated individual metrics  --------------------------------------------------------							

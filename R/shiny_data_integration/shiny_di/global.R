@@ -102,6 +102,9 @@ source("importtsstep2.R")
 source("importdcfstep0.R")
 source("importdcfstep1.R")
 source("importdcfstep2.R")
+source("writenewindmetricModule.R")
+source("writenewgroupmetricModule.R")
+
 # Local shiny files ---------------------------------------------------------------------------------
 
 source("database_tools.R")

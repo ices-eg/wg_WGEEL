@@ -65,22 +65,8 @@ importdcfstep2UI <- function(id){
 							verbatimTextOutput(ns("textoutput_step2.2.1_dcf"))
 					)
 			),
-			h2("step 2.2.2 Integrate new group metrics"),
-			fluidRow(
-					column(
-							width=4,
-							fileInput(ns("xl_new_group_metrics"), "xls update",
-									multiple=FALSE,
-									accept = c(".xls",".xlsx"))
-					),
-					column(
-							width=2,
-							actionButton(ns("integrate_new_group_metrics_button"), "Proceed")
-					),
-					column(width=6,
-							verbatimTextOutput(ns("textoutput_step2.2.2_dcf"))
-					)
-			),
+			writenewgroupmetricUI(ns("newgroupmetricdcf"), "step 2.2.2 Integrate new group metrics"),
+
 			h2("step 2.2.3 Update group metrics"),
 			fluidRow(
 					column(
@@ -114,26 +100,8 @@ importdcfstep2UI <- function(id){
 							verbatimTextOutput(ns("textoutput_step2.3.1_dcf"))
 					)
 			),
-			h2("step 2.3.2 Integrate new individual metrics"),
-			fluidRow(
-					column(
-							width=4,
-							fileInput(ns("xl_new_individual_metrics"), "xls update",
-									multiple=FALSE,
-									accept = c(".xls",".xlsx"))
-					),
-					column(
-							width=2,
-							  actionButton(ns("integrate_new_individual_metrics_button"), "Proceed")
-							  
-					)
-					
-			),
-			fluidRow(hidden(actionButton(ns("validate_integrate_new_individual_metrics_button"), "Sure?")),
-			         hidden(actionButton(ns("cancel_integrate_new_individual_metrics_button"), "Cancel"))),
-			fluidRow(column(width=12,
-							verbatimTextOutput(ns("textoutput_step2.3.2_dcf"))
-					)),
+			writenewindmetricUI(ns("newindmetricdcf"), "step 2.3.2 Integrate new individual metrics"),
+
 			h2("step 2.3.3 Update individual metrics"),
 			fluidRow(
 					column(
@@ -333,46 +301,8 @@ importdcfstep2Server <- function(id,globaldata,loaded_data_dcf){
 				
 				# 2.2.2 Integrate new group metrics sampling  --------------------------------------------------------							
 				
-				observeEvent(input$integrate_new_group_metrics_button, tryCatch({
-									
-									step2.2.2_filepath_new_group_metrics <- reactive({
-												inFile <- isolate(input$xl_new_group_metrics)     
-												if (is.null(inFile)){        return(NULL)
-												} else {
-													data$path_step_2.2.2_new_group_metrics <- inFile$datapath #path to a temp file             
-												}
-											})
-									
-									step2.2.2_load_data <- function() {
-										path <- isolate(step2.2.2_filepath_new_group_metrics())
-										if (is.null(data$path_step_2.2.2_new_group_metrics)) 
-											return(NULL)
-										rls <- write_new_group_metrics(path, type="other")
-										message <- rls$message
-										cou_code <- rls$cou_code
-										main_assessor <- input$main_assessor
-										secondary_assessor <- input$secondary_assessor
-										file_type <- loaded_data_dcf$file_type
-										if (cou_code != ""){#otherwise something was incorrect
-										log_datacall("write new group_metrics", cou_code = cou_code, message = sQuote(message), 
-												the_metadata = NULL, file_type = file_type, main_assessor = main_assessor, 
-												secondary_assessor = secondary_assessor)
-										}
-										return(message)
-									}
-									
-									output$textoutput_step2.2.2_dcf <- renderText({
-												validate(need(globaldata$connectOK,"No connection"))
-												# call to  function that loads data
-												# this function does not need to be reactive
-												message <- step2.2.2_load_data()
-												if (is.null(data$path_step_2.2.2_new_group_metrics)) "please select a dataset" else {                                      
-													paste(message,collapse="\n")
-												}                  
-											})  
-								},error = function(e) {
-									showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
-								}), ignoreInit = TRUE)
+				writenewindmetricServer("newgroupmetricdcf", globaldata=globaldata,loaded_data=loaded_data_dcf,type="other")
+				
 				
 				# 2.2.3 update modified group metrics  --------------------------------------------------------							
 				
@@ -458,72 +388,7 @@ importdcfstep2Server <- function(id,globaldata,loaded_data_dcf){
 				
 				# 2.3.2 Integrate new individual metrics --------------------------------------------------------							
 				
-				observeEvent(input$integrate_new_individual_metrics_button, tryCatch({
-									
-									step2.3.2_filepath_new_individual_metrics <- reactive({
-												inFile <- isolate(input$xl_new_individual_metrics)     
-												if (is.null(inFile)){        return(NULL)
-												} else {
-													data$path_step_2.3.2_new_individual_metrics <- inFile$datapath #path to a temp file             
-												}
-											})
-									
-									step2.3.2_load_data <- function() {
-										path <- isolate(step2.3.2_filepath_new_individual_metrics())
-										if (is.null(data$path_step_2.3.2_new_individual_metrics)) 
-											return(NULL)
-										readed <- write_new_individual_metrics_show(path, type="other")
-										shinyjs::show("validate_integrate_new_individual_metrics_button")
-										shinyjs::show("cancel_integrate_new_individual_metrics_button")
-										data$data_to_be_integrated <- readed$data_read
-										return(readed$summary)
-									}
-									
-									output$textoutput_step2.3.2_dcf <- renderPrint({
-												validate(need(globaldata$connectOK,"No connection"))
-												# call to  function that loads data
-												# this function does not need to be reactive
-												message <- step2.3.2_load_data()
-												if (is.null(data$path_step_2.3.2_new_individual_metrics)) "please select a dataset" else {                                      
-													message
-												}                  
-											})  
-								},error = function(e) {
-									showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
-								}), ignoreInit = TRUE)
-				
-				observeEvent(input$cancel_integrate_new_individual_metrics_button, {
-				  data$data_to_be_integrated <- NULL
-				  output$textoutput_step2.3.2_dcf <- renderText("cancelled")  
-				  hide("cancel_integrate_new_individual_metrics_button")
-				  hide("validate_integrate_new_individual_metrics_button")
-				})
-				observeEvent(input$validate_integrate_new_individual_metrics_button, tryCatch({
-				  validate(need(!is.null(isolate(data$data_to_be_integrated)), "nothing to integrate"))
-				  validate(need(globaldata$connectOK,"No connection"))
-				  
-				  rls <- write_new_individual_metrics_proceed(isolate(data$data_to_be_integrated), type="other")
-				  message <- rls$message
-				  cou_code <- rls$cou_code
-				  main_assessor <- input$main_assessor
-				  secondary_assessor <- input$secondary_assessor
-				  file_type <- loaded_data_dcf$file_type
-				  if (rls$cou_code != ""){ #otherwise, nothing integrated
-				    log_datacall("write new individual_metrics", cou_code = cou_code, message = sQuote(message), 
-				                 the_metadata = NULL, file_type = file_type, main_assessor = main_assessor, 
-				                 secondary_assessor = secondary_assessor)
-				  }
-
-				output$textoutput_step2.3.2_dcf<- renderText({
-				    paste(message,collapse="\n")
-				})  
-			},error = function(e) {
-			  showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
-			},finally={
-			  hide("cancel_integrate_new_individual_metrics_button")
-			  hide("validate_integrate_new_individual_metrics_button")
-			  data$data_to_be_integrated <- NULL
-			}), ignoreInit=TRUE)
+        writenewindmetricServer("newindmetricdcf", globaldata=globaldata,loaded_data=loaded_data_dcf,type="other")
 				
 				# 2.3.3 updated individual metrics  --------------------------------------------------------							
 				
