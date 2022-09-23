@@ -103,7 +103,12 @@ source("importdcfstep0.R")
 source("importdcfstep1.R")
 source("importdcfstep2.R")
 source("writenewindmetricModule.R")
+source("writeupdatedindmetricModule.R")
 source("writenewgroupmetricModule.R")
+source("writeupdatedgroupmetricModule.R")
+source("writedeletedgroupmetricModule.R")
+source("writedeletedindmetricModule.R")
+
 
 # Local shiny files ---------------------------------------------------------------------------------
 

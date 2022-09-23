@@ -59,6 +59,8 @@ writenewindmetricServer <- function(id,globaldata,loaded_data, type="series"){
                    #################################################
                    loaded_data$res
                    tryCatch({
+                     reset("xl_new_individual_metrics")
+                     
                      output$"textoutput_step" <- renderText("")
                      hide("validate_integrate_new_individual_metrics_button")
                      hide("cancel_integrate_new_individual_metrics_button")
