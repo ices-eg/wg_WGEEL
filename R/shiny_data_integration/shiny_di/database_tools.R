@@ -2306,9 +2306,7 @@ delete_group_metrics <- function(path, type="series"){
 # so a loop based on id generated before inserts first the line per id (one fi_id) and then all the 
 # corresponding metrics for that fish
 # path <-file.choose()
-write_new_individual_metrics <- function(path, type="series"){
-	conn <- poolCheckout(pool)
-	on.exit(poolReturn(conn))
+write_new_individual_metrics_show <- function(path, type="series"){
 	if (type=="series"){
 		fk <- "fiser_ser_id"
 	} else{
@@ -2322,10 +2320,31 @@ write_new_individual_metrics <- function(path, type="series"){
 	message <- NULL
 	shinybusy::show_modal_spinner(text = "load data indiv metrics")
 	# if we write from DT there is an extra line to be removed test it there
-	test <- read_excel(path = path, sheet=1, range="A1:A1")	
+	test <- read_excel(path = path, sheet=1, range="A1:A1")
 	if (names(test) %in% c("ser_nameshort","sai_name")) skip=0 else skip=1
 	new <- read_excel(path = path, sheet=1, skip=skip)
 	shinybusy::remove_modal_spinner() 
+	new_wide=pivot_wider(new %>%
+	                        dplyr::select(!!name, fi_date,fi_year,fi_lfs_code,mty_name,mei_value,id),
+	                     names_from="mty_name",values_from="mei_value") %>%
+	  dplyr::select(-id)
+	 summary_data <- skim(new_wide)
+	return(list(data_read=new,summary=summary_data))
+}
+	
+write_new_individual_metrics_proceed <- function(new, type="series"){
+  if (type=="series"){
+    fk <- "fiser_ser_id"
+  } else{
+    fk <- "fisa_sai_id"
+  }
+  if (type=="series"){
+    name <- "ser_nameshort"
+  } else{
+    name <- "sai_name"
+  }
+  conn <- poolCheckout(pool)
+  on.exit(poolReturn(conn))
 	if (all(is.na(new$fi_date)))
 	  new$fi_date <- as.Date(rep(NA,nrow(new)))
 	new <- new %>%

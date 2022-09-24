@@ -15,6 +15,7 @@ source("utilities.R")
 load_package("shiny")
 load_package("crosstalk")
 load_package("assertthat")
+load_package("skimr")
 
 load_package("leaflet.extras")
 load_package("sf")
@@ -101,6 +102,14 @@ source("importtsstep2.R")
 source("importdcfstep0.R")
 source("importdcfstep1.R")
 source("importdcfstep2.R")
+source("writenewindmetricModule.R")
+source("writeupdatedindmetricModule.R")
+source("writenewgroupmetricModule.R")
+source("writeupdatedgroupmetricModule.R")
+source("writedeletedgroupmetricModule.R")
+source("writedeletedindmetricModule.R")
+
+
 # Local shiny files ---------------------------------------------------------------------------------
 
 source("database_tools.R")
@@ -178,6 +187,7 @@ dictionary=c(
   "gr_comment"="text",
   "gr_last_update" = "date",
   "gr_dts_datasource"="text",
+  "fi_id_cou"="text",
   ####columns in fish individual metrics samplings	
   "fi_id"="numeric",
   "sai_name"="text",
@@ -208,22 +218,42 @@ dictionary=c(
   "cd"="numeric",
   "fi_last_update"="date",
   "fi_dts_datasource"="text",
-	# series group and indiv
-"grser_ser_id"="numeric",
-"fiser_ser_id"="numeric",
-"fiser_year"="numeric", # TODO remove 2023
- "ser_nameshort"="text",
- # dataseries
- 	"das_id"="numeric",
-	"das_ser_id"="numeric",
-	"das_value"="numeric",
-	"das_year"="numeric",
-	"das_comment"="text",
-	"das_effort"="numeric",
-	"das_qal_id"="numeric",
-	"das_qal_comment"="text",
-	"das_dts_datasource"="text"
-
+  # series group and indiv
+  "grser_ser_id"="numeric",
+  "fiser_ser_id"="numeric",
+  "fiser_year"="numeric", # TODO remove 2023
+  "ser_nameshort"="text",
+  # dataseries
+  "das_id"="numeric",
+  "das_ser_id"="numeric",
+  "das_value"="numeric",
+  "das_year"="numeric",
+  "das_comment"="text",
+  "das_effort"="numeric",
+  "das_qal_id"="numeric",
+  "das_qal_comment"="text",
+  "das_dts_datasource"="text",
+  
+  
+  ###annex 4 -8
+  "eel_id" = "numeric",
+  "eel_id"= "numeric",
+  "eel_typ_name"="text",
+  "eel_year"= "numeric",
+  "eel_value"= "numeric",
+  "eel_value_number"= "numeric",
+  "eel_value_kg"= "numeric",
+  "eel_missvaluequal"	="text",
+  "eel_emu_nameshort"	="text",
+  "eel_cou_code"	="text",
+  "eel_lfs_code"="text",
+  "eel_hty_code"="text",
+  "eel_area_division"="text",
+  "eel_qal_id"= "numeric",
+  "eel_qal_comment"="text",
+  "eel_comment"="text"
+  
+  
 )
 
 
