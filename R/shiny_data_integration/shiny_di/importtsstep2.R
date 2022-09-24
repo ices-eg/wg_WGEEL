@@ -98,106 +98,13 @@ importtsstep2UI <- function(id){
 							verbatimTextOutput(ns("textoutput_step2.2.3_ts"))
 					)
 			),
-			h2("step 2.3.1 Delete from group metrics"),
-			fluidRow(
-					column(
-							width=4,
-							fileInput(ns("xl_deleted_group_metrics"), "xls update",
-									multiple=FALSE,
-									accept = c(".xls",".xlsx"))
-					),
-					column(
-							width=2,
-							actionButton(ns("delete_group_metrics_button"), "Proceed")
-					),
-					column(width=6,
-							verbatimTextOutput(ns("textoutput_step2.3.1_ts"))
-					)
-			),
-			h2("step 2.3.2 Integrate new group metrics"),
-			fluidRow(
-					column(
-							width=4,
-							fileInput(ns("xl_new_group_metrics"), "xls update",
-									multiple=FALSE,
-									accept = c(".xls",".xlsx"))
-					),
-					column(
-							width=2,
-							actionButton(ns("integrate_new_group_metrics_button"), "Proceed")
-					),
-					column(width=6,
-							verbatimTextOutput(ns("textoutput_step2.3.2_ts"))
-					)
-			),
-			h2("step 2.3.3 Update group metrics"),
-			fluidRow(
-					column(
-							width=4,
-							fileInput(ns("xl_update_group_metrics"), "xls update",
-									multiple=FALSE,
-									accept = c(".xls",".xlsx"))
-					),
-					column(
-							width=2,
-							actionButton(ns("update_group_metrics_button"), "Proceed")
-					),
-					column(
-							width=6,
-							verbatimTextOutput(ns("textoutput_step2.3.3_ts"))
-					)
-			),
-			h2("step 2.4.1 Delete from individual metrics"),
-			fluidRow(
-					column(
-							width=4,
-							fileInput(ns("xl_deleted_individual_metrics"), "xls update",
-									multiple=FALSE,
-									accept = c(".xls",".xlsx"))
-					),
-					column(
-							width=2,
-							actionButton(ns("delete_individual_metrics_button"), "Proceed")
-					),
-					column(width=6,
-							verbatimTextOutput(ns("textoutput_step2.4.1_ts"))
-					)
-			),
-			h2("step 2.4.2 Integrate new individual metrics"),
-			fluidRow(
-					column(
-							width=4,
-							fileInput(ns("xl_new_individual_metrics"), "xls update",
-									multiple=FALSE,
-									accept = c(".xls",".xlsx"))
-					),
-					column(
-							width=2,
-							actionButton(ns("integrate_new_individual_metrics_button"), "Proceed")
-					),
-					column(width=6,
-							verbatimTextOutput(ns("textoutput_step2.4.2_ts"))
-					)
-			),
-			h2("step 2.4.3 Update individual metrics"),
-			fluidRow(
-					column(
-							width=4,
-							fileInput(ns("xl_update_individual_metrics"), "xls update",
-									multiple=FALSE,
-									accept = c(".xls",".xlsx"))
-					),
-					column(
-							width=2,
-							actionButton(ns("update_individual_metrics_button"), "Proceed")
-					),
-					column(
-							width=6,
-							verbatimTextOutput(ns("textoutput_step2.4.3_ts"))
-					)
-			)
-	
-	
+			writedeletedgroupmetricUI(ns("deletedgroupmetricseries"), "step 2.3.1 Delete from group metrics"),
+			writenewgroupmetricUI(ns("newgroupmetricseries"), "step 2.3.2 Integrate new group metrics"),
+			writeupdatedgroupmetricUI(ns("updatedgroupmetricseries"), "step 2.3.3 Update group metrics"),
+			writedeletedindmetricUI(ns("deletedindmetricseries"), "step 2.4.1 Delete from individual metrics"),
+			writenewindmetricUI(ns("newindmetricseries"), "step 2.4.2 Integrate new individual metrics"),
+			writeupdatedindmetricUI(ns("updatedindmetricseries"), "step 2.4.3 Update individual metrics"),
+
 	)
 }
 
@@ -231,24 +138,13 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts){
 										reset("xl_new_dataseries")
 										reset("xl_updated_dataseries")
 										reset("xl_deleted_dataseries")
-										reset("xl_deleted_group_metrics")
-										reset("xl_new_group_metrics")
-										reset("xl_update_group_metrics")
-										reset("xl_deleted_individual_metrics")
-										reset("xl_new_individual_metrics")
-										reset("xl_update_individual_metrics")
-										
+
 										output$"textoutput_step2.1.1_ts" <- renderText("")
 										output$"textoutput_step2.1.2_ts" <- renderText("")
 										output$"textoutput_step2.2.1_ts" <- renderText("")
 										output$"textoutput_step2.2.2_ts" <- renderText("")
 										output$"textoutput_step2.2.3_ts" <- renderText("")
-										output$"textoutput_step2.3.1_ts" <- renderText("")
-										output$"textoutput_step2.3.2_ts" <- renderText("")
-										output$"textoutput_step2.3.3_ts" <- renderText("")
-										output$"textoutput_step2.4.1_ts" <- renderText("")
-										output$"textoutput_step2.4.2_ts" <- renderText("")
-										output$"textoutput_step2.4.3_ts" <- renderText("")
+
 										
 										
 										
@@ -453,246 +349,24 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts){
 								}), ignoreInit = TRUE)	
 				
 				# 2.3.1 deleted group metrics series  --------------------------------------------------------							
-				
-				observeEvent(input$delete_group_metrics_button, shinyCatch({
-									
-									step2.3.1_filepath_deleted_group_metrics <- reactive({
-												inFile <- isolate(input$xl_deleted_group_metrics)     
-												if (is.null(inFile)){        return(NULL)
-												} else {
-													data$path_step_2.3.1_deleted_group_metrics <- inFile$datapath #path to a temp file             
-												}
-											})
-									
-									step2.3.1_load_data <- function() {
-										path <- isolate(step2.3.1_filepath_deleted_group_metrics())
-										if (is.null(data$path_step_2.3.1_deleted_group_metrics)) 
-											return(NULL)
-										rls <- delete_group_metrics(path)
-										message <- rls$message
-										cou_code <- rls$cou_code
-										main_assessor <- input$main_assessor
-										secondary_assessor <- input$secondary_assessor
-										file_type <- loaded_data_ts$file_type
-										log_datacall("deleted group_metrics", cou_code = cou_code, message = sQuote(message), 
-												the_metadata = NULL, file_type = file_type, main_assessor = main_assessor, 
-												secondary_assessor = secondary_assessor)
-										return(message)
-									}
-									
-									output$textoutput_step2.3.1_ts <- renderText({
-												validate(need(globaldata$connectOK,"No connection"))
-												# call to  function that loads data
-												# this function does not need to be reactive
-												message <- step2.3.1_load_data()
-												if (is.null(data$path_step_2.3.1_deleted_group_metrics)) "please select a dataset" else {                                      
-													paste(message,collapse="\n")
-												}                  
-											})  
-								}), ignoreInit = TRUE)
+				writedeletedgroupmetricServer("deletedgroupmetricseries", globaldata=globaldata,loaded_data=loaded_data_ts,type="series")
 				
 				# 2.3.2 Integrate new group metrics series  --------------------------------------------------------							
-				
-				observeEvent(input$integrate_new_group_metrics_button, 
-						shinyCatch(
-						{
-							
-							step2.3.2_filepath_new_group_metrics <- reactive({
-										inFile <- isolate(input$xl_new_group_metrics)     
-										if (is.null(inFile)){        return(NULL)
-										} else {
-											data$path_step_2.3.2_new_group_metrics <- inFile$datapath #path to a temp file             
-										}
-									})
-							
-							step2.3.2_load_data <- function() {
-								path <- isolate(step2.3.2_filepath_new_group_metrics())
-								if (is.null(data$path_step_2.3.2_new_group_metrics)) 
-									return(NULL)
-								rls <- write_new_group_metrics(path)
-								message <- rls$message
-								cou_code <- rls$cou_code
-								main_assessor <- input$main_assessor
-								secondary_assessor <- input$secondary_assessor
-								file_type <- loaded_data_ts$file_type
-								log_datacall("write new group_metrics", cou_code = cou_code, message = sQuote(message), 
-										the_metadata = NULL, file_type = file_type, main_assessor = main_assessor, 
-										secondary_assessor = secondary_assessor)
-								return(message)
-							}
-							
-							output$textoutput_step2.3.2_ts <- renderText({
-										validate(need(globaldata$connectOK,"No connection"))
-										# call to  function that loads data
-										# this function does not need to be reactive
-										message <- step2.3.2_load_data()
-										if (is.null(data$path_step_2.3.2_new_group_metrics)) "please select a dataset" else {                                      
-											paste(message,collapse="\n")
-										}                  
-									})  
-						}
-						)
-						, ignoreInit = TRUE)
+				writenewgroupmetricServer("newgroupmetricseries", globaldata=globaldata,loaded_data=loaded_data_ts,type="series")
 				
 				# 2.3.3 update modified group metrics  --------------------------------------------------------							
-				
-				observeEvent(input$update_group_metrics_button, shinyCatch({
-									
-									step2.3.3_filepath_update_group_metrics <- reactive({
-												inFile <- isolate(input$xl_update_group_metrics)     
-												if (is.null(inFile)){        return(NULL)
-												} else {
-													data$path_step_2.3.3_update_group_metrics <- inFile$datapath #path to a temp file             
-												}
-											})
-									
-									step2.3.3_load_data <- function() {
-										path <- isolate(step2.3.3_filepath_update_group_metrics())
-										if (is.null(data$path_step_2.3.3_update_group_metrics)) 
-											return(NULL)
-										rls <- write_updated_group_metrics(path)
-										message <- rls$message
-										cou_code <- rls$cou_code
-										main_assessor <- input$main_assessor
-										secondary_assessor <- input$secondary_assessor
-										file_type <- loaded_data_ts$file_type
-										log_datacall("update group_metrics", cou_code = cou_code, message = sQuote(message), 
-												the_metadata = NULL, file_type = file_type, main_assessor = main_assessor, 
-												secondary_assessor = secondary_assessor)
-										return(message)
-									}
-									
-									output$textoutput_step2.3.3_ts <- renderText({
-												validate(need(globaldata$connectOK,"No connection"))
-												# call to  function that loads data
-												# this function does not need to be reactive
-												message <- step2.3.3_load_data()
-												if (is.null(data$path_step_2.3.3_update_group_metrics)) "please select a dataset" else {                                      
-													paste(message,collapse="\n")
-												}                  
-											})  
-								}), ignoreInit = TRUE)	
-				
+				writeupdatedgroupmetricServer("updatedgroupmetricseries", globaldata=globaldata,loaded_data=loaded_data_ts,type="series")
+			
 				# 2.4.1 Deleted individual metrics --------------------------------------------------------							
-				
-				observeEvent(input$delete_individual_metrics_button, shinyCatch({
-									
-									step2.4.1_filepath_deleted_individual_metrics <- reactive({
-												inFile <- isolate(input$xl_deleted_individual_metrics)     
-												if (is.null(inFile)){        return(NULL)
-												} else {
-													data$path_step_2.4.1_deleted_individual_metrics <- inFile$datapath #path to a temp file             
-												}
-											})
-									
-									step2.4.1_load_data <- function() {
-										path <- isolate(step2.4.1_filepath_deleted_individual_metrics())
-										if (is.null(data$path_step_2.4.1_deleted_individual_metrics)) 
-											return(NULL)
-										rls <- delete_individual_metrics(path)
-										message <- rls$message
-										cou_code <- rls$cou_code
-										main_assessor <- input$main_assessor
-										secondary_assessor <- input$secondary_assessor
-										file_type <- loaded_data_ts$file_type
-										log_datacall("deleted individual_metrics", cou_code = cou_code, message = sQuote(message), 
-												the_metadata = NULL, file_type = file_type, main_assessor = main_assessor, 
-												secondary_assessor = secondary_assessor)
-										return(message)
-									}
-									
-									output$textoutput_step2.4.1_ts <- renderText({
-												validate(need(globaldata$connectOK,"No connection"))
-												# call to  function that loads data
-												# this function does not need to be reactive
-												message <- step2.4.1_load_data()
-												if (is.null(data$path_step_2.4.1_deleted_individual_metrics)) "please select a dataset" else {                                      
-													paste(message,collapse="\n")
-												}                  
-											})  
-								}), ignoreInit = TRUE)
-				
+				writedeletedindmetricServer("deletedindmetricseries", globaldata=globaldata,loaded_data=loaded_data_ts,type="series")
+
 				# 2.4.2 Integrate new individual metrics --------------------------------------------------------							
-				observeEvent(input$integrate_new_individual_metrics_button, 
-						shinyCatch(
-							{
-									
-									step2.4.2_filepath_new_individual_metrics <- reactive({
-												inFile <- isolate(input$xl_new_individual_metrics)     
-												if (is.null(inFile)){        return(NULL)
-												} else {
-													data$path_step_2.4.2_new_individual_metrics <- inFile$datapath #path to a temp file             
-												}
-											})
-									
-									step2.4.2_load_data <- function() {
-										path <- isolate(step2.4.2_filepath_new_individual_metrics())
-										if (is.null(data$path_step_2.4.2_new_individual_metrics)) 
-											return(NULL)
-										rls <- write_new_individual_metrics(path)
-									
-										message <- rls$message
-										cou_code <- rls$cou_code
-										main_assessor <- input$main_assessor
-										secondary_assessor <- input$secondary_assessor
-										file_type <- loaded_data_ts$file_type
-										log_datacall("write new individual_metrics", cou_code = cou_code, message = sQuote(message), 
-												the_metadata = NULL, file_type = file_type, main_assessor = main_assessor, 
-												secondary_assessor = secondary_assessor)
-										return(message)
-									}
-									
-									output$textoutput_step2.4.2_ts <- renderText({
-												validate(need(globaldata$connectOK,"No connection"))
-												# call to  function that loads data
-												# this function does not need to be reactive
-												message <- step2.4.2_load_data()
-												if (is.null(data$path_step_2.4.2_new_individual_metrics)) "please select a dataset" else {                                      
-													paste(message,collapse="\n")
-												}                  
-											})  
-								}
-						  )# end shinyCatch
-								, ignoreInit = TRUE)
+	 			writenewindmetricServer("newindmetricseries", globaldata=globaldata,loaded_data=loaded_data_ts,type="series")
 				
+
 				# 2.4.3 updated individual metrics  --------------------------------------------------------							
-				
-				observeEvent(input$update_individual_metrics_button, shinyCatch({
-									
-									step2.4.3_filepath_update_individual_metrics <- reactive({
-												inFile <- isolate(input$xl_update_individual_metrics)     
-												if (is.null(inFile)){        return(NULL)
-												} else {
-													data$path_step_2.4.3_update_individual_metrics <- inFile$datapath #path to a temp file             
-												}
-											})
-									
-									step2.4.3_load_data <- function() {
-										path <- isolate(step2.4.3_filepath_update_individual_metrics())
-										if (is.null(data$path_step_2.4.3_update_individual_metrics)) 
-											return(NULL)
-										rls <- update_individual_metrics(path)
-										message <- rls$message
-										cou_code <- rls$cou_code
-										main_assessor <- input$main_assessor
-										secondary_assessor <- input$secondary_assessor
-										file_type <- loaded_data_ts$file_type
-										log_datacall("update individual_metrics", cou_code = cou_code, message = sQuote(message), 
-												the_metadata = NULL, file_type = file_type, main_assessor = main_assessor, 
-												secondary_assessor = secondary_assessor)
-										return(message)
-									}
-									
-									output$textoutput_step2.4.3_ts <- renderText({
-												validate(need(globaldata$connectOK,"No connection"))
-												# call to  function that loads data
-												# this function does not need to be reactive
-												message <- step2.4.3_load_data()
-												if (is.null(data$path_step_2.4.3_update_individual_metrics)) "please select a dataset" else {                                      
-													paste(message,collapse="\n")
-												}                  
-											})  
-								}), 				 ignoreInit = TRUE)		
+				writeupdatedindmetricServer("updatedindmetricseries", globaldata=globaldata,loaded_data=loaded_data_ts,type="series")
+
 				
 				
 			}

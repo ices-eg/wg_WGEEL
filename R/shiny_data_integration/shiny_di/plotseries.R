@@ -16,7 +16,7 @@ plotseriesUI <- function(id){
 									pickerInput(inputId = ns("country_g"), 
 											label = "Select a country :", 
 											choices = list_country,
-											selected = "FR",
+											selected = "GB",
 											multiple = TRUE, 
 											options = list(
 													style = "btn-primary", size = 5))),
@@ -24,7 +24,7 @@ plotseriesUI <- function(id){
 									pickerInput(inputId = ns("typ_id"), 
 											label = "Select an annex :", 
 											choices = c(1,2,3),
-											selected= 1,
+											selected= c(1,2,3),
 											multiple = TRUE,
 											options = list(
 													style = "btn-primary", size = 5))),							
@@ -40,21 +40,24 @@ plotseriesUI <- function(id){
 					)		 
 			
 			),               
-			box(
+			box( width=12, collapsible=TRUE,
+					fluidRow(
+							column(width=5,
+							pickerInput(inputId = ns("kept_or_datacall"), 
+									label = "Choose kept or datacall :", 
+									choices = c("kept","datacall"),
+									selected= 1,
+									multiple = FALSE,
+									options = list(
+											style = "btn-primary", size = 5)))),
+					fluidRow(
+							plotOutput(ns("series_ggplot"),
+									click = clickOpts(id = ns("series_ggplot_click"))
+							)
+					)),	
 			fluidRow(
-					pickerInput(inputId = ns("kept_or_datacall"), 
-							label = "Choose kept or datacall :", 
-							choices = c("kept","datacall"),
-							selected= 1,
-							multiple = FALSE,
-							options = list(
-									style = "btn-primary", size = 5)),
-					plotOutput(ns("series_ggplot"),
-							click = clickOpts(id = ns("series_ggplot_click"))
-					)
-			),
-			DT::dataTableOutput(ns("datatable_series_nearpoints"),width='100%') 
-	), width=12)}
+					DT::dataTableOutput(ns("datatable_series_nearpoints"),width='100%') 
+			))}
 
 
 
@@ -94,8 +97,8 @@ plotseriesServer <- function(id,globaldata){
 									"group metrics"="gr_year",
 									"individual metrics"="fi_year")
 							qal_column <<- switch(level, "dataseries"="das_qal_id",
-									"group metrics"="",
-									"individual metrics"="")
+									"group metrics"="meg_qal_id",
+									"individual metrics"="mei_qal_id")
 							datasource_column <<- switch(level, "dataseries"="das_dts_datasource",
 									"group metrics"="meg_dts_datasource",
 									"individual metrics"="mei_dts_datasource")
@@ -108,16 +111,20 @@ plotseriesServer <- function(id,globaldata){
 													glue_sql("SELECT * FROM datawg.t_series_ser JOIN datawg.t_dataseries_das ON das_ser_id=ser_id WHERE ser_cou_code in ({cou*}) and ser_typ_id in ({types*})", cou = cou, types = types, 
 															.con = globaldata$pool),
 											"group metrics" =
-													glue_sql("SELECT distinct on (ser_id) *  FROM datawg.t_series_ser JOIN 
-																	datawg.t_groupseries_grser ON grser_ser_id=ser_id 
-																	JOIN datawg.t_metricgroupsamp_megsa on meg_gr_id=gr_id 
-																	WHERE ser_cou_code in ({cou*}) and ser_typ_id in ({types*})", vals = vals, types = types, 
+													glue_sql("SELECT count(*) AS n, ser_id, gr_year, ser_nameshort,meg_dts_datasource, meg_qal_id   FROM datawg.t_series_ser JOIN 
+																datawg.t_groupseries_grser ON grser_ser_id=ser_id 
+																	JOIN datawg.t_metricgroupseries_megser on meg_gr_id=gr_id 
+																	WHERE ser_cou_code in ({cou*}) and ser_typ_id in ({types*})
+																	GROUP BY ser_id, gr_year, ser_nameshort,meg_dts_datasource, meg_qal_id
+																	", vals = vals, types = types, 
 															.con = globaldata$pool),
 											"individual metrics" = 
-													glue_sql("SELECT distinct on (ser_id) * FROM datawg.t_series_ser JOIN 
+													glue_sql("SELECT count(*) AS n, ser_id, case when fi_year is NULL then extract(year from fi_date) else fi_year end as fi_year, ser_nameshort,mei_dts_datasource, mei_qal_id   FROM datawg.t_series_ser JOIN 
 																	datawg.t_fishseries_fiser ON fiser_ser_id=ser_id
 																	JOIN datawg.t_metricindseries_meiser ON mei_fi_id=fi_id
-																	 WHERE  ser_cou_code in ({cou*}) and ser_typ_id in ({types*})", vals = vals, types = types, 
+																	WHERE  ser_cou_code in ({cou*}) and ser_typ_id in ({types*})
+																	GROUP BY ser_id, fi_year,fi_date, ser_nameshort,mei_dts_datasource, mei_qal_id
+																	", vals = vals, types = types, 
 															.con = globaldata$pool))
 							out_data <- dbGetQuery(globaldata$pool, query)
 							return(out_data)
@@ -147,14 +154,20 @@ plotseriesServer <- function(id,globaldata){
 				# the observeEvent will not execute untill the user clicks, here it runs
 				# both the plotly and datatable component -----------------------------------------------------
 				
-				observeEvent(input$series_ggplot_click,  tryCatch({
+				observeEvent(input$series_ggplot_click, 
+						tryCatch({
 									# the nearpoint function does not work straight with bar plots
 									# we have to retreive the x data and check the year it corresponds to ...
 									#browser()
-									year_selected = round(input$series_ggplot_click$x)  
-									datagr <- rvs$datagr
+									year_selected = round(input$series_ggplot_click$x) 
+									nseries_selected = round(input$series_ggplot_click$y)
 									
-									datagr <- datagr%>% filter(! !!!year_column == year_selected) 
+									datagr <- rvs$datagr
+									ser <- unique(rvs$datagr$ser_nameshort)
+									ser <- ser[(order(ser))]
+									series_selected <- ser[nseries_selected]
+									
+									datagr <- datagr[datagr$ser_nameshort==series_selected,] 
 									
 									# Data table for individual data corresponding to the year bar on the graph -------------
 									
@@ -183,7 +196,7 @@ plotseriesServer <- function(id,globaldata){
 																)
 														) 												
 												)
-
+												
 											})        
 									
 									
