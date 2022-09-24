@@ -189,7 +189,7 @@ point_per_year_YE = yellow_dataall %>%
 point_per_year_YE = point_per_year_YE$data
 ```
 
-```{r dataForGam, echo = FALSE}
+```{r data-gam, echo = FALSE}
 
 yellow_data_gam = yellow_dataall %>% 
 	mutate(id = ser_id, year = das_year, value = das_value) %>%
@@ -223,70 +223,45 @@ If we plot all the series, a GAM smoother indicates an overall decreasing trend 
 yellow_data_std = plot_smooth_gam_yellow$data
 
 # test for trends per country
-g1 = yellow_data_std %>%
-	mutate(country = ser_cou_code) %>%
-	GAM_series()
+modelised_data = yellow_data_std %>%
+#	mutate(country = ser_cou_code) %>%
+	mutate(country = factor(ser_cou_code, levels = country_ref$cou_code, ordered=TRUE))
 
-plot_GAM_series(g1)
+gam_country = GAM_series(modelised_data)
+
+plot_GAM_series(mymodel = gam_country, variable = "country", modelised_data)
 
 ```
 
-When plotted per country, a simple GAM smoother (explained deviance = `r round(summary(g1)$dev.expl * 100, 1)` %) shows
+When plotted per country, a simple GAM smoother (explained deviance = `r round(summary(gam_country)$dev.expl * 100, 1)` %) shows
 decreasing and stabilising curves in FR, NL. The same with a more pronounced increase after 2012 is estimated for ES (DK
 seems to display a similar trend but the time series is shorter). On the other hand, a linear decrease is estimated in
 IE, GB and DE, and an increase for SE (Figure \@ref(fig:gamYellow)). 
 
 ```{r table-yellow-gam, echo=FALSE, tab.cap = "Series included in the GAM analysis"}
-flextable(nb_per_country <- yellow_data %>%
-				group_by(ser_cou_code) %>%
-				summarize(N=n(),Nseries=n_distinct(ser_id)) %>%
-				dplyr::rename(Country=ser_cou_code))
+GAM_sumarry_table(yellow_data_std)
 ```
 
 ```{r exploratory-analysis, echo = FALSE}
 
-# change logical to factor
+######
+### restocking
+######
 yellow_data_std$ser_restocking<-as.factor(yellow_data_std$ser_restocking)
-
-# function to create the data for the graph (to put after l131)
-generate_dataset_plot_gam_res = function(model){
-	res_code=levels(droplevels (model$model$ser_restocking))
-	
-	do.call('rbind.data.frame',lapply(res_code, function(res){
-				year_range= range(model$model$das_year[model$model$ser_restocking==res],
-					na.rm=TRUE)
-				years=year_range[1]:year_range[2]
-				pred=predict(model,data.frame(das_year=years,ser_restocking=res),
-					se.fit=TRUE)
-				data.frame(year=years,
-					res_code=res,
-					pred=pred$fit,
-					lower=pred$fit-1.96*pred$se.fit,
-					upper=pred$fit+1.96*pred$se.fit)
-				
-			}))
-	
-}
-
-# gam (to put r gamYellow)
-g3 <- gam(das_value~s(das_year, by=ser_restocking), data=yellow_data_std)
-
-# Graph of the results (to put r gamYellow)
-yellow_gam_plot_recent=generate_dataset_plot_gam_res(g3)
-ggplot(yellow_gam_plot_recent,aes(x=year,y=pred))+
-	geom_line()+
-	geom_ribbon(aes(ymin=lower,ymax=upper),alpha=.3)+
-	facet_wrap(.~res_code,scales="free_y")+
-	scale_colour_manual(values=cols)+
-	scale_fill_manual(values=cols)+
-	theme_bw()+ ylab("relative abundance (log scale)")
+gam_restocking = GAM_series(yellow_data_std, variable = "ser_restocking")
+plot_GAM_series(mymodel = gam_restocking, variable = "ser_restocking", modelised_data = yellow_data_std)
 
 ######
 ### habitat: HTY
 ######
 
 #select only the data where we have hty code
-yellow_data_std_hty<-yellow_data_std%>%filter(!is.na(ser_hty_code))
+yellow_data_std_hty <- yellow_data_std %>% 
+	filter(!is.na(ser_hty_code)) %>%
+	mutate(ser_hty_code = factor(ser_hty_code, levels = c("MO", "C", "T", "F"), ordered = TRUE))
+
+gam_habitat = GAM_series(yellow_data_std_hty, variable = "ser_hty_code")
+plot_GAM_series(mymodel = gam_habitat, variable = "ser_hty_code", modelised_data = yellow_data_std_hty)
 
 # function to create the data for the graph
 generate_dataset_plot_gam_hty = function(model){
@@ -789,7 +764,7 @@ corresponding section for further details.
 
 ### Common trends
 
-```{r dfa_silver, results='hide',eval=TRUE,echo=FALSE}
+```{r dfa-silver, results='hide',eval=TRUE,echo=FALSE}
 if (params$rerunDFA){
 
   # put data in wide format
@@ -896,7 +871,7 @@ Venn_diagram(DFA_results$Z,sign_trends=-1)
 ```
 
 
-```{r spatialpatternAllSE, echo=FALSE,fig.cap="Spatial maps of silver DFA loadings (+ stands for a positive correlaction to trend 1)", warning=FALSE, message=FALSE, fig.heigth=16/2.54}
+```{r spatialpatternAllSE, echo = FALSE,fig.cap="Spatial maps of silver DFA loadings (+ stands for a positive correlaction to trend 1)", warning=FALSE, message=FALSE, fig.heigth=16/2.54}
 Z=DFA_results$Z # factor loadings
 minZ=0.2 # minum value accepted for factor loading
 
