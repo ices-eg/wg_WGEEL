@@ -80,11 +80,15 @@ plot_smooth_gam = function(mydata)
 GAM_series = function(mydata, variable = "country")
 {
 	# issue with ordered, see https://github.com/ices-eg/wg_WGEEL/issues/279
-	mydata = mydata %>%
-		mutate("{variable}" :=  factor(!!as.symbol(variable), levels = unique(mydata[, variable] %>% pull()), ordered = FALSE))
+	if(is.factor(mydata[, variable] %>% pull()))
+	{
+		mydata = mydata %>%
+			mutate("{variable}" :=  factor(!!as.symbol(variable), levels = unique(mydata[, variable] %>% pull()), ordered = FALSE))
+		model = gam(as.formula(glue::glue("value ~ {variable} + s(year, by={variable})")), data = mydata, family = gaussian())
+	} else {
+		model = gam(as.formula(glue::glue("value ~ s({variable}) + s(year)")), data = mydata, family = gaussian())
+	}
 		
-	model = gam(as.formula(glue::glue("value ~ {variable} + s(year, by={variable})")), data = mydata, family = gaussian())
-	
 	return(model)
 }
 

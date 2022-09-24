@@ -263,112 +263,26 @@ yellow_data_std_hty <- yellow_data_std %>%
 gam_habitat = GAM_series(yellow_data_std_hty, variable = "ser_hty_code")
 plot_GAM_series(mymodel = gam_habitat, variable = "ser_hty_code", modelised_data = yellow_data_std_hty)
 
-# function to create the data for the graph
-generate_dataset_plot_gam_hty = function(model){
-	hty_code=levels(droplevels (model$model$ser_hty_code))
-	
-	do.call('rbind.data.frame',lapply(hty_code, function(hty){
-				year_range= range(model$model$das_year[model$model$ser_hty_code==hty],
-					na.rm=TRUE)
-				years=year_range[1]:year_range[2]
-				pred=predict(model,data.frame(das_year=years,ser_hty_code=hty),
-					se.fit=TRUE)
-				data.frame(year=years,
-					hty_code=hty,
-					pred=pred$fit,
-					lower=pred$fit-1.96*pred$se.fit,
-					upper=pred$fit+1.96*pred$se.fit)
-				
-			}))
-	
-}
-
-# GAM (to put r gamYellow)
-g4 <- gam(das_value~s(das_year, by=ser_hty_code), data=yellow_data_std_hty)
-
-# Graph (to put r gamYellow)
-hty_code <- levels(droplevels (yellow_data_std_hty$ser_hty_code))
-
-# compute mean values per year and habitat type
-yellow_data_std_hty_mean <- yellow_data_std_hty %>% group_by(ser_hty_code,das_year) %>% summarize(average=mean(das_value)) %>% ungroup() %>% rename(hty_code=ser_hty_code)
-
-# plot gam model and mean values for hty
-yellow_gam_plot_recent=generate_dataset_plot_gam_hty(g4)
-ggplot(yellow_gam_plot_recent,aes(x=year,y=pred))+
-	geom_line()+
-	geom_ribbon(aes(ymin=lower,ymax=upper),alpha=.3)+
-	facet_wrap(.~hty_code,scales="free_y")+
-	scale_colour_manual(values=cols)+
-	scale_fill_manual(values=cols)+
-	theme_bw()+ ylab("relative abundance (log scale)")
-
-table(yellow_data_std_hty$ser_cou_code,yellow_data_std_hty$ser_hty_code)
-
-
 ######
 ### Gear
 #####
 
 #select only the data where we have hty code and change character into factor
 
-yellow_data_std_gear<-yellow_data_std%>%filter(!is.na(ser_sam_gear))
+yellow_data_std_gear <- yellow_data_std%>%filter(!is.na(ser_sam_gear))
 
-yellow_data_std_gear$ser_sam_gear<-as.factor(yellow_data_std_gear$ser_sam_gear)
+yellow_data_std_gear$ser_sam_gear <- as.factor(yellow_data_std_gear$ser_sam_gear)
 
-# function to create the data for the graph (to put after l131)
-
-generate_dataset_plot_gam_type = function(model){
-	gear_code=levels(droplevels (model$model$ser_sam_gear))
-	
-	do.call('rbind.data.frame',lapply(gear_code, function(gear){
-				year_range= range(model$model$das_year[model$model$ser_sam_gear==gear],
-					na.rm=TRUE)
-				years=year_range[1]:year_range[2]
-				pred=predict(model,data.frame(das_year=years,ser_sam_gear=gear),
-					se.fit=TRUE)
-				data.frame(year=years,
-					gear_code=gear,
-					pred=pred$fit,
-					lower=pred$fit-1.96*pred$se.fit,
-					upper=pred$fit+1.96*pred$se.fit)
-				
-			}))
-	
-}
-
-# GAM (to put r gamYellow)
-g4 <- gam(das_value~s(das_year, by=ser_sam_gear), data=yellow_data_std_gear)
-
-
-# Graph (to put r gamYellow)
-gear_code <- levels(droplevels (yellow_data_std_gear$ser_sam_gear))
-
-yellow_gam_plot_recent=generate_dataset_plot_gam_type(g4)
-ggplot(yellow_gam_plot_recent,aes(x=year,y=pred))+
-	geom_line()+
-	geom_ribbon(aes(ymin=lower,ymax=upper),alpha=.3)+
-	facet_wrap(.~gear_code,scales="free_y")+
-	scale_colour_manual(values=cols)+
-	scale_fill_manual(values=cols)+
-	theme_bw()+ ylab("relative abundance (log scale)")
-
-table(yellow_data_std_hty$ser_cou_code,yellow_data_std_hty$ser_sam_gear)
+gam_gear = GAM_series(yellow_data_std_gear, variable = "ser_sam_gear")
+plot_GAM_series(mymodel = gam_gear, variable = "ser_sam_gear", modelised_data = yellow_data_std_gear)
 
 ######
 ### Distance to the sea
 #####
 
-yellow_data_std_dis<-yellow_data_std%>%filter(!is.na(ser_distanceseakm))
+yellow_data_std_dis <- yellow_data_std%>%filter(!is.na(ser_distanceseakm))
 
-#select only the data where we have hty code
-
-g0 <- gam(das_value~s(das_year)+s(ser_distanceseakm), data=yellow_data_std)
-plot(g0)
-
-ggplot(yellow_data_std_dis,aes(x=ser_distanceseakm,y=das_value))+
-	geom_smooth(method="gam")+theme_bw()+xlab("distance to the sea (km)")+
-	ylab("Standardised abundance index (log scale)")+
-	guides(col=FALSE)
+gam_dist_sea = GAM_series(yellow_data_std_dis, variable = "ser_distanceseakm")
 
 ```
 
