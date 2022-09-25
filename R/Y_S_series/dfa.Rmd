@@ -172,7 +172,7 @@ See chapter **XXX** for a more comprehensive description of dataseries available
 
 ```{r mapyellow, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Map of available yellow time series. Updated time series correspond to time series for which at least one value was provided for years the three last years",fig.height=14/2.54}
 
-map_series(yellow_map)
+map_series(yellow_map, transparent = FALSE, mapType = c("terrain-background"), mapbox = c(left = -13, bottom = 35, right = 27, top = 65))
 
 #ggsave("images/yellow.png", height=14/2.54)
 #knitr::include_graphics("images/yellow.png")
@@ -336,8 +336,6 @@ if (params$rerunDFA){
 	# plot yellow data series
   graph_serie(yellow_data)
   
-  
-  
   #Design of experiments
   S=c("diagonal and equal","diagonal and unequal")
   nbtrend=1:4
@@ -349,30 +347,29 @@ if (params$rerunDFA){
 	# save results
 	save(DFA_yellow, file="./dfa.rdata")
 
+} else {
+	load("./dfa.rdata")
 }
 ```
 
 One trends was estimated after selection by AICc criteria (Table \@ref(tab:comparisonYE) and Figure \@ref(fig:trendsyellow)).
 
 ```{r comparisonYE,echo=FALSE,tab.cap='Model comparisons for yellow eel DFA'}
-load("./dfa.rdata")
 table_summary_models(summary_models(DFA_yellow)) # Model comparison
 ```
 
 
 ```{r trendsyellow, echo=FALSE, fig.cap="Estimated common trends in yellow eel time series"}
 
-source("DFA_functions.R")
-load("./dfa.rdata")
 DFA = best_DFA(DFA_yellow) # results for best
 DFA_results = results_DFA(DFA) # can be long
-graph_trends(DFA_results$trends,year=sort(unique(yellow_data$das_year)),sign_trends=-1)
+graph_trends(DFA_results$trends, year = sort(unique(yellow_data$das_year)), sign_trends = -1)
 
 ```
 
 ```{r tab-loadingsYE,echo=FALSE,tab.cap="Factor loadings of the yellow eel DFA (red names stand for loadings absolute values greater than 0.2)"}
 
-graph_Z(DFA_results$Z.conf,sign_trends=-1)
+graph_Z(DFA_results$Z.conf, sign_trends=-1)
 
 ```
 
@@ -384,13 +381,11 @@ a Venn diagram (Figure \@ref(fig:vennyellow))
 
 
 ```{r seriesloadingsYE, echo=FALSE,fig.cap="Factor loadings of the yellow eel DFA (red names stand for loadings absolute values greater than 0.2)",fig.height=16/2.54}
-
-Venn_diagram(DFA_results$Z,sign_trends=-1) 
-
+#TODO
 ```
 
 
-```{r facotr-glm-yellow, echo = FALSE}
+```{r factor-glm-yellow, echo = FALSE}
 
 #r trendsyellow
 
@@ -406,31 +401,20 @@ summary(modelz1)
 ```
 
 ```{r vennyellow, echo=FALSE, fig.cap="Venn diagram of the yellow eel DFA"}
-Venn_diagram(DFA_results$Z,sign_trends=-1)
+Venn_yellow = Venn_diagram(DFA_results$Z,sign_trends=-1)
+Venn_yellow$plot
 ```
 
 
 ```{r spatialpatternAllYE,echo=FALSE,fig.cap="Spatial maps of yellow DFA loadings", warning=FALSE, message=FALSE, fig.height=16/2.54}
 
-Z=DFA_results$Z # factor loadings
-minZ=0.2 # minum value accepted for factor loading
-yellow_belonging=data.frame(ser_nameshort=rownames(Z),
-                            Trend=venn_belonging(rownames(Z),
-                                                 Z,
-                                                 minZ))
-yellow_belonging <- yellow_belonging %>%
-  mutate(Trend1=ifelse(Z[,1]>minZ,"+",
-                       ifelse(Z[,1]< -minZ, "-",0)))
-yellow_belonging = merge(yellow_belonging,
-                         unique(yellow_data[,c("ser_id","ser_nameshort")]))
-yellow_belonging=merge(yellow_map,
-                       yellow_belonging)
-ggplot(yellow_belonging)+
-  geom_sf(data=europe_cropped)+
-  geom_sf(data=yellow_belonging,aes(fill=Trend,col=Trend))+
-  scale_fill_brewer(type="qual", palette = "Set3")+
-  scale_color_brewer(type="qual", palette = "Set3")+
-  theme_bw()
+yellow_group_Venn = Venn_yellow$venn %>% 
+	unlist_venn() %>%
+	inner_join(yellow_map) %>%
+	rename(`Venn's group` = Venn_group)
+				   
+	map_series(yellow_group_Venn, variable = "Venn's group", mapType = c("terrain-background"), transparent = TRUE, labels = FALSE)
+	
 ```
 
 
@@ -781,7 +765,7 @@ graph_Z(DFA_results$Z.conf,sign_trends=-1)
 
 
 ```{r vennsilver, echo=FALSE, fig.cap="Venn diagram of the silver eel DFA"}
-Venn_diagram(DFA_results$Z,sign_trends=-1)
+Venn_diagram(DFA_results$Z, sign_trends=-1)
 ```
 
 

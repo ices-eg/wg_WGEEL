@@ -208,7 +208,7 @@ graph_trends = function(trends, year, sign_trends = NULL)
 #' @param Z as produce by the 'results_DFA' function
 #' @param minZ the min value to consider a Z significant (defaut = 0.2)
 #' @param sign_trends vector of 1 / -1 indicating if you want to inverse the trend (-1 in that case)
-#' @return the diagram
+#' @return a list with the diagram (in `plot` slot) and the group each series belongs to (in `venn` slot)
 Venn_diagram = function(Z, minZ = 0.2, sign_trends = NULL){
 	nameseries = rownames(Z)
 	nb_trends = dim(Z)[2]
@@ -218,6 +218,7 @@ Venn_diagram = function(Z, minZ = 0.2, sign_trends = NULL){
 	if(length(sign_trends) != nb_trends) stop(paste0("sign_trends should be of length ", nb_trends))
 	for(m in 1:nb_trends)
 		Z[,m] = Z[,m] * sign_trends[m]
+	
 	list_venn=do.call(c,lapply(1:(dim(Z)[2]),function(j){
 				res=list(nameseries[which(Z[,j]>minZ)],nameseries[which(Z[,j] < -minZ)])
 				names(res)=paste("Trend",j,c("+","-"),sep="")
@@ -245,23 +246,48 @@ Venn_diagram = function(Z, minZ = 0.2, sign_trends = NULL){
 		})
 	eulerr_options(quantities=list(cex=.6))
 	
-	return(plot(euler_fit,quantities=lab))
+	return(list(plot = plot(euler_fit,quantities=lab), venn = list_venn))
 }
 
 
-#TODO: check if still used if yes describe
-venn_belonging <- function(nameseries,Z,minZ){
-	nameseries=as.character(nameseries)
-	list_venn=do.call(c,lapply(1:(dim(Z)[2]),function(j){
-				res=list(nameseries[which(Z[,j]>minZ)],nameseries[which(Z[,j]< -minZ)])
-				names(res)=paste("Trend",j,c("+","-"),sep="")
-				res
-			}))
-	list_venn$Any =nameseries[!nameseries %in%unlist(list_venn)]
-	sapply(nameseries,function(ser) 
-			paste(names(list_venn)[sapply(names(list_venn),
-						function(g) ifelse(ser %in% list_venn[[g]], TRUE,FALSE))],
-				collapse="; "))
+##TODO: check if still used if yes describe
+#venn_belonging <- function(nameseries,Z,minZ){
+#	nameseries=as.character(nameseries)
+#	list_venn=do.call(c,lapply(1:(dim(Z)[2]),function(j){
+#				res=list(nameseries[which(Z[,j]>minZ)],nameseries[which(Z[,j]< -minZ)])
+#				names(res)=paste("Trend",j,c("+","-"),sep="")
+#				res
+#			}))
+#	list_venn$Any =nameseries[!nameseries %in%unlist(list_venn)]
+#	sapply(nameseries,function(ser) 
+#			paste(names(list_venn)[sapply(names(list_venn),
+#						function(g) ifelse(ser %in% list_venn[[g]], TRUE,FALSE))],
+#				collapse="; "))
+#}
+
+#' @title convert the venn list into a data.frame
+#' @param venn_list list. As produced by the Venn_diagram (slot `venn`)
+#' @return a data.frame
+unlist_venn = function(venn_list)
+{
+	result = data.frame(
+		ser_nameshort = unlist(venn_list, use.names=F),
+		Venn_group = rep(names(venn_list), lengths(venn_list))
+	)
+	
+	toto = result %>% 
+		table %>%
+		as_tibble %>% 
+		pivot_wider(names_from = "Venn_group", values_from = "n") 
+	
+	group = toto %>%
+		select(- ser_nameshort) %>%
+		map2_dfc(colnames(.), ., function(x1,x2) ifelse(x2 == 1, x1, "")) %>%
+		apply(1, paste, collapse = "")
+	
+	result = toto %>% select(ser_nameshort) %>% bind_cols(group) %>% rename(Venn_group = `...2`) 
+	
+	return(result)
 }
 
 #' @title graph of raw series and trends
