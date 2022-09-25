@@ -1320,3 +1320,6 @@ UPDATE datawg.t_metricindsamp_meisa SET mei_value = mei_value * 1000 WHERE mei_i
 ; --15 rows
 
 
+-- correction for a typo in IE
+ SELECT * FROM datawg.t_eelstock_eel WHERE eel_id = 434060
+UPDATE datawg.t_eelstock_eel SET eel_value= 2637480 WHERE eel_id = 434060;
