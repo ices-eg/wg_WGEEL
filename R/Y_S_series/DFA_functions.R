@@ -265,27 +265,53 @@ Venn_diagram = function(Z, minZ = 0.2, sign_trends = NULL){
 #				collapse="; "))
 #}
 
-#' @title convert the venn list into a data.frame
+#' @title convert the venn list into a tibble with trends
 #' @param venn_list list. As produced by the Venn_diagram (slot `venn`)
-#' @return a data.frame
-unlist_venn = function(venn_list)
+#' @return a tible
+tabulate_venn = function(venn_list)
 {
 	result = data.frame(
 		ser_nameshort = unlist(venn_list, use.names=F),
 		Venn_group = rep(names(venn_list), lengths(venn_list))
 	)
 	
-	toto = result %>% 
+	result = result %>% 
 		table %>%
 		as_tibble %>% 
 		pivot_wider(names_from = "Venn_group", values_from = "n") 
 	
-	group = toto %>%
+	return(result)
+}
+
+#' @title convert the venn list into a data.frame
+#' @param venn_list list. As produced by the Venn_diagram (slot `venn`)
+#' @return a data.frame
+unlist_venn = function(venn_list)
+{
+	
+	group = tabulate_venn(venn_list) %>%
 		select(- ser_nameshort) %>%
 		map2_dfc(colnames(.), ., function(x1,x2) ifelse(x2 == 1, x1, "")) %>%
 		apply(1, paste, collapse = "")
 	
-	result = toto %>% select(ser_nameshort) %>% bind_cols(group) %>% rename(Venn_group = `...2`) 
+	result = tabulate_venn(venn_list)  %>% select(ser_nameshort) %>% bind_cols(group) %>% rename(Venn_group = `...2`) 
+	
+	return(result)
+}
+
+#' @title extract the sign of a given trend from a venn list
+#' @param venn_list list. As produced by the Venn_diagram (slot `venn`)
+#' @param trend integer. The number of the trend to extract
+#' @return a data.frame
+sign_trend_venn = function(venn_list, trend = 1)
+{
+	trend = paste0("Trend", trend)
+	
+	result = venn_list %>% 
+		tabulate_venn() %>% 
+		select(ser_nameshort, starts_with(trend)) %>%
+		mutate(sign = ifelse(!!as.symbol(paste0(trend, "+")) == 1, "+", ifelse(!!as.symbol(paste0(trend, "-")) == 1, "-", "0"))) %>%
+		select(ser_nameshort, sign)
 	
 	return(result)
 }

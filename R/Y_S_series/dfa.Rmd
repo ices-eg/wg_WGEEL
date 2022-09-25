@@ -413,42 +413,29 @@ yellow_group_Venn = Venn_yellow$venn %>%
 	inner_join(yellow_map) %>%
 	rename(`Venn's group` = Venn_group)
 				   
-	map_series(yellow_group_Venn, variable = "Venn's group", mapType = c("terrain-background"), transparent = TRUE, labels = FALSE)
+	map_series(yellow_group_Venn, variable = "Venn's group", mapType = c("terrain-background"), transparent = TRUE, labels = FALSE, pch_cex = 3)
 	
 ```
 
 
 ```{r spatialpatternTrendsYE,echo=FALSE,fig.cap="Spatial maps of yellow DFA loadings, detailed by trend", warning=FALSE, message=FALSE, fig.height=16/2.54}
 
-yellow_belonging=data.frame(ser_nameshort=rownames(Z),
-                            Trend=venn_belonging(rownames(Z),
-                                                 Z,
-                                                 minZ))
-# yellow_belonging=data.frame(ser_nameshort=namesseries,
-#                             Trend=venn_belonging(namesseries,
-#                                                  Z,
-#                                                  minZ))
-yellow_belonging <- yellow_belonging %>%
-  mutate(Trend1=ifelse(Z[,1]>minZ,"+",
-                       ifelse(Z[,1]< -minZ, "-",0)))
-yellow_belonging = merge(yellow_belonging,
-                         unique(yellow_data[,c("ser_id","ser_nameshort")]))
-yellow_belonging=merge(yellow_map,
-                       yellow_belonging)
-#t2<-ggplot(yellow_belonging)+
-#  geom_sf(data=europe_cropped)+
-#  geom_sf(data=yellow_belonging,aes(fill=Trend2,col=Trend2))+
-#  scale_fill_brewer(type="qual")+
-#  scale_color_brewer(type="qual")+
-#  theme_bw()
+trend1_yellow = Venn_yellow$venn %>% 
+	sign_trend_venn(trend = 1) %>%
+	inner_join(yellow_map) %>%
+	rename(Trend1 = sign)
 
-ggplot(yellow_belonging)+
-  geom_sf(data=europe_cropped)+
-  geom_sf(data=yellow_belonging,aes(fill=Trend1,col=Trend1))+
-  scale_fill_brewer(type="qual")+
-  scale_color_brewer(type="qual")+
-  theme_bw()
-# grid.arrange(t1,t2,ncol=1)
+t1 = map_series(trend1_yellow, variable = "Trend1", palette_brewer = "Paired", labels = F, pch_cex = 3)
+
+
+#trend2_yellow = Venn_yellow$venn %>% 
+#	sign_trend_venn(trend = 2) %>%
+#	inner_join(yellow_map) %>%
+#	rename(Trend2 = sign)
+#
+#t2 = map_series(trend2_yellow, variable = "Trend2", palette_brewer = "Paired", labels = F, pch_cex = 3)
+#
+#grid.arrange(t1,t2,ncol=1)
 ```
 
 
