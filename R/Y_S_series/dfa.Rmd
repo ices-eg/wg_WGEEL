@@ -4,7 +4,7 @@ author: "ICES Data Group"
 date: "`r format(Sys.time(), '%Y %B %d')`"
 bibliography: references_dfa.bib
 documentclass: article
-output: source("../utilities/get_background_map.R")
+output: 
   bookdown::word_document2:
     fig_caption: yes
     number_sections: yes
@@ -12,13 +12,13 @@ output: source("../utilities/get_background_map.R")
 params:
   rerunDFA: FALSE
 csl: "../Rmarkdown/ices-journal-of-marine-science.csl"
-
 ---
-
 
 ```{r setup, include=FALSE}
 source("../utilities/load_library.R")
-source("../utilities/get_background_map.R")
+source("../utilities/plot_map_series.R")
+source("YS_functions.R")
+source("DFA_functions.R")
 
 knitr::opts_chunk$set(echo = TRUE,warning=FALSE,message=FALSE,fig.width=14.9/2.54,dpi=300,
                       fig.height=10/2.54)
@@ -51,93 +51,15 @@ load_library("data.table")
 load_library("car")
 library(yaml)
 
-cred=read_yaml("../../credentials.yml")
-con_wgeel = dbConnect(Postgres(), dbname=cred$dbname,host=cred$host,port=cred$port,user=cred$user, password=cred$password)
-
-CY<-as.integer(format(Sys.Date(), "%Y")) # current year ==> dont forget to update the graphics path below (
-
-format_dfa =function(the.fit){
-  H.inv=1
-  Z.est = coef(the.fit, type="matrix")$Z
-  if(ncol(Z.est)>1) H.inv = varimax(Z.est)$rotmat
-  
-  #rotate factor loadings
-  Z<-coef(the.fit,type="matrix")$Z%*%H.inv
-  
-  #rotate trends
-  trends<-solve(H.inv)%*%the.fit$states
-  scale_val=coef(the.fit)$A
-  list(Z=Z,trends=trends,scale_val=scale_alpha)
-}
-
-#a function to display nice Venn diagram
-venn <- function(nameseries,Z,minZ){
-  nameseries=as.character(nameseries)
-  list_venn=do.call(c,lapply(1:(dim(Z)[2]),function(j){
-    res=list(nameseries[which(Z[,j]>minZ)],nameseries[which(Z[,j]< -minZ)])
-    names(res)=paste("Trend",j,c("+","-"),sep="")
-    res
-  }))
-  list_venn$Any =nameseries[!nameseries %in%unlist(list_venn)]
-  euler_fit<-euler(list_venn)
-  lab=sapply(names(euler_fit$original.values),function(n){
-    groups=strsplit(n,"&")[[1]]
-    group_not=names(list_venn)[!names(list_venn) %in%groups]
-    okgroup = apply(sapply(groups,function(g) nameseries %in% list_venn[[g]]),
-            1,
-            prod) 
-    oknotgroup=1
-    if(length(group_not)>0){
-      oknotgroup=apply(sapply(group_not,
-                              function(g) !nameseries %in% list_venn[[g]]),
-            1,
-            prod)
-    }
-    paste(nameseries[as.logical(
-      okgroup*oknotgroup)],
-      collapse="\n")
-  })
-   eulerr_options(quantities=list(cex=.6))
-  plot(euler_fit,quantities=lab)
-}
-
-
-venn_belonging <- function(nameseries,Z,minZ){
-  nameseries=as.character(nameseries)
-  list_venn=do.call(c,lapply(1:(dim(Z)[2]),function(j){
-    res=list(nameseries[which(Z[,j]>minZ)],nameseries[which(Z[,j]< -minZ)])
-    names(res)=paste("Trend",j,c("+","-"),sep="")
-    res
-  }))
-  list_venn$Any =nameseries[!nameseries %in%unlist(list_venn)]
-  sapply(nameseries,function(ser) 
-    paste(names(list_venn)[sapply(names(list_venn),
-           function(g) ifelse(ser %in% list_venn[[g]], TRUE,FALSE))],
-          collapse="; "))
-}
-
-generate_dataset_plot_gam = function(model){
-  cou_code=levels(droplevels (model$model$ser_cou_code))
-  
-  do.call('rbind.data.frame',lapply(cou_code, function(cou){
-    year_range= range(model$model$das_year[model$model$ser_cou_code==cou],
-                      na.rm=TRUE)
-    years=year_range[1]:year_range[2]
-    pred=predict(model,data.frame(das_year=years,ser_cou_code=cou), type = "response",
-            se.fit=TRUE)
-    data.frame(year=years,
-               cou_code=cou,
-                 pred=pred$fit,
-               lower=pred$fit-1.96*pred$se.fit,
-               upper=pred$fit+1.96*pred$se.fit)
-    
-    }))
-  
-}
+current_year<-as.integer(format(Sys.Date(), "%Y"))
 
 ```
 
 ```{r dataloading, include=FALSE}
+
+cred=read_yaml("../../credentials.yml")
+con_wgeel = dbConnect(Postgres(), dbname=cred$dbname,host=cred$host,port=cred$port,user=cred$user, password=cred$password)
+
 query='SELECT 
 		das_id,
 		das_value,
@@ -186,8 +108,6 @@ nb_silver = dbGetQuery(con_wgeel, "	SELECT count(*) FROM datawg.t_series_ser	WHE
 sampling = dbGetQuery(con_wgeel, "SELECT ser_id,	ser_nameshort,	ser_comment,	sam_samplingtype,	ser_uni_code,	gea_name_en AS type FROM datawg.t_series_ser LEFT OUTER JOIN ref.tr_gear_gea ON (gea_id = ser_sam_gear)  LEFT OUTER JOIN ref.tr_samplingtype_sam ON (sam_id = ser_sam_id) WHERE ser_typ_id IN (2,3)")
 mydata = merge(mydata,sampling[,c("ser_id","type")])
 
-
-
 silver_dataall <- mydata %>%
   filter(lfs_code=="S")
 yellow_dataall <- mydata %>%
@@ -209,9 +129,7 @@ values=c(RColorBrewer::brewer.pal(12,"Set3"),
 	RColorBrewer::brewer.pal(8, "Dark2"))
 color_countries = setNames(values,country_ref$cou_code)
 
-
 dbDisconnect(con_wgeel)
-colorpalette=cbf_1 <- c("red","black")
 #save.image("daf_total.RData")
 ```
 
@@ -252,235 +170,98 @@ See chapter **XXX** for a more comprehensive description of dataseries available
 
 <!-- à voir pour faire les stat : yellow_dataall %>% select(ser_id, ser_hty_code) %>% distinct() %>% group_by(ser_hty_code) %>% count() -->
 
-```{r mapyellow,echo=FALSE,message=FALSE,warning=FALSE,fig.cap="Map of available yellow time series. Updated time series correspond to time series for which at least one value was provided for years the three last years",fig.height=14/2.54}
-sf::sf_use_s2(FALSE)
- worldmap <- ne_countries(scale = 'medium', type = 'map_units',
-                          returnclass = 'sf')
- europe_cropped <- st_crop(worldmap, xmin = -13, xmax = 27,
-                                     ymin = 35, ymax = 65)
- my_map = get_background_map(transparent = FALSE, mapType = c("terrain-background"), mapbox = c(left = -13, bottom = 35, right = 27, top = 65))
-	
-	draw_key_text=
-		function (data, params, size) 
-	{
-		if (is.null(data$label)) 
-			data$label <- "series"
-		grid::textGrob(data$label, 0.5, 0.5, rot = data$angle %||% 0, gp = gpar(cex = 2, col = alpha(data$colour %||% 
-						data$fill %||% "black", data$alpha), fontfamily = data$family %||% 
-					"", fontface = data$fontface %||% 1, fontsize = (data$size %||% 
-						3.88) * .pt))
-	}
-	
-  ggmap(my_map) + 
-		geom_point(data=yellow_map,
-			aes(x=ser_x,y=ser_y, col  =Updated),cex=2,pch=20)+
-		geom_label_repel(data=yellow_map,
-			aes(x=ser_x,y=ser_y,label=ser_nameshort,col=Updated), cex=1.5, key_glyph=draw_key_text, max.overlaps = Inf, label.padding = 0.1, show.legend = FALSE) +
-		scale_color_manual("Updated?", values = colorpalette, guide = "none")+
-		guides(color = guide_legend(override.aes = list(size = 5) ) ) +
-		ylab("")+xlab("") + theme(legend.key = element_rect(fill = "white"))
+```{r mapyellow, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Map of available yellow time series. Updated time series correspond to time series for which at least one value was provided for years the three last years",fig.height=14/2.54}
+
+map_series(yellow_map)
+
 #ggsave("images/yellow.png", height=14/2.54)
 #knitr::include_graphics("images/yellow.png")
 ```
 
 ## Trends after 2000
 
-```{r pointperyearYE,echo=FALSE, fig.cap="number of yellow eel time series available per year",fig.height=8/2.54}
-point_per_year_YE<- yellow_dataall %>%
-  group_by(das_year) %>%
-  summarize(n=n_distinct(ser_id))
+```{r plot-nb-series-yellow, echo=FALSE, fig.cap="Number of yellow eel time series available per year", fig.height=8/2.54}
 
-ggplot(point_per_year_YE,aes(y=n,x=das_year))+
-  geom_line() + geom_point() +
-  xlab("")+ylab("number of available data")+
-  theme_bw()
+point_per_year_YE = yellow_dataall %>%
+	mutate(id = ser_id, year = das_year) %>%
+	plot_nb_observation()
 
-#For GAMS, we do not restrict to the post 2000 period
-#we keep only data with at least 10 years
-nbpointsgam = yellow_dataall %>%
-  filter(das_year>=1975)%>%
-  group_by(ser_id) %>%
-  summarise(nbyear=n_distinct(das_year))%>%
-  filter(nbyear>=10)
-yellow_data_gam <-yellow_dataall %>%
-  filter(ser_id %in% nbpointsgam$ser_id & das_year>=1975 & das_year <= (CY-1))
-
-#we also removed ser_id for which 0 represents more than 10% of data
-yellow_data_gam <- yellow_data_gam %>%
-  group_by(ser_id) %>%
-  mutate(nb_values=n(),nb_zeros=sum(das_value==0)) %>%
-  mutate(freq_zero=nb_zeros/nb_values)%>%
-  filter(freq_zero < .1)
-
-#we keep only data with at least 10 years
-nbpoints = yellow_dataall %>%
-  filter(das_year>=2000)%>%
-  group_by(ser_id) %>%
-  summarise(nbyear=n_distinct(das_year))%>%
-  filter(nbyear>=10)
-yellow_data <-yellow_dataall %>%
-  filter(ser_id %in% nbpoints$ser_id & das_year>=2000 & das_year <= (CY-1))
-
-#we also removed ser_id for which 0 represents more than 10% of data
-yellow_data <- yellow_data %>%
-  group_by(ser_id) %>%
-  mutate(nb_values=n(),nb_zeros=sum(das_value==0)) %>%
-  mutate(freq_zero=nb_zeros/nb_values)%>%
-  filter(freq_zero < .1)
+point_per_year_YE = point_per_year_YE$data
 ```
 
-Currently, few pre-2000 data are recorded in the database (Figure \@ref(fig:pointperyearYE)), 
-an effort should be made in the future to collect historical data. Many data values for `r CY` were still missing when
-carrying out the analysis (only `r point_per_year_YE %>% filter(das_year == CY) %>% pull()` series have data for
-`r CY`). 
+```{r data-gam, echo = FALSE}
 
+yellow_data_gam = yellow_dataall %>% 
+	mutate(id = ser_id, year = das_year, value = das_value) %>%
+	select_data(yearBegin = 1975, yearEnd = current_year-1, freq_maxi0 = 0.1)
 
+yellow_data = yellow_dataall %>% 
+	mutate(id = ser_id, year = das_year, value = das_value) %>% 
+	select_data(yearBegin = 2000, yearEnd = current_year-1, freq_maxi0 = 0.1)
+
+```
+
+Currently, few pre-2000 data are recorded in the database (Figure \@ref(fig:plot-nb-series-yellow)), 
+an effort should be made in the future to collect historical data. Many data values for `r current_year` were still missing when
+carrying out the analysis (only `r point_per_year_YE %>% filter(year == current_year) %>% pull()` series have data for
+`r current_year`). 
 
 In view of this, the analysis was restricted to the period ranging from 2000 to 
-`r CY -1` with data series that have at least 10 observations on the period.
+`r current_year -1` with data series that have at least 10 observations on the period.
 
 This leaves `r length(unique(yellow_data$ser_id))` time series (and restricted to series having less than 10% of 0). 
-If we plot all the series, a GAM smoother indicates an overall decreasing trend (Figure \@ref(fig:plotTSYE)).
+If we plot all the series, a GAM smoother indicates an overall decreasing trend (Figure \@ref(fig:plot-GAM-yellow)).
 
-```{r plotTSYE,echo=FALSE,warning=FALSE, fig.cap="Yellow eel time series and GAM smoother"}
-yellow_data_std=yellow_data%>%
-  group_by(ser_id)%>%
-  mutate(das_value=(das_value-mean(das_value,na.rm=TRUE))/sd(das_value,na.rm=TRUE))
+```{r plot-GAM-yellow, echo = FALSE, warning = FALSE, fig.cap = "Yellow eel time series and GAM smoother"}
 
-ggplot(yellow_data_std,aes(x=das_year,y=das_value))+
-  geom_line(aes(col=as.factor(ser_nameshort)))+
-  geom_smooth(method="gam")+theme_bw()+xlab("year")+
-  ylab("Standardised abundance index")+
-  guides(col="none")
+(plot_smooth_gam_yellow = plot_smooth_gam(yellow_data))
+
 ```
 
-```{r gamYellow, echo=FALSE,warning=FALSE, fig.cap="Trends per country in yellow eel abundance estimated by a GAM"}
-# test for an overall trend in the data
-g0 <- gam(das_value~s(das_year), data=yellow_data_std, family = gaussian())
+```{r gam-yellow, echo=FALSE,warning=FALSE, fig.cap="Trends per country in yellow eel abundance estimated by a GAM"}
+
+yellow_data_std = plot_smooth_gam_yellow$data
 
 # test for trends per country
-g1 <- gam(das_value~s(das_year, by=ser_cou_code), data=yellow_data_std, family = gaussian())
+modelised_data = yellow_data_std %>%
+#	mutate(country = ser_cou_code) %>%
+	mutate(country = factor(ser_cou_code, levels = country_ref$cou_code, ordered=TRUE))
 
-# compute mean of the standardized values to be included in figure
-yellow_data_std_mean <- yellow_data_std %>% group_by(ser_cou_code, das_year) %>% 
-                    summarize(mean_das_value=mean(das_value),
-                              N=n()) %>% ungroup() %>% rename(cou_code=ser_cou_code)
+gam_country = GAM_series(modelised_data)
 
-
-cols<-colorRampPalette(c("chartreuse", "grey",  "navy"),space = "rgb")(length(cou_code))
-
-yellow_gam_plot_recent=generate_dataset_plot_gam(g1)
-yellow_gam_plot_recent$cou_code<-factor(yellow_gam_plot_recent$cou_code,levels=cou_ref$cou_code,ordered=TRUE)
-
-ggplot(yellow_gam_plot_recent,aes(x=year,y=pred))+
-  geom_line()+
-  geom_point(aes(x=das_year,y=mean_das_value),data=yellow_data_std_mean) +
-  geom_ribbon(aes(ymin=lower,ymax=upper),alpha=.3)+
-  facet_wrap(vars(cou_code),scales="free_y")+
-  scale_colour_manual(values=cols)+
-  scale_fill_manual(values=cols)+
-  theme_bw()+ ylab("relative abundance")
+plot_GAM_series(mymodel = gam_country, variable = "country", modelised_data)
 
 ```
 
-When plotted per country, a simple GAM smoother (explained deviance = `r round(summary(g1)$dev.expl * 100, 1)` %) shows
+When plotted per country, a simple GAM smoother (explained deviance = `r round(summary(gam_country)$dev.expl * 100, 1)` %) shows
 decreasing and stabilising curves in FR, NL. The same with a more pronounced increase after 2012 is estimated for ES (DK
 seems to display a similar trend but the time series is shorter). On the other hand, a linear decrease is estimated in
 IE, GB and DE, and an increase for SE (Figure \@ref(fig:gamYellow)). 
 
 ```{r table-yellow-gam, echo=FALSE, tab.cap = "Series included in the GAM analysis"}
-flextable(nb_per_country <- yellow_data %>%
-				group_by(ser_cou_code) %>%
-				summarize(N=n(),Nseries=n_distinct(ser_id)) %>%
-				dplyr::rename(Country=ser_cou_code))
+GAM_sumarry_table(yellow_data_std)
 ```
 
 ```{r exploratory-analysis, echo = FALSE}
 
-# change logical to factor
+######
+### restocking
+######
 yellow_data_std$ser_restocking<-as.factor(yellow_data_std$ser_restocking)
-
-# function to create the data for the graph (to put after l131)
-generate_dataset_plot_gam_res = function(model){
-	res_code=levels(droplevels (model$model$ser_restocking))
-	
-	do.call('rbind.data.frame',lapply(res_code, function(res){
-				year_range= range(model$model$das_year[model$model$ser_restocking==res],
-					na.rm=TRUE)
-				years=year_range[1]:year_range[2]
-				pred=predict(model,data.frame(das_year=years,ser_restocking=res),
-					se.fit=TRUE)
-				data.frame(year=years,
-					res_code=res,
-					pred=pred$fit,
-					lower=pred$fit-1.96*pred$se.fit,
-					upper=pred$fit+1.96*pred$se.fit)
-				
-			}))
-	
-}
-
-# gam (to put r gamYellow)
-g3 <- gam(das_value~s(das_year, by=ser_restocking), data=yellow_data_std)
-
-# Graph of the results (to put r gamYellow)
-yellow_gam_plot_recent=generate_dataset_plot_gam_res(g3)
-ggplot(yellow_gam_plot_recent,aes(x=year,y=pred))+
-	geom_line()+
-	geom_ribbon(aes(ymin=lower,ymax=upper),alpha=.3)+
-	facet_wrap(.~res_code,scales="free_y")+
-	scale_colour_manual(values=cols)+
-	scale_fill_manual(values=cols)+
-	theme_bw()+ ylab("relative abundance (log scale)")
+gam_restocking = GAM_series(yellow_data_std, variable = "ser_restocking")
+plot_GAM_series(mymodel = gam_restocking, variable = "ser_restocking", modelised_data = yellow_data_std)
 
 ######
 ### habitat: HTY
 ######
 
 #select only the data where we have hty code
-yellow_data_std_hty<-yellow_data_std%>%filter(!is.na(ser_hty_code))
+yellow_data_std_hty <- yellow_data_std %>% 
+	filter(!is.na(ser_hty_code)) %>%
+	mutate(ser_hty_code = factor(ser_hty_code, levels = c("MO", "C", "T", "F"), ordered = TRUE))
 
-# function to create the data for the graph
-generate_dataset_plot_gam_hty = function(model){
-	hty_code=levels(droplevels (model$model$ser_hty_code))
-	
-	do.call('rbind.data.frame',lapply(hty_code, function(hty){
-				year_range= range(model$model$das_year[model$model$ser_hty_code==hty],
-					na.rm=TRUE)
-				years=year_range[1]:year_range[2]
-				pred=predict(model,data.frame(das_year=years,ser_hty_code=hty),
-					se.fit=TRUE)
-				data.frame(year=years,
-					hty_code=hty,
-					pred=pred$fit,
-					lower=pred$fit-1.96*pred$se.fit,
-					upper=pred$fit+1.96*pred$se.fit)
-				
-			}))
-	
-}
-
-# GAM (to put r gamYellow)
-g4 <- gam(das_value~s(das_year, by=ser_hty_code), data=yellow_data_std_hty)
-
-# Graph (to put r gamYellow)
-hty_code <- levels(droplevels (yellow_data_std_hty$ser_hty_code))
-
-# compute mean values per year and habitat type
-yellow_data_std_hty_mean <- yellow_data_std_hty %>% group_by(ser_hty_code,das_year) %>% summarize(average=mean(das_value)) %>% ungroup() %>% rename(hty_code=ser_hty_code)
-
-# plot gam model and mean values for hty
-yellow_gam_plot_recent=generate_dataset_plot_gam_hty(g4)
-ggplot(yellow_gam_plot_recent,aes(x=year,y=pred))+
-	geom_line()+
-	geom_ribbon(aes(ymin=lower,ymax=upper),alpha=.3)+
-	facet_wrap(.~hty_code,scales="free_y")+
-	scale_colour_manual(values=cols)+
-	scale_fill_manual(values=cols)+
-	theme_bw()+ ylab("relative abundance (log scale)")
-
-table(yellow_data_std_hty$ser_cou_code,yellow_data_std_hty$ser_hty_code)
-
+gam_habitat = GAM_series(yellow_data_std_hty, variable = "ser_hty_code")
+plot_GAM_series(mymodel = gam_habitat, variable = "ser_hty_code", modelised_data = yellow_data_std_hty)
 
 ######
 ### Gear
@@ -488,64 +269,20 @@ table(yellow_data_std_hty$ser_cou_code,yellow_data_std_hty$ser_hty_code)
 
 #select only the data where we have hty code and change character into factor
 
-yellow_data_std_gear<-yellow_data_std%>%filter(!is.na(ser_sam_gear))
+yellow_data_std_gear <- yellow_data_std%>%filter(!is.na(ser_sam_gear))
 
-yellow_data_std_gear$ser_sam_gear<-as.factor(yellow_data_std_gear$ser_sam_gear)
+yellow_data_std_gear$ser_sam_gear <- as.factor(yellow_data_std_gear$ser_sam_gear)
 
-# function to create the data for the graph (to put after l131)
-
-generate_dataset_plot_gam_type = function(model){
-	gear_code=levels(droplevels (model$model$ser_sam_gear))
-	
-	do.call('rbind.data.frame',lapply(gear_code, function(gear){
-				year_range= range(model$model$das_year[model$model$ser_sam_gear==gear],
-					na.rm=TRUE)
-				years=year_range[1]:year_range[2]
-				pred=predict(model,data.frame(das_year=years,ser_sam_gear=gear),
-					se.fit=TRUE)
-				data.frame(year=years,
-					gear_code=gear,
-					pred=pred$fit,
-					lower=pred$fit-1.96*pred$se.fit,
-					upper=pred$fit+1.96*pred$se.fit)
-				
-			}))
-	
-}
-
-# GAM (to put r gamYellow)
-g4 <- gam(das_value~s(das_year, by=ser_sam_gear), data=yellow_data_std_gear)
-
-
-# Graph (to put r gamYellow)
-gear_code <- levels(droplevels (yellow_data_std_gear$ser_sam_gear))
-
-yellow_gam_plot_recent=generate_dataset_plot_gam_type(g4)
-ggplot(yellow_gam_plot_recent,aes(x=year,y=pred))+
-	geom_line()+
-	geom_ribbon(aes(ymin=lower,ymax=upper),alpha=.3)+
-	facet_wrap(.~gear_code,scales="free_y")+
-	scale_colour_manual(values=cols)+
-	scale_fill_manual(values=cols)+
-	theme_bw()+ ylab("relative abundance (log scale)")
-
-table(yellow_data_std_hty$ser_cou_code,yellow_data_std_hty$ser_sam_gear)
+gam_gear = GAM_series(yellow_data_std_gear, variable = "ser_sam_gear")
+plot_GAM_series(mymodel = gam_gear, variable = "ser_sam_gear", modelised_data = yellow_data_std_gear)
 
 ######
 ### Distance to the sea
 #####
 
-yellow_data_std_dis<-yellow_data_std%>%filter(!is.na(ser_distanceseakm))
+yellow_data_std_dis <- yellow_data_std%>%filter(!is.na(ser_distanceseakm))
 
-#select only the data where we have hty code
-
-g0 <- gam(das_value~s(das_year)+s(ser_distanceseakm), data=yellow_data_std)
-plot(g0)
-
-ggplot(yellow_data_std_dis,aes(x=ser_distanceseakm,y=das_value))+
-	geom_smooth(method="gam")+theme_bw()+xlab("distance to the sea (km)")+
-	ylab("Standardised abundance index (log scale)")+
-	guides(col=FALSE)
+gam_dist_sea = GAM_series(yellow_data_std_dis, variable = "ser_distanceseakm")
 
 ```
 
@@ -618,7 +355,6 @@ if (params$rerunDFA){
 One trends was estimated after selection by AICc criteria (Table \@ref(tab:comparisonYE) and Figure \@ref(fig:trendsyellow)).
 
 ```{r comparisonYE,echo=FALSE,tab.cap='Model comparisons for yellow eel DFA'}
-source("DFA_functions.R")
 load("./dfa.rdata")
 table_summary_models(summary_models(DFA_yellow)) # Model comparison
 ```
@@ -821,33 +557,10 @@ provide data through the current or past Data Call l (Figure
 **XXX** for a more comprehensive description of dataseries available.
 
 ```{r mapsilver,echo=FALSE,message=FALSE,warning=FALSE,fig.cap="Map of available silver time series. Updated time series correspond to time series for which at least one value was provided for years the three last years",fig.height=14/2.54}
- worldmap <- ne_countries(scale = 'medium', type = 'map_units',
-                          returnclass = 'sf')
- europe_cropped <- st_crop(worldmap, xmin = -13, xmax = 27,
-                                     ymin = 35, ymax = 65)
 
-my_map = get_background_map(transparent = FALSE, mapType = c("terrain-background"), mapbox = c(left = -13, bottom = 35, right = 27, top = 65))
+map_series(silver_map)
 
-draw_key_text=
-	function (data, params, size) 
-{
-	if (is.null(data$label)) 
-		data$label <- "series"
-	grid::textGrob(data$label, 0.5, 0.5, rot = data$angle %||% 0, gp = gpar(cex = 2, col = alpha(data$colour %||% 
-					data$fill %||% "black", data$alpha), fontfamily = data$family %||% 
-				"", fontface = data$fontface %||% 1, fontsize = (data$size %||% 
-					3.88) * .pt))
-}
-
-ggmap(my_map) + 
-	geom_point(data=silver_map,
-		aes(x=ser_x,y=ser_y, col  =Updated),cex=2,pch=20)+
-	geom_label_repel(data=silver_map,
-		aes(x=ser_x,y=ser_y,label=ser_nameshort,col=Updated), cex=1.5, key_glyph=draw_key_text, max.overlaps = Inf, label.padding = 0.1, show.legend = FALSE) +
-	scale_color_manual("Updated?", values = colorpalette, guide = "none")+
-	guides(color = guide_legend(override.aes = list(size = 5) ) ) +
-	ylab("")+xlab("") + theme(legend.key = element_rect(fill = "white"))
-ggsave("images/silver.png", height=14/2.54)
+#ggsave("images/silver.png", height=14/2.54)
 #knitr::include_graphics("images/silver.png")
 ```
 
@@ -872,7 +585,7 @@ nbpointsgam = silver_dataall %>%
   summarise(nbyear=n_distinct(das_year))%>%
   filter(nbyear>=10)
 silver_data_gam <-silver_dataall %>%
-  filter(ser_id %in% nbpointsgam$ser_id & das_year>=1975 & das_year <= (CY-1))
+  filter(ser_id %in% nbpointsgam$ser_id & das_year>=1975 & das_year <= (current_year-1))
 
 #we also removed ser_id for which 0 represents more than 10% of data
 silver_data_gam <- silver_data_gam %>%
@@ -889,7 +602,7 @@ nbpoints = silver_dataall %>%
   summarise(nbyear=n_distinct(das_year))%>%
   filter(nbyear>=10)
 silver_data <-silver_dataall %>%
-  filter(ser_id %in% nbpoints$ser_id & das_year>=2000 & das_year<=(CY-1))
+  filter(ser_id %in% nbpoints$ser_id & das_year>=2000 & das_year<=(current_year-1))
 
 
 
@@ -902,11 +615,11 @@ silver_data <- silver_data %>%
 
 ```
 Similarly to yellow eels, few pre-2000 data series are available in the database (Figure \@ref(fig:pointperyearSE)).
-Many data values for `r CY` were still missing when carrying out the analysis (only
-`r point_per_year_SE %>% filter(das_year == CY) %>% pull()` series have data for `r CY`). 
+Many data values for `r current_year` were still missing when carrying out the analysis (only
+`r point_per_year_SE %>% filter(das_year == current_year) %>% pull()` series have data for `r current_year`). 
 
 In
-view of this, we restricted the analysis to the period 2000 to `r CY - 1`, with time series having at least 10 observations
+view of this, we restricted the analysis to the period 2000 to `r current_year - 1`, with time series having at least 10 observations
 over the period. 
 
 This leaves `r length(unique(silver_data$ser_id))` time series. If we plot all
@@ -965,7 +678,7 @@ corresponding section for further details.
 
 ### Common trends
 
-```{r dfa silver, results='hide',eval=TRUE,echo=FALSE}
+```{r dfa-silver, results='hide',eval=TRUE,echo=FALSE}
 if (params$rerunDFA){
 
   # put data in wide format
@@ -1072,7 +785,7 @@ Venn_diagram(DFA_results$Z,sign_trends=-1)
 ```
 
 
-```{r spatialpatternAllSE,echo=FALSE,fig.cap="Spatial maps of silver DFA loadings (+ stands for a positive correlaction to trend 1)", warning=FALSE, message=FALSE, fig.heigth=16/2.54}
+```{r spatialpatternAllSE, echo = FALSE,fig.cap="Spatial maps of silver DFA loadings (+ stands for a positive correlaction to trend 1)", warning=FALSE, message=FALSE, fig.heigth=16/2.54}
 Z=DFA_results$Z # factor loadings
 minZ=0.2 # minum value accepted for factor loading
 
