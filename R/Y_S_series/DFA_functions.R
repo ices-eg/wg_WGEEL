@@ -352,8 +352,7 @@ series_trends_graph = function(model, colored_strip = TRUE)
 		#https://github.com/tidyverse/ggplot2/issues/2096
 		g <- ggplot_gtable(ggplot_build(graph))
 		strip <- which(grepl('strip-t', g$layout$name))
-		fills <- c("red","green","blue","yellow")
-		k <- 1
+
 		for (i in strip) {
 			j <- which(grepl('text', g$grobs[[i]]$grobs[[1]]$childrenOrder))
 			j2 <- which(grepl('rect', g$grobs[[i]]$grobs[[1]]$childrenOrder))
