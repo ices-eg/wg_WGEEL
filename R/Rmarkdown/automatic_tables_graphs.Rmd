@@ -1402,7 +1402,7 @@ print(g_releasekg_all)
 ##Table other_landings (nb) for all the countries for G # 9 is q_other_landings_n
 
 filtered_data<-filter_data("other_landings",
-		typ = 32,
+		typ = 33,
 		life_stage = c("G"),
 		year=1950:CY)%>% dplyr::filter(is.na(eel_missvaluequal))
 year<-unique(filtered_data$eel_year)
@@ -1465,7 +1465,7 @@ print(g_other_landings_G)
 ##Table other_landings (nb) for all the countries for G # 9 is q_other_landings_kg
 
 filtered_data<-filter_data("other_landings",
-		typ = 33,
+		typ = 32,
 		life_stage = c("G"),
 		year=1950:CY)%>% dplyr::filter(is.na(eel_missvaluequal))
 year<-unique(filtered_data$eel_year)
@@ -1474,7 +1474,7 @@ hty<-unique(filtered_data$eel_hty_code)
 grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=TRUE)
 ##Graph
 other_landings3<-grouped_data
-other_landings3$eel_value <- as.numeric(other_landings3$eel_value)/1000 
+other_landings3$eel_value <- as.numeric(other_landings3$eel_value)/1000
 other_landings3$eel_cou_code<-factor(other_landings3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
 other_landings3$eel_cou_code <- droplevels(other_landings3$eel_cou_code) 
 color_countries2 <-	color_countries[names(color_countries)%in%levels(other_landings3$eel_cou_code)]
@@ -1483,7 +1483,7 @@ title <- paste("other_landings per country,", "stage = G", "and habitat =", past
 g_other_landingskg_G <-  ggplot(other_landings3) + 
 		geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
 		#ggtitle(title) + 
-		xlab("year") + ylab("other_landings in tonnes")+
+		xlab("year") + ylab("other_landings in T")+
 		scale_fill_manual("Country",values=color_countries2)+
 		theme_bw() 
 
@@ -1874,6 +1874,8 @@ ggsave(paste0(imgwd,"Aquaculture.png"), g_aquaculture, device = "png", width = 3
 
 ggsave(paste0(imgwd,"Releases_G.png"), g_release_G, device = "png", width = 30, height = 20,  
 		units = "cm")
+ggsave(paste0(imgwd,"Releaseskg_G.png"), g_releasekg_G, device = "png", width = 30, height = 20,  
+		units = "cm")
 ggsave(paste0(imgwd,"Releases_Y.png"), g_release_Y, device = "png", width = 30, height = 20,  
 		units = "cm")
 ggsave(paste0(imgwd,"Releases_kgY.png"), g_releasekg_Y, device = "png", width = 30, height = 20,  
@@ -1890,16 +1892,16 @@ ggsave(paste0(imgwd,"Raw_Corr_com_landings_YS.png"), g_combined_landings_YS, dev
 		units = "cm")
 ggsave(paste0(imgwd,"Raw_Corr_com_landings_G.png"), g_combined_landings_G, device = "png", width = 30, height = 20, 
 		units = "cm")
-ggsave(paste0(imgwd,"g_other_landingskg_S.png"), g_other_landingskg_S, device = "png", width = 30, height = 20, 
+ggsave(paste0(imgwd,"other_landingskg_S.png"), g_other_landingskg_S, device = "png", width = 30, height = 20, 
 		units = "cm")
-ggsave(paste0(imgwd,"g_other_landings_S.png"), g_other_landings_S, device = "png", width = 30, height = 20, 
+ggsave(paste0(imgwd,"other_landings_S.png"), g_other_landings_S, device = "png", width = 30, height = 20, 
 		units = "cm")
-ggsave(paste0(imgwd,"g_other_landingskg_Y.png"), g_other_landingskg_Y, device = "png", width = 30, height = 20, 
+ggsave(paste0(imgwd,"other_landingskg_Y.png"), g_other_landingskg_Y, device = "png", width = 30, height = 20, 
 		units = "cm")
-ggsave(paste0(imgwd,"g_other_landingsY.png"), g_other_landingsY, device = "png", width = 30, height = 20, 
+ggsave(paste0(imgwd,"other_landingsY.png"), g_other_landingsY, device = "png", width = 30, height = 20, 
 		units = "cm")
-ggsave(paste0(imgwd,"g_other_landingskg_G.png"), g_other_landingskg_G, device = "png", width = 30, height = 20, 
+ggsave(paste0(imgwd,"other_landingskg_G.png"), g_other_landingskg_G, device = "png", width = 30, height = 20, 
 		units = "cm")
-ggsave(paste0(imgwd,"g_other_landingsG.png"), g_other_landingsG, device = "png", width = 30, height = 20, 
+ggsave(paste0(imgwd,"other_landingsG.png"), g_other_landings_G, device = "png", width = 30, height = 20, 
 		units = "cm")
 ```
