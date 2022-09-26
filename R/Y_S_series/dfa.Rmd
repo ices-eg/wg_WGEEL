@@ -105,7 +105,10 @@ nb_yellow = dbGetQuery(con_wgeel, "	SELECT count(*) FROM datawg.t_series_ser	WHE
 nb_silver = dbGetQuery(con_wgeel, "	SELECT count(*) FROM datawg.t_series_ser	WHERE  ser_typ_id in (3)") %>% pull()
 
 #sampling=read.table("sampling.csv",header=TRUE,sep=";")
-sampling = dbGetQuery(con_wgeel, "SELECT ser_id,	ser_nameshort,	ser_comment,	sam_samplingtype,	ser_uni_code,	gea_name_en AS type FROM datawg.t_series_ser LEFT OUTER JOIN ref.tr_gear_gea ON (gea_id = ser_sam_gear)  LEFT OUTER JOIN ref.tr_samplingtype_sam ON (sam_id = ser_sam_id) WHERE ser_typ_id IN (2,3)")
+sampling = dbGetQuery(con_wgeel, "SELECT ser_id,	ser_nameshort, ser_cou_code,	ser_comment,	sam_samplingtype,	ser_uni_code,	gea_name_en AS type FROM datawg.t_series_ser LEFT OUTER JOIN ref.tr_gear_gea ON (gea_id = ser_sam_gear)  LEFT OUTER JOIN ref.tr_samplingtype_sam ON (sam_id = ser_sam_id) WHERE ser_typ_id IN (2,3)")
+
+sampling = sampling %>% mutate(color_country = color_countries[ser_cou_code]) %>% inner_join(country_ref, by = c("ser_cou_code" = "cou_code")) %>% group_by(ser_cou_code) %>% mutate(rank = cou_order * 1000 + dense_rank(ser_nameshort)) 
+
 mydata = merge(mydata,sampling[,c("ser_id","type")])
 
 silver_dataall <- mydata %>%
@@ -455,28 +458,9 @@ The fits of the DFA model to the different time series are presented in Figure \
 
 
 ```{r fitsyellow, echo=FALSE,warning=FALSE, fig.cap="Yellow DFA fits to time series", fig.width=16/2.54, fig.height=25/2.54}
-d <- residuals(DFA,interval="confidence") #augment is replace since MARSS 3.11, see https://github.com/nwfsc-timeseries/MARSS/releases
-d$.conf.low <- d$.fitted+qnorm(0.05/2)*d$.sigma
-d$.conf.up <- d$.fitted-qnorm(0.05/2)*d$.sigma
 
-	data_dfa_yellow = yellow_data %>% as_tibble() %>%
-	  select(ser_nameshort,das_value,das_year) %>%
-	  arrange(das_year)%>%
-	  pivot_wider(names_from= ser_nameshort, values_from=das_value)
-	
-TT <- nrow(data_dfa_yellow) - 1
-# some tests
-#cor.test(d$value, d$.fitted)
-#ggplot(data = d) + geom_point(aes(x=value, y =.fitted, color = .rownames)) + geom_abline(intercept = 0, slope = 1)
+series_trends_graph(DFA)
 
-ggplot(data = d) +
-  geom_line(aes(t, .fitted)) +
-  geom_point(aes(t, value)) +
-  geom_ribbon(aes(x=t, ymin=.conf.low, ymax=.conf.up), linetype=2, alpha=0.2) +
-  facet_wrap(vars(.rownames)) +
-  xlab("") + ylab("standarized abundance index")+ 
-  theme_bw()
- 
 ```
 
 

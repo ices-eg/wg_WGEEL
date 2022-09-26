@@ -319,20 +319,48 @@ sign_trend_venn = function(venn_list, trend = 1)
 #' @title graph of raw series and trends
 #' @param model DFA model
 #' @return a ggplot
-series_trends_graph = function(model, year)
+series_trends_graph = function(model, colored_strip = TRUE)
 {
+	year = as.integer(colnames(model$model$data))
 	TT = length(year)
 	d <- residuals(model,interval="confidence")
 	d$.conf.low <- d$.fitted + qnorm(0.05/2)*d$.sigma
 	d$.conf.up <- d$.fitted - qnorm(0.05/2)*d$.sigma
 	
+	nameshort_ranked = sampling %>% arrange(rank) %>% select(ser_nameshort) %>% pull
+	
+	d = d  %>% inner_join(sampling, by = c(".rownames" = "ser_nameshort"))%>% mutate(.rownames = factor(.rownames, levels = nameshort_ranked))
+	
+	country_to_display = d %>% select(ser_cou_code, color_country, cou_order) %>% unique %>% arrange(cou_order)
+	
 	graph = ggplot(data = d) +
 		geom_line(aes(t, .fitted)) +
-		geom_point(aes(t, value), color = "blue") +
+		geom_point(aes(t, value, color = ser_cou_code)) +
 		geom_ribbon(aes(x=t, ymin=.conf.low, ymax=.conf.up), linetype=2, alpha=0.2) +
 		facet_wrap(vars(.rownames)) +
 		xlab("Year") + ylab("Standardised abundance index")+
-		scale_x_continuous(breaks=seq(1,TT,10),labels=year[seq(1,TT,10)])
+		scale_x_continuous(breaks=seq(1,TT,10),labels=year[seq(1,TT,10)]) +
+		theme_classic() +
+		scale_colour_manual("",
+			breaks = country_to_display$ser_cou_code,
+			values = country_to_display$color_country
+		) 
+	
+	if(colored_strip)
+	{
+		#https://github.com/tidyverse/ggplot2/issues/2096
+		g <- ggplot_gtable(ggplot_build(graph))
+		strip <- which(grepl('strip-t', g$layout$name))
+		fills <- c("red","green","blue","yellow")
+		k <- 1
+		for (i in strip) {
+			j <- which(grepl('text', g$grobs[[i]]$grobs[[1]]$childrenOrder))
+			j2 <- which(grepl('rect', g$grobs[[i]]$grobs[[1]]$childrenOrder))
+			series_j = g$grobs[[i]]$grobs[[1]]$children[[j]]$children[1][[1]]$label 
+			g$grobs[[i]]$grobs[[1]]$children[[j2]]$gp$fill = sampling %>% filter(ser_nameshort == series_j) %>% select(color_country) %>% pull()
+		}
+		graph = grid.draw(g)
+	}
 	
 	return(graph)
 }
