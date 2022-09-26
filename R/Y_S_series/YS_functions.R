@@ -96,7 +96,7 @@ GAM_series = function(mydata, variable = "country")
 #' @param  mymodel GAM model as a result of 'GAM_series' function
 #' @param variable character. The name of the variable to be used
 #' @return a ggplot
-plot_GAM_series = function(mymodel, variable = "country", modelised_data)
+plot_GAM_series = function(mymodel, variable = "country", modelised_data, free_y = FALSE)
 {
 	
 	# compute mean of the standardized values to be included in figure
@@ -119,9 +119,15 @@ plot_GAM_series = function(mymodel, variable = "country", modelised_data)
 		geom_line() +
 		geom_ribbon(aes(ymin = lower, ymax = upper,  fill = !!as.symbol(variable)), alpha=.8) +
 		geom_point(aes(x = year, y= mean_value), data = data_std_mean) +
-		facet_wrap(variable) +
 		scale_fill_manual(values=cols, guide = "none") +
 		theme_classic() + ylab("Relative abundance") + xlab("Year")
+	
+	if(free_y)
+	{
+		myplot = myplot + facet_wrap(variable, scales="free_y")
+	} else {
+		myplot = myplot + facet_wrap(variable)
+	}
 	
 	return(myplot)
 }

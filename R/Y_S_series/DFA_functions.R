@@ -173,7 +173,7 @@ graph_Z = function(Z.conf, graph_2_trends = FALSE, sign_trends = NULL, minZ = 0.
 		graph = ggplot(Z.conf, aes(y = ser_nameshort, x = Z, xmin= Z.low, xmax = Z.up, color = trend)) + geom_pointrange(position = position_dodge(width = 0.5)) + geom_vline(xintercept = 0, color = "black") + ylab("Serie") + xlab("Factor loading (Z)") + scale_colour_discrete(name = "Trend")
 	}
 
-	return(graph)
+	return(graph + theme_classic())
 }
 
 #' @title graph for trends
@@ -344,7 +344,8 @@ series_trends_graph = function(model, colored_strip = TRUE)
 		scale_colour_manual("",
 			breaks = country_to_display$ser_cou_code,
 			values = country_to_display$color_country
-		) 
+		)  + 
+		theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 	
 	if(colored_strip)
 	{

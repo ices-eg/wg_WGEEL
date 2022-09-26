@@ -372,7 +372,7 @@ graph_trends(DFA_results$trends, year = sort(unique(yellow_data$das_year)), sign
 
 ```{r tab-loadingsYE,echo=FALSE,tab.cap="Factor loadings of the yellow eel DFA (red names stand for loadings absolute values greater than 0.2)"}
 
-graph_Z(DFA_results$Z.conf, sign_trends=-1)
+graph_Z(DFA_results$Z.conf, sign_trends=-1) 
 
 ```
 
@@ -416,7 +416,7 @@ yellow_group_Venn = Venn_yellow$venn %>%
 	inner_join(yellow_map) %>%
 	rename(`Venn's group` = Venn_group)
 				   
-	map_series(yellow_group_Venn, variable = "Venn's group", mapType = c("terrain-background"), transparent = TRUE, labels = FALSE, pch_cex = 3)
+map_series(yellow_group_Venn, variable = "Venn's group", mapType = c("terrain-background"), transparent = FALSE, labels = FALSE, pch_cex = 3)
 	
 ```
 
@@ -430,6 +430,7 @@ trend1_yellow = Venn_yellow$venn %>%
 
 t1 = map_series(trend1_yellow, variable = "Trend1", palette_brewer = "Paired", labels = F, pch_cex = 3)
 
+t1
 
 #trend2_yellow = Venn_yellow$venn %>% 
 #	sign_trend_venn(trend = 2) %>%
@@ -479,25 +480,12 @@ yellow_data_std_gam=yellow_data_gam%>%
                                           das_value,
                                           NA),na.rm=TRUE))/sd(ifelse(das_year>=2000,
                                           das_value,
-                                          NA),na.rm=TRUE))
+                                          NA),na.rm=TRUE)) %>% 
+						  mutate(id = ser_id, year = das_year, value = das_value, country = factor(ser_cou_code, levels = country_ref$cou_code, ordered=TRUE))
 
+g1 = GAM_series(yellow_data_std_gam)
 
-#g0 <- gam(das_value~s(das_year), data=yellow_data_std_gam)
-g1 <- gam(das_value~s(das_year, by=ser_cou_code), data=yellow_data_std_gam, family = gaussian())
-#g2 <- gam(das_value~s(das_year, by=ser_nameshort), data=yellow_data_std_gam)
-#AIC(g0, g1, g2)
-cou_code <- levels(droplevels (yellow_data_std_gam$ser_cou_code))
-
-cols<-colorRampPalette(c("chartreuse", "grey",  "navy"),space = "rgb")(length(cou_code))
-
-yellow_gam_plot=generate_dataset_plot_gam(g1)
-ggplot(yellow_gam_plot,aes(x=year,y=pred))+
-  geom_line()+
-  geom_ribbon(aes(ymin=lower,ymax=upper),alpha=.3)+
-  facet_wrap(.~cou_code,scales="free_y")+
-  scale_colour_manual(values=cols)+
-  scale_fill_manual(values=cols)+
-  theme_bw()+ ylab("relative abundance")
+plot_GAM_series(mymodel = g1, variable = "country", yellow_data_std_gam, free_y = TRUE)
 
 ```
 
