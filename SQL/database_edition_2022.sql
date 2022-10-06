@@ -1323,3 +1323,15 @@ UPDATE datawg.t_metricindsamp_meisa SET mei_value = mei_value * 1000 WHERE mei_i
 -- correction for a typo in IE
  SELECT * FROM datawg.t_eelstock_eel WHERE eel_id = 434060
 UPDATE datawg.t_eelstock_eel SET eel_value= 2637480 WHERE eel_id = 434060;
+
+
+-- EG is no longer considered as accurae (see Azza's mail)
+
+ SELECT * FROM datawg.t_eelstock_eel WHERE eel_cou_code='EG' AND eel_qal_id=3
+ 
+ UPDATE datawg.t_eelstock_eel SET (eel_qal_id, eel_qal_comment) = (22,eel_qal_comment||'removed FROM the db IN 2022') WHERE eel_qal_id=3 AND eel_cou_code='EG';
+ 
+  SELECT * FROM datawg.t_eelstock_eel WHERE eel_cou_code='EG' AND eel_qal_id=1;
+  
+ UPDATE datawg.t_eelstock_eel SET (eel_qal_id, eel_qal_comment) = (3,'Azza indicates that there might be some confusion between lagoon production in aquaculture ponds and landings, avaiting next year assessment') WHERE eel_qal_id=1 AND eel_cou_code='EG';
+ --46
