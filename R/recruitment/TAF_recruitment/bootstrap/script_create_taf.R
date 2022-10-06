@@ -25,12 +25,12 @@ draft.data(data.scripts = "wger_init", # this needs to be in the bootstrap folde
 		append = FALSE
 )
 draft.data(data.scripts = "wger_init", # this needs to be in the bootstrap folder
-		data.files = NULL,
+		data.files = "statseries.Rdata",
 		originator = "ICES wgeel",
 		period=str_c( min(wger_init$year),"-", max(wger_init$year)),
-		title = "Annual recruitment",
+		title = "Statistics about recruitment series",
 		file = TRUE,
-		append = FALSE
+		append = TRUE
 )
 # Process metadata files ‘SOFTWARE.bib’ and ‘DATA.bib’ to set up software and data files required for the analysis. 
 taf.bootstrap()
