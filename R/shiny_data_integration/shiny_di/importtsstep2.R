@@ -46,7 +46,7 @@ importtsstep2UI <- function(id){
 							verbatimTextOutput(ns("textoutput_step2.1.2_ts"))
 					)
 			),
-			h2("step 2.2.1 Delete from dataseries"),
+			h2("step 2.2.1 Delete from data"),
 			fluidRow(
 					column(
 							width=4,
@@ -63,7 +63,7 @@ importtsstep2UI <- function(id){
 							verbatimTextOutput(ns("textoutput_step2.2.1_ts"))
 					)
 			),
-			h2("step 2.2.2 Integrate new dataseries"),
+			h2("step 2.2.2 Integrate new data"),
 			fluidRow(
 					column(
 							width=4,
@@ -80,7 +80,7 @@ importtsstep2UI <- function(id){
 							verbatimTextOutput(ns("textoutput_step2.2.2_ts"))
 					)
 			),
-			h2("step 2.2.3 Update modified dataseries"),
+			h2("step 2.2.3 Update modified data"),
 			fluidRow(
 					column(
 							width=4,
