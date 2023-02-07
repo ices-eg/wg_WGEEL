@@ -52,5 +52,23 @@ UPDATE
 
 --we add a column to store identifiers from national database so that data providers
 --can easily find their fishes
-alter table datawg.t_fishsamp_fisa add column fi_id_cou varchar(50);
+alter table datawg.t_fishsamp_fisa add column fi_idcou varchar(50);
+
+
+--avoid recursive triggers fires
+drop trigger update_coordinates on datawg.t_series_ser ;
+create trigger update_coordinates after
+update
+    of geom on
+    datawg.t_series_ser for each row WHEN (pg_trigger_depth() < 1) execute function datawg.update_coordinates()
+
+drop trigger update_geom on datawg.t_series_ser;
+create trigger update_geom after
+insert
+    or
+update
+    of ser_x,
+    ser_y on
+    datawg.t_series_ser for each row WHEN (pg_trigger_depth() < 1) execute function datawg.update_geom()
+
     
