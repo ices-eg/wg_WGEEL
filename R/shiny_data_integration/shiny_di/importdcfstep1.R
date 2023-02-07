@@ -15,7 +15,9 @@ importdcfstep1UI <- function(id){
 			fluidRow(
 			  fluidRow(                                       
 			    column(width=2,                        
-			           actionButton(ns("check_duplicate_button_dcf"), "Check duplicate"))),
+			           actionButton(ns("check_duplicate_button_dcf"), "Check duplicate")),
+         column(width=2,                        
+             actionButton(ns("clean_output_button_dcf"), "Clean Output"))),
 			box(
 			fluidRow(                                       
 					column(width=5,
@@ -145,7 +147,80 @@ importdcfstep1Server <- function(id,globaldata,loaded_data_dcf){
 										showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
 									})})
 				
-				
+                  observeEvent(input$clean_output_button_dcf,
+                      shinyCatch({
+                            
+                            ##################################################
+                            # clean up
+                            #################################################						
+                            
+                            
+                            output$step1_message_new_sampling <- renderText("")
+                            output$dt_new_sampling <- renderDataTable(data.frame(),
+                                options = list(searching = FALSE,paging = FALSE,
+                                    language = list(zeroRecords = "Not run yet")))  
+                            
+                            output$step1_message_new_group_metrics <- renderText("")
+                            output$dt_new_group_metrics <- renderDataTable(data.frame(),
+                                options = list(searching = FALSE,paging = FALSE,
+                                    language = list(zeroRecords = "Not run yet")))  
+                            
+                            output$step1_message_new_individual_metrics <- renderText("")
+                            output$dt_new_individual_metrics <- renderDataTable(data.frame(),
+                                options = list(searching = FALSE,paging = FALSE,
+                                    language = list(zeroRecords = "Not run yet")))																																		
+                            
+                            output$step1_message_modified_sampling  <- renderText("")
+                            output$dt_modified_sampling <- renderDataTable(
+                                data.frame(),
+                                options = list(searching = FALSE,paging = FALSE,
+                                    language = list(zeroRecords = "Not run yet")))  
+                            
+                            output$dt_highlight_change_sampling <- renderDataTable(
+                                data.frame(),
+                                options = list(searching = FALSE,paging = FALSE,
+                                    language = list(zeroRecords = "Not run yet")))   
+                            
+                            
+                            output$step1_message_modified_group_metrics  <- renderText("") 
+                            output$dt_modified_group_metrics <- renderDataTable(
+                                data.frame(),
+                                options = list(searching = FALSE,paging = FALSE,
+                                    language = list(zeroRecords = "Not run yet")))   
+                            
+                            output$dt_highlight_change_group_metrics <- renderDataTable(
+                                data.frame(),
+                                options = list(searching = FALSE,paging = FALSE,
+                                    language = list(zeroRecords = "Not run yet")))   
+                            
+                            
+                            output$step1_message_modified_individual_metrics  <- renderText("") 
+                            output$dt_modified_individual_metrics <- renderDataTable(
+                                data.frame(),
+                                options = list(searching = FALSE,paging = FALSE,
+                                    language = list(zeroRecords = "Not run yet"))) 
+                            
+                            output$dt_highlight_change_individual_metrics <- renderDataTable(
+                                data.frame(),
+                                options = list(searching = FALSE,paging = FALSE,
+                                    language = list(zeroRecords = "Not run yet")))   
+                            
+                            
+                            output$step1_message_deleted_group_metrics  <- renderText("")
+                            output$dt_deleted_group_metrics <- renderDataTable(
+                                data.frame(),
+                                options = list(searching = FALSE,paging = FALSE,
+                                    language = list(zeroRecords = "Not run yet"))) 
+                            
+                            output$step1_message_deleted_individual_metrics  <- renderText("")
+                            output$dt_deleted_individual_metrics <- renderDataTable(
+                                data.frame(),
+                                options = list(searching = FALSE,paging = FALSE,
+                                    language = list(zeroRecords = "Not run yet"))) 
+                            
+                          })
+                  )
+                  
 				
 				##################################################
 				# Events triggered by step1_button TIME sampling
