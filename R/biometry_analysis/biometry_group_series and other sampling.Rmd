@@ -474,7 +474,7 @@ plot_map_bio_emu("sexratio","S",sex=NULL)
 # Distribution of slopes of length-weight regression
 Linear regression between logtransformed length and weights were carried out to compare allometric relationships among time series. The slope informs on the allometric growth: higher slope means that the fish becomes heavier and suggests good growth condition. The following maps display the results for all stages. No significant spatial pattern were detected. 
 
-```{r lengthweight regression,echo=FALSE}
+```{r lengthweight_regression,echo=FALSE}
 ## Silver and GY per series and habitat and source
 ##Table
 table_regression_output = function(stage,sources){
@@ -620,19 +620,19 @@ ggplot(data=reg, aes(x = log(lengthmm), y = log(weightg), col = interaction(coun
 
 ## Glass/yellow mixed eel series
 
-```{r glassyellowlengthweight regression table,echo=TRUE}
+```{r glassyellowlengthweight_regression_table,echo=TRUE}
 reg_ser=table_regression_output ("GY", "series")
 autofit(flextable(reg_ser))
 ```
 
-```{r glassyellowlengthweight plots,echo=TRUE}
+```{r glassyellowlengthweight_plots,echo=TRUE}
 plot_slope ("GY", "series")
 plot_regression ("GY", "series")
 
 ```
 ## Yellow Eelgerat
 
-```{r yellowlengthweight regression table,echo=TRUE}
+```{r yellowlengthweight_regression_table,echo=TRUE}
 reg_ser_y=table_regression_output_yellow ("series")
 autofit(flextable(reg_ser_y))
 
@@ -641,7 +641,7 @@ autofit(flextable(reg_sam_y))
 ```
 
 
-```{r yellowlengthweight plots,echo=TRUE}
+```{r yellowlengthweight_plots,echo=TRUE}
 plot_slope_yellow ("series")
 plot_slope_yellow ("sampling")
 
@@ -652,7 +652,7 @@ plot_regression_yellow ("sampling")
 
 ## Silver eel
 
-```{r silverengthweight regression table,echo=TRUE}
+```{r silverengthweight_regression_table,echo=TRUE}
 reg_ser=table_regression_output ("S", "series")
 autofit(flextable(reg_ser))
 
@@ -660,7 +660,7 @@ reg_sam=table_regression_output ("S", "sampling")
 autofit(flextable(reg_sam))
 ```
 
-```{r silverlengthweight plots,echo=TRUE}
+```{r silverlengthweight_plots,echo=TRUE}
 plot_slope ("S", "series")
 plot_slope ("S", "sampling")
 
