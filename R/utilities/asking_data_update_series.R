@@ -195,7 +195,7 @@ create_datacall_file_series <- function(country, name, ser_typ_id, type="series"
       #openxlsx::writeData(wb, sheet = "existing_data", dat, startRow = 1)
       formatted <- read_excel(templatefile,"existing_data")
       dat <- applyTemplateFormat(formatted, dat)
-      writeWorksheet(wb , dat ,  sheet = "existing_data") # NOTE 17/07 Cédric removed this for next year %>% filter(!is.na(das_qal_id))
+      writeWorksheet(wb , dat ,  sheet = "existing_data") # NOTE 17/07 C?dric removed this for next year %>% filter(!is.na(das_qal_id))
     }
     
     #put data where das_qal_id is missing into updated_data
@@ -217,7 +217,7 @@ create_datacall_file_series <- function(country, name, ser_typ_id, type="series"
           dat %>% dplyr::filter(das_year>=(CY-10))  %>%
             dplyr::select(ser_nameshort,das_year,das_value, das_comment, das_effort,das_qal_id) %>%
             tidyr::complete(ser_nameshort,das_year=(CY-10):CY) %>%
-            dplyr::filter(is.na(das_value) & is.na(das_comment)), 
+            dplyr::filter(is.na(das_value) & is.na(das_comment) & das_qal_id != 0), 
           dat %>% dplyr::filter(das_year>=(CY-10)& das_qal_id >4)  %>%
             dplyr::select(ser_nameshort,das_year,das_value, das_comment, das_effort,das_qal_id) 
         )%>%
