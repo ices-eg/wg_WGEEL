@@ -1,3 +1,9 @@
+-------------------------------------------------------------
+-- ALREADY RUN
+-------------------------------------------------------------
+
+
+
 ALTER FUNCTION checkemu_whole_country SET SCHEMA datawg;
 ALTER TABLE datawg.t_eelstock_eel DROP CONSTRAINT ck_emu_whole_aquaculture;
 
@@ -38,3 +44,13 @@ INSERT
 UPDATE
     ON
     datawg.t_eelstock_eel FOR EACH ROW EXECUTE FUNCTION checkemu_whole_country();
+
+    
+-------------------------------------------------------------
+-- TO BE RUN BEFORE GENERATING THE TEMPLATES
+-------------------------------------------------------------
+
+--we add a column to store identifiers from national database so that data providers
+--can easily find their fishes
+alter table datawg.t_fishsamp_fisa add column fi_id_cou varchar(50);
+    
