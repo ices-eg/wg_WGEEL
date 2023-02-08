@@ -7,7 +7,7 @@
 if(Sys.info()["user"]=="hilaire.drouineau"){
   setwd("~/Documents/Bordeaux/migrateurs/WGEEL/github/wg_WGEEL/")
 } else{
-  setwd("C:/workspace\\gitwgeel\\")
+  setwd("C:/workspace\\wg_WGEEL\\")
 }
 CY<-2022
 # function to load packages if not available
@@ -17,6 +17,7 @@ load_library=function(necessary) {
 	for(i in 1:length(necessary))
 		library(necessary[i], character.only = TRUE)
 }
+
 ###########################
 # Loading necessary packages
 ############################
@@ -24,9 +25,15 @@ load_library("sqldf")
 load_library("RPostgreSQL")
 load_library("stacomirtools")
 load_library("stringr")
-load_library("XLConnect")
-#load_library("openxlsx")
+#load_library("XLConnect")
+load_library("openxlsx")
 load_library("dplyr")
+library("getPass")
+library("yaml")
+library("DBI")
+cred=read_yaml("credentials_write.yml")
+
+
 #############################
 # here is where the script is working change it accordingly
 ##################################
@@ -51,16 +58,21 @@ source("R/utilities/detect_missing_data.R")
 # this set up the connextion to the postgres database
 # change parameters accordingly
 ###################################"
-options(sqldf.RPostgreSQL.user = userwgeel, 
-		sqldf.RPostgreSQL.password = passwordwgeel,
-		sqldf.RPostgreSQL.dbname = "wgeel",
-		sqldf.RPostgreSQL.host = "localhost",
-		sqldf.RPostgreSQL.port = port)
-
+#options(sqldf.RPostgreSQL.user = cred$user, 
+#		sqldf.RPostgreSQL.password = getPass(),
+#		sqldf.RPostgreSQL.dbname = cred$dbname,
+#		sqldf.RPostgreSQL.host = cred$host,
+#		sqldf.RPostgreSQL.port = cred$port)
+con = dbConnect(RPostgres::Postgres(), 
+    dbname=cred$dbname,
+    host=cred$host,
+    port=cred$port,
+    user=cred$user, 
+    password=getPass())
 #############################
 # Table storing information from the database
 ##################################
-t_eelstock_eel<-sqldf("SELECT 
+t_eelstock_eel<-dbGetQuery(con, "SELECT 
 				eel_id,
 				eel_typ_id,
 				eel_year,
@@ -87,6 +99,28 @@ t_eelstock_eel<-sqldf("SELECT
 save(t_eelstock_eel, file=str_c(wddata,"t_eelstock_eel.Rdata"))
 # load(str_c(wddata,"t_eelstock_eel.Rdata"))
 #tr_eel_typ<- sqldf("SELECT * from ref.tr_typeseries_typ")
+
+
+# files are copied to the saved folder before being changed, check there if you need a backup
+update_referential_sheet <- function(name="Eel_Data_Call_2022_Annex4_Landings_Commercial"){
+  nametemplatefile <- str_c(name,".xlsx")
+  templatefile <- file.path(wddata,"00template",nametemplatefile)
+  dir.create(str_c(wddata,"saved"),showWarnings = FALSE)
+  file.copy(templatefile, file.path(wddata,"saved",nametemplatefile))
+  sheetnames <- openxlsx::getSheetNames(templatefile)
+  ref_sheets <- sheetnames[grep("tr_", sheetnames)]
+  wb = openxlsx::loadWorkbook(templatefile)
+  fn_load_ref <- function(ref_table){    
+    tab <- DBI::dbGetQuery(con,  str_c("SELECT * FROM ref.",ref_table))
+    cat("loaded",ref_table,"\n")
+    if ("geom" %in% colnames(tab))   tab <- tab %>% select(-geom)
+    openxlsx::writeData(wb, sheet = ref_table, tab)
+  }
+  list_ref <- mapply(fn_load_ref,ref_sheets)
+  wb = openxlsx::saveWorkbook(wb, templatefile, overwrite = TRUE)
+}
+
+update_referential_sheet(name="Eel_Data_Call_2022_Annex4_Landings_Commercial")
 
 #' function to create the data sheet 
 #' 
@@ -118,7 +152,7 @@ create_datacall_file <- function(country, eel_typ_id, name, ...){
 	# limit dataset to country
 	r_coun <- t_eelstock_eel[t_eelstock_eel$eel_cou_code==country & t_eelstock_eel$eel_typ_id %in% eel_typ_id,]
 	r_coun <- r_coun[,c(1,18,3:17)]
-	wb = XLConnect::loadWorkbook(templatefile)
+	wb = openxlsx::loadWorkbook(templatefile)
 	
 	if (nrow(r_coun) >0) {
 		## separate sheets for discarded and kept data  
@@ -128,10 +162,9 @@ create_datacall_file <- function(country, eel_typ_id, name, ...){
 		data_disc <- r_coun[!r_coun$qal_kept,]
 		data_disc <- data_disc[,-ncol(r_coun)]
 		
-		
 		# pre-fill new data and missing for landings 
-		XLConnect::writeWorksheet(wb, data_disc,  sheet = "existing_discarded",header=FALSE, startRow=2)
-		XLConnect::writeWorksheet(wb, data_kept,  sheet = "existing_kept",header=FALSE,startRow=2)
+    openxlsx::writeData(wb, data_disc,  sheet = "existing_discarded",colNames=FALSE, startRow=2)
+    openxlsx::writeData(wb, data_kept,  sheet = "existing_kept",header=FALSE,startRow=2)
 	} else {
 		cat("No data for country", country, "\n")
 	}
@@ -171,7 +204,7 @@ create_datacall_file <- function(country, eel_typ_id, name, ...){
 # note passwordwgeel must be set and exist
 # passwordwgeel <- XXXXXXXX
 country <- "NO";eel_typ_id <- 4; name <- "Eel_Data_Call_2022_Annex4_Landings_Commercial";minyear=2000;
-maxyear=2020;host="localhost";dbname="wgeel";user="wgeel";port=5432;datasource="dc_2022";
+maxyear=2020;datasource="dc_2022";# host="localhost";dbname="wgeel";user="wgeel";port=5432;
 #test
 create_datacall_file ( 
 		country <- "FR",
