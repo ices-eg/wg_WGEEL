@@ -18,19 +18,22 @@ load_library=function(necessary) {
 		library(necessary[i], character.only = TRUE)
 }
 
+
 ###########################
 # Loading necessary packages
 ############################
-load_library("sqldf")
+#load_library("sqldf")
 load_library("RPostgreSQL")
 load_library("stacomirtools")
 load_library("stringr")
-#load_library("XLConnect")
-load_library("openxlsx")
+load_library("XLConnect")
+#Sys.setenv("JAVA_HOME"="C:\\Program Files\\Java\\jdk-18.0.1.1")
+#.jcall("java/lang/System", "S", "getProperty", "java.runtime.version")
+#load_library("openxlsx")
 load_library("dplyr")
-library("getPass")
-library("yaml")
-library("DBI")
+load_library("getPass")
+load_library("yaml")
+load_library("DBI")
 cred=read_yaml("credentials_write.yml")
 
 
@@ -65,7 +68,7 @@ source("R/utilities/detect_missing_data.R")
 #		sqldf.RPostgreSQL.port = cred$port)
 con = dbConnect(RPostgres::Postgres(), 
     dbname=cred$dbname,
-    host=cred$host,
+    host="localhost", #cred$host,
     port=cred$port,
     user=cred$user, 
     password=getPass())
@@ -113,14 +116,19 @@ update_referential_sheet <- function(name="Eel_Data_Call_2022_Annex4_Landings_Co
   fn_load_ref <- function(ref_table){    
     tab <- DBI::dbGetQuery(con,  str_c("SELECT * FROM ref.",ref_table))
     cat("loaded",ref_table,"\n")
-    if ("geom" %in% colnames(tab))   tab <- tab %>% select(-geom)
+    if ("geom" %in% colnames(tab))   tab <- tab %>% select(-geom) %>% arrange(1)
     openxlsx::writeData(wb, sheet = ref_table, tab)
   }
   list_ref <- mapply(fn_load_ref,ref_sheets)
-  wb = openxlsx::saveWorkbook(wb, templatefile, overwrite = TRUE)
+  wb = openxlsx::saveWorkbook(wb, templatefile, overwrite=TRUE)
+  cat("end of refer loading")
 }
 
 update_referential_sheet(name="Eel_Data_Call_2022_Annex4_Landings_Commercial")
+# needs reformating anyways....
+update_referential_sheet(name="Eel_Data_Call_2021_Annex_time_series")
+
+
 
 #' function to create the data sheet 
 #' 
