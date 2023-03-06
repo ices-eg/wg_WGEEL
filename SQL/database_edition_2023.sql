@@ -45,10 +45,7 @@ UPDATE
     ON
     datawg.t_eelstock_eel FOR EACH ROW EXECUTE FUNCTION checkemu_whole_country();
 
-    
--------------------------------------------------------------
--- TO BE RUN BEFORE GENERATING THE TEMPLATES
--------------------------------------------------------------
+
 
 --we add a column to store identifiers from national database so that data providers
 --can easily find their fishes
@@ -60,7 +57,7 @@ drop trigger update_coordinates on datawg.t_series_ser ;
 create trigger update_coordinates after
 update
     of geom on
-    datawg.t_series_ser for each row WHEN (pg_trigger_depth() < 1) execute function datawg.update_coordinates()
+    datawg.t_series_ser for each row WHEN (pg_trigger_depth() < 1) execute function datawg.update_coordinates();
 
 drop trigger update_geom on datawg.t_series_ser;
 create trigger update_geom after
@@ -69,7 +66,7 @@ insert
 update
     of ser_x,
     ser_y on
-    datawg.t_series_ser for each row WHEN (pg_trigger_depth() < 1) execute function datawg.update_geom()
+    datawg.t_series_ser for each row WHEN (pg_trigger_depth() < 1) execute function datawg.update_geom();
 
 
 update ref.tr_gear_gea set gea_issscfg_code='01.9' where gea_name_en='Surrounding nets (nei)';
@@ -132,4 +129,13 @@ update ref.tr_gear_gea set gea_issscfg_code='10.7' where gea_name_en='Drive-in n
 update ref.tr_gear_gea set gea_issscfg_code='10.8' where gea_name_en='Diving';
 update ref.tr_gear_gea set gea_issscfg_code='03.29' where gea_name_en='Midwater trawls (nei)';
 update ref.tr_gear_gea set gea_issscfg_code='06.9' where gea_name_en='Falling gear (nei)';
+
+
+--creation of the datasource
+insert into ref.tr_datasource_dts values ('dc_2023', 'Joint EIFAAC/GFCM/ICES Eel Data Call 2023');
+    
+-------------------------------------------------------------
+-- TO BE RUN BEFORE GENERATING THE TEMPLATES
+-------------------------------------------------------------
+
     
