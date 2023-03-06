@@ -294,7 +294,7 @@ create_datacall_file_series <- function(country, name, ser_typ_id, type="series"
     left_join(metrics) %>%
     tidyr::pivot_wider(names_from=mty_name,
                        values_from=meg_value) 
-  if (nrow(existing_metric)> 0){
+  if (nrow(existing_metric)> 0){ #not possible to prefill for non series data
     existing_metric <- applyTemplateFormat(formatted, existing_metric) %>%
       arrange(!!sym(ifelse(type=="series","ser_nameshort","sai_name")),gr_year,gr_id)
     
@@ -337,7 +337,7 @@ create_datacall_file_series <- function(country, name, ser_typ_id, type="series"
                                                                  "grser_ser_id","grsa_sai_id")))))) %>%
       dplyr::arrange(!!sym(ifelse(type=="series","ser_nameshort","sai_name")), gr_year)
     
-    if (nrow(newbiom)>0) {
+    if (nrow(newbiom)>0 && type=="series") {
       newbiom <- applyTemplateFormat(formatted, newbiom)
       #openxlsx::writeData(wb, sheet = "new_biometry", newbiom, startRow = 1)
       writeData(wb, x=newbiom,  sheet = "new_group_metrics")	
@@ -376,7 +376,7 @@ create_datacall_file_series <- function(country, name, ser_typ_id, type="series"
            "datawg.t_metricindsamp_meisa LEFT JOIN datawg.t_fishsamp_fisa on fi_id=mei_fi_id "),
     " LEFT JOIN ref.tr_metrictype_mty on mty_id=mei_mty_id",
     ifelse(type=="series"," LEFT JOIN datawg.t_series_ser ON ser_id = fiser_ser_id ",
-           " LEFT JOIN datawg.t_samplinginfo_sa ON sai_id = fiser_sai_id "),	" WHERE ",
+           " LEFT JOIN datawg.t_samplinginfo_sai ON sai_id = fisa_sai_id "),	" WHERE ",
     ifelse(type=="series",str_c("ser_typ_id=",ser_typ_id, "AND "), ""),
     ifelse(type=="series",str_c("ser_cou_code='",country,"'"),str_c("sai_cou_code='",country,"'")),
     " ORDER BY ",
@@ -398,7 +398,7 @@ create_datacall_file_series <- function(country, name, ser_typ_id, type="series"
     existing_metric <- existing_metric[!is.na(existing_metric$fi_year),]
     
     existing_metric <- applyTemplateFormat(formatted, existing_metric) %>%
-      arrange(!!sym(ifelse(type=="series","ser_nameshort","fisa_sai_id")),fi_year,fi_id)
+      arrange(!!sym(ifelse(type=="series","ser_nameshort","sai_name")),fi_year,fi_id)
     
     
     #openxlsx::writeData(wb, sheet = "existing_biometry", biom, startRow = 1)
