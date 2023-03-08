@@ -1,4 +1,6 @@
 load_library("tidyr")
+load_library("sqldf")
+
 #passwordwgeel <- getPass()
 
 

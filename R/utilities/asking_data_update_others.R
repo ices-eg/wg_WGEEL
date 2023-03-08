@@ -186,7 +186,7 @@ create_datacall_file <- function(country, eel_typ_id, name, ...){
 		
 		# pre-fill new data and missing for landings 
     openxlsx::writeData(wb, data_disc,  sheet = "existing_discarded",colNames=FALSE, startRow=2)
-    openxlsx::writeData(wb, data_kept,  sheet = "existing_kept",header=FALSE,startRow=2)
+    openxlsx::writeData(wb, data_kept,  sheet = "existing_kept",colNames=FALSE,startRow=2)
 	} else {
 		cat("No data for country", country, "\n")
 	}
@@ -342,7 +342,7 @@ for (cou in cou_code_aqua){
 	create_datacall_file ( 
 			country <- cou,
 			eel_typ_id <- c(11), 
-			name <- "Eel_Data_Call_2022_Annex8_Aquaculture",
+			name <- "Eel_Data_Call_Annex8_Aquaculture",
 			minyear=2000,
 			maxyear=CY, #maxyear corresponds to the current year where we have to fill data
 			datasource=datasource)
