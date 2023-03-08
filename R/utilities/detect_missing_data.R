@@ -8,6 +8,7 @@ detect_missing_data <- function(cou="FR",
 		host="localhost",
 		dbname="wgeel",
 		user="wgeel",
+		passwordwgeel=passwordwgeel,
 		port=5435,
 		datasource="dc_2020") {
   #browser()

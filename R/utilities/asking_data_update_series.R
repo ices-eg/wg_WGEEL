@@ -433,7 +433,7 @@ create_datacall_file_series <- function(country, name, ser_typ_id, type="series"
   # maps ---------------------------------------------------------------
   #st_crs(ccm) 
   if (type=="series") {
-    if (nrow(t_series_ser)>0){
+    if (nrow(t_series_ser)>0 && nrow(t_series_ser)<20){
       for (i in 1:nrow(t_series_ser)){
         #turn a pgsql array into an R vector for ccm_wso_id
         pols_id=eval(parse(text=paste("c(",gsub(pattern="\\{|\\}",replacement='',t_series_ser$ser_ccm_wso_id[i]),")")))
