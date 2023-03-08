@@ -133,6 +133,8 @@ update ref.tr_gear_gea set gea_issscfg_code='06.9' where gea_name_en='Falling ge
 
 --creation of the datasource
 insert into ref.tr_datasource_dts values ('dc_2023', 'Joint EIFAAC/GFCM/ICES Eel Data Call 2023');
+
+insert into ref.tr_quality_qal values (23, 'discarded_wgeel 2023','This data has either been removed from the database in favour of new data, or corresponds to new data not kept in the database during datacall 2023', FALSE);
     
 -------------------------------------------------------------
 -- TO BE RUN BEFORE GENERATING THE TEMPLATES
