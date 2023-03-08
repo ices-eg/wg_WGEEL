@@ -168,7 +168,7 @@ create_datacall_file <- function(country, eel_typ_id, name, ...){
 	dir.create(str_c(wddata,country),showWarnings = FALSE) # show warning= FALSE will create if not exist	
 	nametemplatefile <- str_c(name,".xlsx")
 	templatefile <- file.path(wddata,"00template",nametemplatefile)
-	namedestinationfile <- str_c(name,"_",country,".xlsx")	
+	namedestinationfile <- str_c(CY,"_",name,"_",country,".xlsx")	
 	destinationfile <- file.path(wddata, country, namedestinationfile)		
 	
 	# limit dataset to country
@@ -216,7 +216,7 @@ create_datacall_file <- function(country, eel_typ_id, name, ...){
 		#print(data_missing)
 		writeData(wb, x=data_missing,  sheet = "new_data")
 	} 
-	saveWorkbook(wb, file = destinationfile)	
+	saveWorkbook(wb, file = destinationfile, overwrite=TRUE)	
 	
 	#openXL(wb)
 }
