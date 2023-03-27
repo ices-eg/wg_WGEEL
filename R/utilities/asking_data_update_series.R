@@ -133,10 +133,10 @@ create_datacall_file_series <- function(country, name, ser_typ_id, type="series"
                                        country,"' ",
                                        ifelse(type=="series",str_c(" AND ser_typ_id =", ser_typ_id), ""))) %>%		# maybe this is only needed on windows 
     select(-any_of(c("geom","ser_dts_datasource","sai_dts_datasource"))) %>%		# maybe this is only needed on windows 
-    dplyr::mutate_at(vars (ends_with("nameshort")), ~iconv(.,from="UTF-8",to="latin1")) %>%		# maybe this is only needed on windows 
-    dplyr::mutate_at(vars(ends_with("comment")), ~iconv(.,from="UTF-8",to="latin1")) %>% 		# maybe this is only needed on windows 
-    dplyr::mutate_at(vars (ends_with("locationdescription")), ~iconv(.,from="UTF-8",to="latin1")) %>% 		# maybe this is only needed on windows 
-    dplyr::mutate_at(vars(ends_with("method")), ~iconv(.,from="UTF-8",to="latin1")) 		# maybe this is only needed on windows 
+    dplyr::mutate_at(vars (ends_with("nameshort")), ~iconv(.,from="UTF-8",to="latin1",sub="?")) %>%		# maybe this is only needed on windows 
+    dplyr::mutate_at(vars(ends_with("comment")), ~iconv(.,from="UTF-8",to="latin1",sub="?")) %>% 		# maybe this is only needed on windows 
+    dplyr::mutate_at(vars (ends_with("locationdescription")), ~iconv(.,from="UTF-8",to="latin1",sub="?")) %>% 		# maybe this is only needed on windows 
+    dplyr::mutate_at(vars(ends_with("method")), ~iconv(.,from="UTF-8",to="latin1",sub="?")) 		# maybe this is only needed on windows 
   
   
   
@@ -161,7 +161,7 @@ create_datacall_file_series <- function(country, name, ser_typ_id, type="series"
   # station data ----------------------------------------------
   if (type == "series") {
     station <- dbGetQuery(con,"select * from ref.tr_station")
-    station$Organisation <-iconv(station$Organisation,from="UTF8",to="latin1")
+    station$Organisation <-iconv(station$Organisation,from="UTF8",to="latin1",sub="?")
     # drop  tblCodeID Station_Code
     
     if (nrow(t_series_ser)>0){
@@ -196,7 +196,7 @@ create_datacall_file_series <- function(country, name, ser_typ_id, type="series"
     
     
     if (nrow(dat)> 0){
-      dat[,"das_comment"]<-iconv(dat[,"das_comment"],from="UTF-8",to="latin1")
+      dat[,"das_comment"]<-iconv(dat[,"das_comment"],from="UTF-8",to="latin1",sub="?")
       #openxlsx::writeData(wb, sheet = "existing_data", dat, startRow = 1)
       formatted <- read_excel(templatefile,"existing_data")
       dat <- applyTemplateFormat(formatted, dat)
@@ -205,7 +205,7 @@ create_datacall_file_series <- function(country, name, ser_typ_id, type="series"
     
     #put data where das_qal_id is missing into updated_data
     if (nrow(dat)> 0){
-      dat[,"das_comment"]<-iconv(dat[,"das_comment"],from="UTF-8",to="latin1")
+      dat[,"das_comment"]<-iconv(dat[,"das_comment"],from="UTF-8",to="latin1",sub="?")
       #openxlsx::writeData(wb, sheet = "existing_data", dat, startRow = 1)
       formatted <- read_excel(templatefile,"updated_data")
       dat <- applyTemplateFormat(formatted, dat)
