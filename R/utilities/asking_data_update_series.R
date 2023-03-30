@@ -223,7 +223,11 @@ create_datacall_file_series <- function(country, name, ser_typ_id, type="series"
             dplyr::select(ser_nameshort,das_year,das_value, das_comment, das_effort,das_qal_id) %>%
             tidyr::complete(ser_nameshort,das_year=(CY-10):CY) %>%
             dplyr::filter(is.na(das_value) & is.na(das_comment) & (is.na(das_qal_id |das_qal_id != 0))), 
-          dat %>% dplyr::filter(das_year>=(CY-10)& das_qal_id >4)  %>%
+          dat %>% 
+            group_by(ser_nameshort, das_year) %>% 
+            slice_min(das_qal_id) %>% #we keep only the data with the latest das_qal_id (since das_qal_id >4 are discarded)
+            ungroup() %>%
+            dplyr::filter(das_year>=(CY-10)& das_qal_id >4)  %>% #if we have only data with das_qal_id >4, we are missing a data
             dplyr::select(ser_nameshort,das_year,das_value, das_comment, das_effort,das_qal_id) 
         )%>%
         dplyr::arrange(ser_nameshort, das_year)
@@ -395,7 +399,7 @@ create_datacall_file_series <- function(country, name, ser_typ_id, type="series"
                        values_from=mei_value) 
    
   if (nrow(existing_metric)> 0){	
-    existing_metric <- existing_metric[!is.na(existing_metric$fi_year),]
+    #existing_metric <- existing_metric[!is.na(existing_metric$fi_year),]
     
     existing_metric <- applyTemplateFormat(formatted, existing_metric) %>%
       arrange(!!sym(ifelse(type=="series","ser_nameshort","sai_name")),fi_year,fi_id)
