@@ -37,7 +37,7 @@ load_library("DBI")
 
 library("DBI")
 
-load_library("stacomirtools")
+#load_library("stacomirtools")
 load_library("stringr")
 # Issue still open https://github.com/awalker89/openxlsx/issues/348
 load_library("openxlsx")
