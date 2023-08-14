@@ -54,7 +54,7 @@ load_library("dplyr")
 # here is where the script is working change it accordingly
 # one must be at the head of wgeel git 
 ##################################
-if(Sys.info()["user"]=="hilaire.drouineau"){
+if(Sys.info()["user"]=="hdrouineau"){
   setwd("~/Documents/Bordeaux/migrateurs/WGEEL/github/wg_WGEEL/")
 } else{
   setwd("C:/workspace\\gitwgeel\\")
