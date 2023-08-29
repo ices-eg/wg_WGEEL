@@ -57,7 +57,7 @@ load_library("dplyr")
 if(Sys.info()["user"]=="hdrouineau"){
   setwd("~/Documents/Bordeaux/migrateurs/WGEEL/github/wg_WGEEL/")
 } else{
-  setwd("C:/workspace\\gitwgeel\\")
+  setwd("C:/workspace/wg_WGEEL")
 }
 #############################
 # here is where you want to put the data. It is different from the code
