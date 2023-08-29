@@ -115,13 +115,16 @@ source("writedeletedindmetricModule.R")
 source("database_tools.R")
 source("graphs.R")
 source("tableEdit.R")
-options(shiny.maxRequestSize=20*1024^2) #20 MB for excel files
-#pool <- pool::dbPool(drv = dbDriver("PostgreSQL"),
-#		dbname="postgres",
-#		host="localhost",
-#		port=5432,
-#		user= "test",
-#		password= "test")
+
+#pool <<- pool::dbPool(drv = RPostgres::Postgres(),
+#    dbname="wgeel",
+#    host=host,
+#    port=port,
+#    user= userwgeel,
+#    password= passwordwgeel,
+#    bigint="integer",
+#    minSize = 0,
+#    maxSize = 2)
 onStop(function() {
 			poolClose(pool)
 		}) # important!

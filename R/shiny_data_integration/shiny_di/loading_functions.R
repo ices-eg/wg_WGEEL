@@ -1958,9 +1958,10 @@ load_potential_available_habitat<-function(path,datasource){
 
 ############# time series #############################################
 #  path<-file.choose()
+# path <- "C:\\temp\\datacall\\FR\\2023_Eel_Data_Call_Annex1_Time_Series_FR_Recruitment.xlsx"
 # datasource <- the_eel_datasource; stage="glass_eel"
 # 
-# load_series(path,datasource="toto","glass_eel")
+# load_series(path,datasource=datasource,stage="glass_eel")
 load_series<-function(path,datasource, stage="glass_eel"){
 	shinybusy::show_modal_spinner(text = "load series", color="darkgreen")
 	sheets <- excel_sheets(path=path)
@@ -2387,7 +2388,7 @@ load_series<-function(path,datasource, stage="glass_eel"){
 			){
 
 		data_xls <- readxlTemplate(path, sheet)
-		cat(sheet,"\n")
+		cat("loading sheet ", sheet,"\n")
 		#browser()
     # ignore this
 		#nbcol <- length(columns)	
@@ -2400,7 +2401,7 @@ load_series<-function(path,datasource, stage="glass_eel"){
 			stop(paste("a column of the template is not in the dictionary, please contact a shiny admin:",
 							columns[!columns %in% names(dictionary)]))
 		
-		cat(sheet,"\n")
+
 
 		#here we force conversion to match dictionary
 	  tryCatch({
@@ -2479,7 +2480,6 @@ load_series<-function(path,datasource, stage="glass_eel"){
 		
 		# id columns in updated and deleted data should be present
 		# the deletion is done at the group level or fish level, for update we will check for changes in the table
-		
 		data_error <- rbind(data_error, 
 				purrr::flatten(lapply(c("das_id",
 										"fi_id",
@@ -2492,7 +2492,7 @@ load_series<-function(path,datasource, stage="glass_eel"){
 														namedataset = sheet,
 														column=name_column,
 														country=country,
-														type="numeric"))
+														type="numeric"))                   
 										data_error <- rbind(data_error, check_missing(
 														dataset = data_xls,					
 														namedataset = sheet,

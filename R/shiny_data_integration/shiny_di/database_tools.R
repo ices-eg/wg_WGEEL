@@ -809,8 +809,9 @@ compare_with_database_metric_group <- function(data_from_excel,
 			
 		}
 		if (nrow(mat)>0){ # fix bug when all lines are returned without new values
-			# select only rows where there are true modified 
-			modified <- modified[!apply(mat,1,all),]	 
+			# 2023 Cédric select only rows where there are true modified 
+      id_changed <- unique(highlight_change[!apply(mat,1,all), "id"])%>% pull(id)
+			modified <- modified[modified$id %in%id_changed ,]	 
 			# show only modifications to the user (any colname modified)	
 			highlight_change <- highlight_change[!apply(mat,1,all),num_common_col[!apply(mat,2,all)]]
 		}
@@ -959,8 +960,8 @@ compare_with_database_metric_ind <- function(
 			
 		}
 		if (nrow(mat)>0){ # fix bug when all lines are returned without new values
-			# select only rows where there are true modified 
-			modified <- modified[!apply(mat,1,all),]	 
+      id_changed <- unique(highlight_change[!apply(mat,1,all), "id"])%>% pull(id)
+      modified <- modified[modified$id %in%id_changed ,]	  
 			
 			# show only modifications to the user (any colname modified)	
 			highlight_change <- highlight_change[!apply(mat,1,all),num_common_col[!apply(mat,2,all)]]
