@@ -3011,9 +3011,10 @@ load_dcf<-function(path,datasource){
 	#---------------------- all_other_sheets ---------------------------------------------
 	fn_check_gr_ind <- function(sheet, columns){
 
-		
-		data_xls <- readxlTemplate(path, sheet)
-
+		data_xls <- readxlTemplate(path, sheet)  
+		if ("fi_idcou" %in% names(data_xls))
+		  data_xls <- data_xls %>%
+		  rename("fi_id_cou"=fi_idcou) #to deal with a bug
 	  
 	  if ((!"fi_year" %in% names(data_xls)) & "fi_year" %in%columns){
 	    #columns=columns[-which(columns=="fi_year")]
