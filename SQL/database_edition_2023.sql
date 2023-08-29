@@ -52,6 +52,7 @@ UPDATE
 alter table datawg.t_fishsamp_fisa add column fi_idcou varchar(50);
 
 
+
 --avoid recursive triggers fires
 drop trigger update_coordinates on datawg.t_series_ser ;
 create trigger update_coordinates after
@@ -140,4 +141,27 @@ insert into ref.tr_quality_qal values (23, 'discarded_wgeel 2023','This data has
 -- TO BE RUN BEFORE GENERATING THE TEMPLATES
 -------------------------------------------------------------
 
-    
+
+-- Argiryos
+-- for Annex 3 in the tab “existing_group_metrics” there are data until 2020, but we have provided data for 2021. 
+-- Can we check that if the data are in the database, or other case to re-enter them in the “new_group_metrics”.
+
+
+--SELECT * FROM datawg.t_groupseries_grser JOIN datawg.t_series_ser
+--ON grser_ser_id = ser_id WHERE ser_nameshort= 'EamtS';
+
+
+  --5738 rows to be deleted
+select count(fi_id) from datawg.t_fishsamp_fisa tff2 left join datawg.t_samplinginfo_sai tss on tff2.fisa_sai_id =tss.sai_id where tss.sai_cou_code ='DE'; 
+--5738 rows deleted
+delete from datawg.t_fishsamp_fisa tff1 where exists (select fi_id from datawg.t_fishsamp_fisa tff2 left join datawg.t_samplinginfo_sai tss on tff2.fisa_sai_id =tss.sai_id where tss.sai_cou_code ='DE' and tff1.fi_id=tff2.fi_id);
+
+--3812 rows to be deleted
+select count(fi_id) from datawg.t_fishseries_fiser tff2  left join datawg.t_series_ser tss on tff2.fiser_ser_id =tss.ser_id where tss.ser_cou_code ='SE' and tss.ser_lfs_code in ('Y','S','YS'); 
+--5738 rows deleted
+delete from datawg.t_fishseries_fiser tff1 where exists (select fi_id from datawg.t_fishseries_fiser tff2  left join datawg.t_series_ser tss on tff2.fiser_ser_id =tss.ser_id where tss.ser_cou_code ='SE' and tss.ser_lfs_code in ('Y','S','YS'));  
+
+
+-- 27 series for Sweden OK
+SELECT DISTINCT(sai_name)  from datawg.t_fishsamp_fisa tff2
+left join datawg.t_samplinginfo_sai tss on tff2.fisa_sai_id =tss.sai_id  WHERE sai_cou_code ='SE'
