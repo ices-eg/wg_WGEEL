@@ -781,7 +781,7 @@ compare_with_database_metric_group <- function(data_from_excel,
 			by =c("gr_id", "gr_year", "gr_number", metrics_group$mty_name))
 	modified <- modified[!modified$id %in% new$id,]
 	if (sheetorigin=="new_group_metrics" & nrow(modified)>0)
-		modified$gr_comment <- "THIS ONE WAS ALREADY INTEGRATED :: PLEASE DELETE LINE"
+		modified$gr_comment <- "THIS LINE WAS DETECTED AS A DUPLICATE, IF IT WAS NOT IN DELETED, YOU CAN DELETE THE LINE, OTHERWISE RELOAD"
 	
 	# if (sheetorigin == "new_group_metrics"){
 	#   modified <- dplyr::anti_join(data_from_excel, data_from_base_wide, 
@@ -809,7 +809,7 @@ compare_with_database_metric_group <- function(data_from_excel,
 			
 		}
 		if (nrow(mat)>0){ # fix bug when all lines are returned without new values
-			# 2023 Cédric select only rows where there are true modified 
+			# 2023 C?dric select only rows where there are true modified 
       id_changed <- unique(highlight_change[!apply(mat,1,all), "id"])%>% pull(id)
 			modified <- modified[modified$id %in%id_changed ,]	 
 			# show only modifications to the user (any colname modified)	

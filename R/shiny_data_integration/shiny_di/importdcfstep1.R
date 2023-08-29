@@ -268,7 +268,6 @@ importdcfstep1Server <- function(id,globaldata,loaded_data_dcf){
 											new_group_metrics <-  left_join(new_group_metrics, t_samplinginfo_sai[,c("sai_id","sai_name")], by="sai_name")
 											new_group_metrics <- rename(new_group_metrics,"grsa_sai_id"="sai_id") # use the true name in the table
 										} 
-										
 										if (nrow(updated_group_metrics)>0){
 										  updated_group_metrics <-  left_join(updated_group_metrics, t_samplinginfo_sai[,c("sai_id","sai_name")], by="sai_name")
 										  updated_group_metrics <- rename(updated_group_metrics,"grsa_sai_id"="sai_id") # use the true name in the table
@@ -334,8 +333,16 @@ importdcfstep1Server <- function(id,globaldata,loaded_data_dcf){
 												# when integrating the id must be different so I'm adding the max of id in news, 
 												# later they will be used to differentiate groups when writing, and we don't want to mix up 
 												# groups from new and from updated sheets
-												mxn <- max(list_comp_group_metrics$new$id, na.rm=TRUE)
-												mxm <- max(list_comp_group_metrics$modified, na.rm=TRUE)
+											  if (nrow(list_comp_group_metrics$new)>0){
+											    mxn <- max(list_comp_group_metrics$new$id, na.rm=TRUE)
+											  }   else {
+											    mxm <- 0
+											  }
+											  if (nrow(list_comp_group_metrics$modified)>0){
+											    mxm <- max(list_comp_group_metrics$modified$id, na.rm=TRUE)
+											  } else {
+											    mxm <- 0
+											  }
 												list_comp_updated_group_metrics$new$id <- list_comp_updated_group_metrics$new$id + mxn
 												list_comp_updated_group_metrics$modified$id <- list_comp_updated_group_metrics$modified$id + mxm
 												list_comp_group_metrics$new <- bind_rows(list_comp_group_metrics$new,list_comp_updated_group_metrics$new)
@@ -376,9 +383,8 @@ importdcfstep1Server <- function(id,globaldata,loaded_data_dcf){
 															sheetorigin="new_individual_metrics",
 															type="other")
 										} else {
-											list_comp_individual_metrics$deleted <- data.frame()
+											list_comp_individual_metrics$new <- data.frame()
 										}
-										
 										if (nrow(updated_individual_metrics)>0){
 											list_comp_updated_individual_metrics <- 
 													compare_with_database_metric_ind(
@@ -387,8 +393,16 @@ importdcfstep1Server <- function(id,globaldata,loaded_data_dcf){
 															sheetorigin="updated_individual_metrics",
 															type="other")
 											if (nrow(list_comp_individual_metrics$new)>0){
-												mxn <- max(list_comp_individual_metrics$new$id, na.rm=TRUE)
-												mxm <- max(list_comp_individual_metrics$modified, na.rm=TRUE)
+												if (nrow(list_comp_individual_metrics$new)>0){
+												  mxn <- max(list_comp_individual_metrics$new$id, na.rm=TRUE)
+												}else{
+											    mxn <- 0
+											  }
+												if (nrow(list_comp_individual_metrics$modified) >0){
+												  mxm <- max(list_comp_individual_metrics$modified$id, na.rm=TRUE)
+												} else {
+												    mxn <- 0
+												  }
 												list_comp_updated_individual_metrics$new$id <- list_comp_updated_individual_metrics$new$id + mxn
 												list_comp_updated_individual_metrics$modified$id <- list_comp_updated_individual_metrics$modified$id + mxm
 												list_comp_individual_metrics$new <- bind_rows(list_comp_individual_metrics$new,list_comp_updated_individual_metrics$new)
@@ -421,7 +435,7 @@ importdcfstep1Server <- function(id,globaldata,loaded_data_dcf){
 													sheetorigin="deleted_individual_metrics",
 													type="other")$deleted
 										} else {
-										  list_comp_individual_metrics <- list("deleted" = data.frame())
+										  list_comp_individual_metrics$deleted <- data.frame()
 										}
 										
 										
@@ -518,7 +532,6 @@ importdcfstep1Server <- function(id,globaldata,loaded_data_dcf){
 										}
 										# step1 new individual_metrics -------------------------------------------------------------
 										if (nrow(list_comp_individual_metrics$new)==0) {
-											
 											output$step1_message_new_individual_metrics <- renderUI(
 													HTML(
 															paste(
