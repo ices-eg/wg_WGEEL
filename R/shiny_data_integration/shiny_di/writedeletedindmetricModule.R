@@ -68,7 +68,7 @@ writedeletedindmetricServer <- function(id,globaldata,loaded_data, type){
                 # Deleted individual metrics --------------------------------------------------------							
                  
                  observeEvent(input$delete_individual_metrics_button, tryCatch({
-                   
+
                    step_filepath_deleted_individual_metrics <- reactive({
                      inFile <- isolate(input$xl_deleted_individual_metrics)     
                      if (is.null(inFile)){        return(NULL)

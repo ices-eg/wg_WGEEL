@@ -2523,7 +2523,7 @@ write_updated_individual_metrics <- function(path, type="series"){
 delete_individual_metrics <- function(path, type="series"){
 	conn <- poolCheckout(pool)
 	on.exit(poolReturn(conn))
-	deleted <- read_excel(path = path, sheet = 1, skip = 1)
+	deleted <- read_excel(path = path, sheet = 1)
 	if (nrow(deleted) == 0)
 	  return(list(message="empty file", cou_code=NULL))
 	if (sum(!is.na(deleted$fi_id)) == 0)
@@ -2537,7 +2537,7 @@ delete_individual_metrics <- function(path, type="series"){
 	#dbGetQuery(conn, "DELETE FROM datawg.t_groupseries_grser")
 	(nr <- tryCatch({
 							sql <- glue::glue_sql("DELETE FROM datawg.{`ind_table`} 
-											WHERE fi_id IN (SELECT distinct fi_id FROM ind_tmp",
+											WHERE fi_id IN (SELECT distinct fi_id FROM ind_tmp)",
 									.con=conn)
 							nr0 <- dbExecute(conn, sql)							
 						}, error = function(e) {
