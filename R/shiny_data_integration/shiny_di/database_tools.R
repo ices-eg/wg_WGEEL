@@ -640,9 +640,7 @@ compare_with_database_sampling <- function(data_from_excel, data_from_base) {
 					"sai_samplingobjective",
 					"sai_samplingstrategy",
 					"sai_protocol",
-					"sai_qal_id",
-					"sai_lastupdate",
-					"sai_dts_datasource"))
+					"sai_qal_id"))
 	modified <- modified[!modified$sai_name %in% new$sai_name,]
 	# after anti join there are still values that are not really changed.
 	# this is further investigated below
@@ -866,7 +864,7 @@ compare_with_database_metric_ind <- function(
 		
 	}
   
-  if (sheetorigin != "new_data"){
+  if (sheetorigin != "new_individual_metrics"){
     if (any(! data_from_excel$fi_id %in% data_from_base$fi_id))
       stop(paste0(sheetorigin,
                   ": some gr_id are not in the db:",
