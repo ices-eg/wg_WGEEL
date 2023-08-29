@@ -53,7 +53,7 @@ load_package("shinytoastr")
 load_package("tibble")
 load_package("purrr") 
 options(shiny.sanitize.errors = FALSE)
-
+options(shiny.maxRequestSize=30*1024^2) # 30 MO
 #----------------------
 # Graphics
 #----------------------
@@ -132,7 +132,7 @@ onStop(function() {
 # BEFORE WGEEL sqldf('delete from datawg.t_eelstock_eel where eel_datasource='test')
 ########################
 qualify_code<-23 # change this code here and in tr_quality_qal for next wgeel
-the_eel_datasource <- "test"  # change this after tests
+the_eel_datasource <- "test"  # change this after tests #dc_2022
 current_year <- 2023
 
 
@@ -262,14 +262,14 @@ dictionary=c(
 
 dataTypeConvert=function(mydata, columns, col_types){
   tryCatch({
-    mydata <- mydata %>%
-      mutate(across(any_of(columns[col_types == "date"]) , ~as.Date(.x)),
-             across(any_of(columns[col_types=="text"]), ~as.character(.x)),
-             across(any_of(columns[col_types=="numeric"]), ~as.numeric(.x)),
-             across(any_of(columns[col_types=="logical"]), ~as.logical(.x)))
-  }, error = function(e) {
-    showNotification(paste(sheet,"Error when casting data", e), type="warning",duration=NULL) 		
-  })
+        mydata <- mydata %>%
+            mutate(across(any_of(columns[col_types == "date"]) , ~as.Date(.x)),
+                across(any_of(columns[col_types=="text"]), ~as.character(.x)),
+                across(any_of(columns[col_types=="numeric"]), ~as.numeric(.x)),
+                across(any_of(columns[col_types=="logical"]), ~as.logical(.x)))
+      }, error = function(e) {
+        showNotification(paste(sheet,"Error when casting data", e), type="warning",duration=NULL) 		
+      })
   mydata
 }
 
@@ -278,72 +278,72 @@ dataTypeConvert=function(mydata, columns, col_types){
 
 #####
 shinyCatch=
-  function (expr, position = "bottom-right", blocking_level = "none",
-            shiny = TRUE, prefix = "SPS", trace_back = spsUtil::spsOption("traceback")) {
-    assertthat::assert_that(is.logical(shiny))
-    assertthat::assert_that(all(is.character(prefix), length(prefix) == 1))
-    prefix <- paste0(prefix, if (prefix == "")
-      " "
-      else "-")
-    shiny <- all(!is.null(crosstalk::getDefaultReactiveDomain()), shiny)
-    if (shiny)
-      spsComps:::dependServer("toastr")
-    toastr_actions <- list(message = function(m) {
-      spsUtil::msg(m$message, paste0(prefix, "INFO"), "blue")
-      if (shiny) shinytoastr::toastr_info(message = spsUtil::remove_ANSI(m$message),
-                                          position = position, closeButton = TRUE, timeOut = 3000,
-                                          preventDuplicates = TRUE)
-    }, warning = function(m) {
-      spsUtil::msg(m$message, paste0(prefix, "WARNING"), "orange")
-      if (shiny) shinytoastr::toastr_warning(message = spsUtil::remove_ANSI(m$message),
-                                             position = position, closeButton = TRUE, timeOut = 5000,
-                                             preventDuplicates = TRUE)
-    }, error = function(m) {
-      if (inherits(m,"rlang_error")){
-        spsUtil::msg(rlang::cnd_message(m), paste0(prefix, "ERROR"), "red")
-        if (shiny) shinytoastr::toastr_error(message = spsUtil::remove_ANSI(rlang::cnd_message(m)),
-                                             position = position, closeButton = TRUE, timeOut = 0,
-                                             preventDuplicates = TRUE, title = "There is an error",
-                                             hideDuration = 300)
-      } else{
-        spsUtil::msg(m$message, paste0(prefix, "ERROR"), "red")
-        if (shiny) shinytoastr::toastr_error(message = spsUtil::remove_ANSI(m$message),
-                                             position = position, closeButton = TRUE, timeOut = 0,
-                                             preventDuplicates = TRUE, title = "There is an error",
-                                             hideDuration = 300)
-      }
-    })
-    switch(tolower(blocking_level), error = tryCatch(base::suppressMessages(suppressWarnings(base::withCallingHandlers(expr,
-                                                                                                           message = function(m) toastr_actions$message(m), warning = function(m) toastr_actions$warning(m),
-                                                                                                           error = function(m) if (trace_back) spsComps:::printTraceback(sys.calls())))),
-                                                     error = function(m) {
-                                                       toastr_actions$error(m)
-                                                       shiny:::reactiveStop(class = "validation")
-                                                     }), warning = tryCatch(base::suppressMessages(withCallingHandlers(expr,
-                                                                                                                 message = function(m) toastr_actions$message(m), error = function(m) if (trace_back) spsComps:::printTraceback(sys.calls()))),
-                                                                            warning = function(m) {
-                                                                              toastr_actions$warning(m)
-                                                                              shiny:::reactiveStop(class = "validation")
-                                                                            }, error = function(m) {
-                                                                              if (!is.empty(m$message)) toastr_actions$error(m)
-                                                                              shiny:::reactiveStop(class = "validation")
-                                                                            }), message = tryCatch(base::withCallingHandlers(expr, error = function(m) if (trace_back) spsComps:::printTraceback(sys.calls())),
-                                                                                                   message = function(m) {
-                                                                                                     toastr_actions$message(m)
-                                                                                                     reactiveStop(class = "validation")
-                                                                                                   }, warning = function(m) {
-                                                                                                     toastr_actions$warning(m)
-                                                                                                     reactiveStop(class = "validation")
-                                                                                                   }, error = function(m) {
-                                                                                                     if (!is.empty(m$message)) toastr_actions$error(m)
-                                                                                                     shiny::reactiveStop(class = "validation")
-                                                                                                   }), tryCatch(base::suppressMessages(base::suppressWarnings(base::withCallingHandlers(expr,
-                                                                                                                                                                      message = function(m) toastr_actions$message(m), warning = function(m) toastr_actions$warning(m),
-                                                                                                                                                                      error = function(m) if (trace_back) printTraceback(sys.calls())))),
-                                                                                                                error = function(m) {
-                                                                                                                  toastr_actions$error(m)
-                                                                                                                  return(NULL)
-                                                                                                                }))
-  }
+    function (expr, position = "bottom-right", blocking_level = "none",
+        shiny = TRUE, prefix = "SPS", trace_back = spsUtil::spsOption("traceback")) {
+  assertthat::assert_that(is.logical(shiny))
+  assertthat::assert_that(all(is.character(prefix), length(prefix) == 1))
+  prefix <- paste0(prefix, if (prefix == "")
+            " "
+          else "-")
+  shiny <- all(!is.null(crosstalk::getDefaultReactiveDomain()), shiny)
+  if (shiny)
+    spsComps:::dependServer("toastr")
+  toastr_actions <- list(message = function(m) {
+        spsUtil::msg(m$message, paste0(prefix, "INFO"), "blue")
+        if (shiny) shinytoastr::toastr_info(message = spsUtil::remove_ANSI(m$message),
+              position = position, closeButton = TRUE, timeOut = 3000,
+              preventDuplicates = TRUE)
+      }, warning = function(m) {
+        spsUtil::msg(m$message, paste0(prefix, "WARNING"), "orange")
+        if (shiny) shinytoastr::toastr_warning(message = spsUtil::remove_ANSI(m$message),
+              position = position, closeButton = TRUE, timeOut = 5000,
+              preventDuplicates = TRUE)
+      }, error = function(m) {
+        if (inherits(m,"rlang_error")){
+          spsUtil::msg(rlang::cnd_message(m), paste0(prefix, "ERROR"), "red")
+          if (shiny) shinytoastr::toastr_error(message = spsUtil::remove_ANSI(rlang::cnd_message(m)),
+                position = position, closeButton = TRUE, timeOut = 0,
+                preventDuplicates = TRUE, title = "There is an error",
+                hideDuration = 300)
+        } else{
+          spsUtil::msg(m$message, paste0(prefix, "ERROR"), "red")
+          if (shiny) shinytoastr::toastr_error(message = spsUtil::remove_ANSI(m$message),
+                position = position, closeButton = TRUE, timeOut = 0,
+                preventDuplicates = TRUE, title = "There is an error",
+                hideDuration = 300)
+        }
+      })
+  switch(tolower(blocking_level), error = tryCatch(base::suppressMessages(suppressWarnings(base::withCallingHandlers(expr,
+                      message = function(m) toastr_actions$message(m), warning = function(m) toastr_actions$warning(m),
+                      error = function(m) if (trace_back) spsComps:::printTraceback(sys.calls())))),
+          error = function(m) {
+            toastr_actions$error(m)
+            shiny:::reactiveStop(class = "validation")
+          }), warning = tryCatch(base::suppressMessages(withCallingHandlers(expr,
+                  message = function(m) toastr_actions$message(m), error = function(m) if (trace_back) spsComps:::printTraceback(sys.calls()))),
+          warning = function(m) {
+            toastr_actions$warning(m)
+            shiny:::reactiveStop(class = "validation")
+          }, error = function(m) {
+            if (!is.empty(m$message)) toastr_actions$error(m)
+            shiny:::reactiveStop(class = "validation")
+          }), message = tryCatch(base::withCallingHandlers(expr, error = function(m) if (trace_back) spsComps:::printTraceback(sys.calls())),
+          message = function(m) {
+            toastr_actions$message(m)
+            reactiveStop(class = "validation")
+          }, warning = function(m) {
+            toastr_actions$warning(m)
+            reactiveStop(class = "validation")
+          }, error = function(m) {
+            if (!is.empty(m$message)) toastr_actions$error(m)
+            shiny::reactiveStop(class = "validation")
+          }), tryCatch(base::suppressMessages(base::suppressWarnings(base::withCallingHandlers(expr,
+                      message = function(m) toastr_actions$message(m), warning = function(m) toastr_actions$warning(m),
+                      error = function(m) if (trace_back) printTraceback(sys.calls())))),
+          error = function(m) {
+            toastr_actions$error(m)
+            return(NULL)
+          }))
+}
 
 
