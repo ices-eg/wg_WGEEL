@@ -50,6 +50,8 @@ UPDATE
 --we add a column to store identifiers from national database so that data providers
 --can easily find their fishes
 alter table datawg.t_fishsamp_fisa add column fi_idcou varchar(50);
+alter table datawg.t_fishsamp_fisa drop column fi_idcou;
+alter table datawg.t_fish_fi add column fi_id_cou varchar(50);
 
 
 --avoid recursive triggers fires
@@ -139,5 +141,27 @@ insert into ref.tr_quality_qal values (23, 'discarded_wgeel 2023','This data has
 -------------------------------------------------------------
 -- TO BE RUN BEFORE GENERATING THE TEMPLATES
 -------------------------------------------------------------
+
+
+
+-- to be run with Tjoborn and JD during integration
+begin;
+--5738 rows to be deleted
+select count(fi_id) from datawg.t_fishsamp_fisa tff2 left join datawg.t_samplinginfo_sai tss on tff2.fisa_sai_id =tss.sai_id where tss.sai_cou_code ='DE'; 
+--5738 rows deleted
+delete from datawg.t_fishsamp_fisa tff1 where exists (select fi_id from datawg.t_fishsamp_fisa tff2 left join datawg.t_samplinginfo_sai tss on tff2.fisa_sai_id =tss.sai_id where tss.sai_cou_code ='DE' and tff1.fi_id=tff2.fi_id);
+
+--3812 rows to be deleted
+select count(fi_id) from datawg.t_fishseries_fiser tff2  left join datawg.t_series_ser tss on tff2.fiser_ser_id =tss.ser_id where tss.ser_cou_code ='SE' and tss.ser_lfs_code in ('Y','S','YS'); 
+--3812 rows deleted
+delete from datawg.t_fishseries_fiser tff1 where exists (select fi_id from datawg.t_fishseries_fiser tff2  left join datawg.t_series_ser tss on tff2.fiser_ser_id =tss.ser_id where tss.ser_cou_code ='SE' and tss.ser_lfs_code in ('Y','S','YS') and tff1.fi_id=tff2.fi_id); 
+
+--32792 rows to be deleted
+select count(fi_id) from datawg.t_fishsamp_fisa tff2 left join datawg.t_samplinginfo_sai tss on tff2.fisa_sai_id =tss.sai_id where tss.sai_cou_code ='SE'; 
+--32792 rows deleted
+delete from datawg.t_fishsamp_fisa tff1 where exists (select fi_id from datawg.t_fishsamp_fisa tff2 left join datawg.t_samplinginfo_sai tss on tff2.fisa_sai_id =tss.sai_id where tss.sai_cou_code ='SE' and tff1.fi_id=tff2.fi_id);
+
+rollback;
+
 
     
