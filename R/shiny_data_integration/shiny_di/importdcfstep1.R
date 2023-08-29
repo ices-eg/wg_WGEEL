@@ -307,8 +307,7 @@ importdcfstep1Server <- function(id,globaldata,loaded_data_dcf){
 												rename("fi_id"="mei_fi_id")	%>%
 												inner_join(t_samplinginfo_sai %>% select(sai_name, sai_id), by= c("fisa_sai_id" = "sai_id")) %>%
 												rename("sai_id"="fisa_sai_id")
-										
-										
+
 										validate(need(nrow(sampling)>0, "No sampling info, cannot continue"))
 										list_comp_sampling <- compare_with_database_sampling(data_from_excel=sampling, data_from_base=t_samplinginfo_sai)
 										current_cou_code <- list_comp_sampling$current_cou_code
