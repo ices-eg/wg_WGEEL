@@ -1,6 +1,6 @@
 ---
 title: "Report on developments on the state of the European eel (Anguilla anguilla) stock, the fisheries on it and other anthropogenic impacts"
-author: "Hilaire"
+author: "WGEEL"
 date: "2022-09-13"
 documentclass: article
 output: 
@@ -85,7 +85,7 @@ if (getUsername() == "hamme005") setwd("C:/Tessa/wg_WGEEL/R/recruitment")
 cred=read_yaml("../../credentials.yml")
 # TODO 2022 use this to connect, not sqldf !!!!!!!!!!!!!!
 # currently still using sqldf and RpostgreSQL() change for compatibility with linux
-pwd = passwordwgeel = password = getPass(msg="password for db")
+pwd = passwordwgeel = password = cred$password
 con = dbConnect(RPostgres::Postgres(), dbname=cred$dbname,host=cred$host,port=cred$port,user=cred$user, password=passwordwgeel)
 
 wddata <- getwd()

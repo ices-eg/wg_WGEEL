@@ -284,21 +284,23 @@ for (cou in cou_code){
 
 for (cou in cou_code){
   gc()
-	country <- cou
-	cat("country: ",country,"\n")
-	create_datacall_file ( 
-			country <- cou,
-			eel_typ_id <- c(6), 
-			name <- "Eel_Data_Call_Annex5_Landings_Recreational",
-			minyear=2000,
-			maxyear=CY, #maxyear corresponds to the current year where we have to fill data
-			host=cred$host,
-			dbname=cred$dbname,
-			user=cred$user,
-			port=cred$port,
-			passwordwgeel=cred$password,
-			datasource=datasource)
-	cat("work finished",country,"\n")
+  country <- cou
+  cat("country: ",country,"\n")
+  if (! cou %in% c("GB")) { #GB has no recreational fisheries
+    create_datacall_file ( 
+      country <- cou,
+      eel_typ_id <- c(6), 
+      name <- "Eel_Data_Call_Annex5_Landings_Recreational",
+      minyear=2000,
+      maxyear=CY, #maxyear corresponds to the current year where we have to fill data
+      host=cred$host,
+      dbname=cred$dbname,
+      user=cred$user,
+      port=cred$port,
+      passwordwgeel=cred$password,
+      datasource=datasource)
+    cat("work finished",country,"\n")
+  }
 }
 
 # OTHER LANDINGS
