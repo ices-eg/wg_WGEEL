@@ -2387,7 +2387,7 @@ load_series<-function(path,datasource, stage="glass_eel"){
 			){
 
 		data_xls <- readxlTemplate(path, sheet)
-		cat(sheet,"\n")
+		cat("loading sheet ", sheet,"\n")
 		#browser()
     # ignore this
 		#nbcol <- length(columns)	
@@ -2400,7 +2400,7 @@ load_series<-function(path,datasource, stage="glass_eel"){
 			stop(paste("a column of the template is not in the dictionary, please contact a shiny admin:",
 							columns[!columns %in% names(dictionary)]))
 		
-		cat(sheet,"\n")
+
 
 		#here we force conversion to match dictionary
 	  tryCatch({
