@@ -131,9 +131,9 @@ onStop(function() {
 # BEFORE WGEEL sqldf('delete from datawg.t_eelstock_eel where eel_datasource='test')
 # BEFORE WGEEL sqldf('delete from datawg.t_eelstock_eel where eel_datasource='test')
 ########################
-qualify_code<-22 # change this code here and in tr_quality_qal for next wgeel
-the_eel_datasource <- "dc_2022"  # change this after tests
-current_year <- 2022
+qualify_code<-23 # change this code here and in tr_quality_qal for next wgeel
+the_eel_datasource <- "test"  # change this after tests
+current_year <- 2023
 
 
 
@@ -188,6 +188,7 @@ dictionary=c(
   "gr_last_update" = "date",
   "gr_dts_datasource"="text",
   "fi_id_cou"="text",
+  "fi_idcou"="text",
   ####columns in fish individual metrics samplings	
   "fi_id"="numeric",
   "sai_name"="text",
@@ -197,6 +198,7 @@ dictionary=c(
   "fi_lfs_code"="text",
   "fisa_x_4326"="numeric",
   "fisa_y_4326"="numeric",
+  "fisa_lfs_code"="text",
   "fi_comment"="text",
   "lengthmm"="numeric",
   "weightg"="numeric",
