@@ -2,7 +2,29 @@
 -- ALREADY RUN
 -------------------------------------------------------------
 
+CREATE OR REPLACE FUNCTION datawg.fish_in_emu()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$   
+  DECLARE inpolygon bool;
+  DECLARE fish integer;
+  BEGIN
+  if (new.fisa_y_4326 is null and new.fisa_x_4326 is null) then
+  	return new;
+  end if;
 
+  SELECT INTO
+  inpolygon coalesce(st_contains(geom_buffered, st_setsrid(st_point(new.fisa_x_4326,new.fisa_y_4326),4326)), true) FROM
+  datawg.t_samplinginfo_sai
+  JOIN REF.tr_emu_emu ON emu_nameshort=sai_emu_nameshort where new.fisa_sai_id = sai_id;
+  IF (inpolygon = false) THEN
+    RAISE EXCEPTION 'the fish % - % coordinates do not fall into the corresponding emu (% - %)', new.fi_id, new.fi_id_cou, new.fisa_x_4326, new.fisa_y_4326 ;
+    END IF  ;
+
+    RETURN NEW ;
+  END  ;
+$function$
+;
 
 ALTER FUNCTION checkemu_whole_country SET SCHEMA datawg;
 ALTER TABLE datawg.t_eelstock_eel DROP CONSTRAINT ck_emu_whole_aquaculture;
