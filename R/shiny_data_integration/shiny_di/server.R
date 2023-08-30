@@ -28,6 +28,7 @@ shinyServer(function(input, output, session){
       output$passwordtest <- renderText({
             req(input$passwordbutton)   
             load_database()
+           
             if (data$connectOK){
               var_database()
               return("Connected") 
@@ -37,7 +38,6 @@ shinyServer(function(input, output, session){
 
 
 load_database <- function(){
-  
   # we use isolate as we want no dependency on the value (only the button being clicked)
   passwordwgeel <- isolate(input$password)
   ############################################
@@ -60,14 +60,14 @@ load_database <- function(){
       bigint="integer",
       minSize = 0,
       maxSize = 2)          
-  t <- tryCatch(dbListTables(pool),error=function(e)iconv(e,to="UTF8"))
-  if(grepl("Error",t)) {
+  t <- tryCatch({dbListTables(pool);"OK"},error=function(e)"connexion error")
+  if (t=="connexion error") {
     textoutput <- paste("password:",input$password,"wrong")
     isolate(data$pool <- NULL)       
     isolate(data$connectOK <- FALSE)
   } else { 
-    data$pool <- pool 
-    data$connectOK <- dbGetInfo(data$pool)$valid        
+    isolate(data$pool <- pool)
+    isolate(data$connectOK <- dbGetInfo(data$pool)$valid)        
     # if the password is wrong we need to test the connection           
   }
 }
