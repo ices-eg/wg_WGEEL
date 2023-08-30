@@ -336,7 +336,7 @@ importdcfstep1Server <- function(id,globaldata,loaded_data_dcf){
 											  if (nrow(list_comp_group_metrics$new)>0){
 											    mxn <- max(list_comp_group_metrics$new$id, na.rm=TRUE)
 											  }   else {
-											    mxm <- 0
+											    mxn <- 0
 											  }
 											  if (nrow(list_comp_group_metrics$modified)>0){
 											    mxm <- max(list_comp_group_metrics$modified$id, na.rm=TRUE)
@@ -401,7 +401,7 @@ importdcfstep1Server <- function(id,globaldata,loaded_data_dcf){
 												if (nrow(list_comp_individual_metrics$modified) >0){
 												  mxm <- max(list_comp_individual_metrics$modified$id, na.rm=TRUE)
 												} else {
-												    mxn <- 0
+												    mxm <- 0
 												  }
 												list_comp_updated_individual_metrics$new$id <- list_comp_updated_individual_metrics$new$id + mxn
 												list_comp_updated_individual_metrics$modified$id <- list_comp_updated_individual_metrics$modified$id + mxm
