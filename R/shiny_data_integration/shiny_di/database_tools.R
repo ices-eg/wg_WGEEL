@@ -517,7 +517,12 @@ compare_with_database_dataseries <- function(data_from_excel, data_from_base, sh
 	
 	
 	modified <- dplyr::anti_join(data_from_excel, data_from_base, 
-			by = c("das_year", "das_value", "das_comment", "das_effort", "das_ser_id", "das_qal_id")
+			by = c("das_year", 
+          "das_value", 
+          "das_comment", 
+          "das_effort", 
+          "das_ser_id",
+          "das_qal_id")
 	)
 	# new is also modified (less columns in the anti join) I need to remove the lines 
 	# from new in modified
