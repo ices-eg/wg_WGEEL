@@ -14,7 +14,7 @@ writeupdatedgroupmetricUI <- function(id, title){
 			fluidRow(
 					column(
 							width=4,
-							fileInput(ns("xl_update_group_metrics"), "xls update",
+							fileInput(ns("xl_update_group_metrics"), "Update the modified group metrics",
 									multiple=FALSE,
 									accept = c(".xls",".xlsx"))
 					),

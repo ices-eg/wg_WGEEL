@@ -247,11 +247,11 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
                     }			
                     
                     
-                    t_dataseries_das <- extract_data("t_dataseries_das", quality_check=FALSE)
-                    t_groupseries_grser <- extract_data("t_groupseries_grser", quality_check=FALSE)
-                    t_fishseries_fiser <- extract_data("t_fishseries_fiser", quality_check=FALSE)
-                    t_metricgroupseries_megser <- extract_data("t_metricgroupseries_megser", quality_check=FALSE)
-                    t_metricindseries_meiser <- extract_data("t_metricindseries_meiser", quality_check=FALSE)
+                    t_dataseries_das <- extract_data("t_dataseries_das", quality_check=TRUE)
+                    t_groupseries_grser <- extract_data("t_groupseries_grser", quality_check=FALSE) # FALSE we don't use qal_id to "ban" data
+                    t_fishseries_fiser <- extract_data("t_fishseries_fiser", quality_check=FALSE) # we don't use qal_id to "ban" data
+                    t_metricgroupseries_megser <- extract_data("t_metricgroupseries_megser", quality_check=FALSE) # we don't use qal_id to "ban" data
+                    t_metricindseries_meiser <- extract_data("t_metricindseries_meiser", quality_check=FALSE) # we don't use qal_id to "ban" data
                     
                     switch (loaded_data_ts$file_type,
                         "glass_eel"={

@@ -16,7 +16,7 @@ writedeletedindmetricUI <- function(id, title){
           fluidRow(
             column(
               width=4,
-              fileInput(ns("xl_deleted_individual_metrics"), "xls update",
+              fileInput(ns("xl_deleted_individual_metrics"), "Delete using deleted individual metrics file",
                         multiple=FALSE,
                         accept = c(".xls",".xlsx"))
             ),
