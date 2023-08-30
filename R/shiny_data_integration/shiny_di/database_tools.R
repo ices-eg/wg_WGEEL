@@ -2529,7 +2529,9 @@ write_updated_individual_metrics <- function(path, type="series"){
 delete_individual_metrics <- function(path, type="series"){
 	conn <- poolCheckout(pool)
 	on.exit(poolReturn(conn))
-	deleted <- read_excel(path = path, sheet = 1)
+  test <- read_excel(path = path, sheet=1, range="A1:A1")
+  if (names(test) %in% c("ser_nameshort","sai_name")) skip=0 else skip=1
+	deleted <- read_excel(path = path, sheet=1, skip=skip)
 	if (nrow(deleted) == 0)
 	  return(list(message="empty file", cou_code=NULL))
 	if (sum(!is.na(deleted$fi_id)) == 0)
