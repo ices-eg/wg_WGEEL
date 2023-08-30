@@ -15,7 +15,7 @@ writedeletedgroupmetricUI <- function(id,title){
           fluidRow(
             column(
               width=4,
-              fileInput(ns("xl_deleted_group_metrics"), "xls update",
+              fileInput(ns("xl_deleted_group_metrics"), "Delete using deleted group metrics file",
                         multiple=FALSE,
                         accept = c(".xls",".xlsx"))
             ),

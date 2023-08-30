@@ -14,7 +14,7 @@ writenewindmetricUI <- function(id, title){
           fluidRow(
             column(
               width=4,
-              fileInput(ns("xl_new_individual_metrics"), "xls update",
+              fileInput(ns("xl_new_individual_metrics"), "Write new individual metrics file",
                         multiple=FALSE,
                         accept = c(".xls",".xlsx"))
             ),
