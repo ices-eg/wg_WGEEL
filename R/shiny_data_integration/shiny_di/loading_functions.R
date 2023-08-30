@@ -51,6 +51,7 @@ load_catch_landings<-function(path,datasource){
 	if ("deleted_data " %in% sheets) deleted <- "deleted_data " else deleted <- "deleted_data"
 	# restore this in 2023 by replacing deleted with "deleted_data"
 	output <- lapply(c("new_data","updated_data",deleted),function(sheet){
+
 				data_xls<-read_excel(
 						path=path,
 						sheet=sheet,
@@ -72,7 +73,8 @@ load_catch_landings<-function(path,datasource){
 				if (!all(colnames(data_xls)%in%
 								c(ifelse(sheet %in% c("updated_data",deleted),"eel_id","eel_typ_name"),"eel_typ_name","eel_year","eel_value","eel_missvaluequal",
 										"eel_emu_nameshort","eel_cou_code", "eel_lfs_code", "eel_hty_code","eel_area_division",
-										"eel_qal_id", "eel_qal_comment","eel_comment","eel_datasource"))) 
+										"eel_qal_id", "eel_qal_comment","eel_comment","eel_datasource",'eel_datelastupdate',
+								  'eel_datasource',	'eel_dta_code'))) 
 					stop(str_c("problem in column names :",            
 									paste(colnames(data_xls)[!colnames(data_xls)%in%
 															c(ifelse(sheet %in% c("updated_data", deleted),"eel_id",""),

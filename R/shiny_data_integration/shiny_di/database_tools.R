@@ -87,7 +87,7 @@ compare_with_database <- function(data_from_excel, data_from_base, eel_typ_id_va
   eel_colnames <- colnames(data_from_base)[grepl("(eel|perc_)", colnames(data_from_base))]
   
   #since dc2020, qal_id are automatically created during the import
-  data_from_excel$eel_qal_id <- ifelse(is.na(data_from_excel$eel_value) & data_from_excel$eel_missvaluequal != "NP" ,0,1)
+  data_from_excel$eel_qal_id <- ifelse(is.na(data_from_excel$eel_value) & !data_from_excel$eel_missvaluequal %in% c("NC", "NP") ,0,1)
   data_from_excel$eel_qal_comment <- rep(NA,nrow(data_from_excel))
   
   # duplicates are inner_join eel_cou_code added to the join just to avoid
@@ -107,7 +107,7 @@ compare_with_database <- function(data_from_excel, data_from_base, eel_typ_id_va
                     "eel_comment.base", "eel_comment.xls", "eel_datasource.base", "eel_datasource.xls")))
   new <- dplyr::anti_join(data_from_excel, data_from_base, by = c("eel_typ_id", 
                                                                   "eel_year", "eel_lfs_code", "eel_emu_nameshort", "eel_hty_code", "eel_area_division", 
-                                                                  "eel_cou_code"), suffix = c(".base", ".xls"))
+                                                                  "eel_cou_code"))
   new <- new %>%
     select(any_of(c("eel_typ_id", "eel_typ_name", "eel_year", "eel_value", "eel_missvaluequal", 
                     "eel_emu_nameshort", "eel_cou_code", "eel_lfs_code", "eel_hty_code", "eel_area_division", 
@@ -1015,7 +1015,6 @@ compare_with_database_metric_ind <- function(
 #' }
 #' @rdname write_duplicate
 write_duplicates <- function(path, qualify_code = 22) {
-  
   duplicates2 <- read_excel(path = path, sheet = 1, skip = 1)
   
   # Initial checks ----------------------------------------------------------------------------------
@@ -1346,8 +1345,7 @@ write_new <- function(path, type="all") {
   conn <- poolCheckout(pool)
   dbExecute(conn,"drop table if exists new_temp ")
   dbWriteTable(conn,"new_temp",new,row.names=FALSE,temporary=TRUE)
-  
-  
+
   # Query uses temp table just created in the database by sqldf
   query <- "insert into datawg.t_eelstock_eel (         
 			eel_typ_id,       
