@@ -144,8 +144,8 @@ insert into ref.tr_quality_qal values (23, 'discarded_wgeel 2023','This data has
 
 
 -- Argiryos
--- for Annex 3 in the tab “existing_group_metrics” there are data until 2020, but we have provided data for 2021. 
--- Can we check that if the data are in the database, or other case to re-enter them in the “new_group_metrics”.
+-- for Annex 3 in the tab â€œexisting_group_metricsâ€� there are data until 2020, but we have provided data for 2021. 
+-- Can we check that if the data are in the database, or other case to re-enter them in the â€œnew_group_metricsâ€�.
 --SELECT * FROM datawg.t_groupseries_grser JOIN datawg.t_series_ser
 --ON grser_ser_id = ser_id WHERE ser_nameshort= 'EamtS';
 
@@ -173,3 +173,8 @@ rollback;
 -- 27 series for Sweden OK
 SELECT DISTINCT(sai_name)  from datawg.t_fishsamp_fisa tff2
 left join datawg.t_samplinginfo_sai tss on tff2.fisa_sai_id =tss.sai_id  WHERE sai_cou_code ='SE'
+
+
+-- no das_qal_comment in DB
+-- TODO in DB server 
+ALTER TABLE datawg.t_dataseries_das ADD COLUMN das_qal_comment TEXT;

@@ -461,6 +461,7 @@ compare_with_database_dataseries <- function(data_from_excel, data_from_base, sh
 			"das_value.base", "das_value.xls",					
 			"das_comment.base", "das_comment.xls",
 			"das_effort.base", "das_effort.xls",
+      "das_qal_comment.base", "das_qal_comment.xls",
 			"sheetorigin")
 	
 	columns_new <- c("id","das_id",
@@ -506,7 +507,9 @@ compare_with_database_dataseries <- function(data_from_excel, data_from_base, sh
 	
 	# Anti join only keeps columns from X, any new data is a data with ser_id and year not present in the db
 	new <-  dplyr::anti_join(as.data.frame(data_from_excel), data_from_base, 
-			by = c("das_ser_id","das_year","das_qal_id"))
+			by = c("das_ser_id","das_year")) 
+  # change 2023 removed das_qal_id
+  # otherwise rows with qal_id changed go into the new dataset and there is a bug when integrating indb
 	if (nrow(new)>0){
 		#new$das_qal_id <- NA
 		new$das_dts_datasource <- the_eel_datasource		
@@ -514,7 +517,7 @@ compare_with_database_dataseries <- function(data_from_excel, data_from_base, sh
 			new <- new %>% select(-das_id)
 		}
 	}
-	
+
 	
 	modified <- dplyr::anti_join(data_from_excel, data_from_base, 
 			by = c("das_year", 
@@ -522,11 +525,13 @@ compare_with_database_dataseries <- function(data_from_excel, data_from_base, sh
           "das_comment", 
           "das_effort", 
           "das_ser_id",
-          "das_qal_id")
+          "das_qal_id",
+          "das_qal_comment")
 	)
 	# new is also modified (less columns in the anti join) I need to remove the lines 
 	# from new in modified
 	modified <- modified[!modified$id %in% new$id,]
+
 	# after anti join there are still values that are not really changed.
 	# this is further investigated below
 	# I'm using the id created in the script to identify the lines ot check
