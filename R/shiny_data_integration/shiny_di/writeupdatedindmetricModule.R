@@ -79,7 +79,7 @@ writeupdatedindmetricServer <- function(id,globaldata,loaded_data, type = "serie
                      path <- isolate(step_filepath_update_individual_metrics())
                      if (is.null(data$path_step_update_individual_metrics)) 
                        return(NULL)
-                     rls <- update_individual_metrics(path, type=type)
+                     rls <- write_updated_individual_metrics(path, type=type)
                      message <- rls$message
                      cou_code <- rls$cou_code
                      main_assessor <- input$main_assessor

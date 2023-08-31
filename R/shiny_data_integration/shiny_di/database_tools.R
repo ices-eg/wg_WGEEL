@@ -87,7 +87,7 @@ compare_with_database <- function(data_from_excel, data_from_base, eel_typ_id_va
   eel_colnames <- colnames(data_from_base)[grepl("(eel|perc_)", colnames(data_from_base))]
   
   #since dc2020, qal_id are automatically created during the import
-  data_from_excel$eel_qal_id <- ifelse(is.na(data_from_excel$eel_value) & data_from_excel$eel_missvaluequal != "NP" ,0,1)
+  data_from_excel$eel_qal_id <- ifelse(is.na(data_from_excel$eel_value) & !data_from_excel$eel_missvaluequal %in% c("NC", "NP") ,0,1)
   data_from_excel$eel_qal_comment <- rep(NA,nrow(data_from_excel))
   
   # duplicates are inner_join eel_cou_code added to the join just to avoid
@@ -107,7 +107,7 @@ compare_with_database <- function(data_from_excel, data_from_base, eel_typ_id_va
                     "eel_comment.base", "eel_comment.xls", "eel_datasource.base", "eel_datasource.xls")))
   new <- dplyr::anti_join(data_from_excel, data_from_base, by = c("eel_typ_id", 
                                                                   "eel_year", "eel_lfs_code", "eel_emu_nameshort", "eel_hty_code", "eel_area_division", 
-                                                                  "eel_cou_code"), suffix = c(".base", ".xls"))
+                                                                  "eel_cou_code"))
   new <- new %>%
     select(any_of(c("eel_typ_id", "eel_typ_name", "eel_year", "eel_value", "eel_missvaluequal", 
                     "eel_emu_nameshort", "eel_cou_code", "eel_lfs_code", "eel_hty_code", "eel_area_division", 
@@ -421,156 +421,156 @@ compare_with_database_series <- function(data_from_excel, data_from_base) {
 ## this one should fail (I have modified the id):
 # list_comp <- compare_with_database_dataseries(data_from_excel,data_from_base, sheetorigin="deleted_data")
 compare_with_database_dataseries <- function(data_from_excel, data_from_base, sheetorigin=c("new_data","updated_data","deleted_data")) {
-	# data integrity checks
-	if (!sheetorigin %in% c("new_data","updated_data","deleted_data")) stop("sheet origin should be one of new_data, updated_data or deleted_data")
-	if (length(sheetorigin)!=1) stop("sheetorigin should be of length one")
-	error_id_message <- ""
-	if (nrow(data_from_excel) == 0) 
-		validate(need(FALSE,"There are no data coming from the excel file"))
-	if (nrow(data_from_base) == 0) {
-		warning("No data in the file coming from the database")
-	}
-	# convert columns with missing data to numeric	  
-	data_from_excel <- data_from_excel %>% mutate_if(is.logical,list(as.numeric)) 
-	data_from_excel <- data_from_excel %>% mutate_at(vars(das_dts_datasource,das_comment), list(as.character)) 
-	
-	# add temporary id for join
-	data_from_excel <-  	mutate(data_from_excel,id = row_number())
-	
-	#data_from_excel <- data_from_excel %>% mutate_at(vars(matches("update")),list(as.Date)) 	
-	
-	data_from_excel$sheetorigin <- sheetorigin
-	
-	# duplicates are created to create the columns (right table structure later used in highlight changes. 
-	# but the rows from duplicated (real duplicates) will be selected later by comparing changes in 
-	# c("das_year", "das_value", "das_comment", "das_effort", "das_ser_id")
-	# any other change will not be detected
-	
-	duplicates <- data_from_base %>% 	dplyr::inner_join(data_from_excel, by = c("das_ser_id","das_year"), 
-			suffix = c(".base", ".xls"))
-	
-	
-
-	# the followin just checks and reorders the columns
-	
-	columns_updated <- c("id", "das_ser_id","das_year", "ser_nameshort", "das_last_update",
-			# duplicates columns
-			"das_id.base", "das_id.xls",
-			"das_qal_id.base", "das_qal_id.xls",
-			"das_dts_datasource.base", "das_dts_datasource.xls", 
-			"das_value.base", "das_value.xls",					
-			"das_comment.base", "das_comment.xls",
-			"das_effort.base", "das_effort.xls",
+  # data integrity checks
+  if (!sheetorigin %in% c("new_data","updated_data","deleted_data")) stop("sheet origin should be one of new_data, updated_data or deleted_data")
+  if (length(sheetorigin)!=1) stop("sheetorigin should be of length one")
+  error_id_message <- ""
+  if (nrow(data_from_excel) == 0) 
+    validate(need(FALSE,"There are no data coming from the excel file"))
+  if (nrow(data_from_base) == 0) {
+    warning("No data in the file coming from the database")
+  }
+  # convert columns with missing data to numeric	  
+  data_from_excel <- data_from_excel %>% mutate_if(is.logical,list(as.numeric)) 
+  data_from_excel <- data_from_excel %>% mutate_at(vars(das_dts_datasource,das_comment), list(as.character)) 
+  
+  # add temporary id for join
+  data_from_excel <-  	mutate(data_from_excel,id = row_number())
+  
+  #data_from_excel <- data_from_excel %>% mutate_at(vars(matches("update")),list(as.Date)) 	
+  
+  data_from_excel$sheetorigin <- sheetorigin
+  
+  # duplicates are created to create the columns (right table structure later used in highlight changes. 
+  # but the rows from duplicated (real duplicates) will be selected later by comparing changes in 
+  # c("das_year", "das_value", "das_comment", "das_effort", "das_ser_id")
+  # any other change will not be detected
+  
+  duplicates <- data_from_base %>% 	dplyr::inner_join(data_from_excel, by = c("das_ser_id","das_year"), 
+                                                      suffix = c(".base", ".xls"))
+  
+  
+  
+  # the followin just checks and reorders the columns
+  
+  columns_updated <- c("id", "das_ser_id","das_year", "ser_nameshort", "das_last_update",
+                       # duplicates columns
+                       "das_id.base", "das_id.xls",
+                       "das_qal_id.base", "das_qal_id.xls",
+                       "das_dts_datasource.base", "das_dts_datasource.xls", 
+                       "das_value.base", "das_value.xls",					
+                       "das_comment.base", "das_comment.xls",
+                       "das_effort.base", "das_effort.xls",
       "das_qal_comment.base", "das_qal_comment.xls",
-			"sheetorigin")
-	
-	columns_new <- c("id","das_id",
-			"das_ser_id",
-			"das_year", 
-			"ser_nameshort",						
-			"das_last_update",
-			"das_dts_datasource.base", "das_dts_datasource.xls", 
-			# duplicates columns
-			"das_qal_id.base", "das_qal_id.xls",						
-			"das_value.base", "das_value.xls",					
-			"das_comment.base", "das_comment.xls",
-			"das_effort.base", "das_effort.xls",
-			"sheetorigin")
-	
-	# If the data_from_excel corresponds to the updated_data tab, then there is a das_id
-	# check that das_id has not been modified by the user
-	
-	
-	if (sheetorigin %in% c("updated_data", "deleted_data")){
-		if (!all( columns_updated  %in% colnames (duplicates)))	{
-			error_id_message <- sprintf("<p style='color:red;'> column %s not present in updated data",
-					paste(columns_updated[!columns_updated  %in% colnames (duplicates)], collapse=";")
-			) 
-		} else {
-			duplicates <- duplicates[, columns_updated]
-		}
-		if (any(duplicates$das_id.base!=duplicates$das_id.excel)) {
-			error_id_message <- sprintf("<p style='color:red;'> you have changed das_id for series %s and year %s please use the das_id provided in existing data </p>", 
-					paste(duplicates[duplicates$das_id.base!=duplicates$das_id.xls,"ser_nameshort"],collapse=" , "), 
-					paste(duplicates[duplicates$das_id.base!=duplicates$das_id.xls,"das_year"],collapse=" , ")
-			)
-		}
-		
-		
-	} else { # sheet = new_data
-		if (!all( columns_new  %in% colnames (duplicates))) {
-			error_id_message <-paste("column",paste(columns_new[!columns_new  %in% colnames (duplicates)], collapse=";"), "not present in new data")
-		} else {
-			duplicates <- duplicates[, columns_new]
-		}
-	}
-	
-	# Anti join only keeps columns from X, any new data is a data with ser_id and year not present in the db
-	new <-  dplyr::anti_join(as.data.frame(data_from_excel), data_from_base, 
+                       "sheetorigin")
+  
+  columns_new <- c("id","das_id",
+                   "das_ser_id",
+                   "das_year", 
+                   "ser_nameshort",						
+                   "das_last_update",
+                   "das_dts_datasource.base", "das_dts_datasource.xls", 
+                   # duplicates columns
+                   "das_qal_id.base", "das_qal_id.xls",						
+                   "das_value.base", "das_value.xls",					
+                   "das_comment.base", "das_comment.xls",
+                   "das_effort.base", "das_effort.xls",
+                   "sheetorigin")
+  
+  # If the data_from_excel corresponds to the updated_data tab, then there is a das_id
+  # check that das_id has not been modified by the user
+  
+  
+  if (sheetorigin %in% c("updated_data", "deleted_data")){
+    if (!all( columns_updated  %in% colnames (duplicates)))	{
+      error_id_message <- sprintf("<p style='color:red;'> column %s not present in updated data",
+                                  paste(columns_updated[!columns_updated  %in% colnames (duplicates)], collapse=";")
+      ) 
+    } else {
+      duplicates <- duplicates[, columns_updated]
+    }
+    if (any(duplicates$das_id.base!=duplicates$das_id.excel)) {
+      error_id_message <- sprintf("<p style='color:red;'> you have changed das_id for series %s and year %s please use the das_id provided in existing data </p>", 
+                                  paste(duplicates[duplicates$das_id.base!=duplicates$das_id.xls,"ser_nameshort"],collapse=" , "), 
+                                  paste(duplicates[duplicates$das_id.base!=duplicates$das_id.xls,"das_year"],collapse=" , ")
+      )
+    }
+    
+    
+  } else { # sheet = new_data
+    if (!all( columns_new  %in% colnames (duplicates))) {
+      error_id_message <-paste("column",paste(columns_new[!columns_new  %in% colnames (duplicates)], collapse=";"), "not present in new data")
+    } else {
+      duplicates <- duplicates[, columns_new]
+    }
+  }
+  
+  # Anti join only keeps columns from X, any new data is a data with ser_id and year not present in the db
+  new <-  dplyr::anti_join(as.data.frame(data_from_excel), data_from_base, 
 			by = c("das_ser_id","das_year")) 
   # change 2023 removed das_qal_id
   # otherwise rows with qal_id changed go into the new dataset and there is a bug when integrating indb
-	if (nrow(new)>0){
-		#new$das_qal_id <- NA
-		new$das_dts_datasource <- the_eel_datasource		
-		if (sheetorigin =="updated_data" ){ 
-			new <- new %>% select(-das_id)
-		}
-	}
-
-	
-	modified <- dplyr::anti_join(data_from_excel, data_from_base, 
-			by = c("das_year", 
-          "das_value", 
-          "das_comment", 
-          "das_effort", 
-          "das_ser_id",
+  if (nrow(new)>0){
+    #new$das_qal_id <- NA
+    new$das_dts_datasource <- the_eel_datasource		
+    if (sheetorigin =="updated_data" ){ 
+      new <- new %>% select(-das_id)
+    }
+  }
+  
+  
+  modified <- dplyr::anti_join(data_from_excel, data_from_base, 
+                               by = c("das_year", 
+                                      "das_value", 
+                                      "das_comment", 
+                                      "das_effort", 
+                                      "das_ser_id",
           "das_qal_id",
           "das_qal_comment")
-	)
-	# new is also modified (less columns in the anti join) I need to remove the lines 
-	# from new in modified
-	modified <- modified[!modified$id %in% new$id,]
+  )
+  # new is also modified (less columns in the anti join) I need to remove the lines 
+  # from new in modified
+  modified <- modified[!modified$id %in% new$id,]
 
-	# after anti join there are still values that are not really changed.
-	# this is further investigated below
-	# I'm using the id created in the script to identify the lines ot check
-	# I need to work with the "full" anti join even if the real anti join is above
-	highlight_change <- duplicates[duplicates$id %in% modified$id,]
-	if (nrow(highlight_change)>0){
-		num_common_col <- grep(".xls|.base",colnames(highlight_change))
-		possibly_changed <- colnames(highlight_change)[num_common_col]
-		
-		# mat returns identical values
-		mat <-	matrix(FALSE,nrow(highlight_change),length(num_common_col))
-		for(v in 0:(length(num_common_col)/2-1))
-		{
-			v=v*2+1
-			test <- highlight_change %>% select(num_common_col)%>% select(v,v+1) %>%
-					mutate_all(as.character) %>%	mutate_all(type.convert, as.is = TRUE) %>%	
-					mutate(test=identical(.[[1]], .[[2]])) %>% pull(test)
-			mat[,c(v,v+1)]<-test
-			
-		}
-		# select only the rows (any change) and columns modified		
-		highlight_change <- highlight_change[!apply(mat,1,all),num_common_col[!apply(mat,2,all)]]
-		
-		
-		# when modified come from sheet new data later identified as a duplicate, I need the id which I get from existing database data
-		if (!"das_id" %in% colnames(modified)){
-			modified <- inner_join(
-					data_from_base[,c("das_year","das_ser_id","das_id", "das_qal_id")], 
-					modified, by= c("das_ser_id","das_year"))
-		}
-	}
-	data_from_excel <- data_from_excel %>% select(-id)
-	new <- new %>% select(-id)
-	modified <- modified %>% select(-id)
-	if (sheetorigin == "deleted_data") {
-		return(list(deleted=data_from_excel, error_id_message=error_id_message))
-	} else {
-		return(list(new = new, modified=modified, highlight_change=highlight_change, error_id_message=error_id_message))
-	}
+  # after anti join there are still values that are not really changed.
+  # this is further investigated below
+  # I'm using the id created in the script to identify the lines ot check
+  # I need to work with the "full" anti join even if the real anti join is above
+  highlight_change <- duplicates[duplicates$id %in% modified$id,]
+  if (nrow(highlight_change)>0){
+    num_common_col <- grep(".xls|.base",colnames(highlight_change))
+    possibly_changed <- colnames(highlight_change)[num_common_col]
+    
+    # mat returns identical values
+    mat <-	matrix(FALSE,nrow(highlight_change),length(num_common_col))
+    for(v in 0:(length(num_common_col)/2-1))
+    {
+      v=v*2+1
+      test <- highlight_change %>% select(num_common_col)%>% select(v,v+1) %>%
+        mutate_all(as.character) %>%	mutate_all(type.convert, as.is = TRUE) %>%	
+        mutate(test=identical(.[[1]], .[[2]])) %>% pull(test)
+      mat[,c(v,v+1)]<-test
+      
+    }
+    # select only the rows (any change) and columns modified		
+    highlight_change <- highlight_change[!apply(mat,1,all),num_common_col[!apply(mat,2,all)]]
+    
+    
+    # when modified come from sheet new data later identified as a duplicate, I need the id which I get from existing database data
+    if (!"das_id" %in% colnames(modified)){
+      modified <- inner_join(
+        data_from_base[,c("das_year","das_ser_id","das_id", "das_qal_id")], 
+        modified, by= c("das_ser_id","das_year"))
+    }
+  }
+  data_from_excel <- data_from_excel %>% select(-id)
+  new <- new %>% select(-id)
+  modified <- modified %>% select(-id)
+  if (sheetorigin == "deleted_data") {
+    return(list(deleted=data_from_excel, error_id_message=error_id_message))
+  } else {
+    return(list(new = new, modified=modified, highlight_change=highlight_change, error_id_message=error_id_message))
+  }
 }
 
 #' @title compare with database sampling
@@ -819,7 +819,7 @@ compare_with_database_metric_group <- function(data_from_excel,
       
     }
     if (nrow(mat)>0){ # fix bug when all lines are returned without new values
-			# 2023 C\E9dric select only rows where there are true modified 
+      # 2023 C\E9dric select only rows where there are true modified 
       id_changed <- unique(highlight_change[!apply(mat,1,all), "id"])%>% pull(id)
       modified <- modified[modified$id %in%id_changed ,]	 
       # show only modifications to the user (any colname modified)	
@@ -906,7 +906,8 @@ compare_with_database_metric_ind <- function(
   
   # after pivot wider generates lines with NA so remove with is.na(fi_id)
   data_from_base_wide <- data_from_base %>% right_join( metrics_ind, by=c("mei_mty_id"="mty_id")) %>%
-    tidyr::pivot_wider(names_from=mty_name,
+    tidyr::pivot_wider(id_cols=c(starts_with("fi"),"sai_name"),
+                       names_from=mty_name,
                        values_from=mei_value) %>% filter(!is.na(fi_id))
   
   data_from_excel_long <- data_from_excel %>% 
@@ -917,7 +918,6 @@ compare_with_database_metric_ind <- function(
     drop_na(mei_value) %>% 
     left_join(metrics_ind %>% select(mty_name,mty_id), by="mty_name") %>%
     rename(mei_mty_id=mty_id)
-  
   # use fi_id if updated but length and weight and date if new
   if ("fi_id" %in% colnames(data_from_excel) ){
     
@@ -933,15 +933,16 @@ compare_with_database_metric_ind <- function(
     duplicates <- data_from_base_wide %>% 	
       dplyr::inner_join(
         data_from_excel, 
-        by = c(ifelse(type=="series","ser_nameshort","sai_name"), "lengthmm", "weightg","fi_date"), 
+        by = c(ifelse(type=="series","ser_nameshort","sai_name"), ifelse(sheetorigin=="updated_individual_metric","fi_id","fi_id_cou")), 
         suffix = c(".base", ".xls"))
   }
   
   
   # Anti join only keeps columns from X
-  new <-  dplyr::anti_join(data_from_excel_long, data_from_base, 
-                           by = c(ifelse(type=="series","ser_nameshort","sai_name"), "fi_date","mei_mty_id"))
-  
+  new <-  dplyr::anti_join(data_from_excel, data_from_base_wide, 
+                           by = c(ifelse(type=="series","ser_nameshort","sai_name"),ifelse(sheetorigin=="updated_individual_metric","fi_id","fi_id_cou")))
+  new_long <-  dplyr::anti_join(data_from_excel_long, data_from_base, 
+                                by = c(ifelse(type=="series","ser_nameshort","sai_name"),ifelse(sheetorigin=="updated_individual_metric","fi_id","fi_id_cou"),"mei_mty_id"))
   if (nrow(new)>0)	new$fi_dts_datasource <- the_eel_datasource
   
   
@@ -979,12 +980,17 @@ compare_with_database_metric_ind <- function(
   } 
   modified_long <- modified %>% tidyr::pivot_longer(cols=metrics_ind$mty_name,
                                                     values_to="mei_value",
-                                                    names_to="mty_name"
-  ) %>% select(-mty_name)
+                                                    names_to="mty_name") %>% 
+    left_join(metrics_ind %>%
+                select(mty_name,mty_id), by="mty_name") %>%
+    rename(mei_mty_id=mty_id)%>% select(-mty_name) %>%
+    dplyr::filter(!is.na(mei_value))
   if (sheetorigin == "deleted_individual_metrics") {
     return(list(deleted=data_from_excel))
   } else {
-    return(list(new = new, modified=modified_long, highlight_change=highlight_change))
+    return(list(new = new_long %>% dplyr::filter(! id %in% modified_long$id),
+                modified=modified_long, 
+                highlight_change=highlight_change))
   }
 }
 
@@ -1009,7 +1015,6 @@ compare_with_database_metric_ind <- function(
 #' }
 #' @rdname write_duplicate
 write_duplicates <- function(path, qualify_code = 22) {
-  
   duplicates2 <- read_excel(path = path, sheet = 1, skip = 1)
   
   # Initial checks ----------------------------------------------------------------------------------
@@ -1340,8 +1345,7 @@ write_new <- function(path, type="all") {
   conn <- poolCheckout(pool)
   dbExecute(conn,"drop table if exists new_temp ")
   dbWriteTable(conn,"new_temp",new,row.names=FALSE,temporary=TRUE)
-  
-  
+
   # Query uses temp table just created in the database by sqldf
   query <- "insert into datawg.t_eelstock_eel (         
 			eel_typ_id,       
@@ -2505,18 +2509,18 @@ write_updated_individual_metrics <- function(path, type="series"){
   (nr <- tryCatch({	
     dbBegin(conn)
     sql0 <- glue::glue_sql("UPDATE datawg.{`ind_table`} SET 
-											(fi_date,fi_year,fi_comment,fi_dts_datasource,fiser_ser_id) =
+											(fi_date,fi_year,fi_comment,fi_dts_datasource,{`ind_key`}) =
 											(i.fi_date::date,i.fi_year,i.fi_comment,i.fi_dts_datasource,i.{`ind_key`}) FROM
 											ind_tmp i
 											WHERE i.fi_id={`ind_table`}.fi_id returning datawg.{`ind_table`}.fi_id",
                            .con=conn)
     rs <- dbSendQuery(conn, sql0)
-    nr1 <- length(unique(dbFetch(rs[,1])))
+    nr1 <- length(unique(dbFetch(rs)[,1]))
     dbClearResult(rs)
     sql1 <- glue::glue_sql("delete from datawg.{`metric_table`} 
-							                       where {`ind_key`} in (select fi_id from ind_tmp)",
+							                       where mei_fi_id in (select fi_id from ind_tmp)",
                            .con=conn)
-    dbExecute(sql1)
+    dbExecute(conn, sql1)
     
     sql2 <- glue::glue_sql("INSERT INTO datawg.{`metric_table`}(mei_fi_id, mei_mty_id, mei_value, mei_dts_datasource, mei_qal_id)
 									SELECT fi_id, mei_mty_id, mei_value, mei_dts_datasource, 1 as mei_qal_id FROM ind_tmp",
@@ -2543,24 +2547,24 @@ write_updated_individual_metrics <- function(path, type="series"){
 }
 
 delete_individual_metrics <- function(path, type="series"){
-	conn <- poolCheckout(pool)
-	on.exit(poolReturn(conn))
+  conn <- poolCheckout(pool)
+  on.exit(poolReturn(conn))
   test <- read_excel(path = path, sheet=1, range="A1:A1")
   if (names(test) %in% c("fi_id")) skip=0 else skip=1
-	deleted <- read_excel(path = path, sheet=1, skip=skip)
-	if (nrow(deleted) == 0)
-	  return(list(message="empty file", cou_code=NULL))
-	if (sum(!is.na(deleted$fi_id)) == 0)
-	  return(list(message="no fi_id", cou_code=NULL))
-	
-	if (any(is.na(deleted$fi_id)))
-	  return(list(message="some missing fi_id", cou_code=NULL))
-	ind_table <- ifelse(type=="series","t_fishseries_fiser","t_fishsamp_fisa")
-	dbWriteTable(conn,"ind_tmp",deleted,temporary=TRUE, overwrite=TRUE)
-	message <- NULL
-	#dbGetQuery(conn, "DELETE FROM datawg.t_groupseries_grser")
-	(nr <- tryCatch({
-							sql <- glue::glue_sql("DELETE FROM datawg.{`ind_table`} 
+  deleted <- read_excel(path = path, sheet=1, skip=skip)
+  if (nrow(deleted) == 0)
+    return(list(message="empty file", cou_code=NULL))
+  if (sum(!is.na(deleted$fi_id)) == 0)
+    return(list(message="no fi_id", cou_code=NULL))
+  
+  if (any(is.na(deleted$fi_id)))
+    return(list(message="some missing fi_id", cou_code=NULL))
+  ind_table <- ifelse(type=="series","t_fishseries_fiser","t_fishsamp_fisa")
+  dbWriteTable(conn,"ind_tmp",deleted,temporary=TRUE, overwrite=TRUE)
+  message <- NULL
+  #dbGetQuery(conn, "DELETE FROM datawg.t_groupseries_grser")
+  (nr <- tryCatch({
+    sql <- glue::glue_sql("DELETE FROM datawg.{`ind_table`} 
 											WHERE fi_id IN (SELECT distinct fi_id FROM ind_tmp)",
                           .con=conn)
     nr0 <- dbExecute(conn, sql)							

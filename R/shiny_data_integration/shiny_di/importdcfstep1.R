@@ -50,12 +50,12 @@ importdcfstep1UI <- function(id){
 							DT::dataTableOutput(ns("dt_modified_group_metrics")),
 							htmlOutput(ns("step1_message_modified_group_metrics")),
 							h3("modified group metrics : what changed ?"),
-							DT::dataTableOutput(ns("dt_highlight_change_group_metric")),	
+							DT::dataTableOutput(ns("dt_highlight_change_group_metrics")),	
 							h3("modified individual metrics"),	
 							DT::dataTableOutput(ns("dt_modified_individual_metrics")),
 							htmlOutput(ns("step1_message_modified_individual_metrics")),
 							h3("modified individual metrics : what changed ?"),
-							DT::dataTableOutput(ns("dt_highlight_change_individual_metric"))	
+							DT::dataTableOutput(ns("dt_highlight_change_individual_metrics"))	
 					
 					)
 			), collapsible=TRUE, width=12))
@@ -312,7 +312,7 @@ importdcfstep1Server <- function(id,globaldata,loaded_data_dcf){
 										current_cou_code <- list_comp_sampling$current_cou_code
 										
 										
-										
+										list_comp_group_metrics <- list()
 										if (nrow(new_group_metrics)>0){
 											list_comp_group_metrics <- compare_with_database_metric_group(
 													data_from_excel=new_group_metrics, 
@@ -374,7 +374,7 @@ importdcfstep1Server <- function(id,globaldata,loaded_data_dcf){
 										} else {
 										  list_comp_group_metrics$deleted <- data.frame()
 										}
-										
+										list_comp_individual_metrics <- list()
 										if (nrow(new_individual_metrics)>0){
 											list_comp_individual_metrics <- 
 													compare_with_database_metric_ind(
@@ -427,7 +427,6 @@ importdcfstep1Server <- function(id,globaldata,loaded_data_dcf){
 												list_comp_individual_metrics$highlight_change <- data.frame()
 											}
 										}
-										
 										if (nrow(deleted_individual_metrics)>0){
 										  list_comp_individual_metrics$deleted <- compare_with_database_metric_ind(
 													data_from_excel=deleted_individual_metrics,

@@ -1,6 +1,27 @@
 -------------------------------------------------------------
 -- ALREADY RUN
 -------------------------------------------------------------
+CREATE OR REPLACE FUNCTION datawg.checkemu_whole_country()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$   
+DECLARE nberror INTEGER ;
+BEGIN
+SELECT COUNT(*) INTO nberror 
+FROM ref.tr_emu_emu
+where tr_emu_emu.emu_nameshort = NEW.eel_emu_nameshort
+and NEW.eel_qal_id =1 AND 
+NEW.eel_typ_id = 11 AND NOT emu_wholecountry ;
+IF (nberror > 0) THEN
+      RAISE EXCEPTION 'Aquaculture must be applied to an emu where emu_wholecountry = TRUE' ;
+END IF  ;
+RETURN NEW ;
+END  ;
+$function$
+;
+
+
+
 
 CREATE OR REPLACE FUNCTION datawg.fish_in_emu()
  RETURNS trigger
