@@ -2433,10 +2433,10 @@ write_new_individual_metrics_proceed <- function(new, type="series"){
       if (type != "series") {
         misslocated <- dbGetQuery(conn, "with fi as (select * from ind_tmp where fisa_x_4326 is not null and fisa_y_4326 is not null)
 					                            select fi.fi_id_cou, fi.fisa_x_4326, fi.fisa_y_4326, fi.sai_name from fi left join datawg.t_samplinginfo_sai tss on fi.fisa_sai_id = tss.sai_id  left join ref.tr_emu_emu tee on tss.sai_emu_nameshort = tee.emu_nameshort where st_intersects(tee.geom_buffered,st_point(fisa_x_4326, fisa_y_4326,4326))= false" )
-        message <- paste("fishes do not fall in emu:",paste0(misslocated, collapse=", "))
+        if (nrow(misslocated)>0)
+          message <- paste("fishes do not fall in emu:",paste0(misslocated, collapse=", "))
       }
       if (nrow(misslocated) == 0){
-        dbGetQuery("select fi_id_cou, fisa_x_4326, fisa_y_4326, sai_name from ")
         # insert fish			
         sqlid <- glue("INSERT INTO datawg.{ind_table}(fi_date,fi_year,fi_comment,fi_dts_datasource,fi_id_cou,{ind_key}{addcol0})
 									SELECT distinct on (id) i.fi_date::date,i.fi_year,i.fi_comment,i.fi_dts_datasource,i.fi_id_cou,i.{ind_key}{addcol1} 
