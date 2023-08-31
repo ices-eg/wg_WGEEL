@@ -858,7 +858,7 @@ compare_with_database_metric_group <- function(data_from_excel,
 
 
 #path<-file.choose()
-#path<-"C:\\Users\\cedric.briand\\OneDrive - EPTB Vilaine\\Projets\\GRISAM\\2022\\WKEELDATA4\\Eel_Data_Call_2022_Annex1_time_series_FR_Recruitment.xlsx"
+#path<-"C:\\Users\\cedric.briand\\Downloads\\2023_Eel_Data_Call_Annex1_Time_Series_FR_Recruitment.xlsx"
 
 
 compare_with_database_metric_ind <- function(
@@ -874,7 +874,7 @@ compare_with_database_metric_ind <- function(
     warning("No data in the file coming from the database")
     
   }
-  
+
   if (sheetorigin != "new_individual_metrics"){
     if (any(! data_from_excel$fi_id %in% data_from_base$fi_id))
       stop(paste0(sheetorigin,
@@ -884,7 +884,7 @@ compare_with_database_metric_ind <- function(
   
   # convert columns with missing data to numeric	  
   data_from_excel <- data_from_excel %>% mutate_if(is.logical,list(as.numeric)) 
-  data_from_excel <- data_from_excel %>% mutate_at(vars(c("fi_comment", ifelse(type=="series","ser_nameshort","sai_name"))) ,list(as.character)) 	
+  data_from_excel <- data_from_excel %>% mutate_at(vars(c("fi_comment", ifelse(type=="series","ser_nameshort","sai_name"))),list(as.character)) 	
   data_from_excel <- data_from_excel %>% mutate_at(vars("fi_date"), list(as.Date)) 
   
   #we add this column since fish needs a year but we don't ask it for other sampling (only for series)
@@ -906,7 +906,7 @@ compare_with_database_metric_ind <- function(
   
   # after pivot wider generates lines with NA so remove with is.na(fi_id)
   data_from_base_wide <- data_from_base %>% right_join( metrics_ind, by=c("mei_mty_id"="mty_id")) %>%
-    tidyr::pivot_wider(id_cols=c(starts_with("fi"),"sai_name"),
+    tidyr::pivot_wider(id_cols=c(starts_with("fi"),ifelse(type=="series","ser_nameshort","sai_name")),
                        names_from=mty_name,
                        values_from=mei_value) %>% filter(!is.na(fi_id))
   
@@ -1004,7 +1004,7 @@ compare_with_database_metric_ind <- function(
 #' @details This function uses sqldf to create temporary table then dbExecute as
 #' this version allows to catch exceptions and sqldf does not
 #' @examples 
-#' \dontrun{
+#' \\dontrun{
 #'  source("../../utilities/set_directory.R") 
 #'  path<-wg_file.choose() 
 #'  path<-"C:\\Users\\cedric.briand\\Documents\\projets\\GRISAM\\2018\\datacall\\06. Data\\Vattican\\02duplicates_catch_landings_2018-09-04VAcorrected.xlsx"
@@ -2436,7 +2436,6 @@ write_new_individual_metrics_proceed <- function(new, type="series"){
         message <- paste("fishes do not fall in emu:",paste0(misslocated, collapse=", "))
       }
       if (nrow(misslocated) == 0){
-        dbGetQuery("select fi_id_cou, fisa_x_4326, fisa_y_4326, sai_name from ")
         # insert fish			
         sqlid <- glue("INSERT INTO datawg.{ind_table}(fi_date,fi_year,fi_comment,fi_dts_datasource,fi_id_cou,{ind_key}{addcol0})
 									SELECT distinct on (id) i.fi_date::date,i.fi_year,i.fi_comment,i.fi_dts_datasource,i.fi_id_cou,i.{ind_key}{addcol1} 
@@ -2444,8 +2443,7 @@ write_new_individual_metrics_proceed <- function(new, type="series"){
         # better to do dbSendQuery and dbFetch within trycath
         rs <- dbSendQuery(conn,sqlid)
         res0 <- dbFetch(rs)
-        dbClearResult(rs)
-        shinybusy::remove_modal_spinner() 
+        dbClearResult(rs)         
         newfish$fi_id <- res0$fi_id
         
         new2 <- new %>%  #now we merge the metric table with groups table to recover fi_id
