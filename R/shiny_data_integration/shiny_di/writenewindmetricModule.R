@@ -88,11 +88,11 @@ writenewindmetricServer <- function(id,globaldata,loaded_data, type="series"){
                      path <- isolate(step_filepath_new_individual_metrics())
                      if (is.null(data$path_step_new_individual_metrics)) 
                        return(NULL)
-                     readed <- write_new_individual_metrics_show(path, type=type)
+                     read <- write_new_individual_metrics_show(path, type=type)
                      shinyjs::show("validate_integrate_new_individual_metrics_button")
                      shinyjs::show("cancel_integrate_new_individual_metrics_button")
-                     data$data_to_be_integrated <- readed$data_read
-                     return(readed$summary)
+                     data$data_to_be_integrated <- read$data_read
+                     return(read$summary)
                    }
                    
                    output$textoutput_step <- renderPrint({
