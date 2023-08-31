@@ -20,7 +20,13 @@ END  ;
 $function$
 ;
 
-
+---
+- avoid deprectated eel_typ_id
+---
+begin;
+alter table datawg.t_eelstock_eel drop constraint ck_removed_typid;
+ALTER TABLE datawg.t_eelstock_eel ADD CONSTRAINT ck_removed_typid CHECK (coalesce(eel_qal_id,1)>5 or eel_typ_id not in (12,7,5));
+commit;
 
 
 CREATE OR REPLACE FUNCTION datawg.fish_in_emu()

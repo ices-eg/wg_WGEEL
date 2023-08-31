@@ -111,7 +111,7 @@ load_catch_landings<-function(path,datasource){
 									column="eel_typ_name",
 									country=country))
 					
-					#  eel_typ_id should be one of 4 comm.land 5 comm.catch 6 recr. land. 7 recr. catch.
+					#  eel_typ_id should be one of 4 comm.land or 6 recr. land. 
 					data_error= rbind(data_error, check_values(dataset=data_xls,
 									namedataset= sheet, 
 									column="eel_typ_name",
