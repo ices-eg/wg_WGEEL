@@ -31,12 +31,14 @@ shinyServer(function(input, output, session){
            
             if (data$connectOK){
               var_database()
+              if (Sys.info()["user"] %in% c("hdrouineau","cedric.briand"))
+                shinyjs::show("browser_button")
               return("Connected") 
             } else {
               return(paste("password:",input$password,"wrong"))               
             }})
 
-
+observeEvent(input$browser_button, browser())
 load_database <- function(){
   # we use isolate as we want no dependency on the value (only the button being clicked)
   passwordwgeel <- isolate(input$password)
