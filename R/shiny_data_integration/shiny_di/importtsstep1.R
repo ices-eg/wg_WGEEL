@@ -191,7 +191,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
         # with duplicates values
         #############################
         observeEvent(input$check_duplicate_button_ts, {
-             
+             #browser()
               shinyCatch({
                     shinybusy::show_modal_spinner(text = "Checking File", color="darkgreen",spin="fading-circle")
                     
