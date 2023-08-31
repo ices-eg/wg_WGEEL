@@ -71,7 +71,8 @@ ui <- fluidPage(spsDepend("toastr"),
 								choices = participants,
 								selected="Cedric Briand"
 						
-						)
+						),
+						hidden(actionButton("browser_button", "Browser"))
 				
 				
 				), 
