@@ -2388,6 +2388,9 @@ load_series<-function(path,datasource, stage="glass_eel"){
 			){
 
 		data_xls <- readxlTemplate(path, sheet)
+    if ("fi_idcou" %in% names(data_xls))
+      data_xls <- data_xls %>%
+          rename("fi_id_cou"=fi_idcou) #to deal with a bug
 		cat("loading sheet ", sheet,"\n")
 		#browser()
     # ignore this
