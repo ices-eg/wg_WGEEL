@@ -323,7 +323,7 @@ compare_with_database_series <- function(data_from_excel, data_from_base) {
                    ser_area_division,ser_cou_code,ser_effort_uni_code, ser_uni_code, ser_method ),list(as.character)) 
   
   duplicates <- data_from_base %>% dplyr::filter(ser_typ_id %in% current_typ_id & 
-                                                   ser_cou_code == current_cou_code) %>% dplyr::select(ser_colnames) %>% # dplyr::select(-eel_cou_code)%>%
+                                                   ser_cou_code == current_cou_code) %>% dplyr::select(all_of(ser_colnames)) %>% # dplyr::select(-eel_cou_code)%>%
     dplyr::inner_join(data_from_excel, by = c("ser_typ_id",  "ser_nameshort"), 
                       suffix = c(".base", ".xls"))
   duplicates <- duplicates[, 
@@ -375,7 +375,7 @@ compare_with_database_series <- function(data_from_excel, data_from_base) {
     for(v in 0:(length(num_common_col)/2-1))
     {
       v=v*2+1
-      test <- highlight_change %>% select(num_common_col)%>%select(v,v+1) %>%
+      test <- highlight_change %>% select(all_of(num_common_col))%>%select(v,v+1) %>%
         mutate_all(as.character) %>%	mutate_all(type.convert, as.is = TRUE) %>%	
         mutate(test=identical(.[[1]], .[[2]])) %>% pull(test)
       mat[,c(v,v+1)]<-test
@@ -546,7 +546,7 @@ compare_with_database_dataseries <- function(data_from_excel, data_from_base, sh
     for(v in 0:(length(num_common_col)/2-1))
     {
       v=v*2+1
-      test <- highlight_change %>% select(num_common_col)%>% select(v,v+1) %>%
+      test <- highlight_change %>% select(all_of(num_common_col))%>% select(v,v+1) %>%
         mutate_all(as.character) %>%	mutate_all(type.convert, as.is = TRUE) %>%	
         mutate(test=identical(.[[1]], .[[2]])) %>% pull(test)
       mat[,c(v,v+1)]<-test
@@ -663,7 +663,7 @@ compare_with_database_sampling <- function(data_from_excel, data_from_base) {
     for(v in 0:(length(num_common_col)/2-1))
     {
       v=v*2+1
-      test <- highlight_change %>% select(num_common_col)%>%select(v,v+1) %>%
+      test <- highlight_change %>% select(all_of(num_common_col))%>%select(v,v+1) %>%
         mutate_all(as.character) %>%	mutate_all(type.convert, as.is = TRUE) %>%	
         mutate(test=identical(.[[1]], .[[2]])) %>% pull(test)
       mat[,c(v,v+1)]<-test
@@ -812,7 +812,7 @@ compare_with_database_metric_group <- function(data_from_excel,
     for(v in 0:(length(num_common_col)/2-1))
     {
       v=v*2+1
-      test <- highlight_change %>% select(num_common_col)%>%select(v,v+1) %>%
+      test <- highlight_change %>% select(all_of(num_common_col))%>%select(v,v+1) %>%
         mutate_all(as.character) %>%	mutate_all(type.convert, as.is = TRUE) %>%	
         mutate(test=identical(.[[1]], .[[2]]))%>%pull(test)
       mat[,c(v,v+1)]<-test
@@ -964,7 +964,7 @@ compare_with_database_metric_ind <- function(
     for(v in 0:(length(num_common_col)/2-1))
     {
       v=v*2+1
-      test <- highlight_change %>% select(num_common_col)%>%select(v,v+1) %>%
+      test <- highlight_change %>% select(all_of(num_common_col))%>%select(v,v+1) %>%
         mutate_all(as.character) %>%	mutate_all(type.convert, as.is = TRUE) %>%	
         mutate(test=identical(.[[1]], .[[2]]))%>%pull(test)
       mat[,c(v,v+1)]<-test
