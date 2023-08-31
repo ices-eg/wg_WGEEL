@@ -64,20 +64,20 @@ importtsstep0Server <- function(id, globaldata){
 				
 				
 				
-				observeEvent(input$xlfile_ts,tryCatch({
-									rls$file_type=""
-									rls$res = list()
-									rls$message = ""
-									if (input$xlfile_ts$name!="") {
-										output$integrate<-renderText({input$xlfile_ts$datapath})
-									} else {
-										output$integrate<-renderText({"no dataset seleted"})
-									}
-									output$dt_integrate_ts<-renderDataTable(data.frame())
-									output$"step0_message_xls_ts"<-renderText("")
-								},error = function(e) {
-									showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
-								}), ignoreInit = TRUE)
+#				observeEvent(input$xlfile_ts,tryCatch({
+#                  rls$file_type=""
+#                  rls$res = list()
+#                  rls$message = ""
+#                  if (input$xlfile_ts$name!="") {
+#                    output$integrate<-renderText({input$xlfile_ts$datapath})
+#                  } else {
+#                    output$integrate<-renderText({"no dataset seleted"})
+#                  }
+#                  output$dt_integrate_ts<-renderDataTable(data.frame())
+#                  output$"step0_message_xls_ts"<-renderText("")
+#								},error = function(e) {
+#									showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
+#								}), ignoreInit = TRUE)
 				
 				###########################
 				# step0_filepath_ts same for time series
@@ -85,7 +85,18 @@ importtsstep0Server <- function(id, globaldata){
 				###########################			
 				step0_filepath_ts <- reactive({
 							inFile_ts <- input$xlfile_ts      
-							if (is.null(inFile_ts)){        return(NULL)
+							if (is.null(inFile_ts)){        
+                rls$file_type=""
+                rls$res = list()
+                rls$message = ""
+                if (input$xlfile_ts$name!="") {
+                  output$integrate<-renderText({input$xlfile_ts$datapath})
+                } else {
+                  output$integrate<-renderText({"no dataset seleted"})
+                }
+                output$dt_integrate_ts<-renderDataTable(data.frame())
+                output$"step0_message_xls_ts"<-renderText("")  
+                return(NULL)
 							} else {
 								data$path_step0_ts <- inFile_ts$datapath #path to a temp file
 								if (grepl(c("glass"),tolower(inFile_ts$name))) 
@@ -103,9 +114,10 @@ importtsstep0Server <- function(id, globaldata){
 				# step0load_data_ts (same for time series)
 				###########################
 				step0load_data_ts<-function(){
-					validate(need(globaldata$connectOK,"No connection"))
+					validate(need(isolate(globaldata$connectOK),"No connection"))
 					isolate(step0_filepath_ts())  #NOT USED
 					isolate(if (is.null(data$path_step0_ts)) return(NULL))
+         
 					#file_type_ts is generated on the ui side
 					#load series returns a list with several sheets
 					#return(invisible(list(series=series,
@@ -117,21 +129,20 @@ importtsstep0Server <- function(id, globaldata){
 					#						error=data_error,
 					#						the_metadata=the_metadata))) 
 					# it also prints error or comments captured by capture.output
-					switch (input$file_type_ts, 
+					switch (input$file_type_ts,              
 							"glass_eel"={                  
 								message<-capture.output(res <- load_series(path = data$path_step0_ts, 
 												datasource = the_eel_datasource,
 												stage="glass_eel"
 										))},
-							"yellow_eel"={
-								#browser()
+							"yellow_eel"={								
 								message<-capture.output(res <- load_series(path = data$path_step0_ts, 
 												datasource = the_eel_datasource,
 												stage="yellow_eel"))},
 							"silver_eel"={
 								message<-capture.output(res <- load_series(path = data$path_step0_ts, 
 												datasource = the_eel_datasource,
-												stage="silver_eel"))}
+												stage="silver_eel"))})
 					# -------------------------------------------------------------				
 					# see  #130			https://github.com/ices-eg/wg_WGEEL/issues/130			
 					#						"biometry"={
@@ -139,7 +150,7 @@ importtsstep0Server <- function(id, globaldata){
 					#											datasource = the_eel_datasource ))},
 					#						}
 					#---------------------------------------------------------------	
-					)
+					
 					return(list(res=res,message=message))
 				}
 
@@ -148,7 +159,7 @@ importtsstep0Server <- function(id, globaldata){
 					output$maps_timeseries<- renderLeaflet({
 								leaflet() %>% addTiles() %>%
 										addMarkers(data=series,lat=~ser_y,lng=~ser_x,label=~ser_nameshort) %>%
-										addPolygons(data=globaldata$ccm_light, 
+										addPolygons(data=isolate(globaldata$ccm_light), 
 												popup=~as.character(wso_id),
 												fill=TRUE, 
 												highlight = highlightOptions(color='white',
@@ -168,7 +179,8 @@ importtsstep0Server <- function(id, globaldata){
 				# Events triggerred by step0_button (time series page)
 				###################################################
 				observeEvent(input$ts_check_file_button, 
-						{
+						{              
+            req(input$ts_check_file_button)
 						shinyCatch({
 									
 									##################################################
@@ -261,7 +273,11 @@ importtsstep0Server <- function(id, globaldata){
 											})
 								}) #shinyCatch								
 								remove_modal_spinner()	
-								}, ignoreInit = TRUE)
+								}, 
+                label = "step0ts_check_file_button",
+                ignoreInit = TRUE
+                #once = TRUE
+                )
 				
 				
 				

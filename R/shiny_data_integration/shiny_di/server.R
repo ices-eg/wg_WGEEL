@@ -17,7 +17,7 @@ shinyServer(function(input, output, session){
       # reactive values in data
       ##########################
       
-      data<-reactiveValues(pool=NULL,
+      data <- reactiveValues(pool=NULL,
           connectOK=FALSE,
           ser_list = NULL,
           ccm_light = ccm_light,
@@ -167,11 +167,6 @@ load_database <- function(){
   loaded_data_ts <- importtsstep0Server("importtsstep0module", globaldata=data) # globaldata <- data in the module 
   importtsstep1Server("importtsstep1module", data, loaded_data_ts) # globaldata <- data in the module 
   importtsstep2Server("importtsstep2module", data, loaded_data_ts) # globaldata <- data in the module 
-  
-  loaded_data_ts <- importtsstep0Server("importtsstep0module", globaldata=data) # globaldata <- data in the module 
-  importtsstep1Server("importtsstep1module", data, loaded_data_ts) # globaldata <- data in the module 
-  importtsstep2Server("importtsstep2module", data, loaded_data_ts) # globaldata <- data in the module 
-  
   
   loaded_data_dcf <- importdcfstep0Server("importdcfstep0module", globaldata=data)
   importdcfstep1Server("importdcfstep1module", data, loaded_data_dcf) # globaldata <- data in the module 

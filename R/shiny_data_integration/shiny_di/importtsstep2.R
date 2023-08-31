@@ -125,7 +125,7 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts){
 			function(input, output, session) {
 				data <- reactiveValues()
 				observe({
-							
+						
 							##################################################
 							# clean up
 							#################################################
