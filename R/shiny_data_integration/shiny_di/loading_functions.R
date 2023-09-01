@@ -3358,3 +3358,18 @@ load_dcf<-function(path,datasource){
 	
 }
 
+saveData <- function(data, file_name, path){
+  file_name <- gsub(".xlsx","",file_name)
+  file_name <- gsub(".xls","",file_name)
+  file_name <- str_c(Sys.Date(),"_",file_name,".Rdata")
+  save(data, file= file.path(path, file_name))
+}
+
+
+loadData <- function(file_name, path){
+  lf <- list.files(path)
+  if (!file_name %in% lf) stop("loadData internal error, file not in list")
+  load(file=file.path(path, file_name)) 
+  ls <- data
+  return(ls)
+}
