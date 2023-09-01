@@ -1,5 +1,5 @@
 -----------------------------------------------------------
-# TR 
+# 00 (put the code of the country there) 
 -----------------------------------------------------------
 
 ## Annex 1
@@ -63,12 +63,4 @@
 
 
 ## Annex 10
-
-### samplinginfo
-
-
-### group metrics
-
-
-### individual metrics
 
