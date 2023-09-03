@@ -1964,7 +1964,7 @@ load_potential_available_habitat<-function(path,datasource){
 # datasource <- the_eel_datasource; stage="glass_eel"
 # 
 # load_series(path,datasource=datasource,stage="glass_eel")
-load_series<-function(path,datasource, stage="glass_eel"){
+load_series<-function(path, datasource, stage="glass_eel"){
 	shinybusy::show_modal_spinner(text = "load series", color="darkgreen")
 	sheets <- excel_sheets(path=path)
 	if ("sampling_info" %in% sheets) stop("There is a sampling_info tab in your data, you want to use import time series tab")

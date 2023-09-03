@@ -79,50 +79,6 @@ importtsstep0Server <- function(id, globaldata){
         
         
         
-#				observeEvent(input$xlfile_ts,tryCatch({
-#                  rls$file_type=""
-#                  rls$res = list()
-#                  rls$message = ""
-#                  if (input$xlfile_ts$name!="") {
-#                    output$integrate<-renderText({input$xlfile_ts$datapath})
-#                  } else {
-#                    output$integrate<-renderText({"no dataset seleted"})
-#                  }
-#                  output$dt_integrate_ts<-renderDataTable(data.frame())
-#                  output$"step0_message_xls_ts"<-renderText("")
-#								},error = function(e) {
-#									showNotification(paste("Error: ", toString(print(e))), type = "error",duration=NULL)
-#								}), ignoreInit = TRUE)
-        
-        ###########################
-        # step0_filepath_ts same for time series
-        # this will add a path value to reactive data in step0
-        ###########################			
-        step0_filepath_ts <- reactive({
-              inFile_ts <- input$xlfile_ts      
-              if (is.null(inFile_ts)){        
-                rls$file_type=""
-                rls$res = list()
-                rls$message = ""
-                if (input$xlfile_ts$name!="") {
-                  output$integrate<-renderText({input$xlfile_ts$datapath})
-                } else {
-                  output$integrate<-renderText({"no dataset seleted"})
-                }
-                output$dt_integrate_ts<-renderDataTable(data.frame())
-                output$"step0_message_xls_ts"<-renderText("")  
-                return(NULL)
-              } else {
-                data$path_step0_ts <- inFile_ts$datapath #path to a temp file
-                if (grepl(c("glass"),tolower(inFile_ts$name))) 
-                  updateRadioButtons(session, "file_type_ts", selected = "glass_eel")
-                if (grepl(c("yellow"),tolower(inFile_ts$name)))
-                  updateRadioButtons(session, "file_type_ts", selected = "yellow_eel")
-                if (grepl(c("silver"),tolower(inFile_ts$name)))
-                  updateRadioButtons(session, "file_type_ts", selected = "silver_eel")						
-              }
-            }) 			
-        
         
         
         ###########################
@@ -130,73 +86,69 @@ importtsstep0Server <- function(id, globaldata){
         ########################### 
         
         
-        step0load_local_ts<-function(){  
+        step0load_local_ts<-function(){ 
+          if (grepl(c("annex1"),tolower(input$select_local_file_ts))) 
+            updateRadioButtons(session, "file_type_ts", selected = "glass_eel")
+          if (grepl(c("annex2"),tolower(input$select_local_file_ts)))
+            updateRadioButtons(session, "file_type_ts", selected = "yellow_eel")
+          if (grepl(c("annex3"),tolower(input$select_local_file_ts)))
+            updateRadioButtons(session, "file_type_ts", selected = "silver_eel")		
+          ls <- loadData(
+              file_name = input$select_local_file_ts, 
+              path=path)  
+          ls$message <- c(paste("file :",input$select_local_file_ts),ls$message)
+          return(ls)
           
-          shinyCatch({ 
-                ls <- loadData(
-                    file_name = input$select_local_file_ts, 
-                    path=path)         
-                return(ls)
-              })
         }
         
         ###########################
         # step0load_data_ts (load from excel file)
         ########################### 
         
-        step0load_data_ts<-function(){
-          shinyCatch({ 
-                validate(need(isolate(globaldata$connectOK),"No connection"))
-                # validate(need(!is.null(data$path_step0_ts),message= "Please select an excel file"))
-                
-                isolate(step0_filepath_ts())  #NOT USED
-                isolate(if (is.null(data$path_step0_ts)) return(NULL))
-                
-                #file_type_ts is generated on the ui side
-                #load series returns a list with several sheets
-                #return(invisible(list(series=series,
-                #						station = station,
-                #						new_data=new_data,
-                #						updated_data=updated_data,
-                #						new_biometry=new_biometry,
-                #						updated_biometry=updated_biometry,
-                #						error=data_error,
-                #						the_metadata=the_metadata))) 
-                # it also prints error or comments captured by capture.output
-                switch (input$file_type_ts,              
-                    "glass_eel"={                  
-                      message<-capture.output(res <- load_series(path = data$path_step0_ts, 
-                              datasource = the_eel_datasource,
-                              stage="glass_eel"
-                          ))},
-                    "yellow_eel"={								
-                      message<-capture.output(res <- load_series(path = data$path_step0_ts, 
-                              datasource = the_eel_datasource,
-                              stage="yellow_eel"))},
-                    "silver_eel"={
-                      message<-capture.output(res <- load_series(path = data$path_step0_ts, 
-                              datasource = the_eel_datasource,
-                              stage="silver_eel"))})
-                # -------------------------------------------------------------				
-                # see  #130			https://github.com/ices-eg/wg_WGEEL/issues/130			
-                #						"biometry"={
-                #							message<-capture.output(res<-load_biometry(data$path_step0, 
-                #											datasource = the_eel_datasource ))},
-                #						}
-                #---------------------------------------------------------------	
-                # save data for local use
-                ls <- list(res=res,message=message)
-                saveData(data= ls, 
-                    file_name =input$xlfile_ts$name, 
-                    path=path)
-                updatePickerInput(
-                    session = session, 
-                    inputId = "select_local_file_ts",
-                    choices = list.files(path),
-                    selected =NULL
-                )              
-                return(ls)
-              })
+        step0load_data_ts<-function(){                
+          
+          # validate(need(!is.null(data$path_step0_ts),message= "Please select an excel file"))
+           
+          if (is.null(input$xlfile_ts )){   
+           if (input$xlfile_ts$name!="") {
+              output$integrate<-renderText({input$xlfile_ts$datapath})
+            } else {
+              output$integrate<-renderText({"no dataset seleted"})
+            }
+            output$dt_integrate_ts<-renderDataTable(data.frame())
+            output$"step0_message_xls_ts"<-renderText("")  
+            return(NULL)
+          } else {
+            data$path_step0_ts <- input$xlfile_ts$datapath #path to a temp file
+            if (grepl(c("annex1"),tolower(input$xlfile_ts$name))) 
+              updateRadioButtons(session, "file_type_ts", selected = "glass_eel")
+            if (grepl(c("annex2"),tolower(input$xlfile_ts$name)))
+              updateRadioButtons(session, "file_type_ts", selected = "yellow_eel")
+            if (grepl(c("annex3"),tolower(input$xlfile_ts$name)))
+              updateRadioButtons(session, "file_type_ts", selected = "silver_eel")	
+          switch (input$file_type_ts,              
+              "glass_eel"={                  
+                message<-capture.output(res <- load_series(path = data$path_step0_ts, 
+                        datasource = the_eel_datasource,
+                        stage="glass_eel"
+                    ))},
+              "yellow_eel"={								
+                message<-capture.output(res <- load_series(path = data$path_step0_ts, 
+                        datasource = the_eel_datasource,
+                        stage="yellow_eel"))},
+              "silver_eel"={
+                message<-capture.output(res <- load_series(path = data$path_step0_ts, 
+                        datasource = the_eel_datasource,
+                        stage="silver_eel"))})
+          # add path to file to message (to see if changes when loading from load already imported file
+          message <- c(paste("file :",input$xlfile_ts$name),message)
+          ls <- list(res=res,message=message)
+          saveData(data= ls, 
+              file_name =input$xlfile_ts$name, 
+              path=path)                         
+          return(ls)
+          }
+          
         }
         
         plotseries <- function(series){
@@ -226,6 +178,7 @@ importtsstep0Server <- function(id, globaldata){
         observeEvent(
             eventExpr={input$ts_check_file_button},             
             handlerExpr= {  
+              
               shinyCatch({ 
                     if (!globaldata$connectOK)
                       output$"step0_message_xls_ts"<-renderUI(
@@ -237,6 +190,12 @@ importtsstep0Server <- function(id, globaldata){
                     validate(need(globaldata$connectOK,"No connection"))
                     ls <- step0load_data_ts()   
                     show_data_check(ls)
+                    updatePickerInput(
+                        session = session, 
+                        inputId = "select_local_file_ts",
+                        choices = list.files(path),
+                        selected =NULL
+                    )     
                   })
             }, 
             label = "step0ts_check_file_button",
