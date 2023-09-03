@@ -131,7 +131,7 @@ importtsstep0Server <- function(id, globaldata){
         
         
         step0load_local_ts<-function(){  
-          browser()
+          
           shinyCatch({ 
                 ls <- loadData(
                     file_name = input$select_local_file_ts, 
@@ -225,10 +225,19 @@ importtsstep0Server <- function(id, globaldata){
         ###################################################
         observeEvent(
             eventExpr={input$ts_check_file_button},             
-            handlerExpr= {               
-              validate(need(globaldata$connectOK,"No connection"))
-              ls <- step0load_data_ts()   
-              show_data_check(ls)
+            handlerExpr= {  
+              shinyCatch({ 
+                    if (!globaldata$connectOK)
+                      output$"step0_message_xls_ts"<-renderUI(
+                          HTML(
+                              paste(
+                                  h4("No connection")
+                              ))) 
+                    
+                    validate(need(globaldata$connectOK,"No connection"))
+                    ls <- step0load_data_ts()   
+                    show_data_check(ls)
+                  })
             }, 
             label = "step0ts_check_file_button",
             ignoreInit = TRUE
@@ -242,10 +251,17 @@ importtsstep0Server <- function(id, globaldata){
         observeEvent(
             eventExpr= input$ts_check_local_file_button,
             handlerExpr= {   
-              validate(need(globaldata$connectOK,"No connection"))
-            
-              ls <- step0load_local_ts() 
-              show_data_check(ls)
+              shinyCatch({ 
+                    if (!globaldata$connectOK)
+                      output$"step0_message_xls_ts"<-renderUI(
+                          HTML(
+                              paste(
+                                  h4("No connection")
+                              ))) 
+                    validate(need(globaldata$connectOK,"No connection"))              
+                    ls <- step0load_local_ts() 
+                    show_data_check(ls)
+                  })
             }, 
             label = "step0ts_check_local_file_button",
             ignoreInit = TRUE
@@ -255,6 +271,7 @@ importtsstep0Server <- function(id, globaldata){
         #req(input$ts_check_file_button)
         show_data_check <- function(ls){
           shinyCatch({ 
+                
                 rls$message <- ls$message
                 rls$res <- ls$res
                 
@@ -285,28 +302,38 @@ importtsstep0Server <- function(id, globaldata){
                 # which displays text for xls download
                 ##################################
                 
-                output$"step0_message_xls_ts"<-renderUI(
-                    HTML(
-                        paste(
-                            h4("Time series file checking messages (xls)"),
-                            "<p align='left'>Please click on excel",'<br/>',
-                            "to download this file and correct the errors",'<br/>',
-                            "and submit again in <strong>step0</strong> the file once it's corrected<p>"
-                        )))  
+                output$"step0_message_xls_ts"<-renderUI({
+                      if (nrow(rls$res$error)==0){
+                        HTML(
+                            paste(
+                                h4("No error"),
+                                "<p align='left'> You can proceed to check duplicate<p>"
+                            ))
+                      } else {
+                        HTML(
+                            paste(
+                                h4("Time series file checking messages (xls)"),
+                                "<p align='left'>Please click on excel",'<br/>',
+                                "to download this file and correct the errors",'<br/>',
+                                "and submit again in <strong>step0</strong> the file once it's corrected<p>"
+                            ))
+                      }
+                    })  
                 
                 ##################################
                 # Actively generates UI component on the ui side
                 # which generates text for txt
                 ################################## 									
                 
-                output$"step0_message_txt_ts"<-renderUI(
-                    HTML(
-                        paste(
-                            h4("Time series file checking messages (txt)"),
-                            "<p align='left'>Please read carefully and ensure that you have",
-                            "checked all possible errors. This output is the same as the table",
-                            " output<p>"
-                        )))
+                output$"step0_message_txt_ts" <- renderUI({  
+                      HTML(
+                          paste(
+                              h4("Time series file checking messages (txt)"),
+                              "<p align='left'>Please read carefully and ensure that you have",
+                              "checked all possible errors. This output is the same as the table",
+                              " output<p>"
+                          ))                    
+                    })
                 
                 
                 #####################
@@ -314,9 +341,11 @@ importtsstep0Server <- function(id, globaldata){
                 ########################
                 
                 output$dt_integrate_ts <- DT::renderDataTable({
+                      #browser()
+                      validate(need(globaldata$connectOK,"No connection"))
                       if(length(unique(rls$res$series$ser_cou_code[!is.na(rls$res$series$ser_cou_code)]))>1) stop(paste("More than one country there ",
                                 paste(unique(rls$res$series$ser_cou_code[!is.na(rls$res$series$ser_cou_code)]),collapse=";"), ": while there should be only one country code"))
-                      cou_code <- rls$res$series$ser_cou_code[1]
+                      cou_code <- rls$res$series$ser_cou_code[1]             
                       datatable(rls$res$error,
                           rownames=FALSE,
                           filter = 'top',
@@ -337,7 +366,7 @@ importtsstep0Server <- function(id, globaldata){
                                       filename = paste0("datats_",cou_code, Sys.Date())))
                           )
                       )
-                    })
+                    })                
               }) #shinyCatch								
         }
         
