@@ -227,3 +227,39 @@ left join datawg.t_samplinginfo_sai tss on tff2.fisa_sai_id =tss.sai_id  WHERE s
 -- no das_qal_comment in DB
 -- TODO in DB server 
 ALTER TABLE datawg.t_dataseries_das ADD COLUMN das_qal_comment TEXT;
+
+
+-- change group metrics for recruitment in Ireland
+
+SELECT * FROM datawg.t_series_ser 
+JOIN datawg.t_groupseries_grser AS tgg ON grser_ser_id =ser_id 
+JOIN datawg.t_metricgroupseries_megser ON meg_gr_id = gr_id
+WHERE ser_cou_code ='IE'
+AND meg_mty_id =24
+
+
+WITH wrong AS (
+SELECT * FROM datawg.t_series_ser 
+JOIN datawg.t_groupseries_grser AS tgg ON grser_ser_id =ser_id 
+JOIN datawg.t_metricgroupseries_megser ON meg_gr_id = gr_id
+WHERE ser_cou_code ='IE'
+AND meg_mty_id =24)
+UPDATE datawg.t_metricgroupseries_megser SET meg_value=meg_value/100 
+WHERE meg_id IN (SELECT meg_id FROM wrong);
+
+-- fix all series with wrong data
+
+
+
+
+BEGIN;
+WITH fixme AS (
+SELECT ser_cou_code, meg_id, meg_value FROM datawg.t_series_ser 
+JOIN datawg.t_groupseries_grser AS tgg ON grser_ser_id =ser_id 
+JOIN datawg.t_metricgroupseries_megser ON meg_gr_id = gr_id
+AND meg_mty_id =24
+AND meg_value >1)
+UPDATE datawg.t_metricgroupseries_megser SET meg_value=meg_value/100 
+WHERE meg_id IN (SELECT meg_id FROM fixme); --15
+COMMIT;    
+
