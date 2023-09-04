@@ -23,13 +23,13 @@
 ### series
 
 ### dataseries
-
+*8 new values
 
 ### group metrics
-
+ 10 and 35 new values inserted in the group and metric tables
 
 ### individual metrics
-
+ 10379 and 27673 new values inserted in the fish and metric tables
 
 
 ## Annex 3
