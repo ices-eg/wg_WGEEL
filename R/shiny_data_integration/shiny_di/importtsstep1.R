@@ -39,7 +39,8 @@ importtsstep1UI <- function(id){
                       h3("deleted group metrics"),
                       DT::dataTableOutput(ns("dt_deleted_group_metrics")),
                       h3("deleted individual metrics"),
-                      DT::dataTableOutput(ns("dt_deleted_individual_metrics"))
+                      DT::dataTableOutput(ns("dt_deleted_individual_metrics")),
+                      uiOutput(ns("button_deleted_individual_metrics"))
                   ),
                   column(width=6,
                       h3("modified series"),
@@ -477,12 +478,12 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
                     }
                     
                     if (nrow(deleted_individual_metrics)>0){
-                      list_comp_deleted_individual_metrics <- compare_with_database_metric_ind(
+                      list_comp_individual_metrics$deleted <- compare_with_database_metric_ind(
                           data_from_excel=deleted_individual_metrics,
                           data_from_base=t_metricindseries_meiser,
-                          sheetorigin="deleted_individual_metrics")
+                          sheetorigin="deleted_individual_metrics")$deleted
                     } 	else {
-                      list_comp_deleted_individual_metrics <- list("deleted" = data.frame())
+                      list_comp_individual_metrics$deleted <- data.frame()
                     }
                     
                     current_cou_code <- list_comp_series$current_cou_code
@@ -1107,46 +1108,101 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
                     }
                     
 # step1 deleted individual_metrics -------------------------------------------------------------
-                    
-                    if (nrow(list_comp_deleted_individual_metrics$deleted)==0) {
-                      output$step1_message_deleted_metrics <- renderUI(
-                          HTML(
-                              paste(
-                                  h4("No deleted individual metrics")
-                              )))
+                    if (nrow(list_comp_individual_metrics$deleted)==0) {
+                      
+                      output$step1_message_deleted_individual_metrics <- renderUI(
+                        HTML(
+                          paste(
+                            h4("No deleted individual metrics")
+                          )))
                       output$dt_deleted_individual_metrics <-  renderDataTable(data.frame(),
-                          options = list(searching = FALSE,paging = FALSE,
-                              language = list(zeroRecords = "No deleted individual metrics")))
+                                                                               options = list(searching = FALSE,paging = FALSE,
+                                                                                              language = list(zeroRecords = "No individual metrics")))
                       
                       
                     } else {
-                      output$"step1_message_deleted_individual_metrics"<-renderUI(
+                      # In some cases there are too many rows
+                      # so the app crashes here I put a button generated on the server side to download data 
+                      # instead of using DT
+                      limitDT <- 1000
+                      if (nrow(list_comp_individual_metrics$deleted)<limitDT){
+                        output$"step1_message_deleted_individual_metrics"<-renderUI(
                           HTML(
+                            paste(
                               paste(
-                                  paste(
-                                      h4("Table of deleted values (data) (xls)"),
-                                      "<p align='left'>Please click on excel <p>"
-                                  )))
-                      )
-                      output$dt_deleted_individual_metrics <-DT::renderDataTable({
-                            validate(need(globaldata$connectOK,"No connection"))
-                            datatable(list_comp_deleted_individual_metrics$deleted,
-                                rownames=FALSE,
-                                extensions = "Buttons",
-                                option=list(
-                                    scroller = TRUE,
-                                    scrollX = TRUE,
-                                    scrollY = scrollY,
-                                    order=list(3,"asc"),
-                                    lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
-                                    "pagelength"=-1,
-                                    dom= "Blfrtip",
-                                    scrollX = T,
-                                    buttons=list(
-                                        list(extend="excel",												
-                                            filename = paste0("deleted_individual_metrics_",loaded_data_ts$file_type,"_",Sys.Date(),"_",current_cou_code)))
-                                ))
-                          })
+                                h4("Table of deleted values (data) (xls)"),
+                                "<p align='left'>Please click on excel <p>"
+                              )))
+                        )
+                        output$dt_deleted_individual_metrics <-DT::renderDataTable(server = FALSE, 
+                                                                                   {
+                                                                                     validate(need(globaldata$connectOK,"No connection"))
+                                                                                     datatable(list_comp_individual_metrics$deleted,
+                                                                                               rownames=FALSE,
+                                                                                               extensions = "Buttons",
+                                                                                               option=list(
+                                                                                                 scroller = TRUE,
+                                                                                                 scrollX = TRUE,
+                                                                                                 scrollY = scrollY,
+                                                                                                 order=list(3,"asc"),
+                                                                                                 lengthMenu=list(c(20,50,-1),c("20","50","All")),
+                                                                                                 "pagelength"=20,
+                                                                                                 dom= "Blfrtip",
+                                                                                                 buttons=list(
+                                                                                                   list(extend="excel",
+                                                                                                        filename = paste0("new_individual_metrics_",loaded_data_dcf$file_type,"_",Sys.Date(),"_",current_cou_code)))
+                                                                                               ))
+                                                                                   })
+                      } else {  # rows >limitDT
+                        output$"step1_message_deleted_individual_metrics"<-renderUI(
+                          HTML(															
+                            paste(
+                              h4("Table of deleted values (data)"),
+                              "<p align='left'>nrow>",limitDT,"<p>",
+                              "<p align='left'>Download from the table no longer works <p>",
+                              "<p align='left'>Click on download button below the table <p>"
+                            ))
+                        )
+                        output$dt_deleted_individual_metrics <-DT::renderDataTable(server = TRUE, 
+                                                                                   {
+                                                                                     validate(need(globaldata$connectOK,"No connection"))
+                                                                                     datatable(list_comp_individual_metrics$deleted,
+                                                                                               rownames=FALSE,
+                                                                                               extensions = c("Buttons", "Scroller"),				
+                                                                                               option=list(
+                                                                                                 scrollX = TRUE,
+                                                                                                 scrollY = scrollY,
+                                                                                                 paging = TRUE, # necessary for scroller																		
+                                                                                                 dom = 'lBfrtip',
+                                                                                                 deferRender = TRUE, # defer render helps with large datasets
+                                                                                                 fixedColumns = TRUE,
+                                                                                                 searching= TRUE,
+                                                                                                 buttons=list(
+                                                                                                   # will allow column choice button
+                                                                                                   list(extend="colvis",
+                                                                                                        targets = 0, 
+                                                                                                        visible = FALSE)																		
+                                                                                                 )
+                                                                                               ))																
+                                                                                   })
+                        
+                        # generate a button dynamically on the server side
+                        output$"button_deleted_individual_metrics" <- renderUI({
+                          ns <- NS(id)
+                          downloadButton(ns("btn_down_deleted_indiv_metrics"), label = "Download deleted Indiv metrics", icon = icon("table"))
+                          
+                        })
+                        
+                        
+                        output$btn_down_deleted_indiv_metrics <- downloadHandler(
+                          filename = function(){
+                            paste0("deleted_individual_metrics_",loaded_data_ts$file_type,"_",Sys.Date(),"_",current_cou_code,".xlsx")
+                          },											
+                          content = function(file) {
+                            write_xlsx(as.data.frame(list_comp_individual_metrics$deleted), file)
+                          }
+                        )
+                      }
                     }
                     
                     
