@@ -15,24 +15,21 @@
 *modified grp metrics 5 and 8 new values modified in the group and metric tables
 
 ### individual metrics
-* new individual metrics
-Error: Failed to prepare query: ERROR:  column i.fi_dts_datasource does not exist
-LINE 2: ...ct on (id) i.fi_date::date,i.fi_year,i.fi_comment,i.fi_dts_d...
-                                                             ^
-HINT:  Perhaps you meant to reference the column "i.gr_dts_datasource" or the column "i.mei_dts_datasource".
+2828 and 5644 new values inserted in the fish and metric tables
+
 
 ## Annex 2
 
 ### series
 
 ### dataseries
-
+*8 new values
 
 ### group metrics
-
+ 10 and 35 new values inserted in the group and metric tables
 
 ### individual metrics
-
+ 10379 and 27673 new values inserted in the fish and metric tables
 
 
 ## Annex 3
