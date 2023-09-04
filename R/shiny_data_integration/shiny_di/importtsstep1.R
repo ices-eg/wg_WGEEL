@@ -1150,7 +1150,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
                                                                                                  dom= "Blfrtip",
                                                                                                  buttons=list(
                                                                                                    list(extend="excel",
-                                                                                                        filename = paste0("new_individual_metrics_",loaded_data_dcf$file_type,"_",Sys.Date(),"_",current_cou_code)))
+                                                                                                        filename = paste0("deleted_individual_metrics_",loaded_data_ts$file_type,"_",Sys.Date(),"_",current_cou_code)))
                                                                                                ))
                                                                                    })
                       } else {  # rows >limitDT
