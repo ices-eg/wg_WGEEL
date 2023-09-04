@@ -12,9 +12,14 @@
 *modified 7 rows updated final 2022 figures
 
 ### group metrics
-*modified grp metrics error "meg_gr_id" null value missing
+*modified grp metrics 5 and 8 new values modified in the group and metric tables
 
 ### individual metrics
+* new individual metrics
+Error: Failed to prepare query: ERROR:  column i.fi_dts_datasource does not exist
+LINE 2: ...ct on (id) i.fi_date::date,i.fi_year,i.fi_comment,i.fi_dts_d...
+                                                             ^
+HINT:  Perhaps you meant to reference the column "i.gr_dts_datasource" or the column "i.mei_dts_datasource".
 
 ## Annex 2
 
