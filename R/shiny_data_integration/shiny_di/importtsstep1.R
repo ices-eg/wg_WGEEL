@@ -192,8 +192,8 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
         #############################
         observeEvent(input$check_duplicate_button_ts, {
              #browser()
-              shinyCatch({
-                    shinybusy::show_modal_spinner(text = "Checking File", color="darkgreen",spin="fading-circle")
+              shinyCatch({  
+                    shinybusy::show_modal_spinner(text = "Checking File : loaddb", color="darkgreen",spin="fading-circle")
                     
                     # see step0load_data returns a list with res and messages
                     # and within res data and a dataframe of errors
@@ -309,7 +309,8 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
                     # the second new contains a dataframe to be inserted straight into
                     # the database
                     #cat("step0")
-                    
+                    shinybusy::remove_modal_spinner()
+                    shinybusy::show_modal_spinner(text = "Checking File : series", color="darkgreen",spin="fading-circle")
                     if (nrow(series)>0){
                       list_comp_series <- compare_with_database_series(data_from_excel=series, data_from_base=t_series_ser)
                     }
@@ -360,7 +361,8 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
                       list_comp_updateddataseries <- list()
                       list_comp_updateddataseries$error_id_message <- "" # this message would have been displayed if pb of id
                     }
-                    
+                    shinybusy::remove_modal_spinner()
+                    shinybusy::show_modal_spinner(text = "Checking File : group metrics", color="darkgreen",spin="fading-circle")
                     if (nrow(new_group_metrics)>0){
                       list_comp_group_metrics <- compare_with_database_metric_group(
                           data_from_excel=new_group_metrics,
@@ -420,7 +422,8 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
                     } else {
                       list_comp_deleted_group_metrics <- list("deleted"=data.frame())
                     }
-                    
+                    shinybusy::remove_modal_spinner()
+                    shinybusy::show_modal_spinner(text = "Checking File : individual metrics", color="darkgreen",spin="fading-circle")
                     if (nrow(new_individual_metrics)>0){
                       list_comp_individual_metrics <- 
                           compare_with_database_metric_ind(
@@ -484,6 +487,8 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
                     
                     current_cou_code <- list_comp_series$current_cou_code
                     
+                    shinybusy::remove_modal_spinner()
+                    shinybusy::show_modal_spinner(text = "Rendering", color="darkgreen",spin="fading-circle")
                     #cat("step1")
                     # step1 new series -------------------------------------------------------------
                     
