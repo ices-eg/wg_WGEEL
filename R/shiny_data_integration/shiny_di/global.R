@@ -63,15 +63,6 @@ load_package("plotly")
 
 jscode <- "shinyjs.closeWindow = function() { window.close(); }"
 
-if(packageVersion("DT")<"0.2.30"){
-  message("Inline editing requires DT version >= 0.2.30. Installing...")
-  devtools::install_github('rstudio/DT')
-}
-
-if(packageVersion("glue")<"1.2.0.9000"){
-  message("String interpolation implemented in glue version 1.2.0 but this version doesn't convert NA to NULL. Requires version 1.2.0.9000. Installing....")
-  devtools::install_github('tidyverse/glue')
-}
 
 #source("database_connection.R")
 
@@ -145,9 +136,10 @@ current_year <- 2023
 ###################################"
 #DATABASE CONNECTION INFO
 ##################################"
-port <- 5432
-host <- "localhost" #"185.135.126.250" #"localhost"#"192.168.0.100"
-userwgeel <-"wgeel"
+cred=yaml::read_yaml("./credentials_write.yml")
+port <- cred$port
+host <- cred$host
+userwgeel <-cred$user
 
 
 scrollY= "300px" #size of DT table per default
