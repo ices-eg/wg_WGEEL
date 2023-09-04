@@ -20,14 +20,14 @@
 ### series
 
 ### dataseries
-
+* 1 new values inserted in the database
 
 ### group metrics
-* 1 new values inserted in the database
+* 1 and 1 new values inserted in the group and metric tables
 
 
 ### individual metrics
-
+ 4 and 4 new values inserted in the fish and metric tables
 
 
 ## Annex 3
