@@ -16,8 +16,8 @@
 
 ### individual metrics
 2828 and 5644 new values inserted in the fish and metric tables
-
-
+### deleted individual metrics
+HD 424 rows manually deleted from database for BURRGY station - included in the new ind metrics with database code
 ## Annex 2
 
 ### series
@@ -30,40 +30,43 @@
 
 ### individual metrics
  10379 and 27673 new values inserted in the fish and metric tables
-
+###deleted ind metrics
+HD 9380 rows manually deleted from database - relates to all data reuploaded in new ind metrics with database code
 
 ## Annex 3
 
 ### series
 
 ### dataseries
-
-
+ 2 new values inserted in the database
+modified 1 values updated in the db
 ### group metrics
-
+ 1 and 5 new values inserted in the group and metric tables
 
 ### individual metrics
-
-
+ 33023 and 110908 new values inserted in the fish and metric tables
+### deleted metrics
+HD deleted manually 31944 rows from database reuploaded in new ind metrics with database code
 
 ## Annex 4
-
+72 new values inserted in the database
 
 
 ## Annex 5
 
-
+ 72 new values inserted in the database
 
 ## Annex 6
 
-
+ 14 new values inserted in the database said we only had 12 columns but allowed us to upload
+ 
 
 ## Annex 7
 
-
+ 14 new values inserted in the database changed q_release_n to release_n
 
 ## Annex 8
-
+ 72 new values inserted in the database
 
 
 ## Annex 10
