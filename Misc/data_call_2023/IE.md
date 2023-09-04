@@ -37,14 +37,15 @@
 ### series
 
 ### dataseries
-
-
+ 2 new values inserted in the database
+modified 1 values updated in the db
 ### group metrics
-
+ 1 and 5 new values inserted in the group and metric tables
 
 ### individual metrics
-
-
+ 33023 and 110908 new values inserted in the fish and metric tables
+### deleted metrics
+HD deleted manually
 
 ## Annex 4
 
