@@ -43,7 +43,7 @@
 * 10 and 58 new values modified in the group and metric tables
 
 ### individual metrics
-* 
+* 14057 lines imported (I forgot to copy the text after the data were integrated)
 
 
 ## Annex 4
