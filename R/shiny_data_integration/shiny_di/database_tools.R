@@ -2334,7 +2334,11 @@ write_new_individual_metrics_show <- function(path, type="series"){
   shinybusy::show_modal_spinner(text = "load data indiv metrics")
   # if we write from DT there is an extra line to be removed test it there
   test <- read_excel(path = path, sheet=1, range="B1:B1")
-  if (names(test) %in% c("ser_nameshort","sai_name")) skip=0 else skip=1
+  if (length(names(test)) == 0){
+    skip = 1
+  } else if (names(test) %in% c("ser_nameshort","sai_name")) {
+    skip=0
+  }else {skip=1}
   new <- read_excel(path = path, sheet=1, skip=skip)
   shinybusy::remove_modal_spinner() 
   new_wide=pivot_wider(new %>%

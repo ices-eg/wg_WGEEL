@@ -2441,7 +2441,7 @@ load_series<-function(path, datasource, stage="glass_eel"){
 		}
 		
 		if (grepl("individual", sheet)  & (grepl("new", sheet)| grepl("updated", sheet))) {
-			data_xls$gr_dts_datasource <- datasource
+			data_xls$fi_dts_datasource <- datasource
 			data_xls$mei_dts_datasource <- datasource
 		}
 		
