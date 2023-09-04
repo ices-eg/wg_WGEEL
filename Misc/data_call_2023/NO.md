@@ -5,10 +5,10 @@
 ## Annex 1
 
 ### series
- *2 new values inserted in the database
+
 
 ### dataseries
-
+ * 2 new values inserted in the database
 
 ### group metrics
 
@@ -23,6 +23,7 @@
 
 
 ### group metrics
+* 1 new values inserted in the database
 
 
 ### individual metrics
