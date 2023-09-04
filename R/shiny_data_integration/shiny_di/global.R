@@ -135,7 +135,7 @@ onStop(function() {
 # BEFORE WGEEL sqldf('delete from datawg.t_eelstock_eel where eel_datasource='test')
 ########################
 qualify_code<-23 # change this code here and in tr_quality_qal for next wgeel
-the_eel_datasource <- "test"  # change this after tests #dc_2022
+the_eel_datasource <- "dc_2023"  # change this after tests #dc_2022
 current_year <- 2023
 
 
@@ -146,7 +146,7 @@ current_year <- 2023
 #DATABASE CONNECTION INFO
 ##################################"
 port <- 5432
-host <- "localhost" #"185.135.126.250" #"localhost"#"192.168.0.100"
+host <- "localhost" 
 userwgeel <-"wgeel"
 
 
