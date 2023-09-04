@@ -18,19 +18,22 @@
 * modified group metrics:   3 and 6 new values modified in the group and metric tables
 
 ### individual metrics
-* new individual metrics: integration file was created but country_id missing. Will integrate once clarified if that can be provided this week.
+* new individual metrics: 821 and 1642 new values inserted in the fish and metric tables
+  
 ## Annex 2
 
 ### series
 
 ### dataseries
-
-
+* new dataseries: 6 new values inserted in the database
+* modified dataseries: 1 values updated in the db (for gr_id 1684 & 1707 the gr_number was in comments in the db, this was corrected manually in the db; in addition to the 1 updated value)
+  
 ### group metrics
-
+* new group metrics: 2 and 4 new values inserted in the group and metric tables
+* modified group metrics: 1 and 2 new values modified in the group and metric tables
 
 ### individual metrics
-
+* new individual metrics: 111 and 710 new values inserted in the fish and metric tables
 
 
 ## Annex 3
