@@ -59,7 +59,8 @@
 
 
 ## Annex 8
-
+* new data
+2 new values inserted in the database
 
 
 ## Annex 10
