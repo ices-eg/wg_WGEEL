@@ -43,11 +43,11 @@
 * 10 and 58 new values modified in the group and metric tables
 
 ### individual metrics
-
+* 
 
 
 ## Annex 4
-
+* 23 new values inserted in the database
 
 
 ## Annex 5
