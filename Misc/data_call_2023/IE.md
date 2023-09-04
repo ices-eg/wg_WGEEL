@@ -5,6 +5,7 @@
 ## Annex 1
 
 ### series
+*modified series 1 value updated in the db
 
 ### dataseries
 
