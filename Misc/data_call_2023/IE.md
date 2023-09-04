@@ -48,12 +48,12 @@ modified 1 values updated in the db
 HD deleted manually
 
 ## Annex 4
-
+72 new values inserted in the database
 
 
 ## Annex 5
 
-
+error with rec_catch
 
 ## Annex 6
 
