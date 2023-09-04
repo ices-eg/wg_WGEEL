@@ -151,7 +151,7 @@ userwgeel <-"wgeel"
 
 
 scrollY= "300px" #size of DT table per default
-path <- "C:/temp/shinydata"
+path <- tempdir()
 
 
 ########### create a dictionnary of columns with types
