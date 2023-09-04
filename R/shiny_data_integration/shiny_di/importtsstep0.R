@@ -105,21 +105,16 @@ importtsstep0Server <- function(id, globaldata){
         # step0load_data_ts (load from excel file)
         ########################### 
         
-        step0load_data_ts<-function(){                
-          
-          # validate(need(!is.null(data$path_step0_ts),message= "Please select an excel file"))
-           
-          if (is.null(input$xlfile_ts )){   
-           if (input$xlfile_ts$name!="") {
-              output$integrate<-renderText({input$xlfile_ts$datapath})
-            } else {
-              output$integrate<-renderText({"no dataset seleted"})
+        step0load_data_ts<-function(){               
+          if (is.null(input$xlfile_ts )){ 
+              return(NULL)           
+                 } else {
+            if (is.null(input$xlfile_ts$datapath)) {
+              return(NULL)              
             }
-            output$dt_integrate_ts<-renderDataTable(data.frame())
-            output$"step0_message_xls_ts"<-renderText("")  
-            return(NULL)
-          } else {
             data$path_step0_ts <- input$xlfile_ts$datapath #path to a temp file
+            
+            
             if (grepl(c("annex1"),tolower(input$xlfile_ts$name))) 
               updateRadioButtons(session, "file_type_ts", selected = "glass_eel")
             if (grepl(c("annex2"),tolower(input$xlfile_ts$name)))
@@ -152,7 +147,7 @@ importtsstep0Server <- function(id, globaldata){
         }
         
         plotseries <- function(series){
-          #browser()
+ 
           output$maps_timeseries<- renderLeaflet({
                 leaflet() %>% addTiles() %>%
                     addMarkers(data=series,lat=~ser_y,lng=~ser_x,label=~ser_nameshort) %>%
@@ -178,7 +173,7 @@ importtsstep0Server <- function(id, globaldata){
         observeEvent(
             eventExpr={input$ts_check_file_button},             
             handlerExpr= {  
-              
+              #browser()
               shinyCatch({ 
                     if (!globaldata$connectOK)
                       output$"step0_message_xls_ts"<-renderUI(
@@ -187,7 +182,8 @@ importtsstep0Server <- function(id, globaldata){
                                   h4("No connection")
                               ))) 
                     
-                    validate(need(globaldata$connectOK,"No connection"))
+                    validate(need(globaldata$connectOK,message="No connection"))
+                    
                     ls <- step0load_data_ts()   
                     show_data_check(ls)
                     updatePickerInput(
@@ -217,7 +213,7 @@ importtsstep0Server <- function(id, globaldata){
                               paste(
                                   h4("No connection")
                               ))) 
-                    validate(need(globaldata$connectOK,"No connection"))              
+                    validate(need(globaldata$connectOK,message="No connection"))              
                     ls <- step0load_local_ts() 
                     show_data_check(ls)
                   })
@@ -229,8 +225,11 @@ importtsstep0Server <- function(id, globaldata){
         
         #req(input$ts_check_file_button)
         show_data_check <- function(ls){
-          shinyCatch({ 
-                
+          if (is.null(ls)){
+            output$"step0_message_txt_ts" <- renderText('no dataset seleted, wait for message "upload complete"')               
+            output$"dt_integrate_ts" <- renderDataTable(data.frame())
+            output$"step0_message_xls_ts" <- renderText("")  
+          } else {                
                 rls$message <- ls$message
                 rls$res <- ls$res
                 
@@ -299,9 +298,8 @@ importtsstep0Server <- function(id, globaldata){
                 # DataTable integration error (TIME SERIES)
                 ########################
                 
-                output$dt_integrate_ts <- DT::renderDataTable({
-                      #browser()
-                      validate(need(globaldata$connectOK,"No connection"))
+                output$dt_integrate_ts <- DT::renderDataTable({                      
+                      validate(need(globaldata$connectOK,message="No connection"))  
                       if(length(unique(rls$res$series$ser_cou_code[!is.na(rls$res$series$ser_cou_code)]))>1) stop(paste("More than one country there ",
                                 paste(unique(rls$res$series$ser_cou_code[!is.na(rls$res$series$ser_cou_code)]),collapse=";"), ": while there should be only one country code"))
                       cou_code <- rls$res$series$ser_cou_code[1]             
@@ -325,8 +323,8 @@ importtsstep0Server <- function(id, globaldata){
                                       filename = paste0("datats_",cou_code, Sys.Date())))
                           )
                       )
-                    })                
-              }) #shinyCatch								
+                    })      	
+              }
         }
         
         
