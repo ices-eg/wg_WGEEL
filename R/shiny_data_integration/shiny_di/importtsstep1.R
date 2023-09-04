@@ -191,7 +191,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
         # with duplicates values
         #############################
         observeEvent(input$check_duplicate_button_ts, {
-             #browser()
+               #browser()
               shinyCatch({  
                     shinybusy::show_modal_spinner(text = "Checking File : loaddb", color="darkgreen",spin="fading-circle")
                     
@@ -247,7 +247,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
                     }			
                     
                     
-                    t_dataseries_das <- extract_data("t_dataseries_das", quality_check=TRUE)
+                    t_dataseries_das <- extract_data("t_dataseries_das", quality_check=TRUE,  allow_NULL=TRUE)
                     t_groupseries_grser <- extract_data("t_groupseries_grser", quality_check=FALSE) # FALSE we don't use qal_id to "ban" data
                     t_fishseries_fiser <- extract_data("t_fishseries_fiser", quality_check=FALSE) # we don't use qal_id to "ban" data
                     t_metricgroupseries_megser <- extract_data("t_metricgroupseries_megser", quality_check=FALSE) # we don't use qal_id to "ban" data
@@ -328,7 +328,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
                     } else {
                       list_comp_deleted_dataseries <- list("deleted"= data.frame())
                     }
-                    
+                  
                     if (nrow(updated_data)>0){
                       list_comp_updateddataseries <- compare_with_database_dataseries(data_from_excel=updated_data, 
                           data_from_base=t_dataseries_das, 
