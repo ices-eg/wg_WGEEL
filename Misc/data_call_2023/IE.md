@@ -57,7 +57,8 @@ HD deleted manually
 
 ## Annex 6
 
-
+ 14 new values inserted in the database said we only had 12 columns but allowed us to upload
+ 
 
 ## Annex 7
 
