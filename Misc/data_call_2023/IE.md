@@ -53,7 +53,7 @@ HD deleted manually
 
 ## Annex 5
 
-error with rec_catch
+ 72 new values inserted in the database
 
 ## Annex 6
 
