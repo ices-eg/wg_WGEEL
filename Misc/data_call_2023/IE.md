@@ -8,10 +8,11 @@
 *modified series 1 value updated in the db
 
 ### dataseries
-
+*new data 5 new values entered
+*modified 7 rows updated final 2022 figures
 
 ### group metrics
-
+*modified grp metrics error "meg_gr_id" null value missing
 
 ### individual metrics
 
