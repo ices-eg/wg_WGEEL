@@ -65,7 +65,7 @@ HD deleted manually
  14 new values inserted in the database changed q_release_n to release_n
 
 ## Annex 8
-
+ 72 new values inserted in the database
 
 
 ## Annex 10
