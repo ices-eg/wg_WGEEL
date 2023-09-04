@@ -51,7 +51,6 @@ load_catch_landings<-function(path,datasource){
 	if ("deleted_data " %in% sheets) deleted <- "deleted_data " else deleted <- "deleted_data"
 	# restore this in 2023 by replacing deleted with "deleted_data"
 	output <- lapply(c("new_data","updated_data",deleted),function(sheet){
-
 				data_xls<-read_excel(
 						path=path,
 						sheet=sheet,
@@ -287,7 +286,7 @@ load_catch_landings<-function(path,datasource){
 									namedataset= sheet, 
 									country=country) 
 					)
-					
+
 					### no missvalue and qual id0 at the same time
 
 					data_error= rbind(data_error, checknotqalid0andmissvalue(
