@@ -18,7 +18,7 @@
 * modified group metrics:   3 and 6 new values modified in the group and metric tables
 
 ### individual metrics
-*new individual metrics: integration file was created but country_id missing. Will integrate once clarified if that can be provided this week.
+* new individual metrics: integration file was created but country_id missing. Will integrate once clarified if that can be provided this week.
 ## Annex 2
 
 ### series
