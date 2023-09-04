@@ -16,8 +16,8 @@
 
 ### individual metrics
 2828 and 5644 new values inserted in the fish and metric tables
-
-
+### deleted individual metrics
+HD 424 rows manually deleted from database for BURRGY station - included in the new ind metrics with database code
 ## Annex 2
 
 ### series
@@ -30,7 +30,8 @@
 
 ### individual metrics
  10379 and 27673 new values inserted in the fish and metric tables
-
+###deleted ind metrics
+HD 9380 rows manually deleted from database - relates to all data reuploaded in new ind metrics with database code
 
 ## Annex 3
 
@@ -45,7 +46,7 @@ modified 1 values updated in the db
 ### individual metrics
  33023 and 110908 new values inserted in the fish and metric tables
 ### deleted metrics
-HD deleted manually
+HD deleted manually 31944 rows from database reuploaded in new ind metrics with database code
 
 ## Annex 4
 72 new values inserted in the database
