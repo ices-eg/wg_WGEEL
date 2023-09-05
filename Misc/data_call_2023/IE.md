@@ -14,6 +14,8 @@ BurrGY and ErneGY updated to final figures after initial upload using edit mode 
 
 ### group metrics
 *modified grp metrics 5 and 8 new values modified in the group and metric tables
+take 2 : 2 and 6 new values inserted in the group and metric tables
+ernegy 1 and 2 new values inserted in the group and metric tables had yellow and glass eel in comment with different length and weight but same year and series name gave an error
 
 ### individual metrics
 2828 and 5644 new values inserted in the fish and metric tables
