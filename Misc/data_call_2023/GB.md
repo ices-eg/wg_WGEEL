@@ -65,7 +65,7 @@
 
 ## Annex 5
 
-
+168 new values inserted in the database
 
 ## Annex 6
 
