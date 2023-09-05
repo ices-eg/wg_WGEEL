@@ -126,8 +126,8 @@ writenewindmetricServer <- function(id,globaldata,loaded_data, type="series"){
                    file_type <- loaded_data$file_type
                    if (rls$cou_code != ""){ #otherwise, nothing integrated
                      log_datacall("write new individual_metrics", cou_code = cou_code, message = sQuote(message), 
-                                  the_metadata = NULL, file_type = file_type, main_assessor = main_assessor, 
-                                  secondary_assessor = secondary_assessor)
+                                  the_metadata = NULL, file_type = file_type, main_assessor = globaldata$main_assessor, 
+                                  secondary_assessor = globaldata$secondary_assessor)
                    }
                    
                    output$textoutput_step<- renderText({

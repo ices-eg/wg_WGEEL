@@ -177,7 +177,7 @@ importstep0Server <- function(id,globaldata){
 												file_type <- input$file_type
 												rls$file_type <- file_type
 												# this will fill the log_datacall file (database_tools.R)
-												log_datacall( "check data",cou_code = cou_code, message = paste(rls$message,collapse="\n"), the_metadata = rls$res$the_metadata, file_type = file_type, main_assessor = main_assessor, secondary_assessor = secondary_assessor )
+												log_datacall( "check data",cou_code = cou_code, message = paste(rls$message,collapse="\n"), the_metadata = rls$res$the_metadata, file_type = file_type, main_assessor = globaldata$main_assessor, secondary_assessor = globaldata$secondary_assessor )
 												paste(rls$message,collapse="\n")		
 												
 											}) 			

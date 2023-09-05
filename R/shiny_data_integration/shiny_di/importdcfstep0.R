@@ -161,13 +161,14 @@ importdcfstep0Server <- function(id,globaldata){
                          if (!is.null(rls$res$sampling_info)){
                            if (nrow(rls$res$sampling_info)>0) plotsampling_info(rls$res$sampling_info)
                          }
-                         # the following three lines might look silly but passing input$something to the log_datacall function results
-                         # in an error (input not found), I guess input$something has to be evaluated within the frame of the shiny app
-                         main_assessor <- input$main_assessor
-                         secondary_assessor <- input$secondary_assessor
-                         
+
                          # this will fill the log_datacall file (database_tools.R)
-                         log_datacall( "check data sampling info",cou_code = cou_code, message = paste(rls$message,collapse="\n"), the_metadata = rls$res$the_metadata, file_type = file_type, main_assessor = main_assessor, secondary_assessor = secondary_assessor )
+                         log_datacall( "check data sampling info",
+                             cou_code = cou_code, message = paste(rls$message,collapse="\n"),
+                             the_metadata = rls$res$the_metadata, 
+                             file_type = file_type, 
+                             main_assessor = globaldata$main_assessor, 
+                             secondary_assessor = globaldata$secondary_assessor )
                          paste(rls$message, collapse="\n")						
                          
                          

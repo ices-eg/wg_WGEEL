@@ -175,8 +175,8 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts){
 										secondary_assessor <- input$secondary_assessor
 										file_type <- loaded_data_ts$file_type
 										log_datacall("new series integration", cou_code = cou_code, message = sQuote(message), 
-												the_metadata = NULL, file_type = file_type, main_assessor = main_assessor, 
-												secondary_assessor = secondary_assessor)
+												the_metadata = NULL, file_type = file_type, main_assessor = globaldata$main_assessor, 
+												secondary_assessor = globaldata$secondary_assessor)
 										return(message)
 									}
 									
@@ -215,8 +215,8 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts){
 										secondary_assessor <- input$secondary_assessor
 										file_type <- loaded_data_ts$file_type
 										log_datacall("update series", cou_code = cou_code, message = sQuote(message), 
-												the_metadata = NULL, file_type = file_type, main_assessor = main_assessor, 
-												secondary_assessor = secondary_assessor)
+												the_metadata = NULL, file_type = file_type, main_assessor = globaldata$main_assessor, 
+												secondary_assessor = globaldata$secondary_assessor)
 										return(message)
 									}
 									
@@ -254,8 +254,8 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts){
 										secondary_assessor <- input$secondary_assessor
 										file_type <- loaded_data_ts$file_type
 										log_datacall("deleted dataseries", cou_code = cou_code, message = sQuote(message), 
-												the_metadata = NULL, file_type = file_type, main_assessor = main_assessor, 
-												secondary_assessor = secondary_assessor)
+												the_metadata = NULL, file_type = file_type, main_assessor = globaldata$main_assessor, 
+												secondary_assessor = globaldata$secondary_assessor)
 										return(message)
 									}
 									
@@ -293,8 +293,8 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts){
 										secondary_assessor <- input$secondary_assessor
 										file_type <- loaded_data_ts$file_type
 										log_datacall("new dataseries integration", cou_code = cou_code, message = sQuote(message), 
-												the_metadata = NULL, file_type = file_type, main_assessor = main_assessor, 
-												secondary_assessor = secondary_assessor)
+												the_metadata = NULL, file_type = file_type, main_assessor = globaldata$main_assessor, 
+												secondary_assessor = globaldata$secondary_assessor)
 										return(message)
 									}
 									
@@ -332,8 +332,8 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts){
 										secondary_assessor <- input$secondary_assessor
 										file_type <- loaded_data_ts$file_type
 										log_datacall("update dataseries", cou_code = cou_code, message = sQuote(message), 
-												the_metadata = NULL, file_type = file_type, main_assessor = main_assessor, 
-												secondary_assessor = secondary_assessor)
+												the_metadata = NULL, file_type = file_type, main_assessor = globaldata$main_assessor, 
+												secondary_assessor = globaldata$secondary_assessor)
 										return(message)
 									}
 									

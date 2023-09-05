@@ -22,7 +22,9 @@ shinyServer(function(input, output, session){
           ser_list = NULL,
           ccm_light = ccm_light,
           typ_id = typ_id,
-          list_country = NULL)
+          list_country = NULL,
+          main_assessor = NULL,
+          secondary_assessor = NULL)
       
       
       output$passwordtest <- renderText({
@@ -69,7 +71,9 @@ load_database <- function(){
     isolate(data$connectOK <- FALSE)
   } else { 
     isolate(data$pool <- pool)
-    isolate(data$connectOK <- dbGetInfo(data$pool)$valid)        
+    isolate(data$connectOK <- dbGetInfo(data$pool)$valid)  
+    isolate(data$main_assessor <- input$main_assessor)
+    isolate(data$secondary_assessor <- input$secondary_assessor)
     # if the password is wrong we need to test the connection           
   }
 }

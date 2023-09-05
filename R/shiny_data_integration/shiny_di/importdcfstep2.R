@@ -110,15 +110,21 @@ importdcfstep2Server <- function(id,globaldata,loaded_data_dcf){
 										path <- isolate(step2.1.1_filepath_new_sampling())
 										if (is.null(data$path_step2.1.1_new_sampling)) 
 											return(NULL)
+                    #browser()
 										rls <- write_new_sampling(path)
-										message <- rls$message
+										message <- iconv(rls$message, "UTF-8")
 										cou_code <- rls$cou_code
 										main_assessor <- input$main_assessor
 										secondary_assessor <- input$secondary_assessor
 										file_type <- loaded_data_dcf$file_type
-										log_datacall("new sampling integration", cou_code = cou_code, message = sQuote(message), 
-												the_metadata = NULL, file_type = file_type, main_assessor = main_assessor, 
-												secondary_assessor = secondary_assessor)
+               
+										log_datacall("new sampling integration", 
+                        cou_code = cou_code, 
+                        message = sQuote(message), 
+												the_metadata = NULL, 
+                        file_type = file_type, 
+                        main_assessor = globaldata$main_assessor, 
+												secondary_assessor = globaldata$secondary_assessor)
 										return(message)
 									}
 									
@@ -159,8 +165,8 @@ importdcfstep2Server <- function(id,globaldata,loaded_data_dcf){
 										secondary_assessor <- input$secondary_assessor
 										file_type <- loaded_data_dcf$file_type
 										log_datacall("update sampling", cou_code = cou_code, message = sQuote(message), 
-												the_metadata = NULL, file_type = file_type, main_assessor = main_assessor, 
-												secondary_assessor = secondary_assessor)
+												the_metadata = NULL, file_type = file_type, main_assessor = globaldata$main_assessor, 
+												secondary_assessor = globaldata$secondary_assessor)
 										return(message)
 									}
 									
