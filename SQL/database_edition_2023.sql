@@ -263,3 +263,47 @@ UPDATE datawg.t_metricgroupseries_megser SET meg_value=meg_value/100
 WHERE meg_id IN (SELECT meg_id FROM fixme); --15
 COMMIT;    
 
+
+SELECT * FROM datawg.t_series_ser 
+JOIN datawg.t_groupseries_grser AS tgg ON grser_ser_id =ser_id 
+LEFT JOIN datawg.t_metricgroupseries_megser ON meg_gr_id = gr_id
+WHERE ser_cou_code= 'IE'
+AND ser_id =5
+
+
+SELECT * FROM datawg.t_series_ser 
+JOIN datawg.t_groupseries_grser AS tgg ON grser_ser_id =ser_id 
+--LEFT JOIN datawg.t_metricgroupseries_megser ON meg_gr_id = gr_id
+WHERE ser_id =5
+AND gr_year = 2023
+
+SELECT * FROM datawg.t_series_ser 
+JOIN datawg.t_groupseries_grser AS tgg ON grser_ser_id =ser_id 
+WHERE  grser_ser_id = 5
+AND gr_year = 2023
+
+
+
+SELECT * FROM datawg.t_groupseries_grser
+WHERE  grser_ser_id = 5
+AND gr_year = 2023
+
+
+SELECT * from datawg.t_fishsamp_fisa tff2 
+left join datawg.t_samplinginfo_sai tss on tff2.fisa_sai_id =tss.sai_id 
+where tss.sai_cou_code ='SE'; 
+
+
+begin;
+--32792 rows to be deleted
+select count(fi_id) from datawg.t_fishsamp_fisa tff2 
+left join datawg.t_samplinginfo_sai tss on tff2.fisa_sai_id =tss.sai_id 
+where tss.sai_cou_code ='SE'; 
+--32792 rows deleted
+delete from datawg.t_fishsamp_fisa tff1 where exists (
+select fi_id from datawg.t_fishsamp_fisa tff2 
+left join datawg.t_samplinginfo_sai tss on tff2.fisa_sai_id =tss.sai_id 
+where tss.sai_cou_code ='SE' and tff1.fi_id=tff2.fi_id); --32792
+
+
+
