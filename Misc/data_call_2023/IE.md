@@ -10,6 +10,7 @@
 ### dataseries
 *new data 5 new values entered
 *modified 7 rows updated final 2022 figures
+BurrGY and ErneGY updated to final figures after initial upload using edit mode on shiny
 
 ### group metrics
 *modified grp metrics 5 and 8 new values modified in the group and metric tables
