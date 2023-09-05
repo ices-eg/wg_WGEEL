@@ -69,10 +69,10 @@
 ## Annex 10
 
 ### samplinginfo
-
+* 8 new series
 
 ### group metrics
 
 
 ### individual metrics
-
+* 1340 and 8738 new values inserted in the fish and metric tables

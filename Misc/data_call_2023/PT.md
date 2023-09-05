@@ -35,7 +35,6 @@
 ### individual metrics
 * new individual metrics: 111 and 710 new values inserted in the fish and metric tables
 
-
 ## Annex 3
 
 ### series
@@ -51,11 +50,11 @@
 
 
 ## Annex 4
-
+*  new rows: 2 new values inserted in the database
 
 
 ## Annex 5
-
+* new rows: 24 new values inserted in the database
 
 
 ## Annex 6
