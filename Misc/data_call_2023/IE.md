@@ -14,9 +14,15 @@ BurrGY and ErneGY updated to final figures after initial upload using edit mode 
 
 ### group metrics
 *modified grp metrics 5 and 8 new values modified in the group and metric tables
+first grp metrics file did not get entered but didnt show up an error
+take 2 : 2 and 6 new values inserted in the group and metric tables
+ernegy 1 and 2 new values inserted in the group and metric tables had yellow and glass eel in comment with different length and weight but same year and series name gave an error
+
+still need to modify grp metrics with final data
 
 ### individual metrics
 2828 and 5644 new values inserted in the fish and metric tables
+extra  13 and 26 new values inserted in the fish and metric tables final lengths taken after datacall
 ### deleted individual metrics
 HD 424 rows manually deleted from database for BURRGY station - included in the new ind metrics with database code
 ## Annex 2
@@ -73,10 +79,10 @@ HD deleted manually 31944 rows from database reuploaded in new ind metrics with 
 ## Annex 10
 
 ### samplinginfo
-
+1 new series added 
 
 ### group metrics
 
 
 ### individual metrics
-
+ 100 and 798 new values inserted in the fish and metric tables
