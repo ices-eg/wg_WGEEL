@@ -5,42 +5,41 @@
 ## Annex 1
 
 ### series
-
+No change
 ### dataseries
 * 6 lines
 
-
 ### group metrics
-
+nothing
 
 ### individual metrics
-
+nothing
 ## Annex 2
 
 ### series
-
+No change
 ### dataseries
 * 2 new values integrated in the DB
 
 ### group metrics
-
+nothing
 
 ### individual metrics
-
+nothing
 
 
 ## Annex 3
 
 ### series
-
+No change
 ### dataseries
-
+* 2 new linges
 
 ### group metrics
-
+nothing
 
 ### individual metrics
-
+nothing
 
 
 ## Annex 4
