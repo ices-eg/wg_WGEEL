@@ -7,6 +7,7 @@
 ### series
 
 ### dataseries
+* 6 lines
 
 
 ### group metrics
@@ -47,6 +48,8 @@
 
 
 ## Annex 5
+
+* 60 rows integrated (2 real rows with data)
 
 
 
