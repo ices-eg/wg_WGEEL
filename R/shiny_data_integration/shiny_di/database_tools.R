@@ -669,8 +669,9 @@ compare_with_database_sampling <- function(data_from_excel, data_from_base) {
       mat[,c(v,v+1)]<-test
       
     }
-    # select only rows where there are true modified 
-    modified <- modified[!apply(mat,1,all),]	 
+    # fix bug when all lines are returned without new values
+    sai_name_changed <- unique(highlight_change[!apply(mat,1,all), "sai_name"])
+    modified <- modified[modified$sai_name %in%sai_name_changed ,]	  
     # show only modifications to the user (any colname modified)		
     highlight_change <- highlight_change[!apply(mat,1,all),num_common_col[!apply(mat,2,all)]]
   }
