@@ -75,10 +75,10 @@ HD deleted manually 31944 rows from database reuploaded in new ind metrics with 
 ## Annex 10
 
 ### samplinginfo
-
+1 new series added 
 
 ### group metrics
 
 
 ### individual metrics
-
+ 100 and 798 new values inserted in the fish and metric tables
