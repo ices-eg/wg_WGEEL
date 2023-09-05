@@ -6,13 +6,20 @@
 
 ### series
 
+1 value updated in the db
+
 ### dataseries
 
+28 new values inserted in the db  
+21 values updated in the db
 
 ### group metrics
 
+6 and 12 new values inserted in the group and metric tables
 
 ### individual metrics
+
+1397 and 2714 new values inserted in the fish and metric tables
 
 ## Annex 2
 
