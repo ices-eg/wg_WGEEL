@@ -20,7 +20,7 @@
 ### series
 
 ### dataseries
-
+* 2 new values integrated in the DB
 
 ### group metrics
 
