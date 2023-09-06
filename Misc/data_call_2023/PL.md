@@ -1,74 +1,31 @@
------------------------------------------------------------
-# PL 
------------------------------------------------------------
+Annex 4
 
-## Annex 1
+* new data
+50 new values inserted in the database
 
-### series
+Annex 5
 
-### dataseries
+* new data
+6 new values inserted in the database
 
+Annex 8
 
-### group metrics
+* new data
+2 new values inserted in the database
 
+Annex 2
 
-### individual metrics
+* new data
+1 new values inserted in the database
+* new group metrics
+1 and 3 new values inserted in the group and metric tables
 
-## Annex 2
+Annex 7
+* new data
+10 new values inserted in the database
 
-### series
-
-### dataseries
-
-
-### group metrics
-
-
-### individual metrics
-
-
-
-## Annex 3
-
-### series
-
-### dataseries
-
-
-### group metrics
-
-
-### individual metrics
-
-
-
-## Annex 4
-
-
-
-## Annex 5
-
-
-
-## Annex 6
-
-
-
-## Annex 7
-
-
-
-## Annex 8
-
-
-
-## Annex 10
-
-### samplinginfo
-
-
-### group metrics
-
-
-### individual metrics
-
+Annex 10
+* new group metrics
+4 and 40 new values inserted in the group and metric tables
+* new individual metrics
+735 and 6558 new values inserted in the fish and metric tables
