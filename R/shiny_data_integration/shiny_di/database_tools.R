@@ -946,7 +946,6 @@ compare_with_database_metric_ind <- function(
                                 by = c("fi_date","fi_year",ifelse(type=="series","ser_nameshort","sai_name"),ifelse(sheetorigin=="updated_individual_metric","fi_id","fi_id_cou"),"mei_mty_id"))
   if (nrow(new)>0)	new$fi_dts_datasource <- the_eel_datasource
   
-  browser()
   modified <- dplyr::anti_join(data_from_excel, data_from_base_wide, 
                                by =c("fi_id", "fi_date", "fi_comment", metrics_ind$mty_name))
   modified <- modified[!modified$id %in% new$id,]
