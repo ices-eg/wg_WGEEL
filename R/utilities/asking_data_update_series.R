@@ -396,7 +396,7 @@ create_datacall_file_series <- function(country, name, ser_typ_id, type="series"
     fishes %>%
     left_join(metrics) %>%
     tidyr::pivot_wider(names_from=mty_name,
-                       values_from=mei_value) 
+                       values_from=mei_value)
    
   if (nrow(existing_metric)> 0){	
     #existing_metric <- existing_metric[!is.na(existing_metric$fi_year),]
