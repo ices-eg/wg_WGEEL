@@ -60,7 +60,7 @@
 
 ## Annex 4
 
-126 new values inserted in the db  
+189 new values inserted in the db  
 3 values updated in the db
 
 ## Annex 5
