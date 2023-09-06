@@ -306,4 +306,150 @@ left join datawg.t_samplinginfo_sai tss on tff2.fisa_sai_id =tss.sai_id
 where tss.sai_cou_code ='SE' and tff1.fi_id=tff2.fi_id); --32792
 
 
+-- edit data in DK for landings in Marine waters
+
+SELECT * FROM datawg.t_eelstock_eel WHERE eel_cou_code = 'DK' AND eel_typ_id = 4 AND eel_qal_id IN (1,2,3,4)
+AND eel_emu_nameshort ='DK_Inla'
+
+SELECT * FROM datawg.t_eelstock_eel WHERE eel_cou_code = 'DK' AND eel_typ_id = 4 AND eel_qal_id IN (1,2,3,4)
+AND eel_emu_nameshort ='DK_total' AND eel_year >= 2000
+
+
+
+SELECT * FROM datawg.t_eelstock_eel WHERE eel_cou_code = 'DK' AND eel_typ_id = 4 AND eel_qal_id IN (1,2,3,4)
+AND eel_emu_nameshort ='DK_total' AND eel_hty_code= 'F' AND eel_value>0
+
+
+DROP TRIGGER trg_check_emu_whole_aquaculture ON datawg.t_eelstock_eel;
+UPDATE datawg.t_eelstock_eel SET eel_emu_nameshort = 'DK_Inla' 
+WHERE eel_cou_code = 'DK' 
+AND eel_typ_id = 4
+AND eel_qal_id IN (1,2,3,4)
+AND eel_emu_nameshort ='DK_total'
+AND eel_hty_code= 'F' 
+AND eel_value>0; --74
+
+
+SELECT * FROM datawg.t_eelstock_eel 
+WHERE eel_cou_code = 'DK' 
+AND eel_typ_id = 4 
+AND eel_qal_id IN (1,2,3,4)
+AND eel_emu_nameshort ='DK_total' 
+AND eel_hty_code !='F'
+AND eel_year >= 2000
+AND eel_area_division IS NULL
+
+
+-- setting Coastal water always with '27.3.b, c' after 2000
+UPDATE datawg.t_eelstock_eel SET eel_area_division =  '27.3.b, c'
+WHERE eel_cou_code = 'DK' 
+AND eel_typ_id = 4 
+AND eel_qal_id IN (1,2,3,4)
+AND eel_emu_nameshort ='DK_total' 
+AND eel_hty_code !='F'
+AND eel_year >= 2000
+AND eel_area_division IS NULL; --52
+
+
+-- We want to use DK_Mari instead of DK_total after 2000
+SELECT * FROM datawg.t_eelstock_eel 
+WHERE eel_cou_code = 'DK' 
+AND eel_typ_id = 4 
+AND eel_qal_id IN (1,2,3,4)
+AND eel_emu_nameshort ='DK_total' 
+AND eel_hty_code !='F'
+AND eel_year = 2021
+AND eel_value>0; --42
+
+
+SELECT * FROM datawg.t_eelstock_eel 
+WHERE eel_cou_code = 'DK' 
+AND eel_typ_id = 4 
+AND eel_qal_id IN (1,2,3,4)
+AND eel_emu_nameshort ='DK_total' 
+AND eel_hty_code !='F'
+AND eel_year >= 2000
+AND eel_value>0; --42
+
+SELECT * FROM 
+datawg.t_eelstock_eel 
+WHERE eel_cou_code IN ('DK') 
+AND eel_typ_id =4 
+AND eel_hty_code='C' 
+AND eel_lfs_code in ('Y','S') 
+and eel_emu_nameshort='DK_Mari' 
+and eel_value IS NULL
+
+
+UPDATE 
+datawg.t_eelstock_eel SET eel_qal_id = 23
+WHERE 
+eel_cou_code IN ('DK') 
+AND eel_typ_id =4 
+AND eel_hty_code='C' 
+AND eel_lfs_code in ('Y','S') 
+and eel_emu_nameshort='DK_Mari' 
+and eel_value IS NULL; --6
+
+UPDATE datawg.t_eelstock_eel SET eel_emu_nameshort = 'DK_Mari'
+WHERE eel_cou_code = 'DK' 
+AND eel_typ_id = 4 
+AND eel_qal_id IN (1,2,3,4)
+AND eel_emu_nameshort ='DK_total' 
+AND eel_hty_code !='F'
+AND eel_year >= 2000
+AND eel_value>0; --46
+
+
+SELECT * FROM datawg.t_eelstock_eel 
+WHERE eel_cou_code = 'DK' 
+AND eel_typ_id = 4 
+AND eel_qal_id IN (1,2,3,4)
+AND eel_emu_nameshort ='DK_total' 
+
+SELECT * FROM datawg.t_eelstock_eel 
+WHERE eel_cou_code = 'DK' 
+AND eel_typ_id = 4 
+AND eel_qal_id IN (1,2,3,4)
+AND eel_cou_code='DK'
+
+
+-- remove area division from dk_total
+UPDATE datawg.t_eelstock_eel 
+SET eel_area_division =NULL
+WHERE eel_cou_code = 'DK' 
+AND eel_typ_id = 4 
+AND eel_qal_id IN (1,2,3,4)
+AND eel_emu_nameshort ='DK_total' 
+AND eel_area_division IS NOT NULL; --170
+
+
+SELECT * FROM  datawg.t_eelstock_eel 
+WHERE eel_cou_code = 'DK' 
+AND eel_typ_id = 4 
+AND eel_qal_id IN (1,2,3,4)
+AND eel_area_division IS NOT NULL
+AND eel_hty_code NOT IN ('MO','C')
+
+
+UPDATE datawg.t_eelstock_eel SET eel_area_division = NULL
+WHERE eel_cou_code = 'DK' 
+AND eel_typ_id = 4 
+AND eel_qal_id IN (1,2,3,4)
+AND eel_area_division IS NOT NULL
+AND eel_hty_code NOT IN ('MO','C');--132
+
+UPDATE datawg.t_eelstock_eel SET eel_area_division = NULL
+WHERE eel_cou_code = 'DK' 
+AND eel_typ_id = 4 
+AND eel_qal_id IN (1,2,3,4)
+AND eel_area_division IS NOT NULL
+AND eel_hty_code NOT IN ('MO','C');
+
+
+SELECT * FROM  datawg.t_eelstock_eel 
+WHERE 
+ eel_qal_id IN (1,2,3,4)
+AND eel_area_division IS NOT NULL
+AND eel_hty_code IN ('F');
 
