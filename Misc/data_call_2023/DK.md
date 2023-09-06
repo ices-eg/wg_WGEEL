@@ -54,6 +54,8 @@ nothing
 
 ## Annex 6
 
+* 4 new values integrated
+* 28 values updated for DK_Mari <-> DK_Total
 
 
 ## Annex 7
