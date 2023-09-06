@@ -355,7 +355,7 @@ create_datacall_file_series <- function(country, name, ser_typ_id, type="series"
   fishes <- dbGetQuery(con,str_c(
     "select 
 	fi.* ",
-    ifelse(type=="series",", ser_nameshort","sai_name"),
+    ifelse(type=="series",", ser_nameshort",", sai_name"),
     " FROM ",
     ifelse(type=="series", "datawg.t_fishseries_fiser fi ", "datawg.t_fishsamp_fisa fi "),
     ifelse(type=="series"," LEFT JOIN datawg.t_series_ser ON ser_id = fiser_ser_id ",
