@@ -10,6 +10,8 @@
 
 # put the current year there
 CY<-2023
+
+inactivedeadline <- 4 #this ensure that we don't ask new data for time series that are inactive since more than 4 years
 # function to load packages if not available
 load_library=function(necessary) {
   if(!all(necessary %in% installed.packages()[, 'Package']))
@@ -216,6 +218,13 @@ create_datacall_file_series <- function(country, name, ser_typ_id, type="series"
   # new data ----------------------------------------------------
   # extract missing data from CY-10
   if (type == "series"){
+    #this ensure that we don't ask new data for time series that are inactive since more than 4 years
+    activeseries <- dat %>% 
+      filter(!is.na(das_value) & das_year >= CY-inactivedeadline) %>%
+      dplyr::select(ser_nameshort) %>%
+      dplyr::pull() %>%
+      unique()
+    
     if (nrow(dat)> 0){
       new_data <- 
         dplyr::bind_rows(
@@ -230,7 +239,9 @@ create_datacall_file_series <- function(country, name, ser_typ_id, type="series"
             dplyr::filter(das_year>=(CY-10)& das_qal_id >4)  %>% #if we have only data with das_qal_id >4, we are missing a data
             dplyr::select(ser_nameshort,das_year,das_value, das_comment, das_effort,das_qal_id) 
         )%>%
-        dplyr::arrange(ser_nameshort, das_year)
+        dplyr::filter(ser_nameshort %in% activeseries) %>%     #this ensure that we don't ask new data for time series that are inactive since more than 4 years
+        dplyr::arrange(ser_nameshort, das_year) 
+        
       
       if (nrow(new_data)> 0){
         #openxlsx::writeData(wb, sheet = "new_data", new_data, startRow = 1)
@@ -281,6 +292,13 @@ create_datacall_file_series <- function(country, name, ser_typ_id, type="series"
     ifelse(type=="series","ser_id","sai_id"),
     ", gr_year, gr_id  ASC"))
   
+  #this ensure that we don't ask new data for time series that are inactive since more than 4 years
+  activeseries <- groups %>% 
+    filter(gr_year >= CY-inactivedeadline) %>%
+    dplyr::select(ser_nameshort) %>%
+    dplyr::pull() %>%
+    unique()
+  
   #read the existing data template to have the correct format
   formatted <-  read_excel(templatefile,"existing_group_metrics")
   if(type=="series"){
@@ -297,7 +315,8 @@ create_datacall_file_series <- function(country, name, ser_typ_id, type="series"
   existing_metric <- groups %>%
     left_join(metrics) %>%
     tidyr::pivot_wider(names_from=mty_name,
-                       values_from=meg_value) 
+                       values_from=meg_value) %>%
+    dplyr::filter(ser_nameshort %in% activeseries)     #this ensure that we don't ask new data for time series that are inactive since more than 4 years
   if (nrow(existing_metric)> 0){ #not possible to prefill for non series data
     existing_metric <- applyTemplateFormat(formatted, existing_metric) %>%
       arrange(!!sym(ifelse(type=="series","ser_nameshort","sai_name")),gr_year,gr_id)
@@ -367,6 +386,8 @@ create_datacall_file_series <- function(country, name, ser_typ_id, type="series"
     ifelse(type=="series","ser_id", "sai_id"),
     ", fi_year, fi_id  ASC"))
   
+  
+  
   if (nrow(fishes)>0){
   
   metrics <- dbGetQuery(con, str_c(
@@ -388,6 +409,8 @@ create_datacall_file_series <- function(country, name, ser_typ_id, type="series"
     ", fi_year, fi_id  ASC")) %>%
     mutate(mty_name=ifelse(is.na(mty_individual_name),mty_name,mty_individual_name)) %>%
     select(-mty_individual_name)
+  
+
   
   #read the existing data template to have the correct format
   formatted <- read_excel(templatefile,"existing_individual_metrics")
