@@ -292,7 +292,7 @@ load_catch_landings<-function(path,datasource){
         dataset=data_xls,
         namedataset= sheet, 
         country=country) %>%
-          dplyr::select(nline,error_messages)
+          dplyr::select(any_of(c("nline","error_message")))
       )
       
       if (nrow(data_error)>0) {
@@ -1748,7 +1748,7 @@ load_mortality_silver<-function(path,datasource){
       dataset=data_xls,
       namedataset= "new_data", 
       country=country)%>%
-        dplyr::select(nline,error_message)
+        dplyr::select(any_of(c("nline","error_message")))
     )
     
   }
