@@ -288,11 +288,11 @@ load_catch_landings<-function(path,datasource){
       )
       
       ### no missvalue and qual id0 at the same time
-      
-      data_error= rbind(data_error, checknotqalid0andmissvalue(
+      data_error= bind_rows(data_error, checknotqalid0andmissvalue(
         dataset=data_xls,
         namedataset= sheet, 
-        country=country) 
+        country=country) %>%
+          dplyr::select(nline,error_messages)
       )
       
       if (nrow(data_error)>0) {
@@ -1744,10 +1744,11 @@ load_mortality_silver<-function(path,datasource){
     
     ### no missvalue and qual id0 at the same time
     
-    data_error= rbind(data_error, checknotqalid0andmissvalue(
+    data_error= bind_rows(data_error, checknotqalid0andmissvalue(
       dataset=data_xls,
       namedataset= "new_data", 
-      country=country) 
+      country=country)%>%
+        dplyr::select(nline,error_message)
     )
     
   }
@@ -2394,7 +2395,6 @@ load_series<-function(path, datasource, stage="glass_eel"){
         data_xls <- data_xls %>%
           rename("fi_id_cou"=fi_idcou) #to deal with a bug
       cat("loading sheet ", sheet,"\n")
-      #browser()
       # ignore this
       #nbcol <- length(columns)	
       #fn_check_columns(data=data_xls, columns=columns,	file = file, sheet=sheet, nbcol=nbcol)
