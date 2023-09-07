@@ -26,6 +26,7 @@
 ### series
 
 2 series updated in the db
+1 series manually deleted (ClwY) as no data was ever reported
 
 ### dataseries
 
@@ -36,10 +37,12 @@
 ### group metrics
 
 32 and 32 new values inserted in the group and metric tables
+Group weight data from all series apart from KilY, LagY, BadY, GirY & ShiY manually deleted as weight is not measured but estimated
 
 ### individual metrics
 
 3169 and 3190 new values inserted in the fish and metric tables
+Individual weight data from all series apart from KilY, LagY, BadY, GirY & ShiY manually deleted as weight is not measured but estimated
 
 ## Annex 3
 
