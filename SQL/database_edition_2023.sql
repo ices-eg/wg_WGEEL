@@ -453,3 +453,88 @@ WHERE
 AND eel_area_division IS NOT NULL
 AND eel_hty_code IN ('F');
 
+-- remove calculated weight from group series in UK
+
+SELECT count(*) AS n, ser_nameshort FROM datawg.t_series_ser 
+JOIN datawg.t_groupseries_grser AS tgg ON grser_ser_id =ser_id
+JOIN datawg.t_metricgroupseries_megser ON meg_gr_id=gr_id
+--LEFT JOIN datawg.t_metricgroupseries_megser ON meg_gr_id = gr_id
+WHERE ser_cou_code = 'GB'
+AND ser_typ_id = 2
+AND meg_mty_id=2
+AND ser_nameshort NOT IN ('KilY', 'LagY', 'BadY', 'GirY','ShiY' )
+GROUP BY ser_nameshort
+ORDER BY ser_nameshort
+
+
+DELETE FROM datawg.t_metricgroupseries_megser WHERE meg_id IN (
+SELECT meg_id FROM datawg.t_series_ser 
+JOIN datawg.t_groupseries_grser AS tgg ON grser_ser_id =ser_id
+JOIN datawg.t_metricgroupseries_megser ON meg_gr_id=gr_id
+--LEFT JOIN datawg.t_metricgroupseries_megser ON meg_gr_id = gr_id
+WHERE ser_cou_code = 'GB'
+AND ser_typ_id = 2
+AND meg_mty_id=2
+AND ser_nameshort NOT IN ('KilY', 'LagY', 'BadY', 'GirY','ShiY' )) --756;
+
+
+SELECT count(*) AS n, ser_nameshort FROM datawg.t_series_ser 
+JOIN datawg.t_fishseries_fiser  ON fiser_ser_id =ser_id
+JOIN datawg.t_metricindseries_meiser ON mei_fi_id=fi_id
+--LEFT JOIN datawg.t_metricgroupseries_megser ON meg_gr_id = gr_id
+WHERE ser_cou_code = 'GB'
+AND ser_typ_id = 2
+AND mei_mty_id=2
+AND ser_nameshort NOT IN ('KilY', 'LagY', 'BadY', 'GirY','ShiY' )
+GROUP BY ser_nameshort
+ORDER BY ser_nameshort
+
+
+SELECT count(*) FROM datawg.t_series_ser 
+JOIN datawg.t_fishseries_fiser  ON fiser_ser_id =ser_id
+JOIN datawg.t_metricindseries_meiser ON mei_fi_id=fi_id
+--LEFT JOIN datawg.t_metricgroupseries_megser ON meg_gr_id = gr_id
+WHERE ser_cou_code = 'GB'
+AND ser_typ_id = 2
+AND mei_mty_id=2
+AND ser_nameshort NOT IN ('KilY', 'LagY', 'BadY', 'GirY','ShiY' )
+
+
+DELETE FROM datawg.t_metricindseries_meiser WHERE mei_id IN (
+SELECT mei_id  FROM datawg.t_series_ser 
+JOIN datawg.t_fishseries_fiser  ON fiser_ser_id =ser_id
+JOIN datawg.t_metricindseries_meiser ON mei_fi_id=fi_id
+WHERE ser_cou_code = 'GB'
+AND ser_typ_id = 2
+AND mei_mty_id=2
+AND ser_nameshort NOT IN ('KilY', 'LagY', 'BadY', 'GirY','ShiY' )); --83472
+
+
+-- fix wrong series in 2023 in individual data GirY should be GirnY
+
+SELECT * FROM datawg.t_series_ser JOIN datawg. t_dataseries_das ON das_ser_id = ser_id WHERE ser_nameshort='GirY'
+
+SELECT t_metricindseries_meiser.* FROM datawg.t_series_ser 
+JOIN datawg.t_fishseries_fiser  ON fiser_ser_id =ser_id
+JOIN datawg.t_metricindseries_meiser ON mei_fi_id=fi_id
+WHERE ser_nameshort='GirY'
+AND fi_year = 2022
+
+
+SELECT t_metricindseries_meiser.* FROM datawg.t_series_ser 
+JOIN datawg.t_fishseries_fiser  ON fiser_ser_id =ser_id
+JOIN datawg.t_metricindseries_meiser ON mei_fi_id=fi_id
+WHERE ser_nameshort='GirnY'
+AND mei_dts_datasource= 'dc_2023';
+
+-- remove crap series with nothing in it ever and clear comments always to drop it
+SELECT * FROM t_series_ser WHERE ser_nameshort= 'ClwY'
+DELETE FROM t_series_ser WHERE ser_nameshort= 'ClwY';
+SELECT * FROM datawg.t_dataseries_das WHERE das_ser_id= 256;
+DELETE FROM datawg.t_dataseries_das WHERE das_ser_id= 256; --13
+SELECT * FROM t_biometry_series_bis WHERE bis_ser_id= 256;
+DELETE FROM t_biometry_series_bis WHERE bis_ser_id= 256;
+DELETE FROM ref.tr_station WHERE "Station_Name" = 'ClwY';
+ UPDATE t_series_ser SET ser_tblcodeid=NULL WHERE ser_nameshort= 'ClwY';
+ 
+ 
