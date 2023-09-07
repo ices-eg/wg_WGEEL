@@ -22,8 +22,8 @@ convert2boolean <- function(myvec, name){
   if (!all(myvec %in% c(NA,"0","1","true","false","TRUE","FALSE")))
     stop(paste("unrecognised boolean in",name, myvec[!myvec %in% c(NA,"0","1","true","false","TRUE","FALSE")])," is not a boolean, use TRUE or FALSE or 0 or 1")
   myvec[!is.na(myvec)] <- ifelse(myvec[!is.na(myvec)] %in% c("0","false","FALSE"),
-                  FALSE,
-                  TRUE)
+                                 FALSE,
+                                 TRUE)
   as.logical(myvec)
 }
 
@@ -45,6 +45,13 @@ readxlTemplate <- function(path, sheet, dict=dictionary){
     sheet=sheet,
     skip=0, 
     n_max=0))
+  if (any(!names(headers) %in% names(dict))){
+    stop(paste("column names",
+               paste(sort(names(headers)[!names(headers) %in% names(dict)]),
+                     collapse = ","),
+               "not recognized in",
+               sheet))
+  }
   readed_coltypes = dict[names(headers)]
   
   data_xls <- suppressWarnings(read_excel(
