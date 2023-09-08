@@ -453,6 +453,39 @@ WHERE
 AND eel_area_division IS NOT NULL
 AND eel_hty_code IN ('F');
 
+
+create trigger check_meiser_mty_is_individual after
+insert
+    or
+update
+    on
+    datawg.t_metricindseries_meiser for each row execute function datawg.mei_mty_is_individual();
+    
+   
+create trigger check_meisa_mty_is_individual after
+insert
+    or
+update
+    on
+    datawg.t_metricindsamp_meisa  for each row execute function datawg.mei_mty_is_individual();
+    
+   
+create trigger update_meiser_last_update before
+insert
+    or
+update
+    on
+    datawg.t_metricindseries_meiser for each row execute function datawg.mei_last_update();
+   
+   
+create trigger update_meisa_last_update before
+insert
+    or
+update
+    on
+    datawg.t_metricindsamp_meisa for each row execute function datawg.mei_last_update();
+
+
 -- remove calculated weight from group series in UK
 
 SELECT count(*) AS n, ser_nameshort FROM datawg.t_series_ser 
@@ -537,4 +570,5 @@ DELETE FROM t_biometry_series_bis WHERE bis_ser_id= 256;
 DELETE FROM ref.tr_station WHERE "Station_Name" = 'ClwY';
  UPDATE t_series_ser SET ser_tblcodeid=NULL WHERE ser_nameshort= 'ClwY';
  
- 
+     
+
