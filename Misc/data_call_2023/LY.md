@@ -1,21 +1,20 @@
 -----------------------------------------------------------
-# TR 
+# 00 (put the code of the country there) 
 -----------------------------------------------------------
 
 ## Annex 1
-No data
 
 ### series
 
-
 ### dataseries
+
 
 ### group metrics
 
+
 ### individual metrics
 
-## Annex 2 
-No data
+## Annex 2
 
 ### series
 
@@ -30,7 +29,7 @@ No data
 
 
 ## Annex 3
- No data
+
 ### series
 
 ### dataseries
@@ -45,27 +44,26 @@ No data
 
 ## Annex 4
 
-Data integrated
+5 new series integrated
 
 ## Annex 5
 
-Data integrated
+5 new series integrated
 
 ## Annex 6
 
-No data
+
 
 ## Annex 7
 
-No data
+
 
 ## Annex 8
 
-No data
+
 
 ## Annex 10
 
-No data
 ### samplinginfo
 
 

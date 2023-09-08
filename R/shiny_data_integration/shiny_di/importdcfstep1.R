@@ -296,13 +296,13 @@ importdcfstep1Server <- function(id,globaldata,loaded_data_dcf){
 										t_metricgroupsamp_megsa <- extract_data("t_metricgroupsamp_megsa", quality_check=FALSE)
 										t_metricindsamp_meisa <- extract_data("t_metricindsamp_meisa", quality_check=FALSE)
 										t_metricgroupsamp_megsa <- t_metricgroupsamp_megsa %>% 
-												inner_join(t_groupsamp_grsa, by = c("meg_gr_id" = "gr_id") ) %>%
+												right_join(t_groupsamp_grsa, by = c("meg_gr_id" = "gr_id") ) %>%
 												rename("gr_id"="meg_gr_id")	%>%
 												inner_join(t_samplinginfo_sai %>% select(sai_name, sai_id), by= c("grsa_sai_id" = "sai_id")) %>%
 												rename("sai_id"="grsa_sai_id")
 										
 										t_metricindsamp_meisa <- t_metricindsamp_meisa %>%
-												inner_join(t_fishsamp_fisa, by = c("mei_fi_id" = "fi_id") ) %>%
+										  right_join(t_fishsamp_fisa, by = c("mei_fi_id" = "fi_id") ) %>%
 												rename("fi_id"="mei_fi_id")	%>%
 												inner_join(t_samplinginfo_sai %>% select(sai_name, sai_id), by= c("fisa_sai_id" = "sai_id")) %>%
 												rename("sai_id"="fisa_sai_id")
