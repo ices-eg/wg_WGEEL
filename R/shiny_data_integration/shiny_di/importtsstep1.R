@@ -292,11 +292,11 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
                           t_groupseries_grser <-  t_groupseries_grser %>% filter (grser_ser_id %in% t_series_ser$ser_id)
                           t_fishseries_fiser <-  t_fishseries_fiser %>% filter (fiser_ser_id %in% t_series_ser$ser_id)
                           t_metricgroupseries_megser <- t_metricgroupseries_megser%>% 
-                            right(t_groupseries_grser, by = c("meg_gr_id" = "gr_id") ) %>%
+                            right_join(t_groupseries_grser, by = c("meg_gr_id" = "gr_id") ) %>%
                               filter (grser_ser_id %in% t_series_ser$ser_id) %>% rename("gr_id"="meg_gr_id")	 %>%
                               inner_join(t_series_ser %>% select(ser_nameshort, ser_id), by=c("grser_ser_id"="ser_id")) 		
                           t_metricindseries_meiser <- t_metricindseries_meiser%>%
-                            right(t_fishseries_fiser, by = c("mei_fi_id" = "fi_id") ) %>%
+                            right_join(t_fishseries_fiser, by = c("mei_fi_id" = "fi_id") ) %>%
                               inner_join(t_series_ser %>% select(ser_nameshort, ser_id), by=c("fiser_ser_id"="ser_id")) %>% 
                               filter (fiser_ser_id %in% t_series_ser$ser_id) %>% 
                               rename("fi_id"="mei_fi_id")		
