@@ -453,3 +453,36 @@ WHERE
 AND eel_area_division IS NOT NULL
 AND eel_hty_code IN ('F');
 
+
+create trigger check_meiser_mty_is_individual after
+insert
+    or
+update
+    on
+    datawg.t_metricindseries_meiser for each row execute function datawg.mei_mty_is_individual();
+    
+   
+create trigger check_meisa_mty_is_individual after
+insert
+    or
+update
+    on
+    datawg.t_metricindsamp_meisa  for each row execute function datawg.mei_mty_is_individual();
+    
+   
+create trigger update_meiser_last_update before
+insert
+    or
+update
+    on
+    datawg.t_metricindseries_meiser for each row execute function datawg.mei_last_update();
+   
+   
+create trigger update_meisa_last_update before
+insert
+    or
+update
+    on
+    datawg.t_metricindsamp_meisa for each row execute function datawg.mei_last_update();
+    
+
