@@ -570,5 +570,30 @@ DELETE FROM t_biometry_series_bis WHERE bis_ser_id= 256;
 DELETE FROM ref.tr_station WHERE "Station_Name" = 'ClwY';
  UPDATE t_series_ser SET ser_tblcodeid=NULL WHERE ser_nameshort= 'ClwY';
  
+--fix a trigger 
+CREATE OR REPLACE FUNCTION datawg.mei_mty_is_individual()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$   
+  DECLARE the_mty_type TEXT;
+          the_mty_name TEXT;
+          the_mty_unit text;
+ 
+  BEGIN
+   
+  SELECT INTO
+  the_mty_type , the_mty_name, the_mty_unit 
+  mty_type, mty_name,mty_uni_code FROM REF.tr_metrictype_mty where mty_id=NEW.mei_mty_id;
+
+    IF (the_mty_type = 'group') THEN
+    RAISE EXCEPTION 'table t_metricind_mei, metric --> % is not an individual metric', the_mty_name ;
+    END IF  ;
+    if (the_mty_unit = 'wo' and new.mei_value not in (0,1)) then
+	raise exception 'metric % should have only 0 or 1 for individuals', the_mty_name;
+    end if;
+    RETURN NEW ;
+  END  ;
+$function$
+;
      
 
