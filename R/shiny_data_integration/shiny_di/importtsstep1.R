@@ -248,7 +248,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts){
                     }			
                     
                     
-                    t_dataseries_das <- extract_data("t_dataseries_das", quality_check=TRUE,  allow_NULL=TRUE)
+                    t_dataseries_das <- extract_data("t_dataseries_das", quality_check=TRUE, quality = c(0,1,2,3,4), allow_NULL=TRUE)
                     t_groupseries_grser <- extract_data("t_groupseries_grser", quality_check=FALSE) # FALSE we don't use qal_id to "ban" data
                     t_fishseries_fiser <- extract_data("t_fishseries_fiser", quality_check=FALSE) # we don't use qal_id to "ban" data
                     t_metricgroupseries_megser <- extract_data("t_metricgroupseries_megser", quality_check=FALSE) # we don't use qal_id to "ban" data
