@@ -596,4 +596,14 @@ AS $function$
 $function$
 ;
      
+begin;
+update datawg.t_series_ser set ser_nameshort = 'CurlY' where ser_nameshort ='ClY';
+update datawg.t_series_ser set ser_nameshort = 'CurlS' where ser_nameshort ='ClS';
+update datawg.t_series_ser set ser_nameshort = 'KrolY' where ser_nameshort ='KrLY';
+update datawg.t_series_ser set ser_nameshort = 'DoijS' where ser_nameshort ='DOIJS';
 
+
+with notok as (select count (das_id) nbpoint, das_ser_id  from datawg.t_dataseries_das tdd where das_qal_id in (1,2,4) and das_value is not null group by das_ser_id having count (das_id)<10),
+tobeupdated as (select tss.ser_nameshort from datawg.t_series_ser tss inner join notok on ser_id=das_ser_id where ser_qal_id=1)
+update datawg.t_series_ser tss2 set ser_qal_id =0 where tss2.ser_nameshort in (select tss3.ser_nameshort from tobeupdated tss3);
+commit;
