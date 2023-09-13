@@ -20,6 +20,7 @@ shinyServer(function(input, output, session){
       data <- reactiveValues(pool=NULL,
           connectOK=FALSE,
           ser_list = NULL,
+          sam_list = NULL,
           ccm_light = ccm_light,
           typ_id = typ_id,
           list_country = NULL,
@@ -120,10 +121,10 @@ load_database <- function(){
     #205-shiny-integration-for-dcf-data 
     query <- "SELECT distinct sai_name FROM datawg.t_samplinginfo_sai"
     tr_sai_list <<- dbGetQuery(pool, sqlInterpolate(ANSI(), query))$sai_name
-    
+    isolate({data$sai_list <- tr_sai_list})
     query <- "SELECT * FROM datawg.t_samplinginfo_sai"
     t_samplinginfo_sai <<- dbGetQuery(pool, sqlInterpolate(ANSI(), query))
-    #isolate({data$sai_list <- tr_sai_list$ser_id})
+
     
     #205-shiny-integration-for-dcf-data
     query <- "SELECT * from ref.tr_metrictype_mty"
