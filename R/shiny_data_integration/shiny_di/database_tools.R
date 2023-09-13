@@ -354,8 +354,8 @@ compare_with_database_series <- function(data_from_excel, data_from_base) {
   new <-  dplyr::anti_join(data_from_excel, data_from_base, 
                            by = c("ser_nameshort", "ser_typ_id"))
   if (nrow(new) >0 ){
-    new$ser_qal_id <- NA
-    new$ser_qal_comment <- NA
+    new$ser_qal_id <- 0 #by default, a new series as ser_qal_id because it is short
+    new$ser_qal_comment <- "new series: 0 by default if too short"
     new$ser_ccm_wso_id <- "{}"
     new$ser_dts_datasource <- the_eel_datasource
   }
