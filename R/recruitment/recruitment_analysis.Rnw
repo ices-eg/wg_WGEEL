@@ -729,7 +729,7 @@ column_to_import <- R_stations[,c("ser_nameshort","areashort")]
 printstatseries <- merge(printstatseries,column_to_import,by.x="site",by.y="ser_nameshort")
 printstatseriesGNS <- printstatseries%>% 
 		filter(life_stage=="G", areashort=="NS")%>%
-		arrange(order)%>%
+		arrange(site)%>%
 		dplyr::select(1,12,2:9,11)%>%
 		dplyr::rename("code"="site",
 				"area"="areashort",
@@ -756,7 +756,7 @@ print(xstatseriesGNS ,
 
 printstatseriesGEE <- printstatseries%>% 
 		filter(life_stage=="G", areashort=="EE")%>%
-		arrange(order)%>%
+		arrange(site)%>%
 		dplyr::select(1,12,2:9,11)%>%
 		dplyr::rename("code"="site",
 				"area"="areashort",
@@ -785,7 +785,7 @@ print(xstatseriesGEE ,
 
 printstatseriesGY <- printstatseries %>% 
 		filter(life_stage=="GY") %>%
-		arrange(order) %>%
+		arrange(site) %>%
 		dplyr::select(1,12,2:9,11) %>%
 		dplyr::rename("code"="site",
 				"area"="areashort",
@@ -811,7 +811,7 @@ print(xstatseriesGY ,
 
 printstatseriesY <- printstatseries%>% 
 		filter(life_stage=="Y")%>%
-		arrange(order)%>%
+		arrange(site)%>%
 		dplyr::select(1,12,2:9,11)%>%
 		dplyr::rename("code"="site",
 				"area"="areashort",
@@ -846,7 +846,7 @@ colnames(series_prob) <- str_c("\\scshape{",c("Name","Stage", "Country","Divisio
 series_prob$`\\scshape{Comment}`<-iconv(series_prob$`\\scshape{Comment}`,'UTF-8')
 xseries_prob <- xtable(x = series_prob[1:15,],
 		label = "table_series_prob",
-		caption = str_c("Data in " ,CY, " and ", CY-1, "having problems causing the data in the specific year to be excluded from the analysis. Codes for stages are G = glass eel, GY = glass eel + yellow eel, Y = yellow eel, Division = FAO marine division. Kept: 0 = missing, 1 = good quality,
+		caption = str_c("Data in " ,CY-1, " and ", CY, " having problems causing the data in the specific year to be excluded from the analysis. Codes for stages are G = glass eel, GY = glass eel + yellow eel, Y = yellow eel, Division = FAO marine division. Kept: 0 = missing, 1 = good quality,
 						2 = wgeel has modified the data, 3 = not used due to poor quality, 4 =	data is used, but there are warnings on its quality"),
 		align=c("p{0cm}","p{1.5cm}","p{1.5cm}","p{1.5cm}","p{1cm}","p{1cm}","p{1cm}","p{8cm}")
 )
@@ -862,7 +862,7 @@ print(xseries_prob,
 if (nrow(series_prob)>15){
 	xseries_prob1 <- xtable(x = series_prob[15:30,],
 			label = "table_series_prob1",
-			caption = str_c("Table \\ref{table_series_prob} continued. Data in " ,CY, " and ", CY-1, "having problems causing the data in the specific year to be excluded from the analysis. Codes for stages are G = glass eel, GY = glass eel + yellow eel, Y = yellow eel, Division = FAO marine division. Kept: 0 = missing, 1 = good quality,
+			caption = str_c("Table \\ref{table_series_prob} continued. Data in ",CY-1," and ",CY," having problems causing the data in the specific year to be excluded from the analysis. Codes for stages are G = glass eel, GY = glass eel + yellow eel, Y = yellow eel, Division = FAO marine division. Kept: 0 = missing, 1 = good quality,
 							2 = wgeel has modified the data, 3 = not used due to poor quality, 4 =	data is used, but there are warnings on its quality"),
 			align=c("p{0cm}","p{1.5cm}","p{1.5cm}","p{1.5cm}","p{1cm}","p{1cm}","p{1cm}","p{8cm}")
 	)
@@ -880,7 +880,7 @@ if (nrow(series_prob)>15){
 if (nrow(series_prob)>30){
 	xseries_prob2 <- xtable(x = series_prob[30:nrow(series_prob),],
 			label = "table_series_prob2",
-			caption = str_c("Table \\ref{table_series_prob} continued. Data in " ,CY, " and ", CY-1, "having problems causing the data in the specific year to be excluded from the analysis. Codes for stages are G = glass eel, GY = glass eel + yellow eel, Y = yellow eel, Division = FAO marine division. Kept: 0 = missing, 1 = good quality,
+			caption = str_c("Table \\ref{table_series_prob} continued. Data in ",CY-1," and ",CY," having problems causing the data in the specific year to be excluded from the analysis. Codes for stages are G = glass eel, GY = glass eel + yellow eel, Y = yellow eel, Division = FAO marine division. Kept: 0 = missing, 1 = good quality,
 							2 = wgeel has modified the data, 3 = not used due to poor quality, 4 =	data is used, but there are warnings on its quality"),
 			align=c("p{0cm}","p{1.5cm}","p{1.5cm}","p{1.5cm}","p{1cm}","p{1cm}","p{1cm}","p{8cm}")
 	)

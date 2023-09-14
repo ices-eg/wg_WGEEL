@@ -625,7 +625,106 @@ ORDER BY ser_cou_code;
 
 SELECT * FROM datawg.t_dataseries_das WHERE das_qal_id IS NULL AND das_ser_id=29;--47 missing FOR Imsa
 
+
+
+
+-- correct NULL geometries from datawg.t_series_ser AS tss 
+
+SELECT ser_nameshort, ser_cou_code, round(st_x(geom)::numeric,2) x_geometry,round(ser_x::numeric,2) ser_x , round(st_y(geom)::NUMERIC ,2) y_geometry,round(ser_y::NUMERIC,2) ser_y FROM t_series_ser 
+WHERE round(st_x(geom)::numeric,2)!=round(ser_x::numeric,2) OR round(st_y(geom)::NUMERIC ,2)!=round(ser_y::NUMERIC,2)
+ORDER BY ser_cou_code, ser_nameshort;
+SELECT * FROM t_series_ser WHERE geom IS NULL; --48
+UPDATE t_series_ser SET geom=ST_SetSRID(ST_MakePoint(ser_x , ser_y),4326) WHERE geom IS NULL;  -- 48
+
+-- WaSEY > 10 years
+UPDATE datawg.t_series_ser
+  SET ser_qal_id=1,ser_qal_comment='2023 Cédric > 10 years'
+  WHERE ser_id=163;
+
+-- Soustons > 10 years
+SELECT x.* FROM datawg.t_series_ser x
+WHERE ser_nameshort ='SousGY';
+
+UPDATE datawg.t_series_ser
+  SET ser_qal_comment='> 10 years',ser_qal_id=1
+  WHERE ser_id=300;
+
+-- OoaGY > 10 years 
+SELECT x.* FROM datawg.t_series_ser x
+WHERE ser_nameshort ='OatGY';
+
+UPDATE datawg.t_series_ser
+  SET ser_qal_id=1,ser_qal_comment='Cédric 2023 >= 10 years'
+  WHERE ser_id=320;
+
+-- LangGY > 10 years 
+SELECT x.* FROM datawg.t_series_ser x
+WHERE ser_nameshort ='LangGY';
+
+UPDATE datawg.t_series_ser
+	SET ser_qal_id=1,ser_qal_comment='2023 : cédric now long enough to be considered'
+	WHERE ser_id=161;
+
+-- corrected values in Imsa	
+	
+UPDATE datawg.t_series_ser SET ser_qal_id = 1 WHERE ser_id = 29;
+UPDATE datawg.t_series_ser
+	SET ser_qal_comment='Cédric : Series corrected manually in 2023 for missing das_qal_id, it should be retained'
+	WHERE ser_id=29;
+	
 UPDATE datawg.t_dataseries_das SET (das_qal_id, das_qal_comment)=
 (1,'Set to one as was still NULL after the datacall 2024, please check') WHERE das_ser_id =29 AND das_qal_id IS NULL;--47
 
-UPDATE datawg.t_series_ser SET ser_qal_id = 1 WHERE ser_id = 29;
+
+-- HHKGY > 10 years ?
+SELECT x.* FROM datawg.t_series_ser x
+WHERE ser_nameshort ='HHKGY';
+
+UPDATE datawg.t_series_ser
+  SET ser_qal_id=1,ser_qal_comment='2023 : cédric length > 10 years'
+  WHERE ser_id=158;
+  
+-- EmsHG > 10 years 
+
+SELECT x.* FROM datawg.t_series_ser x
+WHERE ser_nameshort ='EmsHG';
+UPDATE datawg.t_series_ser
+	SET ser_qal_id=1,ser_qal_comment='Cédric : 2023 this series is long enough to be included'
+	WHERE ser_id=169;
+	
+	
+-- InaG
+SELECT x.* FROM datawg.t_series_ser x
+WHERE ser_nameshort IN ('InagG')	;
+
+UPDATE datawg.t_series_ser
+	SET ser_qal_comment='Cédric : Too short, attention this might also become a duplicate from InagGY, to be checked when this series gets to 10 years';
+	WHERE ser_id=425;
+	
+	
+-- WaSG > 10 years
+	
+SELECT x.* FROM datawg.t_series_ser x
+WHERE ser_nameshort ='WaSG'; 
+UPDATE datawg.t_series_ser
+	SET ser_qal_id=1,ser_qal_comment='2023 Cédric : this series is long enough to be included'
+	WHERE ser_id=162;
+
+SELECT x.* FROM datawg.t_series_ser x
+WHERE ser_nameshort ='WaSEY' ;	
+
+UPDATE datawg.t_series_ser
+	SET ser_qal_id=1,ser_qal_comment='2023 Cédric > 10 years'
+	WHERE ser_id=163;
+	
+-- MondG 	
+	
+SELECT x.* FROM datawg.t_series_ser x
+WHERE ser_nameshort ='MondG';
+UPDATE datawg.t_series_ser
+	SET ser_qal_id=1
+	WHERE ser_id=191;
+	
+	
+	
+
