@@ -571,4 +571,24 @@ DELETE FROM ref.tr_station WHERE "Station_Name" = 'ClwY';
  UPDATE t_series_ser SET ser_tblcodeid=NULL WHERE ser_nameshort= 'ClwY';
  
      
+ALTER USER wgeel WITH PASSWORD 'eel_sargasso_5000'
 
+
+select count (das_id) nbpoint, das_ser_id  from datawg.t_dataseries_das tdd 
+where das_qal_id in (1,2,4) and das_value is not null group by das_ser_id having count (das_id)<10 
+
+
+
+SELECT * FROM datawg.t_dataseries_das WHERE das_qal_id IS NULL;--419
+
+SELECT count(*), ser_nameshort, ser_cou_code, ser_id, max(ser_qal_id) AS ser_qal_id FROM datawg.t_dataseries_das JOIN datawg.t_series_ser ON ser_id=das_ser_id
+WHERE das_qal_id IS NULL
+GROUP BY ser_nameshort, ser_cou_code, ser_id
+ORDER BY ser_cou_code;
+
+SELECT * FROM datawg.t_dataseries_das WHERE das_qal_id IS NULL AND das_ser_id=29;--47 missing FOR Imsa
+
+UPDATE datawg.t_dataseries_das SET (das_qal_id, das_qal_comment)=
+(1,'Set to one as was still NULL after the datacall 2024, please check') WHERE das_ser_id =29 AND das_qal_id IS NULL;--47
+
+UPDATE datawg.t_series_ser SET ser_qal_id = 1 WHERE ser_id = 29;
