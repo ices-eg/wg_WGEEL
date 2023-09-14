@@ -1,5 +1,5 @@
 -----------------------------------------------------------
-# HR (integration Cédric)
+# HR (integration CÃ©dric)
 -----------------------------------------------------------
 
 ## Annex 1
@@ -44,10 +44,12 @@
 
 ## Annex 4
 
-
+37 new values inserted
+2 values updated
 
 ## Annex 5
 
+8 new values inserted
 
 
 ## Annex 6
@@ -66,9 +68,10 @@
 
 ### samplinginfo
 
-
+one sampling info inserted
 ### group metrics
 
-
+4 and 16 group metrics inserted
 ### individual metrics
 
+46 and 178 new values inserted
