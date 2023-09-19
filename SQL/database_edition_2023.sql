@@ -726,5 +726,26 @@ UPDATE datawg.t_series_ser
 	WHERE ser_id=191;
 	
 	
-	
+--- fix trigger ser_x and ser_y
+drop trigger update_geom on datawg.t_series_ser ;
+
+
+create trigger update_geom before
+insert
+    or
+update
+    of ser_x,
+    ser_y on
+    datawg.t_series_ser for each row
+    when ((pg_trigger_depth() < 1)) execute function datawg.update_geom();
+   
+drop trigger update_coordinates on datawg.t_series_ser;
+
+
+create trigger update_coordinates before
+update
+    of geom on
+    datawg.t_series_ser for each row
+    when ((pg_trigger_depth() < 1)) execute function datawg.update_coordinates();
+ 
 
