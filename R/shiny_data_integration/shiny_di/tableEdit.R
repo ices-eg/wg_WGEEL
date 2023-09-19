@@ -131,13 +131,13 @@ tableEditServer <- function(id,globaldata){
             pick_typ_series=switch(input$edit_datatype,
                 "t_eelstock_eel"=c(4, 5, 6, 7),
                 "t_eelstock_eel_perc"=c(13:15,17:19),
-                "t_samplinginfo_sai"=globaldata$sai_list,
-                "t_series_ser"=globaldata$ser_list,                                                         
-                "t_dataseries_das"=globaldata$ser_list,                                                   
+                "t_samplinginfo_sai"=sort(globaldata$sai_list),
+                "t_series_ser"=sort(globaldata$ser_list),                                                         
+                "t_dataseries_das"=sort(globaldata$ser_list),                                                   
                 "t_metricgroupsamp_megsa"=globaldata$sai_list,
-                "t_metricgroupseries_megser"=globaldata$ser_list,
-                "t_metricindsamp_meisa"=globaldata$sai_list,
-                "t_metricindseries_meiser"=globaldata$ser_list)
+                "t_metricgroupseries_megser"=sort(globaldata$ser_list),
+                "t_metricindsamp_meisa"=sort(globaldata$sai_list),
+                "t_metricindseries_meiser"=sort(globaldata$ser_list))
           }
           if (is.null(pick_stage)) {
             pick_stage=switch(input$edit_datatype,
@@ -295,8 +295,8 @@ tableEditServer <- function(id,globaldata){
                       updatePickerInput(session=session,
                           inputId="editpicker_typ_series",
                           label = "Select series :", 
-                          choices = globaldata$ser_list,
-                          selected= globaldata$ser_list[1])
+                          choices = sort(globaldata$ser_list),
+                          selected= sort(globaldata$ser_list[1]))
                       updatePickerInput(session=session,
                           inputId="editpicker_stage",
                           label="Select stages :",
@@ -307,8 +307,8 @@ tableEditServer <- function(id,globaldata){
                       updatePickerInput(session=session,
                           inputId="editpicker_typ_series",
                           label = "Select series :", 
-                          choices = globaldata$sai_list,
-                          selected = globaldata$sai_list[1])
+                          choices = sort(globaldata$sai_list),
+                          selected = sort(globaldata$sai_list[1]))
                       updatePickerInput(session=session,
                           inputId="editpicker_stage",
                           label="Select stages :",
@@ -319,7 +319,7 @@ tableEditServer <- function(id,globaldata){
                     updatePickerInput(session=session,
                         inputId="editpicker_cou",
                         label = "Select a country :", 
-                        choices = globaldata$list_country,
+                        choices = sort(globaldata$list_country),
                         selected="FR")
                     
                     if (input$edit_datatype %in% c("t_series_ser","t_samplinginfo_sai")) {
