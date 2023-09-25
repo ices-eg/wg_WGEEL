@@ -1,17 +1,22 @@
 ---
 title: "Report on developments on the state of the European eel (Anguilla anguilla) stock, the fisheries on it and other anthropogenic impacts"
-author: "Cédric Briand, Estibaliz Diaz (translated to Rmd by Hilaire Drouineau)"
+author: "WGEEL"
 date: "2022-09-13"
+documentclass: article
 output: 
   bookdown::word_document2:
     fig_caption: yes
+    number_sections: no
     reference_docx: "../Rmarkdown/ICES_template.docx"
-
 ---
 
 ```{r setup, include=FALSE, warning = FALSE, message = FALSE, error=FALSE}
 library(knitr)
-opts_knit$set(eval.after = "fig.cap", echo=FALSE, warning = FALSE, message = FALSE, error=FALSE)
+opts_knit$set(eval.after = "fig.cap",
+		echo=FALSE,
+		warning = FALSE,
+		message = FALSE,
+		error=FALSE)
 Sys.setlocale("LC_ALL", "English_United States.932")
 #options(save.defaults = list(version=2))
 # Password are stored in R/etc/Rprofile.site
@@ -26,6 +31,8 @@ options(width=90) # this sets the width of the output
 #--------------------------------
 #if(!require(RODBC)) install.packages("RODBC") ; require(RODBC)
 library(flextable)
+if(!require(officedown)) install.packages("officedown") ; require(officedown)
+if(!require(officer)) install.packages("officer") ; require(officer)
 
 if(!require(mgcv)) install.packages("mgcv") ; require(mgcv)
 if(!require(car)) install.packages("car") ; require(car)
@@ -49,6 +56,17 @@ if(!require(multcomp)) install.packages("multcomp") ; require(multcomp)
 if(!require(openxlsx)) install.packages("openxlsx") ; require(openxlsx)
 if(!require(getPass)) install.packages("getPass") ; require(getPass)
 if(!require(yaml)) install.packages("yaml") ; require(yaml)
+set_flextable_defaults(
+  font.size = 8.5, font.family = "Calibri",
+  font.color = "black",
+  table.layout = "autofit",
+  border.color = "black",
+  padding.top = 3, padding.bottom = 3,
+  padding.left = 4, padding.right = 4)
+
+
+redtext <- fp_text(color = 'red', bold = TRUE)
+purpletext <- fp_text(color = 'purple', bold = TRUE)
 
 #--------------------------------
 # get your current name 
@@ -67,7 +85,7 @@ if (getUsername() == "hamme005") setwd("C:/Tessa/wg_WGEEL/R/recruitment")
 cred=read_yaml("../../credentials.yml")
 # TODO 2022 use this to connect, not sqldf !!!!!!!!!!!!!!
 # currently still using sqldf and RpostgreSQL() change for compatibility with linux
-pwd = passwordwgeel = getPass(msg="password for db")
+pwd = passwordwgeel = password = cred$password
 con = dbConnect(RPostgres::Postgres(), dbname=cred$dbname,host=cred$host,port=cred$port,user=cred$user, password=passwordwgeel)
 
 wddata <- getwd()
@@ -96,7 +114,7 @@ vv <- list()
 
 
 
-```{r load_database, echo=FALSE, fig=FALSE, eval=FALSE, results="hide", warning = FALSE, message = FALSE, error=FALSE}
+```{r load_database, echo=FALSE, fig.show='hide', eval=FALSE, results="hide", warning = FALSE, message = FALSE, error=FALSE}
 # In this chunk everything will be loaded. 
 # The data selection is made tranparently later in the chunk "select_series"
 # This chunks uses the RequeteODBC connection object from stacomirtools and sqldf
@@ -268,7 +286,7 @@ save(inclusion, file=str_c(shinywd,"inclusion.Rdata"))
 
 
 
-```{r load_rdata, echo=FALSE, fig=FALSE, eval=TRUE, results="hide", warning = FALSE, message = FALSE, error=FALSE}
+```{r load_rdata, echo=FALSE, fig.show='hide', eval=TRUE, results="hide", warning = FALSE, message = FALSE, error=FALSE}
 # In this rchunk we load the data even if there is no connection to the database
 load(file=str_c(datawd,"wger_init.Rdata"))
 load(file=str_c(datawd,"statseries.Rdata"))
@@ -279,7 +297,7 @@ if(sum(is.na(wger_init$area))>0) stop("At least one series has not been affected
 ```
 
 
-```{r select_series, echo=FALSE, fig=FALSE, eval=TRUE, results="hide", warning = FALSE, message = FALSE, error=FALSE}
+```{r select_series, echo=FALSE, fig.show='hide', eval=TRUE, results="hide", warning = FALSE, message = FALSE, error=FALSE}
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 #% 				SERIES SELECTION AND STATISTICS ABOUT DATA ENTRY 
@@ -490,7 +508,7 @@ write.table(older,file=str_c(datawd,"older.csv"), sep=";")
 ```
 
 
-```{r table_series,echo=FALSE, eval=TRUE,fig=FALSE, results="hide", warning = FALSE, message = FALSE, error=FALSE}
+```{r table_series,echo=FALSE, eval=TRUE,fig.show='hide', results="hide", warning = FALSE, message = FALSE, error=FALSE}
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 #%				THIS CHUNK CREATES THE TABLES	
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -836,7 +854,7 @@ vv$nbcurrentyellow <- n_y_lfs$"yellow"[n_y_lfs$year==CY]
 ```
 
 
-```{r figure_series, echo=FALSE,  eval=TRUE, results="hide", warning = FALSE, message = FALSE, error=FALSE, fig=FALSE }
+```{r figureseries, echo=FALSE,  eval=TRUE, results="hide", warning = FALSE, message = FALSE, error=FALSE, fig.show='hide'}
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 #%************************************************************************************
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -873,7 +891,7 @@ save_figure(figname="series_no_area",figure2.1,1000,500)
 ```
 
 
-```{r mapseries,echo=FALSE, eval=TRUE,results="hide", warning = FALSE, message = FALSE, error=FALSE}
+```{r mapseries,echo=FALSE, eval=TRUE,results="hide", warning = FALSE, message = FALSE, error=FALSE,fig.show='hide'}
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 #%************************************************************************************
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -895,7 +913,7 @@ source("../shiny_data_visualisation/shiny_dv/database_connection.R")
 my_map <- get_stamenmap( c(left = -13, bottom = 35, right =
 						27, top = 65),zoom=4, maptype = c("watercolor"))
 
-con <- dbConnect(Postgres(),host=cred$host,password=passwordwgeel,dbname=cred$user,user=cred$user)
+con <- dbConnect(Postgres(),host=cred$host,password=cred$password,dbname=cred$dbname,user=cred$user)
 fao <- st_read(con,query="select * from ref.tr_faoareas")
 fao <- st_crop(fao, xmin = -13, xmax = 27,
 		ymin = 35, ymax = 65)
@@ -933,7 +951,7 @@ stations$Y = st_coordinates(stations)[,"Y"]
 
 figure1 <- ggmap(my_map)+  
 		coord_sf(crs = st_crs(3857)) + # force it to be 3857
-		geom_sf(data=fao, inherit.aes = FALSE,aes(fill=zone,alpha="1")) +
+		geom_sf(data=fao, inherit.aes = FALSE,aes(fill=zone)) +
 		geom_sf(data=fao, inherit.aes = FALSE,aes(fill=zone)) +
 		geom_sf_text(data=st_centroid(fao), inherit.aes=FALSE,aes(label=f_code),cex=1.5) +
 #		geom_sf(data=stations,aes(color=ser_lfs_code,shape=ser_lfs_code),size=2, inherit.aes = FALSE)+
@@ -942,23 +960,16 @@ figure1 <- ggmap(my_map)+
 #		geom_sf(data=subset(stations,ser_lfs_code=="Y"& ser_qal_id==1),color = 'black',size=2, shape = 24,
 #				inherit.aes=FALSE) +
 		geom_point(data=stations,aes(x=X,y=Y,
-						color=ser_lfs_code,shape=ser_lfs_code,stroke=0),size=3)+
-		geom_point(data=subset(stations,ser_lfs_code!="Y"& ser_qal_id==1),
+						color=ser_lfs_code,stroke=0),shape=19,size=3)+
+		geom_point(data=subset(stations,ser_qal_id==1),
 				color = 'black', 
 				size=3, 
 				shape = 21,
 				stroke=1,
 				aes(x=X,y=Y)) +
-		geom_point(data=subset(stations,ser_lfs_code=="Y"& (ser_qal_id==1 |ser_qal_id==4)),
-				color = 'black',		
-				size= 3, 
-				shape = 24,
-				stroke =1,
-				aes(x=X,y=Y)) +
-		
-		scale_color_manual("Life stage",values=c("white","grey","yellow")) +
-		scale_shape_manual("Life stage", values=c(19,19,17)) + xlab("") + ylab("") +
-		scale_fill_manual(NULL,values=c("#30ff8a","#33b1c4","#1a81db")) +
+		guides(fill = guide_legend(override.aes = list(shape = 21))) +
+		scale_fill_manual("Life stage",values=c("#30ff8a","#33b1c4","#1a81db")) +
+		scale_color_manual("Life stage",values=c("white","grey","yellow"))+
 		guides(alpha=guide_legend("Recruitment series",
 						legend.background = element_blank(),
 						title.theme=element_text(face="bold"),
@@ -1022,34 +1033,34 @@ openxlsx::write.xlsx(x=list("wger_init"=wger_init,
 # Recruitment
 
 In this section, the latest trends in glass and yellow eel recruitment are
-addressed. The time-series data are derived from fishery-dependent sources
-(i.e. catch records) and also from fishery-independent surveys across much of
-the geographic range of European eel.  The
-stages are categorized as :
+addressed. The time-series data are derived from fishery-dependent sources (i.e.
+catch records) and also from fishery-independent surveys across much of the
+geographic range of European eel.  The stages are categorized as :
 
 * glass eel (G), continental age 0 years, 
-* a mixture of glass eel and young
-yellow eel dominated by recruits from the same year (GY), and
-* older yellow eel (Y) recruiting to continental habitats. The yellow
-eel series might consist of yellow eel of several ages.
-This is certainly the case for all series from the Baltic (mean age up to 6),
- some Irish sites, and sites located far upstream.
+* a mixture of glass eel and young yellow eel dominated by recruits from the
+  same year (GY), and
+* older yellow eel (Y) recruiting to continental habitats. The yellow eel series
+  might consist of yellow eel of several ages. This is certainly the case for
+  all series from the Baltic (mean age up to 6),  some Irish sites, and sites
+  located far upstream.
 
 The glass eel recruitment time-series have been grouped into two geographical
 areas: 'continental North Sea' (NS) and 'Elsewhere Europe' (EE) (Figure
-\@ref(fig:figure1). The glass eel recruitment time-series have been grouped into two geographical
-areas: 'continental North Sea' (NS) and 'Elsewhere Europe' (EE) (Figure 3.4.1).
-Previous analyses by the working group (ICES, 2010b, p19, Bornarel et al. (2017) 
-have shown a different trend between the two sets. This is mostly due to a more pronounced
-decline of the North Sea series compared to the Elsewhere Europe area during the 1980s.
+\@ref(fig:figure1). The glass eel recruitment time-series have been grouped into
+two geographical areas: 'continental North Sea' (NS) and 'Elsewhere Europe' (EE)
+(Figure 3.4.1). Previous analyses by the working group (ICES, 2010b, p19,
+Bornarel et al. (2017) have shown a different trend between the two sets. This
+is mostly due to a more pronounced decline of the North Sea series compared to
+the Elsewhere Europe area during the 1980s.
 
 The WGEEL has collated information on recruitment from
 `r vv[["nb_series_init"]]` time-series. Some time-series date back to the
 beginning of 20th century (yellow eel, Göta Älv, Sweden) or 1920 (glass eel,
 Loire, France). Among those series `r vv[["nb_series_init_qual1"]]` have been
 selected for further analysis in the wgeel indices; see details on data
-selection and processing below. Depending on the standardization period, the number of series  used can be lower and is given for
-each analysis. 
+selection and processing below. Depending on the standardization period, the
+number of series  used can be lower and is given for each analysis. 
 
 
 ```{r figure1, fig.cap="Zone definition and available data", fig.width=16/2.54, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
@@ -1060,56 +1071,69 @@ knitr::include_graphics(paste0(imgwd,"figure1.png"))
 
 ## Details on data selection and processing
 
-Out of `r `vv[["nb_series_init"]]`, 
-`r `vv[["nb_series_final"]]` series were used in the analysis. Three
-rules have been used for this selection procedure.
-1. First, if there are two or more series from the same location, i.e. they are not independent,only one series is kept. For instance, the longer series has been kept for the Severn (Severn EA) while the other series (Severn HMRC) has been dropped from the list, as it was considered a duplicate being based on the same fishery.Noting that the 'Severn' here actually represents all the glass eel fisheries for England and Wales but the naming convention has been used for many
-years so is retained for consistency.
-\textcolor{red}{TODO work on Minho sp and Minho
-pt. and Gironde....}
-2. The second rule is to exclude a series from the analysis when it is less than ten years long. The series are, however, still updated in the database until they are long enough to be included. \textcolor{red}{But clarify now what we are going to do
-when there are missing years....} 
-3. Finally, it was decided to discard recruitment series that were obviously biased by restocking (e.g. Farpener Bach in Germany).
+Out of `r vv[["nb_series_init"]]`, `r vv[["nb_series_final"]]` series were used
+in the analysis. Three rules have been used for this selection procedure.
+1. First, if there are two or more series from the same location, i.e. they are
+   not independent,only one series is kept. For instance, the longer series has
+   been kept for the Severn (Severn EA) while the other series (Severn HMRC) has
+   been dropped from the list, as it was considered a duplicate being based on
+   the same fishery.Noting that the 'Severn' here actually represents all the
+   glass eel fisheries for England and Wales but the naming convention has been
+   used for many years so is retained for consistency.
+`r ftext("TODO work on Minho sp and Minho pt. and Gironde....",redtext)`
+2. The second rule is to exclude a series from the analysis when it is less than
+   ten years long. The series are, however, still updated in the database until
+   they are long enough to be included.
+   `r ftext("But clarify now what we are going to do when there are missing years....", redtext)` 
+3. Finally, it was decided to discard recruitment series that were obviously
+   biased by restocking (e.g. Farpener Bach in Germany).
 
 
-Among the time-series based on trap indices, some have reported
-preliminary data for `r CY` as their trapping season had not
-finished. *As usual, the indices given for `r CY` must be considered
-as provisional especially those for the yellow eel.*
+Among the time-series based on trap indices, some have reported preliminary data
+for `r CY` as their trapping season had not finished. *As usual, the indices
+given for `r CY` must be considered as provisional especially those for the
+yellow eel.*
 
 
 
 ```{r xstatseriesGEE, echo=FALSE, warning = FALSE, message = FALSE, error=FALSE, tab.cap=str_c("Short description of the sampling sites for European eel recruitment data for Elsewhere Europe. Min and max indicate the first year and last year in the records, and the values are given in the n+ and n- columns, indicate the number of years with values and the number of years when there are missing data within the series. Life stage: GY = glass eel and yellow eel, G = glass eel, Y = yellow eel. Unit for the data collected is given (nr = number; index = calculated value following a specified protocol, nr/m2 = number per square metre, nr/h = number per hour, kg/boat/d = kg per boat per day). Habitat: C = coastal water (according to the EU Water Framework Directive, WFD), F = freshwater, MO = marine water (open sea), T = transitional water with lower salinity (according to WFD). Kept = 1 means that the dataseries is used in recruitment analyses.")}
- flextable(data = printstatseriesGEE)
+autofit(flextable(data = printstatseriesGEE)%>%
+          bold(bold = TRUE, part = "header"))
 ```
 
 
 ```{r xstatseriesGNS, echo=FALSE, warning = FALSE, message = FALSE, error=FALSE,tab.cap=str_c("Short description of the sampling sites for European eel recruitment data in the North Sea. Min and max indicate the first year and last year in the records, and the values are given in the n+ and n- columns, indicate the number of years with values and the number of years when there are missing data within the series. Life stage: GY = glass eel and yellow eel, G = glass eel, Y = yellow eel. Unit for the data collected is given (nr = number; index = calculated value following a specified protocol, nr/m2 = number per square metre, nr/h = number per hour, kg/boat/d = kg per boat per day). Habitat: C = coastal water (according to the EU Water Framework Directive, WFD), F = freshwater, MO = marine water (open sea), T = transitional water with lower salinity (according to WFD). Kept = 1 means that the dataseries is used in recruitment analyses.")}
-	flextable(data = printstatseriesGNS)
+	autofit(flextable(data = printstatseriesGNS)%>%
+          bold(bold = TRUE, part = "header"))
 ```
 
 ```{r xstatseriesGY, echo=FALSE, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE, tab.cap=str_c("Short description of the recruitment sites (continued : stage glass eel and yellow eel)")}
-flextable(data = printstatseriesGY)
+autofit(flextable(data = printstatseriesGY) %>%
+          bold(bold = TRUE, part = "header"))
 ```
 
 
 ```{r xstatseriesY, echo=FALSE, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE, tab.cap= str_c("Short description of the recruitment sites (continued : yellow eel series) ")}
-flextable(data = printstatseriesY)
+autofit(flextable(data = printstatseriesY)%>%
+          bold(bold = TRUE, part = "header"))
 ```
 
 
-```{r xseries_prob, echo=FALSE, warning = FALSE, message = FALSE, error=FALSE,echo=FALSE, tab.cap=str_c("Table \\@ref(tab:table_series_prob) continued. Data in " ,CY, " and ", CY-1, "having problems causing the data in the specific year to be excluded from the analysis. Codes for stages are G = glass eel, GY = glass eel + yellow eel, Y = yellow eel, Division = FAO marine division. Kept: 0 = missing, 1 = good quality, 							2 = wgeel has modified the data, 3 = not used due to poor quality, 4 =	data is used, but there are warnings on its quality")}
-flextable(data = series_prob[30:nrow(series_prob),])
+```{r xseriesprob, echo=FALSE, warning = FALSE, message = FALSE, error=FALSE,echo=FALSE, tab.cap=str_c("Table \\@ref(tab:xseriesprob) continued. Data in " ,CY, " and ", CY-1, "having problems causing the data in the specific year to be excluded from the analysis. Codes for stages are G = glass eel, GY = glass eel + yellow eel, Y = yellow eel, Division = FAO marine division. Kept: 0 = missing, 1 = good quality, 							2 = wgeel has modified the data, 3 = not used due to poor quality, 4 =	data is used, but there are warnings on its quality")}
+autofit(flextable(data = series_prob[30:nrow(series_prob),])%>%
+          bold(bold = TRUE, part = "header"))
 ```
 
 
-```{r xseries_prob1, echo=FALSE, warning = FALSE, message = FALSE, error=FALSE, tab.cap=str_c("Table \\@ref(tab:table_series_prob) continued. Data in " ,CY, " and ", CY-1, "having problems causing the data in the specific year to be excluded from the analysis. Codes for stages are G = glass eel, GY = glass eel + yellow eel, Y = yellow eel, Division = FAO marine division. Kept: 0 = missing, 1 = good quality, 2 = wgeel has modified the data, 3 = not used due to poor quality, 4 =	data is used, but there are warnings on its quality")}
-flextable(data = series_prob[15:30,])
+```{r xseriesprob1, echo=FALSE, warning = FALSE, message = FALSE, error=FALSE, tab.cap=str_c("Table \\@ref(tab:xseriesprob) continued. Data in " ,CY, " and ", CY-1, "having problems causing the data in the specific year to be excluded from the analysis. Codes for stages are G = glass eel, GY = glass eel + yellow eel, Y = yellow eel, Division = FAO marine division. Kept: 0 = missing, 1 = good quality, 2 = wgeel has modified the data, 3 = not used due to poor quality, 4 =	data is used, but there are warnings on its quality")}
+autofit(flextable(data = series_prob[15:30,])%>%
+          bold(bold = TRUE, part = "header"))
 ```
 
 
-```{r xseries_prob2, echo=FALSE, warning = FALSE, message = FALSE, error=FALSE, tab.cap=str_c("Table \\@ref(tab:table_series_prob) continued. Data in " ,CY, " and ", CY-1, "having problems causing the data in the specific year to be excluded from the analysis. Codes for stages are G = glass eel, GY = glass eel + yellow eel, Y = yellow eel, Division = FAO marine division. Kept: 0 = missing, 1 = good quality, 2 = wgeel has modified the data, 3 = not used due to poor quality, 4 =	data is used, but there are warnings on its quality")}
-flextable(data = series_prob[30:nrow(series_prob),])
+```{r xseriesprob2, echo=FALSE, warning = FALSE, message = FALSE, error=FALSE, tab.cap=str_c("Table \\@ref(tab:xseriesprob) continued. Data in " ,CY, " and ", CY-1, "having problems causing the data in the specific year to be excluded from the analysis. Codes for stages are G = glass eel, GY = glass eel + yellow eel, Y = yellow eel, Division = FAO marine division. Kept: 0 = missing, 1 = good quality, 2 = wgeel has modified the data, 3 = not used due to poor quality, 4 =	data is used, but there are warnings on its quality")}
+autofit(flextable(data = series_prob[30:nrow(series_prob),])%>%
+          bold(bold = TRUE, part = "header"))
 ```
 
 
@@ -1118,10 +1142,9 @@ flextable(data = series_prob[30:nrow(series_prob),])
 
 
 Glass eel and glass eel + young yellow eel time-series available maximum :
-`r vv[["nbmaxglasseel"]]` in
-`r max(as.numeric(vv[["yearmaxglasseel"]]))`
-`r vv[["nbcurrentglasseel"]]` in `r CY`. The maximum number of older
-yellow eel time-series has increased to `r vv[["nbmaxyellow"]]` in
+`r vv[["nbmaxglasseel"]]` in `r max(as.numeric(vv[["yearmaxglasseel"]]))`
+`r vv[["nbcurrentglasseel"]]` in `r CY`. The maximum number of older yellow eel
+time-series has increased to `r vv[["nbmaxyellow"]]` in
 `r max(as.numeric(vv[["yearmaxyellow"]]))` but dropped to
 `r vv[["nbcurrentyellow"]]` (Figure \@ref(fig:figure2)).
 
@@ -1135,7 +1158,7 @@ if (file.exists(paste0(imgwd,"series_selection.png")))
 ```
 
 
-```{r generation_of_plot_data, echo=FALSE, eval=TRUE, results="hide", warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
+```{r generation_of_plot_data, echo=FALSE, eval=TRUE, results="hide", warning = FALSE, message = FALSE, error=FALSE, echo=FALSE, fig.show='hide'}
 ###################################################
 # Generation of the dataframes used to plot the data
 # two similar dataframe are created
@@ -1603,7 +1626,7 @@ save(glmer1, glmer2, glmer3, file=paste0(datawd,glmer.Rdata))
 
 
 
-```{r model_for_glass_eel_graph_and_predictions, echo=FALSE, eval=TRUE, results="hide", warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
+```{r model_for_glass_eel_graph_and_predictions, fig.show='hide',echo=FALSE, eval=TRUE, results="hide", warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
 # 1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~1~~
 ######################################"
 #~glass eel (and elver = glass eel + yellow eel) migrant analysis
@@ -1896,7 +1919,7 @@ save(dat_ge, file=str_c(datawd,"dat_ge.Rdata"))
 save(dat_ge, file=str_c(shinywd,"dat_ge.Rdata"))
 ```
 
-```{r segmented_regression, echo=FALSE, eval=FALSE, results="hide", warning = FALSE, message = FALSE, error=FALSE}
+```{r segmented_regression, echo=FALSE, eval=FALSE, results="hide", warning = FALSE, message = FALSE, error=FALSE, fig.show='hide'}
 if(!require(segmented)) install.packages("segmented") ; require(segmented)
 
 
@@ -1966,7 +1989,7 @@ plot(o21)
 AIC(o1, o11, o2, o21)
 ```
 
-```{r model_diagnostics, echo=FALSE, eval=FALSE, results="hide", warning = FALSE, message = FALSE, error=FALSE}
+```{r model_diagnostics, echo=FALSE, eval=FALSE, results="hide", warning = FALSE, message = FALSE, error=FALSE, fig.show='hide'}
 #####deprecated
 # summary(model_ge_area)
 # influence_plot
@@ -2099,7 +2122,7 @@ M.gls1  <- glmmPQL(value_std~year_f:area+site,
 #write.table(newdata,file=str_c(datawd,"Bann_predictions.csv"),sep=";")
 ```
 
-```{r model_for_yellow_eel, echo=FALSE, eval=TRUE, results="hide", warning = FALSE, message = FALSE, error=FALSE}
+```{r model_for_yellow_eel, echo=FALSE, eval=TRUE, results="hide", warning = FALSE, message = FALSE, error=FALSE, fig.show='hide'}
 # 2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~2~~
 ######################################"
 #~yellow eel migrant analysis
@@ -2247,7 +2270,7 @@ save(yellow_eel_pred,file=paste0(shinywd,"yellow_eel_pred.Rdata"))
 
 
 
-```{r test_period, echo=FALSE, eval=FALSE, results="hide", warning = FALSE, message = FALSE, error=FALSE}
+```{r test_period, echo=FALSE, eval=FALSE, results="hide", warning = FALSE, message = FALSE, error=FALSE, fig.show='hide'}
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 #%************************************************************************************
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -2343,41 +2366,45 @@ save_figure("figure_inclusion_2",figure_inclusion_2,600,480)
 
 
 
-## Check on series updates for the 2019 analyses[remove this paragraph]
+## Check on series updates for analyses[remove this paragraph]
 
-`r format(vv[["nCY"]], scientific = TRUE)` time-series  updated to `r CY`
-`r format(vv[["nCYG"]], scientific = TRUE)` for glass eel 
-`r format(vv[["nCYGY"]], scientific = TRUE)` for glass + yellow eel 
-and `r format(vv[["nCYY"]], scientific=TRUE)` for yellow eel
-`r format(vv[["nCYm1"]], scientific = TRUE)` time-series (`r format(vv[["nCYm1G"]], scientific=TRUE)`} for glass eel,
+ `r format(vv[["nCY"]], scientific = TRUE)` time-series  updated to `r CY`
+`r format(vv[["nCYG"]], scientific = TRUE)` for glass eel
+`r format(vv[["nCYGY"]], scientific = TRUE)` for glass + yellow eel and
+`r format(vv[["nCYY"]], scientific=TRUE)` for yellow eel
+`r format(vv[["nCYm1"]], scientific = TRUE)` time-series
+(`r format(vv[["nCYm1G"]], scientific=TRUE)`} for glass eel,
 ` r format(vv[["nCYm1GY"]], scientific=TRUE)` for glass + yellow eel and
-` r format(vv[["nCYm1Y"]], scientific = TRUE)` for yellow eel) were updated to `r CY-1`
-only (Table \@ref(tab:table_seriesCYm1))).  
+` r format(vv[["nCYm1Y"]], scientific = TRUE)` for yellow eel) were updated to
+`r CY-1` only (Table \@ref(tab:xseriesCYm1))).  
 
-`r format(vv[["nseries_lost"]], scientific=TRUE)` time-series have been stopped or not updated
-beyond 2016 (`r format(vv[["nseries_lostG"]], scientific=TRUE)` for glass eel,
-`r format(vv[["nseries_lostGY"]], scientific =TRUE)` for glass eel + yellow eel and
-`r format(vv[["nseries_lostY"]], scientific=TRUE)` for yellow eel (Table
-\@ref(tab:table_serieslost))) but are still included in the analysis.
-Some have stopped reporting either because of a lack of recruits in the case of
-the fishery-based surveys (Ems in Germany, stopped in 2001; Vidaa in Denmark, stopped in 1990),
- a lack of financial support (the Tiber in Italy, 2006) or the introduction of
-quota from from 2008 to 2011 that has disrupted the five fishery-based French
-time-series . The two English series (FlaE and BeeG) are still operating but
-data have not been updated since 2016.
+`r format(vv[["nseries_lost"]], scientific=TRUE)` time-series have been stopped
+or not updated beyond 2016 (`r format(vv[["nseries_lostG"]], scientific=TRUE)`
+for glass eel, `r format(vv[["nseries_lostGY"]], scientific =TRUE)` for glass
+eel + yellow eel and `r format(vv[["nseries_lostY"]], scientific=TRUE)` for
+yellow eel (Table \@ref(tab:xserieslost))) but are still included in the
+analysis. Some have stopped reporting either because of a lack of recruits in
+the case of the fishery-based surveys (Ems in Germany, stopped in 2001; Vidaa in
+Denmark, stopped in 1990),  a lack of financial support (the Tiber in Italy,
+2006) or the introduction of quota from from 2008 to 2011 that has disrupted the
+five fishery-based French time-series . The two English series (FlaE and BeeG)
+are still operating but data have not been updated since 2016.
 
 
-```{r table_seriesCY,echo=FALSE,warning=FALSE,error=FALSE,message=FALSE, tab.cap=str_c("Series updated to ",CY, ". Codes for stages are G = glass eel, GY = glass eel + yellow eel, Y = yellow eel, Area NS = North Sea, EE = Elsewhere Europe, Division = FAO marine division. Series ordered by stage and from North to South")}
-flextable(data = series_CY)
+```{r tableseriesCY,echo=FALSE,warning=FALSE,error=FALSE,message=FALSE, tab.cap=str_c("Series updated to ",CY, ". Codes for stages are G = glass eel, GY = glass eel + yellow eel, Y = yellow eel, Area NS = North Sea, EE = Elsewhere Europe, Division = FAO marine division. Series ordered by stage and from North to South")}
+autofit(flextable(data = series_CY)%>%
+          bold(bold = TRUE, part = "header"))
 ```
 
-```{r xseries_CYm1echo=FALSE,warning=FALSE,error=FALSE,message=FALSE,echo=FALSE,warning=FALSE,error=FALSE,message=FALSE,tab.cap=str_c("Series updated to ",CY-1, " see table \\@ref(tab:table_seriesCY) for codes. Series ordered from North to South")}
-flextable(data = series_CYm1,)
+```{r xseriesCYm1, echo=FALSE,warning=FALSE,error=FALSE,message=FALSE,echo=FALSE,warning=FALSE,error=FALSE,message=FALSE,tab.cap=str_c("Series updated to ",CY-1, " see table \\@ref(tab:tableseriesCY) for codes. Series ordered from North to South")}
+autofit(flextable(data = series_CYm1)%>%
+          bold(bold = TRUE, part = "header"))
 
 ```
 
-```{r xseries_lost,echo=FALSE,warning=FALSE,error=FALSE,message=FALSE,tab.cap=str_c("table_serieslost")}
-flextable(data = series_lost)
+```{r xserieslost,echo=FALSE,warning=FALSE,error=FALSE,message=FALSE,tab.cap=str_c("table_serieslost")}
+autofit(flextable(data = series_lost)%>%
+          bold(bold = TRUE, part = "header"))
 ```
 
 
@@ -2386,11 +2413,11 @@ flextable(data = series_lost)
 Calculation of the geometric mean of all time-series [^1] is given in (Figures
 \@ref(fig:figure3) and \@ref(fig:figure4)). 
 
-[^1]: This figure is given as it
-  consistent with the trend provided by WGEEL from 2002 to 2006. The scaling is
-  performed on the 1979-1994 average of each time-series, and `r `length(vv[["sc_1979_1994_unused_series"]])` time-series without data during that
-  period are excluded from the analysis. The time-series left out are : 
-  `r paste(vv[["sc_1979_1994_unused_series"]],collapse=", ")`
+[^1]: This figure is given as it   consistent with the trend provided by WGEEL
+from 2002 to 2006. The scaling is   performed on the 1979-1994 average of each
+time-series, and `r `length(vv[["sc_1979_1994_unused_series"]])` time-series
+without data during that   period are excluded from the analysis. The time-series
+left out are :   `r paste(vv[["sc_1979_1994_unused_series"]],collapse=", ")`
 
 ```{r figure3, fig.cap=paste("Time-series of glass eel and yellow eel recruitment in European rivers with time-series having data for the 1979-1994 period (", vv[["sc_1979_1994_nb"]], "sites). Each time-series has been scaled to its 1979-1994 average. Note the logarithmic scale on the y-axis. The mean values and their bootstrap confidence interval (95%) are represented as black dots and bars. Geometric means are presented in red."), fig.width=16/2.54, warning = FALSE, message = FALSE, error=FALSE}
 knitr::include_graphics(paste0(imgwd,'figure3.png'))
@@ -2407,52 +2434,56 @@ The WGEEL recruitment index used in the ICES Annual Stock Advice is fitted using
 a GLM (Generalised Linear Model) with gamma distribution and a log link: 
 $glass eel \sim year:area + site$, where $glass eel$ is individual glass eel
 time-series, including both pure G series and those identified as a mixture of
-glass and yel-low eel (G+Y), $site$ is the site monitored for recruitment,
-area is either the continental North Sea or Elsewhere Europe, and year is the
-year coded as a categorical value.
-For yellow eel time-series, only one estimate is provided: $yellow~eel \sim year + site$. 
+glass and yel-low eel (G+Y), $site$ is the site monitored for recruitment, area
+is either the continental North Sea or Elsewhere Europe, and year is the year
+coded as a categorical value. For yellow eel time-series, only one estimate is
+provided: $yellow~eel \sim year + site$. 
 
 The trend is hindcast using the predictions from 1960 onwards for
 `r vv$modelge$nbsite` glass eel time-series and from 1950 onwards for
-`r vv$modelolder$nbsite` yellow eel time-series.
-Some zero values have been excluded from the GLM analysis: 
-`r nrow(vv$modelge$value_excluded_zero)` for the glass eel model and
-`r nrow(vv$modelolder$value_excluded_zero)` for the yellow eel model. This
-treatment is parcimoniuous and tests shows it has no effect on the trend (ICES,
-2017).
+`r vv$modelolder$nbsite` yellow eel time-series. Some zero values have been
+excluded from the GLM analysis: `r nrow(vv$modelge$value_excluded_zero)` for the
+glass eel model and `r nrow(vv$modelolder$value_excluded_zero)` for the yellow
+eel model. This treatment is parcimoniuous and tests shows it has no effect on
+the trend (ICES, 2017).
 
 The reconstructed values are then aggregated using geometric means of the two
-reference area (Elsewhere Europe EE, and North Sea NS). The predictions are given 
-in reference to the geometric mean of the 1960-1979 period.
-Note that the shift from arithmetic to geometric means was done this year
-because *post-hoc* model checking confirmed that log-normal (or Gamma
-Distribution) and geometric means are the prefered choice. 
+reference area (Elsewhere Europe EE, and North Sea NS). The predictions are
+given in reference to the geometric mean of the 1960-1979 period. Note that the
+shift from arithmetic to geometric means was done this year because *post-hoc*
+model checking confirmed that log-normal (or Gamma Distribution) and geometric
+means are the prefered choice. 
 
 
 
-As some of the values were not complete the 2018, the
-level of European eel recruitment compared to the 1960-1979 average has changed 
-when compared to last year report. The value has decreased from 9.6% in last
-year report to `r round(100*synthesis[nrow(synthesis)-1,"Elsewhere Europe"], digits= 1)`% for the Elsewhere Europe area.  It remains unchanged 
- for the North Sea at `r round(100*synthesis[nrow(synthesis)-1,"North Sea"], digits =1)`%.
- For 2019, data are **only provisional** and give estimates at
-  `r round(100*synthesis[nrow(synthesis),"North Sea"], digits =1)`% for the North Sea and `r round(100*synthesis[nrow(synthesis),"Elsewhere Europe"], digits= 1)`% for the
+As some of the values were not complete the 2018, the level of European eel
+recruitment compared to the 1960-1979 average has changed when compared to last
+year report. The value has decreased from 9.6% in last year report to
+`r round(100*synthesis[nrow(synthesis)-1,"Elsewhere Europe"], digits= 1)`% for
+the Elsewhere Europe area.  It remains unchanged  for the North Sea at
+`r round(100*synthesis[nrow(synthesis)-1,"North Sea"], digits =1)`%.  For 2019,
+data are **only provisional** and give estimates at
+  `r round(100*synthesis[nrow(synthesis),"North Sea"], digits =1)`% for the
+North Sea and
+`r round(100*synthesis[nrow(synthesis),"Elsewhere Europe"], digits= 1)`% for the
 Elsewhere Europe area, but some of the series are not yet complete (Figure
-\@ref(fig:figure5) \@ref(fig:figure5withlogscale) (log.scale), Tables \@ref(tab:table_glm_glass_eel)).
+\@ref(fig:figure5) \@ref(fig:figure5withlogscale) (log.scale), Tables
+\@ref(tab:tableglmglasseel)).
 
 
-```{r figure5, fig.width=16/2.54, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
+```{r figure5, fig.width=16/2.54, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE, fig.cap=paste("WGEEL recruitment index: estimated (GLM) glass eel recruitment for the continental North Sea and Elsewhere Europe series with 95% confidence intervals updated to", CY,". The GLM ($glass eel \\sim area:year+site$)  was  fitted  on", vv$modelge$nbsite,"time-series comprising either pure glass eel or a mixture of glass eels and yellow eels. The predictions $p$ have been scaled to the 1960-1979 average $\\bar{p}_{1960-1979}$. Number of series",pull(vv$nb_series_glass_eel_per_area[1,1]), "=\\n", pull(vv$nb_series_glass_eel_per_area[1,2]), "\\n", pull(vv$nb_series_glass_eel_per_area[2,1]),"\\n", pull(vv$nb_series_glass_eel_per_area[2,2]))}
 #fig.cap=paste("WGEEL recruitment index: estimated (GLM) glass eel recruitment for the continental North Sea and Elsewhere Europe series with 95% confidence intervals updated to", CY,". The GLM ($glass eel \sim area:year+site$)  was  fitted  on", vv$modelge$nbsite,"time-series comprising either pure glass eel or a mixture of glass eels and yellow eels. The predictions $p$ have been scaled to the 1960-1979 average $\bar{p}_{1960-1979}$. Number of series",pull(vv$nb_series_glass_eel_per_area[1,1]), "=\n", pull(vv$nb_series_glass_eel_per_area[1,2]),"\n",pull(vv$nb_series_glass_eel_per_area[2,1]),"\n",pull(vv$nb_series_glass_eel_per_area[2,2]))
 knitr::include_graphics(paste0(imgwd,"figure5_without_logscale_ribbon.png"))
 ```
 
 For yellow eel series, the autumn ascent has not been recorded yet and most of
-the series have reported data till the middle of the summer. The `r CY-1` yellow eel
-index is at `r round(100*dat_ye[dat_ye$year==CY-1,"value_std_1960_1979"], digits=1)`% of
-the 1960-1979 baseline. 
+the series have reported data till the middle of the summer. The `r CY-1` yellow
+eel index is at
+`r round(100*dat_ye[dat_ye$year==CY-1,"value_std_1960_1979"], digits=1)`% of the
+1960-1979 baseline. 
 
 
-```{r figure6, fig.width=16/2.54, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
+```{r figure6, fig.width=16/2.54, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE,fig.cap=paste("Geometric mean of estimated (GLM) yellow eel recruitment for Europe updated to",CY,". The GLM (yellow eel ~ year+site) was fitted to",vv[["nb_for_yellow_eel_glm"]],"yellow eel time-series $p$ and scaled to the 1960-1979 average $\\bar{p}_{1960-1979}$.")}
 #fig.cap=paste("Geometric mean of estimated (GLM) yellow eel recruitment for Europe updated to",CY,". The GLM ($yellow eel \sim year+site$) was fitted to",vv[["nb_for_yellow_eel_glm"]],"yellow eel time-series $p$ and scaled to the 1960-1979 average $\bar{p}_{1960-1979}$.")
 knitr::include_graphics(paste0(imgwd,"figure6_without_log_scale.png"))
 ```
@@ -2463,51 +2494,57 @@ low for all years after 2000. From ICES (2014) onward a change in the
 recruitment has been detected. One of the test used to show that change in 2014
 was based on SGIPEE(2011) working group. We have used a test only slighly
 different from the test used in ICES 2011. The difference is that the model is
-now based on individual series as source data, not only the prediction. The model differs from that used by
-wgeel also as year is here treated as a continuous value, whereas it is treated
-as a factor in the glm for recruitment, and the years are restricted to
-decreasing part of the recruitment (after 1980).
-\begin{equation}
-glass~eel \sim  \alpha_{site} site + \beta_{area} Y_{>=1980} + \gamma_{area} Y_{>2011} + \epsilon,
-\end{equation}
-where glass eel is the number of glass eel in the glass eel series, either for the Elsewhere Europe or the North Sea time series, $year_{year>1980}$
-is a continuous value corresponding to year after 1980, $year_{year>2011}$ is also
-a continuous value, $\epsilon$ is a random error with mean 0 and standard deviation sigma, 
-and $\alpha_{site}$, $\beta_{area}$ and $\gamma_{area}$ are the estimated
-parameters. The parameters $\gamma_{area}$ are higly significant both in the
-Elsewhere Europe area (p=`r round(sgipee_test_for_change_ee,digits=1)`
-and for the North Sea p=`r round(sgipee_test_for_change_ns,digits=1)` North Sea.
-This result confirms that there has been a change in the recruitment slope.
+now based on individual series as source data, not only the prediction. The
+model differs from that used by wgeel also as year is here treated as a
+continuous value, whereas it is treated as a factor in the glm for recruitment,
+and the years are restricted to decreasing part of the recruitment (after 1980).
+\begin{equation} glass~eel \sim  \alpha_{site} site + \beta_{area} Y_{>=1980} +
+\gamma_{area} Y_{>2011} + \epsilon, \end{equation} where glass eel is the number
+of glass eel in the glass eel series, either for the Elsewhere Europe or the
+North Sea time series,  $year_{year>1980}$ is a continuous value corresponding
+to year after 1980, $year_{year>2011}$ is also a continuous value, $\epsilon$ is
+a random error with mean 0 and standard deviation sigma, and $\alpha_{site}$,
+$\beta_{area}$ and $\gamma_{area}$ are the estimated parameters. The parameters
+$\gamma_{area}$ are higly significant both in the Elsewhere Europe area
+(p=`r round(sgipee_test_for_change_ee,digits=1)` and for the North Sea
+p=`r round(sgipee_test_for_change_ns,digits=1)` North Sea. This result confirms
+that there has been a change in the recruitment slope.
 
-\textcolor{purple}{Add a table with past coeff, current coeff, and probabilities and diminish the text}
+\textcolor{purple}{Add a table with past coeff, current coeff, and probabilities
+and diminish the text}
 
 To test whether there is an increase in recruitment since 2011 the slope of
 $\beta_{area}+\gamma_{area}$, i.e. the slope of the recent increase in
 recruitment is positive, the NULL hypothesis $H0:b>0$ is tested.
 
-To summarize, after high levels in the late 1970s, the recruitment declined and has been very
-low for all years after 2000. There has been a change in the trend in 2011, the
-recruitment has stopped to decrease, and has been increasing in the period
-2011-2019 with a rate significantly different from zero. However,  this increase needs
-to be taken very carefully. Firstly , not all series have been reported for 2019
-and the results might change  when missing data is incorporated to the analysis. 
-Secondly, even if the results would not change, recruitment remains very low
-`r round(100*synthesis[nrow(synthesis),"North Sea"], digits =1)`% for the North Sea 
-and `r round(100*synthesis[nrow(synthesis),"Elsewhere Europe"], digits= 1)`% for the
-Elsewhere Europe area. Recruitment has been continually decreasing
-from 1980 to 2011 (31 years), thus, the positive trend should be maintained during more years in order
-to consider that the stock is safe. In that sense and finally,  during the 2011-2019 period, 
-the maximum values were reached in 2014; but recruitment has been decreasing
-since then.
+To summarize, after high levels in the late 1970s, the recruitment declined and
+has been very low for all years after 2000. There has been a change in the trend
+in 2011, the recruitment has stopped to decrease, and has been increasing in the
+period 2011-2019 with a rate significantly different from zero. However,  this
+increase needs to be taken very carefully. Firstly , not all series have been
+reported for 2019 and the results might change  when missing data is
+incorporated to the analysis. Secondly, even if the results would not change,
+recruitment remains very low
+`r round(100*synthesis[nrow(synthesis),"North Sea"], digits =1)`% for the North
+Sea and `r round(100*synthesis[nrow(synthesis),"Elsewhere Europe"], digits= 1)`%
+for the Elsewhere Europe area. Recruitment has been continually decreasing from
+1980 to 2011 (31 years), thus, the positive trend should be maintained during
+more years in order to consider that the stock is safe. In that sense and
+finally,  during the 2011-2019 period, the maximum values were reached in 2014;
+but recruitment has been decreasing since then.
 
-<!--- To be reintegrated?
-# \tiny
-# \input{\Sexpr{str_c(tabwd,"/table_glm_glass_eel.tex")}}
-# \input{\Sexpr{str_c(tabwd,"/table_glm_yellow.tex")}}
-# \normalsize
 
-# \clearpage
---->
+```{r tableglmglasseel,echo=FALSE,eval=FALSE,results="hide", warning = FALSE, message = FALSE, error=FALSE, echo=FALSE,tab.cap=str_c("GLM $glass~eel \\sim year:area + site $ geometric means of predicted values for ",vv$nb_series_glass_eel," glass eel series, values given in percentage of the 1960-1979 period.")}
+flextable(gg%>%
+          bold(bold = TRUE, part = "header"))
+```
+
+```{r tableglmyellow,echo=FALSE,eval=FALSE,results="hide", warning = FALSE, message = FALSE, error=FALSE, echo=FALSE,tab.cap=str_c("GLM $glass~eel \\sim year:area + site $ geometric means of predicted values for ",vv$nb_series_glass_eel," glass eel series, values given in percentage of the 1960-1979 period.")}
+flextable(yy%>%
+          bold(bold = TRUE, part = "header"))
+```
+
+
 # Annex
 ```{r diagramme,echo=FALSE,eval=FALSE,results="hide", warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
 if(!require(DiagrammeR)) install.packages("DiagrammeR") ; require(DiagrammeR)
@@ -2581,10 +2618,10 @@ render_graph(igraph3, layout="tree") %>%
 
 ## Additional figures
 
-We provide the same figures as in the main text but Figure \@ref(fig:figure3withoutlogscale) 
-without log scale for Figure \@ref(fig:figure3). For the prediction, figures with log
-scales are provided (Figures \@ref(fig:figure5withlogscale) and
-\@ref(fig:figure6withlogscale)).
+We provide the same figures as in the main text but Figure
+\@ref(fig:figure3withoutlogscale) without log scale for Figure
+\@ref(fig:figure3). For the prediction, figures with log scales are provided
+(Figures \@ref(fig:figure5withlogscale) and \@ref(fig:figure6withlogscale)).
 
 ```{r figure3withoutlogscale, fig.cap="Same as figure \\@ref(fig:figure3) but without log scale", fig.width=14/2.54, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
 knitr::include_graphics(paste0(imgwd,"figure3withoutlogscale.png"))

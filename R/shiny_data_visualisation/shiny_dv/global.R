@@ -7,7 +7,7 @@
 
 ###############################################################################
 # debug notes for Cedric ....
-#setwd("C:/workspace\\gitwgeel\\R\\shiny_data_visualisation\\shiny_dv\\")
+#setwd("C:/workspace\\wg_WGEEL\\R\\shiny_data_visualisation\\shiny_dv\\")
 #setwd("C:/Users/cboulenger/Documents/wg_WGEEL/R/shiny_data_visualisation/shiny")
 
 # A big dataset is stored there

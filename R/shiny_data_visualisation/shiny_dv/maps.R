@@ -243,14 +243,14 @@ recruitment_map <- function(R_stations, statseries, wger, CY, colors= c("#FEE301
   mrd$label<-sprintf('<strong>%s %s</strong> </br>
 		  years : <font color="blue">%i-%i</font> </br>
 		  name : %s </br>
-		  duration (missing): %i (%i) </br>
+		  duration (missing): %s (%s) </br>
 		  sampling type: %s </br>
 		  used: %s </br>',
 	  mrd$site,
 	  mrd$lfs_code,
-	  mrd$min, mrd$max,
+	  round(mrd$min), round(mrd$max),
 	  iconv(mrd$namelong,"UTF8"),
-	  mrd$duration, mrd$missing,
+	  mrd$duration, round(mrd$missing),
 	  mrd$sampling_type,
 	  ifelse(mrd$series_kept,
 		  '<font color="green">Yes</font>',
@@ -271,7 +271,7 @@ recruitment_map <- function(R_stations, statseries, wger, CY, colors= c("#FEE301
 		  weight = 2,
 		  radius = 12,
 		  data = mrd[mrd$last==CY,]          
-	  ) %>%
+	  , clusterOptions = markerClusterOptions()) %>%
 	  addCircleMarkers(
 		  lng=~ser_x ,
 		  lat=~ser_y ,
@@ -282,7 +282,8 @@ recruitment_map <- function(R_stations, statseries, wger, CY, colors= c("#FEE301
 		  weight = 1,
 		  radius = 10, 
 		  popup = ~label,
-		  layerId = ~ser_id) %>%     
+		  layerId = ~ser_id,
+			clusterOptions = markerClusterOptions()) %>%     
 	  addLegend(pal = color_pal, 
 		  position="bottomleft",
 		  values = mrd$ser_lfs_code, 

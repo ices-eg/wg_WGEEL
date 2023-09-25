@@ -1,16 +1,15 @@
-load_library(MARSS)
-load_library(parallel)
-load_library(flextable)
-load_library(tidyverse)
-load_library(eulerr)
+load_library("MARSS")
+load_library("parallel")
+load_library("flextable")
+load_library("tidyverse")
+load_library("eulerr")
 
 #' @title standard graph for raw data
 #' @param data data (format tibble) the first row being the year and then all series
 #' @return a graph in ggplot format
 graph_serie = function(data)
 {
-	data_right_format = as.tibble(data) %>% pivot_longer(!das_year, names_to = ser_nameshort, values_to = "value")
-	graph = 	ggplot(data_right_format,  aes(x = das_year, y = value))  + geom_line()  + geom_point(color = "blue") + facet_wrap(~ ser_nameshort, scales = "free_y") +  xlab("Year") + ylab("Abundance")
+	graph = 	ggplot(data,  aes(x = das_year, y = das_value))  + geom_line()  + geom_point(color = "blue") + facet_wrap(~ ser_nameshort, scales = "free_y") +  xlab("Year") + ylab("Abundance")
 	return(graph)
 }
 
@@ -85,7 +84,7 @@ summary_models = function(models)
 #' @title produce a formatted (ready for a report) of the summary of the models (cf function 'summary_models')
 #' @param results_dfalp output of the 'summary_models' function
 #' @return a html table
-tableau_summary_models = function(results_dfalp)
+table_summary_models = function(results_dfalp)
 {
 	ft <- flextable(results_dfalp[,c("Trends","Sigma", "AIC", "AICc")] %>% mutate(AIC = round(AIC), AICc = round(AICc))) #digits no more supported in colformat_num
 	ft <- colformat_num(ft, j=c("AIC", "AICc"), big.mark = "")
@@ -171,10 +170,10 @@ graph_Z = function(Z.conf, graph_2_trends = FALSE, sign_trends = NULL, minZ = 0.
 		graph = ggplot(Z.conf, aes(x = Z.1, y = Z.2, color = ser_nameshort, label = ser_nameshort))  + geom_rect(xmin = -minZ, xmax = minZ, ymin = -minZ, ymax = minZ, fill = gray(0.9), color = gray(0.9), alpha = 0.05) + geom_pointrange(aes(xmin= Z.low.1, xmax = Z.up.1), show.legend = FALSE)  + geom_pointrange(aes(ymin=Z.low.2, ymax=Z.up.2), show.legend = FALSE) + geom_vline(xintercept = 0, color = "black") + geom_hline(yintercept = 0, color = "black")  + geom_vline(xintercept = c(-minZ, minZ), color = "gray", linetype="dashed") + geom_hline(yintercept = c(-minZ, minZ), color = "gray", linetype="dashed") + ggrepel::geom_label_repel(show.legend = FALSE) + theme_classic() + xlab("Loading factor (Z) for trend 1") + ylab("Loading factor (Z) for trend 2")
 	} else {	
 		Z.conf = pivot_wider(Z.conf, names_from = Z, values_from = value)
-		graph = ggplot(Z.conf, aes(y = ser_nameshort, x = Z, xmin= Z.low, xmax = Z.up, color = trend)) + geom_pointrange(position = position_dodge(width = 0.5)) + geom_vline(xintercept = 0, color = "black") + ylab("Série") + xlab("Poids (Z)") + scale_colour_discrete(name = "Trend")
+		graph = ggplot(Z.conf, aes(y = ser_nameshort, x = Z, xmin= Z.low, xmax = Z.up, color = trend)) + geom_pointrange(position = position_dodge(width = 0.5)) + geom_vline(xintercept = 0, color = "black") + ylab("Serie") + xlab("Factor loading (Z)") + scale_colour_discrete(name = "Trend")
 	}
 
-	return(graph)
+	return(graph + theme_classic())
 }
 
 #' @title graph for trends
@@ -200,7 +199,7 @@ graph_trends = function(trends, year, sign_trends = NULL)
 	
 	graph = ggplot(trends_long,aes(x=year, y=value, color = Trend))+
 		geom_line()+
-		xlab("Year") + ylab("Relative abondance") + scale_colour_discrete(name = "Trend")
+		xlab("Year") + ylab("Relative abundance") + scale_colour_discrete(name = "Trend")
 	return(graph)
 }
 
@@ -209,7 +208,7 @@ graph_trends = function(trends, year, sign_trends = NULL)
 #' @param Z as produce by the 'results_DFA' function
 #' @param minZ the min value to consider a Z significant (defaut = 0.2)
 #' @param sign_trends vector of 1 / -1 indicating if you want to inverse the trend (-1 in that case)
-#' @return the diagram
+#' @return a list with the diagram (in `plot` slot) and the group each series belongs to (in `venn` slot)
 Venn_diagram = function(Z, minZ = 0.2, sign_trends = NULL){
 	nameseries = rownames(Z)
 	nb_trends = dim(Z)[2]
@@ -225,6 +224,7 @@ Venn_diagram = function(Z, minZ = 0.2, sign_trends = NULL){
 				names(res)=paste("Trend",j,c("+","-"),sep="")
 				res
 			}))
+
 	list_venn$Any =nameseries[!nameseries %in% unlist(list_venn)]
 	euler_fit<-euler(list_venn)
 	lab=sapply(names(euler_fit$original.values),function(n){
@@ -246,26 +246,121 @@ Venn_diagram = function(Z, minZ = 0.2, sign_trends = NULL){
 		})
 	eulerr_options(quantities=list(cex=.6))
 	
-	return(plot(euler_fit,quantities=lab))
+	return(list(plot = plot(euler_fit,quantities=lab), venn = list_venn))
+}
+
+
+##TODO: check if still used if yes describe
+#venn_belonging <- function(nameseries,Z,minZ){
+#	nameseries=as.character(nameseries)
+#	list_venn=do.call(c,lapply(1:(dim(Z)[2]),function(j){
+#				res=list(nameseries[which(Z[,j]>minZ)],nameseries[which(Z[,j]< -minZ)])
+#				names(res)=paste("Trend",j,c("+","-"),sep="")
+#				res
+#			}))
+#	list_venn$Any =nameseries[!nameseries %in%unlist(list_venn)]
+#	sapply(nameseries,function(ser) 
+#			paste(names(list_venn)[sapply(names(list_venn),
+#						function(g) ifelse(ser %in% list_venn[[g]], TRUE,FALSE))],
+#				collapse="; "))
+#}
+
+#' @title convert the venn list into a tibble with trends
+#' @param venn_list list. As produced by the Venn_diagram (slot `venn`)
+#' @return a tible
+tabulate_venn = function(venn_list)
+{
+	result = data.frame(
+		ser_nameshort = unlist(venn_list, use.names=F),
+		Venn_group = rep(names(venn_list), lengths(venn_list))
+	)
+	
+	result = result %>% 
+		table %>%
+		as_tibble %>% 
+		pivot_wider(names_from = "Venn_group", values_from = "n") 
+	
+	return(result)
+}
+
+#' @title convert the venn list into a data.frame
+#' @param venn_list list. As produced by the Venn_diagram (slot `venn`)
+#' @return a data.frame
+unlist_venn = function(venn_list)
+{
+	
+	group = tabulate_venn(venn_list) %>%
+		select(- ser_nameshort) %>%
+		map2_dfc(colnames(.), ., function(x1,x2) ifelse(x2 == 1, x1, "")) %>%
+		apply(1, paste, collapse = "")
+	
+	result = tabulate_venn(venn_list)  %>% select(ser_nameshort) %>% bind_cols(group) %>% rename(Venn_group = `...2`) 
+	
+	return(result)
+}
+
+#' @title extract the sign of a given trend from a venn list
+#' @param venn_list list. As produced by the Venn_diagram (slot `venn`)
+#' @param trend integer. The number of the trend to extract
+#' @return a data.frame
+sign_trend_venn = function(venn_list, trend = 1)
+{
+	trend = paste0("Trend", trend)
+	
+	result = venn_list %>% 
+		tabulate_venn() %>% 
+		select(ser_nameshort, starts_with(trend)) %>%
+		mutate(sign = ifelse(!!as.symbol(paste0(trend, "+")) == 1, "+", ifelse(!!as.symbol(paste0(trend, "-")) == 1, "-", "0"))) %>%
+		select(ser_nameshort, sign)
+	
+	return(result)
 }
 
 #' @title graph of raw series and trends
 #' @param model DFA model
 #' @return a ggplot
-series_trends_graph = function(model, year)
+series_trends_graph = function(model, colored_strip = TRUE)
 {
+	year = as.integer(colnames(model$model$data))
 	TT = length(year)
-	d <- residuals(model ,interval="confidence")
+	d <- residuals(model,interval="confidence")
 	d$.conf.low <- d$.fitted + qnorm(0.05/2)*d$.sigma
 	d$.conf.up <- d$.fitted - qnorm(0.05/2)*d$.sigma
 	
+	nameshort_ranked = sampling %>% arrange(rank) %>% select(ser_nameshort) %>% pull
+	
+	d = d  %>% inner_join(sampling, by = c(".rownames" = "ser_nameshort"))%>% mutate(.rownames = factor(.rownames, levels = nameshort_ranked))
+	
+	country_to_display = d %>% select(ser_cou_code, color_country, cou_order) %>% unique %>% arrange(cou_order)
+	
 	graph = ggplot(data = d) +
 		geom_line(aes(t, .fitted)) +
-		geom_point(aes(t, value), color = "blue") +
+		geom_point(aes(t, value, color = ser_cou_code)) +
 		geom_ribbon(aes(x=t, ymin=.conf.low, ymax=.conf.up), linetype=2, alpha=0.2) +
 		facet_wrap(vars(.rownames)) +
 		xlab("Year") + ylab("Standardised abundance index")+
-		scale_x_continuous(breaks=seq(1,TT,10),labels=year[seq(1,TT,10)])
+		scale_x_continuous(breaks=seq(1,TT,10),labels=year[seq(1,TT,10)]) +
+		theme_classic() +
+		scale_colour_manual("",
+			breaks = country_to_display$ser_cou_code,
+			values = country_to_display$color_country
+		)  + 
+		theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+	
+	if(colored_strip)
+	{
+		#https://github.com/tidyverse/ggplot2/issues/2096
+		g <- ggplot_gtable(ggplot_build(graph))
+		strip <- which(grepl('strip-t', g$layout$name))
+
+		for (i in strip) {
+			j <- which(grepl('text', g$grobs[[i]]$grobs[[1]]$childrenOrder))
+			j2 <- which(grepl('rect', g$grobs[[i]]$grobs[[1]]$childrenOrder))
+			series_j = g$grobs[[i]]$grobs[[1]]$children[[j]]$children[1][[1]]$label 
+			g$grobs[[i]]$grobs[[1]]$children[[j2]]$gp$fill = sampling %>% filter(ser_nameshort == series_j) %>% select(color_country) %>% pull()
+		}
+		graph = grid.draw(g)
+	}
 	
 	return(graph)
 }

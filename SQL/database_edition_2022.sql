@@ -1167,8 +1167,21 @@ ALTER TABLE datawg.t_eelstock_eel ADD CONSTRAINT ck_emu_whole_aquaculture CHECK 
 CREATE UNIQUE INDEX idx_dataseries_1 ON datawg.t_dataseries_das USING btree (das_year, das_ser_id) WHERE (das_qal_id IS NULL or das_qal_id<5);
 alter table datawg.t_dataseries_das drop constraint c_uk_year_ser_id;
 
+update datawg.t_series_ser set ser_ccm_wso_id=array [442593] where ser_id in (25,44,343,398);
 
-----to be run and improved after wgeel
+update datawg.t_series_ser set ser_ccm_wso_id=array [85522] where ser_id in (184);
+update datawg.t_series_ser set ser_ccm_wso_id=array [83751] where ser_id in (185,187);
+update datawg.t_series_ser set ser_ccm_wso_id=array [85504] where ser_id in (182);
+update datawg.t_series_ser set ser_ccm_wso_id=array [84124] where ser_id in (188);
+update datawg.t_series_ser set ser_ccm_wso_id=array [82460] where ser_id in (204);
+update datawg.t_series_ser set ser_ccm_wso_id=array [81920] where ser_id in (65);
+update datawg.t_series_ser set ser_ccm_wso_id=array [83787] where ser_id in (70);
+update datawg.t_series_ser set ser_ccm_wso_id=array [81920] where ser_id in (66);
+update datawg.t_series_ser set ser_ccm_wso_id=array [291110] where ser_id in (13);
+update datawg.t_series_ser set ser_ccm_wso_id=array [18809]where ser_id in (64);
+update datawg.t_series_ser set ser_ccm_wso_id=array [127774] where ser_id in (189);
+
+
 alter table ref.tr_emu_emu add column geom_buffered geometry;
 update ref.tr_emu_emu set geom_buffered = st_transform(st_simplify(st_buffer(st_transform(geom,3035),10000),	1000),4326) ;
 create index idx_emu_geom_buffered on ref.tr_emu_emu using gist(geom_buffered);
@@ -1230,3 +1243,95 @@ CREATE TRIGGER check_fish_in_emu AFTER INSERT OR UPDATE ON
 
 UPDATE datawg.t_dataseries_das SET das_qal_id =1 WHERE das_ser_id= 196 AND das_qal_id IS NULL;
 --25
+
+UPDATE datawg.t_series_ser SET ser_nameshort='BurrGY' WHERE ser_nameshort='BurrG';
+
+
+SELECT * FROM datawg.t_dataseries_das WHERE das_ser_id= 38 AND das_year= 2012
+
+
+
+--- correct for missing das_qal_id in BE preventing integration
+WITH das as(
+SELECT das_id FROM datawg.t_series_ser JOIN
+datawg.t_dataseries_das ON das_ser_id = ser_id 
+WHERE ser_cou_code= 'BE'
+AND das_qal_id IS NULL
+)
+UPDATE datawg.t_dataseries_das SET das_qal_id=1 FROM das WHERE das.das_id = t_dataseries_das.das_id; --62
+
+WITH das as(
+SELECT das_id FROM datawg.t_series_ser JOIN
+datawg.t_dataseries_das ON das_ser_id = ser_id 
+WHERE ser_cou_code= 'BE'
+AND das_qal_id =0
+)
+UPDATE datawg.t_dataseries_das SET das_qal_id=1 FROM das WHERE das.das_id = t_dataseries_das.das_id; --1
+
+
+WITH das as(
+SELECT das_id FROM datawg.t_series_ser JOIN
+datawg.t_dataseries_das ON das_ser_id = ser_id 
+WHERE ser_cou_code= 'DK'
+AND das_qal_id =0
+)
+UPDATE datawg.t_dataseries_das SET das_qal_id=1 FROM das WHERE das.das_id = t_dataseries_das.das_id; --4
+
+
+--- correct for missing das_qal_id in DK preventing integration
+WITH das as(
+SELECT das_id FROM datawg.t_series_ser JOIN
+datawg.t_dataseries_das ON das_ser_id = ser_id 
+WHERE ser_cou_code= 'DK'
+AND das_qal_id IS NULL
+)
+UPDATE datawg.t_dataseries_das SET das_qal_id=1 FROM das WHERE das.das_id = t_dataseries_das.das_id; --150
+
+
+-- ADD index on t_metricindseries 
+CREATE INDEX ON datawg.t_metricindsamp_meisa (mei_fi_id);
+CREATE INDEX ON datawg.t_metricindseries_meiser (mei_fi_id);
+
+
+--correction about Irish time series
+update datawg.t_series_ser set ser_qal_id=0 where ser_nameshort='CorG'; --CorG had a ser_qal_id 1 while too short
+update datawg.t_dataseries_das  set das_qal_id=3, das_comment ='replaced by InagG' where das_year=2017 and das_ser_id=47; --for 2017 we have both InagG and InagGY
+
+-- Jason recruitment
+
+UPDATE 
+
+INSERT INTO  datawg.t_dataseries_das(
+das_ser_id, das_year, das_value, das_qal_id, das_comment, das_dts_datasource) 
+SELECT 172, 2022, 414, 1, 'preliminary values','dc_2022';
+
+
+-- Correct data from GB which were in ng/mg while should have been in ng/g
+
+WITH the_mei_id AS (
+SELECT mei_id FROM datawg.t_samplinginfo_sai AS tss
+JOIN datawg.t_fishsamp_fisa ON fisa_sai_id=sai_id
+JOIN datawg.t_metricindsamp_meisa ON mei_fi_id=fi_id
+JOIN "ref".tr_metrictype_mty ON mty_id=mei_mty_id
+WHERE mty_name in ('pb','hg','cd')
+AND sai_cou_code ='GB')
+UPDATE datawg.t_metricindsamp_meisa SET mei_value = mei_value * 1000 WHERE mei_id IN (SELECT mei_id FROM the_mei_id) ; --15
+
+; --15 rows
+
+
+-- correction for a typo in IE
+ SELECT * FROM datawg.t_eelstock_eel WHERE eel_id = 434060
+UPDATE datawg.t_eelstock_eel SET eel_value= 2637480 WHERE eel_id = 434060;
+
+
+-- EG is no longer considered as accurae (see Azza's mail)
+
+ SELECT * FROM datawg.t_eelstock_eel WHERE eel_cou_code='EG' AND eel_qal_id=3
+ 
+ UPDATE datawg.t_eelstock_eel SET (eel_qal_id, eel_qal_comment) = (22,eel_qal_comment||'removed FROM the db IN 2022') WHERE eel_qal_id=3 AND eel_cou_code='EG';
+ 
+  SELECT * FROM datawg.t_eelstock_eel WHERE eel_cou_code='EG' AND eel_qal_id=1;
+  
+ UPDATE datawg.t_eelstock_eel SET (eel_qal_id, eel_qal_comment) = (3,'Azza indicates that there might be some confusion between lagoon production in aquaculture ponds and landings, avaiting next year assessment') WHERE eel_qal_id=1 AND eel_cou_code='EG';
+ --46

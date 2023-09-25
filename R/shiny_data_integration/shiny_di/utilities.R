@@ -22,7 +22,44 @@ convert2boolean <- function(myvec, name){
   if (!all(myvec %in% c(NA,"0","1","true","false","TRUE","FALSE")))
     stop(paste("unrecognised boolean in",name, myvec[!myvec %in% c(NA,"0","1","true","false","TRUE","FALSE")])," is not a boolean, use TRUE or FALSE or 0 or 1")
   myvec[!is.na(myvec)] <- ifelse(myvec[!is.na(myvec)] %in% c("0","false","FALSE"),
-                  FALSE,
-                  TRUE)
+                                 FALSE,
+                                 TRUE)
   as.logical(myvec)
 }
+
+
+#' @title readxlTemplate
+#' @description this function reads an excel template and uses a dictionary
+#' to use the appropriate coltype
+#' @param path the path to the data file
+#' @param sheet the sheet to be read
+#' @param dict dictionary defined in global.R
+#' @return a well formatted tibble
+#' @importFrom readxl read_excel
+#
+
+
+readxlTemplate <- function(path, sheet, dict=dictionary){
+  headers <- suppressWarnings(read_excel(
+    path=path,
+    sheet=sheet,
+    skip=0, 
+    n_max=0))
+  if (any(!names(headers) %in% names(dict))){
+    stop(paste("column names",
+               paste(sort(names(headers)[!names(headers) %in% names(dict)]),
+                     collapse = ","),
+               "not recognized in",
+               sheet))
+  }
+  readed_coltypes = dict[names(headers)]
+  
+  data_xls <- suppressWarnings(read_excel(
+    path=path,
+    sheet=sheet,
+    skip=0, 
+    col_types=readed_coltypes))
+  data_xls
+}
+
+

@@ -24,7 +24,7 @@ params:
     sep: ""
   country:   
     label: "Country"
-    value: FR
+    value: ES
     input: select
     choices: ["BE","DE","DK","EE","ES","FI","FR","GB","GR","HR","IE","IT","LT","LV","NL","NO","PL","PT","SE","SI","TN","TR"]
   area:
@@ -83,7 +83,7 @@ params:
 
 ```{r setup, include=FALSE}
 require(knitr)
-knitr::opts_chunk$set(echo = FALSE, warnings=FALSE, fig.width=12, fig.height=8, message=FALSE)
+knitr::opts_chunk$set(echo = FALSE, warnings=FALSE, fig.width=12, fig.height=8, message=FALSE,error = TRUE) # error TRUE don't stop on error
 opts_knit$set(eval.after = 'fig.cap' ) # to be used in chunks used only to plot pictures
 options(knitr.table.format = 'pandoc') # options pour kable
 options(knitr.kable.NA = '.')
@@ -98,7 +98,7 @@ if (getUsername() == "cedric.briand") setwd("C:/workspace/wg_WGEEL/R/Rmarkdown")
 if (getUsername() == "cboulenger") setwd("C:/Users/cboulenger/Documents/wg_WGEEL/R/Rmarkdown") 
 if (!exists("params")){
 	warnings("You are not using Rstudio or rmarkdown::render, params have been set by default setup")
-	params <- list("country"='FR',G=TRUE,Y=TRUE,YS=TRUE,S=TRUE,Gr=TRUE,Yr=TRUE,YSr=TRUE,Sr=TRUE,
+	params <- list("country"='ES',G=TRUE,Y=TRUE,YS=TRUE,S=TRUE,Gr=TRUE,Yr=TRUE,YSr=TRUE,Sr=TRUE,
 			releaseG=TRUE, releaseY=TRUE,releaseQG=TRUE,releaseOG=TRUE,releaseYS=TRUE,releaseS=TRUE,
 			year=1960, area="Elsewhere Europe", map=TRUE)
 }
@@ -133,22 +133,26 @@ load_package("kableExtra")
 load_package("pander")
 load_package("ggmap")
 load_package("sp")
+load_package("yaml")
 
 
 # load functions ------------------------------------------------------------------------------------
 # retrieve reference tables needed
 # the shiny is launched from shiny_data_integration/shiny thus we need the ../
-if(is.null(options()$sqldf.RPostgreSQL.user)) 
-	source("../shiny_data_visualisation/shiny_dv/database_connection.R")
-source("../shiny_data_visualisation/shiny_dv/database_reference.R")
-source("../shiny_data_visualisation/shiny_dv/database_data.R")
-source("../shiny_data_visualisation/shiny_dv/database_precodata.R")
-source("../shiny_data_visualisation/shiny_dv/preco_diagram.R")
-source("../shiny_data_visualisation/shiny_dv/graphs.R")
-source("../shiny_data_visualisation/shiny_dv/maps.R")
-source("../shiny_data_visualisation/shiny_dv/filter_and_group_functions.R")
-source("../shiny_data_visualisation/shiny_dv/predict_missing.R")
-
+if(is.null(options()$sqldf.RPostgreSQL.user)) {
+	wd <- getwd()
+	setwd("../shiny_data_visualisation/shiny_dv")
+	source("database_connection.R")
+	source("database_reference.R")
+	source("database_data.R")
+	source("database_precodata.R")
+	source("preco_diagram.R")
+	source("graphs.R")
+	source("maps.R")
+	source("filter_and_group_functions.R")
+	source("predict_missing.R")
+	setwd(wd)
+}
 
 
 load("../shiny_data_visualisation/shiny_dv/data/maps_for_shiny.Rdata") 
@@ -173,6 +177,8 @@ color_countries = setNames(values,country_ref$cou_code)
 nrtable <-  0
 nrfigure <- 0
 
+# fix pb with duplicates
+wger_ys <- wger_ys %>% filter(das_qal_id<5&!is.na(das_qal_id))
 
 
 ```
@@ -312,8 +318,8 @@ table_pc_lfs <- function(country, dataset, typ = 9,
 				Sum=rowSums(table[,-1,drop=FALSE],na.rm=T)
 		)
 		colnames(table)<-gsub(paste("^",country,"_",sep=""),
-		                                         "",
-		                                         colnames(table))
+				"",
+				colnames(table))
 		caption=ifelse(typ %in% c(8,9),
 				paste("Release in", ifelse(typ==8,"kg","number")),
 				"Aquaculture in tons")
@@ -614,10 +620,10 @@ figure_ys <- function(stage_selected="Y"){
 	wger_ys1 <- wger_ys %>% 
 			filter(lfs_code==stage_selected) %>%	
 			dplyr::select(-idcol) %>%
-			pivot_wider(names_from=c(ser_nameshort),values_from=das_value) %>% 
+			pivot_wider(names_from=ser_nameshort,values_from=das_value) %>% 
 			arrange(das_year)   
 	
-	
+	wger_ys1
 	wger_ys2 <- wger_ys1 %>% mutate_at(vars(-das_year),scale)
 	
 	
@@ -763,8 +769,8 @@ map_recruitment <- function(){
 			palette <- gdocs_pal()(10)
 		palette <- colorRampPalette(palette)(length(sites_cou))
 		
-		country_map <- as(country_p,"Spatial")
-		country_map	<- country_p[country_p$cou_code== params$country,]	
+		#country_map <- as(country_p,"Spatial")
+		country_map	<- sf::as_Spatial(sf::st_geometry(country_p[country_p$cou_code== params$country,]))	
 		location=c(left=bbox(country_map)[1,1]-0.5,
 				bottom=bbox(country_map)[2,1]-0.5,
 				right=bbox(country_map)[1,2]+0.5,
@@ -883,7 +889,7 @@ gg <-plot_pc(dataset="landings",
 		country= params$country, 
 		typ=4 , 
 		life_stage="G",
-		year_range=1960:2020,
+		year_range=1960:CY,
 		scalef=1000
 )
 print(gg)
@@ -901,7 +907,7 @@ res <- table_pc(dataset="landings",
 		country=  params$country, 
 		typ=4 , 
 		life_stage="Y",
-		year_range=1960:2020, 
+		year_range=1960:CY, 
 		scalef=1000
 )
 print(res %>% kable_styling())
@@ -916,7 +922,7 @@ gg <-plot_pc(dataset="landings",
 		country= params$country, 
 		typ=4 , 
 		life_stage="Y",
-		year_range=1960:2020, 		
+		year_range=1960:CY, 		
 		scalef=1000)
 print(gg)
 cat("\n")
@@ -932,7 +938,7 @@ res <- table_pc(dataset="landings",
 		country=  params$country, 
 		typ=4 , 
 		life_stage=c("YS"),
-		year_range=1960:2020, 
+		year_range=1960:CY, 
 		scalef=1000)
 print(res %>% kable_styling())
 cat("\n")
@@ -944,7 +950,7 @@ gg <-plot_pc(dataset="landings",
 		country= params$country, 
 		typ=4 , 
 		life_stage=c("YS"),
-		year_range=1960:2020, 		
+		year_range=1960:CY, 		
 		scalef=1000)
 print(gg)
 cat("\n")
@@ -959,7 +965,7 @@ res <- table_pc(dataset="landings",
 		country=  params$country, 
 		typ=4 , 
 		life_stage=c("S"),
-		year_range=1960:2020, 			
+		year_range=1960:CY, 			
 		scalef=1000)
 print(res %>% kable_styling())
 cat("\n")
@@ -972,7 +978,7 @@ gg <-plot_pc(dataset="landings",
 		country= params$country, 
 		typ=4 , 
 		life_stage=c("S"),
-		year_range=1960:2020, 			
+		year_range=1960:CY, 			
 		scalef=1000)
 print(gg)
 cat("\n")
@@ -988,7 +994,7 @@ res <- table_pc(dataset="landings",
 		country=  params$country, 
 		typ=6 , 
 		life_stage="G",
-		year_range=1960:2020, 
+		year_range=1960:CY, 
 		scalef=1000
 )
 print(res %>% kable_styling())
@@ -1002,7 +1008,7 @@ gg <-plot_pc(dataset="landings",
 		country= params$country, 
 		typ=6 , 
 		life_stage="G",
-		year_range=1960:2020, 
+		year_range=1960:CY, 
 		scalef=1000
 )
 print(gg)
@@ -1019,7 +1025,7 @@ res <- table_pc(dataset="landings",
 		country=  params$country, 
 		typ=6 , 
 		life_stage="Y",
-		year_range=1960:2020,
+		year_range=1960:CY,
 		scalef=1000
 )
 print(res %>% kable_styling())
@@ -1034,7 +1040,7 @@ gg <-plot_pc(dataset="landings",
 		country= params$country, 
 		typ=6 , 
 		life_stage="Y",
-		year_range=1960:2020, 
+		year_range=1960:CY, 
 		scalef=1000
 )
 print(gg)
@@ -1048,7 +1054,7 @@ res <- table_pc(dataset="landings",
 		country=  params$country, 
 		typ=6 , 
 		life_stage=c("YS"),
-		year_range=1960:2020, 
+		year_range=1960:CY, 
 		scalef=1000)
 print(res %>% kable_styling())
 cat("\n")
@@ -1062,7 +1068,7 @@ gg <-plot_pc(dataset="landings",
 		country= params$country, 
 		typ=6 , 
 		life_stage=c("YS"),
-		year_range=1960:2020,
+		year_range=1960:CY,
 		scalef=1000)
 print(gg)
 cat("\n")
@@ -1076,7 +1082,7 @@ res <- table_pc(dataset="landings",
 		country=  params$country, 
 		typ=6 , 
 		life_stage=c("S"),
-		year_range=1960:2020, 
+		year_range=1960:CY, 
 		scalef=1000)
 print(res %>% kable_styling())
 cat("\n")
@@ -1087,7 +1093,7 @@ gg <-plot_pc(dataset="landings",
 		country= params$country, 
 		typ=6 , 
 		life_stage=c("S"),
-		year_range=1960:2020, 
+		year_range=1960:CY, 
 		scalef=1000)
 print(gg)
 cat("\n")
@@ -1102,7 +1108,7 @@ res_number <- table_pc_lfs(dataset="release",
 				c(params$releaseG, params$releaseY, params$releaseQG,
 						params$releaseOG, params$releaseYS, params$releaseS)],
 		
-		year_range=1960:2020, 
+		year_range=1960:CY, 
 		scalef=10^6
 )
 release_n <- nrow(res_number)>0
@@ -1192,7 +1198,7 @@ res <- table_pc_lfs(dataset="aquaculture",
 		country=  params$country, 
 		typ=11 , 
 		life_stage=c("G","Y","YS","S","QG","OG"),		
-		year_range=1960:2020, 
+		year_range=1960:CY, 
 		scalef=1000	    
 )
 aqua_n <- nrow(res>0)

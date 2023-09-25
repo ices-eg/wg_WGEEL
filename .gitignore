@@ -1,9 +1,11 @@
 /.project
-/credentials.yml
+/*.yml
 /data/
 /.dbeaver
 .Rproj.user
 wg_WGEEL.Rproj
-
 /.dbeaver-data-sources.xml
 /connection
+.Rhistory
+.RData
+/hs_err_pid41612.log

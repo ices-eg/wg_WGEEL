@@ -9,7 +9,9 @@
 # TODO USE bind_rows
 
 # put the current year there
-CY<-2022
+CY<-2023
+
+inactivedeadline <- 4 #this ensure that we don't ask new data for time series that are inactive since more than 4 years
 # function to load packages if not available
 load_library=function(necessary) {
   if(!all(necessary %in% installed.packages()[, 'Package']))
@@ -37,24 +39,27 @@ load_library("DBI")
 
 library("DBI")
 
-load_library("stacomirtools")
+#load_library("stacomirtools")
 load_library("stringr")
 # Issue still open https://github.com/awalker89/openxlsx/issues/348
-#load_library("openxlsx")
-load_library("XLConnect")
+load_library("openxlsx")
+#options(java.parameters = "-Xmx8000m")
+#load_library("XLConnect")
 load_library("readxl")
 load_library("sf")
 load_library("ggmap")
 load_library("getPass")
+load_library("dplyr")
+
 
 #############################
 # here is where the script is working change it accordingly
 # one must be at the head of wgeel git 
 ##################################
-if(Sys.info()["user"]=="hilaire.drouineau"){
+if(Sys.info()["user"]=="hdrouineau"){
   setwd("~/Documents/Bordeaux/migrateurs/WGEEL/github/wg_WGEEL/")
 } else{
-  setwd("C:/workspace\\gitwgeel\\")
+  setwd("C:/workspace/wg_WGEEL")
 }
 #############################
 # here is where you want to put the data. It is different from the code
@@ -69,15 +74,17 @@ load(str_c(getwd(),"/data/ccm_seaoutlets.rdata")) #polygons off ccm seaoutlets W
 # this set up the connextion to the postgres database
 # change parameters accordingly
 ###################################"
-if( !exists("pois")) pois <- getPass(msg="main password")
+#if( !exists("pois")) pois <- getPass(msg="main password")
 # host <- decrypt_string(hostdistant,pois)
-host <- "localhost"
-userwgeel <- decrypt_string(userdistant,pois)
-passwordwgeel <- passwordlocal
+library(yaml)
+cred=read_yaml("credentials.yml")
+host <- cred$host
+userwgeel <- cred$user
+passwordwgeel <- cred$password
 con=dbConnect(RPostgres::Postgres(), 		
-              dbname="wgeel", 		
-              host="localhost",
-              port=5432, 		
+              dbname=cred$dbname, 		
+              host=host,
+              port=cred$port, 		
               user= userwgeel, 		
               password= passwordwgeel)
 
@@ -105,9 +112,9 @@ create_datacall_file_series <- function(country, name, ser_typ_id, type="series"
   key <- c("1" = "Recruitment","2" = "Yellow_standing_stock","3" = "Silver")
   suffix <- key[ser_typ_id]
   if (type == "series"){
-    namedestinationfile <- str_c(name,"_",country, "_",suffix, ".xlsx")	
+    namedestinationfile <- str_c(CY,"_",name,"_",country, "_",suffix, ".xlsx")	
   } else {
-    namedestinationfile <- str_c(name,"_",country, ".xlsx")	
+    namedestinationfile <- str_c(CY,"_",name,"_",country, ".xlsx")	
   }
   if (ser_typ_id==1 & type=="series") namedestinationfile <-gsub("Annex","Annex1", namedestinationfile)
   if (ser_typ_id==2 & type=="series") namedestinationfile <-gsub("Annex","Annex2", namedestinationfile)
@@ -128,10 +135,10 @@ create_datacall_file_series <- function(country, name, ser_typ_id, type="series"
                                        country,"' ",
                                        ifelse(type=="series",str_c(" AND ser_typ_id =", ser_typ_id), ""))) %>%		# maybe this is only needed on windows 
     select(-any_of(c("geom","ser_dts_datasource","sai_dts_datasource"))) %>%		# maybe this is only needed on windows 
-    mutate_at(vars (ends_with("nameshort")), ~iconv(.,from="UTF-8",to="latin1")) %>%		# maybe this is only needed on windows 
-    mutate_at(vars(ends_with("comment")), ~iconv(.,from="UTF-8",to="latin1")) %>% 		# maybe this is only needed on windows 
-    mutate_at(vars (ends_with("locationdescription")), ~iconv(.,from="UTF-8",to="latin1")) %>% 		# maybe this is only needed on windows 
-    mutate_at(vars(ends_with("method")), ~iconv(.,from="UTF-8",to="latin1")) 		# maybe this is only needed on windows 
+    dplyr::mutate_at(vars (ends_with("nameshort")), ~iconv(.,from="UTF-8",to="latin1",sub="?")) %>%		# maybe this is only needed on windows 
+    dplyr::mutate_at(vars(ends_with("comment")), ~iconv(.,from="UTF-8",to="latin1",sub="?")) %>% 		# maybe this is only needed on windows 
+    dplyr::mutate_at(vars (ends_with("locationdescription")), ~iconv(.,from="UTF-8",to="latin1",sub="?")) %>% 		# maybe this is only needed on windows 
+    dplyr::mutate_at(vars(ends_with("method")), ~iconv(.,from="UTF-8",to="latin1",sub="?")) 		# maybe this is only needed on windows 
   
   
   
@@ -146,17 +153,17 @@ create_datacall_file_series <- function(country, name, ser_typ_id, type="series"
       t_series[,setdiff(names(formatted), names(t_series))] = NA
     t_series <-  t_series %>%
       select(any_of(names(formatted)))
-    writeWorksheet(wb, sheet =  ifelse(type=="series",
+    writeData(wb, sheet =  ifelse(type=="series",
                                        "series_info",
                                        "sampling_info"), 
-                   t_series)
+                   x=t_series)
   }
   
   
   # station data ----------------------------------------------
   if (type == "series") {
     station <- dbGetQuery(con,"select * from ref.tr_station")
-    station$Organisation <-iconv(station$Organisation,from="UTF8",to="latin1")
+    station$Organisation <-iconv(station$Organisation,from="UTF8",to="latin1",sub="?")
     # drop  tblCodeID Station_Code
     
     if (nrow(t_series_ser)>0){
@@ -167,7 +174,7 @@ create_datacall_file_series <- function(country, name, ser_typ_id, type="series"
       if (nrow(station)>0){
         
         #openxlsx::writeData(wb, sheet = "station", station, startRow = 1)
-        writeWorksheet(wb, sheet = "station", data=station, startRow = 1)
+        writeData(wb, sheet = "station", x=station, startRow = 1)
       }
     }
   }
@@ -191,43 +198,56 @@ create_datacall_file_series <- function(country, name, ser_typ_id, type="series"
     
     
     if (nrow(dat)> 0){
-      dat[,"das_comment"]<-iconv(dat[,"das_comment"],from="UTF-8",to="latin1")
+      dat[,"das_comment"]<-iconv(dat[,"das_comment"],from="UTF-8",to="latin1",sub="?")
       #openxlsx::writeData(wb, sheet = "existing_data", dat, startRow = 1)
       formatted <- read_excel(templatefile,"existing_data")
       dat <- applyTemplateFormat(formatted, dat)
-      writeWorksheet(wb , dat ,  sheet = "existing_data") # NOTE 17/07 Cédric removed this for next year %>% filter(!is.na(das_qal_id))
+      writeData(wb , x=dat ,  sheet = "existing_data") # NOTE 17/07 C?dric removed this for next year %>% filter(!is.na(das_qal_id))
     }
     
     #put data where das_qal_id is missing into updated_data
     if (nrow(dat)> 0){
-      dat[,"das_comment"]<-iconv(dat[,"das_comment"],from="UTF-8",to="latin1")
+      dat[,"das_comment"]<-iconv(dat[,"das_comment"],from="UTF-8",to="latin1",sub="?")
       #openxlsx::writeData(wb, sheet = "existing_data", dat, startRow = 1)
       formatted <- read_excel(templatefile,"updated_data")
       dat <- applyTemplateFormat(formatted, dat)
-      writeWorksheet(wb , dat%>% filter(is.na(das_qal_id)),  sheet = "updated_data")
+      writeData(wb , x=dat%>% filter(is.na(das_qal_id)),  sheet = "updated_data")
     }
     
   }
   # new data ----------------------------------------------------
   # extract missing data from CY-10
   if (type == "series"){
+    #this ensure that we don't ask new data for time series that are inactive since more than 4 years
+    activeseries <- dat %>% 
+      filter(!is.na(das_value) & das_year >= CY-inactivedeadline) %>%
+      dplyr::select(ser_nameshort) %>%
+      dplyr::pull() %>%
+      unique()
+    
     if (nrow(dat)> 0){
       new_data <- 
         dplyr::bind_rows(
           dat %>% dplyr::filter(das_year>=(CY-10))  %>%
             dplyr::select(ser_nameshort,das_year,das_value, das_comment, das_effort,das_qal_id) %>%
             tidyr::complete(ser_nameshort,das_year=(CY-10):CY) %>%
-            dplyr::filter(is.na(das_value) & is.na(das_comment)), 
-          dat %>% dplyr::filter(das_year>=(CY-10)& das_qal_id >4)  %>%
+            dplyr::filter(is.na(das_value) & is.na(das_comment) & (is.na(das_qal_id |das_qal_id != 0))), 
+          dat %>% 
+            group_by(ser_nameshort, das_year) %>% 
+            slice_min(das_qal_id) %>% #we keep only the data with the latest das_qal_id (since das_qal_id >4 are discarded)
+            ungroup() %>%
+            dplyr::filter(das_year>=(CY-10)& das_qal_id >4)  %>% #if we have only data with das_qal_id >4, we are missing a data
             dplyr::select(ser_nameshort,das_year,das_value, das_comment, das_effort,das_qal_id) 
         )%>%
-        dplyr::arrange(ser_nameshort, das_year)
+        dplyr::filter(ser_nameshort %in% activeseries) %>%     #this ensure that we don't ask new data for time series that are inactive since more than 4 years
+        dplyr::arrange(ser_nameshort, das_year) 
+        
       
       if (nrow(new_data)> 0){
         #openxlsx::writeData(wb, sheet = "new_data", new_data, startRow = 1)
         formatted <- read_excel(templatefile,"new_data")
         dat <- applyTemplateFormat(formatted, dat)
-        writeWorksheet(wb, new_data,  sheet = "new_data")
+        writeData(wb, x=new_data,  sheet = "new_data")
       }
     }
     
@@ -272,6 +292,13 @@ create_datacall_file_series <- function(country, name, ser_typ_id, type="series"
     ifelse(type=="series","ser_id","sai_id"),
     ", gr_year, gr_id  ASC"))
   
+  #this ensure that we don't ask new data for time series that are inactive since more than 4 years
+  activeseries <- groups %>% 
+    filter(gr_year >= CY-inactivedeadline) %>%
+    dplyr::select(ser_nameshort) %>%
+    dplyr::pull() %>%
+    unique()
+  
   #read the existing data template to have the correct format
   formatted <-  read_excel(templatefile,"existing_group_metrics")
   if(type=="series"){
@@ -288,8 +315,9 @@ create_datacall_file_series <- function(country, name, ser_typ_id, type="series"
   existing_metric <- groups %>%
     left_join(metrics) %>%
     tidyr::pivot_wider(names_from=mty_name,
-                       values_from=meg_value) 
-  if (nrow(existing_metric)> 0){
+                       values_from=meg_value) %>%
+    dplyr::filter(ser_nameshort %in% activeseries)     #this ensure that we don't ask new data for time series that are inactive since more than 4 years
+  if (nrow(existing_metric)> 0){ #not possible to prefill for non series data
     existing_metric <- applyTemplateFormat(formatted, existing_metric) %>%
       arrange(!!sym(ifelse(type=="series","ser_nameshort","sai_name")),gr_year,gr_id)
     
@@ -298,7 +326,7 @@ create_datacall_file_series <- function(country, name, ser_typ_id, type="series"
     existing_metric <- existing_metric[!is.na(existing_metric$gr_year),]
     
     #openxlsx::writeData(wb, sheet = "existing_biometry", biom, startRow = 1)
-    writeWorksheet(wb, existing_metric,  sheet = "existing_group_metrics")
+    writeData(wb, x=existing_metric,  sheet = "existing_group_metrics")
   } 
   
   
@@ -332,10 +360,10 @@ create_datacall_file_series <- function(country, name, ser_typ_id, type="series"
                                                                  "grser_ser_id","grsa_sai_id")))))) %>%
       dplyr::arrange(!!sym(ifelse(type=="series","ser_nameshort","sai_name")), gr_year)
     
-    if (nrow(newbiom)>0) {
+    if (nrow(newbiom)>0 && type=="series") {
       newbiom <- applyTemplateFormat(formatted, newbiom)
       #openxlsx::writeData(wb, sheet = "new_biometry", newbiom, startRow = 1)
-      writeWorksheet(wb, newbiom,  sheet = "new_group_metrics")	
+      writeData(wb, x=newbiom,  sheet = "new_group_metrics")	
     }
   }
   }
@@ -346,7 +374,7 @@ create_datacall_file_series <- function(country, name, ser_typ_id, type="series"
   fishes <- dbGetQuery(con,str_c(
     "select 
 	fi.* ",
-    ifelse(type=="series",", ser_nameshort","sai_name"),
+    ifelse(type=="series",", ser_nameshort",", sai_name"),
     " FROM ",
     ifelse(type=="series", "datawg.t_fishseries_fiser fi ", "datawg.t_fishsamp_fisa fi "),
     ifelse(type=="series"," LEFT JOIN datawg.t_series_ser ON ser_id = fiser_ser_id ",
@@ -357,6 +385,8 @@ create_datacall_file_series <- function(country, name, ser_typ_id, type="series"
     " ORDER BY ",
     ifelse(type=="series","ser_id", "sai_id"),
     ", fi_year, fi_id  ASC"))
+  
+  
   
   if (nrow(fishes)>0){
   
@@ -371,7 +401,7 @@ create_datacall_file_series <- function(country, name, ser_typ_id, type="series"
            "datawg.t_metricindsamp_meisa LEFT JOIN datawg.t_fishsamp_fisa on fi_id=mei_fi_id "),
     " LEFT JOIN ref.tr_metrictype_mty on mty_id=mei_mty_id",
     ifelse(type=="series"," LEFT JOIN datawg.t_series_ser ON ser_id = fiser_ser_id ",
-           " LEFT JOIN datawg.t_samplinginfo_sa ON sai_id = fiser_sai_id "),	" WHERE ",
+           " LEFT JOIN datawg.t_samplinginfo_sai ON sai_id = fisa_sai_id "),	" WHERE ",
     ifelse(type=="series",str_c("ser_typ_id=",ser_typ_id, "AND "), ""),
     ifelse(type=="series",str_c("ser_cou_code='",country,"'"),str_c("sai_cou_code='",country,"'")),
     " ORDER BY ",
@@ -380,6 +410,8 @@ create_datacall_file_series <- function(country, name, ser_typ_id, type="series"
     mutate(mty_name=ifelse(is.na(mty_individual_name),mty_name,mty_individual_name)) %>%
     select(-mty_individual_name)
   
+
+  
   #read the existing data template to have the correct format
   formatted <- read_excel(templatefile,"existing_individual_metrics")
 
@@ -387,53 +419,54 @@ create_datacall_file_series <- function(country, name, ser_typ_id, type="series"
     fishes %>%
     left_join(metrics) %>%
     tidyr::pivot_wider(names_from=mty_name,
-                       values_from=mei_val) 
+                       values_from=mei_value)
    
   if (nrow(existing_metric)> 0){	
-    existing_metric <- existing_metric[!is.na(existing_metric$fi_year),]
+    #existing_metric <- existing_metric[!is.na(existing_metric$fi_year),]
     
     existing_metric <- applyTemplateFormat(formatted, existing_metric) %>%
-      arrange(!!sym(ifelse(type=="series","ser_nameshort","fisa_sai_id")),fi_year,fi_id)
+      arrange(!!sym(ifelse(type=="series","ser_nameshort","sai_name")),fi_year,fi_id)
     
     
     #openxlsx::writeData(wb, sheet = "existing_biometry", biom, startRow = 1)
-    writeWorksheet(wb, biom,  sheet = "existing_individual_metrics")
+    writeData(wb, x=existing_metric,  sheet = "existing_individual_metrics")
   } 
   
   
   # individual biometry data new data ------------------------------------------
+  #this is almost impossible to predict which row will be filled so we keep it empty
   
-  
-  if (nrow(existing_metric) >0 ){
-    #read the existing data template to have the correct format
-    formatted <- read_excel(templatefile,"new_individual_metrics")
-    
-    newbiom <- existing_metric %>% 
-      dplyr::mutate_at(.vars="fi_year",tidyr::replace_na,replace=CY-1) %>%
-      dplyr::filter(fi_year>=(CY-10)) %>%
-      tidyr::complete(!!sym(ifelse(type=="series","ser_nameshort","fisa_sai_id")),fi_year=(CY-10):CY) 
-    newbiom <- newbiom %>%
-      dplyr::filter(0==rowSums(!is.na(. %>% select(-fi_id,-!!sym(ifelse(type=="series","ser_nameshort","fi_sai_id")),-fi_year,-fi_dts_datasource,-!!sym(ifelse(type=="series","fiser_ser_id","fisa_sai_id")))))) %>%
-      dplyr::arrange(!!sym(ifelse(type=="series","ser_nameshort","fisa_sai_id")), fi_year)
-    newbiom <- applyTemplateFormat(formatted, newbiom)
-    
-    if (nrow(newbiom)>0) {
-      #openxlsx::writeData(wb, sheet = "new_biometry", newbiom, startRow = 1)
-      writeWorksheet(wb, newbiom,  sheet = "new_individual_metrics")	
-    }
-  }
+  # 
+  # if (nrow(existing_metric) >0 ){
+  #   #read the existing data template to have the correct format
+  #   formatted <- read_excel(templatefile,"new_individual_metrics")
+  #   
+  #   newbiom <- existing_metric %>% 
+  #     dplyr::mutate_at(.vars="fi_year",tidyr::replace_na,replace=CY-1) %>%
+  #     dplyr::filter(fi_year>=(CY-10)) %>%
+  #     tidyr::complete(!!sym(ifelse(type=="series","ser_nameshort","fisa_sai_id")),fi_year=(CY-10):CY) 
+  #   newbiom <- newbiom %>%
+  #     dplyr::filter(0==rowSums(!is.na(. %>% select(-fi_id,-!!sym(ifelse(type=="series","ser_nameshort","fi_sai_id")),-fi_year,-fi_dts_datasource,-!!sym(ifelse(type=="series","fiser_ser_id","fisa_sai_id")))))) %>%
+  #     dplyr::arrange(!!sym(ifelse(type=="series","ser_nameshort","fisa_sai_id")), fi_year)
+  #   newbiom <- applyTemplateFormat(formatted, newbiom)
+  #   
+  #   if (nrow(newbiom)>0) {
+  #     #openxlsx::writeData(wb, sheet = "new_biometry", newbiom, startRow = 1)
+  #     writeWorksheet(wb, newbiom,  sheet = "new_individual_metrics")	
+  #   }
+  #}
   }
   
   # maps ---------------------------------------------------------------
   #st_crs(ccm) 
   if (type=="series") {
-    if (nrow(t_series_ser)>0){
+    if (nrow(t_series_ser)>0 && nrow(t_series_ser)<20){
       for (i in 1:nrow(t_series_ser)){
         #turn a pgsql array into an R vector for ccm_wso_id
         pols_id=eval(parse(text=paste("c(",gsub(pattern="\\{|\\}",replacement='',t_series_ser$ser_ccm_wso_id[i]),")")))
         # NOT USED IN openxlsx
         #createNamedRegion(wb, sheet= "station_map", name = paste("station_map_",i,sep=""), cols=2,rows=(i-1)*40+2)
-        createName(wb, name = paste("station_map_",i,sep=""), formula = paste("station_map!$B$",(i-1)*40+2,sep=""), overwrite=TRUE)
+        #createName(wb, name = paste("station_map_",i,sep=""), formula = paste("station_map!$B$",(i-1)*40+2,sep=""), overwrite=TRUE)
         pol=subset(ccm,ccm$wso_id %in% pols_id)
         st_crs(pol) <- 4326 
         if (nrow(pol)>0){
@@ -462,7 +495,7 @@ create_datacall_file_series <- function(country, name, ser_typ_id, type="series"
         } else {
           g=ggplot()+ggtitle(t_series_ser$ser_nameshort[i])
         }
-        ggsave(paste(tempdir(),"/",t_series_ser$ser_nameshort[i],".png",sep=""),g,width=20/2.54,height=16/2.54,units="in",dpi=150)
+        ggsave(paste(tempdir(),"/",t_series_ser$ser_nameshort[i],".png",sep=""),g,width=12/2.54,height=12/2.54,units="in",dpi=150)
         # OPENXLSX
         #			insertImage(wb, 
         #					sheet= "station_map", 
@@ -470,12 +503,19 @@ create_datacall_file_series <- function(country, name, ser_typ_id, type="series"
         #					file=paste(tempdir(),"/",t_series_ser$ser_nameshort[i],".png",sep="")
         #					)
         
-        addImage(wb,paste(tempdir(),"/",t_series_ser$ser_nameshort[i],".png",sep=""),name=paste("station_map_",i,sep=""),originalSize=TRUE)
+        insertImage(wb,file=paste(tempdir(),"/",t_series_ser$ser_nameshort[i],".png",sep=""),
+                    sheet="station_map",
+                    startCol=2,
+                    startRow=(i-1)*40+2,
+                    height=12/2.54,
+                    width=12/2.54,
+                    dpi=150,
+                    units="in")
       }
     }
   }
   #saveWorkbook(wb, file = destinationfile, overwrite = TRUE)
-  saveWorkbook(wb, file = destinationfile)
+  openxlsx::saveWorkbook(wb, file = destinationfile,overwrite=TRUE)
   cat("work finished\n")
 }
 
@@ -489,7 +529,7 @@ for (country in country_code){
   gc()
   cat("country: ",country,"\n")
   create_datacall_file_series(country, 
-                              name="Eel_Data_Call_2022_Annex_Time_Series", 
+                              name="Eel_Data_Call_Annex_Time_Series", 
                               ser_typ_id=1)
 }
 
@@ -502,7 +542,7 @@ for (country in country_code ){
   gc()
   cat("country: ",country,"\n")
   create_datacall_file_series(country, 
-                              name="Eel_Data_Call_2022_Annex_Time_Series", 
+                              name="Eel_Data_Call_Annex_Time_Series", 
                               ser_typ_id=2)
 }
 
@@ -514,7 +554,7 @@ for (country in country_code ){
   gc()
   cat("country: ",country,"\n")
   create_datacall_file_series(country, 
-                              name="Eel_Data_Call_2022_Annex_Time_Series", 
+                              name="Eel_Data_Call_Annex_Time_Series", 
                               ser_typ_id=3)
 }
 
@@ -528,7 +568,7 @@ for (country in dirs ){
   gc()
   cat("country: ",country,"\n")
   create_datacall_file_series(country, 
-                              name="Eel_data_Call_2022_Annex9_Other_Sampling_Data", 
+                              name="Eel_Data_Call_Annex10_Other_Sampling_Data", 
                               ser_typ_id=0,
                               type="other")
 }

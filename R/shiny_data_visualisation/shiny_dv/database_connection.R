@@ -22,43 +22,22 @@ load_library("getPass")
 #}
 #-------------------------------
 
+if (!exists("cred")){
+cred=read_yaml("../../../credentials.yml")
+}
+host=cred$host
+port=cred$port
+user=cred$user
+dbname=cred$dbname
+password=cred$password
+if (is.null(password)) password=getPass("pass for wgeel")
 
-port <- 5435
-host <- "localhost"#"192.168.0.100"
-
-library(getPass)
-
-if(exists("cred")){
-  user = cred$user
-  host=cred$host
-  port=cred$port
-  dbname=cred$dbbame
   options(sqldf.RPostgreSQL.user = user,  
-          sqldf.RPostgreSQL.password = pwd,
-          sqldf.RPostgreSQL.dbname = "wgeel",
+          sqldf.RPostgreSQL.password = password,
+          sqldf.RPostgreSQL.dbname = dbname,
           sqldf.RPostgreSQL.host = host, #getInformation("PostgreSQL host: if local ==> localhost"), 
           sqldf.RPostgreSQL.port = port)
-} else if (exists("userwgeel")) 
-{ #Cedric's special configuration
-	user <-userwgeel
-	if (!exists("passwordwgeel")) stop("There should be a passwordwgeel")
-	pwd <- passwordwgeel
-	options(sqldf.RPostgreSQL.user = user,  
-			sqldf.RPostgreSQL.password = pwd,
-			sqldf.RPostgreSQL.dbname = "wgeel",
-			sqldf.RPostgreSQL.host = host, #getInformation("PostgreSQL host: if local ==> localhost"), 
-			sqldf.RPostgreSQL.port = port)
-} else {
-	user<-getPass("Enter the USER: ")
-	pwd<-getPass()
-	host<- getPass("host")
-	port <- 5432
-	options(sqldf.RPostgreSQL.user = user,  
-			sqldf.RPostgreSQL.password = pwd,
-			sqldf.RPostgreSQL.dbname = "wgeel",
-			sqldf.RPostgreSQL.host = host, #getInformation("PostgreSQL host: if local ==> localhost"), 
-			sqldf.RPostgreSQL.port = port)
-}
+
 
 # options for PostgresSQL
 

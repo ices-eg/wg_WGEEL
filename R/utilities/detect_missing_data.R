@@ -1,4 +1,6 @@
 load_library("tidyr")
+load_library("sqldf")
+
 #passwordwgeel <- getPass()
 
 
@@ -8,6 +10,7 @@ detect_missing_data <- function(cou="FR",
 		host="localhost",
 		dbname="wgeel",
 		user="wgeel",
+		passwordwgeel=passwordwgeel,
 		port=5435,
 		datasource="dc_2020") {
   #browser()
@@ -19,7 +22,7 @@ detect_missing_data <- function(cou="FR",
   emus <- unique(dbGetQuery(con_wgeel,paste("select emu_nameshort eel_emu_nameshort,emu_cou_code
  eel_cou_code, emu_wholecountry  from ref.tr_emu_emu
                                           where emu_cou_code in ('",paste(cou,collapse="','",sep=""),"')",sep="")))
-  complete <- dbGetQuery(con_wgeel,paste(paste("select eel_typ_id,eel_hty_code,eel_year,eel_emu_nameshort,eel_lfs_code,eel_cou_code,eel_value,eel_missvaluequal,max(eel_area_division) eel_area_division from datawg.t_eelstock_eel where eel_qal_id in (0,1,2,4) and eel_year>=",minyear," and eel_year<=",maxyear," and eel_typ_id in (4,6,7) and eel_cou_code='",cou,"'
+  complete <- dbGetQuery(con_wgeel,paste(paste("select eel_typ_id,eel_hty_code,eel_year,eel_emu_nameshort,eel_lfs_code,eel_cou_code,eel_value,eel_missvaluequal,max(eel_area_division) eel_area_division from datawg.t_eelstock_eel where eel_qal_id in (0,1,2,4) and eel_year>=",minyear," and eel_year<=",maxyear," and eel_typ_id in (4,6) and eel_cou_code='",cou,"'
                                                group by eel_typ_id,eel_hty_code,eel_year,eel_emu_nameshort,eel_lfs_code,eel_cou_code,eel_value,eel_missvaluequal",sep="")))
   used_emus=unique(complete$eel_emu_nameshort)
   

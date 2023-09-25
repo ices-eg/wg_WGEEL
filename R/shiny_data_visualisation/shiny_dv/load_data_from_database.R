@@ -2,11 +2,11 @@
 # Date : 21/03/2019
 # Author: cedric.briand
 ###############################################################################
-#setwd("C:/workspace\\gitwgeel\\R\\shiny_data_visualisation\\shiny_dv\\")
+# setwd("C:/workspace\\wg_WGEEL\\R\\shiny_data_visualisation\\shiny_dv\\")
 # lauch(global.R)
 # set connexion to 5435 in database_connexion
 
-
+avoid_loading_ref_and_spatial_data <- TRUE # switch to FALSE if you want reload reference, loading EMU and country wih spatial data can take a lot of time
 source("load_library.R")
 load_library("yaml")
 load_library("RPostgreSQL")
@@ -22,22 +22,40 @@ source("database_reference.R")
 source("database_data.R")
 source("database_precodata.R")
 
-
-habitat_ref <- extract_ref(table_caption="Habitat type")
-lfs_code_base <- extract_ref("Life stage")
+if (avoid_loading_ref_and_spatial_data){
+	load("data/ref_and_eel_data.Rdata")
+	# remove everything that will be loaded next and that does not contain any spatial data
+	rm( precodata_all, 
+			precodata,    
+			precodata_emu, 
+			precodata_country,
+			release, 
+			aquaculture,
+			other_landings,
+			landings,
+			ys_stations, 
+			wger_ys,
+			wger_init_ys,
+			statseries_ys,
+			biometry_group_data_sampling_long,
+			biometry_group_data_series_long)
+} else { 
+	habitat_ref <- extract_ref(table_caption="Habitat type")
+	lfs_code_base <- extract_ref("Life stage")
 #lfs_code_base <- lfs_code_base[!lfs_code_base$lfs_code %in% c("OG","QG"),]
-country_ref <- extract_ref("Country")
-country_ref <- country_ref[order(country_ref$cou_order), ]
-country_ref$cou_code <- factor(country_ref$cou_code, levels = country_ref$cou_code[order(country_ref$cou_order)], ordered = TRUE)
-
-##have an order for the emu
-emu_ref <- extract_ref("EMU")
-summary(emu_ref)
-emu_cou<-merge(emu_ref,country_ref,by.x="emu_cou_code",by.y="cou_code")
-emu_cou<-emu_cou[order(emu_cou$cou_order,emu_cou$emu_nameshort),]
-emu_cou<-data.frame(emu_cou,emu_order=1:nrow(emu_cou))
+	
+	country_ref <- extract_ref("Country")
+	country_ref <- country_ref[order(country_ref$cou_order), ]
+	country_ref$cou_code <- factor(country_ref$cou_code, levels = country_ref$cou_code[order(country_ref$cou_order)], ordered = TRUE)
+	
+	##have an order for the emu
+	emu_ref <- extract_ref("EMU")
+	summary(emu_ref)
+	emu_cou<-merge(emu_ref,country_ref,by.x="emu_cou_code",by.y="cou_code")
+	emu_cou<-emu_cou[order(emu_cou$cou_order,emu_cou$emu_nameshort),]
+	emu_cou<-data.frame(emu_cou,emu_order=1:nrow(emu_cou))
 # Extract data from the database -------------------------------------------------------------------
-
+}
 landings = extract_data("landings",quality =c(1,2,4),quality_check=TRUE)
 # ONLY FOR AQUACULTURE WE HAVE A DATA PROTECTION LAW RESTRICTING THE ACCESS
 aquaculture = extract_data("aquaculture",quality=c(1,2,4),quality_check=TRUE)
@@ -72,20 +90,11 @@ wger_ys = sqldf('
 				das_id,
 				das_value,       
 				das_year,
-				das_comment,
-				/* 
-				-- below those are data on effort, not used yet
-				
+				das_comment,				
 				das_effort, 
 				ser_effort_uni_code,       
 				das_last_update,
-				*/
-				/* 
-				-- this is the id on quality, not used yet but plans to use later
-				-- to remove the data with problems on quality from the series
-				-- see WKEELDATA (2017)
 				das_qal_id,
-				*/ 
 				ser_id,            
 				ser_nameshort,
 				ser_area_division,
@@ -104,20 +113,11 @@ wger_init_ys = sqldf('
 				das_id AS id,
 				das_value AS value,       
 				das_year AS year,
-				das_comment,
-				/* 
-				-- below those are data on effort, not used yet
-				
+				das_comment,				
 				das_effort, 
 				ser_effort_uni_code,       
-				das_last_update,
-				*/
-				/* 
-				-- this is the id on quality, used from 2018
-				-- to remove the data with problems on quality from the series
-				-- see WKEEKDATA (2018)
+				das_last_update,				
 				das_qal_id,
-				*/ 
 				ser_id,            
 				ser_nameshort AS site,
 				ser_area_division AS area_division,
@@ -162,7 +162,7 @@ dbDisconnect(con_wgeel)
 
 biometry_group_data_series_long <- biometry_group_data_series %>% 
 		select(-geom, -mty_id, -mty_min, -mty_max)  %>% 
-pivot_wider(names_from = mty_name, values_from = meg_value)
+		pivot_wider(names_from = mty_name, values_from = meg_value)
 
 biometry_group_data_sampling_long <- biometry_group_data_sampling %>% 
 		select( -mty_id, -mty_min, -mty_max)  %>% 

@@ -1,7 +1,7 @@
 ---
 title: "Untitled"
 author: "ICES Data Group"
-date: "14/09/2020"
+date: "`r format(Sys.time(), '%Y %B %d')`"
 bibliography: biometry.bib
 csl: "../Rmarkdown/ices-journal-of-marine-science.csl"
 output: 
@@ -9,12 +9,16 @@ output:
     fig_caption: yes
     number_sections: yes
     reference_docx: "../Rmarkdown/ICES_template.docx"
+params:
+  load_data: FALSE
 ---
 
 ```{r setup, include=FALSE}
 source("../utilities/load_library.R")
+source("../utilities/get_background_map.R")
 
 knitr::opts_chunk$set(echo = TRUE,warning=FALSE,message=FALSE,error=FALSE,fig.width=14.9/2.54,dpi=150)
+
 load_library("readxl")
 load_library("sf")
 load_library("rnaturalearth")
@@ -34,66 +38,68 @@ if(Sys.info()["user"]=="hilaire.drouineau"){
   allometry=read_excel("~/Bureau/slopesintercepts.xlsx")
   setwd("~/Documents/Bordeaux/migrateurs/WGEEL/github/wg_WGEEL/R/biometry_analysis/")
 }
+
 colorpalette=cbf_1 <- c("#999999", "#E69F00", "#56B4E9", "#009E73", 
            "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 
-cred=read_yaml("../../credentials.yml")
-con_wgeel = dbConnect(Postgres(), dbname=cred$dbname,host=cred$host,port=cred$port,user=cred$user, password=getPass())
+if(params$load_data)
+	   {
+	cred=read_yaml("../../credentials.yml")
+	con_wgeel = dbConnect(Postgres(), dbname=cred$dbname,host=cred$host,port=cred$port,user=cred$user, password=cred$password)
+	
+	
+	biometry_group_data_series=dbGetQuery(con_wgeel,"with sel as(SELECT d.*, t_group.*, mty_name FROM datawg.t_metricgroupseries_megser d, datawg.t_groupseries_grser t_group, ref.tr_metrictype_mty WHERE mty_id=meg_mty_id AND meg_gr_id = gr_id AND (meg_qal_id IS NULL OR meg_qal_id IN (1,2,4))) select sel.*, ser_nameshort, ser_x,ser_y,ser_emu_nameshort, ser_hty_code,ser_lfs_code from sel, datawg.t_series_ser where ser_id=grser_ser_id")
+	
+	biometry_group_data_sampling=dbGetQuery(con_wgeel,"with sel as(SELECT d.*, t_group.*, mty_name FROM datawg.t_metricgroupsamp_megsa d, datawg.t_groupsamp_grsa t_group, ref.tr_metrictype_mty WHERE mty_id=meg_mty_id AND meg_gr_id = gr_id AND (meg_qal_id IS NULL OR meg_qal_id IN (1,2,4))) 
+	select * from sel, datawg.t_samplinginfo_sai where sai_id=grsa_sai_id")
+	
+	
+	total_group = biometry_group_data_series %>% 
+		select(ser_id = grser_ser_id, year = gr_year,  gr_id, number = gr_number, comment = gr_comment, quality = meg_qal_id, mty_name, meg_value,ser_nameshort, ser_x,ser_y,ser_emu_nameshort, ser_hty_code,ser_lfs_code) %>%
+		pivot_wider(names_from = mty_name, values_from = meg_value)
+	
+	total_group$ser_lfs_code=factor(as.character(total_group$ser_lfs_code),levels=c("G","GY","Y","S"))
+	
+	gibraltar = st_transform(st_sfc(st_point(c(-5.605465,36.008260)), crs=4326),3035)
+	data2 = st_transform(st_as_sf(total_group,coords=c("ser_x","ser_y"),crs=4326),3035)
+	total_group$distance = st_distance(data2, gibraltar, by_element=TRUE)/1000
+	rm(data2, gibraltar)
+	
+	dbDisconnect(con_wgeel)
+#save(total_group, biometry_group_data_series, biometry_group_data_series, file = "group_biom.RData")
+} else {
+	load("group_biom.RData")
+	warnings("The data was loaded with a RData file, please turn params `load_data` to TRUE if you want uptodate data")
+}
 
-
-biometry_group_data_series=dbGetQuery(con_wgeel,"with sel as(SELECT d.*, t_group.*, mty_name FROM datawg.t_metricgroupseries_megser d, datawg.t_groupseries_grser t_group, ref.tr_metrictype_mty WHERE mty_id=meg_mty_id AND meg_gr_id = gr_id) select sel.*, ser_nameshort, ser_x,ser_y,ser_emu_nameshort, ser_hty_code,ser_lfs_code from sel, datawg.t_series_ser where ser_id=grser_ser_id")
-
-biometry_group_data_sampling=dbGetQuery(con_wgeel,"with sel as(SELECT d.*, t_group.*, mty_name FROM datawg.t_metricgroupsamp_megsa d, datawg.t_groupsamp_grsa t_group, ref.tr_metrictype_mty WHERE mty_id=meg_mty_id AND meg_gr_id = gr_id) 
-select * from sel, datawg.t_samplinginfo_sai where sai_id=grsa_sai_id")
-
-
-data = biometry_group_data_series %>% 
-	select(ser_id = grser_ser_id, year = gr_year,  gr_id, number = gr_number, comment = gr_comment, quality = meg_qal_id, mty_name, meg_value,ser_nameshort, ser_x,ser_y,ser_emu_nameshort, ser_hty_code,ser_lfs_code) %>%
-	pivot_wider(names_from = mty_name, values_from = meg_value)
-
-data$ser_lfs_code=factor(as.character(data$ser_lfs_code),levels=c("G","GY","Y","S"))
-
-gibraltar=st_transform(st_sfc(st_point(c(-5.605465,36.008260)),crs=4326),3035)
-data2=st_transform(st_as_sf(data,coords=c("ser_x","ser_y"),crs=4326),3035)
-data$distance=st_distance(data2,gibraltar,by_element=TRUE)/1000
-
-
- worldmap <- ne_countries(scale = 'medium', type = 'map_units',
-                          returnclass = 'sf')
- europe_cropped <- st_crop(worldmap, xmin = -13, xmax = 27,
-                                     ymin = 35, ymax = 65)
- my_map=get_stamenmap(bbox = c(left = -13, bottom = 35, right =
-  27, top = 65), zoom = 6, maptype = c("watercolor"))
-
- dbDisconnect(con_wgeel)
+ my_map = get_background_map(transparent = TRUE)
 
 ```
 
-# Raw data 
+# Raw total_group 
 ```{r rawdata, include=TRUE}
-data$ser_lfs_code=factor(as.character(data$ser_lfs_code),levels=c("G","GY","Y","S"))
+total_group$ser_lfs_code=factor(as.character(total_group$ser_lfs_code),levels=c("G","GY","Y","S"))
 
-ggplot(data,aes(x=bio_length,y=bio_weight))+geom_point()+
+ggplot(total_group,aes(x=bio_length,y=bio_weight))+geom_point()+
   facet_wrap(.~ser_lfs_code,scale="free")+
   theme_bw()+ggtitle("mixed")+xlab("Length (mm)")+ylab("Weight (g)")
-ggplot(data,aes(x=bio_length_m,y=bio_weight_m))+geom_point()+
+ggplot(total_group,aes(x=bio_length_m,y=bio_weight_m))+geom_point()+
   facet_wrap(.~ser_lfs_code,scale="free")+
   theme_bw()+ggtitle("male")+xlab("Length (mm)")+ylab("Weight (g)")
-ggplot(data,aes(x=bio_length_f,y=bio_weight_f))+geom_point()+
+ggplot(total_group,aes(x=bio_length_f,y=bio_weight_f))+geom_point()+
   facet_wrap(.~ser_lfs_code,scale="free")+
   theme_bw()+ggtitle("female")+xlab("Length (mm)")+ylab("Weight (g)")
 
-ser=data$bis_ser_id[which(data$bio_length>1250)]
+ser=total_group$bis_ser_id[which(total_group$bio_length>1250)]
 
-data <- data %>%
+total_group <- total_group %>%
   filter(bis_ser_id!=ser)
-
 
 ```
 The point for silver eel greater than 1250 mm appear as an outlier and is excluded from the analysis. Weights should be checked.
 
 ```{r rawdatatable, include=TRUE}
-stats_data= data %>% group_by(ser_emu_nameshort,ser_hty_code,ser_lfs_code) %>%
+stats_data= total_group %>% group_by(ser_emu_nameshort,ser_hty_code,ser_lfs_code) %>%
   summarize(series=paste(unique(ser_nameshort),collapse=", "),
             n_bio_length=(sum(!is.na(bio_length))),
             n_bio_weight=(sum(!is.na(bio_weight))),
@@ -109,7 +115,7 @@ autofit(flextable(stats_data))
 
 
 
-mean_biom_hty_emu <- data %>%
+mean_biom_hty_emu <- total_group %>%
   group_by(ser_emu_nameshort,ser_hty_code,ser_lfs_code) %>%
   summarize(bio_length=mean(bio_length,na.rm=TRUE),
             ser_x=mean(ser_x),
@@ -124,7 +130,7 @@ mean_biom_hty_emu <- data %>%
             bio_age_f=mean(bio_age_f,na.rm=TRUE),
             bio_age_m=mean(bio_age_m,na.rm=TRUE),
             distance=mean(distance))
-mean_biom_hty_emuyear <- data %>%
+mean_biom_hty_emuyear <- total_group %>%
   group_by(ser_emu_nameshort,ser_hty_code,ser_lfs_code, bio_year) %>%
   summarize(bio_length=mean(bio_length,na.rm=TRUE),
             ser_x=mean(ser_x),
@@ -161,7 +167,7 @@ mean_biom_hty_emuY=mean_biom_hty_emu %>%
 
 ```
 
-For the spatial analysis, we only considered ser_hty_code x EMU x lfs_code where at leat 5 data points were available (they may come from different time series or years).
+For the spatial analysis, we only considered ser_hty_code x EMU x lfs_code where at leat 5 total_group points were available (they may come from different time series or years).
 
 # Maps
 As an exploratory analysis, we computed average biometry (length, weight, sex-ratio) per stage, habitat type and sex (when available). All years and time series are pooled together. To explore the existance of spatial pattern, we carried out Mann Kendall tests to detect correlations between the considered traits and spatial positions of the biometry measurements. Here, spatial positions are characterised by 
@@ -179,11 +185,11 @@ autofit(flextable(stats_data %>%
           filter(rowSums(select(.,starts_with("n_")))>0)))
 ```
 
-The length of monitored standing stock yeelow eel appear to increase with the distance to Gibraltar. This is confirmed by the Kendall correlation test (tau=`r round(Kendall(mean_biom_hty_emuY$bio_length,mean_biom_hty_emuY$distance)$tau[1],digits=2)`, p.value=`r Kendall(mean_biom_hty_emuY$bio_length,mean_biom_hty_emuY$distance)$sl[1]`. There are not enougth time sex disaggregated data to detect sex-specific length-pattern.
+The length of monitored standing stock yeelow eel appear to increase with the distance to Gibraltar. This is confirmed by the Kendall correlation test (tau=`r round(Kendall(mean_biom_hty_emuY$bio_length,mean_biom_hty_emuY$distance)$tau[1],digits=2)`, p.value=`r Kendall(mean_biom_hty_emuY$bio_length,mean_biom_hty_emuY$distance)$sl[1]`. There are not enougth time sex disaggregated total_group to detect sex-specific length-pattern.
 
 ```{r functions,echo=FALSE}
 plot_map_bio_emu = function(var,stage,sex=NULL){
-  data=mean_biom_hty_emu %>%
+  total_group=mean_biom_hty_emu %>%
     filter(ser_lfs_code==stage)
 
   var_name=switch (var,
@@ -206,12 +212,12 @@ plot_map_bio_emu = function(var,stage,sex=NULL){
                ylab,
                sep=" ")
   }
-  data <- data %>%
+  total_group <- total_group %>%
     filter(!(is.na(!!as.symbol(var_name)))) %>%
     filter(!!as.symbol(paste("n_",var_name,sep=""))>=5)
   
   ggmap(my_map) + 
-    geom_point(data=data,
+    geom_point(total_group=total_group,
                aes_string(x="ser_x",y="ser_y",fill=var_name,
                           shape="ser_hty_code"),col="black")+
     scale_fill_viridis_c(ylab)+
@@ -242,7 +248,7 @@ autofit(flextable(stats_data %>%
 ```
 
 
-Similarly to length, a pattern is visible for weight of monitored standing stock yeelow eel. This is confirmed by the Kendall correlation test (tau=`r round(Kendall(mean_biom_hty_emuY$bio_weight,mean_biom_hty_emuY$distance)$tau[1],digits=2)`, p.value=`r Kendall(mean_biom_hty_emuY$bio_weight,mean_biom_hty_emuY$distance)$sl[1]`. There are not enougth time sex disaggregated data to detect sex-specific length-pattern.
+Similarly to length, a pattern is visible for weight of monitored standing stock yeelow eel. This is confirmed by the Kendall correlation test (tau=`r round(Kendall(mean_biom_hty_emuY$bio_weight,mean_biom_hty_emuY$distance)$tau[1],digits=2)`, p.value=`r Kendall(mean_biom_hty_emuY$bio_weight,mean_biom_hty_emuY$distance)$sl[1]`. There are not enougth time sex disaggregated total_group to detect sex-specific length-pattern.
 
 ```{r yellowweighthmap,echo=TRUE}
 
@@ -263,7 +269,7 @@ autofit(flextable(stats_data %>%
                     ungroup() %>%
           filter(rowSums(select(.,starts_with("n_")))>0)))
 ```
-Too few data were correlected regarding sex to draw any conclusions regarding differences in sex-ratios among locations.
+Too few total_group were correlected regarding sex to draw any conclusions regarding differences in sex-ratios among locations.
 
 ```{r yellowsexratiomap,echo=TRUE}
 plot_map_bio_emu("sexratio","Y",sex=NULL)
@@ -279,7 +285,7 @@ autofit(flextable(stats_data %>%
                     ungroup() %>%
           filter(rowSums(select(.,starts_with("n_")))>0)))
 ```
-For silver eels, there is few available biometry data, therefore, so it is difficult to detect any spatial patterns.
+For silver eels, there is few available biometry total_group, therefore, so it is difficult to detect any spatial patterns.
 
 ### Length
 
@@ -294,7 +300,7 @@ plot_map_bio_emu("length","S",sex="f")
 ```
 
 
-The length of monitored silver eel appear to increase with the distance to Gibraltar. This is confirmed by the Kendall correlation test (tau=`r round(Kendall(mean_biom_hty_emuS$bio_length,mean_biom_hty_emuS$distance)$tau[1],digits=2)`, p.value=`r Kendall(mean_biom_hty_emuS$bio_length,mean_biom_hty_emuS$distance)$sl[1]`. There are not enougth time sex disaggregated data to detect sex-specific length-pattern.
+The length of monitored silver eel appear to increase with the distance to Gibraltar. This is confirmed by the Kendall correlation test (tau=`r round(Kendall(mean_biom_hty_emuS$bio_length,mean_biom_hty_emuS$distance)$tau[1],digits=2)`, p.value=`r Kendall(mean_biom_hty_emuS$bio_length,mean_biom_hty_emuS$distance)$sl[1]`. There are not enougth time sex disaggregated total_group to detect sex-specific length-pattern.
 
 
 ### Weight
@@ -340,7 +346,7 @@ Linear regression between logtransformed length and weights were carried out to 
 
 ```{r lengthweightmap,echo=TRUE}
 ggmap(my_map)+
-  geom_point(data=allometry,
+  geom_point(total_group=allometry,
              aes(shape=Stage,fill=slopes,x=Ser_x,y=Ser_y),col="black")+
   scale_fill_viridis_c("Slope")+
   scale_shape_manual("Stage",values=c(21,22,24))+
@@ -351,7 +357,7 @@ ggmap(my_map)+
 ```{r lengthweightmapperstage,echo=TRUE}
 allometry$Stage=factor(as.character(allometry$Stage),levels=c("GY","Y","S"))
 ggmap(my_map)+
-  geom_point(data=allometry,
+  geom_point(total_group=allometry,
              aes(col=slopes,x=Ser_x,y=Ser_y))+
   scale_color_viridis_c("Slope")+
   facet_wrap(.~Stage,nrow=2)+
@@ -359,9 +365,9 @@ ggmap(my_map)+
 
 for (s in c("GY","Y","S")){
   print(ggmap(my_map)+
-          geom_point(data=subset(allometry,Stage==s),
+          geom_point(total_group=subset(allometry,Stage==s),
              aes(col=slopes,x=Ser_x,y=Ser_y))+
-          geom_point(data=subset(allometry,Stage==s),
+          geom_point(total_group=subset(allometry,Stage==s),
              aes(x=Ser_x,y=Ser_y),pch=1)+
   scale_color_viridis_c("Slope")+
   theme_bw() + ggtitle(s))
@@ -372,7 +378,7 @@ for (s in c("GY","Y","S")){
 
 
 # Temporal trends
-In this section, we explore the existence of temporal trends in biometry. For that purpose, we computed average biometry per EMU, habitat and year. Then we carry out Mann Kendall trend tests to detect time series with significant monotonic trend. We only keep EMUxHTY that have data for at least 5 years.
+In this section, we explore the existence of temporal trends in biometry. For that purpose, we computed average biometry per EMU, habitat and year. Then we carry out Mann Kendall trend tests to detect time series with significant monotonic trend. We only keep EMUxHTY that have total_group for at least 5 years.
 
 ## Yellow Eel
 ```{r}
@@ -383,7 +389,7 @@ mean_biom_hty_emuyearY=mean_biom_hty_emuyear %>%
 
 ```{r functionstemporal,echo=FALSE}
 table_temporal_trend = function(var,stage,sex=NULL){
-  data=mean_biom_hty_emuyear %>%
+  total_group=mean_biom_hty_emuyear %>%
     filter(ser_lfs_code==stage)
 
   var_name=switch (var,
@@ -406,17 +412,17 @@ table_temporal_trend = function(var,stage,sex=NULL){
                ylab,
                sep=" ")
   }
-  data <- data %>%
+  total_group <- total_group %>%
     filter(!(is.na(!!as.symbol(var_name))))
   
-  kept = data %>%
+  kept = total_group %>%
     group_by(ser_emu_nameshort,ser_hty_code) %>%
     filter(!is.na(!!as.symbol(var_name))) %>%
     summarise(count=n()) %>%
     filter(count>=5)
   tmp=NA
   if(nrow(kept)>0){
-    tmp=inner_join(kept,data) %>%
+    tmp=inner_join(kept,total_group) %>%
     group_by(ser_emu_nameshort,ser_hty_code) %>%
     summarize(`first year`=min(bio_year),
               `last year`=max(bio_year),
@@ -430,7 +436,7 @@ table_temporal_trend = function(var,stage,sex=NULL){
 }
 
 plot_temporal_trend = function(var,stage,trends,sex=NULL){
-  data=mean_biom_hty_emuyear %>%
+  total_group=mean_biom_hty_emuyear %>%
     filter(ser_lfs_code==stage) %>%
     inner_join(trends)
     
@@ -455,11 +461,11 @@ plot_temporal_trend = function(var,stage,trends,sex=NULL){
                sep=" ")
   }
 
-  data <- data %>%
+  total_group <- total_group %>%
     filter(!is.na(!!as.symbol(var_name)))
   col_pal=rep(colorpalette,length.out=nrow(trends))
   ltypes=rep(c("solid","twodash","longdash","dotted","dashed"),length.out=(nrow(trends)))
-  ggplot(data,aes_string(x="bio_year",y=var_name))+
+  ggplot(total_group,aes_string(x="bio_year",y=var_name))+
     geom_line(aes(col=ser_emu_nameshort,lty=ser_emu_nameshort))+
     theme_bw()+xlab("")+ylab(ylab)+
     scale_color_manual("series",values=col_pal,guide=guide_legend(ncol=2))+
@@ -609,7 +615,7 @@ For glass eel, of mixed G and GY, we remain at the time series scale (i.e. we do
 
 ```{r functionglasseel,echo=FALSE}
 table_ge_trend = function(var){
-  data=data %>%
+  total_group=total_group %>%
     filter(ser_lfs_code %in% c("G","GY"))
 
   var_name=switch (var,
@@ -625,16 +631,16 @@ table_ge_trend = function(var){
   )
   
 
-  data <- data %>%
+  total_group <- total_group %>%
     filter(!(is.na(!!as.symbol(var_name))))
   
-  kept = data %>%
+  kept = total_group %>%
     group_by(ser_nameshort,ser_hty_code,ser_lfs_code) %>%
     filter(!is.na(bio_length)) %>%
     summarize(count=n()) %>%
     filter(count>=5)
   
-  inner_join(kept,data) %>%
+  inner_join(kept,total_group) %>%
     group_by(ser_nameshort,ser_hty_code,ser_lfs_code) %>%
       summarize(`first year`=min(bio_year),
                 `last year`=max(bio_year),
@@ -646,7 +652,7 @@ table_ge_trend = function(var){
 }
 
 plot_ge_trend = function(var,trends){
-  data=inner_join(data,kept)
+  total_group=inner_join(total_group,kept)
 
   var_name=switch (var,
     "length" = "bio_length",
@@ -659,7 +665,7 @@ plot_ge_trend = function(var,trends){
     "weight" = "Weight (g)",
   )
   
-  ggplot(data,aes_string(x="bio_year",y=var_name))+
+  ggplot(total_group,aes_string(x="bio_year",y=var_name))+
     geom_line(aes(col=ser_nameshort))+
     theme_bw()+xlab("")+ylab(ylab)+
     scale_color_manual("series",values=colorpalette)
