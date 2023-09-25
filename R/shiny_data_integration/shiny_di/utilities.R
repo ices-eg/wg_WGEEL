@@ -62,4 +62,26 @@ readxlTemplate <- function(path, sheet, dict=dictionary){
   data_xls
 }
 
+#' @title selectAllBut
+#' @description creates a query to select all columns except a list (useful
+#' to prevent downloading large geom columns)
+#' @param con the connection to the database
+#' @param table the table name
+#' @param schema the schema name
+#' @param excluded vector of column names to be excluded
+#' @return a sql query
+#' @importFrom glue::glue_sql
+#' 
+selectAllBut <- function(con, table, schema, excluded){
+  col_names <- dbGetQuery(con, 
+  glue_sql("SELECT column_name FROM information_schema.columns 
+  WHERE table_schema = {schema} AND table_name   = {table}",
+           .con=con))$column_name
+  col_names <- col_names[!col_names %in% excluded]
+  sql_request = glue_sql("SELECT {col_names*} FROM ref.{`table`}",.con=con)
+  sql_request
+}
+
+
+
 
