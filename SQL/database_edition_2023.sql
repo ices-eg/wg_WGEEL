@@ -740,14 +740,22 @@ WHERE ser_nameshort ='ShiMG';
 UPDATE datawg.t_series_ser
   SET (ser_qal_id, ser_qal_comment)=(1,'2023 series is now 10 years long')
   WHERE ser_id=172;	
+	
+	--- fix trigger ser_x and ser_y
+drop trigger update_geom on datawg.t_series_ser ;
 
-/*
-SELECT x.* FROM datawg.t_series_ser x
-WHERE ser_nameshort ='GiTCG';
-UPDATE datawg.t_series_ser
-  SET (ser_qal_id, ser_qal_comment)=(1,'2023 series is only 4 years long due to missing values ?')
-  WHERE ser_id=20; 
-*/
+
+create trigger update_geom before
+insert
+    or
+update
+    of ser_x,
+    ser_y on
+    datawg.t_series_ser for each row
+    when ((pg_trigger_depth() < 1)) execute function datawg.update_geom();
+   
+drop trigger update_coordinates on datawg.t_series_ser;
+
 
 -- Change view series stats to exclude missing values and 3
 
@@ -767,11 +775,14 @@ CREATE OR REPLACE VIEW datawg.series_stats AS
   GROUP BY ser_id, cou_order
   ORDER BY cou_order;
 
-ALTER TABLE datawg.series_stats
-  OWNER TO postgres;
- GRANT ALL ON TABLE datawg.series_stats TO wgeel;
+create trigger update_coordinates before
+update
+    of geom on
+    datawg.t_series_ser for each row
+    when ((pg_trigger_depth() < 1)) execute function datawg.update_coordinates();
  
- GRANT ALL ON TABLE datawg.series_stats TO wgeel_read; 
+	
+GRANT ALL ON TABLE datawg.series_stats TO wgeel_read; 
  ----------------------------------------------
 -- SERIES SUMMARY
 ----------------------------------------------
@@ -800,4 +811,3 @@ ALTER TABLE datawg.series_summary
   OWNER TO postgres;
  GRANT ALL ON TABLE datawg.series_summary TO wgeel; 	
  GRANT ALL ON TABLE datawg.series_summary TO wgeel_read;  
-
