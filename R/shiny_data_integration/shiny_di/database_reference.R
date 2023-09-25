@@ -28,11 +28,7 @@ extract_ref = function(table_caption, pool)
 	# get colum_names	
 	tab_name <- list_ref_table[list_ref_table$table_caption == table_caption, "table_dbname"]
 
-	col_names <- dbGetQuery(conn, paste0("SELECT * FROM information_schema.columns 
-	WHERE table_schema = 'ref' AND table_name   = '",
-	                                     tab_name, "';"))$column_name
-	col_names <- col_names[!col_names %in% c("geom", "geom_buffered")]
-	  sql_request = glue_sql("SELECT {col_names*} FROM ref.{`tab_name`}",tab_name=tab_name,col_names=col_names,.con=conn)
+	sql_request <- selectAllBut(conn,tab_name,"ref",c("geom", "geom_buffered"))
 	data_to_return = dbGetQuery(conn, sql_request)
 	
 	# deleting the geom column
