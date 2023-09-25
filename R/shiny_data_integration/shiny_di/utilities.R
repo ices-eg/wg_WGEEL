@@ -83,5 +83,27 @@ selectAllBut <- function(con, table, schema, excluded){
 }
 
 
+#' @title getAllBut
+#' @description returns a dataframe excluding some columns (useful
+#' to prevent downloading large geom columns)
+#' @param con the connection to the database
+#' @param query the query that creates the table
+#' @param excluded vector of column names to be excluded
+#' @return a sql query
+#' @importFrom glue::glue_sql
+#' 
+getAllBut <- function(con, query, excluded){
+  dbGetQuery(con, 
+             paste("create temporary table mytemp as ",
+                   query))
+  col_names=names(dbGetQuery(con,"select * from mytemp limit 0"))
+  col_names <- col_names[!col_names %in% excluded]
+  sql_request = glue_sql("SELECT {col_names*} FROM mytemp",.con=con)
+  res = dbGetQuery(con, sql_request)
+  dbGetQuery(con,paste("drop table mytemp"))
+  res
+}
+
+
 
 
