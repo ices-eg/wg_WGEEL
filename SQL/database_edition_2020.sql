@@ -263,7 +263,8 @@ CREATE OR REPLACE VIEW datawg.series_stats AS
  SELECT ser_id, 
  ser_nameshort AS site,
  ser_namelong AS namelong,
- min(das_year) AS min, max(das_year) AS max, 
+ min(das_year) AS min,
+ max(das_year) AS max, 
  max(das_year) - min(das_year) + 1 AS duration,
  max(das_year) - min(das_year) + 1 - count(*) AS missing
    FROM datawg.t_dataseries_das
@@ -306,7 +307,10 @@ CREATE OR REPLACE VIEW datawg.series_summary AS
 ALTER TABLE datawg.series_summary
   OWNER TO postgres;
  GRANT ALL ON TABLE datawg.series_summary TO wgeel;
-  
+
+ALTER TABLE datawg.series_summary
+  OWNER TO postgres;
+ GRANT ALL ON TABLE datawg.series_summary TO wgeel_read;  
 
 
 -- NOT LAUCHED YET ON SERVER
