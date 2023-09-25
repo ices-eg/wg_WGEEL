@@ -195,7 +195,7 @@ anguilla) stock, the fisheries on it and other anthropogenic impacts.}
 %*******Here put eval=FALSE if you plan to use Rdata *********************************
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-<<load_database, echo=FALSE, fig=FALSE, eval=FALSE, results=hide>>=
+<<load_database, echo=FALSE, fig=FALSE, eval=TRUE, results=hide>>=
 # In this chunk everything will be loaded. 
 # The data selection is made tranparently later in the chunk "select_series"
 # This chunks uses the RequeteODBC connection object from stacomirtools and sqldf
@@ -2653,7 +2653,7 @@ since then.
 \clearpage
 
 \section*{Annex}
-<<diagramme,echo=FALSE,eval=FALSE,results=hide>>=
+<<diagramme,echo=FALSE,eval=TRUE,results=hide>>=
 library(DiagrammeR)
 library(magrittr)
 library(DiagrammeRsvg)

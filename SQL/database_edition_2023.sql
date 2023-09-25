@@ -689,7 +689,7 @@ UPDATE datawg.t_series_ser
 SELECT x.* FROM datawg.t_series_ser x
 WHERE ser_nameshort ='EmsHG';
 UPDATE datawg.t_series_ser
-	SET ser_qal_id=1,ser_qal_comment='Cédric : 2023 this series is long enough to be included'
+	SET ser_qal_id=0,ser_qal_comment='Cédric : 2023 series only 9 years when removing wrong qal_id'
 	WHERE ser_id=169;
 	
 	
@@ -707,15 +707,24 @@ UPDATE datawg.t_series_ser
 SELECT x.* FROM datawg.t_series_ser x
 WHERE ser_nameshort ='WaSG'; 
 UPDATE datawg.t_series_ser
-	SET ser_qal_id=1,ser_qal_comment='2023 Cédric : this series is long enough to be included'
+	SET ser_qal_id=0,ser_qal_comment='2023 Cédric : this series more than 10 years but only 7 when accounting for missing values'
 	WHERE ser_id=162;
 
 SELECT x.* FROM datawg.t_series_ser x
 WHERE ser_nameshort ='WaSEY' ;	
 
 UPDATE datawg.t_series_ser
-	SET ser_qal_id=1,ser_qal_comment='2023 Cédric > 10 years'
+	SET ser_qal_id=0,ser_qal_comment='2023 Cédric < 10 years when removing wrong values'
 	WHERE ser_id=163;
+	
+	
+-- LangGY is only 9 years when considering correct values 
+	SELECT x.* FROM datawg.t_series_ser x
+WHERE ser_nameshort ='LangGY' ;  
+
+UPDATE datawg.t_series_ser
+  SET ser_qal_id=0,ser_qal_comment='2023 Cédric < 10 years when removing wrong values'
+  WHERE ser_id=161;
 	
 -- MondG 	
 	
@@ -724,7 +733,71 @@ WHERE ser_nameshort ='MondG';
 UPDATE datawg.t_series_ser
 	SET ser_qal_id=1
 	WHERE ser_id=191;
-	
-	
-	
+
+-- ShiLG EE is just 10 years
+SELECT x.* FROM datawg.t_series_ser x
+WHERE ser_nameshort ='ShiMG';
+UPDATE datawg.t_series_ser
+  SET (ser_qal_id, ser_qal_comment)=(1,'2023 series is now 10 years long')
+  WHERE ser_id=172;	
+
+/*
+SELECT x.* FROM datawg.t_series_ser x
+WHERE ser_nameshort ='GiTCG';
+UPDATE datawg.t_series_ser
+  SET (ser_qal_id, ser_qal_comment)=(1,'2023 series is only 4 years long due to missing values ?')
+  WHERE ser_id=20; 
+*/
+
+-- Change view series stats to exclude missing values and 3
+
+DROP VIEW IF EXISTS datawg.series_stats CASCADE;
+CREATE OR REPLACE VIEW datawg.series_stats AS 
+ SELECT ser_id, 
+ ser_nameshort AS site,
+ ser_namelong AS namelong,
+ min(das_year) AS min,
+ max(das_year) AS max, 
+ max(das_year) - min(das_year) + 1 AS duration,
+ max(das_year) - min(das_year) + 1 - count(*) AS missing
+   FROM datawg.t_dataseries_das
+   JOIN datawg.t_series_ser ON das_ser_id=ser_id
+   LEFT JOIN ref.tr_country_cou ON ser_cou_code=cou_code
+   WHERE das_qal_id IN (1,2,4)
+  GROUP BY ser_id, cou_order
+  ORDER BY cou_order;
+
+ALTER TABLE datawg.series_stats
+  OWNER TO postgres;
+ GRANT ALL ON TABLE datawg.series_stats TO wgeel;
+ 
+ GRANT ALL ON TABLE datawg.series_stats TO wgeel_read; 
+ ----------------------------------------------
+-- SERIES SUMMARY
+----------------------------------------------
+DROP VIEW IF EXISTS datawg.series_summary CASCADE;
+CREATE OR REPLACE VIEW datawg.series_summary AS 
+ SELECT ss.site AS site, 
+ ss.namelong, 
+ ss.min, 
+ ss.max, 
+ ss.duration,
+ ss.missing,
+ ser_lfs_code as life_stage,
+ sam_samplingtype as sampling_type,
+ ser_uni_code as unit,
+ ser_hty_code as habitat_type,
+ cou_order as order,
+ ser_typ_id,
+ ser_qal_id AS series_kept
+   FROM datawg.series_stats ss
+   JOIN datawg.t_series_ser ser ON ss.ser_id = ser.ser_id
+   LEFT JOIN ref.tr_samplingtype_sam on ser_sam_id=sam_id
+   LEFT JOIN REF.tr_country_cou ON cou_code=ser_cou_code
+  ORDER BY cou_order, ser_y;
+
+ALTER TABLE datawg.series_summary
+  OWNER TO postgres;
+ GRANT ALL ON TABLE datawg.series_summary TO wgeel; 	
+ GRANT ALL ON TABLE datawg.series_summary TO wgeel_read;  
 
