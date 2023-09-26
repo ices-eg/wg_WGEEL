@@ -680,8 +680,10 @@ UPDATE datawg.t_dataseries_das SET (das_qal_id, das_qal_comment)=
 SELECT x.* FROM datawg.t_series_ser x
 WHERE ser_nameshort ='HHKGY';
 
+UPDATE datawg.t_dataseries_das SET das_qal_id =0 WHERE das_ser_id = 158 AND das_year = 2022;
+SELECT * FROM datawg.t_dataseries_das WHERE das_ser_id = 158;
 UPDATE datawg.t_series_ser
-  SET ser_qal_id=1,ser_qal_comment='2023 : cédric length > 10 years'
+  SET ser_qal_id=3,ser_qal_comment='2023 : will always be > 4 years, series stopped'
   WHERE ser_id=158;
   
 -- EmsHG > 10 years 
@@ -740,7 +742,17 @@ WHERE ser_nameshort ='ShiMG';
 UPDATE datawg.t_series_ser
   SET (ser_qal_id, ser_qal_comment)=(1,'2023 series is now 10 years long')
   WHERE ser_id=172;	
-	
+
+-- Esti says that EMSBGY is to be put to 3
+
+SELECT x.* FROM datawg.t_series_ser x
+WHERE ser_nameshort ='EmsBGY';
+UPDATE datawg.t_series_ser
+  SET (ser_qal_id, ser_qal_comment)=(3,'There is a series downstream')
+  WHERE ser_id=170; 
+
+
+
 	--- fix trigger ser_x and ser_y
 drop trigger update_geom on datawg.t_series_ser ;
 
