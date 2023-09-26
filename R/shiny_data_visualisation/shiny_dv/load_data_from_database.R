@@ -19,7 +19,6 @@ load_library("tidyr")
 source("database_reference.R")
 source("database_data.R")
 source("database_precodata.R")
-browser()
 con_wgeel = dbConnect(RPostgres::Postgres(), dbname=cred$dbname,host=cred$host,port=cred$port,user=cred$user, password=passwordwgeel)
 if (avoid_loading_ref_and_spatial_data){
 	load("data/ref_and_eel_data.Rdata")
