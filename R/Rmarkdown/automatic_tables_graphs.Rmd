@@ -1,7 +1,7 @@
 ---
 title: "Trend in fisheries"
 author: "WGEEL"
-date: "13 September 2022"
+date: "25 september 2023"
 output: 
   rmarkdown::html_document:
      keep_md: yes
@@ -87,6 +87,7 @@ source("../utilities/load_library.R")
 #-----------------
 # other libraries
 #-----------------
+load_package("hues")
 load_package("readxl")
 load_package("stringr")
 load_package("reshape2")
