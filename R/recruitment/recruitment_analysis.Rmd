@@ -1115,19 +1115,19 @@ autofit(flextable(data = printstatseriesY)%>%
 ```
 
 
-```{r xseriesprob, echo=FALSE, warning = FALSE, message = FALSE, error=FALSE,echo=FALSE, tab.cap=str_c("Table \\@ref(tab:xseriesprob) continued. Data in " ,CY, " and ", CY-1, "having problems causing the data in the specific year to be excluded from the analysis. Codes for stages are G = glass eel, GY = glass eel + yellow eel, Y = yellow eel, Division = FAO marine division. Kept: 0 = missing, 1 = good quality, 							2 = wgeel has modified the data, 3 = not used due to poor quality, 4 =	data is used, but there are warnings on its quality")}
+```{r xseriesprob, echo=FALSE, warning = FALSE, message = FALSE, error=FALSE,echo=FALSE, tab.cap=str_c("Data in " ,CY, " and ", CY-1, "having problems causing the data in the specific year to be excluded from the analysis. Codes for stages are G = glass eel, GY = glass eel + yellow eel, Y = yellow eel, Division = FAO marine division. Kept: 0 = missing, 1 = good quality, 							2 = wgeel has modified the data, 3 = not used due to poor quality, 4 =	data is used, but there are warnings on its quality")}
 autofit(flextable(data = series_prob[30:nrow(series_prob),])%>%
           bold(bold = TRUE, part = "header"))
 ```
 
 
-```{r xseriesprob1, echo=FALSE, warning = FALSE, message = FALSE, error=FALSE, tab.cap=str_c("Table \\@ref(tab:xseriesprob) continued. Data in " ,CY, " and ", CY-1, "having problems causing the data in the specific year to be excluded from the analysis. Codes for stages are G = glass eel, GY = glass eel + yellow eel, Y = yellow eel, Division = FAO marine division. Kept: 0 = missing, 1 = good quality, 2 = wgeel has modified the data, 3 = not used due to poor quality, 4 =	data is used, but there are warnings on its quality")}
+```{r xseriesprob1, echo=FALSE, warning = FALSE, message = FALSE, error=FALSE, tab.cap=str_c("Table XXX continued. Data in " ,CY, " and ", CY-1, "having problems causing the data in the specific year to be excluded from the analysis. Codes for stages are G = glass eel, GY = glass eel + yellow eel, Y = yellow eel, Division = FAO marine division. Kept: 0 = missing, 1 = good quality, 2 = wgeel has modified the data, 3 = not used due to poor quality, 4 =	data is used, but there are warnings on its quality")}
 autofit(flextable(data = series_prob[15:30,])%>%
           bold(bold = TRUE, part = "header"))
 ```
 
 
-```{r xseriesprob2, echo=FALSE, warning = FALSE, message = FALSE, error=FALSE, tab.cap=str_c("Table \\@ref(tab:xseriesprob) continued. Data in " ,CY, " and ", CY-1, "having problems causing the data in the specific year to be excluded from the analysis. Codes for stages are G = glass eel, GY = glass eel + yellow eel, Y = yellow eel, Division = FAO marine division. Kept: 0 = missing, 1 = good quality, 2 = wgeel has modified the data, 3 = not used due to poor quality, 4 =	data is used, but there are warnings on its quality")}
+```{r xseriesprob2, echo=FALSE, warning = FALSE, message = FALSE, error=FALSE, tab.cap=str_c("Table XXX continued. Data in " ,CY, " and ", CY-1, "having problems causing the data in the specific year to be excluded from the analysis. Codes for stages are G = glass eel, GY = glass eel + yellow eel, Y = yellow eel, Division = FAO marine division. Kept: 0 = missing, 1 = good quality, 2 = wgeel has modified the data, 3 = not used due to poor quality, 4 =	data is used, but there are warnings on its quality")}
 autofit(flextable(data = series_prob[30:nrow(series_prob),])%>%
           bold(bold = TRUE, part = "header"))
 ```
@@ -2391,7 +2391,7 @@ autofit(flextable(data = series_CY)%>%
           bold(bold = TRUE, part = "header"))
 ```
 
-```{r xseriesCYm1, echo=FALSE,warning=FALSE,error=FALSE,message=FALSE,echo=FALSE,warning=FALSE,error=FALSE,message=FALSE,tab.cap=str_c("Series updated to ",CY-1, " see table \\@ref(tab:tableseriesCY) for codes. Series ordered from North to South")}
+```{r xseriesCYm1, echo=FALSE,warning=FALSE,error=FALSE,message=FALSE,echo=FALSE,warning=FALSE,error=FALSE,message=FALSE,tab.cap=str_c("Series updated to ",CY-1, " see table XXX for codes. Series ordered from North to South")}
 autofit(flextable(data = series_CYm1)%>%
           bold(bold = TRUE, part = "header"))
 

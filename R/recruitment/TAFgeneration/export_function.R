@@ -62,35 +62,7 @@ export_predict_model_to_taf <- function(modelname,
   close(fileConn)
 }
 
-
-
-#' export_predict_to_taf
-#' add lines to the TAF model.R file which corresponds to the model
-#' @param predictname the name of the prediction
-#' @param taf_directory path to the taf directory
-#'
-#' @return nothing
-#' @export
-#'
-#' @examples
-
-export_predict_to_taf <- function(predictname, taf_directory, append = TRUE){
-  mymodel <- get(modelname)
-  fileConn <- file(paste(taf_directory, "model.R", sep = "/"), 
-                   open = "a+b")
-  writeLines("", fileConn)
-  writeLines("", fileConn)
-  writeLines(paste("#######RUN MODEL", modelname), fileConn)
-  command <- mymodel$call
-  writeLines(paste(modelname,"<-",
-                   paste(deparse(command), collapse = "\n")),
-             fileConn)
-  close(fileConn)
-}
-
-
-
-#' @title export_data_to_taf
+#' export_data_to_taf
 #' @description load data from db and write Rdata
 #' @param append do you want to append new created files, Default: TRUE
 #' @return nothing
@@ -108,3 +80,4 @@ export_data_to_taf <- function(append = TRUE){
   
   
 }
+
