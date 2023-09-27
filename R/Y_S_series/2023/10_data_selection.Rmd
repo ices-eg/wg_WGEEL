@@ -53,7 +53,7 @@ query='SELECT
 
 mydata = dbGetQuery(con_wgeel,query) # Get yellow and silver eel time series from WGEEL database
 
-dbDisconnect(con_wgeel) #disconnect
+dbDisconnect(con_wgeel) #disconnect from WGEEL database
 
 d.effort = read_xlsx("data/effort overview.xlsx") #Load overview of effort type and availability that was manually made at WGEEL 2023
 
@@ -79,7 +79,7 @@ data <- mydata %>%
 min.length = 10 #minimum time-series length, delete series with fewer number of years
 
 #Overview table to be used in the subgroup text to show which series were kept and which were discarded
-t.filterchoice = data %>% 
+t.filterchoice <- data %>% 
   count(ser_nameshort, ser_method) %>% #filter data down to series name and method, while counting time series length
   left_join(d.effort %>% select(ser_nameshort, effort, notes)) %>% #Add information on effort type/availability
   mutate(filtered = case_when(

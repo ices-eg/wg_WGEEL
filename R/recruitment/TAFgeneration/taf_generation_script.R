@@ -39,22 +39,64 @@ export_data_to_taf(source_directory=datawd,
         "t_series_ser.Rdata"))
 # build data.R
 
-
-
-#build model.R
-fileConn <- file(paste(taf_directory, "model.R", sep = "/"), 
+####build model.R
+modelConn <- file(paste(taf_directory, "model.R", sep = "/"), 
                  open = "a+b")
-writeLines("source(utilities.R)", fileConn)
-close(fileConn)
+writeLines("source(utilities.R)", modelConn)
+writeLines("modelResults <- list()", modelConn)
+close(modelConn)
 
 
 export_model_to_taf("model_ge_area", taf_directory, append = TRUE)
 export_predict_model_to_taf("model_ge_area", 
                             taf_directory,
                             reference="1960:1979")
+
 export_model_to_taf("model_older", taf_directory, append = TRUE)
 export_predict_model_to_taf("model_older", 
                             taf_directory,
-                            reference="1960:1979")
+                            reference="1960:1979",
+                            vargroup = NULL)
+modelConn <- file(paste(taf_directory, "model.R", sep = "/"), 
+                  open = "a+b")
 
-####build output.R
+writeLines(paste0("save(list = modelResults, file = 'model/model.rdata')"), modelConn)
+close(modelConn)
+
+####build report.R
+reportConn <- file(paste(taf_directory, "report.R", sep = "/"), 
+                  open = "a+b")
+writeLines("library(dplyr)", reportConn)
+writeLines("library(ggplot2)", reportConn)
+
+writeLines(paste0("load('model/model.rdata')"), reportConn)
+
+close(reportConn)
+
+
+export_graph_to_TAF("model_ge_area",
+                    taf_directory,
+                    logscale = TRUE,
+                    vargroup="area",
+                    ylab=expression(frac(p,bar(p)[1960-1979])))
+export_graph_to_TAF("model_ge_area",
+                    taf_directory,
+                    logscale = FALSE,
+                    vargroup="area",
+                    ylab=expression(frac(p,bar(p)[1960-1979])))
+
+
+export_graph_to_TAF("model_older",
+                    taf_directory,
+                    logscale = TRUE,
+                    vargroup=NULL,
+                    palette="darkolivegreen",
+                    ylab=expression(frac(p,bar(p)[1960-1979])))
+export_graph_to_TAF("model_older",
+                    taf_directory,
+                    logscale = FALSE,
+                    vargroup=NULL,
+                    palette="darkolivegreen",
+                    ylab=expression(frac(p,bar(p)[1960-1979])))
+
+
