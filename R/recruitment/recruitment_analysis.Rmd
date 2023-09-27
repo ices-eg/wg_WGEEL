@@ -294,6 +294,7 @@ save(inclusion, file=str_c(shinywd,"inclusion.Rdata"))
 load(file=str_c(datawd,"wger_init.Rdata"))
 load(file=str_c(datawd,"statseries.Rdata"))
 load(file=str_c(datawd,"R_stations.Rdata"))
+load(file=str_c(datawd,"t_series_ser.Rdata"))
 load(file=str_c(datawd,"last_years_with_problem.Rdata"))
 stopifnot(all(!is.na(R_stations$area)))
 if(sum(is.na(wger_init$area))>0) stop("At least one series has not been affected to an area")
@@ -1023,7 +1024,12 @@ tab1 <- rbind(first_line,tab1)
 
 
 openxlsx::write.xlsx(x=list("recruitment_series"=tab1,
-				"series_description"=statseries),file=str_c(datawd,"table_rec", CY, ".xlsx"))
+				"series_description"=statseries, 
+        "stat_G_EE"=printstatseriesGEE,
+        "stat_G_NS"=printstatseriesGNS,
+        "stat_GY"=printstatseriesGY,
+        "stat_Y"=printstatseriesY,
+        "t_series_ser"=t_series_ser),file=str_c(datawd,"table_rec", CY, ".xlsx"))
 
 openxlsx::write.xlsx(x=list("wger_init"=wger_init,
 				"older"=older, "wger"=wger),file=str_c(datawd,"table_long", CY, ".xlsx"))
@@ -2523,14 +2529,22 @@ finally,  during the 2011-2019 period, the maximum values were reached in 2014;
 but recruitment has been decreasing since then.
 
 
-```{r tableglmglasseel,echo=FALSE,eval=TRUE,results="hide", warning = FALSE, message = FALSE, error=FALSE, echo=FALSE,tab.cap=str_c("GLM $glass~eel \\sim year:area + site $ geometric means of predicted values for ",vv$nb_series_glass_eel," glass eel series, values given in percentage of the 1960-1979 period.")}
-flextable(gg)%>%
-          bold(bold = TRUE, part = "header")
+```{r tableglmglasseel,echo=FALSE,eval=TRUE, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE,tab.cap=str_c("GLM $glass~eel \\sim year:area + site $ geometric means of predicted values for ",vv$nb_series_glass_eel," glass eel series, values given in percentage of the 1960-1979 period.")}
+columns = names(gg)
+years = rep(196:202,each=2)*10
+autofit(flextable(gg%>% setNames(1:ncol(gg)) %>%
+  tibble::rownames_to_column(" ")) %>%
+  delete_part(part = "header") %>%
+  add_header_row(values=c("",years),top=FALSE) %>%
+  merge_h(part="header") %>%
+  add_header_row(values=c("",columns),top=FALSE) %>%
+  bold(bold = TRUE, part = "header") %>%
+  theme_booktabs(x, bold_header = FALSE))
 ```
 
-```{r tableglmyellow,echo=FALSE,eval=TRUE,results="hide", warning = FALSE, message = FALSE, error=FALSE, echo=FALSE,tab.cap=str_c("GLM $glass~eel \\sim year:area + site $ geometric means of predicted values for ",vv$nb_series_glass_eel," glass eel series, values given in percentage of the 1960-1979 period.")}
-flextable(yy)%>%
-          bold(bold = TRUE, part = "header")
+```{r tableglmyellow,echo=FALSE,eval=TRUE, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE,tab.cap=str_c("GLM $glass~eel \\sim year:area + site $ geometric means of predicted values for ",vv$nb_series_glass_eel," glass eel series, values given in percentage of the 1960-1979 period.")}
+autofit(flextable(yy)%>%
+          bold(bold = TRUE, part = "header"))
 ```
 
 
@@ -2561,7 +2575,8 @@ node_list <- create_node_df(n=16,
 				"< 10 Y",
 				as.numeric(vv$ser_qal_id_count[vv$ser_qal_id_count$ser_qal_id==0,"len"]),
 				"discarded",
-				as.numeric(vv$ser_qal_id_count[vv$ser_qal_id_count$ser_qal_id==3,"len"])
+				as.numeric(vv$ser_qal_id_count[vv$ser_qal_id_count$ser_qal_id==3,"len"] +
+                vv$ser_qal_id_count[vv$ser_qal_id_count$ser_qal_id==4,"len"])
 		),
 		color=c(rep("green",12),"orange","orange","red","red"),
 		style="filled",
