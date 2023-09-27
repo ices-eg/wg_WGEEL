@@ -1,0 +1,28 @@
+---
+title: "Silver eels series analysis"
+author: "ICES Data Group"
+date: "`r format(Sys.time(), '%Y %B %d')`"
+bibliography: references_2023.bib
+documentclass: article
+output: 
+  bookdown::word_document2:
+    fig_caption: yes
+    number_sections: yes
+    reference_docx: "../../Rmarkdown/ICES_template.docx" 
+params:
+  rerunDFA_yellow: FALSE
+  rerunDFA_silver: FALSE
+csl: "../../Rmarkdown/ices-journal-of-marine-science.csl"
+---
+
+```{r setup, include=FALSE}
+source("../../utilities/load_library.R")
+
+knitr::opts_chunk$set(
+    echo = TRUE,
+    warning = FALSE,
+    message = FALSE,
+    fig.width = 14.9 / 2.54,
+    dpi = 300,
+    fig.height = 10 / 2.54)
+```
