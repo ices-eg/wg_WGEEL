@@ -2,15 +2,19 @@
 ```{r setup, include=FALSE}
 source("../../utilities/load_library.R")
 
+
 knitr::opts_chunk$set(echo = TRUE,warning=FALSE,message=FALSE,
                       fig.width=14.9/2.54,
                       dpi=300,
                       fig.height=10/2.54)
 
-library(dplyr)
-library(tidyr)
-library(readxl)
-library(yaml)
+
+load_library("RPostgres")
+load_library("dplyr")
+load_library("tidyr")
+load_library("readxl")
+load_library("yaml")
+
 cred=read_yaml("../../../credentials.yml")
 con_wgeel = dbConnect(Postgres(), dbname=cred$dbname,host=cred$host,port=cred$port,user=cred$user, password=cred$password)
 ```
@@ -48,6 +52,8 @@ query='SELECT
 		where ser_typ_id in (2,3) and das_value is not null and  (ser_qal_id IS NULL OR ser_qal_id IN (0,1,2,4)) and (das_qal_id IS NULL OR das_qal_id IN (1,2,4))'
 
 mydata = dbGetQuery(con_wgeel,query) # Get yellow and silver eel time series from WGEEL database
+
+dbDisconnect(con_wgeel) #disconnect
 
 d.effort = read_xlsx("data/effort overview.xlsx") #Load overview of effort type and availability that was manually made at WGEEL 2023
 
