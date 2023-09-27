@@ -63,21 +63,17 @@ export_predict_model_to_taf <- function(modelname,
 }
 
 #' export_data_to_taf
-#' @description load data from db and write Rdata
-#' @param append do you want to append new created files, Default: TRUE
+#' @description copy files to taf_directory
+#' @param source_directory path to source directory
+#' @param taf_directory path to taf_directory
+#' @param files Vector of names of files to copy
+#' @param overwrite Do you want to replace the files if already existing, Default: TRUE
 #' @return nothing
-#' @examples 
-#' \dontrun{
-#' if(interactive()){
-#'  #EXAMPLE1
-#'  }
-#' }
 #' @rdname export_data_to_taf
 #' @export 
-export_data_to_taf <- function(append = TRUE){
-  
-  
-  
-  
-}
+export_data_to_taf <- function(source_directory, taf_directory, files, overwrite = TRUE){
+lf <- list.files(path= source_directory)
+if (!(all(files %in% lf))) warnings(sprintf("file(s) %s not in the folder", paste(files[!files %in% lf]), collapse=","))
+mapply(function(x) file.copy(from=file.path(source_directory,x), to = taf_directory, overwrite=overwrite), files)
+ }
 
