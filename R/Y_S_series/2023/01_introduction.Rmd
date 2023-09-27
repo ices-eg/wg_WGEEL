@@ -1,0 +1,8 @@
+# Assessment
+
+## Yellow and silver eels’ series
+
+Compared to the current glass eel index where a common trend for all areas can be produced, for silver and yellow eel time series we cannot assume, for various reasons, one common trend for all series. Some of these reasons include, but are not limited to, varying age at maturation/silvering, varying natural and anthropogenic mortality.
+Due to this, we have focused on silver eel series and two objectives: 1) Patterns, i.e., is there a common trend between the series, and 2) Conservation status of silver eel, i.e., is the population decreasing or increasing. The first objective that focuses on patterns will look into trends of different data in the series. We explore different patterns but start by exploring the abundance data first. The final model will be XXXXXXXXXXX(what was the point about this) with the spatial model (see WKFEA). The first objective will have to be tested before moving to the second objective. The second objective is to describe the conservation status of silver eel by exploring trends and characteristics using the data.
+The analysis on yellow eel series will be completed in the future, taking an advantage from the results from the silver eel analysis.
+We first review the potential methods and decide the ecological and biological assumptions needed to make so that we can choose the correct analysis and predictors based on the assumptions.
