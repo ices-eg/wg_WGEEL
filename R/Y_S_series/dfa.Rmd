@@ -18,6 +18,9 @@ csl: "../Rmarkdown/ices-journal-of-marine-science.csl"
 
 ```{r setup, include=FALSE}
 source("../utilities/load_library.R")
+source("../utilities/plot_map_series.R")
+source("YS_functions.R")
+source("DFA_functions.R")
 
 knitr::opts_chunk$set(
     echo = TRUE,
