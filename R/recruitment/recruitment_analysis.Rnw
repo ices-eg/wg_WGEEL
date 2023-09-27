@@ -12,7 +12,7 @@
 % iconv -f CP1252 -t UTF-8 recruitment_analysis.tex > recruitment_analysis_utf8.tex
 % finally the command to run is : 
 % cd C:\workspace\gitwgeel\R\recruitment
-% pandoc -s -o recruitment.docx --from=latex --to=docx  recruitment_analysis.tex
+% pandoc -s -o recruitment.docx --from=latex --to=docx  recruitment_analysis_utf8.tex
 % All this for producing a ugly word report :-( 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -382,6 +382,8 @@ load(file=str_c(datawd,"last_years_with_problem.Rdata"))
 stopifnot(all(!is.na(R_stations$area)))
 if(sum(is.na(wger_init$area))>0) stop("At least one series has not been affected to an area")
 @
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 				SERIES SELECTION AND STATISTICS ABOUT DATA ENTRY 
 % the statistics about the series are usefull while filling in new data, to check
