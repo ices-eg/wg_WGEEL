@@ -10,35 +10,33 @@ avoid_loading_ref_and_spatial_data <- TRUE # switch to FALSE if you want reload 
 source("load_library.R")
 load_library("yaml")
 load_library("RPostgreSQL")
-load_library("sqldf")
+load_library("DBI")
+#load_library("sqldf")
 load_library("glue")
 load_library("dplyr")
 load_library("tidyr")
-if (is.null(options()$sqldf.RPostgreSQL.user)) {
-	# extraction functions
-	source("database_connection.R")
-}
+
 source("database_reference.R")
 source("database_data.R")
 source("database_precodata.R")
-
+con_wgeel = dbConnect(RPostgres::Postgres(), dbname=cred$dbname,host=cred$host,port=cred$port,user=cred$user, password=passwordwgeel)
 if (avoid_loading_ref_and_spatial_data){
 	load("data/ref_and_eel_data.Rdata")
 	# remove everything that will be loaded next and that does not contain any spatial data
-	rm( precodata_all, 
-			precodata,    
-			precodata_emu, 
-			precodata_country,
-			release, 
-			aquaculture,
-			other_landings,
-			landings,
-			ys_stations, 
-			wger_ys,
-			wger_init_ys,
-			statseries_ys,
-			biometry_group_data_sampling_long,
-			biometry_group_data_series_long)
+	rm( list=c("precodata_all", 
+			"precodata",    
+			"precodata_emu", 
+			"precodata_country",
+			"release", 
+			"aquaculture",
+			"other_landings",
+			"landings",
+			"ys_stations", 
+			"wger_ys",
+			"wger_init_ys",
+			"statseries_ys",
+			"biometry_group_data_sampling_long",
+			"biometry_group_data_series_long"))
 } else { 
 	habitat_ref <- extract_ref(table_caption="Habitat type")
 	lfs_code_base <- extract_ref("Life stage")
@@ -68,7 +66,7 @@ precodata_emu = extract_data("precodata_emu",quality_check=FALSE)
 precodata_country = extract_data("precodata_country",quality_check=FALSE) 
 
 # yellow and silver eel series
-ys_stations = sqldf('
+ys_stations = dbGetQuery(con_wgeel,'
 				SELECT 
 				ser_id,  ser_nameshort, ser_namelong, ser_typ_id, ser_effort_uni_code,
 				ser_comment, ser_uni_code, ser_lfs_code, ser_hty_code, ser_locationdescription,
@@ -85,7 +83,7 @@ ys_stations = sqldf('
 				left join ref.tr_faoareas on ser_area_division=f_division
 				WHERE ser_typ_id IN (2,3)
 				')
-wger_ys = sqldf('
+wger_ys = dbGetQuery(con_wgeel,'
 				SELECT 
 				das_id,
 				das_value,       
@@ -108,7 +106,7 @@ wger_ys = sqldf('
 				WHERE ser_typ_id IN (2,3)
 				')
 
-wger_init_ys = sqldf('
+wger_init_ys = dbGetQuery(con_wgeel,'
 				SELECT 
 				das_id AS id,
 				das_value AS value,       
@@ -139,9 +137,9 @@ wger_init_ys = sqldf('
 				WHERE ser_typ_id IN (2,3)
 				')
 
-statseries_ys<-sqldf("select * from datawg.series_summary where life_stage IN ('Y', 'S')")
+statseries_ys<-dbGetQuery(con_wgeel,("select * from datawg.series_summary where life_stage IN ('Y', 'S')"))
 
-con_wgeel = dbConnect(RPostgres::Postgres(), dbname=dbname,host=host,port=port,user=user, password=password)
+
 #
 #
 biometry_group_data_series <- dbGetQuery(

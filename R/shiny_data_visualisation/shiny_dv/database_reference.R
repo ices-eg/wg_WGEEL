@@ -4,7 +4,7 @@
 ###############################################################################
 
 # PostgreSQL connection (if needed)
-if(is.null(options()$sqldf.RPostgreSQL.dbname)) source("R/database_interaction/database_connection.R")
+#if(is.null(options()$sqldf.RPostgreSQL.dbname)) source("R/database_interaction/database_connection.R")
 
 #' @title Extract reference table from WGEEL database
 #' @description Extract reference table from WGEEL database to be sure to used the very last reference codes
@@ -21,7 +21,7 @@ extract_ref = function(table_caption)
 	if(sum(table_caption %in% list_ref_table$table_caption) == 0)
 		stop(paste("table_caption should be one of: ", paste(list_ref_table$table_caption, collapse = ", ")))
 	sql_request = paste("SELECT * FROM ref.", list_ref_table[list_ref_table$table_caption == table_caption, "table_dbname"], sep = "")
-	data_to_return = sqldf(sql_request)
+	data_to_return = dbGetQuery(con_wgeel,sql_request)
 	
 	# deleting the geom column
 	if(sum(names(data_to_return) %in% "geom") > 0)
