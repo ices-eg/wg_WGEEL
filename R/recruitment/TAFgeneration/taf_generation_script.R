@@ -10,7 +10,8 @@ taf_directory <- taf.skeleton(paste0("./TAF/",CY))
 #copy utilities.R to TAF folder
 file.copy("./utilities.R", taf_directory)
 
-#export wger_init to data.R
+#export wger_init and other data to data.R
+
 
 
 #build model.R
