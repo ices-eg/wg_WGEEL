@@ -1,0 +1,3 @@
+rmd_files: ["index.Rmd", "01_introduction.Rmd", "10_data_selection.Rmd", "20_DFA.Rmd", "30_MARSS.Rmd"]
+output_dir: "final"
+book_filename: "silver_eel"

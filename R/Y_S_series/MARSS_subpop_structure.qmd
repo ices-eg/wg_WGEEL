@@ -8,7 +8,7 @@ editor: visual
 code-fold: true
 ---
 
-## Introduction
+### Introduction
 
 This script is used to fit MARSS-models to silver eel time series. Different sub-population structures (different structures of hidden trends) are tested and models are compared using information criteria. Hypothesis tested are:
 * H1: Panmictic (all series share the same trend)
@@ -55,9 +55,11 @@ cred=read_yaml('../../credentials.yml') # credentials
 # connect to 
 con_wgeel = dbConnect(Postgres(), dbname=cred$dbname,host=cred$host,port=cred$port,user=cred$user, password=getPass())
 
+
+
 ```
 
-#### Read data
+### Read data
 ```{r}
 # load data
 query='SELECT 
@@ -114,10 +116,10 @@ mydata = merge(mydata,sampling[,c("ser_id","type")])
 ## Filter data
 ```{r}
 S_data <- mydata %>%
-  select("das_year","ser_nameshort","das_value") %>%
+  select("das_year","ser_nameshort","das_value","ser_hty_code","ser_restocking",) %>%
+  complete(das_year,ser_nameshort) %>% # add na´s to non existing years
 pivot_wider(names_from=ser_nameshort,values_from = das_value)
 
-S_data %>% complete()
 ```
 
 

@@ -1,0 +1,276 @@
+ser_id;ser_namesh;ser_namelo;new_OBJECT;new_Ecoreg;distance_to_ecoregion
+197;PanS;Pandalus;10;Baltic Sea;0
+29;ImsaGY;Imsa Near Sandnes trapping all;11;Greater North Sea;0
+280;SuSY;Suffolk Stour Catchment;11;Greater North Sea;12361.15663
+327;LevS;Leven Silver;9;Celtic Seas;2690.981963
+194;DeBY;Den Burg fyke net survey;11;Greater North Sea;0
+332;IJsFVY;FYOE-IJM-Veg;11;Greater North Sea;0
+157;VerlGY;Verlath Pumping Station;11;Greater North Sea;8855.33346
+270;LeeY;Lee River;11;Greater North Sea;25519.39829
+160;BrokGY;Broklandsau Pumping Station;11;Greater North Sea;288.7828847
+227;BFuY;Furnace;9;Celtic Seas;2578.792446
+334;IJsFRY;FYOE-IJM-Rock;11;Greater North Sea;0
+242;MinY;Minho Yellow eel;2;Bay of Biscay and the Iberian Coast;0
+293;WenY;Wensum Catchment;11;Greater North Sea;28257.80418
+294;WitY;Witham Catchment;11;Greater North Sea;44561.59631
+286;ThaY;Thames;11;Greater North Sea;69075.97685
+283;TefY;Teifi River;9;Celtic Seas;6263.210886
+401;NalS;Nalon river basin;2;Bay of Biscay and the Iberian Coast;9771.706724
+189;StraGY;Strangford;9;Celtic Seas;0
+241;MonY;Mondego Yellow;2;Bay of Biscay and the Iberian Coast;30633.7751
+165;WiFG;Frische Grube;10;Baltic Sea;1220.077821
+225;BuBY;Bunaveela;9;Celtic Seas;13839.99934
+343;AlCS;Albufera lagoon commercial catch;4;Western Mediterranean Sea;515.4841761
+47;InagGY;River Inagh;9;Celtic Seas;492.5125165
+67;VacG;Vaccares;4;Western Mediterranean Sea;0
+339;VistY;Eel Management Units 3;8;Aegean-Levantine Sea;0
+161;LangGY;Langenhorn Pumping Station;11;Greater North Sea;8826.917894
+235;NZKS;FDIA_SILVEREELINDEX_NOORDZEEKANAAL;11;Greater North Sea;0
+368;LilS;Lilaste River;10;Baltic Sea;657.0330005
+238;ZMaS;FDIA_SILVEREELINDEX_ZANDMAAS;11;Greater North Sea;45784.99969
+50;BresGY;Bresle;11;Greater North Sea;3239.475678
+188;GreyGY;Greylake_Elvers/Yellow (mainly yellow>120mm with 20-25% elvers <120mm);9;Celtic Seas;17544.41114
+204;HellGY;Hellebaekken;11;Greater North Sea;430.0642679
+240;VisY;Vistula Lagoon;10;Baltic Sea;0
+65;KlitG;Klitmoeller A;11;Greater North Sea;359.1038976
+66;NorsG;Nors A;11;Greater North Sea;204.9959767
+203;GiBS;Girnoch Burn;11;Greater North Sea;50493.88159
+202;ShiS;Shieldaig;9;Celtic Seas;1261.646944
+70;LiffGY;Liffey;9;Celtic Seas;4464.692619
+13;RhIjG;Rhine Ijmuiden scientific estimate;11;Greater North Sea;417.7623999
+248;BadY;Baddoch Burn standard e/f sites;11;Greater North Sea;56340.58279
+45;FealGY;River Feale;9;Celtic Seas;216.7864346
+46;MaigG;River Maigue;9;Celtic Seas;952.1066645
+220;BreS;Bresle downstream migration trap;11;Greater North Sea;11725.19119
+432;PogoG;Po di Goro;7;Adriatic Sea;0
+187;BroGY;Brownshill_Elvers_>80<120mm;11;Greater North Sea;53788.36136
+297;StrS;Strangford silver eel trapping;9;Celtic Seas;0
+37;ShaPY;Shannon Parteen trapping partial;9;Celtic Seas;15622.61437
+72;BurrGY;Burrishoole;9;Celtic Seas;3008.561951
+39;HartY;Harte  trapping all;10;Baltic Sea;5075.301694
+184;BeeG;Beeleigh_Glass_<80mm;11;Greater North Sea;2438.198901
+221;LoiS;Loire silver eel serie;2;Bay of Biscay and the Iberian Coast;65545.8592
+325;MiSpY;Frieira dam;2;Bay of Biscay and the Iberian Coast;35807.5543
+230;BurS;Burrishoole;9;Celtic Seas;2529.818704
+219;VilY;Vilaine electrofishing survey;2;Bay of Biscay and the Iberian Coast;2351.275458
+317;BeeGY;Beeleigh_Elver_81-120mm;11;Greater North Sea;2438.198901
+318;BeeY;Beeleigh_Yellow_121mm+;11;Greater North Sea;2438.198901
+222;SeNS;Sèvre Niortaise Downstream migration trap;2;Bay of Biscay and the Iberian Coast;48156.99748
+223;SouS;Soustons downstream migration trap;2;Bay of Biscay and the Iberian Coast;5509.87505
+212;OriY;Oria river basin;2;Bay of Biscay and the Iberian Coast;4826.389492
+198;NSIS;NS-IBTS;10;Baltic Sea;0
+199;BI4S;BITS-4;10;Baltic Sea;0
+200;BI1S;BITS-1;10;Baltic Sea;0
+185;BroG;Brownshill_Glass_<80mm;11;Greater North Sea;53788.36136
+405;KuloY;Lake Kulovesi;10;Baltic Sea;82553.73745
+61;FreY;Fremur;11;Greater North Sea;4337.762134
+186;BroY;Brownshill_Yellow_>120mm;11;Greater North Sea;53793.27483
+10;EmsG;Ems Herbrum commercial catch;11;Greater North Sea;19884.88108
+406;VesiY;Lake Vesijärvi;10;Baltic Sea;77006.07868
+183;FlaGY;Flatford_Elvers_>80<120mm;11;Greater North Sea;2586.742585
+409;RubY;Rubikiai lake;10;Baltic Sea;161550.8894
+196;ImsaS;Imsa Silver;11;Greater North Sea;0
+229;KilS;IE_Killaloe;9;Celtic Seas;21122.1961
+6;ShaAGY;Shannon Ardnacrusha trapping all;9;Celtic Seas;5186.671376
+182;FlaG;Flatford_GE_<80mm;11;Greater North Sea;2586.742585
+20;GiTCG;Gironde Estuary (catch) commercial catch;2;Bay of Biscay and the Iberian Coast;0
+19;SevNG;Sevres Niortaise Estuary commercial CPUE;2;Bay of Biscay and the Iberian Coast;1563.085427
+14;KatwG;Katwijk scientific estimate;11;Greater North Sea;136.8513365
+324;MertY;Thames - Wandle - Merton Abbey Mills;11;Greater North Sea;28531.26869
+335;MmFRY;FYOE-MM-Rock;11;Greater North Sea;0
+321;MillY;Thames - Hogsmill  Middle Mill;11;Greater North Sea;36349.84929
+159;HoSGY;Holmer Siel;11;Greater North Sea;0
+7;SeEAG;Severn EA commercial catch;9;Celtic Seas;0
+64;SleG;Slette A;11;Greater North Sea;617.6084683
+207;OriaG;Oria scientific monitoring;2;Bay of Biscay and the Iberian Coast;0
+323;MolY;Thames-Molesey weir;11;Greater North Sea;39726.92856
+26;MiSpG;Minho spanish part commercial catch;2;Bay of Biscay and the Iberian Coast;0
+9;VidaG;Vidaa Hoejer sluice commercial catch;11;Greater North Sea;5313.88987
+433;PovoG;Po di Volano;7;Adriatic Sea;6.556711129
+38;GudeY;Guden AA… Tange trapping all;11;Greater North Sea;25081.86969
+364;HakY;Hakefjorden;11;Greater North Sea;0
+236;HVWS;FDIA_SILVEREELINDEX_HARINGVLIET_WEST;11;Greater North Sea;0
+244;MinS;Minho silver eel;2;Bay of Biscay and the Iberian Coast;0
+322;RodY;Thames - Roding;11;Greater North Sea;15320.6988
+233;IjsS;FDIA_SILVEREELINDEX_IJSSELMEER;11;Greater North Sea;5.484554309
+234;NiWS;FDIA_SILVEREELINDEX_NIEUWE_WATERWEG;11;Greater North Sea;94.10897958
+192;VVeY;Vester Vested Baek;11;Greater North Sea;556.9031702
+237;BRWS;FDIA_SILVEREELINDEX_BOVENRIJNWAAL;11;Greater North Sea;39922.25613
+245;NkaS;N Kalmar;10;Baltic Sea;0
+246;SosS;S Ostergotland;10;Baltic Sea;0
+33;KavlY;Kävlingeån  trapping all;11;Greater North Sea;30871.09482
+34;RonnY;Rönne Å  trapping all;11;Greater North Sea;22551.86009
+35;LagaY;Lagan  trapping all;11;Greater North Sea;6484.285821
+345;UkoY;Ukojas lake;10;Baltic Sea;194718.2849
+260;DoSY;Dorset Stour River;11;Greater North Sea;18690.2361
+362;FjaY;Fjällbacka;11;Greater North Sea;0
+363;LysY;Lysekil;11;Greater North Sea;0
+320;OatGY;Oath Lock predominantly glass eel and elvers (<120mm);9;Celtic Seas;17941.84347
+3;ViskGY;Viskan trapping all;11;Greater North Sea;205.5909529
+30;DalaY;Dalälven  trapping all;10;Baltic Sea;697.6022099
+2;RingG;Ringhals scientific survey;11;Greater North Sea;201.6351405
+31;MotaY;Motala Ström  trapping all;10;Baltic Sea;1891.837225
+32;MorrY;Mörrumsån  trapping all;10;Baltic Sea;26043.92343
+41;YFS2G;IYFS2 scientific estimate;11;Greater North Sea;0
+1;YFS1G;IYFS scientific estimate;11;Greater North Sea;0
+365;VenY;Vendelsö;11;Greater North Sea;0
+366;KulY;Kullen;11;Greater North Sea;51.04003777
+367;BarY;Barsebäck;11;Greater North Sea;0
+263;ExeY;Exe River;11;Greater North Sea;25623.89863
+18;LoiG;Loire Estuary commercial catch;2;Bay of Biscay and the Iberian Coast;180.2423206
+17;VilG;Vilaine Arzal trapping all;2;Bay of Biscay and the Iberian Coast;5.83776105
+259;DerY;Derwent River;11;Greater North Sea;86075.96145
+296;WniY;Wnion River;9;Celtic Seas;12261.91398
+42;GiScG;Gironde scientific estimate;2;Bay of Biscay and the Iberian Coast;0
+226;BFeY;Feeagh;9;Celtic Seas;4766.649561
+201;BaBS;Baddoch Burn;11;Greater North Sea;57119.45108
+15;StelG;Stellendam scientific estimate;11;Greater North Sea;0
+300;SousGY;Souston glass and yellow eel trap;2;Bay of Biscay and the Iberian Coast;5172.064
+264;FowY;Fowey River;9;Celtic Seas;202.8869506
+265;FroY;Frome River;11;Greater North Sea;9498.220935
+228;BLFY;Lower Furnace;9;Celtic Seas;1411.59491
+170;EmsBGY;Ems (Bollingerfaehr) Elver monitoring;11;Greater North Sea;25198.83732
+267;HaAY;Hampshire Avon River;11;Greater North Sea;20872.42008
+191;MondG;Mondego estuary;2;Bay of Biscay and the Iberian Coast;0
+8;SeHMG;Severn HMRC commercial catch;9;Celtic Seas;525.7425903
+274;OttY;Otter River;11;Greater North Sea;12206.02762
+211;RibS;River Ribe;11;Greater North Sea;33969.33626
+333;MmFVY;FYOE-MM-Veg;11;Greater North Sea;0
+377;FlaY;Flatford Yellow eel >120mm;11;Greater North Sea;2586.742585
+421;RhoY;Rhone_Beaucaire;4;Western Mediterranean Sea;0
+173;ShiFG;Shieldaig river trap scientific estimate;9;Celtic Seas;273.3616956
+271;MedY;Medway;11;Greater North Sea;21131.05558
+272;MerY;Mersey River;9;Celtic Seas;0
+278;RibY;Ribble River;9;Celtic Seas;27079.18379
+255;ChBY;Chelmer & Blackwater Catchment;11;Greater North Sea;19114.72785
+25;AlbuG;Albufera de Valencia commercial catch;4;Western Mediterranean Sea;515.4841761
+166;WisWGY;Wallensteingraben;10;Baltic Sea;2044.515756
+164;FarpGY;Farpener Bach;10;Baltic Sea;3896.702413
+158;HHKGY;Inlet construction North Hauke Haien Koog;11;Greater North Sea;959.953737
+24;NaloG;Nalon Estuary commercial catch;2;Bay of Biscay and the Iberian Coast;0
+40;MeusY;Meuse Lixhe dam trapping partial;11;Greater North Sea;97624.58023
+16;YserG;IJzer Nieuwpoort scientific estimate;11;Greater North Sea;2791.984069
+253;BelY;Bela River;9;Celtic Seas;2380.314382
+261;EdeY;Eden River;9;Celtic Seas;37692.52551
+171;GirnY;Girnock Burn trap scientific estimate;11;Greater North Sea;51216.37552
+349;SiesS;river from Duriai lake;10;Baltic Sea;194020.944
+172;ShiMG;Shieldaig river mouth scientific estimate;9;Celtic Seas;116.4435546
+11;LauwG;Lauwersoog scientific estimate;11;Greater North Sea;1243.559363
+167;DoFpY;Doemitz fishpass;10;Baltic Sea;744.643025
+424;CorG;Corrib Galway Weir;9;Celtic Seas;1110.182309
+12;RhDOG;Rhine DenOever scientific estimate;11;Greater North Sea;2716.306355
+257;CoqY;Coquet River;11;Greater North Sea;28513.26752
+279;SevY;Severn River;9;Celtic Seas;9068.953631
+4;BannGY;Bann Coleraine trapping partial;9;Celtic Seas;5657.430971
+254;BoEY;Border Esk River;9;Celtic Seas;16679.61301
+266;GrOY;Great Ouse Catchment;11;Greater North Sea;83603.49856
+210;WarS;Warnow River silver eel index;10;Baltic Sea;3604.199756
+273;NenY;Nene catchment;11;Greater North Sea;58743.47632
+326;FowS;Fowey resistivity counter;9;Celtic Seas;4968.895426
+292;WelY;Welland Catchment;11;Greater North Sea;46554.72571
+168;DoElY;Dove Elde eel ladder;10;Baltic Sea;744.643025
+231;IjsY;FYMA_IJSSELMEER;11;Greater North Sea;0
+232;MarY;FYMA_MARKERMEER;11;Greater North Sea;0
+252;LoEY;Lower Lough Erne;9;Celtic Seas;28415.30968
+340;NorwS;Eel Management Units 1;5;Ionian Sea and the Central Mediterranean Sea;0
+341;WepeS;Eel Management Units 2;5;Ionian Sea and the Central Mediterranean Sea;0
+342;EamtS;Eel Management Units 3;8;Aegean-Levantine Sea;0
+399;BidS;BidSoa river basin;2;Bay of Biscay and the Iberian Coast;0
+249;ShiY;Shieldaig River standard e/f sites;9;Celtic Seas;2843.487162
+250;KilY;Killough River;9;Celtic Seas;0
+251;LagY;Lagan River;9;Celtic Seas;17280.76772
+258;DeeY;Dee River;9;Celtic Seas;27826.4346
+352;LakS;Lakaja river;10;Baltic Sea;212301.9522
+268;HumY;Humber and Hull Catchment;11;Greater North Sea;0
+369;DaugS;Daugava River;10;Baltic Sea;0
+269;ItcY;Itchen River;11;Greater North Sea;12341.95496
+275;OusY;Ouse River;11;Greater North Sea;11077.51945
+208;GuadG;Guadalquivir scientific monitoring;2;Bay of Biscay and the Iberian Coast;0
+288;TweY;Tweed River;11;Greater North Sea;41074.07647
+291;WevY;Weaver River;9;Celtic Seas;24015.69841
+290;WerY;Wear River;11;Greater North Sea;25804.10455
+247;GirY;Girnock Burn standard e/f sites;11;Greater North Sea;49872.23234
+289;UskY;Usk River;9;Celtic Seas;37369.11084
+295;WyeY;Wye River;9;Celtic Seas;47533.00855
+285;TesY;Test River;11;Greater North Sea;20182.47851
+43;EbroG;Ebro delta lagoons;4;Western Mediterranean Sea;1196.345473
+44;AlCPG;Albufera de Valencia commercial CPUE;4;Western Mediterranean Sea;515.4841761
+276;ParY;Parrett River;9;Celtic Seas;17423.17302
+277;PlyY;Plym River;9;Celtic Seas;5863.593412
+281;TamY;Tamar River;9;Celtic Seas;19939.37872
+282;TawY;Taw River;9;Celtic Seas;15570.90993
+284;TegY;Teign River;11;Greater North Sea;10707.39808
+5;ErneGY;Erne Ballyshannon trapping all;9;Celtic Seas;1527.104354
+36;GotaY;Göta Älv  trapping all;11;Greater North Sea;21361.78348
+429;ArgY;Eel Management Units 1;5;Ionian Sea and the Central Mediterranean Sea;0
+287;TyTY;Tywi;9;Celtic Seas;6905.147839
+21;GiCPG;Gironde Estuary (CPUE) commercial CPUE;2;Bay of Biscay and the Iberian Coast;0
+22;AdTCG;Adour Estuary (catch) commercial catch;2;Bay of Biscay and the Iberian Coast;567.7352469
+23;AdCPG;Adour Estuary (CPUE) commercial CPUE;2;Bay of Biscay and the Iberian Coast;567.7352469
+319;NmiGY;New Mills Elvers/Yellow >80mm;11;Greater North Sea;26983.78706
+430;TholY;Eel Management Units 1;8;Aegean-Levantine Sea;1139034.787
+243;MonS;Mondego Silver;2;Bay of Biscay and the Iberian Coast;30633.7751
+205;MiScG;Minho scientific monitoring;2;Bay of Biscay and the Iberian Coast;0
+398;AlCY;Albufera lagoon commercial catch;4;Western Mediterranean Sea;515.4841761
+431;TibnG;Tiber Fiumara Grande indipendent fishery;4;Western Mediterranean Sea;4673.764652
+28;TibeG;Tiber Fiumara Grande commercial catch;4;Western Mediterranean Sea;5571.284478
+435;PogoY;Po di Goro;7;Adriatic Sea;349.5451519
+434;TibdY;Tiber Dragoncello;4;Western Mediterranean Sea;4715.028411
+436;PobeY;Stazione Berra;7;Adriatic Sea;8193.311878
+437;PolsY;Stazione Lagoscuro;7;Adriatic Sea;37034.62035
+439;PogoS;Po di Goro;7;Adriatic Sea;349.5451519
+441;PolsS;Stazione Lagoscuro;7;Adriatic Sea;37034.62035
+438;TibeS;Tiber Fiumara Grande indipendent fishery;4;Western Mediterranean Sea;4673.764652
+371;AaY;Aa electrofishing survey;11;Greater North Sea;29218.20968
+372;AutY;Authie electrofishing survey;11;Greater North Sea;32882.50467
+374;SomY;Somme electrofishing survey;11;Greater North Sea;57100.26858
+415;KreS;Kretuona river;10;Baltic Sea;208283.5248
+396;BidY;Bidasoa river basin;2;Bay of Biscay and the Iberian Coast;0
+419;VeAmG;Veurne-Ambacht canal scientific estimate;11;Greater North Sea;3742.785924
+397;NalY;Nalon river basin;2;Bay of Biscay and the Iberian Coast;9771.706724
+420;VeAmY;Veurne-Ambacht canal scientific estimate;11;Greater North Sea;3742.785924
+440;PobeS;Stazione Berra;7;Adriatic Sea;8193.311878
+400;OriS;Oria river basin;2;Bay of Biscay and the Iberian Coast;4826.389492
+423;RubS;river from Rubikiai lake;10;Baltic Sea;158533.9129
+402;DoijS;FDIA_SILVEREELINDEX_DENOEVERIJSSELMEER;11;Greater North Sea;2.888892384
+373;EscY;Escaut electrofishing survey;11;Greater North Sea;47138.95232
+375;DivY;Dives electrofishing survey;11;Greater North Sea;30320.50547
+376;DouY;Douve electrofishing survey;11;Greater North Sea;16234.7342
+411;KotkS;Kotkan vesialueet;10;Baltic Sea;0
+370;KavlS;Kävlingeån;11;Greater North Sea;14523.58236
+224;VilS;Vilaine Didson Silver eel survey;2;Bay of Biscay and the Iberian Coast;0
+348;CurlS;Curonian Lagoon;10;Baltic Sea;3202.279505
+428;VieY;Vievis lake;10;Baltic Sea;215113.1925
+427;DriY;Dringis lake;10;Baltic Sea;199949.8349
+346;CurlY;Curonian Lagoon;10;Baltic Sea;0
+350;AlauS;river from Alausas lake;10;Baltic Sea;160815.1906
+351;KertS;river from Kertuojas lake;10;Baltic Sea;203501.3145
+344;KreY;Kretuonas lake;10;Baltic Sea;209614.5071
+407;KerY;Kertuojai lake;10;Baltic Sea;203081.7646
+262;EllY;Ellen River;9;Celtic Seas;16766.56504
+239;SkaY;Skagerrak Beach Seine Survey;11;Greater North Sea;0
+354;DaugY;Daugava River;10;Baltic Sea;0
+353;LilY;Lilaste River;10;Baltic Sea;657.0330005
+414;ZeiS;Zeimena river;10;Baltic Sea;206976.0227
+416;RieS;Riese river;10;Baltic Sea;238503.8626
+425;InagG;River Inagh;9;Celtic Seas;492.5125165
+412;VaakS;Vääksynjoki;10;Baltic Sea;80121.29404
+408;KrolY;Kroku Lanka lake;10;Baltic Sea;0
+305;YerY;YerY electrofishing survey;11;Greater North Sea;11715.10809
+162;WaSG;Warnow Scientific Glass eel monitoring;10;Baltic Sea;463.9401336
+163;WaSEY;Warnow Scientific Elver monitoring;10;Baltic Sea;463.9401336
+169;EmsHG;Ems (Herbrum) Glass eel monitoring;11;Greater North Sea;19884.88108
+302;SciY;Scie electrofishing survey;11;Greater North Sea;13280.71496
+214;FremY;Fremur electrofishing survey;11;Greater North Sea;4658.944689
+306;AdoY;Adour elecrofishing survey;2;Bay of Biscay and the Iberian Coast;26310.6711
+215;GarY;Garonne electrofishing survey;2;Bay of Biscay and the Iberian Coast;18897.84158
+217;SeNY;Sevre Niortaise electrofishing survey;2;Bay of Biscay and the Iberian Coast;41393.20926
+301;OrnY;Orne electrofishing survey;11;Greater North Sea;41667.20553
+303;TouY;Touques electrofishing survey;11;Greater North Sea;22064.30433
+304;VirY;VirY electrofishing survey;11;Greater North Sea;34143.71617
+195;FreS;Frémur;11;Greater North Sea;3431.846379
+218;SouY;Souston elecrofishing survey;2;Bay of Biscay and the Iberian Coast;7730.824316
+27;MiPoG;Minho portuguese part commercial catch;2;Bay of Biscay and the Iberian Coast;0
+213;BreY;Bresle electrofishing survey;11;Greater North Sea;20893.22809
+216;SeiY;Seine electrofishing survey;11;Greater North Sea;17634.01213
+410;BalY;Balsys lake;10;Baltic Sea;237758.1185
