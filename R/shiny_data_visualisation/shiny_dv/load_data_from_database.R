@@ -15,31 +15,28 @@ load_library("DBI")
 load_library("glue")
 load_library("dplyr")
 load_library("tidyr")
-if (is.null(options()$sqldf.RPostgreSQL.user)) {
-	# extraction functions
-	source("database_connection.R")
-}
+
 source("database_reference.R")
 source("database_data.R")
 source("database_precodata.R")
-con_wgeel = dbConnect(RPostgres::Postgres(), dbname=dbname,host=host,port=port,user=user, password=password)
+con_wgeel = dbConnect(RPostgres::Postgres(), dbname=cred$dbname,host=cred$host,port=cred$port,user=cred$user, password=passwordwgeel)
 if (avoid_loading_ref_and_spatial_data){
 	load("data/ref_and_eel_data.Rdata")
 	# remove everything that will be loaded next and that does not contain any spatial data
-	rm( precodata_all, 
-			precodata,    
-			precodata_emu, 
-			precodata_country,
-			release, 
-			aquaculture,
-			other_landings,
-			landings,
-			ys_stations, 
-			wger_ys,
-			wger_init_ys,
-			statseries_ys,
-			biometry_group_data_sampling_long,
-			biometry_group_data_series_long)
+	rm( list=c("precodata_all", 
+			"precodata",    
+			"precodata_emu", 
+			"precodata_country",
+			"release", 
+			"aquaculture",
+			"other_landings",
+			"landings",
+			"ys_stations", 
+			"wger_ys",
+			"wger_init_ys",
+			"statseries_ys",
+			"biometry_group_data_sampling_long",
+			"biometry_group_data_series_long"))
 } else { 
 	habitat_ref <- extract_ref(table_caption="Habitat type")
 	lfs_code_base <- extract_ref("Life stage")
