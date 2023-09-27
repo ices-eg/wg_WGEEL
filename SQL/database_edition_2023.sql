@@ -837,3 +837,11 @@ WHERE ser_nameshort ilike '%Meu%';
 UPDATE datawg.t_series_ser
   SET ser_qal_id=3
   WHERE ser_id=40; 
+
+-- corG is corGY
+
+
+SELECT x.* FROM datawg.t_series_ser x
+WHERE ser_nameshort ilike 'corG';
+
+UPDATE datawg.t_series_ser SET ser_nameshort='CorGY' WHERE ser_nameshort = 'CorG';
