@@ -16,7 +16,7 @@ csl: "../../Rmarkdown/ices-journal-of-marine-science.csl"
 ---
 
 ```{r setup, include=FALSE}
-source("../utilities/load_library.R")
+source("../../utilities/load_library.R")
 
 knitr::opts_chunk$set(
     echo = TRUE,
