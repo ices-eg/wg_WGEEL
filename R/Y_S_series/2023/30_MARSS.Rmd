@@ -37,9 +37,9 @@ unique()
 
 # Wide format of silver eel data
 S_data <- d.cpue %>%
-  select("das_year","ser_nameshort","das_value") %>% 
+  select("das_year","ser_nameshort","cpue") %>% 
   complete(das_year,ser_nameshort) %>% # add na´s to non existing years
-pivot_wider(names_from=ser_nameshort,values_from = das_value) # wide format
+pivot_wider(names_from=ser_nameshort,values_from = cpue) # wide format
 
 # Rearrange data for fitting MARSS model
 Years <- S_data$das_year
@@ -69,7 +69,7 @@ Z3 <- factor(subpop_fct$ser_restocking)
 Z4 <- factor(subpop_fct$ecoregion)
 
 # H5: North Sea vs. Elsewhere europe
-Z5 <- factor(ifelse(subpop_fct$ecoregion %in% c("Greater North Sea", "Celtic Sea"), "North Sea", "Elsewhere Europe"))
+Z5 <- factor(ifelse(subpop_fct$ecoregion %in% c("Greater North Sea"), "North Sea", "Elsewhere Europe"))
 
 # all models
 Z.models <- list(Z1, Z2, Z3, Z4, Z5)
@@ -96,12 +96,12 @@ x0 = x0.model, V0 = V0.model, tinitx = 0
 ```{r Fit MARSS models, silent=TRUE}
 out.tab <- NULL
 fits <- list()
-for (i in c(1,4,5)) { #1:length(Z.models))
+for (i in 1:length(Z.models)) { #c(1,4,5)
 for (Q.model in Q.models) {
 fit.model <- c(list(Z = Z.models[[i]], Q = Q.model), model.constant)
 fit <- MARSS(S_ts,
 model = fit.model,
-silent = TRUE, control = list(maxit = 1000)
+silent = TRUE, control = list(maxit = 2000)
 )
 out <- data.frame(
 H = names(Z.models)[i], Q = Q.model, U = U.model,
@@ -117,8 +117,26 @@ if (i == 1) next # one m for panmictic so only run 1 Q
 }
 
 ```
-```{r plot time series}
-
+```{r best model}
+best_model <- fits[[which.min(out.tab$AICc)]] 
 ```
 
+
+```{r plot trends, silent=TRUE}
+Xt <- predict(best_model,type="xtT",interval = "confidence")
+Xt <- Xt$pred
+Xt$t <- Years
+Xt <- Xt %>% rename(Year=t, subpopulation=.rownames, xt=estimate)
+ggplot(Xt,aes(group=subpopulation, y=xt, x=Year,color=subpopulation)) + 
+  geom_line() +
+  geom_line(aes(y=`Lo 95`),linetype="dashed") +
+  geom_line(aes(y=`Hi 95`),linetype="dashed")
+```
+
+```{r Plot smoothed state, silent=TRUE}
+Yt <- predict(best_fit,type="ytT",interval = "confidence")
+Yt <- Yt$pred
+Yt$t <- Years
+Yt <- Yt %>% rename(Year=t, subpopulation=.rownames, xt=estimate)
+```
 
