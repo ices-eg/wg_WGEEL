@@ -14,6 +14,7 @@ load_library("dplyr")
 load_library("tidyr")
 load_library("readxl")
 load_library("yaml")
+load_library("flextable")
 load_library("ggplot2")
 
 cred=read_yaml("../../../credentials.yml")
@@ -72,8 +73,8 @@ d.effort = data %>%
   select(ser_nameshort) %>%
   unique() %>%
   mutate(effort = case_when(
-    ser_nameshort %in% c("BI1S",  "BI4S",  "BreS",  "FreS",  "KilS",  "KotkS", "LoiS",  "MinS",  "MonS",  "NkaS",  "NSIS",  "OriS",  "PanS", "SeNS",  "SosS",  "SouS",  "StrS",  "DaugS",  "LilS" ) ~ "provided",
-    ser_nameshort %in% c("BRWS",  "DoijS", "HVWS",  "IjsS",  "NiWS",  "NZKS",  "PobeS", "PogoS", "PolsS", "TibeS", "ZMaS" ) ~ "index",
+    ser_nameshort %in% c("BreS",  "FreS",  "KilS",   "SeNS",   "SouS",  "StrS",  "DaugS",  "LilS" ) ~ "provided",
+    ser_nameshort %in% c("BI1S",  "BI4S", "BRWS",  "DoijS", "HVWS",  "IjsS", "KotkS", "LoiS", "MinS",  "MonS",  "NiWS", "NkaS",  "NZKS", "OriS",  "PanS",  "PobeS", "PogoS", "PolsS", "SosS",  "TibeS", "ZMaS", "NSIS" ) ~ "index",
     ser_nameshort %in% c("BaBS",  "BidS",  "BurS",  "EamtS", "FowS",  "GiBS",  "ImsaS", "KavlS", "LevS",  "NalS",  "NorwS", "ShiS",  "VaakS",  "WepeS") ~ "constant",
     ser_nameshort %in% c("RibS", "VilS", "WarS") ~ "model estimate",
     ser_nameshort %in% c("AlauS", "AlCS",  "CurlS", "KertS", "KreS",  "LakS",  "RieS",  "RubS",  "SiesS", "ZeiS" ) ~ "unknown"
@@ -128,14 +129,10 @@ d.cpue <- data %>%
   left_join(t.filterchoice %>% select(ser_nameshort, effort, filtered)) %>% #add filter choice
   filter(filtered != "Dropped") %>% #filter out selected series
   mutate(cpue = case_when( # Calculate CPUE based on data type
-    ser_uni_code == "index" ~ das_value,
-    ser_uni_code == "nr/m2" ~ das_value,
-    ser_uni_code == "kg/ha" ~ das_value,
-    ser_uni_code == "nr" & effort == "constant" ~ das_value,
-    ser_uni_code == "nr" & effort == "model estimate" ~ das_value,
-    ser_uni_code == "kg" & effort == "constant" ~ das_value,
-    ser_uni_code == "kg" & effort == "model estimate" ~ das_value,
-    TRUE ~ das_value/das_effort
+    effort == "index" ~ das_value,
+    effort == "model estimate" ~ das_value,
+    effort == "constant" ~ das_value,
+    effort == "provided" ~ das_value/das_effort
   )
   ) %>% #calculate cpue if effort data is given, otherwise assume that das_value is already CPUE
   select(das_id, das_year, cpue, das_value, das_effort, ser_id, ser_nameshort, ser_hty_code, ser_emu_nameshort, ser_cou_code, ser_distanceseakm, ser_restocking, ecoregion, distance_to_ecoregion, das_qal_id, ser_qal_id)
@@ -145,8 +142,23 @@ dbDisconnect(con_wgeel)
 
 ### Data selection
 
+```{r table_summary, echo = FALSE, tab.cap = paste("Summary of available silver eel series with at least", min.length,  "years of data, and with available quality id (rating), habitat, sampling type, effort, gear, restocking and distance to sea.", sep = " ")}
+# t.summary = data.frame("Category" = character(), 
+#                        "Available data" = numeric(), 
+#                        "Missing data" = numeric()) %>%
+#  add_row("Category" = paste("Nb of series >=", min.length, " years", sep = ""), 
+#          "Available data" = , 
+#          "Missing data" = sum(nvar2))
+
+
+
+#knitr::kable(t.summary)
+```
+
+
+
 ```{r table_filter, echo = FALSE, tab.cap = "Available silver eel time series. Based on the number of years of available data and the availability of effort data, it is shown whether or not a given series was included in the analysis."}
-table <- t.filterchoice %>%
+t.filter <- t.filterchoice %>%
   select(!ser_method) %>% # drop method description
   mutate(notes = ifelse(is.na(notes), "", notes)) %>% #change NAs to blanks in notes
   rename("Series name" = ser_nameshort, #rename table headers
@@ -156,8 +168,12 @@ table <- t.filterchoice %>%
          "Drop reason" = reason.dropped,
          "Comments" = notes)
 
-knitr::kable(table)
+
+knitr::kable(t.filter)
 ```
+
+
+
 
 ```{r figure_series, echo = FALSE, fig.cap = paste("CPUE data of selected silver eel time series with at least", min.length, "years of data.", sep = " "), fig.height=length(unique(d.cpue$ser_nameshort))/3*1.5}
 
@@ -176,8 +192,9 @@ ggplot(data = d.cpue, aes(x = das_year, y = cpue)) +
 
 ggplot(data = d.cpue %>% count(das_year), aes(x = das_year, y = n)) +
   scale_x_continuous(name = "Year") +
-  scale_y_continuous(name = "Number of datapoints") +
+  scale_y_continuous(name = "Number of available data") +
   geom_line() +
+  geom_point() +
   theme_bw()
 
 
