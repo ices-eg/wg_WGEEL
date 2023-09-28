@@ -52,9 +52,8 @@ predict_model <- function(mymodel, reference = 1960:1979){
 
 #' plot_trend_model
 #' makes a ggplot of time-trend of a model
-#' @param predtable the table of prediction, should have a column year, a column
-#' vargroup and column p_std, p_std_in and p_std_max
-
+#' @param predtable the table of prediction, should have a column year
+#' and column p_std, p_std_in and p_std_max
 #' @param xlab xaxis title
 #' @param ylab yaxis title
 #' @param palette the colors to be used, if NULL (default) standard ggplot
@@ -479,4 +478,45 @@ split_per_decade_ge<-function(data){
 #' @examples
 quote_string <- function(string){
   paste0("'", string, "'")
+}
+
+
+#' createReportTableFromPred
+#'
+#' @param predtable 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+createReportTableFromPred <- function(predtable){
+  variables <- names(predtable)
+  vargroup <-  variables[!variables %in% c("year_f",
+                                           "site", 
+                                           "year", 
+                                           "p", 
+                                           "se",
+                                           "mean_ref", 
+                                           "p_std",
+                                           "p_std_min",
+                                           "p_std_max")]
+  if (length(vargroup) == 0){
+    predtable$R <- "R"
+    vargroup <- "R" 
+  }
+  predtable <- predtable %>%
+    dplyr::select(all_of(c(c("year", "p_std"), vargroup))) %>%
+    mutate(p_std = round(100*p_std, digits = 1)) %>%
+    tidyr::pivot_wider(names_from = all_of(vargroup), 
+                       values_from = p_std) %>%
+    dplyr::arrange(year) %>%
+    mutate(yearindecade = year - as.integer(year/10) * 10) %>%
+    mutate(decade = year - yearindecade) %>%
+    tibble::column_to_rownames("year") %>% 
+    tidyr::pivot_wider(id_cols = yearindecade, 
+                       names_from = decade,
+                       values_from = !all_of(c("decade", "yearindecade")),
+                       names_vary = "slowest")
+  predtable
+    
 }

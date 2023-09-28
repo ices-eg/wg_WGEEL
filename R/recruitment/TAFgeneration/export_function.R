@@ -60,8 +60,8 @@ export_predict_model_to_taf <- function(modelname,
   writeLines(command,
              fileConn)
   writeLines(paste0("modelResults <- c(modelResults, ",
-  quote_string(name_output),
-  ")"), fileConn)
+                    quote_string(name_output),
+                    ")"), fileConn)
   
   close(fileConn)
 }
@@ -201,6 +201,9 @@ export_all_modelprocess_to_taf <- function(modelname,
                                string_args)))
     })
   }
+  
+  #finally export the predtable
+  export_predtable_to_taf(modelname, taf_directory)
 }
 
 
@@ -220,4 +223,40 @@ export_data_to_taf <- function(source_directory, taf_directory, files, overwrite
   if (!(all(files %in% lf))) warnings(sprintf("file(s) %s not in the folder", paste(files[!files %in% lf]), collapse=","))
   mapply(function(x) file.copy(from=file.path(source_directory,x), to = taf_directory, overwrite=overwrite), files)
 }
+
+
+#' export_predtable_to_taf
+#' @description update report.R to add the creation of a prediction csv table
+#' @param modelname the name of the model
+#' @param taf_directory path to taf_directory
+#' 
+#' @return nothing
+#' @export 
+
+export_predtable_to_taf <- function(modelname, 
+                                    taf_directory){
+  predname <- paste("pred", modelname, sep = "_")
+  fileConn <- file(paste(taf_directory, "report.R", sep = "/"), 
+                   open = "a+b")
+  writeLines("", fileConn)
+  writeLines(paste0("### Export pred table", modelname), fileConn)
+  formatted_tab <- paste("formatted",
+                         predname,
+                         sep = "_")
+  writeLines(paste0(paste("formatted",
+                   predname,
+                   sep = "_"),
+                   "<- createReportTableFromPred(",
+                   predname,
+                   ")"),
+             fileConn)
+  writeLines(paste0("outputResults <- c(outputResults, ",
+                    quote_string(formatted_tab),
+                    ")"),
+             fileConn)
+  close(fileConn)
+  
+}
+
+
 

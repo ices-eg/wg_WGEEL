@@ -53,6 +53,7 @@ write_to_taf("library(gglot2)", "report.R", taf_directory, FALSE)
 write_to_taf(paste0("load('model/model.rdata')"),
              "report.R",
              taf_directory, FALSE)
+write_to_taf("outputResults <- character(0)", "report.R", taf_directory, FALSE)
 
 
 ######## Exporting models
@@ -76,6 +77,9 @@ write_to_taf(paste0("save(list = modelResults, file = 'model/model.rdata')"),
              "model.R",
              taf_directory, TRUE)
 
+write_to_taf("write.taf(outputResults, dir = 'output')",
+             "report.R",
+             taf_directory, TRUE)
 
 
 
