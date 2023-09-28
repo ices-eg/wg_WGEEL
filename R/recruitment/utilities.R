@@ -505,6 +505,83 @@ print("they are kept in the analysis")
               R_stations = R_stations))
 }
 
+#' Function to create diagram of series used
+#' @
+diagram_series_used <- function(selection_summary){
+
+  library(DiagrammeR)
+  library(magrittr)
+  library(DiagrammeRsvg)
+  library(rsvg)
+  if (any(is.null( vv$nb_series_init,
+          vv$nb_series_final,
+          vv$nb_series_glass_eel,
+          vv$nb_series_older,
+          as.numeric(vv$nb_series_glass_eel_per_area[vv$nb_series_glass_eel_per_area$area=="Elsewhere Europe",2]),
+          as.numeric(vv$nb_series_glass_eel_per_area[vv$nb_series_glass_eel_per_area$area=="North Sea",2]),
+          as.numeric(vv$ser_qal_id_count[vv$ser_qal_id_count$ser_qal_id==0,"len"]),
+          as.numeric(vv$ser_qal_id_count[vv$ser_qal_id_count$ser_qal_id==3,"len"])))) stop("missing values in summary vector vv")
+  node_list <- create_node_df(n=16,		
+      type=rep(c("box",
+              "value"), 16
+      ),
+      label=c(
+          str_c("Series available in ", CY),
+          vv$nb_series_init,
+          "used",
+          vv$nb_series_final,
+          "G + GY",
+          vv$nb_series_glass_eel,
+          "Y",
+          vv$nb_series_older,
+          "NS",
+          as.numeric(vv$nb_series_glass_eel_per_area[vv$nb_series_glass_eel_per_area$area=="Elsewhere Europe",2]),
+          "EE",
+          as.numeric(vv$nb_series_glass_eel_per_area[vv$nb_series_glass_eel_per_area$area=="North Sea",2]),
+          "< 10 Y",
+          as.numeric(vv$ser_qal_id_count[vv$ser_qal_id_count$ser_qal_id==0,"len"]),
+          "discarded",
+          as.numeric(vv$ser_qal_id_count[vv$ser_qal_id_count$ser_qal_id==3,"len"])
+      ),
+      color=c(rep("green",12),"orange","orange","red","red"),
+      style="filled",
+      shape=rep(c("plaintext","circle"),8),
+      value=1:16,
+      fixedsize =FALSE
+  )
+  
+  edge_list<-create_edge_df(
+      from=c(1,2,3,4,5,4,7,2 ,2 ,13,15,6,6,11,9),
+      to=  c(2,3,4,5,6,7,8,13,15,14,16,9,11,12,10),
+      rel="a",
+      label=rep(" ",15),
+      color=rep("grey",15),
+      length=100)
+  
+  
+  
+  igraph1 <- create_graph( attr_theme = NULL)
+  
+  igraph2 <- igraph1%>%
+      add_nodes_from_table(table = node_list, 
+          type_col=type,
+          label_col=label) 
+#igraph2 %>% get_node_df()
+# Add the edges to the graph
+  igraph3 <-igraph2 %>%
+      add_edges_from_table(
+          table = edge_list,
+          from_col = from,
+          to_col = to,
+          from_to_map = id_external
+      )
+  
+  
+  render_graph(igraph3, layout="tree") %>% 
+      export_svg %>%  charToRaw %>% rsvg_png(str_c(imgwd,"series_selection.png"))
+  
+  
+}
 
 #' Function to remove unwanted charaters from latex code
 #' @param str A string

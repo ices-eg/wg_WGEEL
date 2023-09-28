@@ -285,3 +285,15 @@ R_stations <- selection$R_stations",
 }
 
 
+export_diagram_series_to_taf <- function(taf_directory){
+  fileConn <- file(paste(taf_directory, "report.R", sep = "/"), 
+      open = "a+b")
+  
+  writeLines("", fileConn)
+  writeLines("## create diagram of series selection", fileConn)
+  writeLines("load(selection_summary.Rdata)")
+  writeLines("diagram_series_used(selection_summary)", fileConn)
+    close(fileConn)
+}
+
+
