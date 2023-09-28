@@ -3,13 +3,17 @@ load_library("parallel")
 load_library("flextable")
 load_library("tidyverse")
 load_library("eulerr")
+load_library("tibble")
+load_library("ggplot2")
+
 
 #' @title standard graph for raw data
 #' @param data data (format tibble) the first row being the year and then all series
 #' @return a graph in ggplot format
-graph_serie = function(data)
+graph_serie = function(data,choose_variable=c("das_value","cpue"))
 {
-	graph = 	ggplot(data,  aes(x = das_year, y = das_value))  + geom_line()  + geom_point(color = "blue") + facet_wrap(~ ser_nameshort, scales = "free_y") +  xlab("Year") + ylab("Abundance")
+  data_good_format = as_tibble(data) %>% pivot_longer(!das_year, names_to = "ser_nameshort", values_to = choose_variable)
+	graph = 	ggplot(data_good_format,  aes(x = das_year, y = get(choose_variable)))  + geom_line()  + geom_point(color = "blue") + facet_wrap(~ ser_nameshort, scales = "free_y") +  xlab("Year") + ylab("Abundance")
 	return(graph)
 }
 

@@ -3,6 +3,9 @@
 # Author: cedric.briand
 ###############################################################################
 # setwd("C:/workspace\\wg_WGEEL\\R\\shiny_data_visualisation\\shiny_dv\\")
+
+
+
 # lauch(global.R)
 # set connexion to 5435 in database_connexion
 
@@ -16,10 +19,13 @@ load_library("glue")
 load_library("dplyr")
 load_library("tidyr")
 
+
 source("database_reference.R")
 source("database_data.R")
 source("database_precodata.R")
-con_wgeel = dbConnect(RPostgres::Postgres(), dbname=cred$dbname,host=cred$host,port=cred$port,user=cred$user, password=passwordwgeel)
+#cred=read_yaml("../../../credentials.yml")
+
+con_wgeel = dbConnect(RPostgres::Postgres(), dbname=cred$dbname,host=cred$host,port=cred$port,user=cred$user, password=cred$password)
 if (avoid_loading_ref_and_spatial_data){
 	load("data/ref_and_eel_data.Rdata")
 	# remove everything that will be loaded next and that does not contain any spatial data

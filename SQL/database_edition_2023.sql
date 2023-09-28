@@ -636,9 +636,9 @@ ORDER BY ser_cou_code, ser_nameshort;
 SELECT * FROM t_series_ser WHERE geom IS NULL; --48
 UPDATE t_series_ser SET geom=ST_SetSRID(ST_MakePoint(ser_x , ser_y),4326) WHERE geom IS NULL;  -- 48
 
--- WaSEY > 10 years
+-- WaSEY < 10 years
 UPDATE datawg.t_series_ser
-  SET ser_qal_id=1,ser_qal_comment='2023 Cédric > 10 years'
+  SET ser_qal_id=0,ser_qal_comment='2023 Cédric > 10 years'
   WHERE ser_id=163;
 
 -- Soustons > 10 years
@@ -845,3 +845,27 @@ SELECT x.* FROM datawg.t_series_ser x
 WHERE ser_nameshort ilike 'corG';
 
 UPDATE datawg.t_series_ser SET ser_nameshort='CorGY' WHERE ser_nameshort = 'CorG';
+
+SELECT * FROM datawg.t_eelstock_eel  WHERE eel_typ_id=4  AND eel_cou_code='EG'
+ UPDATE datawg.t_eelstock_eel SET (eel_qal_id, eel_qal_comment) = (3,'Azza indicates that there might be some confusion between lagoon production 
+in aquaculture ponds and landings, avaiting next year assessment') WHERE eel_qal_id=1 AND eel_cou_code='EG';
+
+-- correct silver eel series
+
+SELECT * FROM datawg.t_series_ser WHERE ser_lfs_code='S';
+SELECT * FROM datawg.t_series_ser WHERE ser_nameshort= 'PanS'
+UPDATE datawg.t_series_ser SET (ser_hty_code, ser_qal_id, ser_qal_comment, 
+ser_sam_gear, ser_distanceseakm, ser_restocking, ser_area_division) =
+('C',1, 'international survey',206,0, TRUE,'27.3.d')
+WHERE ser_nameshort IN ('PanS','BI4S','BI1S','NSIS');
+
+
+SELECT * FROM datawg.t_series_ser WHERE ser_lfs_code='S' AND ser_cou_code= 'GR';
+UPDATE datawg.t_series_ser SET ser_restocking = FALSE WHERE ser_nameshort IN  ('EamtS', 'WepeS');--2
+UPDATE datawg.t_series_ser SET (ser_restocking, ser_method) = (TRUE, 'This series is affected by restocking, each year 10 % of the imported glass eel are released in a river upstream') WHERE ser_nameshort= 'NorwS';
+
+UPDATE datawg.t_series_ser SET (ser_qal_id, ser_qal_comment) =
+(1,'last year should be good data checked in 2023 with Janis') WHERE 
+ser_nameshort IN ('LilS', 'DaugS');
+
+UPDATE datawg.t_series_ser SET (ser_x, ser_y)= (10.4, 58.3)  WHERE ser_nameshort IN ('YFS1G','YFS2G');

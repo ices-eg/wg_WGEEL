@@ -56,8 +56,6 @@ mydata = dbGetQuery(con_wgeel,query) # Get yellow and silver eel time series fro
 
 dbDisconnect(con_wgeel) #disconnect from WGEEL database
 
-d.effort = read_xlsx("data/effort overview.xlsx") #Load overview of effort type and availability that was manually made at WGEEL 2023
-
 d.ecoregion = read.csv2("data/points_with_ecoregions_forRob.csv") %>% #Load data on ecoregion of dataseries
   rename(ecoregion = new_Ecoreg)
 
@@ -69,6 +67,30 @@ data <- mydata %>%
   left_join(d.ecoregion %>% select(ser_id, ecoregion, distance_to_ecoregion)) # Add ecoregion info
   
 ####################
+### Assign type of effort data available and any relevant notes
+d.effort = data %>%
+  select(ser_nameshort) %>%
+  unique() %>%
+  mutate(effort = case_when(
+    ser_nameshort %in% c("BI1S",  "BI4S",  "BreS",  "FreS",  "KilS",  "KotkS", "LoiS",  "MinS",  "MonS",  "NkaS",  "NSIS",  "OriS",  "PanS", "SeNS",  "SosS",  "SouS",  "StrS",  "DaugS",  "LilS" ) ~ "provided",
+    ser_nameshort %in% c("BRWS",  "DoijS", "HVWS",  "IjsS",  "NiWS",  "NZKS",  "PobeS", "PogoS", "PolsS", "TibeS", "ZMaS" ) ~ "index",
+    ser_nameshort %in% c("BaBS",  "BidS",  "BurS",  "EamtS", "FowS",  "GiBS",  "ImsaS", "KavlS", "LevS",  "NalS",  "NorwS", "ShiS",  "VaakS",  "WepeS") ~ "constant",
+    ser_nameshort %in% c("RibS", "VilS", "WarS") ~ "model estimate",
+    ser_nameshort %in% c("AlauS", "AlCS",  "CurlS", "KertS", "KreS",  "LakS",  "RieS",  "RubS",  "SiesS", "ZeiS" ) ~ "unknown"
+ ),
+ notes = case_when(
+   ser_nameshort %in% c("AlauS",  "CurlS",  "KertS",  "KreS", "LakS",  "RieS",  "RubS",  "SiesS",  "ZeiS") ~ "Next year double check for available effort data on all similar Lithuanian series, and check if only silver eel are reported",
+   ser_nameshort %in% c("AlCS") ~ "A mean of a subsample of commercial catches, no effort known",
+   ser_nameshort %in% c("NorwS",  "WepeS") ~ "Recent years reported as 0, but actually no information available"
+ )
+ )
+
+if(any(is.na(d.effort$effort))){
+  stop("qualitative effort information from the following series is missing: ", 
+                paste(d.effort$ser_nameshort[which(is.na(d.effort$effort))], collapse = ", "),
+                ". Manually insert this into the d.effort dataframe before proceeding.")
+}
+
 ### Filter data down to relevant silver eel series
 
 # Filter data according to time series length, and the availability of effort data
@@ -137,12 +159,25 @@ table <- t.filterchoice %>%
 knitr::kable(table)
 ```
 
-```{r figure_series, echo = FALSE, fig.cap = paste("Available CPUE data on provided silver eel time series with at least", min.length, "years of data.", sep = " "), fig.height=length(unique(d.cpue$ser_nameshort))/3*1.5}
+```{r figure_series, echo = FALSE, fig.cap = paste("CPUE data of selected silver eel time series with at least", min.length, "years of data.", sep = " "), fig.height=length(unique(d.cpue$ser_nameshort))/3*1.5}
 
 ggplot(data = d.cpue, aes(x = das_year, y = cpue)) +
   geom_line() +
   geom_point() +
+  scale_x_continuous(name = "Year") +
+  scale_y_continuous(name = "CPUE") +
   facet_wrap(~ser_nameshort, scales = "free", ncol = 3) +
+  theme_bw()
+
+
+```
+
+```{r figure_nseries, echo = FALSE, fig.cap = paste("Number of available datapoints from silver eel CPUE time-series over time, shown only for time-series with at least", min.length, "years of data.", sep = " ")}
+
+ggplot(data = d.cpue %>% count(das_year), aes(x = das_year, y = n)) +
+  scale_x_continuous(name = "Year") +
+  scale_y_continuous(name = "Number of datapoints") +
+  geom_line() +
   theme_bw()
 
 
