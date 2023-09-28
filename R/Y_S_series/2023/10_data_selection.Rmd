@@ -14,6 +14,7 @@ load_library("dplyr")
 load_library("tidyr")
 load_library("readxl")
 load_library("yaml")
+load_library("ggplot2")
 
 cred=read_yaml("../../../credentials.yml")
 con_wgeel = dbConnect(Postgres(), dbname=cred$dbname,host=cred$host,port=cred$port,user=cred$user, password=cred$password)
@@ -104,12 +105,13 @@ t.filterchoice <- data %>%
 d.cpue <- data %>%
   left_join(t.filterchoice %>% select(ser_nameshort, effort, filtered)) %>% #add filter choice
   filter(filtered != "Dropped") %>% #filter out selected series
-  mutate(cpue = case_when(
+  mutate(cpue = case_when( # Calculate CPUE based on data type
     ser_uni_code == "index" ~ das_value,
     ser_uni_code == "nr/m2" ~ das_value,
     ser_uni_code == "kg/ha" ~ das_value,
     ser_uni_code == "nr" & effort == "constant" ~ das_value,
     ser_uni_code == "nr" & effort == "model estimate" ~ das_value,
+    ser_uni_code == "kg" & effort == "constant" ~ das_value,
     ser_uni_code == "kg" & effort == "model estimate" ~ das_value,
     TRUE ~ das_value/das_effort
   )
@@ -135,4 +137,13 @@ table <- t.filterchoice %>%
 knitr::kable(table)
 ```
 
+```{r figure_series, echo = FALSE, fig.cap = paste("Available CPUE data on provided silver eel time series with at least", min.length, "years of data.", sep = " "), fig.height=length(unique(d.cpue$ser_nameshort))/3*1.5}
 
+ggplot(data = d.cpue, aes(x = das_year, y = cpue)) +
+  geom_line() +
+  geom_point() +
+  facet_wrap(~ser_nameshort, scales = "free", ncol = 3) +
+  theme_bw()
+
+
+```
