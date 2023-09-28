@@ -73,10 +73,10 @@ d.effort = data %>%
   select(ser_nameshort) %>%
   unique() %>%
   mutate(effort = case_when(
-    ser_nameshort %in% c("BreS",  "FreS",  "KilS",   "SeNS",   "SouS",  "StrS",  "DaugS",  "LilS" ) ~ "provided",
+    ser_nameshort %in% c("BreS",  "KilS",   "SeNS",     "StrS",  "DaugS",  "LilS" ) ~ "provided",
     ser_nameshort %in% c("BI1S",  "BI4S", "BRWS",  "DoijS", "HVWS",  "IjsS", "KotkS", "LoiS", "MinS",  "MonS",  "NiWS", "NkaS",  "NZKS", "OriS",  "PanS",  "PobeS", "PogoS", "PolsS", "SosS",  "TibeS", "ZMaS", "NSIS" ) ~ "index",
-    ser_nameshort %in% c("BaBS",  "BidS",  "BurS",  "EamtS", "FowS",  "GiBS",  "ImsaS", "KavlS", "LevS",  "NalS",  "NorwS", "ShiS",  "VaakS",  "WepeS") ~ "constant",
-    ser_nameshort %in% c("RibS", "VilS", "WarS") ~ "model estimate",
+    ser_nameshort %in% c("BaBS",  "BidS",  "BurS",  "EamtS", "FowS", "FreS", "GiBS",  "ImsaS", "KavlS", "LevS",  "NalS",  "NorwS", "ShiS",  "VaakS",  "WepeS") ~ "constant",
+    ser_nameshort %in% c("RibS", "SouS", "VilS", "WarS") ~ "model estimate",
     ser_nameshort %in% c("AlauS", "AlCS",  "CurlS", "KertS", "KreS",  "LakS",  "RieS",  "RubS",  "SiesS", "ZeiS" ) ~ "unknown"
  ),
  notes = case_when(
