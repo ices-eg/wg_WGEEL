@@ -21,6 +21,7 @@ This script is used to fit MARSS-models to silver eel time series. Different sub
 ## R-packages
 
 ```{r}
+source("R/utilities/load_library.R")
 load_library(MARSS)
 load_library(gridExtra)
 load_library(xtable)
@@ -55,7 +56,7 @@ cred=read_yaml('../../credentials.yml') # credentials
 # connect to 
 con_wgeel = dbConnect(Postgres(), dbname=cred$dbname,host=cred$host,port=cred$port,user=cred$user, password=getPass())
 
-
+dbDisconnect(con_wgeel)
 
 ```
 
@@ -116,7 +117,7 @@ mydata = merge(mydata,sampling[,c("ser_id","type")])
 ## Filter data
 ```{r}
 S_data <- mydata %>%
-  select("das_year","ser_nameshort","das_value","ser_hty_code","ser_restocking",) %>%
+  select("das_year","ser_nameshort","das_value","ser_hty_code","ser_restocking","ecoregion") %>%
   complete(das_year,ser_nameshort) %>% # add na´s to non existing years
 pivot_wider(names_from=ser_nameshort,values_from = das_value)
 
@@ -124,7 +125,7 @@ pivot_wider(names_from=ser_nameshort,values_from = das_value)
 
 
 ## Fit MARSS models
-```{r}
+```{r Fit MARSS models, silent=true}
 data("harborSeal")
 harborSeal
 
