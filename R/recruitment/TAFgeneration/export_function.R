@@ -293,13 +293,11 @@ printstatseriesGY <- series_tables$printstatseriesGY",
   
   writeLines("", fileConn)
   writeLines("## 3 Write TAF tables to data directory", fileConn)
-  writeLines("dat <- write.taf(c('glass_eel_yoy', 'older', 'R_stations', 
-  'series_CY', 'series_CYm1', 'series_lost', 'series_prob', 'printstatseriesY',
-  'printstatseriesGNS', 'printstatseriesGEE',  'printstatseriesGY'), dir = 'data')",
-              
-             
-             
-              fileConn)
+  for (tab in c('glass_eel_yoy', 'older', 'R_stations', 
+                'series_CY', 'series_CYm1', 'series_lost', 'series_prob', 'printstatseriesY',
+                'printstatseriesGNS', 'printstatseriesGEE',  'printstatseriesGY'))
+    writeLines(paste0("write.taf(", tab, ", dir = 'data', quote = TRUE)"),
+                      fileConn)
   writeLines("save(list = c('glass_eel_yoy', 'older'), file = 'data/datamodel.Rdata')",
              fileConn)
   writeLines("save(list = c('R_stations', 'vv',

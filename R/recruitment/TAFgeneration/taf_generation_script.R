@@ -1,9 +1,19 @@
+library(stringr)
+
 # set current year
 CY <- 2023
 
 ####setwd
-if (getUsername() == "cedric.briand") wddata <- setwd("C:/workspace/wg_WGEEL/R/recruitment") 
-if (getUsername() == "hdrouineau") wddata <-setwd("~/Documents/Bordeaux/migrateurs/WGEEL/github/wg_WGEEL/R/recruitment/")
+if (Sys.info()["user"] == "cedric.briand") wddata <- setwd("C:/workspace/wg_WGEEL/R/recruitment") 
+if (Sys.info()["user"] == "hdrouineau") wddata <-setwd("~/Documents/Bordeaux/migrateurs/WGEEL/github/wg_WGEEL/R/recruitment/")
+source("utilities.R")
+wddata <- getwd()
+#wddata <- gsub("C:/workspace/gitwgeel/R","C:/workspace/wgeeldata",wd)
+
+datawd <- str_c(wddata,"/",CY,"/data/")
+shinywd <-  str_c(wddata,"/../shiny_data_visualisation/shiny_dv/data/recruitment/")
+load(paste0(shinywd,"recruitment_models.Rdata"))
+
 
 source("TAFgeneration/export_function.R")
 
@@ -14,7 +24,7 @@ library(icesTAF)
 taf_directory <- taf.skeleton(paste0("./TAF/",CY), force = TRUE)                              
 
 ####copy utilities.R to TAF folder
-file.copy("./utilities.R", taf_directory)
+file.copy("./utilities.R", taf_directory, overwrite = TRUE)
 source("TAFgeneration/export_function.R")
 
 ####Load database ----------------------------------
@@ -30,20 +40,20 @@ export_data_to_taf(source_directory=datawd,
 ######## Initialisation of files
 #### data.R
 write_to_taf("## 1 loading", "data.R",taf_directory, TRUE)
-write_to_taf("load('boot/*.Rdata')", "data.R",taf_directory, TRUE)
-write_to_taf("source(utilities.R)", "data.R", taf_directory, FALSE)
+write_to_taf("for (f in list.files('boot/',pattern='Rdata$', full.names=TRUE)) load(f)", "data.R",taf_directory, TRUE)
+write_to_taf("source('utilities.R')", "data.R", taf_directory, FALSE)
 
 
 #### model.R
 write_to_taf("load('data/datamodel.Rdata')", "model.R",taf_directory, TRUE)
-write_to_taf("source(utilities.R)", "model.R", taf_directory, FALSE)
+write_to_taf("source('utilities.R')", "model.R", taf_directory, FALSE)
 write_to_taf("modelResults <- character(0)", "model.R", taf_directory, FALSE)
 
 
 #### report.R
-write_to_taf("source(utilities.R)", "report.R", taf_directory, FALSE)
+write_to_taf("source('utilities.R')", "report.R", taf_directory, FALSE)
 write_to_taf("library(dplyr)", "report.R", taf_directory, TRUE)
-write_to_taf("library(gglot2)", "report.R", taf_directory, FALSE)
+write_to_taf("library(ggplot2)", "report.R", taf_directory, FALSE)
 write_to_taf(paste0("load('model/model.rdata')"),
              "report.R",
              taf_directory, FALSE)
