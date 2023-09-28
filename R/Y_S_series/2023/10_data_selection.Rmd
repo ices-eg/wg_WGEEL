@@ -159,12 +159,25 @@ table <- t.filterchoice %>%
 knitr::kable(table)
 ```
 
-```{r figure_series, echo = FALSE, fig.cap = paste("Available CPUE data on provided silver eel time series with at least", min.length, "years of data.", sep = " "), fig.height=length(unique(d.cpue$ser_nameshort))/3*1.5}
+```{r figure_series, echo = FALSE, fig.cap = paste("CPUE data of selected silver eel time series with at least", min.length, "years of data.", sep = " "), fig.height=length(unique(d.cpue$ser_nameshort))/3*1.5}
 
 ggplot(data = d.cpue, aes(x = das_year, y = cpue)) +
   geom_line() +
   geom_point() +
+  scale_x_continuous(name = "Year") +
+  scale_y_continuous(name = "CPUE") +
   facet_wrap(~ser_nameshort, scales = "free", ncol = 3) +
+  theme_bw()
+
+
+```
+
+```{r figure_nseries, echo = FALSE, fig.cap = paste("Number of available datapoints from silver eel CPUE time-series over time, shown only for time-series with at least", min.length, "years of data.", sep = " ")}
+
+ggplot(data = d.cpue %>% count(das_year), aes(x = das_year, y = n)) +
+  scale_x_continuous(name = "Year") +
+  scale_y_continuous(name = "Number of datapoints") +
+  geom_line() +
   theme_bw()
 
 
