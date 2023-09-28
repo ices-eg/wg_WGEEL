@@ -81,7 +81,7 @@ Q.models <- c("diagonal and equal", "diagonal and unequal")
 
 # Model parameters(the same across  all models) 
 U.model <- "unequal"
-R.model <- "diagonal and equal"
+R.model <- "diagonal and unequal"
 A.model <- "scaling"
 B.model <- "identity"
 x0.model <- "unequal"
@@ -117,6 +117,10 @@ if (i == 1) next # one m for panmictic so only run 1 Q
 }
 
 ```
+```{r make table}
+flextable(out.tab)
+```
+
 ```{r best model}
 best_model <- fits[[which.min(out.tab$AICc)]] 
 ```
@@ -125,8 +129,11 @@ best_model <- fits[[which.min(out.tab$AICc)]]
 ```{r plot trends, silent=TRUE}
 Xt <- predict(best_model,type="xtT",interval = "confidence")
 Xt <- Xt$pred
-Xt$t <- Years
-Xt <- Xt %>% rename(Year=t, subpopulation=.rownames, xt=estimate)
+Xt$t <- Years # add data on years
+Xt <- Xt %>% 
+  rename(Year=t, subpopulation=.rownames, xt=estimate)
+
+# plot subpopulation trends
 ggplot(Xt,aes(group=subpopulation, y=xt, x=Year,color=subpopulation)) + 
   geom_line() +
   geom_line(aes(y=`Lo 95`),linetype="dashed") +
@@ -134,9 +141,18 @@ ggplot(Xt,aes(group=subpopulation, y=xt, x=Year,color=subpopulation)) +
 ```
 
 ```{r Plot smoothed state, silent=TRUE}
-Yt <- predict(best_fit,type="ytT",interval = "confidence")
+Yt <- predict(best_model,type="ytT",interval = "confidence")
 Yt <- Yt$pred
 Yt$t <- Years
-Yt <- Yt %>% rename(Year=t, subpopulation=.rownames, xt=estimate)
+Yt <- Yt %>% rename(Year=t, site=.rownames, yt=estimate)
+
+# plot subpopulation trends
+ggplot(Yt,aes(y=yt, x=Year)) + 
+  geom_line() +
+  geom_line(aes(y=`Lo 95`),linetype="dashed") +
+  geom_line(aes(y=`Hi 95`),linetype="dashed") +
+  geom_point(aes(y=y)) +
+  facet_wrap(vars(site),scales="free_y")  
+
 ```
 
