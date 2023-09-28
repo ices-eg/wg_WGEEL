@@ -1,0 +1,28 @@
+ser_id;ser_namesh;ser_namelo;ser_typ_id;new_Ecoreg;distance;series.kep;series.k_3;TypeWater;Area_km2;SubjectiveSize
+197;PanS;Pandalus;3;NA;0;474;NA;Sea;;Sea
+327;LevS;Leven Silver;3;Celtic Seas;2690.981963;318;GB;River;257.5;Small
+401;NalS;Nalon river basin;3;Bay of Biscay and the Iberian Coast;9771.706724;395;ES;River;4886.5;Medium
+203;GiBS;Girnoch Burn;3;Greater North Sea;50493.88159;205;GB;Tributary;2115.4;Small
+202;ShiS;Shieldaig;3;Celtic Seas;1261.646944;522;GB;River;14.2;Small
+220;BreS;Bresle downstream migration trap;3;Greater North Sea;11725.19119;67;FR;River;743;Small
+221;LoiS;Loire silver eel serie;3;Bay of Biscay and the Iberian Coast;65545.8592;339;FR;River;116981;Large
+230;BurS;Burrishoole;3;Celtic Seas;2529.818704;104;IE;River;108.1;Small
+222;SeNS;Sèvre Niortaise Downstream migration trap;3;Bay of Biscay and the Iberian Coast;48156.99748;512;FR;River;3398.4;Small
+223;SouS;Soustons downstream migration trap;3;Bay of Biscay and the Iberian Coast;5509.87505;583;FR;Lake;312.1;Small
+198;NSIS;NS-IBTS;3;NA;0;373;NA;Sea;;Sea
+199;BI4S;BITS-4;3;NA;0;17;NA;Sea;;Sea
+200;BI1S;BITS-1;3;NA;0;1;NA;Sea;;Sea
+196;ImsaS;Imsa Silver;3;Greater North Sea;0;247;NO;Sea;;Sea
+229;KilS;IE_Killaloe;3;Celtic Seas;21122.1961;295;IE;River;11618.6;Large
+236;HVWS;FDIA_SILVEREELINDEX_HARINGVLIET_WEST;3;Greater North Sea;0;237;NL;Estuary;32047.2;Large
+234;NiWS;FDIA_SILVEREELINDEX_NIEUWE_WATERWEG;3;Greater North Sea;94.10897958;406;NL;Estuary;160221;Large
+245;NkaS;N Kalmar;3;Baltic Sea;0;417;SE;Sea;;Sea
+246;SosS;S Ostergotland;3;Baltic Sea;0;542;SE;Sea;;Sea
+201;BaBS;Baddoch Burn;3;Greater North Sea;57119.45108;37;GB;Tributary;2115.4;Small
+211;RibS;River Ribe;3;Greater North Sea;33969.33626;490;DK;River;3031.3;Small
+210;WarS;Warnow River silver eel index;3;Baltic Sea;3604.199756;593;DE;River;3050.8;Medium
+326;FowS;Fowey resistivity counter;3;Celtic Seas;4968.895426;166;GB;River;146.7;Small
+342;EamtS;Eel Management Units 3;3;Aegean-Levantine Sea;0;155;GR;Lake;1444.3;Small
+399;BidS;BidSoa river basin;3;Bay of Biscay and the Iberian Coast;0;54;ES;Estuary;713;Small
+400;OriS;Oria river basin;3;Bay of Biscay and the Iberian Coast;4826.389492;458;ES;Estuary;863.4;Small
+195;FreS;Frémur;3;Greater North Sea;3431.846379;178;FR;River;59.3;Small
