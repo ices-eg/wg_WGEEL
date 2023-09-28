@@ -55,8 +55,6 @@ query='SELECT
 
 mydata = dbGetQuery(con_wgeel,query) # Get yellow and silver eel time series from WGEEL database
 
-dbDisconnect(con_wgeel) #disconnect from WGEEL database
-
 d.ecoregion = read.csv2("data/points_with_ecoregions_forRob.csv") %>% #Load data on ecoregion of dataseries
   rename(ecoregion = new_Ecoreg)
 
@@ -73,10 +71,10 @@ d.effort = data %>%
   select(ser_nameshort) %>%
   unique() %>%
   mutate(effort = case_when(
-    ser_nameshort %in% c("BreS",  "FreS",  "KilS",   "SeNS",   "SouS",  "StrS",  "DaugS",  "LilS" ) ~ "provided",
+    ser_nameshort %in% c("BreS",  "KilS",   "SeNS",     "StrS",  "DaugS",  "LilS" ) ~ "provided",
     ser_nameshort %in% c("BI1S",  "BI4S", "BRWS",  "DoijS", "HVWS",  "IjsS", "KotkS", "LoiS", "MinS",  "MonS",  "NiWS", "NkaS",  "NZKS", "OriS",  "PanS",  "PobeS", "PogoS", "PolsS", "SosS",  "TibeS", "ZMaS", "NSIS" ) ~ "index",
-    ser_nameshort %in% c("BaBS",  "BidS",  "BurS",  "EamtS", "FowS",  "GiBS",  "ImsaS", "KavlS", "LevS",  "NalS",  "NorwS", "ShiS",  "VaakS",  "WepeS") ~ "constant",
-    ser_nameshort %in% c("RibS", "VilS", "WarS") ~ "model estimate",
+    ser_nameshort %in% c("BaBS",  "BidS",  "BurS",  "EamtS", "FowS", "FreS", "GiBS",  "ImsaS", "KavlS", "LevS",  "NalS",  "NorwS", "ShiS",  "VaakS",  "WepeS") ~ "constant",
+    ser_nameshort %in% c("RibS", "SouS", "VilS", "WarS") ~ "model estimate",
     ser_nameshort %in% c("AlauS", "AlCS",  "CurlS", "KertS", "KreS",  "LakS",  "RieS",  "RubS",  "SiesS", "ZeiS" ) ~ "unknown"
  ),
  notes = case_when(
@@ -137,7 +135,7 @@ d.cpue <- data %>%
   ) %>% #calculate cpue if effort data is given, otherwise assume that das_value is already CPUE
   select(das_id, das_year, cpue, das_value, das_effort, ser_id, ser_nameshort, ser_hty_code, ser_emu_nameshort, ser_cou_code, ser_distanceseakm, ser_restocking, ecoregion, distance_to_ecoregion, das_qal_id, ser_qal_id)
 
-dbDisconnect(con_wgeel)
+dbDisconnect(con_wgeel) #disconnect from WGEEL database
 ```
 
 ### Data selection
