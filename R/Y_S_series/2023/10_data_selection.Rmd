@@ -53,7 +53,7 @@ query='SELECT
 
 mydata = dbGetQuery(con_wgeel,query) # Get yellow and silver eel time series from WGEEL database
 
-dbDisconnect(con_wgeel) #disconnect
+dbDisconnect(con_wgeel) #disconnect from WGEEL database
 
 d.effort = read_xlsx("data/effort overview.xlsx") #Load overview of effort type and availability that was manually made at WGEEL 2023
 
@@ -79,7 +79,7 @@ data <- mydata %>%
 min.length = 10 #minimum time-series length, delete series with fewer number of years
 
 #Overview table to be used in the subgroup text to show which series were kept and which were discarded
-t.filterchoice = data %>% 
+t.filterchoice <- data %>% 
   count(ser_nameshort, ser_method) %>% #filter data down to series name and method, while counting time series length
   left_join(d.effort %>% select(ser_nameshort, effort, notes)) %>% #Add information on effort type/availability
   mutate(filtered = case_when(
@@ -102,12 +102,21 @@ t.filterchoice = data %>%
 
 # Apply the filter to the data, calculate CPUE, process data to output format
 d.cpue <- data %>%
-  left_join(t.filterchoice %>% select(ser_nameshort, filtered)) %>% #add filter choice
+  left_join(t.filterchoice %>% select(ser_nameshort, effort, filtered)) %>% #add filter choice
   filter(filtered != "Dropped") %>% #filter out selected series
-  mutate(cpue = if_else(is.na(das_effort), das_value, das_value/das_effort)) %>% #calculate cpue if effort data is given, otherwise assume that das_value is already CPUE
+  mutate(cpue = case_when(
+    ser_uni_code == "index" ~ das_value,
+    ser_uni_code == "nr/m2" ~ das_value,
+    ser_uni_code == "kg/ha" ~ das_value,
+    ser_uni_code == "nr" & effort == "constant" ~ das_value,
+    ser_uni_code == "nr" & effort == "model estimate" ~ das_value,
+    ser_uni_code == "kg" & effort == "model estimate" ~ das_value,
+    TRUE ~ das_value/das_effort
+  )
+  ) %>% #calculate cpue if effort data is given, otherwise assume that das_value is already CPUE
   select(das_id, das_year, cpue, das_value, das_effort, ser_id, ser_nameshort, ser_hty_code, ser_emu_nameshort, ser_cou_code, ser_distanceseakm, ser_restocking, ecoregion, distance_to_ecoregion, das_qal_id, ser_qal_id)
 
-
+dbDisconnect(con_wgeel)
 ```
 
 ### Data selection
@@ -123,7 +132,7 @@ table <- t.filterchoice %>%
          "Drop reason" = reason.dropped,
          "Comments" = notes)
 
-knitr::kable(table, format="html")
+knitr::kable(table)
 ```
 
 
