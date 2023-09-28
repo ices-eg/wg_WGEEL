@@ -14,6 +14,7 @@ load_library("dplyr")
 load_library("tidyr")
 load_library("readxl")
 load_library("yaml")
+load_library("ggplot2")
 
 cred=read_yaml("../../../credentials.yml")
 con_wgeel = dbConnect(Postgres(), dbname=cred$dbname,host=cred$host,port=cred$port,user=cred$user, password=cred$password)
@@ -55,8 +56,6 @@ mydata = dbGetQuery(con_wgeel,query) # Get yellow and silver eel time series fro
 
 dbDisconnect(con_wgeel) #disconnect from WGEEL database
 
-d.effort = read_xlsx("data/effort overview.xlsx") #Load overview of effort type and availability that was manually made at WGEEL 2023
-
 d.ecoregion = read.csv2("data/points_with_ecoregions_forRob.csv") %>% #Load data on ecoregion of dataseries
   rename(ecoregion = new_Ecoreg)
 
@@ -68,6 +67,30 @@ data <- mydata %>%
   left_join(d.ecoregion %>% select(ser_id, ecoregion, distance_to_ecoregion)) # Add ecoregion info
   
 ####################
+### Assign type of effort data available and any relevant notes
+d.effort = data %>%
+  select(ser_nameshort) %>%
+  unique() %>%
+  mutate(effort = case_when(
+    ser_nameshort %in% c("BI1S",  "BI4S",  "BreS",  "FreS",  "KilS",  "KotkS", "LoiS",  "MinS",  "MonS",  "NkaS",  "NSIS",  "OriS",  "PanS", "SeNS",  "SosS",  "SouS",  "StrS",  "DaugS",  "LilS" ) ~ "provided",
+    ser_nameshort %in% c("BRWS",  "DoijS", "HVWS",  "IjsS",  "NiWS",  "NZKS",  "PobeS", "PogoS", "PolsS", "TibeS", "ZMaS" ) ~ "index",
+    ser_nameshort %in% c("BaBS",  "BidS",  "BurS",  "EamtS", "FowS",  "GiBS",  "ImsaS", "KavlS", "LevS",  "NalS",  "NorwS", "ShiS",  "VaakS",  "WepeS") ~ "constant",
+    ser_nameshort %in% c("RibS", "VilS", "WarS") ~ "model estimate",
+    ser_nameshort %in% c("AlauS", "AlCS",  "CurlS", "KertS", "KreS",  "LakS",  "RieS",  "RubS",  "SiesS", "ZeiS" ) ~ "unknown"
+ ),
+ notes = case_when(
+   ser_nameshort %in% c("AlauS",  "CurlS",  "KertS",  "KreS", "LakS",  "RieS",  "RubS",  "SiesS",  "ZeiS") ~ "Next year double check for available effort data on all similar Lithuanian series, and check if only silver eel are reported",
+   ser_nameshort %in% c("AlCS") ~ "A mean of a subsample of commercial catches, no effort known",
+   ser_nameshort %in% c("NorwS",  "WepeS") ~ "Recent years reported as 0, but actually no information available"
+ )
+ )
+
+if(any(is.na(d.effort$effort))){
+  stop("qualitative effort information from the following series is missing: ", 
+                paste(d.effort$ser_nameshort[which(is.na(d.effort$effort))], collapse = ", "),
+                ". Manually insert this into the d.effort dataframe before proceeding.")
+}
+
 ### Filter data down to relevant silver eel series
 
 # Filter data according to time series length, and the availability of effort data
@@ -102,12 +125,22 @@ t.filterchoice <- data %>%
 
 # Apply the filter to the data, calculate CPUE, process data to output format
 d.cpue <- data %>%
-  left_join(t.filterchoice %>% select(ser_nameshort, filtered)) %>% #add filter choice
+  left_join(t.filterchoice %>% select(ser_nameshort, effort, filtered)) %>% #add filter choice
   filter(filtered != "Dropped") %>% #filter out selected series
-  mutate(cpue = if_else(is.na(das_effort), das_value, das_value/das_effort)) %>% #calculate cpue if effort data is given, otherwise assume that das_value is already CPUE
+  mutate(cpue = case_when( # Calculate CPUE based on data type
+    ser_uni_code == "index" ~ das_value,
+    ser_uni_code == "nr/m2" ~ das_value,
+    ser_uni_code == "kg/ha" ~ das_value,
+    ser_uni_code == "nr" & effort == "constant" ~ das_value,
+    ser_uni_code == "nr" & effort == "model estimate" ~ das_value,
+    ser_uni_code == "kg" & effort == "constant" ~ das_value,
+    ser_uni_code == "kg" & effort == "model estimate" ~ das_value,
+    TRUE ~ das_value/das_effort
+  )
+  ) %>% #calculate cpue if effort data is given, otherwise assume that das_value is already CPUE
   select(das_id, das_year, cpue, das_value, das_effort, ser_id, ser_nameshort, ser_hty_code, ser_emu_nameshort, ser_cou_code, ser_distanceseakm, ser_restocking, ecoregion, distance_to_ecoregion, das_qal_id, ser_qal_id)
 
-
+dbDisconnect(con_wgeel)
 ```
 
 ### Data selection
@@ -123,7 +156,16 @@ table <- t.filterchoice %>%
          "Drop reason" = reason.dropped,
          "Comments" = notes)
 
-knitr::kable(table, format="html")
+knitr::kable(table)
 ```
 
+```{r figure_series, echo = FALSE, fig.cap = paste("Available CPUE data on provided silver eel time series with at least", min.length, "years of data.", sep = " "), fig.height=length(unique(d.cpue$ser_nameshort))/3*1.5}
 
+ggplot(data = d.cpue, aes(x = das_year, y = cpue)) +
+  geom_line() +
+  geom_point() +
+  facet_wrap(~ser_nameshort, scales = "free", ncol = 3) +
+  theme_bw()
+
+
+```
