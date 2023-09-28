@@ -190,7 +190,7 @@ if(getUsername() == 'EDIAZ')
   shpwd=str_c(wddata,"/wgeel2013/emu/") 
 }
 # some of the functions used later in that script :
-source('utility_functions.R')
+source('utilities.R')
 graphics.off() # close all graphics devices
 # the results will be stored in a list, when I first run the program,
 # on the second run this list will be loaded and I can avoid some steps in the calculation

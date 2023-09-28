@@ -116,7 +116,7 @@ d.cpue <- data %>%
   ) %>% #calculate cpue if effort data is given, otherwise assume that das_value is already CPUE
   select(das_id, das_year, cpue, das_value, das_effort, ser_id, ser_nameshort, ser_hty_code, ser_emu_nameshort, ser_cou_code, ser_distanceseakm, ser_restocking, ecoregion, distance_to_ecoregion, das_qal_id, ser_qal_id)
 
-
+dbDisconnect(con_wgeel)
 ```
 
 ### Data selection

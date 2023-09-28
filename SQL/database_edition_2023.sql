@@ -823,3 +823,25 @@ ALTER TABLE datawg.series_summary
   OWNER TO postgres;
  GRANT ALL ON TABLE datawg.series_summary TO wgeel; 	
  GRANT ALL ON TABLE datawg.series_summary TO wgeel_read;  
+ 
+ 
+ -- the Meuse is influence by stocking. In ser_qal_id it uses a 4
+ -- we did not really expect to use the ser_qal_id 4 it creates trouble in the
+ -- counting of data. I'll update it to 3 and change the  program to include 4
+ 
+ 
+ -- Esti says that EMSBGY is to be put to 3
+
+SELECT x.* FROM datawg.t_series_ser x
+WHERE ser_nameshort ilike '%Meu%';
+UPDATE datawg.t_series_ser
+  SET ser_qal_id=3
+  WHERE ser_id=40; 
+
+-- corG is corGY
+
+
+SELECT x.* FROM datawg.t_series_ser x
+WHERE ser_nameshort ilike 'corG';
+
+UPDATE datawg.t_series_ser SET ser_nameshort='CorGY' WHERE ser_nameshort = 'CorG';
