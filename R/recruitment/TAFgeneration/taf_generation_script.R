@@ -50,6 +50,7 @@ write_to_taf("source('utilities.R')", "model.R", taf_directory, FALSE)
 write_to_taf("modelResults <- character(0)", "model.R", taf_directory, FALSE)
 
 
+
 #### report.R
 write_to_taf("source('utilities.R')", "report.R", taf_directory, FALSE)
 write_to_taf("library(dplyr)", "report.R", taf_directory, TRUE)
@@ -83,10 +84,14 @@ export_all_modelprocess_to_taf("model_older",
 write_to_taf(paste0("save(list = modelResults, file = 'model/model.rdata')"),
              "model.R",
              taf_directory, TRUE)
+#### report.R
 
 write_to_taf("write.taf(outputResults, dir = 'output')",
              "report.R",
              taf_directory, TRUE)
 
+write_to_taf("for (f in list.files('./','REPORT', full.names=TRUE, recursive=TRUE)) file.copy(f, 'report/')",
+             "report.R",
+             taf_directory, TRUE)
 
 

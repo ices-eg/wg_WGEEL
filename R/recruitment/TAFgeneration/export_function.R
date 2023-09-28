@@ -278,24 +278,24 @@ R_stations <- selection$R_stations",
   writeLines("", fileConn)
   writeLines("series_tables <- make_table_series(vv, R_stations, wger)
 vv <- series_tables$vv
-R_stations <- series_tables$R_stations 
-series_CY <- series_tables$series_CY
-series_CYm1 <- series_tables$series_CYm1
-series_lost <- series_tables$series_lost
-series_prob <- series_tables$series_prob
-printstatseriesY <- series_tables$printstatseriesY
-printstatseriesGNS <- series_tables$printstatseriesGNS
-printstatseriesGEE <- series_tables$printstatseriesGEE
-printstatseriesGY <- series_tables$printstatseriesGY",
+REPORTR_stations <- series_tables$R_stations 
+REPORTseries_CY <- series_tables$series_CY
+REPORTseries_CYm1 <- series_tables$series_CYm1
+REPORTseries_lost <- series_tables$series_lost
+REPORTseries_prob <- series_tables$series_prob
+REPORTprintstatseriesY <- series_tables$printstatseriesY
+REPORTprintstatseriesGNS <- series_tables$printstatseriesGNS
+REPORTprintstatseriesGEE <- series_tables$printstatseriesGEE
+REPORTprintstatseriesGY <- series_tables$printstatseriesGY",
              fileConn)
   
   
   
   writeLines("", fileConn)
   writeLines("## 3 Write TAF tables to data directory", fileConn)
-  for (tab in c('glass_eel_yoy', 'older', 'R_stations', 
-                'series_CY', 'series_CYm1', 'series_lost', 'series_prob', 'printstatseriesY',
-                'printstatseriesGNS', 'printstatseriesGEE',  'printstatseriesGY'))
+  for (tab in c('glass_eel_yoy', 'older', 'REPORTR_stations', 
+                'REPORTseries_CY', 'REPORTseries_CYm1', 'REPORTseries_lost', 'REPORTseries_prob', 'REPORTprintstatseriesY',
+                'REPORTprintstatseriesGNS', 'REPORTprintstatseriesGEE',  'REPORTprintstatseriesGY'))
     writeLines(paste0("write.taf(", tab, ", dir = 'data', quote = TRUE)"),
                       fileConn)
   writeLines("save(list = c('glass_eel_yoy', 'older'), file = 'data/datamodel.Rdata')",
