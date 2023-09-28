@@ -2,25 +2,19 @@
 #' add lines to the TAF model.R file which corresponds to the model
 #' @param modelname the name of the object containing the model
 #' @param taf_directory path to the taf directory
-#' @param append should the model be appended to model.R(default TRUE)
 #'
 #' @return nothing
 #' @export
 #'
 #' @examples
 export_model_to_taf <- function(modelname, 
-                                taf_directory, 
-                                append = TRUE){
+                                taf_directory){
   mymodel <- get(modelname)
-  if (append){
-    fileConn <- file(paste(taf_directory, "model.R", sep = "/"), 
-                     open = "a+b")
-    writeLines("", fileConn)
-    writeLines("", fileConn)
-  } else {
-    fileConn <- file(paste(taf_directory, "model.R", sep = "/"), 
-                     open = "w")
-  }
+  
+  fileConn <- file(paste(taf_directory, "model.R", sep = "/"), 
+                   open = "a+b")
+  writeLines("", fileConn)
+  writeLines("", fileConn)
   
   writeLines(paste("#######RUN MODEL", modelname), fileConn)
   command <- mymodel$call
@@ -28,7 +22,9 @@ export_model_to_taf <- function(modelname,
                    paste(deparse(command), collapse = "\n")),
              fileConn)
   
-  writeLines("modelResults <- c(modelResults, modelname)", fileConn)
+  writeLines(paste0("modelResults <- c(modelResults, ",
+                    quote_string(modelname),
+                    ")"), fileConn)
   
   close(fileConn)
 }
@@ -38,7 +34,6 @@ export_model_to_taf <- function(modelname,
 #' @param modelname the name of the object containing the model
 #' @param taf_directory path to the taf directory
 #' @param reference reference period as a string (default "1960:1979")
-#' @param vargroup the grouping variable (default area), NULL if no grouping
 #'
 #' @return nothing
 #' @export
@@ -46,17 +41,12 @@ export_model_to_taf <- function(modelname,
 #' @examples
 export_predict_model_to_taf <- function(modelname, 
                                         taf_directory,
-                                        reference = "1960:1979", 
-                                        vargroup = "area"){
+                                        reference = "1960:1979"){
   fileConn <- file(paste(taf_directory, "model.R", sep = "/"), 
                    open = "a+b")
   writeLines("", fileConn)
   writeLines("", fileConn)
-  if (is.null(vargroup)) {
-    vargroup <- "NULL"
-  } else {
-    vargroup <- paste0("'",vargroup,"'")
-  }
+  
   name_output <- paste("pred", modelname, sep = "_")
   writeLines(paste("##PREDICTION MODEL", modelname), fileConn)
   command <- paste(name_output, 
@@ -64,13 +54,14 @@ export_predict_model_to_taf <- function(modelname,
                    "predict_model(",
                    paste(modelname,
                          reference,
-                         vargroup,
                          sep=", "),
                    ")"
   )
   writeLines(command,
              fileConn)
-  writeLines("modelResults <- c(modelResults, name_output)", fileConn)
+  writeLines(paste0("modelResults <- c(modelResults, ",
+  quote_string(name_output),
+  ")"), fileConn)
   
   close(fileConn)
 }
@@ -87,7 +78,6 @@ export_predict_model_to_taf <- function(modelname,
 #' @param units default "in"
 #' @param dpi default 150
 #' @param format default png
-#' @param vargroup the grouping variable (default area), NULL if no grouping
 #' @param xlab xaxis title
 #' @param ylab yaxis title
 #' @param palette the colors to be used, if NULL (default) standard ggplot
@@ -106,7 +96,6 @@ export_graph_to_TAF <- function(modelname,
                                 units = "in",
                                 dpi = 150,
                                 format = "png",
-                                vargroup = "area",
                                 xlab = "", 
                                 ylab = "",
                                 palette = NULL,
@@ -155,6 +144,68 @@ export_graph_to_TAF <- function(modelname,
   close(fileConn)
 }
 
+
+#' write_to_taf
+#' write a line to taf
+#' @param lines the lines to be written
+#' @param file the TAF file to modify
+#' @param taf_directory the taf directory
+#' @param blank should an empty line be inserted first
+#'
+#' @return
+#' @export
+#'
+#' @examples
+write_to_taf <- function(lines, file, taf_directory, blank = TRUE){
+  fileConn <- file(paste(taf_directory, file, sep = "/"), 
+                   open = "a+b")
+  if (blank)
+    writeLines("", fileConn)
+  writeLines(lines, fileConn)
+  close(fileConn)
+}
+
+
+#' export_all_modelprocess_to_taf
+#' @description export all the model filling model.R, report.R
+#' @param modelname the name of the model
+#' @param taf_directory path to taf_directory
+#' @param reference the reference period as a string (default "1960:1979")
+#' @param graphparam a list of named lists (one per graph) specifying the
+#' graph to be generated
+#' @details
+#' basically, the function call the other export functions, it aims at 
+#' simplifying the main script
+#' 
+#' @return nothing
+#' @export 
+
+export_all_modelprocess_to_taf <- function(modelname, 
+                                           taf_directory, 
+                                           reference = "1960:1979",
+                                           graph_param){
+  #first we export the model
+  export_model_to_taf(modelname, taf_directory)
+  
+  #then the prediction
+  export_predict_model_to_taf(modelname, taf_directory, reference)
+  
+  #then the graph
+  if (length(graph_param) > 0){
+    graphargs <- list(modelname = modelname,
+                      taf_directory = taf_directory)
+    lapply(graph_param, function(g){
+      args <- c(graphargs, g)
+      string_args <- gsub("list", "", deparse1(args))
+      eval(parse(text = paste0("export_graph_to_TAF",
+                               string_args)))
+    })
+  }
+}
+
+
+
+
 #' export_data_to_taf
 #' @description copy files to taf_directory
 #' @param source_directory path to source directory
@@ -165,8 +216,8 @@ export_graph_to_TAF <- function(modelname,
 #' @rdname export_data_to_taf
 #' @export 
 export_data_to_taf <- function(source_directory, taf_directory, files, overwrite = TRUE){
-lf <- list.files(path= source_directory)
-if (!(all(files %in% lf))) warnings(sprintf("file(s) %s not in the folder", paste(files[!files %in% lf]), collapse=","))
-mapply(function(x) file.copy(from=file.path(source_directory,x), to = taf_directory, overwrite=overwrite), files)
- }
+  lf <- list.files(path= source_directory)
+  if (!(all(files %in% lf))) warnings(sprintf("file(s) %s not in the folder", paste(files[!files %in% lf]), collapse=","))
+  mapply(function(x) file.copy(from=file.path(source_directory,x), to = taf_directory, overwrite=overwrite), files)
+}
 
