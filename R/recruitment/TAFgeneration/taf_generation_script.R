@@ -18,20 +18,6 @@ file.copy("./utilities.R", taf_directory)
 source("TAFgeneration/export_function.R")
 
 ####Load database ----------------------------------
-
-
-cred=read_yaml("../../credentials.yml")
-pwd = passwordwgeel = password = cred$password
-con = dbConnect(RPostgres::Postgres(), 
-                dbname=cred$dbname,
-                host=cred$host,
-                port=cred$port,
-                user=cred$user, 
-                password=passwordwgeel)
-dir.create(str_c(wddata,"/",CY),showWarnings = FALSE)
-datawd <- str_c(wddata,"/",CY,"/data/")
-dir.create(datawd, showWarnings = FALSE)
-load_database(con, path=datawd)
 export_data_to_taf(source_directory=datawd, 
                    taf_directory=taf_directory, 
                    files= c("wger_init.Rdata", 
@@ -42,7 +28,12 @@ export_data_to_taf(source_directory=datawd,
 
 
 ######## Initialisation of files
+#### data.R
+write_to_taf("## 1 loading", "data.R",taf_directory, TRUE)
+write_to_taf("load('boot/*.Rdata')", "data.R",taf_directory, TRUE)
+
 #### model.R
+write_to_taf("load('data/datamodel.Rdata')", "model.R",taf_directory, TRUE)
 write_to_taf("source(utilities.R)", "model.R", taf_directory, FALSE)
 write_to_taf("modelResults <- character(0)", "model.R", taf_directory, FALSE)
 
@@ -55,6 +46,9 @@ write_to_taf(paste0("load('model/model.rdata')"),
              taf_directory, FALSE)
 write_to_taf("outputResults <- character(0)", "report.R", taf_directory, FALSE)
 
+
+######## Making data selection
+export_selection_to_taf(taf_directory = taf_directory)
 
 ######## Exporting models
 ylab = expression(frac(p,bar(p)[1960-1979]))

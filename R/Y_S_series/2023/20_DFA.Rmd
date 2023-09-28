@@ -1,5 +1,38 @@
 ### DFA
 
+We carry out a Dynamic Factor Analysis, a multivariate
+method aiming at detecting common trends in a set of time series [@zuur2003a].
+Such an exercise is worthwhile only when the number of available time series is important, 
+therefore, we restricted this analysis on the period post 1980. The trends were analysed only for 
+silver eels. The analysis is based on the time series of silver eel 
+time series of abundance collected during the successive WGEEL Data Calls and 
+contribute to the response to ToR b “Report on developments in the state of the European eel
+(*Anguilla anguilla*) stock, the fisheries on it and other anthropogenic impacts”.
+
+The DFA method is fully detailed in [@zuur2003]. The basic idea is to decompose each time series into a weighted sum of a few common trends and a noise factor:
+$$
+\begin{aligned}
+Y_{j,t}=\mu_j + \sum_{i=1}^{n} w_{i,j} \cdot X_{i,t} +\epsilon_{j,t} \qquad \mbox{ with } \left \{ \epsilon_{j,t} \right \}  \sim N(0,\Sigma)
+\end{aligned}
+$$
+with $Y_{j, t}$ the value of the series $j$ at time $t$, $\mu_j$ an intercept, $n$ the number of common trends, $w_{i, j}$ the weight of trend $i$ in the series $j$, $X_{i,t}$ the value of trend $i$ at time $t$ and $\epsilon_{j,t}$ a normal noise, potentially correlated between series through the variance-covariance matrix $\Sigma$ . Therefore, $X_{i,t}$ represent the trends common to the series and are modelled as random walks:
+
+$$
+\begin{aligned}
+X_{i,t}=X_{i,t-1}+f_{i,t} \qquad \mbox{ with } f_{i,t} \sim N(0,Q)
+\end{aligned}
+$$
+with $f_{i,t}$ the noise on the trend $i$ at time $t$ which follows a normal law, possibly correlated between trends with the variance-covariance matrix $Q$ which can be set to the identity matrix [@zuur2003a].
+The method thus allows both to extract the common trends through the estimates of $X$, but also to see the importance of each trend in each series through $w$.
+
+To fit the DFA, the user as to put some additional constraints. We will make 2 kinds of assumptions on $\Sigma$:
+
+* $\Sigma$ is a diagonal matrix with equal elements in the diagonal (e.g. time series are independent with similar values of noise)
+* $\Sigma$ is a diagonal matrix with unequal elements in the diagonal (e.g. time series are independent with different values of noise)
+
+
+One to 5 common trends are tested. The best combination of $\Sigma$ and number of trends is chosen by comparing AIC criteria. 
+
 ```{r DFA-setup}
 #| echo = FALSE,
 load_library("MARSS")
@@ -8,6 +41,10 @@ source("../DFA_functions.R")
 
 
 ```{r arrange-data}
+
+## select only data =>1980
+
+d.cpue<-d.cpue%>%filter(das_year>1979)
 
 ## Arrange the data for the dfa
   silver_arr <-d.cpue %>%
@@ -22,7 +59,7 @@ source("../DFA_functions.R")
 ```{r run-dfa}
 #Design of experiments
 S=c("diagonal and equal")
-nbtrend=1:10
+nbtrend=1:5
 expe=expand.grid(S=S,nbtrend=nbtrend)
 S=c("diagonal and unequal")
 nbtrend=1:5
@@ -52,6 +89,12 @@ ggplot2::autoplot(best_fit_dfa, plot.type = "qqplot.std.model.resids.ytt1")
 
 formatted_matrices_dfa= results_DFA(best_fit_dfa)
 ```
+
+
+
+
+
+
 ```{r dfa-trends}
 
 signe_trend<-c()
