@@ -31,6 +31,8 @@ export_data_to_taf(source_directory=datawd,
 #### data.R
 write_to_taf("## 1 loading", "data.R",taf_directory, TRUE)
 write_to_taf("load('boot/*.Rdata')", "data.R",taf_directory, TRUE)
+write_to_taf("source(utilities.R)", "data.R", taf_directory, FALSE)
+
 
 #### model.R
 write_to_taf("load('data/datamodel.Rdata')", "model.R",taf_directory, TRUE)
@@ -39,6 +41,7 @@ write_to_taf("modelResults <- character(0)", "model.R", taf_directory, FALSE)
 
 
 #### report.R
+write_to_taf("source(utilities.R)", "report.R", taf_directory, FALSE)
 write_to_taf("library(dplyr)", "report.R", taf_directory, TRUE)
 write_to_taf("library(gglot2)", "report.R", taf_directory, FALSE)
 write_to_taf(paste0("load('model/model.rdata')"),
