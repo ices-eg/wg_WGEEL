@@ -106,7 +106,6 @@ graphics.off() # close all graphics devices
 # the results will be stored in a list, when I first run the program,
 # on the second run this list will be loaded and I can avoid some steps in the calculation
 # by setting the chunks as eval=FALSE
-vv <- list()
 
 ```
 
@@ -132,6 +131,22 @@ if(sum(is.na(wger_init$area))>0) stop("At least one series has not been affected
 
 
 ```{r select_series, echo=FALSE, fig.show='hide', eval=TRUE, results="hide", warning = FALSE, message = FALSE, error=FALSE}
+#this function do the selection of series, returning several datasets as well as
+#vv (a list with interesting statistics)
+selection <- select_series(wger_init)
+vv <- selection$vv
+glass_eel_yoy <- selection$glass_eel_yoy
+older <- selection$older
+wger <- selection$wger
+R_stations <- selection$R_stations
+save(wger, file = paste0(datawd, "wger.Rdata"))
+save(older, file = paste0(datawd, "older.Rdata"))
+save(glass_eel_yoy, file = paste0(datawd, "glass_eel_yoy.Rdata"))
+
+save(wger, file = paste0(shinywd,"wger.Rdata"))
+save(older, file = paste0(shinywd,"older.Rdata"))
+save(glass_eel_yoy, file = paste0(shinywd, "glass_eel_yoy.Rdata"))
+
 
 ```
 

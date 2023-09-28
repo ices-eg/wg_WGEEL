@@ -289,7 +289,19 @@ load_database <- function(con, path, year=strftime(Sys.Date(), format="%Y")){
   }
 }
 
-select_series <- function(){
+#' select_series
+#' the function does the series selection, removing and displaying series that
+#' are discarded or kept because of identified quality issues (ser_qal_id,
+#' das_qal_id) 
+#' @param wger_init the dataseries table
+#' @param R_stations table with information on series
+#' @return a list with data frames for further analysis, as well as vv, a list
+#' that includes key statistics of the selection process
+#' @export
+#'
+#' @examples
+select_series <- function(wger_init, R_stations){
+  vv <- list() ## vv is a list to store interesting statistics
   
   
 # wger_init is used to keep the "whole" dataset, just in case we mess with it afterwards
@@ -297,8 +309,9 @@ select_series <- function(){
   
   vv$nb_series_init <- length(unique(wger$site)) # this is the true number at the beginning
   
-print("Series with qal_id = 0 and spanning more than ten years, along with their true length ?")
-  
+print("Series with qal_id = 0 and spanning more than ten years, along with their true length")
+print("they are not kept in the analysis")
+
 print(  left_join(
       wger_init %>% dplyr::group_by(ser_id, site, ser_qal_id) %>%
           dplyr::summarize(span=max(year)-min(year)+1) %>% 
@@ -311,8 +324,9 @@ print(  left_join(
           dplyr::select(site, len)
   )%>%	print(n=Inf) )
   
-print("Series with qal_id = 1 and spanning less than ten years, number consecutive years ?")
-  
+print("Series with qal_id 1 or 4 and spanning less than ten years, number consecutive years ?")
+print("they are kept in the analysis")
+
   left_join(
       wger_init %>% group_by(ser_id, site, ser_qal_id) %>%
           dplyr::summarize(span=max(year)-min(year)+1) %>% 
@@ -325,24 +339,23 @@ print("Series with qal_id = 1 and spanning less than ten years, number consecuti
           dplyr::select(site, len)
   )%>%	print(n=Inf) 
   
-# Here I'm using the interface with series to edit / modify series.
-  
+
   (vv$ser_qal_id_count <- wger_init %>% group_by(ser_qal_id) %>% distinct(ser_id) %>%dplyr::summarize(len=n()))
   wger <- wger[wger$ser_qal_id==1|wger$ser_qal_id==4,]
   
   
-  vv$nb_series_init_qual1 <- length(unique(wger$site))
+  vv$nb_series_init_qual1 <- length(unique(wger$site)) #number of series thare are kept of removing ser_qal_id 0
   
 # check on series discarded -----------------------------------------------
   
-# So far I haven't automated the decision rule to only integrate new series if they
+# There is no automatic rule to include series that
 # are more than 10 year long. So each year we have to check. Some of the series have been
 # discared for other reasons and this is stated in column eel_qal_comment of the t_series_ser table
   
   wgerdiscarded <- wger_init[wger_init$ser_qal_id!=1,]
   
 # series marked as "0" might have a very low value but not included in the analysis, here replaced by NA
-  wgerdiscarded$value[wgerdiscarded$das_qal_id==0] <- NA
+  wgerdiscarded$value[wgerdiscarded$das_qal_id==0] <- NA #das_qal_id=0 means data are not good
 # storing this information in a list for eventual later display and check
   vv$length_discarded <- tapply(wgerdiscarded$value,wgerdiscarded$site,function(X) sum(!is.na(X)))
 # below comments for 2018 after checking the series
@@ -358,6 +371,9 @@ print("Series with qal_id = 1 and spanning less than ten years, number consecuti
 # Series with data to be removed have eel_qal_id = 3
 # Series about which we have serious doubts but that we choose to keep have eel_qal_id = 4
   
+  
+  
+  #This is a way to check that data with identified issues are indeed excluded from the analysis
 # All values labelled 0 must have no data 
   should_be_na <-  wger[!is.na(wger$das_qal_id) & wger$das_qal_id==0 & is.na(wger$das_value),c("value")]
   should_be_na_id <-  wger[!is.na(wger$das_qal_id)&wger$das_qal_id==0 & is.na(wger$das_value),c("id")]
@@ -478,20 +494,15 @@ print("Series with qal_id = 1 and spanning less than ten years, number consecuti
 # Finally saving the data
   ###############################################################
   
-  save(wger, file = paste0(datawd, "wger.Rdata"))
-  save(older, file = paste0(datawd, "older.Rdata"))
-  save(glass_eel_yoy, file = paste0(datawd, "glass_eel_yoy.Rdata"))
-  
-  save(wger, file = paste0(shinywd,"wger.Rdata"))
-  save(older, file = paste0(shinywd,"older.Rdata"))
-  save(glass_eel_yoy, file = paste0(shinywd, "glass_eel_yoy.Rdata"))
   
   
-#load(paste(datawd,"wger.Rdata",sep="/"))
-#load(paste(datawd,"older.Rdata",sep="/"))
-#load(paste(datawd,"glass_eel_yoy.Rdata",sep="/"))
   write.table(glass_eel_yoy,file=str_c(datawd,"glass_eel_yoy.csv"), sep=";")
   write.table(older,file=str_c(datawd,"older.csv"), sep=";")
+  return(list(vv=vv,
+              glass_eel_yoy = glass_eel_yoy,
+              older = older,
+              wger = wger,
+              R_stations = R_stations))
 }
 
 
