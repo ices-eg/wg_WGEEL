@@ -221,7 +221,10 @@ export_all_modelprocess_to_taf <- function(modelname,
 export_data_to_taf <- function(source_directory, taf_directory, files, overwrite = TRUE){
   lf <- list.files(path= source_directory)
   if (!(all(files %in% lf))) warnings(sprintf("file(s) %s not in the folder", paste(files[!files %in% lf]), collapse=","))
-  mapply(function(x) file.copy(from=file.path(source_directory,x), to = taf_directory, overwrite=overwrite), files)
+  mapply(function(x) file.copy(from=file.path(source_directory,x),
+                               to = paste0(taf_directory, "/boot/"),
+                               overwrite=overwrite),
+         files)
 }
 
 
@@ -258,5 +261,27 @@ export_predtable_to_taf <- function(modelname,
   
 }
 
+
+export_selection_to_taf <- function(taf_directory){
+  fileConn <- file(paste(taf_directory, "data.R", sep = "/"), 
+                   open = "a+b")
+  
+  writeLines("", fileConn)
+  writeLines("## 2 Preprocess data", fileConn)
+  writeLines("selection <- select_series(wger_init)
+vv <- selection$vv
+glass_eel_yoy <- selection$glass_eel_yoy
+older <- selection$older
+wger <- selection$wger
+R_stations <- selection$R_stations",
+             fileConn)
+  writeLines("", fileConn)
+  writeLines("## 3 Write TAF tables to data directory", fileConn)
+  writeLines("dat <- write.taf(c('glass_eel_yoy', 'older'), dir = 'data')",
+             fileConn)
+  writeLines("save(list = c('glass_eel_yoy', 'older'), file = 'data/datamodel.Rdata')",
+             fileConn)
+  close(fileConn)
+}
 
 
