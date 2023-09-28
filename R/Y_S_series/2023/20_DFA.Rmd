@@ -1,1 +1,7 @@
 ### DFA
+
+```{r DFA-setup}
+#| echo = FALSE,
+load_library("MARSS")
+source("../DFA_functions.R")
+```
