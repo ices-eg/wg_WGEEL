@@ -11,17 +11,17 @@ predict_model <- function(mymodel, reference = 1960:1979, vargroup = "area"){
   #we build the prediction grid
   lookup <- c(site = "as.factor(site)")
   newdata <- expand.grid(mymodel$xlevels) %>%
-    rename(any_of(lookup))
+      rename(any_of(lookup))
   
   names(mymodel$xlevels) <- ifelse(names(mymodel$xlevels) == "as.factor(site)",
-                                   "site",
-                                   names(mymodel$xlevels))
+      "site",
+      names(mymodel$xlevels))
   
   #we only predict for reference site
   if ("site" %in% names(newdata))
     newdata <- newdata %>%
-    dplyr::filter(site==mymodel$xlevels$site[1]) %>%
-    mutate(year = as.numeric(as.character(year_f)))
+        dplyr::filter(site==mymodel$xlevels$site[1]) %>%
+        mutate(year = as.numeric(as.character(year_f)))
   
   newdata$p=predict(mymodel ,newdata = newdata)
   newdata$se=predict(mymodel, newdata = newdata, se.fit=TRUE)[["se.fit"]]
@@ -29,18 +29,18 @@ predict_model <- function(mymodel, reference = 1960:1979, vargroup = "area"){
   #rescale by reference period
   if (is.null(vargroup)){
     newdata <- newdata %>%
-    mutate(customgroup = "1")
+        mutate(customgroup = "1")
     vargroup = "customgroup"
   }
   newdata <- newdata %>%
-    group_by(!!sym(vargroup)) %>%
-    mutate(mean_ref = mean(ifelse(year %in% reference, p, NA), #compute mean over the reference period
-                           na.rm = TRUE)) %>%
-    mutate(p_std = exp(p - mean_ref),
-           p_std_min = exp(p - mean_ref - 1.96 * se),
-           p_std_max = exp(p - mean_ref + 1.96 * se)) %>%
-    ungroup() %>%
-    dplyr::select(-any_of("customgroup"))
+      group_by(!!sym(vargroup)) %>%
+      mutate(mean_ref = mean(ifelse(year %in% reference, p, NA), #compute mean over the reference period
+              na.rm = TRUE)) %>%
+      mutate(p_std = exp(p - mean_ref),
+          p_std_min = exp(p - mean_ref - 1.96 * se),
+          p_std_max = exp(p - mean_ref + 1.96 * se)) %>%
+      ungroup() %>%
+      dplyr::select(-any_of("customgroup"))
   newdata
   
 }
@@ -64,25 +64,25 @@ predict_model <- function(mymodel, reference = 1960:1979, vargroup = "area"){
 #' @examples
 
 plot_trend_model <- function(predtable, 
-                             vargroup = "area",
-                             xlab = "", 
-                             ylab = "",
-                             palette = NULL,
-                             logscale = FALSE,
-                             ...){
+    vargroup = "area",
+    xlab = "", 
+    ylab = "",
+    palette = NULL,
+    logscale = FALSE,
+    ...){
   showlegend <- !is.null(vargroup) #we do not display legend if no grouping
   if (!is.null(vargroup)){
     if (length(vargroup) > 1){
       predtable$group <- interaction(predtable[vargroup],
-                                     sep = ":")
+          sep = ":")
       p <- ggplot(predtable,
-                  aes(x = year,
-                      y = p_std)) 
+          aes(x = year,
+              y = p_std)) 
       vargroup <- "group"
     } else {
       p <- ggplot(predtable,
-                  aes(x = year,
-                      y = p_std) )
+          aes(x = year,
+              y = p_std) )
     }
   } else {
     predtable$group <- "1"
@@ -90,18 +90,18 @@ plot_trend_model <- function(predtable,
     p <- ggplot(predtable, aes(x = year, y = p_std))
   }
   p <- p + 
-    geom_line(aes(col = !!sym(vargroup)), show.legend = showlegend) +
-    geom_ribbon(aes(ymin = p_std_min,
-                    ymax = p_std_max,
-                    fill = !!sym(vargroup)),
-                alpha = .3,
-                show.legend = showlegend)
+      geom_line(aes(col = !!sym(vargroup)), show.legend = showlegend) +
+      geom_ribbon(aes(ymin = p_std_min,
+              ymax = p_std_max,
+              fill = !!sym(vargroup)),
+          alpha = .3,
+          show.legend = showlegend)
   if (logscale)
     p <- p + scale_y_log10()
   if (!is.null(palette))
     p <- p + 
-    scale_fill_manual(values = palette) + 
-    scale_color_manual(values = palette)
+        scale_fill_manual(values = palette) + 
+        scale_color_manual(values = palette)
   p <- p + xlab(xlab) + ylab(ylab) +theme(...) + labs(fill = "", col = "")
   p + theme_bw() + theme(...)
 }
@@ -123,85 +123,85 @@ load_database <- function(con, path, year=strftime(Sys.Date(), format="%Y")){
   
 # Description of the series -------------------------------
 # this will load series used in recruitment ser_typ_id = 1
-
-query ='select 
-    ser_id, ser_nameshort, ser_namelong, ser_typ_id, ser_effort_uni_code,
-    ser_comment, ser_uni_code, ser_lfs_code, ser_hty_code, ser_locationdescription,
-    ser_emu_nameshort, ser_cou_code, ser_area_division, ser_x, ser_y,             
-    ser_sam_id, ser_qal_id, ser_qal_comment,     
-    "tblCodeID", "Station_Code", "Country", "Organisation", "Station_Name",       
-    cou_code, cou_country, cou_order, cou_iso3code,
-    lfs_code, lfs_name, lfs_definition,              
-    ocean,  subocean, f_area, f_subarea,  f_division
-    from datawg.t_series_ser 
-    left join ref.tr_station on ser_tblcodeid=tr_station."tblCodeID"
-    left join ref.tr_country_cou on cou_code=ser_cou_code 
-    left join ref.tr_lifestage_lfs on ser_lfs_code=lfs_code
-    left join ref.tr_faoareas on ser_area_division=f_division
-    where ser_typ_id=1'
-
-R_stations= dbGetQuery(con, query)
-
+  
+  query ='select 
+      ser_id, ser_nameshort, ser_namelong, ser_typ_id, ser_effort_uni_code,
+      ser_comment, ser_uni_code, ser_lfs_code, ser_hty_code, ser_locationdescription,
+      ser_emu_nameshort, ser_cou_code, ser_area_division, ser_x, ser_y,             
+      ser_sam_id, ser_qal_id, ser_qal_comment,     
+      "tblCodeID", "Station_Code", "Country", "Organisation", "Station_Name",       
+      cou_code, cou_country, cou_order, cou_iso3code,
+      lfs_code, lfs_name, lfs_definition,              
+      ocean,  subocean, f_area, f_subarea,  f_division
+      from datawg.t_series_ser 
+      left join ref.tr_station on ser_tblcodeid=tr_station."tblCodeID"
+      left join ref.tr_country_cou on cou_code=ser_cou_code 
+      left join ref.tr_lifestage_lfs on ser_lfs_code=lfs_code
+      left join ref.tr_faoareas on ser_area_division=f_division
+      where ser_typ_id=1'
+  
+  R_stations= dbGetQuery(con, query)
+  
 # Main data  --------------------------------------------------------------
-
-query <- 'SELECT 
-    das_id,
-    das_value,       
-    das_year,
-    das_comment,
-    /* 
-    -- below those are data on effort, not used yet
-    
-    das_effort, 
-    ser_effort_uni_code,       
-    das_last_update,
-    */
-    /* 
-    -- this is the id on quality, used from 2018
-    -- to remove the data with problems on quality from the series
-    -- see WKEEKDATA (2018)
-    das_qal_id,
-    */ 
-    ser_id,            
-    cou_order,
-    ser_nameshort,
-    ser_area_division,
-    ser_qal_id,
-    ser_y,
-    /* 
-    -- this is the id on quality at the level of individual lines of data
-    -- checks are done later to ensure provide a summary of the number of 0 (missing data),
-    -- 3 data discarded, 4 will nor be used either and there should be no series with that code....
-    */ 
-    das_qal_id,
-    das_last_update,
-    f_subarea,
-    lfs_code,          
-    lfs_name
-    from datawg.t_dataseries_das 
-    join datawg.t_series_ser on das_ser_id=ser_id
-    left join ref.tr_lifestage_lfs on ser_lfs_code=lfs_code
-    left join ref.tr_faoareas on ser_area_division=f_division
-    left join ref.tr_country_cou on  cou_code=ser_cou_code
-    where ser_typ_id=1'
-
-wger_init <- dbGetQuery(con, query) # (wge)el (r)ecruitment data
-wger_init <- chnames(wger_init,
-    c("das_id","das_value","das_year","ser_nameshort","ser_area_division","lfs_name"),
-    c("id","value","year","site","area_division","lifestage"))
-
+  
+  query <- 'SELECT 
+      das_id,
+      das_value,       
+      das_year,
+      das_comment,
+      /* 
+      -- below those are data on effort, not used yet
+      
+      das_effort, 
+      ser_effort_uni_code,       
+      das_last_update,
+      */
+      /* 
+      -- this is the id on quality, used from 2018
+      -- to remove the data with problems on quality from the series
+      -- see WKEEKDATA (2018)
+      das_qal_id,
+      */ 
+      ser_id,            
+      cou_order,
+      ser_nameshort,
+      ser_area_division,
+      ser_qal_id,
+      ser_y,
+      /* 
+      -- this is the id on quality at the level of individual lines of data
+      -- checks are done later to ensure provide a summary of the number of 0 (missing data),
+      -- 3 data discarded, 4 will nor be used either and there should be no series with that code....
+      */ 
+      das_qal_id,
+      das_last_update,
+      f_subarea,
+      lfs_code,          
+      lfs_name
+      from datawg.t_dataseries_das 
+      join datawg.t_series_ser on das_ser_id=ser_id
+      left join ref.tr_lifestage_lfs on ser_lfs_code=lfs_code
+      left join ref.tr_faoareas on ser_area_division=f_division
+      left join ref.tr_country_cou on  cou_code=ser_cou_code
+      where ser_typ_id=1'
+  
+  wger_init <- dbGetQuery(con, query) # (wge)el (r)ecruitment data
+  wger_init <- chnames(wger_init,
+      c("das_id","das_value","das_year","ser_nameshort","ser_area_division","lfs_name"),
+      c("id","value","year","site","area_division","lifestage"))
+  
 # selection of the last years with problem for graph --------------------------------------------
-
-query <- paste0("SELECT * FROM datawg.t_series_ser join  datawg.t_dataseries_das ON das_ser_id = ser_id
-        WHERE das_year in(", paste(year,year-1,sep=",",collapse=","),") AND das_qal_id IN (0,3,4) and ser_typ_id=1;")
-last_years_with_problem <- dbGetQuery(con, query)
-
-
+  
+  query <- paste0("SELECT * FROM datawg.t_series_ser join  datawg.t_dataseries_das ON das_ser_id = ser_id
+          WHERE das_year in(", paste(year,year-1,sep=",",collapse=","),") AND das_qal_id IN (0,3,4) and ser_typ_id=1;")
+  last_years_with_problem <- dbGetQuery(con, query)
+  
+  
 # When were the series included ? -------------------------------
-
-query='SELECT * FROM datawg.t_seriesglm_sgl'
-inclusion <- dbGetQuery(con, query)
-############################################################################
+  
+  query='SELECT * FROM datawg.t_seriesglm_sgl'
+  inclusion <- dbGetQuery(con, query)
+  ############################################################################
 # Rebuilding areas used by wgeel (North Sea, Elswhere Europe) from area_divisions
 # See Ices (2008) for the reason why we need to do that
 # We cannot use just one series, as the series from the North Sea have dropped more
@@ -209,78 +209,279 @@ inclusion <- dbGetQuery(con, query)
 # Some of that drop might be explained by decreasing catch in some of the semi-commercial
 # catch and trap and transport series (Ems, Vidaa) but it also concerns fully scientific
 # Estimates....
-###############################################################################
-wger_init[,"area"] <- NA
+  ###############################################################################
+  wger_init[,"area"] <- NA
 # below these are area used in some of the scripts see wgeel 2008 and Willem's Analysis 
 # but currently wgeel only uses two areas so the following script is kept for memory
 # but mostly useless
-wger_init$area2[wger_init$f_subarea%in%'27.4'] <- "North Sea"
-wger_init$area2[wger_init$f_subarea%in%'27.3'] <- "Baltic"
-wger_init$area2[wger_init$f_subarea%in%c('27.6','27.7','27.8','27.9')] <- "Atlantic"
-wger_init$area2[wger_init$f_subarea%in%c('37.1','37.2','37.3')] <- "Mediterranean Sea"
-wger_init[wger_init$area2%in%c("Atlantic","Mediterranean Sea"),"area"] <- "Elsewhere Europe"
+  wger_init$area2[wger_init$f_subarea%in%'27.4'] <- "North Sea"
+  wger_init$area2[wger_init$f_subarea%in%'27.3'] <- "Baltic"
+  wger_init$area2[wger_init$f_subarea%in%c('27.6','27.7','27.8','27.9')] <- "Atlantic"
+  wger_init$area2[wger_init$f_subarea%in%c('37.1','37.2','37.3')] <- "Mediterranean Sea"
+  wger_init[wger_init$area2%in%c("Atlantic","Mediterranean Sea"),"area"] <- "Elsewhere Europe"
 # We consider that the series of glass eel recruitment in the Baltic are influenced
 # similarly in the Baltic and North Sea. This has no effect on Baltic data
-wger_init[wger_init$area2%in%c("Baltic","North Sea"),"area"] <- "North Sea"
-
-#check if all series have been assign to an area
-if (sum(is.na(wger_init$area))>0) {
+  wger_init[wger_init$area2%in%c("Baltic","North Sea"),"area"] <- "North Sea"
   
-  cat("sites with qal_id 1 or 4 and no ref")
-  wger_init %>% dplyr::filter(is.na(area)&(ser_qal_id==1|ser_qal_id==4)) %>% dplyr::select(site) %>% distinct()
-  cat("sites with qal_id 0 and no ref")
-  wger_init %>% dplyr::filter(is.na(area)&ser_qal_id!=1) %>% dplyr::select(site) %>% distinct()
-  stop("At least one series has not been affected to an area, stop this script NOW and check !!!")
-}
-wger_init$area <- as.factor(wger_init$area)
+#check if all series have been assign to an area
+  if (sum(is.na(wger_init$area))>0) {
+    
+    cat("sites with qal_id 1 or 4 and no ref")
+    wger_init %>% dplyr::filter(is.na(area)&(ser_qal_id==1|ser_qal_id==4)) %>% dplyr::select(site) %>% distinct()
+    cat("sites with qal_id 0 and no ref")
+    wger_init %>% dplyr::filter(is.na(area)&ser_qal_id!=1) %>% dplyr::select(site) %>% distinct()
+    stop("At least one series has not been affected to an area, stop this script NOW and check !!!")
+  }
+  wger_init$area <- as.factor(wger_init$area)
 # We will also need this for summary tables per recruitment site, here we go straight to 
 # the result
-R_stations[,"area"] <- NA
-R_stations$area[R_stations$f_subarea%in%c('27.4','27.3')] <- "North Sea"
-R_stations$area[R_stations$f_subarea%in%c('27.6','27.7','27.8','27.9','37.1','37.2','37.3')] <- "Elsewhere Europe"
+  R_stations[,"area"] <- NA
+  R_stations$area[R_stations$f_subarea%in%c('27.4','27.3')] <- "North Sea"
+  R_stations$area[R_stations$f_subarea%in%c('27.6','27.7','27.8','27.9','37.1','37.2','37.3')] <- "Elsewhere Europe"
 #REMOVE THIS !!!!!!!!!!!
 #R_stations$area[is.na(R_stations$area)]<-"Elsewhere Europe"
 #wger_init$area[is.na(wger_init$area)]<-"Elsewhere Europe"
-
-
-stopifnot(all(!is.na(R_stations$f_subarea)))
-
+  
+  
+  stopifnot(all(!is.na(R_stations$f_subarea)))
+  
 # Check that there was no error in the query (while joining foreign table)
-stopifnot(all(!duplicated(wger_init$id)))
+  stopifnot(all(!duplicated(wger_init$id)))
 # creates some variables
-wger_init$decade=factor(trunc(wger_init$year/10)*10)
-wger_init$year_f=factor(wger_init$year)
-wger_init$decade=factor(wger_init$decade,level=sort(unique(as.numeric(as.character(wger_init$decade)))))
-wger_init$ldata=log(wger_init$value)
-wger_init$lifestage=as.factor(wger_init$lifestage)
-
+  wger_init$decade=factor(trunc(wger_init$year/10)*10)
+  wger_init$year_f=factor(wger_init$year)
+  wger_init$decade=factor(wger_init$decade,level=sort(unique(as.numeric(as.character(wger_init$decade)))))
+  wger_init$ldata=log(wger_init$value)
+  wger_init$lifestage=as.factor(wger_init$lifestage)
+  
 # This is a view (like the result of a query) showing a summary of each series, including first year, last year,
 # and duration
-statseries <- dbGetQuery(con, 'select site,namelong,min,max,duration,missing,life_stage,sampling_type,unit,habitat_type,"order",series_kept
-        from datawg.series_summary where ser_typ_id=1')
-t_series_ser <- dbGetQuery(con, 'select ser_id,ser_nameshort,ser_namelong,ser_typ_id,ser_effort_uni_code,
-        ser_comment,ser_uni_code,ser_lfs_code,ser_hty_code,ser_locationdescription,ser_emu_nameshort,ser_cou_code,
-        ser_area_division,ser_tblcodeid,ser_x,ser_y,ser_sam_id,ser_qal_id,ser_qal_comment,ser_ccm_wso_id,ser_dts_datasource,
-        ser_distanceseakm,ser_method,ser_sam_gear,ser_restocking from datawg.t_series_ser where ser_typ_id =1 ')
+  statseries <- dbGetQuery(con, 'select site,namelong,min,max,duration,missing,life_stage,sampling_type,unit,habitat_type,"order",series_kept
+          from datawg.series_summary where ser_typ_id=1')
+  t_series_ser <- dbGetQuery(con, 'select ser_id,ser_nameshort,ser_namelong,ser_typ_id,ser_effort_uni_code,
+          ser_comment,ser_uni_code,ser_lfs_code,ser_hty_code,ser_locationdescription,ser_emu_nameshort,ser_cou_code,
+          ser_area_division,ser_tblcodeid,ser_x,ser_y,ser_sam_id,ser_qal_id,ser_qal_comment,ser_ccm_wso_id,ser_dts_datasource,
+          ser_distanceseakm,ser_method,ser_sam_gear,ser_restocking from datawg.t_series_ser where ser_typ_id =1 ')
 # fix integer64 rounded to zero :-o
-statseries$missing <- as.integer(statseries$missing)
+  statseries$missing <- as.integer(statseries$missing)
 # these data will 
-for (i in 1:length(path)){
-save(wger_init,file=str_c(path[i],"wger_init.Rdata"))
-save(statseries,file=str_c(path[i],"statseries.Rdata"))
-save(R_stations,file=str_c(path[i],"R_stations.Rdata"))
-save(last_years_with_problem,file=str_c(path[i],"last_years_with_problem.Rdata"))
-save(t_series_ser, file=str_c(path([i]),"t_series_ser.Rdata"))
-write.table(R_stations, sep=";",file=str_c(path[i],"R_stations.csv"))
+  for (i in 1:length(path)){
+    save(wger_init,file=str_c(path[i],"wger_init.Rdata"))
+    save(statseries,file=str_c(path[i],"statseries.Rdata"))
+    save(R_stations,file=str_c(path[i],"R_stations.Rdata"))
+    save(last_years_with_problem,file=str_c(path[i],"last_years_with_problem.Rdata"))
+    save(t_series_ser, file=str_c(path[i],"t_series_ser.Rdata"))
+    write.table(R_stations, sep=";",file=str_c(path[i],"R_stations.csv"))
+  }
+}
+
+select_series <- function(){
+  
+  
+# wger_init is used to keep the "whole" dataset, just in case we mess with it afterwards
+  wger <- wger_init
+  
+  vv$nb_series_init <- length(unique(wger$site)) # this is the true number at the beginning
+  
+print("Series with qal_id = 0 and spanning more than ten years, along with their true length ?")
+  
+print(  left_join(
+      wger_init %>% dplyr::group_by(ser_id, site, ser_qal_id) %>%
+          dplyr::summarize(span=max(year)-min(year)+1) %>% 
+          mutate(sup10=span>=10) %>%
+          filter(ser_qal_id %in% c(0,3) & sup10)%>%
+          dplyr::select(site,ser_qal_id,span ),
+      wger_init %>% group_by(ser_id, site, ser_qal_id) %>%
+          filter(!is.na(value)) %>% 
+          dplyr::summarize(len=n()) %>% 
+          dplyr::select(site, len)
+  )%>%	print(n=Inf) )
+  
+print("Series with qal_id = 1 and spanning less than ten years, number consecutive years ?")
+  
+  left_join(
+      wger_init %>% group_by(ser_id, site, ser_qal_id) %>%
+          dplyr::summarize(span=max(year)-min(year)+1) %>% 
+          mutate(sup10=span<10) %>%
+          filter(ser_qal_id %in% c(1,4) & sup10)%>%
+          dplyr::select(site,span, ser_qal_id),
+      wger_init %>% group_by(ser_id, site, ser_qal_id) %>%
+          filter(!is.na(value)) %>% 
+          dplyr::summarize(len=n()) %>% 
+          dplyr::select(site, len)
+  )%>%	print(n=Inf) 
+  
+# Here I'm using the interface with series to edit / modify series.
+  
+  (vv$ser_qal_id_count <- wger_init %>% group_by(ser_qal_id) %>% distinct(ser_id) %>%dplyr::summarize(len=n()))
+  wger <- wger[wger$ser_qal_id==1|wger$ser_qal_id==4,]
+  
+  
+  vv$nb_series_init_qual1 <- length(unique(wger$site))
+  
+# check on series discarded -----------------------------------------------
+  
+# So far I haven't automated the decision rule to only integrate new series if they
+# are more than 10 year long. So each year we have to check. Some of the series have been
+# discared for other reasons and this is stated in column eel_qal_comment of the t_series_ser table
+  
+  wgerdiscarded <- wger_init[wger_init$ser_qal_id!=1,]
+  
+# series marked as "0" might have a very low value but not included in the analysis, here replaced by NA
+  wgerdiscarded$value[wgerdiscarded$das_qal_id==0] <- NA
+# storing this information in a list for eventual later display and check
+  vv$length_discarded <- tapply(wgerdiscarded$value,wgerdiscarded$site,function(X) sum(!is.na(X)))
+# below comments for 2018 after checking the series
+# Farp (Farpener Bach DE) 11 years long enough but stocking influence 
+# DoFp (Fyke on yellow eel) 13 years but fyke nets yellow catch, not really recruitment
+# SeHM (35 year) duplicates
+  
+# Treating individual eel_qal_comment on the series
+# In some series and for some years, there might be a value, and a good reason not to
+# consider that value, e.g. hydropower station on which the pass is built only operated after
+# the recruitment season, or local conditions making it impossible to evaluate recruitment.
+# Series with no data have das_qal_id = 0
+# Series with data to be removed have eel_qal_id = 3
+# Series about which we have serious doubts but that we choose to keep have eel_qal_id = 4
+  
+# All values labelled 0 must have no data 
+  should_be_na <-  wger[!is.na(wger$das_qal_id) & wger$das_qal_id==0 & is.na(wger$das_value),c("value")]
+  should_be_na_id <-  wger[!is.na(wger$das_qal_id)&wger$das_qal_id==0 & is.na(wger$das_value),c("id")]
+  
+  if (! all(is.na(
+          should_be_na
+      )))
+    stop("Rows with id", paste(should_be_na_id[which(!is.na(should_be_na))],collapse=","), 
+        " with qal_id 0 should be NA")
+  
+# Checking series with eel_qal_id 3 (wrong data to be ignored) -------------------------------------
+  
+  removed_id <-  wger[!is.na(wger$das_qal_id)&wger$das_qal_id==3,c("id")] 
+  removed_year <-  wger[!is.na(wger$das_qal_id)&wger$das_qal_id==3,c("year")]
+  removed_site <-  unique(wger[!is.na(wger$das_qal_id)&wger$das_qal_id==3,c("site")])
+  warnings("Rows with ids: ", paste(removed_id,collapse=","),     
+      " years: ", paste(removed_year,collapse=","),
+      " sites: ", paste(removed_site,collapse=","),     
+      " with qal_id = 3 removed from analysis")
+  vv$qual_id_3_removed <- list()
+  vv$qual_id_3_removed$length <- length(removed_id)
+  vv$qual_id_3_removed$year <- removed_year
+  vv$qual_id_3_removed$site <- removed_site
+  
+  
+  
+  
+# For those series, values are replaced with NA -----------------------------------------------------
+  
+  wger[!is.na(wger$das_qal_id) & wger$das_qal_id==3,c("value")] <- NA
+  
+  #########################################################################
+# standardizing with 2000-2009
+# this was a question asked by ACFM ? 2014 ?
+# so it's still done, we produce a graph but don't show it
+# as it might confuse the reader
+  ##########################################################################
+  
+  mdata <- wger[wger$year>=2000 & wger$year<2010,]
+  std_site <- unique(mdata$site[order(mdata$site)])
+# length(std_site) 
+  site <- unique(wger$site[order(wger$site)])
+# length(site)  #52
+  unused_series_2000_2009  <-  site[!site%in%std_site] # series not having data between 2000 and 2009 # "Vida" "YFS1" 
+  vv$sc_2000_2009_unused_series <- unused_series_2000_2009
+  vv$sc_2000_2009_nb <- vv$nb_series_init_qual1-length(vv$sc_2000_2009_unused_series)
+#add a column to R_station for flagging unused series
+  R_stations$unused_2000_2009  <-  FALSE
+  R_stations[R_stations$rec_nameshort %in% unused_series_2000_2009, "unused_2000_2009"]  <-  TRUE
+#ex(std_site)
+# Inag and Maig left out from the analysis 
+  mean_site <- data.frame(mean_2000_2009=tapply(mdata$value,mdata$site,mean,na.rm=TRUE))
+  mean_site$site <- rownames(mean_site)
+  wger <- merge(wger,mean_site,by="site",all.x=TRUE,all.y=FALSE) # here we loose the two stations Inag and Maig and also Frémur
+  wger$value_std_2000_2009 <- wger$value/wger$mean_2000_2009
+  
+  #########################################################################
+#standardizing with mean from 1979-1994
+  ##########################################################################
+  
+  mdata <- wger[wger$year>=1979 & wger$year<1994,]
+  std_site <- unique(mdata$site[order(mdata$site)])
+# length(std_site) # 45
+  site <- unique(wger$site[order(wger$site)])
+# length(site) #49
+  unused_series_1979_1994 <- site[!site%in%std_site] # "Bres" "Fre"  "Inag" "Klit" "Maig" "Nors" "Sle"  "Vac"
+  vv$sc_1979_1994_unused_series <- unused_series_1979_1994
+  vv$sc_1979_1994_nb <- vv$nb_series_init_qual1-length(vv$sc_1979_1994_unused_series)
+#add a column to R_station for flagging unused series
+  R_stations$unused_1979_1994  <-  FALSE
+  R_stations[R_stations$rec_nameshort %in% unused_series_1979_1994, "unused_1979_1994"]  <-  TRUE
+  mean_site <- data.frame(mean_1979_1994=tapply(mdata$value,mdata$site,mean,na.rm=TRUE))
+  mean_site$site <- rownames(mean_site)
+  wger <- merge(wger,mean_site,by="site",all.x=TRUE,all.y=FALSE) 
+  wger$value_std_1979_1994 <- wger$value/wger$mean_1979_1994
+  
+  #########################################################################
+#standardizing with mean (all data)
+  ##########################################################################
+  
+  mean_site <- data.frame(mean = tapply(wger$value,wger$site,mean,na.rm=TRUE))
+  mean_site$site <- rownames(mean_site)
+  wger <- merge(wger,mean_site,by="site",all.x=TRUE,all.y=FALSE) 
+  wger$value_std <- wger$value/wger$mean
+  
+  
+  #########################################################################
+#separating glass eel and yellow eels
+  ##########################################################################
+  
+  
+  glass_eel_yoy <- wger[wger$lifestage!="yellow eel" & wger$year>1959,] #glass eel and yoy
+  older <- wger[wger$lifestage=="yellow eel" & wger$year>1949,] # Advice Drafting 2017 asks to 
+# give from 1949 to be consistent with previous years
+  
+  ##########################################################################
+# Some statistics for later use, nb of year per series
+  #########################################################################
+  
+  nb_year <- colSums(ftable(xtabs(formula = value_std_1979_1994~year+site,data=wger))>0)
+  names(nb_year) <- colnames(xtabs(formula = value_std_1979_1994~year+site,data=wger))
+  
+  ###############################################################
+# some other statistics used there
+  ###############################################################
+  
+  nb_series_glass_eel <- length(unique(glass_eel_yoy$site)) # this will be reported in the pdf later
+  vv$nb_series_glass_eel <- nb_series_glass_eel
+  
+  vv$nb_series_glass_eel_per_area <-glass_eel_yoy %>% distinct(site, area) %>% group_by(area)%>%dplyr::summarize(n())
+  nb_series_older <- length(unique(older$site)) # this will be reported in the pdf later
+  vv$nb_series_older <- nb_series_older
+  nb_series_final <- nb_series_glass_eel+nb_series_older
+  vv$nb_series_final <- nb_series_final
+  
+  
+  ###############################################################
+# Finally saving the data
+  ###############################################################
+  
+  save(wger, file = paste0(datawd, "wger.Rdata"))
+  save(older, file = paste0(datawd, "older.Rdata"))
+  save(glass_eel_yoy, file = paste0(datawd, "glass_eel_yoy.Rdata"))
+  
+  save(wger, file = paste0(shinywd,"wger.Rdata"))
+  save(older, file = paste0(shinywd,"older.Rdata"))
+  save(glass_eel_yoy, file = paste0(shinywd, "glass_eel_yoy.Rdata"))
+  
+  
+#load(paste(datawd,"wger.Rdata",sep="/"))
+#load(paste(datawd,"older.Rdata",sep="/"))
+#load(paste(datawd,"glass_eel_yoy.Rdata",sep="/"))
+  write.table(glass_eel_yoy,file=str_c(datawd,"glass_eel_yoy.csv"), sep=";")
+  write.table(older,file=str_c(datawd,"older.csv"), sep=";")
 }
 
 
-}
 
-#-----------------------------------------------------------------------------
-# Author: cedric.briand
-# utility functions for recruitment
-#-----------------------------------------------------------------------------
 
 
 #' Function to remove unwanted charaters from latex code
@@ -452,4 +653,3 @@ split_per_decade_ge<-function(data){
   cgroupdecade<<-cgroupdecade
   return(df)
 }
-  
