@@ -283,11 +283,18 @@ load_database <- function(con, path, year=strftime(Sys.Date(), format="%Y")){
 # these data will 
   for (i in 1:length(path)){
     save(wger_init,file=str_c(path[i],"wger_init.Rdata"))
+    cat("writing", str_c(path[i],"wger_init.Rdata"),"\n")
     save(statseries,file=str_c(path[i],"statseries.Rdata"))
+    cat("writing", str_c(path[i],"statseries.Rdata"),"\n")
     save(R_stations,file=str_c(path[i],"R_stations.Rdata"))
+    cat("writing", str_c(path[i],"R_stations.Rdata"),"\n")
     save(last_years_with_problem,file=str_c(path[i],"last_years_with_problem.Rdata"))
+    cat("writing", str_c(path[i],"last_years_with_problem.Rdata"),"\n")
     save(t_series_ser, file=str_c(path[i],"t_series_ser.Rdata"))
+    cat("writing", str_c(path[i],"t_series_ser.Rdata"),"\n")
     write.table(R_stations, sep=";",file=str_c(path[i],"R_stations.csv"))
+    cat("writing", str_c(path[i],"R_stations.csv"),"\n")
+    
   }
 }
 
@@ -514,14 +521,6 @@ diagram_series_used <- function(selection_summary){
   library(magrittr)
   library(DiagrammeRsvg)
   library(rsvg)
-  if (any(is.null( selection_summary$nb_series_init,
-          selection_summary$nb_series_final,
-          selection_summary$nb_series_glass_eel,
-          selection_summary$nb_series_older,
-          as.numeric(selection_summary$nb_series_glass_eel_per_area[selection_summary$nb_series_glass_eel_per_area$area=="Elsewhere Europe",2]),
-          as.numeric(selection_summary$nb_series_glass_eel_per_area[selection_summary$nb_series_glass_eel_per_area$area=="North Sea",2]),
-          as.numeric(selection_summary$ser_qal_id_count[selection_summary$ser_qal_id_count$ser_qal_id==0,"len"]),
-          as.numeric(selection_summary$ser_qal_id_count[selection_summary$ser_qal_id_count$ser_qal_id==3,"len"])))) stop("missing values in summary vector selection_summary")
   node_list <- create_node_df(n=16,		
       type=rep(c("box",
               "value"), 16
