@@ -13,11 +13,16 @@ params:
   rerunDFA_yellow: FALSE
   rerunDFA_silver: FALSE
 csl: "../../Rmarkdown/ices-journal-of-marine-science.csl"
+
 ---
 
 ```{r setup, include=FALSE}
 source("../../utilities/load_library.R")
+# choose the number of year to analyse 
 
+n_year <- 10
+
+# setup the book
 knitr::opts_chunk$set(
     echo = TRUE,
     warning = FALSE,

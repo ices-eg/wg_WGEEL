@@ -42,11 +42,13 @@ source("../DFA_functions.R")
 
 ```{r arrange-data}
 
+#current_year=format(Sys.Date(), "%Y")
 ## select only data =>1980
 
-d.cpue <- d.cpue %>%
-    filter(das_year > 1979)
-
+ d.cpue <- d.cpue %>%
+     filter(das_year > as.numeric(current_year)-(n_year+1))
+# d.cpue <- d.cpue %>%
+#     filter(das_year > 1979)
 ## Arrange the data for the dfa
 silver_arr <- d.cpue %>%
     ungroup %>% #removed the ser_id grouping
@@ -71,9 +73,10 @@ expe <- rbind(expe, expand.grid(S = S, nbtrend = nbtrend))
 
 # run DFA
 #modele_S_DFA_nolog <- run_DFA(silver_arr, expe, log = FALSE)
-#save(modele_S_DFA_nolog, file = "DFA.RData")
+#save(modele_S_DFA_nolog, file = "DFA_10.RData")
 
 load("DFA.RData")
+
 ```
 
 ```{r table-summary-results}
@@ -87,7 +90,7 @@ x
 
 graph_dfa <- graph_summary_models(results_dfa)
 
-#best_fit_dfa <- best_DFA(modele_S_DFA_nolog)
+best_fit_dfa <- best_DFA(modele_S_DFA_nolog)
 
 ggplot2::autoplot(best_fit_dfa, plot.type = "std.model.resids.ytT")
 
