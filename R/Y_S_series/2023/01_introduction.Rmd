@@ -2,6 +2,10 @@
 
 ## Yellow and silver eel time series
 
+### summary
+
+### Introduction
+
 Compared to the current glass eel index where a common trend for all areas can be produced, for silver and yellow eel time series we cannot assume, for various reasons, one common trend for all series. Some of these reasons include, but are not limited to, varying age at maturation/silvering, varying natural and anthropogenic mortality.
 
 Due to time constraint only one stage can be examined here. Silver eels can be considered as proxy of future spawner and was such chosen. The analysis on yellow eel time series will be completed in the future, taking an advantage from the results from the silver eel analysis.
