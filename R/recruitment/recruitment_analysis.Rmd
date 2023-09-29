@@ -521,124 +521,6 @@ openxlsx::write.xlsx(x=list("wger_init"=wger_init,
 
 ```
 
-
-
-# Data sources
-# Recruitment
-
-In this section, the latest trends in glass and yellow eel recruitment are
-addressed. The time-series data are derived from fishery-dependent sources (i.e.
-catch records) and also from fishery-independent surveys across much of the
-geographic range of European eel.  The stages are categorized as :
-
-* glass eel (G), continental age 0 years, 
-* a mixture of glass eel and young yellow eel dominated by recruits from the
-  same year (GY), and
-* older yellow eel (Y) recruiting to continental habitats. The yellow eel series
-  might consist of yellow eel of several ages. This is certainly the case for
-  all series from the Baltic (mean age up to 6),  some Irish sites, and sites
-  located far upstream.
-
-The glass eel recruitment time-series have been grouped into two geographical
-areas: 'continental North Sea' (NS) and 'Elsewhere Europe' (EE) (Figure
-\@ref(fig:figure1). The glass eel recruitment time-series have been grouped into
-two geographical areas: 'continental North Sea' (NS) and 'Elsewhere Europe' (EE)
-(Figure 3.4.1). Previous analyses by the working group (ICES, 2010b, p19,
-Bornarel et al. (2017) have shown a different trend between the two sets. This
-is mostly due to a more pronounced decline of the North Sea series compared to
-the Elsewhere Europe area during the 1980s.
-
-The WGEEL has collated information on recruitment from
-`r selection_summary[["nb_series_init"]]` time-series. Some time-series date back to the
-beginning of 20th century (yellow eel, Göta Älv, Sweden) or 1920 (glass eel,
-Loire, France). Among those series `r selection_summary[["nb_series_init_qual1"]]` have been
-selected for further analysis in the wgeel indices; see details on data
-selection and processing below. Depending on the standardization period, the
-number of series  used can be lower and is given for each analysis. 
-
-
-```{r figure1, fig.cap="Zone definition and available data", fig.width=16/2.54, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
-knitr::include_graphics(paste0(imgwd,"figure1.png"))
-
-```
-
-
-## Details on data selection and processing
-
-Out of `r selection_summary[["nb_series_init"]]`, `r selection_summary[["nb_series_final"]]` series were used
-in the analysis. Three rules have been used for this selection procedure.
-
-
-
-Among the time-series based on trap indices, some have reported preliminary data
-for `r CY` as their trapping season had not finished. *As usual, the indices
-given for `r CY` must be considered as provisional especially those for the
-yellow eel.*
-
-
-
-```{r xstatseriesGEE, echo=FALSE, warning = FALSE, message = FALSE, error=FALSE, tab.cap=str_c("Short description of the sampling sites for European eel recruitment data for Elsewhere Europe. Min and max indicate the first year and last year in the records, and the values are given in the n+ and n- columns, indicate the number of years with values and the number of years when there are missing data within the series. Life stage: GY = glass eel and yellow eel, G = glass eel, Y = yellow eel. Unit for the data collected is given (nr = number; index = calculated value following a specified protocol, nr/m2 = number per square metre, nr/h = number per hour, kg/boat/d = kg per boat per day). Habitat: C = coastal water (according to the EU Water Framework Directive, WFD), F = freshwater, MO = marine water (open sea), T = transitional water with lower salinity (according to WFD). Kept = 1 means that the dataseries is used in recruitment analyses.")}
-autofit(flextable(data = printstatseriesGEE)%>%
-          bold(bold = TRUE, part = "header"))
-```
-
-
-```{r xstatseriesGNS, echo=FALSE, warning = FALSE, message = FALSE, error=FALSE,tab.cap=str_c("Short description of the sampling sites for European eel recruitment data in the North Sea. Min and max indicate the first year and last year in the records, and the values are given in the n+ and n- columns, indicate the number of years with values and the number of years when there are missing data within the series. Life stage: GY = glass eel and yellow eel, G = glass eel, Y = yellow eel. Unit for the data collected is given (nr = number; index = calculated value following a specified protocol, nr/m2 = number per square metre, nr/h = number per hour, kg/boat/d = kg per boat per day). Habitat: C = coastal water (according to the EU Water Framework Directive, WFD), F = freshwater, MO = marine water (open sea), T = transitional water with lower salinity (according to WFD). Kept = 1 means that the dataseries is used in recruitment analyses.")}
-	autofit(flextable(data = printstatseriesGNS)%>%
-          bold(bold = TRUE, part = "header"))
-```
-
-```{r xstatseriesGY, echo=FALSE, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE, tab.cap=str_c("Short description of the recruitment sites (continued : stage glass eel and yellow eel)")}
-autofit(flextable(data = printstatseriesGY) %>%
-          bold(bold = TRUE, part = "header"))
-```
-
-
-```{r xstatseriesY, echo=FALSE, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE, tab.cap= str_c("Short description of the recruitment sites (continued : yellow eel series) ")}
-autofit(flextable(data = printstatseriesY)%>%
-          bold(bold = TRUE, part = "header"))
-```
-
-
-```{r xseriesprob, echo=FALSE, warning = FALSE, message = FALSE, error=FALSE,echo=FALSE, tab.cap=str_c("Data in " ,CY, " and ", CY-1, "having problems causing the data in the specific year to be excluded from the analysis. Codes for stages are G = glass eel, GY = glass eel + yellow eel, Y = yellow eel, Division = FAO marine division. Kept: 0 = missing, 1 = good quality, 							2 = wgeel has modified the data, 3 = not used due to poor quality, 4 =	data is used, but there are warnings on its quality")}
-autofit(flextable(data = series_prob[30:nrow(series_prob),])%>%
-          bold(bold = TRUE, part = "header"))
-```
-
-
-```{r xseriesprob1, echo=FALSE, warning = FALSE, message = FALSE, error=FALSE, tab.cap=str_c("Table XXX continued. Data in " ,CY, " and ", CY-1, "having problems causing the data in the specific year to be excluded from the analysis. Codes for stages are G = glass eel, GY = glass eel + yellow eel, Y = yellow eel, Division = FAO marine division. Kept: 0 = missing, 1 = good quality, 2 = wgeel has modified the data, 3 = not used due to poor quality, 4 =	data is used, but there are warnings on its quality")}
-autofit(flextable(data = series_prob[15:30,])%>%
-          bold(bold = TRUE, part = "header"))
-```
-
-
-```{r xseriesprob2, echo=FALSE, warning = FALSE, message = FALSE, error=FALSE, tab.cap=str_c("Table XXX continued. Data in " ,CY, " and ", CY-1, "having problems causing the data in the specific year to be excluded from the analysis. Codes for stages are G = glass eel, GY = glass eel + yellow eel, Y = yellow eel, Division = FAO marine division. Kept: 0 = missing, 1 = good quality, 2 = wgeel has modified the data, 3 = not used due to poor quality, 4 =	data is used, but there are warnings on its quality")}
-autofit(flextable(data = series_prob[30:nrow(series_prob),])%>%
-          bold(bold = TRUE, part = "header"))
-```
-
-
-
-## Number of series available
-
-
-Glass eel and glass eel + young yellow eel time-series available maximum :
-`r selection_summary[["nbmaxglasseel"]]` in `r max(as.numeric(selection_summary[["yearmaxglasseel"]]))`
-`r selection_summary[["nbcurrentglasseel"]]` in `r CY`. The maximum number of older yellow eel
-time-series has increased to `r selection_summary[["nbmaxyellow"]]` in
-`r max(as.numeric(selection_summary[["yearmaxyellow"]]))` but dropped to
-`r selection_summary[["nbcurrentyellow"]]` (Figure \@ref(fig:figure2)).
-
-```{r figure2, fig.cap="Trends in number of glass eel (black circle), glass+young yellow eel (grey triangle) and older yellow eel (black triangle) time-series giving a report in  any specific year.", fig.width=16/2.54, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
-knitr::include_graphics(paste0(imgwd,"figure2.png"))
-```
-
-```{r figure2b, fig.cap="Series selection and analysis. Series less than 10 years are not used in the analysis. Y yellow eel series, G + GY glass and young yellow eel series. NS North Sea, EE Elsewhere Europe", fig.width=16/254, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
-if (file.exists(paste0(imgwd,"series_selection.png")))
-  knitr::include_graphics(paste0(imgwd,"series_selection.png"))
-```
-
-
 ```{r generation_of_plot_data, echo=FALSE, eval=TRUE, results="hide", warning = FALSE, message = FALSE, error=FALSE, echo=FALSE, fig.show='hide'}
 ###################################################
 # Generation of the dataframes used to plot the data
@@ -977,7 +859,6 @@ figure_check_one_series("KatwG",limits=c(1960,2019))
 ```
 
 
-
 ```{r model_for_glass_eel_and_yellow_eel_datasets, echo=FALSE, eval=TRUE, results="hide", warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
 
 glass_eel_yoy$site <- as.factor(glass_eel_yoy$site)
@@ -1103,7 +984,6 @@ save(glmer1, glmer2, glmer3, file=paste0(datawd,glmer.Rdata))
 #fixef(glmer1)['(Intercept)'] + ranef(glmer1)$location
 
 ```
-
 
 
 ```{r model_for_glass_eel_graph_and_predictions, fig.show='hide',echo=FALSE, eval=TRUE, results="hide", warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
@@ -1749,7 +1629,6 @@ save(yellow_eel_pred,file=paste0(shinywd,"yellow_eel_pred.Rdata"))
 ```
 
 
-
 ```{r test_period, echo=FALSE, eval=FALSE, results="hide", warning = FALSE, message = FALSE, error=FALSE, fig.show='hide'}
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 #%************************************************************************************
@@ -1842,6 +1721,259 @@ g<-ggplot(res_pred)+geom_line(aes(x=year,y=pred,color=year_included))+
 figure_inclusion_2 <- g
 save_figure("figure_inclusion_2",figure_inclusion_2,600,480)
 ```
+
+```{r diagramme,echo=FALSE,eval=FALSE,results="hide", warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
+if(!require(DiagrammeR)) install.packages("DiagrammeR") ; require(DiagrammeR)
+if(!require(magrittr)) install.packages("magrittr") ; require(magrittr)
+if(!require(DiagrammeRsvg)) install.packages("DiagrammeRsvg") ; require(DiagrammeRsvg)
+if(!require(rsvg)) install.packages("rsvg") ; require(rsvg)
+
+node_list <- create_node_df(n=16,		
+		type=rep(c("box",
+						"value"), 16
+		),
+		label=c(
+				str_c("Series available in ", CY),
+				selection_summary$nb_series_init,
+				"used",
+				selection_summary$nb_series_final,
+				"G + GY",
+				selection_summary$nb_series_glass_eel,
+				"Y",
+				selection_summary$nb_series_older,
+				"NS",
+				as.numeric(selection_summary$nb_series_glass_eel_per_area[selection_summary$nb_series_glass_eel_per_area$area=="Elsewhere Europe",2]),
+				"EE",
+				as.numeric(selection_summary$nb_series_glass_eel_per_area[selection_summary$nb_series_glass_eel_per_area$area=="North Sea",2]),
+				"< 10 Y",
+				as.numeric(selection_summary$ser_qal_id_count[selection_summary$ser_qal_id_count$ser_qal_id==0,"len"]),
+				"discarded",
+				as.numeric(selection_summary$ser_qal_id_count[selection_summary$ser_qal_id_count$ser_qal_id==3,"len"])
+                
+		),
+		color=c(rep("green",12),"orange","orange","red","red"),
+		style="filled",
+		shape=rep(c("plaintext","circle"),8),
+		value=1:16,
+		fixedsize =FALSE
+)
+
+edge_list<-create_edge_df(
+		from=c(1,2,3,4,5,4,7,2 ,2 ,13,15,6,6,11,9),
+		to=  c(2,3,4,5,6,7,8,13,15,14,16,9,11,12,10),
+		rel="a",
+		label=rep(" ",15),
+		color=rep("grey",15),
+		length=100)
+
+
+
+igraph1 <- create_graph( attr_theme = NULL)
+
+igraph2 <- igraph1%>%
+		add_nodes_from_table(table = node_list, 
+				type_col=type,
+				label_col=label) 
+#igraph2 %>% get_node_df()
+# Add the edges to the graph
+igraph3 <-igraph2 %>%
+		add_edges_from_table(
+				table = edge_list,
+				from_col = from,
+				to_col = to,
+				from_to_map = id_external
+		)
+
+
+render_graph(igraph3, layout="tree")
+
+
+render_graph(igraph3, layout="tree") %>% 
+    export_svg %>%  charToRaw %>% rsvg_png(str_c(imgwd,"series_selection.png"))
+
+
+```
+
+
+
+
+
+# Data sources
+
+In this section, the latest trends in glass and yellow eel recruitment are
+addressed. The time-series data are derived from fishery-dependent sources (i.e.
+catch records) and also from fishery-independent surveys across much of the
+geographic range of European eel. The stages are categorized as : •	glass eel
+(G), continental age 0 years, •	a mixture of glass eel and yellow eel dominated
+by recruits from the same year (GY), and •	yellow eel (Y) recruiting to
+continental habitats. The yellow eel series might consist of yellow eel of
+several ages. This is certainly the case for all series from the Baltic (mean
+age up to 6), some Irish sites, and sites located far upstream. The glass eel
+recruitment time-series have been grouped into two geographical areas:
+‘continental North Sea’ (NS) and ‘Elsewhere Europe’ (EE) (Fig. 2.1). Previous
+analyses by the working group (ICES, 2010, p19, Bornarel et al. (2017) have
+shown a different trend between the two sets. This is mostly due to a more
+pronounced decline of the North Sea series compared to the Elsewhere Europe area
+during the 1980s. The WGEEL has collated information on recruitment from 103
+time-series (Fig. 2.1). Some time-series date back to the beginning of 20th
+century (yellow eel, Göta Älv, Sweden) or 1920 (glass eel, Loire, France). Among
+those series 81 have been selected to calculate the WGEEL recruitment indices;
+see details on data selection and processing below. Depending on the
+standardization period, the number of series used can be lower and is given for
+each analysis.
+
+```{r figure1, fig.cap="Zone definition and available data", fig.width=16/2.54, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
+knitr::include_graphics(paste0(imgwd,"figure1.png"))
+```
+
+Figure 2.1. Map of recruitment sampling stations, colour according to stage
+(white = Glass eel (G); grey = Glass + Yellow eel (GY), yellow = Yellow eel
+(Y)). Full circles represent recruitment series currently used to build the GLM
+trend. 
+
+# Recruitment
+
+In this section, the latest trends in glass and yellow eel recruitment are
+addressed. The time-series data are derived from fishery-dependent sources (i.e.
+catch records) and also from fishery-independent surveys across much of the
+geographic range of European eel.  The stages are categorized as :
+
+* glass eel (G), continental age 0 years, 
+* a mixture of glass eel and young yellow eel dominated by recruits from the
+  same year (GY), and
+* older yellow eel (Y) recruiting to continental habitats. The yellow eel series
+  might consist of yellow eel of several ages. This is certainly the case for
+  all series from the Baltic (mean age up to 6),  some Irish sites, and sites
+  located far upstream.
+
+The glass eel recruitment time-series have been grouped into two geographical
+areas: 'continental North Sea' (NS) and 'Elsewhere Europe' (EE) (Figure
+\@ref(fig:figure1). The glass eel recruitment time-series have been grouped into
+two geographical areas: 'continental North Sea' (NS) and 'Elsewhere Europe' (EE)
+(Figure 3.4.1). Previous analyses by the working group (ICES, 2010b, p19,
+Bornarel et al. (2017) have shown a different trend between the two sets. This
+is mostly due to a more pronounced decline of the North Sea series compared to
+the Elsewhere Europe area during the 1980s.
+
+The WGEEL has collated information on recruitment from
+`r selection_summary[["nb_series_init"]]` time-series. Some time-series date back to the
+beginning of 20th century (yellow eel, Göta Älv, Sweden) or 1920 (glass eel,
+Loire, France). Among those series `r selection_summary[["nb_series_init_qual1"]]` have been
+selected for further analysis in the wgeel indices; see details on data
+selection and processing below. Depending on the standardization period, the
+number of series  used can be lower and is given for each analysis. 
+
+
+
+
+
+## Details on data selection and processing
+Out of the `r selection_summary[["nb_series_init"]]` series  that were  compiled
+in the Data Call ( see  xxxxxx for the full description of the series compiled
+in the data call), `r selection_summary[["nb_series_final"]]`  meet  the
+required conditions to be  used in the analysis to calculate the recruitment
+indexes. 
+
+1. First, if there are two or more series from the same location, i.e. they are
+   not independent, only one series is kept. For instance, the longer of two
+   series has been kept for the Severn (Severn EA, a total of all the glass eel
+   fisheries for England and Wales) while the second series (Severn HMRC) has
+   been dropped from the list, as it was considered a duplicate being based on
+   the same fishery.
+2. The second rule is to exclude a series from the analysis when it is less than
+   ten years long. The series are, however, still updated in the database until
+   they are long enough to be included. If there are missing years, or years
+   excluded for data quality reasons, the data series will be included when the
+   total number of “good” years of data meets the 10 year criterion. Within any
+   series, individual annual data point or points can be excluded from the
+   analysis where a one-off problem is identified which negates the value as an
+   index for that year, such as a major reduction in effort (e.g. Covid or other
+   effort related restriction).
+3. Finally, it was decided to discard recruitment series that were obviously
+   biased by restock- ing (e.g. Farpener Bach in Germany). The following series
+   have been left out due to the reasons mentioned above: 
+
+The following series have been left out due to the reasons mentioned above:
+InagG (IE), PogoG (IT), PovoG (IT),  SeHMG (GB), ShiFG (GB), ShiMG (GB), MiScG
+(PT), MondG (PT), TibnG (IT), EmsHG (DE), WaSG (DE), VeAmG (BE), BroGY (GB) ,
+CorGY (IE ), EmsBGY (DE), FarpGY (DE), FlaGY (GB),  HHKGY (DE), HoSGY (DE),
+LangGY (DE), BroGY (GB), FlaGY (GB), OatGY (GB), SousGY (FR), WaSEY (DE), MeusY
+(BE), VeAmY (BE) ,MiSpY (ES), VeAmY (BE) and WaSEY (DE). See Annex X, table 2
+for  the reason for which the series have been excluded for the recruitment
+analysis.Number of series available 
+
+
+```{r xstatseriesGEE, echo=FALSE, warning = FALSE, message = FALSE, error=FALSE, tab.cap=str_c("Short description of the sampling sites for European eel recruitment data for Elsewhere Europe. Min and max indicate the first year and last year in the records, and the values are given in the n+ and n- columns, indicate the number of years with values and the number of years when there are missing data within the series. Life stage: GY = glass eel and yellow eel, G = glass eel, Y = yellow eel. Unit for the data collected is given (nr = number; index = calculated value following a specified protocol, nr/m2 = number per square metre, nr/h = number per hour, kg/boat/d = kg per boat per day). Habitat: C = coastal water (according to the EU Water Framework Directive, WFD), F = freshwater, MO = marine water (open sea), T = transitional water with lower salinity (according to WFD). Kept = 1 means that the dataseries is used in recruitment analyses.")}
+autofit(flextable(data = printstatseriesGEE)%>%
+          bold(bold = TRUE, part = "header"))
+```
+
+
+```{r xstatseriesGNS, echo=FALSE, warning = FALSE, message = FALSE, error=FALSE,tab.cap=str_c("Short description of the sampling sites for European eel recruitment data in the North Sea. Min and max indicate the first year and last year in the records, and the values are given in the n+ and n- columns, indicate the number of years with values and the number of years when there are missing data within the series. Life stage: GY = glass eel and yellow eel, G = glass eel, Y = yellow eel. Unit for the data collected is given (nr = number; index = calculated value following a specified protocol, nr/m2 = number per square metre, nr/h = number per hour, kg/boat/d = kg per boat per day). Habitat: C = coastal water (according to the EU Water Framework Directive, WFD), F = freshwater, MO = marine water (open sea), T = transitional water with lower salinity (according to WFD). Kept = 1 means that the dataseries is used in recruitment analyses.")}
+	autofit(flextable(data = printstatseriesGNS)%>%
+          bold(bold = TRUE, part = "header"))
+```
+
+```{r xstatseriesGY, echo=FALSE, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE, tab.cap=str_c("Short description of the recruitment sites (continued : stage glass eel and yellow eel)")}
+autofit(flextable(data = printstatseriesGY) %>%
+          bold(bold = TRUE, part = "header"))
+```
+
+
+```{r xstatseriesY, echo=FALSE, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE, tab.cap= str_c("Short description of the recruitment sites (continued : yellow eel series) ")}
+autofit(flextable(data = printstatseriesY)%>%
+          bold(bold = TRUE, part = "header"))
+```
+
+
+```{r xseriesprob, echo=FALSE, warning = FALSE, message = FALSE, error=FALSE,echo=FALSE, tab.cap=str_c("Data in " ,CY, " and ", CY-1, "having problems causing the data in the specific year to be excluded from the analysis. Codes for stages are G = glass eel, GY = glass eel + yellow eel, Y = yellow eel, Division = FAO marine division. Kept: 0 = missing, 1 = good quality, 							2 = wgeel has modified the data, 3 = not used due to poor quality, 4 =	data is used, but there are warnings on its quality")}
+autofit(flextable(data = series_prob[30:nrow(series_prob),])%>%
+          bold(bold = TRUE, part = "header"))
+```
+
+
+```{r xseriesprob1, echo=FALSE, warning = FALSE, message = FALSE, error=FALSE, tab.cap=str_c("Table XXX continued. Data in " ,CY, " and ", CY-1, "having problems causing the data in the specific year to be excluded from the analysis. Codes for stages are G = glass eel, GY = glass eel + yellow eel, Y = yellow eel, Division = FAO marine division. Kept: 0 = missing, 1 = good quality, 2 = wgeel has modified the data, 3 = not used due to poor quality, 4 =	data is used, but there are warnings on its quality")}
+autofit(flextable(data = series_prob[15:30,])%>%
+          bold(bold = TRUE, part = "header"))
+```
+
+
+```{r xseriesprob2, echo=FALSE, warning = FALSE, message = FALSE, error=FALSE, tab.cap=str_c("Table XXX continued. Data in " ,CY, " and ", CY-1, "having problems causing the data in the specific year to be excluded from the analysis. Codes for stages are G = glass eel, GY = glass eel + yellow eel, Y = yellow eel, Division = FAO marine division. Kept: 0 = missing, 1 = good quality, 2 = wgeel has modified the data, 3 = not used due to poor quality, 4 =	data is used, but there are warnings on its quality")}
+autofit(flextable(data = series_prob[30:nrow(series_prob),])%>%
+          bold(bold = TRUE, part = "header"))
+```
+
+
+
+## Number of series available
+
+
+Glass eel and glass eel + young yellow eel time-series available maximum :
+`r selection_summary[["nbmaxglasseel"]]` in `r max(as.numeric(selection_summary[["yearmaxglasseel"]]))`
+`r selection_summary[["nbcurrentglasseel"]]` in `r CY`. The maximum number of older yellow eel
+time-series has increased to `r selection_summary[["nbmaxyellow"]]` in
+`r max(as.numeric(selection_summary[["yearmaxyellow"]]))` but dropped to
+`r selection_summary[["nbcurrentyellow"]]` (Figure \@ref(fig:figure2)).
+
+```{r figure2, fig.cap="Trends in number of glass eel (black circle), glass+young yellow eel (grey triangle) and older yellow eel (black triangle) time-series giving a report in  any specific year.", fig.width=16/2.54, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
+knitr::include_graphics(paste0(imgwd,"figure2.png"))
+```
+
+```{r figure2b, fig.cap="Series selection and analysis. Series less than 10 years are not used in the analysis. Y yellow eel series, G + GY glass and young yellow eel series. NS North Sea, EE Elsewhere Europe", fig.width=16/254, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
+if (file.exists(paste0(imgwd,"series_selection.png")))
+  knitr::include_graphics(paste0(imgwd,"series_selection.png"))
+```
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2034,77 +2166,6 @@ autofit(flextable(yy)%>%
 
 
 # Annex
-```{r diagramme,echo=FALSE,eval=FALSE,results="hide", warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
-if(!require(DiagrammeR)) install.packages("DiagrammeR") ; require(DiagrammeR)
-if(!require(magrittr)) install.packages("magrittr") ; require(magrittr)
-if(!require(DiagrammeRsvg)) install.packages("DiagrammeRsvg") ; require(DiagrammeRsvg)
-if(!require(rsvg)) install.packages("rsvg") ; require(rsvg)
-
-node_list <- create_node_df(n=16,		
-		type=rep(c("box",
-						"value"), 16
-		),
-		label=c(
-				str_c("Series available in ", CY),
-				selection_summary$nb_series_init,
-				"used",
-				selection_summary$nb_series_final,
-				"G + GY",
-				selection_summary$nb_series_glass_eel,
-				"Y",
-				selection_summary$nb_series_older,
-				"NS",
-				as.numeric(selection_summary$nb_series_glass_eel_per_area[selection_summary$nb_series_glass_eel_per_area$area=="Elsewhere Europe",2]),
-				"EE",
-				as.numeric(selection_summary$nb_series_glass_eel_per_area[selection_summary$nb_series_glass_eel_per_area$area=="North Sea",2]),
-				"< 10 Y",
-				as.numeric(selection_summary$ser_qal_id_count[selection_summary$ser_qal_id_count$ser_qal_id==0,"len"]),
-				"discarded",
-				as.numeric(selection_summary$ser_qal_id_count[selection_summary$ser_qal_id_count$ser_qal_id==3,"len"])
-                
-		),
-		color=c(rep("green",12),"orange","orange","red","red"),
-		style="filled",
-		shape=rep(c("plaintext","circle"),8),
-		value=1:16,
-		fixedsize =FALSE
-)
-
-edge_list<-create_edge_df(
-		from=c(1,2,3,4,5,4,7,2 ,2 ,13,15,6,6,11,9),
-		to=  c(2,3,4,5,6,7,8,13,15,14,16,9,11,12,10),
-		rel="a",
-		label=rep(" ",15),
-		color=rep("grey",15),
-		length=100)
-
-
-
-igraph1 <- create_graph( attr_theme = NULL)
-
-igraph2 <- igraph1%>%
-		add_nodes_from_table(table = node_list, 
-				type_col=type,
-				label_col=label) 
-#igraph2 %>% get_node_df()
-# Add the edges to the graph
-igraph3 <-igraph2 %>%
-		add_edges_from_table(
-				table = edge_list,
-				from_col = from,
-				to_col = to,
-				from_to_map = id_external
-		)
-
-
-render_graph(igraph3, layout="tree")
-
-
-render_graph(igraph3, layout="tree") %>% 
-    export_svg %>%  charToRaw %>% rsvg_png(str_c(imgwd,"series_selection.png"))
-
-
-```
 
 ## Additional figures
 

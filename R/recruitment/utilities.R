@@ -519,14 +519,6 @@ diagram_series_used <- function(selection_summary){
   library(magrittr)
   library(DiagrammeRsvg)
   library(rsvg)
-  if (any(is.null( selection_summary$nb_series_init,
-          selection_summary$nb_series_final,
-          selection_summary$nb_series_glass_eel,
-          selection_summary$nb_series_older,
-          as.numeric(selection_summary$nb_series_glass_eel_per_area[selection_summary$nb_series_glass_eel_per_area$area=="Elsewhere Europe",2]),
-          as.numeric(selection_summary$nb_series_glass_eel_per_area[selection_summary$nb_series_glass_eel_per_area$area=="North Sea",2]),
-          as.numeric(selection_summary$ser_qal_id_count[selection_summary$ser_qal_id_count$ser_qal_id==0,"len"]),
-          as.numeric(selection_summary$ser_qal_id_count[selection_summary$ser_qal_id_count$ser_qal_id==3,"len"])))) stop("missing values in summary vector selection_summary")
   node_list <- create_node_df(n=16,		
       type=rep(c("box",
               "value"), 16
