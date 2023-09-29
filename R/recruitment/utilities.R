@@ -1,3 +1,5 @@
+library(dplyr)
+
 #' predict_model
 #' makes prediction using the fitted model
 #' @param mymodel the name of the object containing the model

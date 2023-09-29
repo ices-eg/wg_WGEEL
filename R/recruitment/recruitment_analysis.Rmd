@@ -2189,7 +2189,67 @@ knitr::include_graphics(paste0(imgwd,"figure6.png"))
 
 
 
+## Exploitation Rates
+By dividing glass eel declared landing by the time series of abundance, we an derive a relative indicator of glass eel mortality exploitation rate that can inform on trends in glass eel fishing mortality. The analysis is restricted to Elsewhere Europe since no commercial fisheries took place in the North Sea area in the last years. Moreover, we restricted the analysis to the post 2000 period since recent ICES data calls have focused on those decades. While some landings data are still missing, the diagram suggests that the exploitation rate for glass has decreased after the implementation of the Eel Regulation in 2009 (Year 2009 was removed since French, which accounts for a significant part of the landings, have not reported data for this year) and reached its lowest level from 2014 to 2017. The exploitation rate has remained at this level since then despite an increase from 2017 to 2019. The upcoming landing workshop aiming at reconstructing time series of landings could enable us to go further back in time and to improve. This exercise is currently only feasible for glass eel recruitment: while landings data are available for other stages, we are still missing abundance indices of yellow eel standing stock of for silver eel abundance.
 
+
+
+```{r fishingmortalitydata,  warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
+query="select sum(eel_value),eel_year,eel_emu_nameshort,eel_cou_code from datawg.t_eelstock_eel where eel_typ_id=4 and eel_qal_id=1 and eel_lfs_code in ('G','GY') and eel_year >= 2000 group by eel_year, eel_emu_nameshort,eel_cou_code "
+landings=dbGetQuery(con,query) %>%
+  na.omit() %>%
+  mutate(area=ifelse(eel_cou_code %in% c("DK","NO","NL","DE") | eel_emu_nameshort %in% c("GB_Scot","GB_Nort","GB_Humb","GB_Angl","GB_Tham"),
+                     "North Sea","Elsewhere Europe"))
+emusNS <-landings %>%
+  filter(area=="North Sea") %>%
+  arrange(eel_emu_nameshort) %>%
+  dplyr::select(eel_emu_nameshort) %>%
+  unique() %>%
+  dplyr::pull() %>%
+  paste(collapse=", ")
+emusEE <-landings %>%
+  filter(area!="North Sea") %>%
+  arrange(eel_emu_nameshort) %>%
+  dplyr::select(eel_emu_nameshort) %>%
+  unique() %>%
+  dplyr::pull() %>%
+  paste(collapse=", ")
+                
+
+landings <- landings %>%
+  dplyr::group_by(eel_year,area) %>%
+  dplyr::summarize(landings=sum(sum, na.rm=TRUE)) %>%
+  dplyr::rename(year_f=eel_year) %>%
+  ungroup()
+
+rates <- left_join(dat_ge%>% mutate(year_f=as.numeric(as.character(year_f))),landings ) %>%
+  filter(year_f >= 2000) %>%
+  filter(area=="Elsewhere Europe") %>%
+  mutate(landings=ifelse(year_f==2009, NA, landings))
+
+dbDisconnect(con)
+```
+
+
+
+
+
+```{r fishingmortality, fig.cap=paste("Reported G and GY commerical landings divided by recruitment index for EE (including landings reported in EMUs",emusEE,". The resulting ratio is a relative proxy of the exploitation rate that inform on trends in fishing mortality. The graph is restricted to the post Eel Regulation period since landings data are thought to be of better quality since then. Note that 2000 landings data is not available for GB. Year 2009 was removed since French, which accounts for a significant part of the landings, have not reported data for this year."), fig.width=14/2.54, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
+
+ggplot(rates,aes(x=year_f)) +geom_ribbon(aes(ymin=landings/p_std_1960_1979_max, 
+                                             ymax=landings/p_std_1960_1979_min),
+                                         alpha=.3) +
+  geom_line(aes(y=landings/p_std_1960_1979))+
+  geom_point(aes(y=landings/p_std_1960_1979))+
+  xlab("") + 
+  scale_x_continuous(breaks=seq(2000,2022,3), labels=seq(2000,2022,3))+
+  ylab("Reported landings divided by glass eel recruitment index") +
+  theme_bw()
+
+ggsave(paste0(imgwd,"rates.png"),width=16/2.54,height=12/2.54,dpi=300)
+
+
+```
  
 
 ## Notes to ACOM

@@ -323,7 +323,7 @@ sign_trend_venn = function(venn_list, trend = 1)
 #' @title graph of raw series and trends
 #' @param model DFA model
 #' @return a ggplot
-series_trends_graph = function(model, colored_strip = TRUE)
+series_trends_graph = function(model, data, colored_strip = TRUE)
 {
 	year = as.integer(colnames(model$model$data))
 	TT = length(year)
@@ -331,24 +331,27 @@ series_trends_graph = function(model, colored_strip = TRUE)
 	d$.conf.low <- d$.fitted + qnorm(0.05/2)*d$.sigma
 	d$.conf.up <- d$.fitted - qnorm(0.05/2)*d$.sigma
 	
-	nameshort_ranked = sampling %>% arrange(rank) %>% select(ser_nameshort) %>% pull
+	data_summ<-unique(data.frame(ser_nameshort=data$ser_nameshort,ser_rank=data$ser_rank))
 	
-	d = d  %>% inner_join(sampling, by = c(".rownames" = "ser_nameshort"))%>% mutate(.rownames = factor(.rownames, levels = nameshort_ranked))
+	nameshort_ranked = data_summ %>% arrange(ser_rank) %>% select(ser_nameshort) %>% pull
 	
-	country_to_display = d %>% select(ser_cou_code, color_country, cou_order) %>% unique %>% arrange(cou_order)
+	d = d  %>% inner_join(data_summ, by = c(".rownames" = "ser_nameshort"))%>% mutate(.rownames = factor(.rownames, levels = nameshort_ranked))
+	
+	#country_to_display = d %>% select(ser_cou_code, color_country, cou_order) %>% unique %>% arrange(cou_order)
+	d$.rownames<-factor(d$.rownames,levels=nameshort_ranked,ordered=TRUE)
 	
 	graph = ggplot(data = d) +
 		geom_line(aes(t, .fitted)) +
-		geom_point(aes(t, value, color = ser_cou_code)) +
+		geom_point(aes(t, value)) +
 		geom_ribbon(aes(x=t, ymin=.conf.low, ymax=.conf.up), linetype=2, alpha=0.2) +
 		facet_wrap(vars(.rownames)) +
 		xlab("Year") + ylab("Standardised abundance index")+
 		scale_x_continuous(breaks=seq(1,TT,10),labels=year[seq(1,TT,10)]) +
 		theme_classic() +
-		scale_colour_manual("",
-			breaks = country_to_display$ser_cou_code,
-			values = country_to_display$color_country
-		)  + 
+		# scale_colour_manual("",
+		# 	breaks = country_to_display$ser_cou_code,
+		# 	values = country_to_display$color_country
+		# )  + 
 		theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 	
 	if(colored_strip)
