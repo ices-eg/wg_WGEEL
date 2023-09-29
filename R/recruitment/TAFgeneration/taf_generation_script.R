@@ -85,7 +85,7 @@ write_to_taf(paste0("save(list = modelResults, file = 'model/model.rdata')"),
              "model.R",
              taf_directory, TRUE)
 #### report.R
-
+export_diagram_series_to_taf(taf_directory = taf_directory)
 write_to_taf("write.taf(outputResults, dir = 'output')",
              "report.R",
              taf_directory, TRUE)
@@ -94,4 +94,9 @@ write_to_taf("for (f in list.files('./','REPORT', full.names=TRUE, recursive=TRU
              "report.R",
              taf_directory, TRUE)
 
+         
+         
+##### Write master.R directly in taf
+
+write_file_to_taf(source_file= "TAFmaster.R", destination_file= "master.R", taf_directory= taf_directory)
 

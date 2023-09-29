@@ -166,6 +166,22 @@ write_to_taf <- function(lines, file, taf_directory, blank = TRUE){
 }
 
 
+#' write_file_to_taf
+#' writes a full file to taf
+#' @param source_file the source file
+#' @param destination_file the file name to copy to in taf directory
+#' @param taf_directory the taf directory
+#' @param overwrite = TRUE
+#' @return
+#' @export
+#'
+#' @examples
+write_file_to_taf <- function(source_file, destination_file=NULL, taf_directory){
+  if (is.null(destination_file)) destination_file <- source_file
+  file.copy(source_file, taf_directory)
+  file.rename(from= file.path(taf_directory,source_file), to=file.path(taf_directory,destination_file))
+}
+
 #' export_all_modelprocess_to_taf
 #' @description export all the model filling model.R, report.R
 #' @param modelname the name of the model
@@ -304,6 +320,18 @@ REPORTprintstatseriesGY <- series_tables$printstatseriesGY",
   'REPORTseries_CY', 'REPORTseries_CYm1', 'REPORTseries_lost', 'REPORTseries_prob', 'REPORTprintstatseriesY',
   'REPORTprintstatseriesGNS', 'REPORTprintstatseriesGEE',  'REPORTprintstatseriesGY'), file = 'data/selectionsummary.Rdata')", fileConn)
   close(fileConn)
+}
+
+
+export_diagram_series_to_taf <- function(taf_directory){
+  fileConn <- file(paste(taf_directory, "report.R", sep = "/"), 
+      open = "a+b")
+  
+  writeLines("", fileConn)
+  writeLines("## create diagram of series selection", fileConn)
+  writeLines("load(selection_summary.Rdata)",fileConn)
+  writeLines("diagram_series_used(selection_summary)", fileConn)
+      close(fileConn)
 }
 
 

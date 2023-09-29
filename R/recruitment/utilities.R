@@ -297,19 +297,19 @@ load_database <- function(con, path, year=strftime(Sys.Date(), format="%Y")){
 #' das_qal_id) 
 #' @param wger_init the dataseries table
 #' @param R_stations table with information on series
-#' @return a list with data frames for further analysis, as well as vv, a list
+#' @return a list with data frames for further analysis, as well as selection_summary, a list
 #' that includes key statistics of the selection process
 #' @export
 #'
 #' @examples
 select_series <- function(wger_init, R_stations){
-  vv <- list() ## vv is a list to store interesting statistics
+  selection_summary <- list() ## selection_summary is a list to store interesting statistics
   
   
 # wger_init is used to keep the "whole" dataset, just in case we mess with it afterwards
   wger <- wger_init
   
-  vv$nb_series_init <- length(unique(wger$site)) # this is the true number at the beginning
+  selection_summary$nb_series_init <- length(unique(wger$site)) # this is the true number at the beginning
   
 print("Series with qal_id = 0 and spanning more than ten years, along with their true length")
 print("they are not kept in the analysis")
@@ -342,11 +342,11 @@ print("they are kept in the analysis")
   )%>%	print(n=Inf) 
   
 
-  (vv$ser_qal_id_count <- wger_init %>% group_by(ser_qal_id) %>% distinct(ser_id) %>%dplyr::summarize(len=n()))
+  (selection_summary$ser_qal_id_count <- wger_init %>% group_by(ser_qal_id) %>% distinct(ser_id) %>%dplyr::summarize(len=n()))
   wger <- wger[wger$ser_qal_id==1|wger$ser_qal_id==4,]
   
   
-  vv$nb_series_init_qual1 <- length(unique(wger$site)) #number of series thare are kept of removing ser_qal_id 0
+  selection_summary$nb_series_init_qual1 <- length(unique(wger$site)) #number of series thare are kept of removing ser_qal_id 0
   
 # check on series discarded -----------------------------------------------
   
@@ -359,7 +359,7 @@ print("they are kept in the analysis")
 # series marked as "0" might have a very low value but not included in the analysis, here replaced by NA
   wgerdiscarded$value[wgerdiscarded$das_qal_id==0] <- NA #das_qal_id=0 means data are not good
 # storing this information in a list for eventual later display and check
-  vv$length_discarded <- tapply(wgerdiscarded$value,wgerdiscarded$site,function(X) sum(!is.na(X)))
+  selection_summary$length_discarded <- tapply(wgerdiscarded$value,wgerdiscarded$site,function(X) sum(!is.na(X)))
 # below comments for 2018 after checking the series
 # Farp (Farpener Bach DE) 11 years long enough but stocking influence 
 # DoFp (Fyke on yellow eel) 13 years but fyke nets yellow catch, not really recruitment
@@ -395,10 +395,10 @@ print("they are kept in the analysis")
       " years: ", paste(removed_year,collapse=","),
       " sites: ", paste(removed_site,collapse=","),     
       " with qal_id = 3 removed from analysis")
-  vv$qual_id_3_removed <- list()
-  vv$qual_id_3_removed$length <- length(removed_id)
-  vv$qual_id_3_removed$year <- removed_year
-  vv$qual_id_3_removed$site <- removed_site
+  selection_summary$qual_id_3_removed <- list()
+  selection_summary$qual_id_3_removed$length <- length(removed_id)
+  selection_summary$qual_id_3_removed$year <- removed_year
+  selection_summary$qual_id_3_removed$site <- removed_site
   
   
   
@@ -420,8 +420,8 @@ print("they are kept in the analysis")
   site <- unique(wger$site[order(wger$site)])
 # length(site)  #52
   unused_series_2000_2009  <-  site[!site%in%std_site] # series not having data between 2000 and 2009 # "Vida" "YFS1" 
-  vv$sc_2000_2009_unused_series <- unused_series_2000_2009
-  vv$sc_2000_2009_nb <- vv$nb_series_init_qual1-length(vv$sc_2000_2009_unused_series)
+  selection_summary$sc_2000_2009_unused_series <- unused_series_2000_2009
+  selection_summary$sc_2000_2009_nb <- selection_summary$nb_series_init_qual1-length(selection_summary$sc_2000_2009_unused_series)
 #add a column to R_station for flagging unused series
   R_stations$unused_2000_2009  <-  FALSE
   R_stations[R_stations$rec_nameshort %in% unused_series_2000_2009, "unused_2000_2009"]  <-  TRUE
@@ -442,8 +442,8 @@ print("they are kept in the analysis")
   site <- unique(wger$site[order(wger$site)])
 # length(site) #49
   unused_series_1979_1994 <- site[!site%in%std_site] # "Bres" "Fre"  "Inag" "Klit" "Maig" "Nors" "Sle"  "Vac"
-  vv$sc_1979_1994_unused_series <- unused_series_1979_1994
-  vv$sc_1979_1994_nb <- vv$nb_series_init_qual1-length(vv$sc_1979_1994_unused_series)
+  selection_summary$sc_1979_1994_unused_series <- unused_series_1979_1994
+  selection_summary$sc_1979_1994_nb <- selection_summary$nb_series_init_qual1-length(selection_summary$sc_1979_1994_unused_series)
 #add a column to R_station for flagging unused series
   R_stations$unused_1979_1994  <-  FALSE
   R_stations[R_stations$rec_nameshort %in% unused_series_1979_1994, "unused_1979_1994"]  <-  TRUE
@@ -483,13 +483,13 @@ print("they are kept in the analysis")
   ###############################################################
   
   nb_series_glass_eel <- length(unique(glass_eel_yoy$site)) # this will be reported in the pdf later
-  vv$nb_series_glass_eel <- nb_series_glass_eel
+  selection_summary$nb_series_glass_eel <- nb_series_glass_eel
   
-  vv$nb_series_glass_eel_per_area <-glass_eel_yoy %>% distinct(site, area) %>% group_by(area)%>%dplyr::summarize(n())
+  selection_summary$nb_series_glass_eel_per_area <-glass_eel_yoy %>% distinct(site, area) %>% group_by(area)%>%dplyr::summarize(n())
   nb_series_older <- length(unique(older$site)) # this will be reported in the pdf later
-  vv$nb_series_older <- nb_series_older
+  selection_summary$nb_series_older <- nb_series_older
   nb_series_final <- nb_series_glass_eel+nb_series_older
-  vv$nb_series_final <- nb_series_final
+  selection_summary$nb_series_final <- nb_series_final
   
   
   ###############################################################
@@ -500,28 +500,105 @@ print("they are kept in the analysis")
   
   write.table(glass_eel_yoy,file=str_c(datawd,"glass_eel_yoy.csv"), sep=";")
   write.table(older,file=str_c(datawd,"older.csv"), sep=";")
-  return(list(vv=vv,
+  return(list(selection_summary=selection_summary,
               glass_eel_yoy = glass_eel_yoy,
               older = older,
               wger = wger,
               R_stations = R_stations))
 }
 
+#' Function to create diagram of series used
+#' @param selection_summary A list that summarizes the selection process of series used in the model
+diagram_series_used <- function(selection_summary){
+  library(DiagrammeR)
+  library(magrittr)
+  library(DiagrammeRsvg)
+  library(rsvg)
+  if (any(is.null( selection_summary$nb_series_init,
+          selection_summary$nb_series_final,
+          selection_summary$nb_series_glass_eel,
+          selection_summary$nb_series_older,
+          as.numeric(selection_summary$nb_series_glass_eel_per_area[selection_summary$nb_series_glass_eel_per_area$area=="Elsewhere Europe",2]),
+          as.numeric(selection_summary$nb_series_glass_eel_per_area[selection_summary$nb_series_glass_eel_per_area$area=="North Sea",2]),
+          as.numeric(selection_summary$ser_qal_id_count[selection_summary$ser_qal_id_count$ser_qal_id==0,"len"]),
+          as.numeric(selection_summary$ser_qal_id_count[selection_summary$ser_qal_id_count$ser_qal_id==3,"len"])))) stop("missing values in summary vector selection_summary")
+  node_list <- create_node_df(n=16,		
+      type=rep(c("box",
+              "value"), 16
+      ),
+      label=c(
+          str_c("Series available in ", CY),
+          selection_summary$nb_series_init,
+          "used",
+          selection_summary$nb_series_final,
+          "G + GY",
+          selection_summary$nb_series_glass_eel,
+          "Y",
+          selection_summary$nb_series_older,
+          "NS",
+          as.numeric(selection_summary$nb_series_glass_eel_per_area[selection_summary$nb_series_glass_eel_per_area$area=="Elsewhere Europe",2]),
+          "EE",
+          as.numeric(selection_summary$nb_series_glass_eel_per_area[selection_summary$nb_series_glass_eel_per_area$area=="North Sea",2]),
+          "< 10 Y",
+          as.numeric(selection_summary$ser_qal_id_count[selection_summary$ser_qal_id_count$ser_qal_id==0,"len"]),
+          "discarded",
+          as.numeric(selection_summary$ser_qal_id_count[selection_summary$ser_qal_id_count$ser_qal_id==3,"len"])
+      ),
+      color=c(rep("green",12),"orange","orange","red","red"),
+      style="filled",
+      shape=rep(c("plaintext","circle"),8),
+      value=1:16,
+      fixedsize =FALSE
+  )
+  
+  edge_list<-create_edge_df(
+      from=c(1,2,3,4,5,4,7,2 ,2 ,13,15,6,6,11,9),
+      to=  c(2,3,4,5,6,7,8,13,15,14,16,9,11,12,10),
+      rel="a",
+      label=rep(" ",15),
+      color=rep("grey",15),
+      length=100)
+  
+  
+  
+  igraph1 <- create_graph( attr_theme = NULL)
+  
+  igraph2 <- igraph1%>%
+      add_nodes_from_table(table = node_list, 
+          type_col=type,
+          label_col=label) 
+#igraph2 %>% get_node_df()
+# Add the edges to the graph
+  igraph3 <-igraph2 %>%
+      add_edges_from_table(
+          table = edge_list,
+          from_col = from,
+          to_col = to,
+          from_to_map = id_external
+      )
+  
+  # we save data into the image directory
+  dir.create(path="images", showWarnings = FALSE)
+  render_graph(igraph3, layout="tree") %>% 
+      export_svg %>%  charToRaw %>% rsvg_png("images/series_selection.png")
+  
+  
+}
 
 
 #' make_table_series
 #' this function builds some tables that summarize the data that are kept
 #' or discarded
-#' @param vv key statistics of the selection process
+#' @param selection_summary key statistics of the selection process
 #' @param R_stations info about station 
 #' @param wger the data that are kept for analysis
 #'
-#' @return a list with updated vv and R_stations as well as several tables
+#' @return a list with updated selection_summary and R_stations as well as several tables
 #' that summarizes the data selection
 #' @export
 #'
 #' @examples
-make_table_series <- function(vv, R_stations, wger){
+make_table_series <- function(selection_summary, R_stations, wger){
   last_year <- tapply(wger$year,wger$site, function(X) max(X))
   #stations updated to",CY
   R_stations$areashort <- "EE"
@@ -536,19 +613,19 @@ make_table_series <- function(vv, R_stations, wger){
   series_CY <- series_CY[order(series_CY$ser_lfs_code,series_CY$cou_order),-c(ncol(series_CY)-1,ncol(series_CY))]
   #series_CY <- series_CY[order(series_CY$ser_lfs_code,series_CY$cou_order),	c("ser_nameshort","ser_namelong","cou_code","ser_lfs_code","areashort","ser_area_division")]
   
-  vv$nCY <- nrow(series_CY) # number of series updated to the current year (for later use)
-  vv$nCYG <- nrow(series_CY[series_CY$ser_lfs_code=="G",]) # number of series with glass eel updated to the current year
-  vv$nCYGY <- nrow(series_CY[series_CY$ser_lfs_code=="GY",]) # number of series with glass eel updated to the current year
-  vv$nCYY <- nrow(series_CY[series_CY$ser_lfs_code=="Y",]) # number of series with yellow eel (only) updated to the current year
+  selection_summary$nCY <- nrow(series_CY) # number of series updated to the current year (for later use)
+  selection_summary$nCYG <- nrow(series_CY[series_CY$ser_lfs_code=="G",]) # number of series with glass eel updated to the current year
+  selection_summary$nCYGY <- nrow(series_CY[series_CY$ser_lfs_code=="GY",]) # number of series with glass eel updated to the current year
+  selection_summary$nCYY <- nrow(series_CY[series_CY$ser_lfs_code=="Y",]) # number of series with yellow eel (only) updated to the current year
   
   #"stations updated to",CY-1
   series_CYm1 <- R_stations[R_stations$ser_nameshort%in%names(last_year[last_year==CY-1]),
                             c("ser_nameshort","ser_namelong","cou_code","ser_lfs_code","areashort","ser_area_division","cou_order","ser_y")]
   series_CYm1 <- series_CYm1[order(series_CYm1$ser_lfs_code,series_CYm1$cou_order),c("ser_nameshort","ser_namelong","cou_code","ser_lfs_code","areashort","ser_area_division")]
-  vv$nCYm1 <- nrow(series_CYm1) # number series updated last year only (and not this year)
-  vv$nCYm1G <- nrow(series_CYm1[series_CYm1$ser_lfs_code=="G",]) # same for glass eel 
-  vv$nCYm1GY <- nrow(series_CYm1[series_CYm1$ser_lfs_code=="GY",]) # same for glass eel 
-  vv$nCYm1Y <- nrow(series_CYm1[series_CYm1$ser_lfs_code=="Y",]) # same for yellow eel only
+  selection_summary$nCYm1 <- nrow(series_CYm1) # number series updated last year only (and not this year)
+  selection_summary$nCYm1G <- nrow(series_CYm1[series_CYm1$ser_lfs_code=="G",]) # same for glass eel 
+  selection_summary$nCYm1GY <- nrow(series_CYm1[series_CYm1$ser_lfs_code=="GY",]) # same for glass eel 
+  selection_summary$nCYm1Y <- nrow(series_CYm1[series_CYm1$ser_lfs_code=="Y",]) # same for yellow eel only
   
   # Series that have not been updated for two years
   lost_ones <- last_year[last_year<CY-1]
@@ -558,10 +635,10 @@ make_table_series <- function(vv, R_stations, wger){
     d_lost_ones,
     by.y="site",by.x="ser_nameshort")
   series_lost <- series_lost[order(series_lost$year),]
-  vv$nseries_lost <- nrow(series_lost) # number of series not updated for the two last years
-  vv$nseries_lostG <- nrow(series_lost[series_lost$ser_lfs_code=="G",])
-  vv$nseries_lostY <- nrow(series_lost[series_lost$ser_lfs_code=="Y",])
-  vv$nseries_lostGY <- nrow(series_lost[series_lost$ser_lfs_code=="GY",])
+  selection_summary$nseries_lost <- nrow(series_lost) # number of series not updated for the two last years
+  selection_summary$nseries_lostG <- nrow(series_lost[series_lost$ser_lfs_code=="G",])
+  selection_summary$nseries_lostY <- nrow(series_lost[series_lost$ser_lfs_code=="Y",])
+  selection_summary$nseries_lostGY <- nrow(series_lost[series_lost$ser_lfs_code=="GY",])
   #xtable of current year series
   
   
@@ -673,17 +750,17 @@ make_table_series <- function(vv, R_stations, wger){
   # and for how long ?
   nbmaxglasseel <- max(n_y_lfs$"glass"+n_y_lfs$"glass+yellow")
   # storing this in our nice list
-  vv$yearmaxglasseel <- yearmaxglasseel
-  vv$nbmaxglasseel <- nbmaxglasseel
-  vv$nbcurrentglasseel <- n_y_lfs$"glass"[n_y_lfs$year==CY]+n_y_lfs$"glass+yellow"[n_y_lfs$year==CY]
+  selection_summary$yearmaxglasseel <- yearmaxglasseel
+  selection_summary$nbmaxglasseel <- nbmaxglasseel
+  selection_summary$nbcurrentglasseel <- n_y_lfs$"glass"[n_y_lfs$year==CY]+n_y_lfs$"glass+yellow"[n_y_lfs$year==CY]
   # same for yellow eel
   yearmaxyellow <- n_y_lfs$year[which(max(n_y_lfs$"yellow")==n_y_lfs$"yellow")]
   nbmaxyellow <- max(n_y_lfs$"yellow")
-  vv$yearmaxyellow <- yearmaxyellow
-  vv$nbmaxyellow <- nbmaxyellow
-  vv$nbcurrentyellow <- n_y_lfs$"yellow"[n_y_lfs$year==CY]
+  selection_summary$yearmaxyellow <- yearmaxyellow
+  selection_summary$nbmaxyellow <- nbmaxyellow
+  selection_summary$nbcurrentyellow <- n_y_lfs$"yellow"[n_y_lfs$year==CY]
   
-  return(list(vv = vv,
+  return(list(selection_summary = selection_summary,
               R_stations = R_stations, 
               series_CY = series_CY, 
               series_CYm1 = series_CYm1, 

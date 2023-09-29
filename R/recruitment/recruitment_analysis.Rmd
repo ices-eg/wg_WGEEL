@@ -84,8 +84,6 @@ if (getUsername() == "hamme005") setwd("C:/Tessa/wg_WGEEL/R/recruitment")
 cred=read_yaml("../../credentials.yml")
 # TODO 2022 use this to connect, not sqldf !!!!!!!!!!!!!!
 # currently still using sqldf and RpostgreSQL() change for compatibility with linux
-pwd = passwordwgeel = password = cred$password
-con = dbConnect(RPostgres::Postgres(), dbname=cred$dbname,host=cred$host,port=cred$port,user=cred$user, password=passwordwgeel)
 
 wddata <- getwd()
 wd <- wddata
@@ -113,6 +111,8 @@ graphics.off() # close all graphics devices
 
 
 ```{r load_database, echo=FALSE, fig.show='hide', eval=FALSE, results="hide", warning = FALSE, message = FALSE, error=FALSE}
+pwd = passwordwgeel = password = cred$password
+con = dbConnect(RPostgres::Postgres(), dbname=cred$dbname,host=cred$host,port=cred$port,user=cred$user, password=passwordwgeel)
 load_database(con, path=c(shinywd,datawd), year=CY)
 ```
 
