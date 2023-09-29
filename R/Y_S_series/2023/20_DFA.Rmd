@@ -44,70 +44,84 @@ source("../DFA_functions.R")
 
 ## select only data =>1980
 
-d.cpue<-d.cpue%>%filter(das_year>1979)
+d.cpue <- d.cpue %>%
+    filter(das_year > 1979)
 
 ## Arrange the data for the dfa
-  silver_arr <-d.cpue %>%
+silver_arr <- d.cpue %>%
     ungroup %>% #removed the ser_id grouping
-    select(ser_nameshort, cpue,das_year) %>%
-    arrange(das_year)%>%
-    pivot_wider(names_from=ser_nameshort,values_from=cpue)
+    select(ser_nameshort, cpue, das_year) %>%
+    arrange(das_year) %>%
+    pivot_wider(names_from = ser_nameshort, values_from = cpue)
 
 ```
 
 
 ```{r run-dfa}
 #Design of experiments
-S=c("diagonal and equal")
-nbtrend=1:5
-expe=expand.grid(S=S,nbtrend=nbtrend)
-S=c("diagonal and unequal")
-nbtrend=1:5
-expe=rbind(expe, expand.grid(S=S,nbtrend=nbtrend))
+S <- c("diagonal and equal")
+nbtrend <- 1:5
+expe <- expand.grid(S = S, nbtrend = nbtrend)
+S <- c("diagonal and unequal")
+nbtrend <- 1:5
+expe <- rbind(expe, expand.grid(S = S, nbtrend = nbtrend))
 #S=c("unconstrained")
 #nbtrend=1:3
 #expe=rbind(expe, expand.grid(S=S,nbtrend=nbtrend))
 
 # run DFA
-modele_S_DFA_nolog = run_DFA(silver_arr, expe, log = F)
-
+modele_S_DFA_nolog <- run_DFA(silver_arr, expe, log = FALSE)
+#save(modele_S_DFA_nolog, file = "DFA.RData")
 ```
 
 ```{r summary-results}
-results_dfa = summary_models(modele_S_DFA_nolog)
+results_dfa <- summary_models(modele_S_DFA_nolog)
 
+x <- table_summary_models(results_dfa)
 
-x<-table_summary_models(results_dfa)
+graph_dfa <- graph_summary_models(results_dfa)
 
-graph_dfa<-graph_summary_models(results_dfa)
-
-best_fit_dfa = best_DFA(modele_S_DFA_nolog)
+best_fit_dfa <- best_DFA(modele_S_DFA_nolog)
 
 ggplot2::autoplot(best_fit_dfa, plot.type = "std.model.resids.ytT")
 
 ggplot2::autoplot(best_fit_dfa, plot.type = "qqplot.std.model.resids.ytt1")
 
-formatted_matrices_dfa= results_DFA(best_fit_dfa)
+formatted_matrices_dfa <- results_DFA(best_fit_dfa)
 ```
+
 ```{r dfa-trends}
 
-signe_trend<-c()
+signe_trend <- c()
 
-for(i in 1:ncol(unlist(formatted_matrices_dfa$Z.conf$Z))){
-  if(
-    length(formatted_matrices_dfa$Z.conf$Z[,i][formatted_matrices_dfa$Z.conf$Z[,i]>0]) <
-    length(formatted_matrices_dfa$Z.conf$Z[,i][formatted_matrices_dfa$Z.conf$Z[,i]<0]))
-  {signe_trend[i]<- -1}
-  else{signe_trend[i]<- 1}
-  
+for (i in 1:seq_len(unlist(formatted_matrices_dfa$Z.conf$Z))) {
+    if (
+        length(
+            formatted_matrices_dfa$Z.conf$Z[
+                formatted_matrices_dfa$Z.conf$Z[, i] > 0,
+                i
+            ]
+        ) < length(
+            formatted_matrices_dfa$Z.conf$Z[
+                formatted_matrices_dfa$Z.conf$Z[, i] < 0,
+                i
+            ]
+        )
+    ) {
+        signe_trend[i] <- -1
+    } else {
+        signe_trend[i] <- 1
+    }
 }
 
-graph_Z(formatted_matrices_dfa$Z.conf, sign_trends = signe_trend)
+graph_Z(
+    formatted_matrices_dfa$Z.conf,
+    sign_trends = signe_trend
+)
 
-graph_trends(trends = formatted_matrices_dfa$trends, sort(unique(silver_arr$das_year)), sign_trends = signe_trend)
-
-
-
-
+graph_trends(
+    trends = formatted_matrices_dfa$trends,
+    year = sort(unique(silver_arr$das_year)),
+    sign_trends = signe_trend
+)
 ```
-

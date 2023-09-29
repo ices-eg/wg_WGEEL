@@ -57,7 +57,14 @@ query='SELECT
 
 mydata = dbGetQuery(con_wgeel,query) # Get yellow and silver eel time series from WGEEL database
 
-dbDisconnect(con_wgeel) #disconnect from WGEEL database
+# add rank
+mydata <- mydata %>%
+    group_by(ser_cou_code) %>%
+    mutate(
+        ser_rank =
+            replace_na(cou_order, 0) * 1000 +
+            dense_rank(ser_nameshort)
+    )
 
 d.ecoregion = read.csv2("data/points_with_ecoregions_forRob.csv") %>% #Load data on ecoregion of dataseries
   rename(ecoregion = new_Ecoreg)
@@ -137,9 +144,9 @@ d.cpue <- data %>%
     effort == "provided" ~ das_value/das_effort
   )
   ) %>% #calculate cpue if effort data is given, otherwise assume that das_value is already CPUE
-  select(das_id, das_year, cpue, das_value, das_effort, ser_id, ser_nameshort, ser_hty_code, ser_emu_nameshort, ser_cou_code, ser_distanceseakm, ser_restocking, ecoregion, distance_to_ecoregion, das_qal_id, ser_qal_id)
+  select(das_id, das_year, cpue, das_value, das_effort, ser_id, ser_nameshort, ser_hty_code, ser_emu_nameshort, ser_cou_code, ser_distanceseakm, ser_restocking, ecoregion, distance_to_ecoregion, das_qal_id, ser_qal_id, ser_rank)
 
-dbDisconnect(con_wgeel)
+dbDisconnect(con_wgeel) #disconnect from WGEEL database
 ```
 
 ### Data selection
