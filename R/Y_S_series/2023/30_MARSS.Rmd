@@ -89,29 +89,32 @@ c("panmictic", "Habitat type", "Restocking", "Ecoregion", "North Sea vs. elsewhe
 # Model parameters(the same across  all models) 
 U.model <- "unequal"
 R.model <- "diagonal and unequal"
-A.model <- "zero"
+#A.model <- "zero"
 B.model <- "identity"
 Q.model <- c("diagonal and equal") # test with different Q models(i.e. different process errors)
 x0.model <- "unequal"
 V0.model <- "zero"
 model.constant <- list(
-U = U.model, R = R.model, A = A.model, Q = Q.model,
+U = U.model, R = R.model, Q = Q.model, # A = A.model,
 x0 = x0.model, V0 = V0.model, tinitx = 0
 )
+A.models <- c("zero","unequal")
 
 ```
 
 ```{r Fit MARSS models, silent=TRUE}
 out.tab <- NULL
 fits <- list()
+for(A.model in A.models){
 for (i in 1:length(Z.models)) { 
-fit.model <- c(list(Z = Z.models[[i]]), model.constant)
+fit.model <- c(list(Z = Z.models[[i]]), A = A.model, model.constant)
 fit <- MARSS(S_ts,
 model = fit.model,
 silent = TRUE, control = list(maxit = 2000)
 )
 out <- data.frame(
 H = names(Z.models)[i],
+A = A.model,
 logLik = fit$logLik, AICc = fit$AICc, num.param = fit$num.params,
 m = length(unique(Z.models[[i]])),
 num.iter = fit$numIter, converged = !fit$convergence,
@@ -121,7 +124,7 @@ out.tab <- rbind(out.tab, out)
 fits <- c(fits, list(fit))
 if (i == 1) next # one m for panmictic so only run 1 Q
 }
-
+}
 
 ```
 
@@ -157,12 +160,14 @@ Yt <- Yt %>% rename(Year=t, site=.rownames, yt=estimate)
 Yt <- Yt %>% left_join(subpop_fct,by=join_by(site==ser_nameshort))
 
 # plot subpopulation trends
-ggplot(Yt,aes(y=yt, x=Year, color=ser_hty_code)) + 
+Yt_plot <- ggplot(Yt,aes(y=yt, x=Year, color=ser_hty_code)) + 
   geom_line() +
   geom_line(aes(y=`Lo 95`),linetype="dashed") +
   geom_line(aes(y=`Hi 95`),linetype="dashed") +
   geom_point(aes(y=y)) +
   facet_wrap(vars(site),scales="free_y")  
+
+ggsave("0_series.pdf",Yt_plot)
 
 ```
 
