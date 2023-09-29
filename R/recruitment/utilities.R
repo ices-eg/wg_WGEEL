@@ -506,6 +506,192 @@ print("they are kept in the analysis")
 }
 
 
+
+#' make_table_series
+#' this function builds some tables that summarize the data that are kept
+#' or discarded
+#' @param vv key statistics of the selection process
+#' @param R_stations info about station 
+#' @param wger the data that are kept for analysis
+#'
+#' @return a list with updated vv and R_stations as well as several tables
+#' that summarizes the data selection
+#' @export
+#'
+#' @examples
+make_table_series <- function(vv, R_stations, wger){
+  last_year <- tapply(wger$year,wger$site, function(X) max(X))
+  #stations updated to",CY
+  R_stations$areashort <- "EE"
+  R_stations$areashort[R_stations$area=="North Sea"] <- "NS"
+  R_stations$ser_namelong <- iconv(R_stations$ser_namelong,"UTF8")
+  
+  series_CY <- R_stations[R_stations$ser_nameshort%in%names(last_year[last_year==CY]),
+                          c("ser_nameshort","ser_namelong","cou_code","ser_lfs_code","areashort","ser_area_division","ser_qal_id","cou_order","ser_y")]
+  #series_CY <- merge(series_CY,last_years_with_problem[,c("das_qal_id", "ser_nameshort")], by="ser_nameshort", all.x=T)
+  #series_CY$das_qal_id[is.na(series_CY$das_qal_id)] <- 1
+  
+  series_CY <- series_CY[order(series_CY$ser_lfs_code,series_CY$cou_order),-c(ncol(series_CY)-1,ncol(series_CY))]
+  #series_CY <- series_CY[order(series_CY$ser_lfs_code,series_CY$cou_order),	c("ser_nameshort","ser_namelong","cou_code","ser_lfs_code","areashort","ser_area_division")]
+  
+  vv$nCY <- nrow(series_CY) # number of series updated to the current year (for later use)
+  vv$nCYG <- nrow(series_CY[series_CY$ser_lfs_code=="G",]) # number of series with glass eel updated to the current year
+  vv$nCYGY <- nrow(series_CY[series_CY$ser_lfs_code=="GY",]) # number of series with glass eel updated to the current year
+  vv$nCYY <- nrow(series_CY[series_CY$ser_lfs_code=="Y",]) # number of series with yellow eel (only) updated to the current year
+  
+  #"stations updated to",CY-1
+  series_CYm1 <- R_stations[R_stations$ser_nameshort%in%names(last_year[last_year==CY-1]),
+                            c("ser_nameshort","ser_namelong","cou_code","ser_lfs_code","areashort","ser_area_division","cou_order","ser_y")]
+  series_CYm1 <- series_CYm1[order(series_CYm1$ser_lfs_code,series_CYm1$cou_order),c("ser_nameshort","ser_namelong","cou_code","ser_lfs_code","areashort","ser_area_division")]
+  vv$nCYm1 <- nrow(series_CYm1) # number series updated last year only (and not this year)
+  vv$nCYm1G <- nrow(series_CYm1[series_CYm1$ser_lfs_code=="G",]) # same for glass eel 
+  vv$nCYm1GY <- nrow(series_CYm1[series_CYm1$ser_lfs_code=="GY",]) # same for glass eel 
+  vv$nCYm1Y <- nrow(series_CYm1[series_CYm1$ser_lfs_code=="Y",]) # same for yellow eel only
+  
+  # Series that have not been updated for two years
+  lost_ones <- last_year[last_year<CY-1]
+  d_lost_ones <- data.frame("site"=names(lost_ones),"year"=lost_ones) # data frame
+  series_lost <- merge(
+    R_stations[R_stations$ser_nameshort%in%names(lost_ones),c(c("ser_nameshort","ser_namelong","cou_code","ser_lfs_code","areashort","ser_area_division"))],
+    d_lost_ones,
+    by.y="site",by.x="ser_nameshort")
+  series_lost <- series_lost[order(series_lost$year),]
+  vv$nseries_lost <- nrow(series_lost) # number of series not updated for the two last years
+  vv$nseries_lostG <- nrow(series_lost[series_lost$ser_lfs_code=="G",])
+  vv$nseries_lostY <- nrow(series_lost[series_lost$ser_lfs_code=="Y",])
+  vv$nseries_lostGY <- nrow(series_lost[series_lost$ser_lfs_code=="GY",])
+  #xtable of current year series
+  
+  
+  
+  
+  colnames(series_CY) <- str_c("\\scshape{",c("Site","Name","Coun.","Stage","Area","Division", "Kept"),"}")
+  
+  
+  
+  colnames(series_CYm1) <- str_c("\\scshape{",c("Site","Name","Coun.","Stage","Area","Division"),"}")
+  
+  #------------------------------------------------------
+  # xtable of series that have not been updated
+  #------------------------------------------------------
+  colnames(series_lost) <- str_c("\\scshape{",c("Site","Name","Coun.","Stage","Area","Division","Last Year"),"}")
+  
+  
+  # number of series per area per year
+  area_year=table(glass_eel_yoy$year,glass_eel_yoy$area)
+  # number of series per stage per year
+  n_y_lfs <- reshape2::dcast(wger,year~lifestage,length,value.var="year")
+  n_y_lfs$sum <- rowSums(n_y_lfs[,c(2:4)])
+  colnames(n_y_lfs) <- c("year","glass","glass+yellow","yellow","sum")
+  rownames(n_y_lfs) <- n_y_lfs$"year"
+  
+  
+  printstatseries <- statseries[,c(1,3,4,5,6,7,8,9,10,11,12)]
+  printstatseries$sampling_type[printstatseries$sampling_type=="scientific estimate"] <- "sci. surv."
+  printstatseries$sampling_type[grep("trap",printstatseries$sampling_type)] <- "trap"
+  printstatseries$sampling_type[printstatseries$sampling_type=="commercial catch"] <- "com. catch"
+  printstatseries$sampling_type[printstatseries$sampling_type=="commercial CPUE"] <- "com. cpue"
+  column_to_import <- R_stations[,c("ser_nameshort","areashort")]
+  printstatseries <- merge(printstatseries,column_to_import,by.x="site",by.y="ser_nameshort")
+  printstatseriesGNS <- printstatseries%>% 
+    filter(life_stage=="G", areashort=="NS")%>%
+    arrange(site)%>%
+    dplyr::select(1,12,2:9,11)%>%
+    dplyr::rename("code"="site",
+                  "area"="areashort",
+                  "n+"="duration",
+                  "n-"="missing", 
+                  "life stage"="life_stage", 
+                  "sampling type"="sampling_type",
+                  "habitat"="habitat_type",
+                  "kept"="series_kept")
+  
+  
+  printstatseriesGEE <- printstatseries%>% 
+    filter(life_stage=="G", areashort=="EE")%>%
+    arrange(site)%>%
+    dplyr::select(1,12,2:9,11)%>%
+    dplyr::rename("code"="site",
+                  "area"="areashort",
+                  "n+"="duration",
+                  "n-"="missing", 
+                  "life stage"="life_stage", 
+                  "sampling type"="sampling_type",
+                  "habitat"="habitat_type",
+                  "kept"="series_kept")
+  
+  
+  
+  
+  printstatseriesGY <- printstatseries %>% 
+    filter(life_stage=="GY") %>%
+    arrange(site) %>%
+    dplyr::select(1,12,2:9,11) %>%
+    dplyr::rename("code"="site",
+                  "area"="areashort",
+                  "n+"="duration",
+                  "n-"="missing", 
+                  "life stage"="life_stage", 
+                  "sampling type"="sampling_type",
+                  "habitat"="habitat_type",
+                  "kept"="series_kept")
+  
+  
+  printstatseriesY <- printstatseries%>% 
+    filter(life_stage=="Y")%>%
+    arrange(site)%>%
+    dplyr::select(1,12,2:9,11)%>%
+    dplyr::rename("code"="site",
+                  "area"="areashort",
+                  "n+"="duration",
+                  "n-"="missing", 
+                  "life stage"="life_stage", 
+                  "sampling type"="sampling_type",
+                  "habitat"="habitat_type",
+                  "kept"="series_kept")
+  
+  
+  ################################################################
+  # Table of the problem in series for this year
+  ################################################################
+  
+  series_prob <- last_years_with_problem[last_years_with_problem$ser_typ_id %in% 1,c("ser_nameshort","ser_lfs_code","ser_cou_code","ser_area_division","das_year","das_qal_id","das_comment" )]
+  series_prob <- series_prob[order(series_prob$ser_lfs_code,series_prob$das_year, series_prob$ser_nameshort),]
+  colnames(series_prob) <- str_c("\\scshape{",c("Name","Stage", "Country","Division","Year", "Kept", "Comment"),"}")
+  series_prob$`\\scshape{Comment}`<-iconv(series_prob$`\\scshape{Comment}`,'UTF-8')
+  
+  
+  
+  ################################################################
+  # some additional stats for the report
+  #################################################################
+  
+  # in which year has there been the largest number of glass eel (or apparented) series ?
+  yearmaxglasseel <- n_y_lfs$year[which(max(n_y_lfs$"glass"+n_y_lfs$"glass+yellow")==n_y_lfs$"glass"+n_y_lfs$"glass+yellow")]
+  # and for how long ?
+  nbmaxglasseel <- max(n_y_lfs$"glass"+n_y_lfs$"glass+yellow")
+  # storing this in our nice list
+  vv$yearmaxglasseel <- yearmaxglasseel
+  vv$nbmaxglasseel <- nbmaxglasseel
+  vv$nbcurrentglasseel <- n_y_lfs$"glass"[n_y_lfs$year==CY]+n_y_lfs$"glass+yellow"[n_y_lfs$year==CY]
+  # same for yellow eel
+  yearmaxyellow <- n_y_lfs$year[which(max(n_y_lfs$"yellow")==n_y_lfs$"yellow")]
+  nbmaxyellow <- max(n_y_lfs$"yellow")
+  vv$yearmaxyellow <- yearmaxyellow
+  vv$nbmaxyellow <- nbmaxyellow
+  vv$nbcurrentyellow <- n_y_lfs$"yellow"[n_y_lfs$year==CY]
+  
+  return(list(vv = vv,
+              R_stations = R_stations, 
+              series_CY = series_CY, 
+              series_CYm1 = series_CYm1, 
+              series_lost = series_lost, 
+              printstatseriesY = printstatseriesY,
+              printstatseriesGNS = printstatseriesGNS,
+              printstatseriesGEE = printstatseriesGEE,
+              printstatseriesGY = printstatseriesGY,
+              series_prob = series_prob))
+}
 #' Function to remove unwanted charaters from latex code
 #' @param str A string
 sanitizeLatexS <- function(str) {
