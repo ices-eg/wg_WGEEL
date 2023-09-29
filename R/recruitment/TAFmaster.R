@@ -44,13 +44,48 @@ CY <- 2023
 draft.data(
     originator = "wgeel",
     year = CY,
-    title = "European eel (Anguilla anguilla) recruitment data, analysis of recruitment trends",
-    period = "1900-2023",
+    title = "Recruitment stations data",
+    period = str_c("1900-",CY),
     access = "Public",
     source = "script",
     file = TRUE, # shorthand for "boot/DATA.bib".
-    data.scripts = "load_from_wgeel_db.R",
-    data.files = NULL,  # At this stage no data to consider inside the bootstrap folder 
+    data.files = "R_stations.Rdata",  
+    append = FALSE
+)
+
+draft.data(
+    originator = "wgeel",
+    year = CY,
+    title = "Statistics for series used in the recruitment index",
+    period = str_c("1900-",CY),
+    access = "Public",
+    source = "script",
+    file = TRUE, # shorthand for "boot/DATA.bib".
+    data.files = "statseries.Rdata",  
+    append = FALSE
+)
+
+draft.data(
+    originator = "wgeel",
+    year = CY,
+    title = "Statistics for series used in the recruitment index",
+    period = str_c("1900-",CY),
+    access = "Public",
+    source = "script",
+    file = TRUE, # shorthand for "boot/DATA.bib".
+    data.files = "t_series_ser.Rdata",  
+    append = FALSE
+)
+
+draft.data(
+    originator = "wgeel",
+    year = CY,
+    title = "Statistics for series used in the recruitment index",
+    period = str_c("1900-",CY),
+    access = "Public",
+    source = "script",
+    file = TRUE, # shorthand for "boot/DATA.bib".
+    data.files = "wger_init.Rdata",  
     append = FALSE
 )
 
@@ -58,7 +93,7 @@ draft.data(
 #####------------------------------------ 3. IMPORT DATA FROM ABOVE TO BOOTSTRAP/DATA FOLDER  ------------------------------------#####
 
 # bring all in DATA.bib to the bootstrap/data folder (from "initial/data"). Existing data will not be overwritten(? it re-downloads... Also, files not in DATA.bib that are already in data folder will be deleted!)! Delete those where an update is required!
-taf.boot(software = FALSE) 
+taf.boot(software = FALSE,quiet=FALSE) 
 
 
 
