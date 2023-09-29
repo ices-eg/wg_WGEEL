@@ -246,35 +246,6 @@ t.kept <- t.filterchoice %>%
 knitr::kable(t.kept)
 ```
 
-
-```{r figure_series, echo = FALSE, fig.cap = paste("CPUE data of selected silver eel time series with at least", min.length, "years of data.", sep = " "), fig.height=length(unique(d.cpue$ser_nameshort))/3*1.5}
-
-ggplot(data = d.cpue, aes(x = das_year, y = cpue)) +
-  geom_line() +
-  geom_point() +
-  scale_x_continuous(name = "Year",
-                      breaks = pretty_breaks()) +
-  scale_y_continuous(name = "CPUE") +
-  facet_wrap(~factor(ser_nameshort, unique(d.cpue$ser_nameshort)), #Convert to factor to preserve rank order
-             scales = "free", ncol = 3) +
-  theme_bw() + 
-  theme(axis.text.x = element_text(angle = 45, vjust = 0.5))
-
-
-```
-
-```{r figure_nseries, echo = FALSE, fig.cap = paste("Number of available datapoints from silver eel CPUE time-series over time, shown only for time-series with at least", min.length, "years of data.", sep = " ")}
-
-ggplot(data = d.cpue %>% count(das_year), aes(x = das_year, y = n)) +
-  scale_x_continuous(name = "Year") +
-  scale_y_continuous(name = "Number of available data") +
-  geom_line() +
-  geom_point() +
-  theme_bw()
-
-
-```
-
 ```{r figure_seriessummary, echo = FALSE, fig.cap = "Summary of available silver eel series per country; habitat: C = coastal water, F = freshwater, MO = marine water (open sea), T = transitional water (according to WFD); gear: 226 = fyke nets, 227 =stow nets, 228 = barriers, fences, weirs, etc., 230 = traps, 234 = longlines, 242 = electric fishing, 245 = gear unknown; sampling type: 1 = commercial catch, 2 = commercial CPUE, 3 = scientific estimate, 4 = trapping all, 5 = trapping partial gear; quality id: 0 = series has ended and no future data will become available, 1 = good quality data; stocking: FALSE = no impacts of stocking, TRUE = impacts of stocking; and ecoregion: WM = Western Mediterranean Sea, BS = Baltic Sea, NS = Greater North Sea, IB = Bay of Biscay and the Iberian Coast, CS = Celtic Seas, AL = Aegean-Levantine Sea, CM = Ionian Sea and the Central Mediterranean Sea, AS = Adriatic Sea. For all, NA means not available (no information provided)", fig.height=8}
 
 #Create dataframe with summary data for the plot
@@ -378,3 +349,32 @@ p.summary
 
 
 ```
+
+```{r figure_series, echo = FALSE, fig.cap = paste("CPUE data of selected silver eel time series with at least", min.length, "years of data.", sep = " "), fig.height=length(unique(d.cpue$ser_nameshort))/3*1.5}
+
+ggplot(data = d.cpue, aes(x = das_year, y = cpue)) +
+  geom_line() +
+  geom_point() +
+  scale_x_continuous(name = "Year",
+                      breaks = pretty_breaks()) +
+  scale_y_continuous(name = "CPUE") +
+  facet_wrap(~factor(ser_nameshort, unique(d.cpue$ser_nameshort)), #Convert to factor to preserve rank order
+             scales = "free", ncol = 3) +
+  theme_bw() + 
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.5))
+
+
+```
+
+```{r figure_nseries, echo = FALSE, fig.cap = paste("Number of available datapoints from silver eel CPUE time-series over time, shown only for time-series with at least", min.length, "years of data.", sep = " ")}
+
+ggplot(data = d.cpue %>% count(das_year), aes(x = das_year, y = n)) +
+  scale_x_continuous(name = "Year") +
+  scale_y_continuous(name = "Number of available data") +
+  geom_line() +
+  geom_point() +
+  theme_bw()
+
+
+```
+
