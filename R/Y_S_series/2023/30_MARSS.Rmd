@@ -56,7 +56,7 @@ S_ts <- S_ts[subpop_fct$ser_nameshort,] # rearrange row order(same as subpop_fct
 
 # z-score data
 S_ts <- t(apply(S_ts, 1,function(df) (df-mean(df,na.rm=TRUE))/sd(df,na.rm=TRUE)))
-n_series <- nrow(S_ts)
+n_series <- nrow(S_ts) # number of series
 
 ```
 
@@ -86,18 +86,16 @@ Z.models <- list(Z1, Z2, Z3, Z4, Z5, Z6)
 names(Z.models) <-
 c("panmictic", "Habitat type", "Restocking", "Ecoregion", "North Sea vs. elsewhere europe", "Catchment size")
 
-# test with different Q models(i.e. different process errors)
-Q.models <- c("diagonal and equal", "diagonal and unequal")
-
 # Model parameters(the same across  all models) 
 U.model <- "unequal"
-R.model <- "diagonal and equal"
+R.model <- "diagonal and unequal"
 A.model <- "zero"
 B.model <- "identity"
+Q.model <- c("diagonal and equal") # test with different Q models(i.e. different process errors)
 x0.model <- "unequal"
 V0.model <- "zero"
 model.constant <- list(
-U = U.model, R = R.model, A = A.model,
+U = U.model, R = R.model, A = A.model, Q = Q.model,
 x0 = x0.model, V0 = V0.model, tinitx = 0
 )
 
@@ -107,14 +105,13 @@ x0 = x0.model, V0 = V0.model, tinitx = 0
 out.tab <- NULL
 fits <- list()
 for (i in 1:length(Z.models)) { 
-for (Q.model in Q.models) {
-fit.model <- c(list(Z = Z.models[[i]], Q = Q.model), model.constant)
+fit.model <- c(list(Z = Z.models[[i]]), model.constant)
 fit <- MARSS(S_ts,
 model = fit.model,
 silent = TRUE, control = list(maxit = 2000)
 )
 out <- data.frame(
-H = names(Z.models)[i], Q = Q.model, U = U.model,
+H = names(Z.models)[i],
 logLik = fit$logLik, AICc = fit$AICc, num.param = fit$num.params,
 m = length(unique(Z.models[[i]])),
 num.iter = fit$numIter, converged = !fit$convergence,
@@ -124,9 +121,10 @@ out.tab <- rbind(out.tab, out)
 fits <- c(fits, list(fit))
 if (i == 1) next # one m for panmictic so only run 1 Q
 }
-}
+
 
 ```
+
 ```{r make table}
 flextable(out.tab)
 ```
@@ -147,22 +145,41 @@ Xt <- Xt %>%
 ggplot(Xt,aes(group=subpopulation, y=xt, x=Year,color=subpopulation)) + 
   geom_line() +
   geom_line(aes(y=`Lo 95`),linetype="dashed") +
-  geom_line(aes(y=`Hi 95`),linetype="dashed")
+  geom_line(aes(y=`Hi 95`),linetype="dashed") +
+  facet_wrap(vars(subpopulation),ncol=length(unique(Xt$subpopulation)))
 ```
 
 ```{r Plot smoothed state, silent=TRUE}
-Yt <- predict(best_model,type="ytT",interval = "confidence")
+Yt <- predict(best_model,type=c("ytt"),interval = "confidence", filtered=TRUE)
 Yt <- Yt$pred
 Yt$t <- Years
 Yt <- Yt %>% rename(Year=t, site=.rownames, yt=estimate)
+Yt <- Yt %>% left_join(subpop_fct,by=join_by(site==ser_nameshort))
 
 # plot subpopulation trends
-ggplot(Yt,aes(y=yt, x=Year)) + 
+ggplot(Yt,aes(y=yt, x=Year, color=ser_hty_code)) + 
   geom_line() +
   geom_line(aes(y=`Lo 95`),linetype="dashed") +
   geom_line(aes(y=`Hi 95`),linetype="dashed") +
   geom_point(aes(y=y)) +
   facet_wrap(vars(site),scales="free_y")  
+
+```
+
+```{r plot ecoregion model}
+best_model <- fits[[4]]
+Xt <- predict(best_model,type="xtT",interval = "confidence")
+Xt <- Xt$pred
+Xt$t <- Years # add data on years
+Xt <- Xt %>% 
+  rename(Year=t, subpopulation=.rownames, xt=estimate)
+
+# plot subpopulation trends
+ggplot(Xt,aes(group=subpopulation, y=xt, x=Year,color=subpopulation)) + 
+  geom_line() +
+  geom_line(aes(y=`Lo 95`),linetype="dashed") +
+  geom_line(aes(y=`Hi 95`),linetype="dashed") +
+  facet_wrap(vars(subpopulation),ncol=length(unique(Xt$subpopulation)))
 
 ```
 
