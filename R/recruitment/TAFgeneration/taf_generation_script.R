@@ -7,6 +7,7 @@ CY <- 2023
 if (Sys.info()["user"] == "cedric.briand") wddata <- setwd("C:/workspace/wg_WGEEL/R/recruitment") 
 if (Sys.info()["user"] == "hdrouineau") wddata <-setwd("~/Documents/Bordeaux/migrateurs/WGEEL/github/wg_WGEEL/R/recruitment/")
 source("utilities.R")
+source("TAFgeneration/export_function.R")
 wddata <- getwd()
 #wddata <- gsub("C:/workspace/gitwgeel/R","C:/workspace/wgeeldata",wd)
 
@@ -15,7 +16,7 @@ shinywd <-  str_c(wddata,"/../shiny_data_visualisation/shiny_dv/data/recruitment
 load(paste0(shinywd,"recruitment_models.Rdata"))
 
 
-source("TAFgeneration/export_function.R")
+
 
 ####load TAF library
 library(icesTAF)
@@ -98,5 +99,58 @@ write_to_taf("for (f in list.files('./','REPORT', full.names=TRUE, recursive=TRU
          
 ##### Write master.R directly in taf
 
-write_file_to_taf(source_file= "TAFmaster.R", destination_file= "master.R", taf_directory= taf_directory)
+
+CY <- 2023
+
+
+#####------------------------------------ 2. CREATE METADATA (.bib file) ------------------------------------#####
+
+#create metadata for script
+draft.data(
+    originator = "wgeel",
+    year = CY,
+    title = "Recruitment stations data, series and data j",
+    period = str_c("1900-",CY),
+    access = "Public",
+    source = "file",
+    file = "TAF/2023/boot/DATA.bib", 
+    data.files = "R_stations.Rdata",  
+    append = FALSE
+)
+
+draft.data(
+    originator = "wgeel",
+    year = CY,
+    title = "Statistics for series used in the recruitment index",
+    period = str_c("1900-",CY),
+    access = "Public",
+    source = "file",
+    file = "TAF/2023/boot/DATA.bib", 
+    data.files = "statseries.Rdata",  
+    append = TRUE
+)
+
+draft.data(
+    originator = "wgeel",
+    year = CY,
+    title = "Table of the series as in t_series_ser in the dabase",
+    period = str_c("1900-",CY),
+    access = "Public",
+    source = "file",
+    file = "TAF/2023/boot/DATA.bib",
+    data.files = "t_series_ser.Rdata",  
+    append = TRUE
+)
+
+draft.data(
+    originator = "wgeel",
+    year = CY,
+    title = "Statistics for series used in the recruitment index",
+    period = str_c("1900-",CY),
+    access = "Public",
+    source = "file",
+    file = "TAF/2023/boot/DATA.bib",
+    data.files = "wger_init.Rdata",  
+    append = TRUE
+)
 
