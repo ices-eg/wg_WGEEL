@@ -132,9 +132,9 @@ if(sum(is.na(wger_init$area))>0) stop("At least one series has not been affected
 
 ```{r select_series, echo=FALSE, fig.show='hide', eval=TRUE, results="hide", warning = FALSE, message = FALSE, error=FALSE}
 #this function do the selection of series, returning several datasets as well as
-#vv (a list with interesting statistics)
+#selection_summary (a list with interesting statistics)
 selection <- select_series(wger_init, R_stations)
-vv <- selection$vv
+selection_summary <- selection$selection_summary
 glass_eel_yoy <- selection$glass_eel_yoy
 older <- selection$older
 wger <- selection$wger
@@ -155,8 +155,8 @@ save(glass_eel_yoy, file = paste0(shinywd, "glass_eel_yoy.Rdata"))
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 #%				THIS CHUNK CREATES THE TABLES	
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-series_tables <- make_table_series(vv, R_stations, wger)
-vv <- series_tables$vv
+series_tables <- make_table_series(selection_summary, R_stations, wger)
+selection_summary <- series_tables$selection_summary
 R_stations <- series_tables$R_stations 
 series_CY <- series_tables$series_CY
 series_CYm1 <- series_tables$series_CYm1
@@ -549,9 +549,9 @@ is mostly due to a more pronounced decline of the North Sea series compared to
 the Elsewhere Europe area during the 1980s.
 
 The WGEEL has collated information on recruitment from
-`r vv[["nb_series_init"]]` time-series. Some time-series date back to the
+`r selection_summary[["nb_series_init"]]` time-series. Some time-series date back to the
 beginning of 20th century (yellow eel, Göta Älv, Sweden) or 1920 (glass eel,
-Loire, France). Among those series `r vv[["nb_series_init_qual1"]]` have been
+Loire, France). Among those series `r selection_summary[["nb_series_init_qual1"]]` have been
 selected for further analysis in the wgeel indices; see details on data
 selection and processing below. Depending on the standardization period, the
 number of series  used can be lower and is given for each analysis. 
@@ -565,7 +565,7 @@ knitr::include_graphics(paste0(imgwd,"figure1.png"))
 
 ## Details on data selection and processing
 
-Out of `r vv[["nb_series_init"]]`, `r vv[["nb_series_final"]]` series were used
+Out of `r selection_summary[["nb_series_init"]]`, `r selection_summary[["nb_series_final"]]` series were used
 in the analysis. Three rules have been used for this selection procedure.
 
 
@@ -623,11 +623,11 @@ autofit(flextable(data = series_prob[30:nrow(series_prob),])%>%
 
 
 Glass eel and glass eel + young yellow eel time-series available maximum :
-`r vv[["nbmaxglasseel"]]` in `r max(as.numeric(vv[["yearmaxglasseel"]]))`
-`r vv[["nbcurrentglasseel"]]` in `r CY`. The maximum number of older yellow eel
-time-series has increased to `r vv[["nbmaxyellow"]]` in
-`r max(as.numeric(vv[["yearmaxyellow"]]))` but dropped to
-`r vv[["nbcurrentyellow"]]` (Figure \@ref(fig:figure2)).
+`r selection_summary[["nbmaxglasseel"]]` in `r max(as.numeric(selection_summary[["yearmaxglasseel"]]))`
+`r selection_summary[["nbcurrentglasseel"]]` in `r CY`. The maximum number of older yellow eel
+time-series has increased to `r selection_summary[["nbmaxyellow"]]` in
+`r max(as.numeric(selection_summary[["yearmaxyellow"]]))` but dropped to
+`r selection_summary[["nbcurrentyellow"]]` (Figure \@ref(fig:figure2)).
 
 ```{r figure2, fig.cap="Trends in number of glass eel (black circle), glass+young yellow eel (grey triangle) and older yellow eel (black triangle) time-series giving a report in  any specific year.", fig.width=16/2.54, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
 knitr::include_graphics(paste0(imgwd,"figure2.png"))
@@ -995,22 +995,22 @@ print("Analysis for glass eel")
 print("data available")
 (area_year=table(glass_eel_yoy$year,glass_eel_yoy$area))
 print("number of sites finally selected for glass eel glm")
-vv$modelge <- list()
-vv$modelge$site <- as.character(model_ge_area$xlevels$site)
-(vv$modelge$nbsite <- length(vv$modelge$site))
-vv$modelge$excluded <- unique(glass_eel_yoy$site)[!unique(glass_eel_yoy$site)%in%vv$modelge$site]
-vv$modelge$value_excluded_zero <- glass_eel_yoy[glass_eel_yoy$value==0&!is.na(glass_eel_yoy$value),
+selection_summary$modelge <- list()
+selection_summary$modelge$site <- as.character(model_ge_area$xlevels$site)
+(selection_summary$modelge$nbsite <- length(selection_summary$modelge$site))
+selection_summary$modelge$excluded <- unique(glass_eel_yoy$site)[!unique(glass_eel_yoy$site)%in%selection_summary$modelge$site]
+selection_summary$modelge$value_excluded_zero <- glass_eel_yoy[glass_eel_yoy$value==0&!is.na(glass_eel_yoy$value),
 		c("value_std","site","year","lifestage","das_comment","area")]
 
 model_older=glm(value_std~year_f+as.factor(site),data=older,family=Gamma(link=log),
 		subset=older$value>0 & older$year>1949  ,maxit=300)
-vv$modelolder <- list()
-vv$modelolder$site <- as.numeric(as.character(model_older$xlevels$`as.factor(site)`))
-vv$modelolder$nbsite <- length(vv$modelolder$site)
-vv$modelolder$excluded <- unique(older$site)[!unique(older$site)%in%vv$modelolder$site]
-vv$modelolder$excludedsite <- unique(older[older$site%in%vv$modelolder$excluded,"site"])
-vv$modelolder$excludedsite <- unique(older[older$site%in%vv$modelolder$excluded,"site"])
-vv$modelolder$value_excluded_zero <- older[older$value==0,
+selection_summary$modelolder <- list()
+selection_summary$modelolder$site <- as.numeric(as.character(model_older$xlevels$`as.factor(site)`))
+selection_summary$modelolder$nbsite <- length(selection_summary$modelolder$site)
+selection_summary$modelolder$excluded <- unique(older$site)[!unique(older$site)%in%selection_summary$modelolder$site]
+selection_summary$modelolder$excludedsite <- unique(older[older$site%in%selection_summary$modelolder$excluded,"site"])
+selection_summary$modelolder$excludedsite <- unique(older[older$site%in%selection_summary$modelolder$excluded,"site"])
+selection_summary$modelolder$value_excluded_zero <- older[older$value==0,
 		c("value_std","site","year","lifestage","das_comment","area")]
 
 xt_a <- xtable(Anova(model_ge_area,test="F"),
@@ -1263,8 +1263,8 @@ colnames(synthesis) <- c("year","Elsewhere Europe","North Sea", "EEminCI","NSmin
 #	synthesis=as.data.frame(tapply(dat_ge[,"p_std_1960_1979"],
 #					list(dat_ge[,"year_f"],dat_ge[,"area"]),mean,na.rm=TRUE))
 #}
-vv$five_year_average <- synthesis %>% filter(year>CY-5) %>% dplyr::select(c(1,2,3)) %>% colMeans() %>% round(digits=3)
-vv$five_year_averagem3 <- synthesis %>% filter(year<=CY-2,year>CY-7) %>% dplyr::select(c(1,2,3)) %>% colMeans() %>% round(digits=3)
+selection_summary$five_year_average <- synthesis %>% filter(year>CY-5) %>% dplyr::select(c(1,2,3)) %>% colMeans() %>% round(digits=3)
+selection_summary$five_year_averagem3 <- synthesis %>% filter(year<=CY-2,year>CY-7) %>% dplyr::select(c(1,2,3)) %>% colMeans() %>% round(digits=3)
 
 #xfive_year_avg_glass <- xtable(x = five_year_avg_glass,
 #		label = "table_five_year_avg_glass",
@@ -1294,7 +1294,7 @@ nothing <- latex(gg,
 		col.just     =strsplit("c c c c c c c c c c c c c c c", " ")[[1]],
 		#landscape=TRUE,
 		label="table_glm_glass_eel",
-		caption=str_c("GLM $glass~eel \\sim year:area + site $ geometric means of predicted values for ",vv$nb_series_glass_eel," glass eel series, values given in percentage of the 1960-1979 period."),	
+		caption=str_c("GLM $glass~eel \\sim year:area + site $ geometric means of predicted values for ",selection_summary$nb_series_glass_eel," glass eel series, values given in percentage of the 1960-1979 period."),	
 		file= str_c(tabwd,"/table_glm_glass_eel.tex"))
 
 
@@ -1611,7 +1611,7 @@ M.gls1  <- glmmPQL(value_std~year_f:area+site,
 
 print("Analysis for yellow eel")
 area_year_older=table(older$year,older$area)
-vv$nb_for_yellow_eel_glm <- length(unique(older$site))
+selection_summary$nb_for_yellow_eel_glm <- length(unique(older$site))
 table(older$geo)
 print("stations selected for analysis")
 unique(older$site)
@@ -1662,7 +1662,7 @@ nothing <- latex(yy,
 		col.just     =strsplit("c c c c c c c c c c c c c c c", " ")[[1]],
 		landscape=FALSE,
 		label="table_glm_yellow",
-		caption=str_c("GLM $yellow~eel \\sim year + site $ geometric means of predicted values for ",vv$nb_series_older, " yellow eel series, values given in percentage of the 1960-1979 period."),	
+		caption=str_c("GLM $yellow~eel \\sim year + site $ geometric means of predicted values for ",selection_summary$nb_series_older, " yellow eel series, values given in percentage of the 1960-1979 period."),	
 		file= str_c(tabwd,"/table_glm_yellow.tex"))
 
 # Figures -------------------------------------------------------------------------------------------
@@ -1711,8 +1711,8 @@ save_figure("figure6",figure6,600,480)
 
 write.table(synthesis,file=str_c(datawd,"glm_results_yellow.csv"),sep=";")
 dat_ye <- dat_ye[,c("year","p","se","mean_1960_1979","yellow_eel_min","yellow_eel_max","value_std_1960_1979")]
-vv$five_year_averagey <- dat_ye %>% filter(year>CY-5) %>% dplyr::select(c(year,value_std_1960_1979)) %>% colMeans() %>% round(digits=3)
-vv$dat_ye <- 
+selection_summary$five_year_averagey <- dat_ye %>% filter(year>CY-5) %>% dplyr::select(c(year,value_std_1960_1979)) %>% colMeans() %>% round(digits=3)
+selection_summary$dat_ye <- 
 		dat_ye %>% 
 		filter(year<=CY-2,year>CY-7) %>% 
 		dplyr::select(c(year,value_std_1960_1979)) %>% 
@@ -1848,20 +1848,20 @@ save_figure("figure_inclusion_2",figure_inclusion_2,600,480)
 
 ## Check on series updates for analyses[remove this paragraph]
 
- `r format(vv[["nCY"]], scientific = TRUE)` time-series  updated to `r CY`
-`r format(vv[["nCYG"]], scientific = TRUE)` for glass eel
-`r format(vv[["nCYGY"]], scientific = TRUE)` for glass + yellow eel and
-`r format(vv[["nCYY"]], scientific=TRUE)` for yellow eel
-`r format(vv[["nCYm1"]], scientific = TRUE)` time-series
-(`r format(vv[["nCYm1G"]], scientific=TRUE)`} for glass eel,
-` r format(vv[["nCYm1GY"]], scientific=TRUE)` for glass + yellow eel and
-` r format(vv[["nCYm1Y"]], scientific = TRUE)` for yellow eel) were updated to
+ `r format(selection_summary[["nCY"]], scientific = TRUE)` time-series  updated to `r CY`
+`r format(selection_summary[["nCYG"]], scientific = TRUE)` for glass eel
+`r format(selection_summary[["nCYGY"]], scientific = TRUE)` for glass + yellow eel and
+`r format(selection_summary[["nCYY"]], scientific=TRUE)` for yellow eel
+`r format(selection_summary[["nCYm1"]], scientific = TRUE)` time-series
+(`r format(selection_summary[["nCYm1G"]], scientific=TRUE)`} for glass eel,
+` r format(selection_summary[["nCYm1GY"]], scientific=TRUE)` for glass + yellow eel and
+` r format(selection_summary[["nCYm1Y"]], scientific = TRUE)` for yellow eel) were updated to
 `r CY-1` only (Table \@ref(tab:xseriesCYm1))).  
 
-`r format(vv[["nseries_lost"]], scientific=TRUE)` time-series have been stopped
-or not updated beyond 2016 (`r format(vv[["nseries_lostG"]], scientific=TRUE)`
-for glass eel, `r format(vv[["nseries_lostGY"]], scientific =TRUE)` for glass
-eel + yellow eel and `r format(vv[["nseries_lostY"]], scientific=TRUE)` for
+`r format(selection_summary[["nseries_lost"]], scientific=TRUE)` time-series have been stopped
+or not updated beyond 2016 (`r format(selection_summary[["nseries_lostG"]], scientific=TRUE)`
+for glass eel, `r format(selection_summary[["nseries_lostGY"]], scientific =TRUE)` for glass
+eel + yellow eel and `r format(selection_summary[["nseries_lostY"]], scientific=TRUE)` for
 yellow eel (Table \@ref(tab:xserieslost))) but are still included in the
 analysis. Some have stopped reporting either because of a lack of recruits in
 the case of the fishery-based surveys (Ems in Germany, stopped in 2001; Vidaa in
@@ -1895,16 +1895,16 @@ Calculation of the geometric mean of all time-series [^1] is given in (Figures
 
 [^1]: This figure is given as it   consistent with the trend provided by WGEEL
 from 2002 to 2006. The scaling is   performed on the 1979-1994 average of each
-time-series, and `r `length(vv[["sc_1979_1994_unused_series"]])` time-series
+time-series, and `r `length(selection_summary[["sc_1979_1994_unused_series"]])` time-series
 without data during that   period are excluded from the analysis. The time-series
-left out are :   `r paste(vv[["sc_1979_1994_unused_series"]],collapse=", ")`
+left out are :   `r paste(selection_summary[["sc_1979_1994_unused_series"]],collapse=", ")`
 
-```{r figure3, fig.cap=paste("Time-series of glass eel and yellow eel recruitment in European rivers with time-series having data for the 1979-1994 period (", vv[["sc_1979_1994_nb"]], "sites). Each time-series has been scaled to its 1979-1994 average. Note the logarithmic scale on the y-axis. The mean values and their bootstrap confidence interval (95%) are represented as black dots and bars. Geometric means are presented in red."), fig.width=16/2.54, warning = FALSE, message = FALSE, error=FALSE}
+```{r figure3, fig.cap=paste("Time-series of glass eel and yellow eel recruitment in European rivers with time-series having data for the 1979-1994 period (", selection_summary[["sc_1979_1994_nb"]], "sites). Each time-series has been scaled to its 1979-1994 average. Note the logarithmic scale on the y-axis. The mean values and their bootstrap confidence interval (95%) are represented as black dots and bars. Geometric means are presented in red."), fig.width=16/2.54, warning = FALSE, message = FALSE, error=FALSE}
 knitr::include_graphics(paste0(imgwd,'figure3.png'))
 ```
 
 
-```{r figure4, fig.cap=paste("Time-series of glass eel and yellow eel recruitment in Europe with",vv[["sc_1979_1994_nb"]],"time-series out of the", vv[["nb_series_init"]],"available to the working group. Each time-series has been scaled to its 1979-1994 average. The mean values of combined yellow and glass eel time-series and their bootstrap confidence interval (95%) are represented as black dots and bars. The brown line represents the mean value for yellow eel, the blue line represents the mean value for glass eel time-series. The range of  these  time-series  is  indicated  by  a  grey  shade.  Note that individual time-series  from  Figure \\@ref(fig:figure3)  were  removed to make the mean value more clear.  Note also the logarithmic scale on the y-axis."), fig.width=16/2.54, warning = FALSE, message = FALSE, error=FALSE}
+```{r figure4, fig.cap=paste("Time-series of glass eel and yellow eel recruitment in Europe with",selection_summary[["sc_1979_1994_nb"]],"time-series out of the", selection_summary[["nb_series_init"]],"available to the working group. Each time-series has been scaled to its 1979-1994 average. The mean values of combined yellow and glass eel time-series and their bootstrap confidence interval (95%) are represented as black dots and bars. The brown line represents the mean value for yellow eel, the blue line represents the mean value for glass eel time-series. The range of  these  time-series  is  indicated  by  a  grey  shade.  Note that individual time-series  from  Figure \\@ref(fig:figure3)  were  removed to make the mean value more clear.  Note also the logarithmic scale on the y-axis."), fig.width=16/2.54, warning = FALSE, message = FALSE, error=FALSE}
 knitr::include_graphics(paste0(imgwd,'figure4.png'))
 ```
 
@@ -1920,10 +1920,10 @@ coded as a categorical value. For yellow eel time-series, only one estimate is
 provided: $yellow~eel \sim year + site$. 
 
 The trend is hindcast using the predictions from 1960 onwards for
-`r vv$modelge$nbsite` glass eel time-series and from 1950 onwards for
-`r vv$modelolder$nbsite` yellow eel time-series. Some zero values have been
-excluded from the GLM analysis: `r nrow(vv$modelge$value_excluded_zero)` for the
-glass eel model and `r nrow(vv$modelolder$value_excluded_zero)` for the yellow
+`r selection_summary$modelge$nbsite` glass eel time-series and from 1950 onwards for
+`r selection_summary$modelolder$nbsite` yellow eel time-series. Some zero values have been
+excluded from the GLM analysis: `r nrow(selection_summary$modelge$value_excluded_zero)` for the
+glass eel model and `r nrow(selection_summary$modelolder$value_excluded_zero)` for the yellow
 eel model. This treatment is parcimoniuous and tests shows it has no effect on
 the trend (ICES, 2017).
 
@@ -1951,8 +1951,8 @@ Elsewhere Europe area, but some of the series are not yet complete (Figure
 \@ref(tab:tableglmglasseel)).
 
 
-```{r figure5, fig.width=16/2.54, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE, fig.cap=paste("WGEEL recruitment index: estimated (GLM) glass eel recruitment for the continental North Sea and Elsewhere Europe series with 95% confidence intervals updated to", CY,". The GLM ($glass eel \\sim area:year+site$)  was  fitted  on", vv$modelge$nbsite,"time-series comprising either pure glass eel or a mixture of glass eels and yellow eels. The predictions $p$ have been scaled to the 1960-1979 average $\\bar{p}_{1960-1979}$. Number of series",pull(vv$nb_series_glass_eel_per_area[1,1]), "=\\n", pull(vv$nb_series_glass_eel_per_area[1,2]), "\\n", pull(vv$nb_series_glass_eel_per_area[2,1]),"\\n", pull(vv$nb_series_glass_eel_per_area[2,2]))}
-#fig.cap=paste("WGEEL recruitment index: estimated (GLM) glass eel recruitment for the continental North Sea and Elsewhere Europe series with 95% confidence intervals updated to", CY,". The GLM ($glass eel \sim area:year+site$)  was  fitted  on", vv$modelge$nbsite,"time-series comprising either pure glass eel or a mixture of glass eels and yellow eels. The predictions $p$ have been scaled to the 1960-1979 average $\bar{p}_{1960-1979}$. Number of series",pull(vv$nb_series_glass_eel_per_area[1,1]), "=\n", pull(vv$nb_series_glass_eel_per_area[1,2]),"\n",pull(vv$nb_series_glass_eel_per_area[2,1]),"\n",pull(vv$nb_series_glass_eel_per_area[2,2]))
+```{r figure5, fig.width=16/2.54, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE, fig.cap=paste("WGEEL recruitment index: estimated (GLM) glass eel recruitment for the continental North Sea and Elsewhere Europe series with 95% confidence intervals updated to", CY,". The GLM ($glass eel \\sim area:year+site$)  was  fitted  on", selection_summary$modelge$nbsite,"time-series comprising either pure glass eel or a mixture of glass eels and yellow eels. The predictions $p$ have been scaled to the 1960-1979 average $\\bar{p}_{1960-1979}$. Number of series",pull(selection_summary$nb_series_glass_eel_per_area[1,1]), "=\\n", pull(selection_summary$nb_series_glass_eel_per_area[1,2]), "\\n", pull(selection_summary$nb_series_glass_eel_per_area[2,1]),"\\n", pull(selection_summary$nb_series_glass_eel_per_area[2,2]))}
+#fig.cap=paste("WGEEL recruitment index: estimated (GLM) glass eel recruitment for the continental North Sea and Elsewhere Europe series with 95% confidence intervals updated to", CY,". The GLM ($glass eel \sim area:year+site$)  was  fitted  on", selection_summary$modelge$nbsite,"time-series comprising either pure glass eel or a mixture of glass eels and yellow eels. The predictions $p$ have been scaled to the 1960-1979 average $\bar{p}_{1960-1979}$. Number of series",pull(selection_summary$nb_series_glass_eel_per_area[1,1]), "=\n", pull(selection_summary$nb_series_glass_eel_per_area[1,2]),"\n",pull(selection_summary$nb_series_glass_eel_per_area[2,1]),"\n",pull(selection_summary$nb_series_glass_eel_per_area[2,2]))
 knitr::include_graphics(paste0(imgwd,"figure5_without_logscale_ribbon.png"))
 ```
 
@@ -1963,8 +1963,8 @@ eel index is at
 1960-1979 baseline. 
 
 
-```{r figure6, fig.width=16/2.54, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE,fig.cap=paste("Geometric mean of estimated (GLM) yellow eel recruitment for Europe updated to",CY,". The GLM (yellow eel ~ year+site) was fitted to",vv[["nb_for_yellow_eel_glm"]],"yellow eel time-series $p$ and scaled to the 1960-1979 average $\\bar{p}_{1960-1979}$.")}
-#fig.cap=paste("Geometric mean of estimated (GLM) yellow eel recruitment for Europe updated to",CY,". The GLM ($yellow eel \sim year+site$) was fitted to",vv[["nb_for_yellow_eel_glm"]],"yellow eel time-series $p$ and scaled to the 1960-1979 average $\bar{p}_{1960-1979}$.")
+```{r figure6, fig.width=16/2.54, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE,fig.cap=paste("Geometric mean of estimated (GLM) yellow eel recruitment for Europe updated to",CY,". The GLM (yellow eel ~ year+site) was fitted to",selection_summary[["nb_for_yellow_eel_glm"]],"yellow eel time-series $p$ and scaled to the 1960-1979 average $\\bar{p}_{1960-1979}$.")}
+#fig.cap=paste("Geometric mean of estimated (GLM) yellow eel recruitment for Europe updated to",CY,". The GLM ($yellow eel \sim year+site$) was fitted to",selection_summary[["nb_for_yellow_eel_glm"]],"yellow eel time-series $p$ and scaled to the 1960-1979 average $\bar{p}_{1960-1979}$.")
 knitr::include_graphics(paste0(imgwd,"figure6_without_log_scale.png"))
 ```
 
@@ -2014,7 +2014,7 @@ finally,  during the 2011-2019 period, the maximum values were reached in 2014;
 but recruitment has been decreasing since then.
 
 
-```{r tableglmglasseel,echo=FALSE,eval=TRUE, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE,tab.cap=str_c("GLM $glass~eel \\sim year:area + site $ geometric means of predicted values for ",vv$nb_series_glass_eel," glass eel series, values given in percentage of the 1960-1979 period.")}
+```{r tableglmglasseel,echo=FALSE,eval=TRUE, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE,tab.cap=str_c("GLM $glass~eel \\sim year:area + site $ geometric means of predicted values for ",selection_summary$nb_series_glass_eel," glass eel series, values given in percentage of the 1960-1979 period.")}
 columns = names(gg)
 years = rep(196:202,each=2)*10
 autofit(flextable(gg%>% setNames(1:ncol(gg)) %>%
@@ -2027,7 +2027,7 @@ autofit(flextable(gg%>% setNames(1:ncol(gg)) %>%
   theme_booktabs(x, bold_header = FALSE))
 ```
 
-```{r tableglmyellow,echo=FALSE,eval=TRUE, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE,tab.cap=str_c("GLM $glass~eel \\sim year:area + site $ geometric means of predicted values for ",vv$nb_series_glass_eel," glass eel series, values given in percentage of the 1960-1979 period.")}
+```{r tableglmyellow,echo=FALSE,eval=TRUE, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE,tab.cap=str_c("GLM $glass~eel \\sim year:area + site $ geometric means of predicted values for ",selection_summary$nb_series_glass_eel," glass eel series, values given in percentage of the 1960-1979 period.")}
 autofit(flextable(yy)%>%
           bold(bold = TRUE, part = "header"))
 ```
@@ -2046,22 +2046,22 @@ node_list <- create_node_df(n=16,
 		),
 		label=c(
 				str_c("Series available in ", CY),
-				vv$nb_series_init,
+				selection_summary$nb_series_init,
 				"used",
-				vv$nb_series_final,
+				selection_summary$nb_series_final,
 				"G + GY",
-				vv$nb_series_glass_eel,
+				selection_summary$nb_series_glass_eel,
 				"Y",
-				vv$nb_series_older,
+				selection_summary$nb_series_older,
 				"NS",
-				as.numeric(vv$nb_series_glass_eel_per_area[vv$nb_series_glass_eel_per_area$area=="Elsewhere Europe",2]),
+				as.numeric(selection_summary$nb_series_glass_eel_per_area[selection_summary$nb_series_glass_eel_per_area$area=="Elsewhere Europe",2]),
 				"EE",
-				as.numeric(vv$nb_series_glass_eel_per_area[vv$nb_series_glass_eel_per_area$area=="North Sea",2]),
+				as.numeric(selection_summary$nb_series_glass_eel_per_area[selection_summary$nb_series_glass_eel_per_area$area=="North Sea",2]),
 				"< 10 Y",
-				as.numeric(vv$ser_qal_id_count[vv$ser_qal_id_count$ser_qal_id==0,"len"]),
+				as.numeric(selection_summary$ser_qal_id_count[selection_summary$ser_qal_id_count$ser_qal_id==0,"len"]),
 				"discarded",
-				as.numeric(vv$ser_qal_id_count[vv$ser_qal_id_count$ser_qal_id==3,"len"] +
-                vv$ser_qal_id_count[vv$ser_qal_id_count$ser_qal_id==4,"len"])
+				as.numeric(selection_summary$ser_qal_id_count[selection_summary$ser_qal_id_count$ser_qal_id==3,"len"])
+                
 		),
 		color=c(rep("green",12),"orange","orange","red","red"),
 		style="filled",
@@ -2096,12 +2096,13 @@ igraph3 <-igraph2 %>%
 				from_to_map = id_external
 		)
 
-render_graph(igraph3, layout="tree")%>%
-render_graph(igraph3, layout="tree") %>% 
-export_svg %>% read_xml %>% write_xml(str_c(imgwd,"series_selection.png"))
+
+render_graph(igraph3, layout="tree")
+
 
 render_graph(igraph3, layout="tree") %>% 
-		export_svg %>%  charToRaw %>% rsvg_png(str_c(imgwd,"series_selection.png"))
+    export_svg %>%  charToRaw %>% rsvg_png(str_c(imgwd,"series_selection.png"))
+
 
 ```
 
