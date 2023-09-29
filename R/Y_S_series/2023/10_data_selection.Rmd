@@ -91,7 +91,7 @@ d.effort = data %>%
  ),
  notes = case_when(
    ser_nameshort %in% c("AlauS",  "CurlS",  "KertS",  "KreS", "LakS",  "RieS",  "RubS",  "SiesS",  "ZeiS") ~ "Next year double check for available effort data on all similar Lithuanian series, and check if only silver eel are reported",
-   ser_nameshort %in% c("AlCS") ~ "A mean of a subsample of commercial catches, no effort known",
+   ser_nameshort %in% c("AlCS") ~ "Commercial catches, no effort known",
    ser_nameshort %in% c("NorwS",  "WepeS") ~ "Recent years reported as 0, but actually no information available"
  )
  )
