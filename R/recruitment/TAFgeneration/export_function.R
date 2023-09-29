@@ -300,9 +300,9 @@ REPORTprintstatseriesGY <- series_tables$printstatseriesGY",
                       fileConn)
   writeLines("save(list = c('glass_eel_yoy', 'older'), file = 'data/datamodel.Rdata')",
              fileConn)
-  writeLines("save(list = c('R_stations', 'vv',
-  'series_CY', 'series_CYm1', 'series_lost', 'series_prob', 'printstatseriesY',
-  'printstatseriesGNS', 'printstatseriesGEE',  'printstatseriesGY'), file = 'data/selectionsummary.Rdata')", fileConn)
+  writeLines("save(list = c('REPORTR_stations', 'vv',
+  'REPORTseries_CY', 'REPORTseries_CYm1', 'REPORTseries_lost', 'REPORTseries_prob', 'REPORTprintstatseriesY',
+  'REPORTprintstatseriesGNS', 'REPORTprintstatseriesGEE',  'REPORTprintstatseriesGY'), file = 'data/selectionsummary.Rdata')", fileConn)
   close(fileConn)
 }
 
