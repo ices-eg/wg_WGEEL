@@ -89,6 +89,12 @@ ggplot2::autoplot(best_fit_dfa, plot.type = "qqplot.std.model.resids.ytt1")
 
 formatted_matrices_dfa= results_DFA(best_fit_dfa)
 ```
+
+
+
+
+
+
 ```{r dfa-trends}
 
 signe_trend<-c()
