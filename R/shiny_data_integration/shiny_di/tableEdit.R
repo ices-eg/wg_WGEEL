@@ -549,13 +549,19 @@ tableEditServer <- function(id,globaldata){
                        addTiles(group="OSM") %>%
                        addProviderTiles(providers$Esri.WorldImagery, group="satellite")  %>%
                        addPolygons(data=globaldata$ccm_light %>% inner_join(union(union(rvsAll$data %>% select(wso_id1) %>% distinct() %>% transmute(wso_id = wso_id1), rvsAll$data %>% select(wso_id2) %>% distinct() %>% transmute(wso_id = wso_id2)), rvsAll$data %>% select(wso_id3) %>% distinct() %>% transmute(wso_id = wso_id3))), 
-                                   popup=~as.character(wso_id),
+                                   #popup=~as.character(wso_id),
                                    fill=TRUE, 
                                    highlight = highlightOptions(color='white',
                                                                 weight=1,
                                                                 bringToFront = TRUE,
                                                                 fillColor="red",opacity=.2,
                                                                 fill=TRUE))%>%
+                       addPolygons(data=globaldata$ccm_light %>% 
+                                     filter(st_is_within_distance(.,st_point(c(rvsAll$data$ser_x,
+                                                                               rvsAll$data$ser_y)),50000, sparse=FALSE)[,1]),                                   popup=~as.character(wso_id),
+                                   color="green",
+                                   fill=TRUE, opacity=.8, 
+                                   fillColor="grey", weight=2) %>%
                        addCircleMarkers(layerId=~ser_nameshort,
                                         color=~pal(colors),
                                         lat=~ser_y,
