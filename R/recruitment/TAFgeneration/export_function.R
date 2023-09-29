@@ -285,15 +285,15 @@ export_selection_to_taf <- function(taf_directory){
   writeLines("", fileConn)
   writeLines("## 2 Preprocess data", fileConn)
   writeLines("selection <- select_series(wger_init, R_stations)
-vv <- selection$vv
+selection_summary <- selection$selection_summary
 glass_eel_yoy <- selection$glass_eel_yoy
 older <- selection$older
 wger <- selection$wger
 R_stations <- selection$R_stations",
              fileConn)
   writeLines("", fileConn)
-  writeLines("series_tables <- make_table_series(vv, R_stations, wger)
-vv <- series_tables$vv
+  writeLines("series_tables <- make_table_series(selection_summary, R_stations, wger)
+selection_summary <- series_tables$selection_summary
 REPORTR_stations <- series_tables$R_stations 
 REPORTseries_CY <- series_tables$series_CY
 REPORTseries_CYm1 <- series_tables$series_CYm1
@@ -316,9 +316,9 @@ REPORTprintstatseriesGY <- series_tables$printstatseriesGY",
                       fileConn)
   writeLines("save(list = c('glass_eel_yoy', 'older'), file = 'data/datamodel.Rdata')",
              fileConn)
-  writeLines("save(list = c('R_stations', 'vv',
+  writeLines("save(list = c('R_stations', 'selection_summary',
   'series_CY', 'series_CYm1', 'series_lost', 'series_prob', 'printstatseriesY',
-  'printstatseriesGNS', 'printstatseriesGEE',  'printstatseriesGY'), file = 'data/selectionsummary.Rdata')", fileConn)
+  'printstatseriesGNS', 'printstatseriesGEE',  'printstatseriesGY'), file = 'data/selection_summary.Rdata')", fileConn)
   close(fileConn)
 }
 
@@ -329,7 +329,7 @@ export_diagram_series_to_taf <- function(taf_directory){
   
   writeLines("", fileConn)
   writeLines("## create diagram of series selection", fileConn)
-  writeLines("load(selection_summary.Rdata)",fileConn)
+  writeLines("load('data/selection_summary.Rdata')",fileConn)
   writeLines("diagram_series_used(selection_summary)", fileConn)
       close(fileConn)
 }
