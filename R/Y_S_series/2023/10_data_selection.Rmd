@@ -85,7 +85,7 @@ d.effort = data %>%
   mutate(effort = case_when(
     ser_nameshort %in% c("BreS",  "KilS", "DaugS",  "LilS" ) ~ "provided",
     ser_nameshort %in% c("BI1S",  "BI4S", "BRWS",  "DoijS", "HVWS",  "IjsS", "KotkS", "LoiS", "MinS",  "MonS",  "NiWS", "NkaS",  "NZKS", "OriS",  "PanS",  "PobeS", "PogoS", "PolsS", "SosS", "StrS", "TibeS", "ZMaS", "NSIS" ) ~ "index",
-    ser_nameshort %in% c("BaBS",  "BidS",  "BurS",  "EamtS", "FowS", "FreS", "GiBS",  "ImsaS", "KavlS", "LevS",  "NalS",  "NorwS", "SeNS",  "ShiS",  "VaakS",  "WepeS", "AlCS",) ~ "constant",
+    ser_nameshort %in% c("BaBS",  "BidS",  "BurS",  "EamtS", "FowS", "FreS", "GiBS",  "ImsaS", "KavlS", "LevS",  "NalS",  "NorwS", "SeNS",  "ShiS",  "VaakS",  "WepeS", "AlCS") ~ "constant",
     ser_nameshort %in% c("RibS", "SouS", "VilS", "WarS") ~ "model estimate",
     ser_nameshort %in% c("AlauS",  "CurlS", "KertS", "KreS",  "LakS",  "RieS",  "RubS",  "SiesS", "ZeiS" ) ~ "unknown"
  ),
