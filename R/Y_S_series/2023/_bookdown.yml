@@ -1,9 +1,11 @@
 rmd_files: [
   "index.Rmd", 
   "01_introduction.Rmd",
-  "10_data_selection.Rmd",
+  # "10_data_selection.Rmd",
+  "15_model_description.Rmd",
   # "20_DFA.Rmd",
-  # "30_MARSS.Rmd"
+  # "30_MARSS.Rmd",
+  "80_conclusion.Rmd"
 ]
 output_dir: "final"
 book_filename: "silver_eel"

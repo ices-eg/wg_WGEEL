@@ -15,5 +15,4 @@ Achieving the second objective (patterns) is useful for achieving the first (con
 
 Patterns can be explored on different metrics (e.g. abundance, mean length, ...). The work will focus on abundance, this one being the most obviously related to conservation status and the primarly results of a spatial model.
 
-**to be tweaked when other section available**
 We first review the potential methods and decide the ecological and biological assumptions needed to make so that we can choose the correct analysis and predictors based on the assumptions.
