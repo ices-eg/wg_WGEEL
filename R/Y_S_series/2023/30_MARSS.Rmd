@@ -58,7 +58,7 @@ H <- H[,c("ser_nameshort","H1","H2","H3","H4","H5","H6","ser_rank")]
 # Wide format of silver eel data
 S_data <- d.cpue %>%
   select("das_year","ser_nameshort","cpue") %>% 
-  complete(das_year,ser_nameshort) %>% # add na´s to non existing years
+  complete(das_year,ser_nameshort) %>% # add naï¿½s to non existing years
 pivot_wider(names_from=ser_nameshort,values_from = cpue) # wide format
 
 # Rearrange data for fitting MARSS model
@@ -75,12 +75,12 @@ n_series <- nrow(S_ts) # number of series
 Time series where grouped based on six different hypotheses on potential sub-population structure (common trends within sub-populations) among the silver eel time series. The mapping between individual time series and the different groupings are shown in \@ref(tab:MARSShypotheses).    
 
 
-```{r MARSShypotheses, echo = FALSE, tab.cap = "Mapping between silver eel time series and different hypothesis on sub-population structure. Hypotheses being tested refer to: H1 - panmictic populuation, i.e. all time series share the same trend; H2 - Habitat type (C - Coastal, T - Transitional, F- Freshwater); H3 - Restocking (indicator of whether the time series is affected by restocking (TRUE) or not affected by resstocking (FALSE)); H4 - ICES ecoregions; H5 - Whether a series is sampled in the North Sea region or elsewhere in Europe; H6 - Size of the catchment area(Small, Medium, Large or Sea)")}
+```{r MARSShypotheses, echo = FALSE, tab.cap = "Mapping between silver eel time series and different hypothesis on sub-population structure. Hypotheses being tested refer to: H1 - panmictic populuation, i.e. all time series share the same trend; H2 - Habitat type (C - Coastal, T - Transitional, F- Freshwater); H3 - Restocking (indicator of whether the time series is affected by restocking (TRUE) or not affected by resstocking (FALSE)); H4 - ICES ecoregions; H5 - Whether a series is sampled in the North Sea region or elsewhere in Europe; H6 - Size of the catchment area(Small, Medium, Large or Sea)", message = FALSE, warning = FALSE}
 ft <- flextable(H[,names(H)!="ser_rank"])
 autofit(ft)
 ```
 
-```{r CreateMARSSmodelstructures, silent=true}
+```{r CreateMARSSmodelstructures, silent=TRUE, include = FALSE}
 
 # H1: panmictic population
 Z1 <- factor(H$H1)
@@ -121,16 +121,17 @@ A.models <- c("zero")
 
 ```
 
-```{r FitMARSSmodels, silent=TRUE}
+```{r FitMARSSmodels, silent=TRUE, include = FALSE}
 out.tab <- NULL
 fits <- list()
 for(A.model in A.models){
 for (i in 1:length(Z.models)) { 
 fit.model <- c(list(Z = Z.models[[i]]), A = A.model, model.constant)
-fit <- MARSS(S_ts,
-model = fit.model,
-silent = TRUE, control = list(maxit = 2000)
-)
+# fit <- MARSS(S_ts,
+# model = fit.model,
+# silent = TRUE, control = list(maxit = 2000)
+# )
+load("MARSSdata.RData")
 out <- data.frame(
 H = names(Z.models)[i],
 #A = A.model,
@@ -151,16 +152,16 @@ if (i == 1) next # one m for panmictic so only run 1 Q
 
 The most parsimonious model (based on AICc) of the tested models \@ref(tab:MARSSmodeloutput) was the model mapping silver eel time series to habitat type (H2). This model had three sub-population trends \@ref(fig:plotsubpopulation trends). For coastal habitat the model suggests an increasing trend, and for transitional and freshwater habitats decreasing trends. It is important to note that the coastal time series are only coming from the Baltic Sea. Hence, the increasing trend observed for coastal habitat may be due to an increase of silver eels from the Baltic Sea. However, this increasing trend observed for the coastal habitat should be interpreted cautiously as two of the longest time series       
 
-```{r MARSSmodeloutput, echo = FALSE, tab.cap = "Model comparison between MARSS models. H refers to the hypothesis on sub-population structure being tested, logLik - Total Log-likelihood of the model, AICc - Akaikes information criteria with a correction for small sample sizes, num.param - number of parameters in the model, m - number of subpopulations for the model, num.param - number of parameters in the model, converged - an indicator of whether the model converged (TRUE) or not (FALSE)"}
+```{r MARSSmodeloutput, echo = FALSE, tab.cap = "Model comparison between MARSS models. H refers to the hypothesis on sub-population structure being tested, logLik - Total Log-likelihood of the model, AICc - Akaikes information criteria with a correction for small sample sizes, num.param - number of parameters in the model, m - number of subpopulations for the model, num.param - number of parameters in the model, converged - an indicator of whether the model converged (TRUE) or not (FALSE)", message = FALSE, warning = FALSE}
 ft <- flextable(out.tab)
 autofit(ft)
 ```
 
-```{r selectbestmodel, silent=TRUE}
+```{r selectbestmodel, silent=TRUE, include = FALSE}
 best_model <- fits[[which.min(out.tab$AICc)]] 
 ```
 
-```{r plotsubpopulationtrends, echo=FALSE, fig.cap = "Sub-population trends for the most parsimonious MARSS model(H2: Habitat type). The figure shows estimated sub-population trends for time series sampled in coastal(C; red), freshwater(F; green) and transitional waters(T; blue). Lines show mean estimates and dash lines represent 95 % confidence intervals", fig.height=8}
+```{r plotsubpopulationtrends, echo=FALSE, fig.cap = "Sub-population trends for the most parsimonious MARSS model(H2: Habitat type). The figure shows estimated sub-population trends for time series sampled in coastal(C; red), freshwater(F; green) and transitional waters(T; blue). Lines show mean estimates and dash lines represent 95 % confidence intervals", fig.height=8, message = FALSE, warning = FALSE}
 
 Xt <- predict(best_model,type="xtT",interval = "confidence")
 Xt <- Xt$pred
@@ -176,7 +177,7 @@ ggplot(Xt,aes(group=`Sub-populations`, y=xt, x=Year,color=`Sub-populations`)) +
   facet_wrap(vars(`Sub-populations`),ncol=length(unique(Xt$`Sub-populations`)))
 ```
 
-```{r Plotsmoothedstate, echo=FALSE, fig.cap = "MARSS model predictions of silver eel time series. Lines represent mean estimates and dashed lines represent 95 % confidence intervals. Colors display time series from coastal waters (red), freshwaters (green) and transitional waters(blue)", fig.height=8}
+```{r Plotsmoothedstate, echo=FALSE, fig.cap = "MARSS model predictions of silver eel time series. Lines represent mean estimates and dashed lines represent 95 % confidence intervals. Colors display time series from coastal waters (red), freshwaters (green) and transitional waters(blue)", fig.height=8, message = FALSE, warning = FALSE}
 Yt <- predict(best_model,type=c("ytt"), interval = "confidence", filtered=TRUE)
 Yt <- Yt$pred
 Yt$t <- Years
@@ -195,7 +196,7 @@ ggplot(Yt,aes(y=yt, x=Year, color=`Sub-populations`)) +
 
 ```
 
-```{r plotecoregionmodel, echo=FALSE, fig.cap = "Sub-population trends for the ecoregion MARSS model.  The figure shows estimated sub-population trends for series sampled in Aegean-Levantine Sea (red), Baltic Sea (orange), Bay of Biscay and the Iberian Coast (green), Celtic Sea (cyan), Greater North Sea (blue) and Western Mediterranean Sea(pink). Lines represent mean estimates and dash lines represent 95 % confidence intervals", fig.height=8}
+```{r plotecoregionmodel, echo=FALSE, fig.cap = "Sub-population trends for the ecoregion MARSS model. The figure shows estimated sub-population trends for series sampled in Aegean-Levantine Sea (red), Baltic Sea (orange), Bay of Biscay and the Iberian Coast (green), Celtic Sea (cyan), Greater North Sea (blue) and Western Mediterranean Sea(pink). Lines represent mean estimates and dash lines represent 95 % confidence intervals", fig.height=8, message = FALSE, warning = FALSE}
 eco_model <- fits[[4]]
 Xt <- predict(eco_model,type="xtT",interval = "confidence")
 Xt <- Xt$pred
