@@ -159,9 +159,12 @@ graph_Z = function(Z.conf, graph_2_trends = FALSE, sign_trends = NULL, minZ = 0.
 	nb_trends = dim(Z.conf[["Z"]])[2]
 	names_series = rownames(Z.conf[["Z"]])
 	
+
+	
 	Z.conf = array(unlist(Z.conf), dim = c(nb_series, nb_trends, 3), dimnames = list(names_series, as.character(1:nb_trends), c("Z", "Z.low", "Z.up")))
 	Z.conf = data.table::as.data.table(Z.conf)
 	names(Z.conf) = c("ser_nameshort", "trend", "Z", "value")
+	Z.conf$ser_nameshort<-factor(Z.conf$ser_nameshort,levels=nameshort_ranked,ordered=TRUE)
 	
 	#  inverse trends if needed
 	if(is.null(sign_trends)) sign_trends = rep(1, nb_trends)

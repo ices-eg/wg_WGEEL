@@ -5,6 +5,9 @@ date: "`r format(Sys.time(), '%Y %B %d')`"
 bibliography: references_2023.bib
 documentclass: article
 output: 
+#   bookdown::pdf_document2:
+#     fig_caption: yes
+#     number_sections: yes
   bookdown::word_document2:
     fig_caption: yes
     number_sections: yes
@@ -16,11 +19,10 @@ csl: "../../Rmarkdown/ices-journal-of-marine-science.csl"
 
 ---
 
-```{r general-setup, include=FALSE}
+```{r setup, include=FALSE}
 source("../../utilities/load_library.R")
 # choose the number of year to analyse 
 
-n_year <- 10
 
 # setup the book
 knitr::opts_chunk$set(
