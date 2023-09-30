@@ -13,6 +13,6 @@ Due to time constraint only one stage can be examined here. Silver eels can be c
 Two objectives can be assigned to the analysis: (i) define conservation status of silver eel, i.e., is the population (future spawners) enough numerous to avoid extinction in the (near) future and (ii) find patterns, i.e., is there a common trend between the series, can we define groups of series that have the same trends.
 Achieving the second objective (patterns) is useful for achieving the first (conservation status) but is also useful for identifying any spatial structure for the future spatial model [@icesWorkshopFutureEel2021].
 
-Patterns can be explored on different metrics (e.g. abundance, mean length, ...). The work will focus on abundance, this one being the most obviously related to conservation status and the primarly results of a spatial model.
+Patterns can be explored on different metrics (e.g. abundance, mean length, ...). The work will focus ob abundance, this one being the most obviously related to conservation status and the primarly results of a spatial model.
 
 We first review the potential methods and decide the ecological and biological assumptions needed to make so that we can choose the correct analysis and predictors based on the assumptions.
