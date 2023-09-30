@@ -1,12 +1,13 @@
 ### Conclusion on yellow and silver eel time series
 
-
-### Suggestions
+These analyses are exploratory and enable us to test certain statistical methods and their limitations for analysing temporal series on silver eels. Although they give us an initial idea of trends in silver eel abundance, their results should be treated with caution. In fact, several problems have been identified and these points need to be improved in order to be able to interpret the results.
 
 - More data should be collected in underrepresented ecoregions, especially in the Mediterranean.
 - In the Baltic Sea, international trawl survey data has not been updated since 2011. These series should be made available for WGEEL, if they are still being collected. Additionally, freshwater silver eel series are needed from the Northern/Northeastern Baltic Sea.
 - In the WGEEL data call, the data providers should be reminded about the ReadMe-file describing the season. Additionally, the definition of the season should be discussed in WKEELDATA and be based on available data.
 - To have more series available for analysis, the conditions for accepting the series for analysis should be evaluated (quality, number of years needed, ...). In addition, series that are marked as bad quality should be re-evaluated for potential improvement in the recent years. 
-- Models? Something about them?
+- A more detailed review of the statistical methods that can be used should also be carried out to identify new ones.
+
+Although these analyses of silver series are exploratory, they do give us a first step towards benchmarking and using these data to assess European eel stocks. They enabled us to identify the errors and improvements to be made to our dataset to enable finalised analyses.
 
 ### References
