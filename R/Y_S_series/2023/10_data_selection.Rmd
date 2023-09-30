@@ -152,7 +152,7 @@ d.cpue <- data %>%
 
 
 
-###################
+##################
 ###Create dataframe with summary data for summary tables/figures
 d.series = data %>% 
   select(ser_nameshort, 
