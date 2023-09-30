@@ -89,13 +89,13 @@ load("DFA_long.RData")
 
 ```
 
-```{r table-summary-results-long, echo=FALSE,tab.cap="Model comparisons for silver eel DFA using all the data available (since 1980)"}
+```{r table-summary-results-long, echo=FALSE,include=FALSE}
 results_dfa <- summary_models(modele_S_DFA_nolog)
 #table_summary_models(results_dfa)
 
 ```
 
-```{r graph-summary-results-long, echo=FALSE}
+```{r graph-summary-results-long, echo=FALSE, include=FALSE}
 
 graph_dfa <- graph_summary_models(results_dfa)
 
@@ -216,12 +216,12 @@ load("DFA_16.RData")
 
 ```
 
-```{r table-summary-results-short, echo=FALSE,tab.cap="Model comparisons for silver eel DFA using the data set with the last 16 years"}
+```{r table-summary-results-short, echo=FALSE,include=FALSE}
 results_dfa <- summary_models(modele_S_DFA_nolog)
 #table_summary_models(results_dfa)
 
 ```
-```{r graph-summary-results-short, echo=FALSE}
+```{r graph-summary-results-short, echo=FALSE, include=FALSE}
 
 graph_dfa <- graph_summary_models(results_dfa)
 
