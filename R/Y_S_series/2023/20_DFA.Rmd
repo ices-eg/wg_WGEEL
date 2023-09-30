@@ -1,45 +1,5 @@
 ### DFA
 
-We carry out a Dynamic Factor Analysis, a multivariate
-method aiming at detecting common trends in a set of time series [@zuur2003a].
-Such an exercise is worthwhile only when the number of available time series is important, 
-therefore, we restricted this analysis on the period post 1980. The trends were analysed only for 
-silver eels. The analysis is based on the time series of silver eel 
-time series of abundance collected during the successive WGEEL Data Calls and 
-contribute to the response to ToR b “Report on developments in the state of the European eel
-(*Anguilla anguilla*) stock, the fisheries on it and other anthropogenic impacts”.
-
-The DFA method is fully detailed in [@zuur2003]. The basic idea is to decompose each time series into a weighted sum of a few common trends and a noise factor:
-$$
-\begin{aligned}
-Y_{j,t}=\mu_j + \sum_{i=1}^{n} w_{i,j} \cdot X_{i,t} +\epsilon_{j,t} \qquad \mbox{ with } \left \{ \epsilon_{j,t} \right \}  \sim N(0,\Sigma)
-\end{aligned}
-$$
-with $Y_{j, t}$ the value of the series $j$ at time $t$, $\mu_j$ an intercept, $n$ the number of common trends, $w_{i, j}$ the weight of trend $i$ in the series $j$, $X_{i,t}$ the value of trend $i$ at time $t$ and $\epsilon_{j,t}$ a normal noise, potentially correlated between series through the variance-covariance matrix $\Sigma$ . Therefore, $X_{i,t}$ represent the trends common to the series and are modelled as random walks:
-
-$$
-\begin{aligned}
-X_{i,t}=X_{i,t-1}+f_{i,t} \qquad \mbox{ with } f_{i,t} \sim N(0,Q)
-\end{aligned}
-$$
-with $f_{i,t}$ the noise on the trend $i$ at time $t$ which follows a normal law, possibly correlated between trends with the variance-covariance matrix $Q$ which can be set to the identity matrix [@zuur2003a].
-The method thus allows both to extract the common trends through the estimates of $X$, but also to see the importance of each trend in each series through $w$.
-
-To fit the DFA, the user as to put some additional constraints. We will make 2 kinds of assumptions on $\Sigma$:
-
-* $\Sigma$ is a diagonal matrix with equal elements in the diagonal (e.g. time series are independent with similar values of noise)
-* $\Sigma$ is a diagonal matrix with unequal elements in the diagonal (e.g. time series are independent with different values of noise)
-
-
-One to 5 common trends are tested. The best combination of $\Sigma$ and number of trends is chosen by comparing AIC criteria.
-
-We tested the DFA using two data sets:  
-
-1. A data set created using the data available from the series selected in the previous part from 1980 onwards  
-
-2. A data set created using only data from 2007 onwards (to obtain maximum information on all the time series)
-
-
 ```{r DFA-setup, echo=FALSE}
 #| echo = FALSE,
 load_library("MARSS")
@@ -134,9 +94,7 @@ for (i in seq_len(ncol(unlist(formatted_matrices_dfa$Z.conf$Z)))) {
 
 ```
 
-The best model selected thanks to AICc has 2 trends and a  R diagonal and equal. The two trends were represented in the Figure \@ref(fig:graph-trend-long). The factor loadings are displayed in the Figure \@ref(fig:serie-trend-long) 
-(importance of each trend in each time series). 
-Some series are positively correlated 
+The best model selected thanks to AICc has 2 trends and a $R$ diagonal and equal. The two trends were represented in the Figure \@ref(fig:graph-trend-long). The factor loadings $Z$ are displayed in the Figure \@ref(fig:serie-trend-long). When the factor loading is positive (respectively negative) the given time series is positively (resp. negatively) related to the given trend. If factor loading crosses the 0, the given time series is not significatevely related to the given trend.
 
 ```{r graph-trend-long, echo=FALSE, fig.cap="Estimated common trend in silver eel time series using the data set since 1980"}
 
@@ -165,7 +123,7 @@ series_trends_graph(best_fit_dfa, d.cpue, FALSE)
 
 ```
 
-This DFA analysis makes it possible to describe common trends over the long term (since 1980).The analysis revealed two common trends. This general picture hinders very contrasted situations(increase/decrease, more correlated to one and/or the other trends, ...). However, the results should be taken with caution given the limited series that provided data for the period 1980-1990 (8/28 series) and for the period 1990-2000 (12/28). 
+This DFA analysis makes it possible to describe common trends over the long term (since 1980). The analysis revealed two common trends. This general picture hinders very contrasted situations(increase/decrease, more correlated to one and/or the other trends, ...). However, the results should be taken with caution given the limited series that provided data for the period 1980-1990 (8/28 series) and for the period 1990-2000 (12/28). 
 The lack of data for the earliest period may have an impact on trend analysis. To limit this impact and make it easier to interpret the results, a second DFA analysis has been carried out for the most recent years (since 2007).
 
 
@@ -235,8 +193,7 @@ best_fit_dfa <- best_DFA(modele_S_DFA_nolog)
 
 ```
 
-For this analysis on the data since 2007, the best model selected thanks to AICc has 1 trends and a  R diagonal and equal. This trend was represented in the Figure \@ref(fig:graph-trend-short). The factor loadings are displayed in the Figure \@ref(fig:serie-trend-short)(importance of each trend in each time series). 
-Some series are positively correlated 
+For this analysis on the data since 2007, the best model selected thanks to AICc has 1 trends and a  R diagonal and equal. This trend was represented in the Figure \@ref(fig:graph-trend-short). The factor loadings are displayed in the Figure \@ref(fig:serie-trend-short)(importance of each trend in each time series). Nearly all factor loading encompass the zero, meaning a weak support to the common trend. This can be due to a high variability in each individual time series compare to a low number of time series.
 
 ```{r prepare-trends-short, echo=FALSE}
 formatted_matrices_dfa <- results_DFA(best_fit_dfa)
