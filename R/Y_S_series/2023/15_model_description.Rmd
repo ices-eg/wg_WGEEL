@@ -31,13 +31,13 @@ In these equations:
 - $A$ is the offset of each time series
 - $v_{j,t}$ is the observation error
 
-The DFA method is a special case of MARSS models and is fully detailed in [@zuur2003]. The basic idea is to break down each time series into a weighted sum (through $Z$) of a few ($m$) common trends and a noise factor.
+The DFA method is a special case of MARSS models and is described in full detail in [@zuur2003]. The basic idea is to connect each time series into a weighted sum (through $Z$) of a few ($m$) common trends and a noise factor.
 The method allows both to extract the common trends through the estimates of $X$, but also to see the importance of each trend in each series through $Z$. 
-This method thus does not assume any *a priori* structure in the data and allows each individual time series to be related to 0, 1 or more of the $m$ common trends.
+Thus, this method does not assume any *a priori* structure in the data and allows each individual time series to be related to any of the $m$ common trends.
 
-The other alternative is to define *a priori* structures (e.g. spatial structure)[@wardInferringSpatialStructure2010]. In that case each individual series belongs to one and only one trend.
+Another alternative is to define *a priori* structures of times series [e.g. spatial structure; @wardInferringSpatialStructure2010]. In that case each individual series belongs to one and only one trend.
 
-The table \@ref(tab:table-models-summary) gives the details of the configuration of the MARSS model for both type of model.
+Table \@ref(tab:table-models-summary) gives the details of the configuration of the MARSS model for both type of model.
 
 ```{r table-models-summary}
 #| echo = FALSE,

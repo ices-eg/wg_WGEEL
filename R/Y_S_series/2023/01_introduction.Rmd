@@ -2,16 +2,16 @@
 
 ## Yellow and silver eel time series
 
-### summary
+### Summary
 
 ### Introduction
 
-Compared to the current glass eel index where a common trend for all areas can be produced, for silver and yellow eel time series we cannot assume, for various reasons, one common trend for all series. Some of these reasons include, but are not limited to, varying age at maturation/silvering, varying natural and anthropogenic mortality.
+Compared to the current glass eel index where a common trend for all areas can be produced, for silver and yellow eel time series, one common trend for all series cannot be assumed for various reasons. Some of these reasons include, but are not limited to, varying age at maturation/silvering, varying natural and anthropogenic mortality.
 
-Due to time constraint only one stage can be examined here. Silver eels can be considered as a proxy for future spawners biomass/abundance, and was therefore chosen. The analysis on yellow eel time series will be completed in the future, taking advantage of the methods and results from the silver eel analysis.
+Due to time constraints only one stage was examined here. Silver eels can be considered a proxy for future spawners biomass/abundance, and was therefore analysed in detail. The analysis on yellow eel time series will be completed in the future, taking advantage of the methods and results from the silver eel analysis.
 
-Two objectives can be assigned to the analysis: (i) define conservation status of silver eel, i.e., is the population (future spawners) sufficiently numerous to avoid extinction in the (near) future and (ii) find patterns, i.e., are there common trends between the series, can we define groups of series that have the same trends. Achieving the second objective (patterns) is useful for achieving the first (conservation status) but is also useful for identifying any spatial struc-ture for the future spatial model  [@icesWorkshopFutureEel2021].
+Two objectives can be assigned to the analysis: (i) define conservation status of silver eel, i.e., is the population (future spawners) sufficiently numerous to avoid extinction in the (near) future and (ii) find patterns, i.e., are there common trends among the series, can we define groups of series that share similar trends. Achieving the second objective (patterns) is useful for achieving the first (conservation status) but is also useful for identifying any spatial structure for the future spatial model  [@icesWorkshopFutureEel2021].
 
-Patterns can be explored among different metrics (e.g. abundance, mean length, ...). The work here will focus on abundance, of the available metrics, it is most related to conservation status and the primary results of a spatial model.
+Patterns can be explored among different metrics (e.g. abundance, mean length, ...). The work presented here will focus on abundance, as this metrics is the one most related to conservation status and the primary results of a spatial model.
 
-We first review the potential methods and decide the ecological and biological assumptions needed so that we can choose the correct analysis and predictors based on the assumptions.
+We first review the potential methods and decide the ecological and biological assumptions needed so that the correct analysis and predictors can be chosen.

@@ -125,7 +125,7 @@ d.effort = data %>%
  ),
  notes = case_when(
    ser_nameshort %in% c("AlauS",  "CurlS",  "KertS",  "KreS", "LakS",  "RieS",  "RubS",  "SiesS",  "ZeiS") ~ "Next year double check for available effort data on all similar Lithuanian series, and check if only silver eel are reported",
-   ser_nameshort %in% c("AlCS") ~ "Commercial catches, but assumed that all eel are caught.",
+   ser_nameshort %in% c("AlCS") ~ "Commercial catches, but assumed that representative of abundance.",
    ser_nameshort %in% c("NorwS",  "WepeS") ~ "Recent years reported as 0, but actually no information available"
  )
  )
@@ -144,14 +144,14 @@ if(any(is.na(d.effort$effort))){
 # Sometimes, no effort data is given because all silver eel passing through a river are sampled. This data is kept here, 
 # perhaps advise in next year's data call to set such effort equal to 1 in the das_effort column
   
-min.length = 10 #minimum time-series length, delete series with fewer number of years
+min.length = 10 #minimum time series length, delete series with fewer number of years
 
 #Overview table to be used in the subgroup text to show which series were kept and which were discarded
 t.filterchoice <- data %>% 
   count(ser_rank, ser_cou_code, ser_nameshort, ser_method) %>% #filter data down to series name and method, while counting time series length
   left_join(d.effort %>% select(ser_nameshort, effort, notes)) %>% #Add information on effort type/availability
   mutate(filtered = case_when(
-    n < min.length ~ "Dropped", # Set a variable specifying if the column should be filtered out based on time-series length
+    n < min.length ~ "Dropped", # Set a variable specifying if the column should be filtered out based on time series length
     effort == "unknown" ~ "Dropped", # Drop series with unknown effort
     ser_nameshort %in% c("NorwS", "WepeS") ~ "Dropped", #These two series have had trouble reporting in recent years, data for those years not reliable, drop until issue is resolved.
     TRUE ~ "Kept"     
@@ -223,11 +223,10 @@ dbDisconnect(con_wgeel) #disconnect from WGEEL database
 ```
 
 ### Data selection
-Previously, yellow and silver eel series have been analyzed by WGEEL through trend analysis (ICES 2021a). Here, we have chosen to concentrate on improving the trend analysis for the silver eel time series.
 
-In the 2023 data call, `r length(unique(data$ser_nameshort))` silver eel time series were available, located in `r length(unique(data$ser_cou_code[!is.na(data$ser_cou_code)]))` countries (Figure \@ref(fig:mapsilverall)). The majority of these series are from Lithuania (`r length(unique(data$ser_nameshort[data$ser_cou_code == "LT" & !is.na(data$ser_cou_code)]))` series), Netherlands (`r length(unique(data$ser_nameshort[data$ser_cou_code == "NL" & !is.na(data$ser_cou_code)]))` series), United Kingdom (`r length(unique(data$ser_nameshort[data$ser_cou_code == "GB" & !is.na(data$ser_cou_code)]))` series) and France (`r length(unique(data$ser_nameshort[data$ser_cou_code == "FR" & !is.na(data$ser_cou_code)]))` series). Four time series (BI1S, BI4S, NSIS, PanS) are international trawling surveys. Data on these silver eel time series have been added to the WGEEL database in the past, but as these international series have no dedicated reporting country, their data have not been updated in the database since 2011.
+In the 2023 data call, `r length(unique(data$ser_nameshort))` silver eel time series were available, located in `r length(unique(data$ser_cou_code[!is.na(data$ser_cou_code)]))` countries (Figure \@ref(fig:mapsilverall)). The majority of these series are from Lithuania (`r length(unique(data$ser_nameshort[data$ser_cou_code == "LT" & !is.na(data$ser_cou_code)]))` series), Netherlands (`r length(unique(data$ser_nameshort[data$ser_cou_code == "NL" & !is.na(data$ser_cou_code)]))` series), United Kingdom (`r length(unique(data$ser_nameshort[data$ser_cou_code == "GB" & !is.na(data$ser_cou_code)]))` series) and France (`r length(unique(data$ser_nameshort[data$ser_cou_code == "FR" & !is.na(data$ser_cou_code)]))` series). Four time series (BI1S, BI4S, NSIS, PanS) are international trawling surveys. Data on these silver eel time series have been added to the WGEEL database in the past, but as these international series have no dedicated reporting country, their data have not been updated by any country in the database since 2011.
 
-```{r mapsilverall,echo=FALSE,message=FALSE,warning=FALSE,fig.cap="Map of available silver time series. Updated time series correspond to time series for which at least one value was provided for years the three last years",fig.height=14/2.54}
+```{r mapsilverall,echo=FALSE,message=FALSE,warning=FALSE,fig.cap="Map of available silver eel time series. Updated time series correspond to time series for which at least one value was provided for the three last years.",fig.height=14/2.54}
 
 colorpalette=cbf_1 <- c("red","black") #may not be needed
 
@@ -325,7 +324,7 @@ flextable(t.summary)
 
 ```
 
-```{r figure-seriessummary, echo = FALSE, fig.cap = "Summary of available silver eel series per country, including whether they were kept or dropped for the trend analysis. Habitat: C = coastal water, F = freshwater, MO = marine water (open sea), T = transitional water (according to WFD); gear: 226 = fyke nets, 227 =stow nets, 228 = barriers, fences, weirs, etc., 230 = traps, 234 = longlines, 242 = electric fishing, 245 = gear unknown; sampling type: 1 = commercial catch, 2 = commercial CPUE, 3 = scientific estimate, 4 = trapping all, 5 = trapping partial gear; quality id: 0 = series has ended and no future data will become available, 1 = good quality data; stocking: FALSE = no impacts of stocking, TRUE = impacts of stocking; and ecoregion: WM = Western Mediterranean Sea, BS = Baltic Sea, NS = Greater North Sea, IB = Bay of Biscay and the Iberian Coast, CS = Celtic Seas, AL = Aegean-Levantine Sea, CM = Ionian Sea and the Central Mediterranean Sea, AS = Adriatic Sea. For all, NA means not available (no information provided).", fig.height=8}
+```{r figure-seriessummary, echo = FALSE, fig.cap = "Summary of available silver eel time series per country, including whether they were kept or dropped for the trend analysis. Habitat: C = coastal water, F = freshwater, MO = marine water (open sea), T = transitional water (according to WFD); gear: 226 = fyke nets, 227 =stow nets, 228 = barriers, fences, weirs, etc., 230 = traps, 234 = longlines, 242 = electric fishing, 245 = gear unknown; sampling type: 1 = commercial catch, 2 = commercial CPUE, 3 = scientific estimate, 4 = trapping all, 5 = trapping partial gear; quality id: 0 = series has ended and no future data will become available, 1 = good quality data; stocking: FALSE = no impacts of stocking, TRUE = impacts of stocking; and ecoregion: WM = Western Mediterranean Sea, BS = Baltic Sea, NS = Greater North Sea, IB = Bay of Biscay and the Iberian Coast, CS = Celtic Seas, AL = Aegean-Levantine Sea, CM = Ionian Sea and the Central Mediterranean Sea, AS = Adriatic Sea. For all, NA means not available (no information provided).", fig.height=8}
 
 
 #Create a standard function to make bar plots for the various variables to be summarized
@@ -398,14 +397,14 @@ p.summary
 
 ```
 
-A summary of the type of data available in the silver eel time series is given in Table \@ref(tab:table-summary) and Figure \@ref(fig:figure-seriessummary), and a detailed summary of all the series is presented in **Annex x.x**. From all available silver eel time series, `r nrow(t.filterchoice[t.filterchoice$n >= min.length,])` series have `r min.length` or more years of available data. Only `r sum(d.effort.available$effort)` of the `r length(unique(data$ser_nameshort))` series have effort data submitted. Most silver eel series were collected in freshwaters via traps and fyke nets. In terms of sampling type, `r nrow(d.tablesummary[d.tablesummary$sam_samplingtype == "commercial catch",])` series were from commercial catches, `r nrow(d.tablesummary[d.tablesummary$sam_samplingtype == "commercial CPUE",])` series were reported as commercial CPUE, `r nrow(d.tablesummary[d.tablesummary$sam_samplingtype == "trapping all",])` were assigned as full trapping series, `r nrow(d.tablesummary[d.tablesummary$sam_samplingtype == "trapping partial",])` as partial trapping series, and `r nrow(d.tablesummary[d.tablesummary$sam_samplingtype == "scientific estimate",])` were classified as scientific estimate, with `r nrow(d.tablesummary[is.na(d.tablesummary$sam_samplingtype),])` series missing this information. When it comes to the series quality ID, `r nrow(d.tablesummary[d.tablesummary$ser_qal_id == 1,])` series had a quality ID of 1, indicating good quality, `r nrow(d.tablesummary[d.tablesummary$ser_qal_id == 0,])` had a quality ID of 0, indicating that it had been previously decided that the series should not be used in an analysis (usually because there were not enough years of data), and `r nrow(d.tablesummary[is.na(d.tablesummary$ser_qal_id),])` series were missing a series quality ID. For the next WGEEL meeting, *these series quality IDs should be reconsidered*, given the large amount of series without a series quality ID, and the fact that some series with a quality ID of 0 now have at least 10 years of data. Almost all series had information on the potential impacts of restocking, with `r sum(d.tablesummary$ser_restocking, na.rm = T)` series classified as being influenced by restocking and `r sum(!d.tablesummary$ser_restocking, na.rm = T)` as not being influenced by restocking. 
+A summary of the type of data available in the silver eel time series is given in Table \@ref(tab:table-summary) and Figure \@ref(fig:figure-seriessummary), and a detailed summary of all the series is presented in **Annex x.x**. From all available silver eel time series, `r nrow(t.filterchoice[t.filterchoice$n >= min.length,])` series have `r min.length` or more years of available data. Only `r sum(d.effort.available$effort)` of the `r length(unique(data$ser_nameshort))` series have effort data submitted. Most silver eel series were collected in freshwaters via traps and fyke nets. In terms of sampling type, `r nrow(d.tablesummary[d.tablesummary$sam_samplingtype == "commercial catch",])` series were from commercial catches, `r nrow(d.tablesummary[d.tablesummary$sam_samplingtype == "commercial CPUE",])` series were reported as commercial CPUE, `r nrow(d.tablesummary[d.tablesummary$sam_samplingtype == "trapping all",])` were assigned as full trapping series, `r nrow(d.tablesummary[d.tablesummary$sam_samplingtype == "trapping partial",])` as partial trapping series, and `r nrow(d.tablesummary[d.tablesummary$sam_samplingtype == "scientific estimate",])` were classified as scientific estimate, with `r nrow(d.tablesummary[is.na(d.tablesummary$sam_samplingtype),])` series missing this information. When it comes to the series quality ID, `r nrow(d.tablesummary[d.tablesummary$ser_qal_id == 1,])` series had a quality ID of 1, indicating good quality, `r nrow(d.tablesummary[d.tablesummary$ser_qal_id == 0,])` had a quality ID of 0, indicating that it had been previously decided that the series should not be used in an analysis (usually because there were not enough years of data), and `r nrow(d.tablesummary[is.na(d.tablesummary$ser_qal_id),])` series were missing a series quality ID. For the next WGEEL meeting, these series quality IDs should be reconsidered, given the large amount of series without a series quality ID, and the fact that some series with a quality ID of 0 now have at least 10 years of data. Almost all series had information on the potential impacts of restocking, with `r sum(d.tablesummary$ser_restocking, na.rm = T)` series classified as being influenced by restocking and `r sum(!d.tablesummary$ser_restocking, na.rm = T)` as not being influenced by restocking. 
 
-The decision was made to perform the trend analysis with only those silver eel time series that had at least `r min.length` years of data available. After examining the `r length(unique(data$ser_nameshort))` available silver eel time-series, only `r length(unique(d.cpue$ser_nameshort))` were kept for the trend analysis (Table \@ref(tab:table_kept). From the `r nrow(t.filterchoice[t.filterchoice$filtered == "Dropped",])` time-series that were excluded, `r nrow(t.filterchoice[t.filterchoice$reason.dropped == "Inconsistencies in data",])` showed inconsistencies in data and `r nrow(t.filterchoice[t.filterchoice$n < min.length,])` were excluded because they did not have `r min.length` consecutive years of effort data (Table \@ref(tab:table_dropped).
+The decision was made to perform the trend analysis with only those silver eel time series that had at least `r min.length` years of data available. After examining the `r length(unique(data$ser_nameshort))` available silver eel time series, only `r length(unique(d.cpue$ser_nameshort))` were kept for the trend analysis (Table \@ref(tab:table-kept)). From the `r nrow(t.filterchoice[t.filterchoice$filtered == "Dropped",])` time series that were excluded, `r nrow(t.filterchoice[t.filterchoice$reason.dropped == "Inconsistencies in data",])` showed inconsistencies in data and `r nrow(t.filterchoice[t.filterchoice$n < min.length,])` were excluded because they did not have `r min.length` consecutive years of effort data (Table \@ref(tab:table-dropped)).
 
-The `r length(unique(d.cpue$ser_nameshort))` silver eel time series which were used in the analysis represented six ICES ecoregions (Figure \@ref(fig:mapsilverkept)). The Western Mediterranean Sea and Aegean-Levantine Sea only had one time series. The most represented areas were the Greater North Sea with 8 time-series and the Baltic Sea with 7 time-series. 11 ecoregions (Adriatic Sea, Arctic Ocean, Azores, Barents Sea, Black Sea, Faroes, Greenland Sea, Icelandic Waters, Ionian Sea and the Central Mediterranean Sea, Norwegian Sea, Oceanic Northeast Atlantic) did not have silver eel time series which were used in the trend analysis. All coastal time series used in the analysis are located in the Baltic Sea ecoregion. Freshwater series are located across 4 different ecoregions (Baltic Sea, Bay of Biscay and the Iberian Coast, Celtic Seas, Greater North Sea) and the transitional series are located in 2 ecoregions (Aegean-Levantine Sea, Western Mediterranean Sea). 
+The `r length(unique(d.cpue$ser_nameshort))` silver eel time series which were used in the analysis represented six ICES ecoregions (Figure \@ref(fig:mapsilverkept)). The Western Mediterranean Sea and Aegean-Levantine Sea only had one time series. The most represented areas were the Greater North Sea with 8 time series and the Baltic Sea with 7 time series. 11 ecoregions (Adriatic Sea, Arctic Ocean, Azores, Barents Sea, Black Sea, Faroes, Greenland Sea, Icelandic Waters, Ionian Sea and the Central Mediterranean Sea, Norwegian Sea, Oceanic Northeast Atlantic) did not have silver eel time series which were used in the trend analysis. All coastal time series used in the analysis are located in the Baltic Sea ecoregion. Freshwater series are located across 4 different ecoregions (Baltic Sea, Bay of Biscay and the Iberian Coast, Celtic Seas, Greater North Sea) and the transitional series are located in 2 ecoregions (Aegean-Levantine Sea, Western Mediterranean Sea). 
 
 
-```{r table-kept, echo = FALSE, tab.cap = "Available silver eel time series that were kept for the analysis. Listed is also whether the silver eel time-series data was first divided by provided effort data, before it was used in the analysis. A reason for dividing by effort is that the data in the series is effort-dependent. Reasons for not first dividing by effort data include for instance the provided data already being a CPUE index, or effort being constant (e.g. whole year full-river coverage)."}
+```{r table-kept, echo = FALSE, tab.cap = "Available silver eel time series that were kept for the analysis. Listed is also whether the silver eel time series data was first divided by provided effort data, before it was used in the analysis. A reason for dividing by effort is that the data in the series is effort-dependent. Reasons for not first dividing by effort data include for instance the provided data already being a CPUE index, or effort being constant (e.g. whole year full-river coverage)."}
 t.kept <- t.filterchoice %>%
   filter(filtered == "Kept") %>%
   mutate(
@@ -449,14 +448,14 @@ t.dropped <- t.filterchoice %>%
 flextable(t.dropped)
 ```
 
-```{r mapsilverkept, echo=FALSE, fig.cap="Map of silver eel time-series used in the trend analysis, shown by ICES ecoregion and habitat.", out.width = '100%'}
+```{r mapsilverkept, echo=FALSE, fig.cap="Map of silver eel time series used in the trend analysis, shown by ICES ecoregion and habitat.", out.width = '100%'}
 knitr::include_graphics("data/Silver_series_map.png")
 ```
 
-Figure \@ref(fig:figure-series) gives an overview of the reported CPUE data for each silver eel time series that were kept for the trend analysis. Among the kept series, the number of available CPUE data points was highest between 2010 and 2021, with the peak in 2013-2017 (Figure \@ref(fig:figure-nseries)). The majority of the kept time series did not have 2023 data ready at the time of writing this report. 
+Figure \@ref(fig:figure-series) gives an overview of the reported data for each silver eel time series that were kept for the trend analysis. Among the kept series, the number of available data points was highest between 2010 and 2021, with the peak in 2013-2017 (Figure \@ref(fig:figure-nseries)). The majority of the kept time series did not have 2023 data ready at the time of writing this report. Given the scarcity of data before 1980, analyses were down excluded data before that date.
 
 
-```{r figure-series, echo = FALSE, fig.cap = "CPUE data of those silver eel time series that were used in the trend analysis.", fig.height=length(unique(d.cpue$ser_nameshort))/3*1.5}
+```{r figure-series, echo = FALSE, fig.cap = "Silver eel time series that were used in the trend analysis.", fig.height=length(unique(d.cpue$ser_nameshort))/3*1.5}
 
 ggplot(data = d.cpue, aes(x = das_year, y = cpue)) +
   geom_line() +
@@ -470,7 +469,7 @@ ggplot(data = d.cpue, aes(x = das_year, y = cpue)) +
   theme(axis.text.x = element_text(angle = 45, vjust = 0.5))
 ```
 
-```{r figure-nseries, echo = FALSE, fig.cap = "Number of available datapoints from silver eel CPUE time-series over time, shown only for those time-series that were used in the trend analysis."}
+```{r figure-nseries, echo = FALSE, fig.cap = "Number of available datapoints from silver eel time series over time, shown only for those time series that were used in the trend analysis."}
 
 ggplot(data = d.cpue %>% count(das_year), aes(x = das_year, y = n)) +
   scale_x_continuous(name = "Year") +

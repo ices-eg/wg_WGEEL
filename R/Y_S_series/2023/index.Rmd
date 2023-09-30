@@ -5,16 +5,16 @@ date: "`r format(Sys.time(), '%Y %B %d')`"
 bibliography: references_2023.bib
 documentclass: article
 output: 
-#   bookdown::pdf_document2:
-#     fig_caption: yes
-#     number_sections: yes
-  bookdown::word_document2:
-    fig_caption: yes
-    number_sections: yes
-    reference_docx: "../../Rmarkdown/ICES_template.docx" 
+    # bookdown::pdf_document2:
+    #     fig_caption: yes
+    #     number_sections: yes
+    bookdown::word_document2:
+        fig_caption: yes
+        number_sections: no
+        reference_docx: "../../Rmarkdown/ICES_template.docx" 
 params:
-  rerunDFA_yellow: FALSE
-  rerunDFA_silver: FALSE
+    rerunDFA_yellow: FALSE
+    rerunDFA_silver: FALSE
 csl: "../../Rmarkdown/ices-journal-of-marine-science.csl"
 
 ---

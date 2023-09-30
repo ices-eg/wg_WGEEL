@@ -8,6 +8,6 @@ These analyses are exploratory and enable us to test certain statistical methods
 - To have more series available for analysis, the conditions for accepting the series for analysis should be evaluated (quality, number of years needed, etc.). In addition, series that are marked as bad quality should be re-evaluated. 
 - A more detailed review of the statistical methods that can be used should also be carried out to identify new ones.
 
-Although these analyses of silver series are exploratory, they do give us a first step towards benchmarking and using these data to assess European eel stocks. They enabled us to identify the errors and improvements to be made to our dataset to enable finalised analyses.
+Although these analyses of silver eel time series are exploratory, they do give us a first step towards benchmarking and using these data to assess European eel stocks. They enabled us to identify the errors and improvements to be made to our dataset to enable finalised analyses.
 
 ### References
