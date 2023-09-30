@@ -29,41 +29,6 @@ cred=read_yaml("../../../credentials.yml")
 con_wgeel = dbConnect(Postgres(), dbname=cred$dbname,host=cred$host,port=cred$port,user=cred$user, password=cred$password)
 ```
 
-```{r map data load, include=FALSE}
-
-#### Get data for maps####
-mydata = dbGetQuery(con_wgeel,query) # Get yellow and silver eel time series from WGEEL database
-
-
-silver_dataall <- mydata %>%
-  filter(lfs_code == "S")
-yellow_dataall <- mydata %>%
-  filter(lfs_code == "Y")
-
-silver_map <- st_as_sf(
-    st_read(
-        con_wgeel,
-        query = paste("
-            select ser_id,ser_x,ser_y,geom,ser_nameshort
-            from datawg.t_series_ser
-            where ser_id in (",
-                paste(unique(silver_dataall$ser_id), collapse = ","),
-                ")", sep = ""
-        )
-    )
-)
-silver_map$Updated <- silver_map$ser_id %in%
-    unique(
-        mydata %>%
-        filter(das_year >= 2018) %>%
-        select(ser_id) %>%
-        pull()
-    )
-
-
-```
-
-
 ```{r data loading, include = FALSE}
 query='SELECT 
 		das_id,
@@ -188,8 +153,51 @@ d.cpue <- data %>%
   ) %>% #calculate cpue if effort data is given, otherwise assume that das_value is already CPUE
   select(das_id, das_year, cpue, das_value, das_effort, ser_id, ser_nameshort, ser_hty_code, ser_emu_nameshort, ser_cou_code, ser_distanceseakm, ser_restocking, ecoregion, distance_to_ecoregion, das_qal_id, ser_qal_id, ser_rank)
 
-dbDisconnect(con_wgeel) #disconnect from WGEEL database
 ```
+
+```{r map data load, include=FALSE}
+
+#### Get data for maps####
+mydata = dbGetQuery(con_wgeel,query) # Get yellow and silver eel time series from WGEEL database
+
+
+silver_dataall <- mydata %>%
+  filter(lfs_code == "S")
+yellow_dataall <- mydata %>%
+  filter(lfs_code == "Y")
+
+silver_map <- st_as_sf(
+    st_read(
+        con_wgeel,
+        query = paste("
+            select ser_id,ser_x,ser_y,geom,ser_nameshort
+            from datawg.t_series_ser
+            where ser_id in (",
+                paste(unique(silver_dataall$ser_id), collapse = ","),
+                ")", sep = ""
+        )
+    )
+)
+silver_map$Updated <- silver_map$ser_id %in%
+    unique(
+        mydata %>%
+        filter(das_year >= 2018) %>%
+        select(ser_id) %>%
+        pull()
+    )
+
+
+```
+
+```{r disconnect, include=FALSE}
+
+dbDisconnect(con_wgeel) #disconnect from WGEEL database
+
+
+```
+
+
+
 
 ### Data selection
 
