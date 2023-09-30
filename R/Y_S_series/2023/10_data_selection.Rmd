@@ -18,6 +18,12 @@ load_library("flextable")
 load_library("ggplot2")
 load_library("ggpubr")
 load_library("scales")
+load_library("rnaturalearth")
+load_library("sf")
+load_library("ggmap")
+load_library("ggrepel")
+load_library("grid")
+load_library("gridExtra")
 
 cred=read_yaml("../../../credentials.yml")
 con_wgeel = dbConnect(Postgres(), dbname=cred$dbname,host=cred$host,port=cred$port,user=cred$user, password=cred$password)
@@ -147,8 +153,51 @@ d.cpue <- data %>%
   ) %>% #calculate cpue if effort data is given, otherwise assume that das_value is already CPUE
   select(das_id, das_year, cpue, das_value, das_effort, ser_id, ser_nameshort, ser_hty_code, ser_emu_nameshort, ser_cou_code, ser_distanceseakm, ser_restocking, ecoregion, distance_to_ecoregion, das_qal_id, ser_qal_id, ser_rank)
 
-dbDisconnect(con_wgeel) #disconnect from WGEEL database
 ```
+
+```{r map data load, include=FALSE}
+
+#### Get data for maps####
+mydata = dbGetQuery(con_wgeel,query) # Get yellow and silver eel time series from WGEEL database
+
+
+silver_dataall <- mydata %>%
+  filter(lfs_code == "S")
+yellow_dataall <- mydata %>%
+  filter(lfs_code == "Y")
+
+silver_map <- st_as_sf(
+    st_read(
+        con_wgeel,
+        query = paste("
+            select ser_id,ser_x,ser_y,geom,ser_nameshort
+            from datawg.t_series_ser
+            where ser_id in (",
+                paste(unique(silver_dataall$ser_id), collapse = ","),
+                ")", sep = ""
+        )
+    )
+)
+silver_map$Updated <- silver_map$ser_id %in%
+    unique(
+        mydata %>%
+        filter(das_year >= 2018) %>%
+        select(ser_id) %>%
+        pull()
+    )
+
+
+```
+
+```{r disconnect, include=FALSE}
+
+dbDisconnect(con_wgeel) #disconnect from WGEEL database
+
+
+```
+
+
+
 
 ### Data selection
 
@@ -378,3 +427,48 @@ ggplot(data = d.cpue %>% count(das_year), aes(x = das_year, y = n)) +
 
 ```
 
+```{r mapsilver,echo=FALSE,message=FALSE,warning=FALSE,fig.cap="Map of available silver time series. Updated time series correspond to time series for which at least one value was provided for years the three last years",fig.height=14/2.54}
+
+colorpalette=cbf_1 <- c("red","black") #may not be needed
+
+
+worldmap <- ne_countries(scale = 'medium', type = 'map_units',
+                          returnclass = 'sf')
+
+world <- ne_countries(scale = 110, returnclass = "sf") 
+europe_cropped <- ggplot() +
+  geom_sf(data = world) +
+  coord_sf(xlim = c(-13, 29), ylim = c(35, 65)) +
+  ggtitle("Europe")
+ 
+# ggplot(silver_map)+geom_sf(data=europe_cropped)+geom_sf(data=silver_map,col="red")+
+   #theme_bw()
+  my_map=get_stamenmap(bbox = c(left = -13, bottom = 35, right =
+                                  29, top = 65), zoom = 6, maptype = c("terrain-background"))
+
+#watercolor
+draw_key_text=
+	function (data, params, size) 
+{
+	if (is.null(data$label)) 
+		data$label <- "series"
+	grid::textGrob(data$label, 0.5, 0.5, rot = data$angle %||% 0, gp = gpar(cex = 2, col = alpha(data$colour %||% 
+					data$fill %||% "black", data$alpha), fontfamily = data$family %||% 
+				"", fontface = data$fontface %||% 1, fontsize = (data$size %||% 
+					3.88) * .pt))
+}
+
+
+ggmap(my_map) + 
+	geom_point(data=silver_map,aes(x=ser_x,y=ser_y, colour=silver_map$Updated),cex=2,pch=20)+
+  labs(x="", y="", color="Legend Title\n") +
+  scale_color_manual(labels = c("TRUE", "FALSE"), values=c("black", "red")) +
+  geom_label_repel(data=silver_map,
+	aes(x=ser_x,y=ser_y,label=ser_nameshort,col=silver_map$Updated),cex=1.5,  max.overlaps = Inf, label.padding = 0.1, show.legend = FALSE) +
+	scale_color_manual("Updated within the last 3 years",values=colorpalette)+
+	ylab("")+xlab("") +
+  theme(legend.position=c(0.25, 0.93))
+
+
+#knitr::include_graphics("images/silver.png")
+```
