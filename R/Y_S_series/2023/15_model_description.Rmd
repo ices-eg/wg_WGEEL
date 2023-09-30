@@ -7,8 +7,8 @@
 library("dplyr")
 ```
 
-Through a literature review, we have identified two possible types of analyses. The common detail of these models is that both are using multivariate auto-regressive state-space (MARSS) models.
-MARSS model is a family of state-space models [@hinrichsenUsingMultivariateStatespace2009]. They have been implemented through the MARSS package [@holmesAnalysisMultivariateTime2021].
+Through a literature review, we have identified two possible types of analyses. These models both use multivariate auto-regressive state-space (MARSS) models.
+MARSS model are a family of state-space models [@hinrichsenUsingMultivariateStatespace2009]. They have been implemented through the MARSS package [@holmesAnalysisMultivariateTime2021].
 
 MARSS models include a state process \@ref(eq:state-process) and an observation process \@ref(eq:observation-process) [adapted from  @holmesAnalysisMultivariateTime2021].
 

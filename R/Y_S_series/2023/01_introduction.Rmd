@@ -8,11 +8,10 @@
 
 Compared to the current glass eel index where a common trend for all areas can be produced, for silver and yellow eel time series we cannot assume, for various reasons, one common trend for all series. Some of these reasons include, but are not limited to, varying age at maturation/silvering, varying natural and anthropogenic mortality.
 
-Due to time constraint only one stage can be examined here. Silver eels can be considered as proxy of future spawner and was such chosen. The analysis on yellow eel time series will be completed in the future, taking an advantage from the results from the silver eel analysis.
+Due to time constraint only one stage can be examined here. Silver eels can be considered as a proxy for future spawners biomass/abundance, and was therefore chosen. The analysis on yellow eel time series will be completed in the future, taking advantage of the methods and results from the silver eel analysis.
 
-Two objectives can be assigned to the analysis: (i) define conservation status of silver eel, i.e., is the population (future spawners) enough numerous to avoid extinction in the (near) future and (ii) find patterns, i.e., is there a common trend between the series, can we define groups of series that have the same trends.
-Achieving the second objective (patterns) is useful for achieving the first (conservation status) but is also useful for identifying any spatial structure for the future spatial model [@icesWorkshopFutureEel2021].
+Two objectives can be assigned to the analysis: (i) define conservation status of silver eel, i.e., is the population (future spawners) sufficiently numerous to avoid extinction in the (near) future and (ii) find patterns, i.e., are there common trends between the series, can we define groups of series that have the same trends. Achieving the second objective (patterns) is useful for achieving the first (conservation status) but is also useful for identifying any spatial struc-ture for the future spatial model  [@icesWorkshopFutureEel2021].
 
-Patterns can be explored on different metrics (e.g. abundance, mean length, ...). The work will focus ob abundance, this one being the most obviously related to conservation status and the primarly results of a spatial model.
+Patterns can be explored among different metrics (e.g. abundance, mean length, ...). The work here will focus on abundance, of the available metrics, it is most related to conservation status and the primary results of a spatial model.
 
-We first review the potential methods and decide the ecological and biological assumptions needed to make so that we can choose the correct analysis and predictors based on the assumptions.
+We first review the potential methods and decide the ecological and biological assumptions needed so that we can choose the correct analysis and predictors based on the assumptions.
