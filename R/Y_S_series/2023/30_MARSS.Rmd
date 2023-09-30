@@ -29,18 +29,13 @@ load_library("yaml")
 
 ```{r widen data, include=FALSE}
 
-<<<<<<< HEAD
+
 # Order data based on ser_rank
 d.cpue <- d.cpue %>% arrange(ser_rank)
 
 # Indexes giving the structure of different hypotheses
 H <- d.cpue %>%
   select("ser_nameshort","ser_hty_code","ser_restocking","ecoregion","ser_rank") %>%
-=======
-# Indexes giving how serie ids relate to habitat type, restocking and ecoregions
-subpop_fct <- d.cpue %>%
-  select("ser_nameshort","ser_hty_code","ser_restocking","ecoregion") %>%
->>>>>>> 1f8f57dba70453f1ca05b0fac017d9647214687a
 unique()
 
 # Add size of river to tested hypotheses
@@ -114,11 +109,7 @@ U.model <- "unequal"
 R.model <- "diagonal and unequal"
 #A.model <- "zero"
 B.model <- "identity"
-<<<<<<< HEAD
-Q.models <- c("diagonal and equal") # test with different Q models(i.e. different process errors)
-=======
 Q.model <- c("diagonal and equal") # test with different Q models(i.e. different process errors)
->>>>>>> 1f8f57dba70453f1ca05b0fac017d9647214687a
 x0.model <- "unequal"
 V0.model <- "zero"
 model.constant <- list(
@@ -134,25 +125,16 @@ out.tab <- NULL
 fits <- list()
 for(A.model in A.models){
 for (i in 1:length(Z.models)) { 
-<<<<<<< HEAD
-fit.model <- c(list(Z = Z.models[[i]]), Q=Q.model, A = A.model, model.constant) 
-=======
 fit.model <- c(list(Z = Z.models[[i]]), A = A.model, model.constant)
->>>>>>> 1f8f57dba70453f1ca05b0fac017d9647214687a
 fit <- MARSS(S_ts,
 model = fit.model,
 silent = TRUE, control = list(maxit = 2000)
 )
 out <- data.frame(
 H = names(Z.models)[i],
-<<<<<<< HEAD
 #A = A.model,
 #Q = Q.model,
 num.param = fit$num.params,
-=======
-A = A.model,
-logLik = fit$logLik, AICc = fit$AICc, num.param = fit$num.params,
->>>>>>> 1f8f57dba70453f1ca05b0fac017d9647214687a
 m = length(unique(Z.models[[i]])),
 converged = !fit$convergence,
 logLik = fit$logLik, AICc = fit$AICc,
