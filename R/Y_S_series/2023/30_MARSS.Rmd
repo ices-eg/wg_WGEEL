@@ -32,7 +32,7 @@ load_library("yaml")
 
 # Indexes giving how serie ids relate to habitat type, restocking and ecoregions
 subpop_fct <- d.cpue %>%
-  select("ser_nameshort","ser_hty_code","ser_restocking","ecoregion","ser_rank") %>%
+  select("ser_nameshort","ser_hty_code","ser_restocking","ecoregion") %>%
 unique()
 
 # add size of river to tested hypotheses
@@ -42,9 +42,7 @@ subpop_fct <- subpop_fct %>% left_join(RS,by=join_by(ser_nameshort==ser_namesh))
 
 # Wide format of silver eel data
 S_data <- d.cpue %>%
-  ungroup() %>% 
   select("das_year","ser_nameshort","cpue") %>% 
-  filter(das_year >=1980) %>%
   complete(das_year,ser_nameshort) %>% # add na´s to non existing years
 pivot_wider(names_from=ser_nameshort,values_from = cpue) # wide format
 
@@ -93,11 +91,11 @@ U.model <- "unequal"
 R.model <- "diagonal and unequal"
 #A.model <- "zero"
 B.model <- "identity"
-Q.models <- c("diagonal and equal","diagonal and unequal") # test with different Q models(i.e. different process errors)
+Q.model <- c("diagonal and equal") # test with different Q models(i.e. different process errors)
 x0.model <- "unequal"
 V0.model <- "zero"
 model.constant <- list(
-U = U.model, R = R.model, #Q = Q.model, A = A.model,
+U = U.model, R = R.model, Q = Q.model, # A = A.model,
 x0 = x0.model, V0 = V0.model, tinitx = 0
 )
 A.models <- c("zero","unequal")
@@ -108,9 +106,8 @@ A.models <- c("zero","unequal")
 out.tab <- NULL
 fits <- list()
 for(A.model in A.models){
-  for(Q.model in Q.models){
 for (i in 1:length(Z.models)) { 
-fit.model <- c(list(Z = Z.models[[i]]), A = A.model, Q=Q.model, model.constant)
+fit.model <- c(list(Z = Z.models[[i]]), A = A.model, model.constant)
 fit <- MARSS(S_ts,
 model = fit.model,
 silent = TRUE, control = list(maxit = 2000)
@@ -118,7 +115,6 @@ silent = TRUE, control = list(maxit = 2000)
 out <- data.frame(
 H = names(Z.models)[i],
 A = A.model,
-Q = Q.model,
 logLik = fit$logLik, AICc = fit$AICc, num.param = fit$num.params,
 m = length(unique(Z.models[[i]])),
 num.iter = fit$numIter, converged = !fit$convergence,
@@ -129,7 +125,7 @@ fits <- c(fits, list(fit))
 if (i == 1) next # one m for panmictic so only run 1 Q
 }
 }
-}
+
 ```
 
 ```{r make table}
