@@ -4,7 +4,7 @@ rmd_files: [
   "10_data_selection.Rmd",
   "15_model_description.Rmd",
   "20_DFA.Rmd",
-  # "30_MARSS.Rmd",
+  "30_MARSS.Rmd",
   "80_conclusion.Rmd"
 ]
 output_dir: "final"
