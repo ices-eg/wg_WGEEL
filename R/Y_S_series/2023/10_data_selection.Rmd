@@ -16,6 +16,12 @@ load_library("flextable")
 load_library("ggplot2")
 load_library("ggpubr")
 load_library("scales")
+load_library("rnaturalearth")
+load_library("sf")
+load_library("ggmap")
+load_library("ggrepel")
+load_library("grid")
+load_library("gridExtra")
 
 
 
@@ -57,7 +63,34 @@ query='SELECT
 
 mydata = dbGetQuery(con_wgeel,query) # Get yellow and silver eel time series from WGEEL database
 
-# add rank based on country
+##############################
+### MAP DATA
+
+silver_dataall <- mydata %>%
+  filter(lfs_code == "S")
+
+silver_map <- st_as_sf(
+    st_read(
+        con_wgeel,
+        query = paste("
+            select ser_id,ser_x,ser_y,geom,ser_nameshort
+            from datawg.t_series_ser
+            where ser_id in (",
+                paste(unique(silver_dataall$ser_id), collapse = ","),
+                ")", sep = ""
+        )
+    )
+)
+silver_map$Updated <- silver_map$ser_id %in%
+    unique(
+        mydata %>%
+        filter(das_year >= 2018) %>%
+        select(ser_id) %>%
+        pull()
+    )
+
+##########################
+### add rank based on country
 mydata <- mydata %>%
     group_by(ser_cou_code) %>%
     mutate(
@@ -192,9 +225,53 @@ dbDisconnect(con_wgeel) #disconnect from WGEEL database
 ### Data selection
 Previously, yellow and silver eel series have been analyzed by WGEEL through trend analysis (ICES 2021a). Here, we have chosen to concentrate on improving the trend analysis for the silver eel time series.
 
-In the 2023 data call, `r length(unique(data$ser_nameshort))` silver eel time series were available, located in `r length(unique(data$ser_cou_code[!is.na(data$ser_cou_code)]))` countries. The majority of these series are from Lithuania (`r length(unique(data$ser_nameshort[data$ser_cou_code == "LT" & !is.na(data$ser_cou_code)]))` series), Netherlands (`r length(unique(data$ser_nameshort[data$ser_cou_code == "NL" & !is.na(data$ser_cou_code)]))` series), United Kingdom (`r length(unique(data$ser_nameshort[data$ser_cou_code == "GB" & !is.na(data$ser_cou_code)]))` series) and France (`r length(unique(data$ser_nameshort[data$ser_cou_code == "FR" & !is.na(data$ser_cou_code)]))` series). Four time series (BI1S, BI4S, NSIS, PanS) are international trawling surveys. Data on these silver eel time series have been added to the WGEEL database in the past, but as these international series have no dedicated reporting country, their data have not been inserted into the database for recent years.
+In the 2023 data call, `r length(unique(data$ser_nameshort))` silver eel time series were available, located in `r length(unique(data$ser_cou_code[!is.na(data$ser_cou_code)]))` countries (Figure \@ref(fig:mapsilverall)). The majority of these series are from Lithuania (`r length(unique(data$ser_nameshort[data$ser_cou_code == "LT" & !is.na(data$ser_cou_code)]))` series), Netherlands (`r length(unique(data$ser_nameshort[data$ser_cou_code == "NL" & !is.na(data$ser_cou_code)]))` series), United Kingdom (`r length(unique(data$ser_nameshort[data$ser_cou_code == "GB" & !is.na(data$ser_cou_code)]))` series) and France (`r length(unique(data$ser_nameshort[data$ser_cou_code == "FR" & !is.na(data$ser_cou_code)]))` series). Four time series (BI1S, BI4S, NSIS, PanS) are international trawling surveys. Data on these silver eel time series have been added to the WGEEL database in the past, but as these international series have no dedicated reporting country, their data have not been inserted into the database for recent years.
+
+```{r mapsilverall,echo=FALSE,message=FALSE,warning=FALSE,fig.cap="Map of available silver time series. Updated time series correspond to time series for which at least one value was provided for years the three last years",fig.height=14/2.54}
+
+colorpalette=cbf_1 <- c("red","black") #may not be needed
 
 
+worldmap <- ne_countries(scale = 'medium', type = 'map_units',
+                          returnclass = 'sf')
+
+world <- ne_countries(scale = 110, returnclass = "sf") 
+europe_cropped <- ggplot() +
+  geom_sf(data = world) +
+  coord_sf(xlim = c(-13, 29), ylim = c(35, 65)) +
+  ggtitle("Europe")
+ 
+# ggplot(silver_map)+geom_sf(data=europe_cropped)+geom_sf(data=silver_map,col="red")+
+   #theme_bw()
+  my_map=get_stamenmap(bbox = c(left = -13, bottom = 35, right =
+                                  29, top = 65), zoom = 6, maptype = c("terrain-background"))
+
+#watercolor
+draw_key_text=
+	function (data, params, size) 
+{
+	if (is.null(data$label)) 
+		data$label <- "series"
+	grid::textGrob(data$label, 0.5, 0.5, rot = data$angle %||% 0, gp = gpar(cex = 2, col = alpha(data$colour %||% 
+					data$fill %||% "black", data$alpha), fontfamily = data$family %||% 
+				"", fontface = data$fontface %||% 1, fontsize = (data$size %||% 
+					3.88) * .pt))
+}
+
+
+ggmap(my_map) + 
+	geom_point(data=silver_map,aes(x=ser_x,y=ser_y, colour=silver_map$Updated),cex=2,pch=20)+
+  labs(x="", y="", color="Legend Title\n") +
+  scale_color_manual(labels = c("TRUE", "FALSE"), values=c("black", "red")) +
+  geom_label_repel(data=silver_map,
+	aes(x=ser_x,y=ser_y,label=ser_nameshort,col=silver_map$Updated),cex=1.5,  max.overlaps = Inf, label.padding = 0.1, show.legend = FALSE) +
+	scale_color_manual("Updated within the last 3 years",values=colorpalette)+
+	ylab("")+xlab("") +
+  theme(legend.position=c(0.25, 0.93))
+
+
+#knitr::include_graphics("images/silver.png")
+```
 
 
 ```{r table_summary, echo = FALSE, tab.cap = paste("Summary of data availability in the silver eel time series, showing availability of series with at least", min.length,  "years of data; and the number of series that do or do not have available information on series quality ID, habitat type, sampling type, effort, gear type, restocking influence, and distance to sea.", sep = " ")}
@@ -325,6 +402,8 @@ A summary of the type of data available in the available silver eel time series 
 
 The decision was made to perform the trend analysis with only those silver eel time series that had at least `r min.length` years of data available. After examining the `r length(unique(data$ser_nameshort))` available silver eel time-series, only `r length(unique(d.cpue$ser_nameshort))` were kept for the trend analysis (Table \@ref(tab:table_kept). From the `r nrow(t.filterchoice[t.filterchoice$filtered == "Dropped",])` time-series that were excluded, `r nrow(t.filterchoice[t.filterchoice$reason.dropped == "Inconsistencies in data",])` were showing inconsistencies in data and `r nrow(t.filterchoice[t.filterchoice$n < min.length,])` were excluded because they did not have `r min.length` consecutive years of effort data (Table \@ref(tab:table_dropped).
 
+The `r length(unique(d.cpue$ser_nameshort))` silver eel time series which were used in the analysis represented six ICES ecoregions (Figure \@ref(fig:mapsilverkept)). The Western Mediterranean Sea and Aegean-Levantine Sea only had one time series. The most represented areas were the Greater North Sea with 8 time-series and the Baltic Sea with 7 time-series. 11 ecoregions (Adriatic Sea, Arctic Ocean, Azores, Barents Sea, Black Sea, Faroes, Greenland Sea, Icelandic Waters, Ionian Sea and the Central Mediterranean Sea, Norwegian Sea, Oceanic Northeast Atlantic) did not have silver eel time series which were used in the trend analysis. All coastal time series used in the analysis are located in the Baltic Sea ecoregion. Freshwater series are located across 4 different ecoregions (Baltic Sea, Bay of Biscay and the Iberian Coast, Celtic Seas, Greater North Sea) and the transitional series are located in 2 ecoregions (Aegean-Levantine Sea, Western Mediterranean Sea). 
+
 
 ```{r table_kept, echo = FALSE, tab.cap = "Available silver eel time series that were kept for the analysis. Listed is also whether the silver eel time-series data was first divided by provided effort data, before it was used in the analysis. A reason for dividing by effort is that the data in the series is effort-dependent. Reasons for not first dividing by effort data include for instance the provided data already being a CPUE index, or effort being constant (e.g. whole year full-river coverage)."}
 t.kept <- t.filterchoice %>%
@@ -370,6 +449,10 @@ t.dropped <- t.filterchoice %>%
 flextable(t.dropped)
 ```
 
+```{r mapsilverkept, echo=FALSE, fig.cap="Map of silver eel time-series used in the trend analysis, shown by ICES ecoregion and habitat.", out.width = '100%'}
+knitr::include_graphics("data/Silver_series_map.png")
+```
+
 Figure \@ref(fig:figure_series) gives an overview of the reported CPUE data for each silver eel time series that was kept for the trend analysis. Among the kept series, the number of available CPUE data points was highest between 2010 and 2021, with the peak in 2013-2017 (Figure \@ref(fig:figure_nseries)). The majority of the kept time series did not have 2023 data ready at the time of writing this report. 
 
 
@@ -387,7 +470,7 @@ ggplot(data = d.cpue, aes(x = das_year, y = cpue)) +
   theme(axis.text.x = element_text(angle = 45, vjust = 0.5))
 ```
 
-```{r figure_nseries, echo = FALSE, fig.cap = "Number of available datapoints from silver eel CPUE time-series over time, shown only for those time-series that were used for the trend analysis."}
+```{r figure_nseries, echo = FALSE, fig.cap = "Number of available datapoints from silver eel CPUE time-series over time, shown only for those time-series that were used in the trend analysis."}
 
 ggplot(data = d.cpue %>% count(das_year), aes(x = das_year, y = n)) +
   scale_x_continuous(name = "Year") +
