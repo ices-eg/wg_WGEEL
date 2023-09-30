@@ -2,12 +2,10 @@
 ```{r setup, include=FALSE}
 source("../../utilities/load_library.R")
 
-
 knitr::opts_chunk$set(echo = TRUE,warning=FALSE,message=FALSE,
                       fig.width=14.9/2.54,
                       dpi=300,
                       fig.height=10/2.54)
-
 
 load_library("RPostgres")
 load_library("dplyr")
