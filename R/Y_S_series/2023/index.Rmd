@@ -20,7 +20,6 @@ csl: "../../Rmarkdown/ices-journal-of-marine-science.csl"
 source("../../utilities/load_library.R")
 # choose the number of year to analyse 
 
-n_year <- 10
 
 # setup the book
 knitr::opts_chunk$set(
