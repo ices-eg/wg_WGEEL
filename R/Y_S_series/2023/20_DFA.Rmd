@@ -173,7 +173,7 @@ The lack of data for the earliest period may have an impact on trend analysis. T
 
 ```{r arrange-data-short, echo=FALSE}
 
-#current_year=format(Sys.Date(), "%Y")
+current_year=format(Sys.Date(), "%Y")
 ## select only data =>1980
 
   n_year <- 16
