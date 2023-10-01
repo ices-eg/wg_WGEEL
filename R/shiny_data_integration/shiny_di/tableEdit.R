@@ -305,7 +305,7 @@ tableEditServer <- function(id,globaldata){
                                    "t_eelstock_eel_perc" =  query <- glue_sql("SELECT percent_id,eel_year eel_year_ref,eel_emu_nameshort as eel_emu_nameshort_ref,eel_cou_code as eel_cou_code_ref,typ_name as typ_name_ref, perc_f, perc_t, perc_c,perc_mo from datawg.t_eelstock_eel join ref.tr_typeseries_typ on typ_id=eel_typ_id left join datawg.t_eelstock_eel_percent on percent_id=eel_id where eel_cou_code in ({pick_country*}) and eel_typ_id in ({pick_typ_series*}) and eel_year>={minyear} and eel_year<={maxyear}", 
                                                                               minyear = the_years[1], maxyear = the_years[2], 
                                                                               .con = globaldata$pool),
-                                   "t_series_ser" =  glue_sql("SELECT *, ser_ccm_wso_id[1]::integer AS wso_id1, ser_ccm_wso_id[2]::integer AS wso_id2, ser_ccm_wso_id[3]::integer AS wso_id3 from datawg.t_series_ser where ser_nameshort in ({pick_typ_series*}) and ser_lfs_code in ({pick_stage*}) and ser_cou_code in ({pick_country*})", # ser_ccm_wso_id is an array to deal with series being part of serval basins ; here we deal until 3 basins
+                                   "t_series_ser" =  glue_sql("SELECT * from datawg.t_series_ser where ser_nameshort in ({pick_typ_series*}) and ser_lfs_code in ({pick_stage*}) and ser_cou_code in ({pick_country*})", # ser_ccm_wso_id is an array to deal with series being part of serval basins ; here we deal until 3 basins
                                                               .con = globaldata$pool),
                                    # new series 2023
                                    "t_samplinginfo_sai" =  glue_sql("SELECT * from datawg.t_samplinginfo_sai where sai_name in ({pick_typ_series*}) AND sai_cou_code in ({pick_country*})", 
@@ -548,7 +548,8 @@ tableEditServer <- function(id,globaldata){
                      leaflet(rvsAll$data) %>%
                        addTiles(group="OSM") %>%
                        addProviderTiles(providers$Esri.WorldImagery, group="satellite")  %>%
-                       addPolygons(data=globaldata$ccm_light %>% inner_join(union(union(rvsAll$data %>% select(wso_id1) %>% distinct() %>% transmute(wso_id = wso_id1), rvsAll$data %>% select(wso_id2) %>% distinct() %>% transmute(wso_id = wso_id2)), rvsAll$data %>% select(wso_id3) %>% distinct() %>% transmute(wso_id = wso_id3))), 
+                       addPolygons(data=globaldata$ccm_light %>% dplyr::filter(wso_id %in% as.integer(strsplit(gsub("(^\\{|\\}$)","",as.vector(rvsAll$data$ser_ccm_wso_id))
+                                                                                                               ,',')[[1]])), 
                                    #popup=~as.character(wso_id),
                                    fill=TRUE, 
                                    highlight = highlightOptions(color='white',

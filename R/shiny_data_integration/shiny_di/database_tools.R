@@ -2706,6 +2706,9 @@ update_data_generic <- function(editedValue, pool, data,edit_datatype) {
     id = data_ids[row]
     col = names(data)[editedValue$col[i]]
     value = editedValue$value[i]
+    if (!is.na(as.integer(value)) & col == "ser_ccm_wso_id"){ #the value looks like an integer, brackets have been forgotten
+      value = paste0("{",value,"}")
+    }
     # glue sql will use arguments tbl, col, value and id
     query <- glue::glue_sql(str_c("UPDATE ",tablename," SET
 										{`col`} = {value}
@@ -2727,6 +2730,9 @@ update_data_generic <- function(editedValue, pool, data,edit_datatype) {
     col=col[!is.na(value)]
     value=as.character(value[1,])
     value=value[!is.na(value)]
+    if (!is.na(as.integer(value)) & col == "ser_ccm_wso_id"){ #the value looks like an integer, brackets have been forgotten
+      value = paste0("{",value,"}")
+    }
     # glue sql will use arguments tbl, col, value and id
     query <- glue::glue_sql(str_c("insert into ",tablename," ({`col`*})
 										values ({value*})"), .con = conn)
