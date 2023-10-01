@@ -55,10 +55,15 @@ WiFG;trap;;NS;TRUE;4;10;0.01;0.35
 WisWGY;trap;;NS;TRUE;4;10;0.01;0.35
 YserG;relative;;NS;TRUE;;;;
 AdGERMA;absolute;{291194};ATL_F;FALSE;;;;
-GiGEMAC;absolute;{291126,291125};ATL_F;FALSE;;;;
+GiGEMAC;absolute;{291126,291125} ;ATL_F;FALSE;;;;
 SeGEMAC;absolute;{295574};ATL_F;FALSE;;;;
 ChGEMAC;absolute;{291364};ATL_F;FALSE;;;;
 LoGERMA;absolute;{291111};ATL_F;FALSE;;;;
 Somme;catch;{291223};Channel;FALSE;10;2;0.7;0.99
 Oria;absolute;{442368};ATL_IB;FALSE;;;;
 Tiber;absolute;{129496};Med;FALSE;;;;
+SousGY;relative;;ATL_F;TRUE;;;;
+OriaG;relative;;ATL_IB;TRUE;;;;
+ShiMG;relative;;INWGB;TRUE;;;;
+OatGY;relative;;Channel;TRUE;;;;
+MondG;relative;;ATL_IB;TRUE;;;;
