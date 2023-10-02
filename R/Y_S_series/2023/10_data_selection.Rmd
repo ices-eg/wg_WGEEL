@@ -1,11 +1,8 @@
 
-```{r setup-dataselection, include=FALSE}
-source("../../utilities/load_library.R")
-
-knitr::opts_chunk$set(echo = TRUE,warning=FALSE,message=FALSE,
-                      fig.width=14.9/2.54,
-                      dpi=300,
-                      fig.height=10/2.54)
+```{r setup-dataselection}
+#| include=FALSE
+source("../../utilities/get_background_map.R")
+source("../../utilities/plot_map_series.R")
 
 load_library("RPostgres")
 load_library("dplyr")
@@ -23,14 +20,23 @@ load_library("ggrepel")
 load_library("grid")
 load_library("gridExtra")
 
+cred <- read_yaml("../../../credentials.yml")
+con_wgeel <- dbConnect(
+    Postgres(),
+    dbname = cred$dbname,
+    host = cred$host,
+    port = cred$port,
+    user = cred$user,
+    password = cred$password
+)
 
-
-cred=read_yaml("../../../credentials.yml")
-con_wgeel = dbConnect(Postgres(), dbname=cred$dbname,host=cred$host,port=cred$port,user=cred$user, password=cred$password)
+current_year <- as.integer(format(Sys.Date(), "%Y"))
 ```
 
-```{r data-loading, include = FALSE}
-query='SELECT 
+```{r data-loading}
+#| include=FALSE
+query <- "
+    SELECT 
 		das_id,
 		das_value,
 		das_effort,
@@ -41,27 +47,32 @@ query='SELECT
 		ser_nameshort,
 		ser_area_division,
 		ser_qal_id,
-    ser_hty_code,
-    ser_emu_nameshort,
-    ser_uni_code,
-    ser_cou_code,
-    ser_comment,
-    sam_samplingtype,
-    ser_sam_id, ser_distanceseakm, ser_method, ser_sam_gear, ser_restocking,
+        ser_hty_code,
+        ser_emu_nameshort,
+        ser_uni_code,
+        ser_cou_code,
+        ser_comment,
+        sam_samplingtype,
+        ser_sam_id, ser_distanceseakm, ser_method, ser_sam_gear, ser_restocking,
 		das_qal_id,
 		das_last_update,
 		f_subarea,
 		lfs_code,          
 		lfs_name
-		from datawg.t_dataseries_das 
-		join datawg.t_series_ser on das_ser_id=ser_id
-		left join ref.tr_samplingtype_sam on ser_sam_id=sam_id
-		left join ref.tr_lifestage_lfs on ser_lfs_code=lfs_code
-		left join ref.tr_faoareas on ser_area_division=f_division
-        left join ref.tr_country_cou on cou_code=ser_cou_code
-		where ser_typ_id in (2,3) and das_value is not null and  (ser_qal_id IS NULL OR ser_qal_id IN (0,1,2,4)) and (das_qal_id IS NULL OR das_qal_id IN (1,2,4))'
+	FROM datawg.t_dataseries_das 
+    JOIN datawg.t_series_ser ON das_ser_id=ser_id
+    LEFT JOIN ref.tr_samplingtype_sam ON ser_sam_id=sam_id
+    LEFT JOIN ref.tr_lifestage_lfs ON ser_lfs_code=lfs_code
+    LEFT JOIN ref.tr_faoareas ON ser_area_division=f_division
+    LEFT JOIN ref.tr_country_cou ON cou_code=ser_cou_code
+    WHERE
+        ser_typ_id in (2,3) and das_value is not null and 
+        (ser_qal_id IS NULL OR ser_qal_id IN (0,1,2,4)) and
+        (das_qal_id IS NULL OR das_qal_id IN (1,2,4))
+"
 
-mydata = dbGetQuery(con_wgeel,query) # Get yellow and silver eel time series from WGEEL database
+# Get yellow and silver eel time series from WGEEL database
+mydata <- dbGetQuery(con_wgeel, query)
 
 ##############################
 ### MAP DATA
@@ -84,7 +95,7 @@ silver_map <- st_as_sf(
 silver_map$Updated <- silver_map$ser_id %in%
     unique(
         mydata %>%
-        filter(das_year >= 2018) %>%
+        filter(das_year >= current_year - 3) %>%
         select(ser_id) %>%
         pull()
     )
@@ -100,40 +111,49 @@ mydata <- mydata %>%
     ) %>%
   ungroup()
 
-d.ecoregion = read.csv2("data/points_with_ecoregions_forRob.csv") %>% #Load data on ecoregion of dataseries
-  rename(ecoregion = new_Ecoreg)
+#Load data on ecoregion of dataseries
+d.ecoregion <- read.csv2("data/points_with_ecoregions_forRob.csv") %>%
+    rename(ecoregion = new_Ecoreg)
 
 ####################
 ### Get data in right format
 data <- mydata %>%
-  filter(lfs_code == "S") %>% #Filter data down to silver eel timeseries
-  arrange(ser_rank, ser_nameshort, das_year) %>% # Sort data for better overview
-  left_join(d.ecoregion %>% select(ser_id, ecoregion, distance_to_ecoregion)) # Add ecoregion info
-  
+    #Filter data down to silver eel timeseries
+    filter(lfs_code == "S") %>%
+    # Sort data for better overview
+    arrange(ser_rank, ser_nameshort, das_year) %>%
+    # Add ecoregion info
+    left_join(
+        d.ecoregion %>%
+            select(ser_id, ecoregion, distance_to_ecoregion)
+    )
+
 
 ####################
 ### Assign type of effort data available and any relevant notes
-d.effort = data %>%
-  select(ser_nameshort) %>%
-  unique() %>%
-  mutate(effort = case_when(
-    ser_nameshort %in% c("BreS",  "KilS", "DaugS",  "LilS" ) ~ "provided",
-    ser_nameshort %in% c("BI1S",  "BI4S", "BRWS",  "DoijS", "HVWS",  "IjsS", "KotkS", "LoiS", "MinS",  "MonS",  "NiWS", "NkaS",  "NZKS", "OriS",  "PanS",  "PobeS", "PogoS", "PolsS", "SosS", "StrS", "TibeS", "ZMaS", "NSIS" ) ~ "index",
-    ser_nameshort %in% c("BaBS",  "BidS",  "BurS",  "EamtS", "FowS", "FreS", "GiBS",  "ImsaS", "KavlS", "LevS",  "NalS",  "NorwS", "SeNS",  "ShiS",  "VaakS",  "WepeS", "AlCS") ~ "constant",
-    ser_nameshort %in% c("RibS", "SouS", "VilS", "WarS") ~ "model estimate",
-    ser_nameshort %in% c("AlauS",  "CurlS", "KertS", "KreS",  "LakS",  "RieS",  "RubS",  "SiesS", "ZeiS" ) ~ "unknown"
- ),
- notes = case_when(
-   ser_nameshort %in% c("AlauS",  "CurlS",  "KertS",  "KreS", "LakS",  "RieS",  "RubS",  "SiesS",  "ZeiS") ~ "Next year double check for available effort data on all similar Lithuanian series, and check if only silver eel are reported",
-   ser_nameshort %in% c("AlCS") ~ "Commercial catches, but assumed that representative of abundance.",
-   ser_nameshort %in% c("NorwS",  "WepeS") ~ "Recent years reported as 0, but actually no information available"
- )
- )
+d.effort <- data %>%
+    select(ser_nameshort) %>%
+    unique() %>%
+    mutate(
+        effort = case_when(
+            ser_nameshort %in% c("BreS",  "KilS", "DaugS",  "LilS") ~ "provided",
+            ser_nameshort %in% c("BI1S",  "BI4S", "BRWS",  "DoijS", "HVWS",  "IjsS", "KotkS", "LoiS", "MinS",  "MonS",  "NiWS", "NkaS",  "NZKS", "OriS",  "PanS",  "PobeS", "PogoS", "PolsS", "SosS", "StrS", "TibeS", "ZMaS", "NSIS" ) ~ "index",
+            ser_nameshort %in% c("BaBS",  "BidS",  "BurS",  "EamtS", "FowS", "FreS", "GiBS",  "ImsaS", "KavlS", "LevS",  "NalS",  "NorwS", "SeNS",  "ShiS",  "VaakS",  "WepeS", "AlCS") ~ "constant",
+            ser_nameshort %in% c("RibS", "SouS", "VilS", "WarS") ~ "model estimate",
+            ser_nameshort %in% c("AlauS",  "CurlS", "KertS", "KreS",  "LakS",  "RieS",  "RubS",  "SiesS", "ZeiS" ) ~ "unknown"
+        ), notes = case_when(
+            ser_nameshort %in% c("AlauS",  "CurlS",  "KertS",  "KreS", "LakS",  "RieS",  "RubS",  "SiesS",  "ZeiS") ~ "Next year double check for available effort data on all similar Lithuanian series, and check if only silver eel are reported",
+            ser_nameshort %in% c("AlCS") ~ "Commercial catches, but assumed that representative of abundance.",
+            ser_nameshort %in% c("NorwS",  "WepeS") ~ "Recent years reported as 0, but actually no information available"
+        )
+    )
 
-if(any(is.na(d.effort$effort))){
-  stop("qualitative effort information from the following series is missing: ", 
-                paste(d.effort$ser_nameshort[which(is.na(d.effort$effort))], collapse = ", "),
-                ". Manually insert this into the d.effort dataframe before proceeding.")
+if (any(is.na(d.effort$effort))) {
+    stop(
+        "qualitative effort information from the following series is missing: ",
+        paste(d.effort$ser_nameshort[which(is.na(d.effort$effort))], collapse = ", "),
+        ". Manually insert this into the d.effort dataframe before proceeding."
+    )
 }
 
 ### Filter data down to relevant silver eel series
@@ -141,133 +161,125 @@ if(any(is.na(d.effort$effort))){
 # Filter data according to time series length, and the availability of effort data
 # If no data on effort is known, then the series cannot be used to analyse trends in abundance/CPUE.
 
-# Sometimes, no effort data is given because all silver eel passing through a river are sampled. This data is kept here, 
+# Sometimes, no effort data is given because all silver eel passing through a river are sampled. This data is kept here,
 # perhaps advise in next year's data call to set such effort equal to 1 in the das_effort column
-  
-min.length = 10 #minimum time series length, delete series with fewer number of years
+
+min.length <- 10 #minimum time series length, delete series with fewer number of years
 
 #Overview table to be used in the subgroup text to show which series were kept and which were discarded
-t.filterchoice <- data %>% 
-  count(ser_rank, ser_cou_code, ser_nameshort, ser_method) %>% #filter data down to series name and method, while counting time series length
-  left_join(d.effort %>% select(ser_nameshort, effort, notes)) %>% #Add information on effort type/availability
-  mutate(filtered = case_when(
-    n < min.length ~ "Dropped", # Set a variable specifying if the column should be filtered out based on time series length
-    effort == "unknown" ~ "Dropped", # Drop series with unknown effort
-    ser_nameshort %in% c("NorwS", "WepeS") ~ "Dropped", #These two series have had trouble reporting in recent years, data for those years not reliable, drop until issue is resolved.
-    TRUE ~ "Kept"     
-  ),
-  reason.dropped = case_when(
-    n < min.length ~ paste("Number of years fewer than",min.length, sep = " "), 
-    effort == "unknown" ~ "No effort given", 
-    ser_nameshort %in% c("NorwS", "WepeS") ~ "Inconsistencies in data", 
-    TRUE ~ ""     
-  )
-  )
-  
+t.filterchoice <- data %>%
+    # filter data down to series name and method, while counting time series length
+    count(ser_rank, ser_cou_code, ser_nameshort, ser_method) %>%
+    # Add information on effort type/availability
+    left_join(
+        d.effort %>%
+        select(ser_nameshort, effort, notes)
+    ) %>%
+    mutate(
+        filtered = case_when(
+            # Set a variable specifying if the column should be filtered out based on time series length
+            n < min.length ~ "Dropped",
+            # Drop series with unknown effort
+            effort == "unknown" ~ "Dropped",
+            #These two series have had trouble reporting in recent years, data for those years not reliable, drop until issue is resolved.
+            ser_nameshort %in% c("NorwS", "WepeS") ~ "Dropped",
+            TRUE ~ "Kept"
+        ),
+        reason.dropped = case_when(
+            n < min.length ~ paste("Number of years fewer than",min.length, sep = " "), 
+            effort == "unknown" ~ "No effort given",
+            ser_nameshort %in% c("NorwS", "WepeS") ~ "Inconsistencies in data",
+            TRUE ~ ""
+        )
+    )
+
 
 ### NOTE: LevS reports no effort (assumed constant effort), but lists multiple years with deviations in sampling times, and thus different effort. Choose what to do with those.
- 
 
 # Apply the filter to the data, calculate CPUE, process data to output format
 d.cpue <- data %>%
-  left_join(t.filterchoice %>% select(ser_nameshort, effort, filtered)) %>% #add filter choice
-  filter(filtered != "Dropped") %>% #filter out selected series
-  mutate(cpue = case_when( # Calculate CPUE based on data type
-    effort == "index" ~ das_value,
-    effort == "model estimate" ~ das_value,
-    effort == "constant" ~ das_value,
-    effort == "provided" ~ das_value/das_effort
-  )
-  ) %>% #calculate cpue if effort data is given, otherwise assume that das_value is already CPUE
-  select(das_id, das_year, cpue, das_value, das_effort, ser_id, ser_nameshort, ser_hty_code, ser_emu_nameshort, ser_cou_code, ser_distanceseakm, ser_restocking, ecoregion, distance_to_ecoregion, das_qal_id, ser_qal_id, ser_rank)
-
-
+    #add filter choice
+    left_join(
+        t.filterchoice %>% select(ser_nameshort, effort, filtered)
+    ) %>%
+    #filter out selected series
+    filter(filtered != "Dropped") %>%
+    # Calculate CPUE based on data type
+    # Calculate cpue if effort data is given, otherwise assume that das_value is already CPUE
+    mutate(cpue = case_when(
+        effort == "index" ~ das_value,
+        effort == "model estimate" ~ das_value,
+        effort == "constant" ~ das_value,
+        effort == "provided" ~ das_value/das_effort
+    )
+    ) %>%
+    select(das_id, das_year, cpue, das_value, das_effort, ser_id, ser_nameshort, ser_hty_code, ser_emu_nameshort, ser_cou_code, ser_distanceseakm, ser_restocking, ecoregion, distance_to_ecoregion, das_qal_id, ser_qal_id, ser_rank)
 
 ##################
 ###Create dataframe with summary data for summary tables/figures
-d.series = data %>% 
-  select(ser_nameshort, 
-         ser_cou_code,
-         ser_qal_id,
-         ser_hty_code,
-         sam_samplingtype,
-         ser_sam_gear,
-         ser_restocking,
-         ecoregion) %>%
-  unique() %>%
-  mutate(ser_sam_gear = as.character(ser_sam_gear), #turn integer variables to characters for proper plot axes
-         ser_qal_id = as.character(ser_qal_id),
-         sam_samplingtype = case_match(sam_samplingtype,# Convert sampling type to a number to conserve axis label space
-                                   "commercial catch" ~ "1",
-                                   "commercial CPUE" ~ "2",
-                                   "scientific estimate" ~ "3",
-                                   "trapping all" ~ "4",
-                                   "trapping partial" ~ "5"   
-                                   ),
-         ecoregion = case_match(ecoregion,# Convert ecoregion to a number to conserve axis label space
+d.series <- data %>%
+    select(
+        ser_nameshort,
+        ser_cou_code,
+        ser_qal_id,
+        ser_hty_code,
+        sam_samplingtype,
+        ser_sam_gear,
+        ser_restocking,
+        ecoregion
+    ) %>%
+    unique() %>%
+    mutate(
+        #turn integer variables to characters for proper plot axes
+        ser_sam_gear = as.character(ser_sam_gear),
+        ser_qal_id = as.character(ser_qal_id),
+        # Convert sampling type to a number to conserve axis label space
+        sam_samplingtype = case_match(
+            sam_samplingtype,
+            "commercial catch" ~ "1",
+            "commercial CPUE" ~ "2",
+            "scientific estimate" ~ "3",
+            "trapping all" ~ "4",
+            "trapping partial" ~ "5"
+        ),
+        # Convert ecoregion to a number to conserve axis label space
+        ecoregion = case_match(
+            ecoregion,
            "Western Mediterranean Sea" ~ "WM",
            "Baltic Sea" ~ "BS",
-           "Greater North Sea" ~ "NS",                       
+           "Greater North Sea" ~ "NS",
            "Bay of Biscay and the Iberian Coast" ~ "IB",
-           "Celtic Seas" ~ "CS",                            
+           "Celtic Seas" ~ "CS",
            "Aegean-Levantine Sea" ~ "AL",
            "Ionian Sea and the Central Mediterranean Sea" ~ "CM",
            "Adriatic Sea" ~ "AS"
-         )) %>%
-  left_join(t.filterchoice %>% select(ser_nameshort, filtered)) #Add info on whether or not the series was dropped or kept
+        )
+    ) %>%
+    #Add info on whether or not the series was dropped or kept
+    left_join(
+        t.filterchoice %>%
+        select(ser_nameshort, filtered)
+    )
 
-
-
-
-dbDisconnect(con_wgeel) #disconnect from WGEEL database
+#disconnect from WGEEL database
+dbDisconnect(con_wgeel)
 ```
 
 ### Data selection
 
 In the 2023 data call, `r length(unique(data$ser_nameshort))` silver eel time series were available, located in `r length(unique(data$ser_cou_code[!is.na(data$ser_cou_code)]))` countries (Figure \@ref(fig:mapsilverall)). The majority of these series are from Lithuania (`r length(unique(data$ser_nameshort[data$ser_cou_code == "LT" & !is.na(data$ser_cou_code)]))` series), Netherlands (`r length(unique(data$ser_nameshort[data$ser_cou_code == "NL" & !is.na(data$ser_cou_code)]))` series), United Kingdom (`r length(unique(data$ser_nameshort[data$ser_cou_code == "GB" & !is.na(data$ser_cou_code)]))` series) and France (`r length(unique(data$ser_nameshort[data$ser_cou_code == "FR" & !is.na(data$ser_cou_code)]))` series). Four time series (BI1S, BI4S, NSIS, PanS) are international trawling surveys. Data on these silver eel time series have been added to the WGEEL database in the past, but as these international series have no dedicated reporting country, their data have not been updated by any country in the database since 2011.
 
-```{r mapsilverall,echo=FALSE,message=FALSE,warning=FALSE,fig.cap="Map of available silver eel time series. Updated time series correspond to time series for which at least one value was provided for the three last years.",fig.height=14/2.54}
+```{r mapsilverall}
+#| echo = FALSE,
+#| message = FALSE,
+#| warning = FALSE,
+#| fig.cap = "Map of available silver eel time series. Updated time series correspond to time series for which at least one value was provided for the three last years.",
+#| fig.height = 14 / 2.54
 
-colorpalette=cbf_1 <- c("red","black") #may not be needed
-
-
-worldmap <- ne_countries(scale = 'medium', type = 'map_units',
-                          returnclass = 'sf')
-
-world <- ne_countries(scale = 110, returnclass = "sf") 
-europe_cropped <- ggplot() +
-  geom_sf(data = world) +
-  coord_sf(xlim = c(-13, 29), ylim = c(35, 65)) +
-  ggtitle("Europe")
- 
-# ggplot(silver_map)+geom_sf(data=europe_cropped)+geom_sf(data=silver_map,col="red")+
-   #theme_bw()
-  my_map=get_stamenmap(bbox = c(left = -13, bottom = 35, right =
-                                  29, top = 65), zoom = 6, maptype = c("terrain-background"))
-
-#watercolor
-draw_key_text=
-	function (data, params, size) 
-{
-	if (is.null(data$label)) 
-		data$label <- "series"
-	grid::textGrob(data$label, 0.5, 0.5, rot = data$angle %||% 0, gp = gpar(cex = 2, col = alpha(data$colour %||% 
-					data$fill %||% "black", data$alpha), fontfamily = data$family %||% 
-				"", fontface = data$fontface %||% 1, fontsize = (data$size %||% 
-					3.88) * .pt))
-}
-
-
-ggmap(my_map) + 
-	geom_point(data=silver_map,aes(x=ser_x,y=ser_y, colour=silver_map$Updated),cex=2,pch=20)+
-  labs(x="", y="", color="Legend Title\n") +
-  scale_color_manual(labels = c("TRUE", "FALSE"), values=c("black", "red")) +
-  geom_label_repel(data=silver_map,
-	aes(x=ser_x,y=ser_y,label=ser_nameshort,col=silver_map$Updated),cex=1.5,  max.overlaps = Inf, label.padding = 0.1, show.legend = FALSE) +
-	scale_color_manual("Updated within the last 3 years",values=colorpalette)+
-	ylab("")+xlab("") +
-  theme(legend.position=c(0.25, 0.93))
-
+map_series(
+    silver_map,
+    scale_caption = "Updated within the last 3 years"
+)
 
 #knitr::include_graphics("images/silver.png")
 ```

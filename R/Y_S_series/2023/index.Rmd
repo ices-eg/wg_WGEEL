@@ -19,7 +19,9 @@ csl: "../../Rmarkdown/ices-journal-of-marine-science.csl"
 
 ---
 
-```{r setup, include=FALSE}
+```{r setup}
+#| include=FALSE
+
 source("../../utilities/load_library.R")
 # choose the number of year to analyse
 
