@@ -238,7 +238,7 @@ export_data_to_taf <- function(source_directory, taf_directory, files, overwrite
   lf <- list.files(path= source_directory)
   if (!(all(files %in% lf))) warnings(sprintf("file(s) %s not in the folder", paste(files[!files %in% lf]), collapse=","))
   mapply(function(x) file.copy(from=file.path(source_directory,x),
-                               to = paste0(taf_directory, "/boot/"),
+                               to = paste0(taf_directory, "/boot/initial/data/"),
                                overwrite=overwrite),
          files)
 }
@@ -316,9 +316,7 @@ REPORTprintstatseriesGY <- series_tables$printstatseriesGY",
                       fileConn)
   writeLines("save(list = c('glass_eel_yoy', 'older'), file = 'data/datamodel.Rdata')",
              fileConn)
-  writeLines("save(list = c('R_stations', 'selection_summary',
-  'series_CY', 'series_CYm1', 'series_lost', 'series_prob', 'printstatseriesY',
-  'printstatseriesGNS', 'printstatseriesGEE',  'printstatseriesGY'), file = 'data/selection_summary.Rdata')", fileConn)
+  writeLines("save(list = 'selection_summary', file = 'data/selection_summary.Rdata')", fileConn)
   close(fileConn)
 }
 
