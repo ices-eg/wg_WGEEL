@@ -22,6 +22,7 @@ load(paste0(shinywd,"recruitment_models.Rdata"))
 library(icesTAF)
 
 ####Create TAF skeleton
+system(paste0("rm -r TAF/", CY))
 taf_directory <- taf.skeleton(paste0("./TAF/",CY), force = TRUE)                              
 
 ####copy utilities.R to TAF folder
