@@ -1,0 +1,83 @@
+### Model description
+
+```{r setup-description}
+#| echo = FALSE,
+#| warning = FALSE,
+#| message = FALSE
+library("dplyr")
+```
+
+Through a literature review, we have identified two possible types of analyses. These models both use multivariate auto-regressive state-space (MARSS) models.
+MARSS model are a family of state-space models [@hinrichsenUsingMultivariateStatespace2009]. They have been implemented through the MARSS package [@holmesAnalysisMultivariateTime2021].
+
+MARSS models include a state process \@ref(eq:state-process) and an observation process \@ref(eq:observation-process) [adapted from  @holmesAnalysisMultivariateTime2021].
+
+\begin{align}
+X_{i,t} = B_{i} \cdot X_{i,t-1} + U_{i} +w_{i,t} \qquad \mbox{ with } \left \{w_{i,t} \right \}  \sim N(0,Q_t) (\#eq:state-process)
+\end{align}
+
+\begin{align}
+Y_{j,t} = A_j + \sum_{i=1}^{n} Z_{i,j} \cdot X_{i,t} + v_{j,t} \qquad \mbox{ with } \left \{ v_{j,t} \right \}  \sim N(0,R_t)(\#eq:observation-process)
+\end{align}
+
+In these equations:
+
+- $t$ is the year
+- $X$ is the matrix of the $m$ trends
+- $U$ is the linear trend
+- $w_{i,t}$ is the process error
+- $Y$ is the matrix of the $n$ (silver eel) time series
+- $Z$ relates the $n$ time series to the $m$ trends
+- $A$ is the offset of each time series
+- $v_{j,t}$ is the observation error
+
+The DFA method is a special case of MARSS models and is described in full detail in [@zuur2003]. The basic idea is to connect each time series into a weighted sum (through $Z$) of a few ($m$) common trends and a noise factor.
+The method allows both to extract the common trends through the estimates of $X$, but also to see the importance of each trend in each series through $Z$. 
+Thus, this method does not assume any *a priori* structure in the data and allows each individual time series to be related to any of the $m$ common trends.
+
+Another alternative is to define *a priori* structures of times series [e.g. spatial structure; @wardInferringSpatialStructure2010]. In that case each individual series belongs to one and only one trend.
+
+Table \@ref(tab:table-models-summary) gives the details of the configuration of the MARSS model for both type of model.
+
+```{r table-models-summary}
+#| echo = FALSE,
+#| results = "asis",
+#| warning = FALSE,
+#| message = FALSE,
+#| tab.cap = "Model summary"
+
+model_summary <- data.frame(
+    row_name  = c("B", "U", "Q", "m", "A", "Z", "R"),
+    DFA = c(
+        "Identity",
+        "0",
+        "Identity",
+        "1 to 5",
+        "0",
+        "Full n x m matrix",
+        "Diagonal and equal or inequal"
+    ),
+    spatial = c(
+        "Identity",
+        "Unequal",
+        "Diagonal and equal",
+        "Determined by spatial structure",
+        "Zero or unequal",
+        "Spatial structure (0 & 1 matrix)",
+        "Diagonal and unequal"
+    )
+)
+
+ft <- flextable::flextable(
+    model_summary
+)
+
+flextable::autofit(
+    ft %>%
+        flextable::set_header_labels(
+            row_name = "",
+            DFA = "DFA",
+            spatial = "Spatial structure"
+        )
+)
+```

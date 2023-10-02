@@ -7,5 +7,6 @@ wg_WGEEL.Rproj
 /.dbeaver-data-sources.xml
 /connection
 .Rhistory
-.RData
-/hs_err_pid41612.log
+*.RData
+/R/Y_S_series/2023/final
+*.log

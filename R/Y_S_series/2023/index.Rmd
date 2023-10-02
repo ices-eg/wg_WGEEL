@@ -5,19 +5,26 @@ date: "`r format(Sys.time(), '%Y %B %d')`"
 bibliography: references_2023.bib
 documentclass: article
 output: 
-  bookdown::word_document2:
-    fig_caption: yes
-    number_sections: yes
-    reference_docx: "../../Rmarkdown/ICES_template.docx" 
+    # bookdown::pdf_document2:
+    #     fig_caption: yes
+    #     number_sections: yes
+    bookdown::word_document2:
+        fig_caption: yes
+        number_sections: no
+        reference_docx: "../../Rmarkdown/ICES_template.docx" 
 params:
-  rerunDFA_yellow: FALSE
-  rerunDFA_silver: FALSE
+    rerunDFA_yellow: FALSE
+    rerunDFA_silver: FALSE
 csl: "../../Rmarkdown/ices-journal-of-marine-science.csl"
+
 ---
 
 ```{r setup, include=FALSE}
 source("../../utilities/load_library.R")
+# choose the number of year to analyse
 
+
+# setup the book
 knitr::opts_chunk$set(
     echo = TRUE,
     warning = FALSE,
