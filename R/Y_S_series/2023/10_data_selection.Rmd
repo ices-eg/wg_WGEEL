@@ -610,10 +610,9 @@ knitr::include_graphics("data/Silver_series_map.png")
 Figure \@ref(fig:figure-series) gives an overview of the reported data for each silver eel time series that were kept for the trend analysis. Among the kept series, the number of available data points was highest between 2010 and 2021, with the peak in 2013-2017 (Figure \@ref(fig:figure-nseries)). The majority of the kept time series did not have 2023 data ready at the time of writing this report. Given the scarcity of data before 1980, analyses were down excluded data before that date.
 
 
-```{r figure-series}
+```{r figure-series, fig.width=16/2.54, fig.height=22/2.54}
 #| echo = FALSE,
 #| fig.cap = "Silver eel time series that were used in the trend analysis.",
-#| fig.height = length(unique(d.cpue$ser_nameshort))/3*1.5
 
 ggplot(
     data = d.cpue,
@@ -632,10 +631,10 @@ ggplot(
         unique(d.cpue$ser_nameshort)
         ),
         scales = "free",
-        ncol = 7
+        ncol = 4
     ) +
     theme_bw() +
-    theme(axis.text.x = element_text(angle = 45, vjust = 0.5))
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5))
 ```
 
 ```{r figure-nseries, echo = FALSE, fig.cap = "Number of available datapoints from silver eel time series over time, shown only for those time series that were used in the trend analysis."}
