@@ -37,19 +37,21 @@ nameshort_ranked <- data_summ %>%
 ```{r run-dfa-long}
 #| echo=FALSE
 
+if (params$rerunDFA_long) {
 # Design of experiments
-S <- c("diagonal and equal")
-nbtrend <- 1:5
-expe <- expand.grid(S = S, nbtrend = nbtrend)
-S <- c("diagonal and unequal")
-nbtrend <- 1:5
-expe <- rbind(expe, expand.grid(S = S, nbtrend = nbtrend))
+    S <- c("diagonal and equal")
+    nbtrend <- 1:5
+    expe <- expand.grid(S = S, nbtrend = nbtrend)
+    S <- c("diagonal and unequal")
+    nbtrend <- 1:5
+    expe <- rbind(expe, expand.grid(S = S, nbtrend = nbtrend))
 
-# run DFA
-#modele_S_DFA_nolog <- run_DFA(silver_arr, expe, log = FALSE)
-#save(modele_S_DFA_nolog, file = "DFA_long.RData")
-
-load("DFA_long.RData")
+    # run DFA
+    modele_S_DFA_nolog <- run_DFA(silver_arr, expe, log = FALSE)
+    #save(modele_S_DFA_nolog, file = "DFA_long.RData")
+} else {
+    load("DFA_long.RData")
+}
 ```
 
 ```{r table-summary-results-long}
@@ -174,19 +176,21 @@ nameshort_ranked <- data_summ %>%
 ```{r run-dfa-short}
 #| echo = FALSE
 
-# Design of experiments
-S <- c("diagonal and equal")
-nbtrend <- 1:5
-expe <- expand.grid(S = S, nbtrend = nbtrend)
-S <- c("diagonal and unequal")
-nbtrend <- 1:5
-expe <- rbind(expe, expand.grid(S = S, nbtrend = nbtrend))
+if (params$rerunDFA_short) {
+    # Design of experiments
+    S <- c("diagonal and equal")
+    nbtrend <- 1:5
+    expe <- expand.grid(S = S, nbtrend = nbtrend)
+    S <- c("diagonal and unequal")
+    nbtrend <- 1:5
+    expe <- rbind(expe, expand.grid(S = S, nbtrend = nbtrend))
 
-# run DFA
-#modele_S_DFA_nolog <- run_DFA(silver_arr, expe, log = FALSE)
-#save(modele_S_DFA_nolog, file = "DFA_16.RData")
-
-load("DFA_16.RData")
+    # run DFA
+    modele_S_DFA_nolog <- run_DFA(silver_arr, expe, log = FALSE)
+    #save(modele_S_DFA_nolog, file = "DFA_16.RData")
+} else {
+    load("DFA_16.RData")
+}
 ```
 
 ```{r table-summary-results-short}

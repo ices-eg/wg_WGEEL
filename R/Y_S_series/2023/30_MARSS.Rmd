@@ -3,6 +3,7 @@
 ```{r loadlibraries}
 #| include = FALSE
 source("../../utilities/load_library.R")
+source("../MARSS_function.R")
 
 load_library("MARSS")
 load_library("gridExtra")
@@ -158,7 +159,6 @@ U = U.model, R = R.model, Q = Q.model, # A = A.model,
 x0 = x0.model, V0 = V0.model, tinitx = 0
 )
 A.models <- c("zero")
-
 ```
 
 ```{r FitMARSSmodels}
@@ -215,7 +215,7 @@ autofit(ft)
 ```{r selectbestmodel}
 #| silent=TRUE,
 #| include = FALSE
-best_model <- fits[[which.min(out.tab$AICc)]] 
+best_model <- fits[[which.min(out.tab$AICc)]]
 ```
 
 ```{r plotsubpopulation-trends}
@@ -226,45 +226,21 @@ best_model <- fits[[which.min(out.tab$AICc)]]
 #| message = FALSE,
 #| warning = FALSE
 
-Xt <- predict(
-    best_model,
-    type = "xtT",
-    interval = "confidence"
-)
-Xt <- Xt$pred
-Xt$t <- Years # add data on years
-Xt <- Xt %>%
-  rename(
-    Year = t,
-    `Sub-populations` = .rownames,
-    xt = estimate
-)
+Xt <- predict_MARSS(
+    model = best_model,
+    type_prediction = "xtT"
+) %>%
+    mutate(
+        Habitat = categorie
+    )
 
 # plot sub-population trends
-ggplot(
-    Xt,
-    aes(
-        group = `Sub-populations`,
-        y = xt,
-        x = Year,
-        color = `Sub-populations`
-    )
+plot_MARSS(
+    prediction = Xt,
+    color_variable = "Habitat"
 ) +
-    geom_line() +
-    geom_line(
-        aes(y = `Lo 95`),
-        linetype = "dashed"
-    ) +
-    geom_line(
-        aes(y = `Hi 95`),
-        linetype = "dashed"
-    ) +
-    facet_wrap(
-        vars(`Sub-populations`),
-        ncol = length(unique(Xt$`Sub-populations`))
-    ) +
-    theme_bw() +
     theme(legend.position = "top")
+
 ```
 
 ```{r Plotsmoothedstate}
@@ -275,51 +251,26 @@ ggplot(
 #| message = FALSE,
 #| warning = FALSE
 
-Yt <- predict(
+Yt <- predict_MARSS(
     best_model,
-    type = c("ytt"),
-    interval = "confidence",
-    filtered = TRUE
-)
-Yt <- Yt$pred
-Yt$t <- Years
-Yt <- Yt %>%
-    rename(
-        Year = t,
-        site = .rownames,
-        yt = estimate
-    ) %>%
+    type_prediction = c("ytt")
+) %>%
     left_join(
         H,
-        by = join_by(site == ser_nameshort)
+        by = join_by(categorie == ser_nameshort)
     ) %>%
-    rename(`Sub-populations` = H2)
-
-# plot subpopulation trends
-ggplot(
-    Yt,
-    aes(
-        y = yt,
-        x = Year,
-        color = `Sub-populations`
+    rename(
+        `Sub-populations` = H2
+    ) %>%
+    mutate(
+        categorie = reorder(categorie, ser_rank)
     )
+
+plot_MARSS(
+    prediction = Yt,
+    color_variable = "Sub-populations",
+    nb_col = 4
 ) +
-    geom_line() +
-    geom_line(
-        aes(y = `Lo 95`),
-        linetype = "dashed"
-    ) +
-    geom_line(
-        aes(y = `Hi 95`),
-        linetype = "dashed"
-    ) +
-    geom_point(aes(y = y)) +
-    facet_wrap(
-        ~reorder(site, ser_rank),
-        scales = "free_y",
-        ncol = 4
-    ) +
-    theme_bw() +
     theme(
         axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
         legend.position = "top"
@@ -333,45 +284,18 @@ ggplot(
 #| message = FALSE,
 #| warning = FALSE
 
-eco_model <- fits[[4]]
-Xt <- predict(
-    eco_model,
-    type = "xtT",
-    interval = "confidence"
-)
-Xt <- Xt$pred
-Xt$t <- Years # add data on years
-Xt <- Xt %>%
-    rename(
-        Year = t,
-        `Sub-populations` = .rownames,
-        xt = estimate
+Xt <- predict_MARSS(
+    model = fits[[4]],
+    type_prediction = "xtT"
+) %>%
+    mutate(
+        Ecoregion = categorie
     )
 
-# plot subpopulation trends
-ggplot(
-    Xt,
-    aes(
-        group = `Sub-populations`,
-        y = xt,
-        x = Year,
-        color = `Sub-populations`
-    )
+plot_MARSS(
+    prediction = Xt,
+    color_variable = "Ecoregion"
 ) +
-    geom_line() +
-    geom_line(
-        aes(y = `Lo 95`),
-        linetype = "dashed"
-    ) +
-    geom_line(
-        aes(y = `Hi 95`),
-        linetype = "dashed"
-    ) +
-    facet_wrap(
-        vars(`Sub-populations`),
-        ncol = length(unique(Xt$`Sub-populations`)) / 2
-    )  +
-    theme_bw() +
     theme(
         axis.text.x = element_text(
             angle = 90,

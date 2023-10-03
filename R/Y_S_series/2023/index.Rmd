@@ -13,8 +13,8 @@ output:
         number_sections: no
         reference_docx: "../../Rmarkdown/ICES_template.docx" 
 params:
-    rerunDFA_yellow: FALSE
-    rerunDFA_silver: FALSE
+    rerunDFA_long: FALSE
+    rerunDFA_short: FALSE
     rerunMARSS: FALSE
 csl: "../../Rmarkdown/ices-journal-of-marine-science.csl"
 
