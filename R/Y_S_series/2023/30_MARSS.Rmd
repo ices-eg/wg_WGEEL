@@ -131,8 +131,7 @@ fit.model <- c(list(Z = Z.models[[i]]), A = A.model, model.constant)
 # model = fit.model,
 # silent = TRUE, control = list(maxit = 2000)
 # )
-#load("MARSSdata.RData")
-load("C:/Users/cboulenger/Documents/wg_WGEEL/R/Y_S_series/MARSSdata.RData")
+load("MARSSdata.RData")
 
 out <- data.frame(
 H = names(Z.models)[i],
