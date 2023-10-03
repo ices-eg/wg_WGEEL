@@ -29,8 +29,6 @@ con_wgeel <- dbConnect(
     user = cred$user,
     password = cred$password
 )
-
-current_year <- as.integer(format(Sys.Date(), "%Y"))
 ```
 
 ```{r data-loading}

@@ -34,4 +34,6 @@ knitr::opts_chunk$set(
     fig.width = 14.9 / 2.54,
     dpi = 300,
     fig.height = 10 / 2.54)
+
+current_year <- as.integer(format(Sys.Date(), "%Y"))
 ```
