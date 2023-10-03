@@ -128,6 +128,7 @@ server = function(input, output, session) {
 					
 				} else {
 					filtered_data <- filter_data(input$dataset, 
+					                             typ = c(4,6,32),
 							life_stage = input$lfs, 
 							country = input$country, 
 							habitat = input$habitat,
