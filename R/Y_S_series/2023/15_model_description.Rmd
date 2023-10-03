@@ -4,7 +4,7 @@
 #| echo = FALSE,
 #| warning = FALSE,
 #| message = FALSE
-library("dplyr")
+load_library("dplyr")
 ```
 
 Through a literature review, we have identified two possible types of analyses. These models both use multivariate auto-regressive state-space (MARSS) models.
