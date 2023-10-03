@@ -132,6 +132,7 @@ fit.model <- c(list(Z = Z.models[[i]]), A = A.model, model.constant)
 # silent = TRUE, control = list(maxit = 2000)
 # )
 load("MARSSdata.RData")
+
 out <- data.frame(
 H = names(Z.models)[i],
 #A = A.model,
@@ -161,7 +162,7 @@ autofit(ft)
 best_model <- fits[[which.min(out.tab$AICc)]] 
 ```
 
-```{r plotsubpopulation-trends, echo=FALSE, fig.cap = "Sub-population trends for the most parsimonious MARSS model(H2: Habitat type). The figure shows estimated sub-population trends for time series sampled in coastal(C; red), freshwater(F; green) and transitional waters(T; blue). Lines show mean estimates and dash lines represent 95 % confidence intervals", fig.height=8, message = FALSE, warning = FALSE}
+```{r plotsubpopulation-trends, echo=FALSE, fig.cap = "Sub-population trends for the most parsimonious MARSS model(H2: Habitat type). The figure shows estimated sub-population trends for time series sampled in coastal(C; red), freshwater(F; green) and transitional waters(T; blue). Lines show mean estimates and dash lines represent 95 % confidence intervals", fig.width=16/2.54, fig.height=16/2.54, message = FALSE, warning = FALSE}
 
 Xt <- predict(best_model,type="xtT",interval = "confidence")
 Xt <- Xt$pred
@@ -174,10 +175,12 @@ ggplot(Xt,aes(group=`Sub-populations`, y=xt, x=Year,color=`Sub-populations`)) +
   geom_line() +
   geom_line(aes(y=`Lo 95`),linetype="dashed") +
   geom_line(aes(y=`Hi 95`),linetype="dashed") +
-  facet_wrap(vars(`Sub-populations`),ncol=length(unique(Xt$`Sub-populations`)))
+  facet_wrap(vars(`Sub-populations`),ncol=length(unique(Xt$`Sub-populations`))) +
+		theme_bw() + theme(legend.position = "top")
+
 ```
 
-```{r Plotsmoothedstate, echo=FALSE, fig.cap = "MARSS model predictions of silver eel time series. Lines represent mean estimates and dashed lines represent 95 % confidence intervals. Colors display time series from coastal waters (red), freshwaters (green) and transitional waters(blue)", fig.height=8, message = FALSE, warning = FALSE}
+```{r Plotsmoothedstate, echo=FALSE, fig.cap = "MARSS model predictions of silver eel time series. Lines represent mean estimates and dashed lines represent 95 % confidence intervals. Colors display time series from coastal waters (red), freshwaters (green) and transitional waters(blue)", fig.width=16/2.54, fig.height=24/2.54, message = FALSE, warning = FALSE}
 Yt <- predict(best_model,type=c("ytt"), interval = "confidence", filtered=TRUE)
 Yt <- Yt$pred
 Yt$t <- Years
@@ -192,7 +195,9 @@ ggplot(Yt,aes(y=yt, x=Year, color=`Sub-populations`)) +
   geom_line(aes(y=`Lo 95`),linetype="dashed") +
   geom_line(aes(y=`Hi 95`),linetype="dashed") +
   geom_point(aes(y=y)) +
-  facet_wrap(~reorder(site,ser_rank),scales="free_y")  
+  facet_wrap(~reorder(site,ser_rank),scales="free_y", ncol=4) +
+  theme_bw() + 
+	theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1),legend.position = "top")
 
 ```
 
@@ -209,6 +214,11 @@ ggplot(Xt,aes(group=`Sub-populations`, y=xt, x=Year,color=`Sub-populations`)) +
   geom_line() +
   geom_line(aes(y=`Lo 95`),linetype="dashed") +
   geom_line(aes(y=`Hi 95`),linetype="dashed") +
-  facet_wrap(vars(`Sub-populations`),ncol=length(unique(Xt$`Sub-populations`)))
+  facet_wrap(vars(`Sub-populations`),ncol=length(unique(Xt$`Sub-populations`))/2)  +
+  theme_bw() + 
+	theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1),legend.position = "top", 
+	legend.title=element_text(size=8), 
+  legend.text=element_text(size=7),
+	strip.text.x = element_text(size = 8))
 
 ```
