@@ -15,6 +15,7 @@ output:
 params:
     rerunDFA_yellow: FALSE
     rerunDFA_silver: FALSE
+    rerunMARSS: FALSE
 csl: "../../Rmarkdown/ices-journal-of-marine-science.csl"
 
 ---
