@@ -452,70 +452,79 @@ f_barplot <- function(
     )
 }
 
-#Create individual bar plots
-p.country <- f_barplot(
-    seriesdata = d.series,
-    x_value = "ser_cou_code",
-    x_title =  "Country",
-    x_label_rotate = 90
-)
+plot_to_display <- data.frame(
+    order = integer(),
+    x_value = character(),
+    x_title = character(),
+    x_label_rotate = integer(),
+    legend_position = character()
+) %>%
+    add_row(
+        order = 1,
+        x_value = "ser_cou_code",
+        x_title =  "Country",
+        x_label_rotate = 90
+    ) %>%
+    add_row(
+        order = 2,
+        x_value = "ser_hty_code",
+        x_title =  "Habitat type",
+        x_label_rotate = 0,
+        legend_position = "right"
+    ) %>%
+    add_row(
+        order = 3,
+        x_value = "ser_sam_gear",
+        x_title =  "Gear type",
+        x_label_rotate = 0
+    ) %>%
+    add_row(
+        order = 4,
+        x_value = "sam_samplingtype",
+        x_title =  "Sampling type",
+        x_label_rotate = 0
+    ) %>%
+    add_row(
+        order = 5,
+        x_value = "ser_qal_id",
+        x_title =  "Quality ID",
+        x_label_rotate = 0
+    ) %>%
+    add_row(
+        order = 6,
+        x_value = "ser_restocking",
+        x_title =  "Stocking",
+        x_label_rotate = 0
+    ) %>%
+    add_row(
+        order = 7,
+        x_value = "ecoregion",
+        x_title =  "Ecoregion",
+        x_label_rotate = 0
+    )
 
-p.habitat <- f_barplot(
-    seriesdata = d.series,
-    x_value = "ser_hty_code",
-    x_title =  "Habitat type",
-    x_label_rotate = 0,
-    legend_position = c(0.8, 0.8)
-)
-
-p.gear <- f_barplot(
-    seriesdata = d.series,
-    x_value = "ser_sam_gear",
-    x_title =  "Gear type",
-    x_label_rotate = 0
-)
-
-p.sampling <- f_barplot(
-    seriesdata = d.series,
-    x_value = "sam_samplingtype",
-    x_title =  "Sampling type",
-    x_label_rotate = 0,
-)
-
-p.quality <- f_barplot(
-    seriesdata = d.series,
-    x_value = "ser_qal_id",
-    x_title =  "Quality ID",
-    x_label_rotate = 0
-)
-
-p.stocking <- f_barplot(
-    seriesdata = d.series,
-    x_value = "ser_restocking",
-    x_title =  "Stocking",
-    x_label_rotate = 0
-)
-
-p.ecoregion <- f_barplot(
-    seriesdata = d.series,
-    x_value = "ecoregion",
-    x_title =  "Ecoregion",
-    x_label_rotate = 0
+allplot <- tapply(
+    plot_to_display,
+    plot_to_display$order,
+    function(x) {
+        f_barplot(
+            seriesdata = d.series,
+            x_value = x$x_value,
+            x_title = x$x_title,
+            x_label_rotate = x$x_label_rotate,
+            legend_position = replace_na(x$legend_position, "none")
+        )
+    }
 )
 
 #Put all bar plots in a single figure
-p.summary <- ggarrange(
-    p.country,
-    p.habitat,
-    p.gear,
-    p.sampling,
-    p.quality,
-    p.stocking,
-    p.ecoregion,
+p_summary <- ggarrange(
+    plotlist = allplot,
     ncol = 2, nrow = 4
 )
-p.summary <- annotate_figure(
-    p.summary,
+
+p_summary <- annotate_figure(
+    p_summary,
     left = text_grob(
         "Number of available series",
         color = "black",
@@ -523,7 +532,9 @@ p.summary <- annotate_figure(
     ),
 )
 
-p.summary
+p_summary
+
+rm(f_barplot, allplot, p_summary)
 ```
 
 A summary of the type of data available in the silver eel time series is given in Table \@ref(tab:table-summary) and Figure \@ref(fig:figure-seriessummary), and a detailed summary of all the series is presented in **Annex x.x**. From all available silver eel time series, `r nrow(t.filterchoice[t.filterchoice$n >= min.length,])` series have `r min.length` or more years of available data. Only `r sum(d.effort.available$effort)` of the `r length(unique(data$ser_nameshort))` series have effort data submitted. Most silver eel series were collected in freshwaters via traps and fyke nets. In terms of sampling type, `r nrow(d.tablesummary[d.tablesummary$sam_samplingtype == "commercial catch",])` series were from commercial catches, `r nrow(d.tablesummary[d.tablesummary$sam_samplingtype == "commercial CPUE",])` series were reported as commercial CPUE, `r nrow(d.tablesummary[d.tablesummary$sam_samplingtype == "trapping all",])` were assigned as full trapping series, `r nrow(d.tablesummary[d.tablesummary$sam_samplingtype == "trapping partial",])` as partial trapping series, and `r nrow(d.tablesummary[d.tablesummary$sam_samplingtype == "scientific estimate",])` were classified as scientific estimate, with `r nrow(d.tablesummary[is.na(d.tablesummary$sam_samplingtype),])` series missing this information. When it comes to the series quality ID, `r nrow(d.tablesummary[d.tablesummary$ser_qal_id == 1,])` series had a quality ID of 1, indicating good quality, `r nrow(d.tablesummary[d.tablesummary$ser_qal_id == 0,])` had a quality ID of 0, indicating that it had been previously decided that the series should not be used in an analysis (usually because there were not enough years of data), and `r nrow(d.tablesummary[is.na(d.tablesummary$ser_qal_id),])` series were missing a series quality ID. For the next WGEEL meeting, these series quality IDs should be reconsidered, given the large amount of series without a series quality ID, and the fact that some series with a quality ID of 0 now have at least 10 years of data. Almost all series had information on the potential impacts of restocking, with `r sum(d.tablesummary$ser_restocking, na.rm = T)` series classified as being influenced by restocking and `r sum(!d.tablesummary$ser_restocking, na.rm = T)` as not being influenced by restocking. 
@@ -533,69 +544,100 @@ The decision was made to perform the trend analysis with only those silver eel t
 The `r length(unique(d.cpue$ser_nameshort))` silver eel time series which were used in the analysis represented six ICES ecoregions (Figure \@ref(fig:mapsilverkept)). The Western Mediterranean Sea and Aegean-Levantine Sea only had one time series. The most represented areas were the Greater North Sea with 8 time series and the Baltic Sea with 7 time series. 11 ecoregions (Adriatic Sea, Arctic Ocean, Azores, Barents Sea, Black Sea, Faroes, Greenland Sea, Icelandic Waters, Ionian Sea and the Central Mediterranean Sea, Norwegian Sea, Oceanic Northeast Atlantic) did not have silver eel time series which were used in the trend analysis. All coastal time series used in the analysis are located in the Baltic Sea ecoregion. Freshwater series are located across 4 different ecoregions (Baltic Sea, Bay of Biscay and the Iberian Coast, Celtic Seas, Greater North Sea) and the transitional series are located in 2 ecoregions (Aegean-Levantine Sea, Western Mediterranean Sea). 
 
 
-```{r table-kept, echo = FALSE, tab.cap = "Available silver eel time series that were kept for the analysis. Listed is also whether the silver eel time series data was first divided by provided effort data, before it was used in the analysis. A reason for dividing by effort is that the data in the series is effort-dependent. Reasons for not first dividing by effort data include for instance the provided data already being a CPUE index, or effort being constant (e.g. whole year full-river coverage)."}
+```{r table-kept}
+#| echo = FALSE,
+#| tab.cap = "Available silver eel time series that were kept for the analysis. Listed is also whether the silver eel time series data was first divided by provided effort data, before it was used in the analysis. A reason for dividing by effort is that the data in the series is effort-dependent. Reasons for not first dividing by effort data include for instance the provided data already being a CPUE index, or effort being constant (e.g. whole year full-river coverage)."
 t.kept <- t.filterchoice %>%
-  filter(filtered == "Kept") %>%
-  mutate(
-  notes = ifelse(is.na(notes), "", notes), #change NAs to blanks in notes
-  effort.div = case_when( # New variable that reflects whether or not the reported value was divided by effort value
-    effort == "index" ~ "No",
-    effort == "model estimate" ~ "No",
-    effort == "constant" ~ "No",
-    effort == "provided" ~ "Yes"
-  ),
-  effort = case_when( # Rephrase type of effort available for series
-    ser_nameshort == "AlCS" ~ "Effort-dependent",
-    effort == "index" ~ "Index",
-    effort == "model estimate" ~ "Model estimate",
-    effort == "constant" ~ "Constant effort",
-    effort == "provided" ~ "Effort-dependent")
-  ) %>%
-    select(ser_cou_code, ser_nameshort, n, effort,effort.div, notes) %>% # drop method description
-    rename("Country" = ser_cou_code, #rename table headers
-         "Series name" = ser_nameshort, 
-         "Years (n)" = n,
-         "Series type" = effort,
-         "Divided by effort data" = effort.div,
-         "Comments" = notes)
+    filter(filtered == "Kept") %>%
+    mutate(
+        #change NAs to blanks in notes
+        notes = ifelse(is.na(notes), "", notes),
+        # New variable that reflects whether or
+        # not the reported value was divided by effort value
+        effort.div = case_when(
+            effort == "index" ~ "No",
+            effort == "model estimate" ~ "No",
+            effort == "constant" ~ "No",
+            effort == "provided" ~ "Yes"
+        ),
+        # Rephrase type of effort available for series
+        effort = case_when(
+            ser_nameshort == "AlCS" ~ "Effort-dependent",
+            effort == "index" ~ "Index",
+            effort == "model estimate" ~ "Model estimate",
+            effort == "constant" ~ "Constant effort",
+            effort == "provided" ~ "Effort-dependent"
+        )
+    ) %>%
+    select(ser_cou_code, ser_nameshort, n, effort,effort.div, notes) %>%
+    #rename table headers
+    rename(
+        "Country" = ser_cou_code,
+        "Series name" = ser_nameshort,
+        "Years (n)" = n,
+        "Series type" = effort,
+        "Divided by effort data" = effort.div,
+        "Comments" = notes
+    )
 
 flextable(t.kept)
 ```
 
-```{r table-dropped, echo = FALSE, tab.cap = "Available silver eel time series that were dropped from the analysis, including the reason for being dropped."}
+```{r table-dropped}
+#| echo = FALSE,
+#| tab.cap = "Available silver eel time series that were dropped from the analysis, including the reason for being dropped."
 t.dropped <- t.filterchoice %>%
-  filter(filtered == "Dropped") %>%
-  select(ser_cou_code, ser_nameshort, n, reason.dropped, notes) %>% # drop method description
-  mutate(notes = ifelse(is.na(notes), "", notes)) %>% #change NAs to blanks in notes
-  rename("Country" = ser_cou_code, #rename table headers
-         "Series name" = ser_nameshort, 
-         "Years (n)" = n,
-         "Drop reason" = reason.dropped,
-         "Comments" = notes)
-
+    filter(filtered == "Dropped") %>%
+    select(ser_cou_code, ser_nameshort, n, reason.dropped, notes) %>%
+    #change NAs to blanks in notes
+    mutate(notes = ifelse(is.na(notes), "", notes)) %>%
+    rename(
+        "Country" = ser_cou_code,
+        "Series name" = ser_nameshort,
+        "Years (n)" = n,
+        "Drop reason" = reason.dropped,
+        "Comments" = notes
+    )
 
 flextable(t.dropped)
 ```
 
-```{r mapsilverkept, echo=FALSE, fig.cap="Map of silver eel time series used in the trend analysis, shown by ICES ecoregion and habitat.", out.width = '100%'}
+```{r mapsilverkept}
+#| echo = FALSE,
+#| fig.cap = "Map of silver eel time series used in the trend analysis, shown by ICES ecoregion and habitat.",
+#| out.width = '100%'
 knitr::include_graphics("data/Silver_series_map.png")
 ```
 
 Figure \@ref(fig:figure-series) gives an overview of the reported data for each silver eel time series that were kept for the trend analysis. Among the kept series, the number of available data points was highest between 2010 and 2021, with the peak in 2013-2017 (Figure \@ref(fig:figure-nseries)). The majority of the kept time series did not have 2023 data ready at the time of writing this report. Given the scarcity of data before 1980, analyses were down excluded data before that date.
 
 
-```{r figure-series, echo = FALSE, fig.cap = "Silver eel time series that were used in the trend analysis.", fig.height=length(unique(d.cpue$ser_nameshort))/3*1.5}
+```{r figure-series}
+#| echo = FALSE,
+#| fig.cap = "Silver eel time series that were used in the trend analysis.",
+#| fig.height = length(unique(d.cpue$ser_nameshort))/3*1.5
 
-ggplot(data = d.cpue, aes(x = das_year, y = cpue)) +
-  geom_line() +
-  geom_point() +
-  scale_x_continuous(name = "Year",
-                      breaks = pretty_breaks()) +
-  scale_y_continuous(name = "CPUE") +
-  facet_wrap(~factor(ser_nameshort, unique(d.cpue$ser_nameshort)), #Convert to factor to preserve rank order
-             scales = "free", ncol = 3) +
-  theme_bw() + 
-  theme(axis.text.x = element_text(angle = 45, vjust = 0.5))
+ggplot(
+    data = d.cpue,
+    aes(x = das_year, y = cpue)
+) +
+    geom_line() +
+    geom_point() +
+    scale_x_continuous(
+        name = "Year",
+        breaks = pretty_breaks()
+    ) +
+    scale_y_continuous(name = "CPUE") +
+    #Convert to factor to preserve rank order
+    facet_wrap(~factor(
+        ser_nameshort,
+        unique(d.cpue$ser_nameshort)
+        ),
+        scales = "free",
+        ncol = 7
+    ) +
+    theme_bw() +
+    theme(axis.text.x = element_text(angle = 45, vjust = 0.5))
 ```
 
 ```{r figure-nseries, echo = FALSE, fig.cap = "Number of available datapoints from silver eel time series over time, shown only for those time series that were used in the trend analysis."}
@@ -607,4 +649,3 @@ ggplot(data = d.cpue %>% count(das_year), aes(x = das_year, y = n)) +
   geom_point() +
   theme_bw()
 ```
-
