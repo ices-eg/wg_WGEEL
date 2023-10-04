@@ -29,43 +29,44 @@ source("load_library.R")
 #-----------------
 # shiny libraries
 #-----------------
-library("shiny")
-library("shinyWidgets")
-library("shinydashboard")
-library("shinyjs")
-library("shinyBS")
-library("leaflet")
-library("DT")
-library("sf")
-library("plotly")
-library("leaflet.extras")
-library("yaml")
+load_package("shiny")
+load_package("shinyWidgets")
+load_package("shinydashboard")
+load_package("shinyjs")
+load_package("shinyBS")
+load_package("leaflet")
+load_package("DT")
+load_package("sf")
+load_package("plotly")
+load_package("leaflet.extras")
+load_package("yaml")
+load_package("shinydashboardPlus")
 #-----------------
 # other libraries
 #-----------------
-library("readxl")
-library("shinybusy")
-library("stringr")
-library("reshape2")
-library("tidyr") # unite cols in maps
-library("rlang")
-library("sp")
+load_package("readxl")
+load_package("shinybusy")
+load_package("stringr")
+load_package("reshape2")
+load_package("tidyr") # unite cols in maps
+load_package("rlang")
+load_package("sp")
 #library("pool")
 #library("DBI")
 
-library("dplyr")
-library("RColorBrewer")
+load_package("dplyr")
+load_package("RColorBrewer")
 
-library("scales")
-library('stringr') # text handling
+load_package("scales")
+load_package('stringr') # text handling
 #library("XLConnect") # for excel
-library("ggplot2") # for excel
-library("gridExtra")
-library("colorspace")
-library("ggrepel")
-library("viridis")
-library("svglite")
-library("leaflet.minicharts")
+load_package("ggplot2") # for excel
+load_package("gridExtra")
+load_package("colorspace")
+load_package("ggrepel")
+load_package("viridis")
+load_package("svglite")
+load_package("leaflet.minicharts")
 #library("spsComps") # handle errors
 #library("shinytoast")
 
