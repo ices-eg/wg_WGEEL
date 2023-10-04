@@ -1553,7 +1553,7 @@ print(g_other_landings_Y)
 ```{r other_landingskg_Yf,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure x:Reported other_landings of yellow eel (OG +Y) (in tonnes) per country: Sweden (SE) Germany (DE), Netherlands (NL),  Ireland (IE), Spain (ES) and Italy (IT).", fig.height=5, fig.width=10}
 
 filtered_data<-filter_data("other_landings",
-		typ = 33,
+		typ = 32,
 		life_stage = c("Y"))%>% dplyr::filter(is.na(eel_missvaluequal))
 year<-unique(filtered_data$eel_year)
 country<-unique(filtered_data$eel_cou_code)
