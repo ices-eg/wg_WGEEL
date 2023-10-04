@@ -637,12 +637,17 @@ ggplot(
     theme(axis.text.x = element_text(angle = 90, vjust = 0.5))
 ```
 
-```{r figure-nseries, echo = FALSE, fig.cap = "Number of available datapoints from silver eel time series over time, shown only for those time series that were used in the trend analysis."}
+```{r figure-nseries}
+#| echo = FALSE,
+#| fig.cap = "Number of available datapoints from silver eel time series over time, shown only for those time series that were used in the trend analysis."
 
-ggplot(data = d.cpue %>% count(das_year), aes(x = das_year, y = n)) +
-  scale_x_continuous(name = "Year") +
-  scale_y_continuous(name = "Number of available data") +
-  geom_line() +
-  geom_point() +
-  theme_bw()
+ggplot(
+    data = d.cpue %>% count(das_year),
+    aes(x = das_year, y = n)
+) +
+    scale_x_continuous(name = "Year") +
+    scale_y_continuous(name = "Number of available data") +
+    geom_line() +
+    geom_point() +
+    theme_bw()
 ```
