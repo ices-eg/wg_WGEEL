@@ -4,7 +4,7 @@
 spsDepend("toastr") #https://www.rdocumentation.org/packages/spsComps/versions/0.1.1/topics/spsDepend
 
 ui <- fluidPage(spsDepend("toastr"),
-		dashboardPage(title="ICES Data Integration",
+		shinydashboardPlus::dashboardPage(title="ICES Data Integration",
 				
 				dashboardHeader(title=div(img(src="iceslogo.png"),"wgeel")),
 				
@@ -112,6 +112,11 @@ ui <- fluidPage(spsDepend("toastr"),
 								plotseriesUI("plotseriesmodule"))
 						
 						)
+				),
+				footer = shinydashboardPlus::dashboardFooter(left=div(
+				  class="footer",
+				  if (file.exists("footer.html")) includeHTML("footer.html")
+				)
 				)
 		)
 )
