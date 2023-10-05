@@ -2027,23 +2027,6 @@ stopped in 2001; Vidaa in Denmark, stopped in 1990), a lack of financial support
 has disrupted the five fishery-based French time-series.
 
 
-```{r tableseriesCY,echo=FALSE,warning=FALSE,error=FALSE,message=FALSE, tab.cap=str_c("Series updated to ",CY, ". Codes for stages are G = glass eel, GY = glass eel + yellow eel, Y = yellow eel, Area NS = North Sea, EE = Elsewhere Europe, Division = FAO marine division. Series ordered by stage and from North to South")}
-autofit(flextable(data = series_CY)%>%
-          bold(bold = TRUE, part = "header"))
-```
-
-```{r xseriesCYm1, echo=FALSE,warning=FALSE,error=FALSE,message=FALSE,echo=FALSE,warning=FALSE,error=FALSE,message=FALSE,tab.cap=str_c("Series updated to ",CY-1, " see table XXX for codes. Series ordered from North to South")}
-autofit(flextable(data = series_CYm1)%>%
-          bold(bold = TRUE, part = "header"))
-
-```
-
-```{r xserieslost,echo=FALSE,warning=FALSE,error=FALSE,message=FALSE,tab.cap=str_c("table_serieslost")}
-autofit(flextable(data = series_lost)%>%
-          bold(bold = TRUE, part = "header"))
-```
-
-
 The number of time series available between regions and life stages is not an
 even distribu-tion, influenced by factors including variation in the behaviour
 of eel, traditions of fishery and usage of eel, and the history of scientific
@@ -2056,9 +2039,10 @@ while the yellow eel series come from the Baltic and the North Sea.
 [remove this section - raw data scaling and maps no longer provided]
 This figure is given as it   consistent with the trend provided by WGEEL
 from 2002 to 2006. The scaling is   performed on the 1979-1994 average of each
-time-series, and `r `length(selection_summary[["sc_1979_1994_unused_series"]])` time-series
-without data during that   period are excluded from the analysis. The time-series
-left out are :   `r paste(selection_summary[["sc_1979_1994_unused_series"]],collapse=", ")`
+time-series, and `r length(selection_summary[["sc_1979_1994_unused_series"]])`
+time-series without data during that   period are excluded from the analysis.
+The time-series left out are :
+`r paste(selection_summary[["sc_1979_1994_unused_series"]],collapse=", ")`
 
 ***********************************************************************************
 
@@ -2105,7 +2089,7 @@ Sea, recruitment for 2022 has been recalculated from
 
 Analyses of provisional `r CY` data show recruitment as a percentage of
 1960-1979 levels at 0.4 % in the North Sea, reaching its historical minimum, and
-8.8 % in elsewhere Europe. (Figure 2.5; Table 2.2). data are **only
+8.8 % in elsewhere Europe (Figure \@ref(fig:figure5), Table \@ref(tab:tableglmglasseel)). Data are **only
 provisional** and give estimates at  
   `r round(100*synthesis[nrow(synthesis),"North Sea"], digits =1)`% in the
 North Sea and
@@ -2239,6 +2223,7 @@ knitr::include_graphics(paste0(imgwd,'figure4.png'))
 
 ## Additional Tables
 
+### Series statistics
 
 ```{r xstatseriesGEE, echo=FALSE, warning = FALSE, message = FALSE, error=FALSE, tab.cap=str_c("Short description of the sampling sites for European eel recruitment data for Elsewhere Europe. Min and max indicate the first year and last year in the records, and the values are given in the n+ and n- columns, indicate the number of years with values and the number of years when there are missing data within the series. Life stage: GY = glass eel and yellow eel, G = glass eel, Y = yellow eel. Unit for the data collected is given (nr = number; index = calculated value following a specified protocol, nr/m2 = number per square metre, nr/h = number per hour, kg/boat/d = kg per boat per day). Habitat: C = coastal water (according to the EU Water Framework Directive, WFD), F = freshwater, MO = marine water (open sea), T = transitional water with lower salinity (according to WFD). Kept = 1 means that the dataseries is used in recruitment analyses.")}
 autofit(flextable(data = printstatseriesGEE)%>%
@@ -2262,6 +2247,7 @@ autofit(flextable(data = printstatseriesY)%>%
           bold(bold = TRUE, part = "header"))
 ```
 
+### Missing values at annual level
 
 ```{r xseriesprob, echo=FALSE, warning = FALSE, message = FALSE, error=FALSE,echo=FALSE, tab.cap=str_c("Data in " ,CY, " and ", CY-1, "having problems causing the data in the specific year to be excluded from the analysis. Codes for stages are G = glass eel, GY = glass eel + yellow eel, Y = yellow eel, Division = FAO marine division. Kept: 0 = missing, 1 = good quality, 2 = wgeel has modified the data, 3 = not used due to poor quality, 4 = data is used, but there are warnings on its quality")}
 autofit(flextable(data = series_prob[1:15,])%>%
@@ -2280,7 +2266,22 @@ autofit(flextable(data = series_prob[30:nrow(series_prob),])%>%
           bold(bold = TRUE, part = "header"))
 ```
 
+### Series last report year
 
+```{r tableseriesCY,echo=FALSE,warning=FALSE,error=FALSE,message=FALSE, tab.cap=str_c("Series updated to ",CY, ". Codes for stages are G = glass eel, GY = glass eel + yellow eel, Y = yellow eel, Area NS = North Sea, EE = Elsewhere Europe, Division = FAO marine division. Series ordered by stage and from North to South")}
+autofit(flextable(data = series_CY)%>%
+          bold(bold = TRUE, part = "header"))
+```
+
+```{r xseriesCYm1, echo=FALSE,warning=FALSE,error=FALSE,message=FALSE,echo=FALSE,warning=FALSE,error=FALSE,message=FALSE,tab.cap=str_c("Series updated to ",CY-1, " see table XXX for codes. Series ordered from North to South")}
+autofit(flextable(data = series_CYm1)%>%
+          bold(bold = TRUE, part = "header"))
+```
+
+```{r xserieslost,echo=FALSE,warning=FALSE,error=FALSE,message=FALSE,tab.cap=str_c("table_serieslost")}
+autofit(flextable(data = series_lost)%>%
+          bold(bold = TRUE, part = "header"))
+```
 
 ## Exploitation Rates
 
