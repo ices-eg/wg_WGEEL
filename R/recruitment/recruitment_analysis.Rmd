@@ -1939,8 +1939,9 @@ call)
    fisheries for England and Wales) while the second series (Severn HMRC) has
    been dropped from the list, as it was considered a duplicate being based on
    the same fishery. The series left out following this rule are :
-   `r selection_summary$sites_summary$qal_3` [TODO SELECT AMONG THOSE THE DUPLICATES,
-   BroGY(GB), EmsBGY(DE), FarpGY(DE), FlaGY(GB), SeHMG(GB)]
+   `r selection_summary$sites_summary$qal_3`
+   [TODO SELECT AMONG THOSE with qal_id 3 THE DUPLICATES, you may need to read ser_qal_comment
+   for more information currently  BroGY(GB), EmsBGY(DE), FarpGY(DE), FlaGY(GB), SeHMG(GB)]
    
 2. The second rule is to exclude a series from the analysis when it is less than
    ten years long. The series are, however, still updated in the database until
@@ -1956,27 +1957,30 @@ call)
 3. Finally, it was decided to discard recruitment series that were obviously
    biased by restocking (e.g. Farpener Bach in Germany). The series left out
    for that reason are `r selection_summary$sites_summary$qal_3` [ TODO among those
-   select  HHKGY(DE), MeusY(BE)]
-
+   with qal_id 3 select  HHKGY(DE), MeusY(BE)]
 
 
 ***************************************************************
 
-[remove this section after check there should be no ser_qal_id 4]
-There should be nothing here :
+[There should be nothing here :
 `r selection_summary$sites_summary$qal_4`  
+If the name of a series is apparent in the previous line, 
+check series with ser_qal_id 4 and remove them, otherwise
+remove sections between horizontal lines 
 
 *******************************************************************
 
-See Annex X, table XX for  the reason for which the series have
+See Annex XXXXX, tables
+\@ref(tab:xstatseriesGEE), \@ref(tab:xstatseriesGNS), \@ref(tab:xstatseriesGY), 
+\@ref(tab:xstatseriesY) for  the reason for which the series have
 been excluded for the recruitment analysis.
 
 
 ## Number of series available
 
 ****************************************************************************
-
-Some stats related to the graph on the number of series 
+[Read this if you want some stats related to the graph on the number of series i.e.
+How many points in the last year -- then delete part between horizontal bars] 
 
 Glass eel and glass eel + young yellow eel time-series available maximum :
 
@@ -1991,14 +1995,27 @@ time-series has increased to `r selection_summary[["nbmaxyellow"]]` in
 
 ****************************************************************************
 
-The WGEEL has collated information on recruitment from `r
-selection_summary[["nb_series_init"]]` time-series (Table 2.1. fig. 2.2). Among
-those series, 81 have been selected for further analysis. For the calculation of
-the glass eel recruitment index, 60 series have been retained (39 glass eel
-series and 21 glass and yellow eel mixed series), from which 34 came from NS and
-26 from EE (see Annex X table 1). For the calculation of the yellow eel
-recruitment index, 21 yellow eel series have been retained, most of the retained
-yellow eel series (18) coming from the North Sea region (see Annex X table 2). 
+The WGEEL has collated information on recruitment from
+`r selection_summary[["nb_series_init"]]` time-series (Tables
+\@ref(tab:xstatseriesGEE), \@ref(tab:xstatseriesGNS), \@ref(tab:xstatseriesGY), 
+\@ref(tab:xstatseriesY), Figure \@ref(fig:figure2)). Among those series, 
+`r selection_summary[["nb_series_final"]]` have been selected for further analysis. 
+For the calculation of the glass eel recruitment index, 
+`r selection_summary[["nb_series_glass_eel"]]` series have been retained,
+`r   selection_summary$nb_series_glass_eel_G` glass eel series and 
+`r   selection_summary$nb_series_glass_eel_GY` glass and yellow eel mixed series), from which
+`r selection_summary$nb_series_glass_eel_per_area%>% filter(area=='North Sea') %>% pull(2)` came
+from NS and
+`r selection_summary$nb_series_glass_eel_per_area%>% filter(area=='Elsewhere Europe') %>% pull(2)` 
+from EE (see Annex X table 1). For the calculation of the yellow eel
+recruitment index, 
+`r selection_summary$nb_series_older`
+ yellow eel series have been retained, 
+`r  selection_summary$nb_series_older_northsea` coming from the North Sea,
+`r  selection_summary$nb_series_older_baltic` from the Baltic Sea,
+`r  selection_summary$nb_series_older_atlantic` from the Atlantic region and
+`r  selection_summary$nb_series_older_mediterranean` from the Mediterranean Sea
+(Figure \@ref(fig:figure2b)). 
 
 ```{r figure2, fig.cap="Trends in number of glass eel (black circle), glass+young yellow eel (grey triangle) and older yellow eel (black triangle) time-series giving a report in  any specific year.", fig.width=16/2.54, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
 knitr::include_graphics(paste0(imgwd,"figure2.png"))
@@ -2010,42 +2027,35 @@ if (file.exists(paste0(imgwd,"series_selection.png")))
 ```
 
 
+ `r format(selection_summary[["nCY"]], scientific = TRUE)` time-series were
+updated to `r CY` (`r format(selection_summary[["nCYG"]], scientific = TRUE)` for
+glass eel, `r format(selection_summary[["nCYGY"]], scientific = TRUE)` for glass
++ yellow eel and `r format(selection_summary[["nCYY"]], scientific=TRUE)` for
+  yellow eel) and `r format(selection_summary[["nCYm1Y"]], scientific = TRUE)` 
+ and r `format(selection_summary[["nCYm1"]],
+scientific=TRUE)` series (r `format(selection_summary[["nCYm1G"]],
+scientific=TRUE)` G, r `format(selection_summary[["nCYm1GY"]], scientific=TRUE)`
+GY, and 10 r `format(selection_summary[["nCYm1Y"]], scientific=TRUE)`) were
+updated only to `r CY-1`.
 
 
+In `r CY`, XX new series were added to the recruitment trend analysis: XX GE (XXX) and XX GY (XXX).
 
+Among the time-series based on trap indices, some have reported preliminary data for 2023 as 
+their trapping season had not finished. As usual, the indices given for 2023 must be considered as provisional, 
+especially those for the yellow eel.
 
-
-
-
-
-
-
-
-
-
-## Check on series updates for analyses[remove this paragraph]
-
- `r format(selection_summary[["nCY"]], scientific = TRUE)` time-series  updated to `r CY`
-`r format(selection_summary[["nCYG"]], scientific = TRUE)` for glass eel
-`r format(selection_summary[["nCYGY"]], scientific = TRUE)` for glass + yellow eel and
-`r format(selection_summary[["nCYY"]], scientific=TRUE)` for yellow eel
-`r format(selection_summary[["nCYm1"]], scientific = TRUE)` time-series
-(`r format(selection_summary[["nCYm1G"]], scientific=TRUE)`} for glass eel,
-` r format(selection_summary[["nCYm1GY"]], scientific=TRUE)` for glass + yellow eel and
-` r format(selection_summary[["nCYm1Y"]], scientific = TRUE)` for yellow eel) were updated to
-`r CY-1` only (Table \@ref(tab:xseriesCYm1))).  
 
 `r format(selection_summary[["nseries_lost"]], scientific=TRUE)` time-series have been stopped
-or not updated beyond 2016 (`r format(selection_summary[["nseries_lostG"]], scientific=TRUE)`
-for glass eel, `r format(selection_summary[["nseries_lostGY"]], scientific =TRUE)` for glass
+or not updated beyond `r CY-2` [remove these details](`r format(selection_summary[["nseries_lostG"]], scientific=TRUE)`
+for glass eel,  `r format(selection_summary[["nseries_lostGY"]], scientific =TRUE)` for glass
 eel + yellow eel and `r format(selection_summary[["nseries_lostY"]], scientific=TRUE)` for
 yellow eel (Table \@ref(tab:xserieslost))) but are still included in the
-analysis. Some have stopped reporting either because of a lack of recruits in
-the case of the fishery-based surveys (Ems in Germany, stopped in 2001; Vidaa in
-Denmark, stopped in 1990),  a lack of financial support (the Tiber in Italy,
-2006) or the introduction of quota from from 2008 to 2011 that has disrupted the
-five fishery-based French time-series . The two English series (FlaE and BeeG)
-are still operating but data have not been updated since 2016.
+analysis [end remove these details]. Some have stopped reporting either because
+of a lack of recruits in the case of the fishery-based surveys (Ems in Germany,
+stopped in 2001; Vidaa in Denmark, stopped in 1990), a lack of financial support
+(the Tiber in Italy, 2006) or the introduction of quota from 2008 to 2011 that
+has disrupted the five fishery-based French time-series.
 
 
 ```{r tableseriesCY,echo=FALSE,warning=FALSE,error=FALSE,message=FALSE, tab.cap=str_c("Series updated to ",CY, ". Codes for stages are G = glass eel, GY = glass eel + yellow eel, Y = yellow eel, Area NS = North Sea, EE = Elsewhere Europe, Division = FAO marine division. Series ordered by stage and from North to South")}

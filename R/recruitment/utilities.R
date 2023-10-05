@@ -403,8 +403,8 @@ select_series <- function(wger_init, R_stations){
   #This is a way to check that data with identified issues are indeed excluded from the analysis
 # All values labelled 0 must have no data 
 selection_summary$wgerdiscarded$should_be_na <- list()
-selection_summary$wgerdiscarded$should_be_na$table <- wger[!is.na(wger$das_qal_id) & wger$das_qal_id==0 & is.na(wger$das_value),c("value")]
-selection_summary$wgerdiscarded$should_be_na$ids <-  wger[!is.na(wger$das_qal_id)&wger$das_qal_id==0 & is.na(wger$das_value),c("id")]
+selection_summary$wgerdiscarded$should_be_na$table <-should_be_na <- wger[!is.na(wger$das_qal_id) & wger$das_qal_id==0 & is.na(wger$das_value),c("value")]
+selection_summary$wgerdiscarded$should_be_na$ids <-should_be_na_id <-  wger[!is.na(wger$das_qal_id)&wger$das_qal_id==0 & is.na(wger$das_value),c("id")]
   
   if (! all(is.na(
           should_be_na
@@ -508,14 +508,18 @@ selection_summary$wgerdiscarded$should_be_na$ids <-  wger[!is.na(wger$das_qal_id
   ###############################################################
   
   nb_series_glass_eel <- length(unique(glass_eel_yoy$site)) # this will be reported in the pdf later
-  selection_summary$nb_series_glass_eel <- nb_series_glass_eel
-  
+  selection_summary$nb_series_glass_eel <- nb_series_glass_eel  
   selection_summary$nb_series_glass_eel_per_area <-glass_eel_yoy %>% distinct(site, area) %>% group_by(area)%>%dplyr::summarize(n())
+  selection_summary$nb_series_glass_eel_G <-glass_eel_yoy %>% filter(lfs_code=='G') %>%distinct(site) %>%dplyr::summarize(n()) %>% pull()
+  selection_summary$nb_series_glass_eel_GY <-glass_eel_yoy %>% filter(lfs_code=='GY') %>%distinct(site) %>%dplyr::summarize(n()) %>% pull()
   nb_series_older <- length(unique(older$site)) # this will be reported in the pdf later
   selection_summary$nb_series_older <- nb_series_older
   nb_series_final <- nb_series_glass_eel+nb_series_older
   selection_summary$nb_series_final <- nb_series_final
-  
+  selection_summary$nb_series_older_baltic <- older%>% filter(area2=="Baltic") %>%distinct(site) %>%dplyr::summarize(n()) %>% pull()
+  selection_summary$nb_series_older_northsea <- older%>% filter(area2=="North Sea") %>%distinct(site) %>%dplyr::summarize(n()) %>% pull()
+  selection_summary$nb_series_older_mediterranean <- older%>% filter(area2=="Mediterranean Sea") %>%distinct(site) %>%dplyr::summarize(n()) %>% pull()
+  selection_summary$nb_series_older_atlantic <- older%>% filter(area2=="Atlantic") %>%distinct(site) %>%dplyr::summarize(n()) %>% pull()
   
   ###############################################################
 # Finally saving the data
@@ -633,9 +637,9 @@ make_table_series <- function(selection_summary, R_stations, wger){
 
   
   selection_summary$nCY <- nrow(series_CY) # number of series updated to the current year (for later use)
-  selection_summary$nCYG <- nrow(series_CY[series_CY$ser_lfs_code=="G",]) # number of series with glass eel updated to the current year
-  selection_summary$nCYGY <- nrow(series_CY[series_CY$ser_lfs_code=="GY",]) # number of series with glass eel updated to the current year
-  selection_summary$nCYY <- nrow(series_CY[series_CY$ser_lfs_code=="Y",]) # number of series with yellow eel (only) updated to the current year
+  selection_summary$nCYG <- nrow(series_CY[series_CY$Stage=="G",]) # number of series with glass eel updated to the current year
+  selection_summary$nCYGY <- nrow(series_CY[series_CY$Stage=="GY",]) # number of series with glass eel updated to the current year
+  selection_summary$nCYY <- nrow(series_CY[series_CY$Stage=="Y",]) # number of series with yellow eel (only) updated to the current year
   
   #"stations updated to",CY-1
   series_CYm1 <- R_stations[R_stations$ser_nameshort%in%names(last_year[last_year==CY-1]),
@@ -643,9 +647,9 @@ make_table_series <- function(selection_summary, R_stations, wger){
   series_CYm1 <- series_CYm1[order(series_CYm1$ser_lfs_code,series_CYm1$cou_order),c("ser_nameshort","ser_namelong","cou_code","ser_lfs_code","areashort","ser_area_division")]
    colnames(series_CYm1) <- c("Site","Name","Coun.","Stage","Area","Division")
   selection_summary$nCYm1 <- nrow(series_CYm1) # number series updated last year only (and not this year)
-  selection_summary$nCYm1G <- nrow(series_CYm1[series_CYm1$ser_lfs_code=="G",]) # same for glass eel 
-  selection_summary$nCYm1GY <- nrow(series_CYm1[series_CYm1$ser_lfs_code=="GY",]) # same for glass eel 
-  selection_summary$nCYm1Y <- nrow(series_CYm1[series_CYm1$ser_lfs_code=="Y",]) # same for yellow eel only
+  selection_summary$nCYm1G <- nrow(series_CYm1[series_CYm1$Stage=="G",]) # same for glass eel 
+  selection_summary$nCYm1GY <- nrow(series_CYm1[series_CYm1$Stage=="GY",]) # same for glass eel 
+  selection_summary$nCYm1Y <- nrow(series_CYm1[series_CYm1$Stage=="Y",]) # same for yellow eel only
   
   # Series that have not been updated for two years
   lost_ones <- last_year[last_year<CY-1]
