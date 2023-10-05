@@ -155,3 +155,4 @@ draft.data(
     append = TRUE
 )
 
+write_file_to_taf(source_file="recruitment_analysis.Rmd", destination_file=NULL, taf_directory)
