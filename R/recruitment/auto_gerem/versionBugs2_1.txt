@@ -44,7 +44,7 @@ Rzone[y,zone]<-propR[zone,y]*Rglobal[y]
 }
 for (zone in 1:nbzone){
 	Rzone_final[zone]<-Rzone[nbyear,zone]
-	alpha[zone]<-initpropR[zone]*precisionpropRwalk+0.01
+	alpha[zone]<-initpropR[zone]+0.01#*precisionpropRwalk
 }
 
 

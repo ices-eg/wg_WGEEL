@@ -16,6 +16,7 @@ load_package("shiny")
 load_package("crosstalk")
 load_package("assertthat")
 load_package("skimr")
+load_package("shinydashboardPlus")
 
 load_package("leaflet.extras")
 load_package("sf")

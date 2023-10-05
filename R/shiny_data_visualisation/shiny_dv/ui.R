@@ -4,7 +4,7 @@
 ###############################################################################
 
 #spsDepend("toastr")
-ui = dashboardPage(title="ICES Data Visualisation",
+ui = shinydashboardPlus::dashboardPage(title="ICES Data Visualisation",
     skin = "black",
     dashboardHeader(title=div(img(src="iceslogo.png")," wgeel")),
     dashboardSidebar(
@@ -591,5 +591,10 @@ ui = dashboardPage(title="ICES Data Visualisation",
 						)#fluidrow 1
 				)#tab map ys
         )
+    ),
+    footer = shinydashboardPlus::dashboardFooter(left=div(
+      class="footer",
+      if (file.exists("footer.html")) includeHTML("footer.html")
+    )
     )
 )

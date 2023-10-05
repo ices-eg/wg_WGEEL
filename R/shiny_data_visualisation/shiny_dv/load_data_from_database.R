@@ -171,8 +171,7 @@ biometry_group_data_series_long <- biometry_group_data_series %>%
 biometry_group_data_sampling_long <- biometry_group_data_sampling %>% 
 		select( -mty_id, -mty_min, -mty_max)  %>% 
 		pivot_wider(names_from = mty_name, values_from = meg_value)
-
-save( precodata_all, 
+tryCatch({save( precodata_all, 
 		precodata,    
 		precodata_emu, 
 		precodata_country,
@@ -191,6 +190,9 @@ save( precodata_all,
 		statseries_ys,
 		biometry_group_data_sampling_long,
 		biometry_group_data_series_long ,
-		file="data/ref_and_eel_data.Rdata")
+		file="data/ref_and_eel_data.Rdata")},
+		error = function(e) {showNotification("the file can't be saved due probably to right settings on the server",
+		                                      type="error")}
+)
 
 

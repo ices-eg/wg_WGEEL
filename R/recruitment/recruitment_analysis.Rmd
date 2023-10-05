@@ -348,20 +348,23 @@ if (nrow(series_prob)>30){
 #%************************************************************************************
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 dd <- as.data.frame(table(year=wger$year,lifestage=wger$lifestage))
-
+dd$lifestage <- ifelse(dd$lifestage == "glass eel + yellow eel",
+                        "mixed glass and yellow eels", as.character(dd$lifestage))
 figure2 <- ggplot(dd, aes(x=as.numeric(as.character(year)), y=Freq, group=lifestage, col=lifestage)) + geom_point() + geom_line(lwd=2) + ylab('number of series') +xlab('year')+
 		theme(text=element_text(size=12))+
 		scale_x_continuous(limits=c(1900,CY))+
 		theme_bw()+
-		theme(text = element_text(size=30),
+		theme(text = element_text(size=20),
 				axis.text.x = element_text(angle=0, hjust=1))+
-		theme(legend.position = c(0.25,0.75), legend.text = element_text( size = 35))
+		theme(legend.position = c(0.25,0.75), legend.text = element_text( size = 20))
 
 
 print(figure2)
 save_figure(figname="figure2",figure2,800,600)
 
 ddd <- as.data.frame(table(year=wger$year,lifestage=wger$lifestage, area=wger$area2))
+ddd$lifestage <- ifelse(ddd$lifestage == "glass eel + yellow eel",
+                        "mixed glass and yellow eels", as.character(ddd$lifestage))
 
 figure2.1 <- ggplot(ddd, aes(x=as.numeric(as.character(year)), y=Freq, group=lifestage, col=lifestage)) + geom_point() + geom_line(lwd=2) + ylab('number of series') +xlab('year')+
 		facet_wrap(~factor(ddd$area), ncol=2) +
@@ -438,26 +441,69 @@ stations <- st_transform(st_as_sf(R_stations,coords=c("ser_x","ser_y"),crs=4326)
 stations$X = st_coordinates(stations)[,"X"]
 stations$Y = st_coordinates(stations)[,"Y"]
 
-figure1 <- ggmap(my_map)+  
+# figure1 <- ggmap(my_map)+  
+# 		coord_sf(crs = st_crs(3857)) + # force it to be 3857
+# 		geom_sf(data=fao, inherit.aes = FALSE,aes(fill=zone)) +
+# 		geom_sf(data=fao, inherit.aes = FALSE,aes(fill=zone)) +
+# 		geom_sf_text(data=st_centroid(fao), inherit.aes=FALSE,aes(label=f_code),cex=1.5) +
+# #		geom_sf(data=stations,aes(color=ser_lfs_code,shape=ser_lfs_code),size=2, inherit.aes = FALSE)+
+# #		geom_sf(data=subset(stations,ser_lfs_code!="Y" & ser_qal_id==1),color = 'black',size=2, shape = 21,
+# #				inherit.aes=FALSE) +
+# #		geom_sf(data=subset(stations,ser_lfs_code=="Y"& ser_qal_id==1),color = 'black',size=2, shape = 24,
+# #				inherit.aes=FALSE) +
+# 		geom_point(data=stations,aes(x=X,y=Y,
+# 						color=ser_lfs_code,stroke=0),shape=19,size=3)+
+# 		geom_point(data=subset(stations,ser_qal_id==1),
+# 				color = 'black', 
+# 				size=3, 
+# 				shape = 21,
+# 				stroke=1,
+# 				aes(x=X,y=Y)) +
+# 		guides(fill = guide_legend(override.aes = list(shape = 21))) +
+# 		scale_fill_manual("Life stage",values=c("#30ff8a","#33b1c4","#1a81db")) +
+# 		scale_color_manual("Life stage",values=c("white","grey","yellow"))+
+# 		guides(alpha=guide_legend("Recruitment series",
+# 						legend.background = element_blank(),
+# 						title.theme=element_text(face="bold"),
+# 						keyheight=0,
+# 						label.theme=element_text(size=0,lineheight=0),
+# 						order=1, 
+# 						override.aes=list(color=NA, shape=NA, alpha=NA, fill=NA))) +
+# 		theme(
+# 				legend.box.background = element_rect(fill="#EFD9C1",color=NA),
+# 				legend.background = element_blank(),
+# 				legend.position = c(.995, .3),
+# 				legend.justification = c("right", "center"),
+# 				legend.box.just = "left",
+# 				legend.box.margin = margin(1, 1, 1, 1),
+# 				legend.margin = margin(1, 1, 1, 1),
+# 				legend.key = element_rect(colour = "transparent", fill = "transparent")
+# 		
+# 		)
+# print(figure1)
+
+
+
+mapG <- ggmap(my_map)+  
 		coord_sf(crs = st_crs(3857)) + # force it to be 3857
-		geom_sf(data=fao, inherit.aes = FALSE,aes(fill=zone)) +
-		geom_sf(data=fao, inherit.aes = FALSE,aes(fill=zone)) +
+		geom_sf(data=fao %>% filter(zone %in% c("North Sea","Elsewhere Europe")), inherit.aes = FALSE,aes(fill=zone)) +
+#		geom_sf(data=fao, inherit.aes = FALSE,aes(fill=zone)) +
 		geom_sf_text(data=st_centroid(fao), inherit.aes=FALSE,aes(label=f_code),cex=1.5) +
 #		geom_sf(data=stations,aes(color=ser_lfs_code,shape=ser_lfs_code),size=2, inherit.aes = FALSE)+
 #		geom_sf(data=subset(stations,ser_lfs_code!="Y" & ser_qal_id==1),color = 'black',size=2, shape = 21,
 #				inherit.aes=FALSE) +
 #		geom_sf(data=subset(stations,ser_lfs_code=="Y"& ser_qal_id==1),color = 'black',size=2, shape = 24,
 #				inherit.aes=FALSE) +
-		geom_point(data=stations,aes(x=X,y=Y,
+		geom_point(data=stations %>% filter(ser_qal_id == 1 & ser_lfs_code %in% c("G", "GY")),aes(x=X,y=Y,
 						color=ser_lfs_code,stroke=0),shape=19,size=3)+
-		geom_point(data=subset(stations,ser_qal_id==1),
-				color = 'black', 
-				size=3, 
-				shape = 21,
-				stroke=1,
-				aes(x=X,y=Y)) +
+		 geom_point(data=subset(stations,ser_qal_id==1&  ser_lfs_code %in% c("G", "GY")),
+		 		color = 'black', 
+		 		size=3, 
+		 		shape = 21,
+		 		stroke=1,
+		 		aes(x=X,y=Y)) +
 		guides(fill = guide_legend(override.aes = list(shape = 21))) +
-		scale_fill_manual("Life stage",values=c("#30ff8a","#33b1c4","#1a81db")) +
+		scale_fill_manual("Area",values=c("#33b1c4","#1a81db","#30ff8a")) +
 		scale_color_manual("Life stage",values=c("white","grey","yellow"))+
 		guides(alpha=guide_legend("Recruitment series",
 						legend.background = element_blank(),
@@ -474,13 +520,57 @@ figure1 <- ggmap(my_map)+
 				legend.box.just = "left",
 				legend.box.margin = margin(1, 1, 1, 1),
 				legend.margin = margin(1, 1, 1, 1),
-				legend.key = element_rect(colour = "transparent", fill = "transparent")
+				legend.key = element_rect(colour = "transparent", fill = "transparent"),
+				axis.text=element_text(size=8),
+				plot.margin=margin(0.,0.1,0.1,0.1, "cm")
 		
-		)
+		) + xlab("")+ylab("")
+
+mapY <- ggmap(my_map)+  
+		coord_sf(crs = st_crs(3857)) + # force it to be 3857
+		geom_sf(data=fao, inherit.aes = FALSE, fill=NA) +
+		geom_sf_text(data=st_centroid(fao), inherit.aes=FALSE,aes(label=f_code),cex=1.5) +
+#		geom_sf(data=stations,aes(color=ser_lfs_code,shape=ser_lfs_code),size=2, inherit.aes = FALSE)+
+#		geom_sf(data=subset(stations,ser_lfs_code!="Y" & ser_qal_id==1),color = 'black',size=2, shape = 21,
+#				inherit.aes=FALSE) +
+#		geom_sf(data=subset(stations,ser_lfs_code=="Y"& ser_qal_id==1),color = 'black',size=2, shape = 24,
+#				inherit.aes=FALSE) +
+		geom_point(data=stations %>% filter(ser_qal_id == 1 & ser_lfs_code %in% c("Y")),aes(x=X,y=Y,
+						color=ser_lfs_code,stroke=0),shape=17,size=3)+
+		 geom_point(data=subset(stations,ser_qal_id==1&  ser_lfs_code %in% c("Y")),
+		 		color = 'black', 
+		 		size=3, 
+		 		shape = 24,
+		 		stroke=1,
+		 		aes(x=X,y=Y)) +
+		guides(fill = guide_legend(override.aes = list(shape = 21))) +
+		scale_color_manual("Life stage",values=c("white","grey","yellow"))+
+		guides(alpha=guide_legend("Recruitment series",
+						legend.background = element_blank(),
+						title.theme=element_text(face="bold"),
+						keyheight=0,
+						label.theme=element_text(size=0,lineheight=0),
+						order=1, 
+						override.aes=list(color=NA, shape=NA, alpha=NA, fill=NA))) +
+		theme(
+				legend.box.background = element_rect(fill="#EFD9C1",color=NA),
+				legend.background = element_blank(),
+				legend.position = c(.995, .3),
+				legend.justification = c("right", "center"),
+				legend.box.just = "left",
+				legend.box.margin = margin(1, 1, 1, 1),
+				legend.margin = margin(1, 1, 1, 1),
+				legend.key = element_rect(colour = "transparent", fill = "transparent"),
+				axis.text=element_text(size=8),
+				plot.margin=margin(0.,0.1,0.1,0.1, "cm") 
+		
+		) + xlab("")+ylab("")
+
+figure1 <- ggpubr::ggarrange(plotlist=list(mapG,mapY),nrow=1)
 print(figure1)
+save_figure("figure1",figure1,1100,800)
 
 
-save_figure("figure1",figure1,550,600)
 ```
 
 
@@ -882,7 +972,7 @@ selection_summary$modelge$site <- as.character(model_ge_area$xlevels$site)
 selection_summary$modelge$excluded <- unique(glass_eel_yoy$site)[!unique(glass_eel_yoy$site)%in%selection_summary$modelge$site]
 selection_summary$modelge$value_excluded_zero <- glass_eel_yoy[glass_eel_yoy$value==0&!is.na(glass_eel_yoy$value),
 		c("value_std","site","year","lifestage","das_comment","area")]
-selection_summary$modelge$value_excluded_zero <- selection_summary$modelge$value_excluded_zero[!is.na(selection_summary$modelge$value_excluded_zero$site),]
+
 model_older=glm(value_std~year_f+as.factor(site),data=older,family=Gamma(link=log),
 		subset=older$value>0 & older$year>1949  ,maxit=300)
 selection_summary$modelolder <- list()
