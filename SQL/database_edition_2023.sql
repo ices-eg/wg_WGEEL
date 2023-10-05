@@ -1020,11 +1020,24 @@ SELECT cou, annex, n FROM everything  order by 1,2); --191
 
 
 
+-- Torbjörn : So, for the Glass eel data (eel_lfs_code=G; eel_qal_id=1; comment=restocking)
+--  we want to change eel_lfs_code from G to QG for years 1980 and onwards. 
 
 
+SELECT * FROM datawg.t_eelstock_eel WHERE 
+eel_cou_code='SE'
+AND eel_typ_id IN (8,9,10) 
+AND eel_lfs_code = 'G' 
+AND eel_qal_id IN (1,2,4);
 
-SELECT * FROM datawg.t_eelstock_eel WHERE eel_cou_code='SE' AND eel_typ_id IN (8,9,10) AND eel_lfs_code = 'G'
+UPDATE datawg.t_eelstock_eel SET (eel_qal_comment,eel_lfs_code)=('changed IN 2023 from OG to QG', 'QG')
+WHERE eel_cou_code='SE' 
+AND eel_typ_id IN (8,9,10) 
+AND eel_lfs_code = 'G'
+AND eel_qal_id IN (1,2,4); --374
 
-SELECT * FROM datawg.t_eelstock_eel WHERE eel_cou_code='SE' AND eel_typ_id IN (8,9,10) AND eel_lfs_code = 'QG'
 
+SELECT * FROM datawg.t_eelstock_eel WHERE eel_cou_code='SE' AND eel_typ_id IN (8,9,10) AND eel_lfs_code = 'QG' AND eel_qal_id IN (1,2,4)
+SELECT emu_nameshort, emu_name, emu_cou_code,  emu_wholecountry, geom_buffered
+FROM "ref".tr_emu_emu;
 
