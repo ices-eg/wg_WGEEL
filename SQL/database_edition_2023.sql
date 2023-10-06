@@ -1036,8 +1036,23 @@ AND eel_typ_id IN (8,9,10)
 AND eel_lfs_code = 'G'
 AND eel_qal_id IN (1,2,4); --374
 
+UPDATE datawg.t_eelstock_eel SET eel_qal_comment='changed in 2023 from G to QG'
+WHERE eel_qal_comment= 'changed IN 2023 from OG to QG'
+AND eel_cou_code='SE' 
+AND eel_typ_id IN (8,9,10) 
+AND eel_lfs_code = 'QG'
+AND eel_qal_id IN (1,2,4); --374
 
-SELECT * FROM datawg.t_eelstock_eel WHERE eel_cou_code='SE' AND eel_typ_id IN (8,9,10) AND eel_lfs_code = 'QG' AND eel_qal_id IN (1,2,4)
-SELECT emu_nameshort, emu_name, emu_cou_code,  emu_wholecountry, geom_buffered
-FROM "ref".tr_emu_emu;
 
+WITH total as(
+SELECT emu_nameshort,
+emu_cou_code
+ FROM REF.tr_emu_emu 
+WHERE emu_wholecountry IS NOT NULL AND emu_wholecountry),
+other AS (
+SELECT emu_nameshort,
+emu_cou_code
+FROM REF.tr_emu_emu 
+WHERE emu_wholecountry IS NOT NULL AND NOT emu_wholecountry)
+
+SELECT * FROM total FULL OUTER JOIN other ON total.emu_cou_code = other.emu_cou_code;
