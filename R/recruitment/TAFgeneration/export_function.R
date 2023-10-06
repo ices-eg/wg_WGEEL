@@ -177,7 +177,7 @@ write_to_taf <- function(lines, file, taf_directory, blank = TRUE){
 #'
 #' @examples
 write_file_to_taf <- function(source_file, destination_file=NULL, taf_directory){
-  if (is.null(destination_file)) destination_file <- source_file
+  if (is.null(destination_file)) destination_file <- basename(source_file)
   file.copy(source_file, taf_directory)
   file.rename(from= file.path(taf_directory,source_file), to=file.path(taf_directory,destination_file))
 }
@@ -332,4 +332,47 @@ export_diagram_series_to_taf <- function(taf_directory){
       close(fileConn)
 }
 
+
+
+
+#' export_report_rmd_to_taf
+#' this function copy the rmd file and removes unrequired parts
+#' @param source_file the orginal rmd file
+#' @param destination_file the file name to copy to in taf directory
+#' @param taf_directory the taf directory
+#'
+#' @return
+#' @export
+#'
+#' @examples
+export_report_rmd_to_taf <- function(source_file, destination_file=NULL, taf_directory){
+  write_file_to_taf(source_file, destination_file, taf_directory)
+  if (is.null(destination_file)) destination_file <- basename(source_file)
+  destination_file <- paste(taf_directory, destination_file, sep = "/")
+  system(paste("sed -i '/^#<TAF_REMOVE>/,/^#<END_TAF_REMOVE>$/d'",
+                destination_file))
+  system(paste("sed -i '/^<!-- TAF_REMOVE -->/,/^<!-- END_TAF_REMOVE -->$/d'",
+               destination_file))
+  system(paste("sed -i '/shinywd/d'",
+               destination_file))
+  system(paste("sed -i '/RPostgres/d'",
+               destination_file))
+  system(paste("sed -i '/shiny_data_visualisation/d'",
+               destination_file))
+  system(paste("sed -i '/load_library.R/d'",
+               destination_file))
+  system(paste0("sed -i 's|load(file=str_c(datawd,\"|load(file=(\"boot/data/|g' ",
+               destination_file))
+  
+  system(paste("sed -i 's|datawd <- str_c(wddata.*|datawd <- \"boot/data/\"|g'",
+                destination_file))
+  system(paste("sed -i 's|outputdatawd <- str_c(.*|outputdatawd <- \"report/\"|g'",
+               destination_file))
+  system(paste("sed -i 's|imgwd <- str_c(.*|imgwd <-  \"report/\"|g'",
+         destination_file))
+  system(paste("sed -i 's|tabwd <- str_c(.*|tabwd <-  \"report/\"|g'",
+         destination_file))
+  system(paste("sed -i 's|reference_docx.*|reference_docx: \"ICES_template.docx\"|g'",
+               destination_file))
+}
 
