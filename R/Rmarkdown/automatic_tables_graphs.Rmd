@@ -32,6 +32,7 @@ tabwd <- str_c(getwd(),"/",CY,"/00international/table/")
 dir.create(imgwd, showWarnings = FALSE)
 dir.create(tabwd, showWarnings = FALSE)
 knitr::opts_chunk$set(echo = TRUE, warnings=FALSE, error = TRUE)
+knitr::opts_knit$set(root.dir = getwd())
 #source("R/utilities/set_directory.R")
 #data_directory <- wg_choose.dir(caption = "Where do you want to save the tables and the graphs")
 #data_directory <-"C:/temp"
@@ -394,8 +395,9 @@ ka_com_land_G <- kable(format(table,digt=3,drop0trailing=TRUE),
 
 
 
-```{r com_land_Gfig,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure 1: Time-series of reported commercial glass eel fishery landings (tonnes), by country. United Kingdom (GB), France (FR), Spain (ES), Portugal (PT) and Italy (IT) are included combining information from the Data call 2020 and the WGEEL database.", fig.height=5, fig.width=10}
-
+```{r com_land_Gfig,echo=FALSE, warning=FALSE, 
+fig.cap=str_c("Figure 1: Time-series of reported commercial glass eel fishery landings (tonnes), by country.",  ,"are included combining information from the Data call 2020 and the WGEEL database.", fig.height=5, fig.width=10}
+toto<- "test"
 ##Graph
 landings3<-grouped_data
 landings3$eel_value <- as.numeric(landings3$eel_value) / 1000
@@ -432,6 +434,7 @@ print(g_raw_Clandings_G<- subplot(g_raw_Clandings_G,
 				ymin=500,
 				ymax=Inf,
 				ymaxbox=70))
+com_land_G_cou <- landings3$eel_cou_code
 
 ```
 
