@@ -75,8 +75,8 @@ getUsername <- function(){
 	return(name)
 }
 
-
-
+wddata <- getwd()
+#<TAF_REMOVE>
 if (getUsername() == "cedric.briand") setwd("C:/workspace/wg_WGEEL/R/recruitment") 
 if (getUsername() == "hilaire.drouineau") setwd("/home/hilaire.drouineau/Documents/Bordeaux/migrateurs/WGEEL/github/wg_WGEEL/R/recruitment") 
 if (getUsername() == "hamme005") setwd("C:/Tessa/wg_WGEEL/R/recruitment") 
@@ -85,14 +85,14 @@ cred=read_yaml("../../credentials.yml")
 # TODO 2022 use this to connect, not sqldf !!!!!!!!!!!!!!
 # currently still using sqldf and RpostgreSQL() change for compatibility with linux
 
-wddata <- getwd()
+#<END_TAF_REMOVE>
+
 wd <- wddata
-#wddata <- gsub("C:/workspace/gitwgeel/R","C:/workspace/wgeeldata",wd)
 
 datawd <- str_c(wddata,"/",CY,"/data/")
+outputdatawd <- str_c(wddata,"/",CY,"/data/")
 imgwd <- str_c(wddata,"/",CY,"/image/")
 tabwd <- str_c(wddata,"/",CY,"/table/")
-#shpwd <- str_c("C:/workspace/wgeeldata/shp/") 
 shinywd <-  str_c(wddata,"/../shiny_data_visualisation/shiny_dv/data/recruitment/")
 dir.create(str_c(wddata,"/",CY),showWarnings = FALSE)
 dir.create(datawd, showWarnings = FALSE)
@@ -109,13 +109,13 @@ graphics.off() # close all graphics devices
 
 
 
-
+<!-- TAF_REMOVE -->
 ```{r load_database, echo=FALSE, fig.show='hide', eval=FALSE, results="hide", warning = FALSE, message = FALSE, error=FALSE}
 pwd = passwordwgeel = password = cred$password
 con = dbConnect(RPostgres::Postgres(), dbname=cred$dbname,host=cred$host,port=cred$port,user=cred$user, password=passwordwgeel)
 load_database(con, path=c(shinywd,datawd), year=CY)
 ```
-
+<!-- END_TAF_REMOVE -->
 
 
 ```{r load_rdata, echo=FALSE, fig.show='hide', eval=TRUE, results="hide", warning = FALSE, message = FALSE, error=FALSE}
@@ -139,9 +139,9 @@ glass_eel_yoy <- selection$glass_eel_yoy
 older <- selection$older
 wger <- selection$wger
 R_stations <- selection$R_stations
-save(wger, file = paste0(datawd, "wger.Rdata"))
-save(older, file = paste0(datawd, "older.Rdata"))
-save(glass_eel_yoy, file = paste0(datawd, "glass_eel_yoy.Rdata"))
+save(wger, file = paste0(outputdatawd, "wger.Rdata"))
+save(older, file = paste0(outputdatawd, "older.Rdata"))
+save(glass_eel_yoy, file = paste0(outputdatawd, "glass_eel_yoy.Rdata"))
 
 save(wger, file = paste0(shinywd,"wger.Rdata"))
 save(older, file = paste0(shinywd,"older.Rdata"))
@@ -395,7 +395,6 @@ if(!require(ggmap)) install.packages("ggmap") ; require(ggmap)
 if(!require(sf)) install.packages("sf") ; require(sf)
 if(!require(RPostgres)) install.packages("RPostgres") ; require(RPostgres)
 
-
 load("../shiny_data_visualisation/shiny_dv/data/ref_and_eel_data.Rdata")
 source("../utilities/load_library.R")
 source("../shiny_data_visualisation/shiny_dv/database_connection.R")
@@ -405,6 +404,9 @@ source("../shiny_data_visualisation/shiny_dv/database_connection.R")
 my_map <- get_stamenmap( c(left = -13, bottom = 35, right =
 						27, top = 65),zoom=4, maptype = c("watercolor"))
 
+
+#<TAF_REMOVE>
+if (!file.exists(paste0(datawd,"fao.rdata"))){
 con <- dbConnect(Postgres(),host=cred$host,password=cred$password,dbname=cred$dbname,user=cred$user)
 fao <- st_read(con,query="select * from ref.tr_faoareas")
 fao <- st_crop(fao, xmin = -13, xmax = 27,
@@ -421,6 +423,11 @@ fao$zoneyellow <- ifelse(fao$f_code %in% c("27.3.d",'27.3.b, c'),"Baltic",
         ifelse(startsWith(fao$f_code,"37"), "Mediterranean_sea",
         "Elsewhere Europe")))
 
+save(fao, file=paste0(datawd,"fao.Rdata"))
+}
+#<END_TAF_REMOVE>
+
+load(paste0(datawd,"fao.Rdata"))
 ggmap_bbox <- function(map) {
 	if (!inherits(map, "ggmap")) stop("map must be a ggmap object")
 	# Extract the bounding box (in lat/lon) from the ggmap to a numeric vector, 
@@ -537,7 +544,6 @@ save_figure("figure1",figure1,1100,800)
 ```
 
 
-
 ```{r tableswgeel,echo=FALSE, eval=FALSE,results="hide", warning = FALSE, message = FALSE, error=FALSE}
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 #%************************************************************************************
@@ -567,10 +573,10 @@ openxlsx::write.xlsx(x=list("recruitment_series"=tab1,
         "stat_G_NS"=printstatseriesGNS,
         "stat_GY"=printstatseriesGY,
         "stat_Y"=printstatseriesY,
-        "t_series_ser"=t_series_ser),file=str_c(datawd,"table_rec", CY, ".xlsx"))
+        "t_series_ser"=t_series_ser),file=str_c(outputdatawd,"table_rec", CY, ".xlsx"))
 
 openxlsx::write.xlsx(x=list("wger_init"=wger_init,
-				"older"=older, "wger"=wger),file=str_c(datawd,"table_long", CY, ".xlsx"))
+				"older"=older, "wger"=wger),file=str_c(outputdatawd,"table_long", CY, ".xlsx"))
 
 ```
 
@@ -1033,7 +1039,7 @@ glmer3 <- glmer(value_std~year_f:area+(1+year|location) + (1+year2|location), da
 
 anova(glmer2, glmer1, refit=FALSE)
 
-save(glmer1, glmer2, glmer3, file=paste0(datawd,glmer.Rdata))
+save(glmer1, glmer2, glmer3, file=paste0(outputdatawd,glmer.Rdata))
 #fixef(glmer1)['(Intercept)'] + ranef(glmer1)$location
 
 ```
@@ -1232,7 +1238,7 @@ nothing <- latex(gg,
 
 
 
-write.table(synthesis,file=str_c(datawd,"glm_results_glass.csv"),sep=";")
+write.table(synthesis,file=str_c(outputdatawd,"glm_results_glass.csv"),sep=";")
 
 #plot(log(synthesis[synthesis$year>1979,"Elsewhere Europe"]))
 trend <- synthesis[synthesis$year>1979,]
@@ -1328,8 +1334,8 @@ trend_test_for_change_ns <- sprintf("Estimate = %.3f P-value %.4f",
 
 # back to long format, save for shiny
 
-save(dat_ge, file=str_c(datawd,"dat_ge.Rdata"))
-save(dat_ge, file=str_c(shinywd,"dat_ge.Rdata"))
+save(dat_ge, file=str_c(outputdatawd,"dat_ge.Rdata"))
+save(dat_ge, file=str_c(outputdatawd,"dat_ge.Rdata"))
 ```
 
 ```{r segmented_regression, echo=FALSE, eval=FALSE, results="hide", warning = FALSE, message = FALSE, error=FALSE, fig.show='hide'}
@@ -1642,7 +1648,7 @@ save_figure("figure6",figure6,600,480)
 
 # Final save ----------------------------------------------------------------------------------------
 
-write.table(synthesis,file=str_c(datawd,"glm_results_yellow.csv"),sep=";")
+write.table(synthesis,file=str_c(outputdatawd,"glm_results_yellow.csv"),sep=";")
 dat_ye <- dat_ye[,c("year","p","se","mean_1960_1979","yellow_eel_min","yellow_eel_max","value_std_1960_1979")]
 selection_summary$five_year_averagey <- dat_ye %>% filter(year>CY-5) %>% dplyr::select(c(year,value_std_1960_1979)) %>% colMeans() %>% round(digits=3)
 selection_summary$dat_ye <- 
@@ -1654,10 +1660,10 @@ selection_summary$dat_ye <-
 
 
 #colnames(dat_ye)  <- c("year","geomean_p_std_1960_1979") 
-save(dat_ye,file=paste0(datawd,"dat_ye.Rdata")) 
+save(dat_ye,file=paste0(outputdatawd,"dat_ye.Rdata")) 
 save(dat_ye,file=paste0(shinywd,"dat_ye.Rdata")) 
 
-if (file.exists(str_c(datawd,"glm_results_glass_and_yellow.xlsx"))) unlink(str_c(datawd,"glm_results_glass_and_yellow.xlsx"))
+if (file.exists(str_c(outputdatawd,"glm_results_glass_and_yellow.xlsx"))) unlink(str_c(outputdatawd,"glm_results_glass_and_yellow.xlsx"))
 openxlsx::write.xlsx(x=list("Glass eel"=data.frame(
 						"year"=synthesis$year,
 						"EE_minCI_percent"=100*synthesis$EEminCI,
@@ -1670,14 +1676,14 @@ openxlsx::write.xlsx(x=list("Glass eel"=data.frame(
 						"Y_minCI_percent"=100*dat_ye$yellow_eel_min,
 						"Y_percent"=100*dat_ye$value_std_1960_1979,
 						"Y_maxCI_percent"=100*dat_ye$yellow_eel_max)),
-		file=str_c(datawd,"glm_results_glass_and_yellow.xlsx"),
+		file=str_c(outputdatawd,"glm_results_glass_and_yellow.xlsx"),
 		row.names=FALSE)
 
 
 # saving yellow_eel_pred for shiny ---------------------------------------------------------------------
 yellow_eel_pred <- dat_ye
 
-save(yellow_eel_pred,file=paste0(datawd,"yellow_eel_pred.Rdata"))
+save(yellow_eel_pred,file=paste0(outputdatawd,"yellow_eel_pred.Rdata"))
 save(yellow_eel_pred,file=paste0(shinywd,"yellow_eel_pred.Rdata"))
 ```
 
@@ -1704,7 +1710,7 @@ inner_join(glass_eel_yoy,
 		mutate(number=sum(number))
 #unique(glass_eel_yoy$ser_id)[!unique(glass_eel_yoy$ser_id)%in%inclusion$sgl_ser_id  ]
 run_exclude_before <- function(the_year){
-	load(file=str_c(datawd,"dat_ge.Rdata"))
+	load(file=str_c(outputdatawd,"dat_ge.Rdata"))
 	dat_ge_reference <- dat_ge
 	glass_eel_yoy_included <- inner_join(glass_eel_yoy, 
 			inclusion %>% filter(sgl_year!=-1), 
@@ -2348,7 +2354,8 @@ ggsave(paste0(imgwd,"rates.png"),width=16/2.54,height=12/2.54,dpi=300)
 
 ```
  
-
+<!-- TAF_REMOVE -->
 ```{r TAF,  eval= FALSE, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
 source(TAFgeneration/taf_generation_script)
 ```
+<!-- END_TAF_REMOVE -->
