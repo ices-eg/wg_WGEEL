@@ -95,7 +95,7 @@ load("data/ref_and_eel_data.Rdata")
 # without connexion to a database use Rdata instead, ask to Cedric
 
 # current year --------------------------------------------------------------------------------------
-cred=read_yaml("./credentials.yml")
+cred=read_yaml("./../../../credentials.yml")
 
 CY = as.numeric(format(Sys.time(), "%Y"))
 

@@ -9,7 +9,7 @@
 # lauch(global.R)
 # set connexion to 5435 in database_connexion
 
-avoid_loading_ref_and_spatial_data <- TRUE # switch to FALSE if you want reload reference, loading EMU and country wih spatial data can take a lot of time
+avoid_loading_ref_and_spatial_data <- FALSE # switch to FALSE if you want reload reference, loading EMU and country wih spatial data can take a lot of time
 source("load_library.R")
 load_library("yaml")
 load_library("RPostgreSQL")

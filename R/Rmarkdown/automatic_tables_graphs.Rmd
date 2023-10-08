@@ -337,8 +337,8 @@ knitr::asis_output(paste("Number of glass eels (G, QG) released in ",CY-1," = ",
 knitr::asis_output(paste("Number of glass eels (G, QG) released in ",CY," = ",rel_CY_G, "millions probably incomplete , Number of countries reporting: ", paste(cou_CY_relG,sep="", collapse=","),"<br>"))
 knitr::asis_output(paste("Number of yellow eels (Y) released in ",CY-1," = ",rel_CY1_Y, "millions , Number of countries reporting: ", paste(cou_CY1_relY,sep="", collapse=","),"<br>"))
 knitr::asis_output(paste("Number of yellow eels (Y) released in ",CY-2," = ",rel_CY1_Y, "millions , Number of countries reporting: ", paste(cou_CY2_relY,sep="", collapse=","),"<br>"))
-knitr::asis_output(paste("Number of silver eels (S) released in ",CY-1," = ",rel_CY_S, "millions , Number of countries reporting: ", paste(cou_CY1_relS,sep="", collapse=","),"<br>"))
-knitr::asis_output(paste("Number of silver eels (S) released in ",CY-2," = ",rel_CY_S, "millions , Number of countries reporting: ", paste(cou_CY2_relS,sep="", collapse=","),"<br><br>"))
+knitr::asis_output(paste("Number of silver eels (S) released in ",CY-1," = ",rel_CY1_S, "millions , Number of countries reporting: ", paste(cou_CY1_relS,sep="", collapse=","),"<br>"))
+knitr::asis_output(paste("Number of silver eels (S) released in ",CY-2," = ",rel_CY2_S, "millions , Number of countries reporting: ", paste(cou_CY2_relS,sep="", collapse=","),"<br><br>"))
 ```
 
 # Trend in fisheries
@@ -392,7 +392,7 @@ fun.agg <- function(X){if(length(X)>0){round(sum(X)/1000,ifelse(sum(X)>1000,3,3)
 
 ##table
 table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
-table <- data.frame(table,sum=rowSums(table[,-1],na.rm=T))
+table <- data.frame(table,total=rowSums(table[,-1],na.rm=T))
 
 
 
@@ -495,7 +495,7 @@ table = table[, n_order]
 
 #add a column with the sum of all the values and prod of predicted
 
-table<-data.frame(table,sum=rowSums(table[,-1],na.rm = TRUE))
+table<-data.frame(table,total=rowSums(table[,-1],na.rm = TRUE))
 table2<-data.frame(table2,prod=apply(table2[,-1],1,prod,na.rm = TRUE))
 
 #add a * when the data is predicted
@@ -584,7 +584,7 @@ grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na
 fun.agg<-function(X){if(length(X)>0){round(sum(X,na.rm=TRUE)/1000,ifelse(sum(X,na.rm=TRUE)>1000,1,1))}else{sum(c(X,NA))}}
 
 table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
-table<-data.frame(table,sum=rowSums(table[,-1],na.rm=T))              
+table<-data.frame(table,total=rowSums(table[,-1],na.rm=T))              
 #ordering the column accordign to country order
 country_to_order = names(table)[-1]
 n_order = order(country_ref$cou_order[match(country_to_order, country_ref$cou_code)])
@@ -600,8 +600,8 @@ table2<-table[,c(1,13:23)]
 table3<-table[,c(1,20:ncol(table))]
 ka_com_land_YS1 <- kable(format(table1,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 2a:  Commercial fisheries landings (in tonnes) for yellow eel and silver eel from ", min(year)," to ",max(year)," (part 1), reported by countries: NO Norway, SE Sweden, FI Finland, EE Estonia, LV Latvia, LT Lithuania, PL Poland, DE Germany, DK Denmark,
             NL Netherlands, BE Belgium (to be continued for other countries in next table).", sep=""))
-ka_com_land_YS2 <- kable(format(table2,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 2b:  Commercial fisheries landings (in tonnes) for yellow eel and silver eel from ", min(year)," to ",max(year)," (part 2), reported by countries and all countries: IE Ireland, GB United Kingdom, FR France, ES Spain, PT Portugal, IT Italy, Sl Sovenia, HR Croatia sum .", sep=""))
-ka_com_land_YS3 <- kable(format(table3,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 2c:  Commercial fisheries landings (in tonnes) for yellow eel and silver eel from ", min(year)," to ",max(year)," (part 2), reported by countries and all countries: AL	Albania, Greece, TR Turkey, EG Egypt,  TN Tunisia, DZ Algeria, MA Morocco, sum .", sep=""))
+ka_com_land_YS2 <- kable(format(table2,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 2b:  Commercial fisheries landings (in tonnes) for yellow eel and silver eel from ", min(year)," to ",max(year)," (part 2), reported by countries and all countries: IE Ireland, GB United Kingdom, FR France, ES Spain, PT Portugal, IT Italy, Sl Sovenia, HR Croatia,  .", sep=""))
+ka_com_land_YS3 <- kable(format(table3,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 2c:  Commercial fisheries landings (in tonnes) for yellow eel and silver eel from ", min(year)," to ",max(year)," (part 2), reported by countries and all countries: AL	Albania, Greece, TR Turkey, EG Egypt,  TN Tunisia, DZ Algeria, MA Morocco, total", sep=""))
 
 ```
 
@@ -680,7 +680,7 @@ table = table[, n_order]
 table2 = table2[, n_order]
 #add a column with the sum of all the values and prod of predicted
 
-table<-data.frame(table,sum=rowSums(table[,-1],na.rm = TRUE))
+table<-data.frame(table,total=rowSums(table[,-1],na.rm = TRUE))
 table2<-data.frame(table2,prod=apply(table2[,-1],1,prod,na.rm = TRUE))
 
 #add a * when the data is predicted
@@ -787,7 +787,7 @@ grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na
 fun.agg<-function(X){if(length(X)>0){round(sum(X)/1000,ifelse(sum(X)>1000,1,1))}else{sum(c(X,NA))}}
 
 table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
-table<-data.frame(table,sum=rowSums(table[,-1],na.rm=T))
+table<-data.frame(table,total=rowSums(table[,-1],na.rm=T))
 
 
 #ordering the column accordign to country order
@@ -804,7 +804,7 @@ table1<-table[,c(1,2:12)]
 table2<-table[,c(1,13:ncol(table))]
 ka_rec_land_Y<- kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 3: Raw recreational landings (tonnes) for yellow and silver eels  ","(",min(year),"-",max(year),")","for",paste(paste(country,collapse=","), ".", sep="")))
 ka_rec_land_Y1<- kable(format(table1,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 3a:  Recreational fisheries landings (in tonnes) for yellow eel and silver eel from ", min(year)," to ",max(year)," (part 1), reported by countries: NO Norway, SE Sweden, FI Finland, EE Estonia, LV Latvia, LT Lithuania, PL Poland, DE Germany, DK Denmark,NL Netherlands, BE Belgium (to be continued for other countries in next table).", sep=""))
-ka_rec_land_Y2<-kable(format(table2,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 3b:  Recreational fisheries landings (in tonnes) for yellow eel and silver eel from ", min(year)," to ",max(year)," (part 2), reported by countries and all countries: IE Ireland, GB United Kingdom, FR France, ES Spain, PT Portugal, IT Italy, Sl Sovenia, HR Croatia, GR Greece, sum .", sep=""))
+ka_rec_land_Y2<-kable(format(table2,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 3b:  Recreational fisheries landings (in tonnes) for yellow eel and silver eel from ", min(year)," to ",max(year)," (part 2), reported by countries and all countries: IE Ireland, GB United Kingdom, FR France, ES Spain, PT Portugal, IT Italy, Sl Sovenia, HR Croatia, GR Greece, total.", sep=""))
 ```
 
 \newline
@@ -851,7 +851,7 @@ grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na
 fun.agg<-function(X){if(length(X)>0){round(sum(X)/1000,ifelse(sum(X)>1000,1,1))}else{sum(c(X,NA))}}
 
 table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
-table<-data.frame(table,sum=rowSums(table[,-1],na.rm=T))
+table<-data.frame(table,total=rowSums(table[,-1],na.rm=T))
 
 
 #ordering the column accordign to country order
@@ -959,7 +959,7 @@ grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na
 ##Table
 fun.agg<-function(X){if(length(X)>0){round(sum(X)/10^6,ifelse(sum(X)>10^6,3,3))}else{sum(c(X,NA))}}
 table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
-table<-data.frame(table,sum=rowSums(table[,-1],na.rm=T))
+table<-data.frame(table,total=rowSums(table[,-1],na.rm=T))
 
 
 #ordering the column accordign to country order
@@ -1078,7 +1078,7 @@ grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na
 ##Table
 fun.agg<-function(X){if(length(X)>0){round(sum(X)/10^6,ifelse(sum(X)>10^6,3,3))}else{sum(c(X,NA))}}
 table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
-table<-data.frame(table,sum=rowSums(table[,-1],na.rm=T))
+table<-data.frame(table,total=rowSums(table[,-1],na.rm=T))
 
 
 #ordering the column accordign to country order
@@ -1297,7 +1297,7 @@ hty<-unique(filtered_data$eel_hty_code)
 grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=TRUE)
 fun.agg<-function(X){if(length(X)>0){round(sum(X)/10^6,ifelse(sum(X)>10^6,3,3))}else{sum(c(X,NA))}}
 table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
-table<-data.frame(table,sum=rowSums(table[,-1],na.rm=T))
+table<-data.frame(table,total=rowSums(table[,-1],na.rm=T))
 
 
 #ordering the column accordign to country order
@@ -1404,7 +1404,7 @@ hty<-unique(filtered_data$eel_hty_code)
 grouped_data <- group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=TRUE)
 fun.agg<-function(X){if(length(X)>0){round(sum(X)/10^6,ifelse(sum(X)>10^6,3,3))}else{sum(c(X,NA))}}
 table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
-table<-data.frame(table,sum=rowSums(table[,-1],na.rm=T))
+table<-data.frame(table,total=rowSums(table[,-1],na.rm=T))
 
 
 #ordering the column accordign to country order
@@ -1586,7 +1586,7 @@ hty<-unique(filtered_data$eel_hty_code)
 grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=TRUE)
 fun.agg<-function(X){if(length(X)>0){round(sum(X)/10^6,ifelse(sum(X)>10^6,3,3))}else{sum(c(X,NA))}}
 table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
-table<-data.frame(table,sum=rowSums(table[,-1],na.rm=T))
+table<-data.frame(table,total=rowSums(table[,-1],na.rm=T))
 
 
 #ordering the column accordign to country order
@@ -1675,7 +1675,7 @@ hty<-unique(filtered_data$eel_hty_code)
 grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=TRUE)
 fun.agg<-function(X){if(length(X)>0){round(sum(X)/10^6,ifelse(sum(X)>10^6,3,3))}else{sum(c(X,NA))}}
 table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
-table<-data.frame(table,sum=rowSums(table[,-1],na.rm=T))
+table<-data.frame(table,total=rowSums(table[,-1],na.rm=T))
 
 
 #ordering the column accordign to country order
@@ -1932,7 +1932,7 @@ grouped_data <-group_data(filtered_data, geo="country", habitat=FALSE, lfs=FALSE
 fun.agg<-function(X){if(length(X)>0){round(sum(X)/1000,ifelse(sum(X)>1000,2,2))}else{sum(c(X,NA))}}
 
 table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
-table<-data.frame(table,sum=rowSums(table[,-1],na.rm=T))
+table<-data.frame(table,total=rowSums(table[,-1],na.rm=T))
 
 
 #ordering the column accordign to country order
@@ -1955,7 +1955,7 @@ ka_aqua2 <- kable(format(table2,digt=3,drop0trailing=TRUE),format="pandoc",capti
 
 \newline
 
-```{r aquaf,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure 13: Reported aquaculture production of European eel in Europe from 1984 onwards, in tonnes, in Sweden (SE), Finland (FI), Estonia (EE), Lithuania (LT), Poland (PL), Germany (DE), Denmark (DK), Netherlands (NL), Ireland (IE), Spain (ES), Portugal (PT), Italy (IT) and Greece (GR).", fig.height=5, fig.width=10}
+```{r aquaf,echo=FALSE, warning=FALSE, fig.cap="Reported aquaculture production of European eel in Europe from 1984 onwards, in tonnes, in Sweden (SE), Finland (FI), Estonia (EE), Lithuania (LT), Poland (PL), Germany (DE), Denmark (DK), Netherlands (NL), Ireland (IE), Spain (ES), Portugal (PT), Italy (IT) and Greece (GR).", fig.height=5, fig.width=10}
 
 ## Graph
 aquaculture3<-grouped_data
