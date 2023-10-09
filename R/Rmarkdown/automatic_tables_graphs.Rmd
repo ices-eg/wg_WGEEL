@@ -209,7 +209,7 @@ knitr::asis_output(paste("Mean glass eel commercial fisheries for the previous 5
 landings_YS<-filter_data("landings",		typ = 4,
     life_stage = c("Y","S","YS"))%>% dplyr::filter(is.na(eel_missvaluequal))
 select_land_YS<-aggregate(landings_YS$eel_value,by=list(landings_YS$eel_year),sum,na.rm=T)
-YS_CY1<-round(sum(select_land_YS$x[select_land_YS$Group.1==CY-1]/1000,2))
+YS_CY1<-round(select_land_YS$x[select_land_YS$Group.1==CY-1]/1000,2)
 YS_CY2<-round(select_land_YS$x[select_land_YS$Group.1==CY-2]/1000,2)
 YS_meanCY3_CY7<-mean(round(select_land_YS$x[select_land_YS$Group.1 %in% c((CY-7):(CY-3))]/1000,2))
 nb_cou_Y_CY1<-length(unique(landings_YS$eel_cou_code[landings_YS$eel_year==CY-1 & is.na(landings_YS$eel_missvaluequal)]))
