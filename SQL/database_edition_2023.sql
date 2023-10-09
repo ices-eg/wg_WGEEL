@@ -869,3 +869,190 @@ UPDATE datawg.t_series_ser SET (ser_qal_id, ser_qal_comment) =
 ser_nameshort IN ('LilS', 'DaugS');
 
 UPDATE datawg.t_series_ser SET (ser_x, ser_y)= (10.4, 58.3)  WHERE ser_nameshort IN ('YFS1G','YFS2G');
+
+
+-- How many countries have submitted data
+SELECT DISTINCT  cou FROM(
+SELECT  eel_cou_code cou  FROM datawg.t_eelstock_eel WHERE eel_datasource ='dc_2023'
+UNION
+SELECT sai_cou_code cou  FROM datawg.t_samplinginfo_sai 
+LEFT JOIN datawg.t_fishsamp_fisa  ON fisa_sai_id = sai_id
+LEFT JOIN datawg.t_groupsamp_grsa ON grsa_sai_id=sai_id
+WHERE sai_dts_datasource ='dc_2023'
+UNION
+SELECT ser_cou_code cou  FROM datawg.t_series_ser 
+LEFT JOIN datawg.t_dataseries_das ON das_ser_id= ser_id
+WHERE ser_dts_datasource ='dc_2023'
+) sub
+ORDER BY cou
+
+-- How many reports per annex type
+-- remove NC NR
+
+CREATE SCHEMA tempo;
+GRANT ALL ON SCHEMA tempo TO wgeel;
+ALTER TABLE tempo.everything OWNER TO wgeel;
+DROP TABLE IF EXISTS  tempo.everything;
+CREATE TABLE tempo.everything AS(
+WITH everything AS (
+
+-- Annex 1
+SELECT ser_cou_code cou, 'Annex 1 1-series' annex , count(*) AS n FROM datawg.t_series_ser
+WHERE ser_dts_datasource ='dc_2023' AND ser_typ_id =1 
+GROUP BY ser_cou_code
+UNION
+SELECT ser_cou_code cou, 'Annex 1 2-data' annex , count(*) AS n FROM datawg.t_series_ser
+LEFT JOIN datawg.t_dataseries_das ON das_ser_id= ser_id
+WHERE das_dts_datasource ='dc_2023' AND ser_typ_id =1
+GROUP BY ser_cou_code
+UNION 
+SELECT ser_cou_code cou, 'Annex 1 3-group metrics' annex , count(*) AS n FROM datawg.t_series_ser
+LEFT JOIN datawg.t_groupseries_grser ON grser_ser_id=ser_id
+LEFT JOIN datawg.t_metricgroupseries_megser ON meg_gr_id=gr_id
+WHERE gr_dts_datasource ='dc_2023' AND ser_typ_id =1
+GROUP BY ser_cou_code
+UNION 
+SELECT ser_cou_code cou, 'Annex 1 4-individual metrics' annex , count(*) AS n FROM datawg.t_series_ser
+LEFT JOIN datawg.t_fishseries_fiser ON fiser_ser_id=ser_id
+LEFT JOIN datawg.t_metricindseries_meiser ON mei_fi_id=fi_id
+WHERE fi_dts_datasource ='dc_2023' AND ser_typ_id =1
+GROUP BY ser_cou_code
+--Annex2
+UNION
+SELECT ser_cou_code cou, 'Annex 2 1-series' annex , count(*) AS n FROM datawg.t_series_ser
+WHERE ser_dts_datasource ='dc_2023' AND ser_typ_id =2
+GROUP BY ser_cou_code
+UNION
+SELECT ser_cou_code cou, 'Annex 2 2-data' annex , count(*) AS n FROM datawg.t_series_ser
+LEFT JOIN datawg.t_dataseries_das ON das_ser_id= ser_id
+WHERE das_dts_datasource ='dc_2023' AND ser_typ_id =2
+GROUP BY ser_cou_code
+UNION 
+SELECT ser_cou_code cou, 'Annex 2 3-group metrics' annex , count(*) AS n FROM datawg.t_series_ser
+LEFT JOIN datawg.t_groupseries_grser ON grser_ser_id=ser_id
+LEFT JOIN datawg.t_metricgroupseries_megser ON meg_gr_id=gr_id
+WHERE gr_dts_datasource ='dc_2023' AND ser_typ_id =2
+GROUP BY ser_cou_code
+UNION 
+SELECT ser_cou_code cou, 'Annex 2 4-individual metrics' annex , count(*) AS n FROM datawg.t_series_ser
+LEFT JOIN datawg.t_fishseries_fiser ON fiser_ser_id=ser_id
+LEFT JOIN datawg.t_metricindseries_meiser ON mei_fi_id=fi_id
+WHERE fi_dts_datasource ='dc_2023' AND ser_typ_id =2
+GROUP BY ser_cou_code
+--Annex 3
+UNION
+SELECT ser_cou_code cou, 'Annex 3 1-series' annex , count(*) AS n FROM datawg.t_series_ser
+WHERE ser_dts_datasource ='dc_2023' AND ser_typ_id =3
+GROUP BY ser_cou_code
+UNION
+SELECT ser_cou_code cou, 'Annex 3 2-data' annex , count(*) AS n FROM datawg.t_series_ser
+LEFT JOIN datawg.t_dataseries_das ON das_ser_id= ser_id
+WHERE das_dts_datasource ='dc_2023' AND ser_typ_id =3
+GROUP BY ser_cou_code
+UNION 
+SELECT ser_cou_code cou, 'Annex 3 3-group metrics' annex , count(*) AS n FROM datawg.t_series_ser
+LEFT JOIN datawg.t_groupseries_grser ON grser_ser_id=ser_id
+LEFT JOIN datawg.t_metricgroupseries_megser ON meg_gr_id=gr_id
+WHERE gr_dts_datasource ='dc_2023' AND ser_typ_id =3
+GROUP BY ser_cou_code
+UNION 
+SELECT ser_cou_code cou, 'Annex 3 4-individual metrics' annex , count(*) AS n FROM datawg.t_series_ser
+LEFT JOIN datawg.t_fishseries_fiser ON fiser_ser_id=ser_id
+LEFT JOIN datawg.t_metricindseries_meiser ON mei_fi_id=fi_id
+WHERE fi_dts_datasource ='dc_2023' AND ser_typ_id =3
+GROUP BY ser_cou_code
+UNION
+SELECT  eel_cou_code cou, 'Annex 4 commercial landings' annex, count(*) AS n  FROM datawg.t_eelstock_eel 
+WHERE eel_datasource ='dc_2023'
+AND eel_typ_id = 4 
+AND eel_qal_id IN (1,3,4)
+AND eel_missvaluequal IS NULL
+GROUP BY eel_cou_code
+UNION
+SELECT  eel_cou_code cou, 'Annex 5 recreational landing' annex, count(*) AS n  FROM datawg.t_eelstock_eel 
+WHERE eel_datasource ='dc_2023'
+AND eel_typ_id = 6
+AND eel_qal_id IN (1,3,4)
+AND eel_missvaluequal IS NULL
+GROUP BY eel_cou_code
+UNION
+SELECT  eel_cou_code cou, 'Annex 6 other landings' annex, count(*) AS n  FROM datawg.t_eelstock_eel 
+WHERE eel_datasource ='dc_2023'
+AND eel_typ_id IN (32,33)
+AND eel_qal_id IN (1,3,4)
+AND eel_missvaluequal IS NULL
+GROUP BY eel_cou_code
+UNION
+SELECT  eel_cou_code cou, 'Annex 7 releases' annex, count(*) AS n FROM datawg.t_eelstock_eel 
+WHERE eel_datasource ='dc_2023'
+AND eel_typ_id IN (8,9,10)
+AND eel_qal_id IN (1,3,4)
+AND eel_missvaluequal IS NULL
+GROUP BY eel_cou_code
+UNION
+SELECT  eel_cou_code cou, 'Annex 8 aquaculture' annex, count(*) AS n  FROM datawg.t_eelstock_eel 
+WHERE eel_datasource ='dc_2023'
+AND eel_typ_id =11
+AND eel_qal_id IN (1,3,4)
+AND eel_missvaluequal IS NULL
+GROUP BY eel_cou_code
+UNION 
+--Annex 10
+SELECT sai_cou_code cou, 'Annex 910 1-sampling info' AS annex, count(*) AS n  FROM datawg.t_samplinginfo_sai 
+WHERE sai_dts_datasource ='dc_2023'
+GROUP BY sai_cou_code, sai_dts_datasource
+UNION
+SELECT sai_cou_code cou, 'Annex 910 2-group metric' AS annex, count(*) AS n  FROM datawg.t_samplinginfo_sai 
+LEFT JOIN datawg.t_groupsamp_grsa ON grsa_sai_id=sai_id
+LEFT JOIN datawg.t_metricgroupsamp_megsa ON meg_gr_id=gr_id
+WHERE gr_dts_datasource = 'dc_2023'
+GROUP BY sai_cou_code
+UNION
+SELECT sai_cou_code cou, 'Annex 910 3-individual metric' AS annex, count(*) AS n  FROM datawg.t_samplinginfo_sai 
+LEFT JOIN datawg.t_fishsamp_fisa  ON fisa_sai_id = sai_id
+LEFT JOIN datawg.t_metricindsamp_meisa ON mei_fi_id=fi_id
+WHERE sai_dts_datasource ='dc_2023'
+OR fi_dts_datasource='dc_2023'
+OR mei_dts_datasource= 'dc_2023'
+GROUP BY sai_cou_code)
+SELECT cou, annex, n FROM everything  order by 1,2); --191
+
+
+
+
+-- Torbjörn : So, for the Glass eel data (eel_lfs_code=G; eel_qal_id=1; comment=restocking)
+--  we want to change eel_lfs_code from G to QG for years 1980 and onwards. 
+
+
+SELECT * FROM datawg.t_eelstock_eel WHERE 
+eel_cou_code='SE'
+AND eel_typ_id IN (8,9,10) 
+AND eel_lfs_code = 'G' 
+AND eel_qal_id IN (1,2,4);
+
+UPDATE datawg.t_eelstock_eel SET (eel_qal_comment,eel_lfs_code)=('changed IN 2023 from OG to QG', 'QG')
+WHERE eel_cou_code='SE' 
+AND eel_typ_id IN (8,9,10) 
+AND eel_lfs_code = 'G'
+AND eel_qal_id IN (1,2,4); --374
+
+UPDATE datawg.t_eelstock_eel SET eel_qal_comment='changed in 2023 from G to QG'
+WHERE eel_qal_comment= 'changed IN 2023 from OG to QG'
+AND eel_cou_code='SE' 
+AND eel_typ_id IN (8,9,10) 
+AND eel_lfs_code = 'QG'
+AND eel_qal_id IN (1,2,4); --374
+
+
+WITH total as(
+SELECT emu_nameshort,
+emu_cou_code
+ FROM REF.tr_emu_emu 
+WHERE emu_wholecountry IS NOT NULL AND emu_wholecountry),
+other AS (
+SELECT emu_nameshort,
+emu_cou_code
+FROM REF.tr_emu_emu 
+WHERE emu_wholecountry IS NOT NULL AND NOT emu_wholecountry)
+
+SELECT * FROM total FULL OUTER JOIN other ON total.emu_cou_code = other.emu_cou_code;

@@ -1,7 +1,6 @@
 library(stringr)
 
 # set current year
-CY <- 2023
 
 ####setwd
 if (Sys.info()["user"] == "cedric.briand") wddata <- setwd("C:/workspace/wg_WGEEL/R/recruitment") 
@@ -36,13 +35,15 @@ export_data_to_taf(source_directory=datawd,
                             "statseries.Rdata",
                             "R_stations.Rdata",
                             "last_years_with_problem.Rdata",
-                            "t_series_ser.Rdata"))
+                            "t_series_ser.Rdata",
+                            "fao.Rdata",
+                            "last_years_with_problem.Rdata"))
 
 
 ######## Initialisation of files
 #### data.R
 write_to_taf("## 1 loading", "data.R",taf_directory, TRUE)
-write_to_taf("for (f in list.files('boot/',pattern='Rdata$', full.names=TRUE)) load(f)", "data.R",taf_directory, TRUE)
+write_to_taf("for (f in list.files('boot/data/',pattern='Rdata$', full.names=TRUE)) load(f)", "data.R",taf_directory, TRUE)
 write_to_taf("source('utilities.R')", "data.R", taf_directory, FALSE)
 
 
@@ -120,6 +121,19 @@ draft.data(
 )
 
 draft.data(
+  originator = "wgeel",
+  year = CY,
+  title = "Statistics for series used in the recruitment index",
+  period = str_c("1900-",CY),
+  access = "Public",
+  source = "file",
+  file = "TAF/2023/boot/DATA.bib", 
+  data.files = "last_years_with_problem.Rdata",  
+  append = TRUE
+)
+
+
+draft.data(
     originator = "wgeel",
     year = CY,
     title = "Statistics for series used in the recruitment index",
@@ -155,3 +169,15 @@ draft.data(
     append = TRUE
 )
 
+
+draft.data(
+  originator = "FAO",
+  title = "FAO statistical areas",
+  access = "Public",
+  source = "file",
+  file = "TAF/2023/boot/DATA.bib",
+  data.files = "fao.Rdata",  
+  append = TRUE
+)
+export_report_rmd_to_taf(source_file="recruitment_analysis.Rmd", destination_file=NULL, taf_directory)
+file.copy(paste0(wddata,"/../Rmarkdown/ICES_template.docx"),taf_directory)
