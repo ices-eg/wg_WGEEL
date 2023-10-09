@@ -209,7 +209,7 @@ knitr::asis_output(paste("Mean glass eel commercial fisheries for the previous 5
 landings_YS<-filter_data("landings",		typ = 4,
     life_stage = c("Y","S","YS"))%>% dplyr::filter(is.na(eel_missvaluequal))
 select_land_YS<-aggregate(landings_YS$eel_value,by=list(landings_YS$eel_year),sum,na.rm=T)
-YS_CY1<-round(sum(select_land_YS$x[select_land_YS$Group.1==CY-1]/1000,2))
+YS_CY1<-round(sum(select_land_YS$x[select_land_YS$Group.1==CY-1]/1000),2)
 YS_CY2<-round(select_land_YS$x[select_land_YS$Group.1==CY-2]/1000,2)
 YS_meanCY3_CY7<-mean(round(select_land_YS$x[select_land_YS$Group.1 %in% c((CY-7):(CY-3))]/1000,2))
 nb_cou_Y_CY1<-length(unique(landings_YS$eel_cou_code[landings_YS$eel_year==CY-1 & is.na(landings_YS$eel_missvaluequal)]))
@@ -269,7 +269,7 @@ knitr::asis_output(paste("Mean glass eel recreational fisheries for the previous
 landings_YS_rec<-filter_data("landings",		typ = 6,
     life_stage = c("Y","S","YS"))%>% dplyr::filter(is.na(eel_missvaluequal))
 select_land_YS_rec<-aggregate(landings_YS_rec$eel_value,by=list(landings_YS_rec$eel_year),sum,na.rm=T)
-YS_CY1_rec<-round(sum(select_land_YS_rec$x[select_land_YS_rec$Group.1==CY-1]/1000,2))
+YS_CY1_rec<-round(sum(select_land_YS_rec$x[select_land_YS_rec$Group.1==CY-1]/1000),2)
 YS_CY2_rec<-round(select_land_YS_rec$x[select_land_YS_rec$Group.1==CY-2]/1000,2)
 YS_mean_rec_CY3_CY7<-mean(round(select_land_YS_rec$x[select_land_YS_rec$Group.1 %in% c((CY-7):(CY-3))]/1000,2))
 nb_cou_YS_CY1_rec<-length(unique(landings_YS_rec$eel_cou_code[landings_YS_rec$eel_year==CY-1 & is.na(landings_YS_rec$eel_missvaluequal)]))
@@ -363,16 +363,11 @@ the 1960s, reported commercial landings have now dropped to
 
 ## Commercial fisheries landings 
 
-Figure \@ref{fig:comlandGfig} presents the time-series up to and including
+Figure \@ref(fig:comlandGfig) presents the time-series up to and including
 `r CY+1` for total commercial glass eel landings as reported by five countries in
 the Eel data call (GB, FR, PT, ES, IT). 
 
-#### Glass eel
 
-Glass eel landings show a sharp decline since 1980 from 2 000 tonnes to around
-40–60 tonnes since 2009 onwards. In `r CY`, the raw (uncorrected) landings
-data for glass eels is XXX, while it was in `r CY-1`(Annex XXX Table
-XXX for raw data and Table XXX for raw and corrected data). 
 
 
 ```{r comLandGt,echo=FALSE, warning=FALSE}
@@ -412,6 +407,13 @@ ka_com_land_G <- kable(format(table,digt=3,drop0trailing=TRUE),
 
 
 ```
+
+#### Glass eel
+
+Glass eel landings show a sharp decline since 1980 from 2 000 tonnes to around
+40–60 tonnes since 2009 onwards. In `r CY`, the raw (uncorrected) landings data
+for glass eels is XXX, while it was in `r CY-1`(Annex XXX Table XXX for raw data
+and Table XXX for raw and corrected data). 
 
 
 
@@ -461,7 +463,7 @@ print(g_raw_Clandings_G<- subplot(g_raw_Clandings_G,
 
 ```
 
-
+\newline
 
 ```{r corrComG,echo=FALSE, warning=FALSE, fig.cap=titleGcor}
 
@@ -553,8 +555,8 @@ g_combined_landings_G <- g_reconstructed_landings+
 
 #### Yellow and silver eel 
 
-\@ref{fig:rawComLandYSfig} presents data for yellow and silver eels aggregated
-and Figure \@ref{fig:corrComYS}
+\@ref(fig:rawComLandYSfig) presents data for yellow and silver eels aggregated
+and Figure \@ref(fig:corrComYS)
 presents the time-series including reconstructed data to fill the gaps. Data
 from Egypt were removed since the proportion of “corrected” landings was as high
 as 50% in the 1950s, but rather low since the mid-1980s. The total landings
@@ -649,7 +651,7 @@ print(g_raw_Clandings_YS<-subplot(g_raw_Clandings_YS,
 
 
 
-```{r corrComYS,echo=FALSE, warning=FALSE, fig.cap=titleYcor}
+```{r corrComYS, echo=FALSE, warning=FALSE, fig.cap=titleYcor}
 
 ##Table raw + corr commercial landings for Yellow eel and every country
 
