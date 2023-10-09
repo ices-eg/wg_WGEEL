@@ -13,7 +13,7 @@ predict_model <- function(mymodel, reference = 1960:1979){
   #we build the prediction grid
   lookup <- c(site = "as.factor(site)")
   newdata <- expand.grid(mymodel$xlevels) %>%
-      rename(any_of(lookup))
+      dplyr::rename(any_of(lookup))
   
   names(mymodel$xlevels) <- ifelse(names(mymodel$xlevels) == "as.factor(site)",
       "site",
@@ -180,6 +180,7 @@ load_database <- function(con, path, year=strftime(Sys.Date(), format="%Y")){
       */ 
       ser_id,            
       cou_code,
+      cou_order,
       ser_nameshort,
       ser_area_division,
       ser_qal_id,
@@ -897,7 +898,7 @@ save_figure<-function(figname,fig,width,height){
   print(fig)
   dev.off()
   
-  pdf(file= paste(imgwd,"/",figname,".pdf",sep=""), width = width/100, height = height/100)
+  pdf(file= paste(figname,".pdf",sep=""), width = width/100, height = height/100)
   print(fig)
   rien<-dev.off()
   setwd(wd)
