@@ -388,7 +388,7 @@ year <- unique(filtered_data$eel_year)
 country <- unique(filtered_data$eel_cou_code)
 hty <- unique(filtered_data$eel_hty_code)
 grouped_data  <- group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=TRUE)
-fun.agg <- function(X){if(length(X)>0){round(sum(X)/1000,ifelse(sum(X)>1000,3,3))}else{sum(c(X,NA))}}
+fun.agg <- function(X){if(length(X)>0){round(sum(X)/1000,ifelse(sum(X)>1000,1,1))}else{sum(c(X,NA))}}
 
 ##table
 table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
@@ -573,7 +573,7 @@ eel commercial fisheries (Y, S, YS) add up to `r YS_CY1` t in `r CY-1` and
 filtered_data<-filter_data("landings",
     typ = 4,
     life_stage = c("Y","S","YS"),
-    year_range = 1990:CY-1
+    year_range = 1908:CY-1
 )%>% dplyr::filter(is.na(eel_missvaluequal))
 year<-unique(filtered_data$eel_year)
 country<-unique(filtered_data$eel_cou_code)
