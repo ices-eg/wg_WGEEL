@@ -400,8 +400,9 @@ table = table[, n_order]
 # options(knitr.kable.NA="") this does not work
 names(table)[1]<-"Year"
 table[is.na(table)]<-''
+table$total<-as.character(table$total)
 tableComLandG<-table
-ka_com_land_G <- kable(format(table,digt=3,drop0trailing=TRUE),
+ka_com_land_G <- kable(format(table,digit=1,drop0trailing=TRUE),
     format="pandoc",caption =paste("Table 1:  Glass eel commercial fisheries landings (in tonnes) from 1984 to ",max(year),", reported by countries: GB United Kingdom, FR France, ES Spain, PT Portugal, IT Italy.", sep=""))
 
 
@@ -417,7 +418,7 @@ and Table XXX for raw and corrected data).
 
 
 
-```{r comlandGfig,echo=FALSE, warning=FALSE, fig.cap=titleG, fig.height=5, fig.width=10}
+```{r comlandGfig, echo=FALSE, warning=FALSE, fig.cap=titleG, fig.height=5, fig.width=10}
 
 landings3<-grouped_data
 landings3$eel_value <- as.numeric(landings3$eel_value) / 1000
@@ -437,8 +438,7 @@ GCYm1 <- landings3%>%
     pull(s)
 cou_string <- get_country(data=landings3)
 ##Graph
-titleG <- paste("Time-series of reported commercial glass eel fishery landings (tonnes),
-        by country.", cou_string ,"are included combining information from the Data call", CY, "and the WGEEL database updated to", CY, "The Portuguese catches correspond to glass eel catches from the Portuguese side of the Miño river. Catches from the Spanish side of the Miño river are included in the Spanish catches.")
+titleG <- paste("Time-series of reported commercial glass eel fishery landings (tonnes),by country.", cou_string ,"are included combining information from the Data call", CY, "and the WGEEL database updated to", CY, "The Portuguese catches correspond to glass eel catches from the Portuguese side of the Miño river. Catches from the Spanish side of the Miño river are included in the Spanish catches.")
 #vvv$G_total_CY <- sprintf("%0.2f tons",GCY)
 
 title <- paste("Commercial landings for glass eel in all habitats")
@@ -465,7 +465,7 @@ print(g_raw_Clandings_G<- subplot(g_raw_Clandings_G,
 
 \newline
 
-```{r corrComG,echo=FALSE, warning=FALSE, fig.cap=titleGcor}
+```{r corrComG, echo=FALSE, warning=FALSE}
 
 # corrected landings
 filtered_data<-filter_data("landings",
@@ -486,8 +486,9 @@ color_countries2 <- color_countries[names(color_countries)%in%levels(landings3$e
 landings_year<-aggregate(eel_value~eel_year, landings3, sum)
 table = dcast(landings3, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
 table2=dcast(landings3, eel_year~eel_cou_code, value.var = "predicted",fun = prod)
+```
 
-
+```{r corrComGt, echo=FALSE, warning=FALSE}
 #ordering the column accordign to country order
 country_to_order = names(table)[-1]
 n_order = order(country_ref$cou_order[match(country_to_order, country_ref$cou_code)])
@@ -510,8 +511,13 @@ for (col in 2:ncol(table)){
 # options(knitr.kable.NA="") this does not work
 names(table)[1]<-"Year"
 table[is.na(table)]<-''
+table$total<-as.character(table$total)
 tableCorLandYS<-table
-ka_cor_com_land_G <- kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 12: Raw+ corr commercial landings (tonnes) for yellow and silver eels  ","(",min(year),"-",max(year),")"," for ",paste(paste(country,collapse=","), ".", sep="")))
+ka_cor_com_land_G <- kable(format(table,digit=1,drop0trailing=TRUE),format="pandoc",caption =paste("Raw+ corr commercial landings (tonnes) for yellow and silver eels  ","(",min(year),"-",max(year),")"," for ",paste(paste(country,collapse=","), ".", sep="")))
+
+```
+    
+```{r corrComGfig, echo=FALSE, warning=FALSE, fig.cap=titleGcor}
 landings3$eel_value <- landings3$eel_value/10^3
 landings3$eel_cou_code <- droplevels(landings3$eel_cou_code)
 color_countries2 <- color_countries[names(color_countries)%in%levels(landings3$eel_cou_code)]
@@ -547,16 +553,13 @@ g_combined_landings_G <- g_reconstructed_landings+
         ymin=max(landings_year$eel_value)*1.05/1000, 
         ymax=max(landings_year$eel_value)*1.6/1000)
 
-#print(g_combined_landings_G)
-
-
-
+print(g_combined_landings_G)
 ```
 
 #### Yellow and silver eel 
 
-\@ref(fig:rawComLandYSfig) presents data for yellow and silver eels aggregated
-and Figure \@ref(fig:corrComYS)
+Figure \@ref(fig:rawComLandYSfig) presents data for yellow and silver eels
+aggregated and Figure \@ref(fig:corrComYS)
 presents the time-series including reconstructed data to fill the gaps. Data
 from Egypt were removed since the proportion of “corrected” landings was as high
 as 50% in the 1950s, but rather low since the mid-1980s. The total landings
@@ -568,19 +571,19 @@ eel commercial fisheries (Y, S, YS) add up to `r YS_CY1` t in `r CY-1` and
 `r CY-3`).
 
 
-```{r rawComLandYS, echo=FALSE, warning=FALSE}
+```{r rawComLandYSt, echo=FALSE, warning=FALSE}
 
 ##raw  com landings for Y S and YS for all the countries
 
 filtered_data<-filter_data("landings",
     typ = 4,
     life_stage = c("Y","S","YS"),
-    year_range = 1990:CY-1
+    year_range = 1908:CY-1
 )%>% dplyr::filter(is.na(eel_missvaluequal))
 year<-unique(filtered_data$eel_year)
 country<-unique(filtered_data$eel_cou_code)
 hty<-unique(filtered_data$eel_hty_code)
-grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=TRUE)
+grouped_data <-group_data(filtered_data,geo="country", habitat=FALSE, lfs=FALSE, na.rm=TRUE)
 
 ##table
 fun.agg<-function(X){if(length(X)>0){round(sum(X,na.rm=TRUE)/1000,ifelse(sum(X,na.rm=TRUE)>1000,1,1))}else{sum(c(X,NA))}}
@@ -588,22 +591,25 @@ fun.agg<-function(X){if(length(X)>0){round(sum(X,na.rm=TRUE)/1000,ifelse(sum(X,n
 table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
 table<-data.frame(table,total=rowSums(table[,-1],na.rm=T))              
 #ordering the column accordign to country order
-country_to_order = names(table)[-1]
-n_order = order(country_ref$cou_order[match(country_to_order, country_ref$cou_code)])
-n_order <- n_order+1
-n_order <- c(1,n_order)
-table = table[, n_order]
+#country_to_order = names(table)[-1]
+#n_order = order(country_ref$cou_order[match(country_to_order, country_ref$cou_code)])
+#n_order <- n_order+1
+#n_order <- c(1,n_order)
+#table = table[, n_order]
 # options(knitr.kable.NA="") this does not work
 names(table)[1]<-"Year"
 table[is.na(table)]<-''
+table$total<-as.character(table$total)
 tableComLandYS<-table
 table1<-table[,c(1,2:12)]
+cou_text1 <- get_country_table(table1)
 table2<-table[,c(1,13:23)]
+cou_text2 <- get_country_table(table2)
 table3<-table[,c(1,20:ncol(table))]
-ka_com_land_YS1 <- kable(format(table1,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 2a:  Commercial fisheries landings (in tonnes) for yellow eel and silver eel from ", min(year)," to ",max(year)," (part 1), reported by countries: NO Norway, SE Sweden, FI Finland, EE Estonia, LV Latvia, LT Lithuania, PL Poland, DE Germany, DK Denmark,
-            NL Netherlands, BE Belgium (to be continued for other countries in next table).", sep=""))
-ka_com_land_YS2 <- kable(format(table2,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 2b:  Commercial fisheries landings (in tonnes) for yellow eel and silver eel from ", min(year)," to ",max(year)," (part 2), reported by countries and all countries: IE Ireland, GB United Kingdom, FR France, ES Spain, PT Portugal, IT Italy, Sl Sovenia, HR Croatia,  .", sep=""))
-ka_com_land_YS3 <- kable(format(table3,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 2c:  Commercial fisheries landings (in tonnes) for yellow eel and silver eel from ", min(year)," to ",max(year)," (part 2), reported by countries and all countries: AL	Albania, Greece, TR Turkey, EG Egypt,  TN Tunisia, DZ Algeria, MA Morocco, total", sep=""))
+cou_text3 <- get_country_table(table3[,-ncol(table3)])
+ka_com_land_YS1 <- kable(format(table1,digit=1,drop0trailing=TRUE),format="pandoc",caption =paste("part a  Commercial fisheries landings (in tonnes) for yellow eel and silver eel from ", min(year)," to ",max(year)," (part 1), reported by countries : ", cou_text1," (to be continued for other countries in next table).", sep=""))
+ka_com_land_YS2 <- kable(format(table2,digit=1,drop0trailing=TRUE),format="pandoc",caption =paste("part b  Commercial fisheries landings (in tonnes) for yellow eel and silver eel from ", min(year)," to ",max(year)," (part 2), reported by countries : ", cou_text2," (to be continued for other countries in next table).", sep=""))
+ka_com_land_YS3 <- kable(format(table3,digit=1,drop0trailing=TRUE),format="pandoc",caption =paste("part c  Commercial fisheries landings (in tonnes) for yellow eel and silver eel from ", min(year)," to ",max(year)," (part 3), reported by countries : ", cou_text3,", total.", sep=""))
 
 ```
 
@@ -696,7 +702,7 @@ for (col in 2:ncol(table)){
 names(table)[1]<-"Year"
 table[is.na(table)]<-''
 tableCorLandYS<-table
-ka_cor_com_land_YS <- kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 12: Raw+ corr commercial landings (tonnes) for yellow and silver eels  ","(",min(year),"-",max(year),")"," for ",paste(paste(country,collapse=","), ".", sep="")))
+ka_cor_com_land_YS <- kable(format(table,digit=1,drop0trailing=TRUE),format="pandoc",caption =paste("Table 12: Raw+ corr commercial landings (tonnes) for yellow and silver eels  ","(",min(year),"-",max(year),")"," for ",paste(paste(country,collapse=","), ".", sep="")))
 
 
 #landings_year <- dataset
@@ -741,6 +747,7 @@ print(g_combined_landings_YS)
 
 ```
 
+
 ## Recreational fisheries
 
 Recreational and non-commercial fishing is the capture or attempted capture of
@@ -770,6 +777,7 @@ fishers with gear in public rivers. The available data have been considered by
 the WGEEL jointly with the other series in Europe. The mean yellow and silver
 eel recreational fisheries for the previous five years (`r CY-7`–`r CY-3`) was
 `r YS_mean_rec_CY3_CY7` t.
+
 
 ```{r recLandYSt,echo=FALSE, warning=FALSE}
 
@@ -801,15 +809,20 @@ table = table[, n_order]
 # options(knitr.kable.NA="") this does not work
 names(table)[1]<-"Year"
 table[is.na(table)]<-''
+table$total<-as.character(table$total)
 tableRecLandYS<-table
 table1<-table[,c(1,2:12)]
+cou_text1 <- get_country_table(table1)
 table2<-table[,c(1,13:ncol(table))]
-ka_rec_land_Y<- kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 3: Raw recreational landings (tonnes) for yellow and silver eels  ","(",min(year),"-",max(year),")","for",paste(paste(country,collapse=","), ".", sep="")))
-ka_rec_land_Y1<- kable(format(table1,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 3a:  Recreational fisheries landings (in tonnes) for yellow eel and silver eel from ", min(year)," to ",max(year)," (part 1), reported by countries: NO Norway, SE Sweden, FI Finland, EE Estonia, LV Latvia, LT Lithuania, PL Poland, DE Germany, DK Denmark,NL Netherlands, BE Belgium (to be continued for other countries in next table).", sep=""))
-ka_rec_land_Y2<-kable(format(table2,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 3b:  Recreational fisheries landings (in tonnes) for yellow eel and silver eel from ", min(year)," to ",max(year)," (part 2), reported by countries and all countries: IE Ireland, GB United Kingdom, FR France, ES Spain, PT Portugal, IT Italy, Sl Sovenia, HR Croatia, GR Greece, total.", sep=""))
+cou_text2 <- get_country_table(table2[,-ncol(table2)])
+##ka_rec_land_Y<- kable(format(table,digit=1,drop0trailing=TRUE),format="pandoc",caption =paste("Table 3: Raw recreational landings (tonnes) for yellow and silver eels  ","(",min(year),"-",max(year),")","for",paste(paste(country,collapse=","), ".", sep="")))
+ka_rec_land_Y1<- kable(format(table1,digit=1,drop0trailing=TRUE),format="pandoc",caption =paste("parta,  Recreational fisheries landings (in tonnes) for yellow eel and silver eel from ", min(year)," to ",max(year)," (part 1), reported by countries: ", cou_text1," (to be continued for other countries in next table).", sep=""))
+ka_rec_land_Y2<-kable(format(table2,digit=1,drop0trailing=TRUE),format="pandoc",caption =paste("partb,  Recreational fisheries landings (in tonnes) for yellow eel and silver eel from ", min(year)," to ",max(year)," (part 2), reported by countries: ", cou_text2," , total.", sep=""))
 ```
 
+
 \newline
+
 
 ```{r recLandYSfig,echo=FALSE, warning=FALSE, fig.cap=titleYSrec, fig.height=5, fig.width=10}
 
@@ -835,7 +848,9 @@ print(g_raw_Rlandings_YS)
 
 ```
 
+
 \newline
+
 
 ```{r recLandG,echo=FALSE, warning=FALSE}
 
@@ -865,10 +880,12 @@ table = table[, n_order]
 # options(knitr.kable.NA="") this does not work
 names(table)[1]<-"Year"
 table[is.na(table)]<-''
+table$total<-as.character(table$total)
 tablerecLandG<-table
 #table1<-table[,c(1,14,15,ncol(table))]
-ka_rec_land_G <- kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 4: Raw recreational landings (tonnes) for glass eels  ","(",min(year),"-",max(year),")"," for ",paste(paste(country,collapse=","), ".", sep="")))
-#ka_rec_land_G1 <- kable(format(table1,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 4:  Glass eel recreational fisheries landings (in tonnes) from ", min(year)," to ",max(year),")",", reported by countries: FR France, ES Spain.", sep=""))
+table$total<-as.character(table$total)
+ka_rec_land_G <- kable(format(table,digit=1,drop0trailing=TRUE),format="pandoc",caption =paste("Table 4: Raw recreational landings (tonnes) for glass eels  ","(",min(year),"-",max(year),")"," for ",paste(paste(country,collapse=","), ".", sep="")))
+#ka_rec_land_G1 <- kable(format(table1,digit=1,drop0trailing=TRUE),format="pandoc",caption =paste("Table 4:  Glass eel recreational fisheries landings (in tonnes) from ", min(year)," to ",max(year),")",", reported by countries: FR France, ES Spain.", sep=""))
 
 ```
 
@@ -902,7 +919,10 @@ print(g_raw_Rlandings_G<-subplot(g_raw_Rlandings_G,
         ymax=Inf,
         ymaxbox=40))
 ```
+
+
 \newline
+
 
 ## Illegal, unreported and unregulated landings
 
@@ -945,7 +965,8 @@ released in `r CY-2` and `r CY-1` is `r rel_CY2_G` and `r rel_CY1_G`  million
 
 \newline
 
-```{r release_G_QG_t,echo=FALSE, warning=FALSE}
+
+```{r release_G_QG_t, echo=FALSE, warning=FALSE}
 
 ##Table release (nb) for all the countries for G # 9 is q_release_n
 
@@ -973,19 +994,23 @@ table = table[, n_order]
 # options(knitr.kable.NA="") this does not work
 names(table)[1]<-"Year"
 table[is.na(table)]<-''
+table$total<-as.character(table$total)
 tableRelG<-table
 table1<-table[,c(1,2:8)]
+cou_text1 <- get_country_table(table1)
 table2<-table[,c(1,9:ncol(table))]
-#ka_release_G <- kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =
+cou_text2 <- get_country_table(table2[,-ncol(table2)])
+#ka_release_G <- kable(format(table,digit=1,drop0trailing=TRUE),format="pandoc",caption =
 #				paste("Table 5: Release (nb in millions) of glass eels (G and OG)","(",min(year),"-",max(year),")","for",paste(paste(country,collapse=","), ".", sep="")))
-ka_release_G1 <- kable(format(table1,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 5a:  Release of glass eel (G) and quarantined glass eel (QG) in millions from ", min(year)," to ",max(year),")",",  reported by countries SE Sweden, EE Estonia, LV Latvia, PL Poland, DE Germany, NL Netherlands, BE Belgium(to be continued for other countries in next table).", sep=""))
-ka_release_G2 <- kable(format(table2,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 5b:  Release of glass eel in millions from ", min(year)," to ",max(year),")",",  reported by countries: IE Ireland, GB United Kingdom, FR France, ES Spain, IT Italy, GR Greece.", sep=""))
+ka_release_G1 <- kable(format(table1,digit=1,drop0trailing=TRUE),format="pandoc",caption =paste("parta:  Release of glass eel (G) and quarantined glass eel (QG) in millions from ", min(year)," to ",max(year),")",",  reported by countries ", cou_text1," (to be continued for other countries in next table).", sep=""))
+ka_release_G2 <- kable(format(table2,digit=1,drop0trailing=TRUE),format="pandoc",caption =paste("partb:  Release of glass eel in millions from ", min(year)," to ",max(year),")",",  reported by countries: ", cou_text2, " , total", sep=""))
 
 ```
 
 \newline
 
-```{r release_G_QG_f,echo=FALSE, warning=FALSE, fig.cap=titleGrel, fig.height=5, fig.width=10}
+
+```{r release_G_QG_f, echo=FALSE, warning=FALSE, fig.cap=titleGrel, fig.height=5, fig.width=10}
 
 ##Graph
 release3<-grouped_data
@@ -994,7 +1019,7 @@ release3$eel_cou_code = as.factor(release3$eel_cou_code)
 release3$eel_cou_code<-factor(release3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
 release3$eel_cou_code <- droplevels(release3$eel_cou_code) 
 color_countries2 <-	color_countries[names(color_countries)%in%levels(release3$eel_cou_code)]
-cou_string <- get_country(data=landings3)
+cou_string <- get_country(data=release3)
 ##Graph
 titleGrel <- paste0("Reported releases of glass eel (in millions) per country ", cou_string," Inset shows recent years at greater resolution.")
 g_release_G <-  ggplot(release3) + 
@@ -1005,19 +1030,23 @@ g_release_G <-  ggplot(release3) +
     theme_bw() 
 
 #print(g_release_G)
-print(g_release_G<-subplot(g_release_G,
+g_release_G<-subplot(g_release_G,
         coeffy=1.6, # no need to increase the scale
         minyear=2008, 
         xmin=1985, 
         xmax= Inf, 
         ymin=80,
         ymax=Inf,
-        ymaxbox=60))
+        ymaxbox=60)
+print(g_release_G)
 
 ```
 
 
-```{r releasekg_G_QG_f,echo=FALSE, warning=FALSE, fig.cap=titleGrelkg, fig.height=5, fig.width=10}
+\newline
+
+
+```{r releasekg_G_QG_f, echo=FALSE, warning=FALSE, fig.cap=titleGrelkg, fig.height=5, fig.width=10}
 
 ##Table release (nb) for all the countries for G # 9 is q_release_kg
 
@@ -1035,7 +1064,7 @@ release3$eel_value <- as.numeric(release3$eel_value)/1000
 release3$eel_cou_code<-factor(release3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
 release3$eel_cou_code <- droplevels(release3$eel_cou_code) 
 color_countries2 <-	color_countries[names(color_countries)%in%levels(release3$eel_cou_code)]
-cou_string <- get_country(data=landings3)
+cou_string <- get_country(data=release3)
 ##Graph
 titleGrelkg <- paste0("Reported releases of glass eel (in tonnes) per country ", cou_string," Inset shows recent years  in greater resolution.")
 
@@ -1057,6 +1086,7 @@ print(g_releasekg_G<-subplot(g_releasekg_G,
         ymaxbox=22))
 ```
 
+
 \newline
 
 Translocation within an EMU to mitigate the impact of barriers to migration (Fig
@@ -1064,7 +1094,7 @@ Translocation within an EMU to mitigate the impact of barriers to migration (Fig
 reported by Ireland (since 1959, by numbers and mass) and the United King-dom
 (since 1996, by mass only).
 
-```{r other_landings_Gt,echo=FALSE, warning=FALSE}
+```{r other_landings_Gt, echo=FALSE, warning=FALSE}
 
 ##Table other_landings (nb) for all the countries for G # 9 is q_other_landings_n
 
@@ -1080,7 +1110,7 @@ grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na
 ##Table
 fun.agg<-function(X){if(length(X)>0){round(sum(X)/10^6,ifelse(sum(X)>10^6,3,3))}else{sum(c(X,NA))}}
 table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
-table<-data.frame(table,total=rowSums(table[,-1],na.rm=T))
+table<-data.frame(table,total=rowSums(table[,-1,drop=FALSE],na.rm=T))
 
 
 #ordering the column accordign to country order
@@ -1092,17 +1122,20 @@ table = table[, n_order]
 # options(knitr.kable.NA="") this does not work
 names(table)[1]<-"Year"
 table[is.na(table)]<-''
+table$total<-as.character(table$total)
 tableRelG<-table
 
 
-ka_other_landings_G <- kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =
-        paste("Table 5: other_landings (nb in millions) of glass eels (G and OG)","(",min(year),"-",max(year),")","for",paste(paste(country,collapse=","), ".", sep="")))
-#ka_other_landings_G1 <- kable(format(table1,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 5a:  other_landings of glass eel in millions from ", min(year)," to ",max(year),")",",  reported by countries SE Sweden, EE Estonia, LV Latvia, PL Poland, DE Germany, NL Netherlands, BE Belgium(to be continued for other countries in next table).", sep=""))
-#ka_other_landings_G2 <- kable(format(table2,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 5b:  other_landings of glass eel in millions from ", min(year)," to ",max(year),")",",  reported by countries: IE Ireland, GB United Kingdom, FR France, ES Spain, IT Italy, GR Greece.", sep=""))
+ka_other_landings_G <- kable(format(table,digit=1,drop0trailing=TRUE),format="pandoc",caption =
+        paste("Other_landings (nb in millions) of glass eels (G and OG)","(",min(year),"-",max(year),")","for",paste(paste(country,collapse=","), ".", sep="")))
+#ka_other_landings_G1 <- kable(format(table1,digit=1,drop0trailing=TRUE),format="pandoc",caption =paste("Table 5a:  other_landings of glass eel in millions from ", min(year)," to ",max(year),")",",  reported by countries SE Sweden, EE Estonia, LV Latvia, PL Poland, DE Germany, NL Netherlands, BE Belgium(to be continued for other countries in next table).", sep=""))
+#ka_other_landings_G2 <- kable(format(table2,digit=1,drop0trailing=TRUE),format="pandoc",caption =paste("Table 5b:  other_landings of glass eel in millions from ", min(year)," to ",max(year),")",",  reported by countries: IE Ireland, GB United Kingdom, FR France, ES Spain, IT Italy, GR Greece.", sep=""))
 
 ```
 
+
 \newline
+
 
 ```{r other_landings_Gf,echo=FALSE, warning=FALSE, fig.cap=titleGoth, fig.height=5, fig.width=10}
 
@@ -1113,8 +1146,8 @@ other_landings3$eel_cou_code = as.factor(other_landings3$eel_cou_code)
 other_landings3$eel_cou_code<-factor(other_landings3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
 other_landings3$eel_cou_code <- droplevels(other_landings3$eel_cou_code) 
 color_countries2 <-	color_countries[names(color_countries)%in%levels(other_landings3$eel_cou_code)]
-cou_string <- get_country(data=landings3)
-titleGoth <- paste0("Other landings of glass eel (glass eel caught for transport operations, so not in formerly reported commercial or recrea-tional fisheries) by number in ", cou_string," (values in numbers not provided for UK.)")
+cou_string <- get_country(data=other_landings3)
+titleGoth <- paste0("Other landings of glass eel (glass eel caught for transport operations, so not in formerly reported commercial or recreational fisheries) by number in ", cou_string," (values in numbers not provided for UK.)")
 
 g_other_landings_G <-  ggplot(other_landings3) + 
     geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
@@ -1145,8 +1178,8 @@ other_landings3$eel_value <- as.numeric(other_landings3$eel_value)/1000
 other_landings3$eel_cou_code<-factor(other_landings3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
 other_landings3$eel_cou_code <- droplevels(other_landings3$eel_cou_code) 
 color_countries2 <-	color_countries[names(color_countries)%in%levels(other_landings3$eel_cou_code)]
-cou_string <- get_country(data=landings3)
-titleGothkg <- paste0("Other landings of glass eel (glass eel caught for transport operations, so not in formerly reported commercial or recrea-tional fisheries) by mass, in", cou_string,".")
+cou_string <- get_country(data=other_landings3)
+titleGothkg <- paste0("Other landings of glass eel (glass eel caught for transport operations, so not in formerly reported commercial or recreational fisheries) by mass, in", cou_string,".")
 g_other_landingskg_G <-  ggplot(other_landings3) + 
     geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
     
@@ -1201,16 +1234,18 @@ table = table[, n_order]
 # options(knitr.kable.NA="") this does not work
 names(table)[1]<-"Year"
 table[is.na(table)]<-''
+table$total<-as.character(table$total)
 tableRelQG<-table
-ka_release_QG <- kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 8: Releases for quarantined glass eel from ", min(year)," to ",max(year)," in millions, reported by countries SE Sweden, FI Finland.", sep=""))
+ka_release_QG <- kable(format(table,digit=1,drop0trailing=TRUE),format="pandoc",caption =paste("Releases for quarantined glass eel from ", min(year)," to ",max(year)," in millions, reported by countries SE Sweden, FI Finland.", sep=""))
 
 ```
+
 
 \newline
 
 
 
-```{r release_QGf,echo=FALSE, warning=FALSE, eval=TRUE, fig.cap ="remove me QG are with the glass eel now", fig.height=5, fig.width=10}
+```{r release_QGf,echo=FALSE, warning=FALSE, eval=TRUE, fig.cap=titleQGf , fig.height=5, fig.width=10}
 
 ##Graph
 release3<-grouped_data
@@ -1219,7 +1254,8 @@ release3$eel_cou_code = as.factor(release3$eel_cou_code)
 release3$eel_cou_code<-factor(release3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
 release3$eel_cou_code <- droplevels(release3$eel_cou_code) 
 color_countries2 <-	color_countries[names(color_countries)%in%levels(release3$eel_cou_code)]
-title <- paste("Releases per country,", "stage = QG", "and habitat =", paste(hty,collapse="+"))
+cou_string <- get_country(data=release3)
+titleQGf <- paste0("remove me QG are with the glass eel now, countries ", cou_string)
 
 g_release_QG <-  ggplot(release3) + 
     geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
@@ -1233,7 +1269,9 @@ print(g_release_QG)
 ```
 
 
-```{r releasekg_QGf,echo=FALSE, eval=TRUE, warning=FALSE, fig.cap ="remove me QG are with the glass eels now",fig.height=5, fig.width=10}
+
+
+```{r releasekg_QGf,echo=FALSE, eval=TRUE, warning=FALSE, fig.cap =titleQGf,fig.height=5, fig.width=10}
 
 filtered_data<-filter_data("release",
     typ = 8,
@@ -1250,8 +1288,8 @@ release3$eel_cou_code = as.factor(release3$eel_cou_code)
 release3$eel_cou_code<-factor(release3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
 release3$eel_cou_code <- droplevels(release3$eel_cou_code) 
 color_countries2 <-	color_countries[names(color_countries)%in%levels(release3$eel_cou_code)]
-title <- paste("Releases per country,", "stage = QG", "and habitat =", paste(hty,collapse="+"))
-
+cou_string <- get_country(data=release3)
+titleQGf <- paste0("remove me QG are with the glass eel now, countries ", cou_string)
 g_releasekg_QG <-  ggplot(release3) + 
     geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
     #ggtitle(title) + 
@@ -1263,7 +1301,10 @@ print(g_releasekg_QG)
 
 ```
 
+
+
 ### Yellow eel and ongrown eel releases and other landings
+
 
 \newline
 
@@ -1311,8 +1352,9 @@ table = table[, n_order]
 # options(knitr.kable.NA="") this does not work
 names(table)[1]<-"Year"
 table[is.na(table)]<-''
+table$total<-as.character(table$total)
 tableRelY<-table
-ka_release_Y <- kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 6:  Releases for yellow eel from ", min(year)," to ",max(year)," in millions, reported by countries DE Germany, NL Netherlands, IE Ireland, ES Spain, IT Italy.", sep=""))
+ka_release_Y <- kable(format(table,digit=1,drop0trailing=TRUE),format="pandoc",caption =paste("Releases for yellow eel from ", min(year)," to ",max(year)," in millions, reported by countries DE Germany, NL Netherlands, IE Ireland, ES Spain, IT Italy.", sep=""))
 
 ```
 
@@ -1328,7 +1370,7 @@ release3$eel_cou_code = as.factor(release3$eel_cou_code)
 release3$eel_cou_code<-factor(release3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
 release3$eel_cou_code <- droplevels(release3$eel_cou_code) 
 color_countries2 <-	color_countries[names(color_countries)%in%levels(release3$eel_cou_code)]
-cou_string <- get_country(data=landings3)
+cou_string <- get_country(data=release3)
 ##Graph
 titleYrel <- paste0("Reported releases of yellow eel (in millions) per country ", cou_string," Inset shows the last 13 years in more detail.")
 g_release_Y <-  ggplot(release3) + 
@@ -1370,7 +1412,7 @@ release3$eel_cou_code = as.factor(release3$eel_cou_code)
 release3$eel_cou_code<-factor(release3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
 release3$eel_cou_code <- droplevels(release3$eel_cou_code) 
 color_countries2 <-	color_countries[names(color_countries)%in%levels(release3$eel_cou_code)]
-cou_string <- get_country(data=landings3)
+cou_string <- get_country(data=release3)
 titleYrelkg <- paste0("Reported releases of yellow eel (in tonnes) per country. ", cou_string,". Inset shows the last 13 years in more detail.")
 g_releasekg_Y <-  ggplot(release3) + 
     geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
@@ -1399,7 +1441,6 @@ filtered_data<-filter_data("other_landings",
         typ = 32,
         life_stage = c("Y"))%>% 
     dplyr::filter(is.na(eel_missvaluequal))
-filtered_data <- filtered_data %>% dplyr::filter(!(eel_cou_code == 'SE'))
 year<-unique(filtered_data$eel_year)
 country<-unique(filtered_data$eel_cou_code)
 hty<-unique(filtered_data$eel_hty_code)
@@ -1418,16 +1459,16 @@ table = table[, n_order]
 # options(knitr.kable.NA="") this does not work
 names(table)[1]<-"Year"
 table[is.na(table)]<-''
+table$total<-as.character(table$total)
 tableRelY<-table
-ka_other_landings_Y <- kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 6:  other_landings for yellow eel from ", min(year)," to ",max(year)," in millions, reported by countries DE Germany, NL Netherlands, IE Ireland, ES Spain, IT Italy.", sep=""))
+ka_other_landings_Y <- kable(format(table,digit=1,drop0trailing=TRUE),format="pandoc",caption =paste("Table 6:  other_landings for yellow eel from ", min(year)," to ",max(year)," in millions, reported by countries DE Germany, NL Netherlands, IE Ireland, ES Spain, IT Italy.", sep=""))
 
 ```
 
 \newline
 
 
-```{r other_landings_Yf,echo=FALSE, warning=FALSE, fig.cap=titleYrel, fig.height=5, fig.width=10}
-##Graph
+```{r other_landings_Yf, echo=FALSE, warning=FALSE, fig.cap=titleYrel, fig.height=5, fig.width=10}
 
 other_landings3<-grouped_data
 other_landings3$eel_value <- as.numeric(other_landings3$eel_value) / 10^6
@@ -1435,13 +1476,12 @@ other_landings3$eel_cou_code = as.factor(other_landings3$eel_cou_code)
 other_landings3$eel_cou_code<-factor(other_landings3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
 other_landings3$eel_cou_code <- droplevels(other_landings3$eel_cou_code) 
 color_countries2 <-	color_countries[names(color_countries) %in% levels(other_landings3$eel_cou_code)]
-cou_string <- get_country(data=landings3)
+cou_string <- get_country(data=other_landings3)
 titleYrel <- paste0("Reported releases of yellow eel (in millions) per country. ", cou_string,".")
 
 g_other_landings_Y <-  ggplot(other_landings3) + 
     geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
     xlab("year") + ylab("other_landings (n) in million")+
-    scale_fill_manual("Country",values=color_countries2)+
     theme_bw() 
 
 print(g_other_landings_Y)
@@ -1466,7 +1506,7 @@ other_landings3$eel_cou_code = as.factor(other_landings3$eel_cou_code)
 other_landings3$eel_cou_code<-factor(other_landings3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
 other_landings3$eel_cou_code <- droplevels(other_landings3$eel_cou_code) 
 color_countries2 <-	color_countries[names(color_countries)%in%levels(other_landings3$eel_cou_code)]
-cou_string <- get_country(data=landings3)
+cou_string <- get_country(data=other_landings3)
 titleYrel <- paste0("Reported releases of yellow eel (in tonnes) per country. ", cou_string,".")
 
 g_other_landingskg_Y <-  ggplot(other_landings3) + 
@@ -1508,8 +1548,9 @@ table = table[, n_order]
 # options(knitr.kable.NA="") this does not work
 names(table)[1]<-"Year"
 table[is.na(table)]<-''
+table$total<-as.character(table$total)
 tableRelOG<-table
-ka_release_OG <- kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 9: Releases for ongrown glass eel from ", min(year)," to ",max(year)," in millions, reported by countries: EE Estonia, LV Latvia, LT Lithuania, PL Poland, DE Germany, DK Denmark, ES Spain.", sep=""))
+ka_release_OG <- kable(format(table,digit=1,drop0trailing=TRUE),format="pandoc",caption =paste("Table 9: Releases for ongrown glass eel from ", min(year)," to ",max(year)," in millions, reported by countries: EE Estonia, LV Latvia, LT Lithuania, PL Poland, DE Germany, DK Denmark, ES Spain.", sep=""))
 ```
 
 \newline
@@ -1523,7 +1564,7 @@ release3$eel_cou_code = as.factor(release3$eel_cou_code)
 release3$eel_cou_code<-factor(release3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
 release3$eel_cou_code <- droplevels(release3$eel_cou_code) 
 color_countries2 <-	color_countries[names(color_countries)%in%levels(release3$eel_cou_code)]
-cou_string <- get_country(data=landings3)
+cou_string <- get_country(data=release3)
 titleOGrel <- paste0(". Reported releases of ongrown glass eel (in thousands) per country, ", cou_string,".")
 
 g_release_OG <-  ggplot(release3) + 
@@ -1539,7 +1580,7 @@ print(g_release_OG)
 
 \newline
 
-```{r releasekg_OGf,echo=FALSE, warning=FALSE, eval=TRUE, fig.cap ="remove me OG in tons are not in the report", height=5, fig.width=10}
+```{r releasekg_OGf,echo=FALSE, warning=FALSE, eval=TRUE, fig.cap =titleQGf, height=5, fig.width=10}
 
 filtered_data<-filter_data("release",
     typ = 8,
@@ -1556,8 +1597,9 @@ release3$eel_value <- as.numeric(release3$eel_value) / 1000
 release3$eel_cou_code = as.factor(release3$eel_cou_code)
 release3$eel_cou_code<-factor(release3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
 release3$eel_cou_code <- droplevels(release3$eel_cou_code) 
-color_countries2 <-	color_countries[names(color_countries)%in%levels(release3$eel_cou_code)]
-title <- paste("releases per country,", "stage = OG", "and habitat =", paste(hty,collapse="+"))
+cou_string <- get_country(data=release3)
+titleQGf <- paste0("remove me OG in tons are not in the report, countries ", cou_string)
+
 
 g_releasekg_OG <-  ggplot(release3) + 
     geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
@@ -1600,8 +1642,9 @@ table = table[, n_order]
 # options(knitr.kable.NA="") this does not work
 names(table)[1]<-"Year"
 table[is.na(table)]<-''
+table$total<-as.character(table$total)
 tableRelS<-table
-ka_release_S <- kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 7: Releases for silver eel from ", min(year)," to ",max(year)," in millions, reported by countries SE Sweden, FI Finland, IE Ireland, Fr France, ES Spain, GR Greece.", sep=""))
+ka_release_S <- kable(format(table,digit=1,drop0trailing=TRUE),format="pandoc",caption =paste("Table 7: Releases for silver eel from ", min(year)," to ",max(year)," in millions, reported by countries SE Sweden, FI Finland, IE Ireland, Fr France, ES Spain, GR Greece.", sep=""))
 
 ```
 
@@ -1619,7 +1662,7 @@ release3$eel_cou_code = as.factor(release3$eel_cou_code)
 release3$eel_cou_code<-factor(release3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
 release3$eel_cou_code <- droplevels(release3$eel_cou_code) 
 color_countries2 <-	color_countries[names(color_countries)%in%levels(release3$eel_cou_code)]
-cou_string <- get_country(data=landings3)
+cou_string <- get_country(data=release3)
 titleSrel <- paste0("Reported releases of silver eel (in thousands) per country, ", cou_string,".")
 g_release_S <-  ggplot(release3) + 
     geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
@@ -1649,7 +1692,7 @@ release3$eel_cou_code = as.factor(release3$eel_cou_code)
 release3$eel_cou_code<-factor(release3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
 release3$eel_cou_code <- droplevels(release3$eel_cou_code) 
 color_countries2 <-	color_countries[names(color_countries)%in%levels(release3$eel_cou_code)]
-cou_string <- get_country(data=landings3)
+cou_string <- get_country(data=release3)
 titleSrelkg <- paste0("Reported releases of silver eel (in tonnes) per country, ", cou_string,".")
 
 g_releasekg_S <-  ggplot(release3) + 
@@ -1689,8 +1732,9 @@ table = table[, n_order]
 # options(knitr.kable.NA="") this does not work
 names(table)[1]<-"Year"
 table[is.na(table)]<-''
+table$total<-as.character(table$total)
 tableRelS<-table
-ka_other_landings_S <- kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 7: other_landings for silver eel from ", min(year)," to ",max(year)," in millions, reported by countries SE Sweden, FI Finland, IE Ireland, Fr France, ES Spain, GR Greece.", sep=""))
+ka_other_landings_S <- kable(format(table,digit=1,drop0trailing=TRUE),format="pandoc",caption =paste("Table 7: other_landings for silver eel from ", min(year)," to ",max(year)," in millions, reported by countries SE Sweden, FI Finland, IE Ireland, Fr France, ES Spain, GR Greece.", sep=""))
 
 ```
 
@@ -1699,7 +1743,7 @@ ka_other_landings_S <- kable(format(table,digt=3,drop0trailing=TRUE),format="pan
 
 
 
-```{r other_landings_Sf,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure 9: Reported other_landings of silver eel (in thousands) per country, Sweden (SE), Finland (FI), Ireland (IE), France (FR), Spain (ES), and Greece (GR).", fig.height=5, fig.width=10}
+```{r other_landings_Sf,echo=FALSE, warning=FALSE, fig.cap=titleother_landings_Sf , fig.height=5, fig.width=10}
 
 ##Graph
 other_landings3<-grouped_data
@@ -1708,7 +1752,8 @@ other_landings3$eel_cou_code = as.factor(other_landings3$eel_cou_code)
 other_landings3$eel_cou_code<-factor(other_landings3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
 other_landings3$eel_cou_code <- droplevels(other_landings3$eel_cou_code) 
 color_countries2 <-	color_countries[names(color_countries)%in%levels(other_landings3$eel_cou_code)]
-title <- paste("other_landings per country,", "stage = S", "and habitat =", paste(hty,collapse="+"))
+cou_string <- get_country(data=other_landings3)
+titleother_landings_Sf <- paste0("Reported other_landings of silver eel (in thousands) per country, ", cou_string)
 
 g_other_landings_S <-  ggplot(other_landings3) + 
     geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
@@ -1722,7 +1767,7 @@ print(g_other_landings_S)
 
 
 
-```{r other_landingskg_Sf,echo=FALSE, warning=FALSE, fig.cap="\\label{fig:figs}Figure x: Reported other_landings of silver eel (in tonnes) per country, Sweden (SE), Finland (FI), Ireland (IE), France (FR), Spain (ES), and Greece (GR).", fig.height=5, fig.width=10}
+```{r other_landingskg_Sf,echo=FALSE, warning=FALSE, fig.cap=titleother_landingskg_Sf, fig.height=5, fig.width=10}
 
 filtered_data<-filter_data("other_landings",
     typ = 32,
@@ -1739,8 +1784,8 @@ other_landings3$eel_cou_code = as.factor(other_landings3$eel_cou_code)
 other_landings3$eel_cou_code<-factor(other_landings3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
 other_landings3$eel_cou_code <- droplevels(other_landings3$eel_cou_code) 
 color_countries2 <-	color_countries[names(color_countries)%in%levels(other_landings3$eel_cou_code)]
-title <- paste("other_landings per country,", "stage = S", "and habitat =", paste(hty,collapse="+"))
-
+cou_string <- get_country(data=other_landings3)
+titleother_landingskg_Sf <- paste0("Reported other_landings of silver eel (in tonnes) per country, ", cou_string)
 g_other_landingskg_S <-  ggplot(other_landings3) + 
     geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
     #ggtitle(title) + 
@@ -1901,7 +1946,7 @@ g_other_landingskg_all <-  ggplot(other_landings3) +
 
 print(g_other_landingskg_all)
 ```
-## Aquaculture
+
 
 
 \newline
@@ -1931,7 +1976,7 @@ hty<-unique(filtered_data$eel_hty_code)
 grouped_data <-group_data(filtered_data, geo="country", habitat=FALSE, lfs=FALSE, na.rm=TRUE)
 
 ##Table
-fun.agg<-function(X){if(length(X)>0){round(sum(X)/1000,ifelse(sum(X)>1000,2,2))}else{sum(c(X,NA))}}
+fun.agg<-function(X){if(length(X)>0){round(sum(X)/1000,ifelse(sum(X)>1000,1,1))}else{sum(c(X,NA))}}
 
 table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
 table<-data.frame(table,total=rowSums(table[,-1],na.rm=T))
@@ -1946,12 +1991,13 @@ table = table[, n_order]
 # options(knitr.kable.NA="") this does not work
 names(table)[1]<-"Year"
 table[is.na(table)]<-''
+table$total<-as.character(table$total)
 tableAqua<-table
 table1<-table[,c(1,2:8)]
 table2<-table[,c(1,9:ncol(table))]
-ka_aqua <- kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 10: Aquaculture for all stages in tonnes from ",min(year)," to ",max(year)," reported by countries: SE Sweden, FI Finland, EE Estonia, LT Lithuania, PL Poland, DE Germany, DK Denmark, NL Netherlands, IE Ireland, ES Spain, PT Portugal, IT Italy, GR Greece.", sep=""))
-ka_aqua1 <- kable(format(table1,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 10a: Aquaculture for all stages in tonnes from ",min(year)," to ",max(year)," reported by countries: SE Sweden, FI Finland, EE Estonia, LT Lithuania, PL Poland, DE Germany, DK Denmark.(to be continued for other countries in next table)", sep=""))
-ka_aqua2 <- kable(format(table2,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 10b: Aquaculture for all stages in tonnes from ",min(year)," to ",max(year)," reported by countries: NL Netherlands, IE Ireland, ES Spain, PT Portugal, IT Italy, GR Greece.", sep=""))
+ka_aqua <- kable(format(table,digit=1,drop0trailing=TRUE),format="pandoc",caption =paste("Table 10: Aquaculture for all stages in tonnes from ",min(year)," to ",max(year)," reported by countries: SE Sweden, FI Finland, EE Estonia, LT Lithuania, PL Poland, DE Germany, DK Denmark, NL Netherlands, IE Ireland, ES Spain, PT Portugal, IT Italy, GR Greece.", sep=""))
+ka_aqua1 <- kable(format(table1,digit=1,drop0trailing=TRUE),format="pandoc",caption =paste("Table 10a: Aquaculture for all stages in tonnes from ",min(year)," to ",max(year)," reported by countries: SE Sweden, FI Finland, EE Estonia, LT Lithuania, PL Poland, DE Germany, DK Denmark.(to be continued for other countries in next table)", sep=""))
+ka_aqua2 <- kable(format(table2,digit=1,drop0trailing=TRUE),format="pandoc",caption =paste("Table 10b: Aquaculture for all stages in tonnes from ",min(year)," to ",max(year)," reported by countries: NL Netherlands, IE Ireland, ES Spain, PT Portugal, IT Italy, GR Greece.", sep=""))
 
 ```
 
@@ -2002,8 +2048,7 @@ print(ka_release_QG)
 print(ka_release_OG)
 print(ka_aqua1)
 print(ka_aqua2)
-print(ka_other_landings_G1)
-print(ka_other_landings_G2)
+print(ka_other_landings_G)
 print(ka_other_landings_Y)
 print(ka_other_landings_S)
 
@@ -2067,7 +2112,7 @@ ggsave(paste0(imgwd,"other_landings_S.png"), g_other_landings_S, device = "png",
     units = "cm")
 ggsave(paste0(imgwd,"other_landingskg_Y.png"), g_other_landingskg_Y, device = "png", width = 30, height = 20, 
     units = "cm")
-ggsave(paste0(imgwd,"other_landingsY.png"), g_other_landingsY, device = "png", width = 30, height = 20, 
+ggsave(paste0(imgwd,"other_landingsY.png"), g_other_landings_Y, device = "png", width = 30, height = 20, 
     units = "cm")
 ggsave(paste0(imgwd,"other_landingskg_G.png"), g_other_landingskg_G, device = "png", width = 30, height = 20, 
     units = "cm")

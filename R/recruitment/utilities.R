@@ -182,6 +182,7 @@ load_database <- function(con, path, year=strftime(Sys.Date(), format="%Y")){
       cou_code,
       ser_nameshort,
       ser_area_division,
+      ser_hty_code,
       ser_qal_id,
       ser_y,
       /* 
