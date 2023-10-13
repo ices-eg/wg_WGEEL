@@ -1,4 +1,5 @@
 library(dplyr)
+library(stringr)
 
 #' predict_model
 #' makes prediction using the fitted model

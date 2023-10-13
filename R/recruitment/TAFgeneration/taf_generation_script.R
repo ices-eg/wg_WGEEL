@@ -1,4 +1,5 @@
 library(stringr)
+CY <- 2023
 
 # set current year
 
@@ -43,12 +44,15 @@ export_data_to_taf(source_directory=datawd,
 ######## Initialisation of files
 #### data.R
 write_to_taf("## 1 loading", "data.R",taf_directory, TRUE)
+write_to_taf("datawd <- './data'", "data.R",taf_directory, FALSE)
+write_to_taf(paste0("CY <-", CY), "data.R", taf_directory, FALSE)
 write_to_taf("for (f in list.files('boot/data/',pattern='Rdata$', full.names=TRUE)) load(f)", "data.R",taf_directory, TRUE)
 write_to_taf("source('utilities.R')", "data.R", taf_directory, FALSE)
 
 
 #### model.R
 write_to_taf("load('data/datamodel.Rdata')", "model.R",taf_directory, TRUE)
+write_to_taf(paste0("CY <-", CY), "model.R", taf_directory, FALSE)
 write_to_taf("source('utilities.R')", "model.R", taf_directory, FALSE)
 write_to_taf("modelResults <- character(0)", "model.R", taf_directory, FALSE)
 
@@ -102,7 +106,6 @@ write_to_taf("for (f in list.files('./','REPORT', full.names=TRUE, recursive=TRU
 ##### Write master.R directly in taf
 
 
-CY <- 2023
 
 
 #####------------------------------------ 2. CREATE METADATA (.bib file) ------------------------------------#####
@@ -181,3 +184,4 @@ draft.data(
 )
 export_report_rmd_to_taf(source_file="recruitment_analysis.Rmd", destination_file=NULL, taf_directory)
 file.copy(paste0(wddata,"/../Rmarkdown/ICES_template.docx"),taf_directory)
+rm(list=ls())
