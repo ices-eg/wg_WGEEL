@@ -1202,7 +1202,7 @@ print(g_other_landingskg_G)
 [remove this section, QG are now reported together with G]
 Only Sweden and Finland have reported quarantined glass eel restocking.
 Quarantined glass eel restocking peaked in the 1990s, decreased in the early
-2000s and increased again after the implementa-tion of the Eel Regulation.
+2000s and increased again after the implementation of the Eel Regulation.
 
 *************************************************************************
 
@@ -1227,8 +1227,7 @@ fun.agg<-function(X){
     )
   }}
 table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
-
-
+table<-data.frame(table,total=rowSums(table[,-1,drop=FALSE],na.rm=T))
 
 #ordering the column accordign to country order
 country_to_order = names(table)[-1]
@@ -1452,7 +1451,7 @@ hty<-unique(filtered_data$eel_hty_code)
 grouped_data <- group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=TRUE)
 fun.agg<-function(X){if(length(X)>0){round(sum(X)/10^6,ifelse(sum(X)>10^6,3,3))}else{sum(c(X,NA))}}
 table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
-table<-data.frame(table,total=rowSums(table[,-1],na.rm=T))
+table<-data.frame(table,total=rowSums(table[,-1, drop FALSE],na.rm=T))
 
 
 #ordering the column accordign to country order
