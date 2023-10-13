@@ -44,7 +44,7 @@ Table \@ref(tab:table-models-summary) gives the details of the configuration of 
 #| results = "asis",
 #| warning = FALSE,
 #| message = FALSE,
-#| tab.cap = "Model summary"
+#| tab.cap = "Model summary. DFA: Dynamic Factor Analysis"
 
 model_summary <- data.frame(
     row_name  = c("U", "Q", "m", "A", "Z", "R"),

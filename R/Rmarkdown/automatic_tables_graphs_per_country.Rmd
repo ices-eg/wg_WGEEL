@@ -4,6 +4,7 @@ author: "ICES EIFAAC GFCM wgeel - Data Group"
 date: "`r Sys.Date()`"
 documentclass: article
 output: 
+  bookdown::word_document2: default
   bookdown::html_document2:
     keep_md: true
     self_contained: true
@@ -12,7 +13,6 @@ output:
     toc: yes
     toc_depth: 3
     toc_float: true
-  bookdown::word_document2: default
 params:
   year:
     label: "year start"
@@ -75,25 +75,44 @@ params:
     label: "Release S"
     value: TRUE
   map:
+    
     label: "Draw maps"
     value: TRUE
-    
-
 ---
 
 ```{r setup, include=FALSE}
+#CY=2023
+CY=lubridate::year(Sys.time())
+
+
+output_format = knitr::opts_knit$get("rmarkdown.pandoc.to")
+if (is.null(output_format)){
+  table_function <- "kable"
+} else {
+  table_function <- switch(output_format,
+                           "docx" = "flextable",
+                           "html" = "kable")
+}
+nrow_formatted <- function(x){
+  if (table_function == "flextable"){
+    flextable::nrow_part(x,part="body")
+  } else{
+    nrow(x)
+  }
+}
+
+
 require(knitr)
 knitr::opts_chunk$set(echo = FALSE, warnings=FALSE, fig.width=12, fig.height=8, message=FALSE,error = TRUE) # error TRUE don't stop on error
 opts_knit$set(eval.after = 'fig.cap' ) # to be used in chunks used only to plot pictures
 options(knitr.table.format = 'pandoc') # options pour kable
 options(knitr.kable.NA = '.')
 my_pandoc_to <- knitr::opts_knit$get('rmarkdown.pandoc.to') # this variable will tell the kind of compilation used
-CY=2022
 getUsername <- function(){
 	name <- Sys.info()[["user"]]
 	return(name)
 }
-if (getUsername() == "hilaire.drouineau") setwd("~/Documents/Bordeaux/migrateurs/WGEEL/github/wg_WGEEL/R/Rmarkdown/") 
+if (getUsername() == "hdrouineau") setwd("~/Documents/Bordeaux/migrateurs/WGEEL/github/wg_WGEEL/R/Rmarkdown/") 
 if (getUsername() == "cedric.briand") setwd("C:/workspace/wg_WGEEL/R/Rmarkdown")
 if (getUsername() == "cboulenger") setwd("C:/Users/cboulenger/Documents/wg_WGEEL/R/Rmarkdown") 
 if (!exists("params")){
@@ -106,7 +125,18 @@ if (!exists("params")){
 
 
 
-
+```{r formatting table, echo=FALSE, include=FALSE}
+nice_table <- function(data, digits = 2, caption = ""){
+  if (table_function == "kable"){
+    kable(data, digits=digits,caption=caption)
+  } else if(table_function== "flextable"){
+    flextable::set_flextable_defaults(digits=digits)
+    flextable::flextable(data) %>%
+      flextable::set_caption(caption) %>%
+      flextable::autofit()
+  }
+}
+```
 
 ```{r load_utilities, eval=TRUE, echo=FALSE,include=FALSE}
 
@@ -129,7 +159,7 @@ load_package("colorspace")
 load_package("ggrepel")
 load_package("viridis")
 load_package("glue")
-load_package("kableExtra")
+library(kableExtra)
 load_package("pander")
 load_package("ggmap")
 load_package("sp")
@@ -189,7 +219,6 @@ wger_ys <- wger_ys %>% filter(das_qal_id<5&!is.na(das_qal_id))
 
 
 ```{r functions, echo=FALSE, warning=FALSE}
-
 fun.agg<-function(X, scalef){
 	if(length(X)>0){
 		round(sum(X)/scalef,ifelse(sum(X)>scalef,0,3))
@@ -236,10 +265,10 @@ table_pc <- function(country,
 			)
 		colnames(table)[2:(ncol(table)-1)]<-substr(colnames(table)[2:(ncol(table)-1)],4,10)
 		
-		the_kable <- kable(table,			
+		the_kable <- nice_table(table,			
 				digits=2, caption=paste(dataset,life_stage,ifelse(typ==6,"recreational","")))
 	} else {
-		the_kable <- kable(data.frame("warning"="no data"))  
+		the_kable <- nice_table(data.frame("warning"="no data"))  
 	}
 	return(the_kable)
 }
@@ -323,11 +352,11 @@ table_pc_lfs <- function(country, dataset, typ = 9,
 		caption=ifelse(typ %in% c(8,9),
 				paste("Release in", ifelse(typ==8,"kg","number")),
 				"Aquaculture in tons")
-		the_kable <- kable(table,			
+		the_kable <- nice_table(table,			
 				digits=2,
 				caption=caption)
 	} else {
-		the_kable <- kable(data.frame("warning"="no data"))  
+		the_kable <- nice_table(data.frame("warning"="no data"))  
 	}
 	return(the_kable)
 }
@@ -615,7 +644,17 @@ figure_ys <- function(stage_selected="Y"){
 	
 	
 	
-	idcol <- c("das_comment","das_id","ser_id","ser_area_division","f_subarea","lfs_code","lfs_name")	
+	idcol <- c("das_comment",
+	           "das_effort",
+	           "ser_effort_uni_code",
+	           "das_last_update" ,
+	           "das_id",
+	           "ser_id",
+	           "ser_area_division",
+	           "f_subarea",
+	           "lfs_code",
+	           "lfs_name",
+	           "das_qal_id")	
 	
 	wger_ys1 <- wger_ys %>% 
 			filter(lfs_code==stage_selected) %>%	
@@ -698,18 +737,18 @@ map_yellow_recruitment <- function(){
 		
 		country_map <- as(country_p,"Spatial")
 		country_map	<- country_p[country_p$cou_code== params$country,]	
-		location=c(left=bbox(country_map)[1,1]-0.5,
-				bottom=bbox(country_map)[2,1]-0.5,
-				right=bbox(country_map)[1,2]+0.5,
-				top=bbox(country_map)[2,2]+0.5)
-		lon_range <- location[c("left", "right")]
-		lat_range <- location[c("bottom", "top")]
+		location=c(left=sf::st_bbox(country_map)[1]-0.5,
+				bottom=sf::st_bbox(country_map)[2]-0.5,
+				right=sf::st_bbox(country_map)[3]+0.5,
+				top=sf::st_bbox(country_map)[4]+0.5)
+		lon_range <- location[c("left.xmin", "right.xmax")]
+		lat_range <- location[c("bottom.ymin", "top.ymax")]
 		lonlength <- diff(lon_range)
 		latlength <- diff(lat_range)
 		zoomlon <- ceiling(log2(360 * 2/lonlength))
 		zoomlat <- ceiling(log2(180 * 2/latlength))
 		zoom <- max(zoomlon, zoomlat)
-		
+		names(location)=c("left","bottom","right","top")
 		mymap <-get_stamenmap(location,zoom=zoom,
 				maptype = "terrain-background",
 				source="stamen")
@@ -771,18 +810,19 @@ map_recruitment <- function(){
 		
 		#country_map <- as(country_p,"Spatial")
 		country_map	<- sf::as_Spatial(sf::st_geometry(country_p[country_p$cou_code== params$country,]))	
-		location=c(left=bbox(country_map)[1,1]-0.5,
-				bottom=bbox(country_map)[2,1]-0.5,
-				right=bbox(country_map)[1,2]+0.5,
-				top=bbox(country_map)[2,2]+0.5)
-		lon_range <- location[c("left", "right")]
-		lat_range <- location[c("bottom", "top")]
+		location=c(left=sf::st_bbox(country_map)[1]-0.5,
+				bottom=sf::st_bbox(country_map)[2]-0.5,
+				right=sf::st_bbox(country_map)[3]+0.5,
+				top=sf::st_bbox(country_map)[4]+0.5)
+		lon_range <- location[c("left.xmin", "right.xmax")]
+		lat_range <- location[c("bottom.ymin", "top.ymax")]
 		lonlength <- diff(lon_range)
 		latlength <- diff(lat_range)
 		zoomlon <- ceiling(log2(360 * 2/lonlength))
 		zoomlat <- ceiling(log2(180 * 2/latlength))
 		zoom <- max(zoomlon, zoomlat)
-		
+		names(location)=c("left","bottom","right","top")
+
 		mymap <-get_stamenmap(location,zoom=zoom,
 				maptype = "terrain-background",
 				source="stamen")
@@ -821,17 +861,18 @@ map_ys <- function(){
 		palette <- grDevices::colorRampPalette(palette)(length(sites_cou))
 		country_map <- as(country_p,"Spatial")
 		country_map	<- country_p[country_p$cou_code== params$country,]	
-		location=c(left=bbox(country_map)[1,1]-0.5,
-				bottom=bbox(country_map)[2,1]-0.5,
-				right=bbox(country_map)[1,2]+0.5,
-				top=bbox(country_map)[2,2]+0.5)
-		lon_range <- location[c("left", "right")]
-		lat_range <- location[c("bottom", "top")]
+		location=c(left=sf::st_bbox(country_map)[1]-0.5,
+				bottom=sf::st_bbox(country_map)[2]-0.5,
+				right=sf::st_bbox(country_map)[3]+0.5,
+				top=sf::st_bbox(country_map)[4]+0.5)
+		lon_range <- location[c("left.xmin", "right.xmax")]
+		lat_range <- location[c("bottom.ymin", "top.ymax")]
 		lonlength <- diff(lon_range)
 		latlength <- diff(lat_range)
 		zoomlon <- ceiling(log2(360 * 2/lonlength))
 		zoomlat <- ceiling(log2(180 * 2/latlength))
 		zoom <- max(zoomlon, zoomlat)
+		names(location)=c("left","bottom","right","top")
 		
 		mymap <-get_stamenmap(location,zoom=zoom,
 				maptype = "terrain-background",
@@ -878,7 +919,11 @@ res <- table_pc(dataset="landings",
 		year_range=params$year:CY,
 		scalef=1000 # in tons
 )
-print(res %>% kable_styling())
+if (table_function == "kable"){
+  print(res %>% kable_styling())
+}else{
+  res
+}
 cat("\n")
 
 ```
@@ -910,7 +955,11 @@ res <- table_pc(dataset="landings",
 		year_range=1960:CY, 
 		scalef=1000
 )
-print(res %>% kable_styling())
+if (table_function == "kable"){
+  print(res %>% kable_styling())
+}else{
+  res
+}
 cat("\n")
 
 ```	
@@ -940,7 +989,11 @@ res <- table_pc(dataset="landings",
 		life_stage=c("YS"),
 		year_range=1960:CY, 
 		scalef=1000)
-print(res %>% kable_styling())
+if (table_function == "kable"){
+  print(res %>% kable_styling())
+}else{
+  (res)
+}
 cat("\n")
 ```
 
@@ -967,7 +1020,11 @@ res <- table_pc(dataset="landings",
 		life_stage=c("S"),
 		year_range=1960:CY, 			
 		scalef=1000)
-print(res %>% kable_styling())
+if (table_function == "kable"){
+  print(res %>% kable_styling())
+}else{
+  res
+}
 cat("\n")
 ```
 
@@ -997,7 +1054,11 @@ res <- table_pc(dataset="landings",
 		year_range=1960:CY, 
 		scalef=1000
 )
-print(res %>% kable_styling())
+if (table_function == "kable"){
+  print(res %>% kable_styling())
+}else{
+  res
+}
 cat("\n")
 ```
 
@@ -1028,7 +1089,11 @@ res <- table_pc(dataset="landings",
 		year_range=1960:CY,
 		scalef=1000
 )
-print(res %>% kable_styling())
+if (table_function == "kable"){
+  print(res %>% kable_styling())
+}else{
+  res
+}
 cat("\n")
 ```
 
@@ -1056,7 +1121,11 @@ res <- table_pc(dataset="landings",
 		life_stage=c("YS"),
 		year_range=1960:CY, 
 		scalef=1000)
-print(res %>% kable_styling())
+if (table_function == "kable"){
+  print(res %>% kable_styling())
+}else{
+  (res)
+}
 cat("\n")
 
 ```
@@ -1084,7 +1153,11 @@ res <- table_pc(dataset="landings",
 		life_stage=c("S"),
 		year_range=1960:CY, 
 		scalef=1000)
-print(res %>% kable_styling())
+if (table_function == "kable"){
+  print(res %>% kable_styling())
+}else{
+  (res)
+}
 cat("\n")
 ```
 
@@ -1111,7 +1184,7 @@ res_number <- table_pc_lfs(dataset="release",
 		year_range=1960:CY, 
 		scalef=10^6
 )
-release_n <- nrow(res_number)>0
+release_n <- nrow_formatted(res_number)>0
 
 res_kg <- table_pc_lfs(dataset="release", 
 		country=  params$country, 
@@ -1123,7 +1196,8 @@ res_kg <- table_pc_lfs(dataset="release",
 		year_range=params$year:CY, 
 		scalef=1
 )
-release_kg <- nrow(res_kg)>0
+
+release_kg <- nrow_formatted(res_kg)>0
 release_T <- release_kg | release_n
 cat("\n")
 
@@ -1139,7 +1213,11 @@ cat("\n")
 ```{r releasen, echo=FALSE, warning=FALSE, results="asis",eval=release_n}
 asis_output("## In number\\n")
 cat("\n")
-print(res_number %>% kable_styling())
+if (table_function == "kable"){
+  print(res_number %>% kable_styling())
+}else{
+  (res_number)
+}
 cat("\n")
 ```
 
@@ -1167,7 +1245,11 @@ asis_output("<br/>")
 ```{r releasekg, echo=FALSE, warning=FALSE, results="asis",eval=release_kg}
 asis_output("## In kg\\n")
 cat("\n")
-print(res_kg %>% kable_styling())
+if (table_function == "kable"){
+  print(res_kg %>% kable_styling())
+}else{
+  (res_kg)
+}
 cat("\n")
 asis_output("<br/>")
 cat("\n")
@@ -1201,7 +1283,7 @@ res <- table_pc_lfs(dataset="aquaculture",
 		year_range=1960:CY, 
 		scalef=1000	    
 )
-aqua_n <- nrow(res>0)
+aqua_n <- nrow_formatted(res)>0
 cat("\n")
 ```
 
@@ -1212,7 +1294,11 @@ cat("\n")
 asis_output("# Aquaculture\\n")
 cat("\n")
 asis_output("<br/>")
-print(res %>% kable_styling())
+if (table_function == "kable"){
+  print(res %>% kable_styling())
+}else{
+  (res)
+}
 asis_output("<br/>")
 cat("\n")
 

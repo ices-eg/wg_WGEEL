@@ -279,7 +279,7 @@ plot_MARSS(
 
 ```{r plotecoregionmodel}
 #| echo=FALSE,
-#| fig.cap = "Sub-population trends for the ecoregion MARSS model. The figure shows estimated sub-population trends for series sampled in Aegean-Levantine Sea (red), Baltic Sea (orange), Bay of Biscay and the Iberian Coast (green), Celtic Sea (cyan), Greater North Sea (blue) and Western Mediterranean Sea(pink). Lines represent mean estimates and dash lines represent 95 % confidence intervals",
+#| fig.cap = "Sub-population trends for the ecoregion MARSS model (H4). The figure shows estimated sub-population trends for series sampled in Aegean-Levantine Sea (red), Baltic Sea (orange), Bay of Biscay and the Iberian Coast (green), Celtic Sea (cyan), Greater North Sea (blue) and Western Mediterranean Sea(pink). Lines represent mean estimates and dash lines represent 95 % confidence intervals",
 #| fig.height = 8,
 #| message = FALSE,
 #| warning = FALSE
