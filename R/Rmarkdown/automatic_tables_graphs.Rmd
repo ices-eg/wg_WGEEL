@@ -181,6 +181,22 @@ iwanthue(5, 0, 360, 54, 180, 27, 67, plot=TRUE) # pimp
 iwanthue(5, 0, 360, 36, 180, 13, 73, plot=TRUE) # intense
 iwanthue(3, 0, 300, 60, 180, 73, 100, plot=TRUE) # fluoro
 iwanthue(3, 220, 260, 12, 150, 0, 53, plot=TRUE) # blue ocean
+
+
+
+#' fun.agg
+#' aggregation of a table
+#' @param X table to aggregate
+#' @param conversion (1000 to convert kg to tons, 1e6 to convert
+#' nb to millions)
+#'
+#' @return aggregated table
+#' @export
+#'
+fun.agg<-function(X, conversion=1000){
+  if(length(X)>0){round(sum(X)/conversion,ifelse(sum(X)>conversion,1,1))}else{sum(c(X,NA))}
+}
+
 ```
 
 # Key numbers
@@ -220,7 +236,7 @@ year<-unique(landings_YS$eel_year)
 country<-unique(landings_YS$eel_cou_code)
 hty<-unique(landings_YS$eel_hty_code)
 grouped_data <-group_data(landings_YS,geo="country",habitat=FALSE,lfs=FALSE,na.rm=TRUE)
-fun.agg<-function(X){if(length(X)>0){round(sum(X)/1000,ifelse(sum(X)>1000,1,1))}else{sum(c(X,NA))}}
+# fun.agg<-function(X){if(length(X)>0){round(sum(X)/1000,ifelse(sum(X)>1000,1,1))}else{sum(c(X,NA))}}
 grouped_data$eel_cou_code = as.factor(grouped_data$eel_cou_code)                       
 grouped_data <- predict_missing_values(grouped_data, verbose=FALSE, na.rm=FALSE)
 select_corr_land_YS<-aggregate(grouped_data$eel_value,by=list(grouped_data$eel_year),sum,na.rm=T)
@@ -388,10 +404,9 @@ year <- unique(filtered_data$eel_year)
 country <- unique(filtered_data$eel_cou_code)
 hty <- unique(filtered_data$eel_hty_code)
 grouped_data  <- group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=TRUE)
-fun.agg <- function(X){if(length(X)>0){round(sum(X)/1000,ifelse(sum(X)>1000,1,1))}else{sum(c(X,NA))}}
 
 ##table
-table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
+table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg, conversion = 1000)
 table <- data.frame(table,total=rowSums(table[,-1],na.rm=T))
 
 
@@ -482,14 +497,14 @@ year<-unique(filtered_data$eel_year)
 country<-unique(filtered_data$eel_cou_code)
 hty<-unique(filtered_data$eel_hty_code)
 grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=TRUE)
-fun.agg<-function(X){if(length(X)>0){round(sum(X)/1000,ifelse(sum(X)>1000,1,1))}else{sum(c(X,NA))}}
+# fun.agg<-function(X){if(length(X)>0){round(sum(X)/1000,ifelse(sum(X)>1000,1,1))}else{sum(c(X,NA))}}
 grouped_data$eel_cou_code = as.factor(grouped_data$eel_cou_code)                       
 landings3 <- predict_missing_values(grouped_data, verbose=FALSE, na.rm=FALSE) 
 landings3$eel_cou_code<-factor(landings3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
 landings3$eel_cou_code <- droplevels(landings3$eel_cou_code)
 color_countries2 <- color_countries[names(color_countries)%in%levels(landings3$eel_cou_code)]
 landings_year<-aggregate(eel_value~eel_year, landings3, sum)
-table = dcast(landings3, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
+table = dcast(landings3, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg, conversion = 1000)
 table2=dcast(landings3, eel_year~eel_cou_code, value.var = "predicted",fun = prod)
 ```
 
@@ -591,9 +606,9 @@ hty<-unique(filtered_data$eel_hty_code)
 grouped_data <-group_data(filtered_data,geo="country", habitat=FALSE, lfs=FALSE, na.rm=TRUE)
 
 ##table
-fun.agg<-function(X){if(length(X)>0){round(sum(X,na.rm=TRUE)/1000,ifelse(sum(X,na.rm=TRUE)>1000,1,1))}else{sum(c(X,NA))}}
+# fun.agg<-function(X){if(length(X)>0){round(sum(X,na.rm=TRUE)/1000,ifelse(sum(X,na.rm=TRUE)>1000,1,1))}else{sum(c(X,NA))}}
 
-table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
+table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg, conversion = 1000)
 table<-data.frame(table,total=rowSums(table[,-1],na.rm=T))              
 #ordering the column accordign to country order
 #country_to_order = names(table)[-1]
@@ -677,10 +692,10 @@ year<-unique(filtered_data$eel_year)
 country<-unique(filtered_data$eel_cou_code)
 hty<-unique(filtered_data$eel_hty_code)
 grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=TRUE)
-fun.agg<-function(X){if(length(X)>0){round(sum(X)/1000,ifelse(sum(X)>1000,1,1))}else{sum(c(X,NA))}}
+# fun.agg<-function(X){if(length(X)>0){round(sum(X)/1000,ifelse(sum(X)>1000,1,1))}else{sum(c(X,NA))}}
 grouped_data$eel_cou_code = as.factor(grouped_data$eel_cou_code)                       
 grouped_data <- predict_missing_values(grouped_data, verbose=FALSE, na.rm=FALSE) 
-table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
+table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg, conversion=1000)
 table2 = dcast(grouped_data, eel_year~eel_cou_code, value.var = "predicted",fun.aggregate = prod)
 
 
@@ -799,9 +814,9 @@ hty<-unique(filtered_data$eel_hty_code)
 grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=TRUE)
 
 ##Table
-fun.agg<-function(X){if(length(X)>0){round(sum(X)/1000,ifelse(sum(X)>1000,1,1))}else{sum(c(X,NA))}}
+# fun.agg<-function(X){if(length(X)>0){round(sum(X)/1000,ifelse(sum(X)>1000,1,1))}else{sum(c(X,NA))}}
 
-table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
+table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg, conversion=1000)
 table<-data.frame(table,total=rowSums(table[,-1],na.rm=T))
 
 
@@ -870,9 +885,9 @@ hty<-unique(filtered_data$eel_hty_code)
 grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=TRUE)
 
 ##Table
-fun.agg<-function(X){if(length(X)>0){round(sum(X)/1000,ifelse(sum(X)>1000,1,1))}else{sum(c(X,NA))}}
+# fun.agg<-function(X){if(length(X)>0){round(sum(X)/1000,ifelse(sum(X)>1000,1,1))}else{sum(c(X,NA))}}
 
-table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
+table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg, conversion = 1000)
 table<-data.frame(table,total=rowSums(table[,-1],na.rm=T))
 
 
@@ -985,9 +1000,9 @@ hty<-unique(filtered_data$eel_hty_code)
 grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=TRUE)
 
 ##Table
-fun.agg<-function(X){if(length(X)>0){round(sum(X)/10^6,ifelse(sum(X)>10^6,3,3))}else{sum(c(X,NA))}}
-table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
-table<-data.frame(table,total=rowSums(table[,-1],na.rm=T))
+# fun.agg<-function(X){if(length(X)>0){round(sum(X)/10^6,ifelse(sum(X)>10^6,3,3))}else{sum(c(X,NA))}}
+table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg, conversion =1e6)
+table<-data.frame(table,total=rowSums(table[,-1, drop=FALSE],na.rm=T))
 
 
 #ordering the column accordign to country order
@@ -1057,7 +1072,7 @@ print(g_release_G)
 
 filtered_data<-filter_data("release",
     typ = 8,
-    life_stage = c("G"),
+    life_stage = c("G", "QG"),
     year=1950:CY)%>% dplyr::filter(is.na(eel_missvaluequal))
 year<-unique(filtered_data$eel_year)
 country<-unique(filtered_data$eel_cou_code)
@@ -1113,8 +1128,8 @@ hty<-unique(filtered_data$eel_hty_code)
 grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=TRUE)
 
 ##Table
-fun.agg<-function(X){if(length(X)>0){round(sum(X)/10^6,ifelse(sum(X)>10^6,3,3))}else{sum(c(X,NA))}}
-table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
+# fun.agg<-function(X){if(length(X)>0){round(sum(X)/10^6,ifelse(sum(X)>10^6,3,3))}else{sum(c(X,NA))}}
+table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg, conversion = 1e6)
 table<-data.frame(table,total=rowSums(table[,-1,drop=FALSE],na.rm=T))
 
 
@@ -1219,14 +1234,14 @@ year<-unique(filtered_data$eel_year)
 country<-unique(filtered_data$eel_cou_code)
 hty<-unique(filtered_data$eel_hty_code)
 grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=TRUE)
-fun.agg<-function(X){
-  if(length(X)>0){
-    round(sum(X)/10^6,2)
-  }else{
-    sum(c(X,NA)
-    )
-  }}
-table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
+# fun.agg<-function(X){
+#   if(length(X)>0){
+#     round(sum(X)/10^6,2)
+#   }else{
+#     sum(c(X,NA)
+#     )
+#   }}
+table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg, conversion = 1e6)
 table<-data.frame(table,total=rowSums(table[,-1,drop=FALSE],na.rm=T))
 
 #ordering the column accordign to country order
@@ -1341,8 +1356,8 @@ year<-unique(filtered_data$eel_year)
 country<-unique(filtered_data$eel_cou_code)
 hty<-unique(filtered_data$eel_hty_code)
 grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=TRUE)
-fun.agg<-function(X){if(length(X)>0){round(sum(X)/10^6,ifelse(sum(X)>10^6,3,3))}else{sum(c(X,NA))}}
-table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
+# fun.agg<-function(X){if(length(X)>0){round(sum(X)/10^6,ifelse(sum(X)>10^6,3,3))}else{sum(c(X,NA))}}
+table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg, conversion = 1e6)
 table<-data.frame(table,total=rowSums(table[,-1],na.rm=T))
 
 
@@ -1449,9 +1464,9 @@ year<-unique(filtered_data$eel_year)
 country<-unique(filtered_data$eel_cou_code)
 hty<-unique(filtered_data$eel_hty_code)
 grouped_data <- group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=TRUE)
-fun.agg<-function(X){if(length(X)>0){round(sum(X)/10^6,ifelse(sum(X)>10^6,3,3))}else{sum(c(X,NA))}}
-table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
-table<-data.frame(table,total=rowSums(table[,-1, drop FALSE],na.rm=T))
+# fun.agg<-function(X){if(length(X)>0){round(sum(X)/10^6,ifelse(sum(X)>10^6,3,3))}else{sum(c(X,NA))}}
+table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg, conversion = 1e6)
+table<-data.frame(table,total=rowSums(table[,-1, drop = FALSE],na.rm=T))
 
 
 #ordering the column accordign to country order
@@ -1539,8 +1554,8 @@ year<-unique(filtered_data$eel_year)
 country<-unique(filtered_data$eel_cou_code)
 hty<-unique(filtered_data$eel_hty_code)
 grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=TRUE)
-fun.agg<-function(X){if(length(X)>0){round(sum(X)/10^6,ifelse(sum(X)>10^6,2,2))}else{sum(c(X,NA))}}
-table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
+# fun.agg<-function(X){if(length(X)>0){round(sum(X)/10^6,ifelse(sum(X)>10^6,2,2))}else{sum(c(X,NA))}}
+table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg, conversion = 1e6)
 
 
 
@@ -1632,8 +1647,8 @@ year<-unique(filtered_data$eel_year)
 country<-unique(filtered_data$eel_cou_code)
 hty<-unique(filtered_data$eel_hty_code)
 grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=TRUE)
-fun.agg<-function(X){if(length(X)>0){round(sum(X)/10^6,ifelse(sum(X)>10^6,3,3))}else{sum(c(X,NA))}}
-table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
+# fun.agg<-function(X){if(length(X)>0){round(sum(X)/10^6,ifelse(sum(X)>10^6,3,3))}else{sum(c(X,NA))}}
+table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg, conversion = 1e6)
 table<-data.frame(table,total=rowSums(table[,-1],na.rm=T))
 
 
@@ -1722,8 +1737,8 @@ year<-unique(filtered_data$eel_year)
 country<-unique(filtered_data$eel_cou_code)
 hty<-unique(filtered_data$eel_hty_code)
 grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na.rm=TRUE)
-fun.agg<-function(X){if(length(X)>0){round(sum(X)/10^6,ifelse(sum(X)>10^6,3,3))}else{sum(c(X,NA))}}
-table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
+# fun.agg<-function(X){if(length(X)>0){round(sum(X)/10^6,ifelse(sum(X)>10^6,3,3))}else{sum(c(X,NA))}}
+table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg, conversion = 1e6)
 table<-data.frame(table,total=rowSums(table[,-1],na.rm=T))
 
 
@@ -1980,9 +1995,9 @@ hty<-unique(filtered_data$eel_hty_code)
 grouped_data <-group_data(filtered_data, geo="country", habitat=FALSE, lfs=FALSE, na.rm=TRUE)
 
 ##Table
-fun.agg<-function(X){if(length(X)>0){round(sum(X)/1000,ifelse(sum(X)>1000,2,2))}else{sum(c(X,NA))}}
+# fun.agg<-function(X){if(length(X)>0){round(sum(X)/1000,ifelse(sum(X)>1000,2,2))}else{sum(c(X,NA))}}
 
-table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg)
+table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.aggregate = fun.agg, conversion = 1000)
 table<-data.frame(table,total=rowSums(table[,-1],na.rm=T))
 
 
