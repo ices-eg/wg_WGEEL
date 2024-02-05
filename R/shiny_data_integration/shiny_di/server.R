@@ -3,81 +3,82 @@
 ##############################################
 
 shinyServer(function(input, output, session){
-      # this stops the app when the browsser stops
-      #session$onSessionEnded(stopApp)
-      # A button that stops the application
-#      observeEvent(input$close, {
-#            js$closeWindow()
-#            stopApp()
-#          })
-      ##########################
-# I. Datacall Integration and checks
-      ######################### 
-      ##########################
-      # reactive values in data
-      ##########################
-      
-      data <- reactiveValues(pool=NULL,
-          connectOK=FALSE,
-          ser_list = NULL,
-          sam_list = NULL,
-          ccm_light = ccm_light,
-          typ_id = typ_id,
-          list_country = NULL,
-          main_assessor = NULL,
-          secondary_assessor = NULL)
-      
-      
-      output$passwordtest <- renderText({
-            req(input$passwordbutton)   
-            load_database()
-           
-            if (data$connectOK){
-              var_database()
-              if (Sys.info()["user"] %in% c("hdrouineau","cedric.briand"))
-                shinyjs::show("browser_button")
-              return("Connected") 
-            } else {
-              return(paste("password:",input$password,"wrong"))               
-            }})
-
-observeEvent(input$browser_button, browser())
-load_database <- function(){
-  # we use isolate as we want no dependency on the value (only the button being clicked)
-  passwordwgeel <- isolate(input$password)
-  ############################################
-  # FIRST STEP INITIATE THE CONNECTION WITH THE DATABASE
-  ###############################################
-#						options(sqldf.RPostgreSQL.user = userwgeel,  
-#								sqldf.RPostgreSQL.password = passwordwgeel,
-#								sqldf.RPostgreSQL.dbname = "wgeel",
-#								sqldf.RPostgreSQL.host = host, #getInformation("PostgreSQL host: if local ==> localhost"), 
-#								sqldf.RPostgreSQL.port = port)
+  tspanel <- reactiveValues(tspanel="SERIES")
+  # this stops the app when the browsser stops
+  #session$onSessionEnded(stopApp)
+  # A button that stops the application
+  #      observeEvent(input$close, {
+  #            js$closeWindow()
+  #            stopApp()
+  #          })
+  ##########################
+  # I. Datacall Integration and checks
+  ######################### 
+  ##########################
+  # reactive values in data
+  ##########################
   
-  # Define pool handler by pool on global level
+  data <- reactiveValues(pool=NULL,
+                         connectOK=FALSE,
+                         ser_list = NULL,
+                         sam_list = NULL,
+                         ccm_light = ccm_light,
+                         typ_id = typ_id,
+                         list_country = NULL,
+                         main_assessor = NULL,
+                         secondary_assessor = NULL)
   
-  pool <<- pool::dbPool(drv = RPostgres::Postgres(),
-      dbname="wgeel",
-      host=host,
-      port=port,
-      user= userwgeel,
-      password= passwordwgeel,
-      bigint="integer",
-      minSize = 0,
-      maxSize = 2)          
-  t <- tryCatch({dbListTables(pool);"OK"},error=function(e)"connexion error")
-  if (t=="connexion error") {
-    textoutput <- paste("password:",input$password,"wrong")
-    isolate(data$pool <- NULL)       
-    isolate(data$connectOK <- FALSE)
-  } else { 
-    isolate(data$pool <- pool)
-    isolate(data$connectOK <- dbGetInfo(data$pool)$valid)  
-    isolate(data$main_assessor <- input$main_assessor)
-    isolate(data$secondary_assessor <- input$secondary_assessor)
-    # if the password is wrong we need to test the connection           
+  
+  output$passwordtest <- renderText({
+    req(input$passwordbutton)   
+    load_database()
+    
+    if (data$connectOK){
+      var_database()
+      if (Sys.info()["user"] %in% c("hdrouineau","cedric.briand"))
+        shinyjs::show("browser_button")
+      return("Connected") 
+    } else {
+      return(paste("password:",input$password,"wrong"))               
+    }})
+  
+  observeEvent(input$browser_button, browser())
+  load_database <- function(){
+    # we use isolate as we want no dependency on the value (only the button being clicked)
+    passwordwgeel <- isolate(input$password)
+    ############################################
+    # FIRST STEP INITIATE THE CONNECTION WITH THE DATABASE
+    ###############################################
+    #						options(sqldf.RPostgreSQL.user = userwgeel,  
+    #								sqldf.RPostgreSQL.password = passwordwgeel,
+    #								sqldf.RPostgreSQL.dbname = "wgeel",
+    #								sqldf.RPostgreSQL.host = host, #getInformation("PostgreSQL host: if local ==> localhost"), 
+    #								sqldf.RPostgreSQL.port = port)
+    
+    # Define pool handler by pool on global level
+    
+    pool <<- pool::dbPool(drv = RPostgres::Postgres(),
+                          dbname="wgeel",
+                          host=host,
+                          port=port,
+                          user= userwgeel,
+                          password= passwordwgeel,
+                          bigint="integer",
+                          minSize = 0,
+                          maxSize = 2)          
+    t <- tryCatch({dbListTables(pool);"OK"},error=function(e)"connexion error")
+    if (t=="connexion error") {
+      textoutput <- paste("password:",input$password,"wrong")
+      isolate(data$pool <- NULL)       
+      isolate(data$connectOK <- FALSE)
+    } else { 
+      isolate(data$pool <- pool)
+      isolate(data$connectOK <- dbGetInfo(data$pool)$valid)  
+      isolate(data$main_assessor <- input$main_assessor)
+      isolate(data$secondary_assessor <- input$secondary_assessor)
+      # if the password is wrong we need to test the connection           
+    }
   }
-}
   
   
   var_database <- function(){
@@ -124,7 +125,7 @@ load_database <- function(){
     isolate({data$sai_list <- tr_sai_list})
     query <- "SELECT * FROM datawg.t_samplinginfo_sai"
     t_samplinginfo_sai <<- dbGetQuery(pool, sqlInterpolate(ANSI(), query))
-
+    
     
     #205-shiny-integration-for-dcf-data
     query <- "SELECT * from ref.tr_metrictype_mty"
@@ -140,8 +141,8 @@ load_database <- function(){
     query <- "SELECT min(eel_year) as min_year, max(eel_year) as max_year from datawg.t_eelstock_eel"
     the_years <<- dbGetQuery(pool, sqlInterpolate(ANSI(), query))   
     updateSliderTextInput(session,"yearAll",
-        choices=seq(the_years$min_year, the_years$max_year),
-        selected = c(the_years$min_year,the_years$max_year))
+                          choices=seq(the_years$min_year, the_years$max_year),
+                          selected = c(the_years$min_year,the_years$max_year))
     
     query <- "SELECT name from datawg.participants order by name asc"
     participants<<- dbGetQuery(pool, sqlInterpolate(ANSI(), query))  
@@ -151,15 +152,15 @@ load_database <- function(){
     emus <<- suppressWarnings(extract_ref("EMU", pool))			
     
     updatePickerInput(
-        session = session, inputId = "main_assessor",
-        choices = participants,
-        selected =NULL
+      session = session, inputId = "main_assessor",
+      choices = participants,
+      selected =NULL
     )
     
     updatePickerInput(
-        session = session, inputId = "secondary_assessor",
-        choices = participants,
-        selected = "Cedric Briand"
+      session = session, inputId = "secondary_assessor",
+      choices = participants,
+      selected = "Cedric Briand"
     )
     
   }# end var_database
@@ -172,23 +173,40 @@ load_database <- function(){
   importstep2Server("importstep2module", data, loaded_data)
   
   loaded_data_ts <- importtsstep0Server("importtsstep0module", globaldata=data) # globaldata <- data in the module 
-  importtsstep1Server("importtsstep1module", data, loaded_data_ts) # globaldata <- data in the module 
-  importtsstep2Server("importtsstep2module", data, loaded_data_ts) # globaldata <- data in the module 
+  tspanel <- reactiveValues(tspanel="SERIES")
+  newpanel1 <- importtsstep1Server("importtsstep1module", data, loaded_data_ts,tspanel)
+  observe({  # globaldata <- data in the module 
+    if ((newpanel1$tspanel)!=isolate(tspanel$tspanel))
+      tspanel$tspanel<-isolate(newpanel1$tspanel)
+  })
+  newpanel2 <- importtsstep2Server("importtsstep2module", data, loaded_data_ts,tspanel) # globaldata <- data in the module 
+  observe({
+    if ((newpanel2$tspanel)!=isolate(tspanel$tspanel))
+      tspanel$tspanel<-isolate(newpanel2$tspanel)
+  })
   
   loaded_data_dcf <- importdcfstep0Server("importdcfstep0module", globaldata=data)
-  importdcfstep1Server("importdcfstep1module", data, loaded_data_dcf) # globaldata <- data in the module 
-  importdcfstep2Server("importdcfstep2module", data, loaded_data_dcf) # globaldata <- data in the module
+  dcfpanel <- reactiveValues(dcfpanel="SAMPLINGS")
+  newpaneldcf1 <- importdcfstep1Server("importdcfstep1module", data, loaded_data_dcf,dcfpanel) # globaldata <- data in the module 
+  observe({  # globaldata <- data in the module 
+    if ((newpaneldcf1$dcfpanel)!=isolate(dcfpanel$dcfpanel))
+      dcfpanel$dcfpanel<-isolate(newpaneldcf1$dcfpanel)
+  })
+  newpaneldcf2 <- importdcfstep2Server("importdcfstep2module", data, loaded_data_dcf,dcfpanel) # globaldata <- data in the module
+  observe({if ((newpaneldcf2$dcfpanel)!=isolate(dcfpanel$dcfpanel))
+    dcfpanel$dcfpanel<-isolate(newpaneldcf2$dcfpanel)
+  })
   
   newparticipants <- newparticipantsServer("newparticipantsmodule",data)
   plotduplicatesServer("plotduplicatesmodule",data)
   plotseriesServer("plotseriesmodule",data)
   observe({
-        if (!is.null(newparticipants$participants)){
-          updatePickerInput(session=session,"main_assessor",choices=newparticipants$participants)
-          updatePickerInput(session=session,"secondary_assessor",choices=newparticipants$participants)
-          
-        }
-      })
+    if (!is.null(newparticipants$participants)){
+      updatePickerInput(session=session,"main_assessor",choices=newparticipants$participants)
+      updatePickerInput(session=session,"secondary_assessor",choices=newparticipants$participants)
+      
+    }
+  })
   
   
 })

@@ -44,7 +44,7 @@
 
 
 ## Annex 4
-* new rows: Error: Failed to fetch row: ERROR:  value too long for type character varying(2) - NOT INTEGRATED
+* new rows: 2 new rows integrated
 * updated rows: 1 values updated in the db
 
 ## Annex 5
