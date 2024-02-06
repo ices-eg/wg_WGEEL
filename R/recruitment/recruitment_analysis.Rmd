@@ -39,6 +39,7 @@ if(!require(car)) install.packages("car") ; require(car)
 if(!require(ggplot2)) install.packages("ggplot2") ; require(ggplot2)
 if(!require(reshape)) install.packages("reshape") ; require(reshape)
 if(!require(reshape2)) install.packages("reshape2") ; require(reshape2)
+if(!require(ggspatial)) install.packages("ggspatial") ; require(ggspatial)
 if(!require(stacomirtools)) install.packages("stacomirtools") ; require(stacomirtools) # for ODBC connections
 if(!require(stringr)) install.packages("stringr") ; require(stringr)
 if(!require(Hmisc)) install.packages("Hmisc") ; require(Hmisc)
@@ -2531,3 +2532,25 @@ dbDisconnect(con)
 
 ```
 <!-- END_TAF_REMOVE -->
+
+
+
+```{r influenceseries,eval=FALSE}
+compute_discrepancy=function(si,model=model_ge_area,years=2010:2024){
+         print(si)
+         pred_without=predict_model(update(model,data=model$data %>%
+                  filter(site!=si & value_std >0))) %>%
+           filter(year %in% years)
+         pred_with=predict_model(model) %>%
+           filter(year %in% years)
+         sum((pred_with$p_std-pred_without$p_std)^2)
+}
+   
+
+sites = unique(na.omit(model_ge_area$data$site))
+disc_yoy=data.frame(sites=sites,diff=sapply(sites,compute_discrepancy))
+
+sites = unique(na.omit(model_older$data$site))
+disc_older=data.frame(sites=sites,diff=sapply(sites,compute_discrepancy,model=model_older))
+
+```
