@@ -119,7 +119,7 @@ ui = shinydashboardPlus::dashboardPage(title="ICES Data Visualisation",
                             radioGroupButtons(
                                 inputId = "dataset",
                                 label = "Dataset",
-                                choices = c("landings","raw_landings_com","raw_landings_rec","landings_com_corrected","landings_rec_corrected","aquaculture_n", "aquaculture_kg", "release_kg", "release_n","gee", "precodata"),
+                                choices = c("landings","raw_landings_com","raw_landings_rec","landings_com_corrected","landings_rec_corrected", "aquaculture_kg", "release_kg", "release_n","gee", "precodata"),
                                 status = "primary",
                                 checkIcon = list(
                                     yes = icon("ok", 

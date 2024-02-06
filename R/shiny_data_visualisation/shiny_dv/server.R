@@ -81,15 +81,15 @@ server = function(input, output, session) {
 					)      
 					filtered_data<-subset(filtered_data,!is.na(eel_value)) 
 					
-				}  else if (input$dataset == "aquaculture_n"){      
-					filtered_data<-filter_data("aquaculture",
-							typ = 12,
-							life_stage = input$lfs, 
-							country = input$country,
-							habitat = input$habitat,
-							year_range = input$year[1]:input$year[2]                                      
-					)      
-					filtered_data<-subset(filtered_data,!is.na(eel_value)) 
+			#	}  else if (input$dataset == "aquaculture_n"){      
+			#	  filtered_data<-filter_data("aquaculture",
+			#				typ = 12,
+			#				life_stage = input$lfs, 
+			#				country = input$country,
+			#				habitat = input$habitat,
+			#				year_range = input$year[1]:input$year[2]                                      
+			#		)      
+			#		filtered_data<-subset(filtered_data,!is.na(eel_value)) 
 					
 					
 				}   else if (input$dataset == "release_kg"){      
@@ -229,7 +229,7 @@ server = function(input, output, session) {
 	                    "raw_landings_rec"="ton",
 	                    "landings_com_corrected"="ton",
 	                    "landings_rec_corrected"="ton",
-	                    "aquaculture_n"="n",
+	                   # "aquaculture_n"="n",
 	                    "aquaculture_kg"="kg",
 	                    "release_kg"="kg",
 	                    "release_n"="number",
@@ -415,8 +415,8 @@ server = function(input, output, session) {
 	
 	get_aquaculture <- eventReactive(input$aquaculture_button,{
 				switch(input$aquaculture_eel_typ_id,
-						"ton" = typ <- 11,
-						"n"  = typ <- 12)
+						"ton" = typ <- 11)#,
+					#	"n"  = typ <- 12)
 				filtered_data <- filter_data("aquaculture", 
 						life_stage = input$lfs, 
 						country = input$country, 
@@ -435,11 +435,11 @@ server = function(input, output, session) {
 					title2 <- "Aquaculture weight (tons) for " 
 					aquaculture$eel_value <- as.numeric(aquaculture$eel_value) / 1000
 				}
-				else  if (input$aquaculture_eel_typ_id == "n") 
-					title2 <- "Aquaculture number for "
+			#	else  if (input$aquaculture_eel_typ_id == "n") 
+				#	title2 <- "Aquaculture number for "
 				switch(input$aquaculture_eel_typ_id,
-						"ton" = typ <-11,
-						"n"  = typ <- 12)
+						"ton" = typ <-11)#,
+						#"n"  = typ <- 12)
 				title <- paste(title2, "stages = ", paste(input$lfs,collapse="+"))
 				
 				aquaculture_graph(dataset=aquaculture,
@@ -458,11 +458,11 @@ server = function(input, output, session) {
 					title2 <- "Aquaculture weight (tons) for " 
 					aquaculture$eel_value <- as.numeric(aquaculture$eel_value) / 1000
 				}
-				else  if (input$aquaculture_eel_typ_id == "n") 
-					title2 <- "Aquaculture number for "
+			#	else  if (input$aquaculture_eel_typ_id == "n") 
+				#	title2 <- "Aquaculture number for "
 				switch(input$aquaculture_eel_typ_id,
-						"ton" = typ <-11,
-						"n"  = typ <- 12)
+						"ton" = typ <-11)#,
+					#	"n"  = typ <- 12)
 				title <- paste(title2, "stages = ", paste(input$lfs,collapse="+"))
 				
 				ggsave(file, aquaculture_graph(dataset=aquaculture,
@@ -645,7 +645,7 @@ server = function(input, output, session) {
 								radioGroupButtons(
 										inputId = "leaflet_eel_typ_id",
 										label = "Dataset",
-										choices = c("q_aqua_kg"=11,"q_aqua_n"=12),
+										choices = c("q_aqua_kg"=11),
 										selected=c("q_aqua_kg"=11),
 										direction = "horizontal"                               
 								),
