@@ -401,8 +401,8 @@ source("../shiny_data_visualisation/shiny_dv/database_connection.R")
 
 
 
-my_map <- get_stamenmap( c(left = -13, bottom = 35, right =
-						27, top = 65),zoom=4, maptype = c("watercolor"))
+# my_map <- get_map( c(left = -13, bottom = 35, right =
+# 						27, top = 65),zoom=4, maptype = c("stamen_watercolor"))
 
 
 #<TAF_REMOVE>
@@ -428,25 +428,25 @@ save(fao, file=paste0(datawd,"fao.Rdata"))
 #<END_TAF_REMOVE>
 
 load(paste0(datawd,"fao.Rdata"))
-ggmap_bbox <- function(map) {
-	if (!inherits(map, "ggmap")) stop("map must be a ggmap object")
-	# Extract the bounding box (in lat/lon) from the ggmap to a numeric vector, 
-	# and set the names to what sf::st_bbox expects:
-	map_bbox <- setNames(unlist(attr(map, "bb")), 
-			c("ymin", "xmin", "ymax", "xmax"))
-	
-	# Coonvert the bbox to an sf polygon, transform it to 3857, 
-	# and convert back to a bbox (convoluted, but it works)
-	bbox_3857 <- st_bbox(st_transform(st_as_sfc(st_bbox(map_bbox, crs = 4326)), 3857))
-	
-	# Overwrite the bbox of the ggmap object with the transformed coordinates 
-	attr(map, "bb")$ll.lat <- bbox_3857["ymin"]
-	attr(map, "bb")$ll.lon <- bbox_3857["xmin"]
-	attr(map, "bb")$ur.lat <- bbox_3857["ymax"]
-	attr(map, "bb")$ur.lon <- bbox_3857["xmax"]
-	map
-}
-my_map<- ggmap_bbox(my_map)
+# ggmap_bbox <- function(map) {
+# 	if (!inherits(map, "ggmap")) stop("map must be a ggmap object")
+# 	# Extract the bounding box (in lat/lon) from the ggmap to a numeric vector, 
+# 	# and set the names to what sf::st_bbox expects:
+# 	map_bbox <- setNames(unlist(attr(map, "bb")), 
+# 			c("ymin", "xmin", "ymax", "xmax"))
+# 	
+# 	# Coonvert the bbox to an sf polygon, transform it to 3857, 
+# 	# and convert back to a bbox (convoluted, but it works)
+# 	bbox_3857 <- st_bbox(st_transform(st_as_sfc(st_bbox(map_bbox, crs = 4326)), 3857))
+# 	
+# 	# Overwrite the bbox of the ggmap object with the transformed coordinates 
+# 	attr(map, "bb")$ll.lat <- bbox_3857["ymin"]
+# 	attr(map, "bb")$ll.lon <- bbox_3857["xmin"]
+# 	attr(map, "bb")$ur.lat <- bbox_3857["ymax"]
+# 	attr(map, "bb")$ur.lon <- bbox_3857["xmax"]
+# 	map
+# }
+# my_map<- ggmap_bbox(my_map)
 stations <- st_transform(st_as_sf(R_stations,coords=c("ser_x","ser_y"),crs=4326),3857)
 #stations <- st_as_sf(R_stations,coords=c("ser_x","ser_y"),crs=4326)
 
@@ -454,9 +454,11 @@ stations$X = st_coordinates(stations)[,"X"]
 stations$Y = st_coordinates(stations)[,"Y"]
 
 
-mapG <- ggmap(my_map)+  
-		coord_sf(crs = st_crs(3857)) + # force it to be 3857
-		geom_sf(data=fao %>% filter(zone %in% c("North Sea","Elsewhere Europe")), inherit.aes = FALSE, aes(fill=zone)) +
+
+
+mapG <- ggplot() +
+  annotation_map_tile(type = "https://watercolormaps.collection.cooperhewitt.org/tile/watercolor/${z}/${x}/${y}.jpg")+
+  geom_sf(data=fao %>% filter(zone %in% c("North Sea","Elsewhere Europe")), inherit.aes = FALSE, aes(fill=zone)) +
 #		geom_sf(data=fao, inherit.aes = FALSE,aes(fill=zone)) +
 		geom_sf_text(data=st_centroid(fao), inherit.aes=FALSE, aes(label=f_code),cex=1.5) +
 #		geom_sf(data=stations,aes(color=ser_lfs_code,shape=ser_lfs_code),size=2, inherit.aes = FALSE)+
@@ -496,7 +498,8 @@ mapG <- ggmap(my_map)+
 		
 		) + xlab("")+ylab("")
 
-mapY <- ggmap(my_map)+  
+mapY <- ggplot()+
+  annotation_map_tile(type = "https://watercolormaps.collection.cooperhewitt.org/tile/watercolor/${z}/${x}/${y}.jpg")+
 		coord_sf(crs = st_crs(3857)) + # force it to be 3857
 		geom_sf(data=fao, inherit.aes = FALSE, fill=NA) +
 		geom_sf_text(data=st_centroid(fao), inherit.aes=FALSE,aes(label=f_code),cex=1.5) +
