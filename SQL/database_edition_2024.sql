@@ -51,6 +51,7 @@ SELECT x.* FROM datawg.t_series_ser x
 WHERE ser_nameshort ='BeeGY';
 
 
+
 drop table if exists ref.tr_model_mod cascade;
 
 create table ref.tr_model_mod (
@@ -91,3 +92,69 @@ constraint c_fk_dat_run_id foreign key (dat_run_id) references datawg.t_modelrun
 
 grant all on datawg.t_modeldata_dat to wgeel;
 grant select on datawg.t_modeldata_dat to wgeel_read;
+
+UPDATE datawg.t_series_ser
+  SET (ser_qal_id, ser_qal_comment)=(3,'Duplicated series from BeeG, this series will not be used in the analysis')
+  WHERE ser_id=317; 
+
+
+
+
+
+ALTER SEQUENCE "ref".tr_metrictype_mty_mty_id_seq RESTART WITH 27;
+UPDATE "ref".tr_metrictype_mty SET (mty_name,mty_method,mty_individual_name) =
+('female_proportion (from size)', 'macroscopic inspection of size','is_female_size(1=female,0=male)')
+WHERE mty_name ='female_proportion';
+
+INSERT INTO "ref".tr_metrictype_mty 
+(mty_name,
+mty_individual_name,
+mty_description,
+mty_type,
+mty_method,
+mty_uni_code,
+mty_group,
+mty_min,
+mty_max) 
+SELECT
+'Female proportion (from gonads)' AS mty_name
+,'has_female_gonads(1=female,0=male)' AS mty_individual_name
+,mty.mty_description
+,mty.mty_type
+,'Dissection and visual inspection of gonads' AS mty_method
+,mty.mty_uni_code
+,mty.mty_group
+,mty.mty_min
+,mty.mty_max
+FROM "ref".tr_metrictype_mty mty WHERE 
+mty_name = 'female_proportion (from size)';
+
+
+UPDATE "ref".tr_metrictype_mty SET (mty_name,mty_method, mty_individual_name) = 
+('anguillicola_proportion (visual)' , 'Visual inspection of the swimbladder','anguillicola_presence_visual(1=present,0=absent)')
+WHERE mty_name ='anguillicola_proportion';
+
+
+INSERT INTO "ref".tr_metrictype_mty 
+(mty_name
+,mty_individual_name
+,mty_description
+,mty_type
+,mty_method
+,mty_uni_code
+,mty_group
+,mty_min
+,mty_max) 
+SELECT
+'anguillicola_proportion (microscope)' AS mty_name
+,'anguillicola_presence_microscope(1=present,0=absent)' AS mty_individual_name
+,mty.mty_description
+,mty.mty_type
+,'Use of a stereo microscope to count the number of parasites in the swimbladder' AS mty_method
+,mty.mty_uni_code
+,mty.mty_group
+,mty.mty_min
+,mty.mty_max
+FROM "ref".tr_metrictype_mty mty WHERE 
+mty_name = 'anguillicola_proportion (visual)';
+
