@@ -3,6 +3,27 @@
 # Authors: lbeaulaton Cedric
 ###############################################################################
 
+radioTooltip <- function(id, choice, title, placement = "bottom", trigger = "hover", options = NULL){
+  
+  options = shinyBS:::buildTooltipOrPopoverOptionsList(title, placement, trigger, options)
+  options = paste0("{'", paste(names(options), options, sep = "': '", collapse = "', '"), "'}")
+  bsTag <- shiny::tags$script(shiny::HTML(paste0("
+    $(document).ready(function() {
+      setTimeout(function() {
+        $('input', $('#", id, "')).each(function(){
+          if(this.getAttribute('value') == '", choice, "') {
+            opts = $.extend(", options, ", {html: true});
+            $(this.parentElement).tooltip('destroy');
+            $(this.parentElement).tooltip(opts);
+          }
+        })
+      }, 500)
+    });
+  ")))
+  htmltools::attachDependencies(bsTag, shinyBS:::shinyBSDep)
+}
+
+
 #spsDepend("toastr")
 ui = shinydashboardPlus::dashboardPage(title="ICES Data Visualisation",
     skin = "black",
@@ -108,6 +129,7 @@ ui = shinydashboardPlus::dashboardPage(title="ICES Data Visualisation",
             
             # TABLE --------------------------------------------------------------------------------
             
+
             tabItem(tabName="table_tab",
                 box(id="box_table",
                     title="Table per country",
@@ -126,9 +148,22 @@ ui = shinydashboardPlus::dashboardPage(title="ICES Data Visualisation",
                                         lib = "glyphicon"),
                                     no = icon("remove",
                                         lib = "glyphicon"))
-                            )), 
+                            )),
+                        radioTooltip(id = "dataset", choice = "landings", title = "Sum of reported landings in tonnes (commercial, recreational and others)", placement = "right", trigger = "hover"),
+                        radioTooltip(id = "dataset", choice = "raw_landings_com", title = "Reported commerical landings in tonnes", placement = "right", trigger = "hover"),
+                        radioTooltip(id = "dataset", choice = "raw_landings_rec", title = "Reported recreational landings in tonnes", placement = "right", trigger = "hover"),
+                        radioTooltip(id = "dataset", choice = "landings_com_corrected", title = "Corrected commerical landings using GLM in tonnes", placement = "right", trigger = "hover"),
+                        radioTooltip(id = "dataset", choice = "landings_rec_corrected", title = "Corrected recreational landings using GLM in tonnes", placement = "right", trigger = "hover"),
+                        radioTooltip(id = "dataset", choice = "aquaculture_kg", title = "Aquaculture biomass production", placement = "right", trigger = "hover"),
+                        radioTooltip(id = "dataset", choice = "release_kg", title = "Biomass of released eels", placement = "right", trigger = "hover"),
+                        radioTooltip(id = "dataset", choice = "release_n", title = "Number of released eels", placement = "right", trigger = "hover"),
+                        radioTooltip(id = "dataset", choice = "gee", title = "Glass eel equivalent", placement = "right", trigger = "hover"),
+                        radioTooltip(id = "dataset", choice = "precodata", title = "Biomasses in kg, mortality rates for the eel lifespan year \u207b\u00b9", placement = "right", trigger = "hover"),
                         column(width=6,htmlOutput("table_description"))),
                     DT::dataTableOutput("table"))),
+    
+            
+        
             
             # LANDINGS ------------------------------------------------------------------------------
             
@@ -145,7 +180,7 @@ ui = shinydashboardPlus::dashboardPage(title="ICES Data Visualisation",
                         ),
                         bsTooltip(id= "combined_button", #  donne le lien vers n'importe quel input ou output
                             title = "Click to refresh / launch the graph",
-                            placement="top", # default bottom
+                            placement="bottom", # default bottom
                             trigger="hover", # hover focus click, hover default
                             options=NULL
                         ),
@@ -242,7 +277,7 @@ ui = shinydashboardPlus::dashboardPage(title="ICES Data Visualisation",
                     ),
                     bsTooltip(id= "available_landings_button", #  donne le lien vers n'importe quel input ou output
                         title = "Click to refresh / launch the graph",
-                        placement="top", # default bottom
+                        placement="bottom", # default bottom
                         trigger="hover", # hover focus click, hover default
                         options=NULL
                     )

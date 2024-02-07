@@ -50,6 +50,49 @@ AS SELECT t_eelstock_eel.eel_id,
 SELECT x.* FROM datawg.t_series_ser x
 WHERE ser_nameshort ='BeeGY';
 
+
+
+drop table if exists ref.tr_model_mod cascade;
+
+create table ref.tr_model_mod (
+mod_nameshort text not null,
+mod_description text,
+constraint tr_model_mod_pkey primary key (mod_nameshort)
+);
+grant all on ref.tr_model_mod to wgeel;
+grant select on ref.tr_model_mod to wgeel_read;
+
+drop table if exists datawg.t_modelrun_run cascade;
+create table datawg.t_modelrun_run(
+run_id serial4,
+run_date date not null,
+run_mod_nameshort text not null,
+run_description text,
+constraint tr_modelrun_run_pkey primary key (run_id),
+constraint c_fk_run_mod_nameshort foreign key (run_mod_nameshort) references ref.tr_model_mod(mod_nameshort) on update cascade on delete cascade
+);
+
+
+grant all on datawg.t_modelrun_run to wgeel;
+grant select on datawg.t_modelrun_run to wgeel_read;
+
+
+drop table if exists datawg.t_modeldata_dat cascade;
+create table datawg.t_modeldata_dat(
+dat_id serial4,
+dat_run_id int4 not null,
+dat_ser_id int4 not null,
+dat_ser_year int4 not null,
+dat_das_value numeric,
+constraint tr_model_mod_pkey primary key (dat_id),
+constraint c_uk_modeldata_das_id_run_id unique(dat_run_id,dat_ser_year,dat_ser_id),
+CONSTRAINT c_fk_dat_ser_id FOREIGN KEY (dat_ser_id) REFERENCES datawg.t_series_ser(ser_id) ON UPDATE CASCADE on delete cascade,
+constraint c_fk_dat_run_id foreign key (dat_run_id) references datawg.t_modelrun_run(run_id) on update cascade on delete cascade
+);
+
+grant all on datawg.t_modeldata_dat to wgeel;
+grant select on datawg.t_modeldata_dat to wgeel_read;
+
 UPDATE datawg.t_series_ser
   SET (ser_qal_id, ser_qal_comment)=(3,'Duplicated series from BeeG, this series will not be used in the analysis')
   WHERE ser_id=317; 
@@ -114,3 +157,4 @@ SELECT
 ,mty.mty_max
 FROM "ref".tr_metrictype_mty mty WHERE 
 mty_name = 'anguillicola_proportion (visual)';
+
