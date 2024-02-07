@@ -4,7 +4,7 @@
 ###############################################################################
 
 # PostgreSQL connection (if needed)
-if(!exists("extract_data")) source("R/database_interaction/database_data.R")
+if(!exists("extract_data")) source("./database_data.R")
 
 #' @title FUNCTION_TITLE
 #' @description FUNCTION_DESCRIPTION
