@@ -2370,19 +2370,45 @@ library(yaml)
 con = dbConnect(RPostgres::Postgres(), dbname=cred$dbname,host=cred$host,port=cred$port,user=cred$user, password=cred$password)
 
 series=dbReadTable(con,Id(schema="datawg",table="t_series_ser"))
-
+inclusion=dbGetQuery(con,"select min(extract (year from run_date)) as intro_year, ser_nameshort from datawg.t_modeldata_dat left join datawg.t_modelrun_run on dat_run_id=run_id left join datawg.t_series_ser on ser_id=dat_ser_id group by ser_nameshort") %>%
+  mutate(intro_year=ifelse(intro_year==2018,"≤2018",intro_year))
 
 #####First we draw retrospective plots with the data as they were when the model was run
-compute_retro_year <- function(year,model="glm_yoy",exclude_run_id=NULL){
-  data=dbGetQuery(con,paste0("select * from datawg.t_modelrun_run left join datawg.t_modeldata_dat on dat_run_id=run_id where extract(year from run_date)=",year, " and run_mod_nameshort='",model,"'"))
+compute_retro_year <- function(y,model="glm_yoy",exclude_run_id=NULL, update_data =FALSE){
+  data=dbGetQuery(con,paste0("select * from datawg.t_modelrun_run left join datawg.t_modeldata_dat on dat_run_id=run_id where extract(year from run_date)=",y, " and run_mod_nameshort='",model,"'"))
   runids=unique(data$run_id)
   do.call(bind_rows,lapply(runids,function(rid){
     subdata=data %>%
       filter(run_id==rid) %>%
       dplyr::rename(ser_id="dat_ser_id")
     subdata <- subdata %>%
-      left_join(R_stations) %>%
       dplyr::rename(das_value="dat_das_value")
+    dbWriteTable(con,"temp_table",subdata[,c("ser_id","dat_ser_year")],temporary=TRUE)
+    newvalues=dbGetQuery(con,"select das_ser_id ser_id, dat_ser_year, das_value new_val, das_year from temp_table  full join datawg.t_dataseries_das on  ser_id=das_ser_id and dat_ser_year=das_year where (das_qal_id is null or das_qal_id in (1,2,4)) and das_ser_id in (select ser_id from temp_table) and das_ser_id is not null")
+    dbGetQuery(con,"drop table temp_table")
+    
+    updatedvalues = newvalues %>% #this is a data that might have been updated after the assessment
+      filter(das_year<=y)
+    lattervalues = newvalues %>% #this is a data in year after the assessment
+      filter(das_year>y)
+
+    if (update_data){
+      subdata <- subdata %>%
+        merge(updatedvalues,all.x=TRUE) %>%
+        mutate(das_value = new_val)
+    } 
+    subdata <- subdata %>%
+      bind_rows(lattervalues %>%
+                  dplyr::select(ser_id,das_year,new_val) %>%
+                  dplyr::rename(dat_ser_year="das_year",
+                         das_value="new_val"))
+    
+    
+
+
+    
+    subdata <- subdata %>%
+      left_join(R_stations)
     meanseries = subdata %>%
       dplyr::group_by(ser_nameshort) %>%
       dplyr::summarize(mean=mean(das_value, na.rm=TRUE))%>%
@@ -2404,12 +2430,17 @@ compute_retro_year <- function(year,model="glm_yoy",exclude_run_id=NULL){
                      filter(value_std>0 & dat_ser_year>1949))
     }
     res <- predict_model(mymodel,reference=1960:1979)
-    res$run_id=year
+    res$run_id=y
+    res <- bind_rows(res %>% 
+                       filter(year<=y) %>%
+                       mutate(proj=FALSE),
+                     res %>% 
+                       filter(year>=y) %>%
+                       mutate(proj=TRUE))
     res
     
   }))
 }
-
 
 
 
@@ -2422,11 +2453,12 @@ retro_yoy_notupdated=do.call(bind_rows,lapply(2018:2022,compute_retro_year)) %>%
 
 ggretro_yoy_notupdated <- ggplot(retro_yoy_notupdated,
        aes(x=year,y=p_std_1960_1979)) + 
-  geom_line(aes(col=as.factor(run_id))) +
+  geom_line(aes(col=as.factor(run_id),lty=proj)) +
   facet_wrap(~area, scales="free") +
   scale_y_log10(expression(frac(p,bar(p)[1960-1979])))+ 
   theme_bw()+ 
-  labs(col="")
+  scale_color_viridis_d("")+ guides(lty = "none") + 
+  xlim(CY-10,CY)
 
 
 #######retrospective plot model_yoy
@@ -2438,119 +2470,104 @@ retro_older_notupdated=do.call(bind_rows,lapply(2018:2022,compute_retro_year,mod
 
 ggretro_older_notupdated <- ggplot(retro_older_notupdated,
        aes(x=year,y=p_std_1960_1979)) + 
-  geom_line(aes(col=as.factor(run_id))) +
+  geom_line(aes(col=as.factor(run_id),lty=proj)) +
 #  facet_wrap(~area) +
   scale_y_log10(expression(frac(p,bar(p)[1960-1979]))) + 
   theme_bw() + 
-  labs(col="")
-
-
-#####now we draw retrospective plots with the lastest value of each data point, this allows to see the differences due to series integration and/or data update
-compute_retro_year_updated_data <- function(year,model="glm_yoy",exclude_run_id=NULL){
-  data=dbGetQuery(con,paste0("select * from datawg.t_modelrun_run left join datawg.t_modeldata_dat on dat_run_id=run_id where extract(year from run_date)=",year, " and run_mod_nameshort='",model,"'"))
-  runids=unique(data$run_id)
-  do.call(bind_rows,lapply(runids,function(rid){
-    subdata=data %>%
-      filter(run_id==rid) %>%
-      dplyr::rename(ser_id="dat_ser_id")
-    subdata <- subdata %>%
-      left_join(R_stations) %>%
-      dplyr::rename(das_value="dat_das_value")
-    dbWriteTable(con,"temp_table",subdata[,c("ser_id","dat_ser_year")],temporary=TRUE)
-    newvalues=dbGetQuery(con,"select ser_id, dat_ser_year, das_value new_val from temp_table  left join datawg.t_dataseries_das on  ser_id=das_ser_id and dat_ser_year=das_year where das_qal_id is null or das_qal_id in (1,2,4)")
-    dbGetQuery(con,"drop table temp_table")
-    
-    sudata <- subdata %>%
-      merge(newvalues,all.x=TRUE) %>%
-      mutate(das_value = new_val)
-    
-    meanseries = subdata %>%
-      dplyr::group_by(ser_nameshort) %>%
-      dplyr::summarize(mean=mean(das_value, na.rm=TRUE))%>%
-      ungroup()
-    
-    subdata <- subdata %>%
-      inner_join(meanseries) %>%
-      mutate(value_std=das_value/mean,
-             year_f=as.factor(dat_ser_year)) %>%
-      dplyr::rename(site="ser_nameshort") %>%
-      mutate(area=as.factor(area),
-             site=as.factor(site))
-      
-    if(model=="glm_yoy"){
-      mymodel <- update(model_ge_area,data=subdata %>%
-                     filter(value_std>0 & dat_ser_year>1959))
-    } else {
-      mymodel <- update(model_older,data=subdata %>%
-                     filter(value_std>0 & dat_ser_year>1949))
-    }
-    res <- predict_model(mymodel,reference=1960:1979)
-    res$run_id=year
-    res
-    
-  }))
-}
-
-
+  scale_color_viridis_d("")+ guides(lty = "none") + 
+  xlim(CY-10,CY)
 
 
 
 
 #######retrospective plot model_yoy
 
-retro_yoy_updated=do.call(bind_rows,lapply(2018:2022,compute_retro_year_updated_data)) %>%
+retro_yoy_updated=do.call(bind_rows,lapply(2018:2022,compute_retro_year, update_data=TRUE)) %>%
   rename_with(~paste0("p_std",gsub("p_std","_1960_1979",.x)),starts_with("p_std")) %>%
   bind_rows(dat_ge) %>%
   mutate(run_id=ifelse(is.na(run_id),"current",run_id))
 
 ggretro_yoy_updated <- ggplot(retro_yoy_updated,
        aes(x=year,y=p_std_1960_1979)) + 
-  geom_line(aes(col=as.factor(run_id))) +
+  geom_line(aes(col=as.factor(run_id),lty=proj)) +
   facet_wrap(~area, scales="free") +
   scale_y_log10(expression(frac(p,bar(p)[1960-1979])))+ 
   theme_bw()+ 
-  labs(col="")
+  scale_color_viridis_d("")+ guides(lty = "none") + 
+  xlim(CY-10,CY)
 
 
 #######retrospective plot model_yoy
 
-retro_older_updated=do.call(bind_rows,lapply(2018:2022,compute_retro_year_updated_data,model="glm_older")) %>%
+retro_older_updated=do.call(bind_rows,lapply(2018:2022,compute_retro_year,model="glm_older", update_data=TRUE)) %>%
   rename_with(~paste0("p_std",gsub("p_std","_1960_1979",.x)),starts_with("p_std"))%>%
   bind_rows(dat_ye) %>%
   dplyr::mutate(run_id=ifelse(is.na(run_id),"current",run_id)) 
 
-ggretro_older_updated <- ggplot(retro_older,
+ggretro_older_updated <- ggplot(retro_older_updated,
        aes(x=year,y=p_std_1960_1979)) + 
-  geom_line(aes(col=as.factor(run_id))) +
+  geom_line(aes(col=as.factor(run_id),lty=proj)) +
 #  facet_wrap(~area) +
   scale_y_log10(expression(frac(p,bar(p)[1960-1979]))) + 
   theme_bw() + 
-  labs(col="")
+  scale_color_viridis_d("")+ guides(lty = "none") + 
+  xlim(CY-10,CY)
 
 dbDisconnect(con)
 
 
 ```
-<!-- END_TAF_REMOVE -->
 
 
 
-```{r influenceseries,eval=FALSE}
+```{r influenceseries, eval=FALSE}
 compute_discrepancy=function(si,model=model_ge_area,years=2010:2024){
          print(si)
+  if ("area" %in% colnames(model$model))
+    current_area <- R_stations$area[R_stations$ser_nameshort==si]
          pred_without=predict_model(update(model,data=model$data %>%
                   filter(site!=si & value_std >0))) %>%
            filter(year %in% years)
          pred_with=predict_model(model) %>%
-           filter(year %in% years)
+           filter(year %in% years) 
+         if ("area" %in% colnames(model$model)){
+           pred_with <-
+             pred_with %>%
+             filter(area == current_area)
+           pred_without <-
+             pred_without %>%
+             filter(area == current_area)
+             
+         }
          sum((pred_with$p_std-pred_without$p_std)^2)
 }
    
 
 sites = unique(na.omit(model_ge_area$data$site))
-disc_yoy=data.frame(sites=sites,diff=sapply(sites,compute_discrepancy))
+disc_yoy=data.frame(sites=sites,diff=sapply(sites,compute_discrepancy), area=R_stations$area[match(sites, R_stations$ser_nameshort)]) %>%
+  arrange((diff))  %>%
+  left_join(inclusion,by=c("sites"="ser_nameshort")) %>%
+  mutate(sites=factor(sites,levels=as.character(sites)))
+ggplot(disc_yoy %>%
+         arrange(desc(diff)),
+       aes(x=sites,y=diff,fill=intro_year))+
+  geom_bar(stat="identity")+
+  coord_flip() + facet_wrap(~area)+
+  scale_fill_viridis_d("inclusion in assessment")
 
 sites = unique(na.omit(model_older$data$site))
-disc_older=data.frame(sites=sites,diff=sapply(sites,compute_discrepancy,model=model_older))
+disc_older=data.frame(sites=sites,diff=sapply(sites,compute_discrepancy,model=model_older)) %>%
+  arrange((diff)) %>%
+  left_join(inclusion,by=c("sites"="ser_nameshort")) %>%
+  mutate(sites=factor(sites,levels=as.character(sites))) 
+
+
+ggplot(disc_older %>% arrange(desc(diff)),aes(x=sites,y=diff,fill=intro_year))+
+  geom_bar(stat="identity")+
+  coord_flip()+
+  scale_fill_viridis_d("inclusion in assessment")
+
 
 ```
+
+<!-- END_TAF_REMOVE -->
