@@ -102,10 +102,35 @@ UPDATE datawg.t_series_ser
 
 
 ALTER SEQUENCE "ref".tr_metrictype_mty_mty_id_seq RESTART WITH 27;
-UPDATE "ref".tr_metrictype_mty SET (mty_name,mty_method,mty_individual_name) =
-('female_proportion (from size)', 'macroscopic inspection of size','is_female_size(1=female,0=male)')
-WHERE mty_name ='female_proportion';
+UPDATE "ref".tr_metrictype_mty SET (mty_name,mty_method,mty_individual_name) =('female_proportion', 'check method in method_sex','is_female(1=female,0=male)') WHERE mty_name ='female_proportion (from size)';
 
+/* fix changes
+UPDATE "ref".tr_metrictype_mty SET (mty_name,mty_method,mty_individual_name) =
+('method_sex_(1=visual,0=use_length)',NULL,'method_sex_(1=visual,0=use_length)')
+WHERE mty_id =27;
+
+SELECT * FROM ref.tr_metrictype_mty WHERE mty_id =27;
+UPDATE "ref".tr_metrictype_mty
+  SET mty_individual_name='method_sex_(1=visual,0=use_length)',mty_name='method_sex_(1=visual,0=use_length)',mty_description='Method used for sex determination',mty_method=''
+  WHERE mty_id=27;
+UPDATE "ref".tr_metrictype_mty
+  SET mty_individual_name='anguillicola_presence(1=present,0=absent)',mty_name='anguillicola_proportion',mty_method='check method in method_anguillicola'
+  WHERE mty_id=8;
+UPDATE "ref".tr_metrictype_mty
+  SET mty_description='Method used for anguillicola intensity and proportion'
+  WHERE mty_id=28;
+*/
+
+
+
+/*
+ * SELECT * FROM pg_stat_get_activity(NULL::integer) 
+ */
+ 
+
+
+
+-- note the names is the same in individual and group series
 INSERT INTO "ref".tr_metrictype_mty 
 (mty_name,
 mty_individual_name,
@@ -117,11 +142,11 @@ mty_group,
 mty_min,
 mty_max) 
 SELECT
-'Female proportion (from gonads)' AS mty_name
-,'has_female_gonads(1=female,0=male)' AS mty_individual_name
+'method_sex_(1=visual,0=use_length)' AS mty_name
+,'method_sex_(1=visual,0=use_length)' AS mty_individual_name
 ,mty.mty_description
 ,mty.mty_type
-,'Dissection and visual inspection of gonads' AS mty_method
+,NULL AS mty_method
 ,mty.mty_uni_code
 ,mty.mty_group
 ,mty.mty_min
@@ -133,6 +158,17 @@ mty_name = 'female_proportion (from size)';
 UPDATE "ref".tr_metrictype_mty SET (mty_name,mty_method, mty_individual_name) = 
 ('anguillicola_proportion (visual)' , 'Visual inspection of the swimbladder','anguillicola_presence_visual(1=present,0=absent)')
 WHERE mty_name ='anguillicola_proportion';
+
+/* fix since we changed our mind, not to be run again
+UPDATE "ref".tr_metrictype_mty SET (mty_name,mty_method, mty_individual_name) = 
+('anguillicola_proportion' , 'Check method in method_anguillicola','anguillicola_presence(1=present,0=absent)')
+WHERE mty_name ='anguillicola_proportion (visual)';
+
+UPDATE "ref".tr_metrictype_mty SET (mty_name,mty_method, mty_individual_name) = 
+('method_anguillicola_(1=stereomicroscope,0=visual_obs)
+' , NULL,'method_anguillicola_(1=stereomicroscope,0=visual_obs)')
+WHERE mty_name ='anguillicola_proportion (microscope)';
+*/
 
 
 INSERT INTO "ref".tr_metrictype_mty 
@@ -146,11 +182,11 @@ INSERT INTO "ref".tr_metrictype_mty
 ,mty_min
 ,mty_max) 
 SELECT
-'anguillicola_proportion (microscope)' AS mty_name
-,'anguillicola_presence_microscope(1=present,0=absent)' AS mty_individual_name
+'method_anguillicola_(1=stereomicroscope,0=visual_obs)' AS mty_name
+,'method_anguillicola_(1=stereomicroscope,0=visual_obs)' AS mty_individual_name
 ,mty.mty_description
 ,mty.mty_type
-,'Use of a stereo microscope to count the number of parasites in the swimbladder' AS mty_method
+,NULL AS mty_method
 ,mty.mty_uni_code
 ,mty.mty_group
 ,mty.mty_min
