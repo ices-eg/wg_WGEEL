@@ -22,16 +22,46 @@ server = function(input, output, session) {
 	#####################
 	output$"table_description"<-renderUI({
 				if (input$dataset %in% c("aquaculture","landings")) {
-					text <-  paste("<p align='left'>Value in ton <br/>",
-							"to download this, use the Excel button </p>")
-				} else if (input$dataset == "landings_com_corrected" | input$dataset == "landings_rec_corrected") {
-					text <-  paste("<p align='left'>Value in ton, Asterisk (*) represents predicted data<br/>",
+					text <-  paste("<p align='left'> Sum of reported landings (commercial, recreational and others), values in ton <br/>",
+							"To download this, use the Excel button </p>")
+				} else if (input$dataset == "landings_com_corrected") {
+					text <-  paste("<p align='left'> Corrected commercial landings using GLM, values in ton. Asterisk (*) represents predicted data<br/>",
 							"<p align='left'> Attention, if you are using a table and displaying a group of several stages
 									you are probably doing something stupid  <br/>",
 							"<p align='left'>To download this, use the Excel button </p>")
 				}
-				else text =paste("<p align='left'>",
-							"to download this, use the Excel button </p>")
+	  else if (input$dataset == "landings_rec_corrected") {
+	    text <-  paste("<p align='left'> Corrected recreational landings using GLM, values in ton. Asterisk (*) represents predicted data<br/>",
+	                   "<p align='left'> Attention, if you are using a table and displaying a group of several stages
+									you are probably doing something stupid  <br/>",
+	                   "<p align='left'>To download this, use the Excel button </p>")
+	  }
+	  else if (input$dataset == "raw_landings_com") {
+	    text <-  paste("<p align='left'>Reported commerical landings, values in ton <br/>",
+	                   "<p align='left'>To download this, use the Excel button </p>")
+	  }
+	  else if (input$dataset == "raw_landings_rec") {
+	    text <-  paste("<p align='left'>Reported recreational landings, values in ton <br/>",
+	                   "<p align='left'>To download this, use the Excel button </p>")
+	  }
+	  else if (input$dataset == "aquaculture_kg") {
+	    text <-  paste("<p align='left'>Aquaculture biomass production, values in kilogram <br/>",
+	                   "<p align='left'>To download this, use the Excel button </p>")
+	  }
+	  else if (input$dataset == "release_kg") {
+	    text <-  paste("<p align='left'>Biomass of released eels, values in kilogram <br/>",
+	                   "<p align='left'>To download this, use the Excel button </p>")
+	  }
+	  else if (input$dataset == "release_n") {
+	    text <-  paste("<p align='left'>Number of released eels <br/>",
+	                   "<p align='left'>To download this, use the Excel button </p>")
+	  }
+	         else if (input$dataset == "gee") {
+	          text <-  paste("<p align='left'>Glas eel equivalent <br/>",
+	                 "<p align='left'>To download this, use the Excel button </p>")
+	           }
+				else text =paste("<p align='left'> Biomasses in kg, mortality rates for the eel lifespan year \u207b\u00b9<br/>",
+							"To download this, use the Excel button </p>")
 				HTML(
 						paste(
 								h4(paste0("Table for :", input$dataset)),
