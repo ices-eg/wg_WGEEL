@@ -6,10 +6,9 @@
 #######################################################################################
 
 
-# TODO USE bind_rows
 
 # put the current year there
-CY<-2023
+CY<-2024
 
 inactivedeadline <- 4 #this ensure that we don't ask new data for time series that are inactive since more than 4 years
 # function to load packages if not available
@@ -27,8 +26,7 @@ applyTemplateFormat <- function(templateformat, mydata){
     mydata[,setdiff(names(templateformat), names(mydata))] = NA
   mydata <-  mydata %>%
     select(any_of(names(templateformat)))
-  mydata
-  
+  mydata  
 }
 ###########################
 # Loading necessary packages
@@ -37,7 +35,6 @@ applyTemplateFormat <- function(templateformat, mydata){
 load_library("RPostgres")
 load_library("DBI")
 
-library("DBI")
 
 #load_library("stacomirtools")
 load_library("stringr")
@@ -58,8 +55,10 @@ load_library("dplyr")
 ##################################
 if(Sys.info()["user"]=="hdrouineau"){
   setwd("~/Documents/Bordeaux/migrateurs/WGEEL/github/wg_WGEEL/")
-} else{
+} else if(Sys.info()["user"]=="cedric.briand"){
   setwd("C:/workspace/wg_WGEEL")
+} else {
+  setwd("~")
 }
 #############################
 # here is where you want to put the data. It is different from the code
@@ -98,13 +97,13 @@ con=dbConnect(RPostgres::Postgres(),
 #' 
 #' @param country the country code, for instance "SW"
 #' @param name, the name of the file (without .xlsx) used as template and in the destination folders
+#' @param station should we load in the station sheet
 #' country='IE'; name="Eel_Data_Call_2021_Annex_time_series"; ser_typ_id=1
-create_datacall_file_series <- function(country, name, ser_typ_id, type="series"){
+create_datacall_file_series <- function(country, name, ser_typ_id, type="series", station=FALSE){
   if (!is.numeric(ser_typ_id)) stop("ser_typ_id must be numeric")
   
-  
   # load file -------------------------------------------------------------
-  
+
   dir.create(str_c(wddata,country),showWarnings = FALSE) # show warning= FALSE will create if not exist	
   nametemplatefile <- str_c(name,".xlsx")
   templatefile <- file.path(wddata,"00template",nametemplatefile)
@@ -161,7 +160,7 @@ create_datacall_file_series <- function(country, name, ser_typ_id, type="series"
   
   
   # station data ----------------------------------------------
-  if (type == "series") {
+  if (type == "series" & station) {
     station <- dbGetQuery(con,"select * from ref.tr_station")
     station$Organisation <-iconv(station$Organisation,from="UTF8",to="latin1",sub="?")
     # drop  tblCodeID Station_Code
@@ -224,7 +223,7 @@ create_datacall_file_series <- function(country, name, ser_typ_id, type="series"
       dplyr::select(ser_nameshort) %>%
       dplyr::pull() %>%
       unique()
-    
+
     if (nrow(dat)> 0){
       new_data <- 
         dplyr::bind_rows(
@@ -239,7 +238,7 @@ create_datacall_file_series <- function(country, name, ser_typ_id, type="series"
             dplyr::filter(das_year>=(CY-10)& das_qal_id >4)  %>% #if we have only data with das_qal_id >4, we are missing a data
             dplyr::select(ser_nameshort,das_year,das_value, das_comment, das_effort,das_qal_id) 
         )%>%
-        dplyr::filter(ser_nameshort %in% activeseries) %>%     #this ensure that we don't ask new data for time series that are inactive since more than 4 years
+        dplyr::filter(!!sym(ifelse(type=="series","ser_nameshort","sai_name")) %in% activeseries) %>%     #this ensure that we don't ask new data for time series that are inactive since more than 4 years
         dplyr::arrange(ser_nameshort, das_year) 
         
       
@@ -291,11 +290,11 @@ create_datacall_file_series <- function(country, name, ser_typ_id, type="series"
     " ORDER BY ",
     ifelse(type=="series","ser_id","sai_id"),
     ", gr_year, gr_id  ASC"))
-  
+
   #this ensure that we don't ask new data for time series that are inactive since more than 4 years
   activeseries <- groups %>% 
     filter(gr_year >= CY-inactivedeadline) %>%
-    dplyr::select(ser_nameshort) %>%
+    dplyr::select(!!sym(ifelse(type=="series","ser_nameshort","sai_name"))) %>%
     dplyr::pull() %>%
     unique()
   
@@ -316,7 +315,7 @@ create_datacall_file_series <- function(country, name, ser_typ_id, type="series"
     left_join(metrics) %>%
     tidyr::pivot_wider(names_from=mty_name,
                        values_from=meg_value) %>%
-    dplyr::filter(ser_nameshort %in% activeseries)     #this ensure that we don't ask new data for time series that are inactive since more than 4 years
+    dplyr::filter(!!sym(ifelse(type=="series","ser_nameshort","sai_name")) %in% activeseries)     #this ensure that we don't ask new data for time series that are inactive since more than 4 years
   if (nrow(existing_metric)> 0){ #not possible to prefill for non series data
     existing_metric <- applyTemplateFormat(formatted, existing_metric) %>%
       arrange(!!sym(ifelse(type=="series","ser_nameshort","sai_name")),gr_year,gr_id)
@@ -459,7 +458,7 @@ create_datacall_file_series <- function(country, name, ser_typ_id, type="series"
   
   # maps ---------------------------------------------------------------
   #st_crs(ccm) 
-  if (type=="series") {
+  if (type=="series" & station) {
     if (nrow(t_series_ser)>0 && nrow(t_series_ser)<20){
       for (i in 1:nrow(t_series_ser)){
         #turn a pgsql array into an R vector for ccm_wso_id
@@ -473,25 +472,31 @@ create_datacall_file_series <- function(country, name, ser_typ_id, type="series"
           bounds <- matrix(st_bbox(pol),2,2)
           bounds[,1]=pmin(bounds[,1],c(t_series_ser$ser_x[i],t_series_ser$ser_y[i]))-0.5
           bounds[,2]=pmax(bounds[,2],c(t_series_ser$ser_x[i],t_series_ser$ser_y[i]))+0.5
-          my_map=get_map(bounds, maptype = "terrain", source="stamen",zoom=7) 
-          g <- ggmap(my_map,maprange = TRUE, extent = "normal") + 
+          #my_map=get_map(bounds, maptype = "terrain", source="stamen",zoom=7) 
+          g <- ggplot(pol)+
+              ggspatial::annotation_map_tile(type = "https://watercolormaps.collection.cooperhewitt.org/tile/watercolor/${z}/${x}/${y}.jpg")+          
             geom_sf(data=pol, inherit.aes = FALSE,fill=NA,color="red")+
             geom_point(data=t_series_ser[i,],aes(x=ser_x,y=ser_y),col="red")+
             ggtitle(t_series_ser$ser_nameshort[i])+
+           geom_text(data=t_series_ser[i,],aes(x=ser_x,y=ser_y, label=ser_ccm_wso_id))+
             xlab("")+ylab("")
         } else if (!any(is.na(c(t_series_ser$ser_x[i],t_series_ser$ser_y[i])))){
           bounds <- rbind(rep(t_series_ser$ser_x[i],2), rep(t_series_ser$ser_y[i],2))
           bounds[,1]=bounds[,1]-1
           bounds[,2]=bounds[,2]+1
-          my_map <- get_stamenmap(bounds, maptype = "terrain", source="stamen",zoom=7)
           pol=st_crop(ccm,xmin=bounds[1,1],ymin=bounds[2,1],xmax=bounds[1,2],ymax=bounds[2,2])
           st_crs(pol) <- 4326 
-          g <- ggmap(my_map) + 
-            geom_point(data=t_series_ser[i,],aes(x=ser_x,y=ser_y),col="red")+
-            ggtitle(t_series_ser$ser_nameshort[i])+
+          pol$ser_ccm_wso_id <- str_c("{",pol$wso_id,"}")
+          pol$x = st_coordinates(st_centroid(pol))[,1]
+          pol$y = st_coordinates(st_centroid(pol))[,2]
+          g <- ggplot(pol) + 
+              ggspatial::annotation_map_tile(type = "https://watercolormaps.collection.cooperhewitt.org/tile/watercolor/${z}/${x}/${y}.jpg")+          
+              geom_sf(data=pol, inherit.aes = FALSE,fill=NA,color="black")+
+              geom_point(data=t_series_ser[i,],aes(x=ser_x,y=ser_y),col="red")+
+            ggtitle(paste(t_series_ser$ser_nameshort[i],"Data incomplete, Please update "))+
+            geom_text(data=pol,aes(x=x,y=y,label=ser_ccm_wso_id))+
             xlab("")+
-            ylab("")#+
-            #geom_sf(data=pol, inherit.aes = FALSE,fill=NA,color="black")
+            ylab("")
         } else {
           g=ggplot()+ggtitle(t_series_ser$ser_nameshort[i])
         }
