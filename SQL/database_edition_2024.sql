@@ -51,7 +51,7 @@ SELECT x.* FROM datawg.t_series_ser x
 WHERE ser_nameshort ='BeeGY';
 
 
-
+------create table to track history of recruitment models
 drop table if exists ref.tr_model_mod cascade;
 
 create table ref.tr_model_mod (
@@ -73,6 +73,7 @@ constraint c_fk_run_mod_nameshort foreign key (run_mod_nameshort) references ref
 );
 
 
+grant all on datawg.t_modelrun_run_run_id_seq to wgeel;
 grant all on datawg.t_modelrun_run to wgeel;
 grant select on datawg.t_modelrun_run to wgeel_read;
 
@@ -92,6 +93,8 @@ constraint c_fk_dat_run_id foreign key (dat_run_id) references datawg.t_modelrun
 
 grant all on datawg.t_modeldata_dat to wgeel;
 grant select on datawg.t_modeldata_dat to wgeel_read;
+grant all on datawg.t_modeldata_dat_dat_id_seq to wgeel;
+------------------------
 
 UPDATE datawg.t_series_ser
   SET (ser_qal_id, ser_qal_comment)=(3,'Duplicated series from BeeG, this series will not be used in the analysis')
@@ -157,4 +160,82 @@ SELECT
 ,mty.mty_max
 FROM "ref".tr_metrictype_mty mty WHERE 
 mty_name = 'anguillicola_proportion (visual)';
+
+
+
+
+----add ccm wso_id to series
+update datawg.t_series_ser set ser_ccm_wso_id = '{84095}' where ser_id=293;
+update datawg.t_series_ser set ser_ccm_wso_id = '{84080}' where ser_id=294;
+update datawg.t_series_ser set ser_ccm_wso_id = '{83811}' where ser_id=286;
+update datawg.t_series_ser set ser_ccm_wso_id = '{85376}' where ser_id=283;
+update datawg.t_series_ser set ser_ccm_wso_id = '{442395}' where ser_id=241;
+update datawg.t_series_ser set ser_ccm_wso_id = '{377}' where ser_id=240;
+update datawg.t_series_ser set ser_ccm_wso_id = '{83762}' where ser_id=203;
+update datawg.t_series_ser set ser_ccm_wso_id = '{95713}' where ser_id=202;
+update datawg.t_series_ser set ser_ccm_wso_id = '{83762}' where ser_id=248;
+update datawg.t_series_ser set ser_ccm_wso_id = '{83747}' where ser_id=37;
+update datawg.t_series_ser set ser_ccm_wso_id = '{1402}' where ser_id=39;
+update datawg.t_series_ser set ser_ccm_wso_id = '{291498}' where ser_id=212;
+update datawg.t_series_ser set ser_ccm_wso_id = '{83751}' where ser_id=186;
+update datawg.t_series_ser set ser_ccm_wso_id = '{85504}' where ser_id=183;
+update datawg.t_series_ser set ser_ccm_wso_id = '{83747}' where ser_id=229;
+update datawg.t_series_ser set ser_ccm_wso_id = '{250}' where ser_id=38;
+update datawg.t_series_ser set ser_ccm_wso_id = '{1287}' where ser_id=33;
+update datawg.t_series_ser set ser_ccm_wso_id = '{257}' where ser_id=34;
+update datawg.t_series_ser set ser_ccm_wso_id = '{1034895}' where ser_id=35;
+update datawg.t_series_ser set ser_ccm_wso_id = '{83812}' where ser_id=260;
+update datawg.t_series_ser set ser_ccm_wso_id = '{1034745}' where ser_id=30;
+update datawg.t_series_ser set ser_ccm_wso_id = '{1035550}' where ser_id=31;
+update datawg.t_series_ser set ser_ccm_wso_id = '{235}' where ser_id=32;
+update datawg.t_series_ser set ser_ccm_wso_id = '{84133}' where ser_id=263;
+update datawg.t_series_ser set ser_ccm_wso_id = '{83795}' where ser_id=259;
+update datawg.t_series_ser set ser_ccm_wso_id = '{84065}' where ser_id=296;
+update datawg.t_series_ser set ser_ccm_wso_id = '{88600}' where ser_id=226;
+update datawg.t_series_ser set ser_ccm_wso_id = '{83762}' where ser_id=201;
+update datawg.t_series_ser set ser_ccm_wso_id = '{85623,124563,124704,124617}' where ser_id=264;
+update datawg.t_series_ser set ser_ccm_wso_id = '{85624}' where ser_id=265;
+update datawg.t_series_ser set ser_ccm_wso_id = '{88600}' where ser_id=228;
+update datawg.t_series_ser set ser_ccm_wso_id = '{83812}' where ser_id=267;
+update datawg.t_series_ser set ser_ccm_wso_id = '{83750}' where ser_id=8;
+update datawg.t_series_ser set ser_ccm_wso_id = '{92458}' where ser_id=274;
+update datawg.t_series_ser set ser_ccm_wso_id = '{84129}' where ser_id=271;
+update datawg.t_series_ser set ser_ccm_wso_id = '{83796}' where ser_id=272;
+update datawg.t_series_ser set ser_ccm_wso_id = '{85522}' where ser_id=255;
+update datawg.t_series_ser set ser_ccm_wso_id = '{89411}' where ser_id=253;
+update datawg.t_series_ser set ser_ccm_wso_id = '{83779}' where ser_id=261;
+update datawg.t_series_ser set ser_ccm_wso_id = '{83762}' where ser_id=171;
+update datawg.t_series_ser set ser_ccm_wso_id = '{6}' where ser_id=167;
+update datawg.t_series_ser set ser_ccm_wso_id = '{84653}' where ser_id=257;
+update datawg.t_series_ser set ser_ccm_wso_id = '{83750}' where ser_id=279;
+update datawg.t_series_ser set ser_ccm_wso_id = '{83945}' where ser_id=254;
+update datawg.t_series_ser set ser_ccm_wso_id = '{83751}' where ser_id=266;
+update datawg.t_series_ser set ser_ccm_wso_id = '{92}' where ser_id=210;
+update datawg.t_series_ser set ser_ccm_wso_id = '{84087}' where ser_id=273;
+update datawg.t_series_ser set ser_ccm_wso_id = '{84083}' where ser_id=292;
+update datawg.t_series_ser set ser_ccm_wso_id = '{83773}' where ser_id=252;
+update datawg.t_series_ser set ser_ccm_wso_id = '{95713}' where ser_id=249;
+update datawg.t_series_ser set ser_ccm_wso_id = '{83947}' where ser_id=251;
+update datawg.t_series_ser set ser_ccm_wso_id = '{83797}' where ser_id=258;
+update datawg.t_series_ser set ser_ccm_wso_id = '{83795,83748}' where ser_id=268;
+update datawg.t_series_ser set ser_ccm_wso_id = '{85591}' where ser_id=269;
+update datawg.t_series_ser set ser_ccm_wso_id = '{85617}' where ser_id=275;
+update datawg.t_series_ser set ser_ccm_wso_id = '{83770}' where ser_id=288;
+update datawg.t_series_ser set ser_ccm_wso_id = '{84045}' where ser_id=291;
+update datawg.t_series_ser set ser_ccm_wso_id = '{83959}' where ser_id=290;
+update datawg.t_series_ser set ser_ccm_wso_id = '{83762}' where ser_id=247;
+update datawg.t_series_ser set ser_ccm_wso_id = '{84107}' where ser_id=289;
+update datawg.t_series_ser set ser_ccm_wso_id = '{83809}' where ser_id=295;
+update datawg.t_series_ser set ser_ccm_wso_id = '{5342}' where ser_id=285;
+update datawg.t_series_ser set ser_ccm_wso_id = '{84124}' where ser_id=276;
+update datawg.t_series_ser set ser_ccm_wso_id = '{92611}' where ser_id=277;
+update datawg.t_series_ser set ser_ccm_wso_id = '{84134}' where ser_id=281;
+update datawg.t_series_ser set ser_ccm_wso_id = '{84128}' where ser_id=282;
+update datawg.t_series_ser set ser_ccm_wso_id = '{85608}' where ser_id=284;
+update datawg.t_series_ser set ser_ccm_wso_id = '{1034751}' where ser_id=36;
+update datawg.t_series_ser set ser_ccm_wso_id = '{84101}' where ser_id=287;
+update datawg.t_series_ser set ser_ccm_wso_id = '{442395}' where ser_id=243;
+update datawg.t_series_ser set ser_ccm_wso_id = '{442355}' where ser_id=205;
+update datawg.t_series_ser set ser_ccm_wso_id = '{88690}' where ser_id=262;
+
 
