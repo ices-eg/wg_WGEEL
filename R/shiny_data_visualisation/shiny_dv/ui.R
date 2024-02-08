@@ -457,7 +457,7 @@ ui = shinydashboardPlus::dashboardPage(title="ICES Data Visualisation",
 						
 						
 						radioGroupButtons(inputId = "rasta_map_type", 
-								label = "Label", choices = c("classical", "pie", "bar"))
+								label = "Label", choices = c("classical", "bar"))
                     )
                 )
             ),

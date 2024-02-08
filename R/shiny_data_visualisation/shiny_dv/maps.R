@@ -444,24 +444,7 @@ b_map <- function(dataset=precodata_all,
 			  popup = ~ label,
 			  layerId = ~id)
       
-    } else 	if(type == "pie")
-	{
-      validate(need("FALSE","This is tricky because order Bcurrent=> B0 not constant"))
-      
-     # here we need to reorder, it's complicated, not sur colorPalette takes a table as argument
-     #           t(apply(selected_emus[,c("bcurrent", "bbest", "b0")],1,order)) 
-          
-#	  m <- m %>% addMinicharts(
-#		  lng = selected_countries$coords.x1,
-#		  lat = selected_countries$coords.x2,
-#		  chartdata = selected_countries[,c("rescaled_b0", "rescaled_bbest", "rescaled_bcurrent")],
-#		  maxValues = max(selected_countries$rescaled_b0, na.rm=T), colorPalette= c("green", "red", "grey"), 
-#		  width = selected_countries$rescaled_b0, 
-#          type = "pie", 
-#          popup = popupArgs(html=selected_countries$label)
-#	  )
-      
-	}	else if(type == "bar") {
+    } 	else if(type == "bar") {
 	  
 	  m <- m %>% addMinicharts(
 		  lng = selected_countries$coords.x1,
