@@ -5,10 +5,10 @@
 #######################################################################################
 # put the current year there
 #setwd("C:/workspace\\gitwgeel\\")
-CY<-2021
+CY<-2024
 # and the annex name / type of data
 type_of_data <- c("mortalities", "biomass")
-name_annex <- c("Eel_Data_Call_2021_Annex9_Mortality_rates", "Eel_Data_Call_2021_Annex10_Biomass_Indicators")
+name_annex <- c("Eel_Data_Call_Annex9_Mortality_rates", "Eel_Data_Call_Annex10_Biomass_Indicators")
 names(name_annex) <- type_of_data
 eel_typ_id_annex <- list(17:19,13:15)
 names(eel_typ_id_annex) <- type_of_data
@@ -23,13 +23,15 @@ load_library=function(necessary) {
 ###########################
 # Loading necessary packages
 ############################
-load_library("sqldf")
 load_library("RPostgreSQL")
 load_library("stacomirtools")
 load_library("stringr")
-load_library("XLConnect") #==> switch to openxlsx beacause I have problem with rJava
-#load_library("openxlsx")
+load_library("openxlsx")
 load_library("dplyr")
+load_library("getPass")
+load_library("yaml")
+load_library("DBI")
+cred=read_yaml("credentials.yml")
 #############################
 # here is where the script is working change it accordingly
 ##################################
@@ -54,19 +56,23 @@ source("R/utilities/detect_missing_data.R")
 # this set up the connextion to the postgres database
 # change parameters accordingly
 ###################################
-# you must set the user and pwd for the database HERE
-# userwgeel = ""
-# passwordwgeel = ""
-options(sqldf.RPostgreSQL.user = userwgeel, 
-		sqldf.RPostgreSQL.password = passwordwgeel,
-		sqldf.RPostgreSQL.dbname = "wgeel",
-		sqldf.RPostgreSQL.host = "localhost",
-		sqldf.RPostgreSQL.port = 5435)
+library(yaml)
+host <- cred$host
+userwgeel <- cred$user
+passwordwgeel <- cred$password
+
+
+con = dbConnect(RPostgres::Postgres(), 
+    dbname=cred$dbname,
+    host=cred$host,
+    port=cred$port,
+    user=cred$user, 
+    password=cred$password)
 
 #############################
 # Table storing information from the database
 ##################################
-t_eelstock_eel<-sqldf("SELECT 
+t_eelstock_eel<- DBI::dbGetQuery(con, "SELECT 
 				eel_id,
 				eel_typ_id,
 				eel_year,
@@ -93,7 +99,6 @@ t_eelstock_eel<-sqldf("SELECT
 				left join ref.tr_quality_qal on eel_qal_id=tr_quality_qal.qal_id 
 				left join ref.tr_typeseries_typ on eel_typ_id=typ_id;")
 
-#tr_eel_typ<- sqldf("SELECT * from ref.tr_typeseries_typ")
 
 #' function to create the data sheet 
 #' 
@@ -121,6 +126,9 @@ create_datacall_file_biom_morta <- function(country, type = type_of_data[1], ...
 	nametemplatefile <- str_c(name,".xlsx")
 	templatefile <- file.path(wddata,"00template",nametemplatefile)
 	namedestinationfile <- str_c(name,"_",country,".xlsx")	
+  sheetnames <- openxlsx::getSheetNames(templatefile)
+  ref_sheets <- sheetnames[grep("tr_", sheetnames)]
+  wb = openxlsx::loadWorkbook(templatefile)
 	destinationfile <- file.path(wddata, country, namedestinationfile)		
 	
 	# limit dataset to country

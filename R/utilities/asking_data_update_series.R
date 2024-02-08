@@ -47,7 +47,7 @@ load_library("sf")
 load_library("ggmap")
 load_library("getPass")
 load_library("dplyr")
-
+source("R/utilities/update_referential_sheets.R")
 
 #############################
 # here is where the script is working change it accordingly
@@ -429,8 +429,7 @@ create_datacall_file_series <- function(country, name, ser_typ_id, type="series"
     
     #openxlsx::writeData(wb, sheet = "existing_biometry", biom, startRow = 1)
     writeData(wb, x=existing_metric,  sheet = "existing_individual_metrics")
-  } 
-  
+  }   
   
   # individual biometry data new data ------------------------------------------
   #this is almost impossible to predict which row will be filled so we keep it empty
@@ -529,7 +528,7 @@ create_datacall_file_series <- function(country, name, ser_typ_id, type="series"
 
 country_code <- c("DK","ES","EE","IE","SE","GB","FI","IT","GR","DE","LV","FR","NL","LT","PT",
                   "NO","PL","SI","TN","TR","BE")
-
+update_referential_sheet("Eel_Data_Call_Annex_Time_Series")
 for (country in country_code){
   gc()
   cat("country: ",country,"\n")
@@ -566,14 +565,14 @@ for (country in country_code ){
 
 
 # DCF ---------------------------------------------------
-
+update_referential_sheet(con,name="Eel_Data_Call_Annex9_Other_Sampling_Data")
 dirs = list.dirs("data/datacall_template/",full.names=FALSE)
-dirs = dirs[-(1:2)] # remove "" et 00_template
+dirs = dirs[-match(c("00template/saved","","00template"),dirs)] 
 for (country in dirs ){
   gc()
   cat("country: ",country,"\n")
   create_datacall_file_series(country, 
-                              name="Eel_Data_Call_Annex10_Other_Sampling_Data", 
+                              name="Eel_Data_Call_Annex9_Other_Sampling_Data", 
                               ser_typ_id=0,
                               type="other")
 }

@@ -1,30 +1,18 @@
-load_library("tidyr")
-load_library("sqldf")
-
-#passwordwgeel <- getPass()
-
 
 detect_missing_data <- function(cou="FR",
 		minyear=2000,
-		maxyear=2021, #maxyear corresponds to the current year where we have to fill data
-		host="localhost",
-		dbname="wgeel",
-		user="wgeel",
-		passwordwgeel=passwordwgeel,
-		port=5435,
-		datasource="dc_2020") {
-  #browser()
-
-
-  con_wgeel<-dbConnect(PostgreSQL(),host=host,dbname=dbname,user=user,port=port,password=passwordwgeel)
-  
+		maxyear=2024, #maxyear corresponds to the current year where we have to fill data
+		con,
+		datasource="dc_2024") {
   #theoretically this one is the best solution but the table is not well filled
-  emus <- unique(dbGetQuery(con_wgeel,paste("select emu_nameshort eel_emu_nameshort,emu_cou_code
+  if (class(con)!= "PqConnection") stop("Connexion is not valid, check con")
+  emus <- dbGetQuery(con,paste("select emu_nameshort eel_emu_nameshort,emu_cou_code
  eel_cou_code, emu_wholecountry  from ref.tr_emu_emu
-                                          where emu_cou_code in ('",paste(cou,collapse="','",sep=""),"')",sep="")))
-  complete <- dbGetQuery(con_wgeel,paste(paste("select eel_typ_id,eel_hty_code,eel_year,eel_emu_nameshort,eel_lfs_code,eel_cou_code,eel_value,eel_missvaluequal,max(eel_area_division) eel_area_division from datawg.t_eelstock_eel where eel_qal_id in (0,1,2,4) and eel_year>=",minyear," and eel_year<=",maxyear," and eel_typ_id in (4,6) and eel_cou_code='",cou,"'
+                                          where emu_cou_code in ('",paste(cou,collapse="','",sep=""),"')",sep=""))
+  emus <- unique(emus)                        
+  complete <- dbGetQuery(con,paste(paste("select eel_typ_id,eel_hty_code,eel_year,eel_emu_nameshort,eel_lfs_code,eel_cou_code,eel_value,eel_missvaluequal,max(eel_area_division) eel_area_division from datawg.t_eelstock_eel where eel_qal_id in (0,1,2,4) and eel_year>=",minyear," and eel_year<=",maxyear," and eel_typ_id in (4,6) and eel_cou_code='",cou,"'
                                                group by eel_typ_id,eel_hty_code,eel_year,eel_emu_nameshort,eel_lfs_code,eel_cou_code,eel_value,eel_missvaluequal",sep="")))
-  used_emus=unique(complete$eel_emu_nameshort)
+  used_emus <- unique(complete$eel_emu_nameshort)
   
   #in Sweeden, there are historical subidivisions thate we do not take into account
   emus=emus[!grepl("_.._",emus$eel_emu_nameshort),]
@@ -45,7 +33,7 @@ detect_missing_data <- function(cou="FR",
                           eel_typ_id=c(4,6,7),
                           eel_hty_code=hty_emus),
                     emus)
-  ranges<-dbGetQuery(con_wgeel,paste(paste("select max(eel_area_division) eel_area_division,eel_typ_id,eel_hty_code,eel_emu_nameshort,eel_lfs_code,eel_cou_code,min(eel_year) as first_year,max(eel_year) last_year from datawg.t_eelstock_eel where eel_value >0 and eel_qal_id in (0,1,2,4) and eel_year>=",minyear," and eel_year<=",maxyear," and eel_typ_id in (4,6,7) and eel_cou_code='",cou,"' group by eel_typ_id,eel_hty_code,eel_emu_nameshort,eel_lfs_code,eel_cou_code",sep="")))
+  ranges<-dbGetQuery(con,paste(paste("select max(eel_area_division) eel_area_division,eel_typ_id,eel_hty_code,eel_emu_nameshort,eel_lfs_code,eel_cou_code,min(eel_year) as first_year,max(eel_year) last_year from datawg.t_eelstock_eel where eel_value >0 and eel_qal_id in (0,1,2,4) and eel_year>=",minyear," and eel_year<=",maxyear," and eel_typ_id in (4,6,7) and eel_cou_code='",cou,"' group by eel_typ_id,eel_hty_code,eel_emu_nameshort,eel_lfs_code,eel_cou_code",sep="")))
 	options(warn=-1)
   missing_comb <- suppressMessages(anti_join(all_comb, complete))
 
@@ -79,7 +67,7 @@ detect_missing_data <- function(cou="FR",
   missing_comb$eel_lfs_code=as.character(missing_comb$eel_lfs_code)
   missing_comb$eel_emu_nameshort =as.character(missing_comb$eel_emu_nameshort)
   missing_comb$eel_cou_code =as.character(missing_comb$eel_cou_code)
-  eel_typ_name=dbGetQuery(con_wgeel,"select typ_id eel_typ_id,typ_name as eel_typ_name from ref.tr_typeseries_typ where typ_id in (4,6,7)")
+  eel_typ_name=dbGetQuery(con,"select typ_id eel_typ_id,typ_name as eel_typ_name from ref.tr_typeseries_typ where typ_id in (4,6,7)")
   missing_comb <- merge(missing_comb,eel_typ_name)
   missing_comb$eel_value=NA
   
@@ -152,7 +140,6 @@ detect_missing_data <- function(cou="FR",
               eel_lfs_code,
               eel_year)
 
-  dbDisconnect(con_wgeel)
   return(missing_comb)
 }
 
@@ -166,18 +153,14 @@ detect_missing_data <- function(cou="FR",
 detect_missing_biom_morta <- function(cou="FR",
                                       type="biomass", eel_typ_id=13:15,
                                 minyear=2007,
-                                maxyear=2021, #maxyear corresponds to the current year where we have to fill data
-#                                host="localhost",
-#                                dbname="wgeel",
-#                                user="wgeel",
-#                                port=5435,
-                                datasource="dc_2021") {
-  #browser()
+                                maxyear=2024, #maxyear corresponds to the current year where we have to fill data
+                                con,
+                                datasource="dc_2024") {
+
   
-  con_wgeel<-dbConnect(PostgreSQL(),host=options("sqldf.RPostgreSQL.host"), dbname=options("sqldf.RPostgreSQL.dbname"), user=options("sqldf.RPostgreSQL.user"), port=options("sqldf.RPostgreSQL.port"), password=options("sqldf.RPostgreSQL.password"))
-  
+   
   #theoretically this one is the best solution but the table is not well filled
-  emus <- unique(dbGetQuery(con_wgeel,paste("select emu_nameshort eel_emu_nameshort,emu_cou_code
+  emus <- unique(dbGetQuery(con,paste("select emu_nameshort eel_emu_nameshort,emu_cou_code
  			eel_cou_code, emu_wholecountry
 			from ref.tr_emu_emu
             where emu_cou_code in ('",paste(cou,collapse="','",sep=""),"')",sep="")))
@@ -192,7 +175,7 @@ detect_missing_biom_morta <- function(cou="FR",
   }
   
   
-  complete <- dbGetQuery(con_wgeel,"select eel_cou_code,eel_year,eel_emu_nameshort,b0,bbest,bcurrent,suma,sumf,sumh from datawg.precodata_emu") %>%
+  complete <- dbGetQuery(con,"select eel_cou_code,eel_year,eel_emu_nameshort,b0,bbest,bcurrent,suma,sumf,sumh from datawg.precodata_emu") %>%
     pivot_longer(cols=all_of(c("b0","bbest","bcurrent","suma","sumf","sumh")),names_to="typ_name",values_to="eel_value") %>%
     filter(!is.na(eel_value)) %>%
     filter(eel_cou_code == cou) %>%
@@ -214,7 +197,7 @@ detect_missing_biom_morta <- function(cou="FR",
   
 
 
-  if (CY == 2021) {
+  if (CY == 2024) {
     complete <- complete[-(1:nrow(complete)),]
   }
 
@@ -232,7 +215,7 @@ detect_missing_biom_morta <- function(cou="FR",
                                 eel_hty_code=hty_emus),
                     emus))
   options(warn=-1)
-  if (nrow(complete) == 0 || maxyear==2021){
+  if (nrow(complete) == 0 || maxyear==2024){
     missing_comb <- all_comb
   } else {
     missing_comb <- suppressMessages(anti_join(all_comb, complete))
@@ -244,12 +227,11 @@ detect_missing_biom_morta <- function(cou="FR",
   
   missing_comb <- base::merge(missing_comb,complete[,c("eel_year","eel_emu_nameshort","eel_value","eel_typ_id")],
                               all.x=TRUE)
-  eel_typ_name=dbGetQuery(con_wgeel,"select typ_id eel_typ_id,typ_name  from ref.tr_typeseries_typ")
+  eel_typ_name=dbGetQuery(con,"select typ_id eel_typ_id,typ_name  from ref.tr_typeseries_typ")
   missing_comb$eel_typ_id=as.integer(missing_comb$eel_typ_id)
   
   missing_comb=merge(missing_comb,eel_typ_name)
   
-  dbDisconnect(con_wgeel) #otherwise you open many connections
 
   return(missing_comb)
 }
