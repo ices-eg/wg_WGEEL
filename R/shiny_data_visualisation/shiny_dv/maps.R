@@ -39,8 +39,7 @@ datacall_map<-function(
 	map = "country"  
 ){
   # Extract data-------------------------------------------------------------------------------------
-  
-  cc <-  filter_data(dataset,typ=typ,life_stage=lfs_code,habitat=NULL,year_range=c(years[2],years[2]))
+  cc <-  filter_data(dataset,typ=typ,life_stage=lfs_code,habitat=NULL,year_range=c(years[1],years[2]))
   cc <- group_data(cc, geo= map,habitat=FALSE, lfs=FALSE)
   
   # Extract data all time ----------------------------------------------------------------------------
@@ -99,8 +98,12 @@ datacall_map<-function(
 	
 	legend.title <- paste(dataset, unit)  
 	
-	# leaflet -------------------------------------------------------------------------------------
+	country_c$coords.x1 = st_coordinates(country_c)[,1]
+	country_c$coords.x2 = st_coordinates(country_c)[,2]
+	selected_countries <- merge( as.data.frame(country_c), selected_countries, by="cou_code")
 	
+	# leaflet -------------------------------------------------------------------------------------
+	validate(need(nrow(selected_countries)>0, "no data to be plotted"))
 	m <- leaflet(data=selected_countries) %>%
 		
 		addProviderTiles(providers$Esri.OceanBasemap) %>% 
@@ -136,11 +139,11 @@ datacall_map<-function(
 	###############
 	
   } else if (map=="emu"){
-	
+
 	# join with spatial dataframe ------------------------------------------------------------------
 	
 	selected_emus<-as.data.frame(emu_c[emu_c$emu_namesh%in%cc$eel_emu_nameshort,])
-	selected_emus <- rename(selected_emus,"eel_emu_nameshort"="emu_namesh")
+	selected_emus <- rename(selected_emus,"eel_emu_nameshort"="emu_nameshort")
 	selected_emus$eel_emu_nameshort <- as.character(selected_emus$eel_emu_nameshort) 
 	selected_emus <- dplyr::inner_join(selected_emus,cc,by="eel_emu_nameshort")
 	value <- selected_emus$eel_value
@@ -161,7 +164,9 @@ datacall_map<-function(
 	color_pal <- colorBin("viridis", ccall$eel_value, 10, pretty = TRUE) # reverse=TRUE
 	
 	legend.title <- paste(dataset, unit)
-	
+	emu_c$coords.x1 = st_coordinates(emu_c)[,1]
+	emu_c$coords.x2 = st_coordinates(emu_c)[,2]
+	selected_emus <- dplyr::inner_join( as.data.frame(emu_c), selected_emus, by=c("emu_nameshort"="eel_emu_nameshort"))
 	# leaflet -------------------------------------------------------------------------------------
 	
 	m <- leaflet(data=selected_emus) %>%
@@ -326,7 +331,6 @@ b_map <- function(dataset=precodata_all,
 	
     
 	# this will always select country
-	
 	if (use_last_year)  {
 	  precodata_here <-
 		  precodata_here %>% 								
