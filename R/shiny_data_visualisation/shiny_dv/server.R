@@ -619,7 +619,8 @@ server = function(input, output, session) {
 				precodata_sel<-filter_data_reactive()        
 				trace_precodiag(precodata_sel,
 						precodata_choice = input$precodata_choice,
-						last_year = input$button_precodata_last_year)
+						last_year = input$button_precodata_last_year,
+						adjusted_b0=input$adjusted_b0_precodata)
 			})
 	
 	output$download_precodata_graph=downloadHandler(filename = function() {
@@ -632,6 +633,27 @@ server = function(input, output, session) {
 						height = 14, 
 						units = "cm")
 			})
+	
+	observeEvent(input$precodata_choice,{
+	  if (length(input$precodata_choice) == 1){
+	    if (input$precodata_choice == "emu"){
+	      shinyjs::show("adjusted_b0_precodata")
+	    } else{
+	      shinyjs::hide("adjusted_b0_precodata")
+	      updateCheckboxInput(session, "adjusted_b0_precodata", value = FALSE)
+	    }
+	  } else {
+	    shinyjs::hide("adjusted_b0_precodata")
+	    updateCheckboxInput(session, "adjusted_b0_precodata", value = FALSE)
+	  }
+	} )
+	observeEvent(input$adjusted_b0_precodata,{
+	  if (input$adjusted_b0_precodata){
+	    output$precodata_text<-renderText("In this diagram, Bcurrent is divided by an estimatation of B0 that is based on recruitment estimates and Bbest. It uses the approach of WKEMP 2021.")
+	  } else{
+	    output$precodata_text<-renderText("")
+	  }
+	})
 	
 	################################
 	# Rasta map

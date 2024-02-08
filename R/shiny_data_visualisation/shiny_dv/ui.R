@@ -413,7 +413,8 @@ ui = shinydashboardPlus::dashboardPage(title="ICES Data Visualisation",
             
             tabItem(tabName="precodata_tab",
                 fluidRow(                    
-                    column(width=10,plotOutput("precodata_graph",height="800px")),
+                    column(width=10,fluidRow(textOutput("precodata_text")),
+                           fluidRow(plotOutput("precodata_graph",height="800px"))),
                     column(width=2,
                         awesomeCheckboxGroup(
                             inputId = "precodata_choice",
@@ -423,6 +424,7 @@ ui = shinydashboardPlus::dashboardPage(title="ICES Data Visualisation",
                             status = "danger",
                             inline=TRUE                                
                         ), 
+                        hidden(checkboxInput("adjusted_b0_precodata", "Display adjusted B0", value = FALSE)),
                         switchInput(
                             inputId = "button_precodata_last_year",
                             onLabel = "last year",
