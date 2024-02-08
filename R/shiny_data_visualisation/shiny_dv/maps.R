@@ -302,6 +302,7 @@ recruitment_map <- function(R_stations, statseries, wger, CY, colors= c("#FEE301
 #' @param map Map level, "country" or "emu", Default: 'country'
 #' @param use_last_year Should the map default to last year available ?, Default: TRUE
 #' @param the_year if a year is chosen (all_year = FALSE) then this input is given to the shiny app by the slider, Default: NULL
+#' if a range then the last available year in the range is plotted
 #' @return A leaflet map
 #' @details Different treatment for country (which relies on precodata_all) emu which relies on precodata,
 #' the precodata table providing one line per emu.
@@ -338,7 +339,10 @@ b_map <- function(dataset=precodata_all,
 	} else {
 	  # using the second slider input
 	  validate(need(!is.null(the_year),"There should be an input to select one year"))
-	  precodata_here <- precodata_here %>%  filter(eel_year == the_year)
+	  precodata_here <- precodata_here %>%  filter(eel_year %in% the_year) %>%
+	    group_by(eel_cou_code) %>%
+	    filter(eel_year == max(eel_year)) %>%
+	    ungroup()
 	}
     country_c$coords.x1 = st_coordinates(country_c)[,1]
     country_c$coords.x2 = st_coordinates(country_c)[,2]
