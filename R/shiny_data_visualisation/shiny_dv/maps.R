@@ -106,7 +106,7 @@ datacall_map<-function(
 	validate(need(nrow(selected_countries)>0, "no data to be plotted"))
 	m <- leaflet(data=selected_countries) %>%
 		
-		addProviderTiles(providers$Esri.OceanBasemap) %>% 
+		addProviderTiles(providers$Esri.WorldPhysical) %>% 
 		
 		addPolygons(data = country_p, weight = 2, opacity=0.3, fillOpacity =0.1) %>% 
 		
@@ -171,7 +171,7 @@ datacall_map<-function(
 	
 	m <- leaflet(data=selected_emus) %>%
 		
-		addProviderTiles(providers$Esri.OceanBasemap) %>% 
+		addProviderTiles(providers$Esri.WorldPhysical) %>% 
 		
 		addPolygons(data = country_p, weight = 2, opacity=0.3, fillOpacity =0.1) %>% 
 		
@@ -379,7 +379,7 @@ b_map <- function(dataset=precodata_all,
 	
 	m <- leaflet(data=selected_countries) %>% addScaleBar(options = scaleBarOptions(imperial = FALSE))  %>%
 		
-		addProviderTiles(providers$Esri.OceanBasemap) %>% addScaleBar(options = scaleBarOptions(imperial = FALSE)) %>%
+		addProviderTiles(providers$Esri.WorldPhysical) %>% addScaleBar(options = scaleBarOptions(imperial = FALSE)) %>%
 		
 		addPolygons(data = country_p, weight = 2, opacity=0.3, fillOpacity =0.1)  %>%
 		
@@ -519,7 +519,7 @@ b_map <- function(dataset=precodata_all,
 	
 	m <- leaflet(data=selected_emus) %>%
 		
-		addProviderTiles(providers$Esri.OceanBasemap) %>% 
+		addProviderTiles(providers$Esri.WorldPhysical) %>% 
 		
 		addPolygons(data = emu_p, weight = 2, opacity=0.3, fillOpacity =0.1)%>%
 		
