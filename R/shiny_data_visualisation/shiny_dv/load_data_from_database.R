@@ -171,6 +171,8 @@ biometry_group_data_series_long <- biometry_group_data_series %>%
 biometry_group_data_sampling_long <- biometry_group_data_sampling %>% 
 		select( -mty_id, -mty_min, -mty_max)  %>% 
 		pivot_wider(names_from = mty_name, values_from = meg_value)
+
+cat("Beware shiny_dv also uses Annex13 from wkemp be sure you are using the updated value from this file")
 tryCatch({save( precodata_all, 
 		precodata,    
 		precodata_emu, 
