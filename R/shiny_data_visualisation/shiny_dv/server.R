@@ -641,7 +641,7 @@ server = function(input, output, session) {
 						dataset=precodata_all,
 						map = input$geo,
 						use_last_year=input$rasta_map_last_year, type = input$rasta_map_type,
-						the_year=input$year[2],
+						the_year=input$year[1]:input$year[2],
 						maxscale_country=300, # scale in km
 						maxscale_emu=50) # scale in km
 				
