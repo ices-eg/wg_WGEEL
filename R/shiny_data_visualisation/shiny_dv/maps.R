@@ -399,6 +399,7 @@ b_map <- function(dataset=precodata_all,
 			  opacity = 0.9,            
 			  weight = 0,
 			  stroke = TRUE,
+			  popup = ~ label,
 			  radius = ~ rescaled_b0
 		  ) %>%
 		  
@@ -411,6 +412,7 @@ b_map <- function(dataset=precodata_all,
 			  opacity = 0.7,            
 			  weight = 1,
 			  stroke = TRUE,
+			  popup = ~ label,
 			  radius = ~ rescaled_b40) %>%
 		  
 		  addCircles(
@@ -422,6 +424,7 @@ b_map <- function(dataset=precodata_all,
 			  opacity = 0.7,            
 			  weight = 1,
 			  stroke = TRUE,
+			  popup = ~ label,
 			  radius = ~ rescaled_bbest)     %>%
 		  
 		  addCircles(
