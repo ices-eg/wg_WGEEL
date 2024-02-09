@@ -161,7 +161,7 @@ create_datacall_file <- function(country, eel_typ_id, name, ...){
 	 
 	if (any(eel_typ_id%in%c(4,6))) datatype <- "landings" 	else datatype <- "other"
 	if (datatype=="landings") {
-		data_missing <- detect_missing_data(cou=country, ...)
+		data_missing <- detect_missing_data(cou=country, typ_id=eel_typ_id,...)
 		data_typ_id=ifelse(startsWith(data_missing$eel_typ_name,"com"),4,6)
 		# here filter if there is only 4 or 6, detect missing returns all combinations for 4 and 6
 		data_missing <- data_missing[data_typ_id%in%eel_typ_id,]

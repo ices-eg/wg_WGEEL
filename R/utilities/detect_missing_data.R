@@ -1,9 +1,10 @@
 
 detect_missing_data <- function(cou="FR",
-		minyear=2000,
-		maxyear=2024, #maxyear corresponds to the current year where we have to fill data
-		con,
-		datasource="dc_2024") {
+                                minyear=2000,
+                                maxyear=2024, #maxyear corresponds to the current year where we have to fill data
+                                con,
+                                datasource="dc_2024",
+                                typ_id=c(4,6)) {
   #theoretically this one is the best solution but the table is not well filled
   if (class(con)!= "PqConnection") stop("Connexion is not valid, check con")
   emus <- dbGetQuery(con,paste("select emu_nameshort eel_emu_nameshort,emu_cou_code
@@ -18,29 +19,29 @@ detect_missing_data <- function(cou="FR",
   emus=emus[!grepl("_.._",emus$eel_emu_nameshort),]
   
   
-	# in some cases there is just one total, otherwise remove total											
-	if (nrow(emus)>2 & cou!="DK"){ #for Denmark, total EMUs as a different meanings that for other countries
-		emus <- emus[!emus$emu_wholecountry,c(1,2)]		
-	} else if (nrow(emus)==2) {
-	  emus = subset(emus, emus$eel_emu_nameshort %in% used_emus)[,c(1,2)]
-	}   else {
-		emus <- emus[,c(1,2)]				
-	}
+  # in some cases there is just one total, otherwise remove total											
+  if (nrow(emus)>2 & cou!="DK"){ #for Denmark, total EMUs as a different meanings that for other countries
+    emus <- emus[!emus$emu_wholecountry,c(1,2)]		
+  } else if (nrow(emus)==2) {
+    emus = subset(emus, emus$eel_emu_nameshort %in% used_emus)[,c(1,2)]
+  }   else {
+    emus <- emus[,c(1,2)]				
+  }
   
   hty_emus <- c("F","T","C","MO")  
   all_comb <- merge(expand.grid(eel_lfs_code=c("G","Y","S"),
-                          eel_year=minyear:maxyear,
-                          eel_typ_id=c(4,6,7),
-                          eel_hty_code=hty_emus),
+                                eel_year=minyear:maxyear,
+                                eel_typ_id=typ_id,
+                                eel_hty_code=hty_emus),
                     emus)
   ranges<-dbGetQuery(con,paste(paste("select max(eel_area_division) eel_area_division,eel_typ_id,eel_hty_code,eel_emu_nameshort,eel_lfs_code,eel_cou_code,min(eel_year) as first_year,max(eel_year) last_year from datawg.t_eelstock_eel where eel_value >0 and eel_qal_id in (0,1,2,4) and eel_year>=",minyear," and eel_year<=",maxyear," and eel_typ_id in (4,6,7) and eel_cou_code='",cou,"' group by eel_typ_id,eel_hty_code,eel_emu_nameshort,eel_lfs_code,eel_cou_code",sep="")))
-	options(warn=-1)
+  options(warn=-1)
   missing_comb <- suppressMessages(anti_join(all_comb, complete))
-
   
-	options(warn=0)
+  
+  options(warn=0)
   missing_comb$id <- 1:nrow(missing_comb)
- # searching for aggregations at the upper level
+  # searching for aggregations at the upper level
   found_matches <- sqldf("select id,c.eel_emu_nameshort from missing_comb m inner join complete c on c.eel_cou_code=m.eel_cou_code and
                                                             c.eel_year=m.eel_year and
                                                             c.eel_typ_id=m.eel_typ_id and
@@ -52,7 +53,7 @@ detect_missing_data <- function(cou="FR",
   missing_comb <- missing_comb %>%
     filter(!missing_comb$id %in% found_matches$id)%>%
     arrange(eel_cou_code,eel_typ_id,eel_emu_nameshort,eel_lfs_code,eel_hty_code,eel_year)
-
+  
   # append the range years to the dataset
   missing_comb <- sqldf("select m.*, min(first_year) first_year,max(last_year) last_year,max(eel_area_division) eel_area_division from missing_comb m left join ranges r on m.eel_cou_code=r.eel_cou_code and
                                                             m.eel_typ_id=r.eel_typ_id and
@@ -69,34 +70,34 @@ detect_missing_data <- function(cou="FR",
   missing_comb$eel_cou_code =as.character(missing_comb$eel_cou_code)
   eel_typ_name=dbGetQuery(con,"select typ_id eel_typ_id,typ_name as eel_typ_name from ref.tr_typeseries_typ where typ_id in (4,6,7)")
   missing_comb <- merge(missing_comb,eel_typ_name)
-  missing_comb$eel_value=NA
+  missing_comb <- missing_comb %>%
+    mutate(eel_value=NA) %>%
+    mutate(eel_comment =mapply(function(y,f,l){
+      if (is.na(f) & is.na(l)){
+        return("no landing ever recorded in the db")
+      } else if (!is.na(l) & (y > l) & l<maxyear-3){
+        return (paste("landings ended in",l))
+      } else {
+        return (paste("landings recorded in",l))
+      }
+    }, eel_year,first_year,last_year)) %>%
+    mutate(eel_missvaluequal=sapply(eel_comment,function(c){
+      if (startsWith(c,"no landing")) return("NP")
+      if (startsWith(c,"landings ended")) return ("NP")
+      if (startsWith(c, "landings recorded")) return("NC")
+    })) %>%
+    mutate(eel_qal_id =ifelse(!is.na(eel_missvaluequal=="NC"),1,NA)) %>%
+    mutate(eel_qal_comment <- "autofilled by missing data detection procedure") %>%
+    mutate(eel_datasource <- str_c(datasource,"_missing")) 
   
-  missing_comb$eel_comment <- mapply(function(y,f,l){
-    if (is.na(f) & is.na(l)){
-      return("no landing ever recorded in the db")
-    } else if (!is.na(l) & (y > l) & l<maxyear-3){
-      return (paste("landings ended in",l))
-    } else {
-      return (paste("landings recorded in",l))
-    }
-  }, missing_comb$eel_year,missing_comb$first_year,missing_comb$last_year)
-  
-  missing_comb$eel_missvaluequal=sapply(missing_comb$eel_comment,function(c){
-    if (startsWith(c,"no landing")) return("NP")
-    if (startsWith(c,"landings ended")) return ("NP")
-    if (startsWith(c, "landings recorded")) return("NC")
-  })
-  missing_comb$eel_qal_id <- ifelse(!is.na(missing_comb$eel_missvaluequal=="NC"),1,NA)
-  missing_comb$eel_qal_comment <- "autofilled by missing data detection procedure"
-  missing_comb$eel_datasource <- str_c(datasource,"_missing")
-  
-  ####For ongoing year, we leave NP but removes the other
-  missing_comb$eel_comment[missing_comb$eel_year==maxyear] <- NA
-  missing_comb$eel_qal_comment[missing_comb$eel_year==maxyear] <- NA
-  missing_comb$eel_qal_id[missing_comb$eel_year==maxyear & missing_comb$eel_missvaluequal == "NC"] <- NA
-  missing_comb$eel_datasource[missing_comb$eel_year==maxyear] <- datasource
-  missing_comb$eel_missvaluequal[missing_comb$eel_year==maxyear & missing_comb$eel_missvaluequal == "NC"] <- NA
-  
+  if (length(which(missing_comb$eel_year==maxyear)>0)){
+    ####For ongoing year, we leave NP but removes the other
+    missing_comb$eel_comment[missing_comb$eel_year==maxyear] <- NA
+    missing_comb$eel_qal_comment[missing_comb$eel_year==maxyear] <- NA
+    missing_comb$eel_qal_id[missing_comb$eel_year==maxyear & missing_comb$eel_missvaluequal == "NC"] <- NA
+    missing_comb$eel_datasource[missing_comb$eel_year==maxyear] <- datasource
+    missing_comb$eel_missvaluequal[missing_comb$eel_year==maxyear & missing_comb$eel_missvaluequal == "NC"] <- NA
+  }
   ###for last year, we look for the last level of aggregation
   found_matches_last_year <- sqldf(paste("select m.*,c.eel_lfs_code last_lfs,c.eel_hty_code last_hty,c.eel_emu_nameshort last_emu,c.eel_year last_year from all_comb m left join complete c on c.eel_cou_code=m.eel_cou_code and
                                                             c.eel_typ_id=m.eel_typ_id and
@@ -122,24 +123,24 @@ detect_missing_data <- function(cou="FR",
   missing_comb <- bind_rows(missing_comb,missing_comb2)
   
   missing_comb<-  missing_comb%>% select(eel_typ_name,
-                           eel_year,
-                           eel_value,
-                           eel_missvaluequal,
-                           eel_emu_nameshort,
-                           eel_cou_code,
-                           eel_lfs_code,
-                           eel_hty_code,
-                           eel_area_division,
-                           eel_qal_id,
-                           eel_qal_comment,
-                           eel_comment,
-                           eel_datasource)%>%
-      arrange(eel_cou_code,
-              eel_emu_nameshort,
-              eel_hty_code,
-              eel_lfs_code,
-              eel_year)
-
+                                         eel_year,
+                                         eel_value,
+                                         eel_missvaluequal,
+                                         eel_emu_nameshort,
+                                         eel_cou_code,
+                                         eel_lfs_code,
+                                         eel_hty_code,
+                                         eel_area_division,
+                                         eel_qal_id,
+                                         eel_qal_comment,
+                                         eel_comment,
+                                         eel_datasource)%>%
+    arrange(eel_cou_code,
+            eel_emu_nameshort,
+            eel_hty_code,
+            eel_lfs_code,
+            eel_year)
+  
   return(missing_comb)
 }
 
@@ -152,13 +153,13 @@ detect_missing_data <- function(cou="FR",
 
 detect_missing_biom_morta <- function(cou="FR",
                                       type="biomass", eel_typ_id=13:15,
-                                minyear=2007,
-                                maxyear=2024, #maxyear corresponds to the current year where we have to fill data
-                                con,
-                                datasource="dc_2024") {
-
+                                      minyear=2007,
+                                      maxyear=2024, #maxyear corresponds to the current year where we have to fill data
+                                      con,
+                                      datasource="dc_2024") {
   
-   
+  
+  
   #theoretically this one is the best solution but the table is not well filled
   emus <- unique(dbGetQuery(con,paste("select emu_nameshort eel_emu_nameshort,emu_cou_code
  			eel_cou_code, emu_wholecountry
@@ -185,7 +186,7 @@ detect_missing_biom_morta <- function(cou="FR",
                                 typ_name == "suma" ~ 17,
                                 typ_name == "sumf" ~ 18,
                                 typ_name == "sumh" ~ 19
-                                )) %>%
+    )) %>%
     distinct() %>%
     mutate(eel_year=ifelse(eel_typ_id==13,0,eel_year))
   
@@ -195,12 +196,12 @@ detect_missing_biom_morta <- function(cou="FR",
     summarize(n=n_distinct(eel_value),eel_value=mean(eel_value,na.rm=TRUE)) %>%
     filter(n==1)
   
-
-
+  
+  
   if (CY == 2024) {
     complete <- complete[-(1:nrow(complete)),]
   }
-
+  
   
   hty_emus <- c("AL")  
   all_comb <- merge(expand.grid(eel_lfs_code=c("S"),
@@ -222,7 +223,7 @@ detect_missing_biom_morta <- function(cou="FR",
   }
   
   options(warn=0)
-
+  
   missing_comb$eel_year = as.integer(missing_comb$eel_year)
   
   missing_comb <- base::merge(missing_comb,complete[,c("eel_year","eel_emu_nameshort","eel_value","eel_typ_id")],
@@ -232,7 +233,7 @@ detect_missing_biom_morta <- function(cou="FR",
   
   missing_comb=merge(missing_comb,eel_typ_name)
   
-
+  
   return(missing_comb)
 }
 
