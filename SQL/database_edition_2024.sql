@@ -275,3 +275,20 @@ update datawg.t_series_ser set ser_ccm_wso_id = '{442355}' where ser_id=205;
 update datawg.t_series_ser set ser_ccm_wso_id = '{88690}' where ser_id=262;
 
 
+SELECT * FROM "ref".tr_typeseries_typ ORDER BY typ_id 
+
+INSERT INTO "ref".tr_typeseries_typ (typ_name, typ_description, typ_uni_code)
+SELECT 'b_current_without_stocking_kg', 
+'Current biomass of silver eel (kg) if there hadn''t been any stocking', 
+'kg';
+
+UPDATE "ref".tr_typeseries_typ 
+SET typ_description = 'Current biomass of silver eel (kg) (including stocking)'
+WHERE typ_id = 15;
+UPDATE "ref".tr_typeseries_typ 
+SET typ_description = 'Maximum potential biomass of silver eel (sumA=0) (kg) (stocking should not be included in calculations)'
+WHERE typ_id = 16;
+UPDATE "ref".tr_typeseries_typ 
+SET typ_description = typ_description || ' DEPRECATED'
+WHERE typ_name ILIKE 'see_%'; --6
+
