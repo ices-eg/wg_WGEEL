@@ -239,7 +239,7 @@ update_referential_sheet(con=con,name= "Eel_Data_Call_Annex5_Landings_Recreation
 for (cou in cou_code){
   gc()
 
-  if (! cou %in% c("GB")) { #GB has no recreational fisheries
+#  if (! cou %in% c("GB")) { #GB has no recreational fisheries
     create_datacall_file ( 
       country <- cou,
       eel_typ_id <- c(6), 
@@ -249,7 +249,7 @@ for (cou in cou_code){
       con = con,
       datasource=datasource)
     
-  }
+  #}
 }
 
 # OTHER LANDINGS
