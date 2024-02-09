@@ -4,7 +4,7 @@
 # This script will create an excel sheet per country that currently have recruitment series
 #######################################################################################
 # put the current year there
-if(Sys.info()["user"]=="hdrouineau"){
+if(Sys.info()["user"] %in% c("hilaire.drouineau","hdrouineau")){
   setwd("~/Documents/Bordeaux/migrateurs/WGEEL/github/wg_WGEEL/")
 } else if(Sys.info()["user"]=="cedric.briand"){
   setwd("C:/workspace/wg_WGEEL")
@@ -111,7 +111,6 @@ save(t_eelstock_eel, file=str_c(wddata,"t_eelstock_eel.Rdata"))
 
 
 
-
 #' function to create the data sheet 
 #' 
 #' @note this function writes the xl sheet for each country
@@ -194,6 +193,19 @@ create_datacall_file <- function(country, eel_typ_id, name, ...){
 #		datasource=datasource)
 #dbDisconnect(con)
 
+# 
+# create_datacall_file ( 
+# 		country <- "MA",
+# 		eel_typ_id <- 4, 
+# 		name <- "Eel_Data_Call_2020_Annex4_Landings_Commercial",
+# 		minyear=2000,
+# 		maxyear=2020, #maxyear corresponds to the current year where we have to fill data
+# 		host="localhost",
+# 		dbname="wgeel",
+# 		user="wgeel",
+# 		port=5432,
+# 		datasource="dc_2020")
+# 
 # END TEST -------------------------------------------
 
 # CLOSE EXCEL FILE FIST
@@ -211,6 +223,8 @@ con = dbConnect(RPostgres::Postgres(),
 update_referential_sheet(con=con,"Eel_Data_Call_Annex4_Landings_Commercial")
 for (cou in cou_code){	
 	country <- cou
+	cat("country: ",country,"\n")
+	gc()
 	create_datacall_file ( 
 			country <- cou,
 			eel_typ_id <- 4, 
@@ -219,10 +233,12 @@ for (cou in cou_code){
 			maxyear=CY, #maxyear corresponds to the current year where we have to fill data
 			con = con,
 			datasource=datasource)
+	cat("work finished\n")
 }
 update_referential_sheet(con=con,name= "Eel_Data_Call_Annex5_Landings_Recreational")
 for (cou in cou_code){
   gc()
+
   if (! cou %in% c("GB")) { #GB has no recreational fisheries
     create_datacall_file ( 
       country <- cou,
@@ -232,8 +248,8 @@ for (cou in cou_code){
       maxyear=CY, #maxyear corresponds to the current year where we have to fill data
       con = con,
       datasource=datasource)
+    
   }
-
 }
 
 # OTHER LANDINGS
@@ -247,6 +263,7 @@ for (cou in cou_code){
 			minyear=2000,
 			maxyear=CY, #maxyear corresponds to the current year where we have to fill data
 			datasource=datasource)
+	
 }
 
 update_referential_sheet(con=con, name= "Eel_Data_Call_Annex7_Releases")
@@ -278,10 +295,46 @@ for (cou in cou_code_aqua){
 			maxyear=CY, #maxyear corresponds to the current year where we have to fill data
 			datasource=datasource)
 	
+	
 }
 
 
 dbDisconnect(con)
 
 
+
+## Not run: saveWorkbook(wb, file = "tableStylesGallery.xlsx", overwrite = TRUE)
+
+
+
+# lselect the countries and the typ_id you have
+
+
+#
+#
+#
+#	
+#}else if (eel_typ %in% c(11,12)){
+#	
+#	r_coun<-t_eelstock_eel[t_eelstock_eel$eel_cou_code==country & t_eelstock_eel$eel_typ_id %in% c(11,12),]
+#	data_type<-"aquaculture"
+#	
+#}else if (eel_typ %in% c(13,14,15)){
+#	
+#	r_coun<-t_eelstock_eel[t_eelstock_eel$eel_cou_code==country & t_eelstock_eel$eel_typ_id %in% c(13,14,15),]
+#	data_type<-"biomass_indicators"
+#}else if (eel_typ %in% c(17:25)){
+#	
+#	r_coun<-t_eelstock_eel[t_eelstock_eel$eel_cou_code==country & t_eelstock_eel$eel_typ_id %in% c(17:25),]
+#	data_type<-"mortality_rate"
+#	
+#}else if (eel_typ %in% c(26:31)){
+#	
+#	r_coun<-t_eelstock_eel[t_eelstock_eel$eel_cou_code==country & t_eelstock_eel$eel_typ_id %in% c(26:31),]
+#	data_type<-"mortality_see"
+#	
+#}else if (eel_typ %in% c(32:33)){
+#	
+#	r_coun<-t_eelstock_eel[t_eelstock_eel$eel_cou_code==country & t_eelstock_eel$eel_typ_id %in% c(32:33),]
+#	data_type<-"other_landings"
 	
