@@ -276,7 +276,7 @@ update datawg.t_series_ser set ser_ccm_wso_id = '{88690}' where ser_id=262;
 
 -- ADDING b_current_without_stocking
 
-SELECT * FROM "ref".tr_typeseries_typ ORDER BY typ_id 
+--SELECT * FROM "ref".tr_typeseries_typ ORDER BY typ_id 
 
 INSERT INTO "ref".tr_typeseries_typ (typ_name, typ_description, typ_uni_code)
 SELECT 'b_current_without_stocking_kg', 
