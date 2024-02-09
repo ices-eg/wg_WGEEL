@@ -241,6 +241,10 @@ create_datacall_file_series <- function(country, name, ser_typ_id, type="series"
         dplyr::filter(!!sym(ifelse(type=="series","ser_nameshort","sai_name")) %in% activeseries) %>%     #this ensure that we don't ask new data for time series that are inactive since more than 4 years
         dplyr::arrange(ser_nameshort, das_year) 
         
+      if(ser_typ_id>1){
+        new_data <- new_data %>%
+          filter(das_year < CY) #for yellow and silver eel, we should not ask for the data point in last year
+      }
       
       if (nrow(new_data)> 0){
         #openxlsx::writeData(wb, sheet = "new_data", new_data, startRow = 1)
