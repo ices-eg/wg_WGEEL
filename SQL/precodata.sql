@@ -19,6 +19,11 @@ with
 		from datawg.bcurrent
 		where (eel_qal_id in (1,2,4) OR (eel_qal_id = 0 AND eel_missvaluequal='NP'))
 		),
+	 bcurrent_without_stocking as
+    (select eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code, eel_qal_id, eel_value as bcurrent -- NO has biomass data per ICES division
+    from datawg.bcurrent_without_stocking
+    where (eel_qal_id in (1,2,4) OR (eel_qal_id = 0 AND eel_missvaluequal='NP'))
+    ),
 	suma as
 		(select eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code, eel_qal_id, round(eel_value,3) as suma 
 		from datawg.sigmaa 
