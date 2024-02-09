@@ -11,7 +11,6 @@
 
 load_catch_landings<-function(path,datasource){
   shinybusy::show_modal_spinner(text = "load catch and landings")
-  the_metadata<-list()
   dir<-dirname(path)
   file<-basename(path)
   mylocalfilename<-gsub(".xlsx","",file)
@@ -20,26 +19,7 @@ load_catch_landings<-function(path,datasource){
   if ("series_info" %in% sheets) stop("There is a series_info tab in your data, you want to use import time series tab")
   if ("sampling_info" %in% sheets) stop("There is a sampling_info tab in your data, you want to use import time series tab")
   
-  #---------------------- METADATA sheet ---------------------------------------------
-  
-  
-  
-  # read the metadata sheet
-  metadata<-read_excel(path=path,"metadata" , skip=4)
-  # check if no rows have been added
-  if (names(metadata)[1]!="For each data series") cat(str_c("The structure of metadata has been changed  \n"))
-  # store the content of metadata in a list
-  if (ncol(metadata)>1){   
-    the_metadata[["contact"]] <- as.character(metadata[1,2])
-    the_metadata[["contactemail"]] <- as.character(metadata[2,2])
-    the_metadata[["method"]] <- as.character(metadata[3,2])
-  } else {
-    the_metadata[["contact"]] <- NA
-    the_metadata[["contactemail"]] <- NA
-    the_metadata[["method"]] <- NA
-  }
-  # end loop for directories
-  
+
   #---------------------- catch_landings sheet ---------------------------------------------
   
   # read the catch_landings sheet
@@ -307,7 +287,7 @@ load_catch_landings<-function(path,datasource){
   shinybusy::remove_modal_spinner()
   data_error=rbind.data.frame(output[[1]]$error,output[[2]]$error,output[[3]]$error)
   return(invisible(list(data=output[[1]]$data,updated_data=output[[2]]$data,deleted_data=output[[3]]$data,
-                        error=data_error,the_metadata=the_metadata))) 
+                        error=data_error))) 
 }
 
 
@@ -316,7 +296,6 @@ load_catch_landings<-function(path,datasource){
 # path<-file.choose()
 load_release<-function(path,datasource){
   shinybusy::show_modal_spinner(text = "load release")
-  the_metadata<-list()
   dir<-dirname(path)
   file<-basename(path)
   mylocalfilename<-gsub(".xlsx","",file)
@@ -324,24 +303,7 @@ load_release<-function(path,datasource){
   sheets <- excel_sheets(path=path)
   if ("series_info" %in% sheets) stop("There is a series_info tab in your data, you want to use import time series tab")
   if ("sampling_info" %in% sheets) stop("There is a sampling_info tab in your data, you want to use import time series tab")
-  #---------------------- METADATA sheet ---------------------------------------------
-  ## It is no necessary for database
-  # read the metadata sheet
-  metadata<-read_excel(path=path,"metadata" , skip=4)
-  # check if no rows have been added
-  if (names(metadata)[1]!="For each data series") cat(str_c("The structure of metadata has been changed in \n"))
-  # store the content of metadata in a list
-  if (ncol(metadata)>1){   
-    the_metadata[["contact"]] <- as.character(metadata[1,2])
-    the_metadata[["contactemail"]] <- as.character(metadata[2,2])
-    the_metadata[["method"]] <- as.character(metadata[3,2])
-  } else {
-    the_metadata[["contact"]] <- NA
-    the_metadata[["contactemail"]] <- NA
-    the_metadata[["method"]] <- NA
-  }
-  # end loop for directories
-  
+
   #---------------------- release sheet ---------------------------------------------
   
   cat("release \n")
@@ -724,7 +686,7 @@ load_release<-function(path,datasource){
   data_error=rbind.data.frame(output[[1]]$error,output[[2]]$error,output[[3]]$error)
   return(invisible(list(data=output[[1]]$data,updated_data=output[[2]]$data,
                         deleted_data=output[[3]]$data,
-                        error=data_error,the_metadata=the_metadata))) 
+                        error=data_error))) 
 }
 
 
@@ -734,7 +696,6 @@ load_release<-function(path,datasource){
 load_aquaculture<-function(path,datasource){
   #shinybusy::show_modal_spinner(text = "load aquaculture")
   data_error <- data.frame(nline = NULL, error_message = NULL)
-  the_metadata<-list()
   dir<-dirname(path)
   file<-basename(path)
   mylocalfilename<-gsub(".xlsx","",file)
@@ -742,24 +703,7 @@ load_aquaculture<-function(path,datasource){
   sheets <- excel_sheets(path=path)
   if ("series_info" %in% sheets) stop("There is a series_info tab in your data, you want to use import time series tab")
   if ("sampling_info" %in% sheets) stop("There is a sampling_info tab in your data, you want to use import time series tab")
-  #---------------------- METADATA sheet ---------------------------------------------
-  # read the metadata sheet
-  metadata<-read_excel(path=path,"metadata" , skip=4) 
-  # check if no rows have been added
-  if (names(metadata)[1]!="For each data series") cat(str_c("The structure of metadata has been changed ",file,"\n"))
-  # if there is no value in the cells then the tibble will only have one column
-  # store the content of metadata in a list
-  if (ncol(metadata)>1){   
-    the_metadata[["contact"]] <- as.character(metadata[1,2])
-    the_metadata[["contactemail"]] <- as.character(metadata[2,2])
-    the_metadata[["method"]] <- as.character(metadata[3,2])
-  } else {
-    the_metadata[["contact"]] <- NA
-    the_metadata[["contactemail"]] <- NA
-    the_metadata[["method"]] <- NA
-  }
-  # end loop for directories
-  
+
   #---------------------- aquaculture sheet ---------------------------------------------
   output <- lapply(c("new_data","updated_data",'deleted_data'),function(sheet){
     # read the aquaculture sheet
@@ -963,7 +907,7 @@ load_aquaculture<-function(path,datasource){
   data_error=rbind.data.frame(output[[1]]$error,output[[2]]$error,output[[3]]$error)
   return(invisible(list(data=output[[1]]$data,updated_data=output[[2]]$data,
                         deleted_data=output[[3]]$data,
-                        error=data_error,the_metadata=the_metadata))) 
+                        error=data_error))) 
 }
 
 
@@ -971,7 +915,6 @@ load_aquaculture<-function(path,datasource){
 #path <- file.choose()
 load_biomass<-function(path,datasource){
   data_error <- data.frame(nline = NULL, error_message = NULL)
-  the_metadata<-list()
   dir<-dirname(path)
   file<-basename(path)
   mylocalfilename<-gsub(".xlsx","",file)
@@ -979,24 +922,7 @@ load_biomass<-function(path,datasource){
   sheets <- excel_sheets(path=path)
   if ("series_info" %in% sheets) stop("There is a series_info tab in your data, you want to use import time series tab")
   if ("sampling_info" %in% sheets) stop("There is a sampling_info tab in your data, you want to use import time series tab")
-  #---------------------- METADATA sheet ---------------------------------------------
-  # read the metadata sheet
-  metadata<-read_excel(path=path,"metadata" , skip=4) 
-  # check if no rows have been added
-  if (names(metadata)[1]!="For each data series") cat(str_c("The structure of metadata has been changed ",file,"\n"))
-  # if there is no value in the cells then the tibble will only have one column
-  # store the content of metadata in a list
-  if (ncol(metadata)>1){   
-    the_metadata[["contact"]] <- as.character(metadata[1,2])
-    the_metadata[["contactemail"]] <- as.character(metadata[2,2])
-    the_metadata[["method"]] <- as.character(metadata[3,2])
-  } else {
-    the_metadata[["contact"]] <- NA
-    the_metadata[["contactemail"]] <- NA
-    the_metadata[["method"]] <- NA
-  }
-  # end loop for directories
-  
+
   #---------------------- biomass_indicators sheet ---------------------------------------------
   
   # read the biomass_indicators sheet
@@ -1230,7 +1156,7 @@ load_biomass<-function(path,datasource){
   shinybusy::remove_modal_spinner()
   data_error=rbind.data.frame(output[[1]]$error,output[[2]]$error,output[[3]]$error)
   return(invisible(list(data=output[[1]]$data,updated_data=output[[2]]$data,deleted_data=output[[3]]$data,
-                        error=data_error,the_metadata=the_metadata)))
+                        error=data_error)))
 }
 
 
@@ -1239,7 +1165,6 @@ load_biomass<-function(path,datasource){
 # path <- file.choose()
 load_mortality_rates<-function(path,datasource){
   data_error <- data.frame(nline = NULL, error_message = NULL)
-  the_metadata<-list()
   dir<-dirname(path)
   file<-basename(path)
   mylocalfilename<-gsub(".xlsx","",file)
@@ -1247,23 +1172,7 @@ load_mortality_rates<-function(path,datasource){
   sheets <- excel_sheets(path=path)
   if ("series_info" %in% sheets) stop("There is a series_info tab in your data, you want to use import time series tab")
   if ("sampling_info" %in% sheets) stop("There is a sampling_info tab in your data, you want to use import time series tab")
-  #---------------------- METADATA sheet ---------------------------------------------
-  # read the metadata sheet
-  metadata<-read_excel(path=path,"metadata" , skip=4) 
-  # check if no rows have been added
-  if (names(metadata)[1]!="For each data series") cat(str_c("The structure of metadata has been changed ",file,"\n"))
-  # if there is no value in the cells then the tibble will only have one column
-  # store the content of metadata in a list
-  if (ncol(metadata)>1){   
-    the_metadata[["contact"]] <- as.character(metadata[1,2])
-    the_metadata[["contactemail"]] <- as.character(metadata[2,2])
-    the_metadata[["method"]] <- as.character(metadata[3,2])
-  } else {
-    the_metadata[["contact"]] <- NA
-    the_metadata[["contactemail"]] <- NA
-    the_metadata[["method"]] <- NA
-  }
-  # end loop for directories
+
   
   #---------------------- mortality_rates_Sigma sheet ---------------------------------------------
   
@@ -1499,7 +1408,7 @@ load_mortality_rates<-function(path,datasource){
   })
   data_error=rbind.data.frame(output[[1]]$error,output[[2]]$error,output[[3]]$error)
   return(invisible(list(data=output[[1]]$data,updated_data=output[[2]]$data,deleted_data=output[[3]]$data,
-                        error=data_error,the_metadata=the_metadata)))
+                        error=data_error)))
 }
 
 
@@ -1509,7 +1418,6 @@ load_mortality_rates<-function(path,datasource){
 # path <- file.choose()
 load_mortality_silver<-function(path,datasource){
   data_error <- data.frame(nline = NULL, error_message = NULL)
-  the_metadata<-list()
   dir<-dirname(path)
   file<-basename(path)
   mylocalfilename<-gsub(".xlsx","",file)
@@ -1517,24 +1425,7 @@ load_mortality_silver<-function(path,datasource){
   sheets <- excel_sheets(path=path)
   if ("series_info" %in% sheets) stop("There is a series_info tab in your data, you want to use import time series tab")
   if ("sampling_info" %in% sheets) stop("There is a sampling_info tab in your data, you want to use import time series tab")
-  #---------------------- METADATA sheet ---------------------------------------------
-  # read the metadata sheet
-  metadata<-read_excel(path=path,"metadata" , skip=4) 
-  # check if no rows have been added
-  if (names(metadata)[1]!="For each data series") cat(str_c("The structure of metadata has been changed ",file,"\n"))
-  # if there is no value in the cells then the tibble will only have one column
-  # store the content of metadata in a list
-  if (ncol(metadata)>1){   
-    the_metadata[["contact"]] <- as.character(metadata[1,2])
-    the_metadata[["contactemail"]] <- as.character(metadata[2,2])
-    the_metadata[["method"]] <- as.character(metadata[3,2])
-  } else {
-    the_metadata[["contact"]] <- NA
-    the_metadata[["contactemail"]] <- NA
-    the_metadata[["method"]] <- NA
-  }
-  # end loop for directories
-  
+
   #---------------------- mortality_silver sheet ---------------------------------------------
   
   # read the mortality_silver sheet
@@ -1752,13 +1643,12 @@ load_mortality_silver<-function(path,datasource){
     )
     
   }
-  return(invisible(list(data=data_xls,error=data_error,the_metadata=the_metadata)))
+  return(invisible(list(data=data_xls,error=data_error)))
 }
 
 
 load_potential_available_habitat<-function(path,datasource){
   data_error <- data.frame(nline = NULL, error_message = NULL)
-  the_metadata<-list()
   dir<-dirname(path)
   file<-basename(path)
   mylocalfilename<-gsub(".xlsx","",file)
@@ -1766,22 +1656,7 @@ load_potential_available_habitat<-function(path,datasource){
   sheets <- excel_sheets(path=path)
   if ("series_info" %in% sheets) stop("There is a series_info tab in your data, you want to use import time series tab")
   if ("sampling_info" %in% sheets) stop("There is a sampling_info tab in your data, you want to use import time series tab")
-  #---------------------- METADATA sheet ---------------------------------------------
-  # read the metadata sheet
-  metadata<-read_excel(path=path,"metadata" , skip=4) 
-  # check if no rows have been added
-  if (names(metadata)[1]!="For each data series") cat(str_c("The structure of metadata has been changed ",file,"\n"))
-  # if there is no value in the cells then the tibble will only have one column
-  # store the content of metadata in a list
-  if (ncol(metadata)>1){   
-    the_metadata[["contact"]] <- as.character(metadata[1,2])
-    the_metadata[["contactemail"]] <- as.character(metadata[2,2])
-    the_metadata[["method"]] <- as.character(metadata[3,2])
-  } else {
-    the_metadata[["contact"]] <- NA
-    the_metadata[["contactemail"]] <- NA
-    the_metadata[["method"]] <- NA
-  }
+
   # end loop for directories
   
   #---------------------- hab_wet_Area sheet ---------------------------------------------
@@ -1955,7 +1830,7 @@ load_potential_available_habitat<-function(path,datasource){
     )
     
   }
-  return(invisible(list(data=data_xls,error=data_error,the_metadata=the_metadata)))
+  return(invisible(list(data=data_xls,error=data_error)))
 }
 
 ############# time series #############################################
@@ -1971,7 +1846,6 @@ load_series<-function(path, datasource, stage="glass_eel"){
     if ("sampling_info" %in% sheets) stop("There is a sampling_info tab in your data, you want to use import time series tab")
     
     data_error <- data.frame(nline = NULL, error_message = NULL)
-    the_metadata <- list()
     dir <- dirname(path)
     file <- basename(path)
     mylocalfilename <- gsub(".xlsx","",file)
@@ -1988,12 +1862,7 @@ load_series<-function(path, datasource, stage="glass_eel"){
     stopifnot(exists("ices_division"))
     suppressWarnings(t_series_ser <- extract_data("t_series_ser",quality_check=FALSE))
     
-    #---------------------- METADATA sheet ---------------------------------------------
-    # read the metadata sheet
-    metadata <- read_excel(path=path,"metadata" , skip=1)
-    # check if no rows have been added
-    if (names(metadata)[1]!="ser_nameshort") cat(str_c("The structure of metadata has been changed ",file,"\n"))
-    
+
     #---------------------- series info ---------------------------------------------
     
     cat("loading series \n")
@@ -2724,8 +2593,7 @@ load_series<-function(path, datasource, stage="glass_eel"){
     updated_individual_metrics = res[[8]]$data, 
     deleted_individual_metrics = res[[9]]$data, 
     t_series_ser = t_series_ser, 
-    error =data_error,
-    the_metadata =the_metadata))) 
+    error =data_error))) 
 }
 
 
@@ -2748,7 +2616,6 @@ load_dcf<-function(path,datasource){
   if ("series_info" %in% sheets) stop("There is a series_info tab in your data, you want to use import time series tab")
   
   data_error <- data.frame(nline = NULL, error_message = NULL)
-  the_metadata <- list()
   dir <- dirname(path)
   file <- basename(path)
   mylocalfilename <- gsub(".xlsx","",file)
@@ -2758,12 +2625,7 @@ load_dcf<-function(path,datasource){
   stopifnot(exists("list_country"))
   stopifnot(exists("ices_division"))	
   
-  #---------------------- METADATA sheet ---------------------------------------------
-  # read the metadata sheet
-  metadata <- read_excel(path=path,"metadata" , skip=1)
-  # check if no rows have been added
-  if (names(metadata)[1]!="name") cat(str_c("The structure of metadata has been changed ",file,"\n"))
-  
+
   #---------------------- series info ---------------------------------------------
   
   cat("loading sampling info \n")
@@ -3352,8 +3214,7 @@ load_dcf<-function(path,datasource){
     new_individual_metrics = res[[4]]$data, 
     updated_individual_metrics = res[[5]]$data, 
     deleted_individual_metrics = res[[6]]$data,
-    error = data_error,
-    the_metadata = the_metadata))) 
+    error = data_error))) 
   
 }
 

@@ -135,7 +135,6 @@ importdcfstep2Server <- function(id,globaldata,loaded_data_dcf, globaldcfpanel){
                      log_datacall("new sampling integration", 
                                   cou_code = cou_code, 
                                   message = sQuote(message), 
-                                  the_metadata = NULL, 
                                   file_type = file_type, 
                                   main_assessor = globaldata$main_assessor, 
                                   secondary_assessor = globaldata$secondary_assessor)
@@ -179,7 +178,7 @@ importdcfstep2Server <- function(id,globaldata,loaded_data_dcf, globaldcfpanel){
                      secondary_assessor <- input$secondary_assessor
                      file_type <- loaded_data_dcf$file_type
                      log_datacall("update sampling", cou_code = cou_code, message = sQuote(message), 
-                                  the_metadata = NULL, file_type = file_type, main_assessor = globaldata$main_assessor, 
+                                  file_type = file_type, main_assessor = globaldata$main_assessor, 
                                   secondary_assessor = globaldata$secondary_assessor)
                      return(message)
                    }

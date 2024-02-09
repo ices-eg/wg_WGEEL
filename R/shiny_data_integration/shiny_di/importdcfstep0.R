@@ -165,7 +165,6 @@ importdcfstep0Server <- function(id,globaldata){
                          # this will fill the log_datacall file (database_tools.R)
                          log_datacall( "check data sampling info",
                              cou_code = cou_code, message = paste(rls$message,collapse="\n"),
-                             the_metadata = rls$res$the_metadata, 
                              file_type = file_type, 
                              main_assessor = globaldata$main_assessor, 
                              secondary_assessor = globaldata$secondary_assessor )
