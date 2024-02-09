@@ -34,6 +34,11 @@ detect_missing_data <- function(cou="FR",
                                 eel_typ_id=typ_id,
                                 eel_hty_code=hty_emus),
                     emus)
+  if (typ_id %in% c(4,6)){
+    #for silver eel and yellow eel, we should not asked data for the current year
+    all_comb <- all_comb %>%
+      filter(!(eel_lfs_code %in% c("Y","S") & eel_year==maxyear)) 
+  }
   ranges<-dbGetQuery(con,paste(paste("select max(eel_area_division) eel_area_division,eel_typ_id,eel_hty_code,eel_emu_nameshort,eel_lfs_code,eel_cou_code,min(eel_year) as first_year,max(eel_year) last_year from datawg.t_eelstock_eel where eel_value >0 and eel_qal_id in (0,1,2,4) and eel_year>=",minyear," and eel_year<=",maxyear," and eel_typ_id in (4,6,7) and eel_cou_code='",cou,"' group by eel_typ_id,eel_hty_code,eel_emu_nameshort,eel_lfs_code,eel_cou_code",sep="")))
   options(warn=-1)
   missing_comb <- suppressMessages(anti_join(all_comb, complete))
