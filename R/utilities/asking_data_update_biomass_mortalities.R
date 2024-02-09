@@ -8,7 +8,7 @@
 CY<-2024
 # and the annex name / type of data
 type_of_data <- c("mortalities", "biomass")
-name_annex <- c("Eel_Data_Call_Annex9_Mortality_rates", "Eel_Data_Call_Annex10_Biomass_Indicators")
+name_annex <- c("Eel_Data_Call_Annex11_Mortality_rates", "Eel_Data_Call_Annex10_Biomass_Indicators")
 names(name_annex) <- type_of_data
 eel_typ_id_annex <- list(17:19,13:15)
 names(eel_typ_id_annex) <- type_of_data
@@ -31,7 +31,8 @@ load_library("dplyr")
 load_library("getPass")
 load_library("yaml")
 load_library("DBI")
-cred=read_yaml("credentials.yml")
+load_library("tidyr")
+
 #############################
 # here is where the script is working change it accordingly
 ##################################
@@ -49,9 +50,19 @@ wddata = paste0(getwd(), "/data/datacall_template/")
 # change parameters accordingly
 ###################################"
 
-
+#############################
+# here is where the script is working change it accordingly
+# one must be at the head of wgeel git 
+##################################
+if(Sys.info()["user"]=="hdrouineau"){
+  setwd("~/Documents/Bordeaux/migrateurs/WGEEL/github/wg_WGEEL/")
+} else if(Sys.info()["user"]=="cedric.briand"){
+  setwd("C:/workspace/wg_WGEEL")
+} else {
+  setwd("~")
+}
 source("R/utilities/detect_missing_data.R")
-
+cred=read_yaml("credentials.yml")
 ###################################
 # this set up the connextion to the postgres database
 # change parameters accordingly
@@ -129,6 +140,8 @@ create_datacall_file_biom_morta <- function(country, type = type_of_data[1], ...
   sheetnames <- openxlsx::getSheetNames(templatefile)
   ref_sheets <- sheetnames[grep("tr_", sheetnames)]
   wb = openxlsx::loadWorkbook(templatefile)
+  # wb= XLConnect::loadWorkbook(templatefile)
+  
 	destinationfile <- file.path(wddata, country, namedestinationfile)		
 	
 	# limit dataset to country
@@ -137,9 +150,7 @@ create_datacall_file_biom_morta <- function(country, type = type_of_data[1], ...
 #	r_coun <-
 #	  rename_with(r_coun,function(x) paste("biom", x, sep = "_"), starts_with("perc"))
 	r_coun <- r_coun %>% select(-eel_area_division)
-	#wb = openxlsx::loadWorkbook(templatefile)
-	wb= XLConnect::loadWorkbook(templatefile)
-	
+
 	if (nrow(r_coun) >0) {
 		## separate sheets for discarded and kept data  
 		## this year special treatment we remove everything, but still need original
@@ -158,19 +169,21 @@ create_datacall_file_biom_morta <- function(country, type = type_of_data[1], ...
 		# pre-fill new data and missing for landings 
 
 # openxlsx METHODS
-		#openxlsx::writeData(wb, sheet = "existing_discarded", data_disc, startRow = 2, colNames = FALSE)
-		XLConnect::writeWorksheet(wb, data_disc, "existing_discarded", startRow=2, header=FALSE)
+		openxlsx::writeData(wb, sheet = "existing_discarded", data_disc, startRow = 2, colNames = FALSE)
+		#XLConnect::writeWorksheet(wb, data_disc, "existing_discarded", startRow=2, header=FALSE)
 		
 		
-		#removed for 2021	
-		#openxlsx::writeData(wb, sheet = "existing_kept", data_kept, startRow = 1)	
+		# was removed for 2021	
+		openxlsx::writeData(wb, sheet = "existing_kept", data_kept, startRow = 1)	
 		#		writeWorksheet(wb, data_kept,  sheet = "existing_kept",header=FALSE,startRow=2)
 		
 	} else {
 		cat("No data for country", country, "\n")
 	}
-	
-	data_missing <- detect_missing_biom_morta(cou=country,typ=type, eel_typ_id = eel_typ_id, maxyear = CY-1)
+	data_missing <- detect_missing_biom_morta(cou=country,typ=type, 
+      eel_typ_id = eel_typ_id,      
+      maxyear = CY-1, 
+      con=con)
 	data_missing %<>% 
 			mutate(eel_missvaluequal = NA) %>%
 			select(eel_typ_name, 
@@ -185,18 +198,18 @@ create_datacall_file_biom_morta <- function(country, type = type_of_data[1], ...
 					perc_MO=0) %>%
 			rename_with(function(x) paste(type, x, sep="_"),starts_with("perc")) %>%
 			arrange(eel_emu_nameshort, eel_typ_name, eel_year)
-	#openxlsx::writeData(wb,  sheet = "new_data", data_missing, startRow = 2, colNames = FALSE)
-	XLConnect::writeWorksheet(wb, data=data_missing, sheet = "new_data",  startRow = 2, header = FALSE)
+	openxlsx::writeData(wb,  sheet = "new_data", data_missing, startRow = 2, colNames = FALSE)
+	#XLConnect::writeWorksheet(wb, data=data_missing, sheet = "new_data",  startRow = 2, header = FALSE)
 	
-	#openxlsx::saveWorkbook(wb, file = destinationfile, overwrite = TRUE)	
-	XLConnect::saveWorkbook(wb, destinationfile)
+	openxlsx::saveWorkbook(wb, file = destinationfile, overwrite = TRUE)	
+	#XLConnect::saveWorkbook(wb, destinationfile)
 	
 }
 
 
 # TESTS -------------------------------------------
-create_datacall_file_biom_morta(country = "FR", type = "biomass")
-create_datacall_file_biom_morta(country = "FR", type = "mortalities")
+create_datacall_file_biom_morta(country = "FR", type = "biomass", con=con)
+create_datacall_file_biom_morta(country = "FR", type = "mortalities", con=con)
 # END TEST -------------------------------------------
 
 # CLOSE EXCEL FILE FIRST
