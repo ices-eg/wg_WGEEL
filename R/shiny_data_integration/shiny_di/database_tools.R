@@ -2761,25 +2761,18 @@ update_data_generic <- function(editedValue, pool, data,edit_datatype) {
 #' @param step one of 'check data', 'check duplicates', 'new data integration'
 #' @param cou_code the code of the country
 #' @param message : message sent to the console
-#' @param the_metadata : metadata stored in the excel file
 #' @param file_type : the type of data processed in the data call
 #' @param main_assessor : the main person responsible for data processing, usually national correspondent
 #' @param secondary_assessor : the person who helps from the data subgroup
 #' @return nothing
-log_datacall <- function(step, cou_code, message, the_metadata, file_type, main_assessor, 
+log_datacall <- function(step, cou_code, message, file_type, main_assessor, 
                          secondary_assessor) {
-  if (is.null(the_metadata)) {
-    the_metadata[["contact"]] <- NA
-    the_metadata[["method"]] <- NA
-  }
   query <- glue_sql("INSERT INTO datawg.log(log_cou_code,log_data,log_evaluation_name,log_main_assessor,log_secondary_assessor,log_contact_person_name, log_method, log_message, log_date) VALUES
-					({cou_code},{data},{evaluation},{main},{secondary},{log_contact_person_name},{log_method},{log_message},{date})", 
+					({cou_code},{data},{evaluation},{main},{secondary},{log_message},{date})", 
                     cou_code = cou_code, 
                     data = file_type, 
                     evaluation = step, main = main_assessor, 
                     secondary = secondary_assessor, 
-                    log_contact_person_name = the_metadata[["contact"]], 
-                    log_method = the_metadata[["method"]], 
                     log_message = message,
                     date = Sys.Date(), 
                     .con = pool)

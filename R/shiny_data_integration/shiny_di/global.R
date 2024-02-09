@@ -231,7 +231,8 @@ dictionary=c(
   "das_qal_id"="numeric",
   "das_qal_comment"="text",
   "das_dts_datasource"="text",
-  
+  "method_sex_(1=visual,0=use_length)"= "numeric",
+  "method_anguillicola_(1=stereomicroscope,0=visual_obs)"= "numeric",
   
   ###annex 4 -8
   "eel_id" = "numeric",

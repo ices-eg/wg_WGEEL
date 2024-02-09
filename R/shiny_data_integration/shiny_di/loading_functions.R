@@ -11,7 +11,6 @@
 
 load_catch_landings<-function(path,datasource){
   shinybusy::show_modal_spinner(text = "load catch and landings")
-  the_metadata<-list()
   dir<-dirname(path)
   file<-basename(path)
   mylocalfilename<-gsub(".xlsx","",file)
@@ -20,26 +19,7 @@ load_catch_landings<-function(path,datasource){
   if ("series_info" %in% sheets) stop("There is a series_info tab in your data, you want to use import time series tab")
   if ("sampling_info" %in% sheets) stop("There is a sampling_info tab in your data, you want to use import time series tab")
   
-  #---------------------- METADATA sheet ---------------------------------------------
-  
-  
-  
-  # read the metadata sheet
-  metadata<-read_excel(path=path,"metadata" , skip=4)
-  # check if no rows have been added
-  if (names(metadata)[1]!="For each data series") cat(str_c("The structure of metadata has been changed  \n"))
-  # store the content of metadata in a list
-  if (ncol(metadata)>1){   
-    the_metadata[["contact"]] <- as.character(metadata[1,2])
-    the_metadata[["contactemail"]] <- as.character(metadata[2,2])
-    the_metadata[["method"]] <- as.character(metadata[3,2])
-  } else {
-    the_metadata[["contact"]] <- NA
-    the_metadata[["contactemail"]] <- NA
-    the_metadata[["method"]] <- NA
-  }
-  # end loop for directories
-  
+
   #---------------------- catch_landings sheet ---------------------------------------------
   
   # read the catch_landings sheet
@@ -307,7 +287,7 @@ load_catch_landings<-function(path,datasource){
   shinybusy::remove_modal_spinner()
   data_error=rbind.data.frame(output[[1]]$error,output[[2]]$error,output[[3]]$error)
   return(invisible(list(data=output[[1]]$data,updated_data=output[[2]]$data,deleted_data=output[[3]]$data,
-                        error=data_error,the_metadata=the_metadata))) 
+                        error=data_error))) 
 }
 
 
@@ -316,7 +296,6 @@ load_catch_landings<-function(path,datasource){
 # path<-file.choose()
 load_release<-function(path,datasource){
   shinybusy::show_modal_spinner(text = "load release")
-  the_metadata<-list()
   dir<-dirname(path)
   file<-basename(path)
   mylocalfilename<-gsub(".xlsx","",file)
@@ -324,24 +303,7 @@ load_release<-function(path,datasource){
   sheets <- excel_sheets(path=path)
   if ("series_info" %in% sheets) stop("There is a series_info tab in your data, you want to use import time series tab")
   if ("sampling_info" %in% sheets) stop("There is a sampling_info tab in your data, you want to use import time series tab")
-  #---------------------- METADATA sheet ---------------------------------------------
-  ## It is no necessary for database
-  # read the metadata sheet
-  metadata<-read_excel(path=path,"metadata" , skip=4)
-  # check if no rows have been added
-  if (names(metadata)[1]!="For each data series") cat(str_c("The structure of metadata has been changed in \n"))
-  # store the content of metadata in a list
-  if (ncol(metadata)>1){   
-    the_metadata[["contact"]] <- as.character(metadata[1,2])
-    the_metadata[["contactemail"]] <- as.character(metadata[2,2])
-    the_metadata[["method"]] <- as.character(metadata[3,2])
-  } else {
-    the_metadata[["contact"]] <- NA
-    the_metadata[["contactemail"]] <- NA
-    the_metadata[["method"]] <- NA
-  }
-  # end loop for directories
-  
+
   #---------------------- release sheet ---------------------------------------------
   
   cat("release \n")
@@ -724,7 +686,7 @@ load_release<-function(path,datasource){
   data_error=rbind.data.frame(output[[1]]$error,output[[2]]$error,output[[3]]$error)
   return(invisible(list(data=output[[1]]$data,updated_data=output[[2]]$data,
                         deleted_data=output[[3]]$data,
-                        error=data_error,the_metadata=the_metadata))) 
+                        error=data_error))) 
 }
 
 
@@ -734,7 +696,6 @@ load_release<-function(path,datasource){
 load_aquaculture<-function(path,datasource){
   #shinybusy::show_modal_spinner(text = "load aquaculture")
   data_error <- data.frame(nline = NULL, error_message = NULL)
-  the_metadata<-list()
   dir<-dirname(path)
   file<-basename(path)
   mylocalfilename<-gsub(".xlsx","",file)
@@ -742,24 +703,7 @@ load_aquaculture<-function(path,datasource){
   sheets <- excel_sheets(path=path)
   if ("series_info" %in% sheets) stop("There is a series_info tab in your data, you want to use import time series tab")
   if ("sampling_info" %in% sheets) stop("There is a sampling_info tab in your data, you want to use import time series tab")
-  #---------------------- METADATA sheet ---------------------------------------------
-  # read the metadata sheet
-  metadata<-read_excel(path=path,"metadata" , skip=4) 
-  # check if no rows have been added
-  if (names(metadata)[1]!="For each data series") cat(str_c("The structure of metadata has been changed ",file,"\n"))
-  # if there is no value in the cells then the tibble will only have one column
-  # store the content of metadata in a list
-  if (ncol(metadata)>1){   
-    the_metadata[["contact"]] <- as.character(metadata[1,2])
-    the_metadata[["contactemail"]] <- as.character(metadata[2,2])
-    the_metadata[["method"]] <- as.character(metadata[3,2])
-  } else {
-    the_metadata[["contact"]] <- NA
-    the_metadata[["contactemail"]] <- NA
-    the_metadata[["method"]] <- NA
-  }
-  # end loop for directories
-  
+
   #---------------------- aquaculture sheet ---------------------------------------------
   output <- lapply(c("new_data","updated_data",'deleted_data'),function(sheet){
     # read the aquaculture sheet
@@ -963,7 +907,7 @@ load_aquaculture<-function(path,datasource){
   data_error=rbind.data.frame(output[[1]]$error,output[[2]]$error,output[[3]]$error)
   return(invisible(list(data=output[[1]]$data,updated_data=output[[2]]$data,
                         deleted_data=output[[3]]$data,
-                        error=data_error,the_metadata=the_metadata))) 
+                        error=data_error))) 
 }
 
 
@@ -971,7 +915,6 @@ load_aquaculture<-function(path,datasource){
 #path <- file.choose()
 load_biomass<-function(path,datasource){
   data_error <- data.frame(nline = NULL, error_message = NULL)
-  the_metadata<-list()
   dir<-dirname(path)
   file<-basename(path)
   mylocalfilename<-gsub(".xlsx","",file)
@@ -979,24 +922,7 @@ load_biomass<-function(path,datasource){
   sheets <- excel_sheets(path=path)
   if ("series_info" %in% sheets) stop("There is a series_info tab in your data, you want to use import time series tab")
   if ("sampling_info" %in% sheets) stop("There is a sampling_info tab in your data, you want to use import time series tab")
-  #---------------------- METADATA sheet ---------------------------------------------
-  # read the metadata sheet
-  metadata<-read_excel(path=path,"metadata" , skip=4) 
-  # check if no rows have been added
-  if (names(metadata)[1]!="For each data series") cat(str_c("The structure of metadata has been changed ",file,"\n"))
-  # if there is no value in the cells then the tibble will only have one column
-  # store the content of metadata in a list
-  if (ncol(metadata)>1){   
-    the_metadata[["contact"]] <- as.character(metadata[1,2])
-    the_metadata[["contactemail"]] <- as.character(metadata[2,2])
-    the_metadata[["method"]] <- as.character(metadata[3,2])
-  } else {
-    the_metadata[["contact"]] <- NA
-    the_metadata[["contactemail"]] <- NA
-    the_metadata[["method"]] <- NA
-  }
-  # end loop for directories
-  
+
   #---------------------- biomass_indicators sheet ---------------------------------------------
   
   # read the biomass_indicators sheet
@@ -1230,7 +1156,7 @@ load_biomass<-function(path,datasource){
   shinybusy::remove_modal_spinner()
   data_error=rbind.data.frame(output[[1]]$error,output[[2]]$error,output[[3]]$error)
   return(invisible(list(data=output[[1]]$data,updated_data=output[[2]]$data,deleted_data=output[[3]]$data,
-                        error=data_error,the_metadata=the_metadata)))
+                        error=data_error)))
 }
 
 
@@ -1239,7 +1165,6 @@ load_biomass<-function(path,datasource){
 # path <- file.choose()
 load_mortality_rates<-function(path,datasource){
   data_error <- data.frame(nline = NULL, error_message = NULL)
-  the_metadata<-list()
   dir<-dirname(path)
   file<-basename(path)
   mylocalfilename<-gsub(".xlsx","",file)
@@ -1247,23 +1172,7 @@ load_mortality_rates<-function(path,datasource){
   sheets <- excel_sheets(path=path)
   if ("series_info" %in% sheets) stop("There is a series_info tab in your data, you want to use import time series tab")
   if ("sampling_info" %in% sheets) stop("There is a sampling_info tab in your data, you want to use import time series tab")
-  #---------------------- METADATA sheet ---------------------------------------------
-  # read the metadata sheet
-  metadata<-read_excel(path=path,"metadata" , skip=4) 
-  # check if no rows have been added
-  if (names(metadata)[1]!="For each data series") cat(str_c("The structure of metadata has been changed ",file,"\n"))
-  # if there is no value in the cells then the tibble will only have one column
-  # store the content of metadata in a list
-  if (ncol(metadata)>1){   
-    the_metadata[["contact"]] <- as.character(metadata[1,2])
-    the_metadata[["contactemail"]] <- as.character(metadata[2,2])
-    the_metadata[["method"]] <- as.character(metadata[3,2])
-  } else {
-    the_metadata[["contact"]] <- NA
-    the_metadata[["contactemail"]] <- NA
-    the_metadata[["method"]] <- NA
-  }
-  # end loop for directories
+
   
   #---------------------- mortality_rates_Sigma sheet ---------------------------------------------
   
@@ -1499,7 +1408,7 @@ load_mortality_rates<-function(path,datasource){
   })
   data_error=rbind.data.frame(output[[1]]$error,output[[2]]$error,output[[3]]$error)
   return(invisible(list(data=output[[1]]$data,updated_data=output[[2]]$data,deleted_data=output[[3]]$data,
-                        error=data_error,the_metadata=the_metadata)))
+                        error=data_error)))
 }
 
 
@@ -1509,7 +1418,6 @@ load_mortality_rates<-function(path,datasource){
 # path <- file.choose()
 load_mortality_silver<-function(path,datasource){
   data_error <- data.frame(nline = NULL, error_message = NULL)
-  the_metadata<-list()
   dir<-dirname(path)
   file<-basename(path)
   mylocalfilename<-gsub(".xlsx","",file)
@@ -1517,24 +1425,7 @@ load_mortality_silver<-function(path,datasource){
   sheets <- excel_sheets(path=path)
   if ("series_info" %in% sheets) stop("There is a series_info tab in your data, you want to use import time series tab")
   if ("sampling_info" %in% sheets) stop("There is a sampling_info tab in your data, you want to use import time series tab")
-  #---------------------- METADATA sheet ---------------------------------------------
-  # read the metadata sheet
-  metadata<-read_excel(path=path,"metadata" , skip=4) 
-  # check if no rows have been added
-  if (names(metadata)[1]!="For each data series") cat(str_c("The structure of metadata has been changed ",file,"\n"))
-  # if there is no value in the cells then the tibble will only have one column
-  # store the content of metadata in a list
-  if (ncol(metadata)>1){   
-    the_metadata[["contact"]] <- as.character(metadata[1,2])
-    the_metadata[["contactemail"]] <- as.character(metadata[2,2])
-    the_metadata[["method"]] <- as.character(metadata[3,2])
-  } else {
-    the_metadata[["contact"]] <- NA
-    the_metadata[["contactemail"]] <- NA
-    the_metadata[["method"]] <- NA
-  }
-  # end loop for directories
-  
+
   #---------------------- mortality_silver sheet ---------------------------------------------
   
   # read the mortality_silver sheet
@@ -1752,13 +1643,12 @@ load_mortality_silver<-function(path,datasource){
     )
     
   }
-  return(invisible(list(data=data_xls,error=data_error,the_metadata=the_metadata)))
+  return(invisible(list(data=data_xls,error=data_error)))
 }
 
 
 load_potential_available_habitat<-function(path,datasource){
   data_error <- data.frame(nline = NULL, error_message = NULL)
-  the_metadata<-list()
   dir<-dirname(path)
   file<-basename(path)
   mylocalfilename<-gsub(".xlsx","",file)
@@ -1766,22 +1656,7 @@ load_potential_available_habitat<-function(path,datasource){
   sheets <- excel_sheets(path=path)
   if ("series_info" %in% sheets) stop("There is a series_info tab in your data, you want to use import time series tab")
   if ("sampling_info" %in% sheets) stop("There is a sampling_info tab in your data, you want to use import time series tab")
-  #---------------------- METADATA sheet ---------------------------------------------
-  # read the metadata sheet
-  metadata<-read_excel(path=path,"metadata" , skip=4) 
-  # check if no rows have been added
-  if (names(metadata)[1]!="For each data series") cat(str_c("The structure of metadata has been changed ",file,"\n"))
-  # if there is no value in the cells then the tibble will only have one column
-  # store the content of metadata in a list
-  if (ncol(metadata)>1){   
-    the_metadata[["contact"]] <- as.character(metadata[1,2])
-    the_metadata[["contactemail"]] <- as.character(metadata[2,2])
-    the_metadata[["method"]] <- as.character(metadata[3,2])
-  } else {
-    the_metadata[["contact"]] <- NA
-    the_metadata[["contactemail"]] <- NA
-    the_metadata[["method"]] <- NA
-  }
+
   # end loop for directories
   
   #---------------------- hab_wet_Area sheet ---------------------------------------------
@@ -1955,7 +1830,7 @@ load_potential_available_habitat<-function(path,datasource){
     )
     
   }
-  return(invisible(list(data=data_xls,error=data_error,the_metadata=the_metadata)))
+  return(invisible(list(data=data_xls,error=data_error)))
 }
 
 ############# time series #############################################
@@ -1964,14 +1839,26 @@ load_potential_available_habitat<-function(path,datasource){
 # datasource <- the_eel_datasource; stage="glass_eel"
 # 
 # load_series(path,datasource=datasource,stage="glass_eel")
-load_series<-function(path, datasource, stage="glass_eel"){
+load_series<-function(path, datasource, stage="glass_eel", contaminant_data = FALSE){
+  #since contaminant data are not kept every year, we have a list of variables
+  #that should be ignored when contaminant are not collected
+  contaminant <- vector("character")
+  if (!contaminant_data){
+    contaminant <- c("muscle_lipid_fatmeter_perc",
+                     "muscle_lipid_gravimeter_perc",
+                     "sum_6_pcb",
+                     "teq",
+                     "pb",
+                     "hg",
+                     "cd")
+  }
+  
   shinybusy::show_modal_spinner(text = "load series", color="darkgreen")
   shinyCatch({
     sheets <- excel_sheets(path=path)
     if ("sampling_info" %in% sheets) stop("There is a sampling_info tab in your data, you want to use import time series tab")
     
     data_error <- data.frame(nline = NULL, error_message = NULL)
-    the_metadata <- list()
     dir <- dirname(path)
     file <- basename(path)
     mylocalfilename <- gsub(".xlsx","",file)
@@ -1988,12 +1875,7 @@ load_series<-function(path, datasource, stage="glass_eel"){
     stopifnot(exists("ices_division"))
     suppressWarnings(t_series_ser <- extract_data("t_series_ser",quality_check=FALSE))
     
-    #---------------------- METADATA sheet ---------------------------------------------
-    # read the metadata sheet
-    metadata <- read_excel(path=path,"metadata" , skip=1)
-    # check if no rows have been added
-    if (names(metadata)[1]!="ser_nameshort") cat(str_c("The structure of metadata has been changed ",file,"\n"))
-    
+
     #---------------------- series info ---------------------------------------------
     
     cat("loading series \n")
@@ -2592,7 +2474,7 @@ load_series<-function(path, datasource, stage="glass_eel"){
         # all mty related columns should be numeric
         
         
-        resmetrics <-		purrr::flatten(lapply(c("lengthmm",
+        resmetrics <-		purrr::flatten(lapply(setdiff(c("lengthmm",
                                                "weightg",
                                                "ageyear",
                                                "eye_diam_mean_mm",
@@ -2622,7 +2504,9 @@ load_series<-function(path, datasource, stage="glass_eel"){
                                                "f_mean_weightg",
                                                "f_mean_age",
                                                "g_in_gy_proportion",
-                                               "s_in_ys_proportion"),			
+                                               "s_in_ys_proportion",
+                                               "method_sex_(1=visual,0=use_length)",
+                                               "method_anguillicola_(1=stereomicroscope,0=visual_obs)"),contaminant),			
                                              function(name_column){
                                                if (name_column %in% colnames(data_xls)){	
                                                  data_error <- check_type(
@@ -2635,6 +2519,63 @@ load_series<-function(path, datasource, stage="glass_eel"){
                                                
                                              }))
         data_error <- bind_rows(data_error,	purrr::flatten(resmetrics)	)
+        
+        
+        #check that proportions are indeed between 0 and 1
+        resmetrics <- 
+          do.call(bind_rows,
+                  lapply(setdiff(c("female_proportion",
+                                   'is_female_(1=female,0=male)',
+                                   "is_differentiated_(1=differentiated,0_undifferentiated)",	
+                                   "differentiated_proportion",
+                                   "anguillicola_proportion",
+                                   "anguillicola_presence(1=present,0=absent)",			
+                                   "evex_proportion",
+                                   "evex_presence_(1=present,0=absent)",			
+                                   "hva_proportion",
+                                   "hva_presence_(1=present,0=absent)",			
+                                   "g_in_gy_proportion",
+                                   "s_in_ys_proportion",
+                                   "method_sex_(1=visual,0=use_length)",
+                                   "method_anguillicola_(1=stereomicroscope,0=visual_obs)"),
+                                 contaminant),			
+                         function(name_column){
+                           if (name_column %in% colnames(data_xls)){	
+                             data_error <- check_between(
+                               dataset = data_xls,					
+                               namedataset = sheet,
+                               column=name_column,
+                               country=country,
+                               minvalue=0,
+                               maxvalue=1)
+                             return(as.data.frame(data_error))}
+                           
+                         }))
+        data_error <- bind_rows(data_error,	resmetrics	)
+        
+        
+        
+        #check that percentages are indeed between 0 and 100
+        resmetrics <- 
+          do.call(bind_rows,
+                  lapply(setdiff(c("muscle_lipid_fatmeter_perc",
+                                   "muscle_lipid_gravimeter_perc"), 
+                                 contaminant),			
+                         function(name_column){
+                           if (name_column %in% colnames(data_xls)){	
+                             data_error <- check_between(
+                               dataset = data_xls,					
+                               namedataset = sheet,
+                               column=name_column,
+                               country=country,
+                               minvalue=0,
+                               maxvalue=100)
+                             return(as.data.frame(data_error))}
+                           
+                         }))
+        data_error <- bind_rows(data_error,	resmetrics	)
+        
+        
       } # end if grepl
       return(list(data=data_xls,error=data_error))
     }			
@@ -2664,37 +2605,37 @@ load_series<-function(path, datasource, stage="glass_eel"){
       "updated_individual_metrics",
       "deleted_individual_metrics")
     columns <- list(
-      c("ser_nameshort", "das_year", "das_value", "das_comment", "das_effort","das_qal_id", "das_qal_comment"),
+      setdiff(c("ser_nameshort", "das_year", "das_value", "das_comment", "das_effort","das_qal_id", "das_qal_comment"),contaminant),
       #TODO check that das_lastupdate and das_dts_datasource 
-      c("ser_nameshort",	"das_id",	"das_ser_id",	"das_value",	"das_year",	"das_comment",	"das_effort",	"das_qal_id", "das_qal_comment", "das_dts_datasource"),
-      c("ser_nameshort",	"das_id",	"das_ser_id",	"das_value",	"das_year",	"das_comment",	"das_effort",	"das_qal_id", "das_qal_comment", "das_dts_datasource"),
-      c("ser_nameshort",	 "gr_year",	"gr_number", "gr_comment",  "lengthmm",	"weightg",	"ageyear",	"female_proportion","differentiated_proportion",
+      setdiff(c("ser_nameshort",	"das_id",	"das_ser_id",	"das_value",	"das_year",	"das_comment",	"das_effort",	"das_qal_id", "das_qal_comment", "das_dts_datasource"),contaminant),
+      setdiff(c("ser_nameshort",	"das_id",	"das_ser_id",	"das_value",	"das_year",	"das_comment",	"das_effort",	"das_qal_id", "das_qal_comment", "das_dts_datasource"),contaminant),
+      setdiff(c("ser_nameshort",	 "gr_year",	"gr_number", "gr_comment",  "lengthmm",	"weightg",	"ageyear",	"female_proportion","differentiated_proportion",
         "m_mean_lengthmm","m_mean_weightg","m_mean_ageyear","f_mean_lengthmm","f_mean_weightg","f_mean_age",
         "anguillicola_proportion",	"anguillicola_intensity",	"muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb", "teq",
-        "evex_proportion","hva_proportion",	"pb",	"hg",	"cd","g_in_gy_proportion","s_in_ys_proportion"),		
-      c("gr_id","ser_nameshort", "gr_year",	"gr_number", "gr_comment", "gr_last_update", "gr_dts_datasource", "lengthmm",	"weightg",	"ageyear",	"female_proportion","differentiated_proportion",
+        "evex_proportion","hva_proportion",	"pb",	"hg",	"cd","g_in_gy_proportion","s_in_ys_proportion"),contaminant),		
+      setdiff(c("gr_id","ser_nameshort", "gr_year",	"gr_number", "gr_comment", "gr_last_update", "gr_dts_datasource", "lengthmm",	"weightg",	"ageyear",	"female_proportion","differentiated_proportion",
         "m_mean_lengthmm","m_mean_weightg","m_mean_ageyear","f_mean_lengthmm","f_mean_weightg","f_mean_age",
         "anguillicola_proportion",	"anguillicola_intensity",	"muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb", "teq",
-        "evex_proportion","hva_proportion",	"pb",	"hg",	"cd","g_in_gy_proportion","s_in_ys_proportion"),	
-      c("gr_id","ser_nameshort", "gr_year",	"gr_number", "gr_comment", "gr_last_update", "gr_dts_datasource", "lengthmm",	"weightg",	"ageyear",	"female_proportion","differentiated_proportion",
+        "evex_proportion","hva_proportion",	"pb",	"hg",	"cd","g_in_gy_proportion","s_in_ys_proportion"),contaminant),	
+      setdiff(c("gr_id","ser_nameshort", "gr_year",	"gr_number", "gr_comment", "gr_last_update", "gr_dts_datasource", "lengthmm",	"weightg",	"ageyear",	"female_proportion","differentiated_proportion",
         "m_mean_lengthmm","m_mean_weightg","m_mean_ageyear","f_mean_lengthmm","f_mean_weightg","f_mean_age",
         "anguillicola_proportion",	"anguillicola_intensity",	"muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb", "teq",
-        "evex_proportion","hva_proportion",	"pb",	"hg",	"cd","g_in_gy_proportion","s_in_ys_proportion"),
-      c("ser_nameshort",	"fi_date", "fi_year", "fi_lfs_code","fi_comment",  "lengthmm",	"weightg",	"ageyear",	"eye_diam_meanmm", "pectoral_lengthmm",
+        "evex_proportion","hva_proportion",	"pb",	"hg",	"cd","g_in_gy_proportion","s_in_ys_proportion"),contaminant),
+      setdiff(c("ser_nameshort",	"fi_date", "fi_year", "fi_lfs_code","fi_comment",  "lengthmm",	"weightg",	"ageyear",	"eye_diam_meanmm", "pectoral_lengthmm",
         "is_female_(1=female,0=male)","is_differentiated_(1=differentiated,0_undifferentiated)",
         "anguillicola_presence_(1=present,0=absent)",	"anguillicola_intensity",	"muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb", "teq",
-        "evex_presence_(1=present,0=absent)","hva_presence_(1=present,0=absent)",	"pb",	"hg",	"cd"),
-      c("fi_id","ser_nameshort",	"fi_date", "fi_year","fi_lfs_code", "fi_comment", "fi_last_update",	"fi_dts_datasource",
+        "evex_presence_(1=present,0=absent)","hva_presence_(1=present,0=absent)",	"pb",	"hg",	"cd"),contaminant),
+      setdiff(c("fi_id","ser_nameshort",	"fi_date", "fi_year","fi_lfs_code", "fi_comment", "fi_last_update",	"fi_dts_datasource",
         "lengthmm",	"weightg",	"ageyear",	"eye_diam_meanmm", "pectoral_lengthmm",
         "is_female_(1=female,0=male)","is_differentiated_(1=differentiated,0_undifferentiated)",
         "anguillicola_presence_(1=present,0=absent)",	"anguillicola_intensity",	"muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb", "teq",
-        "evex_presence_(1=present,0=absent)","hva_presence_(1=present,0=absent)",	"pb",	"hg",	"cd"),
+        "evex_presence_(1=present,0=absent)","hva_presence_(1=present,0=absent)",	"pb",	"hg",	"cd"),contaminant),
       # TODO 2023 change name fiser_year to fi_year the template has been updated
-      c("fi_id","ser_nameshort", "fi_date",	"fiser_year", "fi_lfs_code", "fi_comment",  "fi_last_update",	"fi_dts_datasource", 
+      setdiff(c("fi_id","ser_nameshort", "fi_date",	"fiser_year", "fi_lfs_code", "fi_comment",  "fi_last_update",	"fi_dts_datasource", 
         "lengthmm",	"weightg",	"ageyear",	"eye_diam_meanmm", "pectoral_lengthmm",
         "is_female_(1=female,0=male)","is_differentiated_(1=differentiated,0_undifferentiated)",
         "anguillicola_presence_(1=present,0=absent)",	"anguillicola_intensity",	"muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb", "teq",
-        "evex_presence_(1=present,0=absent)","hva_presence_(1=present,0=absent)",	"pb",	"hg",	"cd"))
+        "evex_presence_(1=present,0=absent)","hva_presence_(1=present,0=absent)",	"pb",	"hg",	"cd"),contaminant))
     #	col_types=list(
     #			c("text", "numeric", "numeric", "text", "numeric","numeric", "text"),
     #			c("text","numeric", "numeric", "numeric","numeric",	"text",	"numeric",	"numeric", "text", "text"),
@@ -2724,8 +2665,7 @@ load_series<-function(path, datasource, stage="glass_eel"){
     updated_individual_metrics = res[[8]]$data, 
     deleted_individual_metrics = res[[9]]$data, 
     t_series_ser = t_series_ser, 
-    error =data_error,
-    the_metadata =the_metadata))) 
+    error =data_error))) 
 }
 
 
@@ -2742,13 +2682,25 @@ load_series<-function(path, datasource, stage="glass_eel"){
 #  path<-file.choose()
 # datasource <- the_eel_datasource
 # load_dcf(path,datasource="toto")
-load_dcf<-function(path,datasource){
+load_dcf<-function(path,datasource, contaminant_data = FALSE){
+  #since contaminant data are not kept every year, we have a list of variables
+  #that should be ignored when contaminant are not collected
+  contaminant <- vector("character")
+  if (!contaminant_data){
+    contaminant <- c("muscle_lipid_fatmeter_perc",
+                     "muscle_lipid_gravimeter_perc",
+                     "sum_6_pcb",
+                     "teq",
+                     "pb",
+                     "hg",
+                     "cd")
+  }
+  
   shinybusy::show_modal_spinner(text = "load dcf")
   sheets <- excel_sheets(path=path)
   if ("series_info" %in% sheets) stop("There is a series_info tab in your data, you want to use import time series tab")
   
   data_error <- data.frame(nline = NULL, error_message = NULL)
-  the_metadata <- list()
   dir <- dirname(path)
   file <- basename(path)
   mylocalfilename <- gsub(".xlsx","",file)
@@ -2758,12 +2710,7 @@ load_dcf<-function(path,datasource){
   stopifnot(exists("list_country"))
   stopifnot(exists("ices_division"))	
   
-  #---------------------- METADATA sheet ---------------------------------------------
-  # read the metadata sheet
-  metadata <- read_excel(path=path,"metadata" , skip=1)
-  # check if no rows have been added
-  if (names(metadata)[1]!="name") cat(str_c("The structure of metadata has been changed ",file,"\n"))
-  
+
   #---------------------- series info ---------------------------------------------
   
   cat("loading sampling info \n")
@@ -3016,10 +2963,7 @@ load_dcf<-function(path,datasource){
   fn_check_gr_ind <- function(sheet, columns){
     
     data_xls <- readxlTemplate(path, sheet)  
-    if ("fi_idcou" %in% names(data_xls))
-      data_xls <- data_xls %>%
-        rename("fi_id_cou"=fi_idcou) #to deal with a bug
-    
+ 
     if ((!"fi_year" %in% names(data_xls)) & "fi_year" %in%columns){
       #columns=columns[-which(columns=="fi_year")]
       data_xls$fi_year <- as.numeric(NA)
@@ -3191,7 +3135,7 @@ load_dcf<-function(path,datasource){
     if (grepl("metrics", sheet)) {
       # all mty related columns should be numeric
       resmetrics <- 
-        do.call(bind_rows,lapply(c("lengthmm",
+        do.call(bind_rows,lapply(setdiff(c("lengthmm",
                                    "weightg",
                                    "ageyear",
                                    "eye_diam_mean_mm",
@@ -3221,7 +3165,10 @@ load_dcf<-function(path,datasource){
                                    "f_mean_weightg",
                                    "f_mean_age",
                                    "g_in_gy_proportion",
-                                   "s_in_ys_proportion"),			
+                                   "s_in_ys_proportion",
+                                   "method_sex_(1=visual,0=use_length)",
+                                   "method_anguillicola_(1=stereomicroscope,0=visual_obs)"),
+                                   contaminant),			
                                  function(name_column){
                                    if (name_column %in% colnames(data_xls)){	
                                      data_error <- check_type(
@@ -3239,7 +3186,7 @@ load_dcf<-function(path,datasource){
       #check that proportions are indeed between 0 and 1
       resmetrics <- 
         do.call(bind_rows,
-                lapply(c("female_proportion",
+                lapply(setdiff(c("female_proportion",
                          'is_female_(1=female,0=male)',
                          "is_differentiated_(1=differentiated,0_undifferentiated)",	
                          "differentiated_proportion",
@@ -3250,7 +3197,10 @@ load_dcf<-function(path,datasource){
                          "hva_proportion",
                          "hva_presence_(1=present,0=absent)",			
                          "g_in_gy_proportion",
-                         "s_in_ys_proportion"),			
+                         "s_in_ys_proportion",
+                         "method_sex_(1=visual,0=use_length)",
+                         "method_anguillicola_(1=stereomicroscope,0=visual_obs)"),
+                         contaminant),			
                        function(name_column){
                          if (name_column %in% colnames(data_xls)){	
                            data_error <- check_between(
@@ -3269,8 +3219,9 @@ load_dcf<-function(path,datasource){
       #check that percentages are indeed between 0 and 100
       resmetrics <- 
         do.call(bind_rows,
-                lapply(c("muscle_lipid_fatmeter_perc",
-                         "muscle_lipid_gravimeter_perc"),			
+                lapply(setdiff(c("muscle_lipid_fatmeter_perc",
+                         "muscle_lipid_gravimeter_perc"), 
+                         contaminant),			
                        function(name_column){
                          if (name_column %in% colnames(data_xls)){	
                            data_error <- check_between(
@@ -3309,33 +3260,33 @@ load_dcf<-function(path,datasource){
     "updated_individual_metrics",
     "deleted_individual_metrics")
   columns <- list(
-    c("sai_name", "sai_emu_nameshort",	"gr_year",	"grsa_lfs_code", "gr_number","lengthmm",	"weightg",	"ageyear",	"female_proportion", "differentiated_proportion",
-      "m_mean_lengthmm","m_mean_weightg","m_mean_ageyear","f_mean_lengthmm","f_mean_weightg","f_mean_age","g_in_gy_proportion",	"s_in_ys_proportion",	
-      "anguillicola_proportion",	"anguillicola_intensity",	"muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb", "teq",	"evex_proportion",	
-      "hva_proportion",	"pb",	"hg",	"cd", "gr_comment"),
-    c("gr_id", "sai_name", "sai_emu_nameshort",	"gr_year",	"grsa_lfs_code", "gr_number",  "gr_last_update", "gr_dts_datasource", "lengthmm",	"weightg",	"ageyear",	"female_proportion", "differentiated_proportion",
-      "m_mean_lengthmm","m_mean_weightg","m_mean_ageyear","f_mean_lengthmm","f_mean_weightg","f_mean_age","g_in_gy_proportion",	"s_in_ys_proportion",	
-      "anguillicola_proportion",	"anguillicola_intensity",	"muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb", "teq",	"evex_proportion",	
-      "hva_proportion",	"pb",	"hg",	"cd", "gr_comment"),
-    c("gr_id", "sai_name", "sai_emu_nameshort",	"gr_year",	"grsa_lfs_code", "gr_number", "gr_last_update", "gr_dts_datasource","lengthmm",	"weightg",	"ageyear",	"female_proportion", "differentiated_proportion",
-      "m_mean_lengthmm","m_mean_weightg","m_mean_ageyear","f_mean_lengthmm","f_mean_weightg","f_mean_age","g_in_gy_proportion",	"s_in_ys_proportion",	
-      "anguillicola_proportion",	"anguillicola_intensity",	"muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb", "teq",	"evex_proportion",	
-      "hva_proportion",	"pb",	"hg",	"cd", "gr_comment"),
-    c("fi_id_cou","sai_name",	"sai_emu_nameshort",	"fi_date",	"fi_year", "fi_lfs_code",	"fisa_x_4326",	"fisa_y_4326",
+    setdiff(c("sai_name", "sai_emu_nameshort",	"gr_year",	"grsa_lfs_code", "gr_number","lengthmm",	"weightg",	"ageyear",	"female_proportion","method_sex_(1=visual,0=use_length)",
+              "differentiated_proportion","m_mean_lengthmm","m_mean_weightg","m_mean_ageyear","f_mean_lengthmm","f_mean_weightg","f_mean_age","g_in_gy_proportion",	"s_in_ys_proportion",	
+      "anguillicola_proportion",	"anguillicola_intensity",	"method_anguillicola_(1=stereomicroscope,0=visual_obs)", "muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb", "teq",	"evex_proportion",	
+      "hva_proportion",	"pb",	"hg",	"cd", "gr_comment"),contaminant),
+    setdiff(c("gr_id", "sai_name", "sai_emu_nameshort",	"gr_year",	"grsa_lfs_code", "gr_number",  "gr_last_update", "gr_dts_datasource", "lengthmm",	"weightg",	"ageyear",	"female_proportion","method_sex_(1=visual,0=use_length)"
+              , "differentiated_proportion",  "m_mean_lengthmm","m_mean_weightg","m_mean_ageyear","f_mean_lengthmm","f_mean_weightg","f_mean_age","g_in_gy_proportion",	"s_in_ys_proportion",	
+      "anguillicola_proportion",	"anguillicola_intensity",	"method_anguillicola_(1=stereomicroscope,0=visual_obs)",	"muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb", "teq",	"evex_proportion",	
+      "hva_proportion",	"pb",	"hg",	"cd", "gr_comment"),contaminant),
+      setdiff(c("gr_id", "sai_name", "sai_emu_nameshort",	"gr_year",	"grsa_lfs_code", "gr_number", "gr_last_update", "gr_dts_datasource","lengthmm",	"weightg",	"ageyear",	"female_proportion","method_sex_(1=visual,0=use_length)",
+                "differentiated_proportion","m_mean_lengthmm","m_mean_weightg","m_mean_ageyear","f_mean_lengthmm","f_mean_weightg","f_mean_age","g_in_gy_proportion",	"s_in_ys_proportion",	
+      "anguillicola_proportion",	"anguillicola_intensity",	"method_anguillicola_(1=stereomicroscope,0=visual_obs)",	"muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb", "teq",	"evex_proportion",	
+      "hva_proportion",	"pb",	"hg",	"cd", "gr_comment"),contaminant),
+      setdiff(c("fi_id_cou","sai_name",	"sai_emu_nameshort",	"fi_date",	"fi_year", "fi_lfs_code",	"fisa_x_4326",	"fisa_y_4326",
       "fi_comment",  "lengthmm",	"weightg",	"ageyear",	"eye_diam_meanmm", "pectoral_lengthmm",
-      "is_female_(1=female,0=male)","is_differentiated_(1=differentiated,0_undifferentiated)",
-      "anguillicola_presence_(1=present,0=absent)",	"anguillicola_intensity",	"muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb", "teq",
-      "evex_presence_(1=present,0=absent)","hva_presence_(1=present,0=absent)",	"pb",	"hg",	"cd"),
-    c("fi_id","fi_id_cou","sai_name",	"sai_emu_nameshort", "fi_date",	"fi_year",	 "fi_lfs_code", "fisa_x_4326",	"fisa_y_4326", "fi_comment",  "fi_last_update",	"fi_dts_datasource", 
+      "is_female_(1=female,0=male)","method_sex_(1=visual,0=use_length)","is_differentiated_(1=differentiated,0_undifferentiated)",
+      "anguillicola_presence_(1=present,0=absent)",	"anguillicola_intensity",	"method_anguillicola_(1=stereomicroscope,0=visual_obs)",	"muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb", "teq",
+      "evex_presence_(1=present,0=absent)","hva_presence_(1=present,0=absent)",	"pb",	"hg",	"cd"),contaminant),
+      setdiff(c("fi_id","fi_id_cou","sai_name",	"sai_emu_nameshort", "fi_date",	"fi_year",	 "fi_lfs_code", "fisa_x_4326",	"fisa_y_4326", "fi_comment",  "fi_last_update",	"fi_dts_datasource", 
       "lengthmm",	"weightg",	"ageyear",	"eye_diam_meanmm", "pectoral_lengthmm",
-      "is_female_(1=female,0=male)","is_differentiated_(1=differentiated,0_undifferentiated)",
-      "anguillicola_presence_(1=present,0=absent)",	"anguillicola_intensity",	"muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb", "teq",
-      "evex_presence_(1=present,0=absent)","hva_presence_(1=present,0=absent)",	"pb",	"hg",	"cd"),
-    c("fi_id","fi_id_cou","sai_name",	"sai_emu_nameshort", "fi_date",	"fi_year", "fi_lfs_code",	"fisa_x_4326",	"fisa_y_4326", "fi_comment",  "fi_last_update",	"fi_dts_datasource", 
+      "is_female_(1=female,0=male)","method_sex_(1=visual,0=use_length)","is_differentiated_(1=differentiated,0_undifferentiated)",
+      "anguillicola_presence_(1=present,0=absent)",	"anguillicola_intensity",	"method_anguillicola_(1=stereomicroscope,0=visual_obs)",	"muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb", "teq",
+      "evex_presence_(1=present,0=absent)","hva_presence_(1=present,0=absent)",	"pb",	"hg",	"cd"),contaminant),
+      setdiff(c("fi_id","fi_id_cou","sai_name",	"sai_emu_nameshort", "fi_date",	"fi_year", "fi_lfs_code",	"fisa_x_4326",	"fisa_y_4326", "fi_comment",  "fi_last_update",	"fi_dts_datasource", 
       "lengthmm",	"weightg",	"ageyear",	"eye_diam_meanmm", "pectoral_lengthmm",
-      "is_female_(1=female,0=male)","is_differentiated_(1=differentiated,0_undifferentiated)",
-      "anguillicola_presence_(1=present,0=absent)",	"anguillicola_intensity",	"muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb", "teq",
-      "evex_presence_(1=present,0=absent)","hva_presence_(1=present,0=absent)",	"pb",	"hg",	"cd"))
+      "is_female_(1=female,0=male)","method_sex_(1=visual,0=use_length)","is_differentiated_(1=differentiated,0_undifferentiated)",
+      "anguillicola_presence_(1=present,0=absent)",	"anguillicola_intensity",	"method_anguillicola_(1=stereomicroscope,0=visual_obs)",	"muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb", "teq",
+      "evex_presence_(1=present,0=absent)","hva_presence_(1=present,0=absent)",	"pb",	"hg",	"cd"),contaminant))
   
   
   
@@ -3352,8 +3303,7 @@ load_dcf<-function(path,datasource){
     new_individual_metrics = res[[4]]$data, 
     updated_individual_metrics = res[[5]]$data, 
     deleted_individual_metrics = res[[6]]$data,
-    error = data_error,
-    the_metadata = the_metadata))) 
+    error = data_error))) 
   
 }
 

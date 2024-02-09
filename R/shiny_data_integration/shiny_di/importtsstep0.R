@@ -121,20 +121,24 @@ importtsstep0Server <- function(id, globaldata){
               updateRadioButtons(session, "file_type_ts", selected = "yellow_eel")
             if (grepl(c("annex3"),tolower(input$xlfile_ts$name)))
               updateRadioButtons(session, "file_type_ts", selected = "silver_eel")	
+            contaminant_data=FALSE #put TRUE if we collect contaminant data
           switch (input$file_type_ts,              
               "glass_eel"={                  
                 message<-capture.output(res <- load_series(path = data$path_step0_ts, 
                         datasource = the_eel_datasource,
-                        stage="glass_eel"
+                        stage="glass_eel",
+                        contaminant_data=contaminant_data
                     ))},
               "yellow_eel"={								
                 message<-capture.output(res <- load_series(path = data$path_step0_ts, 
                         datasource = the_eel_datasource,
-                        stage="yellow_eel"))},
+                        stage="yellow_eel",
+                        contaminant_data=contaminant_data))},
               "silver_eel"={
                 message<-capture.output(res <- load_series(path = data$path_step0_ts, 
                         datasource = the_eel_datasource,
-                        stage="silver_eel"))})
+                        stage="silver_eel",
+                        contaminant_data=contaminant_data))})
           # add path to file to message (to see if changes when loading from load already imported file
           message <- c(paste("file :",input$xlfile_ts$name),message)
           ls <- list(res=res,message=message)
@@ -250,7 +254,10 @@ importtsstep0Server <- function(id, globaldata){
                       file_type <- input$file_type_ts
                       rls$file_type <- file_type
                       # this will fill the log_datacall file (database_tools.R)
-                      log_datacall( "check data time series",cou_code = cou_code, message = paste(rls$message,collapse="\n"), the_metadata = rls$res$the_metadata, file_type = file_type, main_assessor = globaldata$main_assessor, secondary_assessor = globaldata$secondary_assessor )
+                      log_datacall( "check data time series",cou_code = cou_code, 
+                                    message = paste(rls$message,collapse="\n"),
+                                    file_type = file_type, main_assessor = globaldata$main_assessor,
+                                    secondary_assessor = globaldata$secondary_assessor )
                       paste(rls$message, collapse="\n")						
                     }
                 

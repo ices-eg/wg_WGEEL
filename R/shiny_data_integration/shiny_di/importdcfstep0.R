@@ -102,7 +102,8 @@ importdcfstep0Server <- function(id,globaldata){
                    
                    
                    message<-capture.output(res <- load_dcf(data$path_step0_dcf, 
-                                                           datasource = the_eel_datasource)
+                                                           datasource = the_eel_datasource,
+                                                           contaminant_data=FALSE) #put TRUE if we collect contaminant data
                                            
                    )
                    return(list(res=res,message=message))
@@ -165,7 +166,6 @@ importdcfstep0Server <- function(id,globaldata){
                          # this will fill the log_datacall file (database_tools.R)
                          log_datacall( "check data sampling info",
                              cou_code = cou_code, message = paste(rls$message,collapse="\n"),
-                             the_metadata = rls$res$the_metadata, 
                              file_type = file_type, 
                              main_assessor = globaldata$main_assessor, 
                              secondary_assessor = globaldata$secondary_assessor )

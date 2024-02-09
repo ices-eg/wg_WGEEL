@@ -88,7 +88,7 @@ writeupdatedgroupmetricServer <- function(id,globaldata,loaded_data, type = "ser
 										secondary_assessor <- input$secondary_assessor
 										file_type <- loaded_data$file_type
 										log_datacall("update group_metrics", cou_code = cou_code, message = sQuote(message), 
-												the_metadata = NULL, file_type = file_type, main_assessor = globaldata$main_assessor, 
+												file_type = file_type, main_assessor = globaldata$main_assessor, 
 												secondary_assessor = globaldata$secondary_assessor)
 										return(message)
 									}
