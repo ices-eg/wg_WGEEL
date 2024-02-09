@@ -4,7 +4,7 @@
 # This script will create an excel sheet per country that currently have recruitment series
 #######################################################################################
 # put the current year there
-if(Sys.info()["user"]=="hilaire.drouineau"){
+if(Sys.info()["user"] %in% c("hilaire.drouineau","hdrouineau")){
   setwd("~/Documents/Bordeaux/migrateurs/WGEEL/github/wg_WGEEL/")
 } else{
   setwd("C:/workspace\\wg_WGEEL\\")
