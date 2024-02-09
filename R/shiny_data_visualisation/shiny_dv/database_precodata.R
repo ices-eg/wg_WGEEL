@@ -25,6 +25,7 @@ extract_precodata = function(outer_join=T){
 	b0 = extract_data("b0",quality=c(1,2,4),quality_check=TRUE)
 	bbest = extract_data("bbest",quality=c(1,2,4),quality_check=TRUE)
 	bcurrent = extract_data("bcurrent",quality=c(1,2,4),quality_check=TRUE)
+  bcurrent_without_stocking = extract_data("bcurrent_without_stocking",quality=c(1,2,4),quality_check=TRUE)
 	sigmaa = extract_data("sigmaa",quality=c(1,2,4),quality_check=TRUE)
 	sigmaf= extract_data("sigmaf",quality=c(1,2,4),quality_check=TRUE)
 	sigmah= extract_data("sigmah",quality=c(1,2,4),quality_check=TRUE)
@@ -38,6 +39,8 @@ extract_precodata = function(outer_join=T){
 	n[n=="eel_value.bcurrent"] = "bcurrent"
 	n[n == "eel_value.bbest"] = "bbest"
 	names(precodata) = n
+  precodata = merge(precodata, bcurrent_without_stocking[,col_to_keep], by = col_to_keep[-length(col_to_keep)],all=outer_join)
+  names(precodata) = c(names(precodata)[-length(precodata)], "bcurrent_without_stocking")
 	precodata = merge(precodata, b0[,col_to_keep], by = col_to_keep[-length(col_to_keep)],all=outer_join)
 	names(precodata) = c(names(precodata)[-length(precodata)], "b0")
 	precodata = merge(precodata, sigmaa[,col_to_keep], by = col_to_keep[-length(col_to_keep)],all=outer_join)
