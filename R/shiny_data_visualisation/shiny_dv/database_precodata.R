@@ -22,7 +22,7 @@ if(!exists("extract_data")) source("./database_data.R")
 #' @export 
 #' 
 extract_precodata = function(outer_join=T){
-	b0 = extract_data("b0",quality=c(1,2,4),quality_check=TRUE)
+	b0 = extract_data("precodata",quality=c(1,2,4),quality_check=TRUE)
 	bbest = extract_data("bbest",quality=c(1,2,4),quality_check=TRUE)
 	bcurrent = extract_data("bcurrent",quality=c(1,2,4),quality_check=TRUE)
   bcurrent_without_stocking = extract_data("bcurrent_without_stocking",quality=c(1,2,4),quality_check=TRUE)

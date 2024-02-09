@@ -27,11 +27,11 @@ background<-function(Aminimum=0,Amaximum=6.5,Bminimum=1e-2,Bmaximum=1){
 }
 
 #' @title Draw precautionary diagram itself
-#' @param precodata data.frame with column being: eel_emu_nameshort	bcurrent	bbest	b0	suma, using extract_precodata()
+#' @param precodata data.frame with column being: eel_emu_nameshort	bcurrent	bbest	b0	suma, using extract_data("precodata")
 #' @param adjusted_b0 should adjusted_b0 following WKEMP2021 be used?
 #' @examples
 #' x11()
-#' trace_precodiag(extract_precodata())
+#' trace_precodiag( extract_data("precodata"))
 # TODO: offer the possibility to aggregate by country
 trace_precodiag = function(precodata, 
                            precodata_choice=c("emu","country","all"), 

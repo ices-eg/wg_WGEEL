@@ -65,10 +65,10 @@ background2<-function(Aminimum=0,Amaximum=6.5,Bminimum=1e-2,Bmaximum=1){
 }
 
 #' @title Draw precautionary diagram itself
-#' @param precodata data.frame with column being: eel_emu_nameshort	bcurrent	bbest	b0	suma, using extract_precodata()
+#' @param precodata data.frame with column being: eel_emu_nameshort	bcurrent	bbest	b0	suma, using extract_data("precodata")
 #' @examples
 #' x11()
-#' trace_precodiag(extract_precodata())
+#' trace_precodiag(extract_data("precodata))
 # TODO: offer the possibility to aggregate by country
 trace_precodiag3 = function(precodata, 
                             precodata_choice=c("emu","country","all"), 
@@ -331,10 +331,10 @@ background2<-function(Aminimum=0,Amaximum=6.5,Bminimum=1e-2,Bmaximum=1){
 }
 
 #' @title Draw precautionary diagram itself
-#' @param precodata data.frame with column being: eel_emu_nameshort	bcurrent	bbest	b0	suma, using extract_precodata()
+#' @param precodata data.frame with column being: eel_emu_nameshort	bcurrent	bbest	b0	suma, using extract_data("precodata")
 #' @examples
 #' x11()
-#' trace_precodiag(extract_precodata())
+#' trace_precodiag(extract_data("precodata"))
 # TODO: offer the possibility to aggregate by country
 trace_precodiag3 = function(precodata, 
                             precodata_choice=c("emu","country","all"), 

@@ -65,7 +65,7 @@ landings = extract_data("landings",quality =c(1,2,4),quality_check=TRUE)
 aquaculture = extract_data("aquaculture",quality=c(1,2,4),quality_check=TRUE)
 release = extract_data("release",quality=c(1,2,4),quality_check=TRUE)
 other_landings = extract_data("other_landings",quality=c(1,2,4),quality_check=TRUE)
-precodata = extract_precodata() # for tables
+precodata = extract_data("precodata") # for tables
 # below by default in the view the quality 1,2,and 4 are used
 precodata_all = extract_data("precodata_all",quality_check=FALSE) # for precodiagram
 precodata_emu = extract_data("precodata_emu",quality_check=FALSE) 
