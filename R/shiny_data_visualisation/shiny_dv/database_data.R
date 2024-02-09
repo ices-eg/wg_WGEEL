@@ -23,7 +23,7 @@ extract_data = function(table_dbname, quality = c(1,2,4), quality_check=TRUE)
 	df_table = data.frame(
 			table_dbname = c("landings", "aquaculture", "release","other_landings", "b0", "bbest", "bcurrent", "sigmaa", 
 					"sigmaf", "sigmah", "potential_available_habitat","silver_eel_equivalents", "sigmafallcat", 
-					"sigmahallcat", "precodata_country", "precodata_emu","precodata_all",
+					"sigmahallcat", "precodata", "precodata_country", "precodata_all",
 					"t_dataseries_das", "t_series_ser","t_biometry_series_bis","t_biometry_other_bit"),
 			qal_column=c(rep("eel_qal_id",17), "das_qal_id", "ser_qal_id", "bio_qal_id", "bio_qal_id")
 	)

@@ -24,7 +24,7 @@ extract_data = function(table_dbname, quality = c(0,1,2,4), quality_check=TRUE, 
   df_table = data.frame(
       table_dbname = c("landings", "aquaculture", "release", "b0", "bbest", "bcurrent", "sigmaa", 
           "sigmaf", "sigmah", "potential_available_habitat","silver_eel_equivalents", "sigmafallcat", 
-          "sigmahallcat", "precodata_country", "precodata_emu","precodata_all",
+          "sigmahallcat", "precodata", "precodata_country","precodata_all",
           "t_dataseries_das", "t_series_ser","t_metricgroupseries_megser", "t_metricgroupsamp_megsa",
           "t_metricindseries_meiser", "t_metricindsamp_meisa","t_samplinginfo_sai","t_groupseries_grser", "t_groupsamp_grsa",
           "t_fishseries_fiser","t_fishsamp_fisa"),

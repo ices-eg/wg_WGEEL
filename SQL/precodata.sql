@@ -1,51 +1,52 @@
 ﻿-- bigtable, no modification just combining different table
 -- note eel_lfs useless eel_habitat useless
-
-drop view if exists datawg.bigtable cascade;
-create or replace view datawg.bigtable as
+-- note there is a precodata in shiny dv database_precodata which runs with an argument outer_join
+DROP VIEW if exists datawg.precodata cascade;
+CREATE OR REPLACE VIEW datawg.precodata AS
 with 
-	b0 as
-		(select eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code, eel_qal_id, eel_value as b0 -- NO has biomass data per ICES division
-		from datawg.b0
-		where (eel_qal_id in (1,2,4) OR (eel_qal_id = 0 AND eel_missvaluequal='NP'))
+	b0 AS
+		(SELECT eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code, eel_qal_id, eel_value AS b0 
+		FROM datawg.b0
+		WHERE (eel_qal_id in (1,2,4) OR (eel_qal_id = 0 AND eel_missvaluequal='NP'))
 		),		
-	bbest as
-		(select eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code, eel_qal_id, eel_value as bbest -- NO has biomass data per ICES division
-		from datawg.bbest
-		where (eel_qal_id in (1,2,4) OR (eel_qal_id = 0 AND eel_missvaluequal='NP'))
+	bbest AS
+		(SELECT eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code, eel_qal_id, eel_value AS bbest 
+		FROM datawg.bbest
+		WHERE (eel_qal_id in (1,2,4) OR (eel_qal_id = 0 AND eel_missvaluequal='NP'))
 		),
-	bcurrent as
-		(select eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code, eel_qal_id, eel_value as bcurrent -- NO has biomass data per ICES division
-		from datawg.bcurrent
-		where (eel_qal_id in (1,2,4) OR (eel_qal_id = 0 AND eel_missvaluequal='NP'))
+	bcurrent AS
+		(SELECT eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code, eel_qal_id, eel_value AS bcurrent 
+		 FROM datawg.bcurrent
+		WHERE (eel_qal_id in (1,2,4) OR (eel_qal_id = 0 AND eel_missvaluequal='NP'))
 		),
-	 bcurrent_without_stocking as
-    (select eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code, eel_qal_id, eel_value as bcurrent -- NO has biomass data per ICES division
-    from datawg.bcurrent_without_stocking
-    where (eel_qal_id in (1,2,4) OR (eel_qal_id = 0 AND eel_missvaluequal='NP'))
+	 bcurrent_without_stocking AS
+    (SELECT eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code, eel_qal_id, eel_value AS bcurrent_without_stocking 
+    FROM datawg.bcurrent_without_stocking
+    WHERE (eel_qal_id in (1,2,4) OR (eel_qal_id = 0 AND eel_missvaluequal='NP'))
     ),
-	suma as
-		(select eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code, eel_qal_id, round(eel_value,3) as suma 
-		from datawg.sigmaa 
-	  where (eel_qal_id in (1,2,4) OR (eel_qal_id = 0 AND eel_missvaluequal='NP'))),
-	sumf as
-		(select eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code, eel_qal_id, round(eel_value,3) as sumf 
-		from datawg.sigmaf 
-    where (eel_qal_id in (1,2,4) OR (eel_qal_id = 0 AND eel_missvaluequal='NP'))),
-	sumh as
-		(select eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code, eel_qal_id, round(eel_value,3) as sumh 
-		from datawg.sigmah 
-    where (eel_qal_id in (1,2,4) OR (eel_qal_id = 0 AND eel_missvaluequal='NP'))),
-	countries as
-		(select cou_code, cou_country as country, cou_order from "ref".tr_country_cou),
-	emu as
-		(select emu_nameshort, emu_wholecountry from "ref".tr_emu_emu),
-	life_stage as
-		(select lfs_code, lfs_name as life_stage from "ref".tr_lifestage_lfs)
-select eel_year, eel_cou_code, country, cou_order, eel_emu_nameshort, emu_wholecountry, eel_hty_code,  eel_lfs_code, life_stage, eel_qal_id, b0, bbest, bcurrent, suma, sumf, sumh
-from b0 
+	suma AS
+		(SELECT eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code, eel_qal_id, round(eel_value,3) AS suma 
+		FROM datawg.sigmaa 
+	  WHERE (eel_qal_id in (1,2,4) OR (eel_qal_id = 0 AND eel_missvaluequal='NP'))),
+	sumf AS
+		(SELECT eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code, eel_qal_id, round(eel_value,3) AS sumf 
+		FROM datawg.sigmaf 
+    WHERE (eel_qal_id in (1,2,4) OR (eel_qal_id = 0 AND eel_missvaluequal='NP'))),
+	sumh AS
+		(SELECT eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code, eel_qal_id, round(eel_value,3) AS sumh 
+		FROM datawg.sigmah 
+    WHERE (eel_qal_id in (1,2,4) OR (eel_qal_id = 0 AND eel_missvaluequal='NP'))),
+	countries AS
+		(SELECT cou_code, cou_country AS country, cou_order FROM "ref".tr_country_cou),
+	emu AS
+		(SELECT emu_nameshort, emu_wholecountry FROM "ref".tr_emu_emu),
+	life_stage AS
+		(SELECT lfs_code, lfs_name AS life_stage FROM "ref".tr_lifestage_lfs)
+SELECT eel_year, eel_cou_code, country, cou_order, eel_emu_nameshort, emu_wholecountry, eel_hty_code,  eel_lfs_code, life_stage, eel_qal_id, b0, bbest, bcurrent, suma, sumf, sumh
+FROM b0 
 	full outer join bbest using(eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code, eel_qal_id)
 	full outer join bcurrent using(eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code, eel_qal_id)
+  full outer join bcurrent_without_stocking using(eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code, eel_qal_id)
 	full outer join suma using(eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code, eel_qal_id)
 	full outer join sumf using(eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code, eel_qal_id)
 	full outer join sumh using(eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code, eel_qal_id)
@@ -55,17 +56,19 @@ from b0
 order by eel_year, cou_order, eel_emu_nameshort, eel_qal_id
 ;
 
+
+-- SELECT * FROM datawg.precodata
 -- check for duplicate  at the life stage level
-select eel_year, eel_cou_code, country, eel_emu_nameshort, emu_wholecountry, eel_hty_code,  eel_lfs_code, count(*)
-from datawg.bigtable WHERE eel_qal_id !=0
+SELECT eel_year, eel_cou_code, country, eel_emu_nameshort, emu_wholecountry, eel_hty_code,  eel_lfs_code, count(*)
+FROM datawg.precodata WHERE eel_qal_id !=0
 group by eel_year, eel_cou_code, country, eel_emu_nameshort, emu_wholecountry, eel_hty_code, eel_lfs_code
 having count(*) > 1
 ; 
 -- NO provide biomass data by ICES division
 --
 -- check for duplicate  at the habitat level
-select eel_year, eel_cou_code, country, eel_emu_nameshort, emu_wholecountry, eel_hty_code,  count(*)
-from datawg.bigtable WHERE eel_qal_id !=0
+SELECT eel_year, eel_cou_code, country, eel_emu_nameshort, emu_wholecountry, eel_hty_code,  count(*)
+FROM datawg.precodata WHERE eel_qal_id !=0
 group by eel_year, eel_cou_code, country, eel_emu_nameshort, emu_wholecountry, eel_hty_code
 having count(*) > 1
 ; 
@@ -77,10 +80,10 @@ having count(*) > 1
 
 -- bigtable aggregated by habitat, no longer necessary, one habitat AL
 /*
-drop view if exists datawg.bigtable_by_habitat cascade;
-create or replace view datawg.bigtable_by_habitat as
-select eel_year, eel_cou_code, country, cou_order, eel_emu_nameshort, emu_wholecountry, eel_hty_code, habitat, sum(b0) as b0, sum(bbest) as bbest, sum(bcurrent) as bcurrent, sum(suma) as suma, sum(sumf) as sumf, sum(sumh) as sumh, sum(habitat_ha) as habitat_ha, string_agg(eel_lfs_code , ', ') as aggregated_lfs
-from datawg.bigtable 
+DROP VIEW if exists datawg.bigtable_by_habitat cascade;
+create or replace VIEW datawg.bigtable_by_habitat AS
+SELECT eel_year, eel_cou_code, country, cou_order, eel_emu_nameshort, emu_wholecountry, eel_hty_code, habitat, sum(b0) AS b0, sum(bbest) AS bbest, sum(bcurrent) AS bcurrent, sum(suma) AS suma, sum(sumf) AS sumf, sum(sumh) AS sumh, sum(habitat_ha) AS habitat_ha, string_agg(eel_lfs_code , ', ') AS aggregated_lfs
+FROM datawg.bigtable 
 group by eel_year, eel_cou_code, country, cou_order, eel_emu_nameshort, emu_wholecountry, eel_hty_code, habitat
 order by eel_year, cou_order, eel_emu_nameshort,
 case --- OK this is just for ordering
@@ -95,18 +98,18 @@ end
 */
 
 -- check aggreg by habitat on biomass
-select sum(b0), sum(bbest), sum(bcurrent) from datawg.bigtable;
---select sum(b0), sum(bbest), sum(bcurrent) from datawg.bigtable_by_habitat;
+SELECT sum(b0), sum(bbest), sum(bcurrent) FROM datawg.precodata;
+--SELECT sum(b0), sum(bbest), sum(bcurrent) FROM datawg.bigtable_by_habitat;
 -- pass
 
 -- check for duplicate  at the emu level
 /*
-with too_many_habitats as
-	(select eel_year, eel_cou_code, country, eel_emu_nameshort, emu_wholecountry, count(*)
-	from datawg.bigtable_by_habitat
+with too_many_habitats AS
+	(SELECT eel_year, eel_cou_code, country, eel_emu_nameshort, emu_wholecountry, count(*)
+	FROM datawg.bigtable_by_habitat
 	group by eel_year, eel_cou_code, country, eel_emu_nameshort, emu_wholecountry
 	having count(*) > 1)
-select eel_emu_nameshort, count(*) from too_many_habitats group by eel_emu_nameshort order by eel_emu_nameshort
+SELECT eel_emu_nameshort, count(*) FROM too_many_habitats group by eel_emu_nameshort order by eel_emu_nameshort
 ;
 */
 
@@ -152,7 +155,7 @@ IT
 	IT_Umbr: all data in F, only sumH in T ==> nothing, but sumH can be calculated
 	IT_Vall: all data in F, only sumH in T ==> nothing, but sumH can be calculated
 	IT_Vene: data in F, T ==> B can be added & mortalities calculated
-	comment from F Capoccioni (17/09/2018) : " It would have been better to do not fill any data for EMUs without Transitional habitat.
+	comment FROM F Capoccioni (17/09/2018) : " It would have been better to do not fill any data for EMUs without Transitional habitat.
 I confirm that IT_Abru, IT_Basi, IT_Cala, IT_Ligu, IT_Lomb, IT_Marc, IT_Moli, IT_Piem, IT_Tren, IT_Umbr, IT_Vall."
 LT
 	LT_total: B0 in T, the rest in F ==> nothing can be calculated
@@ -164,11 +167,11 @@ PL
 /* RUNONCE
 -- correct the "FIXME" above!
 begin;
-update datawg.t_eelstock_eel set eel_qal_id = 3, eel_qal_comment = "eel_qal_comment" || 'duplicate from F and T'
-where eel_emu_nameshort in ('ES_Anda', 'ES_Cata') and eel_hty_code = 'AL' and eel_typ_id = 15
+update datawg.t_eelstock_eel set eel_qal_id = 3, eel_qal_comment = "eel_qal_comment" || 'duplicate FROM F and T'
+WHERE eel_emu_nameshort in ('ES_Anda', 'ES_Cata') and eel_hty_code = 'AL' and eel_typ_id = 15
 ;
-update datawg.t_eelstock_eel set eel_qal_id = 3, eel_qal_comment = "eel_qal_comment" || 'duplicate from F and T'
-where eel_emu_nameshort in ('ES_Vale') and eel_hty_code = 'AL' and eel_typ_id = 15 and eel_year  = 2017
+update datawg.t_eelstock_eel set eel_qal_id = 3, eel_qal_comment = "eel_qal_comment" || 'duplicate FROM F and T'
+WHERE eel_emu_nameshort in ('ES_Vale') and eel_hty_code = 'AL' and eel_typ_id = 15 and eel_year  = 2017
 ;
 
 commit;
@@ -177,44 +180,44 @@ commit;
 
 -- bigtable aggregated by EMU deprecated
 /*
-drop view if exists datawg.precodata_emu cascade;
-create or replace view datawg.precodata_emu AS
+DROP VIEW if exists datawg.precodata_emu cascade;
+create or replace VIEW datawg.precodata_emu AS
 WITH b0_unique AS
 	(SELECT eel_emu_nameshort, sum(B0) AS unique_b0
 	FROM datawg.bigtable
 	WHERE 
 	GROUP BY eel_emu_nameshort
 	)
-select eel_year, eel_cou_code, country, cou_order, eel_emu_nameshort, emu_wholecountry, 
+SELECT eel_year, eel_cou_code, country, cou_order, eel_emu_nameshort, emu_wholecountry, 
 	case 
 		when eel_emu_nameshort in ('LT_total') then null
 		else COALESCE(unique_b0, sum(b0)) 
-	end as b0,
+	end AS b0,
 	case 
 		when eel_emu_nameshort in ('LT_total') then null
 		else sum(bbest) 
-	end as bbest,
+	end AS bbest,
 	case 
 		when eel_emu_nameshort in ('LT_total') then null
 		else sum(bcurrent) 
-	end as bcurrent,
+	end AS bcurrent,
 	case 
 		when eel_emu_nameshort in ('ES_Cata', 'LT_total') then null
 		when eel_emu_nameshort in ('IT_Camp', 'IT_Emil', 'IT_Frio', 'IT_Lazi', 'IT_Pugl', 'IT_Sard', 'IT_Sici', 'IT_Tosc', 'IT_Vene', 'IT_Abru', 'IT_Basi', 'IT_Cala', 'IT_Ligu', 'IT_Lomb', 'IT_Marc', 'IT_Moli', 'IT_Piem', 'IT_Tren', 'IT_Umbr', 'IT_Vall') then round(sum(suma*bbest)/sum(bbest),3)
 		else sum(suma) 
-	end as suma,
+	end AS suma,
 	case 
 		when eel_emu_nameshort in ('ES_Cata', 'LT_total') then null
 		when eel_emu_nameshort in ('IT_Camp', 'IT_Emil', 'IT_Frio', 'IT_Lazi', 'IT_Pugl', 'IT_Sard', 'IT_Sici', 'IT_Tosc', 'IT_Vene', 'IT_Abru', 'IT_Basi', 'IT_Cala', 'IT_Ligu', 'IT_Lomb', 'IT_Marc', 'IT_Moli', 'IT_Piem', 'IT_Tren', 'IT_Umbr', 'IT_Vall') then round(sum(sumf*bbest)/sum(bbest),3)
 		else sum(sumf) 
-	end as sumf,
+	end AS sumf,
 	case 
 		when eel_emu_nameshort in ('LT_total') then null
 		when eel_emu_nameshort in ('IT_Camp', 'IT_Emil', 'IT_Frio', 'IT_Lazi', 'IT_Pugl', 'IT_Sard', 'IT_Sici', 'IT_Tosc', 'IT_Vene', 'IT_Abru', 'IT_Basi', 'IT_Cala', 'IT_Ligu', 'IT_Lomb', 'IT_Marc', 'IT_Moli', 'IT_Piem', 'IT_Tren', 'IT_Umbr', 'IT_Vall') then round(sum(sumh*bbest)/sum(bbest),3)
 		else sum(sumh) 
-	end as sumh, 
-	'emu'::text as aggreg_level, aggregated_lfs, string_agg(eel_hty_code , ', ') as aggregated_hty
-from datawg.bigtable_by_habitat 
+	end AS sumh, 
+	'emu'::text AS aggreg_level, aggregated_lfs, string_agg(eel_hty_code , ', ') AS aggregated_hty
+FROM datawg.bigtable_by_habitat 
 LEFT OUTER JOIN B0_unique USING(eel_emu_nameshort)
 WHERE (eel_year > 1850 AND eel_emu_nameshort NOT IN ('ES_Murc')) OR (eel_year > 1850 AND eel_emu_nameshort IN ('ES_Murc') AND eel_hty_code = 'C')
 group by eel_year, eel_cou_code, country, cou_order, eel_emu_nameshort, emu_wholecountry, aggregated_lfs, unique_b0
@@ -222,9 +225,9 @@ order by eel_year, cou_order, eel_emu_nameshort
 ;
 
 -- check everything went well (1 line per EMU/year)
-select eel_year, eel_cou_code, country, eel_emu_nameshort, emu_wholecountry, count(*)
-from datawg.precodata_emu 
---where eel_qal_id in (1,2,4)
+SELECT eel_year, eel_cou_code, country, eel_emu_nameshort, emu_wholecountry, count(*)
+FROM datawg.precodata_emu 
+--WHERE eel_qal_id in (1,2,4)
 group by eel_year, eel_cou_code, country, eel_emu_nameshort, emu_wholecountry
 having count(*) > 1
 ;
@@ -266,8 +269,8 @@ COMMIT;
 */
 
 -- aggregation the country level
-drop view if exists datawg.precodata_country  cascade;
-create or REPLACE view datawg.precodata_country as
+DROP VIEW if exists datawg.precodata_country  cascade;
+create or REPLACE VIEW datawg.precodata_country AS
 WITH
 	nr_emu_per_country AS
 		(SELECT emu_cou_code, sum((NOT emu_wholecountry)::int) AS nr_emu 
@@ -361,33 +364,33 @@ ORDER BY eel_year, cou_order
 ;
 
 -- precodata for all country
-drop view if exists datawg.precodata_all;
-create or REPLACE view datawg.precodata_all as
-with all_level as
+DROP VIEW if exists datawg.precodata_all;
+create or REPLACE VIEW datawg.precodata_all AS
+with all_level AS
 (
-	(with last_year_emu as
-		(select eel_emu_nameshort, max(eel_year) as last_year from datawg.precodata_emu 
-		where b0 is not null and bbest is not null and bcurrent is not null and suma is not null group by eel_emu_nameshort) --last year should the last COMPLETE (b0, bbest, bcurrent, suma) year
-	select eel_year, eel_cou_code, eel_emu_nameshort, '<lfs>' || aggregated_lfs || '<\lfs><hty>' || aggregated_hty || '<\hty>' AS aggreg_comment, b0, bbest, bcurrent, suma, sumf, sumh, aggreg_level, last_year from datawg.precodata_emu LEFT OUTER JOIN last_year_emu using(eel_emu_nameshort))
+	(with last_year_emu AS
+		(SELECT eel_emu_nameshort, max(eel_year) AS last_year FROM datawg.precodata_emu 
+		WHERE b0 is not null and bbest is not null and bcurrent is not null and suma is not null group by eel_emu_nameshort) --last year should the last COMPLETE (b0, bbest, bcurrent, suma) year
+	SELECT eel_year, eel_cou_code, eel_emu_nameshort, '<lfs>' || aggregated_lfs || '<\lfs><hty>' || aggregated_hty || '<\hty>' AS aggreg_comment, b0, bbest, bcurrent, suma, sumf, sumh, aggreg_level, last_year FROM datawg.precodata_emu LEFT OUTER JOIN last_year_emu using(eel_emu_nameshort))
 	union
-	(with last_year_country as
-		(select eel_cou_code, max(eel_year) as last_year from datawg.precodata_country
-		where b0 is not null and bbest is not null and bcurrent is not null and suma is not null group by eel_cou_code) --last year should the last COMPLETE (b0, bbest, bcurrent, suma) year
-	select eel_year, eel_cou_code, eel_emu_nameshort,
+	(with last_year_country AS
+		(SELECT eel_cou_code, max(eel_year) AS last_year FROM datawg.precodata_country
+		WHERE b0 is not null and bbest is not null and bcurrent is not null and suma is not null group by eel_cou_code) --last year should the last COMPLETE (b0, bbest, bcurrent, suma) year
+	SELECT eel_year, eel_cou_code, eel_emu_nameshort,
 	'<B0>' || method_b0 || '<\B0><Bbest>' || method_bbest || '<\Bbest><Bcurrent>' || method_bcurrent || '<\Bcurrent><suma>' || method_suma || '<\suma><sumf>'  || method_sumf || '<\sumf><sumh>'  || method_sumh || '<\sumah>'AS aggreg_comment,
 	b0, bbest, bcurrent, suma, sumf, sumh, aggreg_level, last_year
-	from datawg.precodata_country LEFT OUTER JOIN last_year_country using(eel_cou_code))
+	FROM datawg.precodata_country LEFT OUTER JOIN last_year_country using(eel_cou_code))
 	union
-	(select eel_year, null eel_cou_code, null eel_emu_nameshort, 'All (' || count(*) || ' countries: ' || string_agg(eel_cou_code, ',') || ')' aggreg_comment,  
-		sum(b0) as b0, sum(bbest)as bbest, sum(bcurrent)as bcurrent,
-		round(sum(suma*bbest)/sum(bbest), 3) as suma, 
-		case when count(sumf)< COUNT(*) then null else round(sum(sumf*bbest)/sum(bbest), 3) end as sumf, -- by default sum of null and value is not a null value, this part correct that
-		case when count(sumh)< COUNT(*) then null else round(sum(sumh*bbest)/sum(bbest), 3) end as sumf, -- by default sum of null and value is not a null value, this part correct that
-		'all' as aggreg_level, null last_year
-	from datawg.precodata_country
-	where b0 is not null and bbest is not null and BCURRENT is not NULL and SUMA is not null
+	(SELECT eel_year, null eel_cou_code, null eel_emu_nameshort, 'All (' || count(*) || ' countries: ' || string_agg(eel_cou_code, ',') || ')' aggreg_comment,  
+		sum(b0) AS b0, sum(bbest)as bbest, sum(bcurrent)as bcurrent,
+		round(sum(suma*bbest)/sum(bbest), 3) AS suma, 
+		case when count(sumf)< COUNT(*) then null else round(sum(sumf*bbest)/sum(bbest), 3) end AS sumf, -- by default sum of null and value is not a null value, this part correct that
+		case when count(sumh)< COUNT(*) then null else round(sum(sumh*bbest)/sum(bbest), 3) end AS sumf, -- by default sum of null and value is not a null value, this part correct that
+		'all' AS aggreg_level, null last_year
+	FROM datawg.precodata_country
+	WHERE b0 is not null and bbest is not null and BCURRENT is not NULL and SUMA is not null
 	group by eel_year)
-) select all_level.* from all_level left outer join "ref".TR_COUNTRY_COU on eel_cou_code = cou_code
+) SELECT all_level.* FROM all_level left outer join "ref".TR_COUNTRY_COU on eel_cou_code = cou_code
 order by eel_year,
 -- order my aggreg_level: emu, country, all
 case 
@@ -398,4 +401,4 @@ end,
 cou_order, eel_emu_nameshort 
 ;
 
-select * from datawg.precodata_all;
+SELECT * FROM datawg.precodata_all;
