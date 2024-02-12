@@ -1,6 +1,9 @@
 ﻿-- bigtable, no modification just combining different table
 -- note eel_lfs useless eel_habitat useless
 -- note there is a precodata in shiny dv database_precodata which runs with an argument outer_join
+
+
+
 DROP VIEW if exists datawg.precodata cascade;
 CREATE OR REPLACE VIEW datawg.precodata AS
 with 
@@ -365,32 +368,81 @@ ORDER BY eel_year, cou_order
 
 -- precodata for all country
 DROP VIEW if exists datawg.precodata_all;
-create or REPLACE VIEW datawg.precodata_all AS
-with all_level AS
+CREATE OR REPLACE VIEW datawg.precodata_all AS
+WITH all_level AS
 (
-	(with last_year_emu AS
-		(SELECT eel_emu_nameshort, max(eel_year) AS last_year FROM datawg.precodata_emu 
-		WHERE b0 is not null and bbest is not null and bcurrent is not null and suma is not null group by eel_emu_nameshort) --last year should the last COMPLETE (b0, bbest, bcurrent, suma) year
-	SELECT eel_year, eel_cou_code, eel_emu_nameshort, '<lfs>' || aggregated_lfs || '<\lfs><hty>' || aggregated_hty || '<\hty>' AS aggreg_comment, b0, bbest, bcurrent, suma, sumf, sumh, aggreg_level, last_year FROM datawg.precodata_emu LEFT OUTER JOIN last_year_emu using(eel_emu_nameshort))
-	union
-	(with last_year_country AS
-		(SELECT eel_cou_code, max(eel_year) AS last_year FROM datawg.precodata_country
-		WHERE b0 is not null and bbest is not null and bcurrent is not null and suma is not null group by eel_cou_code) --last year should the last COMPLETE (b0, bbest, bcurrent, suma) year
-	SELECT eel_year, eel_cou_code, eel_emu_nameshort,
+	(WITH last_year_emu AS
+		(SELECT  eel_emu_nameshort, 
+		max(eel_year) AS last_year 
+    FROM datawg.precodata 
+		WHERE --b0 is not null 
+		bbest is not null 
+		AND bcurrent is not null 
+		AND suma is not null 
+		group by eel_emu_nameshort) --last year should the last COMPLETE (b0, bbest, bcurrent, suma) year
+	SELECT 
+	p.eel_year, 
+	p.eel_cou_code, 
+	p.eel_emu_nameshort, 
+	NULL AS aggreg_comment, 
+	b0.eel_value AS b0 ,
+	p.bbest, 
+	p.bcurrent, 
+	p.suma, 
+	p.sumf, 
+	p.sumh,  
+	 'all' AS aggreg_level,
+	last_year
+	FROM datawg.precodata p
+	LEFT OUTER JOIN last_year_emu using(eel_emu_nameshort)
+	LEFT OUTER JOIN datawg.b0 using(eel_emu_nameshort)
+)
+	UNION
+(  
+ WITH last_year_country AS
+		(SELECT eel_cou_code, 
+		max(eel_year) AS last_year 
+		FROM datawg.precodata_country
+		WHERE --b0 is not null AND
+		 bbest is not null 
+		AND bcurrent is not null 
+		AND suma is not null 
+		group by eel_cou_code) --last year should the last COMPLETE (b0, bbest, bcurrent, suma) year
+	SELECT 
+	p.eel_year, 
+	p.eel_cou_code, 
+	p.eel_emu_nameshort,
 	'<B0>' || method_b0 || '<\B0><Bbest>' || method_bbest || '<\Bbest><Bcurrent>' || method_bcurrent || '<\Bcurrent><suma>' || method_suma || '<\suma><sumf>'  || method_sumf || '<\sumf><sumh>'  || method_sumh || '<\sumah>'AS aggreg_comment,
-	b0, bbest, bcurrent, suma, sumf, sumh, aggreg_level, last_year
-	FROM datawg.precodata_country LEFT OUTER JOIN last_year_country using(eel_cou_code))
-	union
-	(SELECT eel_year, null eel_cou_code, null eel_emu_nameshort, 'All (' || count(*) || ' countries: ' || string_agg(eel_cou_code, ',') || ')' aggreg_comment,  
-		sum(b0) AS b0, sum(bbest)as bbest, sum(bcurrent)as bcurrent,
-		round(sum(suma*bbest)/sum(bbest), 3) AS suma, 
-		case when count(sumf)< COUNT(*) then null else round(sum(sumf*bbest)/sum(bbest), 3) end AS sumf, -- by default sum of null and value is not a null value, this part correct that
-		case when count(sumh)< COUNT(*) then null else round(sum(sumh*bbest)/sum(bbest), 3) end AS sumf, -- by default sum of null and value is not a null value, this part correct that
-		'all' AS aggreg_level, null last_year
+	b0.eel_value AS b0 ,
+	p.bbest,
+	p.bcurrent,
+	p.suma,
+	p.sumf, 
+	p.sumh, 
+	aggreg_level, 
+	last_year
+	FROM datawg.precodata_country p
+	LEFT JOIN last_year_country using(eel_cou_code)
+	LEFT JOIN datawg.b0 using(eel_cou_code)
+	)
+	UNION
+	(SELECT eel_year, 
+	null eel_cou_code, 
+	null eel_emu_nameshort, 
+	'All (' || count(*) || ' countries: ' || string_agg(eel_cou_code, ',') || ')' aggreg_comment,  
+	sum(b0) AS b0, 
+	sum(bbest)as bbest,
+	sum(bcurrent)as bcurrent,
+	round(sum(suma*bbest)/sum(bbest), 3) AS suma, 
+	case when count(sumf)< COUNT(*) then null else round(sum(sumf*bbest)/sum(bbest), 3) end AS sumf, -- by default sum of null and value is not a null value, this part correct that
+	case when count(sumh)< COUNT(*) then null else round(sum(sumh*bbest)/sum(bbest), 3) end AS sumf, -- by default sum of null and value is not a null value, this part correct that
+	'all' AS aggreg_level, 
+	null last_year
 	FROM datawg.precodata_country
 	WHERE b0 is not null and bbest is not null and BCURRENT is not NULL and SUMA is not null
 	group by eel_year)
-) SELECT all_level.* FROM all_level left outer join "ref".TR_COUNTRY_COU on eel_cou_code = cou_code
+) 
+SELECT all_level.* FROM all_level left outer join "ref".TR_COUNTRY_COU on eel_cou_code = cou_code
 order by eel_year,
 -- order my aggreg_level: emu, country, all
 case 
@@ -401,4 +453,4 @@ end,
 cou_order, eel_emu_nameshort 
 ;
 
-SELECT * FROM datawg.precodata_all;
+--SELECT * FROM datawg.precodata_all;
