@@ -58,7 +58,7 @@ FROM b0
 	join life_stage on eel_lfs_code = lfs_code
 order by eel_year, cou_order, eel_emu_nameshort, eel_qal_id
 ;
-
+ALTER VIEW datawg.precodata OWNER TO wgeel;
 
 -- SELECT * FROM datawg.precodata
 -- check for duplicate  at the life stage level
@@ -365,6 +365,7 @@ FROM analyse_emu_Total
 	JOIN "ref".tr_country_cou ON (eel_cou_code = cou_code)
 ORDER BY eel_year, cou_order
 ;
+ALTER VIEW datawg.precodata_country OWNER TO wgeel;
 
 -- precodata for all country
 DROP VIEW if exists datawg.precodata_all;
@@ -452,5 +453,5 @@ case
 end,
 cou_order, eel_emu_nameshort 
 ;
-
+ALTER VIEW datawg.precodata_all OWNER TO wgeel;
 --SELECT * FROM datawg.precodata_all;
