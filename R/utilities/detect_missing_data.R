@@ -158,14 +158,14 @@ detect_missing_data <- function(cou="FR",
 
 
 detect_missing_biom_morta <- function(cou="FR",
-                                      type="biomass", eel_typ_id=13:15,
+                                      type="biomass", 
+                                      eel_typ_id=13:15,
                                       minyear=2007,
-                                      maxyear=2024, #maxyear corresponds to the current year where we have to fill data
+                                      maxyear=CY-1, #maxyear corresponds to the current year where we have to fill data
                                       con,
                                       datasource="dc_2024") {
   
-  
-  
+
   #theoretically this one is the best solution but the table is not well filled
   emus <- unique(dbGetQuery(con,paste("select emu_nameshort eel_emu_nameshort,emu_cou_code
  			eel_cou_code, emu_wholecountry
@@ -174,15 +174,9 @@ detect_missing_biom_morta <- function(cou="FR",
   #in Sweeden, there are historical subidivisions thate we do not take into account
   emus=emus[!grepl("_.._",emus$eel_emu_nameshort),]
   
-  # in some cases there is just one total, otherwise remove total											
-  if (nrow(emus)>2 & cou!="DK"){ #for Denmark, total EMUs as a different meanings that for other countries
-    emus <- emus[!emus$emu_wholecountry,c(1,2)]		
-  } else {
-    emus <- emus[,c(1,2)]				
-  }
-  
-  
-  complete <- dbGetQuery(con,"select eel_cou_code,eel_year,eel_emu_nameshort,b0,bbest,bcurrent,suma,sumf,sumh from datawg.precodata_emu") %>%
+
+  complete <- dbGetQuery(con,"SELECT eel_cou_code,eel_year,eel_emu_nameshort,b0,bbest,bcurrent,suma,sumf,sumh 
+                              FROM datawg.precodata") %>%
     pivot_longer(cols=all_of(c("b0","bbest","bcurrent","suma","sumf","sumh")),names_to="typ_name",values_to="eel_value") %>%
     filter(!is.na(eel_value)) %>%
     filter(eel_cou_code == cou) %>%
@@ -191,7 +185,8 @@ detect_missing_biom_morta <- function(cou="FR",
                                 typ_name == "bcurrent" ~ 15,
                                 typ_name == "suma" ~ 17,
                                 typ_name == "sumf" ~ 18,
-                                typ_name == "sumh" ~ 19
+                                typ_name == "sumh" ~ 19,
+                                typ_name == "bcurrent_without_stocking" ~ 34
     )) %>%
     distinct() %>%
     mutate(eel_year=ifelse(eel_typ_id==13,0,eel_year))
@@ -201,13 +196,7 @@ detect_missing_biom_morta <- function(cou="FR",
     group_by(eel_cou_code, eel_year, eel_emu_nameshort,typ_name,eel_typ_id) %>%
     summarize(n=n_distinct(eel_value),eel_value=mean(eel_value,na.rm=TRUE)) %>%
     filter(n==1)
-  
-  
-  
-  if (CY == 2024) {
-    complete <- complete[-(1:nrow(complete)),]
-  }
-  
+   
   
   hty_emus <- c("AL")  
   all_comb <- merge(expand.grid(eel_lfs_code=c("S"),
@@ -222,7 +211,7 @@ detect_missing_biom_morta <- function(cou="FR",
                                 eel_hty_code=hty_emus),
                     emus))
   options(warn=-1)
-  if (nrow(complete) == 0 || maxyear==2024){
+  if (nrow(complete) == 0){
     missing_comb <- all_comb
   } else {
     missing_comb <- suppressMessages(anti_join(all_comb, complete))
@@ -231,14 +220,15 @@ detect_missing_biom_morta <- function(cou="FR",
   options(warn=0)
   
   missing_comb$eel_year = as.integer(missing_comb$eel_year)
+
   
   missing_comb <- base::merge(missing_comb,complete[,c("eel_year","eel_emu_nameshort","eel_value","eel_typ_id")],
                               all.x=TRUE)
-  eel_typ_name=dbGetQuery(con,"select typ_id eel_typ_id,typ_name  from ref.tr_typeseries_typ")
+  eel_typ_name=dbGetQuery(con,"select typ_id eel_typ_id,typ_name as eel_typ_name  from ref.tr_typeseries_typ")
   missing_comb$eel_typ_id=as.integer(missing_comb$eel_typ_id)
   
   missing_comb=merge(missing_comb,eel_typ_name)
-  
+  missing_comb$eel_datasource <- datasource
   
   return(missing_comb)
 }

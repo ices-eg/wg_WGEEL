@@ -406,7 +406,8 @@ CREATE OR REPLACE VIEW datawg.bcurrent_without_stocking AS
   WHERE (t_eelstock_eel.eel_typ_id = 34) 
   --AND (t_eelstock_eel.eel_qal_id in (1,2,4))
   ;
-
+GRANT SELECT ON datawg.bcurrent_without_stocking TO wgeel_read;
+ALTER VIEW datawg.bcurrent_without_stocking OWNER TO wgeel;
 -------------------------------------
 -- View for SigmaA
 ---------------------------------------

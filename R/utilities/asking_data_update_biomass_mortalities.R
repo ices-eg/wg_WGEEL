@@ -5,7 +5,7 @@
 #######################################################################################
 # put the current year there
 #setwd("C:/workspace\\gitwgeel\\")
-CY<-2024
+CY<-2024 # put the current year there, CY-1 will be used
 # and the annex name / type of data
 type_of_data <- c("mortalities", "biomass")
 name_annex <- c("Eel_Data_Call_Annex11_Mortality_rates", "Eel_Data_Call_Annex10_Biomass_Indicators")
@@ -38,17 +38,8 @@ load_library("tidyr")
 ##################################
 #setwd("C:/workspace\\gitwgeel\\R\\shiny_data_visualisation\\shiny_dv\\")
 #wd<-getwd()
-#############################
-# here is where you want to put the data. It is different from the code
-# as we don't want to commit data to git
-# read git user 
-##################################
-#wddata<-"C:/Users/cedric.briand/OneDrive - EPTB Vilaine/Projets/GRISAM/2020/wgeel/datacall/"
-wddata = paste0(getwd(), "/data/datacall_template/")
-###################################
-# this set up the connextion to the postgres database
-# change parameters accordingly
-###################################"
+
+
 
 #############################
 # here is where the script is working change it accordingly
@@ -63,6 +54,12 @@ if(Sys.info()["user"]=="hdrouineau"){
 }
 source("R/utilities/detect_missing_data.R")
 cred=read_yaml("credentials.yml")
+#############################
+# here is where you want to put the data. It is different from the code
+# as we don't want to commit data to git
+# read git user 
+##################################
+wddata = paste0(getwd(), "/data/datacall_template/")
 ###################################
 # this set up the connextion to the postgres database
 # change parameters accordingly
@@ -180,10 +177,11 @@ create_datacall_file_biom_morta <- function(country, type = type_of_data[1], ...
 	} else {
 		cat("No data for country", country, "\n")
 	}
-	data_missing <- detect_missing_biom_morta(cou=country,typ=type, 
-      eel_typ_id = eel_typ_id,      
-      maxyear = CY-1, 
-      con=con)
+  
+	data_missing <- detect_missing_biom_morta(
+      cou=country,
+      typ=type, 
+      ...) 
 	data_missing %<>% 
 			mutate(eel_missvaluequal = NA) %>%
 			select(eel_typ_name, 
@@ -208,8 +206,21 @@ create_datacall_file_biom_morta <- function(country, type = type_of_data[1], ...
 
 
 # TESTS -------------------------------------------
-create_datacall_file_biom_morta(country = "FR", type = "biomass", con=con)
-create_datacall_file_biom_morta(country = "FR", type = "mortalities", con=con)
+create_datacall_file_biom_morta(
+    country = "GB", 
+    type = "biomass", 
+    con=con, 
+    minyear=2007, 
+    maxyear=2023,
+    eel_typ_id=c(13:15,34),
+    datasource="dc_2024")
+create_datacall_file_biom_morta(country = "GB", 
+    type = "mortalities", 
+    con=con, 
+    minyear=2007, 
+    maxyear=2023, 
+    eel_typ_id = c(17:19),
+    datasource="dc_2024")
 # END TEST -------------------------------------------
 
 # CLOSE EXCEL FILE FIRST
@@ -219,7 +230,19 @@ cou_code<-unique(t_eelstock_eel$eel_cou_code[!is.na(t_eelstock_eel$eel_cou_code)
 for (cou in cou_code){	
 	country <- cou
 	cat("country: ",country,"\n")
-	create_datacall_file_biom_morta(country <- cou, type <- "biomass")
-	create_datacall_file_biom_morta(country <- cou, type <- "mortalities")
+	create_datacall_file_biom_morta(country = cou, 
+      type = "biomass",
+      con=con, 
+      minyear=2007, 
+      maxyear=2023,
+      eel_typ_id=c(13:15,34),
+      datasource="dc_2024")
+	create_datacall_file_biom_morta(country <- cou,
+      type <- "mortalities",
+      con=con, 
+      minyear=2007, 
+      maxyear=2023,
+      eel_typ_id=c(13:15,34),
+      datasource="dc_2024")
 	cat("work finished\n")
 }

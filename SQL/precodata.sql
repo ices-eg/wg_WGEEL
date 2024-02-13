@@ -59,7 +59,7 @@ FROM b0
 order by eel_year, cou_order, eel_emu_nameshort, eel_qal_id
 ;
 ALTER VIEW datawg.precodata OWNER TO wgeel;
-
+GRANT SELECT ON datawg.precodata TO wgeel_read;
 -- SELECT * FROM datawg.precodata
 -- check for duplicate  at the life stage level
 SELECT eel_year, eel_cou_code, country, eel_emu_nameshort, emu_wholecountry, eel_hty_code,  eel_lfs_code, count(*)
@@ -366,7 +366,7 @@ FROM analyse_emu_Total
 ORDER BY eel_year, cou_order
 ;
 ALTER VIEW datawg.precodata_country OWNER TO wgeel;
-
+GRANT SELECT ON datawg.precodata TO wgeel_read;
 -- precodata for all country
 DROP VIEW if exists datawg.precodata_all;
 CREATE OR REPLACE VIEW datawg.precodata_all AS
@@ -454,4 +454,5 @@ end,
 cou_order, eel_emu_nameshort 
 ;
 ALTER VIEW datawg.precodata_all OWNER TO wgeel;
+GRANT SELECT ON datawg.precodata_all TO wgeel_read;
 --SELECT * FROM datawg.precodata_all;
