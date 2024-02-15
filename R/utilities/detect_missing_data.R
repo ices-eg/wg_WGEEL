@@ -27,7 +27,7 @@ detect_missing_data <- function(cou="FR",
   }   else {
     emus <- emus[,c(1,2)]				
   }
-  
+
   hty_emus <- c("F","T","C","MO")  
   all_comb <- merge(expand.grid(eel_lfs_code=c("G","Y","S"),
                                 eel_year=minyear:maxyear,
@@ -46,7 +46,8 @@ detect_missing_data <- function(cou="FR",
   
   
   options(warn=0)
-  missing_comb$id <- 1:nrow(missing_comb)
+  
+  missing_comb <- missing_comb %>% mutate(id = row_number())
   # searching for aggregations at the upper level
   found_matches <- sqldf("select id,c.eel_emu_nameshort from missing_comb m inner join complete c on c.eel_cou_code=m.eel_cou_code and
                                                             c.eel_year=m.eel_year and
@@ -93,8 +94,8 @@ detect_missing_data <- function(cou="FR",
       if (startsWith(c, "landings recorded")) return("NC")
     })) %>%
     mutate(eel_qal_id =ifelse(!is.na(eel_missvaluequal=="NC"),1,NA)) %>%
-    mutate(eel_qal_comment <- "autofilled by missing data detection procedure") %>%
-    mutate(eel_datasource <- str_c(datasource,"_missing")) 
+    mutate(eel_qal_comment = "autofilled by missing data detection procedure") %>%
+    mutate(eel_datasource = str_c(datasource,"_missing")) 
   
   if (length(which(missing_comb$eel_year==maxyear)>0)){
     ####For ongoing year, we leave NP but removes the other
