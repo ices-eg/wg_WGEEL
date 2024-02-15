@@ -1,5 +1,6 @@
 
 # files are copied to the saved folder before being changed, check there if you need a backup
+# this must be launched as a superuser
 update_referential_sheet <- function(con, name="Eel_Data_Call_2022_Annex4_Landings_Commercial"){
   nametemplatefile <- str_c(name,".xlsx")
   templatefile <- file.path(wddata,"00template",nametemplatefile)
@@ -10,14 +11,14 @@ update_referential_sheet <- function(con, name="Eel_Data_Call_2022_Annex4_Landin
   wb = openxlsx::loadWorkbook(templatefile)
   fn_load_ref <- function(ref_table, con.=con){    
     #we avoid to load geom type ("USER DEFINED)
-
-    current_tab = readxl::read_excel(templatefile,ref_table)
-    columns=dbGetQuery(con.,paste0("SELECT  column_name,  data_type  FROM information_schema.columns
+browser()
+    current_tab <- readxl::read_excel(templatefile,ref_table)
+    columns <- dbGetQuery(con.,paste0("SELECT  column_name,  data_type  FROM information_schema.columns
                 WHERE data_type!='USER-DEFINED' and table_schema = 'ref' AND  table_name = '",ref_table,"' ;"))
-  
+    if (nrow(columns)==0) stop("You need to use credentials for admin to use this function")
     tab <- DBI::dbGetQuery(con.,  paste0("SELECT ",
             paste(columns$column_name,collapse=","),
-            " FROM ref.",
+            "  FROM ref.",
             ref_table))
     cat("loaded",ref_table,"\n")
     if ("geom" %in% colnames(tab))   tab <- tab %>% select(starts_with("g")) %>% arrange(1)

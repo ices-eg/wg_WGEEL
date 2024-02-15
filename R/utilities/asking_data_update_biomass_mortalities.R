@@ -53,7 +53,8 @@ if(Sys.info()["user"]=="hdrouineau"){
   setwd("~")
 }
 source("R/utilities/detect_missing_data.R")
-cred=read_yaml("credentials.yml")
+cred=read_yaml("credentials_write.yml")
+source("R/utilities/update_referential_sheets.R")
 #############################
 # here is where you want to put the data. It is different from the code
 # as we don't want to commit data to git
@@ -74,8 +75,9 @@ con = dbConnect(RPostgres::Postgres(),
     dbname=cred$dbname,
     host=cred$host,
     port=cred$port,
-    user=cred$user, 
-    password=cred$password)
+    user=getPass("get db user"), 
+    password=getPass("get db password"))
+
 
 #############################
 # Table storing information from the database
@@ -225,7 +227,8 @@ create_datacall_file_biom_morta(country = "GB",
 
 # CLOSE EXCEL FILE FIRST
 cou_code<-unique(t_eelstock_eel$eel_cou_code[!is.na(t_eelstock_eel$eel_cou_code)])
-
+update_referential_sheet(con, name="Eel_Data_Call_Annex10_Biomass_Indicators")
+update_referential_sheet(con, name="Eel_Data_Call_Annex11_Mortality_rates")
 # create an excel file for each of the countries
 for (cou in cou_code){	
 	country <- cou
