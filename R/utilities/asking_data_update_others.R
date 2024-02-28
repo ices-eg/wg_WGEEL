@@ -210,7 +210,7 @@ create_datacall_file <- function(country, eel_typ_id, name, ...){
 
 # CLOSE EXCEL FILE FIST
 cou_code <- unique(t_eelstock_eel$eel_cou_code[!is.na(t_eelstock_eel$eel_cou_code)])
-
+cou_code <- sort(cou_code)
 # create an excel file for each of the countries and each typ_id
 # LANDINGS COMMERCIAL AND RECREATIONAL
 
@@ -220,32 +220,30 @@ con = dbConnect(RPostgres::Postgres(),
     port=cred$port,
     user=cred$user, 
     password=cred$password)
-update_referential_sheet(con=con,"Eel_Data_Call_Annex4_Landings_Commercial")
+#update_referential_sheet(con=con,"Eel_Data_Call_Annex4_Landings_Commercial")
 for (cou in cou_code){	
-	country <- cou
-	cat("country: ",country,"\n")
 	gc()
 	create_datacall_file ( 
-			country <- cou,
-			eel_typ_id <- 4, 
-			name <- "Eel_Data_Call_Annex4_Landings_Commercial",
+			country = cou,
+			eel_typ_id = 4, 
+			name = "Eel_Data_Call_Annex4_Landings_Commercial",
 			minyear=2000,
-			maxyear=CY, #maxyear corresponds to the current year where we have to fill data
+			maxyear=CY-1, #maxyear corresponds to the current year where we have to fill data
 			con = con,
 			datasource=datasource)
 	cat("work finished\n")
 }
-update_referential_sheet(con=con,name= "Eel_Data_Call_Annex5_Landings_Recreational")
+#update_referential_sheet(con=con,name= "Eel_Data_Call_Annex5_Landings_Recreational")
 for (cou in cou_code){
   gc()
 
 #  if (! cou %in% c("GB")) { #GB has no recreational fisheries
     create_datacall_file ( 
-      country <- cou,
-      eel_typ_id <- c(6), 
-      name <- "Eel_Data_Call_Annex5_Landings_Recreational",
+      country = cou,
+      eel_typ_id = c(6), 
+      name = "Eel_Data_Call_Annex5_Landings_Recreational",
       minyear=2000,
-      maxyear=CY, #maxyear corresponds to the current year where we have to fill data
+      maxyear=CY-1, #maxyear corresponds to the current year where we have to fill data
       con = con,
       datasource=datasource)
     
@@ -253,28 +251,28 @@ for (cou in cou_code){
 }
 
 # OTHER LANDINGS
-update_referential_sheet(con=con, name ="Eel_Data_Call_Annex6_Landings_Other")
+#update_referential_sheet(con=con, name ="Eel_Data_Call_Annex6_Landings_Other")
 for (cou in cou_code){	
   gc()
 	create_datacall_file ( 
-			country <- cou,
-			eel_typ_id <- c(32,33), 
-			name <- "Eel_Data_Call_Annex6_Landings_Other",
+			country = cou,
+			eel_typ_id = c(32,33), 
+			name = "Eel_Data_Call_Annex6_Landings_Other",
 			minyear=2000,
-			maxyear=CY, #maxyear corresponds to the current year where we have to fill data
+			maxyear=CY-1, #maxyear corresponds to the current year where we have to fill data
 			datasource=datasource)
 	
 }
 
-update_referential_sheet(con=con, name= "Eel_Data_Call_Annex7_Releases")
+#update_referential_sheet(con=con, name= "Eel_Data_Call_Annex7_Releases")
 for (cou in cou_code){
 	gc()
 	create_datacall_file ( 
-			country <- cou,
-			eel_typ_id <- c(8,9,10), 
-			name <- "Eel_Data_Call_Annex7_Releases",
+			country = cou,
+			eel_typ_id = c(8,9,10), 
+			name = "Eel_Data_Call_Annex7_Releases",
 			minyear=2000,
-			maxyear=CY, #maxyear corresponds to the current year where we have to fill data
+			maxyear=CY-1, #maxyear corresponds to the current year where we have to fill data
 			datasource=datasource)	
 }
 
@@ -284,15 +282,15 @@ for (cou in cou_code){
 cou_code_aqua<-unique(t_eelstock_eel$eel_cou_code[t_eelstock_eel$eel_typ_id%in%c(11)])
 
 #cou <-"MA"
-update_referential_sheet(con = con, name="Eel_Data_Call_Annex8_Aquaculture")
+#update_referential_sheet(con = con, name="Eel_Data_Call_Annex8_Aquaculture")
 for (cou in cou_code_aqua){
 	gc()
 	create_datacall_file ( 
-			country <- cou,
-			eel_typ_id <- c(11), 
-			name <- "Eel_Data_Call_Annex8_Aquaculture",
+			country = cou,
+			eel_typ_id = c(11), 
+			name = "Eel_Data_Call_Annex8_Aquaculture",
 			minyear=2000,
-			maxyear=CY, #maxyear corresponds to the current year where we have to fill data
+			maxyear=CY-1, #maxyear corresponds to the current year where we have to fill data
 			datasource=datasource)
 	
 	

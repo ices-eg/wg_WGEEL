@@ -66,6 +66,7 @@ if(Sys.info()["user"]=="hdrouineau"){
 # read git user 
 ##################################
 wddata = paste0(getwd(), "/data/datacall_template/")
+
 load(str_c(getwd(),"/data/ccm_seaoutlets.rdata")) #polygons off ccm seaoutlets WGS84
 
 
@@ -529,10 +530,10 @@ create_datacall_file_series <- function(country, name, ser_typ_id, type="series"
 
 
 # recruitment ---------------------------------------------------
-
+CY<-2024
 country_code <- c("DK","ES","EE","IE","SE","GB","FI","IT","GR","DE","LV","FR","NL","LT","PT",
                   "NO","PL","SI","TN","TR","BE")
-update_referential_sheet("Eel_Data_Call_Annex_Time_Series")
+#update_referential_sheet("Eel_Data_Call_Annex_Time_Series")
 for (country in country_code){
   gc()
   cat("country: ",country,"\n")
@@ -569,7 +570,8 @@ for (country in country_code ){
 
 
 # DCF ---------------------------------------------------
-update_referential_sheet(con,name="Eel_Data_Call_Annex9_Other_Sampling_Data")
+
+#update_referential_sheet(con,name="Eel_Data_Call_Annex9_Other_Sampling_Data")
 dirs = list.dirs("data/datacall_template/",full.names=FALSE)
 dirs = dirs[-match(c("00template/saved","","00template"),dirs)] 
 for (country in dirs ){

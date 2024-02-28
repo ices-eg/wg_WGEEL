@@ -11,7 +11,7 @@ update_referential_sheet <- function(con, name="Eel_Data_Call_2022_Annex4_Landin
   wb = openxlsx::loadWorkbook(templatefile)
   fn_load_ref <- function(ref_table, con.=con){    
     #we avoid to load geom type ("USER DEFINED)
-browser()
+
     current_tab <- readxl::read_excel(templatefile,ref_table)
     columns <- dbGetQuery(con.,paste0("SELECT  column_name,  data_type  FROM information_schema.columns
                 WHERE data_type!='USER-DEFINED' and table_schema = 'ref' AND  table_name = '",ref_table,"' ;"))
@@ -22,12 +22,11 @@ browser()
             ref_table))
     cat("loaded",ref_table,"\n")
     if ("geom" %in% colnames(tab))   tab <- tab %>% select(starts_with("g")) %>% arrange(1)
-    
     #we know sort table keeping the order of the raw files
     new_rows=which(!tab[,1] %in% (current_tab[,1] %>% pull()))
     tab <- bind_rows(tab[match(current_tab[,1] %>% pull(), tab[,1]),],
                      tab[new_rows,,drop=FALSE])
-    
+    tab <- tab[order(tab[,1]),]
     openxlsx::writeData(wb, sheet = ref_table, tab)
   }
   list_ref <- mapply(fn_load_ref,ref_sheets)

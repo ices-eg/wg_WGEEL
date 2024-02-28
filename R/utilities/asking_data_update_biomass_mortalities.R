@@ -227,9 +227,10 @@ create_datacall_file_biom_morta(country = "GB",
 
 # CLOSE EXCEL FILE FIRST
 cou_code<-unique(t_eelstock_eel$eel_cou_code[!is.na(t_eelstock_eel$eel_cou_code)])
-update_referential_sheet(con, name="Eel_Data_Call_Annex10_Biomass_Indicators")
-update_referential_sheet(con, name="Eel_Data_Call_Annex11_Mortality_rates")
+#update_referential_sheet(con, name="Eel_Data_Call_Annex10_Biomass_Indicators")
+#update_referential_sheet(con, name="Eel_Data_Call_Annex11_Mortality_rates")
 # create an excel file for each of the countries
+cou_code<-cou_code[order(cou_code)]
 for (cou in cou_code){	
 	country <- cou
 	cat("country: ",country,"\n")
