@@ -263,7 +263,7 @@ for (cou in cou_code){
 			datasource=datasource)
 	
 }
-
+# do not update release, there is a cell 
 #update_referential_sheet(con=con, name= "Eel_Data_Call_Annex7_Releases")
 for (cou in cou_code){
 	gc()
