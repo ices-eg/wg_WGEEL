@@ -58,9 +58,10 @@ knitr::opts_chunk$set(echo = TRUE)
 updatedData = FALSE
 if ((!file.exists(paste("datagerem",CY,".rdata",sep="")))){
   if (username=="hdrouineau"){
-    con_ccm=dbConnect(Postgres(),host="citerne.bordeaux.irstea.priv",dbname="referentiel",
-                      user="hdrouineau",
-                      password=getPass("Password for ccm database"))
+    cred_ccm=read_yaml("credentials_ccm.yml")
+    con_ccm=dbConnect(Postgres(),host=cred_ccm$host,dbname=cred_ccm$dbname,
+                      user=cred_ccm$user,port=cred_ccm$port,
+                      password=cred_ccm$password)
     table_seaoutlets="hydrographie.ccm_v2_1_riverbasin_seaoutlets"
   }
   
@@ -81,7 +82,7 @@ if ((!file.exists(paste("datagerem",CY,".rdata",sep="")))){
                       host=cred$host,
                       port=cred$port,
   	                  user= cred$user,
-  	                  password= getPass("wgeel db password"))
+  	                  password= cred$password)
   updatedData = TRUE
 
 } else {
@@ -191,7 +192,7 @@ if ((!file.exists(paste("datagerem",CY,".rdata",sep=""))) ){
 if ((!file.exists(paste("datagerem",CY,".rdata",sep=""))) ){
   sf::sf_use_s2(FALSE)
   
-  allcatchments=st_read(con_ccm,query=paste('select wso_id ser_ccm_wso_id,area_km2,"window",sea_cd,geom from',table_seaoutlets,' where strahler>0 and ("window"<=2004 or "window"=2008)'))
+  allcatchments=st_read(con_ccm,query=paste('select wso_id ser_ccm_wso_id,area_km2,"window",sea_cd,geom from',table_seaoutlets,' where strahler>0 and area_km2 > 0 and ("window"<=2004 or "window"=2008)'))
   outlets=st_read(con_ccm,query='select "window",gid, wso_id ser_ccm_wso_id, geom from hydrographie.ccm_v2_1_w2000_rivernodes where num_seg=0 union
                   select "window",gid, wso_id ser_ccm_wso_id, geom from hydrographie.ccm_v2_1_w2001_rivernodes where num_seg=0 union
                   select "window",gid, wso_id ser_ccm_wso_id, geom from hydrographie.ccm_v2_1_w2002_rivernodes where num_seg=0 union
