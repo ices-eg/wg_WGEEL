@@ -5,7 +5,7 @@ AlbuG;catch;;Med;TRUE;1.01;1.01;0.001;0.99
 AlCPG;relative;;Med;TRUE;;;;
 BannGY;trap;;INWGB;TRUE;4;10;0.01;0.35
 BeeG;trap;;NS;TRUE;4;10;0.01;0.35
-BeeGY;trap;;Channel;TRUE;4;10;0.01;0.35
+BeeGY;trap;;NS;TRUE;4;10;0.01;0.35
 BresGY;trap;;Channel;TRUE;4;10;0.01;0.35
 BroG;trap;;NS;TRUE;4;10;0.01;0.35
 BrokGY;trap;;NS;TRUE;4;10;0.01;0.35
