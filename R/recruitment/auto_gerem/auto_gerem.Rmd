@@ -111,8 +111,8 @@ if ((!file.exists(paste("datagerem",CY,".rdata",sep=""))) ){
   series_wgeel <- merge(series_wgeel,
                         unique(wgeel[,c("ser_nameshort","ser_ccm_wso_id","ser_x","ser_y")]),
                         all.x=TRUE)
-  series_wgeel$ser_ccm_wso_id[series_wgeel$ser_nameshort=="MinG"] <-
-    series_wgeel$ser_ccm_wso_id[series_wgeel$ser_nameshort=="MiSpG"]
+   series_wgeel <- rbind.data.frame(series_wgeel,series_wgeel[series_wgeel$ser_nameshort=="MiSpG",,drop=FALSE])
+  series_wgeel$ser_nameshort[nrow(series_wgeel)] = "MinG"
   series_wgeel$ser_ccm_wso_id[!series_wgeel$from_wgeel] = 
     as.character(series_wgeel$wso_id[!series_wgeel$from_wgeel])
   series_wgeel$surface=sapply(series_wgeel$ser_ccm_wso_id,getSurface,con=con_ccm )
