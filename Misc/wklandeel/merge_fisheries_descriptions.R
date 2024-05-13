@@ -1,5 +1,4 @@
 
-
 #########################################################
 ### script to rbind all fisheries description answers ###
 #########################################################
@@ -10,7 +9,7 @@
 
 
 
-##### 1. load libraries #####
+##### 1. load libraries & path definitions #####
 
 ### define libraries needed 
 libs <- c("tidyverse", "readxl") 
@@ -25,6 +24,10 @@ if (any(installed_libs == F)) {
 
 ### load libraries needed
 invisible(lapply(libs, library, character.only = T))
+
+### path definitions
+italy <- "C:/Users/pohlmann/Desktop/WKLANDEEL/data_call/fisheries description - IT_may_13.xlsx"
+dc_folder <- "C:/Users/pohlmann/Desktop/WKLANDEEL/data_call"
 
 #-----------------------------------------------------------------------------------#
 
@@ -62,11 +65,11 @@ fisheries_descriptions <- cbind(fisheries_descriptions, year_columns)
 #### 2.2 For countries that provided EMUs in differwent tabs in one file (only IT), read tabs separately and add to global df ####
 
 ### create a list of EMU tabs in italian submission
-tabs <- excel_sheets("C:/Users/pohlmann/Desktop/WKLANDEEL/data_call/fisheries description - IT_may_13.xlsx")
+tabs <- excel_sheets(italy)
 tabs <- tabs[grepl("IT", tabs)]
 
 ### read each sheet from italian call and rbind to fisheries descriptions
-italy <- ("C:/Users/pohlmann/Desktop/WKLANDEEL/data_call/fisheries description - IT_may_13.xlsx")
+
 
 for (i in 1:length(tabs)){
   
@@ -84,7 +87,7 @@ print(i)
 #### 2.3 For countries that provided one file per EMU (containing a single tab with data), read files separately and add to global df ####
 
 ### create list of all relevant files
-files <- list.files("C:/Users/pohlmann/Desktop/WKLANDEEL/data_call", pattern = "description", full.names = T)
+files <- list.files(dc_folder, pattern = "description", full.names = T)
 files <- files[!grepl("IT", files)]
 
 ### read the respective sheet from each file and rbind to fisheries_descriptions
@@ -96,3 +99,6 @@ for (i in 1:length(files)){
   print(i) 
   
 }
+
+### save global df
+save(fisheries_descriptions, file = "./Misc/wklandeel/fisheries_descriptions.RData")
