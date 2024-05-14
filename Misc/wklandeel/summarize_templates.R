@@ -186,3 +186,53 @@ recreational  %>%
                                        "missing but data might exist"))) %>%
   ggplot(aes(x=eel_year,y=eel_value))+geom_area(aes(fill=status)) +
   ggtitle("rec G")
+
+
+
+recreational  %>%
+  mutate(status=ifelse(is.na(status),"unknown",status)) %>%
+  filter(eel_lfs_code=="Y" & status!="data aggregated/disaggregated elsewhere (stage, country)") %>%
+  group_by(eel_year,status) %>%
+  summarise(eel_value=sum_na(eel_value.db)) %>%
+  mutate(status=factor(status,levels=c("complete (all fishers, no underreporting)",
+                                       "partial but minor part missing",
+                                       "partial and significant part missing",
+                                       "unknown",
+                                       "missing and data does not exist",
+                                       "missing but data might exist"))) %>%
+  ggplot(aes(x=eel_year,y=eel_value))+geom_area(aes(fill=status)) +
+  ggtitle("rec Y")
+
+
+
+recreational  %>%
+  mutate(status=ifelse(is.na(status),"unknown",status)) %>%
+  filter(eel_lfs_code=="S" & status!="data aggregated/disaggregated elsewhere (stage, country)") %>%
+  group_by(eel_year,status) %>%
+  summarise(eel_value=sum_na(eel_value.db)) %>%
+  mutate(status=factor(status,levels=c("complete (all fishers, no underreporting)",
+                                       "partial but minor part missing",
+                                       "partial and significant part missing",
+                                       "unknown",
+                                       "missing and data does not exist",
+                                       "missing but data might exist"))) %>%
+  ggplot(aes(x=eel_year,y=eel_value))+geom_area(aes(fill=status)) +
+  ggtitle("rec S")
+
+
+
+
+
+recreational  %>%
+  mutate(status=ifelse(is.na(status),"unknown",status)) %>%
+  filter(eel_lfs_code=="YS" & status!="data aggregated/disaggregated elsewhere (stage, country)") %>%
+  group_by(eel_year,status) %>%
+  summarise(eel_value=sum_na(eel_value.db)) %>%
+  mutate(status=factor(status,levels=c("complete (all fishers, no underreporting)",
+                                       "partial but minor part missing",
+                                       "partial and significant part missing",
+                                       "unknown",
+                                       "missing and data does not exist",
+                                       "missing but data might exist"))) %>%
+  ggplot(aes(x=eel_year,y=eel_value))+geom_area(aes(fill=status)) +
+  ggtitle("rec YS")
