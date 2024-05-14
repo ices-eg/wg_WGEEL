@@ -1,15 +1,15 @@
+---
+title: 'WFD Eel Data Germany'
+author: 'Jan-Dag Pohlmann'
+date: '04-11-2024'
+output: 
+  html_document: 
+    css: style.css
+  word_document: default
+  pdf_document: default
+---
 
-#########################################################
-### script to rbind all fisheries description answers ###
-#########################################################
-
-
-
-
-
-#-----------------------------------------------------------------------------------#
-
-#### 1. Preparations ####
+```{r Initial preparations, include=FALSE}
 
 ##### 1.1 load libraries #####
 
@@ -38,13 +38,9 @@ italy <- "C:/Users/pohlmann/Desktop/WKLANDEEL/data_call/fisheries description - 
 dc_folder <- "C:/Users/pohlmann/Desktop/WKLANDEEL/data_call"
 catchdata <- "C:/Users/pohlmann/Desktop/WKLANDEEL/merged_data.RData"
 
-#-----------------------------------------------------------------------------------#
+```
 
-
-
-
-
-#### 2. Read data ####
+```{r read data, include=FALSE}
 
 #### 2.1 Create an empty global data frame to write all the input to ####
 
@@ -108,15 +104,12 @@ for (i in 1:length(files)){
 }
 
 ### save global df to RData
-save(fisheries_descriptions, file = "./Misc/wklandeel/fd_full.RData")
-
-#-----------------------------------------------------------------------------------#
+save(fisheries_descriptions, file = "C:/Users/pohlmann/Desktop/Home_Office/Projekte/wg_WGEEL/Misc/wklandeel/fd_full.RData")
 
 
+```
 
-
-
-#### 3. Create summary ####
+```{r Create summary, include=FALSE}
 
 # Convert data fra,me to long data
 fd_long <- gather(fisheries_descriptions, year, value, 7:ncol(fisheries_descriptions)) %>% 
@@ -145,15 +138,12 @@ fd_summary <- fd_summary %>%
   left_join(fd_with_value, by = c("emu", "com_rec", "stage"))
 
 # save summary to RData
-save(fd_summary, file = "./Misc/wklandeel/fd_summary.RData")
-
-#-----------------------------------------------------------------------------------#
+save(fd_summary, file = "C:/Users/pohlmann/Desktop/Home_Office/Projekte/wg_WGEEL/Misc/wklandeel/fd_summary.RData")
 
 
+```
 
-
-
-#### 4. Visualization ####
+```{r Visualisation, echo=FALSE, warning = FALSE, message = FALSE}
 
 #### 4.1 visualize data availability by year ####
 
@@ -328,18 +318,5 @@ unc_plot_com <- ggplot(com_unc %>% filter(uncertainty != 0), aes(x = eel_year, y
   ggtitle("Known minimum uncertainty commercial")
 unc_plot_com
 
-
-# Code to loop graph creation (multiple pages with 2x2 facet wrap)
-
-# create graphs of EMUs with uncertainties for commercial fisheries (no differences in rec, so not created)
-# com_land_comp <- function(x) {
-#  ggplot(com_land, aes(x=eel_year, y=eel_value.db)) +
-#  geom_line() +
-#  geom_line(aes(x=eel_year, y=min_landings_cor), color = "red") +
-#  geom_line(aes(x=eel_year, y=max_landings_cor), color = "red") +
-#  theme_bw() +
-#  facet_wrap_paginate(~eel_emu_nameshort, ncol = 2, nrow = 2, page = x) #from ggforce
-#}
-#
-#lapply(1:5, com_land_comp)
+```
 
