@@ -20,10 +20,10 @@ import_template=function(file){
     y=all[,10:18] %>%
       row_to_names(1, remove_rows_above = TRUE) %>%
       mutate(eel_lfs_code='Y')
-    s=all[,11:19]  %>%
+    s=all[,19:27]  %>%
       row_to_names(1, remove_rows_above = TRUE) %>%
       mutate(eel_lfs_code='S')
-    ys=all[,20:28]  %>%
+    ys=all[,28:36]  %>%
       row_to_names(1, remove_rows_above = TRUE) %>%
       mutate(eel_lfs_code="YS")
     bind_rows(g,y,s,ys) %>%
