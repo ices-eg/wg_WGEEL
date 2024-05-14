@@ -3,13 +3,15 @@
 ### script to rbind all fisheries description answers ###
 #########################################################
 
+
+
+
+
 #-----------------------------------------------------------------------------------#
 
+#### 1. load libraries & path definitions ####
 
-
-
-
-##### 1. load libraries & path definitions #####
+##### 1.1 load libraries #####
 
 ### define libraries needed 
 libs <- c("tidyverse", "readxl") 
@@ -25,6 +27,12 @@ if (any(installed_libs == F)) {
 ### load libraries needed
 invisible(lapply(libs, library, character.only = T))
 
+#-------------------------#
+
+
+
+#### 1.2 define paths ####
+
 ### path definitions
 italy <- "C:/Users/pohlmann/Desktop/WKLANDEEL/data_call/fisheries description - IT_may_13.xlsx"
 dc_folder <- "C:/Users/pohlmann/Desktop/WKLANDEEL/data_call"
@@ -35,11 +43,9 @@ dc_folder <- "C:/Users/pohlmann/Desktop/WKLANDEEL/data_call"
 
 
 
-##### 2. Read files #####
+#### 2. Read files ####
 
-
-
-##### 2.1 Create an empty global data frame to write all the input to #####
+#### 2.1 Create an empty global data frame to write all the input to ####
 
 ### create df with all relevant columns
 fisheries_descriptions <- data.frame(country = as.character(),
@@ -100,5 +106,27 @@ for (i in 1:length(files)){
   
 }
 
-### save global df
+### save global df to RData
 save(fisheries_descriptions, file = "./Misc/wklandeel/fisheries_descriptions.RData")
+
+#-----------------------------------------------------------------------------------#
+
+
+
+
+
+#### 3. Create a summary of fisheries descriptions ####
+
+# Convert data fra,me to long data
+fd_long <- gather(fisheries_descriptions, year, value, 7:ncol(fisheries_descriptions)) %>% 
+  mutate(year = as.integer(year))
+
+# create summary
+fd_summary <- fd_long %>% 
+  filter(value != "NA") %>% 
+  group_by(emu, com_rec) %>% 
+  summarize(min_year=min(year),
+            max_year=max(year))
+
+# save summary to RData
+save(fd_summary, file = "./Misc/wklandeel/fd_summary.RData")
