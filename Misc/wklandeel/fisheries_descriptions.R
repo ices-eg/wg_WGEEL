@@ -106,7 +106,7 @@ for (i in 1:length(files)){
   
 }
 
-### save global df
+### save global df to RData
 save(fisheries_descriptions, file = "./Misc/wklandeel/fisheries_descriptions.RData")
 
 #-----------------------------------------------------------------------------------#
@@ -127,3 +127,6 @@ fd_summary <- fd_long %>%
   group_by(emu, com_rec) %>% 
   summarize(min_year=min(year),
             max_year=max(year))
+
+# save summary to RData
+save(fd_summary, file = "./Misc/wklandeel/fd_summary.RData")
