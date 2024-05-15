@@ -93,11 +93,11 @@ print(i)
 
 #### 2.3 For countries that provided one file per EMU (containing a single tab with data), read files separately and add to global df ####
 
-### create list of all relevant files
+# create list of all relevant files
 files <- list.files(dc_folder, pattern = "description", full.names = T)
 files <- files[!grepl("IT", files)]
 
-### read the respective sheet from each file and rbind to fisheries_descriptions
+# read the respective sheet from each file and rbind to fisheries_descriptions
 for (i in 1:length(files)){
   
   temp <- read_excel(files[i], sheet = "Fisheries description") %>% rename(com_rec = "com/rec", gear_name = "gear name") %>% select(1:85)
@@ -107,10 +107,11 @@ for (i in 1:length(files)){
   
 }
 
+# replace incorrect symbols in the part of the table where data where data were entered
 fisheries_descriptions[7:85] <- lapply(fisheries_descriptions[7:85], gsub,  pattern = "-", replacement = ">")
 fisheries_descriptions[7:85] <- lapply(fisheries_descriptions[7:85], gsub,  pattern = ",", replacement = ".")
 
-### save global df to RData
+# save global df to RData
 save(fisheries_descriptions, file = "C:/Users/pohlmann/Desktop/Home_Office/Projekte/wg_WGEEL/Misc/wklandeel/fd_full.RData")
 
 
