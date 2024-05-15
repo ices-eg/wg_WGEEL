@@ -1,7 +1,7 @@
 ---
-title: 'WFD Eel Data Germany'
+title: 'WKLANDEEL FISHERIES DESCRIPTIONS'
 author: 'Jan-Dag Pohlmann'
-date: '04-11-2024'
+date: '05-15-2024'
 output: 
   html_document: 
     css: style.css
@@ -14,7 +14,7 @@ output:
 ##### 1.1 load libraries #####
 
 ### define libraries needed 
-libs <- c("tidyverse", "readxl", "ggplot2", "ggforce") #RPostgres may need to be installed manually 
+libs <- c("tidyverse", "readxl", "ggplot2", "ggforce", "stringr") #RPostgres may need to be installed manually 
 
 ### define libraries already installed
 installed_libs <- libs %in% rownames(installed.packages())
@@ -41,6 +41,8 @@ catchdata <- "C:/Users/pohlmann/Desktop/WKLANDEEL/merged_data.RData"
 ```
 
 ```{r read data, include=FALSE}
+
+##### BE AWARE! SPAIN USED "-" instead of ">". This is only corrected in the long format!!! ####
 
 #### 2.1 Create an empty global data frame to write all the input to ####
 
@@ -82,7 +84,9 @@ fisheries_descriptions <- rbind(fisheries_descriptions, temp)
 print(i) 
 
 }
-  
+ 
+
+ 
 #-------------------------#
 
 
@@ -96,12 +100,15 @@ files <- files[!grepl("IT", files)]
 ### read the respective sheet from each file and rbind to fisheries_descriptions
 for (i in 1:length(files)){
   
-  temp <- read_excel(files[1], sheet = "Fisheries description") %>% rename(com_rec = "com/rec", gear_name = "gear name") %>% select(1:85)
+  temp <- read_excel(files[i], sheet = "Fisheries description") %>% rename(com_rec = "com/rec", gear_name = "gear name") %>% select(1:85)
   fisheries_descriptions <- rbind(fisheries_descriptions, temp)  
   
   print(i) 
   
 }
+
+fisheries_descriptions[7:85] <- lapply(fisheries_descriptions[7:85], gsub,  pattern = "-", replacement = ">")
+fisheries_descriptions[7:85] <- lapply(fisheries_descriptions[7:85], gsub,  pattern = ",", replacement = ".")
 
 ### save global df to RData
 save(fisheries_descriptions, file = "C:/Users/pohlmann/Desktop/Home_Office/Projekte/wg_WGEEL/Misc/wklandeel/fd_full.RData")
@@ -116,7 +123,9 @@ fd_long <- gather(fisheries_descriptions, year, value, 7:ncol(fisheries_descript
   filter(gear_name != "Total") %>% 
   mutate(year = as.integer(year),
          availability = ifelse(value == "NA", "no_information",
-                               ifelse(value == "Y" | value == "y", "no_quantity", "quantified"))) 
+                               ifelse(value == "Y" | value == "y", "no_quantity",
+                                      ifelse(value == 0, "quantified_zero", "quantified")))) 
+
 
 # create summary
 fd_summary <- fd_long %>% 
@@ -151,6 +160,7 @@ save(fd_summary, file = "C:/Users/pohlmann/Desktop/Home_Office/Projekte/wg_WGEEL
 fd_bar_year <- fd_long %>% 
   group_by(year, com_rec, stage) %>% 
   summarize(quantified = length(value[which(availability == "quantified")]),
+            quantified_zero = length(value[which(availability == "quantified_zero")]),
             no_quantity = length(value[which(availability == "no_quantity")]),
             no_information = length(value[which(availability == "no_information")])) 
   
@@ -182,6 +192,7 @@ rec_by_year
 fd_bar_emu <- fd_long %>% 
   group_by(emu, com_rec, stage) %>% 
   summarize(quantified = length(value[which(availability == "quantified")]),
+            quantified_zero = length(value[which(availability == "quantified_zero")]),
             no_quantity = length(value[which(availability == "no_quantity")]),
             no_information = length(value[which(availability == "no_information")]))  
   
@@ -193,7 +204,7 @@ com_by_emu <- ggplot(data = fd_bar_emu %>% filter(com_rec == "commercial"), aes(
   facet_wrap(~stage) +
   theme_bw() +
   ggtitle("commercial_by_emu") +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+  theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust=1, size = 4))
 com_by_emu
 
 # create graphs for recreational fisheries
@@ -202,7 +213,7 @@ rec_by_emu <- ggplot(data = fd_bar_emu %>% filter(com_rec == "recreational"), ae
   facet_wrap(~stage) +
   theme_bw() +
   ggtitle("recreational_by_emu") +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+  theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust=1, size = 4))
 rec_by_emu
 
 #-------------------------#
@@ -215,6 +226,7 @@ rec_by_emu
 fd_bar_gear <- fd_long %>% 
   group_by(gear_name, com_rec, stage) %>% 
   summarize(quantified = length(value[which(availability == "quantified")]),
+            quantified_zero = length(value[which(availability == "quantified_zero")]),
             no_quantity = length(value[which(availability == "no_quantity")]),
             no_information = length(value[which(availability == "no_information")]))  
 
@@ -278,7 +290,7 @@ com_land <- com_land %>%
          min_landings_cor = min_landings*(eel_value.db/((abs(max_landings+min_landings))/2)),
          max_landings_cor = max_landings*(eel_value.db/((abs(max_landings+min_landings))/2)),
          difference_cor = abs(max_landings_cor - min_landings_cor)) %>% 
-           filter(!is.na(eel_value.db) & !is.na(min_landings) & !is.na(max_landings))
+  filter(!is.na(eel_value.db) | !is.na(min_landings) |!is.na(max_landings))
 
 rec_land <- rec_land %>% 
   left_join(fd_rec_quant %>% select(country, emu, year, stage, min_landings, max_landings), by = c("eel_lfs_code" = "stage", "eel_emu_nameshort" = "emu", "eel_year" = "year")) %>% 
@@ -286,20 +298,33 @@ rec_land <- rec_land %>%
          min_landings_min = eel_value.db-(difference/2),
          min_landings_max = eel_value.db+(difference/2),
          min_landings_cor = min_landings*(eel_value.db/((abs(max_landings+min_landings))/2)),
-         max_landings_cor = max_landings*(eel_value.db/((abs(max_landings+min_landings))/2)))
+         max_landings_cor = max_landings*(eel_value.db/((abs(max_landings+min_landings))/2))) %>% 
+  filter(!is.na(eel_value.db) | !is.na(min_landings) |!is.na(max_landings))
 
-# create graphs of EMUs with uncertainties for commercial fisheries (not relevant for rec since no known uncertainties reported)
+# create graphs of EMUs with uncertainties for commercial fisheries 
  com_land_comp <- function(x) {
-  ggplot(com_land %>% filter(eel_lfs_code == x), aes(x=eel_year, y=eel_value.db)) +
+  ggplot(com_land %>% filter(eel_lfs_code == x) %>% filter(!is.na(eel_value.db) | !is.na(min_landings_cor) |!is.na(max_landings_cor)), aes(x=eel_year, y=eel_value.db)) +
   geom_line() +
   geom_line(aes(x=eel_year, y=min_landings_cor), color = "red") +
   geom_line(aes(x=eel_year, y=max_landings_cor), color = "red") +
   theme_bw() +
   facet_wrap(~eel_emu_nameshort) +
-  ggtitle(x)
+  ggtitle(paste(x, "commercial", sep = "_")) +
+     theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
 }
-
 lapply(c("G", "Y", "S", "YS"), com_land_comp)
+
+ rec_land_comp <- function(x) {
+  ggplot(rec_land %>% filter(eel_lfs_code == x) %>% filter(!is.na(eel_value.db) | !is.na(min_landings_cor) |!is.na(max_landings_cor)), aes(x=eel_year, y=eel_value.db)) +
+  geom_line() +
+  geom_line(aes(x=eel_year, y=min_landings_cor), color = "red") +
+  geom_line(aes(x=eel_year, y=max_landings_cor), color = "red") +
+  theme_bw() +
+  facet_wrap(~eel_emu_nameshort) +
+  ggtitle(paste(x, "recreational", sep = "_")) +
+     theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
+}
+lapply(c("G", "Y", "S", "YS"), rec_land_comp)
 
 # create a summarized uncertainty over all reported EMUs per year
 com_unc <- com_land %>% 
@@ -310,13 +335,20 @@ rec_unc <- rec_land %>%
   group_by(eel_year, eel_lfs_code) %>% 
   summarize(uncertainty = sum(difference, na.rm=TRUE))
 
-# create graph of uncertainty margins over time (total commercial, not relevant for rec since no known uncertainties reported)
+# create graph of uncertainty margins over time
 unc_plot_com <- ggplot(com_unc %>% filter(uncertainty != 0), aes(x = eel_year, y = uncertainty)) +
   geom_line() +
   theme_bw() +
   facet_wrap(~eel_lfs_code) +
   ggtitle("Known minimum uncertainty commercial")
 unc_plot_com
+
+unc_plot_rec <- ggplot(rec_unc %>% filter(uncertainty != 0), aes(x = eel_year, y = uncertainty)) +
+  geom_line() +
+  theme_bw() +
+  facet_wrap(~eel_lfs_code) +
+  ggtitle("Known minimum uncertainty recreational")
+unc_plot_rec
 
 ```
 
