@@ -17,15 +17,24 @@ import_template=function(file){
     g=all[,1:9] %>%
       row_to_names(1, remove_rows_above = TRUE) %>%
       mutate(eel_lfs_code='G')
-    y=all[,10:18] %>%
+    
+    # if (all(is.na(g$amount)) & all(is.na(g$status)) & all(as.logical(g$all_fishers_are_included)) & all(as.logical(g$no_significant_underreporting)))
+    #   g$status = "complete (all fishers, no underreporting)"
+    y=all[,10:18] %>% 
       row_to_names(1, remove_rows_above = TRUE) %>%
       mutate(eel_lfs_code='Y')
+    # if (all(is.na(y$amount)) & all(is.na(y$status)) & all(as.logical(y$all_fishers_are_included)) & all(as.logical(y$no_significant_underreporting)))
+    #   y$status = "complete (all fishers, no underreporting)"
     s=all[,19:27]  %>%
       row_to_names(1, remove_rows_above = TRUE) %>%
       mutate(eel_lfs_code='S')
+    # if (all(is.na(s$amount)) & all(is.na(s$status)) & all(as.logical(s$all_fishers_are_included)) & all(as.logical(s$no_significant_underreporting)))
+    #   s$status = "complete (all fishers, no underreporting)"
     ys=all[,28:36]  %>%
       row_to_names(1, remove_rows_above = TRUE) %>%
       mutate(eel_lfs_code="YS")
+    # if (all(is.na(ys$amount)) & all(is.na(ys$status)) & all(as.logical(ys$all_fishers_are_included)) & all(as.logical(ys$no_significant_underreporting)))
+    #   ys$status = "complete (all fishers, no underreporting)"
     bind_rows(g,y,s,ys) %>%
       rename(eel_value=amount) %>%
     mutate(eel_emu_nameshort=e,
@@ -98,7 +107,8 @@ getdbdata = function(typ_id=4, cou="FR"){
     
     data %>%
       group_by(eel_lfs_code,eel_year,eel_emu_nameshort) %>%
-      summarise(eel_value=sum_na(eel_value)) %>%
+      summarise(eel_value=sum_na(eel_value),
+                all_NP=all(eel_missvaluequal=="NP")) %>%
       ungroup()
     
     
@@ -110,14 +120,26 @@ commercial_db=Reduce(bind_rows,lapply(cou_code[,1], getdbdata, typ_id=4))
 recreational_db=Reduce(bind_rows,lapply(cou_code[,1], getdbdata, typ_id=6))
 
 
-recreational=left_join(recreational_db,recreational,by=c("eel_year","eel_lfs_code","eel_emu_nameshort"),suffix=c(".db",""))
-commercial=left_join(commercial_db,commercial,by=c("eel_year","eel_lfs_code","eel_emu_nameshort"),suffix=c(".db",""))
+recreational=left_join(recreational_db,recreational,by=c("eel_year","eel_lfs_code","eel_emu_nameshort"),suffix=c(".db","")) %>%
+  mutate(status=ifelse(is.na(status),"unknown",status)) 
+commercial=left_join(commercial_db,commercial,by=c("eel_year","eel_lfs_code","eel_emu_nameshort"),suffix=c(".db","")) %>%
+  mutate(status=ifelse(is.na(status),"unknown",status)) 
 
 library(ggplot2)
-commercial  %>%
-  mutate(status=ifelse(is.na(status),"unknown",status)) %>%
-  filter(eel_lfs_code=="G" & status!="data aggregated/disaggregated elsewhere (stage, country)") %>%
-  group_by(eel_year,status) %>%
+
+
+scale=c("complete (all fishers, no underreporting)"="green4",
+        "partial but minor part missing"="palegreen",
+        "partial and significant part missing"="yellow",
+        "unknown"="grey",
+        "missing and data does not exist"="red3",
+        "missing but data might exist"="red")
+
+
+
+commercial %>%
+  filter(status!="data aggregated/disaggregated elsewhere (stage, country)" & !eel_lfs_code=="AL") %>%
+  group_by(eel_year,status,eel_lfs_code) %>%
   summarise(eel_value=sum_na(eel_value.db)) %>%
   mutate(status=factor(status,levels=c("complete (all fishers, no underreporting)",
                                        "partial but minor part missing",
@@ -125,58 +147,16 @@ commercial  %>%
                                        "unknown",
                                        "missing and data does not exist",
                                        "missing but data might exist"))) %>%
-  ggplot(aes(x=eel_year,y=eel_value))+geom_area(aes(fill=status)) +
-  ggtitle("com G")
-
-commercial  %>%
-  mutate(status=ifelse(is.na(status),"unknown",status)) %>%
-  filter(eel_lfs_code=="Y" & status!="data aggregated/disaggregated elsewhere (stage, country)") %>%
-  group_by(eel_year,status) %>%
-  summarise(eel_value=sum_na(eel_value.db)) %>%
-  mutate(status=factor(status,levels=c("complete (all fishers, no underreporting)",
-                                       "partial but minor part missing",
-                                       "partial and significant part missing",
-                                       "unknown",
-                                       "missing and data does not exist",
-                                       "missing but data might exist"))) %>%
-  ggplot(aes(x=eel_year,y=eel_value))+geom_area(aes(fill=status)) +
-  ggtitle("com Y")
-
-
-commercial  %>%
-  mutate(status=ifelse(is.na(status),"unknown",status)) %>%
-  filter(eel_lfs_code=="S" & status!="data aggregated/disaggregated elsewhere (stage, country)") %>%
-  group_by(eel_year,status) %>%
-  summarise(eel_value=sum_na(eel_value.db)) %>%
-  mutate(status=factor(status,levels=c("complete (all fishers, no underreporting)",
-                                       "partial but minor part missing",
-                                       "partial and significant part missing",
-                                       "unknown",
-                                       "missing and data does not exist",
-                                       "missing but data might exist"))) %>%
-  ggplot(aes(x=eel_year,y=eel_value))+geom_area(aes(fill=status)) +
-  ggtitle("com S")
-
-
-commercial  %>%
-  mutate(status=ifelse(is.na(status),"unknown",status)) %>%
-  filter(eel_lfs_code=="YS" & status!="data aggregated/disaggregated elsewhere (stage, country)") %>%
-  group_by(eel_year,status) %>%
-  summarise(eel_value=sum_na(eel_value.db)) %>%
-  mutate(status=factor(status,levels=c("complete (all fishers, no underreporting)",
-                                       "partial but minor part missing",
-                                       "partial and significant part missing",
-                                       "unknown",
-                                       "missing and data does not exist",
-                                       "missing but data might exist"))) %>%
-  ggplot(aes(x=eel_year,y=eel_value))+geom_area(aes(fill=status)) +
-  ggtitle("com YS")
+  ggplot(aes(x=eel_year,y=eel_value/1000))+geom_area(aes(fill=status)) +
+  scale_fill_manual("",values=scale)+
+  ylab("landings (t)") + xlab("")+
+  theme_bw() + facet_wrap(~eel_lfs_code, scales="free_y") +
+  ggtitle("commerical landings")
 
 
 recreational  %>%
-  mutate(status=ifelse(is.na(status),"unknown",status)) %>%
-  filter(eel_lfs_code=="G" & status!="data aggregated/disaggregated elsewhere (stage, country)") %>%
-  group_by(eel_year,status) %>%
+  filter(status!="data aggregated/disaggregated elsewhere (stage, country)" & eel_lfs_code!="AL") %>%
+  group_by(eel_year,status,eel_lfs_code) %>%
   summarise(eel_value=sum_na(eel_value.db)) %>%
   mutate(status=factor(status,levels=c("complete (all fishers, no underreporting)",
                                        "partial but minor part missing",
@@ -184,55 +164,91 @@ recreational  %>%
                                        "unknown",
                                        "missing and data does not exist",
                                        "missing but data might exist"))) %>%
-  ggplot(aes(x=eel_year,y=eel_value))+geom_area(aes(fill=status)) +
-  ggtitle("rec G")
-
-
-
-recreational  %>%
-  mutate(status=ifelse(is.na(status),"unknown",status)) %>%
-  filter(eel_lfs_code=="Y" & status!="data aggregated/disaggregated elsewhere (stage, country)") %>%
-  group_by(eel_year,status) %>%
-  summarise(eel_value=sum_na(eel_value.db)) %>%
-  mutate(status=factor(status,levels=c("complete (all fishers, no underreporting)",
-                                       "partial but minor part missing",
-                                       "partial and significant part missing",
-                                       "unknown",
-                                       "missing and data does not exist",
-                                       "missing but data might exist"))) %>%
-  ggplot(aes(x=eel_year,y=eel_value))+geom_area(aes(fill=status)) +
-  ggtitle("rec Y")
-
-
-
-recreational  %>%
-  mutate(status=ifelse(is.na(status),"unknown",status)) %>%
-  filter(eel_lfs_code=="S" & status!="data aggregated/disaggregated elsewhere (stage, country)") %>%
-  group_by(eel_year,status) %>%
-  summarise(eel_value=sum_na(eel_value.db)) %>%
-  mutate(status=factor(status,levels=c("complete (all fishers, no underreporting)",
-                                       "partial but minor part missing",
-                                       "partial and significant part missing",
-                                       "unknown",
-                                       "missing and data does not exist",
-                                       "missing but data might exist"))) %>%
-  ggplot(aes(x=eel_year,y=eel_value))+geom_area(aes(fill=status)) +
-  ggtitle("rec S")
+  ggplot(aes(x=eel_year,y=eel_value/1000))+geom_area(aes(fill=status)) +
+  scale_fill_manual("",values=scale)+
+  ylab("landings (t)") + xlab("")+
+  theme_bw()+ facet_wrap(~eel_lfs_code, scales="free_y") +
+  ggtitle("recreational landings")
 
 
 
 
 
-recreational  %>%
-  mutate(status=ifelse(is.na(status),"unknown",status)) %>%
-  filter(eel_lfs_code=="YS" & status!="data aggregated/disaggregated elsewhere (stage, country)") %>%
-  group_by(eel_year,status) %>%
-  summarise(eel_value=sum_na(eel_value.db)) %>%
-  mutate(status=factor(status,levels=c("complete (all fishers, no underreporting)",
-                                       "partial but minor part missing",
-                                       "partial and significant part missing",
-                                       "unknown",
-                                       "missing and data does not exist",
-                                       "missing but data might exist"))) %>%
-  ggplot(aes(x=eel_year,y=eel_value))+geom_area(aes(fill=status)) +
-  ggtitle("rec YS")
+
+
+commercial %>%
+  group_by(eel_emu_nameshort,eel_lfs_code) %>%
+  filter(status %in% c("complete (all fishers, no underreporting)",
+                       "partial but minor part missing")) %>%
+  summarize(first_year=min(eel_year),
+            last_year=max(eel_year),
+            nb_year=n(),
+            missing=max(eel_year)-min(eel_year)+1-n()) %>%
+  ungroup() %>%
+  arrange(eel_lfs_code,eel_emu_nameshort) %>%
+  write.table("commercial.csv",col.names=TRUE,row.names=FALSE)
+
+
+
+
+recreational %>%
+  group_by(eel_emu_nameshort,eel_lfs_code) %>%
+  filter(status %in% c("complete (all fishers, no underreporting)",
+                       "partial but minor part missing")) %>%
+  summarize(first_year=min(eel_year),
+            last_year=max(eel_year),
+            nb_year=n(),
+            missing=max(eel_year)-min(eel_year)+1-n()) %>%
+  ungroup()%>%
+  arrange(eel_lfs_code,eel_emu_nameshort) %>%
+  write.table("recreational.csv",col.names=TRUE,row.names=FALSE)
+
+
+
+
+commercial %>%
+  group_by(eel_emu_nameshort,eel_lfs_code) %>%
+  filter((!status %in% c("complete (all fishers, no underreporting)",
+                         "partial but minor part missing","unknown")) &
+           (!startsWith(status,"data aggregated"))) %>%
+  summarize(first_year=min(eel_year),
+            last_year=max(eel_year),
+            nb_year=n()) %>%
+  ungroup() %>%
+  arrange(eel_lfs_code,eel_emu_nameshort) %>%
+  write.table("commercial_bad.csv",col.names=TRUE,row.names=FALSE)
+
+
+
+recreational %>%
+  group_by(eel_emu_nameshort,eel_lfs_code) %>%
+  filter((!status %in% c("complete (all fishers, no underreporting)",
+                       "partial but minor part missing","unknown")) &
+           (!startsWith(status,"data aggregated"))) %>%
+  summarize(first_year=min(eel_year),
+            last_year=max(eel_year),
+            nb_year=n()) %>%
+  ungroup() %>%
+  arrange(eel_lfs_code,eel_emu_nameshort) %>%
+  write.table("recreational_bad.csv",col.names=TRUE,row.names=FALSE)
+
+
+
+library(sf)
+sf_use_s2(FALSE)
+emu=st_read(con,query="select emu_nameshort,geom from ref.tr_emu_emu tee ")
+answered=st_centroid(emu %>%
+  filter(emu_nameshort %in% unique(commercial$eel_emu_nameshort[commercial$status!="unknown"]))) %>%
+  mutate(x=st_coordinates(.)[,1],
+         y=st_coordinates(.)[,2]) %>%
+  st_drop_geometry()
+ggplot(emu) + geom_sf(aes(fill=emu_nameshort %in% unique(commercial$eel_emu_nameshort[commercial$status!="unknown"])), show.legend=FALSE) +
+  scale_fill_viridis_d() + 
+  theme_bw() +
+  ggrepel::geom_text_repel(data=answered,aes(label=emu_nameshort,x=x,y=y),cex=2) +
+  xlim(-15,30)+ylim(30,72)
+dbDisconnect(con)
+
+
+commercial %>% 
+     filter(is.na(eel_value.db)& is.na(`aggregated/dissagregated where`) & all_NP & (startsWith(status,"partial") | startsWith(status,"missing"))) %>% write.table("errors.csv",row.names=FALSE,col.names=TRUE,sep=";")
