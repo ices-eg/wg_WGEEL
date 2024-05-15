@@ -96,7 +96,7 @@ files <- files[!grepl("IT", files)]
 ### read the respective sheet from each file and rbind to fisheries_descriptions
 for (i in 1:length(files)){
   
-  temp <- read_excel(files[i], sheet = "Fisheries description") %>% rename(com_rec = "com/rec", gear_name = "gear name")
+  temp <- read_excel(files[1], sheet = "Fisheries description") %>% rename(com_rec = "com/rec", gear_name = "gear name") %>% select(1:85)
   fisheries_descriptions <- rbind(fisheries_descriptions, temp)  
   
   print(i) 
