@@ -75,16 +75,6 @@ sum_na <- function(x){
   return(sum(x,na.rm=TRUE))
 }
 
-find_match <- function(data, year, lfs_code, total=TRUE){
-  sapply(year, function(y){
-    nrow(data %>% filter(!is.na(eel_value) & 
-                           endsWith(eel_emu_nameshort, "total")==total &
-                           eel_lfs_code %in% lfs_code &
-                           eel_year == y)) > 0
-  })
-}
-
-
 
 library(glue)
 getdbdata = function(typ_id=4, cou="FR"){

@@ -56,18 +56,18 @@ create_table = function(subdata, alldata, lfs_code, total=TRUE){
     data_lfs <- data_lfs %>%
       mutate(status=ifelse((find_match(alldata,eel_year,lfs_code,TRUE) | 
                               find_match(alldata,eel_year,aggregated_lfs,TRUE) |
-                              find_match(alldata,eel_year,aggregated_lfs,FALSE)) & is.na(eel_value),
+                              find_match(subdata,eel_year,aggregated_lfs,FALSE)) & is.na(eel_value),
                            "data aggregated/disaggregated elsewhere (stage, country)",
                            ""),
              aggregated_elsewhere = ifelse((find_match(alldata,eel_year,lfs_code,TRUE) | 
                                               find_match(alldata,eel_year,aggregated_lfs,TRUE) |
-                                              find_match(alldata,eel_year,aggregated_lfs,FALSE)) & is.na(eel_value),
+                                              find_match(subdata,eel_year,aggregated_lfs,FALSE)) & is.na(eel_value),
                                            paste("by", 
                                                  ifelse(find_match(alldata,eel_year,lfs_code,TRUE) | 
                                                           find_match(alldata,eel_year,aggregated_lfs,TRUE),
                                                         "country",""),
                                                  ifelse(find_match(alldata,eel_year,aggregated_lfs,TRUE) |
-                                                          find_match(alldata,eel_year,aggregated_lfs,FALSE),
+                                                          find_match(subdata,eel_year,aggregated_lfs,FALSE),
                                                         "stage",
                                                         "")),
                                            ""))
