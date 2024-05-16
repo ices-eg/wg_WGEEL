@@ -43,8 +43,8 @@ create_table = function(subdata, alldata, lfs_code, total=TRUE){
                            "data aggregated/disaggregated elsewhere (stage, country)",
                            ""),
              aggregated_elsewhere = ifelse((find_match(alldata,eel_year,lfs_code,FALSE) | 
-                                             find_match(alldata,eel_year,aggregated_lfs,FALSE) |
-                                             find_match(alldata,eel_year,aggregated_lfs,TRUE)) & is.na(eel_value),
+                                              find_match(alldata,eel_year,aggregated_lfs,FALSE) |
+                                              find_match(alldata,eel_year,aggregated_lfs,TRUE)) & is.na(eel_value),
                                            paste("by", ifelse(find_match(alldata,eel_year,lfs_code,FALSE) | 
                                                                 find_match(alldata,eel_year,aggregated_lfs,FALSE),
                                                               "emu",""),
@@ -56,21 +56,21 @@ create_table = function(subdata, alldata, lfs_code, total=TRUE){
     data_lfs <- data_lfs %>%
       mutate(status=ifelse((find_match(alldata,eel_year,lfs_code,TRUE) | 
                               find_match(alldata,eel_year,aggregated_lfs,TRUE) |
-                              find_match(alldata,eel_year,aggregated_lfs,FALSE)) & is.na(eel_value),
+                              find_match(subdata,eel_year,aggregated_lfs,FALSE)) & is.na(eel_value),
                            "data aggregated/disaggregated elsewhere (stage, country)",
                            ""),
              aggregated_elsewhere = ifelse((find_match(alldata,eel_year,lfs_code,TRUE) | 
                                               find_match(alldata,eel_year,aggregated_lfs,TRUE) |
-                                              find_match(alldata,eel_year,aggregated_lfs,FALSE)) & is.na(eel_value),
+                                              find_match(subdata,eel_year,aggregated_lfs,FALSE)) & is.na(eel_value),
                                            paste("by", 
                                                  ifelse(find_match(alldata,eel_year,lfs_code,TRUE) | 
                                                           find_match(alldata,eel_year,aggregated_lfs,TRUE),
                                                         "country",""),
                                                  ifelse(find_match(alldata,eel_year,aggregated_lfs,TRUE) |
-                                                          find_match(alldata,eel_year,aggregated_lfs,FALSE),
+                                                          find_match(subdata,eel_year,aggregated_lfs,FALSE),
                                                         "stage",
                                                         "")),
-                                                 ""))
+                                           ""))
   }
   data_lfs %>%
     mutate(all_fishers_are_included=ifelse(aggregated_elsewhere!="","","TRUE"),
@@ -101,7 +101,7 @@ generate_table = function(typ_id=4, cou="FR"){
   emus=unique(data$eel_emu_nameshort)
   emus=sort(emus)
   emus=c(emus[grepl("total$", emus)],emus[!grepl("total$",emus)])
-
+  
   for (e in emus){
     print(paste("#", e))
     cloneWorksheet(wb,e,"template")
@@ -119,21 +119,21 @@ generate_table = function(typ_id=4, cou="FR"){
       if (all(is.na(x))) return(NA)
       return(sum(x,na.rm=TRUE))
     }
-                   
+    
     data_emu <- data %>%
       filter(eel_emu_nameshort==e) %>%
       group_by(eel_lfs_code,eel_year) %>%
       summarise(eel_value=sum_na(eel_value),
                 arising_from=paste(sort(setdiff(unique(ifelse(!is.na(eel_missvaluequal),
-                                                         "empty",
-                                                         eel_hty_code)),
-                                           "empty")),
+                                                              "empty",
+                                                              eel_hty_code)),
+                                                "empty")),
                                    collapse=","),
                 missing_data_habitat = paste(sort(setdiff(unique(ifelse(eel_missvaluequal %in% c("NR", "NC"),
-                                                      eel_hty_code,
-                                                      "empty")),
-                                        "empty")),
-                                collapse=",")) %>%
+                                                                        eel_hty_code,
+                                                                        "empty")),
+                                                          "empty")),
+                                             collapse=",")) %>%
       ungroup()
     
     data_G <- create_table(data_emu, data, "G", endsWith(e, "total"))
@@ -143,15 +143,15 @@ generate_table = function(typ_id=4, cou="FR"){
     data_S <- create_table(data_emu, data, "S", endsWith(e, "total"))
     writeData(wb,e,data_S %>% mutate(across(everything(),~as.character(.x))),19,3,colNames=FALSE)
     data_YS <- create_table(data_emu, data, "YS", endsWith(e, "total"))
-    writeData(wb,e,data_Y %>% mutate(across(everything(),~as.character(.x))),28,3,colNames=FALSE)
+    writeData(wb,e,data_YS %>% mutate(across(everything(),~as.character(.x))),28,3,colNames=FALSE)
     freezePane(
       wb,
       e,
       firstActiveRow = 3,
       firstActiveCol = 2)
-
     
-   
+    
+    
   }
   order_sheet <- worksheetOrder(wb)
   worksheetOrder(wb) <- c(order_sheet[- (2:3)], 2:3)
