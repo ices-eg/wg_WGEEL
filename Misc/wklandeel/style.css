@@ -1,12 +1,12 @@
 /* Whole document: */
 body{
   font-family: Arial;
-  font-size: 12pt;
+  font-size: 10pt;
 }
 
 /* Title */
 h1.title{
-  font-size: 32pt;
+  font-size: 24pt;
   color: black;
   font-family: Times New Roman;;
 }
@@ -14,28 +14,28 @@ h1.title{
 /* Headers */
 
 h1{
-  font-size: 28pt;
+  font-size: 16pt;
   color: black;
 }
 
 h2{
-  font-size: 24pt;
+  font-size: 14pt;
 }
 
 h3{
-  font-size: 20pt;
+  font-size: 14pt;
 }
 
 h4{
-  font-size: 12pt;
+  font-size: 14pt;
   color: grey;
 }
 
 h5{
-  font-size: 12pt;
+  font-size: 14pt;
 }
 
 h6{
-  font-size: 12pt;
+  font-size: 14pt;
 }
 
