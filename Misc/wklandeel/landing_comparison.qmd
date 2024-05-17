@@ -3,9 +3,9 @@ title: "landing_comparison"
 format: html
 editor: visual
 params:
-  countryweel : !expr c("Finland","Netherlands", "France", "Sweden","Tunisia","Denmark", "Great Britain","Czech republic", "Albania","Belgium", "Italy", "Algeria", "Croatia", "Cyprus", "Greece", "Morocco","Latvia", "Egypt","Estonia", "Finland", "Germany", "Hungary", "Lithuania", "Montenegro", "Morocco","Norway", "Poland", "Portugal")
-  countryfao : !expr c("Finland","Netherlands (Kingdom of the)", "France", "Sweden","Tunisia","Denmark","United Kingdom","Czechia", "Albania", "Belgium", "Italy","Algeria","Croatia", "Cyprus",  "Greece", "Morocco", "Latvia", "Egypt", "Estonia", "Finland", "Germany", "Hungary", "Lithuania", "Montenegro", "Morocco","Norway", "Poland","Portugal")
-  countryfdi : !expr c("Finland","Netherlands", "France", "Sweden","Tunisia","Denmark", "United Kingdom","Czechia", "Albania", "Belgium", "Italy","Algeria", "Croatia","Cyprus",  "Greece", "Morocco","Latvia", "Egypt",  "Estonia", "Finland", "Germany", "Hungary", "Lithuania", "Montenegro", "Morocco","Norway", "Poland", "Portugal")
+  countryweel : !expr c("Finland","Netherlands", "France", "Sweden","Tunisia","Denmark", "Great Britain","Czech republic", "Albania","Belgium", "Italy", "Algeria", "Croatia", "Cyprus", "Greece", "Morocco","Latvia", "Egypt","Estonia", "Finland", "Germany", "Hungary", "Lithuania", "Montenegro", "Morocco","Norway", "Poland", "Portugal","Ireland","Spain","Turkey", "Slovenia")
+  countryfao : !expr c("Finland","Netherlands (Kingdom of the)", "France", "Sweden","Tunisia","Denmark","United Kingdom","Czechia", "Albania", "Belgium", "Italy","Algeria","Croatia", "Cyprus",  "Greece", "Morocco", "Latvia", "Egypt", "Estonia", "Finland", "Germany", "Hungary", "Lithuania", "Montenegro", "Morocco","Norway", "Poland","Portugal", "Ireland","Spain","Türkiye","Slovenia")
+  countryfdi : !expr c("Finland","Netherlands", "France", "Sweden","Tunisia","Denmark", "United Kingdom","Czechia", "Albania", "Belgium", "Italy","Algeria", "Croatia","Cyprus",  "Greece", "Morocco","Latvia", "Egypt",  "Estonia", "Finland", "Germany", "Hungary", "Lithuania", "Montenegro", "Morocco","Norway", "Poland", "Portugal","Ireland","Spain","Türkiye", "Slovenia")
 ---
 
 ## Objective
@@ -15,7 +15,9 @@ Most will be collected from excel tables, some from the wgeel database
 
 ## wgeel database
 
-When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+
+
+
 ```{r init}
 library(yaml)
 library(tidyverse)
@@ -26,32 +28,46 @@ library(magrittr) # pipes and special pipes
 library(wesanderson) #palette
 setwd("C:/workspace/wg_WGEEL/Misc/wklandeel")
 datawdpath <- "data"
+# if you want to test the params within the notebook use instructions as follows :
 # params <- list() ;  params$countryfao =  c("Netherlands (Kingdom of the)", "France", "Sweden","Tunisia","Denmark","United Kingdom"); 
 # params$countryfdi = c("Netherlands", "France", "Sweden","Tunisia","Denmark", "United Kingdom")
 knitr::opts_chunk$set(echo=TRUE, warning=FALSE)
+theme_clean <- function() {
+  theme_minimal(base_family = "Barlow Semi Condensed") +
+    theme(panel.grid.minor = element_blank(),
+          plot.title = element_text(family = "BarlowSemiCondensed-Bold"),
+          axis.title = element_text(family = "BarlowSemiCondensed-Medium"),
+          strip.text = element_text(family = "BarlowSemiCondensed-Bold",
+                                    size = rel(1), hjust = 0),
+          strip.background = element_rect(fill = NA, color = NA))
+}
+
 ```
 
+# wgeel
 
-
+loading the data from the database. They are saved in the data folder on the git.
 
 ```{r loaddb, eval=FALSE}
 #| echo: true
-cred=read_yaml("credentials.yml")
+# credentials are at the root of the git wg_WGEEL
+cred=read_yaml("../../credentials.yml")
 con=dbConnect(Postgres(), dbname=cred$dbname, user=cred$user,port=cred$port,
               host=cred$host,password=cred$password)
 
 # to get access to the sea, we use the tr_emusplit_ems table
 # this is OK as we have not duplicated sea - emu in France or the Netherlands
 # but beware this would not work for Spain
-wgeel_landings <- dbGetQuery(con,"select t.*, emu_sea, emu_wholecountry from datawg.t_eelstock_eel t 
-                             JOIN ref.tr_emu_emu emu ON  eel_emu_nameshort=emu.emu_nameshort
-                             left join ref.tr_emusplit_ems ems on ems.emu_nameshort = emu.emu_nameshort
-                             where eel_qal_id in (0,1,2,4) and 
-                             eel_typ_id in (4) 
-                             and eel_cou_code in ('FR', 'NL')
-                             and eel_lfs_code != 'G'
-                             --and NOT emu_wholecountry 
-                             ")
+# firt tables with only NL, and FR built for tests
+# wgeel_landings <- dbGetQuery(con,"select t.*, emu_sea, emu_wholecountry from datawg.t_eelstock_eel t 
+#                              JOIN ref.tr_emu_emu emu ON  eel_emu_nameshort=emu.emu_nameshort
+#                              left join ref.tr_emusplit_ems ems on ems.emu_nameshort = emu.emu_nameshort
+#                              where eel_qal_id in (0,1,2,4) and 
+#                              eel_typ_id in (4) 
+#                              and eel_cou_code in ('FR', 'NL')
+#                              --and eel_lfs_code != 'G'
+#                              --and NOT emu_wholecountry 
+#                              ")
 save(wgeel_landings, file = file.path(getwd(), datawdpath,"wgeel_landings.Rdata"))
 wgeel_landings_all <- dbGetQuery(con,"select t.*, emu_sea, emu_wholecountry, cou_country from datawg.t_eelstock_eel t 
                              JOIN ref.tr_emu_emu emu ON  eel_emu_nameshort=emu.emu_nameshort
@@ -60,7 +76,7 @@ wgeel_landings_all <- dbGetQuery(con,"select t.*, emu_sea, emu_wholecountry, cou
                              where eel_qal_id in (0,1,2,4) and 
                              eel_typ_id in (4) 
                              --and eel_cou_code in ('FR', 'NL')
-                             and eel_lfs_code != 'G'
+                             --and eel_lfs_code != 'G'
                              --and NOT emu_wholecountry 
                              ")
 save(wgeel_landings_all, file = file.path(getwd(), datawdpath,"wgeel_landings_all.Rdata"))
@@ -79,13 +95,14 @@ wgeel_landings_1 <- wgeel_landings_all |>
   mutate(sea=case_when(grepl("A",sea) ~ "Atlantic",
                        grepl("M",sea) ~ "Mediterranean",
                        TRUE ~"No distinction"),
-            country = case_when(grepl("Great Britain",country) ~ "United Kingdom",
+         country = case_when(grepl("Great Britain",country) ~ "United Kingdom",
+                             country=="Turkey" ~ "Türkiye",
                              TRUE ~ country))  |>
   
-  mutate(habitat=ifelse(eel_hty_code == "F", "inland", "marine")) |>
+  mutate(habitat=ifelse(eel_hty_code %in% c("F","T"), "inland", "marine")) |>
   group_by(country, sea, year, habitat) |>
   summarize(landings_t = sum(eel_value, na.rm =TRUE)/1000, .groups="drop") |>
-  mutate(source = "wgeel")
+  mutate(source = "WGEEL")
 
 wgeel_landings_1|>
   ggplot(aes(x=year, y=landings_t, color = country, shape = habitat)) +
@@ -93,10 +110,12 @@ wgeel_landings_1|>
   geom_line() +
   facet_wrap(~ sea, scale = "free")
 
-
+#wgeel_landings_1 |> filter(year==1986, country=='France')
 
 ```
 
+
+# FDI
 
 Data have been put in a data subfolder in misc/
 
@@ -125,46 +144,59 @@ print({ggplot(fdi_catch1,aes(x=year, y=landings_t, color = country, shape = habi
     geom_line() +
     facet_wrap(~ sea, scale = "free_y")})
 
-
-
-
-
 ```
+
+# FAO
+
+
 ```{r fao, message=FALSE, warning=FALSE}
 # paste the file capture_quantity from the FAO subfolder
 file <- "capture_quantity.csv"
 path <- file.path(getwd(), datawdpath,file)
-fao <- read.csv(path)
-fao <- fao %>% select(!(ends_with("Flag")))
-colnames(fao)  <- gsub(("FAO.major.fishing.area"),"area", colnames(fao)) 
-colnames(fao)  <- gsub((".Name.En"),"", colnames(fao)) 
-colnames(fao)  <- gsub(("Inland.Marine.areas"),"Inland_Marine", colnames(fao)) 
-fao <- fao |> pivot_longer(cols=num_range("X",1950:2021),values_to="landings_t", names_to = "year",names_prefix="X")
-fao <- janitor::clean_names(fao)
-
-fao <- fao |> filter(country%in%params$countryfao) |>
+fao0 <- read.csv(path)
+fao0 <- fao0 %>% select(!(ends_with("Flag")))
+colnames(fao0)  <- gsub(("FAO.major.fishing.area"),"area", colnames(fao0)) 
+colnames(fao0)  <- gsub((".Name.En"),"", colnames(fao0)) 
+colnames(fao0)  <- gsub(("Inland.Marine.areas"),"Inland_Marine", colnames(fao0)) 
+fao0 <- fao0 |> pivot_longer(cols=num_range("X",1950:2021),values_to="landings_t", names_to = "year",names_prefix="X")
+fao0 <- janitor::clean_names(fao0)
+fao0 <- fao0[!fao0$country=="Indonesia",]
+ 
+fao_all <- fao0 |>
   mutate(sea=case_when(grepl("Atlantic",area) ~ "Atlantic",
                        grepl("Mediterranean",area) ~ "Mediterranean",
                        grepl("Inland",area) ~ "No distinction"),
-         habitat = case_when(grepl("Atlantic",area) ~ "marine",
-                             grepl("Mediterranean",area) ~ "marine",
-                             grepl("Inland",area) ~ "inland"),
-         country = case_when(grepl("France",country) ~ "France",
-                             grepl("Netherlands", country) ~ "Netherlands",
-                             TRUE ~ country),
-         year=as.numeric(year))|>
-  
+         habitat = case_when(grepl("Marine",inland_marine) ~ "marine",
+                             grepl("Inland",inland_marine) ~ "inland"),
+         year=as.numeric(year))
+
+
+fao <- fao_all |> 
+  filter(country%in%params$countryfao) |>
   group_by(year, sea, country, habitat) |>
   summarize(landings_t = sum(landings_t, na.rm=T), .groups="drop")|>
   mutate(source = "FAO") 
-### make graph
-ggplot(aes(x=year, y=landings_t, color = sea, shape = habitat), data=fao) +
+
+fao <- fao %>% mutate(country = case_when(grepl("Netherland",country) ~ "Netherlands",
+                                            TRUE ~ country))
+### make graph of all data previous to selection
+p <- ggplot(aes(x=year, y=landings_t, color = sea, shape = habitat), data=fao_all) +
   geom_point() + 
   geom_line() +
-  facet_wrap(~ country, scale = "free_y")
+  facet_wrap(~ country, scale = "free_y") +
+  scale_color_brewer(palette ="Set2") +
+  theme_clean() 
+png(file=file.path(getwd(), "image","fao_all.png"),width=12,height=8, res= 300, units="in")
+print(p)
+dev.off()
+print(p)
 
-
+#fao |> filter(year==1986, country=='France') %>% group_by(country) %>%
+#  summarize(landings_t=sum(landings_t))
 ```
+
+
+# OECD
 
 ```{r oecd}
 file1 <- "OECD-inland_fisheries-European_eel-20240306.csv"
@@ -185,9 +217,9 @@ oecd <- oecd |>
   janitor::clean_names() |>
   filter(country %in% params$countryfdi) |>
   mutate(
-         year = as.numeric(year),
-         source = "OECD",
-         sea = "No distinction")
+    year = as.numeric(year),
+    source = "OECD",
+    sea = "No distinction")
 
 ggplot(aes(x=year, y=landings_t, color = habitat), data=oecd) +
   geom_point() + 
@@ -197,8 +229,10 @@ ggplot(aes(x=year, y=landings_t, color = habitat), data=oecd) +
 
 ```
 
+# EUROSTAT
+
 ```{r eurostat}
-file <- "EUROSTAT_NL_FR_SE.csv"
+file <- "eurostat data_inland marine catch all.csv"
 path <- file.path(getwd(), datawdpath,file)
 eurostat <- read.csv(path)
 
@@ -210,7 +244,7 @@ eurostat <- eurostat |>
   rename(habitat =area) |>
   mutate( sea= "No distinction",
           year=as.numeric(year),
-          source = "Eurostat")
+          source = "EUROSTAT")
 
 
 
@@ -218,11 +252,11 @@ ggplot(aes(x=as.numeric(year), y=landings_t, color = habitat), data=eurostat) +
   geom_point() + 
   geom_line() +
   facet_wrap(~ country, scale = "free")
-
+unique(eurostat$country)
 
 ```
 
-
+# Grouping together
 
 
 ```{r all together, warning=FALSE, results='hide'}
@@ -230,20 +264,10 @@ ggplot(aes(x=as.numeric(year), y=landings_t, color = habitat), data=eurostat) +
 res <- bind_rows(fdi_catch1, wgeel_landings_1,fao,oecd, eurostat)
 
 
-print(ggplot(res,aes(x=year, y=landings_t, color = source, shape= sea)) +
+print(ggplot(res,aes(x=year, y=landings_t, color = country, shape = sea)) +
         geom_point() + 
         geom_line() +
-        facet_wrap(habitat~ country, scale = "free"))
-theme_clean <- function() {
-  theme_minimal(base_family = "Barlow Semi Condensed") +
-      theme(panel.grid.minor = element_blank(),
-          plot.title = element_text(family = "BarlowSemiCondensed-Bold"),
-          axis.title = element_text(family = "BarlowSemiCondensed-Medium"),
-          strip.text = element_text(family = "BarlowSemiCondensed-Bold",
-              size = rel(1), hjust = 0),
-          strip.background = element_rect(fill = "grey80", color = NA))
-}
-
+        facet_wrap(~ habitat+source))
 
 
 
@@ -255,7 +279,7 @@ res %>%
       geom_line() +
       facet_wrap(~ habitat, scale = "free") +
       ggtitle(.y) +
-     scale_color_brewer(palette ="Set2") +
+      scale_color_brewer(palette ="Set2") +
       theme_clean()
     print(p)
     png(file=file.path(getwd(), "image",paste0(.y,".png")),width=10,height=8, res= 300, units="in")
@@ -267,22 +291,23 @@ res %>%
 
 ```
 
-# Are the total from fao and wgeel consistent ?
+# Compare global landings country level
 
 
+```{r check total, warning=FALSE, results='hide',fig.cap="Total landings"}
 
-```{r check total, warning=FALSE, results='hide',out.width="50%", fig.cap="A nice image."}
-res <- bind_rows(wgeel_landings_1,fao)
-res <- res |> group_by(country, year,source) |>
-     summarize(landings_t =sum(landings_t))
-p <- ggplot(res,aes(x=year, y=landings_t, color = source, shape= source)) +
-      geom_point() + geom_line() +  facet_wrap(~country, scale="free_y") +
-      ggtitle("comparison of total landings, FAO, wgeel") +
-     scale_color_brewer(palette ="Set2") +
-      theme_clean() 
-  
+res1 <- res |> group_by(country, year,source) |>
+  summarize(landings_t =sum(landings_t))
+p <- ggplot(res1,aes(x=year, y=landings_t, color = source, shape= source)) +
+  geom_point() + geom_line() +  facet_wrap(~country, scale="free_y") +
+  ggtitle("Total landings") +
+  scale_color_brewer(palette ="Set2") +
+  theme_clean() 
+
 print(p)
-
+png(file=file.path(getwd(), "image","comparison_wgeel_fao_total.png"),width=12,height=8, res= 300, units="in")
+print(p)
+dev.off()
 
 ```
 
