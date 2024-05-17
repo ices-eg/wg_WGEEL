@@ -141,7 +141,8 @@ commercial %>%
   scale_fill_manual("",values=scale)+
   ylab("landings (t)") + xlab("")+
   theme_bw() + facet_wrap(~eel_lfs_code, scales="free_y") +
-  ggtitle("commerical landings")
+  ggtitle("commerical landings") +
+  xlim(1980,2024)
 
 
 recreational  %>%
@@ -158,7 +159,8 @@ recreational  %>%
   scale_fill_manual("",values=scale)+
   ylab("landings (t)") + xlab("")+
   theme_bw()+ facet_wrap(~eel_lfs_code, scales="free_y") +
-  ggtitle("recreational landings")
+  ggtitle("recreational landings") +
+  xlim(1980,2024)
 
 
 
@@ -176,7 +178,8 @@ commercial %>%
             missing=max(eel_year)-min(eel_year)+1-n()) %>%
   ungroup() %>%
   arrange(eel_lfs_code,eel_emu_nameshort) %>%
-  write.table("commercial.csv",col.names=TRUE,row.names=FALSE)
+  write.table("commercial.csv",col.names=TRUE,row.names=FALSE) +
+  xlim(1980,2024)
 
 
 
@@ -191,7 +194,8 @@ recreational %>%
             missing=max(eel_year)-min(eel_year)+1-n()) %>%
   ungroup()%>%
   arrange(eel_lfs_code,eel_emu_nameshort) %>%
-  write.table("recreational.csv",col.names=TRUE,row.names=FALSE)
+  write.table("recreational.csv",col.names=TRUE,row.names=FALSE) +
+  xlim(1980,2024)
 
 
 
@@ -206,7 +210,8 @@ commercial %>%
             nb_year=n()) %>%
   ungroup() %>%
   arrange(eel_lfs_code,eel_emu_nameshort) %>%
-  write.table("commercial_bad.csv",col.names=TRUE,row.names=FALSE)
+  write.table("commercial_bad.csv",col.names=TRUE,row.names=FALSE) +
+  xlim(1980,2024)
 
 
 
@@ -226,7 +231,7 @@ recreational %>%
 
 library(sf)
 sf_use_s2(FALSE)
-emu=st_read(con,query="select emu_nameshort,geom from ref.tr_emu_emu tee ")
+emu=st_read(con,query="select emu_nameshort,geom from ref.tr_emu_emu tee where emu_nameshort not like '_o$'")
 answered=st_centroid(emu %>%
   filter(emu_nameshort %in% unique(commercial$eel_emu_nameshort[commercial$status!="unknown"]))) %>%
   mutate(x=st_coordinates(.)[,1],
