@@ -230,18 +230,26 @@ recreational %>%
 
 
 library(sf)
+library(rnaturalearth)
+library(rnaturalearthdata)
+world <- ne_countries(continent=c("Europe","Africa"),scale=50)
+
 sf_use_s2(FALSE)
-emu=st_read(con,query="select emu_nameshort,geom from ref.tr_emu_emu tee where emu_nameshort not like '_o$'")
+emu=st_read(con,query="select emu_nameshort,geom from ref.tr_emu_emu tee where emu_nameshort not like '_o$' and deprec=FALSE")
 answered=st_centroid(emu %>%
   filter(emu_nameshort %in% unique(commercial$eel_emu_nameshort[commercial$status!="unknown"]))) %>%
   mutate(x=st_coordinates(.)[,1],
          y=st_coordinates(.)[,2]) %>%
   st_drop_geometry()
-ggplot(emu) + geom_sf(aes(fill=emu_nameshort %in% unique(commercial$eel_emu_nameshort[commercial$status!="unknown"])), show.legend=FALSE) +
+ggplot(emu) + 
+  geom_sf(data=world,fill="grey")+
+  geom_sf(aes(fill=ifelse(emu_nameshort %in% unique(commercial$eel_emu_nameshort[commercial$status!="unknown"]),"1",
+              ifelse(startsWith(emu_nameshort,"GB") | startsWith(emu_nameshort,"LT"),"2","0"))), show.legend=FALSE) +
   scale_fill_viridis_d() + 
   theme_bw() +
   ggrepel::geom_text_repel(data=answered,aes(label=emu_nameshort,x=x,y=y),cex=2) +
-  xlim(-15,30)+ylim(30,72)
+  xlim(-15,30)+ylim(30,72)+
+  xlab("")+ylab("")
 dbDisconnect(con)
 
 
