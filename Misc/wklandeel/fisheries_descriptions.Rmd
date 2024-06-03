@@ -41,6 +41,15 @@ invisible(lapply(libs, library, character.only = T))
 italy <- "C:/Users/pohlmann/Desktop/WKLANDEEL/data_call/fisheries description - IT_may_13.xlsx"
 dc_folder <- "C:/Users/pohlmann/Desktop/WKLANDEEL/data_call"
 catchdata <- "C:/Users/pohlmann/Desktop/WKLANDEEL/merged_data.RData"
+wklandeelwd <- "C:/Users/pohlmann/Desktop/Home_Office/Projekte/wg_WGEEL/Misc/wklandeel/"
+
+if (Sys.info()["user"]=="hdrouineau"){
+  italy <- "~/Documents/Bordeaux/migrateurs/WGEEL/github/wg_WGEEL/Misc/wklandeel/filled_templates/fisheries_description/fisheries description - IT_may_13.xlsx"
+  dc_folder <- "~/Documents/Bordeaux/migrateurs/WGEEL/github/wg_WGEEL/Misc/wklandeel/filled_templates/fisheries_description/"
+  catchdata <- "~/Documents/Bordeaux/migrateurs/WGEEL/github/wg_WGEEL/Misc/wklandeel/merged_data.rdata"
+  wklandeelwd <- "~/Documents/Bordeaux/migrateurs/WGEEL/github/wg_WGEEL/Misc/wklandeel"
+
+}
 
 ```
 
@@ -114,7 +123,7 @@ fisheries_descriptions[7:85] <- lapply(fisheries_descriptions[7:85], gsub,  patt
 fisheries_descriptions[7:85] <- lapply(fisheries_descriptions[7:85], gsub,  pattern = ",", replacement = ".")
 
 # save global df to RData
-save(fisheries_descriptions, file = "C:/Users/pohlmann/Desktop/Home_Office/Projekte/wg_WGEEL/Misc/wklandeel/fd_full.RData")
+save(fisheries_descriptions, file = paste0(wklandeelwd,"fd_full.RData"))
 
 
 ```
@@ -152,7 +161,7 @@ fd_summary <- fd_summary %>%
   left_join(fd_with_value, by = c("emu", "com_rec", "stage"))
 
 # save summary to RData
-save(fd_summary, file = "C:/Users/pohlmann/Desktop/Home_Office/Projekte/wg_WGEEL/Misc/wklandeel/fd_summary.RData")
+save(fd_summary, file = paste0(wklandeelwd,"fd_summary.RData"))
 
 
 ```
@@ -473,5 +482,43 @@ unc_plot_rec <- ggplot(rec_unc %>% filter(uncertainty != 0), aes(x = eel_year, y
 unc_plot_rec
 
 ```
+
 \
-Fig 4: Known minimum uncertinty by lifestage; represented as the sum of differences between upper and lower boundary from all gear types and EMUs where respective data was reported.
+Fig 4: Known minimum uncertinty by lifestage; represented as the sum of differences between upper and lower boundary from all gear types and EMUs where respective data was re
+
+```{r checkerrorsindb}
+library(yaml)
+cred=read_yaml("../../credentials.yml")
+library(RPostgres)
+con=dbConnect(Postgres(), dbname=cred$dbname, user=cred$user,port=cred$port,
+              host=cred$host,password=cred$password)
+library(glue)
+
+landings_data <- dbGetQuery(con, "select eel_missvaluequal,eel_value,eel_year,eel_lfs_code,eel_emu_nameshort,eel_typ_id from datawg.t_eelstock_eel where eel_typ_id in (4,6) and eel_qal_id<5")
+
+
+find_match <- function(year, lfs, emu,type=4){
+  list_emu <- c(emu,paste0(substr(emu,1,3),"total"))
+  list_lfs <- c(lfs,"AL")
+  if (lfs %in% c("Y","S")) list_lfs <- c(list_lfs,"YS")
+  if (lfs %in% c("YS")) list_lfs <- c(list_lfs,"Y","S")
+  res <- landings_data %>%
+         filter(eel_typ_id==type & eel_year==year & eel_lfs_code %in% list_lfs & eel_emu_nameshort %in% list_emu)
+  if (nrow(res)==0) return(3)
+  if (nrow(res %>% filter(!is.na(eel_value)))>0) return(1)
+  as.integer(nrow(res %>% filter(is.na(eel_value)) %>% filter(eel_missvaluequal!="NP")) > 0)
+}
+
+potential_fishery <- fd_long %>%
+  filter(availability %in% c("no_quantity","quantified")) %>%
+  mutate(typ=ifelse(com_rec=="commercial",4,6)) %>%
+  mutate(data_found = unlist(purrr::pmap(list(year,stage,emu,typ),find_match)))
+potential_fishery %>%
+  filter(data_found==3 & com_rec=="commercial") %>%
+  arrange(year)
+potential_fishery %>%
+  filter(data_found==0 & com_rec=="commercial")
+
+
+
+```

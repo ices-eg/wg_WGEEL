@@ -1,0 +1,450 @@
+---
+title: "WKLANDEEL reported status of landings"
+author: "Philip Jacobson, philip.jacobson@slu.se"
+date: today  
+format: html
+embed-resources: true
+editor: visual
+code-fold: true
+execute:
+  warning: false
+  message: false
+---
+
+## Introduction
+
+This code is used to produce figure 4.3, 4.4, 4.5 & 4.6 and table 4.6 and 4.7 in the WKLANDEEL workshop report.
+
+## R-packages
+
+```{r}
+library(tidyverse)
+library(flextable)
+library(RColorBrewer)
+```
+
+#### Load data which contain one dataset for commercial landings and one for recreational landings
+
+```{r}
+#.rdata file provided by Hilaire
+load("merged_data.rdata") 
+```
+
+### Commercial landings
+
+Create a table that displays the combination of values in the columns all_fishers_are_included, no_significant_underreporting and status and how many rows that contained each combination.
+
+```{r}
+#Display the combination of values in the columns all_fishers_are_included, no_significant_underreporting and status
+
+summary_table<-commercial %>% 
+ group_by(all_fishers_are_included, no_significant_underreporting, status) %>% 
+   summarise(n_rows_commercial=n())
+
+flextable(summary_table)
+```
+
+#### Create a new category for each combination in the table above:
+
+```{r}
+commercial<-commercial %>% 
+  mutate(Missing_data_cat=case_when(
+              all_fishers_are_included=="TRUE" & 
+              no_significant_underreporting=="TRUE" & 
+              status=="complete (all fishers, no underreporting)" 
+              ~"complete (all fishers, no underreporting)",
+              all_fishers_are_included=="TRUE" & 
+              no_significant_underreporting=="TRUE" &
+              status=="data aggregated/disaggregated elsewhere (stage, country)" 
+              ~"data aggregated/disaggregated elsewhere (stage, country)",
+              all_fishers_are_included=="TRUE" &
+              no_significant_underreporting=="TRUE" & 
+              status=="missing and data does not exist" 
+              ~"complete (data missing and data does not exist)",
+              all_fishers_are_included=="TRUE" &
+              no_significant_underreporting=="TRUE" & 
+              status=="missing but data might exist" 
+              ~"complete (data missing but data might exist)",
+              all_fishers_are_included=="TRUE" &
+              no_significant_underreporting=="TRUE" & 
+              status=="partial but minor part missing" 
+              ~"partial but minor part missing/underreported",
+              all_fishers_are_included=="TRUE" &
+              no_significant_underreporting=="TRUE" & 
+              is.na(status)
+              ~"No status reported",
+              is.na(all_fishers_are_included) &
+              is.na(no_significant_underreporting) & 
+              is.na(status)
+              ~"No status reported",
+              is.na(all_fishers_are_included) &
+              is.na(no_significant_underreporting) & 
+              status=="data aggregated/disaggregated elsewhere (stage, country)"
+              ~"data aggregated/disaggregated elsewhere (stage, country)",
+              all_fishers_are_included=="TRUE" &
+              no_significant_underreporting=="FALSE" & 
+              is.na(status)
+              ~"partial but major part missing/underreported",
+              all_fishers_are_included=="TRUE" &
+              no_significant_underreporting=="FALSE" & 
+              status=="partial but minor part missing" 
+              ~"partial but minor part missing/underreported",
+              all_fishers_are_included=="TRUE" &
+              no_significant_underreporting=="FALSE" & 
+              status=="partial and significant part missing" 
+              ~"partial but major part missing/underreported",
+              all_fishers_are_included=="TRUE" &
+              no_significant_underreporting=="FALSE" & 
+              status=="missing but data might exist" 
+              ~"data missing but data might exist",
+              all_fishers_are_included=="FALSE" &
+              no_significant_underreporting=="TRUE" & 
+              is.na(status) 
+              ~"partial but major part missing/underreported",
+              all_fishers_are_included=="FALSE" &
+              no_significant_underreporting=="TRUE" & 
+              status=="partial and significant part missing" 
+              ~"partial but major part missing/underreported",
+              all_fishers_are_included=="FALSE" &
+              no_significant_underreporting=="FALSE" & 
+              is.na(status)
+              ~"No status reported",
+              all_fishers_are_included=="FALSE" &
+              no_significant_underreporting=="FALSE" & 
+              status=="partial but minor part missing"
+              ~"partial but minor part missing/underreported",
+              all_fishers_are_included=="FALSE" &
+              no_significant_underreporting=="FALSE" & 
+              status=="partial and significant part missing"
+              ~"partial but major part missing/underreported",
+              all_fishers_are_included=="FALSE" &
+              no_significant_underreporting=="FALSE" & 
+              status=="missing but data might exist"
+              ~"data missing but data might exist",
+              all_fishers_are_included=="FALSE" &
+              no_significant_underreporting=="FALSE" & 
+              status=="missing and data does not exist"
+              ~"data missing and data does not exist",
+              all_fishers_are_included=="FALSE" &
+              no_significant_underreporting=="FALSE" & 
+              status=="complete (all fishers, no underreporting)"
+              ~"combination error",
+              TRUE ~"Other"))
+
+Missing_data_categories_table<-commercial %>% 
+  group_by(all_fishers_are_included, no_significant_underreporting, 
+           status, Missing_data_cat) %>% 
+   summarise(n_rows_commercial=n())
+
+flextable(Missing_data_categories_table)
+```
+
+#### Figure 4.3 - Proportion reported status of commercial landings
+
+Plot the proportion of the reported status for each and life-stage:
+
+```{r}
+ Commercial_land_status<-commercial %>% 
+  mutate(eel_lfs_code=fct_relevel(eel_lfs_code, 
+                         c("G",
+                           "Y", 
+                           "S", 
+                           "YS"))) %>%
+  mutate(Missing_data_cat=fct_relevel(Missing_data_cat, 
+                          c("complete (all fishers, no underreporting)",
+                            "complete (data missing but data might exist)",
+                            "complete (data missing and data does not exist)",
+                            "partial but minor part missing/underreported",
+                            "partial but major part missing/underreported", 
+                            "data missing but data might exist",
+                            "data missing and data does not exist"))) %>% 
+   filter(Missing_data_cat!=
+      "data aggregated/disaggregated elsewhere (stage, country)") %>% 
+   filter(Missing_data_cat!="combination error") %>%
+   filter(eel_lfs_code!="AL") %>%
+   filter(Missing_data_cat!="No status reported") %>%
+   filter(eel_year>=1980) %>% 
+   group_by(eel_year, eel_lfs_code, Missing_data_cat) %>% 
+      summarise(n_rows=n()) %>% 
+          ggplot(., aes(x=eel_year, y=n_rows, fill=Missing_data_cat))+
+          geom_bar(stat="identity", position="fill")+
+          facet_wrap(~eel_lfs_code, scales="free_y")+
+          theme_classic()+
+          ylab("Proportion of reported status")+
+          xlab("Year")+
+          ggtitle("Commercial landings")+
+          theme(legend.position="bottom")+
+           scale_fill_manual(name=NULL, values=c("#1A9850", "#66BD63", 
+                                       "#A6D96A", "#F46D43", 
+                                       "#D73027", "#FFFFBF", 
+                                       "#FDAE61", "grey65"))
+    
+ Commercial_land_status
+  
+ggsave("Fig4_3.jpg", Commercial_land_status, dpi=300, width=12, height=8)
+```
+
+#### Figure 4.4 - reported status of commercial landings per country and life stage
+
+```{r}
+
+# Plot the reported status for commercial landings per country and life stage:
+
+Commercial_land_country<-commercial %>% 
+separate(eel_emu_nameshort, into=c('Country', 'EMU'), sep='_', remove=FALSE) %>% 
+  mutate(eel_lfs_code=fct_relevel(eel_lfs_code, c("G","Y", "S", "YS"))) %>%
+  filter(eel_year>=1980,
+      Missing_data_cat!="data aggregated/disaggregated elsewhere (stage, country)",
+      Missing_data_cat!="combination error",
+      Missing_data_cat!="No status reported",
+      eel_lfs_code!="AL") %>%
+  mutate(Missing_data_cat=fct_relevel(Missing_data_cat, 
+                          c("complete (all fishers, no underreporting)",
+                            "complete (data missing but data might exist)",
+                            "complete (data missing and data does not exist)",
+                            "partial but minor part missing/underreported",
+                            "partial but major part missing/underreported", 
+                            "data missing but data might exist",
+                            "data missing and data does not exist"))) %>% 
+   group_by(Country, eel_lfs_code, Missing_data_cat) %>% 
+            summarise(n=n()) %>% 
+     ggplot(., aes(x=eel_lfs_code, y=n, fill=Missing_data_cat))+
+          geom_bar(stat="identity",position="fill", colour="black")+
+          facet_wrap(~Country)+
+          theme_classic()+
+          ggtitle("Commercial landings")+
+          xlab("Eel life stage")+
+          ylab("Proportion of reported status")+
+          theme(legend.position="bottom")+
+          scale_fill_manual(name=NULL, values=c("#1A9850", "#66BD63", 
+                                                   "#A6D96A", "#F46D43", 
+                                                   "#D73027", "#FFFFBF", 
+                                                   "#FDAE61", "grey65"))
+Commercial_land_country
+
+ggsave("Fig4_4.jpg", Commercial_land_country, dpi=300, width=12, height=8)
+
+```
+
+#### Table 4.6. Provided comments for status *complete (all fishers, no underreporting)* for commercial landings
+
+Some modifications of the comments has been done in the report to reduce the amount of rows.
+
+```{r}
+
+complete_commercial<-commercial %>% 
+  mutate(eel_lfs_code=fct_relevel(eel_lfs_code, c("G","Y", "S", "YS"))) %>%
+  separate(eel_emu_nameshort, into=c('Country', 'EMU'), sep='_', remove=FALSE) %>%
+    filter(Missing_data_cat == "complete (all fishers, no underreporting)",
+           eel_lfs_code!="AL") %>% 
+     group_by(Country, EMU,Missing_data_cat) %>% 
+  distinct(`description of missing data`)
+
+flextable(complete_commercial)
+```
+
+## Recreational catches
+
+Make a table showing the combination of values in the three columns
+
+```{r}
+summary_table_rec<-recreational %>% 
+ group_by(all_fishers_are_included, no_significant_underreporting, status) %>% 
+   summarise(n_rows_commercial=n())
+
+flextable(summary_table_rec)
+```
+
+Create categories dependning on value combinations
+
+```{r}
+recreational<-recreational %>% 
+  mutate(Missing_data_cat=case_when(
+              all_fishers_are_included=="TRUE" & 
+              no_significant_underreporting=="TRUE" & 
+              status=="complete (all fishers, no underreporting)" 
+              ~"complete (all fishers, no underreporting)",
+              all_fishers_are_included=="TRUE" & 
+              no_significant_underreporting=="TRUE" &
+              status=="data aggregated/disaggregated elsewhere (stage, country)" 
+              ~"data aggregated/disaggregated elsewhere (stage, country)",
+              all_fishers_are_included=="TRUE" &
+              no_significant_underreporting=="TRUE" & 
+              status=="missing and data does not exist" 
+              ~"complete (data missing and data does not exist)",
+              all_fishers_are_included=="TRUE" &
+              no_significant_underreporting=="TRUE" & 
+              status=="missing but data might exist" 
+              ~"complete (data missing but data might exist)",
+              all_fishers_are_included=="TRUE" &
+              no_significant_underreporting=="TRUE" & 
+              status=="partial but minor part missing" 
+              ~"partial but minor part missing/underreported",
+              all_fishers_are_included=="TRUE" &
+              no_significant_underreporting=="TRUE" & 
+              status=="partial and significant part missing" 
+              ~"partial but major part missing/underreported",
+              all_fishers_are_included=="TRUE" &
+              no_significant_underreporting=="TRUE" & 
+              is.na(status)
+              ~"No status reported",
+              is.na(all_fishers_are_included) &
+              is.na(no_significant_underreporting) & 
+              is.na(status)
+              ~"No status reported",
+              is.na(all_fishers_are_included) &
+              is.na(no_significant_underreporting) & 
+              status=="data aggregated/disaggregated elsewhere (stage, country)"
+              ~"data aggregated/disaggregated elsewhere (stage, country)",
+              all_fishers_are_included=="TRUE" &
+              no_significant_underreporting=="FALSE" & 
+              is.na(status)
+              ~"partial but major part missing/underreported",
+              all_fishers_are_included=="TRUE" &
+              no_significant_underreporting=="FALSE" & 
+              status=="partial but minor part missing" 
+              ~"partial but minor part missing/underreported",
+              all_fishers_are_included=="TRUE" &
+              no_significant_underreporting=="FALSE" & 
+              status=="partial and significant part missing" 
+              ~"partial but major part missing/underreported",
+              all_fishers_are_included=="TRUE" &
+              no_significant_underreporting=="FALSE" & 
+              status=="missing but data might exist" 
+              ~"data missing but data might exist",
+              all_fishers_are_included=="FALSE" &
+              no_significant_underreporting=="TRUE" & 
+              is.na(status) 
+              ~"partial but major part missing/underreported",
+              all_fishers_are_included=="FALSE" &
+              no_significant_underreporting=="TRUE" & 
+              status=="partial and significant part missing" 
+              ~"partial but major part missing/underreported",
+              all_fishers_are_included=="FALSE" &
+              no_significant_underreporting=="TRUE" & 
+              status=="partial but minor part missing" 
+              ~"partial but minor part missing/underreported",
+              all_fishers_are_included=="FALSE" &
+              no_significant_underreporting=="FALSE" & 
+              is.na(status)
+              ~"No status reported",
+              all_fishers_are_included=="FALSE" &
+              no_significant_underreporting=="FALSE" & 
+              status=="partial but minor part missing"
+              ~"partial but minor part missing/underreported",
+              all_fishers_are_included=="FALSE" &
+              no_significant_underreporting=="FALSE" & 
+              status=="partial and significant part missing"
+              ~"partial but major part missing/underreported",
+              all_fishers_are_included=="FALSE" &
+              no_significant_underreporting=="FALSE" & 
+              status=="missing but data might exist"
+              ~"data missing but data might exist",
+              all_fishers_are_included=="FALSE" &
+              no_significant_underreporting=="FALSE" & 
+              status=="missing and data does not exist"
+              ~"data missing and data does not exist",
+              all_fishers_are_included=="FALSE" &
+              no_significant_underreporting=="FALSE" & 
+              status=="complete (all fishers, no underreporting)"
+              ~"combination error",
+              TRUE ~"Other"))
+
+REC_Missing_data_categories_table<-recreational %>% 
+  group_by(all_fishers_are_included, no_significant_underreporting, status, Missing_data_cat) %>% 
+   summarise(n_rows_recreational=n())
+
+flextable(REC_Missing_data_categories_table)
+```
+
+#### Figure 4.5. Proportion of reported status of recreational landings
+
+```{r}
+  Recreational_land_status<-recreational %>% 
+  mutate(eel_lfs_code=fct_relevel(eel_lfs_code, c("G","Y", "S", "YS"))) %>%
+  mutate(Missing_data_cat=fct_relevel(Missing_data_cat, 
+                c("complete (all fishers, no underreporting)",
+                  "complete (data missing but data might exist)",
+                  "complete (data missing and data does not exist)",
+                  "partial but minor part missing/underreported",
+                  "partial but major part missing/underreported", 
+                  "data missing but data might exist",
+                  "data missing and data does not exist"))) %>% 
+   filter(Missing_data_cat!=
+          "data aggregated/disaggregated elsewhere (stage, country)") %>% 
+   filter(Missing_data_cat!="combination error") %>%
+   filter(Missing_data_cat!="No status reported") %>%
+   filter(eel_lfs_code!="AL") %>%
+   filter(eel_year>=1980) %>% 
+      group_by(eel_year, eel_lfs_code, Missing_data_cat) %>% 
+        summarise(n_rows=n()) %>% 
+  ggplot(., aes(x=eel_year, y=n_rows, fill=Missing_data_cat))+
+      geom_bar(stat="identity", position="fill")+
+      facet_wrap(~eel_lfs_code, scales="free_y")+
+      theme_classic()+
+      ylab("Proportion reported status")+
+      xlab("Year")+
+      ggtitle("Recreational landings")+
+      theme(legend.position="bottom")+
+      scale_fill_manual(name=NULL, values=c("#1A9850", "#66BD63", 
+                                               "#A6D96A", "#F46D43", 
+                                               "#D73027", "#FFFFBF", 
+                                               "#FDAE61", "grey65"))
+    
+ Recreational_land_status
+  
+ggsave("Fig4_5_rec.jpg", Recreational_land_status, dpi=300, width=12, height=8)
+```
+
+#### Figure 4.6 - reported status of recreational landings per country and life stage
+
+```{r}
+Fig_4_6_rec<-recreational %>% 
+ separate(eel_emu_nameshort, into=c('Country', 'EMU'), sep='_', remove=FALSE) %>% 
+ mutate(eel_lfs_code=fct_relevel(eel_lfs_code, c("G","Y", "S", "YS"))) %>%
+ mutate(Missing_data_cat=fct_relevel(Missing_data_cat, 
+                         c("complete (all fishers, no underreporting)",
+                           "complete (data missing but data might exist)",
+                           "complete (data missing and data does not exist)",
+                           "partial but minor part missing/underreported",
+                           "partial but major part missing/underreported", 
+                           "data missing but data might exist",
+                           "data missing and data does not exist"))) %>% 
+   filter(Missing_data_cat!=
+          "data aggregated/disaggregated elsewhere (stage, country)") %>% 
+   filter(Missing_data_cat!="No status reported") %>%
+   group_by(Country, eel_lfs_code, Missing_data_cat) %>% 
+     summarise(n=n()) %>% 
+   ggplot(., aes(x=eel_lfs_code, y=n, fill=Missing_data_cat))+
+     geom_bar(stat="identity",position="fill", colour="black")+
+      facet_wrap(~Country)+
+       theme_classic()+
+       ggtitle("Recreational landings")+
+       xlab("Eel life stage")+
+       ylab("Proportion of reported status")+
+       scale_fill_manual(name=NULL, values=c("#1A9850", "#66BD63", 
+                                                "#A6D96A", "#F46D43", 
+                                                "#D73027", "#FFFFBF", 
+                                                "#FDAE61", "grey65"))+
+       theme(legend.position="bottom")
+
+Fig_4_6_rec
+
+ggsave("Fig4_6_rec.jpg", Fig_4_6_rec, dpi=300, width=12, height=8)
+```
+
+#### Table 4.7. Provided comments for status *complete (all fishers, no underreporting)* for commercial landings
+
+```{r}
+complete_recreational<-recreational %>% 
+  mutate(eel_lfs_code=fct_relevel(eel_lfs_code, c("G","Y", "S", "YS"))) %>%
+  separate(eel_emu_nameshort, into=c('Country', 'EMU'), sep='_', remove=FALSE) %>%
+   filter(Missing_data_cat == "complete (all fishers, no underreporting)",
+        eel_lfs_code!="AL") %>% 
+  group_by(Country, EMU,Missing_data_cat) %>% 
+  distinct(`description of missing data`)
+
+flextable(complete_recreational)
+```
+
+# Done
