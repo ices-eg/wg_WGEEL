@@ -3,9 +3,9 @@ title: 'WKLANDEEL FISHERIES DESCRIPTIONS'
 author: 'Jan-Dag Pohlmann'
 date: '05-16-2024'
 output: 
-  word_document: default
   html_document: 
     css: style.css
+  word_document: default
   pdf_document: default
 ---
 
@@ -18,7 +18,7 @@ output:
 ##### 1.1 load libraries #####
 
 ### define libraries needed 
-libs <- c("tidyverse", "readxl", "ggplot2", "ggforce", "stringr") #RPostgres may need to be installed manually 
+libs <- c("tidyverse", "readxl", "ggplot2", "ggforce", "stringr", "scales") #RPostgres may need to be installed manually 
 
 ### define libraries already installed
 installed_libs <- libs %in% rownames(installed.packages())
@@ -161,6 +161,8 @@ save(fd_summary, file = "C:/Users/pohlmann/Desktop/Home_Office/Projekte/wg_WGEEL
 \
 ```{r Visualisation of availability, echo=FALSE, warning = FALSE, message = FALSE}
 
+options(scipen = 999)
+
 #### 4. visualize data availability ####
 
 #### 4.1. by year ####
@@ -180,7 +182,9 @@ com_by_year <- ggplot(data = fd_bar_year %>% filter(com_rec == "commercial"), ae
   geom_bar(position = "fill", stat = "identity") +
   facet_wrap(~stage) +
   theme_bw() +
-  ggtitle("commercial by year")
+  theme(legend.position="bottom") +
+  labs(y= "% response") +
+  scale_x_continuous(breaks=pretty_breaks())
 com_by_year
 
 # create graphs for recreational fisheries
@@ -188,7 +192,9 @@ rec_by_year <- ggplot(data = fd_bar_year %>% filter(com_rec == "recreational"), 
   geom_bar(position = "fill", stat = "identity") +
   facet_wrap(~stage) +
   theme_bw() +
-  ggtitle("recreational by year")
+  labs(y= "% response") +
+  scale_x_continuous(breaks=pretty_breaks()) +
+  theme(legend.position="bottom")
 rec_by_year
 
 #-------------------------#
@@ -212,7 +218,8 @@ com_by_emu <- ggplot(data = fd_bar_emu %>% filter(com_rec == "commercial"), aes(
   geom_bar(position = "fill", stat = "identity") +
   facet_wrap(~stage) +
   theme_bw() +
-  ggtitle("commercial_by_emu") +
+  labs(y= "% response") +
+  theme(legend.position="bottom") +
   theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust=1, size = 4))
 com_by_emu
 
@@ -221,7 +228,8 @@ rec_by_emu <- ggplot(data = fd_bar_emu %>% filter(com_rec == "recreational"), ae
   geom_bar(position = "fill", stat = "identity") +
   facet_wrap(~stage) +
   theme_bw() +
-  ggtitle("recreational_by_emu") +
+  labs(y= "% response") +
+  theme(legend.position="bottom") +
   theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust=1, size = 4))
 rec_by_emu
 
@@ -246,7 +254,8 @@ com_by_gear <- ggplot(data = fd_bar_gear %>% filter(com_rec == "commercial"), ae
   geom_bar(position = "fill", stat = "identity") +
   facet_wrap(~stage) +
   theme_bw() +
-  ggtitle("commercial_by_gear") +
+  labs(y= "% response") +
+  theme(legend.position="bottom") +
   theme(axis.text.x = element_text(angle = 45, vjust = 1.05, hjust=1.1, size = 6))
 com_by_gear
 
@@ -255,7 +264,8 @@ rec_by_gear <- ggplot(data = fd_bar_gear %>% filter(com_rec == "recreational"), 
   geom_bar(position = "fill", stat = "identity") +
   facet_wrap(~stage) +
   theme_bw() +
-  ggtitle("recreational_by_gear") +
+  labs(y= "% response") +
+  theme(legend.position="bottom") +
   theme(axis.text.x = element_text(angle = 45, vjust = 1.05, hjust=1.1, size = 6))
 rec_by_gear
 
@@ -270,6 +280,8 @@ Fig. 1: Data availability of commercial and recreational landings expressed as p
 ## REPORTED WKLANDEEL (UPPER/LOWER BOUNDARY AVAILABLE) vs LANDINGS FROM WGEEL DATABASE
 \
 ```{r Compare uncertainty with landings, echo=FALSE, warning = FALSE, message = FALSE, results = "hide"}
+
+options(scipen = 999)
 
 #### 5. Compare landings with reported uncertainties (as of 05-14-2024)
 
@@ -349,9 +361,10 @@ rec_emu_lfs_single <- unique(rec_land %>% filter(!is.na(difference) & difference
   geom_line(aes(x=eel_year, y=max_landings), color = "blue", linetype = "dashed") +
   geom_line() +
   theme_bw() +
+  scale_x_continuous(breaks=seq(min(com_land$eel_year),max(com_land$eel_year), 5)) +
+  labs(y= "landings (kg)") +
   guides(fill="none") +
   facet_wrap(~eel_emu_nameshort, scales="free") +
-  ggtitle(paste(x, "commercial", sep = "_")) +
      theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
 }
 temp_lfs <- com_land %>% filter(emu_lfs %in% com_emu_lfs_margins)
@@ -366,8 +379,9 @@ lapply(unique(temp_lfs$eel_lfs_code), com_land_comp)
   geom_line() +
   guides(fill="none") +
   theme_bw() +
+  scale_x_continuous(breaks=seq(min(rec_land$eel_year),max(rec_land$eel_year), 5)) +
+  labs(y= "landings (kg)") +
   facet_wrap(~eel_emu_nameshort, scales="free") +
-  ggtitle(paste(x, "recreational", sep = "_")) +
      theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
 }
 temp_lfs <- rec_land %>% filter(emu_lfs %in% rec_emu_lfs_margins)
@@ -396,8 +410,9 @@ Note, that the sum of all reported gear types is possibly lower than the total (
   geom_line() +
   guides(fill="none") +
   theme_bw() +
+  labs(y= "landings (kg)") +
+  scale_x_continuous(breaks=seq(min(com_land$eel_year),max(com_land$eel_year), 5)) +
   facet_wrap(~eel_emu_nameshort, scales="free") +
-  ggtitle(paste(x, "commercial", sep = "_")) +
      theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
 }
 temp_lfs <- com_land %>% filter(emu_lfs %in% com_emu_lfs_single)
@@ -411,9 +426,10 @@ lapply(unique(temp_lfs$eel_lfs_code), com_land_comp)
   geom_line(aes(x=eel_year, y=max_landings), color = "blue", linetype = "dashed") +
   geom_line() +
   theme_bw() +
+  labs(y= "landings (kg)") +
+  scale_x_continuous(breaks=seq(min(rec_land$eel_year),max(rec_land$eel_year), 5)) +
   guides(fill="none") +
   facet_wrap(~eel_emu_nameshort, scales="free") +
-  ggtitle(paste(x, "recreational", sep = "_")) +
      theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
 }
 temp_lfs <- rec_land %>% filter(emu_lfs %in% rec_emu_lfs_single)
