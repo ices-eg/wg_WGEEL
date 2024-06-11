@@ -102,10 +102,17 @@ trace_precodiag = function(precodata,
     #geom_path(data = precodata,aes(x = pbiom, y = suma, group = eel_cou_code))+
     #scale_color_discrete(#guide = 'none'
     #    ) +
-    geom_point(data=precodata,aes_string(x="pbiom",y="suma",size="bbest",color=choose_color), alpha=0.7)+ 
-    geom_text_repel(data=precodata, aes(x=pbiom,
-                                        y = suma,
-                                        label = paste(precodata$aggreg_area, substr(precodata$eel_year, 3, 4), sep = "")#,
+    geom_point(
+      data = precodata,
+      aes(x = pbiom, y = suma, size = bbest, color = choose_color),
+      alpha = 0.7
+    ) +
+    geom_text_repel(
+      data = precodata,
+      aes(
+        x = pbiom,
+        y = suma,
+        label = paste(aggreg_area, substr(eel_year, 3, 4), sep = "")#,
                                         #size=bbest/8
     ),
     show.legend = FALSE      
@@ -126,8 +133,8 @@ trace_precodiag = function(precodata,
     ggtitle(str_c(title))
   if(pretty(max(precodata$suma,na.rm=TRUE))[2] > 4.6)   g = g +annotate("text",x =  Bminimum, y = 4.6, label = "1%",  parse = F, hjust=1, size=3) 
   if (choose_color == "eel_year")
-    g+scale_colour_viridis(discrete=TRUE) else
-      g+scale_colour_brewer(palette = "Set3",direction=-1)
+    g + viridis::scale_colour_viridis(discrete = TRUE) else
+      g + scale_colour_brewer(palette = "Set3", direction = -1)
   
   
   
