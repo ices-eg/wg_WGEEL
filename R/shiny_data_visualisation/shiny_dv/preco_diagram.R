@@ -29,14 +29,18 @@ background<-function(Aminimum=0,Amaximum=6.5,Bminimum=1e-2,Bmaximum=1){
 #' @title Draw precautionary diagram itself
 #' @param precodata data.frame with column being: eel_emu_nameshort	bcurrent	bbest	b0	suma, using extract_data("precodata")
 #' @param adjusted_b0 should adjusted_b0 following WKEMP2021 be used?
+#' @param bbest_unit the unit to be displayed in the graph.
 #' @examples
 #' x11()
 #' trace_precodiag( extract_data("precodata"))
 # TODO: offer the possibility to aggregate by country
-trace_precodiag = function(precodata, 
-                           precodata_choice=c("emu","country","all"), 
-                           last_year=TRUE, adjusted_b0=FALSE)
-{  
+trace_precodiag <- function(
+  precodata,
+  precodata_choice = c("emu", "country", "all"),
+  last_year = TRUE,
+  adjusted_b0 = FALSE,
+  bbest_unit = "tons"
+) {
   ###############################
   # Data selection
   # this in done on precodata which is filtered by the app using filter_data
@@ -110,7 +114,7 @@ trace_precodiag = function(precodata,
     ),
     show.legend = FALSE      
     )+
-    scale_size(name="B best (millions)",range = c(2, 25),limits=c(0,max(pretty(precodata$bbest))))+
+    scale_size(name = paste0("B best (", bbest_unit, ")"), range = c(2, 25),limits=c(0,max(pretty(precodata$bbest))))+
     annotate("text",x =  1, y = 0.92, label = "0.92",  parse = F, hjust=1,vjust=-1.1, size=3)+
     annotate("text",x =  1, y = 0.92, label = "Alim",  parse = F, hjust=1,vjust=1.1, size=3)+
     annotate("text",x =  0.4, y = 0, label = "Blim",  parse = F, hjust=0,vjust=-0.7, size=3,angle=90)+
