@@ -242,7 +242,7 @@ trace_precodiag <- function(
         ),
         "** B~current~ / B~0~"
       ),
-      limits = c(Bminimum, Bmaximum),
+      limits = c(Bminimum * 0.7, Bmaximum),
       trans = "log10",
       breaks = c(0.005, 0.01, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1),
       labels = c("", "1%", "5%", "10%", "", "", "40%", "", "", "", "", "", "100%")
@@ -305,7 +305,8 @@ trace_precodiag <- function(
       label = c("0.92", "Alim"),
       parse = FALSE,
       hjust = 1, vjust = c(-1.1, 1.1),
-      size = 3
+      size = 3,
+      alpha = 0.5
     ) +
     annotate(
       "text",
@@ -314,7 +315,8 @@ trace_precodiag <- function(
       parse = FALSE,
       hjust = 0, vjust = c(-0.7, 1.1),
       size = 3,
-      angle = 90
+      angle = 90,
+      alpha = 0.5
     ) +
     annotate(
       "text",
