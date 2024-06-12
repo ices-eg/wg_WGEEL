@@ -27,20 +27,86 @@ background<-function(Aminimum=0,Amaximum=6.5,Bminimum=1e-2,Bmaximum=1){
 }
 
 
+#' @title translate a message
+#'
+#' @param id the id of the message
+#' @param message a tibble with id, and a column per language
+#' @param language choose your translation two letters coded "en" or "fr"
+#' @return the message (a string)
+#' @examples
+#' translate_message(id_msg = "title for country", language = "fr")
+translate_message <- function(
+  id_msg,
+  message = message_preco_diagram,
+  language = "en"
+) {
+
+  if (language %in% colnames(message)) {
+    msg <- message |>
+      dplyr::filter(id == id_msg) |>
+      dplyr::select(all_of(language)) |>
+    pull()
+  } else {
+    msg <- NA
+  }
+
+  if (length(msg) == 0 || is.na(msg)) {
+    msg <- id_msg
+  }
+
+  return(msg)
+}
+
 # msg for internationalization
 message_preco_diagram <- tibble::tibble(
-  id = "test", en = "test_en",
-  fr = "test_fr"
-)
-
-#  |>
-#   tibble::add_row(id = "test", en = "test_en", fr = "test_fr")
+  id = "title general", en = "Precautionary diagram",
+  fr = "Diagramme de précaution"
+) |>
+  tibble::add_row(
+    id = "title for emu", en = "Precautionary diagram for EMU",
+    fr = "Diagramme de précaution pour les UGA"
+  ) |>
+  tibble::add_row(
+    id = "title for country", en = "Precautionary diagram for country",
+    fr = "Diagramme de précaution pour les pays"
+  ) |>
+  tibble::add_row(
+    id = "title for all countries",
+    en = "Precautionary diagram for all countries",
+    fr = "Diagramme de précaution pour tous les pays"
+  ) |>
+  tibble::add_row(
+    id = "Spawner escapement",
+    en = "Spawner escapement",
+    fr = "Échappement"
+  ) |>
+  tibble::add_row(
+    id = "Lifetime mortality",
+    en = "Lifetime mortality",
+    fr = "Mortalité cumulée"
+  ) |>
+  tibble::add_row(
+    id = "tons",
+    en = "tons",
+    fr = "tonnes"
+  ) |>
+  tibble::add_row(
+    id = "eel_year",
+    en = "Year",
+    fr = "Années"
+  ) |>
+  tibble::add_row(
+    id = "aggreg_level",
+    en = "Aggregation level",
+    fr = "Niveau d'aggrégation"
+  )
 
 #' @title Draw precautionary diagram itself
 #' @param precodata data.frame with column being: eel_emu_nameshort	bcurrent	bbest	b0	suma, using extract_data("precodata")
 #' @param adjusted_b0 should adjusted_b0 following WKEMP2021 be used?
 #' @param bbest_unit the unit to be displayed in the graph.
 #' @param translation the msg for translation of title, ...
+#' @param language choose your translation two letters coded "en" or "fr"
 #' @examples
 #' x11()
 #' trace_precodiag( extract_data("precodata"))
@@ -51,7 +117,8 @@ trace_precodiag <- function(
   last_year = TRUE,
   adjusted_b0 = FALSE,
   bbest_unit = "tons",
-  translation = message_preco_diagram
+  translation = message_preco_diagram,
+  language = "en"
 ) {
   ###############################
   # Data selection
@@ -63,13 +130,22 @@ trace_precodiag <- function(
   }
 
   if (length(precodata_choice) > 1) {
-    title <- "Precautionary diagram"
+    title <- translate_message(id = "title general", language = language)
   } else {
     title <- dplyr::case_match(
       precodata_choice,
-      "emu" ~ "Precautionary diagram for emu",
-      "country" ~ "Precautionary diagram for country",
-      "all" ~ "Precautionary diagram for all countries"
+      "emu" ~ translate_message(
+        id_msg = "title for emu",
+        language = language
+      ),
+      "country" ~ translate_message(
+        id_msg = "title for country",
+        language = language
+      ),
+      "all" ~ translate_message(
+        id_msg = "title for all countries",
+        language = language
+      )
     )
   }
 
@@ -129,21 +205,39 @@ trace_precodiag <- function(
   precodata$eel_year <- as.factor(precodata$eel_year)
   g <- ggplot(df) +
     theme_bw() +
-    theme(legend.key = element_rect(colour = "white")) +
+    theme(
+      legend.key = element_rect(colour = "white"),
+      legend.title = ggtext::element_markdown(),
+      axis.title = ggtext::element_markdown()
+    ) +
     geom_polygon(
       aes(x = B, y = SumA, fill = color),
       alpha = 0.7
     ) +
     scale_fill_identity(labels = NULL) +
     scale_x_continuous(
-      name = expression(paste(bold("Spawner escapement") ~ over(B, B0))),
+      name = paste0(
+        "**",
+        translate_message(
+          id_msg = "Spawner escapement",
+          language = language
+        ),
+        "** B~current~ / B~0~"
+      ),
       limits = c(Bminimum, Bmaximum),
       trans = "log10",
       breaks = c(0.005, 0.01, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1),
       labels = c("", "1%", "5%", "10%", "", "", "40%", "", "", "", "", "", "100%")
     ) +
     scale_y_continuous(
-      name = expression(paste(bold("Lifetime mortality") ~ symbol("\123"), "A")),
+      name = paste0(
+        "**",
+        translate_message(
+          id_msg = "Lifetime mortality",
+          language = language
+        ),
+        "** &Sigma;A"
+      ),
       limits = c(Aminimum, Amaximum)
     ) +
     geom_point(
@@ -161,7 +255,14 @@ trace_precodiag <- function(
       show.legend = FALSE
     ) +
     scale_size(
-      name = paste0("B best (", bbest_unit, ")"),
+      name = paste0(
+        "B~best~(",
+        translate_message(
+          id_msg = bbest_unit,
+          language = language
+        ),
+        ")"
+      ),
       range = c(2, 25),
       limits = c(0, max(pretty(precodata$bbest)))
     ) +
@@ -202,9 +303,21 @@ trace_precodiag <- function(
     ggtitle(str_c(title))
 
   if (choose_color == "eel_year") {
-    g + viridis::scale_colour_viridis(discrete = TRUE)
+    g <- g + viridis::scale_colour_viridis(
+      name = translate_message(
+        id_msg = "eel_year",
+        language = language
+      ),
+      discrete = TRUE
+    )
   } else {
-    g + scale_colour_brewer(palette = "Set3", direction = -1)
+    g <- g + scale_colour_brewer(
+      name = translate_message(
+        id_msg = "aggreg_level",
+        language = language
+      ),
+      palette = "Set3", direction = -1
+    )
   }
 
   return(g)
