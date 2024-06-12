@@ -117,6 +117,8 @@ message_preco_diagram <- tibble::tibble(
 #' @param bbest_unit the unit to be displayed in the graph.
 #' @param translation the msg for translation of title, ...
 #' @param language choose your translation two letters coded "en" or "fr"
+#' @param additional_title any additional information you want to add
+#' after to standard title (in markdown format)
 #' @examples
 #' x11()
 #' trace_precodiag( extract_data("precodata"))
@@ -128,7 +130,8 @@ trace_precodiag <- function(
   adjusted_b0 = FALSE,
   bbest_unit = "tons",
   translation = message_preco_diagram,
-  language = "en"
+  language = "en",
+  additional_title = ""
 ) {
   ###############################
   # Data selection
@@ -158,6 +161,8 @@ trace_precodiag <- function(
       )
     )
   }
+
+  title <- paste(title, additional_title)
 
   precodata <- precodata |>
     dplyr::filter(aggreg_level %in% precodata_choice)
@@ -220,7 +225,8 @@ trace_precodiag <- function(
     theme(
       legend.key = element_rect(colour = "white"),
       legend.title = ggtext::element_markdown(),
-      axis.title = ggtext::element_markdown()
+      axis.title = ggtext::element_markdown(),
+      title = ggtext::element_markdown()
     ) +
     geom_polygon(
       aes(x = B, y = SumA, fill = color),
@@ -266,10 +272,19 @@ trace_precodiag <- function(
       ),
       size = 3,
       min.segment.length = 0,
-      seed = 42,
+      seed = 52,
       max.overlaps = Inf,
+      box.padding = 0.3,
+      point.padding = 0.3,
+      force = 30,
+      arrow = arrow(length = unit(0.010, "npc")),
+      nudge_x = .15,
+      nudge_y = .5,
       fontface = 'bold',
       color = 'black',
+      segment.colour = "#4d4d4d",
+      segment.alpha = 0.6,
+      segment.linetype = 1,
       show.legend = FALSE
     ) +
     scale_size(
