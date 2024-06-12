@@ -99,6 +99,16 @@ message_preco_diagram <- tibble::tibble(
     id = "aggreg_level",
     en = "Aggregation level",
     fr = "Niveau d'aggrégation"
+  ) |>
+  tibble::add_row(
+    id = "emu",
+    en = "EMU",
+    fr = "UGA"
+  ) |>
+  tibble::add_row(
+    id = "country",
+    en = "Country",
+    fr = "Pays"
   )
 
 #' @title Draw precautionary diagram itself
@@ -190,8 +200,10 @@ trace_precodiag <- function(
   }
 
   df <- background(
-    Aminimum = 0, Amaximum = 5,
-    Bminimum = exp(-5), Bmaximum = Bmaximum
+    Aminimum = 0,
+    Amaximum = max(5, pretty(max(precodata$suma))[2]),
+    Bminimum = min(exp(-5), pretty(min(precodata$bcurrent))[1]),
+    Bmaximum = Bmaximum
   )
 
   ######################
@@ -252,6 +264,12 @@ trace_precodiag <- function(
         y = suma,
         label = paste(aggreg_area, substr(eel_year, 3, 4), sep = "")
       ),
+      size = 3,
+      min.segment.length = 0,
+      seed = 42,
+      max.overlaps = Inf,
+      fontface = 'bold',
+      color = 'black',
       show.legend = FALSE
     ) +
     scale_size(
@@ -316,7 +334,17 @@ trace_precodiag <- function(
         id_msg = "aggreg_level",
         language = language
       ),
-      palette = "Set3", direction = -1
+      palette = "Set3", direction = -1,
+      labels = c(
+        emu = translate_message(
+          id_msg = "emu",
+          language = language
+        ),
+        country = translate_message(
+          id_msg = "country",
+          language = language
+        )
+      )
     )
   }
 
