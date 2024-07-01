@@ -582,3 +582,13 @@ for (country in dirs ){
                               ser_typ_id=0,
                               type="other")
 }
+
+
+for (country in 'HR' ){
+  gc()
+  cat("country: ",country,"\n")
+  create_datacall_file_series(country, 
+      name="Eel_Data_Call_Annex9_Other_Sampling_Data", 
+      ser_typ_id=0,
+      type="other")
+}

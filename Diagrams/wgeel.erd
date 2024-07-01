@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<diagram version="1" name="wgeel.erd">
+	<entities>
+		<data-source id="postgres-jdbc-17e96b7e7ef-701c04cd18c4e0f7">
+			<entity id="1" name="tr_country_cou" fq-name="&quot;ref&quot;.tr_country_cou" order="0" x="587" y="109">
+				<path name="ref"/>
+				<path name="wgeel"/>
+			</entity>
+			<entity id="2" name="tr_dataaccess_dta" fq-name="&quot;ref&quot;.tr_dataaccess_dta" order="1" x="2053" y="427">
+				<path name="ref"/>
+				<path name="wgeel"/>
+			</entity>
+			<entity id="3" name="tr_datasource_dts" fq-name="&quot;ref&quot;.tr_datasource_dts" order="2" x="1756" y="793">
+				<path name="ref"/>
+				<path name="wgeel"/>
+			</entity>
+			<entity id="4" name="tr_emu_emu" fq-name="&quot;ref&quot;.tr_emu_emu" order="3" x="201" y="91">
+				<path name="ref"/>
+				<path name="wgeel"/>
+			</entity>
+			<entity id="5" name="tr_faoareas" fq-name="&quot;ref&quot;.tr_faoareas" order="4" x="1636" y="109">
+				<path name="ref"/>
+				<path name="wgeel"/>
+			</entity>
+			<entity id="6" name="tr_habitattype_hty" fq-name="&quot;ref&quot;.tr_habitattype_hty" order="5" x="1362" y="109">
+				<path name="ref"/>
+				<path name="wgeel"/>
+			</entity>
+			<entity id="7" name="tr_lifestage_lfs" fq-name="&quot;ref&quot;.tr_lifestage_lfs" order="6" x="1035" y="103">
+				<path name="ref"/>
+				<path name="wgeel"/>
+			</entity>
+			<entity id="8" name="tr_quality_qal" fq-name="&quot;ref&quot;.tr_quality_qal" order="7" x="1958" y="105">
+				<path name="ref"/>
+				<path name="wgeel"/>
+			</entity>
+			<entity id="9" name="tr_typeseries_typ" fq-name="&quot;ref&quot;.tr_typeseries_typ" order="8" x="209" y="-99">
+				<path name="ref"/>
+				<path name="wgeel"/>
+			</entity>
+			<entity id="10" name="tr_units_uni" fq-name="&quot;ref&quot;.tr_units_uni" order="9" x="1235" y="-29">
+				<path name="ref"/>
+				<path name="wgeel"/>
+			</entity>
+			<entity id="11" name="t_eelstock_eel" fq-name="datawg.t_eelstock_eel" order="10" color-bg="53,60,65" x="605" y="573">
+				<path name="datawg"/>
+				<path name="wgeel"/>
+			</entity>
+		</data-source>
+	</entities>
+	<relations>
+		<relation name="c_fk_cou_code" fq-name="&quot;ref&quot;.tr_emu_emu.c_fk_cou_code" type="fk" pk-ref="1" fk-ref="4"/>
+		<relation name="c_fk_cou_code" fq-name="datawg.t_eelstock_eel.c_fk_cou_code" type="fk" pk-ref="1" fk-ref="11"/>
+		<relation name="c_fk_eel_dta_code" fq-name="datawg.t_eelstock_eel.c_fk_eel_dta_code" type="fk" pk-ref="2" fk-ref="11"/>
+		<relation name="c_fk_emu" fq-name="datawg.t_eelstock_eel.c_fk_emu" type="fk" pk-ref="4" fk-ref="11"/>
+		<relation name="c_fk_area_code" fq-name="datawg.t_eelstock_eel.c_fk_area_code" type="fk" pk-ref="5" fk-ref="11"/>
+		<relation name="c_fk_hty_code" fq-name="datawg.t_eelstock_eel.c_fk_hty_code" type="fk" pk-ref="6" fk-ref="11"/>
+		<relation name="c_fk_lfs_code" fq-name="datawg.t_eelstock_eel.c_fk_lfs_code" type="fk" pk-ref="7" fk-ref="11"/>
+		<relation name="c_fk_qal_id" fq-name="datawg.t_eelstock_eel.c_fk_qal_id" type="fk" pk-ref="8" fk-ref="11"/>
+		<relation name="c_fk_typ_id" fq-name="datawg.t_eelstock_eel.c_fk_typ_id" type="fk" pk-ref="9" fk-ref="11"/>
+		<relation name="c_fk_uni_code" fq-name="&quot;ref&quot;.tr_typeseries_typ.c_fk_uni_code" type="fk" pk-ref="10" fk-ref="9"/>
+	</relations>
+</diagram>

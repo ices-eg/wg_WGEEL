@@ -332,4 +332,9 @@ CREATE OR REPLACE VIEW datawg.bcurrent_without_stocking AS
   --AND (t_eelstock_eel.eel_qal_id in (1,2,4))
   ;
 
+-- is there any data from luxemburg ?
+
+SELECT * FROM "ref".tr_country_cou WHERE cou_code='LU'; 
+SELECT * FROM datawg.t_eelstock_eel WHERE eel_cou_code='LU';
+
 
