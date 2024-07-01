@@ -1,4 +1,10 @@
-  
+-- add a deprecated column to emu
+begin;
+alter table ref.tr_emu_emu add column deprec boolean default false;
+update ref.tr_emu_emu set "deprec" = false;
+select emu_nameshort from ref.tr_emu_emu tee where emu_nameshort like '%$_o' ESCAPE '$';
+update ref.tr_emu_emu set "deprec" = true where emu_nameshort like '%$_o' ESCAPE '$';
+commit;
   
   CREATE OR REPLACE VIEW datawg.landings
 AS SELECT t_eelstock_eel.eel_id,

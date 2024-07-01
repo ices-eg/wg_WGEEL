@@ -1,7 +1,7 @@
 ---
 title: 'WKLANDEEL FISHERIES DESCRIPTIONS'
 author: 'Jan-Dag Pohlmann'
-date: '05-15-2024'
+date: '05-16-2024'
 output: 
   html_document: 
     css: style.css
@@ -11,10 +11,14 @@ output:
 
 ```{r Initial preparations, include=FALSE}
 
+#######################################################################################
+### MAY NEED ADDITIONAL CHECKS, E.G. TO ENSURE THAT EMU IS CORRECT IN THE XLS FILES ###
+#######################################################################################
+
 ##### 1.1 load libraries #####
 
 ### define libraries needed 
-libs <- c("tidyverse", "readxl", "ggplot2", "ggforce", "stringr") #RPostgres may need to be installed manually 
+libs <- c("tidyverse", "readxl", "ggplot2", "ggforce", "stringr", "scales") #RPostgres may need to be installed manually 
 
 ### define libraries already installed
 installed_libs <- libs %in% rownames(installed.packages())
@@ -37,12 +41,19 @@ invisible(lapply(libs, library, character.only = T))
 italy <- "C:/Users/pohlmann/Desktop/WKLANDEEL/data_call/fisheries description - IT_may_13.xlsx"
 dc_folder <- "C:/Users/pohlmann/Desktop/WKLANDEEL/data_call"
 catchdata <- "C:/Users/pohlmann/Desktop/WKLANDEEL/merged_data.RData"
+wklandeelwd <- "C:/Users/pohlmann/Desktop/Home_Office/Projekte/wg_WGEEL/Misc/wklandeel/"
+
+if (Sys.info()["user"]=="hdrouineau"){
+  italy <- "~/Documents/Bordeaux/migrateurs/WGEEL/github/wg_WGEEL/Misc/wklandeel/filled_templates/fisheries_description/fisheries description - IT_may_13.xlsx"
+  dc_folder <- "~/Documents/Bordeaux/migrateurs/WGEEL/github/wg_WGEEL/Misc/wklandeel/filled_templates/fisheries_description/"
+  catchdata <- "~/Documents/Bordeaux/migrateurs/WGEEL/github/wg_WGEEL/Misc/wklandeel/merged_data.rdata"
+  wklandeelwd <- "~/Documents/Bordeaux/migrateurs/WGEEL/github/wg_WGEEL/Misc/wklandeel"
+
+}
 
 ```
 
 ```{r read data, include=FALSE}
-
-##### BE AWARE! SPAIN USED "-" instead of ">". This is only corrected in the long format!!! ####
 
 #### 2.1 Create an empty global data frame to write all the input to ####
 
@@ -112,12 +123,14 @@ fisheries_descriptions[7:85] <- lapply(fisheries_descriptions[7:85], gsub,  patt
 fisheries_descriptions[7:85] <- lapply(fisheries_descriptions[7:85], gsub,  pattern = ",", replacement = ".")
 
 # save global df to RData
-save(fisheries_descriptions, file = "C:/Users/pohlmann/Desktop/Home_Office/Projekte/wg_WGEEL/Misc/wklandeel/fd_full.RData")
+save(fisheries_descriptions, file = paste0(wklandeelwd,"fd_full.RData"))
 
 
 ```
 
 ```{r Create summary, include=FALSE}
+
+#### 3. Create a summary file ####
 
 # Convert data fra,me to long data
 fd_long <- gather(fisheries_descriptions, year, value, 7:ncol(fisheries_descriptions)) %>% 
@@ -148,14 +161,20 @@ fd_summary <- fd_summary %>%
   left_join(fd_with_value, by = c("emu", "com_rec", "stage"))
 
 # save summary to RData
-save(fd_summary, file = "C:/Users/pohlmann/Desktop/Home_Office/Projekte/wg_WGEEL/Misc/wklandeel/fd_summary.RData")
+save(fd_summary, file = paste0(wklandeelwd,"fd_summary.RData"))
 
 
 ```
 
-```{r Visualisation, echo=FALSE, warning = FALSE, message = FALSE}
+## DATA AVAILABILITY
+\
+```{r Visualisation of availability, echo=FALSE, warning = FALSE, message = FALSE}
 
-#### 4.1 visualize data availability by year ####
+options(scipen = 999)
+
+#### 4. visualize data availability ####
+
+#### 4.1. by year ####
 
 # create a summary of data availability by year (reported only)
 fd_bar_year <- fd_long %>% 
@@ -172,7 +191,9 @@ com_by_year <- ggplot(data = fd_bar_year %>% filter(com_rec == "commercial"), ae
   geom_bar(position = "fill", stat = "identity") +
   facet_wrap(~stage) +
   theme_bw() +
-  ggtitle("commercial by year")
+  theme(legend.position="bottom") +
+  labs(y= "% response") +
+  scale_x_continuous(breaks=pretty_breaks())
 com_by_year
 
 # create graphs for recreational fisheries
@@ -180,14 +201,16 @@ rec_by_year <- ggplot(data = fd_bar_year %>% filter(com_rec == "recreational"), 
   geom_bar(position = "fill", stat = "identity") +
   facet_wrap(~stage) +
   theme_bw() +
-  ggtitle("recreational by year")
+  labs(y= "% response") +
+  scale_x_continuous(breaks=pretty_breaks()) +
+  theme(legend.position="bottom")
 rec_by_year
 
 #-------------------------#
 
 
 
-#### 4.2 visualize data availability by EMU ####
+#### 4.2  by EMU ####
 
 # create a summary of data availability by emu (reported only)
 fd_bar_emu <- fd_long %>% 
@@ -204,7 +227,8 @@ com_by_emu <- ggplot(data = fd_bar_emu %>% filter(com_rec == "commercial"), aes(
   geom_bar(position = "fill", stat = "identity") +
   facet_wrap(~stage) +
   theme_bw() +
-  ggtitle("commercial_by_emu") +
+  labs(y= "% response") +
+  theme(legend.position="bottom") +
   theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust=1, size = 4))
 com_by_emu
 
@@ -213,7 +237,8 @@ rec_by_emu <- ggplot(data = fd_bar_emu %>% filter(com_rec == "recreational"), ae
   geom_bar(position = "fill", stat = "identity") +
   facet_wrap(~stage) +
   theme_bw() +
-  ggtitle("recreational_by_emu") +
+  labs(y= "% response") +
+  theme(legend.position="bottom") +
   theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust=1, size = 4))
 rec_by_emu
 
@@ -221,7 +246,7 @@ rec_by_emu
 
 
 
-#### 4.3 visualize data availability by gear ####
+#### 4.3 by gear ####
 
 # create a summary of data availability by emu (reported only)
 fd_bar_gear <- fd_long %>% 
@@ -238,8 +263,9 @@ com_by_gear <- ggplot(data = fd_bar_gear %>% filter(com_rec == "commercial"), ae
   geom_bar(position = "fill", stat = "identity") +
   facet_wrap(~stage) +
   theme_bw() +
-  ggtitle("commercial_by_gear") +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+  labs(y= "% response") +
+  theme(legend.position="bottom") +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1.05, hjust=1.1, size = 6))
 com_by_gear
 
 # create graphs for recreational fisheries
@@ -247,13 +273,26 @@ rec_by_gear <- ggplot(data = fd_bar_gear %>% filter(com_rec == "recreational"), 
   geom_bar(position = "fill", stat = "identity") +
   facet_wrap(~stage) +
   theme_bw() +
-  ggtitle("recreational_by_gear") +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+  labs(y= "% response") +
+  theme(legend.position="bottom") +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1.05, hjust=1.1, size = 6))
 rec_by_gear
 
 #-------------------------#
 
-#### 4.4 Compare landings with reported uncertainties (as of 05-14-2024)
+```
+\
+Fig. 1: Data availability of commercial and recreational landings expressed as percentage of rows by year, EMU and gear type. Each row represents data availability for a given life stage per EMU, gear type and year. Data was reported for all possible factor combinations of gear_type and year per EMU. Note, that EMUs are not weighted by size, i.e. countries with many small EMUs will have more rows and hence weight than countries with few large EMUs (except for the "by EMU" tables). no_information = data providers have no info at all, no_quantity = known landings but no quantification, quantified_zero = known zero landings, quantified = landings are quantified (either as a single value or upper/lower uncertainty margin) 
+\
+\
+
+## REPORTED WKLANDEEL (UPPER/LOWER BOUNDARY AVAILABLE) vs LANDINGS FROM WGEEL DATABASE
+\
+```{r Compare uncertainty with landings, echo=FALSE, warning = FALSE, message = FALSE, results = "hide"}
+
+options(scipen = 999)
+
+#### 5. Compare landings with reported uncertainties (as of 05-14-2024)
 
 # load catch data
 load(catchdata)
@@ -263,16 +302,24 @@ numbers_only <- function(x) !grepl("\\D", x)
 
 # list emus that reported a value for commercial and recreational
 fd_com_quant <- fd_long %>% filter(availability == "quantified" & com_rec == "commercial") %>% 
-  mutate(min_landings = as.numeric(ifelse(numbers_only(value), value, sub(">.*", "", value))),
-         max_landings = as.numeric(ifelse(numbers_only(value), value, sub(".*>", "", value)))) %>% 
+  mutate(min_landings_t = as.numeric(ifelse(numbers_only(value), value, sub(">.*", "", value))),
+         max_landings_t = as.numeric(ifelse(numbers_only(value), value, sub(".*>", "", value))),
+         min_landings = ifelse(min_landings_t > max_landings_t, max_landings_t, min_landings_t),
+         max_landings = ifelse(min_landings_t > max_landings_t, min_landings_t, max_landings_t),
+         min_landings_t = NULL,
+         max_landings_t = NULL) %>% 
   group_by(country, emu, stage, year) %>% 
   summarize(min_landings = sum(min_landings),
             max_landings = sum(max_landings))
 emus_com <- unique(fd_com_quant$emu)
 
 fd_rec_quant <- fd_long %>% filter(availability == "quantified" & com_rec == "recreational") %>% 
-  mutate(min_landings = as.numeric(ifelse(numbers_only(value), value, sub(">.*", "", value))),
-         max_landings = as.numeric(ifelse(numbers_only(value), value, sub(".*>", "", value)))) %>% 
+  mutate(min_landings_t = as.numeric(ifelse(numbers_only(value), value, sub(">.*", "", value))),
+         max_landings_t = as.numeric(ifelse(numbers_only(value), value, sub(".*>", "", value))),
+         min_landings = ifelse(min_landings_t > max_landings_t, max_landings_t, min_landings_t),
+         max_landings = ifelse(min_landings_t > max_landings_t, min_landings_t, max_landings_t),
+         min_landings_t = NULL,
+         max_landings_t = NULL) %>% 
   group_by(country, emu, stage, year) %>% 
   summarize(min_landings = sum(min_landings),
             max_landings = sum(max_landings)) 
@@ -282,7 +329,7 @@ emus_rec <- unique(fd_rec_quant$emu)
 com_land <- commercial %>% filter(eel_emu_nameshort %in% emus_com) %>% select(eel_lfs_code, eel_year, eel_emu_nameshort, eel_value.db)
 rec_land <- recreational %>% filter(eel_emu_nameshort %in% emus_com) %>% select(eel_lfs_code, eel_year, eel_emu_nameshort, eel_value.db)
 
-# add margins to landings data
+# add margins to landings data (and add an indicator combining emu&lfs for filtering later)
 com_land <- com_land %>% 
   left_join(fd_com_quant %>% select(country, emu, year, stage, min_landings, max_landings), by = c("eel_lfs_code" = "stage", "eel_emu_nameshort" = "emu", "eel_year" = "year")) %>% 
   mutate(difference = abs(max_landings-min_landings),
@@ -290,7 +337,8 @@ com_land <- com_land %>%
          min_landings_max = eel_value.db+(difference/2),
          min_landings_cor = min_landings*(eel_value.db/((abs(max_landings+min_landings))/2)),
          max_landings_cor = max_landings*(eel_value.db/((abs(max_landings+min_landings))/2)),
-         difference_cor = abs(max_landings_cor - min_landings_cor)) %>% 
+         difference_cor = abs(max_landings_cor - min_landings_cor),
+         emu_lfs = paste(eel_emu_nameshort, eel_lfs_code, sep = "_")) %>% 
   filter(!is.na(eel_value.db) | !is.na(min_landings) |!is.na(max_landings))
 
 rec_land <- rec_land %>% 
@@ -299,33 +347,115 @@ rec_land <- rec_land %>%
          min_landings_min = eel_value.db-(difference/2),
          min_landings_max = eel_value.db+(difference/2),
          min_landings_cor = min_landings*(eel_value.db/((abs(max_landings+min_landings))/2)),
-         max_landings_cor = max_landings*(eel_value.db/((abs(max_landings+min_landings))/2))) %>% 
-  filter(!is.na(eel_value.db) | !is.na(min_landings) |!is.na(max_landings))
+         max_landings_cor = max_landings*(eel_value.db/((abs(max_landings+min_landings))/2)),
+         emu_lfs = paste(eel_emu_nameshort, eel_lfs_code, sep = "_")) %>% 
+  filter(!is.na(eel_value.db) | !is.na(min_landings) |!is.na(max_landings)) 
 
-# create graphs of EMUs with uncertainties for commercial fisheries 
+
+# from com_land remove all emu/stage where no uncertainty is reported (otherwise it will show the EMU all stages if for one stage uncertainty is reported)
+
+# remove rows with NA in uncertainty, extract eel_lfs that remain and filter the original frame for those (seperated by single value and upper/lower margin)
+com_emu_lfs_margins <- unique(com_land %>% filter(!is.na(difference) & difference !=0) %>% pull(emu_lfs))
+com_emu_lfs_single <- unique(com_land %>% filter(!is.na(difference) & difference ==0) %>% pull(emu_lfs))
+
+rec_emu_lfs_margins <- unique(rec_land %>% filter(!is.na(difference) & difference !=0) %>% pull(emu_lfs))
+rec_emu_lfs_single <- unique(rec_land %>% filter(!is.na(difference) & difference ==0) %>% pull(emu_lfs))
+
+# create graphs of EMUs with uncertainty margins (com & rec)
  com_land_comp <- function(x) {
-  ggplot(com_land %>% filter(eel_lfs_code == x) %>% filter(!is.na(eel_value.db) | !is.na(min_landings_cor) |!is.na(max_landings_cor)), aes(x=eel_year, y=eel_value.db)) +
+  ggplot(com_land %>% filter(eel_lfs_code == x) %>% filter(emu_lfs %in% com_emu_lfs_margins), aes(x=eel_year, y=eel_value.db)) +
+  geom_ribbon(aes(ymin=min_landings_cor, ymax=max_landings_cor, fill = "band"), alpha = 0.5) +
+  geom_line(alpha = 0.5) +
+  geom_line(aes(x=eel_year, y=min_landings), color = "blue", linetype = "dashed") +
+  geom_line(aes(x=eel_year, y=max_landings), color = "blue", linetype = "dashed") +
   geom_line() +
-  geom_line(aes(x=eel_year, y=min_landings_cor), color = "red") +
-  geom_line(aes(x=eel_year, y=max_landings_cor), color = "red") +
   theme_bw() +
-  facet_wrap(~eel_emu_nameshort) +
-  ggtitle(paste(x, "commercial", sep = "_")) +
+  scale_x_continuous(breaks=seq(min(com_land$eel_year),max(com_land$eel_year), 5)) +
+  labs(y= "landings (kg)") +
+  guides(fill="none") +
+  facet_wrap(~eel_emu_nameshort, scales="free") +
      theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
 }
-lapply(c("G", "Y", "S", "YS"), com_land_comp)
+temp_lfs <- com_land %>% filter(emu_lfs %in% com_emu_lfs_margins)
+lapply(unique(temp_lfs$eel_lfs_code), com_land_comp)
 
  rec_land_comp <- function(x) {
-  ggplot(rec_land %>% filter(eel_lfs_code == x) %>% filter(!is.na(eel_value.db) | !is.na(min_landings_cor) |!is.na(max_landings_cor)), aes(x=eel_year, y=eel_value.db)) +
+  ggplot(rec_land %>% filter(eel_lfs_code == x) %>% filter(emu_lfs %in% rec_emu_lfs_margins), aes(x=eel_year, y=eel_value.db)) +
+  geom_ribbon(aes(ymin=min_landings_cor, ymax=max_landings_cor, fill = "band"), alpha = 0.5) +
+  geom_line(alpha = 0.5) +
+  geom_line(aes(x=eel_year, y=min_landings), color = "blue", linetype = "dashed") +
+  geom_line(aes(x=eel_year, y=max_landings), color = "blue", linetype = "dashed") +
   geom_line() +
-  geom_line(aes(x=eel_year, y=min_landings_cor), color = "red") +
-  geom_line(aes(x=eel_year, y=max_landings_cor), color = "red") +
+  guides(fill="none") +
   theme_bw() +
-  facet_wrap(~eel_emu_nameshort) +
-  ggtitle(paste(x, "recreational", sep = "_")) +
+  scale_x_continuous(breaks=seq(min(rec_land$eel_year),max(rec_land$eel_year), 5)) +
+  labs(y= "landings (kg)") +
+  facet_wrap(~eel_emu_nameshort, scales="free") +
      theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
 }
-lapply(c("G", "Y", "S", "YS"), rec_land_comp)
+temp_lfs <- rec_land %>% filter(emu_lfs %in% rec_emu_lfs_margins)
+lapply(unique(temp_lfs$eel_lfs_code), rec_land_comp)
+
+```
+\
+Fig. 2: Comparison of landings values from the WGEEL db with values where an upper and lower boundary (i.e. uncertainty) was reported to WKLANDEEL for at least one gear type. Comparisons are made by EMU and life stages and seperated by commercial and recreational fisheries. Black line = landings from WGEEL db, dashed blue line = reported raw upper/lower boundary (sum of all gears for the respective life stage and year), red ribbon = upper/lower boundary was scaled up/down to the dimension of the reported value in WGEEL db (e.g. uncertainty was reported for a specific gear type while an unquantified fishery was reported as well; hence, the implicit assumption is that uncertainty is similar between different gears).
+Note, that the sum of all reported gear types is possibly lower than the total (as reported to WGEEL) if landings are not quantified for every gear type used.
+\
+\
+\
+## REPORTED WKLANDEEL (SINGLE VALUE) VS REPORTED WGEEL DATABASE
+\
+```{r Compare reported single values with landings, echo=FALSE, warning = FALSE, message = FALSE, results = "hide"}
+
+#### 6. Compare landings with reported single values (as of 05-14-2024)
+
+# create graphs of EMUs with single landings value provided (com & rec)
+ com_land_comp <- function(x) {
+  ggplot(com_land %>% filter(eel_lfs_code == x) %>% filter(emu_lfs %in% com_emu_lfs_single), aes(x=eel_year, y=eel_value.db)) +
+  geom_ribbon(aes(ymin=min_landings_cor, ymax=max_landings_cor, fill = "band"), alpha = 0.5) +
+  geom_line(alpha = 0.5) +
+  geom_line(aes(x=eel_year, y=min_landings), color = "blue", linetype = "dashed") +
+  geom_line(aes(x=eel_year, y=max_landings), color = "blue", linetype = "dashed") +
+  geom_line() +
+  guides(fill="none") +
+  theme_bw() +
+  labs(y= "landings (kg)") +
+  scale_x_continuous(breaks=seq(min(com_land$eel_year),max(com_land$eel_year), 5)) +
+  facet_wrap(~eel_emu_nameshort, scales="free") +
+     theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
+}
+temp_lfs <- com_land %>% filter(emu_lfs %in% com_emu_lfs_single)
+lapply(unique(temp_lfs$eel_lfs_code), com_land_comp)
+
+ rec_land_comp <- function(x) {
+  ggplot(rec_land %>% filter(eel_lfs_code == x) %>% filter(emu_lfs %in% rec_emu_lfs_single), aes(x=eel_year, y=eel_value.db)) +
+  geom_ribbon(aes(ymin=min_landings_cor, ymax=max_landings_cor, fill = "band"), alpha = 0.5) +
+  geom_line(alpha = 0.5) +
+  geom_line(aes(x=eel_year, y=min_landings), color = "blue", linetype = "dashed") +
+  geom_line(aes(x=eel_year, y=max_landings), color = "blue", linetype = "dashed") +
+  geom_line() +
+  theme_bw() +
+  labs(y= "landings (kg)") +
+  scale_x_continuous(breaks=seq(min(rec_land$eel_year),max(rec_land$eel_year), 5)) +
+  guides(fill="none") +
+  facet_wrap(~eel_emu_nameshort, scales="free") +
+     theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
+}
+temp_lfs <- rec_land %>% filter(emu_lfs %in% rec_emu_lfs_single)
+lapply(unique(temp_lfs$eel_lfs_code), rec_land_comp)
+
+
+```
+\
+Fig. 3: Comparison of landings values from the WGEEL db with values a single value (i.e. no uncertaint) was reported to WKLANDEEL for at least one gear type. Comparisons are made by EMU and life stages and seperated by commercial and recreational fisheries. Black line = landings from WGEEL db, dashed blue line = sum of all landings for a given year and life stage as reported to WKLANDEEL. 
+Note, that the sum of all reported gear types is possibly lower than the total (as reported to WGEEL) if landings are not quantified for every gear type used.
+\
+\
+\
+
+## CUMULATIVE UNCERTAINTIES
+\
+```{r cumulative uncertainty reported, echo=FALSE, warning = FALSE, message = FALSE}
 
 # create a summarized uncertainty over all reported EMUs per year
 com_unc <- com_land %>% 
@@ -340,16 +470,55 @@ rec_unc <- rec_land %>%
 unc_plot_com <- ggplot(com_unc %>% filter(uncertainty != 0), aes(x = eel_year, y = uncertainty)) +
   geom_line() +
   theme_bw() +
-  facet_wrap(~eel_lfs_code) +
+  facet_wrap(~eel_lfs_code, scales="free_y") +
   ggtitle("Known minimum uncertainty commercial")
 unc_plot_com
 
 unc_plot_rec <- ggplot(rec_unc %>% filter(uncertainty != 0), aes(x = eel_year, y = uncertainty)) +
   geom_line() +
   theme_bw() +
-  facet_wrap(~eel_lfs_code) +
+  facet_wrap(~eel_lfs_code, scales="free_y") +
   ggtitle("Known minimum uncertainty recreational")
 unc_plot_rec
 
 ```
 
+\
+Fig 4: Known minimum uncertinty by lifestage; represented as the sum of differences between upper and lower boundary from all gear types and EMUs where respective data was re
+
+```{r checkerrorsindb}
+library(yaml)
+cred=read_yaml("../../credentials.yml")
+library(RPostgres)
+con=dbConnect(Postgres(), dbname=cred$dbname, user=cred$user,port=cred$port,
+              host=cred$host,password=cred$password)
+library(glue)
+
+landings_data <- dbGetQuery(con, "select eel_missvaluequal,eel_value,eel_year,eel_lfs_code,eel_emu_nameshort,eel_typ_id from datawg.t_eelstock_eel where eel_typ_id in (4,6) and eel_qal_id<5")
+
+
+find_match <- function(year, lfs, emu,type=4){
+  list_emu <- c(emu,paste0(substr(emu,1,3),"total"))
+  list_lfs <- c(lfs,"AL")
+  if (lfs %in% c("Y","S")) list_lfs <- c(list_lfs,"YS")
+  if (lfs %in% c("YS")) list_lfs <- c(list_lfs,"Y","S")
+  res <- landings_data %>%
+         filter(eel_typ_id==type & eel_year==year & eel_lfs_code %in% list_lfs & eel_emu_nameshort %in% list_emu)
+  if (nrow(res)==0) return(3)
+  if (nrow(res %>% filter(!is.na(eel_value)))>0) return(1)
+  as.integer(nrow(res %>% filter(is.na(eel_value)) %>% filter(eel_missvaluequal!="NP")) > 0)
+}
+
+potential_fishery <- fd_long %>%
+  filter(availability %in% c("no_quantity","quantified")) %>%
+  mutate(typ=ifelse(com_rec=="commercial",4,6)) %>%
+  mutate(data_found = unlist(purrr::pmap(list(year,stage,emu,typ),find_match)))
+potential_fishery %>%
+  filter(data_found==3 & com_rec=="commercial") %>%
+  arrange(year)
+potential_fishery %>%
+  filter(data_found==0 & com_rec=="commercial")
+
+
+
+```

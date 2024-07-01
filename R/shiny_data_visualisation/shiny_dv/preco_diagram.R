@@ -29,14 +29,18 @@ background<-function(Aminimum=0,Amaximum=6.5,Bminimum=1e-2,Bmaximum=1){
 #' @title Draw precautionary diagram itself
 #' @param precodata data.frame with column being: eel_emu_nameshort	bcurrent	bbest	b0	suma, using extract_data("precodata")
 #' @param adjusted_b0 should adjusted_b0 following WKEMP2021 be used?
+#' @param bbest_unit the unit to be displayed in the graph.
 #' @examples
 #' x11()
 #' trace_precodiag( extract_data("precodata"))
 # TODO: offer the possibility to aggregate by country
-trace_precodiag = function(precodata, 
-                           precodata_choice=c("emu","country","all"), 
-                           last_year=TRUE, adjusted_b0=FALSE)
-{  
+trace_precodiag <- function(
+  precodata,
+  precodata_choice = c("emu", "country", "all"),
+  last_year = TRUE,
+  adjusted_b0 = FALSE,
+  bbest_unit = "tons"
+) {
   ###############################
   # Data selection
   # this in done on precodata which is filtered by the app using filter_data
@@ -102,15 +106,22 @@ trace_precodiag = function(precodata,
     #geom_path(data = precodata,aes(x = pbiom, y = suma, group = eel_cou_code))+
     #scale_color_discrete(#guide = 'none'
     #    ) +
-    geom_point(data=precodata,aes_string(x="pbiom",y="suma",size="bbest",color=choose_color), alpha=0.7)+ 
-    geom_text_repel(data=precodata, aes(x=pbiom,
-                                        y = suma,
-                                        label = paste(precodata$aggreg_area, substr(precodata$eel_year, 3, 4), sep = "")#,
+    geom_point(
+      data = precodata,
+      aes(x = pbiom, y = suma, size = bbest, color = choose_color),
+      alpha = 0.7
+    ) +
+    geom_text_repel(
+      data = precodata,
+      aes(
+        x = pbiom,
+        y = suma,
+        label = paste(aggreg_area, substr(eel_year, 3, 4), sep = "")#,
                                         #size=bbest/8
     ),
     show.legend = FALSE      
     )+
-    scale_size(name="B best (millions)",range = c(2, 25),limits=c(0,max(pretty(precodata$bbest))))+
+    scale_size(name = paste0("B best (", bbest_unit, ")"), range = c(2, 25),limits=c(0,max(pretty(precodata$bbest))))+
     annotate("text",x =  1, y = 0.92, label = "0.92",  parse = F, hjust=1,vjust=-1.1, size=3)+
     annotate("text",x =  1, y = 0.92, label = "Alim",  parse = F, hjust=1,vjust=1.1, size=3)+
     annotate("text",x =  0.4, y = 0, label = "Blim",  parse = F, hjust=0,vjust=-0.7, size=3,angle=90)+
@@ -126,8 +137,8 @@ trace_precodiag = function(precodata,
     ggtitle(str_c(title))
   if(pretty(max(precodata$suma,na.rm=TRUE))[2] > 4.6)   g = g +annotate("text",x =  Bminimum, y = 4.6, label = "1%",  parse = F, hjust=1, size=3) 
   if (choose_color == "eel_year")
-    g+scale_colour_viridis(discrete=TRUE) else
-      g+scale_colour_brewer(palette = "Set3",direction=-1)
+    g + viridis::scale_colour_viridis(discrete = TRUE) else
+      g + scale_colour_brewer(palette = "Set3", direction = -1)
   
   
   
