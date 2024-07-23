@@ -75,8 +75,8 @@ con = dbConnect(RPostgres::Postgres(),
     dbname=cred$dbname,
     host=cred$host,
     port=cred$port,
-    user=getPass("get db user"), 
-    password=getPass("get db password"))
+    user=cred$user, 
+    password=cred$password)
 
 
 #############################
@@ -244,11 +244,11 @@ for (cou in cou_code){
       eel_typ_id=c(13:15,34),
       datasource="dc_2024")
 	create_datacall_file_biom_morta(country <- cou,
-      type <- "mortalities",
+      type = "mortalities",
       con=con, 
       minyear=2007, 
       maxyear=2023,
-      eel_typ_id=c(13:15,34),
+      eel_typ_id=c(17:19),
       datasource="dc_2024")
 	cat("work finished\n")
 }
