@@ -135,7 +135,7 @@ create_datacall_file_biom_morta <- function(country, type = type_of_data[1], ...
 	dir.create(str_c(wddata,country),showWarnings = FALSE) # show warning= FALSE will create if not exist	
 	nametemplatefile <- str_c(name,".xlsx")
 	templatefile <- file.path(wddata,"00template",nametemplatefile)
-	namedestinationfile <- str_c(name,"_",country,".xlsx")	
+	namedestinationfile <- str_c(CY,"_",name,"_",country,".xlsx")	
   sheetnames <- openxlsx::getSheetNames(templatefile)
   ref_sheets <- sheetnames[grep("tr_", sheetnames)]
   wb = openxlsx::loadWorkbook(templatefile)
