@@ -2305,8 +2305,8 @@ load_series<-function(path, datasource, stage="glass_eel", contaminant_data = FA
       #    data_xls <- correct_me(data_xls)
       
       # 2022 08 we have added fi_lsf_code, it is not yet in the sheets so we add an empty if not there
-      if ("fi_lfs_code" %in% columns & (!"fi_lfs_code" %in% names(data_xls)))
-        data_xls$fi_lfs_code <- as.character(NA)  
+      # if ("fi_lfs_code" %in% columns & (!"fi_lfs_code" %in% names(data_xls)))
+      #   data_xls$fi_lfs_code <- as.character(NA)  
       
       
       # check for the file integrity		
