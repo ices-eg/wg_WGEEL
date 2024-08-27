@@ -75,8 +75,8 @@ con = dbConnect(RPostgres::Postgres(),
     dbname=cred$dbname,
     host=cred$host,
     port=cred$port,
-    user=getPass("get db user"), 
-    password=getPass("get db password"))
+    user=cred$user, 
+    password=cred$password)
 
 
 #############################
@@ -135,7 +135,7 @@ create_datacall_file_biom_morta <- function(country, type = type_of_data[1], ...
 	dir.create(str_c(wddata,country),showWarnings = FALSE) # show warning= FALSE will create if not exist	
 	nametemplatefile <- str_c(name,".xlsx")
 	templatefile <- file.path(wddata,"00template",nametemplatefile)
-	namedestinationfile <- str_c(name,"_",country,".xlsx")	
+	namedestinationfile <- str_c(CY,"_",name,"_",country,".xlsx")	
   sheetnames <- openxlsx::getSheetNames(templatefile)
   ref_sheets <- sheetnames[grep("tr_", sheetnames)]
   wb = openxlsx::loadWorkbook(templatefile)
@@ -244,11 +244,11 @@ for (cou in cou_code){
       eel_typ_id=c(13:15,34),
       datasource="dc_2024")
 	create_datacall_file_biom_morta(country <- cou,
-      type <- "mortalities",
+      type = "mortalities",
       con=con, 
       minyear=2007, 
       maxyear=2023,
-      eel_typ_id=c(13:15,34),
+      eel_typ_id=c(17:19),
       datasource="dc_2024")
 	cat("work finished\n")
 }
