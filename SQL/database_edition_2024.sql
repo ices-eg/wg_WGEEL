@@ -343,4 +343,9 @@ CREATE OR REPLACE VIEW datawg.bcurrent_without_stocking AS
 SELECT * FROM "ref".tr_country_cou WHERE cou_code='LU'; 
 SELECT * FROM datawg.t_eelstock_eel WHERE eel_cou_code='LU';
 
-
+SELECT* FROM datawg.t_series_ser 
+JOIN datawg.t_fishseries_fiser  ON fiser_ser_id =ser_id
+JOIN datawg.t_metricindseries_meiser ON mei_fi_id=fi_id
+--LEFT JOIN datawg.t_metricgroupseries_megser ON meg_gr_id = gr_id
+WHERE ser_cou_code = 'IE'
+AND ser_typ_id = 1
