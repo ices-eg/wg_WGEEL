@@ -1,12 +1,12 @@
 /.project
 /*.yml
-/data/
+/data/datacall_template/*
+!data/datacall_template/00template
 /.dbeaver
 .Rproj.user
 wg_WGEEL.Rproj
 /.dbeaver-data-sources.xml
 /connection
 .Rhistory
-*.RData
 /R/Y_S_series/2023/final
 *.log
