@@ -319,8 +319,7 @@ create_datacall_file_series <- function(country, name, ser_typ_id, type="series"
   existing_metric <- groups %>%
     left_join(metrics) %>%
     tidyr::pivot_wider(names_from=mty_name,
-                       values_from=meg_value) %>%
-    dplyr::filter(!!sym(ifelse(type=="series","ser_nameshort","sai_name")) %in% activeseries)     #this ensure that we don't ask new data for time series that are inactive since more than 4 years
+                       values_from=meg_value) 
   if (nrow(existing_metric)> 0){ #not possible to prefill for non series data
     existing_metric <- applyTemplateFormat(formatted, existing_metric) %>%
       arrange(!!sym(ifelse(type=="series","ser_nameshort","sai_name")),gr_year,gr_id)
@@ -332,6 +331,8 @@ create_datacall_file_series <- function(country, name, ser_typ_id, type="series"
     #openxlsx::writeData(wb, sheet = "existing_biometry", biom, startRow = 1)
     writeData(wb, x=existing_metric,  sheet = "existing_group_metrics")
   } 
+  existing_metric <- existing_metric %>%
+    dplyr::filter(!!sym(ifelse(type=="series","ser_nameshort","sai_name")) %in% activeseries)     #this ensure that we don't ask new data for time series that are inactive since more than 4 years
   
   
   # group biometry data new data ------------------------------------------
