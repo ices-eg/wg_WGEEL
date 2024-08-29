@@ -28,6 +28,29 @@ applyTemplateFormat <- function(templateformat, mydata){
     select(any_of(names(templateformat)))
   mydata  
 }
+
+#' checkmetricintemplate
+#' check that column in formattedtemplate are consistent with the db
+#' 
+#' @param formattedtemplate table in the template
+#' @param existingmetric what has been found in the db
+#' @param validmetrics valid metrics in the db
+#'
+#' @return
+#' @export
+#'
+#' @examples
+checkmetricintemplate <- function(formattedtemplate, existingmetric,validmetrics){
+  check <- which(!names(formattedtemplate) %in% names(existingmetric))
+  if (length(check)>0){
+    columns <- names(formattedtemplate)[check]
+    errors <- columns[which(!columns %in% validmetrics)]
+    if (length(errors)>0)
+      stop(paste("in existing_group_metrics, columns",
+                 paste(errors, collapse=", "),
+                 "does not exist in the db"))
+  }
+}
 ###########################
 # Loading necessary packages
 ############################
@@ -302,7 +325,7 @@ create_datacall_file_series <- function(country, name, ser_typ_id, type="series"
     dplyr::select(!!sym(ifelse(type=="series","ser_nameshort","sai_name"))) %>%
     dplyr::pull() %>%
     unique()
-  
+  validmetrics <- dbGetQuery(con, "select mty_name from ref.tr_metrictype_mty")[,1]
   #read the existing data template to have the correct format
   formatted <-  read_excel(templatefile,"existing_group_metrics")
   if(type=="series"){
@@ -321,6 +344,8 @@ create_datacall_file_series <- function(country, name, ser_typ_id, type="series"
     tidyr::pivot_wider(names_from=mty_name,
                        values_from=meg_value) 
   if (nrow(existing_metric)> 0){ #not possible to prefill for non series data
+    checkmetricintemplate(formatted, existing_metric, validmetrics)
+    
     existing_metric <- applyTemplateFormat(formatted, existing_metric) %>%
       arrange(!!sym(ifelse(type=="series","ser_nameshort","sai_name")),gr_year,gr_id)
     
@@ -366,6 +391,7 @@ create_datacall_file_series <- function(country, name, ser_typ_id, type="series"
       dplyr::arrange(!!sym(ifelse(type=="series","ser_nameshort","sai_name")), gr_year)
     
     if (nrow(newbiom)>0 && type=="series") {
+    checkmetricintemplate(formatted, existing_metric, validmetrics)
       newbiom <- applyTemplateFormat(formatted, newbiom)
       #openxlsx::writeData(wb, sheet = "new_biometry", newbiom, startRow = 1)
       writeData(wb, x=newbiom,  sheet = "new_group_metrics")	
@@ -419,14 +445,19 @@ create_datacall_file_series <- function(country, name, ser_typ_id, type="series"
   
   #read the existing data template to have the correct format
   formatted <- read_excel(templatefile,"existing_individual_metrics")
-
+  validmetrics <- dbGetQuery(con, "select mty_name, mty_individual_name from ref.tr_metrictype_mty")
+  validmetrics <- ifelse(is.na(validmetrics$mty_individual_name),
+                         validmetrics$mty_name,
+                         validmetrics$mty_name)
+  
   existing_metric <-
     fishes %>%
     left_join(metrics) %>%
     tidyr::pivot_wider(names_from=mty_name,
                        values_from=mei_value)
-   
+  
   if (nrow(existing_metric)> 0){	
+    checkmetricintemplate(formatted, existing_metric, validmetrics)
     #existing_metric <- existing_metric[!is.na(existing_metric$fi_year),]
     
     existing_metric <- applyTemplateFormat(formatted, existing_metric) %>%
