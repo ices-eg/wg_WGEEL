@@ -349,3 +349,40 @@ JOIN datawg.t_metricindseries_meiser ON mei_fi_id=fi_id
 --LEFT JOIN datawg.t_metricgroupseries_megser ON meg_gr_id = gr_id
 WHERE ser_cou_code = 'IE'
 AND ser_typ_id = 1
+
+
+-- fixe metrics, correct on cedric labtop but somehow wrong in the db
+
+SELECT * FROM datawg.t_metricindseries_meiser WHERE mei_mty_id  IN (27,28); -- nothing
+SELECT * FROM datawg.t_metricgroupseries_megser WHERE meg_mty_id  IN (27,28);-- nothing
+SELECT * FROM datawg.t_metricgroupsamp_megsa WHERE meg_mty_id  IN (27,28);-- NOTHING
+SELECT * FROM datawg.t_metricindsamp_meisa WHERE mei_mty_id  IN (27,28);-- NOTHING
+
+UPDATE "ref".tr_metrictype_mty
+  SET mty_name='female_proportion'
+  ,mty_individual_name='is_female(1=female,0=male)'
+  ,mty_description='Female status (is_female) or female proportion in the population female/(male+female) for group'
+  ,mty_method='Check method in method_sex'
+  WHERE mty_id=6;
+
+UPDATE "ref".tr_metrictype_mty
+  SET mty_name='anguillicola_proportion'
+  ,mty_individual_name='anguillicola_presence(1=present,0=absent)'
+  ,mty_description='Presence of anguillicola or prevalence in proportion in group (between 0 and 1)'
+  ,mty_method='check method in method_anguillicola'
+  WHERE mty_id=8;
+
+
+UPDATE "ref".tr_metrictype_mty
+  SET mty_name='method_sex_(1=visual,0=use_length)'
+  ,mty_individual_name=NULL
+  ,mty_description='Method used for sex determination'
+  ,mty_method=NULL
+  WHERE mty_id=27;
+
+UPDATE "ref".tr_metrictype_mty
+  SET mty_name='method_anguillicola_(1=stereomicroscope,0=visual_obs)'
+  ,mty_individual_name=NULL
+  ,mty_description='Method used for sex determination'
+  ,mty_method=NULL
+  WHERE mty_id=28;
