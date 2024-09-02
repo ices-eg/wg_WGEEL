@@ -41,10 +41,10 @@ extract_data = function(table_dbname, quality = c(0,1,2,4), quality_check=TRUE, 
     if (qal_column=="") stop(sprintf("You cannot perform quality check on table %s please use quality_check=FALSE",table_dbname))
     if (allow_NULL){
       sql_request = glue_sql(paste("SELECT * FROM datawg.", table_dbname,
-              " WHERE ",qal_column," IN ({quality*}) OR ", qal_column, " IS NULL", sep = ""))
+              " WHERE ",qal_column," IN ({quality*}) OR ", qal_column, " IS NULL", sep = ""), .con=pool)
     } else {
       sql_request = glue_sql(paste("SELECT * FROM datawg.", table_dbname,
-              " WHERE ",qal_column," IN ({quality*})", sep = ""))
+              " WHERE ",qal_column," IN ({quality*})", sep = ""), .con=pool)
     }
   } else {
     sql_request = paste0("SELECT * FROM datawg.",table_dbname) 
