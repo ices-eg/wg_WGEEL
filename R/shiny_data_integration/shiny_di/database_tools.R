@@ -2767,7 +2767,7 @@ update_data_generic <- function(editedValue, pool, data,edit_datatype) {
 #' @return nothing
 log_datacall <- function(step, cou_code, message, file_type, main_assessor, 
                          secondary_assessor) {
-  query <- glue_sql("INSERT INTO datawg.log(log_cou_code,log_data,log_evaluation_name,log_main_assessor,log_secondary_assessor,log_contact_person_name, log_method, log_message, log_date) VALUES
+  query <- glue_sql("INSERT INTO datawg.log(log_cou_code,log_data,log_evaluation_name,log_main_assessor,log_secondary_assessor, log_message, log_date) VALUES
 					({cou_code},{data},{evaluation},{main},{secondary},{log_message},{date})", 
                     cou_code = cou_code, 
                     data = file_type, 
