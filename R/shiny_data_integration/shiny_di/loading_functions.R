@@ -2248,6 +2248,8 @@ load_series<-function(path, datasource, stage="glass_eel", contaminant_data = FA
     # read the catch_landings sheet
     cat("loading station \n")
     # here we have already seached for catch and landings above.
+    station <- data.frame()
+    if ("station" %in% readxl::excel_sheets(path=path)){
     station <- read_excel(
       path=path,
       sheet ="station",
@@ -2263,7 +2265,7 @@ load_series<-function(path, datasource, stage="glass_eel", contaminant_data = FA
                                           c("ser_nameshort", "Organisation")],collapse= "&"),
                 "file =",
                 file,"\n")) 
-    
+    }
     #---------------------- all_other_sheets ---------------------------------------------
     
     fn_check_series <- function(
