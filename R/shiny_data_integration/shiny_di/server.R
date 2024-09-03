@@ -30,7 +30,7 @@ shinyServer(function(input, output, session){
   
   
   output$passwordtest <- renderText({
-    req(input$passwordbutton)   
+    req(input$passwordbutton)
     load_database()
     
     if (data$connectOK){

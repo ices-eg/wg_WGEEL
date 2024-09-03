@@ -70,22 +70,7 @@ importtsstep2UI <- function(id){
                                              )
                                            ),
                                            h2("step 2.2.2 Integrate new data"),
-                                           fluidRow(
-                                             column(
-                                               width=4,
-                                               fileInput(ns("xl_new_dataseries"), "Once the series are updated, integrate new dataseries",
-                                                         multiple=FALSE,
-                                                         accept = c(".xls",".xlsx"))
-                                             ),
-                                             column(
-                                               width=2,
-                                               actionButton(ns("integrate_new_dataseries_button"), "Proceed")
-                                             ),
-                                             column(
-                                               width=6,
-                                               verbatimTextOutput(ns("textoutput_step2.2.2_ts"))
-                                             )
-                                           ),
+                                           dataWriterModuleUI(ns("integratenewdas"), "Once the series are updated, integrate new dataseries"),
                                            h2("step 2.2.3 Update modified data"),
                                            fluidRow(
                                              column(
@@ -287,81 +272,12 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts,globaltspanel){
                  
                  # 2.2.2 new dataseries  --------------------------------------------------------							
                  
-                 observeEvent(input$integrate_new_dataseries_button, shinyCatch({
-                   
-                   step2.2.2_filepath_new_dataseries <- reactive({
-                     inFile <- isolate(input$xl_new_dataseries)     
-                     if (is.null(inFile)){        return(NULL)
-                     } else {
-                       data$path_step_2.2.2_new_dataseries <- inFile$datapath #path to a temp file             
-                     }
-                   })
-                   
-                   step2.2.2_load_data <- function() {
-                     path <- isolate(step2.2.2_filepath_new_dataseries())
-                     if (is.null(data$path_step_2.2.2_new_dataseries)) 
-                       return(NULL)
-                     rls <- write_new_dataseries(path)
-                     message <- rls$message
-                     cou_code <- rls$cou_code
-                     main_assessor <- input$main_assessor
-                     secondary_assessor <- input$secondary_assessor
-                     file_type <- loaded_data_ts$file_type
-                     log_datacall("new dataseries integration", cou_code = cou_code, message = sQuote(message), 
-                                  file_type = file_type, main_assessor = globaldata$main_assessor, 
-                                  secondary_assessor = globaldata$secondary_assessor)
-                     return(message)
-                   }
-                   
-                   output$textoutput_step2.2.2_ts <- renderText({
-                     validate(need(globaldata$connectOK,"No connection"))
-                     # call to  function that loads data
-                     # this function does not need to be reactive
-                     message <- step2.2.2_load_data()
-                     if (is.null(data$path_step_2.2.2_new_dataseries)) "please select a dataset" else {                                      
-                       paste(message,collapse="\n")
-                     }                  
-                   })  
-                 }), ignoreInit = TRUE)	
-                 
+                 dataWriterModuleServer("integratenewdas", loaded_data_ts,globaldata,  write_new_dataseries,"new dataseries integration")
+
                  # 2.2.3 update modified dataseries  --------------------------------------------------------							
                  
-                 observeEvent(input$update_dataseries_button, shinyCatch({
-                   
-                   step2.2.3_filepath_modified_dataseries <- reactive({
-                     inFile <- isolate(input$xl_updated_dataseries)     
-                     if (is.null(inFile)){        return(NULL)
-                     } else {
-                       data$path_step_2.2.3_modified_dataseries <- inFile$datapath #path to a temp file             
-                     }
-                   })
-                   
-                   step2.2.3_load_data <- function() {
-                     path <- isolate(step2.2.3_filepath_modified_dataseries())
-                     if (is.null(data$path_step_2.2.3_modified_dataseries)) 
-                       return(NULL)
-                     rls <- update_dataseries(path)
-                     message <- rls$message
-                     cou_code <- rls$cou_code
-                     main_assessor <- input$main_assessor
-                     secondary_assessor <- input$secondary_assessor
-                     file_type <- loaded_data_ts$file_type
-                     log_datacall("update dataseries", cou_code = cou_code, message = sQuote(message), 
-                                  file_type = file_type, main_assessor = globaldata$main_assessor, 
-                                  secondary_assessor = globaldata$secondary_assessor)
-                     return(message)
-                   }
-                   
-                   output$textoutput_step2.2.3_ts <- renderText({
-                     validate(need(globaldata$connectOK,"No connection"))
-                     # call to  function that loads data
-                     # this function does not need to be reactive
-                     message <- step2.2.3_load_data()
-                     if (is.null(data$path_step_2.2.3_modified_dataseries)) "please select a dataset" else {                                      
-                       paste(message,collapse="\n")
-                     }                  
-                   })  
-                 }), ignoreInit = TRUE)	
+                 dataWriterModuleServer("integrateupdatedas", loaded_data_ts,globaldata,  update_dataseries,"update dataseries")
+                 
                  
                  # 2.3.1 deleted group metrics series  --------------------------------------------------------							
                  writedeletedgroupmetricServer("deletedgroupmetricseries", globaldata=globaldata,loaded_data=loaded_data_ts,type="series")

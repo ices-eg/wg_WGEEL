@@ -1790,8 +1790,7 @@ write_new_sampling <- function(path) {
 #'  }
 #' }
 #' @rdname write_new dataseries
-write_new_dataseries <- function(path) {
-  
+write_new_dataseries <- function(path, conn) {
   new <- read_excel(path = path, sheet = 1, skip = 1)
   new$das_qal_id <- as.integer(new$das_qal_id)
   ser_nameshort	 <- new$ser_nameshort	 # these will be dropped later
@@ -1805,7 +1804,6 @@ write_new_dataseries <- function(path) {
                  "das_effort", "das_dts_datasource", "das_ser_id", "das_qal_id")	]
   
   # das_last_update : there is a trigger
-  conn <- poolCheckout(pool)
   cou_code <- (dbGetQuery(conn, statement=paste0("SELECT ser_cou_code FROM datawg.t_series_ser WHERE ser_nameshort='",
                                                  ser_nameshort[1],"';")))$ser_cou_code  
   
@@ -1816,27 +1814,15 @@ write_new_dataseries <- function(path) {
   # Query uses temp table just created in the database by sqldf
   query <- "insert into datawg.t_dataseries_das (das_year, das_value, das_comment,
 			das_effort, das_dts_datasource, das_ser_id, das_qal_id)
-			select 
+			(select 
 			das_year, das_value, das_comment,	das_effort, das_dts_datasource, das_ser_id, das_qal_id
-			from new_dataseries_temp"
+			from new_dataseries_temp) returning *"
   # if fails replaces the message with this trycatch !  I've tried many ways with
   # sqldf but trycatch failed to catch the error Hence the use of DBI
-  
-  message <- NULL
-  (nr <- tryCatch({
-    dbExecute(conn, query)
-  }, error = function(e) {
-    message <<- e
-  }, finally = {
-    dbExecute(conn,"drop table if exists new_dataseries_temp ")
-    poolReturn(conn)
-  }))
-  
-  
-  if (is.null(message))   
-    message <- sprintf(" %s new values inserted in the database", nr)
-  
-  return(list(message = message, cou_code = cou_code))
+  newind <- dbGetQuery(conn, query)
+  message <- sprintf(" %s new values inserted in the database", nrow(newind))
+
+  return(list(datadb = newind, message=message, cou_code = cou_code))
 }
 
 
