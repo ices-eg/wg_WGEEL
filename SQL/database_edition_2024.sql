@@ -397,3 +397,7 @@ insert into ref.tr_datasource_dts values ('dc_2024', 'Joint EIFAAC/GFCM/ICES Eel
 
 insert into ref.tr_quality_qal values (24, 'discarded_wgeel 2024','This data has either been removed from the database in favour of new data, or corresponds to new data not kept in the database during datacall 2024', FALSE);
     
+
+
+--SELECT * FROM datawg.t_eelstock_eel AS tee WHERE eel_datasource ='dc_2024'
+-- DELETE FROM datawg.t_eelstock_eel AS tee WHERE eel_datasource ='dc_2024'

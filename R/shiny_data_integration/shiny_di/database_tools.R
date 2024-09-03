@@ -1302,7 +1302,7 @@ write_duplicates <- function(path, qualify_code = 22) {
 #' @examples 
 #' \dontrun{
 #' if(interactive()){
-#'  path<-wg_file.choose() 
+#'  path<- file.choose()
 #'  #path<-'C:\\Users\\cedric.briand\\Desktop\\06. Data\\datacall(wgeel_2018)\\new_catch_landings_2018-07-23.xlsx'
 #'  # path <- "https:\\community.ices.dk\\ExpertGroups\\wgeel\\2019 Meeting Documents/06. Data\\03 Data Submission 2019\\EST\\new_aquaculture_2019-08-07EE.xlsx"
 #'  # path <- "C:\\Users\\cedric.briand\\OneDrive - EPTB Vilaine\\Projets\\GRISAM\\2019\\datacall\\sharepoint\\03-data_submission_2019\\new_aquaculture_2019-08-07EE.xlsx"
@@ -1313,7 +1313,7 @@ write_duplicates <- function(path, qualify_code = 22) {
 #' }
 #' @rdname write_duplicate
 
-write_new <- function(path, type="all") {
+write_new <- function(path) {
   # bug 2021 when a lots of rows without values in eel_missvaluequal reads a logical and converts to NA
   #This functions does not apply to type mortality
   shinybusy::show_modal_spinner(text = "load new data")
@@ -1331,6 +1331,7 @@ write_new <- function(path, type="all") {
   
   validate(need(all(!is.na(new$eel_qal_id)), "There are still lines without eel_qal_id, please check your file"))
   cou_code = unique(new$eel_cou_code)  
+  eel_typ_id = paste(unique(new$eel_typ_id), collapse=",")
   validate(need(length(cou_code) == 1, "There is more than one country code, please check your file"))
   
   # create dataset for insertion -------------------------------------------------------------------
@@ -1410,7 +1411,7 @@ write_new <- function(path, type="all") {
   if (is.null(message))   
     message <- sprintf(" %s new values inserted in the database", nr)
   
-  return(list(message = message, cou_code = cou_code))
+  return(list(message = message, cou_code = cou_code, eel_typ_id = eel_typ_id))
 }
 
 
@@ -2765,18 +2766,17 @@ update_data_generic <- function(editedValue, pool, data,edit_datatype) {
 #' @param main_assessor : the main person responsible for data processing, usually national correspondent
 #' @param secondary_assessor : the person who helps from the data subgroup
 #' @return nothing
-log_datacall <- function(step, cou_code, message, file_type, main_assessor, 
-                         secondary_assessor) {
+log_datacall <- function(step, cou_code, message, file_type, main_assessor, secondary_assessor) {
   query <- glue_sql("INSERT INTO datawg.log(log_cou_code,log_data,log_evaluation_name,log_main_assessor,log_secondary_assessor, log_message, log_date) VALUES
 					({cou_code},{data},{evaluation},{main},{secondary},{log_message},{date})", 
                     cou_code = cou_code, 
                     data = file_type, 
-                    evaluation = step, main = main_assessor, 
+                    evaluation = step, 
+                    main = main_assessor, 
                     secondary = secondary_assessor, 
                     log_message = message,
                     date = Sys.Date(), 
                     .con = pool)
-  
   out_data <- dbGetQuery(pool, query)
   return(out_data)
 }
