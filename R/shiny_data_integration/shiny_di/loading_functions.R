@@ -913,6 +913,7 @@ load_aquaculture<-function(path,datasource){
 
 ############# BIOMASS INDICATORS #############################################
 #path <- file.choose()
+# datasource <- "dc_2024'
 load_biomass<-function(path,datasource){
   data_error <- data.frame(nline = NULL, error_message = NULL)
   dir<-dirname(path)
@@ -1000,7 +1001,7 @@ load_biomass<-function(path,datasource){
         namedataset= "new_data", 
         column="eel_typ_name",
         country=country,
-        values=c("bcurrent_kg","bbest_kg","b0_kg")))
+        values=c("bcurrent_kg","bbest_kg","b0_kg","b_current_without_stocking_kg")))
       
       ###### eel_year ##############
       
