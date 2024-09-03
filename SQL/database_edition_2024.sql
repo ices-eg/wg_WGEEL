@@ -386,3 +386,20 @@ UPDATE "ref".tr_metrictype_mty
   ,mty_description='Method used for sex determination'
   ,mty_method=NULL
   WHERE mty_id=28;
+
+
+SELECT * FROM datawg.t_groupseries_grser AS tgg WHERE gr_id = 1684;
+
+
+--creation of the datasource (OK)
+
+insert into ref.tr_datasource_dts values ('dc_2024', 'Joint EIFAAC/GFCM/ICES Eel Data Call 2024');
+
+insert into ref.tr_quality_qal values (24, 'discarded_wgeel 2024','This data has either been removed from the database in favour of new data, or corresponds to new data not kept in the database during datacall 2024', FALSE);
+    
+
+
+--SELECT * FROM datawg.t_eelstock_eel AS tee WHERE eel_datasource ='dc_2024'
+-- DELETE FROM datawg.t_eelstock_eel AS tee WHERE eel_datasource ='dc_2024'
+
+SELECT * FROM datawg.log WHERE log_date >= '2024-09-03'

@@ -207,8 +207,8 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts, globaltspanel){
                  # with duplicates values
                  #############################
                  observeEvent(input$check_duplicate_button_ts, {
-                   #browser()
-                   shinyCatch({  
+                   browser()
+                   #shinyCatch({  
                      shinybusy::show_modal_spinner(text = "Checking File : loaddb", color="darkgreen",spin="fading-circle")
                      
                      # see step0load_data returns a list with res and messages
@@ -369,6 +369,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts, globaltspanel){
                          }
                          # note highlight change is not passed from one list to the other, both will be shown
                        } else {
+                         list_comp_dataseries <- list()
                          list_comp_dataseries$new <- list_comp_updateddataseries$new
                          list_comp_dataseries$modified <- list_comp_updateddataseries$modified
                          list_comp_dataseries$highlight_change <- list_comp_updateddataseries$highlight_change
@@ -1221,7 +1222,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts, globaltspanel){
                      }
                      
                      
-                   }) # shinycatch
+                   #}) # shinycatch
                    shinybusy::remove_modal_spinner()	
                  }, ignoreInit = TRUE)
                  return (mytspanel)

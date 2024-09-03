@@ -78,7 +78,7 @@ selectAllBut <- function(con, table, schema, excluded){
   WHERE table_schema = {schema} AND table_name   = {table}",
            .con=con))$column_name
   col_names <- col_names[!col_names %in% excluded]
-  sql_request = glue_sql("SELECT {col_names*} FROM ref.{`table`}",.con=con)
+  sql_request = glue_sql("SELECT {`col_names`*} FROM ref.{`table`}",.con=con)
   sql_request
 }
 
