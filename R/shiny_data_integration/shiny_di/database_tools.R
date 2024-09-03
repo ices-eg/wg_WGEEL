@@ -1839,7 +1839,7 @@ write_new_dataseries <- function(path, conn) {
 #		password= passwordwgeel) 
 #path<-"C:\\Users\\cedric.briand\\Downloads\\modified_series_2020-08-23_FR.xlsx"
 
-update_series <- function(path) {
+update_series <- function(path, conn) {
   
   updated_values_table <- 	read_excel(path = path, sheet = 1, skip = 1)	
   cou_code = unique(updated_values_table$ser_cou_code)  
@@ -1858,10 +1858,8 @@ update_series <- function(path) {
   
   # create dataset for insertion -------------------------------------------------------------------
   
-  conn <- poolCheckout(pool)
   dbExecute(conn,"drop table if exists updated_series_temp ")
   dbWriteTable(conn,"updated_series_temp",updated_values_table, row.names=FALSE,temporary=TRUE)
-  
   query="UPDATE datawg.t_series_ser set 
 			(
 			ser_namelong, 
@@ -1905,24 +1903,17 @@ update_series <- function(path) {
 			t.ser_distanceseakm,
 			t.ser_method,
 			t.ser_restocking)
-			FROM updated_series_temp t WHERE t.ser_nameshort = t_series_ser.ser_nameshort"
+			FROM updated_series_temp t WHERE t.ser_nameshort = t_series_ser.ser_nameshort returning t_series_ser.*"
   
   message <- NULL
-  nr <- tryCatch({
-    dbExecute(conn, query)
-  }, error = function(e) {
-    message <<- e
-  }, finally = {
-    dbExecute(conn, "DROP TABLE updated_series_temp")
-    poolReturn(conn)
-    
-  })
-  
+  nr <- dbGetQuery(conn, query)
+  dbExecute(conn, "DROP TABLE updated_series_temp")
+
   
   if (is.null(message))   
-    message <- paste(nrow(updated_values_table),"values updated in the db")
+    message <- paste(nrow(nr),"values updated in the db")
   
-  return(list(message = message, cou_code = cou_code))
+  return(list(datadb = nr, message = message, cou_code = cou_code))
 }
 
 #' @title update sampling value into the database
@@ -2041,9 +2032,8 @@ delete_dataseries <- function(path) {
 }
 
 #path<-"C:\\Users\\cedric.briand\\Downloads\\modified_dataseries_2020-08-24_FR.xlsx"
-update_dataseries <- function(path) {
+update_dataseries <- function(path, conn) {
   updated_values_table <- 	read_excel(path = path, sheet = 1, skip = 1)	
-  conn <- poolCheckout(pool)
   cou_code = dbGetQuery(conn,paste0("SELECT ser_cou_code FROM datawg.t_series_ser WHERE ser_nameshort='",
                                     updated_values_table$ser_nameshort[1],"';"))$ser_cou_code  
   
@@ -2072,7 +2062,7 @@ update_dataseries <- function(path) {
 			t.das_dts_datasource, 
 			t.das_ser_id, 
 			t.das_qal_id)
-			FROM updated_dataseries_temp t WHERE t.das_id = t_dataseries_das.das_id"
+			FROM updated_dataseries_temp t WHERE t.das_id = t_dataseries_das.das_id returning datawg.t_dataseries_das.*"
   
   
   message <- NULL

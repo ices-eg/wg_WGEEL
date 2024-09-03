@@ -20,22 +20,8 @@ importtsstep2UI <- function(id){
                                h2("step 2.1.1 Integrate new series"),
                                dataWriterModuleUI(ns("integratenewseries"), "xls new series, do this first and re-run compare"),
                                h2("step 2.1.2 Update modified series"),
-                               fluidRow(
-                                 column(
-                                   width=4,
-                                   fileInput(ns("xl_updated_series"), "xls updated series, do this first and re-run compare",
-                                             multiple=FALSE,
-                                             accept = c(".xls",".xlsx"))
-                                 ),
-                                 column(
-                                   width=2,
-                                   actionButton(ns("update_series_button"), "Proceed")
-                                 ),
-                                 column(
-                                   width=6,
-                                   verbatimTextOutput(ns("textoutput_step2.1.2_ts"))
-                                 )
-                               )),tabPanel("DATASERIES", value="DATASERIES",
+                               dataWriterModuleUI(ns("integrateupdatedseries"), "xls updated series, do this first and re-run compare")),
+                      tabPanel("DATASERIES", value="DATASERIES",
                                            h2("step 2.2.1 Delete from data"),
                                            fluidRow(
                                              column(
@@ -129,45 +115,8 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts,globaltspanel){
                  	
                  
                  # 2.1.2 updated series  --------------------------------------------------------
-                 
-                 
-                 observeEvent(input$update_series_button, shinyCatch({
-                   
-                   step2.1.2_filepath_modified_series <- reactive({
-                     inFile <- isolate(input$xl_updated_series)     
-                     if (is.null(inFile)){        return(NULL)
-                     } else {
-                       data$path_step2.1.2_modified_series <- inFile$datapath #path to a temp file             
-                     }
-                   })
-                   
-                   step2.1.2_load_data <- function() {
-                     path <- isolate(step2.1.2_filepath_modified_series())
-                     if (is.null(data$path_step2.1.2_modified_series)) 
-                       return(NULL)
-                     rls <- update_series(path)
-                     message <- rls$message
-                     cou_code <- rls$cou_code
-                     main_assessor <- input$main_assessor
-                     secondary_assessor <- input$secondary_assessor
-                     file_type <- loaded_data_ts$file_type
-                     log_datacall("update series", cou_code = cou_code, message = sQuote(message), 
-                                  file_type = file_type, main_assessor = globaldata$main_assessor, 
-                                  secondary_assessor = globaldata$secondary_assessor)
-                     return(message)
-                   }
-                   
-                   output$textoutput_step2.1.2_ts<-renderText({
-                     validate(need(globaldata$connectOK,"No connection"))
-                     # call to  function that loads data
-                     # this function does not need to be reactive
-                     message <- step2.1.2_load_data()
-                     if (is.null(data$path_step2.1.2_modified_series)) "please select a dataset" else {                                      
-                       paste(message,collapse="\n")
-                     }                  
-                   })  
-                 }), ignoreInit = TRUE)	
-                 
+                 dataWriterModuleServer("integrateupdatedseries", loaded_data_ts,globaldata,  update_series, "update series")
+
                  # 2.2.1 deleted dataseries  --------------------------------------------------------							
                  
                  observeEvent(input$delete_dataseries_button, shinyCatch({
