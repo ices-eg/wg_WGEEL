@@ -401,3 +401,5 @@ insert into ref.tr_quality_qal values (24, 'discarded_wgeel 2024','This data has
 
 --SELECT * FROM datawg.t_eelstock_eel AS tee WHERE eel_datasource ='dc_2024'
 -- DELETE FROM datawg.t_eelstock_eel AS tee WHERE eel_datasource ='dc_2024'
+
+SELECT * FROM datawg.log WHERE log_date >= '2024-09-03'
