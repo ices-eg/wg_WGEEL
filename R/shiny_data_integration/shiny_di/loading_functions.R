@@ -913,7 +913,8 @@ load_aquaculture<-function(path,datasource){
 
 ############# BIOMASS INDICATORS #############################################
 #path <- file.choose()
-# datasource <- "dc_2024'
+# datasource <- "dc_2024"
+# load_biomass(path,datasource)
 load_biomass<-function(path,datasource){
   data_error <- data.frame(nline = NULL, error_message = NULL)
   dir<-dirname(path)
@@ -937,11 +938,11 @@ load_biomass<-function(path,datasource){
       skip=0)
     # correcting an error with typ_name
     #data_xls <- correct_me(data_xls)  
-    country =as.character(data_xls[1,6]) #country code is in the 6th column
+    country =as.character(data_xls$eel_cou_code[1]) #country code is in the 6th column
     
     # check for the file integrity, only 12 column in this file
-    if (ncol(data_xls)!=11 & sheet=="new data") cat(str_c("new_data: number column wrong should have been 11 in template for country",country,"\n"))
-    if (ncol(data_xls)!=12 & sheet %in% c("deleted_data","updated_data")) cat(str_c("updated or deleted_data: number column wrong should have been 12 in template for country",country,"\n"))
+    if (ncol(data_xls)!=11 & sheet=="new data" & nrow(data_xls)>0) cat(str_c("new_data: number column wrong should have been 11 in template for country ",country,"\n"))
+    if (ncol(data_xls)!=12 & sheet %in% c("deleted_data","updated_data") & nrow(data_xls)>0) cat(str_c("updated or deleted_data: number column wrong should have been 12 in template for country ",country,"\n"))
     data_xls$eel_qal_id <- NA
     data_xls$eel_qal_comment <- NA
     data_xls$eel_datasource <- datasource
@@ -951,20 +952,28 @@ load_biomass<-function(path,datasource){
       data_xls <- data_xls %>%
         rename(eel_typ_name = typ_name)
     }
-    if (!all(colnames(data_xls)%in%
-             c(ifelse(sheet %in% c("updated_data","deleted_data"),"eel_id",""),
-               "eel_typ_name", "eel_year", "eel_value", "eel_missvaluequal", "eel_emu_nameshort", 
-               "eel_cou_code", "biom_perc_F", "biom_perc_T", "biom_perc_C", "biom_perc_MO", 
-               "eel_qal_id", "eel_qal_comment","eel_comment", "eel_datasource"))) 
-      cat(str_c("problem in column names :",
-                paste(colnames(data_xls)[!colnames(data_xls)%in%
-                                           c(ifelse(sheet %in% c("updated_data","deleted_data"),"eel_id",""),
-                                             "eel_typ_name", "eel_year", "eel_value", "eel_missvaluequal", "eel_emu_nameshort", 
-                                             "eel_cou_code", "biom_perc_F", "biom_perc_T", "biom_perc_C", "biom_perc_MO", 
-                                             "eel_qal_id", "eel_qal_comment","eel_comment", "eel_datasource")],collapse= " & "),
-                " file = ",file,"\n")) 
-    
+       
     if (nrow(data_xls)>0){
+      
+      if (!all(colnames(data_xls)%in%
+              c(ifelse(sheet %in% c("updated_data","deleted_data"),"eel_id",""),
+                  "eel_typ_name", "eel_year", "eel_value", "eel_missvaluequal", "eel_emu_nameshort", 
+                  "eel_cou_code", "biom_perc_F", "biom_perc_T", "biom_perc_C", "biom_perc_MO", 
+                  "eel_qal_id","eel_qal_comment","eel_comment", "eel_datasource", 
+                  ifelse(sheet %in% c("updated_data","deleted_data"),"eel_hty_code", ""),
+                  ifelse(sheet %in% c("updated_data","deleted_data"),"eel_lfs_code",""), 
+                  ifelse(sheet %in% c("updated_data","deleted_data"), "eel_datelastupdate","")))) 
+        cat(str_c("problem in column names :",
+                paste(colnames(data_xls)[!colnames(data_xls)%in%
+                            c(ifelse(sheet %in% c("updated_data","deleted_data"),"eel_id",""),
+                                "eel_typ_name", "eel_year", "eel_value", "eel_missvaluequal", "eel_emu_nameshort", 
+                                "eel_cou_code", "biom_perc_F", "biom_perc_T", "biom_perc_C", "biom_perc_MO", 
+                                "eel_qal_id", "eel_qal_comment","eel_comment", "eel_datasource",
+                                ifelse(sheet %in% c("updated_data","deleted_data"),"eel_hty_code", ""),
+                                ifelse(sheet %in% c("updated_data","deleted_data"),"eel_lfs_code",""), 
+                                ifelse(sheet %in% c("updated_data","deleted_data"), "eel_datelastupdate",""))],collapse= " & "),
+                " file = ",file,"\n")) 
+      
       
       ###### check_duplicate_rates #############
       data_error=rbind(data_error, check_duplicate_rates(

@@ -87,7 +87,7 @@ importstep1Server <- function(id,globaldata, loaded_data){
 				
 				observeEvent(input$check_duplicate_button,
 						{ #browser()# you can put browseR here
-							shinyCatch({ 
+							#shinyCatch({ 
 										shinybusy::show_modal_spinner(text = "Checking File", color="#337ab7",spin="fading-circle")
 										# see step0load_data returns a list with res and messages
 										# and within res data and a dataframe of errors
@@ -125,7 +125,8 @@ importstep1Server <- function(id,globaldata, loaded_data){
 													data_from_base<-rbind(
 															extract_data("b0", quality=c(0,1,2,3,4), quality_check=TRUE),
 															extract_data("bbest", quality=c(0,1,2,3,4), quality_check=TRUE),
-															extract_data("bcurrent", quality=c(0,1,2,3,4), quality_check=TRUE)) 
+															extract_data("bcurrent", quality=c(0,1,2,3,4), quality_check=TRUE),
+                              extract_data("bcurrent_without_stocking", quality=c(0,1,2,3,4), quality_check=TRUE)) 
 													data_from_base <- data_from_base %>% 
 															rename_with(function(x) tolower(gsub("biom_", "", x)),
 																	starts_with("biom_"))
@@ -169,7 +170,7 @@ importstep1Server <- function(id,globaldata, loaded_data){
 											data_from_excel$eel_typ_name[data_from_excel$eel_typ_name %in% c("rec_landings","com_landings")] <- paste(data_from_excel$eel_typ_name[data_from_excel$eel_typ_name %in% c("rec_landings","com_landings")],"_kg",sep="")
 											
 											eel_typ_valid <- switch(loaded_data$file_type,
-													"biomass"=13:15,
+													"biomass"=c(13:15,34),
 													"mortality_rates"=17:25)
 											list_comp<-compare_with_database(data_from_excel,data_from_base,eel_typ_valid)
 											duplicates <- list_comp$duplicates
@@ -345,10 +346,11 @@ importstep1Server <- function(id,globaldata, loaded_data){
 											}
 										}
 										if (exists("years")){
+                      browser()
 											summary_check_duplicates=data.frame(years=years,
 													nb_new=sapply(years, function(y) length(which(new$eel_year==y))),
-													nb_duplicates_updated=sapply(years,function(y) length(which(duplicates$eel_year==y & (duplicates$eel_value.base!=duplicates$eel_value.xls)))),
-													nb_duplicates_no_changes=sapply(years,function(y) length(which(duplicates$eel_year==y & (duplicates$eel_value.base==duplicates$eel_value.xls)))),
+													nb_duplicates_updated=sapply(years,function(y) length(which(duplicates$eel_year==y & (duplicates$eel_value.base!=duplicates$eel_value.xls | duplicates$eel_missvaluequal.base != duplicates$eel_missvaluequal.xls )))),
+													nb_duplicates_no_changes=sapply(years,function(y) length(which(duplicates$eel_year==y & (duplicates$eel_value.base==duplicates$eel_value.xls | duplicates$eel_missvaluequal.base == duplicates$eel_missvaluequal.xls)))),
 													nb_updated_values=sapply(years, function(y) length(which(updated_from_excel$eel_year==y))),
 													nb_deleted_values=sapply(years,function(y) length(which(deleted_from_excel$eel_year==y))))
 											output$dt_check_duplicates <-DT::renderDataTable({
@@ -364,7 +366,7 @@ importstep1Server <- function(id,globaldata, loaded_data){
 													})
 										}
 										#data$new <- new # new is stored in the reactive dataset to be inserted later.      
-									}) # shiny catch
+									#}) # shiny catch
 									shinybusy::remove_modal_spinner()
 						} ,# expr for browser
 						ignoreInit = TRUE)
