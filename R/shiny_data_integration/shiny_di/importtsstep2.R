@@ -72,23 +72,8 @@ importtsstep2UI <- function(id){
                                            h2("step 2.2.2 Integrate new data"),
                                            dataWriterModuleUI(ns("integratenewdas"), "Once the series are updated, integrate new dataseries"),
                                            h2("step 2.2.3 Update modified data"),
-                                           fluidRow(
-                                             column(
-                                               width=4,
-                                               fileInput(ns("xl_updated_dataseries"), "Update the modified dataseries",
-                                                         multiple=FALSE,
-                                                         accept = c(".xls",".xlsx")
-                                               )
-                                             ),
-                                             column(
-                                               width=2,
-                                               actionButton(ns("update_dataseries_button"), "Proceed")
-                                             ),
-                                             column(
-                                               width=6,
-                                               verbatimTextOutput(ns("textoutput_step2.2.3_ts"))
-                                             )
-                                           )),tabPanel("GROUP METRICS", value="GROUP METRICS",
+                                           dataWriterModuleUI(ns("integrateupdatedas"), "Update the modified dataseries")),
+                      tabPanel("GROUP METRICS", value="GROUP METRICS",
                                                        writedeletedgroupmetricUI(ns("deletedgroupmetricseries"), "step 2.3.1 Delete from group metrics"),
                                                        writenewgroupmetricUI(ns("newgroupmetricseries"), "step 2.3.2 Integrate new group metrics"),
                                                        writeupdatedgroupmetricUI(ns("updatedgroupmetricseries"), "step 2.3.3 Update group metrics")),

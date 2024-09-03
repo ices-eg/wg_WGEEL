@@ -2086,21 +2086,14 @@ update_dataseries <- function(path) {
   
   
   message <- NULL
-  nr <- tryCatch({
-    dbExecute(conn, query)
-  }, error = function(e) {
-    message <<- e
-  }, finally = {
-    dbExecute(conn, "DROP TABLE updated_dataseries_temp")
-    poolReturn(conn)
-    
-  })
+  nr <- dbGetQuery(conn, query)
+  dbExecute(conn, "DROP TABLE updated_dataseries_temp")
   
   
   if (is.null(message))   
-    message <- paste(nrow(updated_values_table),"values updated in the db")
+    message <- paste(nrow(nr),"values updated in the db")
   
-  return(list(message = message, cou_code = cou_code))
+  return(list(datadb = nr, message = message, cou_code = cou_code))
 }
 #' @title write new group metrics into the database
 #' @description New lines will be inserted in the database
