@@ -1614,7 +1614,8 @@ write_deleted_values <- function(path, qualify_code) {
 #'  }
 #' }
 #' @rdname write_new series
-write_new_series <- function(path) {
+write_new_series <- function(path, conn) {
+  message <- NULL
   new <- read_excel(path = path, sheet = 1, skip = 1)
   
   ####when there are no data, new values have incorrect type
@@ -1644,7 +1645,6 @@ write_new_series <- function(path) {
                  "ser_x", "ser_y", "ser_sam_id", "ser_dts_datasource",
                  "ser_sam_gear", "ser_distanceseakm", 	"ser_method", "ser_restocking", "ser_qal_id", "ser_qal_comment",
                  "ser_ccm_wso_id" )	]
-  conn <- poolCheckout(pool)	
   dbExecute(conn,"drop table if exists new_series_temp ")
   dbWriteTable(conn, "new_series_temp",new,temporary=TRUE,row.names=FALSE)
   
@@ -1660,24 +1660,14 @@ write_new_series <- function(path) {
 			ser_comment, ser_uni_code, ser_lfs_code, ser_hty_code, ser_locationdescription,
 			ser_emu_nameshort, ser_cou_code, ser_area_division, ser_tblcodeid::integer,
 			ser_x, ser_y, ser_sam_id, ser_dts_datasource, ser_qal_id::integer, ser_qal_comment,
-			ser_ccm_wso_id::integer[], ser_sam_gear::integer, ser_distanceseakm, 	ser_method, ser_restocking from new_series_temp;"
-  
-  
-  message <- NULL
-  (nr <- tryCatch({
-    dbExecute(conn, query)
-  }, error = function(e) {
-    message <<- e
-  }, finally = {
-    dbExecute(conn,"drop table if exists new_series_temp;")
-    poolReturn(conn)
-  }))
-  
+			ser_ccm_wso_id::integer[], ser_sam_gear::integer, ser_distanceseakm, 	ser_method, ser_restocking from new_series_temp returning *;"
+  nr <- dbGetQuery(conn, query)
+  dbExecute(conn,"drop table if exists new_series_temp;")
   
   if (is.null(message))   
-    message <- sprintf(" %s new values inserted in the database", nr)
+    message <- sprintf(" %s new values inserted in the database", nrow(nr))
   
-  return(list(message = message, cou_code = cou_code))
+  return(list(datadb = nr, message = message, cou_code = cou_code))
 }
 
 #' @title write new sampling into the database

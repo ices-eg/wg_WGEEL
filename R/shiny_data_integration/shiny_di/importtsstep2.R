@@ -18,23 +18,7 @@ importtsstep2UI <- function(id){
           tabsetPanel(id= ns("tsstep2panel"), selected="SERIES",
                       tabPanel("SERIES",value="SERIES",
                                h2("step 2.1.1 Integrate new series"),
-                               fluidRow(
-                                 column(
-                                   width=4,
-                                   fileInput(ns("xl_new_series"), "xls new series, do this first and re-run compare",
-                                             multiple=FALSE,
-                                             accept = c(".xls",".xlsx")
-                                   )
-                                 ),
-                                 column(
-                                   width=2,
-                                   actionButton(ns("integrate_new_series_button"), "Proceed")
-                                 ),
-                                 column(
-                                   width=6,
-                                   verbatimTextOutput(ns("textoutput_step2.1.1_ts"))
-                                 )
-                               ),
+                               dataWriterModuleUI(ns("integratenewseries"), "xls new series, do this first and re-run compare"),
                                h2("step 2.1.2 Update modified series"),
                                fluidRow(
                                  column(
@@ -136,45 +120,13 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts,globaltspanel){
                    })
                  })
                  
-                 observeEvent(input$integrate_new_series_button, 
-                              shinyCatch({
-                                
-                                # 2.1.1 new series  --------------------------------------------------------
-                                
-                                step2.1.1_filepath_new_series <- reactive({
-                                  inFile <- isolate(input$xl_new_series)     
-                                  if (is.null(inFile)){        return(NULL)
-                                  } else {
-                                    data$path_step2.1.1_new_series <- inFile$datapath #path to a temp file             
-                                  }
-                                })
-                                
-                                step2.1.1_load_data <- function() {
-                                  path <- isolate(step2.1.1_filepath_new_series())
-                                  if (is.null(data$path_step2.1.1_new_series)) 
-                                    return(NULL)
-                                  rls <- write_new_series(path)
-                                  message <- rls$message
-                                  cou_code <- rls$cou_code
-                                  main_assessor <- input$main_assessor
-                                  secondary_assessor <- input$secondary_assessor
-                                  file_type <- loaded_data_ts$file_type
-                                  log_datacall("new series integration", cou_code = cou_code, message = sQuote(message), 
-                                               file_type = file_type, main_assessor = globaldata$main_assessor, 
-                                               secondary_assessor = globaldata$secondary_assessor)
-                                  return(message)
-                                }
-                                
-                                output$textoutput_step2.1.1_ts<-renderText({
-                                  validate(need(globaldata$connectOK,"No connection"))
-                                  # call to  function that loads data
-                                  # this function does not need to be reactive
-                                  message <- step2.1.1_load_data()
-                                  if (is.null(data$path_step2.1.1_new_series)) "please select a dataset" else {                                      
-                                    paste(message,collapse="\n")
-                                  }                  
-                                })  
-                              }), ignoreInit = TRUE)			
+                 
+                 
+                 dataWriterModuleServer("integratenewseries", loaded_data_ts,globaldata,  write_new_series,"new series integration")
+                 
+                 # 2.1.1 new series  --------------------------------------------------------
+                 
+                 	
                  
                  # 2.1.2 updated series  --------------------------------------------------------
                  
