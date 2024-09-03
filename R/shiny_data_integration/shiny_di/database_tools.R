@@ -754,9 +754,8 @@ compare_with_database_metric_group <- function(data_from_excel,
     select(-meg_id, -meg_qal_id, -meg_last_update, -meg_mty_id, -meg_dts_datasource) %>%
     tidyr::pivot_wider(names_from=mty_name,
                        values_from=meg_value) 
-  
   data_from_excel_long <- data_from_excel %>% 
-    tidyr::pivot_longer(cols=metrics_group$mty_name,
+    tidyr::pivot_longer(cols=any_of(metrics_group$mty_name),
                         values_to="meg_value",
                         names_to="mty_name"
     ) %>%
@@ -770,7 +769,6 @@ compare_with_database_metric_group <- function(data_from_excel,
       #by = c(ifelse(type=="series","ser_nameshort","sai_name"), "gr_id","gr_year"),
       by = "gr_id",#we only need a junction based on gr_id
       suffix = c(".base", ".xls"))
-  
   
   # Anti join only keeps columns from X
   if (sheetorigin == "new_group_metrics"){
@@ -789,7 +787,7 @@ compare_with_database_metric_group <- function(data_from_excel,
   if (nrow(new)>0)	new$gr_dts_datasource <- the_eel_datasource
   
   modified <- dplyr::anti_join(data_from_excel, data_from_base_wide, 
-                               by =c("gr_id", "gr_year", "gr_number", metrics_group$mty_name))
+                               by =c("gr_id", "gr_year", "gr_number", intersect(metrics_group$mty_name,names(data_from_excel))))
   modified <- modified[!modified$id %in% new$id,]
   if (sheetorigin=="new_group_metrics" & nrow(modified)>0)
     modified$gr_comment <- "THIS LINE WAS DETECTED AS A DUPLICATE, IF IT WAS NOT IN DELETED, YOU CAN DELETE THE LINE, OTHERWISE RELOAD"
@@ -827,7 +825,7 @@ compare_with_database_metric_group <- function(data_from_excel,
       highlight_change <- highlight_change[!apply(mat,1,all),num_common_col[!apply(mat,2,all)]]
     }
   }
-  modified_long <- modified %>% tidyr::pivot_longer(cols=metrics_group$mty_name,
+  modified_long <- modified %>% tidyr::pivot_longer(cols=any_of(metrics_group$mty_name),
                                                     values_to="meg_value",
                                                     names_to="mty_name"
   ) %>% left_join(tr_metrictype_mty %>% select(mty_id, mty_name)) %>%
@@ -912,7 +910,7 @@ compare_with_database_metric_ind <- function(
                        values_from=mei_value) %>% filter(!is.na(fi_id))
   
   data_from_excel_long <- data_from_excel %>% 
-    tidyr::pivot_longer(cols=metrics_ind$mty_name,
+    tidyr::pivot_longer(cols=any_of(metrics_ind$mty_name),
                         values_to="mei_value",
                         names_to="mty_name"
     ) %>%
@@ -947,7 +945,7 @@ compare_with_database_metric_ind <- function(
   if (nrow(new)>0)	new$fi_dts_datasource <- the_eel_datasource
   
   modified <- dplyr::anti_join(data_from_excel, data_from_base_wide, 
-                               by =c("fi_id", "fi_date", "fi_comment", metrics_ind$mty_name))
+                               by =c("fi_id", "fi_date", "fi_comment", intersect(metrics_ind$mty_name,names(data_from_excel))))
   modified <- modified[!modified$id %in% new$id,]
   
   highlight_change <- duplicates[duplicates$id %in% modified$id,]
@@ -978,7 +976,7 @@ compare_with_database_metric_ind <- function(
       highlight_change <- highlight_change[!apply(mat,1,all),num_common_col[!apply(mat,2,all)]]
     }
   } 
-  modified_long <- modified %>% tidyr::pivot_longer(cols=metrics_ind$mty_name,
+  modified_long <- modified %>% tidyr::pivot_longer(cols=any_of(metrics_ind$mty_name),
                                                     values_to="mei_value",
                                                     names_to="mty_name") %>% 
     left_join(metrics_ind %>%
