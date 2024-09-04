@@ -346,7 +346,6 @@ importstep1Server <- function(id,globaldata, loaded_data){
 											}
 										}
 										if (exists("years")){
-                      browser()
 											summary_check_duplicates=data.frame(years=years,
 													nb_new=sapply(years, function(y) length(which(new$eel_year==y))),
 													nb_duplicates_updated=sapply(years,function(y) length(which(duplicates$eel_year==y & (duplicates$eel_value.base!=duplicates$eel_value.xls | duplicates$eel_missvaluequal.base != duplicates$eel_missvaluequal.xls )))),

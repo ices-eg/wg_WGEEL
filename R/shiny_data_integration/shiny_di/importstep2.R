@@ -127,15 +127,19 @@ importstep2Server <- function(id,globaldata, loaded_data){
                       return(NULL)
                     # this will alter changed values (change qal_id code) and insert new rows
                     rls <- write_duplicates(path, qualify_code = qualify_code)
+                    eel_typ_id <- rls$eel_typ_id    
                     message <- rls$message
                     cou_code <- rls$cou_code
                     main_assessor <- input$main_assessor
                     secondary_assessor <- input$secondary_assessor
                     file_type <- input$file_type
-                    log_datacall("write duplicates", cou_code = cou_code, message = sQuote(message), 
-                        file_type = file_type, main_assessor = globaldata$main_assessor, secondary_assessor = globaldata$secondary_assessor)
-                    
-                    return(message)
+                    log_datacall("write duplicates", 
+                        cou_code = cou_code, 
+                        message = sQuote(message), 
+                        file_type = eel_typ_id,  
+                        main_assessor = globaldata$main_assessor, 
+                        secondary_assessor = globaldata$secondary_assessor)         
+                   return(message)
                   }
                   ###########################
                   # errors_duplicates_integration
