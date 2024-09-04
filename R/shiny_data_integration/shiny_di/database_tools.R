@@ -1994,11 +1994,10 @@ update_sampling <- function(path) {
 
 #path <-file.choose()
 #delete_dataseries(path)
-delete_dataseries <- function(path) {
+delete_dataseries <- function(path, conn) {
   deleted_values_table <- 	read_excel(path = path, sheet = 1, skip = 1)	
   if (nrow(deleted_values_table) == 0)
     return(list(message="no values to be deleted", cou_code=NULL))
-  conn <- poolCheckout(pool)
   cou_code = dbGetQuery(conn,paste0("SELECT ser_cou_code FROM datawg.t_series_ser WHERE ser_nameshort='",
                                     deleted_values_table$ser_nameshort[1],"';"))$ser_cou_code  
   
@@ -2006,18 +2005,12 @@ delete_dataseries <- function(path) {
   dbExecute(conn,"drop table if exists deleted_dataseries_temp ")
   dbWriteTable(conn,"deleted_dataseries_temp",deleted_values_table, row.names=FALSE,temporary=TRUE)
   if (sum(!is.na(deleted_values_table$das_id)) == 0)
-    return(list(message="no values to be deleted", cou_code=NULL))
+    return(list(datadb = data.frame(), message="no values to be deleted", cou_code=NULL))
   query=paste("update datawg.t_dataseries_das set das_qal_id=",qualify_code ,"WHERE das_id IN 
-					(SELECT das_id FROM deleted_dataseries_temp) RETURNING das_id ")
+					(SELECT das_id FROM deleted_dataseries_temp) RETURNING datawg.t_dataseries_das.* ")
   message <- NULL
-  nr <- tryCatch({
-    res <- dbGetQuery(conn, query)
-  }, error = function(e) {
-    message <<- e
-  }, finally = {
-    dbExecute(conn,"drop table if exists deleted_dataseries_temp;")
-    poolReturn(conn)
-  })
+  res <- dbGetQuery(conn, query)
+  dbExecute(conn,"drop table if exists deleted_dataseries_temp;")
   
   if (is.null(message))   
     if (! all(deleted_values_table$das_id %in% res$das_id)) {
@@ -2026,7 +2019,7 @@ delete_dataseries <- function(path) {
     } else {		
       message <- paste(nrow(deleted_values_table),"values deleted from the db")
     }
-  return(list(message = message, cou_code = cou_code))
+  return(list(datadb = res, message = message, cou_code = cou_code))
 }
 
 #path<-"C:\\Users\\cedric.briand\\Downloads\\modified_dataseries_2020-08-24_FR.xlsx"

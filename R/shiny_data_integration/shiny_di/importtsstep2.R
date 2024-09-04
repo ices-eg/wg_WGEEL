@@ -22,23 +22,8 @@ importtsstep2UI <- function(id){
                                h2("step 2.1.2 Update modified series"),
                                dataWriterModuleUI(ns("integrateupdatedseries"), "xls updated series, do this first and re-run compare")),
                       tabPanel("DATASERIES", value="DATASERIES",
-                                           h2("step 2.2.1 Delete from data"),
-                                           fluidRow(
-                                             column(
-                                               width=4,
-                                               fileInput(ns("xl_deleted_dataseries"), "Once the series are deleted please re-run the integration",
-                                                         multiple=FALSE,
-                                                         accept = c(".xls",".xlsx"))
-                                             ),
-                                             column(
-                                               width=2,
-                                               actionButton(ns("delete_dataseries_button"), "Proceed")
-                                             ),
-                                             column(
-                                               width=6,
-                                               verbatimTextOutput(ns("textoutput_step2.2.1_ts"))
-                                             )
-                                           ),
+                               h2("step 2.2.1 Delete from data"),
+                               dataWriterModuleUI(ns("deletedataseries"), "Once the series are deleted please re-run the integration"),
                                            h2("step 2.2.2 Integrate new data"),
                                            dataWriterModuleUI(ns("integratenewdas"), "Once the series are updated, integrate new dataseries"),
                                            h2("step 2.2.3 Update modified data"),
@@ -120,44 +105,9 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts,globaltspanel){
                  dataWriterModuleServer("integrateupdatedseries", loaded_data_ts,globaldata,  update_series, "update series")
 
                  # 2.2.1 deleted dataseries  --------------------------------------------------------							
+                 dataWriterModuleServer("deletedataseries", loaded_data_ts,globaldata,  delete_dataseries, "deleted dataseries", delete=TRUE)
                  
-                 observeEvent(input$delete_dataseries_button, shinyCatch({
-                   
-                   step2.2.1_filepath_deleted_dataseries <- reactive({
-                     inFile <- isolate(input$xl_deleted_dataseries)     
-                     if (is.null(inFile)){        return(NULL)
-                     } else {
-                       data$path_step_2.2.1_deleted_dataseries <- inFile$datapath #path to a temp file             
-                     }
-                   })
-                   
-                   step2.2.1_load_data <- function() {
-                     path <- isolate(step2.2.1_filepath_deleted_dataseries())
-                     if (is.null(data$path_step_2.2.1_deleted_dataseries)) 
-                       return(NULL)
-                     rls <- delete_dataseries(path)
-                     message <- rls$message
-                     cou_code <- rls$cou_code
-                     main_assessor <- input$main_assessor
-                     secondary_assessor <- input$secondary_assessor
-                     file_type <- loaded_data_ts$file_type
-                     log_datacall("deleted dataseries", cou_code = cou_code, message = sQuote(message), 
-                                  file_type = file_type, main_assessor = globaldata$main_assessor, 
-                                  secondary_assessor = globaldata$secondary_assessor)
-                     return(message)
-                   }
-                   
-                   output$textoutput_step2.2.1_ts <- renderText({
-                     validate(need(globaldata$connectOK,"No connection"))
-                     # call to  function that loads data
-                     # this function does not need to be reactive
-                     message <- step2.2.1_load_data()
-                     if (is.null(data$path_step_2.2.1_deleted_dataseries)) "please select a dataset" else {                                      
-                       paste(message,collapse="\n")
-                     }                  
-                   })  
-                 }), ignoreInit = TRUE)	
-                 
+
                  # 2.2.2 new dataseries  --------------------------------------------------------							
                  
                  dataWriterModuleServer("integratenewdas", loaded_data_ts,globaldata,  write_new_dataseries,"new dataseries integration")
