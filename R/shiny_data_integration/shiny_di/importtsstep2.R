@@ -100,10 +100,10 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts,globaltspanel){
                  
                  
                  
-                 dataWriterModuleServer("integratenewseries", loaded_data_ts,globaldata,  write_new_series,"new series integration")
                  
                  # 2.1.1 new series  --------------------------------------------------------
                  
+                 dataWriterModuleServer("integratenewseries", loaded_data_ts,globaldata,  write_new_series,"new series integration")
                  	
                  
                  # 2.1.2 updated series  --------------------------------------------------------
